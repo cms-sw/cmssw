@@ -27,8 +27,8 @@
 //                Based on code by Nick Wisniewski (nw@its.caltech.edu)
 //                and a framework by Darin Acosta (acosta@phys.ufl.edu).
 //
-//   $Date: 2010/05/05 13:37:49 $
-//   $Revision: 1.30 $
+//   $Date: 2010/08/03 13:25:53 $
+//   $Revision: 1.31 $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
@@ -160,10 +160,27 @@ void CSCMotherboard::clear() {
 }
 
 // Set configuration parameters obtained via EventSetup mechanism.
-void CSCMotherboard::setConfigParameters(const CSCL1TPParameters* conf) {
+void CSCMotherboard::setConfigParameters(const CSCDBL1TPParameters* conf) {
+  static bool config_dumped = false;
+
+  // Config. parameters for the TMB itself.
+  mpc_block_me1a         = conf->tmbMpcBlockMe1a();
+  alct_trig_enable       = conf->tmbAlctTrigEnable();
+  clct_trig_enable       = conf->tmbClctTrigEnable();
+  match_trig_enable      = conf->tmbMatchTrigEnable();
+  match_trig_window_size = conf->tmbMatchTrigWindowSize();
+  tmb_l1a_window_size    = conf->tmbTmbL1aWindowSize();
+
+  // Config. paramteres for ALCT and CLCT processors.
   alct->setConfigParameters(conf);
   clct->setConfigParameters(conf);
-  // No config. parameters in DB for the TMB itself yet.
+
+  // Check and print configuration parameters.
+  checkConfigParameters();
+  if (!config_dumped) {
+    dumpConfigParams();
+    config_dumped = true;
+  }
 }
 
 void CSCMotherboard::checkConfigParameters() {
