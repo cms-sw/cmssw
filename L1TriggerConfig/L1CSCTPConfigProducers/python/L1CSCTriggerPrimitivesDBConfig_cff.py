@@ -14,9 +14,9 @@ l1csctpdbconfsrc = cms.ESSource("PoolDBESSource",
     #connect = cms.string('sqlite_file:DBL1TPParameters.db'),
     toGet = cms.VPSet(
         cms.PSet(
-            record = cms.string('CSCL1TPParametersRcd'),
+            record = cms.string('CSCDBL1TPParametersRcd'),
             #tag = cms.string('CSCL1TPParameters')
-            tag = cms.string('CSCL1TPParameters_hlt')
+            tag = cms.string('CSCDBL1TPParameters_hlt')
             #tag = cms.string('CSCL1TPParameters_mc')
         )
     )
