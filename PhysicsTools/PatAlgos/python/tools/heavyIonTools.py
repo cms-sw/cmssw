@@ -89,6 +89,13 @@ class ProductionDefaults(ConfigToolBase):
         muonMatch.matched = cms.InputTag("hiGenParticles")
         patMuons  = getattr(process, 'patMuons')
         patMuons.embedGenMatch = cms.bool(True)
+        process.patMuons.embedCaloMETMuonCorrs = cms.bool(False)
+        process.patMuons.embedTcMETMuonCorrs   = cms.bool(False)
+        process.patMuons.embedPFCandidate   = cms.bool(False)
+        process.patMuons.useParticleFlow    = cms.bool(False)
+        process.patMuons.addEfficiencies    = cms.bool(False)
+        process.patMuons.addResolutions     = cms.bool(False)
+        process.patMuons.pvSrc = cms.InputTag("hiSelectedVertex")
         
         ## adapt photon defaults
         photonMatch = getattr(process, 'photonMatch')
