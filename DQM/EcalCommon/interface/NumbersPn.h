@@ -1,3 +1,12 @@
+// $Id: NumbersPn.h,v 1.72 2010/03/09 09:01:50 dellaric Exp $
+
+/*!
+  \file NumbersPn.h
+  \brief Some "id" conversions
+  \version $Revision: 1.72 $
+  \date $Date: 2010/03/09 09:01:50 $
+*/
+
 #ifndef NUMBERSPN_H
 #define NUMBERSPN_H
 

@@ -1,3 +1,12 @@
+// $Id: NumbersPn.cc,v 1.72 2010/03/09 09:01:50 dellaric Exp $
+
+/*!
+  \file NumbersPn.cc
+  \brief Some "id" conversions
+  \version $Revision: 1.72 $
+  \date $Date: 2010/03/09 09:01:50 $
+*/
+
 #include <sstream>
 #include <iomanip>
 
