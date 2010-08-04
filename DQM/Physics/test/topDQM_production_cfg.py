@@ -8,8 +8,8 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 ## global tag (needed for JEC)
-#process.GlobalTag.globaltag = 'GR10_P_V5::All' ## for data with CMSSW_3_6_1_patch4
-process.GlobalTag.globaltag = 'START38_V7::All' ## for CMSSW_3_8_0
+process.GlobalTag.globaltag = 'GR10_P_V7::All' ## for data with CMSSW_3_6_1_patch4
+#process.GlobalTag.globaltag = 'START38_V7::All' ## for CMSSW_3_8_0
 
 
 ## input file(s) for testing
@@ -55,8 +55,12 @@ process.MessageLogger.cerr.TopDiLeptonOfflineDQM = cms.untracked.PSet(limit = cm
 ## path definitions
 process.p      = cms.Path(
    #process.content *
-    process.topDiLeptonOfflineDQM +
-    process.topSingleLeptonDQM
+    process.topDiLeptonOfflineDQM      +
+    process.topSingleLeptonDQM         +
+    process.topSingleMuonLooseDQM      +    
+    process.topSingleMuonMediumDQM     +
+    process.topSingleElectronLooseDQM  +    
+    process.topSingleElectronMediumDQM
 )
 process.endjob = cms.Path(
     process.endOfProcess
