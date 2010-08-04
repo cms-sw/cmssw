@@ -1,11 +1,11 @@
-// $Id: LogicID.h,v 1.9 2008/03/16 10:35:17 dellaric Exp $
+// $Id: LogicID.h,v 1.10 2010/08/04 19:10:25 dellaric Exp $
 
 /*!
   \file LogicID.h
   \brief Cache logicID vector from database
   \author B. Gobbo 
-  \version $Revision: 1.9 $
-  \date $Date: 2008/03/16 10:35:17 $
+  \version $Revision: 1.10 $
+  \date $Date: 2010/08/04 19:10:25 $
 */
 
 #ifndef LogicID_H
@@ -113,9 +113,11 @@ static EcalLogicID getEcalLogicID( const char* name,
   throw( std::runtime_error( "Unknown 'name': " + std::string( name ) ) );
   return( EcalLogicID( std::string( "" ), EcalLogicID::NULLID ) );
 
-};
+}
 
  protected:
   LogicID() {}
+
+};
 
 #endif // LogicID_H
