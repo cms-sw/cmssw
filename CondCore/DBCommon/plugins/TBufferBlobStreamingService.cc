@@ -121,7 +121,7 @@ boost::shared_ptr<coral::Blob> cond::TBufferBlobStreamingService::write( const v
   boost::shared_ptr<coral::Blob> theBlob( new coral::Blob );
   theBlob->resize(1024);
   
-  TBufferFile buffer(TBufferFile::kWrite, theBlob->size(), theBlob->startingAddress(), kFalse, boost::bind(theBlob,_1,_2,_3));
+  TBufferFile buffer(TBufferFile::kWrite, theBlob->size(), theBlob->startingAddress(), kFALSE, boost::bind(reallocInBlob, theBlob,_1,_2,_3));
   buffer.InitMap();
   
   if (theType.m_arraySize && !theType.m_class)
