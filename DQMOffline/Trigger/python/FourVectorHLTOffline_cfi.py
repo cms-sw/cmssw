@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: FourVectorHLTOffline_cfi.py,v 1.35 2010/06/01 11:37:12 rekovic Exp $
+# $Id: FourVectorHLTOffline_cfi.py,v 1.36 2010/06/22 18:33:13 rekovic Exp $
 hltResults = cms.EDAnalyzer("FourVectorHLTOffline",
     dirname = cms.untracked.string("HLT/FourVector/paths"),
     muonRecoCollectionName = cms.untracked.string("muons"),
@@ -55,51 +55,51 @@ hltResults = cms.EDAnalyzer("FourVectorHLTOffline",
              ),
              cms.PSet(
               pathname = cms.string("EG"),
-              denompathname = cms.string("Mu")  
+              denompathname = cms.string("HLT_Mu")  
              ),
              cms.PSet(
               pathname = cms.string("EG"),
-              denompathname = cms.string("HLT_Mu3")  
+              denompathname = cms.string("HLT_Mu5")  
              ),
              cms.PSet(
               pathname = cms.string("Jet"),
-              denompathname = cms.string("Mu")  
+              denompathname = cms.string("HLT_Mu")  
              ),
              cms.PSet(
               pathname = cms.string("Jet"),
-              denompathname = cms.string("HLT_Mu3")  
+              denompathname = cms.string("HLT_Mu5")  
              ),
              cms.PSet(
               pathname = cms.string("Ele"),
-              denompathname = cms.string("Mu")  
+              denompathname = cms.string("HLT_Mu")  
              ),
              cms.PSet(
               pathname = cms.string("Ele"),
-              denompathname = cms.string("HLT_Mu3")  
+              denompathname = cms.string("HLT_Mu5")  
              ),
              cms.PSet(
               pathname = cms.string("Pho"),
-              denompathname = cms.string("Mu")  
+              denompathname = cms.string("HLT_Mu")  
              ),
              cms.PSet(
               pathname = cms.string("Pho"),
-              denompathname = cms.string("HLT_Mu3")  
+              denompathname = cms.string("HLT_Mu5")  
              ),
              cms.PSet(
               pathname = cms.string("Tau"),
-              denompathname = cms.string("Mu")  
+              denompathname = cms.string("HLT_Mu5")  
              ),
              cms.PSet(
               pathname = cms.string("MET"),
-              denompathname = cms.string("Mu")  
+              denompathname = cms.string("HLT_Mu5")  
              ),
              cms.PSet(
               pathname = cms.string("Mu"),
-              denompathname = cms.string("Jet")  
+              denompathname = cms.string("HLT_Jet")  
              ),
              cms.PSet(
               pathname = cms.string("Mu"),
-              denompathname = cms.string("Jet15U")  
+              denompathname = cms.string("HLT_Jet50U")  
              )
     ),
     JetIDParams  = cms.PSet(
