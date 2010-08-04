@@ -19,8 +19,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2010/04/23 21:06:07 $
-//   $Revision: 1.41 $
+//   $Date: 2010/08/04 10:21:20 $
+//   $Revision: 1.42 $
 //
 //   Modifications: 
 //
@@ -31,7 +31,6 @@
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
-#include <FWCore/Utilities/interface/Exception.h>
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
@@ -387,7 +386,7 @@ void CSCCathodeLCTProcessor::checkConfigParameters() {
 
   // Checks.
   if (fifo_tbins >= max_fifo_tbins) {
-    if (infoV > 0) edm::LogError("CSCCathodeLCTProcessor")
+    if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
       << "+++ Value of fifo_tbins, " << fifo_tbins
       << ", exceeds max allowed, " << max_fifo_tbins-1 << " +++\n"
       << "+++ Try to proceed with the default value, fifo_tbins="
@@ -395,7 +394,7 @@ void CSCCathodeLCTProcessor::checkConfigParameters() {
     fifo_tbins = def_fifo_tbins;
   }
   if (fifo_pretrig >= max_fifo_pretrig) {
-    if (infoV > 0) edm::LogError("CSCCathodeLCTProcessor")
+    if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
       << "+++ Value of fifo_pretrig, " << fifo_pretrig
       << ", exceeds max allowed, " << max_fifo_pretrig-1 << " +++\n"
       << "+++ Try to proceed with the default value, fifo_pretrig="
@@ -403,7 +402,7 @@ void CSCCathodeLCTProcessor::checkConfigParameters() {
     fifo_pretrig = def_fifo_pretrig;
   }
   if (hit_persist >= max_hit_persist) {
-    if (infoV > 0) edm::LogError("CSCCathodeLCTProcessor")
+    if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
       << "+++ Value of hit_persist, " << hit_persist
       << ", exceeds max allowed, " << max_hit_persist-1 << " +++\n"
       << "+++ Try to proceed with the default value, hit_persist="
@@ -411,7 +410,7 @@ void CSCCathodeLCTProcessor::checkConfigParameters() {
     hit_persist = def_hit_persist;
   }
   if (drift_delay >= max_drift_delay) {
-    if (infoV > 0) edm::LogError("CSCCathodeLCTProcessor")
+    if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
       << "+++ Value of drift_delay, " << drift_delay
       << ", exceeds max allowed, " << max_drift_delay-1 << " +++\n"
       << "+++ Try to proceed with the default value, drift_delay="
@@ -419,7 +418,7 @@ void CSCCathodeLCTProcessor::checkConfigParameters() {
     drift_delay = def_drift_delay;
   }
   if (nplanes_hit_pretrig >= max_nplanes_hit_pretrig) {
-    if (infoV > 0) edm::LogError("CSCCathodeLCTProcessor")
+    if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
       << "+++ Value of nplanes_hit_pretrig, " << nplanes_hit_pretrig
       << ", exceeds max allowed, " << max_nplanes_hit_pretrig-1 << " +++\n"
       << "+++ Try to proceed with the default value, nplanes_hit_pretrig="
@@ -427,7 +426,7 @@ void CSCCathodeLCTProcessor::checkConfigParameters() {
     nplanes_hit_pretrig = def_nplanes_hit_pretrig;
   }
   if (nplanes_hit_pattern >= max_nplanes_hit_pattern) {
-    if (infoV > 0) edm::LogError("CSCCathodeLCTProcessor")
+    if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
       << "+++ Value of nplanes_hit_pattern, " << nplanes_hit_pattern
       << ", exceeds max allowed, " << max_nplanes_hit_pattern-1 << " +++\n"
       << "+++ Try to proceed with the default value, nplanes_hit_pattern="
@@ -437,7 +436,7 @@ void CSCCathodeLCTProcessor::checkConfigParameters() {
 
   if (isTMB07) {
     if (pid_thresh_pretrig >= max_pid_thresh_pretrig) {
-      if (infoV > 0) edm::LogError("CSCCathodeLCTProcessor")
+      if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
 	<< "+++ Value of pid_thresh_pretrig, " << pid_thresh_pretrig
 	<< ", exceeds max allowed, " << max_pid_thresh_pretrig-1 << " +++\n"
 	<< "+++ Try to proceed with the default value, pid_thresh_pretrig="
@@ -445,7 +444,7 @@ void CSCCathodeLCTProcessor::checkConfigParameters() {
       pid_thresh_pretrig = def_pid_thresh_pretrig;
     }
     if (min_separation >= max_min_separation) {
-      if (infoV > 0) edm::LogError("CSCCathodeLCTProcessor")
+      if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
 	<< "+++ Value of min_separation, " << min_separation
 	<< ", exceeds max allowed, " << max_min_separation-1 << " +++\n"
 	<< "+++ Try to proceed with the default value, min_separation="
@@ -491,7 +490,7 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
       }
 
       if (numStrips > CSCConstants::MAX_NUM_STRIPS) {
-	if (infoV > 0) edm::LogError("CSCCathodeLCTProcessor")
+	if (infoV >= 0) edm::LogError("L1CSCTPEmulatorSetupError")
 	  << "+++ Number of strips, " << numStrips
 	  << " found in ME" << ((theEndcap == 1) ? "+" : "-")
 	  << theStation << "/"
@@ -525,7 +524,7 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
       }
     }
     else {
-      if (infoV > 0) edm::LogError("CSCCathodeLCTProcessor")
+      if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
 	<< " ME" << ((theEndcap == 1) ? "+" : "-") << theStation << "/"
 	<< CSCTriggerNumbering::ringFromTriggerLabels(theStation,
 						      theTrigChamber) << "/"
@@ -540,7 +539,7 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
   }
 
   if (numStrips < 0) {
-    if (infoV > 0) edm::LogError("CSCCathodeLCTProcessor")
+    if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
       << " ME" << ((theEndcap == 1) ? "+" : "-") << theStation << "/"
       << CSCTriggerNumbering::ringFromTriggerLabels(theStation,
 						    theTrigChamber) << "/"
@@ -625,7 +624,7 @@ void CSCCathodeLCTProcessor::run(
        plct != LCTlist.end(); plct++) {
     int bx = plct->getBX();
     if (bx >= MAX_CLCT_BINS) {
-      if (infoV > 0) edm::LogWarning("CSCCathodeLCTProcessor")
+      if (infoV > 0) edm::LogWarning("L1CSCTPEmulatorOutOfTimeCLCT")
 	<< "+++ Bx of CLCT candidate, " << bx << ", exceeds max allowed, "
 	<< MAX_CLCT_BINS-1 << "; skipping it... +++\n";
       continue;
@@ -754,7 +753,7 @@ void CSCCathodeLCTProcessor::readComparatorDigis(
       // that fired.
       int thisComparator = pld->getComparator();
       if (thisComparator != 0 && thisComparator != 1) {
-	if (infoV > 0) edm::LogWarning("CSCCathodeLCTProcessor")
+	if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongInput")
 	  << "+++ Found comparator digi with wrong comparator value = "
 	  << thisComparator << "; skipping it... +++\n";
 	continue;
@@ -763,7 +762,7 @@ void CSCCathodeLCTProcessor::readComparatorDigis(
       // Get strip number.
       int thisStrip = pld->getStrip() - 1; // count from 0
       if (thisStrip < 0 || thisStrip >= numStrips) {
-	if (infoV > 0) edm::LogWarning("CSCCathodeLCTProcessor")
+	if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongInput")
 	  << "+++ Found comparator digi with wrong strip number = "
 	  << thisStrip
 	  << " (max strips = " << numStrips << "); skipping it... +++\n";
@@ -774,7 +773,7 @@ void CSCCathodeLCTProcessor::readComparatorDigis(
       // stagger: stagger for this layer
       int thisHalfstrip = 2*thisStrip + thisComparator + stagger[i_layer];
       if (thisHalfstrip >= 2*numStrips + 1) {
-	if (infoV > 0) edm::LogWarning("CSCCathodeLCTProcessor")
+	if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongInput")
 	  << "+++ Found wrong halfstrip number = " << thisHalfstrip
 	  << "; skipping this digi... +++\n";
 	continue;
@@ -860,7 +859,7 @@ void CSCCathodeLCTProcessor::readComparatorDigis(
       // that fired.
       int thisComparator = thisDigi.getComparator();
       if (thisComparator != 0 && thisComparator != 1) {
-	if (infoV > 0) edm::LogWarning("CSCCathodeLCTProcessor")
+	if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongInput")
 	  << "+++ Comparator digi with wrong comparator value: digi #" << j
 	  << ", comparator = " << thisComparator << "; skipping it... +++\n";
 	continue;
@@ -869,7 +868,7 @@ void CSCCathodeLCTProcessor::readComparatorDigis(
       // Get strip number.
       int thisStrip = thisDigi.getStrip() - 1; // count from 0
       if (thisStrip < 0 || thisStrip >= numStrips) {
-	if (infoV > 0) edm::LogWarning("CSCCathodeLCTProcessor")
+	if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongInput")
 	  << "+++ Comparator digi with wrong strip number: digi #" << j
 	  << ", strip = " << thisStrip
 	  << ", max strips = " << numStrips << "; skipping it... +++\n";
@@ -926,7 +925,7 @@ void CSCCathodeLCTProcessor::readComparatorDigis(
 	// comp   : comparator output
 	// stagger: stagger for this layer
 	if (i_halfstrip >= 2*numStrips + 1) {
-	  if (infoV > 0) edm::LogWarning("CSCCathodeLCTProcessor")
+	  if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongInput")
 	    << "+++ Found wrong halfstrip number = " << i_halfstrip
 	    << "; skipping this digi... +++\n";
 	  continue;
@@ -960,7 +959,7 @@ void CSCCathodeLCTProcessor::readComparatorDigis(
 	    test_iteration++;
 	  }
 	  if (i_distrip >= numStrips/2 + 1) {
-	    if (infoV > 0) edm::LogWarning("CSCCathodeLCTProcessor")
+	    if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongInput")
 	      << "+++ Found wrong distrip number = " << i_distrip
 	      << "; skipping this digi... +++\n";
 	    continue;
@@ -992,7 +991,7 @@ void CSCCathodeLCTProcessor::distripStagger(int stag_triad[CSCConstants::MAX_NUM
   // Used only for pre-TMB07 firmware.
 
   if (i_strip >= CSCConstants::MAX_NUM_STRIPS) {
-    if (debug) edm::LogWarning("CSCCathodeLCTProcessor")
+    if (debug) edm::LogWarning("L1CSCTPEmulatorWrongInput")
       << "+++ Found wrong strip number = " << i_strip
       << "; cannot apply distrip staggering... +++\n";
     return;
@@ -1524,7 +1523,7 @@ bool CSCCathodeLCTProcessor::preTrigLookUp(
   const int pre_trigger_layer_min = (stripType == 1) ? hs_thresh : ds_thresh;
 
   if (stripType != 0 && stripType != 1) {
-    if (infoV > 0) edm::LogWarning("CSCCathodeLCTProcessor")
+    if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongInput")
       << "+++ preTrigLookUp: stripType = " << stripType
       << " does not correspond to half-strip/di-strip patterns! +++\n";
     return false;
@@ -1584,7 +1583,7 @@ void CSCCathodeLCTProcessor::latchLCTs(
   }
 
   if (stripType != 0 && stripType != 1) {
-    if (infoV > 0) edm::LogWarning("CSCCathodeLCTProcessor")
+    if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongInput")
       << "+++ latchLCTs: stripType = " << stripType
       << " does not correspond to half-strip/di-strip patterns! +++\n";
     return;
@@ -2179,7 +2178,7 @@ void CSCCathodeLCTProcessor::pulseExtension(
 	for (unsigned int i = 0; i < bx_times.size(); i++) {
 	  // Check that min and max times are within the allowed range.
 	  if (bx_times[i] < 0 || bx_times[i] + hit_persist >= bits_in_pulse) {
-	    if (infoV > 0) edm::LogWarning("CSCCathodeLCTProcessor")
+	    if (infoV > 0) edm::LogWarning("L1CSCTPEmulatorOutOfTimeDigi")
 	      << "+++ BX time of comparator digi (halfstrip = " << i_strip
 	      << " layer = " << i_layer << ") bx = " << bx_times[i]
 	      << " is not within the range (0-" << bits_in_pulse
@@ -2431,14 +2430,14 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::readoutCLCTs() {
 
   static int ifois = 0;
   if (ifois == 0) {
-    if (infoV > 0 && early_tbins < 0) {
-      edm::LogWarning("CSCCathodeLCTProcessor")
+    if (infoV >= 0 && early_tbins < 0) {
+      edm::LogWarning("L1CSCTPEmulatorSuspiciousParameters")
 	<< "+++ early_tbins = " << early_tbins
 	<< "; in-time CLCTs are not getting read-out!!! +++" << "\n";
     }
 
     if (late_tbins > MAX_CLCT_BINS-1) {
-      if (infoV > 0) edm::LogWarning("CSCCathodeLCTProcessor")
+      if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorSuspiciousParameters")
 	<< "+++ Allowed range of time bins, [0-" << late_tbins
 	<< "] exceeds max allowed, " << MAX_CLCT_BINS-1 << " +++\n"
 	<< "+++ Set late_tbins to max allowed +++\n";
@@ -2560,28 +2559,28 @@ void CSCCathodeLCTProcessor::testLCTs() {
 		CSCCLCTDigi thisLCT(1, quality, ptn, stripType, bend,
 				    key_strip, cfeb, bx);
 		if (ptn != thisLCT.getPattern())
-		  edm::LogWarning("CSCCathodeLCTProcessor")
+		  LogTrace("CSCCathodeLCTProcessor")
 		    << "pattern mismatch: " << ptn << " "
 		    << thisLCT.getPattern();
 		if (bend != thisLCT.getBend())
-		  edm::LogWarning("CSCCathodeLCTProcessor")
+		  LogTrace("CSCCathodeLCTProcessor")
 		    << "bend mismatch: " << bend << " " << thisLCT.getBend();
 		if (cfeb != thisLCT.getCFEB()) 
-		  edm::LogWarning("CSCCathodeLCTProcessor")
+		  LogTrace("CSCCathodeLCTProcessor")
 		    << "cfeb mismatch: " << cfeb << " " << thisLCT.getCFEB();
 		if (key_strip != thisLCT.getKeyStrip())
-		  edm::LogWarning("CSCCathodeLCTProcessor")
+		  LogTrace("CSCCathodeLCTProcessor")
 		    << "strip mismatch: " << key_strip << " "
 		    << thisLCT.getKeyStrip();
 		if (bx != thisLCT.getBX())
-		  edm::LogWarning("CSCCathodeLCTProcessor")
+		  LogTrace("CSCCathodeLCTProcessor")
 		    << "bx mismatch: " << bx << " " << thisLCT.getBX();
 		if (stripType != thisLCT.getStripType())
-		  edm::LogWarning("CSCCathodeLCTProcessor")
+		  LogTrace("CSCCathodeLCTProcessor")
 		    << "Strip Type mismatch: " << stripType << " "
 		    << thisLCT.getStripType();
 		if (quality != thisLCT.getQuality())
-		  edm::LogWarning("CSCCathodeLCTProcessor")
+		  LogTrace("CSCCathodeLCTProcessor")
 		    << "quality mismatch: " << quality << " "
 		    << thisLCT.getQuality();
 	      }

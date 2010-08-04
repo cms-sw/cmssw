@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2010/08/03 13:22:58 $
-//   $Revision: 1.40 $
+//   $Date: 2010/08/04 10:21:20 $
+//   $Revision: 1.41 $
 //
 //   Modifications: 
 //
@@ -32,7 +32,6 @@
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
-#include <FWCore/Utilities/interface/Exception.h>
 
 //-----------------
 // Static variables
@@ -283,7 +282,7 @@ void CSCAnodeLCTProcessor::checkConfigParameters() {
 
   // Checks.
   if (fifo_tbins >= max_fifo_tbins) {
-    if (infoV > 0) edm::LogError("CSCAnodeLCTProcessor")
+    if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
       << "+++ Value of fifo_tbins, " << fifo_tbins
       << ", exceeds max allowed, " << max_fifo_tbins-1 << " +++\n"
       << "+++ Try to proceed with the default value, fifo_tbins="
@@ -291,7 +290,7 @@ void CSCAnodeLCTProcessor::checkConfigParameters() {
     fifo_tbins = def_fifo_tbins;
   }
   if (fifo_pretrig >= max_fifo_pretrig) {
-    if (infoV > 0) edm::LogError("CSCAnodeLCTProcessor")
+    if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
       << "+++ Value of fifo_pretrig, " << fifo_pretrig
       << ", exceeds max allowed, " << max_fifo_pretrig-1 << " +++\n"
       << "+++ Try to proceed with the default value, fifo_pretrig="
@@ -299,7 +298,7 @@ void CSCAnodeLCTProcessor::checkConfigParameters() {
     fifo_pretrig = def_fifo_pretrig;
   }
   if (drift_delay >= max_drift_delay) {
-    if (infoV > 0) edm::LogError("CSCAnodeLCTProcessor")
+    if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
       << "+++ Value of drift_delay, " << drift_delay
       << ", exceeds max allowed, " << max_drift_delay-1 << " +++\n"
       << "+++ Try to proceed with the default value, drift_delay="
@@ -307,7 +306,7 @@ void CSCAnodeLCTProcessor::checkConfigParameters() {
     drift_delay = def_drift_delay;
   }
   if (nplanes_hit_pretrig >= max_nplanes_hit_pretrig) {
-    if (infoV > 0) edm::LogError("CSCAnodeLCTProcessor")
+    if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
       << "+++ Value of nplanes_hit_pretrig, " << nplanes_hit_pretrig
       << ", exceeds max allowed, " << max_nplanes_hit_pretrig-1 << " +++\n"
       << "+++ Try to proceed with the default value, nplanes_hit_pretrig="
@@ -315,7 +314,7 @@ void CSCAnodeLCTProcessor::checkConfigParameters() {
     nplanes_hit_pretrig = def_nplanes_hit_pretrig;
   }
   if (nplanes_hit_pattern >= max_nplanes_hit_pattern) {
-    if (infoV > 0) edm::LogError("CSCAnodeLCTProcessor")
+    if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
       << "+++ Value of nplanes_hit_pattern, " << nplanes_hit_pattern
       << ", exceeds max allowed, " << max_nplanes_hit_pattern-1 << " +++\n"
       << "+++ Try to proceed with the default value, nplanes_hit_pattern="
@@ -323,7 +322,7 @@ void CSCAnodeLCTProcessor::checkConfigParameters() {
     nplanes_hit_pattern = def_nplanes_hit_pattern;
   }
   if (nplanes_hit_accel_pretrig >= max_nplanes_hit_accel_pretrig) {
-    if (infoV > 0) edm::LogError("CSCAnodeLCTProcessor")
+    if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
       << "+++ Value of nplanes_hit_accel_pretrig, "
       << nplanes_hit_accel_pretrig << ", exceeds max allowed, "
       << max_nplanes_hit_accel_pretrig-1 << " +++\n"
@@ -332,7 +331,7 @@ void CSCAnodeLCTProcessor::checkConfigParameters() {
     nplanes_hit_accel_pretrig = def_nplanes_hit_accel_pretrig;
   }
   if (nplanes_hit_accel_pattern >= max_nplanes_hit_accel_pattern) {
-    if (infoV > 0) edm::LogError("CSCAnodeLCTProcessor")
+    if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
       << "+++ Value of nplanes_hit_accel_pattern, "
       << nplanes_hit_accel_pattern << ", exceeds max allowed, "
       << max_nplanes_hit_accel_pattern-1 << " +++\n"
@@ -341,7 +340,7 @@ void CSCAnodeLCTProcessor::checkConfigParameters() {
     nplanes_hit_accel_pattern = def_nplanes_hit_accel_pattern;
   }
   if (trig_mode >= max_trig_mode) {
-    if (infoV > 0) edm::LogError("CSCAnodeLCTProcessor")
+    if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
       << "+++ Value of trig_mode, " << trig_mode
       << ", exceeds max allowed, " << max_trig_mode-1 << " +++\n"
       << "+++ Try to proceed with the default value, trig_mode="
@@ -349,7 +348,7 @@ void CSCAnodeLCTProcessor::checkConfigParameters() {
     trig_mode = def_trig_mode;
   }
   if (accel_mode >= max_accel_mode) {
-    if (infoV > 0) edm::LogError("CSCAnodeLCTProcessor")
+    if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
       << "+++ Value of accel_mode, " << accel_mode
       << ", exceeds max allowed, " << max_accel_mode-1 << " +++\n"
       << "+++ Try to proceed with the default value, accel_mode="
@@ -357,7 +356,7 @@ void CSCAnodeLCTProcessor::checkConfigParameters() {
     accel_mode = def_accel_mode;
   }
   if (l1a_window_width >= max_l1a_window_width) {
-    if (infoV > 0) edm::LogError("CSCAnodeLCTProcessor")
+    if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
       << "+++ Value of l1a_window_width, " << l1a_window_width
       << ", exceeds max allowed, " << max_l1a_window_width-1 << " +++\n"
       << "+++ Try to proceed with the default value, l1a_window_width="
@@ -398,7 +397,7 @@ CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* wiredc) {
     if (theChamber) {
       numWireGroups = theChamber->layer(1)->geometry()->numberOfWireGroups();
       if (numWireGroups > CSCConstants::MAX_NUM_WIRES) {
-	if (infoV > 0) edm::LogError("CSCAnodeLCTProcessor")
+	if (infoV >= 0) edm::LogError("L1CSCTPEmulatorSetupError")
 	  << "+++ Number of wire groups, " << numWireGroups
 	  << " found in ME" << ((theEndcap == 1) ? "+" : "-")
 	  << theStation << "/"
@@ -415,7 +414,7 @@ CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* wiredc) {
       }
     }
     else {
-      if (infoV > 0) edm::LogError("CSCAnodeLCTProcessor")
+      if (infoV >= 0) edm::LogError("L1CSCTPEmulatorSetupError")
 	<< "+++ ME" << ((theEndcap == 1) ? "+" : "-") << theStation << "/"
 	<< CSCTriggerNumbering::ringFromTriggerLabels(theStation,
 						      theTrigChamber) << "/"
@@ -430,7 +429,7 @@ CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* wiredc) {
   }
 
   if (numWireGroups < 0) {
-    if (infoV > 0) edm::LogError("CSCAnodeLCTProcessor")
+    if (infoV >= 0) edm::LogError("L1CSCTPEmulatorSetupError")
       << "+++ ME" << ((theEndcap == 1) ? "+" : "-") << theStation << "/"
       << CSCTriggerNumbering::ringFromTriggerLabels(theStation,
 						    theTrigChamber) << "/"
@@ -586,7 +585,7 @@ void CSCAnodeLCTProcessor::readWireDigis(std::vector<int> wire[CSCConstants::NUM
 
       // Check that the wires and times are appropriate.
       if (i_wire < 0 || i_wire >= numWireGroups) {
-	if (infoV > 0) edm::LogWarning("CSCAnodeLCTProcessor")
+	if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongInput")
 	  << "+++ Found wire digi with wrong wire number = " << i_wire
 	  << " (max wires = " << numWireGroups << "); skipping it... +++\n";
 	continue;
@@ -659,7 +658,7 @@ bool CSCAnodeLCTProcessor::pulseExtension(const std::vector<int> wire[CSCConstan
 	for (unsigned int i = 0; i < bx_times.size(); i++) {
 	  // Check that min and max times are within the allowed range.
 	  if (bx_times[i] < 0 || bx_times[i] + hit_persist >= bits_in_pulse) {
-	    if (infoV > 0) edm::LogWarning("CSCAnodeLCTProcessor")
+	    if (infoV > 0) edm::LogWarning("L1CSCTPEmulatorOutOfTimeDigi")
 	      << "+++ BX time of wire digi (wire = " << i_wire
 	      << " layer = " << i_layer << ") bx = " << bx_times[i]
 	      << " is not within the range (0-" << bits_in_pulse
@@ -993,7 +992,7 @@ void CSCAnodeLCTProcessor::lctSearch() {
 
     int bx = plct->getBX();
     if (bx >= MAX_ALCT_BINS) {
-      if (infoV > 0) edm::LogWarning("CSCAnodeLCTProcessor")
+      if (infoV > 0) edm::LogWarning("L1CSCTPEmulatorOutOfTimeALCT")
 	<< "+++ Bx of ALCT candidate, " << bx << ", exceeds max allowed, "
 	<< MAX_ALCT_BINS-1 << "; skipping it... +++\n";
       continue;
@@ -1356,14 +1355,14 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::readoutALCTs() {
 
   static int ifois = 0;
   if (ifois == 0) {
-    if (infoV > 0 && early_tbins < 0) {
-      edm::LogWarning("CSCAnodeLCTProcessor")
+    if (infoV >= 0 && early_tbins < 0) {
+      edm::LogWarning("L1CSCTPEmulatorSuspiciousParameters")
 	<< "+++ fifo_pretrig = " << fifo_pretrig
 	<< "; in-time ALCTs are not getting read-out!!! +++" << "\n";
     }
 
     if (late_tbins > MAX_ALCT_BINS-1) {
-      if (infoV > 0) edm::LogWarning("CSCAnodeLCTProcessor")
+      if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorSuspiciousParameters")
 	<< "+++ Allowed range of time bins, [0-" << late_tbins
 	<< "] exceeds max allowed, " << MAX_ALCT_BINS-1 << " +++\n"
 	<< "+++ Set late_tbins to max allowed +++\n";

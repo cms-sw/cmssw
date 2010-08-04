@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2010/08/04 10:22:39 $
-//   $Revision: 1.39 $
+//   $Date: 2010/08/04 12:06:30 $
+//   $Revision: 1.40 $
 //
 //   Modifications:
 //
@@ -186,19 +186,19 @@ void CSCTriggerPrimitivesReader::analyze(const edm::Event& ev,
     ev.getByLabel(lctProducerData_, "MuonCSCCorrelatedLCTDigi", lcts_tmb_data);
 
     if (!alcts_data.isValid()) {
-      edm::LogWarning("CSCTriggerPrimitivesReader")
+      edm::LogWarning("L1CSCTPEmulatorWrongInput")
 	<< "+++ Warning: Collection of ALCTs with label MuonCSCALCTDigi"
 	<< " requested, but not found in the event... Skipping the rest +++\n";
       return;
     }
     if (!clcts_data.isValid()) {
-      edm::LogWarning("CSCTriggerPrimitivesReader")
+      edm::LogWarning("L1CSCTPEmulatorWrongInput")
 	<< "+++ Warning: Collection of CLCTs with label MuonCSCCLCTDigi"
 	<< " requested, but not found in the event... Skipping the rest +++\n";
       return;
     }
     if (!lcts_tmb_data.isValid()) {
-      edm::LogWarning("CSCTriggerPrimitivesReader")
+      edm::LogWarning("L1CSCTPEmulatorWrongInput")
 	<< "+++ Warning: Collection of correlated LCTs with label"
 	<< " MuonCSCCorrelatedLCTDigi requested, but not found in the"
 	<< " event... Skipping the rest +++\n";
@@ -214,25 +214,25 @@ void CSCTriggerPrimitivesReader::analyze(const edm::Event& ev,
     ev.getByLabel(lctProducerEmul_, "MPCSORTED", lcts_mpc_emul);
 
     if (!alcts_emul.isValid()) {
-      edm::LogWarning("CSCTriggerPrimitivesReader")
+      edm::LogWarning("L1CSCTPEmulatorWrongInput")
 	<< "+++ Warning: Collection of emulated ALCTs"
 	<< " requested, but not found in the event... Skipping the rest +++\n";
       return;
     }
     if (!clcts_emul.isValid()) {
-      edm::LogWarning("CSCTriggerPrimitivesReader")
+      edm::LogWarning("L1CSCTPEmulatorWrongInput")
 	<< "+++ Warning: Collection of emulated CLCTs"
 	<< " requested, but not found in the event... Skipping the rest +++\n";
       return;
     }
     if (!lcts_tmb_emul.isValid()) {
-      edm::LogWarning("CSCTriggerPrimitivesReader")
+      edm::LogWarning("L1CSCTPEmulatorWrongInput")
 	<< "+++ Warning: Collection of emulated correlated LCTs"
 	<< " requested, but not found in the event... Skipping the rest +++\n";
       return;
     }
     if (!lcts_mpc_emul.isValid()) {
-      edm::LogWarning("CSCTriggerPrimitivesReader")
+      edm::LogWarning("L1CSCTPEmulatorWrongInput")
 	<< "+++ Warning: Collection of emulated correlated LCTs (MPCs)"
 	<< " requested, but not found in the event... Skipping the rest +++\n";
       return;
@@ -1241,7 +1241,7 @@ void CSCTriggerPrimitivesReader::compareALCTs(
 	  hAlctCompFound2i->Fill(ix2,detid.chamber());
 
 	  if (ndata != nemul) {
-	    edm::LogWarning("CSCTriggerPrimitivesReader")
+	    LogTrace("CSCTriggerPrimitivesReader")
 	      << "   +++ Different numbers of ALCTs found in ME"
 	      << ((endc == 1) ? "+" : "-") << stat << "/"
 	      << ring << "/" << cham
@@ -1314,7 +1314,7 @@ void CSCTriggerPrimitivesReader::compareALCTs(
 		  << "       Identical ALCTs #" << data_trknmb;
 	      }
 	      else {
-		edm::LogWarning("CSCTriggerPrimitivesReader")
+		LogTrace("CSCTriggerPrimitivesReader")
 		  << "       Different ALCTs #" << data_trknmb << " in ME"
 		  << ((endc == 1) ? "+" : "-") << stat << "/"
 		  << ring << "/" << cham;
@@ -1406,7 +1406,7 @@ void CSCTriggerPrimitivesReader::compareCLCTs(
 	  }
 	  hClctCompFound2i->Fill(ix2,detid.chamber());
 	  if (ndata != nemul) {
-	    edm::LogWarning("CSCTriggerPrimitivesReader")
+	    LogTrace("CSCTriggerPrimitivesReader")
 	      << "   +++ Different numbers of CLCTs found in ME"
 	      << ((endc == 1) ? "+" : "-") << stat << "/"
 	      << ring << "/" << cham
@@ -1483,7 +1483,7 @@ void CSCTriggerPrimitivesReader::compareCLCTs(
 		    << "       Identical CLCTs #" << data_trknmb;
 		}
 		else {
-		  edm::LogWarning("CSCTriggerPrimitivesReader")
+		  LogTrace("CSCTriggerPrimitivesReader")
 		    << "       Different CLCTs #" << data_trknmb << " in ME"
 		    << ((endc == 1) ? "+" : "-") << stat << "/"
 		    << ring << "/" << cham;
@@ -1577,7 +1577,7 @@ void CSCTriggerPrimitivesReader::compareLCTs(
 	  }
 	  hLCTCompFound2i->Fill(ix2,detid.chamber());
 	  if (ndata != nemul) {
-	    edm::LogWarning("CSCTriggerPrimitivesReader")
+	    LogTrace("CSCTriggerPrimitivesReader")
 	      << "   +++ Different numbers of LCTs found in ME"
 	      << ((endc == 1) ? "+" : "-") << stat << "/"
 	      << ring << "/" << cham
@@ -1651,7 +1651,7 @@ void CSCTriggerPrimitivesReader::compareLCTs(
 		    << "       Identical LCTs #" << data_trknmb;
 		}
 		else {
-		  edm::LogWarning("CSCTriggerPrimitivesReader")
+		  LogTrace("CSCTriggerPrimitivesReader")
 		    << "       Different LCTs #" << data_trknmb << " in ME"
 		    << ((endc == 1) ? "+" : "-") << stat << "/"
 		    << ring << "/" << cham;
@@ -1697,7 +1697,7 @@ int CSCTriggerPrimitivesReader::convertBXofLCT(
   // Use these 12-bit BX's to convert emulator BX into hardware BX.
   if (full_anode_bx == -999) {
     // What to do???
-    edm::LogWarning("CSCTriggerPrimitivesReader")
+    edm::LogWarning("L1CSCTPEmulatorWrongInput")
       << "+++ Warning in convertBXofLCT(): full anode BX is not available!"
       << " +++\n";
   }
@@ -1796,21 +1796,21 @@ void CSCTriggerPrimitivesReader::MCStudies(const edm::Event& ev,
     ev.getByLabel(simHitProducer_.label(), simHitProducer_.instance(),
 		  simHits);
     if (!wireDigis.isValid()) {
-      edm::LogWarning("CSCTriggerPrimitivesReader")
+      edm::LogWarning("L1CSCTPEmulatorWrongInput")
 	<< "+++ Warning: Collection of wire digis with label"
 	<< wireDigiProducer_.label()
 	<< " requested, but not found in the event... Skipping the rest +++\n";
       return;
     }
     if (!compDigis.isValid()) {
-      edm::LogWarning("CSCTriggerPrimitivesReader")
+      edm::LogWarning("L1CSCTPEmulatorWrongInput")
 	<< "+++ Warning: Collection of comparator digis with label"
 	<< compDigiProducer_.label()
 	<< " requested, but not found in the event... Skipping the rest +++\n";
       return;
     }
     if (!simHits.isValid()) {
-      edm::LogWarning("CSCTriggerPrimitivesReader")
+      edm::LogWarning("L1CSCTPEmulatorWrongInput")
 	<< "+++ Warning: Collection of SimHits with label"
 	<< simHitProducer_.label()
 	<< " requested, but not found in the event... Skipping the rest +++\n";
@@ -1885,7 +1885,7 @@ void CSCTriggerPrimitivesReader::calcResolution(
 	  hEtaDiffVsWireCsc[csctype]->Fill(wiregroup, deltaEta);
 	}
 	else {
-	  edm::LogWarning("CSCTriggerPrimitivesReader")
+	  edm::LogWarning("L1CSCTPEmulatorWrongInput")
 	    << "+++ Warning in calcResolution(): no matched SimHit"
 	    << " found! +++\n";
 	}
@@ -1981,7 +1981,7 @@ void CSCTriggerPrimitivesReader::calcResolution(
 	  }
 	}
 	else {
-	  edm::LogWarning("CSCTriggerPrimitivesReader")
+	  edm::LogWarning("L1CSCTPEmulatorWrongInput")
 	    << "+++ Warning in calcResolution(): no matched SimHit"
 	    << " found! +++\n";
 	}
@@ -2114,7 +2114,7 @@ void CSCTriggerPrimitivesReader::calcEfficiency(
 	}
       }
       if (hitEta < -3.) {
-	edm::LogWarning("CSCTriggerPrimitivesReader")
+	edm::LogWarning("L1CSCTPEmulatorWrongValues")
 	  << "+++ Warning in calcEfficiency(): no SimHit found"
 	  << " where there must be at least " << nLayers << "! +++\n";
 	continue;

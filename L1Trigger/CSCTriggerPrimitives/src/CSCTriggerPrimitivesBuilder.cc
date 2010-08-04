@@ -8,8 +8,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2010/04/23 21:07:16 $
-//   $Revision: 1.18 $
+//   $Date: 2010/08/04 10:21:24 $
+//   $Revision: 1.19 $
 //
 //   Modifications:
 //
@@ -63,7 +63,7 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
 		(sect <= 0 || sect > MAX_SECTORS)    ||
 		(subs <= 0 || subs > MAX_SUBSECTORS) ||
 		(cham <= 0 || stat > MAX_CHAMBERS)) {
-	      edm::LogError("CSCTriggerPrimitivesBuilder")
+	      edm::LogError("L1CSCTPEmulatorSetupError")
 		<< "+++ trying to instantiate TMB of illegal CSC id ["
 		<< " endcap = "  << endc << " station = "   << stat
 		<< " sector = "  << sect << " subsector = " << subs

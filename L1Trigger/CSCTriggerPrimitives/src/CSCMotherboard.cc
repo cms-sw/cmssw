@@ -27,8 +27,8 @@
 //                Based on code by Nick Wisniewski (nw@its.caltech.edu)
 //                and a framework by Darin Acosta (acosta@phys.ufl.edu).
 //
-//   $Date: 2010/08/03 13:25:53 $
-//   $Revision: 1.31 $
+//   $Date: 2010/08/04 10:20:42 $
+//   $Revision: 1.32 $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
@@ -196,7 +196,7 @@ void CSCMotherboard::checkConfigParameters() {
 
   // Checks.
   if (mpc_block_me1a >= max_mpc_block_me1a) {
-    if (infoV > 0) edm::LogError("CSCMotherboard")
+    if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
       << "+++ Value of mpc_block_me1a, " << mpc_block_me1a
       << ", exceeds max allowed, " << max_mpc_block_me1a-1 << " +++\n"
       << "+++ Try to proceed with the default value, mpc_block_me1a="
@@ -204,7 +204,7 @@ void CSCMotherboard::checkConfigParameters() {
     mpc_block_me1a = def_mpc_block_me1a;
   }
   if (alct_trig_enable >= max_alct_trig_enable) {
-    if (infoV > 0) edm::LogError("CSCMotherboard")
+    if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
       << "+++ Value of alct_trig_enable, " << alct_trig_enable
       << ", exceeds max allowed, " << max_alct_trig_enable-1 << " +++\n"
       << "+++ Try to proceed with the default value, alct_trig_enable="
@@ -212,7 +212,7 @@ void CSCMotherboard::checkConfigParameters() {
     alct_trig_enable = def_alct_trig_enable;
   }
   if (clct_trig_enable >= max_clct_trig_enable) {
-    if (infoV > 0) edm::LogError("CSCMotherboard")
+    if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
       << "+++ Value of clct_trig_enable, " << clct_trig_enable
       << ", exceeds max allowed, " << max_clct_trig_enable-1 << " +++\n"
       << "+++ Try to proceed with the default value, clct_trig_enable="
@@ -220,7 +220,7 @@ void CSCMotherboard::checkConfigParameters() {
     clct_trig_enable = def_clct_trig_enable;
   }
   if (match_trig_enable >= max_match_trig_enable) {
-    if (infoV > 0) edm::LogError("CSCMotherboard")
+    if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
       << "+++ Value of match_trig_enable, " << match_trig_enable
       << ", exceeds max allowed, " << max_match_trig_enable-1 << " +++\n"
       << "+++ Try to proceed with the default value, match_trig_enable="
@@ -228,7 +228,7 @@ void CSCMotherboard::checkConfigParameters() {
     match_trig_enable = def_match_trig_enable;
   }
   if (match_trig_window_size >= max_match_trig_window_size) {
-    if (infoV > 0) edm::LogError("CSCMotherboard")
+    if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
       << "+++ Value of match_trig_window_size, " << match_trig_window_size
       << ", exceeds max allowed, " << max_match_trig_window_size-1 << " +++\n"
       << "+++ Try to proceed with the default value, match_trig_window_size="
@@ -236,7 +236,7 @@ void CSCMotherboard::checkConfigParameters() {
     match_trig_window_size = def_match_trig_window_size;
   }
   if (tmb_l1a_window_size >= max_tmb_l1a_window_size) {
-    if (infoV > 0) edm::LogError("CSCMotherboard")
+    if (infoV >= 0) edm::LogError("L1CSCTPEmulatorConfigError")
       << "+++ Value of tmb_l1a_window_size, " << tmb_l1a_window_size
       << ", exceeds max allowed, " << max_tmb_l1a_window_size-1 << " +++\n"
       << "+++ Try to proceed with the default value, tmb_l1a_window_size="
@@ -383,7 +383,7 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
     }
   }
   else {
-    if (infoV > 0) edm::LogWarning("CSCMotherboard")
+    if (infoV >= 0) edm::LogError("L1CSCTPEmulatorSetupError")
       << "+++ run() called for non-existing ALCT/CLCT processor! +++ \n";
   }
 
@@ -413,14 +413,14 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::readoutLCTs() {
 
   static int ifois = 0;
   if (ifois == 0) {
-    if (infoV > 0 && early_tbins < 0) {
-      edm::LogWarning("CSCMotherboard")
+    if (infoV >= 0 && early_tbins < 0) {
+      edm::LogWarning("L1CSCTPEmulatorSuspiciousParameters")
 	<< "+++ early_tbins = " << early_tbins
 	<< "; in-time LCTs are not getting read-out!!! +++" << "\n";
     }
 
     if (late_tbins > MAX_LCT_BINS-1) {
-      if (infoV > 0) edm::LogWarning("CSCMotherboard")
+      if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorSuspiciousParameters")
 	<< "+++ Allowed range of time bins, [0-" << late_tbins
 	<< "] exceeds max allowed, " << MAX_LCT_BINS-1 << " +++\n"
 	<< "+++ Set late_tbins to max allowed +++\n";
@@ -516,7 +516,7 @@ void CSCMotherboard::correlateLCTs(CSCALCTDigi bestALCT,
       firstLCT[bx].setTrknmb(1);
     }
     else {
-      if (infoV > 0) edm::LogWarning("CSCMotherboard")
+      if (infoV > 0) edm::LogWarning("L1CSCTPEmulatorOutOfTimeLCT")
 	<< "+++ Bx of first LCT candidate, " << bx
 	<< ", is not within the allowed range, [0-" << MAX_LCT_BINS-1
 	<< "); skipping it... +++\n";
@@ -534,7 +534,7 @@ void CSCMotherboard::correlateLCTs(CSCALCTDigi bestALCT,
       secondLCT[bx].setTrknmb(2);
     }
     else {
-      if (infoV > 0) edm::LogWarning("CSCMotherboard")
+      if (infoV > 0) edm::LogWarning("L1CSCTPEmulatorOutOfTimeLCT")
 	<< "+++ Bx of second LCT candidate, " << bx
 	<< ", is not within the allowed range, [0-" << MAX_LCT_BINS-1
 	<< "); skipping it... +++\n";
@@ -613,7 +613,7 @@ unsigned int CSCMotherboard::findQuality(const CSCALCTDigi& aLCT,
 	// to get quality analogous to ALCT one.
 	int sumQual = aLCT.getQuality() + (cLCT.getQuality()-3);
 	if (sumQual < 1 || sumQual > 6) {
-	  if (infoV > 0) edm::LogWarning("CSCMotherboard")
+	  if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongValues")
 	    << "+++ findQuality: sumQual = " << sumQual << "+++ \n";
 	}
 	if (isDistrip) { // distrip pattern
@@ -650,7 +650,7 @@ unsigned int CSCMotherboard::findQuality(const CSCALCTDigi& aLCT,
       // the ALCT quality.
       int sumQual = aLCT.getQuality() + (cLCT.getQuality()-3);
       if (sumQual < 1 || sumQual > 6) {
-	if (infoV > 0) edm::LogWarning("CSCMotherboard")
+	if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongValues")
 	  << "+++ findQuality: Unexpected sumQual = " << sumQual << "+++\n";
       }
 
@@ -694,7 +694,7 @@ unsigned int CSCMotherboard::findQuality(const CSCALCTDigi& aLCT,
 	    else if (pattern == 8 || pattern == 9) quality = 14;
 	    else if (pattern == 10)                quality = 15;
 	    else {
-	      if (infoV > 0) edm::LogWarning("CSCMotherboard")
+	      if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongValues")
 		<< "+++ findQuality: Unexpected CLCT pattern id = "
 		<< pattern << "+++\n";
 	    }
@@ -729,27 +729,27 @@ void CSCMotherboard::testLCT() {
 				cLCT.getKeyStrip(), lctPattern, cLCT.getBend(),
 				aLCT.getBX());
 		      if (lctPattern != static_cast<unsigned int>(thisLCT.getPattern()) )
-			edm::LogWarning("CSCMotherboard")
+			LogTrace("CSCMotherboard")
 			  << "pattern mismatch: " << lctPattern
 			  << " " << thisLCT.getPattern();
 		      if (bend != thisLCT.getBend()) 
-			edm::LogWarning("CSCMotherboard")
+			LogTrace("CSCMotherboard")
 			  << "bend mismatch: " << bend
 			  << " " << thisLCT.getBend();
 		      int key_strip = 32*cfeb + strip;
 		      if (key_strip != thisLCT.getStrip()) 
-			edm::LogWarning("CSCMotherboard")
+			LogTrace("CSCMotherboard")
 			  << "strip mismatch: " << key_strip
 			  << " " << thisLCT.getStrip();
 		      if (wireGroup != thisLCT.getKeyWG()) 
-			edm::LogWarning("CSCMotherboard")
+			LogTrace("CSCMotherboard")
 			  << "wire group mismatch: " << wireGroup
 			  << " " << thisLCT.getKeyWG();
 		      if (abx != thisLCT.getBX()) 
-			edm::LogWarning("CSCMotherboard")
+			LogTrace("CSCMotherboard")
 			  << "bx mismatch: " << abx << " " << thisLCT.getBX();
 		      if (lctQuality != static_cast<unsigned int>(thisLCT.getQuality())) 
-			edm::LogWarning("CSCMotherboard")
+			LogTrace("CSCMotherboard")
 			  << "quality mismatch: " << lctQuality
 			  << " " << thisLCT.getQuality();
 		    }

@@ -4,8 +4,8 @@
  * Slava Valuev  May 26, 2004.
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2009/03/26 15:38:07 $
- * $Revision: 1.11 $
+ * $Date: 2009/03/27 17:14:31 $
+ * $Revision: 1.12 $
  *
  */
 
@@ -47,7 +47,7 @@ vector<CSCAnodeLayerInfo> CSCAnodeLCTAnalyzer::getSimInfo(
       << ", exceeds max expected, " << CSCConstants::NUM_LAYERS << " +++\n";
   }
   if (alctInfo.size() != (unsigned)alct.getQuality()+3) {
-    edm::LogWarning("CSCAnodeLCTAnalyzer")
+    edm::LogWarning("L1CSCTPEmulatorWrongValues")
       << "+++ Warning: mismatch between ALCT quality, " << alct.getQuality()
       << ", and the number of layers with digis, " << alctInfo.size()
       << ", in alctInfo! +++\n";
@@ -297,12 +297,12 @@ int CSCAnodeLCTAnalyzer::nearestWG(
 	// There can be only one RecDigi (and therefore only one SimHit)
 	// in a key layer.
 	if (thisLayerHits.size() != 1) {
-	  edm::LogWarning("nearestWG")
+	  edm::LogWarning("L1CSCTPEmulatorWrongValues")
 	    << "+++ Warning: " << thisLayerHits.size()
 	    << " SimHits in key layer " << CSCConstants::KEY_ALCT_LAYER
 	    << "! +++ \n";
 	  for (unsigned i = 0; i < thisLayerHits.size(); i++) {
-	    edm::LogWarning("nearestWG")
+	    edm::LogWarning("L1CSCTPEmulatorWrongValues")
 	      << " SimHit # " << i << thisLayerHits[i] << "\n";
 	  }
 	}
@@ -338,7 +338,7 @@ int CSCAnodeLCTAnalyzer::nearestWG(
     // are counted from 1 in MC-related info.
     nearestWG -= 1;
     if (nearestWG < 0 || nearestWG >= CSCConstants::MAX_NUM_WIRES) {
-      edm::LogWarning("nearestWG")
+      edm::LogWarning("L1CSCTPEmulatorWrongInput")
 	<< "+++ Warning: nearest wire group, " << nearestWG
 	<< ", is not in [0-" << CSCConstants::MAX_NUM_WIRES
 	<< ") interval +++\n";
@@ -374,7 +374,7 @@ double CSCAnodeLCTAnalyzer::getWGEta(const CSCDetId& layerId,
 				     const int wiregroup) {
   // Returns eta position of a given wiregroup.
   if (wiregroup < 0 || wiregroup >= CSCConstants::MAX_NUM_WIRES) {
-    edm::LogWarning("getWGEta")
+    edm::LogWarning("L1CSCTPEmulatorWrongInput")
       << "+++ Warning: wire group, " << wiregroup
       << ", is not in [0-" << CSCConstants::MAX_NUM_WIRES
       << ") interval +++\n";

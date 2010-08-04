@@ -4,8 +4,8 @@
  * Slava Valuev  May 26, 2004
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2009/03/27 17:15:40 $
- * $Revision: 1.14 $
+ * $Date: 2010/02/12 15:05:14 $
+ * $Revision: 1.15 $
  *
  */
 
@@ -47,7 +47,7 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::getSimInfo(
       << ", exceeds max expected, " << CSCConstants::NUM_LAYERS << " +++\n";
   }
   if (clctInfo.size() != (unsigned)clct.getQuality()) {
-    edm::LogWarning("CSCCathodeLCTAnalyzer")
+    edm::LogWarning("L1CSCTPEmulatorWrongValues")
       << "+++ Warning: mismatch between CLCT quality, " << clct.getQuality()
       << ", and the number of layers with digis, " << clctInfo.size()
       << ", in clctInfo! +++\n";
@@ -394,11 +394,11 @@ int CSCCathodeLCTAnalyzer::nearestHS(
 	// There can be one RecDigi (and therefore only one SimHit)
 	// in a keylayer.
 	if (thisLayerHits.size() != 1) {
-	  edm::LogWarning("nearestHS")
+	  edm::LogWarning("L1CSCTPEmulatorWrongValues")
 	    << "+++ Warning: " << thisLayerHits.size()
 	    << " SimHits in key layer " << key_layer << "! +++ \n";
 	  for (unsigned i = 0; i < thisLayerHits.size(); i++) {
-	    edm::LogWarning("nearestHS")
+	    edm::LogWarning("L1CSCTPEmulatorWrongValues")
 	      << " SimHit # " << i << thisLayerHits[i] << "\n";
 	  }
 	}
@@ -440,7 +440,7 @@ int CSCCathodeLCTAnalyzer::nearestHS(
     // strip = nearestStrip = MAX_STRIPS; do not know how to handle them.
     int nearestStrip = static_cast<int>(strip);
     if (nearestStrip < 0 || nearestStrip >= CSCConstants::MAX_NUM_STRIPS) {
-      edm::LogWarning("nearestStrip")
+      edm::LogWarning("L1CSCTPEmulatorWrongInput")
 	<< "+++ Warning: nearest strip, " << nearestStrip
 	<< ", is not in [0-" << CSCConstants::MAX_NUM_STRIPS
 	<< ") interval; strip = " << strip << " +++\n";
@@ -479,7 +479,7 @@ double CSCCathodeLCTAnalyzer::getStripPhi(const CSCDetId& layerId,
 					  const float strip) {
   // Returns phi position of a given strip.
   if (strip < 0. || strip >= CSCConstants::MAX_NUM_STRIPS) {
-    edm::LogWarning("getStripPhi")
+    edm::LogWarning("L1CSCTPEmulatorWrongInput")
       << "+++ Warning: strip, " << strip
       << ", is not in [0-" << CSCConstants::MAX_NUM_STRIPS
       << ") interval +++\n";

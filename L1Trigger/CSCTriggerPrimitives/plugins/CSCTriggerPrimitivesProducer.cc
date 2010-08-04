@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2010/04/23 21:05:51 $
-//   $Revision: 1.12 $
+//   $Date: 2010/08/04 10:17:38 $
+//   $Revision: 1.13 $
 //
 //   Modifications:
 //
@@ -83,7 +83,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
   edm::ESHandle<CSCDBL1TPParameters> conf;
   setup.get<CSCDBL1TPParametersRcd>().get(conf);
   if (conf.product() == 0) {
-    edm::LogError("CSCTriggerPrimitivesProducer")
+    edm::LogError("L1CSCTPEmulatorConfigError")
       << "+++ Failed to find a CSCDBL1TPParametersRcd in EventSetup! +++\n"
       << "+++ Cannot continue emulation without these parameters +++\n";
     return;
@@ -105,14 +105,14 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
   std::auto_ptr<CSCCorrelatedLCTDigiCollection> oc_sorted_lct(new CSCCorrelatedLCTDigiCollection);
 
   if (!wireDigis.isValid()) {
-    edm::LogWarning("CSCTriggerPrimitivesProducer")
+    edm::LogWarning("L1CSCTPEmulatorNoInputCollection")
       << "+++ Warning: Collection of wire digis with label "
       << wireDigiProducer_.label()
       << " requested in configuration, but not found in the event..."
       << " Skipping production of CSC TP digis +++\n";
   }
   if (!compDigis.isValid()) {
-    edm::LogWarning("CSCTriggerPrimitivesProducer")
+    edm::LogWarning("L1CSCTPEmulatorNoInputCollection")
       << "+++ Warning: Collection of comparator digis with label "
       << compDigiProducer_.label()
       << " requested in configuration, but not found in the event..."
