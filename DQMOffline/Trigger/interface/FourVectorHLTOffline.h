@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.58 2010/08/02 23:42:53 wmtan Exp $
+// $Id: FourVectorHLTOffline.h,v 1.59 2010/08/04 08:44:25 rekovic Exp $
 //
 //
 // system include files
@@ -208,6 +208,8 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       int currentRun_;
       
       unsigned int nBins_; 
+      unsigned int nBinsDR_; 
+      unsigned int nBins2D_; 
       unsigned int nBinsOneOverEt_; 
       double ptMin_ ;
       double ptMax_ ;

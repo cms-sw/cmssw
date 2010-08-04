@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.81 2010/07/26 09:32:11 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.82 2010/08/04 08:44:25 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -53,7 +53,9 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig): cu
   ptMin_ = iConfig.getUntrackedParameter<double>("ptMin",0.);
   ptMax_ = iConfig.getUntrackedParameter<double>("ptMax",1000.);
   nBins_ = iConfig.getUntrackedParameter<unsigned int>("Nbins",20);
+  nBins2D_ = iConfig.getUntrackedParameter<unsigned int>("Nbins2D",40);
   dRMax_ = iConfig.getUntrackedParameter<double>("dRMax",1.0);
+  nBinsDR_ = iConfig.getUntrackedParameter<unsigned int>("NbinsDR",10);
   nBinsOneOverEt_ = iConfig.getUntrackedParameter<unsigned int>("NbinsOneOverEt",10000);
   nLS_   = iConfig.getUntrackedParameter<unsigned int>("NLuminositySegments",10);
   LSsize_   = iConfig.getUntrackedParameter<double>("LuminositySegmentSize",23);
@@ -1207,20 +1209,17 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
        title = labelname+" l1E_t L1";
        l1EtL1 =  dbe->book1D(histoname.c_str(), title.c_str(),nBins_, v->getPtMin(), v->getPtMax());
        
-       int nBins2D = 10;
-       
-       
        histoname = labelname+"_onEtaonPhiOn";
        title = labelname+" on#eta vs on#phi online";
-       onEtavsonPhiOn =  dbe->book2D(histoname.c_str(), title.c_str(), nBins2D,-histEtaMax,histEtaMax, nBins2D,-TMath::Pi(), TMath::Pi());
+       onEtavsonPhiOn =  dbe->book2D(histoname.c_str(), title.c_str(), nBins2D_,-histEtaMax,histEtaMax, nBins2D_,-TMath::Pi(), TMath::Pi());
        
        histoname = labelname+"_offEtaoffPhiOff";
        title = labelname+" off#eta vs off#phi offline";
-       offEtavsoffPhiOff =  dbe->book2D(histoname.c_str(), title.c_str(), nBins2D,-histEtaMax,histEtaMax, nBins2D,-TMath::Pi(), TMath::Pi());
+       offEtavsoffPhiOff =  dbe->book2D(histoname.c_str(), title.c_str(), nBins2D_,-histEtaMax,histEtaMax, nBins2D_,-TMath::Pi(), TMath::Pi());
        
        histoname = labelname+"_l1Etal1PhiL1";
        title = labelname+" l1#eta vs l1#phi L1";
-       l1Etavsl1PhiL1 =  dbe->book2D(histoname.c_str(), title.c_str(), nBins2D,-histEtaMax,histEtaMax, nBins2D,-TMath::Pi(), TMath::Pi());
+       l1Etavsl1PhiL1 =  dbe->book2D(histoname.c_str(), title.c_str(), nBins2D_,-histEtaMax,histEtaMax, nBins2D_,-TMath::Pi(), TMath::Pi());
        
        histoname = labelname+"_l1EtL1On";
        title = labelname+" l1E_t L1+online";
@@ -1236,15 +1235,15 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
        
        histoname = labelname+"_l1Etal1PhiL1On";
        title = labelname+" l1#eta vs l1#phi L1+online";
-       l1Etavsl1PhiL1On =  dbe->book2D(histoname.c_str(), title.c_str(), nBins2D,-histEtaMax,histEtaMax, nBins2D,-TMath::Pi(), TMath::Pi());
+       l1Etavsl1PhiL1On =  dbe->book2D(histoname.c_str(), title.c_str(), nBins2D_,-histEtaMax,histEtaMax, nBins2D_,-TMath::Pi(), TMath::Pi());
        
        histoname = labelname+"_offEtaoffPhiL1Off";
        title = labelname+" off#eta vs off#phi L1+offline";
-       offEtavsoffPhiL1Off =  dbe->book2D(histoname.c_str(), title.c_str(), nBins2D,-histEtaMax,histEtaMax, nBins2D,-TMath::Pi(), TMath::Pi());
+       offEtavsoffPhiL1Off =  dbe->book2D(histoname.c_str(), title.c_str(), nBins2D_,-histEtaMax,histEtaMax, nBins2D_,-TMath::Pi(), TMath::Pi());
        
        histoname = labelname+"_offEtaoffPhiOnOff";
        title = labelname+" off#eta vs off#phi online+offline";
-       offEtavsoffPhiOnOff =  dbe->book2D(histoname.c_str(), title.c_str(), nBins2D,-histEtaMax,histEtaMax, nBins2D,-TMath::Pi(), TMath::Pi());
+       offEtavsoffPhiOnOff =  dbe->book2D(histoname.c_str(), title.c_str(), nBins2D_,-histEtaMax,histEtaMax, nBins2D_,-TMath::Pi(), TMath::Pi());
        
        histoname = labelname+"_l1EtL1OnUM";
        title = labelname+" l1E_t L1+onlineUM";
@@ -1260,15 +1259,15 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
        
        histoname = labelname+"_l1Etal1PhiL1OnUM";
        title = labelname+" l1#eta vs l1#phi L1+onlineUM";
-       l1Etavsl1PhiL1OnUM =  dbe->book2D(histoname.c_str(), title.c_str(), nBins2D,-histEtaMax,histEtaMax, nBins2D,-TMath::Pi(), TMath::Pi());
+       l1Etavsl1PhiL1OnUM =  dbe->book2D(histoname.c_str(), title.c_str(), nBins2D_,-histEtaMax,histEtaMax, nBins2D_,-TMath::Pi(), TMath::Pi());
        
        histoname = labelname+"_offEtaoffPhiL1OffUM";
        title = labelname+" off#eta vs off#phi L1+offlineUM";
-       offEtavsoffPhiL1OffUM =  dbe->book2D(histoname.c_str(), title.c_str(), nBins2D,-histEtaMax,histEtaMax, nBins2D,-TMath::Pi(), TMath::Pi());
+       offEtavsoffPhiL1OffUM =  dbe->book2D(histoname.c_str(), title.c_str(), nBins2D_,-histEtaMax,histEtaMax, nBins2D_,-TMath::Pi(), TMath::Pi());
        
        histoname = labelname+"_offEtaoffPhiOnOffUM";
        title = labelname+" off#eta vs off#phi online+offlineUM";
-       offEtavsoffPhiOnOffUM =  dbe->book2D(histoname.c_str(), title.c_str(), nBins2D,-histEtaMax,histEtaMax, nBins2D,-TMath::Pi(), TMath::Pi());
+       offEtavsoffPhiOnOffUM =  dbe->book2D(histoname.c_str(), title.c_str(), nBins2D_,-histEtaMax,histEtaMax, nBins2D_,-TMath::Pi(), TMath::Pi());
        
        
        
