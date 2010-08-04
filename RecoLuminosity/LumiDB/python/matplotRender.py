@@ -47,14 +47,14 @@ class matplotRender():
         self.colormap['Effective']='g'
         self.colormap['Max Inst']='r'
 
-    def plotSumX_Run(self,rawxdata,rawydata,sampleinterval=2,nticks=6):
+    def plotSumX_Run(self,rawxdata,rawydata,nticks=6):
         xpoints=[]
         ypoints={}
         ytotal={}
         xidx=[]
         #print 'max rawxdata ',max(rawxdata)
         #print 'min rawxdata ',min(rawxdata)
-        for x in CommonUtil.inclusiveRange(min(rawxdata),max(rawxdata),sampleinterval):
+        for x in CommonUtil.inclusiveRange(min(rawxdata),max(rawxdata),1):
             #print 'x : ',x
             xpoints.append(x)
             xidx.append(rawxdata.index(x)) #get the index of the sample points
@@ -72,10 +72,11 @@ class matplotRender():
             tx.set_rotation(30)
         majorLocator=matplotlib.ticker.LinearLocator( nticks )
         majorFormatter=matplotlib.ticker.FormatStrFormatter('%d')
-        minorLocator=matplotlib.ticker.LinearLocator(numticks=6)
+        minorLocator=matplotlib.ticker.LinearLocator(numticks=4*nticks)
         ax.xaxis.set_major_locator(majorLocator)
         ax.xaxis.set_major_formatter(majorFormatter)
         ax.xaxis.set_minor_locator(minorLocator)
+        ax.set_xbound(lower=xpoints[0],upper=xpoints[-1])
         ax.grid(True)
         keylist=ypoints.keys()
         keylist.sort()
@@ -107,6 +108,7 @@ class matplotRender():
         ax=self.__fig.add_subplot(111)
         ax.set_xlabel(r'LHC Fill Number',position=(0.84,0))
         ax.set_ylabel(r'L nb$^{-1}$',position=(0,0.9))
+        ax.set_xbound(lower=xpoints[0],upper=xpoints[-1])
         xticklabels=ax.get_xticklabels()
         majorLocator=matplotlib.ticker.LinearLocator( nticks )
         majorFormatter=matplotlib.ticker.FormatStrFormatter('%d')
@@ -157,6 +159,7 @@ class matplotRender():
         ax.set_ylabel(r'L nb$^{-1}$',position=(0,0.9))
         ax.xaxis.set_major_locator(majorLoc)
         ax.xaxis.set_minor_locator(minorLoc)
+        ax.set_xbound(lower=xpoints[0],upper=xpoints[-1])
         xticklabels=ax.get_xticklabels()
         for tx in xticklabels:
             tx.set_horizontalalignment('left')
@@ -170,9 +173,8 @@ class matplotRender():
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
             legendlist.append(ylabel+' '+'%.2f'%(ytotal[ylabel])+' '+'nb$^{-1}$')
-        #font=FontProperties(size='medium',weight='demibold')
         ax.legend(tuple(legendlist),loc='best')
-        ax.set_xlim(left=matplotlib.dates.date2num(minTime),right=matplotlib.dates.date2num(maxTime))
+        ax.set_xbound(lower=matplotlib.dates.date2num(minTime),upper=matplotlib.dates.date2num(maxTime))
         self.__fig.autofmt_xdate(bottom=0.18,rotation=0)
         self.__fig.subplots_adjust(bottom=0.18,left=0.3)
     def plotPerdayX_Time(self,rawxdata,rawydata,minTime,maxTime,nticks=6):
@@ -192,6 +194,7 @@ class matplotRender():
             if CommonUtil.findInList(daydict.keys() ,runstartday)!=-1:
                 daydict[runstartday].append(runs.index(run))
         xpoints=daydict.keys()
+        xpoints.sort()
         for ylabel,yvalue in rawydata.items():
             ypoints[ylabel]=[]
             ymax[ylabel]=[]
@@ -225,7 +228,8 @@ class matplotRender():
             ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
             legendlist.append(ylabel+' Max '+'%.2f'%(ymax[ylabel])+' '+'nb$^{-1}$')
         ax.legend(tuple(legendlist),loc='upper left')
-        ax.set_xlim(left=minDay,right=maxDay)
+        #ax.set_xlim(left=minDay,right=maxDay)
+        ax.set_xbound(lower=xpoints[0],upper=xpoints[-1])
         self.__fig.autofmt_xdate(bottom=0.18,rotation=0)
         self.__fig.subplots_adjust(bottom=0.18,left=0.3)
 
@@ -279,7 +283,8 @@ class matplotRender():
             ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
             legendlist.append(ylabel+' '+'%.2f'%(ymax[ylabel])+' '+'$\mu$b$^{-1}$s$^{-1}$')
         ax.legend(tuple(legendlist),loc='upper left')
-        ax.set_xlim(left=minDay,right=maxDay)
+        #ax.set_xlim(left=minDay,right=maxDay)
+        ax.set_xbound(lower=xpoints[0],upper=xpoints[-1])
         self.__fig.autofmt_xdate(bottom=0.18,rotation=0)
         self.__fig.subplots_adjust(bottom=0.18,left=0.3)
 
@@ -331,6 +336,7 @@ class matplotRender():
         ax.set_ylabel(r'L $\mu$b$^{-1}$s$^{-1}$',position=(0,0.9))
         ax.xaxis.set_major_locator(majorLoc)
         ax.xaxis.set_minor_locator(minorLoc)
+        ax.set_xbound(lower=xpoints[0],upper=xpoints[-1])
         xticklabels=ax.get_xticklabels()
         for tx in xticklabels:
             tx.set_horizontalalignment('right')

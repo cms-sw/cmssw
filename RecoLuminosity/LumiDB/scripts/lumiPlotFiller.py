@@ -113,6 +113,7 @@ def totalLumivsRun(c,p='.',i='',o='',begRun="132440",endRun=None,selectionfile=N
     print command
     if not dryrun:
         statusAndOutput=commands.getstatusoutput(command)
+        print statusAndOutput[1]
 
 def totalLumivsFill(c,p='.',i='',o='',begFill="1005",endFill=None,selectionfile=None,beamenergy=None,beamenergyfluctuation=None,dryrun=False):
     '''
@@ -183,6 +184,7 @@ def main():
 
     authpath='.'
     logpath='.'
+    opath='.'
     connectstr=args.connect
     isDryrun=False
     if args.dryrun:
@@ -207,6 +209,15 @@ def main():
             runs.append(int(run))
         last2runs=[runs[-2],runs[-1]]
         instLumiForRuns(connectstr,last2runs,p=authpath,o=opath,dryrun=isDryrun)
+    if args.action == 'totalvsrun':
+        if not args.ifile:
+            print 'option -i is required for action totalvsrun'
+            return 2
+        f=open(args.ifile,'r')
+        runs=[]
+        for run in f:
+            runs.append(int(run))
+        totalLumivsRun(connectstr,p=authpath,begRun=str(runs[0]),o=opath,endRun=str(runs[-1]),dryrun=isDryrun)
     if args.action == 'instpeakvstime':
         instPeakPerday(connectstr,p=authpath,o=opath,dryrun=isDryrun)
     if args.action == 'totalvstime':
@@ -215,8 +226,6 @@ def main():
         totalLumivstimeLastweek(connectstr,p=authpath,o=opath,dryrun=isDryrun)
     if args.action == 'totalvsfill':
         totalLumivsFill(connectstr,p=authpath,o=opath,dryrun=isDryrun)
-    if args.action == 'totalvsrun':
-        totalLumivsRun(connectstr,p=authpath,o=opath,dryrun=isDryrun)
     if args.action == 'perday':       
         lumiPerDay(connectstr,p=authpath,o=opath,dryrun=isDryrun)
 if __name__=='__main__':
