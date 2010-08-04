@@ -216,7 +216,7 @@ def main():
         maxfill=None
         if not args.end:
             qHandle=session.nominalSchema().newQuery()
-            maxfill=max(allfills(qHandle,filtercrazy=True))
+            maxfill=max(lumiQueryAPI.allfills(qHandle,filtercrazy=True))
             del qHandle
         else:
             maxfill=int(args.end)
@@ -225,7 +225,7 @@ def main():
         del qHandle
         session.transaction().commit()
         #print 'fillDict ',fillDict
-        for fill in range(int(args.begin),int(args.end)+1):
+        for fill in range(int(args.begin),maxfill+1):
             if fillDict.has_key(fill): #fill exists
                 for run in fillDict[fill]:
                     runList.append(run)
