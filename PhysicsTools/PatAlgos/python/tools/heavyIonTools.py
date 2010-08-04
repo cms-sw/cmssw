@@ -1,6 +1,7 @@
 from FWCore.GuiBrowsers.ConfigToolBase import *
 from PhysicsTools.PatAlgos.tools.helpers import *
 
+
 class ConfigureHeavyIons(ConfigToolBase):
 
     """ Configure all defaults for heavy ions
@@ -23,8 +24,7 @@ class ConfigureHeavyIons(ConfigToolBase):
     def toolCode(self, process):        
         productionDefaults(process)
         selectionDefaults(process)
-    
-       
+           
 configureHeavyIons=ConfigureHeavyIons()
 
 
@@ -49,7 +49,6 @@ class ProductionDefaults(ConfigToolBase):
         
     def toolCode(self, process):        
         ## adapt jet defaults
-
         patJets = getattr(process, jetCollectionString())
         patJets.jetSource  = cms.InputTag("iterativeConePu5CaloJets")
 
@@ -121,6 +120,7 @@ class ProductionDefaults(ConfigToolBase):
         
 productionDefaults=ProductionDefaults()
 
+
 class SelectionDefaults(ConfigToolBase):
 
     """ Configure all relevant selected layer1 candidates for heavy ions
@@ -147,7 +147,52 @@ class SelectionDefaults(ConfigToolBase):
         selectedMuons.cut = cms.string('pt > 0. & abs(eta) < 12.')
         selectedPhotons = getattr(process, 'selectedPatPhotons')
         selectedPhotons.cut = cms.string('pt > 0. & abs(eta) < 12.')
-
-        
         
 selectionDefaults=SelectionDefaults()
+
+
+class DisbaleMonteCarloDeps(ConfigToolBase):
+
+    """ Cut off all MC dependencies
+    """
+    _label='disableMonteCarloDeps'
+    _defaultParameters=dicttypes.SortedKeysDict()
+    
+    def __init__(self):
+        ConfigToolBase.__init__(self)        
+        self._parameters=copy.deepcopy(self._defaultParameters)
+        self._comment = ""
+
+    def getDefaultParameters(self):
+        return self._defaultParameters
+
+    def __call__(self,process):
+                
+        self.apply(process) 
+        
+    def toolCode(self, process):
+        ## switch MC to false in heavyIon Producer
+        process.heavyIon.doMC = False
+        
+        ## remove MC matching from heavyIonJets
+        process.makeHeavyIonJets.remove(process.genPartons)
+        process.makeHeavyIonJets.remove(process.heavyIonCleanedGenJets)
+        process.makeHeavyIonJets.remove(process.hiPartons)
+        process.makeHeavyIonJets.remove(process.patJetGenJetMatch)
+        process.makeHeavyIonJets.remove(process.patJetPartonMatch)
+        
+        process.patJets.addGenPartonMatch   = False
+        process.patJets.embedGenPartonMatch = False
+        process.patJets.genPartonMatch      = ''
+        process.patJets.addGenJetMatch      = False
+        process.patJets.genJetMatch	      = ''
+        process.patJets.getJetMCFlavour     = False
+        process.patJets.JetPartonMapSource  = ''
+
+        ## remove MC matching from heavyIonMuons        
+        process.makeHeavyIonMuons.remove(process.muonMatch)
+        
+        process.patMuons.addGenMatch        = False
+        process.patMuons.embedGenMatch      = False
+        
+disableMonteCarloDeps=DisbaleMonteCarloDeps()       
