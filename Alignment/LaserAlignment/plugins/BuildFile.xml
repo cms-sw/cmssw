@@ -4,6 +4,7 @@
 <use   name="FWCore/ServiceRegistry"/>
 
 <library   name="LaserAlignmentPlugins" file="*cc">
+  <use   name="EventFilter/SiStripRawToDigi"/>
   <use   name="Geometry/CommonTopologies"/>
   <use   name="Geometry/TrackerGeometryBuilder"/>
   <use   name="Geometry/TrackerNumberingBuilder"/>
