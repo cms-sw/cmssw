@@ -1,6 +1,6 @@
 #ifndef RecoLuminosity_LumiProducer_LUMIRAWDATASTRUCTURES_H
 #define RecoLuminosity_LumiProducer_LUMIRAWDATASTRUCTURES_H
-//Note: this header file corresponds to svn.cern.ch/reps/Luminosity/HLXReadOut/HLXCoreLibs/include/LumiStructures.hh - Revision 124 LumiDAQ release-2.2
+//Note: this header file corresponds to svn.cern.ch/reps/Luminosity/HLXReadOut/HLXCoreLibs/include/LumiStructures.hh - Revision 512 LumiDAQ
 /*
   LumiNibble structure definitions
 */
@@ -327,6 +327,10 @@ namespace HCAL_HLX{
     int AcqMode;
   };
 
+  struct LHC_BEAM_CONFIG: public DIP_STRUCT_BASE {
+    int beamConfig[3564];
+  };
+
   struct LHC_FILL_DATA: public DIP_STRUCT_BASE {
     uint32_t FillNumber;
   };
@@ -397,6 +401,7 @@ namespace HCAL_HLX{
     double averageBeamIntensity;
     float orbitFrequency;
     float averageBunchIntensities[3564];
+    int beamConfig[3564];
   };
   
   
