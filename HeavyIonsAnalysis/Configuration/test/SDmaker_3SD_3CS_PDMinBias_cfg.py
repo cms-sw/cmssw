@@ -17,7 +17,7 @@ process.load("HeavyIonsAnalysis.Configuration.analysisEventContent_cff")
 process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('SD and central skims'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/UserCode/edwenger/Misc/SDmaker_3SD_3CS_PDMinBias_cfg.py,v $')
+    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/HeavyIonsAnalysis/Configuration/test/SDmaker_3SD_3CS_PDMinBias_cfg.py,v $')
     )
 
 process.Timing = cms.Service("Timing")
@@ -65,10 +65,6 @@ process.filterCsJetHI = cms.Path(process.makeHeavyIonJets *
 process.filterCsMuHI = cms.Path(process.muonSelector *
                                 process.muonFilter *
                                 process.makeHeavyIonMuons)
-
-# this should probably be moved to PhysicsTools.PatAlgos.tools.heavyIonTools 
-process.patMuons.embedCaloMETMuonCorrs = cms.bool(False)
-process.patMuons.embedTcMETMuonCorrs   = cms.bool(False)
 
 ### Zmumu AOD CS
 process.filterCsZmumuHI = cms.Path(process.muonSelector *
