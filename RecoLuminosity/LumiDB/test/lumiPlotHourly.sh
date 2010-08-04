@@ -11,8 +11,9 @@ eval `scramv1 runtime -sh`
 touch "$logpath/lumiPlotHourly.log"
 date >> "$logpath/lumiPlotHourly.log"
 cp  "$outdir/runlist.txt" "$outdir/runlist.txt.old"
-lumiPlotFiller.py -c $dbConnectionString -P $authdir createrunlist -o $outdir >> "$logpath/lumiPlotHourly.log"
- lumiPlotFiller.py -c $dbConnectionString -P $authdir instperrun -o $outdir -i "$outdir/runlist.txt">> "$logpath/lumiPlotHourly.log"
+lumiPlotFiller.py -c $dbConnectionString -P $authdir createrunlist -o $outdir >> "$logpath/lumiPlotHourly.log" ;
+sleep 1
+lumiPlotFiller.py -c $dbConnectionString -P $authdir instperrun -o $outdir -i "$outdir/runlist.txt">> "$logpath/lumiPlotHourly.log"
 #if `diff "$outdir/runlist.txt" "$outdir/runlist.txt.old" > /dev/null` ; then
 #   echo 'no new runs, do nothing' >> "$logpath/lumiPlotHourly.log"
 #else
