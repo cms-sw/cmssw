@@ -15,6 +15,7 @@ namespace {
     };
 
     struct Dummy {
+         std::map<unsigned long long,unsigned long long> dummyForTests;
     };
 
   }

@@ -36,5 +36,8 @@
 
  <class name="cond::BaseKeyed"/>
 
+  <class name="std::map<unsigned long long,unsigned long long>"/>
+  <class name="std::map<unsigned long long,unsigned long long>::value_type" />
+
 
 </lcgdict>   
