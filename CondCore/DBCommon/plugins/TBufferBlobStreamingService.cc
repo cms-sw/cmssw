@@ -59,7 +59,7 @@ cond::TBufferBlobTypeInfo::TBufferBlobTypeInfo( Reflex::Type const & type_)
     ROOT::Cintex::Cintex::Enable();
   }
 
-  TypeH type = type_;
+  Reflex::Type type = type_;
   while(true) {
     type = type.FinalType();
 
