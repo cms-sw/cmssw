@@ -234,9 +234,6 @@ FWECALDetailViewBuilder::fillData( const EcalRecHitCollection *hits,
 	 std::map<DetId, int>::const_iterator itr = m_detIdsToColor.find(k->id());
 	 if (itr != m_detIdsToColor.end()) slice = itr->second;
 
-	 // get reco geometry
-	 const std::vector<TEveVector>& points = m_geom->getPoints(k->id().rawId());
-
 	 // if in the EB
 	 if (k->id().subdetId() == EcalBarrel) {
 	    // do phi wrapping
