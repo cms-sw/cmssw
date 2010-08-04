@@ -574,6 +574,10 @@ void HLTAnalyzer::endJob() {
 
   if (m_file)
     m_file->cd();
+
+  const edm::ParameterSet &thepset = edm::getProcessParameterSet();   
+  TList *list = HltTree->GetUserInfo();   
+  list->Add(new TObjString(thepset.dump().c_str()));   
   
   HltTree->SetWeight(treeWeight);
   HltTree->Write();
