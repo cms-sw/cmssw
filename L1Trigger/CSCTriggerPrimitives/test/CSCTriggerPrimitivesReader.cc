@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2010/05/05 13:28:11 $
-//   $Revision: 1.38 $
+//   $Date: 2010/08/04 10:22:39 $
+//   $Revision: 1.39 $
 //
 //   Modifications:
 //
@@ -880,6 +880,7 @@ void CSCTriggerPrimitivesReader::fillALCTHistos(const CSCALCTDigiCollection* alc
   for (detUnitIt = alcts->begin(); detUnitIt != alcts->end(); detUnitIt++) {
     int nValidALCTsPerCSC = 0;
     const CSCDetId& id = (*detUnitIt).first;
+    if (badChambers_->isInBadChamber(id)) continue;
     const CSCALCTDigiCollection::Range& range = (*detUnitIt).second;
     for (CSCALCTDigiCollection::const_iterator digiIt = range.first;
 	 digiIt != range.second; digiIt++) {
@@ -925,6 +926,7 @@ void CSCTriggerPrimitivesReader::fillCLCTHistos(const CSCCLCTDigiCollection* clc
   for (detUnitIt = clcts->begin(); detUnitIt != clcts->end(); detUnitIt++) {
     int nValidCLCTsPerCSC = 0;
     const CSCDetId& id = (*detUnitIt).first;
+    if (badChambers_->isInBadChamber(id)) continue;
     const CSCCLCTDigiCollection::Range& range = (*detUnitIt).second;
     for (CSCCLCTDigiCollection::const_iterator digiIt = range.first;
 	 digiIt != range.second; digiIt++) {
@@ -985,6 +987,7 @@ void CSCTriggerPrimitivesReader::fillLCTTMBHistos(const CSCCorrelatedLCTDigiColl
   for (detUnitIt = lcts->begin(); detUnitIt != lcts->end(); detUnitIt++) {
     int nValidLCTsPerCSC = 0;
     const CSCDetId& id = (*detUnitIt).first;
+    if (badChambers_->isInBadChamber(id)) continue;
     const CSCCorrelatedLCTDigiCollection::Range& range = (*detUnitIt).second;
     for (CSCCorrelatedLCTDigiCollection::const_iterator digiIt = range.first;
 	 digiIt != range.second; digiIt++) {
@@ -1057,6 +1060,7 @@ void CSCTriggerPrimitivesReader::fillLCTMPCHistos(const CSCCorrelatedLCTDigiColl
   CSCCorrelatedLCTDigiCollection::DigiRangeIterator detUnitIt;
   for (detUnitIt = lcts->begin(); detUnitIt != lcts->end(); detUnitIt++) {
     const CSCDetId& id = (*detUnitIt).first;
+    if (badChambers_->isInBadChamber(id)) continue;
     const CSCCorrelatedLCTDigiCollection::Range& range = (*detUnitIt).second;
     for (CSCCorrelatedLCTDigiCollection::const_iterator digiIt = range.first;
 	 digiIt != range.second; digiIt++) {
@@ -1164,6 +1168,9 @@ void CSCTriggerPrimitivesReader::compareALCTs(
         for (int cham = 1; cham <= 36; cham++) {
 	  // Calculate DetId.  0th layer means whole chamber.
 	  CSCDetId detid(endc, stat, ring, cham, 0);
+
+	  // Skip chambers marked as bad.
+	  if (badChambers_->isInBadChamber(detid)) continue;
 
 	  std::vector<CSCALCTDigi> alctV_data, alctV_emul;
 	  const CSCALCTDigiCollection::Range& drange = alcts_data->get(detid);
@@ -1336,6 +1343,9 @@ void CSCTriggerPrimitivesReader::compareCLCTs(
 	  // Calculate DetId.  0th layer means whole chamber.
 	  CSCDetId detid(endc, stat, ring, cham, 0);
 
+	  // Skip chambers marked as bad.
+	  if (badChambers_->isInBadChamber(detid)) continue;
+
 	  std::vector<CSCCLCTDigi> clctV_data, clctV_emul;
 	  const CSCCLCTDigiCollection::Range& drange = clcts_data->get(detid);
 	  for (digiIt = drange.first; digiIt != drange.second; digiIt++) {
@@ -1504,6 +1514,9 @@ void CSCTriggerPrimitivesReader::compareLCTs(
         for (int cham = 1; cham <= 36; cham++) {
 	  // Calculate DetId.  0th layer means whole chamber.
 	  CSCDetId detid(endc, stat, ring, cham, 0);
+
+	  // Skip chambers marked as bad.
+	  if (badChambers_->isInBadChamber(detid)) continue;
 
 	  std::vector<CSCCorrelatedLCTDigi> lctV_data, lctV_emul;
 	  const CSCCorrelatedLCTDigiCollection::Range&
@@ -1832,6 +1845,7 @@ void CSCTriggerPrimitivesReader::calcResolution(
   CSCALCTDigiCollection::DigiRangeIterator adetUnitIt;
   for (adetUnitIt = alcts->begin(); adetUnitIt != alcts->end(); adetUnitIt++) {
     const CSCDetId& id = (*adetUnitIt).first;
+    if (badChambers_->isInBadChamber(id)) continue;
     const CSCALCTDigiCollection::Range& range = (*adetUnitIt).second;
     for (CSCALCTDigiCollection::const_iterator digiIt = range.first;
 	 digiIt != range.second; digiIt++) {
@@ -1887,6 +1901,7 @@ void CSCTriggerPrimitivesReader::calcResolution(
   CSCCLCTDigiCollection::DigiRangeIterator cdetUnitIt;
   for (cdetUnitIt = clcts->begin(); cdetUnitIt != clcts->end(); cdetUnitIt++) {
     const CSCDetId& id = (*cdetUnitIt).first;
+    if (badChambers_->isInBadChamber(id)) continue;
     const CSCCLCTDigiCollection::Range& range = (*cdetUnitIt).second;
     for (CSCCLCTDigiCollection::const_iterator digiIt = range.first;
 	 digiIt != range.second; digiIt++) {
