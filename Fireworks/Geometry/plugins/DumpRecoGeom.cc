@@ -14,10 +14,10 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 #include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
@@ -583,7 +583,8 @@ DumpRecoGeom::addPixelBarrelGeometry( TGeoVolume* top, const std::string& iName,
 						    end = m_trackerGeom->detsPXB().end();
        it != end; ++it)
   {
-    unsigned int rawid = ( *it )->geographicalId().rawId();
+    DetId detid = ( *it )->geographicalId();
+    unsigned int rawid = detid.rawId();
     std::stringstream s;
     s << rawid;
     std::string name = s.str();
@@ -596,11 +597,11 @@ DumpRecoGeom::addPixelBarrelGeometry( TGeoVolume* top, const std::string& iName,
     p << path( top, iName, copy ) << "/" << name << "_" << copy;
     m_idToName[rawid] = Info( p.str());
 
-    const PixelGeomDetUnit* det = dynamic_cast<const PixelGeomDetUnit*>(m_trackerGeom->idToDetUnit((*it)->geographicalId()));
+    const PixelGeomDetUnit* det = dynamic_cast<const PixelGeomDetUnit*>( m_trackerGeom->idToDetUnit( detid ));
 
     if( det )
     {      
-      const RectangularPixelTopology* topo = dynamic_cast<const RectangularPixelTopology*>(&det->specificTopology());
+      const RectangularPixelTopology* topo = dynamic_cast<const RectangularPixelTopology*>( &det->specificTopology());
       m_idToName[rawid].topology[0] = topo->nrows();
       m_idToName[rawid].topology[1] = topo->ncolumns();
     }
@@ -617,7 +618,8 @@ DumpRecoGeom::addPixelForwardGeometry( TGeoVolume* top, const std::string& iName
 						    end = m_trackerGeom->detsPXF().end();
        it != end; ++it )
   {
-    unsigned int rawid = ( *it )->geographicalId().rawId();
+    DetId detid = ( *it )->geographicalId();
+    unsigned int rawid = detid.rawId();
     std::stringstream s;
     s << rawid;
     std::string name = s.str();
@@ -629,6 +631,15 @@ DumpRecoGeom::addPixelForwardGeometry( TGeoVolume* top, const std::string& iName
     std::stringstream p;
     p << path( top, iName, copy ) << "/" << name << "_" << copy;
     m_idToName[rawid] = Info( p.str());
+
+    const PixelGeomDetUnit* det = dynamic_cast<const PixelGeomDetUnit*>(m_trackerGeom->idToDetUnit( detid ));
+
+    if( det )
+    {      
+      const RectangularPixelTopology* topo = dynamic_cast<const RectangularPixelTopology*>( &det->specificTopology());
+      m_idToName[rawid].topology[0] = topo->nrows();
+      m_idToName[rawid].topology[1] = topo->ncolumns();
+    }
   }
   
   top->AddNode( assembly, copy );
@@ -642,7 +653,8 @@ DumpRecoGeom::addTIBGeometry( TGeoVolume* top, const std::string& iName, int cop
 						    end = m_trackerGeom->detsTIB().end();
        it != end; ++it )
   {
-    unsigned int rawid = ( *it )->geographicalId().rawId();
+    DetId detid = ( *it )->geographicalId();
+    unsigned int rawid = detid.rawId();
     std::stringstream s;
     s << rawid;
     std::string name = s.str();
@@ -654,6 +666,14 @@ DumpRecoGeom::addTIBGeometry( TGeoVolume* top, const std::string& iName, int cop
     std::stringstream p;
     p << path( top, iName, copy ) << "/" << name << "_" << copy;
     m_idToName[rawid] = Info( p.str());
+
+    const StripGeomDetUnit* det = dynamic_cast<const StripGeomDetUnit*>( m_trackerGeom->idToDet( detid ));
+
+    if( det )
+    {      
+      const StripTopology* topo = dynamic_cast<const StripTopology*>(& det->specificTopology());
+      m_idToName[rawid].topology[0] = topo->nstrips();
+    }
   }
   
   top->AddNode( assembly, copy );
