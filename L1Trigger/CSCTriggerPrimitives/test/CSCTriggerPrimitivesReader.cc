@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2009/12/01 17:58:41 $
-//   $Revision: 1.36 $
+//   $Date: 2010/05/05 13:28:11 $
+//   $Revision: 1.38 $
 //
 //   Modifications:
 //
@@ -179,8 +179,8 @@ void CSCTriggerPrimitivesReader::analyze(const edm::Event& ev,
   edm::Handle<CSCCorrelatedLCTDigiCollection> lcts_mpc_emul;
 
   // Data
-  HotWires(ev);
   if (dataLctsIn_) {
+    HotWires(ev);
     ev.getByLabel(lctProducerData_, "MuonCSCALCTDigi", alcts_data);
     ev.getByLabel(lctProducerData_, "MuonCSCCLCTDigi", clcts_data);
     ev.getByLabel(lctProducerData_, "MuonCSCCorrelatedLCTDigi", lcts_tmb_data);
@@ -402,6 +402,7 @@ void CSCTriggerPrimitivesReader::bookHotWireHistos() {
   hHotCham1  = fs->make<TH1F>("hHotCham1", "hHotCham1",570,0,570);
   bookedHotWireHistos = true;
 }
+
 void CSCTriggerPrimitivesReader::bookALCTHistos() {
   string s;
 

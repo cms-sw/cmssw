@@ -46,6 +46,10 @@ process.GlobalTag.globaltag = 'MC_38Y_V8::All'
 #process.EnableFloatingPointExceptions = cms.Service("EnableFloatingPointExceptions")
 #process.Tracer = cms.Service("Tracer")
 
+process.TFileService = cms.Service("TFileService",
+    fileName = cms.string('TPEHists.root')
+)
+
 process.load("CSCTriggerPrimitivesReader_cfi")
 process.lctreader.debug = True
 process.lctreader.dataLctsIn = False
