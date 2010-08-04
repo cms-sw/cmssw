@@ -17,8 +17,8 @@ using namespace std;
  * Extraction of the summary information using DQMServices/Diagnostic/test/HDQMInspector. <br>
  * The sqlite database should have been filled using the new TrackingHistoryDQMService.   
  */
-void runTrackingInspector( const string & dbName, const string &tagName, const string & Password, const string & whiteListFile,
-			   const string & selectedTrends, const int Start, const int End )
+void runInspector( const string & dbName, const string &tagName, const string & Password, const string & whiteListFile,
+		   const string & selectedTrends, const int Start, const int End )
 {
   // IMPORTANT SETTINGS:
   // string siStripTracker = "268435456";
@@ -98,7 +98,7 @@ int main (int argc, char* argv[])
   }
 
   std::cout << "Creating trends for range:  " << argv[6] << " " << argv[7] << " for tag: " << argv[1] << std::endl;
-  runTrackingInspector( argv[1], argv[2], argv[3], argv[4], argv[5], atoi(argv[6]), atoi(argv[7]) );
+  runInspector( argv[1], argv[2], argv[3], argv[4], argv[5], atoi(argv[6]), atoi(argv[7]) );
 
   return 0;
 }

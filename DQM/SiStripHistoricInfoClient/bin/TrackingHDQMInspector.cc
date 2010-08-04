@@ -208,6 +208,9 @@ void TrackingHDQMInspector( const string & dbName, const string & tagName, const
 
 int main (int argc, char* argv[])
 {
+  gSystem->Load( "libFWCoreFWLite" );
+  AutoLibraryLoader::enable();
+
   if (argc != 6 && argc != 7) {
     std::cerr << "Usage: " << argv[0] << " [Database] [TagName] [Password] [WhiteListFile] [NRuns] " << std::endl;
     std::cerr << "Or:    " << argv[0] << " [Database] [TagName] [Password] [WhiteListFile] [FirstRun] [LastRun] " << std::endl;

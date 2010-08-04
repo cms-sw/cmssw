@@ -65,6 +65,7 @@ void runTrackingInspector( const string &dbName, const string &tagName, const st
   // Database and output configuration
   // makeTrend.setDB("oracle://cms_orcoff_prep/CMS_DQM_31X_OFFLINE",tagName,"cms_dqm_31x_offline", Password,"");
   makeTrend.setDB(dbName,tagName,"cms_dqm_31x_offline", Password,"");
+  // makeTrend.setDB(dbName,tagName,"CMS_COND_GENERAL_R", Password,"");
   makeTrend.setDebug(0);
   makeTrend.setDoStat(1);
   makeTrend.setSkip99s(true);
@@ -157,6 +158,9 @@ void SiStripHDQMInspector( const string & dbName, const string & tagName, const 
 
 int main (int argc, char* argv[])
 {
+  gSystem->Load( "libFWCoreFWLite" );
+  AutoLibraryLoader::enable();
+
   if (argc != 6 && argc != 7) {
     std::cerr << "Usage: " << argv[0] << " [Database] [TagName] [Password] [WhiteListFile] [NRuns] " << std::endl;
     std::cerr << "Or:    " << argv[0] << " [Database] [TagName] [Password] [WhiteListFile] [FirstRun] [LastRun] " << std::endl;
