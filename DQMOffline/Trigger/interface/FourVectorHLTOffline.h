@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.57 2010/06/22 18:31:20 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.58 2010/08/02 23:42:53 wmtan Exp $
 //
 //
 // system include files
@@ -199,6 +199,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 
       unsigned int nLS_; 
       double LSsize_ ;
+      double thresholdFactor_ ;
       unsigned int referenceBX_; 
       unsigned int Nbx_; 
 
@@ -669,13 +670,14 @@ template <class T>
 class objMonData:public BaseMonitor {
 public:
     objMonData() { EtaMax_= 2.5; EtMin_=3.0; GenJetsFlag_ = false; BJetsFlag_ = false; fL2MuFlag = false; }
-    void setLimits(float etaMax, float etMin, float drMatch, float l1drMatch, float dRRange = 2.) 
+    void setLimits(float etaMax, float etMin, float drMatch, float l1drMatch, float dRRange, float thresholdFactor) 
     {
      EtaMax_= etaMax; 
      EtMin_= etMin; 
      DRMatch_= drMatch;
      L1DRMatch_= l1drMatch;
      DRRange_ = dRRange;
+     thresholdFactor_ = thresholdFactor;
     }
     void setTriggerType(std::vector<int> trigType) { triggerType_ = trigType; }
     void pushTriggerType(int trigType) { triggerType_.push_back(trigType); }
@@ -737,6 +739,7 @@ private:
     float DRMatch_;
     float L1DRMatch_;
     float DRRange_;
+    float thresholdFactor_;
 
     bool GenJetsFlag_;
     bool BJetsFlag_;
@@ -816,7 +819,7 @@ void objMonData<T>::monitorOffline()
      
        NOff++;
        v_->getOffEtOffHisto()->Fill(recoPt);
-       if(recoPt >= 2*v_->getHltThreshold())
+       if(recoPt >= thresholdFactor_*v_->getHltThreshold())
        v_->getOffEtaVsOffPhiOffHisto()->Fill(recoEta, recoPhi);
 
     }
@@ -843,7 +846,7 @@ void objMonData<T>::monitorOffline()
      NOff++;
      v_->getOffEtOffHisto()->Fill(iter->superCluster()->energy()*sin(iter->superCluster()->position().Theta()));
 
-     if(iter->pt() >= 2*v_->getHltThreshold())
+     if(iter->pt() >= thresholdFactor_*v_->getHltThreshold())
      v_->getOffEtaVsOffPhiOffHisto()->Fill(iter->eta(), iter->phi());
 
    }
@@ -870,7 +873,7 @@ void objMonData<T>::monitorOffline()
      NOff++;
      v_->getOffEtOffHisto()->Fill(iter->pt());
 
-     if(iter->pt() >= 2*v_->getHltThreshold())
+     if(iter->pt() >= thresholdFactor_*v_->getHltThreshold())
      v_->getOffEtaVsOffPhiOffHisto()->Fill(iter->eta(), iter->phi());
 
    }
@@ -912,33 +915,20 @@ void objMonData<T>::monitorL1(const int l1Index, FourVectorHLTOffline* fv)
   for (trigger::Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) {
 
    trigger::TriggerObject l1FV = toc[*l1ki];
+
    if(isL1TriggerType(*idtypeiter))
    {
 
+     NL1++;
 
+     v_->getL1EtL1Histo()->Fill(l1FV.pt());
+     v_->getL1EtaVsL1PhiL1Histo()->Fill(l1FV.eta(), l1FV.phi());
 
-      if (fabs(l1FV.eta()) <= EtaMax_ && l1FV.pt() >= EtMin_)
-      { 
+     matchL1Offline(l1FV, fv, NL1, NL1OffUM);
 
-        NL1++;
+   } // end if isL1TriggerType
 
-        v_->getL1EtL1Histo()->Fill(l1FV.pt());
-        v_->getL1EtaVsL1PhiL1Histo()->Fill(l1FV.eta(), l1FV.phi());
-
-      }
-      /*
-      else {
-
-        ++idtypeiter;
-        continue;
-
-      }
-      */
-
-      matchL1Offline(l1FV, fv, NL1, NL1OffUM);
-
-     } // end if isL1TriggerType
-     ++idtypeiter;
+   ++idtypeiter;
 
  } // end for l1ki
 
@@ -973,6 +963,8 @@ void objMonData<T>::matchL1Offline(const trigger::TriggerObject& l1FV, FourVecto
 
           NL1OffUM++;
           v_->getOffEtL1OffUMHisto()->Fill(recoPt);
+
+          if(recoPt >= thresholdFactor_*v_->getHltThreshold())
           v_->getOffEtaVsOffPhiL1OffUMHisto()->Fill(recoEta,recoPhi);
 
         }
@@ -1015,6 +1007,8 @@ void objMonData<T>::matchL1Offline(const trigger::TriggerObject& l1FV, FourVecto
 
           NL1OffUM++;
           v_->getOffEtL1OffUMHisto()->Fill(recoPt);
+
+          if(recoPt >= thresholdFactor_*v_->getHltThreshold())
           v_->getOffEtaVsOffPhiL1OffUMHisto()->Fill(recoEta,recoPhi);
 
         }
@@ -1050,6 +1044,8 @@ void objMonData<T>::matchL1Offline(const trigger::TriggerObject& l1FV, FourVecto
 
           NL1OffUM++;
           v_->getOffEtL1OffUMHisto()->Fill(iter->superCluster()->energy()*sin(iter->superCluster()->position().Theta()));
+
+          if(iter->superCluster()->energy()*sin(iter->superCluster()->position().Theta()) >= thresholdFactor_*v_->getHltThreshold())
           v_->getOffEtaVsOffPhiL1OffUMHisto()->Fill(iter->eta(),iter->phi());
 
         }
@@ -1085,6 +1081,8 @@ void objMonData<T>::matchL1Offline(const trigger::TriggerObject& l1FV, FourVecto
 
           NL1OffUM++;
           v_->getOffEtL1OffUMHisto()->Fill(iter->pt());
+
+          if(iter->pt() >= thresholdFactor_*v_->getHltThreshold())
           v_->getOffEtaVsOffPhiL1OffUMHisto()->Fill(iter->eta(),iter->phi());
 
         }
@@ -1128,25 +1126,12 @@ void objMonData<T>::monitorOnline(const int hltIndex, const int l1Index, FourVec
 
 	  trigger::TriggerObject onlineFV = toc[*ki];
 	
-	  if (fabs(onlineFV.eta()) <= EtaMax_ && onlineFV.pt() >= EtMin_)
-	  { 
+	  NOn++;    
 	
-	    NOn++;    
+	  v_->getOnEtOnHisto()->Fill(onlineFV.pt());
+	  v_->getOnOneOverEtOnHisto()->Fill(1./onlineFV.pt());
+	  v_->getOnEtaVsOnPhiOnHisto()->Fill(onlineFV.eta(), onlineFV.phi());
 	
-	    v_->getOnEtOnHisto()->Fill(onlineFV.pt());
-	    v_->getOnOneOverEtOnHisto()->Fill(1./onlineFV.pt());
-	    v_->getOnEtaVsOnPhiOnHisto()->Fill(onlineFV.eta(), onlineFV.phi());
-	
-	  }
-    /*
-	  else {
-	
-	    //return;
-      continue;
-	
-	  }
-    */
-
     matchOnlineL1(onlineFV,l1Index, fv, NOn);
     matchOnlineOffline(onlineFV,fv, NOn);
 
@@ -1174,36 +1159,29 @@ void objMonData<T>::matchOnlineL1(const trigger::TriggerObject& onlineFV, const 
   for (trigger::Keys::const_iterator l1ki = l1k.begin(); l1ki !=l1k.end(); ++l1ki ) 
   {
 
-      
-
       if(isL1TriggerType(*idtypeiter))
       {
 
         trigger::TriggerObject l1FV = toc[*l1ki];
 
-        if ( fabs(l1FV.eta()) <= EtaMax_ && l1FV.pt() >= EtMin_ )
-        {
+        // fill UM histos (no matching required)
+        if(NOn == 1) {
 
-           // fill UM histos (no matching required)
-           if(NOn == 1) {
+          NOnL1UM++;
+          v_->getL1EtL1OnUMHisto()->Fill(l1FV.pt());
+          v_->getL1EtaVsL1PhiL1OnUMHisto()->Fill(l1FV.eta(),l1FV.phi());
 
-            NOnL1UM++;
-            v_->getL1EtL1OnUMHisto()->Fill(l1FV.pt());
-            v_->getL1EtaVsL1PhiL1OnUMHisto()->Fill(l1FV.eta(),l1FV.phi());
-
-            }
+         }
 
 
-            float dR = reco::deltaR(l1FV.eta(),l1FV.phi(),onlineFV.eta(),onlineFV.phi());
+         float dR = reco::deltaR(l1FV.eta(),l1FV.phi(),onlineFV.eta(),onlineFV.phi());
 
-            if ( dR < DRRange_) 
-            {
+         if ( dR < DRRange_) 
+         {
 
-              OnL1DRMatchMap.insert(std::pair<float,int>(dR,j));
+           OnL1DRMatchMap.insert(std::pair<float,int>(dR,j));
 
-            }
-
-          } // end if l1FV eta, pt
+         }
 
        } // end if isL1TriggerType
 
@@ -1244,6 +1222,8 @@ void objMonData<T>::matchOnlineOffline(const trigger::TriggerObject& onlineFV, F
 
            NOnOffUM++;
            v_->getOffEtOnOffUMHisto()->Fill(recoPt);
+
+           if(recoPt >= thresholdFactor_*v_->getHltThreshold())
            v_->getOffEtaVsOffPhiOnOffUMHisto()->Fill(recoEta,recoPhi);
 
          }
@@ -1285,6 +1265,8 @@ void objMonData<T>::matchOnlineOffline(const trigger::TriggerObject& onlineFV, F
 
            NOnOffUM++;
            v_->getOffEtOnOffUMHisto()->Fill(iter->pt());
+
+           if(recoPt >= thresholdFactor_*v_->getHltThreshold())
            v_->getOffEtaVsOffPhiOnOffUMHisto()->Fill(iter->eta(),iter->phi());
 
          }
@@ -1322,6 +1304,8 @@ void objMonData<T>::matchOnlineOffline(const trigger::TriggerObject& onlineFV, F
 
            NOnOffUM++;
            v_->getOffEtOnOffUMHisto()->Fill(iter->superCluster()->energy()*sin(iter->superCluster()->position().Theta()));
+
+           if(iter->superCluster()->energy()*sin(iter->superCluster()->position().Theta()) >= thresholdFactor_*v_->getHltThreshold())
            v_->getOffEtaVsOffPhiOnOffUMHisto()->Fill(iter->eta(),iter->phi());
 
          }
@@ -1359,6 +1343,8 @@ void objMonData<T>::matchOnlineOffline(const trigger::TriggerObject& onlineFV, F
 
            NOnOffUM++;
            v_->getOffEtOnOffUMHisto()->Fill(iter->pt());
+
+           if(iter->pt() >= thresholdFactor_*v_->getHltThreshold())
            v_->getOffEtaVsOffPhiOnOffUMHisto()->Fill(iter->eta(),iter->phi());
 
          }
@@ -1419,7 +1405,7 @@ void objMonData<T>::fillL1OffMatch(FourVectorHLTOffline* fv)
 
          NL1Off++;
          v_->getOffEtL1OffHisto()->Fill((*iter).first->pt());
-         if((*iter).first->pt() >= 2*v_->getHltThreshold())
+         if((*iter).first->pt() >= thresholdFactor_*v_->getHltThreshold())
          v_->getOffEtaVsOffPhiL1OffHisto()->Fill((*iter).first->eta(),(*iter).first->phi());
 
 
@@ -1433,7 +1419,7 @@ void objMonData<T>::fillL1OffMatch(FourVectorHLTOffline* fv)
 
         NL1Off++;
         v_->getOffEtL1OffHisto()->Fill(iter->pt());
-        if(iter->pt() >= 2*v_->getHltThreshold())
+        if(iter->pt() >= thresholdFactor_*v_->getHltThreshold())
         v_->getOffEtaVsOffPhiL1OffHisto()->Fill(iter->outerTrack()->innerPosition().eta(),iter->outerTrack()->innerPosition().phi());
 
       }
@@ -1446,7 +1432,7 @@ void objMonData<T>::fillL1OffMatch(FourVectorHLTOffline* fv)
 
          NL1Off++;
          v_->getOffEtL1OffHisto()->Fill(iter->superCluster()->energy()*sin(iter->superCluster()->position().Theta()));
-         if(iter->pt() >= 2*v_->getHltThreshold())
+         if(iter->pt() >= thresholdFactor_*v_->getHltThreshold())
          v_->getOffEtaVsOffPhiL1OffHisto()->Fill(iter->eta(),iter->phi());
 
       }
@@ -1459,7 +1445,7 @@ void objMonData<T>::fillL1OffMatch(FourVectorHLTOffline* fv)
 
          NL1Off++;
          v_->getOffEtL1OffHisto()->Fill(iter->pt());
-         if(iter->pt() >= 2*v_->getHltThreshold())
+         if(iter->pt() >= thresholdFactor_*v_->getHltThreshold())
          v_->getOffEtaVsOffPhiL1OffHisto()->Fill(iter->eta(),iter->phi());
 
       }
@@ -1509,7 +1495,7 @@ void objMonData<T>::fillOnOffMatch(FourVectorHLTOffline* fv)
 
          NOnOff++;
          v_->getOffEtOnOffHisto()->Fill((*iter).first->pt());
-         if((*iter).first->pt() >= 2*v_->getHltThreshold())
+         if((*iter).first->pt() >= thresholdFactor_*v_->getHltThreshold())
          v_->getOffEtaVsOffPhiOnOffHisto()->Fill((*iter).first->eta(),(*iter).first->phi());
 
        }
@@ -1522,7 +1508,7 @@ void objMonData<T>::fillOnOffMatch(FourVectorHLTOffline* fv)
 
          NOnOff++;
          v_->getOffEtOnOffHisto()->Fill(iter->pt());
-         if(iter->pt() >= 2*v_->getHltThreshold())
+         if(iter->pt() >= thresholdFactor_*v_->getHltThreshold())
          v_->getOffEtaVsOffPhiOnOffHisto()->Fill(iter->outerTrack()->innerPosition().eta(),iter->outerTrack()->innerPosition().phi());
 
       }
@@ -1534,7 +1520,7 @@ void objMonData<T>::fillOnOffMatch(FourVectorHLTOffline* fv)
 
          NOnOff++;
          v_->getOffEtOnOffHisto()->Fill(iter->superCluster()->energy()*sin(iter->superCluster()->position().Theta()));
-         if(iter->superCluster()->energy()*abs(sin(iter->superCluster()->position().Theta())) >= 2*v_->getHltThreshold())
+         if(iter->superCluster()->energy()*abs(sin(iter->superCluster()->position().Theta())) >= thresholdFactor_*v_->getHltThreshold())
          v_->getOffEtaVsOffPhiOnOffHisto()->Fill(iter->eta(),iter->phi());
 
        }
@@ -1546,7 +1532,7 @@ void objMonData<T>::fillOnOffMatch(FourVectorHLTOffline* fv)
 
          NOnOff++;
          v_->getOffEtOnOffHisto()->Fill(iter->pt());
-         if(iter->pt() >= 2*v_->getHltThreshold())
+         if(iter->pt() >= thresholdFactor_*v_->getHltThreshold())
          v_->getOffEtaVsOffPhiOnOffHisto()->Fill(iter->eta(),iter->phi());
 
        }

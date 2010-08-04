@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.80 2010/06/22 18:31:21 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.81 2010/07/26 09:32:11 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -57,6 +57,7 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig): cu
   nBinsOneOverEt_ = iConfig.getUntrackedParameter<unsigned int>("NbinsOneOverEt",10000);
   nLS_   = iConfig.getUntrackedParameter<unsigned int>("NLuminositySegments",10);
   LSsize_   = iConfig.getUntrackedParameter<double>("LuminositySegmentSize",23);
+  thresholdFactor_ = iConfig.getUntrackedParameter<double>("thresholdFactor",1.5);
 
   
   plotAll_ = iConfig.getUntrackedParameter<bool>("plotAll", false);
@@ -312,7 +313,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   //eleMon.setReco(gsfElectrons);
   eleMon.setReco(fSelElectronsHandle);
   eleMon.setRecoEle(fSelElectronsHandle);
-  eleMon.setLimits(electronEtaMax_, electronEtMin_, electronDRMatch_, electronL1DRMatch_, dRMax_);
+  eleMon.setLimits(electronEtaMax_, electronEtMin_, electronDRMatch_, electronL1DRMatch_, dRMax_, thresholdFactor_);
   
   eleMon.pushTriggerType(TriggerElectron);
   eleMon.pushTriggerType(TriggerL1NoIsoEG);
@@ -326,7 +327,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   //muoMon.setReco(muonHandle);
   muoMon.setReco(fSelMuonsHandle);
   muoMon.setRecoMu(fSelMuonsHandle);
-  muoMon.setLimits(muonEtaMax_, muonEtMin_, muonDRMatch_, muonL1DRMatch_, dRMax_);
+  muoMon.setLimits(muonEtaMax_, muonEtMin_, muonDRMatch_, muonL1DRMatch_, dRMax_, thresholdFactor_);
   
   muoMon.pushTriggerType(TriggerMuon);
   muoMon.pushTriggerType(TriggerL1Mu);
@@ -337,7 +338,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   objMonData<reco::CaloTauCollection>  tauMon;
   //tauMon.setReco(tauHandle);
   tauMon.setReco(fSelTausHandle);
-  tauMon.setLimits(tauEtaMax_, tauEtMin_, tauDRMatch_, tauL1DRMatch_, dRMax_);
+  tauMon.setLimits(tauEtaMax_, tauEtMin_, tauDRMatch_, tauL1DRMatch_, dRMax_, thresholdFactor_);
   
   tauMon.pushTriggerType(TriggerTau);
   tauMon.pushTriggerType(TriggerL1TauJet);
@@ -358,7 +359,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   //phoMon.setRecoEle(fSelElectronsHandle);
   
 
-  phoMon.setLimits(photonEtaMax_, photonEtMin_, photonDRMatch_, photonL1DRMatch_, dRMax_);
+  phoMon.setLimits(photonEtaMax_, photonEtMin_, photonDRMatch_, photonL1DRMatch_, dRMax_, thresholdFactor_);
   
   phoMon.pushTriggerType(TriggerPhoton);
 
@@ -369,7 +370,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   objMonData<reco::CaloJetCollection> jetMon;
   //jetMon.setReco(jetHandle);
   jetMon.setReco(fSelJetsHandle);
-  jetMon.setLimits(jetEtaMax_, jetEtMin_, jetDRMatch_, jetL1DRMatch_, dRMax_);
+  jetMon.setLimits(jetEtaMax_, jetEtMin_, jetDRMatch_, jetL1DRMatch_, dRMax_, thresholdFactor_);
 
   jetMon.pushTriggerType(TriggerJet);
   jetMon.pushTriggerType(TriggerL1CenJet);
@@ -384,7 +385,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   //btagIPMon.setReco(jetHandle);
   btagIPMon.setRecoB(bTagIPHandle);
   btagIPMon.setBJetsFlag(true);
-  btagIPMon.setLimits(bjetEtaMax_, bjetEtMin_, bjetDRMatch_, bjetL1DRMatch_, dRMax_);
+  btagIPMon.setLimits(bjetEtaMax_, bjetEtMin_, bjetDRMatch_, bjetL1DRMatch_, dRMax_, thresholdFactor_);
 
   btagIPMon.pushTriggerType(TriggerBJet);
   btagIPMon.pushTriggerType(TriggerJet);
@@ -397,7 +398,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   //btagMuMon.setReco(jetHandle);
   btagMuMon.setRecoB(bTagMuHandle);
   btagMuMon.setBJetsFlag(true);
-  btagMuMon.setLimits(bjetEtaMax_, bjetEtMin_, bjetDRMatch_, bjetL1DRMatch_, dRMax_);
+  btagMuMon.setLimits(bjetEtaMax_, bjetEtMin_, bjetDRMatch_, bjetL1DRMatch_, dRMax_, thresholdFactor_);
 
   btagMuMon.pushTriggerType(TriggerBJet);
   btagMuMon.pushTriggerType(TriggerJet);
@@ -413,7 +414,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   objMonData<reco::CaloMETCollection> metMon;
   //metMon.setReco(metHandle);
   metMon.setReco(fSelMetHandle);
-  metMon.setLimits(metEtaMax_, metMin_, metDRMatch_, metL1DRMatch_, dRMax_);
+  metMon.setLimits(metEtaMax_, metMin_, metDRMatch_, metL1DRMatch_, dRMax_, thresholdFactor_);
   
   metMon.pushTriggerType(TriggerMET);
 
@@ -424,7 +425,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   //tetMon.setReco(metHandle);
   tetMon.setReco(fSelMetHandle);
   //tetMon.setLimits(tetEtaMax_=999., tetEtMin_=10, tetDRMatch_=999);
-  tetMon.setLimits(999., 10., 999., 999., dRMax_);
+  tetMon.setLimits(999., 10., 999., 999., dRMax_, thresholdFactor_);
   
   tetMon.pushTriggerType(TriggerTET);
 
@@ -433,7 +434,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // default Monitor
   //objMonData<trigger::TriggerEvent> defMon;
   objMonData<reco::CaloMETCollection> defMon;
-  defMon.setLimits(999., 3., 999., 999., dRMax_);
+  defMon.setLimits(999., 3., 999., 999., dRMax_, thresholdFactor_);
 
   // vector to hold monitors 
   // interface is through virtual class BaseMonitor
@@ -2200,7 +2201,7 @@ int FourVectorHLTOffline::getTriggerTypeParsePathName(const string& pathname)
 
 	 if (pathname.find("MET") != std::string::npos) 
 	   objectType = trigger::TriggerMET;    
-	 if (pathname.find("SumET") != std::string::npos) 
+	 if (pathname.find("SumET") != std::string::npos || pathname.find("SumEt") != std::string::npos || pathname.find("ETT") != std::string::npos) 
 	   objectType = trigger::TriggerTET;    
 	 if (pathname.find("HT") != std::string::npos) 
 	   objectType = trigger::TriggerTET;    
