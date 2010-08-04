@@ -2,6 +2,7 @@
     model = combined
     components = my_analysis
 
+
 #section 1
 [my_analysis]
     variables = x
