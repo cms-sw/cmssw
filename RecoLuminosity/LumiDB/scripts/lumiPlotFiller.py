@@ -50,7 +50,7 @@ def totalLumivstime(c,p='.',i='',o='.',begTime="03/30/10 10:00:00.00",endTime=No
     print command
     if not dryrun:
         statusAndOutput=commands.getstatusoutput(command)
-        
+        print statusAndOutput[1]
 def totalLumivstimeLastweek(c,p='.',i='',o='.',selectionfile=None,beamstatus=None,beamenergy=None,beamenergyfluctuation=None,dryrun=False):
     '''
     input:
@@ -72,7 +72,7 @@ def totalLumivstimeLastweek(c,p='.',i='',o='.',selectionfile=None,beamstatus=Non
     print command
     if not dryrun:
         statusAndOutput=commands.getstatusoutput(command)
-
+        print statusAndOutput[1]
 def lumiPerDay(c,p='.',i='',o='',begTime="03/30/10 10:00:00.00",endTime=None,selectionfile=None,beamstatus=None,beamenergy=None,beamenergyfluctuation=None,dryrun=False):
     '''
     input:
@@ -91,7 +91,7 @@ def lumiPerDay(c,p='.',i='',o='',begTime="03/30/10 10:00:00.00",endTime=None,sel
     print command
     if not dryrun:
         statusAndOutput=commands.getstatusoutput(command)
-
+        print statusAndOutput[1]
 def totalLumivsRun(c,p='.',i='',o='',begRun="132440",endRun=None,selectionfile=None,beamenergy=None,beamenergyfluctuation=None,dryrun=False):
     '''
     input:
@@ -133,7 +133,7 @@ def totalLumivsFill(c,p='.',i='',o='',begFill="1005",endFill=None,selectionfile=
     print command
     if not dryrun:
         statusAndOutput=commands.getstatusoutput(command)
-
+        print statusAndOutput[1]
 def instLumiForRuns(c,runnumbers,p='.',o='.',dryrun=False):
     '''
     draw instlumperrun plot for the given runs
@@ -152,7 +152,7 @@ def instLumiForRuns(c,runnumbers,p='.',o='.',dryrun=False):
         print command
         if not dryrun:
             statusAndOutput=commands.getstatusoutput(command)
-
+            print statusAndOutput[1]
 def instPeakPerday(c,p='.',o='.',begTime="03/30/10 10:00:00.00",endTime=None,dryrun=False):
     '''
     input:
@@ -170,7 +170,7 @@ def instPeakPerday(c,p='.',o='.',begTime="03/30/10 10:00:00.00",endTime=None,dry
     print command
     if not dryrun:
         statusAndOutput=commands.getstatusoutput(command)
-
+        print statusAndOutput[1]
 def main():
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="Produce lumi plots")
     parser.add_argument('-c',dest='connect',action='store',required=True,help='connect string to lumiDB')
