@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2010/01/25 21:12:25 $
- * $Revision: 1.57 $
+ * $Date: 2010/08/04 06:27:00 $
+ * $Revision: 1.58 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -118,8 +118,6 @@ std::string dbUserName_;
 std::string dbPassword_;
 
 std::string dbTagName_;
-
-std::string maskFile_;
 
 bool mergeRuns_;
 

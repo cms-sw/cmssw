@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2010/01/25 21:12:23 $
- * $Revision: 1.121 $
+ * $Date: 2010/08/04 06:27:10 $
+ * $Revision: 1.122 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -115,8 +115,6 @@ std::string dbUserName_;
 std::string dbPassword_;
 
 std::string dbTagName_;
-
-std::string maskFile_;
 
 bool mergeRuns_;
 

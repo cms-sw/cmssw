@@ -228,7 +228,6 @@ process.ecalBarrelLaserTask.EcalUncalibratedRecHitCollection = 'ecalUncalibHit2:
 
 process.ecalBarrelTimingTask.EcalRecHitCollection = 'ecalRecHit:EcalRecHitsEB'
 
-process.ecalBarrelMonitorClient.maskFile = 'DQM/EcalBarrelMonitorModule/test/data/maskfile-EB.dat'
 process.ecalBarrelMonitorClient.location = 'P5_Co'
 #process.ecalBarrelMonitorClient.superModules = [34]
 
