@@ -55,12 +55,22 @@ hltDTActivityFilter = cms.EDFilter( "HLTDTActivityFilter",
     activeSectors    = cms.vint32(1,2,3,4,5,6,7,8,9,10,11,12)
 )
 
-from CalibMuon.DTCalibration.DTCalibMuonSelection_cfi import *
+#from CalibMuon.DTCalibration.DTCalibMuonSelection_cfi import *
 
-offlineSelection = cms.Sequence(scrapingEvtFilter + primaryVertexFilter + hltDTActivityFilter + DTCalibMuonSelection)
+goodMuons = cms.EDFilter("CandViewSelector",
+    src = cms.InputTag("muons"),
+    cut = cms.string('(isGlobalMuon = 1 | isTrackerMuon = 1) & abs(eta) < 1.2')
+)
+muonFilter = cms.EDFilter("CandViewCountFilter",
+    src = cms.InputTag("goodMuons"),
+    minNumber = cms.uint32(1)
+)
+muonSelection = cms.Sequence(goodMuons * muonFilter)
+
+#offlineSelection = cms.Sequence(scrapingEvtFilter + primaryVertexFilter + hltDTActivityFilter + muonSelection)
+offlineSelection = cms.Sequence(scrapingEvtFilter + primaryVertexFilter + muonSelection)
 offlineSelectionALCARECO = cms.Sequence(hltDTActivityFilter)
+#offlineSelectionALCARECO = cms.Sequence(muonSelection)
 
 dtCalibOfflineSelection = cms.Sequence(l1Coll + offlineSelection)
-
 dtCalibOfflineSelectionALCARECO = cms.Sequence(l1CollBscAnd + offlineSelectionALCARECO)
-
