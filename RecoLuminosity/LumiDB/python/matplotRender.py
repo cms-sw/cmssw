@@ -6,24 +6,29 @@ Specs:
 -- PNG as default batch file format
 -- we support http mode by sending string buf via meme type image/png. Sending a premade static plot to webserver is considered a uploading process instead of http dynamic graphical mode. Therefore covered in this module.
 '''
-import sys
+import sys,os
 import numpy,datetime
 import matplotlib
 from RecoLuminosity.LumiDB import CommonUtil
 
 batchonly=False
-try:
-    matplotlib.use('TkAgg',warn=False)
-    from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as CanvasBackend
-    from matplotlib.backends.backend_tkagg import NavigationToolbar2TkAgg
-    import Tkinter as Tk
-    root=Tk.Tk()
-    root.wm_title("Lumi GUI in TK")
-except ImportError:
-    print 'unable to import GUI backend, switch to batch only mode'
+if not os.environ.has_key('DISPLAY') or not os.environ['DISPLAY']:
+    batchonly=True
     matplotlib.use('Agg',warn=False)
     from matplotlib.backends.backend_agg import FigureCanvasAgg as CanvasBackend
-    batchonly=True
+else:
+    try:
+        matplotlib.use('TkAgg',warn=False)
+        from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg as CanvasBackend
+        from matplotlib.backends.backend_tkagg import NavigationToolbar2TkAgg
+        import Tkinter as Tk
+        root=Tk.Tk()
+        root.wm_title("Lumi GUI in TK")
+    except ImportError:
+        print 'unable to import GUI backend, switch to batch only mode'
+        matplotlib.use('Agg',warn=False)
+        from matplotlib.backends.backend_agg import FigureCanvasAgg as CanvasBackend
+        batchonly=True
 
 from matplotlib.figure import Figure
 from matplotlib.font_manager import fontManager,FontProperties
