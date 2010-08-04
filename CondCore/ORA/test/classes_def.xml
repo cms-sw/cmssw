@@ -14,8 +14,6 @@
   <class name="testORA::SA"/>
   <class name="testORA::SimpleStruct"/>
   <class name="testORA::MultiArrayClass2::Inner"/>
-  <class name="std::map<unsigned long long,unsigned long long>"/>
-  <class name="std::map<unsigned long long,unsigned long long>::value_type" />
   <class name="std::map<std::string,unsigned int>"/>
   <class name="std::map<std::string,unsigned int>::value_type"/>
   <class name="testORA::Metadata"/>

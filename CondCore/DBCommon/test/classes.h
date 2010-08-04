@@ -5,6 +5,9 @@
 #include <iostream>
 #include <map>
 
+
+namespace testDBCommon {
+
 class SimpleMember {
 
  public:
@@ -152,3 +155,9 @@ class SimpleClass : public BaseClass {
   std::map<unsigned long long,unsigned long long> m_map;
   MySimpleClassCode m_code;
 };
+
+
+
+}  // namespace testDBCommon
+
+using namespace testDBCommon;
