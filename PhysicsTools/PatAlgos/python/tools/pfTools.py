@@ -290,7 +290,7 @@ def removeMCMatchingPF2PAT( process, postfix="" ):
     removeMCMatching(process, ['All'],postfix)
 
 
-def usePF2PAT(process, runPF2PAT=True, jetAlgo='IC5', runOnMC=True, postfix = ""):
+def usePF2PAT(process, runPF2PAT=True, jetAlgo='IC5', runOnMC=True, postfix = "", explicitExclude=False):
     # PLEASE DO NOT CLOBBER THIS FUNCTION WITH CODE SPECIFIC TO A GIVEN PHYSICS OBJECT.
     # CREATE ADDITIONAL FUNCTIONS IF NEEDED. 
 
@@ -299,7 +299,8 @@ def usePF2PAT(process, runPF2PAT=True, jetAlgo='IC5', runOnMC=True, postfix = ""
 
     # -------- CORE ---------------
     if runPF2PAT:
-        process.load("PhysicsTools.PFCandProducer.PF2PAT_cff")
+        if explicitExclude == False :
+            process.load("PhysicsTools.PFCandProducer.PF2PAT_cff")
         #add Pf2PAT *before* cloning so that overlapping modules are cloned too
         #process.patDefaultSequence.replace( process.patCandidates, process.PF2PAT+process.patCandidates)
         process.patPF2PATSequence = cms.Sequence( process.PF2PAT + process.patDefaultSequence)
