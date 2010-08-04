@@ -242,7 +242,6 @@ def main():
         runDict=lumiQueryAPI.runsByTimerange(qHandle,minTime,maxTime)#xrawdata
         session.transaction().commit()
         runList=runDict.keys()
-        print 'runDict ',runDict
         del qHandle
         #print runDict
     else:
