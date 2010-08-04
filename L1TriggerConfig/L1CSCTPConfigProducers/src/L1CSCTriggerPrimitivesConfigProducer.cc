@@ -10,8 +10,8 @@
 
 #include <L1TriggerConfig/L1CSCTPConfigProducers/src/L1CSCTriggerPrimitivesConfigProducer.h>
 
-#include "CondFormats/CSCObjects/interface/CSCL1TPParameters.h"
-#include "CondFormats/DataRecord/interface/CSCL1TPParametersRcd.h"
+#include "CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h"
+#include "CondFormats/DataRecord/interface/CSCDBL1TPParametersRcd.h"
 
 //----------------
 // Constructors --
@@ -24,7 +24,7 @@ L1CSCTriggerPrimitivesConfigProducer::L1CSCTriggerPrimitivesConfigProducer(const
 
   // Decide on which of the two sets of parameters will be used.
   // (Temporary substitute for the IOV.)
-  std::string alctParamSet, clctParamSet;
+  std::string alctParamSet, clctParamSet, tmbParamSet;
   bool isMTCC  = iConfig.getParameter<bool>("isMTCC");
   bool isTMB07 = iConfig.getParameter<bool>("isTMB07");
   if (isMTCC) {
@@ -39,6 +39,7 @@ L1CSCTriggerPrimitivesConfigProducer::L1CSCTriggerPrimitivesConfigProducer(const
     alctParamSet = "alctParam";
     clctParamSet = "clctParam";
   }
+  tmbParamSet = "tmbParam";
 
   // get ALCT parameters from the config file
   edm::ParameterSet alctParams =
@@ -83,6 +84,22 @@ L1CSCTriggerPrimitivesConfigProducer::L1CSCTriggerPrimitivesConfigProducer(const
     clctParams.getParameter<unsigned int>("clctPidThreshPretrig");
   m_clct_min_separation =
     clctParams.getParameter<unsigned int>("clctMinSeparation");
+
+  // get TMB parameters from the config file
+  edm::ParameterSet tmbParams =
+    iConfig.getParameter<edm::ParameterSet>(tmbParamSet);
+  m_tmb_mpc_block_me1a =
+    tmbParams.getParameter<unsigned int>("tmbMpcBlockMe1a");
+  m_tmb_alct_trig_enable =
+    tmbParams.getParameter<unsigned int>("tmbAlctTrigEnable");
+  m_tmb_clct_trig_enable =
+    tmbParams.getParameter<unsigned int>("tmbClctTrigEnable");
+  m_tmb_match_trig_enable =
+    tmbParams.getParameter<unsigned int>("tmbMatchTrigEnable");
+  m_tmb_match_trig_window_size =
+    tmbParams.getParameter<unsigned int>("tmbMatchTrigWindowSize");
+  m_tmb_tmb_l1a_window_size =
+    tmbParams.getParameter<unsigned int>("tmbTmbL1aWindowSize");
 }
 
 //----------------
@@ -97,13 +114,13 @@ L1CSCTriggerPrimitivesConfigProducer::~L1CSCTriggerPrimitivesConfigProducer() {
 //------------------
 
 // ------------ method called to produce the data  ------------
-std::auto_ptr<CSCL1TPParameters>
-L1CSCTriggerPrimitivesConfigProducer::produce(const CSCL1TPParametersRcd& iRecord) {
+std::auto_ptr<CSCDBL1TPParameters>
+L1CSCTriggerPrimitivesConfigProducer::produce(const CSCDBL1TPParametersRcd& iRecord) {
   using namespace edm::es;
   //boost::shared_ptr<L1CSCTriggerPrimitivesConfigProducer> pL1CSCTPConfigProducer;
 
   // Create empty collection of CSCTPParameters.
-  std::auto_ptr<CSCL1TPParameters> pL1CSCTPParams(new CSCL1TPParameters);
+  std::auto_ptr<CSCDBL1TPParameters> pL1CSCTPParams(new CSCDBL1TPParameters);
 
   // Set ALCT parameters.
   pL1CSCTPParams->setAlctFifoTbins(m_alct_fifo_tbins);
@@ -126,6 +143,14 @@ L1CSCTriggerPrimitivesConfigProducer::produce(const CSCL1TPParametersRcd& iRecor
   pL1CSCTPParams->setClctNplanesHitPattern(m_clct_nplanes_hit_pattern);
   pL1CSCTPParams->setClctPidThreshPretrig(m_clct_pid_thresh_pretrig);
   pL1CSCTPParams->setClctMinSeparation(m_clct_min_separation);
+
+  // Set TMB parameters.
+  pL1CSCTPParams->setTmbMpcBlockMe1a(m_tmb_mpc_block_me1a);
+  pL1CSCTPParams->setTmbAlctTrigEnable(m_tmb_alct_trig_enable);
+  pL1CSCTPParams->setTmbClctTrigEnable(m_tmb_clct_trig_enable);
+  pL1CSCTPParams->setTmbMatchTrigEnable(m_tmb_match_trig_enable);
+  pL1CSCTPParams->setTmbMatchTrigWindowSize(m_tmb_match_trig_window_size);
+  pL1CSCTPParams->setTmbTmbL1aWindowSize(m_tmb_tmb_l1a_window_size);
 
   //return pL1CSCTPProducer;
   return pL1CSCTPParams;
