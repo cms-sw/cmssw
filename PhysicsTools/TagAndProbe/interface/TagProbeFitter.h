@@ -36,7 +36,14 @@ class TagProbeFitter {
   void addFixedVariavles(std::vector<string>);
 
   ///calculate the efficiency for a particular binning of the data; it saves everything in the directory "dirName", uses the previously defined PDF with name "pdfName"
-  std::string calculateEfficiency(std::string dirName, std::string efficiencyCategory, std::string efficiencyState, std::vector<std::string>& unbinnedVariables, std::map<std::string, std::vector<double> >& binnedReals, std::map<std::string, std::vector<std::string> >& binnedCategories, std::vector<std::string>& binToPDFmap, bool saveWork);
+  std::string calculateEfficiency(std::string dirName, std::string efficiencyCategory, std::string efficiencyState, std::vector<std::string>& unbinnedVariables, std::map<std::string, std::vector<double> >& binnedReals, std::map<std::string, std::vector<std::string> >& binnedCategories, std::vector<std::string>& binToPDFmap, bool saveWork) {
+    std::vector<std::string> efficiencyCategories(1,efficiencyCategory);
+    std::vector<std::string> efficiencyStates(1,efficiencyState);
+    return calculateEfficiency(dirName, efficiencyCategories, efficiencyStates, unbinnedVariables, binnedReals, binnedCategories, binToPDFmap, saveWork);
+  }
+
+  std::string calculateEfficiency(std::string dirName, std::vector<std::string> efficiencyCategories, std::vector<std::string> efficiencyStates, std::vector<std::string>& unbinnedVariables, std::map<std::string, std::vector<double> >& binnedReals, std::map<std::string, std::vector<std::string> >& binnedCategories, std::vector<std::string>& binToPDFmap, bool saveWork);
+
 
   /// set number of bins to use when making the plots; 0 = automatic
   void setBinsForMassPlots(int bins) ;
