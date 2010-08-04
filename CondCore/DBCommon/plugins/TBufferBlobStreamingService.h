@@ -12,7 +12,7 @@
 namespace cond {
   class TBufferBlobTypeInfo {
   public:
-    TBufferBlobTypeInfo( const TypeH& type );
+    TBufferBlobTypeInfo( const Reflex::Type& type );
 
     /// length of the plain C array (zero otherwise)
     std::size_t m_arraySize;

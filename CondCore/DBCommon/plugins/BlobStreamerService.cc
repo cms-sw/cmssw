@@ -45,8 +45,8 @@ namespace cond {
 
     static Variant findVariant(const void* address);
 
-    static boost::shared_ptr<coral::Blob>  BlobStreamingService::compress(const void* addr, size_t isize);
-    static boost::shared_ptr<coral::Blob> BlobStreamingService::expand(const coral::Blob& blobIn);
+    static boost::shared_ptr<coral::Blob>  compress(const void* addr, size_t isize);
+    static boost::shared_ptr<coral::Blob>  expand(const coral::Blob& blobIn);
 
 
     boost::shared_ptr<ora::IBlobStreamingService> rootService; 
@@ -54,7 +54,7 @@ namespace cond {
   };
   
  
-  BlobStreamingService::BlobStreamingService() : rootService(new cond::TBufferBlobStreamingService());
+  BlobStreamingService::BlobStreamingService() : rootService(new cond::TBufferBlobStreamingService()){}
   
   ~BlobStreamingService::BlobStreamingService(){}
   
@@ -68,16 +68,17 @@ namespace cond {
   }
 
   void BlobStreamingService::read( const coral::Blob& blobData, void* addressOfContainer,  Reflex::Type const & classDictionary ) {
-    Variant v = findVariant(blobData->startingAddress());
+    Variant v = findVariant(blobData.startingAddress());
     switch (v) {
     case OLD :
-      rootService->read( blobData, addressOfContainer, classDictionary)
+      rootService->read( blobData, addressOfContainer, classDictionary);
       break;
     case COMPRESSED_TBUFFER :
       boost::shared_ptr<coral::Blob> blobIn = expand(blobData);
-      rootService->read( blobIn, addressOfContainer, classDictionary)
+      rootService->read( *blobIn, addressOfContainer, classDictionary);
 	break;
     case COMPRESSED_CHARS :
+      {}
       break;
     }
 
@@ -96,8 +97,8 @@ namespace cond {
 
   BlobStreamingService::Variant BlobStreamingService::findVariant(const void* address) {
     uuid const & id = *reinterpret_cast<uuid const*>(address);
-    uuid const *  v = std::find(variantIds,variantIds+nvariants,id);
-    return v==variantIds+nvariants ? OLD : (Variant)(v-variantIds);
+    uuid const *  v = std::find(variantIds,variantIds+nVariants,id);
+    return (v==variantIds+nVariants) ? OLD : (Variant)(v-variantIds);
   }
 
 
@@ -105,14 +106,14 @@ namespace cond {
      size_t usize += m_idsize + sizeof(unsigned long long);
      boost::shared_ptr<coral::Blob> theBlob( new coral::Blob(usize));
      uLongf destLen = compressBound(isize);
-     void *startingAddress = theBlob->startingAddress()+ m_idsize + sizeof(unsigned long long);
+     char * startingAddress = (char*)(theBlob->startingAddress())+ m_idsize + sizeof(unsigned long long);
      int zerr =  compress2(startingAddress, &destLen,
-			   addr, isize,
+			   (char const*)(addr), isize,
 			   9);
      if (zerr!=0) edm::LogError("BlobStreamingService")<< "Compression error " << zerr;
      destLen+= m_idsize + sizeof(unsigned long long);
      theBlob->resize(destLen);
-     void *startingAddress = theBlob->startingAddress()+ m_idsize;
+     void *startingAddress = (char*)(theBlob->startingAddress())+ m_idsize;
      // write expanded size;
      *reinterpret_cast<unsigned long long*>(startingAddress)=isize; 
      return theBlob;
@@ -121,9 +122,9 @@ namespace cond {
   boost::shared_ptr<coral::Blob> BlobStreamingService::expand(const coral::Blob& blobIn) {
     if (blobIn.size()< m_idsize + sizeof(unsigned long long)) return;
     long long csize =  blobIn.size() - (m_idsize + sizeof(unsigned long long));
-    void const * startingAddress = blobIn->startingAddress()+ m_idsize;
+    char const * startingAddress = (char*)(blobIn->startingAddress())+ m_idsize;
     unsigned long long usize = *reinterpret_cast<unsigned long long const*>(startingAddress);
-    startingAddress += sizeof(unsigned long long);
+    startingAddress +=  sizeof(unsigned long long);
     boost::shared_ptr<coral::Blob> theBlob( new coral::Blob(usize));
     uLongf destLen = usize;
     int zerr =  uncompress(theBlob->startingAddress(),  &destLen,
@@ -139,4 +140,4 @@ namespace cond {
 }
 
 // keep the old good name
-DEFINE_EDM_PLUGIN(cond::BlobStreamerPluginFactory,cond::BlobStreamerService,"COND/Services/TBufferBlobStreamingService");
+DEFINE_EDM_PLUGIN(cond::BlobStreamerPluginFactory,cond::BlobStreamingService,"COND/Services/TBufferBlobStreamingService");
