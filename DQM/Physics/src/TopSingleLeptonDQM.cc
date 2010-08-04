@@ -174,11 +174,11 @@ namespace TopSingleLepton {
 
     // --- [VERBOSE] --- //
     // eta of the leading muon
-    hists_["muonEta_"    ] = store_->book1D("MuonEta"    , "#eta(#mu)"        ,     30,    -5.,      5.);   
+    hists_["muonEta_"    ] = store_->book1D("MuonEta"    , "#eta(#mu)"        ,     30,    -3.,      3.);   
     // std isolation variable of the leading muon
     hists_["muonRelIso_" ] = store_->book1D("MuonRelIso" , "Iso_{Rel}(#mu)"   ,     50,     0.,      1.);   
     // eta of the leading electron
-    hists_["elecEta_"    ] = store_->book1D("ElecEta"    , "#eta(e)"          ,     30,    -5.,      5.);   
+    hists_["elecEta_"    ] = store_->book1D("ElecEta"    , "#eta(e)"          ,     30,    -3.,      3.);   
     // std isolation variable of the leading electron
     hists_["elecRelIso_" ] = store_->book1D("ElecRelIso" , "Iso_{Rel}(e)"     ,     50,     0.,      1.);   
     // multiplicity of btagged jets (for track counting high efficiency) with pt(L2L3)>30
