@@ -119,9 +119,11 @@ boost::shared_ptr<coral::Blob> cond::TBufferBlobStreamingService::write( const v
                           "not of actual class.");
   
   boost::shared_ptr<coral::Blob> theBlob( new coral::Blob );
-  theBlob->resize(1024);
+  //theBlob->resize(1024);
   
-  TBufferFile buffer(TBufferFile::kWrite, theBlob->size(), theBlob->startingAddress(), kFALSE, boost::bind(reallocInBlob, theBlob,_1,_2,_3));
+  // with new root...
+  // TBufferFile buffer(TBufferFile::kWrite, theBlob->size(), theBlob->startingAddress(), kFALSE, boost::bind(reallocInBlob, theBlob,_1,_2,_3));
+  TBufferFile buffer(TBufferFile::kWrite);
   buffer.InitMap();
   
   if (theType.m_arraySize && !theType.m_class)
@@ -131,12 +133,11 @@ boost::shared_ptr<coral::Blob> cond::TBufferBlobStreamingService::write( const v
   else
     buffer.StreamObject(const_cast<void*>(addr), theType.m_class);
 
-  //Int_t size = buffer.Length();
+  Int_t size = buffer.Length();
 
-  // theBlob->resize(size);
-  // void *startingAddress = theBlob->startingAddress();
-
-  // std::memcpy(startingAddress, buffer.Buffer(), size);
+  theBlob->resize(size);
+  void *startingAddress = theBlob->startingAddress();
+  std::memcpy(startingAddress, buffer.Buffer(), size);
 
   return theBlob;
 }
