@@ -206,7 +206,9 @@ HDQMfitUtilities::~HDQMfitUtilities(){
 double HDQMfitUtilities::doLanGaussFit(TH1F* htoFit){
   init();
  
-  if (htoFit->GetEntries()!=0) {
+  // if (htoFit->GetEntries()!=0) {
+  // Check for the entries excluding over/underflows
+  if (htoFit->Integral()!=0) {
      edm::LogInfo("fitUtility")<<"Fitting "<< htoFit->GetTitle() <<std::endl;
     // Setting fit range and start values
     double fr[2];
@@ -287,7 +289,8 @@ double HDQMfitUtilities::doLanGaussFit(TH1F* htoFit){
 //-----------------------------------------------------------------------------------------------
 double HDQMfitUtilities::doGaussFit(TH1F* htoFit){
   init();
-  if (htoFit->GetEntries()!=0) {
+  // if (htoFit->GetEntries()!=0) {
+  if (htoFit->Integral()!=0) {
     
     // Setting fit range and start values
     double fr[2];
