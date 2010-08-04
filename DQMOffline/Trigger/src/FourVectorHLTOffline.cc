@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.82 2010/08/04 08:44:25 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.83 2010/08/04 09:32:03 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -140,6 +140,15 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig): cu
 
   sumEtMin_ = iConfig.getUntrackedParameter<double>("sumEtMin",10.0);
 
+      // Muon quality cuts
+      dxyCut_ = iConfig.getUntrackedParameter<double>("DxyCut", 0.2);   // dxy < 0.2 cm 
+      normalizedChi2Cut_ = iConfig.getUntrackedParameter<double>("NormalizedChi2Cut", 10.); // chi2/ndof (of global fit) <10.0
+      trackerHitsCut_ = iConfig.getUntrackedParameter<int>("TrackerHitsCut", 11);  // Tracker Hits >10 
+      pixelHitsCut_ = iConfig.getUntrackedParameter<int>("PixelHitsCut", 1); // Pixel Hits >0
+      muonHitsCut_ = iConfig.getUntrackedParameter<int>("MuonHitsCut", 1);  // Valid Muon Hits >0 
+      isAlsoTrackerMuon_ = iConfig.getUntrackedParameter<bool>("IsAlsoTrackerMuon", true);
+      nMatchesCut_ = iConfig.getUntrackedParameter<int>("NMatchesCut", 2); // At least 2 Chambers with matches 
+
   specialPaths_ = iConfig.getParameter<std::vector<std::string > >("SpecialPaths");
 
   pathsSummaryFolder_ = iConfig.getUntrackedParameter ("pathsSummaryFolder",std::string("HLT/FourVector/PathsSummary/"));
@@ -234,7 +243,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     return;
    }
   }
-  triggerResults_ = triggerResults;
+  fTriggerResults = triggerResults;
   const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
   int npath = triggerResults->size();
 
@@ -306,6 +315,12 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   if(!trackHandle.isValid()) 
     edm::LogInfo("FourVectorHLTOffline") << "trackHandle not found, ";
 
+  // Beam spot
+  if (!iEvent.getByLabel(InputTag("offlineBeamSpot"), fBeamSpotHandle)) {
+        edm::LogInfo("") << ">>> No beam spot found !!!";
+  }
+
+
   // ---------------------
   // Monitors
   // ---------------------
@@ -349,16 +364,16 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   tauMon.pushL1TriggerType(TriggerL1ForJet);
   
   // photon Monitor
-  objMonData<reco::PhotonCollection> phoMon;
-  phoMon.setReco(photonHandle);
-  phoMon.setReco(fSelPhotonsHandle);
+  //objMonData<reco::PhotonCollection> phoMon;
+  //phoMon.setReco(photonHandle);
+  //phoMon.setReco(fSelPhotonsHandle);
   // -----------------------------------------------
   // Use RECO Electrons instead of RECO Photons 
   // to measure HLT_Photon efficiency
   // -----------------------------------------------
-  //objMonData<reco::GsfElectronCollection> phoMon;
-  //phoMon.setReco(fSelElectronsHandle);
-  //phoMon.setRecoEle(fSelElectronsHandle);
+  objMonData<reco::GsfElectronCollection> phoMon;
+  phoMon.setReco(fSelElectronsHandle);
+  phoMon.setRecoEle(fSelElectronsHandle);
   
 
   phoMon.setLimits(photonEtaMax_, photonEtMin_, photonDRMatch_, photonL1DRMatch_, dRMax_, thresholdFactor_);
@@ -480,7 +495,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     unsigned int pathByIndex = triggerNames.triggerIndex(v->getPath());
 
     // path must be in the menu
-    if(pathByIndex >= triggerResults_->size() ) continue;
+    if(pathByIndex >= fTriggerResults->size() ) continue;
 
   
     // Fill HLTPassed Matrix and HLTPassFail Matrix
@@ -544,7 +559,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
     unsigned int pathByIndex = triggerNames.triggerIndex(v->getPath());
 
-    if(pathByIndex >= triggerResults_->size() ) continue;
+    if(pathByIndex >= fTriggerResults->size() ) continue;
   
     // did we pass the denomPath?
     bool denompassed = false;  
@@ -1566,7 +1581,7 @@ void FourVectorHLTOffline::fillHltMatrix(const edm::TriggerNames & triggerNames)
   int groupBinNumber = hist_2d->GetXaxis()->FindBin(groupBinLabel.c_str()); 
 
   // any triger accepted
-  if(triggerResults_->accept()){
+  if(fTriggerResults->accept()){
 
     hist_2d->Fill(anyBinNumber-1,anyBinNumber-1);//binNumber1 = 0 = first filter
     hist_1d->Fill(anyBinNumber-1);//binNumber1 = 0 = first filter
@@ -1589,7 +1604,7 @@ void FourVectorHLTOffline::fillHltMatrix(const edm::TriggerNames & triggerNames)
     // check if this is hlt path name
     //unsigned int pathByIndex = triggerNames.triggerIndex(hltPathName);
     unsigned int pathByIndex = triggerNames.triggerIndex(fGroupNamePathsPair[mi].second[i]);
-    if(pathByIndex >= triggerResults_->size() ) continue;
+    if(pathByIndex >= fTriggerResults->size() ) continue;
 
     // check if its L1 passed
     // comment out below but set groupL1Passed to true always
@@ -1599,7 +1614,7 @@ void FourVectorHLTOffline::fillHltMatrix(const edm::TriggerNames & triggerNames)
     // Fill HLTPassed Matrix and HLTPassFail Matrix
     // --------------------------------------------------------
 
-    if(triggerResults_->accept(pathByIndex)){
+    if(fTriggerResults->accept(pathByIndex)){
 
       groupPassed = true;
       groupL1Passed = true;
@@ -1623,9 +1638,9 @@ void FourVectorHLTOffline::fillHltMatrix(const edm::TriggerNames & triggerNames)
         //unsigned int crosspathByIndex = triggerNames.triggerIndex(crossHltPathName);
         unsigned int crosspathByIndex = triggerNames.triggerIndex(fGroupNamePathsPair[mi].second[j]);
 
-        if(crosspathByIndex >= triggerResults_->size() ) continue;
+        if(crosspathByIndex >= fTriggerResults->size() ) continue;
   
-        if(triggerResults_->accept(crosspathByIndex)){
+        if(fTriggerResults->accept(crosspathByIndex)){
   
           hist_2d->Fill(i,j);//binNumber1 = 0 = first filter
   
@@ -2264,10 +2279,10 @@ bool FourVectorHLTOffline::hasL1Passed(const string& pathname, const edm::Trigge
   }
 
   unsigned int pathByIndex = triggerNames.triggerIndex(pathname);
-  if(pathByIndex >= triggerResults_->size() ) return rc; // path is not in the menu
+  if(pathByIndex >= fTriggerResults->size() ) return rc; // path is not in the menu
 
   // get index of the last module that issued the decision
-  int lastModule = triggerResults_->index(pathByIndex);
+  int lastModule = fTriggerResults->index(pathByIndex);
 
   // if L1 passed, then it must not be the module that 
   // issued the last decision
@@ -2283,9 +2298,9 @@ bool FourVectorHLTOffline::hasHLTPassed(const string& pathname, const edm::Trigg
   bool rc = false;
 
   unsigned int pathByIndex = triggerNames.triggerIndex(pathname);
-  if(pathByIndex >= triggerResults_->size() ) return rc; // path is not in the menu
+  if(pathByIndex >= fTriggerResults->size() ) return rc; // path is not in the menu
 
-  rc  = triggerResults_->accept(pathByIndex);
+  rc  = fTriggerResults->accept(pathByIndex);
 
   return rc;
 
@@ -2304,7 +2319,7 @@ void FourVectorHLTOffline::selectMuons(const edm::Handle<reco::MuonCollection> &
        if(isGoodMuon(*iter, muon::GlobalMuonPromptTight) && 
           isGoodMuon(*iter, muon::TrackerMuonArbitrated))
        {
-            fSelectedMuons->push_back(*iter);
+            if(isVBTFMuon(*iter)) fSelectedMuons->push_back(*iter);
        }
    } // end for
   
@@ -2531,5 +2546,39 @@ int FourVectorHLTOffline::getHltThresholdFromName(const string & name)
   //printf ("%s -> %s -> %d\n",pathname.c_str(), hltThresholdString.c_str(), hltThreshold);
 
   return hltThreshold;
+
+}
+
+bool FourVectorHLTOffline::isVBTFMuon(const reco::Muon& muon)
+{
+
+  bool quality = 1;
+
+  reco::TrackRef gm = muon.globalTrack();
+  reco::TrackRef tk = muon.innerTrack();
+
+  // Quality cuts
+  double dxy = gm->dxy(fBeamSpotHandle->position());
+  double normalizedChi2 = gm->normalizedChi2(); 
+  int trackerHits = tk->hitPattern().numberOfValidTrackerHits();
+  int pixelHits = tk->hitPattern().numberOfValidPixelHits();
+  int muonHits = gm->hitPattern().numberOfValidMuonHits();
+  int nMatches = muon.numberOfMatches();
+
+  if (fabs(dxy)>dxyCut_) {return 0; quality=0;}
+  //               if(plotHistograms_){ h1_["hNormChi2"]->Fill(normalizedChi2);}
+  if (normalizedChi2>normalizedChi2Cut_) {return 0;quality=0;}
+  //               if(plotHistograms_){ h1_["hNHits"]->Fill(trackerHits);}
+  if (trackerHits<trackerHitsCut_) {return 0;quality=0;}
+  //               if(plotHistograms_){ h1_["hNMuonHits"]->Fill(muonHits);}
+  if (pixelHits<pixelHitsCut_) {return 0;quality=0;}
+  //               if(plotHistograms_){ h1_["hNPixelHits"]->Fill(pixelHits);}
+  if (muonHits<muonHitsCut_) {return 0;quality=0;}
+  //               if(plotHistograms_){ h1_["hTracker"]->Fill(mu.isTrackerMuon());}
+  if (!muon.isTrackerMuon()) {return 0;quality=0;}
+  //               if(plotHistograms_){ h1_["hNMatches"]->Fill(nMatches);}
+  if (nMatches<nMatchesCut_) {return 0;quality=0;}
+
+  return true;
 
 }

@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.59 2010/08/04 08:44:25 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.60 2010/08/04 09:32:03 rekovic Exp $
 //
 //
 // system include files
@@ -38,6 +38,7 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -115,6 +116,8 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       void cleanDRMatchSet(mmset& tempSet);
 
       edm::Handle<trigger::TriggerEvent> fTriggerObj;
+      edm::Handle<edm::TriggerResults> fTriggerResults;
+      edm::Handle<reco::BeamSpot> fBeamSpotHandle;
 
    private:
       virtual void beginJob() ;
@@ -142,6 +145,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       int getHltThresholdFromName(const std::string & pathname);
 
       void selectMuons(const edm::Handle<reco::MuonCollection> & muonHandle);
+      bool isVBTFMuon(const reco::Muon& muon);
       void selectElectrons(const edm::Event& iEvent, const edm::EventSetup& iSetup, const edm::Handle<reco::GsfElectronCollection> & eleHandle);
       void selectPhotons(const edm::Handle<reco::PhotonCollection> & phoHandle);
       void selectJets(const edm::Event& iEvent,const edm::Handle<reco::CaloJetCollection> & jetHandle);
@@ -253,6 +257,15 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       double htL1DRMatch_;
       double sumEtMin_;
 
+      // Muon quality cuts
+      double dxyCut_;
+      double normalizedChi2Cut_;
+      int trackerHitsCut_;
+      int pixelHitsCut_;
+      int muonHitsCut_;
+      bool isAlsoTrackerMuon_;
+      int nMatchesCut_;
+
       std::vector<std::pair<std::string, std::string> > custompathnamepairs_;
 
       std::vector <std::vector <std::string> > triggerFilters_;
@@ -277,8 +290,6 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       // data across paths
       MonitorElement* scalersSelect;
       // helper class to store the data path
-
-      edm::Handle<edm::TriggerResults> triggerResults_;
 
       class PathInfo {
 
