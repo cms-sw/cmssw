@@ -1197,7 +1197,7 @@ namespace {
    std::vector<Entry>::iterator dummy6;
    std::vector<SiStripNoises::DetRegistry>::iterator dummy7;
    std::vector<std::vector<double> >::iterator dummy8;
-   std::pair<unsigned int,SM> dummy9;
+   std::pair<size_t,SM> dummy9;
 }
 
 #endif

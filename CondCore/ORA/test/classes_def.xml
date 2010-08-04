@@ -42,9 +42,9 @@
   <class name="std::vector<testORA::SM>"/>
   <class name="ora::PVector<testORA::SM>"/>
   <class name="testORA::SE"/>
-  <class name="std::pair<unsigned int,testORA::SM>"/>
-  <class name="std::vector<std::pair<size_t,testORA::SM> >"/>
-  <class name="ora::PVector<std::pair<size_t,testORA::SM> >"/>
+  <class name="std::pair<size_t,testORA::SM>"/>
+  <class name="std::vector<std::pair<size_t, testORA::SM> >"/>
+  <class name="ora::PVector<std::pair<size_t, testORA::SM> >"/>
   <class name="ora::QueryableVector<testORA::SM>"/>
   <class name="testORA::SF"/>
   <class name="testORA::IBase"/>
