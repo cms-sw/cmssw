@@ -11,8 +11,8 @@
  *
  * \author Slava Valuev, UCLA.
  *
- * $Date: 2009/05/20 14:59:13 $
- * $Revision: 1.6 $
+ * $Date: 2010/04/23 21:07:19 $
+ * $Revision: 1.7 $
  *
  */
 
@@ -25,7 +25,7 @@
 #include <DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
-class CSCL1TPParameters;
+class CSCDBL1TPParameters;
 class CSCMotherboard;
 class CSCMuonPortCard;
 
@@ -42,7 +42,7 @@ class CSCTriggerPrimitivesBuilder
   ~CSCTriggerPrimitivesBuilder();
 
   /** Sets configuration parameters obtained via EventSetup mechanism. */
-  void setConfigParameters(const CSCL1TPParameters* conf);
+  void setConfigParameters(const CSCDBL1TPParameters* conf);
 
   /** Build anode, cathode, and correlated LCTs in each chamber and fill
    *  them into output collections.  Select up to three best correlated LCTs

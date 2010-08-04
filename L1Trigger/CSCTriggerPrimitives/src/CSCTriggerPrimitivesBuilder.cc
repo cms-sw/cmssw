@@ -8,8 +8,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2009/05/20 14:59:13 $
-//   $Revision: 1.17 $
+//   $Date: 2010/04/23 21:07:16 $
+//   $Revision: 1.18 $
 //
 //   Modifications:
 //
@@ -111,8 +111,8 @@ CSCTriggerPrimitivesBuilder::~CSCTriggerPrimitivesBuilder() {
 // Operations
 //------------
 // Set configuration parameters obtained via EventSetup mechanism.
-void CSCTriggerPrimitivesBuilder::setConfigParameters(const CSCL1TPParameters* conf) {
-  // Receives CSCL1TPParameters percolated down from ESProducer.
+void CSCTriggerPrimitivesBuilder::setConfigParameters(const CSCDBL1TPParameters* conf) {
+  // Receives CSCDBL1TPParameters percolated down from ESProducer.
 
   for (int endc = min_endcap; endc <= max_endcap; endc++) {
     for (int stat = min_station; stat <= max_station; stat++) {

@@ -23,8 +23,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2009/05/19 12:49:13 $
- * $Revision: 1.23 $
+ * $Date: 2010/04/23 21:06:11 $
+ * $Revision: 1.24 $
  *
  */
 
@@ -32,7 +32,7 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCCLCTDigi.h>
-#include <CondFormats/CSCObjects/interface/CSCL1TPParameters.h>
+#include <CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h>
 #include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
 
 class CSCCathodeLCTProcessor
@@ -48,7 +48,7 @@ class CSCCathodeLCTProcessor
   CSCCathodeLCTProcessor();
 
   /** Sets configuration parameters obtained via EventSetup mechanism. */
-  void setConfigParameters(const CSCL1TPParameters* conf);
+  void setConfigParameters(const CSCDBL1TPParameters* conf);
 
   /** Clears the LCT containers. */
   void clear();

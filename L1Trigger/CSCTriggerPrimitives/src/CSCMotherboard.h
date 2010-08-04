@@ -31,8 +31,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2009/05/13 10:10:49 $
- * $Revision: 1.13 $
+ * $Date: 2009/05/15 16:37:50 $
+ * $Revision: 1.14 $
  *
  */
 
@@ -75,7 +75,7 @@ class CSCMotherboard
   void clear();
 
   /** Set configuration parameters obtained via EventSetup mechanism. */
-  void setConfigParameters(const CSCL1TPParameters* conf);
+  void setConfigParameters(const CSCDBL1TPParameters* conf);
 
   /** Anode LCT processor. */
   CSCAnodeLCTProcessor* alct;
