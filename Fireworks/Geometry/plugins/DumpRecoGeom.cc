@@ -10,10 +10,14 @@
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
+#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
@@ -561,6 +565,11 @@ DumpRecoGeom::addRPCGeometry( TGeoVolume* top, const std::string& iName, int cop
       std::stringstream p;
       p << path( top, iName, copy ) << "/" << name << "_" << copy;
       m_idToName[rawid] = Info( p.str());
+
+      const StripTopology& topo = roll->specificTopology();
+      m_idToName[rawid].topology[0] = roll->nstrips();
+      m_idToName[rawid].topology[1] = topo.stripLength();
+      m_idToName[rawid].topology[2] = topo.pitch();
     }
   }
   top->AddNode( assembly, copy );
@@ -586,6 +595,15 @@ DumpRecoGeom::addPixelBarrelGeometry( TGeoVolume* top, const std::string& iName,
     std::stringstream p;
     p << path( top, iName, copy ) << "/" << name << "_" << copy;
     m_idToName[rawid] = Info( p.str());
+
+    const PixelGeomDetUnit* det = dynamic_cast<const PixelGeomDetUnit*>(m_trackerGeom->idToDetUnit((*it)->geographicalId()));
+
+    if( det )
+    {      
+      const RectangularPixelTopology* topo = dynamic_cast<const RectangularPixelTopology*>(&det->specificTopology());
+      m_idToName[rawid].topology[0] = topo->nrows();
+      m_idToName[rawid].topology[1] = topo->ncolumns();
+    }
   }
   
   top->AddNode( assembly, copy );
