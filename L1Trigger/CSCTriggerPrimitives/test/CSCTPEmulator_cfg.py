@@ -27,7 +27,8 @@ sys.path.insert(0, os.path.join(os.environ['CMSSW_BASE'],
 process.source = cms.Source("PoolSource",
 ##     fileNames = cms.untracked.vstring('file:/data0/slava/data/run109562/FE316E49-047F-DE11-AC0C-001D09F231B0.root')
      fileNames = cms.untracked.vstring(
-#       '/store/data/BeamCommissioning09/Cosmics/RAW/v1/000/122/909/F81EA88E-A5DB-DE11-AA71-00304879FBB2.root'
+#        '/store/data/CRAFT09/Cosmics/RAW/v1/000/109/562/FE316E49-047F-DE11-AC0C-001D09F231B0.root'
+#        '/store/data/BeamCommissioning09/Cosmics/RAW/v1/000/122/909/F81EA88E-A5DB-DE11-AA71-00304879FBB2.root'
         '/store/data/Run2010A/Mu/RAW/v1/000/142/135/D6C7EAD8-009E-DF11-AD9D-0030487CBD0A.root'
      )
 ##        untracked uint32 debugVebosity = 10
@@ -65,9 +66,8 @@ process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("Geometry.CSCGeometry.cscGeometry_cfi")
 
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'MC_38Y_V8::All'
-#process.GlobalTag.globaltag = 'GR_R_38X_V8::All'
-#process.GlobalTag.globaltag = 'CRAFT09_R_V9::All'
+#process.GlobalTag.globaltag = 'MC_38Y_V8::All'
+process.GlobalTag.globaltag = 'GR_R_38X_V8::All'
 #process.prefer("GlobalTag")
 
 # magnetic field (do I need it?)
@@ -126,8 +126,8 @@ process.out = cms.OutputModule("PoolOutputModule",
 )
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('TPEHists.root')
-                                   )
+    fileName = cms.string('TPEHists.root')
+)
 
 # Scheduler path
 # ==============
