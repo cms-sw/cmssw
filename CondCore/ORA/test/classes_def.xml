@@ -21,10 +21,6 @@
      <field name="m_histogram" mapping="blob"/>
   </class>
   <class name="std::vector<testORA::Entry>"/>
-  <class name="std::vector<double>"/>
-  <class name="std::vector<std::vector<double> >">
-     <field name="value_type" mapping="blob"/>
-  </class>
   <class name="testORA::SB">
      <field name="m_arrayData" mapping="blob"/>
   </class>
