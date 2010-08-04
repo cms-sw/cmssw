@@ -101,16 +101,29 @@ cond::TBufferBlobStreamingService::TBufferBlobStreamingService(){
 cond::TBufferBlobStreamingService::~TBufferBlobStreamingService(){
 }
 
+#include <boost/bind.hpp>
+namespace {
+  char * reallocInBlob( boost::shared_ptr<coral::Blob> theBlob, char* p, size_t newsize, size_t oldsize) {
+    // various checks missing....
+    theBlob->resize(newsize);
+    return (char*)theBlob->startingAddress();
+    
+  }
+}
+
 boost::shared_ptr<coral::Blob> cond::TBufferBlobStreamingService::write( const void* addr,
-                                                                          Reflex::Type const & classDictionary ){
+									 Reflex::Type const & classDictionary ){
   TBufferBlobTypeInfo theType( classDictionary );
   if (theType.m_class && theType.m_class->GetActualClass(addr) != theType.m_class)
     throw cond::Exception("TBufferBlobWriter::write object to stream is "
                           "not of actual class.");
-
-  TBufferFile buffer(TBufferFile::kWrite);
+  
+  boost::shared_ptr<coral::Blob> theBlob( new coral::Blob );
+  theBlob->resize(1024);
+  
+  TBufferFile buffer(TBufferFile::kWrite, theBlob->size(), theBlob->startingAddress(), kFalse, boost::bind(theBlob,_1,_2,_3));
   buffer.InitMap();
-
+  
   if (theType.m_arraySize && !theType.m_class)
     (buffer.*primitives[theType.m_primitive].writeArrayFn)(addr, theType.m_arraySize);
   else if (theType.m_arraySize)
@@ -118,13 +131,12 @@ boost::shared_ptr<coral::Blob> cond::TBufferBlobStreamingService::write( const v
   else
     buffer.StreamObject(const_cast<void*>(addr), theType.m_class);
 
-  Int_t size = buffer.Length();
+  //Int_t size = buffer.Length();
 
-  boost::shared_ptr<coral::Blob> theBlob( new coral::Blob );
-  theBlob->resize(size);
-  void *startingAddress = theBlob->startingAddress();
+  // theBlob->resize(size);
+  // void *startingAddress = theBlob->startingAddress();
 
-  std::memcpy(startingAddress, buffer.Buffer(), size);
+  // std::memcpy(startingAddress, buffer.Buffer(), size);
 
   return theBlob;
 }
