@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 
-from UserCode.BWittmer.LAS_defs_cff import *
+from Alignment.LaserAlignment.LaserAlignmentDefs_cff import *
 
 LaserAlignmentEventFilter = cms.EDFilter("LaserAlignmentEventFilter")
 
