@@ -158,8 +158,8 @@ class TCMETAlgo
   void correctSumEtForTrack( const reco::TrackRef , TH2D* rf, const TVector3 );
   class TVector3 propagateTrack( const reco::TrackRef );
   class TVector3 propagateTrackToHCAL( const reco::TrackRef );
-  void findGoodShowerTracks(vector<int>& goodShowerTracks);
-  bool nearGoodShowerTrack( const reco::TrackRef , vector<int> goodShowerTracks );
+  void findGoodShowerTracks(std::vector<int>& goodShowerTracks);
+  bool nearGoodShowerTrack( const reco::TrackRef , std::vector<int> goodShowerTracks );
   int nExpectedInnerHits(const reco::TrackRef);
   int nExpectedOuterHits(const reco::TrackRef);
   int nLayers(const reco::TrackRef);

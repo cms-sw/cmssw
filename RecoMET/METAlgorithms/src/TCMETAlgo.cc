@@ -241,8 +241,8 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
      event.getByLabel( muonDepValueMap_ , muon_data_h );
      event.getByLabel( tcmetDepValueMap_, tcmet_data_h );
 
-     const CaloMETCollection *calometcol = metHandle.product();
-     const CaloMET calomet = calometcol->front();
+     const reco::CaloMETCollection *calometcol = metHandle.product();
+     const reco::CaloMET calomet = calometcol->front();
 
      muon_data  = *muon_data_h;
      tcmet_data = *tcmet_data_h;
@@ -343,7 +343,7 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
      }
      
      //find tracks which satisfy track quality cuts and nExpectedOuterHits cut
-     vector<int> goodShowerTracks;
+     std::vector<int> goodShowerTracks;
      if(usedeltaRRejection_){
        findGoodShowerTracks(goodShowerTracks);
      }
@@ -508,7 +508,7 @@ bool TCMETAlgo::closeToElectron( const reco::TrackRef track ){
 
 //--------------------------------------------------------------------
 
-bool TCMETAlgo::nearGoodShowerTrack( const reco::TrackRef track , vector<int> goodShowerTracks ){
+bool TCMETAlgo::nearGoodShowerTrack( const reco::TrackRef track , std::vector<int> goodShowerTracks ){
   
   //checks if 'track' is within dR < deltaRShower_ of any good shower tracks
   float eta1 = track->eta();
@@ -530,7 +530,7 @@ bool TCMETAlgo::nearGoodShowerTrack( const reco::TrackRef track , vector<int> go
 
 //--------------------------------------------------------------------
 
-void TCMETAlgo::findGoodShowerTracks(vector<int>& goodShowerTracks){
+void TCMETAlgo::findGoodShowerTracks(std::vector<int>& goodShowerTracks){
 
   //stores the indices of tracks which pass quality selection and
   //nMinOuterHits cut in goodShowerTracks vector
