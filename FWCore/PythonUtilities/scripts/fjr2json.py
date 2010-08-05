@@ -30,9 +30,7 @@ if __name__ == '__main__':
 
     jsonList = LumiList (runsAndLumis = runsLumisDict)
     if options.output:
-        target = open (options.output, 'w')
-        target.write ("%s\n" % jsonList)
-        target.close()
+        jsonList.writeJSON (options.output)
     else:
         print jsonList
                 
