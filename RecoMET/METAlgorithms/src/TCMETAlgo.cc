@@ -175,25 +175,25 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
        
        if(!found )
          edm::LogError("RecoMET")<<" cannot get ECAL clusters: "
-                                         <<inputTagPFClustersECAL_<<endl;
+                                         <<inputTagPFClustersECAL_<<std::endl;
        
        found = event.getByLabel(inputTagPFClustersHCAL_, clustersHCAL);
        
        if(!found )
          edm::LogError("RecoMET")<<" cannot get HCAL clusters: "
-                                         <<inputTagPFClustersHCAL_<<endl;
+                                         <<inputTagPFClustersHCAL_<<std::endl;
        
        found = event.getByLabel(inputTagPFClustersHFEM_, clustersHFEM);      
        
        if(!found )
          edm::LogError("RecoMET")<<" cannot get HFEM clusters: "
-                                         <<inputTagPFClustersHFEM_<<endl;
+                                         <<inputTagPFClustersHFEM_<<std::endl;
        
        found = event.getByLabel(inputTagPFClustersHFHAD_, clustersHFHAD);      
        
        if(!found )
          edm::LogError("RecoMET")<<" cannot get HFHAD clusters: "
-                                         <<inputTagPFClustersHFHAD_<<endl;
+                                         <<inputTagPFClustersHFHAD_<<std::endl;
      
        for (reco::PFClusterCollection::const_iterator it = clustersECAL->begin(); it != clustersECAL->end(); it++){
          
