@@ -56,24 +56,24 @@ int main() {
     // old mode
     cond::TBufferBlobStreamingService tstreamer;
     boost::shared_ptr<coral::Blob> blob = tstreamer.write(&vf,vType);
-    std::cout << "old format size " << blob.size() << std::endl;
+    std::cout << "old format size " << blob->size() << std::endl;
     BlobStreamingService::Variant id = BlobStreamingService::findVariant(blob->startingAddress());
     std::cout << "shall be zero " << id << std::endl;
 
-    void * p;
-    streamer.read(blob,p,vType);
-    std::vector<float>  const & vf2 = *reinterpret_cast<std::vector<float> >(p);
+    //void * p;
+    std::vector<float>  vf2;
+    streamer.read(*blob,&vf2,vType);
+    //std::vector<float>  const & vf2 = *reinterpret_cast<std::vector<float> const *>(p);
     if (vf!=vf2) std::cout << "reading old format failed" << std::endl;
   }
   {
     // new mode
     boost::shared_ptr<coral::Blob> blob = streamer.write(&vf,vType);
-    std::cout << "new format size " << blob.size() << std::endl;
+    std::cout << "new format size " << blob->size() << std::endl;
     BlobStreamingService::Variant id = BlobStreamingService::findVariant(blob->startingAddress());
     std::cout << "shall be one " << id << std::endl;
-    void * p;
-    streamer.read(blob,p,vType);
-    std::vector<float>  const & vf2 = *reinterpret_cast<std::vector<float> >(p);
+    std::vector<float>  vf2;
+    streamer.read(*blob,&vf2,vType);
     if (vf!=vf2) std::cout << "reading new format failed" << std::endl;
   }
   
