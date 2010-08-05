@@ -1049,7 +1049,7 @@ void Vx3DHLTAnalyzer::beginJob()
  
   // ### Set internal variables ###
   nBinsHistoricalPlot = 80;
-  nBinsWholeHistory   = 4000;
+  nBinsWholeHistory   = 4000; // Corresponds to about 24h of data taking: 24h * 60min * 60s / 23s per lumi-block = 3757
   // ##############################
 
   if ( dbe ) 
