@@ -35,6 +35,7 @@ paths.Zee = paths.Wenu + ['HLT_DoubleEle5_SW_L1RDQM']
 paths.GammaJet = ['HLT_Photon10_L1R_DQM',
                   'HLT_Photon15_TrackIso_L1R_DQM',
                   'HLT_Photon15_LooseEcalIso_L1R_DQM',
+                  'HLT_Photon20_Cleaned_L1R_DQM',
                   'HLT_Photon25_LooseEcalIso_TrackIso_L1R_DQM']
 
 paths.DiGamma  = ['HLT_Photon10_L1R_DQM','HLT_DoublePhoton10_L1R_DQM']
@@ -47,6 +48,7 @@ pathlumi = { 'HLT_Ele10_LW_L1RDQM':'8e29',
              'HLT_Photon10_L1R_DQM':'8e29',
              'HLT_Photon15_TrackIso_L1R_DQM':'8e29',
              'HLT_Photon15_LooseEcalIso_L1R_DQM':'8e29',
+             'HLT_Photon20_Cleaned_L1R_DQM':'8e29',
              'HLT_DoublePhoton10_L1R_DQM':'8e29',
              'HLT_Photon25_L1R_DQM':'1e31',
              'HLT_Photon25_LooseEcalIso_TrackIso_L1R_DQM':'1e31'}
