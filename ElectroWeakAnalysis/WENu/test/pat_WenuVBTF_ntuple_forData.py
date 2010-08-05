@@ -192,7 +192,6 @@ process.wenuFilter = cms.EDFilter('WenuCandidateFilter',
                                   hltpathFilter = cms.untracked.InputTag(HLT_filter_name,"",HLT_process_name),
                                   ebRecHits = cms.untracked.InputTag("reducedEcalRecHitsEB"),
                                   eeRecHits = cms.untracked.InputTag("reducedEcalRecHitsEE"),
-                                  PrimaryVerticesCollection = cms.untracked.InputTag("offlinePrimaryVertices"),
                                   ### here the preselection is applied
                                   # fiducial cuts:
                                   BarrelMaxEta = cms.untracked.double(1.4442),
