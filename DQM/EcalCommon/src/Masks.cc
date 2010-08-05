@@ -1,11 +1,11 @@
-// $Id: Masks.cc,v 1.2 2010/08/05 11:35:07 dellaric Exp $
+// $Id: Masks.cc,v 1.3 2010/08/05 14:24:41 dellaric Exp $
 
 /*!
   \file Masks.cc
   \brief Some "id" conversions
   \author B. Gobbo
-  \version $Revision: 1.2 $
-  \date $Date: 2010/08/05 11:35:07 $
+  \version $Revision: 1.3 $
+  \date $Date: 2010/08/05 14:24:41 $
 */
 
 #include <sstream>
@@ -71,7 +71,10 @@ bool Masks::maskChannel( int ism, int ix, int iy, uint32_t bits, const EcalSubde
 
   if( subdet == EcalBarrel ) {
 
-    EBDetId id(ism, (ix-1)+20*(iy-1)+1, EBDetId::SMCRYSTALMODE);
+    int iex = ism<=18 ? -ix : +ix;
+    int ipx = ism<=18 ? iy+20*(ism-1) : 1+(20-iy)+20*(ism-19);
+
+    EBDetId id(iex, ipx, EBDetId::ETAPHIMODE);
     if ( Masks::channelStatus ) {
       EcalDQMChannelStatus::const_iterator it = Masks::channelStatus->find( id.rawId() );
       if ( it != Masks::channelStatus->end() ) mask |= it->getStatusCode() & bits;
