@@ -24,31 +24,37 @@ const string RPCChamberQuality::xLabels_[7] = {"Good", "OFF", "Nois.St","Nois.Ch
 const string RPCChamberQuality::regions_[3] = {"EndcapNegative","Barrel","EndcapPositive"};
 
 RPCChamberQuality::RPCChamberQuality(const ParameterSet& ps ){
-  LogVerbatim ("rpceventsummary") << "[RPCChamberQuality]: Constructor";
+  LogVerbatim ("rpcchamberquality") << "[RPCChamberQuality]: Constructor";
   
-  prescaleFactor_ =  ps.getUntrackedParameter<int>("PrescaleFactor", 9);
-  prefixDir_ = ps.getUntrackedParameter<string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms");
+  prescaleFactor_ =  ps.getUntrackedParameter<int>("DiagnosticPrescale", 5);
+
+  subsystemFolder_ = ps.getUntrackedParameter<std::string>("RPCFolder", "RPC");
+  recHitType_ =  ps.getUntrackedParameter<std::string>("NoiseOrMuons", "Noise");
+  std::string gFolder  = ps.getUntrackedParameter<std::string>("GlobalFolder", "SummaryHistograms");
+
+  globalFolder_ =  subsystemFolder_+ "/" +  recHitType_ +"/" + gFolder;
+
   minEvents = ps.getUntrackedParameter<int>("MinimumRPCEvents", 10000);
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
 }
 
 RPCChamberQuality::~RPCChamberQuality(){
-  LogVerbatim ("rpceventsummary") << "[RPCChamberQuality]: Destructor ";
+  LogVerbatim ("rpcchamberquality") << "[RPCChamberQuality]: Destructor";
   dbe_=0;
 }
 
 void RPCChamberQuality::beginJob(){
-  LogVerbatim ("rpceventsummary") << "[RPCChamberQuality]: Begin job ";
+  LogVerbatim ("rpcchamberquality") << "[RPCChamberQuality]: Begin job";
   dbe_ = Service<DQMStore>().operator->();
 }
 
 void RPCChamberQuality::beginRun(const Run& r, const EventSetup& c){
-  LogVerbatim ("rpceventsummary") << "[RPCChamberQuality]: Begin run";
+  LogVerbatim ("rpcchamberquality") << "[RPCChamberQuality]: Begin run";
   
   // init_ = false;  
   
   MonitorElement* me;
-  dbe_->setCurrentFolder(prefixDir_);
+  dbe_->setCurrentFolder(globalFolder_);
   
   stringstream histoName;
   
@@ -58,7 +64,7 @@ void RPCChamberQuality::beginRun(const Run& r, const EventSetup& c){
 
   histoName.str("");
   histoName<<"RPCChamberQuality_"<<regions_[r]; 
-  me = dbe_->get(prefixDir_+"/"+ histoName.str());
+  me = dbe_->get(globalFolder_+"/"+ histoName.str());
   if (0!=me)    dbe_->removeElement(me->getName());
   me = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  7, 0.5, 7.5);
   
@@ -68,7 +74,7 @@ void RPCChamberQuality::beginRun(const Run& r, const EventSetup& c){
 
   histoName.str("");
   histoName<<"RPC_System_Quality_Overview"; 
-  me = dbe_->get(prefixDir_+"/"+ histoName.str());
+  me = dbe_->get(globalFolder_+"/"+ histoName.str());
   if (0!=me)       dbe_->removeElement(me->getName());
   me = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),  7, 0.5, 7.5, 3, 0.5, 3.5);
   me->setBinLabel(1, "E+", 2);
@@ -81,7 +87,7 @@ void RPCChamberQuality::beginRun(const Run& r, const EventSetup& c){
     
     histoName.str("");
     histoName<<"RPCChamberQuality_Roll_vs_Sector_Wheel"<<w;    
-    me = dbe_->get(prefixDir_+"/"+ histoName.str());
+    me = dbe_->get(globalFolder_+"/"+ histoName.str());
     if (0!=me) dbe_->removeElement(me->getName());
     me = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),  12, 0.5, 12.5, 21, 0.5, 21.5);
 
@@ -91,7 +97,7 @@ void RPCChamberQuality::beginRun(const Run& r, const EventSetup& c){
     histoName.str("");
     histoName<<"RPCChamberQuality_Distribution_Wheel"<<w;    
     me=0;
-    me = dbe_->get(prefixDir_+"/"+ histoName.str());
+    me = dbe_->get(globalFolder_+"/"+ histoName.str());
     if (0!=me )   dbe_->removeElement(me->getName());
     me = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  7, 0.5, 7.5);
 
@@ -103,7 +109,7 @@ void RPCChamberQuality::beginRun(const Run& r, const EventSetup& c){
       histoName.str("");
       histoName<<"RPCChamberQuality_Ring_vs_Segment_Disk"<<d;       //  2D histo for RPC Qtest
       me = 0;
-      me = dbe_->get(prefixDir_+"/"+ histoName.str());
+      me = dbe_->get(globalFolder_+"/"+ histoName.str());
       if (0!=me) {
 	dbe_->removeElement(me->getName());
       }
@@ -114,7 +120,7 @@ void RPCChamberQuality::beginRun(const Run& r, const EventSetup& c){
       histoName.str("");
       histoName<<"RPCChamberQuality_Distribution_Disk"<<d;    
       me=0;
-      me = dbe_->get(prefixDir_+"/"+ histoName.str());
+      me = dbe_->get(globalFolder_+"/"+ histoName.str());
       if (0!=me )   dbe_->removeElement(me->getName());
       me = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  7, 0.5, 7.5);
       
@@ -127,26 +133,26 @@ void RPCChamberQuality::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
 void RPCChamberQuality::analyze(const Event& iEvent, const EventSetup& c) {}
 
 void RPCChamberQuality::endRun(const Run& r, const EventSetup& c) {
-  LogVerbatim ("rpceventsummary") <<"[RPCChamberQuality]: End Job, performing DQM client operation";
+  LogVerbatim ("rpcchamberquality") <<"[RPCChamberQuality]: End Job, performing DQM client operation";
 
    MonitorElement * RpcEvents = NULL;
    stringstream meName;
    
     
    meName.str("");
-   meName<<prefixDir_<<"/RPCEvents"; 
-   int rpcEvents=0;
+   meName<<subsystemFolder_<<"/RPCEvents"; 
+   
    RpcEvents = dbe_->get(meName.str());
-
-   if(RpcEvents) rpcEvents= (int)RpcEvents->getEntries();
-
+   int rpcEvents=0;
+   if(RpcEvents) rpcEvents= RpcEvents->getIntValue();
+   
    if(rpcEvents >= minEvents){
     
     MonitorElement * summary[3];
 
     for(int r = 0 ; r < 3 ; r++) {    
     meName.str("");
-    meName<<prefixDir_<<"/RPCChamberQuality_"<<RPCChamberQuality::regions_[r]; 
+    meName<<globalFolder_<<"/RPCChamberQuality_"<<RPCChamberQuality::regions_[r]; 
     summary[r] = dbe_ -> get(meName.str());
 
     if( summary[r] != 0 ) summary[r]->Reset();
@@ -174,7 +180,7 @@ void RPCChamberQuality::endRun(const Run& r, const EventSetup& c) {
       
     MonitorElement * RpcOverview = NULL;
     meName.str("");
-    meName<<prefixDir_<<"/RPC_System_Quality_Overview"; 
+    meName<<globalFolder_<<"/RPC_System_Quality_Overview"; 
     RpcOverview = dbe_ -> get(meName.str());
     RpcOverview->Reset();
 
@@ -210,44 +216,44 @@ void RPCChamberQuality::performeClientOperation(string MESufix, int region, Moni
   stringstream meName; 
 
   meName.str("");
-  meName<<prefixDir_<<"/RPCChamberQuality_"<<MESufix; 
+  meName<<globalFolder_<<"/RPCChamberQuality_"<<MESufix; 
   RCQ = dbe_ -> get(meName.str());
   if (RCQ)  RCQ->Reset();
 
 
   int pos = MESufix.find_last_of("_");
   meName.str("");
-  meName<<prefixDir_<<"/RPCChamberQuality_Distribution"<<MESufix.substr(pos); 
+  meName<<globalFolder_<<"/RPCChamberQuality_Distribution"<<MESufix.substr(pos); 
   RCQD = dbe_ -> get(meName.str());
   if (RCQD) RCQD->Reset();
   
   //get HV Histo
   meName.str("");                        
-  meName<<prefixDir_<<"/HVStatus_"<<MESufix;
+  meName<<globalFolder_<<"/HVStatus_"<<MESufix;
   HV = dbe_ -> get(meName.str());	
   //get LV Histo
   meName.str("");                     
-  meName<<prefixDir_<<"/LVStatus_"<<MESufix; 
+  meName<<globalFolder_<<"/LVStatus_"<<MESufix; 
   LV = dbe_ -> get(meName.str());
   //Dead 
   meName.str("");
-  meName << prefixDir_<<"/DeadChannelFraction_"<<MESufix;
+  meName << globalFolder_<<"/DeadChannelFraction_"<<MESufix;
   DEAD = dbe_->get(meName.str());
   //ClusterSize
   meName.str("");
-  meName<<prefixDir_<<"/ClusterSizeIn1Bin_"<<MESufix;
+  meName<<globalFolder_<<"/ClusterSizeIn1Bin_"<<MESufix;
   CLS = dbe_ -> get(meName.str());
   //NoisyStrips
   meName.str("");
-  meName<<prefixDir_<<"/RPCNoisyStrips_"<<MESufix;
+  meName<<globalFolder_<<"/RPCNoisyStrips_"<<MESufix;
   NoisySt = dbe_ -> get(meName.str());
   //Multiplicity
   meName.str("");
-  meName<<prefixDir_<<"/NumberOfDigi_Mean_"<<MESufix;
+  meName<<globalFolder_<<"/NumberOfDigi_Mean_"<<MESufix;
   MULT = dbe_ -> get(meName.str());
   //Asymetry
   meName.str("");
-  meName<<prefixDir_<<"/AsymmetryLeftRight_"<<MESufix;
+  meName<<globalFolder_<<"/AsymmetryLeftRight_"<<MESufix;
   Chip = dbe_ -> get(meName.str());		   
   
   int xBinMax, yBinMax;    

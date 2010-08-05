@@ -736,7 +736,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  meIdDT<<folder<<"/ExpectedOccupancyFromDT_"<<rpcId.rawId();
 	  bxDistroId<<folder<<"/BXDistribution_"<<rpcId.rawId();
       
-	  std::string folder2 = folderPath+"RollByRoll/" +  folderStr->folderStructure(rpcId); 
+	  std::string folder2 = folderPath+"RollByRoll/" +  folderStr->folderStructure(rpcId, "Noise"); 
 
 	  delete folderStr;
 
@@ -1096,7 +1096,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	  meIdCSC<<folder<<"/ExpectedOccupancyFromCSC_"<<rpcId.rawId();
 	  bxDistroId<<folder<<"/BXDistribution_"<<rpcId.rawId();
 		
-	  std::string folder2 = folderPath+"RollByRoll/" +  folderStr->folderStructure(rpcId); 
+	  std::string folder2 = folderPath+"RollByRoll/" +  folderStr->folderStructure(rpcId, "Noise"); 
 	  
 	  delete folderStr;
 

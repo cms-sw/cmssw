@@ -34,7 +34,7 @@ public:
 private:
   
   std::string globalFolder_;
-
+ std::string subsystemFolder_;
  
   std::vector<MonitorElement *>  myOccupancyMe_;
   std::vector<RPCDetId>   myDetIds_;

@@ -19,4 +19,4 @@ qTesterRPC = cms.EDAnalyzer("QualityTester",
 # DCS
 from DQM.RPCMonitorClient.RPCDcsInfoClient_cfi import *
 
-rpcTier0Client = cms.Sequence(qTesterRPC*rpcdqmclient*rpcChamberQuality*rpcDcsInfoClient*rpcEventSummary*rpcefficiencysecond )
+#rpcTier0Client = cms.Sequence(qTesterRPC*rpcdqmclient*rpcChamberQuality*rpcDcsInfoClient*rpcEventSummary*rpcefficiencysecond )

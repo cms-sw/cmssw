@@ -22,7 +22,12 @@ RPCDeadChannelTest::RPCDeadChannelTest(const ParameterSet& ps ){
  
   LogVerbatim ("deadChannel") << "[RPCDeadChannelTest]: Constructor";
 
-  globalFolder_ = ps.getUntrackedParameter<string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms");
+ std::string prefixDir = ps.getUntrackedParameter<std::string>("RPCFolder", "RPC");
+  std::string recHitType =  ps.getUntrackedParameter<std::string>("NoiseOrMuons", "Noise");
+  std::string gFolder = ps.getUntrackedParameter<std::string>("GlobalFolder", "SummaryHistograms");
+
+  globalFolder_ =  prefixDir + "/" +  recHitType +"/" + gFolder;
+
   prescaleFactor_ = ps.getUntrackedParameter<int>("DiagnosticPrescale", 1);
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
   numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
@@ -92,26 +97,21 @@ void RPCDeadChannelTest::endRun(const Run& r, const EventSetup& iSetup,vector<Mo
   
  for (unsigned int i = 0 ; i<meVector.size(); i++){
 
-   bool flag= false;
-   
    DQMNet::TagList tagList;
    tagList = meVector[i]->getTags();
    DQMNet::TagList::iterator tagItr = tagList.begin();
 
-   while (tagItr != tagList.end() && !flag ) {
-     if((*tagItr) ==  rpcdqm::OCCUPANCY)
-       flag= true;
-   
+   while (tagItr != tagList.end() ) {
+     if((*tagItr) ==  rpcdqm::OCCUPANCY){
+      myOccupancyMe_.push_back(meVector[i]);
+      myDetIds_.push_back(detIdVector[i]);
+      break;
+     }
+       
      tagItr++;
    }
    
-   if(flag){
-      myOccupancyMe_.push_back(meVector[i]);
-      myDetIds_.push_back(detIdVector[i]);
-   }
  }  
-
- this->clientOperation(iSetup);
 }
 
 void RPCDeadChannelTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {}

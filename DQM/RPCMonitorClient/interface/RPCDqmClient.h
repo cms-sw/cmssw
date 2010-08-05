@@ -55,7 +55,7 @@ public:
   std::string  globalFolder_;
   std::vector<std::string>  clientList_;
 
-
+  std::string  recHitType_;
   std::vector<std::string> clientNames_,clientHisto_; 
   std::vector<RPCClient*> clientModules_;
 

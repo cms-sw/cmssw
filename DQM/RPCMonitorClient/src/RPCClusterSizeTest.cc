@@ -14,9 +14,17 @@ RPCClusterSizeTest::RPCClusterSizeTest(const ParameterSet& ps ){
   LogVerbatim ("rpceventsummary") << "[RPCClusterSizeTest]: Constructor";
   
   prescaleFactor_ =  ps.getUntrackedParameter<int>("DiagnosticPrescale", 1);
-  globalFolder_ = ps.getUntrackedParameter<string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms/");
+
+  std::string prefixDir = ps.getUntrackedParameter<std::string>("RPCFolder", "RPC");
+  std::string recHitType =  ps.getUntrackedParameter<std::string>("NoiseOrMuons", "Noise");
+  std::string gFolder = ps.getUntrackedParameter<std::string>("GlobalFolder", "SummaryHistograms");
+
+  globalFolder_ =  prefixDir + "/" +  recHitType +"/" + gFolder;
+
+
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
   numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
+
 }
 
 RPCClusterSizeTest::~RPCClusterSizeTest(){ dbe_=0;}
@@ -140,25 +148,19 @@ void RPCClusterSizeTest::endRun(const Run& r, const EventSetup& c,vector<Monitor
  //Get  ME for each roll
  for (unsigned int i = 0 ; i<meVector.size(); i++){
 
-   bool flag= false;
-   
    DQMNet::TagList tagList;
    tagList = meVector[i]->getTags();
    DQMNet::TagList::iterator tagItr = tagList.begin();
 
-   while (tagItr != tagList.end() && !flag ) {
-     if((*tagItr) ==  rpcdqm::CLUSTERSIZE)
-       flag= true;
-   
+   while (tagItr != tagList.end() ) {
+     if((*tagItr) ==  rpcdqm::CLUSTERSIZE){
+       myClusterMe_.push_back(meVector[i]);
+       myDetIds_.push_back(detIdVector[i]);
+     }
      tagItr++;
    }
    
-   if(flag){
-     myClusterMe_.push_back(meVector[i]);
-     myDetIds_.push_back(detIdVector[i]);
-   }
  }
- this->clientOperation(c);
 }
 
 void RPCClusterSizeTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context){} 

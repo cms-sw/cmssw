@@ -38,7 +38,9 @@ public:
 
   void performeClientOperation(std::string , int , MonitorElement *);
   
-  std::string prefixDir_;
+  std::string globalFolder_;
+  std::string subsystemFolder_;
+  std::string  recHitType_;
   static const std::string xLabels_[7];
   static const std::string regions_[3];
 

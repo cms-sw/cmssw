@@ -44,8 +44,8 @@ public:
   virtual void clientOperation(edm::EventSetup const& c);
 
  private:
-  
   std::string globalFolder_;
+
   int numberOfDisks_;
   int numberOfRings_;
   int prescaleFactor_;
