@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2010/08/04 08:20:13 $
- * $Revision: 1.222 $
+ * $Date: 2010/08/04 19:10:23 $
+ * $Revision: 1.223 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -956,6 +956,9 @@ void EBPedestalClient::analyze(void) {
 
         if ( meg05_[ism-1] ) meg05_[ism-1]->setBinContent(i, 1, val);
       }
+
+      if ( Masks::maskPn(ism, i, bits01, EcalBarrel) ) UtilsClient::maskBinContent( meg04_[ism-1], i, 1 );
+      if ( Masks::maskPn(ism, i, bits03, EcalBarrel) ) UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
 
     }
 

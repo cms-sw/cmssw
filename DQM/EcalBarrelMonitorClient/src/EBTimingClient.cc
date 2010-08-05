@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2010/04/14 16:13:39 $
- * $Revision: 1.103 $
+ * $Date: 2010/08/04 08:20:13 $
+ * $Revision: 1.104 $
  * \author G. Della Ricca
  *
 */
@@ -22,10 +22,10 @@
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
-#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/LogicID.h"
 #endif
+
+#include "DQM/EcalCommon/interface/Masks.h"
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
@@ -319,11 +319,8 @@ void EBTimingClient::analyze(void) {
     if ( debug_ ) std::cout << "EBTimingClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
-#ifdef WITH_ECAL_COND_DB
-  uint64_t bits01 = 0;
-  bits01 |= EcalErrorDictionary::getMask("PHYSICS_MEAN_TIMING_WARNING");
-  bits01 |= EcalErrorDictionary::getMask("PHYSICS_RMS_TIMING_WARNING");
-#endif
+  uint32_t bits01 = 0;
+  bits01 |= 1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_WARNING;
 
   char histo[200];
 
@@ -385,64 +382,12 @@ void EBTimingClient::analyze(void) {
 
         }
 
+        if ( Masks::maskChannel(ism, ie, ip, bits01, EcalBarrel) ) UtilsClient::maskBinContent( meg01_[ism-1], ie, ip );
+
       }
     }
 
   }
-
-#ifdef WITH_ECAL_COND_DB
-  if ( EcalErrorMask::mapCrystalErrors_.size() != 0 ) {
-    map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
-    for (m = EcalErrorMask::mapCrystalErrors_.begin(); m != EcalErrorMask::mapCrystalErrors_.end(); m++) {
-
-      if ( (m->second).getErrorBits() & bits01 ) {
-        EcalLogicID ecid = m->first;
-
-        if ( strcmp(ecid.getMapsTo().c_str(), "EB_crystal_number") != 0 ) continue;
-
-        int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
-        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
-        if (iter == superModules_.end()) continue;
-
-        int ic = ecid.getID2();
-        int ie = (ic-1)/20 + 1;
-        int ip = (ic-1)%20 + 1;
-
-        UtilsClient::maskBinContent( meg01_[ism-1], ie, ip );
-
-      }
-
-    }
-  }
-
-  if ( EcalErrorMask::mapTTErrors_.size() != 0 ) {
-    map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
-    for (m = EcalErrorMask::mapTTErrors_.begin(); m != EcalErrorMask::mapTTErrors_.end(); m++) {
-
-      if ( (m->second).getErrorBits() & bits01 ) {
-        EcalLogicID ecid = m->first;
-
-        if ( strcmp(ecid.getMapsTo().c_str(), "EB_trigger_tower") != 0 ) continue;
-
-        int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
-        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
-        if (iter == superModules_.end()) continue;
-
-        int itt = ecid.getID2();
-        int iet = (itt-1)/4 + 1;
-        int ipt = (itt-1)%4 + 1;
-
-        for ( int ie = 5*(iet-1)+1; ie <= 5*iet; ie++ ) {
-          for ( int ip = 5*(ipt-1)+1; ip <= 5*ipt; ip++ ) {
-            UtilsClient::maskBinContent( meg01_[ism-1], ie, ip );
-          }
-        }
-
-      }
-
-    }
-  }
-#endif
 
 }
 

@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2010/08/04 08:20:14 $
- * $Revision: 1.41 $
+ * $Date: 2010/08/04 19:10:25 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  *
 */
@@ -18,7 +18,6 @@
 
 #ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
-#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 #include "DQM/EcalCommon/interface/LogicID.h"
 #endif
 

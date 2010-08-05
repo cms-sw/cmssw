@@ -1,11 +1,11 @@
-// $Id: Masks.cc,v 1.72 2010/03/09 09:01:50 dellaric Exp $
+// $Id: Masks.cc,v 1.1 2010/08/04 19:19:03 dellaric Exp $
 
 /*!
   \file Masks.cc
   \brief Some "id" conversions
   \author B. Gobbo
-  \version $Revision: 1.72 $
-  \date $Date: 2010/03/09 09:01:50 $
+  \version $Revision: 1.1 $
+  \date $Date: 2010/08/04 19:19:03 $
 */
 
 #include <sstream>
@@ -76,7 +76,10 @@ bool Masks::maskChannel( int ism, int ix, int iy, uint32_t bits, const EcalSubde
       EcalDQMChannelStatus::const_iterator it = Masks::channelStatus->find( id.rawId() );
       if ( it != Masks::channelStatus->end() ) mask |= it->getStatusCode() & bits;
     }
-    mask |= Masks::maskTower(ism, ix, iy, bits, EcalBarrel);
+    if ( towerStatus ) {
+      EcalDQMTowerStatus::const_iterator it = Masks::towerStatus->find( id.tower().rawId() );
+      if ( it != Masks::towerStatus->end() ) mask |= it->getStatusCode() & bits;
+    }
 
   } else if( subdet == EcalEndcap ) {
 
@@ -89,7 +92,10 @@ bool Masks::maskChannel( int ism, int ix, int iy, uint32_t bits, const EcalSubde
         EcalDQMChannelStatus::const_iterator it = Masks::channelStatus->find( id.rawId() );
         if ( it != Masks::channelStatus->end() ) mask |= it->getStatusCode() & bits;
       }
-      mask |= Masks::maskTower(ism, ix, iy, bits, EcalEndcap);
+      if ( Masks::towerStatus ) {
+        EcalDQMTowerStatus::const_iterator it = Masks::towerStatus->find( id.sc().rawId() );
+        if ( it != Masks::towerStatus->end() ) mask |= it->getStatusCode() & bits;
+      }
    }
 
   } else {
@@ -130,6 +136,64 @@ bool Masks::maskTower( int ism, int ix, int iy, uint32_t bits, const EcalSubdete
         if ( it != Masks::towerStatus->end() ) mask |= it->getStatusCode() & bits;
       }
    }
+
+  } else {
+
+    std::ostringstream s;
+    s << "Invalid subdetector: subdet = " << subdet;
+    throw( std::runtime_error( s.str() ) );
+
+  }
+
+  return ( mask );
+
+}
+
+//-------------------------------------------------------------------------
+
+bool Masks::maskPn( int ism, int ix, uint32_t bits, const EcalSubdetector subdet ) throw( std::runtime_error ) {
+
+  bool mask = false;
+
+  if( subdet == EcalBarrel ) {
+
+    // EB-03
+    if( ism ==  3 && ix ==  1 && (bits & EcalDQMStatusHelper::LASER_MEAN_ERROR) ) mask = true;
+
+    // EB-07
+    if( ism ==  7 && ix ==  4 && (bits & EcalDQMStatusHelper::LASER_MEAN_ERROR) ) mask = true;
+
+    // EB+07
+    if( ism == 25 && ix ==  4 && (bits & EcalDQMStatusHelper::LASER_MEAN_ERROR) ) mask = true;
+
+    // EB+12
+    if( ism == 30 && ix ==  9 && (bits & EcalDQMStatusHelper::LASER_MEAN_ERROR) ) mask = true;
+
+  } else if( subdet == EcalEndcap ) {
+
+    // EE-02
+    if( ism == 5 && ix ==  3 && (bits & EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_MEAN_ERROR) ) mask = true;
+    if( ism == 5 && ix ==  3 && (bits & EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR) ) mask = true;
+    if( ism == 5 && ix == 10 && (bits & EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_MEAN_ERROR) ) mask = true;
+    if( ism == 5 && ix == 10 && (bits & EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR) ) mask = true;
+
+    // EE-03
+    if( ism == 6 && ix ==  5 && (bits & EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_MEAN_ERROR) ) mask = true;
+    if( ism == 6 && ix ==  5 && (bits & EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR) ) mask = true;
+
+    // EE-07
+    if( ism == 1 && ix ==  4 && (bits & EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_MEAN_ERROR) ) mask = true;
+    if( ism == 1 && ix ==  4 && (bits & EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR) ) mask = true;
+    if( ism == 1 && ix == 10 && (bits & EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_MEAN_ERROR) ) mask = true;
+    if( ism == 1 && ix == 10 && (bits & EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR) ) mask = true;
+
+    // EE-08
+    if( ism == 2 && ix ==  1 && (bits & EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_MEAN_ERROR) ) mask = true;
+    if( ism == 2 && ix ==  1 && (bits & EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR) ) mask = true;
+    if( ism == 2 && ix ==  4 && (bits & EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_MEAN_ERROR) ) mask = true;
+    if( ism == 2 && ix ==  4 && (bits & EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR) ) mask = true;
+    if( ism == 2 && ix == 10 && (bits & EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_MEAN_ERROR) ) mask = true;
+    if( ism == 2 && ix == 10 && (bits & EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR) ) mask = true;
 
   } else {
 

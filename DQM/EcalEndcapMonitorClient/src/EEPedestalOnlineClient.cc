@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2010/08/04 08:20:14 $
- * $Revision: 1.103 $
+ * $Date: 2010/08/04 19:10:25 $
+ * $Revision: 1.104 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -375,7 +375,7 @@ void EEPedestalOnlineClient::analyze(void) {
 
         }
 
-        if ( Masks::maskChannel(ism, ix, iy, bits03, EcalBarrel) ) UtilsClient::maskBinContent( meg03_[ism-1], ix, iy );
+        if ( Masks::maskChannel(ism, ix, iy, bits03, EcalEndcap) ) UtilsClient::maskBinContent( meg03_[ism-1], ix, iy );
 
       }
     }
