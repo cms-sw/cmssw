@@ -1599,28 +1599,28 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_SingleLooseIsoTau25") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-      if(OpenHltTauL2SCPassed(25.,0.,0,0.,0, 20.,50.)>=1) {
+      if(OpenHltTauL2SCPassed(25.,0.,0,0.,0, 20.,30.)>=1) {
     if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
       }
     }
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_SingleLooseIsoTau20_Trk5") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-      if(OpenHltTauL2SCPassed(20.,5.,0,0.,0, 20.,50.)>=1) {
+      if(OpenHltTauL2SCPassed(20.,5.,0,0.,0, 20.,30.)>=1) {
     if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
       }
     }
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_SingleLooseIsoTau25_Trk5") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-      if(OpenHltTauL2SCPassed(25.,5.,0,0.,0, 20.,50.)>=1) { //Thresholds are for UNcorrected L1 jets in 8E29
+      if(OpenHltTauL2SCPassed(25.,5.,0,0.,0, 20.,30.)>=1) { //Thresholds are for UNcorrected L1 jets in 8E29
 	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
       }
     }
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_SingleIsoTau20_Trk5") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-      if(OpenHltTauL2SCPassed(20.,5.,0,0.,1, 20.,50.)>=1) { //Thresholds are for UNcorrected L1 jets in 8E29
+      if(OpenHltTauL2SCPassed(20.,5.,0,0.,1, 20.,30.)>=1) { //Thresholds are for UNcorrected L1 jets in 8E29
 	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
       }
     }
