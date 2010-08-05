@@ -1,11 +1,11 @@
-// $Id: Masks.cc,v 1.1 2010/08/04 19:19:03 dellaric Exp $
+// $Id: Masks.cc,v 1.2 2010/08/05 11:35:07 dellaric Exp $
 
 /*!
   \file Masks.cc
   \brief Some "id" conversions
   \author B. Gobbo
-  \version $Revision: 1.1 $
-  \date $Date: 2010/08/04 19:19:03 $
+  \version $Revision: 1.2 $
+  \date $Date: 2010/08/05 11:35:07 $
 */
 
 #include <sstream>
@@ -43,7 +43,7 @@ void Masks::initMasking( const edm::EventSetup& setup, bool verbose ) {
 
   if( Masks::init ) return;
 
-  if ( verbose ) std::cout << "Initializing EcalDQMChannelStatus/EcalDQMTowerStatus ..." << std::endl;
+  if ( verbose ) std::cout << "Initializing EcalDQMChannelStatus and EcalDQMTowerStatus ..." << std::endl;
 
   Masks::init = true;
 
