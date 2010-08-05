@@ -15,7 +15,7 @@ process.load('Configuration.EventContent.EventContentHeavyIons_cff')
 process.load("HeavyIonsAnalysis.Configuration.analysisEventContent_cff")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('SD and central skims'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/HeavyIonsAnalysis/Configuration/test/SDmaker_3SD_3CS_PDMinBias_cfg.py,v $')
     )
@@ -76,13 +76,12 @@ process.filterCsZmumuHI = cms.Path(process.muonSelector *
 
 ############ PAT specifics ###########
 
-### for HI
+### for HI adaptations
 from PhysicsTools.PatAlgos.tools.heavyIonTools import *
 configureHeavyIons(process)
 
 ### disable MC
-from HeavyIonsAnalysis.Configuration.DisableMC_cff import *
-disableMC(process)
+disableMonteCarloDeps(process)
 
 ############ Output modules ###########
 
