@@ -169,7 +169,7 @@ def main():
         msg.setMsgVerbosity(coral.message_Level_Debug)
     
     if args.action == 'hltkey':
-        p=re.compile(r'^/cdaq/physics/.+/HLT.+')
+        p=re.compile(r'^/cdaq/physics/.+')
         result=hltkeyForRun(session,c,runnumber)
         print 'runnumber hltkey'
         for runnum,hltkey in result.items():
