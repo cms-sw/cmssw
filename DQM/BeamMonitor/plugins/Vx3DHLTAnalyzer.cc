@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.92 2010/07/04 11:25:25 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.94 2010/07/20 20:31:01 wmtan Exp $
 
 
 #include "DQM/BeamMonitor/plugins/Vx3DHLTAnalyzer.h"
@@ -166,10 +166,8 @@ unsigned int Vx3DHLTAnalyzer::HitCounter(const Event& iEvent)
 
 char* Vx3DHLTAnalyzer::formatTime (const time_t& t)
 {
-  struct tm* ptm;
-  ptm = gmtime(&t);
-  static char ts[32];
-  strftime(ts,sizeof(ts),"%Y.%m.%d %H:%M:%S %Z",ptm);
+  static char ts[25];
+  strftime(ts, sizeof(ts), "%Y.%m.%d %H:%M:%S %Z", gmtime(&t));
 
   return ts;
 }
@@ -651,8 +649,8 @@ void Vx3DHLTAnalyzer::writeToFile(vector<double>* vals,
       vector<double>::const_iterator it = vals->begin();
 
       outputFile << "Runnumber " << runNumber << endl;
-      outputFile << "BeginTimeOfFit " << formatTime(beginTimeOfFit / pow(2,32)) << endl;
-      outputFile << "EndTimeOfFit " << formatTime(endTimeOfFit / pow(2,32)) << endl;
+      outputFile << "BeginTimeOfFit " << formatTime(beginTimeOfFit >> 32) << " " << (beginTimeOfFit >> 32) << endl;
+      outputFile << "EndTimeOfFit " << formatTime(endTimeOfFit >> 32) << " " << (endTimeOfFit >> 32) << endl;
       outputFile << "LumiRange " << beginLumiOfFit << " - " << endLumiOfFit << endl;
       outputFile << "Type " << dataType << endl;
       // 3D Vertexing with Pixel Tracks:
@@ -708,10 +706,10 @@ void Vx3DHLTAnalyzer::writeToFile(vector<double>* vals,
   if ((debugMode == true) && (outputDebugFile.is_open() == true) && (vals != NULL) && (vals->size() == 8*2))
     {
       vector<double>::const_iterator it = vals->begin();
-	  
+
       outputDebugFile << "Runnumber " << runNumber << endl;
-      outputDebugFile << "BeginTimeOfFit " << formatTime(beginTimeOfFit / pow(2,32)) << endl;
-      outputDebugFile << "EndTimeOfFit " << formatTime(endTimeOfFit / pow(2,32)) << endl;
+      outputDebugFile << "BeginTimeOfFit " << formatTime(beginTimeOfFit >> 32) << " " << (beginTimeOfFit >> 32) << endl;
+      outputDebugFile << "EndTimeOfFit " << formatTime(endTimeOfFit >> 32) << " " << (endTimeOfFit >> 32) << endl;
       outputDebugFile << "LumiRange " << beginLumiOfFit << " - " << endLumiOfFit << endl;
       outputDebugFile << "Type " << dataType << endl;
       // 3D Vertexing with Pixel Tracks:
@@ -793,7 +791,13 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       lastLumiOfFit = endLumiOfFit;
       vector<double> vals;
 
-      hitCounter->ShiftFillLast(totalHits, sqrt(totalHits), nLumiReset);
+      hitCounter->ShiftFillLast((double)totalHits, sqrt((double)totalHits), nLumiReset);
+
+      if (endLumiOfFit % prescaleHistory == 0)
+	{
+	  hitCountHistory->getTH1()->SetBinContent(endLumiOfFit, (double)totalHits);
+	  hitCountHistory->getTH1()->SetBinError(endLumiOfFit, sqrt((double)totalHits));
+	}
 
       if (dataFromFit == true)
 	{
@@ -1017,6 +1021,12 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       myLinFit->SetParameter(1, 0.0);
       goodVxCounter->getTH1()->Fit("myLinFit","QR");
 
+      if (endLumiOfFit % prescaleHistory == 0)
+	{
+	  goodVxCountHistory->getTH1()->SetBinContent(endLumiOfFit, (double)counterVx);
+	  goodVxCountHistory->getTH1()->SetBinError(endLumiOfFit, sqrt((double)counterVx));
+	}
+
       delete myLinFit;
 
       vals.clear();
@@ -1039,6 +1049,7 @@ void Vx3DHLTAnalyzer::beginJob()
  
   // ### Set internal variables ###
   nBinsHistoricalPlot = 80;
+  nBinsWholeHistory   = 4000;
   // ##############################
 
   if ( dbe ) 
@@ -1103,15 +1114,25 @@ void Vx3DHLTAnalyzer::beginJob()
       Vx_XY->setAxisTitle("Primary Vertices Y [cm]",2);
       Vx_XY->setAxisTitle("Entries [#]",3);
 
-      hitCounter = dbe->book1D("pixelHits vs lumi", "# Pixel-Hits vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+      hitCounter = dbe->book1D("pixelHits vs lumi", "#Pixel-Hits vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
       hitCounter->setAxisTitle("Lumisection [#]",1);
       hitCounter->setAxisTitle("Pixel-Hits [#]",2);
       hitCounter->getTH1()->SetOption("E1");
 
-      goodVxCounter = dbe->book1D("good vertices vs lumi", "# Good vertices vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+      hitCountHistory = dbe->book1D("hist pixelHits vs lumi", "History: #Pixel-Hits vs. Lumi", nBinsWholeHistory, 0.5, (double)nBinsWholeHistory+0.5);
+      hitCountHistory->setAxisTitle("Lumisection [#]",1);
+      hitCountHistory->setAxisTitle("Pixel-Hits [#]",2);
+      hitCountHistory->getTH1()->SetOption("E1");
+
+      goodVxCounter = dbe->book1D("good vertices vs lumi", "#Good vertices vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
       goodVxCounter->setAxisTitle("Lumisection [#]",1);
       goodVxCounter->setAxisTitle("Good vertices [#]",2);
       goodVxCounter->getTH1()->SetOption("E1");
+
+      goodVxCountHistory = dbe->book1D("hist good vx vs lumi", "History: #Good vx vs. Lumi", nBinsWholeHistory, 0.5, (double)nBinsWholeHistory+0.5);
+      goodVxCountHistory->setAxisTitle("Lumisection [#]",1);
+      goodVxCountHistory->setAxisTitle("Good vertices [#]",2);
+      goodVxCountHistory->getTH1()->SetOption("E1");
 
       fitResults = dbe->book2D("fit results","Results of Beam Spot Fit", 2, 0., 2., 9, 0., 9.);
       fitResults->setAxisTitle("Fitted Beam Spot [cm]", 1);
@@ -1142,6 +1163,7 @@ void Vx3DHLTAnalyzer::beginJob()
 
   // ### Set internal variables ###
   reset("scratch");
+  prescaleHistory      = 1;
   maxLumiIntegration   = 15;
   minVxDoF             = 4.;
   internalDebug        = false;
