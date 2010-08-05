@@ -13,8 +13,6 @@
  * DTTPGParameters
  */
 
-#include "CondFormats/Common/interface/PayloadWrapper.h"
-
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
 #include "CondFormats/DTObjects/interface/DTT0.h"
 #include "CondFormats/DTObjects/interface/DTTtrig.h"
