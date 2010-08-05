@@ -15,7 +15,7 @@ class CentralityTable {
     BinValues n_hard;
     BinValues b;
 
-    BinValues ecc_evtPlane;
+    BinValues eccRP;
     BinValues ecc2;
     BinValues ecc3;
     BinValues ecc4;
