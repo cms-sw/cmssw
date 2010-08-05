@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.42 2010/07/15 10:21:02 merkelp Exp $
+// $Id: SiPixelDigiSource.cc,v 1.43 2010/08/03 12:04:46 merkelp Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -173,7 +173,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
         for(int i=0; i!=768; i++){
           //cout<<"\t\t\t bpix: "<<i<<" , "<<(*struct_iter).first<<" , "<<I_detId[i]<<endl;
           if((*struct_iter).first == I_detId[i]){
-	    if(I_fedId[i]>=32&&I_fedId[i]<=39) std::cout<<"Attention: a BPIX module matched to an FPIX FED!"<<std::endl;
+	    //if(I_fedId[i]>=32&&I_fedId[i]<=39) std::cout<<"Attention: a BPIX module matched to an FPIX FED!"<<std::endl;
 	    nDigisPerFed[I_fedId[i]]=nDigisPerFed[I_fedId[i]]+numberOfDigis;
 	    //cout<<"BPIX: "<<i<<" , "<<I_fedId[i]<<" , "<<numberOfDigis<<" , "<<nDigisPerFed[I_fedId[i]]<<endl;
 	    i=767;
@@ -186,7 +186,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
         for(int i=768; i!=1440; i++){
           //cout<<"\t\t\t fpix: "<<i<<" , "<<(*struct_iter).first<<" , "<<I_detId[i]<<endl;
           if((*struct_iter).first == I_detId[i]){
-	    if(I_fedId[i]<32||I_fedId[i]>39) std::cout<<"Attention: an FPIX module matched to a BPIX FED!"<<std::endl;
+	    //if(I_fedId[i]<32||I_fedId[i]>39) std::cout<<"Attention: an FPIX module matched to a BPIX FED!"<<std::endl;
 	    nDigisPerFed[I_fedId[i]]=nDigisPerFed[I_fedId[i]]+numberOfDigis;
 	    //cout<<"FPIX: "<<i<<" , "<<I_fedId[i]<<" , "<<numberOfDigis<<" , "<<nDigisPerFed[I_fedId[i]]<<endl;
 	    i=1439;
@@ -219,6 +219,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   
   // Actual digi occupancy in a FEDs compared to average digi occupancy per FED
   me = theDMBE->get("Pixel/averageDigiOccupancy");
+  me1 = theDMBE->get("Pixel/avgfedDigiOccupancyvsLumi");
   if(me){
     for(int i=0; i!=40; i++){
       float averageOcc = 0.;
@@ -232,6 +233,8 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	//cout<<"\t FPIX i: "<<i<<" , "<<nFPIXDigis<<" , "<<averageFPIXFed<<" , "<<nDigisPerFed[i]<<" , "<<averageOcc<<endl;
       }
       me->setBinContent(i+1,averageOcc);
+      int lumiSections15 = int(lumiSection/15);
+      me1->setBinContent(1+lumiSections15, i+1, averageOcc);
     }
   }
   
@@ -320,6 +323,8 @@ void SiPixelDigiSource::bookMEs(){
   pixEventRate = theDMBE->book1D("pixEventRate",title2,5000,0.,5000.);
   char title3[80]; sprintf(title3, "Average digi occupancy per FED;FED;NDigis/<NDigis>");
   averageDigiOccupancy = theDMBE->book1D("averageDigiOccupancy",title3,40,-0.5,39.5);
+  char title4[80]; sprintf(title4, "FED Digi Occupancy (NDigis/<NDigis>) vs LumiSections");
+  avgfedDigiOccupancyvsLumi = theDMBE->book2D ("avgfedDigiOccupancyvsLumi", title4, 400,0., 6000., 40, -0.5, 39.5);
   
   std::map<uint32_t,SiPixelDigiModule*>::iterator struct_iter;
  

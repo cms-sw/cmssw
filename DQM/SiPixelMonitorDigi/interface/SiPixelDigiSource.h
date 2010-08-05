@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.h,v 1.18 2010/07/15 08:31:26 merkelp Exp $
+// $Id: SiPixelDigiSource.h,v 1.19 2010/08/03 12:04:45 merkelp Exp $
 //
 
 #include <memory>
@@ -90,6 +90,7 @@
        MonitorElement* pixEvtsPerBX;
        MonitorElement* pixEventRate;
        MonitorElement* averageDigiOccupancy;
+       MonitorElement* avgfedDigiOccupancyvsLumi;
        MonitorElement* meNDigisCOMBBarrel_;
        MonitorElement* meNDigisCOMBEndcap_;
        
