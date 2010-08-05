@@ -40,17 +40,17 @@ class MuonMETAlgo
 			const reco::MET::LorentzVector&);
   reco::MET     makeMET(const reco::MET&, double fSumEt,
 			const std::vector<CorrMETData>& fCorrections, 
-			const MET::LorentzVector& fP4);
+			const reco::MET::LorentzVector& fP4);
   
   virtual void run(const edm::View<reco::Muon>& inputMuons,
 		   const edm::ValueMap<reco::MuonMETCorrectionData>& vm_muCorrData,
 		   const edm::View<reco::MET>& uncorMET,
-		   METCollection *corMET);
+		   reco::METCollection *corMET);
 		   
   virtual void run(const edm::View<reco::Muon>& inputMuons,
 		   const edm::ValueMap<reco::MuonMETCorrectionData>& vm_muCorrData,
 		   const edm::View<reco::CaloMET>& uncorMET,
-		   CaloMETCollection *corMET);
+		   reco::CaloMETCollection *corMET);
 		     
   
   void GetMuDepDeltas(const reco::Muon* inputMuon,
@@ -64,7 +64,7 @@ class MuonMETAlgo
   template <class T> void MuonMETAlgo_run(const edm::View<reco::Muon>& inputMuons,
 					  const edm::ValueMap<reco::MuonMETCorrectionData>& vm_muCorrData,
 					  const edm::View<T>& v_uncorMET,
-					  vector<T>* v_corMET);
+					  std::vector<T>* v_corMET);
 					  
   static void  correctMETforMuon(double& deltax, double& deltay,
 				 double bfield, int muonCharge,

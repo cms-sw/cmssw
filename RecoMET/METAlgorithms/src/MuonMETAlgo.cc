@@ -29,7 +29,7 @@ typedef math::XYZPoint Point;
 
 CaloMET MuonMETAlgo::makeMET (const CaloMET& fMet, 
 			      double fSumEt, 
-			      const vector<CorrMETData>& fCorrections, 
+			      const std::vector<CorrMETData>& fCorrections, 
 			      const MET::LorentzVector& fP4) {
   return CaloMET (fMet.getSpecific (), fSumEt, fCorrections, fP4, fMet.vertex ());
 }
@@ -38,7 +38,7 @@ CaloMET MuonMETAlgo::makeMET (const CaloMET& fMet,
   
 MET MuonMETAlgo::makeMET (const MET& fMet, 
 			  double fSumEt, 
-			  const vector<CorrMETData>& fCorrections, 
+			  const std::vector<CorrMETData>& fCorrections, 
 			  const MET::LorentzVector& fP4) {
   return MET (fSumEt, fCorrections, fP4, fMet.vertex ()); 
 }
@@ -48,7 +48,7 @@ MET MuonMETAlgo::makeMET (const MET& fMet,
 template <class T> void MuonMETAlgo::MuonMETAlgo_run(const edm::View<reco::Muon>& inputMuons,
 						     const edm::ValueMap<reco::MuonMETCorrectionData>& vm_muCorrData,
 						     const edm::View<T>& v_uncorMET,
-						     vector<T>* v_corMET) {
+						     std::vector<T>* v_corMET) {
   T uncorMETObj = v_uncorMET.front();
   
   double uncorMETX = uncorMETObj.px();
@@ -150,7 +150,7 @@ void MuonMETAlgo::GetMuDepDeltas(const reco::Muon* inputMuon,
     } else {// use Towers (this is the default)
       //only include towers whose Et > 0.5 since 
       //by default the MET only includes towers with Et > 0.5
-      vector<const CaloTower*> towers = info.crossedTowers;
+      std::vector<const CaloTower*> towers = info.crossedTowers;
       for(vector<const CaloTower*>::const_iterator it = towers.begin();
 	  it != towers.end(); it++) {
 	if((*it)->et() < towerEtThreshold) continue;
