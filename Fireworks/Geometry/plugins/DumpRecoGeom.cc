@@ -23,12 +23,30 @@
 
 #include "TGeoManager.h"
 #include "TGeoArb8.h"
-#include "TGeoTrd1.h"
-#include "TGeoTube.h"
 #include "TGeoMatrix.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TError.h"
+
+# define ADD_PIXEL_TOPOLOGY( rawid, detUnit )			\
+  const PixelGeomDetUnit* det = dynamic_cast<const PixelGeomDetUnit*>( detUnit ); \
+  if( det )							\
+  {      							\
+    const RectangularPixelTopology* topo = dynamic_cast<const RectangularPixelTopology*>( &det->specificTopology()); \
+    m_idToName[rawid].topology[0] = topo->nrows();		\
+    m_idToName[rawid].topology[1] = topo->ncolumns();		\
+    m_idToName[rawid].topology[2] = topo->pitch().first;        \
+    m_idToName[rawid].topology[3] = topo->pitch().second;       \
+  }								\
+
+# define ADD_SISTRIP_TOPOLOGY( rawid, detUnit )			\
+  const StripGeomDetUnit* det = dynamic_cast<const StripGeomDetUnit*>( detUnit ); \
+  if( det )                                                     \
+  {                                                             \
+    const StripTopology* topo = dynamic_cast<const StripTopology*>( &det->specificTopology()); \
+    m_idToName[rawid].topology[0] = topo->nstrips();            \
+  }                                                             \
+
 
 class DumpRecoGeom : public edm::EDAnalyzer
 {
@@ -57,7 +75,7 @@ private:
   void addTIDGeometry( TGeoVolume* top, const std::string& name = "TID", int copy = 1 );
   void addTECGeometry( TGeoVolume* top, const std::string& name = "TEC", int copy = 1 );
   void addCaloGeometry( void );
-  
+
   int m_level;
   
   struct Info
@@ -585,6 +603,7 @@ DumpRecoGeom::addPixelBarrelGeometry( TGeoVolume* top, const std::string& iName,
   {
     DetId detid = ( *it )->geographicalId();
     unsigned int rawid = detid.rawId();
+
     std::stringstream s;
     s << rawid;
     std::string name = s.str();
@@ -597,14 +616,7 @@ DumpRecoGeom::addPixelBarrelGeometry( TGeoVolume* top, const std::string& iName,
     p << path( top, iName, copy ) << "/" << name << "_" << copy;
     m_idToName[rawid] = Info( p.str());
 
-    const PixelGeomDetUnit* det = dynamic_cast<const PixelGeomDetUnit*>( m_trackerGeom->idToDetUnit( detid ));
-
-    if( det )
-    {      
-      const RectangularPixelTopology* topo = dynamic_cast<const RectangularPixelTopology*>( &det->specificTopology());
-      m_idToName[rawid].topology[0] = topo->nrows();
-      m_idToName[rawid].topology[1] = topo->ncolumns();
-    }
+    ADD_PIXEL_TOPOLOGY( rawid, m_trackerGeom->idToDetUnit( detid ));
   }
   
   top->AddNode( assembly, copy );
@@ -620,6 +632,7 @@ DumpRecoGeom::addPixelForwardGeometry( TGeoVolume* top, const std::string& iName
   {
     DetId detid = ( *it )->geographicalId();
     unsigned int rawid = detid.rawId();
+
     std::stringstream s;
     s << rawid;
     std::string name = s.str();
@@ -631,15 +644,8 @@ DumpRecoGeom::addPixelForwardGeometry( TGeoVolume* top, const std::string& iName
     std::stringstream p;
     p << path( top, iName, copy ) << "/" << name << "_" << copy;
     m_idToName[rawid] = Info( p.str());
-
-    const PixelGeomDetUnit* det = dynamic_cast<const PixelGeomDetUnit*>(m_trackerGeom->idToDetUnit( detid ));
-
-    if( det )
-    {      
-      const RectangularPixelTopology* topo = dynamic_cast<const RectangularPixelTopology*>( &det->specificTopology());
-      m_idToName[rawid].topology[0] = topo->nrows();
-      m_idToName[rawid].topology[1] = topo->ncolumns();
-    }
+    
+    ADD_PIXEL_TOPOLOGY( rawid, m_trackerGeom->idToDetUnit( detid ));
   }
   
   top->AddNode( assembly, copy );
@@ -667,13 +673,7 @@ DumpRecoGeom::addTIBGeometry( TGeoVolume* top, const std::string& iName, int cop
     p << path( top, iName, copy ) << "/" << name << "_" << copy;
     m_idToName[rawid] = Info( p.str());
 
-    const StripGeomDetUnit* det = dynamic_cast<const StripGeomDetUnit*>( m_trackerGeom->idToDet( detid ));
-
-    if( det )
-    {      
-      const StripTopology* topo = dynamic_cast<const StripTopology*>(& det->specificTopology());
-      m_idToName[rawid].topology[0] = topo->nstrips();
-    }
+    ADD_SISTRIP_TOPOLOGY( rawid, m_trackerGeom->idToDet( detid ));
   }
   
   top->AddNode( assembly, copy );
@@ -687,7 +687,9 @@ DumpRecoGeom::addTOBGeometry( TGeoVolume* top, const std::string& iName, int cop
 						    end = m_trackerGeom->detsTOB().end();
        it != end; ++it )
   {
-    unsigned int rawid = ( *it )->geographicalId().rawId();
+    DetId detid = ( *it )->geographicalId();
+    unsigned int rawid = detid.rawId();
+
     std::stringstream s;
     s << rawid;
     std::string name = s.str();
@@ -699,6 +701,8 @@ DumpRecoGeom::addTOBGeometry( TGeoVolume* top, const std::string& iName, int cop
     std::stringstream p;
     p << path( top, iName, copy ) << "/" << name << "_" << copy;
     m_idToName[rawid] = Info( p.str());
+
+    ADD_SISTRIP_TOPOLOGY( rawid, m_trackerGeom->idToDet( detid ));
   }
   
   top->AddNode( assembly, copy );
@@ -712,7 +716,9 @@ DumpRecoGeom::addTIDGeometry( TGeoVolume* top, const std::string& iName, int cop
 						    end = m_trackerGeom->detsTID().end();
        it != end; ++it)
   {
-    unsigned int rawid = ( *it )->geographicalId().rawId();
+    DetId detid = ( *it )->geographicalId();
+    unsigned int rawid = detid.rawId();
+
     std::stringstream s;
     s << rawid;
     std::string name = s.str();
@@ -724,6 +730,8 @@ DumpRecoGeom::addTIDGeometry( TGeoVolume* top, const std::string& iName, int cop
     std::stringstream p;
     p << path( top, iName, copy ) << "/" << name << "_" << copy;
     m_idToName[rawid] = Info( p.str());
+
+    ADD_SISTRIP_TOPOLOGY( rawid, m_trackerGeom->idToDet( detid ));
   }
   
   top->AddNode( assembly, copy );
@@ -737,7 +745,9 @@ DumpRecoGeom::addTECGeometry( TGeoVolume* top, const std::string& iName, int cop
 						    end = m_trackerGeom->detsTEC().end();
        it != end; ++it )
   {
-    unsigned int rawid = ( *it )->geographicalId().rawId();
+    DetId detid = ( *it )->geographicalId();
+    unsigned int rawid = detid.rawId();
+
     std::stringstream s;
     s << rawid;
     std::string name = s.str();
@@ -749,6 +759,8 @@ DumpRecoGeom::addTECGeometry( TGeoVolume* top, const std::string& iName, int cop
     std::stringstream p;
     p << path( top, iName, copy ) << "/" << name << "_" << copy;
     m_idToName[rawid] = Info( p.str());
+
+    ADD_SISTRIP_TOPOLOGY( rawid, m_trackerGeom->idToDet( detid ));
   }
   
   top->AddNode( assembly, copy );
