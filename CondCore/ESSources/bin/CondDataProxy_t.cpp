@@ -19,7 +19,6 @@
 #include "CondCore/DBCommon/interface/Time.h"
 
 #include "CondCore/IOVService/interface/IOVProxy.h"
-#include "CondFormats/Common/interface/PayloadWrapper.h"
 
 #include "CondCore/ESSources/interface/DataProxy.h"
 #include "CondCore/ESSources/interface/ProxyFactory.h"
