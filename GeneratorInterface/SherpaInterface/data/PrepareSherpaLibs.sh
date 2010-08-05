@@ -100,7 +100,7 @@ function build_python_cfi() {
   echo "ProductionFilterSequence = cms.Sequence(generator)"   >> ${shpacfifile}
   echo ""                                                     >> ${shpacfifile}
 
-  cat > sherpa_custom.py << EOF
+  cat > sherpa_custom_cff.py << EOF
 import FWCore.ParameterSet.Config as cms
 
 def customise(process):
@@ -512,7 +512,7 @@ if [ "${imode}" = "LOCAL" ] || [ "${imode}" = "CRAB" ]; then
   build_python_cfi ${shpacfifile}
  rm *.dat
   mv ${shpacfifile}   ${MYCMSSWPYTH}
-  mv sherpa_custom.py ${MYCMSSWPYTH}
+  mv sherpa_custom_cff.py ${MYCMSSWPYTH}
   cd ${MYCMSSWTEST}
   shpacfgfile="sherpa_cfg.py"
   shpaoutfile="sherpa_out.root"
@@ -529,10 +529,10 @@ if [ "${imode}" = "PROD" ]; then
   build_python_cfi ${shpacfffile}
  rm *.dat
   mv ${shpacfffile}   ${HDIR}
-  mv sherpa_custom.py ${HDIR}
+  mv sherpa_custom_cff.py ${HDIR}
   cd ${HDIR}
-  tar -czf sherpa_${dataset}_MASTER.tgz ${shpacfffile} sherpa_custom.py ${MYLIBDIR}
-#  rm -rf ${shpacfffile} sherpa_custom.py
+  tar -czf sherpa_${dataset}_MASTER.tgz ${shpacfffile} sherpa_custom_cff.py ${MYLIBDIR}
+#  rm -rf ${shpacfffile} sherpa_custom_cff.py
   rm -rf ${MYLIBDIR}
 fi
 
@@ -541,7 +541,7 @@ if [ "${imode}" = "VAL" ]; then
   shpacfffile="sherpa_"${dataset}"_cff.py"
   build_python_cfi ${shpacfffile}
   mv ${shpacfffile}   ${CMSSWDIR}/src/${MYANADIR2}/python/
-  mv sherpa_custom.py ${CMSSWDIR}/src/${MYANADIR2}/python/
+  mv sherpa_custom_cff.py ${CMSSWDIR}/src/${MYANADIR2}/python/
   cd ${HDIR}
   scramv1 b
 
@@ -549,7 +549,7 @@ if [ "${imode}" = "VAL" ]; then
                      -s GEN --eventcontent RAWSIM --datatier GEN \
                      --conditions FrontierConditions_GlobalTag,${MYCONDITIONS}::All \
                      -n 1000 --no_exec \
-                     --customise ${MYANADIR2}/sherpa_custom.py"
+                     --customise ${MYANADIR2}/sherpa_custom_cff.py"
   echo " VAL command 1: "${cmd1}
   ${cmd1}
 
@@ -560,13 +560,13 @@ if [ "${imode}" = "VAL" ]; then
 #               --conditions FrontierConditions_GlobalTag,${MYCONDITIONS}::All \
 #               -n 1000 \
 #               --no_exec \
-#               --customise ${MYANADIR2}/sherpa_custom.py
+#               --customise ${MYANADIR2}/sherpa_custom_cff.py
 
   cmd2="cmsDriver.py ${MYANADIR2}/python/${shpacfffile} \
                      -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT --eventcontent RAWSIM --datatier GEN-SIM-RAW \
                      --conditions FrontierConditions_GlobalTag,${MYCONDITIONS}::All \
                      -n 10 --no_exec \
-                     --customise ${MYANADIR2}/sherpa_custom.py"
+                     --customise ${MYANADIR2}/sherpa_custom_cff.py"
   echo " VAL command 2: "${cmd2}
   ${cmd2}
 
@@ -577,7 +577,7 @@ if [ "${imode}" = "VAL" ]; then
 #               --conditions FrontierConditions_GlobalTag,${MYCONDITIONS}::All \
 #               -n 10 \
 #               --no_exec \
-#               --customise ${MYANADIR2}/sherpa_custom.py
+#               --customise ${MYANADIR2}/sherpa_custom_cff.py
 
 ## --filein file:sherpa_out.root
 ## --fileout HLT.root
@@ -600,7 +600,7 @@ if [ "${imode}" = "VAL" ]; then
                      -s GEN,FASTSIM --eventcontent AODSIM --datatier GEN-SIM-DIGI-RECO \
                      --conditions FrontierConditions_GlobalTag,${MYCONDITIONS}::All \
                      -n 1000 --pileup=NoPileUp --beamspot=Early10TeVCollision --no_exec \
-                     --customise ${MYANADIR2}/sherpa_custom.py"
+                     --customise ${MYANADIR2}/sherpa_custom_cff.py"
   echo " VAL command 3: "${cmd3}
   ${cmd3}
 
@@ -612,7 +612,7 @@ if [ "${imode}" = "VAL" ]; then
 # --conditions FrontierConditions_GlobalTag,MC_31X_V3::All \
 # -n 1000 --pileup=NoPileUp --beamspot=Early10TeVCollision --magField 3.8T \
 # --no_exec \
-# --customise A/B/sherpa_custom.py
+# --customise A/B/sherpa_custom_cff.py
 
 ##cmsDriver.py reco --filein file:HLT.root --fileout RECO.root -s RAW2DIGI,RECO --eventcontent RECOSIM --conditions FrontierConditions_GlobalTag,MC_31X_V3::All -n -1 --magField 3.8T --no_exec
 
@@ -643,7 +643,7 @@ if [ "${imode}" = "CRAB" ]; then
                 --eventcontent ${cmsdrvevtcnt1} --fileout ${cmsdrvoutfil1} \
                 --conditions FrontierConditions_GlobalTag,${MYCONDITIONS}::All \
                 -n ${nevts} --python_filename ${cmsdrvpyfile1} --no_exec \
-                --customise ${MYANADIR}/sherpa_custom.py"
+                --customise ${MYANADIR}/sherpa_custom_cff.py"
   echo "command: "${CMD}
   ${CMD}
 
