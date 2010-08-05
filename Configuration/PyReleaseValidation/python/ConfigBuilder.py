@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.193 $"
+__version__ = "$Revision: 1.194 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -796,7 +796,49 @@ class ConfigBuilder(object):
         print self._options.step
         if not "DIGI"  in self._options.step.split(","):
             self.executeAndRemember("process.mix.playback = True")      
-        return
+	return
+
+    class MassSearchReplaceProcessNameVisitor(object):
+	    """Visitor that travels within a cms.Sequence, looks for a parameter and replace its value
+	    It will climb down within PSets, VPSets and VInputTags to find its target"""
+	    def __init__(self,paramSearch,paramReplace,verbose=False):
+		    self._paramReplace = paramReplace
+		    self._paramSearch = paramSearch
+		    self._verbose=verbose
+	    def doIt(self,pset,base):
+		    if isinstance(pset, cms._Parameterizable):
+			    for name in pset.parameters_().keys():
+				    # if I use pset.parameters_().items() I get copies of the parameter values
+				    # so I can't modify the nested pset
+				    value = getattr(pset,name)
+				    type = value.pythonTypeName()
+				    if type == 'cms.PSet':
+					    self.doIt(value,base+"."+name)
+				    elif type == 'cms.VPSet':
+					    for (i,ps) in enumerate(value): self.doIt(ps, "%s.%s[%d]"%(base,name,i) )
+				    elif type == 'cms.VInputTag':
+					    for (i,n) in enumerate(value):
+						    if not isinstance(n, cms.InputTag):
+							    n=cms.InputTag(n)
+						    if n.processName == self._paramSearch:
+							    # VInputTag can be declared as a list of strings, so ensure that n is formatted correctly
+							    if self._verbose:print "set process name %s.%s[%d] %s ==> %s " % (base, name, i, n, self._paramReplace)
+							    setattr(n,"processName",self._paramReplace)
+							    value[i]=n
+				    elif type == 'cms.InputTag':
+					    if value.processName == self._paramSearch:
+						    if self._verbose:print "set process name %s.%s %s ==> %s " % (base, name, value, self._paramReplace)
+						    from copy import deepcopy
+						    setattr(getattr(pset, name),"processName",self._paramReplace)
+							
+	    def enter(self,visitee):
+		    label = ''
+		    try:    label = visitee.label()
+		    except AttributeError: label = '<Module not in a Process>'
+		    self.doIt(visitee, label)
+	    def leave(self,visitee):
+		    pass
+	
 
     def prepare_DQM(self, sequence = 'DQMOffline'):
         # this one needs replacement
@@ -807,6 +849,15 @@ class ConfigBuilder(object):
             self.loadAndRemember(sequence.split(',')[0])
         self.process.dqmoffline_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
         self.schedule.append(self.process.dqmoffline_step)
+
+	## add a specific case of HLT,DQM, need to change the process name to the current process name
+	if 'HLT' in self._options.step:
+		#look up all module in dqm sequence
+		print "replacing process name"
+		#sequence = getattr(self.process, sequence.split(',')[-1])
+		#sequence.visit(self.MassSearchReplaceProcessNameVisitor(self.process.name_(),verbose=True))
+		self.dqmMassaging = 'from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder \n'
+		self.dqmMassaging += 'process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT","%s")) \n'%(sequence.split(',')[-1],self.process.name_())
 
     def prepare_HARVESTING(self, sequence = None):
         """ Enrich the process with harvesting step """
@@ -927,7 +978,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.193 $"),
+              (version=cms.untracked.string("$Revision: 1.194 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -1034,10 +1085,13 @@ class ConfigBuilder(object):
 	    result += ','.join(pathNames)+')\n'
 	    result += 'process.schedule.extend(process.HLTSchedule)\n'
 	    pathNames = ['process.'+p.label_() for p in afterHLT]
-	    result += 'process.schedule.extend(['+','.join(pathNames)+'])'
+	    result += 'process.schedule.extend(['+','.join(pathNames)+'])\n'
         else:
 	    pathNames = ['process.'+p.label_() for p in self.schedule]
             result ='process.schedule = cms.Schedule('+','.join(pathNames)+')\n'
+
+	if self.dqmMassaging != None:
+		result += self.dqmMassaging
 
         self.pythonCfgCode += result
 
