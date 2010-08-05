@@ -23,14 +23,6 @@ namespace cond {
   class BlobStreamingService : virtual public ora::IBlobStreamingService {
     public:
 
-    typedef std::pair<unsigned long long, unsigned long long> uuid;
-    
-    static const size_t m_idsize=sizeof(uuid);
-    static const size_t nVariants=3;
-
-    enum Variant { OLD, COMPRESSED_TBUFFER, COMPRESSED_CHARS }; 
-    static uuid const variantIds[nVariants];
-
 
     BlobStreamingService();
     
@@ -42,6 +34,15 @@ namespace cond {
 
 
   private:
+
+    typedef std::pair<unsigned long long, unsigned long long> uuid;
+    
+    static const size_t m_idsize=sizeof(uuid);
+    static const size_t nVariants=3;
+
+    enum Variant { OLD, COMPRESSED_TBUFFER, COMPRESSED_CHARS }; 
+    static uuid const variantIds[nVariants];
+
 
     static Variant findVariant(const void* address);
 

@@ -21,11 +21,7 @@
 <library file="SQLMonitoringService.cc" name=CondCoreDBCommonSQLMonitoringService>
  <flags EDM_PLUGIN=1>
 </library>
-<library file="DefaultBlobStreamingService.cc" name=CondCoreDBCommonDefaultBlobStreamingService>
- <use name=rootrflx>
- <flags EDM_PLUGIN=1>
-</library>
-<library file="BlobStreamerService.cc TBufferBlobStreamingService.cc" name=CondCoreDBCommonTBufferBlobStreamingService>
+<library file="BlobStreamingService.cc TBufferBlobStreamingService.cc" name=CondCoreDBCommonTBufferBlobStreamingService>
  <use name=rootrflx>	
  <flags EDM_PLUGIN=1>
 </library>
