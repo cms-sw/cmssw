@@ -32,7 +32,7 @@ def createRunList(c,p='.',o='.',dryrun=False):
             report.writeRow([run])
     else:
         print allruns
-def totalLumivstime(c,p='.',i='',o='.',begTime="03/30/10 10:00:00.00",endTime=None,selectionfile=None,beamstatus=None,beamenergy=None,beamenergyfluctuation=None,dryrun=False):
+def totalLumivstime(c,p='.',i='',o='.',begTime="03/30/10 10:00:00.00",endTime=None,selectionfile=None,beamstatus=None,beamenergy=None,beamenergyfluctuation=None,dryrun=False,withTextOutput=False):
     '''
     input:
       c connect string
@@ -46,6 +46,9 @@ def totalLumivstime(c,p='.',i='',o='.',begTime="03/30/10 10:00:00.00",endTime=No
     if endTime:
         elements.append('-end ')
         elements.append('"'+endTime+'"')
+    if withTextOutput:
+        elements.append('-o')
+        elements.append(os.path.join(o,textoutname))
     command=' '.join(elements)
     print command
     if not dryrun:
@@ -73,7 +76,7 @@ def totalLumivstimeLastweek(c,p='.',i='',o='.',selectionfile=None,beamstatus=Non
     if not dryrun:
         statusAndOutput=commands.getstatusoutput(command)
         print statusAndOutput[1]
-def lumiPerDay(c,p='.',i='',o='',begTime="03/30/10 10:00:00.00",endTime=None,selectionfile=None,beamstatus=None,beamenergy=None,beamenergyfluctuation=None,dryrun=False):
+def lumiPerDay(c,p='.',i='',o='',begTime="03/30/10 10:00:00.00",endTime=None,selectionfile=None,beamstatus=None,beamenergy=None,beamenergyfluctuation=None,dryrun=False,withTextOutput=False):
     '''
     input:
       c connect string
@@ -87,6 +90,9 @@ def lumiPerDay(c,p='.',i='',o='',begTime="03/30/10 10:00:00.00",endTime=None,sel
     if endTime:
         elements.append('-end')
         elements.append('"'+endTime+'"')
+    if withTextOutput:
+        elements.append('-o')
+        elements.append(os.path.join(o,textoutname))
     command=' '.join(elements)
     print command
     if not dryrun:
@@ -226,9 +232,9 @@ def main():
             runs.append(int(run))
         totalLumivsRun(connectstr,p=authpath,begRun=str(runs[0]),o=opath,endRun=str(runs[-1]),dryrun=isDryrun,withTextOutput=withTextOutput)
     if args.action == 'instpeakvstime':
-        instPeakPerday(connectstr,p=authpath,o=opath,dryrun=isDryrun)
+        instPeakPerday(connectstr,p=authpath,o=opath,dryrun=isDryrun,withTextOutput=withTextOutput)
     if args.action == 'totalvstime':
-        totalLumivstime(connectstr,p=authpath,o=opath,dryrun=isDryrun)
+        totalLumivstime(connectstr,p=authpath,o=opath,dryrun=isDryrun,withTextOutput=withTextOutput)
     if args.action == 'totallumilastweek':
         totalLumivstimeLastweek(connectstr,p=authpath,o=opath,dryrun=isDryrun)
     if args.action == 'totalvsfill':
