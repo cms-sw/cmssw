@@ -2,7 +2,7 @@
 VERSION='1.00'
 import os,sys,datetime
 import coral
-from RecoLuminosity.LumiDB import lumiTime,argparse,nameDealer,selectionParser,hltTrgSeedMapper,connectstrParser,cacheconfigParser,matplotRender,lumiQueryAPI,inputFilesetParser,CommonUtil
+from RecoLuminosity.LumiDB import lumiTime,argparse,nameDealer,selectionParser,hltTrgSeedMapper,connectstrParser,cacheconfigParser,matplotRender,lumiQueryAPI,inputFilesetParser,CommonUtil,csvReporter
 from matplotlib.figure import Figure
 class constants(object):
     def __init__(self):
@@ -206,26 +206,43 @@ def main():
         exit
     #print 'runList ',runList
     #print 'runDict ', runDict               
-    fig=Figure(figsize=(7,4),dpi=100)
+    fig=Figure(figsize=(8,8),dpi=100)
     m=matplotRender.matplotRender(fig)    
     if args.action == 'peakperday':
         l=lumiTime.lumiTime()
-        #lumiperls=getLumiPerLS(session,c,runList,selectionDict,beamstatus='STABLE BEAMS',beamenergy=3.5e3,beamenergyfluctuation=0.09)
         lumiperls=getInstLumiPerLS(session,c,runList,selectionDict)
-        xdata=[]#[lsstarttime]
-        ydata={}#{label:[instlumi]}
-        ydata['Max Inst']=[]
-        #ydata['Recorded']=[]
+        if args.outputfile:
+            reporter=csvReporter.csvReporter(ofilename)
+            fieldnames=['day','run','lsnum','maxinstlumi']
+            reporter.writeRow(fieldnames)
+        minDay=minTime.toordinal()
+        maxDay=maxTime.toordinal()
+        daydict={}#{day:[[run,lsnum,instlumi]]}
+        result={}#{day:[maxrun,maxlsnum,maxinstlumi]}
         for lsdata in lumiperls:
+            runnumber=lsdata[0]
+            lsnum=lsdata[1]
             runstarttimeStr=lsdata[-2]#note: it is a string!!
             startorbit=lsdata[5]
             deliveredInst=lsdata[2]
-            #recordedInst=lsdata[3]
             lsstarttime=l.OrbitToTime(runstarttimeStr,startorbit)
-            xdata.append(lsstarttime)
-            ydata['Max Inst'].append(deliveredInst)
-            #ydata['Recorded'].append(recordedInst)
-        m.plotPeakPerday_Time(xdata,ydata,minTime,maxTime)
+            day=lsstarttime.toordinal()
+            if not daydict.has_key(day):
+                daydict[day]=[]
+            daydict[day].append([runnumber,lsnum,deliveredInst])
+        days=daydict.keys()
+        days.sort()
+        for day in days:
+            daydata=daydict[day]
+            transposeddata=CommonUtil.transposed(daydata)
+            todaysmaxinst=max(transposeddata[2])
+            todaysmaxidx=transposeddata[2].index(todaysmaxinst)
+            todaysmaxrun=transposeddata[0][todaysmaxidx]
+            todaysmaxls=transposeddata[1][todaysmaxidx]
+            result[day]=[todaysmaxrun,todaysmaxls,todaysmaxinst]
+            if args.outputfile :
+                reporter.writeRow([day,todaysmaxrun,todaysmaxls,todaysmaxinst])
+        m.plotPeakPerday_Time(result,minDay,maxDay)
     if args.action == 'run':
         runnumber=runList[0]
         lumiperrun=getLumiPerRun(session,c,runnumber)#[[lsnumber,deliveredInst,recordedInst,norbit,startorbit,fillnum,runstarttime,runstoptime]]

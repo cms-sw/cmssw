@@ -162,7 +162,7 @@ def instLumiForRuns(c,runnumbers,p='.',o='',dryrun=False):
         if not dryrun:
             statusAndOutput=commands.getstatusoutput(command)
             print statusAndOutput[1]
-def instPeakPerday(c,p='.',o='.',begTime="03/30/10 10:00:00.00",endTime=None,dryrun=False):
+def instPeakPerday(c,p='.',o='.',begTime="03/30/10 10:00:00.00",endTime=None,dryrun=False,withTextOutput=False):
     '''
     input:
       c connect string
@@ -175,6 +175,9 @@ def instPeakPerday(c,p='.',o='.',begTime="03/30/10 10:00:00.00",endTime=None,dry
     if endTime:
         elements.append('-end')
         elements.append('"'+endTime+'"')
+    if withTextOutput:
+        elements.append('-o')
+        elements.append(os.path.join(o,textoutname))
     command=' '.join(elements)
     print command
     if not dryrun:
