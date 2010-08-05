@@ -17,7 +17,7 @@ process.source = cms.Source("PoolSource",
 
 ## define maximal number of events to loop over
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(10)
 )
 
 ## configure process options
@@ -34,12 +34,7 @@ process.GlobalTag.globaltag = cms.string('START38_V7::All')
 ## std sequence for pat
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
-## add electron user isolation
-from PhysicsTools.PatAlgos.tools.electronTools import addElectronUserIsolation
-addElectronUserIsolation(process)
-
-from TopQuarkAnalysis.Examples.TopElecAnalyzer_cfi import analyzeElec
-process.analyzeElec = analyzeElec
+process.load("TopQuarkAnalysis.Examples.TopElecAnalyzer_cfi")
 
 # register TFileService
 process.TFileService = cms.Service("TFileService",
