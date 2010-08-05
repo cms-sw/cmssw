@@ -1,11 +1,11 @@
-// $Id: Masks.cc,v 1.4 2010/08/05 15:54:08 dellaric Exp $
+// $Id: Masks.cc,v 1.5 2010/08/05 16:08:18 dellaric Exp $
 
 /*!
   \file Masks.cc
   \brief Some "id" conversions
   \author B. Gobbo
-  \version $Revision: 1.4 $
-  \date $Date: 2010/08/05 15:54:08 $
+  \version $Revision: 1.5 $
+  \date $Date: 2010/08/05 16:08:18 $
 */
 
 #include <sstream>
@@ -71,8 +71,8 @@ bool Masks::maskChannel( int ism, int ix, int iy, uint32_t bits, const EcalSubde
 
   if ( subdet == EcalBarrel ) {
 
-    int iex = ism<=18 ? -ix : +ix;
-    int ipx = ism<=18 ? iy+20*(ism-1) : 1+(20-iy)+20*(ism-19);
+    int iex = (ism>=1&&ism<=18) ? -ix : +ix;
+    int ipx = (ism>=1&&ism<=18) ? iy+20*(ism-1) : 1+(20-iy)+20*(ism-19);
 
     if ( EBDetId::validDetId(iex, ipx) ) {
       EBDetId id(iex, ipx);
@@ -91,8 +91,10 @@ bool Masks::maskChannel( int ism, int ix, int iy, uint32_t bits, const EcalSubde
     int jx = ix + Numbers::ix0EE(ism);
     int jy = iy + Numbers::iy0EE(ism);
 
+    if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
+
     if ( Numbers::validEE(ism, jx, jy) ) {
-      EEDetId id(jx, jy, ism>=1&&ism<=9?-1:+1, EEDetId::XYMODE);
+      EEDetId id(jx, jy, (ism>=1&&ism<=9)?-1:+1, EEDetId::XYMODE);
       if ( Masks::channelStatus ) {
         EcalDQMChannelStatus::const_iterator it = Masks::channelStatus->find( id.rawId() );
         if ( it != Masks::channelStatus->end() ) mask |= it->getStatusCode() & bits;
@@ -123,8 +125,8 @@ bool Masks::maskTower( int ism, int ix, int iy, uint32_t bits, const EcalSubdete
 
   if ( subdet == EcalBarrel ) {
 
-    int iex = ism<=18 ? -ix : +ix;
-    int ipx = ism<=18 ? iy+20*(ism-1) : 1+(20-iy)+20*(ism-19);
+    int iex = (ism>=1&&ism<=18) ? -ix : +ix;
+    int ipx = (ism>=1&&ism<=18) ? iy+20*(ism-1) : 1+(20-iy)+20*(ism-19);
 
     if ( EBDetId::validDetId(iex, ipx) ) {
       EBDetId id(iex, ipx);
@@ -139,8 +141,10 @@ bool Masks::maskTower( int ism, int ix, int iy, uint32_t bits, const EcalSubdete
     int jx = ix + Numbers::ix0EE(ism);
     int jy = iy + Numbers::iy0EE(ism);
 
+    if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
+
     if ( Numbers::validEE(ism, jx, jy) ) {
-      EEDetId id(jx, jy, ism>=1&&ism<=9?-1:+1, EEDetId::XYMODE);
+      EEDetId id(jx, jy, (ism>=1&&ism<=9)?-1:+1, EEDetId::XYMODE);
       if ( Masks::towerStatus ) {
         EcalDQMTowerStatus::const_iterator it = Masks::towerStatus->find( id.sc().rawId() );
         if ( it != Masks::towerStatus->end() ) mask |= it->getStatusCode() & bits;
