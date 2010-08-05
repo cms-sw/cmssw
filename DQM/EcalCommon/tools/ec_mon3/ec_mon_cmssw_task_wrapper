@@ -178,7 +178,7 @@ dbHostPort = 1521
 dbUserName = ''
 dbPassword = ''
 
-if (localDAQ == 1) | (globalDAQ == 1) | (liveECAL == 1) | (liveCMS == 1) :
+if (localDAQ == 1) | (liveECAL == 1) | (liveCMS == 1) :
   try :
     file = open('/nfshome0/ecalpro/DQM/online-DQM/.cms_tstore.conf', 'r')
     for line in file :
