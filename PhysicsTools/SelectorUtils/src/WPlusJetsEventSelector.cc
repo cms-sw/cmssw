@@ -22,6 +22,7 @@ WPlusJetsEventSelector::WPlusJetsEventSelector( edm::ParameterSet const & params
   jetIdLoose_      (params.getParameter<edm::ParameterSet>("jetIdLoose") ),
   pfjetIdLoose_    (params.getParameter<edm::ParameterSet>("pfjetIdLoose") ),
   minJets_         (params.getParameter<int> ("minJets") ),
+  muJetDR_         (params.getParameter<double>("muJetDR")),
   muPlusJets_      (params.getParameter<bool>("muPlusJets") ),
   ePlusJets_       (params.getParameter<bool>("ePlusJets") ),
   muPtMin_         (params.getParameter<double>("muPtMin")), 
@@ -35,8 +36,7 @@ WPlusJetsEventSelector::WPlusJetsEventSelector( edm::ParameterSet const & params
   jetPtMin_        (params.getParameter<double>("jetPtMin")), 
   jetEtaMax_       (params.getParameter<double>("jetEtaMax")), 
   jetScale_        (params.getParameter<double>("jetScale")),
-  metMin_          (params.getParameter<double>("metMin")),
-  muJetDR_         (params.getParameter<double>("muJetDR"))
+  metMin_          (params.getParameter<double>("metMin"))
 {
   // make the bitset
   push_back( "Inclusive"      );
