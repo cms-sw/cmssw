@@ -21,7 +21,7 @@ GlobalPoint MonteCarloLinearizationPointFinder::getLinearizationPoint(
 GlobalPoint MonteCarloLinearizationPointFinder::getLinearizationPoint(
     const std::vector<reco::TransientTrack> & tracks ) const
 {
-  // cout << "[MonteCarloLinearizationPointFinder] point " << thePt << endl;
+  // std::cout << "[MonteCarloLinearizationPointFinder] point " << thePt << std::endl;
   return thePt;
 }
 

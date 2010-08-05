@@ -7,13 +7,13 @@ FallbackLinearizationPointFinder::FallbackLinearizationPointFinder (
     const ModeFinder3d & m ) : theModeFinder ( m.clone() ) {}
 
 GlobalPoint FallbackLinearizationPointFinder::getLinearizationPoint(
-    const vector<FreeTrajectoryState> & tracks ) const
+    const std::vector<FreeTrajectoryState> & tracks ) const
 {
   return GlobalPoint(0.,0.,0.);
 }
 
 GlobalPoint FallbackLinearizationPointFinder::getLinearizationPoint(
-    const vector<reco::TransientTrack> & tracks ) const
+    const std::vector<reco::TransientTrack> & tracks ) const
 {
     switch ( tracks.size() )
     {
@@ -23,12 +23,12 @@ GlobalPoint FallbackLinearizationPointFinder::getLinearizationPoint(
         return tracks.begin()->impactPointState().globalPosition();
       default:
       {
-        vector < pair < GlobalPoint, float > > wtracks;
+        std::vector < std::pair < GlobalPoint, float > > wtracks;
         wtracks.reserve ( tracks.size() - 1 );
-        for ( vector< reco::TransientTrack >::const_iterator i=tracks.begin(); 
+        for ( std::vector< reco::TransientTrack >::const_iterator i=tracks.begin(); 
               i!=tracks.end() ; ++i )
         {
-            pair < GlobalPoint, float > tmp ( 
+            std::pair < GlobalPoint, float > tmp ( 
                 i->impactPointState().globalPosition(), 1. );
             wtracks.push_back ( tmp );
         }
