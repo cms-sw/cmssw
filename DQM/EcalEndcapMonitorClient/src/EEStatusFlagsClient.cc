@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2010/08/04 19:10:25 $
- * $Revision: 1.42 $
+ * $Date: 2010/08/05 11:35:08 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  *
 */
@@ -206,6 +206,21 @@ void EEStatusFlagsClient::analyze(void) {
     me = dqmStore_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
     meh03_[ism-1] = me;    
+
+    for ( int ix = 1; ix <= 50; ix++ ) {
+      for ( int iy = 1; iy <= 50; iy++ ) {
+        if ( Masks::maskChannel(ism, ix, iy, bits01, EcalEndcap) ) {
+          if ( meh01_[ism-1] ) meh01_[ism-1]->setBinError( ix, iy, 0.01 );
+        }
+      }
+    }
+
+    for ( int i = 1; i <= 10; i++ ) {
+      if ( Masks::maskPn(ism, i, bits01, EcalEndcap) ) {
+        int it = (i-1)/5 + 1;
+        if ( meh03_[ism-1] ) meh03_[ism-1]->setBinError( it, 1, 0.01 );
+      }
+    }
 
   }
 

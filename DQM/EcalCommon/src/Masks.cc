@@ -1,11 +1,11 @@
-// $Id: Masks.cc,v 1.6 2010/08/05 18:47:05 dellaric Exp $
+// $Id: Masks.cc,v 1.7 2010/08/05 19:49:59 dellaric Exp $
 
 /*!
   \file Masks.cc
   \brief Some "id" conversions
   \author B. Gobbo
-  \version $Revision: 1.6 $
-  \date $Date: 2010/08/05 18:47:05 $
+  \version $Revision: 1.7 $
+  \date $Date: 2010/08/05 19:49:59 $
 */
 
 #include <sstream>
@@ -99,52 +99,6 @@ bool Masks::maskChannel( int ism, int ix, int iy, uint32_t bits, const EcalSubde
         EcalDQMChannelStatus::const_iterator it = Masks::channelStatus->find( id.rawId() );
         if ( it != Masks::channelStatus->end() ) mask |= it->getStatusCode() & bits;
       }
-      if ( Masks::towerStatus ) {
-        EcalDQMTowerStatus::const_iterator it = Masks::towerStatus->find( id.sc().rawId() );
-        if ( it != Masks::towerStatus->end() ) mask |= it->getStatusCode() & bits;
-      }
-   }
-
-  } else {
-
-    std::ostringstream s;
-    s << "Invalid subdetector: subdet = " << subdet;
-    throw( std::runtime_error( s.str() ) );
-
-  }
-
-  return ( mask );
-
-}
-
-//-------------------------------------------------------------------------
-
-bool Masks::maskTower( int ism, int ix, int iy, uint32_t bits, const EcalSubdetector subdet ) throw( std::runtime_error ) {
-
-  bool mask = false;
-
-  if ( subdet == EcalBarrel ) {
-
-    int iex = (ism>=1&&ism<=18) ? -ix : +ix;
-    int ipx = (ism>=1&&ism<=18) ? iy+20*(ism-1) : 1+(20-iy)+20*(ism-19);
-
-    if ( EBDetId::validDetId(iex, ipx) ) {
-      EBDetId id(iex, ipx);
-      if ( towerStatus ) {
-        EcalDQMTowerStatus::const_iterator it = Masks::towerStatus->find( id.tower().rawId() );
-        if ( it != Masks::towerStatus->end() ) mask |= it->getStatusCode() & bits;
-      }
-    }
-
-  } else if ( subdet == EcalEndcap ) {
-
-    int jx = ix + Numbers::ix0EE(ism);
-    int jy = iy + Numbers::iy0EE(ism);
-
-    if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
-
-    if ( Numbers::validEE(ism, jx, jy) ) {
-      EEDetId id(jx, jy, (ism>=1&&ism<=9)?-1:+1, EEDetId::XYMODE);
       if ( Masks::towerStatus ) {
         EcalDQMTowerStatus::const_iterator it = Masks::towerStatus->find( id.sc().rawId() );
         if ( it != Masks::towerStatus->end() ) mask |= it->getStatusCode() & bits;

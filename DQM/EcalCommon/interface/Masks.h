@@ -1,11 +1,11 @@
-// $Id: Masks.h,v 1.1 2010/08/04 19:19:03 dellaric Exp $
+// $Id: Masks.h,v 1.2 2010/08/05 11:35:07 dellaric Exp $
 
 /*!
   \file Masks.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.1 $
-  \date $Date: 2010/08/04 19:19:03 $
+  \version $Revision: 1.2 $
+  \date $Date: 2010/08/05 11:35:07 $
 */
 
 #ifndef MASKS_H
@@ -31,8 +31,6 @@ class Masks {
   static void initMasking( const edm::EventSetup& setup, bool verbose = false );
 
   static bool maskChannel( int ism, int ix, int iy, uint32_t bits, const EcalSubdetector subdet ) throw( std::runtime_error );
-
-  static bool maskTower( int ism, int ix, int iy, uint32_t bits, const EcalSubdetector subdet ) throw( std::runtime_error );
 
   static bool maskPn( int ism, int ix, uint32_t bits, const EcalSubdetector subdet ) throw( std::runtime_error );
 

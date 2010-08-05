@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2010/08/04 19:10:24 $
- * $Revision: 1.40 $
+ * $Date: 2010/08/05 12:09:05 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  *
 */
@@ -205,13 +205,20 @@ void EBStatusFlagsClient::analyze(void) {
     h03_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
     meh03_[ism-1] = me;    
 
-    for (int itt = 1; itt <= 68; itt++) {
-      int ie = 5*(itt-1)+1;
-      int ip = 1;
-      int iet = (itt-1)/4 + 1;
-      int ipt = (itt-1)%4 + 1;
-      if ( Masks::maskTower(ism, ie, ip, bits01, EcalBarrel) ) {
-        if ( meh01_[ism-1] ) meh01_[ism-1]->setBinError( iet, ipt, 0.01 );
+    for ( int ie = 1; ie <= 85; ie++ ) {
+      for ( int ip = 1; ip <= 20; ip++ ) {
+        if ( Masks::maskChannel(ism, ie, ip, bits01, EcalBarrel) ) {
+          int iet = (ie-1)/5 + 1;
+          int ipt = (ip-1)/5 + 1;
+          if ( meh01_[ism-1] ) meh01_[ism-1]->setBinError( iet, ipt, 0.01 );
+        }
+      }
+    }
+
+    for ( int i = 1; i <= 10; i++ ) {
+      if ( Masks::maskPn(ism, i, bits01, EcalBarrel) ) {
+        int it = (i-1)/5 + 1;
+        if ( meh03_[ism-1] ) meh03_[ism-1]->setBinError( it, 1, 0.01 );
       }
     }
 
