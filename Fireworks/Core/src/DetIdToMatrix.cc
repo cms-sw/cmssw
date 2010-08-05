@@ -265,9 +265,8 @@ DetIdToMatrix::getPoints( unsigned int id ) const
    }
    else
    {
-      if( it->second.corners.empty())
+      if( it->second.corners.empty() && ! it->second.points.empty())
       {
-	 assert( ! it->second.points.empty());
 	 fillCorners( id );
       }
 
