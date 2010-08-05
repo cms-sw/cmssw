@@ -120,7 +120,7 @@ class WenuCandidateFilter : public edm::EDFilter {
   edm::InputTag tcMetCollectionTag_;
   edm::InputTag ebRecHits_;
   edm::InputTag eeRecHits_;
-  edm::InputTag PrimaryVerticesCollection_;
+  //  edm::InputTag PrimaryVerticesCollection_;
   Double_t BarrelMaxEta_;
   Double_t EndCapMaxEta_;
   Double_t EndCapMinEta_;
@@ -238,7 +238,7 @@ WenuCandidateFilter::WenuCandidateFilter(const edm::ParameterSet& iConfig)
   metCollectionTag_ = iConfig.getUntrackedParameter<edm::InputTag>("metCollectionTag");
   pfMetCollectionTag_ = iConfig.getUntrackedParameter<edm::InputTag>("pfMetCollectionTag");
   tcMetCollectionTag_ = iConfig.getUntrackedParameter<edm::InputTag>("tcMetCollectionTag");
-  PrimaryVerticesCollection_ = iConfig.getUntrackedParameter<edm::InputTag>("PrimaryVerticesCollection");
+  //  PrimaryVerticesCollection_ = iConfig.getUntrackedParameter<edm::InputTag>("PrimaryVerticesCollection");
   ebRecHits_ =  iConfig.getUntrackedParameter<edm::InputTag>("ebRecHits");
   eeRecHits_ =  iConfig.getUntrackedParameter<edm::InputTag>("eeRecHits");
   // spike cleaning:
@@ -583,32 +583,43 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        return false; // RETURN highest ET electron is a spike
      }
    }
+   // NOTICE: all primary vtx information is added in the WenuPlotter now
    // add the primary vtx information in the electron:
-   edm::Handle< std::vector<reco::Vertex> > pVtx;
-   iEvent.getByLabel(PrimaryVerticesCollection_, pVtx);
-   const std::vector<reco::Vertex> Vtx = *(pVtx.product());
-   double pv_x = -999999.;
-   double pv_y = -999999.;
-   double pv_z = -999999.;
-   double ele_tip_pv = -999999.;
-   double ele2nd_tip_pv = -999999.;
-   if (Vtx.size() >=1) {
-     pv_x = Vtx[0].position().x();
-     pv_y = Vtx[0].position().y();
-     pv_z = Vtx[0].position().z();
-     ele_tip_pv = -maxETelec.gsfTrack()->dxy(Vtx[0].position());
-     if (hasSecondElectron) {
-       ele2nd_tip_pv = -secondETelec.gsfTrack()->dxy(Vtx[0].position());
-     }
-   }
+   //edm::Handle< std::vector<reco::Vertex> > pVtx;
+   //iEvent.getByLabel(PrimaryVerticesCollection_, pVtx);
+   //const std::vector<reco::Vertex> Vtx = *(pVtx.product());
+   //double pv_x = -999999.;
+   //double pv_y = -999999.;
+   //double pv_z = -999999.;
+   //double ele_tip_pv = -999999.;
+   //double ele2nd_tip_pv = -999999.;
+   //if (Vtx.size() >=1) {
+   //  pv_x = Vtx[0].position().x();
+   //  pv_y = Vtx[0].position().y();
+   //  pv_z = Vtx[0].position().z();
+   //  ele_tip_pv = -maxETelec.gsfTrack()->dxy(Vtx[0].position());
+   //  if (hasSecondElectron) {
+   //    ele2nd_tip_pv = -secondETelec.gsfTrack()->dxy(Vtx[0].position());
+   //  }
+   //}
+   // extra information about the primary vertex collection
+   //std::vector<Int_t> VtxTracksSize;
+   //std::vector<Float_t>  VtxNormalizedChi2;
+   //for (Int_t i=0; i < (Int_t) Vtx.size(); ++i) {
+     // tracks per vtx
+   //  Int_t tracksSize = Vtx[i].tracksSize();
+   //  VtxTracksSize.push_back(tracksSize);
+   //  Float_t nchi2 = Float_t(Vtx[0].normalizedChi2());
+   //  VtxNormalizedChi2.push_back(nchi2);
+   //}
    //
-   maxETelec.addUserFloat("pv_x", Float_t(pv_x));
-   maxETelec.addUserFloat("pv_x", Float_t(pv_y));
-   maxETelec.addUserFloat("pv_z", Float_t(pv_z));
-   maxETelec.addUserFloat("ele_tip_pv", Float_t(ele_tip_pv));
-   if (hasSecondElectron) {
-     secondETelec.addUserFloat("ele_tip_pv", Float_t(ele2nd_tip_pv));
-   }
+   //maxETelec.addUserFloat("pv_x", Float_t(pv_x));
+   //maxETelec.addUserFloat("pv_x", Float_t(pv_y));
+   //maxETelec.addUserFloat("pv_z", Float_t(pv_z));
+   //maxETelec.addUserFloat("ele_tip_pv", Float_t(ele_tip_pv));
+   //if (hasSecondElectron) {
+   //  secondETelec.addUserFloat("ele_tip_pv", Float_t(ele2nd_tip_pv));
+   //}
    //std::cout << "** selected ele phi: " << maxETelec.phi()
    //	     << ", eta=" << maxETelec.eta() << ", sihih="
    //	     << maxETelec.scSigmaIEtaIEta() << ", hoe=" 

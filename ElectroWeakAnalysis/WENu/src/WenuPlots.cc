@@ -55,6 +55,8 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+//#include "RecoEcal/EgammaCoreTools/plugins/EcalClusterCrackCorrectionFunctor.h"
 
 WenuPlots::WenuPlots(const edm::ParameterSet& iConfig)
 
@@ -112,6 +114,11 @@ WenuPlots::WenuPlots(const edm::ParameterSet& iConfig)
   }
   storeExtraInformation_ = iConfig.getUntrackedParameter<Bool_t>("storeExtraInformation");
   storeAllSecondElectronVariables_ = iConfig.getUntrackedParameter<Bool_t>("storeAllSecondElectronVariables", false);
+  // primary vtx collections
+  PrimaryVerticesCollection_=iConfig.getUntrackedParameter<edm::InputTag>
+    ("PrimaryVerticesCollection", edm::InputTag("offlinePrimaryVertices"));
+  PrimaryVerticesCollectionBS_=iConfig.getUntrackedParameter<edm::InputTag>
+    ("PrimaryVerticesCollectionBS",edm::InputTag("offlinePrimaryVerticesWithBS"));
   //
   // the selection cuts:
   trackIso_EB_ = iConfig.getUntrackedParameter<Double_t>("trackIso_EB", 1000.);
@@ -240,6 +247,10 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   //
   ele_sc_eta       = (Float_t)  myElec->superCluster()->eta();
   ele_sc_phi       = (Float_t)  myElec->superCluster()->phi();
+  double scx = myElec->superCluster()->x();
+  double scy = myElec->superCluster()->y();
+  double scz = myElec->superCluster()->z();
+  ele_sc_rho       = (Float_t)  sqrt( scx*scx + scy*scy + scz*scz );
   ele_sc_energy    = (Float_t)  myElec->superCluster()->energy();
   ele_sc_gsf_et    = (Float_t)  myElec->superCluster()->energy()/TMath::CosH(myElec->gsfTrack()->eta());
   ele_cand_eta     = (Float_t)  myElec->eta();
@@ -263,9 +274,38 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   ele_vx           = (Float_t) myElec->vx();
   ele_vy           = (Float_t) myElec->vy();
   ele_vz           = (Float_t) myElec->vz();
-  pv_x             = (Float_t) myElec->userFloat("pv_x");
-  pv_y             = (Float_t) myElec->userFloat("pv_y");
-  pv_z             = (Float_t) myElec->userFloat("pv_z");
+  // get the primary vtx information
+  // no BS
+  edm::Handle< std::vector<reco::Vertex> > pVtx;
+  iEvent.getByLabel(PrimaryVerticesCollection_, pVtx);
+  const std::vector<reco::Vertex> Vtx = *(pVtx.product());
+  // with BS
+  edm::Handle< std::vector<reco::Vertex> > pVtxBS;
+  iEvent.getByLabel(PrimaryVerticesCollectionBS_, pVtxBS);
+  const std::vector<reco::Vertex> VtxBS = *(pVtxBS.product());
+  if (Vtx.size() > 0) {
+    pv_x = Float_t(Vtx[0].position().x());
+    pv_y = Float_t(Vtx[0].position().y());
+    pv_z = Float_t(Vtx[0].position().z());
+    ele_tip_pv = myElec->gsfTrack()->dxy(Vtx[0].position());
+  } else {
+    pv_x = -999999.;
+    pv_y = -999999.;
+    pv_z = -999999.;
+    ele_tip_pv = -999999.;
+  }
+  if (VtxBS.size() > 0) {
+    pvbs_x = Float_t(VtxBS[0].position().x());
+    pvbs_y = Float_t(VtxBS[0].position().y());
+    pvbs_z = Float_t(VtxBS[0].position().z());
+    ele_tip_pvbs = myElec->gsfTrack()->dxy(VtxBS[0].position());
+  } else {
+    pvbs_x = -999999.;
+    pvbs_y = -999999.;
+    pvbs_z = -999999.;
+    ele_tip_pvbs = -999999.;
+  }
+
   //
   ele_gsfCharge    = (Int_t) myElec->gsfTrack()->charge();
   // must keep the ctf track collection, i.e. general track collection
@@ -273,7 +313,7 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   ele_scPixCharge  = (Int_t) myElec->chargeInfo().scPixCharge;
   ele_eop          = (Float_t) myElec->eSuperClusterOverP();
   ele_tip_bs       = (Float_t) -myElec->dB();
-  ele_tip_pv       = myElec->userFloat("ele_tip_pv");
+  //ele_tip_pv       = myElec->userFloat("ele_tip_pv");
   ele_pin          = (Float_t)  myElec->trackMomentumAtVtx().R();
   ele_pout         = (Float_t)  myElec->trackMomentumOut().R();
   //
@@ -392,11 +432,12 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   ele2nd_sc_gsf_et = -1; // also in sele tree
   ele2nd_sc_eta    = -1;
   ele2nd_sc_phi    = -1;
-  ele2nd_cand_eta  = -1;
-  ele2nd_cand_phi  = -1;
-  ele2nd_cand_et   = -1;
-  ele2nd_pin       = -1;
-  ele2nd_pout      = -1;
+  ele2nd_sc_rho    =  0;
+  ele2nd_cand_eta  =  0;
+  ele2nd_cand_phi  =  0;
+  ele2nd_cand_et   =  0;
+  ele2nd_pin       =  0;
+  ele2nd_pout      =  0;
   ele2nd_passes_selection = -1; // also in sele tree
   ele2nd_ecalDriven=  0; 
   //
@@ -443,6 +484,10 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
 
     ele2nd_sc_eta    = (Float_t) mySecondElec->superCluster()->eta();
     ele2nd_sc_phi    = (Float_t) mySecondElec->superCluster()->phi();
+    double sc2x = mySecondElec->superCluster()->x();
+    double sc2y = mySecondElec->superCluster()->y();
+    double sc2z = mySecondElec->superCluster()->z();
+    ele2nd_sc_rho    = (Float_t) sqrt(sc2x*sc2x + sc2y*sc2y + sc2z*sc2z);
     ele2nd_cand_eta  = (Float_t) mySecondElec->eta();
     ele2nd_cand_phi  = (Float_t) mySecondElec->phi();
     ele2nd_cand_et   = (Float_t) mySecondElec->et();
@@ -488,19 +533,37 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
       ele2nd_scPixCharge = (Int_t) mySecondElec->chargeInfo().scPixCharge;
       ele2nd_eop         = (Float_t) mySecondElec->eSuperClusterOverP();
       ele2nd_tip_bs      = (Float_t) -mySecondElec->dB();
-      ele2nd_tip_pv      =   mySecondElec->userFloat("ele_tip_pv");
+      if (Vtx.size() > 0) {
+	ele2nd_tip_pv      =   mySecondElec->gsfTrack()->dxy(Vtx[0].position());
+      }
+      if (VtxBS.size() > 0) {
+	ele2nd_tip_pvbs      =   mySecondElec->gsfTrack()->dxy(VtxBS[0].position());
+      }
       ele2nd_hltmatched_dr = mySecondElec->userFloat("HLTMatchingDR");
     }
   }
   // some extra information
   event_triggerDecision = -1;
   ele_hltmatched_dr = -999.;
+  VtxTracksSize.clear();
+  VtxNormalizedChi2.clear();
+  VtxTracksSizeBS.clear();
+  VtxNormalizedChi2BS.clear();
   if (storeExtraInformation_) {
     if (myElec->hasUserFloat("HLTMatchingDR")) {
       ele_hltmatched_dr = myElec->userFloat("HLTMatchingDR");
     }
     if (myElec->hasUserInt("triggerDecision")) {
       event_triggerDecision = myElec->userInt("triggerDecision");
+    }
+    // extra information related to the primary vtx collection
+    for (Int_t i=0; i < (Int_t) Vtx.size(); ++i) {
+      VtxTracksSize.push_back(Vtx[i].tracksSize());
+      VtxNormalizedChi2.push_back(Vtx[i].normalizedChi2());
+    }
+    for (Int_t i=0; i < (Int_t) VtxBS.size(); ++i) {
+      VtxTracksSizeBS.push_back(VtxBS[i].tracksSize());
+      VtxNormalizedChi2BS.push_back(VtxBS[i].normalizedChi2());
     }
   }
   // if the electron passes the selection
@@ -935,6 +998,7 @@ WenuPlots::beginJob()
   vbtfSele_tree->Branch("ele_sc_energy", &ele_sc_energy,"ele_sc_energy/F");
   vbtfSele_tree->Branch("ele_sc_eta", &ele_sc_eta,"ele_sc_eta/F");
   vbtfSele_tree->Branch("ele_sc_phi", &ele_sc_phi,"ele_sc_phi/F");
+  vbtfSele_tree->Branch("ele_sc_rho", &ele_sc_rho,"ele_sc_rho/F");
   vbtfSele_tree->Branch("ele_cand_et", &ele_cand_et, "ele_cand_et/F");
   vbtfSele_tree->Branch("ele_cand_eta", &ele_cand_eta,"ele_cand_eta/F");
   vbtfSele_tree->Branch("ele_cand_phi",&ele_cand_phi,"ele_cand_phi/F");
@@ -1004,6 +1068,7 @@ WenuPlots::beginJob()
   vbtfPresele_tree->Branch("ele_sc_energy", &ele_sc_energy,"ele_sc_energy/F");
   vbtfPresele_tree->Branch("ele_sc_eta", &ele_sc_eta,"ele_sc_eta/F");
   vbtfPresele_tree->Branch("ele_sc_phi", &ele_sc_phi,"ele_sc_phi/F");
+  vbtfPresele_tree->Branch("ele_sc_rho", &ele_sc_rho,"ele_sc_rho/F");
   vbtfPresele_tree->Branch("ele_cand_et", &ele_cand_et, "ele_cand_et/F");
   vbtfPresele_tree->Branch("ele_cand_eta", &ele_cand_eta,"ele_cand_eta/F");
   vbtfPresele_tree->Branch("ele_cand_phi",&ele_cand_phi,"ele_cand_phi/F");
@@ -1053,6 +1118,7 @@ WenuPlots::beginJob()
     vbtfPresele_tree->Branch("ele2nd_sc_gsf_et",&ele2nd_sc_gsf_et,"ele2nd_sc_gsf_et/F");
     vbtfPresele_tree->Branch("ele2nd_sc_eta",&ele2nd_sc_eta,"ele2nd_sc_eta/F");
     vbtfPresele_tree->Branch("ele2nd_sc_phi",&ele2nd_sc_phi,"ele2nd_sc_phi/F");
+    vbtfPresele_tree->Branch("ele2nd_sc_rho",&ele2nd_sc_rho,"ele2nd_sc_rho/F");
     vbtfPresele_tree->Branch("ele2nd_cand_eta",&ele2nd_cand_eta,"ele2nd_cand_eta/F");
     vbtfPresele_tree->Branch("ele2nd_cand_phi",&ele2nd_cand_phi,"ele2nd_cand_phi/F");
     vbtfPresele_tree->Branch("ele2nd_pin",&ele2nd_pin,"ele2nd_pin/F");
@@ -1061,6 +1127,10 @@ WenuPlots::beginJob()
     vbtfPresele_tree->Branch("ele2nd_passes_selection",&ele2nd_passes_selection,"ele2nd_passes_selection/I");
     vbtfPresele_tree->Branch("ele_hltmatched_dr",&ele_hltmatched_dr,"ele_hltmatched_dr/F");
     vbtfPresele_tree->Branch("event_triggerDecision",&event_triggerDecision,"event_triggerDecision/I");
+    vbtfPresele_tree->Branch("VtxTracksSize",&VtxTracksSize);
+    vbtfPresele_tree->Branch("VtxNormalizedChi2",&VtxNormalizedChi2);
+    vbtfPresele_tree->Branch("VtxTracksSizeBS",&VtxTracksSizeBS);
+    vbtfPresele_tree->Branch("VtxNormalizedChi2BS",&VtxNormalizedChi2BS);
   }
   if (storeAllSecondElectronVariables_) {
     vbtfPresele_tree->Branch("ele2nd_cand_et",&ele2nd_cand_et,"ele2nd_cand_et/F");

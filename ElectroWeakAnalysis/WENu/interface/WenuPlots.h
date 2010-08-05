@@ -64,6 +64,8 @@ class WenuPlots : public edm::EDAnalyzer {
   edm::InputTag wenuCollectionTag_;
   edm::InputTag caloJetCollectionTag_;
   edm::InputTag pfJetCollectionTag_;
+  edm::InputTag   PrimaryVerticesCollection_;
+  edm::InputTag   PrimaryVerticesCollectionBS_;
   TFile *histofile;
   //
   //  math::XYZPoint bspotPosition_; // comment out only if you don't use pat
@@ -184,7 +186,7 @@ class WenuPlots : public edm::EDAnalyzer {
   //
   Int_t runNumber, lumiSection;
   Long64_t eventNumber;
-  Float_t ele_sc_energy, ele_sc_eta, ele_sc_phi;
+  Float_t ele_sc_energy, ele_sc_eta, ele_sc_phi, ele_sc_rho;
   Float_t ele_sc_gsf_et;
   Float_t ele_cand_et, ele_cand_eta, ele_cand_phi;
   Float_t ele_iso_track, ele_iso_ecal, ele_iso_hcal;
@@ -208,6 +210,7 @@ class WenuPlots : public edm::EDAnalyzer {
   Float_t ele2nd_sc_gsf_et;
   Float_t ele2nd_sc_eta;
   Float_t ele2nd_sc_phi;
+  Float_t ele2nd_sc_rho;
   Float_t ele2nd_cand_eta;
   Float_t ele2nd_cand_phi;
   Float_t ele2nd_pin;
@@ -238,6 +241,12 @@ class WenuPlots : public edm::EDAnalyzer {
   Int_t   ele2nd_cr_mhitsinner, ele2nd_gsfCharge, ele2nd_ctfCharge, ele2nd_scPixCharge;
   Float_t ele2nd_eop, ele2nd_tip_bs, ele2nd_tip_pv;
   Float_t ele2nd_hltmatched_dr;
+  std::vector<Int_t> VtxTracksSize;
+  std::vector<Float_t> VtxNormalizedChi2;
+  std::vector<Int_t> VtxTracksSizeBS;
+  std::vector<Float_t> VtxNormalizedChi2BS;
+  Float_t pvbs_x, pvbs_y, pvbs_z;
+  Float_t ele_tip_pvbs, ele2nd_tip_pvbs;
 };
 
 #endif
