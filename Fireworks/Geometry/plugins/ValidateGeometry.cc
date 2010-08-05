@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.14 2010/08/04 14:38:21 mccauley Exp $
+// $Id: ValidateGeometry.cc,v 1.15 2010/08/04 15:28:09 mccauley Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -26,6 +26,10 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+
+#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
 
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Core/interface/fwLog.h"
@@ -80,6 +84,9 @@ private:
   void validateTrackerGeometry(const TrackerGeometry::DetUnitContainer& dets, 
                                const char* detname);
 
+  void validatePixelTopology(const TrackerGeometry::DetContainer& dets,
+                             const char* detname);
+                           
   void compareTransform(const GlobalPoint& point, const TGeoHMatrix* matrix);
 
   void compareShape(const GeomDet* det, TGeoShape* shape);
@@ -222,8 +229,14 @@ ValidateGeometry::analyze(const edm::Event& event, const edm::EventSetup& eventS
     std::cout<<"Validating PXB geometry"<<std::endl;
     validateTrackerGeometry(trackerGeometry_->detsPXB(), "PXB");
 
+    //std::cout<<"Validating PXB topology"<<std::endl;
+    //validatePixelTopology(trackerGeometry_->detsPXB(), "PXB");
+
     std::cout<<"Validating PXF geometry"<<std::endl;
     validateTrackerGeometry(trackerGeometry_->detsPXF(), "PXF");
+
+    //std::cout<<"Validating PXF topology"<<std::endl;
+    //validatePixelTopology(trackerGeometry_->detsPXF(), "PXF");
   }
   else
     fwLog(fwlog::kWarning)<<"Invalid Tracker geometry"<<std::endl;
@@ -878,6 +891,49 @@ ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetUnitContaine
   }
   
   makeHistograms(detname);
+}
+
+void 
+ValidateGeometry::validatePixelTopology(const TrackerGeometry::DetContainer& dets,
+                                        const char* detname)
+{
+  for ( TrackerGeometry::DetContainer::const_iterator it = dets.begin(),
+                                                   itEnd = dets.end();
+        it != itEnd; ++it )
+  {
+    unsigned int rawId = (*it)->geographicalId().rawId();
+
+    std::vector<float> parameters = detIdToMatrix_.getParameters(rawId);
+
+    if ( parameters.empty() )
+    {
+      std::cout<<"Parameters empty for "<< detname <<" element with detid: "
+               << rawId <<std::endl;
+      continue;
+    }
+
+    assert(parameters.size() == 2);
+
+    const PixelGeomDetUnit* det = 
+      dynamic_cast<const PixelGeomDetUnit*>(trackerGeometry_->idToDet((*it)->geographicalId())); 
+       
+    if ( det )
+    {
+      const RectangularPixelTopology* rpt = dynamic_cast<const RectangularPixelTopology*>(&det->specificTopology());
+      
+      if ( rpt )
+      {
+        assert(parameters[0] == rpt->nrows());
+        assert(parameters[1] == rpt->ncolumns());
+      }
+       
+      else
+        std::cout<<"No topology for "<< detname <<" element"<<std::endl; 
+    }
+
+    else
+      std::cout<<"No geomDetUnit for "<< detname <<" element"<<std::endl;
+  }
 }
 
 
