@@ -89,7 +89,6 @@ class V0Fitter {
   int tkNhitsCut;
   double rVtxCut;
   double vtxSigCut;
-  double vtxSigCut3D;
   double collinCut;
   double kShortMassCut;
   double lambdaMassCut;
@@ -113,7 +112,7 @@ class V0Fitter {
   std::ofstream mPiPiMassOut;
 
   inline void initFileOutput() {
-    mPiPiMassOut.open("mPiPi.txt", ios::app);
+    mPiPiMassOut.open("mPiPi.txt", std::ios::app);
   }
   inline void cleanupFileOutput() {
     mPiPiMassOut.close();
