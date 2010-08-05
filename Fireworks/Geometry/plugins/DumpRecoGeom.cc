@@ -35,8 +35,6 @@
     const RectangularPixelTopology* topo = dynamic_cast<const RectangularPixelTopology*>( &det->specificTopology()); \
     m_idToName[rawid].topology[0] = topo->nrows();		\
     m_idToName[rawid].topology[1] = topo->ncolumns();		\
-    m_idToName[rawid].topology[2] = topo->pitch().first;        \
-    m_idToName[rawid].topology[3] = topo->pitch().second;       \
   }								\
 
 # define ADD_SISTRIP_TOPOLOGY( rawid, detUnit )			\
