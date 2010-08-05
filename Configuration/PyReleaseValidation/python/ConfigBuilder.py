@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.194 $"
+__version__ = "$Revision: 1.195 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -813,9 +813,13 @@ class ConfigBuilder(object):
 				    value = getattr(pset,name)
 				    type = value.pythonTypeName()
 				    if type == 'cms.PSet':
-					    self.doIt(value,base+"."+name)
+                                        self.doIt(value,base+"."+name)
 				    elif type == 'cms.VPSet':
-					    for (i,ps) in enumerate(value): self.doIt(ps, "%s.%s[%d]"%(base,name,i) )
+                                        for (i,ps) in enumerate(value): self.doIt(ps, "%s.%s[%d]"%(base,name,i) )
+                                    elif type == 'cms.string':
+                                        if value.value() == self._paramSearch:
+                                            if self._verbose:print "set string process name %s.%s %s ==> %s"% (base, name, value, self._paramReplace)
+                                            setattr(pset, name,self._paramReplace)
 				    elif type == 'cms.VInputTag':
 					    for (i,n) in enumerate(value):
 						    if not isinstance(n, cms.InputTag):
@@ -978,7 +982,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.194 $"),
+              (version=cms.untracked.string("$Revision: 1.195 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
