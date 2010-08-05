@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2010/08/04 08:20:13 $
- * $Revision: 1.39 $
+ * $Date: 2010/08/04 19:10:24 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  *
 */
@@ -206,7 +206,7 @@ void EBStatusFlagsClient::analyze(void) {
     meh03_[ism-1] = me;    
 
     for (int itt = 1; itt <= 68; itt++) {
-      int ie = 5*(itt-68-1)+1;
+      int ie = 5*(itt-1)+1;
       int ip = 1;
       int iet = (itt-1)/4 + 1;
       int ipt = (itt-1)%4 + 1;
