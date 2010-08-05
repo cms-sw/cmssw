@@ -49,8 +49,8 @@ public:
 
 /** Method giving back the Initial Linearization Point.
  */
-  virtual GlobalPoint getLinearizationPoint(const vector<reco::TransientTrack> & ) const;
-  virtual GlobalPoint getLinearizationPoint(const vector<FreeTrajectoryState> & ) const;
+  virtual GlobalPoint getLinearizationPoint(const std::vector<reco::TransientTrack> & ) const;
+  virtual GlobalPoint getLinearizationPoint(const std::vector<FreeTrajectoryState> & ) const;
 
   virtual CrossingPtBasedLinearizationPointFinder * clone() const {
     return new CrossingPtBasedLinearizationPointFinder ( * this );
@@ -63,7 +63,7 @@ protected:
 private:
   /// calls (*theAglo) (input)
   /// can optionally save input / output in .root file
-  GlobalPoint find ( const vector<pair <GlobalPoint , float> > & ) const;
+  GlobalPoint find ( const std::vector<std::pair <GlobalPoint , float> > & ) const;
 private:
   ModeFinder3d * theAlgo;
 
@@ -76,9 +76,9 @@ private:
 //       return a.p() > b.p();
     };
   };
-  vector <reco::TransientTrack> getBestTracks ( const vector<reco::TransientTrack> & ) const;
-  GlobalPoint useFullMatrix ( const vector<reco::TransientTrack> & ) const;
-  GlobalPoint useAllTracks  ( const vector<reco::TransientTrack> & ) const;
+  std::vector <reco::TransientTrack> getBestTracks ( const std::vector<reco::TransientTrack> & ) const;
+  GlobalPoint useFullMatrix ( const std::vector<reco::TransientTrack> & ) const;
+  GlobalPoint useAllTracks  ( const std::vector<reco::TransientTrack> & ) const;
 };
 
 #endif

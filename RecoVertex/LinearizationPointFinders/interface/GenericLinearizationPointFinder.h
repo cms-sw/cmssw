@@ -20,7 +20,7 @@ public:
   /** Method giving back the Initial Linearization Point.
    */
   virtual 
-  GlobalPoint getLinearizationPoint(const vector<reco::TransientTrack> & tracks) const { 
+  GlobalPoint getLinearizationPoint(const std::vector<reco::TransientTrack> & tracks) const { 
     return theFitter->vertex ( tracks ).position(); 
   }
 
