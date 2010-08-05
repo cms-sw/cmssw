@@ -2,7 +2,7 @@
 #define Framework_EPStates_h
 
 /*
-$Id: EPStates.h,v 1.8.14.2 2010/05/28 22:50:16 wdd Exp $
+$Id: EPStates.h,v 1.9 2010/06/28 18:16:17 wmtan Exp $
 
 The state machine that controls the processing of runs, luminosity
 blocks, events, and loops is implemented using the boost statechart
@@ -298,10 +298,11 @@ namespace statemachine {
     bool checkInvariant();
 
     typedef mpl::list<
-      sc::transition<Run, NewRun, HandleRuns, &HandleRuns::finalizeRun>,
+      sc::custom_reaction<Run>,
       sc::custom_reaction<File>,
       sc::transition<Lumi, HandleLumis> > reactions;
 
+    sc::result react(Run const& run);
     sc::result react(File const& file);
   private:
     edm::IEventProcessor & ep_;
@@ -422,9 +423,11 @@ namespace statemachine {
     bool checkInvariant();
 
     typedef mpl::list<
+      sc::custom_reaction<Run>,
       sc::custom_reaction<Lumi>,
       sc::custom_reaction<File> > reactions;
 
+    sc::result react(Run const& run);
     sc::result react(Lumi const& lumi);
     sc::result react(File const& file);
   private:
@@ -440,9 +443,10 @@ namespace statemachine {
 
     typedef mpl::list<
       sc::transition<Event, HandleEvent>,
-      sc::transition<Lumi, AnotherLumi>,
+      sc::custom_reaction<Lumi>,
       sc::custom_reaction<File> > reactions;
 
+    sc::result react(Lumi const& lumi);
     sc::result react(File const& file);
   private:
     edm::IEventProcessor & ep_;

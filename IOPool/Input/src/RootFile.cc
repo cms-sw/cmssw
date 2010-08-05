@@ -691,6 +691,9 @@ namespace edm {
     typedef std::set<RunItem, RunItemSortByRunPhid> RunItemSet;
     RunItemSet runItemSet; // (declare 3)
 
+    typedef std::map<RunNumber_t, ProcessHistoryID> PHIDMap;
+    PHIDMap phidMap;
+
     RunNumber_t prevRun = 0;
     LuminosityBlockNumber_t prevLumi = 0;
     ProcessHistoryID prevPhid;
@@ -724,6 +727,7 @@ namespace edm {
 	if (runItemSet.insert(item).second) { // (check 3, insert 3)
 	  runs.push_back(item); // (insert 5)
 	  runSet.insert(eventAux().run()); // (insert 4)
+          phidMap.insert(std::make_pair(eventAux().run(), history_->processHistoryID()));
 	}
       }
     }
@@ -733,9 +737,6 @@ namespace edm {
     lastEventEntryNumberRead_ = -1LL;
 
     // Loop over run entries and fill information.
-
-    typedef std::map<RunNumber_t, ProcessHistoryID> PHIDMap;
-    PHIDMap phidMap;
 
     typedef std::map<RunNumber_t, EntryNumber_t> RunMap;
     RunMap runMap; // (declare 11)
@@ -786,13 +787,13 @@ namespace edm {
         boost::shared_ptr<LuminosityBlockAuxiliary> lumiAux = fillLumiAuxiliary();
 	LuminosityBlockID lumiID = LuminosityBlockID(lumiAux->run(), lumiAux->luminosityBlock());
 	if (runLumiSet.insert(lumiID).second) { // (check 2, insert 2)
-	  // This lumi was not assciated with any events.
-	  // The process history ID must be taken from the corresponding run.
-	  emptyLumis.push_back(LumiItem(phidMap[lumiAux->run()], lumiAux->run(), lumiAux->luminosityBlock(), -1LL)); // (insert 7)
-	  if (runSet.insert(lumiAux->run()).second) { // (check 4, insert 4)
-	    // This run was not assciated with any events.
-	    emptyRuns.push_back(RunItem(lumiAux->processHistoryID(), lumiAux->run())); // (insert 12)
-	  }
+          // This lumi was not associated with any events.
+          // Use the process history ID from the corresponding run.  In cases of practical
+          // importance, this should be the correct process history ID,  but it is possible
+          // to construct files where this is not the correct process history ID ...
+          PHIDMap::const_iterator iPhidMap = phidMap.find(lumiAux->run());
+          assert(iPhidMap != phidMap.end());
+          emptyLumis.push_back(LumiItem(iPhidMap->second, lumiAux->run(), lumiAux->luminosityBlock(), -1LL)); // (insert 7)
 	}
 	runLumiMap.insert(std::make_pair(lumiID, lumiTree_.entryNumber()));
       }

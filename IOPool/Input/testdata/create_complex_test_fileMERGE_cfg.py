@@ -21,6 +21,7 @@ process.source = cms.Source("PoolSource",
       'file:testComplex8RL.root',
       'file:testComplex9R.root',
       'file:testComplex10.root',
+      'file:testComplex11RL.root'
    ),
    inputCommands = cms.untracked.vstring(
       'keep *', 

@@ -10,10 +10,12 @@ cmsRun create_complex_test_file7_cfg.py
 cmsRun create_complex_test_file8_cfg.py
 cmsRun create_complex_test_file9_cfg.py
 cmsRun create_complex_test_file10_cfg.py
+cmsRun create_complex_test_file11_cfg.py
 cmsRun create_complex_test_file2e_cfg.py
 cmsRun create_complex_test_file3e_cfg.py
 cmsRun create_complex_test_file6RL_cfg.py
 cmsRun create_complex_test_file7R_cfg.py
 cmsRun create_complex_test_file8RL_cfg.py
 cmsRun create_complex_test_file9R_cfg.py
+cmsRun create_complex_test_file11RL_cfg.py
 cmsRun create_complex_test_fileMERGE_cfg.py
