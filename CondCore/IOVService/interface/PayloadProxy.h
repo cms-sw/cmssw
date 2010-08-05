@@ -3,7 +3,6 @@
 
 #include "CondCore/IOVService/interface/IOVProxy.h"
 #include "CondCore/DBCommon/interface/PayloadRef.h"
-#include "CondFormats/Common/interface/PayloadWrapper.h"
 
 namespace cond {
 
