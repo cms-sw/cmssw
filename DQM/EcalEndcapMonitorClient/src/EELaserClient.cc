@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2010/08/04 08:20:13 $
- * $Revision: 1.132 $
+ * $Date: 2010/08/05 11:35:07 $
+ * $Revision: 1.133 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -2473,15 +2473,15 @@ void EELaserClient::analyze(void) {
 
       }
 
-      if ( Masks::maskPn(ism, i, bits01|bits03, EcalBarrel) ) UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
-      if ( Masks::maskPn(ism, i, bits01|bits03, EcalBarrel) ) UtilsClient::maskBinContent( meg06_[ism-1], i, 1 );
-      if ( Masks::maskPn(ism, i, bits01|bits03, EcalBarrel) ) UtilsClient::maskBinContent( meg07_[ism-1], i, 1 );
-      if ( Masks::maskPn(ism, i, bits01|bits03, EcalBarrel) ) UtilsClient::maskBinContent( meg08_[ism-1], i, 1 );
+      if ( Masks::maskPn(ism, i, bits01|bits03, EcalEndcap) ) UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
+      if ( Masks::maskPn(ism, i, bits01|bits03, EcalEndcap) ) UtilsClient::maskBinContent( meg06_[ism-1], i, 1 );
+      if ( Masks::maskPn(ism, i, bits01|bits03, EcalEndcap) ) UtilsClient::maskBinContent( meg07_[ism-1], i, 1 );
+      if ( Masks::maskPn(ism, i, bits01|bits03, EcalEndcap) ) UtilsClient::maskBinContent( meg08_[ism-1], i, 1 );
 
-      if ( Masks::maskPn(ism, i, bits01|bits04, EcalBarrel) ) UtilsClient::maskBinContent( meg09_[ism-1], i, 1 );
-      if ( Masks::maskPn(ism, i, bits01|bits04, EcalBarrel) ) UtilsClient::maskBinContent( meg10_[ism-1], i, 1 );
-      if ( Masks::maskPn(ism, i, bits01|bits04, EcalBarrel) ) UtilsClient::maskBinContent( meg11_[ism-1], i, 1 );
-      if ( Masks::maskPn(ism, i, bits01|bits04, EcalBarrel) ) UtilsClient::maskBinContent( meg12_[ism-1], i, 1 );
+      if ( Masks::maskPn(ism, i, bits01|bits04, EcalEndcap) ) UtilsClient::maskBinContent( meg09_[ism-1], i, 1 );
+      if ( Masks::maskPn(ism, i, bits01|bits04, EcalEndcap) ) UtilsClient::maskBinContent( meg10_[ism-1], i, 1 );
+      if ( Masks::maskPn(ism, i, bits01|bits04, EcalEndcap) ) UtilsClient::maskBinContent( meg11_[ism-1], i, 1 );
+      if ( Masks::maskPn(ism, i, bits01|bits04, EcalEndcap) ) UtilsClient::maskBinContent( meg12_[ism-1], i, 1 );
 
     }
 
