@@ -8,13 +8,14 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCWireDigiProxyBuilder.cc,v 1.5 2010/07/28 16:46:33 mccauley Exp $
+// $Id: FWCSCWireDigiProxyBuilder.cc,v 1.6 2010/07/29 16:56:26 mccauley Exp $
 //
 
 #include "TEveStraightLineSet.h"
 #include "TEveGeoNode.h"
 #include "TEveCompound.h"
 #include "TGeoArb8.h"
+#include "TEvePointSet.h" // rm when done testing
 
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -38,9 +39,48 @@ private:
   FWCSCWireDigiProxyBuilder(const FWCSCWireDigiProxyBuilder&);    
   const FWCSCWireDigiProxyBuilder& operator=(const FWCSCWireDigiProxyBuilder&);
 
-  void testParams(const int station, const int ring, double* params);
+  // NOTE: these parameters are not avalaible via a public interface
+  // from the geometry or topology so must be hard-coded.
+  double getYOfFirstWire(const int station, const int ring, const double length);
 };
        
+double
+FWCSCWireDigiProxyBuilder::getYOfFirstWire(const int station, const int ring, const double length)                             
+{
+  double yAlignmentFrame;
+  double alignmentPinToFirstWire;
+
+  if ( station == 1 ) 
+  {
+    yAlignmentFrame = 0.0;
+ 
+    if ( ring == 1 || ring == 4 )
+      alignmentPinToFirstWire = 1.065;
+    else
+      alignmentPinToFirstWire = 2.85;
+  }
+  
+  else if ( station == 4 && ring == 1 )
+  {   
+    alignmentPinToFirstWire = 3.04;
+    yAlignmentFrame = 3.49;
+  }
+  
+  else if ( station == 3 && ring == 1 )
+  {    
+    alignmentPinToFirstWire =  2.84;
+    yAlignmentFrame = 3.49;
+  } 
+     
+  else
+  {
+    alignmentPinToFirstWire = 2.87;
+    yAlignmentFrame = 3.49;
+  }
+  
+  return (yAlignmentFrame-length) + alignmentPinToFirstWire;
+}
+
 void
 FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
@@ -95,7 +135,24 @@ FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* prod
                             << cscDetId.rawId() <<std::endl;
       continue;
     }
-     
+
+    std::vector<float> parameters = iItem->getGeom()->getParameters(cscDetId.rawId());
+
+    if ( parameters.empty() )
+    {
+      fwLog(fwlog::kWarning)<<"Parameters empty for CSC with detid: "
+                            << cscDetId.rawId() <<std::endl;
+      continue;
+    }
+    
+    assert(parameters.size() == 8);
+
+    double wireSpacing = parameters[6];
+    float wireAngle = parameters[7];
+    float cosWireAngle = cos(wireAngle);
+
+    double yOfFirstWire = getYOfFirstWire(cscDetId.station(), cscDetId.ring(), length); 
+             
     for ( CSCWireDigiCollection::const_iterator dit = range.first;
           dit != range.second; ++dit )        
     { 
@@ -107,99 +164,27 @@ FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* prod
       wireDigiSet->SetLineWidth(3);
       compound->AddElement(wireDigiSet);
 
+      TEvePointSet* testPointSet = new TEvePointSet();
+      compound->AddElement(testPointSet);
+
+      // NOTE: Can use wire group as well as wire number? Check in validation.
       int wireGroup = (*dit).getWireGroup();
 
-      int station = cscDetId.station();
-      int ring    = cscDetId.ring();
-
-      /*
-        Note:
-
-        These numbers are fetched from cscSpecs.xml
-        We should think carefully about the interface when full
-        framework is available.
-        It seems that they DO NOT come from DDD.
-      */
-
-      if ( station == 1 && ring == 4 )
-      {
-        fwLog(fwlog::kWarning)<<"ME1a not handled yet"<<std::endl;
-        continue;
-      }
-
-      double wireSpacing;
-
-      if ( ring == 1 )
-      {
-        if ( station == 1 )
-          wireSpacing = 2.5; // mm
-        else 
-          wireSpacing = 3.12; // mm
-      }
-      
-      else
-        wireSpacing = 3.16; // mm 
-      
-
-      double alignmentPinToFirstWire;
-
-      if ( station == 1 && ring == 1 )
-        alignmentPinToFirstWire = 10.65; // mm
-      else
-        alignmentPinToFirstWire = 29.0; // mm
-
-
-      double yAlignmentFrame;
-
-      if ( station == 1 && ring == 1 )
-        yAlignmentFrame = 0.0; // cm
-      else 
-        yAlignmentFrame = 3.49; // cm
-
-      
-      double yOfFirstWire = yAlignmentFrame*10.0 + alignmentPinToFirstWire;
-      
-      // Wires are only ganged in ME1a? 
-      // If so, then this should work with all except that chamber.
-
-      double yOfWire = yOfFirstWire + (wireGroup-1)*wireSpacing;
-      
-      double lengthOfWireGroup = (topWidth - bottomWidth)*0.5 / length;
-      lengthOfWireGroup *= yOfWire;
-      yOfWire -= length;
-
-      double localPointLeft[3] =
-      {
-        -lengthOfWireGroup*0.5, yOfWire, 0.0
-      };
+      double yOfWire = yOfFirstWire + ((wireGroup-1)*wireSpacing)/cosWireAngle;
+    
+      // NOTE: Still need to draw wire, but since we now have the y position of the wire,
+      // its angle, and the dimensions of the layer this should be straightforward
       
       double localPointCenter[3] = 
       {
         0.0, yOfWire, 0.0
       };
 
-      double localPointRight[3] = 
-      {
-        lengthOfWireGroup*0.5, yOfWire, 0.0
-      };
-
-      double globalPointLeft[3];
       double globalPointCenter[3];
-      double globalPointRight[3];
-
-      /*
-      std::cout<<"CSC wire digi: "
-                 << globalPointCenter[0] <<" "<< globalPointCenter[1] <<" "<< globalPointCenter[2] 
-                 <<std::endl;
-      */
-
-      matrix->LocalToMaster(localPointLeft,   globalPointLeft);
+       
       matrix->LocalToMaster(localPointCenter, globalPointCenter);
-      matrix->LocalToMaster(localPointRight,  globalPointRight);
 
-      wireDigiSet->AddLine(globalPointLeft[0],  globalPointLeft[1],  globalPointLeft[2],
-                           globalPointRight[0], globalPointRight[1], globalPointRight[2]);
-
+      testPointSet->SetNextPoint(globalPointCenter[0], globalPointCenter[1], globalPointCenter[2]);
     }
   }
 }

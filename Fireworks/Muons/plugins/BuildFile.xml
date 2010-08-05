@@ -2,6 +2,7 @@
  <use name="DataFormats/CSCDigi"/>
  <use name="DataFormats/CSCRecHit"/>
  <use name="DataFormats/DTDigi"/>
+ <use name="DataFormats/RPCDigi"/> 
  <use name="DataFormats/DTRecHit"/>
  <use name="DataFormats/MuonDetId"/>
  <use name="DataFormats/MuonReco"/>

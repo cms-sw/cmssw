@@ -8,11 +8,11 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCStripDigiProxyBuilder.cc,v 1.3 2010/07/28 09:47:19 mccauley Exp $
+// $Id: FWCSCStripDigiProxyBuilder.cc,v 1.4 2010/07/29 15:56:23 mccauley Exp $
 //
 
 #include "TEveStraightLineSet.h"
-#include "TEvePointSet.h"
+#include "TEvePointSet.h" // rm when done testing
 
 #include "TEveGeoNode.h"
 #include "TEveCompound.h"
@@ -96,7 +96,7 @@ FWCSCStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
       continue;
     }
 
-    std::vector<TEveVector> parameters = iItem->getGeom()->getPoints(cscDetId.rawId());
+    std::vector<float> parameters = iItem->getGeom()->getParameters(cscDetId.rawId());
       
     if ( parameters.empty() )
     {
@@ -105,7 +105,14 @@ FWCSCStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
       continue;
     }
 
-    assert(parameters.size() == 2);
+    assert(parameters.size() == 8);
+
+    float yAxisOrientation = parameters[0];
+    float centreToIntersection = parameters[1];
+    float yCentre = parameters[2];
+    float phiOfOneEdge = parameters[3];
+    float stripOffset = parameters[4];
+    float angularWidth = parameters[5];
 
     for( CSCStripDigiCollection::const_iterator dit = range.first;
          dit != range.second; ++dit )
@@ -120,14 +127,6 @@ FWCSCStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
             
       if ( std::find_if(adcCounts.begin(),adcCounts.end(),bind2nd(std::greater<int>(),signalThreshold)) != adcCounts.end() ) 
       {
-        // This interface clearly needs some work
-        float yAxisOrientation = parameters[0].fX;
-        float centreToIntersection = parameters[0].fY;
-        float yCentre = parameters[0].fZ;
-        float phiOfOneEdge = parameters[1].fX;
-        float stripOffset = parameters[1].fY;
-        float angularWidth = parameters[1].fZ;
-
         TEveStraightLineSet* stripDigiSet = new TEveStraightLineSet();
         stripDigiSet->SetLineWidth(3);
         compound->AddElement(stripDigiSet);
@@ -140,34 +139,16 @@ FWCSCStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
         double stripAngle = phiOfOneEdge + yAxisOrientation*(stripId-(0.5-stripOffset))*angularWidth;
         double xOfStrip = yAxisOrientation*(centreToIntersection-yCentre)*tan(stripAngle);
 
-        // Need to determine intersection at top and bottom instead of
-        // using just using length?
-        
-        double localPointTop[3] =
-          {
-            xOfStrip, length*0.5, 0.0
-          };
-
-        double localPointCenter[3] = 
+        double localPoint[3] = 
           {
             xOfStrip, 0.0, 0.0
           };
-
-        double localPointBottom[3] = 
-          {
-            xOfStrip, -length*0.5, 0.0
-          };
       
-        double globalPointTop[3];
-        double globalPointCenter[3];
-        double globalPointBottom[3];
+        double globalPoint[3];
 
-        matrix->LocalToMaster(localPointTop, globalPointTop);
-        matrix->LocalToMaster(localPointCenter, globalPointCenter);
-        matrix->LocalToMaster(localPointBottom, globalPointBottom);
-  
-        stripDigiSet->AddLine(globalPointTop[0],  globalPointTop[1],  globalPointTop[2],
-                              globalPointBottom[0], globalPointBottom[1], globalPointBottom[2]);
+        matrix->LocalToMaster(localPoint, globalPoint);
+       
+        testPointSet->SetNextPoint(globalPoint[0], globalPoint[1], globalPoint[2]);
 
       } 
     }       

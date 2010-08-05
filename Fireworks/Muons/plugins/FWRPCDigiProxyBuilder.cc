@@ -8,12 +8,13 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWRPCDigiProxyBuilder.cc,v 1.1.2.7 2010/06/07 16:42:27 mccauley Exp $
+// $Id: FWRPCDigiProxyBuilder.cc,v 1.3 2010/07/28 09:47:19 mccauley Exp $
 //
 
 #include "TEveStraightLineSet.h"
 #include "TEveCompound.h"
 #include "TEveGeoNode.h"
+#include "TEvePointSet.h" // rm when done testing
 
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -49,35 +50,38 @@ FWRPCDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product,
     return;
   }
 
-  //std::cout<<"Got RPC digis"<<std::endl;
-
   for ( RPCDigiCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end();
         dri != driEnd; ++dri )
   {
     const RPCDetId& rpcDetId = (*dri).first;
 
-    const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix(rpcDetId);
+    const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix(rpcDetId.rawId());
   
     if ( ! matrix ) 
     {
-      std::cout << "ERROR: failed get geometry of RPC reference volume with detid: "
-                << rpcDetId << std::endl;
-      return;
+      fwLog(fwlog::kWarning)<<"Failed get geometry of RPC reference volume with detid: "
+                            << rpcDetId.rawId() << std::endl;
+      continue;
     }     
+    
+    std::vector<float> parameters = iItem->getGeom()->getParameters(rpcDetId.rawId());
+
+    if ( parameters.empty() )
+    {
+      fwLog(fwlog::kWarning)<<"Parameters empty for RPC with detid: "
+                            << rpcDetId.rawId() <<std::endl;
+      continue;
+    }
+    
+    assert(parameters.size() == 3);
+
+    float nStrips = parameters[0];
+    float stripLength = parameters[1];
+    float pitch = parameters[2];
+
+    float offset = -0.5*nStrips*pitch;
 
     const RPCDigiCollection::Range& range = (*dri).second;
-
-    /*
-    std::cout<<"RPCDetId: "<< rpcDetId <<std::endl;
-       
-    int region = rpcDetId.region();
-    int ring   = rpcDetId.ring();
-    int station = rpcDetId.station();
-    int sector = rpcDetId.station();
-    int layer = rpcDetId.layer();
-    int subsector = rpcDetId.subsector();
-    int roll = rpcDetId.roll();
-    */
 
     for ( RPCDigiCollection::const_iterator dit = range.first;
           dit != range.second; ++dit )
@@ -86,12 +90,27 @@ FWRPCDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product,
       compound->OpenCompound();
       product->AddElement(compound);
 
-      /*
-      int strip = (*dit).strip();
-      int bx = (*dit).bx(); 
+      TEveStraightLineSet* stripDigiSet = new TEveStraightLineSet();
+      stripDigiSet->SetLineWidth(3);
+      compound->AddElement(stripDigiSet);
 
-      std::cout<<"strip, bx: "<< strip <<" "<< bx <<std::endl;
-      */
+      TEvePointSet* testPointSet = new TEvePointSet();
+      compound->AddElement(testPointSet);
+
+      int strip = (*dit).strip();
+      double centreOfStrip = (strip-0.5)*pitch + offset;
+      
+      double localPoint[3] = 
+      {
+        centreOfStrip, 0.0, 0.0
+      };
+
+      double globalPoint[3];
+
+      matrix->LocalToMaster(localPoint, globalPoint);
+    
+      testPointSet->SetNextPoint(globalPoint[0], globalPoint[1], globalPoint[2]);
+
     }
   }
 }
