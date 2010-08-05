@@ -272,7 +272,7 @@ def main():
             recorded=result[run][1]
             ydata['Delivered'].append(delivered)
             ydata['Recorded'].append(recorded)
-            if args.outputfile and delivered!=0 and recorded!=0 :
+            if args.outputfile and (delivered!=0 or recorded!=0):
                 reporter.writeRow([run,result[run][0],result[run][1]])                
         m.plotSumX_Run(xdata,ydata)
     elif args.action == 'fill':        

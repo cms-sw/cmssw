@@ -141,7 +141,7 @@ class matplotRender():
             ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
             legendlist.append(ylabel+' '+'%.2f'%(ytotal[ylabel])+' '+'nb$^{-1}$')
         #font=FontProperties(size='medium',weight='demibold')
-         #annotations
+        #annotations
         trans=matplotlib.transforms.BlendedGenericTransform(ax.transData,ax.transAxes)
         ax.text(xpoints[0],1.025,beginfo,transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
         ax.text(xpoints[-1],1.025,endinfo,transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
@@ -192,9 +192,18 @@ class matplotRender():
             ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
             legendlist.append(ylabel+' '+'%.2f'%(ytotal[ylabel])+' '+'nb$^{-1}$')
         ax.legend(tuple(legendlist),loc='upper left')
-        ax.set_xbound(lower=matplotlib.dates.date2num(minTime),upper=matplotlib.dates.date2num(maxTime))
+        #annotations
+        
+        trans=matplotlib.transforms.BlendedGenericTransform(ax.transData,ax.transAxes)
+        
+        ax.text(runs[0],1.025,str(runs[0]),transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
+        
+        ax.text(runs[-1],1.025,str(runs[-1]),transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
+        
+        ax.legend(tuple(legendlist),loc='upper left')
         self.__fig.autofmt_xdate(bottom=0.18,rotation=0)
         self.__fig.subplots_adjust(bottom=0.1,left=0.1)
+        
     def plotPerdayX_Time(self,rawxdata,rawydata,minTime,maxTime,nticks=6):
         xpoints=[]
         ypoints={}
