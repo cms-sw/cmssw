@@ -23,7 +23,7 @@ process.source = cms.Source("PoolSource",
 )
 ## define maximal number of events to loop over
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(50)
 )
 ## configure process options
 process.options = cms.untracked.PSet(
