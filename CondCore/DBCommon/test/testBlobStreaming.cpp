@@ -45,6 +45,39 @@ int main() {
   ::memcpy(&crap2.front(),blob2->startingAddress(),blob2->size());
   if (crap!=crap2) std::cout << "compress - expansion failed" << std::endl;
 
+  // back-box test
+  std::vector<float>  vf(1024);
+  for(size_t i=0; i!=vf.size(); ++i)
+    vf[i] = float(i)+float(i)/1000.;
+      
+  Reflex::Type vType = Reflex::Type::ByTypeInfo( typeid(std::vector<float>));
+  
+  {
+    // old mode
+    cond::TBufferBlobStreamingService tstreamer;
+    boost::shared_ptr<coral::Blob> blob = tstreamer.write(&vf,vType);
+    std::cout << "old format size " << blob.size() << std::endl;
+    BlobStreamingService::Variant id = BlobStreamingService::findVariant(blob->startingAddress());
+    std::cout << "shall be zero " << id << std::endl;
+
+    void * p;
+    streamer.read(blob,p,vType);
+    std::vector<float>  const & vf2 = *reinterpret_cast<std::vector<float> >(p);
+    if (vf!=vf2) std::cout << "reading old format failed" << std::endl;
+  }
+  {
+    // new mode
+    boost::shared_ptr<coral::Blob> blob = streamer.write(&vf,vType);
+    std::cout << "new format size " << blob.size() << std::endl;
+    BlobStreamingService::Variant id = BlobStreamingService::findVariant(blob->startingAddress());
+    std::cout << "shall be one " << id << std::endl;
+    void * p;
+    streamer.read(blob,p,vType);
+    std::vector<float>  const & vf2 = *reinterpret_cast<std::vector<float> >(p);
+    if (vf!=vf2) std::cout << "reading new format failed" << std::endl;
+  }
+  
+
   return 0;
 
 }
