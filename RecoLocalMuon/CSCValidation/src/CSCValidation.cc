@@ -50,6 +50,7 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
   saMuonTag     = pset.getParameter<edm::InputTag>("saMuonTag");
   l1aTag        = pset.getParameter<edm::InputTag>("l1aTag");
   simHitTag     = pset.getParameter<edm::InputTag>("simHitTag");
+  hltTag        = pset.getParameter<edm::InputTag>("hltTag");
 
   // flags to switch on/off individual modules
   makeOccupancyPlots   = pset.getUntrackedParameter<bool>("makeOccupancyPlots",true);
@@ -70,6 +71,7 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
   makeCalibPlots       = pset.getUntrackedParameter<bool>("makeCalibPlots",false);
   makeStandalonePlots  = pset.getUntrackedParameter<bool>("makeStandalonePlots",false);
   makeTimeMonitorPlots = pset.getUntrackedParameter<bool>("makeTimeMonitorPlots",false);
+  makeHLTPlots         = pset.getUntrackedParameter<bool>("makeHLTPlots",false);
 
   // set counters to zero
   nEventsAnalyzed = 0;
@@ -218,6 +220,8 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   if (makeTriggerPlots || useTriggerFilter || (useDigis && makeTimeMonitorPlots)){
     event.getByLabel(l1aTag,pCollection);
   }
+  edm::Handle<TriggerResults> hlt;
+  if (makeHLTPlots) event.getByLabel(hltTag,hlt);
 
   // get the standalone muon collection
   Handle<reco::TrackCollection> saMuons;
@@ -245,6 +249,9 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   // look at various chamber occupancies
   // keep this outside of filter for diagnostics???
   if (makeOccupancyPlots && CSCL1A) doOccupancies(strips,wires,recHits,cscSegments);
+
+  bool HLT = false;
+  if (makeHLTPlots) HLT = doHLT(hlt);
 
   if (cleanEvent && CSCL1A){
     // general look at strip digis
@@ -601,6 +608,24 @@ bool CSCValidation::doTrigger(edm::Handle<L1MuGMTReadoutCollection> pCollection)
   return false;
 
 }
+
+// ==============================================
+//    
+// look at HLT Trigger
+//  
+// ==============================================
+
+bool CSCValidation::doHLT(Handle<TriggerResults> hlt){
+
+  // HLT stuff
+  int hltSize = hlt->size();
+  for (int i = 0; i < hltSize; ++i){
+    if (hlt->accept(i)) histos->fill1DHist(i,"hltBits","HLT Trigger Bits",hltSize+1,-0.5,(float)hltSize+0.5,"Trigger");
+  }
+
+  return true;
+}
+
 
 // ==============================================
 //

@@ -72,6 +72,8 @@
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutRecord.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCChamber.h"
@@ -169,7 +171,7 @@ private:
                          edm::Handle<CSCCorrelatedLCTDigiCollection> correlatedlcts,
                          edm::Handle<L1MuGMTReadoutCollection> pCollection, edm::ESHandle<CSCGeometry> cscGeom,
                          const edm::EventSetup& eventSetup, const edm::Event &event);
-
+  bool  doHLT(edm::Handle<edm::TriggerResults> hltResults);
 
 
   // some useful functions
@@ -221,6 +223,7 @@ private:
   std::string rootFileName;
   bool detailedAnalysis;
   bool useDigis;
+  bool makeHLTPlots;
 
   // filters
   bool useQualityFilter;
@@ -246,6 +249,7 @@ private:
   edm::InputTag alctDigiTag;
   edm::InputTag clctDigiTag;
   edm::InputTag corrlctDigiTag;
+  edm::InputTag hltTag;
 
   // module on/off switches
   bool makeOccupancyPlots;
