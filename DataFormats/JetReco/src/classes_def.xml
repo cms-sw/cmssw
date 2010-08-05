@@ -88,11 +88,7 @@
   <class name="reco::BasicJetFwdPtrVector"/>
   <class name="edm::Wrapper<reco::BasicJetFwdPtrVector>"/>
 
-  <class name="reco::TrackJet">
-    <field name="dau" transient="true"/>
-    <field name="test_" transient="true"/>
-    <field name="dauByVal_" transient="true"/>
-  </class>
+  <class name="reco::TrackJet"/>
   <class name="std::vector<reco::TrackJet>"/>
   <class name="edm::RefVector<std::vector<reco::TrackJet>,reco::TrackJet,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackJet>,reco::TrackJet> >"/>
   <class name="edm::Ref<std::vector<reco::TrackJet>,reco::TrackJet,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackJet>,reco::TrackJet> >"/>
