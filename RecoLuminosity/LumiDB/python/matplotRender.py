@@ -93,9 +93,12 @@ class matplotRender():
             ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
             legendlist.append(ylabel+' '+'%.2f'%(ytotal[ylabel])+' '+'nb$^{-1}$')
         #font=FontProperties(size='medium',weight='demibold')
-        
+        #annotations
+        trans=matplotlib.transforms.BlendedGenericTransform(ax.transData,ax.transAxes)
+        ax.text(xpoints[0],1.025,str(xpoints[0]),transform=trans,horizontalalignment='center',size='x-small',color='green',bbox=dict(facecolor='white'))
+        ax.text(xpoints[-1],1.025,str(xpoints[-1]),transform=trans,horizontalalignment='center',size='x-small',color='green',bbox=dict(facecolor='white'))
         ax.legend(tuple(legendlist),loc='upper left')
-        self.__fig.subplots_adjust(bottom=0.18,left=0.1)
+        self.__fig.subplots_adjust(bottom=0.1,left=0.1)
         
     def plotSumX_Fill(self,rawxdata,rawydata,rawfillDict,nticks=6):
         #print 'plotSumX_Fill rawxdata ',rawxdata
@@ -103,11 +106,17 @@ class matplotRender():
         ypoints={}
         xpoints=rawfillDict.keys()
         xpoints.sort()
+        beginfo=''
+        endinfo=''
         for ylabel,yvalue in rawydata.items():
             ypoints[ylabel]=[]
             ytotal[ylabel]=sum(rawydata[ylabel])/1000.0
-            for fill in xpoints:
+            for idx,fill in enumerate(xpoints):
                 runlist=rawfillDict[fill]
+                if idx==0:
+                    beginfo=str(fill)+':'+str(runlist[0])
+                if idx==len(xpoints)-1:
+                    endinfo=str(fill)+':'+str(runlist[-1])
                 xidx=rawxdata.index(max(runlist))
                 ypoints[ylabel].append(sum(yvalue[0:xidx])/1000.0)
         ax=self.__fig.add_subplot(111)
@@ -132,6 +141,10 @@ class matplotRender():
             ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
             legendlist.append(ylabel+' '+'%.2f'%(ytotal[ylabel])+' '+'nb$^{-1}$')
         #font=FontProperties(size='medium',weight='demibold')
+         #annotations
+        trans=matplotlib.transforms.BlendedGenericTransform(ax.transData,ax.transAxes)
+        ax.text(xpoints[0],1.025,beginfo,transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
+        ax.text(xpoints[-1],1.025,endinfo,transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
         ax.legend(tuple(legendlist),loc='upper left')
         self.__fig.subplots_adjust(bottom=0.1,left=0.1)
         
