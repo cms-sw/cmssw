@@ -70,7 +70,7 @@ CaloTowerAnalyzer::CaloTowerAnalyzer(const edm::ParameterSet & iConfig)
   debug_               = iConfig.getParameter<bool>("Debug");
   finebinning_         = iConfig.getUntrackedParameter<bool>("FineBinning"); 
   allhist_             = iConfig.getUntrackedParameter<bool>("AllHist"); 
-  FolderName_          = iConfig.getUntrackedParameter<string>("FolderName");
+  FolderName_          = iConfig.getUntrackedParameter<std::string>("FolderName");
 
   hltselection_        = iConfig.getUntrackedParameter<bool>("HLTSelection"); 
   
@@ -203,7 +203,7 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	      else
 		{
 		  edm::LogInfo("OutputInfo") 
-		    << "The HLT Trigger Name : " << HLTBitLabel_[index].label() << " is not valid for this trigger table " << endl;
+		    << "The HLT Trigger Name : " << HLTBitLabel_[index].label() << " is not valid for this trigger table " << std::endl;
 		}
 	    }
 	}
@@ -227,7 +227,7 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   iEvent.getByLabel(caloTowersLabel_, towers);
 
   if( (!towers.isValid())) {
-    edm::LogInfo("")<<"CaloTowers "<< caloTowersLabel_<<" not found!"<<endl;
+    edm::LogInfo("")<<"CaloTowers "<< caloTowersLabel_<<" not found!"<<std::endl;
     return;
   }
 

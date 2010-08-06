@@ -5,7 +5,7 @@
 // author: Bobby Scurlock, University of Florida
 // first version 11/20/2006
 
-#define DEBUG(X) { if (debug_) { cout << X << endl; } }
+#define DEBUG(X) { if (debug_) { std::cout << X << std::endl; } }
 
 ECALRecHitAnalyzer::ECALRecHitAnalyzer(const edm::ParameterSet& iConfig)
 {
@@ -379,7 +379,7 @@ void ECALRecHitAnalyzer::WriteECALRecHits(const edm::Event& iEvent, const edm::E
       EBenergy_EtaRing[i] = 0.0;
     }
 
-  edm::LogInfo("OutputInfo") << "Looping over EB" << endl;
+  edm::LogInfo("OutputInfo") << "Looping over EB" << std::endl;
 
   EBRecHitCollection::const_iterator ebrechit;
   //int nEBrechit = 0;
@@ -468,7 +468,7 @@ void ECALRecHitAnalyzer::WriteECALRecHits(const edm::Event& iEvent, const edm::E
       EEmZMinEnergy_EtaRing[i] = 14E3;
     }
 
-  edm::LogInfo("OutputInfo") << "Looping over EE" << endl;
+  edm::LogInfo("OutputInfo") << "Looping over EE" << std::endl;
   EERecHitCollection::const_iterator eerechit;
   //int nEErechit = 0;
   for (eerechit = EERecHits->begin(); eerechit != EERecHits->end(); eerechit++) {
@@ -480,7 +480,7 @@ void ECALRecHitAnalyzer::WriteECALRecHits(const edm::Event& iEvent, const edm::E
     //Float_t ix_ = (Float_t)-999;
     //Float_t iy_ = (Float_t)-999;
     Int_t ir = -999;
-    //    edm::LogInfo("OutputInfo") << ix << " " << iy << " " << ix_ << " " << iy_ << " " << ir << endl;
+    //    edm::LogInfo("OutputInfo") << ix << " " << iy << " " << ix_ << " " << iy_ << " " << ir << std::endl;
 
     double x = -999;
     double y = -999;
@@ -557,7 +557,7 @@ void ECALRecHitAnalyzer::WriteECALRecHits(const edm::Event& iEvent, const edm::E
 	  hEEpZ_Minenergy_ix_iy->setBinContent(ix,iy, Energy);
       }
   } // loop over EE
-  edm::LogInfo("OutputInfo") << "Done Looping over EE" << endl;
+  edm::LogInfo("OutputInfo") << "Done Looping over EE" << std::endl;
   for (int iEtaRing = 0; iEtaRing<101; iEtaRing++)
     {
       hEEpZ_Maxenergyvsir->Fill(iEtaRing, EEpZMaxEnergy_EtaRing[iEtaRing]);
@@ -585,7 +585,7 @@ void ECALRecHitAnalyzer::WriteECALRecHits(const edm::Event& iEvent, const edm::E
 	  hEEmZ_Occvsir->Fill(iEtaRing, EEmZNActiveCells[iEtaRing]);
 	}
     }
-  edm::LogInfo("OutputInfo") << "Done ..." << endl;
+  edm::LogInfo("OutputInfo") << "Done ..." << std::endl;
 } // loop over RecHits
 
 

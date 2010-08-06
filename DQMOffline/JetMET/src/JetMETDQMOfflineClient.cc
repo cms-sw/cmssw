@@ -195,10 +195,10 @@ void JetMETDQMOfflineClient::runClient_()
 
     std::vector<std::string> getMEs = dbe_->getMEs();
 
-    vector<string>::const_iterator cii;
+    std::vector<std::string>::const_iterator cii;
     for(cii=getMEs.begin(); cii!=getMEs.end(); cii++) {
-      if ((*cii).find("_binom")!=string::npos) continue;
-      if ((*cii).find("JIDPassFractionVS")!=string::npos){  // Look for MEs with "JIDPassFractionVS"
+      if ((*cii).find("_binom")!=std::string::npos) continue;
+      if ((*cii).find("JIDPassFractionVS")!=std::string::npos){  // Look for MEs with "JIDPassFractionVS"
 	me = dbe_->get(fullPathDQMFolders[i]+"/"+(*cii));
 
 	if ( me ) {

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/05/14 05:55:07 $
- *  $Revision: 1.62 $
+ *  $Date: 2010/05/14 18:11:18 $
+ *  $Revision: 1.63 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -477,7 +477,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   bool bPrimaryVertex = true;
   if(_doPVCheck){
     bPrimaryVertex = false;
-    Handle<VertexCollection> vertexHandle;
+    Handle<reco::VertexCollection> vertexHandle;
 
     iEvent.getByLabel(_theVertexLabel, vertexHandle);
 
@@ -487,9 +487,9 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
     
     if ( vertexHandle.isValid() ){
-      VertexCollection vertexCollection = *(vertexHandle.product());
+      reco::VertexCollection vertexCollection = *(vertexHandle.product());
       int vertex_number     = vertexCollection.size();
-      VertexCollection::const_iterator v = vertexCollection.begin();
+      reco::VertexCollection::const_iterator v = vertexCollection.begin();
       double vertex_chi2    = v->normalizedChi2();
       //double vertex_d0      = sqrt(v->x()*v->x()+v->y()*v->y());
       //double vertex_numTrks = v->tracksSize();
@@ -497,7 +497,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       bool   fakeVtx        = v->isFake();
       double vertex_sumTrks = 0.0;
       double vertex_Z       = v->z();
-      for (Vertex::trackRef_iterator vertex_curTrack = v->tracks_begin(); vertex_curTrack!=v->tracks_end(); vertex_curTrack++) {
+      for (reco::Vertex::trackRef_iterator vertex_curTrack = v->tracks_begin(); vertex_curTrack!=v->tracks_end(); vertex_curTrack++) {
 	vertex_sumTrks += (*vertex_curTrack)->pt();
       }
       
