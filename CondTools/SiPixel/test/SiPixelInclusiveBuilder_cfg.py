@@ -1,3 +1,7 @@
+import os
+import commands
+import shlex, subprocess
+
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("SiPixelInclusiveBuilder")
@@ -31,6 +35,17 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
+try:
+    user = os.environ["USER"]
+except KeyError:
+    user = subprocess.call('whoami')
+    # user = commands.getoutput('whoami')
+ 
+file = "/tmp/" + user + "/prova.db"
+sqlfile = "sqlite_file:" + file
+print '\n-> Uploading as user %s into file %s, i.e. %s\n' % (user, file, sqlfile)
+
+subprocess.call(["/bin/cp", "prova.db", file])
 
 
 ##### DATABASE CONNNECTION AND INPUT TAGS ######
@@ -48,7 +63,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         enableReadOnlySessionOnUpdateConnection = cms.untracked.bool(False)
     ),
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:/tmp/fblekman/freyatest.db'),
+    connect = cms.string(sqlfile),
     toPut = cms.VPSet(cms.PSet(
             record = cms.string('SiPixelFedCablingMapRcd'),
             tag = cms.string('SiPixelFedCablingMap_v14')
@@ -95,19 +110,68 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 
 
 ###### TEMPLATE OBJECT UPLOADER ######
+MagFieldValue = 3.8
+if ( MagFieldValue==0 ):
+    MagFieldString = '0'
+    files_to_upload = cms.vstring(
+        "CalibTracker/SiPixelESProducers/data/template_summary_zp0022.out",
+        "CalibTracker/SiPixelESProducers/data/template_summary_zp0023.out")
+    theDetIds      = cms.vuint32( 1, 2) # 0 is for all, 1 is Barrel, 2 is EndCap
+    theTemplateIds = cms.vuint32(22,23)
+elif(MagFieldValue==4):
+    MagFieldString = '4'
+    files_to_upload = cms.vstring(
+        "CalibTracker/SiPixelESProducers/data/template_summary_zp0018.out",
+        "CalibTracker/SiPixelESProducers/data/template_summary_zp0019.out")
+    theDetIds      = cms.vuint32( 1, 2)
+    theTemplateIds = cms.vuint32(18,19)
+elif(MagFieldValue==3.8 or MagFieldValue==38):
+    MagFieldString = '38'
+    files_to_upload = cms.vstring(
+        "CalibTracker/SiPixelESProducers/data/template_summary_zp0020.out",
+        "CalibTracker/SiPixelESProducers/data/template_summary_zp0021.out")
+    theDetIds      = cms.vuint32( 1, 2)
+    theTemplateIds = cms.vuint32(20,21)
+elif(MagFieldValue==2):
+    MagFieldString = '2'
+    files_to_upload = cms.vstring(
+        "CalibTracker/SiPixelESProducers/data/template_summary_zp0030.out",
+        "CalibTracker/SiPixelESProducers/data/template_summary_zp0031.out")
+    theDetIds      = cms.vuint32( 1, 2)
+    theTemplateIds = cms.vuint32(30,31)
+elif(MagFieldValue==3):
+    MagFieldString = '3'
+    files_to_upload = cms.vstring(
+        "CalibTracker/SiPixelESProducers/data/template_summary_zp0032.out",
+        "CalibTracker/SiPixelESProducers/data/template_summary_zp0033.out")
+    theDetIds      = cms.vuint32( 1, 2)
+    theTemplateIds = cms.vuint32(32,33)
+elif(MagFieldValue==3.5 or MagFieldValue==35):
+    MagFieldString = '35'
+    files_to_upload = cms.vstring(
+        "CalibTracker/SiPixelESProducers/data/template_summary_zp0034.out",
+        "CalibTracker/SiPixelESProducers/data/template_summary_zp0035.out")
+    theDetIds      = cms.vuint32( 1, 2)
+    theTemplateIds = cms.vuint32(34,35)
+
+version = "v2"
+template_base = 'SiPixelTemplateDBObject' + MagFieldString + 'T'
+print '\nUploading %s%s with record SiPixelTemplateDBObjectRcd in file siPixelTemplates%sT.db\n' % (template_base,version,MagFieldString)
+
 process.TemplateUploader = cms.EDAnalyzer("SiPixelTemplateDBObjectUploader",
-                                  siPixelTemplateCalibrations = cms.vstring(
-    "CalibTracker/SiPixelESProducers/data/template_summary_zp0001.out",
-    "CalibTracker/SiPixelESProducers/data/template_summary_zp0004.out",
-    "CalibTracker/SiPixelESProducers/data/template_summary_zp0011.out",
-    "CalibTracker/SiPixelESProducers/data/template_summary_zp0012.out"),
-                                  Version = cms.double("1.3")
+                                          siPixelTemplateCalibrations = files_to_upload,
+                                          theTemplateBaseString = cms.string(template_base),
+                                          Version = cms.double("3.0"),
+                                          MagField = cms.double(MagFieldValue),
+                                          detIds = theDetIds,
+                                          templateIds = theTemplateIds
 )
 
 
 
+
 ###### QUALITY OBJECT MAKER #######
-process.QualityObjectMaker = cms.EDFilter("SiPixelBadModuleByHandBuilder",
+process.QualityObjectMaker = cms.EDAnalyzer("SiPixelBadModuleByHandBuilder",
     BadModuleList = cms.untracked.VPSet(cms.PSet(
         errortype = cms.string('whole'),
         detid = cms.uint32(302197784)

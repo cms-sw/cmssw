@@ -31,7 +31,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ))
 )
 
-process.prod = cms.EDFilter("SiPixelBadModuleByHandBuilder",
+process.prod = cms.EDAnalyzer("SiPixelBadModuleByHandBuilder",
     BadModuleList = cms.untracked.VPSet(cms.PSet(
         errortype = cms.string('whole'),
         detid = cms.uint32(302197784)
