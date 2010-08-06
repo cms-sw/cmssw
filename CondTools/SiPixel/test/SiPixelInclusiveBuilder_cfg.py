@@ -1,5 +1,4 @@
 import os
-import commands
 import shlex, subprocess
 
 import FWCore.ParameterSet.Config as cms
