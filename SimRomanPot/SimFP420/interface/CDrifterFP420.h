@@ -6,13 +6,13 @@
 //#include "ClassReuse/GeomVector/interface/LocalVector.h"
 #include "G4StepPoint.hh"
 
-using namespace std;
+
 #include<vector>
 
 class CDrifterFP420{
  public:  
-  typedef vector <AmplitudeSegmentFP420> collection_type;
-  typedef vector <EnergySegmentFP420> ionization_type;
+  typedef std::vector <AmplitudeSegmentFP420> collection_type;
+  typedef std::vector <EnergySegmentFP420> ionization_type;
 
   virtual ~CDrifterFP420() { }
 

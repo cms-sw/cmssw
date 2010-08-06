@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Sep 21 15:56:27 CEST 2007
-// $Id: XMLProcessor.cc,v 1.1 2009/04/14 22:49:05 kukartse Exp $
+// $Id: XMLProcessor.cc,v 1.2 2009/07/24 06:57:38 kukartse Exp $
 //
 
 // system include files
@@ -79,7 +79,7 @@ XMLProcessor::DBConfig::_DBConfig()
   created_by_user = getpwuid( getuid() ) -> pw_name;
 }
 
-XMLDOMBlock * XMLProcessor::createLMapHBEFXMLBase( string templateFileName )
+XMLDOMBlock * XMLProcessor::createLMapHBEFXMLBase( std::string templateFileName )
 {
   XMLDOMBlock * result = new XMLDOMBlock( templateFileName );
   DOMDocument * loader = result -> getDocument();
@@ -92,7 +92,7 @@ XMLDOMBlock * XMLProcessor::createLMapHBEFXMLBase( string templateFileName )
   return result;
 }
 
-int XMLProcessor::addLMapHBEFDataset( XMLDOMBlock * doc, LMapRowHBEF * row, string templateFileName )
+int XMLProcessor::addLMapHBEFDataset( XMLDOMBlock * doc, LMapRowHBEF * row, std::string templateFileName )
 {
   DOMDocument * loader = doc -> getDocument();
   DOMElement * root = loader -> getDocumentElement();
@@ -145,7 +145,7 @@ int XMLProcessor::addLMapHBEFDataset( XMLDOMBlock * doc, LMapRowHBEF * row, stri
   return 0;
 }
 
-XMLDOMBlock * XMLProcessor::createLMapHOXMLBase( string templateFileName )
+XMLDOMBlock * XMLProcessor::createLMapHOXMLBase( std::string templateFileName )
 {
   XMLDOMBlock * result = new XMLDOMBlock( templateFileName );
   DOMDocument * loader = result -> getDocument();
@@ -158,7 +158,7 @@ XMLDOMBlock * XMLProcessor::createLMapHOXMLBase( string templateFileName )
   return result;
 }
 
-int XMLProcessor::addLMapHODataset( XMLDOMBlock * doc, LMapRowHO * row, string templateFileName )
+int XMLProcessor::addLMapHODataset( XMLDOMBlock * doc, LMapRowHO * row, std::string templateFileName )
 {
   DOMDocument * loader = doc -> getDocument();
   DOMElement * root = loader -> getDocumentElement();
@@ -203,7 +203,7 @@ int XMLProcessor::addLMapHODataset( XMLDOMBlock * doc, LMapRowHO * row, string t
   return 0;
 }
 
-int XMLProcessor::write( XMLDOMBlock * doc, string target )
+int XMLProcessor::write( XMLDOMBlock * doc, std::string target )
 {
   DOMDocument * loader = doc -> getDocument();
   //DOMElement * root = loader -> getDocumentElement();
@@ -223,8 +223,8 @@ int XMLProcessor::test( void )
 
   DOMDocument * dataBlockDocument = dataBlock . getDocument();
 
-  cout << "===> Tag length: " << dataBlockDocument -> getElementsByTagName( _toXMLCh( "CREATED_BY_USER" ) ) -> getLength() << endl;
-  cout << "===> Tag name: " << XMLString::transcode( dataBlockDocument -> getElementsByTagName( _toXMLCh( "CREATED_BY_USER" ) ) -> item(0) -> getNodeName() ) << endl;
+  std::cout << "===> Tag length: " << dataBlockDocument -> getElementsByTagName( _toXMLCh( "CREATED_BY_USER" ) ) -> getLength() << std::endl;
+  std::cout << "===> Tag name: " << XMLString::transcode( dataBlockDocument -> getElementsByTagName( _toXMLCh( "CREATED_BY_USER" ) ) -> item(0) -> getNodeName() ) << std::endl;
   dataBlockDocument -> getElementsByTagName( _toXMLCh( "CREATED_BY_USER" ) ) -> item(0) -> getFirstChild() -> setNodeValue( _toXMLCh( "kukarzev test" ) );
 
   XMLCh * _t;
@@ -236,7 +236,7 @@ int XMLProcessor::test( void )
   return 0;
 }
 
-XMLCh * XMLProcessor::serializeDOM(DOMNode* node, string target)
+XMLCh * XMLProcessor::serializeDOM(DOMNode* node, std::string target)
 {
   XMLCh tempStr[100];
   XMLString::transcode("LS", tempStr, 99);
@@ -274,20 +274,20 @@ XMLCh * XMLProcessor::serializeDOM(DOMNode* node, string target)
   }
   catch (const XMLException& toCatch) {
     char* message = XMLString::transcode(toCatch.getMessage());
-    cout << "Exception message is: \n"
+    std::cout << "Exception message is: \n"
 	 << message << "\n";
     XMLString::release(&message);
     return 0;
   }
   catch (const DOMException& toCatch) {
     char* message = XMLString::transcode(toCatch.msg);
-    cout << "Exception message is: \n"
+    std::cout << "Exception message is: \n"
 	 << message << "\n";
     XMLString::release(&message);
     return NULL;
   }
   catch (...) {
-    cout << "Unexpected Exception \n" ;
+    std::cout << "Unexpected Exception \n" ;
     return NULL;
   }
     
@@ -298,7 +298,7 @@ XMLCh * XMLProcessor::serializeDOM(DOMNode* node, string target)
 
 int XMLProcessor::init( void )
 {
-  cerr << "Intializing Xerces-c...";
+  std::cerr << "Intializing Xerces-c...";
   try {
     XMLPlatformUtils::Initialize();
     //
@@ -307,10 +307,10 @@ int XMLProcessor::init( void )
     //XPathEvaluator::initialize();
   }
   catch (const XMLException& toCatch) {
-    cout << " FAILED! Exiting..." << endl;
+    std::cout << " FAILED! Exiting..." << std::endl;
     return 1;
   }
-  cerr << " done" << endl;
+  std::cerr << " done" << std::endl;
 
   return 0;
 }
@@ -320,13 +320,13 @@ int XMLProcessor::terminate( void )
   //
   //_____ following removed as a xalan-c component_____________________
   //
-  //cout << "Terminating Xalan-c...";
+  //std::cout << "Terminating Xalan-c...";
   //XPathEvaluator::terminate();
-  //cout << " done" << endl;
+  //std::cout << " done" << std::endl;
 
-  cout << "Terminating Xerces-c...";
+  std::cout << "Terminating Xerces-c...";
   XMLPlatformUtils::Terminate();
-  cout << " done" << endl;
+  std::cout << " done" << std::endl;
 
 
   // Other terminations and cleanup.

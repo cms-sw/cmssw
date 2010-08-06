@@ -9,15 +9,13 @@
  * 13.03.2007: R.Ofierzynski
  *  - implemented event weighting
  *
- * $Date: 2007/03/13 14:33:42 $
+ * $Date: 2007/03/14 13:55:40 $
  * $Revision: 1.4 $
  * \author R.Ofierzynski, CERN
  */
 
 #include <vector>
 #include <iostream>
-
-using namespace std;
 
 
 class MinL3Algorithm
@@ -33,17 +31,17 @@ public:
   /// method doing the full calibration running nIter number of times, recalibrating the event matrix after each iteration with the new solution
   /// returns the vector of calibration coefficients built from all iteration solutions
   /// >> to be used also as recipe on how to use the calibration methods one-by-one <<
-  vector<float> iterate(const vector<vector<float> >& eventMatrix, const vector<int>& VmaxCeta, const vector<int>& VmaxCphi, const vector<float>& energyVector, const int& nIter, const bool& normalizeFlag = false);
+  std::vector<float> iterate(const std::vector<std::vector<float> >& eventMatrix, const std::vector<int>& VmaxCeta, const std::vector<int>& VmaxCphi, const std::vector<float>& energyVector, const int& nIter, const bool& normalizeFlag = false);
 
 
   /// add event to the calculation of the calibration vector
-  void addEvent(const vector<float>& eventSquare, const int& maxCeta, const int& maxCphi, const float& energy);
+  void addEvent(const std::vector<float>& eventSquare, const int& maxCeta, const int& maxCphi, const float& energy);
 
   /// recalibrate before next iteration: give previous solution vector as argument
-  vector<float> recalibrateEvent(const vector<float>& eventSquare, const int& maxCeta, const int& maxCphi, const vector<float>& recalibrateVector); 
+  std::vector<float> recalibrateEvent(const std::vector<float>& eventSquare, const int& maxCeta, const int& maxCphi, const std::vector<float>& recalibrateVector); 
 
   /// get the solution at the end of the calibration
-  vector<float> getSolution(bool resetsolution=true);
+  std::vector<float> getSolution(bool resetsolution=true);
 
   /// reset for new iteration
   void resetSolution(); 
@@ -59,8 +57,8 @@ private:
   int mineta, maxeta, minphi, maxphi;
   int countEvents;
   int Nchannels, Nxtals;
-  vector<float> wsum;
-  vector<float> Ewsum;
+  std::vector<float> wsum;
+  std::vector<float> Ewsum;
 
 };
 

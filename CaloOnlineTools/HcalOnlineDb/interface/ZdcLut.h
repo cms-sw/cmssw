@@ -16,13 +16,11 @@
 #include <vector>
 #include <string>
 
-using namespace std;
+struct ZDC_channels {std::vector <int> LUT;};
 
-struct ZDC_channels {vector <int> LUT;};
+struct ZDC_fibers {std::vector <ZDC_channels> channel;};
 
-struct ZDC_fibers {vector <ZDC_channels> channel;};
-
-struct ZDC_sides {vector<ZDC_fibers> fiber;};
+struct ZDC_sides {std::vector<ZDC_fibers> fiber;};
 
 class ZdcLut
 {
@@ -31,12 +29,12 @@ class ZdcLut
   ~ZdcLut();
 
   //get_lut returns a specific lut based on side, fiber, and fiber_channel
-  //vector <int> get_lut(int side_num, int fiber_num, int channel_num){ return side[side_num].fiber[fiber_num].channel[channel_num].LUT; }
-  vector <int> get_lut(int emap_side,
+  //std::vector <int> get_lut(int side_num, int fiber_num, int channel_num){ return side[side_num].fiber[fiber_num].channel[channel_num].LUT; }
+  std::vector <int> get_lut(int emap_side,
 		       int emap_htr_fiber,
 		       int emap_fi_ch);
 
-  vector <int> get_lut(std::string zdc_section,
+  std::vector <int> get_lut(std::string zdc_section,
 		       int zdc_side,
 		       int zdc_channel);
   
@@ -44,7 +42,7 @@ class ZdcLut
   
  private:
   //variable
-  vector <ZDC_sides> side;
+  std::vector <ZDC_sides> side;
 };
 
 #endif

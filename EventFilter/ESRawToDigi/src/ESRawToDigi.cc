@@ -10,10 +10,10 @@
 
 #include <iostream>
 
-ESRawToDigi::ESRawToDigi(ParameterSet const& ps) 
+ESRawToDigi::ESRawToDigi(edm::ParameterSet const& ps) 
 {
   sourceTag_        = ps.getParameter<edm::InputTag>("sourceTag");
-  ESdigiCollection_ = ps.getParameter<string>("ESdigiCollection");
+  ESdigiCollection_ = ps.getParameter<std::string>("ESdigiCollection");
   regional_         = ps.getUntrackedParameter<bool>("DoRegional",false);
   fedsListLabel_    = ps.getUntrackedParameter<edm::InputTag>("ESFedsListLabel", edm::InputTag(":esfedslist"));
   debug_            = ps.getUntrackedParameter<bool>("debugMode", false);
@@ -34,7 +34,7 @@ ESRawToDigi::~ESRawToDigi(){
 void ESRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
 
   // Input
-  Handle<FEDRawDataCollection> rawdata;
+  edm::Handle<FEDRawDataCollection> rawdata;
   e.getByLabel(sourceTag_, rawdata);
   if (!rawdata.isValid()) {
     LogDebug("") << "ESRawToDigi : Error! can't get rawdata!" << std::endl;
@@ -48,9 +48,9 @@ void ESRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
   }
 
   // Output
-  auto_ptr<ESRawDataCollection> productDCC(new ESRawDataCollection);
-  auto_ptr<ESLocalRawDataCollection> productKCHIP(new ESLocalRawDataCollection);
-  auto_ptr<ESDigiCollection> productDigis(new ESDigiCollection);  
+  std::auto_ptr<ESRawDataCollection> productDCC(new ESRawDataCollection);
+  std::auto_ptr<ESLocalRawDataCollection> productKCHIP(new ESLocalRawDataCollection);
+  std::auto_ptr<ESDigiCollection> productDigis(new ESDigiCollection);  
   
   ESDigiCollection digis;
 
@@ -60,7 +60,7 @@ void ESRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
       const FEDRawData& fedRawData = rawdata->FEDData(esFeds_to_unpack[i]);
       ESUnpacker_->interpretRawData(esFeds_to_unpack[i], fedRawData, *productDCC, *productKCHIP, *productDigis);
       
-      if (debug_) cout<<"FED : "<<esFeds_to_unpack[i]<<" Data size : "<<fedRawData.size()<<" (Bytes)"<<endl;
+      if (debug_) std::cout<<"FED : "<<esFeds_to_unpack[i]<<" Data size : "<<fedRawData.size()<<" (Bytes)"<<std::endl;
     }   
   } else {
     for (int fedId=FEDNumbering::MINPreShowerFEDID; fedId<=FEDNumbering::MAXPreShowerFEDID; ++fedId) {
@@ -68,7 +68,7 @@ void ESRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
       const FEDRawData& fedRawData = rawdata->FEDData(fedId);
       ESUnpacker_->interpretRawData(fedId, fedRawData, *productDCC, *productKCHIP, *productDigis);
       
-      if (debug_) cout<<"FED : "<<fedId<<" Data size : "<<fedRawData.size()<<" (Bytes)"<<endl;
+      if (debug_) std::cout<<"FED : "<<fedId<<" Data size : "<<fedRawData.size()<<" (Bytes)"<<std::endl;
     }   
   }
 
@@ -76,3 +76,4 @@ void ESRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
   e.put(productKCHIP);
   e.put(productDigis, ESdigiCollection_);
 }
+

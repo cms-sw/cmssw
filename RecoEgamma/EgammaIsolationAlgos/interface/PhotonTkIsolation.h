@@ -21,7 +21,6 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTrackSelector.h"
 
-using egammaisolation::EgammaTrackSelector ;
 
 
 
@@ -122,11 +121,11 @@ class PhotonTkIsolation {
   double getPtTracks (const reco::Candidate*) const ;
 
   void setDzOption(const std::string &s) {
-    if( ! s.compare("dz") )      dzOption_ = EgammaTrackSelector::dz;
-    else if( ! s.compare("vz") ) dzOption_ = EgammaTrackSelector::vz;
-    else if( ! s.compare("bs") ) dzOption_ = EgammaTrackSelector::bs;
-    else if( ! s.compare("vtx") )dzOption_ = EgammaTrackSelector::vtx;
-    else                         dzOption_ = EgammaTrackSelector::dz;
+    if( ! s.compare("dz") )      dzOption_ = egammaisolation::EgammaTrackSelector::dz;
+    else if( ! s.compare("vz") ) dzOption_ = egammaisolation::EgammaTrackSelector::vz;
+    else if( ! s.compare("bs") ) dzOption_ = egammaisolation::EgammaTrackSelector::bs;
+    else if( ! s.compare("vtx") )dzOption_ = egammaisolation::EgammaTrackSelector::vtx;
+    else                         dzOption_ = egammaisolation::EgammaTrackSelector::dz;
   }
 
  private:

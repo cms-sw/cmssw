@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Feb 25 14:30:20 CDT 2008
-// $Id: HcalHardwareXml.cc,v 1.4 2009/04/14 22:53:06 kukartse Exp $
+// $Id: HcalHardwareXml.cc,v 1.5 2009/08/16 21:21:21 kukartse Exp $
 
 #include <sstream>
 
@@ -25,7 +25,7 @@ HcalHardwareXml::HcalHardwareXml() : XMLDOMBlock()
 }
 
 
-HcalHardwareXml::HcalHardwareXml( string _type ) : XMLDOMBlock()
+HcalHardwareXml::HcalHardwareXml( std::string _type ) : XMLDOMBlock()
 {
 
   DOMElement* rootElem = document -> getDocumentElement();
@@ -37,13 +37,13 @@ HcalHardwareXml::HcalHardwareXml( string _type ) : XMLDOMBlock()
 
 
 
-int HcalHardwareXml::addHardware( std::map<string,map<string,map<string,map<int,string> > > > & hw_map )
+int HcalHardwareXml::addHardware( std::map<std::string,std::map<std::string,std::map<std::string,std::map<int,std::string> > > > & hw_map )
 {
   //hw_map["HO001"]["HORBX09"]["200351"][2]="101295";
 
-  map<string,int> double_entry; // to check for double entries
+  std::map<std::string,int> double_entry; // to check for double entries
 
-  map<string,map<string,map<string,map<int,string> > > >::const_iterator rbx_slot;
+  std::map<std::string,std::map<std::string,std::map<std::string,std::map<int,std::string> > > >::const_iterator rbx_slot;
   for (rbx_slot = hw_map . begin(); rbx_slot != hw_map . end(); rbx_slot++){
 
     HcalPart _p;
@@ -53,7 +53,7 @@ int HcalHardwareXml::addHardware( std::map<string,map<string,map<string,map<int,
     DOMElement * rbx_slot_elem = addPart( partsElem, _p );
     DOMElement * rbx_slot_children_elem = (DOMElement *)rbx_slot_elem -> getElementsByTagName(XMLString::transcode("CHILDREN"))->item(0);
 
-    map<string,map<string,map<int,string> > >::const_iterator rbx;
+    std::map<std::string,std::map<std::string,std::map<int,std::string> > >::const_iterator rbx;
     for (rbx = rbx_slot->second . begin(); rbx != rbx_slot->second . end(); rbx++){
       HcalPart _p2;
       _p2 . mode = "find";
@@ -62,7 +62,7 @@ int HcalHardwareXml::addHardware( std::map<string,map<string,map<string,map<int,
       DOMElement * rbx_elem = addPart( rbx_slot_children_elem, _p2 );
       DOMElement * rbx_children_elem = (DOMElement *)rbx_elem -> getElementsByTagName(XMLString::transcode("CHILDREN"))->item(0);
 
-      map<string,map<int,string> >::const_iterator rm;
+      std::map<std::string,std::map<int,std::string> >::const_iterator rm;
       for (rm = rbx->second . begin(); rm != rbx->second . end(); rm++){
 	HcalPart _p3;
 	_p3 . mode = "find";
@@ -71,7 +71,7 @@ int HcalHardwareXml::addHardware( std::map<string,map<string,map<string,map<int,
 	DOMElement * rm_elem = addPart( rbx_children_elem, _p3 );
 	DOMElement * rm_children_elem = (DOMElement *)rm_elem -> getElementsByTagName(XMLString::transcode("CHILDREN"))->item(0);
 	
-	map<int,string>::const_iterator qie;
+	std::map<int,std::string>::const_iterator qie;
 	for (qie = rm->second . begin(); qie != rm->second . end(); qie++){
 	  HcalPart _p4;
 	  _p4 . mode = "find";
@@ -79,7 +79,7 @@ int HcalHardwareXml::addHardware( std::map<string,map<string,map<string,map<int,
 	  _p4 . barcode = qie -> second;
 	  _p4 . comment = "HCAL hardware remapping by Gena Kukartsev";
 	  _p4 . attr_name = "QIE Card Position";
-	  stringstream _buffer;
+	  std::stringstream _buffer;
 	  _buffer . str("");
 	  _buffer << qie->first;
 	  _p4 . attr_value = _buffer . str();
@@ -88,7 +88,7 @@ int HcalHardwareXml::addHardware( std::map<string,map<string,map<string,map<int,
 	  unsigned int _nqie = double_entry.size();
 	  double_entry[_p4 . barcode]++;
 	  if (double_entry.size() == _nqie){
-	    cout << "QIE #" << _p4.barcode << " found " << double_entry[_p4 . barcode] << "times!" << endl;
+	    std::cout << "QIE #" << _p4.barcode << " found " << double_entry[_p4 . barcode] << "times!" << std::endl;
 	  }else{
 	    addPart( rm_children_elem, _p4 );
 	  }

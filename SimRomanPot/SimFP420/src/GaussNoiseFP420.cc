@@ -18,7 +18,7 @@ GaussNoiseFP420::addNoise(PileUpFP420::signal_map_type in){
   PileUpFP420::signal_map_type _signal;  
   
   // Add noise on non-hit pixels
-  map<int,float,less<int> > generatedNoise;
+  std::map<int,float,std::less<int> > generatedNoise;
   
   //  int numberOfPixels = (numRows * numColumns);// numPixels=numberOfPixels
   
@@ -51,7 +51,7 @@ GaussNoiseFP420::addNoise(PileUpFP420::signal_map_type in){
   //                                                                                                    //
   if(addNoisyPixels){  // Option to skip noise in non-hit pixels
     // Noise on the other channels:
-    typedef map<int,float,less<int> >::iterator MI;
+    typedef std::map<int,float,std::less<int> >::iterator MI;
     for(MI p = generatedNoise.begin(); p != generatedNoise.end(); p++){
       if(_signal[(*p).first] == 0) {
 	_signal[(*p).first] += (*p).second;
@@ -64,7 +64,7 @@ GaussNoiseFP420::addNoise(PileUpFP420::signal_map_type in){
   /*
     if(addNoisyPixels){  // Option to skip noise in non-hit pixels
     // Noise on the other channels:
-    typedef map<int,float,less<int> >::iterator MI;
+    typedef std::map<int,float,std::less<int> >::iterator MI;
     for(MI p = generatedNoise.begin(); p != generatedNoise.end(); p++){
     int iy = ((*p).first) / numRows;
     int ix = ((*p).first) - (iy*numRows);

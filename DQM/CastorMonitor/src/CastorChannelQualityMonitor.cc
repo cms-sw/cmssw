@@ -60,12 +60,12 @@ void CastorChannelQualityMonitor::setup(const edm::ParameterSet& ps, DQMStore* d
    } 
 
   else{
-  if(fVerbosity>0) cout << "CastorChannelQualityMonitor::setup - NO DQMStore service" << endl; 
+  if(fVerbosity>0) std::cout << "CastorChannelQualityMonitor::setup - NO DQMStore service" << std::endl; 
  }
 
   // baseFolder_ = rootFolder_+"CastorChannelQualityMonitor";
 
-  if(fVerbosity>0) cout << "CastorChannelQualityMonitor::setup (start)" << endl;
+  if(fVerbosity>0) std::cout << "CastorChannelQualityMonitor::setup (start)" << std::endl;
 
   ////---- initialize array aboveNoisyThreshold and belowDThreshold
   for (int row=0; row<14; row++) {
@@ -89,7 +89,7 @@ void CastorChannelQualityMonitor::setup(const edm::ParameterSet& ps, DQMStore* d
   ////---- initialize averageEnergy
   averageEnergy=0.;
 
-  if(fVerbosity>0) cout << "CastorChannelQualityMonitor::setup (end)" << endl;
+  if(fVerbosity>0) std::cout << "CastorChannelQualityMonitor::setup (end)" << std::endl;
 
   return;
 }
@@ -102,16 +102,16 @@ void CastorChannelQualityMonitor::setup(const edm::ParameterSet& ps, DQMStore* d
 //==========================================================//
 void CastorChannelQualityMonitor::processEvent(const CastorRecHitCollection& castorHits){
 
-  if(fVerbosity>0) cout << "CastorChannelQualityMonitor::processEvent !!!" << endl;
+  if(fVerbosity>0) std::cout << "CastorChannelQualityMonitor::processEvent !!!" << std::endl;
 
   if(!m_dbe) { 
-    if(fVerbosity>0) cout <<"CastorChannelQualityMonitor::processEvent => DQMStore is not instantiated !!!"<<endl;  
+    if(fVerbosity>0) std::cout <<"CastorChannelQualityMonitor::processEvent => DQMStore is not instantiated !!!"<<std::endl;  
     return; 
   }
 
   if(fVerbosity>0){
-     cout << "CastorChannelQualityMonitor: Noisy Threshold is set to: "<< nThreshold_ << endl;
-     cout << "CastorChannelQualityMonitor: Dead Threshold is set to: " << dThreshold_ << endl;
+     std::cout << "CastorChannelQualityMonitor: Noisy Threshold is set to: "<< nThreshold_ << std::endl;
+     std::cout << "CastorChannelQualityMonitor: Dead Threshold is set to: " << dThreshold_ << std::endl;
     }
 
   castorModule = -1;  castorSector = -1; castorEnergy = -1.; 
@@ -124,13 +124,13 @@ void CastorChannelQualityMonitor::processEvent(const CastorRecHitCollection& cas
  for(CastorRecHitCollection::const_iterator recHit = castorHits.begin(); recHit != castorHits.end(); ++recHit){
 
     HcalCastorDetId CastorID = HcalCastorDetId(recHit->id());
-    if(fVerbosity>0) cout << "Castor ID = " << CastorID << std::endl;
+    if(fVerbosity>0) std::cout << "Castor ID = " << CastorID << std::endl;
     CastorRecHitCollection::const_iterator rh = castorHits.find(CastorID);
     ////---- obtain module, sector and energy of a rechit
     castorModule = CastorID.module();
     castorSector = CastorID.sector();
     castorEnergy = rh->energy();
-    //if(ievt_ % 1000 == 0) cout << "==> module=" << module << " sector=" << sector << " energy= "<< energy << endl;
+    //if(ievt_ % 1000 == 0) std::cout << "==> module=" << module << " sector=" << sector << " energy= "<< energy << std::endl;
     iRecHit=true; 
    
     ////----  fill the arrays 
@@ -179,14 +179,14 @@ void CastorChannelQualityMonitor::processEvent(const CastorRecHitCollection& cas
      ////---- evaluation
      if( averageEnergy >  nThreshold_ )  status= 0;   ////--- channel is noisy 
      if( averageEnergy < dThreshold_  ) { status= -1;  ////--- channel is dead 
-          if(fVerbosity>0) cout << "!!! dChannels ===> module="<< module+1 << " sector="<< sector+1 << endl;
+          if(fVerbosity>0) std::cout << "!!! dChannels ===> module="<< module+1 << " sector="<< sector+1 << std::endl;
 	  }
      if( averageEnergy <  nThreshold_ && averageEnergy > dThreshold_ )  status= 1; ////---- channel is good
 
      if(fVerbosity>0)
-      cout << "===> module="<< module+1 << " sector="<< sector+1 <<" *** average Energy=" 
+      std::cout << "===> module="<< module+1 << " sector="<< sector+1 <<" *** average Energy=" 
 	   << averageEnergy << " => energy=" << energyArray[module][sector] << " events="
-           << ievt_ << " aboveThr="<< double(aboveThr[module][sector]) <<endl;
+           << ievt_ << " aboveThr="<< double(aboveThr[module][sector]) <<std::endl;
     }
 
 
@@ -199,15 +199,15 @@ void CastorChannelQualityMonitor::processEvent(const CastorRecHitCollection& cas
       ////---- evaluation
       if( wcounter1 > 0.85 )  status= 0; ////--- channel is noisy (85% of cases energy was above NoisyThreshold) 
       if( wcounter2 > 0.85 ) {status= -1;  ////--- channel is dead (85% of cases energy was below dThreshold)
-         if(fVerbosity>0) cout << "!!! dChannels ===> module="<< module+1 << " sector="<< sector+1 << endl; 
+         if(fVerbosity>0) std::cout << "!!! dChannels ===> module="<< module+1 << " sector="<< sector+1 << std::endl; 
 	}
       if( wcounter1 < 0.85 && wcounter2 <  0.85 ) status= 1; ////---- channel is good
 
       if(fVerbosity>0)
-        cout << "===> module="<< module+1 << " sector="<< sector+1 <<" *** counter1=" 
+        std::cout << "===> module="<< module+1 << " sector="<< sector+1 <<" *** counter1=" 
         << counter1 << " => counter2=" << counter2 << " events="<< ievt_ 
         << " wcounter1=" << wcounter1  << " wcounter2=" <<  wcounter2
-        << " *** ==> STATUS=" << status <<endl;      
+        << " *** ==> STATUS=" << status <<std::endl;      
     }
 
    ////---- fill reportSummaryMap  

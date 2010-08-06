@@ -13,7 +13,7 @@ namespace po = boost::program_options;
 // returns -1 in case of a problem
 int main( int argc, char **argv )
 {
-  //cout << "Running xmlTools..." << endl;
+  //std::cout << "Running xmlTools..." << std::endl;
 
   //
   //===> command line options parser using boost  
@@ -28,12 +28,12 @@ int main( int argc, char **argv )
     ("get-baseline-from-omds-to-stdout","reads channel status from OMDS for a given tag and IOV begin and outputs it to stdout in the ASCII format")
     ("dump-tags","dumps available channel quality tags from OMDS to stdout, newest first")
     ("dump-iovs","dumps available IOVs for a given channel quality tag from OMDS to stdout, newest first")
-    ("tag-name", po::value<string>(), "tag name")
-    ("base", po::value<string>(&base)->default_value("hex"), "Set hexadecimal(hex) or decimal(dec) base")
+    ("tag-name", po::value<std::string>(), "tag name")
+    ("base", po::value<std::string>(&base)->default_value("hex"), "Set hexadecimal(hex) or decimal(dec) base")
     ("run-number", po::value<int>(&run_number)->default_value( 1 ), "run number")
     ("iov-begin", po::value<int>(&iov_begin)->default_value( 1 ), "beginning of the interval of validity, units: run numbers")
     ("iov-end", po::value<int>(&iov_end)->default_value( -1 ), "end of the interval of validity, units: run numbers")
-    ("comment", po::value<string>(&comment)->default_value(""), "comment field. If left empty, it will be generated for you")
+    ("comment", po::value<std::string>(&comment)->default_value(""), "comment field. If left empty, it will be generated for you")
     ;
 
   try{
@@ -43,7 +43,7 @@ int main( int argc, char **argv )
     po::notify(vm);
     
     if (vm.count("help")) {
-      cout << general << "\n";
+      std::cout << general << "\n";
       return 1;
     }
 
@@ -55,13 +55,13 @@ int main( int argc, char **argv )
     if (vm.count("make-xml-from-stdin")){
       std::string _tag;
       if ( !vm.count("tag-name") ){
-	cerr << "No tag name specified, impossible to proceed, exiting..." << endl;
+	std::cerr << "No tag name specified, impossible to proceed, exiting..." << std::endl;
 	exit(-1);
       }
       else{
-	_tag = vm["tag-name"].as<string>();
+	_tag = vm["tag-name"].as<std::string>();
       }
-      base = vm["base"].as<string>();
+      base = vm["base"].as<std::string>();
       HcalChannelQualityXml cq;
       if (comment.size()<1){
 	HcalAssistant ass;
@@ -80,13 +80,13 @@ int main( int argc, char **argv )
     if (vm.count("get-baseline-from-omds-to-stdout")){
       std::string _tag;
       if ( !vm.count("tag-name") ){
-	cerr << "No tag name specified, impossible to proceed, exiting..." << endl;
+	std::cerr << "No tag name specified, impossible to proceed, exiting..." << std::endl;
 	exit(-1);
       }
       else{
-	_tag = vm["tag-name"].as<string>();
+	_tag = vm["tag-name"].as<std::string>();
       }
-      base = vm["base"].as<string>();
+      base = vm["base"].as<std::string>();
       HcalChannelQualityXml cq;
       cq.writeBaseLineFromOmdsToStdout(_tag, iov_begin, base);
       return 0;
@@ -101,11 +101,11 @@ int main( int argc, char **argv )
     if (vm.count("dump-iovs")) {
       std::string _tag;
       if ( !vm.count("tag-name") ){
-	cerr << "No tag name specified, impossible to proceed, exiting..." << endl;
+	std::cerr << "No tag name specified, impossible to proceed, exiting..." << std::endl;
 	exit(-1);
       }
       else{
-	_tag = vm["tag-name"].as<string>();
+	_tag = vm["tag-name"].as<std::string>();
       }
       HcalChannelQualityXml xml;
       xml.dumpIovsFromOmdsToStdout(_tag);
@@ -113,8 +113,8 @@ int main( int argc, char **argv )
 
 
   } catch(boost::program_options::unknown_option) {
-    cout << "Unknown option..." << endl;
-    cout << general << "\n";
+    std::cout << "Unknown option..." << std::endl;
+    std::cout << general << "\n";
   }
   exit (0);  
 }

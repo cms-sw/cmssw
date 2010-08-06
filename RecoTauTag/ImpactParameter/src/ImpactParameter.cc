@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: ImpactParameter.cc,v 1.4 2007/09/11 22:07:50 ratnik Exp $
+// $Id: ImpactParameter.cc,v 1.5 2007/10/08 11:45:56 fwyzard Exp $
 //
 //
 
@@ -46,15 +46,15 @@
 //
 ImpactParameter::ImpactParameter(const edm::ParameterSet& iConfig) {
 
-        jetTrackSrc = iConfig.getParameter<string>("JetTagProd");
-        vertexSrc   = iConfig.getParameter<string>("vertexSrc");
+        jetTrackSrc = iConfig.getParameter<std::string>("JetTagProd");
+        vertexSrc   = iConfig.getParameter<std::string>("vertexSrc");
         usingVertex = iConfig.getParameter<bool>("useVertex");
 
         algo = new ImpactParameterAlgorithm(iConfig);
 
-        std::string modulname = iConfig.getParameter<string>( "@module_label" );
+        std::string modulname = iConfig.getParameter<std::string>( "@module_label" );
         produces<reco::JetTagCollection>().setBranchAlias(modulname);
-        string infoBranchName = modulname + "Info";
+        std::string infoBranchName = modulname + "Info";
         produces<reco::TauImpactParameterInfoCollection>().setBranchAlias(infoBranchName);
 }
 
@@ -73,7 +73,7 @@ void ImpactParameter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
         using namespace reco;
 
-        Handle<IsolatedTauTagInfoCollection> isolatedTaus;
+        edm::Handle<IsolatedTauTagInfoCollection> isolatedTaus;
         iEvent.getByLabel(jetTrackSrc,isolatedTaus);
 
         std::auto_ptr<JetTagCollection>                 tagCollection;
@@ -91,7 +91,7 @@ void ImpactParameter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
         Vertex PV;
         if (usingVertex) {
-          Handle<reco::VertexCollection> vertices;
+          edm::Handle<reco::VertexCollection> vertices;
           iEvent.getByLabel(vertexSrc,vertices);
 
           const reco::VertexCollection vertCollection = *(vertices.product());

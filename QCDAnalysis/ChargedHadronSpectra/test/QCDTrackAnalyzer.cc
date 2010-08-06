@@ -142,8 +142,8 @@ class QCDTrackAnalyzer : public edm::EDAnalyzer
 
    Histograms * histograms;
 
-   string trackProducer;
-//   string resultFileLabel;
+   std::string trackProducer;
+//   std::string resultFileLabel;
    bool hasSimInfo;
    bool allRecTracksArePrimary;
 
@@ -157,7 +157,7 @@ class QCDTrackAnalyzer : public edm::EDAnalyzer
 /*****************************************************************************/
 QCDTrackAnalyzer::QCDTrackAnalyzer(const edm::ParameterSet& pset)
 {
-  trackProducer   = pset.getParameter<string>("trackProducer");
+  trackProducer   = pset.getParameter<std::string>("trackProducer");
   hasSimInfo      = pset.getParameter<bool>("hasSimInfo");
   allRecTracksArePrimary = pset.getParameter<bool>("allRecTracksArePrimary");
 
@@ -229,7 +229,7 @@ bool QCDTrackAnalyzer::isAccepted
 
   // How many pixel hits?
   const int nLayers = 5;
-  vector<bool> filled(nLayers,false);
+  std::vector<bool> filled(nLayers,false);
 
   std::vector<PSimHit> trackerPSimHit( simTrack->trackPSimHit(DetId::Tracker));
   
@@ -321,16 +321,16 @@ edm::RefToBase<reco::Track> QCDTrackAnalyzer::getAssociatedRecTrack
 {
   edm::RefToBase<reco::Track> associatedRecTrack;
 #ifndef NDEBUG
-  vector<int> associatedRecId;
+  std::vector<int> associatedRecId;
 #endif
 
   float dmin = 1e+9;
 
   try
   {
-    vector<pair<edm::RefToBase<reco::Track>, double> > recTracks = simToReco[simTrack];
+    std::vector<pair<edm::RefToBase<reco::Track>, double> > recTracks = simToReco[simTrack];
 
-    for(vector<pair<edm::RefToBase<reco::Track>,double> >::const_iterator
+    for(std::vector<pair<edm::RefToBase<reco::Track>,double> >::const_iterator
           it = recTracks.begin(); it != recTracks.end(); ++it)
     {
       edm::RefToBase<reco::Track> recTrack = it->first;
@@ -367,7 +367,7 @@ edm::RefToBase<reco::Track> QCDTrackAnalyzer::getAssociatedRecTrack
     sort(associatedRecId.begin(), associatedRecId.end());
     ostringstream o;
 
-    for(vector<int>::const_iterator id = associatedRecId.begin();
+    for(std::vector<int>::const_iterator id = associatedRecId.begin();
                                     id!= associatedRecId.end(); id++)
       o << " #" << *id;
 
@@ -386,27 +386,27 @@ TrackingParticleRef QCDTrackAnalyzer::getAssociatedSimTrack
 {
   TrackingParticleRef associatedSimTrack;
 
-//cerr << "   a1" << endl;
+//std::cerr << "   a1" << std::endl;
   try
   {
-//cerr << "   a2" << endl;
-    vector<pair<TrackingParticleRef, double> > simTracks = recoToSim[recTrack];
-//cerr << "   a3" << endl;
+//std::cerr << "   a2" << std::endl;
+    std::vector<pair<TrackingParticleRef, double> > simTracks = recoToSim[recTrack];
+//std::cerr << "   a3" << std::endl;
 
-    for(vector<pair<TrackingParticleRef, double> >::const_iterator
+    for(std::vector<pair<TrackingParticleRef, double> >::const_iterator
           it = simTracks.begin(); it != simTracks.end(); ++it)
     {
       TrackingParticleRef simTrack = it->first;
       float fraction               = it->second;
 
-//cerr << "   a4 " << fraction << endl;
+//std::cerr << "   a4 " << fraction << std::endl;
 
       // If more than half is shared
       if(fraction > 0.5)
       {
         associatedSimTrack = simTrack; nSim++;
       }
-//cerr << "   a5 " << nSim << endl;
+//std::cerr << "   a5 " << nSim << std::endl;
     }
   }
   catch (cms::Exception& event)
@@ -485,7 +485,7 @@ cerr << " simtrack"
      << " " << simTrack->pdgId()
      << " " << sqrt(simTrack->parentVertex()->position().perp2())
      << " " <<      simTrack->parentVertex()->position().z()
-     << endl;
+     << std::endl;
 */
 
     bool acc;
@@ -536,7 +536,7 @@ cerr << " simtrack"
 if(nRec == 1)
 {
   // for TrackFitter.cc
-  cerr << " dz "
+  std::cerr << " dz "
        << " " << simTrack->eta()
        << " " << simTrack->pt()
        << " " << simTrack->parentVertex()->position().z()
@@ -544,7 +544,7 @@ if(nRec == 1)
                                theBeamSpot->position().z()
        << " " << aRecTrack->dz()
        << " " << theBeamSpot->position()
-       << endl;
+       << std::endl;
 }
 */
       }
@@ -554,7 +554,7 @@ if(nRec == 1)
        LogTrace("MinBiasTracking")
          << " \033[22;32m" << "[TrackAnalyzer] not reconstructed: #" << i
          << " (eta=" << s.etas << ", pt="  << s.pts << ")"
-         << "\033[22;0m" << endl;
+         << "\033[22;0m" << std::endl;
 #endif
     } 
     else
@@ -770,7 +770,7 @@ int QCDTrackAnalyzer::processRecTracks()
   for(edm::View<reco::Track>::size_type i=0;
           i < recCollection.product()->size(); ++i)
   {
-//cerr << " rect " << i << endl;
+//std::cerr << " rect " << i << std::endl;
     RecTrack_t r;
 
     edm::RefToBase<reco::Track> recTrack(recCollection, i);
@@ -886,11 +886,11 @@ void QCDTrackAnalyzer::analyze
   theBeamSpot = beamSpotHandle.product();
 
   LogTrace("MinBiasTracking")
-    << fixed << setprecision(4)
+    << fixed << std::setprecision(4)
     << " [TrackAnalyzer] beamSpot at " << theBeamSpot->position();
 
   LogTrace("MinBiasTracking")
-    << fixed << setprecision(4)
+    << fixed << std::setprecision(4)
     << " [TrackAnalyzer] beamSpot sigmaZ = " << theBeamSpot->sigmaZ()
                          << ", BeamWidth = " << theBeamSpot->BeamWidthX();
 

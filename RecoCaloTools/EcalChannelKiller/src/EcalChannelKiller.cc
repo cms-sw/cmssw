@@ -13,7 +13,7 @@
 //
 // Original Author:  Georgios Daskalakis
 //         Created:  Tue Apr 24 17:21:31 CEST 2007
-// $Id: EcalChannelKiller.cc,v 1.5 2009/12/14 22:23:43 wmtan Exp $
+// $Id: EcalChannelKiller.cc,v 1.6 2009/12/28 22:46:20 dlange Exp $
 //
 //
 
@@ -99,11 +99,11 @@ EcalChannelKiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      double NewEnergy =it->energy();
      bool ItIsDead=false;
      //Dead Cells are read from text files
-     vector<EBDetId>::const_iterator DeadCell;
+     std::vector<EBDetId>::const_iterator DeadCell;
      for(DeadCell=ChannelsDeadID.begin();DeadCell<ChannelsDeadID.end();DeadCell++){
        if(it->detid()==*DeadCell){
 	 DetId itID = it->id();
-	 //	 cout<<" +++++++++++ Old Energy "<<it->energy()<<" eta "<< itID.rawId()<<endl;
+	 //	 std::cout<<" +++++++++++ Old Energy "<<it->energy()<<" eta "<< itID.rawId()<<std::endl;
 	 ItIsDead=true;
 	 NewEnergy =0.;
 	 nRed++;
@@ -145,7 +145,7 @@ EcalChannelKiller::beginJob()
   int iphi=-10000;
   while(fileStatus != EOF) {
     fileStatus = fscanf(DeadCha,"%d %d\n",&ieta,&iphi);
-    //    cout<<" ieta "<<ieta<<" iphi "<<iphi<<endl;
+    //    std::cout<<" ieta "<<ieta<<" iphi "<<iphi<<std::endl;
     if(ieta==-10000||iphi==-10000){/*std::cout << "Problem reading Dead Channels file "<<std::endl;*/break;}
     EBDetId cell(ieta,iphi);
     ChannelsDeadID.push_back(cell);

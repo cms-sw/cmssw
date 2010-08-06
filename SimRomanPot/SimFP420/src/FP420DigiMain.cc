@@ -173,8 +173,8 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<PSimHit> &input,
   //
   // First: loop on the SimHits
   //
-  vector<PSimHit>::const_iterator simHitIter = input.begin();
-  vector<PSimHit>::const_iterator simHitIterEnd = input.end();
+  std::vector<PSimHit>::const_iterator simHitIter = input.begin();
+  std::vector<PSimHit>::const_iterator simHitIterEnd = input.end();
   for (;simHitIter != simHitIterEnd; ++simHitIter) {
     
     const PSimHit ihit = *simHitIter;
@@ -307,8 +307,8 @@ void FP420DigiMain::push_digis(const DigitalMapType& dm,
   //
   // For each channel, sum up the signals from a simtrack
   //
-  map<const PSimHit *, Amplitude> totalAmplitudePerSimHit;
-  for (vector < pair < const PSimHit*, Amplitude > >::const_iterator simul = 
+  std::map<const PSimHit *, Amplitude> totalAmplitudePerSimHit;
+  for (std::vector < std::pair < const PSimHit*, Amplitude > >::const_iterator simul = 
   (*mi).second.begin() ; simul != (*mi).second.end(); simul ++){
   #ifdef mydigidebug1
   std::cout << " ****push_digis:inside last for: (*simul).second= " << (*simul).second << std::endl;
@@ -329,7 +329,7 @@ void FP420DigiMain::push_digis(const DigitalMapType& dm,
 	// --- For each channel, sum up the signals from a simtrack
 	//
 	map<const PSimHit *, Amplitude> totalAmplitudePerSimHit;
-	for (vector < pair < const PSimHit*, Amplitude > >::const_iterator simul =
+	for (std::vector < std::pair < const PSimHit*, Amplitude > >::const_iterator simul =
 	       (*mi).second.begin() ; simul != (*mi).second.end(); simul ++){
 	  totalAmplitudePerSimHit[(*simul).first] += (*simul).second;
 	}
@@ -340,7 +340,7 @@ void FP420DigiMain::push_digis(const DigitalMapType& dm,
 	float totalAmplitude1 = temp1[(*mi).first];
 	
 	//--- digisimlink
-	for (map<const PSimHit *, Amplitude>::const_iterator iter = totalAmplitudePerSimHit.begin();
+	for (std::map<const PSimHit *, Amplitude>::const_iterator iter = totalAmplitudePerSimHit.begin();
 	iter != totalAmplitudePerSimHit.end(); iter++){
 	
 	float threshold = 0.;

@@ -12,8 +12,8 @@ class PileUpFP420{
  public:
 
   typedef float Amplitude;
-  typedef map< int, Amplitude, less<int> >  signal_map_type;
-  typedef map< int , vector < pair < const PSimHit*, Amplitude > >, less<int> >  HitToDigisMapType;
+  typedef std::map< int, Amplitude, std::less<int> >  signal_map_type;
+  typedef std::map< int , std::vector < std::pair < const PSimHit*, Amplitude > >, std::less<int> >  HitToDigisMapType;
 
   virtual ~PileUpFP420(){}
   

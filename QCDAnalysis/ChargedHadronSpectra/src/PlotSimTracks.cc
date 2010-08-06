@@ -97,12 +97,12 @@ void PlotSimTracks::printSimTracks(const edm::Event& ev)
   {
   edm::Handle<edm::SimTrackContainer>  simTracks;
   ev.getByType<edm::SimTrackContainer>(simTracks);
-  cerr << " SSSSS " << simTracks.product()->size() << endl;
+  std::cerr << " SSSSS " << simTracks.product()->size() << std::endl;
 
   for(edm::SimTrackContainer::const_iterator t = simTracks.product()->begin();
                                              t!= simTracks.product()->end(); t++)
   {
-    cerr << " simTrack " << t - simTracks.product()->begin()
+    std::cerr << " simTrack " << t - simTracks.product()->begin()
          << " " << t->type()
          << " " << t->charge()
          << " " << t->vertIndex()
@@ -110,7 +110,7 @@ void PlotSimTracks::printSimTracks(const edm::Event& ev)
          << " " << t->momentum().x()
          << " " << t->momentum().y()
          << " " << t->momentum().z()
-         << endl;
+         << std::endl;
   } 
 
   }
@@ -127,14 +127,14 @@ void PlotSimTracks::printSimTracks(const edm::Event& ev)
                                                  simTrack!= simTracks->end();
                                                  simTrack++)
   {
-    vector<PSimHit> simHits;
+    std::vector<PSimHit> simHits;
 
     simHits = simTrack->trackPSimHit();
 
     // reorder with help of momentum
     sort(simHits.begin(), simHits.end(), sortByPabs());
 
-    for(vector<PSimHit>::const_iterator simHit = simHits.begin();
+    for(std::vector<PSimHit>::const_iterator simHit = simHits.begin();
                                         simHit!= simHits.end(); simHit++)
     {
       DetId id = DetId(simHit->detUnitId());
@@ -148,7 +148,7 @@ void PlotSimTracks::printSimTracks(const edm::Event& ev)
 
       // simHit
       file << ", Point[{" << p1.x() << "," << p1.y() << ",(" << p1.z() << "-zs)*mz}]"
-           << endl;
+           << std::endl;
       file << ", Text[StyleForm[\"s\", URL->\"SimHit | Ekin="
            << simTrack->energy() - simTrack->mass()
            << " GeV | parent: source="
@@ -156,7 +156,7 @@ void PlotSimTracks::printSimTracks(const edm::Event& ev)
            << " daughter=" << simTrack->parentVertex()->nDaughterTracks()
            << HitInfo::getInfo(*simHit) << "\"], {"
            << p1.x() << "," << p1.y() << ",(" << p1.z() << "-zs)*mz}, {1,1}]"
-           << endl;
+           << std::endl;
 
       // det
       double x = theTracker->idToDet(id)->surface().bounds().width() /2;
@@ -181,7 +181,7 @@ void PlotSimTracks::printSimTracks(const edm::Event& ev)
                        <<"{"<< p11.x()<<","<<p11.y()<<",("<<p11.z()<<"-zs)*mz}, "
                        <<"{"<< p10.x()<<","<<p10.y()<<",("<<p10.z()<<"-zs)*mz}, "
                        <<"{"<< p00.x()<<","<<p00.y()<<",("<<p00.z()<<"-zs)*mz}}]}]"
-        << endl;
+        << std::endl;
 
       if(simHit == simHits.begin()) // vertex to first point
       {
@@ -227,7 +227,7 @@ void PlotSimTracks::printSimTracks(const edm::Event& ev)
                        << ",(" << p.z() <<"-zs)*mz}"
                << ", {" << cell->getPosition().x() << ","
                         << cell->getPosition().y() << ",("
-                        << cell->getPosition().z() << "-zs)*mz}}]" << endl;
+                        << cell->getPosition().z() << "-zs)*mz}}]" << std::endl;
         }
 
         // ES
@@ -250,7 +250,7 @@ void PlotSimTracks::printSimTracks(const edm::Event& ev)
                        << ",(" << p.z() << "-zs)*mz}"
                << ", {" << cell->getPosition().x() << ","
                         << cell->getPosition().y() << ",("
-                        << cell->getPosition().z() << "-zs)*mz}}]" << endl;
+                        << cell->getPosition().z() << "-zs)*mz}}]" << std::endl;
         }
       }
       }

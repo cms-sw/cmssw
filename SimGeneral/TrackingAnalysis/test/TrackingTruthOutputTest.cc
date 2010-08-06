@@ -43,29 +43,29 @@ void TrackingTruthOutputTest::analyze(const edm::Event& event, const edm::EventS
 
   if ( conf_.getUntrackedParameter<bool>("dumpVertexes") )
   {
-    cout << endl << "Dumping merged vertices: " << endl;
+    std::cout << std::endl << "Dumping merged vertices: " << std::endl;
     for (TrackingVertexCollection::const_iterator iVertex = mergedVH->begin(); iVertex != mergedVH->end(); ++iVertex) 
     {
-      cout << endl << *iVertex;
-      cout << "Daughters of this vertex:" << endl;
+      std::cout << std::endl << *iVertex;
+      std::cout << "Daughters of this vertex:" << std::endl;
       for (tp_iterator iTrack = iVertex->daughterTracks_begin(); iTrack != iVertex->daughterTracks_end(); ++iTrack) 
-        cout << **iTrack;
+        std::cout << **iTrack;
     }
-    cout << endl;
+    std::cout << std::endl;
   }
 
   if ( conf_.getUntrackedParameter<bool>("dumpOnlyBremsstrahlung") )
   {
-     cout << endl << "Dumping only merged tracks: " << endl;
+     std::cout << std::endl << "Dumping only merged tracks: " << std::endl;
      for (TrackingParticleCollection::const_iterator iTrack = mergedPH->begin(); iTrack != mergedPH->end(); ++iTrack)
         if (iTrack->g4Tracks().size() > 1)
-            cout << *iTrack << endl;
+            std::cout << *iTrack << std::endl;
   }
   else
   {
-    cout << endl << "Dump of merged tracks: " << endl;
+    std::cout << std::endl << "Dump of merged tracks: " << std::endl;
     for (TrackingParticleCollection::const_iterator iTrack = mergedPH->begin(); iTrack != mergedPH->end(); ++iTrack)
-        cout << *iTrack << endl;
+        std::cout << *iTrack << std::endl;
   }
 }
 

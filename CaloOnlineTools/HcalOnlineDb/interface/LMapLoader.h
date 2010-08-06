@@ -16,7 +16,7 @@
 //
 // Original Author:  Aram Avetisyan avetisya@fnal.gov
 //         Created:  Tue Nov 14 15:05:33 CDT 2007
-// $Id: LMapLoader.h,v 1.1 2008/02/12 17:01:59 kukartse Exp $
+// $Id: LMapLoader.h,v 1.2 2009/04/14 22:53:05 kukartse Exp $
 //
 
 // system include files
@@ -41,8 +41,8 @@ class LMapLoader : public XMLDOMBlock
     int    phi;
     int    dphi;
     int    depth;
-    string det;
-    string rbx;
+    std::string det;
+    std::string rbx;
     int    wedge;
     int    rm;
     int    pixel;
@@ -52,19 +52,19 @@ class LMapLoader : public XMLDOMBlock
     int    fi_ch;
     int    crate;
     int    htr;
-    string fpga;
+    std::string fpga;
     int    htr_fi;
     int    dcc_sl;
     int    spigo;
     int    dcc;
     int    slb;
-    string slbin;
-    string slbin2;
-    string slnam;
+    std::string slbin;
+    std::string slbin2;
+    std::string slnam;
     int    rctcra;
     int    rctcar;
     int    rctcon;
-    string rctnam;
+    std::string rctnam;
     int    fedid;
   } LMapRowHBEF;
 
@@ -75,8 +75,8 @@ class LMapLoader : public XMLDOMBlock
     int    phiO;
     int    dphiO;
     int    depthO;
-    string detO;
-    string rbxO;
+    std::string detO;
+    std::string rbxO;
     int    sectorO;
     int    rmO;
     int    pixelO;
@@ -84,10 +84,10 @@ class LMapLoader : public XMLDOMBlock
     int    adcO;
     int    rm_fiO;
     int    fi_chO;
-    string let_codeO;
+    std::string let_codeO;
     int    crateO;
     int    htrO;
-    string fpgaO;
+    std::string fpgaO;
     int    htr_fiO;
     int    dcc_slO;
     int    spigoO;
@@ -96,7 +96,7 @@ class LMapLoader : public XMLDOMBlock
   } LMapRowHO;
 
   LMapLoader();
-  LMapLoader( string templateLoaderBase );
+  LMapLoader( std::string templateLoaderBase );
   virtual ~LMapLoader();
 
   // ---------- const member functions ---------------------
@@ -105,8 +105,8 @@ class LMapLoader : public XMLDOMBlock
   
   // ---------- member functions ---------------------------
   int createLMapHBEFXMLBase( void );
-  int addLMapHBEFDataset( LMapRowHBEF * row, string templateFileName );
-  int addLMapHODataset( LMapRowHO * row, string templateFileName );
+  int addLMapHBEFDataset( LMapRowHBEF * row, std::string templateFileName );
+  int addLMapHODataset( LMapRowHO * row, std::string templateFileName );
   
  private:
   LMapLoader(const LMapLoader&); // stop default

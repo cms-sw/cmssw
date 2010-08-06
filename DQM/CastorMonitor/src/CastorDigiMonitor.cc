@@ -36,7 +36,7 @@ void CastorDigiMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   CastorBaseMonitor::setup(ps,dbe);
   baseFolder_ = rootFolder_+"CastorDigiMonitor";
    
-  if(fVerbosity>0) cout << "CastorDigiMonitor::setup (start)" << endl;
+  if(fVerbosity>0) std::cout << "CastorDigiMonitor::setup (start)" << std::endl;
 
   doPerChannel_ = ps.getUntrackedParameter<bool>("DigiPerChannel", false);
   doFCpeds_ = ps.getUntrackedParameter<bool>("DigiInFC", true);
@@ -51,7 +51,7 @@ void CastorDigiMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     m_dbe->setCurrentFolder(baseFolder_);
   
     ////---- book the following histograms 
-    string type = "Castor All Digi Values";
+    std::string type = "Castor All Digi Values";
     castHists.ALLPEDS =  m_dbe->book1D(type,type,20,0,20);
     
     ////---- LEAVE IT OUT FOR THE MOMENT
@@ -68,15 +68,15 @@ void CastorDigiMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 }
 
   else{ 
-   if(fVerbosity>0) cout << "CastorDigiMonitor::setup - NO DQMStore service" << endl; 
+   if(fVerbosity>0) std::cout << "CastorDigiMonitor::setup - NO DQMStore service" << std::endl; 
   }
 
  
-  outputFile_ = ps.getUntrackedParameter<string>("PedestalFile", "");
-  if ( outputFile_.size() != 0 ) { if(fVerbosity>0) cout << "Castor Pedestal Calibrations will be saved to " << outputFile_.c_str() << endl;}
+  outputFile_ = ps.getUntrackedParameter<std::string>("PedestalFile", "");
+  if ( outputFile_.size() != 0 ) { if(fVerbosity>0) std::cout << "Castor Pedestal Calibrations will be saved to " << outputFile_.c_str() << std::endl;}
 
 
- if(fVerbosity>0) cout << "CastorDigiMonitor::setup (end)" << endl;
+ if(fVerbosity>0) std::cout << "CastorDigiMonitor::setup (end)" << std::endl;
 
   return;
 }
@@ -90,7 +90,7 @@ void CastorDigiMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 void CastorDigiMonitor::processEvent(const CastorDigiCollection& castorDigis, const CastorDbService& cond)
 {
   
- if(fVerbosity>0) cout << "==>CastorDigiMonitor::processEvent !!!"<< endl;
+ if(fVerbosity>0) std::cout << "==>CastorDigiMonitor::processEvent !!!"<< std::endl;
 
  
   meEVT_->Fill(ievt_);
@@ -99,7 +99,7 @@ void CastorDigiMonitor::processEvent(const CastorDigiCollection& castorDigis, co
 
 
   if(!m_dbe) { 
-    if(fVerbosity>0) cout<<"CastorDigiMonitor::processEvent DQMStore is not instantiated!!!"<<endl;  
+    if(fVerbosity>0) std::cout<<"CastorDigiMonitor::processEvent DQMStore is not instantiated!!!"<<std::endl;  
     return; 
   }
 
@@ -171,11 +171,11 @@ void CastorDigiMonitor::processEvent(const CastorDigiCollection& castorDigis, co
     }
   } 
    else {
-    if(fVerbosity>0) cout << "CastorPSMonitor::processEvent NO Castor Digis !!!" << endl;
+    if(fVerbosity>0) std::cout << "CastorPSMonitor::processEvent NO Castor Digis !!!" << std::endl;
   }
 
  if (showTiming) { 
-      cpu_timer.stop(); cout << " TIMER::CastorDigi -> " << cpu_timer.cpuTime() << endl; 
+      cpu_timer.stop(); std::cout << " TIMER::CastorDigi -> " << cpu_timer.cpuTime() << std::endl; 
       cpu_timer.reset(); cpu_timer.start();  
     }
 
@@ -192,10 +192,10 @@ void CastorDigiMonitor::done(){
 //======================= perChanHists  ============================//
 //==================================================================//
 ////---- do histograms per channel
-void CastorDigiMonitor::perChanHists( vector<HcalCastorDetId> detID, vector<int> capID, vector<float> peds,
-				          map<HcalCastorDetId, map<int, MonitorElement*> > &toolP,  
-				          ////// map<HcalCastorDetId, map<int, MonitorElement*> > &toolS, 
-                                          string baseFolder) 
+void CastorDigiMonitor::perChanHists( std::vector<HcalCastorDetId> detID, std::vector<int> capID, std::vector<float> peds,
+				          std::map<HcalCastorDetId, std::map<int, MonitorElement*> > &toolP,  
+				          ////// std::map<HcalCastorDetId, std::map<int, MonitorElement*> > &toolS, 
+                                          std::string baseFolder) 
  {
   
   if(m_dbe) m_dbe->setCurrentFolder(baseFolder);
@@ -211,22 +211,22 @@ void CastorDigiMonitor::perChanHists( vector<HcalCastorDetId> detID, vector<int>
     
     if(gotit){
       ////---- inner iteration
-      map<int, MonitorElement*> _mei = toolP[detid];
+      std::map<int, MonitorElement*> _mei = toolP[detid];
       if(_mei[capid]==NULL){
-	if(fVerbosity>0) cout<<"CastorDigiMonitor::perChanHists  This histo is NULL!!??"<< endl;
+	if(fVerbosity>0) std::cout<<"CastorDigiMonitor::perChanHists  This histo is NULL!!??"<< std::endl;
       }
       else _mei[capid]->Fill(pedVal);
       
       ///////// _mei = toolS[detid];
       ////////  if(_mei[capid]==NULL){
-      ////////	if(fVerbosity>0) cout<<"CastorPedestalAnalysis::perChanHists  This histo is NULL!!??\n"<<endl;
+      ////////	if(fVerbosity>0) std::cout<<"CastorPedestalAnalysis::perChanHists  This histo is NULL!!??\n"<<std::endl;
       ////////  }
       //////// else _mei[capid]->Fill(pedVal-calibs_.pedestal(capid));
     }
     else{
       if(m_dbe){
-	map<int,MonitorElement*> insertP; //-- Pedestal values in ADC
-         //////// map<int,MonitorElement*> insertS; // Pedestal values (substracted) 
+	std::map<int,MonitorElement*> insertP; //-- Pedestal values in ADC
+         //////// std::map<int,MonitorElement*> insertS; // Pedestal values (substracted) 
 	
         ////---- Loop over capID 
 	for(int i=0; i<4; i++){

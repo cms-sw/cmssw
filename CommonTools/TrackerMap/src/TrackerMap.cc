@@ -58,11 +58,11 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const edm::ESHandle<S
  init();
 // Now load fed cabling information
  if(enableFedProcessing){
- const vector<unsigned short> feds = tkFed->feds();
+ const std::vector<unsigned short> feds = tkFed->feds();
   std::cout<<"SiStripFedCabling has "<< feds.size()<<" active FEDS"<<std::endl;
     int num_board=0;
     int num_crate=0;
-  for(vector<unsigned short>::const_iterator ifed = feds.begin();ifed<feds.end();ifed++){
+  for(std::vector<unsigned short>::const_iterator ifed = feds.begin();ifed<feds.end();ifed++){
     const std::vector<FedChannelConnection> theconn = tkFed->connections( *ifed );
     int num_conn=0;
     for(std::vector<FedChannelConnection>::const_iterator iconn = theconn.begin();iconn<theconn.end();iconn++){
@@ -89,7 +89,7 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const edm::ESHandle<S
 	  apvpair->mod=imod;
           apvpair->mpos=iconn->apvPairNumber();
 	  apvMap[key] = apvpair;	
-          apvModuleMap.insert(make_pair(iconn->detId(),apvpair));
+          apvModuleMap.insert(std::make_pair(iconn->detId(),apvpair));
 	  std::stringstream s;
           iconn->print(s);  
           apvpair->text=s.str();
@@ -109,7 +109,7 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const edm::ESHandle<S
 
       int idmod=mod->idex;
        int nchan=0;
-       multimap<const int, TmApvPair*>::iterator pos;
+       std::multimap<const int, TmApvPair*>::iterator pos;
        for (pos = apvModuleMap.lower_bound(idmod);
          pos != apvModuleMap.upper_bound(idmod); ++pos) {
        TmApvPair* apvpair = pos->second;
@@ -134,7 +134,7 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const edm::ESHandle<S
    SiStripFecCabling* fecCabling_;
    fecCabling_ = new SiStripFecCabling( *tkFed );
    std::string Ccufilename=tkmapPset.getUntrackedParameter<std::string>("trackerdatPath","")+"cculist.txt";
-   ifstream Ccufile(edm::FileInPath(Ccufilename).fullPath().c_str(),ios::in);
+   ifstream Ccufile(edm::FileInPath(Ccufilename).fullPath().c_str(),std::ios::in);
    std::string dummys;
    while(!Ccufile.eof()) {
      Ccufile >> crate >> slot >> ring >> addr >> pos;
@@ -161,7 +161,7 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const edm::ESHandle<S
              nmod++;
              TmModule *imod1 = imoduleMap[imod->detId()];
              layer=imod1->layer;
-             fecModuleMap.insert(make_pair(ccu,imod1));
+             fecModuleMap.insert(std::make_pair(ccu,imod1));
              if(imod1!=0)imod1->CcuId=key;//imod1->ccuId=key+Crate*1000000
            }
            if(ccu==0)std::cout <<key<< " This ccu seems to have not been stored! " << std::endl; else{ ccu->nmod=nmod;ccu->layer=layer;}
@@ -173,8 +173,8 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const edm::ESHandle<S
    }
 
    std::map<int , TmCcu *>::iterator i_ccu;
-   multimap<TmCcu*, TmModule*>::iterator it;
-   pair<multimap<TmCcu*, TmModule*>::iterator,multimap<TmCcu*, TmModule*>::iterator> ret;
+   std::multimap<TmCcu*, TmModule*>::iterator it;
+   std::pair<std::multimap<TmCcu*, TmModule*>::iterator,std::multimap<TmCcu*, TmModule*>::iterator> ret;
    nccu=0;
    for( i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
      TmCcu *  ccu= i_ccu->second;
@@ -221,14 +221,14 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const edm::ESHandle<S
   std::string LVfilename=tkmapPset.getUntrackedParameter<std::string>("trackerdatPath","")+"psdcumap.dat";
   std::string HVfilename=tkmapPset.getUntrackedParameter<std::string>("trackerdatPath","")+"hvmap.dat";
   
-  ifstream LVfile(edm::FileInPath(LVfilename).fullPath().c_str(),ios::in);
+  ifstream LVfile(edm::FileInPath(LVfilename).fullPath().c_str(),std::ios::in);
   
   std::cout<<LVfilename<<" "<<HVfilename<<std::endl;
   
   
    if(enableHVProcessing){
 	   
-	    ifstream HVfile(edm::FileInPath(HVfilename).fullPath().c_str(),ios::in);
+	    ifstream HVfile(edm::FileInPath(HVfilename).fullPath().c_str(),std::ios::in);
 	    while(!HVfile.eof()) {
 	    HVfile >> modId2 >> channelstr1;
 	    std::string channelstr2 = channelstr1.substr(9,1);
@@ -272,7 +272,7 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const edm::ESHandle<S
         psu->psId=psIdinfo;
       }
    
-      psuModuleMap.insert(make_pair(psu,imod));
+      psuModuleMap.insert(std::make_pair(psu,imod));
       if(imod!=0)imod->PsuId=psIdinfo;imod->psuIdex=psu->idex;
        
       }
@@ -280,8 +280,8 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const edm::ESHandle<S
    
  //  int nmax=0; 
    std::map<int , TmPsu *>::iterator ipsu;
-   multimap<TmPsu*, TmModule*>::iterator it;
-   pair<multimap<TmPsu*, TmModule*>::iterator,multimap<TmPsu*, TmModule*>::iterator> ret;
+   std::multimap<TmPsu*, TmModule*>::iterator it;
+   std::pair<std::multimap<TmPsu*, TmModule*>::iterator,std::multimap<TmPsu*, TmModule*>::iterator> ret;
    npsu=0;
   
    for( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
@@ -484,7 +484,7 @@ std::map<int , TmPsu *>::iterator ipsu;
 gROOT->Reset();
 
 
-//for(vector<TColor*>::iterator col1=vc.begin();col1!=vc.end();col1++){
+//for(std::vector<TColor*>::iterator col1=vc.begin();col1!=vc.end();col1++){
 //     std::cout<<(*col1)<<std::endl;}
 }
 
@@ -492,7 +492,7 @@ gROOT->Reset();
 
 
 
-void TrackerMap::drawModule(TmModule * mod, int key,int nlay, bool print_total, ofstream * svgfile){
+void TrackerMap::drawModule(TmModule * mod, int key,int nlay, bool print_total, std::ofstream * svgfile){
   //int x,y;
   double phi,r,dx,dy, dy1;
   double xp[4],yp[4],xp1,yp1;
@@ -632,7 +632,7 @@ if(!print_total)mod->value=mod->value*mod->count;//restore mod->value
 void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,int width, int height){
   
   std::string filetype=s,outputfilename=s;
-  vector<TPolyLine*> vp;
+  std::vector<TPolyLine*> vp;
   TGaxis *axis = 0 ;
   size_t found=filetype.find_last_of(".");
   filetype=filetype.substr(found+1);
@@ -644,7 +644,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
   std::ostringstream outs;
   minvalue=minval; maxvalue=maxval;
   outs << outputfilename << ".coor";
-  savefile = new ofstream(outs.str().c_str(),ios::out);
+  savefile = new std::ofstream(outs.str().c_str(),std::ios::out);
  if(!print_total){
   for (int layer=1; layer < 44; layer++){
     for (int ring=firstRing[layer-1]; ring < ntotRing[layer-1]+firstRing[layer-1];ring++){
@@ -723,7 +723,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
   if (temporary_file){ // create root trackermap image
     int red,green,blue,npoints,colindex,ncolor;
     double x[4],y[4];
-    ifstream tempfile(tempfilename.c_str(),ios::in);
+    ifstream tempfile(tempfilename.c_str(),std::ios::in);
     TCanvas *MyC = new TCanvas("MyC", "TrackerMap",width,height);
     gPad->SetFillColor(38);
     
@@ -754,7 +754,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     }
     
     tempfile.clear();
-    tempfile.seekg(0,ios::beg);
+    tempfile.seekg(0,std::ios::beg);
     std::cout << "created palette with " << ncolor << " colors" << std::endl;
   
     while(!tempfile.eof()) {//create polylines
@@ -837,14 +837,14 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     MyC->Clear();
     delete MyC;
     if (printflag)delete axis;
-    for(vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
+    for(std::vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
          delete (*pos1);}
     
   }
 
   
 }
-void TrackerMap::drawApvPair(int crate, int numfed_incrate, bool print_total, TmApvPair* apvPair,ofstream * svgfile,bool useApvPairValue)
+void TrackerMap::drawApvPair(int crate, int numfed_incrate, bool print_total, TmApvPair* apvPair,std::ofstream * svgfile,bool useApvPairValue)
 {
   double xp[4],yp[4];
   int color;
@@ -928,7 +928,7 @@ void TrackerMap::drawApvPair(int crate, int numfed_incrate, bool print_total, Tm
   if(temporary_file)*svgfile << std::endl;
      else *svgfile <<"\" />" <<std::endl;
 }
-void TrackerMap::drawCcu(int crate, int numfec_incrate, bool print_total, TmCcu* ccu,ofstream * svgfile,bool useCcuValue)
+void TrackerMap::drawCcu(int crate, int numfec_incrate, bool print_total, TmCcu* ccu,std::ofstream * svgfile,bool useCcuValue)
 {
   double xp[4],yp[4];
   int color;
@@ -993,7 +993,7 @@ if(temporary_file)*svgfile << std::endl;
 else *svgfile <<"\" />" <<std::endl;
 
 }
-void TrackerMap::drawPsu(int rack,int numcrate_inrack , bool print_total, TmPsu* psu,ofstream * svgfile,bool usePsuValue)
+void TrackerMap::drawPsu(int rack,int numcrate_inrack , bool print_total, TmPsu* psu,std::ofstream * svgfile,bool usePsuValue)
 {
   double xp[4],yp[4];
   int color;
@@ -1059,7 +1059,7 @@ else *svgfile <<"\" />" <<std::endl;
 
 }
 
-void TrackerMap::drawHV2(int rack,int numcrate_inrack , bool print_total, TmPsu* psu,ofstream * svgfile,bool usePsuValue)
+void TrackerMap::drawHV2(int rack,int numcrate_inrack , bool print_total, TmPsu* psu,std::ofstream * svgfile,bool usePsuValue)
 {
   double xp[4],yp[4];
   int color;
@@ -1126,7 +1126,7 @@ else *svgfile <<"\" />" <<std::endl;
 }
 
 
-void TrackerMap::drawHV3(int rack,int numcrate_inrack , bool print_total, TmPsu* psu,ofstream * svgfile,bool usePsuValue)
+void TrackerMap::drawHV3(int rack,int numcrate_inrack , bool print_total, TmPsu* psu,std::ofstream * svgfile,bool usePsuValue)
 {
   double xp[4],yp[4];
   int color;
@@ -1194,7 +1194,7 @@ else *svgfile <<"\" />" <<std::endl;
 void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxval,std::string s,int width, int height){
  if(enableFecProcessing){
   std::string filetype=s,outputfilename=s;
-  vector<TPolyLine*> vp;
+  std::vector<TPolyLine*> vp;
   size_t found=filetype.find_last_of(".");
   filetype=filetype.substr(found+1);
   found=outputfilename.find_last_of(".");
@@ -1204,10 +1204,10 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
   std::ostringstream outs;
   minvalue=minval; maxvalue=maxval;
   outs << outputfilename << ".coor";
-  if(temporary_file)savefile = new ofstream(outs.str().c_str(),ios::out);
+  if(temporary_file)savefile = new std::ofstream(outs.str().c_str(),std::ios::out);
    std::map<int , TmCcu *>::iterator i_ccu;
-   multimap<TmCcu*, TmModule*>::iterator it;
-   pair<multimap<TmCcu*, TmModule*>::iterator,multimap<TmCcu*, TmModule*>::iterator> ret;
+   std::multimap<TmCcu*, TmModule*>::iterator it;
+   std::pair<std::multimap<TmCcu*, TmModule*>::iterator,std::multimap<TmCcu*, TmModule*>::iterator> ret;
   //Decide if we must use Module or Ccu value
   bool useCcuValue=false;
   
@@ -1281,7 +1281,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
       saveAsSingleLayer=false;
       std::ostringstream outs;
     outs << outputfilename<<".svg";
-    savefile = new ofstream(outs.str().c_str(),ios::out);
+    savefile = new std::ofstream(outs.str().c_str(),std::ios::out);
   *savefile << "<?xml version=\"1.0\"  standalone=\"no\" ?>"<<std::endl;
   *savefile << "<svg  xmlns=\"http://www.w3.org/2000/svg\""<<std::endl;
   *savefile << "xmlns:svg=\"http://www.w3.org/2000/svg\" "<<std::endl;
@@ -1295,7 +1295,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
       saveAsSingleLayer=true;
       std::ostringstream outs;
     outs << outputfilename<<"feccrate" <<crate<< ".xml";
-    savefile = new ofstream(outs.str().c_str(),ios::out);
+    savefile = new std::ofstream(outs.str().c_str(),std::ios::out);
     *savefile << "<?xml version=\"1.0\" standalone=\"no\"?>"<<std::endl;
     *savefile << "<svg xmlns=\"http://www.w3.org/2000/svg\""<<std::endl;
     *savefile << "xmlns:svg=\"http://www.w3.org/2000/svg\""<<std::endl;
@@ -1350,7 +1350,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
   std::string tempfilename = outputfilename + ".coor";
     int red,green,blue,npoints,colindex,ncolor;
     double x[4],y[4];
-    ifstream tempfile(tempfilename.c_str(),ios::in);
+    ifstream tempfile(tempfilename.c_str(),std::ios::in);
     TCanvas *MyC = new TCanvas("MyC", "TrackerMap",width,height);
     gPad->SetFillColor(38);
 
@@ -1386,7 +1386,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
       gStyle->SetPalette(ncolor,colors);
     }
     tempfile.clear();
-    tempfile.seekg(0,ios::beg);
+    tempfile.seekg(0,std::ios::beg);
     std::cout << "created palette with " << ncolor << " colors" << std::endl;
     while(!tempfile.eof()) {//create polylines
       tempfile  >> red >> green  >> blue >> npoints;
@@ -1423,7 +1423,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
     system(command1);
     MyC->Clear();
     delete MyC;
-    for(vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
+    for(std::vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
          delete (*pos1);}
    
 
@@ -1436,7 +1436,7 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
   
  if(enableHVProcessing){
   std::string filetype=s,outputfilename=s;
-  vector<TPolyLine*> vp;
+  std::vector<TPolyLine*> vp;
   
   size_t found=filetype.find_last_of(".");
   filetype=filetype.substr(found+1);
@@ -1451,11 +1451,11 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
   std::ostringstream outs;
   minvalue=minval; maxvalue=maxval;
   outs << outputfilename << ".coor";
-  if(temporary_file)savefile = new ofstream(outs.str().c_str(),ios::out);
+  if(temporary_file)savefile = new std::ofstream(outs.str().c_str(),std::ios::out);
   
   std::map<int , TmPsu *>::iterator ipsu;
-  multimap<TmPsu*, TmModule*>::iterator it;
-  pair<multimap<TmPsu*, TmModule*>::iterator,multimap<TmPsu*, TmModule*>::iterator> ret;
+  std::multimap<TmPsu*, TmModule*>::iterator it;
+  std::pair<std::multimap<TmPsu*, TmModule*>::iterator,std::multimap<TmPsu*, TmModule*>::iterator> ret;
  
   
   bool usePsuValue=false;
@@ -1530,8 +1530,8 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
     for( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
        TmPsu *  psu= ipsu->second;
        if(psu!=0) {
-	      if (minvalue > psu->valueHV2 || minvalue > psu->valueHV3)minvalue=min(psu->valueHV2,psu->valueHV3);
-	      if (maxvalue < psu->valueHV2 || maxvalue < psu->valueHV3)maxvalue=max(psu->valueHV2,psu->valueHV3);
+	      if (minvalue > psu->valueHV2 || minvalue > psu->valueHV3)minvalue=std::min(psu->valueHV2,psu->valueHV3);
+	      if (maxvalue < psu->valueHV2 || maxvalue < psu->valueHV3)maxvalue=std::max(psu->valueHV2,psu->valueHV3);
 	      
 	
 	}
@@ -1542,7 +1542,7 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
       saveAsSingleLayer=false;
       std::ostringstream outs;
     outs << outputfilename<<".svg";
-    savefile = new ofstream(outs.str().c_str(),ios::out);
+    savefile = new std::ofstream(outs.str().c_str(),std::ios::out);
   *savefile << "<?xml version=\"1.0\"  standalone=\"no\" ?>"<<std::endl;
   *savefile << "<svg  xmlns=\"http://www.w3.org/2000/svg\""<<std::endl;
   *savefile << "xmlns:svg=\"http://www.w3.org/2000/svg\" "<<std::endl;
@@ -1557,7 +1557,7 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
       saveAsSingleLayer=true;
       std::ostringstream outs;
     outs << outputfilename<<"HVrack" <<irack<< ".xml";
-    savefile = new ofstream(outs.str().c_str(),ios::out);
+    savefile = new std::ofstream(outs.str().c_str(),std::ios::out);
     *savefile << "<?xml version=\"1.0\" standalone=\"no\"?>"<<std::endl;
     *savefile << "<svg xmlns=\"http://www.w3.org/2000/svg\""<<std::endl;
     *savefile << "xmlns:svg=\"http://www.w3.org/2000/svg\""<<std::endl;
@@ -1615,7 +1615,7 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
   std::string tempfilename = outputfilename + ".coor";
     int red,green,blue,npoints,colindex,ncolor;
     double x[4],y[4];
-    ifstream tempfile(tempfilename.c_str(),ios::in);
+    ifstream tempfile(tempfilename.c_str(),std::ios::in);
     TCanvas *MyC = new TCanvas("MyC", "TrackerMap",width,height);
     gPad->SetFillColor(38);
     
@@ -1651,7 +1651,7 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
       gStyle->SetPalette(ncolor,colors);
     }
     tempfile.clear();
-    tempfile.seekg(0,ios::beg);
+    tempfile.seekg(0,std::ios::beg);
     std::cout << "created palette with " << ncolor << " colors" << std::endl;
     while(!tempfile.eof()) {//create polylines
       tempfile  >> red >> green  >> blue >> npoints; 
@@ -1688,7 +1688,7 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
     system(command1);
     MyC->Clear();
     delete MyC;
-    for(vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
+    for(std::vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
          delete (*pos1);}
     
 	 
@@ -1702,7 +1702,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
  if(enableLVProcessing){
   
   std::string filetype=s,outputfilename=s;
-  vector<TPolyLine*> vp;
+  std::vector<TPolyLine*> vp;
   
   size_t found=filetype.find_last_of(".");
   filetype=filetype.substr(found+1);
@@ -1718,11 +1718,11 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
   std::ostringstream outs;
   minvalue=minval; maxvalue=maxval;
   outs << outputfilename << ".coor";
-  if(temporary_file)savefile = new ofstream(outs.str().c_str(),ios::out);
+  if(temporary_file)savefile = new std::ofstream(outs.str().c_str(),std::ios::out);
   
   std::map<int , TmPsu *>::iterator ipsu;
-  multimap<TmPsu*, TmModule*>::iterator it;
-  pair<multimap<TmPsu*, TmModule*>::iterator,multimap<TmPsu*, TmModule*>::iterator> ret;
+  std::multimap<TmPsu*, TmModule*>::iterator it;
+  std::pair<std::multimap<TmPsu*, TmModule*>::iterator,std::multimap<TmPsu*, TmModule*>::iterator> ret;
  
   //Decide if we must use Module or Power Psupply value
   bool usePsuValue=false;
@@ -1794,7 +1794,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
       saveAsSingleLayer=false;
       std::ostringstream outs;
     outs << outputfilename<<".svg";
-    savefile = new ofstream(outs.str().c_str(),ios::out);
+    savefile = new std::ofstream(outs.str().c_str(),std::ios::out);
   *savefile << "<?xml version=\"1.0\"  standalone=\"no\" ?>"<<std::endl;
   *savefile << "<svg  xmlns=\"http://www.w3.org/2000/svg\""<<std::endl;
   *savefile << "xmlns:svg=\"http://www.w3.org/2000/svg\" "<<std::endl;
@@ -1808,7 +1808,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
     if(filetype=="xml"){
       saveAsSingleLayer=true;
     outs << outputfilename<<"psurack" <<irack<< ".xml";
-    savefile = new ofstream(outs.str().c_str(),ios::out);
+    savefile = new std::ofstream(outs.str().c_str(),std::ios::out);
     *savefile << "<?xml version=\"1.0\" standalone=\"no\"?>"<<std::endl;
     *savefile << "<svg xmlns=\"http://www.w3.org/2000/svg\""<<std::endl;
     *savefile << "xmlns:svg=\"http://www.w3.org/2000/svg\""<<std::endl;
@@ -1866,7 +1866,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
   std::string tempfilename = outputfilename + ".coor";
     int red,green,blue,npoints,colindex,ncolor;
     double x[4],y[4];
-    ifstream tempfile(tempfilename.c_str(),ios::in);
+    ifstream tempfile(tempfilename.c_str(),std::ios::in);
     TCanvas *MyC = new TCanvas("MyC", "TrackerMap",width,height);
     gPad->SetFillColor(38);
     
@@ -1902,7 +1902,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
       gStyle->SetPalette(ncolor,colors);
     }
     tempfile.clear();
-    tempfile.seekg(0,ios::beg);
+    tempfile.seekg(0,std::ios::beg);
     std::cout << "created palette with " << ncolor << " colors" << std::endl;
     while(!tempfile.eof()) {//create polylines
       tempfile  >> red >> green  >> blue >> npoints; 
@@ -1939,7 +1939,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
     system(command1);
     MyC->Clear();
     delete MyC;
-    for(vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
+    for(std::vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
          delete (*pos1);}
    
 }//if(temporary_file)
@@ -1949,7 +1949,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
 void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxval,std::string s,int width, int height){
  if(enableFedProcessing){
   std::string filetype=s,outputfilename=s;
-  vector<TPolyLine*> vp;
+  std::vector<TPolyLine*> vp;
   
   size_t found=filetype.find_last_of(".");
   filetype=filetype.substr(found+1);
@@ -1961,7 +1961,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
   std::ostringstream outs;
   minvalue=minval; maxvalue=maxval;
   outs << outputfilename << ".coor";
-  if(temporary_file)savefile = new ofstream(outs.str().c_str(),ios::out);
+  if(temporary_file)savefile = new std::ofstream(outs.str().c_str(),std::ios::out);
   std::map<int , TmApvPair *>::iterator i_apv;
   std::map<int , int>::iterator i_fed;
   //Decide if we must use Module or ApvPair value
@@ -2011,7 +2011,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
       saveAsSingleLayer=false;
       std::ostringstream outs;
     outs << outputfilename<<".svg";
-    savefile = new ofstream(outs.str().c_str(),ios::out);
+    savefile = new std::ofstream(outs.str().c_str(),std::ios::out);
   *savefile << "<?xml version=\"1.0\"  standalone=\"no\" ?>"<<std::endl;
   *savefile << "<svg  xmlns=\"http://www.w3.org/2000/svg\""<<std::endl;
   *savefile << "xmlns:svg=\"http://www.w3.org/2000/svg\" "<<std::endl;
@@ -2025,7 +2025,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
       saveAsSingleLayer=true;
       std::ostringstream outs;
     outs << outputfilename<<"crate" <<crate<< ".xml";
-    savefile = new ofstream(outs.str().c_str(),ios::out);
+    savefile = new std::ofstream(outs.str().c_str(),std::ios::out);
     *savefile << "<?xml version=\"1.0\" standalone=\"no\"?>"<<std::endl;
     *savefile << "<svg xmlns=\"http://www.w3.org/2000/svg\""<<std::endl;
     *savefile << "xmlns:svg=\"http://www.w3.org/2000/svg\""<<std::endl;
@@ -2090,7 +2090,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
   std::string tempfilename = outputfilename + ".coor";
     int red,green,blue,npoints,colindex,ncolor;
     double x[4],y[4];
-    ifstream tempfile(tempfilename.c_str(),ios::in);
+    ifstream tempfile(tempfilename.c_str(),std::ios::in);
     TCanvas *MyC = new TCanvas("MyC", "TrackerMap",width,height);
     gPad->SetFillColor(38);
     
@@ -2126,7 +2126,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
       gStyle->SetPalette(ncolor,colors);
     }
     tempfile.clear();
-    tempfile.seekg(0,ios::beg);
+    tempfile.seekg(0,std::ios::beg);
     std::cout << "created palette with " << ncolor << " colors" << std::endl;
     while(!tempfile.eof()) {//create polylines
       tempfile  >> red >> green  >> blue >> npoints; 
@@ -2163,7 +2163,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
     system(command1);
     MyC->Clear();
     delete MyC;
-    for(vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
+    for(std::vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
          delete (*pos1);}
    
   
@@ -2172,7 +2172,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
 }
 
 void TrackerMap::load(std::string inputfilename){
-  inputfile = new ifstream(inputfilename.c_str(),ios::in);
+  inputfile = new ifstream(inputfilename.c_str(),std::ios::in);
   std::string line,value;
   int ipos,ipos1,ipos2,id=0,val=0;
   int nline=0;
@@ -2211,8 +2211,8 @@ void TrackerMap::print(bool print_total, float minval, float maxval, std::string
   std::ostringstream outs;
   minvalue=minval; maxvalue=maxval;
   outs << outputfilename << ".xml";
-  svgfile = new ofstream(outs.str().c_str(),ios::out);
-  jsfile = new ifstream(edm::FileInPath(jsfilename).fullPath().c_str(),ios::in);
+  svgfile = new std::ofstream(outs.str().c_str(),std::ios::out);
+  jsfile = new ifstream(edm::FileInPath(jsfilename).fullPath().c_str(),std::ios::in);
 
   //copy javascript interface from trackermap.txt file
   std::string line;
@@ -2273,7 +2273,7 @@ void TrackerMap::print(bool print_total, float minval, float maxval, std::string
 
 }
 
-void TrackerMap::drawPalette(ofstream * svgfile){
+void TrackerMap::drawPalette(std::ofstream * svgfile){
   int color,red, green, blue;
   float val=minvalue;
   int paletteLength = 250;
@@ -2320,7 +2320,7 @@ void TrackerMap::fillc_fed_channel(int fedId,int fedCh, int red, int green, int 
 
 void TrackerMap::fill_fed_channel(int idmod, float qty  )
 {
-  multimap<const int, TmApvPair*>::iterator pos;
+  std::multimap<const int, TmApvPair*>::iterator pos;
   for (pos = apvModuleMap.lower_bound(idmod);
          pos != apvModuleMap.upper_bound(idmod); ++pos) {
   TmApvPair* apvpair = pos->second;
@@ -2584,7 +2584,7 @@ void TrackerMap::build(){
   float posx, posy, posz, length, width, thickness, widthAtHalfLength;
   int iModule=0,old_layer=0, ntotMod =0;
   std::string name,dummys;
-  ifstream infile(edm::FileInPath(infilename).fullPath().c_str(),ios::in);
+  ifstream infile(edm::FileInPath(infilename).fullPath().c_str(),std::ios::in);
   while(!infile.eof()) {
     infile >> nmods >> pix_sil >> fow_bar >> layer >> ring >> nmod >> posx >> posy
 	   >> posz>> length >> width >> thickness
@@ -2651,7 +2651,7 @@ void TrackerMap::printonline(){
   std::string outputfilename="dqmtmap";
   ifilename=findfile("viewerHeader.xhtml");
   ofname << outputfilename << "viewer.html";
-  ofilename = new ofstream(ofname.str().c_str(),ios::out);
+  ofilename = new std::ofstream(ofname.str().c_str(),std::ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << std::endl; }
 *ofilename <<"    var tmapname=\"" <<outputfilename << "\""<<std::endl;
 *ofilename <<"    var tmaptitle=\"" <<title << "\""<<std::endl;
@@ -2675,7 +2675,7 @@ void TrackerMap::printonline(){
 
   ifilename=findfile("jqviewer.js");
   ofname << "jqviewer.js";
-  ofilename = new ofstream(ofname.str().c_str(),ios::out);
+  ofilename = new std::ofstream(ofname.str().c_str(),std::ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << std::endl; }
   ofname.str("");
    ofilename->close();delete ofilename;
@@ -2683,7 +2683,7 @@ void TrackerMap::printonline(){
 
   ifilename=findfile("crate.js");
   ofname <<  "crate.js";
-  ofilename = new ofstream(ofname.str().c_str(),ios::out);
+  ofilename = new std::ofstream(ofname.str().c_str(),std::ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << std::endl; }
   ofname.str("");
    ofilename->close();delete ofilename;
@@ -2691,7 +2691,7 @@ void TrackerMap::printonline(){
 
   ifilename=findfile("feccrate.js");
   ofname <<  "feccrate.js";
-  ofilename = new ofstream(ofname.str().c_str(),ios::out);
+  ofilename = new std::ofstream(ofname.str().c_str(),std::ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << std::endl; }
   ofname.str("");
    ofilename->close();delete ofilename;
@@ -2699,7 +2699,7 @@ void TrackerMap::printonline(){
   
   ifilename=findfile("layer.js");
   ofname <<  "layer.js";
-  ofilename = new ofstream(ofname.str().c_str(),ios::out);
+  ofilename = new std::ofstream(ofname.str().c_str(),std::ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << std::endl; }
    ofname.str("");
    ofilename->close();delete ofilename;
@@ -2707,7 +2707,7 @@ void TrackerMap::printonline(){
   
   ifilename=findfile("rack.js");
   ofname <<  "rack.js";
-  ofilename = new ofstream(ofname.str().c_str(),ios::out);
+  ofilename = new std::ofstream(ofname.str().c_str(),std::ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << std::endl; }
    ofname.str("");
    ofilename->close();delete ofilename;
@@ -2716,7 +2716,7 @@ void TrackerMap::printonline(){
   
   ifilename=findfile("rackhv.js");
   ofname <<  "rackhv.js";
-  ofilename = new ofstream(ofname.str().c_str(),ios::out);
+  ofilename = new std::ofstream(ofname.str().c_str(),std::ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << std::endl; }
    ofname.str("");
    ofilename->close();delete ofilename;
@@ -2732,11 +2732,11 @@ temporary_file=false;
 printlayers(true,gminvalue,gmaxvalue,outputfilename);
 
 //Now print a text file for each layer 
-  ofstream * txtfile;
+  std::ofstream * txtfile;
 for (int layer=1; layer < 44; layer++){
   std::ostringstream outs;
     outs << outputfilename <<"layer"<<layer<< ".html";
-    txtfile = new ofstream(outs.str().c_str(),ios::out);
+    txtfile = new std::ofstream(outs.str().c_str(),std::ios::out);
     *txtfile << "<html><head></head> <body>" << std::endl;
     for (int ring=firstRing[layer-1]; ring < ntotRing[layer-1]+firstRing[layer-1];ring++){
       for (int module=1;module<200;module++) {
@@ -2746,7 +2746,7 @@ for (int layer=1; layer < 44; layer++){
             int idmod=mod->idex;
             int nchan=0;
             *txtfile  << "<a name="<<idmod<<"><pre>"<<std::endl;
-             multimap<const int, TmApvPair*>::iterator pos;
+             std::multimap<const int, TmApvPair*>::iterator pos;
              for (pos = apvModuleMap.lower_bound(idmod);
                 pos != apvModuleMap.upper_bound(idmod); ++pos) {
                TmApvPair* apvpair = pos->second;
@@ -2770,11 +2770,11 @@ save_as_fedtrackermap(true,gminvalue,gmaxvalue,outs1.str(),6000,3200);
 save_as_fedtrackermap(true,gminvalue,gmaxvalue,outs2.str(),3000,1600);
 //And a text file for each crate 
   std::map<int , int>::iterator i_fed;
-  ofstream * txtfile;
+  std::ofstream * txtfile;
   for (int crate=1; crate < (ncrates+1); crate++){
     std::ostringstream outs;
     outs << outputfilename <<"crate"<<crate<< ".html";
-    txtfile = new ofstream(outs.str().c_str(),ios::out);
+    txtfile = new std::ofstream(outs.str().c_str(),std::ios::out);
     *txtfile << "<html><head></head> <body>" << std::endl;
     for (i_fed=fedMap.begin();i_fed != fedMap.end(); i_fed++){
       if(i_fed->second == crate){
@@ -2804,14 +2804,14 @@ save_as_fectrackermap(true,gminvalue,gmaxvalue,outs1.str(),6000,3200);
     outs2 << outputfilename<<".xml";
 save_as_fectrackermap(true,gminvalue,gmaxvalue,outs2.str(),3000,1600);
 //And a text file for each crate
-  ofstream * txtfile;
+  std::ofstream * txtfile;
   std::map<int , TmCcu *>::iterator i_ccu;
   std::multimap<TmCcu*, TmModule*>::iterator it;
-  std::pair<std::multimap<TmCcu*, TmModule*>::iterator,multimap<TmCcu*, TmModule*>::iterator> ret;
+  std::pair<std::multimap<TmCcu*, TmModule*>::iterator,std::multimap<TmCcu*, TmModule*>::iterator> ret;
   for (int crate=1; crate < (nfeccrates+1); crate++){
     std::ostringstream outs;
     outs << outputfilename <<"feccrate"<<crate<< ".html";
-    txtfile = new ofstream(outs.str().c_str(),ios::out);
+    txtfile = new std::ofstream(outs.str().c_str(),std::ios::out);
     *txtfile << "<html><head></head> <body>" << std::endl;
     for( i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
      TmCcu *  ccu= i_ccu->second;
@@ -2846,15 +2846,15 @@ save_as_psutrackermap(true,gminvalue,gmaxvalue,outs3.str(),6000,3200);
 save_as_psutrackermap(true,gminvalue,gmaxvalue,outs4.str(),3000,1600);
 //And a text file for each rack 
   
-  ofstream * txtfile;
+  std::ofstream * txtfile;
   std::map<int , TmPsu *>::iterator ipsu;
-  multimap<TmPsu*, TmModule*>::iterator it;
-  pair<multimap<TmPsu*, TmModule*>::iterator,multimap<TmPsu*, TmModule*>::iterator> ret;
+  std::multimap<TmPsu*, TmModule*>::iterator it;
+  std::pair<std::multimap<TmPsu*, TmModule*>::iterator,std::multimap<TmPsu*, TmModule*>::iterator> ret;
   for (int rack=1; rack < (npsuracks+1); rack++){
     std::ostringstream outs;
     
     outs << outputfilename <<"psurack"<<rack<< ".html";
-    txtfile = new ofstream(outs.str().c_str(),ios::out);
+    txtfile = new std::ofstream(outs.str().c_str(),std::ios::out);
     *txtfile << "<html><head></head> <body>" << std::endl;
      for ( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
       TmPsu *  psu= ipsu->second;
@@ -2894,12 +2894,12 @@ save_as_HVtrackermap(true,gminvalue,gmaxvalue,outs6.str(),3000,1600);
  std::ofstream * txtfile;
   std::map<int , TmPsu *>::iterator ipsu;
   std::multimap<TmPsu*, TmModule*>::iterator it;
-  std::pair<std::multimap<TmPsu*, TmModule*>::iterator,multimap<TmPsu*, TmModule*>::iterator> ret;
+  std::pair<std::multimap<TmPsu*, TmModule*>::iterator,std::multimap<TmPsu*, TmModule*>::iterator> ret;
   for (int rack=1; rack < (npsuracks+1); rack++){
     std::ostringstream outs;
     
     outs << outputfilename <<"HVrack"<<rack<< ".html";
-    txtfile = new ofstream(outs.str().c_str(),ios::out);
+    txtfile = new std::ofstream(outs.str().c_str(),std::ios::out);
     *txtfile << "<html><head></head> <body>" << std::endl;
      for ( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
       TmPsu *  psu= ipsu->second;
@@ -2947,12 +2947,12 @@ void TrackerMap::printall(bool print_total, float minval, float maxval, std::str
   std::ifstream * ifilename;
   std::ostringstream ofname;
   std::string ifname;
-  string line;
+  std::string line;
   std::string command;
 
   ifilename=findfile("viewerHeader.xhtml");
   ofname << outputfilename << "viewer.html";
-  ofilename = new ofstream(ofname.str().c_str(),ios::out);
+  ofilename = new std::ofstream(ofname.str().c_str(),std::ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << std::endl; }
 *ofilename <<"    var tmapname=\"" <<outputfilename << "\""<<std::endl;
 *ofilename <<"    var tmaptitle=\"" <<title << "\""<<std::endl;
@@ -2974,7 +2974,7 @@ void TrackerMap::printall(bool print_total, float minval, float maxval, std::str
   
 ifilename=findfile("jqviewer.js");
   ofname << "jqviewer.js";
-  ofilename = new ofstream(ofname.str().c_str(),ios::out);
+  ofilename = new std::ofstream(ofname.str().c_str(),std::ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << std::endl; }
    ofilename->close();delete ofilename;
    ifilename->close();delete ifilename;
@@ -2982,7 +2982,7 @@ ifilename=findfile("jqviewer.js");
   ofname.str("");
   ifilename=findfile("crate.js");
   ofname <<  "crate.js";
-  ofilename = new ofstream(ofname.str().c_str(),ios::out);
+  ofilename = new std::ofstream(ofname.str().c_str(),std::ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << std::endl; }
    ofilename->close();delete ofilename;
    ifilename->close();delete ifilename;
@@ -2990,7 +2990,7 @@ ifilename=findfile("jqviewer.js");
   ofname.str("");
   ifilename=findfile("feccrate.js");
   ofname <<  "feccrate.js";
-  ofilename = new ofstream(ofname.str().c_str(),ios::out);
+  ofilename = new std::ofstream(ofname.str().c_str(),std::ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << std::endl; }
    ofilename->close();delete ofilename;
    ifilename->close();delete ifilename;
@@ -2998,7 +2998,7 @@ ifilename=findfile("jqviewer.js");
   ofname.str("");
   ifilename=findfile("rack.js");
   ofname <<  "rack.js";
-  ofilename = new ofstream(ofname.str().c_str(),ios::out);
+  ofilename = new std::ofstream(ofname.str().c_str(),std::ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << std::endl; }
    ofilename->close();delete ofilename;
    ifilename->close();delete ifilename;
@@ -3006,7 +3006,7 @@ ifilename=findfile("jqviewer.js");
    ofname.str("");
   ifilename=findfile("rackhv.js");
   ofname <<  "rackhv.js";
-  ofilename = new ofstream(ofname.str().c_str(),ios::out);
+  ofilename = new std::ofstream(ofname.str().c_str(),std::ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << std::endl; }
    ofilename->close();delete ofilename;
    ifilename->close();delete ifilename;
@@ -3014,7 +3014,7 @@ ifilename=findfile("jqviewer.js");
    ofname.str("");
   ifilename=findfile("layer.js");
   ofname <<  "layer.js";
-  ofilename = new ofstream(ofname.str().c_str(),ios::out);
+  ofilename = new std::ofstream(ofname.str().c_str(),std::ios::out);
   while (getline( *ifilename, line )) { *ofilename << line << std::endl; }
    ofilename->close();delete ofilename;
    ifilename->close();delete ifilename;
@@ -3034,11 +3034,11 @@ temporary_file=false;
 printlayers(true,minval,maxval,outputfilename);
 
 //Now print a text file for each layer 
-  ofstream * txtfile;
+  std::ofstream * txtfile;
 for (int layer=1; layer < 44; layer++){
   std::ostringstream outs;
     outs << outputfilename <<"layer"<<layer<< ".html";
-    txtfile = new ofstream(outs.str().c_str(),ios::out);
+    txtfile = new std::ofstream(outs.str().c_str(),std::ios::out);
     *txtfile << "<html><head></head> <body>" << std::endl;
     for (int ring=firstRing[layer-1]; ring < ntotRing[layer-1]+firstRing[layer-1];ring++){
       for (int module=1;module<200;module++) {
@@ -3048,7 +3048,7 @@ for (int layer=1; layer < 44; layer++){
             int idmod=mod->idex;
             int nchan=0;
             *txtfile  << "<a name="<<idmod<<"><pre>"<<std::endl;
-             multimap<const int, TmApvPair*>::iterator pos;
+             std::multimap<const int, TmApvPair*>::iterator pos;
              for (pos = apvModuleMap.lower_bound(idmod);
                 pos != apvModuleMap.upper_bound(idmod); ++pos) {
                TmApvPair* apvpair = pos->second;
@@ -3077,7 +3077,7 @@ save_as_fedtrackermap(true,0.,0.,outs2.str(),3000,1600);
   for (int crate=1; crate < (ncrates+1); crate++){
     std::ostringstream outs;
     outs << outputfilename <<"crate"<<crate<< ".html";
-    txtfile = new ofstream(outs.str().c_str(),ios::out);
+    txtfile = new std::ofstream(outs.str().c_str(),std::ios::out);
     *txtfile << "<html><head></head> <body>" << std::endl;
     for (i_fed=fedMap.begin();i_fed != fedMap.end(); i_fed++){
       if(i_fed->second == crate){
@@ -3107,14 +3107,14 @@ save_as_fectrackermap(true,0.,0.,outs1.str(),6000,3200);
     outs2 << outputfilename<<".xml";
 save_as_fectrackermap(true,0.,0.,outs2.str(),3000,1600);
 //And a text file for each crate
-  ofstream * txtfile;
+  std::ofstream * txtfile;
   std::map<int , TmCcu *>::iterator i_ccu;
   std::multimap<TmCcu*, TmModule*>::iterator it;
-  std::pair<std::multimap<TmCcu*, TmModule*>::iterator,multimap<TmCcu*, TmModule*>::iterator> ret;
+  std::pair<std::multimap<TmCcu*, TmModule*>::iterator,std::multimap<TmCcu*, TmModule*>::iterator> ret;
   for (int crate=1; crate < (nfeccrates+1); crate++){
     std::ostringstream outs;
     outs << outputfilename <<"feccrate"<<crate<< ".html";
-    txtfile = new ofstream(outs.str().c_str(),ios::out);
+    txtfile = new std::ofstream(outs.str().c_str(),std::ios::out);
     *txtfile << "<html><head></head> <body>" << std::endl;
     for( i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
      TmCcu *  ccu= i_ccu->second;
@@ -3149,15 +3149,15 @@ save_as_psutrackermap(true,0.,0.,outs3.str(),6000,3200);
 save_as_psutrackermap(true,0.,0.,outs4.str(),3000,1600);
 //And a text file for each rack 
   
-  ofstream * txtfile;
+  std::ofstream * txtfile;
   std::map<int , TmPsu *>::iterator ipsu;
-  multimap<TmPsu*, TmModule*>::iterator it;
-  pair<multimap<TmPsu*, TmModule*>::iterator,multimap<TmPsu*, TmModule*>::iterator> ret;
+  std::multimap<TmPsu*, TmModule*>::iterator it;
+  std::pair<std::multimap<TmPsu*, TmModule*>::iterator,std::multimap<TmPsu*, TmModule*>::iterator> ret;
   for (int rack=1; rack < (npsuracks+1); rack++){
     std::ostringstream outs;
     
     outs << outputfilename <<"psurack"<<rack<< ".html";
-    txtfile = new ofstream(outs.str().c_str(),ios::out);
+    txtfile = new std::ofstream(outs.str().c_str(),std::ios::out);
     *txtfile << "<html><head></head> <body>" << std::endl;
      for ( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
       TmPsu *  psu= ipsu->second;
@@ -3194,15 +3194,15 @@ save_as_HVtrackermap(true,0.,0.,outs5.str(),6000,3200);
 save_as_HVtrackermap(true,0.,0.,outs6.str(),3000,1600);
 //And a text file for each rack 
 
-  ofstream * txtfile;
+  std::ofstream * txtfile;
   std::map<int , TmPsu *>::iterator ipsu;
   std::multimap<TmPsu*, TmModule*>::iterator it;
-  std::pair<std::multimap<TmPsu*, TmModule*>::iterator,multimap<TmPsu*, TmModule*>::iterator> ret;
+  std::pair<std::multimap<TmPsu*, TmModule*>::iterator,std::multimap<TmPsu*, TmModule*>::iterator> ret;
   for (int rack=1; rack < (npsuracks+1); rack++){
     std::ostringstream outs;
     
     outs << outputfilename <<"HVrack"<<rack<< ".html";
-    txtfile = new ofstream(outs.str().c_str(),ios::out);
+    txtfile = new std::ofstream(outs.str().c_str(),std::ios::out);
     *txtfile << "<html><head></head> <body>" << std::endl;
      for ( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
       TmPsu *  psu= ipsu->second;
@@ -3252,20 +3252,20 @@ std::ifstream * TrackerMap::findfile(std::string filename) {
   std::string ifname;
   if(jsPath!=""){
   ifname=jsPath+filename;
-  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
+  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),std::ios::in);
   if(!ifilename){
   ifname="CommonTools/TrackerMap/data/"+filename;
-  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
+  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),std::ios::in);
   }
   }else {
   ifname="CommonTools/TrackerMap/data/"+filename;
-  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),ios::in);
+  ifilename = new ifstream(edm::FileInPath(ifname).fullPath().c_str(),std::ios::in);
  }
   if(!ifilename)std::cout << "File " << filename << " missing" << std::endl;
   return ifilename;
  }
 void TrackerMap::printlayers(bool print_total, float minval, float maxval, std::string outputfilename){
-  ofstream * xmlfile;
+  std::ofstream * xmlfile;
 saveAsSingleLayer=true;
 if(!print_total){
     for (int layer=1; layer < 44; layer++){
@@ -3299,7 +3299,7 @@ if(!print_total){
 for (int layer=1; layer < 44; layer++){
   std::ostringstream outs;
     outs << outputfilename <<"layer"<<layer<< ".xml";
-    xmlfile = new ofstream(outs.str().c_str(),ios::out);
+    xmlfile = new std::ofstream(outs.str().c_str(),std::ios::out);
     *xmlfile << "<?xml version=\"1.0\" standalone=\"no\"?>"<<std::endl;
     *xmlfile << "<svg xmlns=\"http://www.w3.org/2000/svg\""<<std::endl;
     *xmlfile << "xmlns:svg=\"http://www.w3.org/2000/svg\""<<std::endl;

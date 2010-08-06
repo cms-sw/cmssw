@@ -25,20 +25,20 @@ typedef math::XYZTLorentzVector LorentzVector;
 namespace {
   CaloMET makeMet (const CaloMET& fMet, 
 		   double fSumEt, 
-		   const vector<CorrMETData>& fCorrections, 
+		   const std::vector<CorrMETData>& fCorrections, 
 		   const MET::LorentzVector& fP4) {
     return CaloMET (fMet.getSpecific (), fSumEt, fCorrections, fP4, fMet.vertex ());
   }
   
   MET makeMet (const MET& fMet, 
 	       double fSumEt, 
-	       const vector<CorrMETData>& fCorrections, 
+	       const std::vector<CorrMETData>& fCorrections, 
 	       const MET::LorentzVector& fP4) {
     return MET (fSumEt, fCorrections, fP4, fMet.vertex ());
   }
   
   template <class T>
-  void Type1METAlgo_run(const vector<T>& uncorMET, 
+  void Type1METAlgo_run(const std::vector<T>& uncorMET, 
 			const JetCorrector& corrector,
 			const CaloJetCollection& uncorJet,
 			double jetPTthreshold,

@@ -29,18 +29,18 @@ using reco::isodeposit::Direction;
 
 EgammaTrackExtractor::EgammaTrackExtractor( const ParameterSet& par ) :
     theTrackCollectionTag(par.getParameter<edm::InputTag>("inputTrackCollection")),
-    theDepositLabel(par.getUntrackedParameter<string>("DepositLabel")),
+    theDepositLabel(par.getUntrackedParameter<std::string>("DepositLabel")),
     theDiff_r(par.getParameter<double>("Diff_r")),
     theDiff_z(par.getParameter<double>("Diff_z")),
     theDR_Max(par.getParameter<double>("DR_Max")),
     theDR_Veto(par.getParameter<double>("DR_Veto")),
-    theBeamlineOption(par.getParameter<string>("BeamlineOption")),
+    theBeamlineOption(par.getParameter<std::string>("BeamlineOption")),
     theBeamSpotLabel(par.getParameter<edm::InputTag>("BeamSpotLabel")),
     theNHits_Min(par.getParameter<uint>("NHits_Min")),
     theChi2Ndof_Max(par.getParameter<double>("Chi2Ndof_Max")),
     theChi2Prob_Min(par.getParameter<double>("Chi2Prob_Min")),
     thePt_Min(par.getParameter<double>("Pt_Min")),
-    dzOptionString(par.getParameter<string>("dzOption"))
+    dzOptionString(par.getParameter<std::string>("dzOption"))
 {
     if( ! dzOptionString.compare("dz") )      dzOption = EgammaTrackSelector::dz;
     else if( ! dzOptionString.compare("vz") ) dzOption = EgammaTrackSelector::vz;

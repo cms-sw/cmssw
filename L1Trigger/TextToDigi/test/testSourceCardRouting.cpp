@@ -8,7 +8,7 @@ int main(void){
 
   unsigned short logicalCardID=0;
   unsigned short eventNumber=0;
-  string tempString;
+  std::string tempString;
 
   unsigned long VHDCI[2][2]={{0}};
   SourceCardRouting temp;
@@ -25,7 +25,7 @@ int main(void){
   unsigned short testHF[18][4][2]={{{0}}};
   unsigned short testHFQ[18][4][2]={{{0}}};
 
-  cout <<"fill with junk..."<<endl;
+  std::cout <<"fill with junk..."<<std::endl;
   for(int RCTcrate=0; RCTcrate<18; RCTcrate++){			
     for(int RCcard=0; RCcard<7; RCcard++){
       for(int Region=0; Region<2; Region++){
@@ -45,7 +45,7 @@ int main(void){
     }
   }
 
-  cout<<"now do the proper stuff..."<<endl;
+  std::cout<<"now do the proper stuff..."<<std::endl;
 
   int RoutingMode=1;
   for(int RCTcrate=0; RCTcrate<18; RCTcrate++){			
@@ -54,21 +54,21 @@ int main(void){
 
 		
     //now check its working ok
-    //cout<<"MID: "<<tempString<<endl;
+    //std::cout<<"MID: "<<tempString<<std::endl;
     temp.STRINGtoVHDCI(logicalCardID,eventNumber,tempString,VHDCI);
     temp.VHDCItoRC56HF(testRC[RCTcrate], testRCof[RCTcrate], testRCtau[RCTcrate], testHF[RCTcrate], testHFQ[RCTcrate], VHDCI);
-    /*cout<<"------------------------------------"<<endl;
+    /*cout<<"------------------------------------"<<std::endl;
       for(int RCcard=5; RCcard<7; RCcard++){
       for(int Region=0; Region<2; Region++){
-      cout << RC[RCTcrate][RCcard][Region] << '\t' << testRC[RCTcrate][RCcard][Region] << '\t';		
-      cout <<	RCof[RCTcrate][RCcard][Region] << '\t' << testRCof[RCTcrate][RCcard][Region] << '\t';
-      cout <<	RCtau[RCTcrate][RCcard][Region] << '\t' << testRCtau[RCTcrate][RCcard][Region] << endl;
+      std::cout << RC[RCTcrate][RCcard][Region] << '\t' << testRC[RCTcrate][RCcard][Region] << '\t';		
+      std::cout <<	RCof[RCTcrate][RCcard][Region] << '\t' << testRCof[RCTcrate][RCcard][Region] << '\t';
+      std::cout <<	RCtau[RCTcrate][RCcard][Region] << '\t' << testRCtau[RCTcrate][RCcard][Region] << std::endl;
       }
       }
       for(int HFeta=0; HFeta<4; HFeta++){
       for(int HFRegion=0; HFRegion<2; HFRegion++){
-      cout << HF[RCTcrate][HFeta][HFRegion] << '\t' << testHF[RCTcrate][HFeta][HFRegion] << '\t';		
-      cout <<	HFQ[RCTcrate][HFeta][HFRegion] << '\t' << testHFQ[RCTcrate][HFeta][HFRegion] << endl;
+      std::cout << HF[RCTcrate][HFeta][HFRegion] << '\t' << testHF[RCTcrate][HFeta][HFRegion] << '\t';		
+      std::cout <<	HFQ[RCTcrate][HFeta][HFRegion] << '\t' << testHFQ[RCTcrate][HFeta][HFRegion] << std::endl;
       }
       }*/ 
   }
@@ -81,15 +81,15 @@ int main(void){
 
 		
     //now check its working ok
-    //cout<<"MID: "<<tempString<<endl;
+    //std::cout<<"MID: "<<tempString<<std::endl;
     temp.STRINGtoVHDCI(logicalCardID,eventNumber,tempString,VHDCI);
     temp.VHDCItoRC012(testRC[RCTcrate], testRCof[RCTcrate], testRCtau[RCTcrate], VHDCI);
-    /*cout<<"------------------------------------"<<endl;
+    /*cout<<"------------------------------------"<<std::endl;
       for(int RCcard=0; RCcard<7; RCcard++){
       for(int Region=0; Region<2; Region++){
-      cout << RC[RCTcrate][RCcard][Region] << '\t' << testRC[RCTcrate][RCcard][Region] << '\t';		
-      cout <<	RCof[RCTcrate][RCcard][Region] << '\t' << testRCof[RCTcrate][RCcard][Region] << '\t';
-      cout <<	RCtau[RCTcrate][RCcard][Region] << '\t' << testRCtau[RCTcrate][RCcard][Region] << endl;
+      std::cout << RC[RCTcrate][RCcard][Region] << '\t' << testRC[RCTcrate][RCcard][Region] << '\t';		
+      std::cout <<	RCof[RCTcrate][RCcard][Region] << '\t' << testRCof[RCTcrate][RCcard][Region] << '\t';
+      std::cout <<	RCtau[RCTcrate][RCcard][Region] << '\t' << testRCtau[RCTcrate][RCcard][Region] << std::endl;
       }
       }*/
 
@@ -103,40 +103,40 @@ int main(void){
 
 		
     //now check its working ok
-    //cout<<"MID: "<<tempString<<endl;
+    //std::cout<<"MID: "<<tempString<<std::endl;
     temp.STRINGtoVHDCI(logicalCardID,eventNumber,tempString,VHDCI);
     temp.VHDCItoRC234(testRC[RCTcrate], testRCof[RCTcrate], testRCtau[RCTcrate], testRC[RCTcrate+9], testRCof[RCTcrate+9], testRCtau[RCTcrate+9], VHDCI);
-    /*cout<<"------------------------------------"<<endl;
+    /*cout<<"------------------------------------"<<std::endl;
       for(int RCcard=2; RCcard<5; RCcard++){
       for(int Region=0; Region<2; Region++){
-      cout << RC[RCTcrate][RCcard][Region] << '\t' << testRC[RCTcrate][RCcard][Region] << '\t';		
-      cout <<	RCof[RCTcrate][RCcard][Region] << '\t' << testRCof[RCTcrate][RCcard][Region] << '\t';
-      cout <<	RCtau[RCTcrate][RCcard][Region] << '\t' << testRCtau[RCTcrate][RCcard][Region] << endl;
-      cout << RC[RCTcrate+9][RCcard][Region] << '\t' << testRC[RCTcrate+9][RCcard][Region] << '\t';		
-      cout <<	RCof[RCTcrate+9][RCcard][Region] << '\t' << testRCof[RCTcrate+9][RCcard][Region] << '\t';
-      cout <<	RCtau[RCTcrate+9][RCcard][Region] << '\t' << testRCtau[RCTcrate+9][RCcard][Region] << endl;
+      std::cout << RC[RCTcrate][RCcard][Region] << '\t' << testRC[RCTcrate][RCcard][Region] << '\t';		
+      std::cout <<	RCof[RCTcrate][RCcard][Region] << '\t' << testRCof[RCTcrate][RCcard][Region] << '\t';
+      std::cout <<	RCtau[RCTcrate][RCcard][Region] << '\t' << testRCtau[RCTcrate][RCcard][Region] << std::endl;
+      std::cout << RC[RCTcrate+9][RCcard][Region] << '\t' << testRC[RCTcrate+9][RCcard][Region] << '\t';		
+      std::cout <<	RCof[RCTcrate+9][RCcard][Region] << '\t' << testRCof[RCTcrate+9][RCcard][Region] << '\t';
+      std::cout <<	RCtau[RCTcrate+9][RCcard][Region] << '\t' << testRCtau[RCTcrate+9][RCcard][Region] << std::endl;
       }
       }*/
 
   }
 
-  cout<<"and now to check..."<<endl;
+  std::cout<<"and now to check..."<<std::endl;
   for(int RCTcrate=0; RCTcrate<18; RCTcrate++){			
-    cout<<"------------------ "<<RCTcrate<<" ------------------"<<endl;
+    std::cout<<"------------------ "<<RCTcrate<<" ------------------"<<std::endl;
     for(int RCcard=0; RCcard<7; RCcard++){
       for(int Region=0; Region<2; Region++){
 	if ( (RC[RCTcrate][RCcard][Region]!=testRC[RCTcrate][RCcard][Region])||(RCof[RCTcrate][RCcard][Region]!=testRCof[RCTcrate][RCcard][Region])||(RCtau[RCTcrate][RCcard][Region]!=testRCtau[RCTcrate][RCcard][Region]) ){
-	  cout << RC[RCTcrate][RCcard][Region] << '\t' << testRC[RCTcrate][RCcard][Region] << '\t';		
-	  cout <<	RCof[RCTcrate][RCcard][Region] << '\t' << testRCof[RCTcrate][RCcard][Region] << '\t';
-	  cout <<	RCtau[RCTcrate][RCcard][Region] << '\t' << testRCtau[RCTcrate][RCcard][Region] << endl;
+	  std::cout << RC[RCTcrate][RCcard][Region] << '\t' << testRC[RCTcrate][RCcard][Region] << '\t';		
+	  std::cout <<	RCof[RCTcrate][RCcard][Region] << '\t' << testRCof[RCTcrate][RCcard][Region] << '\t';
+	  std::cout <<	RCtau[RCTcrate][RCcard][Region] << '\t' << testRCtau[RCTcrate][RCcard][Region] << std::endl;
 	}
       }
     }
     for(int HFeta=0; HFeta<4; HFeta++){
       for(int HFRegion=0; HFRegion<2; HFRegion++){
 	if ( (HF[RCTcrate][HFeta][HFRegion]!=testHF[RCTcrate][HFeta][HFRegion])||( HFQ[RCTcrate][HFeta][HFRegion]!=testHFQ[RCTcrate][HFeta][HFRegion]) ){
-	  cout << HF[RCTcrate][HFeta][HFRegion] << '\t' << testHF[RCTcrate][HFeta][HFRegion] << '\t';		
-	  cout <<	HFQ[RCTcrate][HFeta][HFRegion] << '\t' << testHFQ[RCTcrate][HFeta][HFRegion] << endl;
+	  std::cout << HF[RCTcrate][HFeta][HFRegion] << '\t' << testHF[RCTcrate][HFeta][HFRegion] << '\t';		
+	  std::cout <<	HFQ[RCTcrate][HFeta][HFRegion] << '\t' << testHFQ[RCTcrate][HFeta][HFRegion] << std::endl;
 	} 
       }
     }

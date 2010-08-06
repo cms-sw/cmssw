@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Aug 16 20:44:05 CEST 2009
-// $Id: HcalO2OManager.cc,v 1.36 2010/06/04 17:07:39 innocent Exp $
+// $Id: HcalO2OManager.cc,v 1.37 2010/08/05 13:11:39 innocent Exp $
 //
 
 
@@ -370,7 +370,7 @@ int HcalO2OManager::getListOfUpdateIovs(std::vector<uint32_t> & _iovs,
 					std::string pool_connect_string,
 					std::string pool_auth_path
 					){
-  //cout << "DEBUG: " << pool_connect_string << endl;
+  //std::cout << "DEBUG: " << pool_connect_string << std::endl;
   std::vector<uint32_t> omds_iovs;
   std::vector<uint32_t> pool_iovs;
   getListOfOmdsIovs(omds_iovs, _tag);

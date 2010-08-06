@@ -20,7 +20,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 14 14:30:20 CDT 2009
-// $Id: HcalEmap.cc,v 1.5 2008/08/24 22:56:18 kukartse Exp $
+// $Id: HcalEmap.h,v 1.1 2009/04/14 22:49:05 kukartse Exp $
 //
 
 // system include files
@@ -30,9 +30,6 @@
 #include <boost/shared_ptr.hpp>
 
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-
-using namespace std;
-using namespace boost;
 
 
 class HcalEmap
@@ -46,7 +43,7 @@ class HcalEmap
   {
   public:
     int rawId,crate,slot,dcc,spigot,fiber,fiberchan,ieta,iphi,idepth;
-    string topbottom,subdet;
+    std::string topbottom,subdet;
     
     HcalEmapRow(){
       rawId=0;
@@ -83,7 +80,7 @@ public:
   HcalEmap_test(){}
   ~HcalEmap_test(){}
 
-  int test_read_map( string filename );
+  int test_read_map( std::string filename );
 }; // end of class HcalEmap_test
 
 #endif

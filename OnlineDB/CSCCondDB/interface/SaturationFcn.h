@@ -4,8 +4,6 @@
 #include "Minuit2/FCNBase.h"  
 #include <vector>
 
-using namespace ROOT::Minuit2;
-
 class SaturationFcn : public FCNBase{ 
 
  public:

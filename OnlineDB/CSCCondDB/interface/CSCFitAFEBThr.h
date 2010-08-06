@@ -10,13 +10,12 @@
 
 #include <Minuit2/VariableMetricMinimizer.h>
 
-using namespace ROOT::Minuit2;
-
 class CSCThrTurnOnFcn;
 
 class CSCFitAFEBThr {
 
 public:
+  typedef ROOT::Minuit2::ModularFunctionMinimizer ModularFunctionMinimizer;
   CSCFitAFEBThr();
   virtual ~CSCFitAFEBThr();
 

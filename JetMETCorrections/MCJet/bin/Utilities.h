@@ -12,15 +12,14 @@
 #include <TF1.h>
 #include <TStyle.h>
 #include <TMath.h>
-using namespace std;
 
 void GetMPV(char name[100],TH1F* histo, TDirectory* Dir, double& peak, double& error, double& sigma, double& err_sigma);
 void GetMEAN(TH1F* histo, double& peak, double& error, double& sigma);
 void CalculateResponse(bool UseRatioForResponse, double x, double ex, double y, double ey, double& r, double& e);
 void CalculateCorrection(bool UseRatioForResponse, double x, double ex, double y, double ey, double& c, double& e);
 void Invert(TF1* f, double Min, double Max, double y, double& x);
-bool HistoExists(vector<string> LIST, string hname);
-int  getBin(double x, vector<double> boundaries);
+bool HistoExists(std::vector<std::string> LIST, std::string hname);
+int  getBin(double x, std::vector<double> boundaries);
 
 class CommandLine
 {
@@ -176,7 +175,7 @@ std::vector<T> CommandLine::getVector(const std::string& name,
 				       const std::string& default_as_string)
 {
   OptionMap_t::iterator it=_options.find(name);
-  if (it==_options.end()) _options[name] = make_pair(default_as_string,false);
+  if (it==_options.end()) _options[name] = std::make_pair(default_as_string,false);
   return getVector<T>(name);
 }
 
@@ -205,7 +204,7 @@ bool CommandLine::parse(int argc,char**argv)
   _unknowns.clear();
   
   for (int i=1;i<argc;i++) {
-    string opt=argv[i];
+    std::string opt=argv[i];
     if(0!=opt.find("-")) {
       if (i==1) {
 	bool success = parse_file(opt);
@@ -213,17 +212,17 @@ bool CommandLine::parse(int argc,char**argv)
 	continue;
       }
       else {
-	cout<<"CommandLine ERROR: options must start with '-'!"<<endl;
+	std::cout<<"CommandLine ERROR: options must start with '-'!"<<std::endl;
 	return false;
       }
     }
     opt.erase(0,1);
-    string next=argv[i+1];
+    std::string next=argv[i+1];
     if (/*0==next.find("-")||*/i+1>=argc) {
-      cout<<"ERROR: option '"<<opt<<"' requires value!"<<endl;
+      std::cout<<"ERROR: option '"<<opt<<"' requires value!"<<std::endl;
       return false;
     }
-    _options[opt] = make_pair(next,false);
+    _options[opt] = std::make_pair(next,false);
     i++;
     if (i<argc-1) {
       next=argv[i+1];
@@ -244,80 +243,80 @@ bool CommandLine::check()
   OptionMap_t::const_iterator it;
   for (it = _options.begin();it!=_options.end();++it) {
     if (!it->second.second) {
-      cout<<"CommandLine WARNING: unused option '"<<it->first<<"'!"<<endl;
+      std::cout<<"CommandLine WARNING: unused option '"<<it->first<<"'!"<<std::endl;
       result = false;
     }
   }
   
   if (_unknowns.size()>0) {
     result = false;
-    cout<<"\nCommandLine WARNING: "<<_unknowns.size()
-	<<" the followingparameters *must* be provided:"<<endl;
+    std::cout<<"\nCommandLine WARNING: "<<_unknowns.size()
+	<<" the followingparameters *must* be provided:"<<std::endl;
     for (StrVec_t::const_iterator it=_unknowns.begin();it!=_unknowns.end();++it)
-      cout<<(*it)<<endl;
-    cout<<endl;
+      std::cout<<(*it)<<std::endl;
+    std::cout<<std::endl;
   }
   return result;
 }
 //______________________________________________________________________________
 void CommandLine::print()
 {
-  cout<<"------------------------------------------------------------"<<endl;
-  cout<<_exe<<" options:"<<endl;
-  cout<<"------------------------------------------------------------"<<endl;
+  std::cout<<"------------------------------------------------------------"<<std::endl;
+  std::cout<<_exe<<" options:"<<std::endl;
+  std::cout<<"------------------------------------------------------------"<<std::endl;
   for (StrVec_t::const_iterator itvec=_ordered_options.begin();
        itvec!=_ordered_options.end();++itvec) {
     OptionMap_t::const_iterator it=_options.find(*itvec);
     assert(it!=_options.end());
-    if (it->second.first.find(",")<string::npos) {
-      string tmp=it->second.first;
-      string::size_type length = tmp.length();
-      string::size_type pos;
+    if (it->second.first.find(",")<std::string::npos) {
+      std::string tmp=it->second.first;
+      std::string::size_type length = tmp.length();
+      std::string::size_type pos;
       do {
 	pos = tmp.find(",");
 	if (tmp.length()==length) {
-	  cout<<setiosflags(ios::left)<<setw(22)
+	  std::cout<<std::setiosflags(std::ios::left)<<std::setw(22)
 	      <<it->first
-	      <<resetiosflags(ios::left)
-	      <<setw(3)<<"="
-	      <<setiosflags(ios::right)<<setw(35)
+	      <<std::resetiosflags(std::ios::left)
+	      <<std::setw(3)<<"="
+	      <<std::setiosflags(std::ios::right)<<std::setw(35)
 	      <<tmp.substr(0,pos)
-	      <<resetiosflags(ios::right)
-	      <<endl;
+	      <<std::resetiosflags(std::ios::right)
+	      <<std::endl;
 	}
 	else {
-	  cout<<setiosflags(ios::right)<<setw(60)
+	  std::cout<<std::setiosflags(std::ios::right)<<std::setw(60)
 	      <<tmp.substr(0,pos)
-	      <<resetiosflags(ios::right)
-	      <<endl;
+	      <<std::resetiosflags(std::ios::right)
+	      <<std::endl;
 	}
 	tmp.erase(0,pos+1);
       }
-      while (pos!=string::npos);
+      while (pos!=std::string::npos);
     }
     else {
-      cout<<setiosflags(ios::left)<<setw(22)
+      std::cout<<std::setiosflags(std::ios::left)<<std::setw(22)
 	  <<it->first
-	  <<resetiosflags(ios::left)
-	  <<setw(3)<<"="
-	  <<setiosflags(ios::right)<<setw(35)
+	  <<std::resetiosflags(std::ios::left)
+	  <<std::setw(3)<<"="
+	  <<std::setiosflags(std::ios::right)<<std::setw(35)
 	  <<it->second.first
-	  <<resetiosflags(ios::right)
-	  <<endl;
+	  <<std::resetiosflags(std::ios::right)
+	  <<std::endl;
     }
   }
-  cout<<"------------------------------------------------------------"<<endl;
+  std::cout<<"------------------------------------------------------------"<<std::endl;
 }
 //______________________________________________________________________________
-bool CommandLine::parse_file(const string& file_name)
+bool CommandLine::parse_file(const std::string& file_name)
 {
   ifstream fin(file_name.c_str());
   if (!fin.is_open()) {
-    cout<<"Can't open configuration file "<<file_name<<endl;
+    std::cout<<"Can't open configuration file "<<file_name<<std::endl;
     return false;
   }
 
-  stringstream ss;
+  std::stringstream ss;
   bool filter(false);
   while(!fin.eof()){
     char next;
@@ -330,11 +329,11 @@ bool CommandLine::parse_file(const string& file_name)
     if (filter&&next=='\n') filter=false;
   }
   
-  string token,last_token,key,value;
+  std::string token,last_token,key,value;
   ss>>token;
   while (!ss.eof()) {
     if (token=="=") {
-      if (key!=""&&value!="") _options[key] = make_pair(value,false);
+      if (key!=""&&value!="") _options[key] = std::make_pair(value,false);
       key=last_token;
       last_token="";
       value="";
@@ -361,7 +360,7 @@ bool CommandLine::parse_file(const string& file_name)
       last_token=last_token.substr(1,last_token.length()-2);
     value+=(value!="")?","+last_token:last_token;
   }
-  if (key!=""&&value!="") _options[key] = make_pair(value,false);
+  if (key!=""&&value!="") _options[key] = std::make_pair(value,false);
 
   return true;
 }
@@ -416,7 +415,7 @@ void GetMPV(char name[100],TH1F* histo, TDirectory* Dir, double& peak, double& e
         }
       else
         {
-          cout<<"FIT FAILURE: histogram "<<name<<"...Using MEAN and RMS."<<endl;
+          std::cout<<"FIT FAILURE: histogram "<<name<<"...Using MEAN and RMS."<<std::endl;
           peak = mean;
           sigma = rms;
           error = histo->GetMeanError();
@@ -494,23 +493,23 @@ void CalculateCorrection(bool UseRatioForResponse, double x, double ex, double y
     }    
 }
 ///////////////////////////////////////////////////////////////////////
-bool HistoExists(vector<string> LIST, string hname)
+bool HistoExists(std::vector<std::string> LIST, std::string hname)
 {
   unsigned int i,N;
   bool found(false);
   N = LIST.size();
   if (N==0)
-    cout<<"WARNING: empty file histogram list!!!!"<<endl;
+    std::cout<<"WARNING: empty file histogram list!!!!"<<std::endl;
   else
     for(i=0;i<N;i++)
      if (hname==LIST[i])
        found = true;
   if (!found)
-    cout<<"Histogram: "<<hname<<" NOT FOUND!!! Check list of existing objects."<<endl;
+    std::cout<<"Histogram: "<<hname<<" NOT FOUND!!! Check list of existing objects."<<std::endl;
   return found;
 }
 ///////////////////////////////////////////////////////////////////////
-int getBin(double x, vector<double> boundaries)
+int getBin(double x, std::vector<double> boundaries)
 {
   int i;
   int n = boundaries.size()-1;

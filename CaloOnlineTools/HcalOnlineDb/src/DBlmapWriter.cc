@@ -13,7 +13,7 @@ DBlmapWriter::~DBlmapWriter(){
   
 }
 
-XMLDOMBlock * DBlmapWriter::createLMapHBEFXMLBase( string templateFileName )
+XMLDOMBlock * DBlmapWriter::createLMapHBEFXMLBase( std::string templateFileName )
 {
   XMLDOMBlock * result = new XMLDOMBlock( templateFileName );
   DOMDocument * loader = result -> getDocument();
@@ -28,7 +28,7 @@ XMLDOMBlock * DBlmapWriter::createLMapHBEFXMLBase( string templateFileName )
 
 
 
-int DBlmapWriter::addLMapHBEFDataset( XMLDOMBlock * doc, LMapRowHBEF * row, string templateFileName )
+int DBlmapWriter::addLMapHBEFDataset( XMLDOMBlock * doc, LMapRowHBEF * row, std::string templateFileName )
 {
   DOMDocument * loader = doc -> getDocument();
   DOMElement * root = loader -> getDocumentElement();
@@ -81,7 +81,7 @@ int DBlmapWriter::addLMapHBEFDataset( XMLDOMBlock * doc, LMapRowHBEF * row, stri
   return 0;
 }
 
-XMLDOMBlock * DBlmapWriter::createLMapHOXMLBase( string templateFileName )
+XMLDOMBlock * DBlmapWriter::createLMapHOXMLBase( std::string templateFileName )
 {
   XMLDOMBlock * result = new XMLDOMBlock( templateFileName );
   DOMDocument * loader = result -> getDocument();
@@ -95,7 +95,7 @@ XMLDOMBlock * DBlmapWriter::createLMapHOXMLBase( string templateFileName )
 }
 
 
-int DBlmapWriter::addLMapHODataset( XMLDOMBlock * doc, LMapRowHO * row, string templateFileName )
+int DBlmapWriter::addLMapHODataset( XMLDOMBlock * doc, LMapRowHO * row, std::string templateFileName )
 {
   DOMDocument * loader = doc -> getDocument();
   DOMElement * root = loader -> getDocumentElement();
@@ -143,7 +143,7 @@ int DBlmapWriter::addLMapHODataset( XMLDOMBlock * doc, LMapRowHO * row, string t
 
 
 int DBlmapWriter::createLMap( void ){
-  cout << "XML Test..." << endl;
+  std::cout << "XML Test..." << std::endl;
   
   //XMLProcessor * theProcessor = XMLProcessor::getInstance();
 
@@ -154,8 +154,8 @@ int DBlmapWriter::createLMap( void ){
   LMapLoader::LMapRowHO bRow;
 
 
-  ifstream fcha("/afs/fnal.gov/files/home/room3/avetisya/public_html/HCAL/Maps/HCALmapHBEF_Feb.21.2008.txt");
-  ifstream fcho("/afs/fnal.gov/files/home/room3/avetisya/public_html/HCAL/Maps/HCALmapHO_Feb.21.2008.txt");
+  std::ifstream fcha("/afs/fnal.gov/files/home/room3/avetisya/public_html/HCAL/Maps/HCALmapHBEF_Feb.21.2008.txt");
+  std::ifstream fcho("/afs/fnal.gov/files/home/room3/avetisya/public_html/HCAL/Maps/HCALmapHO_Feb.21.2008.txt");
 
   //List in order HB HE HF
   //side     eta     phi     dphi       depth      det
@@ -169,17 +169,17 @@ int DBlmapWriter::createLMap( void ){
   const int NCHO = 2160;
   int ncho = 0;
   int i, j;
-  string ndump;
+  std::string ndump;
 
   int sideC[NCHA], etaC[NCHA], phiC[NCHA], dphiC[NCHA], depthC[NCHA], wedgeC[NCHA], crateC[NCHA], rmC[NCHA], rm_fiC[NCHA], htrC[NCHA];
   int htr_fiC[NCHA], fi_chC[NCHA], spigoC[NCHA], dccC[NCHA], dcc_slC[NCHA], fedidC[NCHA], pixelC[NCHA], qieC[NCHA], adcC[NCHA];
   int slbC[NCHA], rctcraC[NCHA], rctcarC[NCHA], rctconC[NCHA];
-  string detC[NCHA], rbxC[NCHA], fpgaC[NCHA], slbinC[NCHA], slbin2C[NCHA], slnamC[NCHA], rctnamC[NCHA];
+  std::string detC[NCHA], rbxC[NCHA], fpgaC[NCHA], slbinC[NCHA], slbin2C[NCHA], slnamC[NCHA], rctnamC[NCHA];
 
   int sideO[NCHO], etaO[NCHO], phiO[NCHO], dphiO[NCHO], depthO[NCHO], sectorO[NCHO], crateO[NCHO], rmO[NCHO], rm_fiO[NCHO], htrO[NCHO];
   int htr_fiO[NCHO], fi_chO[NCHO], spigoO[NCHO], dccO[NCHO], dcc_slO[NCHO], fedidO[NCHO], pixelO[NCHO], qieO[NCHO], adcO[NCHO];
   int geoO[NCHO], blockO[NCHO], lcO[NCHO];
-  string detO[NCHO], rbxO[NCHO], fpgaO[NCHO], let_codeO[NCHO];
+  std::string detO[NCHO], rbxO[NCHO], fpgaO[NCHO], let_codeO[NCHO];
 
   int counter = 0;
   for (i = 0; i < NCHA; i++){
@@ -245,7 +245,7 @@ int DBlmapWriter::createLMap( void ){
     }
     fcho>>sideO[i];
     if (sideO[i] != 1 && sideO[i] != -1){
-      cerr<<ncho<<'\t'<<sideO[i]<<endl;
+      std::cerr<<ncho<<'\t'<<sideO[i]<<std::endl;
       break;
     }
     fcho>>etaO[i]>>phiO[i]>>dphiO[i]>>depthO[i]>>detO[i];
@@ -293,7 +293,7 @@ int DBlmapWriter::createLMap( void ){
   doc . write( "FullHCALmap.xml" );
 
 
-  cout << "XML Test...done" << endl;
+  std::cout << "XML Test...done" << std::endl;
 
   return 0;
 }

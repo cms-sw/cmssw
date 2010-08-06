@@ -75,7 +75,7 @@ void RooGKCounter::count( void ){
   _freq = (double)_divider;
 
   if (firstCountEntry){
-    if ( printCount ) cout << "Counter is on:" << endl;
+    if ( printCount ) std::cout << "Counter is on:" << std::endl;
     firstCountEntry = false;
     firstTickTime = time( NULL );
   }
@@ -94,15 +94,15 @@ void RooGKCounter::count( void ){
 	}
       if ( !_newLine )
 	{
-	  cout << char(13) << _message . c_str() << _count;
-	  if ( _count > _firstCount ) cout << ", average time per count, sec: " << averageTimeSinceFirstTick;
+	  std::cout << char(13) << _message . c_str() << _count;
+	  if ( _count > _firstCount ) std::cout << ", average time per count, sec: " << averageTimeSinceFirstTick;
 	  fflush(stdout);
 	}
       else
 	{
-	  cout << _message . c_str() << _count;
-	  if ( _count > _firstCount ) cout << ", average time per count, sec: " << averageTimeSinceFirstTick;
-	  cout << endl;
+	  std::cout << _message . c_str() << _count;
+	  if ( _count > _firstCount ) std::cout << ", average time per count, sec: " << averageTimeSinceFirstTick;
+	  std::cout << std::endl;
 	}
       lastPrintTime = time( NULL );
     }

@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalDbOmds.h
-// $Id$
+// $Id: HcalDbOmds.h,v 1.12 2010/03/07 22:51:31 kukartse Exp $
 //
 #ifndef HcalDbOmds_h
 #define HcalDbOmds_h
@@ -16,8 +16,6 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
-
-using namespace oracle::occi;
 
 
 /**

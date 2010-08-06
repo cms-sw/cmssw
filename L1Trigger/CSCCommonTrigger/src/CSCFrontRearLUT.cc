@@ -31,7 +31,7 @@ unsigned CSCFrontRearLUT::getFRBit(int sector, int subsector, int station, int c
     case 4: sector_type = 3 - (sector%2);
       break;
       //default:
-      //cout << "+++ Error: unforeseen station " << stn << "in GetFRBit +++"; // replace with message logger or exception
+      //std::cout << "+++ Error: unforeseen station " << stn << "in GetFRBit +++"; // replace with message logger or exception
     }
   return fr_table[cscid-1][sector_type];
 }

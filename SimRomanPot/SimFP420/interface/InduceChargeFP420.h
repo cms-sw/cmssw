@@ -18,7 +18,7 @@ class InduceChargeFP420: public IChargeFP420{
 //
  private:
 
-  vector<float> signalCoupling; 
+  std::vector<float> signalCoupling; 
 
   double clusterWidth;
   double geVperElectron;

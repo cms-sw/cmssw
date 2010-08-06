@@ -5,18 +5,16 @@
 #include "PhysicsTools/MVAComputer/interface/AtomicId.h"
 #include "PhysicsTools/MVAComputer/interface/TreeReader.h"
 
-using namespace PhysicsTools;
-
 #ifdef __REFLEX__
 
 namespace { // anonymous
 namespace {
 
-std::vector<Variable::Value> vv;
+std::vector<PhysicsTools::Variable::Value> vv;
 
-static void dummy(MVAComputer *mva)
+static void dummy(PhysicsTools::MVAComputer *mva)
 {
-	Variable::ValueList v;
+	PhysicsTools::Variable::ValueList v;
 
 	mva->eval(v);
 	mva->eval(v.values());

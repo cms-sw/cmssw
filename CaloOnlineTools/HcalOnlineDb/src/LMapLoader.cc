@@ -8,7 +8,7 @@
 //
 // Original Author:  Aram Avetisyan, avetisya@fnal.gov
 //         Created:  Tue Oct 23 14:30:20 CDT 2007
-// $Id: LMapLoader.cc,v 1.1 2008/02/12 17:02:01 kukartse Exp $
+// $Id: LMapLoader.cc,v 1.2 2009/04/14 22:53:06 kukartse Exp $
 //
 
 // system include files
@@ -35,7 +35,7 @@ LMapLoader::LMapLoader() : XMLDOMBlock( "FullLmapBase.xml" )
   createLMapHBEFXMLBase( );
 }
 
-LMapLoader::LMapLoader( string templateLoaderBase ) : XMLDOMBlock( templateLoaderBase )
+LMapLoader::LMapLoader( std::string templateLoaderBase ) : XMLDOMBlock( templateLoaderBase )
 {
   createLMapHBEFXMLBase( );
 }
@@ -71,7 +71,7 @@ LMapLoader::~LMapLoader()
 // member functions
 //
 
-int LMapLoader::addLMapHBEFDataset( LMapRowHBEF * row, string templateFileName )
+int LMapLoader::addLMapHBEFDataset( LMapRowHBEF * row, std::string templateFileName )
 {
   DOMDocument * loader = document;
   //DOMElement * root = loader -> getDocumentElement();
@@ -125,7 +125,7 @@ int LMapLoader::addLMapHBEFDataset( LMapRowHBEF * row, string templateFileName )
   return 0;
 }
 
-int LMapLoader::addLMapHODataset( LMapRowHO * row, string templateFileName )
+int LMapLoader::addLMapHODataset( LMapRowHO * row, std::string templateFileName )
 {
   DOMDocument * loader = document;
   //DOMElement * root = loader -> getDocumentElement();

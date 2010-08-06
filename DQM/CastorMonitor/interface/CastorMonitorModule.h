@@ -57,10 +57,10 @@
 #include <string>
 #include <sys/time.h>
 
-using namespace std;
-using namespace edm;
 
-class CastorMonitorModule : public EDAnalyzer{
+
+
+class CastorMonitorModule : public edm::EDAnalyzer{
 
 public:
   
@@ -171,8 +171,8 @@ public:
   ////---- Maps of readout hardware unit to calorimeter channel
   std::map<uint32_t, std::vector<HcalCastorDetId> > DCCtoCell;
   std::map<uint32_t, std::vector<HcalCastorDetId> > ::iterator thisDCC;
-  std::map<pair <int,int> , std::vector<HcalCastorDetId> > HTRtoCell;
-  std::map<pair <int,int> , std::vector<HcalCastorDetId> > ::iterator thisHTR;
+  std::map<std::pair <int,int> , std::vector<HcalCastorDetId> > HTRtoCell;
+  std::map<std::pair <int,int> , std::vector<HcalCastorDetId> > ::iterator thisHTR;
 
   ////---- define ME used to display the DQM Job Status
   MonitorElement* meFEDS_;
@@ -207,7 +207,7 @@ public:
   // and sector/module numeration[1..16][1..14]
   float        fPedestalNSigmaAverage[14][16];
 
-  vector<HcalGenericDetId> listEMap; //electronics Emap
+  std::vector<HcalGenericDetId> listEMap; //electronics Emap
 
 
   ofstream m_logFile;

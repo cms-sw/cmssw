@@ -185,15 +185,15 @@ void TaggingVariableList::insert( TaggingVariableName tag, TaggingValue value, b
   if (not delayed) finalize();
 }
 
-void TaggingVariableList::insert( TaggingVariableName tag, const vector<TaggingValue> & values, bool delayed /* = false */ ) {
-  for (vector<TaggingValue>::const_iterator i = values.begin(); i != values.end(); i++) {
+void TaggingVariableList::insert( TaggingVariableName tag, const std::vector<TaggingValue> & values, bool delayed /* = false */ ) {
+  for (std::vector<TaggingValue>::const_iterator i = values.begin(); i != values.end(); i++) {
     m_list.push_back( TaggingVariable(tag, *i) );
   }
   if (not delayed) finalize();
 }
 
 void TaggingVariableList::insert( const TaggingVariableList & list ) {
-  vector<TaggingVariable>::size_type size = m_list.size();
+  std::vector<TaggingVariable>::size_type size = m_list.size();
   m_list.insert( m_list.end(), list.m_list.begin(), list.m_list.end() );
   inplace_merge( m_list.begin(), m_list.begin() + size, m_list.end(), TaggingVariableCompare() );
 }
@@ -223,7 +223,7 @@ std::vector<TaggingValue> TaggingVariableList::getList( TaggingVariableName tag,
   if ( throwOnEmptyList && r.first == r.second )
     throw edm::Exception( edm::errors::InvalidReference )
                   << "TaggingVariable " << tag << " is not present in the collection";
-  vector<TaggingValue> list( r.second - r.first );
+  std::vector<TaggingValue> list( r.second - r.first );
   transform( r.first, r.second, list.begin(), select2nd< TaggingVariable >() );
   return list;
 }

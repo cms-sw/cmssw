@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Nov 06 14:30:33 CDT 2007
-// $Id: XMLHTRZeroSuppressionLoader.h,v 1.2 2008/04/16 13:31:25 kukartse Exp $
+// $Id: XMLHTRZeroSuppressionLoader.h,v 1.3 2009/04/14 22:53:05 kukartse Exp $
 //
 
 // system include files
@@ -35,44 +35,44 @@ class XMLHTRZeroSuppressionLoader : public XMLDOMBlock
   typedef struct _loaderBaseConfig
   {
     _loaderBaseConfig();
-    string extention_table_name;
-    string name;
-    string run_type;
+    std::string extention_table_name;
+    std::string name;
+    std::string run_type;
     long long int run_number;
     time_t run_begin_timestamp;
-    string comment_description;
-    string data_set_id;
-    string iov_id;
+    std::string comment_description;
+    std::string data_set_id;
+    std::string iov_id;
     long long int iov_begin;
     long long int iov_end;
-    string tag_id;
-    string tag_mode;
-    string tag_name;
-    string detector_name;
-    string elements_comment_description;
+    std::string tag_id;
+    std::string tag_mode;
+    std::string tag_name;
+    std::string detector_name;
+    std::string elements_comment_description;
   } loaderBaseConfig;
   
   typedef struct _datasetDBConfig : public XMLProcessor::DBConfig
   {
     _datasetDBConfig();
-    string comment_description;
-    string extention_table_name;
+    std::string comment_description;
+    std::string extention_table_name;
     int eta, phi, depth;
     int z;
     long long int hcal_channel_id;
-    string detector_name;
+    std::string detector_name;
     int zero_suppression;
   } datasetDBConfig;
   
   XMLHTRZeroSuppressionLoader();
-  XMLHTRZeroSuppressionLoader( loaderBaseConfig * config, string templateBase = "HCAL_HTR_ZERO_SUPPRESSION.XMLloader.template" );
+  XMLHTRZeroSuppressionLoader( loaderBaseConfig * config, std::string templateBase = "HCAL_HTR_ZERO_SUPPRESSION.XMLloader.template" );
   virtual ~XMLHTRZeroSuppressionLoader();
 
   // deprecated - to be removed
   //int createLoader( void );
   
   int addZS( datasetDBConfig * config,
-	     string templateFileName = "HCAL_HTR_ZERO_SUPPRESSION.dataset.template" );
+	     std::string templateFileName = "HCAL_HTR_ZERO_SUPPRESSION.dataset.template" );
   
  private:
   XMLHTRZeroSuppressionLoader(const XMLHTRZeroSuppressionLoader&); // stop default

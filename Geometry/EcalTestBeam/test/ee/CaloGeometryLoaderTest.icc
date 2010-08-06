@@ -32,8 +32,6 @@
 #include <vector>
 #include <fstream>
 
-using namespace std;
-
 template <class T>
 const double 
 CaloGeometryLoaderTest<T>::k_ScaleFromDDDtoGeant ( 0.1 ) ;
@@ -731,89 +729,89 @@ CaloGeometryLoaderTest<T>::myFillGeom( T*                    geom ,
 	       // write to files ================================================================
 
 	       std::stringstream ssTpsir ;
-	       ssTpsir<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5)
+	       ssTpsir<<std::setw(7) << setiosflags( std::ios::fixed ) << std::setprecision(5)
 		       << Tpsi ;
 	       const std::string strTpsir ( ssTpsir.str() ) ;
 
 
 	       std::stringstream ssTxtra ;
-	       ssTxtra<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5) 
+	       ssTxtra<<std::setw(7) << setiosflags( std::ios::fixed ) << std::setprecision(5) 
 		      << Txtra << "*cm" ;
 	       const std::string strTxtra ( ssTxtra.str() ) ;
 	       std::stringstream ssTytra ;
-	       ssTytra<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5) 
+	       ssTytra<<std::setw(7) << setiosflags( std::ios::fixed ) << std::setprecision(5) 
 		      << Tytra << "*cm" ;
 	       const std::string strTytra ( ssTytra.str() ) ;
 	       std::stringstream ssTztra ;
-	       ssTztra<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5) 
+	       ssTztra<<std::setw(7) << setiosflags( std::ios::fixed ) << std::setprecision(5) 
 		      << Tztra << "*cm" ;
 	       const std::string strTztra ( ssTztra.str() ) ;
 
 	       std::stringstream ssTetaZ ;
-	       ssTetaZ<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5) 
+	       ssTetaZ<<std::setw(7) << setiosflags( std::ios::fixed ) << std::setprecision(5) 
 		      << TetaZ ;
 	       const std::string strTetaZ ( ssTetaZ.str() ) ;
 
 	       std::stringstream ssTthetaX ;
-	       ssTthetaX<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5) 
+	       ssTthetaX<<std::setw(7) << setiosflags( std::ios::fixed ) << std::setprecision(5) 
 			<< TthetaX*kRadToDeg << "*deg" ;
 	       const std::string strTthetaX ( ssTthetaX.str() ) ;
 	       std::stringstream ssTphiX ;
-	       ssTphiX<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5)
+	       ssTphiX<<std::setw(7) << setiosflags( std::ios::fixed ) << std::setprecision(5)
 		      << TphiX*kRadToDeg << "*deg" ;
 	       const std::string strTphiX ( ssTphiX.str() ) ;
 /*	       std::stringstream ssTthetaXr ;
-	       ssTthetaXr<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5)
+	       ssTthetaXr<<std::setw(7) << setiosflags( std::ios::fixed ) << std::setprecision(5)
 		       << TthetaX ;
 	       const std::string strTthetaXr ( ssTthetaXr.str() ) ;
 	       std::stringstream ssTphiXr ;
-	       ssTphiXr<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5)
+	       ssTphiXr<<std::setw(7) << setiosflags( std::ios::fixed ) << std::setprecision(5)
 		       << TphiX ;
 	       const std::string strTphiXr ( ssTphiXr.str() ) ;
 */
 	       std::stringstream ssTthetaY ;
-	       ssTthetaY<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5) 
+	       ssTthetaY<<std::setw(7) << setiosflags( std::ios::fixed ) << std::setprecision(5) 
 			<< TthetaY*kRadToDeg << "*deg" ;
 	       const std::string strTthetaY ( ssTthetaY.str() ) ;
 	       std::stringstream ssTphiY ;
-	       ssTphiY<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5)
+	       ssTphiY<<std::setw(7) << setiosflags( std::ios::fixed ) << std::setprecision(5)
 		      << TphiY*kRadToDeg << "*deg" ;
 	       const std::string strTphiY ( ssTphiY.str() ) ;
 /*	       std::stringstream ssTthetaYr ;
-	       ssTthetaYr<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5)
+	       ssTthetaYr<<std::setw(7) << setiosflags( std::ios::fixed ) << std::setprecision(5)
 			 << TthetaY ;
 	       const std::string strTthetaYr ( ssTthetaYr.str() ) ;
 	       std::stringstream ssTphiYr ;
-	       ssTphiYr<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5)
+	       ssTphiYr<<std::setw(7) << setiosflags( std::ios::fixed ) << std::setprecision(5)
 		       << TphiY ;
 	       const std::string strTphiYr ( ssTphiYr.str() ) ;
 */	    
 	       std::stringstream ssTthetaZ ;
-	       ssTthetaZ<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5) 
+	       ssTthetaZ<<std::setw(7) << setiosflags( std::ios::fixed ) << std::setprecision(5) 
 			<< TthetaZ*kRadToDeg << "*deg" ;
 	       const std::string strTthetaZ ( ssTthetaZ.str() ) ;
 	       std::stringstream ssTphiZ ;
-	       ssTphiZ<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5)
+	       ssTphiZ<<std::setw(7) << setiosflags( std::ios::fixed ) << std::setprecision(5)
 		      << TphiZ*kRadToDeg << "*deg" ;
 	       const std::string strTphiZ ( ssTphiZ.str() ) ;
 	       std::stringstream ssTphiZr ;
-	       ssTphiZr<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5)
+	       ssTphiZr<<std::setw(7) << setiosflags( std::ios::fixed ) << std::setprecision(5)
 		       << TphiZ ;
 	       const std::string strTphiZr ( ssTphiZr.str() ) ;
 
 
 	       std::stringstream ssTxpos ;
-	       ssTxpos<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5)
+	       ssTxpos<<std::setw(7) << setiosflags( std::ios::fixed ) << std::setprecision(5)
 		      << psumy ;
 	       const std::string strTxpos ( ssTxpos.str() ) ;
 
 	       std::stringstream ssTypos ;
-	       ssTypos<<std::setw(7) << setiosflags( ios::fixed ) << std::setprecision(5)
+	       ssTypos<<std::setw(7) << setiosflags( std::ios::fixed ) << std::setprecision(5)
 		      << -psumx ;
 	       const std::string strTypos ( ssTypos.str() ) ;
 
 	       std::stringstream ssTzpos ;
-	       ssTzpos<<std::setw(11) << setiosflags( ios::fixed ) << std::setprecision(2)
+	       ssTzpos<<std::setw(11) << setiosflags( std::ios::fixed ) << std::setprecision(2)
 		      << -26733.5 + psumz ;
 	       const std::string strTzpos ( ssTzpos.str() ) ;
 	       //-------------- first tbrot file ---------------------------

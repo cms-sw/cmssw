@@ -13,7 +13,7 @@
 //
 // Original Author:  Georgios Daskalakis
 //         Created:  Thu Apr 12 17:01:03 CEST 2007
-// $Id: EcalDeadChannelRecoveryProducers.cc,v 1.4 2009/04/30 14:10:18 ferriff Exp $
+// $Id: EcalDeadChannelRecoveryProducers.cc,v 1.5 2009/12/14 22:23:56 wmtan Exp $
 //
 //
 
@@ -108,13 +108,13 @@ EcalDeadChannelRecoveryProducers::produce(edm::Event& evt, const edm::EventSetup
   EcalDeadChannelRecoveryAlgos *DeadChannelCorrector = new EcalDeadChannelRecoveryAlgos(theCaloTopology.product());
   
   //Dead Cells are read from a text file
-  vector<EBDetId>::const_iterator DeadCell;
+  std::vector<EBDetId>::const_iterator DeadCell;
 
   //
   //This should work only if we REMOVE the DC RecHit from the reduced RecHit collection 
   //
   for(EcalRecHitCollection::const_iterator it = hit_collection->begin(); it != hit_collection->end(); ++it) {     
-    vector<EBDetId>::const_iterator CheckDead = ChannelsDeadID.begin();
+    std::vector<EBDetId>::const_iterator CheckDead = ChannelsDeadID.begin();
     bool OverADeadRecHit=false;
     while(CheckDead<ChannelsDeadID.end()){
       if(it->detid()==*CheckDead){OverADeadRecHit=true;break;}
@@ -151,7 +151,7 @@ EcalDeadChannelRecoveryProducers::beginJob()
     int iphi=-10000;
     while(fileStatus != EOF) {
     fileStatus = fscanf(DeadCha,"%d %d\n",&ieta,&iphi);
-    //    cout<<" ieta "<<ieta<<" iphi "<<iphi<<endl;
+    //    std::cout<<" ieta "<<ieta<<" iphi "<<iphi<<std::endl;
     if(ieta==-10000||iphi==-10000){std::cout << "Problem reading Dead Channels file "<<std::endl;break;}
     EBDetId cell(ieta,iphi);
     ChannelsDeadID.push_back(cell);

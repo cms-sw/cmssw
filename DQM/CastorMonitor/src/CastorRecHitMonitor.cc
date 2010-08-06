@@ -38,7 +38,7 @@ void CastorRecHitMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   CastorBaseMonitor::setup(ps,dbe);
   baseFolder_ = rootFolder_+"CastorRecHitMonitor";
 
-   if(fVerbosity>0) cout << "CastorRecHitMonitor::setup (start)" << endl;
+   if(fVerbosity>0) std::cout << "CastorRecHitMonitor::setup (start)" << std::endl;
   
   if ( ps.getUntrackedParameter<bool>("RecHitsPerChannel", false) ){
     doPerChannel_ = true;
@@ -73,10 +73,10 @@ CastorRecHitsOccupancy->GetYaxis()->SetTitle("sector");
   } 
 
   else{
-  if(fVerbosity>0) cout << "CastorRecHitMonitor::setup - NO DQMStore service" << endl; 
+  if(fVerbosity>0) std::cout << "CastorRecHitMonitor::setup - NO DQMStore service" << std::endl; 
  }
 
-  if(fVerbosity>0) cout << "CastorRecHitMonitor::setup (end)" << endl;
+  if(fVerbosity>0) std::cout << "CastorRecHitMonitor::setup (end)" << std::endl;
 
   return;
 }
@@ -92,11 +92,11 @@ namespace CastorRecHitPerChan{
   inline void perChanHists(const RecHit& rhit, 
 			   std::map<HcalCastorDetId, MonitorElement*> &toolE, 
 			   std::map<HcalCastorDetId, MonitorElement*> &toolT,
-			   DQMStore* dbe, string baseFolder) {
+			   DQMStore* dbe, std::string baseFolder) {
     
     std::map<HcalCastorDetId,MonitorElement*>::iterator _mei;
 
-    string type = "CastorRecHitPerChannel";
+    std::string type = "CastorRecHitPerChannel";
     if(dbe) dbe->setCurrentFolder(baseFolder+"/"+type);
     
     ////---- energies by channel  
@@ -139,14 +139,14 @@ namespace CastorRecHitPerChan{
 
 void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits ){
 
-  if(fVerbosity>0) cout << "==>CastorRecHitMonitor::processEvent !!!"<< endl;
+  if(fVerbosity>0) std::cout << "==>CastorRecHitMonitor::processEvent !!!"<< std::endl;
 
 
   ////---- fill the event number
    meEVT_->Fill(ievt_);
 
   if(!m_dbe) { 
-    if(fVerbosity>0) cout <<"CastorRecHitMonitor::processEvent => DQMStore is not instantiated !!!"<<endl;  
+    if(fVerbosity>0) std::cout <<"CastorRecHitMonitor::processEvent => DQMStore is not instantiated !!!"<<std::endl;  
     return; 
   }
 
@@ -156,7 +156,7 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits 
 
      if(castorHits.size()>0)
     {    
-       if(fVerbosity>0) cout << "==>CastorRecHitMonitor::processEvent: castorHits.size()>0 !!!" << endl; 
+       if(fVerbosity>0) std::cout << "==>CastorRecHitMonitor::processEvent: castorHits.size()>0 !!!" << std::endl; 
 
       ////---- loop over all hits
       for (CASTORiter=castorHits.begin(); CASTORiter!=castorHits.end(); ++CASTORiter) { 
@@ -198,10 +198,10 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits 
 	
    }
 
-  else { if(fVerbosity>0) cout<<"CastorRecHitMonitor::processEvent NO Castor RecHits !!!"<<endl; }
+  else { if(fVerbosity>0) std::cout<<"CastorRecHitMonitor::processEvent NO Castor RecHits !!!"<<std::endl; }
 
   if (showTiming) { 
-      cpu_timer.stop(); cout << " TIMER::CastorRecHit -> " << cpu_timer.cpuTime() << endl; 
+      cpu_timer.stop(); std::cout << " TIMER::CastorRecHit -> " << cpu_timer.cpuTime() << std::endl; 
       cpu_timer.reset(); cpu_timer.start();  
     }
     

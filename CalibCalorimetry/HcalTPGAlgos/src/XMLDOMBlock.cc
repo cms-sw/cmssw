@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Thu Sep 27 01:43:42 CEST 2007
-// $Id: XMLDOMBlock.cc,v 1.3 2009/07/09 16:12:04 kukartse Exp $
+// $Id: XMLDOMBlock.cc,v 1.4 2009/10/25 21:19:45 kvtsang Exp $
 //
 
 // system include files
@@ -37,7 +37,7 @@ XMLDOMBlock & XMLDOMBlock::operator+=( const XMLDOMBlock & other)
 {
   DOMNodeList * _children = other.getDocumentConst()->getDocumentElement()->getChildNodes();
   int _length = _children->getLength();
-  //cout << "Children nodes:" << _length << endl;
+  //std::cout << "Children nodes:" << _length << std::endl;
   DOMNode * _node;
   for(int i=0;i!=_length;i++){
     _node = _children->item(i);
@@ -50,15 +50,15 @@ XMLDOMBlock & XMLDOMBlock::operator+=( const XMLDOMBlock & other)
 
 XMLDOMBlock::XMLDOMBlock()
 {
-  //cout << "XMLDOMBlock (or derived): default constructor called - this is meaningless!" << endl;
-  //cout << "XMLDOMBlock (or derived): use yourClass( loaderBaseConfig & ) instead." << endl;
+  //std::cout << "XMLDOMBlock (or derived): default constructor called - this is meaningless!" << std::endl;
+  //std::cout << "XMLDOMBlock (or derived): use yourClass( loaderBaseConfig & ) instead." << std::endl;
   init( "ROOT" );
 }
 
-XMLDOMBlock::XMLDOMBlock( string _root, int rootElementName )
+XMLDOMBlock::XMLDOMBlock( std::string _root, int rootElementName )
 {
-  //cout << "XMLDOMBlock (or derived): default constructor called - this is meaningless!" << endl;
-  //cout << "XMLDOMBlock (or derived): use yourClass( loaderBaseConfig & ) instead." << endl;
+  //std::cout << "XMLDOMBlock (or derived): default constructor called - this is meaningless!" << std::endl;
+  //std::cout << "XMLDOMBlock (or derived): use yourClass( loaderBaseConfig & ) instead." << std::endl;
   init( _root );
 }
 
@@ -98,20 +98,20 @@ XMLDOMBlock::XMLDOMBlock( InputSource & _source )
     }
   catch (const XMLException& toCatch) {
     char* message = XMLString::transcode(toCatch.getMessage());
-    cout << "Exception message is: \n"
+    std::cout << "Exception message is: \n"
 	 << message << "\n";
     XMLString::release(&message);
     //return -1;
   }
   catch (const DOMException& toCatch) {
     char* message = XMLString::transcode(toCatch.msg);
-    cout << "Exception message is: \n"
+    std::cout << "Exception message is: \n"
 	 << message << "\n";
     XMLString::release(&message);
     //return -1;
   }
   catch (...) {
-    cout << "Unexpected Exception \n" ;
+    std::cout << "Unexpected Exception \n" ;
     //return -1;
   }
 
@@ -142,20 +142,20 @@ void XMLDOMBlock::parse( InputSource & _source )
     }
   catch (const XMLException& toCatch) {
     char* message = XMLString::transcode(toCatch.getMessage());
-    cout << "Exception message is: \n"
+    std::cout << "Exception message is: \n"
 	 << message << "\n";
     XMLString::release(&message);
     //return -1;
   }
   catch (const DOMException& toCatch) {
     char* message = XMLString::transcode(toCatch.msg);
-    cout << "Exception message is: \n"
+    std::cout << "Exception message is: \n"
 	 << message << "\n";
     XMLString::release(&message);
     //return -1;
   }
   catch (...) {
-    cout << "Unexpected Exception \n" ;
+    std::cout << "Unexpected Exception \n" ;
     //return -1;
   }
 
@@ -165,7 +165,7 @@ void XMLDOMBlock::parse( InputSource & _source )
 
 
 
-int XMLDOMBlock::init( string _root )
+int XMLDOMBlock::init( std::string _root )
 {
   theProcessor = XMLProcessor::getInstance();
 
@@ -207,7 +207,7 @@ int XMLDOMBlock::init( string _root )
 
 
 
-XMLDOMBlock::XMLDOMBlock( string xmlFileName )
+XMLDOMBlock::XMLDOMBlock( std::string xmlFileName )
 {
   //
   //_____ following removed as a xalan-c component_____________________
@@ -242,20 +242,20 @@ XMLDOMBlock::XMLDOMBlock( string xmlFileName )
     }
   catch (const XMLException& toCatch) {
     char* message = XMLString::transcode(toCatch.getMessage());
-    cout << "Exception message is: \n"
+    std::cout << "Exception message is: \n"
 	 << message << "\n";
     XMLString::release(&message);
     //return -1;
   }
   catch (const DOMException& toCatch) {
     char* message = XMLString::transcode(toCatch.msg);
-    cout << "Exception message is: \n"
+    std::cout << "Exception message is: \n"
 	 << message << "\n";
     XMLString::release(&message);
     //return -1;
   }
   catch (...) {
-    cout << "Unexpected Exception \n" ;
+    std::cout << "Unexpected Exception \n" ;
     //return -1;
   }
 
@@ -264,7 +264,7 @@ XMLDOMBlock::XMLDOMBlock( string xmlFileName )
 
 }
 
-DOMDocument * XMLDOMBlock::getNewDocument( string xmlFileName )
+DOMDocument * XMLDOMBlock::getNewDocument( std::string xmlFileName )
 {
   delete document;
 
@@ -287,20 +287,20 @@ DOMDocument * XMLDOMBlock::getNewDocument( string xmlFileName )
     }
   catch (const XMLException& toCatch) {
     char* message = XMLString::transcode(toCatch.getMessage());
-    cout << "Exception message is: \n"
+    std::cout << "Exception message is: \n"
 	 << message << "\n";
     XMLString::release(&message);
     //return -1;
   }
   catch (const DOMException& toCatch) {
     char* message = XMLString::transcode(toCatch.msg);
-    cout << "Exception message is: \n"
+    std::cout << "Exception message is: \n"
 	 << message << "\n";
     XMLString::release(&message);
     //return -1;
   }
   catch (...) {
-    cout << "Unexpected Exception \n" ;
+    std::cout << "Unexpected Exception \n" ;
     //return -1;
   }
 
@@ -320,7 +320,7 @@ DOMDocument * XMLDOMBlock::getDocumentConst( void ) const
   return document;
 }
 
-int XMLDOMBlock::write( string target )
+int XMLDOMBlock::write( std::string target )
 {
   theProcessor -> write( this, target );
 
@@ -348,21 +348,21 @@ XMLDOMBlock::~XMLDOMBlock()
   */
 }
 
-const char * XMLDOMBlock::getTagValue( const string & tagName, int _item, DOMDocument * _document )
+const char * XMLDOMBlock::getTagValue( const std::string & tagName, int _item, DOMDocument * _document )
 {
   if (!_document) _document = document;
   const char * _result = XMLString::transcode( _document -> getElementsByTagName( XMLProcessor::_toXMLCh( tagName ) ) -> item( _item ) -> getFirstChild()-> getNodeValue() );
   return _result;
 }
 
-const char * XMLDOMBlock::getTagValue( const string & tagName, int _item, DOMElement * _document )
+const char * XMLDOMBlock::getTagValue( const std::string & tagName, int _item, DOMElement * _document )
 {
   if (!_document) return 0;
   const char * _result = XMLString::transcode( _document -> getElementsByTagName( XMLProcessor::_toXMLCh( tagName ) ) -> item( _item ) -> getFirstChild()-> getNodeValue() );
   return _result;
 }
 
-DOMNode * XMLDOMBlock::setTagValue( const string & tagName, const string & tagValue, int _item, DOMDocument * _document )
+DOMNode * XMLDOMBlock::setTagValue( const std::string & tagName, const std::string & tagValue, int _item, DOMDocument * _document )
 {
   if (!_document) _document = document;
   DOMNode * the_tag = _document -> getElementsByTagName( XMLProcessor::_toXMLCh( tagName ) ) -> item( _item );
@@ -370,7 +370,7 @@ DOMNode * XMLDOMBlock::setTagValue( const string & tagName, const string & tagVa
   return the_tag;
 }
 
-DOMNode * XMLDOMBlock::setTagValue(DOMElement * _elem, const string & tagName, const string & tagValue, int _item )
+DOMNode * XMLDOMBlock::setTagValue(DOMElement * _elem, const std::string & tagName, const std::string & tagValue, int _item )
 {
   if (!_elem) return 0;
   DOMNode * the_tag = _elem -> getElementsByTagName( XMLProcessor::_toXMLCh( tagName ) ) -> item( _item );
@@ -380,7 +380,7 @@ DOMNode * XMLDOMBlock::setTagValue(DOMElement * _elem, const string & tagName, c
   return the_tag;
 }
 
-DOMNode * XMLDOMBlock::setTagValue( const string & tagName, const int & tagValue, int _item, DOMDocument * _document )
+DOMNode * XMLDOMBlock::setTagValue( const std::string & tagName, const int & tagValue, int _item, DOMDocument * _document )
 {
   if (!_document) _document = document;
   DOMNode * the_tag = _document -> getElementsByTagName( XMLProcessor::_toXMLCh( tagName ) ) -> item( _item );
@@ -388,7 +388,7 @@ DOMNode * XMLDOMBlock::setTagValue( const string & tagName, const int & tagValue
   return the_tag;
 }
 
-DOMNode * XMLDOMBlock::setTagValue( DOMElement * _elem, const string & tagName, const int & tagValue, int _item )
+DOMNode * XMLDOMBlock::setTagValue( DOMElement * _elem, const std::string & tagName, const int & tagValue, int _item )
 {
   if (!_elem) return 0;
   DOMNode * the_tag = _elem -> getElementsByTagName( XMLProcessor::_toXMLCh( tagName ) ) -> item( _item );
@@ -398,7 +398,7 @@ DOMNode * XMLDOMBlock::setTagValue( DOMElement * _elem, const string & tagName, 
   return the_tag;
 }
 
-const char * XMLDOMBlock::getTagAttribute( const string & tagName, const string & attrName, int _item )
+const char * XMLDOMBlock::getTagAttribute( const std::string & tagName, const std::string & attrName, int _item )
 {
   DOMElement * _tag = (DOMElement *)(document -> getElementsByTagName( XMLProcessor::_toXMLCh( tagName ) ) -> item( _item ));
   const char * _result = XMLString::transcode( _tag -> getAttribute( XMLProcessor::_toXMLCh( attrName ) ) );
@@ -406,7 +406,7 @@ const char * XMLDOMBlock::getTagAttribute( const string & tagName, const string 
   return _result;
 }
 
-DOMNode * XMLDOMBlock::setTagAttribute( const string & tagName, const string & attrName, const string & attrValue, int _item )
+DOMNode * XMLDOMBlock::setTagAttribute( const std::string & tagName, const std::string & attrName, const std::string & attrValue, int _item )
 {
   DOMNode * the_tag = document -> getElementsByTagName( XMLProcessor::_toXMLCh( tagName ) ) -> item( _item );
   DOMElement * _tag = (DOMElement *)the_tag;
@@ -414,7 +414,7 @@ DOMNode * XMLDOMBlock::setTagAttribute( const string & tagName, const string & a
   return the_tag;
 }
 
-DOMNode * XMLDOMBlock::setTagAttribute( DOMElement * _elem, const string & tagName, const string & attrName, const string & attrValue, int _item )
+DOMNode * XMLDOMBlock::setTagAttribute( DOMElement * _elem, const std::string & tagName, const std::string & attrName, const std::string & attrValue, int _item )
 {
   if (!_elem) return 0;
   DOMNode * the_tag = _elem ->  getElementsByTagName( XMLProcessor::_toXMLCh( tagName ) ) -> item( _item );
@@ -425,7 +425,7 @@ DOMNode * XMLDOMBlock::setTagAttribute( DOMElement * _elem, const string & tagNa
   return the_tag;
 }
 
-DOMNode * XMLDOMBlock::setTagAttribute( const string & tagName, const string & attrName, const int & attrValue, int _item )
+DOMNode * XMLDOMBlock::setTagAttribute( const std::string & tagName, const std::string & attrName, const int & attrValue, int _item )
 {
   DOMNode * the_tag = document -> getElementsByTagName( XMLProcessor::_toXMLCh( tagName ) ) -> item( _item );
   DOMElement * _tag = (DOMElement *)the_tag;
@@ -433,7 +433,7 @@ DOMNode * XMLDOMBlock::setTagAttribute( const string & tagName, const string & a
   return the_tag;
 }
 
-DOMNode * XMLDOMBlock::setTagAttribute( DOMElement * _elem, const string & tagName, const string & attrName, const int & attrValue, int _item )
+DOMNode * XMLDOMBlock::setTagAttribute( DOMElement * _elem, const std::string & tagName, const std::string & attrName, const int & attrValue, int _item )
 {
   if (!_elem) return 0;
   DOMNode * the_tag = _elem -> getElementsByTagName( XMLProcessor::_toXMLCh( tagName ) ) -> item( _item );
@@ -449,7 +449,7 @@ string XMLDOMBlock::getTimestamp( time_t _time )
   char timebuf[50];
   //strftime( timebuf, 50, "%c", gmtime( &_time ) );
   strftime( timebuf, 50, "%Y-%m-%d %H:%M:%S.0", gmtime( &_time ) );
-  string creationstamp = timebuf;
+  std::string creationstamp = timebuf;
 
   return creationstamp;
 }
@@ -503,7 +503,7 @@ const XObjectPtr XMLDOMBlock::eval_xpath( std::string context, std::string expre
 								  XalanDOMString(context.c_str()).c_str(),
 								  *thePrefixResolver);
   if (theContextNode == 0){
-    //cerr << "Warning -- No nodes matched the location path " << context << endl;
+    //std::cerr << "Warning -- No nodes matched the location path " << context << std::endl;
     XObjectPtr _null;
     return _null;
   }

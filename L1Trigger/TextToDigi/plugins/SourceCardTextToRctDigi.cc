@@ -11,7 +11,7 @@ Description: Input text file to be loaded into the source cards and output RCT d
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Mar  9 19:11:51 CET 2007
-// $Id: SourceCardTextToRctDigi.cc,v 1.6 2008/07/05 14:53:27 tapper Exp $
+// $Id: SourceCardTextToRctDigi.cc,v 1.7 2009/03/26 14:53:03 tapper Exp $
 //
 //
 
@@ -36,13 +36,13 @@ SourceCardTextToRctDigi::SourceCardTextToRctDigi(const edm::ParameterSet& iConfi
   produces<L1CaloRegionCollection>();
 
   // Open the input file
-  m_file.open(m_textFileName.c_str(),ios::in);
+  m_file.open(m_textFileName.c_str(),std::ios::in);
 
   if(!m_file.good())
     {
       throw cms::Exception("SourceCardTextToRctDigiTextFileOpenError")
         << "SourceCardTextToRctDigi::SourceCardTextToRctDigi : "
-        << " couldn't open the file " << m_textFileName << " for reading" << endl;
+        << " couldn't open the file " << m_textFileName << " for reading" << std::endl;
     }
 
   // Make a SC routing object
@@ -58,8 +58,8 @@ SourceCardTextToRctDigi::~SourceCardTextToRctDigi()
 
 /// Append empty digi collection
 void SourceCardTextToRctDigi::putEmptyDigi(edm::Event& iEvent) {
-  auto_ptr<L1CaloEmCollection> em (new L1CaloEmCollection);
-  auto_ptr<L1CaloRegionCollection> rgn (new L1CaloRegionCollection);
+  std::auto_ptr<L1CaloEmCollection> em (new L1CaloEmCollection);
+  std::auto_ptr<L1CaloRegionCollection> rgn (new L1CaloRegionCollection);
   for (int i=0; i<NUM_RCT_CRATES; i++){  
     for (int j=0; j<4; j++) {
       em->push_back(L1CaloEmCand(0, i, true));
@@ -79,7 +79,7 @@ void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup&
 {
   // Skip event if required
   if (m_nevt < m_fileEventOffset){
-    //    string tmp;
+    //    std::string tmp;
     // for (unsigned i=0;i<NUM_LINES_PER_EVENT;i++){
     //getline(m_file,tmp);
     //}
@@ -88,27 +88,27 @@ void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup&
     return;
   } else if (m_nevt==0 && m_fileEventOffset<0) {
     //skip first fileEventOffset input events
-    string tmp; 
+    std::string tmp; 
     for(int i=0;i<abs(m_fileEventOffset); i++)
       for (unsigned line=0; line<NUM_LINES_PER_EVENT; line++)  
 	if(!getline(m_file,tmp))
 	  {
 	    throw cms::Exception("SourceCardTextToRctDigiTextFileReadError")
 	      << "SourceCardTextToRctDigi::produce() : "
-	      << " couldn't read from the file " << m_textFileName << endl;
+	      << " couldn't read from the file " << m_textFileName << std::endl;
 	  }
   }
   
 
   // New collections
-  auto_ptr<L1CaloEmCollection> em (new L1CaloEmCollection);
-  auto_ptr<L1CaloRegionCollection> rgn (new L1CaloRegionCollection);
+  std::auto_ptr<L1CaloEmCollection> em (new L1CaloEmCollection);
+  std::auto_ptr<L1CaloRegionCollection> rgn (new L1CaloRegionCollection);
 
   // General variables  
   unsigned long VHDCI[2][2];
   int routingMode;
   int crate;
-  string dataString; 
+  std::string dataString; 
   unsigned short eventNumber;
   unsigned short logicalCardID;
 
@@ -134,7 +134,7 @@ void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup&
     {
       throw cms::Exception("SourceCardTextToRctDigiTextFileReadError")
         << "SourceCardTextToRctDigi::produce : "
-        << " unexpected end of file " << m_textFileName << endl;
+        << " unexpected end of file " << m_textFileName << std::endl;
     }      
   
   int thisEventNumber=-1;  
@@ -145,7 +145,7 @@ void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup&
     {
       throw cms::Exception("SourceCardTextToRctDigiTextFileReadError")
         << "SourceCardTextToRctDigi::SourceCardTextToRctDigi : "
-        << " couldn't read from the file " << m_textFileName << endl;
+        << " couldn't read from the file " << m_textFileName << std::endl;
     }   
 
     // Convert the string to useful info
@@ -184,7 +184,7 @@ void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup&
       // Something went wrong
       throw cms::Exception("SourceCardtextToRctDigiError")
         << "SourceCardTextToRctDigi::produce : "
-        << " unknown routing mode=" << routingMode << endl;
+        << " unknown routing mode=" << routingMode << std::endl;
     }
   }
 

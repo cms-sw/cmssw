@@ -52,7 +52,7 @@ void PlotUtils::printHelix
       outFile << ", {"<<P1.x()<<","<<P1.y()<<",("<<P1.z()<<"-zs)*mz}";
       P0 = P1;
     }
-    outFile << "}]" << endl;
+    outFile << "}]" << std::endl;
   }
   else
   {
@@ -60,6 +60,6 @@ void PlotUtils::printHelix
     GlobalPoint P1 = p2;
 
     outFile << ", Line[{{"<<P0.x()<<","<<P0.y()<<",("<<P0.z()<<"-zs)*mz}"
-                  << ", {"<<P1.x()<<","<<P1.y()<<",("<<P1.z()<<"-zs)*mz}}]" << endl;
+                  << ", {"<<P1.x()<<","<<P1.y()<<",("<<P1.z()<<"-zs)*mz}}]" << std::endl;
   }
 }

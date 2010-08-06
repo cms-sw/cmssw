@@ -224,7 +224,7 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
 
     //call the fitter
-    vector<Trajectory> result = fit->fit(theTC->seed(), hits, theTSOS);
+    std::vector<Trajectory> result = fit->fit(theTC->seed(), hits, theTSOS);
     if (result.size()==0) continue;
     std::vector<TrajectoryMeasurement> vtm = result[0].measurements();
     double tchi2 = 0;
@@ -250,10 +250,10 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       double delta = 99999;
       LocalPoint rhitLPv = rhit->localPosition();
 
-      vector<PSimHit> assSimHits = hitAssociator->associateHit(*(rhit->hit()));
+      std::vector<PSimHit> assSimHits = hitAssociator->associateHit(*(rhit->hit()));
       if (assSimHits.size()==0) continue;
       PSimHit shit;
-      for(vector<PSimHit>::const_iterator m=assSimHits.begin(); m<assSimHits.end(); m++){
+      for(std::vector<PSimHit>::const_iterator m=assSimHits.begin(); m<assSimHits.end(); m++){
 	if ((m->localPosition()-rhitLPv).mag()<delta) {
 	  shit=*m;
 	  delta = (m->localPosition()-rhitLPv).mag();
@@ -291,7 +291,7 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	std::pair<LocalPoint,LocalVector> closestPair;
 	const StripGeomDetUnit* stripDet =(StripGeomDetUnit*) ((const GluedGeomDet *)(rhit)->det())->stereoDet();
 	const BoundPlane& plane = (rhit)->det()->surface();
-	for(vector<PSimHit>::const_iterator m=assSimHits.begin(); m<assSimHits.end(); m++) {
+	for(std::vector<PSimHit>::const_iterator m=assSimHits.begin(); m<assSimHits.end(); m++) {
 	  //project simhit;
 	  std::pair<LocalPoint,LocalVector> hitPair = projectHit((*m),stripDet,plane);
 	  distx = fabs(rechitmatchedx - hitPair.first.x());
@@ -403,7 +403,7 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       if (dynamic_cast<const SiStripMatchedRecHit2D*>((rhit)->hit())) {
 	//mono
-	LogTrace("TestHits") << "MONO HIT" << endl;
+	LogTrace("TestHits") << "MONO HIT" << std::endl;
 	CTTRHp tMonoHit = 
 	  theBuilder->build(dynamic_cast<const SiStripMatchedRecHit2D*>((rhit)->hit())->monoHit());
 	if (tMonoHit==0) continue;
@@ -497,7 +497,7 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	hPullGM_Z_ts_mono[title.str()]->Fill( pullGMZ_ts_mono );
 
 	//stereo
-	LogTrace("TestHits") << "STEREO HIT" << endl;
+	LogTrace("TestHits") << "STEREO HIT" << std::endl;
 	CTTRHp tStereoHit = 
 	  theBuilder->build(dynamic_cast<const SiStripMatchedRecHit2D*>((rhit)->hit())->stereoHit());
 	if (tStereoHit==0) continue;
@@ -632,10 +632,10 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //       double delta = 99999;
 //       LocalPoint rhitLP = rhit->localPosition();
 
-//       vector<PSimHit> assSimHits = hitAssociator->associateHit(*(*rhit)->hit());
+//       std::vector<PSimHit> assSimHits = hitAssociator->associateHit(*(*rhit)->hit());
 //       if (assSimHits.size()==0) continue;
 //       PSimHit shit;
-//       for(vector<PSimHit>::const_iterator m=assSimHits.begin(); m<assSimHits.end(); m++){
+//       for(std::vector<PSimHit>::const_iterator m=assSimHits.begin(); m<assSimHits.end(); m++){
 // 	if ((*m-rhitLP).mag()<delta) {
 // 	  shit=*m;
 // 	  delta = (*m-rhitLP).mag();
@@ -665,7 +665,7 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //       //plot chi2 increment
 //       MeasurementExtractor me(currentState);
 //       double chi2increment = computeChi2Increment(me,*rhit);
-//       LogTrace("TestHits") << "chi2increment=" << chi2increment << endl;
+//       LogTrace("TestHits") << "chi2increment=" << chi2increment << std::endl;
 //       title.str("");
 //       title << "Chi2Increment_" << subdetId << "-" << layerId;
 //       hChi2Increment[title.str()]->Fill( chi2increment );
@@ -747,7 +747,7 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 //       if (dynamic_cast<const SiStripMatchedRecHit2D*>((*rhit)->hit())) {
 // 	//mono
-// 	LogTrace("TestHits") << "MONO HIT" << endl;
+// 	LogTrace("TestHits") << "MONO HIT" << std::endl;
 // 	CTTRHp tMonoHit = 
 // 	  theBuilder->build(dynamic_cast<const SiStripMatchedRecHit2D*>((*rhit)->hit())->monoHit());
 // 	if (tMonoHit==0) continue;
@@ -841,7 +841,7 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 // 	hPullGM_Z_ts_mono[title.str()]->Fill( pullGMZ_ts_mono );
 
 // 	//stereo
-// 	LogTrace("TestHits") << "STEREO HIT" << endl;
+// 	LogTrace("TestHits") << "STEREO HIT" << std::endl;
 // 	CTTRHp tStereoHit = 
 // 	  theBuilder->build(dynamic_cast<const SiStripMatchedRecHit2D*>((*rhit)->hit())->stereoHit());
 // 	if (tStereoHit==0) continue;

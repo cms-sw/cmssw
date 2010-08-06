@@ -45,7 +45,7 @@ bool reco::TauMassTagInfo::calculateTrkP4(double matching_cone,
 
   const TrackRef leadTk= isolatedTau->leadingSignalTrack(matching_cone,leading_trk_pt);
   if (!leadTk) {
-    cout <<" TauMassTagInfo::  No Leading Track !!  " << endl;    
+    std::cout <<" TauMassTagInfo::  No Leading Track !!  " << std::endl;    
     return false;
   }
   math::XYZVector momentum = (*leadTk).momentum();

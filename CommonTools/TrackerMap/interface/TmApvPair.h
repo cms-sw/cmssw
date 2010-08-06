@@ -1,6 +1,5 @@
 #include <map>
 #include <string>
-using namespace std;
 
 class TmModule;
 
@@ -10,7 +9,7 @@ class TmApvPair  {
   ~TmApvPair();
   int red,green,blue;
   float value;
-  string text;
+  std::string text;
   int count;
   int idex;//Fed and position in fed
   int crate;

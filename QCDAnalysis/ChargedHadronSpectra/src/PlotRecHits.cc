@@ -52,7 +52,7 @@ void PlotRecHits::printPixelRecHit(const SiPixelRecHit * recHit)
                    <<"{"<<p11.x()<<","<<p11.y()<<",("<<p11.z()<<"-zs)*mz}, "
                    <<"{"<<p10.x()<<","<<p10.y()<<",("<<p10.z()<<"-zs)*mz}, "
                    <<"{"<<p00.x()<<","<<p00.y()<<",("<<p00.z()<<"-zs)*mz}}]}]"
-       << endl;
+       << std::endl;
   
   // RecHit
   LocalPoint lpos; GlobalPoint p;
@@ -62,14 +62,14 @@ void PlotRecHits::printPixelRecHit(const SiPixelRecHit * recHit)
                     recHit->localPosition().z());
 
   p = theTracker->idToDet(id)->toGlobal(lpos);
-  file << ", Point[{"<<p.x()<<","<<p.y()<<",("<<p.z()<<"-zs)*mz}]" << endl;
+  file << ", Point[{"<<p.x()<<","<<p.y()<<",("<<p.z()<<"-zs)*mz}]" << std::endl;
 
   // Cluster details
   SiPixelRecHit::ClusterRef const& cluster = recHit->cluster();
-  vector<SiPixelCluster::Pixel> pixels = cluster->pixels();
+  std::vector<SiPixelCluster::Pixel> pixels = cluster->pixels();
 
   file << ", Text[StyleForm[\"r\", FontFamily->\"Helvetica\", URL -> \"RecHit |";
-  for(vector<SiPixelCluster::Pixel>::const_iterator
+  for(std::vector<SiPixelCluster::Pixel>::const_iterator
     pixel = pixels.begin(); pixel!= pixels.end(); pixel++)
   {
     file << " [" << int(pixel->x)
@@ -79,7 +79,7 @@ void PlotRecHits::printPixelRecHit(const SiPixelRecHit * recHit)
   file << "\"]";
 
   file << ", {"<< p.x()<<","<<p.y()<<",("<<p.z()<<"-zs)*mz}"
-       << ", {-1,1}]" << endl;
+       << ", {-1,1}]" << std::endl;
 }
 
 /*****************************************************************************/
@@ -103,7 +103,7 @@ void PlotRecHits::printStripRecHit(const SiStripRecHit2D * recHit)
                    <<"{"<<p11.x()<<","<<p11.y()<<",("<<p11.z()<<"-zs)*mz}, "
                    <<"{"<<p10.x()<<","<<p10.y()<<",("<<p10.z()<<"-zs)*mz}, "
                    <<"{"<<p00.x()<<","<<p00.y()<<",("<<p00.z()<<"-zs)*mz}}]}]"
-       << endl;
+       << std::endl;
 
   // RecHit
   LocalPoint lpos; GlobalPoint p;
@@ -116,7 +116,7 @@ void PlotRecHits::printStripRecHit(const SiStripRecHit2D * recHit)
   lpos = LocalPoint(recHit->localPosition().x(),
                 -y, recHit->localPosition().z());
   p = theTracker->idToDet(id)->toGlobal(lpos);
-  file << ""<<p.x()<<","<<p.y()<<",("<<p.z()<<"-zs)*mz}}]" << endl;
+  file << ""<<p.x()<<","<<p.y()<<",("<<p.z()<<"-zs)*mz}}]" << std::endl;
 }
 
 /*****************************************************************************/
@@ -124,10 +124,10 @@ void PlotRecHits::printPixelRecHits(const edm::Event& ev)
 {
   // Get pixel hit collections
 /*
-  vector<edm::Handle<SiPixelRecHitCollection> > pixelColls;
+  std::vector<edm::Handle<SiPixelRecHitCollection> > pixelColls;
   ev.getManyByType(pixelColls);
 
-  for(vector<edm::Handle<SiPixelRecHitCollection> >::const_iterator
+  for(std::vector<edm::Handle<SiPixelRecHitCollection> >::const_iterator
       pixelColl = pixelColls.begin();
       pixelColl!= pixelColls.end(); pixelColl++)
   {
@@ -162,10 +162,10 @@ void PlotRecHits::printStripRecHits(const edm::Event& ev)
 {
   {
   // Get strip hit collections
-  vector<edm::Handle<SiStripRecHit2DCollection> > stripColls;
+  std::vector<edm::Handle<SiStripRecHit2DCollection> > stripColls;
   ev.getManyByType(stripColls);
   
-  for(vector<edm::Handle<SiStripRecHit2DCollection> >::const_iterator
+  for(std::vector<edm::Handle<SiStripRecHit2DCollection> >::const_iterator
       stripColl = stripColls.begin();
       stripColl!= stripColls.end(); stripColl++)
   {
@@ -183,10 +183,10 @@ void PlotRecHits::printStripRecHits(const edm::Event& ev)
 
   // Get matched strip hit collections
   {
-  vector<edm::Handle<SiStripMatchedRecHit2DCollection> > stripColls;
+  std::vector<edm::Handle<SiStripMatchedRecHit2DCollection> > stripColls;
   ev.getManyByType(stripColls);
 
-  for(vector<edm::Handle<SiStripMatchedRecHit2DCollection> >::const_iterator
+  for(std::vector<edm::Handle<SiStripMatchedRecHit2DCollection> >::const_iterator
       stripColl = stripColls.begin();
       stripColl!= stripColls.end(); stripColl++)
   {
@@ -205,7 +205,7 @@ void PlotRecHits::printStripRecHits(const edm::Event& ev)
         LocalPoint lpos = recHit->localPosition();
         GlobalPoint p = theTracker->idToDet(id)->toGlobal(lpos);
 
-        file << ", Point[{"<< p.x()<<","<<p.y()<<",("<<p.z()<<"-zs)*mz}]" << endl;
+        file << ", Point[{"<< p.x()<<","<<p.y()<<",("<<p.z()<<"-zs)*mz}]" << std::endl;
       }
     }
   }

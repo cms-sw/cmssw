@@ -10,16 +10,16 @@
  Description: interface to the HCAL logical map
 
  Usage:
-    #include <boost/shared_ptr.hpp>
+    #include <boost/boost::shared_ptr.hpp>
 
-    shared_ptr<LMap> the_map(new LMap);
+    boost::shared_ptr<LMap> the_map(new LMap);
     the_map -> read( "your-accessor-string", "optional map type" );
 
 */
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Nov 06 14:30:33 CDT 2007
-// $Id: LMap.h,v 1.5 2009/08/04 22:25:17 kukartse Exp $
+// $Id: LMap.h,v 1.6 2009/08/05 16:23:31 kukartse Exp $
 //
 
 // system include files
@@ -32,9 +32,6 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 
-using namespace std;
-using namespace boost;
-
 class LMapRow
 {
  public:
@@ -45,18 +42,18 @@ class LMapRow
   int eta, phi, dphi, depth;
   //string det;
   HcalSubdetector det;
-  string rbx;
+  std::string rbx;
   int wedge, rm, pixel, qie, adc, rm_fi, fi_ch;
   int crate, htr; // crate-slot
-  string fpga;    // top-bottom
+  std::string fpga;    // top-bottom
   int htr_fi;     // fiber
   int dcc_sl, spigo, dcc, slb;
-  string slbin, slbin2, slnam;
+  std::string slbin, slbin2, slnam;
   int rctcra, rctcar, rctcon;
-  string rctnam;
+  std::string rctnam;
   int fedid;
 
-  string let_code; // specific to HO
+  std::string let_code; // specific to HO
 
  private:
 
@@ -72,7 +69,7 @@ class LMapDetId
 
   int side;
   int eta, phi, depth;
-  string subdetector;
+  std::string subdetector;
 
 };
 
@@ -85,12 +82,12 @@ class LMap
   ~LMap();
 
   // type = "HNEF" or "HO", matters for
-  int read( string accessor, string type = "HBEF" );
+  int read( std::string accessor, std::string type = "HBEF" );
   std::map<int,LMapRow> & get_map( void );
   
  private:
   class impl;
-  shared_ptr<impl> p_impl;
+  boost::shared_ptr<impl> p_impl;
 };
 
 
@@ -107,11 +104,11 @@ class EMap
   {
   public:
     int rawId,crate,slot,dcc,spigot,fiber,fiberchan,ieta,iphi,idepth;
-    string topbottom,subdet;
+    std::string topbottom,subdet;
     // ZDC channels:
     // section: ZDC EM, ZDC HAD, ZDC LUM(?)
     int zdc_zside,zdc_channel;
-    string zdc_section;
+    std::string zdc_section;
     
     EMapRow(){
       rawId=0;
@@ -150,10 +147,10 @@ public:
   LMap_test();
   ~LMap_test(){ }
 
-  int test_read( string accessor, string type="HBEF" );
+  int test_read( std::string accessor, std::string type="HBEF" );
 
 private:
-  shared_ptr<LMap> _lmap;
+  boost::shared_ptr<LMap> _lmap;
 };
 
 
@@ -162,7 +159,7 @@ public:
   EMap_test(){}
   ~EMap_test(){}
 
-  int test_read_map( string filename );
+  int test_read_map( std::string filename );
 }; // end of class EMap_test
 
 #endif

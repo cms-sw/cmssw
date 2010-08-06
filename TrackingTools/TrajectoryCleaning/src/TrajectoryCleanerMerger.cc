@@ -75,7 +75,7 @@ class HitComparator
             const ProjectedSiStripRecHit2D* a_ =
               dynamic_cast<const ProjectedSiStripRecHit2D*>(a); 
 
-//cerr << " comp proj" << endl;
+//std::cerr << " comp proj" << std::endl;
 
             if(a_ != 0)
             {
@@ -104,21 +104,21 @@ class HitComparator
     bool less(const SiPixelRecHit* a,
               const SiPixelRecHit* b) const
     {
-//cerr << " comp pixel" << endl;
+//std::cerr << " comp pixel" << std::endl;
       return a->cluster() < b->cluster();
     }
 
     bool less(const SiStripRecHit2D* a,
               const SiStripRecHit2D *b) const
     {
-//cerr << " comp strip" << endl;
+//std::cerr << " comp strip" << std::endl;
       return a->cluster() < b->cluster();
     }
 
     bool less(const SiStripMatchedRecHit2D* a,
               const SiStripMatchedRecHit2D *b) const
     {
-//cerr << " comp matched strip" << endl;
+//std::cerr << " comp matched strip" << std::endl;
       if(less(a->monoHit(), b->monoHit())) return true;
       if(less(b->monoHit(), a->monoHit())) return false;
 
@@ -135,10 +135,10 @@ void TrajectoryCleanerMerger::clean( TrajectoryPointerContainer&) const
 /*****************************************************************************/
 void TrajectoryCleanerMerger::reOrderMeasurements(Trajectory& traj)const
 {
-  vector<TrajectoryMeasurement> meas_ = traj.measurements();
-  vector<TrajectoryMeasurement> meas;
+  std::vector<TrajectoryMeasurement> meas_ = traj.measurements();
+  std::vector<TrajectoryMeasurement> meas;
 
-  for(vector<TrajectoryMeasurement>::iterator
+  for(std::vector<TrajectoryMeasurement>::iterator
        im = meas_.begin();
        im!= meas_.end(); im++)
     if(im->recHit()->isValid())
@@ -150,7 +150,7 @@ void TrajectoryCleanerMerger::reOrderMeasurements(Trajectory& traj)const
   {
     changed = false;
 
-    for(vector<TrajectoryMeasurement>::iterator im = meas.begin();
+    for(std::vector<TrajectoryMeasurement>::iterator im = meas.begin();
                                                 im!= meas.end()-1; im++)
     if(    (*im).recHit()->globalPosition().mag2() >
        (*(im+1)).recHit()->globalPosition().mag2() + 1e-6)
@@ -164,7 +164,7 @@ void TrajectoryCleanerMerger::reOrderMeasurements(Trajectory& traj)const
   for(unsigned int i = 0 ; i < meas.size(); i++)
      traj.pop();
 
-  for(vector<TrajectoryMeasurement>::iterator im = meas.begin();
+  for(std::vector<TrajectoryMeasurement>::iterator im = meas.begin();
                                               im!= meas.end(); im++)
     traj.push(*im);
 }
@@ -229,17 +229,17 @@ void TrajectoryCleanerMerger::clean
   if(trajs.size() == 0) return;
 
   // Fill the rechit map
-  typedef map<const TransientTrackingRecHit*,
-              vector<unsigned int>, HitComparator> RecHitMap; 
+  typedef std::map<const TransientTrackingRecHit*,
+              std::vector<unsigned int>, HitComparator> RecHitMap; 
   RecHitMap recHitMap;
 
-  vector<bool> keep(trajs.size(),true);
+  std::vector<bool> keep(trajs.size(),true);
 
   for(unsigned int i = 0; i < trajs.size(); i++) 
   {
-    vector<TrajectoryMeasurement> meas = trajs[i].measurements();
+    std::vector<TrajectoryMeasurement> meas = trajs[i].measurements();
 
-    for(vector<TrajectoryMeasurement>::iterator im = meas.begin();
+    for(std::vector<TrajectoryMeasurement>::iterator im = meas.begin();
                                                 im!= meas.end(); im++)
       if(im->recHit()->isValid())
       {
@@ -250,27 +250,27 @@ void TrajectoryCleanerMerger::clean
   }
 
   // Look at each track
-  typedef map<unsigned int,int,less<unsigned int> > TrajMap;
+  typedef std::map<unsigned int,int,less<unsigned int> > TrajMap;
 
   for(unsigned int i = 0; i < trajs.size(); i++)
   if(keep[i])
   {  
     TrajMap trajMap;
-    vector<DetId> detIds;
-    vector<int> detLayers;
+    std::vector<DetId> detIds;
+    std::vector<int> detLayers;
 
     // Go trough all rechits of this track
-    vector<TrajectoryMeasurement> meas = trajs[i].measurements();
-    for(vector<TrajectoryMeasurement>::iterator im = meas.begin();
+    std::vector<TrajectoryMeasurement> meas = trajs[i].measurements();
+    for(std::vector<TrajectoryMeasurement>::iterator im = meas.begin();
                                                 im!= meas.end(); im++)
     {
       if(im->recHit()->isValid())
       {
         // Get trajs sharing this rechit
         const TransientTrackingRecHit* recHit = &(*(im->recHit()));
-        const vector<unsigned int>& sharing(recHitMap[recHit]);
+        const std::vector<unsigned int>& sharing(recHitMap[recHit]);
 
-        for(vector<unsigned int>::const_iterator j = sharing.begin(); 
+        for(std::vector<unsigned int>::const_iterator j = sharing.begin(); 
                                                  j!= sharing.end(); j++)
           if(i < *j) trajMap[*j]++;
 
@@ -296,9 +296,9 @@ void TrajectoryCleanerMerger::clean
         bool hasCommonLayer = false;
 
 /*
-        vector<TrajectoryMeasurement> measi = trajs[i].measurements();
-        vector<TrajectoryMeasurement> measj = trajs[j].measurements();
-        for(vector<TrajectoryMeasurement>::iterator
+        std::vector<TrajectoryMeasurement> measi = trajs[i].measurements();
+        std::vector<TrajectoryMeasurement> measj = trajs[j].measurements();
+        for(std::vector<TrajectoryMeasurement>::iterator
               tmj = measj.begin(); tmj!= measj.end(); tmj++)
             if(find(measi.begin(), measi.end(), tmj) == measi.end())
             if(find(detLayers.begin(),detLayers.end(),
@@ -309,15 +309,15 @@ void TrajectoryCleanerMerger::clean
 
         if(hasCommonLayer == false)
         { // merge tracks, add separate hits of the second to the first one
-        vector<TrajectoryMeasurement> measj = trajs[j].measurements();
-        for(vector<TrajectoryMeasurement>::iterator
+        std::vector<TrajectoryMeasurement> measj = trajs[j].measurements();
+        for(std::vector<TrajectoryMeasurement>::iterator
              tmj = measj.begin(); tmj!= measj.end(); tmj++)
         if(tmj->recHit()->isValid())
         {
           bool match = false;
 
-          vector<TrajectoryMeasurement> measi = trajs[i].measurements();
-          for(vector<TrajectoryMeasurement>::iterator
+          std::vector<TrajectoryMeasurement> measi = trajs[i].measurements();
+          for(std::vector<TrajectoryMeasurement>::iterator
              tmi = measi.begin(); tmi!= measi.end(); tmi++)
           if(tmi->recHit()->isValid())
             if(!HitComparator()(&(*(tmi->recHit())),
@@ -357,7 +357,7 @@ void TrajectoryCleanerMerger::clean
     else
       trajs[i].invalidate();
 
-  cerr << " [TrajecCleaner] cleaned trajs : " << ok << "/" << trajs.size() <<
-" (with " << trajs[0].measurements().size() << "/" << recHitMap.size() << " hits)" << endl;
+  std::cerr << " [TrajecCleaner] cleaned trajs : " << ok << "/" << trajs.size() <<
+" (with " << trajs[0].measurements().size() << "/" << recHitMap.size() << " hits)" << std::endl;
 }
 

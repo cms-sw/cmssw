@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Mar 18 14:30:20 CDT 2008
-// $Id: LutXml.cc,v 1.4 2009/07/16 16:36:11 kukartse Exp $
+// $Id: LutXml.cc,v 1.5 2010/02/06 18:16:50 kvtsang Exp $
 //
 
 #include <iostream>
@@ -51,7 +51,7 @@ LutXml & LutXml::operator+=( const LutXml & other)
 {
   DOMNodeList * _children = other.getDocumentConst()->getChildNodes();
   int _length = _children->getLength();
-  cout << "Nodes added:" << _length << endl;
+  std::cout << "Nodes added:" << _length << std::endl;
   DOMNode * _node;
   for(int i=0;i!=_length;i++){
     _node = _children->item(i)->cloneNode(true);
@@ -130,12 +130,12 @@ std::vector<unsigned int> * LutXml::getLutFast( uint32_t det_id ){
     return &(*lut_map)[det_id];
   }
   else{
-    cerr << "LUT not found, null pointer is returned" << endl;
+    std::cerr << "LUT not found, null pointer is returned" << std::endl;
     return 0;
   }
   */
    if (lut_map.find(det_id) != lut_map.end()) return &(lut_map)[det_id];
-   cerr << "LUT not found, null pointer is returned" << endl;
+   std::cerr << "LUT not found, null pointer is returned" << std::endl;
    return 0;
 }
 
@@ -154,12 +154,12 @@ std::vector<unsigned int> LutXml::getLut( int lut_type, int crate, int slot, int
 	  lut_type, crate, slot, topbottom, fiber, fiber_channel);
   std::string _expression(buf);
 
-  cout << _expression << endl;
+  std::cout << _expression << std::endl;
 
   const XObjectPtr theResult = eval_xpath(_context,_expression);
 
   if(theResult.null() == false){
-    cout << endl << theResult->str() << endl;
+    std::cout << std::endl << theResult->str() << std::endl;
   }
 
   const XalanDOMString & _string = theResult->str();
@@ -195,11 +195,11 @@ std::vector<unsigned int> LutXml::getLut( int lut_type, int crate, int slot, int
     }
   }
 
-  cout << "### ";
-  for (vector<unsigned int>::const_iterator l=_lut.begin(); l!=_lut.end(); l++){
-    cout << *l << " ";
+  std::cout << "### ";
+  for (std::vector<unsigned int>::const_iterator l=_lut.begin(); l!=_lut.end(); l++){
+    std::cout << *l << " ";
   }
-  cout << endl << endl;
+  std::cout << std::endl << std::endl;
 
   return _lut;
 }
@@ -239,7 +239,7 @@ void LutXml::addLut( LutXml::Config & _config, XMLDOMBlock * checksums_xml )
     addData( "1024", "hex", _config.lut );
   }
   else{
-    cout << "Unknown LUT type...produced XML will be incorrect" << endl;
+    std::cout << "Unknown LUT type...produced XML will be incorrect" << std::endl;
   }
 
   // if the pointer to the checksums XML was given,
@@ -250,13 +250,13 @@ void LutXml::addLut( LutXml::Config & _config, XMLDOMBlock * checksums_xml )
   }
 }
 
-DOMElement * LutXml::addData( string _elements, string _encoding, std::vector<unsigned int> _lut )
+DOMElement * LutXml::addData( std::string _elements, std::string _encoding, std::vector<unsigned int> _lut )
 {
   DOMElement * child    = document -> createElement( XMLProcessor::_toXMLCh( "Data" ) );
   child -> setAttribute( XMLProcessor::_toXMLCh("elements"), XMLProcessor::_toXMLCh( _elements ) );
   child -> setAttribute( XMLProcessor::_toXMLCh("encoding"), XMLProcessor::_toXMLCh( _encoding ) );
 
-  stringstream buf;
+  std::stringstream buf;
 
   for (std::vector<unsigned int>::const_iterator iter = _lut.begin();iter!=_lut.end();iter++){
     char buf2[8];
@@ -265,7 +265,7 @@ DOMElement * LutXml::addData( string _elements, string _encoding, std::vector<un
     //buf << (*iter) << " ";
   }
 
-  string _value = buf . str();
+  std::string _value = buf . str();
 
   DOMText * data_value = document -> createTextNode( XMLProcessor::_toXMLCh(_value));
   child -> appendChild( data_value );
@@ -301,7 +301,7 @@ DOMElement * LutXml::add_checksum( DOMDocument * parent, Config & config )
 
 
 
-DOMElement * LutXml::addParameter( string _name, string _type, string _value )
+DOMElement * LutXml::addParameter( std::string _name, std::string _type, std::string _value )
 {
   DOMElement * child    = document -> createElement( XMLProcessor::_toXMLCh( "Parameter" ) );
   child -> setAttribute( XMLProcessor::_toXMLCh("name"), XMLProcessor::_toXMLCh( _name ) );
@@ -316,11 +316,11 @@ DOMElement * LutXml::addParameter( string _name, string _type, string _value )
 
 
 
-DOMElement * LutXml::addParameter( string _name, string _type, int _value )
+DOMElement * LutXml::addParameter( std::string _name, std::string _type, int _value )
 {
   char buf[128];
   sprintf(buf, "%d", _value);
-  string str_value = buf;
+  std::string str_value = buf;
   return addParameter( _name, _type, str_value );
 }
 
@@ -337,7 +337,7 @@ std::string & LutXml::getCurrentBrick( void )
 // do MD5 checksum
 std::string LutXml::get_checksum( std::vector<unsigned int> & lut )
 {
-  stringstream result;
+  std::stringstream result;
   md5_state_t md5er;
   md5_byte_t digest[16];
   md5_init(&md5er);
@@ -359,15 +359,15 @@ std::string LutXml::get_checksum( std::vector<unsigned int> & lut )
     }
   }
   else{
-    cout << "ERROR: irregular LUT size, do not know how to compute checksum, exiting..." << endl;
+    std::cout << "ERROR: irregular LUT size, do not know how to compute checksum, exiting..." << std::endl;
     exit(-1);
   }
   md5_finish(&md5er,digest);
   for (int i=0; i<16; i++) result << std::hex << (((int)(digest[i]))&0xFF);
 
-  //cout << "CHECKSUM: ";
-  //cout << result . str();
-  //cout << endl;
+  //std::cout << "CHECKSUM: ";
+  //std::cout << result . str();
+  //std::cout << std::endl;
 
   return result . str();
 }
@@ -375,8 +375,8 @@ std::string LutXml::get_checksum( std::vector<unsigned int> & lut )
 
 int LutXml::test_access( std::string filename ){
   //create_lut_map();
-  //cout << "Created map size: " << lut_map->size() << endl;
-  cout << "Created map size: " << lut_map.size() << endl;
+  //std::cout << "Created map size: " << lut_map->size() << std::endl;
+  std::cout << "Created map size: " << lut_map.size() << std::endl;
 
   struct timeval _t;
   gettimeofday( &_t, NULL );
@@ -384,7 +384,7 @@ int LutXml::test_access( std::string filename ){
 
   HcalEmap _emap("./backup/official_emap_v6.04_080905.txt");
   std::vector<HcalEmap::HcalEmapRow> & _map = _emap.get_map();
-  cout << "HcalEmap contains " << _map . size() << " entries" << endl;
+  std::cout << "HcalEmap contains " << _map . size() << " entries" << std::endl;
 
   int _counter=0;
   for (std::vector<HcalEmap::HcalEmapRow>::const_iterator row=_map.begin(); row!=_map.end(); row++){
@@ -414,13 +414,13 @@ int LutXml::test_access( std::string filename ){
     }
   }
   gettimeofday( &_t, NULL );
-  cout << "access to " << _counter << " HCAL channels took: " << (double)(_t . tv_sec) + (double)(_t . tv_usec)/1000000.0 - _time << "sec" << endl;
+  std::cout << "access to " << _counter << " HCAL channels took: " << (double)(_t . tv_sec) + (double)(_t . tv_usec)/1000000.0 - _time << "sec" << std::endl;
 
-  //cout << endl;
+  //std::cout << std::endl;
   //for (std::vector<unsigned int>::const_iterator i=l->begin();i!=l->end();i++){
-  //  cout << *i << " ";
+  //  std::cout << *i << " ";
   //}
-  //cout << endl;
+  //std::cout << std::endl;
 
   return 0;
 }
@@ -439,18 +439,18 @@ int LutXml::test_xpath( std::string filename ){
   std::string _context = "/CFGBrickSet";
   //std::string _expression = "CFGBrick[Parameter[@name='IETA']=-1 and Parameter[@name='IPHI']=19]/Data";
   std::string _expression = "CFGBrick[Parameter[@name='IETA']=-1]/Data";
-  cout << _expression << endl;
+  std::cout << _expression << std::endl;
 
   const XObjectPtr theResult = eval_xpath(_context,_expression);
 
   if(theResult.null() == false){
-    cout << "Number of nodes: " << theResult->nodeset().getLength() << endl;
+    std::cout << "Number of nodes: " << theResult->nodeset().getLength() << std::endl;
     
-    cout << "The string value of the result is:"
-	 << endl
+    std::cout << "The std::string value of the result is:"
+	 << std::endl
 	 << theResult->str()
-	 << endl
-	 << endl;
+	 << std::endl
+	 << std::endl;
   }
   return 0;
 }
@@ -470,12 +470,12 @@ HcalSubdetector LutXml::subdet_from_crate(int crate, int eta, int depth){
     else if (eta==16 && depth!=3) result=HcalBarrel;
     else if (eta==16 && depth==3) result=HcalEndcap;
     else{
-      cerr << "Impossible to determine HCAL subdetector!!!" << endl;
+      std::cerr << "Impossible to determine HCAL subdetector!!!" << std::endl;
       exit(-1);
     }
   }
   else{
-    cerr << "Impossible to determine HCAL subdetector!!!" << endl;
+    std::cerr << "Impossible to determine HCAL subdetector!!!" << std::endl;
     exit(-1);
   }
 
@@ -497,7 +497,7 @@ int LutXml::a_to_i(char * inbuf){
 int LutXml::create_lut_map( void ){
   //delete lut_map;
   lut_map.clear();
-  //lut_map = new map<uint32_t,vector<unsigned int> >();
+  //lut_map = new std::map<uint32_t,std::vector<unsigned int> >();
 
   if (document){
     //DOMElement * rootElem = 
@@ -514,7 +514,7 @@ int LutXml::create_lut_map( void ){
       int lut_type=-99;
       HcalSubdetector subdet;
       for(int j=0; j!=n_of_par; j++){
-	//cout << "DEBUG: i,j: " << i << ", " << j << endl;
+	//std::cout << "DEBUG: i,j: " << i << ", " << j << std::endl;
 	DOMElement * aPar = (DOMElement *)(par_list->item(j));
 	char * aName = XMLString::transcode( aPar->getAttribute(XMLProcessor::_toXMLCh("name")) );
 	if ( strcmp(aName, "IETA")==0 ) ieta=a_to_i(XMLString::transcode(aPar->getFirstChild()->getNodeValue()));
@@ -524,14 +524,14 @@ int LutXml::create_lut_map( void ){
 	if ( strcmp(aName, "LUT_TYPE")==0 ) lut_type=a_to_i(XMLString::transcode(aPar->getFirstChild()->getNodeValue()));
       }
       subdet=subdet_from_crate(crate,abs(ieta),depth);
-      //cerr << "DEBUG: eta,phi,depth,crate,type,subdet: " << ieta << ", " << iphi << ", " << depth << ", " << crate << ", " << lut_type << ", " << subdet << endl;
+      //std::cerr << "DEBUG: eta,phi,depth,crate,type,subdet: " << ieta << ", " << iphi << ", " << depth << ", " << crate << ", " << lut_type << ", " << subdet << std::endl;
       DOMElement * _data = (DOMElement *)(aBrick->getElementsByTagName(XMLString::transcode("Data"))->item(0));
       char * _str = XMLString::transcode(_data->getFirstChild()->getNodeValue());
-      //cout << _str << endl;
+      //std::cout << _str << std::endl;
       //
       // get the LUT vector
       int _string_length = strlen(_str);
-      vector<unsigned int> _lut;
+      std::vector<unsigned int> _lut;
       unsigned int _base = 16;
       unsigned int _item=0;
       for (int i=0; i!=_string_length; i++){
@@ -561,7 +561,7 @@ int LutXml::create_lut_map( void ){
 	}
       }
       ////
-      //cout << _lut[127] << endl;
+      //std::cout << _lut[127] << std::endl;
       // filling the map
       uint32_t _key = 0;
       if (lut_type==1){
@@ -572,12 +572,12 @@ int LutXml::create_lut_map( void ){
 	HcalTrigTowerDetId _id(ieta,iphi);
 	_key = _id.rawId();
       }
-      //lut_map->insert(pair<uint32_t,vector<unsigned int> >(_key,_lut));
-      lut_map.insert(pair<uint32_t,vector<unsigned int> >(_key,_lut));
+      //lut_map->insert(std::pair<uint32_t,std::vector<unsigned int> >(_key,_lut));
+      lut_map.insert(std::pair<uint32_t,std::vector<unsigned int> >(_key,_lut));
     }
   }
   else{
-    cerr << "XML file with LUTs is not loaded, cannot create map!" << endl;
+    std::cerr << "XML file with LUTs is not loaded, cannot create map!" << std::endl;
   }
 
 

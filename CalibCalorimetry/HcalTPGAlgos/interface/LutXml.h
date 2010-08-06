@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Mar 18 14:30:33 CDT 2008
-// $Id: LutXml.h,v 1.2 2009/05/08 23:26:51 elmer Exp $
+// $Id: LutXml.h,v 1.4 2009/07/16 16:36:11 kukartse Exp $
 //
 
 #include <vector>
@@ -34,10 +34,10 @@ class LutXml : public XMLDOMBlock
   {
     _Config();
     int ieta, iphi, depth, crate, slot, topbottom, fiber, fiberchan, lut_type;
-    string creationtag;
-    string creationstamp;
-    string formatrevision;
-    string targetfirmware;
+    std::string creationtag;
+    std::string creationstamp;
+    std::string formatrevision;
+    std::string targetfirmware;
     int generalizedindex;
     std::vector<unsigned int> lut;
   } Config;
@@ -72,7 +72,7 @@ class LutXml : public XMLDOMBlock
   //LutXml & operator+=( const LutXml & other);
 
   //Iterators and find
-  typedef std::map<uint32_t,vector<unsigned int> >::const_iterator const_iterator;
+  typedef std::map<uint32_t,std::vector<unsigned int> >::const_iterator const_iterator;
   const_iterator begin() const;
   const_iterator end() const;
   const_iterator find(uint32_t) const;
@@ -81,16 +81,16 @@ class LutXml : public XMLDOMBlock
 
   XMLCh * root;
   XMLCh * brick;
-  DOMElement * addParameter( string _name, string _type, string _value );
-  DOMElement * addParameter( string _name, string _type, int _value );
-  DOMElement * addData( string _elements, string _encoding, std::vector<unsigned int> _lut );
+  DOMElement * addParameter( std::string _name, std::string _type, std::string _value );
+  DOMElement * addParameter( std::string _name, std::string _type, int _value );
+  DOMElement * addData( std::string _elements, std::string _encoding, std::vector<unsigned int> _lut );
 
   DOMElement * add_checksum( DOMDocument * parent, Config & config );
 
   DOMElement * brickElem;
 
-  //std::map<uint32_t,vector<unsigned int> > * lut_map;
-  std::map<uint32_t,vector<unsigned int> > lut_map;
+  //std::map<uint32_t,std::vector<unsigned int> > * lut_map;
+  std::map<uint32_t,std::vector<unsigned int> > lut_map;
 
 };
 

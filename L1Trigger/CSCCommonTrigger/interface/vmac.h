@@ -11,64 +11,64 @@ Verilog++ SP.
 extern globcontrol glc;
 
 #ifdef VGEN
-	#define For(par1, par2, par3)  glc.setprintassign(0); cout << glc.getmargin() << "for (" << flush; cout << (par1).getname() << "; " << flush; glc.setprintassign(0); cout << (par2).getname() << "; " << flush; glc.setprintassign(0); cout << (par3).getname(); cout << ") " << flush; glc.setprintassign(1); glc.enablemargin(0);
+	#define For(par1, par2, par3)  glc.setprintassign(0); std::cout << glc.getmargin() << "for (" << flush; std::cout << (par1).getname() << "; " << flush; glc.setprintassign(0); std::cout << (par2).getname() << "; " << flush; glc.setprintassign(0); std::cout << (par3).getname(); std::cout << ") " << flush; glc.setprintassign(1); glc.enablemargin(0);
 #else
 	#define For(par1, par2, par3) for ((par1); ((par2).getbool()); (par3))
 #endif
 
 #ifdef VGEN
-	#define If(par) glc.setprintassign(0); cout << glc.getmargin() << "if (" << flush; cout << (par).getname(); cout << ") " << flush; glc.setprintassign(1);  glc.enablemargin(0);
+	#define If(par) glc.setprintassign(0); std::cout << glc.getmargin() << "if (" << flush; std::cout << (par).getname(); std::cout << ") " << flush; glc.setprintassign(1);  glc.enablemargin(0);
 #else
 	#define If(par) if ((par).getbool())
 #endif
 
 #ifdef VGEN
-	#define Else cout << glc.getmargin() << "else " << flush;  glc.enablemargin(0);
+	#define Else std::cout << glc.getmargin() << "else " << flush;  glc.enablemargin(0);
 #else
 	#define Else else
 #endif
 
 #define begin vbegin()
 #ifdef VGEN
-	#define vbegin() glc.enablemargin(1); cout << "\n" << glc.getmargin() << "begin\n" << flush; glc.Indent();
+	#define vbegin() glc.enablemargin(1); std::cout << "\n" << glc.getmargin() << "begin\n" << flush; glc.Indent();
 #else
 	#define vbegin() { glc.alwayspush();
 #endif
 
 #define end vend()
 #ifdef VGEN
-	#define vend() glc.Outdent(); cout << glc.getmargin() << "end\n" << flush;
+	#define vend() glc.Outdent(); std::cout << glc.getmargin() << "end\n" << flush;
 #else
 	#define vend() glc.alwayspop(); }
 #endif
 
 #ifdef VGEN
-	#define always(par) cout << glc.getmargin() << "always @(" << (par).getorname() << ") " << flush;  glc.enablemargin(0);
+	#define always(par) std::cout << glc.getmargin() << "always @(" << (par).getorname() << ") " << flush;  glc.enablemargin(0);
 #else
 	#define always(par) glc.alwaysstart(); if ((par).getchange())
 #endif
 
 #ifdef VGEN
-	#define assign cout << glc.getmargin() << "assign " << flush; glc.enablemargin(0);
+	#define assign std::cout << glc.getmargin() << "assign " << flush; glc.enablemargin(0);
 #else
 	#define assign
 #endif
 
 #ifdef VGEN
-	#define deassign(par) cout << glc.getmargin() << "deassign " << flush; cout << (par).getname() << ";\n" << flush; glc.enablemargin(1);
+	#define deassign(par) std::cout << glc.getmargin() << "deassign " << flush; std::cout << (par).getname() << ";\n" << flush; glc.enablemargin(1);
 #else
 	#define deassign(par) ;
 #endif
 
 #ifdef VGEN
-	#define begincase(par) glc.setprintassign(0); cout << glc.getmargin() << "case (" << flush; cout << (par).getcatname() << flush; cout << ")\n" << flush; glc.setprintassign(1); glc.Indent();
+	#define begincase(par) glc.setprintassign(0); std::cout << glc.getmargin() << "case (" << flush; std::cout << (par).getcatname() << flush; std::cout << ")\n" << flush; glc.setprintassign(1); glc.Indent();
 #else
 #define begincase(par) pushswitch((par)); if (0) {}
 #endif
 
 #define endcase vendcase()
 #ifdef VGEN
-	#define vendcase() glc.Outdent(); cout << glc.getmargin() << "endcase\n" << flush;
+	#define vendcase() glc.Outdent(); std::cout << glc.getmargin() << "endcase\n" << flush;
 #else
 	#define vendcase() popswitch();
 #endif
@@ -76,7 +76,7 @@ extern globcontrol glc;
 #ifdef VGEN
 	#define case1(par)	 \
 						cout << glc.getmargin(); \
-						glc.setprintassign(0); cout << ((Signal)(par)).getcatname(); \
+						glc.setprintassign(0); std::cout << ((Signal)(par)).getcatname(); \
 						cout << " : " << flush; glc.setprintassign(1);  glc.enablemargin(0);
 #else
 	#define case1(par) else if ((getswitch() == (par)).getbool())
@@ -86,8 +86,8 @@ extern globcontrol glc;
 	#define case2(par1, par2) \
 						glc.setprintassign(0); \
 						cout << glc.getmargin(); \
-						glc.setprintassign(0); cout << ((Signal)(par1)).getcatname(); cout << ", "; \
-						glc.setprintassign(0); cout << ((Signal)(par2)).getcatname();\
+						glc.setprintassign(0); std::cout << ((Signal)(par1)).getcatname(); std::cout << ", "; \
+						glc.setprintassign(0); std::cout << ((Signal)(par2)).getcatname();\
 						cout << " : " << flush; glc.setprintassign(1);  glc.enablemargin(0);
 #else
 	#define case2(par1, par2) else if ( (getswitch() == (par1)).getbool() || (getswitch() == (par2)).getbool())
@@ -97,9 +97,9 @@ extern globcontrol glc;
 	#define case3(par1, par2, par3) \
 						glc.setprintassign(0); \
 						cout << glc.getmargin(); \
-						glc.setprintassign(0); cout << ((Signal)(par1)).getcatname(); cout << ", "; \
-						glc.setprintassign(0); cout << ((Signal)(par2)).getcatname(); cout << ", "; \
-						glc.setprintassign(0); cout << ((Signal)(par3)).getcatname(); \
+						glc.setprintassign(0); std::cout << ((Signal)(par1)).getcatname(); std::cout << ", "; \
+						glc.setprintassign(0); std::cout << ((Signal)(par2)).getcatname(); std::cout << ", "; \
+						glc.setprintassign(0); std::cout << ((Signal)(par3)).getcatname(); \
 						cout << " : " << flush; glc.setprintassign(1);  glc.enablemargin(0);
 #else
 	#define case3(par1, par2, par3) else if ( (getswitch() == (par1)).getbool() || (getswitch() == (par2)).getbool() || (getswitch() == (par3)).getbool())
@@ -108,7 +108,7 @@ extern globcontrol glc;
 
 #define Default vdefault()
 #ifdef VGEN
-	#define vdefault() cout << glc.getmargin(); cout << "default : " << flush;  glc.enablemargin(0);
+	#define vdefault() std::cout << glc.getmargin(); std::cout << "default : " << flush;  glc.enablemargin(0);
 #else
 	#define vdefault() else
 #endif
@@ -122,7 +122,7 @@ extern globcontrol glc;
 #define modulebody \
 if (glc.getpassn() != passn) \
 { \
-/*	cout << itern << " " << instname << endl; */\
+/*	cout << itern << " " << instname << std::endl; */\
 	itern = 0; \
 } \
 passn = glc.getpassn(); \
@@ -157,13 +157,13 @@ else \
 #define endperiod glc.ResetEvents();
 
 #ifdef VGEN
-	#define comment(par) if (glc.getFileOpen()) {cout << glc.getmargin(); cout << (par) << "\n" << flush;} else glc.AddComment((string)(par));
+	#define comment(par) if (glc.getFileOpen()) {std::cout << glc.getmargin(); std::cout << (par) << "\n" << flush;} else glc.AddComment((string)(par));
 #else
 	#define comment(par)
 #endif
 
 #ifdef VGEN
-	#define printv(par) cout << (par) << flush;
+	#define printv(par) std::cout << (par) << flush;
 #else
 	#define printv(par)
 #endif

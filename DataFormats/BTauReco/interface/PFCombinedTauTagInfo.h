@@ -17,8 +17,8 @@
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 #include "DataFormats/BTauReco/interface/PFIsolatedTauTagInfo.h"
 
-using namespace edm;
-using namespace std;
+
+
 
 namespace reco { 
   class PFCombinedTauTagInfo : public BaseTagInfo{

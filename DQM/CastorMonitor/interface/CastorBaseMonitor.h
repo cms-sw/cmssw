@@ -25,7 +25,7 @@
 
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
 
-using namespace std;
+
 class CastorBaseMonitor {
 public:
   CastorBaseMonitor(); 
@@ -52,9 +52,9 @@ protected:
   bool makeDiagnostics; //-- controls whether to make diagnostic plots
 
   DQMStore* m_dbe;
-  //vector<string> hotCells_;
-  string rootFolder_;
-  string baseFolder_;
+  //vector<std::string> hotCells_;
+  std::string rootFolder_;
+  std::string baseFolder_;
 
 };
 

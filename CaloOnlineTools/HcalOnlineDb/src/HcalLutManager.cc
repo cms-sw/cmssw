@@ -108,66 +108,66 @@ std::string & HcalLutManager::getLutXml( std::vector<unsigned int> & _lut )
 }
 
 
-int HcalLutManager::getInt( string number )
+int HcalLutManager::getInt( std::string number )
 {
   int result;
   sscanf(number.c_str(), "%d", &result);
   return result;
 }
 
-HcalSubdetector HcalLutManager::get_subdetector( string _det )
+HcalSubdetector HcalLutManager::get_subdetector( std::string _det )
 {
   HcalSubdetector result;
-  if      ( _det.find("HB") != string::npos ) result = HcalBarrel;
-  else if ( _det.find("HE") != string::npos ) result = HcalEndcap;
-  else if ( _det.find("HF") != string::npos ) result = HcalForward;
-  else if ( _det.find("HO") != string::npos ) result = HcalOuter;
+  if      ( _det.find("HB") != std::string::npos ) result = HcalBarrel;
+  else if ( _det.find("HE") != std::string::npos ) result = HcalEndcap;
+  else if ( _det.find("HF") != std::string::npos ) result = HcalForward;
+  else if ( _det.find("HO") != std::string::npos ) result = HcalOuter;
   else                                        result = HcalOther;  
 
   return result;
 }
 
 
-int HcalLutManager_test::getLutSetFromFile_test( string _filename )
+int HcalLutManager_test::getLutSetFromFile_test( std::string _filename )
 {
   HcalLutManager _manager;
   HcalLutSet _set = _manager . getLutSetFromFile( _filename );
-  cout << "===> Test of HcalLutSet HcalLutManager::getLutSetFromFile( string _filename )" << endl << endl;
-  cout << _set . label << endl;
-  for (unsigned int i = 0; i != _set.subdet.size(); i++) cout << _set.subdet[i] << "	";
-  cout << endl;
-  for (unsigned int i = 0; i != _set.eta_min.size(); i++) cout << _set.eta_min[i] << "	";
-  cout << endl;
-  for (unsigned int i = 0; i != _set.eta_max.size(); i++) cout << _set.eta_max[i] << "	";
-  cout << endl;
-  for (unsigned int i = 0; i != _set.phi_min.size(); i++) cout << _set.phi_min[i] << "	";
-  cout << endl;
-  for (unsigned int i = 0; i != _set.phi_max.size(); i++) cout << _set.phi_max[i] << "	";
-  cout << endl;
-  for (unsigned int i = 0; i != _set.depth_min.size(); i++) cout << _set.depth_min[i] << "	";
-  cout << endl;
-  for (unsigned int i = 0; i != _set.depth_max.size(); i++) cout << _set.depth_max[i] << "	";
-  cout << endl;
+  std::cout << "===> Test of HcalLutSet HcalLutManager::getLutSetFromFile( std::string _filename )" << std::endl << std::endl;
+  std::cout << _set . label << std::endl;
+  for (unsigned int i = 0; i != _set.subdet.size(); i++) std::cout << _set.subdet[i] << "	";
+  std::cout << std::endl;
+  for (unsigned int i = 0; i != _set.eta_min.size(); i++) std::cout << _set.eta_min[i] << "	";
+  std::cout << std::endl;
+  for (unsigned int i = 0; i != _set.eta_max.size(); i++) std::cout << _set.eta_max[i] << "	";
+  std::cout << std::endl;
+  for (unsigned int i = 0; i != _set.phi_min.size(); i++) std::cout << _set.phi_min[i] << "	";
+  std::cout << std::endl;
+  for (unsigned int i = 0; i != _set.phi_max.size(); i++) std::cout << _set.phi_max[i] << "	";
+  std::cout << std::endl;
+  for (unsigned int i = 0; i != _set.depth_min.size(); i++) std::cout << _set.depth_min[i] << "	";
+  std::cout << std::endl;
+  for (unsigned int i = 0; i != _set.depth_max.size(); i++) std::cout << _set.depth_max[i] << "	";
+  std::cout << std::endl;
   for (unsigned int j = 0; j != _set.lut[0].size(); j++){
     for (unsigned int i = 0; i != _set.lut.size(); i++){
-      cout << _set.lut[i][j] << "	";
+      std::cout << _set.lut[i][j] << "	";
     }
-    cout << "---> " << j << endl;
+    std::cout << "---> " << j << std::endl;
   }
   return 0;
 }
 
 
-HcalLutSet HcalLutManager::getLutSetFromFile( string _filename, int _type )
+HcalLutSet HcalLutManager::getLutSetFromFile( std::string _filename, int _type )
 {
   HcalLutSet _lutset;
 
   ifstream infile( _filename . c_str() );
-  string buf;
+  std::string buf;
 
   if ( infile . is_open() ){
-    cout << "File " << _filename << " is open..." << endl;
-    cout << "Reading LUTs and their eta/phi/depth/subdet ranges...";
+    std::cout << "File " << _filename << " is open..." << std::endl;
+    std::cout << "Reading LUTs and their eta/phi/depth/subdet ranges...";
 
     // get label
     getline( infile, _lutset . label );
@@ -179,31 +179,31 @@ HcalLutSet HcalLutManager::getLutSetFromFile( string _filename, int _type )
     }
 
     //get min etas
-    vector<string> buf_vec;
+    std::vector<std::string> buf_vec;
     getline( infile, buf );
     buf_vec = HcalQIEManager::splitString( buf );
-    for (vector<string>::const_iterator iter = buf_vec.begin(); iter != buf_vec.end(); iter++){
+    for (std::vector<std::string>::const_iterator iter = buf_vec.begin(); iter != buf_vec.end(); iter++){
       _lutset.eta_min.push_back(HcalLutManager::getInt(*iter));
     }
 
     //get max etas
     getline( infile, buf );
     buf_vec = HcalQIEManager::splitString( buf );
-    for (vector<string>::const_iterator iter = buf_vec.begin(); iter != buf_vec.end(); iter++){
+    for (std::vector<std::string>::const_iterator iter = buf_vec.begin(); iter != buf_vec.end(); iter++){
       _lutset.eta_max.push_back(HcalLutManager::getInt(*iter));
     }
 
     //get min phis
     getline( infile, buf );
     buf_vec = HcalQIEManager::splitString( buf );
-    for (vector<string>::const_iterator iter = buf_vec.begin(); iter != buf_vec.end(); iter++){
+    for (std::vector<std::string>::const_iterator iter = buf_vec.begin(); iter != buf_vec.end(); iter++){
       _lutset.phi_min.push_back(HcalLutManager::getInt(*iter));
     }
 
     //get max phis
     getline( infile, buf );
     buf_vec = HcalQIEManager::splitString( buf );
-    for (vector<string>::const_iterator iter = buf_vec.begin(); iter != buf_vec.end(); iter++){
+    for (std::vector<std::string>::const_iterator iter = buf_vec.begin(); iter != buf_vec.end(); iter++){
       _lutset.phi_max.push_back(HcalLutManager::getInt(*iter));
     }
 
@@ -211,14 +211,14 @@ HcalLutSet HcalLutManager::getLutSetFromFile( string _filename, int _type )
       //get min depths
       getline( infile, buf );
       buf_vec = HcalQIEManager::splitString( buf );
-      for (vector<string>::const_iterator iter = buf_vec.begin(); iter != buf_vec.end(); iter++){
+      for (std::vector<std::string>::const_iterator iter = buf_vec.begin(); iter != buf_vec.end(); iter++){
 	_lutset.depth_min.push_back(HcalLutManager::getInt(*iter));
       }
       
       //get max depths
       getline( infile, buf );
       buf_vec = HcalQIEManager::splitString( buf );
-      for (vector<string>::const_iterator iter = buf_vec.begin(); iter != buf_vec.end(); iter++){
+      for (std::vector<std::string>::const_iterator iter = buf_vec.begin(); iter != buf_vec.end(); iter++){
 	_lutset.depth_max.push_back(HcalLutManager::getInt(*iter));
       }
     }
@@ -228,7 +228,7 @@ HcalLutSet HcalLutManager::getLutSetFromFile( string _filename, int _type )
       buf_vec = HcalQIEManager::splitString( buf );
       for (unsigned int i = 0; i < buf_vec.size(); i++){
 	if (first_lut_entry){
-	  vector<unsigned int> _l;
+	  std::vector<unsigned int> _l;
 	  _lutset.lut.push_back(_l);
 	}
 	_lutset . lut[i] . push_back(HcalLutManager::getInt(buf_vec[i]));
@@ -237,23 +237,23 @@ HcalLutSet HcalLutManager::getLutSetFromFile( string _filename, int _type )
     }
   }
 
-  cout << "done." << endl;
+  std::cout << "done." << std::endl;
 
   return _lutset;
 }
 
 
 
-std::map<int, shared_ptr<LutXml> > HcalLutManager::getLutXmlFromAsciiMaster( string _filename, string _tag, int _crate, bool split_by_crate )
+std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLutXmlFromAsciiMaster( std::string _filename, std::string _tag, int _crate, bool split_by_crate )
 {
-  cout << "Generating linearization (input) LUTs from ascii master file..." << endl;
-  map<int, shared_ptr<LutXml> > _xml; // index - crate number
+  std::cout << "Generating linearization (input) LUTs from ascii master file..." << std::endl;
+  std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
 
   LMap _lmap;
   _lmap . read( "./backup/HCALmapHBEF.txt", "HBEF" );
   _lmap . read( "./backup/HCALmapHO.txt", "HO" );
-  map<int,LMapRow> & _map = _lmap.get_map();
-  cout << "LMap contains " << _map . size() << " channels" << endl;
+  std::map<int,LMapRow> & _map = _lmap.get_map();
+  std::cout << "LMap contains " << _map . size() << " channels" << std::endl;
 
   // read LUTs and their eta/phi/depth/subdet ranges
   HcalLutSet _set = getLutSetFromFile( _filename );
@@ -261,7 +261,7 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getLutXmlFromAsciiMaster( str
 
   RooGKCounter _counter;
   //loop over all HCAL channels
-  for( map<int,LMapRow>::const_iterator row=_map.begin(); row!=_map.end(); row++ ){
+  for( std::map<int,LMapRow>::const_iterator row=_map.begin(); row!=_map.end(); row++ ){
     LutXml::Config _cfg;
 
     // search for the correct LUT for a given channel,
@@ -281,19 +281,19 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getLutXmlFromAsciiMaster( str
     }
     if ( lut_index >= 0 ){
       if ( _xml.count(row->second.crate) == 0 && split_by_crate ){
-	_xml.insert( pair<int,shared_ptr<LutXml> >(row->second.crate,shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(row->second.crate,boost::shared_ptr<LutXml>(new LutXml())) );
       }
       else if ( _xml.count(0) == 0 && !split_by_crate ){
-	_xml.insert( pair<int,shared_ptr<LutXml> >(0,shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(0,boost::shared_ptr<LutXml>(new LutXml())) );
       }
       _cfg.ieta = row->second.side*row->second.eta;
       _cfg.iphi = row->second.phi;
       _cfg.depth = row->second.depth;
       _cfg.crate = row->second.crate;
       _cfg.slot = row->second.htr;
-      if (row->second.fpga . find("top") != string::npos) _cfg.topbottom = 1;
-      else if (row->second.fpga . find("bot") != string::npos) _cfg.topbottom = 0;
-      else cout << "Warning! fpga out of range..." << endl;
+      if (row->second.fpga . find("top") != std::string::npos) _cfg.topbottom = 1;
+      else if (row->second.fpga . find("bot") != std::string::npos) _cfg.topbottom = 0;
+      else std::cout << "Warning! fpga out of range..." << std::endl;
       // FIXME: probably fixed. fiber==htr_fi, not rm_fi in LMAP notation.
       //_cfg.fiber = row->second.rm_fi;
       _cfg.fiber = row->second.htr_fi;
@@ -322,27 +322,27 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getLutXmlFromAsciiMaster( str
       }
     }
   }
-  cout << "LUTs generated: " << _counter.getCount() << endl;
-  cout << "Generating linearization (input) LUTs from ascii master file...DONE" << endl;
+  std::cout << "LUTs generated: " << _counter.getCount() << std::endl;
+  std::cout << "Generating linearization (input) LUTs from ascii master file...DONE" << std::endl;
   return _xml;
 }
 
 //
 //_____ get HO from ASCII master here ___________________________________
 //
-std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromAsciiMasterEmap( string _filename, string _tag, int _crate, bool split_by_crate )
+std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromAsciiMasterEmap( std::string _filename, std::string _tag, int _crate, bool split_by_crate )
 {
-  cout << "Generating linearization (input) LUTs from ascii master file..." << endl;
-  map<int, shared_ptr<LutXml> > _xml; // index - crate number
+  std::cout << "Generating linearization (input) LUTs from ascii master file..." << std::endl;
+  std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
 
   EMap _emap(emap);
   std::vector<EMap::EMapRow> & _map = _emap.get_map();
-  cout << "EMap contains " << _map . size() << " entries" << endl;
+  std::cout << "EMap contains " << _map . size() << " entries" << std::endl;
 
   // read LUTs and their eta/phi/depth/subdet ranges
   HcalLutSet _set = getLutSetFromFile( _filename );
   int lut_set_size = _set.lut.size(); // number of different luts
-  cout << "  ==> " << lut_set_size << " sets of different LUTs read from the master file" << endl;
+  std::cout << "  ==> " << lut_set_size << " sets of different LUTs read from the master file" << std::endl;
 
   // setup "zero" LUT for channel masking
   std::vector<unsigned int> zeroLut;
@@ -376,19 +376,19 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromAsc
       }
       if ( lut_index >= 0 ){
 	if ( _xml.count(row->crate) == 0 && split_by_crate ){
-	  _xml.insert( pair<int,shared_ptr<LutXml> >(row->crate,shared_ptr<LutXml>(new LutXml())) );
+	  _xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(row->crate,boost::shared_ptr<LutXml>(new LutXml())) );
 	}
 	else if ( _xml.count(0) == 0 && !split_by_crate ){
-	  _xml.insert( pair<int,shared_ptr<LutXml> >(0,shared_ptr<LutXml>(new LutXml())) );
+	  _xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(0,boost::shared_ptr<LutXml>(new LutXml())) );
 	}
 	_cfg.ieta = row->ieta;
 	_cfg.iphi = row->iphi;
 	_cfg.depth = row->idepth;
 	_cfg.crate = row->crate;
 	_cfg.slot = row->slot;
-	if (row->topbottom . find("t") != string::npos) _cfg.topbottom = 1;
-	else if (row->topbottom . find("b") != string::npos) _cfg.topbottom = 0;
-	else cout << "Warning! fpga out of range..." << endl;
+	if (row->topbottom . find("t") != std::string::npos) _cfg.topbottom = 1;
+	else if (row->topbottom . find("b") != std::string::npos) _cfg.topbottom = 0;
+	else std::cout << "Warning! fpga out of range..." << std::endl;
 	_cfg.fiber = row->fiber;
 	_cfg.fiberchan = row->fiberchan;
 	_cfg.lut_type = 1;
@@ -424,21 +424,21 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromAsc
       }
     }
   }
-  cout << "LUTs generated: " << _counter.getCount() << endl;
-  cout << "Generating linearization (input) LUTs from ascii master file...DONE" << endl;
+  std::cout << "LUTs generated: " << _counter.getCount() << std::endl;
+  std::cout << "Generating linearization (input) LUTs from ascii master file...DONE" << std::endl;
   return _xml;
 }
 
 
-std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromAsciiMasterEmap_new( string _filename, string _tag, int _crate, bool split_by_crate )
+std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromAsciiMasterEmap_new( std::string _filename, std::string _tag, int _crate, bool split_by_crate )
 {
-  cout << "Generating linearization (input) LUTs from ascii master file..." << endl;
-  map<int, shared_ptr<LutXml> > _xml; // index - crate number
+  std::cout << "Generating linearization (input) LUTs from ascii master file..." << std::endl;
+  std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
 
   // read LUTs and their eta/phi/depth/subdet ranges
   HcalLutSet _set = getLutSetFromFile( _filename );
   int lut_set_size = _set.lut.size(); // number of different luts
-  cout << "  ==> " << lut_set_size << " sets of different LUTs read from the master file" << endl;
+  std::cout << "  ==> " << lut_set_size << " sets of different LUTs read from the master file" << std::endl;
 
   RooGKCounter _counter;
   //loop over all EMap channels
@@ -480,10 +480,10 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromAsc
       }
       if ( lut_index >= 0 ){
 	if ( _xml.count(aCrate) == 0 && split_by_crate ){
-	  _xml.insert( pair<int,shared_ptr<LutXml> >(aCrate,shared_ptr<LutXml>(new LutXml())) );
+	  _xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(aCrate,boost::shared_ptr<LutXml>(new LutXml())) );
 	}
 	else if ( _xml.count(0) == 0 && !split_by_crate ){
-	  _xml.insert( pair<int,shared_ptr<LutXml> >(0,shared_ptr<LutXml>(new LutXml())) );
+	  _xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(0,boost::shared_ptr<LutXml>(new LutXml())) );
 	}
 	_cfg.ieta = _ieta;
 	_cfg.iphi = _iphi;
@@ -517,30 +517,30 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromAsc
       }
     }
   }
-  cout << "LUTs generated: " << _counter.getCount() << endl;
-  cout << "Generating linearization (input) LUTs from ascii master file...DONE" << endl;
+  std::cout << "LUTs generated: " << _counter.getCount() << std::endl;
+  std::cout << "Generating linearization (input) LUTs from ascii master file...DONE" << std::endl;
   return _xml;
 }
 
 
-std::map<int, shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromAsciiMaster( string _filename, string _tag, int _crate, bool split_by_crate )
+std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromAsciiMaster( std::string _filename, std::string _tag, int _crate, bool split_by_crate )
 {
-  cout << "Generating compression (output) LUTs from ascii master file..." << endl;
-  map<int, shared_ptr<LutXml> > _xml; // index - crate number
+  std::cout << "Generating compression (output) LUTs from ascii master file..." << std::endl;
+  std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
 
-  cout << "instantiating CaloTPGTranscoderULUT in order to check the validity of (ieta,iphi)..." << endl;
+  std::cout << "instantiating CaloTPGTranscoderULUT in order to check the validity of (ieta,iphi)..." << std::endl;
   CaloTPGTranscoderULUT _coder;
 
   //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.03_080817.txt");
   //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.04_080905.txt");
   EMap _emap(emap);
   std::vector<EMap::EMapRow> & _map = _emap.get_map();
-  cout << "EMap contains " << _map . size() << " channels" << endl;
+  std::cout << "EMap contains " << _map . size() << " channels" << std::endl;
 
   // read LUTs and their eta/phi/depth/subdet ranges
   HcalLutSet _set = getLutSetFromFile( _filename, 2 );
   int lut_set_size = _set.lut.size(); // number of different luts
-  cout << "  ==> " << lut_set_size << " sets of different LUTs read from the master file" << endl;
+  std::cout << "  ==> " << lut_set_size << " sets of different LUTs read from the master file" << std::endl;
 
   //loop over all EMap channels
   RooGKCounter _counter;
@@ -551,7 +551,7 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromAscii
     // higher LUT numbers have priority in case of overlapping
     int lut_index=-1;
     for ( int i=0; i<lut_set_size; i++ ){
-      if ( row->subdet . find("HT") != string::npos &&
+      if ( row->subdet . find("HT") != std::string::npos &&
 	   (row->crate == _crate || _crate == -1) && // -1 stands for all crates
 	   _set.eta_min[i] <= row->ieta &&
 	   _set.eta_max[i] >= row->ieta &&
@@ -563,19 +563,19 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromAscii
     }
     if ( lut_index >= 0 ){
       if ( _xml.count(row->crate) == 0 && split_by_crate ){
-	_xml.insert( pair<int,shared_ptr<LutXml> >(row->crate,shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(row->crate,boost::shared_ptr<LutXml>(new LutXml())) );
       }
       else if ( _xml.count(0) == 0 && !split_by_crate ){
-	_xml.insert( pair<int,shared_ptr<LutXml> >(0,shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(0,boost::shared_ptr<LutXml>(new LutXml())) );
       }
       _cfg.ieta = row->ieta;
       _cfg.iphi = row->iphi;
       _cfg.depth = row->idepth;
       _cfg.crate = row->crate;
       _cfg.slot = row->slot;
-      if (row->topbottom . find("t") != string::npos) _cfg.topbottom = 1;
-      else if (row->topbottom . find("b") != string::npos) _cfg.topbottom = 0;
-      else cout << "Warning! fpga out of range..." << endl;
+      if (row->topbottom . find("t") != std::string::npos) _cfg.topbottom = 1;
+      else if (row->topbottom . find("b") != std::string::npos) _cfg.topbottom = 0;
+      else std::cout << "Warning! fpga out of range..." << std::endl;
       _cfg.fiber = row->fiber;
       _cfg.fiberchan = row->fiberchan;
       if (_set.lut[lut_index].size() == 128) _cfg.lut_type = 1;
@@ -601,27 +601,27 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromAscii
       }
     }
   }
-  cout << "LUTs generated: " << _counter.getCount() << endl;
-  cout << "Generating compression (output) LUTs from ascii master file...DONE" << endl;
+  std::cout << "LUTs generated: " << _counter.getCount() << std::endl;
+  std::cout << "Generating compression (output) LUTs from ascii master file...DONE" << std::endl;
   return _xml;
 }
 
 
-std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromCoder( const HcalTPGCoder & _coder, string _tag, bool split_by_crate )
+std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromCoder( const HcalTPGCoder & _coder, std::string _tag, bool split_by_crate )
 {
-  cout << "Generating linearization (input) LUTs from HcaluLUTTPGCoder..." << endl;
-  map<int, shared_ptr<LutXml> > _xml; // index - crate number
+  std::cout << "Generating linearization (input) LUTs from HcaluLUTTPGCoder..." << std::endl;
+  std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
 
   //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.03_080817.txt");
   //std::vector<EMap::EMapRow> & _map = _emap.get_map();
-  //cout << "EMap contains " << _map . size() << " entries" << endl;
+  //std::cout << "EMap contains " << _map . size() << " entries" << std::endl;
 
   LMap _lmap;
   _lmap . read( "backup/HCALmapHBEF.txt", "HBEF" );
   // HO is not part of trigger, so TPGCoder cannot generate LUTs for it
   //_lmap . read( "backup/HCALmapHO.txt", "HO" );
-  map<int,LMapRow> & _map = _lmap.get_map();
-  cout << "LMap contains " << _map . size() << " channels" << endl;
+  std::map<int,LMapRow> & _map = _lmap.get_map();
+  std::cout << "LMap contains " << _map . size() << " channels" << std::endl;
 
   // read LUTs and their eta/phi/depth/subdet ranges
   //HcalLutSet _set = getLinearizationLutSetFromCoder();
@@ -629,23 +629,23 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromCod
 
   //loop over all HCAL channels
   RooGKCounter _counter;
-  for( map<int,LMapRow>::const_iterator row=_map.begin(); row!=_map.end(); row++ ){
+  for( std::map<int,LMapRow>::const_iterator row=_map.begin(); row!=_map.end(); row++ ){
     LutXml::Config _cfg;
     
     if ( _xml.count(row->second.crate) == 0 && split_by_crate ){
-      _xml.insert( pair<int,shared_ptr<LutXml> >(row->second.crate,shared_ptr<LutXml>(new LutXml())) );
+      _xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(row->second.crate,boost::shared_ptr<LutXml>(new LutXml())) );
     }
     else if ( _xml.count(0) == 0 && !split_by_crate ){
-      _xml.insert( pair<int,shared_ptr<LutXml> >(0,shared_ptr<LutXml>(new LutXml())) );
+      _xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(0,boost::shared_ptr<LutXml>(new LutXml())) );
     }
     _cfg.ieta = row->second.side*row->second.eta;
     _cfg.iphi = row->second.phi;
     _cfg.depth = row->second.depth;
     _cfg.crate = row->second.crate;
     _cfg.slot = row->second.htr;
-    if (row->second.fpga . find("top") != string::npos) _cfg.topbottom = 1;
-    else if (row->second.fpga . find("bot") != string::npos) _cfg.topbottom = 0;
-    else cout << "Warning! fpga out of range..." << endl;
+    if (row->second.fpga . find("top") != std::string::npos) _cfg.topbottom = 1;
+    else if (row->second.fpga . find("bot") != std::string::npos) _cfg.topbottom = 0;
+    else std::cout << "Warning! fpga out of range..." << std::endl;
     // FIXME: probably fixed. fiber==htr_fi, not rm_fi in LMAP notation.
     //_cfg.fiber = row->second.rm_fi;
     _cfg.fiber = row->second.htr_fi;
@@ -665,13 +665,13 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromCod
 
     //HcalDetId _detid(row->first);
     HcalDetId _detid(row->second.det, row->second.side*row->second.eta, row->second.phi, row->second.depth);
-    //cout << "### DEBUG: rawid = " << _detid.rawId() << endl;    
+    //std::cout << "### DEBUG: rawid = " << _detid.rawId() << std::endl;    
 
-    //cout << "### DEBUG: subdetector = " << row->second.det << endl;    
+    //std::cout << "### DEBUG: subdetector = " << row->second.det << std::endl;    
     std::vector<unsigned short>  coder_lut = _coder . getLinearizationLUT(_detid);
     for (std::vector<unsigned short>::const_iterator _i=coder_lut.begin(); _i!=coder_lut.end();_i++){
       unsigned int _temp = (unsigned int)(*_i);
-      //if (_temp!=0) cout << "DEBUG non-zero LUT!!!!!!!!!!!!!!!" << (*_i) << "     " << _temp << endl;
+      //if (_temp!=0) std::cout << "DEBUG non-zero LUT!!!!!!!!!!!!!!!" << (*_i) << "     " << _temp << std::endl;
       //unsigned int _temp = 0;
       _cfg.lut.push_back(_temp);
     }
@@ -684,22 +684,22 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromCod
       _counter.count();
     }
   }
-  cout << "Generated LUTs: " << _counter.getCount() << endl;
-  cout << "Generating linearization (input) LUTs from HcaluLUTTPGCoder...DONE" << endl;
+  std::cout << "Generated LUTs: " << _counter.getCount() << std::endl;
+  std::cout << "Generating linearization (input) LUTs from HcaluLUTTPGCoder...DONE" << std::endl;
   return _xml;
 }
 
 
 
 
-std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromCoderEmap( const HcalTPGCoder & _coder, string _tag, bool split_by_crate )
+std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromCoderEmap( const HcalTPGCoder & _coder, std::string _tag, bool split_by_crate )
 {
-  cout << "Generating linearization (input) LUTs from HcaluLUTTPGCoder..." << endl;
-  map<int, shared_ptr<LutXml> > _xml; // index - crate number
+  std::cout << "Generating linearization (input) LUTs from HcaluLUTTPGCoder..." << std::endl;
+  std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
 
   EMap _emap(emap);
   std::vector<EMap::EMapRow> & _map = _emap.get_map();
-  cout << "EMap contains " << _map . size() << " entries" << endl;
+  std::cout << "EMap contains " << _map . size() << " entries" << std::endl;
 
   std::vector<unsigned int> zeroLut;
   for (size_t adc = 0; adc < 128; adc++) zeroLut.push_back(0);
@@ -715,19 +715,19 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromCod
       LutXml::Config _cfg;
       
       if ( _xml.count(row->crate) == 0 && split_by_crate ){
-	_xml.insert( pair<int,shared_ptr<LutXml> >(row->crate,shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(row->crate,boost::shared_ptr<LutXml>(new LutXml())) );
       }
       else if ( _xml.count(0) == 0 && !split_by_crate ){
-	_xml.insert( pair<int,shared_ptr<LutXml> >(0,shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(0,boost::shared_ptr<LutXml>(new LutXml())) );
       }
       _cfg.ieta = row->ieta;
       _cfg.iphi = row->iphi;
       _cfg.depth = row->idepth;
       _cfg.crate = row->crate;
       _cfg.slot = row->slot;
-      if (row->topbottom . find("t") != string::npos) _cfg.topbottom = 1;
-      else if (row->topbottom . find("b") != string::npos) _cfg.topbottom = 0;
-      else cout << "Warning! fpga out of range..." << endl;
+      if (row->topbottom . find("t") != std::string::npos) _cfg.topbottom = 1;
+      else if (row->topbottom . find("b") != std::string::npos) _cfg.topbottom = 0;
+      else std::cout << "Warning! fpga out of range..." << std::endl;
       _cfg.fiber = row->fiber;
       _cfg.fiberchan = row->fiberchan;
       _cfg.lut_type = 1;
@@ -772,24 +772,24 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXmlFromCod
       }
     }
   }
-  cout << "Generated LUTs: " << _counter.getCount() << endl;
-  cout << "Generating linearization (input) LUTs from HcaluLUTTPGCoder...DONE" << endl;
+  std::cout << "Generated LUTs: " << _counter.getCount() << std::endl;
+  std::cout << "Generating linearization (input) LUTs from HcaluLUTTPGCoder...DONE" << std::endl;
   return _xml;
 }
 
 
 
-std::map<int, shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromCoder( const CaloTPGTranscoderULUT & _coder, string _tag, bool split_by_crate )
+std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromCoder( const CaloTPGTranscoderULUT & _coder, std::string _tag, bool split_by_crate )
 {
-  cout << "Generating compression (output) LUTs from CaloTPGTranscoderULUT," << endl;
-  cout << "initialized from Event Setup" << endl;
-  map<int, shared_ptr<LutXml> > _xml; // index - crate number
+  std::cout << "Generating compression (output) LUTs from CaloTPGTranscoderULUT," << std::endl;
+  std::cout << "initialized from Event Setup" << std::endl;
+  std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
 
   //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.04_080905.txt");
   EMap _emap(emap);
 
   std::vector<EMap::EMapRow> & _map = _emap.get_map();
-  cout << "EMap contains " << _map . size() << " channels" << endl;
+  std::cout << "EMap contains " << _map . size() << " channels" << std::endl;
 
   // read LUTs and their eta/phi/depth/subdet ranges
   //HcalLutSet _set = getLutSetFromFile( _filename, 2 );
@@ -802,21 +802,21 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromCoder
 
     // only trigger tower channels
     // and valid (ieta,iphi)
-    if ( row->subdet . find("HT") != string::npos && _coder.HTvalid(row->ieta, row->iphi) ){
+    if ( row->subdet . find("HT") != std::string::npos && _coder.HTvalid(row->ieta, row->iphi) ){
       if ( _xml.count(row->crate) == 0 && split_by_crate ){
-	_xml.insert( pair<int,shared_ptr<LutXml> >(row->crate,shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(row->crate,boost::shared_ptr<LutXml>(new LutXml())) );
       }
       else if ( _xml.count(0) == 0 && !split_by_crate ){
-	_xml.insert( pair<int,shared_ptr<LutXml> >(0,shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(0,boost::shared_ptr<LutXml>(new LutXml())) );
       }
       _cfg.ieta = row->ieta;
       _cfg.iphi = row->iphi;
       _cfg.depth = row->idepth;
       _cfg.crate = row->crate;
       _cfg.slot = row->slot;
-      if (row->topbottom . find("t") != string::npos) _cfg.topbottom = 1;
-      else if (row->topbottom . find("b") != string::npos) _cfg.topbottom = 0;
-      else cout << "Warning! fpga out of range..." << endl;
+      if (row->topbottom . find("t") != std::string::npos) _cfg.topbottom = 1;
+      else if (row->topbottom . find("b") != std::string::npos) _cfg.topbottom = 0;
+      else std::cout << "Warning! fpga out of range..." << std::endl;
       _cfg.fiber = row->fiber;
       _cfg.fiberchan = row->fiberchan;
       _cfg.lut_type = 2;
@@ -838,7 +838,7 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromCoder
       std::vector<unsigned char> coder_lut = _coder.getCompressionLUT(_detid);
       for (std::vector<unsigned char>::const_iterator _i=coder_lut.begin(); _i!=coder_lut.end();_i++){
 	unsigned int _temp = (unsigned int)(*_i);
-	//if (_temp!=0) cout << "DEBUG non-zero LUT!!!!!!!!!!!!!!!" << (*_i) << "     " << _temp << endl;
+	//if (_temp!=0) std::cout << "DEBUG non-zero LUT!!!!!!!!!!!!!!!" << (*_i) << "     " << _temp << std::endl;
 	//unsigned int _temp = 0;
 	_cfg.lut.push_back(_temp);
       }
@@ -854,17 +854,17 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromCoder
       }
     }
   }
-  cout << "LUTs generated: " << _counter.getCount() << endl;
-  cout << "Generating compression (output) LUTs from CaloTPGTranscoderULUT...DONE" << endl;
+  std::cout << "LUTs generated: " << _counter.getCount() << std::endl;
+  std::cout << "Generating compression (output) LUTs from CaloTPGTranscoderULUT...DONE" << std::endl;
   return _xml;
 }
 
 
 
-std::map<int, shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromCoder( string _tag, bool split_by_crate )
+std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromCoder( std::string _tag, bool split_by_crate )
 {
-  cout << "Generating compression (output) LUTs from CaloTPGTranscoderULUT" << endl;
-  map<int, shared_ptr<LutXml> > _xml; // index - crate number
+  std::cout << "Generating compression (output) LUTs from CaloTPGTranscoderULUT" << std::endl;
+  std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
 
   //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v5_080208.txt");
   //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.03_080817.txt");
@@ -872,7 +872,7 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromCoder
   EMap _emap(emap);
 
   std::vector<EMap::EMapRow> & _map = _emap.get_map();
-  cout << "EMap contains " << _map . size() << " channels" << endl;
+  std::cout << "EMap contains " << _map . size() << " channels" << std::endl;
 
   // read LUTs and their eta/phi/depth/subdet ranges
   //HcalLutSet _set = getLutSetFromFile( _filename, 2 );
@@ -887,21 +887,21 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromCoder
 
     // only trigger tower channels
     // and valid (ieta,iphi)
-    if ( row->subdet . find("HT") != string::npos && _coder.HTvalid(row->ieta, row->iphi) ){
+    if ( row->subdet . find("HT") != std::string::npos && _coder.HTvalid(row->ieta, row->iphi) ){
       if ( _xml.count(row->crate) == 0 && split_by_crate ){
-	_xml.insert( pair<int,shared_ptr<LutXml> >(row->crate,shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(row->crate,boost::shared_ptr<LutXml>(new LutXml())) );
       }
       else if ( _xml.count(0) == 0 && !split_by_crate ){
-	_xml.insert( pair<int,shared_ptr<LutXml> >(0,shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(0,boost::shared_ptr<LutXml>(new LutXml())) );
       }
       _cfg.ieta = row->ieta;
       _cfg.iphi = row->iphi;
       _cfg.depth = row->idepth;
       _cfg.crate = row->crate;
       _cfg.slot = row->slot;
-      if (row->topbottom . find("t") != string::npos) _cfg.topbottom = 1;
-      else if (row->topbottom . find("b") != string::npos) _cfg.topbottom = 0;
-      else cout << "Warning! fpga out of range..." << endl;
+      if (row->topbottom . find("t") != std::string::npos) _cfg.topbottom = 1;
+      else if (row->topbottom . find("b") != std::string::npos) _cfg.topbottom = 0;
+      else std::cout << "Warning! fpga out of range..." << std::endl;
       _cfg.fiber = row->fiber;
       _cfg.fiberchan = row->fiberchan;
       _cfg.lut_type = 2;
@@ -923,7 +923,7 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromCoder
       std::vector<unsigned char> coder_lut = _coder.getCompressionLUT(_detid);
       for (std::vector<unsigned char>::const_iterator _i=coder_lut.begin(); _i!=coder_lut.end();_i++){
 	unsigned int _temp = (unsigned int)(*_i);
-	//if (_temp!=0) cout << "DEBUG non-zero LUT!!!!!!!!!!!!!!!" << (*_i) << "     " << _temp << endl;
+	//if (_temp!=0) std::cout << "DEBUG non-zero LUT!!!!!!!!!!!!!!!" << (*_i) << "     " << _temp << std::endl;
 	//unsigned int _temp = 0;
 	_cfg.lut.push_back(_temp);
       }
@@ -939,17 +939,17 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFromCoder
       }
     }
   }
-  cout << "LUTs generated: " << _counter.getCount() << endl;
-  cout << "Generating compression (output) LUTs from CaloTPGTranscoderULUT...DONE" << endl;
+  std::cout << "LUTs generated: " << _counter.getCount() << std::endl;
+  std::cout << "Generating compression (output) LUTs from CaloTPGTranscoderULUT...DONE" << std::endl;
   return _xml;
 }
 
 
 
-int HcalLutManager::writeLutXmlFiles( std::map<int, shared_ptr<LutXml> > & _xml, string _tag, bool split_by_crate )
+int HcalLutManager::writeLutXmlFiles( std::map<int, boost::shared_ptr<LutXml> > & _xml, std::string _tag, bool split_by_crate )
 {
-  for (map<int,shared_ptr<LutXml> >::const_iterator cr = _xml.begin(); cr != _xml.end(); cr++){
-    stringstream output_file_name;
+  for (std::map<int,boost::shared_ptr<LutXml> >::const_iterator cr = _xml.begin(); cr != _xml.end(); cr++){
+    std::stringstream output_file_name;
     if ( split_by_crate ){
       output_file_name << _tag << "_" << cr->first << ".xml";
     }
@@ -961,10 +961,10 @@ int HcalLutManager::writeLutXmlFiles( std::map<int, shared_ptr<LutXml> > & _xml,
   return 0;
 }
 
-int HcalLutManager::createLinLutXmlFiles( string _tag, string _lin_file, bool split_by_crate )
+int HcalLutManager::createLinLutXmlFiles( std::string _tag, std::string _lin_file, bool split_by_crate )
 {
-  //cout << "DEBUG1: split_by_crate = " << split_by_crate << endl;
-  std::map<int, shared_ptr<LutXml> > xml;
+  //std::cout << "DEBUG1: split_by_crate = " << split_by_crate << std::endl;
+  std::map<int, boost::shared_ptr<LutXml> > xml;
   if ( !lut_checksums_xml ){
     lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
   }
@@ -974,16 +974,16 @@ int HcalLutManager::createLinLutXmlFiles( string _tag, string _lin_file, bool sp
   }
   writeLutXmlFiles( xml, _tag, split_by_crate );
 
-  string checksums_file = _tag + "_checksums.xml";
+  std::string checksums_file = _tag + "_checksums.xml";
   lut_checksums_xml -> write( checksums_file . c_str() );
 
   return 0;
 }
 
-int HcalLutManager::createAllLutXmlFiles( string _tag, string _lin_file, string _comp_file, bool split_by_crate )
+int HcalLutManager::createAllLutXmlFiles( std::string _tag, std::string _lin_file, std::string _comp_file, bool split_by_crate )
 {
-  //cout << "DEBUG1: split_by_crate = " << split_by_crate << endl;
-  std::map<int, shared_ptr<LutXml> > xml;
+  //std::cout << "DEBUG1: split_by_crate = " << split_by_crate << std::endl;
+  std::map<int, boost::shared_ptr<LutXml> > xml;
   if ( !lut_checksums_xml ){
     lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
   }
@@ -993,22 +993,22 @@ int HcalLutManager::createAllLutXmlFiles( string _tag, string _lin_file, string 
     addLutMap( xml, getLinearizationLutXmlFromAsciiMasterEmap( _lin_file, _tag, -1, split_by_crate ) );
   }
   if ( _comp_file.size() != 0 ){
-    //cout << "DEBUG1!!!!" << endl;
+    //std::cout << "DEBUG1!!!!" << std::endl;
     addLutMap( xml, getCompressionLutXmlFromAsciiMaster( _comp_file, _tag, -1, split_by_crate ) );
-    //cout << "DEBUG2!!!!" << endl;
+    //std::cout << "DEBUG2!!!!" << std::endl;
   }
   writeLutXmlFiles( xml, _tag, split_by_crate );
 
-  string checksums_file = _tag + "_checksums.xml";
+  std::string checksums_file = _tag + "_checksums.xml";
   lut_checksums_xml -> write( checksums_file . c_str() );
 
   return 0;
 }
 
-int HcalLutManager::createCompLutXmlFilesFromCoder( string _tag, bool split_by_crate )
+int HcalLutManager::createCompLutXmlFilesFromCoder( std::string _tag, bool split_by_crate )
 {
-  //cout << "DEBUG1: split_by_crate = " << split_by_crate << endl;
-  std::map<int, shared_ptr<LutXml> > xml;
+  //std::cout << "DEBUG1: split_by_crate = " << split_by_crate << std::endl;
+  std::map<int, boost::shared_ptr<LutXml> > xml;
   if ( !lut_checksums_xml ){
     lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
   }
@@ -1017,16 +1017,16 @@ int HcalLutManager::createCompLutXmlFilesFromCoder( string _tag, bool split_by_c
 
   writeLutXmlFiles( xml, _tag, split_by_crate );
 
-  string checksums_file = _tag + "_checksums.xml";
+  std::string checksums_file = _tag + "_checksums.xml";
   lut_checksums_xml -> write( checksums_file . c_str() );
 
   return 0;
 }
 
-int HcalLutManager::createAllLutXmlFilesFromCoder( const HcalTPGCoder & _coder, string _tag, bool split_by_crate )
+int HcalLutManager::createAllLutXmlFilesFromCoder( const HcalTPGCoder & _coder, std::string _tag, bool split_by_crate )
 {
-  //cout << "DEBUG1: split_by_crate = " << split_by_crate << endl;
-  std::map<int, shared_ptr<LutXml> > xml;
+  //std::cout << "DEBUG1: split_by_crate = " << split_by_crate << std::endl;
+  std::map<int, boost::shared_ptr<LutXml> > xml;
   if ( !lut_checksums_xml ){
     lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
   }
@@ -1037,7 +1037,7 @@ int HcalLutManager::createAllLutXmlFilesFromCoder( const HcalTPGCoder & _coder, 
 
   writeLutXmlFiles( xml, _tag, split_by_crate );
 
-  string checksums_file = _tag + "_checksums.xml";
+  std::string checksums_file = _tag + "_checksums.xml";
   lut_checksums_xml -> write( checksums_file . c_str() );
 
   return 0;
@@ -1046,52 +1046,52 @@ int HcalLutManager::createAllLutXmlFilesFromCoder( const HcalTPGCoder & _coder, 
 //
 //_____ use this for creating a full set of LUTs ________________________
 //
-int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii( string _tag, const HcalTPGCoder & _coder, const CaloTPGTranscoderULUT & _transcoder, string _lin_file, bool split_by_crate )
+int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii( std::string _tag, const HcalTPGCoder & _coder, const CaloTPGTranscoderULUT & _transcoder, std::string _lin_file, bool split_by_crate )
 {
-  std::map<int, shared_ptr<LutXml> > xml;
+  std::map<int, boost::shared_ptr<LutXml> > xml;
   if ( !lut_checksums_xml ){
     lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
   }
   
   if ( _lin_file.size() != 0 ){
-    const std::map<int, shared_ptr<LutXml> > _lin_lut_ascii_xml = getLinearizationLutXmlFromAsciiMasterEmap( _lin_file, _tag, -1, split_by_crate );
+    const std::map<int, boost::shared_ptr<LutXml> > _lin_lut_ascii_xml = getLinearizationLutXmlFromAsciiMasterEmap( _lin_file, _tag, -1, split_by_crate );
     addLutMap( xml, _lin_lut_ascii_xml );
   }
-  const std::map<int, shared_ptr<LutXml> > _lin_lut_xml = getLinearizationLutXmlFromCoderEmap( _coder, _tag, split_by_crate );
+  const std::map<int, boost::shared_ptr<LutXml> > _lin_lut_xml = getLinearizationLutXmlFromCoderEmap( _coder, _tag, split_by_crate );
   addLutMap( xml, _lin_lut_xml );
   //
-  const std::map<int, shared_ptr<LutXml> > _comp_lut_xml = getCompressionLutXmlFromCoder( _transcoder, _tag, split_by_crate );
+  const std::map<int, boost::shared_ptr<LutXml> > _comp_lut_xml = getCompressionLutXmlFromCoder( _transcoder, _tag, split_by_crate );
   addLutMap( xml, _comp_lut_xml );
   
   writeLutXmlFiles( xml, _tag, split_by_crate );
   
-  string checksums_file = _tag + "_checksums.xml";
+  std::string checksums_file = _tag + "_checksums.xml";
   lut_checksums_xml -> write( checksums_file . c_str() );
   
   return 0;
 }
 
 
-int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii( string _tag, const HcalTPGCoder & _coder, string _lin_file, bool split_by_crate )
+int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii( std::string _tag, const HcalTPGCoder & _coder, std::string _lin_file, bool split_by_crate )
 {
-  std::map<int, shared_ptr<LutXml> > xml;
+  std::map<int, boost::shared_ptr<LutXml> > xml;
   if ( !lut_checksums_xml ){
     lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
   }
   
   if ( _lin_file.size() != 0 ){
-    const std::map<int, shared_ptr<LutXml> > _lin_lut_ascii_xml = getLinearizationLutXmlFromAsciiMasterEmap( _lin_file, _tag, -1, split_by_crate );
+    const std::map<int, boost::shared_ptr<LutXml> > _lin_lut_ascii_xml = getLinearizationLutXmlFromAsciiMasterEmap( _lin_file, _tag, -1, split_by_crate );
     addLutMap( xml, _lin_lut_ascii_xml );
   }
-  const std::map<int, shared_ptr<LutXml> > _lin_lut_xml = getLinearizationLutXmlFromCoderEmap( _coder, _tag, split_by_crate );
+  const std::map<int, boost::shared_ptr<LutXml> > _lin_lut_xml = getLinearizationLutXmlFromCoderEmap( _coder, _tag, split_by_crate );
   addLutMap( xml, _lin_lut_xml );
   //
-  const std::map<int, shared_ptr<LutXml> > _comp_lut_xml = getCompressionLutXmlFromCoder( _tag, split_by_crate );
+  const std::map<int, boost::shared_ptr<LutXml> > _comp_lut_xml = getCompressionLutXmlFromCoder( _tag, split_by_crate );
   addLutMap( xml, _comp_lut_xml );
   
   writeLutXmlFiles( xml, _tag, split_by_crate );
   
-  string checksums_file = _tag + "_checksums.xml";
+  std::string checksums_file = _tag + "_checksums.xml";
   lut_checksums_xml -> write( checksums_file . c_str() );
   
   return 0;
@@ -1099,10 +1099,10 @@ int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii( string _tag, co
 
 
 // use this to create HBEF only from coders (physics LUTs)
-int HcalLutManager::createAllLutXmlFilesLinAsciiCompCoder( string _tag, string _lin_file, bool split_by_crate )
+int HcalLutManager::createAllLutXmlFilesLinAsciiCompCoder( std::string _tag, std::string _lin_file, bool split_by_crate )
 {
-  //cout << "DEBUG1: split_by_crate = " << split_by_crate << endl;
-  std::map<int, shared_ptr<LutXml> > xml;
+  //std::cout << "DEBUG1: split_by_crate = " << split_by_crate << std::endl;
+  std::map<int, boost::shared_ptr<LutXml> > xml;
   if ( !lut_checksums_xml ){
     lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
   }
@@ -1113,7 +1113,7 @@ int HcalLutManager::createAllLutXmlFilesLinAsciiCompCoder( string _tag, string _
   addLutMap( xml, getCompressionLutXmlFromCoder( _tag, split_by_crate ) );
   writeLutXmlFiles( xml, _tag, split_by_crate );
 
-  string checksums_file = _tag + "_checksums.xml";
+  std::string checksums_file = _tag + "_checksums.xml";
   lut_checksums_xml -> write( checksums_file . c_str() );
 
   return 0;
@@ -1121,10 +1121,10 @@ int HcalLutManager::createAllLutXmlFilesLinAsciiCompCoder( string _tag, string _
 
 
 
-void HcalLutManager::addLutMap(std::map<int, shared_ptr<LutXml> > & result, const std::map<int, shared_ptr<LutXml> > & other)
+void HcalLutManager::addLutMap(std::map<int, boost::shared_ptr<LutXml> > & result, const std::map<int, boost::shared_ptr<LutXml> > & other)
 {
-  for ( std::map<int, shared_ptr<LutXml> >::const_iterator lut=other.begin(); lut!=other.end(); lut++ ){
-    cout << "Added LUTs for crate " << lut->first << endl;
+  for ( std::map<int, boost::shared_ptr<LutXml> >::const_iterator lut=other.begin(); lut!=other.end(); lut++ ){
+    std::cout << "Added LUTs for crate " << lut->first << std::endl;
     if ( result.count(lut->first)==0 ){
       result . insert( *lut );
     }
@@ -1142,7 +1142,7 @@ string HcalLutManager::get_time_stamp( time_t _time )
   char timebuf[50];
   //strftime( timebuf, 50, "%c", gmtime( &_time ) );
   strftime( timebuf, 50, "%Y-%m-%d %H:%M:%S", gmtime( &_time ) );
-  string creationstamp = timebuf;
+  std::string creationstamp = timebuf;
 
   return creationstamp;
 }
@@ -1150,7 +1150,7 @@ string HcalLutManager::get_time_stamp( time_t _time )
 
 
 
-int HcalLutManager::test_xml_access( string _tag, string _filename )
+int HcalLutManager::test_xml_access( std::string _tag, std::string _filename )
 {
   local_connect( _filename, "backup/HCALmapHBEF.txt", "backup/HCALmapHO.txt" );
 
@@ -1158,31 +1158,31 @@ int HcalLutManager::test_xml_access( string _tag, string _filename )
   EMap _emap(emap);
   std::vector<EMap::EMapRow> & _map = _emap.get_map();
   int map_size = _map . size();
-  cout << "EMap contains " << map_size << " channels" << endl;
+  std::cout << "EMap contains " << map_size << " channels" << std::endl;
 
   // make sure that all init is done
-  vector<unsigned int> _lut;
+  std::vector<unsigned int> _lut;
   _lut = getLutFromXml( _tag, 1107313727, hcal::ConfigurationDatabase::LinearizerLUT );
 
 
-  cout << endl << "Testing direct parsing of the LUT XML" << endl;
+  std::cout << std::endl << "Testing direct parsing of the LUT XML" << std::endl;
   struct timeval _t;
   gettimeofday( &_t, NULL );
   double _time =(double)(_t . tv_sec) + (double)(_t . tv_usec)/1000000.0;
   test_direct_xml_parsing(_filename);
   gettimeofday( &_t, NULL );
-  cout << "parsing took that much time: " << (double)(_t . tv_sec) + (double)(_t . tv_usec)/1000000.0 - _time << endl;
+  std::cout << "parsing took that much time: " << (double)(_t . tv_sec) + (double)(_t . tv_usec)/1000000.0 - _time << std::endl;
 
 
   gettimeofday( &_t, NULL );
   _time =(double)(_t . tv_sec) + (double)(_t . tv_usec)/1000000.0;
-  cout << "before loop over random LUTs: " << _time << endl;
+  std::cout << "before loop over random LUTs: " << _time << std::endl;
   int _raw_id;
 
   // loop over random LUTs
   for (int _iter=0; _iter<100; _iter++){
     gettimeofday( &_t, NULL );
-    //cout << "before getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << endl;
+    //std::cout << "before getting a LUT: " << _t . tv_sec << "." << _t . tv_usec << std::endl;
 
     // select valid random emap channel
     while(1){
@@ -1210,13 +1210,13 @@ int HcalLutManager::test_xml_access( string _tag, string _filename )
     gettimeofday( &_t, NULL );
   }
   double d_time = _t.tv_sec+_t.tv_usec/1000000.0 - _time;
-  cout << "after the loop over random LUTs: " << _time+d_time << endl;  
-  cout << "total time: " << d_time << endl;  
+  std::cout << "after the loop over random LUTs: " << _time+d_time << std::endl;  
+  std::cout << "total time: " << d_time << std::endl;  
   
-  cout << "LUT length = " << _lut . size() << endl;
-  for ( vector<unsigned int>::const_iterator i = _lut . end() - 1; i != _lut . begin()-1; i-- )
+  std::cout << "LUT length = " << _lut . size() << std::endl;
+  for ( std::vector<unsigned int>::const_iterator i = _lut . end() - 1; i != _lut . begin()-1; i-- )
     {
-      cout << (i-_lut.begin()) << "     " << _lut[(i-_lut.begin())] << endl;
+      std::cout << (i-_lut.begin()) << "     " << _lut[(i-_lut.begin())] << std::endl;
       break;
     }
   
@@ -1230,19 +1230,19 @@ int HcalLutManager::test_xml_access( string _tag, string _filename )
 
 
 
-int HcalLutManager::read_lmap( string lmap_hbef_file, string lmap_ho_file )
+int HcalLutManager::read_lmap( std::string lmap_hbef_file, std::string lmap_ho_file )
 {
   delete lmap;
   lmap = new LMap();
   lmap -> read( lmap_hbef_file, "HBEF" );
   lmap -> read( lmap_ho_file, "HO" );
-  cout << "LMap contains " << lmap -> get_map() . size() << " channels (compare to 9072 of all HCAL channels)" << endl;
+  std::cout << "LMap contains " << lmap -> get_map() . size() << " channels (compare to 9072 of all HCAL channels)" << std::endl;
   return 0;
 }
 
 
 
-int HcalLutManager::read_luts( string lut_xml_file )
+int HcalLutManager::read_luts( std::string lut_xml_file )
 {
   delete db;
   db = new HCALConfigDB();
@@ -1254,7 +1254,7 @@ int HcalLutManager::read_luts( string lut_xml_file )
 
 
 
-int HcalLutManager::local_connect( string lut_xml_file, string lmap_hbef_file, string lmap_ho_file )
+int HcalLutManager::local_connect( std::string lut_xml_file, std::string lmap_hbef_file, std::string lmap_ho_file )
 {
   read_lmap( lmap_hbef_file, lmap_ho_file );
   read_luts( lut_xml_file );
@@ -1264,9 +1264,9 @@ int HcalLutManager::local_connect( string lut_xml_file, string lmap_hbef_file, s
 
 
 
-std::vector<unsigned int> HcalLutManager::getLutFromXml( string tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt )
+std::vector<unsigned int> HcalLutManager::getLutFromXml( std::string tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt )
 {
-  cout << "getLutFromXml (new version) is not implemented. Use getLutFromXml_old() for now" << endl;
+  std::cout << "getLutFromXml (new version) is not implemented. Use getLutFromXml_old() for now" << std::endl;
 
   std::vector<unsigned int> result;
 
@@ -1277,26 +1277,26 @@ std::vector<unsigned int> HcalLutManager::getLutFromXml( string tag, uint32_t _r
 
 
 // obsolete, use getLutFromXml() instead
-std::vector<unsigned int> HcalLutManager::getLutFromXml_old( string tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt )
+std::vector<unsigned int> HcalLutManager::getLutFromXml_old( std::string tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt )
 {
   if ( !lmap ){
-    cout << "HcalLutManager: cannot find LUT without LMAP, exiting..." << endl;
+    std::cout << "HcalLutManager: cannot find LUT without LMAP, exiting..." << std::endl;
     exit(-1);
   }
   if ( !db ){
-    cout << "HcalLutManager: cannot find LUT, no source (local XML file), exiting..." << endl;
+    std::cout << "HcalLutManager: cannot find LUT, no source (local XML file), exiting..." << std::endl;
     exit(-1);
   }
 
   std::vector<unsigned int> result;
 
-  map<int,LMapRow> & _map = lmap -> get_map();
-  //cout << "HcalLutManager: LMap contains " << _map . size() << " channels (out of 9072 total)" << endl;
+  std::map<int,LMapRow> & _map = lmap -> get_map();
+  //std::cout << "HcalLutManager: LMap contains " << _map . size() << " channels (out of 9072 total)" << std::endl;
 
   HcalDetId _id( _rawid );
     
   unsigned int _crate, _slot, _fiber, _channel;
-  string _fpga;
+  std::string _fpga;
   int topbottom, luttype;
 
   // FIXME: check validity of _rawid
@@ -1307,10 +1307,10 @@ std::vector<unsigned int> HcalLutManager::getLutFromXml_old( string tag, uint32_
     _channel = _map[_rawid] . fi_ch;
     _fpga    = _map[_rawid] . fpga;
     
-    if ( _fpga . find("top") != string::npos ) topbottom = 1;
-    else if ( _fpga . find("bot") != string::npos ) topbottom = 0;
+    if ( _fpga . find("top") != std::string::npos ) topbottom = 1;
+    else if ( _fpga . find("bot") != std::string::npos ) topbottom = 0;
     else{
-      cout << "HcalLutManager: irregular LMAP fpga value... do not know what to do - exiting" << endl;
+      std::cout << "HcalLutManager: irregular LMAP fpga value... do not know what to do - exiting" << std::endl;
       exit(-1);
     }
     if ( _lt == hcal::ConfigurationDatabase::LinearizerLUT ) luttype = 1;
@@ -1326,16 +1326,16 @@ std::vector<unsigned int> HcalLutManager::getLutFromXml_old( string tag, uint32_
 
 int HcalLutManager::get_xml_files_from_db( std::string tag, const std::string db_accessor, bool split_by_crate )
 {
-  std::map<int, shared_ptr<LutXml> > lut_map = get_brickSet_from_oracle( tag, db_accessor );
+  std::map<int, boost::shared_ptr<LutXml> > lut_map = get_brickSet_from_oracle( tag, db_accessor );
   if (split_by_crate){
     writeLutXmlFiles( lut_map, tag, split_by_crate );
   }      
   else{
     LutXml result;
-    for( std::map<int, shared_ptr<LutXml> >::const_iterator xml = lut_map.begin(); xml != lut_map.end(); xml++ ){
+    for( std::map<int, boost::shared_ptr<LutXml> >::const_iterator xml = lut_map.begin(); xml != lut_map.end(); xml++ ){
       result += *(xml->second);
     }
-    stringstream out_file;
+    std::stringstream out_file;
     out_file << tag << ".xml";
     result . write(out_file.str());    
   }
@@ -1343,7 +1343,7 @@ int HcalLutManager::get_xml_files_from_db( std::string tag, const std::string db
   return 0;
 }
 
-std::map<int, shared_ptr<LutXml> > HcalLutManager::get_brickSet_from_oracle( std::string tag, const std::string _accessor )
+std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::get_brickSet_from_oracle( std::string tag, const std::string _accessor )
 {
   HCALConfigDB * db = new HCALConfigDB();
   XMLProcessor::getInstance(); // initialize xerces-c engine
@@ -1351,7 +1351,7 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::get_brickSet_from_oracle( std
   db -> connect( _accessor );
   oracle::occi::Connection * _connection = db -> getConnection();  
 
-  cout << "Preparing to request the LUT CLOBs from the database..." << endl;
+  std::cout << "Preparing to request the LUT CLOBs from the database..." << std::endl;
 
   //int crate = 0;
   
@@ -1365,16 +1365,16 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::get_brickSet_from_oracle( std
 
   std::string brick_set;
 
-  std::map<int, shared_ptr<LutXml> > lut_map;
+  std::map<int, boost::shared_ptr<LutXml> > lut_map;
 
   try {
     //SELECT
-    cout << "Executing the query..." << endl;
+    std::cout << "Executing the query..." << std::endl;
     Statement* stmt = _connection -> createStatement();
     ResultSet *rs = stmt->executeQuery(query.c_str());
-    cout << "Executing the query... done" << endl;
+    std::cout << "Executing the query... done" << std::endl;
     
-    cout << "Processing the query results..." << endl;
+    std::cout << "Processing the query results..." << std::endl;
     //RooGKCounter _lines;
     while (rs->next()) {
       //_lines.count();
@@ -1394,19 +1394,19 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::get_brickSet_from_oracle( std
 	*/
 	const char * bs = brick_set . c_str();
 	MemBufInputSource * lut_clob = new MemBufInputSource( (const XMLByte *)bs, strlen( bs ), "lut_clob", false );
-	shared_ptr<LutXml> lut_xml = shared_ptr<LutXml>( new LutXml( *lut_clob ) );
+	boost::shared_ptr<LutXml> lut_xml = boost::shared_ptr<LutXml>( new LutXml( *lut_clob ) );
 	lut_map[crate] = lut_xml;
-        cout << " done" << endl;
+        std::cout << " done" << std::endl;
       }
     }
     //Always terminate statement
     _connection -> terminateStatement(stmt);
-    //cout << "Query line count: " << _lines.getCount() << endl;
+    //std::cout << "Query line count: " << _lines.getCount() << std::endl;
   } catch (SQLException& e) {
     XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
   }
 
-  //cout << lut_map.size() << endl;
+  //std::cout << lut_map.size() << std::endl;
 
   db -> disconnect();
   //delete db;
@@ -1414,10 +1414,10 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::get_brickSet_from_oracle( std
 }
 
 
-int HcalLutManager::create_lut_loader( string file_list, string _prefix, string tag_name, string comment, string version, int subversion )
+int HcalLutManager::create_lut_loader( std::string file_list, std::string _prefix, std::string tag_name, std::string comment, std::string version, int subversion )
 {
-  cout << "Generating XML loader for LUTs..." << endl;
-  //cout << _prefix << "..." << tag_name << endl;
+  std::cout << "Generating XML loader for LUTs..." << std::endl;
+  //std::cout << _prefix << "..." << tag_name << std::endl;
 
   XMLLUTLoader::loaderBaseConfig baseConf;
   XMLLUTLoader::lutDBConfig conf;
@@ -1431,7 +1431,7 @@ int HcalLutManager::create_lut_loader( string file_list, string _prefix, string 
 
   conf . version = version;
 
-  stringstream _subversion;
+  std::stringstream _subversion;
   _subversion << subversion;
   conf . subversion = _subversion.str();
 
@@ -1442,9 +1442,9 @@ int HcalLutManager::create_lut_loader( string file_list, string _prefix, string 
 
   XMLLUTLoader doc( &baseConf );
 
-  vector<int> crate_number;
-  vector<string> file_name = HcalQIEManager::splitString(file_list);
-  for (std::vector<string>::const_iterator _f = file_name.begin(); _f != file_name.end(); _f++){
+  std::vector<int> crate_number;
+  std::vector<std::string> file_name = HcalQIEManager::splitString(file_list);
+  for (std::vector<std::string>::const_iterator _f = file_name.begin(); _f != file_name.end(); _f++){
     int crate_begin = _f->rfind("_");
     int crate_end = _f->rfind(".xml.dat");
     crate_number . push_back(getInt(_f->substr(crate_begin+1,crate_end-crate_begin-1)));
@@ -1459,7 +1459,7 @@ int HcalLutManager::create_lut_loader( string file_list, string _prefix, string 
   conf.version.append(_buf);
   CSconf.version = conf.version;
   //
-  for ( vector<string>::const_iterator _file = file_name . begin(); _file != file_name . end(); _file++ )
+  for ( std::vector<std::string>::const_iterator _file = file_name . begin(); _file != file_name . end(); _file++ )
     {
       conf . trig_prim_lookuptbl_data_file = *_file;
       //conf . trig_prim_lookuptbl_data_file += ".dat";
@@ -1471,7 +1471,7 @@ int HcalLutManager::create_lut_loader( string file_list, string _prefix, string 
       conf.subversion.clear();
       conf.subversion.append(_buf);
       sprintf( _buf, "CRATE%.2d", conf . crate );
-      string _namelabel;
+      std::string _namelabel;
       _namelabel . append( _buf );
       conf . name_label = _namelabel;
       doc . addLUT( &conf );
@@ -1481,7 +1481,7 @@ int HcalLutManager::create_lut_loader( string file_list, string _prefix, string 
   //doc . write( _prefix + "_Loader.xml" );
   doc . write( tag_name + "_Loader.xml" );
 
-  cout << "Generating XML loader for LUTs... done." << endl;
+  std::cout << "Generating XML loader for LUTs... done." << std::endl;
 
   return 0;
 }
@@ -1492,19 +1492,19 @@ void HcalLutManager::test_emap( void ){
   //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.04_080905.txt");
   EMap _emap(emap);
   std::vector<EMap::EMapRow> & _map = _emap.get_map();
-  cout << "EMap contains " << _map . size() << " channels" << endl;
+  std::cout << "EMap contains " << _map . size() << " channels" << std::endl;
   
   //loop over all EMap channels
   //RooGKCounter _c;
   for( std::vector<EMap::EMapRow>::const_iterator row=_map.begin(); row!=_map.end(); row++ ){
     
     // only trigger tower channels
-    if ( row->subdet . find("HT") != string::npos ){
-      cout << " -----> Subdet = " << row->subdet << endl;
+    if ( row->subdet . find("HT") != std::string::npos ){
+      std::cout << " -----> Subdet = " << row->subdet << std::endl;
       
       if (abs(row->ieta)>28){
 	//if (row->iphi == 71){
-	cout << " ==> (ieta,iphi) = " << row->ieta << ",	" << row->iphi << endl;
+	cout << " ==> (ieta,iphi) = " << row->ieta << ",	" << row->iphi << std::endl;
       }
     }
   }
@@ -1514,14 +1514,14 @@ void HcalLutManager::test_emap( void ){
 
 
 
-int HcalLutManager::test_direct_xml_parsing( string _filename ){
+int HcalLutManager::test_direct_xml_parsing( std::string _filename ){
   /*
   XMLDOMBlock _xml(_filename);
   //DOMElement * data_set_elem = (DOMElement *)(document -> getElementsByTagName( XMLProcessor::_toXMLCh( "DATA_SET" ) ) -> item(0));  
   DOMNodeList * brick_list = _xml . getDocument() ->  getElementsByTagName( XMLProcessor::_toXMLCh( "CFGBrick" ));  
 
   double n_bricks = brick_list->getLength();
-  cout << "amount of LUT bricks: " << n_bricks << endl;
+  std::cout << "amount of LUT bricks: " << n_bricks << std::endl;
 
   for (int iter=0; iter!=n_bricks; iter++){
     DOMElement * _brick = (DOMElement *)(brick_list->item(iter));
@@ -1531,11 +1531,11 @@ int HcalLutManager::test_direct_xml_parsing( string _filename ){
     int par_iter = 0;
     while(1){
       _param = (DOMElement *)(_brick->getElementsByTagName(XMLProcessor::_toXMLCh("Parameter")));
-      string _name = _param->getAttribute( XMLProcessor::_toXMLCh( "name" ) );
+      std::string _name = _param->getAttribute( XMLProcessor::_toXMLCh( "name" ) );
       if (_name.find("IETA")==string::npos) break;
 
-      string _tag = "Parameter";
-      cout << "### Parameter IETA = " << _xml.getTagValue( _tag, 0, _brick);
+      std::string _tag = "Parameter";
+      std::cout << "### Parameter IETA = " << _xml.getTagValue( _tag, 0, _brick);
       par_iter++;
     }
   }
@@ -1547,47 +1547,47 @@ int HcalLutManager::test_direct_xml_parsing( string _filename ){
 //
 //_____ attempt to include ZDC LUTs _____________________________________
 //
-int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii_ZDC( string _tag, const HcalTPGCoder & _coder, const CaloTPGTranscoderULUT & _transcoder, string _lin_file, bool split_by_crate )
+int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii_ZDC( std::string _tag, const HcalTPGCoder & _coder, const CaloTPGTranscoderULUT & _transcoder, std::string _lin_file, bool split_by_crate )
 {
-  std::map<int, shared_ptr<LutXml> > xml;
+  std::map<int, boost::shared_ptr<LutXml> > xml;
   if ( !lut_checksums_xml ){
     lut_checksums_xml = new XMLDOMBlock( "CFGBrick", 1 );
   }
   
   if ( _lin_file.size() != 0 ){
-    const std::map<int, shared_ptr<LutXml> > _lin_lut_ascii_xml = getLinearizationLutXmlFromAsciiMasterEmap( _lin_file, _tag, -1, split_by_crate );
+    const std::map<int, boost::shared_ptr<LutXml> > _lin_lut_ascii_xml = getLinearizationLutXmlFromAsciiMasterEmap( _lin_file, _tag, -1, split_by_crate );
     addLutMap( xml, _lin_lut_ascii_xml );
   }
-  const std::map<int, shared_ptr<LutXml> > _lin_lut_xml = getLinearizationLutXmlFromCoderEmap( _coder, _tag, split_by_crate );
+  const std::map<int, boost::shared_ptr<LutXml> > _lin_lut_xml = getLinearizationLutXmlFromCoderEmap( _coder, _tag, split_by_crate );
   addLutMap( xml, _lin_lut_xml );
   //
-  const std::map<int, shared_ptr<LutXml> > _comp_lut_xml = getCompressionLutXmlFromCoder( _transcoder, _tag, split_by_crate );
+  const std::map<int, boost::shared_ptr<LutXml> > _comp_lut_xml = getCompressionLutXmlFromCoder( _transcoder, _tag, split_by_crate );
   addLutMap( xml, _comp_lut_xml );
   //
-  const std::map<int, shared_ptr<LutXml> > _zdc_lut_xml = getZdcLutXml( _tag, split_by_crate );
+  const std::map<int, boost::shared_ptr<LutXml> > _zdc_lut_xml = getZdcLutXml( _tag, split_by_crate );
   addLutMap( xml, _zdc_lut_xml );
   
   writeLutXmlFiles( xml, _tag, split_by_crate );
   
-  string checksums_file = _tag + "_checksums.xml";
+  std::string checksums_file = _tag + "_checksums.xml";
   lut_checksums_xml -> write( checksums_file . c_str() );
   
   return 0;
 }
 
 
-std::map<int, shared_ptr<LutXml> > HcalLutManager::getZdcLutXml( string _tag,
+std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getZdcLutXml( std::string _tag,
 								 bool split_by_crate )
 {
-  cout << "Generating ZDC LUTs ...may the Force be with us..." << endl;
-  map<int, shared_ptr<LutXml> > _xml; // index - crate number
+  std::cout << "Generating ZDC LUTs ...may the Force be with us..." << std::endl;
+  std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
 
   EMap _emap(emap);
 
   ZdcLut zdc;
 
   std::vector<EMap::EMapRow> & _map = _emap.get_map();
-  cout << "EMap contains " << _map . size() << " channels" << endl;
+  std::cout << "EMap contains " << _map . size() << " channels" << std::endl;
 
   //loop over all EMap channels
   RooGKCounter _counter;
@@ -1595,12 +1595,12 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getZdcLutXml( string _tag,
     LutXml::Config _cfg;
 
     // only ZDC channels
-    if ( row->zdc_section . find("ZDC") != string::npos ){
+    if ( row->zdc_section . find("ZDC") != std::string::npos ){
       if ( _xml.count(row->crate) == 0 && split_by_crate ){
-	_xml.insert( pair<int,shared_ptr<LutXml> >(row->crate,shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(row->crate,boost::shared_ptr<LutXml>(new LutXml())) );
       }
       else if ( _xml.count(0) == 0 && !split_by_crate ){
-	_xml.insert( pair<int,shared_ptr<LutXml> >(0,shared_ptr<LutXml>(new LutXml())) );
+	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(0,boost::shared_ptr<LutXml>(new LutXml())) );
       }
       //  FIXME: introduce proper tag names in ZDC bricks for logical channel info
       _cfg.ieta = row->zdc_channel; // int
@@ -1609,9 +1609,9 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getZdcLutXml( string _tag,
       _cfg.depth = row->idepth; // int
       _cfg.crate = row->crate;
       _cfg.slot = row->slot;
-      if (row->topbottom . find("t") != string::npos) _cfg.topbottom = 1;
-      else if (row->topbottom . find("b") != string::npos) _cfg.topbottom = 0;
-      else cout << "Warning! fpga out of range..." << endl;
+      if (row->topbottom . find("t") != std::string::npos) _cfg.topbottom = 1;
+      else if (row->topbottom . find("b") != std::string::npos) _cfg.topbottom = 0;
+      else std::cout << "Warning! fpga out of range..." << std::endl;
       _cfg.fiber = row->fiber;
       _cfg.fiberchan = row->fiberchan;
       _cfg.lut_type = 1;
@@ -1626,11 +1626,11 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getZdcLutXml( string _tag,
       std::vector<int> coder_lut = zdc.get_lut(row->zdc_section,
 					       row->zdc_zside,
 					       row->zdc_channel);
-      cout << "***DEBUG: ZDC lut size: " << coder_lut.size() << endl;
+      std::cout << "***DEBUG: ZDC lut size: " << coder_lut.size() << std::endl;
       if (coder_lut.size()!=0){
 	for (std::vector<int>::const_iterator _i=coder_lut.begin(); _i!=coder_lut.end();_i++){
 	  unsigned int _temp = (unsigned int)(*_i);
-	  //if (_temp!=0) cout << "DEBUG non-zero LUT!!!!!!!!!!!!!!!" << (*_i) << "     " << _temp << endl;
+	  //if (_temp!=0) std::cout << "DEBUG non-zero LUT!!!!!!!!!!!!!!!" << (*_i) << "     " << _temp << std::endl;
 	  //unsigned int _temp = 0;
 	  _cfg.lut.push_back(_temp);
 	}
@@ -1647,8 +1647,8 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::getZdcLutXml( string _tag,
       } //size of lut
     }
   }
-  cout << "LUTs generated: " << _counter.getCount() << endl;
-  cout << "Generating ZDC LUTs...DONE" << endl;
+  std::cout << "LUTs generated: " << _counter.getCount() << std::endl;
+  std::cout << "Generating ZDC LUTs...DONE" << std::endl;
 
   return _xml;
 }

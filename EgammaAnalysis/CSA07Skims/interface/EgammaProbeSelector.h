@@ -22,8 +22,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-using namespace edm;
-using namespace std;
+
+
 
 #include <math.h>
 
@@ -38,14 +38,14 @@ class EgammaProbeSelector : public edm::EDFilter {
    private:
 	bool 		debug;
 
-	InputTag	jetLabel;
+	edm::InputTag	jetLabel;
         int 		minNumberOfjets;
         double 		jetEtMin;
         double 		jetEtaMin;
         double 		jetEtaMax;
 
-	InputTag	scLabel;
-        InputTag        scEELabel;
+	edm::InputTag	scLabel;
+        edm::InputTag        scEELabel;
         int 		minNumberOfSuperClusters;
         double 		scEtMin;
         double 		scEtaMin;

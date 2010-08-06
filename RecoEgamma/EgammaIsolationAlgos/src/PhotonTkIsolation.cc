@@ -77,10 +77,10 @@ std::pair<int,double> PhotonTkIsolation::getIso(const reco::Candidate* photon ) 
     //check z-distance of vertex 
     double dzCut = 0;
     switch( dzOption_ ) {
-        case EgammaTrackSelector::dz : dzCut = fabs( (*trItr).dz() - photon->vertex().z() ); break;
-        case EgammaTrackSelector::vz : dzCut = fabs( (*trItr).vz() - photon->vertex().z() ); break;
-        case EgammaTrackSelector::bs : dzCut = fabs( (*trItr).dz(beamPoint_) - photon->vertex().z() ); break;
-        case EgammaTrackSelector::vtx: dzCut = fabs( (*trItr).dz(photon->vertex())); break;
+        case egammaisolation::EgammaTrackSelector::dz : dzCut = fabs( (*trItr).dz() - photon->vertex().z() ); break;
+        case egammaisolation::EgammaTrackSelector::vz : dzCut = fabs( (*trItr).vz() - photon->vertex().z() ); break;
+        case egammaisolation::EgammaTrackSelector::bs : dzCut = fabs( (*trItr).dz(beamPoint_) - photon->vertex().z() ); break;
+        case egammaisolation::EgammaTrackSelector::vtx: dzCut = fabs( (*trItr).dz(photon->vertex())); break;
         default : dzCut = fabs( (*trItr).vz() - photon->vertex().z() ); break;
     }
     if (dzCut > lip_ ) continue;

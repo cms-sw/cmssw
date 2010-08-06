@@ -5,8 +5,8 @@
 //   Description:  A class to produce the L1 GMT emulator Parameters record in the event setup
 //                 by reading them from the online database.
 //
-//   $Date$
-//   $Revision$
+//   $Date: 2008/11/24 19:00:38 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   Thomas Themel
@@ -86,7 +86,7 @@ boost::shared_ptr<L1MuGMTParameters> L1MuGMTParametersOnlineProducer::newObject(
 
   boost::shared_ptr<L1MuGMTParameters> ptrResult(new L1MuGMTParameters);
 
-  vector<string> resultColumns = helper.getColumnList();
+  std::vector<std::string> resultColumns = helper.getColumnList();
   resultColumns.push_back("CMSSW_VERSION");
 
   l1t::OMDSReader::QueryResults resultLines = 
@@ -123,11 +123,11 @@ void L1MuGMTParametersOnlineProducer::checkCMSSWVersion(const coral::AttributeLi
   }
 
   /* Else make sure we have the correct  version. */
-  const string& versionString = version.data<string>();
+  const std::string& versionString = version.data<string>();
 
   /* PROJECT_VERSION is passed as a -D #define from scramv1 (eg CMSSW_2_1_0) */
   if(versionString != PROJECT_VERSION) { 
-    string errMsg = "CMSSW version mismatch: Configuration requires " + 
+    std::string errMsg = "CMSSW version mismatch: Configuration requires " + 
       versionString + ", but this is " PROJECT_VERSION "!";
    
     if(ignoreVersionMismatch_) { 

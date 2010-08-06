@@ -11,7 +11,7 @@
  */
 class HsmModeFinder3d : public ModeFinder3d {
 public:
-  virtual GlobalPoint operator () ( const vector< PointAndDistance> & ) const;
+  virtual GlobalPoint operator () ( const std::vector< PointAndDistance> & ) const;
   virtual HsmModeFinder3d * clone() const;
 };
 

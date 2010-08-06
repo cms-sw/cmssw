@@ -6,7 +6,6 @@
 #include <iostream>
 #include <string>
 #include <time.h>
-using namespace std;
 
 class RooGKCounter {
   
@@ -31,7 +30,7 @@ class RooGKCounter {
   unsigned int _divider;
   bool printCount;
   bool firstCountEntry;
-  string _message;
+  std::string _message;
   bool _newLine;
 
   time_t initTime, firstTickTime, lastPrintTime, lastTickTime;

@@ -20,55 +20,53 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationItemNotFoundException.hh"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
-using namespace std;
-
 struct VectorLMAP{
   
-  vector<int> sideC;
-  vector<int> etaC;
-  vector<int> phiC;
+  std::vector<int> sideC;
+  std::vector<int> etaC;
+  std::vector<int> phiC;
   
-  vector<int> dphiC;
-  vector<int> depthC;
-  vector<string> detC;
-  vector<string> rbxC;
-  vector<int> wedgeC;
+  std::vector<int> dphiC;
+  std::vector<int> depthC;
+  std::vector<std::string> detC;
+  std::vector<std::string> rbxC;
+  std::vector<int> wedgeC;
   
-  vector<int> sectorC;
-  vector<int> rmC;
-  vector<int> pixelC;
-  vector<int> qieC;
-  vector<int> adcC;
+  std::vector<int> sectorC;
+  std::vector<int> rmC;
+  std::vector<int> pixelC;
+  std::vector<int> qieC;
+  std::vector<int> adcC;
   
-  vector<int>  rm_fiC;
-  vector<int> fi_chC;
-  vector<string> let_codeC;
-  vector<int> crateC;
-  vector<int> htrC;
+  std::vector<int>  rm_fiC;
+  std::vector<int> fi_chC;
+  std::vector<std::string> let_codeC;
+  std::vector<int> crateC;
+  std::vector<int> htrC;
   
-  vector<string> fpgaC;
-  vector<int> htr_fiC;
-  vector<int> dcc_slC;
-  vector<int> spigoC;
-  vector<int> dccC;
+  std::vector<std::string> fpgaC;
+  std::vector<int> htr_fiC;
+  std::vector<int> dcc_slC;
+  std::vector<int> spigoC;
+  std::vector<int> dccC;
   
-  vector<int> slbC;
-  vector<string> slbinC;
-  vector<string> slbin2C;
-  vector<string> slnamC;
-  vector<int> rctcraC;
+  std::vector<int> slbC;
+  std::vector<std::string> slbinC;
+  std::vector<std::string> slbin2C;
+  std::vector<std::string> slnamC;
+  std::vector<int> rctcraC;
   
-  vector<int> rctcarC;
-  vector<int> rctconC;
-  vector<string> rctnamC;
-  vector<int> fedidC;
-  vector<int> geoC;
+  std::vector<int> rctcarC;
+  std::vector<int> rctconC;
+  std::vector<std::string> rctnamC;
+  std::vector<int> fedidC;
+  std::vector<int> geoC;
 
-  vector<int> blockC;
-  vector<int> lcC;
+  std::vector<int> blockC;
+  std::vector<int> lcC;
   
-  vector<int> orderC;
-  vector<int> versionC;
+  std::vector<int> orderC;
+  std::vector<int> versionC;
 };
 
 bool SortComp(int x, int y);

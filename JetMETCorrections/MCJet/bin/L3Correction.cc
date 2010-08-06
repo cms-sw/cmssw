@@ -21,15 +21,15 @@ int main(int argc, char**argv)
   CommandLine c1;
   c1.parse(argc,argv);
 
-  string HistoFilename           = c1.getValue<string>("HistoFilename");
-  string FitterFilename          = c1.getValue<string>("FitterFilename");
-  string L3ResponseTxtFilename   = c1.getValue<string>("L3ResponseTxtFilename");
-  string L3CorrectionTxtFilename = c1.getValue<string>("L3CorrectionTxtFilename");
-  string L3OutputROOTFilename    = c1.getValue<string>("L3OutputROOTFilename");
-  string L2CorrectionTxtFilename = c1.getValue<string>("L2CorrectionTxtFilename");
-  string L2OutputROOTFilename    = c1.getValue<string>("L2OutputROOTFilename");
-  vector<double> pt_vec          = c1.getVector<double>("RefPtBoundaries");
-  vector<double> eta_vec         = c1.getVector<double>("EtaBoundaries");
+  std::string HistoFilename           = c1.getValue<string>("HistoFilename");
+  std::string FitterFilename          = c1.getValue<string>("FitterFilename");
+  std::string L3ResponseTxtFilename   = c1.getValue<string>("L3ResponseTxtFilename");
+  std::string L3CorrectionTxtFilename = c1.getValue<string>("L3CorrectionTxtFilename");
+  std::string L3OutputROOTFilename    = c1.getValue<string>("L3OutputROOTFilename");
+  std::string L2CorrectionTxtFilename = c1.getValue<string>("L2CorrectionTxtFilename");
+  std::string L2OutputROOTFilename    = c1.getValue<string>("L2OutputROOTFilename");
+  std::vector<double> pt_vec          = c1.getVector<double>("RefPtBoundaries");
+  std::vector<double> eta_vec         = c1.getVector<double>("EtaBoundaries");
   if (!c1.check()) return 0; 
   c1.print();
   /////////////////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ int main(int argc, char**argv)
  L3CorrectionFile.open(L3CorrectionTxtFilename.c_str());
  L3ResponseFile.open(L3ResponseTxtFilename.c_str());
  TKey *key;
- vector<string> HistoNamesList;
+ std::vector<std::string> HistoNamesList;
  inf = new TFile(FitterFilename.c_str(),"r");
  if (inf->IsZombie()) return(0); 
  TIter next(inf->GetListOfKeys());
@@ -77,15 +77,15 @@ int main(int argc, char**argv)
  hResp = (TH1F*)inf->Get(name);
  auxi_cor=0;
  auxi_resp=0;
- cout<<"RefPt bin"<<setw(12)<<"<CaloPt>"<<setw(12)<<"Correction"<<setw(12)<<"Error"<<setw(12)<<"<RefPt>"<<setw(12)<<"Response"<<setw(12)<<"Error"<<endl; 
+ std::cout<<"RefPt bin"<<setw(12)<<"<CaloPt>"<<setw(12)<<"Correction"<<setw(12)<<"Error"<<setw(12)<<"<RefPt>"<<setw(12)<<"Response"<<setw(12)<<"Error"<<std::endl; 
  for(i=0;i<NRefPtBins;i++)
    { 
      cor = hCor->GetBinContent(i+1);
      e_cor = hCor->GetBinError(i+1);
-     cout<<"["<<pt_vec[i]<<","<<pt_vec[i+1]<<"]"<<setw(12)<<hCalo->GetBinContent(i+1)<<setw(12)<<cor<<setw(12)<<e_cor;
+     std::cout<<"["<<pt_vec[i]<<","<<pt_vec[i+1]<<"]"<<setw(12)<<hCalo->GetBinContent(i+1)<<setw(12)<<cor<<setw(12)<<e_cor;
      resp = hResp->GetBinContent(i+1);
      e_resp = hResp->GetBinError(i+1);
-     cout<<setw(12)<<hRef->GetBinContent(i+1)<<setw(12)<<resp<<setw(12)<<e_resp<<endl;
+     std::cout<<setw(12)<<hRef->GetBinContent(i+1)<<setw(12)<<resp<<setw(12)<<e_resp<<std::endl;
      if (cor>0 && e_cor>0.000001 && e_cor<0.2)
        {    
          Correction[auxi_cor] = cor;
@@ -110,7 +110,7 @@ int main(int argc, char**argv)
  CorFit->SetParameter(1,7.);
  CorFit->SetParameter(2,4.);
  CorFit->SetParameter(3,4.);
- cout<<"Fitting correction in the range: "<<xCaloPt[1]<<" "<<xCaloPt[auxi_cor-1]<<endl;
+ std::cout<<"Fitting correction in the range: "<<xCaloPt[1]<<" "<<xCaloPt[auxi_cor-1]<<std::endl;
  g_Cor->Fit(CorFit,"RQ");
  fitter = TVirtualFitter::GetFitter();
  COV_Cor = new TMatrixD(4,4,fitter->GetCovarianceMatrix());
@@ -122,7 +122,7 @@ int main(int argc, char**argv)
  RespFit->SetParameter(2,1.);
  RespFit->SetParameter(3,1.);
  RespFit->SetParameter(4,1.);
- cout<<"Fitting response in the range: "<<xRefPt[0]<<" "<<xRefPt[auxi_resp-1]<<endl;
+ std::cout<<"Fitting response in the range: "<<xRefPt[0]<<" "<<xRefPt[auxi_resp-1]<<std::endl;
  g_Resp->Fit(RespFit,"RQ");
  fitter = TVirtualFitter::GetFitter();
  COV_Resp = new TMatrixD(5,5,fitter->GetCovarianceMatrix());

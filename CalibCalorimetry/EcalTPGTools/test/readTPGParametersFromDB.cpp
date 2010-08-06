@@ -9,17 +9,17 @@
 
 int main (int argc, char* argv[])
 {
-  string host;
-  string sid;
-  string user;
-  string pass;
-  string sport;
-  string smin_run;
-  string sn_run;
+  std::string host;
+  std::string sid;
+  std::string user;
+  std::string pass;
+  std::string sport;
+  std::string smin_run;
+  std::string sn_run;
 
   if (argc != 8) {
-    cout << "Usage:" << endl;
-    cout << "  " << argv[0] << " <host> <SID> <user> <pass> <port> <min_run> <n_run>" << endl;
+    std::cout << "Usage:" << std::endl;
+    std::cout << "  " << argv[0] << " <host> <SID> <user> <pass> <port> <min_run> <n_run>" << std::endl;
     exit(-1);
   }
 
@@ -44,12 +44,12 @@ int main (int argc, char* argv[])
     //app.writeTPGWeights();
 
   } catch (exception &e) {
-    cout << "ERROR:  " << e.what() << endl;
+    std::cout << "ERROR:  " << e.what() << std::endl;
   } catch (...) {
-    cout << "Unknown error caught" << endl;
+    std::cout << "Unknown error caught" << std::endl;
   }
 
-  cout << "All Done." << endl;
+  std::cout << "All Done." << std::endl;
 
   return 0;
 }

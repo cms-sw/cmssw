@@ -23,7 +23,7 @@ DBInterface::DBInterface (const std::string& fDb, bool fVerbose)
   unsigned ihost = fDb.find ('@');
 
   if (ipass == std::string::npos || ihost == std::string::npos) {
-    std::cerr << "DBInterface::DBInterface-> Error in connection string format: " << fDb
+    std::cerr << "DBInterface::DBInterface-> Error in connection std::string format: " << fDb
               << " Expect user/password@db" << std::endl;
   }
   else {

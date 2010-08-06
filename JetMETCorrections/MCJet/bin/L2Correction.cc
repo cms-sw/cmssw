@@ -20,15 +20,15 @@ int main(int argc, char**argv)
   CommandLine c1;
   c1.parse(argc,argv);
 
-  string HistoFilename           = c1.getValue<string>("HistoFilename");
-  string FitterFilename          = c1.getValue<string>("FitterFilename");
-  string L3ResponseTxtFilename   = c1.getValue<string>("L3ResponseTxtFilename");
-  string L3CorrectionTxtFilename = c1.getValue<string>("L3CorrectionTxtFilename");
-  string L3OutputROOTFilename    = c1.getValue<string>("L3OutputROOTFilename");
-  string L2CorrectionTxtFilename = c1.getValue<string>("L2CorrectionTxtFilename");
-  string L2OutputROOTFilename    = c1.getValue<string>("L2OutputROOTFilename");
-  vector<double> pt_vec          = c1.getVector<double>("RefPtBoundaries");
-  vector<double> eta_vec         = c1.getVector<double>("EtaBoundaries");
+  std::string HistoFilename           = c1.getValue<string>("HistoFilename");
+  std::string FitterFilename          = c1.getValue<string>("FitterFilename");
+  std::string L3ResponseTxtFilename   = c1.getValue<string>("L3ResponseTxtFilename");
+  std::string L3CorrectionTxtFilename = c1.getValue<string>("L3CorrectionTxtFilename");
+  std::string L3OutputROOTFilename    = c1.getValue<string>("L3OutputROOTFilename");
+  std::string L2CorrectionTxtFilename = c1.getValue<string>("L2CorrectionTxtFilename");
+  std::string L2OutputROOTFilename    = c1.getValue<string>("L2OutputROOTFilename");
+  std::vector<double> pt_vec          = c1.getVector<double>("RefPtBoundaries");
+  std::vector<double> eta_vec         = c1.getVector<double>("EtaBoundaries");
   if (!c1.check()) return 0; 
   c1.print();
   /////////////////////////////////////////////////////////////////////////
@@ -58,7 +58,7 @@ int main(int argc, char**argv)
   TGraph *g_L2Correction[MAX_NETA];
   TGraphErrors *g_EtaCorrection[MAX_NETA];
   double aux_CaloPt[NCaloPtValues] = {10,15,20,30,40,50,75,100,150,200,300,400,500,750,1000,1500,2000,3000};
-  vector<string> HistoNamesList;
+  std::vector<std::string> HistoNamesList;
   inf = new TFile(FitterFilename.c_str(),"r");
   if (inf->IsZombie()) return(0);
   TIter next(inf->GetListOfKeys());
@@ -111,7 +111,7 @@ int main(int argc, char**argv)
        }
      else
        {
-         cout<<name<<": not enough points"<<endl;
+         std::cout<<name<<": not enough points"<<std::endl;
          sprintf(func,"[0]");
          correction_x[0] = 10;
          correction_x[1] = 100;
@@ -132,7 +132,7 @@ int main(int argc, char**argv)
      Correction[etabin]->SetParameter(2,0.);
      Correction[etabin]->SetParameter(3,0.);
      g_EtaCorrection[etabin]->Fit(name,"RQ");
-     cout<<name<<" fitted....."<<endl;
+     std::cout<<name<<" fitted....."<<std::endl;
      ///////////// L2 Relative correction calculation for every eta bin /////////
      auxi = 0;
      for(ptbin=0;ptbin<NCaloPtValues;ptbin++)
@@ -172,7 +172,7 @@ int main(int argc, char**argv)
      L2Correction[etabin]->SetParameter(4,0.);
      L2Correction[etabin]->SetParameter(5,0.);
      g_L2Correction[etabin]->Fit(name,"RQ");
-     cout<<name<<" fitted....."<<endl;        
+     std::cout<<name<<" fitted....."<<std::endl;        
    }//end of eta bin loop  
   //////////////////////// Writing //////////////////////////////
   L2File.open(L2CorrectionTxtFilename.c_str());
@@ -195,7 +195,7 @@ int main(int argc, char**argv)
                << "\n";
    } 
   L2File.close();
-  cout<<L2CorrectionTxtFilename<<" written...."<<endl;
+  std::cout<<L2CorrectionTxtFilename<<" written...."<<std::endl;
   outf = new TFile(L2OutputROOTFilename.c_str(),"RECREATE"); 
   for(etabin=0;etabin<NETA;etabin++)
     {

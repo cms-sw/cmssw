@@ -41,7 +41,7 @@ public:
   struct{
     int module;
     int sector;
-    vector<float> energy;
+    std::vector<float> energy;
   } ChannelStatus;
 
 

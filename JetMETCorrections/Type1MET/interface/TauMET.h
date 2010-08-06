@@ -18,7 +18,7 @@
 
 #include "JetMETCorrections/Type1MET/src/TauMETAlgo.h"
 
-using namespace std;
+
 namespace cms 
 {
   class TauMET : public edm::EDProducer {
@@ -32,14 +32,14 @@ namespace cms
     virtual void endJob() ;
     
     // Input parameters
-    string _InputTausLabel;
-    string _tauType;
-    string _InputCaloJetsLabel;
+    std::string _InputTausLabel;
+    std::string _tauType;
+    std::string _InputCaloJetsLabel;
     double _jetPTthreshold;
     double _jetEMfracLimit;
-    string _correctorLabel;
-    string _InputMETLabel;
-    string _metType;
+    std::string _correctorLabel;
+    std::string _InputMETLabel;
+    std::string _metType;
     double _JetMatchDeltaR;
     double _TauMinEt;
     double _TauEtaMax;

@@ -1,7 +1,7 @@
 /*
  *
- *  $Date: 2009/09/03 22:47:49 $
- *  $Revision: 1.73 $
+ *  $Date: 2009/12/28 23:14:52 $
+ *  $Revision: 1.74 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -201,7 +201,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
  	std::string Tower(buffer);
  	TowerStatus[i]= (*itEventBlock)->getDataField(Tower);
 	theTTstatus.push_back(TowerStatus[i]);
-	//cout << "tower " << i << " has status " <<  TowerStatus[i] << endl;  
+	//std::cout << "tower " << i << " has status " <<  TowerStatus[i] << std::endl;  
       }
 
     theDCCheader.setFEStatus(theTTstatus);
@@ -832,7 +832,7 @@ void EcalTBDaqFormatter::DecodeMEM( DCCTBTowerBlock *  towerblock,  EcalPnDiodeD
 std::pair<int,int>  EcalTBDaqFormatter::cellIndex(int tower_id, int strip, int ch) {
   
   int xtal= (strip-1)*5+ch-1;
-  //  cout << " cellIndex input xtal " << xtal << endl;
+  //  std::cout << " cellIndex input xtal " << xtal << std::endl;
   std::pair<int,int> ind;
   
   int eta = (tower_id - 1)/kTowersInPhi*kCardsPerTower;
@@ -854,7 +854,7 @@ std::pair<int,int>  EcalTBDaqFormatter::cellIndex(int tower_id, int strip, int c
   ind.first =eta+1;  
   ind.second=phi+1; 
 
-  //  cout << "  EcalTBDaqFormatter::cell_index eta " << ind.first << " phi " << ind.second << " " << endl;
+  //  std::cout << "  EcalTBDaqFormatter::cell_index eta " << ind.first << " phi " << ind.second << " " << std::endl;
 
   return ind;
 

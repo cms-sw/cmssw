@@ -93,7 +93,7 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
                     double eta = position.eta();
                     double phi = position.phi();
                     double etaDiff = eta - etaclus;
-                    double phiDiff= deltaPhi(phi,phiclus);
+                    double phiDiff= reco::deltaPhi(phi,phiclus);
                     double energy = j->energy();
 
                     if(useNumCrystals_) {

@@ -9,7 +9,7 @@
 class IChargeFP420{
  public:
   
-  typedef map< int, float, less<int> > hit_map_type;
+  typedef std::map<int, float, std::less<int> > hit_map_type;
   
   
   virtual ~IChargeFP420() { }

@@ -17,8 +17,8 @@
 #include "DataFormats/EcalRawData/interface/ESKCHIPBlock.h"
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 
-using namespace std;
-using namespace edm;
+
+
 
 class ESDigiToRaw;
 
@@ -29,7 +29,7 @@ class ESUnpacker {
   typedef unsigned int Word32;
   typedef long long Word64;  
 
-  ESUnpacker(const ParameterSet& ps);
+  ESUnpacker(const edm::ParameterSet& ps);
   ~ESUnpacker();
 
   void interpretRawData(int fedId, const FEDRawData & rawData, ESRawDataCollection & dccs, ESLocalRawDataCollection & kchips, ESDigiCollection & digis);
@@ -43,7 +43,7 @@ class ESUnpacker {
 
   private :    
 
-  const ParameterSet pset_;
+  const edm::ParameterSet pset_;
     
   int fedId_;
   int run_number_;
@@ -64,9 +64,9 @@ class ESUnpacker {
   int FEch_[36];
 
   bool debug_;
-  FileInPath lookup_;
+  edm::FileInPath lookup_;
 
-  string print(const Word64 & word) const;
+  std::string print(const Word64 & word) const;
 
   protected :
 

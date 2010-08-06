@@ -20,7 +20,7 @@ void PileUpFP420::add(HitDigitizerFP420::hit_map_type in, const PSimHit& hit, in
     
     theMap[(*im).first] += Amplitude((*im).second);
     
-    theMapLink[(*im).first].push_back( pair < const PSimHit*, Amplitude >                                                     (  &hit,  Amplitude((*im).second)   )              );
+    theMapLink[(*im).first].push_back( std::pair < const PSimHit*, Amplitude >                                                     (  &hit,  Amplitude((*im).second)   )              );
     
     if(verbosity>0) {
       std::cout << "*********** Amplitude((*im).first)  = " << Amplitude((*im).first)  << std::endl;

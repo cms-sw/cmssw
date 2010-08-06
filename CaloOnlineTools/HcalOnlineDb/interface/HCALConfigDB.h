@@ -9,8 +9,6 @@
 #include <string.h>
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseImpl.hh"
 
-using namespace std;
-using namespace hcal;
 
 /**
 
@@ -22,17 +20,18 @@ using namespace hcal;
 
 class HCALConfigDB{
  public:
+  typedef hcal::ConfigurationDatabaseImpl ConfigurationDatabaseImpl;
   
   HCALConfigDB( );
   ~HCALConfigDB( );
-  HCALConfigDB( string _accessor );
-  void connect( string _accessor );
-  void connect( string _accessor1, string _accessor2 ); // for very specific case of XML and Oracle
+  HCALConfigDB( std::string _accessor );
+  void connect( std::string _accessor );
+  void connect( std::string _accessor1, std::string _accessor2 ); // for very specific case of XML and Oracle
   void disconnect( void );
-  void setAccessor( string _accessor );
-  std::vector<unsigned int> getOnlineLUT( string tag, int crate, int slot, int topbottom, int fiber, int channel, int luttype );
-  std::vector<unsigned int> getOnlineLUT( string tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt = hcal::ConfigurationDatabase::LinearizerLUT );
-  std::vector<unsigned int> getOnlineLUTFromXML( string tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt = hcal::ConfigurationDatabase::LinearizerLUT );
+  void setAccessor( std::string _accessor );
+  std::vector<unsigned int> getOnlineLUT( std::string tag, int crate, int slot, int topbottom, int fiber, int channel, int luttype );
+  std::vector<unsigned int> getOnlineLUT( std::string tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt = hcal::ConfigurationDatabase::LinearizerLUT );
+  std::vector<unsigned int> getOnlineLUTFromXML( std::string tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt = hcal::ConfigurationDatabase::LinearizerLUT );
 
   oracle::occi::Connection * getConnection( void );
   oracle::occi::Environment * getEnvironment( void );
@@ -41,14 +40,14 @@ class HCALConfigDB{
   
  protected:
 
-  string accessor;
+  std::string accessor;
   ConfigurationDatabaseImpl * database;
 
   // the second DB handle for a crazy case
   // when two connections are needed,
   // e.g. when the main connection is to
   // an XML file
-  string accessor2;
+  std::string accessor2;
   ConfigurationDatabaseImpl * database2;
 
 };

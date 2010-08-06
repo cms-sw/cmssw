@@ -26,7 +26,6 @@
 #include <string>
 #include <fstream>
 #include <iostream>
-using std::ifstream;
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -61,7 +60,7 @@ private:
   // ----------member data ---------------------------
   
   edm::FileInPath inputFile_;
-  ifstream inputStream_;
+  std::ifstream inputStream_;
   int nEvent_;
   bool oldVersion_;
   L1RCTLookupTables* lookupTables_;

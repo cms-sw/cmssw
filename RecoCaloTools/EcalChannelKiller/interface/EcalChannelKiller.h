@@ -3,8 +3,8 @@
  
 /** \class EcalChannelKiller
   *
-  *  $Date: 2007/05/03 12:33:39 $
-  *  $Revision: 1.1 $
+  *  $Date: 2009/12/14 22:23:41 $
+  *  $Revision: 1.2 $
   */
  
 // system include files
@@ -22,8 +22,7 @@
 
 
 #include <string>
-using namespace cms;
-using namespace std;
+
 //
 // class decleration
 //
@@ -39,11 +38,11 @@ class EcalChannelKiller : public edm::EDProducer {
       virtual void endJob() ;
       
       // ----------member data ---------------------------
-  string hitProducer_;
-  string hitCollection_;
-  string reducedHitCollection_;
-  string DeadChannelFileName_;
-  vector<EBDetId> ChannelsDeadID;
+  std::string hitProducer_;
+  std::string hitCollection_;
+  std::string reducedHitCollection_;
+  std::string DeadChannelFileName_;
+  std::vector<EBDetId> ChannelsDeadID;
 };
 
 

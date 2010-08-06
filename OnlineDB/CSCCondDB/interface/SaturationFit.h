@@ -6,8 +6,6 @@
 #include <cmath>
 #include "OnlineDB/CSCCondDB/interface/SaturationFcn.h"
 
-using namespace ROOT::Minuit2;
-
 class SaturationFit{ 
 
  public:

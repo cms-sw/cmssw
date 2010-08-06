@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/02/11 00:11:00 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/03/27 10:38:10 $
+ *  $Revision: 1.9 $
  *  \author Jeremy Andrea
  */
 
@@ -59,8 +59,8 @@ TrackEfficiencyMonitor::TrackEfficiencyMonitor(const edm::ParameterSet& iConfig)
   theMaxZ_             = iConfig.getParameter<double>("theMaxZ");
   isBFieldOff_         = iConfig.getParameter<bool>("isBFieldOff");
   trackEfficiency_     = iConfig.getParameter<bool>("trackEfficiency");
-  theTKTracksLabel_    = iConfig.getParameter<InputTag>("TKTrackCollection");
-  theSTATracksLabel_   = iConfig.getParameter<InputTag>("STATrackCollection");
+  theTKTracksLabel_    = iConfig.getParameter<edm::InputTag>("TKTrackCollection");
+  theSTATracksLabel_   = iConfig.getParameter<edm::InputTag>("STATrackCollection");
   
  
   conf_ = iConfig;
@@ -346,7 +346,7 @@ void TrackEfficiencyMonitor::endJob(void)
 
 
 //-----------------------------------------------------------------------------------
-void TrackEfficiencyMonitor::testTrackerTracks(Handle<reco::TrackCollection> tkTracks, Handle<reco::TrackCollection> staTracks)
+void TrackEfficiencyMonitor::testTrackerTracks(edm::Handle<reco::TrackCollection> tkTracks, edm::Handle<reco::TrackCollection> staTracks)
 //-----------------------------------------------------------------------------------
 {
   
@@ -486,7 +486,7 @@ void TrackEfficiencyMonitor::testTrackerTracks(Handle<reco::TrackCollection> tkT
 
 
 //-----------------------------------------------------------------------------------
-void TrackEfficiencyMonitor::testSTATracks(Handle<reco::TrackCollection> tkTracks, Handle<reco::TrackCollection> staTracks)
+void TrackEfficiencyMonitor::testSTATracks(edm::Handle<reco::TrackCollection> tkTracks, edm::Handle<reco::TrackCollection> staTracks)
 //-----------------------------------------------------------------------------------
 {
 

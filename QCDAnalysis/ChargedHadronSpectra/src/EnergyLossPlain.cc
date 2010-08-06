@@ -93,7 +93,7 @@ void EnergyLossPlain::loadOptimalWeights()
 }
 
 /*****************************************************************************/
-double EnergyLossPlain::average(vector<pair<double,double> >& values)
+double EnergyLossPlain::average(std::vector<pair<double,double> >& values)
 {
   int num = values.size();
   double sum[2] = {0.,0.};
@@ -108,10 +108,10 @@ double EnergyLossPlain::average(vector<pair<double,double> >& values)
 }
 
 /*****************************************************************************/
-double EnergyLossPlain::logTruncate(vector<pair<double,double> >& values_)
+double EnergyLossPlain::logTruncate(std::vector<pair<double,double> >& values_)
 {
-  vector<double> values;
-  for(vector<pair<double,double> >::iterator
+  std::vector<double> values;
+  for(std::vector<pair<double,double> >::iterator
       v = values_.begin(); v!= values_.end(); v++)
     values.push_back((*v).first);
 
@@ -135,10 +135,10 @@ double EnergyLossPlain::logTruncate(vector<pair<double,double> >& values_)
 } 
 
 /*****************************************************************************/
-double EnergyLossPlain::truncate(vector<pair<double,double> >& values_)
+double EnergyLossPlain::truncate(std::vector<pair<double,double> >& values_)
 {
-  vector<double> values;
-  for(vector<pair<double,double> >::iterator 
+  std::vector<double> values;
+  for(std::vector<pair<double,double> >::iterator 
       v = values_.begin(); v!= values_.end(); v++)
     values.push_back((*v).first);
 
@@ -161,10 +161,10 @@ double EnergyLossPlain::truncate(vector<pair<double,double> >& values_)
 }
 
 /*****************************************************************************/
-double EnergyLossPlain::optimal(vector<pair<double,double> >& values_)
+double EnergyLossPlain::optimal(std::vector<pair<double,double> >& values_)
 {
-  vector<double> values;
-  for(vector<pair<double,double> >::iterator
+  std::vector<double> values;
+  for(std::vector<pair<double,double> >::iterator
       v = values_.begin(); v!= values_.end(); v++)
     values.push_back((*v).first);
 
@@ -185,7 +185,7 @@ double EnergyLossPlain::optimal(vector<pair<double,double> >& values_)
 
   // Sort again 
   values.clear();
-  for(vector<pair<double,double> >::iterator
+  for(std::vector<pair<double,double> >::iterator
       v = values_.begin(); v!= values_.end(); v++)
     values.push_back((*v).first);
   sort(values.begin(), values.end()); 
@@ -210,7 +210,7 @@ double EnergyLossPlain::expected(double Delta1, double Delta2)
 
 /*****************************************************************************/
 void EnergyLossPlain::process
-  (LocalVector ldir, const SiPixelRecHit* recHit, vector<pair<double,double> >& values)
+  (LocalVector ldir, const SiPixelRecHit* recHit, std::vector<pair<double,double> >& values)
 {
   DetId id = recHit->geographicalId();
   const PixelGeomDetUnit* pixelDet =
@@ -239,12 +239,12 @@ void EnergyLossPlain::process
 
   // MeV/cm, only if not low deposit
   if(pix > 1.5 * 0.795)
-    values.push_back(pair<double,double>(pix, x)); 
+    values.push_back(std::pair<double,double>(pix, x)); 
 }
 
 /*****************************************************************************/
 void EnergyLossPlain::process
-  (LocalVector ldir, const SiStripRecHit2D* recHit, vector<pair<double,double> >& values)
+  (LocalVector ldir, const SiStripRecHit2D* recHit, std::vector<pair<double,double> >& values)
 {
   DetId id = recHit->geographicalId();
   const StripGeomDetUnit* stripDet =
@@ -261,8 +261,8 @@ void EnergyLossPlain::process
 
   // Collect adc
   double Delta = 0;
-//  for(vector<uint16_t>::const_iterator
-  for(vector<uint8_t>::const_iterator
+//  for(std::vector<uint16_t>::const_iterator
+  for(std::vector<uint8_t>::const_iterator
     i = (recHit->cluster()->amplitudes()).begin();
     i!= (recHit->cluster()->amplitudes()).end(); i++)
   {
@@ -289,18 +289,18 @@ void EnergyLossPlain::process
 
   // MeV/cm, only if not low deposit
   if(str > 1.5)
-    values.push_back(pair<double,double>(str, x));
+    values.push_back(std::pair<double,double>(str, x));
 }
 
 /*****************************************************************************/
 int EnergyLossPlain::estimate
-  (const Trajectory* trajectory, vector<pair<int,double> >& arithmeticMean,
-                                 vector<pair<int,double> >& truncatedMean)
+  (const Trajectory* trajectory, std::vector<pair<int,double> >& arithmeticMean,
+                                 std::vector<pair<int,double> >& truncatedMean)
 {
   // (dE/dx, dx)
-  vector<pair<double,double> > vpix,vstr; 
+  std::vector<pair<double,double> > vpix,vstr; 
 
-  for(vector<TrajectoryMeasurement>::const_iterator
+  for(std::vector<TrajectoryMeasurement>::const_iterator
         meas = trajectory->measurements().begin();
         meas!= trajectory->measurements().end(); meas++)
   {
@@ -333,7 +333,7 @@ int EnergyLossPlain::estimate
         const SiStripRecHit2D* stripRecHit =
           dynamic_cast<const SiStripRecHit2D *>(recHit);
 
-        pair<double,double> v;
+        std::pair<double,double> v;
   
         if(stripMatchedRecHit != 0)
         {
@@ -351,14 +351,14 @@ int EnergyLossPlain::estimate
   }
 
   // Transform
-  vector<pair<double,double> > vall;
+  std::vector<pair<double,double> > vall;
 
   for(unsigned int i = 0; i < vpix.size(); i++)
   {
     float a = 0.795;
     float s = 10.1;
 
-    pair<double,double> str(vpix[i]);
+    std::pair<double,double> str(vpix[i]);
 
     double y = str.first / a / s;
     if(y > 0.9999) y =  0.9999;
@@ -372,14 +372,14 @@ int EnergyLossPlain::estimate
   for(unsigned int i = 0; i < vstr.size(); i++) vall.push_back(vstr[i]);
 
   // Arithmetic mean
-  arithmeticMean.push_back(pair<int,double>(vpix.size(), average(vpix)));
-  arithmeticMean.push_back(pair<int,double>(vstr.size(), average(vstr)));
-  arithmeticMean.push_back(pair<int,double>(vall.size(), average(vall)));
+  arithmeticMean.push_back(std::pair<int,double>(vpix.size(), average(vpix)));
+  arithmeticMean.push_back(std::pair<int,double>(vstr.size(), average(vstr)));
+  arithmeticMean.push_back(std::pair<int,double>(vall.size(), average(vall)));
 
   // Wighted mean
-  truncatedMean.push_back(pair<int,double>(vpix.size(), optimal(vpix)));
-  truncatedMean.push_back(pair<int,double>(vstr.size(), optimal(vstr)));
-  truncatedMean.push_back(pair<int,double>(vall.size(), optimal(vall)));
+  truncatedMean.push_back(std::pair<int,double>(vpix.size(), optimal(vpix)));
+  truncatedMean.push_back(std::pair<int,double>(vstr.size(), optimal(vstr)));
+  truncatedMean.push_back(std::pair<int,double>(vall.size(), optimal(vall)));
 
   return vall.size();
 }

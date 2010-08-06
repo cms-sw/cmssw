@@ -9,7 +9,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-//using namespace std;
+
 #include<vector>
 #include <map>
 
@@ -17,7 +17,7 @@
 class HitDigitizerFP420{
  public:
 
-  typedef map< int, float, less<int> > hit_map_type;
+  typedef std::map<int, float, std::less<int> > hit_map_type;
   
   //HitDigitizerFP420(const edm::ParameterSet& conf, const ElectrodGeomDetUnit *det);
   //HitDigitizerFP420(float in, float inp, float inpx, float inpy,float ild,float ildx,float ildy);

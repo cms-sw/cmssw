@@ -39,7 +39,7 @@ void CastorEventDisplay::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 
   offline_             = ps.getUntrackedParameter<bool>("OfflineMode", false); 
 
-  if(fVerbosity>0) cout << "CastorEventDisplay::setup (start)" << endl;
+  if(fVerbosity>0) std::cout << "CastorEventDisplay::setup (start)" << std::endl;
   
   ////--- initialize these here
   ievt_=0;  allEnergyEvent=0.; maxEnergyEvent=0.;
@@ -78,10 +78,10 @@ void CastorEventDisplay::setup(const edm::ParameterSet& ps, DQMStore* dbe){
  } 
 
   else{
-  if(fVerbosity>0) cout << "CastorEventDisplay::setup - NO DQMStore service" << endl; 
+  if(fVerbosity>0) std::cout << "CastorEventDisplay::setup - NO DQMStore service" << std::endl; 
   }
 
-  if(fVerbosity>0) cout << "CastorEventDisplay::setup (end)" << endl;
+  if(fVerbosity>0) std::cout << "CastorEventDisplay::setup (end)" << std::endl;
   
   return;
 }
@@ -92,13 +92,13 @@ void CastorEventDisplay::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 
 void CastorEventDisplay::processEvent(const CastorRecHitCollection& castorHits, const CaloGeometry& caloGeometry ){
   
-  if(fVerbosity>0) cout << "==>CastorEventDisplay::processEvent !!!"<< endl;
+  if(fVerbosity>0) std::cout << "==>CastorEventDisplay::processEvent !!!"<< std::endl;
 
   ////---- fill the event number
    meEVT_->Fill(ievt_);
 
   if(!m_dbe) { 
-    if(fVerbosity>0) cout <<"CastorEventDisplay::processEvent => DQMStore is not instantiated !!!"<<endl;  
+    if(fVerbosity>0) std::cout <<"CastorEventDisplay::processEvent => DQMStore is not instantiated !!!"<<std::endl;  
     return; 
   }
 
@@ -110,7 +110,7 @@ void CastorEventDisplay::processEvent(const CastorRecHitCollection& castorHits, 
 
      if(castorHits.size()>0)
     {    
-       if(fVerbosity>0) cout << "==>CastorEventDisplay::processEvent: castorHits.size()>0 !!!" << endl; 
+       if(fVerbosity>0) std::cout << "==>CastorEventDisplay::processEvent: castorHits.size()>0 !!!" << std::endl; 
 
        ////---- loop over all hits
        for (CASTORiter=castorHits.begin(); CASTORiter!=castorHits.end(); ++CASTORiter) { 
@@ -138,11 +138,11 @@ void CastorEventDisplay::processEvent(const CastorRecHitCollection& castorHits, 
          meCastor3Dhits->Fill(abs(Z_pos),X_pos,Y_pos, energy);
 	}
 
-	if(fVerbosity>0)  cout<<"ENERGY="<< energy <<" X_pos="<< X_pos <<" Y_pos="<< Y_pos <<" Z_pos="<< Z_pos << endl;   
+	if(fVerbosity>0)  std::cout<<"ENERGY="<< energy <<" X_pos="<< X_pos <<" Y_pos="<< Y_pos <<" Z_pos="<< Z_pos << std::endl;   
       } //-- end of for loop
 
 
-    if(fVerbosity>0)  cout<<"TOTAL ENERGY in an event="<< allEnergyEvent << endl;
+    if(fVerbosity>0)  std::cout<<"TOTAL ENERGY in an event="<< allEnergyEvent << std::endl;
 
 
 
@@ -150,7 +150,7 @@ void CastorEventDisplay::processEvent(const CastorRecHitCollection& castorHits, 
     if (allEnergyEvent > maxEnergyEvent) { 
      maxEnergyEvent = allEnergyEvent;
      meCastor3DhitsMaxEnergy->Reset();
-     if(fVerbosity>0) cout<<"LARGEST ENERGY in an event="<< maxEnergyEvent << endl;
+     if(fVerbosity>0) std::cout<<"LARGEST ENERGY in an event="<< maxEnergyEvent << std::endl;
  
     ////---- loop over all hits
      for (CASTORiter=castorHits.begin(); CASTORiter!=castorHits.end(); ++CASTORiter){
@@ -165,11 +165,11 @@ void CastorEventDisplay::processEvent(const CastorRecHitCollection& castorHits, 
     }
   } ////---- end of castorHits.size()>0
 
-  else { if(fVerbosity>0) cout<<"CastorEventDisplay::processEvent NO Castor RecHits !!!"<<endl; }
+  else { if(fVerbosity>0) std::cout<<"CastorEventDisplay::processEvent NO Castor RecHits !!!"<<std::endl; }
 
 
   if (showTiming) { 
-      cpu_timer.stop(); cout << " TIMER::CastorEventDisplay -> " << cpu_timer.cpuTime() << endl; 
+      cpu_timer.stop(); std::cout << " TIMER::CastorEventDisplay -> " << cpu_timer.cpuTime() << std::endl; 
       cpu_timer.reset(); cpu_timer.start();  
     }
     

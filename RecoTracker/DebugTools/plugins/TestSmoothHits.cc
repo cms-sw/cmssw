@@ -225,11 +225,11 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
 
     //call the fitter
-    vector<Trajectory> fitted = fit->fit(theTC->seed(), hits, theTSOS);
+    std::vector<Trajectory> fitted = fit->fit(theTC->seed(), hits, theTSOS);
     //call the smoother
-    vector<Trajectory> result; 
-    for(vector<Trajectory>::iterator it = fitted.begin(); it != fitted.end(); it++) {
-      vector<Trajectory> smoothed = smooth->trajectories(*it);
+    std::vector<Trajectory> result; 
+    for(std::vector<Trajectory>::iterator it = fitted.begin(); it != fitted.end(); it++) {
+      std::vector<Trajectory> smoothed = smooth->trajectories(*it);
       result.insert(result.end(), smoothed.begin(), smoothed.end());
     }
     if (result.size()==0) continue;
@@ -256,10 +256,10 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       double delta = 99999;
       LocalPoint rhitLPv = rhit->localPosition();
 
-      vector<PSimHit> assSimHits = hitAssociator->associateHit(*(rhit->hit()));
+      std::vector<PSimHit> assSimHits = hitAssociator->associateHit(*(rhit->hit()));
       if (assSimHits.size()==0) continue;
       PSimHit shit;
-      for(vector<PSimHit>::const_iterator m=assSimHits.begin(); m<assSimHits.end(); m++){
+      for(std::vector<PSimHit>::const_iterator m=assSimHits.begin(); m<assSimHits.end(); m++){
 	if ((m->localPosition()-rhitLPv).mag()<delta) {
 	  shit=*m;
 	  delta = (m->localPosition()-rhitLPv).mag();
@@ -294,7 +294,7 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         std::pair<LocalPoint,LocalVector> closestPair;
 	const StripGeomDetUnit* stripDet =(StripGeomDetUnit*) ((const GluedGeomDet *)(rhit)->det())->stereoDet();
 	const BoundPlane& plane = (rhit)->det()->surface();
-	for(vector<PSimHit>::const_iterator m=assSimHits.begin(); m<assSimHits.end(); m++) {
+	for(std::vector<PSimHit>::const_iterator m=assSimHits.begin(); m<assSimHits.end(); m++) {
 	  //project simhit;
 	  std::pair<LocalPoint,LocalVector> hitPair = projectHit((*m),stripDet,plane);
 	  distx = fabs(rechitmatchedx - hitPair.first.x());
@@ -321,7 +321,7 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 // 	std::pair<LocalPoint,LocalVector> closestPair;
 // 	const StripGeomDetUnit* stripDet =(StripGeomDetUnit*) ((const GluedGeomDet *)(rhit)->det())->stereoDet();
 // 	const BoundPlane& plane = (rhit)->det()->surface();
-// 	for(vector<PSimHit>::const_iterator m=assSimHits.begin(); m<assSimHits.end(); m++){
+// 	for(std::vector<PSimHit>::const_iterator m=assSimHits.begin(); m<assSimHits.end(); m++){
 // 	  const PSimHit& hit = *m;
 // 	  const StripTopology& topol = stripDet->specificTopology();
 // 	  GlobalPoint globalpos = stripDet->surface().toGlobal(hit.localPosition());
@@ -440,7 +440,7 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
       if (dynamic_cast<const SiStripMatchedRecHit2D*>((rhit)->hit())) {
 	//mono
-	LogTrace("TestSmoothHits") << "MONO HIT" << endl;
+	LogTrace("TestSmoothHits") << "MONO HIT" << std::endl;
 	CTTRHp tMonoHit = 
 	  theBuilder->build(dynamic_cast<const SiStripMatchedRecHit2D*>((rhit)->hit())->monoHit());
 	if (tMonoHit==0) continue;
@@ -534,7 +534,7 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	hPullGM_Z_ts_mono[title.str()]->Fill( pullGMZ_ts_mono );
 
 	//stereo
-	LogTrace("TestSmoothHits") << "STEREO HIT" << endl;
+	LogTrace("TestSmoothHits") << "STEREO HIT" << std::endl;
 	CTTRHp tStereoHit = 
 	  theBuilder->build(dynamic_cast<const SiStripMatchedRecHit2D*>((rhit)->hit())->stereoHit());
 	if (tStereoHit==0) continue;

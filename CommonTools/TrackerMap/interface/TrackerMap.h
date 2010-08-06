@@ -17,8 +17,6 @@ class EventSetup;
 class TmCcu;
 class TmPsu;
 
-using namespace std;
-
 class TrackerMap {
  public:
   //TrackerMap(){TrackerMap(" ");};   //!< default constructor
@@ -66,7 +64,7 @@ class TrackerMap {
   void fillc_hv_channel3(int rack,int crate, int board, int red, int green, int blue);
   int module(int fedId,int fedCh);
   void setText(int idmod , std::string s );
-  void setText(int layer, int ring, int nmod , string s );
+  void setText(int layer, int ring, int nmod , std::string s );
   void setPalette(int numpalette){palette=numpalette;} 
   void drawPalette(std::ofstream * file); 
   void showPalette(bool printflag1){printflag=printflag1;}; 
@@ -80,7 +78,7 @@ class TrackerMap {
   int getcolor(float value, int palette);
   std::ifstream * findfile(std::string filename);
   int getNumMod(){return number_modules;};
-  vector<TColor*> vc; 
+  std::vector<TColor*> vc; 
   typedef std::map<const int  , TmModule *> SmoduleMap;
   SmoduleMap smoduleMap;
   typedef std::map<const int  , TmModule *> ImoduleMap;
@@ -107,7 +105,7 @@ class TrackerMap {
   bool enableHVProcessing;
   int ndet; //number of detectors 
   int npart; //number of detectors parts 
-  string title;
+  std::string title;
    std::string jsfilename,infilename;
   std::string jsPath;
    bool psetAvailable;
@@ -405,9 +403,9 @@ void defwindow(int num_lay){
     return -1; 
   }
   
-  string layername(int layer){
-    string s= " ";
-    ostringstream ons;
+  std::string layername(int layer){
+    std::string s= " ";
+    std::ostringstream ons;
     
     if(layer < 10) ons << "TEC -z Layer " << layer;
     if(layer < 13 && layer > 9) ons << "TID -z Layer " << layer-9;

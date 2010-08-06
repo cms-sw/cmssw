@@ -18,9 +18,9 @@
 
 namespace cmsutil { 
 
-/*** The concept is the same of map<K, vector<V>>, but the implementation is much different (and the interface is not really compatible)
+/*** The concept is the same of std::map<K, std::vector<V>>, but the implementation is much different (and the interface is not really compatible)
  *   It works only for K and V objects with trivial destructors (primitive types and bare pointers are fine)
- *   The main implementation difference w.r.t. unordered_map<K, vector<V>> is that this map is optimized to do very few memory allocations
+ *   The main implementation difference w.r.t. unordered_map<K, std::vector<V>> is that this map is optimized to do very few memory allocations
  *   (in particular, clear does not redeme memory so if you just clear the map instead of deleting it you won't call malloc each time you fill it)
  *   The map doesn't rehash, so you should set a reasonable number of buckets (that you can change also when clearing the map)
  *   Note that too many buckets will make your map slow to clear (and possibly more prone to cache misses).
@@ -296,7 +296,7 @@ SimpleAllocHashMultiMap<K,V,Hasher,Equals,Alloc>::values(K const &key) {
 
 
 /*** Very very simple map implementation
- *   It's just a vector<pair<key,value>>, and the operator[] does a linear search to find the key (it's O(N) time, both if the key exists and if it doesn't)
+ *   It's just a std::vector<pair<key,value>>, and the operator[] does a linear search to find the key (it's O(N) time, both if the key exists and if it doesn't)
  *   Anyway, if your map is very small and if you clear it often, it performs better than more complex variants
  *   Semantics is as std::map, except that only very few methods are implemented.
  * */

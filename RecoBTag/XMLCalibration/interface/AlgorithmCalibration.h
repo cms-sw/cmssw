@@ -18,8 +18,6 @@
 
 namespace XERCES_CPP_NAMESPACE { class DOMNode; }
 
-using namespace std;
-using namespace XERCES_CPP_NAMESPACE;
 
 
 //template <class T,class CO> class   CalibrationInterface;
@@ -84,13 +82,13 @@ template <class T,class CO> class AlgorithmCalibration : public CalibrationInter
     }
 
   private:
-    string m_filename;
+    std::string m_filename;
     CalibrationXML *m_xml;
 };
 
 
 template <class T,class CO> 
-AlgorithmCalibration<T,CO>::AlgorithmCalibration(const string & filename) : m_filename(filename), m_xml(0)
+AlgorithmCalibration<T,CO>::AlgorithmCalibration(const std::string & filename) : m_filename(filename), m_xml(0)
 {
  readCategories();
  if(m_xml) {

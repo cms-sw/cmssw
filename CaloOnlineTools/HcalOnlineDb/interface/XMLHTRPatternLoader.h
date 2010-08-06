@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:33 CDT 2007
-// $Id: XMLHTRPatternLoader.h,v 1.1 2008/02/12 17:01:59 kukartse Exp $
+// $Id: XMLHTRPatternLoader.h,v 1.2 2009/04/14 22:53:05 kukartse Exp $
 //
 
 // system include files
@@ -40,23 +40,23 @@ class XMLHTRPatternLoader : public XMLDOMBlock
   typedef struct _datasetDBConfig : public XMLProcessor::DBConfig
   {
     _datasetDBConfig();
-    string kind_of_part;
-    string name_label;
-    string htr_data_patterns_data_file;
+    std::string kind_of_part;
+    std::string name_label;
+    std::string htr_data_patterns_data_file;
     int crate;
   } datasetDBConfig;
   
   typedef struct _checksumsDBConfig : public XMLProcessor::DBConfig
   {
     _checksumsDBConfig();
-    string comment_description;
-    string name_label;
-    string htr_data_patterns_data_file;
+    std::string comment_description;
+    std::string name_label;
+    std::string htr_data_patterns_data_file;
     int crate;
   } checksumsDBConfig;
   
   XMLHTRPatternLoader();
-  XMLHTRPatternLoader( XMLProcessor::loaderBaseConfig * config, string templateBase = "HCAL_HTR_DATA_PATTERNS.XMLloader.template" );
+  XMLHTRPatternLoader( XMLProcessor::loaderBaseConfig * config, std::string templateBase = "HCAL_HTR_DATA_PATTERNS.XMLloader.template" );
   virtual ~XMLHTRPatternLoader();
   
   // ---------- const member functions ---------------------
@@ -65,12 +65,12 @@ class XMLHTRPatternLoader : public XMLDOMBlock
   
   // ---------- member functions ---------------------------
   int addPattern( datasetDBConfig * config,
-  	      string templateFileName = "HCAL_HTR_DATA_PATTERNS.dataset.template" );
+  	      std::string templateFileName = "HCAL_HTR_DATA_PATTERNS.dataset.template" );
   
   int addChecksums( checksumsDBConfig * config,
-  		    string templateFileName = "HCAL_HTR_DATA_PATTERNS.checksums.template" );
+  		    std::string templateFileName = "HCAL_HTR_DATA_PATTERNS.checksums.template" );
   
-  int createLoader( vector<int> crate_number, vector<string> file_name );
+  int createLoader( std::vector<int> crate_number, std::vector<std::string> file_name );
   
  private:
   XMLHTRPatternLoader(const XMLHTRPatternLoader&); // stop default

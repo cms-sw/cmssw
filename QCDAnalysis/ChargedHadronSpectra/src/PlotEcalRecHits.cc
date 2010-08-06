@@ -51,7 +51,7 @@ void PlotEcalRecHits::printEcalRecHit
   file << ", RGBColor[" << red << "," << green << "," << blue << "]";
   file << ", Point[{" << cell->getPosition().x() << ","
                       << cell->getPosition().y() << ",("
-                      << cell->getPosition().z() << "-zs)*mz}]" << endl;
+                      << cell->getPosition().z() << "-zs)*mz}]" << std::endl;
 
   const CaloCellGeometry::CornersVec & p(cell->getCorners()) ;
 
@@ -63,7 +63,7 @@ void PlotEcalRecHits::printEcalRecHit
   file << "{" << p[2].x() << "," <<p[2].y() << ",(" << p[2].z() << "-zs)*mz}, ";
   file << "{" << p[3].x() << "," <<p[3].y() << ",(" << p[3].z() << "-zs)*mz}, ";
   file << "{" << p[0].x() << "," <<p[0].y() << ",(" << p[0].z() << "-zs)*mz}";
-  file << "}]" << endl;
+  file << "}]" << std::endl;
 
   file << ", Line[{";
   file << "{" << p[4].x() << "," <<p[4].y() << ",(" << p[4].z() << "-zs)*mz}, ";
@@ -71,29 +71,29 @@ void PlotEcalRecHits::printEcalRecHit
   file << "{" << p[6].x() << "," <<p[6].y() << ",(" << p[6].z() << "-zs)*mz}, ";
   file << "{" << p[7].x() << "," <<p[7].y() << ",(" << p[7].z() << "-zs)*mz}, ";
   file << "{" << p[4].x() << "," <<p[4].y() << ",(" << p[4].z() << "-zs)*mz}";
-  file << "}]" << endl;
+  file << "}]" << std::endl;
   
   file << ", Line[{";
   file << "{" << p[0].x() << "," <<p[0].y() << ",(" << p[0].z() << "-zs)*mz}, ";
   file << "{" << p[4].x() << "," <<p[4].y() << ",(" << p[4].z() << "-zs)*mz}";
-  file << "}]" << endl;
+  file << "}]" << std::endl;
   
   file << ", Line[{";
   file << "{" << p[1].x() << "," <<p[1].y() << ",(" << p[1].z() << "-zs)*mz}, ";
   file << "{" << p[5].x() << "," <<p[5].y() << ",(" << p[5].z() << "-zs)*mz}";
-  file << "}]" << endl;
+  file << "}]" << std::endl;
   
   file << ", Line[{";
   file << "{" << p[2].x() << "," <<p[2].y() << ",(" << p[2].z() << "-zs)*mz}, ";
   file << "{" << p[6].x() << "," <<p[6].y() << ",(" << p[6].z() << "-zs)*mz}";
-  file << "}]" << endl;
+  file << "}]" << std::endl;
   
   file << ", Line[{";
   file << "{" << p[3].x() << "," <<p[3].y() << ",(" << p[3].z() << "-zs)*mz}, ";
   file << "{" << p[7].x() << "," <<p[7].y() << ",(" << p[7].z() << "-zs)*mz}";
-  file << "}]" << endl;
+  file << "}]" << std::endl;
 
-  file << "}]" << endl;
+  file << "}]" << std::endl;
 }
 
 /*****************************************************************************/
@@ -114,7 +114,7 @@ void PlotEcalRecHits::printEcalRecHits(const edm::Event& ev)
        << " [EventPlotter] ecal barrel/endcap :"
        << " " << recHitsBarrel->size()
        << "/" << recHitsEndcap->size();
-//       << "/" << recHitsPreshower->size() << endl;
+//       << "/" << recHitsPreshower->size() << std::endl;
 
   const CaloSubdetectorGeometry * geom;
 

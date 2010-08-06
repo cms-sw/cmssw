@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Sun Sep 23 16:57:06 CEST 2007
-// $Id: XMLProcessor.h,v 1.4 2009/07/31 13:12:52 kukartse Exp $
+// $Id: XMLProcessor.h,v 1.5 2009/10/25 21:19:45 kvtsang Exp $
 //
 
 // system include files
@@ -40,7 +40,6 @@
 
 
 XERCES_CPP_NAMESPACE_USE 
-using namespace std;
 
 class XMLProcessor
 {
@@ -50,18 +49,18 @@ class XMLProcessor
   typedef struct _loaderBaseConfig
   {
     _loaderBaseConfig();
-    string extention_table_name;
-    string name;
-    string run_mode;
-    string data_set_id;
-    string iov_id;
-    string iov_begin;
-    string iov_end;
-    string tag_id;
-    string tag_mode;
-    string tag_name;
-    string detector_name;
-    string comment_description;
+    std::string extention_table_name;
+    std::string name;
+    std::string run_mode;
+    std::string data_set_id;
+    std::string iov_id;
+    std::string iov_begin;
+    std::string iov_end;
+    std::string tag_id;
+    std::string tag_mode;
+    std::string tag_name;
+    std::string detector_name;
+    std::string comment_description;
   } loaderBaseConfig;
 
   typedef struct _LMapRowHBEF
@@ -71,8 +70,8 @@ class XMLProcessor
     int    phi;
     int    dphi;
     int    depth;
-    string det;
-    string rbx;
+    std::string det;
+    std::string rbx;
     int    wedge;
     int    rm;
     int    pixel;
@@ -82,19 +81,19 @@ class XMLProcessor
     int    fi_ch;
     int    crate;
     int    htr;
-    string fpga;
+    std::string fpga;
     int    htr_fi;
     int    dcc_sl;
     int    spigo;
     int    dcc;
     int    slb;
-    string slbin;
-    string slbin2;
-    string slnam;
+    std::string slbin;
+    std::string slbin2;
+    std::string slnam;
     int    rctcra;
     int    rctcar;
     int    rctcon;
-    string rctnam;
+    std::string rctnam;
     int    fedid;
   } LMapRowHBEF;
 
@@ -105,8 +104,8 @@ class XMLProcessor
     int    phiO;
     int    dphiO;
     int    depthO;
-    string detO;
-    string rbxO;
+    std::string detO;
+    std::string rbxO;
     int    sectorO;
     int    rmO;
     int    pixelO;
@@ -114,10 +113,10 @@ class XMLProcessor
     int    adcO;
     int    rm_fiO;
     int    fi_chO;
-    string let_codeO;
+    std::string let_codeO;
     int    crateO;
     int    htrO;
-    string fpgaO;
+    std::string fpgaO;
     int    htr_fiO;
     int    dcc_slO;
     int    spigoO;
@@ -128,10 +127,10 @@ class XMLProcessor
   typedef struct _DBConfig
   {
     _DBConfig();
-    string    version;
-    string    subversion;
+    std::string    version;
+    std::string    subversion;
     time_t create_timestamp;
-    string created_by_user;
+    std::string created_by_user;
   } DBConfig;
 
   typedef struct _lutDBConfig : public _DBConfig
@@ -141,7 +140,7 @@ class XMLProcessor
   
   typedef struct _checksumsDBConfig : public _DBConfig
   {
-    string comment;
+    std::string comment;
   } checksumsDBConfig;
 
   // this class is a singleton
@@ -151,8 +150,8 @@ class XMLProcessor
       return instance;
     }
   
-  // returns XML string if target == "string" otherwise NULL
-  XMLCh * serializeDOM( DOMNode* node, string target = "stdout" );
+  // returns XML std::string if target == "string" otherwise NULL
+  XMLCh * serializeDOM( DOMNode* node, std::string target = "stdout" );
 
   inline static XMLCh * _toXMLCh( std::string temp );
   inline static XMLCh * _toXMLCh( int temp );
@@ -164,13 +163,13 @@ class XMLProcessor
   int init( void );
   int terminate( void );
   
-  XMLDOMBlock * createLMapHBEFXMLBase( string templateFileName );
-  XMLDOMBlock * createLMapHOXMLBase( string templateFileName );
+  XMLDOMBlock * createLMapHBEFXMLBase( std::string templateFileName );
+  XMLDOMBlock * createLMapHOXMLBase( std::string templateFileName );
 
-  int addLMapHBEFDataset( XMLDOMBlock * doc, LMapRowHBEF * row, string templateFileName );
-  int addLMapHODataset( XMLDOMBlock * doc, LMapRowHO * row, string templateFileName );
+  int addLMapHBEFDataset( XMLDOMBlock * doc, LMapRowHBEF * row, std::string templateFileName );
+  int addLMapHODataset( XMLDOMBlock * doc, LMapRowHO * row, std::string templateFileName );
  
-  int write( XMLDOMBlock * doc, string target = "stdout" );
+  int write( XMLDOMBlock * doc, std::string target = "stdout" );
   
  private:
   XMLProcessor();
@@ -195,11 +194,11 @@ inline XMLCh* XMLProcessor::_toXMLCh( int temp )
   int status = snprintf( buf, 100, "%d", temp );
   if ( status >= 100 )
     {
-      cout << "XMLProcessor::_toXMLCh(int temp): buffer overflow, the string will be truncated!" << endl;
+      std::cout << "XMLProcessor::_toXMLCh(int temp): buffer overflow, the std::string will be truncated!" << std::endl;
     }
   else if ( status <0 )
     {
-      cout << "XMLProcessor::_toXMLCh(int temp): output error" << endl;
+      std::cout << "XMLProcessor::_toXMLCh(int temp): output error" << std::endl;
     }
   XMLCh* buff = XMLString::transcode( buf );    
   return  buff;
@@ -211,11 +210,11 @@ inline XMLCh* XMLProcessor::_toXMLCh( double temp )
   int status = snprintf( buf, 100, "%.10e", temp );
   if ( status >= 100 )
     {
-      cout << "XMLProcessor::_toXMLCh(int temp): buffer overflow, the string will be truncated!" << endl;
+      std::cout << "XMLProcessor::_toXMLCh(int temp): buffer overflow, the std::string will be truncated!" << std::endl;
     }
   else if ( status <0 )
     {
-      cout << "XMLProcessor::_toXMLCh(int temp): output error" << endl;
+      std::cout << "XMLProcessor::_toXMLCh(int temp): output error" << std::endl;
     }
   XMLCh* buff = XMLString::transcode( buf );    
   return  buff;
@@ -227,7 +226,7 @@ inline XMLCh* XMLProcessor::_toXMLCh( time_t temp )
   int status = strftime( buf, 50, "%c", gmtime( &temp ) );
   if ( status == 0 )
     {
-      cout << "XML  Processor::_toXMLCh(int temp): buffer overflow, the string is indeterminate!" << endl;
+      std::cout << "XML  Processor::_toXMLCh(int temp): buffer overflow, the std::string is indeterminate!" << std::endl;
     }
   XMLCh* buff = XMLString::transcode( buf );    
   return  buff;

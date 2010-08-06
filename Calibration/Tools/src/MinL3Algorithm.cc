@@ -1,8 +1,8 @@
 
 /** \file MinL3Algorithm.cc
  *
- * $Date: 2007/03/14 13:55:41 $
- * $Revision: 1.4 $
+ * $Date: 2007/03/19 10:06:47 $
+ * $Revision: 1.5 $
  * \author R.Ofierzynski, CERN
  */
 
@@ -31,14 +31,14 @@ MinL3Algorithm::~MinL3Algorithm()
 }
 
 
-vector<float> MinL3Algorithm::iterate(const vector<vector<float> >& eventMatrix, const vector<int>& VmaxCeta, const vector<int>& VmaxCphi, const vector<float>& energyVector, const int& nIter, const bool& normalizeFlag)
+std::vector<float> MinL3Algorithm::iterate(const std::vector<std::vector<float> >& eventMatrix, const std::vector<int>& VmaxCeta, const std::vector<int>& VmaxCphi, const std::vector<float>& energyVector, const int& nIter, const bool& normalizeFlag)
 {
   int Nevents = eventMatrix.size(); // Number of events to calibrate with
 
-  vector<float> totalSolution(Nchannels,1.);
-  vector<float> iterSolution;
-  vector<vector<float> > myEventMatrix(eventMatrix);
-  vector<float> myEnergyVector(energyVector);
+  std::vector<float> totalSolution(Nchannels,1.);
+  std::vector<float> iterSolution;
+  std::vector<std::vector<float> > myEventMatrix(eventMatrix);
+  std::vector<float> myEnergyVector(energyVector);
 
   int i, j;
 
@@ -90,7 +90,7 @@ vector<float> MinL3Algorithm::iterate(const vector<vector<float> >& eventMatrix,
 }
 
 
-void MinL3Algorithm::addEvent(const vector<float>& eventSquare, const int& maxCeta, const int& maxCphi, const float& energy)
+void MinL3Algorithm::addEvent(const std::vector<float>& eventSquare, const int& maxCeta, const int& maxCphi, const float& energy)
 {
   countEvents++;
 
@@ -125,20 +125,20 @@ void MinL3Algorithm::addEvent(const vector<float>& eventSquare, const int& maxCe
 	    }
 	}
     }
-  //  else {cout << " Debug: dropping null event: " << countEvents << endl;}
+  //  else {std::cout << " Debug: dropping null event: " << countEvents << std::endl;}
 }
 
 
-vector<float> MinL3Algorithm::getSolution(bool resetsolution)
+std::vector<float> MinL3Algorithm::getSolution(bool resetsolution)
 {
-  vector<float> solution(Nchannels,1.);
+  std::vector<float> solution(Nchannels,1.);
 
   for (int i=0; i<Nchannels; i++) 
     {
       if (wsum[i] != 0.) 
 	{ solution[i]*=Ewsum[i]/wsum[i];}
       //      else 
-      //	{ cout << "warning - no event data for crystal index (reduced region) " << i << endl; }
+      //	{ std::cout << "warning - no event data for crystal index (reduced region) " << i << std::endl; }
     }
   
   if (resetsolution) resetSolution();
@@ -154,9 +154,9 @@ void MinL3Algorithm::resetSolution()
 }
 
 
-vector<float> MinL3Algorithm::recalibrateEvent(const vector<float>& eventSquare, const int& maxCeta, const int& maxCphi, const vector<float>& recalibrateVector)
+std::vector<float> MinL3Algorithm::recalibrateEvent(const std::vector<float>& eventSquare, const int& maxCeta, const int& maxCphi, const std::vector<float>& recalibrateVector)
 {
-  vector<float> newEventSquare(eventSquare);
+  std::vector<float> newEventSquare(eventSquare);
   int iFull;
 
   for (int i=0; i<Nxtals; i++) 

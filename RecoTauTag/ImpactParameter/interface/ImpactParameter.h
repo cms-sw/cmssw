@@ -19,8 +19,8 @@ class ImpactParameter : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&);
  private:
       ImpactParameterAlgorithm* algo;
-      string jetTrackSrc;
-      string vertexSrc;
+      std::string jetTrackSrc;
+      std::string vertexSrc;
       bool usingVertex;
 };
 #endif

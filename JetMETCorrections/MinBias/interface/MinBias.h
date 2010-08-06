@@ -26,7 +26,7 @@
 #include "TFile.h"
 #include "TTree.h"
 
-using namespace std;
+
 
 namespace edm {
   class ParameterSet;
@@ -52,10 +52,10 @@ class MinBias : public edm::EDAnalyzer {
   // ----------member data ---------------------------
   // names of modules, producing object collections
      
-     string hbheLabel_,hoLabel_,hfLabel_;
+     std::string hbheLabel_,hoLabel_,hfLabel_;
   // stuff for histogramms
   //  output file name with histograms
-     string fOutputFileName ;
+     std::string fOutputFileName ;
      bool allowMissingInputs_;
   //
      TFile*      hOutputFile ;
@@ -67,11 +67,11 @@ class MinBias : public edm::EDAnalyzer {
      float mom1,mom2,mom3,mom4,occup;
      const CaloGeometry* geo;
   // counters
-     map<DetId,double> theFillDetMap0;
-     map<DetId,double> theFillDetMap1; 
-     map<DetId,double> theFillDetMap2; 
-     map<DetId,double> theFillDetMap3; 
-     map<DetId,double> theFillDetMap4; 
+     std::map<DetId,double> theFillDetMap0;
+     std::map<DetId,double> theFillDetMap1; 
+     std::map<DetId,double> theFillDetMap2; 
+     std::map<DetId,double> theFillDetMap3; 
+     std::map<DetId,double> theFillDetMap4; 
     
 };
 }

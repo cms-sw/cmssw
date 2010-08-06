@@ -13,7 +13,7 @@
  */
 class SubsetHsmModeFinder3d : public ModeFinder3d {
 public:
-  virtual GlobalPoint operator () ( const vector< PointAndDistance> & values ) const;
+  virtual GlobalPoint operator () ( const std::vector< PointAndDistance> & values ) const;
   virtual SubsetHsmModeFinder3d * clone() const;
 };
 

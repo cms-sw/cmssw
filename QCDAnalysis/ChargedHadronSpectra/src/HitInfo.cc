@@ -23,7 +23,7 @@ HitInfo::~HitInfo()
 /*****************************************************************************/
 string HitInfo::getInfo(const DetId & id)
 {
-  string info;
+  std::string info;
 
   if(id.subdetId() == int(PixelSubdetector::PixelBarrel))
   {
@@ -57,11 +57,11 @@ string HitInfo::getInfo(const TrackingRecHit & recHit)
 }
 
 /*****************************************************************************/
-string HitInfo::getInfo(vector<const TrackingRecHit *> recHits)
+string HitInfo::getInfo(std::vector<const TrackingRecHit *> recHits)
 {
-  string info;
+  std::string info;
 
-  for(vector<const TrackingRecHit *>::const_iterator
+  for(std::vector<const TrackingRecHit *>::const_iterator
         recHit = recHits.begin();
         recHit!= recHits.end(); recHit++)
      info += getInfo(**recHit);
@@ -72,7 +72,7 @@ string HitInfo::getInfo(vector<const TrackingRecHit *> recHits)
 /*****************************************************************************/
 string HitInfo::getInfo(const PSimHit & simHit)
 {
-  string info;
+  std::string info;
 
   DetId id = DetId(simHit.detUnitId());
 

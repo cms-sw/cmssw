@@ -72,7 +72,7 @@ ZSuppressFP420::DigitalMapType ZeroSuppressFP420::zeroSuppress(const DigitalMapT
 //This performs the zero suppression
 ZSuppressFP420::DigitalMapType ZeroSuppressFP420::trkFEDclusterizer(const DigitalMapType &in, int vrb) 
 {
-  const string s2("ZeroSuppressFP420::trkFEDclusterizer1");
+  const std::string s2("ZeroSuppressFP420::trkFEDclusterizer1");
   
   DigitalMapType selectedSignal;
   register DigitalMapType::const_iterator i, iPrev, iNext, iPrev2, iNext2;
@@ -101,7 +101,7 @@ ZSuppressFP420::DigitalMapType ZeroSuppressFP420::trkFEDclusterizer(const Digita
     //Otherwise if channel was found then find it's ADC count.
     if ( iPrev  != in.end() ) adcPrev  = iPrev->second;
     if ( iNext  != in.end() ) adcNext  = iNext->second;
-    int adcMaxNeigh = max(adcPrev, adcNext);
+    int adcMaxNeigh = std::max(adcPrev, adcNext);
     if(vrb>0) {
       std::cout << "adcPrev= " << adcPrev << " adcNext= " << adcNext << " adcMaxNeigh= " << adcMaxNeigh << std::endl;
     }

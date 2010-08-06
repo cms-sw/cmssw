@@ -75,10 +75,10 @@ std::pair<int,double> ElectronTkIsolation::getIso(const reco::GsfElectron* elect
 
     double dzCut = 0;
     switch( dzOption_ ) {
-        case EgammaTrackSelector::dz : dzCut = fabs( (*itrTr).dz() - (*tmpTrack).dz() ); break;
-        case EgammaTrackSelector::vz : dzCut = fabs( (*itrTr).vz() - (*tmpTrack).vz() ); break;
-        case EgammaTrackSelector::bs : dzCut = fabs( (*itrTr).dz(beamPoint_) - (*tmpTrack).dz(beamPoint_) ); break;
-        case EgammaTrackSelector::vtx: dzCut = fabs( (*itrTr).dz(tmpTrack->vertex()) ); break;
+        case egammaisolation::EgammaTrackSelector::dz : dzCut = fabs( (*itrTr).dz() - (*tmpTrack).dz() ); break;
+        case egammaisolation::EgammaTrackSelector::vz : dzCut = fabs( (*itrTr).vz() - (*tmpTrack).vz() ); break;
+        case egammaisolation::EgammaTrackSelector::bs : dzCut = fabs( (*itrTr).dz(beamPoint_) - (*tmpTrack).dz(beamPoint_) ); break;
+        case egammaisolation::EgammaTrackSelector::vtx: dzCut = fabs( (*itrTr).dz(tmpTrack->vertex()) ); break;
         default : dzCut = fabs( (*itrTr).vz() - (*tmpTrack).vz() ); break;
     }
     if (dzCut > lip_ ) continue;

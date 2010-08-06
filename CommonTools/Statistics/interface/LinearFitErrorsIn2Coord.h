@@ -2,7 +2,6 @@
 #define LinearFitErrorsIn2Coord_H
 
 #include <vector>
-using namespace std;
 
   /** Straight line fit for data with errors on both coordinates
    *  source: Numerical Recipes
@@ -17,17 +16,17 @@ public:
    *  - fit a straight line with weights derived from 
    *  the scaled sum sigx^2 + sigy^2
    */
-  float slope(const vector<float> & x, const vector<float> & y, int ndat, 
-	      const vector<float> & sigx, const vector<float> & sigy) const;
+  float slope(const std::vector<float> & x, const std::vector<float> & y, int ndat, 
+	      const std::vector<float> & sigx, const std::vector<float> & sigy) const;
 
   /** Approached intercept computed with approached slope
    */
-  float intercept(const vector<float> & x, const vector<float> & y, int ndat, 
-		  const vector<float> & sigx, const vector<float> & sigy) const;
+  float intercept(const std::vector<float> & x, const std::vector<float> & y, int ndat, 
+		  const std::vector<float> & sigx, const std::vector<float> & sigy) const;
 
 private:
 
-  float variance(const vector<float> & x, int ndat) const;
+  float variance(const std::vector<float> & x, int ndat) const;
 
 
 };

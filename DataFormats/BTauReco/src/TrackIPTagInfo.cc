@@ -121,18 +121,18 @@ std::vector<size_t> TrackIPTagInfo::sortedIndexesWithCut(float cut, SortCriteria
       default:
        sortingKey=i;
      }   
-     sortedIdx.insert(pair<float,size_t>(sortingKey,i));
+     sortedIdx.insert(std::pair<float,size_t>(sortingKey,i));
   }
 
 //Descending: 
 if(mode == IP3DSig || mode == IP2DSig ||mode ==  IP3DValue || mode == IP2DValue)
  { 
-   for(multimap<float,size_t>::reverse_iterator it = sortedIdx.rbegin(); it!=sortedIdx.rend(); it++)
+   for(std::multimap<float,size_t>::reverse_iterator it = sortedIdx.rbegin(); it!=sortedIdx.rend(); it++)
     if(it->first >= cut) result.push_back(it->second);
  } else
 //Ascending:
  {
-  for(multimap<float,size_t>::iterator it = sortedIdx.begin(); it!=sortedIdx.end(); it++)
+  for(std::multimap<float,size_t>::iterator it = sortedIdx.begin(); it!=sortedIdx.end(); it++)
     if(it->first <= cut) result.push_back(it->second);
  }
  return result;

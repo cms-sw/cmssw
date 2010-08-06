@@ -3,8 +3,6 @@
 #include <boost/cstdint.hpp>
 #include <vector>
 
-using namespace std;
-
 class ESDCCHeaderBlock {
 
   public :
@@ -65,7 +63,7 @@ class ESDCCHeaderBlock {
   void setOptoBC0(const int& optoBC0) { optoBC0_ = optoBC0; };
   void setOptoBC1(const int& optoBC1) { optoBC1_ = optoBC1; };
   void setOptoBC2(const int& optoBC2) { optoBC2_ = optoBC2; };
-  void setFEChannelStatus(const vector<int>& FEch) { FEch_ = FEch; };
+  void setFEChannelStatus(const std::vector<int>& FEch) { FEch_ = FEch; };
   // crepe thing 
   void setPacketLength(const int & packetLen) { packetLen_ = packetLen; };  
   void setBC(const int & bc) { bc_ = bc; };  
@@ -85,10 +83,10 @@ class ESDCCHeaderBlock {
   void setEventInSpill(const int & evtInSpill) { evtInSpill_ = evtInSpill; };
   void setCAMACError(const int & camacErr) { camacErr_ = camacErr; };
   void setVMEError(const int & vmeErr) { vmeErr_ = vmeErr; };
-  void setADCChannelStatus(const vector<int>& ADCch_status) { ADCch_status_ = ADCch_status; }; 
-  void setADCChannel(const vector<int>& ADCch) { ADCch_ = ADCch; }; 
-  void setTDCChannelStatus(const vector<int>& TDCch_status) { TDCch_status_ = TDCch_status; }; 
-  void setTDCChannel(const vector<int>& TDCch) { TDCch_ = TDCch; }; 
+  void setADCChannelStatus(const std::vector<int>& ADCch_status) { ADCch_status_ = ADCch_status; }; 
+  void setADCChannel(const std::vector<int>& ADCch) { ADCch_ = ADCch; }; 
+  void setTDCChannelStatus(const std::vector<int>& TDCch_status) { TDCch_status_ = TDCch_status; }; 
+  void setTDCChannel(const std::vector<int>& TDCch) { TDCch_ = TDCch; }; 
 
   int getLV1() const { return LV1_; }
   int getBX() const { return BX_; }
@@ -111,7 +109,7 @@ class ESDCCHeaderBlock {
   int getOptoBC0() const { return optoBC0_; }
   int getOptoBC1() const { return optoBC1_; }
   int getOptoBC2() const { return optoBC2_; }
-  const vector<int>& getFEChannelStatus() const { return FEch_; }
+  const std::vector<int>& getFEChannelStatus() const { return FEch_; }
   int getPacketLength() const { return packetLen_; }
   int getBC() const { return bc_; }
   int getEV() const { return ev_; }
@@ -128,10 +126,10 @@ class ESDCCHeaderBlock {
   int getEventInSpill() const { return evtInSpill_; }
   int getCAMACError() const { return camacErr_; }
   int getVMEError() const { return vmeErr_; }
-  const vector<int>& getADCChannelStatus() const { return ADCch_status_; }
-  const vector<int>& getADCChannel() const { return ADCch_; }
-  const vector<int>& getTDCChannelStatus() const { return TDCch_status_; }
-  const vector<int>& getTDCChannel() const { return TDCch_; }
+  const std::vector<int>& getADCChannelStatus() const { return ADCch_status_; }
+  const std::vector<int>& getADCChannel() const { return ADCch_; }
+  const std::vector<int>& getTDCChannelStatus() const { return TDCch_status_; }
+  const std::vector<int>& getTDCChannel() const { return TDCch_; }
   
   private :
     
@@ -158,7 +156,7 @@ class ESDCCHeaderBlock {
   int optoBC0_;
   int optoBC1_;
   int optoBC2_;
-  vector<int> FEch_;
+  std::vector<int> FEch_;
   int packetLen_;
   int bc_;
   int ev_;
@@ -175,10 +173,10 @@ class ESDCCHeaderBlock {
   int evtInSpill_;
   int camacErr_;
   int vmeErr_;
-  vector<int> ADCch_status_;
-  vector<int> ADCch_;
-  vector<int> TDCch_status_;
-  vector<int> TDCch_;
+  std::vector<int> ADCch_status_;
+  std::vector<int> ADCch_;
+  std::vector<int> TDCch_status_;
+  std::vector<int> TDCch_;
 
 };
 

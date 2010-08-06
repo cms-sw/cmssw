@@ -1,8 +1,6 @@
 #include <map>
 #include <string>
 
-using namespace std;
-
 class TmModule;
 
 class TmPsu  {
@@ -11,7 +9,7 @@ class TmPsu  {
   ~TmPsu();
   int id;
   int idex;
-  string psId;//ex: TECminus_5_6_4_2_3...
+  std::string psId;//ex: TECminus_5_6_4_2_3...
   int getPsuDcs(){int res = (int) (id%100000); return  (int)(id - res)/100000;}
   int getPsuBranch(){int res1 = (int)(id%100000); int res = (int)(res1%1000); return (int) (res1 -res)/1000;}
   int getPsuRack(){int res = (int) (idex%1000); return (idex - res)/1000;}
@@ -31,12 +29,12 @@ class TmPsu  {
   int nmod;
   int nmodHV2;
   int nmodHV3;
-  string cmodid_LV;//list of modules connected to the LV channels of this psu
-  string cmodid_HV2;
-  string cmodid_HV3;
-  string text;
-  string textHV2; 
-  string textHV3;
+  std::string cmodid_LV;//list of modules connected to the LV channels of this psu
+  std::string cmodid_HV2;
+  std::string cmodid_HV3;
+  std::string text;
+  std::string textHV2; 
+  std::string textHV3;
  
  
   };

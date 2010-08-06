@@ -6,13 +6,13 @@
 #include <cmath>
 //#include "CommonDet/DetUtilities/interface/DetExceptions.h"
 
-using namespace std;
+//using namespace std;
 
 /**
  *  Median in one dimension.
  *  T must be sortable, 'addable', and dividable by 2.
  */
-template <class T> T median ( vector<T> values )
+template <class T> T median ( std::vector<T> values )
 {
   switch ( values.size() ) 
   {

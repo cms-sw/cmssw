@@ -1,6 +1,6 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
 /*
- * $Id: MatacqTBRawEvent.cc,v 1.3 2007/04/12 08:36:47 franzoni Exp $
+ * $Id: MatacqRawEvent.cc,v 1.4 2007/10/20 10:58:01 franzoni Exp $
  * Original author: Ph. Gras CEA/Saclay 
  */
 
@@ -68,7 +68,7 @@ void MatacqTBRawEvent::setRawData(const unsigned char* pData, size_t maxSize){
   uint32le_t* trailer32 = (uint32le_t*)(pData16);
   fragLen = trailer32[1]&0xFFFFFF;
   
-  //cout << "Event fragment length including headers: " << fragLen
+  //std::cout << "Event fragment length including headers: " << fragLen
   //	 << " 64-bit words\n";
   
   //FIXME: I am expecting the event length specifies in the header to
@@ -76,7 +76,7 @@ void MatacqTBRawEvent::setRawData(const unsigned char* pData, size_t maxSize){
   const int nHeaders = 3;
   if(fragLen!=read32(daqHeader,dccLen32)+nHeaders
      && fragLen != read32(daqHeader,dccLen32)){
-    //cout << "Error: fragment length is not consistent with DCC "
+    //std::cout << "Error: fragment length is not consistent with DCC "
     //	"length\n";
     error |= errorLengthConsistency;
   }

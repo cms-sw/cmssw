@@ -9,8 +9,6 @@
 #include <functional>
 #include <iostream>
 
-using namespace std;
-
 /** 
  * \class SequentialCombinationGenerator
  * Class to compute all distinct Combinations of a collection 'data' of objects
@@ -23,9 +21,9 @@ using namespace std;
 template<class T> class SequentialCombinationGenerator {
 public:
   typedef SequentialPartitionGenerator::Partition Partition;
-  typedef vector<T> Collection;
-  typedef vector<Collection> Combination;
-  typedef vector<int> Vecint;
+  typedef std::vector<T> Collection;
+  typedef std::vector<Collection> Combination;
+  typedef std::vector<int> Vecint;
 
   SequentialCombinationGenerator ( Partition & part ) :
       the_part ( part ), the_k ( part.size() ),
@@ -101,7 +99,7 @@ private:
       }
       int mincnew2=cnew2[0];
       if (ss[n1-1]<mincnew2) return empty;
-      Vecint::iterator j1=find_if(ss.begin(),ss.end(),bind2nd(greater<int>(),mincnew2));
+      Vecint::iterator j1=find_if(ss.begin(),ss.end(),bind2nd(std::greater<int>(),mincnew2));
       if (ss.end()-j1 < p[i]) return empty;
       Vecint sss(j1,ss.end());
       for (int j=0;j<p[i];cnew[ip+j]=cnew2[j]=sss[j++]);
@@ -148,8 +146,8 @@ private:
   void vecprint(const Vecint & v) const
   {
     int n=v.size();
-    for (int i=0;i<n;cout << v[i++]);
-    cout << endl;
+    for (int i=0;i<n;std::cout << v[i++]);
+    std::cout << std::endl;
   };
 
 private:

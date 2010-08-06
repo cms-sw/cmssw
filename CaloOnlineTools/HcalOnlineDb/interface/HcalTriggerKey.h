@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Nov 06 14:30:33 CDT 2007
-// $Id: HcalTriggerKey.h,v 1.2 2008/09/01 17:14:23 kukartse Exp $
+// $Id: HcalTriggerKey.h,v 1.3 2009/04/14 22:53:05 kukartse Exp $
 //
 
 #include <map>
@@ -33,9 +33,9 @@ class HcalTriggerKey : public XMLDOMBlock
   virtual ~HcalTriggerKey();
 
   int init(void);
-  int add_data( string id, string type, string value);
+  int add_data( std::string id, std::string type, std::string value);
   // fills the XML document with the key. Returns number of configs in the key
-  int fill_key( string key_id, std::map<string, string> & key);  
+  int fill_key( std::string key_id, std::map<std::string, std::string> & key);  
   int compose_key_dialogue( void );
   
  protected:

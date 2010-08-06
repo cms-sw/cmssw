@@ -27,11 +27,11 @@ const unsigned TextToRaw::EVT_MAX_SIZE;
 
 TextToRaw::TextToRaw(const edm::ParameterSet& iConfig) :
   fedId_(iConfig.getUntrackedParameter<int>("fedId", 745)),
-  filename_(iConfig.getUntrackedParameter<string>("filename", "slinkOutput.txt")),
+  filename_(iConfig.getUntrackedParameter<std::string>("filename", "slinkOutput.txt")),
   fileEventOffset_(iConfig.getUntrackedParameter<int>("FileEventOffset", 0)),
   nevt_(0)
 {
-  edm::LogInfo("TextToDigi") << "Reading ASCII dump from " << filename_ << endl;
+  edm::LogInfo("TextToDigi") << "Reading ASCII dump from " << filename_ << std::endl;
 
   //register the products
   produces<FEDRawDataCollection>();
@@ -70,7 +70,7 @@ TextToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     nevt_++;
     return;
   } else if (nevt_==0 && fileEventOffset_<0) {
-    string line;
+    std::string line;
     //skip first fileEventOffset input crossings 
     for(unsigned i=0; i<(unsigned)abs(fileEventOffset_); i++) {
       unsigned iline=0;
@@ -89,7 +89,7 @@ TextToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   nevt_++;
   
    // read file
-   string line;
+   std::string line;
    unsigned i=0; // count 32-bit words
 
    // while not encountering dumb errors
@@ -149,8 +149,8 @@ void
 TextToRaw::beginJob() 
 {
   // open VME file
-  file_.open(filename_.c_str(), ios::in);
-  if(!file_.good()) { edm::LogInfo("TextToDigi") << "Failed to open ASCII file " << filename_ << endl; }
+  file_.open(filename_.c_str(), std::ios::in);
+  if(!file_.good()) { edm::LogInfo("TextToDigi") << "Failed to open ASCII file " << filename_ << std::endl; }
 }
 
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:20 CDT 2007
-// $Id$
+// $Id: LMap.cc,v 1.15 2010/03/07 22:55:37 kukartse Exp $
 //
 
 // system include files
@@ -35,7 +35,7 @@ public:
   impl(){ }
   ~impl(){ }
 
-  int read( string accessor, string type );
+  int read( std::string accessor, std::string type );
   std::map<int,LMapRow> & get_map( void ){ return _lmap; };
   
 private:
@@ -52,7 +52,7 @@ LMap::~LMap() { }
 
 
 
-int LMap::read( string accessor, string type )
+int LMap::read( std::string accessor, std::string type )
 {
   return p_impl -> read( accessor, type );
 }
@@ -62,21 +62,21 @@ std::map<int,LMapRow> & LMap::get_map( void )
   return p_impl -> get_map();
 }
 
-int LMap::impl::read( string map_file, string type )
+int LMap::impl::read( std::string map_file, std::string type )
 {
 
   RooGKCounter lines;
 
-  string _row;
-  ifstream inFile( map_file . c_str(), ios::in );
+  std::string _row;
+  ifstream inFile( map_file . c_str(), std::ios::in );
   if (!inFile)
     {
-      cout << "Unable to open file with the logical map: " << map_file << endl;
+      std::cout << "Unable to open file with the logical map: " << map_file << std::endl;
     }
   else
     {
-      cout << "File with the logical map opened successfully: " << map_file << endl;
-      cout << "Type: " << type << endl;
+      std::cout << "File with the logical map opened successfully: " << map_file << std::endl;
+      std::cout << "Type: " << type << std::endl;
     }
   while ( getline( inFile, _row ) > 0 )
     {
@@ -133,11 +133,11 @@ int LMap::impl::read( string map_file, string type )
 	{
 	  lines . count();
 	  
-	  string _det(det);
-	  if      ( _det.find("HB") != string::npos ) aRow . det = HcalBarrel;
-	  else if ( _det.find("HE") != string::npos ) aRow . det = HcalEndcap;
-	  else if ( _det.find("HF") != string::npos ) aRow . det = HcalForward;
-	  else if ( _det.find("HO") != string::npos ) aRow . det = HcalOuter;
+	  std::string _det(det);
+	  if      ( _det.find("HB") != std::string::npos ) aRow . det = HcalBarrel;
+	  else if ( _det.find("HE") != std::string::npos ) aRow . det = HcalEndcap;
+	  else if ( _det.find("HF") != std::string::npos ) aRow . det = HcalForward;
+	  else if ( _det.find("HO") != std::string::npos ) aRow . det = HcalOuter;
 	  else                    aRow . det = HcalOther;
 
 	  aRow . rbx .append( rbx );
@@ -157,7 +157,7 @@ int LMap::impl::read( string map_file, string type )
 	}
     }
   inFile.close();
-  cout << "LMap: " << lines . getCount() << " lines read" << endl;
+  std::cout << "LMap: " << lines . getCount() << " lines read" << std::endl;
 
   return 0;
 }
@@ -250,7 +250,7 @@ EMap::EMap( const HcalElectronicsMap * emap ){
     }
   }
   else{
-    cerr << "Pointer to HcalElectronicsMap is 0!!!" << endl;
+    std::cerr << "Pointer to HcalElectronicsMap is 0!!!" << std::endl;
   }
 }
 
@@ -259,13 +259,13 @@ int EMap::read_map( std::string filename )
 {
   RooGKCounter lines;
 
-  string _row;
-  ifstream inFile( filename . c_str(), ios::in );
+  std::string _row;
+  ifstream inFile( filename . c_str(), std::ios::in );
   if (!inFile){
-    cout << "Unable to open file with the electronic map: " << filename << endl;
+    std::cout << "Unable to open file with the electronic map: " << filename << std::endl;
   }
   else{
-    cout << "File with the electronic map opened successfully: " << filename << endl;
+    std::cout << "File with the electronic map opened successfully: " << filename << std::endl;
   }
   while ( getline( inFile, _row ) > 0 ){
     EMapRow aRow;
@@ -289,12 +289,12 @@ int EMap::read_map( std::string filename )
       aRow . topbottom .append( fpga );
       
       map . push_back( aRow );
-      //cout << "DEBUG: " << _row << endl;
-      //cout << "DEBUG: " << aRow.ieta << endl;
+      //std::cout << "DEBUG: " << _row << std::endl;
+      //std::cout << "DEBUG: " << aRow.ieta << std::endl;
     }  
   }
   inFile.close();
-  cout << "EMap: " << lines . getCount() << " lines read" << endl;
+  std::cout << "EMap: " << lines . getCount() << " lines read" << std::endl;
 
   return 0;
 }
@@ -324,7 +324,7 @@ int EMap_test::test_read_map( std::string filename )
 // ===> test procedures for the LMap class
 LMap_test::LMap_test() :_lmap(new LMap){ }
 
-int LMap_test::test_read(string accessor, string type)
+int LMap_test::test_read(std::string accessor, std::string type)
 {
   _lmap -> read(accessor,type);
   return 0;

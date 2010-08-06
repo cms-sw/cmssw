@@ -16,16 +16,16 @@ int main(int argc, char**argv)
   CommandLine c1;
   c1.parse(argc,argv);
 
-  string HistoFilename           = c1.getValue<string>("HistoFilename");
-  string FitterFilename          = c1.getValue<string>("FitterFilename");
-  string L3ResponseTxtFilename   = c1.getValue<string>("L3ResponseTxtFilename");
-  string L3CorrectionTxtFilename = c1.getValue<string>("L3CorrectionTxtFilename");
-  string L3OutputROOTFilename    = c1.getValue<string>("L3OutputROOTFilename");
-  string L2CorrectionTxtFilename = c1.getValue<string>("L2CorrectionTxtFilename");
-  string L2OutputROOTFilename    = c1.getValue<string>("L2OutputROOTFilename");
+  std::string HistoFilename           = c1.getValue<string>("HistoFilename");
+  std::string FitterFilename          = c1.getValue<string>("FitterFilename");
+  std::string L3ResponseTxtFilename   = c1.getValue<string>("L3ResponseTxtFilename");
+  std::string L3CorrectionTxtFilename = c1.getValue<string>("L3CorrectionTxtFilename");
+  std::string L3OutputROOTFilename    = c1.getValue<string>("L3OutputROOTFilename");
+  std::string L2CorrectionTxtFilename = c1.getValue<string>("L2CorrectionTxtFilename");
+  std::string L2OutputROOTFilename    = c1.getValue<string>("L2OutputROOTFilename");
   bool UseRatioForResponse       = c1.getValue<bool>("UseRatioForResponse");
-  vector<double> pt_vec          = c1.getVector<double>("RefPtBoundaries");
-  vector<double> eta_vec         = c1.getVector<double>("EtaBoundaries");
+  std::vector<double> pt_vec          = c1.getVector<double>("RefPtBoundaries");
+  std::vector<double> eta_vec         = c1.getVector<double>("EtaBoundaries");
   if (!c1.check()) return 0; 
   c1.print();
   /////////////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@ int main(int argc, char**argv)
   double mCaloPt,eCaloPt,sCaloPt,mRefPt,eRefPt,sRefPt;
   double mRefPtEtaBin,eRefPtEtaBin,sRefPtEtaBin,mCaloPtEtaBin,eCaloPtEtaBin,sCaloPtEtaBin;
   double EtaBoundaries[MAX_NETA],RefPtBoundaries[MAX_NREFPTBINS];
-  vector<string> HistoNamesList; 
+  std::vector<std::string> HistoNamesList; 
   for(j=0;j<=NRefPtBins;j++)
     RefPtBoundaries[j] = pt_vec[j];
   for(j=0;j<=NETA;j++)
@@ -70,7 +70,7 @@ int main(int argc, char**argv)
   MeanCaloPt_Barrel = new TH1F("MeanCaloPt","MeanCaloPt",NRefPtBins,RefPtBoundaries);
   if (NETA>1)//multiple eta bins: used for L2+L3 correction calculation
     {
-      cout<<"************* Fitting Response Histograms in multiple Eta bins. ************"<<endl;     
+      std::cout<<"************* Fitting Response Histograms in multiple Eta bins. ************"<<std::endl;     
       for(etabin=0;etabin<NETA;etabin++)
        { 
          sprintf(name,"MeanRefPt_Eta%d",etabin);
@@ -80,7 +80,7 @@ int main(int argc, char**argv)
        }
       for (j=0; j<NRefPtBins; j++)//loop over RefPt bins
         {  
-          cout<<"RefJetPt Bin: ["<<RefPtBoundaries[j]<<","<<RefPtBoundaries[j+1]<<"] GeV"<<endl;
+          std::cout<<"RefJetPt Bin: ["<<RefPtBoundaries[j]<<","<<RefPtBoundaries[j+1]<<"] GeV"<<std::endl;
           sprintf(name,"ptRef_RefPt%d_Barrel",j);
           if (!HistoExists(HistoNamesList,name)) return(0);
           h = (TH1F*)inf->Get(name);
@@ -146,10 +146,10 @@ int main(int argc, char**argv)
     }
   else//single eta bin: used for L3 correction calculation
     {  
-      cout<<"************* Fitting Response Histograms in single eta bin. ************"<<endl;
+      std::cout<<"************* Fitting Response Histograms in single eta bin. ************"<<std::endl;
       for (j=0; j<NRefPtBins; j++)//loop over Pt bins
         {  
-          cout<<"RefJetPt Bin: ["<<RefPtBoundaries[j]<<","<<RefPtBoundaries[j+1]<<"] GeV"<<endl; 
+          std::cout<<"RefJetPt Bin: ["<<RefPtBoundaries[j]<<","<<RefPtBoundaries[j+1]<<"] GeV"<<std::endl; 
           sprintf(name,"ptRef_RefPt%d",j);
           if (!HistoExists(HistoNamesList,name)) return(0);
           h = (TH1F*)inf->Get(name);

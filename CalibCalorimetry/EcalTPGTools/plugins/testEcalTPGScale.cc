@@ -35,7 +35,7 @@ void testEcalTPGScale::analyze(const edm::Event& evt, const edm::EventSetup& evt
   ecalScale.setEventSetup(evtSetup) ;
 
   bool error(false) ;
-  vector<DetId>::const_iterator it ;
+  std::vector<DetId>::const_iterator it ;
 
   // EB
   const std::vector<DetId>& ebCells = theBarrelGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel);
@@ -48,7 +48,7 @@ void testEcalTPGScale::analyze(const edm::Event& evt, const edm::EventSetup& evt
     uint tpgADC = ecalScale.getTPGInADC(gev, towidEB) ;
     if (tpgADC != ADC) {
       error = true ;
-      cout<<" ERROR : with ADC = "<<ADC<<" getTPGInGeV = "<<gev<<" getTPGInADC = "<<tpgADC<<endl ;
+      std::cout<<" ERROR : with ADC = "<<ADC<<" getTPGInGeV = "<<gev<<" getTPGInADC = "<<tpgADC<<std::endl ;
     }
     RCT_LUT_EB[ADC] = ecalScale.getLinearizedTPG(ADC, towidEB) ;
   }
@@ -64,13 +64,13 @@ void testEcalTPGScale::analyze(const edm::Event& evt, const edm::EventSetup& evt
     uint tpgADC = ecalScale.getTPGInADC(gev, towidEE) ;
     if (tpgADC != ADC) {
       error = true ;
-      cout<<" ERROR : with ADC = "<<ADC<<" getTPGInGeV = "<<gev<<" getTPGInADC = "<<tpgADC<<endl ;
+      std::cout<<" ERROR : with ADC = "<<ADC<<" getTPGInGeV = "<<gev<<" getTPGInADC = "<<tpgADC<<std::endl ;
     }
     RCT_LUT_EE[ADC] = ecalScale.getLinearizedTPG(ADC, towidEE) ;
   }
 
 
-  if (!error) cout<<" there is no error with EcalTPGScale internal consistancy "<<endl ;
+  if (!error) std::cout<<" there is no error with EcalTPGScale internal consistancy "<<std::endl ;
 
 }
 

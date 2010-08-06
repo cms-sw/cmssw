@@ -9,7 +9,7 @@
 class SmsModeFinder3d : public ModeFinder3d {
 public:
   SmsModeFinder3d ( const SMS & algo = SMS() );
-  virtual GlobalPoint operator () ( const vector< PointAndDistance> & values ) const;
+  virtual GlobalPoint operator () ( const std::vector< PointAndDistance> & values ) const;
   virtual SmsModeFinder3d * clone() const;
 private:
   SMS theAlgo;

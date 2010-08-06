@@ -25,6 +25,5 @@ const double ALI_DBL_MAX = DBL_MAX;
 const double ALI_DBL_MIN = 10./ALI_DBL_MAX;
 
 namespace CLHEP{}
-using namespace CLHEP;
 
 #endif

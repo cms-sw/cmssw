@@ -1,6 +1,5 @@
 #include <map>
 #include <string>
-using namespace std;
 
 
 class TmCcu  {
@@ -9,12 +8,12 @@ class TmCcu  {
   ~TmCcu();
   int red,green,blue;
   float value;
-  string text;
+  std::string text;
   int count;
   int idex;
   int crate;
   int nmod;//number of modules connected to this ccu
-  string cmodid;//list of modules connected to this ccu
+  std::string cmodid;//list of modules connected to this ccu
   int layer;//tracker layer of connected modules
   int mpos;//ccu position in ring
   int getCcuCrate(){int res = (int) (idex/10000000); return res;}

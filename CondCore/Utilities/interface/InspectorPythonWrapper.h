@@ -3,9 +3,8 @@
 #include "CondCore/DBCommon/interface/ClassID.h"
 
 
-using namespace boost::python;
-
 namespace condPython {
+  using namespace boost::python;
   template<typename T>
   void defineWhat() {
     typedef cond::ExtractWhat<T> What;
@@ -18,6 +17,7 @@ namespace {
   
   template<typename Wrapper>
   void define() {
+     using namespace boost::python;
     typedef typename Wrapper::Extractor Extractor;
     typedef typename Extractor::What What;
 

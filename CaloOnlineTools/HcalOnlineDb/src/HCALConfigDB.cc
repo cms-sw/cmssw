@@ -30,7 +30,7 @@ HCALConfigDB::HCALConfigDB( void )
   database2 = 0;
 }
 
-HCALConfigDB::HCALConfigDB( string _accessor )
+HCALConfigDB::HCALConfigDB( std::string _accessor )
 {    
   database = 0;
   database2 = 0;
@@ -45,12 +45,12 @@ HCALConfigDB::~HCALConfigDB( void )
 }
 
 
-void HCALConfigDB::setAccessor( string _accessor )
+void HCALConfigDB::setAccessor( std::string _accessor )
 {      
   accessor = _accessor;
 }
 
-void HCALConfigDB::connect( string _accessor )
+void HCALConfigDB::connect( std::string _accessor )
 {
 
   accessor = _accessor;
@@ -70,7 +70,7 @@ void HCALConfigDB::connect( string _accessor )
 
 
 
-void HCALConfigDB::connect( string _accessor1, string _accessor2 )
+void HCALConfigDB::connect( std::string _accessor1, std::string _accessor2 )
 {
 
   connect (_accessor1 );
@@ -101,7 +101,7 @@ void HCALConfigDB::disconnect( void )
 
 
 
-std::vector<unsigned int> HCALConfigDB::getOnlineLUT( string tag, int crate, int slot, int topbottom, int fiber, int channel, int luttype )
+std::vector<unsigned int> HCALConfigDB::getOnlineLUT( std::string tag, int crate, int slot, int topbottom, int fiber, int channel, int luttype )
 {
 
   //connect( accessor );
@@ -113,7 +113,7 @@ std::vector<unsigned int> HCALConfigDB::getOnlineLUT( string tag, int crate, int
   else if ( topbottom == 1 ) _fpga = hcal::ConfigurationDatabase::Top;
   else
     {
-      cout << "topbottom out of range" << endl;
+      std::cout << "topbottom out of range" << std::endl;
       exit(-1);
     }
 
@@ -122,7 +122,7 @@ std::vector<unsigned int> HCALConfigDB::getOnlineLUT( string tag, int crate, int
   else if ( luttype == 2 ) _lt = hcal::ConfigurationDatabase::CompressionLUT;
   else
     {
-      cout << "LUT type out of range" << endl;
+      std::cout << "LUT type out of range" << std::endl;
       exit(-1);
     }
 
@@ -134,9 +134,9 @@ std::vector<unsigned int> HCALConfigDB::getOnlineLUT( string tag, int crate, int
   try {
     database -> getLUTs(tag, crate, slot, testLUTs);
   } catch (hcal::exception::ConfigurationItemNotFoundException& e) {
-    cout << "Found nothing!" << endl;
+    std::cout << "Found nothing!" << std::endl;
   } catch (hcal::exception::Exception& e2) {
-    cout << "Exception: " << e2.what() << endl;
+    std::cout << "Exception: " << e2.what() << std::endl;
   }
 
   result = testLUTs[_lutid];
@@ -146,7 +146,7 @@ std::vector<unsigned int> HCALConfigDB::getOnlineLUT( string tag, int crate, int
   return result;
 }
 
-std::vector<unsigned int> HCALConfigDB::getOnlineLUT( string tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt )
+std::vector<unsigned int> HCALConfigDB::getOnlineLUT( std::string tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt )
 {
   std::vector<unsigned int> result;
   HcalDetId _id( _rawid );
@@ -159,7 +159,7 @@ std::vector<unsigned int> HCALConfigDB::getOnlineLUT( string tag, uint32_t _rawi
   int etaAbs = _id . ietaAbs();
   int phi    = _id . iphi();
   int depth  = _id . depth();
-  string subdetector;
+  std::string subdetector;
   if ( _id . subdet() == HcalBarrel) subdetector = "HB";
   else if ( _id . subdet() == HcalEndcap) subdetector = "HE";
   else if ( _id . subdet() == HcalOuter) subdetector = "HO";
@@ -209,7 +209,7 @@ std::vector<unsigned int> HCALConfigDB::getOnlineLUT( string tag, uint32_t _rawi
 }
 
 
-std::vector<unsigned int> HCALConfigDB::getOnlineLUTFromXML( string tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt ){
+std::vector<unsigned int> HCALConfigDB::getOnlineLUTFromXML( std::string tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt ){
 
   std::vector<unsigned int> result;
 
@@ -225,7 +225,7 @@ std::vector<unsigned int> HCALConfigDB::getOnlineLUTFromXML( string tag, uint32_
     int etaAbs = _id . ietaAbs();
     int phi    = _id . iphi();
     int depth  = _id . depth();
-    string subdetector;
+    std::string subdetector;
     if ( _id . subdet() == HcalBarrel) subdetector = "HB";
     else if ( _id . subdet() == HcalEndcap) subdetector = "HE";
     else if ( _id . subdet() == HcalOuter) subdetector = "HO";
@@ -274,7 +274,7 @@ std::vector<unsigned int> HCALConfigDB::getOnlineLUTFromXML( string tag, uint32_
     }
   }
   else{
-    cout << "Either the XML file with LUTs or the database with LMap are not defined" << endl;
+    std::cout << "Either the XML file with LUTs or the database with LMap are not defined" << std::endl;
   }
 
   return result;
@@ -299,6 +299,6 @@ string HCALConfigDB::clobToString(oracle::occi::Clob clob){
                 char *cbuffer = new char[size];
                 memset (cbuffer, 0, size);
                 instream->readBuffer (cbuffer, size);
-                string str(cbuffer,size);
+                std::string str(cbuffer,size);
 		return str;
 }

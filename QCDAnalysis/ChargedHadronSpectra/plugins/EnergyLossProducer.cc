@@ -25,7 +25,7 @@
 /*****************************************************************************/
 EnergyLossProducer::EnergyLossProducer(const edm::ParameterSet& ps)
 {
-  trackProducer          = ps.getParameter<string>("trackProducer");
+  trackProducer          = ps.getParameter<std::string>("trackProducer");
 //  pixelToStripMultiplier = ps.getParameter<double>("pixelToStripMultiplier");
 //  pixelToStripExponent   = ps.getParameter<double>("pixelToStripExponent");
 
@@ -76,9 +76,9 @@ void EnergyLossProducer::produce(edm::Event& ev, const edm::EventSetup& es)
   edm::Handle<reco::TrackCollection> trackHandle;
   ev.getByLabel(trackProducer,       trackHandle);
 
-  auto_ptr<reco::DeDxDataValueMap> outputPix (new reco::DeDxDataValueMap);
-  auto_ptr<reco::DeDxDataValueMap> outputStr (new reco::DeDxDataValueMap);
-  auto_ptr<reco::DeDxDataValueMap> outputAll (new reco::DeDxDataValueMap);
+  std::auto_ptr<reco::DeDxDataValueMap> outputPix (new reco::DeDxDataValueMap);
+  std::auto_ptr<reco::DeDxDataValueMap> outputStr (new reco::DeDxDataValueMap);
+  std::auto_ptr<reco::DeDxDataValueMap> outputAll (new reco::DeDxDataValueMap);
 
   reco::DeDxDataValueMap::Filler fillerPix(*outputPix);
   reco::DeDxDataValueMap::Filler fillerStr(*outputStr);
@@ -88,27 +88,27 @@ void EnergyLossProducer::produce(edm::Event& ev, const edm::EventSetup& es)
     << "[EnergyLossProducer]";
 
   // Get trajectory collection
-  edm::Handle<vector<Trajectory> > trajeHandle;
+  edm::Handle<std::vector<Trajectory> > trajeHandle;
   ev.getByLabel(trackProducer,     trajeHandle);
-  const vector<Trajectory> & trajeCollection =
+  const std::vector<Trajectory> & trajeCollection =
                                  *(trajeHandle.product());
 
   // Plain estimator
   EnergyLossPlain theEloss(theTracker, pixelToStripMultiplier,
                                        pixelToStripExponent);
 
-  vector<reco::DeDxData> estimatePix;
-  vector<reco::DeDxData> estimateStr;
-  vector<reco::DeDxData> estimateAll;
+  std::vector<reco::DeDxData> estimatePix;
+  std::vector<reco::DeDxData> estimateStr;
+  std::vector<reco::DeDxData> estimateAll;
 
   // Take all trajectories
   int j = 0;
-  for(vector<Trajectory>::const_iterator traje = trajeCollection.begin();
+  for(std::vector<Trajectory>::const_iterator traje = trajeCollection.begin();
                                          traje!= trajeCollection.end();
                                          traje++, j++)
   {
     // Estimate (nhits,dE/dx)
-    vector<pair<int,double> >    arithmeticMean, weightedMean;
+    std::vector<std::pair<int,double> >    arithmeticMean, weightedMean;
     theEloss.estimate(&(*traje), arithmeticMean, weightedMean);
 
     // Set values

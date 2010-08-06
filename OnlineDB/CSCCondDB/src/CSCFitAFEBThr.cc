@@ -107,7 +107,7 @@ bool CSCFitAFEBThr::ThresholdNoise(const std::vector<float> & inputx,
   for(unsigned int i=0;i<x.size();i++) {
     diff=y[i]-half; if(diff<0.0) diff=-diff;
     if(diff<dmin) {dmin=diff; parinit[0]=x[i];}   // par[0] from data    
-    //cout<<i+1<<" "<<x[i]<<" "<<y[i]<<" "<<ery[i]<<endl;
+    //std::cout<<i+1<<" "<<x[i]<<" "<<y[i]<<" "<<ery[i]<<std::endl;
   }
 
   /// store data, errors and npulses for fit

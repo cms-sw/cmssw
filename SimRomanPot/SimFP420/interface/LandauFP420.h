@@ -47,7 +47,7 @@
 #define LandauFP420_h 
 
 //#include "G4VEmFluctuationModel.hh"
-using namespace std;
+
 
 class LandauFP420 {
 public:

@@ -42,7 +42,7 @@ void TrajectoryCleanerBySharedSeeds::clean(TrajectoryPointerContainer&) const
 
 /*****************************************************************************/
 void TrajectoryCleanerBySharedSeeds::clean
-  (vector<Trajectory> & trajs) const
+  (std::vector<Trajectory> & trajs) const
 {
   if(trajs.size() == 0) return;
 
@@ -76,6 +76,6 @@ void TrajectoryCleanerBySharedSeeds::clean
   }
 
   LogTrace("TrajectoryCleanerBySharedSeeds") << "  [TrajecCleaner] cleaned trajs : 1/" << trajs.size()
-					     << " (with " << trajs[best].measurements().size() << " hits)" << endl;
+					     << " (with " << trajs[best].measurements().size() << " hits)" << std::endl;
 }
 

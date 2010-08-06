@@ -15,15 +15,15 @@ int main(int argc, char**argv)
   CommandLine c1;
   c1.parse(argc,argv);
 
-  string TreeFilename      = c1.getValue<string> ("TreeFilename"             );
-  string HistoFilename     = c1.getValue<string> ("HistoFilename"            );
+  std::string TreeFilename      = c1.getValue<string> ("TreeFilename"             );
+  std::string HistoFilename     = c1.getValue<string> ("HistoFilename"            );
   bool UseRatioForResponse = c1.getValue<bool>   ("UseRatioForResponse", true);
   bool IsPFJet             = c1.getValue<bool>   ("IsPFJet",            false);
   int NJETS_MAX            = c1.getValue<int>    ("NJETS_MAX",              2);
   double JetPT_MIN         = c1.getValue<double> ("JetPT_MIN",            1.0); 
   double DR_MIN            = c1.getValue<double> ("DR_MIN",              0.25);
-  vector<double> pt_vec    = c1.getVector<double>("RefPtBoundaries"          );
-  vector<double> eta_vec   = c1.getVector<double>("EtaBoundaries"            );
+  std::vector<double> pt_vec    = c1.getVector<double>("RefPtBoundaries"          );
+  std::vector<double> eta_vec   = c1.getVector<double>("EtaBoundaries"            );
   if (!c1.check()) return 0; 
   c1.print();
   /////////////////////////////////////////////////////////////////////////
@@ -50,7 +50,7 @@ int main(int argc, char**argv)
       responseLow  = 0.;
       responseHigh = 2;
     } 
-  vector<string> HistoNamesList; 
+  std::vector<std::string> HistoNamesList; 
   TFile *inf = new TFile(TreeFilename.c_str(),"R");
   if (inf->IsZombie()) return(0);
   TFile *outf = new TFile(HistoFilename.c_str(),"RECREATE");
@@ -83,7 +83,7 @@ int main(int argc, char**argv)
   br_dR->SetAddress(&dR);
   TBranch *br_rank = (TBranch*)tr->GetBranch("rank");
   br_rank->SetAddress(&rank);
-  cout<<"Total entries:"<<tr->GetEntries()<<endl;
+  std::cout<<"Total entries:"<<tr->GetEntries()<<std::endl;
   if (NETA>1)
     {
       for (i=0;i<NPT;i++)
@@ -117,11 +117,11 @@ int main(int argc, char**argv)
          hResponseBarrel[i] = new TH1F(name,name,responseBins,responseLow,responseHigh);     
        }
     }
-  cout<<"Histograms booked"<<endl;
+  std::cout<<"Histograms booked"<<std::endl;
   for(entry=0;entry<tr->GetEntries();entry++)
     {
       if (entry % (tr->GetEntries()/10) == 0)
-        cout<<"Entries: "<<entry<<endl;
+        std::cout<<"Entries: "<<entry<<std::endl;
       tr->GetEntry(entry);
       cut_ptmin = (ptJet>JetPT_MIN);
       cut_dR    = (dR<DR_MIN);

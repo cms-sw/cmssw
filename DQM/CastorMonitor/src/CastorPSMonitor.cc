@@ -77,7 +77,7 @@ void CastorPSMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   thirdRegionThreshold_ = ps.getUntrackedParameter<double>("thirdRegionThreshold", 100);
   offline_             = ps.getUntrackedParameter<bool>("OfflineMode", false); 
 
-  if(fVerbosity>0) cout << "CastorPSMonitor::setup (start)" << endl;
+  if(fVerbosity>0) std::cout << "CastorPSMonitor::setup (start)" << std::endl;
     
   ievt_=0;  firstTime_ = true;
   firstRegionThreshold_=0.;
@@ -128,10 +128,10 @@ void CastorPSMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   } 
 
   else{
-    if(fVerbosity>0) cout << "CastorPSMonitor::setup - NO DQMStore service" << endl; 
+    if(fVerbosity>0) std::cout << "CastorPSMonitor::setup - NO DQMStore service" << std::endl; 
   }
 
-  if(fVerbosity>0) cout << "CastorPSMonitor::setup (end)" << endl;
+  if(fVerbosity>0) std::cout << "CastorPSMonitor::setup (end)" << std::endl;
 
   return;
 }
@@ -140,14 +140,14 @@ void CastorPSMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 //================== processEvent ==========================//
 //==========================================================//
 
-void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, const CastorDbService& conditions, vector<HcalGenericDetId> listEMap, int iBunch, float PedSigmaInChannel[14][16])
+void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, const CastorDbService& conditions, std::vector<HcalGenericDetId> listEMap, int iBunch, float PedSigmaInChannel[14][16])
  {
   
      
-  if(fVerbosity>0) cout << "==>CastorPSMonitor::processEvent !!!" << endl;
+  if(fVerbosity>0) std::cout << "==>CastorPSMonitor::processEvent !!!" << std::endl;
  
   if(!m_dbe) { 
-    if(fVerbosity>0) cout <<"CastorPSMonitor::processEvent => DQMStore not instantiated !!!"<<endl;  
+    if(fVerbosity>0) std::cout <<"CastorPSMonitor::processEvent => DQMStore not instantiated !!!"<<std::endl;  
     return; 
   }
  
@@ -166,7 +166,7 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
       //===> show the array of sigmas
       for (int i=0; i<14; i++)
         for (int k=0; k<16; k++)
-	  cout<< "module:"<<i+1<< " sector:"<<k+1<< " Sigma=" <<   PedSigmaInChannel[i][k] << endl;   
+	  std::cout<< "module:"<<i+1<< " sector:"<<k+1<< " Sigma=" <<   PedSigmaInChannel[i][k] << std::endl;   
       
       for (std::vector<HcalGenericDetId>::const_iterator it = listEMap.begin(); it != listEMap.end(); it++)
 	{     
@@ -235,7 +235,7 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
 		    bxTS = (iBunch+ts-1-digi.presamples());
 		    if ( bxTS < 0 ) bxTS += 3563;
 		    bxTS = ( bxTS % 3563 ) + 1;
-		    if(fVerbosity>0) cout << "!!! " << bxTS << " " << iBunch <<" "<< ts << " " << digi.presamples() << endl;
+		    if(fVerbosity>0) std::cout << "!!! " << bxTS << " " << iBunch <<" "<< ts << " " << digi.presamples() << std::endl;
 		  }
 		
                   const CastorQIECoder* coder = conditions.getCastorCoder(digi.id().rawId());
@@ -253,13 +253,13 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
                   PSsector[bunch_it->detid.sector()-1]->Fill(10*(bunch_it->detid.module()-1)+ts, bunch_it->tsfC[ts]); 
 
                   ////---- sum the signal over all TS
-                  sumDigi +=  bunch_it->tsfC[ts]; //cout<< " signal in TS:"<<ts << " =" << bunch_it->tsfC[ts] << endl; 	   
+                  sumDigi +=  bunch_it->tsfC[ts]; //std::cout<< " signal in TS:"<<ts << " =" << bunch_it->tsfC[ts] << std::endl; 	   
 	     
 	      } //-- end of the loop for time slices
     
 
             ////---- fill the digi occupancy map 
-	    DigiOccupancyMap->Fill(bunch_it->detid.module()-1,bunch_it->detid.sector()-1, double(sumDigi/10)); //cout<< "=====> sumDigi=" << sumDigi << endl;
+	    DigiOccupancyMap->Fill(bunch_it->detid.module()-1,bunch_it->detid.sector()-1, double(sumDigi/10)); //std::cout<< "=====> sumDigi=" << sumDigi << std::endl;
 
              ////---- fill  the array  sumDigiForEachChannel
             sumDigiForEachChannel[bunch_it->detid.module()-1][bunch_it->detid.sector()-1] += sumDigi;
@@ -327,11 +327,11 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
 
  } //-- end of the if castDigi
        
-  else { if(fVerbosity>0) cout<<"CastorPSMonitor::processEvent NO Castor Digis !!!"<<endl; }
+  else { if(fVerbosity>0) std::cout<<"CastorPSMonitor::processEvent NO Castor Digis !!!"<<std::endl; }
 
       
    if (showTiming) { 
-      cpu_timer.stop(); cout << " TIMER::CastorPS -> " << cpu_timer.cpuTime() << endl; 
+      cpu_timer.stop(); std::cout << " TIMER::CastorPS -> " << cpu_timer.cpuTime() << std::endl; 
       cpu_timer.reset(); cpu_timer.start();  
     }
  

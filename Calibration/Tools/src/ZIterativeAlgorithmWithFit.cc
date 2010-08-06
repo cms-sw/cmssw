@@ -46,7 +46,7 @@ const double ZIterativeAlgorithmWithFit::M_Z_=91.187;
 
 ZIterativeAlgorithmWithFit::ZIterativeAlgorithmWithFit()
 {
-  // cout<< "ZIterativeAlgorithmWithFit::Called Construnctor" << std::endl;
+  // std::cout<< "ZIterativeAlgorithmWithFit::Called Construnctor" << std::endl;
   numberOfIterations_=10;
   channels_=1;
   totalEvents_=0;
@@ -412,7 +412,7 @@ void ZIterativeAlgorithmWithFit::gausfit(TH1F * histoou,double* par,double* errp
       histoou->GetXaxis()->SetRangeUser(xmi,xma);
       histoou->GetXaxis()->SetLabelSize(0.055);
       
-      //      cout << fitFunc->GetParameters() << "," << par << endl;
+      //      std::cout << fitFunc->GetParameters() << "," << par << std::endl;
       par[0]=(fitFunc->GetParameters())[0];
       par[1]=(fitFunc->GetParameters())[1];
       par[2]=(fitFunc->GetParameters())[2];
@@ -439,7 +439,7 @@ void ZIterativeAlgorithmWithFit::gausfit(TH1F * histoou,double* par,double* errp
       //      histoou->Draw();
       //      c1->Update();
 
-      //      cout << "iter " << iter << " chi2 " << chi2 << endl;
+      //      std::cout << "iter " << iter << " chi2 " << chi2 << std::endl;
       nor=par[0];
       p1=par[1];
       sigma=par[2];

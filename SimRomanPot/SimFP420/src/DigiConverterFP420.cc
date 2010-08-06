@@ -22,7 +22,7 @@ DigiConverterFP420::DigiConverterFP420(float in,int verbosity){
   if (adcBits > largestBits || adcBits < 1) adcBits = largestBits;
   
   theMaxADC = ~(~0 << adcBits);
-  //      cout << "theMaxADC= "<< theMaxADC  << endl; // = 1023
+  //      std::cout << "theMaxADC= "<< theMaxADC  << std::endl; // = 1023
   if(verbos>0) {
     std::cout << " ***DigiConverterFP420: constructor" << std::endl;
     std::cout << "with known electronperADC =  " << electronperADC << "the adcBits =  " << adcBits << "  theMaxADC=  " << theMaxADC << "for known defaultBits=  " << defaultBits << " largestBits=  " << largestBits << std::endl;

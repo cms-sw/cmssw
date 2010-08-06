@@ -90,7 +90,7 @@ int HcalTriggerKey::init( void )
 }
 
 
-int HcalTriggerKey::add_data( string id, string type, string value){
+int HcalTriggerKey::add_data( std::string id, std::string type, std::string value){
   XMLDOMBlock data_block( *_data );
   data_block.setTagValue("TRIGGER_KEY_ID",id);
   data_block.setTagValue("TRIGGER_KEY_CONFIG_TYPE",type);
@@ -109,9 +109,9 @@ int HcalTriggerKey::add_data( string id, string type, string value){
 }
 
 
-int HcalTriggerKey::fill_key( string key_id, map<string, string> & key){
+int HcalTriggerKey::fill_key( std::string key_id, std::map<std::string, std::string> & key){
   int _c=0;
-  for(map<string,string>::const_iterator key_pair=key.begin(); key_pair!=key.end(); key_pair++){
+  for(std::map<std::string,std::string>::const_iterator key_pair=key.begin(); key_pair!=key.end(); key_pair++){
     add_data(key_id, key_pair->first, key_pair->second);
     _c++;
   }
@@ -120,23 +120,23 @@ int HcalTriggerKey::fill_key( string key_id, map<string, string> & key){
 }
 
 int HcalTriggerKey::compose_key_dialogue( void ){
-  map<string, string> _key;
-  string _id, _type, _value;
+  std::map<std::string, std::string> _key;
+  std::string _id, _type, _value;
 
-  cout << endl << "Creating the trigger key..." << endl;
-  cout << endl << "Enter the key ID (or tag if you would): " << endl;
-  std::getline(cin, _id);
+  std::cout << std::endl << "Creating the trigger key..." << std::endl;
+  std::cout << std::endl << "Enter the key ID (or tag if you would): " << std::endl;
+  std::getline(std::cin, _id);
   while(1){
-    cout << "Enter the next config type (or type exit if the trigger key is complete): " << endl;
-    std::getline(cin, _type);
-    if (_type.find("exit") != string::npos) break;
-    cout << "Enter the config value: " << endl;
-    std::getline(cin, _value);
-    _key.insert(pair<string, string>(_type, _value));
+    std::cout << "Enter the next config type (or type exit if the trigger key is complete): " << std::endl;
+    std::getline(std::cin, _type);
+    if (_type.find("exit") != std::string::npos) break;
+    std::cout << "Enter the config value: " << std::endl;
+    std::getline(std::cin, _value);
+    _key.insert(std::pair<std::string, std::string>(_type, _value));
   }
 
   fill_key(_id, _key);
 
-  cout << endl << "Creating the trigger key... done" << endl;
+  std::cout << std::endl << "Creating the trigger key... done" << std::endl;
   return 0;
 }

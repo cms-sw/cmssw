@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:33 CDT 2007
-// $Id: XMLLUTLoader.h,v 1.2 2008/04/16 18:51:04 kukartse Exp $
+// $Id: XMLLUTLoader.h,v 1.3 2009/04/14 22:53:05 kukartse Exp $
 //
 
 // system include files
@@ -40,32 +40,32 @@ class XMLLUTLoader : public XMLDOMBlock
   typedef struct _lutDBConfig : public XMLProcessor::DBConfig
   {
     _lutDBConfig();
-    string kind_of_part;
-    string name_label;
-    string trig_prim_lookuptbl_data_file;
+    std::string kind_of_part;
+    std::string name_label;
+    std::string trig_prim_lookuptbl_data_file;
     int crate;
   } lutDBConfig;
   
   typedef struct _checksumsDBConfig : public XMLProcessor::DBConfig
   {
     _checksumsDBConfig();
-    string comment_description;
-    string name_label;
-    string trig_prim_lookuptbl_data_file;
+    std::string comment_description;
+    std::string name_label;
+    std::string trig_prim_lookuptbl_data_file;
     int crate;
   } checksumsDBConfig;
   
   XMLLUTLoader();
-  XMLLUTLoader( XMLProcessor::loaderBaseConfig * config, string templateBase = "HCAL_TRIG_PRIM_LOOKUP_TABLE.XMLloader.template" );
+  XMLLUTLoader( XMLProcessor::loaderBaseConfig * config, std::string templateBase = "HCAL_TRIG_PRIM_LOOKUP_TABLE.XMLloader.template" );
   virtual ~XMLLUTLoader();
   
   int addLUT( lutDBConfig * config,
-  	      string templateFileName = "HCAL_TRIG_PRIM_LOOKUP_TABLE.dataset.template" );
+  	      std::string templateFileName = "HCAL_TRIG_PRIM_LOOKUP_TABLE.dataset.template" );
   
   int addChecksums( checksumsDBConfig * config,
-  		    string templateFileName = "HCAL_TRIG_PRIM_LOOKUP_TABLE.checksums.template" );
+  		    std::string templateFileName = "HCAL_TRIG_PRIM_LOOKUP_TABLE.checksums.template" );
   
-  int createLoader( vector<int> crate_number, vector<string> file_name );
+  int createLoader( std::vector<int> crate_number, std::vector<std::string> file_name );
   
  private:
   XMLLUTLoader(const XMLLUTLoader&); // stop default

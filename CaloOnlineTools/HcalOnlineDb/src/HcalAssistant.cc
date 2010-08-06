@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Thu Jul 16 11:39:22 CEST 2009
-// $Id: HcalAssistant.cc,v 1.7 2009/08/16 21:21:21 kukartse Exp $
+// $Id: HcalAssistant.cc,v 1.8 2009/11/18 23:02:26 lsexton Exp $
 //
 
 
@@ -208,7 +208,7 @@ int HcalAssistant::getListOfChannelsFromDb(){
     listIsRead = true;
   }
   catch (SQLException& e) {
-    cerr << ::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()) << endl;
+    std::cerr << ::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()) << std::endl;
     XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
   }
   conn.disconnect();

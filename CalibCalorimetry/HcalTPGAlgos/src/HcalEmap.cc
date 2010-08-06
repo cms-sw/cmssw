@@ -10,7 +10,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 14 14:30:20 CDT 2009
-// $Id: HcalEmap.cc,v 1.5 2008/08/24 22:56:18 kukartse Exp $
+// $Id: HcalEmap.cc,v 1.1 2009/04/14 22:49:05 kukartse Exp $
 //
 
 #include <stdio.h>
@@ -30,13 +30,13 @@ int HcalEmap::read_map( std::string filename )
 {
   int lines=0;
 
-  string _row;
-  ifstream inFile( filename . c_str(), ios::in );
+  std::string _row;
+  ifstream inFile( filename . c_str(), std::ios::in );
   if (!inFile){
-    cout << "Unable to open file with the electronic map: " << filename << endl;
+    std::cout << "Unable to open file with the electronic map: " << filename << std::endl;
   }
   else{
-    cout << "File with the electronic map opened successfully: " << filename << endl;
+    std::cout << "File with the electronic map opened successfully: " << filename << std::endl;
   }
   while ( getline( inFile, _row ) > 0 ){
     HcalEmapRow aRow;
@@ -63,7 +63,7 @@ int HcalEmap::read_map( std::string filename )
     }  
   }
   inFile.close();
-  cout << "HcalEmap: " << lines << " lines read" << endl;
+  std::cout << "HcalEmap: " << lines << " lines read" << std::endl;
 
   return 0;
 }

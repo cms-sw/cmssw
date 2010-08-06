@@ -1,7 +1,7 @@
 /** \file HouseholderDecomposition.cc
  *
- * $Date: 2009/02/06 10:19:11 $
- * $Revision: 1.5 $
+ * $Date: 2009/02/26 13:48:08 $
+ * $Revision: 1.6 $
  *
  * \author Lorenzo Agostino, R.Ofierzynski, CERN
  */
@@ -32,17 +32,17 @@ HouseholderDecomposition::~HouseholderDecomposition()
 }
 
 
-vector<float> HouseholderDecomposition::runRegional(const vector<vector<float> >& eventMatrix, const vector<int>& VmaxCeta, const vector<int>& VmaxCphi, const vector<float>& energyVector, const int& nIter, const int& regLength)
+std::vector<float> HouseholderDecomposition::runRegional(const std::vector<std::vector<float> >& eventMatrix, const std::vector<int>& VmaxCeta, const std::vector<int>& VmaxCphi, const std::vector<float>& energyVector, const int& nIter, const int& regLength)
 {
   // make regions
   makeRegions(regLength);
 
   Nevents = eventMatrix.size(); // Number of events to calibrate with
 
-  vector<float> totalSolution(Nchannels,1.);
-  vector<float> iterSolution(Nchannels,1.);
-  vector<vector<float> > myEventMatrix(eventMatrix);
-  vector<float> myEnergyVector(energyVector);
+  std::vector<float> totalSolution(Nchannels,1.);
+  std::vector<float> iterSolution(Nchannels,1.);
+  std::vector<std::vector<float> > myEventMatrix(eventMatrix);
+  std::vector<float> myEnergyVector(energyVector);
 
   // loop over nIter
   for (int iter=1;iter<=nIter;iter++) 
@@ -50,9 +50,9 @@ vector<float> HouseholderDecomposition::runRegional(const vector<vector<float> >
       // loop over regions
       for (unsigned int ireg=0; ireg<regMinEta.size(); ireg++)
 	{
-	  vector<float> regIterSolution, regEnergyVector;
-	  vector<int> regVmaxCeta, regVmaxCphi;
-	  vector<vector<float> > regEventMatrix;
+	  std::vector<float> regIterSolution, regEnergyVector;
+	  std::vector<int> regVmaxCeta, regVmaxCphi;
+	  std::vector<std::vector<float> > regEventMatrix;
 
 	  // initialize new instance with regional min,max indices
 	  HouseholderDecomposition regionalHH(squareMode,regMinEta[ireg],regMaxEta[ireg],regMinPhi[ireg],regMaxPhi[ireg]);
@@ -67,7 +67,7 @@ vector<float> HouseholderDecomposition::runRegional(const vector<vector<float> >
 		  regVmaxCeta.push_back(VmaxCeta[ia]);
 		  regVmaxCphi.push_back(VmaxCphi[ia]);
 
-		  vector<float> regEvent = myEventMatrix[ia];
+		  std::vector<float> regEvent = myEventMatrix[ia];
 		  float regEnergy = energyVector[ia];
 		  for (int i2=0; i2<Nxtals; i2++)
 		    {
@@ -84,10 +84,10 @@ vector<float> HouseholderDecomposition::runRegional(const vector<vector<float> >
 	    }
 
 	  // calibrate
-	  //	  cout << "HouseholderDecomposition::runRegional - Starting calibration of region " << ireg << ": eta " 
-	  //	       << regMinEta[ireg] << " to " << regMaxEta[ireg] << ", phi " << regMinPhi[ireg] << " to " << regMaxPhi[ireg] << endl;
+	  //	  std::cout << "HouseholderDecomposition::runRegional - Starting calibration of region " << ireg << ": eta " 
+	  //	       << regMinEta[ireg] << " to " << regMaxEta[ireg] << ", phi " << regMinPhi[ireg] << " to " << regMaxPhi[ireg] << std::endl;
 	  regIterSolution = regionalHH.iterate(regEventMatrix, regVmaxCeta, regVmaxCphi, regEnergyVector);
-	  //	  cout << "HouseholderDecomposition::runRegional - calibration of region finished. " << endl;
+	  //	  std::cout << "HouseholderDecomposition::runRegional - calibration of region finished. " << std::endl;
 
 	  // save solution into global iterSolution
 	  // don't forget to delete the ones that are on the border !
@@ -131,14 +131,14 @@ vector<float> HouseholderDecomposition::runRegional(const vector<vector<float> >
 }
 
 
-vector<float> HouseholderDecomposition::iterate(const vector<vector<float> >& eventMatrix, const vector<int>& VmaxCeta, const vector<int>& VmaxCphi, const vector<float>& energyVector, const int& nIter, const bool& normalizeFlag)
+std::vector<float> HouseholderDecomposition::iterate(const std::vector<std::vector<float> >& eventMatrix, const std::vector<int>& VmaxCeta, const std::vector<int>& VmaxCphi, const std::vector<float>& energyVector, const int& nIter, const bool& normalizeFlag)
 {
   Nevents = eventMatrix.size(); // Number of events to calibrate with
 
-  vector<float> totalSolution(Nchannels,1.);
-  vector<float> iterSolution;
-  vector<vector<float> > myEventMatrix(eventMatrix);
-  vector<float> myEnergyVector(energyVector);
+  std::vector<float> totalSolution(Nchannels,1.);
+  std::vector<float> iterSolution;
+  std::vector<std::vector<float> > myEventMatrix(eventMatrix);
+  std::vector<float> myEnergyVector(energyVector);
 
   int i, j;
 
@@ -190,18 +190,18 @@ vector<float> HouseholderDecomposition::iterate(const vector<vector<float> >& ev
 
 
 
-vector<float> HouseholderDecomposition::iterate(const vector<vector<float> >& eventMatrix, const vector<int>& VmaxCeta, const vector<int>& VmaxCphi, const vector<float>& energyVectorOrig)
+std::vector<float> HouseholderDecomposition::iterate(const std::vector<std::vector<float> >& eventMatrix, const std::vector<int>& VmaxCeta, const std::vector<int>& VmaxCphi, const std::vector<float>& energyVectorOrig)
 {
-  vector<float> solution; 
+  std::vector<float> solution; 
 
   Nevents=eventMatrix.size();      // Number of events to calibrate with
 
   if (Nchannels > Nevents)
     {
-      cout << "Householder::runIter(): more channels to calibrate than events available. " << endl;
-      cout << "  Nchannels=" << Nchannels << endl;
-      cout << "  Nevents=" << Nevents << endl;
-      cout << " ******************    ERROR   *********************" << endl;
+      std::cout << "Householder::runIter(): more channels to calibrate than events available. " << std::endl;
+      std::cout << "  Nchannels=" << Nchannels << std::endl;
+      std::cout << "  Nevents=" << Nevents << std::endl;
+      std::cout << " ******************    ERROR   *********************" << std::endl;
       return solution; // empty vector
     }
 
@@ -210,10 +210,10 @@ vector<float> HouseholderDecomposition::iterate(const vector<vector<float> >& ev
 
  if (eventMatrixOrig.size() != energyVectorOrig.size())
     {
-      cout << "Householder::runIter(): matrix dimensions non-conformant. " << endl;
-      cout << "  energyVectorOrig.size()=" << energyVectorOrig.size() << endl;
-      cout << "  eventMatrixOrig.size()=" << eventMatrixOrig.size() << endl;
-      cout << " ******************    ERROR   *********************" << endl;
+      std::cout << "Householder::runIter(): matrix dimensions non-conformant. " << std::endl;
+      std::cout << "  energyVectorOrig.size()=" << energyVectorOrig.size() << std::endl;
+      std::cout << "  eventMatrixOrig.size()=" << eventMatrixOrig.size() << std::endl;
+      std::cout << " ******************    ERROR   *********************" << std::endl;
       return solution; // empty vector
     }
 
@@ -221,7 +221,7 @@ vector<float> HouseholderDecomposition::iterate(const vector<vector<float> >& ev
   int i,j;
   eventMatrixProc = eventMatrixOrig;
   energyVectorProc = energyVectorOrig; // copy energyVectorOrig vector
-  vector<float> e(Nchannels);
+  std::vector<float> e(Nchannels);
   alpha.assign(Nchannels,0.);
   pivot.assign(Nchannels,0);
   
@@ -231,15 +231,15 @@ vector<float> HouseholderDecomposition::iterate(const vector<vector<float> >& ev
 
   if( !decomposeSuccess ) 
     {
-      cout << "Householder::runIter(): Failed: Singular condition in decomposition."<< endl;
-      cout << "***************** PROBLEM in DECOMPOSITION *************************"<<endl;
+      std::cout << "Householder::runIter(): Failed: Singular condition in decomposition."<< std::endl;
+      std::cout << "***************** PROBLEM in DECOMPOSITION *************************"<<std::endl;
       return solution; // empty vector
     }
 
   /* DBL_EPSILON: Difference between 1.0 and the minimum float greater than 1.0 */
   float mydbleps = 2.22045e-16;  //DBL_EPSILON;
   float etasqr = mydbleps*mydbleps; 
-  //  cout << "LOOK at DBL_EPSILON :" << mydbleps <<endl;
+  //  std::cout << "LOOK at DBL_EPSILON :" << mydbleps <<std::endl;
 
 
   //--------------------
@@ -276,15 +276,15 @@ vector<float> HouseholderDecomposition::iterate(const vector<vector<float> >& ev
       norme1 += e[i] * e[i];
     }
   
-//  cout << "Householder::runIter(): applying first correction";
-//  cout << " normy0 = " << normy0;
-//  cout << " norme1 = " << norme1 << endl;
+//  std::cout << "Householder::runIter(): applying first correction";
+//  std::cout << " normy0 = " << normy0;
+//  std::cout << " norme1 = " << norme1 << std::endl;
 
   // not attempt at obtaining the solution is made unless the norm of the first
   // correction  is significantly smaller than the norm of the initial solution
   if (norme1>(0.0625*normy0)) 
     {
-      //      cout << "Householder::runIter(): first correction is too large. Failed." << endl;
+      //      std::cout << "Householder::runIter(): first correction is too large. Failed." << std::endl;
     }
 
   // improve the solution
@@ -293,13 +293,13 @@ vector<float> HouseholderDecomposition::iterate(const vector<vector<float> >& ev
       solution[i]+=e[i];
     }
 
-  //  cout << "Householder::runIter(): improving solution...." << endl;
+  //  std::cout << "Householder::runIter(): improving solution...." << std::endl;
 
   //--------------------
   // only continue iteration if the correction was significant
   while (norme1>(etasqr*normy0)) 
     {
-      //      cout << "Householder::runIter(): norme1 = " << norme1 << endl;
+      //      std::cout << "Householder::runIter(): norme1 = " << norme1 << std::endl;
     
       for (i=0; i<Nevents; i++) 
 	{
@@ -348,10 +348,10 @@ bool HouseholderDecomposition::decompose()
 {
   int i,j,jbar,k;
   float beta,sigma,alphak,eventMatrixkk;
-  vector<float> y(Nchannels);
-  vector<float> sum(Nchannels);
+  std::vector<float> y(Nchannels);
+  std::vector<float> sum(Nchannels);
 
-  //  cout << "Householder::decompose() started" << endl;
+  //  std::cout << "Householder::decompose() started" << std::endl;
   
   for (j=0;j<Nchannels;j++) 
     {
@@ -411,11 +411,11 @@ bool HouseholderDecomposition::decompose()
       // found a zero-column, bail out
       if (sigma == 0.) 
 	{
-//	  cout << "Householder::decompose() failed" << endl;
+//	  std::cout << "Householder::decompose() failed" << std::endl;
 //	  return false;
 	  // rof 14.12.2006: workaround to avoid failure of algorithm because of dead crystals:
 	  sigma = sigmaReplacement;
-	  //	  cout << "Householder::decompose - found zero column " << jbar << ", replacing sum of column elements by " << sigma << endl;
+	  //	  std::cout << "Householder::decompose - found zero column " << jbar << ", replacing sum of column elements by " << sigma << std::endl;
 	}
 
 
@@ -458,20 +458,20 @@ bool HouseholderDecomposition::decompose()
 	}
     } // end of kth householder transformation
   
-  //  cout << "Householder::decompose() finished" << endl;
+  //  std::cout << "Householder::decompose() finished" << std::endl;
   
   return true;
 }
 
 
-void HouseholderDecomposition::solve(vector<float> &y)
+void HouseholderDecomposition::solve(std::vector<float> &y)
 {
-  vector<float> z(Nchannels,0.);
+  std::vector<float> z(Nchannels,0.);
 
   float gamma;
   int i,j;
 
-  //  cout << "Householder::solve() begin" << endl;
+  //  std::cout << "Householder::solve() begin" << std::endl;
 
   for (j=0; j<Nchannels; j++) 
     {
@@ -506,14 +506,14 @@ void HouseholderDecomposition::solve(vector<float> &y)
       y[pivot[i]] = z[i];
     }
   
-  //  cout << "Householder::solve() finished." << endl;
+  //  std::cout << "Householder::solve() finished." << std::endl;
   
 }
 
 
-vector<float> HouseholderDecomposition::recalibrateEvent(const vector<float>& eventSquare, const int& maxCeta, const int& maxCphi, const vector<float>& recalibrateVector)
+std::vector<float> HouseholderDecomposition::recalibrateEvent(const std::vector<float>& eventSquare, const int& maxCeta, const int& maxCphi, const std::vector<float>& recalibrateVector)
 {
-  vector<float> newEventSquare(eventSquare);
+  std::vector<float> newEventSquare(eventSquare);
   int iFull;
 
   for (int i=0; i<Nxtals; i++) 
@@ -555,15 +555,15 @@ int HouseholderDecomposition::indexSqr2Reg(const int& sqrIndex, const int& maxCe
   return regionIndex;
 }
 
-vector<vector<float> > HouseholderDecomposition::unzipMatrix(const vector< vector<float> >& eventMatrix, const vector<int>& VmaxCeta, const vector<int>& VmaxCphi)
+std::vector<std::vector<float> > HouseholderDecomposition::unzipMatrix(const std::vector< std::vector<float> >& eventMatrix, const std::vector<int>& VmaxCeta, const std::vector<int>& VmaxCphi)
 {
-  vector< vector<float> > fullMatrix;
+  std::vector< std::vector<float> > fullMatrix;
 
   int iFull;
 
   for (int i=0; i<Nevents; i++)
     {
-      vector<float> foo(Nchannels,0.);
+      std::vector<float> foo(Nchannels,0.);
       for (int k=0; k<Nxtals; k++)
 	{
 	  iFull = indexSqr2Reg(k, VmaxCeta[i], VmaxCphi[i]);
@@ -626,8 +626,8 @@ void HouseholderDecomposition::makeRegions(const int& regLength)
     }
 
 //  // print it all
-//  cout << "Householder::makeRegions created the following regions for calibration:" << endl;
+//  std::cout << "Householder::makeRegions created the following regions for calibration:" << std::endl;
 //  for (int i=0; i<regMinEta.size(); i++)
-//    cout << "Region " << i << ": eta = " << regMinEta[i] << " to " << regMaxEta[i] << ", phi = " << regMinPhi[i] << " to " << regMaxPhi[i] << endl;
+//    std::cout << "Region " << i << ": eta = " << regMinEta[i] << " to " << regMaxEta[i] << ", phi = " << regMinPhi[i] << " to " << regMaxPhi[i] << std::endl;
 
 }

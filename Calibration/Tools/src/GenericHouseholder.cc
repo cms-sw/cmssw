@@ -1,7 +1,7 @@
 /** \file GenericHouseholder.cc
  *
- * $Date: 2006/11/20 13:42:42 $
- * $Revision: 1.3 $
+ * $Date: 2007/03/14 13:55:41 $
+ * $Revision: 1.1 $
  *
  * \author Lorenzo Agostino, R.Ofierzynski, CERN
  */
@@ -22,11 +22,11 @@ GenericHouseholder::~GenericHouseholder()
 }
 
 
-vector<float> GenericHouseholder::iterate(const vector<vector<float> >& eventMatrix, const vector<float>& energyVector, const int nIter)
+std::vector<float> GenericHouseholder::iterate(const std::vector<std::vector<float> >& eventMatrix, const std::vector<float>& energyVector, const int nIter)
 {
-  vector<float> solution;
-  vector<float> theCalibVector(energyVector.size(),1.);
-  vector<vector<float> > myEventMatrix(eventMatrix);
+  std::vector<float> solution;
+  std::vector<float> theCalibVector(energyVector.size(),1.);
+  std::vector<std::vector<float> > myEventMatrix(eventMatrix);
   int Nevents = eventMatrix.size(); // Number of events to calibrate with
   int Nchannels = eventMatrix[0].size(); // Number of channel coefficients
 
@@ -56,7 +56,7 @@ vector<float> GenericHouseholder::iterate(const vector<vector<float> >& eventMat
 }
 
 
-vector<float> GenericHouseholder::iterate(const vector<vector<float> >& eventMatrix, const vector<float>& energyVector)
+std::vector<float> GenericHouseholder::iterate(const std::vector<std::vector<float> >& eventMatrix, const std::vector<float>& energyVector)
 {
   // An implementation of the Householder in-situ calibration algorithm 
   // (Least squares minimisation of residual R=b-Ax, with QR decomposition of A)
@@ -65,37 +65,37 @@ vector<float> GenericHouseholder::iterate(const vector<vector<float> >& eventMat
   // b: vector of energies
   // adapted from the original code by Matt Probert 9/08/01.
 
-  vector<float> solution; 
+  std::vector<float> solution; 
 
   unsigned int m=eventMatrix.size();      // Number of events to calibrate with
   unsigned int n=eventMatrix[0].size();           // Number of channel coefficients to optimize
 
-  cout << "Householder::runIter(): starting calibration optimization:" << endl;
-  cout << "  Events:" << m << ", channels: " << n << endl;
+  std::cout << "Householder::runIter(): starting calibration optimization:" << std::endl;
+  std::cout << "  Events:" << m << ", channels: " << n << std::endl;
 
   // Sanity check
   if (m != energyVector.size())
     {
-      cout << "Householder::runIter(): matrix dimensions non-conformant. " << endl;
-      cout << "  energyVector.size()=" << energyVector.size() << endl;
-      cout << "  eventMatrix[0].size()=" << eventMatrix[0].size() << endl;
-      cout << " ******************    ERROR   *********************" << endl;
+      std::cout << "Householder::runIter(): matrix dimensions non-conformant. " << std::endl;
+      std::cout << "  energyVector.size()=" << energyVector.size() << std::endl;
+      std::cout << "  eventMatrix[0].size()=" << eventMatrix[0].size() << std::endl;
+      std::cout << " ******************    ERROR   *********************" << std::endl;
       return solution; // empty vector
     }
 
   // Reserve workspace
   float e25p;
   unsigned int i,j;
-  vector<vector<float> > A(eventMatrix);
-  vector<float> energies(energyVector);
+  std::vector<std::vector<float> > A(eventMatrix);
+  std::vector<float> energies(energyVector);
 
   float normalisation = 0.;
   
   // Normalise if normaliseFlag is set
   if (normaliseFlag) 
     {
-      cout << "Householder::iterate(): Normalising event data" << endl;
-      cout << "  WARNING: assuming 5x5 filtering has already been done" << endl;
+      std::cout << "Householder::iterate(): Normalising event data" << std::endl;
+      std::cout << "  WARNING: assuming 5x5 filtering has already been done" << std::endl;
 
       for (i=0; i<m; i++) 
 	{
@@ -107,7 +107,7 @@ vector<float> GenericHouseholder::iterate(const vector<vector<float> >& eventMat
 	  normalisation += e25p;        // SUM e25p for all events
 	}
       normalisation/=m;
-      cout << "  Normalisation = " << normalisation << endl;
+      std::cout << "  Normalisation = " << normalisation << std::endl;
       
       for (i=0;i<energies.size();++i)
 	energies[i]*=normalisation;
@@ -116,22 +116,22 @@ vector<float> GenericHouseholder::iterate(const vector<vector<float> >& eventMat
 
   // This is where the work goes on...
   // matrix decomposition
-  vector<vector<float> > Acopy(A);
-  vector<float> alpha(n);
-  vector<int> pivot(n);
+  std::vector<std::vector<float> > Acopy(A);
+  std::vector<float> alpha(n);
+  std::vector<int> pivot(n);
   if( !decompose(m, n, A, alpha, pivot)) {
-    cout << "Householder::runIter(): Failed: Singular condition in decomposition." 
-	 << endl;
-    cout << "***************** PROBLEM in DECOMPOSITION *************************"<<endl;
+    std::cout << "Householder::runIter(): Failed: Singular condition in decomposition." 
+	 << std::endl;
+    std::cout << "***************** PROBLEM in DECOMPOSITION *************************"<<std::endl;
     return solution; // empty vector
   }
 
   /* DBL_EPSILON: Difference between 1.0 and the minimum float greater than 1.0 */
   float etasqr = DBL_EPSILON*DBL_EPSILON; 
-  cout<<"LOOK at DBL_EPSILON :"<<DBL_EPSILON<<endl;
+  std::cout<<"LOOK at DBL_EPSILON :"<<DBL_EPSILON<<std::endl;
 
-  vector<float> r(energies); // copy energies vector
-  vector<float> e(n);
+  std::vector<float> r(energies); // copy energies vector
+  std::vector<float> e(n);
  
   // apply transformations to rhs - find solution vector
   solution.assign(n,0.);
@@ -155,26 +155,26 @@ vector<float> GenericHouseholder::iterate(const vector<vector<float> >& eventMat
     norme1+=e[i]*e[i];
   }
   
-  cout << "Householder::runIter(): applying first correction" << endl;
-  cout << " normy0 = " << normy0 << endl;
-  cout << " norme1 = " << norme1 << endl;
+  std::cout << "Householder::runIter(): applying first correction" << std::endl;
+  std::cout << " normy0 = " << normy0 << std::endl;
+  std::cout << " norme1 = " << norme1 << std::endl;
 
   // not attempt at obtaining the solution is made unless the norm of the first
   // correction  is significantly smaller than the norm of the initial solution
   if (norme1>(0.0625*normy0)) {
-    cout << "Householder::runIter(): first correction is too large. Failed." 
-	 << endl;
+    std::cout << "Householder::runIter(): first correction is too large. Failed." 
+	 << std::endl;
   }
 
   // improve the solution
   for (i=0;i<n;i++)
     solution[i]+=e[i];
 
-  cout << "Householder::runIter(): improving solution...." << endl;
+  std::cout << "Householder::runIter(): improving solution...." << std::endl;
 
   // only continue iteration if the correction was significant
   while (norme1>(etasqr*normy0)) {
-    cout << "Householder::runIter(): norme1 = " << norme1 << endl;
+    std::cout << "Householder::runIter(): norme1 = " << norme1 << std::endl;
     
     for (i=0;i<m;i++) {
       r[i] = energies[i];
@@ -204,21 +204,21 @@ return solution;
 }
 
 
-bool GenericHouseholder::decompose(const int m, const int n, vector<vector<float> >& qr,  vector<float>& alpha, vector<int>& pivot)
+bool GenericHouseholder::decompose(const int m, const int n, std::vector<std::vector<float> >& qr,  std::vector<float>& alpha, std::vector<int>& pivot)
 {
   int i,j,jbar,k;
   float beta,sigma,alphak,qrkk;
-  vector<float> y(n);
-  vector<float> sum(n);
+  std::vector<float> y(n);
+  std::vector<float> sum(n);
 
-  cout << "Householder::decompose() started" << endl;
+  std::cout << "Householder::decompose() started" << std::endl;
   
   for (j=0;j<n;j++) {
     // jth column sum
     
     sum[j]=0.;
     for (i=0;i<m;i++)
-//      cout << "0: qr[i][j]" << qr[i][j] << " i = " << i << " j = " << j << endl;
+//      std::cout << "0: qr[i][j]" << qr[i][j] << " i = " << i << " j = " << j << std::endl;
       sum[j]+=qr[i][j]*qr[i][j];
 
     pivot[j] = j;
@@ -248,20 +248,20 @@ bool GenericHouseholder::decompose(const int m, const int n, vector<vector<float
       for (i=0;i<m;i++) {
 	sigma=qr[i][k];
 	qr[i][k]=qr[i][jbar];
-//      cout << "A: qr[i][k]" << qr[i][k] << " i = " << i << " k = " << k << endl;
+//      std::cout << "A: qr[i][k]" << qr[i][k] << " i = " << i << " k = " << k << std::endl;
 	qr[i][jbar]=sigma;
-//      cout << "B: qr[i][jbar]" << qr[i][k] << " i = " << i << " jbar = " << jbar << endl;
+//      std::cout << "B: qr[i][jbar]" << qr[i][k] << " i = " << i << " jbar = " << jbar << std::endl;
       }
     } // end column interchange
 
     sigma=0.;
     for (i=k;i<m;i++){
       sigma+=qr[i][k]*qr[i][k];
-//      cout << "C: qr[i][k]" << qr[i][k] << " i = " << i << " k = " << k << endl;
+//      std::cout << "C: qr[i][k]" << qr[i][k] << " i = " << i << " k = " << k << std::endl;
 }
 
     if (sigma == 0.) {
-      cout << "Householder::decompose() failed" << endl;
+      std::cout << "Householder::decompose() failed" << std::endl;
       return false;
     }
 
@@ -292,21 +292,21 @@ bool GenericHouseholder::decompose(const int m, const int n, vector<vector<float
     }
   } // end of kth householder transformation
 
-  cout << "Householder::decompose() finished" << endl;
+  std::cout << "Householder::decompose() finished" << std::endl;
   
   return true;
 }
 
 
-void GenericHouseholder::solve(int m, int n, const vector<vector<float> > &qr, const vector<float> &alpha, const vector<int> &pivot, 
-				     vector<float> &r, vector<float> &y)
+void GenericHouseholder::solve(int m, int n, const std::vector<std::vector<float> > &qr, const std::vector<float> &alpha, const std::vector<int> &pivot, 
+				     std::vector<float> &r, std::vector<float> &y)
 {
-  vector<float> z(n,0.);
+  std::vector<float> z(n,0.);
 
   float gamma;
   int i,j;
 
-  cout << "Householder::solve() begin" << endl;
+  std::cout << "Householder::solve() begin" << std::endl;
 
   for (j=0;j<n;j++) {
     // apply jth transformation to the right hand side
@@ -319,9 +319,9 @@ void GenericHouseholder::solve(int m, int n, const vector<vector<float> > &qr, c
       r[i]+=gamma*qr[i][j];
   }
 
-  //  cout<<"OK1:"<<endl;
+  //  std::cout<<"OK1:"<<std::endl;
   z[n-1]=r[n-1]/alpha[n-1];
-  //  cout<<"OK2:"<<endl;  
+  //  std::cout<<"OK2:"<<std::endl;  
 
   for (i=n-2;i>=0;i--) {
     z[i]= r[i];
@@ -329,11 +329,11 @@ void GenericHouseholder::solve(int m, int n, const vector<vector<float> > &qr, c
       z[i]-=qr[i][j]*z[j];
     z[i]/=alpha[i];
   }
-  //  cout<<"OK3:"<<endl;
+  //  std::cout<<"OK3:"<<std::endl;
 
   for (i=0;i<n;i++)
     y[pivot[i]]=z[i];
 
-  cout << "Householder::solve() finished." << endl;
+  std::cout << "Householder::solve() finished." << std::endl;
 
 }

@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:20 CDT 2007
-// $Id: XMLLUTLoader.cc,v 1.2 2009/04/14 22:53:06 kukartse Exp $
+// $Id: XMLLUTLoader.cc,v 1.3 2009/05/09 00:36:43 elmer Exp $
 //
 
 // system include files
@@ -49,7 +49,7 @@ XMLLUTLoader::XMLLUTLoader()
 {
 }
 
-XMLLUTLoader::XMLLUTLoader( XMLProcessor::loaderBaseConfig * config, string templateBase ) : XMLDOMBlock( templateBase )
+XMLLUTLoader::XMLLUTLoader( XMLProcessor::loaderBaseConfig * config, std::string templateBase ) : XMLDOMBlock( templateBase )
 {
   setTagValue( "EXTENSION_TABLE_NAME", config -> extention_table_name );
   setTagValue( "NAME", config -> name );
@@ -93,7 +93,7 @@ XMLLUTLoader::~XMLLUTLoader()
 //
 // member functions
 //
-int XMLLUTLoader::addLUT( lutDBConfig * config, string templateFileName )
+int XMLLUTLoader::addLUT( lutDBConfig * config, std::string templateFileName )
 {
   DOMElement * root = document -> getDocumentElement();
 
@@ -120,7 +120,7 @@ int XMLLUTLoader::addLUT( lutDBConfig * config, string templateFileName )
   return 0;
 }
 
-int XMLLUTLoader::addChecksums( checksumsDBConfig * config, string templateFileName )
+int XMLLUTLoader::addChecksums( checksumsDBConfig * config, std::string templateFileName )
 {
   DOMElement * root = document -> getDocumentElement();
 
@@ -147,12 +147,12 @@ int XMLLUTLoader::addChecksums( checksumsDBConfig * config, string templateFileN
   return 0;
 }
 
-int XMLLUTLoader::createLoader( vector<int> crate_number, vector<string> file_name )
+int XMLLUTLoader::createLoader( std::vector<int> crate_number, std::vector<std::string> file_name )
 {
   XMLLUTLoader::lutDBConfig conf;
   XMLLUTLoader::checksumsDBConfig CSconf;
 
-  for ( vector<string>::const_iterator _file = file_name . begin(); _file != file_name . end(); _file++ )
+  for ( std::vector<std::string>::const_iterator _file = file_name . begin(); _file != file_name . end(); _file++ )
     {
       conf . trig_prim_lookuptbl_data_file = *_file;
       conf . trig_prim_lookuptbl_data_file += ".dat";
@@ -160,7 +160,7 @@ int XMLLUTLoader::createLoader( vector<int> crate_number, vector<string> file_na
 
       char _buf[128];
       sprintf( _buf, "CRATE%.2d", conf . crate );
-      string _namelabel;
+      std::string _namelabel;
       _namelabel . append( _buf );
       conf . name_label = _namelabel;
       addLUT( &conf );

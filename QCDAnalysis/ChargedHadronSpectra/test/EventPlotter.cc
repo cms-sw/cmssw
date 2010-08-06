@@ -40,7 +40,7 @@ class EventPlotter : public edm::EDAnalyzer
   private:
     void printVZeros  (const edm::Event& ev, ofstream& file);
     void printVertices(const edm::Event& ev, ofstream& file);
-    string trackProducer;
+    std::string trackProducer;
 
     const MagneticField* theMagField;
 };
@@ -48,7 +48,7 @@ class EventPlotter : public edm::EDAnalyzer
 /*****************************************************************************/
 EventPlotter::EventPlotter(const edm::ParameterSet& ps)
 {
-  trackProducer = ps.getParameter<string>("trackProducer");
+  trackProducer = ps.getParameter<std::string>("trackProducer");
 }
 
 /*****************************************************************************/
@@ -103,7 +103,7 @@ void EventPlotter::printVZeros(const edm::Event& ev, ofstream& file)
                  << ",(" << vZero->vertex().position().z()
                  << "-zs)*mz}, {" << b.x()
                       << "," << b.y()
-                      << ",(" << b.z() << "-zs)*mz}}]" << endl;
+                      << ",(" << b.z() << "-zs)*mz}}]" << std::endl;
   }
 
   file << "}]";
@@ -129,12 +129,12 @@ void EventPlotter::printVertices(const edm::Event& ev, ofstream& file)
   {
     file << ", Point[{" << vertex->position().x()
                  << "," << vertex->position().y()
-                 << ",(" << vertex->position().z() << "-zs)*mz}]" << endl;
+                 << ",(" << vertex->position().z() << "-zs)*mz}]" << std::endl;
     file << ", Text[StyleForm[\"V\", URL->\"Vertex z="<<vertex->position().z()<<" cm | Tracks="
          << vertex->tracksSize() << "\"]"
          << ", {" << vertex->position().x()
            << "," << vertex->position().y()
-           << ",(" << vertex->position().z() << "-zs)*mz}, {0,-1}]" << endl;
+           << ",(" << vertex->position().z() << "-zs)*mz}, {0,-1}]" << std::endl;
   }
 }
 
@@ -144,7 +144,7 @@ void EventPlotter::analyze(const edm::Event& ev, const edm::EventSetup& es)
   edm::LogVerbatim("MinBiasTracking") << "[EventPlotter]";
 
   ofstream file("event.m");
-  file << fixed << setprecision(3);
+  file << fixed << std::setprecision(3);
 
   // start graphics 
   file << "Graphics3D[";
@@ -174,7 +174,7 @@ void EventPlotter::analyze(const edm::Event& ev, const edm::EventSetup& es)
 
   // add problems
 /*
-  string str;
+  std::string str;
   ifstream prob("../data/problem.m");
   getline(prob, str);
   while(prob)
@@ -186,7 +186,7 @@ void EventPlotter::analyze(const edm::Event& ev, const edm::EventSetup& es)
   file << ", RGBColor[0.7,0.7,0.7]";
 
   for(int z = -mz; z < mz; z += mz/30)
-    file << ", Line[{{0,0,("<<z<<"-zs)*mz}, {0,0,("<<z+mz/30<<"-zs)*mz}}]" << endl;
+    file << ", Line[{{0,0,("<<z<<"-zs)*mz}, {0,0,("<<z+mz/30<<"-zs)*mz}}]" << std::endl;
 
   // box
   file << ", RGBColor[0,0,0]";

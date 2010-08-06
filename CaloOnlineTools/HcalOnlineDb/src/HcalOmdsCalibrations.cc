@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalAsciiCalibrations
-// $Id$
+// $Id: HcalOmdsCalibrations.cc,v 1.12 2010/03/07 22:56:23 kukartse Exp $
 //
 
 #include <memory>
@@ -48,11 +48,11 @@ HcalOmdsCalibrations::HcalOmdsCalibrations ( const edm::ParameterSet& iConfig )
   for (; request != data.end (); request++) {
     std::string objectName = request->getParameter<std::string> ("object");
 
-    if (request->exists("version")) mVersion[objectName] = request->getParameter<string>("version");
+    if (request->exists("version")) mVersion[objectName] = request->getParameter<std::string>("version");
     if (request->exists("subversion")) mSubversion[objectName] = request->getParameter<int>("subversion");
     if (request->exists("iov_begin")) mIOVBegin[objectName] = request->getParameter<int>("iov_begin");
-    if (request->exists("accessor")) mAccessor[objectName] = request->getParameter<string>("accessor");
-    if (request->exists("query")) mQuery[objectName] = request->getParameter<string>("query");
+    if (request->exists("accessor")) mAccessor[objectName] = request->getParameter<std::string>("accessor");
+    if (request->exists("query")) mQuery[objectName] = request->getParameter<std::string>("query");
 
     mInputs [objectName] = request->getParameter<std::string>("tag");
     if (objectName == "Pedestals") {
@@ -152,7 +152,7 @@ std::auto_ptr<T> produce_impl (const std::string & fTag,
   try {
     db -> connect( fAccessor );
   } catch (hcal::exception::ConfigurationDatabaseException & e) {
-    std::cerr << "Cannot connect to the database" << endl;
+    std::cerr << "Cannot connect to the database" << std::endl;
   }
   oracle::occi::Connection * _connection = db -> getConnection();
   if (_connection){

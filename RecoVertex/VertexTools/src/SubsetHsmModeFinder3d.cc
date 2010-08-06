@@ -5,7 +5,7 @@
 
 #include <algorithm>
 
-typedef pair < GlobalPoint, float > PointAndDistance;
+typedef std::pair < GlobalPoint, float > PointAndDistance;
 
 namespace {
   struct compareByDistance
@@ -17,7 +17,7 @@ namespace {
   };
 }
 
-GlobalPoint SubsetHsmModeFinder3d::operator() ( const vector< PointAndDistance> & values )
+GlobalPoint SubsetHsmModeFinder3d::operator() ( const std::vector< PointAndDistance> & values )
     const 
 {
   if ( values.size() == 0 )
@@ -25,13 +25,13 @@ GlobalPoint SubsetHsmModeFinder3d::operator() ( const vector< PointAndDistance> 
     throw VertexException ("SubsetHsmModeFinder3d: no value given.");
   };
 
-  vector < GlobalPoint > pts; pts.reserve ( values.size()-1 );
-  vector< PointAndDistance> sorted_values ( values.size() );
+  std::vector < GlobalPoint > pts; pts.reserve ( values.size()-1 );
+  std::vector< PointAndDistance> sorted_values ( values.size() );
   partial_sort_copy ( values.begin(), values.end(),
       sorted_values.begin(), sorted_values.end(), compareByDistance() );
 
-  vector< PointAndDistance>::iterator end = sorted_values.end();
-  vector< PointAndDistance>::iterator begin = sorted_values.begin();
+  std::vector< PointAndDistance>::iterator end = sorted_values.end();
+  std::vector< PointAndDistance>::iterator begin = sorted_values.begin();
 
   float dmax = 0.004; // 40 microns, as a first try.
 
@@ -44,7 +44,7 @@ GlobalPoint SubsetHsmModeFinder3d::operator() ( const vector< PointAndDistance> 
   while ( pts.size() < min_num )
   {
     // we cut at a dmax
-    vector< PointAndDistance>::iterator i;
+    std::vector< PointAndDistance>::iterator i;
     for ( i=begin; i!=end && ( i->second < dmax )  ; ++i )
     {
       pts.push_back ( i->first );

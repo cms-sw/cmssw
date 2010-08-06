@@ -57,7 +57,7 @@ int HcaluLUTTPGCoder::getLUTId(const HcalDetId& detid) const {
 
 void HcaluLUTTPGCoder::update(const char* filename, bool appendMSB){
 
-   std::ifstream file(filename, ios::in);
+   std::ifstream file(filename, std::ios::in);
    assert(file.is_open());
 
    std::vector<HcalSubdetector> subdet;

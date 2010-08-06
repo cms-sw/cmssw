@@ -5,11 +5,11 @@
 InvariantMassFromVertex::LorentzVector InvariantMassFromVertex::p4 (const CachingVertex<5>& vertex,
                           const double mass) const
 {
-  return p4(vertex, vector<double>(vertex.tracks().size(), mass));
+  return p4(vertex, std::vector<double>(vertex.tracks().size(), mass));
 }
 
 InvariantMassFromVertex::LorentzVector InvariantMassFromVertex::p4 (const CachingVertex<5>& vertex,
-                          const vector<double> & masses) const
+                          const std::vector<double> & masses) const
 {
 
   LorentzVector totalP4;
@@ -28,9 +28,9 @@ InvariantMassFromVertex::LorentzVector InvariantMassFromVertex::p4 (const Cachin
   }
 
 
-  vector<RefCountedVertexTrack> refTracks = vertex.tracks();
-  vector<RefCountedVertexTrack>::const_iterator i_s = refTracks.begin();
-  vector<double>::const_iterator i_m = masses.begin();
+  std::vector<RefCountedVertexTrack> refTracks = vertex.tracks();
+  std::vector<RefCountedVertexTrack>::const_iterator i_s = refTracks.begin();
+  std::vector<double>::const_iterator i_m = masses.begin();
 
   for( ;i_s !=refTracks.end(), i_m != masses.end(); ++i_s, ++i_m) {
     GlobalVector momentum = (**i_s).refittedState()->freeTrajectoryState().momentum();
@@ -50,8 +50,8 @@ GlobalVector InvariantMassFromVertex::momentum(const CachingVertex<5>& vertex) c
    return momentum_;
   }
 
-  vector<RefCountedVertexTrack> refTracks = vertex.tracks();
-  vector<RefCountedVertexTrack>::const_iterator i_s = refTracks.begin();
+  std::vector<RefCountedVertexTrack> refTracks = vertex.tracks();
+  std::vector<RefCountedVertexTrack>::const_iterator i_s = refTracks.begin();
 
   for( ;i_s !=refTracks.end() ; ++i_s) {
     momentum_ += (**i_s).refittedState()->freeTrajectoryState().momentum();
@@ -64,12 +64,12 @@ GlobalVector InvariantMassFromVertex::momentum(const CachingVertex<5>& vertex) c
 Measurement1D InvariantMassFromVertex::invariantMass(const CachingVertex<5>& vertex,
                           const double mass) const
 {
-  return invariantMass(vertex, vector<double>(vertex.tracks().size(), mass));
+  return invariantMass(vertex, std::vector<double>(vertex.tracks().size(), mass));
 }
 
 
 Measurement1D InvariantMassFromVertex::invariantMass(const CachingVertex<5>& vertex,
-                          const vector<double> & masses) const
+                          const std::vector<double> & masses) const
 {
 
   // Check that tkToTkCovarianceIsAvailable
@@ -86,7 +86,7 @@ Measurement1D InvariantMassFromVertex::invariantMass(const CachingVertex<5>& ver
 
   LorentzVector totalP4 = p4(vertex, masses);
   double u = uncertainty(totalP4, vertex, masses);
-  cout << u<<endl;
+  std::cout << u<<std::endl;
   return Measurement1D(totalP4.M(), u );
 
 }
@@ -94,17 +94,17 @@ Measurement1D InvariantMassFromVertex::invariantMass(const CachingVertex<5>& ver
 //method returning the full covariance matrix
 //of new born kinematic particle
 double InvariantMassFromVertex::uncertainty(const LorentzVector & totalP4, 
-	const CachingVertex<5>& vertex, const vector<double> & masses) const
+	const CachingVertex<5>& vertex, const std::vector<double> & masses) const
 {
-  vector<RefCountedVertexTrack> refTracks = vertex.tracks();
+  std::vector<RefCountedVertexTrack> refTracks = vertex.tracks();
   int size = refTracks.size();
   AlgebraicMatrix cov(3*size,3*size);
   AlgebraicMatrix jac(1,3*size);
 
   double energy_total = totalP4.E();
 
-  vector<RefCountedVertexTrack>::const_iterator rt_i = refTracks.begin();
-  vector<double>::const_iterator i_m = masses.begin();
+  std::vector<RefCountedVertexTrack>::const_iterator rt_i = refTracks.begin();
+  std::vector<double>::const_iterator i_m = masses.begin();
 
   int i_int = 0;
   for( ;rt_i !=refTracks.end(), i_m != masses.end(); ++rt_i, ++i_m) {
@@ -141,7 +141,7 @@ double InvariantMassFromVertex::uncertainty(const LorentzVector & totalP4,
     //off diagonal elements: track momentum - track momentum corellations
 
     int j_int = 0;
-    for(vector<RefCountedVertexTrack>::const_iterator rt_j = refTracks.begin(); rt_j != refTracks.end(); rt_j++) {
+    for(std::vector<RefCountedVertexTrack>::const_iterator rt_j = refTracks.begin(); rt_j != refTracks.end(); rt_j++) {
       if(i_int < j_int) {
 	AlgebraicMatrix i_k_cov_m = asHepMatrix<3,3>(vertex.tkToTkCovariance((*rt_i),(*rt_j)));
 	cov.sub(i_int*3 + 1, j_int*3 + 1,i_k_cov_m);
@@ -151,9 +151,9 @@ double InvariantMassFromVertex::uncertainty(const LorentzVector & totalP4,
     }
     i_int++;
   }
-//   cout<<"jac"<<jac<<endl;
-//   cout<<"cov"<<cov<<endl;
-//   cout << "final result"<<(jac*cov*jac.T())<<endl;
+//   std::cout<<"jac"<<jac<<std::endl;
+//   std::cout<<"cov"<<cov<<std::endl;
+//   std::cout << "final result"<<(jac*cov*jac.T())<<std::endl;
 
   return sqrt((jac*cov*jac.T())(1,1));
 }

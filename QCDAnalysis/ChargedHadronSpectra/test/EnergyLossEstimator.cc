@@ -50,7 +50,7 @@ EnergyLossEstimator::EnergyLossEstimator(const edm::ParameterSet& pset)
   pixelToStripMultiplier = pset.getParameter<double>("pixelToStripMultiplier");
   pixelToStripExponent   = pset.getParameter<double>("pixelToStripExponent");
 
-  string resultFileLabel = pset.getParameter<string>("resultFile");
+  std::string resultFileLabel = pset.getParameter<std::string>("resultFile");
 
   resultFile = new TFile(resultFileLabel.c_str(),"RECREATE");
   resultFile->cd();
@@ -92,10 +92,10 @@ void EnergyLossEstimator::analyze
   (const edm::Event& ev, const edm::EventSetup& es)
 {
   // Get trajectories
-  edm::Handle<vector<Trajectory> >  trajCollection;
+  edm::Handle<std::vector<Trajectory> >  trajCollection;
   ev.getByLabel("globalPrimTracks", trajCollection);
-  const vector<Trajectory>* trajs = trajCollection.product();
-  cerr << "[EnergyLossEstimator] trajectories = " << trajs->size() << endl;
+  const std::vector<Trajectory>* trajs = trajCollection.product();
+  std::cerr << "[EnergyLossEstimator] trajectories = " << trajs->size() << std::endl;
 
   // Get simulated
   edm::Handle<TrackingParticleCollection> simCollection;
@@ -115,16 +115,16 @@ void EnergyLossEstimator::analyze
 
   // Take all trajectories
   int i = 0;
-  for(vector<Trajectory>::const_iterator traj = trajs->begin();
+  for(std::vector<Trajectory>::const_iterator traj = trajs->begin();
                                          traj!= trajs->end(); traj++)
   {
-    vector<pair<int,double> > arithmeticMean, truncatedMean;
+    std::vector<pair<int,double> > arithmeticMean, truncatedMean;
 
     double p = traj->firstMeasurement().updatedState().globalMomentum().mag();
 
     theEloss.estimate(&(*traj), arithmeticMean, truncatedMean);
 
-    vector<float> result;
+    std::vector<float> result;
 
     result.push_back(p);                       // p
     result.push_back(truncatedMean[0].first);  // npix
@@ -139,8 +139,8 @@ void EnergyLossEstimator::analyze
     int nSim = 0;
 
     edm::RefToBase<reco::Track> recTrack(recCollection, i);
-    vector<pair<TrackingParticleRef, double> > simTracks = recoToSim[recTrack];
-    for(vector<pair<TrackingParticleRef, double> >::const_iterator
+    std::vector<pair<TrackingParticleRef, double> > simTracks = recoToSim[recTrack];
+    for(std::vector<pair<TrackingParticleRef, double> >::const_iterator
             it = simTracks.begin(); it != simTracks.end(); ++it)
     {
       TrackingParticleRef simTrack = it->first;

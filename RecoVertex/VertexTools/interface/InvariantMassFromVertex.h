@@ -23,7 +23,7 @@ public:
   typedef ROOT::Math::PxPyPzMVector LorentzVector;
 
   Measurement1D invariantMass(const CachingVertex<5>& vertex,
-                          const vector<double> & masses) const;
+                          const std::vector<double> & masses) const;
 
   Measurement1D invariantMass(const CachingVertex<5>& vertex,
                           const double mass) const;
@@ -32,7 +32,7 @@ public:
    * four-momentum Lorentz vector
    */
   LorentzVector p4 (const CachingVertex<5>& vertex,
-                          const vector<double> & masses) const;
+                          const std::vector<double> & masses) const;
 
   /**
    * four-momentum Lorentz vector
@@ -50,7 +50,7 @@ private:
  typedef ReferenceCountingPointer<RefittedTrackState<5> > RefCountedRefittedTrackState;
 
   double uncertainty(const LorentzVector & p4, const CachingVertex<5>& vertex,
-	const vector<double> & masses) const;
+	const std::vector<double> & masses) const;
 };
 
 #endif

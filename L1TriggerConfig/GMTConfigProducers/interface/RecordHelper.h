@@ -20,24 +20,23 @@
 #include "CoralBase/AttributeSpecification.h"
 #include "CoralBase/Attribute.h"
 
-using namespace std;
-using coral::AttributeList;
 
 /** A C++ version of C's strupper */
-string upcaseString(string aString);
+std::string upcaseString(std::string aString);
 
 /** A base class for all field handlers that create TOutput C++ objects. */
 template <class TOutput> class FieldHandlerBase {
 public:
+  typedef coral::AttributeList AttributeList;
   /** Construct a new field handler with the C++ field name as its argument */
-  FieldHandlerBase(const string& name) : name_(name) { }
+  FieldHandlerBase(const std::string& name) : name_(name) { }
 
   /** Return the name of the field handled by this object. */
-  const string& getName() { return name_ ; }
+  const std::string& getName() { return name_ ; }
 
   /** Return the name of the associated database field. For the GMT database,
    *  this simply corresponds to the uppercased field name. */      
-  virtual const string getColumnName() { return upcaseString(name_); }
+  virtual const std::string getColumnName() { return upcaseString(name_); }
 
   /** The actual extraction function. src contains a CORAL attribute list representing a 
    *  query result row, dest is the output object to be filled. */
@@ -48,7 +47,7 @@ public:
 private:
   
   /* The (case sensitive!) name of the field. */
-  string name_;
+  std::string name_;
 };
 
 
@@ -59,23 +58,24 @@ private:
  */
 template <class TOutput, class TCField, class TDBField> class FieldHandler : public FieldHandlerBase<TOutput> {
  public:
+  typedef coral::AttributeList AttributeList;
   typedef void (TOutput::*TSetMethod)(const TCField);
 
-  FieldHandler(const string& fieldName, 
+  FieldHandler(const std::string& fieldName, 
 	       TSetMethod setter) : FieldHandlerBase<TOutput>(fieldName), setter_(setter) 
   { }
 
   /** Actual data extraction. */
   virtual void extractValue(const AttributeList& src, TOutput& dest) { 
 #ifdef RECORDHELPER_DEBUG
-    cout << "Parsing field " << this->getName() << " with type " << typeid(TCField).name() ;
+    std::cout << "Parsing field " << this->getName() << " with type " << typeid(TCField).name() ;
 #endif
     typedef typename boost::remove_cv<typename boost::remove_reference<TDBField>::type>::type TDBFieldT;
     const TDBFieldT & value = src[this->getColumnName()].template data< TDBFieldT >();
     ((dest).*setter_)(TCField(value));
 
 #ifdef RECORDHELPER_DEBUG
-    cout << "=" << TCField(value) << endl ; 
+    std::cout << "=" << TCField(value) << std::endl ; 
 #endif
   }
 
@@ -93,7 +93,8 @@ template <class TOutput, class TCField, class TDBField> class FieldHandler : pub
 template <class TOutput, char FalseCharacter> class ASCIIBoolFieldHandler : public FieldHandler<TOutput, bool, char> 
 {
  public:
-  ASCIIBoolFieldHandler(const string& fieldName,
+  typedef coral::AttributeList AttributeList;
+  ASCIIBoolFieldHandler(const std::string& fieldName,
 			typename FieldHandler<TOutput,bool,char>::TSetMethod setter) 
     : FieldHandler<TOutput, bool, char>(fieldName, setter)
     {   }
@@ -103,7 +104,7 @@ template <class TOutput, char FalseCharacter> class ASCIIBoolFieldHandler : publ
   {
     char value = src[this->getColumnName()].template data<char>();
 #ifdef RECORDHELPER_DEBUG
-    cout << " .. and "  << this->getColumnName() << " is (in integers) " << (int) value << endl;
+    std::cout << " .. and "  << this->getColumnName() << " is (in integers) " << (int) value << std::endl;
 #endif
     ((dest).*(this->setter_))(value != FalseCharacter);
   }
@@ -149,13 +150,14 @@ struct GroupFieldHandler {
 
 template <class TOutput> class RecordHelper {
  public: 
+  typedef coral::AttributeList AttributeList;
   /** A list of field handlers that determine how to handle a record. */
-  typedef vector<FieldHandlerBase<TOutput>*> FieldVector;
+  typedef std::vector<FieldHandlerBase<TOutput>*> FieldVector;
 
-  template <typename TField> void addField(const string& fieldName,
+  template <typename TField> void addField(const std::string& fieldName,
 					   void (TOutput::*setter)(const TField)) { 
 #ifdef RECORDHELPER_DEBUG
-    cout << "Adding field " << fieldName << ", type = " << typeid(TField).name() << endl;    
+    std::cout << "Adding field " << fieldName << ", type = " << typeid(TField).name() << std::endl;    
 #endif
     this->fields_.push_back(new typename GroupFieldHandler<TOutput, typename Group<TOutput>::Type , TField>::Type(fieldName, setter));
 
@@ -171,8 +173,8 @@ template <class TOutput> class RecordHelper {
   }
 
   /** Returns a list of database column names for the added fields. */
-  virtual vector<string> getColumnList() {
-    vector<string> colList;
+  virtual std::vector<std::string> getColumnList() {
+    std::vector<std::string> colList;
     for(typename FieldVector::const_iterator it = fields_.begin();
 	it != fields_.end() ; ++it) {
       colList.push_back((*it)->getColumnName());

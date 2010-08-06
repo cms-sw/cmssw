@@ -3,8 +3,8 @@
  
 /** \class EcalDeadChannelRecoveryAlgos
   *
-  *  $Date: 2009/04/30 13:14:50 $
-  *  $Revision: 1.5 $
+  *  $Date: 2009/04/30 14:08:31 $
+  *  $Revision: 1.6 $
   */
  
 
@@ -28,8 +28,6 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 #include <string>
-using namespace cms;
-using namespace std;
 
 
 
@@ -40,8 +38,8 @@ class EcalDeadChannelRecoveryAlgos  {
   EcalDeadChannelRecoveryAlgos();
   ~EcalDeadChannelRecoveryAlgos();
  
-  EcalRecHit Correct(const EBDetId Id, const EcalRecHitCollection* hit_collection, string algo_, double Sum8Cut);
-  EcalRecHit correct(const EBDetId Id, const EcalRecHitCollection* hit_collection, string algo_, double Sum8Cut);
+  EcalRecHit Correct(const EBDetId Id, const EcalRecHitCollection* hit_collection, std::string algo_, double Sum8Cut);
+  EcalRecHit correct(const EBDetId Id, const EcalRecHitCollection* hit_collection, std::string algo_, double Sum8Cut);
   
  private:
   

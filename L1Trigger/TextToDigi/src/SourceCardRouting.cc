@@ -15,11 +15,11 @@ using namespace std;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
   SourceCardRouting::SourceCardRouting(){
-	//cout<<"Constructor"<<endl;
+	//std::cout<<"Constructor"<<std::endl;
 	}
 
   SourceCardRouting::~SourceCardRouting(){
-	//cout<<"Destructor"<<endl;
+	//std::cout<<"Destructor"<<std::endl;
 	}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -334,7 +334,7 @@ for (int i=0; i<2;i++){
 		for (int k=0; k<16;k++){
 			sfp_reverse[i][j]=sfp_reverse[i][j]|(((SFP[i][j]>>k)&0x01)<<(15-k));
 		}
-		//cout <<hex<< SFP[i][j]<<'\t'<<sfp_reverse[i][j]<<endl;
+		//std::cout <<hex<< SFP[i][j]<<'\t'<<sfp_reverse[i][j]<<std::endl;
 	}
 }
 
@@ -712,7 +712,7 @@ for (int i=0; i<2;i++){
 		stringstream temp;
 		
 		if (dataString!=""){
-	        	temp << dataString << endl;
+	        	temp << dataString << std::endl;
 	        	temp >> dec >> eventNumber;
 	       		temp >> dec >> logicalCardID;
 			temp >> hex >> VHDCI[0][0];
@@ -744,7 +744,7 @@ for (int i=0; i<2;i++){
 		temp << hex << setw(8) << setfill('0') << VHDCI[0][0] << '\t';
 		temp << hex << setw(8) << setfill('0') << VHDCI[0][1] << '\t';
 		temp << hex << setw(8) << setfill('0') << VHDCI[1][0] << '\t';
-		temp << hex << setw(8) << setfill('0') << VHDCI[1][1] << endl;
+		temp << hex << setw(8) << setfill('0') << VHDCI[1][1] << std::endl;
 		dataString = temp.str();
 }
   

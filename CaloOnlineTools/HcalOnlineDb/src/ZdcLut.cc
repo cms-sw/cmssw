@@ -15,7 +15,7 @@ ZdcLut::ZdcLut()
 //constants for ADC to GeV conversion
     double ADC_GEV_EM = 13.55, ADC_GEV_HAD = 0.6;
     int LSB_EM = 1, LSB_HAD = 5;
-    vector <int> fC_TDR;
+    std::vector <int> fC_TDR;
 //fills in fC_TDR with values from table
     fC_TDR.push_back(0);
     fC_TDR.push_back(1);
@@ -147,8 +147,8 @@ ZdcLut::ZdcLut()
     fC_TDR.push_back(10297);
 
 // two vectors containing the LUT; one for Hadronic and one for Electromagnetic
-    vector <int> HADlut(128);
-    vector <int> EMlut(128);
+    std::vector <int> HADlut(128);
+    std::vector <int> EMlut(128);
 //uses the constants to fill each LUT
     for(int zdci = 0; zdci < 128; zdci++)
       { EMlut[zdci] = (int)((fC_TDR[zdci]/ADC_GEV_EM)/LSB_EM + 0.5);}
@@ -198,20 +198,20 @@ int ZdcLut::simple_loop()
 	  for (unsigned int zdcc = 0; zdcc < side[zdcs].fiber[zdcf].channel.size(); zdcc++)
             {
 	      for (unsigned int zdcl = 0; zdcl < side[zdcs].fiber[zdcf].channel[zdcc].LUT.size(); zdcl++)
-		{ cout << side[zdcs].fiber[zdcf].channel[zdcc].LUT[zdcl] << " "; }
-	      cout << endl;
+		{ std::cout << side[zdcs].fiber[zdcf].channel[zdcc].LUT[zdcl] << " "; }
+	      std::cout << std::endl;
             }
-            cout << endl;
+            std::cout << std::endl;
         }
-      cout << endl;
+      std::cout << std::endl;
     }
   return 0;
 }
 
 
-vector <int> ZdcLut::get_lut(int emap_side,
-			     int emap_htr_fiber,
-			     int emap_fi_ch){
+std::vector <int> ZdcLut::get_lut(int emap_side,
+			          int emap_htr_fiber,
+			          int emap_fi_ch){
   int side_num = (1-emap_side)/2;
   int fiber_num = (int)(emap_htr_fiber/4)+(emap_htr_fiber%4);
   int channel_num = emap_fi_ch;
@@ -220,9 +220,9 @@ vector <int> ZdcLut::get_lut(int emap_side,
 
 
 // get LUT by proper ZDC channel
-vector <int> ZdcLut::get_lut(std::string zdc_section,
-			     int zdc_side,
-			     int zdc_channel){
+std::vector <int> ZdcLut::get_lut(std::string zdc_section,
+			          int zdc_side,
+			          int zdc_channel){
   int side_num = (1-zdc_side)/2;
   int fiber_num = -1;
   int channel_num = -1;
@@ -248,12 +248,12 @@ vector <int> ZdcLut::get_lut(std::string zdc_section,
       channel_num = 2;
     }
     else{
-      cout << zdc_channel << ": unknown ZDC channel, exiting..." << endl;
+      std::cout << zdc_channel << ": unknown ZDC channel, exiting..." << std::endl;
       exit(-1);
     }
   }
   else{
-    cout << zdc_section << ": unknown ZDC section, exiting..." << endl;
+    std::cout << zdc_section << ": unknown ZDC section, exiting..." << std::endl;
     exit(-1);
   }
   // FIXME: add validity check here

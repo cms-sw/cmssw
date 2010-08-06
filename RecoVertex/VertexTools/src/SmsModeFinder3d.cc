@@ -4,14 +4,14 @@ SmsModeFinder3d::SmsModeFinder3d ( const SMS & algo ) :
     theAlgo(algo)
 {}
 
-GlobalPoint SmsModeFinder3d::operator() ( const vector<PointAndDistance> & values ) const
+GlobalPoint SmsModeFinder3d::operator() ( const std::vector<PointAndDistance> & values ) const
 {
-  vector < pair < GlobalPoint, float > > weighted;
-  for ( vector< PointAndDistance >::const_iterator i=values.begin(); 
+  std::vector < std::pair < GlobalPoint, float > > weighted;
+  for ( std::vector< PointAndDistance >::const_iterator i=values.begin(); 
         i!=values.end() ; ++i )
   {
     float weight = pow ( 10 + 10000 * i->second, -2 );
-    weighted.push_back ( pair < GlobalPoint, float > ( i->first, weight ) );
+    weighted.push_back ( std::pair < GlobalPoint, float > ( i->first, weight ) );
   };
   return theAlgo.location( weighted );
 }

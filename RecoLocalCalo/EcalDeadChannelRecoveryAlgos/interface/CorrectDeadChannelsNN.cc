@@ -112,21 +112,21 @@ double CorrectDeadChannelsNN(double *M5x5Input){
   //First Find the position of the Dead Channel in 3x3 matrix
   int IndDeadCha=-1;
   for(int i =0 ; i< 9;i++){
-    if(fabs(M5x5[i])<epsilon && IndDeadCha >0){/*cout<<" Problem 2 dead channels in sum9! Can not correct "<<endl;*/ return 0.0;}
+    if(fabs(M5x5[i])<epsilon && IndDeadCha >0){/*cout<<" Problem 2 dead channels in sum9! Can not correct "<<std::endl;*/ return 0.0;}
     if(fabs(M5x5[i])<epsilon && IndDeadCha==-1)IndDeadCha=i;
   }
 
 
 
-//   cout<<" THE DEAD CHANNEL IS : " << IndDeadCha <<endl;
+//   std::cout<<" THE DEAD CHANNEL IS : " << IndDeadCha <<std::endl;
 
-//   cout<<"========================="<<endl;
-//   cout<<M5x5[22]<<" "<<M5x5[10]<<" "<<M5x5[9] <<" "<<M5x5[11]<<" "<<M5x5[17]<<endl;
-//   cout<<M5x5[21]<<" "<<M5x5[4] <<" "<<M5x5[1] <<" "<<M5x5[7] <<" "<<M5x5[16]<<endl;
-//   cout<<M5x5[20]<<" "<<M5x5[3] <<" "<<M5x5[0] <<" "<<M5x5[6] <<" "<<M5x5[15]<<endl;
-//   cout<<M5x5[23]<<" "<<M5x5[5] <<" "<<M5x5[2] <<" "<<M5x5[8] <<" "<<M5x5[18]<<endl;
-//   cout<<M5x5[24]<<" "<<M5x5[13]<<" "<<M5x5[12]<<" "<<M5x5[14]<<" "<<M5x5[19]<<endl;
-//   cout<<"========================="<<endl;
+//   std::cout<<"========================="<<std::endl;
+//   std::cout<<M5x5[22]<<" "<<M5x5[10]<<" "<<M5x5[9] <<" "<<M5x5[11]<<" "<<M5x5[17]<<std::endl;
+//   std::cout<<M5x5[21]<<" "<<M5x5[4] <<" "<<M5x5[1] <<" "<<M5x5[7] <<" "<<M5x5[16]<<std::endl;
+//   std::cout<<M5x5[20]<<" "<<M5x5[3] <<" "<<M5x5[0] <<" "<<M5x5[6] <<" "<<M5x5[15]<<std::endl;
+//   std::cout<<M5x5[23]<<" "<<M5x5[5] <<" "<<M5x5[2] <<" "<<M5x5[8] <<" "<<M5x5[18]<<std::endl;
+//   std::cout<<M5x5[24]<<" "<<M5x5[13]<<" "<<M5x5[12]<<" "<<M5x5[14]<<" "<<M5x5[19]<<std::endl;
+//   std::cout<<"========================="<<std::endl;
 
 
 //  int isOK; isOK=0;
@@ -206,7 +206,7 @@ double CorrectDeadChannelsNN(double *M5x5Input){
     voisin1=6;voisin2=2;voisin3=18;voisin4=14;
     break;
   default:
-    //    cout<<" Error, Dead Channel to far from main containement one, no correction is applied"<<endl;
+    //    std::cout<<" Error, Dead Channel to far from main containement one, no correction is applied"<<std::endl;
     return 0.0;
     break;
   }//end switch

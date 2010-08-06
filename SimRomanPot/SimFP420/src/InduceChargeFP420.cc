@@ -27,7 +27,7 @@ IChargeFP420::hit_map_type InduceChargeFP420::induce(CDrifterFP420::collection_t
   hit_map_type hit_signal;
   
   // map to store pixel integrals in the x and in the y directions
-  map<int, float, less<int> > x,y; 
+  std::map<int, float, less<int> > x,y; 
   
   
   for (CDrifterFP420::collection_type::const_iterator sp=_collection_points.begin();  sp != _collection_points.end(); sp++ ){
@@ -119,7 +119,7 @@ IChargeFP420::hit_map_type InduceChargeFP420::induce(CDrifterFP420::collection_t
       else {
 	gsl_sf_result result;
 	int status = gsl_sf_erf_Q_e((i-chargePosition)/chargeSpread, &result);
-	if (status != 0) cerr<<"InduceChargeFP420::could not compute gaussian tail probability for the threshold chosen"<<std::endl;
+	if (status != 0) std::cerr<<"InduceChargeFP420::could not compute gaussian tail probability for the threshold chosen"<<std::endl;
 	lowerBound = 1. - result.val;
 	if(verbosity>0) {
 	  std::cout << "go to left: i=  " << i << "lowerBound=" << lowerBound << std::endl;
@@ -131,7 +131,7 @@ IChargeFP420::hit_map_type InduceChargeFP420::induce(CDrifterFP420::collection_t
       else {
 	gsl_sf_result result;
 	int status = gsl_sf_erf_Q_e((i-chargePosition+1)/chargeSpread, &result);
-	if (status != 0) cerr<<"InduceChargeFP420::could not compute gaussian tail probability for the threshold chosen"<<std::endl;
+	if (status != 0) std::cerr<<"InduceChargeFP420::could not compute gaussian tail probability for the threshold chosen"<<std::endl;
 	upperBound = 1. - result.val;
 	
 	if(verbosity>0) {
@@ -159,7 +159,7 @@ IChargeFP420::hit_map_type InduceChargeFP420::induce(CDrifterFP420::collection_t
       else {
 	gsl_sf_result result;
 	int status = gsl_sf_erf_Q_e((i-chargePositionW)/chargeSpreadW, &result);
-	if (status != 0) cerr<<"InduceChargeFP420::W could not compute gaussian tail probability for the threshold chosen"<<std::endl;
+	if (status != 0) std::cerr<<"InduceChargeFP420::W could not compute gaussian tail probability for the threshold chosen"<<std::endl;
 	lowerBoundW = 1. - result.val;
 	
 	
@@ -173,7 +173,7 @@ IChargeFP420::hit_map_type InduceChargeFP420::induce(CDrifterFP420::collection_t
       else {
 	gsl_sf_result result;
 	int status = gsl_sf_erf_Q_e((i-chargePositionW+1)/chargeSpreadW, &result);
-	if (status != 0) cerr<<"InduceChargeFP420::W could not compute gaussian tail probability for the threshold chosen"<<std::endl;
+	if (status != 0) std::cerr<<"InduceChargeFP420::W could not compute gaussian tail probability for the threshold chosen"<<std::endl;
 	upperBoundW = 1. - result.val;
 	
 	if(verbosity>0) {

@@ -15,8 +15,6 @@ namespace edm {
   class EventSetup;
 }
 
-using namespace std;
-
 class  EcalTPGDBCopy : public edm::EDAnalyzer {
  public:
   explicit  EcalTPGDBCopy(const edm::ParameterSet& iConfig );

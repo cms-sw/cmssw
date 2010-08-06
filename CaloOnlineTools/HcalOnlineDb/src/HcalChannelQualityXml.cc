@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Wed Jul 01 06:30:00 CDT 2009
-// $Id: HcalChannelQualityXml.cc,v 1.10 2009/10/26 02:55:16 kukartse Exp $
+// $Id: HcalChannelQualityXml.cc,v 1.11 2009/11/18 23:02:26 lsexton Exp $
 //
 
 #include <iostream>
@@ -241,7 +241,7 @@ int HcalChannelQualityXml::getBaseLineFromOmds(std::string _tag, int _iov_begin)
     }
   }
   catch (SQLException& e) {
-    cerr << ::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()) << endl;
+    std::cerr << ::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()) << std::endl;
     XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
   }
   conn.disconnect();
@@ -316,7 +316,7 @@ int HcalChannelQualityXml::readStatusWordFromStdin(std::string base){
 		      );
     }
     else{
-      cerr << "Undefined or invalid base. Specify hex or dec. Exiting..." << endl;
+      std::cerr << "Undefined or invalid base. Specify hex or dec. Exiting..." << std::endl;
       exit(-1);
     }
     if ( _read == 5 ){
@@ -327,7 +327,7 @@ int HcalChannelQualityXml::readStatusWordFromStdin(std::string base){
       _cq.status = _value;
       _cq.onoff  = (_value & 65536)>>15;
       geomid_cq.insert(std::pair<int, HcalChannelQualityXml::ChannelQuality>(_geomId, _cq));      
-      //cerr << "Line: " << _geomId << "   " << _cq.status << endl;
+      //std::cerr << "Line: " << _geomId << "   " << _cq.status << std::endl;
     } 
   }
   return _lines;
@@ -339,7 +339,7 @@ int HcalChannelQualityXml::writeStatusWordToStdout(std::string base){
   char _buf[128];
   int _detId = 0; // dummy as it is optional in the ASCII file
   sprintf(_buf, "#             eta             phi             dep             det    value      DetId");
-  cout << _buf << endl;
+  std::cout << _buf << std::endl;
   for (std::map<int,ChannelQuality>::const_iterator _cq = geomid_cq.begin();
        _cq != geomid_cq.end();
        _cq++){
@@ -366,10 +366,10 @@ int HcalChannelQualityXml::writeStatusWordToStdout(std::string base){
 	      );
     }
     else{
-      cerr << "Undefined or invalid base. Specify hex or dec. Exiting..." << endl;
+      std::cerr << "Undefined or invalid base. Specify hex or dec. Exiting..." << std::endl;
       exit(-1);
     }
-    cout << _buf << endl;
+    std::cout << _buf << std::endl;
   }
   return _lines;
 }
@@ -409,7 +409,7 @@ int HcalChannelQualityXml::writeBaseLineFromOmdsToStdout(std::string _tag, int _
 int HcalChannelQualityXml::dumpTagsFromOmdsToStdout(){
   std::vector<std::string> _tags = getTagsFromOmds();
   for (std::vector<std::string>::const_iterator tag=_tags.begin(); tag!=_tags.end(); tag++){
-    cout << *tag << endl;
+    std::cout << *tag << std::endl;
   }
   return _tags.size();
 }
@@ -436,7 +436,7 @@ std::vector<std::string> HcalChannelQualityXml::getTagsFromOmds(){
     }
   }
   catch (SQLException& e) {
-    cerr << ::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()) << endl;
+    std::cerr << ::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()) << std::endl;
     XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
   }
   conn.disconnect();
@@ -451,7 +451,7 @@ std::vector<std::string> HcalChannelQualityXml::getTagsFromOmds(){
 int HcalChannelQualityXml::dumpIovsFromOmdsToStdout(std::string tag){
   std::vector<int> _iovs = getIovsFromOmds(tag);
   for (std::vector<int>::const_iterator tag=_iovs.begin(); tag!=_iovs.end(); tag++){
-    cout << *tag << endl;
+    std::cout << *tag << std::endl;
   }
   return _iovs.size();
 }
@@ -481,7 +481,7 @@ std::vector<int> HcalChannelQualityXml::getIovsFromOmds(std::string tag){
     }
   }
   catch (SQLException& e) {
-    cerr << ::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()) << endl;
+    std::cerr << ::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()) << std::endl;
     XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
   }
   conn.disconnect();

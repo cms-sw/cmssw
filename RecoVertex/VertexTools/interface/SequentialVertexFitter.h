@@ -119,7 +119,7 @@ public:
    *  The specified BeamSpot will be used as priot, but NOT for the linearization.
    * The specified LinearizationPointFinder will be used to find the linearization point.
    */
-  virtual CachingVertex<N> vertex(const vector<reco::TransientTrack> & tracks,
+  virtual CachingVertex<N> vertex(const std::vector<reco::TransientTrack> & tracks,
 		const reco::BeamSpot& beamSpot) const;
 
 

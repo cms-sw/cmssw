@@ -1,8 +1,8 @@
 
 /** \file GenericMinL3Algorithm.cc
  *
- * $Date: 2006/10/13 14:34:19 $
- * $Revision: 1.1 $
+ * $Date: 2009/02/26 13:48:09 $
+ * $Revision: 1.2 $
  *
  * \author R.Ofierzynski, CERN
  */
@@ -22,13 +22,13 @@ GenericMinL3Algorithm::~GenericMinL3Algorithm()
 }
 
 
-vector<float> GenericMinL3Algorithm::iterate(const vector<vector<float> >& eventMatrix, const vector<float>& energyVector, const int nIter)
+std::vector<float> GenericMinL3Algorithm::iterate(const std::vector<std::vector<float> >& eventMatrix, const std::vector<float>& energyVector, const int nIter)
 {
-  vector<float> solution;
-  vector<vector<float> > myEventMatrix(eventMatrix);
+  std::vector<float> solution;
+  std::vector<std::vector<float> > myEventMatrix(eventMatrix);
   int Nevents = eventMatrix.size(); // Number of events to calibrate with
   int Nchannels = eventMatrix[0].size(); // Number of channel coefficients
-  vector<float> theCalibVector(Nchannels,1.);
+  std::vector<float> theCalibVector(Nchannels,1.);
 
   // Iterate the correction
   for (int iter=1;iter<=nIter;iter++) 
@@ -56,10 +56,10 @@ vector<float> GenericMinL3Algorithm::iterate(const vector<vector<float> >& event
 }
 
 
-vector<float> GenericMinL3Algorithm::iterate(const vector<vector<float> >& eventMatrix, const vector<float>& energyVector)
+std::vector<float> GenericMinL3Algorithm::iterate(const std::vector<std::vector<float> >& eventMatrix, const std::vector<float>& energyVector)
 {
-  vector<float> solution;
-  vector<float> myEnergyVector(energyVector);
+  std::vector<float> solution;
+  std::vector<float> myEnergyVector(energyVector);
 
   int Nevents = eventMatrix.size(); // Number of events to calibrate with
   int Nchannels = eventMatrix[0].size(); // Number of channel coefficients
@@ -67,7 +67,7 @@ vector<float> GenericMinL3Algorithm::iterate(const vector<vector<float> >& event
   // Sanity check
   if (Nevents != int(myEnergyVector.size())) 
     {
-      cout << "GenericMinL3Algorithm::iterate(): Error: bad matrix dimensions. Dropping out." << endl;
+      std::cout << "GenericMinL3Algorithm::iterate(): Error: bad matrix dimensions. Dropping out." << std::endl;
       return solution; // empty vector !
     }
 
@@ -82,7 +82,7 @@ vector<float> GenericMinL3Algorithm::iterate(const vector<vector<float> >& event
     {
       float scale = 0.;
       
-      cout << "GenericMinL3Algorithm::iterate(): Normalising event data" << endl;
+      std::cout << "GenericMinL3Algorithm::iterate(): Normalising event data" << std::endl;
 
       for (i=0; i<Nevents; i++)
 	{
@@ -92,7 +92,7 @@ vector<float> GenericMinL3Algorithm::iterate(const vector<vector<float> >& event
 	  scale += sumOverEnergy;
 	}
       scale /= Nevents;
-      cout << "  Normalisation = " << scale << endl;
+      std::cout << "  Normalisation = " << scale << std::endl;
       
       for (i=0; i<Nevents; i++) {myEnergyVector[i] *= scale;}	  
     } // end normalize energies
@@ -101,8 +101,8 @@ vector<float> GenericMinL3Algorithm::iterate(const vector<vector<float> >& event
   // This is where the real work goes on...
   float sum25, invsum25;
   float w; // weight for event
-  vector<float> wsum(Nchannels,0.); // sum of weights for a crystal
-  vector<float> Ewsum(Nchannels,0.); // sum of products of weight*Etrue/E25
+  std::vector<float> wsum(Nchannels,0.); // sum of weights for a crystal
+  std::vector<float> Ewsum(Nchannels,0.); // sum of products of weight*Etrue/E25
 
   // Loop over events
   for (ievent = 0; ievent<Nevents; ievent++)
@@ -123,7 +123,7 @@ vector<float> GenericMinL3Algorithm::iterate(const vector<vector<float> >& event
 	      Ewsum[i] += (w * myEnergyVector[ievent] * invsum25);	
 	    }
 	}
-      else {cout << " Debug: dropping null event: " << ievent << endl;}
+      else {std::cout << " Debug: dropping null event: " << ievent << std::endl;}
       
     } // end Loop over events
   
@@ -133,7 +133,7 @@ vector<float> GenericMinL3Algorithm::iterate(const vector<vector<float> >& event
       if (wsum[i] != 0.) 
 	{ solution[i]*=Ewsum[i]/wsum[i]; }
       else 
-	{ cout << "warning - no event data for crystal index " << i << endl; }
+	{ std::cout << "warning - no event data for crystal index " << i << std::endl; }
     }
 
   return solution;

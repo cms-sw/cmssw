@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:20 CDT 2007
-// $Id: XMLRBXPedestalsLoader.cc,v 1.6 2009/04/14 22:53:06 kukartse Exp $
+// $Id: XMLRBXPedestalsLoader.cc,v 1.7 2009/08/16 21:32:20 kukartse Exp $
 //
 
 // system include files
@@ -53,7 +53,7 @@ XMLRBXPedestalsLoader::datasetDBConfig::_datasetDBConfig() : XMLProcessor::DBCon
   kind_of_part = "HCAL RBX Slot";
 }
 
-XMLRBXPedestalsLoader::XMLRBXPedestalsLoader( loaderBaseConfig * config, string templateBase ) : XMLDOMBlock( templateBase )
+XMLRBXPedestalsLoader::XMLRBXPedestalsLoader( loaderBaseConfig * config, std::string templateBase ) : XMLDOMBlock( templateBase )
 {
 
   init();
@@ -84,7 +84,7 @@ XMLRBXPedestalsLoader::~XMLRBXPedestalsLoader()
 }
 
 
-int XMLRBXPedestalsLoader::addRBXSlot( datasetDBConfig * config, string brickFileName, string rbx_config_type, string templateFileName )
+int XMLRBXPedestalsLoader::addRBXSlot( datasetDBConfig * config, std::string brickFileName, std::string rbx_config_type, std::string templateFileName )
 {
   DOMElement * root = document -> getDocumentElement();
 
@@ -109,9 +109,9 @@ int XMLRBXPedestalsLoader::addRBXSlot( datasetDBConfig * config, string brickFil
     for ( unsigned int _item = 0; _item < rbxBrick -> getElementsByTagName( XMLProcessor::_toXMLCh( "Data" ) ) -> getLength(); _item++ ){
       DOMElement * dataset_root = dataSet -> getDocumentElement();
       
-      string _rm;
-      string _qie;
-      string _adc;
+      std::string _rm;
+      std::string _qie;
+      std::string _adc;
       //string _led_item;
       
       MemBufInputSource * _data; // a container for the XML template for a data block
@@ -132,12 +132,12 @@ int XMLRBXPedestalsLoader::addRBXSlot( datasetDBConfig * config, string brickFil
       //_data = _data_led;
       //}
       else{
-	cout << "XMLRBXPedestalsLoader::addRBXSlot(): Unknown config type... exiting" << endl;
+	std::cout << "XMLRBXPedestalsLoader::addRBXSlot(): Unknown config type... exiting" << std::endl;
 	exit(1);
       }
       XMLDOMBlock dataDoc( *_data );
       DOMDocument * data = dataDoc . getDocument();
-      string _value = rbxBrickDoc . getTagValue( "Data", _item );
+      std::string _value = rbxBrickDoc . getTagValue( "Data", _item );
       if ( rbx_config_type == "pedestals" || rbx_config_type == "delays" ){
 	setTagValue( "MODULE_POSITION", _rm, 0, data );
 	setTagValue( "QIE_CARD_POSITION", _qie, 0, data );
@@ -159,7 +159,7 @@ int XMLRBXPedestalsLoader::addRBXSlot( datasetDBConfig * config, string brickFil
 	setTagValue( "FIBER_NUMBER", _adc, 0, data );
       }
       else{
-	cout << "XMLRBXPedestalsLoader::addRBXSlot(): Unknown config type... exiting" << endl;
+	std::cout << "XMLRBXPedestalsLoader::addRBXSlot(): Unknown config type... exiting" << std::endl;
 	exit(1);
       }
       setTagValue( "INTEGER_VALUE", _value, 0, data );
@@ -170,11 +170,11 @@ int XMLRBXPedestalsLoader::addRBXSlot( datasetDBConfig * config, string brickFil
   else if ( rbx_config_type == "leds" ){
     DOMElement * dataset_root = dataSet -> getDocumentElement();
     
-    string _led_item;
+    std::string _led_item;
     
     MemBufInputSource * _data; // a container for the XML template for a data block
     _data = _data_led;
-    string _value;
+    std::string _value;
 
     XMLDOMBlock dataDoc( *_data );
     DOMDocument * data = dataDoc . getDocument();
@@ -189,7 +189,7 @@ int XMLRBXPedestalsLoader::addRBXSlot( datasetDBConfig * config, string brickFil
     _led_item = rbxBrickDoc . getTagAttribute( "Data", "item", _item );
     _value = rbxBrickDoc . getTagValue( "Data", _item );
     setTagValue( "LED2_ON_IS_CHECKED", _value, 0, data );
-    if (_value.find("0")==string::npos){
+    if (_value.find("0")==std::string::npos){
       setTagValue( "SET_LEDS_IS_CHECKED", _value, 0, data );
     }
     _item = 2;
@@ -210,16 +210,16 @@ int XMLRBXPedestalsLoader::addRBXSlot( datasetDBConfig * config, string brickFil
   root -> appendChild( cloneDataSet );
 
   // update header from the brick
-  string _name;
+  std::string _name;
   int parameter_iter = -1;
   do
     {
       parameter_iter++;
       _name = rbxBrickDoc . getTagAttribute( "Parameter", "name", parameter_iter );
-      //cout << _name << endl;
+      //std::cout << _name << std::endl;
     } while( _name != "CREATIONTAG" ); 
-  string _creationtag = rbxBrickDoc . getTagValue( "Parameter", parameter_iter );
-  //cout << _creationtag << endl;
+  std::string _creationtag = rbxBrickDoc . getTagValue( "Parameter", parameter_iter );
+  //std::cout << _creationtag << std::endl;
   //setTagValue( "TAG_NAME", _creationtag );    // uncomment if want to pick up tag name from the brick set
 
   parameter_iter = -1;
@@ -227,27 +227,27 @@ int XMLRBXPedestalsLoader::addRBXSlot( datasetDBConfig * config, string brickFil
     {
       parameter_iter++;
       _name = rbxBrickDoc . getTagAttribute( "Parameter", "name", parameter_iter );
-      //cout << _name << endl;
+      //std::cout << _name << std::endl;
     } while( _name != "RBX" ); 
-  string _rbx = rbxBrickDoc . getTagValue( "Parameter", parameter_iter );
+  std::string _rbx = rbxBrickDoc . getTagValue( "Parameter", parameter_iter );
 
   // name_label fix - should be temporary
   //fixRbxName( _rbx );
-  cout << _rbx << endl;
+  std::cout << _rbx << std::endl;
   setTagValue( "NAME_LABEL", _rbx );  
 
   // change kind of part name if this is ZDC (there is only one - ZDC01)
-  if (_rbx.find("ZDC01")!=string::npos){
+  if (_rbx.find("ZDC01")!=std::string::npos){
     setTagValue( "KIND_OF_PART", "HCAL ZDC RBX" );
-    cout << " --> ZDC RBX!" << endl;
+    std::cout << " --> ZDC RBX!" << std::endl;
   }
 
   return 0;
 }
 
-int XMLRBXPedestalsLoader::fixRbxName( string & rbx )
+int XMLRBXPedestalsLoader::fixRbxName( std::string & rbx )
 {
-  string _fourth = rbx . substr(0,4);
+  std::string _fourth = rbx . substr(0,4);
   if ( _fourth == "HBM0" || _fourth == "HBP0" || _fourth == "HEP0" || _fourth == "HFP0" || _fourth == "HOP0" || _fourth == "HOM0" ) rbx . erase( 3, 1 );
 
   if ( rbx == "HO0M02" ) rbx = "HO0M2";

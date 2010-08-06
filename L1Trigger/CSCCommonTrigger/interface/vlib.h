@@ -23,8 +23,6 @@ Verilog++ SP.
 typedef unsigned long long int rval;
 #define Sizeofrval sizeof(rval)
 
-using namespace std;
-
 class module;
 
 enum SignalMode 
@@ -54,11 +52,11 @@ public:
 	void init(Signal* shost, int h, int l, const char* rname);
 	void makemask();
 #ifdef VGEN
-	string& getname(){return name;};
-	string& getorname(){return orname;};
-	string& getcatname();
-	void setname (string& rname){name = rname;};
-	void setorname (string& rname){orname = rname;};
+	std::string& getname(){return name;};
+	std::string& getorname(){return orname;};
+	std::string& getcatname();
+	void setname (std::string& rname){name = rname;};
+	void setorname (std::string& rname){orname = rname;};
 	void setbrackets(const char* l, const char* r){lb = l; rb = r;};
 #endif
 	rval getr(){return r;};
@@ -124,7 +122,7 @@ public:
 
 	Signal operator,(Signal);
 
-	friend ostream &operator<<(ostream &stream, Signal s);
+	friend std::ostream &operator<<(std::ostream &stream, Signal s);
 
 	void input (int, int, const char*);
 	void input (const char* rname){input(0, 0, rname);};
@@ -154,11 +152,11 @@ protected:
 	int hostl; // low bit of host
 	rval mask; // bit mask
 #ifdef VGEN
-	string name;
-	string orname;
-	string lb, rb; // to distinguish between expression and variable
-	string obname;
-	string catname;
+	std::string name;
+	std::string orname;
+	std::string lb, rb; // to distinguish between expression and variable
+	std::string obname;
+	std::string catname;
 #endif
 	Signal* host; // this Signal is a portion of the host
 	Signal *ca1;
@@ -201,7 +199,7 @@ public:
 
 protected:
 #ifdef VGEN
-	string name;
+	std::string name;
 #endif
 	Signal* r;
 	int up, down;
@@ -236,11 +234,11 @@ public:
 #endif
 protected:
 #ifdef VGEN
-	string name;
-	streambuf *outbuf;
-	ofstream vfile;
+	std::string name;
+	std::streambuf *outbuf;
+	std::ofstream vfile;
 #endif
-	string instname;
+	std::string instname;
 	int OuterIndPos;
 	Signal switcharg[10];
 	int switchn;

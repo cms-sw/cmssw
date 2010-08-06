@@ -58,9 +58,9 @@ int ParticleIdentifier::getParticleId(const reco::Track & recTrack)
   for(trackingRecHit_iterator recHit = recTrack.recHitsBegin();
                               recHit!= recTrack.recHitsEnd(); recHit++)
   {
-    vector<PSimHit> simHits = theHitAssociator->associateHit(**recHit);
+    std::vector<PSimHit> simHits = theHitAssociator->associateHit(**recHit);
 
-    for(vector<PSimHit>::const_iterator simHit = simHits.begin();
+    for(std::vector<PSimHit>::const_iterator simHit = simHits.begin();
                                         simHit!= simHits.end(); simHit++)
      if(simHit == simHits.begin() || simHit->tof() < tmin)
       {
@@ -80,7 +80,7 @@ void ParticleIdentifier::processEcalRecHits
   edm::Handle<reco::TrackCollection> trackCollection;
   ev.getByLabel("globalPrimTracks",  trackCollection);
   const reco::TrackCollection* recTracks = trackCollection.product();
-  cerr << "[ParticleId] recTracks = " << recTracks->size() << endl;
+  std::cerr << "[ParticleId] recTracks = " << recTracks->size() << std::endl;
 
   // EcalShowerProperties;
   EcalShowerProperties theEcalShowerProperties(ev,es); 
@@ -91,20 +91,20 @@ void ParticleIdentifier::processEcalRecHits
                                             recTrack++)  
   {
     int ntime = 0;
-    pair<double,double> result =
+    std::pair<double,double> result =
       theEcalShowerProperties.processTrack(*recTrack, ntime);
     double energy = result.first;
     double time   = result.second;
     int    pid    = getParticleId(*recTrack);
 
-    cerr << " rec"
+    std::cerr << " rec"
          << " " << recTrack->p()
          << " " << recTrack->pt()
          << " " << energy
          << " " << time
          << " " << pid
          << " " << ntime
-         << endl;
+         << std::endl;
   }
 }
 
@@ -132,13 +132,13 @@ void ParticleIdentifier::processEcalSimHits(const edm::Event& ev)
       if(simHit->geantTrackId() == int(simTrack->trackId()))
         energy += simHit->energy();
 
-    cerr << " sim "
+    std::cerr << " sim "
          << " " << p
          << " " << pt
          << " " << energy
          << " " << time
          << " " << pid
-         << endl;
+         << std::endl;
   }
 }
 

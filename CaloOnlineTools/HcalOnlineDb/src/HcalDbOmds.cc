@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalDbASCIIIO.cc,v 1.41
-// $Id$
+// $Id: HcalDbOmds.cc,v 1.19 2010/03/07 23:01:33 kukartse Exp $
 //
 #include <vector>
 #include <string>
@@ -18,6 +18,9 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalDbOmds.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/RooGKCounter.h"
 
+typedef oracle::occi::ResultSet ResultSet;
+typedef oracle::occi::SQLException SQLException;
+
 template<class T>
 bool HcalDbOmds::from_string(T& t, const std::string& s, std::ios_base& (*f)(std::ios_base&)) {
   std::istringstream iss(s);
@@ -31,34 +34,34 @@ bool HcalDbOmds::from_string(T& t, const std::string& s, std::ios_base& (*f)(std
 // 2.subdet, 3.ieta, 4.iphi, 5.depth, 6.type, 7.section, 8.ispositiveeta, 9.sector, 10.module, 11.channel 
 DetId HcalDbOmds::getId(oracle::occi::ResultSet * rs){
   std::string _name = rs->getString(1);
-  //cerr << "DEBUG: name - " << _name << endl;
+  //std::cerr << "DEBUG: name - " << _name << std::endl;
   if (rs->getString(1).find("HcalDetId")!=std::string::npos){
-    //cerr << "DEBUG: HcalDetId" << endl;
+    //std::cerr << "DEBUG: HcalDetId" << std::endl;
     return HcalDetId(get_subdetector(rs->getString(2)),
 		     rs->getInt(3),
 		     rs->getInt(4),
 		     rs->getInt(5));
   }
   else if (rs->getString(1).find("HcalCalibDetId")!=std::string::npos){
-    //cerr << "DEBUG: HcalCalibDetId" << endl;
+    //std::cerr << "DEBUG: HcalCalibDetId" << std::endl;
     return HcalCalibDetId(get_subdetector(rs->getString(2)),
 			  rs->getInt(3),
 			  rs->getInt(4),
 			  rs->getInt(6));
   }
   else if (rs->getString(1).find("HcalTrigTowerDetId")!=std::string::npos){
-    //cerr << "DEBUG: HcalTrigTowerDetId" << endl;
+    //std::cerr << "DEBUG: HcalTrigTowerDetId" << std::endl;
     return HcalTrigTowerDetId(rs->getInt(3),
 			      rs->getInt(4));
   }
   else if (rs->getString(1).find("HcalZDCDetId")!=std::string::npos){
-    //cerr << "DEBUG: HcalZDCDetId" << endl;
+    //std::cerr << "DEBUG: HcalZDCDetId" << std::endl;
     return HcalZDCDetId(get_zdc_section(rs->getString(7)),
 			rs->getInt(8)>0,
 			rs->getInt(11));
   }
   else if (rs->getString(1).find("HcalCastorDetId")!=std::string::npos){
-    //cerr << "DEBUG: HcalCastorDetId" << endl;
+    //std::cerr << "DEBUG: HcalCastorDetId" << std::endl;
     return HcalCastorDetId(rs->getInt(8)>0,
 			   rs->getInt(9)>0,
 			   rs->getInt(10));
@@ -114,8 +117,8 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
       //int depth = rs->getInt(23);
       //HcalSubdetector subdetector = get_subdetector(rs->getString(24));
       //HcalDetId id(subdetector,ieta,iphi,depth);
-      cout << "DEBUG: " << endl;
-      //cout << "DEBUG: " << id << " " << cap0 << " " << cap1 << " " << cap2 << " " << cap3 << endl;
+      std::cout << "DEBUG: " << std::endl;
+      //std::cout << "DEBUG: " << id << " " << cap0 << " " << cap1 << " " << cap2 << " " << cap3 << std::endl;
       HcalPedestal * fCondObject = new HcalPedestal(id.rawId(), cap0, cap1, cap2, cap3, variance0, variance1, variance2, variance3);
       fObject->addValues(*fCondObject);
       delete fCondObject;
@@ -264,7 +267,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
       //int depth = rs->getInt(7);
       //HcalSubdetector subdetector = get_subdetector(rs->getString(8));
       //HcalDetId id(subdetector,ieta,iphi,depth);
-      //cout << "DEBUG: " << id << " " << cap0 << " " << cap1 << " " << cap2 << " " << cap3 << endl;
+      //std::cout << "DEBUG: " << id << " " << cap0 << " " << cap1 << " " << cap2 << " " << cap3 << std::endl;
       HcalGain * fCondObject = new HcalGain(id, cap0, cap1, cap2, cap3);
       fObject->addValues(*fCondObject);
       delete fCondObject;
@@ -319,7 +322,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
       //int depth = rs->getInt(7);
       //HcalSubdetector subdetector = get_subdetector(rs->getString(8));
       //HcalDetId id(subdetector,ieta,iphi,depth);
-      //cout << "DEBUG: " << id << " " << cap0 << " " << cap1 << " " << cap2 << " " << cap3 << endl;
+      //std::cout << "DEBUG: " << id << " " << cap0 << " " << cap1 << " " << cap2 << " " << cap3 << std::endl;
       HcalGainWidth * fCondObject = new HcalGainWidth(id, cap0, cap1, cap2, cap3);
       fObject->addValues(*fCondObject);
       delete fCondObject;
@@ -495,7 +498,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 			    const int fIOVBegin,
 			    const std::string & fQuery,
 			    HcalChannelQuality* fObject) {
-  cout << " +++++=====> HcalDbOmds::getObject" << endl;
+  std::cout << " +++++=====> HcalDbOmds::getObject" << std::endl;
 
   bool result=true;
   if (!fObject) fObject = new HcalChannelQuality;
@@ -528,7 +531,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
       //int depth = rs->getInt(4);
       //HcalSubdetector subdetector = get_subdetector(rs->getString(5));
       //HcalDetId id(subdetector,ieta,iphi,depth);
-      //cout << "DEBUG: " << endl;//<< id << " " << zs << endl;
+      //std::cout << "DEBUG: " << std::endl;//<< id << " " << zs << std::endl;
       HcalChannelStatus * fCondObject = new HcalChannelStatus(id, value);
       fObject->addValues(*fCondObject);
       delete fCondObject;
@@ -580,7 +583,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
       //int depth = rs->getInt(4);
       //HcalSubdetector subdetector = get_subdetector(rs->getString(5));
       //HcalDetId id(subdetector,ieta,iphi,depth);
-      //cout << "DEBUG: " << id << " " << value << endl;
+      //std::cout << "DEBUG: " << id << " " << value << std::endl;
       HcalRespCorr * fCondObject = new HcalRespCorr(id, value);
       fObject->addValues(*fCondObject);
       delete fCondObject;
@@ -632,7 +635,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
       //int depth = rs->getInt(4);
       //HcalSubdetector subdetector = get_subdetector(rs->getString(5));
       //HcalDetId id(subdetector,ieta,iphi,depth);
-      //cout << "DEBUG: " << id << " " << zs << endl;
+      //std::cout << "DEBUG: " << id << " " << zs << std::endl;
       HcalZSThreshold * fCondObject = new HcalZSThreshold(id, zs);
       fObject->addValues(*fCondObject);
       delete fCondObject;
@@ -701,7 +704,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
       float average_pedestal = rs->getFloat(12);
       float response_corrected_gain = rs->getFloat(13);
       int flag = rs->getInt(14);
-      string metadata_name = rs->getString(15);
+      std::string metadata_name = rs->getString(15);
       if (metadata_name.find("lut_tag")!=std::string::npos){
 	_tag = rs->getString(16);
       }
@@ -761,7 +764,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
       //int depth = rs->getInt(4);
       //HcalSubdetector subdetector = get_subdetector(rs->getString(5));
       //HcalDetId id(subdetector,ieta,iphi,depth);
-      //cout << "DEBUG: " << id << " " << value << endl;
+      //std::cout << "DEBUG: " << id << " " << value << std::endl;
       HcalValidationCorr * fCondObject = new HcalValidationCorr(id, value);
       fObject->addValues(*fCondObject);
       delete fCondObject;
@@ -858,7 +861,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
     stmt->setInt(3,fSubversion);
     stmt->setInt(4,fIOVBegin);
 
-    cout << "DEBUG****** IOV=" << fIOVBegin << endl;
+    std::cout << "DEBUG****** IOV=" << fIOVBegin << std::endl;
 
     ResultSet *rs = stmt->executeQuery();
 
@@ -936,25 +939,25 @@ bool HcalDbOmds::dumpObject (std::ostream& fOutput, const HcalZSThresholds& fObj
 }
 
 
-HcalSubdetector HcalDbOmds::get_subdetector( string _det )
+HcalSubdetector HcalDbOmds::get_subdetector( std::string _det )
 {
   HcalSubdetector result;
-  if      ( _det.find("HB") != string::npos ) result = HcalBarrel;
-  else if ( _det.find("HE") != string::npos ) result = HcalEndcap;
-  else if ( _det.find("HF") != string::npos ) result = HcalForward;
-  else if ( _det.find("HO") != string::npos ) result = HcalOuter;
+  if      ( _det.find("HB") != std::string::npos ) result = HcalBarrel;
+  else if ( _det.find("HE") != std::string::npos ) result = HcalEndcap;
+  else if ( _det.find("HF") != std::string::npos ) result = HcalForward;
+  else if ( _det.find("HO") != std::string::npos ) result = HcalOuter;
   else                                        result = HcalOther;  
 
   return result;
 }
 
-HcalZDCDetId::Section HcalDbOmds::get_zdc_section( string _section )
+HcalZDCDetId::Section HcalDbOmds::get_zdc_section( std::string _section )
 {
   HcalZDCDetId::Section result;
-  if      ( _section.find("Unknown") != string::npos ) result = HcalZDCDetId::Unknown;
-  else if ( _section.find("EM") != string::npos )   result = HcalZDCDetId::EM;
-  else if ( _section.find("HAD") != string::npos )  result = HcalZDCDetId::HAD;
-  else if ( _section.find("LUM") != string::npos ) result = HcalZDCDetId::LUM;
+  if      ( _section.find("Unknown") != std::string::npos ) result = HcalZDCDetId::Unknown;
+  else if ( _section.find("EM") != std::string::npos )   result = HcalZDCDetId::EM;
+  else if ( _section.find("HAD") != std::string::npos )  result = HcalZDCDetId::HAD;
+  else if ( _section.find("LUM") != std::string::npos ) result = HcalZDCDetId::LUM;
   else                                              result = HcalZDCDetId::Unknown;  
   
   return result;

@@ -26,19 +26,19 @@ public:
   void reset();
 
 private: 
-  void perChanHists(vector<HcalCastorDetId> detID, vector<int> capID, vector<float> peds,
-		    map<HcalCastorDetId, map<int, MonitorElement*> > &toolP, 
-		    ////// map<HcalCastorDetId, map<int, MonitorElement*> > &toolS,
-		    string baseFolder);
+  void perChanHists(std::vector<HcalCastorDetId> detID, std::vector<int> capID, std::vector<float> peds,
+		    std::map<HcalCastorDetId, std::map<int, MonitorElement*> > &toolP, 
+		    ////// std::map<HcalCastorDetId, std::map<int, MonitorElement*> > &toolS,
+		    std::string baseFolder);
 
   bool doPerChannel_;
   bool doFCpeds_;
-  map<HcalCastorDetId, map<int,MonitorElement*> >::iterator meo_;
-  vector<HcalCastorDetId> detID_;
-  vector<int> capID_;
-  vector<float> pedVals_;
+  std::map<HcalCastorDetId, std::map<int,MonitorElement*> >::iterator meo_;
+  std::vector<HcalCastorDetId> detID_;
+  std::vector<int> capID_;
+  std::vector<float> pedVals_;
 
-  string outputFile_;
+  std::string outputFile_;
    
   const CastorQIEShape* shape_;
   const CastorQIECoder* channelCoder_;
@@ -48,13 +48,13 @@ private:
   MonitorElement* meEVT_;
   int ievt_;
     
-  map<HcalCastorDetId,bool> REG;
+  std::map<HcalCastorDetId,bool> REG;
   MonitorElement* PEDESTAL_REFS;
   MonitorElement* WIDTH_REFS;
 
   struct{
-    map<HcalCastorDetId,map<int, MonitorElement*> > PEDVALS;
-    map<HcalCastorDetId,map<int, MonitorElement*> > SUBVALS;
+    std::map<HcalCastorDetId,std::map<int, MonitorElement*> > PEDVALS;
+    std::map<HcalCastorDetId,std::map<int, MonitorElement*> > SUBVALS;
 
     MonitorElement* ALLPEDS;
     MonitorElement* PEDRMS;

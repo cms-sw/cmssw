@@ -39,7 +39,7 @@ using namespace std;
 
 double CorrectDeadChannelsClassic(double *M11x11Input, const int DCeta){
 
-  //cout<<"Inside Correction Function ...."<< endl;
+  //std::cout<<"Inside Correction Function ...."<< std::endl;
 
   PositionCorrector *PosCorr = new PositionCorrector();
   SplineCorrector *SplCorr   = new SplineCorrector();
@@ -87,7 +87,7 @@ double CorrectDeadChannelsClassic(double *M11x11Input, const int DCeta){
   crE[24]=M11x11Input[80];
 
 
-  cout<<"Inside Correction Function : Dead Channel ETA" << DCeta << endl;
+  std::cout<<"Inside Correction Function : Dead Channel ETA" << DCeta << std::endl;
   //revert crystal matrix because of negative eta
   if(DCeta<0){
 
@@ -148,13 +148,13 @@ double CorrectDeadChannelsClassic(double *M11x11Input, const int DCeta){
   SUMrr  = crE[20] + crE[21] + crE[22] + crE[23] + crE[24];
 
   /*
-  cout<<"================================================================="<<endl;
-  cout<<crE[4]<<setw(12)<<crE[9]<<setw(12)<<crE[14]<<setw(12)<<crE[19]<<setw(12)<<crE[24]<<endl;
-  cout<<crE[3]<<setw(12)<<crE[8]<<setw(12)<<crE[13]<<setw(12)<<crE[18]<<setw(12)<<crE[23]<<endl;
-  cout<<crE[2]<<setw(12)<<crE[7]<<setw(12)<<crE[12]<<setw(12)<<crE[17]<<setw(12)<<crE[22]<<endl;
-  cout<<crE[1]<<setw(12)<<crE[6]<<setw(12)<<crE[11]<<setw(12)<<crE[16]<<setw(12)<<crE[21]<<endl;
-  cout<<crE[0]<<setw(12)<<crE[5]<<setw(12)<<crE[10]<<setw(12)<<crE[15]<<setw(12)<<crE[20]<<endl;
-  cout<<"================================================================="<<endl;
+  std::cout<<"================================================================="<<std::endl;
+  std::cout<<crE[4]<<setw(12)<<crE[9]<<setw(12)<<crE[14]<<setw(12)<<crE[19]<<setw(12)<<crE[24]<<std::endl;
+  std::cout<<crE[3]<<setw(12)<<crE[8]<<setw(12)<<crE[13]<<setw(12)<<crE[18]<<setw(12)<<crE[23]<<std::endl;
+  std::cout<<crE[2]<<setw(12)<<crE[7]<<setw(12)<<crE[12]<<setw(12)<<crE[17]<<setw(12)<<crE[22]<<std::endl;
+  std::cout<<crE[1]<<setw(12)<<crE[6]<<setw(12)<<crE[11]<<setw(12)<<crE[16]<<setw(12)<<crE[21]<<std::endl;
+  std::cout<<crE[0]<<setw(12)<<crE[5]<<setw(12)<<crE[10]<<setw(12)<<crE[15]<<setw(12)<<crE[20]<<std::endl;
+  std::cout<<"================================================================="<<std::endl;
   */
 
 
@@ -189,16 +189,16 @@ double CorrectDeadChannelsClassic(double *M11x11Input, const int DCeta){
   for(int ix=1; ix<4 ; ix++){
     for(int iy=1; iy<4 ; iy++){
       int idx = ix*5+iy; 
-      if(fabs(crE[idx])<epsilon && DeadCR >0){cout<<" Problem 2 dead channels in sum9! Can not correct ... I return 0.0"<<endl; return 0.0;}
+      if(fabs(crE[idx])<epsilon && DeadCR >0){std::cout<<" Problem 2 dead channels in sum9! Can not correct ... I return 0.0"<<std::endl; return 0.0;}
       if(fabs(crE[idx])<epsilon && DeadCR==-1)DeadCR=idx;
     }
   }
 
 
-  //cout<<" THE DEAD CHANNEL IS : "<< DeadCR <<endl;
+  //std::cout<<" THE DEAD CHANNEL IS : "<< DeadCR <<std::endl;
   SUM24=0.0;
   for(int j=0;j<25;j++)SUM24+=crE[j];
-  if(DeadCR == -1){cout<<" No Dead Channel in 3x3 !   I don't correct ... I return 0.0 ....look S25 = "<<SUM24<<endl; return 0.0;}
+  if(DeadCR == -1){std::cout<<" No Dead Channel in 3x3 !   I don't correct ... I return 0.0 ....look S25 = "<<SUM24<<std::endl; return 0.0;}
 
 
 
@@ -212,31 +212,31 @@ double CorrectDeadChannelsClassic(double *M11x11Input, const int DCeta){
     }
   }
   if(CisMax != 12){
-    cout<<"ERROR ----> Central has NOT the MAX energy in 5x5 ... I return 0.0"<<endl;
+    std::cout<<"ERROR ----> Central has NOT the MAX energy in 5x5 ... I return 0.0"<<std::endl;
     return 0.0;
   }
   
 
 
   //AVOID BREM or OTHER DEPOSITIONS IN 5x5
-  //cout<<" CHECK FOR BREM or UNUSUAL PATTERNS  ... " <<endl;
-  //cout<<" SUMuu="<<SUMuu<<",SUMu="<<SUMu<<",SUMd="<<SUMd <<",SUMdd="<<SUMdd <<",SUMll="<<SUMll <<",SUMl="<<SUMl <<",SUMrr="<<SUMrr <<",SUMr="<<SUMr <<endl;
-  if(DeadCR==6  && (SUMuu>SUMu || SUMrr>SUMr || SUMll>3.0*SUMr || SUMdd>3.0*SUMu)){cout<<"Unusual Pattern in 6 I return 0.0"<<endl; return 0.0;}
-  if(DeadCR==8  && (SUMdd>SUMd || SUMrr>SUMr || SUMll>3.0*SUMr || SUMuu>3.0*SUMd)){cout<<"Unusual Pattern in 8 I return 0.0"<<endl; return 0.0;}
-  if(DeadCR==16 && (SUMuu>SUMu || SUMll>SUMl || SUMrr>3.0*SUMl || SUMdd>3.0*SUMu)){cout<<"Unusual Pattern in 16 I return 0.0"<<endl; return 0.0;}
-  if(DeadCR==18 && (SUMdd>SUMd || SUMll>SUMl || SUMrr>3.0*SUMl || SUMuu>3.0*SUMd)){cout<<"Unusual Pattern in 18 I return 0.0"<<endl; return 0.0;}
+  //std::cout<<" CHECK FOR BREM or UNUSUAL PATTERNS  ... " <<std::endl;
+  //std::cout<<" SUMuu="<<SUMuu<<",SUMu="<<SUMu<<",SUMd="<<SUMd <<",SUMdd="<<SUMdd <<",SUMll="<<SUMll <<",SUMl="<<SUMl <<",SUMrr="<<SUMrr <<",SUMr="<<SUMr <<std::endl;
+  if(DeadCR==6  && (SUMuu>SUMu || SUMrr>SUMr || SUMll>3.0*SUMr || SUMdd>3.0*SUMu)){std::cout<<"Unusual Pattern in 6 I return 0.0"<<std::endl; return 0.0;}
+  if(DeadCR==8  && (SUMdd>SUMd || SUMrr>SUMr || SUMll>3.0*SUMr || SUMuu>3.0*SUMd)){std::cout<<"Unusual Pattern in 8 I return 0.0"<<std::endl; return 0.0;}
+  if(DeadCR==16 && (SUMuu>SUMu || SUMll>SUMl || SUMrr>3.0*SUMl || SUMdd>3.0*SUMu)){std::cout<<"Unusual Pattern in 16 I return 0.0"<<std::endl; return 0.0;}
+  if(DeadCR==18 && (SUMdd>SUMd || SUMll>SUMl || SUMrr>3.0*SUMl || SUMuu>3.0*SUMd)){std::cout<<"Unusual Pattern in 18 I return 0.0"<<std::endl; return 0.0;}
 
-  if(DeadCR==7  && (SUMuu>SUMu || SUMdd>SUMd || SUMrr>SUMr)){cout<<"Unusual Pattern in 7 I return 0.0"<<endl; return 0.0;}
-  if(DeadCR==17 && (SUMuu>SUMu || SUMdd>SUMd || SUMll>SUMl)){cout<<"Unusual Pattern in 17 I return 0.0"<<endl; return 0.0;}
-  if(DeadCR==11 && (SUMll>SUMl || SUMrr>SUMr || SUMuu>SUMu)){cout<<"Unusual Pattern in 11 I return 0.0"<<endl; return 0.0;}
-  if(DeadCR==13 && (SUMll>SUMl || SUMrr>SUMr || SUMdd>SUMd)){cout<<"Unusual Pattern in 13 I return 0.0"<<endl; return 0.0;}
+  if(DeadCR==7  && (SUMuu>SUMu || SUMdd>SUMd || SUMrr>SUMr)){std::cout<<"Unusual Pattern in 7 I return 0.0"<<std::endl; return 0.0;}
+  if(DeadCR==17 && (SUMuu>SUMu || SUMdd>SUMd || SUMll>SUMl)){std::cout<<"Unusual Pattern in 17 I return 0.0"<<std::endl; return 0.0;}
+  if(DeadCR==11 && (SUMll>SUMl || SUMrr>SUMr || SUMuu>SUMu)){std::cout<<"Unusual Pattern in 11 I return 0.0"<<std::endl; return 0.0;}
+  if(DeadCR==13 && (SUMll>SUMl || SUMrr>SUMr || SUMdd>SUMd)){std::cout<<"Unusual Pattern in 13 I return 0.0"<<std::endl; return 0.0;}
 
 
-  //cout<<" NO BREM OR OTHER DEPOSITIONS IN THIS PATTERN --- I continue ... " <<endl;
+  //std::cout<<" NO BREM OR OTHER DEPOSITIONS IN THIS PATTERN --- I continue ... " <<std::endl;
 
   SUM24=0.0;
   for(int j=0;j<25;j++)if(j!=DeadCR)SUM24+=crE[j];
-  // cout<<" THE Enorm is : "<< SUM24 <<endl;
+  // std::cout<<" THE Enorm is : "<< SUM24 <<std::endl;
 
 
   //CHECK IF IT IS REALLY THE CORRECT DEAD CHANNEL
@@ -286,20 +286,20 @@ double CorrectDeadChannelsClassic(double *M11x11Input, const int DCeta){
        NEWy = PosCorr->CORRY(DeadCR,0,50,estimY);  
 
 
-       //cout<<" FINAL X,Y calculation: DC , estimX, estimY, NEWx, NEWy : "<<DeadCR<<" "<<estimX<<" "<<estimY<<" "<< NEWx<<" "<<NEWy<<endl;
+       //std::cout<<" FINAL X,Y calculation: DC , estimX, estimY, NEWx, NEWy : "<<DeadCR<<" "<<estimX<<" "<<estimY<<" "<< NEWx<<" "<<NEWy<<std::endl;
 
 
-    if(DeadCR==7  && (estimX>7.0 || estimX< -2.0 || estimY>10.0 || estimY<-9.0) ){cout<<"DC=7  Position OUT of LIMIT I return 0.0"<<endl; return 0.0;}
-    if(DeadCR==17 && (estimX>2.5 || estimX< -8.0 || estimY>10.0 || estimY<-8.0) ){cout<<"DC=17 Position OUT of LIMIT I return 0.0"<<endl; return 0.0;}
-    if(DeadCR==11 && (estimX>8.0 || estimX<-10.0 || estimY> 9.0 || estimY<-4.0) ){cout<<"DC=11 Position OUT of LIMIT I return 0.0"<<endl; return 0.0;}
-    if(DeadCR==13 && (estimX>8.0 || estimX<-10.0 || estimY> 4.5 || estimY<-8.0) ){cout<<"DC=13 Position OUT of LIMIT I return 0.0"<<endl; return 0.0;}
+    if(DeadCR==7  && (estimX>7.0 || estimX< -2.0 || estimY>10.0 || estimY<-9.0) ){std::cout<<"DC=7  Position OUT of LIMIT I return 0.0"<<std::endl; return 0.0;}
+    if(DeadCR==17 && (estimX>2.5 || estimX< -8.0 || estimY>10.0 || estimY<-8.0) ){std::cout<<"DC=17 Position OUT of LIMIT I return 0.0"<<std::endl; return 0.0;}
+    if(DeadCR==11 && (estimX>8.0 || estimX<-10.0 || estimY> 9.0 || estimY<-4.0) ){std::cout<<"DC=11 Position OUT of LIMIT I return 0.0"<<std::endl; return 0.0;}
+    if(DeadCR==13 && (estimX>8.0 || estimX<-10.0 || estimY> 4.5 || estimY<-8.0) ){std::cout<<"DC=13 Position OUT of LIMIT I return 0.0"<<std::endl; return 0.0;}
 
-    if(DeadCR==12 && (estimX>18.0 || estimX<-18.0 || estimY> 17.0 || estimY<-17.0) ){cout<<"DC=12 Position OUT of LIMIT I return 0.0"<<endl; return 0.0;}
+    if(DeadCR==12 && (estimX>18.0 || estimX<-18.0 || estimY> 17.0 || estimY<-17.0) ){std::cout<<"DC=12 Position OUT of LIMIT I return 0.0"<<std::endl; return 0.0;}
 
-    if(DeadCR==6  && (estimX>8.0 || estimX< -9.0 || estimY>10.0 || estimY<-8.0) ){cout<<"DC=6  Position OUT of LIMIT I return 0.0"<<endl; return 0.0;}
-    if(DeadCR==8  && (estimX>8.0 || estimX< -9.0 || estimY> 9.0 || estimY<-8.5) ){cout<<"DC=8  Position OUT of LIMIT I return 0.0"<<endl; return 0.0;}
-    if(DeadCR==16 && (estimX>7.0 || estimX<-10.0 || estimY> 9.0 || estimY<-8.0) ){cout<<"DC=16 Position OUT of LIMIT I return 0.0"<<endl; return 0.0;}
-    if(DeadCR==18 && (estimX>8.0 || estimX< -9.0 || estimY> 9.0 || estimY<-8.0) ){cout<<"DC=18 Position OUT of LIMIT I return 0.0"<<endl; return 0.0;}
+    if(DeadCR==6  && (estimX>8.0 || estimX< -9.0 || estimY>10.0 || estimY<-8.0) ){std::cout<<"DC=6  Position OUT of LIMIT I return 0.0"<<std::endl; return 0.0;}
+    if(DeadCR==8  && (estimX>8.0 || estimX< -9.0 || estimY> 9.0 || estimY<-8.5) ){std::cout<<"DC=8  Position OUT of LIMIT I return 0.0"<<std::endl; return 0.0;}
+    if(DeadCR==16 && (estimX>7.0 || estimX<-10.0 || estimY> 9.0 || estimY<-8.0) ){std::cout<<"DC=16 Position OUT of LIMIT I return 0.0"<<std::endl; return 0.0;}
+    if(DeadCR==18 && (estimX>8.0 || estimX< -9.0 || estimY> 9.0 || estimY<-8.0) ){std::cout<<"DC=18 Position OUT of LIMIT I return 0.0"<<std::endl; return 0.0;}
 
    ///////////////////////////////////////////////////
    ///////////////////////////////////////////////////
@@ -347,13 +347,13 @@ double CorrectDeadChannelsClassic(double *M11x11Input, const int DCeta){
     
     
     double ESTIMATED_ENERGY = RECOfrDcr*SUM24;
-    cout<<" THE ESTIMATED RECOfrDcr is : "<< RECOfrDcr <<endl;
-    cout<<" THE ESTIMATED ENERGY is : "<<  ESTIMATED_ENERGY <<endl;
+    std::cout<<" THE ESTIMATED RECOfrDcr is : "<< RECOfrDcr <<std::endl;
+    std::cout<<" THE ESTIMATED ENERGY is : "<<  ESTIMATED_ENERGY <<std::endl;
 
-    if(RECOfrDcr<0.0){cout<<"NEGATIVE RECOfrDr I Return 0.0"<<endl; RECOfrDcr=0.0;}
-    if( (DeadCR==6 || DeadCR==8  || DeadCR==16 || DeadCR==18) && RECOfrDcr>0.20){cout<<"Fraction OUT of LIMIT I return 0.0"<<endl; return 0.0;}
-    if( (DeadCR==7 || DeadCR==17 || DeadCR==11 || DeadCR==13) && RECOfrDcr>1.00){cout<<"Fraction OUT of LIMIT I return 0.0"<<endl; return 0.0;}
-    if( DeadCR==12 && RECOfrDcr>5.00){cout<<"Fraction OUT of LIMIT I return 0.0"<<endl; return 0.0;}
+    if(RECOfrDcr<0.0){std::cout<<"NEGATIVE RECOfrDr I Return 0.0"<<std::endl; RECOfrDcr=0.0;}
+    if( (DeadCR==6 || DeadCR==8  || DeadCR==16 || DeadCR==18) && RECOfrDcr>0.20){std::cout<<"Fraction OUT of LIMIT I return 0.0"<<std::endl; return 0.0;}
+    if( (DeadCR==7 || DeadCR==17 || DeadCR==11 || DeadCR==13) && RECOfrDcr>1.00){std::cout<<"Fraction OUT of LIMIT I return 0.0"<<std::endl; return 0.0;}
+    if( DeadCR==12 && RECOfrDcr>5.00){std::cout<<"Fraction OUT of LIMIT I return 0.0"<<std::endl; return 0.0;}
 
 
 ////////////////////////////////////////////////////////////////////

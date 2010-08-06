@@ -13,11 +13,9 @@
 #include "Minuit2/FCNBase.h"
 #include <vector>
 
-using namespace ROOT::Minuit2;
-using std::vector;
 
 
-class CSCThrTurnOnFcn : public FCNBase {
+class CSCThrTurnOnFcn : public ROOT::Minuit2::FCNBase {
 
 private:
   ///  data

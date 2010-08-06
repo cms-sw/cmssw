@@ -8,23 +8,23 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "EventFilter/ESRawToDigi/interface/ESUnpacker.h"
 
-using namespace std;
-using namespace edm;
 
-class ESRawToDigi : public EDProducer {
+
+
+class ESRawToDigi : public edm::EDProducer {
   
  public:
   
-  ESRawToDigi(const ParameterSet& ps);
+  ESRawToDigi(const edm::ParameterSet& ps);
   virtual ~ESRawToDigi();
   
-  void produce(Event& e, const EventSetup& es);
+  void produce(edm::Event& e, const edm::EventSetup& es);
   
  private:
 
   edm::InputTag sourceTag_;
   edm::InputTag fedsListLabel_;
-  string ESdigiCollection_;
+  std::string ESdigiCollection_;
   bool regional_;
 
   bool debug_;

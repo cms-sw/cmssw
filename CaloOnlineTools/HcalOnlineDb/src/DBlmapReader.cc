@@ -12,13 +12,13 @@ stringstream sstemp;
 
 void DBlmapReader::lrTestFunction(void){
   
-  cout<<"Hello"<<endl;
+  std::cout<<"Hello"<<std::endl;
   return;
 }
 
 VectorLMAP* DBlmapReader::GetLMAP(int LMversion = 30){
   HCALConfigDB * db = new HCALConfigDB();
-  const string _accessor = "occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22";
+  const std::string _accessor = "occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22";
   db -> connect( _accessor );
   
   oracle::occi::Connection * myConn = db -> getConnection();
@@ -28,13 +28,13 @@ VectorLMAP* DBlmapReader::GetLMAP(int LMversion = 30){
   
   sstemp.str("");
   sstemp<<"'"<<LMversion<<"'";
-  string verstring = sstemp.str();
+  std::string verstring = sstemp.str();
   sstemp.str("");
 
   try {
     Statement* stmt = myConn -> createStatement();
 
-    string query = (" SELECT C.VERSION, ");
+    std::string query = (" SELECT C.VERSION, ");
     query += " H.SIDE, H.ETA, H.PHI, ";
     query += " H.DELTA_PHI, H.DEPTH, H.SUBDETECTOR, H.RBX, H.WEDGE, ";
     query += " H.SECTOR, H.RM_SLOT, H.HPD_PIXEL, H.QIE_SLOT, H.ADC, ";
@@ -105,7 +105,7 @@ VectorLMAP* DBlmapReader::GetLMAP(int LMversion = 30){
     myConn -> terminateStatement(stmt);
   }
   catch (SQLException& e) {
-    cout<<"Couldn't get statement"<<endl;
+    std::cout<<"Couldn't get statement"<<std::endl;
   }
   db -> disconnect();
   
@@ -119,7 +119,7 @@ void DBlmapReader::PrintLMAP(FILE* HBEFmap, FILE* HOmap, VectorLMAP* lmapHBEFO){
   lmapHBEFO = SortByHardware(lmapHBEFO);
   for (i = 0; i < CHAcount; i++){
     if (lmapHBEFO -> orderC[i] >= CHAcount){
-      cout<<"Bad order vector";
+      std::cout<<"Bad order vector";
       break;
     }
     
@@ -129,13 +129,13 @@ void DBlmapReader::PrintLMAP(FILE* HBEFmap, FILE* HOmap, VectorLMAP* lmapHBEFO){
   lmapHBEFO = SortByGeometry(lmapHBEFO);
   for (i = 0; i < CHAcount; i++){
     if (lmapHBEFO -> orderC[i] >= CHAcount){
-      cout<<"Bad order vector";
+      std::cout<<"Bad order vector";
       break;
     }
     if (lmapHBEFO -> detC[lmapHBEFO -> orderC[i]] == "HO") printHO(i, HOmap, lmapHBEFO);
   }  
   
-  cout<<CHAcount<<endl;
+  std::cout<<CHAcount<<std::endl;
   return;
 }
 
@@ -214,7 +214,7 @@ void printEMAProw(int channel, FILE * emap, VectorLMAP * lmap){
   else if ( lmap->detC[j] == "HF" ) _subdet = HcalForward;
   else{
     _subdet = HcalBarrel;
-    cerr<<"Bad Subdet"<<endl;
+    std::cerr<<"Bad Subdet"<<std::endl;
   }
   HcalDetId _hcaldetid( _subdet, (lmap->sideC[j])*(lmap->etaC[j]), lmap->phiC[j], lmap->depthC[j] );
   int hcalID = _hcaldetid . rawId(); 

@@ -1,7 +1,7 @@
 #ifndef EnergySegmentFP420_h
 #define EnergySegmentFP420_h
 
-using namespace std;
+
 #include<vector>
 
 #include "G4StepPoint.hh"

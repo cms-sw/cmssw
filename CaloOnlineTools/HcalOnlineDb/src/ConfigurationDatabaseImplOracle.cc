@@ -1,4 +1,4 @@
-// $Id: ConfigurationDatabaseImplOracle.cc,v 1.1 2008/02/12 17:02:01 kukartse Exp $
+// $Id: ConfigurationDatabaseImplOracle.cc,v 1.2 2008/10/07 07:22:30 kukartse Exp $
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/ConfigurationDatabaseImplOracle.hh"
 
@@ -73,7 +73,7 @@ string ConfigurationDatabaseImplOracle::clobToString(oracle::occi::Clob clob){
                 char *cbuffer = new char[size];
                 memset (cbuffer, 0, size);
                 instream->readBuffer (cbuffer, size);
-                string str(cbuffer,size);
+                std::string str(cbuffer,size);
 		return str;
 }
 //inline function to convert hex2integer

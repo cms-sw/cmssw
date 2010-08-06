@@ -22,8 +22,8 @@ ChargeDividerFP420::ChargeDividerFP420(double pit, double az420, double azD2, do
   verbosity=ver;
   //                           pit - is really moduleThickness here !!!
   if(verbosity>0) {
-    cout << "ChargeDividerFP420.h: constructor" << endl;
-    cout << "peakMode = " << peakMode << "fluctuateCharge=   "<< fluctuateCharge <<  "chargedivisionsPerHit = "  << chargedivisionsPerHit << "deltaCut=   "<< deltaCut << endl;
+    std::cout << "ChargeDividerFP420.h: constructor" << std::endl;
+    std::cout << "peakMode = " << peakMode << "fluctuateCharge=   "<< fluctuateCharge <<  "chargedivisionsPerHit = "  << chargedivisionsPerHit << "deltaCut=   "<< deltaCut << std::endl;
   }
   // Initialization:
   theFP420NumberingScheme = new FP420NumberingScheme();

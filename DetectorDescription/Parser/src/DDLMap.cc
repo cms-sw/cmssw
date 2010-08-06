@@ -17,6 +17,7 @@
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
+using namespace boost::spirit::classic;
 
 //  The "real" DDLMap members.
 DDLMap::DDLMap(  DDLElementRegistry* myreg ) : DDXMLElement(myreg)

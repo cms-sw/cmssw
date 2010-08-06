@@ -47,7 +47,7 @@ std::vector< std::pair<int,float> > CalibElectron::getCalibModulesWeights(TStrin
       for (int i=0;i<EcalRingCalibrationTools::N_RING_TOTAL;++i)
 	if (w_ring[i]!=0.) 
 	  theWeights.push_back(std::pair<int,float>(i,w_ring[i]));
-	  // cout << " ring " << i << " - energy sum " << w_ring[i] << endl;
+	  // std::cout << " ring " << i << " - energy sum " << w_ring[i] << std::endl;
     }
 
   else if(calibtype == "MODULE")
@@ -77,7 +77,7 @@ std::vector< std::pair<int,float> > CalibElectron::getCalibModulesWeights(TStrin
       for (int i=0;i<EcalRingCalibrationTools::N_MODULES_BARREL;++i)
         if (w_ring[i]!=0.)
           theWeights.push_back(std::pair<int,float>(i,w_ring[i]));
-      // cout << " ring " << i << " - energy sum " << w_ring[i] << endl;                            
+      // std::cout << " ring " << i << " - energy sum " << w_ring[i] << std::endl;                            
 
     }
 
@@ -106,7 +106,7 @@ std::vector< std::pair<int,float> > CalibElectron::getCalibModulesWeights(TStrin
       
       if(w_ring != 0.)
 	theWeights.push_back(std::pair<int,float>(0,w_ring));
-      cout << " ABS SCALE  - energy sum " << w_ring << endl;                            
+      std::cout << " ABS SCALE  - energy sum " << w_ring << std::endl;                            
       
     }
   
@@ -145,7 +145,7 @@ std::vector< std::pair<int,float> > CalibElectron::getCalibModulesWeights(TStrin
       for (int i=0; i< EcalIndexingTools::getInstance()->getNumberOfChannels(); ++i){
         if (w_ring[i]!=0.){
           theWeights.push_back(std::pair<int,float>(i,w_ring[i]));
-	  cout << " ring " << i << " - energy sum " << w_ring[i] << endl;                            
+	  std::cout << " ring " << i << " - energy sum " << w_ring[i] << std::endl;                            
 	}
 	
       }
@@ -154,7 +154,7 @@ std::vector< std::pair<int,float> > CalibElectron::getCalibModulesWeights(TStrin
   
   else 
     {
-      cout << "CalibType not yet implemented" << endl;
+      std::cout << "CalibType not yet implemented" << std::endl;
       
     }
   

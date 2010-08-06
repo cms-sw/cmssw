@@ -21,4 +21,3 @@ const unsigned int RCTMonitor::RTPBINS = 101;   const float RCTMonitor::RTPMIN =
 // Physical bins 1 Gev - 1 TeV in 1 GeV steps
 const unsigned int RCTMonitor::TEVBINS  = 1001; const float RCTMonitor::TEVMIN  = -0.5;      const float RCTMonitor::TEVMAX  = 1000.5;
 
-using namespace l1extra;

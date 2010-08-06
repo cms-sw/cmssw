@@ -11,7 +11,7 @@ Monitoring source to measure the track efficiency
 //  Original Author:  Jeremy Andrea
 // Insertion in DQM:  Anne-Catherine Le Bihan
 //          Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackEfficiencyMonitor.h,v 1.1 2009/01/08 09:57:27 alebihan Exp $
+// $Id: TrackEfficiencyMonitor.h,v 1.2 2009/11/05 17:07:51 boudoul Exp $
 
 #include <memory>
 #include <fstream>
@@ -29,9 +29,9 @@ Monitoring source to measure the track efficiency
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
 
-using namespace std;
-using namespace edm; 
-using namespace reco; 
+
+ 
+ 
 
 namespace reco{class TransientTrack;}
 
@@ -39,6 +39,8 @@ class DQMStore;
 
 class TrackEfficiencyMonitor : public edm::EDAnalyzer {
    public:
+      typedef reco::Track Track;
+      typedef reco::TrackCollection TrackCollection;
       explicit TrackEfficiencyMonitor(const edm::ParameterSet&);
       ~TrackEfficiencyMonitor();
       virtual void beginJob(void);
@@ -109,7 +111,7 @@ class TrackEfficiencyMonitor : public edm::EDAnalyzer {
   edm::ESHandle<GeometricSearchTracker> theTracker;
   edm::ESHandle<MagneticField> bField; 
   
-  ESHandle<MeasurementTracker> measurementTrackerHandle;
+  edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
   
 };
 #endif

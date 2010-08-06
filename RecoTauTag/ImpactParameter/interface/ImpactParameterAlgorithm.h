@@ -16,15 +16,15 @@
 
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
-using namespace std; 
-using namespace edm;
-using namespace reco;
+ 
+
+
 
 class  ImpactParameterAlgorithm  {
 
     public:
  
-	ImpactParameterAlgorithm(const ParameterSet  & parameters );
+	ImpactParameterAlgorithm(const edm::ParameterSet  & parameters );
 	ImpactParameterAlgorithm(); 
 
 	// For out of framework usage we may need a different constructor
@@ -33,15 +33,15 @@ class  ImpactParameterAlgorithm  {
    
 	~ImpactParameterAlgorithm() {}
 
-	void setPrimaryVertex(Vertex * pv) {primaryVertex = pv;}
+	void setPrimaryVertex(reco::Vertex * pv) {primaryVertex = pv;}
   
-	pair<float,TauImpactParameterInfo> tag(const IsolatedTauTagInfoRef&, const Vertex&); 
+	std::pair<float,reco::TauImpactParameterInfo> tag(const reco::IsolatedTauTagInfoRef&, const reco::Vertex&); 
 
 	void setTransientTrackBuilder(const TransientTrackBuilder*);
 
 
     private:
-	Vertex* primaryVertex;
+	reco::Vertex* primaryVertex;
 
 	//algorithm parameters
 	double  ip_min,

@@ -40,20 +40,20 @@ void CastorLEDMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   sigS0_ = ps.getUntrackedParameter<int>("FirstSignalBin", 0);
   sigS1_ = ps.getUntrackedParameter<int>("LastSignalBin", 9);
   adcThresh_ = ps.getUntrackedParameter<double>("LED_ADC_Thresh", 0);
-  cout << "LED Monitor threshold set to " << adcThresh_ << endl;
-  cout << "LED Monitor signal window set to " << sigS0_ <<"-"<< sigS1_ << endl;  
+  std::cout << "LED Monitor threshold set to " << adcThresh_ << std::endl;
+  std::cout << "LED Monitor signal window set to " << sigS0_ <<"-"<< sigS1_ << std::endl;  
 
   if(sigS0_<0){
-    cout << "CastorLEDMonitor::setup, illegal range for first sample: " << sigS0_ << endl;
+    std::cout << "CastorLEDMonitor::setup, illegal range for first sample: " << sigS0_ << std::endl;
     sigS0_=0;
   }
   if(sigS1_>9){
-    cout << "CastorLEDMonitor::setup, illegal range for last sample: " << sigS1_ << endl;
+    std::cout << "CastorLEDMonitor::setup, illegal range for last sample: " << sigS1_ << std::endl;
     sigS1_=9;
   }
 
   if(sigS0_ > sigS1_){ 
-    cout<< "CastorLEDMonitor::setup, illegal range for first: "<< sigS0_ << " and last sample: " << sigS1_ << endl;
+    std::cout<< "CastorLEDMonitor::setup, illegal range for first: "<< sigS0_ << " and last sample: " << sigS1_ << std::endl;
     sigS0_=0; sigS1_=9;
   }
 
@@ -146,7 +146,7 @@ void CastorLEDMonitor::processEvent( const CastorDigiCollection& castorDigis, co
 
 
   if(!m_dbe){ 
-    if(fVerbosity>0) cout<<"CastorLEDMonitor::processEvent DQMStore not instantiated!!!"<<endl;  
+    if(fVerbosity>0) std::cout<<"CastorLEDMonitor::processEvent DQMStore not instantiated!!!"<<std::endl;  
     return; 
   }
   float vals[10];
@@ -196,7 +196,7 @@ void CastorLEDMonitor::processEvent( const CastorDigiCollection& castorDigis, co
       if(ievt_%100 == 0 && doPerChannel_) perChanHists(digi.id(),vals,castHists.shape, castHists.time, castHists.energy, baseFolder_);
     }        
   } else {
-    if(fVerbosity > 0) cout << "CastorPSMonitor::processEvent NO Castor Digis !!!" << endl;
+    if(fVerbosity > 0) std::cout << "CastorPSMonitor::processEvent NO Castor Digis !!!" << std::endl;
   }
  
 
@@ -220,12 +220,12 @@ void CastorLEDMonitor::done(){
 //==========================================================//
 
 void CastorLEDMonitor::perChanHists(const HcalCastorDetId DetID, float* vals, 
-				  map<HcalCastorDetId, MonitorElement*> &tShape, 
-				  map<HcalCastorDetId, MonitorElement*> &tTime,
-				  map<HcalCastorDetId, MonitorElement*> &tEnergy,
-				  string baseFolder){
+				  std::map<HcalCastorDetId, MonitorElement*> &tShape, 
+				  std::map<HcalCastorDetId, MonitorElement*> &tTime,
+				  std::map<HcalCastorDetId, MonitorElement*> &tEnergy,
+				  std::string baseFolder){
   
-  string type = "CastorLEDPerChannel";
+  std::string type = "CastorLEDPerChannel";
   if(m_dbe) m_dbe->setCurrentFolder(baseFolder+"/"+type);
 
   MonitorElement* me;

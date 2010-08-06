@@ -11,7 +11,7 @@ Description: Makes RCT digis from the file format specified by Pam Klabbers
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Mar  9 19:11:51 CET 2007
-// $Id: RctTextToRctDigi.cc,v 1.3 2007/05/21 17:31:08 nuno Exp $
+// $Id: RctTextToRctDigi.cc,v 1.4 2007/08/06 11:38:41 nuno Exp $
 
 // Rct Input File Format 
 // Line 1: Crossing no as "Crossing x" (2)     
@@ -50,17 +50,17 @@ RctTextToRctDigi::RctTextToRctDigi(const edm::ParameterSet& iConfig):
 
   // Open the input files
   for (unsigned i=0; i<NUM_RCT_CRATES; i++){
-    stringstream fileStream;
+    std::stringstream fileStream;
     fileStream << m_textFileName << std::setw(2) << std::setfill('0') << i << ".txt";
-    string fileName(fileStream.str());
-    m_file[i].open(fileName.c_str(),ios::in);
+    std::string fileName(fileStream.str());
+    m_file[i].open(fileName.c_str(),std::ios::in);
 
     if(!m_file[i].good())
       {
         //throw cms::Exception("RctTextToRctDigiTextFileOpenError")
 	LogDebug("RctTextToRctDigi")
           << "RctTextToRctDigi::RctTextToRctDigi : "
-          << " couldn't open the file " << fileName << "...skipping!" << endl;
+          << " couldn't open the file " << fileName << "...skipping!" << std::endl;
       }
   }
 }
@@ -75,8 +75,8 @@ RctTextToRctDigi::~RctTextToRctDigi()
 
 /// Append empty digi collection/n
 void RctTextToRctDigi::putEmptyDigi(edm::Event& iEvent) {
-  auto_ptr<L1CaloEmCollection> em (new L1CaloEmCollection);
-  auto_ptr<L1CaloRegionCollection> rgn (new L1CaloRegionCollection);
+  std::auto_ptr<L1CaloEmCollection> em (new L1CaloEmCollection);
+  std::auto_ptr<L1CaloRegionCollection> rgn (new L1CaloRegionCollection);
     for (unsigned i=0; i<NUM_RCT_CRATES; i++){  
       for (unsigned j=0; j<4; j++) {
 	em->push_back(L1CaloEmCand(0, i, true));
@@ -93,7 +93,7 @@ void RctTextToRctDigi::putEmptyDigi(edm::Event& iEvent) {
 
 /// Syncronize bunch crossing number/n
 void RctTextToRctDigi::bxSynchro(int &bx,int crate) {
-  string tmp;
+  std::string tmp;
   // bypass bx input until correct bx is reached
   while(bx<m_nevt+m_fileEventOffset) {
     for (int j=0; j<6; j++){
@@ -103,7 +103,7 @@ void RctTextToRctDigi::bxSynchro(int &bx,int crate) {
     if(tmp!="Crossing")
       throw cms::Exception("RctTextToRctDigiTextFileReadError")
 	<< "RctTextToRctDigi::bxSynchro : "
-	<< " something screwy happened Crossing!=" << tmp << endl;
+	<< " something screwy happened Crossing!=" << tmp << std::endl;
   }
 }
 
@@ -123,8 +123,8 @@ void RctTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   }
 
   // New collections
-  auto_ptr<L1CaloEmCollection> em (new L1CaloEmCollection);
-  auto_ptr<L1CaloRegionCollection> rgn (new L1CaloRegionCollection);
+  std::auto_ptr<L1CaloEmCollection> em (new L1CaloEmCollection);
+  std::auto_ptr<L1CaloRegionCollection> rgn (new L1CaloRegionCollection);
 
   // Loop over RCT crates
   for (unsigned i=0; i<NUM_RCT_CRATES; i++){  
@@ -141,19 +141,19 @@ void RctTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
           << "RctTextToRctDigi::produce : "
           << " unexpected end of file " << m_textFileName << i 
 	  << " adding empty collection for event !"
-	  << endl;
+	  << std::endl;
 	putEmptyDigi(iEvent);
 	continue;
       }      
     
     // Check we're at the start of an event
-    string tmp;
+    std::string tmp;
     m_file[i]>> tmp;
     if(tmp!="Crossing")
       {
         throw cms::Exception("RctTextToRctDigiTextFileReadError")
           << "RctTextToRctDigi::produce : "
-          << " something screwy happened Crossing!=" << tmp << endl;
+          << " something screwy happened Crossing!=" << tmp << std::endl;
       }      
 
     // Read BX number
@@ -169,7 +169,7 @@ void RctTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	<< "RctTextToRctDigi::produce : "
 	<< " something screwy happened "
 	<< "evt:" << m_nevt << " != bx:" << BXNum << " + " << m_fileEventOffset 
-	<< endl;
+	<< std::endl;
     
     // Buffers
     unsigned long int uLongBuffer;

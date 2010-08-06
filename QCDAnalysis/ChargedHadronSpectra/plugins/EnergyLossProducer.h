@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-using namespace std;
+
 
 namespace edm { class Run; class Event; class EventSetup; }
 class TrackerGeometry;
@@ -23,7 +23,7 @@ private:
   void beginRun(edm::Run & run, const edm::EventSetup& es);
   void endJob();
 
-  string trackProducer;
+  std::string trackProducer;
   double pixelToStripMultiplier, pixelToStripExponent;
   const TrackerGeometry * theTracker;
 

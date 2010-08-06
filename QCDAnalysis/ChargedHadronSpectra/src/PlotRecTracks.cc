@@ -45,7 +45,7 @@ using namespace std;
 
 /*****************************************************************************/
 PlotRecTracks::PlotRecTracks
-  (const edm::EventSetup& es_, string trackProducer_,
+  (const edm::EventSetup& es_, std::string trackProducer_,
    ofstream& file_) : es(es_), trackProducer(trackProducer_), file(file_)
 {
   // Get tracker geometry
@@ -89,11 +89,11 @@ string PlotRecTracks::getPixelInfo
   GlobalPoint p = theTracker->idToDet(id)->toGlobal(lpos);
 
   SiPixelRecHit::ClusterRef const& cluster = pixelRecHit->cluster();
-  vector<SiPixelCluster::Pixel> pixels = cluster->pixels();
+  std::vector<SiPixelCluster::Pixel> pixels = cluster->pixels();
 
-  vector<PSimHit> simHits = theHitAssociator->associateHit(*recHit);
+  std::vector<PSimHit> simHits = theHitAssociator->associateHit(*recHit);
 
-  string info = ", Text[StyleForm[\"" + o.str() + "\", URL->\"Track " + o.str()
+  std::string info = ", Text[StyleForm[\"" + o.str() + "\", URL->\"Track " + o.str()
 + d.str();
 
   {
@@ -135,9 +135,9 @@ string PlotRecTracks::getStripInfo
   LocalPoint lpos = recHit->localPosition();
   GlobalPoint p = theTracker->idToDet(id)->toGlobal(lpos);
 
-  vector<PSimHit> simHits = theHitAssociator->associateHit(*recHit);
+  std::vector<PSimHit> simHits = theHitAssociator->associateHit(*recHit);
 
-  string info = ", Text[StyleForm[\"" + o.str() + "\", URL->\"Track " + o.str() + d.str(); 
+  std::string info = ", Text[StyleForm[\"" + o.str() + "\", URL->\"Track " + o.str() + d.str(); 
   const SiStripMatchedRecHit2D* stripMatchedRecHit =
     dynamic_cast<const SiStripMatchedRecHit2D *>(recHit);
   const ProjectedSiStripRecHit2D* stripProjectedRecHit =
@@ -209,11 +209,11 @@ void PlotRecTracks::printRecTracks(const edm::Event& ev)
   edm::Handle<reco::TrackCollection> recTrackHandle;
   ev.getByLabel(trackProducer, recTrackHandle);
 
-  edm::Handle<vector<Trajectory> > trajectoryHandle;
+  edm::Handle<std::vector<Trajectory> > trajectoryHandle;
   ev.getByLabel(trackProducer, trajectoryHandle);
 
   const reco::TrackCollection* recTracks    =   recTrackHandle.product();
-  const vector<Trajectory>*    trajectories = trajectoryHandle.product(); 
+  const std::vector<Trajectory>*    trajectories = trajectoryHandle.product(); 
 
   edm::LogVerbatim("MinBiasTracking") 
        << " [EventPlotter] recTracks (" << trackProducer << ") "
@@ -225,12 +225,12 @@ void PlotRecTracks::printRecTracks(const edm::Event& ev)
   reco::TrackCollection::const_iterator recTrack = recTracks->begin();
 
   int i = 0;
-  for(vector<Trajectory>::const_iterator it = trajectories->begin();
+  for(std::vector<Trajectory>::const_iterator it = trajectories->begin();
                                          it!= trajectories->end();
                                          it++, i++, recTrack++)
   {
 /*
-cerr << " track[" << i << "] " << recTrack->chi2() << " " << it->chiSquared() << endl;
+cerr << " track[" << i << "] " << recTrack->chi2() << " " << it->chiSquared() << std::endl;
 
 */
 //theFitter->fit(*it);
@@ -246,14 +246,14 @@ cerr << " track[" << i << "] " << recTrack->chi2() << " " << it->chiSquared() <<
 
     ostringstream o; o << i;
 
-    ostringstream d; d << fixed << setprecision(2)
+    ostringstream d; d << fixed << std::setprecision(2)
                        << " | d0=" << recTrack->d0() << " cm"
                        << " | z0=" << recTrack->dz() << " cm"
                        << " | pt=" << recTrack->pt() << " GeV/c";
 
     const Trajectory* trajectory = &(*it);
 
-    for(vector<TrajectoryMeasurement>::const_reverse_iterator
+    for(std::vector<TrajectoryMeasurement>::const_reverse_iterator
         meas = trajectory->measurements().rbegin();
         meas!= trajectory->measurements().rend(); meas++)
     {
@@ -299,7 +299,7 @@ cerr << " track[" << i << "] " << recTrack->chi2() << " " << it->chiSquared() <<
           LocalPoint lpos = stripMatchedRecHit->localPosition();
           GlobalPoint p = theTracker->idToDet(id)->toGlobal(lpos);
 
-          file << ", Point[{"<< p.x()<<","<<p.y()<<",("<<p.z()<<"-zs)*mz}]" << endl;
+          file << ", Point[{"<< p.x()<<","<<p.y()<<",("<<p.z()<<"-zs)*mz}]" << std::endl;
         }
 
         if(stripProjectedRecHit != 0)
@@ -322,7 +322,7 @@ cerr << " track[" << i << "] " << recTrack->chi2() << " " << it->chiSquared() <<
   // Trajectory
   recTrack = recTracks->begin();
 
-  for(vector<Trajectory>::const_iterator it = trajectories->begin();
+  for(std::vector<Trajectory>::const_iterator it = trajectories->begin();
                                          it!= trajectories->end();
                                          it++, recTrack++)
   {
@@ -339,9 +339,9 @@ cerr << " track[" << i << "] " << recTrack->chi2() << " " << it->chiSquared() <<
     if(algo == 1) file << ", RGBColor[0.2,0.6,0.2]";
     if(algo == 2) file << ", RGBColor[0.2,0.2,0.6]";
 
-    vector<TrajectoryMeasurement> meas = it->measurements();
+    std::vector<TrajectoryMeasurement> meas = it->measurements();
 
-    for(vector<TrajectoryMeasurement>::reverse_iterator im = meas.rbegin();
+    for(std::vector<TrajectoryMeasurement>::reverse_iterator im = meas.rbegin();
                                                         im!= meas.rend(); im++)
     {
       if(im == meas.rbegin())

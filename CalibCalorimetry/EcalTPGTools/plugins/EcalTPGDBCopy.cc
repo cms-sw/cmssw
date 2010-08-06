@@ -242,5 +242,5 @@ else if (container == "EcalTPGFineGrainEBIdMap") {
     throw cms::Exception("Unknown container");
   }
 
-  cout<< "EcalTPGDBCopy wrote " << recordName << endl;
+  std::cout<< "EcalTPGDBCopy wrote " << recordName << std::endl;
 }

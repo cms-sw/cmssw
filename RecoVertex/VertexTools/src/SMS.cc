@@ -10,10 +10,10 @@ using namespace std;
 namespace {
 
 
-  typedef pair < float, const GlobalPoint * > MyPair;
-  typedef pair < float, float > FloatPair;
-  typedef pair < GlobalPoint, float > GlPtWt;
-  typedef pair < float, const GlPtWt * > MyPairWt;
+  typedef std::pair < float, const GlobalPoint * > MyPair;
+  typedef std::pair < float, float > FloatPair;
+  typedef std::pair < GlobalPoint, float > GlPtWt;
+  typedef std::pair < float, const GlPtWt * > MyPairWt;
 
   struct Sorter
   {
@@ -49,19 +49,19 @@ namespace {
     return a;
   }
 
-  GlobalPoint average ( const vector < MyPair > & pairs, int nq )
+  GlobalPoint average ( const std::vector < MyPair > & pairs, int nq )
   {
     GlobalPoint location(0,0,0);
-    for ( vector< MyPair >::const_iterator i=pairs.begin(); i!=( pairs.begin() + nq ); ++i )
+    for ( std::vector< MyPair >::const_iterator i=pairs.begin(); i!=( pairs.begin() + nq ); ++i )
       location+=*( i->second );
     location/=nq;
     return location;
   }
 
-  GlobalPoint average ( const vector < MyPairWt > & pairs, int nq )
+  GlobalPoint average ( const std::vector < MyPairWt > & pairs, int nq )
   {
     GlobalPoint location(0,0,0);
-    for ( vector< MyPairWt >::const_iterator i=pairs.begin(); i!=( pairs.begin() + nq ); ++i )
+    for ( std::vector< MyPairWt >::const_iterator i=pairs.begin(); i!=( pairs.begin() + nq ); ++i )
       location+=(i->second)->first;
     location/=nq;
     return location;
@@ -73,25 +73,25 @@ namespace {
 SMS::SMS ( SMSType tp , float q ) : theType(tp) , theRatio(q) {}
 
 
-GlobalPoint SMS::location ( const vector<GlobalPoint> & data ) const
+GlobalPoint SMS::location ( const std::vector<GlobalPoint> & data ) const
 {
   if ( theType & Weighted )
   {
-    cout << "[SMS] warning: Weighted SMS was asked for, but data are "
-         << "weightless!" << endl;
+    std::cout << "[SMS] warning: Weighted SMS was asked for, but data are "
+              << "weightless!" << std::endl;
   };
   int nobs=data.size();
   int nq=(int) ceil( theRatio*nobs);
   // cout << "nobs= " << nobs << "  nq= " << nq << endl;
 
   // Compute distances
-  vector<MyPair> pairs;
+  std::vector<MyPair> pairs;
 
-  for ( vector< GlobalPoint >::const_iterator i=data.begin(); i!=data.end() ; ++i )
+  for ( std::vector< GlobalPoint >::const_iterator i=data.begin(); i!=data.end() ; ++i )
   {
-    vector < float > D;
+    std::vector < float > D;
     // Compute squared distances to all points
-    for ( vector< GlobalPoint >::const_iterator j=data.begin(); j!=data.end() ; ++j )
+    for ( std::vector< GlobalPoint >::const_iterator j=data.begin(); j!=data.end() ; ++j )
     { D.push_back ( (*j - *i).mag2() ); }
     // Find q-quantile in each row of the distance matrix
     sort( D.begin(), D.end() );
@@ -118,8 +118,8 @@ GlobalPoint SMS::location ( const vector<GlobalPoint> & data ) const
 
   // we iterate (recursively)
 
-  vector < GlobalPoint > data1;
-  vector<MyPair>::iterator j;
+  std::vector < GlobalPoint > data1;
+  std::vector<MyPair>::iterator j;
 
   for ( j=pairs.begin(); j-pairs.begin()<nq; ++j)
      data1.push_back(*(j->second));
@@ -129,42 +129,42 @@ GlobalPoint SMS::location ( const vector<GlobalPoint> & data ) const
 }
 
 
-GlobalPoint SMS::location (  const vector < GlPtWt > & wdata ) const
+GlobalPoint SMS::location (  const std::vector < GlPtWt > & wdata ) const
 {
   if ( !(theType & Weighted) )
   {
-    vector < GlobalPoint > points;
-    for ( vector< GlPtWt >::const_iterator i=wdata.begin(); 
+    std::vector < GlobalPoint > points;
+    for ( std::vector< GlPtWt >::const_iterator i=wdata.begin(); 
           i!=wdata.end() ; ++i )
     {
       points.push_back ( i->first );
     };
     if ( debug() )
     {
-      cout << "[SMS] Unweighted SMS was asked for; ignoring the weights."
-           << endl;
+      std::cout << "[SMS] Unweighted SMS was asked for; ignoring the weights."
+                << std::endl;
     };
     return location ( points );
   };
   // int nobs=wdata.size();
   // Sum of weights
   float Sumw=0;
-  vector< GlPtWt >::const_iterator i,j;
+  std::vector< GlPtWt >::const_iterator i,j;
   for ( i=wdata.begin() ; i!=wdata.end() ; ++i)
     Sumw+=i->second;
 
   // Compute pairwise distances
-  vector <MyPairWt> pairs;
+  std::vector <MyPairWt> pairs;
   for ( i=wdata.begin(); i!=wdata.end() ; ++i )
   {
-    vector < FloatPair > D;
+    std::vector < FloatPair > D;
     // Compute squared distances to all points
     for ( j=wdata.begin(); j!=wdata.end() ; ++j )
       D.push_back ( FloatPair( (j->first - i->first).mag2() , j->second ) ) ;
     // Find weighted q-quantile in the distance vector
     sort( D.begin(), D.end() );
     float sumw=0;
-    vector< FloatPair >::const_iterator where;
+    std::vector< FloatPair >::const_iterator where;
     for ( where=D.begin(); where!=D.end(); ++where )
     {
       sumw+=where->second;
@@ -182,7 +182,7 @@ GlobalPoint SMS::location (  const vector < GlPtWt > & wdata ) const
   // Find weighted q-quantile in the list of pairs
   float sumw=0;
   int nq=0;
-  vector < MyPairWt >::const_iterator k;
+  std::vector < MyPairWt >::const_iterator k;
   for (k=pairs.begin(); k!=pairs.end(); ++k )
   {
     sumw+=k->second->second;
@@ -211,7 +211,7 @@ GlobalPoint SMS::location (  const vector < GlPtWt > & wdata ) const
 
   // we iterate (recursively)
 
-  vector<GlPtWt> wdata1;
+  std::vector<GlPtWt> wdata1;
 
   for ( k=pairs.begin(); k-pairs.begin()<nq; ++k)
     wdata1.push_back(*(k->second));

@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:20 CDT 2007
-// $Id: XMLHTRZeroSuppressionLoader.cc,v 1.3 2009/04/08 22:23:34 kukartse Exp $
+// $Id: XMLHTRZeroSuppressionLoader.cc,v 1.4 2009/04/14 22:53:06 kukartse Exp $
 //
 
 // system include files
@@ -59,11 +59,11 @@ XMLHTRZeroSuppressionLoader::datasetDBConfig::_datasetDBConfig() : XMLProcessor:
     depth = 1;
     z = -1;
     hcal_channel_id = 1107312769;
-    string detector_name = "HB";
+    std::string detector_name = "HB";
     zero_suppression = 2;
 }
 
-XMLHTRZeroSuppressionLoader::XMLHTRZeroSuppressionLoader( loaderBaseConfig * config, string templateBase ) : XMLDOMBlock( templateBase )
+XMLHTRZeroSuppressionLoader::XMLHTRZeroSuppressionLoader( loaderBaseConfig * config, std::string templateBase ) : XMLDOMBlock( templateBase )
 {
   setTagValue( "EXTENSION_TABLE_NAME", config -> extention_table_name );
   setTagValue( "NAME", config -> name );
@@ -111,7 +111,7 @@ XMLHTRZeroSuppressionLoader::~XMLHTRZeroSuppressionLoader()
 //
 // member functions
 //
-int XMLHTRZeroSuppressionLoader::addZS( datasetDBConfig * config, string templateFileName )
+int XMLHTRZeroSuppressionLoader::addZS( datasetDBConfig * config, std::string templateFileName )
 {
   DOMElement * root = document -> getDocumentElement();
 
@@ -158,7 +158,7 @@ int XMLHTRZeroSuppressionLoader::createLoader( void )
   LMap map_hbef;
   map_hbef . read( "HCALmapHBEF_11.9.2007.txt", "HBEF" ); // HBEF logical map
 
-  for( vector<LMapRow>::const_iterator row = map_hbef . _table . begin(); row != map_hbef . _table . end(); row++ )
+  for( std::vector<LMapRow>::const_iterator row = map_hbef . _table . begin(); row != map_hbef . _table . end(); row++ )
     {
       conf . comment_description = "kukarzev: test, fixed eta side";
       conf . subversion = "3";
@@ -176,7 +176,7 @@ int XMLHTRZeroSuppressionLoader::createLoader( void )
   LMap map_ho;
   map_ho . read( "HCALmapHO_11.9.2007.txt", "HO" ); // HO logical map
 
-  for( vector<LMapRow>::const_iterator row = map_ho . _table . begin(); row != map_ho . _table . end(); row++ )
+  for( std::vector<LMapRow>::const_iterator row = map_ho . _table . begin(); row != map_ho . _table . end(); row++ )
     {
       conf . comment_description = "kukarzev: test, fixed eta side";
       conf . subversion = "3";

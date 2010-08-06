@@ -9,9 +9,6 @@
 #include <string.h>
 #include "CaloOnlineTools/HcalOnlineDb/interface/HCALConfigDB.h"
 
-using namespace std;
-using namespace hcal;
-
 /**
 
    \class HcalQIEManager
@@ -53,9 +50,9 @@ class HcalQIEManager{
   ~HcalQIEManager( );
   
   std::map<HcalChannelId,HcalQIECaps> & getQIETableFromFile( std::string _filename );
-  void getTableFromDb( string query_file, string output_file );
-  int generateQieTable( string db_file, string old_file, string output_file );
-  int getHfQieTable( string input_file, string output_file );
+  void getTableFromDb( std::string query_file, std::string output_file );
+  int generateQieTable( std::string db_file, std::string old_file, std::string output_file );
+  int getHfQieTable( std::string input_file, std::string output_file );
 
   static std::vector <std::string> splitString (const std::string& fLine);
 

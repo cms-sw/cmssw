@@ -3,7 +3,7 @@
 
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleaner.h"
 
-using namespace std;
+
 
 class TrajectoryCleanerBySharedSeeds : public TrajectoryCleaner
 {
@@ -15,7 +15,7 @@ public:
 
   using TrajectoryCleaner::clean;
   virtual void clean(TrajectoryPointerContainer&) const; 
-  void clean                  (vector<Trajectory> & trajs) const; 
+  void clean                  (std::vector<Trajectory> & trajs) const; 
 
 private:
   bool sameSeed(const TrajectorySeed & s1, const TrajectorySeed & s2) const;

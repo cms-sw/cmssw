@@ -8,8 +8,6 @@
 #include <iostream>
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
-using namespace std;
-
 /**
  * Class to compute the SMS location estimator The SMS estimator is the mean
  * value of a set of observations with Small Median of Squared distances.
@@ -30,8 +28,8 @@ public:
    */
   SMS ( SMSType tp = (SMSType) (Interpolate | Iterate | Weighted), float q=0.5 );
 
-  GlobalPoint location ( const vector < GlobalPoint > & ) const;
-  GlobalPoint location ( const vector < pair < GlobalPoint, float > > & ) const;
+  GlobalPoint location ( const std::vector < GlobalPoint > & ) const;
+  GlobalPoint location ( const std::vector < std::pair < GlobalPoint, float > > & ) const;
 
 private:
   SMSType theType;

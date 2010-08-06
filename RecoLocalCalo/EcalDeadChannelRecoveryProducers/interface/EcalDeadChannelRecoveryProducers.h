@@ -3,8 +3,8 @@
  
 /** \class EcalDeadChannelRecoveryProducers
   *
-  *  $Date: 2007/05/03 12:41:31 $
-  *  $Revision: 1.1 $
+  *  $Date: 2009/12/14 22:23:53 $
+  *  $Revision: 1.2 $
   */
  
 // system include files
@@ -22,8 +22,7 @@
 
 
 #include <string>
-using namespace cms;
-using namespace std;
+
 //
 // class decleration
 //
@@ -41,13 +40,13 @@ class EcalDeadChannelRecoveryProducers : public edm::EDProducer {
       // ----------member data ---------------------------
 
   double Sum8GeVThreshold_;
-  string hitProducer_;
-  string hitCollection_;
-  string reducedHitCollection_;
-  string DeadChannelFileName_;
-  vector<EBDetId> ChannelsDeadID;
+  std::string hitProducer_;
+  std::string hitCollection_;
+  std::string reducedHitCollection_;
+  std::string DeadChannelFileName_;
+  std::vector<EBDetId> ChannelsDeadID;
   bool CorrectDeadCells_;
-  string CorrectionMethod_;
+  std::string CorrectionMethod_;
 
 };
 

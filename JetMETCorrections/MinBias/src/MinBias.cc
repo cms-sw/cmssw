@@ -9,12 +9,12 @@ namespace cms
 MinBias::MinBias(const edm::ParameterSet& iConfig)
 {
   // get names of modules, producing object collections
-  hbheLabel_= iConfig.getParameter<string>("hbheInput");
-  hoLabel_=iConfig.getParameter<string>("hoInput");
-  hfLabel_=iConfig.getParameter<string>("hfInput");
+  hbheLabel_= iConfig.getParameter<std::string>("hbheInput");
+  hoLabel_=iConfig.getParameter<std::string>("hoInput");
+  hfLabel_=iConfig.getParameter<std::string>("hfInput");
   allowMissingInputs_=iConfig.getUntrackedParameter<bool>("AllowMissingInputs",false);
   // get name of output file with histogramms
-  fOutputFileName = iConfig.getUntrackedParameter<string>("HistOutFile"); 
+  fOutputFileName = iConfig.getUntrackedParameter<std::string>("HistOutFile"); 
 
 }
 
@@ -75,23 +75,23 @@ void MinBias::endJob()
       {
        mom1 = 0.; mom2 = 0.; mom3 = 0.; mom4 = 0.; 
       }     
-      cout<<" Detector "<<(*id).rawId()<<" mydet "<<mydet<<" "<<mysubd<<" "<<depth<<" "<<
-      HcalDetId(*id).subdet()<<" "<<ieta<<" "<<iphi<<" "<<pos.eta()<<" "<<pos.phi()<<endl;
-      cout<<" Energy "<<mom1<<" "<<mom2<<endl;
+      std::cout<<" Detector "<<(*id).rawId()<<" mydet "<<mydet<<" "<<mysubd<<" "<<depth<<" "<<
+      HcalDetId(*id).subdet()<<" "<<ieta<<" "<<iphi<<" "<<pos.eta()<<" "<<pos.phi()<<std::endl;
+      std::cout<<" Energy "<<mom1<<" "<<mom2<<std::endl;
       myTree->Fill();
       i++;
 //      }
    }
-   cout<<" The number of CaloDet records "<<did.size()<<endl;
-   cout<<" The number of Hcal records "<<i<<endl;
+   std::cout<<" The number of CaloDet records "<<did.size()<<std::endl;
+   std::cout<<" The number of Hcal records "<<i<<std::endl;
 
 
-   cout << "===== Start writing user histograms =====" << endl;
+   std::cout << "===== Start writing user histograms =====" << std::endl;
    hOutputFile->SetCompressionLevel(2);
    hOutputFile->cd();
    myTree->Write();
    hOutputFile->Close() ;
-   cout << "===== End writing user histograms =======" << endl; 
+   std::cout << "===== End writing user histograms =======" << std::endl; 
 }
 
 
@@ -138,7 +138,7 @@ MinBias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  hbheItr != (*hbhe).end(); ++hbheItr)
 	{
 	  DetId id = (hbheItr)->detid();
-	  if( (*hbheItr).energy() > 0. ) cout<<" Energy = "<<(*hbheItr).energy()<<endl;
+	  if( (*hbheItr).energy() > 0. ) std::cout<<" Energy = "<<(*hbheItr).energy()<<std::endl;
 	  theFillDetMap0[id] = theFillDetMap0[id]+ 1.;
 	  theFillDetMap1[id] = theFillDetMap1[id]+(*hbheItr).energy();
 	  theFillDetMap2[id] = theFillDetMap2[id]+pow((*hbheItr).energy(),2);

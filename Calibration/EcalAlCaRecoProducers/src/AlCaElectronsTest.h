@@ -29,10 +29,6 @@
 
 #include <Math/VectorUtil.h>
 
-using namespace reco ;
-using namespace edm ;
-//using namespace ROOT::Math::VectorUtil ;
-
 class AlCaElectronsTest : public edm::EDAnalyzer {
   public:
     explicit AlCaElectronsTest (const edm::ParameterSet&) ;
@@ -145,7 +141,7 @@ AlCaElectronsTest::analyze (const edm::Event& iEvent,
 
   //PG get the collections  
   // get Barrel RecHits
-  Handle<EBRecHitCollection> barrelRecHitsHandle ;
+  edm::Handle<EBRecHitCollection> barrelRecHitsHandle ;
   iEvent.getByLabel (m_barrelAlCa, barrelRecHitsHandle) ;
   if (!barrelRecHitsHandle.isValid()) {
       std::cerr << "[AlCaElectronsTest] caught std::exception "
@@ -174,7 +170,7 @@ AlCaElectronsTest::analyze (const edm::Event& iEvent,
   }
   
   // get Endcap RecHits
-  Handle<EERecHitCollection> endcapRecHitsHandle ;
+  edm::Handle<EERecHitCollection> endcapRecHitsHandle ;
   iEvent.getByLabel (m_endcapAlCa,endcapRecHitsHandle) ;
   if (!endcapRecHitsHandle.isValid()) {
       std::cerr << "[AlCaElectronsTest] caught std::exception " 

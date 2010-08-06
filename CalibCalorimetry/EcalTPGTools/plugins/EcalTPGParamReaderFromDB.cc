@@ -63,13 +63,13 @@ void EcalTPGParamReaderFromDB::analyze(const edm::Event& ev, const edm::EventSet
                 //app.writeTPGLUT();
                 //app.writeTPGWeights();
 
-        } catch (exception &e) {
-                cout << "ERROR:  " << e.what() << endl;
+        } catch (std::exception &e) {
+                std::cout << "ERROR:  " << e.what() << std::endl;
         } catch (...) {
-                cout << "Unknown error caught" << endl;
+                std::cout << "Unknown error caught" << std::endl;
         }
 
-        cout << "All Done." << endl;
+        std::cout << "All Done." << std::endl;
 }
 
 

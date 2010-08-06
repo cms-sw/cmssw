@@ -1,4 +1,4 @@
-// $Id: Processing.cc,v 1.15 2010/02/15 13:48:50 mommsen Exp $
+// $Id: Processing.cc,v 1.16 2010/05/17 15:59:10 mommsen Exp $
 /// @file: Processing.cc
 
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
@@ -45,7 +45,7 @@ void Processing::do_exitActionWork()
 
 string Processing::do_stateName() const
 {
-  return string( "Processing" );
+  return std::string( "Processing" );
 }
 
 void Processing::do_moveToFailedState( xcept::Exception& exception ) const

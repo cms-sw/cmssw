@@ -26,14 +26,14 @@
 #include <iostream>
 #include <vector>
 
-using namespace std;
+
 
   ////////////////////////////////////////////////////////////////////
 class FP420DigiMain { 
   //       interface   interface    interface:
 public:
 
-  typedef map< int, float, less<int> > hit_map_type;
+  typedef std::map<int, float, std::less<int> > hit_map_type;
   typedef float Amplitude;
 
   typedef  DConverterFP420::DigitalMapType DigitalMapType;
@@ -46,12 +46,12 @@ public:
 
   // Runs the algorithm
   //  void run(const std::vector<PSimHit*> &input, DigiCollectionFP420 &output,StripGeomDetUnit *det,GlobalVector);
-  vector <HDigiFP420>  run(const std::vector<PSimHit> &input, G4ThreeVector, unsigned int);
+  std::vector <HDigiFP420>  run(const std::vector<PSimHit> &input, G4ThreeVector, unsigned int);
   //vector <HDigiFP420>  run(const std::vector<PSimHit> &input, G4ThreeVector, unsigned int, int);
 
  private:
   int ndigis; 
-  vector<short int> adcVec;
+  std::vector<short int> adcVec;
 
   edm::ParameterSet conf_;
   // Const Parameters needed by:

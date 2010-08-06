@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev
 //         Created:  Mon Jul 13 12:15:33 CEST 2009
-// $Id: HcalChannelIterator.cc,v 1.3 2009/08/04 22:25:18 kukartse Exp $
+// $Id: HcalChannelIterator.cc,v 1.4 2009/10/26 02:55:16 kukartse Exp $
 //
 
 #include <fstream>
@@ -41,13 +41,13 @@ int HcalChannelIterator::clearChannelList(void){
 int HcalChannelIterator::addListFromLmapAscii(std::string filename){
   RooGKCounter lines;
   int _current_size = size();
-  string _row;
-  ifstream inFile( filename . c_str(), ios::in );
+  std::string _row;
+  std::ifstream inFile( filename . c_str(), std::ios::in );
   if (!inFile){
-    cout << "Unable to open file with the logical map: " << filename << endl;
+    std::cout << "Unable to open file with the logical map: " << filename << std::endl;
   }
   else{
-    cout << "File with the logical map opened successfully: " << filename << endl;
+    std::cout << "File with the logical map opened successfully: " << filename << std::endl;
   }
   while ( getline( inFile, _row ) > 0 ){
     //#   side    eta    phi   dphi  depth    det
@@ -65,10 +65,10 @@ int HcalChannelIterator::addListFromLmapAscii(std::string filename){
       std::string subdet(subdetbuf);
 
       HcalSubdetector _det;
-      if ( subdet.find("HB")!=string::npos ) _det = HcalBarrel;
-      else if ( subdet.find("HE")!=string::npos ) _det = HcalEndcap;
-      else if ( subdet.find("HO")!=string::npos ) _det = HcalOuter;
-      else if ( subdet.find("HF")!=string::npos ) _det = HcalForward;
+      if ( subdet.find("HB")!=std::string::npos ) _det = HcalBarrel;
+      else if ( subdet.find("HE")!=std::string::npos ) _det = HcalEndcap;
+      else if ( subdet.find("HO")!=std::string::npos ) _det = HcalOuter;
+      else if ( subdet.find("HF")!=std::string::npos ) _det = HcalForward;
       else _det = HcalOther;
 
       HcalDetId _detid(_det, _side*_eta, _phi, _depth);
@@ -79,8 +79,8 @@ int HcalChannelIterator::addListFromLmapAscii(std::string filename){
     }  
   }
   inFile.close();
-  cout << "Logical map file: " << lines . getCount() << " lines read" << endl;
-  cout << "Logical map file: " << size() - _current_size << " lines added to the list" << endl;
+  std::cout << "Logical map file: " << lines . getCount() << " lines read" << std::endl;
+  std::cout << "Logical map file: " << size() - _current_size << " lines added to the list" << std::endl;
   //
   return 0;
 }

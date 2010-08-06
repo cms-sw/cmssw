@@ -54,15 +54,15 @@ public:
 
 
   void perChanHists(const HcalCastorDetId DetID, float* vals, 
-		    map<HcalCastorDetId, MonitorElement*> &tShape, 
-		    map<HcalCastorDetId, MonitorElement*> &tTime, 
-		    map<HcalCastorDetId, MonitorElement*> &tEnergy,
-		    string baseFolder);
+		    std::map<HcalCastorDetId, MonitorElement*> &tShape, 
+		    std::map<HcalCastorDetId, MonitorElement*> &tTime, 
+		    std::map<HcalCastorDetId, MonitorElement*> &tEnergy,
+		    std::string baseFolder);
 
   void createFEDmap(unsigned int fed);
 
-  map<HcalCastorDetId, MonitorElement*>::iterator meIter;
-  map<unsigned int, MonitorElement*>::iterator fedIter;
+  std::map<HcalCastorDetId, MonitorElement*>::iterator meIter;
+  std::map<unsigned int, MonitorElement*>::iterator fedIter;
 
   bool doPerChannel_;
   
@@ -77,9 +77,9 @@ public:
   MonitorElement* meEVT_;
 
   struct{
-    map<HcalCastorDetId,MonitorElement*> shape;
-    map<HcalCastorDetId,MonitorElement*> time;
-    map<HcalCastorDetId,MonitorElement*> energy;
+    std::map<HcalCastorDetId,MonitorElement*> shape;
+    std::map<HcalCastorDetId,MonitorElement*> time;
+    std::map<HcalCastorDetId,MonitorElement*> energy;
 
     MonitorElement* shapePED;
     MonitorElement* shapeALL;
@@ -112,14 +112,14 @@ public:
 
  
 
-  map<unsigned int,MonitorElement*> MEAN_MAP_ENERGY_DCC;
-  map<unsigned int,MonitorElement*> RMS_MAP_ENERGY_DCC;
+  std::map<unsigned int,MonitorElement*> MEAN_MAP_ENERGY_DCC;
+  std::map<unsigned int,MonitorElement*> RMS_MAP_ENERGY_DCC;
   
-  map<unsigned int,MonitorElement*> MEAN_MAP_SHAPE_DCC;
-  map<unsigned int,MonitorElement*> RMS_MAP_SHAPE_DCC;
+  std::map<unsigned int,MonitorElement*> MEAN_MAP_SHAPE_DCC;
+  std::map<unsigned int,MonitorElement*> RMS_MAP_SHAPE_DCC;
 
-  map<unsigned int,MonitorElement*> MEAN_MAP_TIME_DCC;
-  map<unsigned int,MonitorElement*> RMS_MAP_TIME_DCC;
+  std::map<unsigned int,MonitorElement*> MEAN_MAP_TIME_DCC;
+  std::map<unsigned int,MonitorElement*> RMS_MAP_TIME_DCC;
 
 };
 

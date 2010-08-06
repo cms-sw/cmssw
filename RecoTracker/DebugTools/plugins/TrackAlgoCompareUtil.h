@@ -50,8 +50,8 @@
 #include <vector>
 #include <TMath.h>
 
-using namespace std;
-using namespace edm;
+
+
 
 
 class TrackAlgoCompareUtil : public edm::EDProducer 

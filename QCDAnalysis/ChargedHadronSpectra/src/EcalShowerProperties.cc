@@ -88,7 +88,7 @@ vector<TrajectoryStateOnSurface> EcalShowerProperties::getEndpoints
   (const FreeTrajectoryState & ftsAtLastPoint,
    const TrajectoryStateOnSurface & tsosBeforeEcal, int subDet)
 {
-  vector<TrajectoryStateOnSurface> tsosEnds;
+  std::vector<TrajectoryStateOnSurface> tsosEnds;
 
   const CaloSubdetectorGeometry* geom =
     theCaloGeometry->getSubdetectorGeometry(DetId::Ecal,subDet);
@@ -132,7 +132,7 @@ vector<TrajectoryStateOnSurface> EcalShowerProperties::getEndpoints
 
 /*****************************************************************************/
 double EcalShowerProperties::getDistance
-  (const vector<TrajectoryStateOnSurface> & tsosEnds,
+  (const std::vector<TrajectoryStateOnSurface> & tsosEnds,
    const CaloCellGeometry* cell)
 {
   double dmin = 1e+9;
@@ -174,12 +174,12 @@ double EcalShowerProperties::getDistance
 
 /*****************************************************************************/
 pair<double,double> EcalShowerProperties::processEcalRecHits
-  (const vector<TrajectoryStateOnSurface> & tsosEnds, int subDet, int & ntime)
+  (const std::vector<TrajectoryStateOnSurface> & tsosEnds, int subDet, int & ntime)
 {
   const CaloSubdetectorGeometry* geom =
     theCaloGeometry->getSubdetectorGeometry(DetId::Ecal,subDet);
 
-  vector<DetId> detIds;
+  std::vector<DetId> detIds;
   detIds.push_back(geom->getClosestCell(tsosEnds[0].globalPosition()));
   detIds.push_back(geom->getClosestCell(tsosEnds[1].globalPosition()));
 
@@ -247,7 +247,7 @@ pair<double,double> EcalShowerProperties::processEcalRecHits
 
   if(energy > 0) time /= energy;
 
-  return pair<double,double> (energy,time);
+  return std::pair<double,double> (energy,time);
 }
 
 /*****************************************************************************/
@@ -263,14 +263,14 @@ pair<double,double> EcalShowerProperties::processTrack
   Surface::RotationType rot;
 
   // Subdetector
-  vector<int> subDets;
+  std::vector<int> subDets;
   subDets.push_back(EcalBarrel);
   subDets.push_back(EcalEndcap);
 
-  pair<double,double> result(0,0);
+  std::pair<double,double> result(0,0);
 
   // Take barrel and endcap
-  for(vector<int>::const_iterator subDet = subDets.begin();
+  for(std::vector<int>::const_iterator subDet = subDets.begin();
                                   subDet!= subDets.end(); subDet++)
   {
     TrajectoryStateOnSurface tsosBeforeEcal;
@@ -294,7 +294,7 @@ pair<double,double> EcalShowerProperties::processTrack
       if(fabs(tsosBeforeEcal.globalPosition().perp()) > radius) continue;
     }
 
-    vector<TrajectoryStateOnSurface> tsosEnds =
+    std::vector<TrajectoryStateOnSurface> tsosEnds =
       getEndpoints(ftsAtLastPoint, tsosBeforeEcal, *subDet);
 
     if(tsosEnds.size() == 2)

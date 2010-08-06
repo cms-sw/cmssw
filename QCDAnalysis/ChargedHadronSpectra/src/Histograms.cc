@@ -58,26 +58,26 @@ const int partCharge[nParticles] =
 
 /*****************************************************************************/
 #define nFeedDowns 18
-const pair<int,int> feedDown[nFeedDowns] =
+const std::pair<int,int> feedDown[nFeedDowns] =
 {
-  pair<int,int>(k0s, pip), pair<int,int>(k0s, pim),
-  pair<int,int>(lam, prp), pair<int,int>(lam, pim),
-  pair<int,int>(ala, prm), pair<int,int>(ala, pip),
-  pair<int,int>(sip, prp), pair<int,int>(asi, prm),
-  pair<int,int>(any, pip), pair<int,int>(any, pim),
-  pair<int,int>(any, kap), pair<int,int>(any, kam),
-  pair<int,int>(any, prp), pair<int,int>(any, prm),
-  pair<int,int>(any, elp), pair<int,int>(any, elm),
-  pair<int,int>(any, hap), pair<int,int>(any, ham)
+  std::pair<int,int>(k0s, pip), std::pair<int,int>(k0s, pim),
+  std::pair<int,int>(lam, prp), std::pair<int,int>(lam, pim),
+  std::pair<int,int>(ala, prm), std::pair<int,int>(ala, pip),
+  std::pair<int,int>(sip, prp), std::pair<int,int>(asi, prm),
+  std::pair<int,int>(any, pip), std::pair<int,int>(any, pim),
+  std::pair<int,int>(any, kap), std::pair<int,int>(any, kam),
+  std::pair<int,int>(any, prp), std::pair<int,int>(any, prm),
+  std::pair<int,int>(any, elp), std::pair<int,int>(any, elm),
+  std::pair<int,int>(any, hap), std::pair<int,int>(any, ham)
 };
 
 #define nResonances 4
-const pair<int,int> resonance[nResonances] =
+const std::pair<int,int> resonance[nResonances] =
 {
- pair<int,int>(pip, pim),
- pair<int,int>(kap, pim),
- pair<int,int>(pip, kam),
- pair<int,int>(kap, kam)
+ std::pair<int,int>(pip, pim),
+ std::pair<int,int>(kap, pim),
+ std::pair<int,int>(pip, kam),
+ std::pair<int,int>(kap, kam)
 };
 
 /*****************************************************************************/
@@ -86,10 +86,10 @@ Histograms::Histograms(const edm::ParameterSet& pset)
   fillHistograms         = pset.getParameter<bool>("fillHistograms");
   fillNtuples            = pset.getParameter<bool>("fillNtuples");
 
-  string histoFileLabel = pset.getParameter<string>("histoFile");
+  std::string histoFileLabel = pset.getParameter<std::string>("histoFile");
   histoFile = new TFile(histoFileLabel.c_str(),"recreate");
 
-  string ntupleFileLabel = pset.getParameter<string>("ntupleFile");
+  std::string ntupleFileLabel = pset.getParameter<std::string>("ntupleFile");
   ntupleFile = new TFile(ntupleFileLabel.c_str(),"recreate");
 
 //  resultFile->cd();
@@ -449,7 +449,7 @@ void Histograms::declareHistograms()
        part == aks) { imMin = 0.6; imMax = 1.6; imWidth = 0.010; }
     if(part == phi) { imMin = 0.9; imMax = 1.1; imWidth = 0.002; }
 
-    vector<double> imBins;
+    std::vector<double> imBins;
     double im;
     for(im = imMin; im < imMax + imWidth/2; im += imWidth)
       imBins.push_back(im);
@@ -676,10 +676,10 @@ void Histograms::fillVzeroHistograms(const RecVzero_t & v, int part)
 /****************************************************************************/
 void Histograms::writeHistograms()
 {
-  typedef vector<TH3F *>::const_iterator H3I;
-  typedef vector<TH2F *>::const_iterator H2I;
-  typedef vector<TH1F *>::const_iterator H1I;
-  typedef vector<TTree *>::const_iterator TI;
+  typedef std::vector<TH3F *>::const_iterator H3I;
+  typedef std::vector<TH2F *>::const_iterator H2I;
+  typedef std::vector<TH1F *>::const_iterator H1I;
+  typedef std::vector<TTree *>::const_iterator TI;
 
   if(fillHistograms)
   {

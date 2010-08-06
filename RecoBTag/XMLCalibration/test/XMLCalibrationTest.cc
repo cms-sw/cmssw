@@ -52,7 +52,7 @@ public:
      {
       return (input < m_max) && (input >= m_min);
      }
-     string name()  {return "TestCategory";}
+     std::string name()  {return "TestCategory";}
 
      void readFromDOM(DOMElement * dom)
     {
@@ -99,9 +99,9 @@ XMLCalibrationTest::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
  const CalibratedHistogram * histo = m_calib->getCalibData((float)1.2);
 
 
- cout << "Pointer of the histogram: " << histo << endl;
- cout << histo->value(2);
- cout << " " <<  histo->integral(2) << endl;
+ std::cout << "Pointer of the histogram: " << histo << std::endl;
+ std::cout << histo->value(2);
+ std::cout << " " <<  histo->integral(2) << std::endl;
 
 }
 

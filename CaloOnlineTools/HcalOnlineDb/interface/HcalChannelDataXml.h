@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Wed Jul 01 06:42:00 CDT 2009
-// $Id: HcalChannelDataXml.h,v 1.4 2009/10/14 00:09:01 kukartse Exp $
+// $Id: HcalChannelDataXml.h,v 1.5 2009/10/26 02:55:16 kukartse Exp $
 //
 
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLDOMBlock.h"
@@ -76,10 +76,10 @@ class HcalChannelDataXml : public XMLDOMBlock
   
   //
   //_____ HEADER
-  string extension_table_name;
-  string type_name;
+  std::string extension_table_name;
+  std::string type_name;
   int run_number;
-  string channel_map;
+  std::string channel_map;
   //
   //_____ ELEMENTS
   int data_set_id;
@@ -87,10 +87,10 @@ class HcalChannelDataXml : public XMLDOMBlock
   int iov_begin;
   int iov_end;
   int tag_id;
-  string tag_mode;
-  string tag_name;
-  string detector_name;
-  string comment;
+  std::string tag_mode;
+  std::string tag_name;
+  std::string detector_name;
+  std::string comment;
   //
   //_____MAPS
   int tag_idref;

@@ -17,7 +17,7 @@ public:
   ~CastorPSMonitor(); 
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
-  void processEvent(const CastorDigiCollection& castorDigis, const CastorDbService& conditions, vector<HcalGenericDetId> listEMap, int iBunch, float  PedSigmaInChannel[14][16]);
+  void processEvent(const CastorDigiCollection& castorDigis, const CastorDbService& conditions, std::vector<HcalGenericDetId> listEMap, int iBunch, float  PedSigmaInChannel[14][16]);
   void reset();
 
 private:  
@@ -32,7 +32,7 @@ private:
   } castorDigiHists ;
 
   MonitorElement* meEvt_;
-  map<int,MonitorElement*> PSsector;
+  std::map<int,MonitorElement*> PSsector;
 
   MonitorElement* DigiOccupancyMap;
   MonitorElement* reportSummary;
@@ -55,7 +55,7 @@ private:
   double thirdRegionThreshold_;
   double sumDigiForEachChannel [14][16];
 
-  vector<NewBunch> Bunches_; //-- container for data, 1 per channel  
+  std::vector<NewBunch> Bunches_; //-- container for data, 1 per channel  
 
 
 };

@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2009/09/03 22:47:49 $
- *  $Revision: 1.26 $
+ *  $Date: 2009/12/28 23:14:52 $
+ *  $Revision: 1.27 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -893,7 +893,7 @@ void EcalTB07DaqFormatter::DecodeMEM( DCCTBTowerBlock *  towerblock,  EcalPnDiod
 std::pair<int,int>  EcalTB07DaqFormatter::cellIndex(int tower_id, int strip, int ch) {
   
   int xtal= (strip-1)*5+ch-1;
-  //  cout << " cellIndex input xtal " << xtal << endl;
+  //  std::cout << " cellIndex input xtal " << xtal << std::endl;
   std::pair<int,int> ind;
   
   int eta = (tower_id - 1)/kTowersInPhi*kCardsPerTower;
@@ -915,7 +915,7 @@ std::pair<int,int>  EcalTB07DaqFormatter::cellIndex(int tower_id, int strip, int
   ind.first =eta+1;  
   ind.second=phi+1; 
 
-  //  cout << "  EcalTB07DaqFormatter::cell_index eta " << ind.first << " phi " << ind.second << " " << endl;
+  //  std::cout << "  EcalTB07DaqFormatter::cell_index eta " << ind.first << " phi " << ind.second << " " << std::endl;
 
   return ind;
 

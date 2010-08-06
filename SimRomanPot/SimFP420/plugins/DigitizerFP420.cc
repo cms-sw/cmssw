@@ -178,7 +178,7 @@ namespace cms
 	  std::cout <<" ============== DigitizerFP420: start loop           2   " << std::endl;
 	  iEvent.getByLabel("mix","FP420SI",xFrame);
 	  std::cout <<" ============== DigitizerFP420: start loop           3   " << std::endl;
-	  auto_ptr<MixCollection<PSimHit> > allTrackerHits( new MixCollection<PSimHit>(xFrame.product()) );
+	  std::auto_ptr<MixCollection<PSimHit> > allTrackerHits( new MixCollection<PSimHit>(xFrame.product()) );
 	  std::cout <<" ============== DigitizerFP420: start loop           4   " << std::endl;
     */
     

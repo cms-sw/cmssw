@@ -49,27 +49,27 @@ using namespace oracle::occi;
 using namespace hcal;
 namespace po = boost::program_options;
 
-int createLUTLoader( string prefix_="", string tag_="" );
+int createLUTLoader( std::string prefix_="", std::string tag_="" );
 int createHTRPatternLoader( void );
 int createLMap( void );
-int createRBXLoader( string & type_, string & tag_, string & list_file, string & _comment, string & _version );
-//int createRBXentries( string );
+int createRBXLoader( std::string & type_, std::string & tag_, std::string & list_file, std::string & _comment, std::string & _version );
+//int createRBXentries( std::string );
 
 // deprecated - to be removed
 //int createZSLoader( void );
 
 int testocci( void );
-int testDB( string _tag, string _filename );
-int lmaptest( string _param );
+int testDB( std::string _tag, std::string _filename );
+int lmaptest( std::string _param );
 int hardware( void );
 int test_db_access( void );
 std::vector <std::string> splitString (const std::string& fLine);
-int createZSLoader2( string & tag, string & comment, string & zs2HB, string & zs2HE, string & zs2HO, string & zs2HF );
+int createZSLoader2( std::string & tag, std::string & comment, std::string & zs2HB, std::string & zs2HE, std::string & zs2HO, std::string & zs2HF );
 void test_lut_gen( void );
 
 int main( int argc, char **argv )
 {
-  //cout << "Running xmlTools..." << endl;
+  //std::cout << "Running xmlTools..." << std::endl;
 
   //
   //===> command line options parser using boost  
@@ -103,7 +103,7 @@ int main( int argc, char **argv )
     ("create-lut-loader", "create XML database loader for LUTs, and zip everything ready for uploading to the DB")
     ("create-trigger-key", "create a trigger key entry")
     ("get-lut-xml-from-oracle", "Get LUTs from Oracle database")
-    ("database-accessor", po::value<string>(&db_accessor)->default_value("occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22"), "Database accessor string")
+    ("database-accessor", po::value<string>(&db_accessor)->default_value("occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22"), "Database accessor std::string")
     ("lin-lut-master-file", po::value<string>(), "Linearizer LUT ASCII master file name")
     ("comp-lut-master-file", po::value<string>(), "Compression LUT ASCII master file name")
     ("do-not-split-by-crate", "output LUTs as a single XML instead of making a separate file for each crate")
@@ -131,30 +131,30 @@ int main( int argc, char **argv )
     po::notify(vm);
     
     if (vm.count("help")) {
-      cout << general << "\n";
+      std::cout << general << "\n";
       return 1;
     }
 
 
     if (vm.count("quicktest")) {
       // db;
-      cout << "HcalDbOmds: cms_hcal_dcs_02:HCAL_HV/HVcrate_HEMC/S17/RM4HV: " << HcalDbOmds::getDcsTypeFromDpName("cms_hcal_dcs_02:HCAL_HV/HVcrate_HEMC/S17/RM4HV") << endl;
-      cout << "HcalDbOmds: cms_hcal_dcs_02:HCAL_HV/HVcrate_HO2P/S03/RM1BV: " << HcalDbOmds::getDcsTypeFromDpName("cms_hcal_dcs_02:HCAL_HV/HVcrate_HO2P/S03/RM1BV") << endl;
+      std::cout << "HcalDbOmds: cms_hcal_dcs_02:HCAL_HV/HVcrate_HEMC/S17/RM4HV: " << HcalDbOmds::getDcsTypeFromDpName("cms_hcal_dcs_02:HCAL_HV/HVcrate_HEMC/S17/RM4HV") << std::endl;
+      std::cout << "HcalDbOmds: cms_hcal_dcs_02:HCAL_HV/HVcrate_HO2P/S03/RM1BV: " << HcalDbOmds::getDcsTypeFromDpName("cms_hcal_dcs_02:HCAL_HV/HVcrate_HO2P/S03/RM1BV") << std::endl;
       return 0;
     }
     
 
     if (vm.count("test-lut-xml-file-access")) {
-      cout << "Testing reading LUTs from local XML file..." << "\n";
-      std::string in_ = vm["input-file"].as<string>();
-      cout << "LUT XML file: " << in_ << "\n";
+      std::cout << "Testing reading LUTs from local XML file..." << "\n";
+      std::string in_ = vm["input-file"].as<std::string>();
+      std::cout << "LUT XML file: " << in_ << "\n";
       //evaluate timing
       struct timeval _t;
       gettimeofday( &_t, NULL );
       double _time =(double)(_t . tv_sec) + (double)(_t . tv_usec)/1000000.0;
       LutXml * _xml = new LutXml(in_);
       gettimeofday( &_t, NULL );
-      cout << "Initialization took: " << (double)(_t . tv_sec) + (double)(_t . tv_usec)/1000000.0 - _time << "sec" << endl;
+      std::cout << "Initialization took: " << (double)(_t . tv_sec) + (double)(_t . tv_usec)/1000000.0 - _time << "sec" << std::endl;
       _xml->create_lut_map();
       _xml->test_access("noname");
       delete _xml;
@@ -164,8 +164,8 @@ int main( int argc, char **argv )
 
 
     if (vm.count("test-string")) {
-      cout << "Test: "
-	   << vm["test-string"].as<string>() << ".\n";
+      std::cout << "Test: "
+	   << vm["test-string"].as<std::string>() << ".\n";
       XMLDOMBlock a("HCAL_TRIG_PRIM_LOOKUP_TABLE.dataset.template");
       a+=a;
       a.write("stdout");
@@ -173,16 +173,16 @@ int main( int argc, char **argv )
     }
 
     if (vm.count("test-lmap")) {
-      cout << "Testing lmap stuff..." << "\n";
-      string _accessor = vm["test-lmap"].as<string>();
-      cout << "Logical map accessor string: " << _accessor << "\n";
-      string _type;
-      if ( _accessor . find ("HO") != string::npos ){
-	cout << "type: HO" << endl;
+      std::cout << "Testing lmap stuff..." << "\n";
+      std::string _accessor = vm["test-lmap"].as<std::string>();
+      std::cout << "Logical map accessor string: " << _accessor << "\n";
+      std::string _type;
+      if ( _accessor . find ("HO") != std::string::npos ){
+	cout << "type: HO" << std::endl;
 	_type = "HO";
       }
       else{
-	cout << "type: HBEF" << endl;
+	cout << "type: HBEF" << std::endl;
 	_type = "HBEF";
       }
       LMap_test test;
@@ -191,9 +191,9 @@ int main( int argc, char **argv )
     }
     
     if (vm.count("test-emap")) {
-      cout << "Testing emap stuff..." << "\n";
-      string _accessor = vm["test-emap"].as<string>();
-      cout << "Electronic map accessor string: " << _accessor << "\n";
+      std::cout << "Testing emap stuff..." << "\n";
+      std::string _accessor = vm["test-emap"].as<std::string>();
+      std::cout << "Electronic map accessor string: " << _accessor << "\n";
       //EMap_test test;
       //test . test_read_map( _accessor );
       //
@@ -203,68 +203,68 @@ int main( int argc, char **argv )
     }
     
     if (vm.count("test-qie")) {
-      cout << "Testing QIE stuff..." << "\n";
-      string _accessor = vm["test-qie"].as<string>();
-      cout << "File with the query: " << _accessor << "\n";
+      std::cout << "Testing QIE stuff..." << "\n";
+      std::string _accessor = vm["test-qie"].as<std::string>();
+      std::cout << "File with the query: " << _accessor << "\n";
       HcalQIEManager manager;
       manager . getTableFromDb( _accessor, "asdf" );
       return 0;
     }
     
     if (vm.count("test-lut-manager")) {
-      cout << "Testing LUT manager stuff..." << "\n";
-      string _accessor = vm["test-lut-manager"].as<string>();
-      cout << "LUT ascii file: " << _accessor << "\n";
+      std::cout << "Testing LUT manager stuff..." << "\n";
+      std::string _accessor = vm["test-lut-manager"].as<std::string>();
+      std::cout << "LUT ascii file: " << _accessor << "\n";
       HcalLutManager_test::getLutSetFromFile_test( _accessor );
       return 0;
     }
     
     if (vm.count("test-lut-xml-access")) {
-      cout << "Testing reading LUTs from local XML file..." << "\n";
-      string in_ = vm["input-file"].as<string>();
-      cout << "LUT XML file: " << in_ << "\n";
-      string tag_ = vm["tag-name"].as<string>();
-      cout << "Tag: " << tag_ << "\n";
+      std::cout << "Testing reading LUTs from local XML file..." << "\n";
+      std::string in_ = vm["input-file"].as<std::string>();
+      std::cout << "LUT XML file: " << in_ << "\n";
+      std::string tag_ = vm["tag-name"].as<std::string>();
+      std::cout << "Tag: " << tag_ << "\n";
       HcalLutManager manager;
       manager . test_xml_access( tag_, in_ );
       return 0;
     }
     
     if (vm.count("test-lut-checksum")) {
-      cout << "Testing evaluation of LUT MD5 checksums..." << "\n";
-      string in_ = vm["input-file"].as<string>();
-      cout << "LUT XML file: " << in_ << "\n";
-      string tag_ = vm["tag-name"].as<string>();
-      cout << "Tag: " << tag_ << "\n";
+      std::cout << "Testing evaluation of LUT MD5 checksums..." << "\n";
+      std::string in_ = vm["input-file"].as<std::string>();
+      std::cout << "LUT XML file: " << in_ << "\n";
+      std::string tag_ = vm["tag-name"].as<std::string>();
+      std::cout << "Tag: " << tag_ << "\n";
       HcalLutManager manager;
       manager . test_xml_access( tag_, in_ );
       return 0;
     }
     
     if (vm.count("qie")) {
-      cout << "Generating new QIE table..." << "\n";
-      cout << "Input file (from DB)... ";
-      string _in = vm["input-file"].as<string>();
-      cout << _in << endl;
-      cout << "Output file... ";
-      string _out = vm["output-file"].as<string>();
-      cout << _out << endl;
-      cout << "Old QIE table file (to fill missing channels)... ";
-      string _old = vm["old-qie-file"].as<string>();
-      cout << _old << endl;
+      std::cout << "Generating new QIE table..." << "\n";
+      std::cout << "Input file (from DB)... ";
+      std::string _in = vm["input-file"].as<std::string>();
+      std::cout << _in << std::endl;
+      std::cout << "Output file... ";
+      std::string _out = vm["output-file"].as<std::string>();
+      std::cout << _out << std::endl;
+      std::cout << "Old QIE table file (to fill missing channels)... ";
+      std::string _old = vm["old-qie-file"].as<std::string>();
+      std::cout << _old << std::endl;
       HcalQIEManager manager;
       manager . generateQieTable( _in, _old, _out );
       return 0;
     }
     
     if (vm.count("hf-qie")) {
-      cout << "Retrieving HCAL HF QIE ADC data..." << "\n";
-      cout << "Input file (from DB)... ";
-      string _in = vm["input-file"].as<string>();
-      cout << _in << endl;
-      cout << "Output file... ";
-      string _out = vm["output-file"].as<string>();
-      cout << _out << endl;
+      std::cout << "Retrieving HCAL HF QIE ADC data..." << "\n";
+      std::cout << "Input file (from DB)... ";
+      std::string _in = vm["input-file"].as<std::string>();
+      std::cout << _in << std::endl;
+      std::cout << "Output file... ";
+      std::string _out = vm["output-file"].as<std::string>();
+      std::cout << _out << std::endl;
       HcalQIEManager manager;
       manager . getHfQieTable( _in, _out );
       return 0;
@@ -276,17 +276,17 @@ int main( int argc, char **argv )
 	//int _cr = vm["crate"].as<int>();
 	string lin_master_file, comp_master_file;
 	if (!vm.count("lin-lut-master-file")){
-	  cout << "Linearizer LUT master file name is not specified..." << endl;
+	  std::cout << "Linearizer LUT master file name is not specified..." << std::endl;
 	  lin_master_file = "";
 	}
 	else{
-	  lin_master_file = vm["lin-lut-master-file"].as<string>();
+	  lin_master_file = vm["lin-lut-master-file"].as<std::string>();
 	}
 	if (!vm.count("tag-name")){
-	  cout << "tag name is not specified...exiting" << endl;
+	  std::cout << "tag name is not specified...exiting" << std::endl;
 	  break;
 	}
-	string _tag = vm["tag-name"].as<string>();
+	string _tag = vm["tag-name"].as<std::string>();
 	HcalLutManager manager;
 	manager . createLinLutXmlFiles( _tag, lin_master_file, !vm.count("do-not-split-by-crate") );
 	break;
@@ -300,24 +300,24 @@ int main( int argc, char **argv )
 	//int _cr = vm["crate"].as<int>();
 	string lin_master_file, comp_master_file;
 	if (!vm.count("lin-lut-master-file")){
-	  cout << "Linearizer LUT master file name is not specified..." << endl;
+	  std::cout << "Linearizer LUT master file name is not specified..." << std::endl;
 	  lin_master_file = "";
 	}
 	else{
-	  lin_master_file = vm["lin-lut-master-file"].as<string>();
+	  lin_master_file = vm["lin-lut-master-file"].as<std::string>();
 	}
 	if (!vm.count("comp-lut-master-file")){
-	  cout << "Compression LUT master file name is not specified..." << endl;
+	  std::cout << "Compression LUT master file name is not specified..." << std::endl;
 	  comp_master_file = "";
 	}
 	else{
-	  comp_master_file = vm["comp-lut-master-file"].as<string>();
+	  comp_master_file = vm["comp-lut-master-file"].as<std::string>();
 	}
 	if (!vm.count("tag-name")){
-	  cout << "tag name is not specified...exiting" << endl;
+	  std::cout << "tag name is not specified...exiting" << std::endl;
 	  break;
 	}
-	string _tag = vm["tag-name"].as<string>();
+	string _tag = vm["tag-name"].as<std::string>();
 	HcalLutManager manager;
 	if (comp_master_file.find("nofile")==string::npos){
 	  manager . createAllLutXmlFiles( _tag, lin_master_file, comp_master_file, !vm.count("do-not-split-by-crate") );
@@ -331,12 +331,12 @@ int main( int argc, char **argv )
     }
 
     if (vm.count("create-lut-xml-from-coder")) {
-      cout << "Creating XML with LUTs for all channels from TPG coder..." << "\n";
+      std::cout << "Creating XML with LUTs for all channels from TPG coder..." << "\n";
       if (!vm.count("tag-name")){
-	cout << "tag name is not specified...exiting" << endl;
+	cout << "tag name is not specified...exiting" << std::endl;
 	exit(-1);
       }
-      string _tag = vm["tag-name"].as<string>();
+      std::string _tag = vm["tag-name"].as<std::string>();
       HcalLutManager manager;
       manager . createCompLutXmlFilesFromCoder( _tag, !vm.count("do-not-split-by-crate") );
       return 0;
@@ -350,17 +350,17 @@ int main( int argc, char **argv )
 	//int _cr = vm["crate"].as<int>();
 	string lin_master_file, comp_master_file;
 	if (!vm.count("lin-lut-master-file")){
-	  cout << "Linearizer LUT master file name is not specified..." << endl;
+	  std::cout << "Linearizer LUT master file name is not specified..." << std::endl;
 	  lin_master_file = "";
 	}
 	else{
-	  lin_master_file = vm["lin-lut-master-file"].as<string>();
+	  lin_master_file = vm["lin-lut-master-file"].as<std::string>();
 	}
 	if (!vm.count("tag-name")){
-	  cout << "tag name is not specified...exiting" << endl;
+	  std::cout << "tag name is not specified...exiting" << std::endl;
 	  break;
 	}
-	string _tag = vm["tag-name"].as<string>();
+	string _tag = vm["tag-name"].as<std::string>();
 	HcalLutManager manager;
 	manager . createAllLutXmlFilesLinAsciiCompCoder( _tag, lin_master_file, !vm.count("do-not-split-by-crate") );
 	break;
@@ -371,13 +371,13 @@ int main( int argc, char **argv )
 
 
     if (vm.count("create-trigger-key")) {
-      cout << "Creating trigger key XML..." << "\n";
+      std::cout << "Creating trigger key XML..." << "\n";
       /*
       if (!vm.count("tag-name")){
-	cout << "tag name is not specified...exiting" << endl;
+	cout << "tag name is not specified...exiting" << std::endl;
 	exit(-1);
       }
-      string _tag = vm["tag-name"].as<string>();
+      std::string _tag = vm["tag-name"].as<std::string>();
       */
       HcalTriggerKey _key;
       _key.compose_key_dialogue();
@@ -389,40 +389,40 @@ int main( int argc, char **argv )
     }
     
     if (vm.count("get-lut-xml-from-oracle")) {
-      cout << "Getting LUTs from Oracle database..." << "\n";
+      std::cout << "Getting LUTs from Oracle database..." << "\n";
       if (!vm.count("tag-name")){
-	cout << "tag name is not specified...exiting" << endl;
+	cout << "tag name is not specified...exiting" << std::endl;
 	exit(-1);
       }
-      string _tag = vm["tag-name"].as<string>();
-      string _accessor = vm["database-accessor"].as<string>();
+      std::string _tag = vm["tag-name"].as<std::string>();
+      std::string _accessor = vm["database-accessor"].as<std::string>();
       HcalLutManager manager;
       //manager . get_brickSet_from_oracle( _tag );
-      cout << "Accessing the database as " << _accessor << endl;
-      cout << "Tag name: " << _tag << endl;
+      std::cout << "Accessing the database as " << _accessor << std::endl;
+      std::cout << "Tag name: " << _tag << std::endl;
       manager . get_xml_files_from_db( _tag, _accessor, !vm.count("do-not-split-by-crate") );
       return 0;
     }
 
 
     if (vm.count("create-lut-loader")){
-      cout << "===> Processing LUT XML files, creating the database loader..." << "\n";
-      cout << "prefix: ";
-      string _prefix = vm["prefix-name"].as<string>();
-      cout << _prefix << endl;
-      cout << "TAG_NAME: ";
-      string _tag = vm["tag-name"].as<string>();
-      cout << _tag << endl;
-      cout << "COMMENT: " << endl;
-      string _comment = vm["comment-line"].as<string>();
-      cout << _comment << endl;
-      cout << "VERSION: ";
-      string _version = vm["version-name"].as<string>();
-      cout << _version << endl;
-      cout << "SUBVERSION: ";
+      std::cout << "===> Processing LUT XML files, creating the database loader..." << "\n";
+      std::cout << "prefix: ";
+      std::string _prefix = vm["prefix-name"].as<std::string>();
+      std::cout << _prefix << std::endl;
+      std::cout << "TAG_NAME: ";
+      std::string _tag = vm["tag-name"].as<std::string>();
+      std::cout << _tag << std::endl;
+      std::cout << "COMMENT: " << std::endl;
+      std::string _comment = vm["comment-line"].as<std::string>();
+      std::cout << _comment << std::endl;
+      std::cout << "VERSION: ";
+      std::string _version = vm["version-name"].as<std::string>();
+      std::cout << _version << std::endl;
+      std::cout << "SUBVERSION: ";
       int _subversion = vm["sub-version"].as<int>();
-      cout << _subversion << endl;
-      string _file_list = vm["file-list"].as<string>();
+      std::cout << _subversion << std::endl;
+      std::string _file_list = vm["file-list"].as<std::string>();
       HcalLutManager manager;
       manager . create_lut_loader( _file_list, _prefix, _tag, _comment, _version, _subversion );
       return 0;
@@ -471,13 +471,13 @@ int main( int argc, char **argv )
       HcalChannelQualityXml xml;
       int nChan = xml.getBaseLineFromOmds("AllChannelsMasked16Jul2009v1", 82000);
       xml.addChannelToGeomIdMap(41,71,2, "HF", 23,23,"huj");
-      cout << "Channels quality obtained from OMDS for " << nChan << " channels" << endl;
+      std::cout << "Channels quality obtained from OMDS for " << nChan << " channels" << std::endl;
       for(std::map<int, HcalChannelQualityXml::ChannelQuality>::const_iterator cq = xml.geomid_cq.begin();
 	  cq != xml.geomid_cq.end();
 	  cq++){
-	cout << cq->first << "     " << cq->second.status << endl;
+	cout << cq->first << "     " << cq->second.status << std::endl;
       }
-      cout << "Channels quality obtained from OMDS for " << nChan << " channels" << endl;
+      std::cout << "Channels quality obtained from OMDS for " << nChan << " channels" << std::endl;
       return 0;
     }
     
@@ -488,10 +488,10 @@ int main( int argc, char **argv )
       iter.clearChannelList();
       iter.addListFromLmapAscii("HCALmapHBEF_Jan.27.2009.txt");
       iter.addListFromLmapAscii("HCALmapHO_Jan.27.2009.txt");
-      cout << "The iterator list contains " << iter.size() << " entries (not necessarily unique)" << endl;
-      cout << "Testing the iterator over all entries now..." << endl;
+      std::cout << "The iterator list contains " << iter.size() << " entries (not necessarily unique)" << std::endl;
+      std::cout << "Testing the iterator over all entries now..." << std::endl;
       for (iter.begin(); !iter.end(); iter.next()){
-	cout << iter.getHcalGenericDetId() << endl;
+	cout << iter.getHcalGenericDetId() << std::endl;
       }
       return 0;
     }
@@ -503,7 +503,7 @@ int main( int argc, char **argv )
 	return -1;
       }
       else{
-	string _tag = vm["tag-name"].as<string>();
+	string _tag = vm["tag-name"].as<std::string>();
 	HcalO2OManager m;
 	std::vector<uint32_t> _iovs;
 	m.getListOfOmdsIovs(_iovs, _tag);
@@ -558,10 +558,10 @@ int main( int argc, char **argv )
 	return -1;
       }
       else{
-	string _tag = vm["tag-name"].as<string>();
-	string pool_connect_string = vm["pool-connect-string"].as<string>();
-	string pool_auth_path = vm["pool-auth-path"].as<string>();
-	//cout << "DEBUG: " << pool_connect_string << endl;
+	string _tag = vm["tag-name"].as<std::string>();
+	string pool_connect_string = vm["pool-connect-string"].as<std::string>();
+	string pool_auth_path = vm["pool-auth-path"].as<std::string>();
+	//std::cout << "DEBUG: " << pool_connect_string << std::endl;
 	HcalO2OManager m;
 	std::vector<uint32_t> _iovs;
 	std::vector<uint32_t> omds_iovs;
@@ -585,29 +585,29 @@ int main( int argc, char **argv )
 	  // In some cases, special actions are taken by the o2o script
 	  // for the very first payload in a new tag.
 	  if (pool_iovs.size()==0){
-	    cout << "NEW_POOL_TAG_TRUE: " << _tag << std::endl;
+	    std::cout << "NEW_POOL_TAG_TRUE: " << _tag << std::endl;
 	  }
 	  for (std::vector<uint32_t>::const_iterator iov = _iovs.begin();
 	       iov != _iovs.end();
 	       ++iov){
-	    cout << "O2O_IOV_LIST: " << *iov << std::endl;
+	    std::cout << "O2O_IOV_LIST: " << *iov << std::endl;
 	  }
 	}
 	return 0;
       }
-      cout << "This should never be printed out. Something is fishy!" << endl;
+      std::cout << "This should never be printed out. Something is fishy!" << std::endl;
     }
     
     
     if (vm.count("test-new-developer")) {
-      cout << "Wazzup, dude?! What would you like to do?.." << "\n";
+      std::cout << "Wazzup, dude?! What would you like to do?.." << "\n";
       return 0;
     }
     
     
     
   } catch(boost::program_options::unknown_option) {
-    cout << "No command line options known to boost... continuing to getopt parser..." << endl;
+    std::cout << "No command line options known to boost... continuing to getopt parser..." << std::endl;
   }
 
   //
@@ -632,18 +632,18 @@ int main( int argc, char **argv )
   bool zs2HF_b = false;
   bool test_lut_gen_b = false;
 
-  string filename = "";
-  string path = "";
-  string tag = "";
-  string comment = "";
-  string version = "";
-  string prefix = "";
-  string rbx_type = "";
-  string aramsParameter = "";
-  string zs2HB = "";
-  string zs2HE = "";
-  string zs2HO = "";
-  string zs2HF = "";
+  std::string filename = "";
+  std::string path = "";
+  std::string tag = "";
+  std::string comment = "";
+  std::string version = "";
+  std::string prefix = "";
+  std::string rbx_type = "";
+  std::string aramsParameter = "";
+  std::string zs2HB = "";
+  std::string zs2HE = "";
+  std::string zs2HO = "";
+  std::string zs2HF = "";
 
   while (1) {
     //int this_option_optind = optind ? optind : 1;
@@ -680,7 +680,7 @@ int main( int argc, char **argv )
     c = getopt_long (argc, argv, "",
 		     long_options, &option_index);
 
-    //cout << c << endl;
+    //std::cout << c << std::endl;
 
     if (c == -1)
       {
@@ -694,12 +694,12 @@ int main( int argc, char **argv )
 	{
 	  char _buf[1024];
 	  sprintf( _buf, "%s", optarg );
-	  //cout << "filename: " << _buf << endl;
+	  //std::cout << "filename: " << _buf << std::endl;
 	  filename .append( _buf );
 	}
       else
 	{
-	  cout << "Missing file name!" << endl;
+	  std::cout << "Missing file name!" << std::endl;
 	}
       break;
       
@@ -708,12 +708,12 @@ int main( int argc, char **argv )
 	{
 	  char _buf[1024];
 	  sprintf( _buf, "%s", optarg );
-	  //cout << "path: " << _buf << endl;
+	  //std::cout << "path: " << _buf << std::endl;
 	  path .append( _buf );
 	}
       else
 	{
-	  cout << "Empty path!" << endl;
+	  std::cout << "Empty path!" << std::endl;
 	}
       break;
       
@@ -722,13 +722,13 @@ int main( int argc, char **argv )
 	{
 	  char _buf[1024];
 	  sprintf( _buf, "%s", optarg );
-	  //cout << "path: " << _buf << endl;
+	  //std::cout << "path: " << _buf << std::endl;
 	  tag .append( _buf );
 	  tag_b = true;
 	}
       else
 	{
-	  cout << "Empty tag!" << endl;
+	  std::cout << "Empty tag!" << std::endl;
 	}
       break;
       
@@ -737,12 +737,12 @@ int main( int argc, char **argv )
 	{
 	  char _buf[1024];
 	  sprintf( _buf, "%s", optarg );
-	  //cout << "path: " << _buf << endl;
+	  //std::cout << "path: " << _buf << std::endl;
 	  prefix .append( _buf );
 	}
       else
 	{
-	  cout << "Empty prefix!" << endl;
+	  std::cout << "Empty prefix!" << std::endl;
 	}
       break;
       
@@ -756,7 +756,7 @@ int main( int argc, char **argv )
 	}
       else
 	{
-	  cout << "Empty comment!" << endl;
+	  std::cout << "Empty comment!" << std::endl;
 	}
       break;
       
@@ -769,7 +769,7 @@ int main( int argc, char **argv )
 	}
       else
 	{
-	  cout << "Empty comment!" << endl;
+	  std::cout << "Empty comment!" << std::endl;
 	}
       break;
       
@@ -805,7 +805,7 @@ int main( int argc, char **argv )
 	}
       else
 	{
-	  cout << "RBX data type not defined!.." << endl;
+	  std::cout << "RBX data type not defined!.." << std::endl;
 	}
       break;
 
@@ -822,13 +822,13 @@ int main( int argc, char **argv )
       //{
       //  char _buf[1024];
       //  sprintf( _buf, "%s", optarg );
-      //  //cout << "filename: " << _buf << endl;
+      //  //std::cout << "filename: " << _buf << std::endl;
       //  filename .append( _buf );
       //  testdb_b = true;
       //}
       //else
       //{
-      //  cout << "No XML file name specified! " << endl;
+      //  std::cout << "No XML file name specified! " << std::endl;
       //}
       //break;
 
@@ -842,7 +842,7 @@ int main( int argc, char **argv )
 	}
       else
 	{
-	  cout << "No parameter specified! " << endl;
+	  std::cout << "No parameter specified! " << std::endl;
 	}
       break;
 
@@ -868,7 +868,7 @@ int main( int argc, char **argv )
 	}
       else
 	{
-	  cout << "No zero suppression value for HB specified... " << endl;
+	  std::cout << "No zero suppression value for HB specified... " << std::endl;
 	}
       break;
 
@@ -882,7 +882,7 @@ int main( int argc, char **argv )
 	}
       else
 	{
-	  cout << "No zero suppression value for HE specified... " << endl;
+	  std::cout << "No zero suppression value for HE specified... " << std::endl;
 	}
       break;
 
@@ -896,7 +896,7 @@ int main( int argc, char **argv )
 	}
       else
 	{
-	  cout << "No zero suppression value for HO specified... " << endl;
+	  std::cout << "No zero suppression value for HO specified... " << std::endl;
 	}
       break;
 
@@ -910,7 +910,7 @@ int main( int argc, char **argv )
 	}
       else
 	{
-	  cout << "No zero suppression value for HF specified... " << endl;
+	  std::cout << "No zero suppression value for HF specified... " << std::endl;
 	}
       break;
 
@@ -934,9 +934,9 @@ int main( int argc, char **argv )
   /*
   if ( luts )
     {
-      cout << "path: " << path << endl;
-      cout << "prefix: " << prefix << endl;
-      cout << "TAG_NAME: " << tag << endl;
+      std::cout << "path: " << path << std::endl;
+      std::cout << "prefix: " << prefix << std::endl;
+      std::cout << "TAG_NAME: " << tag << std::endl;
       createLUTLoader( prefix, tag );
     }
   */
@@ -952,17 +952,17 @@ int main( int argc, char **argv )
       version.append(".");
       version.append(_buf);
 
-      cout << "type: " << rbx_type << endl;
-      cout << "TAG_NAME: " << tag << endl;
-      cout << "comment: " << comment << endl;
-      cout << "version: " << version << endl;
-      //cout << "list file: " << filename << endl;
+      std::cout << "type: " << rbx_type << std::endl;
+      std::cout << "TAG_NAME: " << tag << std::endl;
+      std::cout << "comment: " << comment << std::endl;
+      std::cout << "version: " << version << std::endl;
+      //std::cout << "list file: " << filename << std::endl;
 
       if ( tag_b ){
 	createRBXLoader( rbx_type, tag, filename, comment, version );      
       }
       else{
-	cout << "Tag name not specified... exiting" << endl;
+	cout << "Tag name not specified... exiting" << std::endl;
       }
     }
   //else if ( testdb_b && tag_b )
@@ -986,23 +986,23 @@ int main( int argc, char **argv )
     {
       while(1){
 	if ( !tag_b ){
-	  cout << "No tag specified... exiting" << endl;
+	  std::cout << "No tag specified... exiting" << std::endl;
 	  break;
 	}
 	if ( !zs2HB_b ){
-	  cout << "No zero suppression value dor HB specified... exiting" << endl;
+	  std::cout << "No zero suppression value dor HB specified... exiting" << std::endl;
 	  break;
 	}
 	if ( !zs2HE_b ){
-	  cout << "No zero suppression value dor HE specified... exiting" << endl;
+	  std::cout << "No zero suppression value dor HE specified... exiting" << std::endl;
 	  break;
 	}
 	if ( !zs2HO_b ){
-	  cout << "No zero suppression value dor HO specified... exiting" << endl;
+	  std::cout << "No zero suppression value dor HO specified... exiting" << std::endl;
 	  break;
 	}
 	if ( !zs2HF_b ){
-	  cout << "No zero suppression value dor HF specified... exiting" << endl;
+	  std::cout << "No zero suppression value dor HF specified... exiting" << std::endl;
 	  break;
 	}
 	createZSLoader2( tag, comment, zs2HB, zs2HE, zs2HO, zs2HF );
@@ -1015,13 +1015,13 @@ int main( int argc, char **argv )
     }
   else
     {
-      //cout << "Nothing to do!" << endl;
+      //std::cout << "Nothing to do!" << std::endl;
     }
   
 
   delete XMLProcessor::getInstance();
 
-  cout << "xmlTools ...done" << endl;
+  std::cout << "xmlTools ...done" << std::endl;
   exit (0);  
 }
 
@@ -1039,10 +1039,10 @@ int createZSLoader( void )
   XMLHTRZeroSuppressionLoader::loaderBaseConfig baseConf;
   XMLHTRZeroSuppressionLoader::datasetDBConfig conf;
 
-  string _prefix = "GREN_ZS_9adc_v2";
-  string _comment = "ZS for GREN07, (tune=3.5)*2+2";
-  string _version = "GREN07:1";
-  string _subversion = "1";
+  std::string _prefix = "GREN_ZS_9adc_v2";
+  std::string _comment = "ZS for GREN07, (tune=3.5)*2+2";
+  std::string _version = "GREN07:1";
+  std::string _subversion = "1";
 
   baseConf . tag_name = _prefix;
   baseConf . comment_description = _comment;
@@ -1057,7 +1057,7 @@ int createZSLoader( void )
   LMap map_hbef;
   map_hbef . read( "HCALmapHBEF_11.9.2007.txt", "HBEF" ); // HBEF logical map
 
-  for( vector<LMapRow>::const_iterator row = map_hbef . _table . begin(); row != map_hbef . _table . end(); row++ )
+  for( std::vector<LMapRow>::const_iterator row = map_hbef . _table . begin(); row != map_hbef . _table . end(); row++ )
     {
       conf . comment_description = _comment;
       conf . version = _version;
@@ -1084,7 +1084,7 @@ int createZSLoader( void )
   LMap map_ho;
   map_ho . read( "HCALmapHO_11.9.2007.txt", "HO" ); // HO logical map
 
-  for( vector<LMapRow>::const_iterator row = map_ho . _table . begin(); row != map_ho . _table . end(); row++ )
+  for( std::vector<LMapRow>::const_iterator row = map_ho . _table . begin(); row != map_ho . _table . end(); row++ )
     {
       conf . comment_description = _comment;
       conf . version = _version;
@@ -1115,16 +1115,16 @@ int createZSLoader( void )
 */
 
 // Zero suppression Loader version 2
-int createZSLoader2( string & tag, string & comment, string & zs2HB, string & zs2HE, string & zs2HO, string & zs2HF )
+int createZSLoader2( std::string & tag, std::string & comment, std::string & zs2HB, std::string & zs2HE, std::string & zs2HO, std::string & zs2HF )
 {
 
   XMLHTRZeroSuppressionLoader::loaderBaseConfig baseConf;
   XMLHTRZeroSuppressionLoader::datasetDBConfig conf;
 
-  string lmap_version = "30";
+  std::string lmap_version = "30";
 
-  string _prefix = tag;
-  string _comment = comment;
+  std::string _prefix = tag;
+  std::string _comment = comment;
 
   //
   //_____ fix due to the new convention: version/subversion combo must be unique for every payload
@@ -1156,29 +1156,29 @@ int createZSLoader2( string & tag, string & comment, string & zs2HB, string & zs
   oracle::occi::Connection * _connection = db -> getConnection();  
 
   int eta_abs, side, phi, depth;
-  string subdet;
+  std::string subdet;
 
-  cout << "Preparing to request the LMAP from the database..." << endl;
+  std::cout << "Preparing to request the LMAP from the database..." << std::endl;
 
   try {
-    cout << "Preparing the query...";
+    std::cout << "Preparing the query...";
     Statement* stmt = _connection -> createStatement();
     std::string query = ("SELECT eta, side, phi, depth, subdetector, cds.version ");
     query += " FROM CMS_HCL_HCAL_CONDITION_OWNER.HCAL_HARDWARE_LOGICAL_MAPS_V3 lmap";
     query += " join cms_hcl_core_condition_owner.cond_data_sets cds ";
     query += " on cds.condition_data_set_id=lmap.condition_data_set_id ";
     query += toolbox::toString(" WHERE version='%s'", lmap_version . c_str() );
-    cout << " done" << endl;    
+    std::cout << " done" << std::endl;    
 
     //SELECT
-    cout << "Executing the query...";
+    std::cout << "Executing the query...";
     ResultSet *rs = stmt->executeQuery(query.c_str());
-    cout << " done" << endl;
+    std::cout << " done" << std::endl;
 
     RooGKCounter _channels(1,100);
     _channels . setNewLine( false );
 
-    cout << "Going through HCAL channels..." << endl;
+    std::cout << "Going through HCAL channels..." << std::endl;
     while (rs->next()) {
       _channels . count();
       eta_abs  = rs -> getInt(1);
@@ -1244,10 +1244,10 @@ int createZSLoader2( string & tag, string & comment, string & zs2HB, string & zs
 
 
 // LUT Loader
-int createLUTLoader( string _prefix, string tag_name )
+int createLUTLoader( std::string _prefix, std::string tag_name )
 {
-  cout << "Generating XML loader for LUTs..." << endl;
-  cout << _prefix << "..." << tag_name << endl;
+  std::cout << "Generating XML loader for LUTs..." << std::endl;
+  std::cout << _prefix << "..." << tag_name << std::endl;
 
   XMLLUTLoader::loaderBaseConfig baseConf;
   XMLLUTLoader::lutDBConfig conf;
@@ -1271,7 +1271,7 @@ int createLUTLoader( string _prefix, string tag_name )
 
   XMLLUTLoader doc( &baseConf );
 
-  vector<int> crate_number;
+  std::vector<int> crate_number;
   crate_number . push_back(0);
   crate_number . push_back(1);
   crate_number . push_back(2);
@@ -1288,7 +1288,7 @@ int createLUTLoader( string _prefix, string tag_name )
   crate_number . push_back(14);
   crate_number . push_back(15);
   crate_number . push_back(17);
-  vector<string> file_name;
+  std::vector<std::string> file_name;
   file_name . push_back( "./" + _prefix + "_0.xml.dat" );
   file_name . push_back( "./" + _prefix + "_1.xml.dat" );
   file_name . push_back( "./" + _prefix + "_2.xml.dat" );
@@ -1305,7 +1305,7 @@ int createLUTLoader( string _prefix, string tag_name )
   file_name . push_back( "./" + _prefix + "_14.xml.dat" );
   file_name . push_back( "./" + _prefix + "_15.xml.dat" );
   file_name . push_back( "./" + _prefix + "_17.xml.dat" );
-  for ( vector<string>::const_iterator _file = file_name . begin(); _file != file_name . end(); _file++ )
+  for ( std::vector<std::string>::const_iterator _file = file_name . begin(); _file != file_name . end(); _file++ )
     {
       conf . trig_prim_lookuptbl_data_file = *_file;
       //conf . trig_prim_lookuptbl_data_file += ".dat";
@@ -1313,7 +1313,7 @@ int createLUTLoader( string _prefix, string tag_name )
       
       char _buf[128];
       sprintf( _buf, "CRATE%.2d", conf . crate );
-      string _namelabel;
+      std::string _namelabel;
       _namelabel . append( _buf );
       conf . name_label = _namelabel;
       doc . addLUT( &conf );
@@ -1323,7 +1323,7 @@ int createLUTLoader( string _prefix, string tag_name )
   //doc . write( _prefix + "_Loader.xml" );
   doc . write( tag_name + "_Loader.xml" );
 
-  cout << "Generating XML loader for LUTs... done." << endl;
+  std::cout << "Generating XML loader for LUTs... done." << std::endl;
 
   return 0;
 }
@@ -1332,7 +1332,7 @@ int createHTRPatternLoader( void )
 {
   // HTR Patterns Loader
 
-  cout << "Generating XML loader for HTR patterns..." << endl;
+  std::cout << "Generating XML loader for HTR patterns..." << std::endl;
 
   XMLHTRPatternLoader::loaderBaseConfig baseConf;
   baseConf . tag_name = "Test tag 1";
@@ -1365,7 +1365,7 @@ int createHTRPatternLoader( void )
   // write the XML to a file
   doc . write( "HTRPatternLoader.xml" );
 
-  cout << "Generating XML loader for HTR patterns... done." << endl;
+  std::cout << "Generating XML loader for HTR patterns... done." << std::endl;
 
   // end of HTR Patterns Loader
 
@@ -1380,32 +1380,32 @@ int createLMap( void ){
 }
 
 
-int createRBXLoader( string & type_, string & tag_, string & list_file, string & _comment, string & _version )
+int createRBXLoader( std::string & type_, std::string & tag_, std::string & list_file, std::string & _comment, std::string & _version )
 {
-  string _prefix = "oracle_"; 
-  string _tag = tag_;
+  std::string _prefix = "oracle_"; 
+  std::string _tag = tag_;
   int dataset_count = 0; // subversion-to-be, must be unique within the version
 
-  std::vector<string> brickFileList;
+  std::vector<std::string> brickFileList;
   char filename[1024];
-  string listFileName = list_file;
-  ifstream inFile( listFileName . c_str(), ios::in );
+  std::string listFileName = list_file;
+  ifstream inFile( listFileName . c_str(), std::ios::in );
   if (!inFile)
     {
-      cout << " Unable to open list file" << endl;
+      std::cout << " Unable to open list file" << std::endl;
     }
   else
     {
-      cout << "List file opened successfully: " << listFileName << endl;
+      std::cout << "List file opened successfully: " << listFileName << std::endl;
     }
   while (inFile >> filename)
     {
-      string fullFileName = filename;
+      std::string fullFileName = filename;
       brickFileList . push_back( fullFileName );
     }
   inFile.close();
 
-  for ( std::vector<string>::const_iterator _file = brickFileList . begin(); _file != brickFileList . end(); _file++ )
+  for ( std::vector<std::string>::const_iterator _file = brickFileList . begin(); _file != brickFileList . end(); _file++ )
     {
       XMLRBXPedestalsLoader::loaderBaseConfig _baseConf;
       XMLRBXPedestalsLoader::datasetDBConfig _conf;
@@ -1430,7 +1430,7 @@ int createRBXLoader( string & type_, string & tag_, string & list_file, string &
 	_baseConf . name = "HCAL RBX configuration [type 2]";
       }
       else{
-	cout << "Unknown config type... exiting" << endl;
+	cout << "Unknown config type... exiting" << std::endl;
 	exit(1);
       }
 
@@ -1462,12 +1462,12 @@ int testocci( void )
   HCALConfigDB * db = new HCALConfigDB();
   const std::string _accessor = "occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22";
   db -> connect( _accessor );
-  vector<unsigned int> _lut = db -> getOnlineLUT( "gren_P3Thr5", 17, 2, 1, 1, 0, 1 );
+  std::vector<unsigned int> _lut = db -> getOnlineLUT( "gren_P3Thr5", 17, 2, 1, 1, 0, 1 );
 
-  cout << "LUT length = " << _lut . size() << endl;
-  for ( vector<unsigned int>::const_iterator i = _lut . begin(); i != _lut . end(); i++ )
+  std::cout << "LUT length = " << _lut . size() << std::endl;
+  for ( std::vector<unsigned int>::const_iterator i = _lut . begin(); i != _lut . end(); i++ )
     {
-      cout << (i-_lut.begin()) << "     " << _lut[(i-_lut.begin())] << endl;
+      std::cout << (i-_lut.begin()) << "     " << _lut[(i-_lut.begin())] << std::endl;
     }
 
   db -> disconnect();
@@ -1492,10 +1492,10 @@ int test_db_access( void )
   int etaAbs =  1;
   int phi    =  1;
   int depth  =  1;
-  string subdetector = "HB";
+  std::string subdetector = "HB";
 
-  cout << "version	" << "eta	" << "phi	" << "depth	" << "subdetector	";
-  cout << "crate	" << "slot	" << "fiber	" << "channel	" << endl;
+  std::cout << "version	" << "eta	" << "phi	" << "depth	" << "subdetector	";
+  std::cout << "crate	" << "slot	" << "fiber	" << "channel	" << std::endl;
 
   try {
     Statement* stmt = _connection -> createStatement();
@@ -1518,8 +1518,8 @@ int test_db_access( void )
       _fiber    = rs -> getInt(5);
       _channel  = rs -> getInt(6);
       
-      cout << _version << "	" << side*etaAbs << "	" << phi << "	" << depth << "	" << subdetector << "		";
-      cout << _crate << "	" << _slot << "	" << _fiber << "	" << _channel << endl;
+      std::cout << _version << "	" << side*etaAbs << "	" << phi << "	" << depth << "	" << subdetector << "		";
+      std::cout << _crate << "	" << _slot << "	" << _fiber << "	" << _channel << std::endl;
     }
     //Always terminate statement
     _connection -> terminateStatement(stmt);
@@ -1535,8 +1535,8 @@ int test_db_access( void )
 
 
 
-int lmaptest( string _param ){
-  cout << "lmaptest() is running, param = " << _param << endl;
+int lmaptest( std::string _param ){
+  std::cout << "lmaptest() is running, param = " << _param << std::endl;
 
   DBlmapReader * dbr = new DBlmapReader();
   dbr->lrTestFunction();
@@ -1559,17 +1559,17 @@ int hardware( void )
 {
   HcalHardwareXml _hw;
 
-  std::map<string,map<string,map<string,map<int,string> > > > hw_map;
+  std::map<std::string,std::map<std::string,std::map<std::string,std::map<int,std::string> > > > hw_map;
 
   ifstream infile("HBHOHE.ascii");
-  string buf;
+  std::string buf;
 
   if ( infile . is_open() ){
-  cout << "File is open" << endl;
+  std::cout << "File is open" << std::endl;
     while ( getline( infile, buf ) > 0 )
       {
-	vector<string> _line = splitString( buf );
-	//cout << _line . size() << endl;
+	vector<std::string> _line = splitString( buf );
+	//std::cout << _line . size() << std::endl;
 	if ( _line[0] != "XXXXXX" && _line[1] != "XXXXXX" && _line[2] != "XXXXXX" ){
 	  if (_line[3] != "XXXXXX") hw_map[_line[0]][_line[1]]["3040000000000" + _line[2]][1] = "3040000000000" + _line[3];
 	  if (_line[4] != "XXXXXX") hw_map[_line[0]][_line[1]]["3040000000000" + _line[2]][2] = "3040000000000" + _line[4];
@@ -1578,7 +1578,7 @@ int hardware( void )
       }
   }
   
-  cout << hw_map . size() << endl;
+  std::cout << hw_map . size() << std::endl;
 
   _hw . addHardware( hw_map );
   _hw . write("HCAL_hardware.xml");
@@ -1619,5 +1619,5 @@ void test_lut_gen( void )
   _l.push_back(0);
   _l.push_back(1);
   _l.push_back(2);
-  cout << _manager . getLutXml( _l );
+  std::cout << _manager . getLutXml( _l );
 }

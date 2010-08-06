@@ -29,8 +29,8 @@
 #include "Utilities/Timing/interface/TimingReport.h"
 #include "Utilities/Timing/interface/TimerStack.h"
 
-using namespace edm;
-using namespace std;
+
+
 
 class TrackingTruthProducer : public edm::EDProducer
 {
@@ -84,9 +84,9 @@ private:
     TrackingParticleRefProd refMergedTrackingParticles_;
     TrackingVertexRefProd   refMergedTrackingVertexes_;
 
-    typedef map<EncodedEventId, unsigned int> EncodedEventIdToIndex;
-    typedef map<EncodedTruthId, unsigned int> EncodedTruthIdToIndex;
-    typedef multimap<EncodedTruthId, unsigned int> EncodedTruthIdToIndexes;
+    typedef std::map<EncodedEventId, unsigned int> EncodedEventIdToIndex;
+    typedef std::map<EncodedTruthId, unsigned int> EncodedTruthIdToIndex;
+    typedef std::multimap<EncodedTruthId, unsigned int> EncodedTruthIdToIndexes;
 
     EncodedEventIdToIndex   eventIdCounter_;
     EncodedTruthIdToIndexes trackIdToHits_;
@@ -115,7 +115,7 @@ private:
 
     bool isBremsstrahlungVertex(
         TrackingVertex const & vertex,
-        auto_ptr<TrackingParticleCollection> & tPC
+        std::auto_ptr<TrackingParticleCollection> & tPC
     );
 
     void createTrackingTruth();

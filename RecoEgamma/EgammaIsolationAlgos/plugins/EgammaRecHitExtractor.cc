@@ -162,7 +162,7 @@ void EgammaRecHitExtractor::collect(reco::IsoDeposit &deposit,
             double phi = position.phi();
             double energy = j->energy();
             double et = energy*position.perp()/position.mag();
-            double phiDiff= deltaPhi(phi,calophi);
+            double phiDiff= reco::deltaPhi(phi,calophi);
 
             //check if we are supposed to veto clustered and then do so
             if(vetoClustered_) {

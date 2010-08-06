@@ -66,7 +66,7 @@ void DCCTBDataParser::parseFile(std::string fileName, bool singleEvent){
   resetErrorCounters();                          //reset error counters
 
   //for debug purposes
-  //cout << "Now in DCCTBDataParser::parseFile " << endl;
+  //std::cout << "Now in DCCTBDataParser::parseFile " << std::endl;
 
 	
   //if file opened correctly read data to a buffer and parse it
@@ -92,7 +92,7 @@ void DCCTBDataParser::parseFile(std::string fileName, bool singleEvent){
       sscanf((dataVector[i-1]).c_str(),"%x",(unsigned int *)myData_);
       
       //for debug purposes
-      //cout << endl << "Data position: " << dec << i << " val = " << getHexString(*myData_);
+      //std::cout << std::endl << "Data position: " << dec << i << " val = " << getHexString(*myData_);
     }
     
     inputFile.close();                              //close file
@@ -126,8 +126,8 @@ void DCCTBDataParser::parseBuffer(uint32_t * buffer, uint32_t bufferSize, bool s
   eventErrors_ = "";
 	
   //for debug purposes
-  //cout << endl << "Now in DCCTBDataParser::parseBuffer" << endl;
-  //cout << endl << "Buffer Size:" << dec << bufferSize << endl;
+  //std::cout << std::endl << "Now in DCCTBDataParser::parseBuffer" << std::endl;
+  //std::cout << std::endl << "Buffer Size:" << dec << bufferSize << std::endl;
 	
   //check if we have a coherent buffer size
   if( bufferSize%8  ){
@@ -156,10 +156,10 @@ void DCCTBDataParser::parseBuffer(uint32_t * buffer, uint32_t bufferSize, bool s
   while( processedBytes + EMPTYEVENTSIZE <= bufferSize ){
 
     //for debug purposes
-    //cout << "-> processedBytes.  =   " << dec << processedBytes << endl;
-    //cout << " -> Processed Event index =   " << dec << processedEvent_ << endl;
-    //cout << "-> First ev.word    = 0x" << hex << (*myPointer) << endl;
-    //cout << "-> word index       =   " << dec << wordIndex << endl;
+    //std::cout << "-> processedBytes.  =   " << dec << processedBytes << std::endl;
+    //std::cout << " -> Processed Event index =   " << dec << processedEvent_ << std::endl;
+    //std::cout << "-> First ev.word    = 0x" << hex << (*myPointer) << std::endl;
+    //std::cout << "-> word index       =   " << dec << wordIndex << std::endl;
     
     //check if Event Length is coherent /////////////////////////////////////////
     uint32_t bytesToEnd         = bufferSize - processedBytes;
@@ -169,16 +169,16 @@ void DCCTBDataParser::parseBuffer(uint32_t * buffer, uint32_t bufferSize, bool s
     //////////////////////////////////////////////////////////////////////////////
      
     //for debug purposes
-    //cout <<" -> EventSizeBytes        =   " << dec << eventLength*8 << endl;
+    //std::cout <<" -> EventSizeBytes        =   " << dec << eventLength*8 << std::endl;
    
 	  
 	     
     //for debug purposes debug 
-    //cout<<endl;
-    //cout<<" out... Bytes To End.... =   "<<dec<<bytesToEnd<<endl;
-    //cout<<" out... Processed Event  =   "<<dec<<processedEvent_<<endl;	
-    //cout<<" out... Event Length     =   "<<dec<<eventLength<<endl;
-    //cout<<" out... LastWord         = 0x"<<hex<<*(myPointer+eventLength*2-1)<<endl;
+    //std::cout<<std::endl;
+    //std::cout<<" out... Bytes To End.... =   "<<dec<<bytesToEnd<<std::endl;
+    //std::cout<<" out... Processed Event  =   "<<dec<<processedEvent_<<std::endl;	
+    //std::cout<<" out... Event Length     =   "<<dec<<eventLength<<std::endl;
+    //std::cout<<" out... LastWord         = 0x"<<hex<<*(myPointer+eventLength*2-1)<<std::endl;
     
     if (parseInternalData_){ 
       //build a new event block from buffer
@@ -196,7 +196,7 @@ void DCCTBDataParser::parseBuffer(uint32_t * buffer, uint32_t bufferSize, bool s
     //update processed buffer size 
     processedEvent_++;
     processedBytes += eventLength*8;
-    //cout << endl << "Processed Bytes = " << dec << processedBytes << endl;
+    //std::cout << std::endl << "Processed Bytes = " << dec << processedBytes << std::endl;
     
     //go to next event
     myPointer     += eventLength*2;
@@ -232,7 +232,7 @@ std::pair<uint32_t,uint32_t> DCCTBDataParser::checkEventLength(uint32_t *pointer
   uint32_t * myPointer = pointerToEvent + 2; 
   uint32_t eventLength = (*myPointer)&EVENTLENGTHMASK;
 
-  // cout << " Event Length(from decoding) = " << dec << eventLength << "... bytes to end... " << bytesToEnd << ", event numb : " << processedEvent_ << endl;
+  // std::cout << " Event Length(from decoding) = " << dec << eventLength << "... bytes to end... " << bytesToEnd << ", event numb : " << processedEvent_ << std::endl;
   
   bool eoeError = false;
 

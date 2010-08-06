@@ -149,7 +149,7 @@ AlCaElectronsProducer::produce (edm::Event& iEvent,
       int yy = 0;
       double currEnergy = 0.;
       EBDetId maxHit(0);
-      vector<EBDetId> scXtals;
+      std::vector<EBDetId> scXtals;
       scXtals.clear();
       const std::vector< std::pair<DetId, float> > & v1 = sc.hitsAndFractions();
       

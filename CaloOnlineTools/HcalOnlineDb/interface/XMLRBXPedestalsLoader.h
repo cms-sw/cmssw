@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Nov 06 14:30:33 CDT 2007
-// $Id: XMLRBXPedestalsLoader.h,v 1.3 2009/01/30 21:46:00 kukartse Exp $
+// $Id: XMLRBXPedestalsLoader.h,v 1.4 2009/04/14 22:53:05 kukartse Exp $
 //
 
 // system include files
@@ -35,30 +35,30 @@ class XMLRBXPedestalsLoader : public XMLDOMBlock
   typedef struct _loaderBaseConfig
   {
     _loaderBaseConfig();
-    string extention_table_name;
-    string name;
-    string run_mode;
-    string data_set_id;
-    string iov_id;
+    std::string extention_table_name;
+    std::string name;
+    std::string run_mode;
+    std::string data_set_id;
+    std::string iov_id;
     long long int iov_begin;
     long long int iov_end;
-    string tag_id;
-    string tag_mode;
-    string tag_name;
-    string detector_name;
-    string elements_comment_description;
+    std::string tag_id;
+    std::string tag_mode;
+    std::string tag_name;
+    std::string detector_name;
+    std::string elements_comment_description;
   } loaderBaseConfig;
   
   typedef struct _datasetDBConfig : public XMLProcessor::DBConfig
   {
     _datasetDBConfig();
-    string comment_description;
-    string name_label;
-    string kind_of_part;
+    std::string comment_description;
+    std::string name_label;
+    std::string kind_of_part;
   } datasetDBConfig;
   
   //XMLRBXPedestalsLoader();
-  XMLRBXPedestalsLoader( loaderBaseConfig * config, string templateBase = "HCAL_RBX_PEDESTALS_TYPE01.XMLloader.template" );
+  XMLRBXPedestalsLoader( loaderBaseConfig * config, std::string templateBase = "HCAL_RBX_PEDESTALS_TYPE01.XMLloader.template" );
   virtual ~XMLRBXPedestalsLoader();
 
   // ---------- const member functions ---------------------
@@ -66,13 +66,13 @@ class XMLRBXPedestalsLoader : public XMLDOMBlock
   // ---------- static member functions --------------------
   
   // ---------- member functions ---------------------------
-  int addRBXSlot( datasetDBConfig * config, string brickFileName,
-		  string rbx_config_type = "pedestals",
-		  string templateFileName = "HCAL_RBX_PEDESTALS_TYPE01.dataset.template" ); // pedestals, gols, delays
+  int addRBXSlot( datasetDBConfig * config, std::string brickFileName,
+		  std::string rbx_config_type = "pedestals",
+		  std::string templateFileName = "HCAL_RBX_PEDESTALS_TYPE01.dataset.template" ); // pedestals, gols, delays
   
  protected:
   int init( void );
-  int fixRbxName( string & );
+  int fixRbxName( std::string & );
 
   MemBufInputSource * _data_ped_delay; // a container for the XML template for a single pedestal or zero delay
   MemBufInputSource * _data_gol; // a container for the XML template for a single gol current

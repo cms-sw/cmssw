@@ -27,7 +27,7 @@ TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet & config) :
         pSimHitSelector_(config), pixelPSimHitSelector_(config), trackerPSimHitSelector_(config), muonPSimHitSelector_(config)
 {
     // Initialize global parameters
-    dataLabels_             = config.getParameter<vector<string> >("HepMCDataLabels");
+    dataLabels_             = config.getParameter<std::vector<std::string> >("HepMCDataLabels");
     useMultipleHepMCLabels_ = config.getParameter<bool>("useMultipleHepMCLabels");
 
     distanceCut_            = config.getParameter<double>("vertexDistanceCut");
@@ -35,7 +35,7 @@ TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet & config) :
     volumeZ_                = config.getParameter<double>("volumeZ");
     mergedBremsstrahlung_   = config.getParameter<bool>("mergedBremsstrahlung");
     removeDeadModules_      = config.getParameter<bool>("removeDeadModules");
-    simHitLabel_            = config.getParameter<string>("simHitLabel");
+    simHitLabel_            = config.getParameter<std::string>("simHitLabel");
 
     // Initialize selection for building TrackingParticles
     if ( config.exists("select") )
@@ -83,7 +83,7 @@ TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet & config) :
 }
 
 
-void TrackingTruthProducer::produce(Event &event, const EventSetup & setup)
+void TrackingTruthProducer::produce(edm::Event &event, const edm::EventSetup & setup)
 {
     // Clean the list of hepmc products
     hepMCProducts_.clear();
@@ -91,7 +91,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup & setup)
     // Collect all the HepMCProducts
     edm::Handle<edm::HepMCProduct> hepMCHandle;
 
-    for (vector<string>::const_iterator source = dataLabels_.begin(); source != dataLabels_.end(); ++source)
+    for (std::vector<std::string>::const_iterator source = dataLabels_.begin(); source != dataLabels_.end(); ++source)
     {
         if ( event.getByLabel(*source, hepMCHandle) )
         {
@@ -164,8 +164,8 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup & setup)
     if (mergedBremsstrahlung_)
     {
         // Create collections of things we will put in event,
-        mergedTrackingParticles_ = auto_ptr<TrackingParticleCollection>( new TrackingParticleCollection );
-        mergedTrackingVertexes_ = auto_ptr<TrackingVertexCollection>( new TrackingVertexCollection );
+        mergedTrackingParticles_ = std::auto_ptr<TrackingParticleCollection>( new TrackingParticleCollection );
+        mergedTrackingVertexes_ = std::auto_ptr<TrackingVertexCollection>( new TrackingVertexCollection );
 
         // Get references before put so we can cross reference
         refMergedTrackingParticles_ = event.getRefBeforePut<TrackingParticleCollection>("MergedTrackTruth");
@@ -201,7 +201,7 @@ void TrackingTruthProducer::associator(
     for (std::size_t i = 0; i < pSimHits.size(); ++i)
     {
         EncodedTruthIdToIndexes::key_type objectId = EncodedTruthIdToIndexes::key_type(pSimHits[i].eventId(), pSimHits[i].trackId());
-        association.insert( make_pair(objectId, i) );
+        association.insert( std::make_pair(objectId, i) );
     }
 }
 
@@ -218,7 +218,7 @@ void TrackingTruthProducer::associator(
     for (MixCollection<SimTrack>::MixItr iterator = mixCollection->begin(); iterator != mixCollection->end(); ++iterator, ++index)
     {
         EncodedTruthId objectId = EncodedTruthId(iterator->eventId(), iterator->trackId());
-        association.insert( make_pair(objectId, index) );
+        association.insert( std::make_pair(objectId, index) );
     }
 }
 
@@ -268,7 +268,7 @@ void TrackingTruthProducer::associator(
             objectId = EncodedTruthId(iterator->eventId(), iterator->vertexId());
         else
             objectId = EncodedTruthId(iterator->eventId(), vertexId[iterator->eventId()]++);
-        association.insert( make_pair(objectId, index) );
+        association.insert( std::make_pair(objectId, index) );
     }
 }
 
@@ -372,14 +372,14 @@ void TrackingTruthProducer::mergeBremsstrahlung()
     mergedTrackingVertexes_->reserve(trackingVertexes_->size());
 
     index = 0;
-    map<uint, uint> vertexMap;
+    std::map<uint, uint> vertexMap;
 
     // Copy non-excluded vertices discarding parent & child tracks
     for (TrackingVertexCollection::const_iterator iVC = trackingVertexes_->begin(); iVC != trackingVertexes_->end(); ++iVC, ++index)
     {
         if ( excludedTV.find(index) != excludedTV.end() ) continue;
         // Save the new location of the non excluded vertexes (take in consideration those were removed)
-        vertexMap.insert( make_pair(index, mergedTrackingVertexes_->size()) );
+        vertexMap.insert( std::make_pair(index, mergedTrackingVertexes_->size()) );
         // Copy those vertexes are not excluded
         TrackingVertex newVertex = (*iVC);
         newVertex.clearDaughterTracks();
@@ -430,7 +430,7 @@ void TrackingTruthProducer::mergeBremsstrahlung()
 
 bool TrackingTruthProducer::isBremsstrahlungVertex(
     TrackingVertex const & vertex,
-    auto_ptr<TrackingParticleCollection> & tPC
+    std::auto_ptr<TrackingParticleCollection> & tPC
 )
 {
     const TrackingParticleRefVector parents(vertex.sourceTracks());
@@ -531,7 +531,7 @@ void TrackingTruthProducer::createTrackingTruth()
                     // Push the tp in to the collection
                     trackingParticles_->push_back(trackingParticle);
                     // Vetoed the simTrack
-                    vetoedTracks.insert( make_pair(simTrackIndex, trackingParticleIndex) );
+                    vetoedTracks.insert( std::make_pair(simTrackIndex, trackingParticleIndex) );
                 }
 
                 // Verify if the parent simVertex has a simTrack or if the source is a vetoSimVertex
@@ -575,7 +575,7 @@ void TrackingTruthProducer::createTrackingTruth()
                         trackingParticles_->at(trackingParticleIndex).setVertex(xyz, t);
                     }
 
-                    vetoedSimVertexes.insert( make_pair(parentSimVertexIndex, trackingVertexIndex) );
+                    vetoedSimVertexes.insert( std::make_pair(parentSimVertexIndex, trackingVertexIndex) );
                 }
                 else
                     trackingVertexIndex = vetoedSimVertexes[parentSimVertexIndex];
@@ -616,7 +616,7 @@ void TrackingTruthProducer::createTrackingTruth()
                 }
 
                 // Vetoed the next simTrack
-                vetoedTracks.insert( make_pair(nextSimTrackIndex, trackingParticleIndex) );
+                vetoedTracks.insert( std::make_pair(nextSimTrackIndex, trackingParticleIndex) );
 
                 // Set the current simTrack as the next simTrack
                 currentSimTrack = & simTracks_->getObject(nextSimTrackIndex);

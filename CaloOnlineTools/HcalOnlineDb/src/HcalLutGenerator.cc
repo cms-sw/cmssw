@@ -20,9 +20,9 @@ using std::endl;
 
 HcalLutGenerator::HcalLutGenerator(const edm::ParameterSet& iConfig)
 {
-  cout << " --> HcalLutGenerator::HcalLutGenerator()" << endl;
-  _tag                 = iConfig.getParameter<string>("tag");
-  _lin_file            = iConfig.getParameter<string>("HO_master_file");
+  std::cout << " --> HcalLutGenerator::HcalLutGenerator()" << std::endl;
+  _tag                 = iConfig.getParameter<std::string>("tag");
+  _lin_file            = iConfig.getParameter<std::string>("HO_master_file");
   _status_word_to_mask = iConfig.getParameter<uint32_t>("status_word_to_mask");
 }
 
@@ -34,7 +34,7 @@ HcalLutGenerator::~HcalLutGenerator()
 void HcalLutGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   
-  cout << " --> HcalLutGenerator::analyze()" << endl;
+  std::cout << " --> HcalLutGenerator::analyze()" << std::endl;
   
   //
   //_____ get the coders from Event Setup _______________________________
@@ -56,7 +56,7 @@ void HcalLutGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   edm::ESHandle<HcalElectronicsMap> hEmap;
   iSetup.get<HcalElectronicsMapRcd>().get(hEmap);
   std::vector<HcalGenericDetId> vEmap = hEmap->allPrecisionId();
-  cout << "EMAP from Event Setup has " << vEmap.size() << " entries" << endl;
+  std::cout << "EMAP from Event Setup has " << vEmap.size() << " entries" << std::endl;
 
   //
   //_____ get Channel Quality conditions from Event Setup (example)______
@@ -73,7 +73,7 @@ void HcalLutGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   //_____ get list of all channels
   //
   std::vector<DetId> _channels = _cq->getAllChannels();
-  cout << "Channel Quality available for " << _channels.size() << " channels" << endl;
+  std::cout << "Channel Quality available for " << _channels.size() << " channels" << std::endl;
   //
   //_____ loop over channels
   //
@@ -99,9 +99,9 @@ void HcalLutGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       // get the 15th bit (which is supposed to mean hot channel)
       bool is_hot = _cs->isBitSet(15);
       //edm::LogInfo("LUT") << "HCAL channel ID: " << _ch->rawId()
-      //cout << "HCAL channel ID: " << _ch->rawId()
+      //std::cout << "HCAL channel ID: " << _ch->rawId()
       //   << ", status word: " << status_word
-      //   << ", hot flag: " << is_hot << endl;
+      //   << ", hot flag: " << is_hot << std::endl;
     }
   }
   */
@@ -114,8 +114,8 @@ void HcalLutGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   //HcalLutManager * manager = new HcalLutManager(&(*hEmap));
   HcalLutManager * manager = new HcalLutManager(&(*hEmap), _cq, _status_word_to_mask);
   bool split_by_crate = true;
-  cout << " tag name: " << _tag << endl;
-  cout << " HO master file: " << _lin_file << endl;
+  std::cout << " tag name: " << _tag << std::endl;
+  std::cout << " HO master file: " << _lin_file << std::endl;
 
   // default
   //manager -> createLutXmlFiles_HBEFFromCoder_HOFromAscii( _tag, *inputCoder, *transcoder, _lin_file, split_by_crate );

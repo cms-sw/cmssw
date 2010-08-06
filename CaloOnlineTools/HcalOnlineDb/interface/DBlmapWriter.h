@@ -1,7 +1,5 @@
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLDOMBlock.h"
 
-using namespace std;
-
 class DBlmapWriter
 {
   
@@ -13,8 +11,8 @@ class DBlmapWriter
     int    phi;
     int    dphi;
     int    depth;
-    string det;
-    string rbx;
+    std::string det;
+    std::string rbx;
     int    wedge;
     int    rm;
     int    pixel;
@@ -24,19 +22,19 @@ class DBlmapWriter
     int    fi_ch;
     int    crate;
     int    htr;
-    string fpga;
+    std::string fpga;
     int    htr_fi;
     int    dcc_sl;
     int    spigo;
     int    dcc;
     int    slb;
-    string slbin;
-    string slbin2;
-    string slnam;
+    std::string slbin;
+    std::string slbin2;
+    std::string slnam;
     int    rctcra;
     int    rctcar;
     int    rctcon;
-    string rctnam;
+    std::string rctnam;
     int    fedid;
   } LMapRowHBEF;
 
@@ -47,8 +45,8 @@ class DBlmapWriter
     int    phiO;
     int    dphiO;
     int    depthO;
-    string detO;
-    string rbxO;
+    std::string detO;
+    std::string rbxO;
     int    sectorO;
     int    rmO;
     int    pixelO;
@@ -56,10 +54,10 @@ class DBlmapWriter
     int    adcO;
     int    rm_fiO;
     int    fi_chO;
-    string let_codeO;
+    std::string let_codeO;
     int    crateO;
     int    htrO;
-    string fpgaO;
+    std::string fpgaO;
     int    htr_fiO;
     int    dcc_slO;
     int    spigoO;
@@ -70,11 +68,11 @@ class DBlmapWriter
   DBlmapWriter();
   ~DBlmapWriter();
 
-  XMLDOMBlock * createLMapHBEFXMLBase( string templateFileName );
-  XMLDOMBlock * createLMapHOXMLBase( string templateFileName );
+  XMLDOMBlock * createLMapHBEFXMLBase( std::string templateFileName );
+  XMLDOMBlock * createLMapHOXMLBase( std::string templateFileName );
 
-  int addLMapHBEFDataset( XMLDOMBlock * doc, LMapRowHBEF * row, string templateFileName );
-  int addLMapHODataset( XMLDOMBlock * doc, LMapRowHO * row, string templateFileName );
+  int addLMapHBEFDataset( XMLDOMBlock * doc, LMapRowHBEF * row, std::string templateFileName );
+  int addLMapHODataset( XMLDOMBlock * doc, LMapRowHO * row, std::string templateFileName );
 
   int createLMap( void );
 
