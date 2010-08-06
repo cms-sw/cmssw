@@ -44,6 +44,7 @@ class HLTAnalyzer : public edm::EDAnalyzer {
 public:
   explicit HLTAnalyzer(edm::ParameterSet const& conf);
   virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
+  virtual void beginRun(const edm::Run& , const edm::EventSetup& );
   virtual void endJob();
 
   //  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions); 
@@ -67,7 +68,7 @@ private:
   HLTInfo     hlt_analysis_;
   RECOVertex  vrt_analysis_;
 
-  int firstLumi_, lastLumi_;
+  int firstLumi_, lastLumi_, towerThreshold_;
   double xSection_, filterEff_, treeWeight;
 
   edm::InputTag recjets_,reccorjets_,genjets_,recmet_,genmet_,ht_, calotowers_,hltresults_,genEventInfo_;
