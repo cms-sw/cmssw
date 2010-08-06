@@ -54,7 +54,7 @@ def totalLumivstime(c,p='.',i='',o='.',begTime="03/30/10 10:00:00.00",endTime=No
     if not dryrun:
         statusAndOutput=commands.getstatusoutput(command)
         print statusAndOutput[1]
-def totalLumivstimeLastweek(c,p='.',i='',o='.',selectionfile=None,beamstatus=None,beamenergy=None,beamenergyfluctuation=None,dryrun=False):
+def totalLumivstimeLastweek(c,p='.',i='',o='.',selectionfile=None,beamstatus=None,beamenergy=None,beamenergyfluctuation=None,dryrun=False,withTextOutput=False):
     '''
     input:
       c connect string
@@ -63,6 +63,7 @@ def totalLumivstimeLastweek(c,p='.',i='',o='.',selectionfile=None,beamstatus=Non
       o output path
       ##fix me: year boundary is not considered!
     '''
+    t=lumiTime.lumiTime()
     plotoutname='totallumivstime-weekly.png'
     textoutname='totallumivstime-weekly.csv'
     nowTime=datetime.datetime.now()
@@ -70,7 +71,11 @@ def totalLumivstimeLastweek(c,p='.',i='',o='.',selectionfile=None,beamstatus=Non
     
     lastweekMonday=datetime.datetime(*time.strptime(lastMondayStr,'%Y %W %w')[0:5])
     lastweekEndSunday=lastweekMonday+datetime.timedelta(days=7,hours=24)
-    elements=['lumiSumPlot.py','-c',c,'-P',p,'-begin','"'+lastweekMonday+'"','-end','"'+lastweekEndSunday+'"','-batch',os.path.join(o,plotoutname),'time']
+    
+    elements=['lumiSumPlot.py','-c',c,'-P',p,'-begin','"'+t.DatetimeToStr(lastweekMonday)+'"','-end','"'+t.DatetimeToStr(lastweekEndSunday)+'"','-batch',os.path.join(o,plotoutname),'time']
+    if withTextOutput:
+        elements.append('-o')
+        elements.append(os.path.join(o,textoutname))
     command=' '.join(elements)
     print command
     if not dryrun:
@@ -239,7 +244,7 @@ def main():
     if args.action == 'totalvstime':
         totalLumivstime(connectstr,p=authpath,o=opath,dryrun=isDryrun,withTextOutput=withTextOutput)
     if args.action == 'totallumilastweek':
-        totalLumivstimeLastweek(connectstr,p=authpath,o=opath,dryrun=isDryrun)
+        totalLumivstimeLastweek(connectstr,p=authpath,o=opath,dryrun=isDryrun,withTextOutput=withTextOutput)
     if args.action == 'totalvsfill':
         totalLumivsFill(connectstr,p=authpath,o=opath,dryrun=isDryrun,withTextOutput=withTextOutput)
     if args.action == 'perday':       
