@@ -4,8 +4,8 @@
 /*
  * \file EcalDQMStatusWriter.h
  *
- * $Date: 2010/08/04 20:11:34 $
- * $Revision: 1.59 $
+ * $Date: 2010/08/06 15:34:49 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -40,6 +40,8 @@ class EcalDQMStatusWriter : public edm::EDAnalyzer {
 
   EcalDQMChannelStatus* readEcalDQMChannelStatusFromFile(const char *);
   EcalDQMTowerStatus* readEcalDQMTowerStatusFromFile(const char *);
+
+  int convert(int c);
 
   std::vector<std::string> objectName_;
   std::vector<std::string> inpFileName_;

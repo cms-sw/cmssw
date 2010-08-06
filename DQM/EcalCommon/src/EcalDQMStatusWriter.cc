@@ -1,8 +1,8 @@
 /*
  * \file EcalDQMStatusWriter.cc
  *
- * $Date: 2010/08/04 20:11:34 $
- * $Revision: 1.59 $
+ * $Date: 2010/08/06 15:34:49 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -133,7 +133,7 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
   std::cout << "Reading channel status from file " << inputFile << std::endl;
   FILE *ifile = fopen( inputFile ,"r" );
 
-  if ( !ifile ) throw cms::Exception ("Cannot open ECAL channel status file") ;
+  if ( !ifile ) throw cms::Exception ("Cannot open file") ;
 
   char line[256];
 
@@ -151,6 +151,7 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
     if ( EBorEE == "EB" ) {
 
       aStrStream >> hashedIndex >> chStatus;
+      chStatus = convert(chStatus);
       EBDetId aEBDetId=EBDetId::unhashIndex(hashedIndex);
 
       if ( chStatus!=0 ) std::cout << EBorEE << " hashedIndex " << hashedIndex << " status " <<  chStatus << std::endl;
@@ -161,6 +162,7 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
       int ix, iy, iz;
 
       aStrStream >> ix >> iy >> iz >> chStatus;
+      chStatus = convert(chStatus);
       EEDetId aEEDetId(ix, iy, iz);
 
       hashedIndex = aEEDetId.hashedIndex();
@@ -168,6 +170,7 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
       status->setValue(aEEDetId, chStatus);
 
     }
+
   }
 
   fclose(ifile);
@@ -204,7 +207,124 @@ EcalDQMTowerStatus* EcalDQMStatusWriter::readEcalDQMTowerStatusFromFile(const ch
     }
   }
 
+  std::cout << "Reading channel status from file " << inputFile << std::endl;
+  FILE *ifile = fopen( inputFile ,"r" );
+
+  if ( !ifile ) throw cms::Exception ("Cannot open file") ;
+
+  char line[256];
+
+  while ( fgets(line, 255, ifile) ) {
+
+  }
+
+  fclose(ifile);
+
   return status;
+
+}
+
+int EcalDQMStatusWriter::convert(int chStatus) {
+
+  if ( chStatus == 1 || (chStatus >= 8 && chStatus <= 12 )) {
+
+    chStatus = 0;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_MIDDLE_GAIN_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_RMS_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_MIDDLE_GAIN_RMS_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_RMS_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::TESTPULSE_LOW_GAIN_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::TESTPULSE_MIDDLE_GAIN_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::TESTPULSE_HIGH_GAIN_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::TESTPULSE_LOW_GAIN_RMS_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::TESTPULSE_MIDDLE_GAIN_RMS_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::TESTPULSE_HIGH_GAIN_RMS_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::LASER_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::LASER_RMS_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::LASER_TIMING_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::LASER_TIMING_RMS_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::LED_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::LED_RMS_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::LED_TIMING_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::LED_TIMING_RMS_ERROR;
+
+  } else if ( chStatus == 2 ) {
+
+    chStatus = 0;
+    chStatus |= 1 << EcalDQMStatusHelper::LASER_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::LASER_RMS_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::LASER_TIMING_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::LASER_TIMING_RMS_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::LED_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::LED_RMS_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::LED_TIMING_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::LED_TIMING_RMS_ERROR;
+
+  } else if ( chStatus == 3 ) {
+
+    chStatus = 0;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_MIDDLE_GAIN_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_RMS_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_MIDDLE_GAIN_RMS_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_RMS_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_WARNING;
+
+  } else if ( chStatus == 4 ) {
+
+    chStatus = 0;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_MIDDLE_GAIN_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_RMS_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_MIDDLE_GAIN_RMS_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_RMS_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR;
+
+  } else if ( chStatus == 13 || chStatus == 14 ) {
+
+    chStatus = 0;
+    chStatus |= 1 << EcalDQMStatusHelper::STATUS_FLAG_ERROR;
+
+  } else if ( (chStatus&0x3f) == 13 || (chStatus&0x7f) == 13 ||
+              (chStatus&0x3f) == 14 || (chStatus&0x7f) == 14 ) {
+
+    chStatus = 0;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_MIDDLE_GAIN_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_RMS_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_MIDDLE_GAIN_RMS_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_RMS_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::TESTPULSE_LOW_GAIN_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::TESTPULSE_MIDDLE_GAIN_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::TESTPULSE_HIGH_GAIN_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::TESTPULSE_LOW_GAIN_RMS_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::TESTPULSE_MIDDLE_GAIN_RMS_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::TESTPULSE_HIGH_GAIN_RMS_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::LASER_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::LASER_RMS_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::LASER_TIMING_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::LASER_TIMING_RMS_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::LED_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::LED_RMS_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::LED_TIMING_MEAN_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::LED_TIMING_RMS_ERROR;
+    chStatus |= 1 << EcalDQMStatusHelper::STATUS_FLAG_ERROR;
+
+  }
+
+  return( chStatus );
 
 }
 
