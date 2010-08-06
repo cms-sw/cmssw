@@ -1,11 +1,11 @@
-// $Id: Masks.cc,v 1.7 2010/08/05 19:49:59 dellaric Exp $
+// $Id: Masks.cc,v 1.8 2010/08/05 20:25:46 dellaric Exp $
 
 /*!
   \file Masks.cc
-  \brief Some "id" conversions
-  \author B. Gobbo
-  \version $Revision: 1.7 $
-  \date $Date: 2010/08/05 19:49:59 $
+  \brief channel masking
+  \author G. Della Ricca
+  \version $Revision: 1.8 $
+  \date $Date: 2010/08/05 20:25:46 $
 */
 
 #include <sstream>

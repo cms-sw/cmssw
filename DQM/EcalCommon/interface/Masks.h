@@ -3,10 +3,10 @@
 
 /*!
   \file Masks.h
-  \brief Some "id" conversions
-  \author B. Gobbo 
-  \version $Revision: 1.3 $
-  \date $Date: 2010/08/05 20:25:45 $
+  \brief channel masking
+  \author G. Della Ricca
+  \version $Revision: 1.4 $
+  \date $Date: 2010/08/06 12:28:07 $
 */
 
 #include <string>
