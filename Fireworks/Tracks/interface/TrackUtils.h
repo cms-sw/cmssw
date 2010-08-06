@@ -4,7 +4,7 @@
 //
 // Package:     Tracks
 // Class  :     TrackUtils
-// $Id: TrackUtils.h,v 1.17 2010/06/10 17:16:03 amraktad Exp $
+// $Id: TrackUtils.h,v 1.18 2010/06/21 16:14:37 matevz Exp $
 //
 
 // system include files
@@ -64,18 +64,12 @@ TEveTrack* prepareTrack( const reco::Track& track,
                          TEveTrackPropagator* propagator,
                          const std::vector<TEveVector>& extraRefPoints = std::vector<TEveVector>() );
  
-void pixelLocalXY( const double mpx, const double mpy, const DetId& id,
-                   double& lpx, double& lpy );
-
 double pixelLocalX( const double mpx, const int m_nrows );
 double pixelLocalY( const double mpy, const int m_ncols );
-void localSiPixel( TVector3& point, double lx, double ly, DetId id, const FWEventItem* iItem ); 
 void localSiStrip( TVector3& point, TVector3& pointA, TVector3& pointB, double bc, DetId id, const FWEventItem* iItem );
-// monoPoints include pixels (why?)
-void pushTrackerHits( std::vector<TVector3> &monoPoints, std::vector<TVector3> &stereoPoints, const FWEventItem &iItem, const reco::Track &t );
 void pushPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, const reco::Track &t );   
 void pushNearbyPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, const reco::Track &t );   
-void pushPixelCluster( std::vector<TVector3> &pixelPoints, const TGeoHMatrix *m, DetId id, const SiPixelCluster &c ); 
+void pushPixelCluster( std::vector<TVector3> &pixelPoints, const TGeoHMatrix *m, DetId id, const SiPixelCluster &c, std::vector<Float_t>& pars ); 
 
 
 void pushSiStripHits( std::vector<TVector3> &monoPoints, std::vector<TVector3> &stereoPoints, const FWEventItem &iItem, const reco::Track &t );
