@@ -226,13 +226,13 @@ def main():
         last2runs=[runs[-2],runs[-1]]
         instLumiForRuns(connectstr,last2runs,p=authpath,o=opath,dryrun=isDryrun)
     if args.action == 'totalvsrun':
-        if not args.ifile:
-            print 'option -i is required for action totalvsrun'
-            return 2
-        f=open(args.ifile,'r')
-        runs=[]
-        for run in f:
-            runs.append(int(run))
+        if args.ifile:
+            f=open(args.ifile,'r')
+            runs=[]
+            for run in f:
+                runs.append(int(run))
+        else:
+            runs=['132440','']
         totalLumivsRun(connectstr,p=authpath,begRun=str(runs[0]),o=opath,endRun=str(runs[-1]),dryrun=isDryrun,withTextOutput=withTextOutput)
     if args.action == 'instpeakvstime':
         instPeakPerday(connectstr,p=authpath,o=opath,dryrun=isDryrun,withTextOutput=withTextOutput)

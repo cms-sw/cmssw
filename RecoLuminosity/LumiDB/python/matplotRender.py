@@ -95,10 +95,10 @@ class matplotRender():
         #font=FontProperties(size='medium',weight='demibold')
         #annotations
         trans=matplotlib.transforms.BlendedGenericTransform(ax.transData,ax.transAxes)
-        ax.text(xpoints[0],1.025,str(xpoints[0]),transform=trans,horizontalalignment='center',size='x-small',color='green',bbox=dict(facecolor='white'))
-        ax.text(xpoints[-1],1.025,str(xpoints[-1]),transform=trans,horizontalalignment='center',size='x-small',color='green',bbox=dict(facecolor='white'))
+        ax.text(xpoints[0],1.025,str(xpoints[0]),transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
+        ax.text(xpoints[-1],1.025,str(xpoints[-1]),transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
         ax.legend(tuple(legendlist),loc='upper left')
-        self.__fig.subplots_adjust(bottom=0.1,left=0.1)
+        self.__fig.subplots_adjust(bottom=0.18,left=0.1)
         
     def plotSumX_Fill(self,rawxdata,rawydata,rawfillDict,nticks=6):
         #print 'plotSumX_Fill rawxdata ',rawxdata
