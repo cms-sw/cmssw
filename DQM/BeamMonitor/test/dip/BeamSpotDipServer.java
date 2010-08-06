@@ -17,21 +17,19 @@ implements Runnable,DipPublicationErrorHandler
 {
   // Input parameters
   public static boolean verbose = false;
-  public static boolean overwriteQuality = true; //if true, overwrite quality with qualities[0]
+  public static boolean overwriteQuality = true; //if true, change quality to qualities[0]
   public static String subjectCMS = "dip/CMS/Tracker/BeamSpot";
   public static String subjectLHC = "dip/CMS/LHC/LuminousRegion";
   public static String sourceFile = "/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResults.txt";
   public static String sourceFile1 = "/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResults_TkStatus.txt";
   public static int[] timeoutLS = {5,10}; //LumiSections
 
-  // Static variables
-  public final static String[] qualities = {"Uncertain","Bad","Good"};
   public final static boolean publishStatErrors = true;
   public final static int secPerLS = 23;
   public final static int rad2urad = 1000000;
   public final static int cm2um = 10000;
   public final static int cm2mm = 10;
-  public final static int intLS = 5; //For CMS scaler
+  public final static String[] qualities = {"Uncertain","Bad","Good"};
 
   // Coordinate transformation from CMS RF to LHC RF (ref. CMS-TK-UR-0059)
   public final static double[] trans = {-0.09,-0.11,-0.12}; //cm
@@ -40,14 +38,11 @@ implements Runnable,DipPublicationErrorHandler
   public final static double[] rotY = {Math.cos(angles[1]),Math.sin(angles[1]),Math.tan(angles[1])};
   public final static double[] rotZ = {Math.cos(angles[2]),Math.sin(angles[2]),Math.tan(angles[2])};
 
-  // DIP objects
   DipFactory dip;
   DipData messageCMS;
   DipData messageLHC;
   DipPublication publicationCMS;
   DipPublication publicationLHC;
-
-  // Initial values of Beam Spot object
   int runnum = 0;
   String startTime = getDateTime();
   String endTime = getDateTime();
@@ -74,14 +69,12 @@ implements Runnable,DipPublicationErrorHandler
   float Centroid[] = new float[3];
   float Tilt[] = new float[2];
 
-  // Others
   boolean keepRunning;
   long lastFitTime = 0;
   long lastModTime = 0;
   BitSet alive = new BitSet(8);
   int idleTime = 0;
   int lsCount = 0;
-  int currentLS = 0;
 
   public void handleException(DipPublication publication,
 			      DipException e)
@@ -128,7 +121,6 @@ implements Runnable,DipPublicationErrorHandler
         File logFile = new File(sourceFile);
 	
 	if (!logFile.exists()) {
-	    if (verbose) System.out.println("Source File: " + sourceFile + " doesn't exist!");
 	    polling();
 	    continue;
 	}
@@ -139,12 +131,12 @@ implements Runnable,DipPublicationErrorHandler
 	  if (lastFitTime == 0)
 	      lastFitTime = lastModTime;
 	  if (logFile.length() == 0) {
-	      if (lastModTime > lastFitTime) {
-		  String tmp = tkStatus();
-		  System.out.println("New run starts. Run number: " + runnum);
-		  if (verbose) System.out.println("Initial lastModTime = " + getDateTime(lastModTime));
-	      }
 	      lastFitTime = lastModTime;
+	      if (!alive.get(6)) {
+		  System.out.println("New run starts");
+		  if (verbose) System.out.println("Initial lastModTime = " + getDateTime(lastModTime));
+		  alive.flip(6);
+	      }
 	  }
 
 	  if (lastModTime > lastFitTime) {
@@ -158,6 +150,7 @@ implements Runnable,DipPublicationErrorHandler
 		  if (readRcd(br)) {
 		      trueRcd(true);
 		      alive.clear();
+		      alive.flip(6);
 		      alive.flip(7);
 		  }
 		  else fakeRcd();
@@ -223,6 +216,8 @@ implements Runnable,DipPublicationErrorHandler
 	String warnMsg = "No new data for " + idleTime + "seconds: ";
 	warnMsg += tkStatus();
 	publishRcd("Bad",warnMsg,false,false);
+	if (alive.get(6))
+	    alive.flip(6);
     }
   }
 
@@ -250,10 +245,7 @@ implements Runnable,DipPublicationErrorHandler
 		if (!tmp[1].contains("Yes"))
 		    outstr = "CMS Tracker OFF.";
 		else
-		    outstr = "CMS not taking data or No beam.";
-		break;
-	    case 8:
-		runnum = new Integer(tmp[1]);
+		    outstr = "CMS not taking data.";
 		break;
 	    default:
 		break;
@@ -302,8 +294,6 @@ implements Runnable,DipPublicationErrorHandler
 	case 4:
 	    lumiRange = record.substring(10);
 	    System.out.println("LS: " + lumiRange);
-	    currentLS = new Integer(tmp[3]);
-	    //System.out.println("Current LS: " + currentLS);
 	    break;
 	case 5:
 	    type = new Integer(tmp[1]);
@@ -313,35 +303,33 @@ implements Runnable,DipPublicationErrorHandler
 	    break;
 	case 6:
 	    x = new Float(tmp[1]);
-	    System.out.format("X0 in CMS RF   = %13.7f  [cm]%n", x);
+	    System.out.println("x0      = " + x + " [cm]");
 	    break;
 	case 7:
 	    y = new Float(tmp[1]);
-	    System.out.format("Y0 in CMS RF   = %13.7f  [cm]%n", y);
+	    System.out.println("y0      = " + y + " [cm]");
 	    break;
 	case 8:
 	    z = new Float(tmp[1]);
-	    System.out.format("Z0 in CMS RF   = %13.7f  [cm]%n", z);
+	    System.out.println("z0      = " + z + " [cm]");
 	    break;
 	case 9:
 	    sigma_z = new Float(tmp[1]);
-	    System.out.format("Sigma Z        = %11.5f    [cm]%n", sigma_z);
+	    System.out.println("sigma_z = " + sigma_z + " [cm]");
 	    break;
 	case 10:
 	    dxdz = new Float(tmp[1]);
-	    //System.out.println("dxdz           = " + dxdz + " [rad]");
+	    //System.out.println("dxdz    = " + dxdz + " [rad]");
 	    break;
 	case 11:
 	    dydz = new Float(tmp[1]);
-	    //System.out.println("dydz           = " + dydz + " [rad]");
+	    //System.out.println("dydz    = " + dydz + " [rad]");
 	    break;
 	case 12:
 	    width_x = new Float(tmp[1]);
-	    System.out.format("Sigma X        = %14.8f [cm]%n", width_x);
 	    break;
 	case 13:
 	    width_y = new Float(tmp[1]);
-	    System.out.format("Sigma Y        = %14.8f [cm]%n", width_y);
 	    break;
 	case 14:
 	    err_x = new Float(Math.sqrt(Double.parseDouble(tmp[1])));
@@ -371,7 +359,7 @@ implements Runnable,DipPublicationErrorHandler
 	    err_width_x = new Float(Math.sqrt(Double.parseDouble(tmp[7])));
 	    err_width_y = err_width_x;
 	    rcdQlty = true;
-	    if (verbose) System.out.println("End of reading current record");
+	    System.out.println("End of results");
 	    break;
 
 	default:
@@ -427,9 +415,9 @@ implements Runnable,DipPublicationErrorHandler
      Size[2] = sigma_z*cm2mm;
 
      if (verbose_) {
-	 System.out.format( "X0 in LHC RF   = %11.5f    [microns]%n", Centroid[0]);
-	 System.out.format( "Y0 in LHC RF   = %11.5f    [microns]%n", Centroid[1]);
-	 System.out.format( "Z0 in LHC RF   = %13.7f  [mm]%n", Centroid[2]);
+	 System.out.println("X0 in LHC RF   = " + Centroid[0] + " [microns]");
+	 System.out.println("Y0 in LHC RF   = " + Centroid[1] + " [microns]");
+	 System.out.println("Z0 in LHC RF   = " + Centroid[2] + " [mm]");
      }
 
      messageCMS.insert("runnum",runnum);
@@ -495,12 +483,6 @@ implements Runnable,DipPublicationErrorHandler
   {
    try
    {
-     boolean updateCMS_ = pubCMS_ && (currentLS%intLS == 0);
-     if (alive.get(7)) {
-	 if (updateCMS_) System.out.println("Publish record to CCC and CMS (beam spot scaler...)");
-	 else
-	     if (!alive.get(1) && !alive.get(2)) System.out.println("Publish record to CCC only");
-     }
      try
      {
       DipTimestamp zeit;
@@ -510,7 +492,7 @@ implements Runnable,DipPublicationErrorHandler
       }
       else zeit = new DipTimestamp();
 
-      if(updateCMS_) publicationCMS.send(messageCMS, zeit);
+      if(pubCMS_) publicationCMS.send(messageCMS, zeit);
       publicationLHC.send(messageLHC, zeit);
      } catch (ParseException e) {
 	 System.err.println("ParseException [publishRcd]: " + getDateTime());
@@ -519,15 +501,15 @@ implements Runnable,DipPublicationErrorHandler
      }
 
      if (qlty_ == qualities[0]) {
-	 if (updateCMS_) publicationCMS.setQualityUncertain(err_);
+	 if (pubCMS_) publicationCMS.setQualityUncertain(err_);
 	 publicationLHC.setQualityUncertain(err_);
      }
      else if (qlty_ == qualities[1]) {
-	 if (updateCMS_) publicationCMS.setQualityBad(err_);
+	 if (pubCMS_) publicationCMS.setQualityBad(err_);
 	 publicationLHC.setQualityBad(err_);
      }
      else if (qlty_ == "UNINITIALIZED") {
- 	 if (updateCMS_) publicationCMS.setQualityBad("UNINITIALIZED");
+ 	 if (pubCMS_) publicationCMS.setQualityBad("UNINITIALIZED");
 	 publicationLHC.setQualityBad("UNINITIALIZED");
      }
    } catch (DipException e){

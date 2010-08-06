@@ -1,6 +1,9 @@
-// $Id: HLTScalers.cc,v 1.23 2010/02/25 17:34:01 wdd Exp $
+// $Id: HLTScalers.cc,v 1.24 2010/03/17 20:54:51 wittich Exp $
 // 
 // $Log: HLTScalers.cc,v $
+// Revision 1.24  2010/03/17 20:54:51  wittich
+// add scalers that I manually reset on beginLumi
+//
 // Revision 1.23  2010/02/25 17:34:01  wdd
 // Central migration of TriggerNames class interface
 //
@@ -44,6 +47,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // HLT
 #include "DataFormats/Common/interface/TriggerResults.h"

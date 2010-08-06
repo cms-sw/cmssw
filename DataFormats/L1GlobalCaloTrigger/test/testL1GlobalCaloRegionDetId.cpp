@@ -16,13 +16,13 @@ int main() {
   bool fail=false;
 
   // Check we get back out what we constructed the object with even when we use the regionID object
-  for (unsigned rank=1; rank<64; rank++) { // Start at rank=1 since rank =0 returns the default values for the hardware, not what you input for eta and phi
+  for (unsigned rank=0; rank<64; rank++) {
     for (unsigned phi=0; phi<18; phi++) {
       for (unsigned eta=0; eta<7; eta++) {
         for (unsigned etaSign=0; etaSign<2; etaSign++) {
           for (unsigned iso=0; iso<2; iso++) {
             unsigned gctEta = (etaSign<<3)|(eta&0x7);
-            L1GctEmCand e(rank,phi,gctEta,iso);
+            L1GctEmCand e(rank,gctEta,phi,iso);
             if (e.rank()!=rank || e.etaIndex()!=gctEta || e.phiIndex()!=phi || e.isolated()!=iso) {
               cout << "Error in L1GctEmCand constructor rank=" << rank << " phi=" << phi << " eta=" << gctEta << " iso=" << iso << endl; 
               fail = true; 

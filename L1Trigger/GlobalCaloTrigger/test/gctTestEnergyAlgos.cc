@@ -305,7 +305,7 @@ bool gctTestEnergyAlgos::checkEnergySums(const L1GlobalCaloTrigger* gct) const
       if (exMinusSm>=65535) { exMinusSm -= 131072; exMinusOvrFlow = true; }
       if (eyMinusSm<-65535) { eyMinusSm += 131072; eyMinusOvrFlow = true; }
       if (eyMinusSm>=65535) { eyMinusSm -= 131072; eyMinusOvrFlow = true; }
-      if (etMinusSm>=4096)  { etMinusOvrFlow = true; }
+      if (etMinusSm>=4096)  { etMinusSm -= 4096; etMinusOvrFlow = true; }
       exMinusVl += exMinusSm;
       eyMinusVl += eyMinusSm;
       etMinusVl += etMinusSm;
@@ -313,7 +313,7 @@ bool gctTestEnergyAlgos::checkEnergySums(const L1GlobalCaloTrigger* gct) const
       if (exPlusSum>=65535) { exPlusSum -= 131072; exPlusOverFlow = true; }
       if (eyPlusSum<-65535) { eyPlusSum += 131072; eyPlusOverFlow = true; }
       if (eyPlusSum>=65535) { eyPlusSum -= 131072; eyPlusOverFlow = true; }
-      if (etPlusSum>=4096)  { etPlusOverFlow = true; }
+      if (etPlusSum>=4096)  { etPlusSum -= 4096; etPlusOverFlow = true; }
       exPlusVal += exPlusSum;
       eyPlusVal += eyPlusSum;
       etPlusVal += etPlusSum;
@@ -323,13 +323,13 @@ bool gctTestEnergyAlgos::checkEnergySums(const L1GlobalCaloTrigger* gct) const
     if (exMinusVl>=65535) { exMinusVl -= 131072; exMinusOvrFlow = true; }
     if (eyMinusVl<-65535) { eyMinusVl += 131072; eyMinusOvrFlow = true; }
     if (eyMinusVl>=65535) { eyMinusVl -= 131072; eyMinusOvrFlow = true; }
-    if (etMinusVl>=4096 || etMinusOvrFlow)  { etMinusVl = 4095; etMinusOvrFlow = true; }
+    while (etMinusVl>=4096)  { etMinusVl -= 4096; etMinusOvrFlow = true; }
 
     if (exPlusVal<-65535) { exPlusVal += 131072; exPlusOverFlow = true; }
     if (exPlusVal>=65535) { exPlusVal -= 131072; exPlusOverFlow = true; }
     if (eyPlusVal<-65535) { eyPlusVal += 131072; eyPlusOverFlow = true; }
     if (eyPlusVal>=65535) { eyPlusVal -= 131072; eyPlusOverFlow = true; }
-    if (etPlusVal>=4096 || etPlusOverFlow)  { etPlusVal = 4095; etPlusOverFlow = true; }
+    while (etPlusVal>=4096)  { etPlusVal -= 4096; etPlusOverFlow = true; }
 
     int exTotal = exMinusVl + exPlusVal;
     int eyTotal = eyMinusVl + eyPlusVal;
@@ -343,16 +343,12 @@ bool gctTestEnergyAlgos::checkEnergySums(const L1GlobalCaloTrigger* gct) const
     if (exTotal>=65535) { exTotal -= 131072; exTotalOvrFlow = true; }
     if (eyTotal<-65535) { eyTotal += 131072; eyTotalOvrFlow = true; }
     if (eyTotal>=65535) { eyTotal -= 131072; eyTotalOvrFlow = true; }
-    if (etTotal>=4096 || etTotalOvrFlow)  { etTotal = 4095; etTotalOvrFlow = true; }
+    if (etTotal>=4096)  { etTotal -= 4096; etTotalOvrFlow = true; }
 
     etmiss_vec etResult = trueMissingEt(-exTotal/2, -eyTotal/2);
 
     bool etMissOverFlow = exTotalOvrFlow || eyTotalOvrFlow;
-    if (etMissOverFlow) {
-      etResult.mag = 4095;
-      etResult.phi = 45;
-    }
-    if (etResult.mag>=4096) { etResult.mag = 4095; etMissOverFlow = true; }
+    while (etResult.mag>=4096) { etResult.mag -= 4096; etMissOverFlow = true; }
 
     //
     // Check the input to the final GlobalEnergyAlgos is as expected

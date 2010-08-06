@@ -8,13 +8,14 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 10:56:17 EST 2008
-// $Id: FWViewManagerBase.cc,v 1.14 2010/04/08 19:45:25 amraktad Exp $
+// $Id: FWViewManagerBase.cc,v 1.12 2009/04/07 14:02:32 chrjones Exp $
 //
 
 // system include files
 #include "TClass.h"
 #include "TROOT.h"
 #include <assert.h>
+#include <string>
 #include <iostream>
 #include <boost/bind.hpp>
 
@@ -36,7 +37,7 @@
 // constructors and destructor
 //
 FWViewManagerBase::FWViewManagerBase() :
-   m_context(0),
+   m_detIdToGeo(0),
    m_changeManager(0),
    m_colorManager(0)
 {
@@ -154,6 +155,11 @@ FWViewManagerBase::colorManager() const
    return *m_colorManager;
 }
 
+const DetIdToMatrix*
+FWViewManagerBase::detIdToGeo() const
+{
+   return m_detIdToGeo;
+}
 
 //
 // static member functions

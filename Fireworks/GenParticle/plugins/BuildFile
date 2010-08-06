@@ -1,0 +1,6 @@
+<library file=*.cc name=FireworksGenParticlePlugins>
+  <use name=Fireworks/Core>
+  <use name=DataFormats/HepMCCandidate>
+  <flags EDM_PLUGIN=1>
+</library>
+

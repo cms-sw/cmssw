@@ -99,6 +99,9 @@ namespace fwlite {
          ///Advance to next event in the TFile
          const Event& operator++();
 
+         ///Find index of given event-id
+         Long64_t indexFromEventId(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event);
+
          ///Go to the event at index iIndex
          bool to (Long64_t iIndex);
 

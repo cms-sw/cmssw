@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec 11 22:59:38 EST 2008
-// $Id: thetaBins.cc,v 1.3 2009/01/23 21:35:40 amraktad Exp $
+// $Id: thetaBins.cc,v 1.2 2009/01/15 19:13:30 amraktad Exp $
 //
 
 // system include files
@@ -48,9 +48,8 @@ namespace fireworks {
    std::vector<std::pair<double,double> >
    thetaBins()
    {
-      const int n_bins = fw3dlego::xbins_n - 1;
-      std::vector<std::pair<double,double> > thetaBins(n_bins);
-      for (int i = 0; i < n_bins; ++i )
+      std::vector<std::pair<double,double> > thetaBins(82);
+      for ( unsigned int i = 0; i < 82; ++i )
       {
          thetaBins[i].first  = 2*atan( exp(-fw3dlego::xbins[i]) );
          thetaBins[i].second = 2*atan( exp(-fw3dlego::xbins[i+1]) );

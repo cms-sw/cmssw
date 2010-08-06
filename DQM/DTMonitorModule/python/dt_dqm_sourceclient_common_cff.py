@@ -36,11 +36,16 @@ dtunpacker.readOutParameters.debug = False
 dtunpacker.readOutParameters.rosParameters.debug = False
 
 
-from RecoLocalMuon.Configuration.RecoLocalMuon_cff import *
+from RecoLocalMuon.Configuration.RecoLocalMuonCosmics_cff import *
 dt1DRecHits.dtDigiLabel = 'dtunpacker'
 #DTLinearDriftAlgo_CosmicData.recAlgoConfig.hitResolution = 0.05
 
+
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
+
+
+
+
 
 # Data integrity
 from DQM.DTMonitorModule.dtDataIntegrityTask_cfi import *

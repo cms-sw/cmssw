@@ -158,7 +158,7 @@ void RPCClusterSizeTest::endRun(const Run& r, const EventSetup& c,vector<Monitor
      myDetIds_.push_back(detIdVector[i]);
    }
  }
- this->clientOperation(c);
+
 }
 
 void RPCClusterSizeTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context){} 

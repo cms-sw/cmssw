@@ -1,4 +1,4 @@
-// $Id: EcalCondDBInterface.cc,v 1.22 2010/06/04 14:04:03 fra Exp $
+// $Id: EcalCondDBInterface.cc,v 1.19 2009/11/18 03:48:31 fra Exp $
 
 #include <iostream>
 #include <string>
@@ -19,6 +19,7 @@
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/RunList.h"
+#include "OnlineDB/EcalCondDB/interface/LMFRunList.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunList.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunTag.h"
 #include "OnlineDB/EcalCondDB/interface/LMFRunTag.h"
@@ -354,94 +355,6 @@ void EcalCondDBInterface::insertRunIOV(RunIOV* iov)
   conn->commit();
 }
 
-void EcalCondDBInterface::insertLmfSeq(LMFSeqDat *iov) 
-  throw(runtime_error) 
-{
-  try {
-    iov->setConnection(env, conn);
-    iov->writeDB();
-  } catch(runtime_error &e) {
-    conn->rollback();
-    throw(e);
-  }
-  conn->commit();
-}
-
-void EcalCondDBInterface::insertLmfDat(LMFDat *dat) 
-  throw(runtime_error) 
-{
-  try {
-    dat->setConnection(env, conn);
-    dat->writeDB();
-  } catch(runtime_error &e) {
-    conn->rollback();
-    throw(e);
-  }
-  conn->commit();
-}
-
-void EcalCondDBInterface::insertLmfDat(std::list<LMFDat *> dat) 
-  throw(runtime_error) 
-{
-  try {
-    std::list<LMFDat *>::iterator i = dat.begin();
-    std::list<LMFDat *>::iterator e = dat.end();
-    while (i != e) {
-      (*i)->setConnection(env, conn);
-      (*i)->writeDB();
-      i++;
-    }
-  } catch(runtime_error &e) {
-    conn->rollback();
-    throw(e);
-  }
-  conn->commit();
-}
-
-void EcalCondDBInterface::insertLmfRunIOV(LMFRunIOV *iov) 
-  throw(runtime_error) 
-{
-  try {
-    iov->setConnection(env, conn);
-    iov->writeDB();
-  } catch(runtime_error &e) {
-    conn->rollback();
-    throw(e);
-  }
-  conn->commit();
-}
-
-bool EcalCondDBInterface::fetchLMFRunIOV(const LMFSeqDat &seq, LMFRunIOV& iov, 
-					 int lmr, int type, int color ) const {
-  bool ret = false;
-  iov.setConnection(env, conn);
-  std::list<LMFRunIOV> iovlist = iov.fetchBySequence(seq, lmr, type, color);
-  int s = iovlist.size();
-  if (s > 0) {
-    iov = iovlist.front();
-    ret = true;
-    if (s > 1) {
-      // should not happen
-      std::cout << "################################" << std::endl;
-      std::cout << "################################" << std::endl;
-      std::cout << "WARNING: More than one LMFRUNIOV" << std::endl;
-      std::cout << "         Found for seq " << seq.getID() << std::endl;
-      std::cout << "         lmr " << lmr << " type " << type << std::endl;
-      std::cout << "         and color " << color << std::endl;
-      std::cout << "################################" << std::endl;
-      std::cout << "################################" << std::endl;
-    }
-  } else {
-    // find the most recent data
-    iovlist = iov.fetchLastBeforeSequence(seq, lmr, type, color);
-    s = iovlist.size();
-    if (s == 1) {
-      iov = iovlist.front();
-    } 
-  }
-  return ret;
-}
-
 void EcalCondDBInterface::updateRunIOV(RunIOV* iov)
   throw(runtime_error)
 {
@@ -570,16 +483,16 @@ DCUIOV EcalCondDBInterface::fetchDCUIOV(DCUTag* tag, Tm eventTm)
 }
 
 
+
 LMFRunIOV EcalCondDBInterface::fetchLMFRunIOV(RunTag* runtag, LMFRunTag* lmftag, run_t run, subrun_t subrun)
   throw(runtime_error)
 {
   RunIOV runiov = fetchRunIOV(runtag, run);
   LMFRunIOV lmfiov;
   lmfiov.setConnection(env, conn);
-  //  lmfiov.setByRun(lmftag, &runiov, subrun);
+  lmfiov.setByRun(lmftag, &runiov, subrun);
   return lmfiov;
 }
-
 
 
 
@@ -637,15 +550,6 @@ RunList EcalCondDBInterface::fetchRunListByLocation(RunTag tag, int min_run, int
   return r;
 }
 
-RunList EcalCondDBInterface::fetchGlobalRunListByLocation(RunTag tag, int min_run, int max_run , const LocationDef locDef) 
-  throw(std::runtime_error) {
-  RunList r;
-  r.setConnection(env, conn);
-  r.setRunTag(tag);
-  r.fetchGlobalRunsByLocation( min_run,  max_run, locDef);
-  return r;
-}
-
 RunList EcalCondDBInterface::fetchRunListLastNRuns(RunTag tag, int max_run, int n_runs) 
   throw(std::runtime_error){
   RunList r;
@@ -657,6 +561,61 @@ RunList EcalCondDBInterface::fetchRunListLastNRuns(RunTag tag, int max_run, int 
 
 
 
+
+LMFRunList EcalCondDBInterface::fetchLMFRunList(RunTag tag, LMFRunTag lmfrunTag)
+  throw(runtime_error)
+{  
+  LMFRunList r;
+  r.setConnection(env, conn);
+  r.setRunTag(tag);
+  r.setLMFRunTag(lmfrunTag);
+  r.fetchRuns();
+  return r;
+}
+
+LMFRunList EcalCondDBInterface::fetchLMFRunList(RunTag tag, LMFRunTag lmfrunTag,int min_run, int max_run)
+  throw(runtime_error)
+{  
+  LMFRunList r;
+  r.setConnection(env, conn);
+  r.setRunTag(tag);
+  r.setLMFRunTag(lmfrunTag);
+  r.fetchRuns(min_run, max_run);
+  return r;
+}
+
+LMFRunList EcalCondDBInterface::fetchLMFRunList(RunTag tag, LMFRunTag lmfrunTag,uint64_t min_time, int min_run, int end_run)
+  throw(runtime_error)
+{  
+  LMFRunList r;
+  r.setConnection(env, conn);
+  r.setRunTag(tag);
+  r.setLMFRunTag(lmfrunTag);
+  r.fetchRuns(min_time, min_run, end_run);
+  return r;
+}
+
+LMFRunList EcalCondDBInterface::fetchLMFRunListLastNRuns(RunTag tag, LMFRunTag lmfrunTag,int max_run, int n_runs )
+  throw(runtime_error)
+{  
+  LMFRunList r;
+  r.setConnection(env, conn);
+  r.setRunTag(tag);
+  r.setLMFRunTag(lmfrunTag);
+  r.fetchLastNRuns(max_run, n_runs );
+  return r;
+}
+
+LMFRunList EcalCondDBInterface::fetchLMFRunListLastNRunsBefore(RunTag tag, LMFRunTag lmfrunTag, uint64_t min_time, int n_runs )
+  throw(runtime_error)
+{  
+  LMFRunList r;
+  r.setConnection(env, conn);
+  r.setRunTag(tag);
+  r.setLMFRunTag(lmfrunTag);
+  r.fetchLastNRunsBefore(min_time, n_runs );
+  return r;
+}
 
 // from here it is for the MonRunList 
 

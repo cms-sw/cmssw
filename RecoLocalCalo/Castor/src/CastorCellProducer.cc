@@ -13,7 +13,7 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Wed Jul  9 14:00:40 CEST 2008
-// $Id: CastorCellProducer.cc,v 1.5 2010/06/29 11:30:28 hvanhaev Exp $
+// $Id: CastorCellProducer.cc,v 1.3 2010/01/22 14:02:36 hvanhaev Exp $
 //
 //
 
@@ -99,6 +99,7 @@ void CastorCellProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   using namespace edm;
   using namespace reco;
+  using namespace std;
   using namespace TMath;
   
   // Produce CastorCells from CastorRecHits
@@ -106,7 +107,7 @@ void CastorCellProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   edm::Handle<CastorRecHitCollection> InputRecHits;
   iEvent.getByLabel(input_, InputRecHits);
     
-  std::auto_ptr<CastorCellCollection> OutputCells (new CastorCellCollection);
+  auto_ptr<CastorCellCollection> OutputCells (new CastorCellCollection);
    
   // looping over all CastorRecHits
 
@@ -157,8 +158,8 @@ void CastorCellProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     Point cellposition(tempcellposition);
     
     LogDebug("CastorCellProducer")
-      <<"cell number: "<<i+1<<std::endl
-      <<"rho: "<<cellposition.rho()<<" phi: "<<cellposition.phi()*MYR2D<<" eta: "<<cellposition.eta()<<std::endl
+      <<"cell number: "<<i+1<<endl
+      <<"rho: "<<cellposition.rho()<<" phi: "<<cellposition.phi()*MYR2D<<" eta: "<<cellposition.eta()<<endl
       <<"x: "<<cellposition.x()<<" y: "<<cellposition.y()<<" z: "<<cellposition.z();
     
     if (energy > 0.) {

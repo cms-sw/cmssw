@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2010/07/01 09:59:35 $
- * $Revision: 1.214 $
+ * $Date: 2010/05/27 09:51:31 $
+ * $Revision: 1.211 $
  * \author G. Della Ricca
  *
 */
@@ -157,8 +157,6 @@ EBSummaryClient::EBSummaryClient(const edm::ParameterSet& ps) {
     htmt01_[ism-1] = 0;
 
   }
-
-  synchErrorThreshold_ = 0.05;
 
 }
 
@@ -1096,14 +1094,6 @@ void EBSummaryClient::analyze(void) {
       me = dqmStore_->get(histo);
       htmt01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, htmt01_[ism-1] );
 
-      sprintf(histo, (prefixME_ + "/EcalInfo/EBMM DCC").c_str());
-      me = dqmStore_->get(histo);
-      norm01_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, norm01_ );
-
-      sprintf(histo, (prefixME_ + "/EBRawDataTask/EBRDT L1A FE errors").c_str());
-      me = dqmStore_->get(histo);
-      synch01_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, synch01_ );
-
       for ( int ie = 1; ie <= 85; ie++ ) {
         for ( int ip = 1; ip <= 20; ip++ ) {
 
@@ -1869,9 +1859,6 @@ void EBSummaryClient::analyze(void) {
 
       if(meIntegrity_ && mePedestalOnline_ && meTiming_ && meStatusFlags_ && meTriggerTowerEmulError_) {
 
-        int ism = (ipx-1)/20 + 1 ;
-        if ( iex>85 ) ism+=18;
-
         float xval = 6;
         float val_in = meIntegrity_->getBinContent(ipx,iex);
         float val_po = mePedestalOnline_->getBinContent(ipx,iex);
@@ -1931,11 +1918,8 @@ void EBSummaryClient::analyze(void) {
         // are reverted back to yellow
         float iEntries=0;
 
-        if(norm01_ && synch01_) {
-          float frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm01_->GetBinContent(ism));
-          float val_sy = (frac_synch_errors < synchErrorThreshold_);
-          if(val_sy==0) xval=0;
-        }
+        int ism = (ipx-1)/20 + 1 ;
+        if ( iex>85 ) ism+=18;
 
         std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
         if (iter != superModules_.end()) {

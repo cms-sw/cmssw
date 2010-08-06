@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: BeamFitter.h,v 1.36 2010/06/24 22:01:55 uplegger Exp $
+ version $Id: BeamFitter.h,v 1.34 2010/06/03 22:56:31 jengbou Exp $
 
  ________________________________________________________________**/
 
@@ -88,7 +88,6 @@ class BeamFitter {
   }
  private:
 
-  const char * formatBTime( const std::time_t);
   std::vector<BSTrkParameters> fBSvector;
   reco::BeamSpot fbeamspot;
   reco::BeamSpot fbeamWidthFit;
@@ -127,7 +126,6 @@ class BeamFitter {
   TH1F* h1z;
   bool saveNtuple_;
   bool saveBeamFit_;
-  bool savePVVertices_;
   std::string outputfilename_;
   TFile* file_;
   TTree* ftree_;
@@ -194,7 +192,6 @@ class BeamFitter {
   int countPass[9];
 
   PVFitter *MyPVFitter;
-  TTree* fPVTree_;
 
 };
 

@@ -1,0 +1,11 @@
+<library file=*.cc name=FireworksTracksPlugins>
+  <use name=DataFormats/TrackReco>
+  <use name=Fireworks/Tracks>
+  <use name=Fireworks/Core>
+  <use name=DataFormats/BTauReco>
+  <use name=DataFormats/SiStripCluster>
+  <use name=DataFormats/SiPixelCluster>
+  <use name=DataFormats/FWLite>
+  <flags EDM_PLUGIN=1>
+</library>
+

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 14:48:14 EDT 2008
-// $Id: FWItemAccessorFactory.cc,v 1.9 2010/06/03 19:26:59 chrjones Exp $
+// $Id: FWItemAccessorFactory.cc,v 1.6 2010/02/26 09:41:02 eulisse Exp $
 //
 
 // system include files
@@ -23,7 +23,6 @@
 #include "Fireworks/Core/interface/FWItemAccessorRegistry.h"
 #include "Fireworks/Core/src/FWItemTVirtualCollectionProxyAccessor.h"
 #include "Fireworks/Core/src/FWItemSingleAccessor.h"
-#include "Fireworks/Core/interface/fwLog.h"
 
 //
 // constants, enums and typedefs
@@ -68,7 +67,6 @@ FWItemAccessorFactory::~FWItemAccessorFactory()
 //
 // const member functions
 //
-
 /** Create an accessor for a given type @a iClass.
    
     @a iClass the type for which we need an accessor.
@@ -87,37 +85,47 @@ FWItemAccessorFactory::~FWItemAccessorFactory()
     given type.
 
     Failing that, we return a FWItemSingleAccessor which threats
-    the object as if it was not a collection. Notice that this also will
-    mean that the product associated to @a iClass will not show up in the
-    "Add Collection" table.
+    the object as if it was not a collection. 
  */
 boost::shared_ptr<FWItemAccessorBase>
 FWItemAccessorFactory::accessorFor(const TClass* iClass) const
 {
-   TClass *member = 0;
-   size_t offset=0;
+  //std::cout <<"accessFor "<<iClass->GetName()<<std::endl;
+  
+  //check if this is a collection known by ROOT but also that the item held by the colletion actually has a dictionary  
+   if(iClass->GetCollectionProxy() && 
+      iClass->GetCollectionProxy()->GetValueClass() &&
+      iClass->GetCollectionProxy()->GetValueClass()->IsLoaded()) {
+      return boost::shared_ptr<FWItemAccessorBase>(new FWItemTVirtualCollectionProxyAccessor(iClass,
+                                                                                             boost::shared_ptr<TVirtualCollectionProxy>(iClass->GetCollectionProxy()->Generate())));
+   } else {
+      assert(iClass->GetTypeInfo());
+      ROOT::Reflex::Type dataType(ROOT::Reflex::Type::ByTypeInfo(*(iClass->GetTypeInfo())));
+      assert(dataType != ROOT::Reflex::Type());
 
-   if(hasTVirtualCollectionProxy(iClass)) 
-   {
-      fwLog(fwlog::kDebug) << "class " << iClass->GetName()
-         << " uses FWItemTVirtualCollectionProxyAccessor." << std::endl;
-      return boost::shared_ptr<FWItemAccessorBase>(
-         new FWItemTVirtualCollectionProxyAccessor(iClass,
-            boost::shared_ptr<TVirtualCollectionProxy>(iClass->GetCollectionProxy()->Generate())));
-   } 
-   else if (hasMemberTVirtualCollectionProxy(iClass, member,offset)) 
-   {
-      fwLog(fwlog::kDebug) << "class "<< iClass->GetName()
-                           << " only contains data member " << member->GetName()
-                           << " which uses FWItemTVirtualCollectionProxyAccessor."
-                           << std::endl;
-   	   
-      return boost::shared_ptr<FWItemAccessorBase>(
-         new FWItemTVirtualCollectionProxyAccessor(iClass,
-            boost::shared_ptr<TVirtualCollectionProxy>(member->GetCollectionProxy()->Generate()),
-                                                   offset));
+      //is this an object which has only one member item and that item is a container?
+      if(dataType.DataMemberSize()==1) {
+         ROOT::Reflex::Type memType( dataType.DataMemberAt(0).TypeOf() );
+         assert(memType != ROOT::Reflex::Type());
+	 //std::cout <<"    memType:"<<memType.Name()<<std::endl;
+	 //make sure this is the real type and not a typedef
+	 memType = memType.FinalType();
+         const TClass* rootMemType = TClass::GetClass(memType.TypeInfo());
+         //check if this is a collection known by ROOT but also that the item held by the colletion actually has a dictionary  
+         if(rootMemType &&
+            rootMemType->GetCollectionProxy() &&
+            rootMemType->GetCollectionProxy()->GetValueClass() &&
+            rootMemType->GetCollectionProxy()->GetValueClass()->IsLoaded() ) {
+            //std::cout <<"  reaching inside object data member"<<std::endl;
+            return boost::shared_ptr<FWItemAccessorBase>(
+                      new FWItemTVirtualCollectionProxyAccessor(iClass,
+                                                                boost::shared_ptr<TVirtualCollectionProxy>(rootMemType->GetCollectionProxy()->Generate())));
+         }
+      }
    }
    
+   //std::cout <<"  single"<<std::endl;
+ 
    // Iterate on the available plugins and use the one which handles 
    // the iClass type. 
    // NOTE: This is done only a few times, not really performance critical.
@@ -125,112 +133,16 @@ FWItemAccessorFactory::accessorFor(const TClass* iClass) const
    // constructor. Notice that this will require constructing FWEventItemsManager 
    // after the plugin manager (i.e. invoking AutoLibraryLoader::enable()) is configured
    // (i.e. invoking AutoLibraryLoader::enable()) in CmsShowMain.
-   std::string accessorName;
-   if (hasAccessor(iClass, accessorName))
-   {
-      fwLog(fwlog::kDebug) << "class " << iClass->GetName() << " uses " 
-                           << accessorName << "." << std::endl;
-      return boost::shared_ptr<FWItemAccessorBase>(FWItemAccessorRegistry::get()->create(accessorName, iClass));
-   }
-   
-   return boost::shared_ptr<FWItemAccessorBase>(new FWItemSingleAccessor(iClass));
-}
-
-/** Helper method which @return true if the passes @a iClass can be accessed via
-    TVirtualCollectionProxy.
-  */
-bool
-FWItemAccessorFactory::hasTVirtualCollectionProxy(const TClass *iClass)
-{
-   // Check if this is a collection known by ROOT but also that the item held by
-   // the colletion actually has a dictionary  
-   return iClass &&
-          iClass->GetCollectionProxy() && 
-          iClass->GetCollectionProxy()->GetValueClass() &&
-          iClass->GetCollectionProxy()->GetValueClass()->IsLoaded();
-}
-
-/** Helper method which checks if the object has only one data member and 
-    if that data memeber can be accessed via a TVirtualCollectionProxy.
-    
-    @a oMember a reference to the pointer which will hold the actual TClass
-     of the datamember to be used to build the TVirtualCollectionProxy.
- 
-    @oOffset a reference which will hold the offset of the member relative
-     to the beginning address of a class instance.
-    
-    @return true if this is the case, false otherwise.
-*/
-bool
-FWItemAccessorFactory::hasMemberTVirtualCollectionProxy(const TClass *iClass,
-                                                        TClass *&oMember,
-                                                        size_t& oOffset)
-{
-   assert(iClass->GetTypeInfo());
-   ROOT::Reflex::Type dataType(ROOT::Reflex::Type::ByTypeInfo(*(iClass->GetTypeInfo())));
-   assert(dataType != ROOT::Reflex::Type());
-
-   // If the object has more than one data member, we avoid guessing. 
-   if (dataType.DataMemberSize() != 1)
-      return false;
-   
-   ROOT::Reflex::Type memType(dataType.DataMemberAt(0).TypeOf());
-   assert(memType != ROOT::Reflex::Type());
-   //make sure this is the real type and not a typedef
-   memType = memType.FinalType();
-   oMember = TClass::GetClass(memType.TypeInfo());
-   oOffset = dataType.DataMemberAt(0).Offset();
-   
-   // Check if this is a collection known by ROOT but also that the item held by
-   // the colletion actually has a dictionary  
-            
-   if (!hasTVirtualCollectionProxy(oMember))
-      return false;
-
-   return true;
-}
-
-/** Helper method which can be used to retrieve the name of the accessor 
-    plugin which has to be created for a object of type @a iClass.
-    
-    The result is stored in the passed reference @a result.
-    
-    @return true if the plugin coul be found, false otherwise.
- */
-bool
-FWItemAccessorFactory::hasAccessor(const TClass *iClass, std::string &result)
-{
-   const std::vector<edmplugin::PluginInfo> &available 
-      = FWItemAccessorRegistry::get()->available();
-   
+   const std::vector<edmplugin::PluginInfo> &available = FWItemAccessorRegistry::get()->available();
    for (size_t i = 0, e = available.size(); i != e; ++i)
    {
       std::string name = available[i].name_;
       std::string type = name.substr(0, name.find_first_of('@'));
       if (iClass->GetTypeInfo()->name() == type)
-      {
-         result.swap(name);
-         return true;
-      }
-   }
-   return false; 
-}
+        return boost::shared_ptr<FWItemAccessorBase>(FWItemAccessorRegistry::get()->create(name, iClass));
+   } 
 
-/** Helper method which checks if the object will be treated as a collection.
- 
- @return true if this is the case, false otherwise.
- */
-
-bool FWItemAccessorFactory::classAccessedAsCollection(const TClass* iClass)
-{
-   std::string accessorName;
-   TClass *member = 0;
-   size_t offset=0;
-   
-   // This is pretty much the same thing that happens 
-   return (FWItemAccessorFactory::hasTVirtualCollectionProxy(iClass) 
-           || FWItemAccessorFactory::hasMemberTVirtualCollectionProxy(iClass, member,offset)
-           || FWItemAccessorFactory::hasAccessor(iClass, accessorName));
+   return boost::shared_ptr<FWItemAccessorBase>(new FWItemSingleAccessor(iClass));
 }
 
 //

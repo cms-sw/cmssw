@@ -16,15 +16,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 13:55:42 EST 2008
-// $Id: fw3dlego_xbins.h,v 1.2 2009/01/23 21:35:42 amraktad Exp $
+// $Id: fw3dlego_xbins.h,v 1.1 2008/12/03 20:48:06 chrjones Exp $
 //
 
 namespace fw3dlego
 {
-   extern const int    xbins_n;
-   extern const double xbins[];
-   extern const int    xbins_hf_n;
-   extern const double xbins_hf[];
+   extern const double xbins[83];
 }
 
 #endif

@@ -2,7 +2,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "DataFormats/HcalDigi/interface/HcalUpgradeDataFrame.h"
 #include <iostream>
 
 using namespace std;
@@ -10,8 +9,8 @@ using namespace std;
 
 /** \class HcalDigiDump
       
-$Date: 2010/02/25 00:29:59 $
-$Revision: 1.16 $
+$Date: 2009/09/11 19:46:41 $
+$Revision: 1.15 $
 \author J. Mans - Minnesota
 */
 class HcalDigiDump : public edm::EDAnalyzer {
@@ -30,13 +29,11 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   std::vector<edm::Handle<HFDigiCollection> > hf;
   std::vector<edm::Handle<ZDCDigiCollection> > zdc;
   std::vector<edm::Handle<CastorDigiCollection> > castor;
-  std::vector<edm::Handle<CastorTrigPrimDigiCollection> > castortp;
   std::vector<edm::Handle<HcalCalibDigiCollection> > hc;
   std::vector<edm::Handle<HcalTrigPrimDigiCollection> > htp;
   std::vector<edm::Handle<HOTrigPrimDigiCollection> > hotp;
   std::vector<edm::Handle<HcalHistogramDigiCollection> > hh;  
   std::vector<edm::Handle<HcalTTPDigiCollection> > ttp;
-  std::vector<edm::Handle<HcalUpgradeDigiCollection> > hup;
 
   try {
     e.getManyByType(hbhe);
@@ -143,20 +140,6 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   }
 
   try {
-    e.getManyByType(castortp);
-    std::vector<edm::Handle<CastorTrigPrimDigiCollection> >::iterator i;
-    for (i=castortp.begin(); i!=castortp.end(); i++) {
-      const CastorTrigPrimDigiCollection& c=*(*i);
-      
-      for (CastorTrigPrimDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
-	cout << *j << std::endl;
-
-    }
-  } catch (...) {
-    cout << "No CASTOR Trigger Primitive Digis." << endl;
-  }
-
-  try {
     e.getManyByType(ttp);
     std::vector<edm::Handle<HcalTTPDigiCollection> >::iterator i;
     for (i=ttp.begin(); i!=ttp.end(); i++) {
@@ -182,19 +165,6 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   } catch (...) {
   }
   
-  try {
-    e.getManyByType(hup);
-    std::vector<edm::Handle<HcalUpgradeDigiCollection> >::iterator i;
-    for (i=hup.begin(); i!=hup.end(); i++) {
-      const HcalUpgradeDigiCollection& c=*(*i);
-      
-      for (HcalUpgradeDigiCollection::const_iterator j=c.begin(); j!=c.end(); j++)
-	cout << *j << std::endl;
-    }
-  } catch (...) {
-  }
-
-
   cout << endl;    
 }
 

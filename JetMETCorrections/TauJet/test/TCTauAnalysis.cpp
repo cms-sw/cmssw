@@ -54,7 +54,6 @@ class TCTauAnalysis : public edm::EDAnalyzer {
 	float MCTau_pt,MCTau_eta,MCTau_phi;
 	float PFTau_pt,PFTau_eta,PFTau_phi,PFTau_nProngs,PFTau_ltrackPt,PFTau_d_isol,PFTau_d_1,PFTau_d_2;
 	float CaloTau_pt,CaloTau_eta,CaloTau_phi,CaloTau_nProngs,CaloTau_ltrackPt,CaloTau_d_isol,CaloTau_d_1,CaloTau_d_2;
-	float JPTTau_pt,JPTTau_eta,JPTTau_phi;
 	float TCTau_pt,TCTau_eta,TCTau_phi,TCTau_nProngs,TCTau_ltrackPt,TCTau_d_isol,TCTau_d_1,TCTau_d_2,TCTau_algo;
         float TCTau_pt_raw,TCTau_eta_raw,TCTau_phi_raw;
 
@@ -142,10 +141,6 @@ TCTauAnalysis::TCTauAnalysis(const edm::ParameterSet& iConfig){
 	CaloTau_d_isol = 0;   tauTree->Branch("CaloTau_d_isol",  &CaloTau_d_isol,  "CaloTau_d_isol/F");
         CaloTau_d_1 = 0;      tauTree->Branch("CaloTau_d_1",  &CaloTau_d_1,  "CaloTau_d_1/F");
         CaloTau_d_2 = 0;      tauTree->Branch("CaloTau_d_2",  &CaloTau_d_2,  "CaloTau_d_2/F");
-
-        JPTTau_pt  = 0;      tauTree->Branch("JPTTau_pt",  &JPTTau_pt,  "JPTTau_pt/F");
-        JPTTau_eta = 0;      tauTree->Branch("JPTTau_eta", &JPTTau_eta, "JPTTau_eta/F");
-        JPTTau_phi = 0;      tauTree->Branch("JPTTau_phi", &JPTTau_phi, "JPTTau_phi/F");
 
         TCTau_pt  = 0;      tauTree->Branch("TCTau_pt",  &TCTau_pt,  "TCTau_pt/F");
         TCTau_eta = 0;      tauTree->Branch("TCTau_eta", &TCTau_eta, "TCTau_eta/F");
@@ -409,10 +404,6 @@ void TCTauAnalysis::fillTCTau(CaloTauRef theTau){
         cout << "CaloTau+JPT+TCTau Et = " << jptTCTauCorrected.pt() <<endl;
 
         nTCTaus++;
-
-	JPTTau_pt  = jptTCTauCorrected.caloTauTagInfoRef()->jetRef()->pt();
-	JPTTau_eta = jptTCTauCorrected.caloTauTagInfoRef()->jetRef()->eta();
-	JPTTau_phi = jptTCTauCorrected.caloTauTagInfoRef()->jetRef()->phi();
 
         TCTau_pt       = jptTCTauCorrected.pt();
         TCTau_eta      = jptTCTauCorrected.eta();
