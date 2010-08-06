@@ -179,7 +179,6 @@ void SiStripLorentzAngleDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsM
     // -----
 
     for(unsigned int i=0;i< sameLayerDetIds_.size(); i++){
-      try{ 
 	selME_.SummaryOfProfileDistr->Fill(i+1,lorentzangleHandle_->getLorentzAngle(sameLayerDetIds_[i]));
 
 	// Fill the Histo_TkMap+TkMap with the LA:
@@ -191,14 +190,6 @@ void SiStripLorentzAngleDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsM
 	  fillTkMap(sameLayerDetIds_[i], lorentzangleHandle_->getLorentzAngle(sameLayerDetIds_[i]));
 	}
 	
-      }
-      catch(cms::Exception& e){
-	edm::LogError("SiStripLorentzAngleDQM")
-	  << "[SiStripLorentzAngleDQM::fillMEsForLayer] cms::Exception accessing lorentzangleHandle_->getLorentzAngle() for detId "
-	  << selDetId_
-	  << " :  "
-	  << e.what() ;
-      } 
     } 
     
     std::string hSummaryOfCumul_description;
@@ -217,16 +208,7 @@ void SiStripLorentzAngleDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsM
     hSummaryOfCumul_name = hidmanager.createHistoLayer(hSummaryOfCumul_description, "layer", getStringNameAndId(selDetId_).first, "") ;
     
     for(unsigned int i=0;i< sameLayerDetIds_.size(); i++){
-      try{ 
 	selME_.SummaryOfCumulDistr->Fill(lorentzangleHandle_->getLorentzAngle(sameLayerDetIds_[i]));
-      }
-      catch(cms::Exception& e){
-	edm::LogError("SiStripLorentzAngleDQM")
-	  << "[SiStripLorentzAngleDQM::fillMEsForLayer] cms::Exception accessing lorentzangleHandle_->getLorentzAngle() for detId "
-	  << selDetId_
-	  << " :  "
-	  << e.what() ;
-      } 
     } 
   } //FILLING FOR STRING LEVEL
   
@@ -250,7 +232,6 @@ void SiStripLorentzAngleDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsM
       sameLayerDetIds_=GetSameLayerDetId(activeDetIds,selDetId_);     
 
       for(unsigned int i=0;i< sameLayerDetIds_.size(); i++){
-	try{ 
 	  selME_.SummaryOfProfileDistr->Fill(i+1,lorentzangleHandle_->getLorentzAngle(sameLayerDetIds_[i]));
 
 	  // Fill the Histo_TkMap with LA:
@@ -261,14 +242,6 @@ void SiStripLorentzAngleDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsM
 
 	}
 
-	}
-	catch(cms::Exception& e){
-	  edm::LogError("SiStripLorentzAngleDQM")
-	    << "[SiStripLorentzAngleDQM::fillMEsForLayer] cms::Exception accessing lorentzangleHandle_->getLorentzAngle() for detId "
-	    << selDetId_
-	    << " :  "
-	    << e.what() ;
-	} 
       } 
     }//if Fill ...
 
@@ -290,16 +263,7 @@ void SiStripLorentzAngleDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsM
       hSummaryOfCumul_name = hidmanager.createHistoLayer(hSummaryOfCumul_description, "layer", getLayerNameAndId(selDetId_).first, "") ;
     
       for(unsigned int i=0;i< sameLayerDetIds_.size(); i++){
-	try{ 
 	  selME_.SummaryOfCumulDistr->Fill(lorentzangleHandle_->getLorentzAngle(sameLayerDetIds_[i]));
-	}
-	catch(cms::Exception& e){
-	  edm::LogError("SiStripLorentzAngleDQM")
-	    << "[SiStripLorentzAngleDQM::fillMEsForLayer] cms::Exception accessing lorentzangleHandle_->getLorentzAngle() for detId "
-	    << selDetId_
-	    << " :  "
-	    << e.what() ;
-	} 
       }
     }//if Fill ... 
   } //FILLING FOR LAYER LEVEL
