@@ -67,7 +67,7 @@ void SiStripBaseCondObjDQM::analysis(const edm::EventSetup & eSetup_){
   if(Mod_On_ )                                            { fillModMEs(activeDetIds); }
   if(SummaryOnLayerLevel_On_ || SummaryOnStringLevel_On_ ){ fillSummaryMEs(activeDetIds);}
 
-  string filename = hPSet_.getParameter<std::string>("TkMapName");
+  std::string filename = hPSet_.getParameter<std::string>("TkMapName");
   if (filename!=""){
     char sRun[128];
     sprintf(sRun,"_Run_%d",eSetup_.iovSyncValue().eventID().run());
