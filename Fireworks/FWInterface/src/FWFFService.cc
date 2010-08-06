@@ -2,6 +2,7 @@
 #include "Fireworks/FWInterface/interface/FWFFService.h"
 #include "Fireworks/FWInterface/src/FWFFNavigator.h"
 #include "Fireworks/FWInterface/src/FWFFMetadataManager.h"
+#include "Fireworks/FWInterface/src/FWFFMetadataUpdateRequest.h"
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
 #include "Fireworks/Core/interface/FWEveViewManager.h"
 #include "Fireworks/Core/interface/FWTableViewManager.h"
@@ -9,6 +10,9 @@
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/src/CmsShowTaskExecutor.h"
+#include "Fireworks/Core/interface/CmsShowMainFrame.h"
+#include "Fireworks/Core/interface/FWGUIManager.h"
+#include "Fireworks/Core/interface/CSGContinuousAction.h"
 #include "Fireworks/Core/interface/FWL1TriggerTableViewManager.h"
 #include "Fireworks/Core/interface/FWTriggerTableViewManager.h"
 
@@ -214,6 +218,14 @@ void
 FWFFService::postBeginJob()
 {
    printf("FWFFService::postBeginJob\n");
+   // We need to enter the GUI loop in order to 
+   // have all the callbacks executed. The last callback will
+   // be responsible for returning the control to CMSSW. 
+   assert(m_Rint);
+   CmsShowTaskExecutor::TaskFunctor f;
+   f=boost::bind(&TApplication::Terminate, m_Rint, 0);
+   startupTasks()->addTask(f);
+   m_Rint->Run(kTRUE);
    // Show the GUI ...
    gSystem->ProcessEvents();
 }
@@ -226,6 +238,25 @@ FWFFService::postEndJob()
    TEveManager::Terminate();
 }
 
+void
+FWFFService::checkPosition()
+{
+   if (loop() && isPlaying())
+      return;
+  
+   guiManager()->getMainFrame()->enableNavigatorControls();
+
+   if (m_navigator->isFirstEvent())
+      guiManager()->disablePrevious();
+
+   if (m_navigator->isLastEvent())
+   {
+      guiManager()->disableNext();
+      // force enable play events action in --port mode
+      if (!guiManager()->playEventsAction()->isEnabled())
+         guiManager()->playEventsAction()->enable();
+   }
+}
 //------------------------------------------------------------------------------
 
 void 
@@ -261,7 +292,10 @@ FWFFService::postProcessEvent(const edm::Event &event, const edm::EventSetup&)
 {
    printf("FWFFService::postProcessEvent: Starting GUI loop.\n");
 
+   m_metadataManager->update(new FWFFMetadataUpdateRequest(event));
    m_navigator->setCurrentEvent(&event);
+   checkPosition();
+   draw();
    m_Rint->Run(kTRUE);
 }
 

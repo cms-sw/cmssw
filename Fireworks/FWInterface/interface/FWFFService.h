@@ -54,7 +54,7 @@ public:
    TEveMagField* getMagField();
    void          setupFieldForPropagator(TEveTrackPropagator* prop);
 
-   virtual void checkPosition() {}
+   virtual void checkPosition();
    virtual void stopPlaying() {}
    virtual void autoLoadNewEvent() {}
 
