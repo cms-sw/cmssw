@@ -152,7 +152,7 @@ bool HiGammaJetSignalDef::IsIsolatedPP(const reco::GenParticle &pp)
       if (p.collisionId() != pp.collisionId())
 	continue;
 
-      int apid= abs(p.pdgId());
+      //int apid= abs(p.pdgId());
       //  if(apid>11 &&  apid<20)
       //  continue; //get rid of muons and neutrinos 
 
