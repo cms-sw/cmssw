@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/05/14 21:57:34 $
- *  $Revision: 1.24 $
+ *  $Date: 2010/07/05 15:22:24 $
+ *  $Revision: 1.25 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -787,10 +787,10 @@ void PFMETAnalyzer::validateMET(const reco::PFMET& pfmet,
   if(_verbose) 
     if (sumEt!=pfmet.sumEt() || sumEx!=pfmet.px() || sumEy!=pfmet.py() || missingEt.T()!=pfmet.pt() )	
       {
-	cout<<"PFSumEt: " << sumEt         <<", "<<"PFMETBlock: "<<pfmet.pt()<<endl;
-	cout<<"PFMET: "   << missingEt.T() <<", "<<"PFMETBlock: "<<pfmet.pt()<<endl;
-	cout<<"PFMETx: "  << missingEt.X() <<", "<<"PFMETBlockx: "<<pfmet.pt()<<endl;
-	cout<<"PFMETy: "  << missingEt.Y() <<", "<<"PFMETBlocky: "<<pfmet.pt()<<endl;
+	std::cout<<"PFSumEt: " << sumEt         <<", "<<"PFMETBlock: "<<pfmet.pt()<<std::endl;
+	std::cout<<"PFMET: "   << missingEt.T() <<", "<<"PFMETBlock: "<<pfmet.pt()<<std::endl;
+	std::cout<<"PFMETx: "  << missingEt.X() <<", "<<"PFMETBlockx: "<<pfmet.pt()<<std::endl;
+	std::cout<<"PFMETy: "  << missingEt.Y() <<", "<<"PFMETBlocky: "<<pfmet.pt()<<std::endl;
       }
 }
 
