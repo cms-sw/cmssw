@@ -1,12 +1,12 @@
-#ifndef EcalDQMStatusDict_H
-#define EcalDQMStatusDict_H
+#ifndef EcalDQMStatusDictionary_H
+#define EcalDQMStatusDictionary_H
 
 /*!
   \file Status.h
   \brief dictionary for Ecal DQM status codes
   \author G. Della Ricca
-  \version $Revision: 1.8 $
-  \date $Date: 2010/08/06 12:28:07 $
+  \version $Revision: 1.1 $
+  \date $Date: 2010/08/06 15:34:49 $
 */
 
 #include <boost/cstdint.hpp>
@@ -15,65 +15,29 @@
 
 #include "CondFormats/EcalObjects/interface/EcalDQMStatusHelper.h"
 
-class EcalDQMStatusDict {
+class EcalDQMStatusDictionary {
 
  public:
 
-  struct errorDef_t {
-    uint32_t bitmask;
-    char shortDesc[37];
+  struct codeDef_t {
+    uint32_t code;
+    char desc[37];
   };
 
-  static uint32_t hasError(std::string shortDesc, uint64_t bitcode)
-    {
-      return getMask(shortDesc) & bitcode;
-    }
-
-  static uint32_t getMask(std::string shortDesc)
-    {
-      for (unsigned int i=0; i<DICTSIZE; i++) {
-	if (getDef(i).shortDesc == shortDesc) {
-	  return getDef(i).bitmask;
-	}
-      }
-      return 0;
-    }
-  
-  static void printErrors(uint32_t bitcode)
-    {
-      for (unsigned int i=0; i<DICTSIZE; i++) {
-	if (bitcode & getDef(i).bitmask) {
-	}
-      }
-    }
-
-  static void getErrors(std::vector<errorDef_t>& errorVec, uint32_t bitcode)
-    {
-      errorVec.clear();
-      for (unsigned int i=0; i<DICTSIZE; i++) {
-	if (bitcode & getDef(i).bitmask) {
-	  errorVec.push_back(getDef(i));
-	}
-      }
-    }
-
-  static void getDictionary(std::vector<errorDef_t> &dict)
-    {
-      dict.clear();
-      for (unsigned int i=0; i<DICTSIZE; i++) {
-	dict.push_back(getDef(i));
-      }
-    }
+  static void getDictionary(std::vector<codeDef_t> &dict) {
+    dict.clear();
+    for (unsigned int i=0; i<DICTSIZE; i++) dict.push_back(getDef(i));
+  }
 
  private:
 
-  EcalDQMStatusDict() {}; // Hidden to force static use
-  ~EcalDQMStatusDict() {};  // Hidden to force static use
+  EcalDQMStatusDictionary() {}; // Hidden to force static use
+  ~EcalDQMStatusDictionary() {};  // Hidden to force static use
 
   const static unsigned int DICTSIZE = 30;
-  
-  static errorDef_t getDef(unsigned int i) {
-    const static errorDef_t DICT[DICTSIZE] =
+
+  static codeDef_t getDef(unsigned int i) {
+    const static codeDef_t DICT[DICTSIZE] =
       {
 
 	{ ((uint32_t) 1 << EcalDQMStatusHelper::CH_ID_ERROR), "CH_ID_ERROR" },
@@ -122,4 +86,4 @@ class EcalDQMStatusDict {
 
 };
 
-#endif // EcalDQMStatusDict_H
+#endif // EcalDQMStatusDictionary_H
