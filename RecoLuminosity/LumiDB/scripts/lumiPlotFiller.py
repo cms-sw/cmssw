@@ -243,6 +243,6 @@ def main():
     if args.action == 'totalvsfill':
         totalLumivsFill(connectstr,p=authpath,o=opath,dryrun=isDryrun,withTextOutput=withTextOutput)
     if args.action == 'perday':       
-        lumiPerDay(connectstr,p=authpath,o=opath,dryrun=isDryrun)
+        lumiPerDay(connectstr,p=authpath,o=opath,dryrun=isDryrun,withTextOutput=withTextOutput)
 if __name__=='__main__':
     main()

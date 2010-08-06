@@ -2,7 +2,7 @@
 VERSION='1.00'
 import os,sys,datetime
 import coral
-from RecoLuminosity.LumiDB import lumiTime,argparse,nameDealer,selectionParser,hltTrgSeedMapper,connectstrParser,cacheconfigParser,matplotRender,lumiQueryAPI,inputFilesetParser,csvReporter
+from RecoLuminosity.LumiDB import lumiTime,argparse,nameDealer,selectionParser,hltTrgSeedMapper,connectstrParser,cacheconfigParser,matplotRender,lumiQueryAPI,inputFilesetParser,csvReporter,CommonUtil
 from matplotlib.figure import Figure
 class constants(object):
     def __init__(self):
@@ -14,8 +14,62 @@ class constants(object):
     def defaultfrontierConfigString(self):
         return """<frontier-connect><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier1.cern.ch:3128"/><proxy url="http://cmst0frontier2.cern.ch:3128"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier1.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier2.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier3.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier4.cern.ch:8000/FrontierInt"/></frontier-connect>"""
 
+def getLumiOrderByLS(dbsession,c,runList,selectionDict,hltpath='',beamstatus=None,beamenergy=None,beamenergyfluctuation=0.0):
+    '''
+    input:  runList[runnum], selectionDict{runnum:[ls]}
+    output: [[runnumber,runstarttime,lsnum,lsstarttime,delivered,recorded,recordedinpath]]
+    '''
+    t=lumiTime.lumiTime()
+    result=[]#[[runnumber,runstarttime,lsnum,lsstarttime,delivered,recorded]]
+    dbsession.transaction().start(True)
+    for runnum in runList:
+        delivered=0.0
+        recorded=0.0 
+        if len(selectionDict)!=0 and not selectionDict.has_key(runnum):
+            continue
+        #print 'looking for run ',runnum
+        lumitrginfo={}
+        q=dbsession.nominalSchema().newQuery()
+        lumitrginfo=lumiQueryAPI.lumisummarytrgbitzeroByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamenergyfluctuation) #q2
+        del q
+        if len(lumitrginfo)==0:
+            if c.VERBOSE: print 'request run ',runnum,' has no trigger, skip'
+            continue
+        q=dbsession.nominalSchema().newQuery()
+        runsummary=lumiQueryAPI.runsummaryByrun(q,runnum)
+        del q
+        runstarttimeStr=runsummary[3]
+        #runstoptime=runsummary[4]
+        norbits=lumitrginfo.values()[0][1]
+        lslength=t.bunchspace_s*t.nbx*norbits
+        trgbitinfo={}
+        for cmslsnum,valuelist in lumitrginfo.items():
+            instlumi=valuelist[0]
+            startorbit=valuelist[2]
+            bitzero=valuelist[5]
+            deadcount=valuelist[6]
+            if len(selectionDict)!=0 and not (cmslsnum in selectionDict[runnum]):
+                #if there's a selection list but cmslsnum is not selected,skip
+                continue
+            if valuelist[5]==0:#bitzero==0 means no beam,do nothing
+                continue
+            lsstarttime=t.OrbitToTime(runstarttimeStr,startorbit)           
+            delivered=instlumi*lslength
+            deadfrac=float(deadcount)/float(bitzero)
+            recorded=delivered*(1.0-deadfrac)
+            result.append([runnum,runstarttimeStr,cmslsnum,lsstarttime,delivered,recorded])
+        transposedResult=CommonUtil.transposed(result)
+        lstimes=transposedResult[3]
+        lstimes.sort()
+        sortedresult=[]
+        for idx,lstime in enumerate(lstimes):
+            sortedresult.append(result[idx])
+    dbsession.transaction().commit()
+    if c.VERBOSE:
+        print sortedresult
+    return sortedresult           
 
-def getLumiInfoForRuns(dbsession,c,runList,selectionDict,hltpath='',beamstatus=None,beamenergy=None,beamenergyfluctuation=0.09):
+def getLumiInfoForRuns(dbsession,c,runList,selectionDict,hltpath='',beamstatus=None,beamenergy=None,beamenergyfluctuation=0.0):
     '''
     input: runList[runnum], selectionDict{runnum:[ls]}
     output:{runnumber:[delivered,recorded,recordedinpath] }
@@ -255,7 +309,7 @@ def main():
     
     if args.action == 'run':
         result={}        
-        result=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus='STABLE BEAMS',beamenergy=3.5e3,beamenergyfluctuation=0.09)
+        result=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus='STABLE BEAMS',beamenergy=3.5e3,beamenergyfluctuation=0.2e3)
         xdata=[]
         ydata={}
         ydata['Delivered']=[]
@@ -277,7 +331,7 @@ def main():
         m.plotSumX_Run(xdata,ydata)
     elif args.action == 'fill':        
         lumiDict={}
-        lumiDict=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus='STABLE BEAMS',beamenergy=3.5e3,beamenergyfluctuation=0.09)
+        lumiDict=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus='STABLE BEAMS',beamenergy=3.5e3,beamenergyfluctuation=0.2e3)
         xdata=[]
         ydata={}
         ydata['Delivered']=[]
@@ -301,11 +355,11 @@ def main():
                     reporter.writeRow([fill,run,lumiDict[run][0],lumiDict[run][1]])   
         #print 'input fillDict ',len(fillDict.keys()),fillDict
         m.plotSumX_Fill(xdata,ydata,fillDict)
-    elif args.action == 'time' or args.action == 'perday':
+    elif args.action == 'time' : 
         lumiDict={}
-        lumiDict=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus='STABLE BEAMS',beamenergy=3.5e3,beamenergyfluctuation=0.09)
+        lumiDict=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus='STABLE BEAMS',beamenergy=3.5e3,beamenergyfluctuation=0.2e3)
         #lumiDict=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus='STABLE BEAMS')
-        xdata=runDict        
+        xdata=runDict    #runDict{day:[runs]}    
         ydata={}
         ydata['Delivered']=[]
         ydata['Recorded']=[]
@@ -322,10 +376,41 @@ def main():
             stoptime=xdata[run][1]
             if args.outputfile :
                 reporter.writeRow([run,starttime,stoptime,lumiDict[run][0],lumiDict[run][1]])   
-        if args.action == 'time':
-            m.plotSumX_Time(xdata,ydata,minTime,maxTime)
-        if args.action == 'perday':
-            m.plotPerdayX_Time(xdata,ydata,minTime,maxTime)
+        m.plotSumX_Time(xdata,ydata,minTime,maxTime)
+    elif args.action == 'perday':
+        daydict={}#{day:[[run,cmslsnum,lsstarttime,delivered,recorded]]}
+        lumibyls=getLumiOrderByLS(session,c,runList,selectionDict,hltpath,beamstatus='STABLE BEAMS',beamenergy=3.5e3,beamenergyfluctuation=0.2e3)
+        #print 'lumibyls ',lumibyls
+        #lumibyls [[runnumber,runstarttime,lsnum,lsstarttime,delivered,recorded,recordedinpath]]
+        if args.outputfile:
+            reporter=csvReporter.csvReporter(ofilename)
+            fieldnames=['day','begrunls','endrunls','delivered','recorded']
+            reporter.writeRow(fieldnames)
+        beginfo=[lumibyls[0][3],str(lumibyls[0][0])+':'+str(lumibyls[0][2])]
+        endinfo=[lumibyls[-1][3],str(lumibyls[-1][0])+':'+str(lumibyls[-1][2])]
+        for perlsdata in lumibyls:
+            lsstarttime=perlsdata[3]
+            delivered=perlsdata[4]
+            recorded=perlsdata[5]
+            day=lsstarttime.toordinal()
+            if not daydict.has_key(day):
+                daydict[day]=[]
+            daydict[day].append([delivered,recorded])
+        #print 'daydict ',daydict
+        days=daydict.keys()
+        days.sort()
+        resultbyday={}
+        resultbyday['Delivered']=[]
+        resultbyday['Recorded']=[]
+        for day in days:
+            daydata=daydict[day]
+            mytransposed=CommonUtil.transposed(daydata,defaultval=0.0)
+            resultbyday['Delivered'].append(sum(mytransposed[0])/1000.0)#in nb-1
+            resultbyday['Recorded'].append(sum(mytransposed[1])/1000.0)
+        #print 'beginfo ',beginfo
+        #print 'endinfo ',endinfo
+        #print resultbyday
+        m.plotPerdayX_Time(days,resultbyday,minTime,maxTime,boundaryInfo=[beginfo,endinfo])
     else:
         raise Exception,'must specify the type of x-axi'
 

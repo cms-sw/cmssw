@@ -206,7 +206,7 @@ def main():
         exit
     #print 'runList ',runList
     #print 'runDict ', runDict               
-    fig=Figure(figsize=(8,8),dpi=100)
+    fig=Figure(figsize=(7,4),dpi=100)
     m=matplotRender.matplotRender(fig)    
     if args.action == 'peakperday':
         l=lumiTime.lumiTime()
@@ -215,8 +215,8 @@ def main():
             reporter=csvReporter.csvReporter(ofilename)
             fieldnames=['day','run','lsnum','maxinstlumi']
             reporter.writeRow(fieldnames)
-        minDay=minTime.toordinal()
-        maxDay=maxTime.toordinal()
+        #minDay=minTime.toordinal()
+        #maxDay=maxTime.toordinal()
         daydict={}#{day:[[run,lsnum,instlumi]]}
         result={}#{day:[maxrun,maxlsnum,maxinstlumi]}
         for lsdata in lumiperls:
@@ -242,7 +242,7 @@ def main():
             result[day]=[todaysmaxrun,todaysmaxls,todaysmaxinst]
             if args.outputfile :
                 reporter.writeRow([day,todaysmaxrun,todaysmaxls,todaysmaxinst])
-        m.plotPeakPerday_Time(result,minDay,maxDay)
+        m.plotPeakPerday_Time(result,minTime,maxTime)
     if args.action == 'run':
         runnumber=runList[0]
         lumiperrun=getLumiPerRun(session,c,runnumber)#[[lsnumber,deliveredInst,recordedInst,norbit,startorbit,fillnum,runstarttime,runstoptime]]
