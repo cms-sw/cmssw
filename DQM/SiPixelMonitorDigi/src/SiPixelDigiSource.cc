@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.43 2010/08/03 12:04:46 merkelp Exp $
+// $Id: SiPixelDigiSource.cc,v 1.44 2010/08/05 11:43:06 duggan Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -219,7 +219,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   
   // Actual digi occupancy in a FEDs compared to average digi occupancy per FED
   me = theDMBE->get("Pixel/averageDigiOccupancy");
-  me1 = theDMBE->get("Pixel/avgfedDigiOccupancyvsLumi");
+  me1 = theDMBE->get("Pixel/avgfedDigiOccvsLumi");
   if(me){
     for(int i=0; i!=40; i++){
       float averageOcc = 0.;
@@ -234,7 +234,11 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
       }
       me->setBinContent(i+1,averageOcc);
       int lumiSections15 = int(lumiSection/15);
-      me1->setBinContent(1+lumiSections15, i+1, averageOcc);
+      if (modOn){
+	if (me1){
+	  me1->setBinContent(1+lumiSections15, i+1, averageOcc);
+	}//endif me1
+      }//endif modOn
     }
   }
   
@@ -323,9 +327,10 @@ void SiPixelDigiSource::bookMEs(){
   pixEventRate = theDMBE->book1D("pixEventRate",title2,5000,0.,5000.);
   char title3[80]; sprintf(title3, "Average digi occupancy per FED;FED;NDigis/<NDigis>");
   averageDigiOccupancy = theDMBE->book1D("averageDigiOccupancy",title3,40,-0.5,39.5);
-  char title4[80]; sprintf(title4, "FED Digi Occupancy (NDigis/<NDigis>) vs LumiSections");
-  avgfedDigiOccupancyvsLumi = theDMBE->book2D ("avgfedDigiOccupancyvsLumi", title4, 400,0., 6000., 40, -0.5, 39.5);
-  
+  if(modOn){
+    char title4[80]; sprintf(title4, "FED Digi Occupancy (NDigis/<NDigis>) vs LumiSections;Lumi Section;FED");
+    avgfedDigiOccvsLumi = theDMBE->book2D ("avgfedDigiOccvsLumi", title4, 200,0., 3000., 40, -0.5, 39.5);
+  }  
   std::map<uint32_t,SiPixelDigiModule*>::iterator struct_iter;
  
   SiPixelFolderOrganizer theSiPixelFolder;
