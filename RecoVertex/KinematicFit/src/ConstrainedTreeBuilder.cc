@@ -171,8 +171,8 @@ AlgebraicMatrix ConstrainedTreeBuilder::covarianceMatrix(std::vector<RefCountedK
  {
 
 //vertex position related components of the matrix
-  double a_i = -0.29979246*(*i)->currentState().particleCharge() *
-	(*i)->magneticField()->inInverseGeV((*i)->currentState().globalPosition()).z();
+  double a_i = - (*i)->currentState().particleCharge() * (*i)->magneticField()->inInverseGeV((*i)->currentState().globalPosition()).z();
+
   AlgebraicMatrix upper(3,7,0);
   AlgebraicMatrix diagonal(7,7,0);
   upper(1,1) = 1;
