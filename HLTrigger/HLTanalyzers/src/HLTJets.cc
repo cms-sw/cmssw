@@ -137,6 +137,7 @@ void HLTJets::analyze(const edm::Handle<reco::CaloJetCollection>      & calojets
 		      const edm::Handle<reco::METCollection>          & ht,
 		      const edm::Handle<reco::HLTTauCollection>       & taujets,
 		      const edm::Handle<CaloTowerCollection>          & caloTowers,
+		      double thresholdForSavingTowers, 
 		      TTree * HltTree) {
 
   if (_Debug) std::cout << " Beginning HLTJets " << std::endl;
@@ -194,18 +195,22 @@ void HLTJets::analyze(const edm::Handle<reco::CaloJetCollection>      & calojets
   else {ncorjetcal = 0;}
 
   if (caloTowers.isValid()) {
-    ntowcal = caloTowers->size();
+    //    ntowcal = caloTowers->size();
     int jtow = 0;
     for ( CaloTowerCollection::const_iterator tower=caloTowers->begin(); tower!=caloTowers->end(); tower++) {
-      towet[jtow] = tower->et();
-      toweta[jtow] = tower->eta();
-      towphi[jtow] = tower->phi();
-      towen[jtow] = tower->energy();
-      towem[jtow] = tower->emEnergy();
-      towhd[jtow] = tower->hadEnergy();
-      towoe[jtow] = tower->outerEnergy();
-      jtow++;
+      if(tower->energy() > thresholdForSavingTowers)
+	{
+	  towet[jtow] = tower->et();
+	  toweta[jtow] = tower->eta();
+	  towphi[jtow] = tower->phi();
+	  towen[jtow] = tower->energy();
+	  towem[jtow] = tower->emEnergy();
+	  towhd[jtow] = tower->hadEnergy();
+	  towoe[jtow] = tower->outerEnergy();
+	  jtow++;
+	}
     }
+    ntowcal = jtow;
   }
   else {ntowcal = 0;}
 

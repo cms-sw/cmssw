@@ -45,7 +45,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   filterEff_        = conf.getUntrackedParameter<double> ("filterEff",1.);
   firstLumi_        = conf.getUntrackedParameter<int> ("firstLumi",0);
   lastLumi_         = conf.getUntrackedParameter<int> ("lastLumi",-1);
-
+  towerThreshold_   = conf.getParameter<double>("caloTowerThreshold");
 
   // keep this separate from l1extramc_ as needed by FastSim:
   //    This is purposefully done this way to allow FastSim to run with OpenHLT: 
@@ -174,6 +174,11 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   hlt_analysis_.setup(conf, HltTree);
   vrt_analysis_.setup(conf, HltTree);
   evt_header_.setup(HltTree);
+}
+
+void HLTAnalyzer::beginRun(const edm::Run& run, const edm::EventSetup& c){ 
+
+  hlt_analysis_.beginRun(run, c);
 }
 
 // Boiler-plate "analyze" method declaration for an analyzer module.
@@ -435,6 +440,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     ht,
     taus,
     caloTowers,
+    towerThreshold_,
     HltTree);
   
   muon_analysis_.analyze(
@@ -568,6 +574,10 @@ void HLTAnalyzer::endJob() {
 
   if (m_file)
     m_file->cd();
+
+  const edm::ParameterSet &thepset = edm::getProcessParameterSet();   
+  TList *list = HltTree->GetUserInfo();   
+  list->Add(new TObjString(thepset.dump().c_str()));   
   
   HltTree->SetWeight(treeWeight);
   HltTree->Write();
