@@ -94,7 +94,6 @@ int main() {
     //void * p;
     std::vector<unsigned char>  vc2;
     streamer.read(*blob,&vc2,cType);
-    //std::vector<float>  const & vf2 = *reinterpret_cast<std::vector<float> const *>(p);
     if (vc!=vc2) std::cout << "reading old format failed" << std::endl;
   }
   {
@@ -103,7 +102,7 @@ int main() {
     std::cout << "new format size " << blob->size() << std::endl;
     BlobStreamingService::Variant id = BlobStreamingService::findVariant(blob->startingAddress());
     std::cout << "shall be two " << id << std::endl;
-    std::vector<float>  vc2;
+    std::vector<unsigned char>  vc2;
     streamer.read(*blob,&vc2,cType);
     if (vc!=vc2) std::cout << "reading new format failed" << std::endl;
   }
