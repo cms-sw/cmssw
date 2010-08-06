@@ -304,7 +304,7 @@ def main():
     runList.sort()
     #print 'runList ',runList
     #print 'runDict ', runDict               
-    fig=Figure(figsize=(7,4),dpi=100)
+    fig=Figure(figsize=(8,6),dpi=100)
     m=matplotRender.matplotRender(fig)
     
     if args.action == 'run':
@@ -379,7 +379,7 @@ def main():
         m.plotSumX_Time(xdata,ydata,minTime,maxTime)
     elif args.action == 'perday':
         daydict={}#{day:[[run,cmslsnum,lsstarttime,delivered,recorded]]}
-        lumibyls=getLumiOrderByLS(session,c,runList,selectionDict,hltpath,beamstatus='STABLE BEAMS',beamenergy=3.5e3,beamenergyfluctuation=0.2e3)
+        lumibyls=getLumiOrderByLS(session,c,runList,selectionDict,hltpath,beamstatus='STABLE BEAMS')
         #print 'lumibyls ',lumibyls
         #lumibyls [[runnumber,runstarttime,lsnum,lsstarttime,delivered,recorded,recordedinpath]]
         if args.outputfile:
@@ -405,8 +405,12 @@ def main():
         for day in days:
             daydata=daydict[day]
             mytransposed=CommonUtil.transposed(daydata,defaultval=0.0)
-            resultbyday['Delivered'].append(sum(mytransposed[0])/1000.0)#in nb-1
-            resultbyday['Recorded'].append(sum(mytransposed[1])/1000.0)
+            delivered=sum(mytransposed[0])/1000.0
+            recorded=sum(mytransposed[1])/1000.0
+            resultbyday['Delivered'].append(delivered)#in nb-1
+            resultbyday['Recorded'].append(recorded)
+            if args.outputfile:
+                reporter.writeRow([day,beginfo[1],endinfo[1],delivered,recorded])
         #print 'beginfo ',beginfo
         #print 'endinfo ',endinfo
         #print resultbyday

@@ -206,7 +206,7 @@ def main():
         exit
     #print 'runList ',runList
     #print 'runDict ', runDict               
-    fig=Figure(figsize=(7,4),dpi=100)
+    fig=Figure(figsize=(8,6),dpi=100)
     m=matplotRender.matplotRender(fig)    
     if args.action == 'peakperday':
         l=lumiTime.lumiTime()
