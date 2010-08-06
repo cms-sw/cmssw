@@ -45,6 +45,8 @@ namespace cond {
 
 
     static Variant findVariant(const void* address);
+    static int isVectorChar(Reflex::Type const & classDictionary);
+
 
     static boost::shared_ptr<coral::Blob>  compress(const void* addr, size_t isize);
     static boost::shared_ptr<coral::Blob>  expand(const coral::Blob& blobIn);
@@ -60,14 +62,37 @@ namespace cond {
   BlobStreamingService::~BlobStreamingService(){}
   
   boost::shared_ptr<coral::Blob> BlobStreamingService::write( const void* addressOfInputData,  Reflex::Type const & classDictionary ) {
-
-    // at the moment we write TBuffer compressed, than we see....
-    // we may wish to avoid one buffer copy...
-    boost::shared_ptr<coral::Blob> buffer = rootService->write(addressOfInputData, classDictionary);
-    boost::shared_ptr<coral::Blob> blobOut = compress(buffer->startingAddress(),buffer->size());
-    *reinterpret_cast<uuid*>(blobOut->startingAddress()) = variantIds[COMPRESSED_TBUFFER];
-    return blobOut;
+    int const k = isVectorChar(classDictionary);
+    switch (k) {
+    case 0 : 
+      {
+	// at the moment we write TBuffer compressed, than we see....
+	// we may wish to avoid one buffer copy...
+	boost::shared_ptr<coral::Blob> buffer = rootService->write(addressOfInputData, classDictionary);
+	boost::shared_ptr<coral::Blob> blobOut = compress(buffer->startingAddress(),buffer->size());
+	*reinterpret_cast<uuid*>(blobOut->startingAddress()) = variantIds[COMPRESSED_TBUFFER];
+	return blobOut;
+      }
+      break;
+    case 1 : 
+      {
+	std::vector<unsigned char> const & v = *reinterpret_cast< std::vector<unsigned char> const *> (addressOfInputData);
+	boost::shared_ptr<coral::Blob> blobOut = compress(&v.front(),v.size());
+	*reinterpret_cast<uuid*>(blobOut->startingAddress()) = variantIds[COMPRESSED_CHARS];
+	return blobOut;
+      }
+      break;
+    case 2 : 
+      {
+	std::vector<char> const & v = *reinterpret_cast<std::vector<char> const *> (addressOfInputData);
+	boost::shared_ptr<coral::Blob> blobOut = compress(&v.front(),v.size());
+	*reinterpret_cast<uuid*>(blobOut->startingAddress()) = variantIds[COMPRESSED_CHARS];
+	return blobOut;
+    }
+												  
   }
+
+
 
   void BlobStreamingService::read( const coral::Blob& blobData, void* addressOfContainer,  Reflex::Type const & classDictionary ) {
     Variant v = findVariant(blobData.startingAddress());
@@ -84,14 +109,37 @@ namespace cond {
       }
       break;
     case COMPRESSED_CHARS :
-      {}
-      break;
+      {
+	boost::shared_ptr<coral::Blob> blobIn = expand(blobData);
+	int const k = isVectorChar(classDictionary);
+	switch (k) {
+	case 0 : 
+	  {
+	    // error!!!
+	  }
+	  break;
+	case 1:
+	  {
+	    std::vector<unsigned char> & v = *reinterpret_cast< std::vector<unsigned char> *> (addressOfContainer);
+	    // we should avoid the copy!
+	    v.resize(blobIn.size());
+	    std::memcpy(&v.front(),blobIn.startingAddress(),v.size());
+	  }
+	  break;
+	case 2:
+	  {
+	    std::vector<char> & v = *reinterpret_cast< std::vector<char> *> (addressOfContainer);
+	    // we should avoid the copy!
+	    v.resize(blobIn.size());
+	    std::memcpy(&v.front(),blobIn.startingAddress(),v.size());
+	  }
+	  break;
+	}
+
+
+      }
+  
     }
-
-
-  }
-  
-  
   
   
   const BlobStreamingService::uuid BlobStreamingService::variantIds[nVariants] = {
@@ -101,6 +149,15 @@ namespace cond {
   };
   
   
+  int BlobStreamingService::isVectorChar(Reflex::Type const & classDictionary) {
+    std::type_info const & t = classDictionary.TypeInfo();
+    if (t==typeid(std::vector<unsigned char>) ) return 1;
+    if (t==typeid(std::vector<char>) ) return 2;
+    return 0;
+  }
+
+
+
   BlobStreamingService::Variant BlobStreamingService::findVariant(const void* address) {
     uuid const & id = *reinterpret_cast<uuid const*>(address);
     uuid const *  v = std::find(variantIds,variantIds+nVariants,id);
