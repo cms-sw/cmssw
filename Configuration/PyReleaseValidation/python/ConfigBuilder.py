@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.196 $"
+__version__ = "$Revision: 1.197 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -64,7 +64,7 @@ class ConfigBuilder(object):
     
     def __init__(self, options, process = None, with_output = False, with_input = False ):
         """options taken from old cmsDriver and optparse """
- 
+
         self._options = options
 	self.with_output = with_output
 	self.with_input = with_input
@@ -982,7 +982,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.196 $"),
+              (version=cms.untracked.string("$Revision: 1.197 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -1000,7 +1000,7 @@ class ConfigBuilder(object):
         self.addConditions()
         self.loadAndRemember(self.EVTCONTDefaultCFF)  #load the event contents regardless
 			   
-        if not 'HARVESTING' in self._options.step and not 'SKIM' in self._options.step and not 'ALCAHARVEST' in self._options.step and self.with_output:
+        if not 'HARVESTING' in self._options.step and not 'SKIM' in self._options.step and not 'ALCAHARVEST' in self._options.step and not 'ALCAOUTPUT' in self._options.step and self.with_output:	
             self.addOutput()
 	    
         self.addCommon()
