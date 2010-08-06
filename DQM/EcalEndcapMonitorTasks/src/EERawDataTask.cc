@@ -1,8 +1,8 @@
 /*
  * \file EERawDataTask.cc
  *
- * $Date: 2010/07/30 14:15:49 $
- * $Revision: 1.32 $
+ * $Date: 2010/08/03 14:29:27 $
+ * $Revision: 1.33 $
  * \author E. Di Marco
  *
 */
@@ -61,6 +61,8 @@ EERawDataTask::EERawDataTask(const edm::ParameterSet& ps) {
   meEEL1ASRPErrors_ = 0;
   meEEBunchCrossingSRPErrors_ = 0;
 
+  meEESynchronizationErrorsByLumi_ = 0;
+
   calibrationBX_ = 3490;
 
 }
@@ -76,6 +78,12 @@ void EERawDataTask::beginJob(void){
     dqmStore_->setCurrentFolder(prefixME_ + "/EERawDataTask");
     dqmStore_->rmdir(prefixME_ + "/EERawDataTask");
   }
+
+}
+
+void EERawDataTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup) {
+
+  if ( meEESynchronizationErrorsByLumi_ ) meEESynchronizationErrorsByLumi_->Reset();
 
 }
 
@@ -109,6 +117,7 @@ void EERawDataTask::reset(void) {
   if ( meEEBunchCrossingTCCErrors_ ) meEEBunchCrossingTCCErrors_->Reset();
   if ( meEEL1ASRPErrors_ ) meEEL1ASRPErrors_->Reset();
   if ( meEEBunchCrossingSRPErrors_ ) meEEBunchCrossingSRPErrors_->Reset();
+  if ( meEESynchronizationErrorsByLumi_ ) meEESynchronizationErrorsByLumi_->Reset();
 
 }
 
@@ -280,6 +289,13 @@ void EERawDataTask::setup(void){
       meEEBunchCrossingSRPErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
+    sprintf(histo, "EERDT FE synchronization errors by lumi");
+    meEESynchronizationErrorsByLumi_ = dqmStore_->book1D(histo, histo, 18, 1, 19);
+    meEESynchronizationErrorsByLumi_->setLumiFlag();
+    for (int i = 0; i < 18; i++) {
+      meEESynchronizationErrorsByLumi_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    }
+
   }
 
 }
@@ -339,10 +355,16 @@ void EERawDataTask::cleanup(void){
     if ( meEEBunchCrossingSRPErrors_ ) dqmStore_->removeElement( meEEBunchCrossingSRPErrors_->getName() );
     meEEBunchCrossingSRPErrors_ = 0;
 
+    if ( meEESynchronizationErrorsByLumi_ ) dqmStore_->removeElement( meEESynchronizationErrorsByLumi_->getName() );
+    meEESynchronizationErrorsByLumi_ = 0;
+
   }
 
   init_ = false;
 
+}
+
+void EERawDataTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup) {
 }
 
 void EERawDataTask::endJob(void) {
@@ -358,6 +380,9 @@ void EERawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   if ( ! init_ ) this->setup();
 
   ievt_++;
+
+  // fill bin 0 with number of events in the lumi
+  if ( meEESynchronizationErrorsByLumi_ ) meEESynchronizationErrorsByLumi_->Fill(0.);
 
   int evt_runNumber = e.id().run();
 
@@ -539,10 +564,16 @@ void EERawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       const short srpBx = dcchItr->getSRPBx();
       const std::vector<short> status = dcchItr->getFEStatus();
 
+      std::vector<int> BxSynchStatus;
+      BxSynchStatus.reserve((int)feBxs.size());
+
       for(int fe=0; fe<(int)feBxs.size(); fe++) {
         // do not consider desynch errors if the DCC detected them 
         if( ( status[fe] == 10 || status[fe] == 11 )) continue;
-        if(feBxs[fe] != ECALDCC_BunchCrossing && feBxs[fe] != -1 && ECALDCC_BunchCrossing != -1) meEEBunchCrossingFEErrors_->Fill( xism, 1/(float)feBxs.size());
+        if(feBxs[fe] != ECALDCC_BunchCrossing && feBxs[fe] != -1 && ECALDCC_BunchCrossing != -1) {
+          meEEBunchCrossingFEErrors_->Fill( xism, 1/(float)feBxs.size());
+          BxSynchStatus[fe] = 0;
+        } else BxSynchStatus[fe] = 1;
       }
 
       // vector of TCC channels has 4 elements for both EB and EE. 
@@ -565,7 +596,10 @@ void EERawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       for(int fe=0; fe<(int)feLv1.size(); fe++) {
         // do not consider desynch errors if the DCC detected them 
         if( ( status[fe] == 9 || status[fe] == 11 )) continue;
-        if(feLv1[fe] != ECALDCC_L1A_12bit - 1 && feLv1[fe] != -1 && ECALDCC_L1A_12bit - 1 != -1) meEEL1AFEErrors_->Fill( xism, 1/(float)feLv1.size());
+        if(feLv1[fe] != ECALDCC_L1A_12bit - 1 && feLv1[fe] != -1 && ECALDCC_L1A_12bit - 1 != -1) {
+          meEEL1AFEErrors_->Fill( xism, 1/(float)feLv1.size());
+          meEESynchronizationErrorsByLumi_->Fill( xism, 1/(float)feLv1.size() );
+        } else if( BxSynchStatus[fe]==0 ) meEESynchronizationErrorsByLumi_->Fill( xism, 1/(float)feLv1.size() ); 
       }
 
       // vector of TCC channels has 4 elements for both EB and EE. 
