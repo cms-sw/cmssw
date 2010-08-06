@@ -79,8 +79,8 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   void fillMonitorElement(const edm::Event&, std::string, std::string, const reco::CaloMET&, bool);
   void makeRatePlot(std::string, double);
 
-  void validateMET(const reco::CaloMET&, edm::Handle<edm::View<Candidate> >);
-  void computeEmHaMET(edm::Handle<edm::View<Candidate> >);
+  void validateMET(const reco::CaloMET&, edm::Handle<edm::View<reco::Candidate> >);
+  void computeEmHaMET(edm::Handle<edm::View<reco::Candidate> >);
 
   bool selectHighPtJetEvent(const edm::Event&);
   bool selectLowPtJetEvent(const edm::Event&);
@@ -118,7 +118,6 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
 
   std::string _hlt_HighPtJet;
   std::string _hlt_LowPtJet;
-  std::string _hlt_MinBias;
   std::string _hlt_HighMET;
   std::string _hlt_LowMET;
   std::string _hlt_Ele;
@@ -147,7 +146,6 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   int _trig_JetMB;
   int _trig_HighPtJet;
   int _trig_LowPtJet;
-  int _trig_MinBias;
   int _trig_HighMET;
   int _trig_LowMET;
   int _trig_Ele;
@@ -204,7 +202,6 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   //trigger histos
   MonitorElement* hTriggerName_HighPtJet;
   MonitorElement* hTriggerName_LowPtJet;
-  MonitorElement* hTriggerName_MinBias;
   MonitorElement* hTriggerName_HighMET;
   MonitorElement* hTriggerName_LowMET;
   MonitorElement* hTriggerName_Ele;

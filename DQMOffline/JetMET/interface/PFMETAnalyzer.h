@@ -79,7 +79,7 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
   void fillMonitorElement(const edm::Event&, std::string, std::string, const reco::PFMET&, bool);
   void makeRatePlot(std::string, double);
 
-  void validateMET(const reco::PFMET&, edm::Handle<edm::View<PFCandidate> >);
+  void validateMET(const reco::PFMET&, edm::Handle<edm::View<reco::PFCandidate> >);
 
   bool selectHighPtJetEvent(const edm::Event&);
   bool selectLowPtJetEvent(const edm::Event&);
@@ -117,7 +117,6 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
 
   std::string _hlt_HighPtJet;
   std::string _hlt_LowPtJet;
-  std::string _hlt_MinBias;
   std::string _hlt_HighMET;
   std::string _hlt_LowMET;
   std::string _hlt_Ele;
@@ -146,7 +145,6 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
   int _trig_JetMB;
   int _trig_HighPtJet;
   int _trig_LowPtJet;
-  int _trig_MinBias;
   int _trig_HighMET;
   int _trig_LowMET;
   int _trig_Ele;
@@ -187,7 +185,6 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
 
   MonitorElement* meTriggerName_HighPtJet;
   MonitorElement* meTriggerName_LowPtJet;
-  MonitorElement* hTriggerName_MinBias;
   MonitorElement* meTriggerName_HighMET;
   MonitorElement* meTriggerName_LowMET;
   MonitorElement* meTriggerName_Ele;
