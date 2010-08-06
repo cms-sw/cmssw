@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.94 2010/07/20 20:31:01 wmtan Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.96 2010/08/05 16:20:09 dinardo Exp $
 
 
 #include "DQM/BeamMonitor/plugins/Vx3DHLTAnalyzer.h"
@@ -570,6 +570,26 @@ void Vx3DHLTAnalyzer::reset(string ResetType)
       Vx_ZY->Reset();
       Vx_XY->Reset();
       
+      mXlumi->Reset();
+      mYlumi->Reset();
+      mZlumi->Reset();
+
+      sXlumi->Reset();
+      sYlumi->Reset();
+      sZlumi->Reset();
+
+      dxdzlumi->Reset();
+      dydzlumi->Reset();
+
+      hitCounter->Reset();
+      hitCountHistory->Reset();
+      goodVxCounter->Reset();
+      goodVxCountHistory->Reset();
+      fitResults->Reset();
+
+      reportSummary->Fill(0.);
+      reportSummaryMap->Fill(0.5, 0.5, 0.);
+
       Vertices.clear();
       
       lumiCounter      = 0;
@@ -793,10 +813,10 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
 
       hitCounter->ShiftFillLast((double)totalHits, sqrt((double)totalHits), nLumiReset);
 
-      if (endLumiOfFit % prescaleHistory == 0)
+      if (lastLumiOfFit % prescaleHistory == 0)
 	{
-	  hitCountHistory->getTH1()->SetBinContent(endLumiOfFit, (double)totalHits);
-	  hitCountHistory->getTH1()->SetBinError(endLumiOfFit, sqrt((double)totalHits));
+	  hitCountHistory->getTH1()->SetBinContent(lastLumiOfFit, (double)totalHits);
+	  hitCountHistory->getTH1()->SetBinError(lastLumiOfFit, sqrt((double)totalHits));
 	}
 
       if (dataFromFit == true)
@@ -1021,10 +1041,10 @@ void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock,
       myLinFit->SetParameter(1, 0.0);
       goodVxCounter->getTH1()->Fit("myLinFit","QR");
 
-      if (endLumiOfFit % prescaleHistory == 0)
+      if (lastLumiOfFit % prescaleHistory == 0)
 	{
-	  goodVxCountHistory->getTH1()->SetBinContent(endLumiOfFit, (double)counterVx);
-	  goodVxCountHistory->getTH1()->SetBinError(endLumiOfFit, sqrt((double)counterVx));
+	  goodVxCountHistory->getTH1()->SetBinContent(lastLumiOfFit, (double)counterVx);
+	  goodVxCountHistory->getTH1()->SetBinError(lastLumiOfFit, sqrt((double)counterVx));
 	}
 
       delete myLinFit;
@@ -1114,22 +1134,22 @@ void Vx3DHLTAnalyzer::beginJob()
       Vx_XY->setAxisTitle("Primary Vertices Y [cm]",2);
       Vx_XY->setAxisTitle("Entries [#]",3);
 
-      hitCounter = dbe->book1D("pixelHits vs lumi", "#Pixel-Hits vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+      hitCounter = dbe->book1D("pixelHits vs lumi", "# Pixel-Hits vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
       hitCounter->setAxisTitle("Lumisection [#]",1);
       hitCounter->setAxisTitle("Pixel-Hits [#]",2);
       hitCounter->getTH1()->SetOption("E1");
 
-      hitCountHistory = dbe->book1D("hist pixelHits vs lumi", "History: #Pixel-Hits vs. Lumi", nBinsWholeHistory, 0.5, (double)nBinsWholeHistory+0.5);
+      hitCountHistory = dbe->book1D("hist pixelHits vs lumi", "History: # Pixel-Hits vs. Lumi", nBinsWholeHistory, 0.5, (double)nBinsWholeHistory+0.5);
       hitCountHistory->setAxisTitle("Lumisection [#]",1);
       hitCountHistory->setAxisTitle("Pixel-Hits [#]",2);
       hitCountHistory->getTH1()->SetOption("E1");
 
-      goodVxCounter = dbe->book1D("good vertices vs lumi", "#Good vertices vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
+      goodVxCounter = dbe->book1D("good vertices vs lumi", "# Good vertices vs. Lumisection", nBinsHistoricalPlot, 0.5, (double)nBinsHistoricalPlot+0.5);
       goodVxCounter->setAxisTitle("Lumisection [#]",1);
       goodVxCounter->setAxisTitle("Good vertices [#]",2);
       goodVxCounter->getTH1()->SetOption("E1");
 
-      goodVxCountHistory = dbe->book1D("hist good vx vs lumi", "History: #Good vx vs. Lumi", nBinsWholeHistory, 0.5, (double)nBinsWholeHistory+0.5);
+      goodVxCountHistory = dbe->book1D("hist good vx vs lumi", "History: # Good vx vs. Lumi", nBinsWholeHistory, 0.5, (double)nBinsWholeHistory+0.5);
       goodVxCountHistory->setAxisTitle("Lumisection [#]",1);
       goodVxCountHistory->setAxisTitle("Good vertices [#]",2);
       goodVxCountHistory->getTH1()->SetOption("E1");
