@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2010/08/04 06:27:00 $
- * $Revision: 1.58 $
+ * $Date: 2010/08/04 20:11:34 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -20,9 +20,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EEClient.h>
+#include "DQM/EcalEndcapMonitorClient/interface/EEClient.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EESummaryClient.h>
+#include "DQM/EcalEndcapMonitorClient/interface/EESummaryClient.h"
 
 #include "TROOT.h"
 #include "TH1.h"

@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2010/08/04 06:27:10 $
- * $Revision: 1.122 $
+ * $Date: 2010/08/04 20:11:34 $
+ * $Revision: 1.123 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -20,9 +20,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include <DQM/EcalBarrelMonitorClient/interface/EBClient.h>
+#include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
 
-#include <DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h>
+#include "DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h"
 
 #include "TROOT.h"
 #include "TH1.h"
