@@ -1,15 +1,13 @@
-// $Id: LogicID.h,v 1.10 2010/08/04 19:10:25 dellaric Exp $
+#ifndef LogicID_H
+#define LogicID_H
 
 /*!
   \file LogicID.h
   \brief Cache logicID vector from database
   \author B. Gobbo 
-  \version $Revision: 1.10 $
-  \date $Date: 2010/08/04 19:10:25 $
+  \version $Revision: 1.11 $
+  \date $Date: 2010/08/04 19:59:59 $
 */
-
-#ifndef LogicID_H
-#define LogicID_H
 
 #include <vector>
 #include <string>

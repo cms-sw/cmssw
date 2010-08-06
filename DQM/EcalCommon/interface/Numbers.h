@@ -1,15 +1,13 @@
-// $Id: Numbers.h,v 1.30 2010/03/09 09:01:44 dellaric Exp $
+#ifndef NUMBERS_H
+#define NUMBERS_H
 
 /*!
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.30 $
-  \date $Date: 2010/03/09 09:01:44 $
+  \version $Revision: 1.31 $
+  \date $Date: 2010/08/04 06:31:58 $
 */
-
-#ifndef NUMBERS_H
-#define NUMBERS_H
 
 #include <string>
 #include <stdexcept>

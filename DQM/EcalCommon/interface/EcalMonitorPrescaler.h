@@ -1,15 +1,13 @@
-// $Id: EcalMonitorPrescaler.h,v 1.6 2010/03/27 20:07:58 dellaric Exp $
+#ifndef EcalMonitorPrescaler_H
+#define EcalMonitorPrescaler_H
 
 /*!
   \file EcalMonitorPrescaler.h
   \brief Ecal specific Prescaler 
   \author G. Della Ricca
-  \version $Revision: 1.6 $
-  \date $Date: 2010/03/27 20:07:58 $
+  \version $Revision: 1.7 $
+  \date $Date: 2010/03/27 20:44:49 $
 */
-
-#ifndef EcalMonitorPrescaler_H
-#define EcalMonitorPrescaler_H
 
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"

@@ -1,14 +1,12 @@
-// $Id: NumbersPn.h,v 1.72 2010/03/09 09:01:50 dellaric Exp $
+#ifndef NUMBERSPN_H
+#define NUMBERSPN_H
 
 /*!
   \file NumbersPn.h
   \brief Some "id" conversions
-  \version $Revision: 1.72 $
-  \date $Date: 2010/03/09 09:01:50 $
+  \version $Revision: 1.7 $
+  \date $Date: 2010/08/04 06:48:52 $
 */
-
-#ifndef NUMBERSPN_H
-#define NUMBERSPN_H
 
 #include <string>
 #include <stdexcept>

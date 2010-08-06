@@ -1,15 +1,13 @@
-// $Id: Masks.h,v 1.2 2010/08/05 11:35:07 dellaric Exp $
+#ifndef Masks_H
+#define Masks_H
 
 /*!
   \file Masks.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.2 $
-  \date $Date: 2010/08/05 11:35:07 $
+  \version $Revision: 1.3 $
+  \date $Date: 2010/08/05 20:25:45 $
 */
-
-#ifndef MASKS_H
-#define MASKS_H
 
 #include <string>
 #include <stdexcept>
@@ -43,4 +41,4 @@ private:
 
 };
 
-#endif // MASKS_H
+#endif // Masks_H
