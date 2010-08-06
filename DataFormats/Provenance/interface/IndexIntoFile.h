@@ -293,6 +293,18 @@ namespace edm {
                               LuminosityBlockNumber_t& lumiOfSkippedEvent,
                               EntryNumber_t& skippedEventEntry);
 
+        // Move so that the event immediately preceding the
+        // the current position is the next event processed.
+        // If the type is kEvent or kLumi, then change the type to kRun
+        // if and only if the preceding event is in a different
+        // Run. If the type is kEvent, change the type to kLumi if
+        // the Lumi is different but the Run is the same.  Otherwise
+        // leave the type unchanged.
+        void skipEventBackward(int& phIndexOfEvent,
+                               RunNumber_t& runOfEvent,
+                               LuminosityBlockNumber_t& lumiOfEvent,
+                               EntryNumber_t& eventEntry);
+
         virtual int processHistoryIDIndex() const  = 0;
         virtual RunNumber_t run() const = 0;
         virtual LuminosityBlockNumber_t lumi() const = 0;
@@ -333,6 +345,9 @@ namespace edm {
 
         virtual void initializeLumi_() = 0;
         virtual bool nextEventRange() = 0;
+        virtual bool previousEventRange() = 0;
+        bool previousLumiWithEvents();
+        virtual bool setToLastEventInRange(int index) = 0;
         virtual EntryType getRunOrLumiEntryType(int index) const = 0;
         virtual bool isSameLumi(int index1, int index2) const = 0;
         virtual bool isSameRun(int index1, int index2) const = 0;
@@ -375,6 +390,8 @@ namespace edm {
 
         virtual void initializeLumi_();
         virtual bool nextEventRange();
+        virtual bool previousEventRange();
+        virtual bool setToLastEventInRange(int index);
         virtual EntryType getRunOrLumiEntryType(int index) const;
         virtual bool isSameLumi(int index1, int index2) const;
         virtual bool isSameRun(int index1, int index2) const;
@@ -406,6 +423,8 @@ namespace edm {
 
         virtual void initializeLumi_();
         virtual bool nextEventRange();
+        virtual bool previousEventRange();
+        virtual bool setToLastEventInRange(int index);
         virtual EntryType getRunOrLumiEntryType(int index) const;
         virtual bool isSameLumi(int index1, int index2) const;
         virtual bool isSameRun(int index1, int index2) const;
@@ -457,9 +476,12 @@ namespace edm {
           impl_->skipEventForward(phIndexOfSkippedEvent, runOfSkippedEvent, lumiOfSkippedEvent, skippedEventEntry);
         }
 
-        // NEED TO IMPLEMENT THIS
-        // void skipEventBackward() {
-        // }
+        void skipEventBackward(int& phIndexOfEvent,
+                               RunNumber_t& runOfEvent,
+                               LuminosityBlockNumber_t& lumiOfEvent,
+                               EntryNumber_t& eventEntry) {
+          impl_->skipEventBackward(phIndexOfEvent, runOfEvent, lumiOfEvent, eventEntry);
+        }
 
         bool skipLumiInRun() { return impl_->skipLumiInRun(); }
 

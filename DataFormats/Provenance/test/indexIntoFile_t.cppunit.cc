@@ -121,6 +121,7 @@ public:
              long long nEvents);
 
   void skipEventForward(edm::IndexIntoFile::IndexIntoFileItr & iter);
+  void skipEventBackward(edm::IndexIntoFile::IndexIntoFileItr & iter);
   void checkSkipped(int phIndexOfSkippedEvent,
                     RunNumber_t runOfSkippedEvent,
                     LuminosityBlockNumber_t lumiOfSkippedEvent,
@@ -219,6 +220,13 @@ void TestIndexIntoFile::skipEventForward(edm::IndexIntoFile::IndexIntoFileItr & 
                         skipped_.runOfSkippedEvent_,
                         skipped_.lumiOfSkippedEvent_,
                         skipped_.skippedEventEntry_);
+}
+
+void TestIndexIntoFile::skipEventBackward(edm::IndexIntoFile::IndexIntoFileItr & iter) {
+  iter.skipEventBackward(skipped_.phIndexOfSkippedEvent_,
+                         skipped_.runOfSkippedEvent_,
+                         skipped_.lumiOfSkippedEvent_,
+                         skipped_.skippedEventEntry_);
 }
 
 
@@ -813,8 +821,16 @@ void TestIndexIntoFile::testEmptyIndex() {
   edm::IndexIntoFile::IndexIntoFileItr iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
   CPPUNIT_ASSERT(iterNum == iterNumEnd);
 
+  skipEventBackward(iterNum);
+  checkSkipped(-1, 0, 0, -1);
+  check(iterNum, kEnd, -1, -1, -1, 0, 0);
+
   edm::IndexIntoFile::IndexIntoFileItr iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
   CPPUNIT_ASSERT(iterFirst == iterFirstEnd);
+
+  skipEventBackward(iterFirst);
+  checkSkipped(-1, 0, 0, -1);
+  check(iterFirst, kEnd, -1, -1, -1, 0, 0);
 }
 
 void TestIndexIntoFile::testIterEndWithEvent() {
@@ -1290,6 +1306,176 @@ void TestIndexIntoFile::testIterEndWithEvent() {
   check(iterNum, kEvent, 0, 3, 1, 0, 4);
   iterNum.advanceToNextRun();
   check(iterNum, kRun, 5, 7, -1, 0, 0);
+
+  // Check backwards iteration
+
+  iterFirst = indexIntoFile.end(IndexIntoFile::firstAppearanceOrder);
+
+  skipEventBackward(iterFirst);
+  checkSkipped(1, 11, 102, 6);
+  check(iterFirst, kRun, 5, 8, 9, 0 , 1);
+
+  skipEventBackward(iterFirst);
+  checkSkipped(0, 11, 102, 5);
+  check(iterFirst, kRun, 0, 4, 4, 1, 2);
+
+  skipEventBackward(iterFirst);
+  checkSkipped(0, 11, 102, 4);
+  check(iterFirst, kRun, 0, 4, 4, 0, 2);
+
+  skipEventBackward(iterFirst);
+  checkSkipped(0, 11, 101, 3);
+  check(iterFirst, kRun, 0, 1, 3, 1, 2);
+
+  skipEventBackward(iterFirst);
+  checkSkipped(0, 11, 101, 2);
+  check(iterFirst, kRun, 0, 1, 3, 0, 2);
+
+  skipEventBackward(iterFirst);
+  checkSkipped(0, 11, 101, 1);
+  check(iterFirst, kRun, 0, 1, 1, 1, 2);
+
+  skipEventBackward(iterFirst);
+  checkSkipped(0, 11, 101, 0);
+  check(iterFirst, kRun, 0, 1, 1, 0, 2);
+
+  skipEventBackward(iterFirst);
+  checkSkipped(-1, 0, 0, -1);
+  check(iterFirst, kRun, 0, 1, 1, 0, 2);
+
+  ++iterFirst;
+  ++iterFirst;
+  ++iterFirst;
+  ++iterFirst;
+  ++iterFirst;
+  ++iterFirst;
+  ++iterFirst;
+  ++iterFirst;
+  ++iterFirst;
+  ++iterFirst;
+  check(iterFirst, kEvent, 0, 4, 4, 1, 2);
+
+  skipEventBackward(iterFirst);
+  checkSkipped(0, 11, 102, 4);
+  check(iterFirst, kEvent, 0, 4, 4, 0, 2);
+
+  skipEventBackward(iterFirst);
+  checkSkipped(0, 11, 101, 3);
+  check(iterFirst, kLumi, 0, 1, 3, 1, 2);
+
+  skipEventForward(iterFirst);
+  skipEventForward(iterFirst);
+  check(iterFirst, kLumi, 0, 4, 4, 1, 2);
+
+  skipEventBackward(iterFirst);
+  checkSkipped(0, 11, 102, 4);
+  check(iterFirst, kLumi, 0, 4, 4, 0, 2);
+
+  skipEventBackward(iterFirst);
+  checkSkipped(0, 11, 101, 3);
+  check(iterFirst, kLumi, 0, 1, 3, 1, 2);
+
+  iterFirst.advanceToNextRun();
+  iterFirst.advanceToEvent();
+  check(iterFirst, kEvent, 6, 9, 9, 0, 1);
+  
+  skipEventBackward(iterFirst);
+  checkSkipped(0, 11, 102, 5);
+  check(iterFirst, kRun, 0, 4, 4, 1, 2);
+
+  iterFirst.advanceToNextRun();
+  ++iterFirst;
+  ++iterFirst;
+  ++iterFirst;
+  check(iterFirst, kLumi, 6, 8, 9, 0, 1);
+  
+  skipEventBackward(iterFirst);
+  checkSkipped(0, 11, 102, 5);
+  check(iterFirst, kRun, 0, 4, 4, 1, 2);
+
+  iterNum = indexIntoFile.end(IndexIntoFile::numericalOrder);
+
+  skipEventBackward(iterNum);
+  checkSkipped(1, 11, 102, 6);
+  check(iterNum, kRun, 5, 8, 8, 0 , 1);
+
+  skipEventBackward(iterNum);
+  checkSkipped(0, 11, 102, 4);
+  check(iterNum, kRun, 0, 4, 4, 1, 2);
+
+  skipEventBackward(iterNum);
+  checkSkipped(0, 11, 102, 5);
+  check(iterNum, kRun, 0, 4, 4, 0, 2);
+
+  skipEventBackward(iterNum);
+  checkSkipped(0, 11, 101, 0);
+  check(iterNum, kRun, 0, 1, 1, 3, 4);
+
+  skipEventBackward(iterNum);
+  checkSkipped(0, 11, 101, 1);
+  check(iterNum, kRun, 0, 1, 1, 2, 4);
+
+  skipEventBackward(iterNum);
+  checkSkipped(0, 11, 101, 2);
+  check(iterNum, kRun, 0, 1, 1, 1, 4);
+
+  skipEventBackward(iterNum);
+  checkSkipped(0, 11, 101, 3);
+  check(iterNum, kRun, 0, 1, 1, 0, 4);
+
+  skipEventBackward(iterNum);
+  checkSkipped(-1, 0, 0, -1);
+  check(iterNum, kRun, 0, 1, 1, 0, 4);
+
+  ++iterNum;
+  ++iterNum;
+  ++iterNum;
+  ++iterNum;
+  ++iterNum;
+  ++iterNum;
+  ++iterNum;
+  ++iterNum;
+  ++iterNum;
+  ++iterNum;
+  check(iterNum, kEvent, 0, 4, 4, 1, 2);
+
+  skipEventBackward(iterNum);
+  checkSkipped(0, 11, 102, 5);
+  check(iterNum, kEvent, 0, 4, 4, 0, 2);
+
+  skipEventBackward(iterNum);
+  checkSkipped(0, 11, 101, 0);
+  check(iterNum, kLumi, 0, 1, 1, 3, 4);
+
+  skipEventForward(iterNum);
+  skipEventForward(iterNum);
+  check(iterNum, kLumi, 0, 4, 4, 1, 2);
+
+  skipEventBackward(iterNum);
+  checkSkipped(0, 11, 102, 5);
+  check(iterNum, kLumi, 0, 4, 4, 0, 2);
+
+  skipEventBackward(iterNum);
+  checkSkipped(0, 11, 101, 0);
+  check(iterNum, kLumi, 0, 1, 1, 3, 4);
+
+  iterNum.advanceToNextRun();
+  iterNum.advanceToEvent();
+  check(iterNum, kEvent, 6, 9, 8, 0, 1);
+  
+  skipEventBackward(iterNum);
+  checkSkipped(0, 11, 102, 4);
+  check(iterNum, kRun, 0, 4, 4, 1, 2);
+
+  iterNum.advanceToNextRun();
+  ++iterNum;
+  ++iterNum;
+  ++iterNum;
+  check(iterNum, kLumi, 6, 8, 8, 0, 1);
+  
+  skipEventBackward(iterNum);
+  checkSkipped(0, 11, 102, 4);
+  check(iterNum, kRun, 0, 4, 4, 1, 2);
 }
 
 
@@ -1485,6 +1671,13 @@ void TestIndexIntoFile::testSkip() {
   checkSkipped(-1, 0, 0, -1);
   check(iterFirst, kEnd, -1, -1, -1, 0 , 0);
 
+  skipEventBackward(iterFirst);
+  checkSkipped(0, 1, 101, 0);
+  check(iterFirst, kRun, 0, 1, 1, 0 , 1);
+
+  skipEventBackward(iterFirst);
+  checkSkipped(-1, 0, 0, -1);
+  check(iterFirst, kRun, 0, 1, 1, 0 , 1);
 
   iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
   ++iterFirst;
@@ -1509,6 +1702,14 @@ void TestIndexIntoFile::testSkip() {
   skipEventForward(iterNum);
   checkSkipped(-1, 0, 0, -1);
   check(iterNum, kEnd, -1, -1, -1, 0 , 0);
+
+  skipEventBackward(iterNum);
+  checkSkipped(0, 1, 101, 0);
+  check(iterNum, kRun, 0, 1, 1, 0 , 1);
+
+  skipEventBackward(iterNum);
+  checkSkipped(-1, 0, 0, -1);
+  check(iterNum, kRun, 0, 1, 1, 0 , 1);
 
   iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
   ++iterNum;
@@ -1549,6 +1750,13 @@ void TestIndexIntoFile::testSkip2() {
   checkSkipped(-1, 0, 0, -1);
   check(iterFirst, kEnd, -1, -1, -1, 0 , 0);
 
+  skipEventBackward(iterFirst);
+  checkSkipped(0, 2, 101, 1);
+  check(iterFirst, kRun, 4, 5, 5, 0 , 1);
+
+  skipEventBackward(iterFirst);
+  checkSkipped(0, 1, 101, 0);
+  check(iterFirst, kRun, 0, 1, 1, 0 , 1);
 
   iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
   ++iterFirst;
@@ -1579,6 +1787,13 @@ void TestIndexIntoFile::testSkip2() {
   checkSkipped(-1, 0, 0, -1);
   check(iterNum, kEnd, -1, -1, -1, 0 , 0);
 
+  skipEventBackward(iterNum);
+  checkSkipped(0, 2, 101, 1);
+  check(iterNum, kRun, 4, 5, 5, 0 , 1);
+
+  skipEventBackward(iterNum);
+  checkSkipped(0, 1, 101, 0);
+  check(iterNum, kRun, 0, 1, 1, 0 , 1);
 
   iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
   ++iterNum;
@@ -1870,6 +2085,24 @@ void TestIndexIntoFile::testFind() {
     CPPUNIT_ASSERT(indexIntoFile.containsItem(2, 12, 0));
     CPPUNIT_ASSERT(!indexIntoFile.containsItem(2, 100, 0));
     CPPUNIT_ASSERT(iter == indexIntoFile.end(IndexIntoFile::numericalOrder));
+
+    if (j == 0) {
+      edm::IndexIntoFile::IndexIntoFileItr iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
+      iterFirst.advanceToNextRun();
+      iterFirst.advanceToNextRun();
+
+      skipEventBackward(iterFirst);
+      checkSkipped(0, 2, 12, 3);
+      check(iterFirst, kRun, 1, 2, 3, 1, 2);
+
+      edm::IndexIntoFile::IndexIntoFileItr iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
+      iterNum.advanceToNextRun();
+      iterNum.advanceToNextRun();
+
+      skipEventBackward(iterNum);
+      checkSkipped(0, 2, 12, 0);
+      check(iterNum, kRun, 1, 2, 2, 3, 4);
+    }
   }
 }
 

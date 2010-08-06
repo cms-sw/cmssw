@@ -947,6 +947,97 @@ namespace edm {
     return;
   }
 
+  void IndexIntoFile::IndexIntoFileItrImpl::skipEventBackward(int& phIndexOfEvent,
+                                                              RunNumber_t& runOfEvent,
+                                                              LuminosityBlockNumber_t& lumiOfEvent,
+                                                              EntryNumber_t& eventEntry) {
+    // Look for previous events in the current lumi
+    if (indexToEvent_ > 0) {
+      --indexToEvent_;
+    }
+    else if (!previousEventRange()) {
+
+      // Look for previous events in previous lumis
+      if (!previousLumiWithEvents()) {
+
+        // If we get here there are no previous events in the file
+
+        if (!indexIntoFile_->empty()) {
+	    // Set the iterator to the beginning of the file  
+	    type_ = kRun;
+            indexToRun_ = 0;
+            initializeRun();
+	}
+        phIndexOfEvent = invalidIndex;
+        runOfEvent = invalidRun;
+        lumiOfEvent = invalidLumi;
+        eventEntry = invalidEntry;
+        return;
+      }
+    }
+    // Found a previous event and we have set the iterator so that this event
+    // will be the next event process. (There may or may not be a run and/or
+    // a lumi processed first).
+    // Return information about this event
+    phIndexOfEvent = processHistoryIDIndex();
+    runOfEvent = run();
+    lumiOfEvent = peekAheadAtLumi();
+    eventEntry = peekAheadAtEventEntry();
+  }
+
+  bool IndexIntoFile::IndexIntoFileItrImpl::previousLumiWithEvents() {
+    // Find the correct place to start the search
+    int newLumi = indexToLumi();
+    if (newLumi == invalidIndex) {
+      newLumi = indexToRun() == invalidIndex ? size() - 1 : indexToRun();
+    }
+    else {
+      while (getRunOrLumiEntryType(newLumi - 1) == kLumi &&
+             isSameLumi(newLumi, newLumi - 1)) {
+        --newLumi;
+      }
+      --newLumi;
+    }
+    if (newLumi <= 0) return false;
+
+    // Look backwards for a lumi with events
+    for ( ; newLumi > 0; --newLumi) {
+      if (getRunOrLumiEntryType(newLumi) == kRun) {
+	continue;
+      }
+      if (setToLastEventInRange(newLumi)) {
+        break;  // found it
+      }
+    }
+    if (newLumi == 0) return false;
+
+    // Finish initializing the iterator
+    while (getRunOrLumiEntryType(newLumi - 1) == kLumi &&
+           isSameLumi(newLumi, newLumi - 1)) {
+      --newLumi;
+    }
+    setIndexToLumi(newLumi);
+
+    if (type() != kEnd &&
+        isSameRun(newLumi, indexToRun())) {
+      if (type() == kEvent) type_ = kLumi;
+      return true;
+    }
+    int newRun = newLumi;
+    while (newRun > 0 && getRunOrLumiEntryType(newRun - 1) == kLumi) {
+      --newRun;
+    }
+    --newRun;
+    assert(getRunOrLumiEntryType(newRun) == kRun);
+    while (getRunOrLumiEntryType(newRun - 1) == kRun &&
+           isSameRun(newRun - 1, newLumi)) {
+      --newRun;
+    }
+    indexToRun_ = newRun;
+    type_ = kRun;
+    return true;
+  }
+
   void IndexIntoFile::IndexIntoFileItrImpl::advanceToNextRun() {
     if (type_ == kEnd) return;
     for (int i = 1; indexToRun_ + i < size_; ++i) {
@@ -1167,6 +1258,43 @@ namespace edm {
     return false; // hit the end of the IndexIntoFile
   }
 
+  bool IndexIntoFile::IndexIntoFileItrNoSort::previousEventRange() {
+    if (indexToEventRange() == invalidIndex) return false;
+    assert(indexToEventRange() < size());
+
+    // Look backward for a previous event range with events, same lumi but different entry 
+    for(int i = 1; indexToEventRange() - i > 0; ++i) {
+      int newRange = indexToEventRange() - i;
+      if (indexIntoFile()->runOrLumiEntries()[newRange].isRun()) {
+        return false;  // hit run
+      }
+      else if (isSameLumi(newRange, indexToEventRange())) {
+        if (indexIntoFile()->runOrLumiEntries()[newRange].beginEvents() == invalidEntry) {
+          continue; // same lumi but has no events, keep looking
+        }
+        setIndexToEventRange(newRange);
+        setNEvents(indexIntoFile()->runOrLumiEntries()[indexToEventRange()].endEvents() -
+                   indexIntoFile()->runOrLumiEntries()[indexToEventRange()].beginEvents());
+        setIndexToEvent(nEvents() - 1);
+        return true; // found previous event in this lumi
+      }
+      return false; // hit previous lumi
+    }
+    return false; // hit the beginning of the IndexIntoFile, 0th entry has to be a run
+  }
+
+  bool IndexIntoFile::IndexIntoFileItrNoSort::setToLastEventInRange(int index) {
+    if (indexIntoFile()->runOrLumiEntries()[index].beginEvents() == invalidEntry) {
+      return false;
+    }
+    setIndexToEventRange(index);
+    setNEvents(indexIntoFile()->runOrLumiEntries()[indexToEventRange()].endEvents() -
+               indexIntoFile()->runOrLumiEntries()[indexToEventRange()].beginEvents());
+    assert(nEvents() > 0);
+    setIndexToEvent(nEvents() - 1);
+    return true;
+  }
+
   bool IndexIntoFile::IndexIntoFileItrNoSort::skipLumiInRun() { 
     if (indexToLumi() == invalidIndex) return false;
     for(int i = 1; indexToLumi() + i < size(); ++i) {
@@ -1295,6 +1423,33 @@ namespace edm {
 
   bool IndexIntoFile::IndexIntoFileItrSorted::nextEventRange() {
     return false;          
+  }
+
+  bool IndexIntoFile::IndexIntoFileItrSorted::previousEventRange() {
+    return false;          
+  }
+
+  bool IndexIntoFile::IndexIntoFileItrSorted::setToLastEventInRange(int index) {
+    long long nEventsInRange = 
+      indexIntoFile()->runOrLumiIndexes()[index].endEventNumbers() -
+      indexIntoFile()->runOrLumiIndexes()[index].beginEventNumbers();
+    if (nEventsInRange == 0) {
+      return false;
+    }
+    while (index > 0 &&
+           !indexIntoFile()->runOrLumiIndexes()[index - 1].isRun() &&
+           isSameLumi(index, index - 1)) {
+      --index;
+    }
+    assert(nEventsInRange ==
+      indexIntoFile()->runOrLumiIndexes()[index].endEventNumbers() -
+      indexIntoFile()->runOrLumiIndexes()[index].beginEventNumbers());
+
+    setIndexToEventRange(index);
+    setNEvents(nEventsInRange);
+    assert(nEvents() > 0);
+    setIndexToEvent(nEventsInRange - 1);
+    return true;
   }
 
   bool IndexIntoFile::IndexIntoFileItrSorted::skipLumiInRun() { 

@@ -1088,23 +1088,38 @@ namespace edm {
       --offset;
     }
 
-    /*
-    while(offset < 0 && indexIntoFileIter_ != indexIntoFileBegin_) {
-      --indexIntoFileIter_;
-      if(indexIntoFileIter_->getEntryType() == IndexIntoFile::kEvent) {
-        if (eventSkipperByID_ && eventSkipperByID_->somethingToSkip()) {
-	  fillEventAuxiliary();
-	  if (eventSkipperByID_->skipIt(indexIntoFileIter_->run(), indexIntoFileIter_->lumi(), eventAux_.id().event())) {
-	    continue;
-          }
+    // Note that when skipping backwards, duplicate events are counted
+    // (and they are not recorded for purposes of duplicate checking).
+    // Probably duplicate checking  should be disabled if skipping
+    // backwards. If it is not disabled, then skipping forward N events
+    // and then skipping backwards N events might not leave one at the
+    // same position ... This is strange behavior, although it will not
+    // crash or throw.
+
+    while(offset < 0) {
+
+      int phIndexOfEvent = IndexIntoFile::invalidIndex;
+      RunNumber_t runOfEvent =  IndexIntoFile::invalidRun;
+      LuminosityBlockNumber_t lumiOfEvent = IndexIntoFile::invalidLumi;
+      EntryNumber_t eventEntry = IndexIntoFile::invalidEntry;
+
+      indexIntoFileIter_.skipEventBackward(phIndexOfEvent,
+                                           runOfEvent,
+                                           lumiOfEvent,
+                                           eventEntry);
+
+      if (eventEntry == IndexIntoFile::invalidEntry) break;
+
+      if (eventSkipperByID_ && eventSkipperByID_->somethingToSkip()) {
+        eventTree_.setEntryNumber(eventEntry);
+	fillEventAuxiliary();
+	if (eventSkipperByID_->skipIt(runOfEvent, lumiOfEvent, eventAux_.id().event())) {
+	  continue;
         }
-	// if(isDuplicateEvent()) {
-	//  continue;
-	// }
-        ++offset;
       }
+      ++offset;
     }
-    */
+
     eventTree_.resetTraining();
 
     return (indexIntoFileIter_ == indexIntoFileEnd_);

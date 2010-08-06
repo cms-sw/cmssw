@@ -396,12 +396,8 @@ namespace edm {
 	numberOfEventsToSkip_ = 0;
 	return false;
       }
-      // This needs to be fixed to support negative skips, but I am doing
-      // other things first.  I think this is actually only used
-      // by Iguana 
-      assert(numberOfEventsToSkip_ >= 0);
       if(numberOfEventsToSkip_ < 0 && !previousFile(cache)) {
-	numberOfEventsToSkip_ = 0;
+        numberOfEventsToSkip_ = 0;
         return false;
       }
     }
