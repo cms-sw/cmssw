@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2010/08/04 19:10:24 $
- * $Revision: 1.490 $
+ * $Date: 2010/08/04 20:10:58 $
+ * $Revision: 1.491 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -37,9 +37,7 @@
 #include "DQM/EcalCommon/interface/LogicID.h"
 #endif
 
-#ifndef OLD_MASKING
 #include "DQM/EcalCommon/interface/Masks.h"
-#endif
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
@@ -700,6 +698,8 @@ void EcalBarrelMonitorClient::beginRun(void) {
 void EcalBarrelMonitorClient::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, verbose_);
+
+  std::cout << std::endl;
 
   Masks::initMasking(c, verbose_);
 
