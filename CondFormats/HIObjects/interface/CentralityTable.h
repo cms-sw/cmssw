@@ -21,6 +21,8 @@ class CentralityTable {
     BinValues ecc4;
     BinValues ecc5;
 
+    BinValues S;
+
     BinValues var0;
     BinValues var1;
     BinValues var2;
