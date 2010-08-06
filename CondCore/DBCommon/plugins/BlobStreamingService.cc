@@ -122,16 +122,16 @@ namespace cond {
 	  {
 	    std::vector<unsigned char> & v = *reinterpret_cast< std::vector<unsigned char> *> (addressOfContainer);
 	    // we should avoid the copy!
-	    v.resize(blobIn.size());
-	    std::memcpy(&v.front(),blobIn.startingAddress(),v.size());
+	    v.resize(blobIn->size());
+	    std::memcpy(&v.front(),blobIn->startingAddress(),v.size());
 	  }
 	  break;
 	case 2:
 	  {
 	    std::vector<char> & v = *reinterpret_cast< std::vector<char> *> (addressOfContainer);
 	    // we should avoid the copy!
-	    v.resize(blobIn.size());
-	    std::memcpy(&v.front(),blobIn.startingAddress(),v.size());
+	    v.resize(blobIn->size());
+	    std::memcpy(&v.front(),blobIn->startingAddress(),v.size());
 	  }
 	  break;
 	}
