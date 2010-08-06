@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
- version $Id: BeamSpotAnalyzer.cc,v 1.27 2010/06/18 19:36:25 yumiceva Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.26 2010/05/28 22:53:01 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -143,9 +143,9 @@ BeamSpotAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       std::cout << bs << std::endl;
       std::cout << "[BeamFitter] fit failed \n" << std::endl;
       //accumulate more events 
-      // dissable this for the moment
-      //resetFitNLumi_ += 1;
-      //std::cout << "reset fitNLumi " << resetFitNLumi_ << std::endl;
+
+      resetFitNLumi_ += 1;
+      std::cout << "reset fitNLumi " << resetFitNLumi_ << std::endl;
     }
 	
     if (resetFitNLumi_ > 0 && countLumi_%resetFitNLumi_ == 0) {

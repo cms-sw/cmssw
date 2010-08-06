@@ -1,58 +1,29 @@
-#from tools import replaceTemplate
-from tools import loadCmsProcess,loadCrabCfg,loadCrabDefault,writeCfg,prependPaths
+from tools import replaceTemplate
 from CrabTask import *
 import os
 
 class DTTTrigValid:
-    def __init__(self, run, dir, input_file, config):
-        self.pset_name = 'DTkFactValidation_1_cfg.py'
-        self.outputfile = 'residuals.root,DQM.root'
-        self.config = config
-        self.dir = dir
-        self.inputfile = input_file
+    def __init__(self,run,crab_opts,pset_opts,template_path):
+        pset_name = 'DTkFactValidation_1_cfg.py'
 
         #self.crab_template = os.environ['CMSSW_BASE'] + '/src/Workflow/' + 'templates/crab/crab_Valid_TEMPL.cfg'
         #self.pset_template = os.environ['CMSSW_BASE'] + '/src/Workflow/' + 'templates/config/DTkFactValidation_1_TEMPL_cfg.py'
-        self.crab_template = config.templatepath + '/crab/crab_ttrig_valid.cfg'
-        self.pset_template = config.templatepath + '/config/DTkFactValidation_1_cfg.py'
+        self.crab_template = template_path + '/crab/crab_Valid_TEMPL.cfg'
+        self.pset_template = template_path + '/config/DTkFactValidation_1_TEMPL_cfg.py'
 
-        #self.crab_opts = crab_opts
-        #self.crab_opts['PSET'] = pset_name
+        self.crab_opts = crab_opts
+        self.crab_opts['PSET'] = pset_name
 
-        #self.pset_opts = pset_opts 
+        self.pset_opts = pset_opts 
 
-        #self.crab_cfg = replaceTemplate(self.crab_template,**self.crab_opts)
-        #self.pset = replaceTemplate(self.pset_template,**self.pset_opts)
+        self.crab_cfg = replaceTemplate(self.crab_template,**self.crab_opts)
+        self.pset = replaceTemplate(self.pset_template,**self.pset_opts)
 
-        #desc = 'Run%s'%run
-        #desc += '/Ttrig/Validation'
-        #self.desc = desc 
+        desc = 'Run%s'%run
+        desc += '/Ttrig/Validation'
+        self.desc = desc 
 
-        self.initProcess()
-        self.initCrab()
-        #self.task = CrabTask(self.desc,self.crab_cfg,self.pset,pset_name)
-        self.task = CrabTask(self.dir,self.crab_cfg)
-
-    def initProcess(self):
-        self.process = loadCmsProcess(self.pset_template)
-        self.process.GlobalTag.globaltag = self.config.globaltag
-        self.process.calibDB.connect = 'sqlite_file:%s' % os.path.basename(self.inputfile)
-        if hasattr(self.config,'preselection') and self.config.preselection:
-            pathsequence = self.config.preselection.split(':')[0]
-            seqname = self.config.preselection.split(':')[1]
-            self.process.load(pathsequence)
-            prependPaths(self.process,seqname)
-
-    def initCrab(self):
-        crab_cfg_parser = loadCrabCfg(self.crab_template)
-        loadCrabDefault(crab_cfg_parser,self.config)
-        crab_cfg_parser.set('CMSSW','pset',self.pset_name)
-        crab_cfg_parser.set('CMSSW','output_file',self.outputfile)
-        crab_cfg_parser.set('USER','additional_input_files',self.inputfile)
-        self.crab_cfg = crab_cfg_parser
-
-    def writeCfg(self):
-        writeCfg(self.process,self.dir,self.pset_name)
+        self.task = CrabTask(self.desc,self.crab_cfg,self.pset,pset_name)
 
     def run(self):
         self.project = self.task.run()
@@ -72,21 +43,21 @@ if __name__ == '__main__':
     if not run: raise ValueError,'Need to set run number'
     if not trial: raise ValueError,'Need to set trial number'
 
-    run_dir = 'Test'
-    ttrig_second_db = os.path.abspath(run_dir + '/' + 'ttrig_second_' + run + '.db')
+    result_dir = 'Run%s'%run
+    result_dir += '/Ttrig/Results'
 
-    config.globaltag = 'GR09_P_V1::All'
-    config.scheduler = 'CAF'
-    config.useserver = True
-    config.datasetpath = '/StreamExpress/CRAFT09-MuAlCalIsolatedMu-v1/ALCARECO'
-    config.runselection = run
-    config.totalnumberevents = 1000000
-    config.eventsperjob = 50000
-    config.stageOutCAF = True
-    config.userdircaf = 'TTRIGCalibration/Validation/First/Run' + str(run) + '/v' + str(trial)
-    config.email = 'vilela@to.infn.it'
-    config.templatepath = 'templates'
+    ttrig_second_db = os.path.abspath(result_dir + '/' + 'ttrig_second_' + run + '.db')
 
-    dtTtrigValid = DTTTrigValid(run,run_dir,ttrig_second_db,config) 
-    #project = dtTtrigValid.run()
-    #print "Sent validation jobs with project",project
+    crab_opts = {'DATASETPATH':'/StreamExpress/CRAFT09-MuAlCalIsolatedMu-v1/ALCARECO',
+                 'EMAIL':'vilela@to.infn.it',
+                 'RUNSELECTION':run,
+                 'USERDIRCAF':'TTRIGCalibration/Validation/First/Run' + str(run) + '/v' + str(trial),
+                 'INPUTFILE':ttrig_second_db}
+
+    pset_opts = {'GLOBALTAG':'GR09_P_V1::All',
+                 'INPUTFILE':ttrig_second_db.split('/')[-1]}
+
+    dtTtrigValid = DTTTrigValid(run,crab_opts,pset_opts,'templates') 
+    project = dtTtrigValid.run()
+
+    print "Sent validation jobs with project",project

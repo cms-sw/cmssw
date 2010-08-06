@@ -70,7 +70,6 @@ private:
     double longLivedDecayLength_;
     double vertexClusteringSqDistance_;
     unsigned int numberOfInnerLayers_;
-    unsigned int minTrackerSimHits_;
 
     struct G4
     {

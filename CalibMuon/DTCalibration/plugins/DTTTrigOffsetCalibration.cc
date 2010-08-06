@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/02/28 20:10:01 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/02/16 10:03:23 $
+ *  $Revision: 1.4 $
  *  \author A. Vilela Pereira
  */
 
@@ -84,6 +84,8 @@ DTTTrigOffsetCalibration::~DTTTrigOffsetCalibration(){
   theFile_->Close();
   LogVerbatim("Calibration") << "[DTTTrigOffsetCalibration] Destructor called!";
 }
+
+
 
 void DTTTrigOffsetCalibration::analyze(const Event & event, const EventSetup& eventSetup) {
   theFile_->cd();
@@ -221,14 +223,12 @@ void DTTTrigOffsetCalibration::analyze(const Event & event, const EventSetup& ev
       if(fabs(atan(segment4DLocalDir.x()/segment4DLocalDir.z())* 180./Geom::pi()) > theMaxPhiAngle_) continue; // cut on the angle
       // Fill t0-seg values
       if((*segment).hasPhi()) {
-	//if((segment->phiSegment()->t0()) != 0.00){
-        if(segment->phiSegment()->ist0Valid()){
+	if((segment->phiSegment()->t0()) != 0.00){
 	  (theT0SegHistoMap_[*chamberIdIt])[0]->Fill(segment->phiSegment()->t0());
 	}
       }
       if((*segment).hasZed()){
-    	//if((segment->zSegment()->t0()) != 0.00){
-        if(segment->zSegment()->ist0Valid()){
+    	if((segment->zSegment()->t0()) != 0.00){
 	  (theT0SegHistoMap_[*chamberIdIt])[1]->Fill(segment->zSegment()->t0());
 	}
       }

@@ -72,7 +72,7 @@ class AlignmentTrackSelector
   const edm::InputTag matchedrecHitsTag_;
   const bool countStereoHitAs2D_; // count hits on stereo components of GluedDet for nHitMin2D_?
   const unsigned int nHitMin2D_;
-  const int minHitsinTIB_, minHitsinTOB_, minHitsinTIDplus_, minHitsinTIDminus_, minHitsinTID_, minHitsinTECplus_, minHitsinTECminus_, minHitsinTEC_, minHitsinBPIX_, minHitsinFPIXplus_, minHitsinFPIXminus_, minHitsinFPIX_, minHitsinPIX_;
+  const int minHitsinTIB_, minHitsinTOB_, minHitsinTID_, minHitsinTIDplus_, minHitsinTIDminus_, minHitsinTEC_, minHitsinTECplus_, minHitsinTECminus_, minHitsinBPIX_, minHitsinFPIX_, minHitsinFPIXplus_, minHitsinFPIXminus_, minHitsinPIX_;
 
   const edm::InputTag clusterValueMapTag_;  // ValueMap containing association cluster - flag
   const int minPrescaledHits_;

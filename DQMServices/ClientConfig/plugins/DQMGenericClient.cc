@@ -2,8 +2,8 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2010/07/02 09:19:49 $
- *  $Revision: 1.16 $
+ *  $Date: 2010/07/23 06:41:17 $
+ *  $Revision: 1.19 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -13,6 +13,7 @@
 #include "DQMServices/ClientConfig/interface/FitSlicesYTool.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -176,6 +177,8 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
     opt.namePrefix = args[0];
     opt.titlePrefix = args[1];
     opt.srcName = args[2];
+
+    resolOptions_.push_back(opt);
   }
 
   VPSet resolSets = pset.getUntrackedParameter<VPSet>("resolutionSets", VPSet());
@@ -186,6 +189,8 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
     opt.namePrefix = resolSet->getUntrackedParameter<string>("namePrefix");
     opt.titlePrefix = resolSet->getUntrackedParameter<string>("titlePrefix");
     opt.srcName = resolSet->getUntrackedParameter<string>("srcName");
+
+    resolOptions_.push_back(opt);
   }
 
   // Parse Normalization commands
@@ -513,8 +518,8 @@ void DQMGenericClient::computeEfficiency(const string& startDir, const string& e
   const float nSimAll = hSim->GetEntries();
   const float nRecoAll = hReco->GetEntries();
   float efficAll=0; 
-  if ( type == 1 ) efficAll = nSimAll ? 1-nRecoAll/nSimAll : 0;
-  else if ( type == 2 ) efficAll = nSimAll ? nRecoAll/nSimAll : 0;
+  if ( type == 1 ) efficAll = nSimAll ? nRecoAll/nSimAll : 0;
+  else if ( type == 2 ) efficAll = nSimAll ? 1-nRecoAll/nSimAll : 0;
   const float errorAll = nSimAll && efficAll < 1 ? sqrt(efficAll*(1-efficAll)/nSimAll) : 0;
 
   const int iBin = hGlobalEffic->Fill(newEfficMEName.c_str(), 0);

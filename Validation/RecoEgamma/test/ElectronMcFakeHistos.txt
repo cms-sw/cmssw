@@ -105,12 +105,12 @@ Isolation sums
 
 ElectronMcFakeValidator/h_ele_tkSumPt_dr03 1 1 1 0 0 0 1 0
 ElectronMcFakeValidator/h_ele_ecalRecHitSumEt_dr03 1 1 1 0 0 0 1 0
-ElectronMcFakeValidator/h_ele_hcalDepth1TowerSumEt_dr03 1 1 1 0 0 0 0 0
-ElectronMcFakeValidator/h_ele_hcalDepth2TowerSumEt_dr03 1 1 1 0 0 0 1 0
+ElectronMcFakeValidator/h_ele_hcalTowerSumEt_dr03_depth1 1 1 1 0 0 0 0 0
+ElectronMcFakeValidator/h_ele_hcalTowerSumEt_dr03_depth2 1 1 1 0 0 0 1 0
 ElectronMcFakeValidator/h_ele_tkSumPt_dr04 1 1 1 0 0 0 1 0
 ElectronMcFakeValidator/h_ele_ecalRecHitSumEt_dr04 1 1 1 0 0 0 1 0
-ElectronMcFakeValidator/h_ele_hcalDepth1TowerSumEt_dr04 1 1 1 0 0 0 0 0
-ElectronMcFakeValidator/h_ele_hcalDepth2TowerSumEt_dr04	1 1 1 0 0 0 1 1
+ElectronMcFakeValidator/h_ele_hcalTowerSumEt_dr04_depth1 1 1 1 0 0 0 0 0
+ElectronMcFakeValidator/h_ele_hcalTowerSumEt_dr04_depth2	1 1 1 0 0 0 1 1
 
 Distributions for all reconstructed electrons (i.e. not requiring a match with a reco jet)
 

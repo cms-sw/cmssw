@@ -154,6 +154,10 @@ RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(vector<RefCountedK
   nit++;
  }while(nit<theMaxStep && eq>theMaxDiff);
 
+ if (eq>theMaxDiff) {
+   return ReferenceCountingPointer<KinematicTree>(new KinematicTree());
+ } 
+
 // cout<<"number of relinearizations "<<nit<<endl;
 // cout<<"value obtained: "<<eq<<endl;
   iterations = nit;

@@ -1,4 +1,0 @@
-<use name=SimGeneral/HepPDTRecord>
-<export>
-  <lib name=PhysicsToolsHepMCCandAlgos>
-</export>

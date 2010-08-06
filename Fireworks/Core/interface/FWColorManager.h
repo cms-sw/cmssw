@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:07:58 CET 2009
-// $Id: FWColorManager.h,v 1.19 2010/06/16 14:04:37 matevz Exp $
+// $Id: FWColorManager.h,v 1.17 2009/10/08 17:44:40 amraktad Exp $
 //
 
 // system include files
@@ -30,8 +30,7 @@
 class FWModelChangeManager;
 class TGLViewer;
 
-enum FWGeomColorIndex
-{
+enum FWGeomColorIndex {
    kFWMuonBarrelMainColorIndex,
    kFWMuonBarrelLineColorIndex,
    kFWMuonEndCapMainColorIndex,
@@ -43,14 +42,13 @@ enum FWGeomColorIndex
    kFWLegoFontColorIndex
 };
 
+class FWColorManager {
 
-class FWColorManager
-{
 public:
    FWColorManager(FWModelChangeManager*);
    virtual ~FWColorManager();
    
-   void initialize();
+   void initialize(Bool_t limit_palette);
 
    // ---------- const member functions ---------------------
    Color_t background() const {return m_background;}
@@ -58,32 +56,26 @@ public:
    Bool_t  isColorSetDark() const {return m_background == kBlackIndex;}
    Bool_t  isColorSetLight() const {return m_background == kWhiteIndex;}
  
-   int numberOfLimitedColors() const {return m_numColorIndices;}
-   int offsetOfLimitedColors() const {return m_startColorIndex;}
-   int borderOfLimitedColors() const {return m_startColorIndex + m_numColorIndices;}
+   Bool_t  hasLimitedPalette() const {return m_limitPalette;}
 
-   void fillLimitedColors(std::vector<Color_t>& cv) const;
+   Color_t indexToColor(unsigned int) const;
+   unsigned int numberOfIndicies() const;
+   
+   unsigned int colorToIndex(Color_t) const;
 
    //help with backward compatibility with old config files
-   Color_t oldColorToIndex(Color_t) const;
+   unsigned int oldColorToIndex(Color_t) const;
    
    bool colorHasIndex(Color_t) const;
    
    Color_t geomColor(FWGeomColorIndex) const;
    
    enum BackgroundColorIndex { kWhiteIndex = kWhite, kBlackIndex = kBlack };
-
    BackgroundColorIndex backgroundColorIndex() const;
-
    // ---------- static member functions --------------------
    
    static Bool_t setColorSetViewer(TGLViewer*, Color_t);
-
-   static Color_t getDefaultStartColorIndex();
-   static Color_t getDefaultStartGeometryIndex();
-
    // ---------- member functions ---------------------------
-
    void defaultBrightness();
    void setBrightness(int);
    int  brightness ();
@@ -109,12 +101,11 @@ private:
    Color_t m_foreground;
    FWModelChangeManager* m_changeManager;
    
-   Color_t m_startColorIndex;
-   Color_t m_numColorIndices;
-   Color_t m_startGeomColorIndex;
+   unsigned int m_startColorIndex;
+   unsigned int m_numColorIndices;
+   unsigned int m_startGeomColorIndex;
 
-   static const Color_t s_defaultStartColorIndex;
-   static const Color_t s_defaultStartGeometryIndex;
+   Bool_t m_limitPalette;
 };
 
 

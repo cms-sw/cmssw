@@ -8,23 +8,60 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.27 2010/06/25 13:13:15 matevz Exp $
+// $Id: FWTableView.cc,v 1.18 2009/10/29 09:56:04 chrjones Exp $
 //
 
 // system include files
 #include <stdlib.h>
 #include <algorithm>
+#include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/numeric/conversion/converter.hpp>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
 
+// FIXME
+// need camera parameters
+#define private public
+#include "TGLPerspectiveCamera.h"
+#undef private
+
+
+#include "TRootEmbeddedCanvas.h"
+#include "THStack.h"
+#include "TCanvas.h"
 #include "TClass.h"
+#include "TH2F.h"
+#include "TView.h"
+#include "TColor.h"
+#include "TEveScene.h"
+#include "TGLViewer.h"
 #include "TSystem.h"
+//EVIL, but only way I can avoid a double delete of TGLEmbeddedViewer::fFrame
+#define private public
+#include "TGLEmbeddedViewer.h"
+#undef private
 #include "TGComboBox.h"
 #include "TGLabel.h"
+#include "TGTextView.h"
 #include "TGTextEntry.h"
+#include "TEveViewer.h"
+#include "TEveManager.h"
 #include "TEveWindow.h"
+#include "TEveElement.h"
+#include "TEveCalo.h"
+#include "TEveElement.h"
+#include "TEveLegoEventHandler.h"
+#include "TGLWidget.h"
+#include "TGLScenePad.h"
+#include "TGLFontManager.h"
+#include "TEveTrans.h"
+#include "TGeoTube.h"
+#include "TEveGeoNode.h"
+#include "TEveStraightLineSet.h"
+#include "TEveText.h"
+#include "TGeoArb8.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWColorManager.h"
@@ -34,9 +71,11 @@
 #include "Fireworks/Core/interface/FWTableView.h"
 #include "Fireworks/Core/interface/FWTableViewManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/FWEveValueScaler.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
+#include "Fireworks/Core/interface/BuilderUtils.h"
+#include "Fireworks/Core/interface/FWExpressionEvaluator.h"
 #include "Fireworks/Core/interface/FWTableViewTableManager.h"
-#include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/src/FWGUIValidatingTextEntry.h"
 #include "Fireworks/Core/src/FWExpressionValidator.h"
 #include "Fireworks/TableWidget/interface/FWTableWidget.h"
@@ -353,12 +392,7 @@ FWTableView::addTo(FWConfiguration& iTo) const
      // then there is the stuff we have to do anyway: remember what
      // collection we display
      FWConfiguration main(1);
-     std::string collectionName;
-     if (m_manager->items()[m_iColl])
-        collectionName = m_manager->items()[m_iColl]->name();
-     else
-        collectionName = "NULL";
-
+     const std::string &collectionName = m_manager->items()[m_iColl]->name();
      FWConfiguration collection(collectionName);
      main.addKeyValue(kCollection, collection);
      FWConfiguration sortColumn(m_tableWidget->sortedColumn());
@@ -480,39 +514,30 @@ FWTableView::toggleShowHide ()
      m_columnUIButton->swapIcons(picture,down,disabled);
 }
 
-/** Reconstructs the combo box using the information
-    coming from FWEventItemsManager.
-  */
-void FWTableView::updateItems(void)
+void FWTableView::updateItems ()
 {
-   int selected = m_collection->GetSelected();
-   m_collection->RemoveAll();
-   int index = 0;
-
-   for (size_t i = 0, e = m_manager->items().size(); i != e; ++i)
-   {
-      const FWEventItem *item = m_manager->items()[i];
-      if (item) 
-         m_collection->AddEntry(item->name().c_str(), i);
-
-      if (m_iColl == index && 0 == item) 
-      {
-         //the collection we were showing is now gone
-         m_iColl = -1;
-         selected = -1;
-      }
-   }
-
-   if (selected != -1 && selected < m_collection->GetNumberOfEntries())
-      m_collection->Select(selected, false);
-
-   TGListBox *lb  = m_collection->GetListBox();
-   lb->SetHeight(TMath::Min(lb->GetNumberOfEntries()*lb->GetItemVsize() + 2*lb->GetBorderWidth(), 200u));
+     int selected = m_collection->GetSelected();
+     m_collection->RemoveAll();
+     int index =0;
+     for (std::vector<const FWEventItem *>::const_iterator it = m_manager->items().begin(), 
+	       itEnd = m_manager->items().end();
+	  it != itEnd; ++it,++index) {
+        if(*it) {
+           m_collection->AddEntry((*it)->name().c_str(), it - m_manager->items().begin());
+        }
+        if(m_iColl == index && 0 == *it) {
+           //the collection we were showing is now gone
+           m_iColl = -1;
+           selected = -1;
+        }
+     }
+     if (selected != -1 && selected < m_collection->GetNumberOfEntries())
+	  m_collection->Select(selected, false);
 }
 
 void FWTableView::updateEvaluators ()
 {
-   m_tableManager->updateEvaluators();
+     m_tableManager->updateEvaluators();
 }
 
 const FWEventItem *FWTableView::item () const
@@ -538,12 +563,8 @@ void FWTableView::dataChanged ()
 //      fflush(stdout);
 }
 
-/** Select the collection to be displayed by the table view and
-    updates the evaluators required to retrieve the data from the
-    event.
- */
-void 
-FWTableView::selectCollection(Int_t i_coll)
+
+void FWTableView::selectCollection (Int_t i_coll)
 {
 //      printf("selected collection %d, ", i_coll);
      const FWEventItem *item = m_manager->items()[i_coll];
@@ -560,7 +581,8 @@ FWTableView::selectCollection(Int_t i_coll)
      }
      if (not m_useColumnsFromConfig) {
 	  if (m_manager->tableFormats(*item->modelType()) == m_manager->m_tableFormats.end()) {
-               fwLog(fwlog::kInfo) << "No table format for objects of this type " << item->modelType()->GetName() << std::endl;
+	       printf("No table format for objects of this type (%s)\n",
+		      item->modelType()->GetName());
 	       m_tableManager->m_tableFormats->clear();
 	  } else {
 	       m_tableManager->m_tableFormats = &m_manager->tableFormats(*item->modelType())->second;
@@ -609,14 +631,15 @@ void FWTableView::addColumn ()
      std::string expr = m_column_expr_field->GetText();
      // convert the precision to a long int
      char *endptr = 0;
-     int prec = (int) strtol(m_column_prec_field->GetText(), &endptr, 0);
+     long int prec = strtol(m_column_prec_field->GetText(), &endptr, 0);
      if (name == "" || expr == "" || 
 	 m_column_prec_field->GetText() == 0 || *endptr != 0) {
-        fwLog(fwlog::kInfo) << "bad input\n";
+	  printf("bad input\n");
 	  fflush(stdout);
 	  return;
      }
-     fwLog(fwlog::kInfo) << "adding column "<<  name << ": " << expr << ", precision " << prec << std::endl;
+     printf("adding column %s: %s, precision %ld\n", name.c_str(), expr.c_str(), 
+	    prec);
      fflush(stdout);
 //      m_manager->tableFormats(*item->modelType())
      FWTableViewManager::TableEntry e = { expr, name, prec };
@@ -649,14 +672,15 @@ void FWTableView::modifyColumn ()
      std::string expr = m_column_expr_field->GetText();
      // convert the precision to a long int
      char *endptr = 0;
-     int prec = (int) strtol(m_column_prec_field->GetText(), &endptr, 0);
+     long int prec = strtol(m_column_prec_field->GetText(), &endptr, 0);
      if (name == "" || expr == "" || 
 	 m_column_prec_field->GetText() == 0 || *endptr != 0) {
-        fwLog(fwlog::kInfo) << "bad input\n";
+	  printf("bad input\n");
 	  fflush(stdout);
 	  return;
      }
-     fwLog(fwlog::kInfo) << "modify column "<<  name << ": " << expr << ", precision " << prec << std::endl;
+     printf("modifying column %s: %s, precision %ld\n", name.c_str(), expr.c_str(), 
+	    prec);
      fflush(stdout);
 //      m_manager->tableFormats(*item->modelType())
      FWTableViewManager::TableEntry e = { expr, name, prec };

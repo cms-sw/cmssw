@@ -32,7 +32,7 @@ class TtEvtBuilder : public edm::EDProducer {
 
  public:
 
-  /// default contructor
+  /// default constructor
   explicit TtEvtBuilder(const edm::ParameterSet&);
   /// default destructor
   ~TtEvtBuilder(){};

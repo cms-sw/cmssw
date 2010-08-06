@@ -1,0 +1,14 @@
+<use name=DataFormats/Common>
+<use name=Fireworks/Core>
+<use name=rootrflx>
+<use name=sigcpp>
+<lib name=Eve>
+<use name=clhep>
+<use name=DataFormats/SiStripDetId>
+<use name=DataFormats/SiStripCluster>
+<use name=DataFormats/SiPixelDetId>
+<use name=DataFormats/TrackerRecHit2D>
+<export>
+  <lib name=FireworksTracks>
+  <use name=rootrflx>
+</export>

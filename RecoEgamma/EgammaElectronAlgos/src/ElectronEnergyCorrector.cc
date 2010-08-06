@@ -1,15 +1,17 @@
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronEnergyCorrector.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
+
 
 /****************************************************************************
  *
- * Classification based eta corrections for the ecal cluster ebergy
+ * Classification based eta corrections for the ecal cluster energy
  *
  * \author Federico Ferri - INFN Milano, Bicocca university
  * \author Ivica Puljak - FESB, Split
  * \author Stephanie Baffioni - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: ElectronEnergyCorrector.cc,v 1.8 2009/10/29 23:13:27 chamont Exp $
+ * \version $Id: ElectronEnergyCorrector.cc,v 1.9 2009/11/14 14:37:55 charlot Exp $
  *
  ****************************************************************************/
 
@@ -46,7 +48,7 @@ float endcapEnergyError( float E, int elClass )
  }
 
 void ElectronEnergyCorrector::correct
- ( reco::GsfElectron & electron, bool applyEtaCorrection )
+ ( reco::GsfElectron & electron, const reco::BeamSpot & bs, bool applyEtaCorrection )
  {
   if (electron.isEcalEnergyCorrected())
    {
@@ -76,7 +78,7 @@ void ElectronEnergyCorrector::correct
 
   if ( applyEtaCorrection && (!electron.isGap()) )
    {
-    double scEta = electron.caloPosition().eta() ;
+    double scEta = EleRelPoint(electron.caloPosition(),bs.position()).eta() ;
     if (electron.isEB()) // barrel
      {
 	  if ( (elClass==reco::GsfElectron::GOLDEN) ||

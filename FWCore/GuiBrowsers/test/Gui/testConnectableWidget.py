@@ -157,7 +157,8 @@ class ConnectableWidgetTestCase(unittest.TestCase):
             widget.scheduleRearangeContent()
             widget.show()
         
-        self.app.exec_()
+        if not hasattr(unittest,"NO_GUI_TEST"):
+            self.app.exec_()
 
 if __name__ == "__main__":
     Profiling.analyze("unittest.main()",__file__)

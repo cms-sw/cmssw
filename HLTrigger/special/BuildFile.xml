@@ -31,6 +31,7 @@
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/CaloTopology"/>
 <use   name="Geometry/EcalMapping"/>
+<use   name="Geometry/DTGeometry"/>
 <use   name="Geometry/Records"/>
 <use   name="HLTrigger/HLTcore"/>
 <use   name="CommonTools/UtilAlgos"/>

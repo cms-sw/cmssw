@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/02/16 14:25:08 $
- *  $Revision: 1.15 $
+ *  $Date: 2009/02/10 13:42:52 $
+ *  $Revision: 1.14 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -18,7 +18,6 @@
 
 #include "CondFormats/DTObjects/interface/DTMtime.h"
 #include "CondFormats/DTObjects/interface/DTTtrig.h"
-#include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 #include "CondFormats/DTObjects/interface/DTT0.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 #include "CondFormats/DTObjects/interface/DTDeadFlag.h"
@@ -41,16 +40,6 @@ DumpFileToDB::DumpFileToDB(const ParameterSet& pset) {
   if(dbToDump != "VDriftDB" && dbToDump != "TTrigDB" && dbToDump != "TZeroDB" && 
      dbToDump != "NoiseDB" && dbToDump != "DeadDB" && dbToDump != "ChannelsDB")
     cout << "[DumpFileToDB] *** Error: parameter dbToDump is not valid, check the cfg file" << endl;
-
-  diffMode = pset.getUntrackedParameter<bool>("differentialMode", false);
-  if(diffMode) {
-    if(dbToDump != "TTrigDB") {
-      cout << "***Error: differential mode currentl implemented for ttrig only" << endl;
-      abort();
-    }
-    cout << "Using differential mode: mean value of txt table will be added to the current DB value" << endl;
-  }
-
 }
  
 DumpFileToDB::~DumpFileToDB(){}
@@ -89,48 +78,16 @@ void DumpFileToDB::endJob() {
     for(DTCalibrationMap::const_iterator keyAndCalibs = theCalibFile->keyAndConsts_begin();
 	keyAndCalibs != theCalibFile->keyAndConsts_end();
 	++keyAndCalibs) {
+      cout << "key: " << (*keyAndCalibs).first
+	   << " ttrig_mean (ns): " << theCalibFile->tTrig((*keyAndCalibs).first)
+	   << " ttrig_sigma(ns): " << theCalibFile->sigma_tTrig((*keyAndCalibs).first)
+	   << " kFactor: " << theCalibFile->kFactor((*keyAndCalibs).first) << endl;
       
-
-      
-      if(diffMode) { // sum the correction in the txt file (for the mean value) to what is input DB 
-
-	// retrieve the previous value from the DB
-        float tmean;
-        float trms;
-        float kFactor;
-	// ttrig and rms are ns
-        tTrigMapOrig->get((*keyAndCalibs).first.rawId(), tmean, trms, kFactor, DTTimeUnits::ns);
-	
-	if(theCalibFile->kFactor((*keyAndCalibs).first) != 0 || kFactor != 0) {
-	  cout << "***Error: the differentialMode can only be used with kFactor = 0, old: " << kFactor
-	       << " new: " << theCalibFile->kFactor((*keyAndCalibs).first) << endl;
-	  abort();
-	}
-
-	tTrig->set((*keyAndCalibs).first.superlayerId(),
-		   theCalibFile->tTrig((*keyAndCalibs).first) + tmean, 
-		   theCalibFile->sigma_tTrig((*keyAndCalibs).first),
-		   theCalibFile->kFactor((*keyAndCalibs).first),
-		   DTTimeUnits::ns);
-	
-	cout << "key: " << (*keyAndCalibs).first
-	     << " ttrig_mean (ns): " << theCalibFile->tTrig((*keyAndCalibs).first) + tmean
-	     << " ttrig_sigma(ns): " << theCalibFile->sigma_tTrig((*keyAndCalibs).first)
-	     << " kFactor: " << theCalibFile->kFactor((*keyAndCalibs).first) << endl;
-
-      } else {
-	cout << "key: " << (*keyAndCalibs).first
-	     << " ttrig_mean (ns): " << theCalibFile->tTrig((*keyAndCalibs).first)
-	     << " ttrig_sigma(ns): " << theCalibFile->sigma_tTrig((*keyAndCalibs).first)
-	     << " kFactor: " << theCalibFile->kFactor((*keyAndCalibs).first) << endl;
-
-
-	tTrig->set((*keyAndCalibs).first.superlayerId(),
-		   theCalibFile->tTrig((*keyAndCalibs).first), 
-		   theCalibFile->sigma_tTrig((*keyAndCalibs).first),
-		   theCalibFile->kFactor((*keyAndCalibs).first),
-		   DTTimeUnits::ns);
-      }
+      tTrig->set((*keyAndCalibs).first.superlayerId(),
+		 theCalibFile->tTrig((*keyAndCalibs).first), 
+		 theCalibFile->sigma_tTrig((*keyAndCalibs).first),
+                 theCalibFile->kFactor((*keyAndCalibs).first),
+		 DTTimeUnits::ns);
     }
 
     cout << "[DumpFileToDB]Writing ttrig object to DB!" << endl;
@@ -277,17 +234,4 @@ vector <int> DumpFileToDB::readChannelsMap (stringstream &linestr){
   channelMap.push_back(layer_id);
   channelMap.push_back(wire_id);
   return channelMap;
-}
-
-
-void DumpFileToDB::beginRun(const edm::Run& run, const edm::EventSetup& setup ) {
-
-  if(diffMode) {
-    if(dbToDump == "TTrigDB") { // read the original DB
-      ESHandle<DTTtrig> tTrig;
-      setup.get<DTTtrigRcd>().get(tTrig);
-      tTrigMapOrig = &*tTrig;
-      cout << "[DumpDBToFile] TTrig version: " << tTrig->version() << endl;
-    }
-  }
 }
