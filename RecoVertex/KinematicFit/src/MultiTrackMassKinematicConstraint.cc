@@ -2,7 +2,7 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 
 
-AlgebraicVector  MultiTrackMassKinematicConstraint::value(const vector<KinematicState> states,
+AlgebraicVector  MultiTrackMassKinematicConstraint::value(const std::vector<KinematicState> states,
                         const GlobalPoint& point) const
 {
  if(states.size()<nPart) throw VertexException("MultiTrackMassKinematicConstraint::not enough states given");
@@ -26,7 +26,7 @@ AlgebraicVector  MultiTrackMassKinematicConstraint::value(const vector<Kinematic
  return res;
 }
 
-AlgebraicMatrix MultiTrackMassKinematicConstraint::parametersDerivative(const vector<KinematicState> states,
+AlgebraicMatrix MultiTrackMassKinematicConstraint::parametersDerivative(const std::vector<KinematicState> states,
                                       const GlobalPoint& point) const
 {
   if(states.size()<nPart) throw VertexException("MultiTrackMassKinematicConstraint::not enough states given");
@@ -72,7 +72,7 @@ AlgebraicMatrix MultiTrackMassKinematicConstraint::parametersDerivative(const ve
   return res;
 }
 
-AlgebraicMatrix MultiTrackMassKinematicConstraint::positionDerivative(const vector<KinematicState> states,
+AlgebraicMatrix MultiTrackMassKinematicConstraint::positionDerivative(const std::vector<KinematicState> states,
                                     const GlobalPoint& point) const
 {
   AlgebraicMatrix res(1,3,0);

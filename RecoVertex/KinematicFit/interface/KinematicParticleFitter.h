@@ -49,8 +49,8 @@ public:
  * In case of failure, an empty vector is returned.
  */ 
 
- vector<RefCountedKinematicTree> fit(KinematicConstraint * cs , 
-                   vector<RefCountedKinematicTree> trees)const;  
+ std::vector<RefCountedKinematicTree> fit(KinematicConstraint * cs , 
+                   std::vector<RefCountedKinematicTree> trees)const;  
 
 
 /**
