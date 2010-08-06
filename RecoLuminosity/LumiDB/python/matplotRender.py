@@ -202,34 +202,67 @@ class matplotRender():
         self.__fig.autofmt_xdate(bottom=0.18,rotation=0)
         self.__fig.subplots_adjust(bottom=0.1,left=0.1)
         
-    def plotPerdayX_Time(self,rawxdata,rawydata,minTime,maxTime,nticks=6):
-        xpoints=[]
-        ypoints={}
-        ymax={}
-        xidx=[]
-        runs=rawxdata.keys()
-        runs.sort()
-        minDay=minTime.toordinal()
-        maxDay=maxTime.toordinal()
-        daydict={}
-        for day in CommonUtil.inclusiveRange(minDay,maxDay,1):
-            daydict[day]=[]#run index list
-        for run in runs:
-            runstartday=rawxdata[run][0].toordinal()
-            if CommonUtil.findInList(daydict.keys() ,runstartday)!=-1:
-                daydict[runstartday].append(runs.index(run))
-        xpoints=daydict.keys()
-        xpoints.sort()
-        for ylabel,yvalue in rawydata.items():
-            ypoints[ylabel]=[]
-            ymax[ylabel]=[]
-            for day,runindices in daydict.items():
-                sumlumi=0.0
-                maxlumi=0.0
-                if len(runindices)!=0:
-                    sumlumi=sum(yvalue[min(runindices):max(runindices)+1])/1000.0
-                ypoints[ylabel].append(sumlumi)
-            ymax[ylabel]=max(ypoints[ylabel])
+ #   def plotPerdayX_Time(self,rawxdata,rawydata,minTime,maxTime,nticks=6):
+ #       xpoints=[]
+ #       ypoints={}
+ #       ymax={}
+ #       xidx=[]
+ #       runs=rawxdata.keys()
+ #       runs.sort()
+ #       minDay=minTime.toordinal()
+ #       maxDay=maxTime.toordinal()
+ #       daydict={}
+ #       for day in CommonUtil.inclusiveRange(minDay,maxDay,1):
+ #           daydict[day]=[]#run index list
+ #       for run in runs:
+ #           runstartday=rawxdata[run][0].toordinal()
+ #           if CommonUtil.findInList(daydict.keys() ,runstartday)!=-1:
+ #               daydict[runstartday].append(runs.index(run))
+ #       xpoints=daydict.keys()
+ #       xpoints.sort()
+ #       for ylabel,yvalue in rawydata.items():
+ #           ypoints[ylabel]=[]
+ #           ymax[ylabel]=[]
+ #           for day,runindices in daydict.items():
+ #               sumlumi=0.0
+ #               maxlumi=0.0
+ #               if len(runindices)!=0:
+ #                   sumlumi=sum(yvalue[min(runindices):max(runindices)+1])/1000.0
+ #               ypoints[ylabel].append(sumlumi)
+ #           ymax[ylabel]=max(ypoints[ylabel])
+ #       ax=self.__fig.add_subplot(111)
+ #       dateFmt=matplotlib.dates.DateFormatter('%d/%m')
+ #       majorLoc=matplotlib.ticker.LinearLocator(numticks=nticks)
+ #       minorLoc=matplotlib.ticker.LinearLocator(numticks=nticks*4)
+ #       ax.xaxis.set_major_formatter(dateFmt)
+ #       ax.set_xlabel(r'Date',position=(0.84,0))
+ #       ax.set_ylabel(r'L nb$^{-1}$',position=(0,0.9))
+ #       ax.xaxis.set_major_locator(majorLoc)
+ #       ax.xaxis.set_minor_locator(minorLoc)
+ #       xticklabels=ax.get_xticklabels()
+ #       for tx in xticklabels:
+ #           tx.set_horizontalalignment('right')
+ #       ax.grid(True)
+ #       keylist=ypoints.keys()
+ #       keylist.sort()
+ #       legendlist=[]
+ #       for ylabel in keylist:
+ #           cl='k'
+ #           if self.colormap.has_key(ylabel):
+ #               cl=self.colormap[ylabel]
+ #           ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
+ #           legendlist.append(ylabel+' Max '+'%.2f'%(ymax[ylabel])+' '+'nb$^{-1}$')
+ #       ax.legend(tuple(legendlist),loc='upper left')
+ #       #ax.set_xlim(left=minDay,right=maxDay)
+ #       ax.set_xbound(lower=xpoints[0],upper=xpoints[-1])
+ #       self.__fig.autofmt_xdate(bottom=0.18,rotation=0)
+ #       self.__fig.subplots_adjust(bottom=0.18,left=0.3)
+
+    def plotPerdayX_Time(self,days,databyday,minTime,maxTime,boundaryInfo=[],nticks=6):
+        '''input
+            databyday {'Delivered':[lumiperday]}
+            boundaryInfo [[begintime,begininfo],[endtime,endinfo]]
+        '''
         ax=self.__fig.add_subplot(111)
         dateFmt=matplotlib.dates.DateFormatter('%d/%m')
         majorLoc=matplotlib.ticker.LinearLocator(numticks=nticks)
@@ -243,20 +276,28 @@ class matplotRender():
         for tx in xticklabels:
             tx.set_horizontalalignment('right')
         ax.grid(True)
-        keylist=ypoints.keys()
-        keylist.sort()
         legendlist=[]
+        keylist=databyday.keys()
+        keylist.sort()
         for ylabel in keylist:
             cl='k'
             if self.colormap.has_key(ylabel):
                 cl=self.colormap[ylabel]
-            ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
-            legendlist.append(ylabel+' Max '+'%.2f'%(ymax[ylabel])+' '+'nb$^{-1}$')
+            ax.plot(days,databyday[ylabel],label=ylabel,color=cl,drawstyle='steps')
+            legendlist.append(ylabel+' Max '+'%.2f'%(max(databyday[ylabel]))+' '+'nb$^{-1}$')
         ax.legend(tuple(legendlist),loc='upper left')
-        #ax.set_xlim(left=minDay,right=maxDay)
-        ax.set_xbound(lower=xpoints[0],upper=xpoints[-1])
+        ax.set_xbound(lower=matplotlib.dates.date2num(minTime),upper=matplotlib.dates.date2num(maxTime))
+        if len(boundaryInfo)!=0:
+            begtime=boundaryInfo[0][0]
+            beginfo=boundaryInfo[0][1]
+            endtime=boundaryInfo[1][0]
+            endinfo=boundaryInfo[1][1]
+            #annotations
+            trans=matplotlib.transforms.BlendedGenericTransform(ax.transData,ax.transAxes)
+            ax.text(matplotlib.dates.date2num(begtime),1.025,beginfo,transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))        
+            ax.text(matplotlib.dates.date2num(endtime),1.025,endinfo,transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
         self.__fig.autofmt_xdate(bottom=0.18,rotation=0)
-        self.__fig.subplots_adjust(bottom=0.18,left=0.3)
+        self.__fig.subplots_adjust(bottom=0.18,left=0.1)
 
     def plotPeakPerday_Time(self,daydict,minDay,maxDay,nticks=6):
         '''
