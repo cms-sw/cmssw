@@ -9,9 +9,7 @@ class FWFFMetadataManager : public FWJobMetadataManager
 {
 public:
    // FIXME: does nothing for the time being!
-   virtual bool doUpdate(FWJobMetadataUpdateRequest*)
-      {
-         return false;
-      }
+protected:
+   virtual bool doUpdate(FWJobMetadataUpdateRequest*);
 };
 #endif

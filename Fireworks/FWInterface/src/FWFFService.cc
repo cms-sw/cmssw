@@ -181,7 +181,6 @@ FWFFService::FWFFService(edm::ParameterSet const&, edm::ActivityRegistry& ar)
 
    ar.watchPostProcessEvent(this, &FWFFService::postProcessEvent);
    
-
    boost::shared_ptr<FWViewManagerBase> eveViewManager(new FWEveViewManager(guiManager()));
    eveViewManager->setContext(m_context.get());
    viewManager()->add(eveViewManager);
@@ -198,6 +197,14 @@ FWFFService::FWFFService(edm::ParameterSet const&, edm::ActivityRegistry& ar)
    boost::shared_ptr<FWL1TriggerTableViewManager> l1TriggerTableViewManager(new FWL1TriggerTableViewManager(guiManager()));
    configurationManager()->add(std::string("L1TriggerTables"), l1TriggerTableViewManager.get());
    viewManager()->add( l1TriggerTableViewManager );
+
+   // Unfortunately, due to the plugin mechanism, we need to delay
+   // until here the creation of the FWJobMetadataManager, because
+   // otherwise the supportedTypesAndRepresentations map is empty.
+   // FIXME: should we have a signal for whenever the above mentioned map
+   //        changes? Can that actually happer (maybe if we add support
+   //        for loading plugins on the fly??).
+   m_metadataManager->initReps(viewManager()->supportedTypesAndRepresentations());
 
    startupTasks()->startDoingTasks();
 }
