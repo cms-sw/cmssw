@@ -46,6 +46,7 @@ int main() {
   if (crap!=crap2) std::cout << "compress - expansion failed" << std::endl;
 
   // back-box test
+
   std::vector<float>  vf(1024);
   for(size_t i=0; i!=vf.size(); ++i)
     vf[i] = float(i)+float(i)/1000.;
@@ -77,6 +78,37 @@ int main() {
     if (vf!=vf2) std::cout << "reading new format failed" << std::endl;
   }
   
+  // CBLOB...
+  std::vector<unsigned char>  vc = crap;
+
+  Reflex::Type cType = Reflex::Type::ByTypeInfo( typeid(std::vector<unsigned char>));
+  
+  {
+    // old mode
+    cond::TBufferBlobStreamingService tstreamer;
+    boost::shared_ptr<coral::Blob> blob = tstreamer.write(&vc,cType);
+    std::cout << "old format size " << blob->size() << std::endl;
+    BlobStreamingService::Variant id = BlobStreamingService::findVariant(blob->startingAddress());
+    std::cout << "shall be zero " << id << std::endl;
+
+    //void * p;
+    std::vector<unsigned char>  vc2;
+    streamer.read(*blob,&vc2,cType);
+    //std::vector<float>  const & vf2 = *reinterpret_cast<std::vector<float> const *>(p);
+    if (vc!=vc2) std::cout << "reading old format failed" << std::endl;
+  }
+  {
+    // new mode
+    boost::shared_ptr<coral::Blob> blob = streamer.write(&vc,cType);
+    std::cout << "new format size " << blob->size() << std::endl;
+    BlobStreamingService::Variant id = BlobStreamingService::findVariant(blob->startingAddress());
+    std::cout << "shall be two " << id << std::endl;
+    std::vector<float>  vc2;
+    streamer.read(*blob,&vc2,cType);
+    if (vc!=vc2) std::cout << "reading new format failed" << std::endl;
+  }
+  
+
 
   return 0;
 
