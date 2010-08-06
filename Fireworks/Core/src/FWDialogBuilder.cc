@@ -208,11 +208,19 @@ FWDialogBuilder::addLabel(const char *text, size_t fontSize /*= 12*/,
    TGLabel *label = new TGLabel(nextFrame(), text);
    
    FontStruct_t defaultFontStruct = label->GetDefaultFontStruct();
-   TGFontPool *pool = gClient->GetFontPool();
-   TGFont* defaultFont = pool->GetFont(defaultFontStruct);
-   FontAttributes_t attributes = defaultFont->GetFontAttributes();
-   label->SetTextFont(pool->GetFont(attributes.fFamily, fontSize, 
-                                    attributes.fWeight, attributes.fSlant));
+   try
+   {
+      TGFontPool *pool = gClient->GetFontPool();
+      TGFont* defaultFont = pool->GetFont(defaultFontStruct);
+      FontAttributes_t attributes = defaultFont->GetFontAttributes();
+      label->SetTextFont(pool->GetFont(attributes.fFamily, fontSize, 
+                                       attributes.fWeight, attributes.fSlant));
+   } 
+   catch(...)
+   {
+      // Ignore exceptions.
+   }
+
    label->SetTextJustify(kTextLeft);
    
    TGLayoutHints *hints = nextHints();
