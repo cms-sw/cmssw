@@ -21,42 +21,42 @@
 namespace cond {
 
   class BlobStreamingService : virtual public ora::IBlobStreamingService {
-    public:
-
-
+  public:
+    
+    
     BlobStreamingService();
     
     virtual ~BlobStreamingService();
-
+    
     boost::shared_ptr<coral::Blob> write( const void* addressOfInputData,  Reflex::Type const & classDictionary );
-
+    
     void read( const coral::Blob& blobData, void* addressOfContainer,  Reflex::Type const & classDictionary );
-
-
+    
+    
   private:
-
+    
     typedef std::pair<unsigned long long, unsigned long long> uuid;
     
     static const size_t m_idsize=sizeof(uuid);
     static const size_t nVariants=3;
-
+    
     enum Variant { OLD, COMPRESSED_TBUFFER, COMPRESSED_CHARS }; 
     static uuid const variantIds[nVariants];
-
-
+    
+    
     static Variant findVariant(const void* address);
     static int isVectorChar(Reflex::Type const & classDictionary);
-
-
+    
+    
     static boost::shared_ptr<coral::Blob>  compress(const void* addr, size_t isize);
     static boost::shared_ptr<coral::Blob>  expand(const coral::Blob& blobIn);
-
-
+    
+    
     boost::shared_ptr<ora::IBlobStreamingService> rootService; 
-
+    
   };
   
- 
+  
   BlobStreamingService::BlobStreamingService() : rootService(new cond::TBufferBlobStreamingService()){}
   
   BlobStreamingService::~BlobStreamingService(){}
@@ -88,12 +88,12 @@ namespace cond {
 	boost::shared_ptr<coral::Blob> blobOut = compress(&v.front(),v.size());
 	*reinterpret_cast<uuid*>(blobOut->startingAddress()) = variantIds[COMPRESSED_CHARS];
 	return blobOut;
+      }
+      
     }
-												  
   }
-
-
-
+  
+  
   void BlobStreamingService::read( const coral::Blob& blobData, void* addressOfContainer,  Reflex::Type const & classDictionary ) {
     Variant v = findVariant(blobData.startingAddress());
     switch (v) {
@@ -135,13 +135,13 @@ namespace cond {
 	  }
 	  break;
 	}
-
-
       }
-  
     }
-  
-  
+  }
+      
+    
+    
+    
   const BlobStreamingService::uuid BlobStreamingService::variantIds[nVariants] = {
     BlobStreamingService::uuid(0,0)
     ,BlobStreamingService::uuid(0xf4e92f169c974e8e, 0x97851f372586010d)
@@ -155,16 +155,16 @@ namespace cond {
     if (t==typeid(std::vector<char>) ) return 2;
     return 0;
   }
-
-
-
+  
+  
+  
   BlobStreamingService::Variant BlobStreamingService::findVariant(const void* address) {
     uuid const & id = *reinterpret_cast<uuid const*>(address);
     uuid const *  v = std::find(variantIds,variantIds+nVariants,id);
     return (v==variantIds+nVariants) ? OLD : (Variant)(v-variantIds);
   }
-
-
+  
+  
   boost::shared_ptr<coral::Blob> BlobStreamingService::compress(const void* addr, size_t isize) {
     size_t usize = isize + m_idsize + sizeof(unsigned long long);
     boost::shared_ptr<coral::Blob> theBlob( new coral::Blob(usize));
