@@ -171,11 +171,11 @@ class matplotRender():
         ax=self.__fig.add_subplot(111)
         dateFmt=matplotlib.dates.DateFormatter('%d/%m')
         majorLoc=matplotlib.ticker.LinearLocator(numticks=nticks)
+        ax.xaxis.set_major_locator(majorLoc)
         minorLoc=matplotlib.ticker.LinearLocator(numticks=nticks*4)
         ax.xaxis.set_major_formatter(dateFmt)
         ax.set_xlabel(r'Date',position=(0.84,0))
         ax.set_ylabel(r'L nb$^{-1}$',position=(0,0.9))
-        ax.xaxis.set_major_locator(majorLoc)
         ax.xaxis.set_minor_locator(minorLoc)
         ax.set_xbound(lower=xpoints[0],upper=xpoints[-1])
         xticklabels=ax.get_xticklabels()
@@ -191,14 +191,12 @@ class matplotRender():
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
             legendlist.append(ylabel+' '+'%.2f'%(ytotal[ylabel])+' '+'nb$^{-1}$')
-        ax.legend(tuple(legendlist),loc='upper left')
         #annotations
-        
         trans=matplotlib.transforms.BlendedGenericTransform(ax.transData,ax.transAxes)
-        
-        ax.text(runs[0],1.025,str(runs[0]),transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
-        
-        ax.text(runs[-1],1.025,str(runs[-1]),transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
+        #print 'run boundary ',runs[0],runs[-1]
+        #print 'xpoints boundary ',xpoints[0],xpoints[-1]
+        ax.text(xpoints[0],1.025,str(runs[0]),transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))        
+        ax.text(xpoints[-1],1.025,str(runs[-1]),transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
         
         ax.legend(tuple(legendlist),loc='upper left')
         self.__fig.autofmt_xdate(bottom=0.18,rotation=0)
