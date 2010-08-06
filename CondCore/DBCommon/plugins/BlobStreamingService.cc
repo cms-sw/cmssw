@@ -62,6 +62,7 @@ namespace cond {
   BlobStreamingService::~BlobStreamingService(){}
   
   boost::shared_ptr<coral::Blob> BlobStreamingService::write( const void* addressOfInputData,  Reflex::Type const & classDictionary ) {
+    boost::shared_ptr<coral::Blob> blobOut;
     int const k = isVectorChar(classDictionary);
     switch (k) {
     case 0 : 
@@ -69,28 +70,28 @@ namespace cond {
 	// at the moment we write TBuffer compressed, than we see....
 	// we may wish to avoid one buffer copy...
 	boost::shared_ptr<coral::Blob> buffer = rootService->write(addressOfInputData, classDictionary);
-	boost::shared_ptr<coral::Blob> blobOut = compress(buffer->startingAddress(),buffer->size());
+	blobOut = compress(buffer->startingAddress(),buffer->size());
 	*reinterpret_cast<uuid*>(blobOut->startingAddress()) = variantIds[COMPRESSED_TBUFFER];
-	return blobOut;
       }
       break;
     case 1 : 
       {
 	std::vector<unsigned char> const & v = *reinterpret_cast< std::vector<unsigned char> const *> (addressOfInputData);
-	boost::shared_ptr<coral::Blob> blobOut = compress(&v.front(),v.size());
+	blobOut = compress(&v.front(),v.size());
 	*reinterpret_cast<uuid*>(blobOut->startingAddress()) = variantIds[COMPRESSED_CHARS];
-	return blobOut;
       }
       break;
     case 2 : 
       {
 	std::vector<char> const & v = *reinterpret_cast<std::vector<char> const *> (addressOfInputData);
-	boost::shared_ptr<coral::Blob> blobOut = compress(&v.front(),v.size());
+	blobOut = compress(&v.front(),v.size());
 	*reinterpret_cast<uuid*>(blobOut->startingAddress()) = variantIds[COMPRESSED_CHARS];
-	return blobOut;
       }
+      break;
       
     }
+    return blobOut;
+
   }
   
   
