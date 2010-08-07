@@ -1,8 +1,8 @@
 /*
  * \file EcalDQMStatusWriter.cc
  *
- * $Date: 2010/08/07 11:33:33 $
- * $Revision: 1.9 $
+ * $Date: 2010/08/07 19:56:47 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -181,28 +181,30 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
 
     } else if ( strcmp(key.c_str(), "EB") == 0 ) {
 
-      int index, code;
+      int index;
+      uint32_t code;
       stream >> index >> code;
 
       EBDetId id = EBDetId::unhashIndex(index);
       code = convert(code);
 
       int hashedIndex = id.hashedIndex();
-      if ( code !=0 ) std::cout << key << " hashedIndex " << hashedIndex << " status " <<  code << std::endl;
+      if ( code != 0 ) std::cout << key << " hashedIndex " << hashedIndex << " status " <<  code << std::endl;
       EcalDQMChannelStatus::const_iterator it = status->find(id);
       if ( it != status->end() ) code |= it->getStatusCode();
       status->setValue(id, code);
 
     } else if ( strcmp(key.c_str(), "EE") == 0 ) {
 
-      int ix, iy, iz, code;
+      int ix, iy, iz;
+      uint32_t code;
       stream >> ix >> iy >> iz >> code;
 
       EEDetId id(ix, iy, iz);
       code = convert(code);
 
       int hashedIndex = id.hashedIndex();
-      if ( code!=0 ) std::cout << key << " hashedIndex " << hashedIndex << " status " <<  code << std::endl;
+      if ( code != 0 ) std::cout << key << " hashedIndex " << hashedIndex << " status " <<  code << std::endl;
       EcalDQMChannelStatus::const_iterator it = status->find(id);
       if ( it != status->end() ) code |= it->getStatusCode();
       status->setValue(id, code);
@@ -221,7 +223,7 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
 
         int sm = atoi( module.substr(2, module.size()-2).c_str() );
 
-        int ism = ( sm>=0 ) ? sm : 18-sm;
+        int ism = (sm>=0) ? sm : 18-sm;
         int iex = (ism>=1&&ism<=18) ? -ie : +ie;
         int ipx = (ism>=1&&ism<=18) ? ip+20*(ism-1) : 1+(20-ip)+20*(ism-19);
 #else
@@ -231,7 +233,7 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
 
         int sm = atoi( module.substr(2, module.size()-2).c_str() );
 
-        int ism = ( sm>=0 ) ? sm : 18-sm;
+        int ism = (sm>=0) ? sm : 18-sm;
         int ie = (index-1)/20 + 1;
         int ip = (index-1)%20 + 1;
         int iex = (ism>=1&&ism<=18) ? -ie : +ie;
@@ -239,19 +241,19 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
 #endif
 
         EBDetId id(iex, ipx);
-        int code = -1;
+        uint32_t code = 0;
         for ( unsigned int i=0; i<dictionary.size(); i++ ) {
           if ( strcmp(token.c_str(), dictionary[i].desc) == 0 ) {
             code = dictionary[i].code;
           }
         }
-        if ( code == -1 ) {
+        if ( code == 0 ) {
           std::cout << " --> not found in the dictionary: " << token << std::endl;
           continue;
         }
 
         int hashedIndex = id.hashedIndex();
-        if ( code !=0 ) std::cout << module << " hashedIndex " << hashedIndex << " status " <<  code << std::endl;
+        if ( code != 0 ) std::cout << module << " hashedIndex " << hashedIndex << " status " <<  code << std::endl;
         EcalDQMChannelStatus::const_iterator it = status->find(id);
         if ( it != status->end() ) code |= it->getStatusCode();
         status->setValue(id, code);
@@ -297,19 +299,19 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
         }
 
         EEDetId id(jx, jy, (ism>=1&&ism<=9)?-1:+1, EEDetId::XYMODE);
-        int code = -1;
+        uint32_t code = 0;
         for ( unsigned int i=0; i<dictionary.size(); i++ ) {
           if ( strcmp(token.c_str(), dictionary[i].desc) == 0 ) {
             code = dictionary[i].code;
           }
         }
-        if ( code == -1 ) {
+        if ( code == 0 ) {
           std::cout << " --> not found in the dictionary: " << token << std::endl;
           continue;
         }
 
         int hashedIndex = id.hashedIndex();
-        if ( code !=0 ) std::cout << module << " hashedIndex " << hashedIndex << " status " <<  code << std::endl;
+        if ( code != 0 ) std::cout << module << " hashedIndex " << hashedIndex << " status " <<  code << std::endl;
         EcalDQMChannelStatus::const_iterator it = status->find(id);
         if ( it != status->end() ) code |= it->getStatusCode();
         status->setValue(id, code);
@@ -440,19 +442,19 @@ EcalDQMTowerStatus* EcalDQMStatusWriter::readEcalDQMTowerStatusFromFile(const ch
           }
 
           EcalTrigTowerDetId id((sm<0)?-1:+1, EcalBarrel, iet, ipt);
-          int code = -1;
+          uint32_t code = 0;
           for ( unsigned int i=0; i<dictionary.size(); i++ ) {
             if ( strcmp(token.c_str(), dictionary[i].desc) == 0 ) {
               code = dictionary[i].code;
             }
           }
-          if ( code == -1 ) {
+          if ( code == 0 ) {
             std::cout << " --> not found in the dictionary: " << token << std::endl;
             continue;
           }
 
           int hashedIndex = id.hashedIndex();
-          if ( code !=0 ) std::cout << module << " hashedIndex " << hashedIndex << " status " <<  code << std::endl;
+          if ( code != 0 ) std::cout << module << " hashedIndex " << hashedIndex << " status " <<  code << std::endl;
           EcalDQMTowerStatus::const_iterator it = status->find(id);
           if ( it != status->end() ) code |= it->getStatusCode();
           status->setValue(id, code);
@@ -507,19 +509,19 @@ EcalDQMTowerStatus* EcalDQMStatusWriter::readEcalDQMTowerStatusFromFile(const ch
           for ( unsigned int i=0; i<crystals.size(); i++ ) {
 
             EcalScDetId id = ((EEDetId) crystals[i]).sc();
-            int code = -1;
+            uint32_t code = 0;
             for ( unsigned int i=0; i<dictionary.size(); i++ ) {
               if ( strcmp(token.c_str(), dictionary[i].desc) == 0 ) {
                 code = dictionary[i].code;
               }
             }
-            if ( code == -1 ) {
+            if ( code == 0 ) {
               std::cout << " --> not found in the dictionary: " << token << std::endl;
               continue;
             }
 
             int hashedIndex = id.hashedIndex();
-            if ( code !=0 ) std::cout << module << " hashedIndex " << hashedIndex << " status " <<  code << std::endl;
+            if ( code != 0 ) std::cout << module << " hashedIndex " << hashedIndex << " status " <<  code << std::endl;
             EcalDQMTowerStatus::const_iterator it = status->find(id);
             if ( it != status->end() ) code |= it->getStatusCode();
             status->setValue(id, code);
@@ -556,7 +558,7 @@ EcalDQMTowerStatus* EcalDQMStatusWriter::readEcalDQMTowerStatusFromFile(const ch
 
 }
 
-int EcalDQMStatusWriter::convert(int chStatus) {
+uint32_t EcalDQMStatusWriter::convert(uint32_t chStatus) {
 
   if ( chStatus == 1 || (chStatus >= 8 && chStatus <= 12 )) {
 

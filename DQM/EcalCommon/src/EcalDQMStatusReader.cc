@@ -1,8 +1,8 @@
 /*
  * \file EcalDQMStatusReader.cc
  *
- * $Date: 2010/08/07 11:33:33 $
- * $Revision: 1.9 $
+ * $Date: 2010/08/07 19:34:20 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -59,13 +59,13 @@ void EcalDQMStatusReader::beginRun(const edm::Run& r, const edm::EventSetup& c) 
         if ( channelStatus ) {
           EcalDQMChannelStatus::const_iterator it = channelStatus->find( id.rawId() );
           if ( it != channelStatus->end() ) {
-            if ( it->getStatusCode() != 0 ) std::cout << "EB " << ie << " " << ip << " " << it->getStatusCode() << std::endl;
+            if ( it->getStatusCode() != 0 ) std::cout << "EB:channel, ism=" << id.ism() << " hi=" << id.hashedIndex() << " status=" << it->getStatusCode() << std::endl;
           }
         }
         if ( towerStatus ) {
-         EcalDQMTowerStatus::const_iterator it = towerStatus->find( id.tower().rawId() );
+          EcalDQMTowerStatus::const_iterator it = towerStatus->find( id.tower().rawId() );
           if ( it != towerStatus->end() ) {
-            if ( it->getStatusCode() != 0 ) std::cout << "EB " << ie << " " << ip << " " << it->getStatusCode() << std::endl;
+            if ( it->getStatusCode() != 0 ) std::cout << "EB:tower, ism=" << id.ism() << " hi=" << id.hashedIndex() << " status=" << it->getStatusCode() << std::endl;
           }
         }
       }
@@ -80,7 +80,13 @@ void EcalDQMStatusReader::beginRun(const edm::Run& r, const edm::EventSetup& c) 
         if ( channelStatus ) {
           EcalDQMChannelStatus::const_iterator it = channelStatus->find( id.rawId() );
           if ( it != channelStatus->end() ) {
-            if ( it->getStatusCode() != 0 ) std::cout << "EE " << ix << " " << iy << " " << it->getStatusCode() << std::endl;
+            if ( it->getStatusCode() != 0 ) std::cout << "EE:channel " << ix << " " << iy << " hi=" << id.hashedIndex() << " " << it->getStatusCode() << std::endl;
+          }
+        }
+        if ( towerStatus ) {
+          EcalDQMTowerStatus::const_iterator it = towerStatus->find( id.sc().rawId() );
+          if ( it != towerStatus->end() ) {
+            if ( it->getStatusCode() != 0 ) std::cout << "EE:tower " << ix << " " << iy << " hi=" << id.hashedIndex() << " " << it->getStatusCode() << std::endl;
           }
         }
       }
@@ -89,7 +95,13 @@ void EcalDQMStatusReader::beginRun(const edm::Run& r, const edm::EventSetup& c) 
         if ( channelStatus ) {
           EcalDQMChannelStatus::const_iterator it = channelStatus->find( id.rawId() );
           if ( it != channelStatus->end() ) {
-            if ( it->getStatusCode() != 0 ) std::cout << "EE " << ix << " " << iy << " " << it->getStatusCode() << std::endl;
+            if ( it->getStatusCode() != 0 ) std::cout << "EE:channel " << ix << " " << iy << " hi=" << id.hashedIndex() << " " << it->getStatusCode() << std::endl;
+          }
+        }
+        if ( towerStatus ) {
+          EcalDQMTowerStatus::const_iterator it = towerStatus->find( id.sc().rawId() );
+          if ( it != towerStatus->end() ) {
+            if ( it->getStatusCode() != 0 ) std::cout << "EE:tower " << ix << " " << iy << " hi=" << id.hashedIndex() << " " << it->getStatusCode() << std::endl;
           }
         }
       }

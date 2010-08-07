@@ -4,8 +4,8 @@
 /*
  * \file EcalDQMStatusWriter.h
  *
- * $Date: 2010/08/07 09:05:53 $
- * $Revision: 1.4 $
+ * $Date: 2010/08/07 10:50:57 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -48,7 +48,7 @@ private:
 EcalDQMChannelStatus* readEcalDQMChannelStatusFromFile(const char *);
 EcalDQMTowerStatus* readEcalDQMTowerStatusFromFile(const char *);
 
-int convert(int c);
+uint32_t convert(uint32_t c);
 
 bool verbose_;
 std::vector<std::string> objectName_;
