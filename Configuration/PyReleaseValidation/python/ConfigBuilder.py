@@ -812,15 +812,15 @@ class ConfigBuilder(object):
                                     # so I can't modify the nested pset
                                     value = getattr(pset,name)
                                     type = value.pythonTypeName()
-                                    if type == 'cms.PSet':
+                                    if type in ('cms.PSet', 'cms.untracked.PSet'):
                                         self.doIt(value,base+"."+name)
-                                    elif type == 'cms.VPSet':
+                                    elif type in ('cms.VPSet', 'cms.untracked.VPSet'):
                                         for (i,ps) in enumerate(value): self.doIt(ps, "%s.%s[%d]"%(base,name,i) )
-                                    elif type == 'cms.string':
+                                    elif type in ('cms.string', 'cms.untracked.string'):
                                         if value.value() == self._paramSearch:
-                                            if self._verbose:print "set string process name %s.%s %s ==> %s"% (base, name, value, self._paramReplace)
+                                            if self._verbose: print "set string process name %s.%s %s ==> %s"% (base, name, value, self._paramReplace)
                                             setattr(pset, name,self._paramReplace)
-                                    elif type == 'cms.VInputTag':
+                                    elif type in ('cms.VInputTag', 'cms.untracked.VInputTag'):
                                             for (i,n) in enumerate(value):
                                                     if not isinstance(n, cms.InputTag):
                                                             n=cms.InputTag(n)
@@ -829,17 +829,19 @@ class ConfigBuilder(object):
                                                             if self._verbose:print "set process name %s.%s[%d] %s ==> %s " % (base, name, i, n, self._paramReplace)
                                                             setattr(n,"processName",self._paramReplace)
                                                             value[i]=n
-                                    elif type == 'cms.InputTag':
+                                    elif type in ('cms.InputTag', 'cms.untracked.InputTag'):
                                             if value.processName == self._paramSearch:
-                                                    if self._verbose:print "set process name %s.%s %s ==> %s " % (base, name, value, self._paramReplace)
-                                                    from copy import deepcopy
+                                                    if self._verbose: print "set process name %s.%s %s ==> %s " % (base, name, value, self._paramReplace)
                                                     setattr(getattr(pset, name),"processName",self._paramReplace)
 
             def enter(self,visitee):
                     label = ''
-                    try:    label = visitee.label()
-                    except AttributeError: label = '<Module not in a Process>'
+                    try:
+                      label = visitee.label()
+                    except AttributeError:
+                      label = '<Module not in a Process>'
                     self.doIt(visitee, label)
+
             def leave(self,visitee):
                     pass
 
@@ -858,10 +860,10 @@ class ConfigBuilder(object):
         if 'HLT' in self._options.step:
                 #look up all module in dqm sequence
                 print "replacing process name"
-                #sequence = getattr(self.process, sequence.split(',')[-1])
-                #sequence.visit(self.MassSearchReplaceProcessNameVisitor(self.process.name_(),verbose=True))
-                self.dqmMassaging = 'from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder \n'
-                self.dqmMassaging += 'process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT","%s")) \n'%(sequence.split(',')[-1],self.process.name_())
+                self.dqmMassaging  = """
+from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
+process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT","%s"))
+""" % (sequence.split(',')[-1],self.process.name_())
 
     def prepare_HARVESTING(self, sequence = None):
         """ Enrich the process with harvesting step """
