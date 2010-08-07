@@ -54,7 +54,7 @@ SingleTrackVertexConstraint::BTFtuple SingleTrackVertexConstraint::constrain(
   vertex = vertexUpdator.add(vertex, vertexTrack);
   if (!vertex.isValid()) {
     return BTFtuple(false, TransientTrack(), 0.);
-  } else  if (!insideTrackerBounds(vertex.position())) {
+  } else  if (doTrackerBoundCheck_ && (!insideTrackerBounds(vertex.position()))) {
       LogDebug("RecoVertex/SingleTrackVertexConstraint") 
 	 << "Fitted position is out of tracker bounds.\n";
       return BTFtuple(false, TransientTrack(), 0.);
