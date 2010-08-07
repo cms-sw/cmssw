@@ -1,8 +1,8 @@
 /*
  * \file EcalDQMStatusWriter.cc
  *
- * $Date: 2010/08/07 09:05:53 $
- * $Revision: 1.6 $
+ * $Date: 2010/08/07 10:50:58 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -276,24 +276,24 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
         if( sm == -99 ) sm = -1;
         if( sm == +99 ) sm = +1;
         switch ( sm ) {
-          case +7: ism =  1; break;
-          case +8: ism =  2; break;
-          case +9: ism =  3; break;
-          case +1: ism =  4; break;
-          case +2: ism =  5; break;
-          case +3: ism =  6; break;
-          case +4: ism =  7; break;
-          case +5: ism =  8; break;
-          case +6: ism =  9; break;
-          case -7: ism = 10; break;
-          case -8: ism = 11; break;
-          case -9: ism = 12; break;
-          case -1: ism = 13; break;
-          case -2: ism = 14; break;
-          case -3: ism = 15; break;
-          case -4: ism = 16; break;
-          case -5: ism = 17; break;
-          case -6: ism = 18; break;
+          case -7: ism =  1; break;
+          case -8: ism =  2; break;
+          case -9: ism =  3; break;
+          case -1: ism =  4; break;
+          case -2: ism =  5; break;
+          case -3: ism =  6; break;
+          case -4: ism =  7; break;
+          case -5: ism =  8; break;
+          case -6: ism =  9; break;
+          case +7: ism = 10; break;
+          case +8: ism = 11; break;
+          case +9: ism = 12; break;
+          case +1: ism = 13; break;
+          case +2: ism = 14; break;
+          case +3: ism = 15; break;
+          case +4: ism = 16; break;
+          case +5: ism = 17; break;
+          case +6: ism = 18; break;
         }
 
         EEDetId id(jx, jy, (ism>=1&&ism<=9)?-1:+1, EEDetId::XYMODE);
@@ -475,24 +475,24 @@ EcalDQMTowerStatus* EcalDQMStatusWriter::readEcalDQMTowerStatusFromFile(const ch
 
           int ism = 0;
           switch ( sm ) {
-            case +7: ism =  1; break;
-            case +8: ism =  2; break;
-            case +9: ism =  3; break;
-            case +1: ism =  4; break;
-            case +2: ism =  5; break;
-            case +3: ism =  6; break;
-            case +4: ism =  7; break;
-            case +5: ism =  8; break;
-            case +6: ism =  9; break;
-            case -7: ism = 10; break;
-            case -8: ism = 11; break;
-            case -9: ism = 12; break;
-            case -1: ism = 13; break;
-            case -2: ism = 14; break;
-            case -3: ism = 15; break;
-            case -4: ism = 16; break;
-            case -5: ism = 17; break;
-            case -6: ism = 18; break;
+            case -7: ism =  1; break;
+            case -8: ism =  2; break;
+            case -9: ism =  3; break;
+            case -1: ism =  4; break;
+            case -2: ism =  5; break;
+            case -3: ism =  6; break;
+            case -4: ism =  7; break;
+            case -5: ism =  8; break;
+            case -6: ism =  9; break;
+            case +7: ism = 10; break;
+            case +8: ism = 11; break;
+            case +9: ism = 12; break;
+            case +1: ism = 13; break;
+            case +2: ism = 14; break;
+            case +3: ism = 15; break;
+            case +4: ism = 16; break;
+            case +5: ism = 17; break;
+            case +6: ism = 18; break;
           }
 
           int idcc;
