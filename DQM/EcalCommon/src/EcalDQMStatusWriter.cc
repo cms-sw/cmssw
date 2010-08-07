@@ -1,8 +1,8 @@
 /*
  * \file EcalDQMStatusWriter.cc
  *
- * $Date: 2010/08/07 10:50:58 $
- * $Revision: 1.7 $
+ * $Date: 2010/08/07 11:15:31 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -496,10 +496,10 @@ EcalDQMTowerStatus* EcalDQMStatusWriter::readEcalDQMTowerStatusFromFile(const ch
           }
 
           int idcc;
-          if ( ism<9 ) {
+          if ( ism>=1&&ism<=9 ) {
             idcc = ism;
           } else {
-            idcc = ism-9+46;
+            idcc = ism-9+45;
           }
 
           std::vector<DetId> crystals = map_->dccTowerConstituents(idcc, itt);
