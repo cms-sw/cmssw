@@ -1,5 +1,5 @@
 //
-// $Id: CaloMuonMerger.cc,v 1.3 2010/03/25 14:08:49 jribnik Exp $
+// $Id: CaloMuonMerger.cc,v 1.4 2010/08/02 10:45:09 zgecse Exp $
 //
 
 /**
@@ -7,7 +7,7 @@
   \brief    Merges reco::CaloMuons, reco::Muons and optionally reco::Tracks avoiding innerTrack duplications in a single reco::Muon collection
             
   \author   Giovanni Petrucciani
-  \version  $Id: CaloMuonMerger.cc,v 1.3 2010/03/25 14:08:49 jribnik Exp $
+  \version  $Id: CaloMuonMerger.cc,v 1.4 2010/08/02 10:45:09 zgecse Exp $
 */
 
 
@@ -65,7 +65,7 @@ CaloMuonMerger::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
     if(mergeTracks_) iEvent.getByLabel(tracks_, tracks);
 
     std::auto_ptr<std::vector<reco::Muon> >  out(new std::vector<reco::Muon>());
-    out->reserve(caloMuons->size() + muons->size() + mergeTracks_?tracks->size():0);
+    out->reserve(caloMuons->size() + muons->size() + (mergeTracks_?tracks->size():0));
 
     // copy reco::Muons, turning on the CaloCompatibility flag if possible
     for (std::vector<reco::Muon>::const_iterator it = muons->begin(), ed = muons->end(); it != ed; ++it) {
