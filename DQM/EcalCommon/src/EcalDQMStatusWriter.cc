@@ -1,8 +1,8 @@
 /*
  * \file EcalDQMStatusWriter.cc
  *
- * $Date: 2010/08/07 11:15:31 $
- * $Revision: 1.8 $
+ * $Date: 2010/08/07 11:33:33 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -377,7 +377,7 @@ EcalDQMTowerStatus* EcalDQMStatusWriter::readEcalDQMTowerStatusFromFile(const ch
     }
   }
 
-  std::cout << "Reading channel status from file " << inputFile << std::endl;
+  std::cout << "Reading tower status from file " << inputFile << std::endl;
   FILE *ifile = fopen( inputFile ,"r" );
 
   if ( !ifile ) throw cms::Exception ("Cannot open file") ;
