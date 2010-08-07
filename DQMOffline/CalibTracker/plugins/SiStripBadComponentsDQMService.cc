@@ -28,14 +28,14 @@ SiStripBadComponentsDQMService::~SiStripBadComponentsDQMService()
 
 void SiStripBadComponentsDQMService::getMetaDataString(std::stringstream& ss)
 {
-  ss << "Run " << getRunNumber() << endl;
+  ss << "Run " << getRunNumber() << std::endl;
   readBadComponents();
   obj_->printSummary(ss);
 }
 
 bool SiStripBadComponentsDQMService::checkForCompatibility(std::string ss)
 {
-  stringstream localString;
+  std::stringstream localString;
   getMetaDataString(localString);
   if( ss == localString.str() ) return false;
 
@@ -50,7 +50,7 @@ void SiStripBadComponentsDQMService::readBadComponents()
 
       openRequestedFile();
 
-    cout << "[readBadComponents]: opened requested file" << endl;
+    std::cout << "[readBadComponents]: opened requested file" << std::endl;
 
     obj_=new SiStripBadStrip();
 
@@ -58,11 +58,11 @@ void SiStripBadComponentsDQMService::readBadComponents()
 
     dqmStore_->cd();
 
-    string mdir = "MechanicalView";
+    std::string mdir = "MechanicalView";
     if (!goToDir(dqmStore_, mdir)) return;
-    string mechanicalview_dir = dqmStore_->pwd();
+    std::string mechanicalview_dir = dqmStore_->pwd();
 
-    vector<string> subdet_folder;
+    std::vector<std::string> subdet_folder;
     subdet_folder.push_back("TIB");
     subdet_folder.push_back("TOB");
     subdet_folder.push_back("TEC/side_1");
@@ -72,22 +72,22 @@ void SiStripBadComponentsDQMService::readBadComponents()
 
     int nDetsTotal = 0;
     int nDetsWithErrorTotal = 0;
-    for( vector<string>::const_iterator im = subdet_folder.begin(); im != subdet_folder.end(); ++im ) {
-      string dname = mechanicalview_dir + "/" + (*im);
+    for( std::vector<std::string>::const_iterator im = subdet_folder.begin(); im != subdet_folder.end(); ++im ) {
+      std::string dname = mechanicalview_dir + "/" + (*im);
       if (!dqmStore_->dirExists(dname)) continue;
 
       dqmStore_->cd(dname);
-      vector<string> module_folders;
+      std::vector<std::string> module_folders;
       getModuleFolderList(dqmStore_, module_folders);
       int nDets = module_folders.size();
 
       int nDetsWithError = 0;
-      string bad_module_folder = dname + "/" + "BadModuleList";
+      std::string bad_module_folder = dname + "/" + "BadModuleList";
       if (dqmStore_->dirExists(bad_module_folder)) {
 	std::vector<MonitorElement *> meVec = dqmStore_->getContents(bad_module_folder);
 	for( std::vector<MonitorElement *>::const_iterator it = meVec.begin(); it != meVec.end(); ++it ) {
 	  nDetsWithError++;
-	  cout << (*it)->getName() <<  " " << (*it)->getIntValue() << endl;
+	  std::cout << (*it)->getName() <<  " " << (*it)->getIntValue() << std::endl;
 	  uint32_t detId = boost::lexical_cast<uint32_t>((*it)->getName());
 	  short flag = (*it)->getIntValue();
 
@@ -147,15 +147,15 @@ uint32_t SiStripBadComponentsDQMService::getRunNumber() const {
   return iConfig_.getParameter<uint32_t>("RunNb");
 }
 
-bool SiStripBadComponentsDQMService::goToDir(DQMStore * dqm_store, string name)
+bool SiStripBadComponentsDQMService::goToDir(DQMStore * dqm_store, std::string name)
 {
-  string currDir = dqm_store->pwd();
-  string dirName = currDir.substr(currDir.find_last_of("/")+1);
+  std::string currDir = dqm_store->pwd();
+  std::string dirName = currDir.substr(currDir.find_last_of("/")+1);
   if (dirName.find(name) == 0) {
     return true;
   }
-  vector<string> subDirVec = dqm_store->getSubdirs();
-  for (vector<string>::const_iterator ic = subDirVec.begin();
+  std::vector<std::string> subDirVec = dqm_store->getSubdirs();
+  for (std::vector<std::string>::const_iterator ic = subDirVec.begin();
        ic != subDirVec.end(); ic++) {
     dqm_store->cd(*ic);
     if (!goToDir(dqm_store, name))  dqm_store->goUp();
@@ -164,15 +164,15 @@ bool SiStripBadComponentsDQMService::goToDir(DQMStore * dqm_store, string name)
   return false;
 }
 
-void SiStripBadComponentsDQMService::getModuleFolderList(DQMStore * dqm_store, vector<string>& mfolders)
+void SiStripBadComponentsDQMService::getModuleFolderList(DQMStore * dqm_store, std::vector<std::string>& mfolders)
 {
-  string currDir = dqm_store->pwd();
-  if (currDir.find("module_") != string::npos)  {
-    //    string mId = currDir.substr(currDir.find("module_")+7, 9);
+  std::string currDir = dqm_store->pwd();
+  if (currDir.find("module_") != std::string::npos)  {
+    //    std::string mId = currDir.substr(currDir.find("module_")+7, 9);
     mfolders.push_back(currDir);
   } else {  
-    vector<string> subdirs = dqm_store->getSubdirs();
-    for( vector<string>::const_iterator it = subdirs.begin();
+    std::vector<std::string> subdirs = dqm_store->getSubdirs();
+    for( std::vector<std::string>::const_iterator it = subdirs.begin();
          it != subdirs.end(); ++it) {
       dqm_store->cd(*it);
       getModuleFolderList(dqm_store, mfolders);

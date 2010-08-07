@@ -30,7 +30,7 @@ MiscalibReaderFromXMLDomUtils::getIntAttribute(XERCES_CPP_NAMESPACE::DOMNamedNod
     well_formed_string = true;
 
   delete [] buffer;
-  // cout << "retval=" << retval << endl;
+  // std::cout << "retval=" << retval << std::endl;
   return retval;
 }
 
@@ -50,7 +50,7 @@ MiscalibReaderFromXMLDomUtils::getFloatAttribute(XERCES_CPP_NAMESPACE::DOMNamedN
     well_formed_string = true;
   
   delete [] buffer;
-  // cout << "retval=" << retval << endl;
+  // std::cout << "retval=" << retval << std::endl;
   return retval;
 
   return retval;
@@ -65,7 +65,7 @@ MiscalibReaderFromXMLDomUtils::getStringAttribute(XERCES_CPP_NAMESPACE::DOMNamed
   std::string retval = toString(attributes->getNamedItem(buffer)->getNodeValue());
 
   delete [] buffer;
-  // cout << "retval=" << retval << endl;
+  // std::cout << "retval=" << retval << std::endl;
   return retval;
 }
 

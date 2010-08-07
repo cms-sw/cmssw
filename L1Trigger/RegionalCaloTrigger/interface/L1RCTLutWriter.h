@@ -16,7 +16,7 @@
 //
 // Original Author:  jleonard
 //         Created:  Fri Apr 11 16:27:07 CEST 2008
-// $Id: L1RCTLutWriter.h,v 1.3 2008/07/10 16:57:07 jleonard Exp $
+// $Id: L1RCTLutWriter.h,v 1.4 2010/01/07 11:10:03 bachtis Exp $
 //
 //
 
@@ -25,10 +25,6 @@
 #include <memory>
 
 #include <iostream>
-using std::endl;
-using std::hex;
-using std::dec;
-using std::ios;
 #include <fstream>
 
 // user include files

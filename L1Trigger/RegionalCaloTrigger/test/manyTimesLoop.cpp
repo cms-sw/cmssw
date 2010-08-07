@@ -46,16 +46,16 @@ int main (){
   L1RCTLookupTables* lut = new L1RCTLookupTables();
   lut->setRCTParameters(rctParameters);  // transcoder and etScale are not used
   L1RCT rct(lut);
-  vector<vector<unsigned short> > hf(18,vector<unsigned short>(8));
-  vector<vector<vector<unsigned short> > > barrel(18,vector<vector<unsigned short> >(7,vector<unsigned short>(64)));
+  std::vector<std::vector<unsigned short> > hf(18,std::vector<unsigned short>(8));
+  std::vector<std::vector<std::vector<unsigned short> > > barrel(18,std::vector<std::vector<unsigned short> >(7,std::vector<unsigned short>(64)));
   time_t s1 = time (NULL);
   for(int i=0;i<10000;i++){
     rct.input(barrel,hf);
     rct.processEvent();
-    cout << ".";
-    if(!(i % 100)) cout << " " << i << " ";
+    std::cout << ".";
+    if(!(i % 100)) std::cout << " " << i << " ";
   }
   time_t s2 = time (NULL);
   double diff =difftime (s2,s1);
-  cout << diff << endl;
+  std::cout << diff << std::endl;
 }

@@ -9,7 +9,7 @@
 template <unsigned int N>
 CachingVertex<N>::CachingVertex(const GlobalPoint & pos, 
 			     const GlobalError & posErr, 
-			     const vector<RefCountedVertexTrack> & tks, 
+			     const std::vector<RefCountedVertexTrack> & tks, 
 			     float totalChiSq) 
   : theVertexState(pos, posErr),
     theChiSquared(totalChiSq), theNDF(0), theNDFAvailable(false), 
@@ -23,7 +23,7 @@ CachingVertex<N>::CachingVertex(const GlobalPoint & pos,
 template <unsigned int N>
 CachingVertex<N>::CachingVertex(const GlobalPoint & pos, 
 			     const GlobalWeight & posWeight, 
-			     const vector<RefCountedVertexTrack> & tks, 
+			     const std::vector<RefCountedVertexTrack> & tks, 
 			     float totalChiSq) 
   : theVertexState(pos, posWeight),
     theChiSquared(totalChiSq), theNDF(0), theNDFAvailable(false), 
@@ -36,7 +36,7 @@ CachingVertex<N>::CachingVertex(const GlobalPoint & pos,
 template <unsigned int N>
 CachingVertex<N>::CachingVertex(const AlgebraicVector3 & weightTimesPosition, 
 			     const GlobalWeight & posWeight, 
-			     const vector<RefCountedVertexTrack> & tks, 
+			     const std::vector<RefCountedVertexTrack> & tks, 
 			     float totalChiSq)
   : theVertexState(weightTimesPosition, posWeight),
     theChiSquared(totalChiSq), theNDF(0), theNDFAvailable(false), 
@@ -46,7 +46,7 @@ CachingVertex<N>::CachingVertex(const AlgebraicVector3 & weightTimesPosition,
 
 template <unsigned int N>
 CachingVertex<N>::CachingVertex(const VertexState & aVertexState, 
-			     const vector<RefCountedVertexTrack> & tks, 
+			     const std::vector<RefCountedVertexTrack> & tks, 
 			     float totalChiSq)
   : theVertexState(aVertexState),
     theChiSquared(totalChiSq), theNDF(0), theNDFAvailable(false), 
@@ -57,7 +57,7 @@ CachingVertex<N>::CachingVertex(const VertexState & aVertexState,
 
 template <unsigned int N>
 CachingVertex<N>::CachingVertex(const VertexState & aVertexState,
-			     const vector<RefCountedVertexTrack> & tks, 
+			     const std::vector<RefCountedVertexTrack> & tks, 
 			     float totalChiSq, 
 			     const TrackToTrackMap & covMap)
   : theVertexState(aVertexState),
@@ -71,7 +71,7 @@ CachingVertex<N>::CachingVertex(const VertexState & aVertexState,
 template <unsigned int N>
 CachingVertex<N>::CachingVertex(const VertexState & priorVertexState, 
 			     const VertexState & aVertexState, 
-			     const vector<RefCountedVertexTrack> & tks, 
+			     const std::vector<RefCountedVertexTrack> & tks, 
 			     float totalChiSq)
   : theVertexState(aVertexState), theChiSquared(totalChiSq),
     theNDF(0), theNDFAvailable(false), theTracks(tks),
@@ -85,7 +85,7 @@ CachingVertex<N>::CachingVertex(const GlobalPoint & priorPos,
 			     const GlobalError & priorErr,
 			     const GlobalPoint & pos, 
 			     const GlobalError & posErr, 
-			     const vector<RefCountedVertexTrack> & tks, 
+			     const std::vector<RefCountedVertexTrack> & tks, 
 			     float totalChiSq) 
   : theVertexState(pos, posErr),
     theChiSquared(totalChiSq), theNDF(0), theNDFAvailable(false), 
@@ -100,7 +100,7 @@ CachingVertex<N>::CachingVertex(const GlobalPoint & priorPos,
 			     const GlobalError & priorErr, 
 			     const GlobalPoint & pos, 
 			     const GlobalWeight & posWeight, 
-			     const vector<RefCountedVertexTrack> & tks, 
+			     const std::vector<RefCountedVertexTrack> & tks, 
 			     float totalChiSq) 
   : theVertexState(pos, posWeight),
     theChiSquared(totalChiSq), theNDF(0), theNDFAvailable(false), 
@@ -115,7 +115,7 @@ CachingVertex<N>::CachingVertex(const GlobalPoint & priorPos,
 			     const GlobalError & priorErr,
 			     const AlgebraicVector3 & weightTimesPosition, 
 			     const GlobalWeight & posWeight, 
-			     const vector<RefCountedVertexTrack> & tks, 
+			     const std::vector<RefCountedVertexTrack> & tks, 
 			     float totalChiSq)
   : theVertexState(weightTimesPosition, posWeight),
     theChiSquared(totalChiSq), theNDF(0), theNDFAvailable(false), 
@@ -127,7 +127,7 @@ CachingVertex<N>::CachingVertex(const GlobalPoint & priorPos,
 template <unsigned int N>
 CachingVertex<N>::CachingVertex(const VertexState & priorVertexState, 
   			     const VertexState & aVertexState,
-			     const vector<RefCountedVertexTrack> & tks, 
+			     const std::vector<RefCountedVertexTrack> & tks, 
 			     float totalChiSq, 
 			     const TrackToTrackMap & covMap)
   : theVertexState(aVertexState), theChiSquared(totalChiSq),
@@ -185,7 +185,7 @@ template <unsigned int N>
 void CachingVertex<N>::computeNDF() const 
 {
   theNDF = 0;
-  for (typename vector<RefCountedVertexTrack>::const_iterator itk = theTracks.begin(); 
+  for (typename std::vector<RefCountedVertexTrack>::const_iterator itk = theTracks.begin(); 
        itk != theTracks.end(); ++itk) {
     theNDF += (**itk).weight(); // adds up weights
   }
@@ -237,17 +237,17 @@ CachingVertex<N>::operator TransientVertex() const
   //If the vertex is invalid, return an invalid TV !
   if (!isValid()) return TransientVertex();
 
-  typedef map<reco::TransientTrack, float> TransientTrackToFloatMap;
+  typedef std::map<reco::TransientTrack, float> TransientTrackToFloatMap;
 
 // Construct Track vector
-  vector<reco::TransientTrack> ttVect;
+  std::vector<reco::TransientTrack> ttVect;
   ttVect.reserve(theTracks.size());
-  vector<reco::TransientTrack> refTTVect;
+  std::vector<reco::TransientTrack> refTTVect;
   TransientTrackToFloatMap theWeightMap;
   TTtoTTmap ttCovMap;
   // float theMinWeight = 0.5;
 
-  for (typename vector<RefCountedVertexTrack>::const_iterator i = theTracks.begin();
+  for (typename std::vector<RefCountedVertexTrack>::const_iterator i = theTracks.begin();
        i != theTracks.end(); ++i) {
     // discard tracks with too low weight
     // if ((**i).weight() < theMinWeight) continue;
@@ -259,7 +259,7 @@ CachingVertex<N>::operator TransientVertex() const
 
     //Fill in the tk-to-tk covariance map
     if (theCovMapAvailable) {
-      for (typename vector<RefCountedVertexTrack>::const_iterator j = (i+1);
+      for (typename std::vector<RefCountedVertexTrack>::const_iterator j = (i+1);
 	   j != theTracks.end(); ++j) {
 	reco::TransientTrack t2((**j).linearizedTrack()->track());
 	if (t1 < t2) {

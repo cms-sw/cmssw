@@ -22,7 +22,7 @@
 #include <sstream>
 #include <string>
 
-using namespace std;
+
 
 class SiStripBadComponentsDQMServiceReader : public edm::EDAnalyzer {
 
@@ -32,9 +32,9 @@ class SiStripBadComponentsDQMServiceReader : public edm::EDAnalyzer {
 
   void analyze( const edm::Event&, const edm::EventSetup& );
 
-  void printError( stringstream & ss, const bool error, const string & errorText );
+  void printError( std::stringstream & ss, const bool error, const std::string & errorText );
 
-  string detIdToString(const DetId & detid);
+  std::string detIdToString(const DetId & detid);
 
  private:
   bool printdebug_;

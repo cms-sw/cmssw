@@ -10,7 +10,7 @@
  *
  *
  *   
- * $Id: EcalTBHodoscopeGeometryLoaderFromDDD.h,v 1.1 2007/03/19 15:57:10 fabiocos Exp $
+ * $Id: EcalTBHodoscopeGeometryLoaderFromDDD.h,v 1.1 2007/04/15 23:16:29 wmtan Exp $
  * \author P. Meridiani - INFN Roma 1
 */
 
@@ -18,7 +18,8 @@ class DDCompactView;
 class DDFilteredView;
 class DDFilter;
 class CaloSubdetectorGeometry;
-class string;
+#include <memory>
+#include <string>
 
 class EcalTBHodoscopeGeometryLoaderFromDDD
 {

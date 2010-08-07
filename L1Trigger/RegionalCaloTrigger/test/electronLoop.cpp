@@ -8,9 +8,9 @@ using std::vector;
 using std::cout;
 using std::endl;
 
-vector<vector<vector<unsigned short> > > zeroVec(){
-  vector<vector<vector<unsigned short> > > v(18,vector<vector<unsigned short> >(7,
-				           vector<unsigned short>(64)));
+vector<std::vector<std::vector<unsigned short> > > zeroVec(){
+  std::vector<std::vector<std::vector<unsigned short> > > v(18,std::vector<std::vector<unsigned short> >(7,
+				           std::vector<unsigned short>(64)));
   return v;
 } 
 
@@ -53,9 +53,9 @@ int main(){
   L1RCTLookupTables* lut = new L1RCTLookupTables();
   lut->setRCTParameters(rctParameters);  // transcoder and etScale are not used
   L1RCT rct(lut);
-  vector<vector<unsigned short> > hf(18,vector<unsigned short>(8));
-  vector<vector<vector<unsigned short> > > barrel(18,vector<vector<unsigned short> >(7,
-					    vector<unsigned short>(64)));
+  std::vector<std::vector<unsigned short> > hf(18,std::vector<unsigned short>(8));
+  std::vector<std::vector<std::vector<unsigned short> > > barrel(18,std::vector<std::vector<unsigned short> >(7,
+					    std::vector<unsigned short>(64)));
   for(int j = 0; j<4; j++){
     for(int i = 0; i<8; i++){
       barrel = zeroVec();

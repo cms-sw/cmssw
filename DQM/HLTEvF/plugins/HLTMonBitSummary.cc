@@ -94,7 +94,7 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &iSe
 	  <<" No triggerList with key " << esPathsKey_ << " in AlCaRecoTriggerBitsRcd";
       }
       
-      // We must avoid a map<string,vector<string> > in DB for performance reason,
+      // We must avoid a std::map<std::stringvector<std::string> > in DB for performance reason,
       // so the paths are mapped into one string that we have to decompose:
       HLTPathNamesKey_ = triggerBits->decompose(listIter->second);
     }
@@ -311,10 +311,10 @@ HLTMonBitSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   unsigned int lastModule = 0;
 
-  //cout << " Was at least one path run? " << trh->wasrun() << endl;;
-  //cout << " Has at least one path accepted the event? " << trh->accept() << endl;
-  //cout << " Has any path encountered an error? " << trh->error() << endl;
-  //cout << " Number of paths stored =  " << trh->size() << endl;  
+  //std::cout << " Was at least one path run? " << trh->wasrun() << std::endl;;
+  //std::cout << " Has at least one path accepted the event? " << trh->accept() << std::endl;
+  //std::cout << " Has any path encountered an error? " << trh->error() << std::endl;
+  //std::cout << " Number of paths stored =  " << trh->size() << std::endl;  
 
   for (unsigned int trig=0; trig < nValidTriggers_; trig++) {
     //convert *all* trigger names (from config and key) to trigger index properly  
@@ -323,8 +323,8 @@ HLTMonBitSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   
   //get filter information for config triggers only
   for (unsigned int trig=0; trig < nValidConfigTriggers_; trig++) {
-    //cout << "Trigger Name = " << HLTPathNamesConfig_[trig] << ", HLTPathsByIndex_ = " << HLTPathsByIndex_[trig] << endl; 
-    //cout << "Trigger Name = " << HLTPathNamesConfig_[trig] << ", trh->index = " << lastModule << " " << trh->accept(HLTPathsByIndex_[trig]) << endl; 
+    //std::cout << "Trigger Name = " << HLTPathNamesConfig_[trig] << ", HLTPathsByIndex_ = " << HLTPathsByIndex_[trig] << std::endl; 
+    //std::cout << "Trigger Name = " << HLTPathNamesConfig_[trig] << ", trh->index = " << lastModule << " " << trh->accept(HLTPathsByIndex_[trig]) << std::endl; 
     
     //check if trigger exists in TriggerResults
     if(!filterTypes_.empty() && !filterFlag_ && HLTPathsByIndex_[trig] < trh->size()) {
@@ -334,7 +334,7 @@ HLTMonBitSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       for(unsigned int filt = 0; filt < triggerFilters_[trig].size()-1; filt++){
 	// 	cout << "triggerFilters_["<<trig<<"]["<<filt+1<<"] = " << triggerFilters_[trig][filt+1] 
 	// 	     << " , triggerFilterIndices = " << triggerFilterIndices_[trig][filt+1]
-	// 	     << " , lastModule = " << lastModule << endl;
+	// 	     << " , lastModule = " << lastModule << std::endl;
 	
 	int binNumber = hSubFilterCount[trig]->getTH1F()->GetXaxis()->FindBin(triggerFilters_[trig][filt+1].c_str());      
 	

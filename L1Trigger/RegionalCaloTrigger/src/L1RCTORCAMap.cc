@@ -4,28 +4,28 @@
 using std::vector;
 
 L1RCTORCAMap::L1RCTORCAMap(){
-  rawEMET = vector<unsigned short>(56*72);
-  rawHDET = vector<unsigned short>(56*72);
-  rawEMFG = vector<unsigned short>(56*72);
-  rawHDFG = vector<unsigned short>(56*72);
-  rawHFET = vector<unsigned short>(8*18);
-  combEM = vector<unsigned short>(56*72);
-  combHD = vector<unsigned short>(56*72);
+  rawEMET = std::vector<unsigned short>(56*72);
+  rawHDET = std::vector<unsigned short>(56*72);
+  rawEMFG = std::vector<unsigned short>(56*72);
+  rawHDFG = std::vector<unsigned short>(56*72);
+  rawHFET = std::vector<unsigned short>(8*18);
+  combEM = std::vector<unsigned short>(56*72);
+  combHD = std::vector<unsigned short>(56*72);
 
-  barrelData = vector<vector<vector<unsigned short> > >(18,vector<vector<unsigned short> >(7,
-							   vector<unsigned short>(64)));
-  hfData = vector<vector<unsigned short> >(18,vector<unsigned short>(8));
+  barrelData = std::vector<std::vector<std::vector<unsigned short> > >(18,std::vector<std::vector<unsigned short> >(7,
+							   std::vector<unsigned short>(64)));
+  hfData = std::vector<std::vector<unsigned short> >(18,std::vector<unsigned short>(8));
   
 }
-vector<vector<vector<unsigned short> > > L1RCTORCAMap::giveBarrel(){
+vector<std::vector<std::vector<unsigned short> > > L1RCTORCAMap::giveBarrel(){
   return barrelData;
 }
 
-vector<vector<unsigned short> > L1RCTORCAMap::giveHF(){
+vector<std::vector<unsigned short> > L1RCTORCAMap::giveHF(){
   return hfData;
 }
 void L1RCTORCAMap::makeHFData(){
-  vector<unsigned short> crate(16);
+  std::vector<unsigned short> crate(16);
   for(int i = 0; i< 9; i++){
     for(int j = 0; j<16; j++){
       crate.at(j) = rawHFET.at(16*i+j);
@@ -35,7 +35,7 @@ void L1RCTORCAMap::makeHFData(){
 }  
 
 void L1RCTORCAMap::makeBarrelData(){
-  vector<int> indices;
+  std::vector<int> indices;
   for(int phi = 0; phi<72;phi++){
     for(int eta = 0; eta<56;eta++){
       indices = orcamap(eta,phi);
@@ -45,9 +45,9 @@ void L1RCTORCAMap::makeBarrelData(){
   }
 }
 
-void L1RCTORCAMap::readData(vector<unsigned> emet, vector<unsigned>  hdet,
-			    vector<bool> emfg, vector<bool> hdfg,
-			    vector<unsigned> hfet){
+void L1RCTORCAMap::readData(std::vector<unsigned> emet, std::vector<unsigned>  hdet,
+			    std::vector<bool> emfg, std::vector<bool> hdfg,
+			    std::vector<unsigned> hfet){
   for(int i = 0; i<4032; i++){
     rawEMET.at(i) = emet.at(i);
     rawHDET.at(i) = hdet.at(i);
@@ -69,9 +69,9 @@ unsigned short L1RCTORCAMap::combine(unsigned short et, unsigned short fg){
   return newfg + et;
 }
 
-vector<unsigned short> L1RCTORCAMap::combVec(vector<unsigned short> et, 
-					     vector<unsigned short> fg){
-  vector<unsigned short> comb(56*72);
+vector<unsigned short> L1RCTORCAMap::combVec(std::vector<unsigned short> et, 
+					     std::vector<unsigned short> fg){
+  std::vector<unsigned short> comb(56*72);
   for(int i = 0; i<(int)et.size(); i++)
     comb.at(i) = combine(et.at(i),fg.at(i));
   return comb;
@@ -79,8 +79,8 @@ vector<unsigned short> L1RCTORCAMap::combVec(vector<unsigned short> et,
 
 vector<int> L1RCTORCAMap::orcamap(int eta, int phi){
   int crateNum(20);
-  vector<int> cardTower(2,0);
-  vector<int> returnVec(3,0);
+  std::vector<int> cardTower(2,0);
+  std::vector<int> returnVec(3,0);
   int modEta = eta%28;
   int modPhi = phi%8;
   if(phi < 8)
@@ -120,7 +120,7 @@ vector<int> L1RCTORCAMap::orcamap(int eta, int phi){
 vector<int> L1RCTORCAMap::lowEtaMap(int eta, int phi){
   int cardnum = 0;
   int towernum = 0;
-  vector<int> returnVec(2);
+  std::vector<int> returnVec(2);
   if(eta < 4){
     cardnum = 6;
     if(phi < 4)
@@ -186,7 +186,7 @@ vector<int> L1RCTORCAMap::lowEtaMap(int eta, int phi){
 vector<int> L1RCTORCAMap::highEtaMap(int eta, int phi){
   int cardnum;
   int towernum;
-  vector<int> returnVec(2);
+  std::vector<int> returnVec(2);
   if(eta < 8){
     if(phi < 4){
       cardnum = 0;

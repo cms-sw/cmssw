@@ -13,7 +13,7 @@
 //
 // Original Author:  Grigory SAFRONOV
 //         Created:  Mon Oct  6 10:10:22 CEST 2008
-// $Id: HLTMonHcalIsoTrack.cc,v 1.3 2010/01/14 20:43:09 wmtan Exp $
+// $Id: HLTMonHcalIsoTrack.cc,v 1.4 2010/02/23 13:49:18 safronov Exp $
 //
 //
 
@@ -166,7 +166,7 @@ void HLTMonHcalIsoTrack::analyze(const edm::Event& iEvent, const edm::EventSetup
 		  int selL2tr=-1;
 		  for (unsigned int il2=0; il2<l2tracks.size(); il2++)
 		    {
-		      double drl2l3=deltaR(l3it->eta(),l3it->phi(),l2tracks[il2]->eta(),l2tracks[il2]->phi());
+		      double drl2l3=reco::deltaR(l3it->eta(),l3it->phi(),l2tracks[il2]->eta(),l2tracks[il2]->phi());
 		      if (drl2l3<drmin)
 			{
 			  drmin=drl2l3;

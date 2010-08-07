@@ -55,7 +55,7 @@ HLTAlCaMonPi0::HLTAlCaMonPi0( const edm::ParameterSet& ps ) :
 eventCounter_(0)
 {
   dbe_ = Service<DQMStore>().operator->();
-  folderName_ = ps.getUntrackedParameter<string>("FolderName","HLT/AlCaEcalPi0");
+  folderName_ = ps.getUntrackedParameter<std::string>("FolderName","HLT/AlCaEcalPi0");
   prescaleFactor_ = ps.getUntrackedParameter<int>("prescaleFactor",1);
   productMonitoredEBpi0_= ps.getUntrackedParameter<edm::InputTag>("AlCaStreamEBpi0Tag");
   productMonitoredEBeta_= ps.getUntrackedParameter<edm::InputTag>("AlCaStreamEBetaTag");
@@ -68,7 +68,7 @@ eventCounter_(0)
   isMonEEeta_ = ps.getUntrackedParameter<bool>("isMonEEeta",false);
 
   saveToFile_=ps.getUntrackedParameter<bool>("SaveToFile",false);
-  fileName_=  ps.getUntrackedParameter<string>("FileName","MonitorAlCaEcalPi0.root");
+  fileName_=  ps.getUntrackedParameter<std::string>("FileName","MonitorAlCaEcalPi0.root");
 
   clusSeedThr_ = ps.getParameter<double> ("clusSeedThr");
   clusSeedThrEndCap_ = ps.getParameter<double> ("clusSeedThrEndCap");
@@ -369,7 +369,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
   std::vector<EcalRecHit> seeds;
   seeds.clear();
 
-  vector<EBDetId> usedXtals;
+  std::vector<EBDetId> usedXtals;
   usedXtals.clear();
 
   detIdEBRecHits.clear(); //// EBDetId
@@ -390,7 +390,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
    try { 
      iEvent.getByLabel(productMonitoredEBpi0_, rhEBpi0); 
    }catch( cms::Exception& exception ) {
-     LogDebug("HLTAlCaPi0DQMSource") << "no EcalRecHits EB_pi0, can not run all stuffs" << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
+     LogDebug("HLTAlCaPi0DQMSource") << "no EcalRecHits EB_pi0, can not run all stuffs" << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << std::endl;
      GetRecHitsCollectionEBpi0 = false;
    }
  }
@@ -402,7 +402,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
      if(isMonEEpi0_) iEvent.getByLabel(productMonitoredEEpi0_, rhEEpi0);
      if(isMonEEeta_) iEvent.getByLabel(productMonitoredEEeta_, rhEEeta);
    }catch( cms::Exception& exception ) {
-     LogDebug("HLTAlCaPi0DQMSource") << "no EcalRecHits EB_Eta, can not run all stuffs" << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
+     LogDebug("HLTAlCaPi0DQMSource") << "no EcalRecHits EB_Eta, can not run all stuffs" << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << std::endl;
      GetRecHitsCollectionEBeta = false;
    }
  }
@@ -412,7 +412,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
    try { 
      if(isMonEEpi0_) iEvent.getByLabel(productMonitoredEEpi0_, rhEEpi0);
    }catch( cms::Exception& exception ) {
-     LogDebug("HLTAlCaPi0DQMSource") << "no EcalRecHits EE_Pi0, can not run all stuffs" << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
+     LogDebug("HLTAlCaPi0DQMSource") << "no EcalRecHits EE_Pi0, can not run all stuffs" << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << std::endl;
      GetRecHitsCollectionEEpi0 = false;
    }
  }
@@ -422,7 +422,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
    try { 
      if(isMonEEeta_) iEvent.getByLabel(productMonitoredEEeta_, rhEEeta);
    }catch( cms::Exception& exception ) {
-     LogDebug("HLTAlCaPi0DQMSource") << "no EcalRecHits EE_Eta, can not run all stuffs" << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << endl;
+     LogDebug("HLTAlCaPi0DQMSource") << "no EcalRecHits EE_Eta, can not run all stuffs" << iEvent.eventAuxiliary ().event() <<" run: "<<iEvent.eventAuxiliary ().run()  << std::endl;
      GetRecHitsCollectionEEeta = false;
    }
  }
@@ -484,26 +484,26 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
       hMeanRecHitEnergyEBpi0_->Fill(etot/rhEBpi0->size());
       hEventEnergyEBpi0_->Fill(etot);
 
-      //      cout << " EB RH Pi0 collection: #, mean rh_e, event E "<<rhEBpi0->size()<<" "<<etot/rhEBpi0->size()<<" "<<etot<<endl;   
+      //      std::cout << " EB RH Pi0 collection: #, mean rh_e, event E "<<rhEBpi0->size()<<" "<<etot/rhEBpi0->size()<<" "<<etot<<std::endl;   
 
 
       // Pi0 maker
 
-      //cout<< " RH coll size: "<<rhEBpi0->size()<<endl;
-      //cout<< " Pi0 seeds: "<<seeds.size()<<endl;
+      //std::cout<< " RH coll size: "<<rhEBpi0->size()<<std::endl;
+      //std::cout<< " Pi0 seeds: "<<seeds.size()<<std::endl;
 
       int nClus;
-      vector<float> eClus;
-      vector<float> etClus;
-      vector<float> etaClus; 
-      vector<float> thetaClus;
-      vector<float> phiClus;
-      vector<EBDetId> max_hit;
+      std::vector<float> eClus;
+      std::vector<float> etClus;
+      std::vector<float> etaClus; 
+      std::vector<float> thetaClus;
+      std::vector<float> phiClus;
+      std::vector<EBDetId> max_hit;
 
-      vector< vector<EcalRecHit> > RecHitsCluster;
-      vector< vector<EcalRecHit> > RecHitsCluster5x5;
-      vector<float> s4s9Clus;
-      vector<float> s9s25Clus;
+      std::vector< std::vector<EcalRecHit> > RecHitsCluster;
+      std::vector< std::vector<EcalRecHit> > RecHitsCluster5x5;
+      std::vector<float> s4s9Clus;
+      std::vector<float> s9s25Clus;
 
 
       nClus=0;
@@ -520,7 +520,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
 	for(usedIds=usedXtals.begin(); usedIds!=usedXtals.end(); usedIds++){
 	  if(*usedIds==seed_id){
 	    seedAlreadyUsed=true;
-	    //cout<< " Seed with energy "<<itseed->energy()<<" was used !"<<endl;
+	    //std::cout<< " Seed with energy "<<itseed->energy()<<" was used !"<<std::endl;
 	    break; 
 	  }
 	}
@@ -528,7 +528,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
 	std::vector<DetId> clus_v = topology_p->getWindow(seed_id,clusEtaSize_,clusPhiSize_);       
 	std::vector< std::pair<DetId, float> > clus_used;
 	//Reject the seed if not able to build the cluster around it correctly
-	//if(clus_v.size() < clusEtaSize_*clusPhiSize_){cout<<" Not enough RecHits "<<endl; continue;}
+	//if(clus_v.size() < clusEtaSize_*clusPhiSize_){std::cout<<" Not enough RecHits "<<std::endl; continue;}
 	vector<EcalRecHit> RecHitsInWindow;
 	vector<EcalRecHit> RecHitsInWindow5x5;
 
@@ -536,7 +536,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
 
 	for (std::vector<DetId>::iterator det=clus_v.begin(); det!=clus_v.end(); det++) {
 	  EBDetId EBdet = *det;
-	  //      cout<<" det "<< EBdet<<" ieta "<<EBdet.ieta()<<" iphi "<<EBdet.iphi()<<endl;
+	  //      std::cout<<" det "<< EBdet<<" ieta "<<EBdet.ieta()<<" iphi "<<EBdet.iphi()<<std::endl;
 	  bool  HitAlreadyUsed=false;
 	  for(usedIds=usedXtals.begin(); usedIds!=usedXtals.end(); usedIds++){
 	    if(*usedIds==*det){
@@ -562,9 +562,9 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
 	if(simple_energy <= 0) continue;
    
 	math::XYZPoint clus_pos = posCalculator_.Calculate_Location(clus_used,hitCollection_p,geometry_p,geometryES_p);
-	//cout<< "       Simple Clustering: Total energy for this simple cluster : "<<simple_energy<<endl; 
-	//cout<< "       Simple Clustering: eta phi : "<<clus_pos.eta()<<" "<<clus_pos.phi()<<endl; 
-	//cout<< "       Simple Clustering: x y z : "<<clus_pos.x()<<" "<<clus_pos.y()<<" "<<clus_pos.z()<<endl; 
+	//std::cout<< "       Simple Clustering: Total energy for this simple cluster : "<<simple_energy<<std::endl; 
+	//std::cout<< "       Simple Clustering: eta phi : "<<clus_pos.eta()<<" "<<clus_pos.phi()<<std::endl; 
+	//std::cout<< "       Simple Clustering: x y z : "<<clus_pos.x()<<" "<<clus_pos.y()<<" "<<clus_pos.z()<<std::endl; 
 
 	float theta_s = 2. * atan(exp(-clus_pos.eta()));
 	//	float p0x_s = simple_energy * sin(theta_s) * cos(clus_pos.phi());
@@ -573,7 +573,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
 	//float et_s = sqrt( p0x_s*p0x_s + p0y_s*p0y_s);
 	
         float et_s = simple_energy * sin(theta_s);
-	//cout << "       Simple Clustering: E,Et,px,py,pz: "<<simple_energy<<" "<<et_s<<" "<<p0x_s<<" "<<p0y_s<<" "<<endl;
+	//std::cout << "       Simple Clustering: E,Et,px,py,pz: "<<simple_energy<<" "<<et_s<<" "<<p0x_s<<" "<<p0y_s<<" "<<std::endl;
 
 	//Compute S4/S9 variable
 	//We are not sure to have 9 RecHits so need to check eta and phi:
@@ -661,7 +661,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
 
   }
     
-      // cout<< " Pi0 clusters: "<<nClus<<endl;
+      // std::cout<< " Pi0 clusters: "<<nClus<<std::endl;
 
       // Selection, based on Simple clustering
       //pi0 candidates
@@ -671,7 +671,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
       //      if (nClus <= 1) return;
       for(Int_t i=0 ; i<nClus ; i++){
 	for(Int_t j=i+1 ; j<nClus ; j++){
-	  //      cout<<" i "<<i<<"  etClus[i] "<<etClus[i]<<" j "<<j<<"  etClus[j] "<<etClus[j]<<endl;
+	  //      std::cout<<" i "<<i<<"  etClus[i] "<<etClus[i]<<" j "<<j<<"  etClus[j] "<<etClus[j]<<std::endl;
 	  if( etClus[i]>selePtGamma_ && etClus[j]>selePtGamma_ && s4s9Clus[i]>seleS4S9Gamma_ && s4s9Clus[j]>seleS4S9Gamma_){
 
 
@@ -691,7 +691,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
 	    if ( (m_inv<seleMinvMaxPi0_) && (m_inv>seleMinvMinPi0_) ){
 
 	      //New Loop on cluster to measure isolation:
-	      vector<int> IsoClus;
+	      std::vector<int> IsoClus;
 	      IsoClus.clear();
 	      float Iso = 0;
 	      TVector3 pairVect = TVector3((p0x+p1x), (p0y+p1y), (p0z+p1z));
@@ -705,15 +705,15 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
 
 		float dretacl = fabs(etaClus[k] - pairVect.Eta());
 		float drcl = ClusVect.DeltaR(pairVect);
-		//      cout<< "   Iso: k, E, drclpi0, detaclpi0, dphiclpi0 "<<k<<" "<<eClus[k]<<" "<<drclpi0<<" "<<dretaclpi0<<endl;
+		//      std::cout<< "   Iso: k, E, drclpi0, detaclpi0, dphiclpi0 "<<k<<" "<<eClus[k]<<" "<<drclpi0<<" "<<dretaclpi0<<std::endl;
 		if((drcl<selePi0BeltDR_) && (dretacl<selePi0BeltDeta_) ){
-		  //              cout<< "   ... good iso cluster #: "<<k<<" etClus[k] "<<etClus[k] <<endl;
+		  //              std::cout<< "   ... good iso cluster #: "<<k<<" etClus[k] "<<etClus[k] <<std::endl;
 		  Iso = Iso + etClus[k];
 		  IsoClus.push_back(k);
 		}
 	      }
 
-	      //      cout<<"  Iso/pt_pi0 "<<Iso/pt_pi0<<endl;
+	      //      std::cout<<"  Iso/pt_pi0 "<<Iso/pt_pi0<<std::endl;
 	      if(Iso/pt_pair<selePi0Iso_){
 		//for(unsigned int Rec=0;Rec<RecHitsCluster[i].size();Rec++)pi0EBRecHitCollection->push_back(RecHitsCluster[i][Rec]);
 		//for(unsigned int Rec2=0;Rec2<RecHitsCluster[j].size();Rec2++)pi0EBRecHitCollection->push_back(RecHitsCluster[j][Rec2]);
@@ -727,7 +727,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
 		hS4S91Pi0EB_->Fill(s4s9Clus[i]);
 		hS4S92Pi0EB_->Fill(s4s9Clus[j]);
 		
-		//		cout <<"  EB Simple Clustering: pi0 Candidate pt, eta, phi, Iso, m_inv, i, j :   "<<pt_pair<<" "<<pairVect.Eta()<<" "<<pairVect.Phi()<<" "<<Iso<<" "<<m_inv<<" "<<i<<" "<<j<<" "<<endl;  
+		//		cout <<"  EB Simple Clustering: pi0 Candidate pt, eta, phi, Iso, m_inv, i, j :   "<<pt_pair<<" "<<pairVect.Eta()<<" "<<pairVect.Phi()<<" "<<Iso<<" "<<m_inv<<" "<<i<<" "<<j<<" "<<std::endl;  
 
 		npi0_s++;
 		
@@ -741,7 +741,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
 	} // End of the "j" loop over Simple Clusters
       } // End of the "i" loop over Simple Clusters
 
-      //      cout<<"  (Simple Clustering) EB Pi0 candidates #: "<<npi0_s<<endl;
+      //      std::cout<<"  (Simple Clustering) EB Pi0 candidates #: "<<npi0_s<<std::endl;
 
     } // rhEBpi0.valid() ends
 
@@ -781,26 +781,26 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
       hMeanRecHitEnergyEBeta_->Fill(etot/rhEBeta->size());
       hEventEnergyEBeta_->Fill(etot);
 
-      //      cout << " EB RH Eta collection: #, mean rh_e, event E "<<rhEBeta->size()<<" "<<etot/rhEBeta->size()<<" "<<etot<<endl;   
+      //      std::cout << " EB RH Eta collection: #, mean rh_e, event E "<<rhEBeta->size()<<" "<<etot/rhEBeta->size()<<" "<<etot<<std::endl;   
 
 
       // Eta maker
 
-      //cout<< " RH coll size: "<<rhEBeta->size()<<endl;
-      //cout<< " Eta seeds: "<<seeds.size()<<endl;
+      //std::cout<< " RH coll size: "<<rhEBeta->size()<<std::endl;
+      //std::cout<< " Eta seeds: "<<seeds.size()<<std::endl;
 
       int nClus;
-      vector<float> eClus;
-      vector<float> etClus;
-      vector<float> etaClus; 
-      vector<float> thetaClus;
-      vector<float> phiClus;
-      vector<EBDetId> max_hit;
+      std::vector<float> eClus;
+      std::vector<float> etClus;
+      std::vector<float> etaClus; 
+      std::vector<float> thetaClus;
+      std::vector<float> phiClus;
+      std::vector<EBDetId> max_hit;
 
-      vector< vector<EcalRecHit> > RecHitsCluster;
-      vector< vector<EcalRecHit> > RecHitsCluster5x5;
-      vector<float> s4s9Clus;
-      vector<float> s9s25Clus;
+      std::vector< std::vector<EcalRecHit> > RecHitsCluster;
+      std::vector< std::vector<EcalRecHit> > RecHitsCluster5x5;
+      std::vector<float> s4s9Clus;
+      std::vector<float> s9s25Clus;
 
 
       nClus=0;
@@ -816,7 +816,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
 	for(usedIds=usedXtals.begin(); usedIds!=usedXtals.end(); usedIds++){
 	  if(*usedIds==seed_id){
 	    seedAlreadyUsed=true;
-	    //cout<< " Seed with energy "<<itseed->energy()<<" was used !"<<endl;
+	    //std::cout<< " Seed with energy "<<itseed->energy()<<" was used !"<<std::endl;
 	    break; 
 	  }
 	}
@@ -824,7 +824,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
 	std::vector<DetId> clus_v = topology_p->getWindow(seed_id,clusEtaSize_,clusPhiSize_);       
 	std::vector< std::pair<DetId, float> > clus_used;
 	//Reject the seed if not able to build the cluster around it correctly
-	//if(clus_v.size() < clusEtaSize_*clusPhiSize_){cout<<" Not enough RecHits "<<endl; continue;}
+	//if(clus_v.size() < clusEtaSize_*clusPhiSize_){std::cout<<" Not enough RecHits "<<std::endl; continue;}
 	vector<EcalRecHit> RecHitsInWindow;
 	vector<EcalRecHit> RecHitsInWindow5x5;
 
@@ -832,7 +832,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
 
 	for (std::vector<DetId>::iterator det=clus_v.begin(); det!=clus_v.end(); det++) {
 	  EBDetId EBdet = *det;
-	  //      cout<<" det "<< EBdet<<" ieta "<<EBdet.ieta()<<" iphi "<<EBdet.iphi()<<endl;
+	  //      std::cout<<" det "<< EBdet<<" ieta "<<EBdet.ieta()<<" iphi "<<EBdet.iphi()<<std::endl;
 	  bool  HitAlreadyUsed=false;
 	  for(usedIds=usedXtals.begin(); usedIds!=usedXtals.end(); usedIds++){
 	    if(*usedIds==*det){
@@ -858,9 +858,9 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
 	if(simple_energy <= 0) continue;
    
 	math::XYZPoint clus_pos = posCalculator_.Calculate_Location(clus_used,hitCollection_p,geometry_p,geometryES_p);
-	//cout<< "       Simple Clustering: Total energy for this simple cluster : "<<simple_energy<<endl; 
-	//cout<< "       Simple Clustering: eta phi : "<<clus_pos.eta()<<" "<<clus_pos.phi()<<endl; 
-	//cout<< "       Simple Clustering: x y z : "<<clus_pos.x()<<" "<<clus_pos.y()<<" "<<clus_pos.z()<<endl; 
+	//std::cout<< "       Simple Clustering: Total energy for this simple cluster : "<<simple_energy<<std::endl; 
+	//std::cout<< "       Simple Clustering: eta phi : "<<clus_pos.eta()<<" "<<clus_pos.phi()<<std::endl; 
+	//std::cout<< "       Simple Clustering: x y z : "<<clus_pos.x()<<" "<<clus_pos.y()<<" "<<clus_pos.z()<<std::endl; 
 
 	float theta_s = 2. * atan(exp(-clus_pos.eta()));
 	//	float p0x_s = simple_energy * sin(theta_s) * cos(clus_pos.phi());
@@ -869,7 +869,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
 	//float et_s = sqrt( p0x_s*p0x_s + p0y_s*p0y_s);
 	
         float et_s = simple_energy * sin(theta_s);
-	//cout << "       Simple Clustering: E,Et,px,py,pz: "<<simple_energy<<" "<<et_s<<" "<<p0x_s<<" "<<p0y_s<<" "<<endl;
+	//std::cout << "       Simple Clustering: E,Et,px,py,pz: "<<simple_energy<<" "<<et_s<<" "<<p0x_s<<" "<<p0y_s<<" "<<std::endl;
 
 	//Compute S4/S9 variable
 	//We are not sure to have 9 RecHits so need to check eta and phi:
@@ -957,7 +957,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
 
   }
     
-      // cout<< " Eta clusters: "<<nClus<<endl;
+      // std::cout<< " Eta clusters: "<<nClus<<std::endl;
 
       // Selection, based on Simple clustering
       //eta candidates
@@ -967,7 +967,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
       //      if (nClus <= 1) return;
       for(Int_t i=0 ; i<nClus ; i++){
 	for(Int_t j=i+1 ; j<nClus ; j++){
-	  //      cout<<" i "<<i<<"  etClus[i] "<<etClus[i]<<" j "<<j<<"  etClus[j] "<<etClus[j]<<endl;
+	  //      std::cout<<" i "<<i<<"  etClus[i] "<<etClus[i]<<" j "<<j<<"  etClus[j] "<<etClus[j]<<std::endl;
 	  if( etClus[i]>selePtGammaEta_ && etClus[j]>selePtGammaEta_ && s4s9Clus[i]>seleS4S9GammaEta_ && s4s9Clus[j]>seleS4S9GammaEta_){
 
 
@@ -987,7 +987,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
 	    if ( (m_inv<seleMinvMaxEta_) && (m_inv>seleMinvMinEta_) ){
 
 	      //New Loop on cluster to measure isolation:
-	      vector<int> IsoClus;
+	      std::vector<int> IsoClus;
 	      IsoClus.clear();
 	      float Iso = 0;
 	      TVector3 pairVect = TVector3((p0x+p1x), (p0y+p1y), (p0z+p1z));
@@ -1001,15 +1001,15 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
 
 		float dretacl = fabs(etaClus[k] - pairVect.Eta());
 		float drcl = ClusVect.DeltaR(pairVect);
-		//      cout<< "   Iso: k, E, drclpi0, detaclpi0, dphiclpi0 "<<k<<" "<<eClus[k]<<" "<<drclpi0<<" "<<dretaclpi0<<endl;
+		//      std::cout<< "   Iso: k, E, drclpi0, detaclpi0, dphiclpi0 "<<k<<" "<<eClus[k]<<" "<<drclpi0<<" "<<dretaclpi0<<std::endl;
 		if((drcl<seleEtaBeltDR_) && (dretacl<seleEtaBeltDeta_) ){
-		  //              cout<< "   ... good iso cluster #: "<<k<<" etClus[k] "<<etClus[k] <<endl;
+		  //              std::cout<< "   ... good iso cluster #: "<<k<<" etClus[k] "<<etClus[k] <<std::endl;
 		  Iso = Iso + etClus[k];
 		  IsoClus.push_back(k);
 		}
 	      }
 
-	      //      cout<<"  Iso/pt_pi0 "<<Iso/pt_pi0<<endl;
+	      //      std::cout<<"  Iso/pt_pi0 "<<Iso/pt_pi0<<std::endl;
 	      if(Iso/pt_pair<seleEtaIso_){
 		//for(unsigned int Rec=0;Rec<RecHitsCluster[i].size();Rec++)pi0EBRecHitCollection->push_back(RecHitsCluster[i][Rec]);
 		//for(unsigned int Rec2=0;Rec2<RecHitsCluster[j].size();Rec2++)pi0EBRecHitCollection->push_back(RecHitsCluster[j][Rec2]);
@@ -1023,7 +1023,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
 		hS4S91EtaEB_->Fill(s4s9Clus[i]);
 		hS4S92EtaEB_->Fill(s4s9Clus[j]);
 		
-		//		cout <<"  EB Simple Clustering: Eta Candidate pt, eta, phi, Iso, m_inv, i, j :   "<<pt_pair<<" "<<pairVect.Eta()<<" "<<pairVect.Phi()<<" "<<Iso<<" "<<m_inv<<" "<<i<<" "<<j<<" "<<endl;  
+		//		cout <<"  EB Simple Clustering: Eta Candidate pt, eta, phi, Iso, m_inv, i, j :   "<<pt_pair<<" "<<pairVect.Eta()<<" "<<pairVect.Phi()<<" "<<Iso<<" "<<m_inv<<" "<<i<<" "<<j<<" "<<std::endl;  
 
 		npi0_s++;
 		
@@ -1037,7 +1037,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
 	} // End of the "j" loop over Simple Clusters
       } // End of the "i" loop over Simple Clusters
 
-      //      cout<<"  (Simple Clustering) EB Eta candidates #: "<<npi0_s<<endl;
+      //      std::cout<<"  (Simple Clustering) EB Eta candidates #: "<<npi0_s<<std::endl;
 
     } // rhEBeta.valid() ends
 
@@ -1069,7 +1069,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
       std::vector<EcalRecHit> seedsEndCap;
       seedsEndCap.clear();
 
-      vector<EEDetId> usedXtalsEndCap;
+      std::vector<EEDetId> usedXtalsEndCap;
       usedXtalsEndCap.clear();
 
 
@@ -1099,18 +1099,18 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
       hMeanRecHitEnergyEEpi0_->Fill(etot/rhEEpi0->size());
       hEventEnergyEEpi0_->Fill(etot);
 
-      //      cout << " EE RH Pi0 collection: #, mean rh_e, event E "<<rhEEpi0->size()<<" "<<etot/rhEEpi0->size()<<" "<<etot<<endl;   
+      //      std::cout << " EE RH Pi0 collection: #, mean rh_e, event E "<<rhEEpi0->size()<<" "<<etot/rhEEpi0->size()<<" "<<etot<<std::endl;   
   
       int nClusEndCap;
-      vector<float> eClusEndCap;
-      vector<float> etClusEndCap;
-      vector<float> etaClusEndCap;
-      vector<float> thetaClusEndCap;
-      vector<float> phiClusEndCap;
-      vector< vector<EcalRecHit> > RecHitsClusterEndCap;
-      vector< vector<EcalRecHit> > RecHitsCluster5x5EndCap;
-      vector<float> s4s9ClusEndCap;
-      vector<float> s9s25ClusEndCap;
+      std::vector<float> eClusEndCap;
+      std::vector<float> etClusEndCap;
+      std::vector<float> etaClusEndCap;
+      std::vector<float> thetaClusEndCap;
+      std::vector<float> phiClusEndCap;
+      std::vector< std::vector<EcalRecHit> > RecHitsClusterEndCap;
+      std::vector< std::vector<EcalRecHit> > RecHitsCluster5x5EndCap;
+      std::vector<float> s4s9ClusEndCap;
+      std::vector<float> s9s25ClusEndCap;
 
 
       nClusEndCap=0;
@@ -1256,7 +1256,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
           
 
 	      //New Loop on cluster to measure isolation:
-	      vector<int> IsoClus;
+	      std::vector<int> IsoClus;
 	      IsoClus.clear();
 	      float Iso = 0;
 	      TVector3 pairVect = TVector3((p0x+p1x), (p0y+p1y), (p0z+p1z));
@@ -1280,7 +1280,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
 
           
 	      if(Iso/pt_pair<selePi0IsoEndCap_){
-		//cout <<"  EE Simple Clustering: pi0 Candidate pt, eta, phi, Iso, m_inv, i, j :   "<<pt_pair<<" "<<pairVect.Eta()<<" "<<pairVect.Phi()<<" "<<Iso<<" "<<m_inv<<" "<<i<<" "<<j<<" "<<endl;  
+		//std::cout <<"  EE Simple Clustering: pi0 Candidate pt, eta, phi, Iso, m_inv, i, j :   "<<pt_pair<<" "<<pairVect.Eta()<<" "<<pairVect.Phi()<<" "<<Iso<<" "<<m_inv<<" "<<i<<" "<<j<<" "<<std::endl;  
 
 		hMinvPi0EE_->Fill(m_inv);
 		hPt1Pi0EE_->Fill(etClusEndCap[i]);
@@ -1298,7 +1298,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
 	} // End of the "j" loop over Simple Clusters
       } // End of the "i" loop over Simple Clusters
 
-      //      cout<<"  (Simple Clustering) EE Pi0 candidates #: "<<npi0_se<<endl;
+      //      std::cout<<"  (Simple Clustering) EE Pi0 candidates #: "<<npi0_se<<std::endl;
 
 	} //rhEEpi0
       } //isMonEEpi0
@@ -1322,7 +1322,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
       std::vector<EcalRecHit> seedsEndCap;
       seedsEndCap.clear();
 
-      vector<EEDetId> usedXtalsEndCap;
+      std::vector<EEDetId> usedXtalsEndCap;
       usedXtalsEndCap.clear();
 
 
@@ -1352,18 +1352,18 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
       hMeanRecHitEnergyEEeta_->Fill(etot/rhEEeta->size());
       hEventEnergyEEeta_->Fill(etot);
 
-      //      cout << " EE RH Eta collection: #, mean rh_e, event E "<<rhEEeta->size()<<" "<<etot/rhEEeta->size()<<" "<<etot<<endl;   
+      //      std::cout << " EE RH Eta collection: #, mean rh_e, event E "<<rhEEeta->size()<<" "<<etot/rhEEeta->size()<<" "<<etot<<std::endl;   
   
       int nClusEndCap;
-      vector<float> eClusEndCap;
-      vector<float> etClusEndCap;
-      vector<float> etaClusEndCap;
-      vector<float> thetaClusEndCap;
-      vector<float> phiClusEndCap;
-      vector< vector<EcalRecHit> > RecHitsClusterEndCap;
-      vector< vector<EcalRecHit> > RecHitsCluster5x5EndCap;
-      vector<float> s4s9ClusEndCap;
-      vector<float> s9s25ClusEndCap;
+      std::vector<float> eClusEndCap;
+      std::vector<float> etClusEndCap;
+      std::vector<float> etaClusEndCap;
+      std::vector<float> thetaClusEndCap;
+      std::vector<float> phiClusEndCap;
+      std::vector< std::vector<EcalRecHit> > RecHitsClusterEndCap;
+      std::vector< std::vector<EcalRecHit> > RecHitsCluster5x5EndCap;
+      std::vector<float> s4s9ClusEndCap;
+      std::vector<float> s9s25ClusEndCap;
 
 
       nClusEndCap=0;
@@ -1506,7 +1506,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
           
 
 	      //New Loop on cluster to measure isolation:
-	      vector<int> IsoClus;
+	      std::vector<int> IsoClus;
 	      IsoClus.clear();
 	      float Iso = 0;
 	      TVector3 pairVect = TVector3((p0x+p1x), (p0y+p1y), (p0z+p1z));
@@ -1530,7 +1530,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
 
           
 	      if(Iso/pt_pair<seleEtaIsoEndCap_){
-		//	cout <<"  EE Simple Clustering: Eta Candidate pt, eta, phi, Iso, m_inv, i, j :   "<<pt_pair<<" "<<pairVect.Eta()<<" "<<pairVect.Phi()<<" "<<Iso<<" "<<m_inv<<" "<<i<<" "<<j<<" "<<endl;  
+		//	cout <<"  EE Simple Clustering: Eta Candidate pt, eta, phi, Iso, m_inv, i, j :   "<<pt_pair<<" "<<pairVect.Eta()<<" "<<pairVect.Phi()<<" "<<Iso<<" "<<m_inv<<" "<<i<<" "<<j<<" "<<std::endl;  
 
 		hMinvEtaEE_->Fill(m_inv);
 		hPt1EtaEE_->Fill(etClusEndCap[i]);
@@ -1548,7 +1548,7 @@ void HLTAlCaMonPi0::analyze(const Event& iEvent,
 	} // End of the "j" loop over Simple Clusters
       } // End of the "i" loop over Simple Clusters
 
-      //      cout<<"  (Simple Clustering) EE Eta candidates #: "<<npi0_se<<endl;
+      //      std::cout<<"  (Simple Clustering) EE Eta candidates #: "<<npi0_se<<std::endl;
 
 	} //rhEEeta
       } //isMonEEeta

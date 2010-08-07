@@ -11,7 +11,7 @@ class Match {
   Match(){};
   ~Match(){};
   double operator()(const reco::Candidate& ref, const reco::Candidate& rec)
-  { return deltaR(ref.eta(), ref.phi(), rec.eta(), rec.phi()); };
+  { return reco::deltaR(ref.eta(), ref.phi(), rec.eta(), rec.phi()); };
 };
 
 #endif

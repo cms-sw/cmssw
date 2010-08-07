@@ -40,7 +40,7 @@ BasicSingleVertexState::BasicSingleVertexState(const AlgebraicVector3 & weightTi
     theWeight(posWeight), theWeightAvailable(true),
     theWeightTimesPos(weightTimesPosition), theWeightTimesPosAvailable(true),
     valid(true), theWeightInMix(weightInMix)
-{//cout <<"BasicSingleVertexState ctor\n";
+{//std::cout <<"BasicSingleVertexState ctor\n";
 }
 
 GlobalPoint BasicSingleVertexState::position() const

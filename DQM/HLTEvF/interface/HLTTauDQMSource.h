@@ -89,7 +89,7 @@ protected:
 private:
   DQMStore* dbe_;  
   std::vector<edm::ParameterSet> config_;
-  std::vector<string> configType_;
+  std::vector<std::string> configType_;
 
   //Reference
   bool doRefAnalysis_;

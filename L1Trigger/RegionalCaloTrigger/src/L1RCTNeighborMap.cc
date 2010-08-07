@@ -4,7 +4,7 @@
 using std::vector;
 
 vector<int> L1RCTNeighborMap::north(int crate,int card,int region){
-  vector<int> north(3);
+  std::vector<int> north(3);
   int newregion(0),newcard(0),newcrate(0);
   if(card == 0 || card == 2 || card == 4){
     newcard = card+1;
@@ -42,7 +42,7 @@ vector<int> L1RCTNeighborMap::north(int crate,int card,int region){
 
 vector<int> L1RCTNeighborMap::south(int crate, int card, int region){
   int newcrate(0),newcard(0),newregion(0);
-  vector<int> south(3);
+  std::vector<int> south(3);
   if(card == 0 || card == 2 || card == 4){
     newcard = card+1;
     newregion = region;
@@ -79,7 +79,7 @@ vector<int> L1RCTNeighborMap::south(int crate, int card, int region){
   
 vector<int> L1RCTNeighborMap::west(int crate,int card, int region){
   int newcrate(0),newcard(0),newregion(0);
-  vector<int> west(3);
+  std::vector<int> west(3);
   if(crate < 9){
     newcrate = crate;
     if(card != 6){
@@ -149,7 +149,7 @@ vector<int> L1RCTNeighborMap::west(int crate,int card, int region){
 
 vector<int> L1RCTNeighborMap::east(int crate,int card, int region){
   int newcrate(0),newcard(0),newregion(0);
-  vector<int> east(3);
+  std::vector<int> east(3);
   if(crate < 9){
     if(card != 0 && card != 1 && card != 6){
       newcrate = crate;
@@ -218,7 +218,7 @@ vector<int> L1RCTNeighborMap::east(int crate,int card, int region){
 
 vector<int> L1RCTNeighborMap::se(int crate,int card,int region){
   int newcrate(0),newcard(0),newregion(0);
-  vector<int> se(3);
+  std::vector<int> se(3);
   if(crate < 9){
     if(card == 0){
       if(region == 0){
@@ -333,7 +333,7 @@ vector<int> L1RCTNeighborMap::se(int crate,int card,int region){
 
 vector<int> L1RCTNeighborMap::sw(int crate,int card,int region){
   int newcrate(0),newcard(0),newregion(0);
-  vector<int> sw(3);
+  std::vector<int> sw(3);
   if(crate > 8){
     if(card == 0){
       if(region == 0){
@@ -448,7 +448,7 @@ vector<int> L1RCTNeighborMap::sw(int crate,int card,int region){
 
 vector<int> L1RCTNeighborMap::ne(int crate,int card,int region){
   int newcrate(0),newcard(0),newregion(0);
-  vector<int> ne(3);
+  std::vector<int> ne(3);
   if(crate < 9){
     if(card == 0){
       newregion = 0;
@@ -549,7 +549,7 @@ vector<int> L1RCTNeighborMap::ne(int crate,int card,int region){
 
 vector<int> L1RCTNeighborMap::nw(int crate,int card,int region){
   int newcrate(0),newcard(0),newregion(0);
-  vector<int> nw(3);
+  std::vector<int> nw(3);
   if(crate > 8){
     if(card == 0){
       newregion = 0;

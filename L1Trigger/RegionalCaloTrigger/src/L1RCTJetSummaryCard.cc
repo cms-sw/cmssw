@@ -27,14 +27,14 @@ L1RCTJetSummaryCard::L1RCTJetSummaryCard(int crtNo, const L1RCTLookupTables* rct
 {
 }
 
-void L1RCTJetSummaryCard::fillHFRegionSums(vector<unsigned short> hfRegionSums){
-  //cout << "JSC.fillHFRegionSums() entered" << endl;
+void L1RCTJetSummaryCard::fillHFRegionSums(std::vector<unsigned short> hfRegionSums){
+  //std::cout << "JSC.fillHFRegionSums() entered" << std::endl;
   for(int i=0;i<8;i++){
-    //cout << "filling hf region at " << i << endl;
+    //std::cout << "filling hf region at " << i << std::endl;
     HFRegions.at(i) = rctLookupTables_->lookup( (hfRegionSums.at(i)/2), crtNo, 999, i);
-    //cout << "hf region " << i << " et filled" << endl;
+    //std::cout << "hf region " << i << " et filled" << std::endl;
     hfFineGrainBits.at(i) = (hfRegionSums.at(i)&1);
-    //cout << "hf region " << i << " fine grain bit filled" << endl;
+    //std::cout << "hf region " << i << " fine grain bit filled" << std::endl;
   }
 }
 
@@ -83,13 +83,13 @@ void L1RCTJetSummaryCard::fillJetRegions(){
   }
 }
 
-void L1RCTJetSummaryCard::fillIsolatedEGObjects(vector<unsigned short> isoElectrons){
+void L1RCTJetSummaryCard::fillIsolatedEGObjects(std::vector<unsigned short> isoElectrons){
   //sort(isoElectrons.begin(),isoElectrons.end());
   //reverse(isoElectrons.begin(),isoElectrons.end());
 
-  vector<unsigned short> isoCards03(8);
-  vector<unsigned short> isoCards46(8);
-  vector<unsigned short> sortIso(8);
+  std::vector<unsigned short> isoCards03(8);
+  std::vector<unsigned short> isoCards46(8);
+  std::vector<unsigned short> sortIso(8);
 
   for (int i = 0; i < 8; i++){
     isoCards03.at(i) = isoElectrons.at(i);
@@ -124,13 +124,13 @@ void L1RCTJetSummaryCard::fillIsolatedEGObjects(vector<unsigned short> isoElectr
   isolatedEGObjects.at(3) = sortIso.at(2);
 }
 
-void L1RCTJetSummaryCard::fillNonIsolatedEGObjects(vector<unsigned short> nonIsoElectrons){
+void L1RCTJetSummaryCard::fillNonIsolatedEGObjects(std::vector<unsigned short> nonIsoElectrons){
   //sort(nonIsoElectrons.begin(),nonIsoElectrons.end());
   //reverse(nonIsoElectrons.begin(),nonIsoElectrons.end());
 
-  vector<unsigned short> nonIsoCards03(8);
-  vector<unsigned short> nonIsoCards46(8);
-  vector<unsigned short> sortNonIso(8);
+  std::vector<unsigned short> nonIsoCards03(8);
+  std::vector<unsigned short> nonIsoCards46(8);
+  std::vector<unsigned short> sortNonIso(8);
 
   for (int i = 0; i < 8; i++){
     nonIsoCards03.at(i) = nonIsoElectrons.at(i);
@@ -165,21 +165,21 @@ void L1RCTJetSummaryCard::fillNonIsolatedEGObjects(vector<unsigned short> nonIso
   nonisolatedEGObjects.at(3) = sortNonIso.at(2);
 }
 
-void L1RCTJetSummaryCard::fillMIPBits(vector<unsigned short> mip){
+void L1RCTJetSummaryCard::fillMIPBits(std::vector<unsigned short> mip){
   bitset<14> mips;
   for(int i = 0; i<14; i++)
     mips[i] = mip.at(i);
   mipBits = mips.to_ulong();
 }
 
-void L1RCTJetSummaryCard::fillTauBits(vector<unsigned short> tau){
+void L1RCTJetSummaryCard::fillTauBits(std::vector<unsigned short> tau){
   bitset<14> taus;
   for(int i = 0; i<14; i++)
     taus[i] = tau.at(i);
   tauBits = taus.to_ulong();
 }
 
-void L1RCTJetSummaryCard::fillOverFlowBits(vector<unsigned short> overflow){
+void L1RCTJetSummaryCard::fillOverFlowBits(std::vector<unsigned short> overflow){
   bitset<14> overflows;
   for(int i = 0; i<14; i++)
     overflows[i] = overflow.at(i);
@@ -211,7 +211,7 @@ void L1RCTJetSummaryCard::fillQuietBits(){
 }
 
 // Sorts the egamma candidates with the algorithm used in the ASIC
-void L1RCTJetSummaryCard::asicSort(vector<unsigned short>& electrons)
+void L1RCTJetSummaryCard::asicSort(std::vector<unsigned short>& electrons)
 {
   unsigned short temp, temp2;
 
@@ -257,7 +257,7 @@ void L1RCTJetSummaryCard::asicSort(vector<unsigned short>& electrons)
 }
 
 // Used in ASIC sort algorithm
-void L1RCTJetSummaryCard::asicCompare(vector<unsigned short>& array)
+void L1RCTJetSummaryCard::asicCompare(std::vector<unsigned short>& array)
 {
   int i;
   unsigned short temp;
@@ -278,15 +278,15 @@ void L1RCTJetSummaryCard::asicCompare(vector<unsigned short>& array)
 
 
 void L1RCTJetSummaryCard::print(){
-  cout << "tauBits " << tauBits << endl;
-  cout << "MIPBits " << mipBits << endl;
-  cout << "QuietBits " << quietBits << endl;
+  std::cout << "tauBits " << tauBits << std::endl;
+  std::cout << "MIPBits " << mipBits << std::endl;
+  std::cout << "QuietBits " << quietBits << std::endl;
   for(int i=0; i<4;i++) {
-    cout << "isoElectron " << i << " " << isolatedEGObjects.at(i) << endl;;
-    cout << "nonIsoElectron " << i <<" "<< nonisolatedEGObjects.at(i) << endl;
+    std::cout << "isoElectron " << i << " " << isolatedEGObjects.at(i) << std::endl;;
+    std::cout << "nonIsoElectron " << i <<" "<< nonisolatedEGObjects.at(i) << std::endl;
   }
-  cout << "Jets ";
+  std::cout << "Jets ";
   for(int i=0; i<22;i++)
-    cout << jetRegions.at(i) << " ";
-  cout << endl;
+    std::cout << jetRegions.at(i) << " ";
+  std::cout << std::endl;
 }

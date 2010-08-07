@@ -30,7 +30,7 @@
 #include <vector>
 #include <string>
 
-using namespace reco;
+
 
 namespace edm
 {

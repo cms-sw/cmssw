@@ -239,7 +239,7 @@ unsigned int L1RCTLookupTables::emRank(unsigned short energy) const
     }
   else
     //    edm::LogInfo("L1RegionalCaloTrigger") 
-    //      << "CaloEtScale was not used - energy instead of rank" << endl;
+    //      << "CaloEtScale was not used - energy instead of rank" << std::endl;
   return energy;
 }
 

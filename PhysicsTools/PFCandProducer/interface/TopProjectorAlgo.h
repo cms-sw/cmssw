@@ -30,8 +30,6 @@
 #include <iostream>
 
 
-using namespace std;
-
 namespace pf2pat {
 
 template< class Top, class Bottom>

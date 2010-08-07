@@ -125,7 +125,7 @@ L1RCTLutWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (useDebugTpgScales_) // generate new-style scales from tpg scales
     {
 
-      std::cout << "Using old-style TPG scales!" << endl;
+      std::cout << "Using old-style TPG scales!" << std::endl;
 
       // old version of hcal energy scale to convert input
       edm::ESHandle<CaloTPGTranscoder> transcoder;
@@ -268,7 +268,7 @@ L1RCTLutWriter::writeRcLutFile(unsigned short card)
       //sprintf(filename, "RC6.dat");
     }
   // open file for writing, delete any existing content
-  lutFile_.open(filename, ios::trunc);
+  lutFile_.open(filename, std::ios::trunc);
   lutFile_ << "Emulator-parameter generated lut file, card " 
 	   << card << " key " << keyName_ << "   ";
 
@@ -278,7 +278,7 @@ L1RCTLutWriter::writeRcLutFile(unsigned short card)
   system(command);
 
   // reopen file for writing values
-  lutFile_.open(filename, ios::app);
+  lutFile_.open(filename, std::ios::app);
 
   unsigned long data = 0;
 
@@ -378,7 +378,7 @@ L1RCTLutWriter::writeEicLutFile(unsigned short card)
       sprintf(filename,"EIC6-%s.dat", keyName_.c_str() );
     }
   // open file for writing, delete any existing content
-  lutFile_.open(filename, ios::trunc);
+  lutFile_.open(filename, std::ios::trunc);
   lutFile_ << "Emulator-parameter generated EIC lut file, card " 
 	   << card << " key " << keyName_ << "   ";
   // close to append timestamp info
@@ -387,7 +387,7 @@ L1RCTLutWriter::writeEicLutFile(unsigned short card)
   system(command);
 
   // reopen file for writing values
-  lutFile_.open(filename, ios::app);
+  lutFile_.open(filename, std::ios::app);
 
   unsigned long data = 0;
 
@@ -417,7 +417,7 @@ L1RCTLutWriter::writeJscLutFile()
   sprintf(filename, "JSC-%s.dat", keyName_.c_str() );
 
   // open file; if it already existed, delete existing content
-  lutFile_.open(filename, ios::trunc);
+  lutFile_.open(filename, std::ios::trunc);
   lutFile_ << "Emulator parameter-generated lut file, key " << keyName_ 
 	   << "   ";
   // close to append time-stamp
@@ -425,7 +425,7 @@ L1RCTLutWriter::writeJscLutFile()
   sprintf(command, "date >> %s", filename);
   system(command);
   // reopen file for writing
-  lutFile_.open(filename, ios::app);
+  lutFile_.open(filename, std::ios::app);
 
   unsigned long data = 0;
   unsigned long data0 = 0;
@@ -459,7 +459,7 @@ L1RCTLutWriter::writeJscLutFile()
 		  data1 = 0xff;   // 8-bit output energy for each phi region
 		}
 	      data = (data1<<8) + (data0);
-	      lutFile_ << hex << data << dec << endl;
+	      lutFile_ << std::hex << data << std::dec << std::endl;
 	      /*
 	      if (phi0et < 10 && phi1et < 10)
 		{
@@ -487,7 +487,7 @@ L1RCTLutWriter::writeThresholdsFile(unsigned int eicThreshold,
   std::ofstream thresholdsFile;
   char filename[256];
   sprintf(filename, "Thresholds-%s.dat", keyName_.c_str() );
-  thresholdsFile.open(filename, ios::trunc);
+  thresholdsFile.open(filename, std::ios::trunc);
 
   thresholdsFile << "key is " << keyName_ << std::endl << std::endl;
   thresholdsFile << "eicIsolationThreshold " << eicThreshold << std::endl;

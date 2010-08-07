@@ -33,9 +33,9 @@ FitHist::configBlockFit(ConfigFile& cfg)
     evalType_ = cfg.read<int>( "evalType" );
   }
   catch(...){
-    cerr << "ERROR during reading of config file" << endl;
-    cerr << "      misspelled variables in cfg ?" << endl;
-    cerr << "      [--called in configBlockFit]"  << endl;
+    std::cerr << "ERROR during reading of config file" << std::endl;
+    std::cerr << "      misspelled variables in cfg ?" << std::endl;
+    std::cerr << "      [--called in configBlockFit]"  << std::endl;
     std::exit(1);
   }
 }
@@ -66,8 +66,8 @@ FitHist::isInFitTargetList(std::string& label)
         target.CompareTo(FitTarget::Res   ) ||
         target.CompareTo(FitTarget::Sigma ) ||
         target.CompareTo(FitTarget::Mean  ) )){
-    cerr << "ERROR while filling target histogram" << endl;
-    cerr << "      can't find prefix: "  << target << endl;
+    std::cerr << "ERROR while filling target histogram" << std::endl;
+    std::cerr << "      can't find prefix: "  << target << std::endl;
     return false;
   }
   return true;
@@ -101,9 +101,9 @@ FitHist::findFitHistogram(const TObjArray& hist, TString& zip, TString& name, in
       }
     }
   }
-  cout << "WARNING: could not find required histogram fit_" 
-       << refName << "_x" << endl
-       << "         return reference to Null" << endl;
+  std::cout << "WARNING: could not find required histogram fit_" 
+       << refName << "_x" << std::endl
+       << "         return reference to Null" << std::endl;
   return *(TH1F*)0;
 }
 
@@ -135,9 +135,9 @@ FitHist::findTargetHistogram(const TObjArray& hist, TString& zip, TString& name,
       }
     }
   }
-  cout << "WARNING: could not find required histogram " 
-       << target << refName << endl
-       << "         return reference to Null" << endl;
+  std::cout << "WARNING: could not find required histogram " 
+       << target << refName << std::endl
+       << "         return reference to Null" << std::endl;
   return *(TH1F*)0;
 }
 
@@ -358,8 +358,8 @@ FitHist::fitAndDrawPs()
       if ( cmp.BeginsWith(FitTarget::Fit) ){ //search for prefix 'fit'
 	psFile.NewPage();
 	if(verbose_){
-	  cout << endl << "about to fit histogram: " 
-	       << hfit.GetName() << " as " << cmp << endl; 
+	  std::cout << std::endl << "about to fit histogram: " 
+	       << hfit.GetName() << " as " << cmp << std::endl; 
 	}
 	//-----------------------------------------------
 	// determine proper bin by choping off everything

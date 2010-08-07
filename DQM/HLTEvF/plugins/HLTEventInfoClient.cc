@@ -34,7 +34,7 @@ HLTEventInfoClient::HLTEventInfoClient(const edm::ParameterSet& ps)
 }
 
 HLTEventInfoClient::~HLTEventInfoClient(){
- if(verbose_) cout <<"[TriggerDQM]: ending... " << endl;
+ if(verbose_) std::cout <<"[TriggerDQM]: ending... " << std::endl;
 }
 
 //--------------------------------------------------------
@@ -49,14 +49,14 @@ void HLTEventInfoClient::initialize(){
   // base folder for the contents of this job
   verbose_ = parameters_.getUntrackedParameter<bool>("verbose", false);
   
-  monitorDir_ = parameters_.getUntrackedParameter<string>("monitorDir","");
-  if(verbose_) cout << "Monitor dir = " << monitorDir_ << endl;
+  monitorDir_ = parameters_.getUntrackedParameter<std::string>("monitorDir","");
+  if(verbose_) std::cout << "Monitor dir = " << monitorDir_ << std::endl;
     
   prescaleLS_ = parameters_.getUntrackedParameter<int>("prescaleLS", -1);
-  if(verbose_) cout << "DQM lumi section prescale = " << prescaleLS_ << " lumi section(s)"<< endl;
+  if(verbose_) std::cout << "DQM lumi section prescale = " << prescaleLS_ << " lumi section(s)"<< std::endl;
   
   prescaleEvt_ = parameters_.getUntrackedParameter<int>("prescaleEvt", -1);
-  if(verbose_) cout << "DQM event prescale = " << prescaleEvt_ << " events(s)"<< endl;
+  if(verbose_) std::cout << "DQM event prescale = " << prescaleEvt_ << " events(s)"<< std::endl;
   
 
       
@@ -65,7 +65,7 @@ void HLTEventInfoClient::initialize(){
 //--------------------------------------------------------
 void HLTEventInfoClient::beginJob(){
 
-  if(verbose_) cout <<"[TriggerDQM]: Begin Job" << endl;
+  if(verbose_) std::cout <<"[TriggerDQM]: Begin Job" << std::endl;
   // get backendinterface  
   dbe_ = Service<DQMStore>().operator->();
 
@@ -229,7 +229,7 @@ void HLTEventInfoClient::analyze(const Event& e, const EventSetup& context){
    if (prescaleEvt_<1) return;
    if (prescaleEvt_>0 && counterEvt_%prescaleEvt_ != 0) return;
 
-   if(verbose_) cout << "HLTEventInfoClient::analyze" << endl;
+   if(verbose_) std::cout << "HLTEventInfoClient::analyze" << std::endl;
 
 
 }
@@ -244,27 +244,27 @@ void HLTEventInfoClient::endJob(){
 
 
 
-TH1F * HLTEventInfoClient::get1DHisto(string meName, DQMStore * dbi)
+TH1F * HLTEventInfoClient::get1DHisto(std::string meName, DQMStore * dbi)
 {
 
   MonitorElement * me_ = dbi->get(meName);
 
   if (!me_) { 
-    if(verbose_) cout << "ME NOT FOUND." << endl;
+    if(verbose_) std::cout << "ME NOT FOUND." << std::endl;
     return NULL;
   }
 
   return me_->getTH1F();
 }
 
-TH2F * HLTEventInfoClient::get2DHisto(string meName, DQMStore * dbi)
+TH2F * HLTEventInfoClient::get2DHisto(std::string meName, DQMStore * dbi)
 {
 
 
   MonitorElement * me_ = dbi->get(meName);
 
   if (!me_) { 
-    if(verbose_) cout << "ME NOT FOUND." << endl;
+    if(verbose_) std::cout << "ME NOT FOUND." << std::endl;
     return NULL;
   }
 
@@ -273,14 +273,14 @@ TH2F * HLTEventInfoClient::get2DHisto(string meName, DQMStore * dbi)
 
 
 
-TProfile2D *  HLTEventInfoClient::get2DProfile(string meName, DQMStore * dbi)
+TProfile2D *  HLTEventInfoClient::get2DProfile(std::string meName, DQMStore * dbi)
 {
 
 
   MonitorElement * me_ = dbi->get(meName);
 
   if (!me_) { 
-     if(verbose_) cout << "ME NOT FOUND." << endl;
+     if(verbose_) std::cout << "ME NOT FOUND." << std::endl;
    return NULL;
   }
 
@@ -288,14 +288,14 @@ TProfile2D *  HLTEventInfoClient::get2DProfile(string meName, DQMStore * dbi)
 }
 
 
-TProfile *  HLTEventInfoClient::get1DProfile(string meName, DQMStore * dbi)
+TProfile *  HLTEventInfoClient::get1DProfile(std::string meName, DQMStore * dbi)
 {
 
 
   MonitorElement * me_ = dbi->get(meName);
 
   if (!me_) { 
-    if(verbose_) cout << "ME NOT FOUND." << endl;
+    if(verbose_) std::cout << "ME NOT FOUND." << std::endl;
     return NULL;
   }
 

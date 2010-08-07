@@ -48,10 +48,10 @@ int main() {
   L1RCTReceiverCard flip(9,0,lut);
   L1RCTReceiverCard card(0,0,lut);
   L1RCTReceiverCard six(0,6,lut);
-  vector<unsigned short> input1(64);
-  vector<unsigned short> input2(64);
-  vector<unsigned short> input3(64);
-  vector<unsigned short> input4(64);
+  std::vector<unsigned short> input1(64);
+  std::vector<unsigned short> input2(64);
+  std::vector<unsigned short> input3(64);
+  std::vector<unsigned short> input4(64);
   input1.at(0) = 100;
   input1.at(1) = 100;
   input1.at(7) = 100;

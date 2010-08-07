@@ -11,7 +11,7 @@
 #include <sstream>
 // #include "DQM/SiStripMonitorClient/interface/SiStripQualityChecker.h"
 
-using namespace std;
+
 
 /**
   @class SiStripBadComponentsDQMService
@@ -39,8 +39,8 @@ class SiStripBadComponentsDQMService : public SiStripCondObjBuilderBase<SiStripB
   void openRequestedFile();
   // void scanTreeAndFillSummary(const std::vector<MonitorElement*>& MEs, SiStripBadStrip* summary,std::string& histoName, std::vector<std::string>& Quantities);
   uint32_t getRunNumber() const;
-  bool goToDir(DQMStore * dqm_store, string name);
-  void getModuleFolderList(DQMStore * dqm_store, vector<string>& mfolders);
+  bool goToDir(DQMStore * dqm_store, std::string name);
+  void getModuleFolderList(DQMStore * dqm_store, std::vector<std::string>& mfolders);
 
   DQMStore* dqmStore_;
 

@@ -44,12 +44,12 @@ int main() {
   L1RCTLookupTables* lut = new L1RCTLookupTables();
   lut->setRCTParameters(rctParameters);  // transcoder and etScale are not used
   L1RCTJetSummaryCard jsc(0,lut);
-  vector<unsigned short> hfregions(8);
-  vector<unsigned short> bregions(14);
-  vector<unsigned short> tauBits(14);
-  vector<unsigned short> mipBits(14);
-  vector<unsigned short> isoElectrons(14);
-  vector<unsigned short> nonIsoElectrons(14);
+  std::vector<unsigned short> hfregions(8);
+  std::vector<unsigned short> bregions(14);
+  std::vector<unsigned short> tauBits(14);
+  std::vector<unsigned short> mipBits(14);
+  std::vector<unsigned short> isoElectrons(14);
+  std::vector<unsigned short> nonIsoElectrons(14);
   isoElectrons.at(0) = 10;
   isoElectrons.at(1) = 20;
   isoElectrons.at(2) = 30;

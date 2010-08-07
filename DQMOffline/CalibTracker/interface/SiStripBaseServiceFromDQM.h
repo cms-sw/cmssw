@@ -18,7 +18,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
 
-using namespace std;
+
 
 /**
   @class SiStripBaseServiceFromDQM
@@ -44,9 +44,9 @@ class SiStripBaseServiceFromDQM : public SiStripCondObjBuilderBase<T>
   /// Uses DQMStore to access the DQM file
   void openRequestedFile();
   /// Uses DQM utilities to access the requested dir
-  bool goToDir(const string & name);
+  bool goToDir(const std::string & name);
   /// Fill the mfolders vector with the full list of directories for all the modules
-  void getModuleFolderList(vector<string>& mfolders);
+  void getModuleFolderList(std::vector<std::string>& mfolders);
   /// Returns the run number from the cfg
   uint32_t getRunNumber() const;
   /**
@@ -55,7 +55,7 @@ class SiStripBaseServiceFromDQM : public SiStripCondObjBuilderBase<T>
    * must be NAME, removing all the __det__DETID part. This latter part will be built
    * and attached internally using the provided detId.
    */
-  MonitorElement * getModuleHistogram(const uint32_t detId, const string & name);
+  MonitorElement * getModuleHistogram(const uint32_t detId, const std::string & name);
 
   DQMStore* dqmStore_;
   edm::ParameterSet iConfig_;
@@ -64,16 +64,16 @@ class SiStripBaseServiceFromDQM : public SiStripCondObjBuilderBase<T>
   // Simple functor to remove unneeded ME
   struct StringNotMatch
   {
-    StringNotMatch(const string & name) :
+    StringNotMatch(const std::string & name) :
       name_(name)
     {
     }
     bool operator()(const MonitorElement * ME) const
     {
-      return( ME->getName().find(name_) == string::npos );
+      return( ME->getName().find(name_) == std::string::npos );
     }
   protected:
-    string name_;
+    std::string name_;
   };
 
 };
@@ -115,20 +115,20 @@ void SiStripBaseServiceFromDQM<T>::openRequestedFile()
 }
 
 template <class T>
-bool SiStripBaseServiceFromDQM<T>::goToDir(const string & name)
+bool SiStripBaseServiceFromDQM<T>::goToDir(const std::string & name)
 {
-  string currDir = dqmStore_->pwd();
-  string dirName = currDir.substr(currDir.find_last_of("/")+1);
+  std::string currDir = dqmStore_->pwd();
+  std::string dirName = currDir.substr(currDir.find_last_of("/")+1);
   // Protection vs directories written with a trailing "/"
   if( dirName.length() == 0 ) {
-    string currDirCopy(currDir, 0, currDir.length()-1);
+    std::string currDirCopy(currDir, 0, currDir.length()-1);
     dirName = currDirCopy.substr(currDirCopy.find_last_of("/")+1);
   }
   if (dirName.find(name) == 0) {
     return true;
   }
-  vector<string> subDirVec = dqmStore_->getSubdirs();
-  for (vector<string>::const_iterator ic = subDirVec.begin();
+  std::vector<std::string> subDirVec = dqmStore_->getSubdirs();
+  for (std::vector<std::string>::const_iterator ic = subDirVec.begin();
        ic != subDirVec.end(); ic++) {
     dqmStore_->cd(*ic);
     if (!goToDir(name))  dqmStore_->goUp();
@@ -138,15 +138,15 @@ bool SiStripBaseServiceFromDQM<T>::goToDir(const string & name)
 }
 
 template <class T>
-void SiStripBaseServiceFromDQM<T>::getModuleFolderList(vector<string>& mfolders)
+void SiStripBaseServiceFromDQM<T>::getModuleFolderList(std::vector<std::string>& mfolders)
 {
-  string currDir = dqmStore_->pwd();
-  if (currDir.find("module_") != string::npos)  {
-    //    string mId = currDir.substr(currDir.find("module_")+7, 9);
+  std::string currDir = dqmStore_->pwd();
+  if (currDir.find("module_") != std::string::npos)  {
+    //    std::string mId = currDir.substr(currDir.find("module_")+7, 9);
     mfolders.push_back(currDir);
   } else {
-    vector<string> subdirs = dqmStore_->getSubdirs();
-    for( vector<string>::const_iterator it = subdirs.begin();
+    std::vector<std::string> subdirs = dqmStore_->getSubdirs();
+    for( std::vector<std::string>::const_iterator it = subdirs.begin();
          it != subdirs.end(); ++it) {
       dqmStore_->cd(*it);
       getModuleFolderList(mfolders);
@@ -156,17 +156,17 @@ void SiStripBaseServiceFromDQM<T>::getModuleFolderList(vector<string>& mfolders)
 }
 
 // template <class T>
-// MonitorElement * SiStripBaseServiceFromDQM<T>::getModuleHistogram(const uint32_t detId, const string & name)
+// MonitorElement * SiStripBaseServiceFromDQM<T>::getModuleHistogram(const uint32_t detId, const std::string & name)
 // {
 //   // Take the full path to the histogram
-//   string path;
+//   std::string path;
 //   folderOrganizer_->getFolderName(detId, path);
-//   cout << "path = " << path << endl;
+//   std::cout << "path = " << path << std::endl;
 //   // build the name of the histogram
-//   cout << "pwd = " << dqmStore_->pwd() << endl;
-//   // string fullName(dqmStore_->pwd()+"/"+path+"/"+name+"__det__");
-//   string fullName(path+"/"+name+"__det__");
-//   fullName += boost::lexical_cast<string>(detId);
+//   std::cout << "pwd = " << dqmStore_->pwd() << std::endl;
+//   // std::string fullName(dqmStore_->pwd()+"/"+path+"/"+name+"__det__");
+//   std::string fullName(path+"/"+name+"__det__");
+//   fullName += boost::lexical_cast<std::string>(detId);
 
 //   // ATTENTION: fixing the problem in the folderOrganizer
 //   size_t firstSlash = fullName.find_first_of("/");
@@ -174,7 +174,7 @@ void SiStripBaseServiceFromDQM<T>::getModuleFolderList(vector<string>& mfolders)
 //   // fullName = dqmStore_->pwd() + "/SiStrip/Run summary" + fullName;
 //   fullName = "SiStrip/Run summary" + fullName;
 
-//   cout << "fullName = " << fullName << endl;
+//   std::cout << "fullName = " << fullName << std::endl;
 
 //   return dqmStore_->get(fullName);
 // }
@@ -189,14 +189,14 @@ uint32_t SiStripBaseServiceFromDQM<T>::getRunNumber() const
 template <class T>
 void SiStripBaseServiceFromDQM<T>::getMetaDataString(std::stringstream& ss)
 {
-  cout << "SiStripPedestalsDQMService::getMetaDataString" << endl;
-  ss << "Run " << getRunNumber() << endl;
+  std::cout << "SiStripPedestalsDQMService::getMetaDataString" << std::endl;
+  ss << "Run " << getRunNumber() << std::endl;
 }
 
 template <class T>
 bool SiStripBaseServiceFromDQM<T>::checkForCompatibility(std::string ss)
 {
-  stringstream localString;
+  std::stringstream localString;
   getMetaDataString(localString);
   if( ss == localString.str() ) return false;
 

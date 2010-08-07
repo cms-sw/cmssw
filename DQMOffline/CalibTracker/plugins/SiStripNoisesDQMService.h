@@ -12,7 +12,7 @@
 #include <sstream>
 // #include "DQM/SiStripMonitorClient/interface/SiStripQualityChecker.h"
 
-using namespace std;
+
 
 /**
   @class SiStripNoisesDQMService

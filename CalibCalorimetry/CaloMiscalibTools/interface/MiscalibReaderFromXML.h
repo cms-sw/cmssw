@@ -5,8 +5,8 @@
  * *
  *  Parses the xml file to get miscalibration constants
  * 
- *  $Date: 2006/04/05 15:43:45 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/31 10:09:55 $
+ *  $Revision: 1.1 $
  *  \author Lorenzo Agostino
   */
 
@@ -26,8 +26,6 @@
 #include<vector>
 #include<map>
 
-
-using namespace xercesc;
 
 class MiscalibReaderFromXML{
 

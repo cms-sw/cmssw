@@ -35,18 +35,18 @@ L1RCTInputProducer::L1RCTInputProducer(const edm::ParameterSet& conf) :
   ecalDigisLabel(conf.getParameter<edm::InputTag>("ecalDigisLabel")),
   hcalDigisLabel(conf.getParameter<edm::InputTag>("hcalDigisLabel"))
 {
-  produces<vector<unsigned short> >("rctCrate");
-  produces<vector<unsigned short> >("rctCard");
-  produces<vector<unsigned short> >("rctTower");
-  produces<vector<unsigned int> >("rctEGammaET");
-  produces<vector<bool> >("rctHoEFGVetoBit");
-  produces<vector<unsigned int> >("rctJetMETET");
-  produces<vector<bool> >("rctTowerActivityBit");
-  produces<vector<bool> >("rctTowerMIPBit");
-  produces<vector<unsigned short> >("rctHFCrate");
-  produces<vector<unsigned short> >("rctHFRegion");
-  produces<vector<unsigned int> >("rctHFET");
-  produces<vector<bool> >("rctHFFG");
+  produces<std::vector<unsigned short> >("rctCrate");
+  produces<std::vector<unsigned short> >("rctCard");
+  produces<std::vector<unsigned short> >("rctTower");
+  produces<std::vector<unsigned int> >("rctEGammaET");
+  produces<std::vector<bool> >("rctHoEFGVetoBit");
+  produces<std::vector<unsigned int> >("rctJetMETET");
+  produces<std::vector<bool> >("rctTowerActivityBit");
+  produces<std::vector<bool> >("rctTowerMIPBit");
+  produces<std::vector<unsigned short> >("rctHFCrate");
+  produces<std::vector<unsigned short> >("rctHFRegion");
+  produces<std::vector<unsigned int> >("rctHFET");
+  produces<std::vector<bool> >("rctHFFG");
 }
 
 L1RCTInputProducer::~L1RCTInputProducer()
@@ -103,18 +103,18 @@ void L1RCTInputProducer::produce(edm::Event& event, const edm::EventSetup& event
   // Stuff to create
 
   std::auto_ptr<std::vector<unsigned short> > 
-    rctCrate(new vector<unsigned short>);
+    rctCrate(new std::vector<unsigned short>);
   std::auto_ptr<std::vector<unsigned short> > 
-    rctCard(new vector<unsigned short>);
+    rctCard(new std::vector<unsigned short>);
   std::auto_ptr<std::vector<unsigned short> > 
-    rctTower(new vector<unsigned short>);
+    rctTower(new std::vector<unsigned short>);
   std::auto_ptr<std::vector<unsigned int> > 
-    rctEGammaET(new vector<unsigned int>);
-  std::auto_ptr<std::vector<bool> > rctHoEFGVetoBit(new vector<bool>);
+    rctEGammaET(new std::vector<unsigned int>);
+  std::auto_ptr<std::vector<bool> > rctHoEFGVetoBit(new std::vector<bool>);
   std::auto_ptr<std::vector<unsigned int> > 
-    rctJetMETET(new vector<unsigned int>);
-  std::auto_ptr<std::vector<bool> > rctTowerActivityBit(new vector<bool>);
-  std::auto_ptr<std::vector<bool> > rctTowerMIPBit(new vector<bool>);
+    rctJetMETET(new std::vector<unsigned int>);
+  std::auto_ptr<std::vector<bool> > rctTowerActivityBit(new std::vector<bool>);
+  std::auto_ptr<std::vector<bool> > rctTowerMIPBit(new std::vector<bool>);
   
   for(int crate = 0; crate < 18; crate++) {
     for(int card = 0; card < 7; card++) {
@@ -148,11 +148,11 @@ void L1RCTInputProducer::produce(edm::Event& event, const edm::EventSetup& event
   }
 
   std::auto_ptr<std::vector<unsigned short> > 
-    rctHFCrate(new vector<unsigned short>);
+    rctHFCrate(new std::vector<unsigned short>);
   std::auto_ptr<std::vector<unsigned short> > 
-    rctHFRegion(new vector<unsigned short>);
-  std::auto_ptr<std::vector<unsigned int> > rctHFET(new vector<unsigned int>);
-  std::auto_ptr<std::vector<bool> > rctHFFG(new vector<bool>);
+    rctHFRegion(new std::vector<unsigned short>);
+  std::auto_ptr<std::vector<unsigned int> > rctHFET(new std::vector<unsigned int>);
+  std::auto_ptr<std::vector<bool> > rctHFFG(new std::vector<bool>);
   for(int crate = 0; crate < 18; crate++) {
     for(int hfRegion = 0; hfRegion < 8; hfRegion++) {
       unsigned short hfCompressedET = rct->hfCompressedET(crate, hfRegion);

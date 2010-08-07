@@ -4,8 +4,8 @@
  * \author Andrea Gozzelino - Universita%Gï¿½%@ e INFN Torino
  * \author Stefano Argiro
  *        
- * $Date: 2009/10/15 11:31:29 $
- * $Revision: 1.2 $
+ * $Date: 2009/12/08 17:24:45 $
+ * $Revision: 1.4 $
  *
  *
  * Description: Monitoring of Phi Symmetry Calibration Stream  
@@ -44,13 +44,13 @@ HLTAlCaMonEcalPhiSym::HLTAlCaMonEcalPhiSym( const edm::ParameterSet& ps ) :
 eventCounter_(0)
 {
   dbe_ = Service<DQMStore>().operator->();
-  folderName_ = ps.getUntrackedParameter<string>("FolderName","ALCAStreamEcalPhiSym");
+  folderName_ = ps.getUntrackedParameter<std::string>("FolderName","ALCAStreamEcalPhiSym");
   prescaleFactor_ = ps.getUntrackedParameter<int>("prescaleFactor",1);
   productMonitoredEB_= ps.getUntrackedParameter<edm::InputTag>("AlCaStreamEBTag");
   productMonitoredEE_= ps.getUntrackedParameter<edm::InputTag>("AlCaStreamEETag");
 
   saveToFile_=ps.getUntrackedParameter<bool>("SaveToFile",false);
-  fileName_=  ps.getUntrackedParameter<string>("FileName","MonitorAlCaEcalPhiSym.root");
+  fileName_=  ps.getUntrackedParameter<std::string>("FileName","MonitorAlCaEcalPhiSym.root");
 
   // histogram parameters
 

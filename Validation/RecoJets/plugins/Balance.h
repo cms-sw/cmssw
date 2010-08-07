@@ -11,7 +11,7 @@ class Balance {
   Balance(){};
   ~Balance(){};
   double operator()(const reco::Candidate& ref, const reco::Candidate& rec)
-  { return fabs( fabs(deltaPhi(ref.phi(), rec.phi()))-TMath::Pi()); };
+  { return fabs( fabs(reco::deltaPhi(ref.phi(), rec.phi()))-TMath::Pi()); };
 };
 
 #endif

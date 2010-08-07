@@ -26,10 +26,10 @@ void SiStripBadComponentsDQMServiceReader::analyze( const edm::Event& e, const e
   iSetup.get<SiStripBadStripRcd>().get(SiStripBadStrip_);
   edm::LogInfo("SiStripBadComponentsDQMServiceReader") << "[SiStripBadComponentsDQMServiceReader::analyze] End Reading SiStripBadStrip" << std::endl;
 
-  vector<uint32_t> detid;
+  std::vector<uint32_t> detid;
   SiStripBadStrip_->getDetIds(detid);
 
-  stringstream ss;
+  std::stringstream ss;
 
   // ss << " detid" << " \t\t\t" << "FED error" << " \t" << "Digi test failed" << " \t" << "Cluster test failed" << std::endl;
 
@@ -47,21 +47,21 @@ void SiStripBadComponentsDQMServiceReader::analyze( const edm::Event& e, const e
       printError( ss, ((flag & FedErrorMask) == FedErrorMask), "Fed error, " );
       printError( ss, ((flag & DigiErrorMask) == DigiErrorMask), "Digi error, " );
       printError( ss, ((flag & ClusterErrorMask) == ClusterErrorMask), "Cluster error" );
-      ss << endl;
+      ss << std::endl;
 
       if (printdebug_) {
         ss << " firstBadStrip " <<  SiStripBadStrip_->decode(value).firstStrip << "\t "
-           << " NconsecutiveBadStrips " << SiStripBadStrip_->decode(value).range << "\t " // << endl;
+           << " NconsecutiveBadStrips " << SiStripBadStrip_->decode(value).range << "\t " // << std::endl;
            << " flag " << SiStripBadStrip_->decode(value).flag << "\t "
-           << " packed integer " <<  std::hex << value << std::dec << "\t " << endl;
+           << " packed integer " <<  std::hex << value << std::dec << "\t " << std::endl;
       }
     }
-    ss << endl;
+    ss << std::endl;
   }
   edm::LogInfo("SiStripBadComponentsDQMServiceReader") << ss.str();
 }
 
-void SiStripBadComponentsDQMServiceReader::printError( stringstream & ss, const bool error, const string & errorText)
+void SiStripBadComponentsDQMServiceReader::printError( std::stringstream & ss, const bool error, const std::string & errorText)
 {
   if( error ) {
     ss << errorText << "\t ";
@@ -73,7 +73,7 @@ void SiStripBadComponentsDQMServiceReader::printError( stringstream & ss, const 
 
 string SiStripBadComponentsDQMServiceReader::detIdToString(const DetId & detid)
 {
-  string detector;
+  std::string detector;
   int layer = 0;
   int stereo = 0;
   int side = -1;
@@ -117,7 +117,7 @@ string SiStripBadComponentsDQMServiceReader::detIdToString(const DetId & detid)
       break;
     }
   }
-  string name( detector + "\t" + boost::lexical_cast<string>(layer) + "\t" + boost::lexical_cast<string>(stereo) + "\t" );
+  std::string name( detector + "\t" + boost::lexical_cast<string>(layer) + "\t" + boost::lexical_cast<string>(stereo) + "\t" );
   if( side == 1 ) {
     name += "-";
   }

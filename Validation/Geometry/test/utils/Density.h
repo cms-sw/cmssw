@@ -18,15 +18,13 @@
 #include <iostream>
 #include <fstream>
 
-using namespace std;
-
 // histograms
 // Target
 TProfile* prof_density_vs_eta;
 //
 
 // logfile
-ofstream theLogFile;
+std::ofstream theLogFile;
 //
 
 // plot range

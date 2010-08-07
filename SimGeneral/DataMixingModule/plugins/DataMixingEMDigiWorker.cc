@@ -102,7 +102,7 @@ namespace edm
      EBDigis = pEBDigis.product(); // get a ptr to the product
      LogDebug("DataMixingEMDigiWorker") << "total # EB digis: " << EBDigis->size();
    }
-   else { cout << "NO EBDigis! " << EBProducerSig_.label() << " " << EBdigiCollectionSig_.label() << endl;}
+   else { std::cout << "NO EBDigis! " << EBProducerSig_.label() << " " << EBdigiCollectionSig_.label() << std::endl;}
  
    if (EBDigis)
      {
@@ -302,13 +302,13 @@ namespace edm
       if (currentID == formerID) { // we have to add these digis together
 	/*	
 	cout<< " Adding signals " << EBDetId(currentID).ieta() << " " 
-	                          << EBDetId(currentID).iphi() << endl;
+	                          << EBDetId(currentID).iphi() << std::endl;
 
 	cout << 1 << " " ; 
-	for (int i=0; i<10;++i)  cout << EB_old[i].adc()<< "["<<EB_old[i].gainId()<< "] " ; cout << endl;
+	for (int i=0; i<10;++i)  std::cout << EB_old[i].adc()<< "["<<EB_old[i].gainId()<< "] " ; std::cout << std::endl;
  
 	cout << 2 << " " ; 
-	for (int i=0; i<10;++i)  cout << (iEB->second)[i].adc()<< "["<<(iEB->second)[i].gainId()<< "] " ; cout << endl;
+	for (int i=0; i<10;++i)  std::cout << (iEB->second)[i].adc()<< "["<<(iEB->second)[i].gainId()<< "] " ; std::cout << std::endl;
 	*/
 	//loop over digi samples in each DataFrame
 	uint sizenew = (iEB->second).size();
@@ -336,8 +336,8 @@ namespace edm
 	  }
 	  else { adc_old = 0;}
 
-	  const vector<float> pedeStals = GetPedestals(ES,currentID);
-	  const vector<float> gainRatios = GetGainRatios(ES,currentID);
+	  const std::vector<float> pedeStals = GetPedestals(ES,currentID);
+	  const std::vector<float> gainRatios = GetGainRatios(ES,currentID);
 
 	  if(adc_new>0 && adc_old>0) {
 	    if(gain_old == gain_new) {  // we're happy - easy case
@@ -447,8 +447,8 @@ namespace edm
 	  }
 	  else { adc_old = 0;}
 
-	  const vector<float> pedeStals = GetPedestals(ES,currentID);
-	  const vector<float> gainRatios = GetGainRatios(ES,currentID);
+	  const std::vector<float> pedeStals = GetPedestals(ES,currentID);
+	  const std::vector<float> gainRatios = GetGainRatios(ES,currentID);
 
 	  if(adc_new>0 && adc_old>0) {
 	    if(gain_old == gain_new) {  // we're happy - easy case
@@ -594,9 +594,9 @@ namespace edm
     ESDigiStorage_.clear();
 
   }
-  const vector<float>  DataMixingEMDigiWorker::GetPedestals (const edm::EventSetup& ES, const DetId& detid) {
+  const std::vector<float>  DataMixingEMDigiWorker::GetPedestals (const edm::EventSetup& ES, const DetId& detid) {
     
-    vector<float> pedeStals(3);
+    std::vector<float> pedeStals(3);
 
     // get pedestals
     edm::ESHandle<EcalPedestals> pedHandle;
@@ -625,9 +625,9 @@ namespace edm
     return pedeStals;
   }
 
-  const vector<float>  DataMixingEMDigiWorker::GetGainRatios(const edm::EventSetup& ES, const DetId& detid) {
+  const std::vector<float>  DataMixingEMDigiWorker::GetGainRatios(const edm::EventSetup& ES, const DetId& detid) {
 
-    vector<float> gainRatios(3);
+    std::vector<float> gainRatios(3);
     // get gain ratios  
     edm::ESHandle<EcalGainRatios> grHandle;
     ES.get<EcalGainRatiosRcd>().get(grHandle);

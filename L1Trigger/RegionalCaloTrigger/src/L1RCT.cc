@@ -57,8 +57,8 @@ L1RCT::L1RCT(const L1RCTLookupTables* rctLookupTables) :
   rctLookupTables_(rctLookupTables),
   empty(),
   neighborMap(),
-  barrel(18,vector<vector<unsigned short> >(7,vector<unsigned short>(64))),
-  hf(18,vector<unsigned short>(8))
+  barrel(18,std::vector<std::vector<unsigned short> >(7,std::vector<unsigned short>(64))),
+  hf(18,std::vector<unsigned short>(8))
 {
   makeCrates();
 }
@@ -70,8 +70,8 @@ void L1RCT::input()
   }
 }
 
-void L1RCT::input(vector<vector<vector<unsigned short> > > barrelIn,
-		  vector<vector<unsigned short> > hfIn)
+void L1RCT::input(std::vector<std::vector<std::vector<unsigned short> > > barrelIn,
+		  std::vector<std::vector<unsigned short> > hfIn)
 {
   for(int i = 0; i<18; i++){
     crates.at(i).input(barrelIn.at(i),hfIn.at(i));
@@ -330,7 +330,7 @@ void L1RCT::print(){
 // Returns the top four isolated electrons from given crate
 // in a vector of L1CaloEmCands
 L1CaloEmCollection L1RCT::getIsolatedEGObjects(unsigned crate){
-  vector<unsigned short> isoEmObjects = crates.at(crate).getIsolatedEGObjects();
+  std::vector<unsigned short> isoEmObjects = crates.at(crate).getIsolatedEGObjects();
   L1CaloEmCollection isoEmCands;
   for (uint16_t i = 0; i < 4; i++){
     unsigned rgn = ((isoEmObjects.at(i)) & 1);
@@ -347,7 +347,7 @@ L1CaloEmCollection L1RCT::getIsolatedEGObjects(unsigned crate){
 // Returns the top four nonisolated electrons from the given crate
 // in a vector of L1CaloEmCands
 L1CaloEmCollection L1RCT::getNonisolatedEGObjects(unsigned crate){
-  vector<unsigned short> nonIsoEmObjects = crates.at(crate).getNonisolatedEGObjects();
+  std::vector<unsigned short> nonIsoEmObjects = crates.at(crate).getNonisolatedEGObjects();
   L1CaloEmCollection nonIsoEmCands;
   for (uint16_t i = 0; i < 4; i++){
     unsigned rgn = ((nonIsoEmObjects.at(i)) & 1);
@@ -366,8 +366,8 @@ vector<L1CaloRegion> L1RCT::getRegions(unsigned crate){
   std::bitset<14> mips( (long) crates.at(crate).getMIPBits());
   std::bitset<14> quiets( (long) crates.at(crate).getQuietBits());
   std::bitset<14> overflows( (long) crates.at(crate).getOverFlowBits());
-  vector<unsigned short> barrelEnergies = crates.at(crate).getBarrelRegions();
-  vector<L1CaloRegion> regionCollection;
+  std::vector<unsigned short> barrelEnergies = crates.at(crate).getBarrelRegions();
+  std::vector<L1CaloRegion> regionCollection;
   for (unsigned card = 0; card < 7; card++){
     for (unsigned rgn = 0; rgn < 2; rgn++){
       bool tau = taus[card*2+rgn];
@@ -381,9 +381,9 @@ vector<L1CaloRegion> L1RCT::getRegions(unsigned crate){
   }
 
   // hf regions
-  vector<unsigned short> hfEnergies = crates.at(crate).getHFRegions();
+  std::vector<unsigned short> hfEnergies = crates.at(crate).getHFRegions();
   // fine grain bits -- still have to work out digi input
-  vector<unsigned short> hfFineGrainBits = crates.at(crate).getHFFineGrainBits();
+  std::vector<unsigned short> hfFineGrainBits = crates.at(crate).getHFFineGrainBits();
   for (unsigned hfRgn = 0; hfRgn<8; hfRgn++){  // region number, see diagram on paper.  make sure know how hf regions come in. 
     unsigned energy = hfEnergies.at(hfRgn);
     bool fineGrain = hfFineGrainBits.at(hfRgn);

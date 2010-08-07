@@ -14,8 +14,8 @@ using namespace std;
 
 HLTMonMuonClient::HLTMonMuonClient(const edm::ParameterSet& ps){
  
-  //indir_   = ps.getUntrackedParameter<string>("input_dir","HLT/HLTMonMuon/Summary");
-  //outdir_  = ps.getUntrackedParameter<string>("output_dir","HLT/HLTMonMuon/Client");    
+  //indir_   = ps.getUntrackedParameter<std::string>("input_dir","HLT/HLTMonMuon/Summary");
+  //outdir_  = ps.getUntrackedParameter<std::string>("output_dir","HLT/HLTMonMuon/Client");    
 
   dbe_ = NULL;
   //if (ps.getUntrackedParameter < bool > ("DQMStore", false)) {

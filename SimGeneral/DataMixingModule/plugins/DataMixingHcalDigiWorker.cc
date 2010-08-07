@@ -103,7 +103,7 @@ namespace edm
      HBHEDigis = pHBHEDigis.product(); // get a ptr to the product
      LogDebug("DataMixingHcalDigiWorker") << "total # HBHE digis: " << HBHEDigis->size();
    } 
-   //   else { cout << "NO HBHE Digis " << HBHEdigiCollectionSig_.label() << endl;}
+   //   else { std::cout << "NO HBHE Digis " << HBHEdigiCollectionSig_.label() << std::endl;}
    
  
    if (HBHEDigis)

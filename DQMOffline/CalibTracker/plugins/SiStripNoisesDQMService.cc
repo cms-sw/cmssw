@@ -27,17 +27,17 @@ SiStripNoisesDQMService::~SiStripNoisesDQMService()
 
 void SiStripNoisesDQMService::readNoises()
 {
-  cout << "SiStripNoisesDQMService::readNoises" << endl;
+  std::cout << "SiStripNoisesDQMService::readNoises" << std::endl;
 
   openRequestedFile();
 
-  cout << "[readBadComponents]: opened requested file" << endl;
+  std::cout << "[readBadComponents]: opened requested file" << std::endl;
 
   obj_= new SiStripNoises;
 
   SiStripDetInfoFileReader reader(fp_.fullPath());
 
-  // dqmStore_->cd(iConfig_.getUntrackedParameter<string>("ME_DIR"));
+  // dqmStore_->cd(iConfig_.getUntrackedParameter<std::string>("ME_DIR"));
   dqmStore_->cd();
 
   uint32_t stripsPerApv = 128;
@@ -46,9 +46,9 @@ void SiStripNoisesDQMService::readNoises()
   // const std::vector<MonitorElement*>& MEs = dqmStore_->getAllContents(iConfig_.getUntrackedParameter<std::string>("ME_DIR","DQMData"));
 
   // Take a copy of the vector
-  vector<MonitorElement*> MEs = dqmStore_->getAllContents(iConfig_.getUntrackedParameter<string>("ME_DIR","DQMData"));
+  std::vector<MonitorElement*> MEs = dqmStore_->getAllContents(iConfig_.getUntrackedParameter<std::string>("ME_DIR","DQMData"));
   // Remove all but the MEs we are using
-  vector<MonitorElement*>::iterator newEnd = remove_if(MEs.begin(), MEs.end(), StringNotMatch("CMSubNoisePerStrip__det__"));
+  std::vector<MonitorElement*>::iterator newEnd = remove_if(MEs.begin(), MEs.end(), StringNotMatch("CMSubNoisePerStrip__det__"));
   MEs.erase(newEnd, MEs.end());
 
   // The histograms are one per DetId, loop on all the DetIds and extract the corresponding histogram
@@ -65,8 +65,8 @@ void SiStripNoisesDQMService::readNoises()
 
 
     MonitorElement * mE = 0;
-    string MEname("CMSubNoisePerStrip__det__"+boost::lexical_cast<string>(it->first));
-    for( vector<MonitorElement*>::const_iterator MEit = MEs.begin();
+    std::string MEname("CMSubNoisePerStrip__det__"+boost::lexical_cast<string>(it->first));
+    for( std::vector<MonitorElement*>::const_iterator MEit = MEs.begin();
          MEit != MEs.end(); ++MEit ) {
       if( (*MEit)->getName() == MEname ) {
         mE = *MEit;
@@ -86,10 +86,10 @@ void SiStripNoisesDQMService::readNoises()
         uint32_t nBinsX = histo->GetXaxis()->GetNbins();
 
         if( nBinsX != stripsPerApv*(it->second.nApvs) ) {
-          cout << "ERROR: number of bin = " << nBinsX << " != number of strips = " << stripsPerApv*(it->second.nApvs) << endl;
+          std::cout << "ERROR: number of bin = " << nBinsX << " != number of strips = " << stripsPerApv*(it->second.nApvs) << std::endl;
         }
 
-        // cout << "Bin 0 = " << histo->GetBinContent(0) << endl;
+        // std::cout << "Bin 0 = " << histo->GetBinContent(0) << std::endl;
 
         // TH1 bins start from 1, 0 is the underflow, nBinsX+1 the overflow.
         for( uint32_t iBin = 1; iBin <= nBinsX; ++iBin ) {
@@ -98,11 +98,11 @@ void SiStripNoisesDQMService::readNoises()
         }
       }
       else {
-        cout << "ERROR: histo = " << histo << endl;
+        std::cout << "ERROR: histo = " << histo << std::endl;
       }
     }
     else {
-      cout << "ERROR: ME = " << mE << endl;
+      std::cout << "ERROR: ME = " << mE << std::endl;
     }
     // If the ME was absent fill the vector with 50 (we want a high noise to avoid these modules being considered good by mistake)
     if( theSiStripVector.empty() ) {

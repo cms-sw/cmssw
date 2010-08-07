@@ -31,14 +31,14 @@ HLTOniaSource::HLTOniaSource(const edm::ParameterSet& pset){
   LogVerbatim ("oniatriggermonitor") << "[HLTOniaSource]: Constructor";
  
   //HLTrigger Path Names
-  vector<string> myTriggerPaths;
+  std::vector<std::string> myTriggerPaths;
   myTriggerPaths.push_back("HLT_Mu0_Track0_Jpsi");
   myTriggerPaths.push_back("HLT_Mu3_Track0_Jpsi");
   myTriggerPaths.push_back("HLT_Mu5_Track0_Jpsi");
-  triggerPath_ = pset.getUntrackedParameter<vector<string> >("TriggerPathNames",myTriggerPaths);
+  triggerPath_ = pset.getUntrackedParameter<std::vector<std::string> >("TriggerPathNames",myTriggerPaths);
 
   //Tag for Onia Muons
-  vector<InputTag> myOniaMuonTags;
+  std::vector<InputTag> myOniaMuonTags;
                                          
   myOniaMuonTags.push_back(InputTag("hltMu0TrackJpsiL3Filtered0", "", "HLT"));
   myOniaMuonTags.push_back(InputTag("hltMu3TrackJpsiL3Filtered3", "", "HLT"));
@@ -55,23 +55,23 @@ HLTOniaSource::HLTOniaSource(const edm::ParameterSet& pset){
 
   //Tag Trigger Summary
   triggerSummaryRAWTag_ = pset.getUntrackedParameter<InputTag>("TriggerSummaryTag",edm::InputTag("hltTriggerSummaryRAW", "", "HLT"));
-  hltProcessName_  = pset.getUntrackedParameter<string>("TriggerProcessName","HLT");
+  hltProcessName_  = pset.getUntrackedParameter<std::string>("TriggerProcessName","HLT");
   //Tag for Pixel tracks after Onia filter
-  vector<InputTag> pxlTagsAfterFilter;
+  std::vector<InputTag> pxlTagsAfterFilter;
   pxlTagsAfterFilter.push_back(InputTag("hltMu0TrackJpsiPixelMassFiltered", "", "HLT"));
   pxlTagsAfterFilter.push_back(InputTag("hltMu3TrackJpsiPixelMassFiltered", "", "HLT"));
   pxlTagsAfterFilter.push_back(InputTag("hltMu5TrackJpsiPixelMassFiltered", "", "HLT"));
-  pixelTagsAfterFilter_=  pset.getUntrackedParameter< vector<edm::InputTag> >("PixelTagAfterFilter",pxlTagsAfterFilter);
+  pixelTagsAfterFilter_=  pset.getUntrackedParameter< std::vector<edm::InputTag> >("PixelTagAfterFilter",pxlTagsAfterFilter);
 
   //Tag for Tracker tracks after Onia filter
-  vector<InputTag> trxTagsAfterFilter;
+  std::vector<InputTag> trxTagsAfterFilter;
   trxTagsAfterFilter.push_back(InputTag("hltMu0TrackJpsiTrackMassFiltered", "", "HLT"));
   trxTagsAfterFilter.push_back(InputTag("hltMu3TrackJpsiTrackMassFiltered", "", "HLT"));
   trxTagsAfterFilter.push_back(InputTag("hltMu5TrackJpsiTrackMassFiltered", "", "HLT"));
-  trackTagsAfterFilter_ = pset.getUntrackedParameter< vector<edm::InputTag> >("TrackTagAfterFilter",trxTagsAfterFilter);
+  trackTagsAfterFilter_ = pset.getUntrackedParameter< std::vector<edm::InputTag> >("TrackTagAfterFilter",trxTagsAfterFilter);
 
   //Foldering output
-  subsystemFolder_ = pset.getUntrackedParameter<string>("SubSystemFolder","HLT/HLTMonMuon/Onia");
+  subsystemFolder_ = pset.getUntrackedParameter<std::string>("SubSystemFolder","HLT/HLTMonMuon/Onia");
 }
 
 
@@ -189,9 +189,9 @@ void HLTOniaSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
     for(size_t i=0; i<oniaMuonTag_.size(); i++){
 
-      vector<RecoChargedCandidateRef> myMuonFilterCands;        
-      vector<RecoChargedCandidateRef> myPixelFilterCands;   
-      vector<RecoChargedCandidateRef> myTrackFilterCands;   
+      std::vector<RecoChargedCandidateRef> myMuonFilterCands;        
+      std::vector<RecoChargedCandidateRef> myPixelFilterCands;   
+      std::vector<RecoChargedCandidateRef> myTrackFilterCands;   
       
       //Get Onia Muons
       size_t indexM = rawTriggerEvent->filterIndex(oniaMuonTag_[i]);
@@ -240,9 +240,9 @@ void HLTOniaSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 void  HLTOniaSource::endJob() {}
 
-void  HLTOniaSource::bookOniaTriggerMEs( map<string, MonitorElement *>  & myMap, string meName){
+void  HLTOniaSource::bookOniaTriggerMEs( std::map<std::string, MonitorElement *>  & myMap, std::string meName){
 
-    stringstream myMeName;
+    std::stringstream myMeName;
 
     //PT    
     myMeName.str("");
@@ -327,9 +327,9 @@ void  HLTOniaSource::bookOniaTriggerMEs( map<string, MonitorElement *>  & myMap,
 }
 
 
-void  HLTOniaSource::bookOniaTriggerInvariantMassMEs( map<string, MonitorElement *>  & myMap, string label1, string label2 ){
+void  HLTOniaSource::bookOniaTriggerInvariantMassMEs( std::map<std::string, MonitorElement *>  & myMap, std::string label1, std::string label2 ){
 
-  stringstream meName;
+  std::stringstream meName;
   //Same charge 
   meName.str("");
   meName<<label1<<"_"<<label2<<"_SameCharge_InvariantMass";
@@ -379,8 +379,8 @@ void  HLTOniaSource::bookOniaTriggerInvariantMassMEs( map<string, MonitorElement
 }
 
 
-void  HLTOniaSource::fillOniaTriggerMEs( Handle<TrackCollection> &  collection, string collectionLabel,  map<string, MonitorElement *>  & mapME ){
-   // cout << "[HLTOniaSource]: fillOniaTriggerMEs " << collectionLabel << endl;
+void  HLTOniaSource::fillOniaTriggerMEs( Handle<TrackCollection> &  collection, std::string collectionLabel,  std::map<std::string, MonitorElement *>  & mapME ){
+   // std::cout << "[HLTOniaSource]: fillOniaTriggerMEs " << collectionLabel << std::endl;
 
   TrackCollection myCollection;
   if (collection.isValid()) {
@@ -413,7 +413,7 @@ void  HLTOniaSource::fillOniaTriggerMEs( Handle<TrackCollection> &  collection, 
 }
 
 
-void  HLTOniaSource::fillOniaTriggerMEs(std::vector<reco::RecoChargedCandidateRef>  &  candidateVector, string collectionLabel,  map<string, MonitorElement *>  & mapME ){
+void  HLTOniaSource::fillOniaTriggerMEs(std::vector<reco::RecoChargedCandidateRef>  &  candidateVector, std::string collectionLabel,  std::map<std::string, MonitorElement *>  & mapME ){
     
   for (unsigned int  i=0; i!=candidateVector.size(); i++) {
    TrackRef tk = candidateVector[i]->get<TrackRef>();
@@ -442,7 +442,7 @@ void  HLTOniaSource::fillOniaTriggerMEs(std::vector<reco::RecoChargedCandidateRe
 }
 
 
-void  HLTOniaSource::fillOniaTriggerMEs( Handle<RecoChargedCandidateCollection> &  collection, string collectionLabel,  map<string, MonitorElement *>  & mapME ){
+void  HLTOniaSource::fillOniaTriggerMEs( Handle<RecoChargedCandidateCollection> &  collection, std::string collectionLabel,  std::map<std::string, MonitorElement *>  & mapME ){
 
   RecoChargedCandidateCollection myCollection;
   if (collection.isValid()) {
@@ -478,7 +478,7 @@ void  HLTOniaSource::fillOniaTriggerMEs( Handle<RecoChargedCandidateCollection> 
 }
 
  
-void HLTOniaSource::fillInvariantMass(vector<RecoChargedCandidateRef> & cand1,  vector<RecoChargedCandidateRef> & cand2, string cand1Label, string  cand2Label){
+void HLTOniaSource::fillInvariantMass(std::vector<RecoChargedCandidateRef> & cand1,  std::vector<RecoChargedCandidateRef> & cand2, std::string cand1Label, std::string  cand2Label){
 
     //Loop on collection to calculate invariate mass
     for(size_t i = 0 ; i< cand1.size(); i++) {
@@ -530,7 +530,7 @@ void HLTOniaSource::fillInvariantMass(vector<RecoChargedCandidateRef> & cand1,  
 
 }
 
-void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef> & cand1,  RecoChargedCandidateCollection &  cand2, string cand1Label, string  cand2Label){
+void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef> & cand1,  RecoChargedCandidateCollection &  cand2, std::string cand1Label, std::string  cand2Label){
   
   typedef RecoChargedCandidateCollection::const_iterator cand;
     //Loop on collection to calculate invariate mass
@@ -581,7 +581,7 @@ void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef>
 
 
 
-void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef> & cand1,  TrackCollection &  cand2, string cand1Label, string  cand2Label){
+void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef> & cand1,  TrackCollection &  cand2, std::string cand1Label, std::string  cand2Label){
   
   typedef TrackCollection::const_iterator cand;
 
@@ -641,25 +641,25 @@ bool HLTOniaSource::checkHLTConfiguration(const edm::Run & run, const edm::Event
   HLTConfigProvider hltConfig;
   bool changed(false);
   if(hltConfig.init(run , setup, triggerProcessName, changed)){
-    LogVerbatim("hltoniasource") << "Successfully initialized HLTConfigProvider with process name: "<<triggerProcessName<<endl;
+    LogVerbatim("hltoniasource") << "Successfully initialized HLTConfigProvider with process name: "<<triggerProcessName<<std::endl;
 
-    stringstream os;
-    vector<string> triggerNames = hltConfig.triggerNames();
+    std::stringstream os;
+    std::vector<std::string> triggerNames = hltConfig.triggerNames();
     
     for( size_t i = 0; i < triggerNames.size(); i++) {
       if (find(triggerPath_.begin(), triggerPath_.end(), triggerNames[i]) == triggerPath_.end()) continue; 
-      LogVerbatim("hltoniasource") << "[HLTOniaSource]: Trigger Path: "<<triggerNames[i]<<endl;
-      vector<string> moduleNames = hltConfig.moduleLabels( triggerNames[i] );
+      LogVerbatim("hltoniasource") << "[HLTOniaSource]: Trigger Path: "<<triggerNames[i]<<std::endl;
+      std::vector<std::string> moduleNames = hltConfig.moduleLabels( triggerNames[i] );
       for( size_t j = 0; j < moduleNames.size(); j++) {
 	TString name = moduleNames[j];
-	LogVerbatim("hltoniasource") << "\t  Fliter Name: "<<moduleNames[j]<<endl;
+	LogVerbatim("hltoniasource") << "\t  Fliter Name: "<<moduleNames[j]<<std::endl;
       }
     }
 
     return true;
 
   }else{
-    LogVerbatim("hltoniasource") << "Could not initialize HLTConfigProvider with process name: "<<triggerProcessName<<endl;
+    LogVerbatim("hltoniasource") << "Could not initialize HLTConfigProvider with process name: "<<triggerProcessName<<std::endl;
     return false;  
   }
   return true;

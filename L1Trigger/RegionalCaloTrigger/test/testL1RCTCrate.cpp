@@ -47,8 +47,8 @@ int main(){
   L1RCTLookupTables* lut = new L1RCTLookupTables();
   lut->setRCTParameters(rctParameters);  // transcoder and etScale are not used
   L1RCTCrate crate(0, lut);
-  vector<vector<unsigned short> > b(7,vector<unsigned short>(64));
-  vector<unsigned short> hf(8);
+  std::vector<std::vector<unsigned short> > b(7,std::vector<unsigned short>(64));
+  std::vector<unsigned short> hf(8);
   crate.input(b,hf);
   crate.print();
 }

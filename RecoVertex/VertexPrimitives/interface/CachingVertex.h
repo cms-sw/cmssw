@@ -15,7 +15,7 @@
 #include <vector>
 #include <map>
 
-using namespace std;
+
 
 /** Class for vertices fitted with Kalman and linear fit algorithms. 
  *  Provides access to temporary data to speed up the vertex update. 
@@ -36,45 +36,45 @@ public:
   /** Constructors
    */
   CachingVertex(const GlobalPoint & pos, const GlobalError & posErr, 
-		const vector<RefCountedVertexTrack> & tks, float totalChiSq);
+		const std::vector<RefCountedVertexTrack> & tks, float totalChiSq);
 
   CachingVertex(const GlobalPoint & pos, const GlobalWeight & posWeight, 
-		const vector<RefCountedVertexTrack> & tks, float totalChiSq);
+		const std::vector<RefCountedVertexTrack> & tks, float totalChiSq);
 
   CachingVertex(const AlgebraicVector3 & weightTimesPosition, 
 		const GlobalWeight & posWeight, 
-		const vector<RefCountedVertexTrack> & tks, 
+		const std::vector<RefCountedVertexTrack> & tks, 
 		float totalChiSq);
 
   CachingVertex(const GlobalPoint & priorPos, const GlobalError & priorErr,
   		const GlobalPoint & pos, const GlobalError & posErr, 
-		const vector<RefCountedVertexTrack> & tks, float totalChiSq);
+		const std::vector<RefCountedVertexTrack> & tks, float totalChiSq);
 
   CachingVertex(const GlobalPoint & priorPos, const GlobalError & priorErr,
   		const GlobalPoint & pos, const GlobalWeight & posWeight, 
-		const vector<RefCountedVertexTrack> & tks, float totalChiSq);
+		const std::vector<RefCountedVertexTrack> & tks, float totalChiSq);
 
   CachingVertex(const GlobalPoint & priorPos, const GlobalError & priorErr,
   		const AlgebraicVector3 & weightTimesPosition, 
 		const GlobalWeight & posWeight, 
-		const vector<RefCountedVertexTrack> & tks, 
+		const std::vector<RefCountedVertexTrack> & tks, 
 		float totalChiSq);
 
 
   CachingVertex(const VertexState & aVertexState, 
-		const vector<RefCountedVertexTrack> & tks, float totalChiSq);
+		const std::vector<RefCountedVertexTrack> & tks, float totalChiSq);
 
   CachingVertex(const VertexState & priorVertexState, 
   		const VertexState & aVertexState,
-		const vector<RefCountedVertexTrack> & tks, float totalChiSq);
+		const std::vector<RefCountedVertexTrack> & tks, float totalChiSq);
 
   CachingVertex(const VertexState & aVertexState,
-		const vector<RefCountedVertexTrack> & tks, 
+		const std::vector<RefCountedVertexTrack> & tks, 
 		float totalChiSq, const TrackToTrackMap & covMap);
 
   CachingVertex(const VertexState & priorVertexState, 
   		const VertexState & aVertexState,
-		const vector<RefCountedVertexTrack> & tks, 
+		const std::vector<RefCountedVertexTrack> & tks, 
 		float totalChiSq, const TrackToTrackMap & covMap);
 
   /** Constructor for invalid CachingVertex
@@ -89,7 +89,7 @@ public:
   GlobalError error() const;
   GlobalWeight weight() const;
   AlgebraicVector3 weightTimesPosition() const;
-  vector<RefCountedVertexTrack> tracks() const { return theTracks; }
+  std::vector<RefCountedVertexTrack> tracks() const { return theTracks; }
   GlobalPoint priorPosition() const {return priorVertexState().position();}
   GlobalError priorError() const {return priorVertexState().error();}
   bool hasPrior() const {return withPrior;}
@@ -116,7 +116,7 @@ private:
   float theChiSquared;
   mutable float theNDF;
   mutable bool theNDFAvailable;
-  vector<RefCountedVertexTrack> theTracks;
+  std::vector<RefCountedVertexTrack> theTracks;
   TrackToTrackMap theCovMap;
   bool theCovMapAvailable;
   mutable VertexState thePriorVertexState;

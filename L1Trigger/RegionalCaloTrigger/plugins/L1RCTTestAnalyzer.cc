@@ -132,15 +132,15 @@ L1RCTTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
    if(showEmCands)
      {
-       cout << endl << "L1 RCT EmCand objects" << endl;
+       std::cout << std::endl << "L1 RCT EmCand objects" << std::endl;
      }
    for (em=rctEmCands->begin(); em!=rctEmCands->end(); em++){
-     //  cout << "(Analyzer)\n" << (*em) << endl;
+     //  std::cout << "(Analyzer)\n" << (*em) << std::endl;
      h_emCandTimeSample->Fill((*em).bx());
      if ((*em).bx() == 0)
        {
 	 unsigned short n_emcands = 0;
-	 //cout << endl << "rank: " << (*em).rank() ;
+	 //std::cout << std::endl << "rank: " << (*em).rank() ;
 	 
 	 if ((*em).rank() > 0)
 	   {
@@ -167,7 +167,7 @@ L1RCTTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	   {
 	     if ((*em).rank() > 0)
 	       {
-		 cout << endl << "rank: " << (*em).rank();
+		 std::cout << std::endl << "rank: " << (*em).rank();
 		 unsigned short rgnPhi = 999;
 		 unsigned short rgn = (unsigned short) (*em).rctRegion();
 		 unsigned short card = (unsigned short) (*em).rctCard();
@@ -183,7 +183,7 @@ L1RCTTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 		   }
 		 else 
 		   {
-		     cout << "rgnPhi not assigned (still " << rgnPhi << ") -- Weird card number! " << card ;
+		     std::cout << "rgnPhi not assigned (still " << rgnPhi << ") -- Weird card number! " << card ;
 		   }
 		 unsigned short phi_bin = ((crate % 9) * 2) + rgnPhi;
 		 short eta_bin = (card/2) * 2 + 1;
@@ -197,7 +197,7 @@ L1RCTTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 		   }
 		 n_emcands++;
 		 
-		   cout << /* "rank: " << (*em).rank() << */ "  eta_bin: " << eta_bin << "  phi_bin: " << phi_bin << ".  crate: " << crate << "  card: " << card << "  region: " << rgn << ".  isolated: " << (*em).isolated();
+		   std::cout << /* "rank: " << (*em).rank() << */ "  eta_bin: " << eta_bin << "  phi_bin: " << phi_bin << ".  crate: " << crate << "  card: " << card << "  region: " << rgn << ".  isolated: " << (*em).isolated();
 	       }
 	   }
        }
@@ -208,12 +208,12 @@ L1RCTTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    }
    if(showEmCands)
      {
-       cout << endl;
+       std::cout << std::endl;
      }
 
    if(showRegionSums)
      {
-       cout << "Regions" << endl;
+       std::cout << "Regions" << std::endl;
      }
    for (rgn=rctRegions->begin(); rgn!=rctRegions->end(); rgn++)
      {
@@ -221,7 +221,7 @@ L1RCTTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	 {
 	   if(showRegionSums&&(*rgn).et()>0)
 	     {
-	       cout << /* "(Analyzer)\n" << */ (*rgn) << endl;
+	       std::cout << /* "(Analyzer)\n" << */ (*rgn) << std::endl;
 	     }
 	   if ( (*rgn).et() > 0 )
 	     {
@@ -238,7 +238,7 @@ L1RCTTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
      }
    if(showRegionSums)
      {
-       cout << endl;
+       std::cout << std::endl;
      }
 
 }

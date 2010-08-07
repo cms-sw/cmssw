@@ -13,9 +13,9 @@ ManipHist::configBlockSum(ConfigFile& cfg)
     readVector( cfg.read<std::string>( "histWeights" ), weights_);
   }
   catch(...){
-    cerr << "ERROR during reading of config file" << endl;
-    cerr << "      misspelled variables in cfg ?" << endl;
-    cerr << "      [--called in configBlockSum]"  << endl;
+    std::cerr << "ERROR during reading of config file" << std::endl;
+    std::cerr << "      misspelled variables in cfg ?" << std::endl;
+    std::cerr << "      [--called in configBlockSum]"  << std::endl;
     std::exit(1);
   }
 }
@@ -30,9 +30,9 @@ ManipHist::configBlockDivide(ConfigFile& cfg)
     errorType_ = cfg.read<int>( "errorType" );
   }
   catch(...){
-    cerr << "ERROR during reading of config file"   << endl;
-    cerr << "      misspelled variables in cfg ?"   << endl;
-    cerr << "      [--called in configBlockDivide]" << endl;
+    std::cerr << "ERROR during reading of config file"   << std::endl;
+    std::cerr << "      misspelled variables in cfg ?"   << std::endl;
+    std::cerr << "      [--called in configBlockDivide]" << std::endl;
     std::exit(1);
   }
 }
@@ -95,9 +95,9 @@ ManipHist::divideAndDrawPs()
   // be >1 otherwise return with error message
   //-----------------------------------------------
   if((sampleList_.size()!=2) && (dirNameList_.size()+fileList_.size()!=3)){
-    cerr << "ERROR number of indicated root files/directories " << endl;
-    cerr << "      is insonsistent. Need sample & reference"    << endl;
-    cerr << "      file/directory being specified solitarily"   << endl;
+    std::cerr << "ERROR number of indicated root files/directories " << std::endl;
+    std::cerr << "      is insonsistent. Need sample & reference"    << std::endl;
+    std::cerr << "      file/directory being specified solitarily"   << std::endl;
     return;
   }
   //-----------------------------------------------
@@ -150,9 +150,9 @@ ManipHist::divideAndDrawEps()
   // be >1 otherwise return with error message
   //-----------------------------------------------
   if((sampleList_.size()!=2) && (dirNameList_.size()+fileList_.size()!=3)){
-    cerr << "ERROR number of indicated root files/directories " << endl;
-    cerr << "      is insonsistent. Need sample & reference"    << endl;
-    cerr << "      file/directory being specified solitarily"   << endl;
+    std::cerr << "ERROR number of indicated root files/directories " << std::endl;
+    std::cerr << "      is insonsistent. Need sample & reference"    << std::endl;
+    std::cerr << "      file/directory being specified solitarily"   << std::endl;
     return;
   }
   //-----------------------------------------------

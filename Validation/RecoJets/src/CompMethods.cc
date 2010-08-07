@@ -30,7 +30,7 @@ StabilizedGauss::StabilizedGauss(const char* funcName, int funcType, double lowe
     func_->SetParNames( "Const", "Mean", "Sigma" );
   }
   else{
-    cout << "Sorry: not yet implemented" << endl;
+    std::cout << "Sorry: not yet implemented" << std::endl;
   }
 }
 

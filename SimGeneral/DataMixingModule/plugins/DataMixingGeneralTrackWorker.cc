@@ -61,13 +61,13 @@ namespace edm
 
     // Create new track list; Rely on the fact that addSignals gets called first...
 
-    NewTrackList_ = auto_ptr<TrackCollection>(new TrackCollection());
+    NewTrackList_ = std::auto_ptr<reco::TrackCollection>(new reco::TrackCollection());
 
     // grab tracks, store copy
 
-    //Handle<reco::TrackCollection> generalTrkHandle;
+    //edm::Handle<reco::TrackCollection> generalTrkHandle;
     //e.getByLabel("generalTracks", generalTrkHandle);
-    Handle<reco::TrackCollection> tracks;
+    edm::Handle<reco::TrackCollection> tracks;
     e.getByLabel("generalTracks", tracks);
 
     if (tracks.isValid()) {

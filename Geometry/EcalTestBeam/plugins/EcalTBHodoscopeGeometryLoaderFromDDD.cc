@@ -48,7 +48,7 @@ void EcalTBHodoscopeGeometryLoaderFromDDD::makeGeometry(const DDCompactView* cpv
     {
       
 #if 0
-      string answer = getDDDString("ReadOutName",&fv);
+      std::string answer = getDDDString("ReadOutName",&fv);
       if (answer != "EcalTBH4BeamHits")
         continue;
 #endif

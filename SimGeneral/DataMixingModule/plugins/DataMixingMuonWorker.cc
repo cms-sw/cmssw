@@ -143,8 +143,8 @@ namespace edm
 
     if( e.getByLabel(CSCDigiTagSig_.label(),CSCstripdigi_collectionSig_.label(), pCSCStripdigis) ) {
 
-    //if(pCSCStripdigis.isValid() ) { cout << "Signal: have CSCStripDigis" << endl;}
-    //else { cout << "Signal: NO CSCStripDigis" << endl;}
+    //if(pCSCStripdigis.isValid() ) { std::cout << "Signal: have CSCStripDigis" << std::endl;}
+    //else { std::cout << "Signal: NO CSCStripDigis" << std::endl;}
 
 
     // Loop over digis, copying them to our own local storage
@@ -172,8 +172,8 @@ namespace edm
     if( e.getByLabel(CSCDigiTagSig_.label(),CSCwiredigi_collectionSig_.label(), pCSCWiredigis) ) {
    
 
-    //if(pCSCWiredigis.isValid() ) { cout << "Signal: have CSCWireDigis" << endl;}
-    //else { cout << "Signal: NO CSCWireDigis" << endl;}
+    //if(pCSCWiredigis.isValid() ) { std::cout << "Signal: have CSCWireDigis" << std::endl;}
+    //else { std::cout << "Signal: NO CSCWireDigis" << std::endl;}
     
     // Loop over digis, copying them to our own local storage
 
@@ -199,13 +199,13 @@ namespace edm
     // Get the digis from the event
     Handle<CSCComparatorDigiCollection> pCSCComparatordigis; 
 
-    //cout << "CSCComp label: " << CSCDigiTagSig_.label() << " " << CSCCompdigi_collectionSig_.label() << endl;
+    //std::cout << "CSCComp label: " << CSCDigiTagSig_.label() << " " << CSCCompdigi_collectionSig_.label() << std::endl;
 
     if( e.getByLabel(CSCDigiTagSig_.label(),CSCCompdigi_collectionSig_.label(), pCSCComparatordigis) ) {
    
 
-      //if(pCSCComparatordigis.isValid() ) { cout << "Signal: have CSCComparatorDigis" << endl;}
-      //else { cout << "Signal: NO CSCComparatorDigis" << endl;}
+      //if(pCSCComparatordigis.isValid() ) { std::cout << "Signal: have CSCComparatorDigis" << std::endl;}
+      //else { std::cout << "Signal: NO CSCComparatorDigis" << std::endl;}
     
     // Loop over digis, copying them to our own local storage
 

@@ -12,9 +12,9 @@
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PhysicsTFormulaPayload.h"
 
-using namespace PhysicsTools::Calibration;
 
 namespace { // anonymous
+using namespace PhysicsTools::Calibration;
 struct dictionary {
 
 #ifdef STD_DICTIONARIES_STUFF_MISSING

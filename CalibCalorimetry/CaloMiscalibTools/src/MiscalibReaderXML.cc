@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-
+using namespace xercesc;
 
 int MiscalibReaderFromXML::s_numberOfInstances = 0; //to check that there is only 1 instance
 

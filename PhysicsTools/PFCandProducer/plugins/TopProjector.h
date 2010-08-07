@@ -33,8 +33,6 @@
 #include <iostream>
 
 
-using namespace std;
-
 template< class Top, class Bottom>
 class TopProjector : public edm::EDProducer {
 
@@ -85,7 +83,7 @@ class TopProjector : public edm::EDProducer {
   /// verbose ?
   bool            verbose_;
 
-  string          name_;
+  std::string     name_;
  
   /// input tag for the top (masking) collection
   edm::InputTag   inputTagTop_;
@@ -103,7 +101,7 @@ TopProjector< Top, Bottom >::TopProjector(const edm::ParameterSet& iConfig) {
   using namespace edm;
 
   verbose_ = iConfig.getUntrackedParameter<bool>("verbose",false);
-  name_ = iConfig.getUntrackedParameter<string>("name","No Name");
+  name_ = iConfig.getUntrackedParameter<std::string>("name","No Name");
   inputTagTop_ = iConfig.getParameter<InputTag>("topCollection");
   inputTagBottom_ = iConfig.getParameter<InputTag>("bottomCollection");
 
@@ -182,7 +180,7 @@ void TopProjector< Top, Bottom >::produce(edm::Event& iEvent,
   
   // mask for each bottom object.
   // at the beginning, all bottom objects are unmasked.
-  vector<bool> masked( bottoms->size(), false);
+  std::vector<bool> masked( bottoms->size(), false);
     
 
 

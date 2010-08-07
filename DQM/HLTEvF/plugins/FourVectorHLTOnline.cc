@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOnline.cc,v 1.32 2010/03/25 12:17:33 rekovic Exp $
+// $Id: FourVectorHLTOnline.cc,v 1.33 2010/03/25 15:03:37 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQM/HLTEvF/interface/FourVectorHLTOnline.h"
@@ -417,7 +417,7 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   // --------------------
   for(PathInfoCollection::iterator v = hltPathsDiagonal_.begin(); v!= hltPathsDiagonal_.end(); ++v ) { 
 
-    LogTrace("FourVectorHLTOnline") << " unique path " << v->getPath() << endl;
+    LogTrace("FourVectorHLTOnline") << " unique path " << v->getPath() << std::endl;
 
     unsigned int pathByIndex = triggerNames.triggerIndex(v->getPath());
 
@@ -473,7 +473,7 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   // --------------------
   for(PathInfoCollection::iterator v = hltPaths_.begin(); v!= hltPaths_.end(); ++v ) { 
 
-    LogTrace("FourVectorHLTOnline") << " path " << v->getPath() << endl;
+    LogTrace("FourVectorHLTOnline") << " path " << v->getPath() << std::endl;
 
     if (v->getPath().find("BTagIP") != std::string::npos ) btagMon = btagIPMon;
     else btagMon = btagMuMon;
@@ -499,7 +499,7 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
    if (denompassed)
    {  
 
-     //LogTrace("FourVectorHLTOnline") << " denominator path " << v->getPath() << endl;
+     //LogTrace("FourVectorHLTOnline") << " denominator path " << v->getPath() << std::endl;
 
 
      // Get the righe monitor for this path
@@ -540,10 +540,10 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
      
      if ( l1Index >= fTriggerObj->sizeFilters() ) {
 
-       LogTrace("FourVectorHLTOnline") << "Cannot find L1GTSeed of the path " << v->getPath() << endl;
-       LogTrace("FourVectorHLTOnline") << "\t L1GTSeed name = " << v->getl1Path() << endl;
-       LogTrace("FourVectorHLTOnline") <<  "\t tried with tag " << l1testTag << endl;
-       LogTrace("FourVectorHLTOnline") <<"\t module index = "<< l1Index << endl;
+       LogTrace("FourVectorHLTOnline") << "Cannot find L1GTSeed of the path " << v->getPath() << std::endl;
+       LogTrace("FourVectorHLTOnline") << "\t L1GTSeed name = " << v->getl1Path() << std::endl;
+       LogTrace("FourVectorHLTOnline") <<  "\t tried with tag " << l1testTag << std::endl;
+       LogTrace("FourVectorHLTOnline") <<"\t module index = "<< l1Index << std::endl;
 
      } 
 
@@ -566,7 +566,7 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     if (!l1accept) {
 
           LogDebug("FourVectorHLTOnline") 
-            << "This should not happen.  HLT passed, but L1 Seed not passed for hlt path "<< endl 
+            << "This should not happen.  HLT passed, but L1 Seed not passed for hlt path "<< std::endl 
             << "HLT path: " << v->getPath() << "\t HLTLevel1GTSeed: " << v->getl1Path();
 
     }
@@ -578,10 +578,10 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     // on the list of filters used by this path
     //----------------------------------------------
     if (v->getLabel() == "dummy"){
-    const vector<string> filterLabels = hltConfig_.moduleLabels(v->getPath());
+    const std::vector<std::string> filterLabels = hltConfig_.moduleLabels(v->getPath());
 
     //loop over labels
-    for (vector<string>::const_iterator labelIter= filterLabels.begin(); labelIter!=filterLabels.end(); labelIter++) {
+    for (std::vector<std::string>::const_iterator labelIter= filterLabels.begin(); labelIter!=filterLabels.end(); labelIter++) {
 
       edm::InputTag testTag(*labelIter,"",processname_);
 
@@ -600,7 +600,7 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     const int hltIndex = fTriggerObj->filterIndex(filterTag);
     if ( hltIndex >= fTriggerObj->sizeFilters() ) {
 
-      LogTrace("FourVectorHLTOnline") << "WTF no index "<< index << " of that name " << filterTag << endl;
+      LogTrace("FourVectorHLTOnline") << "WTF no index "<< index << " of that name " << filterTag << std::endl;
       continue; // not in this event
 
     }
@@ -666,7 +666,7 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
     }
 
     // check if trigger name in (new) config
-    //  cout << "Available TriggerNames are: " << endl;
+    //  std::cout << "Available TriggerNames are: " << std::endl;
     //  hltConfig_.dump("Triggers");
   }
 
@@ -686,7 +686,7 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
   
         std::string pathname = hltConfig_.triggerName(j);  
 
-        string l1pathname = getL1ConditionModuleName(pathname);
+        std::string l1pathname = getL1ConditionModuleName(pathname);
       
         int objectType =  getTriggerTypeParsePathName(pathname);
   
@@ -718,7 +718,7 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
          //parse pathname to guess object type
          int objectType =  getTriggerTypeParsePathName(pathname);
 
-        string l1pathname = getL1ConditionModuleName(pathname);
+        std::string l1pathname = getL1ConditionModuleName(pathname);
   
         std::string filtername("dummy");
         float ptMin = 0.0;
@@ -759,11 +759,11 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
           bool founddenominator = false;
           for (unsigned int k=0; k!=n; ++k) {
 
-            string n_pathname = hltConfig_.triggerName(k);
+            std::string n_pathname = hltConfig_.triggerName(k);
 
             if (n_pathname.find(denompathname) != std::string::npos) {
               
-              LogDebug("FourVectorHLTOnline") << "denompathname is selected to be = " << n_pathname << endl;;
+              LogDebug("FourVectorHLTOnline") << "denompathname is selected to be = " << n_pathname << std::endl;;
               founddenominator = true;
 
               break;
@@ -773,7 +773,7 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
 
           if (!founddenominator) {
   
-            edm::LogInfo("FourVectorHLTOnline") << "denompathname not found, go to the next pair numearator-denominator" << endl;
+            edm::LogInfo("FourVectorHLTOnline") << "denompathname not found, go to the next pair numearator-denominator" << std::endl;
             
             // go to the next pair
             continue;
@@ -784,12 +784,12 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
           bool foundnumerator = false;
           for (unsigned int j=0; j!=n; ++j) {
 
-            string pathname = hltConfig_.triggerName(j);
+            std::string pathname = hltConfig_.triggerName(j);
 
-            LogDebug("FourVectorHLTOnline") << "check if path " << pathname << " is numpathname = " << numpathname << endl;
+            LogDebug("FourVectorHLTOnline") << "check if path " << pathname << " is numpathname = " << numpathname << std::endl;
             if (hltConfig_.triggerName(j).find(numpathname)!= std::string::npos) {
               
-              LogDebug("FourVectorHLTOnline") << "pathname is selected to be = " << denompathname << endl;;
+              LogDebug("FourVectorHLTOnline") << "pathname is selected to be = " << denompathname << std::endl;;
               foundnumerator = true;
 
             }
@@ -803,7 +803,7 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
             }
   
   
-            string l1pathname = getL1ConditionModuleName(pathname);
+            std::string l1pathname = getL1ConditionModuleName(pathname);
             int objectType =  getTriggerTypeParsePathName(pathname);
   
           std::string filtername("dummy");
@@ -832,19 +832,19 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
     } // end else
 
 
-    vector<string> muonPaths;
-    vector<string> egammaPaths;
-    vector<string> tauPaths;
-    vector<string> jetmetPaths;
-    vector<string> restPaths;
-    vector<string> allPaths;
+    std::vector<std::string> muonPaths;
+    std::vector<std::string> egammaPaths;
+    std::vector<std::string> tauPaths;
+    std::vector<std::string> jetmetPaths;
+    std::vector<std::string> restPaths;
+    std::vector<std::string> allPaths;
     // fill vectors of Muon, Egamma, JetMET, Rest, and Special paths
     for(PathInfoCollection::iterator v = hltPathsDiagonal_.begin(); v!= hltPathsDiagonal_.end(); ++v ) {
 
       std::string pathName = v->getPath();
       int objectType = v->getObjectType();
 
-      vector<int> tempCount(5,0);
+      std::vector<int> tempCount(5,0);
 
       fPathTempCountPair.push_back(make_pair(pathName,0));
       fPathBxTempCountPair.push_back(make_pair(pathName,tempCount));
@@ -912,10 +912,10 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
     fGroupNamePathsPair.push_back(make_pair("Special",specialPaths_));
 
     /// add dataset name and thier triggers to the list 
-    vector<string> datasetNames =  hltConfig_.datasetNames() ;
+    std::vector<std::string> datasetNames =  hltConfig_.datasetNames() ;
     for (unsigned int i=0;i<datasetNames.size();i++) {
 
-      vector<string> datasetPaths = hltConfig_.datasetContent(datasetNames[i]);
+      std::vector<std::string> datasetPaths = hltConfig_.datasetContent(datasetNames[i]);
       fGroupNamePathsPair.push_back(make_pair(datasetNames[i],datasetPaths));
       //setupHltMatrix(datasetNames[i],datasetPaths);
 
@@ -955,14 +955,14 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
        // -------------------------
        
        // get all modules in this HLT path
-       vector<string> moduleNames = hltConfig_.moduleLabels( v->getPath() ); 
+       std::vector<std::string> moduleNames = hltConfig_.moduleLabels( v->getPath() ); 
        
        int numModule = 0;
-       string moduleName, moduleType;
+       std::string moduleName, moduleType;
        unsigned int moduleIndex;
        
        //print module name
-       vector<string>::const_iterator iDumpModName;
+       std::vector<std::string>::const_iterator iDumpModName;
        for (iDumpModName = moduleNames.begin();iDumpModName != moduleNames.end();iDumpModName++) {
 
          moduleName = *iDumpModName;
@@ -973,15 +973,15 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
              << " is called " << moduleName
              << " , type = "  << moduleType
              << " , index = " << moduleIndex
-             << endl;
+             << std::endl;
 
          numModule++;
 
-         if((moduleType.find("Filter") != string::npos && moduleType.find("HLTTriggerTypeFilter") == string::npos ) || 
-            (moduleType.find("Associator") != string::npos) || 
-            (moduleType.find("HLTLevel1GTSeed") != string::npos) || 
-            (moduleType.find("HLTGlobalSumsCaloMET") != string::npos) ||
-            (moduleType.find("HLTPrescaler") != string::npos) ) {
+         if((moduleType.find("Filter") != std::string::npos && moduleType.find("HLTTriggerTypeFilter") == std::string::npos ) || 
+            (moduleType.find("Associator") != std::string::npos) || 
+            (moduleType.find("HLTLevel1GTSeed") != std::string::npos) || 
+            (moduleType.find("HLTGlobalSumsCaloMET") != std::string::npos) ||
+            (moduleType.find("HLTPrescaler") != std::string::npos) ) {
 
            //std::pair<std::string, int> filterIndexPair;
            //filterIndexPair.first   = moduleName;
@@ -1244,17 +1244,17 @@ void FourVectorHLTOnline::endRun(const edm::Run& run, const edm::EventSetup& c)
 void FourVectorHLTOnline::cleanDRMatchSet(mmset& tempSet)
 {
 
-  LogDebug("FourVectorHLTOnline") << "cleanDRMatchSet(mmset& tempSet) " << "size of the set (before CLEANING) = " << tempSet.size() << " maps." << endl;
+  LogDebug("FourVectorHLTOnline") << "cleanDRMatchSet(mmset& tempSet) " << "size of the set (before CLEANING) = " << tempSet.size() << " maps." << std::endl;
 
   if(tempSet.size() < 2) return;
 
   if(tempSet.size() > 10) {
 
-    LogDebug("FourVectorHLTOnline") << "size of the set is too large.  It will be truncated to 10." << endl;
+    LogDebug("FourVectorHLTOnline") << "size of the set is too large.  It will be truncated to 10." << std::endl;
     mmset::iterator it = tempSet.begin();
     for (int i=0;i<10;i++) {    it++; }
     tempSet.erase( it, tempSet.end());
-    LogDebug("FourVectorHLTOnline") << "size of the set is now = " << tempSet.size() << " maps." << endl;
+    LogDebug("FourVectorHLTOnline") << "size of the set is now = " << tempSet.size() << " maps." << std::endl;
 
   }
  
@@ -1266,19 +1266,19 @@ void FourVectorHLTOnline::cleanDRMatchSet(mmset& tempSet)
 
     cleanedOneMap=false;
 
-    //LogTrace("FourVectorHLTOnline") << "cleaning: size of the set  = " << tempSet.size() << " maps." << endl;
+    //LogTrace("FourVectorHLTOnline") << "cleaning: size of the set  = " << tempSet.size() << " maps." << std::endl;
 
     int imap = 0;
     for ( mmset::iterator setIter_i = tempSet.begin( ); setIter_i != tempSet.end( ); setIter_i++ ) {
 
       fimmap tempMap_j = *setIter_i;
 
-      //LogTrace("FourVectorHLTOnline") << " map " << imap << endl;
-      //LogTrace("FourVectorHLTOnline") << " --------" << endl;
+      //LogTrace("FourVectorHLTOnline") << " map " << imap << std::endl;
+      //LogTrace("FourVectorHLTOnline") << " --------" << std::endl;
 
       for (fimmap::iterator it = tempMap_j.begin(); it != tempMap_j.end(); ++it) {
 
-        //LogTrace("FourVectorHLTOnline") << " " <<   (*it).first << " :  " << (*it).second << endl;
+        //LogTrace("FourVectorHLTOnline") << " " <<   (*it).first << " :  " << (*it).second << std::endl;
 
       }
 
@@ -1292,7 +1292,7 @@ void FourVectorHLTOnline::cleanDRMatchSet(mmset& tempSet)
       fimmap tempMap_i = *setIter_i;
       fimmap::iterator it = tempMap_i.begin();
       int topValue = (*it).second;
-      //LogTrace("FourVectorHLTOnline") << " topValue = " << topValue << endl;
+      //LogTrace("FourVectorHLTOnline") << " topValue = " << topValue << std::endl;
   
       
       mmset::iterator tempIter_i = setIter_i;
@@ -1302,14 +1302,14 @@ void FourVectorHLTOnline::cleanDRMatchSet(mmset& tempSet)
       for ( mmset::iterator setIter_j = ++tempIter_i; setIter_j != tempSet.end( ); setIter_j++ ) {
   
         fimmap tempMap_j = *setIter_j;
-        //LogTrace("FourVectorHLTOnline") << "  size of the map  = " << tempMap_j.size() << endl;
+        //LogTrace("FourVectorHLTOnline") << "  size of the map  = " << tempMap_j.size() << std::endl;
   
         for (fimmap::iterator it = tempMap_j.begin(); it != tempMap_j.end(); ++it)
         {
   
           if(topValue == (*it).second) {
             
-            //LogTrace("FourVectorHLTOnline") << "   Ridding map of a doubly-matched object." << endl;
+            //LogTrace("FourVectorHLTOnline") << "   Ridding map of a doubly-matched object." << std::endl;
             tempMap_j.erase(it);
             cleanedOneMap = true;
   
@@ -1352,7 +1352,7 @@ void FourVectorHLTOnline::cleanDRMatchSet(mmset& tempSet)
 
   } // end while
 
-  //LogTrace("FourVectorHLTOnline") << "cleaned: size of the set  = " << tempSet.size() << " maps." << endl;
+  //LogTrace("FourVectorHLTOnline") << "cleaned: size of the set  = " << tempSet.size() << " maps." << std::endl;
   int jmap = 0;
 
   for ( mmset::iterator setIter_i = tempSet.begin( ); setIter_i != tempSet.end( ); setIter_i++ ) 
@@ -1360,12 +1360,12 @@ void FourVectorHLTOnline::cleanDRMatchSet(mmset& tempSet)
 
     fimmap tempMap_j = *setIter_i;
 
-    //LogTrace("FourVectorHLTOnline") << " map " << jmap << endl;
-    //LogTrace("FourVectorHLTOnline") << " --------" << endl;
+    //LogTrace("FourVectorHLTOnline") << " map " << jmap << std::endl;
+    //LogTrace("FourVectorHLTOnline") << " --------" << std::endl;
 
     for (fimmap::iterator it = tempMap_j.begin(); it != tempMap_j.end(); ++it) {
 
-        //LogTrace("FourVectorHLTOnline") << " " <<   (*it).first << " :  " << (*it).second << endl;
+        //LogTrace("FourVectorHLTOnline") << " " <<   (*it).first << " :  " << (*it).second << std::endl;
       
     }
 
@@ -1377,7 +1377,7 @@ void FourVectorHLTOnline::cleanDRMatchSet(mmset& tempSet)
 
 }
 
-void FourVectorHLTOnline::setupHltMatrix(std::string label, vector<std::string> paths) {
+void FourVectorHLTOnline::setupHltMatrix(std::string label, std::vector<std::string> paths) {
 
     //string groupLabelAny = "HLT_"+label+"_Any";
     //paths.push_back(groupLabelAny.c_str());
@@ -1385,8 +1385,8 @@ void FourVectorHLTOnline::setupHltMatrix(std::string label, vector<std::string> 
     paths.push_back("HLT_"+label+"_Any");
     paths.push_back("HLT_Any");
 
-    string h_name; 
-    string h_title; 
+    std::string h_name; 
+    std::string h_title; 
 
     dbe_->setCurrentFolder(pathsSummaryFolder_.c_str());
 
@@ -1456,7 +1456,7 @@ void FourVectorHLTOnline::setupHltMatrix(std::string label, vector<std::string> 
 
 void FourVectorHLTOnline::fillHltMatrix(const edm::TriggerNames & triggerNames) {
 
- string fullPathToME; 
+ std::string fullPathToME; 
 
  //for (unsigned int mi=0;mi<fGroupName.size();mi++) {
   for (unsigned int mi=0;mi<fGroupNamePathsPair.size();mi++) {
@@ -1468,7 +1468,7 @@ void FourVectorHLTOnline::fillHltMatrix(const edm::TriggerNames & triggerNames) 
   MonitorElement* ME_1d = dbe_->get(fullPathToME);
   if(!ME_2d || !ME_1d) {  
 
-    LogTrace("FourVectorHLTOnline") << " ME not valid although I gave full path" << endl;
+    LogTrace("FourVectorHLTOnline") << " ME not valid although I gave full path" << std::endl;
     continue;
 
   }
@@ -1495,7 +1495,7 @@ void FourVectorHLTOnline::fillHltMatrix(const edm::TriggerNames & triggerNames) 
 
   for (int i=1; i< hist_2d->GetNbinsX();i++) { 
 
-  string hltpathname =  hist_2d->GetXaxis()->GetBinLabel(i);
+  std::string hltpathname =  hist_2d->GetXaxis()->GetBinLabel(i);
 
 
     // check if this is hlt path name
@@ -1538,11 +1538,11 @@ void FourVectorHLTOnline::fillHltMatrix(const edm::TriggerNames & triggerNames) 
 
   } // end for i
 
-  string groupBinLabel = "HLT_"+fGroupNamePathsPair[mi].first+"_Any";
+  std::string groupBinLabel = "HLT_"+fGroupNamePathsPair[mi].first+"_Any";
   int groupBinNumber = hist_2d->GetXaxis()->FindBin(groupBinLabel.c_str());      
   if(groupPassed) hist_1d->Fill(groupBinNumber-1);//binNumber1 = 0 = first filter
 
-  string groupL1BinLabel = "HLT_"+fGroupNamePathsPair[mi].first+"_L1_Any";
+  std::string groupL1BinLabel = "HLT_"+fGroupNamePathsPair[mi].first+"_L1_Any";
   int groupL1BinNumber = hist_2d->GetXaxis()->FindBin(groupL1BinLabel.c_str());      
 
   if(groupL1Passed) hist_1d->Fill(groupL1BinNumber-1);//binNumber1 = 0 = first filter
@@ -1664,7 +1664,7 @@ void FourVectorHLTOnline::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg
 {
 
    int lumi = int(lumiSeg.id().luminosityBlock());
-   LogTrace("FourVectorHLTOnline") << " end lumiSection number " << lumi << endl;
+   LogTrace("FourVectorHLTOnline") << " end lumiSection number " << lumi << std::endl;
 
   countHLTPathHitsEndLumiBlock(lumi);
   countHLTGroupHitsEndLumiBlock(lumi);
@@ -1677,26 +1677,26 @@ void FourVectorHLTOnline::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg
 void FourVectorHLTOnline::countHLTGroupBXHitsEndLumiBlock(const int& lumi)
 {
 
- LogTrace("FourVectorHLTOnline") << " countHLTGroupBXHitsEndLumiBlock() lumiSection number " << lumi << endl;
+ LogTrace("FourVectorHLTOnline") << " countHLTGroupBXHitsEndLumiBlock() lumiSection number " << lumi << std::endl;
 
    TH2F * hist_2d_bx = ME_HLT_BX_->getTH2F();
 
-   for (std::vector<std::pair<std::string, vector<int> > >::iterator ip = fPathBxTempCountPair.begin(); ip != fPathBxTempCountPair.end(); ++ip) {
+   for (std::vector<std::pair<std::string, std::vector<int> > >::iterator ip = fPathBxTempCountPair.begin(); ip != fPathBxTempCountPair.end(); ++ip) {
   
     // get the path and its previous count
     std::string pathname = ip->first;  
-    vector<int> prevCount = ip->second;  
+    std::vector<int> prevCount = ip->second;  
 
     // vector of 5 zeros
-    vector<int> currCount (5,0);
-    vector<int> diffCount (5,0);
+    std::vector<int> currCount (5,0);
+    std::vector<int> diffCount (5,0);
     
     // get the current count of path up to now
     int pathBin = hist_2d_bx->GetYaxis()->FindBin(pathname.c_str());      
 
     if(pathBin > hist_2d_bx->GetNbinsY()) {
       
-      LogTrace("FourVectorHLTOnline") << " Cannot find the bin for path " << pathname << endl;
+      LogTrace("FourVectorHLTOnline") << " Cannot find the bin for path " << pathname << std::endl;
       continue;
 
     }
@@ -1711,12 +1711,12 @@ void FourVectorHLTOnline::countHLTGroupBXHitsEndLumiBlock(const int& lumi)
       
       currCount[j] = int(hist_2d_bx->GetBinContent(bxBin, pathBin));  // add one to get the right bin
 
-      LogTrace("FourVectorHLTOnline") << "currCount = " << currCount[j] << endl;
+      LogTrace("FourVectorHLTOnline") << "currCount = " << currCount[j] << std::endl;
 
       // count due to prev lumi sec is a difference bw current and previous
       diffCount[j] = currCount[j] - prevCount[j];
 
-      LogTrace("FourVectorHLTOnline") << " lumi = " << lumi << "  path " << pathname << "bxOffset = " << bxOffset << "  count = " << diffCount[j] <<  endl;
+      LogTrace("FourVectorHLTOnline") << " lumi = " << lumi << "  path " << pathname << "bxOffset = " << bxOffset << "  count = " << diffCount[j] <<  std::endl;
 
       // set the counter in the pair to current count
       ip->second = currCount;  
@@ -1726,19 +1726,19 @@ void FourVectorHLTOnline::countHLTGroupBXHitsEndLumiBlock(const int& lumi)
    //////////////////////////////////////
    // fill the 2D Group paths'  BX count per LS
    //////////////////////////////////////
-   LogTrace("FourVectorHLTOnline")  << "Find " << pathname << endl;
+   LogTrace("FourVectorHLTOnline")  << "Find " << pathname << std::endl;
    for(unsigned int i=0; i<fGroupName.size(); i++){
 
     bool isMember = false;
     //check if the path is in this group
     for (unsigned int j=0;j<fGroupNamePathsPair.size();j++) { 
 
-      LogTrace("FourVectorHLTOnline")  << " ---- Group " << fGroupNamePathsPair[j].first << endl;
+      LogTrace("FourVectorHLTOnline")  << " ---- Group " << fGroupNamePathsPair[j].first << std::endl;
       if(fGroupNamePathsPair[j].first != fGroupName[i]) continue;
 
       for (unsigned int k = 0; k<(fGroupNamePathsPair[j].second).size();k++) {
 
-        LogTrace("FourVectorHLTOnline")  << " comparing to " <<  fGroupNamePathsPair[j].second[k] << endl; 
+        LogTrace("FourVectorHLTOnline")  << " comparing to " <<  fGroupNamePathsPair[j].second[k] << std::endl; 
 
         if(fGroupNamePathsPair[j].second[k] == pathname) {
 
@@ -1753,12 +1753,12 @@ void FourVectorHLTOnline::countHLTGroupBXHitsEndLumiBlock(const int& lumi)
 
     if(!isMember) {
       
-      LogTrace("FourVectorHLTOnline")  << "Could not find a group to which the path belongs, path = " << pathname << "    group = " << fGroupName[i] << endl;
+      LogTrace("FourVectorHLTOnline")  << "Could not find a group to which the path belongs, path = " << pathname << "    group = " << fGroupName[i] << std::endl;
       continue;
 
     }
 
-    string fullPathToME = pathsSummaryHLTPathsPerBXFolder_ + "HLT_"+fGroupName[i] + "_BX_LS";
+    std::string fullPathToME = pathsSummaryHLTPathsPerBXFolder_ + "HLT_"+fGroupName[i] + "_BX_LS";
     MonitorElement* ME_2d = dbe_->get(fullPathToME);
 
     if ( ME_2d) {
@@ -1779,7 +1779,7 @@ void FourVectorHLTOnline::countHLTGroupBXHitsEndLumiBlock(const int& lumi)
     }
     else {
 
-      LogDebug("FourVectorHLTOnline") << " cannot find ME_2d" << ME_2d->getName() <<  endl;
+      LogDebug("FourVectorHLTOnline") << " cannot find ME_2d" << ME_2d->getName() <<  std::endl;
 
     }
     
@@ -1793,43 +1793,43 @@ void FourVectorHLTOnline::countHLTGroupBXHitsEndLumiBlock(const int& lumi)
 void FourVectorHLTOnline::countHLTGroupL1HitsEndLumiBlock(const int& lumi)
 {
 
- LogTrace("FourVectorHLTOnline") << " countHLTGroupL1HitsEndLumiBlock() lumiSection number " << lumi << endl;
+ LogTrace("FourVectorHLTOnline") << " countHLTGroupL1HitsEndLumiBlock() lumiSection number " << lumi << std::endl;
 
  //for(unsigned int i=0; i<fGroupName.size(); i++){
  for(unsigned int i=0; i<fGroupNamePathsPair.size(); i++){
 
    // get the count of path up to now
-   string fullPathToME = "HLT/FourVector/PathsSummary/HLT_" + fGroupNamePathsPair[i].first+ "_Pass_Any";
+   std::string fullPathToME = "HLT/FourVector/PathsSummary/HLT_" + fGroupNamePathsPair[i].first+ "_Pass_Any";
    MonitorElement* ME_1d = dbe_->get(fullPathToME);
 
    if(! ME_1d) {
 
-     LogTrace("FourVectorHLTOnline") << " could not find 1d matrix " << fullPathToME << endl;
+     LogTrace("FourVectorHLTOnline") << " could not find 1d matrix " << fullPathToME << std::endl;
 
      continue;
 
    }
 
-   LogTrace("FourVectorHLTOnline") << " Looking in histogram "  << fullPathToME << endl;
+   LogTrace("FourVectorHLTOnline") << " Looking in histogram "  << fullPathToME << std::endl;
 
    TH1F * hist_1d = ME_1d->getTH1F();
 
    for (std::vector<std::pair<std::string, int> >::iterator ip = fGroupL1TempCountPair.begin(); ip != fGroupL1TempCountPair.end(); ++ip) {
   
     // get the path and its previous count
-    string pathname = ip->first;  
+    std::string pathname = ip->first;  
     int prevCount = ip->second;  
 
-    string binLabel = "HLT_"+pathname+"_L1_Any";
+    std::string binLabel = "HLT_"+pathname+"_L1_Any";
     
-    LogTrace("FourVectorHLTOnline") << " Looking for binLabel = " << binLabel <<  endl;
+    LogTrace("FourVectorHLTOnline") << " Looking for binLabel = " << binLabel <<  std::endl;
     // get the current count of path up to now
     int pathBin = hist_1d->GetXaxis()->FindBin(binLabel.c_str());      
 
-    LogTrace("FourVectorHLTOnline") << " pathBin = " << pathBin <<  "  out of histogram total number of bins " << hist_1d->GetNbinsX() <<  endl;
+    LogTrace("FourVectorHLTOnline") << " pathBin = " << pathBin <<  "  out of histogram total number of bins " << hist_1d->GetNbinsX() <<  std::endl;
     if(pathBin == -1) {
       
-      LogTrace("FourVectorHLTOnline") << " Cannot find the bin for path " << pathname << endl;
+      LogTrace("FourVectorHLTOnline") << " Cannot find the bin for path " << pathname << std::endl;
       continue;
 
     }
@@ -1839,7 +1839,7 @@ void FourVectorHLTOnline::countHLTGroupL1HitsEndLumiBlock(const int& lumi)
     // count due to prev lumi sec is a difference bw current and previous
     int diffCount = currCount - prevCount;
 
-    LogTrace("FourVectorHLTOnline") << " lumi = " << lumi << "  path " << pathname << "  count " << diffCount <<  endl;
+    LogTrace("FourVectorHLTOnline") << " lumi = " << lumi << "  path " << pathname << "  count " << diffCount <<  std::endl;
 
     // set the counter in the pair to current count
     ip->second = currCount;  
@@ -1848,7 +1848,7 @@ void FourVectorHLTOnline::countHLTGroupL1HitsEndLumiBlock(const int& lumi)
     ///////////////////////////////////////////
     // fill the 1D individual path count per LS
     ///////////////////////////////////////////
-    string fullPathToME_count = pathsSummaryHLTPathsPerLSFolder_ +"HLT_" + pathname + "_L1_Total_LS";
+    std::string fullPathToME_count = pathsSummaryHLTPathsPerLSFolder_ +"HLT_" + pathname + "_L1_Total_LS";
     MonitorElement* ME_1d = dbe_->get(fullPathToME_count);
     if ( ME_1d) { 
 
@@ -1860,7 +1860,7 @@ void FourVectorHLTOnline::countHLTGroupL1HitsEndLumiBlock(const int& lumi)
     }
     else {
 
-      LogDebug("FourVectorHLTOnline") << " cannot find ME " << fullPathToME_count  <<  endl;
+      LogDebug("FourVectorHLTOnline") << " cannot find ME " << fullPathToME_count  <<  std::endl;
 
     }
 
@@ -1874,43 +1874,43 @@ void FourVectorHLTOnline::countHLTGroupL1HitsEndLumiBlock(const int& lumi)
 void FourVectorHLTOnline::countHLTGroupHitsEndLumiBlock(const int& lumi)
 {
 
- LogTrace("FourVectorHLTOnline") << " countHLTGroupHitsEndLumiBlock() lumiSection number " << lumi << endl;
+ LogTrace("FourVectorHLTOnline") << " countHLTGroupHitsEndLumiBlock() lumiSection number " << lumi << std::endl;
  //for(unsigned int i=0; i<fGroupName.size(); i++){
  for(unsigned int i=0; i<fGroupNamePathsPair.size(); i++){
 
     // get the count of path up to now
    //string fullPathToME = "HLT/FourVector/PathsSummary/HLT_" + fGroupName[i] + "_Pass_Any";
-   string fullPathToME = "HLT/FourVector/PathsSummary/HLT_" + fGroupNamePathsPair[i].first + "_Pass_Any";
+   std::string fullPathToME = "HLT/FourVector/PathsSummary/HLT_" + fGroupNamePathsPair[i].first + "_Pass_Any";
    MonitorElement* ME_1d = dbe_->get(fullPathToME);
 
    if(! ME_1d) {
 
-     LogTrace("FourVectorHLTOnline") << " could not find 1d matrix " << fullPathToME << endl;
+     LogTrace("FourVectorHLTOnline") << " could not find 1d matrix " << fullPathToME << std::endl;
 
      continue;
 
    }
 
-   LogTrace("FourVectorHLTOnline") << " Looking in histogram "  << fullPathToME << endl;
+   LogTrace("FourVectorHLTOnline") << " Looking in histogram "  << fullPathToME << std::endl;
 
    TH1F * hist_1d = ME_1d->getTH1F();
 
    for (std::vector<std::pair<std::string, int> >::iterator ip = fGroupTempCountPair.begin(); ip != fGroupTempCountPair.end(); ++ip) {
   
     // get the path and its previous count
-    string pathname = ip->first;  
+    std::string pathname = ip->first;  
     int prevCount = ip->second;  
 
-    string binLabel = "HLT_"+pathname+"_Any";
+    std::string binLabel = "HLT_"+pathname+"_Any";
     
-    LogTrace("FourVectorHLTOnline") << " Looking for binLabel = " << binLabel <<  endl;
+    LogTrace("FourVectorHLTOnline") << " Looking for binLabel = " << binLabel <<  std::endl;
     // get the current count of path up to now
     int pathBin = hist_1d->GetXaxis()->FindBin(binLabel.c_str());      
 
-    LogTrace("FourVectorHLTOnline") << " pathBin = " << pathBin <<  "  out of histogram total number of bins " << hist_1d->GetNbinsX() <<  endl;
+    LogTrace("FourVectorHLTOnline") << " pathBin = " << pathBin <<  "  out of histogram total number of bins " << hist_1d->GetNbinsX() <<  std::endl;
     if(pathBin == -1) {
       
-      LogTrace("FourVectorHLTOnline") << " Cannot find the bin for path " << pathname << endl;
+      LogTrace("FourVectorHLTOnline") << " Cannot find the bin for path " << pathname << std::endl;
       continue;
 
     }
@@ -1920,7 +1920,7 @@ void FourVectorHLTOnline::countHLTGroupHitsEndLumiBlock(const int& lumi)
     // count due to prev lumi sec is a difference bw current and previous
     int diffCount = currCount - prevCount;
 
-    LogTrace("FourVectorHLTOnline") << " lumi = " << lumi << "  path " << pathname << "  count " << diffCount <<  endl;
+    LogTrace("FourVectorHLTOnline") << " lumi = " << lumi << "  path " << pathname << "  count " << diffCount <<  std::endl;
 
     // set the counter in the pair to current count
     ip->second = currCount;  
@@ -1929,7 +1929,7 @@ void FourVectorHLTOnline::countHLTGroupHitsEndLumiBlock(const int& lumi)
     ///////////////////////////////////////////
     // fill the 1D individual path count per LS
     ///////////////////////////////////////////
-    string fullPathToME_count = pathsSummaryHLTPathsPerLSFolder_ +"HLT_" + pathname + "_Total_LS";
+    std::string fullPathToME_count = pathsSummaryHLTPathsPerLSFolder_ +"HLT_" + pathname + "_Total_LS";
     MonitorElement* ME_1d = dbe_->get(fullPathToME_count);
     if ( ME_1d) { 
 
@@ -1941,7 +1941,7 @@ void FourVectorHLTOnline::countHLTGroupHitsEndLumiBlock(const int& lumi)
     }
     else {
 
-      LogDebug("FourVectorHLTOnline") << " cannot find ME " << fullPathToME_count  <<  endl;
+      LogDebug("FourVectorHLTOnline") << " cannot find ME " << fullPathToME_count  <<  std::endl;
 
     }
 
@@ -1955,14 +1955,14 @@ void FourVectorHLTOnline::countHLTGroupHitsEndLumiBlock(const int& lumi)
 void FourVectorHLTOnline::countHLTPathHitsEndLumiBlock(const int& lumi)
 {
 
-   LogTrace("FourVectorHLTOnline") << " countHLTPathHitsEndLumiBlock() lumiSection number " << lumi << endl;
+   LogTrace("FourVectorHLTOnline") << " countHLTPathHitsEndLumiBlock() lumiSection number " << lumi << std::endl;
     // get the count of path up to now
-   string fullPathToME = "HLT/FourVector/PathsSummary/HLT_All_PassPass";
+   std::string fullPathToME = "HLT/FourVector/PathsSummary/HLT_All_PassPass";
    MonitorElement* ME_2d = dbe_->get(fullPathToME);
 
    if(! ME_2d) {
 
-     LogTrace("FourVectorHLTOnline") << " could not fine 2d matrix " << fullPathToME << endl;
+     LogTrace("FourVectorHLTOnline") << " could not fine 2d matrix " << fullPathToME << std::endl;
 
      return;
 
@@ -1981,7 +1981,7 @@ void FourVectorHLTOnline::countHLTPathHitsEndLumiBlock(const int& lumi)
 
     if(pathBin > hist_2d->GetNbinsX()) {
       
-      LogTrace("FourVectorHLTOnline") << " Cannot find the bin for path " << pathname << endl;
+      LogTrace("FourVectorHLTOnline") << " Cannot find the bin for path " << pathname << std::endl;
       continue;
 
     }
@@ -1991,7 +1991,7 @@ void FourVectorHLTOnline::countHLTPathHitsEndLumiBlock(const int& lumi)
     // count due to prev lumi sec is a difference bw current and previous
     int diffCount = currCount - prevCount;
 
-    LogTrace("FourVectorHLTOnline") << " lumi = " << lumi << "  path " << pathname << "  count " << diffCount <<  endl;
+    LogTrace("FourVectorHLTOnline") << " lumi = " << lumi << "  path " << pathname << "  count " << diffCount <<  std::endl;
 
     // set the counter in the pair to current count
     ip->second = currCount;  
@@ -2014,7 +2014,7 @@ void FourVectorHLTOnline::countHLTPathHitsEndLumiBlock(const int& lumi)
     }
     else {
 
-      LogDebug("FourVectorHLTOnline") << " cannot find ME_HLTAll_LS_" <<  endl;
+      LogDebug("FourVectorHLTOnline") << " cannot find ME_HLTAll_LS_" <<  std::endl;
 
     }
     
@@ -2036,7 +2036,7 @@ void FourVectorHLTOnline::countHLTPathHitsEndLumiBlock(const int& lumi)
       }
       else {
   
-        LogDebug("FourVectorHLTOnline") << " cannot find tempME " <<  endl;
+        LogDebug("FourVectorHLTOnline") << " cannot find tempME " <<  std::endl;
   
       }
 
@@ -2046,7 +2046,7 @@ void FourVectorHLTOnline::countHLTPathHitsEndLumiBlock(const int& lumi)
     ///////////////////////////////////////////
     // fill the 1D individual path count per LS
     ///////////////////////////////////////////
-    string fullPathToME_count = pathsIndividualHLTPathsPerLSFolder_ + pathname + "_count_per_LS";
+    std::string fullPathToME_count = pathsIndividualHLTPathsPerLSFolder_ + pathname + "_count_per_LS";
     MonitorElement* ME_1d = dbe_->get(fullPathToME_count);
     if ( ME_1d) { 
 
@@ -2058,7 +2058,7 @@ void FourVectorHLTOnline::countHLTPathHitsEndLumiBlock(const int& lumi)
     }
     else {
 
-      LogDebug("FourVectorHLTOnline") << " cannot find ME " << fullPathToME_count  <<  endl;
+      LogDebug("FourVectorHLTOnline") << " cannot find ME " << fullPathToME_count  <<  std::endl;
 
     }
 
@@ -2066,7 +2066,7 @@ void FourVectorHLTOnline::countHLTPathHitsEndLumiBlock(const int& lumi)
 
 }
 
-int FourVectorHLTOnline::getTriggerTypeParsePathName(const string& pathname)
+int FourVectorHLTOnline::getTriggerTypeParsePathName(const std::string& pathname)
 {
 
    int objectType = 0;
@@ -2095,17 +2095,17 @@ int FourVectorHLTOnline::getTriggerTypeParsePathName(const string& pathname)
    return objectType;
 }
 
-const string FourVectorHLTOnline::getL1ConditionModuleName(const string& pathname)
+const std::string FourVectorHLTOnline::getL1ConditionModuleName(const std::string& pathname)
 {
 
   // find L1 condition for numpath with numpath objecttype 
   // find PSet for L1 global seed for numpath, 
   // list module labels for numpath
-  string l1pathname = "dummy";
+  std::string l1pathname = "dummy";
 
-  vector<string> numpathmodules = hltConfig_.moduleLabels(pathname);
+  std::vector<std::string> numpathmodules = hltConfig_.moduleLabels(pathname);
 
-  for(vector<string>::iterator numpathmodule = numpathmodules.begin();
+  for(std::vector<std::string>::iterator numpathmodule = numpathmodules.begin();
   numpathmodule!= numpathmodules.end(); ++numpathmodule ) {
 
     if (hltConfig_.moduleType(*numpathmodule) == "HLTLevel1GTSeed") {
@@ -2122,12 +2122,12 @@ const string FourVectorHLTOnline::getL1ConditionModuleName(const string& pathnam
 }
 
 
-bool FourVectorHLTOnline::hasL1Passed(const string& pathname, const edm::TriggerNames & triggerNames)
+bool FourVectorHLTOnline::hasL1Passed(const std::string& pathname, const edm::TriggerNames & triggerNames)
 {
   
   bool rc = false;
 
-  string l1ModuleName = getL1ConditionModuleName(pathname);
+  std::string l1ModuleName = getL1ConditionModuleName(pathname);
   int l1ModuleIndex = hltConfig_.moduleIndex(pathname, l1ModuleName);
 
   unsigned int pathByIndex = triggerNames.triggerIndex(pathname);
@@ -2144,7 +2144,7 @@ bool FourVectorHLTOnline::hasL1Passed(const string& pathname, const edm::Trigger
 
 }
 
-bool FourVectorHLTOnline::hasHLTPassed(const string& pathname, const edm::TriggerNames & triggerNames)
+bool FourVectorHLTOnline::hasHLTPassed(const std::string& pathname, const edm::TriggerNames & triggerNames)
 {
   
   bool rc = false;

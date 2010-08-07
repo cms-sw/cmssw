@@ -34,8 +34,8 @@ int main(){
   //        1 0 1 0 1 1
   //        1 0 1 0 1 0
 
-  vector<unsigned short> thing(4);
-  vector<unsigned short> fgthing(4);
+  std::vector<unsigned short> thing(4);
+  std::vector<unsigned short> fgthing(4);
   fgthing.at(0)=0;
   fgthing.at(1)=1;
   fgthing.at(2)=0;
@@ -71,96 +71,96 @@ int main(){
   region.setNWEt(nw);
   region.setNWHE_FG(nwhe);
 
-  cout << "northEt ";
+  std::cout << "northEt ";
   for(int i=0;i<4;i++){
-    cout << region.getEtIn7Bits(-1,i);
+    std::cout << region.getEtIn7Bits(-1,i);
   }
-  cout << endl;
+  std::cout << std::endl;
 
-  cout << "westEt ";
+  std::cout << "westEt ";
   for(int i=0;i<4;i++){
-    cout << region.getEtIn7Bits(i,-1);
+    std::cout << region.getEtIn7Bits(i,-1);
   }
-  cout << endl;
+  std::cout << std::endl;
 
-  cout << "eastEt ";
+  std::cout << "eastEt ";
   for(int i=0;i<4;i++){
-    cout << region.getEtIn7Bits(i,4);
+    std::cout << region.getEtIn7Bits(i,4);
   }
-  cout << endl;
+  std::cout << std::endl;
 
-  cout << "southEt ";
+  std::cout << "southEt ";
   for(int i=0;i<4;i++){
-    cout << region.getEtIn7Bits(4,i);
+    std::cout << region.getEtIn7Bits(4,i);
   }
-  cout << endl;
+  std::cout << std::endl;
 
-  cout << "given North Et ";
-  vector<unsigned short> n = region.giveNorthEt();
+  std::cout << "given North Et ";
+  std::vector<unsigned short> n = region.giveNorthEt();
   for(int i=0;i<4;i++){
-    cout << n.at(i) << " ";
+    std::cout << n.at(i) << " ";
   }
-  cout << endl;
+  std::cout << std::endl;
 
-  cout << "given North HEFG ";
-  vector<unsigned short> nhe = region.giveNorthHE_FG();
+  std::cout << "given North HEFG ";
+  std::vector<unsigned short> nhe = region.giveNorthHE_FG();
   for(int i=0;i<4;i++){
-    cout << nhe.at(i) << " ";
+    std::cout << nhe.at(i) << " ";
   }
-  cout << endl;
+  std::cout << std::endl;
 
-  cout << "given South Et ";
-  vector<unsigned short> s = region.giveSouthEt();
+  std::cout << "given South Et ";
+  std::vector<unsigned short> s = region.giveSouthEt();
   for(int i=0;i<4;i++){
-    cout << s.at(i) << " ";
+    std::cout << s.at(i) << " ";
   }
-  cout << endl;
+  std::cout << std::endl;
 
-  cout << "given South HEFG ";
-  vector<unsigned short> she = region.giveSouthHE_FG();
+  std::cout << "given South HEFG ";
+  std::vector<unsigned short> she = region.giveSouthHE_FG();
   for(int i=0;i<4;i++){
-    cout << she.at(i) << " ";
+    std::cout << she.at(i) << " ";
   }
-  cout << endl;
+  std::cout << std::endl;
 
-  cout << "given East et ";
-  vector<unsigned short> e = region.giveEastEt();
+  std::cout << "given East et ";
+  std::vector<unsigned short> e = region.giveEastEt();
   for(int i=0;i<4;i++){
-    cout << e.at(i) << " ";
+    std::cout << e.at(i) << " ";
   }
-  cout << endl;
+  std::cout << std::endl;
 
-  cout << "given East HEFG ";
-  vector<unsigned short> ehe = region.giveEastEt();
+  std::cout << "given East HEFG ";
+  std::vector<unsigned short> ehe = region.giveEastEt();
   for(int i=0;i<4;i++){
-    cout << e.at(i) << " ";
+    std::cout << e.at(i) << " ";
   }
-  cout << endl;
+  std::cout << std::endl;
 
-  cout << "given West et ";
-  vector<unsigned short> w = region.giveWestEt();
+  std::cout << "given West et ";
+  std::vector<unsigned short> w = region.giveWestEt();
   for(int i=0;i<4;i++){
-    cout << w.at(i) << " ";
+    std::cout << w.at(i) << " ";
   }
-  cout << endl;
+  std::cout << std::endl;
 
 
-  cout << "7BitEt ";
+  std::cout << "7BitEt ";
   for(int i=-1;i<5;i++){
-    cout << endl;
+    std::cout << std::endl;
     for(int j=-1;j<5;j++){
-      cout << region.getEtIn7Bits(i,j) << " ";
+      std::cout << region.getEtIn7Bits(i,j) << " ";
     }
   }
-  cout << endl;
-  cout << "HEFG ";
+  std::cout << std::endl;
+  std::cout << "HEFG ";
   for(int i=-1;i<5;i++){
-    cout << endl;
+    std::cout << std::endl;
     for(int j=-1;j<5;j++){
-      cout << region.getHE_FGBit(i,j) << " ";
+      std::cout << region.getHE_FGBit(i,j) << " ";
     }
   }
-  cout << endl;
+  std::cout << std::endl;
 }
   
   

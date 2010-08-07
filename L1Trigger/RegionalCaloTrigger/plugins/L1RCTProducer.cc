@@ -112,11 +112,11 @@ void L1RCTProducer::beginRun(edm::Run& run, const edm::EventSetup& eventSetup)
   const RunInfo* summary=sum.product();
 
 
-  vector<int> caloFeds;  // pare down the feds to the intresting ones
+  std::vector<int> caloFeds;  // pare down the feds to the intresting ones
   // is this unneccesary?
   // Mike B : This will decrease the find speed so better do it
-  const vector<int> Feds = summary->m_fed_in;
-  for(vector<int>::const_iterator cf = Feds.begin(); cf != Feds.end(); ++cf){
+  const std::vector<int> Feds = summary->m_fed_in;
+  for(std::vector<int>::const_iterator cf = Feds.begin(); cf != Feds.end(); ++cf){
     int fedNum = *cf;
     if(fedNum > 600 && fedNum <724) 
       caloFeds.push_back(fedNum);
@@ -129,7 +129,7 @@ void L1RCTProducer::beginRun(edm::Run& run, const edm::EventSetup& eventSetup)
 
 
       //Try to find the FED
-      vector<int>::iterator fv = std::find(caloFeds.begin(),caloFeds.end(),crateFED[cr][cs]);
+      std::vector<int>::iterator fv = std::find(caloFeds.begin(),caloFeds.end(),crateFED[cr][cs]);
       if(fv!=caloFeds.end())
 	fedFound = true;
 
@@ -287,7 +287,7 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
       
 	for (int i = 0; i < 18; i++)
 	  {
-	    vector<L1CaloRegion> regions = rct->getRegions(i);
+	    std::vector<L1CaloRegion> regions = rct->getRegions(i);
 	    for (int j = 0; j < 22; j++)
 	      {
 		regions.at(j).setBx(bunchCrossings[sample]);

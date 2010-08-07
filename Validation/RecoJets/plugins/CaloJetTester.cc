@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.cc,v 1.22 2010/03/26 01:27:54 hatake Exp $
+// $Id: CaloJetTester.cc,v 1.23 2010/06/16 19:06:12 srappocc Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -48,12 +48,12 @@ namespace {
 CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
   : mInputCollection (iConfig.getParameter<edm::InputTag>( "src" )),
     mInputGenCollection (iConfig.getParameter<edm::InputTag>( "srcGen" )),
-    mOutputFile (iConfig.getUntrackedParameter<string>("outputFile", "")),
+    mOutputFile (iConfig.getUntrackedParameter<std::string>("outputFile", "")),
     mMatchGenPtThreshold (iConfig.getParameter<double>("genPtThreshold")),
     mGenEnergyFractionThreshold (iConfig.getParameter<double>("genEnergyFractionThreshold")),
     mReverseEnergyFractionThreshold (iConfig.getParameter<double>("reverseEnergyFractionThreshold")),
     mRThreshold (iConfig.getParameter<double>("RThreshold")),
-    mTurnOnEverything (iConfig.getUntrackedParameter<string>("TurnOnEverything",""))
+    mTurnOnEverything (iConfig.getUntrackedParameter<std::string>("TurnOnEverything",""))
 {
     numberofevents
     = mEta = mEtaFineBin = mPhi = mPhiFineBin = mE = mE_80 = mE_3000

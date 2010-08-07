@@ -25,14 +25,14 @@ L1RCTReceiverCard::L1RCTReceiverCard(int crateNumber,int cardNumber, const L1RCT
 L1RCTReceiverCard::~L1RCTReceiverCard(){}
 
 void L1RCTReceiverCard::randomInput(){
-  vector<unsigned short> input(64);
+  std::vector<unsigned short> input(64);
   for(int i = 0; i<64;i++)
     input.at(i) = rand()&511;
   fillInput(input);
 }
 
 void L1RCTReceiverCard::fileInput(char* filename){
-  vector<unsigned short> input(64);
+  std::vector<unsigned short> input(64);
   unsigned short x;
   std::ifstream instream(filename);
   if(instream){
@@ -67,12 +67,12 @@ void L1RCTReceiverCard::fileInput(char* filename){
 // 19 23 27 31
 
 
-void L1RCTReceiverCard::fillInput(vector<unsigned short> input){
+void L1RCTReceiverCard::fillInput(std::vector<unsigned short> input){
   
-  vector<unsigned short> ecalInput(32);
-  vector<unsigned short> ecalFG(32);
-  vector<unsigned short> hcalInput(32);
-  vector<unsigned short> hcalMuon(32);
+  std::vector<unsigned short> ecalInput(32);
+  std::vector<unsigned short> ecalFG(32);
+  std::vector<unsigned short> hcalInput(32);
+  std::vector<unsigned short> hcalMuon(32);
 
   for(int i = 0; i<32; i++){
     ecalInput.at(i) = input.at(i)/2;
@@ -84,7 +84,7 @@ void L1RCTReceiverCard::fillInput(vector<unsigned short> input){
     unsigned short etIn9Bits = (lookup >> 8)&511;
     unsigned short HE_FGBit = (lookup>>7)&1;
     unsigned short activityBit = (lookup>>17)&1;
-    vector<unsigned short> indices = towerToRegionMap(i);
+    std::vector<unsigned short> indices = towerToRegionMap(i);
     unsigned short r = indices.at(0);
     unsigned short row = indices.at(1);
     unsigned short col = indices.at(2);
@@ -99,7 +99,7 @@ void L1RCTReceiverCard::fillInput(vector<unsigned short> input){
 
 
 vector<unsigned short> L1RCTReceiverCard::towerToRegionMap(int towernum){
-  vector<unsigned short> returnVec(3);
+  std::vector<unsigned short> returnVec(3);
   unsigned short region;
   unsigned short towerrow;
   unsigned short towercol;
@@ -205,7 +205,7 @@ unsigned short L1RCTReceiverCard::calcTauBit(L1RCTRegion region){
   else {
     answer = true;
   }
-  // cout << "Tau veto set to " << answer << endl;
+  // std::cout << "Tau veto set to " << answer << std::endl;
   return answer;
 }
 
@@ -253,13 +253,13 @@ unsigned short L1RCTReceiverCard::calcMuonBit(L1RCTRegion region){
 }
 
 void L1RCTReceiverCard::print(){
-  cout <<"Receiver Card " << cardNo << " in Crate " << crtNo <<endl;
+  std::cout <<"Receiver Card " << cardNo << " in Crate " << crtNo <<std::endl;
 
   for(int i=0;i<2;i++){
-    cout << "Region " << i << " information" << endl;
+    std::cout << "Region " << i << " information" << std::endl;
     regions.at(i).print();
-    cout << "Region Et sum " << etIn10Bits.at(i) << endl;
-    cout << "Tau Veto Bit " << tauBits.at(i) << endl;
-    cout << "Muon Bit " << muonBits.at(i) << endl;
+    std::cout << "Region Et sum " << etIn10Bits.at(i) << std::endl;
+    std::cout << "Tau Veto Bit " << tauBits.at(i) << std::endl;
+    std::cout << "Muon Bit " << muonBits.at(i) << std::endl;
   }
 }

@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Dec 12 09:55:42 CET 2007
-// $Id: HLTMuonDQMSource.cc,v 1.38 2010/04/28 16:25:10 hdyoo Exp $
+// $Id: HLTMuonDQMSource.cc,v 1.39 2010/05/02 08:13:06 dellaric Exp $
 // Modification:  Hwidong Yoo (Purdue University)
 // contact: hdyoo@cern.ch
 //
@@ -793,7 +793,7 @@ void HLTMuonDQMSource::analyze(const edm::Event& iEvent,
     int ntrigs = trigResult->size();
     const edm::TriggerNames & trigName = iEvent.triggerNames(*trigResult);
     for( int itrig = 0; itrig != ntrigs; ++itrig) {
-      //cout << "trigName = " << trigName.triggerName(itrig) << " " << itrig << endl;
+      //std::cout << "trigName = " << trigName.triggerName(itrig) << " " << itrig << std::endl;
       for( unsigned int n = 0; n < (unsigned int)theTriggerBits.size(); n++) { 
 	if( trigName.triggerIndex(theTriggerBits[n]) == (unsigned int)ntrigs ) continue;
         if( trigResult->accept(trigName.triggerIndex(theTriggerBits[n])) ) {
@@ -805,7 +805,7 @@ void HLTMuonDQMSource::analyze(const edm::Event& iEvent,
       }
     }
   }
-  //else cout << "failed to get trigResult!!" << endl;
+  //else std::cout << "failed to get trigResult!!" << std::endl;
   // trigger fired
   if( !trigFired ) return;
   nTrig_++;
@@ -838,7 +838,7 @@ void HLTMuonDQMSource::analyze(const edm::Event& iEvent,
 
   for( int ntrig = 0; ntrig < nTrigs; ntrig++ ) {
     if( !FiredTriggers[ntrig] ) continue;
-    //cout << "trigger fired!" << endl;
+    //std::cout << "trigger fired!" << std::endl;
     if( !l2seeds.failedToGet() && l2seeds.isValid() ) {
       hNMu[ntrig][3]->Fill(l2seeds->size());
       L2MuonTrajectorySeedCollection::const_iterator l2seed;
@@ -976,7 +976,7 @@ void HLTMuonDQMSource::analyze(const edm::Event& iEvent,
       }
       hNMu[ntrig][0]->Fill(l1map.size());
     }
-    //else cout << "failed to get l2seed!" << endl;
+    //else std::cout << "failed to get l2seed!" << std::endl;
 
     if (!l3seeds.failedToGet() && l3seeds.isValid() ) {
       hNMu[ntrig][4]->Fill(l3seeds->size());
@@ -1017,7 +1017,7 @@ void HLTMuonDQMSource::analyze(const edm::Event& iEvent,
       }
     }
     
-    //else cout << "failed to get l3seed!" << endl;
+    //else std::cout << "failed to get l3seed!" << std::endl;
 
     reco::BeamSpot beamSpot;
     edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
@@ -1282,7 +1282,7 @@ void HLTMuonDQMSource::endRun(const edm::Run& r, const edm::EventSetup& context)
 //--------------------------------------------------------
 void HLTMuonDQMSource::endJob(){
   edm::LogInfo("HLTMonMuon") << "analyzed " << counterEvt_ << " events";
-  //cout << "analyzed = " << counterEvt_ << " , triggered = " << nTrig_ << endl;
+  //std::cout << "analyzed = " << counterEvt_ << " , triggered = " << nTrig_ << std::endl;
   
   
   //if (outputFile_.size() != 0 && dbe_)

@@ -18,7 +18,7 @@
 #include <TH2F.h>
 #include <TProfile2D.h>
 
-using namespace std;
+
 
 class HLTEventInfoClient: public edm::EDAnalyzer {
 
@@ -57,10 +57,10 @@ protected:
 private:
 
   void initialize();
-  TH1F * get1DHisto(string meName, DQMStore * dbi);
-  TH2F * get2DHisto(string meName, DQMStore * dbi);
-  TProfile2D * get2DProfile(string meName, DQMStore * dbi);
-  TProfile * get1DProfile(string meName, DQMStore * dbi);
+  TH1F * get1DHisto(std::string meName, DQMStore * dbi);
+  TH2F * get2DHisto(std::string meName, DQMStore * dbi);
+  TProfile2D * get2DProfile(std::string meName, DQMStore * dbi);
+  TProfile * get1DProfile(std::string meName, DQMStore * dbi);
   edm::ParameterSet parameters_;
 
   DQMStore* dbe_;  

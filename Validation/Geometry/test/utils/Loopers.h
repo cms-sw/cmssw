@@ -18,8 +18,6 @@
 #include <iostream>
 #include <fstream>
 
-using namespace std;
-
 // histograms
 // Target
 TH1F* hist_loops;
@@ -47,7 +45,7 @@ TH2F* hist_bx_vs_secondaryParticle;
 //
 
 // logfile
-ofstream theLogFile;
+std::ofstream theLogFile;
 //
 
 const double pi = 3.14159265;

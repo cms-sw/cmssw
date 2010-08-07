@@ -61,9 +61,9 @@ CompHist::configBlockIO(ConfigFile& cfg)
     readVector ( cfg.read<std::string>( "outputLabels" ), outputLabelList_ );
   }
   catch(...){
-    cerr << "ERROR during reading of config file" << endl;
-    cerr << "      misspelled variables in cfg ?" << endl;
-    cerr << "      [--called in configBlockIO--]" << endl;
+    std::cerr << "ERROR during reading of config file" << std::endl;
+    std::cerr << "      misspelled variables in cfg ?" << std::endl;
+    std::cerr << "      [--called in configBlockIO--]" << std::endl;
     std::exit(1);
   }
 }
@@ -111,9 +111,9 @@ CompHist::configBlockHist(ConfigFile& cfg)
     legYUpper_= cfg.read<double>( "legYUpper" );
   }
   catch(...){
-    cerr << "ERROR during reading of config file"   << endl;
-    cerr << "      misspelled variables in cfg ?"   << endl;
-    cerr << "      [--called in configBlockHist--]" << endl;
+    std::cerr << "ERROR during reading of config file"   << std::endl;
+    std::cerr << "      misspelled variables in cfg ?"   << std::endl;
+    std::cerr << "      [--called in configBlockHist--]" << std::endl;
     std::exit(1);
   }
 }
@@ -139,16 +139,16 @@ CompHist::readHistogramList()
 	histList_.push_back(buffer);
       else{
 	if(verbose_){
-	  cout << " histogram is filtered out according"
+	  std::cout << " histogram is filtered out according"
 	       << " to settings in cfg file; filterOpt:  "
-	       << filterOpt_ << endl;
+	       << filterOpt_ << std::endl;
 	}
       }
     }
     if( count>999 ){
-      cerr << "ERROR caught in slope for histogram" << endl;
-      cerr << "      names. Misspelled file name ?" << endl;
-      cerr << histFile_.c_str() << endl;
+      std::cerr << "ERROR caught in slope for histogram" << std::endl;
+      std::cerr << "      names. Misspelled file name ?" << std::endl;
+      std::cerr << histFile_.c_str() << std::endl;
       break;
     }
     ++count;
@@ -178,17 +178,17 @@ CompHist::loadHistograms(std::vector<std::string>& histList, std::vector<TObjArr
 	directory+=histList[idx];
 	
 	if(verbose_){
-	  cout << "load from: " << (*file)->GetName() << " " 
-	       << "directory: " << directory << endl;
+	  std::cout << "load from: " << (*file)->GetName() << " " 
+	       << "directory: " << directory << std::endl;
 	}
 	dummy = (TH1F*)(*file)->Get( directory );
 	if( !dummy ){
-	  cerr << "WARNING:" 
+	  std::cerr << "WARNING:" 
 	       << " Didn't find indicated hist"
 	       << " [" << directory << "]" 
 	       << " in file" 
 	       << " [" << (*file)->GetName() << "]" 
-	       << endl;
+	       << std::endl;
 	  return;
 	}
 
@@ -204,7 +204,7 @@ CompHist::loadHistograms(std::vector<std::string>& histList, std::vector<TObjArr
 	// add histogram to list
 	hist.Add( dummy );
 	if(verbose_){
-	  cout << "added to list as: " << dummy->GetName() << endl;
+	  std::cout << "added to list as: " << dummy->GetName() << std::endl;
 	}
       } // end of histogram name list 
       sampleList.push_back( hist );
@@ -230,9 +230,9 @@ CompHist::loadHistograms()
   else{
     if( histFilterList_.size()>0 ){
       if( !filterOpt_.compare("contains") )
-	cout << "WARNING: missing hist file in cfg file; will use list of histogram" << endl
-	     << "         names given in histFilter instead, requires filterOption " << endl
-	     << "         'optains'; will move filterOption to 'optain' to go on..." << endl;
+	cout << "WARNING: missing hist file in cfg file; will use list of histogram" << std::endl
+	     << "         names given in histFilter instead, requires filterOption " << std::endl
+	     << "         'optains'; will move filterOption to 'optain' to go on..." << std::endl;
       filterOpt_="contains";
       histList_ =histFilterList_;
     }
@@ -256,9 +256,9 @@ CompHist::histFilter(TString& cmp, std::vector<std::string>& ref)
       contained = histFilter(cmp, ref, kContains);
     }
     else{
-      cerr << "ERROR during histogram filtering   " << endl;
-      cerr << "      filter option is not properly" << endl;
-      cerr << "      specified : " << filterOpt_ << endl;
+      std::cerr << "ERROR during histogram filtering   " << std::endl;
+      std::cerr << "      filter option is not properly" << std::endl;
+      std::cerr << "      specified : " << filterOpt_ << std::endl;
     }
   }
   return contained;
@@ -380,7 +380,7 @@ CompHist::drawPs()
 	cout << " event is filtered out according to"
 	     << " settings in cfg file; filterOpt:  "
 	     << filterOpt_ 
-	     << " hist: " << cmp << endl;
+	     << " hist: " << cmp << std::endl;
       }
       continue;
     }
@@ -425,7 +425,7 @@ CompHist::drawEps()
 	cout << " event is filtered out according to"
 	     << " settings in cfg file; filterOpt:  "
 	     << filterOpt_ 
-	     << " hist: " << cmp << endl;
+	     << " hist: " << cmp << std::endl;
       }
       continue;
     }
@@ -774,10 +774,10 @@ CompHist::writeOutput(CompHist::RootOutput option)
 	  ((TH1F*)((sampleList_.back())[idx]))->Write();
 	  break;
 	default:
-	  cerr << "WARNING:" 
+	  std::cerr << "WARNING:" 
 	       << " Wrong option indicated for writeOutput" << " [" << option 
 	       << "]" << " while only " << kFirstOnly << " up to " << kAll 
-	       << " are available" << endl;
+	       << " are available" << std::endl;
 	  break;	  
 	}
       }
