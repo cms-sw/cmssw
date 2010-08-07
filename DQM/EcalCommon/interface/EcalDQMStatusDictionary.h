@@ -5,8 +5,8 @@
   \file Status.h
   \brief dictionary for Ecal DQM status codes
   \author G. Della Ricca
-  \version $Revision: 1.2 $
-  \date $Date: 2010/08/06 18:50:24 $
+  \version $Revision: 1.3 $
+  \date $Date: 2010/08/07 06:43:34 $
 */
 
 #include <boost/cstdint.hpp>
@@ -21,7 +21,7 @@ class EcalDQMStatusDictionary {
 
   struct codeDef_t {
     uint32_t code;
-    char desc[37];
+    char desc[39];
   };
 
   static void getDictionary(std::vector<codeDef_t> &dict) {
@@ -34,7 +34,7 @@ class EcalDQMStatusDictionary {
   EcalDQMStatusDictionary() {}; // Hidden to force static use
   ~EcalDQMStatusDictionary() {};  // Hidden to force static use
 
-  const static unsigned int DICTSIZE = 40;
+  const static unsigned int DICTSIZE = 56;
 
   static codeDef_t getDef(unsigned int i) {
     const static codeDef_t DICT[DICTSIZE] =
@@ -87,10 +87,30 @@ class EcalDQMStatusDictionary {
 	{ ((uint32_t) 1 << EcalDQMStatusHelper::PEDESTAL_MIDDLE_GAIN_RMS_ERROR), "PEDESTAL_MIDDLE_GAIN_RMS_WARNING"},
 	{ ((uint32_t) 1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_RMS_ERROR), "PEDESTAL_HIGH_GAIN_RMS_WARNING"},
 
-	{ ((uint32_t) 1 << EcalDQMStatusHelper::LED_MEAN_ERROR), "LASER_MEAN_OVER_PN_ERROR"},
-	{ ((uint32_t) 1 << EcalDQMStatusHelper::LED_RMS_ERROR), "LASER_RMS_OVER_PN_ERROR"},
+	{ ((uint32_t) 1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR), "PEDESTAL_ONLINE_HIGH_GAIN_MEAN_WARNING"},
+	{ ((uint32_t) 1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR), "PEDESTAL_ONLINE_HIGH_GAIN_RMS_WARNING"},
+
+        { ((uint32_t) 1 << EcalDQMStatusHelper::TESTPULSE_LOW_GAIN_MEAN_ERROR), "TESTPULSE_LOW_GAIN_MEAN_WARNING"},
+        { ((uint32_t) 1 << EcalDQMStatusHelper::TESTPULSE_MIDDLE_GAIN_MEAN_ERROR), "TESTPULSE_MIDDLE_GAIN_MEAN_WARNING"},
+        { ((uint32_t) 1 << EcalDQMStatusHelper::TESTPULSE_HIGH_GAIN_MEAN_ERROR), "TESTPULSE_HIGH_GAIN_MEAN_WARNING"},
+        { ((uint32_t) 1 << EcalDQMStatusHelper::TESTPULSE_LOW_GAIN_RMS_ERROR), "TESTPULSE_LOW_GAIN_RMS_WARNING"},
+        { ((uint32_t) 1 << EcalDQMStatusHelper::TESTPULSE_MIDDLE_GAIN_RMS_ERROR), "TESTPULSE_MIDDLE_GAIN_RMS_WARNING"},
+        { ((uint32_t) 1 << EcalDQMStatusHelper::TESTPULSE_HIGH_GAIN_RMS_ERROR), "TESTPULSE_HIGH_GAIN_RMS_WARNING"},
+
+        { ((uint32_t) 1 << EcalDQMStatusHelper::LASER_MEAN_ERROR), "LASER_MEAN_WARNING"},
+        { ((uint32_t) 1 << EcalDQMStatusHelper::LASER_RMS_ERROR), "LASER_RMS_WARNING"},
+        { ((uint32_t) 1 << EcalDQMStatusHelper::LASER_TIMING_MEAN_ERROR), "LASER_MEAN_TIMING_WARNING"},
+        { ((uint32_t) 1 << EcalDQMStatusHelper::LASER_TIMING_RMS_ERROR), "LASER_RMS_TIMING_WARNING"},
+
+	{ ((uint32_t) 1 << EcalDQMStatusHelper::LASER_MEAN_ERROR), "LASER_MEAN_OVER_PN_ERROR"},
+	{ ((uint32_t) 1 << EcalDQMStatusHelper::LASER_RMS_ERROR), "LASER_RMS_OVER_PN_ERROR"},
 	{ ((uint32_t) 1 << EcalDQMStatusHelper::LASER_TIMING_MEAN_ERROR), "LASER_MEAN_TT_TIMING_ERROR"},
-	{ ((uint32_t) 1 << EcalDQMStatusHelper::LASER_TIMING_RMS_ERROR), "LASER_RMS_TT_TIMING_ERROR"}
+	{ ((uint32_t) 1 << EcalDQMStatusHelper::LASER_TIMING_RMS_ERROR), "LASER_RMS_TT_TIMING_ERROR"},
+
+        { ((uint32_t) 1 << EcalDQMStatusHelper::LASER_MEAN_ERROR), "LASER_MEAN_OVER_PN_WARNING"},
+        { ((uint32_t) 1 << EcalDQMStatusHelper::LASER_RMS_ERROR), "LASER_RMS_OVER_PN_WARNING"},
+        { ((uint32_t) 1 << EcalDQMStatusHelper::LASER_TIMING_MEAN_ERROR), "LASER_MEAN_TT_TIMING_WARNING"},
+        { ((uint32_t) 1 << EcalDQMStatusHelper::LASER_TIMING_RMS_ERROR), "LASER_RMS_TT_TIMING_WARNING"}
 
       };
 
