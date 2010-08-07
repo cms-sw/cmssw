@@ -70,7 +70,7 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
 
 
   
-  auto_ptr<reco::CaloJetCollection> selectedTaus(jetCollectionTmp);
+  std::auto_ptr<reco::CaloJetCollection> selectedTaus(jetCollectionTmp);
 
   iEvent.put(selectedTaus);
 

@@ -3,6 +3,8 @@
 #include "RecoTauTag/HLTProducers/interface/L2TauSimpleClustering.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
+using namespace reco;
+
 L2TauNarrowConeIsolationProducer::L2TauNarrowConeIsolationProducer(const edm::ParameterSet& iConfig):
   l2CaloJets_(iConfig.getParameter<edm::InputTag>("L2TauJetCollection")),
   EBRecHits_(iConfig.getParameter<edm::InputTag>("EBRecHits")),
@@ -51,7 +53,7 @@ L2TauNarrowConeIsolationProducer::produce(edm::Event& iEvent, const edm::EventSe
 {
 
 
-   Handle<CaloJetCollection> l2CaloJets; //Handle to the input (L2TauCaloJets);
+   edm::Handle<CaloJetCollection> l2CaloJets; //Handle to the input (L2TauCaloJets);
    iEvent.getByLabel(l2CaloJets_ ,l2CaloJets);//get the handle
 
    //Create the Association
@@ -154,7 +156,7 @@ math::PtEtaPhiELorentzVectorCollection
 L2TauNarrowConeIsolationProducer::getECALHits(const CaloJet& jet,const edm::Event& iEvent,const edm::EventSetup& iSetup)
 {
   //Init Geometry
-  ESHandle<CaloGeometry> geometry;
+  edm::ESHandle<CaloGeometry> geometry;
   iSetup.get<CaloGeometryRecord>().get(geometry);
 
   //Create ECAL Geometry
@@ -162,8 +164,8 @@ L2TauNarrowConeIsolationProducer::getECALHits(const CaloJet& jet,const edm::Even
   const CaloSubdetectorGeometry* EE = geometry->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
 
   //Handle To the ECAL
-  Handle<EBRecHitCollection> EBRecHits;
-  Handle<EERecHitCollection> EERecHits;
+  edm::Handle<EBRecHitCollection> EBRecHits;
+  edm::Handle<EERecHitCollection> EERecHits;
 
   //Create a container for the hits
   math::PtEtaPhiELorentzVectorCollection jetRecHits;

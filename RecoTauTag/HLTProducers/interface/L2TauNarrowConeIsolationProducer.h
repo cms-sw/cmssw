@@ -45,12 +45,14 @@ e-mail: bachtis@hep.wisc.edu
 #include "Math/GenVector/PxPyPzE4D.h"
 
 
-using namespace reco;
-using namespace edm;
+
+
 
 
 class L2TauNarrowConeIsolationProducer : public edm::EDProducer {
    public:
+      typedef reco::CaloJet CaloJet;
+      typedef reco::CaloJetCollection CaloJetCollection;
       explicit L2TauNarrowConeIsolationProducer(const edm::ParameterSet&);
       ~L2TauNarrowConeIsolationProducer();
 

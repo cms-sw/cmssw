@@ -46,8 +46,8 @@ e-mail: bachtis@hep.wisc.edu
 #include "Math/GenVector/PxPyPzE4D.h"
 
 
-using namespace reco;
-using namespace edm;
+
+
 
 
 class L2TauIsolationProducer : public edm::EDProducer {
@@ -62,8 +62,8 @@ class L2TauIsolationProducer : public edm::EDProducer {
 
 
       //Retrieve Calo Hits 
-      math::PtEtaPhiELorentzVectorCollection getECALHits(const CaloJet&,const edm::Event&,const edm::EventSetup& iSetup); 
-      math::PtEtaPhiELorentzVectorCollection getHCALHits(const CaloJet&);
+      math::PtEtaPhiELorentzVectorCollection getECALHits(const reco::CaloJet&,const edm::Event&,const edm::EventSetup& iSetup); 
+      math::PtEtaPhiELorentzVectorCollection getHCALHits(const reco::CaloJet&);
 
       edm::InputTag l2CaloJets_;//label for the readout Collection
       edm::InputTag EBRecHits_;//Label for ECAL Barrel Hits

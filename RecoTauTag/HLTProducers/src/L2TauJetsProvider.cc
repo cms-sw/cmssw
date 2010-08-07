@@ -48,11 +48,11 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
    CaloJetCollection::const_iterator iTau = tauJets->begin();
    if(iTau != tauJets->end()){
      //Create a Map to associate to every Jet its L1SeedId, i.e. 0,1,2 or 3
-     myL2L1JetsMap.insert(pair<int, const CaloJet>(iL1Jet, *(iTau)));
+     myL2L1JetsMap.insert(std::pair<int, const CaloJet>(iL1Jet, *(iTau)));
    }
    iL1Jet++;
  }
- auto_ptr<CaloJetCollection> tauL2jets(new CaloJetCollection);
+ std::auto_ptr<CaloJetCollection> tauL2jets(new CaloJetCollection);
 
  //Loop over the jetSrc to select the proper jets
   
@@ -99,7 +99,7 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	  for(unsigned int iJet=0;iJet<myL1Obj.size();iJet++)
 	    {
 	      //Find the relative L2TauJets, to see if it has been reconstructed
-	    map<int, const reco::CaloJet>::const_iterator myL2itr = myL2L1JetsMap.find(iJet);
+	    std::map<int, const reco::CaloJet>::const_iterator myL2itr = myL2L1JetsMap.find(iJet);
 	    if(myL2itr!=myL2L1JetsMap.end()){
 	      //Calculate the DeltaR between L1TauCandidate and L1Tau which fired the trigger
 	      if(&tauCandRefVec[iL1Tau]) 
@@ -122,7 +122,7 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	for(unsigned int iJet=0;iJet<myL1Obj.size();iJet++)
 	  {
 	    //Find the relative L2TauJets, to see if it has been reconstructed
-	    map<int, const reco::CaloJet>::const_iterator myL2itr = myL2L1JetsMap.find(iJet);
+	    std::map<int, const reco::CaloJet>::const_iterator myL2itr = myL2L1JetsMap.find(iJet);
 	    if(myL2itr!=myL2L1JetsMap.end()){
 	      //Calculate the DeltaR between L1TauCandidate and L1Tau which fired the trigger
 	      if(&jetCandRefVec[iL1Tau])
@@ -142,7 +142,7 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
       }
     
   }
-  //  cout <<"Size of L2 jets "<<tauL2jets->size()<<endl;
+  //  std::cout <<"Size of L2 jets "<<tauL2jets->size()<<std::endl;
 
   iEvent.put(tauL2jets);
 

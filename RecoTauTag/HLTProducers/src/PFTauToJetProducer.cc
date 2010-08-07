@@ -36,7 +36,7 @@ void PFTauToJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 
 
   
-  auto_ptr<reco::PFJetCollection> selectedTaus(jetCollectionTmp);
+  std::auto_ptr<reco::PFJetCollection> selectedTaus(jetCollectionTmp);
 
   iEvent.put(selectedTaus);
 

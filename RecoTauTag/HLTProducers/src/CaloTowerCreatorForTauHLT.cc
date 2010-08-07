@@ -44,7 +44,7 @@ void CaloTowerCreatorForTauHLT::produce( Event& evt, const EventSetup& ) {
   // imitate L1 seeds
   Handle<L1JetParticleCollection> jetsgen;
   evt.getByLabel(mTauTrigger, jetsgen);
-  auto_ptr<CaloTowerCollection> cands( new CaloTowerCollection );
+  std::auto_ptr<CaloTowerCollection> cands( new CaloTowerCollection );
   cands->reserve( caloTowers->size() );
   
   int idTau =0;

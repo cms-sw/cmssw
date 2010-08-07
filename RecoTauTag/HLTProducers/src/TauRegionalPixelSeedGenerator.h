@@ -28,7 +28,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 
-using namespace reco;
+
 class TauRegionalPixelSeedGenerator : public TrackingRegionProducer {
   public:
     

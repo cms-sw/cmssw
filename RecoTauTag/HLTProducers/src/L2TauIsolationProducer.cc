@@ -3,6 +3,7 @@
 #include "RecoTauTag/HLTProducers/interface/L2TauSimpleClustering.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
+using namespace reco;
 
 L2TauIsolationProducer::L2TauIsolationProducer(const edm::ParameterSet& iConfig):
   l2CaloJets_(iConfig.getParameter<edm::InputTag>("L2TauJetCollection")),
@@ -53,7 +54,7 @@ L2TauIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 {
 
 
-   Handle<CaloJetCollection> l2CaloJets; //Handle to the input (L2TauCaloJets);
+   edm::Handle<CaloJetCollection> l2CaloJets; //Handle to the input (L2TauCaloJets);
    iEvent.getByLabel(l2CaloJets_ ,l2CaloJets);//get the handle
 
    //Create the Association
@@ -154,7 +155,7 @@ L2TauIsolationProducer::getECALHits(const CaloJet& jet,const edm::Event& iEvent,
 {
 
   //Init Geometry
-  ESHandle<CaloGeometry> geometry;
+  edm::ESHandle<CaloGeometry> geometry;
   iSetup.get<CaloGeometryRecord>().get(geometry);
 
   //Create ECAL Geometry
@@ -162,8 +163,8 @@ L2TauIsolationProducer::getECALHits(const CaloJet& jet,const edm::Event& iEvent,
   const CaloSubdetectorGeometry* EE = geometry->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
 
   //Handle To the ECAL
-  Handle<EBRecHitCollection> EBRecHits;
-  Handle<EERecHitCollection> EERecHits;
+  edm::Handle<EBRecHitCollection> EBRecHits;
+  edm::Handle<EERecHitCollection> EERecHits;
 
   //Read From File
  
@@ -236,7 +237,7 @@ L2TauIsolationProducer::getECALHits(const CaloJet& jet,const edm::Event& iEvent,
 		    double theta = posi.theta();
 		    if (theta > M_PI) theta = 2 * M_PI - theta;
 		    double et = energy * sin(theta);
-		    // cout <<"Et "<<et<<endl;
+		    // std::cout <<"Et "<<et<<std::endl;
 		    math::PtEtaPhiELorentzVector p(et, eta, phi, energy);
 	    	     if(p.pt()>crystalThreshold_)
 		      { 

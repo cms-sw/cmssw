@@ -32,7 +32,7 @@ void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	using namespace trigger;
 	using namespace l1extra;
 	
-	typedef vector<LeafCandidate> LeafCandidateCollection;
+	typedef std::vector<LeafCandidate> LeafCandidateCollection;
 	
 	auto_ptr<CaloJetCollection> tauL2jets(new CaloJetCollection);
 	
@@ -42,7 +42,7 @@ void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	edm::Handle<edm::View<Candidate> > tauJets;
 	iEvent.getByLabel( jetSrc, tauJets );
 
-//		cout <<"Size of input jet collection "<<tauJets->size()<<endl;
+//		cout <<"Size of input jet collection "<<tauJets->size()<<std::endl;
 		
 	Handle<trigger::TriggerFilterObjectWithRefs> l1TriggeredTaus;
     iEvent.getByLabel(tauTrigger,l1TriggeredTaus);
@@ -95,7 +95,7 @@ void L1HLTJetsMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 		}
 	
 
-//cout <<"Size of L1HLT matched jets "<<tauL2jets->size()<<endl;
+//std::cout <<"Size of L1HLT matched jets "<<tauL2jets->size()<<std::endl;
 
 iEvent.put(tauL2jets);
 // iEvent.put(tauL2LC);
