@@ -64,13 +64,13 @@ public:
   /** Fit vertex out of a set of VertexTracks
    */
   virtual inline CachingVertex<5> 
-  vertex(const vector<RefCountedVertexTrack> & tracks) const
+  vertex(const std::vector<RefCountedVertexTrack> & tracks) const
   {
     return theSequentialFitter->vertex(tracks);
   }
   
   virtual inline CachingVertex<5> 
-  vertex(const vector<RefCountedVertexTrack> & tracks,
+  vertex(const std::vector<RefCountedVertexTrack> & tracks,
       const reco::BeamSpot & spot ) const
   {
     return theSequentialFitter->vertex(tracks, spot );
@@ -105,7 +105,7 @@ public:
    * The specified LinearizationPointFinder will be used to find the linearization point.
    */
   virtual inline CachingVertex<5> 
-  vertex(const vector<reco::TransientTrack> & tracks, const reco::BeamSpot& beamSpot) const
+  vertex(const std::vector<reco::TransientTrack> & tracks, const reco::BeamSpot& beamSpot) const
   {
     return theSequentialFitter->vertex(tracks, beamSpot);
   }
@@ -117,7 +117,7 @@ public:
    *  This position is not used to relinearize the tracks.
    */
   virtual inline CachingVertex<5> 
-  vertex(const vector<RefCountedVertexTrack> & tracks, 
+  vertex(const std::vector<RefCountedVertexTrack> & tracks, 
 	 const GlobalPoint& priorPos,
 	 const GlobalError& priorError) const
   {

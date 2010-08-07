@@ -69,8 +69,8 @@ void SimpleVertexTree::defineTrackBranch(const TString& prefix, const TString& t
 
 SimpleVertexTree::~SimpleVertexTree()
 {
-  cout << endl<< "End of SimpleVertexTree for "<< theFitterName << endl;
-  cout << endl<< "Number of vertices fit: "<< numberOfVertices<<endl;
+  std::cout << std::endl<< "End of SimpleVertexTree for "<< theFitterName << std::endl;
+  std::cout << std::endl<< "Number of vertices fit: "<< numberOfVertices<<std::endl;
 
   //
   // save current root directory
@@ -98,20 +98,20 @@ SimpleVertexTree::~SimpleVertexTree()
     vertexTree->Project(theFitterName + "_PullZ", "(simPos.Z-recPos.Z)/recErr.Z");
     vertexTree->Project(theFitterName + "_ChiNorm", "chiTot/ndf");
     vertexTree->Project(theFitterName + "_ChiProb", "chiProb");
-    cout << "Mean of Residual distribution X: "<< resX->GetMean()<<endl;
-    cout << "Mean of Residual distribution Y: "<< resY->GetMean()<<endl;
-    cout << "Mean of Residual distribution Z: "<< resZ->GetMean()<<endl;
-    cout << "RMS of Residual distribution X:  "<< resX->GetRMS()<<endl;
-    cout << "RMS of Residual distribution Y:  "<< resY->GetRMS()<<endl;
-    cout << "RMS of Residual distribution Z:  "<< resZ->GetRMS()<<endl;
-    cout << "Mean of Pull distribution X: "<< pullX->GetMean()<<endl;
-    cout << "Mean of Pull distribution Y: "<< pullY->GetMean()<<endl;
-    cout << "Mean of Pull distribution Z: "<< pullZ->GetMean()<<endl;
-    cout << "RMS of Pull distribution X:  "<< pullX->GetRMS()<<endl;
-    cout << "RMS of Pull distribution Y:  "<< pullY->GetRMS()<<endl;
-    cout << "RMS of Pull distribution Z:  "<< pullZ->GetRMS()<<endl;
-    cout << "Average chi-square probability: "<< chiProb->GetMean()<<endl;
-    cout << "Average normalized chi-square : "<< chiNorm->GetMean()<<endl;
+    std::cout << "Mean of Residual distribution X: "<< resX->GetMean()<<std::endl;
+    std::cout << "Mean of Residual distribution Y: "<< resY->GetMean()<<std::endl;
+    std::cout << "Mean of Residual distribution Z: "<< resZ->GetMean()<<std::endl;
+    std::cout << "RMS of Residual distribution X:  "<< resX->GetRMS()<<std::endl;
+    std::cout << "RMS of Residual distribution Y:  "<< resY->GetRMS()<<std::endl;
+    std::cout << "RMS of Residual distribution Z:  "<< resZ->GetRMS()<<std::endl;
+    std::cout << "Mean of Pull distribution X: "<< pullX->GetMean()<<std::endl;
+    std::cout << "Mean of Pull distribution Y: "<< pullY->GetMean()<<std::endl;
+    std::cout << "Mean of Pull distribution Z: "<< pullZ->GetMean()<<std::endl;
+    std::cout << "RMS of Pull distribution X:  "<< pullX->GetRMS()<<std::endl;
+    std::cout << "RMS of Pull distribution Y:  "<< pullY->GetRMS()<<std::endl;
+    std::cout << "RMS of Pull distribution Z:  "<< pullZ->GetRMS()<<std::endl;
+    std::cout << "Average chi-square probability: "<< chiProb->GetMean()<<std::endl;
+    std::cout << "Average normalized chi-square : "<< chiNorm->GetMean()<<std::endl;
     resX->Write();
     resY->Write();
     resZ->Write();
@@ -126,7 +126,7 @@ SimpleVertexTree::~SimpleVertexTree()
   // restore directory
   //
   rootDir->cd();
-  cout << endl;
+  std::cout << std::endl;
 
 }
 
@@ -150,14 +150,14 @@ void SimpleVertexTree::fill(const TrackingVertex * simv)
 }
 
 // void SimpleVertexTree::fill(const RecVertex & recVertex, 
-// 			const vector < RecTrack > & recTrackV,
+// 			const std::vector < RecTrack > & recTrackV,
 // 			const TkSimVertex * simv, const float &time)
 // {
 //   result->fill(recVertex, recTrackV, simv, time);
 //   fill();
 // }
 // 
-// void SimpleVertexTree::fill(const vector < RecTrack > & recTrackV,
+// void SimpleVertexTree::fill(const std::vector < RecTrack > & recTrackV,
 // 			const TkSimVertex * simv, const float &time)
 // {
 //   result->fill(RecVertex(), recTrackV, simv, time);

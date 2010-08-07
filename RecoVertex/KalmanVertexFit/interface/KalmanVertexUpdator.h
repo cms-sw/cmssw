@@ -54,7 +54,7 @@ public:
 	 const RefCountedLinearizedTrackState linearizedTrack, 
 	 const float weight, int sign) const;
 
-  pair <bool, double> chi2Increment(const VertexState & oldVertex, 
+  std::pair <bool, double> chi2Increment(const VertexState & oldVertex, 
 	 const VertexState & newVertexState,
 	 const RefCountedLinearizedTrackState linearizedTrack, 
 	 float weight) const; 

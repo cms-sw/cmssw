@@ -20,25 +20,25 @@ CachingVertex<N> KalmanVertexUpdator<N>::update(const  CachingVertex<N> & oldVer
   if (!newVertexState.isValid()) return CachingVertex<N>();
 
   float chi1 = oldVertex.totalChiSquared();
-  pair <bool, double> chi2P = chi2Increment(oldVertex.vertexState(), newVertexState, 
+  std::pair <bool, double> chi2P = chi2Increment(oldVertex.vertexState(), newVertexState, 
                              track->linearizedTrack() , weight );
   if (!chi2P.first) return CachingVertex<N>(); // return invalid vertex
 
   chi1 +=sign * chi2P.second;
 
 //adding or removing track from the CachingVertex::VertexTracks
-  vector<RefCountedVertexTrack> newVertexTracks = oldVertex.tracks();
+  std::vector<RefCountedVertexTrack> newVertexTracks = oldVertex.tracks();
 
   if (sign > 0) {
     newVertexTracks.push_back(track);
   }else{
 
-    typename vector<RefCountedVertexTrack>::iterator pos 
+    typename std::vector<RefCountedVertexTrack>::iterator pos 
       = find(newVertexTracks.begin(), newVertexTracks.end(), track);
     if (pos != newVertexTracks.end()) {
       newVertexTracks.erase(pos);
     } else {
-      cout<<"KalmanVertexUpdator::Unable to find requested track in the current vertex"<<endl;
+      std::cout<<"KalmanVertexUpdator::Unable to find requested track in the current vertex"<<std::endl;
       throw VertexException("KalmanVertexUpdator::Unable to find requested track in the current vertex");
     }
   }
@@ -134,7 +134,7 @@ KalmanVertexUpdator<N>::positionUpdate (const VertexState & oldVertex,
 
 
 template <unsigned int N>
-pair <bool, double>  KalmanVertexUpdator<N>::chi2Increment(const VertexState & oldVertex, 
+std::pair <bool, double>  KalmanVertexUpdator<N>::chi2Increment(const VertexState & oldVertex, 
 	const VertexState & newVertexState,
 	const RefCountedLinearizedTrackState linearizedTrack, 
 	float weight) const 
@@ -143,7 +143,7 @@ pair <bool, double>  KalmanVertexUpdator<N>::chi2Increment(const VertexState & o
   GlobalPoint newVertexPosition = newVertexState.position();
 
   if (!linearizedTrack->isValid())
-    return pair <bool, double> ( false, -1. );
+    return std::pair <bool, double> ( false, -1. );
 
   AlgebraicVector3 newVertexPositionV;
   newVertexPositionV(0) = newVertexPosition.x();
@@ -160,14 +160,14 @@ pair <bool, double>  KalmanVertexUpdator<N>::chi2Increment(const VertexState & o
   	linearizedTrack->predictedStateWeight(error);
   if(error!=0) {
     edm::LogWarning("KalmanVertexUpdator") << "predictedState error matrix inversion failed. An invalid vertex will be returned.";
-    return pair <bool, double> (false, -1.);
+    return std::pair <bool, double> (false, -1.);
   }
 
   AlgebraicSymMatrixMM s = ROOT::Math::SimilarityT(b,trackParametersWeight);
   error = ! s.Invert();
   if(error!=0) {
     edm::LogWarning("KalmanVertexUpdator") << "S matrix inversion failed. An invalid vertex will be returned.";
-    return pair <bool, double> (false, -1.);
+    return std::pair <bool, double> (false, -1.);
   }
 
   const AlgebraicVectorN & theResidual = linearizedTrack->constantTerm();
@@ -186,7 +186,7 @@ pair <bool, double>  KalmanVertexUpdator<N>::chi2Increment(const VertexState & o
 //   chi2 += vertexPositionChi2(oldVertex, newVertexPosition);
   chi2 += helper.vertexChi2(oldVertex, newVertexState);
 
-  return pair <bool, double> (true, chi2);
+  return std::pair <bool, double> (true, chi2);
 }
 
 template class KalmanVertexUpdator<5>;

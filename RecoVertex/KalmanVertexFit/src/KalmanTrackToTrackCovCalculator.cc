@@ -16,12 +16,12 @@ KalmanTrackToTrackCovCalculator<N>::operator()
 
   typename CachingVertex<N>::TrackToTrackMap returnMap;
   int ifail = 0;
-  vector<RefCountedVertexTrack> tracks = vertex.tracks();
+  std::vector<RefCountedVertexTrack> tracks = vertex.tracks();
 
 //vertex initial data needed
   AlgebraicSymMatrix33 vertexC = vertex.error().matrix_new();
 
-  for(typename vector<RefCountedVertexTrack>::iterator i = tracks.begin(); 
+  for(typename std::vector<RefCountedVertexTrack>::iterator i = tracks.begin(); 
   	i != tracks.end(); i++)
   {        
     const AlgebraicMatrixN3 & leftA = (*i)->linearizedTrack()->positionJacobian();
@@ -34,7 +34,7 @@ KalmanTrackToTrackCovCalculator<N>::operator()
     	("KalmanTrackToTrackCovarianceCalculator::leftW matrix inversion failed");
     AlgebraicMatrixM3 leftPart = leftW * (ROOT::Math::Transpose(leftB)) * leftG * leftA;
     typename CachingVertex<N>::TrackMap internalMap;
-    for(typename vector<RefCountedVertexTrack>::iterator j = tracks.begin(); j != tracks.end(); j++)
+    for(typename std::vector<RefCountedVertexTrack>::iterator j = tracks.begin(); j != tracks.end(); j++)
     {
 
       if(*i < *j)

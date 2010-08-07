@@ -24,7 +24,7 @@
 class VertexFitterResult {
 public:
 
-//   typedef vector<const TkSimTrack*>	SimTrackCont;
+//   typedef std::vector<const TkSimTrack*>	SimTrackCont;
   typedef std::vector<reco::TransientTrack>		TTrackCont;
 
   VertexFitterResult(const int maxTracks = 100, TrackAssociatorByChi2 *associator = 0);
@@ -82,7 +82,7 @@ public:
 
 private:
 
-//   typedef vector<const TkSimTrack*> SimTrkCont;
+//   typedef std::vector<const TkSimTrack*> SimTrkCont;
 // 
   void fillParameters (const reco::TrackBase::ParameterVector& perigee, float* params[5],
   			int trackNumber);

@@ -16,10 +16,10 @@ KalmanSmoothedVertexChi2Estimator<N>::estimate(const CachingVertex<N> & vertex) 
 
 //vector of tracks part
   typedef typename CachingVertex<N>::RefCountedVertexTrack RefCountedVertexTrack;
-  vector< RefCountedVertexTrack > tracks = vertex.tracks();
+  std::vector< RefCountedVertexTrack > tracks = vertex.tracks();
   float sum = 0.;
   bool success = true;
-  for(typename vector<RefCountedVertexTrack>::iterator i = tracks.begin(); i != tracks.end(); i++)
+  for(typename std::vector<RefCountedVertexTrack>::iterator i = tracks.begin(); i != tracks.end(); i++)
   {
     BDpair result = helper.trackParameterChi2((*i)->linearizedTrack(), (*i)->refittedState());
     success = success && result.first;

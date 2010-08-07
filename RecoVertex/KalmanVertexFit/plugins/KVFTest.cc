@@ -78,7 +78,7 @@ KVFTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   } else {
     edm::LogInfo("RecoVertex/KVFTest") 
       << "Found: " << (*tks).size() << " reconstructed tracks" << "\n";
-    cout << "got " << (*tks).size() << " tracks " << endl;
+    std::cout << "got " << (*tks).size() << " tracks " << std::endl;
     
     // Transform Track to TransientTrack
 
@@ -86,7 +86,7 @@ KVFTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::ESHandle<TransientTrackBuilder> theB;
     iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
     //do the conversion:
-    vector<TransientTrack> t_tks = (*theB).build(tks);
+    std::vector<TransientTrack> t_tks = (*theB).build(tks);
 
     edm::LogInfo("RecoVertex/KVFTest") 
       << "Found: " << t_tks.size() << " reconstructed tracks" << "\n";

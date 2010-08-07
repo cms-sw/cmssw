@@ -11,8 +11,8 @@ KalmanVertexTrackCompatibilityEstimator<N>::estimate(const CachingVertex<N> & ve
 			 const RefCountedVertexTrack tr) const
 {
 //checking if the track passed really belongs to the vertex
-  vector<RefCountedVertexTrack> tracks = vertex.tracks();
-  typename vector<RefCountedVertexTrack>::iterator pos 
+  std::vector<RefCountedVertexTrack> tracks = vertex.tracks();
+  typename std::vector<RefCountedVertexTrack>::iterator pos 
     = find_if(tracks.begin(), tracks.end(), VertexTrackEqual<N>(tr));
  if(pos != tracks.end()) {
    return estimateFittedTrack(vertex,*pos);
@@ -48,7 +48,7 @@ KalmanVertexTrackCompatibilityEstimator<N>::estimate(const reco::Vertex & vertex
   VertexState vState(linP, err);
   RefCountedVertexTrack vertexTrack = vTrackFactory.vertexTrack(linTrack, vState);
 
-  vector<RefCountedVertexTrack> initialTracks(1, vertexTrack);
+  std::vector<RefCountedVertexTrack> initialTracks(1, vertexTrack);
   CachingVertex<N> cachingVertex(linP, err, initialTracks,
   			    vertex.chi2());
   // FIXME: this should work also for tracks without a persistent ref.
@@ -76,7 +76,7 @@ KalmanVertexTrackCompatibilityEstimator<N>::estimateFittedTrack
   // is different than then one which the vertex track has been defined with.
   //CachingVertex rVert = updator.remove(v, track);
   RefCountedVertexTrack newSmoothedTrack = trackUpdator.update(v, track);
-//   cout << newSmoothedTrack->smoothedChi2()<<" "<<estimateDifference(v,rVert,newSmoothedTrack)<<endl;
+//   std::cout << newSmoothedTrack->smoothedChi2()<<" "<<estimateDifference(v,rVert,newSmoothedTrack)<<std::endl;
 //   return estimateDifference(v,rVert,newSmoothedTrack);
   return BDpair(true, newSmoothedTrack->smoothedChi2());
 }

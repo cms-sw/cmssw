@@ -13,10 +13,10 @@ template <unsigned int N>
 double KVFHelper<N>::vertexChi2(const VertexState & vertexA,
 	const VertexState & vertexB) const
 {
-// cout <<"Start\n";
+// std::cout <<"Start\n";
   GlobalPoint inPosition = vertexA.position();
   GlobalPoint fnPosition = vertexB.position();
-//   cout << inPosition<< fnPosition<<endl;
+//   std::cout << inPosition<< fnPosition<<std::endl;
 
   AlgebraicVector3 oldVertexPositionV;
   oldVertexPositionV(0) = inPosition.x();

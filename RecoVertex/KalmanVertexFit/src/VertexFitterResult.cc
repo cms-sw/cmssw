@@ -100,7 +100,7 @@ void VertexFitterResult::fill(const TransientVertex & recVertex,
       
       Basic3DVector<double> momAtVtx((**simTrack).momentum());
 
-      pair<bool, reco::TrackBase::ParameterVector> paramPair =
+      std::pair<bool, reco::TrackBase::ParameterVector> paramPair =
 	associatorForParamAtPca->parametersAtClosestApproach(vert, momAtVtx, 
 	  (float) (**simTrack).charge(), recTrackV.front().stateAtBeamLine().beamSpot());
         if (paramPair.first) {
@@ -119,7 +119,7 @@ void VertexFitterResult::fill(const TransientVertex & recVertex,
                (recTrack != recTrackV.end() 
 		&& (numberOfRecTracks<theMaxTracks));
 	       recTrack++) {
-    //    cout << "Input; 1/Pt " << 1./(*recTrack).momentumAtVertex().transverse() << endl;
+    //    std::cout << "Input; 1/Pt " << 1./(*recTrack).momentumAtVertex().transverse() << std::endl;
 
     //looking for sim tracks corresponding to our reconstructed tracks:  
     simIndex[numberOfRecTracks] = -1;
@@ -146,7 +146,7 @@ void VertexFitterResult::fill(const TransientVertex & recVertex,
       if (simTrackIndex<numberOfSimTracks) {
         simIndex[numberOfRecTracks] = simTrackIndex;
         recIndex[simTrackIndex] = numberOfRecTracks;
-	//	cout << "Assoc; 1/Pt " << 1./(*recTrack).momentumAtVertex().transverse() << endl;
+	//	cout << "Assoc; 1/Pt " << 1./(*recTrack).momentumAtVertex().transverse() << std::endl;
       }
     }
 
