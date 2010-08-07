@@ -1,17 +1,15 @@
-// $Id: Masks.cc,v 1.9 2010/08/06 15:31:18 dellaric Exp $
+// $Id: Masks.cc,v 1.10 2010/08/07 09:27:28 dellaric Exp $
 
 /*!
   \file Masks.cc
   \brief channel masking
   \author G. Della Ricca
-  \version $Revision: 1.9 $
-  \date $Date: 2010/08/06 15:31:18 $
+  \version $Revision: 1.10 $
+  \date $Date: 2010/08/07 09:27:28 $
 */
 
 #include <sstream>
 #include <iomanip>
-
-#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
 #include <DataFormats/EcalDetId/interface/EEDetId.h>
@@ -45,14 +43,14 @@ void Masks::initMasking( const edm::EventSetup& setup, bool verbose ) {
   Masks::init = true;
 
   if ( setup.find( edm::eventsetup::EventSetupRecordKey::makeKey< EcalDQMChannelStatusRcd >() ) ) {
-    edm::ESHandle< EcalDQMChannelStatus > handle;
-    setup.get< EcalDQMChannelStatusRcd >().get(handle);
+    edm::ESHandle<EcalDQMChannelStatus> handle;
+    setup.get<EcalDQMChannelStatusRcd>().get(handle);
     if ( handle.isValid() ) Masks::channelStatus = handle.product();
   }
 
   if ( setup.find( edm::eventsetup::EventSetupRecordKey::makeKey< EcalDQMTowerStatusRcd >() ) ) {
-    edm::ESHandle< EcalDQMTowerStatus > handle;
-    setup.get< EcalDQMTowerStatusRcd >().get(handle);
+    edm::ESHandle<EcalDQMTowerStatus> handle;
+    setup.get<EcalDQMTowerStatusRcd>().get(handle);
     if ( handle.isValid() ) Masks::towerStatus = handle.product();
   }
 
@@ -77,7 +75,7 @@ bool Masks::maskChannel( int ism, int ix, int iy, uint32_t bits, const EcalSubde
         EcalDQMChannelStatus::const_iterator it = Masks::channelStatus->find( id.rawId() );
         if ( it != Masks::channelStatus->end() ) mask |= it->getStatusCode() & bits;
       }
-      if ( towerStatus ) {
+      if ( Masks::towerStatus ) {
         EcalDQMTowerStatus::const_iterator it = Masks::towerStatus->find( id.tower().rawId() );
         if ( it != Masks::towerStatus->end() ) mask |= it->getStatusCode() & bits;
       }

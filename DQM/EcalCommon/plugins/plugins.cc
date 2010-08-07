@@ -9,3 +9,7 @@ DEFINE_FWK_MODULE(EcalMonitorPrescaler);
 
 DEFINE_FWK_MODULE(EcalDQMStatusWriter);
 
+#include <DQM/EcalCommon/interface/EcalDQMStatusReader.h>
+
+DEFINE_FWK_MODULE(EcalDQMStatusReader);
+
