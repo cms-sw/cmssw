@@ -382,7 +382,7 @@ void ConvertedPhotonProducer::buildCollections ( edm::EventSetup const & es,
 	
 
         minAppDist=-99;
-	const string metname = "ConvertedPhotons|ConvertedPhotonProducer";
+	const std::string metname = "ConvertedPhotons|ConvertedPhotonProducer";
 	if ( (iPair->first).size()  > 1 ) {
 	  try{
 	    
