@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2010/08/05 11:35:08 $
- * $Revision: 1.121 $
+ * $Date: 2010/08/05 18:18:47 $
+ * $Revision: 1.122 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1322,8 +1322,10 @@ void EELedClient::analyze(void) {
 
         }
 
-        if ( Masks::maskChannel(ism, ix, iy, bits01, EcalEndcap) ) UtilsClient::maskBinContent( meg01_[ism-1], ix, iy );
-        if ( Masks::maskChannel(ism, ix, iy, bits01, EcalEndcap) ) UtilsClient::maskBinContent( meg02_[ism-1], ix, iy );
+        if ( Masks::maskChannel(ism, ix, iy, bits01, EcalEndcap) ) {
+          UtilsClient::maskBinContent( meg01_[ism-1], ix, iy );
+          UtilsClient::maskBinContent( meg02_[ism-1], ix, iy );
+        }
 
         if ( update02 ) {
 
@@ -1524,11 +1526,15 @@ void EELedClient::analyze(void) {
 
       }
 
-      if ( Masks::maskPn(ism, i, bits01|bits03, EcalEndcap) ) UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
-      if ( Masks::maskPn(ism, i, bits01|bits03, EcalEndcap) ) UtilsClient::maskBinContent( meg06_[ism-1], i, 1 );
+      if ( Masks::maskPn(ism, i, bits01|bits03, EcalEndcap) ) {
+        UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
+        UtilsClient::maskBinContent( meg06_[ism-1], i, 1 );
+      }
 
-      if ( Masks::maskPn(ism, i, bits01|bits04, EcalEndcap) ) UtilsClient::maskBinContent( meg09_[ism-1], i, 1 );
-      if ( Masks::maskPn(ism, i, bits01|bits04, EcalEndcap) ) UtilsClient::maskBinContent( meg10_[ism-1], i, 1 );
+      if ( Masks::maskPn(ism, i, bits01|bits04, EcalEndcap) ) {
+        UtilsClient::maskBinContent( meg09_[ism-1], i, 1 );
+        UtilsClient::maskBinContent( meg10_[ism-1], i, 1 );
+      }
 
     }
 

@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2010/08/04 08:20:12 $
- * $Revision: 1.273 $
+ * $Date: 2010/08/05 11:35:06 $
+ * $Revision: 1.274 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -2070,10 +2070,12 @@ void EBLaserClient::analyze(void) {
 
         }
 
-        if ( Masks::maskChannel(ism, ie, ip, bits01, EcalBarrel) ) UtilsClient::maskBinContent( meg01_[ism-1], ie, ip );
-        if ( Masks::maskChannel(ism, ie, ip, bits01, EcalBarrel) ) UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
-        if ( Masks::maskChannel(ism, ie, ip, bits01, EcalBarrel) ) UtilsClient::maskBinContent( meg03_[ism-1], ie, ip );
-        if ( Masks::maskChannel(ism, ie, ip, bits01, EcalBarrel) ) UtilsClient::maskBinContent( meg04_[ism-1], ie, ip );
+        if ( Masks::maskChannel(ism, ie, ip, bits01, EcalBarrel) ) {
+          UtilsClient::maskBinContent( meg01_[ism-1], ie, ip );
+          UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
+          UtilsClient::maskBinContent( meg03_[ism-1], ie, ip );
+          UtilsClient::maskBinContent( meg04_[ism-1], ie, ip );
+        }
 
         if ( update02 ) {
 
@@ -2399,15 +2401,19 @@ void EBLaserClient::analyze(void) {
         if ( mepnprms08_[ism-1] ) mepnprms08_[ism-1]->Fill(rms16);
       }
 
-      if ( Masks::maskPn(ism, i, bits01|bits03, EcalBarrel) ) UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
-      if ( Masks::maskPn(ism, i, bits01|bits03, EcalBarrel) ) UtilsClient::maskBinContent( meg06_[ism-1], i, 1 );
-      if ( Masks::maskPn(ism, i, bits01|bits03, EcalBarrel) ) UtilsClient::maskBinContent( meg07_[ism-1], i, 1 );
-      if ( Masks::maskPn(ism, i, bits01|bits03, EcalBarrel) ) UtilsClient::maskBinContent( meg08_[ism-1], i, 1 );
+      if ( Masks::maskPn(ism, i, bits01|bits03, EcalBarrel) ) {
+        UtilsClient::maskBinContent( meg05_[ism-1], i, 1 );
+        UtilsClient::maskBinContent( meg06_[ism-1], i, 1 );
+        UtilsClient::maskBinContent( meg07_[ism-1], i, 1 );
+        UtilsClient::maskBinContent( meg08_[ism-1], i, 1 );
+      }
 
-      if ( Masks::maskPn(ism, i, bits01|bits04, EcalBarrel) ) UtilsClient::maskBinContent( meg09_[ism-1], i, 1 );
-      if ( Masks::maskPn(ism, i, bits01|bits04, EcalBarrel) ) UtilsClient::maskBinContent( meg10_[ism-1], i, 1 );
-      if ( Masks::maskPn(ism, i, bits01|bits04, EcalBarrel) ) UtilsClient::maskBinContent( meg11_[ism-1], i, 1 );
-      if ( Masks::maskPn(ism, i, bits01|bits04, EcalBarrel) ) UtilsClient::maskBinContent( meg12_[ism-1], i, 1 );
+      if ( Masks::maskPn(ism, i, bits01|bits04, EcalBarrel) ) {
+        UtilsClient::maskBinContent( meg09_[ism-1], i, 1 );
+        UtilsClient::maskBinContent( meg10_[ism-1], i, 1 );
+        UtilsClient::maskBinContent( meg11_[ism-1], i, 1 );
+        UtilsClient::maskBinContent( meg12_[ism-1], i, 1 );
+      }
 
     }
 
