@@ -1,8 +1,8 @@
 /*
  * \file EcalDQMStatusWriter.cc
  *
- * $Date: 2010/08/06 17:05:51 $
- * $Revision: 1.2 $
+ * $Date: 2010/08/06 18:50:24 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -21,10 +21,12 @@
 
 #include "DQM/EcalCommon/interface/EcalDQMStatusWriter.h"
 
-EcalDQMStatusWriter::EcalDQMStatusWriter(const edm::ParameterSet& c) {
+EcalDQMStatusWriter::EcalDQMStatusWriter(const edm::ParameterSet& ps) {
+
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   typedef std::vector<edm::ParameterSet> Parameters;
-  Parameters toPut=c.getParameter<Parameters>("toPut");
+  Parameters toPut = ps.getParameter<Parameters>("toPut");
 
   for (Parameters::iterator itToPut=toPut.begin(); itToPut!=toPut.end(); itToPut++) {
       inpFileName_.push_back(itToPut->getUntrackedParameter<std::string>("inputFile"));
@@ -143,15 +145,17 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
   int ii = 0;
   while ( fgets(line, 255, ifile) ) {
 
-    std::string token = "";
-
     std::stringstream stream;
 
     ii++;
+    std::string key;
     stream << line;
-    stream >> token;
+    if ( verbose_ ) std::cout << line;
+    stream >> key;
 
-    if ( strcmp(token.c_str(), "EB") == 0 ) {
+    if ( key.size() == 0 || strcmp(key.c_str(), " ") == 0 || strncmp(key.c_str(), "#", 1) == 0 ) {
+
+    } else if ( strcmp(key.c_str(), "EB") == 0 ) {
 
       int index, code;
       stream >> index >> code;
@@ -160,12 +164,12 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
       code = convert(code);
 
       int hashedIndex = id.hashedIndex();
-      if ( code !=0 ) std::cout << token << " hashedIndex " << hashedIndex << " status " <<  code << std::endl;
+      if ( code !=0 ) std::cout << key << " hashedIndex " << hashedIndex << " status " <<  code << std::endl;
       EcalDQMChannelStatus::const_iterator it = status->find(id);
       if ( it != status->end() ) code |= it->getStatusCode();
       status->setValue(id, code);
 
-    } else if ( strcmp(token.c_str(), "EE") == 0 ) {
+    } else if ( strcmp(key.c_str(), "EE") == 0 ) {
 
       int ix, iy, iz, code;
       stream >> ix >> iy >> iz >> code;
@@ -174,12 +178,14 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
       code = convert(code);
 
       int hashedIndex = id.hashedIndex();
-      if ( code!=0 ) std::cout << token << " hashedIndex " << hashedIndex << " status " <<  code << std::endl;
+      if ( code!=0 ) std::cout << key << " hashedIndex " << hashedIndex << " status " <<  code << std::endl;
       EcalDQMChannelStatus::const_iterator it = status->find(id);
       if ( it != status->end() ) code |= it->getStatusCode();
       status->setValue(id, code);
 
-    } else if ( strcmp(token.c_str(), "Crystal") == 0 ) {
+    } else if ( strcmp(key.c_str(), "EBTT") == 0 ) {
+
+    } else if ( strcmp(key.c_str(), "Crystal") == 0 ) {
 
       std::string module;
       stream >> module;
@@ -188,8 +194,8 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
 
 #if 0
         int ie, ip;
-        std::string word;
-        stream >> ie >> ip >> word;
+        std::string token;
+        stream >> ie >> ip >> token;
 
         int ism = atoi( module.substr(2, module.size()-2).c_str() );
         ism = ( ism>=0 ) ? ism : 18-ism;
@@ -197,8 +203,8 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
         int ipx = (ism>=1&&ism<=18) ? ip+20*(ism-1) : 1+(20-ip)+20*(ism-19);
 #else
         int index;
-        std::string word;
-        stream >> index >> word;
+        std::string token;
+        stream >> index >> token;
 
         int ism = atoi( module.substr(2, module.size()-2).c_str() );
         ism = ( ism>=0 ) ? ism : 18-ism;
@@ -211,12 +217,12 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
         EBDetId id(iex, ipx);
         int code = -1;
         for (unsigned int i=0; i<dictionary.size(); i++) {
-          if ( strcmp(word.c_str(), dictionary[i].desc) == 0 ) {
+          if ( strcmp(token.c_str(), dictionary[i].desc) == 0 ) {
             code = dictionary[i].code;
           }
         }
         if ( code == -1 ) {
-          std::cout << " --> not found in the dictionary: " << word << std::endl;
+          std::cout << " --> not found in the dictionary: " << token << std::endl;
           continue;
         }
 
@@ -232,12 +238,12 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
 
 #if 0
         int jx, jy;
-        std::string word;
-        stream >> jx >> jy >> word;
+        std::string token;
+        stream >> jx >> jy >> token;
 #else
         int index;
-        std::string word;
-        stream >> index >> word;
+        std::string token;
+        stream >> index >> token;
         int jx = index/1000;
         int jy = index%1000;
 #endif
@@ -269,12 +275,12 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
         EEDetId id(jx, jy, (ism>=1&&ism<=9)?-1:+1, EEDetId::XYMODE);
         int code = -1;
         for (unsigned int i=0; i<dictionary.size(); i++) {
-          if ( strcmp(word.c_str(), dictionary[i].desc) == 0 ) {
+          if ( strcmp(token.c_str(), dictionary[i].desc) == 0 ) {
             code = dictionary[i].code;
           }
         }
         if ( code == -1 ) {
-          std::cout << " --> not found in the dictionary: " << word << std::endl;
+          std::cout << " --> not found in the dictionary: " << token << std::endl;
           continue;
         }
 
@@ -286,9 +292,15 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
 
       }
 
+    } else if ( strcmp(key.c_str(), "TT") == 0 ) {
+
+    } else if ( strcmp(key.c_str(), "PN") == 0 || strcmp(key.c_str(), "MemCh") == 0 || strcmp(key.c_str(), "MemTT") == 0 ) {
+
+      std::cout << "--> unsupported key at line #" << ii << " : " << line;
+
     } else {
 
-      std:: cout << "--> skipped line #" << ii << " : " << token << std::endl;
+      std:: cout << "--> skipped line #" << ii << " : " << line;
 
     }
 
@@ -338,13 +350,36 @@ EcalDQMTowerStatus* EcalDQMStatusWriter::readEcalDQMTowerStatusFromFile(const ch
   int ii = 0;
   while ( fgets(line, 255, ifile) ) {
 
-    std::string token = "";
-
     std::stringstream stream;
 
     ii++;
+    std::string key;
     stream << line;
-    stream >> token;
+    if ( verbose_ ) std::cout << line;
+    stream >> key;
+
+    if ( key.size() == 0 || strcmp(key.c_str(), " ") == 0 || strncmp(key.c_str(), "#", 1) == 0 ) {
+
+    } else if ( strcmp(key.c_str(), "EB") == 0 ) {
+
+    } else if ( strcmp(key.c_str(), "EE") == 0 ) {
+
+    } else if ( strcmp(key.c_str(), "EBTT") == 0 ) {
+
+    } else if ( strcmp(key.c_str(), "Crystal") == 0 ) {
+
+    } else if ( strcmp(key.c_str(), "TT") == 0 ) {
+
+
+    } else if ( strcmp(key.c_str(), "PN") == 0 || strcmp(key.c_str(), "MemCh") == 0 || strcmp(key.c_str(), "MemTT") == 0 ) {
+
+      std::cout << "--> unsupported key at line #" << ii << " : " << line;
+
+    } else {
+
+      std:: cout << "--> skipped line #" << ii << " : " << line;
+
+    }
 
   }
 

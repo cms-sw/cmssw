@@ -5,8 +5,8 @@
   \file Status.h
   \brief dictionary for Ecal DQM status codes
   \author G. Della Ricca
-  \version $Revision: 1.1 $
-  \date $Date: 2010/08/06 15:34:49 $
+  \version $Revision: 1.2 $
+  \date $Date: 2010/08/06 18:50:24 $
 */
 
 #include <boost/cstdint.hpp>
@@ -34,7 +34,7 @@ class EcalDQMStatusDictionary {
   EcalDQMStatusDictionary() {}; // Hidden to force static use
   ~EcalDQMStatusDictionary() {};  // Hidden to force static use
 
-  const static unsigned int DICTSIZE = 30;
+  const static unsigned int DICTSIZE = 40;
 
   static codeDef_t getDef(unsigned int i) {
     const static codeDef_t DICT[DICTSIZE] =
@@ -76,7 +76,21 @@ class EcalDQMStatusDictionary {
 	{ ((uint32_t) 1 << EcalDQMStatusHelper::STATUS_FLAG_ERROR), "STATUS_FLAG_ERROR"},
 
 	{ ((uint32_t) 1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_WARNING), "PHYSICS_BAD_CHANNEL_WARNING"},
-	{ ((uint32_t) 1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_ERROR), "PHYSICS_BAD_CHANNEL_ERROR"}
+	{ ((uint32_t) 1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_ERROR), "PHYSICS_BAD_CHANNEL_ERROR"},
+
+// compatibility stuff
+
+	{ ((uint32_t) 1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_MEAN_ERROR), "PEDESTAL_LOW_GAIN_MEAN_WARNING"},
+	{ ((uint32_t) 1 << EcalDQMStatusHelper::PEDESTAL_MIDDLE_GAIN_MEAN_ERROR), "PEDESTAL_MIDDLE_GAIN_MEAN_WARNING"},
+	{ ((uint32_t) 1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR), "PEDESTAL_HIGH_GAIN_MEAN_WARNING"},
+	{ ((uint32_t) 1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_RMS_ERROR), "PEDESTAL_LOW_GAIN_RMS_WARNING"},
+	{ ((uint32_t) 1 << EcalDQMStatusHelper::PEDESTAL_MIDDLE_GAIN_RMS_ERROR), "PEDESTAL_MIDDLE_GAIN_RMS_WARNING"},
+	{ ((uint32_t) 1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_RMS_ERROR), "PEDESTAL_HIGH_GAIN_RMS_WARNING"},
+
+	{ ((uint32_t) 1 << EcalDQMStatusHelper::LED_MEAN_ERROR), "LASER_MEAN_OVER_PN_ERROR"},
+	{ ((uint32_t) 1 << EcalDQMStatusHelper::LED_RMS_ERROR), "LASER_RMS_OVER_PN_ERROR"},
+	{ ((uint32_t) 1 << EcalDQMStatusHelper::LASER_TIMING_MEAN_ERROR), "LASER_MEAN_TT_TIMING_ERROR"},
+	{ ((uint32_t) 1 << EcalDQMStatusHelper::LASER_TIMING_RMS_ERROR), "LASER_RMS_TT_TIMING_ERROR"}
 
       };
 

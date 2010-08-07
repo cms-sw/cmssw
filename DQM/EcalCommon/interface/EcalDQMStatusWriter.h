@@ -4,8 +4,8 @@
 /*
  * \file EcalDQMStatusWriter.h
  *
- * $Date: 2010/08/06 15:34:49 $
- * $Revision: 1.1 $
+ * $Date: 2010/08/06 17:05:51 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -43,6 +43,7 @@ class EcalDQMStatusWriter : public edm::EDAnalyzer {
 
   int convert(int c);
 
+  bool verbose_;
   std::vector<std::string> objectName_;
   std::vector<std::string> inpFileName_;
   std::vector<unsigned long long> since_;
