@@ -1,11 +1,11 @@
-// $Id: Masks.cc,v 1.8 2010/08/05 20:25:46 dellaric Exp $
+// $Id: Masks.cc,v 1.9 2010/08/06 15:31:18 dellaric Exp $
 
 /*!
   \file Masks.cc
   \brief channel masking
   \author G. Della Ricca
-  \version $Revision: 1.8 $
-  \date $Date: 2010/08/05 20:25:46 $
+  \version $Revision: 1.9 $
+  \date $Date: 2010/08/06 15:31:18 $
 */
 
 #include <sstream>
@@ -15,9 +15,6 @@
 
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
 #include <DataFormats/EcalDetId/interface/EEDetId.h>
-
-#include <DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h>
-#include <DataFormats/EcalDetId/interface/EcalScDetId.h>
 
 #include "FWCore/Framework/interface/NoRecordException.h"
 
