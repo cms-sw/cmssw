@@ -15,12 +15,12 @@ def customise(process):
     process.MessageLogger.categories.append('HLTrigReport')
 
     # drop on input the previous HLT results
-    #process.source.inputCommands = cms.untracked.vstring (
-    #    'keep *',
-    #    'drop *_hltL1GtObjectMap_*_*',
-    #    'drop *_TriggerResults_*_*',
-    #    'drop *_hltTriggerSummaryAOD_*_*',
-    #)
+    process.source.inputCommands = cms.untracked.vstring (
+        'keep *',
+        'drop *_hltL1GtObjectMap_*_*',
+        'drop *_TriggerResults_*_*',
+        'drop *_hltTriggerSummaryAOD_*_*',
+    )
 
     # override RAW data name to rn on data
     process.hltGetRaw.RawDataCollection                  = "source"
