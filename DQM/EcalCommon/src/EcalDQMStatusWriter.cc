@@ -1,8 +1,8 @@
 /*
  * \file EcalDQMStatusWriter.cc
  *
- * $Date: 2010/08/06 18:50:24 $
- * $Revision: 1.3 $
+ * $Date: 2010/08/07 06:43:35 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -44,10 +44,9 @@ void EcalDQMStatusWriter::endJob() {
     return;
   }
 
-  bool toAppend=false;
-
   for (unsigned int i=0; i<objectName_.size(); i++) {
 
+      bool toAppend = false;
       cond::Time_t newTime;
 
       if ( dbservice->isNewTagRequest( objectName_[i]+std::string("Rcd") ) ) {
