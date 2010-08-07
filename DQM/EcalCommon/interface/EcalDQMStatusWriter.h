@@ -4,8 +4,8 @@
 /*
  * \file EcalDQMStatusWriter.h
  *
- * $Date: 2010/08/06 17:05:51 $
- * $Revision: 1.2 $
+ * $Date: 2010/08/07 06:43:34 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -28,25 +28,30 @@
 
 class EcalDQMStatusWriter : public edm::EDAnalyzer {
 
- public:
+public:
 
-  EcalDQMStatusWriter(const edm::ParameterSet& ps);
-  virtual ~EcalDQMStatusWriter();
+EcalDQMStatusWriter(const edm::ParameterSet& ps);
+virtual ~EcalDQMStatusWriter();
 
-  void analyze(const edm::Event & e, const edm::EventSetup & c);
-  void endJob(void);
+void analyze(const edm::Event & e, const edm::EventSetup & c);
 
- private:
+void beginJob(void);
+void endJob(void);
 
-  EcalDQMChannelStatus* readEcalDQMChannelStatusFromFile(const char *);
-  EcalDQMTowerStatus* readEcalDQMTowerStatusFromFile(const char *);
+void beginRun(const edm::Run & r, const edm::EventSetup & c);
+void endRun(const edm::Run & r, const edm::EventSetup & c);
 
-  int convert(int c);
+private:
 
-  bool verbose_;
-  std::vector<std::string> objectName_;
-  std::vector<std::string> inpFileName_;
-  std::vector<unsigned long long> since_;
+EcalDQMChannelStatus* readEcalDQMChannelStatusFromFile(const char *);
+EcalDQMTowerStatus* readEcalDQMTowerStatusFromFile(const char *);
+
+int convert(int c);
+
+bool verbose_;
+std::vector<std::string> objectName_;
+std::vector<std::string> inpFileName_;
+std::vector<unsigned long long> since_;
 
 };
 #endif

@@ -1,8 +1,8 @@
 /*
  * \file EcalDQMStatusWriter.cc
  *
- * $Date: 2010/08/07 06:43:35 $
- * $Revision: 1.4 $
+ * $Date: 2010/08/07 07:04:35 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -16,6 +16,8 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+
+#include "DQM/EcalCommon/interface/Numbers.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMStatusDictionary.h"
 
@@ -33,6 +35,20 @@ EcalDQMStatusWriter::EcalDQMStatusWriter(const edm::ParameterSet& ps) {
       objectName_.push_back(itToPut->getUntrackedParameter<std::string>("conditionType"));
       since_.push_back(itToPut->getUntrackedParameter<unsigned int>("since"));
   }
+
+}
+
+void EcalDQMStatusWriter::beginRun(const edm::Run& r, const edm::EventSetup& c) {
+
+  Numbers::initGeometry(c, verbose_);
+
+}
+
+void EcalDQMStatusWriter::endRun(const edm::Run& r, const edm::EventSetup& c) {
+
+}
+
+void EcalDQMStatusWriter::beginJob() {
 
 }
 
@@ -106,7 +122,7 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
 
   EcalDQMChannelStatus* status = new EcalDQMChannelStatus();
 
-  std::vector<EcalDQMStatusDictionary::codeDef_t> dictionary;
+  std::vector<EcalDQMStatusDictionary::codeDef> dictionary;
   EcalDQMStatusDictionary::getDictionary( dictionary );
 
   // barrel
@@ -184,6 +200,27 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
 
     } else if ( strcmp(key.c_str(), "EBTT") == 0 ) {
 
+      int ism, itt;
+      stream >> ism >> itt;
+
+      int iet = (itt-1)/4+1;
+      int ipt = (itt-1)%4+1;
+
+      for (int ie=5*(iet-1)+1; ie<=5*iet; ie++) {
+        for (int ip=5*(ipt-1)+1; ip<=5*ipt; ip++) {
+
+          EBDetId id(ism, 20*(ie-1)+ip, EBDetId::SMCRYSTALMODE);
+          int code = convert(1);
+
+          int hashedIndex = id.hashedIndex();
+          if ( code!=0 ) std::cout << key << " hashedIndex " << hashedIndex << " status " <<  code << std::endl;
+          EcalDQMChannelStatus::const_iterator it = status->find(id);
+          if ( it != status->end() ) code |= it->getStatusCode();
+          status->setValue(id, code);
+
+        }
+      }
+
     } else if ( strcmp(key.c_str(), "Crystal") == 0 ) {
 
       std::string module;
@@ -231,9 +268,7 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
         if ( it != status->end() ) code |= it->getStatusCode();
         status->setValue(id, code);
 
-      }
-
-      if ( strncmp(module.c_str(), "EE+", 3) == 0 || strncmp(module.c_str(), "EE-", 3) == 0 ) {
+      } else if ( strncmp(module.c_str(), "EE+", 3) == 0 || strncmp(module.c_str(), "EE-", 3) == 0 ) {
 
 #if 0
         int jx, jy;
@@ -289,6 +324,10 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
         if ( it != status->end() ) code |= it->getStatusCode();
         status->setValue(id, code);
 
+      } else {
+
+        std:: cout << "--> unknown token at line #" << ii << " : " << line;
+
       }
 
     } else if ( strcmp(key.c_str(), "TT") == 0 ) {
@@ -315,11 +354,18 @@ EcalDQMTowerStatus* EcalDQMStatusWriter::readEcalDQMTowerStatusFromFile(const ch
 
   EcalDQMTowerStatus* status = new EcalDQMTowerStatus();
 
+  std::vector<EcalDQMStatusDictionary::codeDef> dictionary;
+  EcalDQMStatusDictionary::getDictionary( dictionary );
+
   // barrel
-  for (int i=EcalTrigTowerDetId::MIN_I; i<=EcalTrigTowerDetId::MAX_I; i++) {
-    for (int j=EcalTrigTowerDetId::MIN_J; j<=EcalTrigTowerDetId::MAX_J; j++) {
-      if ( EcalTrigTowerDetId::validDetId(0, EcalBarrel, i, j) ) {
-        EcalTrigTowerDetId id(0, EcalBarrel, i, j);
+  for (int i=1; i<=EcalTrigTowerDetId::kEBTowersInEta; i++) {
+    for (int j=1; j<=EcalTrigTowerDetId::kEBTowersPerSM; j++) {
+      if ( EcalTrigTowerDetId::validDetId(+1, EcalBarrel, i, j) ) {
+        EcalTrigTowerDetId id(+1, EcalBarrel, i, j);
+        status->setValue(id, 0);
+      }
+      if ( EcalTrigTowerDetId::validDetId(-1, EcalBarrel, i, j) ) {
+        EcalTrigTowerDetId id(-1, EcalBarrel, i, j);
         status->setValue(id, 0);
       }
     }
@@ -369,6 +415,95 @@ EcalDQMTowerStatus* EcalDQMStatusWriter::readEcalDQMTowerStatusFromFile(const ch
 
     } else if ( strcmp(key.c_str(), "TT") == 0 ) {
 
+      std::string module;
+      stream >> module;
+
+      if ( strncmp(module.c_str(), "EB+", 3) == 0 || strncmp(module.c_str(), "EB-", 3) == 0 ) {
+
+        int itt;
+        std::string token;
+        stream >> itt >> token;
+
+        if ( itt >= 1 && itt <= 68 ) {
+
+          int sm = atoi( module.substr(2, module.size()-2).c_str() );
+
+          int iet = (itt-1)/4+1;
+          int ipt = (itt-1)%4+1;
+
+          if ( sm<0 ) {
+            ipt = ipt+(abs(sm)-1)*EcalTrigTowerDetId::kEBTowersInPhi-2;
+            if ( ipt < 1 ) ipt = ipt+18*EcalTrigTowerDetId::kEBTowersInPhi;
+            if ( ipt > 18*EcalTrigTowerDetId::kEBTowersInPhi ) ipt = ipt-18*EcalTrigTowerDetId::kEBTowersInPhi;
+          } else {
+            ipt = (5-ipt)+(abs(sm)-1)*EcalTrigTowerDetId::kEBTowersInPhi-2;
+            if ( ipt < 1 ) ipt = ipt+18*EcalTrigTowerDetId::kEBTowersInPhi;
+            if ( ipt > 18*EcalTrigTowerDetId::kEBTowersInPhi ) ipt = ipt-18*EcalTrigTowerDetId::kEBTowersInPhi;
+          }
+
+          EcalTrigTowerDetId id((sm<0)?-1:+1, EcalBarrel, iet, ipt);
+          int code = -1;
+          for (unsigned int i=0; i<dictionary.size(); i++) {
+            if ( strcmp(token.c_str(), dictionary[i].desc) == 0 ) {
+              code = dictionary[i].code;
+            }
+          }
+          if ( code == -1 ) {
+            std::cout << " --> not found in the dictionary: " << token << std::endl;
+            continue;
+          }
+
+          int hashedIndex = id.hashedIndex();
+          if ( code !=0 ) std::cout << module << " hashedIndex " << hashedIndex << " status " <<  code << std::endl;
+          EcalDQMTowerStatus::const_iterator it = status->find(id);
+          if ( it != status->end() ) code |= it->getStatusCode();
+          status->setValue(id, code);
+
+        } else {
+
+          std::cout << "--> unsupported configuration at line #" << ii << " : " << line;
+
+        }
+
+      } else if ( strncmp(module.c_str(), "EE+", 3) == 0 || strncmp(module.c_str(), "EE-", 3) == 0 ) {
+
+        int itt;
+        std::string token;
+        stream >> itt >> token;
+
+        if ( itt >= 1 && itt <= 68 ) {
+
+          int ism = atoi( module.substr(2, module.size()-2).c_str() );
+
+          EcalScDetId id;
+          int code = -1;
+          for (unsigned int i=0; i<dictionary.size(); i++) {
+            if ( strcmp(token.c_str(), dictionary[i].desc) == 0 ) {
+              code = dictionary[i].code;
+            }
+          }
+          if ( code == -1 ) {
+            std::cout << " --> not found in the dictionary: " << token << std::endl;
+            continue;
+          }
+
+          int hashedIndex = id.hashedIndex();
+          if ( code !=0 ) std::cout << module << " hashedIndex " << hashedIndex << " status " <<  code << std::endl;
+          EcalDQMTowerStatus::const_iterator it = status->find(id);
+          if ( it != status->end() ) code |= it->getStatusCode();
+          status->setValue(id, code);
+
+        } else {
+
+          std::cout << "--> unsupported configuration at line #" << ii << " : " << line;
+
+        }
+
+      } else {
+
+        std:: cout << "--> unknown token at line #" << ii << " : " << line;
+
+      }
 
     } else if ( strcmp(key.c_str(), "PN") == 0 || strcmp(key.c_str(), "MemCh") == 0 || strcmp(key.c_str(), "MemTT") == 0 ) {
 

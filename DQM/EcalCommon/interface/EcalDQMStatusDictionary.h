@@ -5,8 +5,8 @@
   \file Status.h
   \brief dictionary for Ecal DQM status codes
   \author G. Della Ricca
-  \version $Revision: 1.3 $
-  \date $Date: 2010/08/07 06:43:34 $
+  \version $Revision: 1.4 $
+  \date $Date: 2010/08/07 06:59:24 $
 */
 
 #include <boost/cstdint.hpp>
@@ -19,12 +19,12 @@ class EcalDQMStatusDictionary {
 
  public:
 
-  struct codeDef_t {
+  struct codeDef {
     uint32_t code;
     char desc[39];
   };
 
-  static void getDictionary(std::vector<codeDef_t> &dict) {
+  static void getDictionary(std::vector<codeDef> &dict) {
     dict.clear();
     for (unsigned int i=0; i<DICTSIZE; i++) dict.push_back(getDef(i));
   }
@@ -34,10 +34,10 @@ class EcalDQMStatusDictionary {
   EcalDQMStatusDictionary() {}; // Hidden to force static use
   ~EcalDQMStatusDictionary() {};  // Hidden to force static use
 
-  const static unsigned int DICTSIZE = 56;
+  const static unsigned int DICTSIZE = 60;
 
-  static codeDef_t getDef(unsigned int i) {
-    const static codeDef_t DICT[DICTSIZE] =
+  static codeDef getDef(unsigned int i) {
+    const static codeDef DICT[DICTSIZE] =
       {
 
 	{ ((uint32_t) 1 << EcalDQMStatusHelper::CH_ID_ERROR), "CH_ID_ERROR" },
@@ -110,7 +110,12 @@ class EcalDQMStatusDictionary {
         { ((uint32_t) 1 << EcalDQMStatusHelper::LASER_MEAN_ERROR), "LASER_MEAN_OVER_PN_WARNING"},
         { ((uint32_t) 1 << EcalDQMStatusHelper::LASER_RMS_ERROR), "LASER_RMS_OVER_PN_WARNING"},
         { ((uint32_t) 1 << EcalDQMStatusHelper::LASER_TIMING_MEAN_ERROR), "LASER_MEAN_TT_TIMING_WARNING"},
-        { ((uint32_t) 1 << EcalDQMStatusHelper::LASER_TIMING_RMS_ERROR), "LASER_RMS_TT_TIMING_WARNING"}
+        { ((uint32_t) 1 << EcalDQMStatusHelper::LASER_TIMING_RMS_ERROR), "LASER_RMS_TT_TIMING_WARNING"},
+
+        { ((uint32_t) 1 << EcalDQMStatusHelper::LED_MEAN_ERROR), "LED_MEAN_WARNING"},
+        { ((uint32_t) 1 << EcalDQMStatusHelper::LED_RMS_ERROR), "LED_RMS_WARNING"},
+        { ((uint32_t) 1 << EcalDQMStatusHelper::LED_TIMING_MEAN_ERROR), "LED_MEAN_TT_TIMING_WARNING"},
+        { ((uint32_t) 1 << EcalDQMStatusHelper::LED_TIMING_RMS_ERROR), "LED_RMS_TT_TIMING_WARNING"}
 
       };
 
