@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.198 $"
+__version__ = "$Revision: 1.200 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -801,13 +801,18 @@ class ConfigBuilder(object):
     class MassSearchReplaceProcessNameVisitor(object):
             """Visitor that travels within a cms.Sequence, looks for a parameter and replace its value
             It will climb down within PSets, VPSets and VInputTags to find its target"""
-            def __init__(self,paramSearch,paramReplace,verbose=False):
+            def __init__(self, paramSearch, paramReplace, verbose=False, whitelist=()):
                     self._paramReplace = paramReplace
                     self._paramSearch = paramSearch
-                    self._verbose=verbose
+                    self._verbose = verbose
+                    self._whitelist = whitelist
+
             def doIt(self,pset,base):
                     if isinstance(pset, cms._Parameterizable):
                             for name in pset.parameters_().keys():
+                                    # skip whitelisted parameters
+                                    if name in self._whitelist:
+                                        continue
                                     # if I use pset.parameters_().items() I get copies of the parameter values
                                     # so I can't modify the nested pset
                                     value = getattr(pset,name)
@@ -862,7 +867,7 @@ class ConfigBuilder(object):
                 print "replacing process name"
                 self.dqmMassaging  = """
 from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
-process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT","%s"))
+process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", whitelist = ('subSystemFolder',)))
 """ % (sequence.split(',')[-1],self.process.name_())
 
     def prepare_HARVESTING(self, sequence = None):
@@ -984,7 +989,7 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT","%s"))
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.198 $"),
+              (version=cms.untracked.string("$Revision: 1.200 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
