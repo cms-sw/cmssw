@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.71 2010/03/08 20:55:39 dellaric Exp $
+// $Id: Numbers.cc,v 1.72 2010/03/09 09:01:50 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo
-  \version $Revision: 1.71 $
-  \date $Date: 2010/03/08 20:55:39 $
+  \version $Revision: 1.72 $
+  \date $Date: 2010/03/09 09:01:50 $
 */
 
 #include <sstream>
@@ -50,8 +50,8 @@ void Numbers::initGeometry( const edm::EventSetup& setup, bool verbose ) {
 
   Numbers::init = true;
 
-  edm::ESHandle< EcalElectronicsMapping > handle;
-  setup.get< EcalMappingRcd >().get(handle);
+  edm::ESHandle<EcalElectronicsMapping> handle;
+  setup.get<EcalMappingRcd>().get(handle);
   Numbers::map = handle.product();
 
   edm::ESHandle<EcalTrigTowerConstituentsMap> handleTT;
