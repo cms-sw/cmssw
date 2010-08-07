@@ -4,8 +4,8 @@
 /*
  * \file EcalDQMStatusWriter.h
  *
- * $Date: 2010/08/07 06:43:34 $
- * $Revision: 1.3 $
+ * $Date: 2010/08/07 09:05:53 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -22,6 +22,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 
 #include "CondFormats/EcalObjects/interface/EcalDQMChannelStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalDQMTowerStatus.h"
@@ -52,6 +54,8 @@ bool verbose_;
 std::vector<std::string> objectName_;
 std::vector<std::string> inpFileName_;
 std::vector<unsigned long long> since_;
+
+const EcalElectronicsMapping* map_;
 
 };
 #endif
