@@ -124,7 +124,7 @@ class L1RCT {
   //18 crates -> 7 RCs -> 64 unsigned shorts per RC
   //so it should be a std::vector<std::vector<std::vector<unsigned short> > >
   //The second is of the HF regions which is just of type
-  //vector<std::vector<unsigned short> >
+  //std::vector<std::vector<unsigned short> >
   std::vector<std::vector<std::vector<unsigned short> > > barrel;
   std::vector<std::vector<unsigned short> > hf;
 
