@@ -6,7 +6,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include <DataFormats/EcalDetId/interface/EEDetId.h>
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 
 #include "CondFormats/EcalObjects/interface/EcalDAQTowerStatus.h"
 #include "CondFormats/DataRecord/interface/EcalDAQTowerStatusRcd.h"
@@ -16,7 +16,7 @@
 
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
 #include "DQM/EcalEndcapMonitorTasks/interface/EEDaqInfoTask.h"
 

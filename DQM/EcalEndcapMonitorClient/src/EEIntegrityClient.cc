@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2010/08/04 08:20:13 $
- * $Revision: 1.107 $
+ * $Date: 2010/08/05 11:35:07 $
+ * $Revision: 1.108 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -41,7 +41,7 @@
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EEIntegrityClient.h>
+#include "DQM/EcalEndcapMonitorClient/interface/EEIntegrityClient.h"
 
 EEIntegrityClient::EEIntegrityClient(const edm::ParameterSet& ps) {
 

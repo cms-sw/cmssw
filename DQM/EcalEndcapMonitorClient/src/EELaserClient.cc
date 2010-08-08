@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2010/08/05 18:18:47 $
- * $Revision: 1.134 $
+ * $Date: 2010/08/07 18:51:25 $
+ * $Revision: 1.135 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -45,7 +45,7 @@
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EELaserClient.h>
+#include "DQM/EcalEndcapMonitorClient/interface/EELaserClient.h"
 
 EELaserClient::EELaserClient(const edm::ParameterSet& ps) {
 

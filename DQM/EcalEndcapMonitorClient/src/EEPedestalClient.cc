@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2010/08/04 19:10:25 $
- * $Revision: 1.113 $
+ * $Date: 2010/08/05 11:35:08 $
+ * $Revision: 1.114 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -35,7 +35,7 @@
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EEPedestalClient.h>
+#include "DQM/EcalEndcapMonitorClient/interface/EEPedestalClient.h"
 
 // #define COMMON_NOISE_ANALYSIS
 

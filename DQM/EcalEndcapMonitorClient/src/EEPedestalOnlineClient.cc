@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2010/08/04 19:10:25 $
- * $Revision: 1.104 $
+ * $Date: 2010/08/05 11:35:08 $
+ * $Revision: 1.105 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -33,7 +33,7 @@
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EEPedestalOnlineClient.h>
+#include "DQM/EcalEndcapMonitorClient/interface/EEPedestalOnlineClient.h"
 
 EEPedestalOnlineClient::EEPedestalOnlineClient(const edm::ParameterSet& ps) {
 

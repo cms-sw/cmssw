@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyClient.cc
  *
- * $Date: 2010/03/27 20:07:59 $
- * $Revision: 1.38 $
+ * $Date: 2010/08/04 08:20:13 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -27,7 +27,7 @@
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EEOccupancyClient.h>
+#include "DQM/EcalEndcapMonitorClient/interface/EEOccupancyClient.h"
 
 EEOccupancyClient::EEOccupancyClient(const edm::ParameterSet& ps) {
 

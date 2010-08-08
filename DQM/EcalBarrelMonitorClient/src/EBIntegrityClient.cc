@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2010/08/04 08:20:12 $
- * $Revision: 1.227 $
+ * $Date: 2010/08/05 11:35:06 $
+ * $Revision: 1.228 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -39,7 +39,7 @@
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
+#include "DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h"
 
 EBIntegrityClient::EBIntegrityClient(const edm::ParameterSet& ps) {
 

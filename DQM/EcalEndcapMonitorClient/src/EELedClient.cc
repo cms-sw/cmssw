@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2010/08/05 18:18:47 $
- * $Revision: 1.122 $
+ * $Date: 2010/08/07 18:51:25 $
+ * $Revision: 1.123 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -39,7 +39,7 @@
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EELedClient.h>
+#include "DQM/EcalEndcapMonitorClient/interface/EELedClient.h"
 
 EELedClient::EELedClient(const edm::ParameterSet& ps) {
 

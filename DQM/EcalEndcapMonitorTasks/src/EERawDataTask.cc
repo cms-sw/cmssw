@@ -1,8 +1,8 @@
 /*
  * \file EERawDataTask.cc
  *
- * $Date: 2010/08/03 14:29:27 $
- * $Revision: 1.33 $
+ * $Date: 2010/08/06 17:35:41 $
+ * $Revision: 1.34 $
  * \author E. Di Marco
  *
 */
@@ -25,7 +25,7 @@
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/FEDRawData/src/fed_header.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
 #include "DQM/EcalEndcapMonitorTasks/interface/EERawDataTask.h"
 

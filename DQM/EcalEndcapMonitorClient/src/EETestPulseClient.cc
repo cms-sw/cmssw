@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2010/08/04 08:20:14 $
- * $Revision: 1.118 $
+ * $Date: 2010/08/05 11:35:08 $
+ * $Revision: 1.119 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -36,7 +36,7 @@
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EETestPulseClient.h>
+#include "DQM/EcalEndcapMonitorClient/interface/EETestPulseClient.h"
 
 EETestPulseClient::EETestPulseClient(const edm::ParameterSet& ps) {
 

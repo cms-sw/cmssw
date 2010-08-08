@@ -14,7 +14,7 @@
 
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
 #include "DQM/EcalBarrelMonitorTasks/interface/EBDaqInfoTask.h"
 

@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2010/03/27 20:07:58 $
- * $Revision: 1.85 $
+ * $Date: 2010/03/29 14:31:05 $
+ * $Revision: 1.86 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -33,9 +33,9 @@
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBClusterTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBClusterTask.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 

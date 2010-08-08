@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2010/03/27 20:08:01 $
- * $Revision: 1.47 $
+ * $Date: 2010/05/27 10:50:57 $
+ * $Revision: 1.48 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -28,10 +28,9 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
-#include <DQM/EcalCommon/interface/UtilsClient.h>
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalEndcapMonitorTasks/interface/EESelectiveReadoutTask.h>
+#include "DQM/EcalEndcapMonitorTasks/interface/EESelectiveReadoutTask.h"
 
 EESelectiveReadoutTask::EESelectiveReadoutTask(const edm::ParameterSet& ps){
 

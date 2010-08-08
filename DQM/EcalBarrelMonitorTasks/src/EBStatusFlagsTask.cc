@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsTask.cc
  *
- * $Date: 2010/04/02 08:20:44 $
- * $Revision: 1.28 $
+ * $Date: 2010/05/27 09:51:46 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  *
 */
@@ -20,9 +20,9 @@
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBStatusFlagsTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBStatusFlagsTask.h"
 
 EBStatusFlagsTask::EBStatusFlagsTask(const edm::ParameterSet& ps){
 

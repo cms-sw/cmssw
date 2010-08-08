@@ -1,16 +1,16 @@
-// $Id: NumbersPn.cc,v 1.7 2010/08/04 06:48:52 dellaric Exp $
+// $Id: NumbersPn.cc,v 1.8 2010/08/08 08:16:15 dellaric Exp $
 
 /*!
   \file NumbersPn.cc
   \brief Some "id" conversions
-  \version $Revision: 1.7 $
-  \date $Date: 2010/08/04 06:48:52 $
+  \version $Revision: 1.8 $
+  \date $Date: 2010/08/08 08:16:15 $
 */
 
 #include <sstream>
 #include <iomanip>
 
-#include <DataFormats/EcalDetId/interface/EEDetId.h>
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
 #include "DQM/EcalCommon/interface/NumbersPn.h"

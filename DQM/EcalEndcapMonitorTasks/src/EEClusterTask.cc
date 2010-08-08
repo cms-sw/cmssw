@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2010/03/29 14:31:07 $
- * $Revision: 1.76 $
+ * $Date: 2010/06/14 15:00:39 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -34,9 +34,9 @@
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalEndcapMonitorTasks/interface/EEClusterTask.h>
+#include "DQM/EcalEndcapMonitorTasks/interface/EEClusterTask.h"
 
 #include "TLorentzVector.h"
 

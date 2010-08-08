@@ -1,8 +1,8 @@
 /*
  * \file EEHltTask.cc
  *
- * $Date: 2010/03/26 11:24:50 $
- * $Revision: 1.13 $
+ * $Date: 2010/03/27 20:08:01 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -27,7 +27,7 @@
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 
-#include <DQM/EcalEndcapMonitorTasks/interface/EEHltTask.h>
+#include "DQM/EcalEndcapMonitorTasks/interface/EEHltTask.h"
 
 EEHltTask::EEHltTask(const edm::ParameterSet& ps){
 

@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalTask.cc
  *
- * $Date: 2010/06/14 15:00:40 $
- * $Revision: 1.53 $
+ * $Date: 2010/07/30 05:42:47 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  *
 */
@@ -23,9 +23,9 @@
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalEndcapMonitorTasks/interface/EEPedestalTask.h>
+#include "DQM/EcalEndcapMonitorTasks/interface/EEPedestalTask.h"
 
 // #define COMMON_NOISE_ANALYSIS
 

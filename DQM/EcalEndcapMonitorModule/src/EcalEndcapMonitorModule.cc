@@ -1,15 +1,12 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2010/06/14 15:00:39 $
- * $Revision: 1.81 $
+ * $Date: 2010/07/30 06:07:14 $
+ * $Revision: 1.82 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
 */
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
@@ -22,7 +19,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -30,7 +27,7 @@
 #include <iostream>
 #include <fstream>
 
-#include <DQM/EcalEndcapMonitorModule/interface/EcalEndcapMonitorModule.h>
+#include "DQM/EcalEndcapMonitorModule/interface/EcalEndcapMonitorModule.h"
 
 EcalEndcapMonitorModule::EcalEndcapMonitorModule(const edm::ParameterSet& ps){
 

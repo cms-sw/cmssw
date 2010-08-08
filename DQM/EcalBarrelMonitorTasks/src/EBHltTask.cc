@@ -1,8 +1,8 @@
 /*
  * \file EBHltTask.cc
  *
- * $Date: 2010/03/26 11:24:50 $
- * $Revision: 1.13 $
+ * $Date: 2010/03/27 20:07:58 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -27,7 +27,7 @@
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBHltTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBHltTask.h"
 
 EBHltTask::EBHltTask(const edm::ParameterSet& ps){
 

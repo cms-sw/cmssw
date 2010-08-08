@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2010/08/05 12:09:05 $
- * $Revision: 1.41 $
+ * $Date: 2010/08/05 20:25:43 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  *
 */
@@ -26,7 +26,7 @@
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalBarrelMonitorClient/interface/EBStatusFlagsClient.h>
+#include "DQM/EcalBarrelMonitorClient/interface/EBStatusFlagsClient.h"
 
 EBStatusFlagsClient::EBStatusFlagsClient(const edm::ParameterSet& ps) {
 

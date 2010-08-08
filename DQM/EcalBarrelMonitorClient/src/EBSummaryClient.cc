@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2010/07/26 11:28:31 $
- * $Revision: 1.216 $
+ * $Date: 2010/08/03 14:29:26 $
+ * $Revision: 1.217 $
  * \author G. Della Ricca
  *
 */
@@ -21,22 +21,22 @@
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #endif
 
-#include <DQM/EcalCommon/interface/UtilsClient.h>
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/UtilsClient.h"
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalBarrelMonitorClient/interface/EBStatusFlagsClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBBeamCaloClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBBeamHodoClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBClusterClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBTimingClient.h>
+#include "DQM/EcalBarrelMonitorClient/interface/EBStatusFlagsClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBBeamCaloClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBBeamHodoClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBClusterClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBTimingClient.h"
 
-#include <DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h>
+#include "DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h"
 
 EBSummaryClient::EBSummaryClient(const edm::ParameterSet& ps) {
 

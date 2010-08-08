@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2010/06/14 15:00:40 $
- * $Revision: 1.71 $
+ * $Date: 2010/07/30 05:42:46 $
+ * $Revision: 1.72 $
  * \author G. Della Ricca
  *
 */
@@ -25,10 +25,10 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
-#include <DQM/EcalCommon/interface/NumbersPn.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
+#include "DQM/EcalCommon/interface/NumbersPn.h"
 
-#include <DQM/EcalEndcapMonitorTasks/interface/EELaserTask.h>
+#include "DQM/EcalEndcapMonitorTasks/interface/EELaserTask.h"
 
 EELaserTask::EELaserTask(const edm::ParameterSet& ps){
 

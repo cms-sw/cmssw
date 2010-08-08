@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2010/07/26 11:30:33 $
- * $Revision: 1.204 $
+ * $Date: 2010/08/03 14:29:27 $
+ * $Revision: 1.205 $
  * \author G. Della Ricca
  *
 */
@@ -24,23 +24,23 @@
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
-#include <DQM/EcalCommon/interface/UtilsClient.h>
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/UtilsClient.h"
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EEStatusFlagsClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEIntegrityClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EELaserClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EELedClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEPedestalClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEPedestalOnlineClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EETestPulseClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEBeamCaloClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEBeamHodoClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EETriggerTowerClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEClusterClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EETimingClient.h>
+#include "DQM/EcalEndcapMonitorClient/interface/EEStatusFlagsClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EEIntegrityClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EELaserClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EELedClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EEPedestalClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EEPedestalOnlineClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EETestPulseClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EEBeamCaloClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EEBeamHodoClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EETriggerTowerClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EEClusterClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EETimingClient.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EESummaryClient.h>
+#include "DQM/EcalEndcapMonitorClient/interface/EESummaryClient.h"
 
 EESummaryClient::EESummaryClient(const edm::ParameterSet& ps) {
 

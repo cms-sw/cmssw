@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2010/08/04 08:20:13 $
- * $Revision: 1.104 $
+ * $Date: 2010/08/05 11:35:06 $
+ * $Revision: 1.105 $
  * \author G. Della Ricca
  *
 */
@@ -30,7 +30,7 @@
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalBarrelMonitorClient/interface/EBTimingClient.h>
+#include "DQM/EcalBarrelMonitorClient/interface/EBTimingClient.h"
 
 EBTimingClient::EBTimingClient(const edm::ParameterSet& ps) {
 

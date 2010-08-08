@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2010/08/05 11:35:06 $
- * $Revision: 1.274 $
+ * $Date: 2010/08/07 19:34:19 $
+ * $Revision: 1.276 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -43,7 +43,7 @@
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
+#include "DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h"
 
 EBLaserClient::EBLaserClient(const edm::ParameterSet& ps) {
 

@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2010/08/04 08:20:14 $
- * $Revision: 1.101 $
+ * $Date: 2010/08/05 11:35:08 $
+ * $Revision: 1.102 $
  * \author G. Della Ricca
  *
 */
@@ -32,7 +32,7 @@
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EETimingClient.h>
+#include "DQM/EcalEndcapMonitorClient/interface/EETimingClient.h"
 
 EETimingClient::EETimingClient(const edm::ParameterSet& ps) {
 

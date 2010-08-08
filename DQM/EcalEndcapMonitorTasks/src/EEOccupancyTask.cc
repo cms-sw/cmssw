@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2010/08/03 13:41:28 $
- * $Revision: 1.80 $
+ * $Date: 2010/08/03 15:53:32 $
+ * $Revision: 1.81 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -32,9 +32,9 @@
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalEndcapMonitorTasks/interface/EEOccupancyTask.h>
+#include "DQM/EcalEndcapMonitorTasks/interface/EEOccupancyTask.h"
 
 EEOccupancyTask::EEOccupancyTask(const edm::ParameterSet& ps){
 

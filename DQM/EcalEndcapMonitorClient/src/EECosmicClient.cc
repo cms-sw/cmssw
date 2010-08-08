@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2010/03/27 20:07:59 $
- * $Revision: 1.70 $
+ * $Date: 2010/08/04 08:20:13 $
+ * $Revision: 1.71 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -26,7 +26,7 @@
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EECosmicClient.h>
+#include "DQM/EcalEndcapMonitorClient/interface/EECosmicClient.h"
 
 EECosmicClient::EECosmicClient(const edm::ParameterSet& ps) {
 

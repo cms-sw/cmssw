@@ -4,15 +4,14 @@
 /*
  * \file EcalBarrelMonitorDbModule.h
  *
- * $Date: 2009/08/25 15:50:16 $
- * $Revision: 1.12 $
+ * $Date: 2009/10/26 17:33:46 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

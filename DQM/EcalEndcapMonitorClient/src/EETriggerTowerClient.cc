@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2010/03/27 20:08:00 $
- * $Revision: 1.94 $
+ * $Date: 2010/06/04 12:31:16 $
+ * $Revision: 1.95 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -20,7 +20,7 @@
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EETriggerTowerClient.h>
+#include "DQM/EcalEndcapMonitorClient/interface/EETriggerTowerClient.h"
 
 EETriggerTowerClient::EETriggerTowerClient(const edm::ParameterSet& ps) {
 

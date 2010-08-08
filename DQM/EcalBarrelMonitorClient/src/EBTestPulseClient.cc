@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2010/08/04 08:20:13 $
- * $Revision: 1.230 $
+ * $Date: 2010/08/05 11:35:06 $
+ * $Revision: 1.231 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -34,7 +34,7 @@
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h>
+#include "DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h"
 
 EBTestPulseClient::EBTestPulseClient(const edm::ParameterSet& ps) {
 

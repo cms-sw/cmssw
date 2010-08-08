@@ -4,8 +4,8 @@
 /*
  * \file EESelectiveReadoutTask.h
  *
- * $Date: 2009/08/21 15:10:32 $
- * $Revision: 1.16 $
+ * $Date: 2009/10/26 17:33:50 $
+ * $Revision: 1.17 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -15,7 +15,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
-#include <DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h>
+#include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 
 class MonitorElement;
 class DQMStore;

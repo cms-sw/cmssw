@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2010/08/03 13:41:28 $
- * $Revision: 1.59 $
+ * $Date: 2010/08/03 15:53:32 $
+ * $Revision: 1.60 $
  * \author G. Della Ricca
  *
 */
@@ -27,9 +27,9 @@
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBTimingTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBTimingTask.h"
 
 EBTimingTask::EBTimingTask(const edm::ParameterSet& ps){
 

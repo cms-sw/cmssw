@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2010/03/27 20:07:56 $
- * $Revision: 1.94 $
+ * $Date: 2010/08/04 08:20:12 $
+ * $Revision: 1.95 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -27,7 +27,7 @@
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalBarrelMonitorClient/interface/EBBeamCaloClient.h>
+#include "DQM/EcalBarrelMonitorClient/interface/EBBeamCaloClient.h"
 
 EBBeamCaloClient::EBBeamCaloClient(const edm::ParameterSet& ps) {
 
