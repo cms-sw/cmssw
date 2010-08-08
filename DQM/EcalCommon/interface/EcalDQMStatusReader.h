@@ -4,19 +4,13 @@
 /*
  * \file EcalDQMStatusReader.h
  *
- * $Date: 2010/08/07 10:50:57 $
- * $Revision: 1.5 $
+ * $Date: 2010/08/07 19:34:19 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
 
 #include <string>
-#include <map>
-#include <iostream>
-#include <fstream>
-#include <cstdio>
-#include <typeinfo>
-#include <sstream>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
