@@ -1,8 +1,8 @@
 /*
  * \file EcalDQMStatusReader.cc
  *
- * $Date: 2010/08/07 20:47:42 $
- * $Revision: 1.2 $
+ * $Date: 2010/08/08 10:07:42 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -119,7 +119,7 @@ void EcalDQMStatusReader::beginRun(const edm::Run& r, const edm::EventSetup& c) 
               std::vector<EcalDQMStatusDictionary::codeDef> codes;
               EcalDQMStatusDictionary::getCodes( codes, it->getStatusCode() );
               for ( unsigned int i=0; i<codes.size(); i++ ) {
-                std::cout << "Crystal EE-99 " << 1000*id.ix()+id.iy() << " " << codes[i].desc << std::endl;
+                std::cout << "Crystal EE+99 " << 1000*id.ix()+id.iy() << " " << codes[i].desc << std::endl;
               }
             }
           }
@@ -132,7 +132,7 @@ void EcalDQMStatusReader::beginRun(const edm::Run& r, const edm::EventSetup& c) 
               std::vector<EcalDQMStatusDictionary::codeDef> codes;
               EcalDQMStatusDictionary::getCodes( codes, it->getStatusCode() );
               for ( unsigned int i=0; i<codes.size(); i++ ) {
-                std::cout << "TT EE-99 " << map_->iTT(mapTT_->towerOf(id)) << " " << codes[i].desc << std::endl;
+                std::cout << "TT EE+99 " << map_->iTT(mapTT_->towerOf(id)) << " " << codes[i].desc << std::endl;
               }
             }
           }
@@ -148,7 +148,7 @@ void EcalDQMStatusReader::beginRun(const edm::Run& r, const edm::EventSetup& c) 
               std::vector<EcalDQMStatusDictionary::codeDef> codes;
               EcalDQMStatusDictionary::getCodes( codes, it->getStatusCode() );
               for ( unsigned int i=0; i<codes.size(); i++ ) {
-                std::cout << "Crystal EE+99 " << 1000*id.ix()+id.iy() << " " << codes[i].desc << std::endl;
+                std::cout << "Crystal EE-99 " << 1000*id.ix()+id.iy() << " " << codes[i].desc << std::endl;
               }
             }
           }
@@ -161,7 +161,7 @@ void EcalDQMStatusReader::beginRun(const edm::Run& r, const edm::EventSetup& c) 
               std::vector<EcalDQMStatusDictionary::codeDef> codes;
               EcalDQMStatusDictionary::getCodes( codes, it->getStatusCode() );
               for ( unsigned int i=0; i<codes.size(); i++ ) {
-                std::cout << "TT EE+99 " << map_->iTT(mapTT_->towerOf(id)) << " " << codes[i].desc << std::endl;
+                std::cout << "TT EE-99 " << map_->iTT(mapTT_->towerOf(id)) << " " << codes[i].desc << std::endl;
               }
             }
           }
