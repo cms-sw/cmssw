@@ -1,8 +1,8 @@
 /*
  * \file EcalDQMStatusWriter.cc
  *
- * $Date: 2010/08/07 19:56:47 $
- * $Revision: 1.10 $
+ * $Date: 2010/08/07 20:47:42 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -137,7 +137,7 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
   if ( ie==0 ) continue;
     for ( int ip=EBDetId::MIN_IPHI; ip<=EBDetId::MAX_IPHI; ip++ ) {
       if ( EBDetId::validDetId(ie, ip) ) {
-        EBDetId id(ie, ip);
+        EBDetId id(ie, ip, EBDetId::ETAPHIMODE);
         status->setValue(id, 0);
       }
     }
@@ -147,11 +147,11 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
   for ( int ix=EEDetId::IX_MIN; ix<=EEDetId::IX_MAX; ix++ ) {
     for ( int iy=EEDetId::IY_MIN; iy<=EEDetId::IY_MAX; iy++ ) {
       if ( EEDetId::validDetId(ix, iy, +1) ) {
-        EEDetId id(ix, iy, +1);
+        EEDetId id(ix, iy, +1, EEDetId::XYMODE);
         status->setValue(id, 0);
       }
       if ( EEDetId::validDetId(ix, iy, -1) ) {
-        EEDetId id(ix, iy, -1);
+        EEDetId id(ix, iy, -1, EEDetId::XYMODE);
         status->setValue(id, 0);
       }
     }
@@ -200,7 +200,7 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
       uint32_t code;
       stream >> ix >> iy >> iz >> code;
 
-      EEDetId id(ix, iy, iz);
+      EEDetId id(ix, iy, iz, EEDetId::XYMODE);
       code = convert(code);
 
       int hashedIndex = id.hashedIndex();
@@ -240,7 +240,7 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
         int ipx = (ism>=1&&ism<=18) ? ip+20*(ism-1) : 1+(20-ip)+20*(ism-19);
 #endif
 
-        EBDetId id(iex, ipx);
+        EBDetId id(iex, ipx, EBDetId::ETAPHIMODE);
         uint32_t code = 0;
         for ( unsigned int i=0; i<dictionary.size(); i++ ) {
           if ( strcmp(token.c_str(), dictionary[i].desc) == 0 ) {

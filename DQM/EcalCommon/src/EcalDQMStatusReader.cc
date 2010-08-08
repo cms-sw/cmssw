@@ -1,8 +1,8 @@
 /*
  * \file EcalDQMStatusReader.cc
  *
- * $Date: 2010/08/08 10:51:34 $
- * $Revision: 1.4 $
+ * $Date: 2010/08/08 11:21:31 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -75,7 +75,7 @@ void EcalDQMStatusReader::beginRun(const edm::Run& r, const edm::EventSetup& c) 
   if ( ie==0 ) continue;
     for ( int ip=EBDetId::MIN_IPHI; ip<=EBDetId::MAX_IPHI; ip++ ) {
       if ( EBDetId::validDetId(ie, ip) ) {
-        EBDetId id(ie, ip);
+        EBDetId id(ie, ip, EBDetId::ETAPHIMODE);
         if ( channelStatus ) {
           EcalDQMChannelStatus::const_iterator it = channelStatus->find( id.rawId() );
           if ( it != channelStatus->end() ) {
