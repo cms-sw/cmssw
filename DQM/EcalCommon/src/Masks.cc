@@ -1,26 +1,23 @@
-// $Id: Masks.cc,v 1.10 2010/08/07 09:27:28 dellaric Exp $
+// $Id: Masks.cc,v 1.11 2010/08/07 19:34:20 dellaric Exp $
 
 /*!
   \file Masks.cc
   \brief channel masking
   \author G. Della Ricca
-  \version $Revision: 1.10 $
-  \date $Date: 2010/08/07 09:27:28 $
+  \version $Revision: 1.11 $
+  \date $Date: 2010/08/07 19:34:20 $
 */
 
 #include <sstream>
 #include <iomanip>
 
-#include <DataFormats/EcalDetId/interface/EBDetId.h>
-#include <DataFormats/EcalDetId/interface/EEDetId.h>
-
-#include "FWCore/Framework/interface/NoRecordException.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/DataRecord/interface/EcalDQMChannelStatusRcd.h"
 #include "CondFormats/DataRecord/interface/EcalDQMTowerStatusRcd.h"
 
-#include "DQM/EcalCommon/interface/UtilsClient.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+
 #include "DQM/EcalCommon/interface/Numbers.h"
 
 #include "DQM/EcalCommon/interface/Masks.h"
@@ -42,13 +39,13 @@ void Masks::initMasking( const edm::EventSetup& setup, bool verbose ) {
 
   Masks::init = true;
 
-  if ( setup.find( edm::eventsetup::EventSetupRecordKey::makeKey< EcalDQMChannelStatusRcd >() ) ) {
+  if ( setup.find( edm::eventsetup::EventSetupRecordKey::makeKey<EcalDQMChannelStatusRcd>() ) ) {
     edm::ESHandle<EcalDQMChannelStatus> handle;
     setup.get<EcalDQMChannelStatusRcd>().get(handle);
     if ( handle.isValid() ) Masks::channelStatus = handle.product();
   }
 
-  if ( setup.find( edm::eventsetup::EventSetupRecordKey::makeKey< EcalDQMTowerStatusRcd >() ) ) {
+  if ( setup.find( edm::eventsetup::EventSetupRecordKey::makeKey<EcalDQMTowerStatusRcd>() ) ) {
     edm::ESHandle<EcalDQMTowerStatus> handle;
     setup.get<EcalDQMTowerStatusRcd>().get(handle);
     if ( handle.isValid() ) Masks::towerStatus = handle.product();
@@ -70,7 +67,7 @@ bool Masks::maskChannel( int ism, int ix, int iy, uint32_t bits, const EcalSubde
     int ipx = (ism>=1&&ism<=18) ? iy+20*(ism-1) : 1+(20-iy)+20*(ism-19);
 
     if ( EBDetId::validDetId(iex, ipx) ) {
-      EBDetId id(iex, ipx);
+      EBDetId id(iex, ipx, EBDetId::ETAPHIMODE);
       if ( Masks::channelStatus ) {
         EcalDQMChannelStatus::const_iterator it = Masks::channelStatus->find( id.rawId() );
         if ( it != Masks::channelStatus->end() ) mask |= it->getStatusCode() & bits;

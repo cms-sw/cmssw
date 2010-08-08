@@ -1,10 +1,10 @@
-// $Id: NumbersPn.cc,v 1.72 2010/03/09 09:01:50 dellaric Exp $
+// $Id: NumbersPn.cc,v 1.7 2010/08/04 06:48:52 dellaric Exp $
 
 /*!
   \file NumbersPn.cc
   \brief Some "id" conversions
-  \version $Revision: 1.72 $
-  \date $Date: 2010/03/09 09:01:50 $
+  \version $Revision: 1.7 $
+  \date $Date: 2010/08/04 06:48:52 $
 */
 
 #include <sstream>
@@ -14,6 +14,8 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
 #include "DQM/EcalCommon/interface/NumbersPn.h"
+
+//-------------------------------------------------------------------------
 
 // return the PN index [0-79] from EcalPnDiodeDetId.id().iPnId() [0-9];
 int NumbersPn::ipnEE( const int ism, const int ipnid ) throw( std::runtime_error ) {
@@ -42,6 +44,8 @@ int NumbersPn::ipnEE( const int ism, const int ipnid ) throw( std::runtime_error
   }
 
 }
+
+//-------------------------------------------------------------------------
 
 // return the list of PNs for a given crystal
 void NumbersPn::getPNs( const int ism, const int ix, const int iy, std::vector<int>& PNsInLM ) throw( std::runtime_error ) {
@@ -341,6 +345,8 @@ void NumbersPn::getPNs( const int ism, const int ix, const int iy, std::vector<i
   
 }
 
+//-------------------------------------------------------------------------
+
 // return the LM for a given crystal
 int NumbersPn::iLM( const int ism, const int ix, const int iy ) throw( std::runtime_error ) {
 
@@ -386,4 +392,6 @@ int NumbersPn::iLM( const int ism, const int ix, const int iy ) throw( std::runt
   throw( std::runtime_error( s.str() ) );
 
 }
+
+//-------------------------------------------------------------------------
 

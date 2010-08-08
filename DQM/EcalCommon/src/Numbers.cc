@@ -1,26 +1,24 @@
-// $Id: Numbers.cc,v 1.72 2010/03/09 09:01:50 dellaric Exp $
+// $Id: Numbers.cc,v 1.73 2010/08/07 09:17:46 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo
-  \version $Revision: 1.72 $
-  \date $Date: 2010/03/09 09:01:50 $
+  \version $Revision: 1.73 $
+  \date $Date: 2010/08/07 09:17:46 $
 */
 
 #include <sstream>
 #include <iomanip>
 
-#include <DataFormats/EcalDetId/interface/EBDetId.h>
-#include <DataFormats/EcalDetId/interface/EEDetId.h>
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 
-#include <DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h>
-#include <DataFormats/EcalDetId/interface/EcalScDetId.h>
-#include <DataFormats/EcalDetId/interface/EcalElectronicsId.h>
-#include <DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h>
-#include <DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h>
-
-#include "FWCore/Framework/interface/NoRecordException.h"
+#include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalScDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
+#include "DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h"
+#include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
