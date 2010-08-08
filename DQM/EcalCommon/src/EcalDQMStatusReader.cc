@@ -1,8 +1,8 @@
 /*
  * \file EcalDQMStatusReader.cc
  *
- * $Date: 2010/08/07 19:34:20 $
- * $Revision: 1.1 $
+ * $Date: 2010/08/07 20:47:42 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -18,11 +18,18 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+
 #include "CondFormats/DataRecord/interface/EcalDQMChannelStatusRcd.h"
 #include "CondFormats/DataRecord/interface/EcalDQMTowerStatusRcd.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+
+#include "DQM/EcalCommon/interface/Numbers.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMStatusDictionary.h"
 
@@ -35,6 +42,19 @@ EcalDQMStatusReader::EcalDQMStatusReader(const edm::ParameterSet& ps) {
 }
 
 void EcalDQMStatusReader::beginRun(const edm::Run& r, const edm::EventSetup& c) {
+
+  std::vector<EcalDQMStatusDictionary::codeDef> dictionary;
+  EcalDQMStatusDictionary::getDictionary( dictionary );
+
+  const EcalElectronicsMapping* map_;
+  edm::ESHandle<EcalElectronicsMapping> handle;
+  c.get<EcalMappingRcd>().get(handle);
+  map_ = handle.product();
+
+  const EcalTrigTowerConstituentsMap* mapTT_;
+  edm::ESHandle<EcalTrigTowerConstituentsMap> handleTT;
+  c.get<IdealGeometryRecord>().get(handleTT);
+  mapTT_ = handleTT.product();
 
   const EcalDQMChannelStatus* channelStatus = 0;
   if ( c.find( edm::eventsetup::EventSetupRecordKey::makeKey< EcalDQMChannelStatusRcd >() ) ) {
@@ -59,13 +79,27 @@ void EcalDQMStatusReader::beginRun(const edm::Run& r, const edm::EventSetup& c) 
         if ( channelStatus ) {
           EcalDQMChannelStatus::const_iterator it = channelStatus->find( id.rawId() );
           if ( it != channelStatus->end() ) {
-            if ( it->getStatusCode() != 0 ) std::cout << "EB:channel, ism=" << id.ism() << " hi=" << id.hashedIndex() << " status=" << it->getStatusCode() << std::endl;
+            if ( it->getStatusCode() != 0 ) {
+              std::cout << "# EB:channel, ism=" << id.ism() << " hi=" << id.hashedIndex() << " status=" << it->getStatusCode() << std::endl;
+              std::vector<EcalDQMStatusDictionary::codeDef> codes;
+              EcalDQMStatusDictionary::getCodes( codes, it->getStatusCode() );
+              for ( unsigned int i=0; i<codes.size(); i++ ) {
+                std::cout << "Crystal " << Numbers::sEB(Numbers::iSM(id.ism(), EcalBarrel)) << " " << id.ic() << " " << codes[i].desc << std::endl;
+              }
+            }
           }
         }
         if ( towerStatus ) {
           EcalDQMTowerStatus::const_iterator it = towerStatus->find( id.tower().rawId() );
           if ( it != towerStatus->end() ) {
-            if ( it->getStatusCode() != 0 ) std::cout << "EB:tower, ism=" << id.ism() << " hi=" << id.hashedIndex() << " status=" << it->getStatusCode() << std::endl;
+            if ( it->getStatusCode() != 0 ) {
+              std::cout << "# EB:tower, ism=" << id.ism() << " hi=" << id.hashedIndex() << " status=" << it->getStatusCode() << std::endl;
+              std::vector<EcalDQMStatusDictionary::codeDef> codes;
+              EcalDQMStatusDictionary::getCodes( codes, it->getStatusCode() );
+              for ( unsigned int i=0; i<codes.size(); i++ ) {
+                std::cout << "TT " << Numbers::sEB(Numbers::iSM(id.ism(), EcalBarrel)) << " " << 4*int((id.ietaSM()-1)/5)+int((id.iphiSM()-1)/5)+1 << " " << codes[i].desc << std::endl;
+              }
+            }
           }
         }
       }
@@ -80,13 +114,27 @@ void EcalDQMStatusReader::beginRun(const edm::Run& r, const edm::EventSetup& c) 
         if ( channelStatus ) {
           EcalDQMChannelStatus::const_iterator it = channelStatus->find( id.rawId() );
           if ( it != channelStatus->end() ) {
-            if ( it->getStatusCode() != 0 ) std::cout << "EE:channel " << ix << " " << iy << " hi=" << id.hashedIndex() << " " << it->getStatusCode() << std::endl;
+            if ( it->getStatusCode() != 0 ) {
+              std::cout << "# EE:channel " << ix << " " << iy << " hi=" << id.hashedIndex() << " " << it->getStatusCode() << std::endl;
+              std::vector<EcalDQMStatusDictionary::codeDef> codes;
+              EcalDQMStatusDictionary::getCodes( codes, it->getStatusCode() );
+              for ( unsigned int i=0; i<codes.size(); i++ ) {
+                std::cout << "Crystal EE-99 " << 1000*id.ix()+id.iy() << " " << codes[i].desc << std::endl;
+              }
+            }
           }
         }
         if ( towerStatus ) {
           EcalDQMTowerStatus::const_iterator it = towerStatus->find( id.sc().rawId() );
           if ( it != towerStatus->end() ) {
-            if ( it->getStatusCode() != 0 ) std::cout << "EE:tower " << ix << " " << iy << " hi=" << id.hashedIndex() << " " << it->getStatusCode() << std::endl;
+            if ( it->getStatusCode() != 0 ) {
+              std::cout << "# EE:tower " << ix << " " << iy << " hi=" << id.hashedIndex() << " " << it->getStatusCode() << std::endl;
+              std::vector<EcalDQMStatusDictionary::codeDef> codes;
+              EcalDQMStatusDictionary::getCodes( codes, it->getStatusCode() );
+              for ( unsigned int i=0; i<codes.size(); i++ ) {
+                std::cout << "TT EE-99 " << map_->iTT(mapTT_->towerOf(id)) << " " << codes[i].desc << std::endl;
+              }
+            }
           }
         }
       }
@@ -95,13 +143,27 @@ void EcalDQMStatusReader::beginRun(const edm::Run& r, const edm::EventSetup& c) 
         if ( channelStatus ) {
           EcalDQMChannelStatus::const_iterator it = channelStatus->find( id.rawId() );
           if ( it != channelStatus->end() ) {
-            if ( it->getStatusCode() != 0 ) std::cout << "EE:channel " << ix << " " << iy << " hi=" << id.hashedIndex() << " " << it->getStatusCode() << std::endl;
+            if ( it->getStatusCode() != 0 ) {
+              std::cout << "# EE:channel " << ix << " " << iy << " hi=" << id.hashedIndex() << " " << it->getStatusCode() << std::endl;
+              std::vector<EcalDQMStatusDictionary::codeDef> codes;
+              EcalDQMStatusDictionary::getCodes( codes, it->getStatusCode() );
+              for ( unsigned int i=0; i<codes.size(); i++ ) {
+                std::cout << "Crystal EE+99 " << 1000*id.ix()+id.iy() << " " << codes[i].desc << std::endl;
+              }
+            }
           }
         }
         if ( towerStatus ) {
           EcalDQMTowerStatus::const_iterator it = towerStatus->find( id.sc().rawId() );
           if ( it != towerStatus->end() ) {
-            if ( it->getStatusCode() != 0 ) std::cout << "EE:tower " << ix << " " << iy << " hi=" << id.hashedIndex() << " " << it->getStatusCode() << std::endl;
+            if ( it->getStatusCode() != 0 ) {
+              std::cout << "# EE:tower " << ix << " " << iy << " hi=" << id.hashedIndex() << " " << it->getStatusCode() << std::endl;
+              std::vector<EcalDQMStatusDictionary::codeDef> codes;
+              EcalDQMStatusDictionary::getCodes( codes, it->getStatusCode() );
+              for ( unsigned int i=0; i<codes.size(); i++ ) {
+                std::cout << "TT EE+99 " << map_->iTT(mapTT_->towerOf(id)) << " " << codes[i].desc << std::endl;
+              }
+            }
           }
         }
       }

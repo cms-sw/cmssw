@@ -5,8 +5,8 @@
   \file Status.h
   \brief dictionary for Ecal DQM status codes
   \author G. Della Ricca
-  \version $Revision: 1.4 $
-  \date $Date: 2010/08/07 06:59:24 $
+  \version $Revision: 1.5 $
+  \date $Date: 2010/08/07 09:05:53 $
 */
 
 #include <boost/cstdint.hpp>
@@ -27,6 +27,15 @@ class EcalDQMStatusDictionary {
   static void getDictionary(std::vector<codeDef> &dict) {
     dict.clear();
     for (unsigned int i=0; i<DICTSIZE; i++) dict.push_back(getDef(i));
+  }
+
+  static void getCodes(std::vector<codeDef>& codeVec, uint32_t code) {
+      codeVec.clear();
+      for (unsigned int i=0; i<DICTSIZE; i++) {
+	if (code & getDef(i).code) {
+	  codeVec.push_back(getDef(i));
+      }
+    }
   }
 
  private:
