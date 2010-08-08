@@ -4,19 +4,19 @@
 /*
  * \file EcalBarrelMonitorDbModule.h
  *
- * $Date: 2009/10/26 17:33:46 $
- * $Revision: 1.13 $
+ * $Date: 2010/08/08 08:46:03 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
+
+#include <string>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include <string>
 
 class DQMStore;
 

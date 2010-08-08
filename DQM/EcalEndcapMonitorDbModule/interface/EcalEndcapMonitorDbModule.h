@@ -4,19 +4,19 @@
 /*
  * \file EcalEndcapMonitorDbModule.h
  *
- * $Date: 2009/10/26 17:33:49 $
- * $Revision: 1.10 $
+ * $Date: 2010/08/08 08:46:07 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
+
+#include <string>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include <string>
 
 class DQMStore;
 
