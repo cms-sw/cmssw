@@ -5,8 +5,8 @@
   \file Status.h
   \brief dictionary for Ecal DQM status codes
   \author G. Della Ricca
-  \version $Revision: 1.5 $
-  \date $Date: 2010/08/07 09:05:53 $
+  \version $Revision: 1.6 $
+  \date $Date: 2010/08/08 10:07:42 $
 */
 
 #include <boost/cstdint.hpp>
@@ -26,7 +26,7 @@ class EcalDQMStatusDictionary {
 
   static void getDictionary(std::vector<codeDef> &dict) {
     dict.clear();
-    for (unsigned int i=0; i<DICTSIZE; i++) dict.push_back(getDef(i));
+    for (unsigned int i=0; i<DICTSIZE+DICTSIZE2; i++) dict.push_back(getDef(i));
   }
 
   static void getCodes(std::vector<codeDef>& codeVec, uint32_t code) {
@@ -43,10 +43,11 @@ class EcalDQMStatusDictionary {
   EcalDQMStatusDictionary() {}; // Hidden to force static use
   ~EcalDQMStatusDictionary() {};  // Hidden to force static use
 
-  const static unsigned int DICTSIZE = 60;
+  const static unsigned int DICTSIZE = 30;
+  const static unsigned int DICTSIZE2 = 30;
 
   static codeDef getDef(unsigned int i) {
-    const static codeDef DICT[DICTSIZE] =
+    const static codeDef DICT[DICTSIZE+DICTSIZE2] =
       {
 
 	{ ((uint32_t) 1 << EcalDQMStatusHelper::CH_ID_ERROR), "CH_ID_ERROR" },
