@@ -1,8 +1,8 @@
 /*
  * \file EcalDQMStatusReader.cc
  *
- * $Date: 2010/08/08 20:03:00 $
- * $Revision: 1.7 $
+ * $Date: 2010/08/08 20:56:09 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -68,7 +68,7 @@ void EcalDQMStatusReader::beginRun(const edm::Run& r, const edm::EventSetup& c) 
               std::vector<EcalDQMStatusDictionary::codeDef> codes;
               EcalDQMStatusDictionary::getCodes( codes, it->getStatusCode() );
               for ( unsigned int i=0; i<codes.size(); i++ ) {
-                std::cout << "Crystal " << Numbers::sEB(id.ism()) << " " << id.ic() << " " << codes[i].desc << std::endl;
+                std::cout << "Crystal " << Numbers::sEB(Numbers::iSM(id.ism(), EcalBarrel)) << " " << id.ic() << " " << codes[i].desc << std::endl;
               }
             }
           }

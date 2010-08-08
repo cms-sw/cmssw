@@ -1,8 +1,8 @@
 /*
  * \file EcalDQMStatusWriter.cc
  *
- * $Date: 2010/08/07 20:47:42 $
- * $Revision: 1.11 $
+ * $Date: 2010/08/08 19:43:42 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -224,8 +224,8 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
         int sm = atoi( module.substr(2, module.size()-2).c_str() );
 
         int ism = (sm>=0) ? sm : 18-sm;
-        int iex = (ism>=1&&ism<=18) ? -ie : +ie;
-        int ipx = (ism>=1&&ism<=18) ? ip+20*(ism-1) : 1+(20-ip)+20*(ism-19);
+        int iex = (ism>=1&&ism<=18) ? +ie : -ie;
+        int ipx = (ism>=1&&ism<=18) ? 1+(20-ip)+20*(ism-1) : ip+20*(ism-19);
 #else
         int index;
         std::string token;
@@ -236,8 +236,8 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
         int ism = (sm>=0) ? sm : 18-sm;
         int ie = (index-1)/20 + 1;
         int ip = (index-1)%20 + 1;
-        int iex = (ism>=1&&ism<=18) ? -ie : +ie;
-        int ipx = (ism>=1&&ism<=18) ? ip+20*(ism-1) : 1+(20-ip)+20*(ism-19);
+        int iex = (ism>=1&&ism<=18) ? +ie : -ie;
+        int ipx = (ism>=1&&ism<=18) ? 1+(20-ip)+20*(ism-1) : ip+20*(ism-19);
 #endif
 
         EBDetId id(iex, ipx, EBDetId::ETAPHIMODE);
