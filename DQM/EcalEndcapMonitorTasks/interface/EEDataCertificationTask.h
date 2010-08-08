@@ -4,8 +4,8 @@
 /*
  * \file EEDataCertificationTask.h
  *
- * $Date: 2010/08/08 08:46:05 $
- * $Revision: 1.132 $
+ * $Date: 2010/08/08 08:56:00 $
+ * $Revision: 1.6 $
  * \author E. Di Marco
  *
 */
@@ -72,6 +72,7 @@ TH2F *hDAQ_;
 TH2F *hDCS_;
 TH1F *hIntegrityByLumi_;
 TH1F *hFrontendByLumi_;
+TH1F *hSynchronizationByLumi_;
 
 MonitorElement* meEEDataCertificationSummary_;
 MonitorElement* meEEDataCertification_[18];
