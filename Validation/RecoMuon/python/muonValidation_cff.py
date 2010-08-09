@@ -76,6 +76,13 @@ tevMuonPickyTrackVTrackAssoc.label = ('tevMuons:picky',)
 tevMuonPickyTrackVTrackAssoc.usetracker = True
 tevMuonPickyTrackVTrackAssoc.usemuon = True
 
+tevMuonDytTrackVTrackAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
+tevMuonDytTrackVTrackAssoc.associatormap = 'tpToTevDytTrackAssociation'
+tevMuonDytTrackVTrackAssoc.associators = ('TrackAssociatorByDeltaR',)
+tevMuonDytTrackVTrackAssoc.label = ('tevMuons:dyt',)
+tevMuonDytTrackVTrackAssoc.usetracker = True
+tevMuonDytTrackVTrackAssoc.usemuon = True
+
 staCosmicMuonTrackVTrackAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 staCosmicMuonTrackVTrackAssoc.associatormap = 'tpToStaCosmicTrackAssociation'
 staCosmicMuonTrackVTrackAssoc.associators = ('TrackAssociatorByDeltaR',)
@@ -146,6 +153,13 @@ tevMuonPickyTrackVMuonAssoc.label = ('tevMuons:picky',)
 tevMuonPickyTrackVMuonAssoc.usetracker = True
 tevMuonPickyTrackVMuonAssoc.usemuon = True
 
+tevMuonDytTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
+tevMuonDytTrackVMuonAssoc.associatormap = 'tpToTevDytMuonAssociation'
+tevMuonDytTrackVMuonAssoc.associators = ('MuonAssociationByHits',)
+tevMuonDytTrackVMuonAssoc.label = ('tevMuons:dyt',)
+tevMuonDytTrackVMuonAssoc.usetracker = True
+tevMuonDytTrackVMuonAssoc.usemuon = True
+
 staCosmicMuonTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 staCosmicMuonTrackVMuonAssoc.associatormap = 'tpToStaCosmicMuonAssociation'
 staCosmicMuonTrackVMuonAssoc.associators = ('MuonAssociationByHits',)
@@ -190,7 +204,7 @@ muonValidation_seq = cms.Sequence(trkMuonTrackVTrackAssoc
                                  +staMuonTrackVMuonAssoc+staUpdMuonTrackVMuonAssoc+glbMuonTrackVMuonAssoc
                                  +recoMuonVMuAssoc)
 
-muonValidationTEV_seq = cms.Sequence(tevMuonFirstTrackVMuonAssoc+tevMuonPickyTrackVMuonAssoc)
+muonValidationTEV_seq = cms.Sequence(tevMuonFirstTrackVMuonAssoc+tevMuonPickyTrackVMuonAssoc+tevMuonDytTrackVMuonAssoc)
 
 muonValidationSET_seq = cms.Sequence(staSETMuonTrackVMuonAssoc+staSETUpdMuonTrackVMuonAssoc+glbSETMuonTrackVMuonAssoc)
 

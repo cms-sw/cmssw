@@ -32,6 +32,11 @@ tevMuonPickyTrackVTrackAssocFS.associatormap = 'tpToTevPickyTrackAssociationFS'
 tevMuonPickyTrackVTrackAssocFS.label_tp_effic = 'mergedtruth:MergedTrackTruth'
 tevMuonPickyTrackVTrackAssocFS.label_tp_fake = 'mergedtruth:MergedTrackTruth'
 
+tevMuonDytTrackVTrackAssocFS = Validation.RecoMuon.muonValidation_cff.tevMuonDytTrackVTrackAssoc.clone()
+tevMuonDytTrackVTrackAssocFS.associatormap = 'tpToTevDytTrackAssociationFS'
+tevMuonDytTrackVTrackAssocFS.label_tp_effic = 'mergedtruth:MergedTrackTruth'
+tevMuonDytTrackVTrackAssocFS.label_tp_fake = 'mergedtruth:MergedTrackTruth'
+
 staMuonTrackVMuonAssocFS = Validation.RecoMuon.muonValidation_cff.staMuonTrackVMuonAssoc.clone()
 staMuonTrackVMuonAssocFS.associatormap = 'tpToStaMuonAssociationFS'
 staMuonTrackVMuonAssocFS.label_tp_effic = 'mergedtruthMuon:MergedTrackTruth'
@@ -57,6 +62,11 @@ tevMuonPickyTrackVMuonAssocFS.associatormap = 'tpToTevPickyMuonAssociationFS'
 tevMuonPickyTrackVMuonAssocFS.label_tp_effic = 'mergedtruth:MergedTrackTruth'
 tevMuonPickyTrackVMuonAssocFS.label_tp_fake = 'mergedtruth:MergedTrackTruth'
 
+tevMuonDytTrackVMuonAssocFS = Validation.RecoMuon.muonValidation_cff.tevMuonDytTrackVMuonAssoc.clone()
+tevMuonDytTrackVMuonAssocFS.associatormap = 'tpToTevDytMuonAssociationFS'
+tevMuonDytTrackVMuonAssocFS.label_tp_effic = 'mergedtruth:MergedTrackTruth'
+tevMuonDytTrackVMuonAssocFS.label_tp_fake = 'mergedtruth:MergedTrackTruth'
+
 # Configurations for RecoMuonValidators
 
 recoMuonVMuAssocFS = Validation.RecoMuon.muonValidation_cff.recoMuonVMuAssoc.clone()
@@ -72,7 +82,7 @@ recoMuonVTrackAssocFS.glbMuAssocLabel = 'tpToGlbTrackAssociationFS'
 # Muon validation sequence
 muonValidationFastSim_seq = cms.Sequence(trkMuonTrackVTrackAssocFS
                                          +staMuonTrackVMuonAssocFS+staUpdMuonTrackVMuonAssocFS+glbMuonTrackVMuonAssocFS
-                                         +tevMuonFirstTrackVMuonAssocFS+tevMuonPickyTrackVMuonAssocFS
+                                         +tevMuonFirstTrackVMuonAssocFS+tevMuonPickyTrackVMuonAssocFS+tevMuonDytTrackVMuonAssocFS
                                          +recoMuonVMuAssocFS)
 
 
