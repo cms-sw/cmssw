@@ -15,8 +15,8 @@
 /*
  * \file HcalSummaryClient.cc
  * 
- * $Date: 2010/05/30 19:15:56 $
- * $Revision: 1.99 $
+ * $Date: 2010/07/27 20:47:21 $
+ * $Revision: 1.100 $
  * \author J. Temple
  * \brief Summary Client class
  */
@@ -95,6 +95,7 @@ void HcalSummaryClient::analyze(int LS)
 	  std::cout <<"Failed enoughevents test for monitor "<<clients_[i]->name()<<std::endl;
       }
     }
+
   if (enoughevents_==false)
     {
       if (debug_>0) std::cout <<"<HcalSummaryClient::analyze>  Not enough events processed to evaluate summary status!"<<std::endl;
@@ -109,6 +110,7 @@ void HcalSummaryClient::analyze(int LS)
       if (HFpresent_!=0) status_HF_=1;
       else status_HF_=-1;  // HF not present
 
+      // Update this in the future?  'AND' together HB, HF, and HF?
       bool hcalpresent=HBpresent_||HEpresent_||HOpresent_||HFpresent_;
       if (hcalpresent!=0) status_global_=1; 
       else status_global_=-1;

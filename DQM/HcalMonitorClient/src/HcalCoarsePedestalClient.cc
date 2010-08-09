@@ -11,8 +11,8 @@
 /*
  * \file HcalCoarsePedestalClient.cc
  * 
- * $Date: 2010/07/15 22:39:02 $
- * $Revision: 1.1 $
+ * $Date: 2010/07/17 01:00:21 $
+ * $Revision: 1.2 $
  * \author J. Temple
  * \brief CoarsePedestalClient class
  */
@@ -39,13 +39,13 @@ HcalCoarsePedestalClient::HcalCoarsePedestalClient(std::string myname, const edm
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
   badChannelStatusMask_   = ps.getUntrackedParameter<int>("CoarsePedestal_BadChannelStatusMask",
                                                           ps.getUntrackedParameter<int>("BadChannelStatusMask",
-											(1<<HcalChannelStatus::HcalCellDead))); // identify channel status values to mask
+											((1<<HcalChannelStatus::HcalCellDead)|(1<<HcalChannelStatus::HcalCellHot)))); // identify channel status values to mask
   
   minerrorrate_ = ps.getUntrackedParameter<double>("CoarsePedestal_minerrorrate",
 						   ps.getUntrackedParameter<double>("minerrorrate",0.05));
 
 
-  // minevents_ can be overwritten by monitor task value
+  // minevents_ canbe overwritten by monitor task value
   minevents_    = ps.getUntrackedParameter<int>("CoarsePedestal_minevents",
 						ps.getUntrackedParameter<int>("minevents",1));
 
@@ -209,6 +209,7 @@ void HcalCoarsePedestalClient::calculateProblems()
   
   FillUnphysicalHEHFBins(*ProblemCellsByDepth);
   FillUnphysicalHEHFBins(ProblemCells);
+  FillUnphysicalHEHFBins(*CoarsePedestalsByDepth);
   return;
 }
 

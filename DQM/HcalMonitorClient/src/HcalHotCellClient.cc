@@ -11,8 +11,8 @@
 /*
  * \file HcalHotCellClient.cc
  * 
- * $Date: 2010/05/07 09:09:12 $
- * $Revision: 1.72 $
+ * $Date: 2010/08/02 18:47:13 $
+ * $Revision: 1.73 $
  * \author J. Temple
  * \brief Hot Cell Client class
  */
@@ -152,6 +152,8 @@ void HcalHotCellClient::calculateProblems()
 	    {
 	      problemvalue=0; // problem fraction sums over all three tests
 	      // If cell is never-present in all runs, then problemvalue = event
+	      if (HotAboveETThresholdByDepth[d]!=0)
+		problemvalue+=HotAboveETThresholdByDepth[d]->GetBinContent(eta+1,phi+1);
 	      if (HotAboveThresholdByDepth[d]!=0)
 		problemvalue+=HotAboveThresholdByDepth[d]->GetBinContent(eta+1,phi+1);
 	      if (HotAlwaysAboveThresholdByDepth[d]!=0)

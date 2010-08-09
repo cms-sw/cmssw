@@ -36,7 +36,7 @@ hcalClient = cms.EDAnalyzer("HcalMonitorClient",
                             # dead cell min events controlled by task in online running
                             DeadCell_minerrorrate = cms.untracked.double(0.05),
                             #DeadCell_minevents    = cms.untracked.int32(10),
-                            HotCell_minerrrorate  = cms.untracked.double(0.10),
+                            HotCell_minerrorrate  = cms.untracked.double(0.10),
                             
                             # Specify all clients to be run (name = prefix+"Monitor")
 
