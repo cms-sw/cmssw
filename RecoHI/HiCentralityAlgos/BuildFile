@@ -15,6 +15,7 @@
 <use name=CondFormats/DataRecord>
 <use name=CondCore/DBCommon>
 <use name=CondCore/DBOutputService>
+<use name=CondCore/PopCon>
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=RecoHIHiCentralityAlgos>
