@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.200 $"
+__version__ = "$Revision: 1.201 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -851,6 +851,17 @@ class ConfigBuilder(object):
                     pass
 
 
+    # change the process name used to acess the HLT results in the [HLT]DQM sequence
+    @staticmethod
+    def renameHLTforDQM(sequence, process):
+        # look up all module in dqm sequence
+        print "replacing HLT process name - DQM sequence %s will use '%s'" % (sequence, process)
+        return """
+from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
+process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", whitelist = ('subSystemFolder',)))
+""" % (sequence, process)
+
+
     def prepare_DQM(self, sequence = 'DQMOffline'):
         # this one needs replacement
 
@@ -858,17 +869,22 @@ class ConfigBuilder(object):
             self.loadAndRemember(self.DQMOFFLINEDefaultCFF)
         else:
             self.loadAndRemember(sequence.split(',')[0])
-        self.process.dqmoffline_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
-        self.schedule.append(self.process.dqmoffline_step)
 
-        ## add a specific case of HLT,DQM, need to change the process name to the current process name
+        if self._options.hltProcess:
+                # if specified, change the process name used to acess the HLT results in the [HLT]DQM sequence
+                self.dqmMassaging = self.renameHLTforDQM(sequence.split(',')[-1], self._options.hltProcess)
+        elif 'HLT' in self._options.step:
+                # otherwise, if both HLT and DQM are run in the same process, change the DQM process name to the current process name
+                self.dqmMassaging = self.renameHLTforDQM(sequence.split(',')[-1], self.process.name_())
+
+        # if both HLT and DQM are run in the same process, schedule [HLT]DQM in an EndPath
         if 'HLT' in self._options.step:
-                #look up all module in dqm sequence
-                print "replacing process name"
-                self.dqmMassaging  = """
-from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
-process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", whitelist = ('subSystemFolder',)))
-""" % (sequence.split(',')[-1],self.process.name_())
+                # need to put [HLT]DQM in an EndPath, to access the HLT trigger results
+                self.process.dqmoffline_step = cms.EndPath( getattr(self.process, sequence.split(',')[-1]) )
+        else:
+                # schedule DQM as a standard Path
+                self.process.dqmoffline_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
+        self.schedule.append(self.process.dqmoffline_step)
 
     def prepare_HARVESTING(self, sequence = None):
         """ Enrich the process with harvesting step """
@@ -989,7 +1005,7 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.200 $"),
+              (version=cms.untracked.string("$Revision: 1.201 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )

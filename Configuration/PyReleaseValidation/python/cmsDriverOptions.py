@@ -197,6 +197,11 @@ expertSettings.add_option("--triggerResultsProcess",
                           dest="triggerResultsProcess"
                           )
 
+expertSettings.add_option("--hltProcess",
+                          help="modify the DQM sequence to look for HLT trigger results with the specified process name", 
+                          default = None,
+                          dest="hltProcess"
+                          )
 
 expertSettings.add_option("--scenario",
                           help="Select scenario overriding standard settings (available:"+str(defaultOptions.scenarioOptions)+")",
