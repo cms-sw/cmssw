@@ -1,5 +1,5 @@
 //
-// $Id: MET.h,v 1.18 2008/11/28 19:02:15 lowette Exp $
+// $Id: MET.h,v 1.19 2009/03/09 11:20:55 slava77 Exp $
 //
 
 #ifndef DataFormats_PatCandidates_MET_h
@@ -16,11 +16,12 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Slava Krutelyov
-  \version  $Id: MET.h,v 1.18 2008/11/28 19:02:15 lowette Exp $
+  \version  $Id: MET.h,v 1.19 2009/03/09 11:20:55 slava77 Exp $
 */
 
 
 #include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/PatCandidates/interface/PATObject.h"
 
@@ -88,8 +89,10 @@ namespace pat {
       // ---- methods to know what the pat::MET was constructed from ----
       /// True if this pat::MET was made from a reco::CaloMET
       bool isCaloMET() const { return !caloMET_.empty(); }
-      /// True if this pat::MET was NOT made from a reco::CaloMET
-      bool isRecoMET() const { return  caloMET_.empty(); }
+      /// True if this pat::MET was made from a reco::pfMET
+      bool isPFMET() const { return !pfMET_.empty(); }
+      /// True if this pat::MET was NOT made from a reco::CaloMET nor a reco::pfMET
+      bool isRecoMET() const { return  ( caloMET_.empty() && pfMET_.empty() ); }
 
       // ---- methods for CaloMET specific stuff ----
       /// Returns the maximum energy deposited in ECAL towers
@@ -134,12 +137,28 @@ namespace pat {
           return caloMET_[0];
       }
 
+      // ---- methods for PFMET specific stuff ----
+      double NeutralEMFraction() const { return pfSpecific().NeutralEMFraction; }
+      double NeutralHadEtFraction() const { return pfSpecific().NeutralHadFraction; }
+      double ChargedEMEtFraction() const { return pfSpecific().ChargedEMFraction; }
+      double ChargedHadEtFraction() const { return pfSpecific().ChargedHadFraction; }
+      double MuonEtFraction() const { return pfSpecific().MuonFraction; }
+      double Type6EtFraction() const { return pfSpecific().Type6Fraction; }
+      double Type7EtFraction() const { return pfSpecific().Type7Fraction; }
+      /// accessor for the pfMET-specific structure
+      const SpecificPFMETData & pfSpecific() const {
+          if (!isPFMET()) throw cms::Exception("pat::MET") << "This pat::MET has not been made from a reco::PFMET\n";
+          return pfMET_[0];
+      }
+
     protected:
 
       // ---- GenMET holder ----
       std::vector<reco::GenMET> genMET_;
       // ---- holder for CaloMET specific info ---
       std::vector<SpecificCaloMETData> caloMET_;
+      // ---- holder for pfMET specific info ---
+      std::vector<SpecificPFMETData> pfMET_;
 
       // ---- members for MET corrections ----
       struct UncorInfo {
