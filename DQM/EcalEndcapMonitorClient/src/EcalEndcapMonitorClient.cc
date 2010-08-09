@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2010/08/04 20:10:58 $
- * $Revision: 1.252 $
+ * $Date: 2010/08/06 15:53:05 $
+ * $Revision: 1.253 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -698,8 +698,8 @@ void EcalEndcapMonitorClient::beginJob(void) {
       me->setBinContent( jx, jy, -1.0 );
     }
   }
-  me->setAxisTitle("jx", 1);
-  me->setAxisTitle("jy", 2);
+  me->setAxisTitle("ix / ix+100", 1);
+  me->setAxisTitle("iy", 2);
 
 }
 
