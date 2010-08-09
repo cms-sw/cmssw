@@ -34,7 +34,6 @@ cond::ExportIOVUtilities::ExportIOVUtilities():Utilities("cmscond_export_iov"){
   addDictionaryOption();
   addAuthenticationOptions();
   addConfigFileOption();
-  addBlobStreamerOption();
   addLogDBOption();
   addConnectOption("sourceConnect","s","source connection string(required)");
   addConnectOption("destConnect","d","destionation connection string(required)");
