@@ -38,15 +38,18 @@ def getInstLumiPerLS(dbsession,c,runList,selectionDict,beamstatus=None,beamenerg
         q=dbsession.nominalSchema().newQuery()
         lumiperrun=lumiQueryAPI.lumisummaryByrun(q,run,c.LUMIVERSION,beamstatus,beamenergy,beamenergyfluctuation)
         del q
-        for lumiperls in lumiperrun:
-            cmslsnum=lumiperls[0]
-            instlumi=lumiperls[1]
-            recordedlumi=0.0
-            numorbit=lumiperls[2]
-            startorbit=lumiperls[3]
-            deadcount=0
-            bitzero=0
-            result.append([run,cmslsnum,instlumi,recordedlumi,numorbit,startorbit,runstarttime,runstoptime])
+        if len(lumiperrun)==0: #no result for this run
+            result.append([run,1,0.0,0.0,0,0,runstarttime,runstoptime])
+        else:
+            for lumiperls in lumiperrun:
+                cmslsnum=lumiperls[0]
+                instlumi=lumiperls[1]
+                recordedlumi=0.0
+                numorbit=lumiperls[2]
+                startorbit=lumiperls[3]
+                deadcount=0
+                bitzero=0
+                result.append([run,cmslsnum,instlumi,recordedlumi,numorbit,startorbit,runstarttime,runstoptime])
     dbsession.transaction().commit()
     if c.VERBOSE:
         print result
@@ -191,7 +194,7 @@ def main():
         t=lumiTime.lumiTime()
         minTime=t.StrToDatetime(args.begin,timeformat)
         if not args.end:
-            maxTime=datetime.datetime.now() #to now
+            maxTime=datetime.datetime.utcnow() #to now
         else:
             maxTime=t.StrToDatetime(args.end,timeformat)
         #print minTime,maxTime
@@ -234,7 +237,7 @@ def main():
         days.sort()
         for day in days:
             daydata=daydict[day]
-            transposeddata=CommonUtil.transposed(daydata)
+            transposeddata=CommonUtil.transposed(daydata,defaultval=0.0)
             todaysmaxinst=max(transposeddata[2])
             todaysmaxidx=transposeddata[2].index(todaysmaxinst)
             todaysmaxrun=transposeddata[0][todaysmaxidx]
