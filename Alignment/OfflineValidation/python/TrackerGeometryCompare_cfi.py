@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # Full configuration for Tracker Geometry Comparison Tool
-TrackerGeometryCompare = cms.EDFilter("TrackerGeometryCompare",
+TrackerGeometryCompare = cms.EDAnalyzer("TrackerGeometryCompare",
     writeToDB = cms.untracked.bool(False),
     outputFile = cms.untracked.string('output.root'),
     setCommonTrackerSystem = cms.untracked.string('NONE'), ##must be "NONE" if you don't want to use this option
