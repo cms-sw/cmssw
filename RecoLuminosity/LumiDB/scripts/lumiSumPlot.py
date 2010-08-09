@@ -44,8 +44,8 @@ def getLumiOrderByLS(dbsession,c,runList,selectionDict,hltpath='',beamstatus=Non
         del q
         #print 'lumitrginfo ',lumitrginfo
         if len(lumitrginfo)==0:
-            if c.VERBOSE: print 'warning request run ',runnum,' has no trigger, skip'
             result.append([runnum,runstarttimeStr,1,t.StrToDatetime(runstarttimeStr),0.0,0.0])
+            if c.VERBOSE: print 'warning request run ',runnum,' has no qualified data, skip'
         else:
             norbits=lumitrginfo.values()[0][1]
             lslength=t.bunchspace_s*t.nbx*norbits
@@ -57,7 +57,7 @@ def getLumiOrderByLS(dbsession,c,runList,selectionDict,hltpath='',beamstatus=Non
                 deadcount=valuelist[6]
                 lsstarttime=t.OrbitToTime(runstarttimeStr,startorbit)        
                 if len(selectionDict)!=0 and not (cmslsnum in selectionDict[runnum]):
-                   #if there's a selection list but cmslsnum is not selected,skip                   
+                   #if there's a selection list but cmslsnum is not selected,skip                  
                    continue
                 if valuelist[5]==0:#bitzero==0 means no beam,do nothing
                     delivered=0.0
@@ -389,7 +389,7 @@ def main():
     elif args.action == 'perday':
         daydict={}#{day:[[run,cmslsnum,lsstarttime,delivered,recorded]]}
         lumibyls=getLumiOrderByLS(session,c,runList,selectionDict,hltpath,beamstatus='STABLE BEAMS',beamenergy=3.5e3,beamenergyfluctuation=0.2e3)
-        print 'lumibyls ',lumibyls
+        #print 'lumibyls ',lumibyls
         #lumibyls [[runnumber,runstarttime,lsnum,lsstarttime,delivered,recorded,recordedinpath]]
         if args.outputfile:
             reporter=csvReporter.csvReporter(ofilename)
