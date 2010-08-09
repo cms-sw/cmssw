@@ -9,42 +9,6 @@ from DQM.HLTEvF.HLTMonBitSummary_cfi import hltMonBitSummary
 #Below all DQM modules for MuonAlignment AlCaRecos are instantiated.
 
 ##########################################################
-############## MuAlStandAloneCosmics #####################
-##########################################################
-ALCARECOMuAlStandAloneCosmicsTrackingDQM = _TrackMon.TrackMon.clone(
-    #names & designations  
-    TrackProducer = 'ALCARECOMuAlStandAloneCosmics',
-    AlgoName = 'ALCARECOMuAlStandAloneCosmics',
-    FolderName = 'AlCaReco/MuAlStandAloneCosmics',
-    BSFolderName = "AlCaReco/MuAlStandAloneCosmics/BeamSpot",
-    MeasurementState = "default",
-    doSeedParameterHistos = False,
-    #sizes
-    TkSizeBin = 5,
-    TkSizeMin = 0,
-    TkSizeMax = 5,
-    TrackPtBin = 100,
-    TrackPtMin = 0,
-    TrackPtMax = 100
-    )
-
-ALCARECOMuAlStandAloneCosmicsMuAlDQM = _MuonAl.muonAlignment.clone(
-    doSummary = True,
-    FolderName ='AlCaReco/MuAlStandAloneCosmics',
-    MuonCollection = 'ALCARECOMuAlStandAloneCosmics'
- )
-
-from Alignment.CommonAlignmentProducer.ALCARECOMuAlStandAloneCosmics_cff import ALCARECOMuAlStandAloneCosmicsHLT
-ALCARECOMuAlStandAloneCosmicsHLTDQM = hltMonBitSummary.clone(
-    directory = "AlCaReco/MuAlStandAloneCosmics/HLTSummary",
-    histLabel = "MuAlStandAloneCosmics",
-    HLTPaths = ["HLT_.*Mu.*"],
-    eventSetupPathsKey =  ALCARECOMuAlStandAloneCosmicsHLT.eventSetupPathsKey.value()
-)
-
-ALCARECOMuAlStandAloneCosmicsDQM = cms.Sequence( ALCARECOMuAlStandAloneCosmicsTrackingDQM + ALCARECOMuAlStandAloneCosmicsMuAlDQM + ALCARECOMuAlStandAloneCosmicsHLTDQM)
-
-##########################################################
 #MuAlGlobalCosmicsInCollisions
 ##########################################################
 ALCARECOMuAlGlobalCosmicsInCollisionsTrackingDQM = _TrackMon.TrackMon.clone(
