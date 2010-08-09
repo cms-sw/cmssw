@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.15 2010/08/04 15:28:09 mccauley Exp $
+// $Id: ValidateGeometry.cc,v 1.16 2010/08/05 15:20:02 mccauley Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -86,7 +86,10 @@ private:
 
   void validatePixelTopology(const TrackerGeometry::DetContainer& dets,
                              const char* detname);
-                           
+                   
+  void validateStripTopology(const TrackerGeometry::DetContainer& dets,
+                             const char* detname);
+        
   void compareTransform(const GlobalPoint& point, const TGeoHMatrix* matrix);
 
   void compareShape(const GeomDet* det, TGeoShape* shape);
@@ -211,32 +214,29 @@ ValidateGeometry::analyze(const edm::Event& event, const edm::EventSetup& eventS
 
   if ( trackerGeometry_.isValid() )
   {
-    //std::cout<<"Validating Tracker geometry"<<std::endl;
-    //validateTrackerGeometry(trackerGeometry_->detUnits(), "Tracker");
-
-    std::cout<<"Validating TIB geometry"<<std::endl;
+    std::cout<<"Validating TIB geometry and topology"<<std::endl;
     validateTrackerGeometry(trackerGeometry_->detsTIB(), "TIB");
+    validateStripTopology(trackerGeometry_->detsTIB(), "TIB");
 
-    std::cout<<"Validating TOB geometry"<<std::endl;
-    validateTrackerGeometry(trackerGeometry_->detsTIB(), "TOB");
+    std::cout<<"Validating TOB geometry and topology"<<std::endl;
+    validateTrackerGeometry(trackerGeometry_->detsTOB(), "TOB");
+    validateStripTopology(trackerGeometry_->detsTOB(), "TOB");
 
-    std::cout<<"Validating TEC geometry"<<std::endl;
+    std::cout<<"Validating TEC geometry and topology"<<std::endl;
     validateTrackerGeometry(trackerGeometry_->detsTEC(), "TEC");
-    
-    std::cout<<"Validating TID geometry"<<std::endl;
+    validateStripTopology(trackerGeometry_->detsTEC(), "TEC");
+
+    std::cout<<"Validating TID geometry and topology"<<std::endl;
     validateTrackerGeometry(trackerGeometry_->detsTID(), "TID");
+    validateStripTopology(trackerGeometry_->detsTID(), "TID");
 
-    std::cout<<"Validating PXB geometry"<<std::endl;
+    std::cout<<"Validating PXB geometry and topology"<<std::endl;
     validateTrackerGeometry(trackerGeometry_->detsPXB(), "PXB");
+    validatePixelTopology(trackerGeometry_->detsPXB(), "PXB");
 
-    //std::cout<<"Validating PXB topology"<<std::endl;
-    //validatePixelTopology(trackerGeometry_->detsPXB(), "PXB");
-
-    std::cout<<"Validating PXF geometry"<<std::endl;
+    std::cout<<"Validating PXF geometry and topology"<<std::endl;
     validateTrackerGeometry(trackerGeometry_->detsPXF(), "PXF");
-
-    //std::cout<<"Validating PXF topology"<<std::endl;
-    //validatePixelTopology(trackerGeometry_->detsPXF(), "PXF");
+    validatePixelTopology(trackerGeometry_->detsPXF(), "PXF");
   }
   else
     fwLog(fwlog::kWarning)<<"Invalid Tracker geometry"<<std::endl;
@@ -252,6 +252,9 @@ ValidateGeometry::analyze(const edm::Event& event, const edm::EventSetup& eventS
 
     std::cout<<"Validating EE geometry"<<std::endl;
     validateCaloGeometry(DetId::Ecal, EcalEndcap, "EE");
+
+    std::cout<<"Validating ES geometry"<<std::endl;
+    validateCaloGeometry(DetId::Ecal, EcalPreshower, "ES");
 
     std::cout<<"Validating HB geometry"<<std::endl;
     validateCaloGeometry(DetId::Hcal, HcalBarrel, "HB");
@@ -306,7 +309,6 @@ ValidateGeometry::validateRPCGeometry(const int regionNumber, const char* region
 
         compareTransform(gp, matrix);
 
-        //TEveGeoShape* shape = detIdToMatrix_.getShape(rpcDetId.rawId());
         const TGeoVolume* shape = detIdToMatrix_.getVolume(rpcDetId.rawId());
 
         if ( ! shape )
@@ -326,6 +328,8 @@ ValidateGeometry::validateRPCGeometry(const int regionNumber, const char* region
                    << rpcDetId.rawId() <<std::endl;
           continue;
         }
+
+        assert(parameters.size() >= 3);
               
         // Yes, I know that below I'm comparing the equivalence
         // of floating point numbers
@@ -354,7 +358,7 @@ ValidateGeometry::validateRPCGeometry(const int regionNumber, const char* region
 
   std::string hn(regionName);
   makeHistogram(hn+": centreOfStrip", centers);
-  
+ 
 
   makeHistograms(regionName);
 }
@@ -389,7 +393,6 @@ ValidateGeometry::validateDTChamberGeometry()
 
       compareTransform(gp, matrix);
 
-      //TEveGeoShape* shape = detIdToMatrix_.getShape(chId.rawId());
       const TGeoVolume* shape = detIdToMatrix_.getVolume(chId.rawId());
 
       if ( ! shape )
@@ -435,7 +438,6 @@ ValidateGeometry::validateDTSuperLayerGeometry()
 
       compareTransform(gp, matrix);
 
-      //TEveGeoShape* shape = detIdToMatrix_.getShape(chId.rawId());
       const TGeoVolume* shape = detIdToMatrix_.getVolume(chId.rawId());
 
       if ( ! shape )
@@ -483,9 +485,6 @@ ValidateGeometry::validateDTLayerGeometry()
 
       compareTransform(gp, matrix);
 
-
-
-      //TEveGeoShape* shape = detIdToMatrix_.getShape(layerId.rawId());
       const TGeoVolume* shape = detIdToMatrix_.getVolume(layerId.rawId());
 
       if ( ! shape )
@@ -497,7 +496,7 @@ ValidateGeometry::validateDTLayerGeometry()
       
       compareShape(layer, shape->GetShape());
 
-      
+            
       std::vector<float> parameters = detIdToMatrix_.getParameters(layerId.rawId());
       
       if ( parameters.empty() )
@@ -506,7 +505,18 @@ ValidateGeometry::validateDTLayerGeometry()
                  << layerId.rawId() <<std::endl;
         continue;
       }
-      
+
+      assert(parameters.size() >= 9); 
+           
+      float width = layer->surface().bounds().width();
+      assert(width == parameters[6]); 
+
+      float thickness = layer->surface().bounds().thickness();
+      assert(thickness = parameters[7]);
+
+      float length = layer->surface().bounds().length();
+      assert(length == parameters[8]);
+
       int firstChannel = layer->specificTopology().firstChannel();
       assert(firstChannel == parameters[3]);
 
@@ -562,8 +572,6 @@ ValidateGeometry::validateCSChamberGeometry(const int endcap, const char* detnam
 
       compareTransform(gp, matrix);
 
-
-      //TEveGeoShape* shape = detIdToMatrix_.getShape(detId.rawId());
       const TGeoVolume* shape = detIdToMatrix_.getVolume(detId.rawId());
 
       if ( ! shape )
@@ -611,8 +619,6 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
 
       compareTransform(gp, matrix);
 
-
-      //TEveGeoShape* shape = detIdToMatrix_.getShape(detId.rawId());
       const TGeoVolume* shape = detIdToMatrix_.getVolume(detId.rawId());
 
       if ( ! shape )
@@ -650,7 +656,9 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
                  << detId.rawId() <<std::endl;
         continue;
       }
-     
+
+      assert(parameters.size() >= 8);
+
       int yAxisOrientation = layer->geometry()->topology()->yAxisOrientation();
       assert(yAxisOrientation == parameters[0]);
      
@@ -834,8 +842,6 @@ ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetContainer& d
 
     compareTransform(gp, matrix);
 
-
-    //TEveGeoShape* shape = detIdToMatrix_.getShape(rawId);
     const TGeoVolume* shape = detIdToMatrix_.getVolume(rawId);
 
     if ( ! shape )
@@ -877,7 +883,6 @@ ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetUnitContaine
     compareTransform(gp, matrix);
 
 
-    //TEveGeoShape* shape = detIdToMatrix_.getShape(rawId);
     const TGeoVolume* shape = detIdToMatrix_.getVolume(rawId);
 
     if ( ! shape )
@@ -911,18 +916,13 @@ ValidateGeometry::validatePixelTopology(const TrackerGeometry::DetContainer& det
                << rawId <<std::endl;
       continue;
     }
+  
+    assert(parameters.size() >= 2);
 
-    assert(parameters.size() == 2);
-
-    const PixelGeomDetUnit* det = 
-      dynamic_cast<const PixelGeomDetUnit*>(trackerGeometry_->idToDet((*it)->geographicalId())); 
-       
-    if ( det )
-    {
-      const RectangularPixelTopology* rpt = dynamic_cast<const RectangularPixelTopology*>(&det->specificTopology());
-      
-      if ( rpt )
-      {
+    if ( const PixelGeomDetUnit* det = dynamic_cast<const PixelGeomDetUnit*>(trackerGeometry_->idToDetUnit((*it)->geographicalId())) )
+    {           
+      if ( const RectangularPixelTopology* rpt = dynamic_cast<const RectangularPixelTopology*>(&det->specificTopology()) )
+      {         
         assert(parameters[0] == rpt->nrows());
         assert(parameters[1] == rpt->ncolumns());
       }
@@ -936,6 +936,37 @@ ValidateGeometry::validatePixelTopology(const TrackerGeometry::DetContainer& det
   }
 }
 
+void 
+ValidateGeometry::validateStripTopology(const TrackerGeometry::DetContainer& dets,
+                                        const char* detname)
+{
+  for ( TrackerGeometry::DetContainer::const_iterator it = dets.begin(),
+                                                   itEnd = dets.end();
+        it != itEnd; ++it )
+  {
+    unsigned int rawId = (*it)->geographicalId().rawId();
+
+    std::vector<float> parameters = detIdToMatrix_.getParameters(rawId);
+
+    if ( parameters.empty() )
+    {    
+      std::cout<<"Parameters empty for "<< detname <<" element with detid: "
+               << rawId <<std::endl;
+      continue;
+    }
+    
+    assert(parameters.size() >= 1);
+
+    if ( const StripGeomDetUnit* det = dynamic_cast<const StripGeomDetUnit*>(trackerGeometry_->idToDet((*it)->geographicalId())) )
+    {
+      // NOTE: why the difference in dets vs. units between these and pixels? The dynamic cast above 
+      // fails for many of the detids...
+      if ( const StripTopology* st = dynamic_cast<const StripTopology*>(&det->specificTopology()) )
+        assert(parameters[0] == st->nstrips());
+    }
+    
+  }
+}
 
 void    
 ValidateGeometry::compareTransform(const GlobalPoint& gp,
