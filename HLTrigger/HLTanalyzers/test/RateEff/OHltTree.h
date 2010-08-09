@@ -360,7 +360,8 @@ public :
   Int_t           L1_ETM40; 
   Int_t           L1_ETM70; 
   Int_t           L1_ETM80; 
-  Int_t           L1_ETT60; 
+  Int_t           L1_ETT60;
+  Int_t           L1_ETT100; 
   Int_t           L1_HTT50; 
   Int_t           L1_HTT100; 
   Int_t           L1_HTT200; 
@@ -522,6 +523,8 @@ public :
   Int_t           L1_BscMinBiasOR_5bx;
   Int_t           L1_BscMinBiasOR_BptxPlusORMinus;
   Int_t           L1_BscMinBiasOR_BptxPlusORMinus_5bx;
+  Int_t           L1_BscMinBiasOR_BptxPlusANDMinus;
+  Int_t           L1_BscMinBiasOR_BptxPlusANDMinus_5bx; 
 
   //L1 algorithm bit prescales
   Int_t           L1_DoubleEG05_TopBottom_Prescl;
@@ -564,6 +567,7 @@ public :
   Int_t           L1_ETM70_Prescl; 
   Int_t           L1_ETM80_Prescl; 
   Int_t           L1_ETT60_Prescl; 
+  Int_t           L1_ETT100_Prescl;  
   Int_t           L1_HTT50_Prescl; 
   Int_t           L1_HTT100_Prescl; 
   Int_t           L1_HTT200_Prescl; 
@@ -675,6 +679,7 @@ public :
   Int_t           L1_BscMinBiasInnerThreshold2_Prescl;
   Int_t           L1_BscMinBiasOR_Prescl;
   Int_t           L1_BscMinBiasOR_BptxPlusORMinus_Prescl;
+  Int_t           L1_BscMinBiasOR_BptxPlusANDMinus_Prescl; 
 
   // Here we declare any emulated L1 bits 
   Int_t           OpenL1_ZeroBias;
@@ -1474,7 +1479,8 @@ public :
   TBranch        *b_L1_ETM40;   //! 
   TBranch        *b_L1_ETM70;   //! 
   TBranch        *b_L1_ETM80;   //! 
-  TBranch        *b_L1_ETT60;   //! 
+  TBranch        *b_L1_ETT60;   //!
+  TBranch        *b_L1_ETT100;   //! 
   TBranch        *b_L1_HTT50;   //! 
   TBranch        *b_L1_HTT100;   //! 
   TBranch        *b_L1_HTT200;   //! 
@@ -1636,6 +1642,8 @@ public :
   TBranch        *b_L1_BscMinBiasOR_5bx;   //!
   TBranch        *b_L1_BscMinBiasOR_BptxPlusORMinus;   //!
   TBranch        *b_L1_BscMinBiasOR_BptxPlusORMinus_5bx;   //!
+  TBranch        *b_L1_BscMinBiasOR_BptxPlusANDMinus;  //! 
+  TBranch        *b_L1_BscMinBiasOR_BptxPlusANDMinus_5bx;  //!
 
   //L1 algorithm bit prescales 
   TBranch        *b_L1_DoubleMuTopBottom_Prescl;   //! 
@@ -1675,7 +1683,8 @@ public :
   TBranch        *b_L1_ETM40_Prescl;   //! 
   TBranch        *b_L1_ETM70_Prescl;   //! 
   TBranch        *b_L1_ETM80_Prescl;   //! 
-  TBranch        *b_L1_ETT60_Prescl;   //! 
+  TBranch        *b_L1_ETT60_Prescl;   //!
+  TBranch        *b_L1_ETT100_Prescl;   //! 
   TBranch        *b_L1_HTT50_Prescl;   //! 
   TBranch        *b_L1_HTT100_Prescl;   //! 
   TBranch        *b_L1_HTT200_Prescl;   //! 
@@ -1787,6 +1796,7 @@ public :
   TBranch        *b_L1_BscMinBiasInnerThreshold2_Prescl;   //!
   TBranch        *b_L1_BscMinBiasOR_Prescl;   //!
   TBranch        *b_L1_BscMinBiasOR_BptxPlusORMinus_Prescl;   //!
+  TBranch        *b_L1_BscMinBiasOR_BptxPlusANDMinus_Prescl; //!  
 
   // 8E29 and 1E31 MC menus
   TBranch        *b_HLT_L1Jet15;   //!  
@@ -2951,7 +2961,8 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_ETM40", &L1_ETM40, &b_L1_ETM40); 
   fChain->SetBranchAddress("L1_ETM70", &L1_ETM70, &b_L1_ETM70); 
   fChain->SetBranchAddress("L1_ETM80", &L1_ETM80, &b_L1_ETM80); 
-  fChain->SetBranchAddress("L1_ETT60", &L1_ETT60, &b_L1_ETT60); 
+  fChain->SetBranchAddress("L1_ETT60", &L1_ETT60, &b_L1_ETT60);
+  fChain->SetBranchAddress("L1_ETT100", &L1_ETT100, &b_L1_ETT100); 
   fChain->SetBranchAddress("L1_HTT50", &L1_HTT50, &b_L1_HTT50); 
   fChain->SetBranchAddress("L1_HTT100", &L1_HTT100, &b_L1_HTT100); 
   fChain->SetBranchAddress("L1_HTT200", &L1_HTT200, &b_L1_HTT200); 
@@ -3113,6 +3124,9 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_BscMinBiasOR_5bx", &L1_BscMinBiasOR_5bx, &b_L1_BscMinBiasOR_5bx);
   fChain->SetBranchAddress("L1_BscMinBiasOR_BptxPlusORMinus", &L1_BscMinBiasOR_BptxPlusORMinus, &b_L1_BscMinBiasOR_BptxPlusORMinus);
   fChain->SetBranchAddress("L1_BscMinBiasOR_BptxPlusORMinus_5bx", &L1_BscMinBiasOR_BptxPlusORMinus_5bx, &b_L1_BscMinBiasOR_BptxPlusORMinus_5bx);
+  fChain->SetBranchAddress("L1_BscMinBiasOR_BptxPlusANDMinus", &L1_BscMinBiasOR_BptxPlusANDMinus, &b_L1_BscMinBiasOR_BptxPlusANDMinus); 
+  fChain->SetBranchAddress("L1_BscMinBiasOR_BptxPlusANDMinus_5bx", &L1_BscMinBiasOR_BptxPlusANDMinus_5bx, &b_L1_BscMinBiasOR_BptxPlusANDMinus_5bx);
+
 
   //L1 algorithm bit prescales
   fChain->SetBranchAddress("L1_DoubleMuTopBottom_Prescl", &L1_DoubleMuTopBottom_Prescl, &b_L1_DoubleMuTopBottom_Prescl); 
@@ -3152,6 +3166,7 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_ETM70_Prescl", &L1_ETM70_Prescl, &b_L1_ETM70_Prescl); 
   fChain->SetBranchAddress("L1_ETM80_Prescl", &L1_ETM80_Prescl, &b_L1_ETM80_Prescl); 
   fChain->SetBranchAddress("L1_ETT60_Prescl", &L1_ETT60_Prescl, &b_L1_ETT60_Prescl); 
+  fChain->SetBranchAddress("L1_ETT100_Prescl", &L1_ETT100_Prescl, &b_L1_ETT100_Prescl);  
   fChain->SetBranchAddress("L1_HTT50_Prescl", &L1_HTT50_Prescl, &b_L1_HTT50_Prescl); 
   fChain->SetBranchAddress("L1_HTT100_Prescl", &L1_HTT100_Prescl, &b_L1_HTT100_Prescl); 
   fChain->SetBranchAddress("L1_HTT200_Prescl", &L1_HTT200_Prescl, &b_L1_HTT200_Prescl); 
@@ -3263,6 +3278,8 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_BscMinBiasInnerThreshold2_Prescl", &L1_BscMinBiasInnerThreshold2_Prescl, &b_L1_BscMinBiasInnerThreshold2_Prescl);
   fChain->SetBranchAddress("L1_BscMinBiasOR_Prescl", &L1_BscMinBiasOR_Prescl, &b_L1_BscMinBiasOR_Prescl);
   fChain->SetBranchAddress("L1_BscMinBiasOR_BptxPlusORMinus_Prescl", &L1_BscMinBiasOR_BptxPlusORMinus_Prescl, &b_L1_BscMinBiasOR_BptxPlusORMinus_Prescl);
+  fChain->SetBranchAddress("L1_BscMinBiasOR_BptxPlusANDMinus_Prescl", &L1_BscMinBiasOR_BptxPlusANDMinus_Prescl, &b_L1_BscMinBiasOR_BptxPlusANDMinus_Prescl); 
+
 
   // 8E29 and 1E31 MC menus
   fChain->SetBranchAddress("HLT_L1Jet15", &HLT_L1Jet15, &b_HLT_L1Jet15); 
@@ -3783,6 +3800,7 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_ETM70", &map_BitOfStandardHLTPath["L1_ETM70"], &b_L1_ETM70); 
   fChain->SetBranchAddress("L1_ETM80", &map_BitOfStandardHLTPath["L1_ETM80"], &b_L1_ETM80); 
   fChain->SetBranchAddress("L1_ETT60", &map_BitOfStandardHLTPath["L1_ETT60"], &b_L1_ETT60); 
+  fChain->SetBranchAddress("L1_ETT100", &map_BitOfStandardHLTPath["L1_ETT100"], &b_L1_ETT100);  
   fChain->SetBranchAddress("L1_HTT50", &map_BitOfStandardHLTPath["L1_HTT50"], &b_L1_HTT50); 
   fChain->SetBranchAddress("L1_HTT100", &map_BitOfStandardHLTPath["L1_HTT100"], &b_L1_HTT100); 
   fChain->SetBranchAddress("L1_HTT200", &map_BitOfStandardHLTPath["L1_HTT200"], &b_L1_HTT200); 
@@ -3841,7 +3859,8 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_SingleTauJet2", &map_BitOfStandardHLTPath["L1_SingleTauJet2"], &b_L1_SingleTauJet2); 
   fChain->SetBranchAddress("L1_SingleTauJet4", &map_BitOfStandardHLTPath["L1_SingleTauJet4"], &b_L1_SingleTauJet4); 
   fChain->SetBranchAddress("L1_DoubleForJet10_EtaOpp", &map_BitOfStandardHLTPath["L1_DoubleForJet10_EtaOpp"], &b_L1_DoubleForJet10_EtaOpp); 
-  fChain->SetBranchAddress("L1_BscMinBiasOR_BptxPlusORMinus", &map_BitOfStandardHLTPath["L1_BscMinBiasOR_BptxPlusORMinus"], &b_L1_BscMinBiasOR_BptxPlusORMinus); 
+  fChain->SetBranchAddress("L1_BscMinBiasOR_BptxPlusORMinus", &map_BitOfStandardHLTPath["L1_BscMinBiasOR_BptxPlusORMinus"], &b_L1_BscMinBiasOR_BptxPlusORMinus);
+  fChain->SetBranchAddress("L1_BscMinBiasOR_BptxPlusANDMinus", &map_BitOfStandardHLTPath["L1_BscMinBiasOR_BptxPlusANDMinus"], &b_L1_BscMinBiasOR_BptxPlusANDMinus); 
   fChain->SetBranchAddress("L1_DoubleMuTopBottom", &map_BitOfStandardHLTPath["L1_DoubleMuTopBottom"], &b_L1_DoubleMuTopBottom); 
   fChain->SetBranchAddress("L1_DoubleEG05_TopBottom", &map_BitOfStandardHLTPath["L1_DoubleEG05_TopBottom"], &b_L1_DoubleEG05_TopBottom);  
   fChain->SetBranchAddress("L1_SingleJet20", &map_BitOfStandardHLTPath["L1_SingleJet20"], &b_L1_SingleJet20); 
@@ -3908,6 +3927,7 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_ETM70_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_ETM70"], &b_L1_ETM70_Prescl); 
   fChain->SetBranchAddress("L1_ETM80_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_ETM80"], &b_L1_ETM80_Prescl); 
   fChain->SetBranchAddress("L1_ETT60_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_ETT60"], &b_L1_ETT60_Prescl); 
+  fChain->SetBranchAddress("L1_ETT100_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_ETT100"], &b_L1_ETT100_Prescl);  
   fChain->SetBranchAddress("L1_HTT50_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_HTT50"], &b_L1_HTT50_Prescl); 
   fChain->SetBranchAddress("L1_HTT100_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_HTT100"], &b_L1_HTT100_Prescl); 
   fChain->SetBranchAddress("L1_HTT200_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_HTT200"], &b_L1_HTT200_Prescl); 
@@ -3967,6 +3987,7 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_SingleTauJet4_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleTauJet4"], &b_L1_SingleTauJet4_Prescl); 
   fChain->SetBranchAddress("L1_DoubleForJet10_EtaOpp_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_DoubleForJet10_EtaOpp"], &b_L1_DoubleForJet10_EtaOpp_Prescl); 
   fChain->SetBranchAddress("L1_BscMinBiasOR_BptxPlusORMinus_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_BscMinBiasOR_BptxPlusORMinus"], &b_L1_BscMinBiasOR_BptxPlusORMinus_Prescl); 
+  fChain->SetBranchAddress("L1_BscMinBiasOR_BptxPlusANDMinus_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_BscMinBiasOR_BptxPlusANDMinus"], &b_L1_BscMinBiasOR_BptxPlusANDMinus_Prescl);  
   fChain->SetBranchAddress("L1_DoubleMuTopBottom_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_DoubleMuTopBottom"], &b_L1_DoubleMuTopBottom_Prescl); 
   fChain->SetBranchAddress("L1_DoubleEG05_TopBottom_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_DoubleEG05_TopBottom"], &b_L1_DoubleEG05_TopBottom_Prescl);  
   fChain->SetBranchAddress("L1_SingleJet20_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleJet20"], &b_L1_SingleJet20_Prescl); 
