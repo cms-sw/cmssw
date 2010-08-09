@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:04 EDT 2008
-// $Id: CmsShowViewPopup.cc,v 1.23 2010/03/26 20:20:21 matevz Exp $
+// $Id: CmsShowViewPopup.cc,v 1.24 2010/06/18 10:17:14 yana Exp $
 //
 
 // system include files
@@ -55,8 +55,18 @@ CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWColo
    // label
    TGHorizontalFrame* viewFrame = new TGHorizontalFrame(this);
    m_viewLabel = new TGLabel(viewFrame, "No view selected");
-   TGFont* defaultFont = gClient->GetFontPool()->GetFont(m_viewLabel->GetDefaultFontStruct());
-   m_viewLabel->SetTextFont(gClient->GetFontPool()->GetFont(defaultFont->GetFontAttributes().fFamily, 14, defaultFont->GetFontAttributes().fWeight + 2, defaultFont->GetFontAttributes().fSlant));
+   try
+   {
+      TGFont* defaultFont = gClient->GetFontPool()->GetFont(m_viewLabel->GetDefaultFontStruct());
+      m_viewLabel->SetTextFont(gClient->GetFontPool()->GetFont(defaultFont->GetFontAttributes().fFamily, 14, defaultFont->GetFontAttributes().fWeight + 2, defaultFont->GetFontAttributes().fSlant));
+   }
+   catch(...)
+   {
+      // FIXME: looks like under certain conditions (e.g. in full framework)
+      // GetFontPool() throws when the default font is not found. This is a
+      // quick workaround, but we should probably investigate more.
+   }
+
    m_viewLabel->SetTextJustify(kTextLeft);
    viewFrame->AddFrame(m_viewLabel, new TGLayoutHints(kLHintsExpandX));
    AddFrame(viewFrame, new TGLayoutHints(kLHintsExpandX, 2, 2, 0, 0));
