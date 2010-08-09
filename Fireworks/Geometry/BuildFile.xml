@@ -2,6 +2,11 @@
 <use name="FWCore/Framework"/>
 <use name="Geometry/CommonDetUnit"/>
 <use name="DetectorDescription/Core"/>
+        <use name="Geometry/CaloGeometry"/>
+        <use name="Geometry/DTGeometry"/>
+        <use name="Geometry/CSCGeometry"/>
+        <use name="Geometry/RPCGeometry"/>
+	<use name="Geometry/TrackerGeometryBuilder"/>
 <use name="Geometry/Records"/>
 <use name="DataFormats/GeometrySurface"/>
 <use name="Fireworks/Core"/>

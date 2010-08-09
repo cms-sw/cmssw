@@ -68,3 +68,9 @@
         <use name="Fireworks/Geometry"/>
 	<flags EDM_PLUGIN="1"/>
 </library>
+
+<library file="TGeoMgrFromRecoPlugin.cc"
+         name="FireworksGeometryTGeoMgrFromRecoPlugin">
+        <use name="Fireworks/Geometry"/>
+	<flags EDM_PLUGIN="1"/>
+</library>
