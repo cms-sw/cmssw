@@ -16,6 +16,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
 
   enum Version_t { SUMMER08, FIRSTDATA, SPRING10, N_VERSIONS };
 
+  MuonVPlusJetsIDSelectionFunctor() {}
 
   MuonVPlusJetsIDSelectionFunctor( edm::ParameterSet const & parameters ) {
 
@@ -56,42 +57,11 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
   }
 
 
-  // compatibility with summer 08
   MuonVPlusJetsIDSelectionFunctor( Version_t version,
 				   double chi2 = 10.0,
 				   double d0 = 0.2,
-				   int nhits = 11,
-				   double ecalveto = 4.0,
-				   double hcalveto = 6.0,
-				   double reliso = 0.05
-				   ) : recalcDBFromBSp_(false) {
-    if ( version != SUMMER08 ) {
-      std::cout << "You are using the wrong version for MuonVPlusJetsIDSelectionFunctor!" << std::endl;
-    }
-    initialize( version, chi2, d0, 999.0, 999.0, nhits, 999, ecalveto, hcalveto, reliso );
-  }
-
-  MuonVPlusJetsIDSelectionFunctor( Version_t version,
-				   double chi2 = 10.0,
-				   double d0 = 999.0,
 				   double ed0 = 999.0,
-				   double sd0 = 3.0,
-				   int nhits = 11,
-				   double ecalveto = 4.0,
-				   double hcalveto = 6.0,
-				   double reliso = 0.05
-				   ) : recalcDBFromBSp_(false) {
-    if ( version != SUMMER08 && version != FIRSTDATA ) {
-      std::cout << "You are using the wrong version for MuonVPlusJetsIDSelectionFunctor!" << std::endl;
-    }
-    initialize( version, chi2, d0, ed0, sd0, nhits, 999, ecalveto, hcalveto, reliso );
-  }
-
-  MuonVPlusJetsIDSelectionFunctor( Version_t version,
-				   double chi2 = 10.0,
-				   double d0 = 999.0,
-				   double ed0 = 999.0,
-				   double sd0 = 3.0,
+				   double sd0 = 999.0,
 				   int nhits = 11,
 				   int nValidMuonHits = 0,
 				   double ecalveto = 4.0,
