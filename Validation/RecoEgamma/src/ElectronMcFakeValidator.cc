@@ -2,6 +2,8 @@
 // user include files
 #include "Validation/RecoEgamma/interface/ElectronMcFakeValidator.h"
 
+#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
+
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -191,8 +193,8 @@ void ElectronMcFakeValidator::beginJob()
   h1_ele_vertexEta = bookH1withSumw2("h_ele_vertexEta","ele momentum eta",eta_nbin,eta_min,eta_max,"#eta");
   h2_ele_vertexEtaVsPhi = bookH2("h_ele_vertexEtaVsPhi","ele momentum eta vs phi",eta2D_nbin,eta_min,eta_max,phi2D_nbin,phi_min,phi_max );
   h1_ele_vertexPhi = bookH1withSumw2("h_ele_vertexPhi","ele  momentum #phi",phi_nbin,phi_min,phi_max,"#phi (rad)");
-  h1_ele_vertexX = bookH1withSumw2("h_ele_vertexX","ele vertex x",xyz_nbin,-0.1,0.1,"x (cm)" );
-  h1_ele_vertexY = bookH1withSumw2("h_ele_vertexY","ele vertex y",xyz_nbin,-0.1,0.1,"y (cm)" );
+  h1_ele_vertexX = bookH1withSumw2("h_ele_vertexX","ele vertex x",xyz_nbin,-0.6,0.6,"x (cm)" );
+  h1_ele_vertexY = bookH1withSumw2("h_ele_vertexY","ele vertex y",xyz_nbin,-0.6,0.6,"y (cm)" );
   h1_ele_vertexZ = bookH1withSumw2("h_ele_vertexZ","ele vertex z",xyz_nbin,-25, 25,"z (cm)" );
   h1_ele_vertexTIP = bookH1withSumw2("h_ele_vertexTIP","ele transverse impact parameter (wrt gen vtx)",90,0.,0.15,"TIP (cm)");
   h2_ele_vertexTIPVsEta = bookH2("h_ele_vertexTIPVsEta","ele transverse impact parameter (wrt gen vtx) vs eta",eta2D_nbin,eta_min,eta_max,45,0.,0.15,"#eta","TIP (cm)");
