@@ -256,12 +256,14 @@ class matplotRender():
         endinfo=str(daydict[days[-1]][0])+':'+str(daydict[days[-1]][1])
         maxinfo=''
         ymax=0.0
+        xmax=0
         for day in days:
             xpoints.append(day)
             daymaxdata=daydict[day]
             ypoints.append(daymaxdata[2])
             if daydict[day][2]>ymax:
                 ymax=daydict[day][2]
+                xmax=day
                 runmax=daydict[day][0]
                 lsmax=daydict[day][1]
                 maxinfo=str(runmax)+':'+str(lsmax)
@@ -292,6 +294,7 @@ class matplotRender():
         trans=matplotlib.transforms.BlendedGenericTransform(ax.transData,ax.transAxes)
         ax.text(xpoints[0],1.025,beginfo,transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
         ax.text(xpoints[-1],1.025,endinfo,transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
+        ax.annotate(maxinfo,xy=(xmax,ymax),xycoords='data',xytext=(0,13),textcoords='offset points',arrowprops=dict(facecolor='green',shrink=0.05),size='x-small',horizontalalignment='center',color='green',bbox=dict(facecolor='white'))
         self.__fig.autofmt_xdate(bottom=0.18,rotation=0)
         self.__fig.subplots_adjust(bottom=0.1,left=0.1)
 
