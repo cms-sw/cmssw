@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.49 2010/07/21 17:03:26 matevz Exp $
+// $Id: FWEventItem.cc,v 1.50 2010/07/23 16:02:54 eulisse Exp $
 //
 
 // system include files
@@ -409,7 +409,8 @@ FWEventItem::data(const std::type_info& iInfo) const
    try
    {
       m_event->getByLabel(tag, handle);
-   } 
+      setData(*handle);
+   }
    catch (std::exception& iException)
    {
       if (!m_printedErrorThisEvent) 
@@ -421,8 +422,6 @@ FWEventItem::data(const std::type_info& iInfo) const
       }
       return 0;
    }
-   
-   setData(*handle);
    
    return m_accessor->data();
 }
