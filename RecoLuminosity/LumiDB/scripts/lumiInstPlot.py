@@ -4,6 +4,7 @@ import os,sys,datetime
 import coral
 from RecoLuminosity.LumiDB import lumiTime,argparse,nameDealer,selectionParser,hltTrgSeedMapper,connectstrParser,cacheconfigParser,matplotRender,lumiQueryAPI,inputFilesetParser,CommonUtil,csvReporter
 from matplotlib.figure import Figure
+
 class constants(object):
     def __init__(self):
         self.NORM=1.0
