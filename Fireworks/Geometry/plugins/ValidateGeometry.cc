@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.17 2010/08/09 13:00:25 mccauley Exp $
+// $Id: ValidateGeometry.cc,v 1.18 2010/08/09 14:05:59 mccauley Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -37,6 +37,8 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
@@ -267,6 +269,12 @@ ValidateGeometry::analyze(const edm::Event& event, const edm::EventSetup& eventS
     
     std::cout<<"Validating HF geometry"<<std::endl;
     validateCaloGeometry(DetId::Hcal, HcalForward, "HF");
+
+    std::cout<<"Validating Castor geometry"<<std::endl;
+    validateCaloGeometry(DetId::Calo, HcalCastorDetId::SubdetectorId, "Castor");
+
+    std::cout<<"Validating ZDC geometry"<<std::endl;
+    validateCaloGeometry(DetId::Calo, HcalZDCDetId::SubdetectorId, "ZDC");
   }
   else
     fwLog(fwlog::kWarning)<<"Invalid Calo geometry"<<std::endl; 
