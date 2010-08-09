@@ -2,7 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DISPLAY")
 
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
+#process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.PyReleaseValidation.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['mc']
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 ### Expects test.root in current directory.
 process.source = cms.Source(
@@ -23,20 +28,5 @@ process.source = cms.Source(
 # from Configuration.PyReleaseValidation.autoCond import autoCond
 # process.GlobalTag.globaltag = autoCond['mc']
 
-### Request EveService
+### Request Full framework service. 
 process.FWFFService = cms.Service("FWFFService")
-
-### Extractor of geometry needed to display it in Eve.
-### Required for "DummyEvelyser".
-process.add_( cms.ESProducer(
-        "TGeoMgrFromDdd",
-        verbose = cms.untracked.bool(False),
-        level   = cms.untracked.int32(8)
-))
-
-process.dump = cms.EDAnalyzer(
-    "DummyEvelyser",
-    tracks = cms.untracked.InputTag("generalTracks")
-)
-
-process.p = cms.Path(process.dump)
