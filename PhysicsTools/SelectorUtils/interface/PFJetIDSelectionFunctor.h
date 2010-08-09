@@ -13,7 +13,7 @@
   for a general overview of the selectors. 
 
   \author Salvatore Rappoccio
-  \version  $Id: PFJetIDSelectionFunctor.h,v 1.11 2010/06/07 16:22:54 srappocc Exp $
+  \version  $Id: PFJetIDSelectionFunctor.h,v 1.12 2010/06/26 12:53:41 srappocc Exp $
 */
 
 
@@ -32,7 +32,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
   enum Version_t { FIRSTDATA, N_VERSIONS };
   enum Quality_t { LOOSE, TIGHT, N_QUALITY};
 
-
+  PFJetIDSelectionFunctor() {}
   
  PFJetIDSelectionFunctor( edm::ParameterSet const & params ) 
  {

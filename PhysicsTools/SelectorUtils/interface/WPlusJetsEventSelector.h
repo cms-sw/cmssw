@@ -18,6 +18,7 @@
 
 class WPlusJetsEventSelector : public EventSelector {
  public:
+  WPlusJetsEventSelector() {}
   WPlusJetsEventSelector( edm::ParameterSet const & params );
 
   virtual void scaleJets(double scale) {jetScale_ = scale;}

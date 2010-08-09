@@ -1,5 +1,5 @@
-#ifndef Selector_h
-#define Selector_h
+#ifndef PhysicsTools_SelectorUtils_Selector_h
+#define PhysicsTools_SelectorUtils_Selector_h
 
 /**
   \class    Selector Selector.h "CommonTools/Utils/interface/Selector.h"
@@ -10,7 +10,7 @@
   The user can then turn individual cuts on and off at will. 
 
   \author Salvatore Rappoccio
-  \version  $Id: Selector.h,v 1.11 2010/07/23 01:25:22 srappocc Exp $
+  \version  $Id: Selector.h,v 1.12 2010/07/27 17:59:30 srappocc Exp $
 */
 
 

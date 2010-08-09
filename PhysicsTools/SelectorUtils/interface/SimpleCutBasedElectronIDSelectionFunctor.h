@@ -75,6 +75,7 @@ class SimpleCutBasedElectronIDSelectionFunctor : public Selector<pat::Electron> 
   enum Version_t { relIso95=0, cIso95,  relIso90, cIso90, relIso85, cIso85, 
 		   relIso80, cIso80,  relIso70, cIso70, relIso60, cIso60, NONE };
   
+  SimpleCutBasedElectronIDSelectionFunctor() {}
   
   // initialize it by inserting directly the cut values in a parameter set
   SimpleCutBasedElectronIDSelectionFunctor( edm::ParameterSet const & parameters, 

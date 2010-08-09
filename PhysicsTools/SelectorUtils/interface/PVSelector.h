@@ -13,6 +13,9 @@
 // make a selector for this selection
 class PVSelector : public Selector<edm::EventBase> {
 public:
+
+  PVSelector() {}
+
  PVSelector( edm::ParameterSet const & params ) :
   pvSrc_ (params.getParameter<edm::InputTag>("pvSrc") ) {
     push_back("PV NDOF", params.getParameter<double>("minNdof") );

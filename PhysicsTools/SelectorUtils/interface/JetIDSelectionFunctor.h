@@ -13,7 +13,7 @@
   for a general overview of the selectors. 
 
   \author Salvatore Rappoccio (Update: Amnon Harel)
-  \version  $Id: JetIDSelectionFunctor.h,v 1.9 2010/04/25 17:06:33 hegner Exp $
+  \version  $Id: JetIDSelectionFunctor.h,v 1.10 2010/05/05 17:43:02 srappocc Exp $
 */
 
 
@@ -32,6 +32,8 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
 
   enum Version_t { CRAFT08, PURE09, DQM09, N_VERSIONS };
   enum Quality_t { MINIMAL, LOOSE_AOD, LOOSE, TIGHT, N_QUALITY};
+
+  JetIDSelectionFunctor() {}
 
 
   JetIDSelectionFunctor( edm::ParameterSet const & parameters ) {
