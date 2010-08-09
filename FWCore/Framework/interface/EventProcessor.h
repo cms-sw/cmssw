@@ -39,6 +39,7 @@ namespace statemachine {
 namespace edm {
 
   class ProcessDesc;
+  class EDLooperBase;
   namespace eventsetup {
     class EventSetupProvider;
   }
@@ -402,7 +403,7 @@ namespace edm {
     volatile pthread_t                            event_loop_id_;
     int                                           my_sig_num_;
     boost::shared_ptr<FileBlock>                  fb_;
-    boost::shared_ptr<EDLooper>                   looper_;
+    boost::shared_ptr<EDLooperBase>               looper_;
 
     std::auto_ptr<statemachine::Machine>          machine_;
     PrincipalCache                                principalCache_;

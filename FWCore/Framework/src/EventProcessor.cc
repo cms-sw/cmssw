@@ -59,9 +59,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/Schedule.h"
-#include "FWCore/Framework/interface/EDLooper.h"
+#include "FWCore/Framework/interface/EDLooperBase.h"
 #include "FWCore/Framework/interface/ScheduleInfo.h"
 #include "FWCore/Framework/interface/ModuleChanger.h"
+#include "FWCore/Framework/interface/ProcessingController.h"
 
 
 #include "FWCore/Framework/src/EPStates.h"
@@ -395,12 +396,12 @@ namespace edm {
   }
 
   // ---------------------------------------------------------------
-  boost::shared_ptr<EDLooper> 
+  boost::shared_ptr<EDLooperBase> 
   fillLooper(eventsetup::EventSetupProvider& cp,
 			 ParameterSet& params,
 			 EventProcessor::CommonParams const& common) {
     using namespace edm::eventsetup;
-    boost::shared_ptr<EDLooper> vLooper;
+    boost::shared_ptr<EDLooperBase> vLooper;
     
     std::vector<std::string> loopers =
       params.getParameter<std::vector<std::string> >("@all_loopers");
@@ -682,7 +683,10 @@ namespace edm {
     fillEventSetupProvider(*esp_, *parameterSet, common);
 
     looper_ = fillLooper(*esp_, *parameterSet, common);
-    if (looper_) looper_->setActionTable(&act_table_);
+    if (looper_) {
+      looper_->setActionTable(&act_table_);
+      looper_->attachTo(*actReg_);
+    }
     
     processConfiguration_.reset(new ProcessConfiguration(processName, getReleaseVersion(), getPassID()));
     input_ = makeInput(*parameterSet, common, *preg_, principalCache_, actReg_, processConfiguration_);
@@ -898,7 +902,7 @@ namespace edm {
     c.call(boost::bind(&Schedule::endJob, schedule_.get()));
     c.call(boost::bind(&InputSource::doEndJob, input_));
     if (looper_) {
-      c.call(boost::bind(&EDLooper::endOfJob, looper_));
+      c.call(boost::bind(&EDLooperBase::endOfJob, looper_));
     }
     c.call(boost::bind(&ActivityRegistry::PostEndJob::operator(), &actReg_->postEndJobSignal_));
     if (c.hasThrown()) {
@@ -1781,9 +1785,9 @@ namespace edm {
     if (looper_) {
       ModuleChanger changer(schedule_.get());
       looper_->setModuleChanger(&changer);
-      EDLooper::Status status = looper_->doEndOfLoop(esp_->eventSetup());
+      EDLooperBase::Status status = looper_->doEndOfLoop(esp_->eventSetup());
       looper_->setModuleChanger(0);
-      if (status != EDLooper::kContinue || forceLooperToEnd_) return true;
+      if (status != EDLooperBase::kContinue || forceLooperToEnd_) return true;
       else return false;
     }
     FDEBUG(1) << "\tendOfLoop\n";
@@ -1956,8 +1960,13 @@ namespace edm {
     schedule_->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(*pep, es);
  
     if (looper_) {
-      EDLooper::Status status = looper_->doDuringLoop(*pep, esp_->eventSetup());
-      if (status != EDLooper::kContinue) shouldWeStop_ = true;
+      ///NOTE: this is where we'd query the source to see its state
+      ProcessingController pc(ProcessingController::kUnknown, false);
+      EDLooperBase::Status status = looper_->doDuringLoop(*pep, esp_->eventSetup(),pc);
+      ///NOTE: this is where we'd use the transition status of pc to decide if
+      // we must tell the source to go to a different next event
+      
+      if (status != EDLooperBase::kContinue) shouldWeStop_ = true;
     }
 
     FDEBUG(1) << "\tprocessEvent\n";

@@ -28,7 +28,7 @@
 
 // forward declarations
 namespace edm {
-   class EDLooper;
+   class EDLooperBase;
    class EventSetupRecordIntervalFinder;
 
    namespace eventsetup {
@@ -77,7 +77,7 @@ namespace edm {
       }
       }
       struct LooperMakerTraits {
-         typedef EDLooper base_type;
+         typedef EDLooperBase base_type;
          static std::string name();
          template<class T>
             static void addTo(EventSetupProvider& iProvider, boost::shared_ptr<T> iComponent)
