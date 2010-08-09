@@ -123,11 +123,6 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
   m_connection.configuration().setParameters( connectionPset );
   m_connection.configure();
   
-  std::string blobstreamerName;
-  if( iConfig.exists("BlobStreamerName") ){
-    blobstreamerName=iConfig.getUntrackedParameter<std::string>("BlobStreamerName");
-    blobstreamerName.insert(0,"COND/Services/");
-  }  
 
   // load additional record/tag info it will overwrite the global tag
   std::map<std::string,cond::TagMetadata> replacement;
@@ -187,7 +182,6 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
     if (p==sessions.end()) {
       //open db get tag info (i.e. the IOV token...)
       nsess = m_connection.createSession();
-      if (!blobstreamerName.empty()) nsess.setBlobStreamingService(blobstreamerName);
       nsess.open( it->pfn, true );
       // keep transaction open if source is not transactional (such as FronTier)
       if (!nsess.isTransactional()) nsess.transaction().start(true);

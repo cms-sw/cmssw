@@ -37,7 +37,7 @@ namespace cond {
     public:
       SessionImpl():
         connection(),
-        blobStreamingService( "" ),
+        blobStreamingService( "COND/Services/BlobStreamingService" ),
         database(),
         transaction(),
         isOpen(false){
@@ -45,7 +45,7 @@ namespace cond {
 
       explicit SessionImpl( const DbConnection& connection ):
         connection(new DbConnection(connection)),
-        blobStreamingService( "" ),
+        blobStreamingService( "COND/Services/BlobStreamingService" ),
         database(),
         transaction(),
         isOpen(false){
@@ -65,11 +65,8 @@ namespace cond {
           }
           boost::shared_ptr<ora::ConnectionPool> connPool = connection->connectionPool();
           database.reset( new ora::Database( connPool ) );
-          std::string pluginName("COND/Services/TBufferBlobStreamingService");
-          if(!blobStreamingService.empty()){
-            pluginName = blobStreamingService;
-          }
-          ora::IBlobStreamingService* blobStreamer = cond::BlobStreamerPluginFactory::get()->create( pluginName );
+ 
+          ora::IBlobStreamingService* blobStreamer = cond::BlobStreamerPluginFactory::get()->create(  blobStreamingService );
           if(!blobStreamer) throw cond::Exception("DbSession::open: cannot find required plugin. No instance of ora::IBlobStreamingService has been loaded..");
           database->configuration().setBlobStreamingService( blobStreamer );
           database->configuration().properties().setFlag( ora::Configuration::automaticDatabaseCreation() );
@@ -90,7 +87,7 @@ namespace cond {
 
       std::auto_ptr<DbConnection> connection;
       std::auto_ptr<cond::TechnologyProxy> technologyProxy;
-      std::string blobStreamingService;
+      std::string const blobStreamingService;
       std::auto_ptr<ora::Database> database;
       std::auto_ptr<DbTransaction> transaction;
       bool isOpen;
@@ -146,11 +143,6 @@ cond::DbConnection const & cond::DbSession::connection() const {
 
 bool cond::DbSession::isTransactional() const {
   return m_implementation->technologyProxy->isTransactional();
-}
-
-void cond::DbSession::setBlobStreamingService( const std::string& serviceName )
-{
-  m_implementation->blobStreamingService = serviceName;
 }
 
 const std::string& cond::DbSession::blobStreamingService() const 

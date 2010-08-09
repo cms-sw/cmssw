@@ -137,11 +137,6 @@ cond::Utilities::addConfigFileOption(){
   addOption<std::string>("configFile","f","configuration file(optional)");
 }
 
-void 
-cond::Utilities::addBlobStreamerOption(){
-  addOption<std::string>("blobStreamer","B","BlobStreamerName(default to COND/Services/TBufferBlobStreamingService)");
-}
-
 void
 cond::Utilities::addSQLOutputOption(){
   addOption<bool>("sql","S","dump the sql output (optional)");  
@@ -189,9 +184,6 @@ std::string cond::Utilities::getConfigFileValue(){
   return getOptionValue<std::string>("configFile");
 }
 
-std::string cond::Utilities::getBlobStreamerValue(){
-  return getOptionValue<std::string>("blobStreamer");
-}
 
 bool cond::Utilities::hasOptionValue(const std::string& fullName){
   const void* found = m_options.find_nothrow(fullName, false);
@@ -265,13 +257,6 @@ cond::DbSession cond::Utilities::openDbSession( const std::string& connectionPar
   initializeForDbConnection();
   std::string connectionString = getOptionValue<std::string>( connectionParameterName );
   cond::DbSession session = m_dbConnection->createSession();
-  std::string blobStreamingService("COND/Services/TBufferBlobStreamingService");
-  if(m_options.find_nothrow("blobStreamer",false)){
-    if(m_values.count("blobStreamer")){
-      blobStreamingService = m_values["blobStreamer"].as<std::string>();
-    }
-  }
-  session.setBlobStreamingService( blobStreamingService );
   session.open( connectionString, readOnly );
   return session;
 }

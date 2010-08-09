@@ -35,7 +35,6 @@ namespace cond {
     void addLogDBOption();
     void addDictionaryOption();
     void addConfigFileOption();
-    void addBlobStreamerOption();
     void addSQLOutputOption();
 
     template <typename T> void addOption(const std::string& fullName,
@@ -51,7 +50,6 @@ namespace cond {
     std::string getLogDBValue();
     std::string getDictionaryValue();
     std::string getConfigFileValue();
-    std::string getBlobStreamerValue();
     template <typename T> T getOptionValue(const std::string& fullName);
     bool hasOptionValue(const std::string& fullName);
     bool hasDebug();

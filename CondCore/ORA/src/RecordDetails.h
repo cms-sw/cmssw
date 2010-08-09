@@ -27,9 +27,20 @@ namespace ora {
   struct NullTypeHandler : public TypeHandler{
     NullTypeHandler(std::type_info const& t) { type=&t;}
     virtual bool isPointer() const { return false;} 
-    virtual void const * address(const AnyData & ad) const{return 0;}
+    virtual void const * address(const AnyData &) const{return 0;}
     virtual void set(AnyData &, void*) const{};
     virtual void const * get(const AnyData &) const{return 0;};
+    virtual void create(AnyData &) const{};
+    virtual void destroy(AnyData &) const{};
+
+  };
+
+  struct VoidStarHandler : public TypeHandler{
+    VoidStarHandler() { type= &typeid(void*);}
+    virtual bool isPointer() const { return true;} 
+    virtual void const * address(const AnyData & ad) const{return ad.p;}
+    virtual void set(AnyData &ad, void*p) const{ad.p = p;};
+    virtual void const * get(const AnyData &ad) const{return ad.p;};
     virtual void create(AnyData &) const{};
     virtual void destroy(AnyData &) const{};
 
@@ -91,6 +102,8 @@ namespace ora {
   struct AllKnowTypeHandlers {
     AllKnowTypeHandlers();
 
+    VoidStarHandler vs;
+
     AnyTypeHandler<bool> b;
     AnyTypeHandler<char> c;
     AnyTypeHandler<unsigned char> uc;
@@ -136,6 +149,8 @@ namespace ora {
   };
 
   AllKnowTypeHandlers::AllKnowTypeHandlers() {
+    all.push_back(&vs);
+
     all.push_back(&b);
     all.push_back(&c);
     all.push_back(&uc);

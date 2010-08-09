@@ -51,8 +51,6 @@ namespace cond{
 
     bool isTransactional() const;
 
-    void setBlobStreamingService( const std::string& streamingService );
-    
     const std::string& blobStreamingService() const;
 
     void open( const std::string& connectionString, bool readOnly=false );

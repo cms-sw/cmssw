@@ -29,9 +29,13 @@ namespace {
 
 }
 
+
+char const * typeName(std::type_info const & type) {
+  int    status = 0;
+  return __cxxabiv1::__cxa_demangle(type.name(), 0, 0, &status);
+}
+
 using namespace ora;
-
-
 
 void testRecordFeatures() {
   RecordSpec specs; 
@@ -151,21 +155,25 @@ void testAttributeList(std::vector<float> const & v, std::vector<float> & v2) {
 int main() {
 
   checkmem("start");
-  std::vector<float> v(100,0.);
-  std::vector<float> v2(100,0.);
-  std::vector<float> v3(100,0.);
-  for (int i=0;i<100; ++i)
-    v[i] = float(i)+0.01*float(i);
-  checkmem("after vector");
-  testRecord(v,v2);
-  if (v!=v2) std::cout << "error in Record" << std::endl;
-  checkmem("after Record done");
-  testAttributeList(v,v3);
- if (v!=v3) std::cout << "error in AttributeList" << std::endl;
-  checkmem("after AttributeList done");
+  {
+    std::vector<float> v(100,0.);
+    std::vector<float> v2(100,0.);
+    std::vector<float> v3(100,0.);
+    for (int i=0;i<100; ++i)
+      v[i] = float(i)+0.01*float(i);
+    checkmem("after vector");
+    
+    testRecord(v,v2);
+    if (v!=v2) std::cout << "error in Record" << std::endl;
+    checkmem("after Record done");
+    testAttributeList(v,v3);
+    if (v!=v3) std::cout << "error in AttributeList" << std::endl;
+    checkmem("after AttributeList done");
+  }
 
-
+  checkmem("Before Features");
   testRecordFeatures();
+  checkmem("end");
 
   return 0;
 

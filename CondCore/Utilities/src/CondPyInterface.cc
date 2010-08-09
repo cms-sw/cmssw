@@ -234,7 +234,6 @@ namespace cond {
   CondDB RDBMS::getDB(std::string const & db) {
     DbSession dbSession = connection->createSession();
     dbSession.open( db );
-    dbSession.setBlobStreamingService( "COND/Services/TBufferBlobStreamingService" );
     return CondDB(dbSession,logger);
   }
   

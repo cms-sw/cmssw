@@ -205,4 +205,4 @@ namespace cond {
 }
 
 // keep the old good name
-DEFINE_EDM_PLUGIN(cond::BlobStreamerPluginFactory,cond::BlobStreamingService,"COND/Services/TBufferBlobStreamingService");
+DEFINE_EDM_PLUGIN(cond::BlobStreamerPluginFactory,cond::BlobStreamingService,"COND/Services/BlobStreamingService");

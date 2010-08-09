@@ -71,10 +71,6 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
 
   m_closeIOV=iConfig.getUntrackedParameter<bool>("closeIOV",m_closeIOV);
 
-  if( iConfig.exists("withWrapper") ){
-     m_withWrapper=iConfig.getUntrackedParameter<bool>("withWrapper");
-  }  
-
   if( iConfig.exists("outOfOrder") ){
      m_freeInsert=iConfig.getUntrackedParameter<bool>("outOfOrder");
   }  
@@ -93,12 +89,7 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
   m_connection.configure();
   
   m_session = m_connection.createSession();
-  std::string blobstreamerName("");
-  if( iConfig.exists("BlobStreamerName") ){
-    blobstreamerName=iConfig.getUntrackedParameter<std::string>("BlobStreamerName");
-    blobstreamerName.insert(0,"COND/Services/");
-    m_session.setBlobStreamingService(blobstreamerName);
-  }
+
   m_session.open( connect );
   
   if( !logconnect.empty() ){
