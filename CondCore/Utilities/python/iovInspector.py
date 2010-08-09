@@ -135,6 +135,15 @@ class Iov :
            return  CondDB.unpackTime(self.__me.timestamp())
        def payloadContainerName(self):
            return self.__me.payloadContainerName()
+       def payLoad(self, since):
+           listOfIovElem= [iovElem for iovElem in self.__me.elements if iovElem.since() == since]
+           IOVElem = listOfIovElem[0]
+           exec('import '+self.__db.moduleName(IOVElem.payloadToken())+' as Plug')
+           payload = Plug.Object(IOVElem)
+           #print payload
+           return payload
+              
+              
     
 class PayLoad :
     def __init__(self, db, token) :
@@ -151,6 +160,9 @@ class PayLoad :
 
     def summary(self) :
         return self.__me.summary()
+       
+    def dump(self) :
+        return self.__me.dump()
 
     def plot(self, fname, s, il, fl) :
         vi = CondDB.VInt()

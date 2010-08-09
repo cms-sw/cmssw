@@ -169,10 +169,9 @@ namespace cond {
   IOVProxy CondDB::iovWithLib(std::string const & tag) const {
     return IOVProxy(me,iovToken(tag),false,true);
   }
-
   IOVElementProxy CondDB::payLoad(std::string const & token) const {
+    ///FIXME: must be IOVElementProxy(since, till, token, me)
     return IOVElementProxy(0,0,token,me);
-
   }
 
 
