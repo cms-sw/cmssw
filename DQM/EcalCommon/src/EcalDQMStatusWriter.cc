@@ -1,8 +1,8 @@
 /*
  * \file EcalDQMStatusWriter.cc
  *
- * $Date: 2010/08/08 21:44:27 $
- * $Revision: 1.13 $
+ * $Date: 2010/08/09 09:00:14 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -443,9 +443,9 @@ EcalDQMTowerStatus* EcalDQMStatusWriter::readEcalDQMTowerStatusFromFile(const ch
 
         int itt;
         std::string token;
-        stream >> itt >> token;
+        stream >> isc >> token;
 
-        if ( itt >= 1 && itt <= 68 ) {
+        if ( isc >= 1 && isc <= 68 ) {
 
           int sm = atoi( module.substr(2, module.size()-2).c_str() );
 
@@ -473,29 +473,25 @@ EcalDQMTowerStatus* EcalDQMStatusWriter::readEcalDQMTowerStatusFromFile(const ch
 
           int idcc = (ism>=1&&ism<=9) ? ism : ism-9+45;
 
-          std::vector<DetId>* crystals = Numbers::crystals(idcc, itt);
+          std::vector<DetId>* crystals = Numbers::crystals(idcc, isc);
 
-          for ( unsigned int i=0; i<crystals->size(); i++ ) {
-
-            EcalScDetId id = ((EEDetId) (*crystals)[i]).sc();
-            uint32_t code = 0;
-            for ( unsigned int i=0; i<dictionary.size(); i++ ) {
-              if ( strcmp(token.c_str(), dictionary[i].desc) == 0 ) {
-                code = dictionary[i].code;
-              }
+          EcalScDetId id = ((EEDetId) (*crystals)[0]).sc();
+          uint32_t code = 0;
+          for ( unsigned int i=0; i<dictionary.size(); i++ ) {
+            if ( strcmp(token.c_str(), dictionary[i].desc) == 0 ) {
+              code = dictionary[i].code;
             }
-            if ( code == 0 ) {
-              std::cout << " --> not found in the dictionary: " << token << std::endl;
-              continue;
-            }
-
-            int hashedIndex = id.hashedIndex();
-            if ( code != 0 ) std::cout << module << " hashedIndex " << hashedIndex << " status " <<  code << std::endl;
-            EcalDQMTowerStatus::const_iterator it = status->find(id);
-            if ( it != status->end() ) code |= it->getStatusCode();
-            status->setValue(id, code);
-
           }
+          if ( code == 0 ) {
+            std::cout << " --> not found in the dictionary: " << token << std::endl;
+            continue;
+          }
+
+          int hashedIndex = id.hashedIndex();
+          if ( code != 0 ) std::cout << module << " hashedIndex " << hashedIndex << " status " <<  code << std::endl;
+          EcalDQMTowerStatus::const_iterator it = status->find(id);
+          if ( it != status->end() ) code |= it->getStatusCode();
+          status->setValue(id, code);
 
         } else {
 

@@ -5,8 +5,8 @@
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.32 $
-  \date $Date: 2010/08/06 12:28:07 $
+  \version $Revision: 1.33 $
+  \date $Date: 2010/08/09 09:00:10 $
 */
 
 #include <string>
@@ -100,7 +100,7 @@ class Numbers {
 
   static std::vector<DetId>* crystals( const EcalElectronicsId& id ) throw( std::runtime_error );
 
-  static std::vector<DetId>* crystals( int idcc, int itt ) throw( std::runtime_error );
+  static std::vector<DetId>* crystals( int idcc, int isc ) throw( std::runtime_error );
 
   static int RtHalf(const EBDetId& id);
 

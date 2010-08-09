@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.74 2010/08/08 08:16:15 dellaric Exp $
+// $Id: Numbers.cc,v 1.75 2010/08/09 09:00:15 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo
-  \version $Revision: 1.74 $
-  \date $Date: 2010/08/08 08:16:15 $
+  \version $Revision: 1.75 $
+  \date $Date: 2010/08/09 09:00:15 $
 */
 
 #include <sstream>
@@ -795,9 +795,9 @@ std::vector<DetId>* Numbers::crystals( const EcalElectronicsId& id ) throw( std:
   if( Numbers::map ) {
 
     int idcc = id.dccId();
-    int itt = id.towerId();
+    int isc = id.towerId();
 
-    return Numbers::crystals( idcc, itt );
+    return Numbers::crystals( idcc, isc );
 
   } else {
 
@@ -811,14 +811,14 @@ std::vector<DetId>* Numbers::crystals( const EcalElectronicsId& id ) throw( std:
 
 //-------------------------------------------------------------------------
 
-std::vector<DetId>* Numbers::crystals( int idcc, int itt ) throw( std::runtime_error ) {
+std::vector<DetId>* Numbers::crystals( int idcc, int isc ) throw( std::runtime_error ) {
 
   if( Numbers::map ) {
 
-    int index = 100*(idcc-1) + (itt-1);
+    int index = 100*(idcc-1) + (isc-1);
 
     if ( Numbers::crystalsDCC_[index].size() == 0 ) {
-      Numbers::crystalsDCC_[index] = Numbers::map->dccTowerConstituents( idcc, itt );
+      Numbers::crystalsDCC_[index] = Numbers::map->dccTowerConstituents( idcc, isc );
     }
 
     return &(Numbers::crystalsDCC_[index]);
