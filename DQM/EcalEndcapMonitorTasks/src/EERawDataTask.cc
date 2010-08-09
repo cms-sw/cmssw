@@ -1,8 +1,8 @@
 /*
  * \file EERawDataTask.cc
  *
- * $Date: 2010/08/06 17:35:41 $
- * $Revision: 1.34 $
+ * $Date: 2010/08/08 08:46:09 $
+ * $Revision: 1.35 $
  * \author E. Di Marco
  *
 */
@@ -592,11 +592,12 @@ void EERawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       // Lv1 in TCC,SRP,FE are limited to 12 bits(LSB), while in the DCC Lv1 has 24 bits
       int ECALDCC_L1A_12bit = ECALDCC_L1A & 0xfff;
+      int feLv1Offset = ( e.isRealData() ) ? 1 : 0; // in MC FE Lv1A counter starts from 1, in data from 0
 
       for(int fe=0; fe<(int)feLv1.size(); fe++) {
         // do not consider desynch errors if the DCC detected them 
         if( ( status[fe] == 9 || status[fe] == 11 )) continue;
-        if(feLv1[fe] != ECALDCC_L1A_12bit - 1 && feLv1[fe] != -1 && ECALDCC_L1A_12bit - 1 != -1) {
+        if(feLv1[fe]+feLv1Offset != ECALDCC_L1A_12bit && feLv1[fe] != -1 && ECALDCC_L1A_12bit - 1 != -1) {
           meEEL1AFEErrors_->Fill( xism, 1/(float)feLv1.size());
           meEESynchronizationErrorsByLumi_->Fill( xism, 1/(float)feLv1.size() );
         } else if( BxSynchStatus[fe]==0 ) meEESynchronizationErrorsByLumi_->Fill( xism, 1/(float)feLv1.size() ); 
