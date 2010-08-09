@@ -9,8 +9,8 @@
 
 /** \class HcalCoarsePedestalMonitor
   *  
-  * $Date: 2010/07/15 22:38:41 $
-  * $Revision: 1.1 $
+  * $Date: 2010/07/17 01:00:31 $
+  * $Revision: 1.2 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -54,7 +54,7 @@ private:  ///Methods, variables accessible only within class code
   EtaPhiHists CoarsePedestalsSumByDepth;
   EtaPhiHists CoarsePedestalsOccByDepth;
 
-  int pedestalsum_[85][72][4]; // sum of pedestal values over all events
+  double pedestalsum_[85][72][4]; // sum of pedestal values over all events
   int pedestalocc_[85][72][4];
 
   double ADCDiffThresh_; // store difference value that causes channel to be considered in error
