@@ -1,0 +1,1 @@
+* 1 * * * find /home/HDQMWeb/media/Trends -type d -name "Trends_*" -mtime +1 -exec rm -rf {} \;

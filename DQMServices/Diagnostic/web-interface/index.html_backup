@@ -1,0 +1,110 @@
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <title>AJAX with jQuery and cherrypy</title>
+  <style type="text/css" title="currentStyle">
+    @import "/media/css/demo_page.css";
+    @import "/media/css/demo_table_jui.css";
+    @import "/media/themes/smoothness/jquery-ui-1.7.2.custom.css";
+  </style>
+  <script type="text/javascript" src="/media/jquery-1.4.2.min.js"></script>
+  <!-- <script type="text/javascript" src="/media/jquery.js"></script> -->
+  <script type="text/javascript" src="/media/jquery.dataTables.js"></script>
+  <script type="text/javascript" src="/media/functions.js"></script>
+  <script type="text/javascript" charset="utf-8">
+    $(document).ready(function() {
+
+/*
+    $("#form").submit(function() {
+        var sData = $('input', oTable.fnGetNodes()).serialize();
+        $.post('/submitForm', sData );
+        return false ;
+    });
+*/
+    $('#form').submit( function() {
+      var sData = $('input', oTable.fnGetNodes()).serialize();
+      alert( "The following data would have been submitted to the server: \n\n"+sData );
+      return false;
+    } );
+    $('#example').dataTable( {
+      "bProcessing": true,
+      <!-- "sAjaxSource": '/media/json_source.txt', -->
+      "sAjaxSource": 'tableFromJson',
+      "bStateSave": true, <!-- save the state using cookies -->
+      "bJQueryUI": true,
+      "sPaginationType": "full_numbers",
+      "fnRowCallback": function( nRow, aData, iDisplayIndex ) {
+        /* The $ sign is a shortcut for jQuery */
+        $('td:eq(5)', nRow).html( '<input type="checkbox" name="check2" value="2">' );
+        return nRow;
+      },
+      <!--
+      "aoColumns": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        {"sClass": "center"}
+      ]
+      -->
+    });
+    <!-- dataTable('#example') -->
+    });
+  </script>
+</head>
+<body id="dt_example">
+<!--  <div id="container"> -->
+    <h1 id="title">What's your name?</h1>
+    
+    <form id="testform" action="#" method="post">
+      <p>
+        <label for="name">Name:</label>
+        <input type="text" id="name" /> <br />
+	
+        <input type="submit" value="Set" />
+      </p>
+    </form>
+    
+    <form id="secondtestform" action="#" method="post">
+      <p>
+        <label for="firstName">First name:</label>
+        <input type="text" id="firstName" /> <br />
+        <label for="familyName">Family name:</label>
+        <input type="text" id="familyName" /> <br />
+	
+        <input type="submit" value="Set" />
+      </p>
+    </form>
+    
+    <!--	<div id="dynamic"> -->
+    <div class="demo_jui">
+      <form id="form">
+	<div style="text-align:right; padding-bottom:1em;">
+	  <button type="submit">Submit form</button>
+	</div>
+	<!-- Note that the table is inside the form now -->
+	<table cellpadding="0" cellspacing="0" border="0" class="display" id="example">
+	  <thead>
+	    <tr>
+	      <th width="20%">Rendering engine</th>
+	      <th width="25%">Browser</th>
+	      <th width="25%">Platform(s)</th>
+	      
+	      <th width="15%">Engine version</th>
+	      <th width="15%">CSS grade</th>
+	      <th width="15%">CheckBox</th>
+	    </tr>
+	  </thead>
+	  <tbody>
+	    
+	  </tbody>
+	  <tfoot>
+	  </tfoot>
+	</table>
+      </form>
+<!--    </div> -->
+  </div>
+  
+</body>
+</html>
