@@ -29,13 +29,12 @@ namespace cond {
   };
 
 
-  template<>
-  std::string
-  PayLoadInspector<SiStripLorentzAngle>::dump() const {
-    std::stringstream ss;
-    return ss.str();
-    
-  }
+  //template<>
+  //std::string PayLoadInspector<SiStripLorentzAngle>::dump() const {
+  ////object().dump();
+  //return "HACKED111!!";
+  //  
+  //}
   
   template<>
   std::string PayLoadInspector<SiStripLorentzAngle>::summary() const {
