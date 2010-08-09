@@ -3,21 +3,26 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
   <title>HDQM Web Inteface</title>
   <style type="text/css" title="currentStyle">
-    @import "/media/css/demo_page.css";
-	@import "/media/css/dropdown.css";
-    @import "/media/css/demo_table_jui.css";
-    @import "/media/themes/smoothness/jquery-ui-1.7.2.custom.css";
+    @import "/lxplusUser/lib/media/css/demo_page.css";
+    @import "css/dropdown.css";
+    @import "/lxplusUser/lib/media/css/demo_table_jui.css";
 		</style>
-    <!-- @import "/media/prettyPhoto/prettyPhoto/css/prettyPhoto.css"; -->
+  <style>
+    #dt_example{
+      padding: 20px;
+    }
   </style>
-  <script type="text/javascript" src="/media/jquery-1.4.2.min.js"></script>
-  <script type="text/javascript" src="/media/blockUI/jquery.blockUI.js"></script>
+<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/smoothness/jquery-ui.css" type="text/css" />
+    <!-- @import "/lxplusUser/lib/media/prettyPhoto/prettyPhoto/css/prettyPhoto.css"; -->
+  </style>
+  <script type="text/javascript" src="/lxplusUser/lib/media/jquery-1.4.2.min.js"></script>
+  <script type="text/javascript" src="/lxplusUser/lib/jquery.blockUI.js"></script>
 
-  <!-- <script type="text/javascript" src="/media/prettyPhoto/jquery.prettyPhoto.js"></script> -->
+  <!-- <script type="text/javascript" src="/lxplusUser/lib/media/prettyPhoto/jquery.prettyPhoto.js"></script> -->
 
-  <!-- <script type="text/javascript" src="/media/jquery.js"></script> -->
-  <script type="text/javascript" src="/media/jquery.dataTables.js"></script>
-  <script type="text/javascript" src="/media/functions.js"></script>
+  <!-- <script type="text/javascript" src="/lxplusUser/lib/media/jquery.js"></script> -->
+  <script type="text/javascript" src="/lxplusUser/lib/media/jquery.dataTables.js"></script>
+  <script type="text/javascript" src="functions.js"></script>
   <script type="text/javascript" charset="utf-8">
 
     var gaiSelected =  [];
@@ -39,7 +44,7 @@
 		{
 			if(!checkform(this))
 				return false;
-			$.blockUI({ message: '<h1><img src="/media/images/bigrotation2.gif" /> Processing your request, please wait...</h1>' });
+			$.blockUI({ message: '<h1><img src="images/bigrotation2.gif" /> Processing your request, please wait...</h1>' });
 
 			var sData = "";
 			var first = 0;
@@ -87,7 +92,7 @@
 	    trendsDir = data.split(":")[1];
 	    var len = trendsDir.length;
 	    trendsDir = trendsDir.substring(2, len-2);
-	    window.open(trendsDir+'/index.html');
+	   // window.open(trendsDir+'/index.html');
 	  },
 	  complete: function() {
 	    $.unblockUI();	  
@@ -103,8 +108,8 @@
       "iDesplayLength": 100,
       "bProcessing": true,
 	  "bServerSide":false,
-      <!-- "sAjaxSource": '/media/json_source.txt', -->
-      "sAjaxSource": '/tableFromJson/'+typeName+'FullList.txt',
+      //<!-- "sAjaxSource": '/media/json_source.txt', -->
+     // "sAjaxSource": ''+typeName+'FullList.txt',
 	 // "sAjaxSource": "../examples_support/server_processing_id.php",
       "bStateSave": true, <!-- save the state using cookies -->
       "bJQueryUI": true,
@@ -391,7 +396,7 @@ function checkform ( form )
 <div style="text-align:center;padding:15px;font: normal 15px Arial,
 Helvetica, sans-serif;color:#000000;font-weight:bold;width:350px">
 <div class="BoxTitle" style="text-align:center;"></div>
-<img src="images/ajaxloader.gif" style="margin-top:10px">
+<img src="images/bigrotation2.gif" style="margin-top:10px">
 <p>Please Stand By......</p>
 </div>
 </div>
