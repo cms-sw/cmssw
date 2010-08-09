@@ -1,8 +1,8 @@
 /*
  * \file EcalDQMStatusWriter.cc
  *
- * $Date: 2010/08/09 11:30:07 $
- * $Revision: 1.16 $
+ * $Date: 2010/08/09 14:19:22 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -165,8 +165,6 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
       EBDetId id = EBDetId::unhashIndex(index);
       code = convert(code);
 
-      int hashedIndex = id.hashedIndex();
-      if ( code != 0 ) std::cout << key << " hashedIndex " << hashedIndex << " status " <<  code << std::endl;
       EcalDQMChannelStatus::const_iterator it = status->find(id);
       if ( it != status->end() ) code |= it->getStatusCode();
       status->setValue(id, code);
@@ -180,8 +178,6 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
       EEDetId id(ix, iy, iz);
       code = convert(code);
 
-      int hashedIndex = id.hashedIndex();
-      if ( code != 0 ) std::cout << key << " hashedIndex " << hashedIndex << " status " <<  code << std::endl;
       EcalDQMChannelStatus::const_iterator it = status->find(id);
       if ( it != status->end() ) code |= it->getStatusCode();
       status->setValue(id, code);
@@ -226,8 +222,6 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
           continue;
         }
 
-        int hashedIndex = id.hashedIndex();
-        if ( code != 0 ) std::cout << module << " hashedIndex " << hashedIndex << " status " <<  code << std::endl;
         EcalDQMChannelStatus::const_iterator it = status->find(id);
         if ( it != status->end() ) code |= it->getStatusCode();
         status->setValue(id, code);
@@ -284,8 +278,6 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
           continue;
         }
 
-        int hashedIndex = id.hashedIndex();
-        if ( code != 0 ) std::cout << module << " hashedIndex " << hashedIndex << " status " <<  code << std::endl;
         EcalDQMChannelStatus::const_iterator it = status->find(id);
         if ( it != status->end() ) code |= it->getStatusCode();
         status->setValue(id, code);
@@ -427,8 +419,6 @@ EcalDQMTowerStatus* EcalDQMStatusWriter::readEcalDQMTowerStatusFromFile(const ch
             continue;
           }
 
-          int hashedIndex = id.hashedIndex();
-          if ( code != 0 ) std::cout << module << " hashedIndex " << hashedIndex << " status " <<  code << std::endl;
           EcalDQMTowerStatus::const_iterator it = status->find(id);
           if ( it != status->end() ) code |= it->getStatusCode();
           status->setValue(id, code);
@@ -489,8 +479,6 @@ EcalDQMTowerStatus* EcalDQMStatusWriter::readEcalDQMTowerStatusFromFile(const ch
               continue;
             }
 
-            int hashedIndex = id.hashedIndex();
-            if ( code != 0 ) std::cout << module << " hashedIndex " << hashedIndex << " status " <<  code << std::endl;
             EcalDQMTowerStatus::const_iterator it = status->find(id);
             if ( it != status->end() ) code |= it->getStatusCode();
             status->setValue(id, code);
