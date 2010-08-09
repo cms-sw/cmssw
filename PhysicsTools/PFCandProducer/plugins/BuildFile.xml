@@ -11,5 +11,6 @@
   <use   name="FWCore/MessageLogger"/>
   <use   name="FWCore/ParameterSet"/>
   <use   name="JetMETCorrections/Objects"/>
+  <use   name="CommonTools/Utils"/>
   <use   name="PhysicsTools/PFCandProducer"/>
 </library>

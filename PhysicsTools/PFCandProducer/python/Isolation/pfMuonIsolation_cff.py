@@ -3,11 +3,11 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PFCandProducer.Isolation.tools_cfi import *
 from PhysicsTools.PFCandProducer.Isolation.pfMuonIsolationFromDeposits_cff import *
 
-isoDepMuonWithCharged   = isoDepositReplace( 'pfMuonsPtGt5', 'pfAllChargedHadrons' )
-isoDepMuonWithNeutral   = isoDepositReplace( 'pfMuonsPtGt5', 'pfAllNeutralHadrons' )
-isoDepMuonWithPhotons   = isoDepositReplace( 'pfMuonsPtGt5', 'pfAllPhotons' )
-#isoMuonWithElectrons = isoDepositReplace( 'pfMuonsPtGt5', 'pfAllElectrons' )
-#isoMuonWithMuons     = isoDepositReplace( 'pfMuonsPtGt5', 'pfAllMuons' )
+isoDepMuonWithCharged   = isoDepositReplace( 'pfSelectedMuons', 'pfAllChargedHadrons' )
+isoDepMuonWithNeutral   = isoDepositReplace( 'pfSelectedMuons', 'pfAllNeutralHadrons' )
+isoDepMuonWithPhotons   = isoDepositReplace( 'pfSelectedMuons', 'pfAllPhotons' )
+#isoMuonWithElectrons = isoDepositReplace( 'pfSelectedMuons', 'pfAllElectrons' )
+#isoMuonWithMuons     = isoDepositReplace( 'pfSelectedMuons', 'pfAllMuons' )
 
 pfMuonIsoDepositsSequence = cms.Sequence(
     isoDepMuonWithCharged   +
