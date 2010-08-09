@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.73 2010/08/07 09:17:46 dellaric Exp $
+// $Id: Numbers.cc,v 1.74 2010/08/08 08:16:15 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo
-  \version $Revision: 1.73 $
-  \date $Date: 2010/08/07 09:17:46 $
+  \version $Revision: 1.74 $
+  \date $Date: 2010/08/08 08:16:15 $
 */
 
 #include <sstream>
@@ -409,6 +409,29 @@ int Numbers::iSM( const EcalPnDiodeDetId& id ) throw( std::runtime_error ) {
 
 //-------------------------------------------------------------------------
 
+int Numbers::iSM( const EcalScDetId& id ) throw( std::runtime_error ) {
+
+    std::pair<int, int> dccsc = Numbers::map->getDCCandSC( id );
+
+    int idcc = dccsc.first;
+
+  // EE-
+  if( idcc >=  1 && idcc <=  9 ) return( idcc );
+
+  // EB-/EB+
+  if( idcc >= 10 && idcc <= 45 ) return( idcc - 9 );
+
+  // EE+
+  if( idcc >= 46 && idcc <= 54 ) return( idcc - 45 + 9 );
+
+  std::ostringstream s;
+  s << "Wrong DCC id: dcc = " << idcc;
+  throw( std::runtime_error( s.str() ) );
+
+}
+
+//-------------------------------------------------------------------------
+
 int Numbers::iSM( const EcalDCCHeaderBlock& id, const EcalSubdetector subdet ) throw( std::runtime_error ) {
 
   int idcc = id.id();
@@ -425,6 +448,16 @@ int Numbers::iSM( const EcalDCCHeaderBlock& id, const EcalSubdetector subdet ) t
   std::ostringstream s;
   s << "Wrong DCC id: dcc = " << idcc;
   throw( std::runtime_error( s.str() ) );
+
+}
+
+//-------------------------------------------------------------------------
+
+int Numbers::iSC( const EcalScDetId& id ) throw( std::runtime_error ) {
+
+    std::pair<int, int> dccsc = Numbers::map->getDCCandSC( id );
+
+    return dccsc.second;
 
 }
 

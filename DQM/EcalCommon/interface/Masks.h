@@ -5,8 +5,8 @@
   \file Masks.h
   \brief channel masking
   \author G. Della Ricca
-  \version $Revision: 1.4 $
-  \date $Date: 2010/08/06 12:28:07 $
+  \version $Revision: 1.5 $
+  \date $Date: 2010/08/06 15:31:18 $
 */
 
 #include <string>
@@ -28,9 +28,9 @@ class Masks {
 
   static void initMasking( const edm::EventSetup& setup, bool verbose = false );
 
-  static bool maskChannel( int ism, int ix, int iy, uint32_t bits, const EcalSubdetector subdet ) throw( std::runtime_error );
+  static bool maskChannel( int ism, int i1, int i2, uint32_t bits, const EcalSubdetector subdet ) throw( std::runtime_error );
 
-  static bool maskPn( int ism, int ix, uint32_t bits, const EcalSubdetector subdet ) throw( std::runtime_error );
+  static bool maskPn( int ism, int i1, uint32_t bits, const EcalSubdetector subdet ) throw( std::runtime_error );
 
 private:
 

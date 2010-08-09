@@ -1,8 +1,8 @@
 /*
  * \file EcalDQMStatusWriter.cc
  *
- * $Date: 2010/08/08 19:43:42 $
- * $Revision: 1.12 $
+ * $Date: 2010/08/08 21:44:27 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */
@@ -17,11 +17,12 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+#include "DQM/EcalCommon/interface/Numbers.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMStatusDictionary.h"
 
@@ -44,21 +45,7 @@ EcalDQMStatusWriter::EcalDQMStatusWriter(const edm::ParameterSet& ps) {
 
 void EcalDQMStatusWriter::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
-  edm::ESHandle<EcalElectronicsMapping> handle;
-  c.get<EcalMappingRcd>().get(handle);
-  map_ = handle.product();
-
-}
-
-void EcalDQMStatusWriter::endRun(const edm::Run& r, const edm::EventSetup& c) {
-
-}
-
-void EcalDQMStatusWriter::beginJob() {
-
-}
-
-void EcalDQMStatusWriter::endJob() {
+  Numbers::initGeometry(c, verbose_);
 
   edm::Service<cond::service::PoolDBOutputService> dbservice;
   if ( !dbservice.isAvailable() ){
@@ -68,60 +55,52 @@ void EcalDQMStatusWriter::endJob() {
 
   for ( unsigned int i=0; i<objectName_.size(); i++ ) {
 
-      bool toAppend;
-      cond::Time_t newTime;
+    bool toAppend;
+    cond::Time_t newTime;
 
-      if ( dbservice->isNewTagRequest( objectName_[i]+std::string("Rcd") ) ) {
-        // This is the first object for this tag.
-        // Append mode should be off.
-        // newTime is the end of this new objects IOV.
-        toAppend = false;
-        newTime = dbservice->beginOfTime();
+    if ( dbservice->isNewTagRequest( objectName_[i]+std::string("Rcd") ) ) {
+      // This is the first object for this tag.
+      // Append mode should be off.
+      // newTime is the end of this new objects IOV.
+      toAppend = false;
+      newTime = dbservice->beginOfTime();
+    } else {
+      // There should already be an object in the DB for this tag.
+      // Append IOV mode should be on.
+      // newTime is the beginning of this new objects IOV.
+      toAppend = true;
+      newTime = (cond::Time_t) since_[i];
+    }
+
+    std::cout << "Reading " << objectName_[i] << " from file and writing to DB with newTime " << newTime << std::endl;
+
+    if (objectName_[i]  ==  "EcalDQMChannelStatus") {
+
+      EcalDQMChannelStatus* status = readEcalDQMChannelStatusFromFile(inpFileName_[i].c_str());
+
+      if ( !toAppend ) {
+        dbservice->createNewIOV<EcalDQMChannelStatus>(status, newTime, dbservice->endOfTime(), "EcalDQMChannelStatusRcd");
       } else {
-        // There should already be an object in the DB for this tag.
-        // Append IOV mode should be on.
-        // newTime is the beginning of this new objects IOV.
-        toAppend = true;
-        newTime = (cond::Time_t) since_[i];
+        dbservice->appendSinceTime<EcalDQMChannelStatus>(status, newTime, "EcalDQMChannelStatusRcd");
       }
 
-      std::cout << "Reading " << objectName_[i] << " from file and writing to DB with newTime " << newTime << std::endl;
+    } else if (objectName_[i]  ==  "EcalDQMTowerStatus") {
 
-      if (objectName_[i]  ==  "EcalDQMChannelStatus") {
+      EcalDQMTowerStatus* status = readEcalDQMTowerStatusFromFile(inpFileName_[i].c_str());
 
-        EcalDQMChannelStatus* status = readEcalDQMChannelStatusFromFile(inpFileName_[i].c_str());
-
-        if ( !toAppend ) {
-          dbservice->createNewIOV<EcalDQMChannelStatus>(status, newTime, dbservice->endOfTime(), "EcalDQMChannelStatusRcd");
-        } else {
-          dbservice->appendSinceTime<EcalDQMChannelStatus>(status, newTime, "EcalDQMChannelStatusRcd");
-        }
-
-      } else if (objectName_[i]  ==  "EcalDQMTowerStatus") {
-
-        EcalDQMTowerStatus* status = readEcalDQMTowerStatusFromFile(inpFileName_[i].c_str());
-
-        if ( !toAppend ) {
-          dbservice->createNewIOV<EcalDQMTowerStatus>(status, newTime, dbservice->endOfTime(), "EcalDQMTowerStatusRcd");
-        } else {
-          dbservice->appendSinceTime<EcalDQMTowerStatus>(status, newTime, "EcalDQMTowerStatusRcd");
-        }
-
+      if ( !toAppend ) {
+        dbservice->createNewIOV<EcalDQMTowerStatus>(status, newTime, dbservice->endOfTime(), "EcalDQMTowerStatusRcd");
       } else {
-
-        std::cout << "Object " << objectName_[i]  << " is not supported by this program." << std::endl;
-
+        dbservice->appendSinceTime<EcalDQMTowerStatus>(status, newTime, "EcalDQMTowerStatusRcd");
       }
+
+    } else {
+
+      std::cout << "Object " << objectName_[i]  << " is not supported by this program." << std::endl;
+
+    }
 
   }
-
-}
-
-void EcalDQMStatusWriter::analyze(const edm::Event& e, const edm::EventSetup& c) {
-
-}
-
-EcalDQMStatusWriter::~EcalDQMStatusWriter() {
 
 }
 
@@ -133,25 +112,23 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
   EcalDQMStatusDictionary::getDictionary( dictionary );
 
   // barrel
-  for ( int ie=-EBDetId::MAX_IETA; ie<=EBDetId::MAX_IETA; ie++ ) {
-  if ( ie==0 ) continue;
-    for ( int ip=EBDetId::MIN_IPHI; ip<=EBDetId::MAX_IPHI; ip++ ) {
-      if ( EBDetId::validDetId(ie, ip) ) {
-        EBDetId id(ie, ip, EBDetId::ETAPHIMODE);
-        status->setValue(id, 0);
-      }
+  for ( int ism=1; ism<=36; ism++ ) {
+    int jsm = Numbers::iSM(ism, EcalBarrel);
+    for ( int ic=1; ic<=1700; ic++ ) {
+      EBDetId id(jsm, ic, EBDetId::SMCRYSTALMODE);
+      status->setValue(id, 0);
     }
   }
 
   // endcap
-  for ( int ix=EEDetId::IX_MIN; ix<=EEDetId::IX_MAX; ix++ ) {
-    for ( int iy=EEDetId::IY_MIN; iy<=EEDetId::IY_MAX; iy++ ) {
+  for ( int ix=1; ix<=100; ix++ ) {
+    for ( int iy=1; iy<=100; iy++ ) {
       if ( EEDetId::validDetId(ix, iy, +1) ) {
-        EEDetId id(ix, iy, +1, EEDetId::XYMODE);
+        EEDetId id(ix, iy, +1);
         status->setValue(id, 0);
       }
       if ( EEDetId::validDetId(ix, iy, -1) ) {
-        EEDetId id(ix, iy, -1, EEDetId::XYMODE);
+        EEDetId id(ix, iy, -1);
         status->setValue(id, 0);
       }
     }
@@ -200,7 +177,7 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
       uint32_t code;
       stream >> ix >> iy >> iz >> code;
 
-      EEDetId id(ix, iy, iz, EEDetId::XYMODE);
+      EEDetId id(ix, iy, iz);
       code = convert(code);
 
       int hashedIndex = id.hashedIndex();
@@ -223,24 +200,21 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
 
         int sm = atoi( module.substr(2, module.size()-2).c_str() );
 
-        int ism = (sm>=0) ? sm : 18-sm;
-        int iex = (ism>=1&&ism<=18) ? +ie : -ie;
-        int ipx = (ism>=1&&ism<=18) ? 1+(20-ip)+20*(ism-1) : ip+20*(ism-19);
+        int ism = (sm>=1&&sm<=18) ? sm+18 : -sm;
+        int jsm = Numbers::iSM(ism, EcalBarrel);
+        int ic = 20*(ie-1)+(ip-1)+1;
 #else
-        int index;
+        int ic;
         std::string token;
-        stream >> index >> token;
+        stream >> ic >> token;
 
         int sm = atoi( module.substr(2, module.size()-2).c_str() );
 
-        int ism = (sm>=0) ? sm : 18-sm;
-        int ie = (index-1)/20 + 1;
-        int ip = (index-1)%20 + 1;
-        int iex = (ism>=1&&ism<=18) ? +ie : -ie;
-        int ipx = (ism>=1&&ism<=18) ? 1+(20-ip)+20*(ism-1) : ip+20*(ism-19);
+        int ism = (sm>=1&&sm<=18) ? sm+18 : -sm;
+        int jsm = Numbers::iSM(ism, EcalBarrel);
 #endif
 
-        EBDetId id(iex, ipx, EBDetId::ETAPHIMODE);
+        EBDetId id(jsm, ic, EBDetId::SMCRYSTALMODE);
         uint32_t code = 0;
         for ( unsigned int i=0; i<dictionary.size(); i++ ) {
           if ( strcmp(token.c_str(), dictionary[i].desc) == 0 ) {
@@ -298,7 +272,7 @@ EcalDQMChannelStatus* EcalDQMStatusWriter::readEcalDQMChannelStatusFromFile(cons
           case +6: ism = 18; break;
         }
 
-        EEDetId id(jx, jy, (ism>=1&&ism<=9)?-1:+1, EEDetId::XYMODE);
+        EEDetId id(jx, jy, (ism>=1&&ism<=9)?-1:+1);
         uint32_t code = 0;
         for ( unsigned int i=0; i<dictionary.size(); i++ ) {
           if ( strcmp(token.c_str(), dictionary[i].desc) == 0 ) {
@@ -352,22 +326,22 @@ EcalDQMTowerStatus* EcalDQMStatusWriter::readEcalDQMTowerStatusFromFile(const ch
   EcalDQMStatusDictionary::getDictionary( dictionary );
 
   // barrel
-  for ( int i=1; i<=EcalTrigTowerDetId::kEBTowersInEta; i++ ) {
-    for ( int j=1; j<=EcalTrigTowerDetId::kEBTowersPerSM; j++ ) {
-      if ( EcalTrigTowerDetId::validDetId(+1, EcalBarrel, i, j) ) {
-        EcalTrigTowerDetId id(+1, EcalBarrel, i, j);
+  for ( int ix=1; ix<=17; ix++ ) {
+    for ( int iy=1; iy<=72; iy++ ) {
+      if ( EcalTrigTowerDetId::validDetId(+1, EcalBarrel, ix, iy) ) {
+        EcalTrigTowerDetId id(+1, EcalBarrel, ix, iy);
         status->setValue(id, 0);
       }
-      if ( EcalTrigTowerDetId::validDetId(-1, EcalBarrel, i, j) ) {
-        EcalTrigTowerDetId id(-1, EcalBarrel, i, j);
+      if ( EcalTrigTowerDetId::validDetId(-1, EcalBarrel, ix, iy) ) {
+        EcalTrigTowerDetId id(-1, EcalBarrel, ix, iy);
         status->setValue(id, 0);
       }
     }
   }
   
   // endcap
-  for ( int ix=EcalScDetId::IX_MIN; ix<=EcalScDetId::IX_MAX; ix++ ) {
-    for ( int iy=EcalScDetId::IY_MIN; iy<=EcalScDetId::IY_MAX; iy++ ) {
+  for ( int ix=1; ix<=20; ix++ ) {
+    for ( int iy=1; iy<=20; iy++ ) {
       if ( EcalScDetId::validDetId(ix, iy, +1) ) {
         EcalScDetId id(ix, iy, +1);
         status->setValue(id, 0);
@@ -432,13 +406,13 @@ EcalDQMTowerStatus* EcalDQMStatusWriter::readEcalDQMTowerStatusFromFile(const ch
           int ipt = (itt-1)%4+1;
 
           if ( sm<0 ) {
-            ipt = ipt+(abs(sm)-1)*EcalTrigTowerDetId::kEBTowersInPhi-2;
-            if ( ipt < 1 ) ipt = ipt+18*EcalTrigTowerDetId::kEBTowersInPhi;
-            if ( ipt > 18*EcalTrigTowerDetId::kEBTowersInPhi ) ipt = ipt-18*EcalTrigTowerDetId::kEBTowersInPhi;
+            ipt = ipt+(abs(sm)-1)*4-2;
+            if ( ipt < 1 ) ipt = ipt+72;
+            if ( ipt > 72 ) ipt = ipt-72;
           } else {
-            ipt = (5-ipt)+(abs(sm)-1)*EcalTrigTowerDetId::kEBTowersInPhi-2;
-            if ( ipt < 1 ) ipt = ipt+18*EcalTrigTowerDetId::kEBTowersInPhi;
-            if ( ipt > 18*EcalTrigTowerDetId::kEBTowersInPhi ) ipt = ipt-18*EcalTrigTowerDetId::kEBTowersInPhi;
+            ipt = (5-ipt)+(abs(sm)-1)*4-2;
+            if ( ipt < 1 ) ipt = ipt+72;
+            if ( ipt > 72 ) ipt = ipt-72;
           }
 
           EcalTrigTowerDetId id((sm<0)?-1:+1, EcalBarrel, iet, ipt);
@@ -497,18 +471,13 @@ EcalDQMTowerStatus* EcalDQMStatusWriter::readEcalDQMTowerStatusFromFile(const ch
             case +6: ism = 18; break;
           }
 
-          int idcc;
-          if ( ism>=1&&ism<=9 ) {
-            idcc = ism;
-          } else {
-            idcc = ism-9+45;
-          }
+          int idcc = (ism>=1&&ism<=9) ? ism : ism-9+45;
 
-          std::vector<DetId> crystals = map_->dccTowerConstituents(idcc, itt);
+          std::vector<DetId>* crystals = Numbers::crystals(idcc, itt);
 
-          for ( unsigned int i=0; i<crystals.size(); i++ ) {
+          for ( unsigned int i=0; i<crystals->size(); i++ ) {
 
-            EcalScDetId id = ((EEDetId) crystals[i]).sc();
+            EcalScDetId id = ((EEDetId) (*crystals)[i]).sc();
             uint32_t code = 0;
             for ( unsigned int i=0; i<dictionary.size(); i++ ) {
               if ( strcmp(token.c_str(), dictionary[i].desc) == 0 ) {

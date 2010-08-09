@@ -5,8 +5,8 @@
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.31 $
-  \date $Date: 2010/08/04 06:31:58 $
+  \version $Revision: 1.32 $
+  \date $Date: 2010/08/06 12:28:07 $
 */
 
 #include <string>
@@ -72,7 +72,11 @@ class Numbers {
 
   static int iSM( const EcalPnDiodeDetId& id ) throw( std::runtime_error );
 
+  static int iSM( const EcalScDetId& id ) throw( std::runtime_error );
+
   static int iSM( const EcalDCCHeaderBlock& id, const EcalSubdetector subdet ) throw( std::runtime_error );
+
+  static int iSC( const EcalScDetId& id ) throw( std::runtime_error );
 
   static int iSC( const int ism, const EcalSubdetector subdet, const int i1, const int i2 ) throw( std::runtime_error );
 

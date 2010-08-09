@@ -4,8 +4,8 @@
 /*
  * \file EcalDQMStatusReader.h
  *
- * $Date: 2010/08/07 19:34:19 $
- * $Revision: 1.1 $
+ * $Date: 2010/08/08 09:03:03 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -25,15 +25,11 @@ class EcalDQMStatusReader : public edm::EDAnalyzer {
 public:
 
 EcalDQMStatusReader(const edm::ParameterSet& ps);
-virtual ~EcalDQMStatusReader();
+virtual ~EcalDQMStatusReader() {};
 
-void analyze(const edm::Event & e, const edm::EventSetup & c);
-
-void beginJob(void);
-void endJob(void);
+void analyze(const edm::Event & e, const edm::EventSetup & c) {};
 
 void beginRun(const edm::Run & r, const edm::EventSetup & c);
-void endRun(const edm::Run & r, const edm::EventSetup & c);
 
 private:
 
