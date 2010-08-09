@@ -22,49 +22,58 @@ def getLumiOrderByLS(dbsession,c,runList,selectionDict,hltpath='',beamstatus=Non
     t=lumiTime.lumiTime()
     result=[]#[[runnumber,runstarttime,lsnum,lsstarttime,delivered,recorded]]
     dbsession.transaction().start(True)
+    sortedresult=[]
+    #print 'runlist ',runList
     for runnum in runList:
         delivered=0.0
         recorded=0.0 
         if len(selectionDict)!=0 and not selectionDict.has_key(runnum):
             continue
         #print 'looking for run ',runnum
-        lumitrginfo={}
-        q=dbsession.nominalSchema().newQuery()
-        lumitrginfo=lumiQueryAPI.lumisummarytrgbitzeroByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamenergyfluctuation) #q2
-        del q
-        if len(lumitrginfo)==0:
-            if c.VERBOSE: print 'request run ',runnum,' has no trigger, skip'
-            continue
         q=dbsession.nominalSchema().newQuery()
         runsummary=lumiQueryAPI.runsummaryByrun(q,runnum)
         del q
         runstarttimeStr=runsummary[3]
-        #runstoptime=runsummary[4]
-        norbits=lumitrginfo.values()[0][1]
-        lslength=t.bunchspace_s*t.nbx*norbits
-        trgbitinfo={}
-        for cmslsnum,valuelist in lumitrginfo.items():
-            instlumi=valuelist[0]
-            startorbit=valuelist[2]
-            bitzero=valuelist[5]
-            deadcount=valuelist[6]
-            if len(selectionDict)!=0 and not (cmslsnum in selectionDict[runnum]):
-                #if there's a selection list but cmslsnum is not selected,skip
-                continue
-            if valuelist[5]==0:#bitzero==0 means no beam,do nothing
-                continue
-            lsstarttime=t.OrbitToTime(runstarttimeStr,startorbit)           
-            delivered=instlumi*lslength
-            deadfrac=float(deadcount)/float(bitzero)
-            recorded=delivered*(1.0-deadfrac)
-            result.append([runnum,runstarttimeStr,cmslsnum,lsstarttime,delivered,recorded])
-        transposedResult=CommonUtil.transposed(result)
-        lstimes=transposedResult[3]
-        lstimes.sort()
-        sortedresult=[]
-        for idx,lstime in enumerate(lstimes):
-            sortedresult.append(result[idx])
+        if len(runstarttimeStr)==0:
+            if c.VERBOSE: print 'warning request run ',runnum,' has no runsummary, skip'
+            continue
+        #print 'runsummary ',runsummary
+        lumitrginfo={}
+        q=dbsession.nominalSchema().newQuery()
+        lumitrginfo=lumiQueryAPI.lumisummarytrgbitzeroByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamenergyfluctuation) #q2
+        del q
+        #print 'lumitrginfo ',lumitrginfo
+        if len(lumitrginfo)==0:
+            if c.VERBOSE: print 'warning request run ',runnum,' has no trigger, skip'
+            result.append([runnum,runstarttimeStr,1,t.StrToDatetime(runstarttimeStr),0.0,0.0])
+        else:
+            norbits=lumitrginfo.values()[0][1]
+            lslength=t.bunchspace_s*t.nbx*norbits
+            trgbitinfo={}
+            for cmslsnum,valuelist in lumitrginfo.items():
+                instlumi=valuelist[0]
+                startorbit=valuelist[2]
+                bitzero=valuelist[5]
+                deadcount=valuelist[6]
+                lsstarttime=t.OrbitToTime(runstarttimeStr,startorbit)        
+                if len(selectionDict)!=0 and not (cmslsnum in selectionDict[runnum]):
+                   #if there's a selection list but cmslsnum is not selected,skip                   
+                   continue
+                if valuelist[5]==0:#bitzero==0 means no beam,do nothing
+                    delivered=0.0
+                    recorded=0.0
+                else:
+                    delivered=instlumi*lslength
+                    deadfrac=float(deadcount)/float(bitzero)
+                    recorded=delivered*(1.0-deadfrac)
+                result.append([runnum,runstarttimeStr,cmslsnum,lsstarttime,delivered,recorded])
+                #print 'result : ',result
     dbsession.transaction().commit()
+    transposedResult=CommonUtil.transposed(result)
+    lstimes=transposedResult[3]
+    lstimes.sort()
+    for idx,lstime in enumerate(lstimes):
+        sortedresult.append(result[idx])
     if c.VERBOSE:
         print sortedresult
     return sortedresult           
@@ -380,7 +389,7 @@ def main():
     elif args.action == 'perday':
         daydict={}#{day:[[run,cmslsnum,lsstarttime,delivered,recorded]]}
         lumibyls=getLumiOrderByLS(session,c,runList,selectionDict,hltpath,beamstatus='STABLE BEAMS',beamenergy=3.5e3,beamenergyfluctuation=0.2e3)
-        #print 'lumibyls ',lumibyls
+        print 'lumibyls ',lumibyls
         #lumibyls [[runnumber,runstarttime,lsnum,lsstarttime,delivered,recorded,recordedinpath]]
         if args.outputfile:
             reporter=csvReporter.csvReporter(ofilename)
