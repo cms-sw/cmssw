@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2010/03/12 19:03:09 $
- *  $Revision: 1.34.2.1 $
+ *  $Date: 2010/03/12 19:14:38 $
+ *  $Revision: 1.35 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -175,6 +175,8 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
 
   theSigmaZ = theConfig.getParameter<double>("SigmaZ");
 
+  theBeamSpotInputTag = theConfig.getParameter<edm::InputTag>("beamSpot");
+
   edm::ParameterSet errorMatrixPset = theConfig.getParameter<edm::ParameterSet>("errorMatrixPset");
   if ( theResetMethod == "matrix" && !errorMatrixPset.empty()){
     theAdjustAtIp = errorMatrixPset.getParameter<bool>("atIP");
@@ -193,7 +195,8 @@ void TSGFromPropagation::setEvent(const edm::Event& iEvent) {
 
   bool measTrackerChanged = false;
 
-  iEvent.getByType(theBeamSpot);
+  //edm::Handle<reco::BeamSpot> beamSpot;
+  iEvent.getByLabel(theBeamSpotInputTag, beamSpot);
 
   unsigned long long newCacheId_MT = theService->eventSetup().get<CkfComponentsRecord>().cacheIdentifier();
 
@@ -326,8 +329,8 @@ std::vector<TrajectoryMeasurement> TSGFromPropagation::findMeasurements(const De
 bool TSGFromPropagation::passSelection(const TrajectoryStateOnSurface& tsos) const {
   if ( !theSelectStateFlag ) return true;
   else {
-     if ( theBeamSpot.isValid() ) {
-       return ( ( fabs(zDis(tsos) - theBeamSpot->z0() ) < theSigmaZ) );
+     if ( beamSpot.isValid() ) {
+       return ( ( fabs(zDis(tsos) - beamSpot->z0() ) < theSigmaZ) );
 
      } else {
        return ( ( fabs(zDis(tsos)) < theSigmaZ) ); 

@@ -5,8 +5,8 @@
  *  Tracker Seed Generator by propagating and updating a standAlone muon
  *  to the first 2 (or 1) rechits it meets in tracker system 
  *
- *  $Date: 2008/11/06 01:46:57 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/04/14 18:52:09 $
+ *  $Revision: 1.12 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -149,7 +149,8 @@ private:
 
   edm::ParameterSet theConfig;
 
-  edm::Handle<reco::BeamSpot> theBeamSpot;
+  edm::Handle<reco::BeamSpot> beamSpot;
+  edm::InputTag theBeamSpotInputTag;
 
 };
 
