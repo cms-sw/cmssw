@@ -120,7 +120,7 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
   // produces vector of jets
   produces<std::vector<Jet> >();
   produces<reco::GenJetCollection> ("genJets");
-  produces<CaloTowerCollection > ("caloTowers");
+  produces<std::vector<CaloTower> > ("caloTowers");
   produces<reco::PFCandidateCollection > ("pfCandidates");
   produces<edm::OwnVector<reco::BaseTagInfo> > ("tagInfos");
 }
@@ -196,13 +196,13 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   std::auto_ptr< std::vector<Jet> > patJets ( new std::vector<Jet>() ); 
 
   std::auto_ptr<reco::GenJetCollection > genJetsOut ( new reco::GenJetCollection() );
-  std::auto_ptr<CaloTowerCollection >  caloTowersOut( new CaloTowerCollection() );
+  std::auto_ptr<std::vector<CaloTower> >  caloTowersOut( new CaloTowerCollection() );
   std::auto_ptr<reco::PFCandidateCollection > pfCandidatesOut( new reco::PFCandidateCollection() );
   std::auto_ptr<edm::OwnVector<reco::BaseTagInfo> > tagInfosOut ( new edm::OwnVector<reco::BaseTagInfo>() );  
 
 
   edm::RefProd<reco::GenJetCollection > h_genJetsOut = iEvent.getRefBeforePut<reco::GenJetCollection >( "genJets" );
-  edm::RefProd<CaloTowerCollection >  h_caloTowersOut = iEvent.getRefBeforePut<CaloTowerCollection > ( "caloTowers" );
+  edm::RefProd<std::vector<CaloTower> >  h_caloTowersOut = iEvent.getRefBeforePut<std::vector<CaloTower> > ( "caloTowers" );
   edm::RefProd<reco::PFCandidateCollection > h_pfCandidatesOut = iEvent.getRefBeforePut<reco::PFCandidateCollection > ( "pfCandidates" );
   edm::RefProd<edm::OwnVector<reco::BaseTagInfo> > h_tagInfosOut = iEvent.getRefBeforePut<edm::OwnVector<reco::BaseTagInfo> > ( "tagInfos" );
 
