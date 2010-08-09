@@ -110,7 +110,7 @@ namespace
 // constructors and destructor
 //==============================================================================
 
-FWFFService::FWFFService(edm::ParameterSet const&, edm::ActivityRegistry& ar) 
+FWFFService::FWFFService(edm::ParameterSet const&ps, edm::ActivityRegistry& ar) 
    : CmsShowMainBase(),
      m_navigator(new FWFFNavigator(*this)), 
      m_metadataManager(new FWFFMetadataManager()),
@@ -155,10 +155,33 @@ FWFFService::FWFFService(edm::ParameterSet const&, edm::ActivityRegistry& ar)
 
    eiManager()->setContext(m_context.get());
 
-   // FIXME: ugly hack... we need to commit geometry...
-   setGeometryFilename("cmsGeom10.root");
-   std::string releaseBase = getenv("CMSSW_RELEASE_BASE");
-   setConfigFilename("src/Fireworks/FWInterface/macros/ffw.fwc");
+   // By default, we look up geometry and configuration in the workarea, then
+   // in the release area then in the local directory.  It is also possible to
+   // override those locations by using the displayConfigurationFilename and
+   // geometryFilename in the parameterset.
+   const char *releaseBase = getenv("CMSSW_RELEASE_BASE");
+   const char *workarea = getenv("CMSSW_BASE");
+   std::string displayConfigRelFilename = "/src/Fireworks/FWInterface/macros/ffw.fwc";
+   std::string geometryRelFilename = "/src/Fireworks/FWInterface/data/cmsGeom10.root";
+
+   std::string displayConfigFilename = "ffw.fwc";
+   std::string geometryFilename = "cmsGeom10.root";
+
+   if (releaseBase && access((releaseBase + displayConfigFilename).c_str(), R_OK) == 0)
+      displayConfigFilename = releaseBase + displayConfigRelFilename; 
+   if (workarea && access((workarea + displayConfigRelFilename).c_str(), R_OK) == 0)
+      displayConfigFilename = workarea + displayConfigRelFilename;   
+
+   if (releaseBase && access((releaseBase + geometryRelFilename).c_str(), R_OK) == 0)
+      geometryFilename = releaseBase + geometryRelFilename;
+   if (workarea && access((workarea + geometryRelFilename).c_str(), R_OK) == 0)
+      geometryFilename = workarea + geometryRelFilename;
+
+   displayConfigFilename = ps.getUntrackedParameter<std::string>("diplayConfigFilename", displayConfigFilename);
+   geometryFilename = ps.getUntrackedParameter<std::string>("geometryFilename", geometryFilename);
+
+   setGeometryFilename(geometryFilename);
+   setConfigFilename(displayConfigFilename);
 
    CmsShowTaskExecutor::TaskFunctor f;
    f=boost::bind(&CmsShowMainBase::loadGeometry,this);
