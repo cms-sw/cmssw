@@ -441,7 +441,7 @@ EcalDQMTowerStatus* EcalDQMStatusWriter::readEcalDQMTowerStatusFromFile(const ch
 
       } else if ( strncmp(module.c_str(), "EE+", 3) == 0 || strncmp(module.c_str(), "EE-", 3) == 0 ) {
 
-        int itt;
+        int isc;
         std::string token;
         stream >> isc >> token;
 
