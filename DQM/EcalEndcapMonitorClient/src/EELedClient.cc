@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2010/08/07 18:51:25 $
- * $Revision: 1.123 $
+ * $Date: 2010/08/08 08:46:06 $
+ * $Revision: 1.124 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -221,15 +221,15 @@ void EELedClient::setup(void) {
       if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
       sprintf(histo, "EELDT led quality L1 %s", Numbers::sEE(ism).c_str());
       meg01_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-      meg01_[ism-1]->setAxisTitle("jx", 1);
-      meg01_[ism-1]->setAxisTitle("jy", 2);
+      meg01_[ism-1]->setAxisTitle("101-ix", 1);
+      meg01_[ism-1]->setAxisTitle("iy", 2);
     }
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
       if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
       sprintf(histo, "EELDT led quality L2 %s", Numbers::sEE(ism).c_str());
       meg02_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-      meg02_[ism-1]->setAxisTitle("jx", 1);
-      meg02_[ism-1]->setAxisTitle("jy", 2);
+      meg02_[ism-1]->setAxisTitle("101-ix", 1);
+      meg02_[ism-1]->setAxisTitle("iy", 2);
     }
 
     if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {

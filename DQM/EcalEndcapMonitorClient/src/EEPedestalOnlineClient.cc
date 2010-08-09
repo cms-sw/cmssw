@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2010/08/05 11:35:08 $
- * $Revision: 1.105 $
+ * $Date: 2010/08/08 08:46:07 $
+ * $Revision: 1.106 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -137,8 +137,8 @@ void EEPedestalOnlineClient::setup(void) {
     if ( meg03_[ism-1] ) dqmStore_->removeElement( meg03_[ism-1]->getName() );
     sprintf(histo, "EEPOT pedestal quality G12 %s", Numbers::sEE(ism).c_str());
     meg03_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-    meg03_[ism-1]->setAxisTitle("jx", 1);
-    meg03_[ism-1]->setAxisTitle("jy", 2);
+    meg03_[ism-1]->setAxisTitle("101-ix", 1);
+    meg03_[ism-1]->setAxisTitle("iy", 2);
 
     if ( mep03_[ism-1] ) dqmStore_->removeElement( mep03_[ism-1]->getName() );
     sprintf(histo, "EEPOT pedestal mean G12 %s", Numbers::sEE(ism).c_str());

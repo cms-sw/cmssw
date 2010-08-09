@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2010/08/05 11:35:08 $
- * $Revision: 1.119 $
+ * $Date: 2010/08/08 08:46:07 $
+ * $Revision: 1.120 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -184,22 +184,22 @@ void EETestPulseClient::setup(void) {
       if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
       sprintf(histo, "EETPT test pulse quality G01 %s", Numbers::sEE(ism).c_str());
       meg01_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-      meg01_[ism-1]->setAxisTitle("jx", 1);
-      meg01_[ism-1]->setAxisTitle("jy", 2);
+      meg01_[ism-1]->setAxisTitle("101-ix", 1);
+      meg01_[ism-1]->setAxisTitle("iy", 2);
     }
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
       if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
       sprintf(histo, "EETPT test pulse quality G06 %s", Numbers::sEE(ism).c_str());
       meg02_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-      meg02_[ism-1]->setAxisTitle("jx", 1);
-      meg02_[ism-1]->setAxisTitle("jy", 2);
+      meg02_[ism-1]->setAxisTitle("101-ix", 1);
+      meg02_[ism-1]->setAxisTitle("iy", 2);
     }
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
       if ( meg03_[ism-1] ) dqmStore_->removeElement( meg03_[ism-1]->getName() );
       sprintf(histo, "EETPT test pulse quality G12 %s", Numbers::sEE(ism).c_str());
       meg03_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-      meg03_[ism-1]->setAxisTitle("jx", 1);
-      meg03_[ism-1]->setAxisTitle("jy", 2);
+      meg03_[ism-1]->setAxisTitle("101-ix", 1);
+      meg03_[ism-1]->setAxisTitle("iy", 2);
     }
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
