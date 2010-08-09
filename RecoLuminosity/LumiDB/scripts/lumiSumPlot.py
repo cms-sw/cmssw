@@ -297,7 +297,7 @@ def main():
         t=lumiTime.lumiTime()
         minTime=t.StrToDatetime(args.begin,timeformat)
         if not args.end:
-            maxTime=datetime.datetime.now() #to now
+            maxTime=datetime.datetime.utcnow() #to now
         else:
             maxTime=t.StrToDatetime(args.end,timeformat)
         #print minTime,maxTime
