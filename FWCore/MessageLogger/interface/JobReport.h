@@ -37,7 +37,6 @@ Changes Log 1: 2009/01/14 10:29:00, Natalia Garcia Nebot
 #include <map>
 #include <vector>
 
-
 #include "boost/scoped_ptr.hpp"
 #include "FWCore/Utilities/interface/tinyxml.h"
 
@@ -47,7 +46,6 @@ namespace edm {
     public:
       typedef unsigned int RunNumber;
       typedef std::size_t Token;
-
 
       /**\struct LumiSectionReport
 
@@ -101,7 +99,6 @@ namespace edm {
         bool            fileHasBeenClosed;
       };
 
-
       /**\struct OutputFile
 
       Description: Holds information about an OutputFile.
@@ -110,7 +107,6 @@ namespace edm {
       Data Handling wishes to accumulate about the use of a file that has
       been opened for output.
       */
-
 
       struct OutputFile {
 
@@ -127,6 +123,7 @@ namespace edm {
         size_t          numEventsWritten;
         StringVector    branchNames;
         std::vector<Token> contributingInputs;
+        std::map<std::string, bool> fastCopyingInputs;
 	std::map<RunNumber, RunReport> runReports;
         bool            fileHasBeenClosed;
       };
@@ -190,13 +187,12 @@ namespace edm {
 	 */
 	void associateInputRun(unsigned int runNumber);
 
-
         /*
          * Write an InputFile object to the Logger
          * Generate XML string for InputFile instance and dispatch to
          * job report via MessageLogger
          */
-        void writeInputFile(const InputFile & f);
+        void writeInputFile(InputFile const& f);
         /*
          * Write an OutputFile object to the Logger
          * Generate an XML string for the OutputFile provided and
@@ -211,14 +207,13 @@ namespace edm {
          * output file due to filtering etc.
          *
          */
-        void writeOutputFile(const OutputFile & f);
-
+        void writeOutputFile(OutputFile const& f);
 
 	/*
 	 * Add Generator info to the map of gen info stored in this
 	 * instance.
 	 */
-	void addGeneratorInfo(const std::string& name, const std::string& value);
+	void addGeneratorInfo(std::string const& name, std::string const& value);
 
 	/*
 	 * Write out generator info to the job report
@@ -307,16 +302,15 @@ namespace edm {
       /// be used for fast merges, use this method to forcibly set the
       /// events written count for an output file before reporting it
       /// closed
-      void overrideEventsWritten(Token fileToken, const int eventsWritten);
+      void overrideEventsWritten(Token fileToken, int const eventsWritten);
       ///
       /// For use by fast merge: Since the event by event counter cant
       /// be used for fast merges, use this method to forcibly set the
       /// events read count for an input file before reporting it
       /// closed
-      void overrideEventsRead(Token fileToken, const int eventsRead);
+      void overrideEventsRead(Token fileToken, int const eventsRead);
 
       void reportSkippedEvent(unsigned int run, unsigned int event);
-
 
       ///
       /// API for reporting a Lumi Section to the job report.
@@ -366,7 +360,7 @@ namespace edm {
       /// Invoked by the Timing service to send an end of job
       /// summary about time taken for inclusion in the job report
       ///
-      void reportTimingInfo(std::map<std::string, double> const & timingData);
+      void reportTimingInfo(std::map<std::string, double> const& timingData);
 
       ///
       /// Report Memory statistics
@@ -397,17 +391,16 @@ namespace edm {
       ///
       void reportMachineMemoryProperties(std::map<std::string, double> const& memoryProperties);
 
-
       ///
       /// Report Message statistics
       /// Invoked by the MessageLogger service to send an end of job
       /// summary about numbers of various categories messages issued
       /// for inclusion in the job report
       ///
-      void reportMessageInfo(std::map<std::string, double> const & messageData);
+      void reportMessageInfo(std::map<std::string, double> const& messageData);
 
       /// Report Storage Statistics
-      void reportStorageStats(std::string const & data);
+      void reportStorageStats(std::string const& data);
 
       /// Override the list of input files seen by an output file
       /// for use with EdmFastMerge
@@ -429,6 +422,11 @@ namespace edm {
       ///
       void reportPSetHash(std::string const& hashValue);
 
+      /*
+       * Report information about fast copying. Called for each open output file
+       * whenever an input file is opened.
+       */
+      void reportFastCopyingStatus(Token t, std::string const& inputFileName, bool fastCopying);
 
       ///
       /// Performance Reports
@@ -443,8 +441,6 @@ namespace edm {
       void reportPerformanceForModule(std::string const&  metricClass,
 				      std::string const&  moduleName,
 				      std::map<std::string, std::string> const& metrics);
-
-
 
       /// debug/test util
       std::string dumpFiles(void);
@@ -467,7 +463,7 @@ namespace edm {
      * same formatting then we need to refactor it into a common library
      */
   template <typename S, typename T>
-  S& formatFile(const T& f, S& os) {
+  S& formatFile(T const& f, S& os) {
 
     if (f.fileHasBeenClosed) {
       os << "\n<State  Value=\"closed\"/>";

@@ -17,16 +17,9 @@
 // Original Author:  Marc Paterno
 //
 
-/*
-
-Changes Log 1: 2009/01/14 10:29:00, Natalia Garcia Nebot
-        Modified and added some methods to report CPU and memory information from /proc/cpuinfo
-        and /proc/meminfo files and Memory statistics
-
-*/
-
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Map.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <fstream>
@@ -52,7 +45,6 @@ namespace edm {
       os << "\n<EventsRead>" << f.numEventsRead << "</EventsRead>";
       return os;
     }
-
 
   template <typename S>
     S&
@@ -87,12 +79,9 @@ namespace edm {
       os << "   <LumiSection ID=\"" << *il << "\"/>\n";
 
     }
-
     os << "</Run>\n";
-
-
-	return os;
-     }
+    return os;
+  }
 
   std::ostream& operator<< (std::ostream& os, JobReport::InputFile const& f) {
     return print(os,f);
@@ -119,7 +108,6 @@ namespace edm {
 //    return print(os,rep);
 //  }
 //
-
 
     JobReport::InputFile& JobReport::JobReportImpl::getInputFileForToken(JobReport::Token t) {
 	if (t >= inputFiles_.size()) {
@@ -216,10 +204,7 @@ namespace edm {
 	  *ost_ << iRun->second;
 	}
 	*ost_ << "\n</Runs>\n";
-
         *ost_ << "</InputFile>\n";
-
-
 	*ost_ << std::flush;
       }
 	//LogInfo("FwkJob") << f;
@@ -260,6 +245,7 @@ namespace edm {
 	    *ost_ << "\n<Input>";
 	    *ost_ << "\n  <LFN>" << TiXmlText(inpFile.logicalFileName) << "</LFN>";
 	    *ost_ << "\n  <PFN>" << TiXmlText(inpFile.physicalFileName) << "</PFN>";
+	    *ost_ << "\n  <FastCopying>" << findOrDefault(f.fastCopyingInputs, inpFile.physicalFileName) << "</FastCopying>";
 	    *ost_ << "\n</Input>";
 	}
 	*ost_ << "\n</Inputs>";
@@ -342,10 +328,8 @@ namespace edm {
 	theFile.runReports.insert(std::make_pair(runNumber, newReport));
       }
 
-
     }
   }
-
 
   void JobReport::JobReportImpl::associateLumiSection(unsigned int runNumber, unsigned int lumiSect) {
     std::vector<Token> openFiles;
@@ -355,8 +339,6 @@ namespace edm {
       // Loop over all open output files
       //
       JobReport::OutputFile & theFile = outputFiles_[*iToken];
-
-
 
       //
       // check run is known to file
@@ -379,7 +361,6 @@ namespace edm {
       (finder->second).lumiSections.insert(lumiSect);
     }
   }
-
 
   void JobReport::JobReportImpl::associateInputLumiSection(unsigned int runNumber, unsigned int lumiSect) {
     std::vector<Token> openFiles;
@@ -582,7 +563,6 @@ namespace edm {
       //f.runsSeen.insert(run);
     }
 
-
     void
     JobReport::outputFileClosed(JobReport::Token fileToken) {
       JobReport::OutputFile& f = impl_->getOutputFileForToken(fileToken);
@@ -592,7 +572,12 @@ namespace edm {
       // to reference it by ID.
       f.fileHasBeenClosed = true;
       impl_->writeOutputFile(f);
+    }
 
+    void
+    JobReport:: reportFastCopyingStatus(JobReport::Token fileToken, std::string const& inputFileName, bool fastCopying) {
+      JobReport::OutputFile& f = impl_->getOutputFileForToken(fileToken);
+      f.fastCopyingInputs.insert(std::make_pair(inputFileName, fastCopying));
     }
 
     void
@@ -601,7 +586,6 @@ namespace edm {
       JobReport::OutputFile& f = impl_->getOutputFileForToken(fileToken);
       // set the eventsWritten parameter to the provided value
       f.numEventsWritten = eventsWritten;
-
     }
 
     void
@@ -610,7 +594,6 @@ namespace edm {
       JobReport::InputFile& f = impl_->getInputFileForToken(fileToken);
       // set the events read parameter to the provided value
       f.numEventsRead = eventsRead;
-
     }
 
     void
@@ -637,6 +620,7 @@ namespace edm {
   JobReport::reportLumiSection(unsigned int run, unsigned int lumiSectId) {
     impl_->associateLumiSection(run, lumiSectId);
   }
+
   void
   JobReport::reportInputLumiSection(unsigned int run, unsigned int lumiSectId) {
     impl_->associateInputLumiSection(run, lumiSectId);
@@ -651,7 +635,6 @@ namespace edm {
     impl_->associateInputRun(run);
   }
 
-
   void
   JobReport::reportError(std::string const& shortDesc,
   			 std::string const& longDesc) {
@@ -665,10 +648,8 @@ namespace edm {
     }
   }
 
-
   void
   JobReport::reportAnalysisFile(std::string const& fileName, std::map<std::string, std::string> const& fileData) {
-
     if(impl_->ost_) {
       std::ostream& msg = *(impl_->ost_);
       //std::ostringstream msg;
@@ -681,15 +662,11 @@ namespace edm {
 	    <<  "  Value=\"" << pos->second  << "\" />"
 	    <<  "\n";
       }
-
       msg << "</AnalysisFile>\n";
       //LogError("FwkJob") << msg.str();
       msg << std::flush;
     }
-
-
   }
-
 
   void
   JobReport::reportError(std::string const& shortDesc,
@@ -710,7 +687,6 @@ namespace edm {
   void
   JobReport::reportSkippedFile(std::string const& pfn,
 			       std::string const& lfn) {
-
     if(impl_->ost_) {
       std::ostream& msg = *(impl_->ost_);
       TiXmlElement skipped("SkippedFile");
@@ -719,13 +695,11 @@ namespace edm {
       msg << skipped << "\n";
       msg << std::flush;
       //LogInfo("FwkJob") << msg.str();
-
     }
   }
 
   void
   JobReport::reportTimingInfo(std::map<std::string, double> const& timingData) {
-
     if(impl_->ost_) {
       std::ostream& msg = *(impl_->ost_);
       msg << "<TimingService>\n";
@@ -743,7 +717,6 @@ namespace edm {
 
   void
   JobReport::reportMemoryInfo(std::map<std::string, double> const& memoryData, std::map<std::string, double> const& memoryProperties) {
-
     if(impl_->ost_) {
       std::ostream& msg = *(impl_->ost_);
       msg << "<MemoryService>\n";
@@ -753,7 +726,6 @@ namespace edm {
         <<  "  Value=\"" << pos->second  << "\" />"
         <<  "\n";
       }
-
       reportMachineMemoryProperties(memoryProperties);
       msg << "</MemoryService>\n";
       msg << std::flush;
@@ -762,7 +734,6 @@ namespace edm {
 
   void
   JobReport::reportMemoryInfo(std::vector<std::string> const& memoryData) {
-
     if(impl_->ost_) {
       std::ostream& msg = *(impl_->ost_);
       msg << "<MemoryService>\n";
@@ -793,7 +764,6 @@ namespace edm {
         }
 	msg << "  </CPUCore>\n";
       }
-
       msg << "</CPUService>\n";
       msg << std::flush;
     }
@@ -815,7 +785,6 @@ namespace edm {
 
   void
   JobReport::reportMessageInfo(std::map<std::string, double> const& messageData) {
-
     if(impl_->ost_) {
       std::ostream& msg = *(impl_->ost_);
       msg << "<MessageSummary>\n";
@@ -843,10 +812,8 @@ namespace edm {
   }
   void
   JobReport::reportGeneratorInfo(std::string const& name, std::string const& value) {
-
     impl_->addGeneratorInfo(name, value);
   }
-
 
   void JobReport::reportRandomStateFile(std::string const& name) {
     if(impl_->ost_) {
@@ -870,7 +837,6 @@ namespace edm {
       msg << std::flush;
     }
   }
-
 
   void
   JobReport::reportPerformanceSummary(std::string const& metricClass,
@@ -916,10 +882,8 @@ namespace edm {
     }
   }
 
-
   std::string
   JobReport::dumpFiles(void) {
-
     std::ostringstream msg;
 
     typedef std::vector<JobReport::OutputFile>::iterator iterator;
@@ -946,6 +910,7 @@ namespace edm {
 	msg << "\n<Input>";
 	msg << "\n  <LFN>" << TiXmlText(inpFile.logicalFileName) << "</LFN>";
 	msg << "\n  <PFN>" << TiXmlText(inpFile.physicalFileName) << "</PFN>";
+	msg << "\n  <FastCopying>" << findOrDefault(f->fastCopyingInputs, inpFile.physicalFileName) << "</FastCopying>";
 	msg << "\n</Input>";
       }
       msg << "\n</Inputs>";
@@ -954,6 +919,5 @@ namespace edm {
     }
     return msg.str();
   }
-
 
 } //namspace edm

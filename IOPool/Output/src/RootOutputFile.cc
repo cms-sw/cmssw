@@ -309,6 +309,8 @@ namespace edm {
 	  whyNotFastClonable_ |= FileBlock::BranchMismatch;
 	}
       }
+      Service<JobReport> reportSvc;
+      reportSvc->reportFastCopyingStatus(reportToken_, fb.fileName(), whyNotFastClonable_ == FileBlock::CanFastClone);
     } else {
       whyNotFastClonable_ |= FileBlock::NoRootInputSource;
     }
