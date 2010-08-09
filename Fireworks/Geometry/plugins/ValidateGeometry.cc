@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.16 2010/08/05 15:20:02 mccauley Exp $
+// $Id: ValidateGeometry.cc,v 1.17 2010/08/09 13:00:25 mccauley Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -448,6 +448,28 @@ ValidateGeometry::validateDTSuperLayerGeometry()
       }
       
       compareShape(superlayer, shape->GetShape());
+
+
+      std::vector<float> parameters = detIdToMatrix_.getParameters(chId.rawId());
+
+      if ( parameters.empty() )
+      {
+        std::cout<<"Parameters empty for DT superlayer with detid: "
+                 << chId.rawId() <<std::endl;
+        continue;
+      }
+      
+      assert(parameters.size() >= 3);
+
+      float width = superlayer->surface().bounds().width();
+      assert(width == parameters[0]);
+
+      float thickness = superlayer->surface().bounds().thickness();
+      assert(thickness = parameters[1]);
+
+      float length = superlayer->surface().bounds().length();
+      assert(length == parameters[2]);
+
     }
   }
 
