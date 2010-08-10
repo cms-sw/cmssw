@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2010/08/06 15:53:05 $
- * $Revision: 1.253 $
+ * $Date: 2010/08/09 14:03:47 $
+ * $Revision: 1.254 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -741,7 +741,7 @@ void EcalEndcapMonitorClient::beginRun(const edm::Run& r, const edm::EventSetup&
 
   Numbers::initGeometry(c, verbose_);
 
-  std::cout << std::endl;
+  if ( verbose_ ) std::cout << std::endl;
 
   Masks::initMasking(c, verbose_);
 

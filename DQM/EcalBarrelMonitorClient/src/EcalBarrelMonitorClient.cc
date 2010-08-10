@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2010/08/04 20:10:58 $
- * $Revision: 1.491 $
+ * $Date: 2010/08/06 15:53:05 $
+ * $Revision: 1.492 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -699,7 +699,7 @@ void EcalBarrelMonitorClient::beginRun(const edm::Run& r, const edm::EventSetup&
 
   Numbers::initGeometry(c, verbose_);
 
-  std::cout << std::endl;
+  if ( verbose_ ) std::cout << std::endl;
 
   Masks::initMasking(c, verbose_);
 
