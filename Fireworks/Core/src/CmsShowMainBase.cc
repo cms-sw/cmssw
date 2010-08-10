@@ -12,6 +12,7 @@
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/FWL1TriggerTableViewManager.h"
+#include "Fireworks/Core/interface/FWJobMetadataManager.h"
 #include "Fireworks/Core/interface/FWMagField.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWNavigatorBase.h"
@@ -74,8 +75,8 @@ CmsShowMainBase::setupActions()
       m_guiManager->getAction(cmsshow::sGotoFirstEvent)->activated.connect(sigc::mem_fun(*this, &CmsShowMainBase::doFirstEvent));
    if (m_guiManager->getAction(cmsshow::sGotoLastEvent) != 0)
       m_guiManager->getAction(cmsshow::sGotoLastEvent)->activated.connect(sigc::mem_fun(*this, &CmsShowMainBase::doLastEvent));
-   if (guiManager()->getAction(cmsshow::sQuit) != 0) 
-      guiManager()->getAction(cmsshow::sQuit)->activated.connect(sigc::mem_fun(*this, &CmsShowMainBase::quit));
+   if (m_guiManager->getAction(cmsshow::sQuit) != 0) 
+      m_guiManager->getAction(cmsshow::sQuit)->activated.connect(sigc::mem_fun(*this, &CmsShowMainBase::quit));
  
    m_guiManager->changedEventId_.connect(boost::bind(&CmsShowMainBase::goToRunEvent,this,_1,_2));
    
@@ -87,6 +88,37 @@ CmsShowMainBase::setupActions()
    m_guiManager->playEventsAction()->stopped_.connect(sigc::mem_fun(*this,&CmsShowMainBase::stopPlaying));
    m_guiManager->playEventsBackwardsAction()->stopped_.connect(sigc::mem_fun(*this,&CmsShowMainBase::stopPlaying));
    m_autoLoadTimer->timeout_.connect(boost::bind(&CmsShowMainBase::autoLoadNewEvent, this));
+}
+
+void
+CmsShowMainBase::setupViewManagers()
+{
+   guiManager()->updateStatus("Setting up view manager...");
+
+   boost::shared_ptr<FWViewManagerBase> eveViewManager(new FWEveViewManager(guiManager()));
+   eveViewManager->setContext(m_context);
+   viewManager()->add(eveViewManager);
+
+   boost::shared_ptr<FWTableViewManager> tableViewManager(new FWTableViewManager(guiManager()));
+   configurationManager()->add(std::string("Tables"), tableViewManager.get());
+   viewManager()->add(tableViewManager);
+   eiManager()->goingToClearItems_.connect(boost::bind(&FWTableViewManager::removeAllItems, tableViewManager.get()));
+
+   boost::shared_ptr<FWTriggerTableViewManager> triggerTableViewManager(new FWTriggerTableViewManager(guiManager()));
+   configurationManager()->add(std::string("TriggerTables"), triggerTableViewManager.get());
+   viewManager()->add(triggerTableViewManager);
+
+   boost::shared_ptr<FWL1TriggerTableViewManager> l1TriggerTableViewManager(new FWL1TriggerTableViewManager(guiManager()));
+   configurationManager()->add(std::string("L1TriggerTables"), l1TriggerTableViewManager.get());
+   viewManager()->add(l1TriggerTableViewManager);
+  
+   // Unfortunately, due to the plugin mechanism, we need to delay
+   // until here the creation of the FWJobMetadataManager, because
+   // otherwise the supportedTypesAndRepresentations map is empty.
+   // FIXME: should we have a signal for whenever the above mentioned map
+   //        changes? Can that actually happer (maybe if we add support
+   //        for loading plugins on the fly??).
+   m_metadataManager->initReps(viewManager()->supportedTypesAndRepresentations());
 }
 
 void

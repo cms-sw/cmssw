@@ -187,6 +187,9 @@ FWFFService::FWFFService(edm::ParameterSet const&ps, edm::ActivityRegistry& ar)
    f=boost::bind(&CmsShowMainBase::loadGeometry,this);
    startupTasks()->addTask(f);
 
+   f=boost::bind(&CmsShowMainBase::setupViewManagers,this);
+   startupTasks()->addTask(f);
+
    f=boost::bind(&CmsShowMainBase::setupConfiguration,this);
    startupTasks()->addTask(f);
 
@@ -204,31 +207,6 @@ FWFFService::FWFFService(edm::ParameterSet const&ps, edm::ActivityRegistry& ar)
 
    ar.watchPostProcessEvent(this, &FWFFService::postProcessEvent);
    
-   boost::shared_ptr<FWViewManagerBase> eveViewManager(new FWEveViewManager(guiManager()));
-   eveViewManager->setContext(m_context.get());
-   viewManager()->add(eveViewManager);
-
-   boost::shared_ptr<FWTableViewManager> tableViewManager(new FWTableViewManager(guiManager()));
-   configurationManager()->add(std::string("Tables"), tableViewManager.get());
-   viewManager()->add(tableViewManager);
-   eiManager()->goingToClearItems_.connect(boost::bind(&FWTableViewManager::removeAllItems, tableViewManager.get()));
-
-   boost::shared_ptr<FWTriggerTableViewManager> triggerTableViewManager(new FWTriggerTableViewManager(guiManager()));
-   configurationManager()->add(std::string("TriggerTables"), triggerTableViewManager.get());
-   viewManager()->add( triggerTableViewManager );
-
-   boost::shared_ptr<FWL1TriggerTableViewManager> l1TriggerTableViewManager(new FWL1TriggerTableViewManager(guiManager()));
-   configurationManager()->add(std::string("L1TriggerTables"), l1TriggerTableViewManager.get());
-   viewManager()->add( l1TriggerTableViewManager );
-
-   // Unfortunately, due to the plugin mechanism, we need to delay
-   // until here the creation of the FWJobMetadataManager, because
-   // otherwise the supportedTypesAndRepresentations map is empty.
-   // FIXME: should we have a signal for whenever the above mentioned map
-   //        changes? Can that actually happer (maybe if we add support
-   //        for loading plugins on the fly??).
-   m_metadataManager->initReps(viewManager()->supportedTypesAndRepresentations());
-
    startupTasks()->startDoingTasks();
 }
 

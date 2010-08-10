@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.50 2010/07/23 08:35:03 eulisse Exp $
+// $Id: CmsShowMain.h,v 1.51 2010/07/26 19:25:57 eulisse Exp $
 //
 
 #include "Fireworks/Core/interface/CmsShowMainBase.h"
@@ -87,7 +87,6 @@ private:
    const CmsShowMain& operator=(const CmsShowMain&); // stop default
 
    void loadGeometry();
-   void setupViewManagers();
    void setupDataHandling();
    void setupSocket(unsigned int);
 

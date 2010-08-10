@@ -59,6 +59,8 @@ public:
               FWJobMetadataManager        *metadataManager);
 
    void setupActions();
+   void setupViewManagers();
+
    // Configuration handling.
    void setConfigFilename(const std::string &f) { m_configFileName = f; };
    const char *configFilename() const { return m_configFileName.c_str(); };
