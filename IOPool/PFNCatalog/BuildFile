@@ -1,6 +1,0 @@
-<use name=FileCatalog>
-<Flags ROOTMAP=1>
-<export>
-    <lib name=IOPoolPFNCatalog>
-</export>
-
