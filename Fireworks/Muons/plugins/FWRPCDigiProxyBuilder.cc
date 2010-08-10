@@ -8,13 +8,12 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWRPCDigiProxyBuilder.cc,v 1.3 2010/07/28 09:47:19 mccauley Exp $
+// $Id: FWRPCDigiProxyBuilder.cc,v 1.4 2010/08/05 15:19:15 mccauley Exp $
 //
 
 #include "TEveStraightLineSet.h"
 #include "TEveCompound.h"
 #include "TEveGeoNode.h"
-#include "TEvePointSet.h" // rm when done testing
 
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -73,7 +72,7 @@ FWRPCDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product,
       continue;
     }
     
-    assert(parameters.size() == 3);
+    assert(parameters.size() >= 3);
 
     float nStrips = parameters[0];
     float stripLength = parameters[1];
@@ -94,26 +93,34 @@ FWRPCDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product,
       stripDigiSet->SetLineWidth(3);
       compound->AddElement(stripDigiSet);
 
-      TEvePointSet* testPointSet = new TEvePointSet();
-      compound->AddElement(testPointSet);
-
       int strip = (*dit).strip();
       double centreOfStrip = (strip-0.5)*pitch + offset;
-      
-      double localPoint[3] = 
+
+      // Need to find actual intersection (for endcaps) but this should be 
+      // good enough for debugging purposes 
+
+      double localPointTop[3] =
       {
-        centreOfStrip, 0.0, 0.0
+        centreOfStrip, stripLength*0.5, 0.0
       };
 
-      double globalPoint[3];
+      double localPointBottom[3] = 
+      {
+        centreOfStrip, -stripLength*0.5, 0.0
+      };
 
-      matrix->LocalToMaster(localPoint, globalPoint);
-    
-      testPointSet->SetNextPoint(globalPoint[0], globalPoint[1], globalPoint[2]);
+      double globalPointTop[3];
+      double globalPointBottom[3];
 
+      matrix->LocalToMaster(localPointTop, globalPointTop);
+      matrix->LocalToMaster(localPointBottom, globalPointBottom);
+
+      stripDigiSet->AddLine(globalPointTop[0], globalPointTop[1], globalPointTop[2],
+                            globalPointBottom[0], globalPointBottom[1], globalPointBottom[2]);
     }
   }
 }
 
-REGISTER_FWPROXYBUILDER(FWRPCDigiProxyBuilder, RPCDigiCollection, "RPCDigi", FWViewType::kISpyBit);
+REGISTER_FWPROXYBUILDER(FWRPCDigiProxyBuilder, RPCDigiCollection, "RPCDigi", 
+                        FWViewType::kAll3DBits || FWViewType::kAllRPZBits);
 

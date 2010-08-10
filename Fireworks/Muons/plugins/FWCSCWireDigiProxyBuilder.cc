@@ -8,14 +8,13 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCWireDigiProxyBuilder.cc,v 1.6 2010/07/29 16:56:26 mccauley Exp $
+// $Id: FWCSCWireDigiProxyBuilder.cc,v 1.7 2010/08/05 15:19:13 mccauley Exp $
 //
 
 #include "TEveStraightLineSet.h"
 #include "TEveGeoNode.h"
 #include "TEveCompound.h"
 #include "TGeoArb8.h"
-#include "TEvePointSet.h" // rm when done testing
 
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -39,7 +38,7 @@ private:
   FWCSCWireDigiProxyBuilder(const FWCSCWireDigiProxyBuilder&);    
   const FWCSCWireDigiProxyBuilder& operator=(const FWCSCWireDigiProxyBuilder&);
 
-  // NOTE: these parameters are not avalaible via a public interface
+  // NOTE: these parameters are not available via a public interface
   // from the geometry or topology so must be hard-coded.
   double getYOfFirstWire(const int station, const int ring, const double length);
 };
@@ -121,7 +120,7 @@ FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* prod
     double length;
     double topWidth;
     double bottomWidth;
- 
+   
     if ( TGeoTrap* trap = dynamic_cast<TGeoTrap*>(shape->GetShape()) )
     {
       topWidth = trap->GetTl1()*2.0;
@@ -135,7 +134,7 @@ FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* prod
                             << cscDetId.rawId() <<std::endl;
       continue;
     }
-
+    
     std::vector<float> parameters = iItem->getGeom()->getParameters(cscDetId.rawId());
 
     if ( parameters.empty() )
@@ -145,7 +144,7 @@ FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* prod
       continue;
     }
     
-    assert(parameters.size() == 8);
+    assert(parameters.size() >= 8);
 
     double wireSpacing = parameters[6];
     float wireAngle = parameters[7];
@@ -164,31 +163,40 @@ FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* prod
       wireDigiSet->SetLineWidth(3);
       compound->AddElement(wireDigiSet);
 
-      TEvePointSet* testPointSet = new TEvePointSet();
-      compound->AddElement(testPointSet);
-
       // NOTE: Can use wire group as well as wire number? Check in validation.
       int wireGroup = (*dit).getWireGroup();
 
       double yOfWire = yOfFirstWire + ((wireGroup-1)*wireSpacing)/cosWireAngle;
-    
-      // NOTE: Still need to draw wire, but since we now have the y position of the wire,
-      // its angle, and the dimensions of the layer this should be straightforward
-      
-      double localPointCenter[3] = 
+
+      double wireLength = (topWidth-bottomWidth)*0.5 / length;
+      wireLength *= yOfWire;
+      yOfWire -= length;
+     
+      double localPointLeft[3] = 
       {
-        0.0, yOfWire, 0.0
+        -wireLength*0.5, yOfWire, 0.0
       };
 
-      double globalPointCenter[3];
-       
-      matrix->LocalToMaster(localPointCenter, globalPointCenter);
+      // NOTE: This is only an approximation for slanted wires.
+      // Need to improve the determination of the x coordinate.
+      double localPointRight[3] = 
+      {
+        wireLength*0.5, yOfWire + wireLength*tan(wireAngle), 0.0
+      };
 
-      testPointSet->SetNextPoint(globalPointCenter[0], globalPointCenter[1], globalPointCenter[2]);
+      double globalPointLeft[3];     
+      double globalPointRight[3];
+
+      matrix->LocalToMaster(localPointLeft, globalPointLeft); 
+      matrix->LocalToMaster(localPointRight, globalPointRight);
+      
+      wireDigiSet->AddLine(globalPointLeft[0],  globalPointLeft[1],  globalPointLeft[2],
+                           globalPointRight[0], globalPointRight[1], globalPointRight[2]);
     }
   }
 }
 
-REGISTER_FWPROXYBUILDER(FWCSCWireDigiProxyBuilder, CSCWireDigiCollection, "CSCWireDigi", FWViewType::kAll3DBits);
+REGISTER_FWPROXYBUILDER(FWCSCWireDigiProxyBuilder, CSCWireDigiCollection, "CSCWireDigi", 
+                        FWViewType::kAll3DBits || FWViewType::kAllRPZBits);
 
 

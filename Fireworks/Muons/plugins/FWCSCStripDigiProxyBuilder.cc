@@ -8,12 +8,10 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCStripDigiProxyBuilder.cc,v 1.4 2010/07/29 15:56:23 mccauley Exp $
+// $Id: FWCSCStripDigiProxyBuilder.cc,v 1.5 2010/08/05 15:19:13 mccauley Exp $
 //
 
 #include "TEveStraightLineSet.h"
-#include "TEvePointSet.h" // rm when done testing
-
 #include "TEveGeoNode.h"
 #include "TEveCompound.h"
 
@@ -53,11 +51,6 @@ FWCSCStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
      return;
   }
 
-  /*
-  double width  = 0.01;
-  double depth  = 0.01;
-  double rotate = 0.0;
-  */
   int thresholdOffset = 9;       
 
   for ( CSCStripDigiCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end();
@@ -87,7 +80,7 @@ FWCSCStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
     double length;
 
     if ( TGeoTrap* trap = dynamic_cast<TGeoTrap*>(shape->GetShape()) )
-      length = trap->GetH1()*2.0;
+      length = trap->GetH1();
 
     else
     {
@@ -105,7 +98,7 @@ FWCSCStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
       continue;
     }
 
-    assert(parameters.size() == 8);
+    assert(parameters.size() >= 6);
 
     float yAxisOrientation = parameters[0];
     float centreToIntersection = parameters[1];
@@ -130,30 +123,37 @@ FWCSCStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
         TEveStraightLineSet* stripDigiSet = new TEveStraightLineSet();
         stripDigiSet->SetLineWidth(3);
         compound->AddElement(stripDigiSet);
-
-        TEvePointSet* testPointSet = new TEvePointSet();
-        compound->AddElement(testPointSet);
-
+                
         int stripId = (*dit).getStrip();  
 
+        double yOrigin = centreToIntersection-yCentre;      
         double stripAngle = phiOfOneEdge + yAxisOrientation*(stripId-(0.5-stripOffset))*angularWidth;
-        double xOfStrip = yAxisOrientation*(centreToIntersection-yCentre)*tan(stripAngle);
-
-        double localPoint[3] = 
+        double tanStripAngle = tan(stripAngle);
+        //double xOfStrip = yAxisOrientation*yOrigin*tanStripAngle; this is x of strip at origin
+             
+        double localPointTop[3] = 
           {
-            xOfStrip, 0.0, 0.0
+            yAxisOrientation*(yOrigin+length)*tanStripAngle, length, 0.0
           };
-      
-        double globalPoint[3];
 
-        matrix->LocalToMaster(localPoint, globalPoint);
+        double localPointBottom[3] = 
+          {
+            yAxisOrientation*(yOrigin-length)*tanStripAngle, length, 0.0
+          };
+                  
+        double globalPointTop[3];
+        double globalPointBottom[3];
+
+        matrix->LocalToMaster(localPointTop, globalPointTop);
+        matrix->LocalToMaster(localPointBottom, globalPointBottom);
        
-        testPointSet->SetNextPoint(globalPoint[0], globalPoint[1], globalPoint[2]);
-
+        stripDigiSet->AddLine(globalPointBottom[0], globalPointBottom[1], globalPointBottom[2],
+                              globalPointTop[0], globalPointTop[1], globalPointTop[2]);
       } 
     }       
   }   
 }
 
-REGISTER_FWPROXYBUILDER(FWCSCStripDigiProxyBuilder, CSCStripDigiCollection, "CSCStripDigi", FWViewType::kAll3DBits);
+REGISTER_FWPROXYBUILDER(FWCSCStripDigiProxyBuilder, CSCStripDigiCollection, "CSCStripDigi", 
+                        FWViewType::kAll3DBits || FWViewType::kAllRPZBits);
 
