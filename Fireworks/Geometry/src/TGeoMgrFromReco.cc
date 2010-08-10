@@ -7,6 +7,7 @@
 
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
@@ -24,7 +25,8 @@
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 
-#include "Fireworks/Geometry/interface/DisplayGeomRecord.h"
+#include "Fireworks/Geometry/interface/FWRecoGeometry.h"
+#include "Fireworks/Geometry/interface/FWRecoGeometryRecord.h"
 
 #include "TGeoManager.h"
 #include "TGeoArb8.h"
@@ -33,15 +35,13 @@
 #include "TTree.h"
 #include "TError.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-
 # define ADD_PIXEL_TOPOLOGY( rawid, detUnit )			\
   const PixelGeomDetUnit* det = dynamic_cast<const PixelGeomDetUnit*>( detUnit ); \
   if( det )							\
   {      							\
     const RectangularPixelTopology* topo = dynamic_cast<const RectangularPixelTopology*>( &det->specificTopology()); \
-    m_idToName[rawid].topology[0] = topo->nrows();		\
-    m_idToName[rawid].topology[1] = topo->ncolumns();		\
+    m_fwGeometry->idToName[rawid].topology[0] = topo->nrows();	\
+    m_fwGeometry->idToName[rawid].topology[1] = topo->ncolumns(); \
   }								\
 
 # define ADD_SISTRIP_TOPOLOGY( rawid, detUnit )			\
@@ -49,32 +49,28 @@
   if( det )                                                     \
   {                                                             \
     const StripTopology* topo = dynamic_cast<const StripTopology*>( &det->specificTopology()); \
-    m_idToName[rawid].topology[0] = topo->nstrips();            \
-    m_idToName[rawid].topology[1] = topo->stripLength();        \
+    m_fwGeometry->idToName[rawid].topology[0] = topo->nstrips();            \
+    m_fwGeometry->idToName[rawid].topology[1] = topo->stripLength();        \
     if( const RadialStripTopology* rtop = dynamic_cast<const RadialStripTopology*>( topo )) \
     {                                                                   \
-      m_idToName[rawid].topology[2] = rtop->phiPitch();			\
+      m_fwGeometry->idToName[rawid].topology[2] = rtop->phiPitch();	\
     }                                                                   \
     else if( dynamic_cast<const RectangularStripTopology*>( topo ))     \
     {                                                                   \
-      m_idToName[rawid].topology[2] = topo->pitch();			\
+      m_fwGeometry->idToName[rawid].topology[2] = topo->pitch();	\
     }									\
     else if( dynamic_cast<const TrapezoidalStripTopology*>( topo ))     \
     {                                                                   \
-      m_idToName[rawid].topology[2] = topo->pitch();			\
+      m_fwGeometry->idToName[rawid].topology[2] = topo->pitch();	\
     }									\
 }									\
 
-TGeoMgrFromReco::TGeoMgrFromReco(const edm::ParameterSet& pset) :
-   m_level      (pset.getUntrackedParameter<int> ("level", 10)),
-   m_verbose    (pset.getUntrackedParameter<bool>("verbose",false))
+TGeoMgrFromReco::TGeoMgrFromReco( const edm::ParameterSet& pset )
 {
-  // The following line is needed to tell the framework what data is
-  // being produced.
-  setWhatProduced(this);
+  setWhatProduced( this );
 }
 
-TGeoMgrFromReco::~TGeoMgrFromReco()
+TGeoMgrFromReco::~TGeoMgrFromReco( void )
 {}
 
 namespace
@@ -83,9 +79,9 @@ namespace
   TGeoCombiTrans* createPlacement( const GeomDet *det )
   {
     // Position of the DetUnit's center
-    float posx = det->surface().position().x()/mm;
-    float posy = det->surface().position().y()/mm;
-    float posz = det->surface().position().z()/mm;
+    float posx = det->surface().position().x();
+    float posy = det->surface().position().y();
+    float posz = det->surface().position().z();
 
     TGeoTranslation trans( posx, posy, posz );
 
@@ -104,17 +100,19 @@ namespace
   }
 }
 
-TGeoMgrFromReco::ReturnType
-TGeoMgrFromReco::produce( const DisplayTrackingGeomRecord& iRecord )
+boost::shared_ptr<FWRecoGeometry> 
+TGeoMgrFromReco::produce( const FWRecoGeometryRecord& record )
 {
   using namespace edm;
 
-  iRecord.getRecord<GlobalTrackingGeometryRecord>().get( m_geomRecord );
-  DetId detId( DetId::Tracker, 0 );
-  m_trackerGeom = (const TrackerGeometry*) m_geomRecord->slaveGeometry( detId ); 
+  m_fwGeometry =  boost::shared_ptr<FWRecoGeometry>( new FWRecoGeometry );
 
-  DetId detId4( DetId::Muon, 3 );
-  m_rpcGeom = (const RPCGeometry*) m_geomRecord->slaveGeometry( detId4 );
+  record.getRecord<GlobalTrackingGeometryRecord>().get( m_geomRecord );
+  
+  DetId detId( DetId::Tracker, 0 );
+  m_trackerGeom = (const TrackerGeometry*) m_geomRecord->slaveGeometry( detId );
+  
+  record.getRecord<CaloGeometryRecord>().get( m_caloGeom );
 
   TGeoManager *geom = new TGeoManager( "cmsGeo", "CMS Detector" );
   // NOTE: The default constructor does not create an identity matrix
@@ -123,6 +121,8 @@ TGeoMgrFromReco::produce( const DisplayTrackingGeomRecord& iRecord )
     gGeoIdentity = new TGeoIdentity( "Identity" );
   }
 
+  m_fwGeometry->manager( geom );
+  
   // Default material is Vacuum
   TGeoMaterial *matVacuum = new TGeoMaterial( "Vacuum", 0 ,0 ,0 );
   // so is default medium
@@ -131,22 +131,24 @@ TGeoMgrFromReco::produce( const DisplayTrackingGeomRecord& iRecord )
   
   if( 0 == top )
   {
-    return boost::shared_ptr<TGeoManager>();
+    return boost::shared_ptr<FWRecoGeometry>();
   }
   geom->SetTopVolume( top );
   // ROOT chokes unless colors are assigned
   top->SetVisibility( kFALSE );
   top->SetLineColor( kBlue );
 
-  addCSCGeometry( top );
-  addDTGeometry( top );
-  addRPCGeometry( top );
   addPixelBarrelGeometry( top );
   addPixelForwardGeometry( top );
   addTIBGeometry( top );
-  addTOBGeometry( top );
   addTIDGeometry( top );
+  addTOBGeometry( top );
   addTECGeometry( top );
+  addDTGeometry( top );
+  addCSCGeometry( top );
+  addRPCGeometry( top );
+
+  addCaloGeometry();
   
   geom->CloseGeometry();
   geom->DefaultColors();
@@ -156,7 +158,7 @@ TGeoMgrFromReco::produce( const DisplayTrackingGeomRecord& iRecord )
   m_nameToMaterial.clear();
   m_nameToMedium.clear();
 
-  return boost::shared_ptr<TGeoManager>(geom);
+  return m_fwGeometry;
 }
 
 /** Create TGeo shape for GeomDet */
@@ -173,10 +175,10 @@ TGeoMgrFromReco::createShape( const GeomDet *det )
     std::vector< float > par = b2->parameters ();
     
     // These parameters are half-lengths, as in CMSIM/GEANT3
-    float hBottomEdge = par [0]/mm;
-    float hTopEdge    = par [1]/mm;
-    float thickness   = par [2]/mm;
-    float apothem     = par [3]/mm;
+    float hBottomEdge = par [0];
+    float hTopEdge    = par [1];
+    float thickness   = par [2];
+    float apothem     = par [3];
 
     std::stringstream s;
     s << "T_"
@@ -211,9 +213,9 @@ TGeoMgrFromReco::createShape( const GeomDet *det )
   if( dynamic_cast<const RectangularPlaneBounds *> (b))
   {
     // Rectangular
-    float length = det->surface().bounds().length()/mm;
-    float width = det->surface().bounds ().width()/mm;
-    float thickness = det->surface().bounds().thickness()/mm;
+    float length = det->surface().bounds().length();
+    float width = det->surface().bounds ().width();
+    float thickness = det->surface().bounds().thickness();
 
     std::stringstream s;
     s << "R_"
@@ -312,7 +314,7 @@ TGeoMgrFromReco::addCSCGeometry( TGeoVolume* top, const std::string& iName, int 
 
       std::stringstream p;
       p << path( top, iName, copy ) << "/" << name << "_" << copy;
-      m_idToName[rawid] = Info( p.str());
+      m_fwGeometry->idToName.insert( std::pair<unsigned int, FWRecoGeometry::Info>( rawid, FWRecoGeometry::Info( p.str())));
     }
     else if( CSCLayer* layer = dynamic_cast<CSCLayer*>(*it))
     {
@@ -327,19 +329,19 @@ TGeoMgrFromReco::addCSCGeometry( TGeoVolume* top, const std::string& iName, int 
       
       std::stringstream p;
       p << path( top, iName, copy ) << "/" << name << "_" << copy;
-      m_idToName[rawid] = Info( p.str());
+      m_fwGeometry->idToName.insert( std::pair<unsigned int, FWRecoGeometry::Info>( rawid, FWRecoGeometry::Info( p.str())));
 
       const CSCStripTopology* stripTopology = layer->geometry()->topology();
-      m_idToName[rawid].topology[0] = stripTopology->yAxisOrientation();
-      m_idToName[rawid].topology[1] = stripTopology->centreToIntersection();
-      m_idToName[rawid].topology[2] = stripTopology->yCentreOfStripPlane();
-      m_idToName[rawid].topology[3] = stripTopology->phiOfOneEdge();
-      m_idToName[rawid].topology[4] = stripTopology->stripOffset();
-      m_idToName[rawid].topology[5] = stripTopology->angularWidth();
+      m_fwGeometry->idToName[rawid].topology[0] = stripTopology->yAxisOrientation();
+      m_fwGeometry->idToName[rawid].topology[1] = stripTopology->centreToIntersection();
+      m_fwGeometry->idToName[rawid].topology[2] = stripTopology->yCentreOfStripPlane();
+      m_fwGeometry->idToName[rawid].topology[3] = stripTopology->phiOfOneEdge();
+      m_fwGeometry->idToName[rawid].topology[4] = stripTopology->stripOffset();
+      m_fwGeometry->idToName[rawid].topology[5] = stripTopology->angularWidth();
 
       const CSCWireTopology* wireTopology = layer->geometry()->wireTopology();
-      m_idToName[rawid].topology[6] = wireTopology->wireSpacing();
-      m_idToName[rawid].topology[7] = wireTopology->wireAngle();
+      m_fwGeometry->idToName[rawid].topology[6] = wireTopology->wireSpacing();
+      m_fwGeometry->idToName[rawid].topology[7] = wireTopology->wireAngle();
     }
   }
 
@@ -371,7 +373,7 @@ TGeoMgrFromReco::addDTGeometry( TGeoVolume* top, const std::string& iName, int c
       
       std::stringstream p;
       p << path( top, iName, copy ) << "/" << name << "_" << copy;
-      m_idToName[rawid] = Info( p.str());
+      m_fwGeometry->idToName.insert( std::pair<unsigned int, FWRecoGeometry::Info>( rawid, FWRecoGeometry::Info( p.str())));
     }
   }
   top->AddNode( assembly, copy );
@@ -395,13 +397,13 @@ TGeoMgrFromReco::addDTGeometry( TGeoVolume* top, const std::string& iName, int c
       
       std::stringstream p;
       p << path( top, iName, copy ) << "/" << name << "_" << copy;
-      m_idToName[rawid] = Info( p.str());
+      m_fwGeometry->idToName.insert( std::pair<unsigned int, FWRecoGeometry::Info>( rawid, FWRecoGeometry::Info( p.str())));
 
       const BoundPlane& surf = superlayer->surface();
       // Bounds W/H/L:
-      m_idToName[rawid].topology[0] = surf.bounds().width();
-      m_idToName[rawid].topology[1] = surf.bounds().thickness();
-      m_idToName[rawid].topology[2] = surf.bounds().length();
+      m_fwGeometry->idToName[rawid].topology[0] = surf.bounds().width();
+      m_fwGeometry->idToName[rawid].topology[1] = surf.bounds().thickness();
+      m_fwGeometry->idToName[rawid].topology[2] = surf.bounds().length();
     }
   }
 
@@ -424,22 +426,22 @@ TGeoMgrFromReco::addDTGeometry( TGeoVolume* top, const std::string& iName, int c
       
       std::stringstream p;
       p << path( top, iName, copy ) << "/" << name << "_" << copy;
-      m_idToName[rawid] = Info( p.str());
+      m_fwGeometry->idToName.insert( std::pair<unsigned int, FWRecoGeometry::Info>( rawid, FWRecoGeometry::Info( p.str())));
 
       const DTTopology& topo = layer->specificTopology();
       const BoundPlane& surf = layer->surface();
       // Topology W/H/L:
-      m_idToName[rawid].topology[0] = topo.cellWidth();
-      m_idToName[rawid].topology[1] = topo.cellHeight();
-      m_idToName[rawid].topology[2] = topo.cellLenght();
-      m_idToName[rawid].topology[3] = topo.firstChannel();
-      m_idToName[rawid].topology[4] = topo.lastChannel();
-      m_idToName[rawid].topology[5] = topo.channels();
+      m_fwGeometry->idToName[rawid].topology[0] = topo.cellWidth();
+      m_fwGeometry->idToName[rawid].topology[1] = topo.cellHeight();
+      m_fwGeometry->idToName[rawid].topology[2] = topo.cellLenght();
+      m_fwGeometry->idToName[rawid].topology[3] = topo.firstChannel();
+      m_fwGeometry->idToName[rawid].topology[4] = topo.lastChannel();
+      m_fwGeometry->idToName[rawid].topology[5] = topo.channels();
 
       // Bounds W/H/L:
-      m_idToName[rawid].topology[6] = surf.bounds().width();
-      m_idToName[rawid].topology[7] = surf.bounds().thickness();
-      m_idToName[rawid].topology[8] = surf.bounds().length();
+      m_fwGeometry->idToName[rawid].topology[6] = surf.bounds().width();
+      m_fwGeometry->idToName[rawid].topology[7] = surf.bounds().thickness();
+      m_fwGeometry->idToName[rawid].topology[8] = surf.bounds().length();
     }
   }  
 }
@@ -451,8 +453,10 @@ TGeoMgrFromReco::addRPCGeometry( TGeoVolume* top, const std::string& iName, int 
   // RPC chambers geometry
   //
   TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
-  for( std::vector<RPCRoll *>::const_iterator it = m_rpcGeom->rolls().begin(),
-					     end = m_rpcGeom->rolls().end(); 
+  DetId detId( DetId::Muon, 3 );
+  const RPCGeometry* rpcGeom = (const RPCGeometry*) m_geomRecord->slaveGeometry( detId );
+  for( std::vector<RPCRoll *>::const_iterator it = rpcGeom->rolls().begin(),
+					     end = rpcGeom->rolls().end(); 
        it != end; ++it )
   {
     RPCRoll* roll = (*it);
@@ -469,12 +473,12 @@ TGeoMgrFromReco::addRPCGeometry( TGeoVolume* top, const std::string& iName, int 
       
       std::stringstream p;
       p << path( top, iName, copy ) << "/" << name << "_" << copy;
-      m_idToName[rawid] = Info( p.str());
+      m_fwGeometry->idToName.insert( std::pair<unsigned int, FWRecoGeometry::Info>( rawid, FWRecoGeometry::Info( p.str())));
 
       const StripTopology& topo = roll->specificTopology();
-      m_idToName[rawid].topology[0] = roll->nstrips();
-      m_idToName[rawid].topology[1] = topo.stripLength();
-      m_idToName[rawid].topology[2] = topo.pitch();
+      m_fwGeometry->idToName[rawid].topology[0] = roll->nstrips();
+      m_fwGeometry->idToName[rawid].topology[1] = topo.stripLength();
+      m_fwGeometry->idToName[rawid].topology[2] = topo.pitch();
     }
   }
   top->AddNode( assembly, copy );
@@ -501,7 +505,7 @@ TGeoMgrFromReco::addPixelBarrelGeometry( TGeoVolume* top, const std::string& iNa
 
     std::stringstream p;
     p << path( top, iName, copy ) << "/" << name << "_" << copy;
-    m_idToName[rawid] = Info( p.str());
+    m_fwGeometry->idToName.insert( std::pair<unsigned int, FWRecoGeometry::Info>( rawid, FWRecoGeometry::Info( p.str())));
 
     ADD_PIXEL_TOPOLOGY( rawid, m_trackerGeom->idToDetUnit( detid ));
   }
@@ -530,7 +534,7 @@ TGeoMgrFromReco::addPixelForwardGeometry( TGeoVolume* top, const std::string& iN
 
     std::stringstream p;
     p << path( top, iName, copy ) << "/" << name << "_" << copy;
-    m_idToName[rawid] = Info( p.str());
+    m_fwGeometry->idToName.insert( std::pair<unsigned int, FWRecoGeometry::Info>( rawid, FWRecoGeometry::Info( p.str())));
     
     ADD_PIXEL_TOPOLOGY( rawid, m_trackerGeom->idToDetUnit( detid ));
   }
@@ -558,7 +562,7 @@ TGeoMgrFromReco::addTIBGeometry( TGeoVolume* top, const std::string& iName, int 
 
     std::stringstream p;
     p << path( top, iName, copy ) << "/" << name << "_" << copy;
-    m_idToName[rawid] = Info( p.str());
+    m_fwGeometry->idToName.insert( std::pair<unsigned int, FWRecoGeometry::Info>( rawid, FWRecoGeometry::Info( p.str())));
 
     ADD_SISTRIP_TOPOLOGY( rawid, m_trackerGeom->idToDet( detid ));
   }
@@ -587,7 +591,7 @@ TGeoMgrFromReco::addTOBGeometry( TGeoVolume* top, const std::string& iName, int 
 
     std::stringstream p;
     p << path( top, iName, copy ) << "/" << name << "_" << copy;
-    m_idToName[rawid] = Info( p.str());
+    m_fwGeometry->idToName.insert( std::pair<unsigned int, FWRecoGeometry::Info>( rawid, FWRecoGeometry::Info( p.str())));
 
     ADD_SISTRIP_TOPOLOGY( rawid, m_trackerGeom->idToDet( detid ));
   }
@@ -616,7 +620,7 @@ TGeoMgrFromReco::addTIDGeometry( TGeoVolume* top, const std::string& iName, int 
 
     std::stringstream p;
     p << path( top, iName, copy ) << "/" << name << "_" << copy;
-    m_idToName[rawid] = Info( p.str());
+    m_fwGeometry->idToName.insert( std::pair<unsigned int, FWRecoGeometry::Info>( rawid, FWRecoGeometry::Info( p.str())));
 
     ADD_SISTRIP_TOPOLOGY( rawid, m_trackerGeom->idToDet( detid ));
   }
@@ -645,10 +649,23 @@ TGeoMgrFromReco::addTECGeometry( TGeoVolume* top, const std::string& iName, int 
 
     std::stringstream p;
     p << path( top, iName, copy ) << "/" << name << "_" << copy;
-    m_idToName[rawid] = Info( p.str());
+    m_fwGeometry->idToName.insert( std::pair<unsigned int, FWRecoGeometry::Info>( rawid, FWRecoGeometry::Info( p.str())));
 
     ADD_SISTRIP_TOPOLOGY( rawid, m_trackerGeom->idToDet( detid ));
   }
   
   top->AddNode( assembly, copy );
+}
+
+void
+TGeoMgrFromReco::addCaloGeometry( void )
+{
+  std::vector<DetId> vid = m_caloGeom->getValidDetIds(); // Calo
+  for( std::vector<DetId>::const_iterator it = vid.begin(),
+					 end = vid.end();
+       it != end; ++it )
+  {
+    const CaloCellGeometry::CornersVec& cor( m_caloGeom->getGeometry( *it )->getCorners());
+    m_fwGeometry->idToName[ it->rawId()].fillPoints( cor.begin(), cor.end());
+  }
 }

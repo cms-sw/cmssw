@@ -1,5 +1,5 @@
-#ifndef GEOMETRY_TGEO_MGR_FROM_RECO_H
-# define GEOMETRY_TGEO_MGR_FROM_RECO_H
+#ifndef GEOMETRY_FWRECO_GEOMETRY_ES_PRODUCER_H
+# define GEOMETRY_FWRECO_GEOMETRY_ES_PRODUCER_H
 
 # include <string>
 # include <map>
@@ -28,17 +28,17 @@ class TGeoMaterial;
 class TGeoMedium;
 class GeomDet;
 
-class TGeoMgrFromReco : public edm::ESProducer
+class FWRecoGeometryESProducer : public edm::ESProducer
 {
 public:
-  TGeoMgrFromReco( const edm::ParameterSet& );
-  virtual ~TGeoMgrFromReco( void );
+  FWRecoGeometryESProducer( const edm::ParameterSet& );
+  virtual ~FWRecoGeometryESProducer( void );
   
   boost::shared_ptr<FWRecoGeometry> produce( const FWRecoGeometryRecord& );
 
 private:
-  TGeoMgrFromReco( const TGeoMgrFromReco& );
-  const TGeoMgrFromReco& operator=( const TGeoMgrFromReco& );
+  FWRecoGeometryESProducer( const FWRecoGeometryESProducer& );
+  const FWRecoGeometryESProducer& operator=( const FWRecoGeometryESProducer& );
 
   TGeoManager*      createManager( int level );
   TGeoShape*        createShape( const GeomDet *det );
@@ -69,4 +69,4 @@ private:
   boost::shared_ptr<FWRecoGeometry> m_fwGeometry;
 };
 
-#endif // GEOMETRY_TGEO_MGR_FROM_RECO_H
+#endif // GEOMETRY_FWRECO_GEOMETRY_ES_PRODUCER_H
