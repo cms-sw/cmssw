@@ -33,22 +33,6 @@
 	<flags EDM_PLUGIN="1"/>
 </library>
 
-<library file="DumpRecoGeom.cc" name="FireworksGeometryDumpRecoGeomPlugin">
-	<use name="Fireworks/Geometry"/>
-	<lib name="Geom"/>
-	<use name="rootcore"/>
-        <use name="FWCore/Framework"/>
-        <use name="FWCore/PluginManager"/>
-        <use name="FWCore/ParameterSet"/>
-        <use name="Geometry/CaloGeometry"/>
-        <use name="Geometry/DTGeometry"/>
-        <use name="Geometry/CSCGeometry"/>
-        <use name="Geometry/RPCGeometry"/>
-	<use name="Geometry/TrackerGeometryBuilder"/>
-	<use name="Geometry/Records"/>
-	<flags EDM_PLUGIN="1"/>
-</library>
-
 <library file="DumpFWRecoGeometry.cc" name="FireworksGeometryDumpFWRecoGeometryPlugin">
 	<use name="Fireworks/Geometry"/>
 	<lib name="Geom"/>
