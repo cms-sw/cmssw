@@ -100,7 +100,7 @@ namespace edm {
       reference operator[](difference_type d) const { return *iterator(i+d); } // for boost::iterator_range []
     private:
       typename base::iterator i;
-      friend const_iterator::const_iterator(iterator const&);
+      friend class const_iterator;
       friend class OwnVector<T, P>;
    };
 
