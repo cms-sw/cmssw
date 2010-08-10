@@ -33,7 +33,7 @@ MEzCalculator::Calculate(int type)
 
   // use pznu = - B/2*A +/- sqrt(B*B-4*A*C)/(2*A)
   
-  double a = M_W*M_W - M_lepton*M_lepton + 2.0*(pxmu*pxnu + *pymu*pynu);
+  double a = M_W*M_W - M_lepton*M_lepton + 2.0*(pxmu*pxnu + pymu*pynu);
   double A = 4.0*(emu*emu - pzmu*pzmu);
   double B = -4.0*a*pzmu;
   double C = 4.0*emu*emu*(pxnu*pxnu + pynu*pynu) - a*a;
