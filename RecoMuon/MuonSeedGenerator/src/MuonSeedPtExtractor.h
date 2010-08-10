@@ -27,6 +27,8 @@ class MuonSeedPtExtractor {
                                  MuonTransientTrackingRecHit::ConstMuonRecHitPointer secondHit) const;
 
 
+  void setBeamSpot(const GlobalVector & gv) {theBeamSpot = gv;}
+
  private:
   int stationCode(MuonTransientTrackingRecHit::ConstMuonRecHitPointer hit) const;
   // because compiler duplicaes constructors
@@ -44,7 +46,7 @@ class MuonSeedPtExtractor {
   typedef std::map<std::string, std::vector<double> > ScalesMap;
   ParametersMap theParametersForCombo;
   ScalesMap theScalesForCombo;
-
+  GlobalVector theBeamSpot;
   bool scaleDT_;
 
 };
