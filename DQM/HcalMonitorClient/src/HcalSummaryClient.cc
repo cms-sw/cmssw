@@ -15,8 +15,8 @@
 /*
  * \file HcalSummaryClient.cc
  * 
- * $Date: 2010/07/27 20:47:21 $
- * $Revision: 1.100 $
+ * $Date: 2010/08/09 18:59:26 $
+ * $Revision: 1.101 $
  * \author J. Temple
  * \brief Summary Client class
  */
@@ -96,48 +96,7 @@ void HcalSummaryClient::analyze(int LS)
       }
     }
 
-  if (enoughevents_==false)
-    {
-      if (debug_>0) std::cout <<"<HcalSummaryClient::analyze>  Not enough events processed to evaluate summary status!"<<std::endl;
-      
-      // Check whether any events are found for each subdetector
-      if (HBpresent_!=0) status_HB_=1;
-      else status_HB_=-1;  // HB not present
-      if (HEpresent_!=0) status_HE_=1;
-      else status_HE_=-1;  // HE not present
-      if (HOpresent_!=0) status_HO_=1;
-      else status_HO_=-1;  // HO not present
-      if (HFpresent_!=0) status_HF_=1;
-      else status_HF_=-1;  // HF not present
-
-      // Update this in the future?  'AND' together HB, HF, and HF?
-      bool hcalpresent=HBpresent_||HEpresent_||HOpresent_||HFpresent_;
-      if (hcalpresent!=0) status_global_=1; 
-      else status_global_=-1;
-      
-      // Set other statuses based on subdetectors
-      status_HO0_    = status_HO_;
-      status_HO12_   = status_HO_;
-      status_HFlumi_ = status_HF_;
-      
-      if (debug_>1)
-	{
-	  std::cout <<"Insufficient events processed.  Subdetector status is:"<<std::endl;
-	  std::cout<<"\tHB: "<<status_HB_<<std::endl;
-	  std::cout<<"\tHE: "<<status_HE_<<std::endl;
-	  std::cout<<"\tHO: "<<status_HO_<<std::endl;
-	  std::cout<<"\tHF: "<<status_HF_<<std::endl;
-	  std::cout<<"\tHO0: "<<status_HO0_<<std::endl;
-	  std::cout<<"\tHO12: "<<status_HO12_<<std::endl;
-	  std::cout<<"\tHFlumi: "<<status_HFlumi_<<std::endl;
-	}
-
-      fillReportSummary(LS);
-      return;
-    }
-  if (EnoughEvents_!=0) EnoughEvents_->setBinContent(clients_.size()+1,1); // summary is good to go!
-
-  // check to find which subdetectors are present
+  // check to find which subdetectors are present -- need to do this prior to checking whether enoughevents_ == false!
   MonitorElement* temp_present;
   if (HBpresent_!=1)
     {
@@ -166,15 +125,62 @@ void HcalSummaryClient::analyze(int LS)
 
   if (debug_>1) 
     std::cout <<"<HcalSummaryClient::analyze>  HB present = "<<HBpresent_<<" "<<"HE present = "<<HEpresent_<<" "<<"HO present = "<<HOpresent_<<" "<<"HF present = "<<HFpresent_<<std::endl;
+  
+  if (enoughevents_==false)
+    {
+      if (debug_>0) std::cout <<"<HcalSummaryClient::analyze>  Not enough events processed to evaluate summary status!"<<std::endl;
+      
+      // 'HXpresent_' values are set to -1 by default. 
+      // They are set to +1 when a channel is present.
+      // I don't think there are any cases where values =0,
+      // but I'm not positive of this yet -- Jeff, 10 Aug 2010
+
+      // Check whether any events are found for each subdetector
+      if (HBpresent_>0) status_HB_=1;
+      else status_HB_=-1;  // HB not present or unknown
+      if (HEpresent_>0) status_HE_=1;
+      else status_HE_=-1;  // HE not present or unknown
+      if (HOpresent_>0) status_HO_=1;
+      else status_HO_=-1;  // HO not present or unknown
+      if (HFpresent_>0) status_HF_=1;
+      else status_HF_=-1;  // HF not present or unknown
+
+      // Update this in the future?  Use '||' instead of '&&'?
+      if (HBpresent_<=0 && HEpresent_<=0 && HOpresent_<=0 && HFpresent_<=0)
+	status_global_=-1;
+      else
+	status_global_=1;
+      
+      // Set other statuses based on subdetectors
+      status_HO0_    = status_HO_;
+      status_HO12_   = status_HO_;
+      status_HFlumi_ = status_HF_;
+      
+      if (debug_>1)
+	{
+	  std::cout <<"Insufficient events processed.  Subdetector status is:"<<std::endl;
+	  std::cout<<"\tHB: "<<status_HB_<<std::endl;
+	  std::cout<<"\tHE: "<<status_HE_<<std::endl;
+	  std::cout<<"\tHO: "<<status_HO_<<std::endl;
+	  std::cout<<"\tHF: "<<status_HF_<<std::endl;
+	  std::cout<<"\tHO0: "<<status_HO0_<<std::endl;
+	  std::cout<<"\tHO12: "<<status_HO12_<<std::endl;
+	  std::cout<<"\tHFlumi: "<<status_HFlumi_<<std::endl;
+	}
+
+      fillReportSummary(LS);
+      return;
+    }
+  if (EnoughEvents_!=0) EnoughEvents_->setBinContent(clients_.size()+1,1); // summary is good to go!
 
   // set status to 0 if subdetector is present (or assumed present)
-  if (HBpresent_!=0) status_HB_=0;
-  if (HEpresent_!=0) status_HE_=0;
-  if (HOpresent_!=0) {status_HO_=0; status_HO0_=0; status_HO12_=0;}
-  if (HFpresent_!=0) {status_HF_=0; status_HFlumi_=0;}
+  if (HBpresent_>0) status_HB_=0;
+  if (HEpresent_>0) status_HE_=0;
+  if (HOpresent_>0) {status_HO_=0; status_HO0_=0; status_HO12_=0;}
+  if (HFpresent_>0) {status_HF_=0; status_HFlumi_=0;}
 
-  if (HBpresent_!=0 || HEpresent_!=0 ||
-      HOpresent_!=0 || HFpresent_!=0 ) 
+  if (HBpresent_>0 || HEpresent_>0 ||
+      HOpresent_>0 || HFpresent_>0 ) 
     status_global_=0;
 
   // don't want to fool with variable-sized arrays at the moment; revisit later
@@ -287,7 +293,7 @@ void HcalSummaryClient::analyze(int LS)
   int totalcells=0;
   std::map<std::string, int>::const_iterator it;
 
-  if (HBpresent_!=0)
+  if (HBpresent_>0)
     {
       status_global_+=status_HB_; 
       it=subdetCells_.find("HB");
@@ -302,7 +308,7 @@ void HcalSummaryClient::analyze(int LS)
     }
   else status_HB_=-1; // enoughevents_ can be true even if HB not present; need to set status_HB_=-1 in both cases
  
-  if (HEpresent_!=0)
+  if (HEpresent_>0)
     {
       status_global_+=status_HE_;
       it=subdetCells_.find("HE");
@@ -317,7 +323,7 @@ void HcalSummaryClient::analyze(int LS)
     }
   else status_HE_=-1;
  
-  if (HOpresent_!=0)
+  if (HOpresent_>0)
     {
       status_global_+=status_HO_;
       it=subdetCells_.find("HO");
@@ -352,7 +358,7 @@ void HcalSummaryClient::analyze(int LS)
       status_HO0_=-1;
       status_HO12_=-1;
     }
-  if (HFpresent_!=0)
+  if (HFpresent_>0)
     {
       status_global_+=status_HF_;
       it=subdetCells_.find("HF");
