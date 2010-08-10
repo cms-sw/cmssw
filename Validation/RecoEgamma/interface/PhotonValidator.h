@@ -25,8 +25,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2010/01/12 11:20:48 $ 
- **  $Revision: 1.29 $
+ **  $Date: 2010/01/12 18:13:54 $ 
+ **  $Revision: 1.30 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -125,6 +125,7 @@ class PhotonValidator : public edm::EDAnalyzer
   double dCotCutValue_;
   double dCotHardCutValue_;
   bool signal_;
+  bool fastSim_;
   
 
   /// global variable for the MC photon

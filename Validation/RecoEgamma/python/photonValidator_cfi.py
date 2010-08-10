@@ -19,6 +19,7 @@ photonValidation = cms.EDAnalyzer("PhotonValidator",
     trackProducer = cms.InputTag("generalTracks"),
     label_tp = cms.InputTag("tpSelection"),                              
     Verbosity = cms.untracked.int32(0),
+    fastSim = cms.bool(False),
     signal =  cms.bool(True),
 #
     minPhoEtCut = cms.double(0.),
