@@ -70,9 +70,11 @@
 <Inputs>
 <Input>
   <LFN></LFN>
+  <FastCopying>1</FastCopying>
 </Input>
 <Input>
   <LFN></LFN>
+  <FastCopying>1</FastCopying>
 </Input>
 </Inputs>
 </File>
