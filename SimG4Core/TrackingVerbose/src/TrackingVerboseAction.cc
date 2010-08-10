@@ -22,6 +22,8 @@
 #include "G4VSteppingVerbose.hh"
 #include "G4UnitsTable.hh"
 
+#include<algorithm>
+
 TrackingVerboseAction::TrackingVerboseAction(edm::ParameterSet const & p) :
   theTrackingManager(0), fVerbose(0) {
 
@@ -42,12 +44,20 @@ TrackingVerboseAction::TrackingVerboseAction(edm::ParameterSet const & p) :
 
   //----- Set the verbosity level
   fVerboseLevel = p.getUntrackedParameter<int>("VerboseLevel",1);
-
-  if (fDEBUG)
-    G4cout << "TV: fTVTrackMin " << fTVTrackMin   << " fTVTrackMax "  <<  fTVTrackMax 
-	   <<  " fTVTrackStep "  << fTVTrackStep  << " fTVEventMin "  << fTVEventMin 
-	   << " fTVEventMax "    << fTVEventMax   << " fTVEventStep " << fTVEventStep 
-	   << " fVerboseLevel "  << fVerboseLevel << " fG4Verbose " << fG4Verbose << G4endl;
+  fPdgIds       = p.getUntrackedParameter<std::vector<int> >("PDGids");
+  if (fDEBUG) {
+    G4cout << "TV: fTVTrackMin " << fTVTrackMin 
+	   << " fTVTrackMax "    <<  fTVTrackMax 
+	   <<  " fTVTrackStep "  << fTVTrackStep  
+	   << " fTVEventMin "    << fTVEventMin 
+	   << " fTVEventMax "    << fTVEventMax   
+	   << " fTVEventStep "   << fTVEventStep 
+	   << " fVerboseLevel "  << fVerboseLevel 
+	   << " fG4Verbose "     << fG4Verbose 
+	   << " PDGIds     "     << fPdgIds.size() << G4endl;
+    for (unsigned int ii=0; ii<fPdgIds.size(); ++ii) 
+      G4cout << "TV: PDGId[" << ii << "] = " << fPdgIds[ii] << G4endl;
+  }
   
   //----- Set verbosity off to start
   fTrackingVerboseON = false;
@@ -275,6 +285,10 @@ bool TrackingVerboseAction::checkTrackingVerbose(const G4Track* aTrack) {
   //----- Check if track is in the selected range
   if (trackNo >= fTVTrackMin && trackNo <= fTVTrackMax) {
     if ((trackNo-fTVTrackMin) % fTVTrackStep == 0) trackingVerboseThisTrack = true;
+  }
+  if (trackingVerboseThisTrack && (fPdgIds.size()>0)) {
+    int pdgId = aTrack->GetDefinition()->GetPDGEncoding();
+    if (std::count(fPdgIds.begin(),fPdgIds.end(),pdgId) == 0) trackingVerboseThisTrack = false;
   }
   return trackingVerboseThisTrack;
 }

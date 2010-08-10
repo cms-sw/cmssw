@@ -24,6 +24,8 @@
   
 #include "G4Step.hh"
 
+#include <vector>
+
 class BeginOfTrack;
 class EndOfTrack;
 class BeginOfEvent;
@@ -65,6 +67,7 @@ private:
   int fVerboseLevel;
   bool fTrackingVerboseON;
   bool fTkVerbThisEventON;
+  std::vector<int> fPdgIds;
   G4TrackingManager * theTrackingManager;
   G4VSteppingVerbose* fVerbose;
 };
