@@ -14,7 +14,7 @@
 // Original Author:  Evan Klose Friis
 //    additions by:  Freya Blekman
 //         Created:  Tue Nov  6 17:27:19 CET 2007
-// $Id: SiPixelOfflineCalibAnalysisBase.h,v 1.16 2010/01/13 09:35:58 ursl Exp $
+// $Id: SiPixelOfflineCalibAnalysisBase.h,v 1.17 2010/02/11 00:10:33 wmtan Exp $
 //
 //
 
