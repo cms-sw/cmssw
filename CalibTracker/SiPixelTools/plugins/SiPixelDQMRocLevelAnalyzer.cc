@@ -502,5 +502,5 @@ SiPixelDQMRocLevelAnalyzer::FillRocLevelHistos(TH1F *hrocdep, TH1F *hdist, std::
   }
 }
 
-// //define this as a plug-in
-// DEFINE_FWK_MODULE(SiPixelDQMRocLevelAnalyzer);
+// -- define this as a plug-in
+DEFINE_FWK_MODULE(SiPixelDQMRocLevelAnalyzer);

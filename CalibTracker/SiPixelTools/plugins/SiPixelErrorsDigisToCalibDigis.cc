@@ -13,7 +13,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  Wed Apr  9 12:43:02 CEST 2008
-// $Id: SiPixelErrorsDigisToCalibDigis.cc,v 1.8 2010/01/13 09:35:59 ursl Exp $
+// $Id: SiPixelErrorsDigisToCalibDigis.cc,v 1.9 2010/08/10 08:57:54 ursl Exp $
 //
 //
 
@@ -179,3 +179,6 @@ bool SiPixelErrorsDigisToCalibDigis::setDQMDirectory(uint32_t detID)
 {
   return folderMaker_->setModuleFolder(detID,0);
 }
+
+// -- define this as a plug-in
+DEFINE_FWK_MODULE(SiPixelErrorsDigisToCalibDigis);
