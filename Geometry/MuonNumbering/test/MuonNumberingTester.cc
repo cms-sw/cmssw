@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Case
 //         Created:  Mon 2006/10/02
-// $Id: MuonNumberingTester.cc,v 1.2 2006/10/27 01:35:30 wmtan Exp $
+// $Id: MuonNumberingTester.cc,v 1.3 2010/03/25 22:08:44 case Exp $
 //
 //
 
@@ -41,7 +41,6 @@
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
 #include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
 
-#include "DataSvc/RefException.h"
 #include "CoralBase/Exception.h"
 
 //
@@ -108,12 +107,6 @@ MuonNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSetup& i
    } catch (const coral::Exception& e) {
       throw cms::Exception("Geometry")
 	<<"DDORAReader::readDB caught coral::Exception: \""<<e.what()<<"\"";
-   } catch( const pool::RefException& er){
-      throw cms::Exception("Geometry")
-	<<"DDORAReader::readDB caught pool::RefException: \""<<er.what()<<"\"";
-   } catch ( pool::Exception& e ) {
-     throw cms::Exception("Geometry")
-       << "DDORAReader::readDB caught pool::Exception: \"" << e.what() << "\"";
    } catch ( std::exception& e ) {
      throw cms::Exception("Geometry")
        <<  "DDORAReader::readDB caught std::exception: \"" << e.what() << "\"";

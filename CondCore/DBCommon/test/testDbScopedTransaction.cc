@@ -7,7 +7,6 @@
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/TableDescription.h"
 #include "CoralBase/AttributeSpecification.h"
-#include "DataSvc/Ref.h"
 #include <iostream>
 int main(){
   edmplugin::PluginManager::Config config;
