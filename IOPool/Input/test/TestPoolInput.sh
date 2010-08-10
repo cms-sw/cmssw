@@ -36,19 +36,27 @@ cmsRun --parameter-set ${LOCAL_TEST_DIR}/poolsource_multiprocess_oneRun_cfg.py |
 #test reading of the old format files
 for file in ${CMSSW_BASE}/src/IOPool/Input/testdata/old*.root
 do
-  cmsRun ${LOCAL_TEST_DIR}/test_old_formats_cfg.py "$file" || die 'Failed to read old file $file' $?
+  cmsRun ${LOCAL_TEST_DIR}/test_old_formats_cfg.py "$file" || die "Failed to read old file $file" $?
 done
 
 for file in ${CMSSW_BASE}/src/IOPool/Input/testdata/empty*.root
 do
-  cmsRun ${LOCAL_TEST_DIR}/test_empty_old_formats_cfg.py "$file" || die 'Failed to read old empty file $file' $?
+  cmsRun ${LOCAL_TEST_DIR}/test_empty_old_formats_cfg.py "$file" || die "Failed to read old empty file $file" $?
 done
 
-# Note that the expected sequence of runs, lumis, and events will change slightly after 3_8_0 so
-# a different test config will be required to run the following test. (The generation configs will
-# still be OK and can be used as is)
-cmsRun ${LOCAL_TEST_DIR}/test_complex_before_3_8_0_cfg.py ${CMSSW_BASE}/src/IOPool/Input/testdata/complex_old_format_CMSSW_2_2_13.root || die 'Failed to read old 2_2_13 file' $?
-cmsRun ${LOCAL_TEST_DIR}/test_complex_before_3_8_0_cfg.py ${CMSSW_BASE}/src/IOPool/Input/testdata/complex_old_format_CMSSW_3_5_0.root || die 'Failed to read old 3_5_0 file' $?
-cmsRun ${LOCAL_TEST_DIR}/test_complex_before_3_8_0_cfg.py ${CMSSW_BASE}/src/IOPool/Input/testdata/complex_old_format_CMSSW_3_7_0.root || die 'Failed to read old 3_7_0 file' $?
+# Note that the expected sequence of runs, lumis, and events changed slightly at 3_8_0 so
+# a different test config is required to run the following test for earlier releases. 
+for file in ${CMSSW_BASE}/src/IOPool/Input/testdata/complex*.root
+do
+  case $file in
+  "${CMSSW_BASE}/src/IOPool/Input/testdata/complex_old_format_CMSSW_2_2_13.root" | "${CMSSW_BASE}/src/IOPool/Input/testdata/complex_old_format_CMSSW_3_5_0.root" | "${CMSSW_BASE}/src/IOPool/Input/testdata/complex_old_format_CMSSW_3_7_0.root") 
+  script=test_complex_before_3_8_0_cfg.py
+  ;;
+  *)
+  script=test_complex_old_formats_cfg.py
+  ;;
+  esac
+  cmsRun ${LOCAL_TEST_DIR}/$script "$file" || die "Failed to read old complex file $file" $?
+done
 
 popd
