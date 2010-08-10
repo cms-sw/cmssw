@@ -1,6 +1,8 @@
-#include "DataFormats/PatCandidates/interface/Muon.h"
-#include "DataFormats/PatCandidates/interface/Electron.h"
 #include "CommonTools/CandUtils/interface/AddFourMomenta.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "TopQuarkAnalysis/TopTools/interface/MEzCalculator.h"
+
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLepHypothesis.h"
 
 /// default constructor
@@ -195,4 +197,22 @@ TtSemiLepHypothesis::setCandidate(const edm::Handle<std::vector<pat::Jet> >& han
   else
     corrFactor = ptr->corrFactor(step, flavor);
   clone = new reco::ShallowClonePtrCandidate( ptr, ptr->charge(), ptr->p4()*corrFactor, ptr->vertex() );
+}
+
+/// set neutrino, using mW = 80.4 to calculate the neutrino pz
+void TtSemiLepHypothesis::setNeutrino(const edm::Handle<std::vector<pat::MET> >& met,
+				      const edm::Handle<edm::View<reco::RecoCandidate> >& leps, const int& idx, const int& type)
+{
+  edm::Ptr<pat::MET> ptr = edm::Ptr<pat::MET>(met, 0);
+  MEzCalculator mez;
+  mez.SetMET( *(met->begin()) );
+  if( leptonType( &(leps->front()) ) == WDecay::kMuon )
+    mez.SetLepton( (*leps)[idx], true );
+  else if( leptonType( &(leps->front()) ) == WDecay::kElec )
+    mez.SetLepton( (*leps)[idx], false );
+  else
+    throw cms::Exception("UnimplementedFeature") << "Type of lepton given together with MET for solving neutrino kinematics is neither muon nor electron.\n";
+  double pz = mez.Calculate(type);
+  const math::XYZTLorentzVector p4( ptr->px(), ptr->py(), pz, sqrt(ptr->px()*ptr->px() + ptr->py()*ptr->py() + pz*pz) );
+  neutrino_ = new reco::ShallowClonePtrCandidate( ptr, ptr->charge(), p4, ptr->vertex() );
 }
