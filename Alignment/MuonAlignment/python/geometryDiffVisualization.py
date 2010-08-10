@@ -1,9 +1,8 @@
-execfile("plotscripts.py")
-execfile("geometryXMLparser.py")
-
 import re
 from math import *
 from svgfig import rgb, SVG, pathtoPath, load as load_svg
+from geometryXMLparser import *
+from signConventions import *
 
 def dt_colors(wheel, station, sector):
     return rgb(0.1, 0.9, 0.)
@@ -116,6 +115,8 @@ def draw_disk(geom1, geom2, endcap, station, filename, length_factor=1., angle_f
     if station in (2, 3): disk_template = load_svg("disk23_template.svg")
     if endcap == 1 and station == 4: disk_template = load_svg("diskp4_template.svg")
     if endcap == 2 and station == 4: disk_template = load_svg("diskm4_template.svg")
+
+    scale_factor = 0.233
     
     new_boxes = SVG("g")
 
@@ -139,9 +140,9 @@ def draw_disk(geom1, geom2, endcap, station, filename, length_factor=1., angle_f
             if m is None: raise Exception
 
             ring, chamber = int(m.group(1)), int(m.group(2))
-            xdiff = length_factor * (geom1.csc[endcap, station, ring, chamber].x - geom2.csc[endcap, station, ring, chamber].x) * signConventions["CSC", endcap, station, ring, chamber][0]
-            ydiff = length_factor * (geom1.csc[endcap, station, ring, chamber].y - geom2.csc[endcap, station, ring, chamber].y) * signConventions["CSC", endcap, station, ring, chamber][1]
-            phizdiff = angle_factor * (geom1.csc[endcap, station, ring, chamber].phiz - geom2.csc[endcap, station, ring, chamber].phiz) * signConventions["CSC", endcap, station, ring, chamber][2]
+            xdiff = scale_factor * length_factor * (geom1.csc[endcap, station, ring, chamber].x - geom2.csc[endcap, station, ring, chamber].x) * signConventions["CSC", endcap, station, ring, chamber][0]
+            ydiff = -scale_factor * length_factor * (geom1.csc[endcap, station, ring, chamber].y - geom2.csc[endcap, station, ring, chamber].y) * signConventions["CSC", endcap, station, ring, chamber][1]
+            phizdiff = -angle_factor * (geom1.csc[endcap, station, ring, chamber].phiz - geom2.csc[endcap, station, ring, chamber].phiz) * signConventions["CSC", endcap, station, ring, chamber][2]
 
             svgitem["style"] = "fill:#e1e1e1;fill-opacity:1;stroke:#000000;stroke-width:1.0;stroke-dasharray:1, 1;stroke-dashoffset:0"
 
@@ -164,12 +165,23 @@ def draw_disk(geom1, geom2, endcap, station, filename, length_factor=1., angle_f
             sumy = 0.
             sum1 = 0.
             for i, di in enumerate(newBox.d):
-                if di[0] in ("M", "L"):
+                if di[0] == "L":
                     sumx += di[1]
                     sumy += di[2]
                     sum1 += 1.
             centerx = sumx/sum1
             centery = sumy/sum1
+
+            phipos = atan2(centery - originy, centerx - originx) - pi/2.
+            for i, di in enumerate(newBox.d):
+                if di[0] in ("M", "L"):
+                    di = list(di)
+                    di[1] += cos(phipos)*xdiff - sin(phipos)*ydiff
+                    di[2] += sin(phipos)*xdiff + cos(phipos)*ydiff
+                    newBox.d[i] = tuple(di)
+
+            centerx += cos(phipos)*xdiff - sin(phipos)*ydiff
+            centery += sin(phipos)*xdiff + cos(phipos)*ydiff
 
             for i, di in enumerate(newBox.d):
                 if di[0] in ("M", "L"):
@@ -178,14 +190,6 @@ def draw_disk(geom1, geom2, endcap, station, filename, length_factor=1., angle_f
                     dispy = sin(phizdiff) * (di[1] - centerx) + cos(phizdiff) * (di[2] - centery)
                     di[1] = dispx + centerx
                     di[2] = dispy + centery
-                    newBox.d[i] = tuple(di)
-
-            phipos = atan2(centery - originy, centerx - originx)
-            for i, di in enumerate(newBox.d):
-                if di[0] in ("M", "L"):
-                    di = list(di)
-                    di[1] += cos(phipos)*ydiff - sin(phipos)*xdiff
-                    di[2] += sin(phipos)*ydiff + cos(phipos)*xdiff
                     newBox.d[i] = tuple(di)
 
             newBox = newBox.SVG()
@@ -199,7 +203,8 @@ def draw_disk(geom1, geom2, endcap, station, filename, length_factor=1., angle_f
             svgitem.append(new_boxes)
 
         elif isinstance(svgitem, SVG) and "id" in svgitem.attr and svgitem["id"] == "diskx":
-            svgitem[0] = "Disk %+d" % (station * (1 if endcap == 1 else -1))
+            if endcap == 1: svgitem[0] = "Disk %+d" % station
+            else: svgitem[0] = "Disk %+d" % (-station)
             svgitem[0] += " (length x%g, angle x%g)" % (length_factor, angle_factor)
 
     disk_template.save(filename)
