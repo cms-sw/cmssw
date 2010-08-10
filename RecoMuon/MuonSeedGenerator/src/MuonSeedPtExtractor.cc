@@ -7,8 +7,8 @@
 #include <sstream>
 
 MuonSeedPtExtractor::MuonSeedPtExtractor(const edm::ParameterSet& par)
-: scaleDT_( par.getParameter<bool>("scaleDT") ),
-  theBeamSpot(0.,0.,0.)
+: theBeamSpot(0.,0.,0.),
+  scaleDT_( par.getParameter<bool>("scaleDT") )
 {
   init(par);
 }
