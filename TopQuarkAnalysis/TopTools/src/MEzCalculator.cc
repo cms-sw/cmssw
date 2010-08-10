@@ -16,7 +16,10 @@ MEzCalculator::~MEzCalculator()
 /// member functions
 double
 MEzCalculator::Calculate(int type) 
-{  
+{
+  if(type<0 || type>3)
+    throw cms::Exception("UnimplementedFeature") << "Type " << type << " not supported in MEzCalculator.\n";
+
   double M_W  = 80.4;
   double M_mu =  0.10566;
   double M_e = 0.511e-3;
