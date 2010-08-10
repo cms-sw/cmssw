@@ -64,7 +64,7 @@ TSGsBlock = cms.PSet(
       UseVertexState = cms.bool( True ),
       UpdateState = cms.bool( True ),
       SelectState = cms.bool( False ),
-      beamSpot = cms.InputTag("offlineBeamSpot")
+      beamSpot = cms.InputTag("hltOfflineBeamSpot")
       ##       errorMatrixPset = cms.PSet(
       ##           MuonErrorMatrixValues,
       ##           action = cms.string('use'),
