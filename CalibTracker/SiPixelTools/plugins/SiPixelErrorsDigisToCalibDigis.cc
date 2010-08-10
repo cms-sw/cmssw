@@ -13,7 +13,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  Wed Apr  9 12:43:02 CEST 2008
-// $Id: SiPixelErrorsDigisToCalibDigis.cc,v 1.7 2008/07/04 12:42:50 fblekman Exp $
+// $Id: SiPixelErrorsDigisToCalibDigis.cc,v 1.8 2010/01/13 09:35:59 ursl Exp $
 //
 //
 
@@ -21,7 +21,8 @@
 // system include files
 #include <memory>
 
-#include "CalibTracker/SiPixelTools/interface/SiPixelErrorsDigisToCalibDigis.h"
+#include "SiPixelErrorsDigisToCalibDigis.h"
+
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"

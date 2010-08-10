@@ -13,10 +13,11 @@
 //
 // Original Author:  Evan Klose Friis
 //         Created:  Tue Nov  6 16:59:50 CET 2007
-// $Id: SiPixelCalibDigiFilter.cc,v 1.1 2007/12/13 15:57:59 friis Exp $
+// $Id: SiPixelCalibDigiFilter.cc,v 1.2 2010/01/13 09:35:59 ursl Exp $
 //
 //
 
+#include "SiPixelCalibDigiFilter.h"
 
 // system include files
 #include <memory>
@@ -31,7 +32,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelDigi/interface/SiPixelCalibDigi.h"
-#include "CalibTracker/SiPixelTools/interface/SiPixelCalibDigiFilter.h"
 
 //
 // constants, enums and typedefs

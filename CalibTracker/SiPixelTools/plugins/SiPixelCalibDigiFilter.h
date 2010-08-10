@@ -13,7 +13,7 @@
 //
 // Original Author:  Evan Klose Friis
 //         Created:  Tue Nov  6 16:59:50 CET 2007
-// $Id: SiPixelCalibDigiFilter.h,v 1.2 2007/11/19 12:13:50 fblekman Exp $
+// $Id: SiPixelCalibDigiFilter.h,v 1.3 2010/01/13 09:35:58 ursl Exp $
 //
 //
 

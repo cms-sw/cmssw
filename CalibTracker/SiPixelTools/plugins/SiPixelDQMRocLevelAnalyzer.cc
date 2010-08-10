@@ -1,4 +1,4 @@
-#include "CalibTracker/SiPixelTools/interface/SiPixelDQMRocLevelAnalyzer.h"
+#include "SiPixelDQMRocLevelAnalyzer.h"
 
 SiPixelDQMRocLevelAnalyzer::SiPixelDQMRocLevelAnalyzer(const edm::ParameterSet& iConfig):conf_(iConfig)
 {
