@@ -35,7 +35,6 @@ namespace edm {
       tree_(makeTTree(filePtr.get(), BranchTypeToProductTreeName(branchType), splitLevel)),
       metaTree_(makeTTree(filePtr.get(), BranchTypeToMetaDataTreeName(branchType), 0)),
       producedBranches_(),
-      metaBranches_(),
       readBranches_(),
       auxBranch_(),
       unclonedReadBranches_(),
@@ -44,7 +43,6 @@ namespace edm {
       if(treeMaxVirtualSize >= 0) tree_->SetMaxVirtualSize(treeMaxVirtualSize);
       branchEntryInfoBranch_ = metaTree_->Branch(BranchTypeToBranchEntryInfoBranchName(branchType).c_str(),
                                                  &pEntryInfoVector, bufSize, 0);
-      metaBranches_.push_back(branchEntryInfoBranch_);
     }
 
     ~RootOutputTree() {}
@@ -112,7 +110,6 @@ namespace edm {
     TTree* metaTree_;
     TBranch* branchEntryInfoBranch_;
     std::vector<TBranch*> producedBranches_; // does not include cloned branches
-    std::vector<TBranch*> metaBranches_;
     std::vector<TBranch*> readBranches_;
     TBranch* auxBranch_;
     std::vector<TBranch*> unclonedReadBranches_;

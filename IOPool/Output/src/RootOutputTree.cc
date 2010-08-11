@@ -208,13 +208,13 @@ namespace edm {
 
   void
   RootOutputTree::fillTree() const {
-    fillTTree(metaTree_, metaBranches_);
-    fillTTree(tree_, producedBranches_);
-    auxBranch_->Fill();
-    if(currentlyFastCloning_) {
+    metaTree_->Fill();
+    if (currentlyFastCloning_) {
+      auxBranch_->Fill();
+      fillTTree(tree_, producedBranches_);
       fillTTree(tree_, unclonedReadBranches_);
     } else {
-      fillTTree(tree_, readBranches_);
+      tree_->Fill();
     }
   }
 
@@ -245,7 +245,6 @@ namespace edm {
     // Just to play it safe, zero all pointers to quantities in the file.
     branchEntryInfoBranch_ = 0;
     producedBranches_.clear();
-    metaBranches_.clear();
     readBranches_.clear();
     unclonedReadBranches_.clear();
     tree_ = metaTree_ = 0;
