@@ -89,6 +89,9 @@ class TtSemiLepHypothesis : public edm::EDProducer {
   std::string jetCorrectionLevel_;
   /// hypothesis key (to be set by the buildKey function)
   int key_;
+  /// number of real neutrino solutions:
+  /// -1 if not determined, 0 if only complex, 2 if two real solutions
+  int numberOfRealNeutrinoSolutions_;
   /// candidates for internal use for the creation of the hypothesis 
   /// candidate
   reco::ShallowClonePtrCandidate *lightQ_;

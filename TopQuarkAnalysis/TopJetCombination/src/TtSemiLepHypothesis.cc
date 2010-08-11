@@ -10,6 +10,7 @@ TtSemiLepHypothesis::TtSemiLepHypothesis(const edm::ParameterSet& cfg):
   jets_(cfg.getParameter<edm::InputTag>("jets")),
   leps_(cfg.getParameter<edm::InputTag>("leps")),
   mets_(cfg.getParameter<edm::InputTag>("mets")),
+  numberOfRealNeutrinoSolutions_(-1),
   lightQ_(0), lightQBar_(0), hadronicB_(0), 
   leptonicB_(0), neutrino_(0), lepton_(0)
 {
@@ -23,6 +24,7 @@ TtSemiLepHypothesis::TtSemiLepHypothesis(const edm::ParameterSet& cfg):
   }
   produces<std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > >();
   produces<int>("Key");
+  produces<int>("NumberOfRealNeutrinoSolutions");
 }
 
 /// default destructor
@@ -66,6 +68,7 @@ TtSemiLepHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
   std::auto_ptr<std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > >
     pOut( new std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > );
   std::auto_ptr<int> pKey(new int);
+  std::auto_ptr<int> pNeutrinoSolutions(new int);
 
   // go through given vector of jet combinations
   unsigned int idMatch = 0;
@@ -84,12 +87,17 @@ TtSemiLepHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
   buildKey();
   *pKey=key();
   evt.put(pKey, "Key");
+
+  // feed out number of real neutrino solutions
+  *pNeutrinoSolutions=numberOfRealNeutrinoSolutions_;
+  evt.put(pNeutrinoSolutions, "NumberOfRealNeutrinoSolutions");
 }
 
 /// reset candidate pointers before hypo build process
 void
 TtSemiLepHypothesis::resetCandidates()
 {
+  numberOfRealNeutrinoSolutions_ = -1;
   lightQ_    = 0;
   lightQBar_ = 0;
   hadronicB_ = 0;
@@ -213,6 +221,7 @@ void TtSemiLepHypothesis::setNeutrino(const edm::Handle<std::vector<pat::MET> >&
   else
     throw cms::Exception("UnimplementedFeature") << "Type of lepton given together with MET for solving neutrino kinematics is neither muon nor electron.\n";
   double pz = mez.Calculate(type);
+  numberOfRealNeutrinoSolutions_ = mez.IsComplex() ? 0 : 2;
   const math::XYZTLorentzVector p4( ptr->px(), ptr->py(), pz, sqrt(ptr->px()*ptr->px() + ptr->py()*ptr->py() + pz*pz) );
   neutrino_ = new reco::ShallowClonePtrCandidate( ptr, ptr->charge(), p4, ptr->vertex() );
 }

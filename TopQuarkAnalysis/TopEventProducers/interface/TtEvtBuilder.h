@@ -220,6 +220,19 @@ void TtEvtBuilder<TtFullLeptonicEvent>::fillSpecific(TtFullLeptonicEvent& ttEven
 template <>
 void TtEvtBuilder<TtSemiLeptonicEvent>::fillSpecific(TtSemiLeptonicEvent& ttEvent, const edm::Event& evt)
 {
+
+  // set number of real neutrino solutions for all hypotheses
+  typedef std::vector<std::string>::const_iterator EventHypo;
+  for(EventHypo h=hyps_.begin(); h!=hyps_.end(); ++h){
+    edm::Handle<int> key; 
+    evt.getByLabel(*h, "Key", key);
+
+    edm::Handle<int> numberOfRealNeutrinoSolutions;
+    evt.getByLabel(*h, "NumberOfRealNeutrinoSolutions", numberOfRealNeutrinoSolutions);
+
+    ttEvent.setNumberOfRealNeutrinoSolutions((TtEvent::HypoClassKey&)*key, *numberOfRealNeutrinoSolutions);
+  }
+
 }
 
 #endif
