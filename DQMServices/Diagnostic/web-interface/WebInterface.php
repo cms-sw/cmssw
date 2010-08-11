@@ -14,15 +14,9 @@
     }
   </style>
 <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/smoothness/jquery-ui.css" type="text/css" />
-    <!-- @import "/<?=$GLOBALS['userName']?>/lib/dataTables/media/prettyPhoto/prettyPhoto/css/prettyPhoto.css"; -->
   </style>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript"></script>
-  <!--<script type="text/javascript" src="/<?=$GLOBALS['userName']?>/lib/jquery.js"></script>-->
   <script type="text/javascript" src="/<?=$GLOBALS['userName']?>/lib/jquery.blockUI.js"></script>
-
-  <!-- <script type="text/javascript" src="/<?=$GLOBALS['userName']?>/lib/dataTables/media/prettyPhoto/jquery.prettyPhoto.js"></script> -->
-
-  <!-- <script type="text/javascript" src="/<?=$GLOBALS['userName']?>/lib/dataTables/media/jquery.js"></script> -->
   <script type="text/javascript" src="/<?=$GLOBALS['userName']?>/lib/dataTables/media/js/jquery.dataTables.js"></script>
   <script type="text/javascript" src="functions.js"></script>
   <script type="text/javascript" charset="utf-8">
@@ -114,7 +108,7 @@
       "bProcessing": true,
 	  "bServerSide":false,
       //<!-- "sAjaxSource": '/dataTables/media/json_source.txt', -->
-     "sAjaxSource": typeName+'FullList.txt',
+      "sAjaxSource": typeName+'FullList.txt',
 	 // "sAjaxSource": "../examples_support/server_processing_id.php",
       "bStateSave": true, <!-- save the state using cookies -->
       "bJQueryUI": true,
