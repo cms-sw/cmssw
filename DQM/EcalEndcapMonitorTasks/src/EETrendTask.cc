@@ -1,8 +1,8 @@
 /*
  * \file EETrendTask.cc
  *
- * $Date: 2010/03/28 09:13:49 $
- * $Revision: 1.10 $
+ * $Date: 2010/08/11 14:57:35 $
+ * $Revision: 1.11 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */
@@ -677,6 +677,7 @@ void EETrendTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   nEESRFlagHourly_->Fill(hourDiff,nsfc);
 
 }
+
 
 void EETrendTask::updateTime(){
 

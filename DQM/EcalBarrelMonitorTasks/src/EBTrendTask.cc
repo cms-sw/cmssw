@@ -1,8 +1,8 @@
 /*
  * \file EBTrendTask.cc
  *
- * $Date: 2010/03/28 09:13:48 $
- * $Revision: 1.7 $
+ * $Date: 2010/08/11 14:57:34 $
+ * $Revision: 1.8 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */
@@ -656,6 +656,7 @@ void EBTrendTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   }
 
 }
+
 
 void EBTrendTask::updateTime(){
 

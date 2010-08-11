@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2010/08/05 20:25:46 $
- * $Revision: 1.44 $
+ * $Date: 2010/08/08 08:46:07 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  *
 */
@@ -205,7 +205,7 @@ void EEStatusFlagsClient::analyze(void) {
     sprintf(histo, (prefixME_ + "/EEStatusFlagsTask/FEStatus/EESFT MEM front-end status %s").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
-    meh03_[ism-1] = me;    
+    meh03_[ism-1] = me;
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {

@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2010/08/08 08:46:07 $
- * $Revision: 1.206 $
+ * $Date: 2010/08/09 14:03:47 $
+ * $Revision: 1.207 $
  * \author G. Della Ricca
  *
 */
@@ -170,7 +170,7 @@ EESummaryClient::EESummaryClient(const edm::ParameterSet& ps) {
   meTimingRMS1D_[1]   = 0;
   meTimingMean_ = 0;
   meTimingRMS_  = 0;
-  
+
   meTriggerTowerEt_[0]        = 0;
   meTriggerTowerEt_[1]        = 0;
   meTriggerTowerEmulError_[0] = 0;
@@ -826,9 +826,9 @@ void EESummaryClient::setup(void) {
 
   }
 
-  
+
   if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
-    
+
     if( meTestPulsePNG01_ ) dqmStore_->removeElement( meTestPulsePNG01_->getName() );
     sprintf(histo, "EETPT PN test pulse quality G01 summary");
     meTestPulsePNG01_ = dqmStore_->book2D(histo, histo, 45, 0., 45., 20, -10., 10.);
@@ -1970,7 +1970,7 @@ void EESummaryClient::analyze(void) {
               }
 
               meTimingMean_->Fill( ism, mean02 );
-            
+
               meTimingRMS_->Fill( ism, rms02 );
 
             }
@@ -2147,7 +2147,7 @@ void EESummaryClient::analyze(void) {
             me_04 = eeic->meg02_[ism-1];
             h2 = eeic->hmem_[ism-1];
 
-            
+
             if( me_04 ) {
 
               float xval = me_04->getBinContent(i,j);
@@ -2199,26 +2199,26 @@ void EESummaryClient::analyze(void) {
           if ( eelc ) {
 
             if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-              
+
               me = eelc->meg09_[ism-1];
-              
+
               if( me ) {
 
                 float xval = me->getBinContent(i,1);
-                
+
                 if ( me->getEntries() != 0 && me->getEntries() != 0 ) {
                   meLaserL1PN_->setBinContent( ipseudostripx, ichanx, xval );
                   if ( xval == 0 ) meLaserL1PNErr_->Fill( ism );
                 }
-                
+
               }
-              
+
             }
-            
+
             if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-              
+
               me = eelc->meg10_[ism-1];
-              
+
               if( me ) {
 
                 float xval = me->getBinContent(i,1);
@@ -2231,7 +2231,7 @@ void EESummaryClient::analyze(void) {
               }
 
             }
-            
+
             if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
 
               me = eelc->meg11_[ism-1];
@@ -2269,28 +2269,28 @@ void EESummaryClient::analyze(void) {
           }
 
           if ( eeldc ) {
-            
+
             if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
-              
+
               me = eeldc->meg09_[ism-1];
-              
+
               if( me ) {
 
                 float xval = me->getBinContent(i,1);
-                
+
                 if ( me->getEntries() != 0 && me->getEntries() != 0 ) {
                   meLedL1PN_->setBinContent( ipseudostripx, ichanx, xval );
                   if ( xval == 0 ) meLedL1PNErr_->Fill( ism );
                 }
-                
+
               }
-              
+
             }
-            
+
             if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
-              
+
               me = eeldc->meg10_[ism-1];
-              
+
               if( me ) {
 
                 float xval = me->getBinContent(i,1);

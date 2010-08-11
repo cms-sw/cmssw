@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2010/08/03 14:29:26 $
- * $Revision: 1.217 $
+ * $Date: 2010/08/08 08:46:02 $
+ * $Revision: 1.218 $
  * \author G. Della Ricca
  *
 */
@@ -1365,10 +1365,10 @@ void EBSummaryClient::analyze(void) {
           if ( hot01_[ism-1] ) {
 
             float xval = hot01_[ism-1]->GetBinContent( ie, ip );
-            
+
             int iex;
             int ipx;
-            
+
             if ( ism <= 18 ) {
               iex = 1+(85-ie);
               ipx = ip+20*(ism-1);
@@ -1376,7 +1376,7 @@ void EBSummaryClient::analyze(void) {
               iex = 85+ie;
               ipx = 1+(20-ip)+20*(ism-19);
             }
-            
+
             meRecHitEnergy_->setBinContent( ipx, iex, xval );
 
           }
@@ -1404,24 +1404,24 @@ void EBSummaryClient::analyze(void) {
 
             }
 
-            
+
             float num02, mean02, rms02;
             bool update02 = UtilsClient::getBinStatistics(htmt01_[ism-1], ie, ip, num02, mean02, rms02);
             // Task timing map is shifted of +50 ns for graphical reasons. Shift back it.
             mean02 -= 50.;
 
             if ( update02 ) {
-              
+
               meTimingMean1D_->Fill(mean02);
-              
+
               meTimingRMS1D_->Fill(rms02);
-              
+
               meTimingMean_->Fill( ism, mean02 );
-              
+
               meTimingRMS_->Fill( ism, rms02 );
-              
+
             }
-            
+
           }
 
         }
@@ -1522,7 +1522,7 @@ void EBSummaryClient::analyze(void) {
                 float emulErrorVal = h2->GetBinContent( ie, ip );
 
                 if( emulErrorVal!=0 && hadNonZeroInterest ) xval = 0;
-                
+
               }
 
               if ( xval!=0 && hadNonZeroInterest ) xval = 1;

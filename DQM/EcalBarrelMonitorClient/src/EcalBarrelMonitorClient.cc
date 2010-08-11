@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2010/08/06 15:53:05 $
- * $Revision: 1.492 $
+ * $Date: 2010/08/10 07:23:43 $
+ * $Revision: 1.493 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1698,7 +1698,7 @@ void EcalBarrelMonitorClient::softReset(bool flag) {
   std::vector<MonitorElement*>::const_iterator meitr;
   for ( meitr=mes.begin(); meitr!=mes.end(); meitr++ ) {
     if ( !strncmp((*meitr)->getName().c_str(), "EB", 2)
-         && strncmp((*meitr)->getName().c_str(), "EBTrend", 7) 
+         && strncmp((*meitr)->getName().c_str(), "EBTrend", 7)
          && strncmp((*meitr)->getName().c_str(), "by lumi", 7) ) {
       if ( flag ) {
         dqmStore_->softReset(*meitr);
