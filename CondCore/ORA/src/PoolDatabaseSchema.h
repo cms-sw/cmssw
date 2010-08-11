@@ -10,7 +10,8 @@ namespace ora {
     struct PoolDbCacheData {
       PoolDbCacheData();
         
-      PoolDbCacheData( int id, const std::string& name, const std::string& mappingVersion, unsigned int nobjWritten );
+        PoolDbCacheData( int id, const std::string& name, const std::string& className,
+                         const std::string& mappingVersion, unsigned int nobjWritten );
 
       ~PoolDbCacheData();
 
@@ -20,6 +21,7 @@ namespace ora {
 
       int m_id;
       std::string m_name;
+      std::string m_className;
       std::string m_mappingVersion;
       unsigned int m_nobjWr;
   };

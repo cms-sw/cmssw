@@ -297,16 +297,19 @@ void ora::PoolMappingElementTable::drop(){
 ora::PoolDbCacheData::PoolDbCacheData():
   m_id( 0 ),
   m_name("" ),
+  m_className("" ),
   m_mappingVersion( "" ),
   m_nobjWr( 0 ){
 }
 
 ora::PoolDbCacheData::PoolDbCacheData( int id,
                                        const std::string& name,
+                                       const std::string& className,
                                        const std::string& mappingVersion,
                                        unsigned int nobjWr ):
   m_id( id ),
   m_name( name ),
+  m_className( className ),
   m_mappingVersion( mappingVersion ),
   m_nobjWr( nobjWr ){
 }
@@ -317,6 +320,7 @@ ora::PoolDbCacheData::~PoolDbCacheData(){
 ora::PoolDbCacheData::PoolDbCacheData( const ora::PoolDbCacheData& rhs ):
   m_id( rhs.m_id ),
   m_name( rhs.m_name ),
+  m_className( rhs.m_className ),
   m_mappingVersion( rhs.m_mappingVersion ),
   m_nobjWr( rhs.m_nobjWr ){
 }
@@ -324,6 +328,7 @@ ora::PoolDbCacheData::PoolDbCacheData( const ora::PoolDbCacheData& rhs ):
 ora::PoolDbCacheData& ora::PoolDbCacheData::operator=( const ora::PoolDbCacheData& rhs ){
   m_id = rhs.m_id;
   m_name = rhs.m_name;
+  m_className = rhs.m_className;
   m_mappingVersion = rhs.m_mappingVersion;
   m_nobjWr = rhs.m_nobjWr;
   return *this;
@@ -489,7 +494,7 @@ bool ora::PoolContainerHeaderTable::getContainerData( std::map<std::string,
     // containers non-homogeneous are ignored.
     dest.insert( std::make_pair( containerName, ContainerHeaderData( containerId, className,
                                                                      numberOfWrittenObjects-numberOfDeletedObjects ) )) ;
-    m_dbCache->add( containerId, PoolDbCacheData(containerId, containerName, baseMappingVersion, numberOfWrittenObjects) );
+    m_dbCache->add( containerId, PoolDbCacheData(containerId, containerName, className, baseMappingVersion, numberOfWrittenObjects) );
   }
   return ret;
 }
@@ -784,7 +789,7 @@ bool ora::PoolMappingSchema::getMapping( const std::string& version,
         iS->second.push_back( iEl->second );
       }
     }
-  } 
+  }
   // rebuilding + adding class elements  
   int eid = 0;
   for( std::set<std::string>::const_iterator iEl = topElements.begin();
@@ -916,6 +921,7 @@ bool ora::PoolMappingSchema::getClassVersionListForMappingVersion( const std::st
   std::ostringstream condition;
   condition <<PoolClassVersionTable::mappingVersionColumn()<<" =:"<<PoolClassVersionTable::mappingVersionColumn();
   coral::AttributeList condData;
+  condData.extend<std::string>(PoolClassVersionTable::mappingVersionColumn());
   condData[ PoolClassVersionTable::mappingVersionColumn() ].data< std::string >() = mappingVersion;
   query->setCondition(condition.str(),condData);
   coral::ICursor& cursor = query->execute();
@@ -967,28 +973,40 @@ bool ora::PoolMappingSchema::selectMappingVersion( const std::string& classId,
                                                    std::string& destination ){
   bool ret = false;
   destination.clear();
-  std::auto_ptr<coral::IQuery> query( m_schema.newQuery() );
-  query->addToTableList( PoolClassVersionTable::tableName(), "T0" );
-  query->addToTableList( PoolContainerHeaderTable::tableName(), "T1" );
-  query->addToOutputList( "T0."+PoolClassVersionTable::mappingVersionColumn() );
-  std::ostringstream condition;
-  condition <<"T0."<<PoolClassVersionTable::containerNameColumn()<<" = "<<"T1."<<PoolContainerHeaderTable::containerNameColumn();
-  condition << " AND T0."<<PoolClassVersionTable::classVersionColumn() << " =:" <<PoolClassVersionTable::classVersionColumn();
-  condition << " AND T1."<<PoolContainerHeaderTable::containerIdColumn() << " =:" <<PoolContainerHeaderTable::containerIdColumn();
-  coral::AttributeList condData;
-  condData.extend<std::string>( PoolClassVersionTable::classVersionColumn() );
-  condData.extend<int>( PoolContainerHeaderTable::containerIdColumn() );
-  coral::AttributeList::iterator iAttribute = condData.begin();
-  iAttribute->data< std::string >() = MappingRules::classVersionFromId( classId );
-  ++iAttribute;
-  iAttribute->data< int >() = containerId + 1; //POOL starts counting from 1!;
-  query->setCondition( condition.str(), condData );
-  coral::ICursor& cursor = query->execute();
-  while ( cursor.next() ) {
-    ret = true;
-    const coral::AttributeList& currentRow = cursor.currentRow();
-    destination = currentRow["T0."+PoolClassVersionTable::mappingVersionColumn()].data<std::string>();
+
+  std::pair<bool,std::string> isBaseId = MappingRules::classNameFromBaseId( classId );
+  if( !isBaseId.first ){
+    std::auto_ptr<coral::IQuery> query( m_schema.newQuery() );
+    query->addToTableList( PoolClassVersionTable::tableName(), "T0" );
+    query->addToTableList( PoolContainerHeaderTable::tableName(), "T1" );
+    query->addToOutputList( "T0."+PoolClassVersionTable::mappingVersionColumn() );
+    std::ostringstream condition;
+    condition <<"T0."<<PoolClassVersionTable::containerNameColumn()<<" = "<<"T1."<<PoolContainerHeaderTable::containerNameColumn();
+    condition << " AND T0."<<PoolClassVersionTable::classVersionColumn() << " =:" <<PoolClassVersionTable::classVersionColumn();
+    condition << " AND T1."<<PoolContainerHeaderTable::containerIdColumn() << " =:" <<PoolContainerHeaderTable::containerIdColumn();
+    coral::AttributeList condData;
+    condData.extend<std::string>( PoolClassVersionTable::classVersionColumn() );
+    condData.extend<int>( PoolContainerHeaderTable::containerIdColumn() );
+    coral::AttributeList::iterator iAttribute = condData.begin();
+    iAttribute->data< std::string >() = MappingRules::classVersionFromId( classId );
+    ++iAttribute;
+    iAttribute->data< int >() = containerId + 1; //POOL starts counting from 1!;
+    query->setCondition( condition.str(), condData );
+    coral::ICursor& cursor = query->execute();
+    while ( cursor.next() ) {
+      ret = true;
+      const coral::AttributeList& currentRow = cursor.currentRow();
+      destination = currentRow["T0."+PoolClassVersionTable::mappingVersionColumn()].data<std::string>();
+    }
+  } else {
+    PoolDbCacheData& containerData = m_dbCache->find( containerId );
+    // in POOL db this will be only possible for top level classes (not for dependencies)
+    if( containerData.m_className == isBaseId.second ){
+      destination = containerData.m_mappingVersion;
+      ret = true;
+    }
   }
+  
   return ret;  
 }
 

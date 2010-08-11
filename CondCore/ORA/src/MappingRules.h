@@ -39,6 +39,7 @@ namespace ora {
       static std::string classVersionFromId( const std::string& classId );
       static std::string baseIdForClass( const std::string& className );
       static std::string baseClassVersion();
+      static std::pair<bool,std::string> classNameFromBaseId( const std::string& classId );
       static std::string defaultClassVersion(const std::string& className);
       static std::string classVersionPropertyNameInDictionary();
 

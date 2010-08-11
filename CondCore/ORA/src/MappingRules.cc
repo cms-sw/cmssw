@@ -69,6 +69,16 @@ ora::MappingRules::baseClassVersion()
   return classVersion;
 }
 
+std::pair<bool,std::string> ora::MappingRules::classNameFromBaseId( const std::string& classId ){
+  std::pair<bool,std::string> ret(false,"");
+  size_t cut = classId.find("."+baseClassVersion() );
+  if( cut != std::string::npos ){
+    ret.first = true;
+    ret.second = classId.substr(0,cut);
+  }
+  return ret;
+}
+
 std::string
 ora::MappingRules::defaultClassVersion(const std::string& className)
 {
