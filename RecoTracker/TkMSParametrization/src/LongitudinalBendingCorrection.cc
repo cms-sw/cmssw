@@ -10,6 +10,7 @@ LongitudinalBendingCorrection::LongitudinalBendingCorrection(float pt, const edm
 {
   edm::ESHandle<MagneticField> pSetup;
   es.get<IdealMagneticFieldRecord>().get(pSetup);
-  static float fieldInInvGev = 1./fabs(pSetup->inTesla(GlobalPoint(0,0,0)).z()  *2.99792458e-3);
+  float fieldInInvGev = 1.f/std::abs(pSetup->inTesla(GlobalPoint(0,0,0)).z()  *2.99792458e-3f);
   theInvCurv =  pt*fieldInInvGev;
+  coeff = 1.f/(4.f*6.f*theInvCurv*theInvCurv);
 }
