@@ -3,6 +3,8 @@
 
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTElectronTrackIsolationProducers.h"
+#include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTCombinedIsolationProducer.h"
+
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTElectronDetaDphiProducer.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTRecoEcalCandidateProducers.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTPixelMatchElectronProducers.h"
@@ -16,7 +18,6 @@
 // #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTRemoveSpikesSC.h"
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTR9Producer.h"
-
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTHcalIsolationProducersRegional.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTEcalIsolationProducersRegional.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTEcalRecIsolationProducer.h"
@@ -52,3 +53,4 @@ DEFINE_FWK_MODULE(EcalRecHitsMerger);
 DEFINE_FWK_MODULE(ESListOfFEDSProducer);
 DEFINE_FWK_MODULE(ESRecHitsMerger);
 DEFINE_FWK_MODULE(EgammaHLTNxNClusterProducer);
+DEFINE_FWK_MODULE(EgammaHLTCombinedIsolationProducer);
