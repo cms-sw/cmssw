@@ -2,7 +2,8 @@
 #define RecoPixelVertexing_PixelTriplets_ThirdHitCorrection_H
 
 namespace edm {class EventSetup; }
-namespace pixelrecoutilities { class LongitudinalBendingCorrection; }
+#include "RecoTracker/TkMSParametrization/interface/LongitudinalBendingCorrection.h"
+
 class DetLayer;
 
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"

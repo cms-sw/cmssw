@@ -25,7 +25,6 @@ ThirdHitCorrection::ThirdHitCorrection(const edm::EventSetup& es,
     theBarrel(false),
     theUseMultipleScattering(useMultipleScattering),
     theUseBendingCorrection( useBendingCorrection),
-    theBendingCorrection(0),
     theCosTheta(0.), theSinTheta(0.),
     theLine(line),
     theMultScattCorrRPhi(0.),
@@ -70,7 +69,7 @@ void ThirdHitCorrection::correctRZRange( Range & range) const
       float cotTheta = theLine.cotLine();
       if (cotTheta > 0) {
         float radius = theLine.rAtZ(range.max());
-        float corr = (*theBendingCorrection)(radius) * cotTheta;
+        float corr = theBendingCorrection(radius) * cotTheta;
         range.second +=  corr;
       } else {
         float radius = theLine.rAtZ(range.min());
