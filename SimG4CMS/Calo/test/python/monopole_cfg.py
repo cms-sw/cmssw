@@ -47,7 +47,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(5)
 )
 
 process.source = cms.Source("LHESource",
@@ -107,12 +107,16 @@ process.common_maximum_timex = cms.PSet(
     MaxTimeNames  = cms.vstring(),
     MaxTrackTimes = cms.vdouble()
 )
+
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML'
 process.g4SimHits.Physics.MonopoleCharge = 1
+process.g4SimHits.Physics.MonopoleDeltaRay = False
 process.g4SimHits.Physics.Verbosity = 1
-process.g4SimHits.G4Commands = ['/tracking/verbose 1']
+process.g4SimHits.TrackerSD.EnergyThresholdForPersistencyInGeV = 1.0
+process.g4SimHits.TrackerSD.EnergyThresholdForHistoryInGeV = 0.5
+process.g4SimHits.CaloSD.EminTrack = 5.0
 process.g4SimHits.StackingAction = cms.PSet(
     process.common_heavy_suppression,
     process.common_maximum_timex,
@@ -138,14 +142,14 @@ process.g4SimHits.Watchers = cms.VPSet(
     cms.PSet(
       CheckForHighEtPhotons = cms.untracked.bool(False),
       G4Verbose = cms.untracked.bool(True),
-      EventMin  = cms.untracked.int32(1),
-      EventMax  = cms.untracked.int32(2),
+      EventMin  = cms.untracked.int32(0),
+      EventMax  = cms.untracked.int32(0),
       EventStep = cms.untracked.int32(1),
       TrackMin  = cms.untracked.int32(0),
       TrackMax  = cms.untracked.int32(99999999),
       TrackStep = cms.untracked.int32(1),
-      PDGids    = cms.untracked.vint32(4110000,-4110000),
       VerboseLevel = cms.untracked.int32(2),
+      PDGids    = cms.untracked.vint32(4110000,-4110000),
       DEBUG     = cms.untracked.bool(False),
       type      = cms.string('TrackingVerboseAction')
    )

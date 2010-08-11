@@ -108,10 +108,10 @@ process.common_maximum_timex = cms.PSet(
     MaxTrackTimes = cms.vdouble()
 )
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
-#process.p1 = cms.Path(process.generator)
 process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML'
 process.g4SimHits.Physics.MonopoleCharge = 1
+process.g4SimHits.Physics.MonopoleTransport = False
 process.g4SimHits.Physics.Verbosity = 2
 process.g4SimHits.G4Commands = ['/tracking/verbose 1']
 process.g4SimHits.StackingAction = cms.PSet(
@@ -138,6 +138,7 @@ process.g4SimHits.SteppingAction = cms.PSet(
 process.g4SimHits.Watchers = cms.VPSet(
     cms.PSet(
       CheckForHighEtPhotons = cms.untracked.bool(False),
+      G4Verbose = cms.untracked.bool(True),
       EventMin  = cms.untracked.int32(0),
       EventMax  = cms.untracked.int32(1),
       EventStep = cms.untracked.int32(1),
