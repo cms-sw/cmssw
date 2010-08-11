@@ -113,7 +113,7 @@ TtEvtBuilder<C>::TtEvtBuilder(const edm::ParameterSet& cfg) :
   // produces a TtEventEvent for:
   //  * TtSemiLeptonicEvent 
   //  * TtFullLeptonicEvent
-  //  * TtFullHadronicEvent (still to be implemented)
+  //  * TtFullHadronicEvent
   // from hypotheses and associated extra information
   produces<C>();
 }
@@ -122,15 +122,15 @@ template <typename C>
 void
 TtEvtBuilder<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
-  C event;
+  C ttEvent;
 
   // set leptonic decay channels
-  event.setLepDecays( WDecay::LeptonType(decayChnTop1_), WDecay::LeptonType(decayChnTop2_) );
+  ttEvent.setLepDecays( WDecay::LeptonType(decayChnTop1_), WDecay::LeptonType(decayChnTop2_) );
 
   // set genEvent (if available)
   edm::Handle<TtGenEvent> genEvt;
   if( evt.getByLabel(genEvt_, genEvt) )
-    event.setGenEvent(genEvt);
+    ttEvent.setGenEvent(genEvt);
 
   // add event hypotheses for all given 
   // hypothesis classes to the TtEvent
@@ -144,60 +144,60 @@ TtEvtBuilder<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
 
     typedef std::vector<TtEvent::HypoCombPair>::const_iterator HypMatch;
     for(HypMatch hm=hypMatchVec->begin(); hm != hypMatchVec->end(); ++hm){
-      event.addEventHypo((TtEvent::HypoClassKey&)*key, *hm);
+      ttEvent.addEventHypo((TtEvent::HypoClassKey&)*key, *hm);
     }
   }
 
   // set kKinFit extras
-  if( event.isHypoAvailable(TtEvent::kKinFit) ) {
+  if( ttEvent.isHypoAvailable(TtEvent::kKinFit) ) {
     edm::Handle<std::vector<double> > fitChi2;
     evt.getByLabel(fitChi2_, fitChi2);
-    event.setFitChi2( *fitChi2 );
+    ttEvent.setFitChi2( *fitChi2 );
     
     edm::Handle<std::vector<double> > fitProb;
     evt.getByLabel(fitProb_, fitProb);
-    event.setFitProb( *fitProb );
+    ttEvent.setFitProb( *fitProb );
   }
 
   // set kKinSolution extras  
-  if( event.isHypoAvailable(TtEvent::kKinSolution) ) {
+  if( ttEvent.isHypoAvailable(TtEvent::kKinSolution) ) {
     edm::Handle<std::vector<double> > solWeight;
     evt.getByLabel(solWeight_, solWeight);
-    event.setSolWeight( *solWeight );
+    ttEvent.setSolWeight( *solWeight );
     
     edm::Handle<bool> wrongCharge;
     evt.getByLabel(wrongCharge_, wrongCharge);
-    event.setWrongCharge( *wrongCharge );   
+    ttEvent.setWrongCharge( *wrongCharge );   
   } 
 
   // set kGenMatch extras
-  if( event.isHypoAvailable(TtEvent::kGenMatch) ) {
+  if( ttEvent.isHypoAvailable(TtEvent::kGenMatch) ) {
     edm::Handle<std::vector<double> > sumPt;
     evt.getByLabel(sumPt_, sumPt);
-    event.setGenMatchSumPt( *sumPt );
+    ttEvent.setGenMatchSumPt( *sumPt );
 
     edm::Handle<std::vector<double> > sumDR;
     evt.getByLabel(sumDR_, sumDR);
-    event.setGenMatchSumDR( *sumDR );
+    ttEvent.setGenMatchSumDR( *sumDR );
   }
 
   // set kMvaDisc extras
-  if( event.isHypoAvailable(TtEvent::kMVADisc) ) {
+  if( ttEvent.isHypoAvailable(TtEvent::kMVADisc) ) {
     edm::Handle<TString> meth;
     evt.getByLabel(meth_, meth);
-    event.setMvaMethod( (std::string) *meth );
+    ttEvent.setMvaMethod( (std::string) *meth );
 
     edm::Handle<std::vector<double> > disc;
     evt.getByLabel(disc_, disc);
-    event.setMvaDiscriminators( *disc );
+    ttEvent.setMvaDiscriminators( *disc );
   }
 
   // print summary via MessageLogger if verbosity_>0
-  event.print(verbosity_);
+  ttEvent.print(verbosity_);
 
-  // write object to root file 
+  // write object into the edm::Event
   std::auto_ptr<C> pOut(new C);
-  *pOut=event;
+  *pOut=ttEvent;
   evt.put(pOut);
 }
 
