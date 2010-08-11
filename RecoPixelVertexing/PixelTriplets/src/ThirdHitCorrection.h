@@ -38,6 +38,7 @@ private:
   float theCosTheta, theSinTheta;
   PixelRecoLineRZ theLine;
   float theMultScattCorrRPhi;
+  float theMScoeff;
 
   pixelrecoutilities::LongitudinalBendingCorrection theBendingCorrection;
   

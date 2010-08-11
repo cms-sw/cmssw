@@ -28,7 +28,7 @@ ThirdHitCorrection::ThirdHitCorrection(const edm::EventSetup& es,
     theCosTheta(0.), theSinTheta(0.),
     theLine(line),
     theMultScattCorrRPhi(0.),
-    theMScoeff(0.)
+    theMScoeff(0.),
     theBendingCorrection(){
 
   if (!theUseMultipleScattering && !theUseBendingCorrection) return;
