@@ -75,7 +75,7 @@ public:
    void loadGeometry();
    void setGeometryFilename(const std::string &filename) {m_geometryFilename = filename; }
    const std::string &geometryFilename(void) { return m_geometryFilename; }
-   const DetIdToMatrix& getIdToGeo() const { return m_detIdToGeo; }
+   DetIdToMatrix& getIdToGeo() { return m_detIdToGeo; }
    
    // Event navigation.
    void doFirstEvent();

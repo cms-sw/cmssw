@@ -29,4 +29,5 @@ process.source = cms.Source(
 # process.GlobalTag.globaltag = autoCond['mc']
 
 ### Request Full framework service. 
-process.FWFFService = cms.Service("FWFFService")
+process.FWFFService = cms.Service("FWFFService",
+                                  geometryFilename = cms.untracked.string("cmsGeom1.root"))

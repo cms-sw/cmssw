@@ -15,12 +15,16 @@
 #include "Fireworks/Core/interface/CSGContinuousAction.h"
 #include "Fireworks/Core/interface/FWL1TriggerTableViewManager.h"
 #include "Fireworks/Core/interface/FWTriggerTableViewManager.h"
+#include "Fireworks/Core/interface/FWRecoGeom.h"
+#include "Fireworks/Geometry/interface/FWRecoGeometry.h"
+#include "Fireworks/Geometry/interface/FWRecoGeometryRecord.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -121,7 +125,8 @@ FWFFService::FWFFService(edm::ParameterSet const&ps, edm::ActivityRegistry& ar)
                                       m_metadataManager.get())),
      m_Rint(0),
      m_AllowStep(true),
-     m_ShowEvent(true)
+     m_ShowEvent(true),
+     m_firstTime(true)
 {
    printf("FWFFService::FWFFService CTOR\n");
 
@@ -165,7 +170,7 @@ FWFFService::FWFFService(edm::ParameterSet const&ps, edm::ActivityRegistry& ar)
    std::string geometryRelFilename = "/src/Fireworks/FWInterface/data/cmsGeom10.root";
 
    std::string displayConfigFilename = "ffw.fwc";
-   std::string geometryFilename = "cmsGeom10.root";
+   std::string geometryFilename;
 
    if (releaseBase && access((releaseBase + displayConfigFilename).c_str(), R_OK) == 0)
       displayConfigFilename = releaseBase + displayConfigRelFilename; 
@@ -184,17 +189,12 @@ FWFFService::FWFFService(edm::ParameterSet const&ps, edm::ActivityRegistry& ar)
    setConfigFilename(displayConfigFilename);
 
    CmsShowTaskExecutor::TaskFunctor f;
-   f=boost::bind(&CmsShowMainBase::loadGeometry,this);
-   startupTasks()->addTask(f);
 
-   f=boost::bind(&CmsShowMainBase::setupViewManagers,this);
-   startupTasks()->addTask(f);
-
-   f=boost::bind(&CmsShowMainBase::setupConfiguration,this);
-   startupTasks()->addTask(f);
-
-   f=boost::bind(&CmsShowMainBase::setupActions, this);
-   startupTasks()->addTask(f);
+   if (!geometryFilename.empty())
+   {
+      f=boost::bind(&CmsShowMainBase::loadGeometry,this);
+      startupTasks()->addTask(f);
+   }
 
    m_MagField = new CmsEveMagField();
 
@@ -206,8 +206,6 @@ FWFFService::FWFFService(edm::ParameterSet const&ps, edm::ActivityRegistry& ar)
    ar.watchPostBeginRun(this, &FWFFService::postBeginRun);
 
    ar.watchPostProcessEvent(this, &FWFFService::postProcessEvent);
-   
-   startupTasks()->startDoingTasks();
 }
 
 FWFFService::~FWFFService()
@@ -233,6 +231,8 @@ FWFFService::postBeginJob()
    CmsShowTaskExecutor::TaskFunctor f;
    f=boost::bind(&TApplication::Terminate, m_Rint, 0);
    startupTasks()->addTask(f);
+   // FIXME: do we really need to delay tasks like this?
+   startupTasks()->startDoingTasks(); 
    m_Rint->Run(kTRUE);
    // Show the GUI ...
    gSystem->ProcessEvents();
@@ -267,9 +267,37 @@ FWFFService::checkPosition()
 }
 //------------------------------------------------------------------------------
 
-void 
+void
 FWFFService::postBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
+   // If the geometry was not picked up from a file, we try to get it from the
+   // EventSetup!
+   // FIXME: we need to check we execute only once because the view managers
+   //        depend on geometry and they cannot be initialised more than once.
+   //        This should actually be cleaned up so that the various view manager
+   //        don't care about geometry.
+   // FIXME: we should actually be able to update the geometry when requested.
+   //        this is not possible at the moment.
+   if (m_firstTime == true)
+   {
+      if (m_context->getGeom() == 0)
+      {
+         guiManager()->updateStatus("Loading geometry...");
+         edm::ESTransientHandle<FWRecoGeometry> geoh;
+         iSetup.get<FWRecoGeometryRecord>().get(geoh);
+         TGeoManager *geom = const_cast<TGeoManager*>(geoh.product()->manager());
+         getIdToGeo().manager(geom);
+         getIdToGeo().initMap(geoh.product()->idToName.begin(),
+                              geoh.product()->idToName.end());
+         m_context->setGeom(&(getIdToGeo()));
+      }
+
+      setupViewManagers();
+      setupConfiguration();
+      setupActions();
+      m_firstTime = false;
+   }
+
    float current = 18160.0f;
 
    edm::Handle<edm::ConditionsInRunBlock> runCond;
@@ -296,7 +324,7 @@ FWFFService::postBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 
 //------------------------------------------------------------------------------
 void 
-FWFFService::postProcessEvent(const edm::Event &event, const edm::EventSetup&)
+FWFFService::postProcessEvent(const edm::Event &event, const edm::EventSetup&es)
 {
    printf("FWFFService::postProcessEvent: Starting GUI loop.\n");
 

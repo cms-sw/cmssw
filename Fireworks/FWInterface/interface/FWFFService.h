@@ -77,6 +77,7 @@ private:
 
    bool          m_AllowStep;
    bool          m_ShowEvent;
+   bool          m_firstTime;
 };
 
 #endif
