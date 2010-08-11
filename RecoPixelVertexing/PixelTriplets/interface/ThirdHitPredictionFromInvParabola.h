@@ -58,7 +58,7 @@ private:
       T invRadius2 = T(1)/point.mag2();
       Basic3DVector<T> rotated = (*pRot) * point;
       theU = rotated.x() * invRadius2;
-      theV = rotated.y() * invRradius2;
+      theV = rotated.y() * invRadius2;
     }
     T u() const {return theU; } 
     T v() const {return theV; }

@@ -21,7 +21,7 @@ typedef Basic2DVector<double> Point2D;
 typedef PixelRecoRange<double> Ranged;
 
 using namespace std;
-`
+
 ThirdHitPredictionFromInvParabola::ThirdHitPredictionFromInvParabola( 
     const GlobalPoint& P1, const GlobalPoint& P2,double ip, double curv, double torlerance)
   : theTolerance(torlerance)
@@ -69,14 +69,14 @@ ThirdHitPredictionFromInvParabola::PointUV ThirdHitPredictionFromInvParabola::fi
   double B = coeffB(ip,c);
 
   double overR = 1./r;
-  double ipOverR = ip*overp;
+  double ipOverR = ip*overR;
 
   double delta = 1-4*(0.5*B+ipOverR)*(-B+A*r-ipOverR);
   double sqrtdelta = (delta > 0) ? std::sqrt(delta) : 0.;
   double alpha = (c>0)?  (-c+sqrtdelta)/(B+2*ipOverR) :  (-c-sqrtdelta)/(B+2*ipOverR);
 
   double v = alpha*overR;
-  double d2 = overR*overR - std::sqr(v);
+  double d2 = overR*overR - v*v;
   double u = (d2 > 0) ? std::sqrt(d2) : 0.;
 
   return PointUV(u,v,&theRotation);
@@ -175,7 +175,7 @@ double ThirdHitPredictionFromInvParabola::
 
 
 double ThirdHitPredictionFromInvParabola::
-    predV( const double & u, const double & ip, int charge) const
+    predV( double u, double ip, int charge) const
 {
   return -charge*( coeffA(ip,charge) - coeffB(ip,charge)*u - ip*sqr(u));
 }
