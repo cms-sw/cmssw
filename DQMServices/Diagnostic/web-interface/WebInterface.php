@@ -50,7 +50,7 @@
 			{
 				var row = rows[i];
 				var lastCell = row.cells.length - 1;
-				if( row.cells[2].childNodes[0].checked ) 
+				if( row.cells[4].childNodes[0].checked ) 
 				{
 					if( first == 0 ) 
 					{
@@ -75,7 +75,7 @@
 			var tagVersion = runType.substring(runType.lastIndexOf(':')+1,runType.length);
 			var tagName = "HDQM_"+typeName+"_"+tagVersion;
 
-			var postdata = $('#first').serialize()+"&"+$('#last').serialize()+"&runType="+runTypeName;
+			var postdata = $('#first').serialize()+"&"+$('#last').serialize()+"&runType="+runTypeName+"&"+$('#runsQuality').serialize();
 			alert( "The following data were submitted to the server:\n\n\nTAG NAME:"+tagName+" \n\n"+postdata+"&"+sData );
 
 		$.ajax({
@@ -106,10 +106,10 @@
     oTable = $('#example').dataTable( {
       "iDesplayLength": 100,
       "bProcessing": true,
-	  "bServerSide":false,
+      "bServerSide":false,
       //<!-- "sAjaxSource": '/dataTables/media/json_source.txt', -->
       "sAjaxSource": typeName+'FullList.txt',
-	 // "sAjaxSource": "../examples_support/server_processing_id.php",
+      // "sAjaxSource": "../examples_support/server_processing_id.php",
       "bStateSave": true, <!-- save the state using cookies -->
       "bJQueryUI": true,
 	  "bSortClasses":false,
@@ -121,14 +121,22 @@
 		//plot index
 		var hiddenIndex='<input type="hidden" name="index" id="index" value="0">';        
         //log Y
-		var logY = '<input type="checkbox" name="textCheck" id="logY'+iDisplayIndex+'" value="'+aData[1]+'" onclick="stateChanged()"/>';
+		var logY = '<input type="checkbox" name="textCheck" id="logY'+iDisplayIndex+'" value="'+aData[1]+'" onclick="logYCheckChange(this)"/>';
 		//selected
-		var selectCheckBox = '<input type="checkbox" name="check" id="ch'+aData[1]+'" value="'+aData[1]+'" onclick="stateChanged()"/>';
-    
-		
-        $('td:eq(1)', nRow).html(logY);
-        $('td:eq(2)', nRow).html(selectCheckBox);
-		$('td:eq(3)', nRow).html(hiddenIndex);
+		var selectCheckBox =  '<input type="checkbox" name="check" id="ch'+aData[1]+'" value="'+aData[1]+'" onclick="logYCheckChange(this)"/>';
+    		
+		var Ymin='<input type="input" name="Min" id="Min'+iDisplayIndex+'" size="10" onchange="test(this)" onclick="stateChanged()" value=999999 /> ';
+		var Ymax='<input type="input" name="Max" id="Max'+iDisplayIndex+'" size="10" onclick="stateChanged()" value=-999999 /> ';
+   
+
+
+
+
+	$('td:eq(1)', nRow).html(logY);
+	$('td:eq(2)', nRow).html(Ymin);
+	$('td:eq(3)', nRow).html(Ymax);
+        $('td:eq(4)', nRow).html(selectCheckBox);
+	$('td:eq(5)', nRow).html(hiddenIndex);
 		
 		
 		//add the selected css class for selecting rows
@@ -140,11 +148,12 @@
       },
 	  //columns
       "aoColumns": [
-        null,
+        	null,
 		{"sClass": "center"},
-        {"sClass": "center"}
-
-		
+        	{"sClass": "center"},
+       		{"sClass": "center"},
+		{"sClass": "center"},
+		null
       ]
     });
 	
@@ -156,7 +165,7 @@
 		
 		if ( jQuery.inArray(iId, gaiSelected) == -1 )
 		{			
-		    if ((!stateChange)&&(this).cells[3].childNodes[0].value==0)
+		    if ((!stateChange)&&(this).cells[5].childNodes[0].value==0)
 			{
 				gaiSelected[gaiSelected.length++] = iId;
 		       
@@ -165,7 +174,7 @@
 		else
 		{
 			//deselect
-			if (!stateChange&&(this).cells[3].childNodes[0].value==0)
+			if (!stateChange&&(this).cells[5].childNodes[0].value==0)
 			{
 			gaiSelected = jQuery.grep(gaiSelected, function(value) {
 				return value != iId;
@@ -173,7 +182,7 @@
 			}
 		}
 	
-	if (!stateChange&&(this).cells[3].childNodes[0].value==0)
+	if (!stateChange&&(this).cells[5].childNodes[0].value==0)
 	{
 			$(this).toggleClass('row_selected');
 			
@@ -217,6 +226,33 @@ function checkform ( form )
 	stateChange=true;
   }
 
+  function logYCheckChange(elem)
+  { 
+
+     var cellNum=0;
+     if (elem.name=="textCheck")
+	cellNum=1;
+     else
+        cellNum=4;
+     var index=elem.parentNode.parentNode.cells[5].childNodes[0].value;
+     var table=document.getElementById("example");
+     if (index!=0)
+     {
+        for(var j=1;j<table.rows.length;j++)
+	{
+		if (table.rows[j].cells[5].childNodes[0].value==index)
+			if (elem.checked==true)
+				table.rows[j].cells[cellNum].childNodes[0].checked=true;
+			else
+				table.rows[j].cells[cellNum].childNodes[0].checked=false;
+	}
+      
+     }
+     else 
+          stateChange=true;
+  }
+
+
   function addToNewHistogram(index,color2)
   {	
 	//histograms++;
@@ -246,7 +282,7 @@ function checkform ( form )
 		//changing the color of the current Row
 		currentCell.parentNode.parentNode.style.backgroundColor = color2;
 		//adding the histogram index at the current row
-		currentCell.parentNode.parentNode.cells[3].childNodes[0].value=index;
+		currentCell.parentNode.parentNode.cells[5].childNodes[0].value=index;
 		//checking the checkbox
 		currentCell.checked=true;
 		
@@ -318,10 +354,32 @@ function checkform ( form )
 		xmlhttp.open("GET","RunTypesData.xml",true);
 		xmlhttp.send();
 	}
- 
-</script>
+ function changeColor(index,color)
+ {
+	var table=document.getElementById("example");
+	for(var j=1;j<table.rows.length;j++)
+	{
+		if (table.rows[j].cells[5].childNodes[0].value==index)
+			table.rows[j].style.backgroundColor = color;
+	}
+ }
 
-
+function test(elem)
+{
+     var index=elem.parentNode.parentNode.cells[5].childNodes[0].value;
+     var table=document.getElementById("example");
+     if (index!=0)
+     {
+        for(var j=1;j<table.rows.length;j++)
+	{
+		if (table.rows[j].cells[5].childNodes[0].value==index)
+			table.rows[j].cells[2].childNodes[0].value="ADSCAD";
+	}
+      
+     }
+}
+  	
+	</script>
 
 </head>
 <body id="dt_example" onload="loadList(getUrlVars()['subDet'])">
@@ -344,11 +402,11 @@ function checkform ( form )
 	 <ul class="dropdown">
         	<li><a href="#">Add To new Histogram</a>
         		<ul class="sub_menu">
-        			<li><a href="javascript:addToNewHistogram(1,'0066CC')"><font color="0066CC">Plot 1</font></a></li>
-					<li><a href="javascript:addToNewHistogram(2,'006633')"><font color="006633">Plot 2</font></a></li>
-					<li><a href="javascript:addToNewHistogram(3,'CCCC33')"><font color="CCCC33">Plot 3</font></a></li>
-					<li><a href="javascript:addToNewHistogram(4,'FF3333')"><font color="FF3333">Plot 4</font></a></li>
-					<li><a href="javascript:addToNewHistogram(5,'6699CC')"><font color="6699CC">Plot 5</font></a></li>
+        			        <li onmouseout="changeColor(1,'3B6AA0')" onmouseover="changeColor(1,'F3D673')"><a href="javascript:addToNewHistogram(1,'3B6AA0')"><font color="3B6AA0">Plot 1</font></a></li>
+					<li onmouseout="changeColor(2,'5081C5')" onmouseover="changeColor(2,'F3D673')"><a href="javascript:addToNewHistogram(2,'5081C5')"><font color="5081C5">Plot 2</font></a></li>
+					<li onmouseout="changeColor(3,'8B8989')" onmouseover="changeColor(3,'F3D673')"><a href="javascript:addToNewHistogram(3,'8B8989')"><font color="8B8989">Plot 3</font></a></li>
+					<li onmouseout="changeColor(4,'ADACAC')" onmouseover="changeColor(4,'F3D673')"><a href="javascript:addToNewHistogram(4,'ADACAC')"><font color="ADACAC">Plot 4</font></a></li>
+					<li onmouseout="changeColor(5,'D0CFCF')" onmouseover="changeColor(5,'F3D673')"><a href="javascript:addToNewHistogram(5,'D0CFCF')"><font color="D0CFCF">Plot 5</font></a></li>
 				</ul>
 			</li>
 	</ul>
@@ -367,6 +425,11 @@ function checkform ( form )
 	
 <select id="runtype" name="sada">
 </select>
+&nbsp;&nbsp;&nbsp;Runs Quality:
+<select id="runsQuality" name="runsQuality">
+<option value="0">All Runs</option>
+<option value="1">Good Runs</option>
+</select>
 
 	 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <input type="submit" value="Submit"/>
 	</div>
@@ -375,7 +438,9 @@ function checkform ( form )
 	    <tr>
 	      <th width="50%">Name</th>
 	      <th width="25%">LogY</th>
-		  <th width="25%">Selected</th>
+	      <th width="15%">Y Axis Min</th>
+	      <th width="15%">Y Axis Max</th>
+              <th width="25%">Selected</th>
 
 
 	    </tr>
@@ -394,7 +459,7 @@ function checkform ( form )
 <div style="text-align:center;padding:15px;font: normal 15px Arial,
 Helvetica, sans-serif;color:#000000;font-weight:bold;width:350px">
 <div class="BoxTitle" style="text-align:center;"></div>
-<img src="images/bigrotation2.gif" style="margin-top:10px">
+<img src="images/ajaxloader.gif" style="margin-top:10px">
 <p>Please Stand By......</p>
 </div>
 </div>
