@@ -16,7 +16,8 @@
 <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/smoothness/jquery-ui.css" type="text/css" />
     <!-- @import "/<?=$GLOBALS['userName']?>/lib/dataTables/media/prettyPhoto/prettyPhoto/css/prettyPhoto.css"; -->
   </style>
-  <script type="text/javascript" src="/<?=$GLOBALS['userName']?>/lib/jquery.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript"></script>
+  <!--<script type="text/javascript" src="/<?=$GLOBALS['userName']?>/lib/jquery.js"></script>-->
   <script type="text/javascript" src="/<?=$GLOBALS['userName']?>/lib/jquery.blockUI.js"></script>
 
   <!-- <script type="text/javascript" src="/<?=$GLOBALS['userName']?>/lib/dataTables/media/prettyPhoto/jquery.prettyPhoto.js"></script> -->
