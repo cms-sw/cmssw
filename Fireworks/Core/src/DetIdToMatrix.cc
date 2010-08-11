@@ -139,6 +139,22 @@ DetIdToMatrix::loadMap( const char* fileName )
    file->Close();
 }
 
+void
+DetIdToMatrix::initMap( FWRecoGeom::InfoMap imap )
+{
+  for( std::map<unsigned int, FWRecoGeom::Info>::const_iterator it = imap.begin(),
+							       end = imap.end();
+       it != end; ++it )
+  {
+    unsigned int rawid = it->first;
+    m_idToInfo[rawid].path = it->second.name;
+    std::vector<float> points = it->second.points;
+    m_idToInfo[rawid].points.swap( points );
+    std::vector<float> topology = it->second.topology;
+    m_idToInfo[rawid].parameters.swap( topology );
+  }
+}
+
 const TGeoHMatrix*
 DetIdToMatrix::getMatrix( unsigned int id ) const
 {

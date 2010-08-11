@@ -14,6 +14,9 @@ class TFile;
 
 #include "TEveVSDStructs.h"
 #include "TGeoMatrix.h"
+
+#include "Fireworks/Core/interface/FWRecoGeom.h"
+
 #include <map>
 #include <string>
 #include <vector>
@@ -40,6 +43,13 @@ public:
 
    // load DetId to RecoGeomInfo map
    void loadMap( const char* fileName );
+
+   void initMap( FWRecoGeom::InfoMap );
+
+   void manager( TGeoManager* geom )
+    {
+      m_manager = geom;
+    }
 
    // get matrix for full local to global transformation
    const TGeoHMatrix* getMatrix( unsigned int id ) const;
@@ -86,8 +96,8 @@ private:
   {
     std::string path;
     std::vector<Float_t> points;
-    std::vector<TEveVector> corners;
     std::vector<Float_t> parameters;
+    std::vector<TEveVector> corners;
   };
   mutable std::map<unsigned int, RecoGeomInfo> m_idToInfo;
   
