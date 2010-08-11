@@ -42,6 +42,8 @@ class TtEvtBuilder : public edm::EDProducer {
   /// produce function (this one is not even accessible for
   /// derived classes)
   virtual void produce(edm::Event&, const edm::EventSetup&);
+  // fill data members that are decay-channel specific
+  virtual void fillSpecific(C&, const edm::Event&);
 
  private:
 
@@ -159,17 +161,6 @@ TtEvtBuilder<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
     ttEvent.setFitProb( *fitProb );
   }
 
-  // set kKinSolution extras  
-  if( ttEvent.isHypoAvailable(TtEvent::kKinSolution) ) {
-    edm::Handle<std::vector<double> > solWeight;
-    evt.getByLabel(solWeight_, solWeight);
-    ttEvent.setSolWeight( *solWeight );
-    
-    edm::Handle<bool> wrongCharge;
-    evt.getByLabel(wrongCharge_, wrongCharge);
-    ttEvent.setWrongCharge( *wrongCharge );   
-  } 
-
   // set kGenMatch extras
   if( ttEvent.isHypoAvailable(TtEvent::kGenMatch) ) {
     edm::Handle<std::vector<double> > sumPt;
@@ -192,6 +183,9 @@ TtEvtBuilder<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
     ttEvent.setMvaDiscriminators( *disc );
   }
 
+  // fill data members that are decay-channel specific
+  fillSpecific(ttEvent, evt);
+
   // print summary via MessageLogger if verbosity_>0
   ttEvent.print(verbosity_);
 
@@ -199,6 +193,33 @@ TtEvtBuilder<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
   std::auto_ptr<C> pOut(new C);
   *pOut=ttEvent;
   evt.put(pOut);
+}
+
+template <>
+void TtEvtBuilder<TtFullHadronicEvent>::fillSpecific(TtFullHadronicEvent& ttEvent, const edm::Event& evt)
+{
+}
+
+template <>
+void TtEvtBuilder<TtFullLeptonicEvent>::fillSpecific(TtFullLeptonicEvent& ttEvent, const edm::Event& evt)
+{
+
+  // set kKinSolution extras  
+  if( ttEvent.isHypoAvailable(TtEvent::kKinSolution) ) {
+    edm::Handle<std::vector<double> > solWeight;
+    evt.getByLabel(solWeight_, solWeight);
+    ttEvent.setSolWeight( *solWeight );
+    
+    edm::Handle<bool> wrongCharge;
+    evt.getByLabel(wrongCharge_, wrongCharge);
+    ttEvent.setWrongCharge( *wrongCharge );   
+  }
+
+}
+
+template <>
+void TtEvtBuilder<TtSemiLeptonicEvent>::fillSpecific(TtSemiLeptonicEvent& ttEvent, const edm::Event& evt)
+{
 }
 
 #endif
