@@ -11,14 +11,17 @@
 
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
 
-template <class T> T sqr( T t) {return t*t;}
+namespace {
+  template <class T> inline T sqr( T t) {return t*t;}
+}
+
 
 typedef Basic3DVector<double> Point3D;
 typedef Basic2DVector<double> Point2D;
 typedef PixelRecoRange<double> Ranged;
 
 using namespace std;
-
+`
 ThirdHitPredictionFromInvParabola::ThirdHitPredictionFromInvParabola( 
     const GlobalPoint& P1, const GlobalPoint& P2,double ip, double curv, double torlerance)
   : theTolerance(torlerance)
@@ -43,8 +46,8 @@ void ThirdHitPredictionFromInvParabola::
   ipRange.sort();
   
   double ipIntyPlus = ipFromCurvature(0.,1);
-  double ipCurvPlus = ipFromCurvature(fabs(curv), 1);
-  double ipCurvMinus = ipFromCurvature(fabs(curv), -1);
+  double ipCurvPlus = ipFromCurvature(std::abs(curv), 1);
+  double ipCurvMinus = ipFromCurvature(std::abs(curv), -1);
 
   
   Range ipRangePlus = Range(ipIntyPlus, ipCurvPlus); ipRangePlus.sort();
@@ -65,13 +68,16 @@ ThirdHitPredictionFromInvParabola::PointUV ThirdHitPredictionFromInvParabola::fi
   double A = coeffA(ip,c);
   double B = coeffB(ip,c);
 
-  double delta = 1-4*(B/2+ip/r)*(-B+A*r-ip/r);
-  double sqrtdelta = (delta > 0) ? sqrt(delta) : 0.;
-  double alpha = (c>0)?  (-c+sqrtdelta)/(B+2*ip/r) :  (-c-sqrtdelta)/(B+2*ip/r);
+  double overR = 1./r;
+  double ipOverR = ip*overp;
 
-  double v = alpha/r;
-  double d2 = 1/r/r - sqr(v);
-  double u = (d2 > 0) ? sqrt(d2) : 0.;
+  double delta = 1-4*(0.5*B+ipOverR)*(-B+A*r-ipOverR);
+  double sqrtdelta = (delta > 0) ? std::sqrt(delta) : 0.;
+  double alpha = (c>0)?  (-c+sqrtdelta)/(B+2*ipOverR) :  (-c-sqrtdelta)/(B+2*ipOverR);
+
+  double v = alpha*overR;
+  double d2 = overR*overR - std::sqr(v);
+  double u = (d2 > 0) ? std::sqrt(d2) : 0.;
 
   return PointUV(u,v,&theRotation);
 }
@@ -102,6 +108,8 @@ ThirdHitPredictionFromInvParabola::Range ThirdHitPredictionFromInvParabola::rang
 
   return predRPhi;
 }
+
+
 ThirdHitPredictionFromInvParabola::Range ThirdHitPredictionFromInvParabola::rangeRPhiSlow(
     double radius, int charge, int nIter) const
 {
@@ -154,33 +162,17 @@ ThirdHitPredictionFromInvParabola::Range ThirdHitPredictionFromInvParabola::rang
 
 
 double ThirdHitPredictionFromInvParabola::
-    ipFromCurvature(const double & curvature, int charge) const 
+    ipFromCurvature(double curvature, int charge) const 
 {
   double u1u2 = p1.u()*p2.u();
   double du = p2.u() - p1.u();
   double pv = p1.v()*p2.u() - p2.v()*p1.u();
 
-  double inInf = -charge*pv/du/u1u2;
-  return inInf-curvature/2./u1u2;
+  double inInf = -charge*pv/(du*u1u2);
+  return inInf-curvature/(2.*u1u2);
 }
 
-double  ThirdHitPredictionFromInvParabola::
-    coeffA(const double & impactParameter, int charge) const
-{
-  double u1u2 = p1.u()*p2.u();
-  double du = p2.u() - p1.u();
-  double pv = p1.v()*p2.u() - p2.v()*p1.u();
-  return -charge*pv/du - u1u2*impactParameter;
-}
 
-double ThirdHitPredictionFromInvParabola::
-    coeffB(const double & impactParameter,int charge) const
-{
-  double dv = p2.v() - p1.v();
-  double du = p2.u() - p1.u();
-  double su = p2.u() + p1.u();
-  return charge*dv/du - su*impactParameter;
-}
 
 double ThirdHitPredictionFromInvParabola::
     predV( const double & u, const double & ip, int charge) const
