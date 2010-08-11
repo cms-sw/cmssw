@@ -69,7 +69,7 @@ MSLayer::MSLayer(Location part, float position, Range range, float halfThickness
 //----------------------------------------------------------------------
 bool MSLayer::operator== (const MSLayer &o) const
 {
-  return  !( theFace != o.theFace || std::abs(thePosition-o.thePosition) > 1.e-3f ) 
+  return  theFace == o.theFace && std::abs(thePosition-o.thePosition) < 1.e-3f;
 }
 
 //----------------------------------------------------------------------

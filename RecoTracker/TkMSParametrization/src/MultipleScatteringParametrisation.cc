@@ -5,7 +5,8 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoPointRZ.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoLineRZ.h"
 
-template <class T> T sqr( T t) {return t*t;}
+
+template <class T> inline T sqr( T t) {return t*t;}
 
 #include "RecoTracker/TkMSParametrization/interface/MSLayersKeeper.h"
 #include "RecoTracker/TkMSParametrization/interface/MSLayersKeeperX0AtEta.h"
@@ -15,9 +16,11 @@ template <class T> T sqr( T t) {return t*t;}
 
 //#include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 
+#include<iostream>
+
 using namespace std;
 
-const float MultipleScatteringParametrisation::x0ToSigma = 0.0136;
+const float MultipleScatteringParametrisation::x0ToSigma = 0.0136f;
 
 //using namespace PixelRecoUtilities;
 //----------------------------------------------------------------------
@@ -43,6 +46,7 @@ MultipleScatteringParametrisation( const DetLayer* layer,const edm::EventSetup &
     break;
   }
   default:
+    //FIXME should throw or similar
     cout << "** MultipleScatteringParametrisation ** wrong x0Source"<<endl;
     return;
   }

@@ -4,7 +4,7 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoLineRZ.h"
 using namespace std;
 
-template <class T> T sqr( T t) {return t*t;}
+template <class T> inline T sqr( T t) {return t*t;}
 
 //------------------------------------------------------------------------------
 MSLayersAtAngle::MSLayersAtAngle(const vector<MSLayer> & layers)

@@ -44,7 +44,8 @@ public:
    else if( r.empty()) return *this;
    else return 
 	  PixelRecoRange(std::min( min(),r.min()),
-			 std::max( max(),r.max()); 
+			 std::max( max(),r.max())
+                        ); 
   }
 
   void sort() { if (empty() ) std::swap(this->first,this->second); }
