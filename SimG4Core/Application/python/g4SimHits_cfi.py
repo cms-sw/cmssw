@@ -68,9 +68,12 @@ g4SimHits = cms.EDProducer("OscarProducer",
         DefaultCutValue = cms.double(1.0), ## cuts in cm
         G4BremsstrahlungThreshold = cms.double(0.5), ## cut in GeV
         Verbosity = cms.untracked.int32(0),
-        MonopoleCharge = cms.untracked.double(1.0),
         # 1 will print cuts as they get set from DD
         # 2 will do as 1 + will dump Geant4 table of cuts
+        MonopoleCharge       = cms.untracked.int32(1),
+        MonopoleDeltaRay     = cms.untracked.bool(True),
+        MonopoleMultiScatter = cms.untracked.bool(False),
+        MonopoleTransport    = cms.untracked.bool(True),
         Region      = cms.string(' '),
         SRType      = cms.bool(True),
         EMPhysics   = cms.untracked.bool(True),
