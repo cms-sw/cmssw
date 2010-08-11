@@ -15,7 +15,7 @@ class histos
 public:
   histos(TFile * inputFile)
   {
-    mass         = dynamic_cast<TH1F*>(inputFile->Get("hRecBestResAllEvents_Mass"));
+    mass         = dynamic_cast<TH1F*>(inputFile->Get("hRecBestRes_Mass"));
     TDirectory * MassPdir = dynamic_cast<TDirectory*>(inputFile->Get("Mass_P"));
     massProb     = dynamic_cast<TProfile*>(MassPdir->Get("Mass_PProf"));
     // TDirectory * MassPdir = dynamic_cast<TDirectory*>(inputFile->Get("Mass_Probability"));

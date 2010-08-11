@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:47 EST 2008
-// $Id: FWDetailViewManager.cc,v 1.58 2010/06/02 22:39:21 chrjones Exp $
+// $Id: FWDetailViewManager.cc,v 1.52 2009/11/30 10:38:59 amraktad Exp $
 //
 
 #include <stdio.h>
@@ -19,6 +19,8 @@
 #include "TGWindow.h"
 #include "TGFrame.h"
 #include "TEveWindow.h"
+#include "TEveManager.h"
+#include "TEveWindowManager.h"
 
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
@@ -28,7 +30,20 @@
 #include "Fireworks/Core/interface/FWDetailViewFactory.h"
 #include "Fireworks/Core/interface/FWSimpleRepresentationChecker.h"
 #include "Fireworks/Core/interface/FWRepresentationInfo.h"
-#include "Fireworks/Core/interface/fwLog.h"
+
+class DetailViewFrame : public TGMainFrame
+{
+public:
+   DetailViewFrame():
+      TGMainFrame(gClient->GetRoot(), 790, 450)
+   {
+   };
+
+   virtual void CloseWindow()
+   {
+      UnmapWindow();
+   }
+};
 
 
 static
@@ -44,10 +59,27 @@ std::string viewNameFrom(const std::string& iFull)
 //
 FWDetailViewManager::FWDetailViewManager(FWColorManager* colMng):
    m_colorManager(colMng),
+   m_mainFrame(0),
    m_eveFrame(0),
    m_detailView(0)
-{  
+{
    m_colorManager->colorsHaveChanged_.connect(boost::bind(&FWDetailViewManager::colorsChanged,this));
+   m_mainFrame = new DetailViewFrame();
+   m_mainFrame->SetCleanup(kLocalCleanup);
+
+   m_eveFrame = new TEveCompositeFrameInMainFrame(m_mainFrame, 0, m_mainFrame);
+   // For now we want to keep a single detailed-view main-frame.
+   // As TGMainFrame very reasonably emits the CloseWindow signal even if CloseWindow() is
+   // overriden and does not close the window (DetailViewFrame does that and just unmaps the window).
+   // So ... as we want to keep the main-frame, eve-frame-in-main-frame must not listen
+   // to this signal as it gets emitted erroneously.
+   // Probably the right place to fix this is in ROOT - but API and signal logick would have to change.
+   m_mainFrame->Disconnect("CloseWindow()", m_eveFrame, "MainFrameClosed()");
+
+   TEveWindowSlot* ew_slot = TEveWindow::CreateDefaultWindowSlot();
+   ew_slot->PopulateEmptyFrame(m_eveFrame);
+
+   m_mainFrame->AddFrame(m_eveFrame, new TGLayoutHints(kLHintsNormal | kLHintsExpandX | kLHintsExpandY));
 }
 
 FWDetailViewManager::~FWDetailViewManager()
@@ -61,17 +93,14 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id, const std::string& i
 {
    if (m_detailView != 0)
    {
-      m_eveFrame->GetEveWindow()->DestroyWindow();
       delete m_detailView;
    }
-   assertMainFrame();
-   
 
    // find the right viewer for this item
    std::string typeName = ROOT::Reflex::Type::ByTypeInfo(*(id.item()->modelType()->GetTypeInfo())).Name(ROOT::Reflex::SCOPED);
    std::vector<std::string> viewerNames = findViewersFor(typeName);
    if(0==viewerNames.size()) {
-      fwLog(fwlog::kError) << "FWDetailViewManager: don't know what detailed view to "
+      std::cout << "FWDetailViewManager: don't know what detailed view to "
          "use for object " << id.item()->name() << std::endl;
       assert(0!=viewerNames.size());
    }
@@ -93,9 +122,12 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id, const std::string& i
    TEveWindowSlot* ws  = (TEveWindowSlot*)(m_eveFrame->GetEveWindow());
    m_detailView->init(ws);
    m_detailView->build(id);
+   m_mainFrame->SetWindowName(Form("%s Detail View [%d]", id.item()->name().c_str(), id.index()));
+   m_mainFrame->MapSubwindows();
+   m_mainFrame->Layout();
+   m_mainFrame->MapRaised();
 
-   TGMainFrame* mf = (TGMainFrame*)(m_eveFrame->GetParent());
-   mf->MapRaised();
+   colorsChanged();
 }
 
 std::vector<std::string>
@@ -137,7 +169,7 @@ FWDetailViewManager::findViewersFor(const std::string& iType) const
          returnValue.push_back(viewNameFrom(*it));
       }
       //see if we match via inheritance
-      FWSimpleRepresentationChecker checker(type,"",0,false);
+      FWSimpleRepresentationChecker checker(type,"");
       FWRepresentationInfo info = checker.infoFor(iType);
       if(closestMatch > info.proximity()) {
          //closestMatch = info.proximity();
@@ -148,40 +180,11 @@ FWDetailViewManager::findViewersFor(const std::string& iType) const
    return returnValue;
 }
 
+
 void
 FWDetailViewManager::colorsChanged()
 {
    if (m_detailView) { 
       m_detailView->setBackgroundColor(m_colorManager->background());
    }
-}
-
-void
-FWDetailViewManager::assertMainFrame()
-{
-   if (m_eveFrame == 0)
-   {
-      TEveWindowSlot* slot = TEveWindow::CreateWindowMainFrame();
-      m_eveFrame = (TEveCompositeFrameInMainFrame*)slot->GetEveFrame();
-      TGMainFrame* mf = (TGMainFrame*)m_eveFrame->GetParent();
-      mf->Connect( "Destroyed()", "FWDetailViewManager", this, "eveWindowDestroyed()");   
-   }
-}
-
-void
-FWDetailViewManager::newEventCallback()
-{
-   if (m_detailView)
-   {
-      TGMainFrame* mf = (TGMainFrame*)m_eveFrame->GetParent();
-      mf->CloseWindow();
-   }
-}
-
-void
-FWDetailViewManager::eveWindowDestroyed()
-{
-   delete  m_detailView;
-   m_detailView = 0;
-   m_eveFrame =0 ;
 }

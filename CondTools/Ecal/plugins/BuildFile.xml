@@ -9,8 +9,6 @@
 <use   name="CondCore/DBOutputService"/>
 <use   name="CondFormats/EcalObjects"/>
 <use   name="CondFormats/DataRecord"/>
-  <use   name="CondFormats/Alignment"/>
-  <use name="Utilities/General"/>
 <library   file="*.cc" name="CondToolsEcalPlugin">
   <flags   EDM_PLUGIN="1"/>
 </library>

@@ -1,8 +1,8 @@
 /*
  * \file EBRawDataTask.cc
  *
- * $Date: 2010/06/29 18:44:22 $
- * $Revision: 1.32 $
+ * $Date: 2010/06/29 18:11:10 $
+ * $Revision: 1.31 $
  * \author E. Di Marco
  *
 */
@@ -531,7 +531,6 @@ void EBRawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       const short srpBx = dcchItr->getSRPBx();
 
       for(int fe=0; fe<(int)feBxs.size(); fe++) {
-        if(ism==9 && fe==21) continue; // mask known bad tower
         if(feBxs[fe] != ECALDCC_BunchCrossing && feBxs[fe] != -1) meEBBunchCrossingFEErrors_->Fill( xism, 1/(float)feBxs.size() );
       }
 
@@ -549,9 +548,9 @@ void EBRawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       // Lv1 in TCC,SRP,FE are limited to 12 bits(LSB), while in the DCC Lv1 has 24 bits
       int ECALDCC_L1A_12bit = ECALDCC_L1A & 0xfff;
+
       for(int fe=0; fe<(int)feLv1.size(); fe++) {
-        if(ism==9 && fe==21) continue; // mask known bad tower
-        if(feLv1[fe] != ECALDCC_L1A_12bit - 1 && feLv1[fe] != -1) meEBL1AFEErrors_->Fill( xism, 1/(float)feLv1.size() );
+        if(feLv1[fe] != ECALDCC_L1A_12bit - 1 && feLv1[fe] != -1) meEBL1AFEErrors_->Fill( xism, 1/(float)feLv1.size());
       }
 
       // vector of TCC channels has 4 elements for both EB and EE. 

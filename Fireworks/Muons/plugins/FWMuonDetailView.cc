@@ -1,10 +1,11 @@
-
 // -*- C++ -*-
 //
 // Package:     Calo
 // Class  :     FWMuonDetailView
-// $Id: FWMuonDetailView.cc,v 1.26 2010/06/18 16:57:26 matevz Exp $
+// $Id: FWMuonDetailView.cc,v 1.20 2009/11/27 22:10:40 dmytro Exp $
 //
+
+#include "TEveLegoEventHandler.h"
 
 // ROOT includes
 #include "TLatex.h"
@@ -24,7 +25,6 @@
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
-#include "Fireworks/Core/interface/FWGLEventHandler.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 //
@@ -38,7 +38,6 @@ FWMuonDetailView::FWMuonDetailView():
 
 FWMuonDetailView::~FWMuonDetailView()
 {
-   m_eveViewer->GetGLViewer()->DeleteOverlayElements(TGLOverlayElement::kUser);
    if (m_data) m_data->DecDenyDestroy();
    delete m_builder;
 }
@@ -61,7 +60,7 @@ void FWMuonDetailView::build(const FWModelId &id, const reco::Muon* iMuon)
    m_builder = new FWECALDetailViewBuilder(id.item()->getEvent(), id.item()->getGeom(),
                                            eta, phi, 10);
  
-   m_builder->showSuperClusters();
+   m_builder->showSuperClusters(kGreen+2, kGreen+4);
    if ( iMuon->isEnergyValid() ) {
       std::vector<DetId> ids;
       ids.push_back(iMuon->calEnergy().ecal_id);
@@ -70,7 +69,6 @@ void FWMuonDetailView::build(const FWModelId &id, const reco::Muon* iMuon)
 
    TEveCaloLego* lego = m_builder->build();
    m_data = lego->GetData();
-   m_data->IncDenyDestroy();
    m_eveScene->AddElement(lego);
    addSceneInfo(iMuon, m_eveScene);
 
@@ -84,12 +82,12 @@ void FWMuonDetailView::build(const FWModelId &id, const reco::Muon* iMuon)
 
    // set event handler and flip camera to top view at beginning
    viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-   FWGLEventHandler* eh =
-      new FWGLEventHandler((TGWindow*)viewerGL()->GetGLWidget(), (TObject*)viewerGL(), lego);
+   TEveLegoEventHandler* eh =
+      new TEveLegoEventHandler((TGWindow*)viewerGL()->GetGLWidget(), (TObject*)viewerGL(), lego);
    viewerGL()->SetEventHandler(eh);
 
-   viewerGL()->ResetCamerasAfterNextUpdate();
-   viewerGL()->UpdateScene(kFALSE);
+   viewerGL()->UpdateScene();
+   viewerGL()->CurrentCamera().Reset();
    gEve->Redraw3D();
 
    setTextInfo(id, iMuon);
@@ -139,7 +137,7 @@ FWMuonDetailView::setTextInfo(const FWModelId& id, const reco::Muon *muon)
       latex->DrawLatex(x, y,  Form(" 5x5 crystall shape = %.3f",
                                    muon->calEnergy().emS25) );
    }
-   m_builder->makeLegend(0.02, y);
+   m_builder->makeLegend(0.02,y,kGreen+2,kGreen+4,kYellow);
 }
 
 void

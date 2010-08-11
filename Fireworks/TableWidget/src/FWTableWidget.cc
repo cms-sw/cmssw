@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:42 EST 2009
-// $Id: FWTableWidget.cc,v 1.14 2010/03/28 21:37:46 matevz Exp $
+// $Id: FWTableWidget.cc,v 1.12 2009/05/20 02:08:51 jmuelmen Exp $
 //
 
 // system include files
@@ -228,28 +228,12 @@ FWTableWidget::handleResize(UInt_t w, UInt_t h)
 {
    //std::cout <<"Resize"<<std::endl;
    bool redoLayout=false;
-
-   TGDimension def  = m_body->GetDefaultSize();
-   UInt_t fullWidth = def.fWidth;
+   TGDimension def = m_body->GetDefaultSize();
+   UInt_t fullWidth = def.fWidth+m_vSlider->GetWidth();
    if(m_rowHeader) {
-      fullWidth += m_rowHeader->GetDefaultSize().fWidth;
+      TGDimension def = m_rowHeader->GetDefaultSize();
+      fullWidth+=def.fWidth;
    }
-
-   UInt_t headerHeight = 0;
-   if(m_header) {
-      headerHeight = m_header->GetHeight();
-   }
-   UInt_t fullHeight = def.fHeight + headerHeight;
-
-   UInt_t sBarWidth  = (h < fullHeight) ? m_vSlider->GetWidth()  : 0;
-   UInt_t sBarHeight = (w < fullWidth)  ? m_hSlider->GetHeight() : 0;
-   if (sBarWidth == 0 && sBarHeight > 0 && h < fullHeight + sBarHeight)
-      sBarWidth = m_vSlider->GetWidth();
-   else if (sBarHeight == 0 && sBarWidth > 0 && h < fullWidth + sBarWidth)
-      sBarHeight = m_hSlider->GetHeight();
-   fullWidth  += sBarWidth;
-   fullHeight += sBarHeight;
-
    if(w < fullWidth) {
       if(!m_showingHSlider) {
          ShowFrame(m_hSlider);
@@ -266,6 +250,11 @@ FWTableWidget::handleResize(UInt_t w, UInt_t h)
       }
    }
 
+   UInt_t headerHeight = 0;
+   if(m_header) {
+      headerHeight = m_header->GetHeight();
+   }
+   UInt_t fullHeight = def.fHeight+headerHeight+m_hSlider->GetHeight();
    if(h < fullHeight) {
       if(!m_showingVSlider) {
          ShowFrame(m_vSlider);
@@ -284,6 +273,13 @@ FWTableWidget::handleResize(UInt_t w, UInt_t h)
    if(redoLayout) {
       Layout();
    }
+}
+
+void 
+FWTableWidget::SetSize(const TGDimension &s)
+{
+   //std::cout <<"SetSize"<<std::endl;
+   TGCompositeFrame::SetSize(s);
 }
 
 void    

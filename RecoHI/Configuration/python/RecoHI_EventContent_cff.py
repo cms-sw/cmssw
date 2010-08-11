@@ -6,7 +6,7 @@ from RecoHI.HiJetAlgos.RecoHiJets_EventContent_cff import *
 from RecoHI.HiEgammaAlgos.RecoHiEgamma_EventContent_cff import *
 from RecoHI.HiCentralityAlgos.RecoHiCentrality_EventContent_cff import *
 from RecoHI.HiEvtPlaneAlgos.RecoHiEvtPlane_EventContent_cff import *
-from RecoHI.HiMuonAlgos.RecoHiMuon_EventContent_cff import *
+#from RecoHI.HiMuonAlgos.RecoHiMuon_EventContent_cff import *
 
 
 # combine RECO, AOD, FEVT content from all RecoHI packages
@@ -29,18 +29,18 @@ RecoHIRECO.outputCommands.extend(RecoHiJetsRECO.outputCommands)
 RecoHIRECO.outputCommands.extend(RecoHiEgammaRECO.outputCommands)
 RecoHIRECO.outputCommands.extend(RecoHiEvtPlaneRECO.outputCommands)
 RecoHIRECO.outputCommands.extend(RecoHiCentralityRECO.outputCommands)
-RecoHIRECO.outputCommands.extend(RecoHiMuonRECO.outputCommands)
+#RecoHIRECO.outputCommands.extend(RecoHiMuonRECO.outputCommands)
 
 RecoHIAOD.outputCommands.extend(RecoHiTrackerAOD.outputCommands)
 RecoHIAOD.outputCommands.extend(RecoHiJetsRECO.outputCommands)
 RecoHIAOD.outputCommands.extend(RecoHiEgammaAOD.outputCommands)
 RecoHIAOD.outputCommands.extend(RecoHiEvtPlaneAOD.outputCommands)
 RecoHIAOD.outputCommands.extend(RecoHiCentralityAOD.outputCommands)
-RecoHIAOD.outputCommands.extend(RecoHiMuonAOD.outputCommands)
+#RecoHIAOD.outputCommands.extend(RecoHiMuonAOD.outputCommands)
 
 RecoHIFEVT.outputCommands.extend(RecoHiTrackerFEVT.outputCommands)
 RecoHIFEVT.outputCommands.extend(RecoHiJetsFEVT.outputCommands)
 RecoHIFEVT.outputCommands.extend(RecoHiEgammaFEVT.outputCommands)
 RecoHIFEVT.outputCommands.extend(RecoHiEvtPlaneFEVT.outputCommands)
 RecoHIFEVT.outputCommands.extend(RecoHiCentralityFEVT.outputCommands)
-RecoHIFEVT.outputCommands.extend(RecoHiMuonFEVT.outputCommands)
+#RecoHIFEVT.outputCommands.extend(RecoHiMuonFEVT.outputCommands)

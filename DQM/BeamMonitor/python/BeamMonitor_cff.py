@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-dqmBeamMonitor = cms.EDAnalyzer("BeamMonitor",
+dqmBeamMonitor = cms.EDFilter("BeamMonitor",
                               monitorName = cms.untracked.string('BeamMonitor'),
                               beamSpot = cms.untracked.InputTag('offlineBeamSpot'), ## hltOfflineBeamSpot for HLTMON
                               primaryVertex = cms.untracked.InputTag('offlinePrimaryVertices'),
@@ -21,7 +21,6 @@ dqmBeamMonitor = cms.EDAnalyzer("BeamMonitor",
 				WriteDIPAscii = cms.untracked.bool(False),
 				DIPFileName = cms.untracked.string('BeamFitDIP.txt'),
 				SaveNtuple = cms.untracked.bool(False),
-				SavePVVertices = cms.untracked.bool(False),
 				SaveFitResults = cms.untracked.bool(False),
 				OutputFileName = cms.untracked.string('BeamFit.root'), ## ntuple filename
                                 MinimumPt = cms.untracked.double(1.0),
@@ -33,7 +32,7 @@ dqmBeamMonitor = cms.EDAnalyzer("BeamMonitor",
                                 MaximumNormChi2 = cms.untracked.double(10.0),
                                 TrackAlgorithm = cms.untracked.vstring(), ## ctf,rs,cosmics,iter0,iter1...; for all algos, leave it blank
                                 TrackQuality = cms.untracked.vstring(), ## loose, tight, highPurity...; for all qualities, leave it blank
-			        InputBeamWidth = cms.untracked.double(0.0060), ## beam width used for Trk fitter, used only when result from PV is not available
+			        InputBeamWidth = cms.untracked.double(-1.0), ## if -1 use the value calculated by the analyzer
 				FractionOfFittedTrks = cms.untracked.double(0.9),
                                 MinimumInputTracks = cms.untracked.int32(150),
 				deltaSignificanceCut = cms.untracked.double(10)
@@ -53,8 +52,7 @@ dqmBeamMonitor = cms.EDAnalyzer("BeamMonitor",
                                 maxVertexR = cms.untracked.double(2),
                                 maxVertexZ = cms.untracked.double(10),
                                 errorScale = cms.untracked.double(0.9),
-                                nSigmaCut = cms.untracked.double(5.),
-				FitPerBunchCrossing = cms.untracked.bool(False)
+                                nSigmaCut = cms.untracked.double(5.)
                                 ),
                               dxBin = cms.int32(200),
                               dxMin = cms.double(-1.0),

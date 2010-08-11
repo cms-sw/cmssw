@@ -197,6 +197,11 @@ expertSettings.add_option("--triggerResultsProcess",
                           dest="triggerResultsProcess"
                           )
 
+expertSettings.add_option("--hltProcess",
+                          help="modify the DQM sequence to look for HLT trigger results with the specified process name", 
+                          default = None,
+                          dest="hltProcess"
+                          )
 
 expertSettings.add_option("--scenario",
                           help="Select scenario overriding standard settings (available:"+str(defaultOptions.scenarioOptions)+")",
@@ -282,6 +287,7 @@ prec_step = {"NONE":"",
              "GEN":"",
              "SIM":"GEN",
              "DIGI":"SIM",
+             "HLT":"RAW",
              "RECO":"DIGI",
              "ALCA":"RECO",
              "ANA":"RECO",
@@ -397,7 +403,7 @@ options.step = options.step.replace("SIM_CHAIN","GEN,SIM,DIGI,L1,DIGI2RAW")
 # if not fastsim or harvesting...
 
 addEndJob = True
-if ("FASTSIM" in options.step and not "VALIDATION" in options.step) or "HARVESTING" in options.step or "ALCAHARVEST" in options.step or options.step == "": 
+if ("FASTSIM" in options.step and not "VALIDATION" in options.step) or "HARVESTING" in options.step or "ALCAHARVEST" in options.step or "ALCAOUTPUT" in options.step or options.step == "": 
     addEndJob = False
 if ("SKIM" in options.step and not "RECO" in options.step):
     addEndJob = False

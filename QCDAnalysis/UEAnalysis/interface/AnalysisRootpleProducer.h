@@ -20,7 +20,6 @@
 #include <TTree.h>
 #include <TFile.h>
 #include <TLorentzVector.h>
-#include <TVector.h>
 #include <TObjString.h>
 #include <TClonesArray.h>
 
@@ -32,11 +31,6 @@
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-
-
 
 // access trigger results
 #include <DataFormats/Common/interface/TriggerResults.h>
@@ -48,26 +42,27 @@ using namespace reco;
 using namespace trigger;
 using std::vector;
 
-
-
-
-
 class AnalysisRootpleProducer : public edm::EDAnalyzer
 {
   
-
 public:
   
   //
   explicit AnalysisRootpleProducer( const edm::ParameterSet& ) ;
   virtual ~AnalysisRootpleProducer() {} // no need to delete ROOT stuff
   // as it'll be deleted upon closing TFile
-
+  
   virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
   virtual void beginJob() ;
   virtual void endJob() ;
   
   void fillEventInfo(int);
+  void fillMCParticles(float, float, float, float);
+  void fillTracks(float, float, float, float);
+  void fillInclusiveJet(float, float, float, float);
+  void fillChargedJet(float, float, float, float);
+  void fillTracksJet(float, float, float, float);
+  void fillCaloJet(float, float, float, float);
   void store();
 
 private:
@@ -82,21 +77,15 @@ private:
   InputTag recoCaloJetCollName;
   InputTag tracksCollName;
   InputTag triggerResultsTag;
-  InputTag triggerEventTag;
-  InputTag genEventScaleTag;
 
-  Handle< double              > genEventScaleHandle;
   Handle< HepMCProduct        > EvtHandle ;
   Handle< vector<GenParticle> > CandHandleMC ;
   Handle< GenJetCollection    > GenJetsHandle ;
   Handle< GenJetCollection    > ChgGenJetsHandle ;
-  //  Handle< CandidateCollection > CandHandleRECO ;
-  Handle< edm::View<reco::Candidate> > CandHandleRECO ;
+  Handle< CandidateCollection > CandHandleRECO ;
   Handle< BasicJetCollection  > TracksJetsHandle ;
   Handle< CaloJetCollection   > RecoCaloJetsHandle ;
-  Handle< TriggerResults      > triggerResults;
-  Handle< TriggerEvent        > triggerEvent;
-
+  Handle<TriggerResults> triggerResults;
   //  Handle<TriggerFilterObjectWithRefs> hltFilter; // not used at the moment: can access objects that fired the trigger
 
   edm::Service<TFileService> fs;
@@ -105,60 +94,29 @@ private:
 
   TTree* AnalysisTree;
 
-  int EventKind;
+  static const int NMCPMAX = 10000;   
+  static const int NTKMAX = 10000;
+  static const int NIJMAX = 10000;
+  static const int NCJMAX = 10000;
+  static const int NTJMAX = 10000;
+  static const int NEHJMAX = 10000;
+
+  int EventKind,NumberMCParticles,NumberTracks,NumberInclusiveJet,NumberChargedJet,NumberTracksJet,NumberCaloJet;
   
+  float MomentumMC[NMCPMAX],TransverseMomentumMC[NMCPMAX],EtaMC[NMCPMAX],PhiMC[NMCPMAX];
+  float MomentumTK[NTKMAX],TransverseMomentumTK[NTKMAX],EtaTK[NTKMAX],PhiTK[NTKMAX];
+  float MomentumIJ[NIJMAX],TransverseMomentumIJ[NIJMAX],EtaIJ[NIJMAX],PhiIJ[NIJMAX];
+  float MomentumCJ[NCJMAX],TransverseMomentumCJ[NCJMAX],EtaCJ[NCJMAX],PhiCJ[NCJMAX];
+  float MomentumTJ[NTJMAX],TransverseMomentumTJ[NTJMAX],EtaTJ[NTJMAX],PhiTJ[NTJMAX];
+  float MomentumEHJ[NEHJMAX],TransverseMomentumEHJ[NEHJMAX],EtaEHJ[NEHJMAX],PhiEHJ[NEHJMAX];
+
   TClonesArray* MonteCarlo;
-  TClonesArray* MonteCarlo2;
   TClonesArray* InclusiveJet;
   TClonesArray* ChargedJet;
   TClonesArray* Track;
-  TClonesArray* AssVertex;
   TClonesArray* TracksJet;
   TClonesArray* CalorimeterJet;
   TClonesArray* acceptedTriggers;
-
-  double genEventScale;
-  //info sull'evento 
-  int eventNum;
-  int lumiBlock;
-  int runNumber;
-  int bx;
-
-  //tracks with vertex
-  Int_t   m_npv;
-  Double_t m_pvx[10];
-  Double_t m_pvxErr[10];
-  Double_t m_pvy[10];
-  Double_t m_pvyErr[10];
-  Double_t m_pvz[10];
-  Double_t m_pvzErr[10];
-  Double_t m_pvchi2[10];
-  int   m_pvntk[10];
-  
-  //Double_t  m_pvtkp[5000];
-  //Double_t m_pvtkpt[5000];
-  //Double_t m_pvtketa[5000];
-  //Double_t m_pvtkphi[5000];
-  //Double_t m_pvtknhit[5000];
-  //Double_t m_pvtkchi2norm[5000];
-  //Double_t m_pvtkd0[5000];
-  //Double_t m_pvtkd0Err[5000];
-  //Double_t m_pvtkdz[5000];
-  //Double_t m_pvtkdzErr[5000];
-
-  //int  m_ntk;
-  //Double_t  m_tkp[5000];
-  //Double_t m_tkpt[5000];
-  //Double_t m_tketa[5000];
-  //Double_t m_tkphi[5000];
-  //Double_t m_tknhit[5000];
-  //Double_t m_tkchi2norm[5000];
-  //Double_t m_tkd0[5000];
-  //Double_t m_tkd0Err[5000];
-  //Double_t m_tkdz[5000];
-  //Double_t m_tkdzErr[5000];
-  vector<int>  pdgidList;
-
 };
 
 #endif

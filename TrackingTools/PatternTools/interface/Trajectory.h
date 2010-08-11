@@ -6,7 +6,7 @@
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 #include <vector>
 #include <algorithm>
@@ -251,13 +251,7 @@ private:
     LessMag(GlobalPoint point) : thePoint(point) {}
     bool operator()(const TrajectoryMeasurement& lhs,
                     const TrajectoryMeasurement& rhs) const{ 
-      if (lhs.updatedState().isValid() && rhs.updatedState().isValid())
             return (lhs.updatedState().globalPosition() - thePoint).mag() < (rhs.updatedState().globalPosition() -thePoint).mag();
-      else
-	{
-	  edm::LogError("InvalidStateOnMeasurement")<<"an updated state is not valid. result of LessMag comparator will be wrong.";
-	  return false;
-	}
       }
     GlobalPoint thePoint;
   };

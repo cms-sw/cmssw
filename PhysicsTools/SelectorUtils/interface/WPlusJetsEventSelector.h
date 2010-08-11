@@ -31,7 +31,7 @@ class WPlusJetsEventSelector : public EventSelector {
   std::vector<reco::ShallowClonePtrCandidate> const & selectedMuons    () const { return selectedMuons_;    }
   reco::ShallowClonePtrCandidate const &              selectedMET      () const { return met_; }
 
-  void printSelectors(std::ostream & out) {
+  void printSelectors(std::ostream & out) const {
     out << "PV Selector: " << std::endl;
     pvSelector_.print(out);
     out << "Muon ID Tight Selector: " << std::endl;

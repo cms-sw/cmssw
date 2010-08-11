@@ -28,7 +28,6 @@
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram3D.h"
 
 #include "RecoTracker/DeDx/interface/DeDxDiscriminatorTools.h"
-#include "RecoTracker/DeDx/interface/DeDxTools.h"
 
 
 #include "TH3F.h"
@@ -75,7 +74,7 @@ private:
 
   std::string                       m_calibrationPath;
   bool                              useCalibration;
-  bool				    shapetest;
+
 
 
   const TrackerGeometry* m_tracker;

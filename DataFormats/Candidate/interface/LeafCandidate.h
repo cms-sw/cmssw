@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: LeafCandidate.h,v 1.21 2009/06/30 11:07:10 elmer Exp $
+ * \version $Id: LeafCandidate.h,v 1.22 2009/09/21 08:15:50 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -36,7 +36,7 @@ namespace reco {
     LeafCandidate() : 
       qx3_(0), pt_(0), eta_(0), phi_(0), mass_(0), 
       vertex_(0, 0, 0), pdgId_(0), status_(0),
-      cachePolarFixed_( false ) { }
+      cachePolarFixed_( false ), cacheCartesianFixed_( false ) { }
     // constructor from candidate                                                         
     explicit LeafCandidate( const Candidate & c) :
       qx3_( c.charge()*3 ), pt_( c.p4().pt() ), eta_( c.p4().eta() ), phi_( c.p4().phi() )\

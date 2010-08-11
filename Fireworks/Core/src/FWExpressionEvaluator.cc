@@ -8,17 +8,22 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 29 13:39:56 PST 2008
-// $Id: FWExpressionEvaluator.cc,v 1.2 2009/05/01 22:30:41 jmuelmen Exp $
+// $Id: FWExpressionEvaluator.cc,v 1.1.2.1 2009/04/09 16:57:15 jmuelmen Exp $
 //
 
 // system include files
 #include <sstream>
+#include <boost/regex.hpp>
 
+#include "TROOT.h"
+#include "TClass.h"
+#include "TInterpreter.h"
 #include "Reflex/Object.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWExpressionEvaluator.h"
 #include "Fireworks/Core/interface/FWExpressionException.h"
+#include "CommonTools/Utils/src/ExpressionPtr.h"
 #include "CommonTools/Utils/src/Grammar.h"
 #include "CommonTools/Utils/interface/Exception.h"
 

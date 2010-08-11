@@ -2,8 +2,8 @@
 /*
  * \file DTBlockedROChannelsTest.cc
  * 
- * $Date: 2010/02/25 00:29:30 $
- * $Revision: 1.11 $
+ * $Date: 2010/01/26 17:46:03 $
+ * $Revision: 1.10 $
  * \author G. Cerminara - University and INFN Torino
  *
  */
@@ -55,6 +55,7 @@ void DTBlockedROChannelsTest::beginJob() {
   LogTrace("DTDQM|DTRawToDigi|DTMonitorClient|DTBlockedROChannelsTest")
     << "[DTBlockedROChannelsTest]: BeginJob";
 
+  //nSTAEvents = 0;
   nupdates = 0;
   run=0;
 
@@ -181,7 +182,7 @@ void DTBlockedROChannelsTest::performClientDiagnostic() {
 
   double totalPerc = prevTotalPerc;
   // check again!
-  if(nevents != 0) { // skip the computation if no events in the last LS
+  if(nevents != 0) { // skip the computration if no events in the last LS
 
     // reset the histos
     summaryHisto->Reset();
@@ -237,7 +238,6 @@ void DTBlockedROChannelsTest::performClientDiagnostic() {
 //     hSystFractionVsLS->updateTimeSlot(nLumiSegs, nevents);
 //     prevTotalPerc = totalPerc;
 //   }
-
   if(!offlineMode) { // fill trend histo only in online
     hSystFractionVsLS->accumulateValueTimeSlot(totalPerc);
     hSystFractionVsLS->updateTimeSlot(nLumiSegs, nevents);
@@ -294,28 +294,21 @@ int DTBlockedROChannelsTest::readOutToGeometry(int dduId, int ros, int& wheel, i
 
 
 
-DTBlockedROChannelsTest::DTRobBinsMap::DTRobBinsMap(const int fed, const int ros, const DQMStore* dbe) : rosBin(ros),
-													 rosValue(0) {
+DTBlockedROChannelsTest::DTRobBinsMap::DTRobBinsMap(const int fed, const int ros, const DQMStore* dbe) {
   // get the pointer to the corresondig histo
   stringstream mename; mename << "DT/00-DataIntegrity/FED" << fed << "/ROS" << ros
 			      << "/FED" << fed << "_ROS" << ros << "_ROSError";
-  rosHName = mename.str();
-
-  stringstream whname; whname << "DT/00-DataIntegrity/FED" << fed
-			      << "/FED" << fed << "_ROSStatus";
-  dduHName = whname.str();
-
-  meROS = dbe->get(rosHName);
-  meDDU = dbe->get(dduHName);
-
+  hName = mename.str();
+  meROS = dbe->get(mename.str());
   theDbe = dbe;
 }
 
 
 
 
-DTBlockedROChannelsTest::DTRobBinsMap::DTRobBinsMap() : meROS(0),
-							meDDU(0) {}
+DTBlockedROChannelsTest::DTRobBinsMap::DTRobBinsMap() {
+  meROS = 0;
+}
 
 
 
@@ -343,18 +336,6 @@ int DTBlockedROChannelsTest::DTRobBinsMap::getValueRobBin(int robBin) const {
 
 
 
-int DTBlockedROChannelsTest::DTRobBinsMap::getValueRos() const {
-  int value = 0;
-  if(meDDU) {
-    value += (int)meDDU->getBinContent(2,rosBin);
-    value += (int)meDDU->getBinContent(10,rosBin);
-  }
-  return value;
-}
-
-
-
-
 bool DTBlockedROChannelsTest::DTRobBinsMap::robChanged(int robBin) {
   // check that this is a valid ROB for this map (= it has been added!)
   if(robsAndValues.find(robBin) == robsAndValues.end()) {
@@ -375,17 +356,8 @@ bool DTBlockedROChannelsTest::DTRobBinsMap::robChanged(int robBin) {
 
 
 double DTBlockedROChannelsTest::DTRobBinsMap::getChamberPercentage() {
-  meROS = theDbe->get(rosHName);
-  meDDU = theDbe->get(dduHName);
+  meROS = theDbe->get(hName);
   int nChangedROBs = 0;
-
-  // check if ros status has changed
-  int newValue = getValueRos();
-  if(newValue > rosValue) {
-    rosValue= newValue;
-    return 0.;
-  }
-
   for(map<int, int>::const_iterator robAndValue = robsAndValues.begin();
       robAndValue != robsAndValues.end(); ++robAndValue) {
     if(robChanged((*robAndValue).first)) nChangedROBs++;
@@ -395,14 +367,12 @@ double DTBlockedROChannelsTest::DTRobBinsMap::getChamberPercentage() {
 
 
 void DTBlockedROChannelsTest::DTRobBinsMap::readNewValues() {
-  meROS = theDbe->get(rosHName);
-  meDDU = theDbe->get(dduHName);
-
-  rosValue = getValueRos();
+  meROS = theDbe->get(hName);
   for(map<int, int>::const_iterator robAndValue = robsAndValues.begin();
       robAndValue != robsAndValues.end(); ++robAndValue) {
     robChanged((*robAndValue).first);
   }
+  
 }
 
 

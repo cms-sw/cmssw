@@ -3,19 +3,17 @@ from CmsswTask import *
 import os
 
 class DTValidSummary:
-    def __init__(self, run, dir, input_file, output_file, config):
-        self.runnumber = run
-        self.config = config
+    def __init__(self, dir, input_file, output_file, template_path):
         self.dir = dir 
         self.input_file = input_file
         self.output_file = output_file
 
         self.pset_name = 'DTkFactValidation_2_cfg.py'
-        self.pset_template = config.templatepath + '/config/DTkFactValidation_2_cfg.py'
+        self.pset_template = template_path + '/config/DTkFactValidation_2_cfg.py'
 
         self.initProcess()
-        self.configs = [self.pset_name]
-        self.task = CmsswTask(self.dir,self.configs)
+        configs = [self.pset_name]
+        self.task = CmsswTask(self.dir,configs)
 
     def initProcess(self):
         self.process = loadCmsProcess(self.pset_template)

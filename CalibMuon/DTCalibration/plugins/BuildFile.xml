@@ -9,10 +9,6 @@
 <use   name="CondCore/DBOutputService"/>
 <use   name="CalibMuon/DTDigiSync"/>
 <use   name="CalibMuon/DTCalibration"/>
-<use   name="root"/>
-<use   name="rootmath"/>
-<use   name="rootcore"/>
-<use   name="roofit"/>
 <use   name="rootgraphics"/>
 <lib   name="Spectrum"/>
 <library   file="*.cc" name="CalibMuonDTCalibrationPlugins">

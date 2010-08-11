@@ -12,7 +12,6 @@ namespace cmsshow {
    extern const std::string sSaveConfig;
    extern const std::string sSaveConfigAs;
    extern const std::string sExportImage;
-   extern const std::string sExportAllImages;
    extern const std::string sQuit;
    extern const std::string sUndo;
    extern const std::string sRedo;

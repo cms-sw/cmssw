@@ -597,45 +597,27 @@ void CSCAnodeLCTProcessor::readWireDigis(std::vector<int> wire[CSCConstants::NUM
       // L1Accept.  If times earlier than L1Accept were recorded, we
       // use them since they can modify the ALCTs found later, via
       // ghost-cancellation logic.
-      int last_time = -999;
-      int counter=0;
-      fail_oneshot=bx_times.size();
-      if(fail_oneshot==16) {
-	wire[i_layer][i_wire].push_back(0);	
-	wire[i_layer][i_wire].push_back(6);
-	wire[i_layer][i_wire].push_back(6);
-      }
-      else {
-	for (unsigned int i = 0; i < bx_times.size(); i++) {
-	  //find rising edge change
-	  if(bx_times[i]==counter) { 
-	    counter++;
-	    continue;
-	  }
-	  else {
-	    counter=bx_times[i]+1;
-	  }
-	  if (bx_times[i] < static_cast<int>(fifo_tbins)) {
-	    if (infoV > 2) LogTrace("CSCAnodeLCTProcessor")
-			     << "Digi on layer " << i_layer << " wire " << i_wire
-			     << " at time " << bx_times[i];
-	    if (last_time < 0 || ((bx_times[i]-last_time) >= 6) ) {
-	      wire[i_layer][i_wire].push_back(bx_times[i]);
-	      //	  break;
-	      last_time = bx_times[i];
-	    }
-	  }
-	  else {
-	    if (infoV > 1) LogTrace("CSCAnodeLCTProcessor")
-			     << "+++ Skipping wire digi: wire = " << i_wire
-			     << " layer = " << i_layer << ", bx = " << bx_times[i] << " +++";
-	  }
+      //int last_time = -999;
+      for (unsigned int i = 0; i < bx_times.size(); i++) {
+	// Comparisons with data show that time bin 0 needs to be skipped.
+	if (bx_times[i] > 0 && bx_times[i] < static_cast<int>(fifo_tbins)) {
+	  if (infoV > 2) LogTrace("CSCAnodeLCTProcessor")
+	    << "Digi on layer " << i_layer << " wire " << i_wire
+	    << " at time " << bx_times[i];
+
+	  // Finally save times of hit wires.  For the time being, if there
+	  // is more than one hit on the same wire, pick the one which
+	  // occurred earlier.
+	  //if (last_time < 0 || (bx_times[i]-last_time) >= 6) {
+	  wire[i_layer][i_wire].push_back(bx_times[i]);
+	  break;
+	    //last_time = bx_times[i];
+	  //}
 	}
-	if (infoV > 1) LogTrace("CSCAnodeLCTProcessor")
-			 << "num bx_times " << fail_oneshot;
-	if(fail_oneshot>2) {
+	else {
 	  if (infoV > 1) LogTrace("CSCAnodeLCTProcessor")
-			   << "more than two time bins" << fail_oneshot;
+	    << "+++ Skipping wire digi: wire = " << i_wire
+	    << " layer = " << i_layer << ", bx = " << bx_times[i] << " +++";
 	}
       }
     }
@@ -967,7 +949,6 @@ void CSCAnodeLCTProcessor::lctSearch() {
       if (quality[i_wire][0] > 0) {
 	int qual = (quality[i_wire][0] & 0x03); // 2 LSBs
 	CSCALCTDigi lct_info(1, qual, 1, 0, i_wire, first_bx[i_wire]);
-	lct_info.setFullBX(fail_oneshot);
 	lct_list.push_back(lct_info);
       }
 
@@ -976,7 +957,6 @@ void CSCAnodeLCTProcessor::lctSearch() {
 	int qual = (quality[i_wire][1] & 0x03); // 2 LSBs
 	CSCALCTDigi lct_info(1, qual, 0, quality[i_wire][2], i_wire,
 			     first_bx[i_wire]);
-	lct_info.setFullBX(fail_oneshot);
 	lct_list.push_back(lct_info);
       }
 
@@ -1352,9 +1332,10 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::readoutALCTs() {
   // The number of LCT bins in the read-out is given by the
   // l1a_window_width parameter, but made even by setting the LSB of
   // l1a_window_width to 0.
-  static int lct_bins   = 
-    //    (l1a_window_width%2 == 0) ? l1a_window_width : l1a_window_width-1;
-    l1a_window_width;
+  // static int lct_bins   = 
+  //  (l1a_window_width%2 == 0) ? l1a_window_width : l1a_window_width-1;
+  // Empirical correction to match 2009 collision data (firmware change?)
+  static int lct_bins   = l1a_window_width;
   static int late_tbins = early_tbins + lct_bins;
 
   static int ifois = 0;

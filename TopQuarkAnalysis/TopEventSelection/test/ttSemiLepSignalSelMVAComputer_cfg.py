@@ -26,7 +26,7 @@ process.options = cms.untracked.PSet(
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('START36_V4::All')
+process.GlobalTag.globaltag = cms.string('START38_V7::All')
 
 ## std sequence for pat
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
@@ -43,7 +43,6 @@ process.out = cms.OutputModule(
   outputCommands = cms.untracked.vstring('drop *',
                                          'keep double_*_DiscSel_*'
                                         ),
-  verbose  = cms.untracked.bool(True),
   fileName = cms.untracked.string('MVAComputer_Output.root')
 )
 ## output path

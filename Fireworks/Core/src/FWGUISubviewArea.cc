@@ -8,16 +8,20 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.35 2010/03/26 20:20:21 matevz Exp $
+// $Id: FWGUISubviewArea.cc,v 1.34 2010/01/25 13:33:37 amraktad Exp $
 //
 
 // system include files
 #include <assert.h>
 #include <stdexcept>
 #include <iostream>
+#include <boost/bind.hpp>
 
 #include "TSystem.h"
 #include "TGButton.h"
+#include "TGSplitFrame.h"
+#include "TGFont.h"
+#include "TGLabel.h"
 #include "TEveWindow.h"
 
 #include "Fireworks/Core/interface/FWGUISubviewArea.h"
