@@ -154,7 +154,7 @@ int cond::ExportIOVUtilities::execute(){
   if (newIOV) {
     // store payload mapping
     if (exportMapping) {
-      bool stored = destdb.importMapping( "sourceConnect", payloadContainer );
+      bool stored = destdb.importMapping( sourceConnect, payloadContainer );
       if(debug)
 	std::cout<< "payload mapping " << (stored ? "" : "not ") << "stored"<<std::endl;
       if (stored) a.usertext+="mapping stored;";
