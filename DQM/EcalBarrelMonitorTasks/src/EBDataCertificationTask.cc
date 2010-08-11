@@ -1,8 +1,8 @@
 /*
  * \file EBDataCertificationTask.cc
  *
- * $Date: 2010/08/08 08:56:00 $
- * $Revision: 1.24 $
+ * $Date: 2010/08/08 14:21:02 $
+ * $Revision: 1.25 $
  * \author E. Di Marco
  *
 */
@@ -60,7 +60,7 @@ EBDataCertificationTask::~EBDataCertificationTask() {
 void EBDataCertificationTask::beginJob(void){
 
   char histo[200];
-  
+
   if ( dqmStore_ ) {
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
@@ -73,7 +73,7 @@ void EBDataCertificationTask::beginJob(void){
     meEBDataCertificationSummaryMap_ = dqmStore_->book2D(histo,histo, 72, 0., 72., 34, 0., 34.);
     meEBDataCertificationSummaryMap_->setAxisTitle("jphi", 1);
     meEBDataCertificationSummaryMap_->setAxisTitle("jeta", 2);
-    
+
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/CertificationContents");
 
     for (int i = 0; i < 36; i++) {
@@ -101,7 +101,7 @@ void EBDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
   this->reset();
 
   char histo[200];
-  
+
   MonitorElement* me;
 
   // evaluate the DQM quality of observables checked by lumi
@@ -191,7 +191,7 @@ void EBDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
   sprintf(histo, (prefixME_ + "/EventInfo/DCSSummaryMap").c_str());
   me = dqmStore_->get(histo);
   hDCS_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hDCS_ );
-  
+
   float sumCert = 0.;
   float sumCertEB[36];
   int nValidChannels = 0;
@@ -206,7 +206,7 @@ void EBDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
     for ( int iptt = 0; iptt < 72; iptt++ ) {
 
       int ism = ( iett<17 ) ? iptt/4+1 : 18+iptt/4+1;
-      
+
       float xvalDQM = DQMVal[ism-1];
 
       float xvalDAQ, xvalDCS;
@@ -260,7 +260,7 @@ void EBDataCertificationTask::endRun(const edm::Run& r, const edm::EventSetup& c
   this->reset();
 
   char histo[200];
-  
+
   MonitorElement* me;
 
   sprintf(histo, (prefixME_ + "/EventInfo/reportSummaryMap").c_str());
@@ -297,7 +297,7 @@ void EBDataCertificationTask::endRun(const edm::Run& r, const edm::EventSetup& c
       if ( hDCS_ ) xvalDCS = hDCS_->GetBinContent( iptt+1, iett+1 );
 
       if ( xvalDQM == -1 || ( xvalDAQ == -1 && xvalDCS == -1 ) ) {
-        // problems: DQM empty or DAQ and DCS not available 
+        // problems: DQM empty or DAQ and DCS not available
         xcert = 0.0;
       } else {
         // do not consider the white value of DAQ and DCS (problems with DB)
@@ -346,7 +346,7 @@ void EBDataCertificationTask::reset(void) {
   }
 
   if ( meEBDataCertificationSummaryMap_ ) meEBDataCertificationSummaryMap_->Reset();
-  
+
 }
 
 
@@ -380,6 +380,6 @@ void EBDataCertificationTask::cleanup(void){
 
 }
 
-void EBDataCertificationTask::analyze(const edm::Event& e, const edm::EventSetup& c){ 
+void EBDataCertificationTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
 }

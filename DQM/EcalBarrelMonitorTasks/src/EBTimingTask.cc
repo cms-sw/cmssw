@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2010/08/11 13:16:54 $
- * $Revision: 1.62 $
+ * $Date: 2010/08/11 13:54:11 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  *
 */
@@ -296,7 +296,7 @@ void EBTimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       float xval = hitItr->energy();
       float yval = hitItr->time();
 
-      uint32_t flag = hitItr->recoFlag();      
+      uint32_t flag = hitItr->recoFlag();
       uint32_t sev = EcalSeverityLevelAlgo::severityLevel(id, *hits, *chStatus );
 
       if ( (flag == EcalRecHit::kGood || flag == EcalRecHit::kOutOfTime) && sev != EcalSeverityLevelAlgo::kWeird ) {

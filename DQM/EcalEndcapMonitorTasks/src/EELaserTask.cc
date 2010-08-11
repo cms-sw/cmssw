@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2010/07/30 05:42:46 $
- * $Revision: 1.72 $
+ * $Date: 2010/08/08 08:46:09 $
+ * $Revision: 1.73 $
  * \author G. Della Ricca
  *
 */
@@ -353,7 +353,7 @@ void EELaserTask::setup(void){
         sprintf(histo, "EELT PNs pedestal %s G16 L1", Numbers::sEE(i+1).c_str());
         mePnPedMapG16L1_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
         mePnPedMapG16L1_[i]->setAxisTitle("channel", 1);
-        mePnPedMapG16L1_[i]->setAxisTitle("pedestal", 2); 
+        mePnPedMapG16L1_[i]->setAxisTitle("pedestal", 2);
         dqmStore_->tag(mePnPedMapG16L1_[i], i+1);
       }
 
@@ -387,7 +387,7 @@ void EELaserTask::setup(void){
         sprintf(histo, "EELT PNs pedestal %s G16 L2", Numbers::sEE(i+1).c_str());
         mePnPedMapG16L2_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
         mePnPedMapG16L2_[i]->setAxisTitle("channel", 1);
-        mePnPedMapG16L2_[i]->setAxisTitle("pedestal", 2); 
+        mePnPedMapG16L2_[i]->setAxisTitle("pedestal", 2);
         dqmStore_->tag(mePnPedMapG16L2_[i], i+1);
       }
 
@@ -421,7 +421,7 @@ void EELaserTask::setup(void){
         sprintf(histo, "EELT PNs pedestal %s G16 L3", Numbers::sEE(i+1).c_str());
         mePnPedMapG16L3_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
         mePnPedMapG16L3_[i]->setAxisTitle("channel", 1);
-        mePnPedMapG16L3_[i]->setAxisTitle("pedestal", 2); 
+        mePnPedMapG16L3_[i]->setAxisTitle("pedestal", 2);
         dqmStore_->tag(mePnPedMapG16L3_[i], i+1);
       }
 
@@ -455,7 +455,7 @@ void EELaserTask::setup(void){
         sprintf(histo, "EELT PNs pedestal %s G16 L4", Numbers::sEE(i+1).c_str());
         mePnPedMapG16L4_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
         mePnPedMapG16L4_[i]->setAxisTitle("channel", 1);
-        mePnPedMapG16L4_[i]->setAxisTitle("pedestal", 2); 
+        mePnPedMapG16L4_[i]->setAxisTitle("pedestal", 2);
         dqmStore_->tag(mePnPedMapG16L4_[i], i+1);
       }
 

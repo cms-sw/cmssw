@@ -1,8 +1,8 @@
 /*
  * \file EEDataCertificationTask.cc
  *
- * $Date: 2010/08/08 08:56:00 $
- * $Revision: 1.23 $
+ * $Date: 2010/08/08 14:21:02 $
+ * $Revision: 1.24 $
  * \author E. Di Marco
  *
 */
@@ -59,11 +59,11 @@ EEDataCertificationTask::~EEDataCertificationTask() {
 void EEDataCertificationTask::beginJob(void){
 
   char histo[200];
-  
+
   if ( dqmStore_ ) {
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
-    
+
     sprintf(histo, "CertificationSummary");
     meEEDataCertificationSummary_ = dqmStore_->bookFloat(histo);
     meEEDataCertificationSummary_->Fill(-1.0);
@@ -222,12 +222,12 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
           float xvalDAQ, xvalDCS;
           xvalDAQ = xvalDCS = -1.;
           float xcert = -1.;
-          
+
           if ( hDAQ_ ) xvalDAQ = hDAQ_->GetBinContent( jx, jy );
           if ( hDCS_ ) xvalDCS = hDCS_->GetBinContent( jx, jy );
 
           if ( xvalDQM == -1 || ( xvalDAQ == -1 && xvalDCS == -1 ) ) {
-            // problems: DQM empty or DAQ and DCS not available 
+            // problems: DQM empty or DAQ and DCS not available
             xcert = 0.0;
           } else {
             // do not consider the white value of DAQ and DCS (problems with DB)
@@ -249,7 +249,7 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
     }
   }
 
-  if( meEEDataCertificationSummary_ ) { 
+  if( meEEDataCertificationSummary_ ) {
     if( nValidChannels>0 ) meEEDataCertificationSummary_->Fill( sumCert/nValidChannels );
     else meEEDataCertificationSummary_->Fill( 0.0 );
   }
@@ -274,7 +274,7 @@ void EEDataCertificationTask::endRun(const edm::Run& r, const edm::EventSetup& c
   this->reset();
 
   char histo[200];
-  
+
   MonitorElement* me;
 
   sprintf(histo, (prefixME_ + "/EventInfo/reportSummaryMap").c_str());
@@ -309,7 +309,7 @@ void EEDataCertificationTask::endRun(const edm::Run& r, const edm::EventSetup& c
           float xvalDQM, xvalDAQ, xvalDCS;
           xvalDQM = xvalDAQ = xvalDCS = -1.;
           float xcert = -1.;
-          
+
           if ( hDQM_ ) xvalDQM = hDQM_->GetBinContent( jx, jy );
           if ( hDAQ_ ) xvalDAQ = hDAQ_->GetBinContent( jx, jy );
           if ( hDCS_ ) xvalDCS = hDCS_->GetBinContent( jx, jy );
@@ -344,7 +344,7 @@ void EEDataCertificationTask::endRun(const edm::Run& r, const edm::EventSetup& c
     }
   }
 
-  if( meEEDataCertificationSummary_ ) { 
+  if( meEEDataCertificationSummary_ ) {
     if( nValidChannels>0 ) {
       meEEDataCertificationSummary_->Fill( sumCert/nValidChannels );
     } else {
@@ -375,12 +375,12 @@ void EEDataCertificationTask::reset(void) {
   if ( meEEDataCertificationSummaryMap_ ) meEEDataCertificationSummaryMap_->Reset();
 
   if ( meEEDataCertificationSummaryMap_ ) meEEDataCertificationSummaryMap_->Reset();
-  
+
 }
 
 
 void EEDataCertificationTask::cleanup(void){
-  
+
   if ( cloneME_ ) {
     if( hDQM_ ) delete hDQM_;
     if( hDAQ_ ) delete hDAQ_;
@@ -404,11 +404,11 @@ void EEDataCertificationTask::cleanup(void){
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/CertificationContents");
     for (int i = 0; i < 18; i++) {
       if ( meEEDataCertification_[i] ) dqmStore_->removeElement( meEEDataCertification_[i]->getName() );
-    }    
+    }
   }
 
 }
 
-void EEDataCertificationTask::analyze(const edm::Event& e, const edm::EventSetup& c){ 
+void EEDataCertificationTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
 }

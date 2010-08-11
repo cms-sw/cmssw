@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2010/08/11 13:54:12 $
- * $Revision: 1.68 $
+ * $Date: 2010/08/11 14:21:54 $
+ * $Revision: 1.69 $
  * \author G. Della Ricca
  *
 */
@@ -112,7 +112,7 @@ void EETimingTask::reset(void) {
     if ( meTimeSummary1D_[i] ) meTimeSummary1D_[i]->Reset();
     if ( meTimeSummaryMap_[i] ) meTimeSummaryMap_[i]->Reset();
     if ( meTimeSummaryMapProjEta_[i] )  meTimeSummaryMapProjEta_[i]->Reset();
-    if ( meTimeSummaryMapProjPhi_[i] )  meTimeSummaryMapProjPhi_[i]->Reset();    
+    if ( meTimeSummaryMapProjPhi_[i] )  meTimeSummaryMapProjPhi_[i]->Reset();
   }
 
   if ( meTimeDelta_ ) meTimeDelta_->Reset();
@@ -149,7 +149,7 @@ void EETimingTask::setup(void){
       meTimeAmpli_[i]->setAxisTitle("time (ns)", 2);
       dqmStore_->tag(meTimeAmpli_[i], i+1);
     }
-    
+
     sprintf(histo, "EETMT timing vs amplitude summary EE -");
     meTimeAmpliSummary_[0] = dqmStore_->book2D(histo, histo, 100, 0., 10., 50, -50., 50.);
     meTimeAmpliSummary_[0]->setAxisTitle("energy (GeV)", 1);
@@ -240,7 +240,7 @@ void EETimingTask::cleanup(void){
 
       if ( meTimeSummaryMap_[i] ) dqmStore_->removeElement( meTimeSummaryMap_[i]->getName() );
       meTimeSummaryMap_[i] = 0;
-      
+
       if ( meTimeSummaryMapProjEta_[i] ) dqmStore_->removeElement( meTimeSummaryMapProjEta_[i]->getName() );
       meTimeSummaryMapProjEta_[i] = 0;
 
@@ -331,7 +331,7 @@ void EETimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       int ix = id.ix();
       int iy = id.iy();
       int iz = ( id.positiveZ() ) ? 1 : 0;
-      
+
       int ism = Numbers::iSM( id );
 
       if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
@@ -361,7 +361,7 @@ void EETimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       float xval = hitItr->energy();
       float yval = hitItr->time();
 
-      uint32_t flag = hitItr->recoFlag();      
+      uint32_t flag = hitItr->recoFlag();
       uint32_t sev = EcalSeverityLevelAlgo::severityLevel(id, *hits, *chStatus );
 
       const GlobalPoint& pos = pGeometry_->getGeometry(id)->getPosition();
@@ -379,11 +379,11 @@ void EETimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
           if ( meTimeMap ) meTimeMap->Fill(xix, xiy, yval+50.);
           if ( meTime ) meTime->Fill(yval);
           if ( meTimeSummary1D_[iz] ) meTimeSummary1D_[iz]->Fill(yval);
-          
+
           if ( meTimeSummaryMap_[iz] ) meTimeSummaryMap_[iz]->Fill(xix, xiy, yval+50.);
           if ( meTimeSummaryMapProjEta_[iz] ) meTimeSummaryMapProjEta_[iz]->Fill(eta, yval);
           if ( meTimeSummaryMapProjPhi_[iz] ) meTimeSummaryMapProjPhi_[iz]->Fill(phi, yval);
-          
+
           sumTime_hithr[iz] += yval;
           n_hithr[iz]++;
         }

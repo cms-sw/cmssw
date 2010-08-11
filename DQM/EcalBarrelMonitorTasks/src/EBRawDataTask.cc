@@ -1,8 +1,8 @@
 /*
  * \file EBRawDataTask.cc
  *
- * $Date: 2010/08/08 08:46:05 $
- * $Revision: 1.37 $
+ * $Date: 2010/08/09 11:29:34 $
+ * $Revision: 1.38 $
  * \author E. Di Marco
  *
 */
@@ -560,7 +560,7 @@ void EBRawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       BxSynchStatus.reserve((int)feBxs.size());
 
       for(int fe=0; fe<(int)feBxs.size(); fe++) {
-        // do not consider desynch errors if the DCC detected them 
+        // do not consider desynch errors if the DCC detected them
         if( ( status[fe] == 10 || status[fe] == 11 )) continue;
         if(feBxs[fe] != ECALDCC_BunchCrossing && feBxs[fe] != -1 && ECALDCC_BunchCrossing != -1) {
           meEBBunchCrossingFEErrors_->Fill( xism, 1/(float)feBxs.size() );
@@ -568,7 +568,7 @@ void EBRawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
         } else BxSynchStatus[fe] = 1;
       }
 
-      // vector of TCC channels has 4 elements for both EB and EE. 
+      // vector of TCC channels has 4 elements for both EB and EE.
       // EB uses [0], EE uses [0-3].
       if(tccBx.size() == MAX_TCC_SIZE) {
         if(tccBx[0] != ECALDCC_BunchCrossing && tccBx[0] != -1 && ECALDCC_BunchCrossing != -1) meEBBunchCrossingTCCErrors_->Fill( xism );
@@ -585,7 +585,7 @@ void EBRawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       int feLv1Offset = ( e.isRealData() ) ? 1 : 0; // in MC FE Lv1A counter starts from 1, in data from 0
 
       for(int fe=0; fe<(int)feLv1.size(); fe++) {
-        // do not consider desynch errors if the DCC detected them 
+        // do not consider desynch errors if the DCC detected them
         if( ( status[fe] == 9 || status[fe] == 11 )) continue;
         if(feLv1[fe]+feLv1Offset != ECALDCC_L1A_12bit && feLv1[fe] != -1 && ECALDCC_L1A_12bit - 1 != -1) {
           meEBL1AFEErrors_->Fill( xism, 1/(float)feLv1.size() );
@@ -593,7 +593,7 @@ void EBRawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
         } else if( BxSynchStatus[fe]==0 ) meEBSynchronizationErrorsByLumi_->Fill( xism, 1/(float)feLv1.size() );
       }
 
-      // vector of TCC channels has 4 elements for both EB and EE. 
+      // vector of TCC channels has 4 elements for both EB and EE.
       // EB uses [0], EE uses [0-3].
       if(tccLv1.size() == MAX_TCC_SIZE) {
         if(tccLv1[0] != ECALDCC_L1A_12bit && tccLv1[0] != -1 && ECALDCC_L1A_12bit - 1 != -1) meEBL1ATCCErrors_->Fill( xism );

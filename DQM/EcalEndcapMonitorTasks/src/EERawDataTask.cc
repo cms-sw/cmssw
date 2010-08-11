@@ -1,8 +1,8 @@
 /*
  * \file EERawDataTask.cc
  *
- * $Date: 2010/08/08 08:46:09 $
- * $Revision: 1.35 $
+ * $Date: 2010/08/09 11:29:35 $
+ * $Revision: 1.36 $
  * \author E. Di Marco
  *
 */
@@ -412,7 +412,7 @@ void EERawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 #define  H_ORBITCOUNTER_MASK 0xFFFFFFFF
 #define  H_BX_MASK           0xFFF
 #define  H_TTYPE_MASK        0xF
-      
+
       GT_L1A           = header.lvl1ID()    & H_L1_MASK;
       GT_OrbitNumber   = e.orbitNumber()    & H_ORBITCOUNTER_MASK;
       GT_BunchCrossing = e.bunchCrossing()  & H_BX_MASK;
@@ -568,7 +568,7 @@ void EERawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       BxSynchStatus.reserve((int)feBxs.size());
 
       for(int fe=0; fe<(int)feBxs.size(); fe++) {
-        // do not consider desynch errors if the DCC detected them 
+        // do not consider desynch errors if the DCC detected them
         if( ( status[fe] == 10 || status[fe] == 11 )) continue;
         if(feBxs[fe] != ECALDCC_BunchCrossing && feBxs[fe] != -1 && ECALDCC_BunchCrossing != -1) {
           meEEBunchCrossingFEErrors_->Fill( xism, 1/(float)feBxs.size());
@@ -576,7 +576,7 @@ void EERawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
         } else BxSynchStatus[fe] = 1;
       }
 
-      // vector of TCC channels has 4 elements for both EB and EE. 
+      // vector of TCC channels has 4 elements for both EB and EE.
       // EB uses [0], EE uses [0-3].
       if(tccBx.size() == MAX_TCC_SIZE) {
         for(int tcc=0; tcc<MAX_TCC_SIZE; tcc++) {
@@ -595,15 +595,15 @@ void EERawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       int feLv1Offset = ( e.isRealData() ) ? 1 : 0; // in MC FE Lv1A counter starts from 1, in data from 0
 
       for(int fe=0; fe<(int)feLv1.size(); fe++) {
-        // do not consider desynch errors if the DCC detected them 
+        // do not consider desynch errors if the DCC detected them
         if( ( status[fe] == 9 || status[fe] == 11 )) continue;
         if(feLv1[fe]+feLv1Offset != ECALDCC_L1A_12bit && feLv1[fe] != -1 && ECALDCC_L1A_12bit - 1 != -1) {
           meEEL1AFEErrors_->Fill( xism, 1/(float)feLv1.size());
           meEESynchronizationErrorsByLumi_->Fill( xism, 1/(float)feLv1.size() );
-        } else if( BxSynchStatus[fe]==0 ) meEESynchronizationErrorsByLumi_->Fill( xism, 1/(float)feLv1.size() ); 
+        } else if( BxSynchStatus[fe]==0 ) meEESynchronizationErrorsByLumi_->Fill( xism, 1/(float)feLv1.size() );
       }
 
-      // vector of TCC channels has 4 elements for both EB and EE. 
+      // vector of TCC channels has 4 elements for both EB and EE.
       // EB uses [0], EE uses [0-3].
       if(tccLv1.size() == MAX_TCC_SIZE) {
         for(int tcc=0; tcc<MAX_TCC_SIZE; tcc++) {
