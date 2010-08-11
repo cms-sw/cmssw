@@ -13,6 +13,8 @@ typedef Basic3DVector<double> Point3D;
 typedef Basic2DVector<double> Point2D;
 typedef PixelRecoRange<double> Ranged;
 
+#include <iostream>
+
 using namespace std;
 
 ThirdHitPredictionFromInvLine::ThirdHitPredictionFromInvLine(

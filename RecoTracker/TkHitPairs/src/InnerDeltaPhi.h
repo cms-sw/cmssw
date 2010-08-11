@@ -6,9 +6,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisation.h"
 
 class DetLayer;
-class MultipleScatteringParametrisation;
 template<class T> class PixelRecoRange;
 
 #include "DataFormats/GeometryVector/interface/Basic2DVector.h"

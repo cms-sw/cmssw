@@ -2,7 +2,6 @@
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
-#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisation.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoPointRZ.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionBase.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
@@ -55,7 +54,7 @@ InnerDeltaPhi:: InnerDeltaPhi( const DetLayer& layer,
 }
 
 
-InnerDeltaPhi::~InnerDeltaPhi() { delete sigma; }
+InnerDeltaPhi::~InnerDeltaPhi() {}
 
 void InnerDeltaPhi::initBarrelLayer( const DetLayer& layer) 
 {
@@ -175,7 +174,7 @@ PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,fl
     // add multiple scattering correction
     PixelRecoPointRZ zero(0., theVtxZ);
     PixelRecoPointRZ point(hitXY.mag(), hitZ);
-    double scatt = 3*(*sigma)(thePtMin,zero, point) / rLayer; 
+    double scatt = 3.f*sigma(thePtMin,zero, point) / rLayer; 
    
     margin += scatt ;
   }
@@ -209,7 +208,7 @@ float InnerDeltaPhi::operator()( float rHit, float zHit, float errRPhi) const
     // add multiple scattering correction
     PixelRecoPointRZ zero(0., theVtxZ);
     PixelRecoPointRZ point(rHit, zHit);
-    float scatt = 3.f*(*sigma)(thePtMin,zero, point) / rMin; 
+    float scatt = 3.f*sigma(thePtMin,zero, point) / rMin; 
     float deltaPhiHitOuter = errRPhi/rMin; 
    
     return deltaPhi+deltaPhiOrig+deltaPhiHit + scatt + deltaPhiHitOuter;
