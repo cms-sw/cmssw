@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2010/08/11 13:16:54 $
- * $Revision: 1.67 $
+ * $Date: 2010/08/11 13:54:12 $
+ * $Revision: 1.68 $
  * \author G. Della Ricca
  *
 */
@@ -35,7 +35,7 @@ EETimingTask::EETimingTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  initGeometry_ = false;
+  initCaloGeometry_ = false;
 
   dqmStore_ = edm::Service<DQMStore>().operator->();
 
@@ -86,7 +86,10 @@ void EETimingTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, true);
 
-  c.get<CaloGeometryRecord>().get(pGeometry_);
+  if( !initCaloGeometry_ ) {
+    c.get<CaloGeometryRecord>().get(pGeometry_);
+    initCaloGeometry_ = true;
+  }
 
   if ( ! mergeRuns_ ) this->reset();
 

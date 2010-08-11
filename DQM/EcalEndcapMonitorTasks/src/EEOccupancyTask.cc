@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2010/08/03 15:53:32 $
- * $Revision: 1.81 $
+ * $Date: 2010/08/08 08:46:09 $
+ * $Revision: 1.82 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -40,7 +40,7 @@ EEOccupancyTask::EEOccupancyTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  initGeometry_ = false;
+  initCaloGeometry_ = false;
 
   dqmStore_ = edm::Service<DQMStore>().operator->();
 
@@ -140,12 +140,11 @@ void EEOccupancyTask::beginJob(void){
 
 void EEOccupancyTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
-  if( !initGeometry_ ) {
-    // ideal
-    Numbers::initGeometry(c, false);
-    // calo geometry
+  Numbers::initGeometry(c, false);
+
+  if( !initCaloGeometry_ ) {
     c.get<CaloGeometryRecord>().get(pGeometry_);
-    initGeometry_ = true;
+    initCaloGeometry_ = true;
   }
 
   if ( ! mergeRuns_ ) this->reset();
