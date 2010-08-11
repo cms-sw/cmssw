@@ -22,12 +22,12 @@ public:
       theCotLine ( initCot( p2.z()-theOrigin.z(), subTIP(p2.perp())-theOrigin.r() ) )
     { }
 
-  PixelRecoLineRZ(const LineOrigin & aOrigin, float aCotLine, float transverseIP = 0.)
+  PixelRecoLineRZ(const LineOrigin & aOrigin, float aCotLine, float transverseIP = 0.f)
     : theTIP2( transverseIP*transverseIP ),
       theOrigin( subTIP(aOrigin.r()), aOrigin.z() ),
       theCotLine(aCotLine) { }
 
-  PixelRecoLineRZ(const LineOrigin & aOrigin, const PixelRecoPointRZ & aPoint, float transverseIP = 0.)
+  PixelRecoLineRZ(const LineOrigin & aOrigin, const PixelRecoPointRZ & aPoint, float transverseIP = 0.f)
     : theTIP2( transverseIP*transverseIP ),
       theOrigin( subTIP(aOrigin.r()), aOrigin.z() ),
       theCotLine( initCot( aPoint.z()-theOrigin.z(), subTIP(aPoint.r())-theOrigin.r() ) )
@@ -41,11 +41,11 @@ public:
   float zAtR (float r) const 
     { return theOrigin.z()+(subTIP(r)-theOrigin.r())*theCotLine; }
   float rAtZ (float z) const 
-    { return (std::abs(theCotLine) > 1.e-4) ? addTIP(theOrigin.r()+(z-theOrigin.z())/theCotLine) : 99999.; }
+    { return (std::abs(theCotLine) > 1.e-4f) ? addTIP(theOrigin.r()+(z-theOrigin.z())/theCotLine) : 99999.f; }
 
 private:
   static float initCot (float dz, float dr)
-    { return (std::abs(dr) > 1.e-4)  ? dz/dr : 99999.; }
+    { return (std::abs(dr) > 1.e-4f)  ? dz/dr : 99999.f; }
   static float initTIP2 (float x1, float y1, float x2, float y2)
     {
       double l = y1 * (x2 - x1) - x1 * (y2 - y1);

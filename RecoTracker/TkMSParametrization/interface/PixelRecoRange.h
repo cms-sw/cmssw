@@ -3,7 +3,7 @@
 
 /** Define a range [aMin,aMax] */
 
-#include <iostream>
+#include <ostream>
 #include <utility>
 #include <algorithm>
 
@@ -15,28 +15,27 @@ public:
 
   PixelRecoRange() { }
 
-  PixelRecoRange(const T & aMin, const T & aMax) 
+  PixelRecoRange(T  aMin, T aMax) 
       : std::pair<T,T> (aMin,aMax) { }
 
   PixelRecoRange(const std::pair<T,T> & aPair ) 
       : std::pair<T,T> (aPair) { }  
 
-  const T & min() const { return this->first; }
-  const T & max() const { return this->second; }
-  T mean() const { return (this->first+this->second)/2.; }
+  T min() const { return this->first; }
+  T max() const { return this->second; }
+  T mean() const { return 0.5*(this->first+this->second); }
 
   bool empty() const { return (this->second < this->first); }
 
   bool inside(const T & value) const {
-    if (value < this->first || this->second < value)  return false; else  return true;
+    return !(value < this->first || this->second < value);
   }
 
   bool hasIntersection( const PixelRecoRange<T> & r) const {
     return rangesIntersect(*this,r); 
   }
 
-  PixelRecoRange<T> intersection( 
-      const PixelRecoRange<T> & r) const {
+  PixelRecoRange<T> intersection( const PixelRecoRange<T> & r) const {
     return rangeIntersection(*this,r); 
   }
 
@@ -44,9 +43,8 @@ public:
    if( this->empty()) return r;
    else if( r.empty()) return *this;
    else return 
-       PixelRecoRange( 
-         (min() < r.min()) ? min() : r.min(), 
-         (max() < r.max()) ? r.max() : max()); 
+	  PixelRecoRange(std::min( min(),r.min()),
+			 std::max( max(),r.max()); 
   }
 
   void sort() { if (empty() ) std::swap(this->first,this->second); }

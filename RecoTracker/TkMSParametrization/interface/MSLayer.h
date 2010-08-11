@@ -4,7 +4,7 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoPointRZ.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoLineRZ.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
-#include <iostream>
+#include <iosfwd>
 
 class DetLayer;
 class MSLayersKeeper;

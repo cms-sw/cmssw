@@ -4,6 +4,9 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "RecoTracker/TkMSParametrization/interface/MSLayersKeeper.h"
 
+#include<iostream>
+
+
 using namespace GeomDetEnumerators;
 using namespace std;
 template <class T> T sqr( T t) {return t*t;}
@@ -35,18 +38,19 @@ MSLayer::MSLayer(const DetLayer* layer, DataX0 dataX0)
 
   switch (theFace) {
   case barrel : 
-    bl = dynamic_cast<const BarrelDetLayer* >(layer);
+    bl = static_cast<const BarrelDetLayer* >(layer);
     thePosition = bl->specificSurface().radius();
     theRange = Range(-bl->surface().bounds().length()/2,
 		     bl->surface().bounds().length()/2);
     break;
   case endcap : 
-    fl = dynamic_cast<const ForwardDetLayer* >(layer);
+    fl = static_cast<const ForwardDetLayer* >(layer);
     thePosition = fl->position().z(); 
     theRange = Range(fl->specificSurface().innerRadius(),
                      fl->specificSurface().outerRadius());
     break;
   default:
+    // should throw or simimal
     cout << " ** MSLayer ** unknown part - will not work!" <<endl; 
     break;
   } 
@@ -65,11 +69,7 @@ MSLayer::MSLayer(Location part, float position, Range range, float halfThickness
 //----------------------------------------------------------------------
 bool MSLayer::operator== (const MSLayer &o) const
 {
-
-  if ( theFace != o.theFace || fabs(thePosition-o.thePosition) > 1.e-3 ) 
-    return false;
-  else 
-    return true;
+  return  !( theFace != o.theFace || std::abs(thePosition-o.thePosition) > 1.e-3f ) 
 }
 
 //----------------------------------------------------------------------
@@ -110,9 +110,9 @@ float MSLayer::distance(const PixelRecoPointRZ & point) const
   float dz = 0;
   switch(theFace) { 
   case barrel: 
-    dr = fabs(point.r()-thePosition);
+    dr = std::abs(point.r()-thePosition);
     if (theRange.inside(point.z())) {
-      return (dr < theHalfThickness) ? 0. : dr;
+      return (dr < theHalfThickness) ? 0.f : dr;
     }
     else {
       dz = point.z() > theRange.max() ?
@@ -120,7 +120,7 @@ float MSLayer::distance(const PixelRecoPointRZ & point) const
     }
     break;
   case endcap:
-    dz = fabs(point.z()-thePosition);
+    dz = std::abs(point.z()-thePosition);
     if (theRange.inside(point.r())) {
       return (dz < theHalfThickness) ? 0. : dz;
     }
@@ -131,7 +131,7 @@ float MSLayer::distance(const PixelRecoPointRZ & point) const
     break;
   case invalidLoc: break; // make gcc happy
   }
-  return sqrt(sqr(dr)+sqr(dz));
+  return std::sqrt(sqr(dr)+sqr(dz));
 }
 
 //----------------------------------------------------------------------
@@ -143,7 +143,7 @@ bool MSLayer::operator< (const MSLayer & o) const
   else if (theFace==barrel && o.theFace==endcap)
     return thePosition < o.range().max(); 
   else if (theFace==endcap && o.theFace==endcap ) 
-    return fabs(thePosition) < fabs(o.thePosition);
+    return std::abs(thePosition) < std::abs(o.thePosition);
   else 
     return range().max() < o.thePosition; 
 }
@@ -151,10 +151,10 @@ bool MSLayer::operator< (const MSLayer & o) const
 float MSLayer::x0(float cotTheta) const
 {
   if (theX0Data.hasX0) {
-    float sinTheta = 1/sqrt(1+cotTheta*cotTheta);
+    float OverSinTheta = std::sqrt(1.f+cotTheta*cotTheta);
     switch(theFace) {
-    case barrel:  return theX0Data.x0/sinTheta;
-    case endcap: return theX0Data.x0/fabs(cotTheta*sinTheta);
+    case barrel:  return theX0Data.x0*OverSinTheta;
+    case endcap: return theX0Data.x0*std::abs(OverSinTheta/cotTheta);
     case invalidLoc: return 0.;// make gcc happy
     }
   } else if (theX0Data.allLayers) {
@@ -172,13 +172,13 @@ if (theX0Data.hasX0) {
     switch(theFace) {
     case barrel:  
       return theX0Data.sumX0D
-          *sqrt(sqrt(   (1+cotTheta*cotTheta)
-                      / (1+theX0Data.cotTheta*theX0Data.cotTheta)));
+	*std::sqrt( std::sqrt(   (1.f+cotTheta*cotTheta)
+                      / (1.f+theX0Data.cotTheta*theX0Data.cotTheta)));
         return theX0Data.sumX0D;
     case endcap: 
       return (theX0Data.hasFSlope) ?  
          theX0Data.sumX0D 
-             + theX0Data.slopeSumX0D * (1/cotTheta-1/theX0Data.cotTheta)
+             + theX0Data.slopeSumX0D * (1.f/cotTheta-1.f/theX0Data.cotTheta)
        : theX0Data.sumX0D;
     case invalidLoc: break;// make gcc happy
     }
