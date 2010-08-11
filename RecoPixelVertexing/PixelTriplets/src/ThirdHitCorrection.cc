@@ -4,7 +4,7 @@
 #include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisation.h"
 
 using namespace pixelrecoutilities;
-template <class T> T sqr( T t) {return t*t;}
+template <class T> inline T sqr( T t) {return t*t;}
 
 
 //namespace pixelrecoutilities { class LongitudinalBendingCorrection; }
@@ -23,32 +23,27 @@ ThirdHitCorrection::ThirdHitCorrection(const edm::EventSetup& es,
       bool useBendingCorrection)
   :
     theBarrel(false),
+    theUseMultipleScattering(useMultipleScattering),
+    theUseBendingCorrection( useBendingCorrection),
+    theBendingCorrection(0),
     theCosTheta(0.), theSinTheta(0.),
     theLine(line),
     theMultScattCorrRPhi(0.),
-    theUseMultipleScattering(useMultipleScattering),
-    theUseBendingCorrection( useBendingCorrection),
-    theBendingCorrection(0)  
-{ 
+    theBendingCorrection(pt,es){
 
   if (!theUseMultipleScattering && !theUseBendingCorrection) return;
-  theSinTheta = 1/sqrt(1+sqr(line.cotLine()));
-  theCosTheta = fabs(line.cotLine())/sqrt(1+sqr(line.cotLine()));
+  theSinTheta = 1.f/std::sqrt(1.f+sqr(line.cotLine()));
+  theCosTheta = std::abs(line.cotLine())*theSinTheta;
   theBarrel = (layer->location() == GeomDetEnumerators::barrel);
 
   if (theUseMultipleScattering) {
     MultipleScatteringParametrisation sigmaRPhi(layer, es);
-    theMultScattCorrRPhi = 3*sigmaRPhi(pt, line.cotLine(), constraint); 
+    theMultScattCorrRPhi = 3.f*sigmaRPhi(pt, line.cotLine(), constraint); 
   }
-  if (theUseBendingCorrection) {
-    theBendingCorrection = new LongitudinalBendingCorrection(pt,es); 
-  }
+
 }
 
-ThirdHitCorrection::~ThirdHitCorrection()
-{
-  delete theBendingCorrection;
-}
+ThirdHitCorrection::~ThirdHitCorrection(){}
 
 void ThirdHitCorrection::correctRPhiRange( Range & range) const
 {
@@ -60,11 +55,11 @@ void ThirdHitCorrection::correctRPhiRange( Range & range) const
 void ThirdHitCorrection::correctRZRange( Range & range) const
 { 
   if (theUseMultipleScattering) {
-    float extra = 0.;
+    float extra = 0.f;
     if (theBarrel) {
-      if (theSinTheta > 1.e-5) extra =  theMultScattCorrRPhi/theSinTheta; 
+      if (theSinTheta > 1.e-5f) extra =  theMultScattCorrRPhi/theSinTheta; 
     } else {
-      if (theCosTheta > 1.e-5) extra =  theMultScattCorrRPhi/theCosTheta;
+      if (theCosTheta > 1.e-5f) extra =  theMultScattCorrRPhi/theCosTheta;
     }
     range.first -= extra;
     range.second += extra;
@@ -79,13 +74,13 @@ void ThirdHitCorrection::correctRZRange( Range & range) const
         range.second +=  corr;
       } else {
         float radius = theLine.rAtZ(range.min());
-        float corr = (*theBendingCorrection)(radius) * fabs(cotTheta);
+        float corr = theBendingCorrection(radius) * std::abs(cotTheta);
         range.first -=  corr;
       }
     } 
     else {
       float radius = range.max();
-      float corr = (*theBendingCorrection)(radius);
+      float corr = theBendingCorrection(radius);
       range.first -= corr;
     }
   }

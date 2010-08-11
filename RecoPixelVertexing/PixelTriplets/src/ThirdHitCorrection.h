@@ -30,12 +30,15 @@ public:
 
 private:
   bool theBarrel;
+
+  bool theUseMultipleScattering;
+  bool theUseBendingCorrection;
+
   float theCosTheta, theSinTheta;
   PixelRecoLineRZ theLine;
   float theMultScattCorrRPhi;
-  bool theUseMultipleScattering;
-  bool theUseBendingCorrection;
-  pixelrecoutilities::LongitudinalBendingCorrection * theBendingCorrection;
+
+  pixelrecoutilities::LongitudinalBendingCorrection theBendingCorrection;
   
 };
 
