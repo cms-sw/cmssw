@@ -1041,7 +1041,7 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
 	      else if (abs(ieta)>39 && (phi+1)%4!=3) continue;
 	      // find problem rate for particular cell
 	      problemvalue=false;
-	      if (test_energy_ && test_persistent_ && AbovePersistentThresholdCellsByDepth.depth[depth]->getBinContent(eta+1,phi+1)>minErrrorFlag_*ievt_)
+	      if (test_energy_ && test_persistent_ && AbovePersistentThresholdCellsByDepth.depth[depth]->getBinContent(eta+1,phi+1)>minErrorFlag_*ievt_)
 		problemvalue=true;
 	      if (test_neighbor_ && AboveNeighborsHotCellsByDepth.depth[depth]->getBinContent(eta+1,phi+1)>minErrorFlag_*ievt_)
 		problemvalue=true;
