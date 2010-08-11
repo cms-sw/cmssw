@@ -27,6 +27,7 @@ public:
   };
   
   typedef std::map<unsigned int, FWRecoGeom::Info> InfoMap;
+  typedef std::map<unsigned int, FWRecoGeom::Info>::const_iterator InfoMapItr;
 };
 
 #endif // CORE_FWRECO_GEOM_H

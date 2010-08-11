@@ -44,7 +44,7 @@ public:
    // load DetId to RecoGeomInfo map
    void loadMap( const char* fileName );
 
-   void initMap( FWRecoGeom::InfoMap );
+   void initMap( FWRecoGeom::InfoMapItr begin, FWRecoGeom::InfoMapItr end );
 
    void manager( TGeoManager* geom )
     {

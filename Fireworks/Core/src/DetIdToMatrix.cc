@@ -140,18 +140,15 @@ DetIdToMatrix::loadMap( const char* fileName )
 }
 
 void
-DetIdToMatrix::initMap( FWRecoGeom::InfoMap imap )
+DetIdToMatrix::initMap( FWRecoGeom::InfoMapItr begin, FWRecoGeom::InfoMapItr end )
 {
-  for( std::map<unsigned int, FWRecoGeom::Info>::const_iterator it = imap.begin(),
-							       end = imap.end();
+  for( std::map<unsigned int, FWRecoGeom::Info>::const_iterator it = begin;
        it != end; ++it )
   {
     unsigned int rawid = it->first;
     m_idToInfo[rawid].path = it->second.name;
-    std::vector<float> points = it->second.points;
-    m_idToInfo[rawid].points.swap( points );
-    std::vector<float> topology = it->second.topology;
-    m_idToInfo[rawid].parameters.swap( topology );
+    m_idToInfo[rawid].points = it->second.points;
+    m_idToInfo[rawid].parameters = it->second.topology;
   }
 }
 
@@ -276,7 +273,7 @@ DetIdToMatrix::getPoints( unsigned int id ) const
    std::map<unsigned int, RecoGeomInfo>::const_iterator it = m_idToInfo.find( id );
    if( it == m_idToInfo.end())
    {
-      fwLog(fwlog::kWarning) << "no reco geometry is found for id " <<  id << std::endl;
+      fwLog( fwlog::kWarning ) << "no reco geometry is found for id " <<  id << std::endl;
       return m_eveVector;
    }
    else
@@ -309,8 +306,13 @@ DetIdToMatrix::getParameters( unsigned int id ) const
 void
 DetIdToMatrix::fillCorners( unsigned int id ) const
 {
-   std::vector<TEveVector> p(8);
+   std::vector<TEveVector> p( 8 );
+   unsigned int index( 0 );
    for( unsigned int j = 0; j < 8; ++j )
-      p[j].Set( m_idToInfo[id].points[3 * j], m_idToInfo[id].points[3 * j + 1], m_idToInfo[id].points[3 * j + 2] );
+   {     
+     p[j].Set( m_idToInfo[id].points[index], m_idToInfo[id].points[index + 1], m_idToInfo[id].points[index + 2] );
+     index += 3;
+   }
+   
    m_idToInfo[id].corners.swap( p );
 }
