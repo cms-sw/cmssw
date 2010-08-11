@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2010/08/03 15:53:32 $
- * $Revision: 1.89 $
+ * $Date: 2010/08/08 08:46:05 $
+ * $Revision: 1.90 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -27,9 +27,9 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 #include "DQM/EcalCommon/interface/Numbers.h"
 
