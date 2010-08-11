@@ -18,11 +18,12 @@ template <class T> inline T sqr( T t) {return t*t;}
 inline double cropped_asin(double x) {
     return abs(x) <= 1 ? asin(x) : (x > 0 ? M_PI/2 : -M_PI/2);
 }
+
 namespace {
-double checked_asin(double x, const char *expr, const char *file, int line) {
+  double checked_asin(double x, const char *expr, const char *file, int line) {
     if (fabs(x) >= 1.0) throw cms::Exception("CorruptData") <<  "asin(x) called with x = " << expr << " = " << x << "\n\tat " << file << ":" << line << "\n";
     return asin(x);
-}
+  }
 }
 
 //#define asin(X) checked_asin(X, #X, __FILE__, __LINE__)
