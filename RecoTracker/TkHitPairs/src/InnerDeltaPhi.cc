@@ -8,21 +8,23 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
 #include "DataFormats/GeometryVector/interface/Basic2DVector.h"
 
-#include <iostream>
 
 using namespace std;
 
 #include "RecoTracker/TkSeedGenerator/interface/FastCircle.h"
 
-template <class T> T sqr( T t) {return t*t;}
+template <class T> inline T sqr( T t) {return t*t;}
 
 inline double cropped_asin(double x) {
     return abs(x) <= 1 ? asin(x) : (x > 0 ? M_PI/2 : -M_PI/2);
 }
+namespace {
 double checked_asin(double x, const char *expr, const char *file, int line) {
     if (fabs(x) >= 1.0) throw cms::Exception("CorruptData") <<  "asin(x) called with x = " << expr << " = " << x << "\n\tat " << file << ":" << line << "\n";
     return asin(x);
 }
+}
+
 //#define asin(X) checked_asin(X, #X, __FILE__, __LINE__)
 
 InnerDeltaPhi:: InnerDeltaPhi( const DetLayer& layer,
@@ -30,22 +32,21 @@ InnerDeltaPhi:: InnerDeltaPhi( const DetLayer& layer,
                  const edm::EventSetup& iSetup,
                  bool precise, float extraTolerance)
   : theROrigin(region.originRBound()),
+    thePrecise(precise),
     theRLayer(0),
     theThickness(0),
     theExtraTolerance(extraTolerance),
     theA(0),
     theB(0),
-    theVtx(region.origin().x(),region.origin().y()),
     theVtxZ(region.origin().z()),
     thePtMin(region.ptMin()),
-    sigma(0),
-    thePrecise(precise)
+    theVtx(region.origin().x(),region.origin().y()),
+    sigma(&layer,iSetup)
 {
   float zMinOrigin = theVtxZ-region.originZBound();
   float zMaxOrigin = theVtxZ+region.originZBound();
   theRCurvature = PixelRecoUtilities::bendingRadius(thePtMin,iSetup);
  
-  sigma = new MultipleScatteringParametrisation(&layer,iSetup);
 
   if (layer.location() == GeomDetEnumerators::barrel) initBarrelLayer( layer);
   else initForwardLayer( layer, zMinOrigin, zMaxOrigin);
@@ -57,23 +58,23 @@ InnerDeltaPhi::~InnerDeltaPhi() { delete sigma; }
 
 void InnerDeltaPhi::initBarrelLayer( const DetLayer& layer) 
 {
-  const BarrelDetLayer& bl = dynamic_cast<const BarrelDetLayer&>(layer); 
+  const BarrelDetLayer& bl = static_cast<const BarrelDetLayer&>(layer); 
   float rLayer = bl.specificSurface().radius(); 
 
   // the maximal delta phi will be for the innermost hits
   theThickness = layer.surface().bounds().thickness();
-  theRLayer = rLayer - theThickness/2;
+  theRLayer = rLayer - 0.5f*theThickness;
   theRDefined = true;
 }
 
 void InnerDeltaPhi::initForwardLayer( const DetLayer& layer, 
 				 float zMinOrigin, float zMaxOrigin)
 {
-  const ForwardDetLayer &fl = dynamic_cast<const ForwardDetLayer&>(layer);
+  const ForwardDetLayer &fl = static_cast<const ForwardDetLayer&>(layer);
   theRLayer = fl.specificSurface().innerRadius();
   float layerZ = layer.position().z();
   theThickness = layer.surface().bounds().thickness();
-  float layerZmin = layerZ > 0 ? layerZ-theThickness/2.: layerZ+theThickness/2.;
+  float layerZmin = layerZ > 0 ? layerZ-0.5f*theThickness: layerZ+0.5f*theThickness;
   theB = layerZ > 0 ? zMaxOrigin : zMinOrigin;
   theA = layerZmin - theB;
   theRDefined = false;
@@ -95,7 +96,7 @@ PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,fl
   // compute crossing of stright track with inner layer
   //
   if (!theRDefined) {
-    double t = theA/(hitZ-theB); double dt = fabs(theThickness/(hitZ-theB));
+    double t = theA/(hitZ-theB); double dt = std::abs(theThickness/(hitZ-theB));
     crossing = theVtx + t*dHit;
     rLayer =  crossing.mag();
     dLayer = t*dHitmag;           dL = dt * dHitmag; 
@@ -128,21 +129,21 @@ PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,fl
       double var_b = 2*theVtx.dot(dHit.unit());
       double var_delta = sqr(var_b)-4*var_c;
       if (var_delta <=0.) var_delta = 0;
-      dLayer = (-var_b + sqrt(var_delta))/2.; //only the value along vector is OK. 
+      dLayer = 0.5*(-var_b + std::sqrt(var_delta)); //only the value along vector is OK. 
     }
     crossing = theVtx+ dHit.unit() * dLayer;
-    double cosCross = fabs( dHit.unit().dot(crossing.unit()));
+    double cosCross = std::abs( dHit.unit().dot(crossing.unit()));
     dL = theThickness/cosCross; 
   }
 
 
   // track is crossing layer with angle such as:
   // this factor should be taken in computation of eror projection
-     double cosCross = fabs( dHit.unit().dot(crossing.unit()));
+  double cosCross = std::abs( dHit.unit().dot(crossing.unit()));
 
   double alphaHit = cropped_asin( dHitmag/(2*theRCurvature)); 
   double deltaPhi = fabs( alphaHit - cropped_asin( dLayer/(2*theRCurvature)));
-  deltaPhi *= (dLayer/rLayer/cosCross);  
+  deltaPhi *= dLayer/(rLayer*cosCross);  
 
   // additinal angle due to not perpendicular stright line crossing  (for displaced beam)
   //  double dPhiCrossing = (cosCross > 0.9999) ? 0 : dL *  sqrt(1-sqr(cosCross))/ rLayer;
@@ -158,7 +159,7 @@ PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,fl
 
   // compute additional delta phi due to origin radius
   double deltaPhiOrig = cropped_asin( theROrigin * (dHitmag-dLayer) / (dHitmag*dLayer));
-        deltaPhiOrig *= (dLayer/rLayer/cosCross);
+  deltaPhiOrig *= dLayer/(rLayer*cosCross);
 
   // inner hit error taken as constant
   double deltaPhiHit = theExtraTolerance / rLayer;
@@ -189,11 +190,11 @@ float InnerDeltaPhi::operator()( float rHit, float zHit, float errRPhi) const
   // cos (pi/2 - alpha) = (hRhi/2) / theRCurvature
   // so:
 
-  float alphaHit = asin( rHit/(2*theRCurvature));
+  float alphaHit = std::asin( rHit/(2*theRCurvature));
 
   
   float rMin = minRadius( rHit, zHit);
-  float deltaPhi = fabs( alphaHit - asin( rMin/(2*theRCurvature)));
+  float deltaPhi = std::abs( alphaHit - std::asin( rMin/(2*theRCurvature)));
 
   // compute additional delta phi due to origin radius
   float deltaPhiOrig = asin( theROrigin * (rHit-rMin) / (rHit*rMin));
@@ -207,7 +208,7 @@ float InnerDeltaPhi::operator()( float rHit, float zHit, float errRPhi) const
     // add multiple scattering correction
     PixelRecoPointRZ zero(0., theVtxZ);
     PixelRecoPointRZ point(rHit, zHit);
-    float scatt = 3*(*sigma)(thePtMin,zero, point) / rMin; 
+    float scatt = 3.f*(*sigma)(thePtMin,zero, point) / rMin; 
     float deltaPhiHitOuter = errRPhi/rMin; 
    
     return deltaPhi+deltaPhiOrig+deltaPhiHit + scatt + deltaPhiHitOuter;
@@ -221,16 +222,16 @@ PixelRecoRange<float> InnerDeltaPhi::operator()(
 //     float phiM =  operator()( rHit,zHit,errRPhi);
 //     return PixelRecoRange<float>(phiHit-phiM,phiHit+phiM);
 
-       Point2D hitXY( rHit*cos(phiHit), rHit*sin(phiHit));
-       return phiRange(hitXY,zHit,errRPhi);
+  Point2D hitXY( rHit*std::cos(phiHit), rHit*std::sin(phiHit));
+  return phiRange(hitXY,zHit,errRPhi);
 }
 
 float InnerDeltaPhi::minRadius( float hitR, float hitZ) const 
 {
   if (theRDefined) return theRLayer;
   else {
-    float invRmin = (hitZ-theB)/theA/hitR;
-    return ( invRmin> 0) ? std::max( 1./invRmin, (double)theRLayer) : theRLayer;
+    float rmin = (theA*hitR)/(hitZ-theB);
+    return ( rmin> 0) ? std::max( rmin, theRLayer) : theRLayer;
   }
 }
 

@@ -22,7 +22,7 @@ public:
                  const TrackingRegion & region,
                  const edm::EventSetup& iSetup,
                  bool precise = true,
-                 float extraTolerance = 0.);
+                 float extraTolerance = 0.f);
 
    ~InnerDeltaPhi();
 
@@ -32,6 +32,10 @@ public:
 
 private:
 
+  bool theRDefined;
+  bool thePrecise;
+
+
   float theROrigin;
   float theRLayer;
   float theThickness;
@@ -40,13 +44,15 @@ private:
   float theExtraTolerance;
   float theA;
   float theB;
-  bool  theRDefined;
 
-  Point2D theVtx;
   float theVtxZ;
   float thePtMin;
-  MultipleScatteringParametrisation * sigma;
-  bool thePrecise;
+
+  Point2D theVtx;
+
+
+  MultipleScatteringParametrisation sigma;
+
 
 private:
 
