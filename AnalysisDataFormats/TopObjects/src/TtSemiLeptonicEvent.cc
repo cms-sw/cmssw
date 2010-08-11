@@ -65,6 +65,7 @@ TtSemiLeptonicEvent::print(const int verbosity)
     default             : log << " Unknown";
     }
     log << "-Hypothesis: \n";
+    log << " * Number of real neutrino solutions: " << this->numberOfRealNeutrinoSolutions(hypKey) << "\n";
     unsigned nOfHyp = this->numberOfAvailableHypos(hypKey);
     if(nOfHyp > 1) {
       log << " * Number of available jet combinations: " << nOfHyp << "\n";

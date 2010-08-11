@@ -96,6 +96,19 @@ class TtSemiLeptonicEvent: public TtEvent {
   /// LogInfo to the MessageLogger output for debugging
   void print(const int verbosity=1);
 
+  /// get number of real neutrino solutions for a given hypo class
+  int numberOfRealNeutrinoSolutions(const HypoClassKey& key) { return numberOfRealNeutrinoSolutions_[key]; };
+  /// get number of real neutrino solutions for a given hypo class
+  int numberOfRealNeutrinoSolutions(const std::string& key) { return numberOfRealNeutrinoSolutions(hypoClassKeyFromString(key)); };
+
+  /// set number of real neutrino solutions for a given hypo class
+  void setNumberOfRealNeutrinoSolutions(const HypoClassKey& key, const int& nr) { numberOfRealNeutrinoSolutions_[key] = nr; };
+
+ protected:
+
+  /// number of real neutrino solutions for all hypo classes
+  std::map<HypoClassKey, int> numberOfRealNeutrinoSolutions_;
+
 };
 
 #endif
