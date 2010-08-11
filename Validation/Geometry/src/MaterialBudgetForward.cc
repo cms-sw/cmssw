@@ -15,6 +15,8 @@
 
 #include <iostream>
 
+const int MaterialBudgetForward::maxSet;
+
 MaterialBudgetForward::MaterialBudgetForward(const edm::ParameterSet& p) {
   
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("MaterialBudgetForward");
