@@ -289,6 +289,13 @@ std::string ora::MappingRules::shortScopedName( const std::string& scopedClassNa
     cn = scopedClassName.substr( ns+2 );
     sn = scopedClassName.substr( 0, ns );
   }
+  //
+  ns = cn.find(" ");
+  while( ns != std::string::npos ){
+    cn = cn.replace( ns, 1, "_");
+    ns = cn.find(" ");
+  }
+  //
   ns = sn.find("::");
   if( ns == 0 ){
     sn = sn.substr( 2 );
@@ -298,6 +305,7 @@ std::string ora::MappingRules::shortScopedName( const std::string& scopedClassNa
     sn = sn.replace( ns, 2, "_");
     ns = sn.find("::");
   }
+  //
   if( sn[sn.size()-1]=='_' ) sn = sn.substr(0,sn.size()-1);
   // ignore if namespace==std
   if( sn == "std" ) sn = "";
