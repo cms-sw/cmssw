@@ -79,10 +79,10 @@ public:
    std::vector<unsigned int> getMatchedIds( const char* selection ) const;
 
    // get reco geometry
-   std::vector<TEveVector> getPoints( unsigned int id ) const;
+   const std::vector<TEveVector>& getPoints( unsigned int id ) const;
 
    // get reco topology/parameters
-   std::vector<Float_t> getParameters( unsigned int id ) const;
+   const std::vector<Float_t>& getParameters( unsigned int id ) const;
 
    TGeoManager* getManager( void ) const {
       return m_manager;
@@ -102,6 +102,9 @@ private:
   mutable std::map<unsigned int, RecoGeomInfo> m_idToInfo;
   
   mutable TGeoManager* m_manager;
+  
+  std::vector<TEveVector> m_eveVector;
+  std::vector<Float_t> m_float;
 };
 
 #endif

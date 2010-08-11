@@ -269,7 +269,7 @@ DetIdToMatrix::getShape( unsigned int id,
       return getShape( getPath(id), s.str().c_str());
 }
 
-std::vector<TEveVector>
+const std::vector<TEveVector>&
 DetIdToMatrix::getPoints( unsigned int id ) const
 {
    // reco geometry points
@@ -277,7 +277,7 @@ DetIdToMatrix::getPoints( unsigned int id ) const
    if( it == m_idToInfo.end())
    {
       fwLog(fwlog::kWarning) << "no reco geometry is found for id " <<  id << std::endl;
-      return std::vector<TEveVector>();
+      return m_eveVector;
    }
    else
    {
@@ -290,7 +290,7 @@ DetIdToMatrix::getPoints( unsigned int id ) const
    }
 }
 
-std::vector<Float_t>
+const std::vector<Float_t>&
 DetIdToMatrix::getParameters( unsigned int id ) const
 {
    // reco geometry parameters
@@ -298,7 +298,7 @@ DetIdToMatrix::getParameters( unsigned int id ) const
    if( it == m_idToInfo.end())
    {
       fwLog( fwlog::kWarning ) << "no reco parameters are found for id " <<  id << std::endl;
-      return std::vector<Float_t>();
+      return m_float;
    }
    else
    {
