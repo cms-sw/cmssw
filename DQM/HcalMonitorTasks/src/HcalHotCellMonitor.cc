@@ -179,7 +179,7 @@ void HcalHotCellMonitor::setup()
     {
       me->Fill(1);
       SetupEtaPhiHists(AboveETThresholdCellsByDepth,
-		       "Hot Cells Above Et Threshold","");
+		       "Hot Cells Above ET Threshold","");
       //setMinMaxHists2D(AboveETThresholdCellsByDepth,0.,1.);
       
       // set more descriptive titles for plots
