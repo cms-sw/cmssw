@@ -8,7 +8,7 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWRPCDigiProxyBuilder.cc,v 1.4 2010/08/05 15:19:15 mccauley Exp $
+// $Id: FWRPCDigiProxyBuilder.cc,v 1.5 2010/08/10 12:52:43 mccauley Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -52,47 +52,45 @@ FWRPCDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product,
   for ( RPCDigiCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end();
         dri != driEnd; ++dri )
   {
-    const RPCDetId& rpcDetId = (*dri).first;
+    unsigned int rawid = (*dri).first.rawId();
+    float nStrips = 0.;
+    float halfStripLength = 0.;
+    float pitch = 0.;
 
-    const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix(rpcDetId.rawId());
-  
-    if ( ! matrix ) 
-    {
-      fwLog(fwlog::kWarning)<<"Failed get geometry of RPC reference volume with detid: "
-                            << rpcDetId.rawId() << std::endl;
-      continue;
-    }     
-    
-    std::vector<float> parameters = iItem->getGeom()->getParameters(rpcDetId.rawId());
+    float offset = 0.;
 
+    const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix(rawid);
+    std::vector<float> parameters = iItem->getGeom()->getParameters(rawid);
     if ( parameters.empty() )
     {
       fwLog(fwlog::kWarning)<<"Parameters empty for RPC with detid: "
-                            << rpcDetId.rawId() <<std::endl;
-      continue;
+			      << rawid <<std::endl;
+    }
+    else
+    {     
+      nStrips = parameters[0];
+      halfStripLength = parameters[1]*0.5;
+      pitch = parameters[2];
+
+      offset = -0.5*nStrips*pitch;
     }
     
-    assert(parameters.size() >= 3);
-
-    float nStrips = parameters[0];
-    float stripLength = parameters[1];
-    float pitch = parameters[2];
-
-    float offset = -0.5*nStrips*pitch;
-
     const RPCDigiCollection::Range& range = (*dri).second;
 
     for ( RPCDigiCollection::const_iterator dit = range.first;
           dit != range.second; ++dit )
     {
-      TEveCompound* compound = new TEveCompound("rpc digi compound", "rpcDigis");
-      compound->OpenCompound();
-      product->AddElement(compound);
-
       TEveStraightLineSet* stripDigiSet = new TEveStraightLineSet();
       stripDigiSet->SetLineWidth(3);
-      compound->AddElement(stripDigiSet);
+      setupAddElement( stripDigiSet, product );
 
+      if ( ! matrix || parameters.empty()) 
+      {
+	fwLog(fwlog::kWarning)<<"Failed get geometry of RPC reference volume with detid: "
+			      << rawid << std::endl;
+	continue;
+      }     
+    
       int strip = (*dit).strip();
       double centreOfStrip = (strip-0.5)*pitch + offset;
 
@@ -101,12 +99,12 @@ FWRPCDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product,
 
       double localPointTop[3] =
       {
-        centreOfStrip, stripLength*0.5, 0.0
+        centreOfStrip, halfStripLength, 0.0
       };
 
       double localPointBottom[3] = 
       {
-        centreOfStrip, -stripLength*0.5, 0.0
+        centreOfStrip, -halfStripLength, 0.0
       };
 
       double globalPointTop[3];
