@@ -13,8 +13,8 @@
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Sat Jul  7 09:51:31 CEST 2007
-// $Id: HOCalibAnalyzer.cc,v 1.9 2010/01/25 22:13:27 hegner Exp $
-// $Id: HOCalibAnalyzer.cc,v 1.9 2010/01/25 22:13:27 hegner Exp $
+// $Id: HOCalibAnalyzer.cc,v 1.10 2010/03/11 22:13:48 wmtan Exp $
+// $Id: HOCalibAnalyzer.cc,v 1.10 2010/03/11 22:13:48 wmtan Exp $
 //
 //
 
@@ -440,6 +440,12 @@ class HOCalibAnalyzer : public edm::EDAnalyzer {
       // ----------member data ---------------------------
 
 };
+
+const int HOCalibAnalyzer::ringmx;
+const int HOCalibAnalyzer::sectmx;
+const int HOCalibAnalyzer::routmx;
+const int HOCalibAnalyzer::rout12mx;
+const int HOCalibAnalyzer::neffip;
 
 //
 // constants, enums and typedefs
