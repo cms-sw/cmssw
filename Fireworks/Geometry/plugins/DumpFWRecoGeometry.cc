@@ -55,8 +55,8 @@ DumpFWRecoGeometry::analyze( const edm::Event& event, const edm::EventSetup& eve
   tree->Branch( "points", &v_vertex, "points[24]/F" );
   tree->Branch( "topology", &v_params, "topology[9]/F" );
 
-  for( std::map<unsigned int, FWRecoGeometry::Info>::const_iterator it = geoh.product()->idToName.begin(),
-								   end = geoh.product()->idToName.end();
+  for( std::map<unsigned int, FWRecoGeom::Info>::const_iterator it = geoh.product()->idToName.begin(),
+							       end = geoh.product()->idToName.end();
        it != end; ++it )
   {
     v_id = it->first;
