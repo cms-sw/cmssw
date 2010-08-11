@@ -6,7 +6,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 using pixelrecoutilities::LongitudinalBendingCorrection;
-LongitudinalBendingCorrection::LongitudinalBendingCorrection(float pt, const edm::EventSetup& es)
+LongitudinalBendingCorrection::init(float pt, const edm::EventSetup& es)
 {
   edm::ESHandle<MagneticField> pSetup;
   es.get<IdealMagneticFieldRecord>().get(pSetup);

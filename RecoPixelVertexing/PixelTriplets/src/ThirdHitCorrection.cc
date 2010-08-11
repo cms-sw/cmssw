@@ -28,7 +28,8 @@ ThirdHitCorrection::ThirdHitCorrection(const edm::EventSetup& es,
     theCosTheta(0.), theSinTheta(0.),
     theLine(line),
     theMultScattCorrRPhi(0.),
-    theBendingCorrection(pt,es){
+    theMScoeff(0.)
+    theBendingCorrection(){
 
   if (!theUseMultipleScattering && !theUseBendingCorrection) return;
   theSinTheta = 1.f/std::sqrt(1.f+sqr(line.cotLine()));
@@ -37,8 +38,15 @@ ThirdHitCorrection::ThirdHitCorrection(const edm::EventSetup& es,
 
   if (theUseMultipleScattering) {
     MultipleScatteringParametrisation sigmaRPhi(layer, es);
-    theMultScattCorrRPhi = 3.f*sigmaRPhi(pt, line.cotLine(), constraint); 
+    theMultScattCorrRPhi = 3.f*sigmaRPhi(pt, line.cotLine(), constraint);
+    if (theBarrel) {
+      if (theSinTheta > 1.e-5f) theMScoeff =  theMultScattCorrRPhi/theSinTheta; 
+    } else {
+      if (theCosTheta > 1.e-5f) theMScoeff =  theMultScattCorrRPhi/theCosTheta;
+    }
   }
+
+  if (useBendingCorrection)  theBendingCorrection.init(pt,es);
 
 }
 
@@ -54,14 +62,8 @@ void ThirdHitCorrection::correctRPhiRange( Range & range) const
 void ThirdHitCorrection::correctRZRange( Range & range) const
 { 
   if (theUseMultipleScattering) {
-    float extra = 0.f;
-    if (theBarrel) {
-      if (theSinTheta > 1.e-5f) extra =  theMultScattCorrRPhi/theSinTheta; 
-    } else {
-      if (theCosTheta > 1.e-5f) extra =  theMultScattCorrRPhi/theCosTheta;
-    }
-    range.first -= extra;
-    range.second += extra;
+    range.first -= theMScoeff;
+    range.second += theMScoeff;
   } 
 
   if (theUseBendingCorrection) {
