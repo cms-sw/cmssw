@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.201 $"
+__version__ = "$Revision: 1.202 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -308,8 +308,11 @@ class ConfigBuilder(object):
         """Add conditions to the process"""
         # remove FrontierConditions_GlobalTag only for backwards compatibility
         # the option can be a list of GT name and connection string
-        conditions=self._options.conditions.replace("FrontierConditions_GlobalTag,",'').split(',')
-        gtName = conditions[0]
+        conditions = self._options.conditions.replace("FrontierConditions_GlobalTag,",'').split(',')
+        gtName = str( conditions[0] )
+        if len(conditions) > 1:
+          connect   = str( conditions[1] )
+          pfnPrefix = str( '/'.join(connect.split('/')[:-1] + ['']) )
 
         # FULL or FAST SIM ?
         if "FASTSIM" in self._options.step:
@@ -333,10 +336,10 @@ class ConfigBuilder(object):
             self.loadAndRemember(self.ConditionsDefaultCFF)
 
         # set the global tag
-        self.executeAndRemember("process.GlobalTag.globaltag = '"+str(gtName)+"'")
+        self.executeAndRemember("process.GlobalTag.globaltag = '%s'" % gtName)
         if len(conditions) > 1:
-            self.executeAndRemember("process.GlobalTag.connect = '"+str(conditions[1])+"'")
-
+            self.executeAndRemember("process.GlobalTag.connect   = '%s'" % connect)
+            self.executeAndRemember("process.GlobalTag.pfnPrefix = cms.untracked.string('%s')" % pfnPrefix)
 
     def addCustomise(self):
         """Include the customise code """
@@ -1005,7 +1008,7 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.201 $"),
+              (version=cms.untracked.string("$Revision: 1.202 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
