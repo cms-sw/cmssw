@@ -73,14 +73,14 @@ float MSLayersAtAngle::sum2RmRn(
     float rTarget,
     const PixelRecoLineRZ & line) const
 {
-  float sum2 = 0.;
+  float sum2 = 0.f;
   float cotTh = line.cotLine();
   for (LayerItr it = i1; it < i2; it++) {
     pair<PixelRecoPointRZ,bool> cross = it->crossing(line);
     if (cross.second) {
       float x0 = it->x0(cotTh);
       float dr = rTarget-cross.first.r();
-      if (x0 > 1.e-5) dr *= 1+0.038*log(x0); 
+      if (x0 > 1.e-5f) dr *= 1.f+0.038f*std::log(x0); 
       sum2 += x0*dr*dr;
     } 
 //  cout << *it << " crossing: "<<cross.second<<endl;
@@ -93,8 +93,8 @@ MSLayersAtAngle::LayerItr MSLayersAtAngle::findLayer(
     MSLayersAtAngle::LayerItr ibeg,
     MSLayersAtAngle::LayerItr iend) const
 {
-  const float BIG=99999.;
-  const float EPSILON = 1.e-4;
+  const float BIG=99999.f;
+  const float EPSILON = 1.e-4f;
   LayerItr theIt = ibeg; float dist = BIG;
   for (LayerItr it = ibeg; it < iend; it++) {
     float d = it->distance(point);
