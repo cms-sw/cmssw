@@ -257,7 +257,8 @@ void TrackingVerboseAction::update(const G4Step* fStep) {
 	   << std::setw( 9) << G4BestUnit(fTrack->GetKineticEnergy() , "Energy") << " "
 	   << std::setw( 8) << G4BestUnit(fStep->GetTotalEnergyDeposit(), "Energy") << " "
 	   << std::setw( 8) << G4BestUnit(fStep->GetStepLength() , "Length") << " "
-	   << std::setw( 9) << G4BestUnit(fTrack->GetTrackLength() , "Length") << " ";
+	   << std::setw( 9) << G4BestUnit(fTrack->GetTrackLength() , "Length") << " "
+	   << std::setw( 9) << G4BestUnit(fTrack->GetGlobalTime(), "Time") << " ";
 
     // Put cut comment here
     if( fTrack->GetNextVolume() != 0 ) {
