@@ -33,7 +33,6 @@ QBBCCMS::QBBCCMS(G4LogicalVolumeToDDLogicalPartMap& map,
   bool chips   = p.getUntrackedParameter<bool>("FlagCHIPS",false);
   bool hp      = p.getUntrackedParameter<bool>("FlagHP",false);
   bool glauber = p.getUntrackedParameter<bool>("FlagGlauber",false);
-  double charge= p.getUntrackedParameter<double>("MonopoleCharge",1.0);
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
 			      << "QBBC 3.1 with Flags for EM Physics "
 			      << emPhys << " and for Hadronic Physics "
@@ -71,6 +70,6 @@ QBBCCMS::QBBCCMS(G4LogicalVolumeToDDLogicalPartMap& map,
   }
 
   // Monopoles
-  RegisterPhysics( new CMSMonopolePhysics(table_,fieldBuilder_,charge,ver));
+  RegisterPhysics( new CMSMonopolePhysics(table_,fieldBuilder_,p));
 }
 

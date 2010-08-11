@@ -11,14 +11,20 @@
 #include "G4mplIonisationWithDeltaModel.hh"
 #include "G4hMultipleScattering.hh"
 #include "G4hIonisation.hh"
+#include "G4hhIonisation.hh"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 CMSMonopolePhysics::CMSMonopolePhysics(const HepPDT::ParticleDataTable * pdt,
-				       sim::FieldBuilder * fB_, G4double chg, 
-				       G4int ver) : 
-  G4VPhysicsConstructor("Monopole Physics"), fieldBuilder(fB_),  verbose(ver) {
+				       sim::FieldBuilder * fB_, 
+				       const edm::ParameterSet & p) :
+  G4VPhysicsConstructor("Monopole Physics"), fieldBuilder(fB_) {
   
+  verbose   = p.getUntrackedParameter<int>("Verbosity",0);
+  magCharge = p.getUntrackedParameter<int>("MonopoleCharge",1);
+  deltaRay  = p.getUntrackedParameter<bool>("MonopoleDeltaRay",true);
+  multiSc   = p.getUntrackedParameter<bool>("MonopoleMultiScatter",false);
+  transport = p.getUntrackedParameter<bool>("MonopoleTransport",true);
   if (pdt) {
     int ii=0;
     for (HepPDT::ParticleDataTable::const_iterator p=pdt->begin(); 
@@ -33,14 +39,15 @@ CMSMonopolePhysics::CMSMonopolePhysics(const HepPDT::ParticleDataTable * pdt,
 	monopoles.push_back(0);
 	if (verbose > 0) G4cout << "CMSMonopolePhysics: Monopole[" << ii
 				<< "] " << particleName << " Mass "
-				<< particle.mass() << " GeV, Charge "
+				<< particle.mass() << " GeV, Magnetic Charge "
+				<< magCharge << ", Electric Charge "
 				<< particle.charge() << G4endl;
       }
     }
   }
-  magCharge = (int)chg;
   if (verbose > 0) G4cout << "CMSMonopolePhysics has " << names.size()
-			  << " monopole candidates" << G4endl;
+			  << " monopole candidates and delta Ray option " 
+			  << deltaRay << G4endl;
 }
 
 CMSMonopolePhysics::~CMSMonopolePhysics() {}
@@ -99,21 +106,31 @@ void CMSMonopolePhysics::ConstructProcess() {
 	       << mpl->GetPDGCharge() <<"\n   # of bins in dE/dx table = "
 	       << nbin << " in the range " << emin << ":" << emax << G4endl;
   
-      if(magn == 0.0) {
+      if (magn == 0.0 || (!transport)) {
 	pmanager->AddProcess( new G4Transportation(verbose), -1, 0, 0);
       } else {
 	pmanager->AddProcess( new G4MonopoleTransportation(mpl,fieldBuilder,verbose), -1, 0, 0);
       }
 
-      if(mpl->GetPDGCharge() != 0.0) {
-	//G4hMultipleScattering* hmsc = new G4hMultipleScattering();
-	//pmanager->AddProcess(hmsc,  -1, idx, idx);
-	//++idx;
-	G4hIonisation* hhioni = new G4hIonisation();
-	hhioni->SetDEDXBinning(nbin);
-	hhioni->SetMinKinEnergy(emin);
-	hhioni->SetMaxKinEnergy(emax);
-	pmanager->AddProcess(hhioni,  -1, idx, idx);
+      if (mpl->GetPDGCharge() != 0.0) {
+	if (multiSc) {
+	  G4hMultipleScattering* hmsc = new G4hMultipleScattering();
+	  pmanager->AddProcess(hmsc,  -1, idx, idx);
+	  ++idx;
+	}
+	if (deltaRay) {
+	  G4hIonisation* hhioni = new G4hIonisation();
+	  hhioni->SetDEDXBinning(nbin);
+	  hhioni->SetMinKinEnergy(emin);
+	  hhioni->SetMaxKinEnergy(emax);
+	  pmanager->AddProcess(hhioni,  -1, idx, idx);
+	} else {
+	  G4hhIonisation* hhioni = new G4hhIonisation();
+	  hhioni->SetDEDXBinning(nbin);
+	  hhioni->SetMinKinEnergy(emin);
+	  hhioni->SetMaxKinEnergy(emax);
+	  pmanager->AddProcess(hhioni,  -1, idx, idx);
+	}
 	++idx;
       }
       if(magn != 0.0) {
@@ -121,9 +138,10 @@ void CMSMonopolePhysics::ConstructProcess() {
 	mplioni->SetDEDXBinning(nbin);
 	mplioni->SetMinKinEnergy(emin);
 	mplioni->SetMaxKinEnergy(emax);
-	G4mplIonisationWithDeltaModel* mod = 
-	  new G4mplIonisationWithDeltaModel(magn,"PAI");
-	mplioni->AddEmModel(0,mod,mod);
+	if (deltaRay) {
+	  G4mplIonisationWithDeltaModel* mod = new G4mplIonisationWithDeltaModel(magn,"PAI");
+	  mplioni->AddEmModel(0,mod,mod);
+	}
 	pmanager->AddProcess(mplioni, -1, idx, idx);
 	++idx;
       }

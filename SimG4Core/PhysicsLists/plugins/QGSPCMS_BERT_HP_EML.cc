@@ -22,7 +22,6 @@ QGSPCMS_BERT_HP_EML::QGSPCMS_BERT_HP_EML(G4LogicalVolumeToDDLogicalPartMap& map,
   int  ver     = p.getUntrackedParameter<int>("Verbosity",0);
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
-  double charge= p.getUntrackedParameter<double>("MonopoleCharge",1.0);
   std::string region = p.getParameter<std::string>("Region");
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
 			      << "QGSP_BERT_HP_EML 2.3 with Flags for EM Physics "
@@ -57,6 +56,6 @@ QGSPCMS_BERT_HP_EML::QGSPCMS_BERT_HP_EML(G4LogicalVolumeToDDLogicalPartMap& map,
   }
 
   // Monopoles
-  RegisterPhysics( new CMSMonopolePhysics(table_,fieldBuilder_,charge,ver));
+  RegisterPhysics( new CMSMonopolePhysics(table_,fieldBuilder_,p));
 }
 
