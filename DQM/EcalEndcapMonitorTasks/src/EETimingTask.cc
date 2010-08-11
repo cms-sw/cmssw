@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2010/08/08 08:46:09 $
- * $Revision: 1.66 $
+ * $Date: 2010/08/11 13:16:54 $
+ * $Revision: 1.67 $
  * \author G. Della Ricca
  *
 */
@@ -22,6 +22,10 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 #include "DQM/EcalCommon/interface/Numbers.h"
 
@@ -80,13 +84,9 @@ void EETimingTask::beginJob(void){
 
 void EETimingTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
-  if( !initGeometry_ ) { 
-    // ideal
-    Numbers::initGeometry(c, true);
-    // calo geometry
-    c.get<CaloGeometryRecord>().get(pGeometry_);
-    initGeometry_ = true;
-  }
+  Numbers::initGeometry(c, true);
+
+  c.get<CaloGeometryRecord>().get(pGeometry_);
 
   if ( ! mergeRuns_ ) this->reset();
 
@@ -306,6 +306,11 @@ void EETimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   ievt_++;
 
+  // channel status
+  edm::ESHandle<EcalChannelStatus> pChannelStatus;
+  c.get<EcalChannelStatusRcd>().get(pChannelStatus);
+  const EcalChannelStatus* chStatus = pChannelStatus.product();
+
   float sumTime_hithr[2] = {0.,0.};
   int n_hithr[2] = {0,0};
 
@@ -354,13 +359,17 @@ void EETimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       float yval = hitItr->time();
 
       uint32_t flag = hitItr->recoFlag();      
+      uint32_t sev = EcalSeverityLevelAlgo::severityLevel(id, *hits, *chStatus );
 
-      float theta = pGeometry_->getGeometry(id)->getPosition().theta();
-      float eta = pGeometry_->getGeometry(id)->getPosition().eta();
-      float phi = pGeometry_->getGeometry(id)->getPosition().phi();
+      const GlobalPoint& pos = pGeometry_->getGeometry(id)->getPosition();
+
+      float theta = pos.theta();
+      float eta = pos.eta();
+      float phi = pos.phi();
+
       float et = hitItr->energy() * fabs(sin(theta));
 
-      if ( flag == EcalRecHit::kGood || flag == EcalRecHit::kOutOfTime ) {
+      if ( (flag == EcalRecHit::kGood || flag == EcalRecHit::kOutOfTime) && sev != EcalSeverityLevelAlgo::kWeird ) {
         if ( meTimeAmpli ) meTimeAmpli->Fill(xval, yval);
         if ( meTimeAmpliSummary_[iz] ) meTimeAmpliSummary_[iz]->Fill(xval, yval);
         if ( et > 0.600 ) {
