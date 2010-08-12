@@ -9,58 +9,58 @@
 class FWHBHERecHitProxyBuilder : public FWProxyBuilderBase
 {
 public:
-   FWHBHERecHitProxyBuilder(void)
-     : m_maxEnergy(0.85)
+   FWHBHERecHitProxyBuilder( void )
+     : m_maxEnergy( 0.85 )
     {}
   
-   virtual ~FWHBHERecHitProxyBuilder(void) 
+   virtual ~FWHBHERecHitProxyBuilder( void ) 
     {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
+   virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* );
 
    Float_t m_maxEnergy;
 
    // Disable default copy constructor
-   FWHBHERecHitProxyBuilder(const FWHBHERecHitProxyBuilder&);
+   FWHBHERecHitProxyBuilder( const FWHBHERecHitProxyBuilder& );
    // Disable default assignment operator
-   const FWHBHERecHitProxyBuilder& operator=(const FWHBHERecHitProxyBuilder&);
+   const FWHBHERecHitProxyBuilder& operator=( const FWHBHERecHitProxyBuilder& );
 };
 
 void
-FWHBHERecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
+FWHBHERecHitProxyBuilder::build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* )
 {
    const HBHERecHitCollection* collection = 0;
-   iItem->get(collection);
+   iItem->get( collection );
 
-   if(0 == collection)
+   if( 0 == collection )
    {
       return;
    }
    std::vector<HBHERecHit>::const_iterator it = collection->begin();
    std::vector<HBHERecHit>::const_iterator itEnd = collection->end();
-   for(; it != itEnd; ++it)
+   for( ; it != itEnd; ++it )
    {
-      if ((*it).energy() > m_maxEnergy)
-         m_maxEnergy = (*it).energy();
+      if(( *it ).energy() > m_maxEnergy )
+         m_maxEnergy = ( *it ).energy();
    }
    
    unsigned int index = 0;
-   for(it = collection->begin(); it != itEnd; ++it, ++index)
+   for( it = collection->begin(); it != itEnd; ++it, ++index )
    {
       Float_t energy = (*it).energy();
 
       TEveCompound* compound = createCompound();
-      setupAddElement(compound, product);
+      setupAddElement( compound, product );
 
-      std::vector<TEveVector> corners = iItem->getGeom()->getPoints((*it).detid());
-      if( corners.empty() ) {
+      const std::vector<Float_t>& corners = iItem->getGeom()->getCorners(( *it ).detid());
+      if( corners.empty()) {
          continue;
       }
 
-      fireworks::drawEnergyScaledBox3D(corners, energy / m_maxEnergy, compound, this, true );
+      fireworks::drawEnergyScaledBox3D( corners, energy / m_maxEnergy, compound, this, true );
    }
 }
 

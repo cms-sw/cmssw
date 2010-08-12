@@ -35,7 +35,7 @@ private:
 void
 FWEcalRecHitProxyBuilder::build( const EcalRecHit& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) 
 {
-   std::vector<TEveVector> corners = item()->getGeom()->getPoints( iData.detid() );
+   const std::vector<Float_t>& corners = item()->getGeom()->getCorners( iData.detid());
    if( corners.empty() ) {
       return;
    }
@@ -44,7 +44,7 @@ FWEcalRecHitProxyBuilder::build( const EcalRecHit& iData, unsigned int iIndex, T
    if( EcalSubdetector( iData.detid().subdetId() ) == EcalPreshower )
    {
       scale = 1000.0; 	// FIXME: The scale should be taken form somewhere else
-      ( corners[0].fZ < 0.0 ) ? reflect = true : reflect = false;
+      ( corners[2] < 0.0 ) ? reflect = true : reflect = false;
    }
    
    fireworks::drawEnergyTower3D( corners, iData.energy() * scale, &oItemHolder, this, reflect );

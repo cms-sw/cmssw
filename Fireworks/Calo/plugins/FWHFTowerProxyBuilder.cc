@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 16:41:27 CEST 2010
-// $Id: FWHFTowerProxyBuilder.cc,v 1.13 2010/06/14 16:58:15 amraktad Exp $
+// $Id: FWHFTowerProxyBuilder.cc,v 1.14 2010/06/15 18:19:41 amraktad Exp $
 //
 
 // system include files
@@ -26,23 +26,17 @@
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
-  
-
 FWHFTowerProxyBuilderBase::FWHFTowerProxyBuilderBase():
    m_hits(0),
    // m_depth(depth),
    m_vecData(0)
-{
-}
-
+{}
 
 FWHFTowerProxyBuilderBase::~FWHFTowerProxyBuilderBase()
-{
-}
+{}
 
 //
 // member functions
-
 void
 FWHFTowerProxyBuilderBase::setCaloData(const fireworks::Context& ctx)
 {
@@ -60,7 +54,6 @@ FWHFTowerProxyBuilderBase::assertCaloDataSlice()
       m_caloData->RefSliceInfo(m_sliceIndex).Setup(item()->name().c_str() , 0.,
                                                    item()->defaultDisplayProperties().color(),
                                                    item()->defaultDisplayProperties().transparency());
-    
     
       // add new selector
       FWFromTEveCaloDataSelector* sel = 0;
@@ -84,8 +77,6 @@ FWHFTowerProxyBuilderBase::assertCaloDataSlice()
    }
    return false;
 }
-
-
 
 void
 FWHFTowerProxyBuilderBase::build(const FWEventItem* iItem,
@@ -151,40 +142,39 @@ FWHFTowerProxyBuilderBase::fillCaloData()
    }
 }
 
-
 int
-FWHFTowerProxyBuilderBase::fillTowerForDetId(HcalDetId& detId, float val)
+FWHFTowerProxyBuilderBase::fillTowerForDetId( HcalDetId& detId, float val )
 {
    using namespace TMath;
    const static float upPhiLimit = Pi() -10*DegToRad() -1e-5;
 
    TEveCaloData::vCellId_t cellIds;
-   std::vector<TEveVector> pnts = item()->getGeom()->getPoints(detId.rawId());
- 
+   const std::vector<float>& corners = item()->getGeom()->getCorners( detId.rawId());
+   std::vector<TEveVector> front( 4 );
    float eta[4], phi[4];
    bool plusSignPhi  = false;
    bool minusSignPhi = false;
-   for (int i = 0; i < 4; ++i)
-   {
-      eta[i] =  pnts[i].Eta();
-      phi[i] =  pnts[i].Phi();
+   int j = 0;
+   for( int i = 0; i < 4; ++i )
+   {	 
+     front[i] = TEveVector( corners[j], corners[j + 1], corners[j + 2] );
+     j += 3;
+ 
+     eta[i] = front[i].Eta();
+     phi[i] = front[i].Phi();
 
-      // make sure sign around Pi is same as sign of fY
-      phi[i] = Sign(phi[i], pnts[i].fY);
+     // make sure sign around Pi is same as sign of fY
+     phi[i] = Sign( phi[i], front[i].fY );
 
-      if (phi[i] >= 0)
-         plusSignPhi = true;
-      else
-         minusSignPhi = true;
+     ( phi[i] >= 0 ) ? plusSignPhi = true :  minusSignPhi = true;
    }
 
-
    // check for cell around phi and move up edge to negative side
-   if (plusSignPhi && minusSignPhi) 
+   if( plusSignPhi && minusSignPhi ) 
    {
-      for (int i = 0; i < 4; ++i)
+      for( int i = 0; i < 4; ++i )
       {
-         if ( phi[i] >= upPhiLimit ) 
+         if( phi[i] >= upPhiLimit ) 
          {
             //  printf("over phi max limit %f \n", phi[i]);
             phi[i] -= TwoPi();
@@ -196,12 +186,12 @@ FWHFTowerProxyBuilderBase::fillTowerForDetId(HcalDetId& detId, float val)
    float etam =  10;
    float phiM = -4;
    float phim =  4;
-   for (int i = 0; i < 4; ++i)
+   for( int i = 0; i < 4; ++i )
    { 
-      etam = Min(etam, eta[i]);
-      etaM = Max(etaM, eta[i]);
-      phim = Min(phim, phi[i]);
-      phiM = Max(phiM, phi[i]);
+      etam = Min( etam, eta[i] );
+      etaM = Max( etaM, eta[i] );
+      phim = Min( phim, phi[i] );
+      phiM = Max( phiM, phi[i] );
    }
 
    /*

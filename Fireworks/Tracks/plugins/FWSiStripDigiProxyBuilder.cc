@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiStripDigiProxyBuilder.cc,v 1.10 2010/06/18 12:44:47 yana Exp $
+// $Id: FWSiStripDigiProxyBuilder.cc,v 1.11 2010/08/11 13:05:39 yana Exp $
 //
 
 //#include "TEveCompound.h"
@@ -61,7 +61,6 @@ void FWSiStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList*
       TEvePointSet* pointSet = new TEvePointSet;
       pointSet->SetMarkerSize( 2 );
       pointSet->SetMarkerStyle( 2 );
-      pointSet->SetMarkerColor( 2 );
       setupAddElement( pointSet, product );
 
       // For now, take the center of the strip as the local position 

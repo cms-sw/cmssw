@@ -81,6 +81,9 @@ public:
    // get reco geometry
    const std::vector<TEveVector>& getPoints( unsigned int id ) const;
 
+   // get reco geometry
+   const std::vector<Float_t>& getCorners( unsigned int id ) const;
+
    // get reco topology/parameters
    const std::vector<Float_t>& getParameters( unsigned int id ) const;
 
@@ -88,7 +91,6 @@ public:
       return m_manager;
    }
 private:
-  void fillCorners( unsigned int id ) const;
   
   mutable std::map<unsigned int, TGeoHMatrix> m_idToMatrix;
 
@@ -97,7 +99,6 @@ private:
     std::string path;
     std::vector<Float_t> points;
     std::vector<Float_t> parameters;
-    std::vector<TEveVector> corners;
   };
   mutable std::map<unsigned int, RecoGeomInfo> m_idToInfo;
   

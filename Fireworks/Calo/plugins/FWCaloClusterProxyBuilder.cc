@@ -22,17 +22,17 @@ private:
 void
 FWCaloClusterProxyBuilder::build( const reco::CaloCluster& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) 
 {
-	std::vector<std::pair<DetId, float> > clusterDetIds = iData.hitsAndFractions();
+  std::vector<std::pair<DetId, float> > clusterDetIds = iData.hitsAndFractions();
    
-	for( std::vector<std::pair<DetId, float> >::iterator it = clusterDetIds.begin(), itEnd = clusterDetIds.end();
+  for( std::vector<std::pair<DetId, float> >::iterator it = clusterDetIds.begin(), itEnd = clusterDetIds.end();
        it != itEnd; ++it )
-   {
-      std::vector<TEveVector> corners = item()->getGeom()->getPoints( (*it).first );
-      if( corners.empty() ) {
-			continue;
-      }
-      fireworks::drawEnergyTower3D( corners, (*it).second, &oItemHolder, this, false );
-   }
+  {
+    const std::vector<Float_t>& corners = item()->getGeom()->getCorners( (*it).first );
+    if( corners.empty() ) {
+      continue;
+    }
+    fireworks::drawEnergyTower3D( corners, (*it).second, &oItemHolder, this, false );
+  }
 }
 
 REGISTER_FWPROXYBUILDER( FWCaloClusterProxyBuilder, reco::CaloCluster, "Calo Cluster", FWViewType::kISpyBit );

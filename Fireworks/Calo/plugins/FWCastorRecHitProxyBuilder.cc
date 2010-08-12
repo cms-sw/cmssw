@@ -32,7 +32,7 @@ private:
 void
 FWCastorRecHitProxyBuilder::build( const CastorRecHit& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) 
 {
-   std::vector<TEveVector> corners = item()->getGeom()->getPoints( iData.detid());
+   const std::vector<Float_t>& corners = item()->getGeom()->getCorners( iData.detid());
    if( corners.empty() ) {
       return;
    }

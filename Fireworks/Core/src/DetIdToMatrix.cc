@@ -269,21 +269,23 @@ DetIdToMatrix::getShape( unsigned int id,
 const std::vector<TEveVector>&
 DetIdToMatrix::getPoints( unsigned int id ) const
 {
+   fwLog( fwlog::kWarning ) << "Obsolete function: use getCorners instead!" << std::endl;
+   return m_eveVector;
+}
+
+const std::vector<Float_t>&
+DetIdToMatrix::getCorners( unsigned int id ) const
+{
    // reco geometry points
    std::map<unsigned int, RecoGeomInfo>::const_iterator it = m_idToInfo.find( id );
    if( it == m_idToInfo.end())
    {
-      fwLog( fwlog::kWarning ) << "no reco geometry is found for id " <<  id << std::endl;
-      return m_eveVector;
+      fwLog( fwlog::kWarning ) << "no reco corners geometry is found for id " <<  id << std::endl;
+      return m_float;
    }
    else
    {
-      if( it->second.corners.empty() && ! it->second.points.empty())
-      {
-	 fillCorners( id );
-      }
-
-      return it->second.corners;
+      return it->second.points;
    }
 }
 
@@ -301,18 +303,4 @@ DetIdToMatrix::getParameters( unsigned int id ) const
    {
       return it->second.parameters;
    }
-}
-
-void
-DetIdToMatrix::fillCorners( unsigned int id ) const
-{
-   std::vector<TEveVector> p( 8 );
-   unsigned int index( 0 );
-   for( unsigned int j = 0; j < 8; ++j )
-   {     
-     p[j].Set( m_idToInfo[id].points[index], m_idToInfo[id].points[index + 1], m_idToInfo[id].points[index + 2] );
-     index += 3;
-   }
-   
-   m_idToInfo[id].corners.swap( p );
 }

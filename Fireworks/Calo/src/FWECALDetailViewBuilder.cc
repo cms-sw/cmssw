@@ -223,11 +223,17 @@ FWECALDetailViewBuilder::fillData( const EcalRecHitCollection *hits,
 	k != kEnd; ++k )
    {
       // get reco geometry
-      const std::vector<TEveVector>& points = m_geom->getPoints(k->id().rawId());
+      const std::vector<Float_t>& points = m_geom->getCorners( k->id().rawId());
       if( ! points.empty() )
       {
-	 TEveVector v = points[0] + points[1] + points[2] + points[3] + points[4] + points[5] + points[6] + points[7];
-	 double size = k->energy()/cosh(v.Eta());
+	 TEveVector v;
+	 int j = 0;
+	 for( int i = 0; i < 8; ++i )
+	 {	 
+	    v += TEveVector( points[j], points[j + 1], points[j + 2] );
+	    j +=3;
+	 }
+	 double size = k->energy() / cosh( v.Eta());
 
 	 // check what slice to put in
 	 int slice = 0;
@@ -246,18 +252,21 @@ FWECALDetailViewBuilder::fillData( const EcalRecHitCollection *hits,
 		  && fabs(phi - m_phi) < barrelCR)) continue;
 
 	    double minEta(10), maxEta(-10), minPhi(4), maxPhi(-4);
-	    if ( points.size() == 8 ) {
+	    if ( points.size() == 24 ) {
 	       // calorimeter crystalls have slightly non-symetrical form in eta-phi projection
 	       // so if we simply get the largest eta and phi, cells will overlap
 	       // therefore we get a smaller eta-phi range representing the inner square
 	       // we also should use only points from the inner face of the crystal, since
 	       // non-projecting direction of crystals leads to large shift in eta on outter
 	       // face.
-	       for (unsigned int i=0; i<points.size(); ++i)
+	       int j = 0;
+	       for( unsigned int i = 0; i < 8; ++i )
 	       {
-		  double eta = points[i].Eta();
-		  double phi = points[i].Phi();
-		  if ( points[i].Perp() > 135 ) continue;
+		  TEveVector crystal( points[j], points[j + 1], points[j + 2] );
+		  j += 3;
+		  double eta = crystal.Eta();
+		  double phi = crystal.Phi();
+		  if ( crystal.Perp() > 135 ) continue;
 		  if ( minEta - eta > 0.01) minEta = eta;
 		  if ( eta - minEta > 0 && eta - minEta < 0.01 ) minEta = eta;
 		  if ( eta - maxEta > 0.01) maxEta = eta;
@@ -289,24 +298,28 @@ FWECALDetailViewBuilder::fillData( const EcalRecHitCollection *hits,
 		  && fabs(v.Phi() - m_phi) < (m_size*0.0172)))
 	       continue;
 
-	    if ( points.size() == 8 ) {
+	    if ( points.size() == 24 ) {
 	       double minX(9999), maxX(-9999), minY(9999), maxY(-9999);
-	       for (unsigned int i=0; i<points.size(); ++i) {
-		  double x = points[i].fX;
-		  double y = points[i].fY;
-		  if ( fabs(points[i].fZ) > 330 ) continue;
-		  if ( minX - x > 0.01) minX = x;
-		  if ( x - maxX > 0.01) maxX = x;
-		  if ( minY - y > 0.01) minY = y;
-		  if ( y - maxY > 0.01) maxY = y;
+	       int j = 0;
+	       for( unsigned int i = 0; i < 8; ++i )
+	       {
+		  TEveVector crystal( points[j], points[j + 1], points[j + 2] );
+		  j += 3;
+		  double x = crystal.fX;
+		  double y = crystal.fY;
+		  if( fabs( crystal.fZ ) > 330 ) continue;
+		  if( minX - x > 0.01 ) minX = x;
+		  if( x - maxX > 0.01 ) maxX = x;
+		  if( minY - y > 0.01 ) minY = y;
+		  if( y - maxY > 0.01 ) maxY = y;
 	       }
-	       data->AddTower(minX, maxX, minY, maxY);
+	       data->AddTower( minX, maxX, minY, maxY );
 	    }
-	    data->FillSlice(slice, size);
+	    data->FillSlice( slice, size );
 	 }
       }
       else
-	fwLog(fwlog::kInfo) << " cannot get geometry for DetId: "<< k->id().rawId()  <<". Ignored.\n";
+	fwLog(fwlog::kInfo) << "cannot get geometry for DetId: "<< k->id().rawId()  <<". Ignored.\n";
    } // end loop on hits
 
    data->DataChanged();

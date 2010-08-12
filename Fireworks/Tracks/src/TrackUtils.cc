@@ -2,7 +2,7 @@
 //
 // Package:     Tracks
 // Class  :     TrackUtils
-// $Id: TrackUtils.cc,v 1.34 2010/06/24 07:37:40 yana Exp $
+// $Id: TrackUtils.cc,v 1.35 2010/08/06 14:07:49 yana Exp $
 //
 
 // system include files
@@ -731,7 +731,7 @@ pushTrackerHits(std::vector<TVector3> &monoPoints, std::vector<TVector3> &stereo
       // -- get position of center of wafer, assuming (0,0,0) is the center
       DetId id = (*it)->geographicalId();
       const TGeoHMatrix *m = detIdToGeo->getMatrix(id);
-      std::vector<Float_t> pars = detIdToGeo->getParameters( id );
+      const std::vector<Float_t>& pars = detIdToGeo->getParameters( id );
       if( pars.empty() || (! m )) {
 	fwLog( fwlog::kError )
 	  << "failed get geometry of Tracker Det with raw id: " 
@@ -959,7 +959,7 @@ pushNearbyPixelHits(std::vector<TVector3> &pixelPoints, const FWEventItem &iItem
 
       DetId id = (*it)->geographicalId();
       const TGeoHMatrix *m = detIdToGeo->getMatrix(id);
-      std::vector<Float_t> pars = detIdToGeo->getParameters( id );
+      const std::vector<Float_t>& pars = detIdToGeo->getParameters( id );
       if( pars.empty() || (! m )) {
 	fwLog( fwlog::kError )
 	  << "failed get geometry of Tracker Det with raw id: " 
@@ -1008,7 +1008,7 @@ pushPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, con
       // -- get position of center of wafer, assuming (0,0,0) is the center
       DetId id = (*it)->geographicalId();
       const TGeoHMatrix *m = detIdToGeo->getMatrix( id );
-      std::vector<Float_t> pars = detIdToGeo->getParameters( id );
+      const std::vector<Float_t>& pars = detIdToGeo->getParameters( id );
       if( pars.empty() || (! m )) {
 	fwLog( fwlog::kError )
 	  << "failed get geometry of Tracker Det with raw id: " 
@@ -1037,7 +1037,8 @@ pushPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, con
 }
   
 void
-pushPixelCluster( std::vector<TVector3> &pixelPoints, const TGeoHMatrix *m, DetId id, const SiPixelCluster &c, std::vector<Float_t>& pars ) {
+pushPixelCluster( std::vector<TVector3> &pixelPoints, const TGeoHMatrix *m, DetId id, const SiPixelCluster &c, const std::vector<Float_t>& pars )
+{
    double row = c.minPixelRow();
    double col = c.minPixelCol();
    double lx = 0.;

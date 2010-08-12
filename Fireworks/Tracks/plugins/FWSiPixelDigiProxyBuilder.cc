@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiPixelDigiProxyBuilder.cc,v 1.11 2010/08/06 14:07:50 yana Exp $
+// $Id: FWSiPixelDigiProxyBuilder.cc,v 1.12 2010/08/11 13:05:39 yana Exp $
 //
 
 #include "TEveCompound.h"
@@ -64,7 +64,6 @@ void FWSiPixelDigiProxyBuilder::build( const FWEventItem* iItem, TEveElementList
       TEvePointSet* pointSet = new TEvePointSet;
       pointSet->SetMarkerSize( 2 );
       pointSet->SetMarkerStyle( 2 );
-      pointSet->SetMarkerColor( 46 );
       setupAddElement( pointSet, product );
 
       if( ! matrix || pars.empty()) 

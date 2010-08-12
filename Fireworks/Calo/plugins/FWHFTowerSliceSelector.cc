@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Wed Jun  2 17:39:44 CEST 2010
-// $Id: FWHFTowerSliceSelector.cc,v 1.4 2010/06/07 17:54:00 amraktad Exp $
+// $Id: FWHFTowerSliceSelector.cc,v 1.5 2010/06/08 18:58:13 matevz Exp $
 //
 
 // system include files
@@ -44,8 +44,6 @@ FWHFTowerSliceSelector::doSelect(const TEveCaloData::CellId_t& iCell)
    FWChangeSentry sentry(*(m_item->changeManager()));
    for(HFRecHitCollection::const_iterator it = hits->begin(); it != hits->end(); ++it,++index)
    {
-      std::vector<TEveVector> corners = m_item->getGeom()->getPoints((*it).detid().rawId());
-
       HcalDetId id ((*it).detid().rawId());
       if (findBinFromId(id, iCell.fTower) && 
           m_item->modelInfo(index).m_displayProperties.isVisible() &&
@@ -69,8 +67,6 @@ FWHFTowerSliceSelector::doUnselect(const TEveCaloData::CellId_t& iCell)
    FWChangeSentry sentry(*(m_item->changeManager()));
    for(HFRecHitCollection::const_iterator it = hits->begin(); it != hits->end(); ++it,++index)
    {
-      std::vector<TEveVector> corners = m_item->getGeom()->getPoints((*it).detid().rawId());
-
       HcalDetId id ((*it).detid().rawId());
       if (findBinFromId(id, iCell.fTower) && 
           m_item->modelInfo(index).m_displayProperties.isVisible() &&
@@ -85,18 +81,23 @@ bool
 FWHFTowerSliceSelector::findBinFromId( HcalDetId& detId, int tower) const
 {    
    TEveCaloData::vCellId_t cellIds;
-   std::vector<TEveVector> pnts = m_item->getGeom()->getPoints(detId.rawId());
+   const std::vector<float>& corners = m_item->getGeom()->getCorners( detId.rawId());
+   std::vector<TEveVector> front( 4 );
    float eta = 0, phi = 0;
-   for (int i = 0; i < 4; ++i)
+   int j = 0;
+   for( int i = 0; i < 4; ++i )
    {
-      eta += pnts[i].Eta();
-      phi += pnts[i].Phi();
+     front[i] = TEveVector( corners[j], corners[j + 1], corners[j + 2] );
+     j +=3;
+
+     eta += front[i].Eta();
+     phi += front[i].Phi();
    }
    eta /= 4;
    phi /= 4;
 
    const TEveCaloData::CellGeom_t &cg = m_vecData->GetCellGeom()[tower] ;
-   if ((eta >= cg.fEtaMin && eta <= cg.fEtaMax) && (phi >= cg.fPhiMin && phi <= cg.fPhiMax))
+   if(( eta >= cg.fEtaMin && eta <= cg.fEtaMax) && (phi >= cg.fPhiMin && phi <= cg.fPhiMax))
    {
       return true;
    }

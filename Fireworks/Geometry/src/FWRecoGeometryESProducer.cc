@@ -96,7 +96,7 @@ namespace
     return new TGeoCombiTrans( trans, rotation );
   }
 
-    std::vector<float> 
+  std::vector<float> 
   fillPoints( std::vector<GlobalPoint>::const_iterator begin, std::vector<GlobalPoint>::const_iterator end )
   {
     unsigned int index( 0 );

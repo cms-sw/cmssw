@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Dec  5 15:32:33 EST 2008
-// $Id: makeSuperCluster.cc,v 1.6 2010/06/18 12:42:18 yana Exp $
+// $Id: makeSuperCluster.cc,v 1.7 2010/07/22 14:56:45 yana Exp $
 //
 
 // system include files
@@ -37,10 +37,17 @@ bool makeRhoPhiSuperCluster(FWProxyBuilderBase* pb,
    std::vector<double> phis;
    for (std::vector<std::pair<DetId, float> >::const_iterator id = detids.begin(); id != detids.end(); ++id )
    {
-     std::vector<TEveVector> corners = pb->context().getGeom()->getPoints( id->first.rawId());
+     const std::vector<Float_t>& corners = pb->context().getGeom()->getCorners( id->first.rawId());
      if( ! corners.empty() )
      {
-       TEveVector centre = corners[0] + corners[1] + corners[2] + corners[3] + corners[4] + corners[5] + corners[6] + corners[7];
+       TEveVector centre;
+       int j = 0;
+       for( int i = 0; i < 8; ++i )
+       {	 
+	 centre += TEveVector( corners[j], corners[j + 1], corners[j + 2] );
+	 j +=3;
+       }
+     
        phis.push_back( centre.Phi());
      }
    }
@@ -68,10 +75,16 @@ bool makeRhoZSuperCluster(FWProxyBuilderBase* pb,
    std::vector<std::pair<DetId, float> > detids = iCluster->hitsAndFractions();
    for (std::vector<std::pair<DetId, float> >::const_iterator id = detids.begin(); id != detids.end(); ++id)
    {
-     std::vector<TEveVector> corners = pb->context().getGeom()->getPoints( id->first.rawId() );
+     const std::vector<Float_t>& corners = pb->context().getGeom()->getCorners( id->first.rawId() );
      if( ! corners.empty() )
      {
-       TEveVector centre = corners[0] + corners[1] + corners[2] + corners[3] + corners[4] + corners[5] + corners[6] + corners[7];
+       TEveVector centre;
+       int j = 0;
+       for( int i = 0; i < 8; ++i )
+       {	 
+	 centre += TEveVector( corners[j], corners[j + 1], corners[j + 2] );
+	 j +=3;
+       }
        double theta = centre.Theta();
        if ( theta > theta_max ) theta_max = theta;
        if ( theta < theta_min ) theta_min = theta;

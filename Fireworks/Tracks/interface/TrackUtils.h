@@ -4,7 +4,7 @@
 //
 // Package:     Tracks
 // Class  :     TrackUtils
-// $Id: TrackUtils.h,v 1.18 2010/06/21 16:14:37 matevz Exp $
+// $Id: TrackUtils.h,v 1.19 2010/08/06 14:07:49 yana Exp $
 //
 
 // system include files
@@ -69,7 +69,7 @@ double pixelLocalY( const double mpy, const int m_ncols );
 void localSiStrip( TVector3& point, TVector3& pointA, TVector3& pointB, double bc, DetId id, const FWEventItem* iItem );
 void pushPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, const reco::Track &t );   
 void pushNearbyPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, const reco::Track &t );   
-void pushPixelCluster( std::vector<TVector3> &pixelPoints, const TGeoHMatrix *m, DetId id, const SiPixelCluster &c, std::vector<Float_t>& pars ); 
+void pushPixelCluster( std::vector<TVector3> &pixelPoints, const TGeoHMatrix *m, DetId id, const SiPixelCluster &c, const std::vector<Float_t>& pars ); 
 
 
 void pushSiStripHits( std::vector<TVector3> &monoPoints, std::vector<TVector3> &stereoPoints, const FWEventItem &iItem, const reco::Track &t );

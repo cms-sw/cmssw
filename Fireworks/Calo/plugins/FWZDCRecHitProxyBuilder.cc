@@ -32,17 +32,12 @@ private:
 void
 FWZDCRecHitProxyBuilder::build( const ZDCRecHit& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) 
 {
-   std::vector<TEveVector> corners = item()->getGeom()->getPoints( iData.detid());
+   const std::vector<Float_t>& corners = item()->getGeom()->getCorners( iData.detid());
    if( corners.empty()) {
       return;
    }
-   float energy = iData.energy();
   
-   // Make sure that the shape we draw
-   // is always convex.
-   if( energy > 0. )
-      fireworks::invertBox( corners );
-   fireworks::drawEnergyTower3D( corners, energy, &oItemHolder, this );
+   fireworks::drawEnergyTower3D( corners, iData.energy(), &oItemHolder, this );
 }
 
 REGISTER_FWPROXYBUILDER( FWZDCRecHitProxyBuilder, ZDCRecHit, "ZDC RecHit", FWViewType::kISpyBit );
