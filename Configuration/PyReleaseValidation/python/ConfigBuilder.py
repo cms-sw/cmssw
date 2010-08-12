@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.203 $"
+__version__ = "$Revision: 1.204 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -127,13 +127,21 @@ class ConfigBuilder(object):
                self.process.source.processingMode = cms.untracked.string("RunsAndLumis")
 
            if self._options.dbsquery!='':
-               self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring())
+               self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring())
                import os
                print "the query is",self._options.dbsquery
                for line in os.popen('dbs search --query "%s"'%(self._options.dbsquery,)):
-                   if (line.find(".root")!=-1):
-                       self.process.source.fileNames.append(line.replace("\n",""))
+		       if line.count(".root")>=2:
+			       #two files solution...
+			       entries=line.replace("\n","").split()
+			       self.process.source.fileNames.append(entries[0])
+			       self.process.source.secondaryFileNames.append(entries[1])
+		       elif (line.find(".root")!=-1):
+			       self.process.source.fileNames.append(line.replace("\n",""))
                print "found files: ",self.process.source.fileNames.value()
+	       if self.process.source.secondaryFileNames.__len__()!=0:
+		       print "found parent files:",self.process.source.secondaryFileNames.value()
+		       
 
         if 'GEN' in self._options.step or (not self._options.filein and hasattr(self._options, "evt_type")):
             if self.process.source is None:
@@ -1010,7 +1018,7 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.203 $"),
+              (version=cms.untracked.string("$Revision: 1.204 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
