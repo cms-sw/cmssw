@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:00 CET 2010
-// $Id: FWProxyBuilderBase.cc,v 1.22 2010/06/03 13:38:32 eulisse Exp $
+// $Id: FWProxyBuilderBase.cc,v 1.23 2010/06/22 19:11:26 amraktad Exp $
 //
 
 // system include files
@@ -182,7 +182,7 @@ void
 FWProxyBuilderBase::modelChanges(const FWModelIds& iIds, Product* p)
 {
    TEveElementList* elms = p->m_elements;
-   assert(m_item && static_cast<int>(m_item->size()) == elms->NumChildren() && "can not use default modelChanges implementation");
+   assert(m_item && static_cast<int>(m_item->size()) <= elms->NumChildren() && "can not use default modelChanges implementation");
 
    TEveElement::List_i itElement = elms->BeginChildren();
    int index = 0;
@@ -352,7 +352,11 @@ FWProxyBuilderBase::clean()
    for (Product_it i = m_products.begin(); i != m_products.end(); ++i)
    {
       if ((*i)->m_elements)
-         (*i)->m_elements->DestroyElements();
+      {
+         TEveElement* elms = (*i)->m_elements;
+         for (TEveElement::List_i it = elms->BeginChildren(); it != elms->EndChildren(); ++it)
+            (*it)->DestroyElements();
+      }
    }
 
    cleanLocal();

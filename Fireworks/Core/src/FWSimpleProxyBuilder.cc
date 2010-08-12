@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Tue March 28 09:46:41 EST 2010
-// $Id: FWSimpleProxyBuilder.cc,v 1.8 2010/06/18 10:17:16 yana Exp $
+// $Id: FWSimpleProxyBuilder.cc,v 1.9 2010/06/18 12:31:57 matevz Exp $
 //
 
 // system include files
@@ -73,10 +73,20 @@ FWSimpleProxyBuilder::build(const FWEventItem* iItem,
                             TEveElementList* product, const FWViewContext* vc)
 {
    size_t size = iItem->size();
+   TEveElement::List_i pIdx = product->BeginChildren();
    for (int index = 0; index < static_cast<int>(size); ++index)
    {
-      TEveCompound* itemHolder = createCompound();
-      product->AddElement(itemHolder);
+      TEveElement* itemHolder = 0;
+      if (index <  product->NumChildren())
+      {
+         itemHolder = *pIdx;
+         ++pIdx;
+      }
+      else
+      {
+         itemHolder = createCompound();
+         product->AddElement(itemHolder);
+      }
       if (iItem->modelInfo(index).displayProperties().isVisible())
       {
          const void* modelData = iItem->modelData(index);
@@ -90,10 +100,20 @@ FWSimpleProxyBuilder::buildViewType(const FWEventItem* iItem,
                                     TEveElementList* product, FWViewType::EType viewType, const FWViewContext* vc)
 {
    size_t size = iItem->size();
+   TEveElement::List_i pIdx = product->BeginChildren();
    for (int index = 0; index < static_cast<int>(size); ++index)
    {
-      TEveCompound* itemHolder = createCompound();
-      product->AddElement(itemHolder);
+      TEveElement* itemHolder = 0;
+      if (index < product->NumChildren())
+      {
+         itemHolder = *pIdx;
+         ++pIdx;
+      }
+      else
+      {
+         itemHolder = createCompound();
+         product->AddElement(itemHolder);
+      }
       if (iItem->modelInfo(index).displayProperties().isVisible())
       {
          const void* modelData = iItem->modelData(index);
