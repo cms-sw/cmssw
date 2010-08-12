@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.18 2010/08/09 14:05:59 mccauley Exp $
+// $Id: ValidateGeometry.cc,v 1.19 2010/08/09 16:10:21 mccauley Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -30,6 +30,10 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
 #include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
+#include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
+#include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Core/interface/fwLog.h"
@@ -813,7 +817,7 @@ ValidateGeometry::validateCaloGeometry(DetId::Detector detector,
   {
     unsigned int rawId = (*it).rawId();
 
-    std::vector<TEveVector> points = detIdToMatrix_.getPoints(rawId);
+    std::vector<float> points = detIdToMatrix_.getCorners(rawId);
 
     if ( points.empty() )
     { 
@@ -822,24 +826,20 @@ ValidateGeometry::validateCaloGeometry(DetId::Detector detector,
       continue;
     }
 
-    assert(points.size() == 8);
+    assert(points.size() == 24);
 
     const CaloCellGeometry* cellGeometry = geometry->getGeometry(*it);
     const CaloCellGeometry::CornersVec& corners = cellGeometry->getCorners();
     
     assert(corners.size() == 8);
-
-    for ( unsigned int i = 0; i < 8; ++i )
+    
+    for ( unsigned int i = 0, offset = 0; i < 8; ++i )
     {
-      /*
-      std::cout<< points[i][0] <<" "<< points[i][1] <<" "<< points[i][2] <<" | "
-               << corners[i].x() <<" "<< corners[i].y() <<" "<< corners[i].z() <<std::endl;
+      offset = 2*i;
 
-      */
-
-      double distance = getDistance(GlobalPoint(points[i][0], points[i][1], points[i][2]), 
+      double distance = getDistance(GlobalPoint(points[i+offset], points[i+1+offset], points[i+2+offset]), 
                                     GlobalPoint(corners[i].x(), corners[i].y(), corners[i].z()));
-      
+     
       globalDistances_.push_back(distance);
     }
   }
@@ -958,11 +958,11 @@ ValidateGeometry::validatePixelTopology(const TrackerGeometry::DetContainer& det
       }
        
       else
-        std::cout<<"No topology for "<< detname <<" element"<<std::endl; 
+        std::cout<<"No topology for "<< detname <<" "<< rawId <<std::endl; 
     }
 
     else
-      std::cout<<"No geomDetUnit for "<< detname <<" element"<<std::endl;
+      std::cout<<"No geomDetUnit for "<< detname <<" "<< rawId <<std::endl;
   }
 }
 
@@ -991,10 +991,29 @@ ValidateGeometry::validateStripTopology(const TrackerGeometry::DetContainer& det
     {
       // NOTE: why the difference in dets vs. units between these and pixels? The dynamic cast above 
       // fails for many of the detids...
-      if ( const StripTopology* st = dynamic_cast<const StripTopology*>(&det->specificTopology()) )
-        assert(parameters[0] == st->nstrips());
+      
+      const StripTopology* st = dynamic_cast<const StripTopology*>(&det->specificTopology()); 
+      if ( st ) 
+      {
+        assert(parameters[0] == st->nstrips());                             
+        assert(parameters[1] == st->stripLength());
+      
+        if( const RadialStripTopology* rst = dynamic_cast<const RadialStripTopology*>(st)) 
+          assert(parameters[2] == rst->phiPitch());                                                                           
+        else if( dynamic_cast<const RectangularStripTopology*>(st))                                                                
+          assert(parameters[2] == st->pitch());     
+        else if( dynamic_cast<const TrapezoidalStripTopology*>(st))  
+          assert(parameters[2] == st->pitch());                               
+        else
+          std::cout<<"Failed to get pitch for "<< detname <<" "<< rawId <<std::endl;
+      }
+      
+      else
+        std::cout<<"Failed cast to StripTopology for "<< detname <<" "<< rawId <<std::endl;
     }
     
+    //else
+    //  std::cout<<"Failed cast to StripGeomDetUnit for "<< detname <<" "<< rawId <<std::endl;
   }
 }
 
