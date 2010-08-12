@@ -1,7 +1,7 @@
 #ifndef PLOTMILLEPEDE_H
 #define PLOTMILLEPEDE_H
 // Original Author: Gero Flucke
-// last change    : $Date: 2009/06/26 13:39:29 $
+// last change    : $Date: 2009/07/03 15:27:11 $
 // by             : $Author: flucke $
 //
 // PlotMillePede is a class to interprete the content of the ROOT
@@ -96,6 +96,7 @@ class PlotMillePede : public MillePedeTrees
   virtual ~PlotMillePede();
 
   void SetTitle(const char *title) {fTitle = title;}
+  const TString& GetTitle() const { return fTitle;}
   GFHistManager* GetHistManager() { return fHistManager;}
 
   void DrawAll(Option_t *opt = "rogpmeh"); // r=ParamResult,o=OrigParam,g=GlobCorr,p=Pull,m=MisVsLocation,e=ErrorVsHit,h=HitMaps

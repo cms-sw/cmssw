@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2009/06/26 13:39:29 $
+// last change    : $Date: 2009/07/03 15:27:11 $
 // by             : $Author: flucke $
 
 #include "PlotMillePede.h"
@@ -275,7 +275,11 @@ void PlotMillePede::DrawParamResult(bool addPlots)
     hEnd->SetTitle(DelName(iPar)+=titleAdd+";"+DelNameU(iPar)+=";#parameters");
     hVs->SetTitle(DelName(iPar)+=titleAdd+";" + DelNameU(iPar)+="(end);" + DelNameU(iPar) 
 		  += "(start)");
-    fHistManager->AddHist(hEnd, layer, "remaining misal."); //"diff. to misal.");
+    if (this->GetTitle().Length() != 0) {
+      fHistManager->AddHist(hEnd, layer, this->GetTitle());
+    } else {
+      fHistManager->AddHist(hEnd, layer, "remaining misal.");
+    }
     fHistManager->AddHistSame(hBef, layer, nPlot, "misaligned");
     fHistManager->AddHist(hVs, layer+1);
 
@@ -320,7 +324,12 @@ void PlotMillePede::DrawPosResult(bool addPlots, const TString &selection)
 		  + DelNameU(posName) += "(start)");
 
     fHistManager->AddHist(hVs, layer);
-    fHistManager->AddHist(hEnd, layer + 1, "remaining misal.");
+    if (this->GetTitle().Length() != 0) {
+      fHistManager->AddHist(hEnd, layer + 1, this->GetTitle());
+    } else {
+      fHistManager->AddHist(hEnd, layer + 1, "remaining misal.");
+    }
+
     fHistManager->AddHistSame(hBef, layer +1, nPlot, "misaligned");
     
     ++nPlot;
@@ -443,8 +452,8 @@ void PlotMillePede::DrawMisVsLocation(bool addPlots, const TString &sel, Option_
 							 vsEuler, vsEuler) + DelNameU(iPar));
     if (addStartMis) {
       hProfParStartR->SetTitle("<" + DelName(iPar) += "> vs. r (start);r[cm];" + DelNameU(iPar));
-      hProfParStartZ->SetTitle("<" + DelName(iPar) += "> vs. z;z[cm];" + DelNameU(iPar));
-      hProfParStartPhi->SetTitle("<" + DelName(iPar) += "> vs. #phi;#phi;" + DelNameU(iPar));
+      hProfParStartZ->SetTitle("<" + DelName(iPar) += "> vs. z (start);z[cm];" + DelNameU(iPar));
+      hProfParStartPhi->SetTitle("<" + DelName(iPar) += "> vs. #phi (start);#phi;" + DelNameU(iPar));
 //       hProfParStartTheta->SetTitle("<" + DelName(iPar) += "> vs. #theta;#theta;" + DelNameU(iPar));
     }
 
@@ -495,7 +504,8 @@ void PlotMillePede::DrawPosMisVsLocation(bool addPlots, const TString &selection
   TString sel(selection);
   this->AddBasicSelection(sel);
 
-  const TString posNames[] = {"rphi", "r", "z", "phi", "x", "y"};
+  //  const TString posNames[] = {"rphi", "r", "z", "phi", "x", "y"};
+  const TString posNames[] = {"rphi", "r", "z", "x", "y"};
 
   const TString titleAdd = this->TitleAdd();
   UInt_t nPlot = 0;
@@ -978,7 +988,7 @@ void PlotMillePede::DrawSubDetId(bool addPlots)
   TH1 *hAct = this->CreateHist(SubDetId(), sel, nameAct);
 
   if (hAll->GetEntries()) {
-    hAll->SetTitle("subDetId;ID(subdet)");
+    hAll->SetTitle("subDetId" + titleAdd + ";ID(subdet)");
     fHistManager->AddHist(hAll, layer);
   }
   if (hAct->GetEntries()) {
@@ -1297,15 +1307,15 @@ void PlotMillePede::AddAdditionalSel(const TString &xyzrPhiNhit, Float_t min, Fl
 {
   const TString oldTitle = fAdditionalSelTitle; // backup
   if (xyzrPhiNhit == "Nhit") {
-    this->AddAdditionalSel(HitsX() += Form(">%f && ", min) + HitsX() += Form("<%f", max));
+    this->AddAdditionalSel(HitsX() += Form(">=%f && ", min) + HitsX() += Form("<%f", max));
   } else {
-    this->AddAdditionalSel(OrgPos(xyzrPhiNhit) += Form(">%f && ", min) 
+    this->AddAdditionalSel(OrgPos(xyzrPhiNhit) += Form(">=%f && ", min) 
 			   + OrgPos(xyzrPhiNhit) += Form("<%f", max));
   }
   // add to title in readable format
   fAdditionalSelTitle = oldTitle; // first remove what was added in unreadable format...
   if (fAdditionalSelTitle.Length()) fAdditionalSelTitle += ", ";
-  fAdditionalSelTitle += Form("%g < %s < %g", min, xyzrPhiNhit.Data(), max);
+  fAdditionalSelTitle += Form("%g #leq %s < %g", min, xyzrPhiNhit.Data(), max);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

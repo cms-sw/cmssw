@@ -3,7 +3,7 @@
 // GFHistManager
 //   Author:      Gero Flucke
 //   Date:        Feb. 10th, 2002
-//   last update: $Date: 2008/08/13 08:40:59 $  
+//   last update: $Date: 2009/01/20 20:21:39 $  
 //   by:          $Author: flucke $
 //
 
@@ -608,6 +608,21 @@ void GFHistManager::AddLayer(GFHistManager* other, Int_t layer)
     }
     TLegend* leg = other->GetLegendOf(layer, iPad);
     if(leg) this->AddLegend(static_cast<TLegend*>(leg->Clone()), newLayer, iPad);
+  }
+}
+
+//_____________________________________________________
+void GFHistManager::Overlay(GFHistManager* other, Int_t otherLayer, Int_t myLayer,
+			    const char* legendTitle)
+{
+  if (!other || otherLayer >= other->GetNumLayers()
+      || myLayer >= other->GetNumLayers()
+      || other->GetNumHistsOf(otherLayer) != this->GetNumHistsOf(myLayer)) return;
+
+  const Int_t histNo = 0;
+  for (Int_t iPad = 0; iPad < other->GetNumHistsOf(otherLayer); ++iPad) {
+    GFHistArray* hists = other->GetHistsOf(otherLayer, iPad);
+    this->AddHistSame(hists->At(histNo), myLayer, iPad, legendTitle);//, legOpt)
   }
 }
 

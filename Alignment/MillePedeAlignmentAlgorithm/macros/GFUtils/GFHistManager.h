@@ -35,6 +35,8 @@ public:
   virtual void AddHistsSame(GFHistArray* hists, Int_t layer, Int_t nPad);
   virtual void AddLayers(GFHistManager* other);
   virtual void AddLayer(GFHistManager* other, Int_t layer);
+  virtual void Overlay(GFHistManager* other, Int_t otherLayer, Int_t myLayer,
+		       const char* legendTitle);
   virtual TLegend* AddLegend(Int_t layer, Int_t nPad, const char* header = NULL, 
 			     Bool_t referAll = kTRUE);
   virtual Bool_t RemoveLegend(Int_t layer, Int_t nPad);
