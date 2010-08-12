@@ -266,7 +266,10 @@ namespace edm {
           if(specialsToLib[classNameForRoot(itSpecial->second)].size()) {
             //std::cout << "&&&&& found special case " << itSpecial->first << std::endl;
             std::string name = itSpecial->second;
-            if(not edmplugin::PluginCapabilities::get()->tryToLoad(cPrefix + name)) {
+            Reflex::Type t = Reflex::Type::ByName(name);
+            
+            if( (Reflex::Type()==t) and 
+                (not edmplugin::PluginCapabilities::get()->tryToLoad(cPrefix + name)) ) {
               std::cout << "failed to load plugin for " << cPrefix + name << std::endl;
               continue;
             } else {

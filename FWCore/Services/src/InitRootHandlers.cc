@@ -22,6 +22,7 @@
 #include "Cintex/Cintex.h"
 #include "TH1.h"
 #include "G__ci.h"
+#include "Reflex/Type.h"
 
 namespace {
 
@@ -196,7 +197,9 @@ InitRootHandlers::InitRootHandlers (edm::ParameterSet const& pset, edm::Activity
   setRefCoreStreamer();
 
   // Load the library containing dictionaries for std:: classes (e.g. std::vector<int>)
-  edmplugin::PluginCapabilities::get()->load("LCGReflex/std::vector<int>");
+  if (ROOT::Reflex::Type()== Reflex::Type::ByName("std::vector<int>")) {
+     edmplugin::PluginCapabilities::get()->load("LCGReflex/std::vector<int>");
+  }
 }
 
 InitRootHandlers::~InitRootHandlers () {
