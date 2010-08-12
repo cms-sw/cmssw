@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2009/07/03 15:27:11 $
+// last change    : $Date: 2010/08/12 09:17:10 $
 // by             : $Author: flucke $
 
 #include "PlotMillePede.h"
@@ -62,28 +62,6 @@ void PlotMillePede::DrawAll(Option_t *opt)
   fHistManager->SetBatch(wasBatch);
   if (!wasBatch) fHistManager->Draw();
 }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// void PlotMillePede::DrawParamVsMisaligned()
-// {
-
-//   ::Info("PlotMillePede::DrawParamVsMisaligned", "does not work...");
-//   TCanvas *can = new TCanvas;
-//   can->Divide(2, 3);
-
-//   for (UInt_t iPar = 0; iPar < kNpar; ++iPar) { // 
-//     const TString dPar(Dot() += Par(iPar));
-//     const TString orig();
-//     const TString toMum(iPar < 3 ? "*10000" : "");
-//     const TString hNameS(Form("start%d(100, -500, 500)", iPar));
-//     const TString hNameA(Form("after%d(100, -500, 500)", iPar));
-//     TH1 *hStart = this->CreateHist(Parenth(MisParT() += dPar) += toMum, "!" + Fixed(iPar), hNameS);
-//     TH1 *hAfter = this->CreateHist(Parenth(MisParT() += dPar + Min() += ParT() += dPar) += toMum,
-//                                    "!" + Fixed(iPar), hNameA);
-//     can->cd(iPar+1);
-//     hStart->Draw();
-//     hAfter->Draw("SAME");
-//   }
-// }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void PlotMillePede::DrawParam(bool addPlots, const TString &sel)
