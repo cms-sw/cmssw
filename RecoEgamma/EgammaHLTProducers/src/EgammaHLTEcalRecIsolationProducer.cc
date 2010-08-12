@@ -62,6 +62,7 @@ EgammaHLTEcalRecIsolationProducer::EgammaHLTEcalRecIsolationProducer(const edm::
   useIsolEt_ = conf_.getParameter<bool>("useIsolEt");
   tryBoth_   = conf_.getParameter<bool>("tryBoth");
   subtract_  = conf_.getParameter<bool>("subtract");
+  useNumCrystals_ = conf_.getParameter<bool>("useNumCrystals");
 
   //register your products
   produces < reco::RecoEcalCandidateIsolationMap >();
@@ -101,8 +102,9 @@ void EgammaHLTEcalRecIsolationProducer::produce(edm::Event& iEvent, const edm::E
 
   //create algorithm objects
   EgammaRecHitIsolation ecalBarrelIsol(egIsoConeSizeOut_,egIsoConeSizeInBarrel_,egIsoJurassicWidth_,egIsoPtMinBarrel_,egIsoEMinBarrel_,edm::ESHandle<CaloGeometry>(caloGeom),&ecalBarrelHits,DetId::Ecal);
+  ecalBarrelIsol.setUseNumCrystals(useNumCrystals_);
   EgammaRecHitIsolation ecalEndcapIsol(egIsoConeSizeOut_,egIsoConeSizeInEndcap_,egIsoJurassicWidth_,egIsoPtMinEndcap_,egIsoEMinEndcap_,edm::ESHandle<CaloGeometry>(caloGeom),&ecalEndcapHits,DetId::Ecal);
-
+  ecalEndcapIsol.setUseNumCrystals(useNumCrystals_);
 
   for (reco::RecoEcalCandidateCollection::const_iterator iRecoEcalCand= recoecalcandHandle->begin(); iRecoEcalCand!=recoecalcandHandle->end(); iRecoEcalCand++) {
     
