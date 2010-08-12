@@ -51,10 +51,16 @@ namespace edm {
         lt->clear();
       } else {
         if (!fileLocator_) {
-          fileLocator_.reset(new FileLocator(inputOverride, false));
+          fileLocator_.reset(new FileLocator("", false));
         }
-        if (!fallbackFileLocator_ && !inputOverrideFallback.empty()) {
-          fallbackFileLocator_.reset(new FileLocator(inputOverrideFallback, true));
+        if (!overrideFileLocator_ && !inputOverride.empty()) {
+          overrideFileLocator_.reset(new FileLocator(inputOverride, false));
+        }
+        if (!fallbackFileLocator_) {
+          fallbackFileLocator_.reset(new FileLocator("", true));
+        }
+        if (!overrideFallbackFileLocator_ && !inputOverrideFallback.empty()) {
+          overrideFallbackFileLocator_.reset(new FileLocator(inputOverrideFallback, true));
         }
         boost::trim(*lt);
         findFile(*it, *ft, *lt, noThrow);
@@ -64,14 +70,21 @@ namespace edm {
   }
   
   void InputFileCatalog::findFile(std::string& pfn, std::string& fallbackPfn, std::string const& lfn, bool noThrow) {
-    pfn = fileLocator_->pfn(lfn);
+    if (overrideFileLocator_) {
+      pfn = overrideFileLocator_->pfn(lfn);
+    }
+    if (pfn.empty())
+      pfn = fileLocator_->pfn(lfn);
     if (pfn.empty() && !noThrow) {
       throw cms::Exception("LogicalFileNameNotFound", "FileCatalog::findFile()\n")
 	<< "Logical file name '" << lfn << "' was not found in the file catalog.\n"
 	<< "If you wanted a local file, you forgot the 'file:' prefix\n"
 	<< "before the file name in your configuration file.\n";
     }
-    if (fallbackFileLocator_) {
+    if (overrideFallbackFileLocator_) {
+      fallbackPfn = overrideFallbackFileLocator_->pfn(lfn);
+    }
+    if (fallbackPfn.empty() && fallbackFileLocator_) {
       fallbackPfn = fallbackFileLocator_->pfn(lfn);
       // Empty fallback PFN is OK.
     }

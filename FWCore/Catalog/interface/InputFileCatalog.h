@@ -47,7 +47,9 @@ namespace edm {
     std::vector<std::string> fallbackFileNames_;
     std::vector<FileCatalogItem> fileCatalogItems_;
     boost::scoped_ptr<FileLocator> fileLocator_;
+    boost::scoped_ptr<FileLocator> overrideFileLocator_;
     boost::scoped_ptr<FileLocator> fallbackFileLocator_;
+    boost::scoped_ptr<FileLocator> overrideFallbackFileLocator_;
   };
 }
 
