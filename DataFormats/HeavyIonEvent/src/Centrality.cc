@@ -1,9 +1,10 @@
 //
-// $Id: Centrality.cc,v 1.8 2010/03/23 12:46:07 yilmaz Exp $
+// $Id: Centrality.cc,v 1.9 2010/07/07 11:57:42 yilmaz Exp $
 //
 
 #include "DataFormats/HeavyIonEvent/interface/Centrality.h"
-
+#include <iostream>
+using namespace std;
 using namespace reco;
 
 Centrality::Centrality(double d, std::string label)
@@ -23,6 +24,7 @@ etEEtruncatedMinus_(0),
 etEBSum_(0),
 etEBtruncated_(0),
 pixelMultiplicity_(0),
+trackMultiplicity_(0),
 zdcSumPlus_(0),
 zdcSumMinus_(0),
 etMidRapiditySum_(0)
@@ -43,8 +45,8 @@ const CentralityBins* getCentralityBinsFromDB(const edm::EventSetup& iSetup){
    edm::ESHandle<CentralityTable> inputDB_;
    iSetup.get<HeavyIonRcd>().get(inputDB_);
    int nbinsMax = inputDB_->m_table.size();
+   cout<<"nbinsMax "<<nbinsMax<<endl;
    CentralityBins* CB = new CentralityBins("ctemp","",nbinsMax);
-
    for(int j=0; j<nbinsMax; j++){
 
       const CentralityTable::CBin* thisBin;

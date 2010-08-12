@@ -1,6 +1,9 @@
 #include "DataFormats/HeavyIonEvent/interface/CentralityBins.h"
+#include <iostream>
+using namespace std;
 
 int CentralityBins::getBin(double value) const {
+
    int bin = table_.size() - 1;
    for(unsigned int i = 0; i < table_.size(); ++i){
       if(value >= table_[i].bin_edge){
