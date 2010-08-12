@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 22:06:57 CET 2010
-// $Id: FW3DViewGeometry.cc,v 1.3 2010/06/23 08:46:49 yana Exp $
+// $Id: FW3DViewGeometry.cc,v 1.4 2010/08/04 10:04:28 yana Exp $
 //
 
 // system include files
@@ -109,10 +109,6 @@ FW3DViewGeometry::showMuonBarrel( bool showMuonBarrel )
 		  TEveGeoShape* shape = m_detIdToMatrix->getShape( id.rawId() );
 		  if( !shape ) continue;
 		  shape->SetMainTransparency( m_geomTransparency );
-// 		  // FIXME: It looks like we pick up some
-// 		  // chambers with different material (shown in blue if non transparent).
-// 		  // I'll make them all read.
-// 		  shape->SetMainColor( kRed );
 		  cStation->AddElement( shape );
 	       }
 	    }
@@ -186,26 +182,27 @@ FW3DViewGeometry::showMuonEndcap( bool showMuonEndcap )
 
 //______________________________________________________________________________
 void
-FW3DViewGeometry::showPixelBarrel(bool showPixelBarrel )
+FW3DViewGeometry::showPixelBarrel( bool showPixelBarrel )
 {
-   if ( showPixelBarrel && !m_pixelBarrelElements )
+   if( showPixelBarrel && !m_pixelBarrelElements )
    {
       m_pixelBarrelElements = new TEveElementList( "PixelBarrel" );
-      m_pixelBarrelElements->SetRnrState(showPixelBarrel);
-      std::vector<unsigned int> ids = m_detIdToMatrix->getMatchedIds("PixelBarrel");
-      for ( std::vector<unsigned int>::const_iterator id = ids.begin();
-            id != ids.end(); ++id ) {
+      m_pixelBarrelElements->SetRnrState( showPixelBarrel );
+      std::vector<unsigned int> ids = m_detIdToMatrix->getMatchedIds( DetIdToMatrix::Tracker, DetIdToMatrix::PixelBarrel );
+      for( std::vector<unsigned int>::const_iterator id = ids.begin();
+	   id != ids.end(); ++id )
+      {
          TEveGeoShape* shape = m_detIdToMatrix->getShape( *id );
          if ( !shape ) continue;
-         shape->SetMainTransparency(m_geomTransparency);
+         shape->SetMainTransparency( m_geomTransparency );
          m_pixelBarrelElements->AddElement( shape );
       }
-      AddElement( m_pixelBarrelElements);
+      AddElement( m_pixelBarrelElements );
    }
 
-   if (m_pixelBarrelElements)
+   if( m_pixelBarrelElements )
    {
-      m_pixelBarrelElements->SetRnrState(showPixelBarrel);
+      m_pixelBarrelElements->SetRnrState( showPixelBarrel );
       gEve->Redraw3D();
    }
 }
@@ -214,99 +211,105 @@ FW3DViewGeometry::showPixelBarrel(bool showPixelBarrel )
 void
 FW3DViewGeometry::showPixelEndcap(bool  showPixelEndcap )
 {
-   if ( showPixelEndcap && ! m_pixelEndcapElements )
+   if( showPixelEndcap && ! m_pixelEndcapElements )
    {
       m_pixelEndcapElements = new TEveElementList( "PixelEndcap" );
-      std::vector<unsigned int> ids = m_detIdToMatrix->getMatchedIds("PixelForward");
-      for ( std::vector<unsigned int>::const_iterator id = ids.begin();
-            id != ids.end(); ++id ) {
+      std::vector<unsigned int> ids = m_detIdToMatrix->getMatchedIds( DetIdToMatrix::Tracker, DetIdToMatrix::PixelEndcap );
+      for( std::vector<unsigned int>::const_iterator id = ids.begin();
+	   id != ids.end(); ++id )
+      {
          TEveGeoShape* shape = m_detIdToMatrix->getShape( *id );
          if ( !shape ) continue;
-         shape->SetMainTransparency(m_geomTransparency);
+         shape->SetMainTransparency( m_geomTransparency );
          m_pixelEndcapElements->AddElement( shape );
       }
-      AddElement(m_pixelEndcapElements);
+      AddElement( m_pixelEndcapElements );
    }
 
-   if (m_pixelEndcapElements)
+   if( m_pixelEndcapElements )
    {
-      m_pixelEndcapElements->SetRnrState(showPixelEndcap);
+      m_pixelEndcapElements->SetRnrState( showPixelEndcap );
       gEve->Redraw3D();
    }
 }
 
 //______________________________________________________________________________
 void
-FW3DViewGeometry::showTrackerBarrel(bool  showTrackerBarrel )
+FW3DViewGeometry::showTrackerBarrel( bool  showTrackerBarrel )
 {
-   if (  showTrackerBarrel &&  !m_trackerBarrelElements )
+   if( showTrackerBarrel && ! m_trackerBarrelElements )
    {
       m_trackerBarrelElements = new TEveElementList( "TrackerBarrel" );
-      m_trackerBarrelElements->SetRnrState(showTrackerBarrel);
-      std::vector<unsigned int> ids = m_detIdToMatrix->getMatchedIds("TIB");
-      for ( std::vector<unsigned int>::const_iterator id = ids.begin();
-            id != ids.end(); ++id ) {
+      m_trackerBarrelElements->SetRnrState( showTrackerBarrel );
+      std::vector<unsigned int> ids = m_detIdToMatrix->getMatchedIds( DetIdToMatrix::Tracker, DetIdToMatrix::TIB );
+      for( std::vector<unsigned int>::const_iterator id = ids.begin();
+	   id != ids.end(); ++id )
+      {
          TEveGeoShape* shape = m_detIdToMatrix->getShape( *id );
-         if ( !shape ) continue;
-         shape->SetMainTransparency(m_geomTransparency);
+         if( !shape ) continue;
+         shape->SetMainTransparency( m_geomTransparency );
          m_trackerBarrelElements->AddElement( shape );
       }
-      ids = m_detIdToMatrix->getMatchedIds("TOB");
-      for ( std::vector<unsigned int>::const_iterator id = ids.begin();
-            id != ids.end(); ++id ) {
+      ids = m_detIdToMatrix->getMatchedIds( DetIdToMatrix::Tracker, DetIdToMatrix::TOB );
+      for( std::vector<unsigned int>::const_iterator id = ids.begin();
+	   id != ids.end(); ++id )
+      {
          TEveGeoShape* shape = m_detIdToMatrix->getShape( *id );
          if ( !shape ) continue;
-         shape->SetMainTransparency(m_geomTransparency);
+         shape->SetMainTransparency( m_geomTransparency );
          m_trackerBarrelElements->AddElement( shape );
       }
-      AddElement(m_trackerBarrelElements);
+      AddElement( m_trackerBarrelElements );
    }
 
-   if (m_trackerBarrelElements )
+   if( m_trackerBarrelElements )
    {
-      m_trackerBarrelElements->SetRnrState(showTrackerBarrel);
+      m_trackerBarrelElements->SetRnrState( showTrackerBarrel );
       gEve->Redraw3D();
    }
 }
 
 //______________________________________________________________________________
 void
-FW3DViewGeometry::showTrackerEndcap(bool showTrackerEndcap )
+FW3DViewGeometry::showTrackerEndcap( bool showTrackerEndcap )
 {
-   if ( showTrackerEndcap && !m_trackerEndcapElements )
+   if( showTrackerEndcap && ! m_trackerEndcapElements )
    {
       m_trackerEndcapElements = new TEveElementList( "TrackerEndcap" );
-      std::vector<unsigned int> ids = m_detIdToMatrix->getMatchedIds("TID");
-      for ( std::vector<unsigned int>::const_iterator id = ids.begin();
-            id != ids.end(); ++id ) {
+      std::vector<unsigned int> ids = m_detIdToMatrix->getMatchedIds( DetIdToMatrix::Tracker, DetIdToMatrix::TID );
+      for( std::vector<unsigned int>::const_iterator id = ids.begin();
+            id != ids.end(); ++id )
+      {
          TEveGeoShape* shape = m_detIdToMatrix->getShape( *id );
-         if ( !shape ) continue;
-         shape->SetMainTransparency(m_geomTransparency);
+         if( !shape ) continue;
+         shape->SetMainTransparency( m_geomTransparency );
          m_trackerEndcapElements->AddElement( shape );
       }
-      ids = m_detIdToMatrix->getMatchedIds("TEC");
-      for ( std::vector<unsigned int>::const_iterator id = ids.begin();
-            id != ids.end(); ++id ) {
+      ids = m_detIdToMatrix->getMatchedIds( DetIdToMatrix::Tracker, DetIdToMatrix::TEC );
+      for( std::vector<unsigned int>::const_iterator id = ids.begin();
+	   id != ids.end(); ++id )
+      {
          TEveGeoShape* shape = m_detIdToMatrix->getShape( *id );
-         if ( !shape ) continue;
-         shape->SetMainTransparency(m_geomTransparency);
+         if( !shape ) continue;
+         shape->SetMainTransparency( m_geomTransparency );
          m_trackerEndcapElements->AddElement( shape );
       }
-     AddElement( m_trackerEndcapElements);
+      AddElement( m_trackerEndcapElements );
    }
 
    if (m_trackerEndcapElements )
    {
-      m_trackerEndcapElements->SetRnrState(showTrackerEndcap);
+      m_trackerEndcapElements->SetRnrState( showTrackerEndcap );
       gEve->Redraw3D();
    }
 }
 
 void
-FW3DViewGeometry::setTransparency(int transp )
+FW3DViewGeometry::setTransparency( int transp )
 {
    m_geomTransparency = transp;
-   if ( m_muonBarrelElements ) {
+   if( m_muonBarrelElements )
+   {
       TEveElementIter iter(m_muonBarrelElements);
       while ( TEveElement* element = iter.current() ) {
          element->SetMainTransparency(transp);

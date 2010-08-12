@@ -208,6 +208,21 @@ DetIdToMatrix::getMatchedIds( const char* regular_expression ) const
    return ids;
 }
 
+std::vector<unsigned int>
+DetIdToMatrix::getMatchedIds( Detector det, SubDetector subdet ) const
+{
+   std::vector<unsigned int> ids;
+   unsigned int mask =(det<<4)|(subdet);
+   for( std::map<unsigned int, RecoGeomInfo>::const_iterator it = m_idToInfo.begin(), itEnd = m_idToInfo.end();
+	it != itEnd; ++it )
+   {
+     unsigned int id = it->first;
+     if((((( id >> kDetOffset ) & 0xF ) << 4) | (( id >> kSubdetOffset ) & 0x7 )) == mask )
+       ids.push_back( id );
+   }
+   
+   return ids;
+}
 
 TEveGeoShape*
 DetIdToMatrix::getShape( const char* path, const char* name, const TGeoMatrix* matrix /* = 0 */) const
