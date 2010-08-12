@@ -7,6 +7,8 @@
 #include "TFile.h"
 #include "Cintex/Cintex.h"
 #include <sstream>
+#include <iostream>
+//#include <fstream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -97,18 +99,24 @@ namespace cond {
       db.transaction().commit();
     } 
     
+	std::string dumpXML(std::string filename) const {
+		size_t pos = filename.find(".xml");
+		if(pos == std::string::npos)
+			filename.append(".xml");
+		///FIXME: use TBuffer
+		TFile * xml =0;
+		xml = TFile::Open(filename.c_str(), "recreate");
+		xml->WriteObjectAny(m_object.address(), m_object.typeName().c_str(), filename.c_str());
+		xml->Close();
+		return filename;
+	}
     std::string dump() const {
       std::ostringstream ss; 
       //token parser
       std::pair<std::string,int> oidData = parseToken( m_token );
       ss << m_since << "_"<< oidData.first << "_" << oidData.second;
-      ///FIXME: use TBuffer
-      TFile * xml =0;
-      xml = TFile::Open(std::string(ss.str()+".xml").c_str(),"recreate");
-      //std::cout << "class name: " << m_object.typeName() << std::endl;
-      xml->WriteObjectAny(m_object.address(), m_object.typeName().c_str(), ss.str().c_str());
-      xml->Close();
-      return ss.str();
+	  //std::string filename(ss.str()+".xml");
+	  return this->dumpXML(ss.str()+".xml");
     }
     
     // specialize...
