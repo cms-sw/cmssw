@@ -44,7 +44,7 @@ TopJetAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
   if( jets->begin()->isCaloJet() )
     lineWidth = 100;
   else if( jets->begin()->isPFJet() )
-    lineWidth = 122;
+    lineWidth = 120;
 
   std::cout << std::setfill('=') << std::setw(lineWidth) << "\n" << std::setfill(' ');
   std::cout << std::setw( 5) << "jet :"
