@@ -15,6 +15,8 @@
 <use   name="TrackingTools/DetLayers"/>
 <use   name="RecoTracker/TrackProducer"/>
 <use   name="Geometry/CaloGeometry"/>
+<use   name="CondFormats/HcalObjects"/>
+<use   name="RecoLocalCalo/HcalRecAlgos"/>
 <export>
   <lib   name="1"/>
 </export>
