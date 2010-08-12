@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:57:12 EDT 2008
-// $Id: Context.cc,v 1.23 2010/07/05 19:25:09 amraktad Exp $
+// $Id: Context.cc,v 1.24 2010/07/23 08:35:03 eulisse Exp $
 //
 
 // system include files
@@ -104,7 +104,11 @@ Context::initEveElements()
    {
       m_caloData = new TEveCaloDataHist();
       m_caloData->IncDenyDestroy();
-      
+
+      // Phi range is always in the (-Pi, Pi) without a shift.
+      // Set wrap to false for the optimisation on TEveCaloData::GetCellList().
+      m_caloData->SetWrapTwoPi(false);
+
       Bool_t status = TH1::AddDirectoryStatus();
       TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
       TH2F* dummy = new TH2F("background",
