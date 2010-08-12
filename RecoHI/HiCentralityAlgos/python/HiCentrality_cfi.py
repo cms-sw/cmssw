@@ -11,6 +11,8 @@ hiCentrality = cms.EDFilter("reco::CentralityProducer",
                             produceZDChits = cms.bool(False),
                             produceETmidRapidity = cms.bool(True),
                             producePixelhits = cms.bool(True),
+                            produceTracks = cms.bool(True),
+                            
                             midRapidityRange = cms.double(1),
                             
                             srcHFhits = cms.InputTag("hfreco"),
@@ -21,6 +23,7 @@ hiCentrality = cms.EDFilter("reco::CentralityProducer",
                             srcBasicClustersEE = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
                             srcZDChits = cms.InputTag(""),
                             srcPixelhits = cms.InputTag("siPixelRecHits"),
+                            srcTracks = cms.InputTag("hiSelectedTracks"),                            
                             srcReUse = cms.InputTag("hiCentrality")
                             
                               )
