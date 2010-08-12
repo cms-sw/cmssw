@@ -41,7 +41,7 @@ FWMagField::GetField(Float_t x, Float_t y, Float_t z) const
    // Virtual method of TEveMagField class.
 
    Float_t R = sqrt(x*x+y*y);
-   Float_t field = m_reverse ? -GetMaxFieldMag() : GetMaxFieldMag();
+   Float_t field = m_reverse ? -GetFieldMag() : GetFieldMag();
 
    //barrel
    if ( TMath::Abs(z)<724 ){
@@ -81,7 +81,7 @@ FWMagField::GetField(Float_t x, Float_t y, Float_t z) const
 //______________________________________________________________________________
 
 Float_t
-FWMagField::GetMaxFieldMag() const
+FWMagField::GetFieldMag() const
 {
    float res;
    switch ( m_source )
@@ -105,7 +105,7 @@ FWMagField::GetMaxFieldMag() const
                m_guessedField = m_guessValHist->GetMean();
             
 
-               // std::cout << "FWMagField::GetMaxFieldMag(), get average "
+               // std::cout << "FWMagField::GetFieldMag(), get average "
                //  << m_guessValHist->GetMean() << " guessed value: RMS= "<< m_guessValHist->GetRMS()
                //  <<" samples "<< m_guessValHist->GetEntries() << std::endl;
             
@@ -113,7 +113,7 @@ FWMagField::GetMaxFieldMag() const
             else if ( m_numberOfFieldIsOnEstimates > m_numberOfFieldEstimates/2 || m_numberOfFieldEstimates == 0 )
             {
                m_guessedField = 3.8;
-               // fwLog(fwlog::kDebug) << "FWMagField::GetMaxFieldMag() get default field, number estimates "
+               // fwLog(fwlog::kDebug) << "FWMagField::GetFieldMag() get default field, number estimates "
                //  << m_numberOfFieldEstimates << " number fields is on  m_numberOfFieldIsOnEstimates" <<std::endl;
             }
             else
@@ -129,6 +129,17 @@ FWMagField::GetMaxFieldMag() const
    }
 
    return res;
+}
+
+Float_t
+FWMagField::GetMaxFieldMag() const
+{
+   // Runge-Kutta stepper does not like this to be zero.
+   // Will be fixed in root.
+   // The return value should definitley not be negative -- so Abs
+   // should stay!
+
+   return TMath::Max(TMath::Abs(GetFieldMag()), 0.01f);
 }
 
 //______________________________________________________________________________
