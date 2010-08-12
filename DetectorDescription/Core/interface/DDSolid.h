@@ -360,6 +360,57 @@ class DDSphere : public DDSolid
   DDSphere();
 };
 
+class DDOrb : public DDSolid
+{
+ public:
+  DDOrb(const DDSolid & s);
+  double radius() const;
+
+ private:
+  DDOrb();
+};
+
+class DDEllipticalTube : public DDSolid
+{
+ public:
+  DDEllipticalTube(const DDSolid & s);
+  double xSemiAxis() const;
+  double ySemiAxis() const;
+  double zHeight() const;
+  
+ private:
+  DDEllipticalTube();
+};
+
+class DDEllipsoid : public DDSolid
+{
+ public:
+  DDEllipsoid(const DDSolid & s);
+  double xSemiAxis() const;
+  double ySemiAxis() const;
+  double zSemiAxis() const;
+  double zBottomCut() const;
+  double zTopCut() const;
+
+ private:
+  DDEllipsoid();
+};
+
+class DDParallelepiped : public DDSolid
+{
+ public:
+  DDParallelepiped(const DDSolid & s);
+  double xHalf() const;
+  double yHalf() const;
+  double zHalf() const;
+  double alpha() const;
+  double theta() const;
+  double phi() const;
+
+ private:
+  DDParallelepiped();
+};
+
 // Solid generation function
 //! Creates a box with side length 2*xHalf, 2*yHalf, 2*zHalf
 /** \arg \c name unique name identifying the box
@@ -489,6 +540,27 @@ static DDSolid sphere(const DDName & name,
 		     double deltaPhi,
 		     double startTheta,
 		     double deltaTheta);
+
+  static DDSolid orb(const DDName & name,
+		     double radius);
+  
+  static DDSolid ellipticalTube(const DDName & name,
+				double xSemiAxis,
+				double ySemiAxis,
+				double zHeight);
+
+static DDSolid ellipsoid(const DDName & name,
+                         double  xSemiAxis,
+                         double  ySemiAxis,
+                         double  zSemiAxis,
+                         double  zBottomCut=0,
+                         double  zTopCut=0
+			 );
+
+static DDSolid parallelepiped(const DDName & name,
+                              double xHalf, double yHalf, double zHalf,
+                              double alpha, double theta, double phi);
+
 
 static DDSolid shapeless(const DDName & name);
 

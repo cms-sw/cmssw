@@ -10,12 +10,12 @@ namespace DDI {
   class EllipticalTube : public Solid
   {
   public:
-    EllipticalTube(double xHalf, double yHalf, double zHalf)
+    EllipticalTube(double xSemiAxis, double ySemiAxis, double zHeight)
      : Solid(ddellipticaltube)
     { 
-      p_.push_back(xHalf);
-      p_.push_back(yHalf);
-      p_.push_back(zHalf);
+      p_.push_back(xSemiAxis);
+      p_.push_back(ySemiAxis);
+      p_.push_back(zHeight);
     }  
     ~EllipticalTube() { }
 

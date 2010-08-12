@@ -4,5 +4,5 @@
 
 void DDI::Orb::stream(std::ostream & os) const
 {
-  os << " rMax[cm]=" << p_[0]/cm;
+  os << " radius[cm]=" << p_[0]/cm;
 }

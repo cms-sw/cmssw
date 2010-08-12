@@ -17,6 +17,10 @@
 #include "DetectorDescription/Core/src/PseudoTrap.h"
 #include "DetectorDescription/Core/src/TruncTubs.h"
 #include "DetectorDescription/Core/src/Sphere.h"
+#include "DetectorDescription/Core/src/Orb.h"
+#include "DetectorDescription/Core/src/EllipticalTube.h"
+#include "DetectorDescription/Core/src/Ellipsoid.h"
+#include "DetectorDescription/Core/src/Parallelepiped.h"
 #include <algorithm>
 
 // Message logger.
@@ -105,6 +109,21 @@ DDSolid::DDSolid(const DDName & n, DDSolidShape s, const std::vector<double> & p
 	 break;
        case ddtorus:
 	 solid = new DDI::Torus(0,0,0,0,0);
+	 break;
+       case ddsphere:
+	 solid = new DDI::Sphere(0,0,0,0,0,0);
+	 break;
+       case ddorb:
+	 solid = new DDI::Orb(0);
+	 break;
+       case ddellipticaltube:
+	 solid = new DDI::EllipticalTube(0,0,0);
+	 break;
+       case ddellipsoid:
+	 solid = new DDI::Ellipsoid(0,0,0,0,0);
+	 break;
+       case ddparallelepiped:
+	 solid = new DDI::Parallelepiped(0,0,0,0,0,0);
 	 break;
        default:
         throw DDException("DDSolid::DDSolid(DDName,DDSolidShape,std::vector<double>: wrong shape");   
@@ -559,6 +578,80 @@ double DDSphere::startTheta() const { return rep().parameters()[4]; }
 
 double DDSphere::deltaTheta() const { return rep().parameters()[5]; }
 
+// =================================================================================
+
+DDOrb::DDOrb(const DDSolid& s) 
+  : DDSolid(s) {
+  if (s.shape() != ddorb) {
+    std::string ex  = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is not a DDOrb.\n";
+    ex = ex + "Use a different solid interface!";
+    throw DDException(ex);
+  }
+}
+
+double DDOrb::radius() const { return rep().parameters()[0]; }
+
+// =================================================================================
+
+DDEllipticalTube::DDEllipticalTube(const DDSolid& s) 
+  : DDSolid(s) {
+  if (s.shape() != ddellipticaltube) {
+    std::string ex  = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is not a DDEllipticalTube.\n";
+    ex = ex + "Use a different solid interface!";
+    throw DDException(ex);
+  }
+}
+
+double DDEllipticalTube::xSemiAxis() const { return rep().parameters()[0]; }
+
+double DDEllipticalTube::ySemiAxis() const { return rep().parameters()[1]; }
+
+double DDEllipticalTube::zHeight() const { return rep().parameters()[2]; }
+
+// =================================================================================
+
+DDEllipsoid::DDEllipsoid(const DDSolid& s) 
+  : DDSolid(s) {
+  if (s.shape() != ddellipsoid) {
+    std::string ex  = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is not a DDEllipsoid (or truncated ellipsoid).\n";
+    ex = ex + "Use a different solid interface!";
+    throw DDException(ex);
+  }
+}
+
+double DDEllipsoid::xSemiAxis() const { return rep().parameters()[0]; }
+
+double DDEllipsoid::ySemiAxis() const { return rep().parameters()[1]; }
+
+double DDEllipsoid::zSemiAxis() const { return rep().parameters()[2]; }
+
+double DDEllipsoid::zBottomCut() const { return rep().parameters()[3]; }
+
+double DDEllipsoid::zTopCut() const { return rep().parameters()[4]; }
+
+// =================================================================================
+
+DDParallelepiped::DDParallelepiped(const DDSolid& s) 
+  : DDSolid(s) {
+  if (s.shape() != ddparallelepiped) {
+    std::string ex  = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is not a DDParallelepiped.\n";
+    ex = ex + "Use a different solid interface!";
+    throw DDException(ex);
+  }
+}
+
+double DDParallelepiped::xHalf() const { return rep().parameters()[0]; }
+
+double DDParallelepiped::yHalf() const { return rep().parameters()[1]; }
+
+double DDParallelepiped::zHalf () const { return rep().parameters()[2]; }
+
+double DDParallelepiped::alpha() const { return rep().parameters()[3]; }
+
+double DDParallelepiped::theta() const { return rep().parameters()[4]; }
+
+double DDParallelepiped::phi() const { return rep().parameters()[5]; }
+
 
 // =================================================================================
 // =========================SolidFactory============================================
@@ -715,6 +808,42 @@ DDSolid DDSolidFactory::sphere(const DDName & name,
   return DDSolid(name, new DDI::Sphere(innerRadius, outerRadius, 
 				       startPhi, deltaPhi,
 				       startTheta, deltaTheta));
+}		     
+
+DDSolid DDSolidFactory::orb(const DDName & name, double radius)
+{
+  return DDSolid(name, new DDI::Orb(radius));
+}		     
+
+DDSolid DDSolidFactory::ellipticalTube(const DDName & name,
+				       double xSemiAxis, double ySemiAxis, double zHeight)
+{
+  return DDSolid(name, new DDI::EllipticalTube(xSemiAxis, ySemiAxis, zHeight));
+}		     
+
+DDSolid DDSolidFactory::ellipsoid(const DDName & name,
+				  double  xSemiAxis,
+				  double  ySemiAxis,
+				  double  zSemiAxis,
+				  double  zBottomCut,
+				  double  zTopCut
+				  )
+  
+{
+  return DDSolid(name, new DDI::Ellipsoid( xSemiAxis,
+					   ySemiAxis,
+					   zSemiAxis,
+					   zBottomCut,
+					   zTopCut
+					  ));
+}		     
+
+DDSolid DDSolidFactory::parallelepiped(const DDName & name,
+				       double xHalf, double yHalf, double zHalf,
+				       double alpha, double theta, double phi)
+{
+  return DDSolid(name, new DDI::Parallelepiped(xHalf, yHalf, zHalf,
+					       alpha, theta, phi));
 }		     
 
 DDSolid DDSolidFactory::shapeless(const DDName & name)
