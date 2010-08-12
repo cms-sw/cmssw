@@ -3,13 +3,11 @@
 // GFHistManager
 //   Author:      Gero Flucke
 //   Date:        Feb. 10th, 2002
-//   last update: $Date: 2009/01/20 20:21:39 $  
+//   last update: $Date: 2010/08/12 09:17:10 $  
 //   by:          $Author: flucke $
 //
 
 // #include <iostream>
-// using std::cout;
-// using std::endl;
 
 // #include <vector>
 // RooT header:
