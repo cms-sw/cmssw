@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Thu Aug 13 08:39:51 EDT 2009
-// $Id: GenHIEventProducer.cc,v 1.1 2010/05/04 16:05:50 yilmaz Exp $
+// $Id: GenHIEventProducer.cc,v 1.2 2010/05/04 17:15:10 yilmaz Exp $
 //
 //
 
@@ -37,7 +37,8 @@
 #include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
 
 #include "HepMC/HeavyIon.h"
-
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 using namespace std;
 
 //
@@ -52,6 +53,7 @@ class GenHIEventProducer : public edm::EDProducer {
    private:
       virtual void produce(edm::Event&, const edm::EventSetup&);
    std::vector<std::string> hepmcSrc_;
+   edm::ESHandle < ParticleDataTable > pdt;
 };
 
 //
@@ -92,16 +94,44 @@ GenHIEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
+   if(!(pdt.isValid())) iSetup.getData(pdt);
+
    double b = -1;
    int npart = -1;
    int ncoll = 0;
    int nhard = 0;
    double phi = 0;
 
+   int nCharged = 0;
+   int nChargedMR = 0;
+   double meanPt = 0;
+   double meanPtMR = 0;
+
       for(size_t ihep = 0; ihep < hepmcSrc_.size(); ++ihep){
 	 Handle<edm::HepMCProduct> hepmc;
 	 iEvent.getByLabel(hepmcSrc_[ihep],hepmc);
-	 const HepMC::HeavyIon* hi = hepmc->GetEvent()->heavy_ion();
+
+	 const HepMC::GenEvent* evt = hepmc->GetEvent();
+	 HepMC::GenEvent::particle_const_iterator begin = evt->particles_begin();
+	 HepMC::GenEvent::particle_const_iterator end = evt->particles_end();
+	 for(HepMC::GenEvent::particle_const_iterator it = begin; it != end; ++it){
+	    if((*it)->status() != 1) continue;
+	    int pdg_id = (*it)->pdg_id();
+	    const ParticleData * part = pdt->particle(pdg_id );
+	    int charge = static_cast<int>(part->charge());
+
+	    if(charge == 0) continue;
+            float pt = (*it)->momentum().perp();
+	    float eta = (*it)->momentum().eta();
+            nCharged++;
+	    meanPt += pt;
+	    if(fabs(eta) > 0.5) continue;
+	    nChargedMR++;
+            meanPtMR += pt;
+	 }
+
+	 const HepMC::HeavyIon* hi = evt->heavy_ion();
+
 	 if(hi){
 	    ncoll = ncoll + hi->Ncoll();
 	    nhard = nhard + hi->Ncoll_hard();
@@ -113,11 +143,24 @@ GenHIEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    }
 	 }
       }
+
+      if(nChargedMR != 0){
+	 meanPtMR /= nChargedMR;
+      }
+      if(nCharged != 0){
+         meanPt /= nCharged;
+      }
+
       std::auto_ptr<edm::GenHIEvent> pGenHI(new edm::GenHIEvent(b,
 								npart,
 								ncoll,
 								nhard,
-								phi));
+								phi, 
+								nCharged,
+								nChargedMR,
+								meanPt,
+								meanPtMR								
+								));
 
 
 
