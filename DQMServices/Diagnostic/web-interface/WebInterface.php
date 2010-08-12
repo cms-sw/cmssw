@@ -125,8 +125,8 @@
 		//selected
 		var selectCheckBox =  '<input type="checkbox" name="check" id="ch'+aData[1]+'" value="'+aData[1]+'" onclick="logYCheckChange(this)"/>';
     		
-		var Ymin='<input type="input" name="Min" id="Min'+iDisplayIndex+'" size="10" onchange="test(this)" onclick="stateChanged()" value=999999 /> ';
-		var Ymax='<input type="input" name="Max" id="Max'+iDisplayIndex+'" size="10" onclick="stateChanged()" value=-999999 /> ';
+		var Ymin='<input type="input" name="Min" id="Min'+iDisplayIndex+'" size="10"  onchange="test(this)" onclick="stateChanged()" value=999999 /> ';
+		var Ymax='<input type="input" name="Max" id="Max'+iDisplayIndex+'" size="10"  onchange="test(this)" onclick="stateChanged()" value=-999999 /> ';
    
 
 
@@ -207,9 +207,9 @@ function checkform ( form )
     alert( "The first run value cannot be negative" );
     return false ;
   }
-  if (form.last.value>999999999999)
+  if (form.last.value>999999)
   {
-	alert("The last run value cannot be greater than 999999999999");
+	alert("The last run value cannot be greater than 999999");
     return false ;
   }
   return true;
@@ -365,6 +365,11 @@ function checkform ( form )
 
 function test(elem)
 {
+	var num=0;     
+	if (elem.name=="Min")
+		num=2;
+	else
+		num=3;
      var index=elem.parentNode.parentNode.cells[5].childNodes[0].value;
      var table=document.getElementById("example");
      if (index!=0)
@@ -372,7 +377,7 @@ function test(elem)
         for(var j=1;j<table.rows.length;j++)
 	{
 		if (table.rows[j].cells[5].childNodes[0].value==index)
-			table.rows[j].cells[2].childNodes[0].value="ADSCAD";
+			table.rows[j].cells[num].childNodes[0].value=elem.value;
 	}
       
      }
@@ -416,10 +421,10 @@ function test(elem)
       <form id="form" method="post"> 
 	
 <div style="text-align:center; padding-bottom:1em;">
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PARAMETERS: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;First Run: 
-	<input type="text" name="first" id="first" value="0" />
+	PARAMETERS: &nbsp;&nbsp;&nbsp;&nbsp;First Run: 
+	<input type="text" name="first" id="first" value="0"size="7" />
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Last Run: 
-	<input type="text" name="last" id="last" value="9999999"/>
+	<input type="text" name="last" id="last" value="999999"size="7"/>
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Run Type:
 	
 <select id="runtype" name="sada">
@@ -435,11 +440,11 @@ function test(elem)
 	<table cellpadding="0" cellspacing="0" border="0" class="display" id="example">
 	  <thead>
 	    <tr>
-	      <th width="50%">Name</th>
-	      <th width="25%">LogY</th>
-	      <th width="15%">Y Axis Min</th>
-	      <th width="15%">Y Axis Max</th>
-              <th width="25%">Selected</th>
+	      <th width="30%">Name</th>
+	      <th width="10%">LogY</th>
+	      <th width="10%">Y Axis Min</th>
+	      <th width="10%">Y Axis Max</th>
+              <th width="15%">Selected</th>
 
 
 	    </tr>
