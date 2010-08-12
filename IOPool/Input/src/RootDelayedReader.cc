@@ -44,15 +44,28 @@ namespace edm {
     }
     setRefCoreStreamer(ep, !fileFormatVersion_.splitProductIDs(), !fileFormatVersion_.productIDIsInt());
     TClass *cp = branchInfo.classCache_;
-    if(0==cp) {
+    if(0 == cp) {
       branchInfo.classCache_ = gROOT->GetClass(branchInfo.branchDescription_.wrappedName().c_str());
       cp = branchInfo.classCache_;
+      TClass *edProductClass = gROOT->GetClass("edm::EDProduct");
+      branchInfo.offsetToEDProduct_ = edProductClass->GetBaseClassOffset(edProductClass);
     }
-    std::auto_ptr<EDProduct> p(static_cast<EDProduct *>(cp->New()));
-    EDProduct *pp = p.get();
-    br->SetAddress(&pp);
+    void *p = cp->New();
+
+    // A union is used to avoid possible copies during the triple cast that would otherwise be needed.
+    //std::auto_ptr<EDProduct> edp(static_cast<EDProduct *>(static_cast<void *>(static_cast<unsigned char *>(p) + branchInfo.offsetToEDProduct_)));
+    union {
+      void* vp;
+      unsigned char* ucp;
+      EDProduct* edp;
+    } pointerUnion;
+    pointerUnion.vp = p;
+    pointerUnion.ucp += branchInfo.offsetToEDProduct_;
+    std::auto_ptr<EDProduct> edp(pointerUnion.edp);
+
+    br->SetAddress(&p);
     input::getEntryWithCache(br, entryNumber_, treeCache_.get(), filePtr_.get());
     setRefCoreStreamer(!fileFormatVersion_.splitProductIDs());
-    return p;
+    return edp;
   }
 }
