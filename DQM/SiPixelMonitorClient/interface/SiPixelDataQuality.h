@@ -69,7 +69,8 @@ class SiPixelDataQuality {
                                  bool                                     init,
                                  edm::EventSetup const                  & eSetup,
 				 int                                      nFEDs,
-				 bool                                     Tier0Flag);
+				 bool                                     Tier0Flag,
+				 int                                      lumisec);
   
  private:
 
@@ -79,6 +80,9 @@ class SiPixelDataQuality {
   TH2F * allmodsMap;
   TH2F * errmodsMap;
   TH2F * goodmodsMap;
+  TH1D * allmodsVec;
+  TH1D * errmodsVec;
+  TH1D * goodmodsVec;
   int count;
   int errcount;
   bool gotDigis;
@@ -138,5 +142,6 @@ class SiPixelDataQuality {
   
   int timeoutCounter_;
   int modCounter_;
+  int lastLS_;
 };
 #endif

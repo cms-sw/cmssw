@@ -261,7 +261,7 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
     sipixelDataQuality_->computeGlobalQualityFlagByLumi(bei_,init,nFEDs_,Tier0Flag_,nEvents_lastLS_);
     init=true;
     bei_->cd();
-    sipixelDataQuality_->fillGlobalQualityPlot(bei_,init,eSetup,nFEDs_,Tier0Flag_);
+    sipixelDataQuality_->fillGlobalQualityPlot(bei_,init,eSetup,nFEDs_,Tier0Flag_,nLumiSecs_);
     //cout << " Checking for new noisy pixels " << endl;
     init=true;
     if(noiseRate_>=0.) sipixelInformationExtractor_->findNoisyPixels(bei_, init, noiseRate_, noiseRateDenominator_, eSetup);
@@ -302,7 +302,7 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
     init=true;
     bei_->cd();
     //cout  << " Making run end reportSummaryMap: " <<nFEDs_<< endl;;
-    sipixelDataQuality_->fillGlobalQualityPlot(bei_,init,eSetup,nFEDs_,Tier0Flag_);
+    sipixelDataQuality_->fillGlobalQualityPlot(bei_,init,eSetup,nFEDs_,Tier0Flag_,nLumiSecs_);
     //cout << " Checking for new noisy pixels " << endl;
     init=true;
     if(noiseRate_>=0.) sipixelInformationExtractor_->findNoisyPixels(bei_, init, noiseRate_, noiseRateDenominator_, eSetup);

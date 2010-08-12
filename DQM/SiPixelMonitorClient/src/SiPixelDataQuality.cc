@@ -77,8 +77,12 @@ SiPixelDataQuality::SiPixelDataQuality(bool offlineXMLfile) : offlineXMLfile_(of
   allmodsMap=0;
   errmodsMap=0;
   goodmodsMap=0;
+  allmodsVec=0;
+  errmodsVec=0;
+  goodmodsVec=0;
   
   timeoutCounter_=0;
+  lastLS_=-1;
 }
 
 //------------------------------------------------------------------------------
@@ -91,6 +95,9 @@ SiPixelDataQuality::~SiPixelDataQuality() {
   if(allmodsMap) delete allmodsMap;
   if(errmodsMap) delete errmodsMap;
   if(goodmodsMap) delete goodmodsMap;
+  if(allmodsVec) delete allmodsVec;
+  if(errmodsVec) delete errmodsVec;
+  if(goodmodsVec) delete goodmodsVec;
 }
 
 
@@ -132,12 +139,19 @@ void SiPixelDataQuality::bookGlobalQualityFlag(DQMStore * bei, bool Tier0Flag, i
   
   bei->setCurrentFolder("Pixel/EventInfo");
   if(!Tier0Flag){
-    SummaryReportMap = bei->book2D("reportSummaryMap","Pixel Summary Map",40,0.,40.,36,1.,37.);
+    /*SummaryReportMap = bei->book2D("reportSummaryMap","Pixel Summary Map",40,0.,40.,36,1.,37.);
     SummaryReportMap->setAxisTitle("Pixel FED #",1);
     SummaryReportMap->setAxisTitle("Pixel FED Channel #",2);
     allmodsMap = new TH2F("allmodsMap","allmodsMap",40,0.,40.,36,1.,37.);
     errmodsMap = new TH2F("errmodsMap","errmodsMap",40,0.,40.,36,1.,37.);
     goodmodsMap = new TH2F("goodmodsMap","goodmodsMap",40,0.,40.,36,1.,37.);
+    */
+    SummaryReportMap = bei->book2D("reportSummaryMap","Pixel Summary Map",2000,0.,2000.,40,0.,40.);
+    SummaryReportMap->setAxisTitle("Lumi Section",1);
+    SummaryReportMap->setAxisTitle("Pixel FED #",2);
+    allmodsVec = new TH1D("allmodsVec","allmodsVec",40,0.,40.);
+    errmodsVec = new TH1D("errmodsVec","errmodsVec",40,0.,40.);
+    goodmodsVec = new TH1D("goodmodsVec","goodmodsVec",40,0.,40.);
   }else{
     SummaryReportMap = bei->book2D("reportSummaryMap","Pixel Summary Map",2,0.,2.,7,0.,7.);
     SummaryReportMap->setBinLabel(1,"Barrel",1);
@@ -228,14 +242,14 @@ void SiPixelDataQuality::bookGlobalQualityFlag(DQMStore * bei, bool Tier0Flag, i
    
     SummaryReportMap = bei->get("Pixel/EventInfo/reportSummaryMap");
     if(SummaryReportMap){
-      if(!Tier0Flag) for(int i=1; i!=41; i++) for(int j=1; j!=37; j++) SummaryReportMap->setBinContent(i,j,-1.);
+      if(!Tier0Flag) for(int i=1; i!=2001; i++) for(int j=1; j!=41; j++) SummaryReportMap->setBinContent(i,j,-1.);
       if(Tier0Flag) for(int i=1; i!=3; i++) for(int j=1; j!=8; j++) SummaryReportMap->setBinContent(i,j,-1.);
     }
     if(!Tier0Flag){
-      for(int i=1; i!=41; i++) for(int j=1; j!=37; j++){
-        if(allmodsMap) allmodsMap->SetBinContent(i,j,0.);
-        if(errmodsMap) errmodsMap->SetBinContent(i,j,0.);
-        if(goodmodsMap) goodmodsMap->SetBinContent(i,j,0.);
+      for(int j=1; j!=41; j++){
+        if(allmodsVec) allmodsVec->SetBinContent(j,0.);
+        if(errmodsVec) errmodsVec->SetBinContent(j,0.);
+        if(goodmodsVec) goodmodsVec->SetBinContent(j,0.);
       }
     }
     if(Tier0Flag){
@@ -645,9 +659,10 @@ void SiPixelDataQuality::computeGlobalQualityFlagByLumi(DQMStore * bei,
 
 //**********************************************************************************************
 
-void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::EventSetup const& eSetup, int nFEDs, bool Tier0Flag){
+void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::EventSetup const& eSetup, int nFEDs, bool Tier0Flag, int lumisec){
 //std::cout<<"Entering SiPixelDataQuality::fillGlobalQualityPlot: "<<nFEDs<<std::endl;
   //calculate eta and phi of the modules and fill a 2D plot:
+  if(lastLS_<lumisec){ cout<<"lastLS_="<<lastLS_<<" ,lumisec="<<lumisec<<endl; lastLS_=lumisec; init=true; cout<<"init="<<init<<endl; }
   if(init){
     count=0; errcount=0;
     init=false;
@@ -658,27 +673,28 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
     count5=0;
     count6=0;
     modCounter_=0;
-    if(!Tier0Flag){
-      for(int i=1; i!=41; i++) for(int j=1; j!=37; j++){
-        if(allmodsMap) allmodsMap->SetBinContent(i,j,0.);
-        if(errmodsMap) errmodsMap->SetBinContent(i,j,0.);
-        if(goodmodsMap) goodmodsMap->SetBinContent(i,j,0.);
-      }
+  if(!Tier0Flag){
+  cout<<"RESETS"<<endl;
+    for(int j=1; j!=41; j++){
+      if(allmodsVec) allmodsVec->SetBinContent(j,0.);
+      if(errmodsVec) errmodsVec->SetBinContent(j,0.);
+      if(goodmodsVec) goodmodsVec->SetBinContent(j,0.);
     }
-    if(Tier0Flag){
-      for(int i=1; i!=3; i++) for(int j=1; j!=8; j++){
-        if(allmodsMap) allmodsMap->SetBinContent(i,j,0.);
-        if(errmodsMap) errmodsMap->SetBinContent(i,j,0.);
-        if(goodmodsMap) goodmodsMap->SetBinContent(i,j,0.);
-      }
+  }
+  if(Tier0Flag){
+    for(int i=1; i!=3; i++) for(int j=1; j!=8; j++){
+      if(allmodsMap) allmodsMap->SetBinContent(i,j,0.);
+      if(errmodsMap) errmodsMap->SetBinContent(i,j,0.);
+      if(goodmodsMap) goodmodsMap->SetBinContent(i,j,0.);
     }
+  }
   }
   
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
 // Fill Maps:
   // Online:    
   if(nFEDs==0) return;
-  if(!Tier0Flag){
+/*  if(!Tier0Flag){
     eSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap);
     string currDir = bei->pwd();
     if(currDir.find("Reference")!=string::npos) return;
@@ -867,6 +883,91 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
             }
           }//end of loop over bins
           //std::cout<<"COUNTERS: "<<count1<<" , "<<count2<<" , "<<count3<<" , "<<count4<<" , "<<count5<<" , "<<count6<<std::endl;
+        }//end if reportSummaryMap ME exists
+      }//end if in summary directory
+    }//end if modCounter_  
+*/
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
+  if(!Tier0Flag){
+    eSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap);
+    string currDir = bei->pwd();
+    if(currDir.find("Reference")!=string::npos || currDir.find("Additional")!=string::npos) return;
+    //cout<<"currDir="<<currDir<<endl;
+    string dname = currDir.substr(currDir.find_last_of("/")+1);
+    if(dname.find("Module_")!=string::npos && currDir.find("Reference")==string::npos){
+      vector<string> meVec = bei->getMEs();
+      int detId=-1; int fedId=-1;
+      for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++){//loop over all modules and fill ndigis into allmodsMap
+        //checking for any digis or FED errors to decide if this module is in DAQ:  
+        string full_path = currDir + "/" + (*it);
+        if(detId==-1 && full_path.find("SUMOFF")==string::npos &&
+           (full_path.find("ndigis")!=string::npos && full_path.find("SUMDIG")==string::npos) && 
+	   (getDetId(bei->get(full_path)) > 100)){
+          MonitorElement * me = bei->get(full_path);
+          if (!me) continue;
+	  if((full_path.find("ndigis")!=string::npos)){ 
+	    modCounter_++;
+            detId = getDetId(me);
+            for(int fedid=0; fedid!=40; ++fedid){
+              SiPixelFrameConverter converter(theCablingMap.product(),fedid);
+	      uint32_t newDetId = detId;
+              if(converter.hasDetUnit(newDetId)){
+                fedId=fedid;
+                break;   
+              }
+            }
+	    int NDigis = 0;
+	    if(full_path.find("ndigis")!=string::npos) NDigis = me->getEntries(); 
+	    float weight = (allmodsVec->GetBinContent(fedId+1))+NDigis;
+	    //cout<<"DIGIS: "<<currDir<<" , "<<fedId<<" , "<<weight<<" , "<<NDigis<<endl;
+	    allmodsVec->SetBinContent(fedId+1,weight);
+	    //cout<<"\t filled: "<<allmodsVec->GetBinContent(fedId+1,weight)<<endl;
+	  }
+        }
+      }//end loop over MEs
+    }//end of module dir's
+    //if(currDir.find("FED_")!=std::string::npos){
+      //fillGlobalQualityPlot(bei,init,eSetup,nFEDs,Tier0Flag,lumisec);
+      //bei->goUp();
+    //}
+    vector<string> subDirVec = bei->getSubdirs();  
+    for (vector<string>::const_iterator ic = subDirVec.begin();
+         ic != subDirVec.end(); ic++) {
+      bei->cd(*ic);
+      init=false;
+      fillGlobalQualityPlot(bei,init,eSetup,nFEDs,Tier0Flag,lumisec);
+      bei->goUp();
+    }
+    //cout<<"modCounter_: "<<modCounter_<<" , "<<bei->pwd()<<endl;
+    if(modCounter_==1440){
+      bei->cd("Pixel/EventInfo/reportSummaryContents");
+      if(bei->pwd()=="Pixel/EventInfo/reportSummaryContents"){
+        for(int i=0; i!=40; i++){//loop over FEDs to fetch the errors
+          static const char buf[] = "Pixel/AdditionalPixelErrors/FED_%d/FedChNErrArray_%d";
+          char fedplot[sizeof(buf)+4]; 
+	  int NErrors = 0;
+	  for(int j=0; j!=37; j++){//loop over FED channels within a FED
+            sprintf(fedplot,buf,i,j);
+	    MonitorElement * me = bei->get(fedplot);
+	    if(me) NErrors = NErrors + me->getIntValue();
+	  }
+	  if(NErrors>0){ errmodsVec->Fill(i,NErrors); } 
+	}
+        SummaryReportMap = bei->get("Pixel/EventInfo/reportSummaryMap");
+        if(SummaryReportMap){ 
+	  MonitorElement * me = bei->get("Pixel/EventInfo/processedEvents");
+	  int nevents = 0;
+	  if(me) nevents = me->getIntValue();
+          float contents=0.;
+          for(int i=1; i!=41; i++){
+            if((allmodsVec->GetBinContent(i)) + (errmodsVec->GetBinContent(i)) > 0){
+              contents = (allmodsVec->GetBinContent(i))/((allmodsVec->GetBinContent(i))+(errmodsVec->GetBinContent(i)));
+	      //cout<<"Fed: "<<i-1<<" , nevents: "<<nevents<<" , ndigis: "<<(allmodsVec->GetBinContent(i))<<" , nerrors: "<<errmodsVec->GetBinContent(i)<<endl;
+            }else{
+              contents = -1.;
+            }
+            SummaryReportMap->setBinContent(lumisec+1,i,contents);
+          }//end for loop over summaryReportMap bins
         }//end if reportSummaryMap ME exists
       }//end if in summary directory
     }//end if modCounter_  
