@@ -1,11 +1,164 @@
 #ifndef DataFormats_Provenance_IndexIntoFile_h
 #define DataFormats_Provenance_IndexIntoFile_h
 
-/*----------------------------------------------------------------------
+/** \class edm::IndexIntoFile
 
-IndexIntoFile.h
+Used to quickly find the Events, Lumis, and Runs in a single
+ROOT format data file and step through them in the desired
+order.
 
-----------------------------------------------------------------------*/
+A list of the most important functions that a client would
+use directly follows. There are detailed comments below with
+the declaration of each function.
+
+The begin and end functions are used to start and stop
+an iteration loop. An argument to the iterator constructor
+determines the order of iteration.
+
+The functions findPosition, findEventPosition, findRunPosition,
+and findLumiPosition are used to navigate directly to specific
+runs, lumis, and events.
+
+The functions mentioned above return an object of type
+IndexIntoFileItr.  The IndexIntoFileItr class has member
+functions which allow one to navigate forward and backward
+through the runs, lumis, and events in alternative ways.
+See more comments with the declaration of each public member
+function in IndexIntoFileItr.
+
+The iterator  will know what the current item is (as one
+would expect).  This could be a run, lumi, or event. It
+knows more than that though, it knows all three as is
+explained below.
+
+In the run state, IndexIntoFileItr knows which lumi will
+be processed next after the run and also which event will
+be processed after the lumi.  These may not be the first
+ones in the run if the skip functions were used.
+
+In the lumi state, the IndexIntoFileItr will always point
+at the last associated run and the next event to be processed
+after the lumi.  This may not be the first event if the skip
+function was used.
+
+In the event state, the IndexIntoFileItr will always point
+at the last corresponding run and also the last corresponding
+lumi.
+
+There can be multiple run entries in a TTree associated
+with the same run number and ProcessHistoryID in a file.
+There can also be multiple lumi entries associated with
+the same lumi number, run number, and ProcessHistoryID.
+Both sorting orders will make these subgroups contiguous,
+but beyond that is up to the client (normally PoolSource,
+which passes them up to the EventProcessor and EPStates)
+to deal with merging the multiple run (or lumi) entries
+together.
+
+One final comment with regards to IndexIntoFileItr.  This
+is not an STL iterator and it cannot be used with std::
+algorithms.  The data structures are complex and designed
+to optimize memory usage. It would be difficult or impossible
+implement an iterator that is STL compliant.
+
+Here is a summary of the data structures in IndexIntoFile.
+The persistent data consists of two vectors.
+
+processHistoryIDs_ is a std::vector<ProcessHistoryID> that
+contains the ProcessHistoryIDs with one element in the
+vector for each unique ProcessHistoryID. On output they
+are ordered as they first written out for each output
+file.  On input they are ordered as they are first seen
+in each process. Note that each ProcessHistoryID is stored
+once in this separate vector. Everywhere else it is needed
+it stored as an index into this vector because the
+ProcessHistoryID itself is large and it would take more
+memory to store them repeatedly in the other vectors.
+
+runOrLumiEntries_ is a std::vector<RunOrLumiEntry>.
+This vector holds one element per entry in the run
+TTree and one element per entry in the lumi TTree.
+When sorted, everything associated with a given run and
+ProcessHistoryID will be contiguous in the vector.
+These groups of entries will be put in the order they
+first appear in the input file. Within each of
+these groups the run entries come first in entry order,
+followed by the entries associated with the lumis.
+The lumis are also contiguous and sorted by first
+appearance in the input file. Within a lumi they
+are sorted by entry order.
+
+There are a number of transient data members also.
+The 3 most important of these are vectors.  To
+save memory, these are only filled when needed.
+
+runOrLumiIndexes_ is a std::vector<RunOrLumiIndexes>.
+There is a one to one correspondence between the
+elements of this vector and the elements of runOrLumiEntries_.
+The elements of this vector are sorted in numerical
+order using the ProcessHistoryID index, the run number,
+and the lumi number. This ordering allows iteration
+in numerical order and also fast lookup based on run
+number and lumi number. Each element also has indexes
+into the eventNumbers_ and eventEntries_ vectors which
+hold the information giving the event numbers and
+event entry numbers.
+
+eventNumbers_ is a std::vector containing EventNumber_t's.
+Each element is a 4 byte int.  eventEntries_ is a
+std::vector containing EventEntry's.  Each EventEntry
+contains a 4 byte event number and an 8 byte entry number.
+If filled, both vectors contain the same number of 
+entries with identical event numbers sorted in the
+same order.  The only difference is that one includes
+the entry numbers and thus takes more memory.
+Each element of runOrLumiIndexes_ has the indexes necessary
+to find the range inside eventNumbers_ or eventEntries_
+corresponding to its lumi.  Within that range the elements
+are sorted by event number, which is used for the
+numerical order iteration and to find an event by the
+event number.
+
+The details of the data structure are a little different
+when reading files written before release 3_8_0
+(backward compatibility, see RootFile::fillIndexIntoFile
+for the details).
+
+This data structure is optimized for low memory usage when
+there are large numbers of events.  The optimal case would
+occur when there was was one run in a file, one luminosity block
+in that run and everything had the same ProcessHistoryID.
+If duplicate checking were off and the process simply iterated
+through the file in the default order, then only the persistent
+vectors would be filled.  One vector would contain 2 elements,
+one for the run and the other for the lumi. The other
+vector would contain one element, the ProcessHistoryID.
+Even if there were a billion events, that would be all that
+would exist and take up memory.  The data structure is not the
+optimal structure for a very sparse skim, but the overheads
+should be tolerable given the number of runs and luminosity
+blocks that should occur in CMS data.
+
+Normally the only the persistent part of the data structure is
+filled in the output module using two functions designed specifically
+for that purpose. The functions are addEntry and
+sortVector_Run_Or_Lumi_Entries.
+
+There are some complexities associated with filling the data structure,
+mostly revolving around optimizations to minimize the per event memory
+usage.  The client needs to know which parts of the data structure to
+fill. See the functions below named fixIndexes, setNumberOfEvents,
+setEventFinder, fillEventNumbers, fillEventEntries, and inputFileClosed.
+
+Note that this class is not intended to be used directly by the average
+CMS user.  PoolSource and PoolOutputModule are the main clients.  Other
+executables that read ROOT format data files, but do not use PoolSource
+may also need to use it directly (FWLite, Fireworks, edmFileUtil ...).
+The interface is too complex for general use.
+
+\author W. David Dagenhart, created 19 May, 2010
+
+*/
 
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/RunID.h"
@@ -45,37 +198,76 @@ namespace edm {
       ProcessHistoryID const& processHistoryID(int i) const;
       std::vector<ProcessHistoryID> const& processHistoryIDs() const;
 
-      void addEntry(ProcessHistoryID const& processHistoryID,
-                    RunNumber_t run,
-                    LuminosityBlockNumber_t lumi,
-                    EventNumber_t event,
-                    EntryNumber_t entry);
-
-      void fixIndexes(std::vector<ProcessHistoryID>& processHistoryIDs);
-
-      void setNumberOfEvents(EntryNumber_t nevents) const {
-        transients_.get().numberOfEvents_ = nevents;
-      }
-
-      void sortVector_Run_Or_Lumi_Entries();
-
+      /// This enum is used to specify the order of iteration.
+      /// In firstAppearanceOrder there are 3 sort criteria, in order of precedence these are:
+      ///
+      ///   1. firstAppearance of the ProcessHistoryID and run number in the file
+      ///
+      ///   2. firstAppearance of the ProcessHistoryID, run number and lumi number in the file
+      ///
+      ///   3. entry number
+      ///
+      /// In numerical order the criteria are in order of precedence are:
+      ///
+      ///   1. processHistoryID index (which are normally in order of appearance in the process) 
+      ///
+      ///   2. run number
+      ///
+      ///   3. lumi number
+      ///
+      ///   4. event number
+      ///
+      ///   5. entry number
       enum SortOrder {numericalOrder, firstAppearanceOrder};
 
+      /// Used to start an iteration over the Runs, Lumis, and Events in a file.
+      /// Note the argument specifies the order
       IndexIntoFileItr begin(SortOrder sortOrder) const;
+
+      /// Used to end an iteration over the Runs, Lumis, and Events in a file.
       IndexIntoFileItr end(SortOrder sortOrder) const;
+
+      /// Used to determine whether or not to disable fast cloning.
       bool iterationWillBeInEntryOrder(SortOrder sortOrder) const;
 
+      /// True if no runs, lumis, or events are in the file.
       bool empty() const;
 
+      /// Find a run, lumi, or event.
+      /// Returns an iterator pointing at it. The iterator will always
+      /// be in numericalOrder mode.
+      /// If it is not found the entry type of the iterator will be kEnd.
+      /// If it is found the entry type of the iterator will always be
+      /// kRun so the next thing to be processed is the run containing
+      /// the desired lumi or event or if looking for a run, the run itself.
+      /// If the lumi and event arguments are 0 (invalid), then it will
+      /// find a run. If only the event argument is 0 (invalid), then
+      /// it will find a lumi. If will look for an event if all three
+      /// arguments are nonzero or if only the lumi argument is 0 (invalid).
+      /// Note that it will find the first match only so if there is more
+      /// than one match then the others cannot be found with this method.
+      /// The order of the search is by processHistoryID index, then run
+      /// number, then lumi number, then event entry.
+      /// If searching for a lumi the iterator will advance directly
+      /// to the desired lumi after the run even if it is not the
+      /// first lumi in the run.  If searching for an event, the
+      /// iterator will advance to the lumi containing the run and
+      /// then the requested event after run even if there are other
+      /// lumis earlier in that run and other events earlier in that lumi.
       IndexIntoFileItr
       findPosition(RunNumber_t run, LuminosityBlockNumber_t lumi = 0U, EventNumber_t event = 0U) const;
 
+      /// Same as findPosition,except the entry type of the returned iterator will be kEvent or kEnd and the event argument must be nonzero.
+      /// This means the next thing to be processed will be the event if it is found.
       IndexIntoFileItr
       findEventPosition(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) const;
 
+      /// Same as findPosition,except the entry type of the returned iterator will be kLumi or kEnd and the lumi argument must be nonzero.
+      /// This means the next thing to be processed will be the lumi if it is found.
       IndexIntoFileItr
       findLumiPosition(RunNumber_t run, LuminosityBlockNumber_t lumi) const;
 
+      /// Same as findPosition.
       IndexIntoFileItr
       findRunPosition(RunNumber_t run) const;
 
@@ -87,10 +279,12 @@ namespace edm {
       SortedRunOrLumiItr beginRunOrLumi() const;
       SortedRunOrLumiItr endRunOrLumi() const;
 
+      /// The intersection argument will be filled with an entry for each event in both IndexIntoFile objects.
+      /// To be added the event must have the same ProcessHistoryID index, run number, lumi number and event number.
       void set_intersection(IndexIntoFile const& indexIntoFile, std::set<IndexRunLumiEventKey>& intersection) const;
-      bool containsDuplicateEvents() const;
 
-      void inputFileClosed() const;
+      /// Returns true if the IndexIntoFile contains 2 events with the same ProcessHistoryID index, run number, lumi number and event number.
+      bool containsDuplicateEvents() const;
 
       //*****************************************************************************
       //*****************************************************************************
@@ -154,6 +348,9 @@ namespace edm {
         RunNumber_t run_;
         LuminosityBlockNumber_t lumi_;  // 0 indicates this is a run entry
 
+        // These are entry numbers in the Events TTree
+        // Each RunOrLumiEntry is associated with one contiguous range of events.
+        // This is disjoint from the ranges associated with all other RunOrLumiEntry's
         EntryNumber_t beginEvents_;     // -1 if a run or a lumi with no events
         EntryNumber_t endEvents_;       // -1 if a run or a lumi with no events
       };
@@ -198,8 +395,14 @@ namespace edm {
         // eventEntries_ (which both have the same number of entries in the same order,
         // the only difference being that one contains only events numbers and is
         // smaller in memory).
+
         // If there are no events, then the next two are equal (and the value is the
         // index where the first event would have gone if there had been one)
+
+        // Note that there can be many RunOrLumiIndexes objects where these two values are
+        // the same if there are many noncontiguous ranges of events associated with the same
+        // PHID-Run-Lumi (this one range in eventNumbers_ corresponds to the union of
+        // all the noncontiguous ranges in the Events TTree).
         long long beginEventNumbers_;     // first event this PHID-Run-Lumi (-1 if a run or not set)
         long long endEventNumbers_;       // one past last event this PHID-Run-Lumi (-1 if a run or not set)
       };
@@ -283,23 +486,11 @@ namespace edm {
 
         void next ();
 
-        // Move to whatever is after the current event
-        // or next event if there is not a current event,
-        // but do not modify the type or run/lumi
-        // indexes unless it is necessary because there
-	// are no more events in the current run or lumi.
         void skipEventForward(int& phIndexOfSkippedEvent,
                               RunNumber_t& runOfSkippedEvent,
                               LuminosityBlockNumber_t& lumiOfSkippedEvent,
                               EntryNumber_t& skippedEventEntry);
 
-        // Move so that the event immediately preceding the
-        // the current position is the next event processed.
-        // If the type is kEvent or kLumi, then change the type to kRun
-        // if and only if the preceding event is in a different
-        // Run. If the type is kEvent, change the type to kLumi if
-        // the Lumi is different but the Run is the same.  Otherwise
-        // leave the type unchanged.
         void skipEventBackward(int& phIndexOfEvent,
                                RunNumber_t& runOfEvent,
                                LuminosityBlockNumber_t& lumiOfEvent,
@@ -435,6 +626,14 @@ namespace edm {
 
       class IndexIntoFileItr {
       public:
+        /// This itended to be used only internally and by IndexIntoFile.
+        /// One thing that is needed for the future, is to add some checks
+        /// to make sure the iterator is in a valid state inside this constructor.
+        /// It is currently possible to create an iterator with this constructor
+        /// in an invalid state and the behavior would then be undefined. In the
+        /// existing internal usages the iterator will always be valid.  (for
+        /// example IndexIntoFile::begin and IndexIntoFile::findPosition will
+        /// always return a valid iterator).
         IndexIntoFileItr(IndexIntoFile const* indexIntoFile,
                          SortOrder sortOrder,
                          EntryType entryType,
@@ -450,6 +649,9 @@ namespace edm {
         RunNumber_t run() const {return impl_->run();}
         LuminosityBlockNumber_t lumi() const {return impl_->lumi();}
         EntryNumber_t entry() const {return impl_->entry();}
+
+        /// Same as lumi() except when the the current type is kRun.
+        /// In that case instead of always returning 0 (invalid), it will return the lumi that will be processed next
         LuminosityBlockNumber_t peekAheadAtLumi() const { return impl_->peekAheadAtLumi(); }
 
         // This is intentionally not implemented.
@@ -464,11 +666,18 @@ namespace edm {
         // We may need to revisit this decision in the future.
         // EventNumber_t event() const;
 
+
+        /// Move to next event to be processed
         IndexIntoFileItr&  operator++() {
           impl_->next();
           return *this;
         }
 
+        /// Move to whatever is immediately after the current event
+        /// or after the next event if there is not a current event,
+        /// but do not modify the type or run/lumi
+        /// indexes unless it is necessary because there
+	/// are no more events in the current run or lumi.
         void skipEventForward(int& phIndexOfSkippedEvent,
                               RunNumber_t& runOfSkippedEvent,
                               LuminosityBlockNumber_t& lumiOfSkippedEvent,
@@ -476,6 +685,13 @@ namespace edm {
           impl_->skipEventForward(phIndexOfSkippedEvent, runOfSkippedEvent, lumiOfSkippedEvent, skippedEventEntry);
         }
 
+        /// Move so that the event immediately preceding the
+        /// the current position is the next event processed.
+        /// If the type is kEvent or kLumi, then change the type to kRun
+        /// if and only if the preceding event is in a different
+        /// run. If the type is kEvent, change the type to kLumi if
+        /// the lumi is different but the run is the same.  Otherwise
+        /// leave the type unchanged.
         void skipEventBackward(int& phIndexOfEvent,
                                RunNumber_t& runOfEvent,
                                LuminosityBlockNumber_t& lumiOfEvent,
@@ -483,10 +699,10 @@ namespace edm {
           impl_->skipEventBackward(phIndexOfEvent, runOfEvent, lumiOfEvent, eventEntry);
         }
 
+        /// Move to the next lumi in the current run.
+        /// Returns false if there is not one.
         bool skipLumiInRun() { return impl_->skipLumiInRun(); }
 
-        void initializeRun() {impl_->initializeRun();}
-        void initializeLumi() {impl_->initializeLumi();}
         void advanceToNextRun() {impl_->advanceToNextRun();}
         void advanceToNextLumiOrRun() {impl_->advanceToNextLumiOrRun();}
 
@@ -501,6 +717,11 @@ namespace edm {
           return !(*this == right);
         }
 
+        /// Should only be used internally and for tests
+        void initializeRun() {impl_->initializeRun();}
+
+        /// Should only be used internally and for tests
+        void initializeLumi() {impl_->initializeLumi();}
 
       private:
 
@@ -643,19 +864,107 @@ namespace edm {
       //*****************************************************************************
       //*****************************************************************************
 
-      std::vector<RunOrLumiEntry> const& runOrLumiEntries() const {return runOrLumiEntries_;}
-      std::vector<RunOrLumiEntry>& setRunOrLumiEntries() {return runOrLumiEntries_;}
-      std::vector<ProcessHistoryID>& setProcessHistoryIDs() {return processHistoryIDs_;}
+      // The next two functions are used by the output module to fill the
+      // persistent data members.
+
+      /// Used by RootOutputModule to fill the persistent data.
+      /// This will not work properly if entries are not added in the same order as in RootOutputModule
+      void addEntry(ProcessHistoryID const& processHistoryID,
+                    RunNumber_t run,
+                    LuminosityBlockNumber_t lumi,
+                    EventNumber_t event,
+                    EntryNumber_t entry);
+
+      /// Used by RootOutputModule after all entries have been added.
+      /// This only works after the correct sequence of addEntry calls,
+      /// because it makes some corrections before sorting.  A std::stable_sort
+      /// works in cases where those corrections are not needed.
+      void sortVector_Run_Or_Lumi_Entries();
+
+      //*****************************************************************************
+      //*****************************************************************************
+
+      // The next group of functions is used by the PoolSource (or other
+      // input related code) to fill the IndexIntoFile.
+
+      /// Used by PoolSource to force the ProcessHistoryID indexes to be consistent across all input files.
+      /// Currently this consistency is important when duplicate checking across all input files.
+      /// It may be important for other reasons in the future.
+      /// It is important this be called immediately after reading in the object from the input file,
+      /// before filling the transient data members or using the indexes in any way.
+      void fixIndexes(std::vector<ProcessHistoryID>& processHistoryIDs);
+
+      /// The number of events needs to be set before filling the transient event vectors.
+      /// It is used to resize them.
+      void setNumberOfEvents(EntryNumber_t nevents) const {
+        transients_.get().numberOfEvents_ = nevents;
+      }
+
+      /// Calling this enables the functions that fill the event vectors to get the event numbers.
+      /// It needs to be called before filling the events vectors
+      /// This implies the client needs to define a class that inherits from
+      /// EventFinder and then create one.  This function is used to pass in a
+      /// pointer to its base class.
       void setEventFinder(boost::shared_ptr<EventFinder> ptr) const {transients_.get().eventFinder_ = ptr;}
+
+      /// Fills a vector of 4 byte event numbers.
+      /// Not filling it reduces the memory used by IndexIntoFile.
+      /// As long as the event finder is still pointing at an open file
+      /// this will automatically be called on demand (when the event
+      /// numbers are are needed). In cases, where the input file may be
+      /// closed when the need arises, the client code must call this
+      /// explicitly and fill the vector before the file is closed.
+      /// In PoolSource, this is necessary when duplicate checking across
+      /// all files and when doing lookups to see if an event is in a
+      /// previously opened file.  Either this vector or the one that
+      /// also contains event entry numbers can be used when looking for
+      /// duplicate events within the same file or looking up events in
+      /// in the current file without reading them.
       void fillEventNumbers() const;
+
+      /// Fills a vector of objects that contain a 4 byte event number and
+      /// the corresponding TTree entry number (8 bytes) for the event.
+      /// Not filling it reduces the memory used by IndexIntoFile.
+      /// As long as the event finder is still pointing at an open file
+      /// this will automatically be called on demand (when the event
+      /// numbers and entries are are needed).  It makes sense for the
+      /// client to fill this explicitly in advance if it is known that
+      /// it will be needed, because in some cases this will prevent the
+      /// event numbers vector from being unnecessarily filled (wasting
+      /// memory).  This vector will be needed when iterating over events
+      /// in numerical order or looking up specific events. The entry
+      /// numbers are needed if the events are actually read from the
+      /// input file.
       void fillEventEntries() const;
 
+      /// Clears the event entries vector and eventFinder when an input file is closed.
+      void inputFileClosed() const;
+
+      /// Used for backward compatibility and tests.
+      /// RootFile::fillIndexIntoFile uses this to deal with input files created
+      /// with releases before 3_8_0 which do not contain an IndexIntoFile.
+      std::vector<RunOrLumiEntry>& setRunOrLumiEntries() {return runOrLumiEntries_;}
+
+      /// Used for backward compatibility and tests.
+      /// RootFile::fillIndexIntoFile uses this to deal with input files created
+      /// with releases before 3_8_0 which do not contain an IndexIntoFile.
+      std::vector<ProcessHistoryID>& setProcessHistoryIDs() {return processHistoryIDs_;}
+
+      //*****************************************************************************
+      //*****************************************************************************
+
+      /// Used internally and for test purposes.
+      std::vector<RunOrLumiEntry> const& runOrLumiEntries() const {return runOrLumiEntries_;}
+
     private:
+
+      /// This function will automatically get called when needed.
+      /// It depends only on the fact that the persistent data has been filled already.
+      void fillRunOrLumiIndexes() const;
 
       void resetEventFinder() const {transients_.get().eventFinder_.reset();}
       std::vector<EventEntry>& eventEntries() const {return transients_.get().eventEntries_;}
       std::vector<EventNumber_t>& eventNumbers() const {return transients_.get().eventNumbers_;}
-      void fillRunOrLumiIndexes() const;
       void sortEvents() const;
       void sortEventEntries() const;
       int& previousAddedIndex() const {return transients_.get().previousAddedIndex_;}
