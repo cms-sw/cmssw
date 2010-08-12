@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     17-Oct-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.4 $
-#     $Date: 2009/01/07 18:24:07 $
+#     $Revision: 1.5 $
+#     $Date: 2009/01/20 20:24:23 $
 #
 #  Try periodically to fire merge job.
 #  Terminate when done
@@ -70,8 +70,8 @@ while ($done == 0) {
 	 }
     }
     if ($done == 0) { # only in case of no problem...
-	print  "mps_fire.pl -m; sleep $seconds\n";
-	system "mps_fire.pl -m; sleep $seconds";
+	print  "mps_fire.pl -m; date; sleep $seconds\n";
+	system "mps_fire.pl -m; date; sleep $seconds";
     }
   }
   $iter = $iter + 1;
