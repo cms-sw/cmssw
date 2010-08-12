@@ -103,13 +103,13 @@
 
 
     //alert(typeName+'FullList.txt');
+    var fileName    =   typeName+"FullList.txt";
+    prompt("","./http_request.php?fileName="+fileName);
     oTable = $('#example').dataTable( {
       "iDesplayLength": 100,
       "bProcessing": true,
       "bServerSide":false,
-      //<!-- "sAjaxSource": '/dataTables/media/json_source.txt', -->
-      "sAjaxSource": typeName+'FullList.txt',
-      // "sAjaxSource": "../examples_support/server_processing_id.php",
+      "sAjaxSource": "http_request.php?fileName="+fileName,
       "bStateSave": true, <!-- save the state using cookies -->
       "bJQueryUI": true,
 	  "bSortClasses":false,
@@ -159,7 +159,6 @@
 	
 	/* Click event handler */
 	$('#example tbody tr').live('click', function () {
-	//	alert((this));
 		var aData = oTable.fnGetData( this );
 		var iId = aData[1];
 		
