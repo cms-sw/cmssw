@@ -157,7 +157,7 @@ tpToStaUpdMuonAssociation.UseTracker = False
 tpToStaUpdMuonAssociation.UseMuon = True
 
 tpToGlbMuonAssociation.tpTag = 'mergedtruth:MergedTrackTruth'
-tpToGlbMuonAssociation.tracksTag = 'globalMuons'
+tpToGlbMuonAssociation.tracksTag = 'extractedGlobalMuons'
 tpToGlbMuonAssociation.UseTracker = True
 tpToGlbMuonAssociation.UseMuon = True
 
