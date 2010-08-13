@@ -8,7 +8,7 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCStripDigiProxyBuilder.cc,v 1.5 2010/08/05 15:19:13 mccauley Exp $
+// $Id: FWCSCStripDigiProxyBuilder.cc,v 1.6 2010/08/10 12:52:43 mccauley Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -112,9 +112,8 @@ FWCSCStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
     {
       std::vector<int> adcCounts = (*dit).getADCCounts();
       
-      TEveCompound* compound = new TEveCompound("csc strip digi compound", "cscStripDigis");
-      compound->OpenCompound();
-      product->AddElement(compound);
+      TEveCompound* compound = createCompound();
+      setupAddElement(compound, product);
 
       int signalThreshold = (adcCounts[0] + adcCounts[1])/2 + thresholdOffset;  
             
@@ -122,7 +121,7 @@ FWCSCStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
       {
         TEveStraightLineSet* stripDigiSet = new TEveStraightLineSet();
         stripDigiSet->SetLineWidth(3);
-        compound->AddElement(stripDigiSet);
+        setupAddElement(stripDigiSet, compound);
                 
         int stripId = (*dit).getStrip();  
 

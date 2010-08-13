@@ -8,7 +8,7 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWRPCDigiProxyBuilder.cc,v 1.6 2010/08/11 13:07:55 yana Exp $
+// $Id: FWRPCDigiProxyBuilder.cc,v 1.7 2010/08/13 13:23:36 mccauley Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -82,13 +82,12 @@ FWRPCDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product,
     for ( RPCDigiCollection::const_iterator dit = range.first;
           dit != range.second; ++dit )
     {
-      TEveCompound* compound = new TEveCompound("rpc digi compound", "rpcDigis");
-      compound->OpenCompound();
-      product->AddElement(compound);
+      TEveCompound* compound = createCompound();
+      setupAddElement(compound, product);
 
       TEveStraightLineSet* stripDigiSet = new TEveStraightLineSet();
       stripDigiSet->SetLineWidth(3);
-      compound->AddElement(stripDigiSet);
+      setupAddElement(stripDigiSet, compound);
 
       if ( ! matrix ) 
       {
@@ -133,5 +132,5 @@ FWRPCDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product,
 }
 
 REGISTER_FWPROXYBUILDER(FWRPCDigiProxyBuilder, RPCDigiCollection, "RPCDigi", 
-                        FWViewType::kAll3DBits || FWViewType::kAllRPZBits);
+                        FWViewType::kAll3DBits | FWViewType::kAllRPZBits);
 
