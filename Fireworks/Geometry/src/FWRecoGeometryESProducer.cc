@@ -1,9 +1,6 @@
 #include "Fireworks/Geometry/interface/FWRecoGeometryESProducer.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "Fireworks/Geometry/interface/FWRecoGeometry.h"
+#include "Fireworks/Geometry/interface/FWRecoGeometryRecord.h"
 
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
@@ -12,11 +9,12 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCChamber.h"
+#include "Geometry/CSCGeometry/interface/CSCLayer.h"
+#include "Geometry/DTGeometry/interface/DTChamber.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
@@ -24,9 +22,6 @@
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
-
-#include "Fireworks/Geometry/interface/FWRecoGeometry.h"
-#include "Fireworks/Geometry/interface/FWRecoGeometryRecord.h"
 
 #include "TGeoManager.h"
 #include "TGeoArb8.h"
@@ -65,7 +60,7 @@
     }									\
   }                                                                     \
 									  
-FWRecoGeometryESProducer::FWRecoGeometryESProducer( const edm::ParameterSet& pset )
+FWRecoGeometryESProducer::FWRecoGeometryESProducer( const edm::ParameterSet& )
 {
   setWhatProduced( this );
 }
@@ -164,7 +159,6 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
   addCaloGeometry();
   
   geom->CloseGeometry();
-  geom->DefaultColors();
 
   m_nameToShape.clear();
   m_nameToVolume.clear();
@@ -308,13 +302,15 @@ void
 FWRecoGeometryESProducer::addCSCGeometry( TGeoVolume* top, const std::string& iName, int copy )
 {
   TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
-  if(! m_geomRecord->slaveGeometry( CSCDetId()))
-    throw cms::Exception( "FatalError" ) << "Cannnot find CSCGeometry\n";
-
-  const std::vector<GeomDet*>& cscGeom = m_geomRecord->slaveGeometry( CSCDetId())->dets();
-  for( std::vector<GeomDet*>::const_iterator it = cscGeom.begin(), itEnd = cscGeom.end(); it != itEnd; ++it )
-  {    
-    if( CSCChamber* chamber = dynamic_cast<CSCChamber*>(*it))
+  DetId detId( DetId::Muon, 2 ); 
+  const CSCGeometry* cscGeometry = (const CSCGeometry*) m_geomRecord->slaveGeometry( detId );
+  for( std::vector<CSCChamber*>::const_iterator it = cscGeometry->chambers().begin(),
+					       end = cscGeometry->chambers().end(); 
+       it != end; ++it )
+  {
+    const CSCChamber *chamber = *it;
+    
+    if( chamber )
     {
       unsigned int rawid = chamber->geographicalId();
       std::stringstream s;
@@ -328,53 +324,68 @@ FWRecoGeometryESProducer::addCSCGeometry( TGeoVolume* top, const std::string& iN
       std::stringstream p;
       p << path( top, iName, copy ) << "/" << name << "_" << copy;
       m_fwGeometry->idToName.insert( std::pair<unsigned int, FWRecoGeom::Info>( rawid, FWRecoGeom::Info( p.str())));
-    }
-    else if( CSCLayer* layer = dynamic_cast<CSCLayer*>(*it))
-    {
-      unsigned int rawid = layer->geographicalId();
-      std::stringstream s;
-      s << rawid;
-      std::string name = s.str();
-      
-      TGeoVolume* child = createVolume( name, layer );
-      assembly->AddNode( child, copy, createPlacement( layer ));
-      child->SetLineColor( kBlue );
-      
-      std::stringstream p;
-      p << path( top, iName, copy ) << "/" << name << "_" << copy;
-      m_fwGeometry->idToName.insert( std::pair<unsigned int, FWRecoGeom::Info>( rawid, FWRecoGeom::Info( p.str())));
 
-      const CSCStripTopology* stripTopology = layer->geometry()->topology();
-      m_fwGeometry->idToName[rawid].topology[0] = stripTopology->yAxisOrientation();
-      m_fwGeometry->idToName[rawid].topology[1] = stripTopology->centreToIntersection();
-      m_fwGeometry->idToName[rawid].topology[2] = stripTopology->yCentreOfStripPlane();
-      m_fwGeometry->idToName[rawid].topology[3] = stripTopology->phiOfOneEdge();
-      m_fwGeometry->idToName[rawid].topology[4] = stripTopology->stripOffset();
-      m_fwGeometry->idToName[rawid].topology[5] = stripTopology->angularWidth();
+      //
+      // CSC layers geometry
+      //
+      for( std::vector< const CSCLayer* >::const_iterator lit = chamber->layers().begin(),
+							 lend = chamber->layers().end(); 
+	   lit != lend; ++lit )
+      {
+	const CSCLayer* layer = *lit;
+    
+	if( layer )
+	{
+	  unsigned int rawid = layer->geographicalId();
+	  std::stringstream s;
+	  s << rawid;
+	  std::string name = s.str();
+      
+	  TGeoVolume* child = createVolume( name, layer );
+	  assembly->AddNode( child, copy, createPlacement( layer ));
+	  child->SetLineColor( kBlue );
+      
+	  std::stringstream p;
+	  p << path( top, iName, copy ) << "/" << name << "_" << copy;
+	  m_fwGeometry->idToName.insert( std::pair<unsigned int, FWRecoGeom::Info>( rawid, FWRecoGeom::Info( p.str())));
 
-      const CSCWireTopology* wireTopology = layer->geometry()->wireTopology();
-      m_fwGeometry->idToName[rawid].topology[6] = wireTopology->wireSpacing();
-      m_fwGeometry->idToName[rawid].topology[7] = wireTopology->wireAngle();
+	  const CSCStripTopology* stripTopology = layer->geometry()->topology();
+	  m_fwGeometry->idToName[rawid].topology[0] = stripTopology->yAxisOrientation();
+	  m_fwGeometry->idToName[rawid].topology[1] = stripTopology->centreToIntersection();
+	  m_fwGeometry->idToName[rawid].topology[2] = stripTopology->yCentreOfStripPlane();
+	  m_fwGeometry->idToName[rawid].topology[3] = stripTopology->phiOfOneEdge();
+	  m_fwGeometry->idToName[rawid].topology[4] = stripTopology->stripOffset();
+	  m_fwGeometry->idToName[rawid].topology[5] = stripTopology->angularWidth();
+
+	  const CSCWireTopology* wireTopology = layer->geometry()->wireTopology();
+	  m_fwGeometry->idToName[rawid].topology[6] = wireTopology->wireSpacing();
+	  m_fwGeometry->idToName[rawid].topology[7] = wireTopology->wireAngle();
+	}
+      }
     }
   }
-
+  
   top->AddNode( assembly, copy );
 }
 
 void
 FWRecoGeometryESProducer::addDTGeometry( TGeoVolume* top, const std::string& iName, int copy )
 {
+  TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
+  DetId detId( DetId::Muon, 1 );
+  const DTGeometry* dtGeometry = (const DTGeometry*) m_geomRecord->slaveGeometry( detId );
+
   //
   // DT chambers geometry
   //
-  TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
-  const std::vector<GeomDet*>& dtChamberGeom = m_geomRecord->slaveGeometry( DTChamberId())->dets();
-  for( std::vector<GeomDet*>::const_iterator it = dtChamberGeom.begin(),
-					     end = dtChamberGeom.end(); 
+  for( std::vector<DTChamber *>::const_iterator it = dtGeometry->chambers().begin(),
+					       end = dtGeometry->chambers().end(); 
        it != end; ++it )
   {
-    if( DTChamber* chamber = dynamic_cast< DTChamber *>(*it))
-    {      
+    const DTChamber *chamber = *it;
+    
+    if( chamber )
+    {
       unsigned int rawid = chamber->geographicalId().rawId();
       std::stringstream s;
       s << rawid;
@@ -391,42 +402,14 @@ FWRecoGeometryESProducer::addDTGeometry( TGeoVolume* top, const std::string& iNa
   }
   top->AddNode( assembly, copy );
 
-  // Fill in DT super layer parameters
-  const std::vector<GeomDet*>& dtSuperLayerGeom = m_geomRecord->slaveGeometry( DTLayerId())->dets();
-  for( std::vector<GeomDet*>::const_iterator it = dtSuperLayerGeom.begin(),
-					    end = dtSuperLayerGeom.end(); 
-       it != end; ++it )
-  {
-    if( DTSuperLayer* superlayer = dynamic_cast<DTSuperLayer*>(*it))
-    {
-      unsigned int rawid = superlayer->id().rawId();
-      std::stringstream s;
-      s << rawid;
-      std::string name = s.str();
-      
-      TGeoVolume* child = createVolume( name, superlayer );
-      assembly->AddNode( child, copy, createPlacement( superlayer ));
-      child->SetLineColor( kBlue );
-      
-      std::stringstream p;
-      p << path( top, iName, copy ) << "/" << name << "_" << copy;
-      m_fwGeometry->idToName.insert( std::pair<unsigned int, FWRecoGeom::Info>( rawid, FWRecoGeom::Info( p.str())));
-
-      const BoundPlane& surf = superlayer->surface();
-      // Bounds W/H/L:
-      m_fwGeometry->idToName[rawid].topology[0] = surf.bounds().width();
-      m_fwGeometry->idToName[rawid].topology[1] = surf.bounds().thickness();
-      m_fwGeometry->idToName[rawid].topology[2] = surf.bounds().length();
-    }
-  }
-
   // Fill in DT layer parameters
-  const std::vector<GeomDet*>& dtLayerGeom = m_geomRecord->slaveGeometry( DTSuperLayerId())->dets();
-  for( std::vector<GeomDet*>::const_iterator it = dtLayerGeom.begin(),
-					    end = dtLayerGeom.end(); 
+  for( std::vector<DTLayer*>::const_iterator it = dtGeometry->layers().begin(),
+					    end = dtGeometry->layers().end(); 
        it != end; ++it )
   {
-    if( DTLayer* layer = dynamic_cast<DTLayer*>(*it))
+    const DTLayer* layer = *it;
+     
+    if( layer )
     {
       unsigned int rawid = layer->id().rawId();
       std::stringstream s;
@@ -463,7 +446,7 @@ void
 FWRecoGeometryESProducer::addRPCGeometry( TGeoVolume* top, const std::string& iName, int copy )
 {
   //
-  // RPC chambers geometry
+  // RPC rolls geometry
   //
   TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
   DetId detId( DetId::Muon, 3 );
