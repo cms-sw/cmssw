@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2009/07/08 07:19:54 $
+// last change    : $Date: 2010/08/12 09:15:30 $
 // by             : $Author: flucke $
 
 #include "CompareMillePede.h"
@@ -114,7 +114,7 @@ void CompareMillePede::DrawPedeParamVsLocation(Option_t *option)
                                       deltaNameZ, "BOX");
 
     const TString deltaNameH(fPlotMp1->Unique(Form("deltaPedePar%dH", iPar))); // 
-    TH2 *hDhit = fPlotMp1->CreateHist2D(fPlotMp1->HitsX(), deltaPedePar, sel, deltaNameZ, "BOX");
+    TH2 *hDhit = fPlotMp1->CreateHist2D(fPlotMp1->HitsX(), deltaPedePar, sel, deltaNameH, "BOX");
 
 //     // now devided by sigma prediction from 1
 //     const TString deltaBySi1(this->DeltaParBySigma(iPar, fPlotMp1));
@@ -534,6 +534,16 @@ void CompareMillePede::DrawNumHits(Option_t *option)
   const TString diffY(m->Parenth(fPlotMp2->HitsY() += m->Min() += fPlotMp1->HitsY()));
   TH1 *hDiffY = fPlotMp1->CreateHist(diffY, sel, nDiffY);
 
+  const TString ratioX(m->Parenth(fPlotMp2->HitsX() += m->Div() += fPlotMp1->HitsX()));
+  const TString selRatioX(fPlotMp1->HitsX() += ">0" + m->AndL() += sel);
+  const TString nRatioX(m->Unique("ratioHitsX"));
+  TH1 *hRatioX = fPlotMp1->CreateHist(ratioX, selRatioX, nRatioX);
+
+  const TString ratioY(m->Parenth(fPlotMp2->HitsY() += m->Div() += fPlotMp1->HitsY()));
+  const TString selRatioY(fPlotMp1->HitsY() += ">0" + m->AndL() += sel);
+  const TString nRatioY(m->Unique("ratioHitsY"));
+  TH1 *hRatioY = fPlotMp1->CreateHist(ratioY, selRatioY, nRatioY);
+
 //   const TString nDiffYvs1(m->Unique("deltaHitsYvs1"));
 //   TH2 *hDiffYvs1 = fPlotMp1->CreateHist2D(diffY, fPlotMp1->HitsY(), sel, nDiffXvs1, "BOX");
 
@@ -557,25 +567,23 @@ void CompareMillePede::DrawNumHits(Option_t *option)
   TH2 *hDiffXvs1 = fPlotMp1->CreateHist2D(diffX, fPlotMp1->HitsX(), sel, nDiffXvs1, "BOX");
 
   // ratio vs location/hits
-  const TString ratioX(m->Parenth(fPlotMp2->HitsX() += m->Div() += fPlotMp1->HitsX()));
-  const TString selRatio(fPlotMp1->HitsX() += ">0" + m->AndL() += sel);
   const TString nRatioXvsR(m->Unique("ratioHitsXvsR"));
   TH2 *hRatioXvsR = fPlotMp1->CreateHist2D(ratioX, fPlotMp1->RPos(fPlotMp1->OrgPosT()),
-					   selRatio, nRatioXvsR, "BOX");
+					   selRatioX, nRatioXvsR, "BOX");
   const TString nRatioXvsPhi(m->Unique("ratioHitsXvsPhi"));
   TH2 *hRatioXvsPhi = fPlotMp1->CreateHist2D(ratioX, fPlotMp1->Phi(fPlotMp1->OrgPosT()),
-					     selRatio, nRatioXvsPhi, "BOX");
+					     selRatioX, nRatioXvsPhi, "BOX");
   const TString nRatioXvsZ(m->Unique("ratioHitsXvsZ"));
   TH2 *hRatioXvsZ = fPlotMp1->CreateHist2D(ratioX, fPlotMp1->OrgPosT() += fPlotMp1->ZPos(),
-					   selRatio, nRatioXvsZ, "BOX");
+					   selRatioX, nRatioXvsZ, "BOX");
   const TString nRatioXvsX(m->Unique("ratioHitsXvsX"));
   TH2 *hRatioXvsX = fPlotMp1->CreateHist2D(ratioX, fPlotMp1->OrgPosT() += fPlotMp1->XPos(),
-					   selRatio, nRatioXvsX, "BOX");
+					   selRatioX, nRatioXvsX, "BOX");
   const TString nRatioXvsY(m->Unique("ratioHitsXvsY"));
   TH2 *hRatioXvsY = fPlotMp1->CreateHist2D(ratioX, fPlotMp1->OrgPosT() += fPlotMp1->YPos(),
-					   selRatio, nRatioXvsY, "BOX");
+					   selRatioX, nRatioXvsY, "BOX");
   const TString nRatioXvs1(m->Unique("ratioHitsXvs1"));
-  TH2 *hRatioXvs1 = fPlotMp1->CreateHist2D(ratioX, fPlotMp1->HitsX(), selRatio, nRatioXvs1, "BOX");
+  TH2 *hRatioXvs1 = fPlotMp1->CreateHist2D(ratioX, fPlotMp1->HitsX(), selRatioX, nRatioXvs1, "BOX");
 
   
   hX1vs2->SetTitle("#hits_{x}" + titleAdd + ";N_{hit,x}^{1};N_{hit,x}^{2}");
@@ -584,6 +592,8 @@ void CompareMillePede::DrawNumHits(Option_t *option)
   hDiffY->SetTitle("#Delta#hits_{y}" + titleAdd + ";N_{hit,y}^{2} - N_{hit,y}^{1};#alignables");
 //   hDiffYvs1->SetTitle("#Delta#hits_{y} vs #hits_{y}^{1}" + titleAdd
 // 		      + ";N_{hit,y}^{2} - N_{hit,y}^{1};N_{hit,y}^{1}");
+  hRatioX->SetTitle("ratio #hits_{x}" + titleAdd + ";N_{hit,x}^{2} / N_{hit,x}^{1};#alignables");
+  hRatioY->SetTitle("ratio #hits_{y}" + titleAdd + ";N_{hit,y}^{2} / N_{hit,y}^{1};#alignables");
 
   hDiffXvsR->SetTitle("#Delta#hits_{x} vs r" + titleAdd + ";N_{hit,x}^{2} - N_{hit,x}^{1};r[cm]");
   hDiffXvsPhi->SetTitle("#Delta#hits_{x} vs #phi" +titleAdd+ ";N_{hit,x}^{2} - N_{hit,x}^{1};#phi");
@@ -603,9 +613,11 @@ void CompareMillePede::DrawNumHits(Option_t *option)
 
   fHistManager->AddHist(hX1vs2, layer);
   fHistManager->AddHist(hDiffX, layer);
+  fHistManager->AddHist(hRatioX, layer);
   fHistManager->AddHist(hY1vs2, layer);
   fHistManager->AddHist(hDiffY, layer);
 //   fHistManager->AddHist(hDiffYvs1, layer);
+  fHistManager->AddHist(hRatioY, layer);
 
   fHistManager->AddHist(hDiffXvsR, layer+1);
   fHistManager->AddHist(hDiffXvsPhi, layer+1);
