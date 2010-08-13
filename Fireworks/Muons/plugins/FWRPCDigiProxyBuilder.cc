@@ -8,7 +8,7 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWRPCDigiProxyBuilder.cc,v 1.5 2010/08/10 12:52:43 mccauley Exp $
+// $Id: FWRPCDigiProxyBuilder.cc,v 1.6 2010/08/11 13:07:55 yana Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -61,11 +61,13 @@ FWRPCDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product,
 
     const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix(rawid);
     std::vector<float> parameters = iItem->getGeom()->getParameters(rawid);
+ 
     if ( parameters.empty() )
     {
       fwLog(fwlog::kWarning)<<"Parameters empty for RPC with detid: "
 			      << rawid <<std::endl;
     }
+    
     else
     {     
       nStrips = parameters[0];
@@ -80,17 +82,28 @@ FWRPCDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product,
     for ( RPCDigiCollection::const_iterator dit = range.first;
           dit != range.second; ++dit )
     {
+      TEveCompound* compound = new TEveCompound("rpc digi compound", "rpcDigis");
+      compound->OpenCompound();
+      product->AddElement(compound);
+
       TEveStraightLineSet* stripDigiSet = new TEveStraightLineSet();
       stripDigiSet->SetLineWidth(3);
-      setupAddElement( stripDigiSet, product );
+      compound->AddElement(stripDigiSet);
 
-      if ( ! matrix || parameters.empty()) 
+      if ( ! matrix ) 
       {
-	fwLog(fwlog::kWarning)<<"Failed get geometry of RPC reference volume with detid: "
+	fwLog(fwlog::kWarning)<<"Failed get matrix of RPC with detid: "
 			      << rawid << std::endl;
 	continue;
       }     
-    
+
+      if ( parameters.empty() )
+      {
+        fwLog(fwlog::kWarning)<<"Parameters empty for RPC with detid: "
+			      << rawid <<std::endl;
+        continue;
+      }
+      
       int strip = (*dit).strip();
       double centreOfStrip = (strip-0.5)*pitch + offset;
 
