@@ -17,6 +17,8 @@
 </head>
 <body id="dt_example">
   <h1 id="title">HDQM Web Interface</h1>
+<div align="right"><a href="DQMMeetingSlides.pdf" target="_new">Presentation Slides</a></div>
+<!--<div align="right"><a href="#" target="_new">User Manual</a></div>-->
   <ul>
     <li> <a href="./WebInterface.php?subDet=Tracking&tagVersion=V2" name="Tracking Interface">Tracking Interface</a> </li>
     <li> <a href="./WebInterface.php?subDet=SiStrip&tagVersion=V2" name="SiStrip Interface">SiStrip Interface</a> </li>
