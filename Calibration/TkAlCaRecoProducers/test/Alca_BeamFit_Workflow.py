@@ -51,7 +51,7 @@ process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('0 AND ( 40 OR 41 
 ##
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'GR_R_36X_V11::All' #'GR_R_35X_V8::All'
+process.GlobalTag.globaltag = 'GR_R_38X_V9::All' #'GR_R_35X_V8::All'
 process.load("Configuration.StandardSequences.Geometry_cff")
 
 

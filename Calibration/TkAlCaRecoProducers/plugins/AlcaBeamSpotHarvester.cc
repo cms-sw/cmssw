@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/07/01 15:32:53 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/07/26 19:55:28 $
+ *  $Revision: 1.6 $
  *  \author L. Uplegger F. Yumiceva - Fermilab
  */
 
@@ -35,10 +35,11 @@ using namespace reco;
 
 //--------------------------------------------------------------------------------------------------
 AlcaBeamSpotHarvester::AlcaBeamSpotHarvester(const edm::ParameterSet& iConfig) :
+  beamSpotOutputBase_    (iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("BeamSpotOutputBase")),
+  outputrecordName_      (iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("outputRecordName", "BeamSpotObjectsRcd")),
+  sigmaZValue_           (iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<double>("SigmaZValue")),
   theAlcaBeamSpotManager_(iConfig)
 {  
-  beamSpotOutputBase_ = iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("BeamSpotOutputBase");
-  outputrecordName_ = iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("outputRecordName", "BeamSpotObjectsRcd");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,7 +75,12 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
       BeamSpotObjects *aBeamSpot = new BeamSpotObjects();
       aBeamSpot->SetType(it->second.type());
       aBeamSpot->SetPosition(it->second.x0(),it->second.y0(),it->second.z0());
-      aBeamSpot->SetSigmaZ(it->second.sigmaZ());
+      if(sigmaZValue_ == -1){
+        aBeamSpot->SetSigmaZ(it->second.sigmaZ());
+      }
+      else{
+        aBeamSpot->SetSigmaZ(sigmaZValue_);
+      }
       aBeamSpot->Setdxdz(it->second.dxdz());
       aBeamSpot->Setdydz(it->second.dydz());
       aBeamSpot->SetBeamWidthX(it->second.BeamWidthX());
@@ -89,6 +95,10 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
 	}
       }
 
+      if(sigmaZValue_ > 0){
+        aBeamSpot->SetCovariance(3,3,0.000025);
+      }
+
       cond::Time_t thisIOV = 1;
 
       // run based      
@@ -100,7 +110,6 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
 	edm::LuminosityBlockID lu(iRun.id().run(),it->first);
 	thisIOV = (cond::Time_t)(lu.value()); 
       }
-
       if (poolDbService->isNewTagRequest(outputrecordName_) ) {
           edm::LogInfo("AlcaBeamSpotHarvester")
               << "new tag requested" << std::endl;

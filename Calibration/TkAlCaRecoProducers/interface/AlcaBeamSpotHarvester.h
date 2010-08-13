@@ -4,8 +4,8 @@
 /** \class AlcaBeamSpotHarvester
  *  No description available.
  *
- *  $Date: 2010/06/29 16:27:44 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/07/01 15:32:48 $
+ *  $Revision: 1.3 $
  *  \author L. Uplegger F. Yumiceva - Fermilab
  */
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -33,9 +33,13 @@ class AlcaBeamSpotHarvester : public edm::EDAnalyzer {
  protected:
 
  private:
+  // Parameters
+  std::string 	      beamSpotOutputBase_;
+  std::string 	      outputrecordName_;
+  double      	      sigmaZValue_;
+  
+  // Member Variables
   AlcaBeamSpotManager theAlcaBeamSpotManager_;
-  std::string beamSpotOutputBase_;
-  std::string outputrecordName_;
 };
 #endif
 
