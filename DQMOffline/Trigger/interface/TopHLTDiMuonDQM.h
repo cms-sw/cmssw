@@ -2,12 +2,9 @@
 #define TopHLTDiMuonDQM_H
 
 /*
- *  DQM HLT Dimuon Test Client
- *
- *  $Date: 2010/03/02 17:29:11 $
- *  $Revision: 1.5 $
- *  \author  M. Vander Donckt CERN
- *   
+ *  $Date: 2010/08/04 13:24:49 $
+ *  $Revision: 2.10 $
+ *  \author M. Marienfeld - DESY Hamburg
  */
 
 #include <string>
@@ -26,11 +23,15 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/Candidate/interface/Particle.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
@@ -44,16 +45,8 @@
 #include "DataFormats/MuonReco/interface/MuonIsolation.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
-#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
-#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
-#include "HLTrigger/HLTfilters/interface/HLTHighLevel.h"
 
-//
-// class declaration
-//
+#include "HLTrigger/HLTfilters/interface/HLTHighLevel.h"
 
 class TopHLTDiMuonDQM : public edm::EDAnalyzer {
 
@@ -70,27 +63,19 @@ class TopHLTDiMuonDQM : public edm::EDAnalyzer {
 
   void analyze(const edm::Event&, const edm::EventSetup&);
 
-  void endLuminosityBlock(  const edm::LuminosityBlock&, const edm::EventSetup&);
-  void endRun(  const edm::Run&, const edm::EventSetup&);
+  void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+  void endRun(const edm::Run&, const edm::EventSetup&);
   void endJob();
 
  private:
 
-  DQMStore* dbe_;
+  DQMStore * dbe_;
   std::string monitorName_;
-  std::string level_;
-
-  int N_sig[100];
-  int N_trig[100];
-  float Eff[100];
 
   edm::InputTag triggerResults_;
   edm::InputTag triggerEvent_;
   edm::InputTag triggerFilter_;
 
-  edm::InputTag L1_Collection_;
-  edm::InputTag L3_Collection_;
-  edm::InputTag L3_Isolation_;
   edm::InputTag vertex_;
   edm::InputTag muons_;
 
@@ -110,36 +95,55 @@ class TopHLTDiMuonDQM : public edm::EDAnalyzer {
   double MassWindow_up_;
   double MassWindow_down_;
 
-  // ----------member data ---------------------------
-
   MonitorElement * Trigs;
   MonitorElement * NTracks;
   MonitorElement * NMuons;
   MonitorElement * NMuons_charge;
   MonitorElement * NMuons_iso;
   MonitorElement * PtMuons;
-  MonitorElement * PtMuons_sig;
-  MonitorElement * PtMuons_trig;
+  MonitorElement * PtMuons_LOGX;
   MonitorElement * EtaMuons;
-  MonitorElement * EtaMuons_sig;
-  MonitorElement * EtaMuons_trig;
   MonitorElement * PhiMuons;
   MonitorElement * CombRelIso03;
   MonitorElement * VxVy_muons;
   MonitorElement * Vz_muons;
+  MonitorElement * PixelHits_muons;
+  MonitorElement * TrackerHits_muons;
+
+  MonitorElement * TriggerEfficiencies;
+  MonitorElement * TriggerEfficiencies_sig;
+  MonitorElement * TriggerEfficiencies_trig;
+
+  MonitorElement * MuonEfficiency_pT;
+  MonitorElement * MuonEfficiency_pT_sig;
+  MonitorElement * MuonEfficiency_pT_trig;
+
+  MonitorElement * MuonEfficiency_pT_LOGX;
+  MonitorElement * MuonEfficiency_pT_LOGX_sig;
+  MonitorElement * MuonEfficiency_pT_LOGX_trig;
+
+  MonitorElement * MuonEfficiency_eta;
+  MonitorElement * MuonEfficiency_eta_sig;
+  MonitorElement * MuonEfficiency_eta_trig;
+
+  MonitorElement * MuonEfficiency_phi;
+  MonitorElement * MuonEfficiency_phi_sig;
+  MonitorElement * MuonEfficiency_phi_trig;
 
   MonitorElement * DiMuonMassRC;
   MonitorElement * DiMuonMassWC;
   MonitorElement * DiMuonMassRC_LOGX;
   MonitorElement * DiMuonMassWC_LOGX;
-  MonitorElement * DiMuonMassRC_LOG10;
-  MonitorElement * DiMuonMassWC_LOG10;
 
-  MonitorElement * DeltaEtaMuons;
-  MonitorElement * DeltaPhiMuons;
-  MonitorElement * MuonEfficiency_pT;
-  MonitorElement * MuonEfficiency_eta;
-  MonitorElement * TriggerEfficiencies;
+  MonitorElement * DeltaEtaMuonsRC;
+  MonitorElement * DeltaPhiMuonsRC;
+  MonitorElement * DeltaEtaMuonsWC;
+  MonitorElement * DeltaPhiMuonsWC;
+
+  MonitorElement * DeltaR_Trig;
+  MonitorElement * DeltaR_Reco;
+  MonitorElement * DeltaR_Match;
+  MonitorElement * Trigger_Match;
 
 };
 
