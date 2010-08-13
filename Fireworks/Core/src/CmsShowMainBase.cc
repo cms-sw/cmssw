@@ -65,7 +65,10 @@ CmsShowMainBase::~CmsShowMainBase()
 
 void
 CmsShowMainBase::setupActions()
-{
+{ 
+   // init TGSlider state before signals are connected
+   m_guiManager->setDelayBetweenEvents(m_playDelay);
+
    m_navigator->newEvent_.connect(boost::bind(&FWGUIManager::loadEvent, guiManager()));
    if (m_guiManager->getAction(cmsshow::sNextEvent) != 0)
       m_guiManager->getAction(cmsshow::sNextEvent)->activated.connect(sigc::mem_fun(*this, &CmsShowMainBase::doNextEvent));
