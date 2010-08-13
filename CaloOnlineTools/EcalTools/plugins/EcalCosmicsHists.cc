@@ -36,7 +36,6 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 
-#include "DQM/EcalCommon/interface/Numbers.h"
 
 #include <vector>
 #include "TLine.h"
