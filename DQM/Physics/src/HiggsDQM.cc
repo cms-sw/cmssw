@@ -325,23 +325,22 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
       } // end of loop over electrons
     } // end if passed HLT
     nEle = posEle+negEle; if(nEle>9.) nEle=9.;
-    h_eMultiplicity->Fill(nEle);
-  }
-  
+    h_eMultiplicity->Fill(nEle);  
 
-  // Z->ee:
-  unsigned int eleCollectionSize = electronCollection->size();
-  for(unsigned int i=0; i<eleCollectionSize; i++) {
-    const GsfElectron& ele = electronCollection->at(i);
-    double pt = ele.pt();
-    if(pt>ptThrMu1_){
-      for(unsigned int j=i+1; j<eleCollectionSize; j++) {
-    	const GsfElectron& ele2 = electronCollection->at(j);
-    	double pt2 = ele2.pt();
-    	if(pt2>ptThrMu2_){
-    	  const math::XYZTLorentzVector ZRecoEE (ele.px()+ele2.px(), ele.py()+ele2.py() , ele.pz()+ele2.pz(), ele.p()+ele2.p());
-    	  h_dielemass->Fill(ZRecoEE.mass());
-    	}
+    // Z->ee:
+    unsigned int eleCollectionSize = electronCollection->size();
+    for(unsigned int i=0; i<eleCollectionSize; i++) {
+      const GsfElectron& ele = electronCollection->at(i);
+      double pt = ele.pt();
+      if(pt>ptThrMu1_){
+        for(unsigned int j=i+1; j<eleCollectionSize; j++) {
+    	  const GsfElectron& ele2 = electronCollection->at(j);
+    	  double pt2 = ele2.pt();
+    	  if(pt2>ptThrMu2_){
+    	    const math::XYZTLorentzVector ZRecoEE (ele.px()+ele2.px(), ele.py()+ele2.py() , ele.pz()+ele2.pz(), ele.p()+ele2.p());
+    	    h_dielemass->Fill(ZRecoEE.mass());
+    	  }
+        }
       }
     }
   }
@@ -391,35 +390,35 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
       nMu = posMu+negMu; if(nMu>9.) nMu=9.;
       h_mMultiplicity->Fill(nMu);
     }
-  }
 
-  // Z->mumu:
-  unsigned int muonCollectionSize = muonCollection->size();
-  for(unsigned int i=0; i<muonCollectionSize; i++) {
-    const Muon& mu = muonCollection->at(i);
-    //if (!mu.isGlobalMuon()) continue;
-    double pt = mu.pt();
-    if(pt>ptThrMu1_){
-      for(unsigned int j=i+1; j<muonCollectionSize; j++) {
-    	const Muon& mu2 = muonCollection->at(j);
-    	double pt2 = mu2.pt();
-    	if(pt2>ptThrMu2_){
-    	  // Glb + Glb  
-    	  if(mu.isGlobalMuon() && mu2.isGlobalMuon()){
-    	    const math::XYZTLorentzVector ZRecoGMGM (mu.px()+mu2.px(), mu.py()+mu2.py() , mu.pz()+mu2.pz(), mu.p()+mu2.p());
-    	    h_dimumass_GMGM->Fill(ZRecoGMGM.mass());
+    // Z->mumu:
+    unsigned int muonCollectionSize = muonCollection->size();
+    for(unsigned int i=0; i<muonCollectionSize; i++) {
+      const Muon& mu = muonCollection->at(i);
+      //if (!mu.isGlobalMuon()) continue;
+      double pt = mu.pt();
+      if(pt>ptThrMu1_){
+        for(unsigned int j=i+1; j<muonCollectionSize; j++) {
+    	  const Muon& mu2 = muonCollection->at(j);
+    	  double pt2 = mu2.pt();
+    	  if(pt2>ptThrMu2_){
+    	    // Glb + Glb  
+    	    if(mu.isGlobalMuon() && mu2.isGlobalMuon()){
+    	      const math::XYZTLorentzVector ZRecoGMGM (mu.px()+mu2.px(), mu.py()+mu2.py() , mu.pz()+mu2.pz(), mu.p()+mu2.p());
+    	      h_dimumass_GMGM->Fill(ZRecoGMGM.mass());
+    	    }
+    	    // Glb + TM 
+    	    else if(mu.isGlobalMuon() && mu2.isTrackerMuon()){
+    	      const math::XYZTLorentzVector ZRecoGMTM (mu.px()+mu2.px(), mu.py()+mu2.py() , mu.pz()+mu2.pz(), mu.p()+mu2.p());
+    	      h_dimumass_GMTM->Fill(ZRecoGMTM.mass());
+    	    }
+    	    // TM + TM 
+    	    else if(mu.isTrackerMuon() && mu2.isTrackerMuon()){
+    	      const math::XYZTLorentzVector ZRecoTMTM (mu.px()+mu2.px(), mu.py()+mu2.py() , mu.pz()+mu2.pz(), mu.p()+mu2.p());
+    	      h_dimumass_TMTM->Fill(ZRecoTMTM.mass());
+    	    }
     	  }
-    	  // Glb + TM 
-    	  else if(mu.isGlobalMuon() && mu2.isTrackerMuon()){
-    	    const math::XYZTLorentzVector ZRecoGMTM (mu.px()+mu2.px(), mu.py()+mu2.py() , mu.pz()+mu2.pz(), mu.p()+mu2.p());
-    	    h_dimumass_GMTM->Fill(ZRecoGMTM.mass());
-    	  }
-    	  // TM + TM 
-    	  else if(mu.isTrackerMuon() && mu2.isTrackerMuon()){
-    	    const math::XYZTLorentzVector ZRecoTMTM (mu.px()+mu2.px(), mu.py()+mu2.py() , mu.pz()+mu2.pz(), mu.p()+mu2.p());
-    	    h_dimumass_TMTM->Fill(ZRecoTMTM.mass());
-    	  }
-    	}
+        }
       }
     }
   }
