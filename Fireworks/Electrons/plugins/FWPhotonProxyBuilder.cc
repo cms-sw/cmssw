@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 26 14:52:01 EST 2008
-// $Id: FWPhotonProxyBuilder.cc,v 1.14 2010/06/18 12:42:18 yana Exp $
+// $Id: FWPhotonProxyBuilder.cc,v 1.15 2010/08/12 12:44:47 yana Exp $
 //
 
 #include "TEveBox.h"
@@ -80,15 +80,7 @@ FWPhotonProxyBuilder::buildViewType( const reco::Photon& photon, unsigned int iI
 	  << "No corners available for supercluster constituent" << std::endl;
         continue;
       }
-      
-      // FIXME: Scale so that they don't impinge upon the rec hits
-      // and make wireframe?
-      int j = 0;
-      for( size_t i = 0; i < 8; ++i )
-      {	
-        box->SetVertex( i, corners[j], corners[j + 1], corners[j + 2] );
-	j += 3;
-      }
+      box->SetVertices( &corners[0] );
     }
   }
 }

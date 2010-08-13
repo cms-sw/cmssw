@@ -85,7 +85,7 @@ public:
    std::vector<unsigned int> getMatchedIds( const char* selection ) const;
 
    // get all known detector ids with id matching mask
-   std::vector<unsigned int> getMatchedIds( Detector det, SubDetector subdet) const;
+   std::vector<unsigned int> getMatchedIds( Detector det, SubDetector subdet ) const;
 
    // get reco geometry
    const std::vector<TEveVector>& getPoints( unsigned int id ) const;

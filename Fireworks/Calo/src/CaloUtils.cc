@@ -31,10 +31,8 @@ namespace fireworks
    {
       TEveBox* eveBox = new TEveBox( "Box" ); 	 
       eveBox->SetDrawFrame( false );
-      eveBox->SetPickable( true );
-      
-      for( unsigned int i = 0, j = 0; i < 8; ++i, j += 3 )
-	eveBox->SetVertex( i, corners[j], corners[j + 1], corners[j + 2] );
+      eveBox->SetPickable( true );      
+      eveBox->SetVertices( &corners[0] );
 
       pb->setupAddElement( eveBox, comp );
    }
