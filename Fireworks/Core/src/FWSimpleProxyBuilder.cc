@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Tue March 28 09:46:41 EST 2010
-// $Id: FWSimpleProxyBuilder.cc,v 1.9 2010/06/18 12:31:57 matevz Exp $
+// $Id: FWSimpleProxyBuilder.cc,v 1.10 2010/08/12 19:29:57 amraktad Exp $
 //
 
 // system include files
@@ -80,6 +80,7 @@ FWSimpleProxyBuilder::build(const FWEventItem* iItem,
       if (index <  product->NumChildren())
       {
          itemHolder = *pIdx;
+         itemHolder->SetRnrSelfChildren(true, true);
          ++pIdx;
       }
       else
@@ -107,6 +108,7 @@ FWSimpleProxyBuilder::buildViewType(const FWEventItem* iItem,
       if (index < product->NumChildren())
       {
          itemHolder = *pIdx;
+         itemHolder->SetRnrSelfChildren(true, true);
          ++pIdx;
       }
       else
