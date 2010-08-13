@@ -17,7 +17,7 @@
 </head>
 <body id="dt_example">
   <h1 id="title">HDQM Web Interface</h1>
-<div align="right"><a href="DQMMeetingSlides.pdf" target="_new">Presentation Slides</a></div>
+<div align="right"><a href="http://indico.cern.ch/materialDisplay.py?contribId=3&sessionId=3&materialId=slides&confId=82611" target="_blank">Presentation Slides</a></div>
 <!--<div align="right"><a href="#" target="_new">User Manual</a></div>-->
   <ul>
     <li> <a href="./WebInterface.php?subDet=Tracking&tagVersion=V2" name="Tracking Interface">Tracking Interface</a> </li>
