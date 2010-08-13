@@ -1,9 +1,10 @@
-#ifndef Fireworks_Core_FWFFService_h
-#define Fireworks_Core_FWFFService_h
-
+#ifndef Fireworks_Core_FWFFLooper_h
+#define Fireworks_Core_FWFFLooper_h
 
 #include "Fireworks/Core/interface/CmsShowMainBase.h"
 #include "Fireworks/FWInterface/interface/FWFFHelper.h"
+#include "FWCore/Framework/interface/EDLooperBase.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include <string>
 #include <Rtypes.h>
 #include <memory>
@@ -15,6 +16,7 @@ namespace edm
    class Run;
    class Event;
    class EventSetup;
+   class ProcessingController;
 }
 
 class FWFFNavigator;
@@ -31,11 +33,11 @@ class TEveMagField;
 class TEveTrackPropagator;
 class TRint;
 
-class FWFFService : public CmsShowMainBase
+class FWFFLooper : public CmsShowMainBase, public edm::EDLooperBase
 {
 public:
-   FWFFService(const edm::ParameterSet&, edm::ActivityRegistry&);
-   virtual ~FWFFService();
+   FWFFLooper(const edm::ParameterSet&);
+   virtual ~FWFFLooper();
 
    // ---------- const member functions ---------------------
 
@@ -43,12 +45,11 @@ public:
 
    // ---------- member functions ---------------------------
 
+   virtual void attachTo(edm::ActivityRegistry &);
    void postBeginJob();
    void postEndJob();
 
-   void postBeginRun(const edm::Run&, const edm::EventSetup&);
-
-   void postProcessEvent(const edm::Event&, const edm::EventSetup&);
+   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
 
    void display(const std::string& info="");
 
@@ -60,17 +61,20 @@ public:
    virtual void autoLoadNewEvent() {}
 
    void quit();
-private:
-   FWFFService(const FWFFService&);                  // stop default
-   const FWFFService& operator=(const FWFFService&); // stop default
 
-   // ---------- member data --------------------------------
+   virtual void startingNewLoop(unsigned int);
+   virtual edm::EDLooperBase::Status endOfLoop(const edm::EventSetup&, unsigned int);
+   virtual edm::EDLooperBase::Status duringLoop(const edm::Event&, const edm::EventSetup&, edm::ProcessingController&); 
+private:
+   FWFFLooper(const FWFFLooper&);                  // stop default
+   const FWFFLooper& operator=(const FWFFLooper&); // stop default
+
    
+   edm::Service<FWFFHelper>            m_appHelper;
    std::auto_ptr<FWFFNavigator>        m_navigator;
    std::auto_ptr<FWFFMetadataManager>  m_metadataManager;
    std::auto_ptr<fireworks::Context>   m_context;
 
-   FWFFHelper    m_appHelper;
    TEveManager  *m_EveManager;
    TRint        *m_Rint;
 

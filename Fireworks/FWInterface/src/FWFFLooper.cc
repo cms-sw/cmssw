@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Fireworks/FWInterface/interface/FWFFService.h"
+#include "Fireworks/FWInterface/interface/FWFFLooper.h"
 #include "Fireworks/FWInterface/src/FWFFNavigator.h"
 #include "Fireworks/FWInterface/src/FWFFMetadataManager.h"
 #include "Fireworks/FWInterface/src/FWFFMetadataUpdateRequest.h"
@@ -25,6 +25,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/ProcessingController.h"
+#include "FWCore/Framework/interface/ScheduleInfo.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -114,7 +116,7 @@ namespace
 // constructors and destructor
 //==============================================================================
 
-FWFFService::FWFFService(edm::ParameterSet const&ps, edm::ActivityRegistry& ar) 
+FWFFLooper::FWFFLooper(edm::ParameterSet const&ps) 
    : CmsShowMainBase(),
      m_navigator(new FWFFNavigator(*this)), 
      m_metadataManager(new FWFFMetadataManager()),
@@ -123,13 +125,12 @@ FWFFService::FWFFService(edm::ParameterSet const&ps, edm::ActivityRegistry& ar)
                                       eiManager(),
                                       colorManager(),
                                       m_metadataManager.get())),
-     m_appHelper(ps, ar),
-     m_Rint(m_appHelper.app()),
+     m_Rint(m_appHelper->app()),
      m_AllowStep(true),
      m_ShowEvent(true),
      m_firstTime(true)
 {
-   printf("FWFFService::FWFFService CTOR\n");
+   printf("FWFFLooper::FWFFLooper CTOR\n");
 
    setup(m_navigator.get(), m_context.get(), m_metadataManager.get());
 
@@ -172,20 +173,17 @@ FWFFService::FWFFService(edm::ParameterSet const&ps, edm::ActivityRegistry& ar)
    }
 
    m_MagField = new CmsEveMagField();
-
-   // ----------------------------------------------------------------
-
-   ar.watchPostBeginJob(this, &FWFFService::postBeginJob);
-   ar.watchPostEndJob(this, &FWFFService::postEndJob);
-
-   ar.watchPostBeginRun(this, &FWFFService::postBeginRun);
-
-   ar.watchPostProcessEvent(this, &FWFFService::postProcessEvent);
 }
 
-FWFFService::~FWFFService()
+void
+FWFFLooper::attachTo(edm::ActivityRegistry &ar)
 {
-   printf("FWFFService::~FWFFService DTOR\n");
+   ar.watchPostEndJob(this, &FWFFLooper::postEndJob);
+}
+
+FWFFLooper::~FWFFLooper()
+{
+   printf("FWFFLooper::~FWFFLooper DTOR\n");
 
    delete m_MagField;
 }
@@ -196,33 +194,37 @@ FWFFService::~FWFFService()
 //==============================================================================
 
 void
-FWFFService::postBeginJob()
+FWFFLooper::startingNewLoop(unsigned int count)
 {
-   printf("FWFFService::postBeginJob\n");
-   // We need to enter the GUI loop in order to 
-   // have all the callbacks executed. The last callback will
-   // be responsible for returning the control to CMSSW. 
-   assert(m_Rint);
-   CmsShowTaskExecutor::TaskFunctor f;
-   f=boost::bind(&TApplication::Terminate, m_Rint, 0);
-   startupTasks()->addTask(f);
-   // FIXME: do we really need to delay tasks like this?
-   startupTasks()->startDoingTasks(); 
-   m_Rint->Run(kTRUE);
-   // Show the GUI ...
-   gSystem->ProcessEvents();
+   // Initialise on first loop.
+   if (count == 0)
+   {
+      printf("FWFFLooper: starting first loop!\n");
+      // We need to enter the GUI loop in order to 
+      // have all the callbacks executed. The last callback will
+      // be responsible for returning the control to CMSSW. 
+      assert(m_Rint);
+      CmsShowTaskExecutor::TaskFunctor f;
+      f=boost::bind(&TApplication::Terminate, m_Rint, 0);
+      startupTasks()->addTask(f);
+      // FIXME: do we really need to delay tasks like this?
+      startupTasks()->startDoingTasks(); 
+      m_Rint->Run(kTRUE);
+      // Show the GUI ...
+      gSystem->ProcessEvents();
+   }
 }
 
 void 
-FWFFService::postEndJob()
+FWFFLooper::postEndJob()
 {
-   printf("FWFFService::postEndJob\n");
+   printf("FWFFLooper::postEndJob\n");
 
    TEveManager::Terminate();
 }
 
 void
-FWFFService::checkPosition()
+FWFFLooper::checkPosition()
 {
    if (loop() && isPlaying())
       return;
@@ -243,7 +245,7 @@ FWFFService::checkPosition()
 //------------------------------------------------------------------------------
 
 void
-FWFFService::postBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
+FWFFLooper::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
    // If the geometry was not picked up from a file, we try to get it from the
    // EventSetup!
@@ -298,22 +300,25 @@ FWFFService::postBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 }
 
 //------------------------------------------------------------------------------
-void 
-FWFFService::postProcessEvent(const edm::Event &event, const edm::EventSetup&es)
+edm::EDLooperBase::Status
+FWFFLooper::duringLoop(const edm::Event &event, 
+                       const edm::EventSetup&es, 
+                       edm::ProcessingController &controller)
 {
-   printf("FWFFService::postProcessEvent: Starting GUI loop.\n");
+   printf("FWFFLooper::postProcessEvent: Starting GUI loop.\n");
 
    m_metadataManager->update(new FWFFMetadataUpdateRequest(event));
    m_navigator->setCurrentEvent(&event);
    checkPosition();
    draw();
    m_Rint->Run(kTRUE);
+   controller.setTransitionToNextEvent();
+   return kContinue;
 }
 
 //------------------------------------------------------------------------------
-
 void 
-FWFFService::display(const std::string& info)
+FWFFLooper::display(const std::string& info)
 {
    // Display whatever was registered so far, wait until user presses
    // the "Step" button.
@@ -330,22 +335,22 @@ FWFFService::display(const std::string& info)
 //==============================================================================
 
 TEveMagField* 
-FWFFService::getMagField()
+FWFFLooper::getMagField()
 {
    return m_MagField;
 }
 
 void 
-FWFFService::setupFieldForPropagator(TEveTrackPropagator* prop)
+FWFFLooper::setupFieldForPropagator(TEveTrackPropagator* prop)
 {
    prop->SetMagFieldObj(m_MagField, kFALSE);
 }
 
 void 
-FWFFService::quit()
+FWFFLooper::quit()
 {
    gSystem->ExitLoop();
-   printf("FWFFService exiting on user request.\n");
+   printf("FWFFLooper exiting on user request.\n");
 
    // Throwing exception here is bad because:
    //   a) it does not work when in a "debug step";
@@ -353,4 +358,12 @@ FWFFService::quit()
    // So we do exit instead for now.
    // throw cms::Exception("UserTerminationRequest");
    gSystem->Exit(0);
+}
+
+// FIXME: empty for the time being... Just trying to get it running.
+edm::EDLooperBase::Status
+FWFFLooper::endOfLoop(const edm::EventSetup&, unsigned int)
+{
+   printf("FWFFLooper::endOfLoop");
+   return kStop;
 }

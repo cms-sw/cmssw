@@ -15,6 +15,8 @@ process.source = cms.Source(
     fileNames=cms.untracked.vstring('file:test.root')
 )
 
+process.POurFilter = cms.EDFilter("RandomFilter",
+                                    acceptRate = cms.untracked.double(1.0))
 # process.maxEvents = cms.untracked.PSet(
 #         input = cms.untracked.int32(1)
 #         )
@@ -27,7 +29,3 @@ process.source = cms.Source(
 ### or use auto-cond:
 # from Configuration.PyReleaseValidation.autoCond import autoCond
 # process.GlobalTag.globaltag = autoCond['mc']
-
-### Request Full framework service. 
-process.FWFFService = cms.Service("FWFFService",
-                                  geometryFilename = cms.untracked.string("cmsGeom1.root"))
