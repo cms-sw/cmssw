@@ -2,40 +2,33 @@
  * \file AlcaBeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/07/06 23:37:27 $
- * $Revision: 1.52 $
+ * $Date: 2010/08/11 21:58:52 $
+ * $Revision: 1.1 $
  *
  */
 
-#include "DQM/BeamMonitor/plugins/AlcaBeamMonitor.h"
-#include "DQMServices/Core/interface/QReport.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-//#include "DataFormats/VertexReco/interface/Vertex.h"
-//#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Scalers/interface/BeamSpotOnline.h"
 #include "DataFormats/Common/interface/View.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "RecoVertex/BeamSpotProducer/interface/BeamFitter.h"
 #include "RecoVertex/BeamSpotProducer/interface/PVFitter.h"
+#include "DQM/BeamMonitor/plugins/AlcaBeamMonitor.h"
+#include "DQMServices/Core/interface/QReport.h"
 #include <numeric>
-#include <math.h>
-#include <TMath.h>
-#include <iostream>
-#include <TStyle.h>
+//#include <iostream>
 
 using namespace std;
 using namespace edm;
 using namespace reco;
 
-//
-// constructors and destructor
-//
+//----------------------------------------------------------------------------------------------------------------------
 AlcaBeamMonitor::AlcaBeamMonitor( const ParameterSet& ps ){
 
   parameters_         = ps;
@@ -72,6 +65,8 @@ AlcaBeamMonitor::AlcaBeamMonitor( const ParameterSet& ps ){
 
   histoByCategoryNames_.insert( pair<string,string>("run",     "Coordinate"));
   histoByCategoryNames_.insert( pair<string,string>("run",     "PrimaryVertex-DataBase"));
+  histoByCategoryNames_.insert( pair<string,string>("run",     "PrimaryVertex-BeamFit"));
+  histoByCategoryNames_.insert( pair<string,string>("run",     "PrimaryVertex-Scalers"));
   histoByCategoryNames_.insert( pair<string,string>("lumi",    "Lumibased BeamSpotFit"));  
   histoByCategoryNames_.insert( pair<string,string>("lumi",    "Lumibased PrimaryVertex"));
   histoByCategoryNames_.insert( pair<string,string>("lumi",    "Lumibased DataBase"));     
@@ -90,10 +85,10 @@ AlcaBeamMonitor::AlcaBeamMonitor( const ParameterSet& ps ){
     }
   }
   
-  beamSpotsMap_["BF"] = map<LuminosityBlockNumber_t,BeamSpot>();
-  beamSpotsMap_["PV"] = map<LuminosityBlockNumber_t,BeamSpot>();
-  beamSpotsMap_["DB"] = map<LuminosityBlockNumber_t,BeamSpot>();
-  beamSpotsMap_["SC"] = map<LuminosityBlockNumber_t,BeamSpot>();
+  beamSpotsMap_["BF"] = map<LuminosityBlockNumber_t,BeamSpot>();//For each lumi the beamfitter will have a result
+  beamSpotsMap_["PV"] = map<LuminosityBlockNumber_t,BeamSpot>();//For each lumi the PVfitter will have a result
+  beamSpotsMap_["DB"] = map<LuminosityBlockNumber_t,BeamSpot>();//For each lumi we take the values that are stored in the database, already collapsed then
+  beamSpotsMap_["SC"] = map<LuminosityBlockNumber_t,BeamSpot>();//For each lumi we take the beamspot value in the file that is the same as the scaler for the alca reco stream
 }
 
 
@@ -108,7 +103,7 @@ AlcaBeamMonitor::~AlcaBeamMonitor() {
 }
 
 
-//--------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void AlcaBeamMonitor::beginJob() {
   string name;
   string title;
@@ -121,7 +116,7 @@ void AlcaBeamMonitor::beginJob() {
         if(itMM->first == "Coordinate"){
           itMM->second = dbe_->book1D(name,title,1001,-0.2525,0.2525);
 	}
-	else if(itMM->first == "PrimaryVertex-DataBase"){
+	else if(itMM->first == "PrimaryVertex-DataBase" || itMM->first == "PrimaryVertex-BeamFit" || itMM->first == "PrimaryVertex-Scalers"){
           itMM->second = dbe_->book1D(name,title,1001,-0.02525,0.02525);
 	}
 	else{
@@ -132,7 +127,7 @@ void AlcaBeamMonitor::beginJob() {
         if(itMM->first == "Coordinate"){
           itMM->second = dbe_->book1D(name,title,101,-5.05,5.05);
 	}
-	else if(itMM->first == "PrimaryVertex-DataBase"){
+	else if(itMM->first == "PrimaryVertex-DataBase" || itMM->first == "PrimaryVertex-BeamFit" || itMM->first == "PrimaryVertex-Scalers"){
           itMM->second = dbe_->book1D(name,title,101,-0.505,0.505);
 	}
 	else{
@@ -143,7 +138,7 @@ void AlcaBeamMonitor::beginJob() {
         if(itMM->first == "Coordinate"){
           itMM->second = dbe_->book1D(name,title,100,0,0.015);
 	}
-	else if(itMM->first == "PrimaryVertex-DataBase"){
+	else if(itMM->first == "PrimaryVertex-DataBase" || itMM->first == "PrimaryVertex-BeamFit" || itMM->first == "PrimaryVertex-Scalers"){
           itMM->second = 0;
 	}
 	else{
@@ -154,7 +149,7 @@ void AlcaBeamMonitor::beginJob() {
         if(itMM->first == "Coordinate"){
           itMM->second = dbe_->book1D(name,title,110,0,11);
 	}
-	else if(itMM->first == "PrimaryVertex-DataBase"){
+	else if(itMM->first == "PrimaryVertex-DataBase" || itMM->first == "PrimaryVertex-BeamFit" || itMM->first == "PrimaryVertex-Scalers"){
           itMM->second = dbe_->book1D(name,title,101,-5.05,5.05);
 	}
 	else{
@@ -169,7 +164,13 @@ void AlcaBeamMonitor::beginJob() {
       	  itMM->second->setAxisTitle(itM->first + "_{0} (cm)",1);  
       	}
       	else if(itMM->first == "PrimaryVertex-DataBase"){
-      	  itMM->second->setAxisTitle(string("Database-PrimaryVertex ") + itM->first + "_{0} (cm)",1);  
+      	  itMM->second->setAxisTitle(string("PrimaryVertex-Database") + itM->first + "_{0} (cm)",1);  
+      	}
+      	else if(itMM->first == "PrimaryVertex-BeamFit"){
+      	  itMM->second->setAxisTitle(string("PrimaryVertex-BeamFit") + itM->first + "_{0} (cm)",1);  
+      	}
+      	else if(itMM->first == "PrimaryVertex-Scalers"){
+      	  itMM->second->setAxisTitle(string("PrimaryVertex-Scalers") + itM->first + "_{0} (cm)",1);  
       	}
       	itMM->second->setAxisTitle("Entries",2);
       }		
@@ -186,7 +187,7 @@ void AlcaBeamMonitor::beginJob() {
   */
 }
 
-//--------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void AlcaBeamMonitor::beginRun(const edm::Run& r, const EventSetup& context) {
   //Resetting variables
   firstLumi_ = -1;
@@ -209,25 +210,6 @@ void AlcaBeamMonitor::beginRun(const edm::Run& r, const EventSetup& context) {
     }
   }
 
-
-/*
-  if(h_x0_PV_lumi != 0){
-    dbe_->removeElement(monitorName_+"Validation","h_x0_PV_lumi");
-    h_x0_PV_lumi = 0;
-  }
-  if(h_x0_BF_lumi != 0){
-    dbe_->removeElement(monitorName_+"Validation","h_x0_BF_lumi");
-    h_x0_BF_lumi = 0;
-  }
-  if(h_x0_DB_lumi != 0){
-    dbe_->removeElement(monitorName_+"Validation","h_x0_DB_lumi");
-    h_x0_DB_lumi = 0;
-  }
-  if(h_x0_delta_DB_PV_lumi != 0){
-    dbe_->removeElement(monitorName_+"Validation","h_x0_delta_DB_PV_lumi");
-    h_x0_delta_DB_PV_lumi = 0;
-  }
-*/  
   // create and cd into new folder
   dbe_->setCurrentFolder(monitorName_+"Validation");
   //Book histograms
@@ -236,7 +218,7 @@ void AlcaBeamMonitor::beginRun(const edm::Run& r, const EventSetup& context) {
   h_d0_phi0->setAxisTitle("d_{0} (cm)",2);
 }
 
-//--------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void AlcaBeamMonitor::beginLuminosityBlock(const LuminosityBlock& iLumi, const EventSetup& iSetup) {
   // Always create a beamspot group for each lumi weather we have results or not! Each Beamspot will be of unknown type!
   
@@ -292,7 +274,7 @@ void AlcaBeamMonitor::beginLuminosityBlock(const LuminosityBlock& iLumi, const E
   }
 }
 
-// ----------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void AlcaBeamMonitor::analyze(const Event& iEvent, const EventSetup& iSetup ){
   
   //------ BeamFitter 
@@ -422,7 +404,7 @@ void AlcaBeamMonitor::analyze(const Event& iEvent, const EventSetup& iSetup ){
 }
 
 
-//--------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void AlcaBeamMonitor::endLuminosityBlock(const LuminosityBlock& iLumi, const EventSetup& iSetup) {
   ++numberOfLumis_;
   if(firstLumi_== -1 || iLumi.id().luminosityBlock() < (unsigned int)firstLumi_){
@@ -447,7 +429,7 @@ void AlcaBeamMonitor::endLuminosityBlock(const LuminosityBlock& iLumi, const Eve
   thePVFitter_->resetAll();
 }
 
-//--------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void AlcaBeamMonitor::endRun(const Run& iRun, const EventSetup& context){
   // create and cd into new folder
   dbe_->setCurrentFolder(monitorName_+"Validation");
@@ -579,8 +561,18 @@ void AlcaBeamMonitor::endRun(const Run& iRun, const EventSetup& context){
               }
 	    }
             else if(itHHH->first == "PrimaryVertex-DataBase"){
-	      if(itVal->second.find("DB") != itVal->second.end()){
+	      if(itVal->second.find("PV") != itVal->second.end() && itVal->second.find("DB") != itVal->second.end()){
 	        itHHH->second->Fill(itVal->second["PV"].first-itVal->second["DB"].first);
+	      }
+	    }
+            else if(itHHH->first == "PrimaryVertex-BeamFit"){
+	      if(itVal->second.find("PV") != itVal->second.end() && itVal->second.find("BF") != itVal->second.end()){
+	        itHHH->second->Fill(itVal->second["PV"].first-itVal->second["BF"].first);
+	      }
+	    }
+            else if(itHHH->first == "PrimaryVertex-Scalers"){
+	      if(itVal->second.find("PV") != itVal->second.end() && itVal->second.find("SC") != itVal->second.end()){
+	        itHHH->second->Fill(itVal->second["PV"].first-itVal->second["SC"].first);
 	      }
 	    }
             else if(itHHH->first == "Lumibased BeamSpotFit"){
@@ -1016,7 +1008,7 @@ void AlcaBeamMonitor::endRun(const Run& iRun, const EventSetup& context){
 */
 }
 
-//--------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void AlcaBeamMonitor::endJob(const LuminosityBlock& iLumi, const EventSetup& iSetup){
 }
 

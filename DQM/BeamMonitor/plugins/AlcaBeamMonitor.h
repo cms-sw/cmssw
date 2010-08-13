@@ -3,8 +3,8 @@
 
 /** \class AlcaBeamMonitor
  * *
- *  $Date: 2010/07/06 23:37:27 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/08/11 21:58:56 $
+ *  $Revision: 1.1 $
  *  \author  Lorenzo Uplegger/FNAL
  *   
  */
@@ -27,52 +27,40 @@
 class BeamFitter;
 class PVFitter;
 
-// class declaration
-//
-
 class AlcaBeamMonitor : public edm::EDAnalyzer {
  public:
   AlcaBeamMonitor( const edm::ParameterSet& );
   ~AlcaBeamMonitor();
 
  protected:
-   
-  // BeginJob
-  void beginJob();
 
-  // BeginRun
-  void beginRun(const edm::Run& r, const edm::EventSetup& c);
-  
-  void analyze(const edm::Event& e, const edm::EventSetup& c) ;
-  
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-			    const edm::EventSetup& context) ;
-  
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-			  const edm::EventSetup& c);
-  // EndRun
-  void endRun(const edm::Run& r, const edm::EventSetup& c);
-  // Endjob
-  void endJob(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
+  void beginJob 	   (void);
+  void beginRun 	   (const edm::Run& iRun,  	       const edm::EventSetup& iSetup);
+  void analyze  	   (const edm::Event& iEvent, 	       const edm::EventSetup& iSetup);
+  void beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup);
+  void endLuminosityBlock  (const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup);
+  void endRun		   (const edm::Run& iRun,              const edm::EventSetup& iSetup);
+  void endJob		   (const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup);
   
  private:
-  //                x,y,z,sigmax(y,z)... [PV,BF,DB...]         lumi      
-//  typedef std::map<std::string,std::map<std::string,std::map<edm::LuminosityBlockNumber_t,Result> > > ResultsContainer;
+  //Typedefs
+  //                x,y,z,sigmax(y,z)...       lumi      
   typedef std::map<std::string,std::map<edm::LuminosityBlockNumber_t,reco::BeamSpot> >  BeamSpotContainer;
-
-  BeamSpotContainer  beamSpotsMap_;
+  
+  //                x,y,z,sigmax(y,z)... [run,lumi]          Histo name      
+  typedef std::map<std::string,std::map<std::string,std::map<std::string,MonitorElement*> > > HistosContainer;
 
   //Parameters
   edm::ParameterSet parameters_;
   std::string       monitorName_;
-  edm::InputTag     primaryVertexLabel_; // primary vertex
-  edm::InputTag     beamSpotLabel_; // primary vertex
+  edm::InputTag     primaryVertexLabel_;
+  edm::InputTag     beamSpotLabel_;
   edm::InputTag     trackLabel_;
   edm::InputTag     scalerLabel_;
 
-  int firstLumi_,lastLumi_;
-  int numberOfLumis_;
-  
+  //Service variables
+  int         firstLumi_,lastLumi_;
+  int         numberOfLumis_;
   DQMStore*   dbe_;
   BeamFitter* theBeamFitter_;
   PVFitter*   thePVFitter_;
@@ -80,21 +68,12 @@ class AlcaBeamMonitor : public edm::EDAnalyzer {
   // MonitorElements:
   MonitorElement* h_d0_phi0;
 
-  //                x,y,z,sigmax(y,z)... [run,lumi]          Histo name      
-  typedef std::map<std::string,std::map<std::string,std::map<std::string,MonitorElement*> > > HistosContainer;
-  std::vector<std::string> varNamesV_; //x,y,z,sigmax(y,z)
-  std::multimap<std::string,std::string> histoByCategoryNames_; //run, lumi
-  
-  HistosContainer histosMap_;
-  
+  //Containers
+  BeamSpotContainer  							      beamSpotsMap_;
+  HistosContainer    							      histosMap_;
+  std::vector<std::string>                                                    varNamesV_; //x,y,z,sigmax(y,z)
+  std::multimap<std::string,std::string>                                      histoByCategoryNames_; //run, lumi
   std::map<edm::LuminosityBlockNumber_t,std::vector<reco::VertexCollection> > verticesMap_;
-//  TH1F service 
-  
-  //
-  std::time_t tmpTime;
-  std::time_t startTime;
-  std::time_t refTime;
-  edm::TimeValue_t ftimestamp;
   
 };
 
