@@ -440,8 +440,8 @@ class PFRootEventManager {
   /// HFHAD rechits branch  
   TBranch*   rechitsHFHADBranch_;          
   
-  /// HF Cleaned rechits branch  
-  TBranch*   rechitsCLEANEDBranch_;          
+  /// HF Cleaned rechits branch(es)
+  std::vector<TBranch*> rechitsCLEANEDBranch_;          
   
   /// PS rechits branch  
   TBranch*   rechitsPSBranch_;          
@@ -545,6 +545,7 @@ class PFRootEventManager {
   reco::PFRecHitCollection rechitsHFHAD_;
 
   /// rechits HF CLEANED
+  std::vector<reco::PFRecHitCollection> rechitsCLEANEDV_;
   reco::PFRecHitCollection rechitsCLEANED_;
 
   /// rechits PS 
