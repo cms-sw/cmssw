@@ -14,6 +14,7 @@
 #include "DQM/Physics/src/TopSingleLeptonDQM.h"
 #include "DQM/Physics/src/SusyDQM.h"
 #include "DQM/Physics/src/QcdUeDQM.h"
+#include "DQM/Physics/src/HiggsDQM.h"
 
 
 
@@ -30,3 +31,5 @@ DEFINE_FWK_MODULE(TopSingleLeptonDQM);
 DEFINE_FWK_MODULE(TopDiLeptonOfflineDQM);
 DEFINE_FWK_MODULE(RecoSusyDQM);
 DEFINE_FWK_MODULE(QcdUeDQM);
+DEFINE_FWK_MODULE(HiggsDQM);
+
