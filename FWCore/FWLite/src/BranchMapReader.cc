@@ -20,6 +20,8 @@
 #include "FWCore/FWLite/interface/BranchMapReader.h"
 #include "DataFormats/Provenance/interface/EventEntryInfo.h"
 #include "DataFormats/Provenance/interface/History.h"
+#include "DataFormats/Provenance/interface/EventSelectionID.h"
+#include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
@@ -32,14 +34,12 @@ namespace fwlite {
 
     BMRStrategy::BMRStrategy(TFile* file, int fileVersion)
       : currentFile_(file), eventTree_(0), luminosityBlockTree_(0), runTree_(0),
-        eventEntry_(-1), luminosityBlockEntry_(-1), runEntry_(-1), fileVersion_(fileVersion)
-    {
+        eventEntry_(-1), luminosityBlockEntry_(-1), runEntry_(-1), fileVersion_(fileVersion) {
       // do in derived obects
       // updateFile(file);
     }
 
-    BMRStrategy::~BMRStrategy()
-    {
+    BMRStrategy::~BMRStrategy() {
     }
 
     class Strategy : public BMRStrategy {
@@ -65,28 +65,22 @@ namespace fwlite {
 
       TBranch* getBranchRegistry(edm::ProductRegistry** pReg);
 
-      TTree* eventHistoryTree_;
       bidToDesc branchDescriptionMap_;
       std::vector<edm::BranchDescription> bDesc_;
       bool mapperFilled_;
-      edm::History history_;
-	    edm::History* pHistory_;
     };
 
     Strategy::Strategy(TFile* file, int fileVersion)
-      : BMRStrategy(file, fileVersion), eventHistoryTree_(0), mapperFilled_(false), pHistory_(&history_)
-    {
+      : BMRStrategy(file, fileVersion), mapperFilled_(false) {
       // do in derived obects
       // updateFile(file);
     }
 
-    Strategy::~Strategy()
-    {
+    Strategy::~Strategy() {
       // probably need to clean up something here...
     }
 
-    bool Strategy::updateFile(TFile* file)
-    {
+    bool Strategy::updateFile(TFile* file) {
       currentFile_ = file;
       eventTree_ = dynamic_cast<TTree*>(currentFile_->Get(edm::poolNames::eventTreeName().c_str()));
       luminosityBlockTree_ = dynamic_cast<TTree*>(currentFile_->Get(edm::poolNames::luminosityBlockTreeName().c_str()));
@@ -97,12 +91,11 @@ namespace fwlite {
       return 0 != eventTree_;
     }
 
-    TBranch* Strategy::getBranchRegistry(edm::ProductRegistry** ppReg)
-    {
+    TBranch* Strategy::getBranchRegistry(edm::ProductRegistry** ppReg) {
       TBranch* bReg(0);
 
-      TTree* metaDataTree = dynamic_cast<TTree*>(currentFile_->Get(edm::poolNames::metaDataTreeName().c_str()) );
-      if ( 0 != metaDataTree) {
+      TTree* metaDataTree = dynamic_cast<TTree*>(currentFile_->Get(edm::poolNames::metaDataTreeName().c_str()));
+      if (0 != metaDataTree) {
         bReg = metaDataTree->GetBranch(edm::poolNames::productDescriptionBranchName().c_str());
         bReg->SetAddress(ppReg);
         bReg->GetEntry(0);
@@ -112,8 +105,7 @@ namespace fwlite {
     }
 
     const std::vector<edm::BranchDescription>&
-    Strategy::getBranchDescriptions()
-    {
+    Strategy::getBranchDescriptions() {
       if (bDesc_.empty()) {
         for (bidToDesc::const_iterator i = branchDescriptionMap_.begin(); i != branchDescriptionMap_.end(); ++i) {
           bDesc_.push_back(i->second);
@@ -123,14 +115,12 @@ namespace fwlite {
     }
 
     edm::BranchID
-    Strategy::productToBranchID(const edm::ProductID& pid)
-    {
+    Strategy::productToBranchID(const edm::ProductID& pid) {
       throw edm::Exception(edm::errors::UnimplementedFeature) << "Unsupported EDM file version";
     }
 
     const edm::BranchDescription
-    Strategy::productToBranch(const edm::ProductID& pid)
-    {
+    Strategy::productToBranch(const edm::ProductID& pid) {
       edm::BranchID bid = productToBranchID(pid);
       bidToDesc::const_iterator bdi = branchDescriptionMap_.find(bid);
       if (branchDescriptionMap_.end() == bdi) {
@@ -148,13 +138,11 @@ namespace fwlite {
     };
 
     BranchMapReaderStrategyV1::BranchMapReaderStrategyV1(TFile* file, int fileVersion)
-      : Strategy(file, fileVersion)
-    {
+      : Strategy(file, fileVersion) {
       updateFile(file);
     }
 
-    bool BranchMapReaderStrategyV1::updateFile(TFile* file)
-    {
+    bool BranchMapReaderStrategyV1::updateFile(TFile* file) {
       if (Strategy::updateFile(file)) {
         mapperFilled_ = false;
         return true;
@@ -162,8 +150,7 @@ namespace fwlite {
       return false;
     }
 
-    bool BranchMapReaderStrategyV1::updateMap()
-    {
+    bool BranchMapReaderStrategyV1::updateMap() {
       if (mapperFilled_) {
         return true;
       }
@@ -183,7 +170,7 @@ namespace fwlite {
             // call to regenerate branchName
             it->second.init();
             branchDescriptionMap_.insert(bidToDesc::value_type(it->second.branchID(), it->second));
-	  }
+          }
         }
         mapperFilled_ = true;
       }
@@ -197,8 +184,7 @@ namespace fwlite {
     };
 
     BranchMapReaderStrategyV7::BranchMapReaderStrategyV7(TFile* file, int fileVersion)
-    : BranchMapReaderStrategyV1(file, fileVersion)
-    {
+    : BranchMapReaderStrategyV1(file, fileVersion) {
       updateFile(file);
     }
 
@@ -218,13 +204,11 @@ namespace fwlite {
 
     BranchMapReaderStrategyV8::BranchMapReaderStrategyV8(TFile* file, int fileVersion)
     : Strategy(file, fileVersion),
-      eventEntryInfoVector_(), pEventEntryInfoVector_(&eventEntryInfoVector_)
-    {
+      eventEntryInfoVector_(), pEventEntryInfoVector_(&eventEntryInfoVector_) {
       updateFile(file);
     }
 
-    bool BranchMapReaderStrategyV8::updateEvent(Long_t newevent)
-    {
+    bool BranchMapReaderStrategyV8::updateEvent(Long_t newevent) {
       // std::cout << "v8 updateevent " << newevent << std::endl;
       if (newevent != eventEntry_) {
         eventEntry_ = newevent;
@@ -233,8 +217,7 @@ namespace fwlite {
       return true;
     }
 
-    bool BranchMapReaderStrategyV8::updateLuminosityBlock(Long_t newLumi)
-    {
+    bool BranchMapReaderStrategyV8::updateLuminosityBlock(Long_t newLumi) {
       if (newLumi != luminosityBlockEntry_) {
         luminosityBlockEntry_ = newLumi;
         mapperFilled_ = false;
@@ -242,8 +225,7 @@ namespace fwlite {
       return true;
     }
 
-    bool BranchMapReaderStrategyV8::updateRun(Long_t newRun)
-    {
+    bool BranchMapReaderStrategyV8::updateRun(Long_t newRun) {
       if (newRun != runEntry_) {
         runEntry_ = newRun;
         mapperFilled_ = false;
@@ -251,12 +233,11 @@ namespace fwlite {
       return true;
     }
 
-    bool BranchMapReaderStrategyV8::updateFile(TFile* file)
-    {
+    bool BranchMapReaderStrategyV8::updateFile(TFile* file) {
       Strategy::updateFile(file);
       mapperFilled_ = false;
       entryInfoBranch_ = 0;
-      TTree* metaDataTree = dynamic_cast<TTree*>(currentFile_->Get(edm::poolNames::eventMetaDataTreeName().c_str()) );
+      TTree* metaDataTree = dynamic_cast<TTree*>(currentFile_->Get(edm::poolNames::eventMetaDataTreeName().c_str()));
       if (0 != metaDataTree) {
         entryInfoBranch_ = metaDataTree->GetBranch(BranchTypeToBranchEntryInfoBranchName(edm::InEvent).c_str());
 //         std::cout << "entryInfoBranch for " << BranchTypeToBranchEntryInfoBranchName(edm::InEvent) << " " << entryInfoBranch_ << std::endl;
@@ -281,14 +262,13 @@ namespace fwlite {
             // call to regenerate branchName
             it->second.init();
             branchDescriptionMap_.insert(bidToDesc::value_type(it->second.branchID(), it->second));
-	  }
+          }
         }
       }
       return 0 != br;
     }
 
-    bool BranchMapReaderStrategyV8::updateMap()
-    {
+    bool BranchMapReaderStrategyV8::updateMap() {
       if (mapperFilled_) {
         return true;
       }
@@ -317,16 +297,17 @@ namespace fwlite {
       virtual edm::BranchID productToBranchID(const edm::ProductID& pid);
     private:
       std::auto_ptr<edm::BranchIDLists> branchIDLists_;
+      TTree* eventHistoryTree_;
+      edm::History history_;
+      edm::History* pHistory_;
     };
 
     BranchMapReaderStrategyV11::BranchMapReaderStrategyV11(TFile* file, int fileVersion)
-    : Strategy(file, fileVersion)
-    {
+    : Strategy(file, fileVersion), eventHistoryTree_(0), pHistory_(0) {
       updateFile(file);
     }
 
-    bool BranchMapReaderStrategyV11::updateEvent(Long_t newevent)
-    {
+    bool BranchMapReaderStrategyV11::updateEvent(Long_t newevent) {
 //      std::cout << "v11 updateevent " << newevent << std::endl;
       if (newevent != eventEntry_) {
         eventEntry_ = newevent;
@@ -335,8 +316,7 @@ namespace fwlite {
       return true;
     }
 
-    bool BranchMapReaderStrategyV11::updateLuminosityBlock(Long_t newlumi)
-    {
+    bool BranchMapReaderStrategyV11::updateLuminosityBlock(Long_t newlumi) {
       if (newlumi != luminosityBlockEntry_) {
         luminosityBlockEntry_ = newlumi;
         mapperFilled_ = false;
@@ -344,8 +324,7 @@ namespace fwlite {
       return true;
     }
 
-    bool BranchMapReaderStrategyV11::updateRun(Long_t newRun)
-    {
+    bool BranchMapReaderStrategyV11::updateRun(Long_t newRun) {
       if (newRun != runEntry_) {
         runEntry_ = newRun;
         mapperFilled_ = false;
@@ -353,11 +332,10 @@ namespace fwlite {
       return true;
     }
 
-    bool BranchMapReaderStrategyV11::updateFile(TFile* file)
-    {
+    bool BranchMapReaderStrategyV11::updateFile(TFile* file) {
       Strategy::updateFile(file);
       mapperFilled_ = false;
-      TTree* metaDataTree = dynamic_cast<TTree*>(currentFile_->Get(edm::poolNames::metaDataTreeName().c_str()) );
+      TTree* metaDataTree = dynamic_cast<TTree*>(currentFile_->Get(edm::poolNames::metaDataTreeName().c_str()));
 
       branchIDLists_.reset(new edm::BranchIDLists);
       edm::BranchIDLists* branchIDListsPtr = branchIDLists_.get();
@@ -390,14 +368,13 @@ namespace fwlite {
             it->second.init();
             branchDescriptionMap_.insert(bidToDesc::value_type(it->second.branchID(), it->second));
 //             std::cout << "v11 updatefile " << it->second.branchID() << std::endl;
-	        }
-	      }
+                }
+              }
       }
       return 0 != br;
     }
 
-    bool BranchMapReaderStrategyV11::updateMap()
-    {
+    bool BranchMapReaderStrategyV11::updateMap() {
       if (!mapperFilled_) {
         TBranch* eventHistoryBranch = eventHistoryTree_->GetBranch(edm::poolNames::eventHistoryBranchName().c_str());
         if (!eventHistoryBranch) {
@@ -414,10 +391,119 @@ namespace fwlite {
     }
 
     edm::BranchID
-    BranchMapReaderStrategyV11::productToBranchID(const edm::ProductID& pid)
-    {
+    BranchMapReaderStrategyV11::productToBranchID(const edm::ProductID& pid) {
       updateMap();
       return edm::productIDToBranchID(pid, *branchIDLists_, history_.branchListIndexes());
+    }
+
+    class BranchMapReaderStrategyV17 : public Strategy {
+    public:
+      BranchMapReaderStrategyV17(TFile* file, int fileVersion);
+      virtual bool updateFile(TFile* file);
+      virtual bool updateEvent(Long_t eventEntry);
+      virtual bool updateLuminosityBlock(Long_t luminosityBlockEntry);
+      virtual bool updateRun(Long_t runEntry);
+      virtual bool updateMap();
+      virtual edm::BranchID productToBranchID(const edm::ProductID& pid);
+    private:
+      std::auto_ptr<edm::BranchIDLists> branchIDLists_;
+      TTree* eventsTree_;
+      edm::BranchListIndexes branchListIndexes_;
+      edm::BranchListIndexes* pBranchListIndexes_;
+    };
+
+    BranchMapReaderStrategyV17::BranchMapReaderStrategyV17(TFile* file, int fileVersion)
+    : Strategy(file, fileVersion), eventsTree_(0), pBranchListIndexes_(&branchListIndexes_) {
+      updateFile(file);
+    }
+
+    bool BranchMapReaderStrategyV17::updateEvent(Long_t newevent) {
+//      std::cout << "v11 updateevent " << newevent << std::endl;
+      if (newevent != eventEntry_) {
+        eventEntry_ = newevent;
+        mapperFilled_ = false;
+      }
+      return true;
+    }
+
+    bool BranchMapReaderStrategyV17::updateLuminosityBlock(Long_t newlumi) {
+      if (newlumi != luminosityBlockEntry_) {
+        luminosityBlockEntry_ = newlumi;
+        mapperFilled_ = false;
+      }
+      return true;
+    }
+
+    bool BranchMapReaderStrategyV17::updateRun(Long_t newRun) {
+      if (newRun != runEntry_) {
+        runEntry_ = newRun;
+        mapperFilled_ = false;
+      }
+      return true;
+    }
+
+    bool BranchMapReaderStrategyV17::updateFile(TFile* file) {
+      Strategy::updateFile(file);
+      mapperFilled_ = false;
+      TTree* metaDataTree = dynamic_cast<TTree*>(currentFile_->Get(edm::poolNames::metaDataTreeName().c_str()));
+
+      branchIDLists_.reset(new edm::BranchIDLists);
+      edm::BranchIDLists* branchIDListsPtr = branchIDLists_.get();
+      if (metaDataTree->FindBranch(edm::poolNames::branchIDListBranchName().c_str()) != 0) {
+        TBranch* b = metaDataTree->GetBranch(edm::poolNames::branchIDListBranchName().c_str());
+        b->SetAddress(&branchIDListsPtr);
+        b->GetEntry(0);
+//         std::cout << "--> " << branchIDLists_->size() << std::endl;
+      } else {
+        throw edm::Exception(edm::errors::EventCorruption)
+          << "FindBranch of branchIDList failed";
+        return false;
+      }
+
+      eventsTree_ = dynamic_cast<TTree*>(currentFile_->Get(edm::poolNames::eventTreeName().c_str()));
+
+      branchDescriptionMap_.clear();
+      bDesc_.clear();
+
+      edm::ProductRegistry reg;
+      edm::ProductRegistry* pReg = &reg;
+      TBranch *br = getBranchRegistry(&pReg);
+
+      if (0 != br) {
+        const edm::ProductRegistry::ProductList& prodList = reg.productList();
+
+        for(edm::ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end(); it != itEnd; ++it) {
+          if (edm::InEvent == it->second.branchType()) {
+            // call to regenerate branchName
+            it->second.init();
+            branchDescriptionMap_.insert(bidToDesc::value_type(it->second.branchID(), it->second));
+//             std::cout << "v11 updatefile " << it->second.branchID() << std::endl;
+                }
+              }
+      }
+      return 0 != br;
+    }
+
+    bool BranchMapReaderStrategyV17::updateMap() {
+      if (!mapperFilled_) {
+        TBranch* branchListIndexesBranch = eventsTree_->GetBranch(edm::poolNames::branchListIndexesBranchName().c_str());
+        if (!branchListIndexesBranch) {
+          throw edm::Exception(edm::errors::EventCorruption)
+            << "Failed to find history branch in event history tree";
+          return false;
+        }
+        // yes, SetAddress really does need to be called every time...
+        branchListIndexesBranch->SetAddress(&pBranchListIndexes_);
+        eventsTree_->GetEntry(eventEntry_);
+        mapperFilled_ = true;
+      }
+      return true;
+    }
+
+    edm::BranchID
+    BranchMapReaderStrategyV17::productToBranchID(const edm::ProductID& pid) {
+      updateMap();
+      return edm::productIDToBranchID(pid, *branchIDLists_, branchListIndexes_);
     }
   }
 
@@ -434,8 +520,7 @@ namespace fwlite {
 //
 
 BranchMapReader::BranchMapReader(TFile* file) :
-    fileVersion_(-1)
-{
+    fileVersion_(-1) {
   strategy_ = newStrategy(file, getFileVersion(file));
 }
 
@@ -443,9 +528,8 @@ BranchMapReader::BranchMapReader(TFile* file) :
 // member functions
 //
 
-int BranchMapReader::getFileVersion(TFile* file)
-{
-  TTree* metaDataTree = dynamic_cast<TTree*>(file->Get(edm::poolNames::metaDataTreeName().c_str()) );
+int BranchMapReader::getFileVersion(TFile* file) {
+  TTree* metaDataTree = dynamic_cast<TTree*>(file->Get(edm::poolNames::metaDataTreeName().c_str()));
   if (0==metaDataTree) {
     return 0;
   }
@@ -459,23 +543,19 @@ int BranchMapReader::getFileVersion(TFile* file)
   return v.value();
 }
 
-bool BranchMapReader::updateEvent(Long_t newevent)
-{
+bool BranchMapReader::updateEvent(Long_t newevent) {
   return strategy_->updateEvent(newevent);
 }
 
-bool BranchMapReader::updateLuminosityBlock(Long_t newlumi)
-{
+bool BranchMapReader::updateLuminosityBlock(Long_t newlumi) {
   return strategy_->updateLuminosityBlock(newlumi);
 }
 
-bool BranchMapReader::updateRun(Long_t newRun)
-{
+bool BranchMapReader::updateRun(Long_t newRun) {
   return strategy_->updateRun(newRun);
 }
 
-bool BranchMapReader::updateFile(TFile* file)
-{
+bool BranchMapReader::updateFile(TFile* file) {
   if (0 == strategy_.get()) {
     strategy_ = newStrategy(file, getFileVersion(file));
     return true;
@@ -503,24 +583,23 @@ bool BranchMapReader::updateFile(TFile* file)
 }
 
 const edm::BranchDescription
-BranchMapReader::productToBranch(const edm::ProductID& pid)
-{
+BranchMapReader::productToBranch(const edm::ProductID& pid) {
   return strategy_->productToBranch(pid);
 }
 
 const std::vector<edm::BranchDescription>&
-BranchMapReader::getBranchDescriptions()
-{
+BranchMapReader::getBranchDescriptions() {
   return strategy_->getBranchDescriptions();
 }
 
 
 std::auto_ptr<internal::BMRStrategy>
-BranchMapReader::newStrategy(TFile* file, int fileVersion)
-{
+BranchMapReader::newStrategy(TFile* file, int fileVersion) {
   std::auto_ptr<internal::BMRStrategy> s;
 
-  if (fileVersion >= 11) {
+  if (fileVersion >= 17) {
+    s = std::auto_ptr<internal::BMRStrategy>(new internal::BranchMapReaderStrategyV17(file, fileVersion));
+  } else if (fileVersion >= 11) {
     s = std::auto_ptr<internal::BMRStrategy>(new internal::BranchMapReaderStrategyV11(file, fileVersion));
   } else if (fileVersion >= 8) {
     s = std::auto_ptr<internal::BMRStrategy>(new internal::BranchMapReaderStrategyV8(file, fileVersion));

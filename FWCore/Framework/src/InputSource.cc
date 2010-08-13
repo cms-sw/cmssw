@@ -19,6 +19,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/do_nothing_deleter.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -42,9 +43,6 @@ namespace edm {
 	  if (count % 100 - lastDigit == 10) return th;
 	  return (lastDigit == 1 ? st : (lastDigit == 2 ? nd : rd));
         }
-	struct do_nothing_deleter {
-	  void operator()(void const*) const {}
-	};
 	template <typename T>
 	boost::shared_ptr<T> createSharedPtrToStatic(T * ptr) {
 	  return boost::shared_ptr<T>(ptr, do_nothing_deleter());

@@ -7,6 +7,8 @@
 // It includes ordered sequences of elements, each of which contains
 // information about a specific 'process' through which the Event has
 // passed, with earlier processes at the beginning of the sequence.
+// This class is needed for backward compatibility only.
+// It is relevant if and only if fileFormatVersion.eventHistoryTree() is true.
 //
 //
 //----------------------------------------------------------------------

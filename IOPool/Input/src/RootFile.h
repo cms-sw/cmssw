@@ -24,7 +24,9 @@ RootFile.h // used by ROOT input sources
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "DataFormats/Provenance/interface/FileID.h"
+#include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "DataFormats/Provenance/interface/History.h"
+#include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "DataFormats/Provenance/interface/EventProcessHistoryID.h" // backward compatibility
@@ -44,19 +46,19 @@ namespace edm {
   public:
     typedef boost::array<RootTree*, NumBranchTypes> RootTreePtrArray;
     RootFile(std::string const& fileName,
-	     ProcessConfiguration const& processConfiguration,
-	     std::string const& logicalFileName,
-	     boost::shared_ptr<TFile> filePtr,
-	     boost::shared_ptr<EventSkipperByID> eventSkipperByID,
-	     bool skipAnyEvents,
-	     int remainingEvents,
-	     int remainingLumis,
-	     unsigned int treeCacheSize,
+             ProcessConfiguration const& processConfiguration,
+             std::string const& logicalFileName,
+             boost::shared_ptr<TFile> filePtr,
+             boost::shared_ptr<EventSkipperByID> eventSkipperByID,
+             bool skipAnyEvents,
+             int remainingEvents,
+             int remainingLumis,
+             unsigned int treeCacheSize,
              int treeMaxVirtualSize,
-	     InputSource::ProcessingMode processingMode,
-	     RunNumber_t const& forcedRunNumber,
+             InputSource::ProcessingMode processingMode,
+             RunNumber_t const& forcedRunNumber,
              bool noEventSort,
-	     GroupSelectorRules const& groupSelectorRules,
+             GroupSelectorRules const& groupSelectorRules,
              bool secondaryFile,
              boost::shared_ptr<DuplicateChecker> duplicateChecker,
              bool dropDescendantsOfDroppedProducts,
@@ -67,9 +69,9 @@ namespace edm {
     void reportOpened(std::string const& inputType);
     void close();
     EventPrincipal* readCurrentEvent(EventPrincipal& cache,
-		 boost::shared_ptr<LuminosityBlockPrincipal> lb = boost::shared_ptr<LuminosityBlockPrincipal>());
+                 boost::shared_ptr<LuminosityBlockPrincipal> lb = boost::shared_ptr<LuminosityBlockPrincipal>());
     EventPrincipal* readEvent(EventPrincipal& cache,
-		 boost::shared_ptr<LuminosityBlockPrincipal> lb = boost::shared_ptr<LuminosityBlockPrincipal>());
+                 boost::shared_ptr<LuminosityBlockPrincipal> lb = boost::shared_ptr<LuminosityBlockPrincipal>());
 
     boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
     boost::shared_ptr<RunAuxiliary> readRunAuxiliary_();
@@ -172,6 +174,8 @@ namespace edm {
     int forcedRunOffset_;
     std::map<std::string, std::string> newBranchToOldBranch_;
     TTree* eventHistoryTree_;
+    boost::shared_ptr<EventSelectionIDVector> eventSelectionIDs_;
+    boost::shared_ptr<BranchListIndexes> branchListIndexes_;
     boost::shared_ptr<History> history_;
     boost::shared_ptr<BranchChildren> branchChildren_;
     boost::shared_ptr<DuplicateChecker> duplicateChecker_;

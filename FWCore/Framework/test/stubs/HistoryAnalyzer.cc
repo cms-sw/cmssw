@@ -1,7 +1,7 @@
 
 /*----------------------------------------------------------------------
 
- EDAnalyzer for testing History class and history tracking mechanism.
+ EDAnalyzer for testing EventSelectionID class and tracking mechanism.
 
 ----------------------------------------------------------------------*/
 
@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-#include "DataFormats/Provenance/interface/History.h"
+#include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -57,12 +57,12 @@ namespace edmtest {
   void
   HistoryAnalyzer::analyze(const Event& event, EventSetup const&) 
   {
-    History const& h = event.history();
-    assert(h.size() == static_cast<size_t>(pass_ - 1));
+    EventSelectionIDVector const& esv = event.eventSelectionIDs();
+    assert(esv.size() == static_cast<size_t>(pass_ - 1));
 
-    assert(h.getEventSelectionID(0) == emptyID_);
-    assert(h.getEventSelectionID(1) == outputConfigID_);
-    assert(h.getEventSelectionID(2) == emptyID_);
+    assert(esv[0] == emptyID_);
+    assert(esv[1] == outputConfigID_);
+    assert(esv[2] == emptyID_);
     ++eventCount_;    
   }
 

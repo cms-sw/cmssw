@@ -18,7 +18,8 @@
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
-#include "DataFormats/Provenance/interface/History.h"
+#include "DataFormats/Provenance/interface/EventSelectionID.h"
+#include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProductStatus.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
@@ -32,12 +33,12 @@ namespace edm {
   public:
     StreamedProduct() : prod_(0), desc_(0), status_(productstatus::neverCreated()), parents_(0) {}
     explicit StreamedProduct(BranchDescription const& desc) :
-	prod_(0), desc_(&desc), status_(productstatus::neverCreated()), parents_(0) {}
+      prod_(0), desc_(&desc), status_(productstatus::neverCreated()), parents_(0) {}
 
     StreamedProduct(EDProduct const* prod,
-		    BranchDescription const& desc,
-		    ProductStatus status,
-		    std::vector<BranchID> const* parents);
+                    BranchDescription const& desc,
+                    ProductStatus status,
+                    std::vector<BranchID> const* parents);
 
     EDProduct const* prod() const {return prod_;}
     BranchDescription const* desc() const {return desc_;}
@@ -70,17 +71,26 @@ namespace edm {
   class SendEvent {
   public:
     SendEvent() { }
-    SendEvent(EventAuxiliary const& aux, ProcessHistory const& processHistory, History const& history) :
-	aux_(aux), processHistory_(processHistory), history_(history), products_() {}
+    SendEvent(EventAuxiliary const& aux,
+              ProcessHistory const& processHistory,
+              EventSelectionIDVector const& eventSelectionIDs,
+              BranchListIndexes const& branchListIndexes) :
+        aux_(aux),
+        processHistory_(processHistory),
+        eventSelectionIDs_(eventSelectionIDs),
+        branchListIndexes_(branchListIndexes),
+        products_() {}
     EventAuxiliary const& aux() const {return aux_;}
     SendProds const& products() const {return products_;}
     ProcessHistory const& processHistory() const {return processHistory_;}
-    History const& history() const {return history_;}
+    EventSelectionIDVector const& eventSelectionIDs() const {return eventSelectionIDs_;}
+    BranchListIndexes const& branchListIndexes() const {return branchListIndexes_;}
     SendProds & products() {return products_;}
   private:
     EventAuxiliary aux_;
     ProcessHistory processHistory_;
-    History history_;
+    EventSelectionIDVector eventSelectionIDs_;
+    BranchListIndexes branchListIndexes_;
     SendProds products_;
 
     // other tables necessary for provenance lookup

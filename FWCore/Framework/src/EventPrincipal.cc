@@ -16,15 +16,16 @@
 
 namespace edm {
   EventPrincipal::EventPrincipal(
-	boost::shared_ptr<ProductRegistry const> reg,
-	ProcessConfiguration const& pc) :
-	  Base(reg, pc, InEvent),
-	  aux_(),
-	  luminosityBlockPrincipal_(),
-	  unscheduledHandler_(),
-	  moduleLabelsRunning_(),
-	  history_(),
-	  branchListIndexToProcessIndex_() {}
+        boost::shared_ptr<ProductRegistry const> reg,
+        ProcessConfiguration const& pc) :
+          Base(reg, pc, InEvent),
+          aux_(),
+          luminosityBlockPrincipal_(),
+          unscheduledHandler_(),
+          moduleLabelsRunning_(),
+          eventSelectionIDs_(),
+          branchListIndexes_(),
+          branchListIndexToProcessIndex_() {}
 
   void
   EventPrincipal::clearEventPrincipal() {
@@ -33,39 +34,42 @@ namespace edm {
     luminosityBlockPrincipal_.reset();
     unscheduledHandler_.reset();
     moduleLabelsRunning_.clear();
-    history_.reset();
+    eventSelectionIDs_.reset();
+    branchListIndexes_.reset();
     branchListIndexToProcessIndex_.clear();
   }
 
   void
   EventPrincipal::fillEventPrincipal(std::auto_ptr<EventAuxiliary> aux,
-	boost::shared_ptr<LuminosityBlockPrincipal> lbp,
-	boost::shared_ptr<History> history,
-	boost::shared_ptr<BranchMapper> mapper,
-	boost::shared_ptr<DelayedReader> rtrv) {
-    fillPrincipal(history->processHistoryID(), mapper, rtrv);
+        boost::shared_ptr<LuminosityBlockPrincipal> lbp,
+        boost::shared_ptr<EventSelectionIDVector> eventSelectionIDs,
+        boost::shared_ptr<BranchListIndexes> branchListIndexes,
+        boost::shared_ptr<BranchMapper> mapper,
+        boost::shared_ptr<DelayedReader> rtrv) {
+    fillPrincipal(aux->processHistoryID(), mapper, rtrv);
     aux_.reset(aux.release());
     luminosityBlockPrincipal_ = lbp;
-    history_ = history;
+    eventSelectionIDs_ = eventSelectionIDs;
+    branchListIndexes_ = branchListIndexes;
 
-   if (luminosityBlockPrincipal_) {
-    setProcessHistory(*luminosityBlockPrincipal_);
-   }
+    if (luminosityBlockPrincipal_) {
+      setProcessHistory(*luminosityBlockPrincipal_);
+    }
 
     mapper->processHistoryID() = processHistoryID();
-    BranchIDListHelper::fixBranchListIndexes(history_->branchListIndexes());
+    BranchIDListHelper::fixBranchListIndexes(*branchListIndexes_);
 
     if (productRegistry().productProduced(InEvent)) {
       // Add index into BranchIDListRegistry for products produced this process
-      history_->addBranchListIndexEntry(BranchIDListRegistry::instance()->extra().producedBranchListIndex());
+      branchListIndexes_->push_back(BranchIDListRegistry::instance()->extra().producedBranchListIndex());
     }
 
     // Fill in helper map for Branch to ProductID mapping
     for (BranchListIndexes::const_iterator
-	 it = history->branchListIndexes().begin(),
-	 itEnd = history->branchListIndexes().end();
-	 it != itEnd; ++it) {
-      ProcessIndex pix = it - history->branchListIndexes().begin();
+         it = branchListIndexes_->begin(),
+         itEnd = branchListIndexes_->end();
+         it != itEnd; ++it) {
+      ProcessIndex pix = it - branchListIndexes_->begin();
       branchListIndexToProcessIndex_.insert(std::make_pair(*it, pix));
     }
     // Fill in the product ID's in the groups.
@@ -84,17 +88,17 @@ namespace edm {
     return luminosityBlockPrincipal().runPrincipal();
   }
 
-  void 
+  void
   EventPrincipal::put(
-	ConstBranchDescription const& bd,
-	std::auto_ptr<EDProduct> edp,
-	std::auto_ptr<ProductProvenance> productProvenance) {
+        ConstBranchDescription const& bd,
+        std::auto_ptr<EDProduct> edp,
+        std::auto_ptr<ProductProvenance> productProvenance) {
 
     assert(bd.produced());
     if (edp.get() == 0) {
       throw edm::Exception(edm::errors::InsertFailure,"Null Pointer")
-	<< "put: Cannot put because auto_ptr to product is null."
-	<< "\n";
+        << "put: Cannot put because auto_ptr to product is null."
+        << "\n";
     }
     branchMapperPtr()->insert(*productProvenance);
     Group *g = getExistingGroup(bd.branchID());
@@ -104,11 +108,11 @@ namespace edm {
     g->putProduct(edp, productProvenance);
   }
 
-  void 
+  void
   EventPrincipal::putOnRead(
-	ConstBranchDescription const& bd,
-	std::auto_ptr<EDProduct> edp,
-	std::auto_ptr<ProductProvenance> productProvenance) {
+        ConstBranchDescription const& bd,
+        std::auto_ptr<EDProduct> edp,
+        std::auto_ptr<ProductProvenance> productProvenance) {
 
     assert(!bd.produced());
     branchMapperPtr()->insert(*productProvenance);
@@ -148,7 +152,7 @@ namespace edm {
       throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
         << "get by product ID: invalid ProductID supplied\n";
     }
-    return productIDToBranchID(pid, BranchIDListRegistry::instance()->data(), history().branchListIndexes());
+    return productIDToBranchID(pid, BranchIDListRegistry::instance()->data(), *branchListIndexes_);
   }
 
   ProductID
@@ -161,7 +165,7 @@ namespace edm {
     typedef BIDToIndexMap::const_iterator Iter;
     typedef std::pair<Iter, Iter> IndexRange;
 
-    BIDToIndexMap const& branchIDToIndexMap = BranchIDListRegistry::instance()->extra().branchIDToIndexMap();   
+    BIDToIndexMap const& branchIDToIndexMap = BranchIDListRegistry::instance()->extra().branchIDToIndexMap();
     IndexRange range = branchIDToIndexMap.equal_range(bid);
     for (Iter it = range.first; it != range.second; ++it) {
       BranchListIndex blix = it->second.first;
@@ -183,7 +187,7 @@ namespace edm {
     if (g.get() == 0) {
       boost::shared_ptr<cms::Exception> whyFailed( new edm::Exception(edm::errors::ProductNotFound,"InvalidID") );
       *whyFailed
-	<< "get by product ID: no product with given id: "<< pid << "\n";
+        << "get by product ID: no product with given id: "<< pid << "\n";
       return BasicHandle(whyFailed);
     }
 
@@ -192,7 +196,7 @@ namespace edm {
     if (g->onDemand()) {
       boost::shared_ptr<cms::Exception> whyFailed( new edm::Exception(edm::errors::ProductNotFound,"InvalidID") );
       *whyFailed
-	<< "get by product ID: no product with given id: " << pid << "\n"
+        << "get by product ID: no product with given id: " << pid << "\n"
         << "onDemand production failed to produce it.\n";
       return BasicHandle(whyFailed);
     }
@@ -215,15 +219,19 @@ namespace edm {
     unscheduledHandler_ = iHandler;
   }
 
-  boost::shared_ptr<UnscheduledHandler> 
+  boost::shared_ptr<UnscheduledHandler>
   EventPrincipal::unscheduledHandler() const {
      return unscheduledHandler_;
   }
-   
+
   EventSelectionIDVector const&
-  EventPrincipal::eventSelectionIDs() const
-  {
-    return history_->eventSelectionIDs();
+  EventPrincipal::eventSelectionIDs() const {
+    return *eventSelectionIDs_;
+  }
+
+  BranchListIndexes const&
+  EventPrincipal::branchListIndexes() const {
+    return *branchListIndexes_;
   }
 
   bool

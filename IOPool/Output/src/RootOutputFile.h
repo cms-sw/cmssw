@@ -18,6 +18,8 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
+#include "DataFormats/Provenance/interface/BranchListIndex.h"
+#include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "DataFormats/Provenance/interface/FileID.h"
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
@@ -33,7 +35,6 @@ class TFile;
 
 namespace edm {
   class PoolOutputModule;
-  class History;
 
   class RootOutputFile {
   public:
@@ -50,7 +51,6 @@ namespace edm {
     void writeFileFormatVersion();
     void writeFileIdentifier();
     void writeIndexIntoFile();
-    void writeEventHistory();
     void writeProcessConfigurationRegistry();
     void writeProcessHistoryRegistry();
     void writeParameterSetRegistry();
@@ -78,14 +78,14 @@ namespace edm {
     void setBranchAliases(TTree* tree, Selections const& branches) const;
 
     void fillBranches(BranchType const& branchType,
-		      Principal const& principal,
-		      std::vector<ProductProvenance>* productProvenanceVecPtr);
+                      Principal const& principal,
+                      std::vector<ProductProvenance>* productProvenanceVecPtr);
 
      void insertAncestors(ProductProvenance const& iGetParents,
                           Principal const& principal,
                           bool produced,
                           std::set<ProductProvenance>& oToFill);
-        
+
     //-------------------------------
     // Member data
 
@@ -103,19 +103,19 @@ namespace edm {
     TTree* metaDataTree_;
     TTree* parameterSetsTree_;
     TTree* parentageTree_;
-    TTree* eventHistoryTree_;
     LuminosityBlockAuxiliary  lumiAux_;
-    RunAuxiliary	      runAux_;
+    RunAuxiliary              runAux_;
     EventAuxiliary const*           pEventAux_;
     LuminosityBlockAuxiliary const* pLumiAux_;
     RunAuxiliary const*             pRunAux_;
     ProductProvenanceVector         eventEntryInfoVector_;
-    ProductProvenanceVector	    lumiEntryInfoVector_;
+    ProductProvenanceVector         lumiEntryInfoVector_;
     ProductProvenanceVector         runEntryInfoVector_;
     ProductProvenanceVector*       pEventEntryInfoVector_;
     ProductProvenanceVector*       pLumiEntryInfoVector_;
     ProductProvenanceVector*       pRunEntryInfoVector_;
-    History const*                  pHistory_;
+    BranchListIndexes const*       pBranchListIndexes_;
+    EventSelectionIDVector const*  pEventSelectionIDs_;
     RootOutputTree eventTree_;
     RootOutputTree lumiTree_;
     RootOutputTree runTree_;
@@ -124,7 +124,7 @@ namespace edm {
     std::set<ParentageID> parentageIDs_;
     std::set<BranchID> branchesWithStoredHistory_;
   };
-   
+
 }
 
 #endif

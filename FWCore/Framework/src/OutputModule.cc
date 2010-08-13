@@ -61,17 +61,17 @@ namespace {
 
   typedef std::pair<std::string, std::string> parsed_path_spec_t;
   void parse_path_spec(std::string const& path_spec, 
-		       parsed_path_spec_t& output) {
+                       parsed_path_spec_t& output) {
     std::string trimmed_path_spec(path_spec);
     remove_whitespace(trimmed_path_spec);
     
     std::string::size_type colon = trimmed_path_spec.find(":");
     if (colon == std::string::npos) {
-	output.first = trimmed_path_spec;
+        output.first = trimmed_path_spec;
     } else {
-	output.first  = trimmed_path_spec.substr(0, colon);
-	output.second = trimmed_path_spec.substr(colon + 1, 
-						 trimmed_path_spec.size());
+        output.first  = trimmed_path_spec.substr(0, colon);
+        output.second = trimmed_path_spec.substr(colon + 1, 
+                                                 trimmed_path_spec.size());
     }
   }
 
@@ -138,18 +138,18 @@ namespace edm {
     // is empty, we are to write all events. We have no need for any
     // EventSelectors.
     if (selectevents.empty()) {
-	wantAllEvents_ = true;
-	selectors_.setupDefault(getAllTriggerNames());
-	return;
+        wantAllEvents_ = true;
+        selectors_.setupDefault(getAllTriggerNames());
+        return;
     }
 
     std::vector<std::string> path_specs = 
       selectevents.getParameter<std::vector<std::string> >("SelectEvents");
 
     if (path_specs.empty()) {
-	wantAllEvents_ = true;
-	selectors_.setupDefault(getAllTriggerNames());
-	return;
+        wantAllEvents_ = true;
+        selectors_.setupDefault(getAllTriggerNames());
+        return;
     }
 
     // If we get here, we have the possibility of having to deal with
@@ -182,15 +182,15 @@ namespace edm {
     for (; it != end; ++it) {
       BranchDescription const& desc = it->second;
       if(desc.transient()) {
-	// if the class of the branch is marked transient, output nothing
+        // if the class of the branch is marked transient, output nothing
       } else if(!desc.present() && !desc.produced()) {
-	// else if the branch containing the product has been previously dropped,
-	// output nothing
+        // else if the branch containing the product has been previously dropped,
+        // output nothing
       } else if (selected(desc)) {
-	// else if the branch has been selected, put it in the list of selected branches
+        // else if the branch has been selected, put it in the list of selected branches
         keptProducts_[desc.branchType()].push_back(&desc);
       } else {
-	// otherwise, output nothing,
+        // otherwise, output nothing,
       }
     }
   }
@@ -217,7 +217,7 @@ namespace edm {
     // actual EventPrincipal is not destroyed, but it still needs to
     // be cleaned up.
     Event ev(const_cast<EventPrincipal&>(ep), 
-	     *current_context_->moduleDescription());
+             *current_context_->moduleDescription());
     return getTriggerResults(ev);
   }
 
@@ -240,8 +240,8 @@ namespace edm {
 
   bool
   OutputModule::doEvent(EventPrincipal const& ep,
-			EventSetup const& c,
-			CurrentProcessingContext const* cpc) {
+                        EventSetup const& c,
+                        CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     PVSentry          products_sentry(selectors_, prodsValid_);
 
@@ -254,7 +254,7 @@ namespace edm {
       // event is changed to just take a const EventPrincipal
       Event e(const_cast<EventPrincipal&>(ep), moduleDescription_);
       if (!selectors_.wantEvent(e)) {
-	return true;
+        return true;
       }
     }
     write(ep);
@@ -272,9 +272,9 @@ namespace edm {
 
 //     typedef std::vector<NamedEventSelector>::const_iterator iter;
 //     for (iter i = selectResult_.begin(), e = selectResult_.end();
-// 	 !eventAccepted && i != e; ++i) 
+//          !eventAccepted && i != e; ++i) 
 //       {
-// 	eventAccepted = i->acceptEvent(*prods_);
+//         eventAccepted = i->acceptEvent(*prods_);
 //       }
 
 //     FDEBUG(2) << "Accept event " << ep.id() << " " << eventAccepted << "\n";
@@ -283,8 +283,8 @@ namespace edm {
 
   bool
   OutputModule::doBeginRun(RunPrincipal const& rp,
-				EventSetup const& c,
-				CurrentProcessingContext const* cpc) {
+                                EventSetup const& c,
+                                CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     FDEBUG(2) << "beginRun called\n";
     beginRun(rp);
@@ -293,8 +293,8 @@ namespace edm {
 
   bool
   OutputModule::doEndRun(RunPrincipal const& rp,
-			      EventSetup const& c,
-			      CurrentProcessingContext const* cpc) {
+                              EventSetup const& c,
+                              CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     FDEBUG(2) << "endRun called\n";
     endRun(rp);
@@ -309,8 +309,8 @@ namespace edm {
 
   bool
   OutputModule::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-					    EventSetup const& c,
-					    CurrentProcessingContext const* cpc) {
+                                            EventSetup const& c,
+                                            CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     FDEBUG(2) << "beginLuminosityBlock called\n";
     beginLuminosityBlock(lbp);
@@ -319,8 +319,8 @@ namespace edm {
 
   bool
   OutputModule::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
-					  EventSetup const& c,
-					  CurrentProcessingContext const* cpc) {
+                                          EventSetup const& c,
+                                          CurrentProcessingContext const* cpc) {
     detail::CPCSentry sentry(current_context_, cpc);
     FDEBUG(2) << "endLuminosityBlock called\n";
     endLuminosityBlock(lbp);
@@ -376,7 +376,6 @@ namespace edm {
     writeFileFormatVersion();
     writeFileIdentifier();
     writeIndexIntoFile();
-    writeEventHistory();
     writeProcessConfigurationRegistry();
     writeProcessHistoryRegistry();
     writeParameterSetRegistry();
@@ -428,13 +427,13 @@ namespace edm {
   OutputModule::updateBranchParents(EventPrincipal const& ep) {
     for (EventPrincipal::const_iterator i = ep.begin(), iEnd = ep.end(); i != iEnd; ++i) {
       if ((*i) && (*i)->productProvenancePtr() != 0) {
-	BranchID const& bid = (*i)->branchDescription().branchID();
-	BranchParents::iterator it = branchParents_.find(bid);
-	if (it == branchParents_.end()) {
-	  it = branchParents_.insert(std::make_pair(bid, std::set<ParentageID>())).first;
-	}
-	it->second.insert((*i)->productProvenancePtr()->parentageID());
-	branchChildren_.insertEmpty(bid);
+        BranchID const& bid = (*i)->branchDescription().branchID();
+        BranchParents::iterator it = branchParents_.find(bid);
+        if (it == branchParents_.end()) {
+          it = branchParents_.insert(std::make_pair(bid, std::set<ParentageID>())).first;
+        }
+        it->second.insert((*i)->productProvenancePtr()->parentageID());
+        branchChildren_.insertEmpty(bid);
       }
     }
   }
@@ -449,11 +448,11 @@ namespace edm {
           it != itEnd; ++it) {
         Parentage entryDesc;
         ParentageRegistry::instance()->getMapped(*it, entryDesc);
-	std::vector<BranchID> const& parents = entryDesc.parents();
-	for (std::vector<BranchID>::const_iterator j = parents.begin(), jEnd = parents.end();
-	  j != jEnd; ++j) {
-	  branchChildren_.insertChild(*j, child);
-	}
+        std::vector<BranchID> const& parents = entryDesc.parents();
+        for (std::vector<BranchID>::const_iterator j = parents.begin(), jEnd = parents.end();
+          j != jEnd; ++j) {
+          branchChildren_.insertChild(*j, child);
+        }
       }
     }
   }

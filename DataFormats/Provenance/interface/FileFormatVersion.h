@@ -15,6 +15,7 @@ namespace edm
     bool lumiNumbers() const;
     bool newAuxiliary() const;
     bool runsAndLumis() const;
+    bool eventHistoryBranch() const;
     bool eventHistoryTree() const;
     bool perEventProductIDs() const;
     bool splitProductIDs() const;
@@ -26,6 +27,7 @@ namespace edm
     bool processHistorySameWithinRun() const;
     bool hasIndexIntoFile() const;
     bool mergeOnlySequentialRunsOrLumis() const;
+    bool noMetaDataTrees() const;
     int value() const {return value_;}
     
    private:

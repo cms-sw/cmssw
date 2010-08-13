@@ -28,8 +28,13 @@ namespace edm {
   }
 
   bool
+  FileFormatVersion::eventHistoryBranch() const {
+    return value_ >= 5 && value_ < 7;
+  }
+
+  bool
   FileFormatVersion::eventHistoryTree() const {
-    return value_ >= 7;
+    return value_ >= 7 && value_ < 17;
   }
 
   bool
@@ -80,6 +85,11 @@ namespace edm {
   bool
   FileFormatVersion::mergeOnlySequentialRunsOrLumis() const {
     return value_ >= 16;
+  }
+
+  bool
+  FileFormatVersion::noMetaDataTrees() const {
+    return value_ >= 17;
   }
 
   std::ostream&

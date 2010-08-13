@@ -35,8 +35,8 @@ namespace edm {
       << "Failed to create the tree: " << name << "\n";
     if(tree->IsZombie())
       throw edm::Exception(errors::FatalRootError)
-	<< "Tree: " << name << " is a zombie." << "\n";
-				    
+        << "Tree: " << name << " is a zombie." << "\n";
+                                    
     return assignTTree(filePtr, tree);
   }
 
@@ -80,13 +80,13 @@ namespace edm {
       while((obj = iter.Next()) != 0) {
         TBranchElement* outBranch = dynamic_cast<TBranchElement*>(obj);
         if(outBranch) {
-	  TBranchElement* inBranch = dynamic_cast<TBranchElement*>(inputArray->FindObject(outBranch->GetName()));
-	  if(!inBranch) {
-	    return false;
-	  }
-	  if(!checkMatchingBranches(inBranch, outBranch)) {
-	    return false;
-	  }
+          TBranchElement* inBranch = dynamic_cast<TBranchElement*>(inputArray->FindObject(outBranch->GetName()));
+          if(!inBranch) {
+            return false;
+          }
+          if(!checkMatchingBranches(inBranch, outBranch)) {
+            return false;
+          }
         }
       }
       return true;
@@ -101,14 +101,14 @@ namespace edm {
     for(std::vector<TBranch*>::const_iterator it = readBranches_.begin(), itEnd = readBranches_.end(); it != itEnd; ++it) {
       TBranchElement* outputBranch = dynamic_cast<TBranchElement*>(*it);
       if(outputBranch != 0) {
-	TBranchElement* inputBranch = dynamic_cast<TBranchElement*>(inputTree->GetBranch(outputBranch->GetName()));
+        TBranchElement* inputBranch = dynamic_cast<TBranchElement*>(inputTree->GetBranch(outputBranch->GetName()));
         if(inputBranch != 0) {
-	  // We have a matching top level branch. Do the recursive check on subbranches.
-	  if(!checkMatchingBranches(inputBranch, outputBranch)) {
+          // We have a matching top level branch. Do the recursive check on subbranches.
+          if(!checkMatchingBranches(inputBranch, outputBranch)) {
             LogInfo("FastCloning")
               << "Fast Cloning disabled because a data member has been added to  split branch: " << inputBranch->GetName() << "\n.";
-	  }
-	}
+          }
+        }
       }
     }
     return true;
@@ -119,14 +119,16 @@ namespace edm {
     if(in->GetEntries() != 0) {
 
       TObjArray* branches = tree_->GetListOfBranches();
-      Int_t auxIndex = -1;
-      if (auxBranch_) {
-        // Don't fast copy auxiliary branch. Remove it, and add it back after fast copying.
-        auxIndex = branches->IndexOf(auxBranch_);
-	assert (auxIndex >= 0);
+      std::map<Int_t, TBranch *> auxIndexes;
+      for (std::vector<TBranch *>::const_iterator it = auxBranches_.begin(), itEnd = auxBranches_.end();
+           it != itEnd; ++it) {
+        // Don't fast copy auxiliary branches. Remove them, and add back after fast copying.
+        int auxIndex = branches->IndexOf(*it);
+        assert (auxIndex >= 0);
+        auxIndexes.insert(std::make_pair(auxIndex, *it));
         branches->RemoveAt(auxIndex);
-        branches->Compress();
       }
+      branches->Compress();
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
       TTreeCloner cloner(in, tree_, option.c_str(), TTreeCloner::kNoWarnings);
@@ -153,17 +155,18 @@ namespace edm {
       }
       tree_->SetEntries(tree_->GetEntries() + in->GetEntries());
       cloner.Exec();
-      if (auxBranch_) {
+      for (std::map<Int_t, TBranch *>::const_iterator it = auxIndexes.begin(), itEnd = auxIndexes.end();
+           it != itEnd; ++it) {
         // Add the auxiliary branch back after fast copying the rest of the tree.
         Int_t last = branches->GetLast();
         if (last >= 0) {
           branches->AddAtAndExpand(branches->At(last), last+1);
-          for(Int_t ind = last-1; ind >= auxIndex; --ind) {
+          for(Int_t ind = last-1; ind >= it->first; --ind) {
             branches->AddAt(branches->At(ind), ind+1);
           };
-          branches->AddAt(auxBranch_, auxIndex);
+          branches->AddAt(it->second, it->first);
         } else {
-          branches->Add(auxBranch_);
+          branches->Add(it->second);
         }
       }
     }
@@ -197,11 +200,11 @@ namespace edm {
     if(currentlyFastCloning_) {
       fastCloneTTree(tree, option);
       for(std::vector<TBranch*>::const_iterator it = readBranches_.begin(), itEnd = readBranches_.end();
-	  it != itEnd; ++it) {
-	if((*it)->GetEntries() != tree_->GetEntries()) {
-	  unclonedReadBranches_.push_back(*it);
-	  unclonedReadBranchNames_.insert(std::string((*it)->GetName()));
-	}
+          it != itEnd; ++it) {
+        if((*it)->GetEntries() != tree_->GetEntries()) {
+          unclonedReadBranches_.push_back(*it);
+          unclonedReadBranchNames_.insert(std::string((*it)->GetName()));
+        }
       }
     }
   }
@@ -210,7 +213,7 @@ namespace edm {
   RootOutputTree::fillTree() const {
     metaTree_->Fill();
     if (currentlyFastCloning_) {
-      auxBranch_->Fill();
+      fillTTree(tree_, auxBranches_);
       fillTTree(tree_, producedBranches_);
       fillTTree(tree_, unclonedReadBranches_);
     } else {
@@ -220,20 +223,20 @@ namespace edm {
 
   void
   RootOutputTree::addBranch(std::string const& branchName,
-			    std::string const& className,
-			    void const*& pProd,
-			    int splitLevel,
-			    int basketSize,
-			    bool produced) {
+                            std::string const& className,
+                            void const*& pProd,
+                            int splitLevel,
+                            int basketSize,
+                            bool produced) {
       assert(splitLevel != BranchDescription::invalidSplitLevel);
       assert(basketSize != BranchDescription::invalidBasketSize);
       TBranch* branch = tree_->Branch(branchName.c_str(),
-		 className.c_str(),
-		 &pProd,
-		 basketSize,
-		 splitLevel);
+                 className.c_str(),
+                 &pProd,
+                 basketSize,
+                 splitLevel);
       if(produced) {
-	producedBranches_.push_back(branch);
+        producedBranches_.push_back(branch);
       } else {
         readBranches_.push_back(branch);
       }

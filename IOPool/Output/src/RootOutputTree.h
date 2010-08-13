@@ -26,17 +26,17 @@ namespace edm {
   class RootOutputTree : private boost::noncopyable {
   public:
     RootOutputTree(boost::shared_ptr<TFile> filePtr,
-		   BranchType const& branchType,
-		   std::vector<ProductProvenance>*& pEntryInfoVector,
-		   int bufSize,
-		   int splitLevel,
+                   BranchType const& branchType,
+                   std::vector<ProductProvenance>*& pEntryInfoVector,
+                   int bufSize,
+                   int splitLevel,
                    int treeMaxVirtualSize) :
       filePtr_(filePtr),
       tree_(makeTTree(filePtr.get(), BranchTypeToProductTreeName(branchType), splitLevel)),
       metaTree_(makeTTree(filePtr.get(), BranchTypeToMetaDataTreeName(branchType), 0)),
       producedBranches_(),
       readBranches_(),
-      auxBranch_(),
+      auxBranches_(),
       unclonedReadBranches_(),
       unclonedReadBranchNames_(),
       currentlyFastCloning_() {
@@ -50,7 +50,13 @@ namespace edm {
     template <typename T>
     void
     addAuxiliary(BranchType const& branchType, T const*& pAux, int bufSize) {
-      auxBranch_ = tree_->Branch(BranchTypeToAuxiliaryBranchName(branchType).c_str(), &pAux, bufSize, 0);
+      auxBranches_.push_back(tree_->Branch(BranchTypeToAuxiliaryBranchName(branchType).c_str(), &pAux, bufSize, 0));
+    }
+
+    template <typename T>
+    void
+    addAuxiliary(std::string const& branchName, T const*& pAux, int bufSize) {
+      auxBranches_.push_back(tree_->Branch(branchName.c_str(), &pAux, bufSize, 0));
     }
 
     void fastCloneTTree(TTree* in, std::string const& option);
@@ -64,11 +70,11 @@ namespace edm {
     bool isValid() const;
 
     void addBranch(std::string const& branchName,
-		   std::string const& className,
-		   void const*& pProd,
-		   int splitLevel,
-		   int basketSize,
-		   bool produced);
+                   std::string const& className,
+                   void const*& pProd,
+                   int splitLevel,
+                   int basketSize,
+                   bool produced);
 
     bool checkSplitLevelsAndBasketSizes(TTree* inputTree) const;
 
@@ -95,7 +101,7 @@ namespace edm {
 
     bool
     uncloned(std::string const& branchName) const {
-	return unclonedReadBranchNames_.find(branchName) != unclonedReadBranchNames_.end();
+      return unclonedReadBranchNames_.find(branchName) != unclonedReadBranchNames_.end();
     }
 
     void close();
@@ -111,7 +117,7 @@ namespace edm {
     TBranch* branchEntryInfoBranch_;
     std::vector<TBranch*> producedBranches_; // does not include cloned branches
     std::vector<TBranch*> readBranches_;
-    TBranch* auxBranch_;
+    std::vector<TBranch*> auxBranches_;
     std::vector<TBranch*> unclonedReadBranches_;
     std::set<std::string> unclonedReadBranchNames_;
     bool currentlyFastCloning_;

@@ -2,7 +2,7 @@
 #define FWCore_Framework_EventPrincipal_h
 
 /*----------------------------------------------------------------------
-  
+
 EventPrincipal: This is the class responsible for management of
 per event EDProducts. It is not seen by reconstruction code;
 such code sees the Event class, which is a proxy for EventPrincipal.
@@ -21,7 +21,8 @@ is the DataBlock.
 
 #include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
-#include "DataFormats/Provenance/interface/History.h"
+#include "DataFormats/Provenance/interface/EventSelectionID.h"
+#include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "FWCore/Framework/interface/NoDelayedReader.h"
 #include "FWCore/Framework/interface/Principal.h"
 
@@ -43,15 +44,16 @@ namespace edm {
     static int const invalidBunchXing = EventAuxiliary::invalidBunchXing;
     static int const invalidStoreNumber = EventAuxiliary::invalidStoreNumber;
     EventPrincipal(
-	boost::shared_ptr<ProductRegistry const> reg,
-	ProcessConfiguration const& pc);
+        boost::shared_ptr<ProductRegistry const> reg,
+        ProcessConfiguration const& pc);
     ~EventPrincipal() {}
 
     void fillEventPrincipal(std::auto_ptr<EventAuxiliary> aux,
-	boost::shared_ptr<LuminosityBlockPrincipal> lbp,
-	boost::shared_ptr<History> history = boost::shared_ptr<History>(new History),
-	boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
-	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
+        boost::shared_ptr<LuminosityBlockPrincipal> lbp,
+        boost::shared_ptr<EventSelectionIDVector> eventSelectionIDs = boost::shared_ptr<EventSelectionIDVector>(new EventSelectionIDVector),
+        boost::shared_ptr<BranchListIndexes> branchListIndexes = boost::shared_ptr<BranchListIndexes>(new BranchListIndexes),
+        boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
+        boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
 
     void clearEventPrincipal();
 
@@ -108,9 +110,7 @@ namespace edm {
 
     EventSelectionIDVector const& eventSelectionIDs() const;
 
-    History const& history() const {return *history_;}
-
-    History& history() {return *history_;}
+    BranchListIndexes const& branchListIndexes() const;
 
     Provenance
     getProvenance(ProductID const& pid) const;
@@ -119,14 +119,14 @@ namespace edm {
     getByProductID(ProductID const& oid) const;
 
     void put(
-	ConstBranchDescription const& bd,
-	std::auto_ptr<EDProduct> edp,
-	std::auto_ptr<ProductProvenance> productProvenance);
+        ConstBranchDescription const& bd,
+        std::auto_ptr<EDProduct> edp,
+        std::auto_ptr<ProductProvenance> productProvenance);
 
     void putOnRead(
-	ConstBranchDescription const& bd,
-	std::auto_ptr<EDProduct> edp,
-	std::auto_ptr<ProductProvenance> productProvenance);
+        ConstBranchDescription const& bd,
+        std::auto_ptr<EDProduct> edp,
+        std::auto_ptr<ProductProvenance> productProvenance);
 
     virtual EDProduct const* getIt(ProductID const& pid) const;
 
@@ -155,7 +155,9 @@ namespace edm {
 
     mutable std::vector<std::string> moduleLabelsRunning_;
 
-    boost::shared_ptr<History> history_;
+    boost::shared_ptr<EventSelectionIDVector> eventSelectionIDs_;
+
+    boost::shared_ptr<BranchListIndexes> branchListIndexes_;
 
     std::map<BranchListIndex, ProcessIndex> branchListIndexToProcessIndex_;
 

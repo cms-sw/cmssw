@@ -34,12 +34,12 @@ namespace edm {
 
   namespace poolNames {
     //------------------------------------------------------------------
-    // EntryDescription Tree // Obsolete
-    std::string const& entryDescriptionTreeName();
+    // EntryDescription Tree // backward compatibility
+    std::string const& entryDescriptionTreeName(); // backward compatibility
 
-    // Branches on EntryDescription Tree // Obsolete
-    std::string const& entryDescriptionIDBranchName();
-    std::string const& entryDescriptionBranchName();
+    // Branches on EntryDescription Tree // backward compatibility
+    std::string const& entryDescriptionIDBranchName(); // backward compatibility
+    std::string const& entryDescriptionBranchName(); // backward compatibility
 
     //------------------------------------------------------------------
     // Parentage Tree
@@ -49,6 +49,11 @@ namespace edm {
     std::string const& parentageBranchName();
 
     //------------------------------------------------------------------
+    // Other branches on Events Tree
+    std::string const& eventSelectionsBranchName();
+    std::string const& branchListIndexesBranchName();
+
+    //------------------------------------------------------------------
     //------------------------------------------------------------------
     // MetaData Tree (1 entry per file)
     std::string const& metaDataTreeName();
@@ -56,25 +61,25 @@ namespace edm {
     // Branches on MetaData Tree
     std::string const& productDescriptionBranchName();
     std::string const& productDependenciesBranchName();
-    std::string const& parameterSetMapBranchName();
-    std::string const& moduleDescriptionMapBranchName(); // Obsolete
-    std::string const& processHistoryMapBranchName(); // Obsolete
+    std::string const& parameterSetMapBranchName(); // backward compatibility
+    std::string const& moduleDescriptionMapBranchName(); // backward compatibility
+    std::string const& processHistoryMapBranchName(); // backward compatibility
     std::string const& processHistoryBranchName();
     std::string const& processConfigurationBranchName();
     std::string const& branchIDListBranchName();
     std::string const& fileFormatVersionBranchName();
     std::string const& fileIdentifierBranchName();
-    std::string const& fileIndexBranchName();
+    std::string const& fileIndexBranchName(); // backward compatibility
     std::string const& indexIntoFileBranchName();
 
-    // Event History Tree
-    std::string const& eventHistoryTreeName();
+    // Event History Tree // backward compatibility
+    std::string const& eventHistoryTreeName(); // backward compatibility
 
-    // Branches on EventHistory Tree
-    std::string const& eventHistoryBranchName();
+    // Branches on EventHistory Tree // backward compatibility
+    std::string const& eventHistoryBranchName(); // backward compatibility
 
     //------------------------------------------------------------------
-    // ParameterSet Tree (1 entry per ParameterSet
+    // ParameterSet Tree (1 entry per ParameterSet)
     std::string const& parameterSetsTreeName();
     
     std::string const& idToParameterSetBlobsBranchName();

@@ -1,5 +1,5 @@
-#ifndef Framework_Event_h
-#define Framework_Event_h
+#ifndef FWCore_Framework_Event_h
+#define FWCore_Framework_Event_h
 
 // -*- C++ -*-
 //
@@ -25,7 +25,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Provenance/interface/EventID.h"
-#include "DataFormats/Provenance/interface/History.h"
+#include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 
@@ -74,7 +74,8 @@ namespace edm {
     bool
     get(ProductID const& oid, Handle<View<ELEMENT> >& result) const ;
 
-    History const& history() const;
+    EventSelectionIDVector const& eventSelectionIDs() const;
+
     ProcessHistoryID const& processHistoryID() const;
 
     ///Put a new product.
@@ -100,8 +101,7 @@ namespace edm {
 
     template <typename PROD>
     bool
-    get(SelectorBase const& sel,
-  		    Handle<PROD>& result) const;
+    get(SelectorBase const& sel, Handle<PROD>& result) const;
 
     template <typename PROD>
     bool
@@ -113,14 +113,11 @@ namespace edm {
 
     template <typename PROD>
     bool
-    getByLabel(std::string const& label,
-  			   std::string const& productInstanceName,
-  			   Handle<PROD>& result) const;
+    getByLabel(std::string const& label, std::string const& productInstanceName, Handle<PROD>& result) const;
 
     template <typename PROD>
     void
-    getMany(SelectorBase const& sel,
-  			std::vector<Handle<PROD> >& results) const;
+    getMany(SelectorBase const& sel, std::vector<Handle<PROD> >& results) const;
 
     template <typename PROD>
     bool
@@ -134,22 +131,22 @@ namespace edm {
     template <typename ELEMENT>
     bool
     getByLabel(std::string const& label,
-	       Handle<View<ELEMENT> >& result) const;
+               Handle<View<ELEMENT> >& result) const;
 
     template <typename ELEMENT>
     bool
     getByLabel(std::string const& label,
-	       std::string const& productInstanceName,
-	       Handle<View<ELEMENT> >& result) const;
+               std::string const& productInstanceName,
+               Handle<View<ELEMENT> >& result) const;
 
-    template <typename ELEMENT> 	
-    bool 	
-    getByLabel(InputTag const& tag, Handle<View<ELEMENT> >& result) const; 	
+    template <typename ELEMENT>
+    bool
+    getByLabel(InputTag const& tag, Handle<View<ELEMENT> >& result) const;
 
     template <typename ELEMENT>
     void
     fillView_(BasicHandle& bh,
-	      Handle<View<ELEMENT> >& result) const;
+              Handle<View<ELEMENT> >& result) const;
 
     Provenance
     getProvenance(BranchID const& theID) const;
@@ -165,8 +162,7 @@ namespace edm {
     // If true is returned, then ps is filled with the ParameterSet
     // used to configure the identified process.
     bool
-    getProcessParameterSet(std::string const& processName,
-			   ParameterSet& ps) const;
+    getProcessParameterSet(std::string const& processName, ParameterSet& ps) const;
 
     ProcessHistory const&
     processHistory() const;
@@ -246,9 +242,9 @@ namespace edm {
   struct RecordInParentless {
     typedef Event::ProductPtrVec ptrvec_t;
     void do_it(ptrvec_t& ignored,
-	       ptrvec_t& used,
-	       Wrapper<PROD>* wp,
-	       ConstBranchDescription const* desc) const {
+               ptrvec_t& used,
+               Wrapper<PROD>* wp,
+               ConstBranchDescription const* desc) const {
       used.push_back(std::make_pair(wp, desc));
     }
   };
@@ -258,9 +254,9 @@ namespace edm {
     typedef Event::ProductPtrVec ptrvec_t;
 
     void do_it(ptrvec_t& used,
-	       ptrvec_t& ignored,
-	       Wrapper<PROD>* wp,
-	       ConstBranchDescription const* desc) const {
+               ptrvec_t& ignored,
+               Wrapper<PROD>* wp,
+               ConstBranchDescription const* desc) const {
       used.push_back(std::make_pair(wp, desc));
     }
   };
@@ -325,9 +321,9 @@ namespace edm {
       RecordInParentless<PROD>,
       RecordInParentfull<PROD> >::type parentage_recorder;
     parentage_recorder.do_it(putProducts(),
-			     putProductsWithoutParents(),
-			     wp,
-			     &desc);
+                             putProductsWithoutParents(),
+                             wp,
+                             &desc);
 
     //    putProducts().push_back(std::make_pair(wp, &desc));
 
@@ -350,9 +346,7 @@ namespace edm {
 
   template <typename PROD>
   bool
-  Event::get(SelectorBase const& sel,
-		    Handle<PROD>& result) const
-  {
+  Event::get(SelectorBase const& sel, Handle<PROD>& result) const {
     bool ok = provRecorder_.get(sel, result);
     if (ok) {
       addToGotBranchIDs(*result.provenance());
@@ -385,9 +379,8 @@ namespace edm {
   template <typename PROD>
   bool
   Event::getByLabel(std::string const& label,
-			   std::string const& productInstanceName,
-			   Handle<PROD>& result) const
-  {
+                    std::string const& productInstanceName,
+                    Handle<PROD>& result) const {
     bool ok = provRecorder_.getByLabel(label, productInstanceName, result);
     if (ok) {
       addToGotBranchIDs(*result.provenance());
@@ -397,9 +390,7 @@ namespace edm {
 
   template <typename PROD>
   void
-  Event::getMany(SelectorBase const& sel,
-			std::vector<Handle<PROD> >& results) const
-  {
+  Event::getMany(SelectorBase const& sel, std::vector<Handle<PROD> >& results) const {
     provRecorder_.getMany(sel, results);
     for (typename std::vector<Handle<PROD> >::const_iterator it = results.begin(), itEnd = results.end();
         it != itEnd; ++it) {
@@ -431,19 +422,16 @@ namespace edm {
 
   template <typename ELEMENT>
   bool
-  Event::getByLabel(std::string const& moduleLabel,
-			   Handle<View<ELEMENT> >& result) const
-  {
+  Event::getByLabel(std::string const& moduleLabel, Handle<View<ELEMENT> >& result) const {
     return getByLabel(moduleLabel, std::string(), result);
   }
 
   template <typename ELEMENT>
   bool
   Event::getByLabel(std::string const& moduleLabel,
-			   std::string const& productInstanceName,
-			   Handle<View<ELEMENT> >& result) const
-  {
-   result.clear();
+                    std::string const& productInstanceName,
+                    Handle<View<ELEMENT> >& result) const {
+    result.clear();
 
     TypeID typeID(typeid(ELEMENT));
 
@@ -456,10 +444,10 @@ namespace edm {
     if (nFound == 0) {
       boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound) );
       *whyFailed
-	<< "getByLabel: Found zero products matching all criteria\n"
-	<< "Looking for sequence of type: " << typeID << "\n"
-	<< "Looking for module label: " << moduleLabel << "\n"
-	<< "Looking for productInstanceName: " << productInstanceName << "\n";
+        << "getByLabel: Found zero products matching all criteria\n"
+        << "Looking for sequence of type: " << typeID << "\n"
+        << "Looking for module label: " << moduleLabel << "\n"
+        << "Looking for productInstanceName: " << productInstanceName << "\n";
       Handle<View<ELEMENT> > temp(whyFailed);
       result.swap(temp);
       return false;
@@ -467,9 +455,9 @@ namespace edm {
     if (nFound > 1) {
       Exception e(errors::ProductNotFound);
       e << "getByLabel: Found more than one product matching all criteria\n"
-	<< "Looking for sequence of type: " << typeID << "\n"
-	<< "Looking for module label: " << moduleLabel << "\n"
-	<< "Looking for productInstanceName: " << productInstanceName << "\n";
+        << "Looking for sequence of type: " << typeID << "\n"
+        << "Looking for module label: " << moduleLabel << "\n"
+        << "Looking for productInstanceName: " << productInstanceName << "\n";
       e.raise();
     }
 
@@ -509,7 +497,7 @@ namespace edm {
       if (nFound > 1) {
         Exception e (errors::ProductNotFound);
         e << "getByLabel: Found more than one product matching all criteria\n"
-	  << "Looking for sequence of type: " << typeID << "\n"
+          << "Looking for sequence of type: " << typeID << "\n"
           << "Looking for module label: " << tag.label() << "\n"
           << "Looking for productInstanceName: " << tag.instance() << "\n"
           << "Looking for processName: "<<tag.process() <<"\n";
@@ -524,8 +512,7 @@ namespace edm {
 
   template <typename ELEMENT>
   void
-  Event::fillView_(BasicHandle& bh,
-			  Handle<View<ELEMENT> >& result) const {
+  Event::fillView_(BasicHandle& bh, Handle<View<ELEMENT> >& result) const {
     std::vector<void const*> pointersToElements;
     // the following is a shared pointer.
     // It is not initialized here

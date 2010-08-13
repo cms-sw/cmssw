@@ -12,11 +12,11 @@
 namespace edm {
 
     Event::Event(EventPrincipal& ep, ModuleDescription const& md) :
-	provRecorder_(ep, md),
-	aux_(ep.aux()),
+        provRecorder_(ep, md),
+        aux_(ep.aux()),
         luminosityBlock_(new LuminosityBlock(ep.luminosityBlockPrincipal(), md)),
-	gotBranchIDs_(),
-	gotViews_() {
+        gotBranchIDs_(),
+        gotViews_() {
     }
 
     Event::~Event() {
@@ -45,18 +45,11 @@ namespace edm {
       return getLuminosityBlock().getRun();
     }
 
-//   History const&
-//   Event::history() const {
-//     PrincipalGetAdapter const& dvi = me();
-//     EDProductGetter const* pg = dvi.prodGetter(); // certain to be non-null
-//     assert(pg);
-//     EventPrincipal const& ep = dynamic_cast<EventPrincipal const&>(*pg);
-//     return ep.history();
-//   }
-  History const&
-  Event::history() const {
-    return eventPrincipal().history();
-  }
+    EventSelectionIDVector const&
+    Event::eventSelectionIDs() const {
+      return eventPrincipal().eventSelectionIDs();
+    }
+
 
   ProcessHistoryID const&
   Event::processHistoryID() const {
@@ -81,16 +74,16 @@ namespace edm {
 
   bool
   Event::getProcessParameterSet(std::string const& processName,
-				ParameterSet& ps) const {
+                                ParameterSet& ps) const {
     // Get the ProcessHistory for this event.
     ProcessHistoryRegistry* phr = ProcessHistoryRegistry::instance();
     ProcessHistory ph;
     if (!phr->getMapped(processHistoryID(), ph)) {
       throw Exception(errors::NotFound)
-	<< "ProcessHistoryID " << processHistoryID()
-	<< " is claimed to describe " << id()
-	<< "\nbut is not found in the ProcessHistoryRegistry.\n"
-	<< "This file is malformed.\n";
+        << "ProcessHistoryID " << processHistoryID()
+        << " is claimed to describe " << id()
+        << "\nbut is not found in the ProcessHistoryRegistry.\n"
+        << "This file is malformed.\n";
     }
 
     ProcessConfiguration config;
@@ -138,7 +131,7 @@ namespace edm {
         itPrevious = previousParentage->begin();
       }
       for (BranchIDSet::const_iterator it = gotBranchIDs_.begin(), itEnd = gotBranchIDs_.end();
-	  it != itEnd; ++it) {
+          it != itEnd; ++it) {
         gotBranchIDVector.push_back(*it);
         if(sameAsPrevious) {
           if(*it != *itPrevious) {

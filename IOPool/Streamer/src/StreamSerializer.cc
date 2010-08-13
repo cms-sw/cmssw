@@ -11,6 +11,8 @@
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/BranchIDListRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
+#include "DataFormats/Provenance/interface/EventSelectionID.h"
+#include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
@@ -25,8 +27,7 @@
 #include <cstdlib>
 #include <list>
 
-namespace edm
-{
+namespace edm {
 
   StreamSerializer::Arr::Arr(int sz):ptr_((char*)malloc(sz)) { }
   StreamSerializer::Arr::~Arr() { free(ptr_); }
@@ -36,16 +37,15 @@ namespace edm
    */
   StreamSerializer::StreamSerializer(Selections const* selections):
     selections_(selections),
-    tc_(getTClass(typeid(SendEvent)))
-  { }
+    tc_(getTClass(typeid(SendEvent))) {
+  }
 
   /**
    * Serializes the product registry (that was specified to the constructor)
    * into the specified InitMessage.
    */
 
-  int StreamSerializer::serializeRegistry(SerializeDataBuffer &data_buffer)
-  {
+  int StreamSerializer::serializeRegistry(SerializeDataBuffer &data_buffer) {
     FDEBUG(6) << "StreamSerializer::serializeRegistry" << std::endl;
     SendJobHeader sd;
 
@@ -59,7 +59,7 @@ namespace edm
         FDEBUG(9) << "StreamOutput got product = " << (*i)->className()
                   << std::endl;
     }
-    edm::Service<edm::ConstProductRegistry> reg;
+    Service<ConstProductRegistry> reg;
     sd.setBranchIDLists(BranchIDListRegistry::instance()->data());
     SendJobHeader::ParameterSetMap psetMap;
 
@@ -82,8 +82,7 @@ namespace edm
     TClass* tc = getTClass(typeid(SendJobHeader));
     int bres = data_buffer.rootbuf_.WriteObjectAny((char*)&sd, tc);
 
-    switch(bres)
-    {
+    switch(bres) {
       case 0: // failure
       {
           throw cms::Exception("StreamTranslation","Registry serialization failed")
@@ -125,7 +124,7 @@ namespace edm
    initialize it to 1M, let ROOT resize if it wants, then delete it in the
    dtor.
 
-   change the call to not take an eventMessage, add a member function to 
+   change the call to not take an eventMessage, add a member function to
    return the address of the place that ROOT wrote the serialized data.
 
    return the length of the serialized object and the actual length if
@@ -140,15 +139,12 @@ namespace edm
   int StreamSerializer::serializeEvent(EventPrincipal const& eventPrincipal,
                                        ParameterSetID const& selectorConfig,
                                        bool use_compression, int compression_level,
-                                       SerializeDataBuffer &data_buffer)
-
-  {
+                                       SerializeDataBuffer &data_buffer) {
     Parentage parentage;
-    
-	
-    History historyForOutput(eventPrincipal.history());
-    historyForOutput.addEventSelectionEntry(selectorConfig);
-    SendEvent se(eventPrincipal.aux(), eventPrincipal.processHistory(), historyForOutput);
+
+    EventSelectionIDVector selectionIDs = eventPrincipal.eventSelectionIDs();
+    selectionIDs.push_back(selectorConfig);
+    SendEvent se(eventPrincipal.aux(), eventPrincipal.processHistory(), selectionIDs, eventPrincipal.branchListIndexes());
 
     Selections::const_iterator i(selections_->begin()),ie(selections_->end());
     // Loop over EDProducts, fill the provenance, and write.
@@ -159,16 +155,16 @@ namespace edm
 
       OutputHandle const oh = eventPrincipal.getForOutput(id, true);
       if (!oh.productProvenance()) {
-	// No product with this ID was put in the event.
-	// Create and write the provenance.
+        // No product with this ID was put in the event.
+        // Create and write the provenance.
         se.products().push_back(StreamedProduct(desc));
       } else {
         bool found = ParentageRegistry::instance()->getMapped(oh.productProvenanceSharedPtr()->parentageID(), parentage);
-	assert (found);
+        assert (found);
         se.products().push_back(StreamedProduct(oh.wrapper(),
-					       desc,
-					       oh.productProvenanceSharedPtr()->productStatus(),
-					       &parentage.parents()));
+                                                desc,
+                                                oh.productProvenanceSharedPtr()->productStatus(),
+                                                &parentage.parents()));
       }
     }
 
@@ -177,8 +173,7 @@ namespace edm
 
     //TClass* tc = getTClass(typeid(SendEvent));
     int bres = data_buffer.rootbuf_.WriteObjectAny(&se,tc_);
-    switch(bres)
-      {
+    switch(bres) {
       case 0: // failure
         {
           throw cms::Exception("StreamTranslation","Event serialization failed")
@@ -205,31 +200,28 @@ namespace edm
           break;
         }
       }
-   
+
    data_buffer.curr_event_size_ = data_buffer.rootbuf_.Length();
    data_buffer.curr_space_used_ = data_buffer.curr_event_size_;
    data_buffer.ptr_ = (unsigned char*)data_buffer.rootbuf_.Buffer();
 #if 0
-   if(data_buffer.ptr_ != data_.ptr_)
-	{
-	std::cerr << "ROOT reset the buffer!!!!\n";
-	data_.ptr_ = data_buffer.ptr_; // ROOT may have reset our data pointer!!!!
-	}
+   if(data_buffer.ptr_ != data_.ptr_) {
+        std::cerr << "ROOT reset the buffer!!!!\n";
+        data_.ptr_ = data_buffer.ptr_; // ROOT may have reset our data pointer!!!!
+        }
 #endif
    // std::copy(rootbuf_.Buffer(),rootbuf_.Buffer()+rootbuf_.Length(),
-   //	eventMessage.eventAddr());
-   // eventMessage.setEventLength(rootbuf.Length()); 
+   // eventMessage.eventAddr());
+   // eventMessage.setEventLength(rootbuf.Length());
 
     // compress before return if we need to
     // should test if compressed already - should never be?
     //   as double compression can have problems
-    if(use_compression)
-    {
+    if(use_compression) {
       unsigned int dest_size =
         compressBuffer(data_buffer.ptr_, data_buffer.curr_event_size_, data_buffer.comp_buf_, compression_level);
-      if(dest_size != 0)
-      {
-	data_buffer.ptr_ = &data_buffer.comp_buf_[0]; // reset to point at compressed area
+      if(dest_size != 0) {
+        data_buffer.ptr_ = &data_buffer.comp_buf_[0]; // reset to point at compressed area
         data_buffer.curr_space_used_ = dest_size;
       }
     }
@@ -247,40 +239,37 @@ namespace edm
    */
   unsigned int
   StreamSerializer::compressBuffer(unsigned char *inputBuffer,
-				   unsigned int inputSize,
-				   std::vector<unsigned char> &outputBuffer,
-				   int compressionLevel)
-  {
+                                   unsigned int inputSize,
+                                   std::vector<unsigned char> &outputBuffer,
+                                   int compressionLevel) {
     unsigned int resultSize = 0;
 
     // what are these magic numbers? (jbk)
     unsigned long dest_size = (unsigned long)(double(inputSize)*
-					      1.002 + 1.0) + 12;
+                                              1.002 + 1.0) + 12;
     if(outputBuffer.size() < dest_size) outputBuffer.resize(dest_size);
 
     // compression 1-9, 6 is zlib default, 0 none
     int ret = compress2(&outputBuffer[0], &dest_size, inputBuffer,
-			inputSize, compressionLevel);
+                        inputSize, compressionLevel);
 
     // check status
-    if(ret == Z_OK)
-      {
-	// return the correct length
-	resultSize = dest_size;
+    if(ret == Z_OK) {
+        // return the correct length
+        resultSize = dest_size;
 
-	FDEBUG(1) << " original size = " << inputSize
-		  << " final size = " << dest_size
-		  << " ratio = " << double(dest_size)/double(inputSize)
-		  << std::endl;
-      }
-    else
-      {
+        FDEBUG(1) << " original size = " << inputSize
+                  << " final size = " << dest_size
+                  << " ratio = " << double(dest_size)/double(inputSize)
+                  << std::endl;
+    } else {
         // compression failed, return a size of zero
-        FDEBUG(9) <<"Compression Return value: "<<ret
-		  << " Okay = " << Z_OK << std::endl;
+        FDEBUG(9) << "Compression Return value: " << ret
+                  << " Okay = " << Z_OK << std::endl;
         // do we throw an exception here?
-        std::cerr <<"Compression Return value: "<<ret<< " Okay = " << Z_OK << std::endl;
-      }
+        std::cerr << "Compression Return value: " << ret << " Okay = " << Z_OK << std::endl;
+
+    }
 
     return resultSize;
   }

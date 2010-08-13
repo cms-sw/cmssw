@@ -11,6 +11,7 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/EventEntryInfo.h"
+#include "DataFormats/Provenance/interface/History.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/GroupSelector.h"
@@ -30,6 +31,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/Utilities/interface/do_nothing_deleter.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 //used for friendlyName translation
 #include "FWCore/Utilities/interface/FriendlyName.h"
@@ -93,19 +95,19 @@ namespace edm {
 
 //---------------------------------------------------------------------
   RootFile::RootFile(std::string const& fileName,
-		     ProcessConfiguration const& processConfiguration,
-		     std::string const& logicalFileName,
-		     boost::shared_ptr<TFile> filePtr,
-		     boost::shared_ptr<EventSkipperByID> eventSkipperByID,
-		     bool skipAnyEvents,
-		     int remainingEvents,
-		     int remainingLumis,
-		     unsigned int treeCacheSize,
+                     ProcessConfiguration const& processConfiguration,
+                     std::string const& logicalFileName,
+                     boost::shared_ptr<TFile> filePtr,
+                     boost::shared_ptr<EventSkipperByID> eventSkipperByID,
+                     bool skipAnyEvents,
+                     int remainingEvents,
+                     int remainingLumis,
+                     unsigned int treeCacheSize,
                      int treeMaxVirtualSize,
-		     InputSource::ProcessingMode processingMode,
-		     RunNumber_t const& forcedRunNumber,
+                     InputSource::ProcessingMode processingMode,
+                     RunNumber_t const& forcedRunNumber,
                      bool noEventSort,
-		     GroupSelectorRules const& groupSelectorRules,
+                     GroupSelectorRules const& groupSelectorRules,
                      bool secondaryFile,
                      boost::shared_ptr<DuplicateChecker> duplicateChecker,
                      bool dropDescendants,
@@ -143,7 +145,9 @@ namespace edm {
       forcedRunOffset_(0),
       newBranchToOldBranch_(),
       eventHistoryTree_(0),
-      history_(new History),
+      eventSelectionIDs_(new EventSelectionIDVector),
+      branchListIndexes_(new BranchListIndexes),
+      history_(),
       branchChildren_(new BranchChildren),
       duplicateChecker_(duplicateChecker),
       provenanceAdaptor_() {
@@ -162,7 +166,7 @@ namespace edm {
     TTree *metaDataTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::metaDataTreeName().c_str()));
     if(!metaDataTree)
       throw edm::Exception(errors::FileReadError) << "Could not find tree " << poolNames::metaDataTreeName()
-							 << " in the input file.\n";
+                                                         << " in the input file.\n";
 
     // To keep things simple, we just read in every possible branch that exists.
     // We don't pay attention to which branches exist in which file format versions
@@ -266,7 +270,7 @@ namespace edm {
 
     eventProcessHistoryIter_ = eventProcessHistoryIDs_.begin();
 
-    // Here we read the event history tree
+    // Here we read the event history tree, if we have one.
     readEventHistoryTree();
 
     ParameterSetConverter::ParameterSetIdConverter psetIdConverter;
@@ -284,19 +288,19 @@ namespace edm {
     if(!fileFormatVersion().splitProductIDs()) {
       // Old provenance format input file.  Create a provenance adaptor.
       provenanceAdaptor_.reset(new ProvenanceAdaptor(
-	    inputProdDescReg, pHistMap, pHistVector, procConfigVector, psetIdConverter, true));
+            inputProdDescReg, pHistMap, pHistVector, procConfigVector, psetIdConverter, true));
       // Fill in the branchIDLists branch from the provenance adaptor
       branchIDLists_ = provenanceAdaptor_->branchIDLists();
     } else {
       if(!fileFormatVersion().triggerPathsTracked()) {
         // New provenance format, but change in ParameterSet Format. Create a provenance adaptor.
         provenanceAdaptor_.reset(new ProvenanceAdaptor(
-	    inputProdDescReg, pHistMap, pHistVector, procConfigVector, psetIdConverter, false));
+            inputProdDescReg, pHistMap, pHistVector, procConfigVector, psetIdConverter, false));
       }
       // New provenance format input file. The branchIDLists branch was read directly from the input file.
       if(metaDataTree->FindBranch(poolNames::branchIDListBranchName().c_str()) == 0) {
-	throw edm::Exception(errors::EventCorruption)
-	  << "Failed to find branchIDLists branch in metaData tree.\n";
+        throw edm::Exception(errors::EventCorruption)
+          << "Failed to find branchIDLists branch in metaData tree.\n";
       }
       branchIDLists_.reset(branchIDListsAPtr.release());
     }
@@ -339,21 +343,21 @@ namespace edm {
            it != itEnd; ++it) {
         BranchDescription const& prod = it->second;
         std::string newFriendlyName = friendlyname::friendlyName(prod.className());
-	if(newFriendlyName == prod.friendlyClassName()) {
+        if(newFriendlyName == prod.friendlyClassName()) {
           newReg->copyProduct(prod);
-	} else {
+        } else {
           if(fileFormatVersion().splitProductIDs()) {
-	    throw edm::Exception(errors::UnimplementedFeature)
-	      << "Cannot change friendly class name algorithm without more development work\n"
-	      << "to update BranchIDLists.  Contact the framework group.\n";
-	  }
+            throw edm::Exception(errors::UnimplementedFeature)
+              << "Cannot change friendly class name algorithm without more development work\n"
+              << "to update BranchIDLists.  Contact the framework group.\n";
+          }
           BranchDescription newBD(prod);
           newBD.updateFriendlyClassName();
           newReg->copyProduct(newBD);
-	  // Need to call init to get old branch name.
-	  prod.init();
-	  newBranchToOldBranch_.insert(std::make_pair(newBD.branchName(), prod.branchName()));
-	}
+          // Need to call init to get old branch name.
+          prod.init();
+          newBranchToOldBranch_.insert(std::make_pair(newBD.branchName(), prod.branchName()));
+        }
       }
       dropOnInput(*newReg, groupSelectorRules, dropDescendants, secondaryFile);
       // freeze the product registry
@@ -368,7 +372,7 @@ namespace edm {
         it != itEnd; ++it) {
       BranchDescription const& prod = it->second;
       treePointers_[prod.branchType()]->addBranch(it->first, prod,
-						  newBranchToOldBranch(prod.branchName()));
+                                                  newBranchToOldBranch(prod.branchName()));
     }
 
     // Determine if this file is fast clonable.
@@ -390,7 +394,7 @@ namespace edm {
     TTree* entryDescriptionTree = dynamic_cast<TTree*>(filePtr_->Get(poolNames::entryDescriptionTreeName().c_str()));
     if(!entryDescriptionTree)
       throw edm::Exception(errors::FileReadError) << "Could not find tree " << poolNames::entryDescriptionTreeName()
-							 << " in the input file.\n";
+                                                         << " in the input file.\n";
 
 
     EntryDescriptionID idBuffer;
@@ -409,7 +413,7 @@ namespace edm {
     for(Long64_t i = 0, numEntries = entryDescriptionTree->GetEntries(); i < numEntries; ++i) {
       input::getEntry(entryDescriptionTree, i);
       if(idBuffer != entryDescriptionBuffer.id())
-	throw edm::Exception(errors::EventCorruption) << "Corruption of EntryDescription tree detected.\n";
+        throw edm::Exception(errors::EventCorruption) << "Corruption of EntryDescription tree detected.\n";
       oldregistry.insertMapped(entryDescriptionBuffer);
       Parentage parents;
       parents.parents() = entryDescriptionBuffer.parents();
@@ -430,7 +434,7 @@ namespace edm {
     TTree* parentageTree = dynamic_cast<TTree*>(filePtr_->Get(poolNames::parentageTreeName().c_str()));
     if(!parentageTree)
       throw edm::Exception(errors::FileReadError) << "Could not find tree " << poolNames::parentageTreeName()
-							 << " in the input file.\n";
+                                                         << " in the input file.\n";
 
     Parentage parentageBuffer;
     Parentage *pParentageBuffer = &parentageBuffer;
@@ -498,15 +502,15 @@ namespace edm {
   boost::shared_ptr<FileBlock>
   RootFile::createFileBlock() const {
     return boost::shared_ptr<FileBlock>(new FileBlock(fileFormatVersion(),
-						     eventTree_.tree(),
-						     eventTree_.metaTree(),
-						     lumiTree_.tree(),
-						     lumiTree_.metaTree(),
-						     runTree_.tree(),
-						     runTree_.metaTree(),
-						     whyNotFastClonable(),
-						     file_,
-						     branchChildren_));
+                                                     eventTree_.tree(),
+                                                     eventTree_.metaTree(),
+                                                     lumiTree_.tree(),
+                                                     lumiTree_.metaTree(),
+                                                     runTree_.tree(),
+                                                     runTree_.metaTree(),
+                                                     whyNotFastClonable(),
+                                                     file_,
+                                                     branchChildren_));
   }
 
   std::string const&
@@ -530,7 +534,7 @@ namespace edm {
         return false;
     }
     if (eventSkipperByID_ && eventSkipperByID_->somethingToSkip()) {
- 
+
       // See first if the entire lumi or run is skipped, so we won't have to read the event Auxiliary in that case.
       if (eventSkipperByID_->skipIt(indexIntoFileIter_.run(), indexIntoFileIter_.lumi(), 0U)) {
         return true;
@@ -540,13 +544,13 @@ namespace edm {
       if (indexIntoFileIter_.getEntryType() == IndexIntoFile::kEvent) {
         fillEventAuxiliary();
         if (eventSkipperByID_->skipIt(indexIntoFileIter_.run(),
-				      indexIntoFileIter_.lumi(),
-				      eventAux_.id().event())) {
+                                      indexIntoFileIter_.lumi(),
+                                      eventAux_.id().event())) {
           return true;
         }
       }
 
-      // Skip runs with no lumis if either lumisToSkip or lumisToProcess have been set to select lumis 
+      // Skip runs with no lumis if either lumisToSkip or lumisToProcess have been set to select lumis
       if (indexIntoFileIter_.getEntryType() == IndexIntoFile::kRun &&
           eventSkipperByID_->skippingLumis()) {
         IndexIntoFile::IndexIntoFileItr iterLumi = indexIntoFileIter_;
@@ -592,7 +596,7 @@ namespace edm {
     }
     fillEventAuxiliary();
     return duplicateChecker_->isDuplicateAndCheckActive(indexIntoFileIter_.processHistoryIDIndex(),
-	indexIntoFileIter_.run(), indexIntoFileIter_.lumi(), eventAux_.id().event(), file_);
+        indexIntoFileIter_.run(), indexIntoFileIter_.lumi(), eventAux_.id().event(), file_);
   }
 
   IndexIntoFile::EntryType
@@ -624,25 +628,25 @@ namespace edm {
     typedef IndexIntoFile::EntryNumber_t  EntryNumber_t;
     struct RunItem {
       RunItem(ProcessHistoryID const& phid, RunNumber_t const& run) :
-	phid_(phid), run_(run) {}
+        phid_(phid), run_(run) {}
       ProcessHistoryID phid_;
       RunNumber_t run_;
     };
     struct RunItemSortByRun {
       bool operator()(RunItem const& a, RunItem const& b) const {
-	return a.run_ < b.run_;
+        return a.run_ < b.run_;
       }
     };
     struct RunItemSortByRunPhid {
       bool operator()(RunItem const& a, RunItem const& b) const {
-	return a.run_ < b.run_ || (!(b.run_ < a.run_) && a.phid_ < b.phid_);
+        return a.run_ < b.run_ || (!(b.run_ < a.run_) && a.phid_ < b.phid_);
       }
     };
     struct LumiItem {
       LumiItem(ProcessHistoryID const& phid, RunNumber_t const& run,
-		 LuminosityBlockNumber_t const& lumi, EntryNumber_t const& entry) :
-	phid_(phid), run_(run), lumi_(lumi), firstEventEntry_(entry),
-	lastEventEntry_(entry == -1LL ? -1LL : entry + 1) {}
+                 LuminosityBlockNumber_t const& lumi, EntryNumber_t const& entry) :
+        phid_(phid), run_(run), lumi_(lumi), firstEventEntry_(entry),
+        lastEventEntry_(entry == -1LL ? -1LL : entry + 1) {}
       ProcessHistoryID phid_;
       RunNumber_t run_;
       LuminosityBlockNumber_t lumi_;
@@ -651,16 +655,16 @@ namespace edm {
     };
     struct LumiItemSortByRunLumi {
       bool operator()(LumiItem const& a, LumiItem const& b) const {
-	return a.run_ < b.run_ || (!(b.run_ < a.run_) && a.lumi_ < b.lumi_);
+        return a.run_ < b.run_ || (!(b.run_ < a.run_) && a.lumi_ < b.lumi_);
       }
     };
     struct LumiItemSortByRunLumiPhid {
       bool operator()(LumiItem const& a, LumiItem const& b) const {
-	if (a.run_ < b.run_) return true;
-	if (b.run_ < a.run_) return false;
-	if (a.lumi_ < b.lumi_) return true;
-	if (b.lumi_ < a.lumi_) return false;
-	return a.phid_ < b.phid_;
+        if (a.run_ < b.run_) return true;
+        if (b.run_ < a.run_) return false;
+        if (a.lumi_ < b.lumi_) return true;
+        if (b.lumi_ < a.lumi_) return false;
+        return a.phid_ < b.phid_;
       }
     };
   }
@@ -704,31 +708,31 @@ namespace edm {
       bool newLumi = false;
       fillThisEventAuxiliary();
       fillHistory();
-      if (prevPhid != history_->processHistoryID() || prevRun != eventAux().run()) {
-	newRun = newLumi = true;
+      if (prevPhid != eventAux().processHistoryID() || prevRun != eventAux().run()) {
+        newRun = newLumi = true;
       } else if(prevLumi != eventAux().luminosityBlock()) {
-	newLumi = true;
+        newLumi = true;
       }
-      prevPhid = history_->processHistoryID();
+      prevPhid = eventAux().processHistoryID();
       prevRun = eventAux().run();
       prevLumi = eventAux().luminosityBlock();
       if (newLumi) {
-	lumis.push_back(LumiItem(history_->processHistoryID(),
+        lumis.push_back(LumiItem(eventAux().processHistoryID(),
           eventAux().run(), eventAux().luminosityBlock(), eventTree_.entryNumber())); // (insert 1)
-	runLumiSet.insert(LuminosityBlockID(eventAux().run(), eventAux().luminosityBlock())); // (insert 2)
+        runLumiSet.insert(LuminosityBlockID(eventAux().run(), eventAux().luminosityBlock())); // (insert 2)
       } else {
-	LumiItem& currentLumi = lumis.back();
-	assert(currentLumi.lastEventEntry_ == eventTree_.entryNumber());
-	++currentLumi.lastEventEntry_;
+        LumiItem& currentLumi = lumis.back();
+        assert(currentLumi.lastEventEntry_ == eventTree_.entryNumber());
+        ++currentLumi.lastEventEntry_;
       }
       if (newRun) {
-	// Insert run in list if it is not already there.
-	RunItem item(history_->processHistoryID(), eventAux().run());
-	if (runItemSet.insert(item).second) { // (check 3, insert 3)
-	  runs.push_back(item); // (insert 5)
-	  runSet.insert(eventAux().run()); // (insert 4)
-          phidMap.insert(std::make_pair(eventAux().run(), history_->processHistoryID()));
-	}
+        // Insert run in list if it is not already there.
+        RunItem item(eventAux().processHistoryID(), eventAux().run());
+        if (runItemSet.insert(item).second) { // (check 3, insert 3)
+          runs.push_back(item); // (insert 5)
+          runSet.insert(eventAux().run()); // (insert 4)
+          phidMap.insert(std::make_pair(eventAux().run(), eventAux().processHistoryID()));
+        }
       }
     }
     // now clean up.
@@ -746,14 +750,14 @@ namespace edm {
 
     if(runTree_.isValid()) {
       while(runTree_.next()) {
-	// Note: adjacent duplicates will be skipped without an explicit check.
+        // Note: adjacent duplicates will be skipped without an explicit check.
         boost::shared_ptr<RunAuxiliary> runAux = fillRunAuxiliary();
-	if (runSet.insert(runAux->run()).second) { // (check 4, insert 4)
-	  // This run was not assciated with any events or lumis.
-	  emptyRuns.push_back(RunItem(runAux->processHistoryID(), runAux->run())); // (insert 12)
-	}
-	runMap.insert(std::make_pair(runAux->run(), runTree_.entryNumber())); // (insert 11)
-	phidMap.insert(std::make_pair(runAux->run(), runAux->processHistoryID()));
+        if (runSet.insert(runAux->run()).second) { // (check 4, insert 4)
+          // This run was not assciated with any events or lumis.
+          emptyRuns.push_back(RunItem(runAux->processHistoryID(), runAux->run())); // (insert 12)
+        }
+        runMap.insert(std::make_pair(runAux->run(), runTree_.entryNumber())); // (insert 11)
+        phidMap.insert(std::make_pair(runAux->run(), runAux->processHistoryID()));
       }
       // now clean up.
       runTree_.setEntryNumber(-1);
@@ -766,9 +770,9 @@ namespace edm {
     RunList::iterator itRuns = runs.begin(), endRuns = runs.end();
     for (RunVector::const_iterator i = emptyRuns.begin(), iEnd = emptyRuns.end(); i != iEnd; ++i) {
       for (; itRuns != endRuns; ++itRuns) {
-	if (runItemSortByRun(*i, *itRuns)) {
-	  break;
-	}
+        if (runItemSortByRun(*i, *itRuns)) {
+          break;
+        }
       }
       runs.insert(itRuns, *i);
     }
@@ -783,10 +787,10 @@ namespace edm {
 
     if(lumiTree_.isValid()) {
       while(lumiTree_.next()) {
-	// Note: adjacent duplicates will be skipped without an explicit check.
+        // Note: adjacent duplicates will be skipped without an explicit check.
         boost::shared_ptr<LuminosityBlockAuxiliary> lumiAux = fillLumiAuxiliary();
-	LuminosityBlockID lumiID = LuminosityBlockID(lumiAux->run(), lumiAux->luminosityBlock());
-	if (runLumiSet.insert(lumiID).second) { // (check 2, insert 2)
+        LuminosityBlockID lumiID = LuminosityBlockID(lumiAux->run(), lumiAux->luminosityBlock());
+        if (runLumiSet.insert(lumiID).second) { // (check 2, insert 2)
           // This lumi was not associated with any events.
           // Use the process history ID from the corresponding run.  In cases of practical
           // importance, this should be the correct process history ID,  but it is possible
@@ -794,8 +798,8 @@ namespace edm {
           PHIDMap::const_iterator iPhidMap = phidMap.find(lumiAux->run());
           assert(iPhidMap != phidMap.end());
           emptyLumis.push_back(LumiItem(iPhidMap->second, lumiAux->run(), lumiAux->luminosityBlock(), -1LL)); // (insert 7)
-	}
-	runLumiMap.insert(std::make_pair(lumiID, lumiTree_.entryNumber()));
+        }
+        runLumiMap.insert(std::make_pair(lumiID, lumiTree_.entryNumber()));
       }
       // now clean up.
       lumiTree_.setEntryNumber(-1);
@@ -808,9 +812,9 @@ namespace edm {
     LumiList::iterator itLumis = lumis.begin(), endLumis = lumis.end();
     for (LumiVector::const_iterator i = emptyLumis.begin(), iEnd = emptyLumis.end(); i != iEnd; ++i) {
       for (; itLumis != endLumis; ++itLumis) {
-	if (lumiItemSortByRunLumi(*i, *itLumis)) {
-	  break;
-	}
+        if (lumiItemSortByRunLumi(*i, *itLumis)) {
+          break;
+        }
       }
       lumis.insert(itLumis, *i);
     }
@@ -827,24 +831,24 @@ namespace edm {
     for (RunList::iterator it = runs.begin(), itEnd = runs.end(); it != itEnd; ++it) {
       RunCountMap::const_iterator countMapItem = runCountMap.find(*it);
       if (countMapItem == runCountMap.end()) {
-	countMapItem = runCountMap.insert(std::make_pair(*it, rcount)).first; // Insert (17)
+        countMapItem = runCountMap.insert(std::make_pair(*it, rcount)).first; // Insert (17)
         assert(countMapItem != runCountMap.end());
-	++rcount;
+        ++rcount;
       }
       std::vector<ProcessHistoryID>::const_iterator phidItem = find_in_all(phids, it->phid_);
       if (phidItem == phids.end()) {
-	phids.push_back(it->phid_);
+        phids.push_back(it->phid_);
         phidItem = phids.end() - 1;
       }
       entries.push_back(IndexIntoFile::RunOrLumiEntry(
-	countMapItem->second, // use (17)
-	-1LL,
-	runMap[it->run_], // use (11)
-	phidItem - phids.begin(),
-	it->run_,
-	0U,
-	-1LL,
-	-1LL));
+        countMapItem->second, // use (17)
+        -1LL,
+        runMap[it->run_], // use (11)
+        phidItem - phids.begin(),
+        it->run_,
+        0U,
+        -1LL,
+        -1LL));
     }
 
     // Create a map of LumiItems that gives the order of first appearance in the list.
@@ -856,21 +860,21 @@ namespace edm {
       assert(runCountMapItem != runCountMap.end());
       LumiCountMap::const_iterator countMapItem = lumiCountMap.find(*it);
       if (countMapItem == lumiCountMap.end()) {
-	countMapItem = lumiCountMap.insert(std::make_pair(*it, lcount)).first; // Insert (17)
+        countMapItem = lumiCountMap.insert(std::make_pair(*it, lcount)).first; // Insert (17)
         assert(countMapItem != lumiCountMap.end());
-	++lcount;
+        ++lcount;
       }
       std::vector<ProcessHistoryID>::const_iterator phidItem = find_in_all(phids, it->phid_);
       assert(phidItem != phids.end());
       entries.push_back(IndexIntoFile::RunOrLumiEntry(
-	runCountMapItem->second,
-	countMapItem->second,
-	runLumiMap[LuminosityBlockID(it->run_, it->lumi_)],
-	phidItem - phids.begin(),
-	it->run_,
-	it->lumi_,
-	it->firstEventEntry_,
-	it->lastEventEntry_));
+        runCountMapItem->second,
+        countMapItem->second,
+        runLumiMap[LuminosityBlockID(it->run_, it->lumi_)],
+        phidItem - phids.begin(),
+        it->run_,
+        it->lumi_,
+        it->firstEventEntry_,
+        it->lastEventEntry_));
     }
     stable_sort_all(entries);
   }
@@ -882,7 +886,7 @@ namespace edm {
     }
     if(!eventTree_.isValid()) {
       throw edm::Exception(errors::EventCorruption) <<
-	 "'Events' tree is corrupted or not present\n" << "in the input file.\n";
+         "'Events' tree is corrupted or not present\n" << "in the input file.\n";
     }
 
     if (fileFormatVersion().hasIndexIntoFile()) {
@@ -922,7 +926,7 @@ namespace edm {
                inputType,
                moduleName,
                label,
-	       fid_.fid(),
+               fid_.fid(),
                eventTree_.branchNames());
   }
 
@@ -971,43 +975,52 @@ namespace edm {
     // store this History object in a different tree than the event
     // data tree, this is too hard to do in this first version.
 
-    if(fileFormatVersion().eventHistoryTree()) {
+    if(fileFormatVersion().eventHistoryBranch()) {
+      // Lumi block number was not in EventID for the relevant releases.
+      EventID id(eventAux().id().run(), 0, eventAux().id().event());
+      if(eventProcessHistoryIter_->eventID() != id) {
+        EventProcessHistoryID target(id, ProcessHistoryID());
+        eventProcessHistoryIter_ = lower_bound_all(eventProcessHistoryIDs_, target);
+        assert(eventProcessHistoryIter_->eventID() == id);
+      }
+      eventAux().processHistoryID() = eventProcessHistoryIter_->processHistoryID();
+      ++eventProcessHistoryIter_;
+    } else if(fileFormatVersion().eventHistoryTree()) {
+      // for backward compatibility.
       History* pHistory = history_.get();
       TBranch* eventHistoryBranch = eventHistoryTree_->GetBranch(poolNames::eventHistoryBranchName().c_str());
-      if(!eventHistoryBranch)
-	throw edm::Exception(errors::EventCorruption)
-	  << "Failed to find history branch in event history tree.\n";
+      if(!eventHistoryBranch) {
+        throw edm::Exception(errors::EventCorruption)
+          << "Failed to find history branch in event history tree.\n";
+      }
       eventHistoryBranch->SetAddress(&pHistory);
       input::getEntry(eventHistoryTree_, eventTree_.entryNumber());
-    } else {
-      // for backward compatibility.
-      if(eventProcessHistoryIDs_.empty()) {
-	history_->setProcessHistoryID(eventAux().processHistoryID());
-      } else {
-	// Lumi block number was not in EventID for the relevant releases.
-        EventID id(eventAux().id().run(), 0, eventAux().id().event());
-        if(eventProcessHistoryIter_->eventID() != id) {
-          EventProcessHistoryID target(id, ProcessHistoryID());
-          eventProcessHistoryIter_ = lower_bound_all(eventProcessHistoryIDs_, target);
-          assert(eventProcessHistoryIter_->eventID() == id);
-        }
-	history_->setProcessHistoryID(eventProcessHistoryIter_->processHistoryID());
-        ++eventProcessHistoryIter_;
-      }
+      eventAux().processHistoryID() = history_->processHistoryID();
+      eventSelectionIDs_.reset(&history_->eventSelectionIDs(), do_nothing_deleter());
+      branchListIndexes_.reset(&history_->branchListIndexes(), do_nothing_deleter());
+    } else if (fileFormatVersion().noMetaDataTrees()) {
+      // Current format
+      EventSelectionIDVector* pESV = eventSelectionIDs_.get();
+      TBranch* eventSelectionIDBranch = eventTree_.tree()->GetBranch(poolNames::eventSelectionsBranchName().c_str());
+      assert(eventSelectionIDBranch != 0);
+      eventTree_.fillBranchEntry(eventSelectionIDBranch, pESV);
+      BranchListIndexes* pBLI = branchListIndexes_.get();
+      TBranch* branchListIndexesBranch = eventTree_.tree()->GetBranch(poolNames::branchListIndexesBranchName().c_str());
+      assert(branchListIndexesBranch != 0);
+      eventTree_.fillBranchEntry(branchListIndexesBranch, pBLI);
     }
     if(provenanceAdaptor_) {
-      history_->setProcessHistoryID(provenanceAdaptor_->convertID(history_->processHistoryID()));
-      EventSelectionIDVector& esids = history_->eventSelectionIDs();
-      for(EventSelectionIDVector::iterator i = esids.begin(), e = esids.end(); i != e; ++i) {
-	(*i) = provenanceAdaptor_->convertID(*i);
+      eventAux().processHistoryID() = (provenanceAdaptor_->convertID(eventAux().processHistoryID()));
+      for(EventSelectionIDVector::iterator i = eventSelectionIDs_->begin(), e = eventSelectionIDs_->end(); i != e; ++i) {
+        (*i) = provenanceAdaptor_->convertID(*i);
       }
     }
     if(!fileFormatVersion().splitProductIDs()) {
       // old format.  branchListIndexes_ must be filled in from the ProvenanceAdaptor.
-      provenanceAdaptor_->branchListIndexes(history_->branchListIndexes());
+      provenanceAdaptor_->branchListIndexes(*branchListIndexes_);
     }
   }
-
+  
   boost::shared_ptr<LuminosityBlockAuxiliary>
   RootFile::fillLumiAuxiliary() {
     boost::shared_ptr<LuminosityBlockAuxiliary> lumiAuxiliary(new LuminosityBlockAuxiliary);
@@ -1067,8 +1080,8 @@ namespace edm {
       if (eventSkipperByID_ && eventSkipperByID_->somethingToSkip()) {
         eventTree_.setEntryNumber(skippedEventEntry);
         fillThisEventAuxiliary();
-	if (eventSkipperByID_->skipIt(runOfSkippedEvent, lumiOfSkippedEvent, eventAux_.id().event())) {
-	    continue;
+        if (eventSkipperByID_->skipIt(runOfSkippedEvent, lumiOfSkippedEvent, eventAux_.id().event())) {
+            continue;
         }
       }
       if(duplicateChecker_ &&
@@ -1112,9 +1125,9 @@ namespace edm {
 
       if (eventSkipperByID_ && eventSkipperByID_->somethingToSkip()) {
         eventTree_.setEntryNumber(eventEntry);
-	fillEventAuxiliary();
-	if (eventSkipperByID_->skipIt(runOfEvent, lumiOfEvent, eventAux_.id().event())) {
-	  continue;
+        fillEventAuxiliary();
+        if (eventSkipperByID_->skipIt(runOfEvent, lumiOfEvent, eventAux_.id().event())) {
+          continue;
         }
       }
       ++offset;
@@ -1162,9 +1175,9 @@ namespace edm {
     }
     fillThisEventAuxiliary();
     if(!fileFormatVersion().lumiInEventID()) {
-	//ugly, but will disappear when the backward compatibility is done with schema evolution.
-	const_cast<EventID&>(eventAux_.id()).setLuminosityBlockNumber(eventAux_.oldLuminosityBlock());
-	eventAux_.resetObsoleteInfo();
+        //ugly, but will disappear when the backward compatibility is done with schema evolution.
+        const_cast<EventID&>(eventAux_.id()).setLuminosityBlockNumber(eventAux_.oldLuminosityBlock());
+        eventAux_.resetObsoleteInfo();
     }
     fillHistory();
     overrideRunNumber(eventAux_.id(), eventAux().isRealData());
@@ -1172,10 +1185,11 @@ namespace edm {
     std::auto_ptr<EventAuxiliary> aux(new EventAuxiliary(eventAux()));
     // We're not done ... so prepare the EventPrincipal
     cache.fillEventPrincipal(aux,
-			     lb,
-			     history_,
-			     makeBranchMapper(eventTree_, InEvent),
-			     eventTree_.makeDelayedReader(fileFormatVersion()));
+                             lb,
+                             eventSelectionIDs_,
+                             branchListIndexes_,
+                             makeBranchMapper(eventTree_, InEvent),
+                             eventTree_.makeDelayedReader(fileFormatVersion()));
 
     // report event read from file
     Service<JobReport> reportSvc;
@@ -1305,7 +1319,7 @@ namespace edm {
     // End code for backward compatibility before the existence of lumi trees.
     lumiTree_.setEntryNumber(indexIntoFileIter_.entry());
     lbCache->fillLuminosityBlockPrincipal(makeBranchMapper(lumiTree_, InLumi),
-					 lumiTree_.makeDelayedReader(fileFormatVersion()));
+                                         lumiTree_.makeDelayedReader(fileFormatVersion()));
     // Read in all the products now.
     lbCache->readImmediate();
     ++indexIntoFileIter_;
@@ -1371,10 +1385,11 @@ namespace edm {
   RootFile::readEventHistoryTree() {
     // Read in the event history tree, if we have one...
     if(fileFormatVersion().eventHistoryTree()) {
+      history_.reset(new History);
       eventHistoryTree_ = dynamic_cast<TTree*>(filePtr_->Get(poolNames::eventHistoryTreeName().c_str()));
       if(!eventHistoryTree_) {
         throw edm::Exception(errors::EventCorruption)
-	  << "Failed to find the event history tree.\n";
+          << "Failed to find the event history tree.\n";
       }
     }
   }
@@ -1422,12 +1437,12 @@ namespace edm {
       BranchDescription const& prod = it->second;
       bool drop = branchesToDrop.find(prod.branchID()) != branchesToDropEnd;
       if(drop) {
-	if(groupSelector.selected(prod)) {
+        if(groupSelector.selected(prod)) {
           LogWarning("RootFile")
             << "Branch '" << prod.branchName() << "' is being dropped from the input\n"
             << "of file '" << file_ << "' because it is dependent on a branch\n"
             << "that was explicitly dropped.\n";
-	}
+        }
         treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
         ProductRegistry::ProductList::iterator icopy = it;
         ++it;
@@ -1469,16 +1484,16 @@ namespace edm {
       for(ProductRegistry::ProductList::const_iterator it = preg.productList().begin(),
           itEnd = preg.productList().end(); it != itEnd; ++it) {
         if(type == it->second.branchType() && !it->second.transient()) {
-	  TBranch *br = rootTree.branches().find(it->first)->second.provenanceBranch_;
-	  std::auto_ptr<BranchEntryDescription> pb(new BranchEntryDescription);
-	  BranchEntryDescription* ppb = pb.get();
-	  br->SetAddress(&ppb);
-	  input::getEntry(br, rootTree.entryNumber());
-	  ProductStatus status = (ppb->creatorStatus() == BranchEntryDescription::Success ? productstatus::present() : productstatus::neverCreated());
-	  // Not providing parentage!!!
-	  ProductProvenance entry(it->second.branchID(), status, ParentageID());
-	  mapper->insert(entry);
-	  mapper->insertIntoMap(it->second.oldProductID(), it->second.branchID());
+          TBranch *br = rootTree.branches().find(it->first)->second.provenanceBranch_;
+          std::auto_ptr<BranchEntryDescription> pb(new BranchEntryDescription);
+          BranchEntryDescription* ppb = pb.get();
+          br->SetAddress(&ppb);
+          input::getEntry(br, rootTree.entryNumber());
+          ProductStatus status = (ppb->creatorStatus() == BranchEntryDescription::Success ? productstatus::present() : productstatus::neverCreated());
+          // Not providing parentage!!!
+          ProductProvenance entry(it->second.branchID(), status, ParentageID());
+          mapper->insert(entry);
+          mapper->insertIntoMap(it->second.oldProductID(), it->second.branchID());
         }
       }
       return mapper;
@@ -1492,11 +1507,11 @@ namespace edm {
       for(ProductRegistry::ProductList::const_iterator it = preg.productList().begin(),
           itEnd = preg.productList().end(); it != itEnd; ++it) {
         if(type == it->second.branchType() && !it->second.transient()) {
-	  std::vector<ProductStatus>::size_type index = it->second.oldProductID().oldID() - 1;
-	  // Not providing parentage!!!
-	  ProductProvenance entry(it->second.branchID(), rootTree.productStatuses()[index], ParentageID());
-	  mapper->insert(entry);
-	  mapper->insertIntoMap(it->second.oldProductID(), it->second.branchID());
+          std::vector<ProductStatus>::size_type index = it->second.oldProductID().oldID() - 1;
+          // Not providing parentage!!!
+          ProductProvenance entry(it->second.branchID(), rootTree.productStatuses()[index], ParentageID());
+          mapper->insert(entry);
+          mapper->insertIntoMap(it->second.oldProductID(), it->second.branchID());
         }
       }
       return mapper;
@@ -1507,31 +1522,31 @@ namespace edm {
       boost::shared_ptr<BranchMapperWithReader> mapper(new BranchMapperWithReader());
       mapper->setDelayedRead(false);
       if(type == InEvent) {
-	std::auto_ptr<std::vector<EventEntryInfo> > infoVector(new std::vector<EventEntryInfo>);
-	std::vector<EventEntryInfo> *pInfoVector = infoVector.get();
+        std::auto_ptr<std::vector<EventEntryInfo> > infoVector(new std::vector<EventEntryInfo>);
+        std::vector<EventEntryInfo> *pInfoVector = infoVector.get();
         rootTree.branchEntryInfoBranch()->SetAddress(&pInfoVector);
         setRefCoreStreamer(0, true, false);
         input::getEntry(rootTree.branchEntryInfoBranch(), rootTree.entryNumber());
         setRefCoreStreamer(true);
-	for(std::vector<EventEntryInfo>::const_iterator it = infoVector->begin(), itEnd = infoVector->end();
-	    it != itEnd; ++it) {
-	  EventEntryDescription eed;
-	  EntryDescriptionRegistry::instance()->getMapped(it->entryDescriptionID(), eed);
-	  Parentage parentage(eed.parents());
-	  ProductProvenance entry(it->branchID(), it->productStatus(), parentage.id());
-	  mapper->insert(entry);
-	  mapper->insertIntoMap(it->productID(), it->branchID());
-	}
+        for(std::vector<EventEntryInfo>::const_iterator it = infoVector->begin(), itEnd = infoVector->end();
+            it != itEnd; ++it) {
+          EventEntryDescription eed;
+          EntryDescriptionRegistry::instance()->getMapped(it->entryDescriptionID(), eed);
+          Parentage parentage(eed.parents());
+          ProductProvenance entry(it->branchID(), it->productStatus(), parentage.id());
+          mapper->insert(entry);
+          mapper->insertIntoMap(it->productID(), it->branchID());
+        }
       } else {
-	std::auto_ptr<std::vector<RunLumiEntryInfo> > infoVector(new std::vector<RunLumiEntryInfo>);
-	std::vector<RunLumiEntryInfo> *pInfoVector = infoVector.get();
+        std::auto_ptr<std::vector<RunLumiEntryInfo> > infoVector(new std::vector<RunLumiEntryInfo>);
+        std::vector<RunLumiEntryInfo> *pInfoVector = infoVector.get();
         rootTree.branchEntryInfoBranch()->SetAddress(&pInfoVector);
         setRefCoreStreamer(0, true, false);
         input::getEntry(rootTree.branchEntryInfoBranch(), rootTree.entryNumber());
         setRefCoreStreamer(true);
         for(std::vector<RunLumiEntryInfo>::const_iterator it = infoVector->begin(), itEnd = infoVector->end();
             it != itEnd; ++it) {
-	  ProductProvenance entry(it->branchID(), it->productStatus(), ParentageID());
+          ProductProvenance entry(it->branchID(), it->productStatus(), ParentageID());
           mapper->insert(entry);
         }
       }
@@ -1541,7 +1556,7 @@ namespace edm {
     boost::shared_ptr<BranchMapper>
     makeBranchMapperInRelease300(RootTree& rootTree) {
       boost::shared_ptr<BranchMapperWithReader> mapper(
-	new BranchMapperWithReader(rootTree.branchEntryInfoBranch(), rootTree.entryNumber()));
+        new BranchMapperWithReader(rootTree.branchEntryInfoBranch(), rootTree.entryNumber()));
       mapper->setDelayedRead(true);
       return mapper;
     }

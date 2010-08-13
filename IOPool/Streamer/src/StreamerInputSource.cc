@@ -13,6 +13,8 @@
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
+#include "DataFormats/Provenance/interface/EventSelectionID.h"
+#include "DataFormats/Provenance/interface/BranchListIndex.h"
 
 #include "zlib.h"
 
@@ -37,7 +39,7 @@
 
 namespace edm {
   namespace {
-    const int init_size = 1024*1024;
+    int const init_size = 1024*1024;
   }
 
   std::string StreamerInputSource::processName_;
@@ -59,8 +61,7 @@ namespace edm {
     dest_(init_size),
     xbuf_(TBuffer::kRead, init_size),
     runEndingFlag_(false),
-    productGetter_()
-  {
+    productGetter_() {
   }
 
   StreamerInputSource::~StreamerInputSource() {}
@@ -72,8 +73,7 @@ namespace edm {
   }
 
   void
-  StreamerInputSource::mergeIntoRegistry(SendJobHeader const& header,
-			 ProductRegistry& reg, bool subsequent) {
+  StreamerInputSource::mergeIntoRegistry(SendJobHeader const& header, ProductRegistry& reg, bool subsequent) {
 
     SendDescs const& descs = header.descs();
 
@@ -112,7 +112,7 @@ namespace edm {
 
 
   void
-  StreamerInputSource::buildClassCache(SendDescs const& descs) { 
+  StreamerInputSource::buildClassCache(SendDescs const& descs) {
     SendDescs::const_iterator i(descs.begin()), e(descs.end());
 
     for(; i != e; ++i) {
@@ -149,7 +149,7 @@ namespace edm {
     return eventPrincipalCache();
   }
 
-  InputSource::ItemType 
+  InputSource::ItemType
   StreamerInputSource::getNextItemType() {
     if (runEndingFlag_) {
       return IsStop;
@@ -189,8 +189,7 @@ namespace edm {
    * (which is related to the product registry).
    */
   std::auto_ptr<SendJobHeader>
-  StreamerInputSource::deserializeRegistry(InitMsgView const& initView)
-  {
+  StreamerInputSource::deserializeRegistry(InitMsgView const& initView) {
     if(initView.code() != Header::INIT)
       throw cms::Exception("StreamTranslation","Registry deserialization error")
         << "received wrong message type: expected INIT, got "
@@ -205,19 +204,19 @@ namespace edm {
          FDEBUG(10) << "StreamerInputSource::deserializeRegistry processName = "<< processName_<< std::endl;
          FDEBUG(10) << "StreamerInputSource::deserializeRegistry protocolVersion_= "<< protocolVersion_<< std::endl;
     }
-    
+
    // calculate the adler32 checksum
    uint32_t adler32_chksum = cms::Adler32((char*)initView.descData(),initView.descLength());
    //std::cout << "Adler32 checksum of init message = " << adler32_chksum << std::endl;
    //std::cout << "Adler32 checksum of init messsage from header = " << initView.adler32_chksum() << " "
    //          << "host name = " << initView.hostName() << " len = " << initView.hostName_len() << std::endl;
     if((uint32)adler32_chksum != initView.adler32_chksum()) {
-      std::cerr << "Error from StreamerInputSource: checksum of Init registry blob failed " 
-                << " chksum from registry data = " << adler32_chksum << " from header = " 
+      std::cerr << "Error from StreamerInputSource: checksum of Init registry blob failed "
+                << " chksum from registry data = " << adler32_chksum << " from header = "
                 << initView.adler32_chksum() << " host name = " << initView.hostName() << std::endl;
       // skip event (based on option?) or throw exception?
     }
-    
+
     TClass* desc = getTClass(typeid(SendJobHeader));
 
     TBufferFile xbuf(TBuffer::kRead, initView.descLength(),
@@ -230,7 +229,7 @@ namespace edm {
           << "Could not read the initial product registry list\n";
     }
 
-    return sd;  
+    return sd;
   }
 
   /**
@@ -238,15 +237,14 @@ namespace edm {
    * and merges registries.
    */
   void
-  StreamerInputSource::deserializeAndMergeWithRegistry(InitMsgView const& initView, bool subsequent)
-  {
+  StreamerInputSource::deserializeAndMergeWithRegistry(InitMsgView const& initView, bool subsequent) {
      std::auto_ptr<SendJobHeader> sd = deserializeRegistry(initView);
      ProcessConfigurationVector const& pcv = sd->processConfigurations();
      mergeIntoRegistry(*sd, productRegistryUpdate(), subsequent);
      if (subsequent) {
        principalCache().adjustEventToNewProductRegistry(productRegistry());
      }
-     SendJobHeader::ParameterSetMap const & psetMap = sd->processParameterSet();
+     SendJobHeader::ParameterSetMap const& psetMap = sd->processParameterSet();
      pset::Registry& psetRegistry = *pset::Registry::instance();
      for (SendJobHeader::ParameterSetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end(); i != iEnd; ++i) {
        ParameterSet pset(i->second.pset());
@@ -263,8 +261,7 @@ namespace edm {
    * Deserializes the specified event message into an EventPrincipal object.
    */
   EventPrincipal*
-  StreamerInputSource::deserializeEvent(EventMsgView const& eventView)
-  {
+  StreamerInputSource::deserializeEvent(EventMsgView const& eventView) {
     if(eventView.code() != Header::EVENT)
       throw cms::Exception("StreamTranslation","Event deserialization error")
         << "received wrong message type: expected EVENT, got "
@@ -282,26 +279,23 @@ namespace edm {
     // 78 was a dummy value (for no uncompressed) - should be 0 for uncompressed
     // need to get rid of this when 090 MTCC streamers are gotten rid of
     unsigned long origsize = eventView.origDataSize();
-    unsigned long dest_size; //(should be >= eventView.origDataSize() )
+    unsigned long dest_size; //(should be >= eventView.origDataSize())
 
     uint32_t adler32_chksum = cms::Adler32((char*)eventView.eventData(), eventView.eventLength());
     //std::cout << "Adler32 checksum of event = " << adler32_chksum << std::endl;
     //std::cout << "Adler32 checksum from header = " << eventView.adler32_chksum() << " "
     //          << "host name = " << eventView.hostName() << " len = " << eventView.hostName_len() << std::endl;
     if((uint32)adler32_chksum != eventView.adler32_chksum()) {
-      std::cerr << "Error from StreamerInputSource: checksum of event data blob failed " 
-                << " chksum from event = " << adler32_chksum << " from header = " 
+      std::cerr << "Error from StreamerInputSource: checksum of event data blob failed "
+                << " chksum from event = " << adler32_chksum << " from header = "
                 << eventView.adler32_chksum() << " host name = " << eventView.hostName() << std::endl;
       // skip event (based on option?) or throw exception?
     }
-    if(origsize != 78 && origsize != 0)
-    {
+    if(origsize != 78 && origsize != 0) {
       // compressed
       dest_size = uncompressBuffer((unsigned char*)eventView.eventData(),
                                    eventView.eventLength(), dest_, origsize);
-    }
-    else // not compressed
-    {
+    } else { // not compressed
       // we need to copy anyway the buffer as we are using dest in xbuf
       dest_size = eventView.eventLength();
       dest_.resize(dest_size);
@@ -346,9 +340,10 @@ namespace edm {
       setLumiPrematurelyRead();
     }
 
-    boost::shared_ptr<History> history (new History(sd->history()));
+    boost::shared_ptr<EventSelectionIDVector> ids(new EventSelectionIDVector(sd->eventSelectionIDs()));
+    boost::shared_ptr<BranchListIndexes> indexes(new BranchListIndexes(sd->branchListIndexes()));
     std::auto_ptr<EventAuxiliary> aux(new EventAuxiliary(sd->aux()));
-    eventPrincipalCache()->fillEventPrincipal(aux, luminosityBlockPrincipal(), history);
+    eventPrincipalCache()->fillEventPrincipal(aux, luminosityBlockPrincipal(), ids, indexes);
     productGetter_.setEventPrincipal(eventPrincipalCache());
     eventCached_ = true;
 
@@ -365,12 +360,12 @@ namespace edm {
              << " " << spi->desc()->branchID()
              << std::endl;
 
-	ConstBranchDescription branchDesc(*spi->desc());
-	// This ProductProvenance constructor inserts into the entry description registry
+        ConstBranchDescription branchDesc(*spi->desc());
+        // This ProductProvenance constructor inserts into the entry description registry
         std::auto_ptr<ProductProvenance> productProvenance(
-	     new ProductProvenance(spi->branchID(),
-				spi->status(),
-				*spi->parents()));
+             new ProductProvenance(spi->branchID(),
+                                   spi->status(),
+                                   *spi->parents()));
 
         if(spi->prod() != 0) {
           std::auto_ptr<EDProduct> aprod(const_cast<EDProduct*>(spi->prod()));
@@ -387,7 +382,7 @@ namespace edm {
 
     FDEBUG(10) << "Size = " << eventPrincipalCache()->size() << std::endl;
 
-    return eventPrincipalCache();     
+    return eventPrincipalCache();
   }
 
   /**
@@ -400,10 +395,9 @@ namespace edm {
    */
   unsigned int
   StreamerInputSource::uncompressBuffer(unsigned char *inputBuffer,
-				       unsigned int inputSize,
-				       std::vector<unsigned char> &outputBuffer,
-				       unsigned int expectedFullSize)
-  {
+                                        unsigned int inputSize,
+                                        std::vector<unsigned char> &outputBuffer,
+                                        unsigned int expectedFullSize) {
     unsigned long origSize = expectedFullSize;
     unsigned long uncompressedSize = expectedFullSize*1.1;
     FDEBUG(1) << "Uncompress: original size = " << origSize
@@ -415,7 +409,7 @@ namespace edm {
     //std::cout << "unCompress Return value: " << ret << " Okay = " << Z_OK << std::endl;
     if(ret == Z_OK) {
         // check the length against original uncompressed length
-        FDEBUG(10) << " original size = " << origSize << " final size = " 
+        FDEBUG(10) << " original size = " << origSize << " final size = "
                    << uncompressedSize << std::endl;
         if(origSize != uncompressedSize) {
             std::cerr << "deserializeEvent: Problem with uncompress, original size = "
@@ -432,12 +426,10 @@ namespace edm {
         throw cms::Exception("StreamDeserialization","Uncompression error")
             << "Error code = " << ret << "\n ";
     }
-
     return (unsigned int) uncompressedSize;
   }
 
-  void StreamerInputSource::resetAfterEndRun()
-  {
+  void StreamerInputSource::resetAfterEndRun() {
      // called from an online streamer source to reset after a stop command
      // so an enable command will work
      resetLuminosityBlockAuxiliary();
@@ -448,11 +440,10 @@ namespace edm {
      runEndingFlag_ = false;
   }
 
-  void StreamerInputSource::setRun(RunNumber_t) 
-  {
+  void StreamerInputSource::setRun(RunNumber_t) {
      // Need to define a dummy setRun here or else the InputSource::setRun is called
      // if we have a source inheriting from this and wants to define a setRun method
-     throw edm::Exception(edm::errors::LogicError)
+     throw Exception(errors::LogicError)
      << "StreamerInputSource::setRun()\n"
      << "Run number cannot be modified for this type of Input Source\n"
      << "Contact a Storage Manager Developer\n";
@@ -463,7 +454,7 @@ namespace edm {
   StreamerInputSource::ProductGetter::~ProductGetter() {}
 
   EDProduct const*
-  StreamerInputSource::ProductGetter::getIt(edm::ProductID const& id) const {
+  StreamerInputSource::ProductGetter::getIt(ProductID const& id) const {
     return eventPrincipal_ ? eventPrincipal_->getIt(id) : 0;
   }
 

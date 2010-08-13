@@ -22,7 +22,6 @@ Test program for edm::Event.
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "DataFormats/Provenance/interface/History.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
@@ -97,25 +96,25 @@ class testEvent: public CppUnit::TestFixture {
 
   template <class T>
   void registerProduct(std::string const& tag,
-		       std::string const& moduleLabel,
-		       std::string const& moduleClassName,
-		       std::string const& processName,
-		       std::string const& productInstanceName);
+                       std::string const& moduleLabel,
+                       std::string const& moduleClassName,
+                       std::string const& processName,
+                       std::string const& productInstanceName);
 
   template <class T>
   void registerProduct(std::string const& tag,
-		       std::string const& moduleLabel,
-		       std::string const& moduleClassName,
-		       std::string const& processName) {
+                       std::string const& moduleLabel,
+                       std::string const& moduleClassName,
+                       std::string const& processName) {
     std::string productInstanceName;
     registerProduct<T>(tag, moduleLabel, moduleClassName, processName, 
-		       productInstanceName);
+                       productInstanceName);
   }
 
   template <class T>
   ProductID addProduct(std::auto_ptr<T> product,
-		       std::string const& tag,
-		       std::string const& productLabel = std::string());
+                       std::string const& tag,
+                       std::string const& productLabel = std::string());
   
   boost::shared_ptr<ProductRegistry>   availableProducts_;
   boost::shared_ptr<EventPrincipal>    principal_;
@@ -136,10 +135,10 @@ Timestamp make_timestamp() { return Timestamp(1); }
 template <class T>
 void
 testEvent::registerProduct(std::string const& tag,
-			   std::string const& moduleLabel,
- 			   std::string const& moduleClassName,
- 			   std::string const& processName,
-			   std::string const& productInstanceName) {
+                           std::string const& moduleLabel,
+                            std::string const& moduleClassName,
+                            std::string const& processName,
+                           std::string const& productInstanceName) {
   if (!availableProducts_)
     availableProducts_.reset(new ProductRegistry());
   
@@ -161,13 +160,13 @@ testEvent::registerProduct(std::string const& tag,
   TypeID product_type(typeid(T));
 
   BranchDescription branch(InEvent,
-			   moduleLabel,
-			   processName,
-			   product_type.userClassName(),
-			   product_type.friendlyClassName(),
-			   productInstanceName,
-			   localModuleDescription
-			  );
+                           moduleLabel,
+                           processName,
+                           product_type.userClassName(),
+                           product_type.friendlyClassName(),
+                           productInstanceName,
+                           localModuleDescription
+                          );
 
   moduleDescriptions_[tag] = localModuleDescription;
   availableProducts_->addProduct(branch);
@@ -178,8 +177,8 @@ testEvent::registerProduct(std::string const& tag,
 template <class T>
 ProductID
 testEvent::addProduct(std::auto_ptr<T> product,
-		      std::string const& tag,
-		      std::string const& productLabel) {
+                      std::string const& tag,
+                      std::string const& productLabel) {
   iterator_t description = moduleDescriptions_.find(tag);
   if (description == moduleDescriptions_.end())
     throw edm::Exception(errors::LogicError)
@@ -237,13 +236,13 @@ testEvent::testEvent() :
   std::string productInstanceName("int1");
 
   BranchDescription branch(InEvent,
-			   moduleLabel,
-			   processName,
-			   product_type.userClassName(),
-			   product_type.friendlyClassName(),
-			   productInstanceName,
-			   *currentModuleDescription_
-			  );
+                           moduleLabel,
+                           processName,
+                           product_type.userClassName(),
+                           product_type.friendlyClassName(),
+                           productInstanceName,
+                           *currentModuleDescription_
+                          );
 
   availableProducts_->addProduct(branch);
 
@@ -325,10 +324,9 @@ void testEvent::setUp() {
   boost::shared_ptr<LuminosityBlockAuxiliary> lumiAux(new LuminosityBlockAuxiliary(rp->run(), 1, time, time));
   boost::shared_ptr<LuminosityBlockPrincipal>lbp(new LuminosityBlockPrincipal(lumiAux, preg, pc, rp));
   std::auto_ptr<edm::EventAuxiliary> eventAux(new EventAuxiliary(id, uuid, time, true));
-  boost::shared_ptr<History> history(new History);
-  const_cast<ProcessHistoryID &>(history->processHistoryID()) = processHistoryID;
+  const_cast<ProcessHistoryID &>(eventAux->processHistoryID()) = processHistoryID;
   principal_.reset(new edm::EventPrincipal(preg, pc));
-  principal_->fillEventPrincipal(eventAux, lbp, history);
+  principal_->fillEventPrincipal(eventAux, lbp);
   currentEvent_.reset(new Event(*principal_, *currentModuleDescription_));
 
 }
@@ -354,7 +352,7 @@ void testEvent::getBySelectorFromEmpty() {
   CPPUNIT_ASSERT(!nonesuch.isValid());
   CPPUNIT_ASSERT(nonesuch.failedToGet());
   CPPUNIT_ASSERT_THROW(*nonesuch,
-		       cms::Exception);
+                       cms::Exception);
 }
 
 void testEvent::putAnIntProduct() {
@@ -457,14 +455,14 @@ void testEvent::getByInstanceName() {
   CPPUNIT_ASSERT(currentEvent_->size() == 4);
 
   Selector sel(ProductInstanceNameSelector("int2") &&
-	       ModuleLabelSelector("modMulti"));;
+               ModuleLabelSelector("modMulti"));;
   handle_t h;
   CPPUNIT_ASSERT(currentEvent_->get(sel, h));
   CPPUNIT_ASSERT(h->value == 2);
 
   std::string instance;
   Selector sel1(ProductInstanceNameSelector(instance) &&
-	       ModuleLabelSelector("modMulti"));;
+               ModuleLabelSelector("modMulti"));;
 
   CPPUNIT_ASSERT(currentEvent_->get(sel1, h));
   CPPUNIT_ASSERT(h->value == 3);
@@ -508,28 +506,28 @@ void testEvent::getBySelector() {
   CPPUNIT_ASSERT(currentEvent_->size() == 7);
 
   Selector sel(ProductInstanceNameSelector("int2") &&
-	       ModuleLabelSelector("modMulti") &&
+               ModuleLabelSelector("modMulti") &&
                ProcessNameSelector("EARLY"));;
   handle_t h;
   CPPUNIT_ASSERT(currentEvent_->get(sel, h));
   CPPUNIT_ASSERT(h->value == 2);
   
   Selector sel1(ProductInstanceNameSelector("nomatch") &&
-	        ModuleLabelSelector("modMulti") &&
+                ModuleLabelSelector("modMulti") &&
                 ProcessNameSelector("EARLY"));
   CPPUNIT_ASSERT(!currentEvent_->get(sel1, h));
   CPPUNIT_ASSERT(!h.isValid());
   CPPUNIT_ASSERT_THROW(*h, cms::Exception);
 
   Selector sel2(ProductInstanceNameSelector("int2") &&
-	        ModuleLabelSelector("nomatch") &&
+                ModuleLabelSelector("nomatch") &&
                 ProcessNameSelector("EARLY"));
   CPPUNIT_ASSERT(!currentEvent_->get(sel2, h));
   CPPUNIT_ASSERT(!h.isValid());
   CPPUNIT_ASSERT_THROW(*h, cms::Exception);
 
   Selector sel3(ProductInstanceNameSelector("int2") &&
-	        ModuleLabelSelector("modMulti") &&
+                ModuleLabelSelector("modMulti") &&
                 ProcessNameSelector("nomatch"));
   CPPUNIT_ASSERT(!currentEvent_->get(sel3, h));
   CPPUNIT_ASSERT(!h.isValid());

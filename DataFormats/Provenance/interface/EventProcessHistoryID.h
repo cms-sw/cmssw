@@ -4,6 +4,9 @@
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 
+// This class needed for backward compatibility only.
+// It is relevant if and only if fileFormatVersion.eventHistoryBranch() is true.
+
 namespace edm {
   class EventProcessHistoryID {
   public:

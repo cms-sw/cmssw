@@ -1,5 +1,7 @@
 #include "DataFormats/Provenance/interface/History.h"
 
+#include <iostream>
+
 namespace edm
 {
   

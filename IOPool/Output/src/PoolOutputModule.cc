@@ -75,19 +75,19 @@ namespace edm {
 
 
   PoolOutputModule::AuxItem::AuxItem() :
-	basketSize_(BranchDescription::invalidBasketSize) {}
+        basketSize_(BranchDescription::invalidBasketSize) {}
 
   PoolOutputModule::OutputItem::OutputItem() :
-	branchDescription_(0),
-	product_(0),
-	splitLevel_(BranchDescription::invalidSplitLevel),
-	basketSize_(BranchDescription::invalidBasketSize) {}
+        branchDescription_(0),
+        product_(0),
+        splitLevel_(BranchDescription::invalidSplitLevel),
+        basketSize_(BranchDescription::invalidBasketSize) {}
 
   PoolOutputModule::OutputItem::OutputItem(BranchDescription const* bd, int splitLevel, int basketSize) :
-	branchDescription_(bd),
-	product_(0),
-	splitLevel_(splitLevel),
-	basketSize_(basketSize) {}
+        branchDescription_(bd),
+        product_(0),
+        splitLevel_(splitLevel),
+        basketSize_(basketSize) {}
 
 
   PoolOutputModule::OutputItem::Sorter::Sorter(TTree* tree) : treeMap_(new std::map<std::string, int>) {
@@ -149,11 +149,11 @@ namespace edm {
       TBranch* theBranch = ((!prod.produced() && theInputTree != 0 && !overrideInputFileSplitLevels_) ? theInputTree->GetBranch(prod.branchName().c_str()) : 0);
 
       if(theBranch != 0) {
-	splitLevel = theBranch->GetSplitLevel();
-	basketSize = theBranch->GetBasketSize();
+        splitLevel = theBranch->GetSplitLevel();
+        basketSize = theBranch->GetBasketSize();
       } else {
-	splitLevel = (prod.splitLevel() == BranchDescription::invalidSplitLevel ? splitLevel_ : prod.splitLevel());
-	basketSize = (prod.basketSize() == BranchDescription::invalidBasketSize ? basketSize_ : prod.basketSize());
+        splitLevel = (prod.splitLevel() == BranchDescription::invalidSplitLevel ? splitLevel_ : prod.splitLevel());
+        basketSize = (prod.basketSize() == BranchDescription::invalidBasketSize ? basketSize_ : prod.basketSize());
       }
       outputItemList.push_back(OutputItem(&prod, splitLevel, basketSize));
     }
@@ -181,8 +181,8 @@ namespace edm {
       for(int i = InEvent; i < NumBranchTypes; ++i) {
         BranchType branchType = static_cast<BranchType>(i);
         TTree* theInputTree = (branchType == InEvent ? fb.tree() : 
-			      (branchType == InLumi ? fb.lumiTree() :
-			       fb.runTree()));
+                              (branchType == InLumi ? fb.lumiTree() :
+                               fb.runTree()));
         fillSelectedItemList(branchType, theInputTree);
       }
       initializedFromInput_ = true;
@@ -232,7 +232,6 @@ namespace edm {
   void PoolOutputModule::writeFileFormatVersion() { rootOutputFile_->writeFileFormatVersion(); }
   void PoolOutputModule::writeFileIdentifier() { rootOutputFile_->writeFileIdentifier(); }
   void PoolOutputModule::writeIndexIntoFile() { rootOutputFile_->writeIndexIntoFile(); }
-  void PoolOutputModule::writeEventHistory() { rootOutputFile_->writeEventHistory(); }
   void PoolOutputModule::writeProcessConfigurationRegistry() { rootOutputFile_->writeProcessConfigurationRegistry(); }
   void PoolOutputModule::writeProcessHistoryRegistry() { rootOutputFile_->writeProcessHistoryRegistry(); }
   void PoolOutputModule::writeParameterSetRegistry() { rootOutputFile_->writeParameterSetRegistry(); }
@@ -261,15 +260,15 @@ namespace edm {
       lfilename << logicalFileName();
       if(numberOfDigitsInIndex_) {
         ofilename << '_' << std::setw(numberOfDigitsInIndex_) << std::setfill('0') << childIndex_;
-	if(!logicalFileName().empty()) {
+        if(!logicalFileName().empty()) {
           lfilename << '_' << std::setw(numberOfDigitsInIndex_) << std::setfill('0') << childIndex_;
-	}
+        }
       }
       if(outputFileCount_) {
         ofilename << std::setw(3) << std::setfill('0') << outputFileCount_;
-	if(!logicalFileName().empty()) {
-	  lfilename << std::setw(3) << std::setfill('0') << outputFileCount_;
-	}
+        if(!logicalFileName().empty()) {
+          lfilename << std::setw(3) << std::setfill('0') << outputFileCount_;
+        }
       }
       ofilename << suffix;
       rootOutputFile_.reset(new RootOutputFile(this, ofilename.str(), lfilename.str()));

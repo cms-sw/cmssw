@@ -2,7 +2,7 @@
 #define FWCore_Framework_OutputModule_h
 
 /*----------------------------------------------------------------------
-  
+
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
@@ -29,7 +29,7 @@ output stream.
 namespace edm {
 
   typedef detail::CachedProducts::handle_t Trig;
-   
+
   std::vector<std::string> const& getAllTriggerNames();
 
 
@@ -100,13 +100,13 @@ namespace edm {
 
     // keptProducts_ are pointers to the BranchDescription objects describing
     // the branches we are to write.
-    // 
+    //
     // We do not own the BranchDescriptions to which we point.
     SelectionsArray keptProducts_;
 
     std::string process_name_;
     GroupSelectorRules groupSelectorRules_;
-    GroupSelector groupSelector_; 
+    GroupSelector groupSelector_;
     ModuleDescription moduleDescription_;
 
     // We do not own the pointed-to CurrentProcessingContext.
@@ -120,7 +120,7 @@ namespace edm {
     mutable detail::CachedProducts selectors_;
     // ID of the ParameterSet that configured the event selector
     // subsystem.
-    ParameterSetID selector_config_id_; 
+    ParameterSetID selector_config_id_;
 
     typedef std::map<BranchID, std::set<ParentageID> > BranchParents;
     BranchParents branchParents_;
@@ -134,15 +134,15 @@ namespace edm {
     void doBeginJob();
     void doEndJob();
     bool doEvent(EventPrincipal const& ep, EventSetup const& c,
-		    CurrentProcessingContext const* cpc);
+                 CurrentProcessingContext const* cpc);
     bool doBeginRun(RunPrincipal const& rp, EventSetup const& c,
-		    CurrentProcessingContext const* cpc);
+                 CurrentProcessingContext const* cpc);
     bool doEndRun(RunPrincipal const& rp, EventSetup const& c,
-		    CurrentProcessingContext const* cpc);
+                 CurrentProcessingContext const* cpc);
     bool doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
-		    CurrentProcessingContext const* cpc);
+                 CurrentProcessingContext const* cpc);
     bool doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
-		    CurrentProcessingContext const* cpc);
+                 CurrentProcessingContext const* cpc);
     void doWriteRun(RunPrincipal const& rp);
     void doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp);
     void doOpenFile(FileBlock const& fb);
@@ -209,7 +209,6 @@ namespace edm {
     virtual void writeFileFormatVersion() {}
     virtual void writeFileIdentifier() {}
     virtual void writeIndexIntoFile() {}
-    virtual void writeEventHistory() {}
     virtual void writeProcessConfigurationRegistry() {}
     virtual void writeProcessHistoryRegistry() {}
     virtual void writeParameterSetRegistry() {}
