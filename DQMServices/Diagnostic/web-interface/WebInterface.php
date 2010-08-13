@@ -21,7 +21,8 @@
   <script type="text/javascript" src="functions.js"></script>
   <script type="text/javascript" charset="utf-8">
 
-    var gaiSelected =  [];
+ //global variable array for holding the selected values
+ var gaiSelected =  [];
 
 	$(document).ready(function() 
 	{
@@ -36,7 +37,7 @@
 		var tagName = "HDQM_"+typeName+"_"+tagVersion;
 
 		
-		
+		//submit function
 		$("#form").submit(function() 
 		{
 			if(!checkform(this))
@@ -117,36 +118,32 @@
       "fnRowCallback": function( nRow, aData, iDisplayIndex ) 
 	  {
 	  
-        //additional components in each row
-		//plot index
-		var hiddenIndex='<input type="hidden" name="index" id="index" value="0">';        
+        //additional Html Components for each row
+	//plot index
+	var hiddenIndex='<input type="hidden" name="index" id="index" value="0">';        
         //log Y
-		var logY = '<input type="checkbox" name="textCheck" id="logY'+iDisplayIndex+'" value="'+aData[1]+'" onclick="logYCheckChange(this)"/>';
-		//selected
-		var selectCheckBox =  '<input type="checkbox" name="check" id="ch'+aData[1]+'" value="'+aData[1]+'" onclick="logYCheckChange(this)"/>';
-    		
-		var Ymin='<input type="input" name="Min" id="Min'+iDisplayIndex+'" size="10"  onchange="test(this)" onclick="stateChanged()" value=999999 /> ';
-		var Ymax='<input type="input" name="Max" id="Max'+iDisplayIndex+'" size="10"  onchange="test(this)" onclick="stateChanged()" value=-999999 /> ';
-   
-
-
-
-
+	var logY = '<input type="checkbox" name="textCheck" id="logY'+iDisplayIndex+'" value="'+aData[1]+'" onclick="logYCheckChange(this)"/>';
+	//selected
+	var selectCheckBox =  '<input type="checkbox" name="check" id="ch'+aData[1]+'" value="'+aData[1]+'" onclick="logYCheckChange(this)"/>';
+    	//Min and Max Values	
+	var Ymin='<input type="input" name="Min" id="Min'+iDisplayIndex+'" size="10"  onchange="changeGroupedValues(this)" onclick="stateChanged()" value=999999 /> ';
+	var Ymax='<input type="input" name="Max" id="Max'+iDisplayIndex+'" size="10"  onchange="changeGroupedValues(this)" onclick="stateChanged()" value=-999999 /> ';
+	
+	//inserting the Components into the table cells
 	$('td:eq(1)', nRow).html(logY);
 	$('td:eq(2)', nRow).html(Ymin);
 	$('td:eq(3)', nRow).html(Ymax);
         $('td:eq(4)', nRow).html(selectCheckBox);
 	$('td:eq(5)', nRow).html(hiddenIndex);
 		
-		
-		//add the selected css class for selecting rows
-		if ( jQuery.inArray(aData[1], gaiSelected) != -1 )
-		{
-			$(nRow).addClass('row_selected');
-		}	
+	//add the selected css class for the selecting of rows
+	if ( jQuery.inArray(aData[1], gaiSelected) != -1 )
+	{
+		$(nRow).addClass('row_selected');
+	}	
         return nRow;
-      },
-	  //columns
+        },
+        //Column's Classes
       "aoColumns": [
         	null,
 		{"sClass": "center"},
@@ -157,86 +154,91 @@
       ]
     });
 	
-	/* Click event handler */
+	//Click on Row event handler 
 	$('#example tbody tr').live('click', function () {
-		var aData = oTable.fnGetData( this );
-		var iId = aData[1];
+	var aData = oTable.fnGetData( this );
+	var iId = aData[1];
 		
-		if ( jQuery.inArray(iId, gaiSelected) == -1 )
-		{			
-		    if ((!stateChange)&&(this).cells[5].childNodes[0].value==0)
-			{
-				gaiSelected[gaiSelected.length++] = iId;
-		       
-			}
-		}
-		else
+	if ( jQuery.inArray(iId, gaiSelected) == -1 )
+	{	
+		if ((!stateChange)&&(this).cells[5].childNodes[0].value==0)
 		{
-			//deselect
-			if (!stateChange&&(this).cells[5].childNodes[0].value==0)
-			{
-			gaiSelected = jQuery.grep(gaiSelected, function(value) {
-				return value != iId;
-			} );
-			}
+			gaiSelected[gaiSelected.length++] = iId;       
 		}
-	
+	}
+	else
+	{
+		//deselect
+		if (!stateChange&&(this).cells[5].childNodes[0].value==0)
+		{
+			gaiSelected = jQuery.grep(gaiSelected, function(value) 
+							       {
+									return value != iId;
+								});
+		}
+	}
 	if (!stateChange&&(this).cells[5].childNodes[0].value==0)
 	{
-			$(this).toggleClass('row_selected');
+		$(this).toggleClass('row_selected');
 			
 	}
 	else
 	{
 		stateChange=false;
 	}
-	} );
-	}
-	);
-<!--validation check
+
+      } );
+});
+
+<!--validation check -->
 function checkform ( form )
 {
 
   if ((form.last.value<=form.first.value))
   {
-		alert("The first run value cannot be greater than the Last Run Value");
-		return false;
+	alert("The first run value cannot be greater than the Last Run Value");
+	return false;
   }
   if (form.first.value<0) 
   {
-    alert( "The first run value cannot be negative" );
-    return false ;
+        alert( "The first run value cannot be negative" );
+        return false ;
   }
   if (form.last.value>999999)
   {
-	alert("The last run value cannot be greater than 999999");
-    return false ;
+        alert("The last run value cannot be greater than 999999");
+        return false ;
   }
   return true;
-  }
+}
   
-  //global Variables
-  var histograms=0;
-  var stateChange=false;
+//global Variables
+ var histograms=0;
+ var stateChange=false;
   
-    //function for checking if the selected check Box changed state
-  function stateChanged()
-  {
+//function for checking if an html component is clicked in order to not highlight its row
+function stateChanged()
+ {
 	stateChange=true;
-  }
+ }
 
-  function logYCheckChange(elem)
-  { 
+//function called when a check box is checked or uncheck by a User
+ function logYCheckChange(elem)
+ { 
 
+     //Condition for deciding wich one of the two checkboxes was clicked
      var cellNum=0;
      if (elem.name=="textCheck")
 	cellNum=1;
      else
         cellNum=4;
+
+     //getting the index(superimposed plot number) of the current row
      var index=elem.parentNode.parentNode.cells[5].childNodes[0].value;
      var table=document.getElementById("example");
      if (index!=0)
      {
+	//checking or unchecking all the grouped values
         for(var j=1;j<table.rows.length;j++)
 	{
 		if (table.rows[j].cells[5].childNodes[0].value==index)
@@ -248,10 +250,10 @@ function checkform ( form )
       
      }
      else 
-          stateChange=true;
+     	stateChange=true;
   }
 
-
+  //function for slecting and coloring the grouped values
   function addToNewHistogram(index,color2)
   {	
 	//histograms++;
@@ -266,8 +268,6 @@ function checkform ( form )
 		alert("You have to select at least one row to add it to a new histogram");
 		return;
 	}
-	
-	
 	
 	//loop to get all the selected rows
 	for (var i=0;i<gaiSelected.length;i++)
@@ -284,54 +284,50 @@ function checkform ( form )
 		currentCell.parentNode.parentNode.cells[5].childNodes[0].value=index;
 		//checking the checkbox
 		currentCell.checked=true;
-		
-	
 	}
 	//clearing the array of the selected rows
 	gaiSelected=[];
 
-  }
+  }//addToNewHistogram
  
-	
-	function clearAllPromt()
-	{
-		var answer = confirm ("Are you sure you want to clear all your selections?");
-		if (answer)
-			window.location.reload();
-		
-	}
+//Clear All Link
+function clearAllPromt()
+{
+	var answer = confirm ("Are you sure you want to clear all your selections?");
+	if (answer)
+		window.location.reload();		
+}
 
-	//Populating the RunType list from the XML file
-	function loadList(type)
-	{
+//Populating the RunType list from the XML file
+function loadList(type)
+{
 	var x=[];
 	var runTypeNamesArray=[];
 	var runTypeIdsArray=[];
-
 	var type2="SiStrip";
 	
-		if (window.XMLHttpRequest)
-		{// code for IE7+, Firefox, Chrome, Opera, Safari
-			xmlhttp=new XMLHttpRequest();
-		}
-		else
-		{// code for IE6, IE5
-			xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-		}
-		xmlhttp.onreadystatechange=function()
+	if (window.XMLHttpRequest)
+	{// code for IE7+, Firefox, Chrome, Opera, Safari
+		xmlhttp=new XMLHttpRequest();
+	}
+	else
+	{// code for IE6, IE5
+		xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	xmlhttp.onreadystatechange=function()
+	{
+		if (xmlhttp.readyState==4 && xmlhttp.status==200)
 		{
-			if (xmlhttp.readyState==4 && xmlhttp.status==200)
-			{
 				
-				//Getting the root node of the XML File
-				var root=xmlhttp.responseXML.documentElement;
-				var x=root.getElementsByTagName("Type");
-				for (i=0;i<x.length;i++)
+			//Getting the root node of the XML File
+			var root=xmlhttp.responseXML.documentElement;
+			var x=root.getElementsByTagName("Type");
+			for (i=0;i<x.length;i++)
+			{
+				if ((x[i].getAttribute("name"))==(type))
 				{
-					if ((x[i].getAttribute("name"))==(type))
-					{
-						xx=x[i].getElementsByTagName("RunType");
-						for (j=0;j<xx.length;j++)
+					xx=x[i].getElementsByTagName("RunType");
+					for (j=0;j<xx.length;j++)
 						{
 							runTypeIdsArray[runTypeIdsArray.length++] =xx[j].getAttribute("id");
 							runTypeNamesArray[runTypeNamesArray.length++]=xx[j].firstChild.nodeValue;
@@ -340,7 +336,7 @@ function checkform ( form )
 					}//if
 				}//for
 
-			}
+			}//for
 			var text="";			
 			//creating the option list html element
 			for(var i=0;i<runTypeIdsArray.length;i++)
@@ -353,6 +349,7 @@ function checkform ( form )
 		xmlhttp.open("GET","RunTypesData.xml",true);
 		xmlhttp.send();
 	}
+
  function changeColor(index,color)
  {
 	var table=document.getElementById("example");
@@ -363,7 +360,7 @@ function checkform ( form )
 	}
  }
 
-function test(elem)
+function changeGroupedValues(elem)
 {
 	var num=0;     
 	if (elem.name=="Min")
@@ -382,10 +379,10 @@ function test(elem)
       
      }
 }
-  	
-	</script>
-
+</script>
 </head>
+
+
 <body id="dt_example" onload="loadList(getUrlVars()['subDet'])">
 <div align= "left">
 <br>
