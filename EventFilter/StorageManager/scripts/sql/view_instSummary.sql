@@ -146,7 +146,7 @@ BEGIN
     FOR entry IN (SELECT * FROM SM_INSTANCES WHERE RUNNUMBER = run ORDER BY INSTANCE ASC)
     LOOP
 	--Check if the difference between the last write on this instance and the most recent write on any instance is greater than 5 minutes
-	IF ( (time_diff(maxLastWrite, entry.Last_Write_Time) > 300) OR 
+	IF ( (time_diff(maxLastWrite, entry.Last_Write_Time) > 660) OR 
              (maxNum - NVL(entry.N_INJECTED, 0) > .33 * maxNum AND maxNum>50 ))  THEN
 		numFlagged := numFlagged + 1;
 		IF (numFlagged = 1) THEN
@@ -239,38 +239,122 @@ BEGIN
 END GENERATE_FLAG_CHECKED;
 /
 
-CREATE OR REPLACE FUNCTION GENERATE_FLAG_DELETED(run in number, maxLastClosedTime in DATE)
+CREATE OR REPLACE FUNCTION GENERATE_FLAG_DELETED(run in number, StartRunTime in DATE, maxLastClosedTime in DATE)
     RETURN VARCHAR2 AS
     flag VARCHAR2(1000);
     numFlagged NUMBER(5); 
+    slength    NUMBER(5);
+    rack       NUMBER(5);
+    node       NUMBER(5);
+    hour6      NUMBER(5);
+    mins       NUMBER(10);
+    hourPC     NUMBER(10);
+    minPC      NUMBER(10);
+    hourPC3    NUMBER(10);
+    minPC20    NUMBER(10);
+    deltaT     NUMBER(10,2);
+    tLastDelete  DATE;
+    tdeletable NUMBER(10,2);
+    trunning   NUMBER(10,2);
+    nexpfiles  NUMBER(10,2);
 BEGIN
+
     flag := ' ';
     numFlagged := 0;
-    --If a file has been closed within the last 3hrs20 then don't do the check
-    --no..change from 3hrs20...kludge for longer 6 hr delete cycle! 
-    IF (time_diff(sysdate, maxLastClosedTime) < 22000) THEN
-        RETURN flag;
-    END IF;
 
 
-    --until i can fix things better with real time dependince, increase check time to 7 hrs 
-    IF (time_diff(sysdate, maxLastClosedTime) < 8*60*60) THEN
-        RETURN flag;
-    END IF;
+    --hour of the day:
+    hour6   := time_diff( TRUNC(sysdate,'HH24'), TRUNC(sysdate,'DDD') )/3600;
+    --min of the hour:
+    mins    := time_diff( TRUNC(sysdate,'MI'),   TRUNC(sysdate,'HH24') )/60;
+    hour6   := mod(hour6, 6);
 
+--DBMS_OUTPUT.PUT_LINE (TO_CHAR(TRUNC(sysdate,'HH24'), 'Dy Mon DD HH24:MI:SS YYYY') || '  ' || TO_CHAR(TRUNC(sysdate,'DDD'), 'Dy Mon DD HH24:MI:SS YYYY')|| ' ' || TO_CHAR(TRUNC(sysdate,'MI'), 'Dy Mon DD HH24:MI:SS YYYY')  );
+
+
+--DBMS_OUTPUT.PUT_LINE ('  hour6  mins : ' ||  hour6 || ' ' ||  mins ||   '   << ' );
 
 
     --Loop through all the instances
     FOR entry IN (SELECT * FROM SM_INSTANCES WHERE RUNNUMBER = run ORDER BY INSTANCE ASC)
     LOOP
-	--If all injected files have been checked and not all have been deleted, flag the instance
-	IF ( (NVL(entry.N_NEW,0) = NVL(entry.N_CHECKED,0) ) AND ( NVL(entry.N_CHECKED,0) > NVL(entry.N_DELETED,0) ) ) THEN
-		numFlagged := numFlagged + 1;
-		IF (numFlagged = 1) THEN
-			flag := flag || 'DELETED:';
+
+--DBMS_OUTPUT.PUT_LINE (run  || '  ' ||  entry.HOSTNAME || ' Enter LOOP....   << ' );
+
+	IF (  NVL(entry.N_CHECKED,0) > NVL(entry.N_DELETED,0) ) THEN
+	        slength := length(entry.HOSTNAME);
+		rack    := to_number(substr(entry.HOSTNAME,slength-4,2));
+        	node    := to_number(substr(entry.HOSTNAME,slength-1,2));
+
+
+--DBMS_OUTPUT.PUT_LINE ( entry.HOSTNAME || '  ' || rack  || '  ' || node || ' are rack  node   << ' );
+
+
+	        IF  ( rack = 5 ) THEN      --minidaq! [maybe more general to just be NOT rack 6,7??
+			--key: 60 sec/min * ( 60 min/hr * (15:00 minidaq delete time + 2 hr delete delay) + 20 min grace)
+			IF ( time_diff(TRUNC(sysdate,'DD'), maxLastClosedTime) - 60*(60*(15+2) + 20) > 0   ) THEN
+				numFlagged := numFlagged + 1;
+				IF (numFlagged = 1) THEN
+					flag := flag || 'DELETED:';
+				END IF;
+				flag := flag || ' ' || TO_CHAR(entry.INSTANCE) || '(' || TO_CHAR(NVL(entry.N_DELETED,0)) || ')';  --flag the instance 	
+		         END IF; 
+	        ELSIF ( rack = 6 OR rack = 7 ) THEN
+			hourPC  := (rack-6) + mod(2*(node-12) + 10*(rack-6), 18);
+  			minPC   := mod(hourPC,3);
+          		hourPC3 := (hourPC - minPC)/3;
+          		minPC20 := 20*minPC;
+
+          		--time diff relative to now for scheduled deletes for this node--in MIN:
+          		deltaT  :=  (hour6 - hourPC3) +  (mins - minPC20)/60.0;  
+
+ --DBMS_OUTPUT.PUT_LINE ( ' deltaT= '|| TO_CHAR(deltaT,'9999.99')  || ' hourPC= '  ||  hourPC  ||  ' minPC= '  ||  minPC  ||  '  hourPC3= '  ||   hourPC3  ||  ' minPC20= '  || minPC20  ||   '   << ' );
+  
+
+                        IF( deltaT <  0) THEN
+				deltaT := 6 + deltaT;
+                        END IF;
+
+                        --estimated sysdate of last delete for this node:
+                        tLastDelete := sysdate - deltaT/24;
+--DBMS_OUTPUT.PUT_LINE ( 'estimated last delete time: ' || TO_CHAR(tLastDelete, 'DD HH24:MI:SS')  );
+
+
+                        tdeletable := time_diff(tLastDelete,StartRunTime) - 3.25*3600;
+                        if ( tdeletable < 0 ) THEN
+				tdeletable := 0;
+			END IF;
+                        trunning   := time_diff( maxLastClosedTime, StartRunTime);  
+
+
+--DBMS_OUTPUT.PUT_LINE ( 'tLastDelete= ' || tLastDelete || ' tdeletable= ' || tdeletable|| '  trunning= ' ||  trunning  ||  '   << ' );
+
+                        nexpfiles := NVL(entry.N_CHECKED,0)*tdeletable/trunning;
+			IF( tdeletable < 0 ) THEN
+				 nexpfiles := 0;
+                        ELSIF ( tdeletable/trunning > 1 ) THEN
+				 nexpfiles := NVL(entry.N_CHECKED,0);
+                        END IF;
+
+
+	
+--DBMS_OUTPUT.PUT_LINE ( 'nexpfiles= ' || nexpfiles ||  ' ?? entry.N_DELETED= ' || TO_CHAR(NVL(entry.N_DELETED,0)) || '  << ' );
+
+
+
+			IF ( NVL(entry.N_DELETED,0) < nexpfiles   ) THEN
+				numFlagged := numFlagged + 1;
+				IF (numFlagged = 1) THEN
+					flag := flag || 'DELETED:';
+				END IF;
+				flag := flag || ' ' || TO_CHAR(entry.INSTANCE) || '(' || TO_CHAR(NVL(entry.N_DELETED,0)) || ')';  --flag the instance 				END IF;
+	
+		        END IF; 
+
 		END IF;
-		flag := flag || ' ' || TO_CHAR(entry.INSTANCE) || '(' || TO_CHAR(NVL(entry.N_DELETED,0)) || ')';--flag the instance 
+
 	END IF;
+
     END LOOP;
 
     RETURN flag;
@@ -307,9 +391,9 @@ FROM (SELECT TO_CHAR( RUNNUMBER ) AS RUN_NUMBER,
                       GENERATE_FLAG_INJECTED(RUNNUMBER, MAX(N_NEW / NVL(N_INJECTED, 1)), MAX(N_NEW) ) ||
                       GENERATE_FLAG_TRANSFERRED(RUNNUMBER, MAX(N_COPIED / NVL(N_NEW, 1)), MAX(N_COPIED) ) ||
                       GENERATE_FLAG_CHECKED(RUNNUMBER, MAX(N_CHECKED / NVL(N_NEW, 1)), MAX(N_CHECKED) ) ||
-                      GENERATE_FLAG_DELETED(RUNNUMBER, MAX(LAST_WRITE_TIME) ) ) AS FLAGS,
+                      GENERATE_FLAG_DELETED(RUNNUMBER, MIN(START_WRITE_TIME),  MAX(LAST_WRITE_TIME)) ) AS FLAGS,
              TO_CHAR( MAX(run) ) as RANK
-FROM (SELECT RUNNUMBER, INSTANCE, SETUPLABEL, N_CREATED, N_INJECTED, N_NEW, N_COPIED, N_CHECKED, N_INSERTED, N_REPACKED, N_DELETED, N_UNACCOUNT, LAST_WRITE_TIME, DENSE_RANK() OVER (ORDER BY RUNNUMBER DESC NULLS LAST) run
+FROM (SELECT RUNNUMBER, INSTANCE, SETUPLABEL, N_CREATED, N_INJECTED, N_NEW, N_COPIED, N_CHECKED, N_INSERTED, N_REPACKED, N_DELETED, N_UNACCOUNT, START_WRITE_TIME, LAST_WRITE_TIME, DENSE_RANK() OVER (ORDER BY RUNNUMBER DESC NULLS LAST) run
 FROM SM_INSTANCES)
 WHERE run <= 30
 GROUP BY RUNNUMBER
