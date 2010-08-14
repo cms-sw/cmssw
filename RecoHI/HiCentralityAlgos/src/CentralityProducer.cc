@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.20 2010/07/07 16:25:03 yjlee Exp $
+// $Id: CentralityProducer.cc,v 1.21 2010/08/12 10:14:58 yilmaz Exp $
 //
 //
 
@@ -79,7 +79,9 @@ class CentralityProducer : public edm::EDFilter {
    bool produceTracks_;
    bool reuseAny_;
 
-   double midRapidityRange_;
+  double midRapidityRange_;
+  double trackPtCut_;
+  double trackEtaCut_;
 
    edm::InputTag  srcHFhits_;	
    edm::InputTag  srcTowers_;
@@ -121,6 +123,8 @@ CentralityProducer::CentralityProducer(const edm::ParameterSet& iConfig)
    producePixelhits_ = iConfig.getParameter<bool>("producePixelhits");
    produceTracks_ = iConfig.getParameter<bool>("produceTracks");
    midRapidityRange_ = iConfig.getParameter<double>("midRapidityRange");
+   trackPtCut_ = iConfig.getParameter<double>("trackPtCut");
+   trackEtaCut_ = iConfig.getParameter<double>("trackEtaCut");
 
    if(produceHFhits_)  srcHFhits_ = iConfig.getParameter<edm::InputTag>("srcHFhits");
    if(produceHFtowers_ || produceETmidRap_) srcTowers_ = iConfig.getParameter<edm::InputTag>("srcTowers");
@@ -280,9 +284,32 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      iEvent.getByLabel(srcTracks_,tracks);
      int nTracks = tracks->size();
      creco->trackMultiplicity_ = nTracks;
+
+     double trackCounter = 0;
+     double trackCounterEta = 0;
+     double trackCounterEtaPt = 0;
+
+     for(unsigned int i = 0 ; i < tracks->size(); ++i){
+       const Track& track = (*tracks)[i];
+       if( track.pt() > trackPtCut_)  trackCounter++;
+      
+       if(track.eta()<trackEtaCut_) {
+	 trackCounterEta++;
+	 if (track.pt() > trackPtCut_) trackCounterEtaPt++;
+       }
+     }
+
+     creco -> ntracksPtCut_ = trackCounter; 
+     creco -> ntracksEtaCut_ = trackCounterEta;
+     creco -> ntracksEtaPtCut_ = trackCounterEtaPt;
+
   }else{
-     creco->trackMultiplicity_ = inputCentrality->multiplicityTracks();
+     creco -> trackMultiplicity_ = inputCentrality->Ntracks();
+     creco -> ntracksPtCut_= inputCentrality->NtracksPtCut();
+     creco -> ntracksEtaCut_= inputCentrality->NtracksEtaCut();
+     creco -> ntracksEtaPtCut_= inputCentrality->NtracksEtaPtCut();
   }
+
 
   iEvent.put(creco);
   return true;
