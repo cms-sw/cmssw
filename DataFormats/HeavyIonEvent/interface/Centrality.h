@@ -1,5 +1,5 @@
 //
-// $Id: Centrality.h,v 1.9 2010/07/07 11:57:42 yilmaz Exp $
+// $Id: Centrality.h,v 1.10 2010/08/12 10:16:02 yilmaz Exp $
 //
 
 #ifndef DataFormats_Centrality_h
@@ -38,7 +38,11 @@ public:
   double EtEcalSum() const {return etEBSum_ + EtEESum();}
   double EtEcaltruncated() const {return etEBtruncated_ + EtEEtruncated();}
   double multiplicityPixel() const {return pixelMultiplicity_;}
-  double multiplicityTracks() const {return trackMultiplicity_;}
+  double Ntracks() const {return trackMultiplicity_;}
+  double NtracksPtCut() const {return ntracksPtCut_;}
+  double NtracksEtaCut() const {return ntracksEtaCut_;}
+  double NtracksEtaPtCut() const {return ntracksEtaPtCut_;}
+
 
   double zdcSum() const {return zdcSumPlus_ + zdcSumMinus_;}
   double zdcSumPlus() const {return zdcSumPlus_;}
@@ -69,6 +73,9 @@ protected:
   double zdcSumPlus_;
   double zdcSumMinus_;
   double etMidRapiditySum_;
+  double ntracksPtCut_;
+  double ntracksEtaCut_;
+  double ntracksEtaPtCut_;
 
 };
 

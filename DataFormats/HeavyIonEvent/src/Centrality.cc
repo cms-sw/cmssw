@@ -1,5 +1,5 @@
 //
-// $Id: Centrality.cc,v 1.9 2010/07/07 11:57:42 yilmaz Exp $
+// $Id: Centrality.cc,v 1.10 2010/08/12 10:16:02 yilmaz Exp $
 //
 
 #include "DataFormats/HeavyIonEvent/interface/Centrality.h"
@@ -27,7 +27,10 @@ pixelMultiplicity_(0),
 trackMultiplicity_(0),
 zdcSumPlus_(0),
 zdcSumMinus_(0),
-etMidRapiditySum_(0)
+etMidRapiditySum_(0),
+ntracksPtCut_(0),
+ntracksEtaCut_(0),
+ntracksEtaPtCut_(0)
 {
 }
 
