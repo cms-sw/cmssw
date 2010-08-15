@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.21 2010/08/12 10:14:58 yilmaz Exp $
+// $Id: CentralityProducer.cc,v 1.22 2010/08/14 17:03:55 nart Exp $
 //
 //
 
@@ -293,7 +293,7 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        const Track& track = (*tracks)[i];
        if( track.pt() > trackPtCut_)  trackCounter++;
       
-       if(track.eta()<trackEtaCut_) {
+       if(fabs(track.eta())<trackEtaCut_) {
 	 trackCounterEta++;
 	 if (track.pt() > trackPtCut_) trackCounterEtaPt++;
        }
