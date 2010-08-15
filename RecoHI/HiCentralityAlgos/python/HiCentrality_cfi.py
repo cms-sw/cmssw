@@ -12,6 +12,8 @@ hiCentrality = cms.EDFilter("reco::CentralityProducer",
                             produceETmidRapidity = cms.bool(True),
                             producePixelhits = cms.bool(True),
                             produceTracks = cms.bool(True),
+                            trackEtaCut = cms.double(0.5),
+                            trackPtCut = cms.double(1),
                             
                             midRapidityRange = cms.double(1),
                             
