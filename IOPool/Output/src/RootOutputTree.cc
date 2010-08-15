@@ -189,7 +189,6 @@ namespace edm {
   void
   RootOutputTree::writeTree() const {
     writeTTree(tree_);
-    writeTTree(metaTree_);
   }
 
   void
@@ -211,7 +210,6 @@ namespace edm {
 
   void
   RootOutputTree::fillTree() const {
-    metaTree_->Fill();
     if (currentlyFastCloning_) {
       fillTTree(tree_, auxBranches_);
       fillTTree(tree_, producedBranches_);
@@ -246,11 +244,11 @@ namespace edm {
   RootOutputTree::close() {
     // The TFile was just closed.
     // Just to play it safe, zero all pointers to quantities in the file.
-    branchEntryInfoBranch_ = 0;
+    auxBranches_.clear();
     producedBranches_.clear();
     readBranches_.clear();
     unclonedReadBranches_.clear();
-    tree_ = metaTree_ = 0;
+    tree_ = 0;
     filePtr_.reset();
   }
 }

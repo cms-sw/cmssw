@@ -29,7 +29,6 @@ namespace edm {
   class LuminosityBlockPrincipal : public Principal {
   public:
     typedef LuminosityBlockAuxiliary Auxiliary;
-    typedef std::vector<ProductProvenance> EntryInfoVector;
     typedef Principal Base;
     LuminosityBlockPrincipal(
 	boost::shared_ptr<LuminosityBlockAuxiliary> aux,

@@ -25,7 +25,6 @@ and how it came into existence, plus the status.
 namespace edm {
   class ProductProvenance {
   public:
-    typedef std::vector<ProductProvenance> EntryInfoVector;
     ProductProvenance();
     explicit ProductProvenance(BranchID const& bid);
     ProductProvenance(BranchID const& bid,

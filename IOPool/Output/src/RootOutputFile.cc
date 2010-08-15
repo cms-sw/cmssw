@@ -87,25 +87,32 @@ namespace edm {
       pRunEntryInfoVector_(&runEntryInfoVector_),
       pBranchListIndexes_(0),
       pEventSelectionIDs_(0),
-      eventTree_(filePtr_, InEvent, pEventEntryInfoVector_,
-                 om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
-      lumiTree_(filePtr_, InLumi, pLumiEntryInfoVector_,
-                om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
-      runTree_(filePtr_, InRun, pRunEntryInfoVector_,
-               om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
+      eventTree_(filePtr_, InEvent, om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
+      lumiTree_(filePtr_, InLumi, om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
+      runTree_(filePtr_, InRun, om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
       treePointers_(),
       dataTypeReported_(false),
       parentageIDs_(),
       branchesWithStoredHistory_() {
 
-    eventTree_.addAuxiliary<EventAuxiliary>(InEvent, pEventAux_, om_->auxItems()[InEvent].basketSize_); 
+    eventTree_.addAuxiliary<EventAuxiliary>(BranchTypeToAuxiliaryBranchName(InEvent),
+                                            pEventAux_, om_->auxItems()[InEvent].basketSize_); 
+    eventTree_.addAuxiliary<ProductProvenanceVector>(BranchTypeToBranchEntryInfoBranchName(InEvent),
+                                                     pEventEntryInfoVector_, om_->auxItems()[InEvent].basketSize_);
     eventTree_.addAuxiliary<EventSelectionIDVector>(poolNames::eventSelectionsBranchName(),
                                                     pEventSelectionIDs_, om_->auxItems()[InEvent].basketSize_); 
     eventTree_.addAuxiliary<BranchListIndexes>(poolNames::branchListIndexesBranchName(),
                                                pBranchListIndexes_, om_->auxItems()[InEvent].basketSize_); 
 
-    lumiTree_.addAuxiliary<LuminosityBlockAuxiliary>(InLumi, pLumiAux_, om_->auxItems()[InLumi].basketSize_);
-    runTree_.addAuxiliary<RunAuxiliary>(InRun, pRunAux_, om_->auxItems()[InRun].basketSize_);
+    lumiTree_.addAuxiliary<LuminosityBlockAuxiliary>(BranchTypeToAuxiliaryBranchName(InLumi),
+                                                     pLumiAux_, om_->auxItems()[InLumi].basketSize_);
+    lumiTree_.addAuxiliary<ProductProvenanceVector>(BranchTypeToBranchEntryInfoBranchName(InLumi),
+                                                    pLumiEntryInfoVector_, om_->auxItems()[InLumi].basketSize_);
+
+    runTree_.addAuxiliary<RunAuxiliary>(BranchTypeToAuxiliaryBranchName(InRun),
+                                        pRunAux_, om_->auxItems()[InRun].basketSize_);
+    runTree_.addAuxiliary<ProductProvenanceVector>(BranchTypeToBranchEntryInfoBranchName(InRun),
+                                                   pRunEntryInfoVector_, om_->auxItems()[InRun].basketSize_);
 
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InLumi]  = &lumiTree_;
@@ -591,7 +598,7 @@ namespace edm {
   void RootOutputFile::fillBranches(
                 BranchType const& branchType,
                 Principal const& principal,
-                std::vector<ProductProvenance>* productProvenanceVecPtr) {
+                ProductProvenanceVector* productProvenanceVecPtr) {
 
     std::vector<boost::shared_ptr<EDProduct> > dummies;
 

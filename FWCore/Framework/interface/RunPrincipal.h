@@ -28,7 +28,6 @@ namespace edm {
   class RunPrincipal : public Principal {
   public:
     typedef RunAuxiliary Auxiliary;
-    typedef std::vector<ProductProvenance> EntryInfoVector;
     typedef Principal Base;
 
     RunPrincipal(

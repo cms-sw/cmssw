@@ -23,7 +23,6 @@ namespace edm {
   class EventEntryDescription;
   class EventEntryInfo {
   public:
-    typedef std::vector<EventEntryInfo> EntryInfoVector;
     EventEntryInfo();
     ~EventEntryInfo();
 

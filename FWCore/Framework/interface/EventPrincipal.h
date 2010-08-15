@@ -36,8 +36,6 @@ namespace edm {
   class EventPrincipal : public Principal {
   public:
     typedef EventAuxiliary Auxiliary;
-    typedef std::vector<ProductProvenance> EntryInfoVector;
-
     typedef Principal Base;
 
     typedef Base::SharedConstGroupPtr SharedConstGroupPtr;

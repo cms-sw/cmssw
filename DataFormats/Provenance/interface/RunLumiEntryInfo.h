@@ -19,7 +19,6 @@ and how it came into existence, plus the product identifier and the status.
 namespace edm {
   class RunLumiEntryInfo {
   public:
-    typedef std::vector<RunLumiEntryInfo> EntryInfoVector;
     RunLumiEntryInfo();
     ~RunLumiEntryInfo();
 

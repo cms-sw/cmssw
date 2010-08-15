@@ -36,7 +36,7 @@ namespace edm {
     input::getEntry(branchPtr_, entryNumber_);
     setRefCoreStreamer(true);
     BranchMapperWithReader * me = const_cast<BranchMapperWithReader*>(this);
-    for (std::vector<ProductProvenance>::const_iterator it = infoVector_.begin(), itEnd = infoVector_.end();
+    for (ProductProvenanceVector::const_iterator it = infoVector_.begin(), itEnd = infoVector_.end();
       it != itEnd; ++it) {
       me->insert(*it);
     }

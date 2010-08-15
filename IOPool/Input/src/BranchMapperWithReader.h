@@ -28,8 +28,8 @@ namespace edm {
 
     TBranch * branchPtr_; 
     input::EntryNumber entryNumber_;
-    std::vector<ProductProvenance> infoVector_;
-    mutable std::vector<ProductProvenance> * pInfoVector_;
+    ProductProvenanceVector infoVector_;
+    mutable ProductProvenanceVector * pInfoVector_;
     std::map<unsigned int, BranchID> oldProductIDToBranchIDMap_;
   };
 }

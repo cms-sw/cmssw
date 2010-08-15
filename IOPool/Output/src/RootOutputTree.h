@@ -27,13 +27,11 @@ namespace edm {
   public:
     RootOutputTree(boost::shared_ptr<TFile> filePtr,
                    BranchType const& branchType,
-                   std::vector<ProductProvenance>*& pEntryInfoVector,
                    int bufSize,
                    int splitLevel,
                    int treeMaxVirtualSize) :
       filePtr_(filePtr),
       tree_(makeTTree(filePtr.get(), BranchTypeToProductTreeName(branchType), splitLevel)),
-      metaTree_(makeTTree(filePtr.get(), BranchTypeToMetaDataTreeName(branchType), 0)),
       producedBranches_(),
       readBranches_(),
       auxBranches_(),
@@ -41,21 +39,19 @@ namespace edm {
       unclonedReadBranchNames_(),
       currentlyFastCloning_() {
       if(treeMaxVirtualSize >= 0) tree_->SetMaxVirtualSize(treeMaxVirtualSize);
-      branchEntryInfoBranch_ = metaTree_->Branch(BranchTypeToBranchEntryInfoBranchName(branchType).c_str(),
-                                                 &pEntryInfoVector, bufSize, 0);
     }
 
     ~RootOutputTree() {}
 
     template <typename T>
     void
-    addAuxiliary(BranchType const& branchType, T const*& pAux, int bufSize) {
-      auxBranches_.push_back(tree_->Branch(BranchTypeToAuxiliaryBranchName(branchType).c_str(), &pAux, bufSize, 0));
+    addAuxiliary(std::string const& branchName, T const*& pAux, int bufSize) {
+      auxBranches_.push_back(tree_->Branch(branchName.c_str(), &pAux, bufSize, 0));
     }
 
     template <typename T>
     void
-    addAuxiliary(std::string const& branchName, T const*& pAux, int bufSize) {
+    addAuxiliary(std::string const& branchName, T*& pAux, int bufSize) {
       auxBranches_.push_back(tree_->Branch(branchName.c_str(), &pAux, bufSize, 0));
     }
 
@@ -90,13 +86,8 @@ namespace edm {
       return tree_;
     }
 
-    TTree* const metaTree() const {
-      return metaTree_;
-    }
-
     void setEntries() {
       if(tree_->GetNbranches() != 0) tree_->SetEntries(-1);
-      if(metaTree_->GetNbranches() != 0) metaTree_->SetEntries(-1);
     }
 
     bool
@@ -113,8 +104,6 @@ namespace edm {
 // Therefore, using smart pointers here will do no good.
     boost::shared_ptr<TFile> filePtr_;
     TTree* tree_;
-    TTree* metaTree_;
-    TBranch* branchEntryInfoBranch_;
     std::vector<TBranch*> producedBranches_; // does not include cloned branches
     std::vector<TBranch*> readBranches_;
     std::vector<TBranch*> auxBranches_;

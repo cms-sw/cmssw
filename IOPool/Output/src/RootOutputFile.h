@@ -79,7 +79,7 @@ namespace edm {
 
     void fillBranches(BranchType const& branchType,
                       Principal const& principal,
-                      std::vector<ProductProvenance>* productProvenanceVecPtr);
+                      ProductProvenanceVector* productProvenanceVecPtr);
 
      void insertAncestors(ProductProvenance const& iGetParents,
                           Principal const& principal,
@@ -108,14 +108,14 @@ namespace edm {
     EventAuxiliary const*           pEventAux_;
     LuminosityBlockAuxiliary const* pLumiAux_;
     RunAuxiliary const*             pRunAux_;
-    ProductProvenanceVector         eventEntryInfoVector_;
-    ProductProvenanceVector         lumiEntryInfoVector_;
-    ProductProvenanceVector         runEntryInfoVector_;
-    ProductProvenanceVector*       pEventEntryInfoVector_;
-    ProductProvenanceVector*       pLumiEntryInfoVector_;
-    ProductProvenanceVector*       pRunEntryInfoVector_;
-    BranchListIndexes const*       pBranchListIndexes_;
-    EventSelectionIDVector const*  pEventSelectionIDs_;
+    ProductProvenanceVector eventEntryInfoVector_;
+    ProductProvenanceVector lumiEntryInfoVector_;
+    ProductProvenanceVector runEntryInfoVector_;
+    ProductProvenanceVector*        pEventEntryInfoVector_;
+    ProductProvenanceVector*        pLumiEntryInfoVector_;
+    ProductProvenanceVector*        pRunEntryInfoVector_;
+    BranchListIndexes const*        pBranchListIndexes_;
+    EventSelectionIDVector const*   pEventSelectionIDs_;
     RootOutputTree eventTree_;
     RootOutputTree lumiTree_;
     RootOutputTree runTree_;

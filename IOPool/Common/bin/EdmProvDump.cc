@@ -551,7 +551,10 @@ ProvenanceDumper::work_() {
 
       TTree* eventMetaTree = dynamic_cast<TTree*>(f->Get(edm::BranchTypeToMetaDataTreeName(edm::InEvent).c_str()));
       if(0==eventMetaTree) {
-        std::cerr << "no '" << edm::BranchTypeToMetaDataTreeName(edm::InEvent)<< "' Tree in file so can not show dependencies\n";
+        eventMetaTree = dynamic_cast<TTree*>(f->Get(edm::BranchTypeToProductTreeName(edm::InEvent).c_str()));
+      }
+      if(0==eventMetaTree) {
+        std::cerr << "no '" << edm::BranchTypeToProductTreeName(edm::InEvent)<< "' Tree in file so can not show dependencies\n";
         showDependencies_ = false;
       } else {
         TBranch* productProvBranch = eventMetaTree->GetBranch(edm::BranchTypeToBranchEntryInfoBranchName(edm::InEvent).c_str());

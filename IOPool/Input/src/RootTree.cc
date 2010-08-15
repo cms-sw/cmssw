@@ -36,7 +36,7 @@ namespace edm {
     metaTree_(dynamic_cast<TTree *>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToMetaDataTreeName(branchType).c_str()) : 0)),
     branchType_(branchType),
     auxBranch_(tree_ ? getAuxiliaryBranch(tree_, branchType_) : 0),
-    branchEntryInfoBranch_(metaTree_ ? getProductProvenanceBranch(metaTree_, branchType_) : 0),
+    branchEntryInfoBranch_(metaTree_ ? getProductProvenanceBranch(metaTree_, branchType_) : getProductProvenanceBranch(tree_, branchType_)),
     treeCache_(),
     entries_(tree_ ? tree_->GetEntries() : 0),
     entryNumber_(-1),
@@ -54,7 +54,7 @@ namespace edm {
   bool
   RootTree::isValid() const {
     if (metaTree_ == 0 || metaTree_->GetNbranches() == 0) {
-      return tree_ != 0 && auxBranch_ != 0 && tree_->GetNbranches() == 1; 
+      return tree_ != 0 && auxBranch_ != 0; 
     }
     if (tree_ != 0 && auxBranch_ != 0 && metaTree_ != 0) { // backward compatibility
       if (branchEntryInfoBranch_ != 0 || statusBranch_ != 0) return true; // backward compatibility
@@ -87,7 +87,8 @@ namespace edm {
         //we want the new branch name for the JobReport
         branchNames_.push_back(prod.branchName());
       }
-      info.provenanceBranch_ = metaTree_->GetBranch(oldBranchName.c_str());
+      TTree *provTree = (metaTree_ != 0 ? metaTree_ : tree_);
+      info.provenanceBranch_ = provTree->GetBranch(oldBranchName.c_str());
       branches_->insert(std::make_pair(key, info));
   }
 
