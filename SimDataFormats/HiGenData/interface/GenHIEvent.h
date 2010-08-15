@@ -19,24 +19,31 @@ namespace edm {
 	 nCharged_(-99),
 	 nChargedMR_(-99),
 	 meanPt_(-99),
-	 meanPtMR_(-99)
+	 meanPtMR_(-99),
+     EtMR_(-99),
+     nChargedPtCut_(-99),
+     nChargedPtCutMR_(-99)
 	    {
 	       subevents_.reserve(0);
 	       ;}
 
-	 GenHIEvent(double b, int npart, int ncoll, int nhard, double phi,double nCharged,double nChargedMR,double meanPt,double meanPtMR) : 
+	 GenHIEvent(double b, int npart, int ncoll, int nhard, double phi,double nCharged,double nChargedMR,double meanPt,double meanPtMR,double EtMR,int nChargedPtCut,int nChargedPtCutMR) : 
+	 //GenHIEvent(double b, int npart, int ncoll, int nhard, double phi,double nCharged,double nChargedMR,double meanPt,double meanPtMR) : 
 	 b_(b), 
-	 npart_(npart), 
-	 ncoll_(ncoll), 
-	 nhard_(nhard), 
-	 phi_(phi),
-	 nCharged_(nCharged),
-         nChargedMR_(nChargedMR),
-         meanPt_(meanPt),
-         meanPtMR_(meanPtMR)
-	    {
-               subevents_.reserve(0);
-	       ;}
+     npart_(npart), 
+     ncoll_(ncoll), 
+     nhard_(nhard), 
+     phi_(phi),
+     nCharged_(nCharged),
+     nChargedMR_(nChargedMR),
+     meanPt_(meanPt),
+     meanPtMR_(meanPtMR),
+     EtMR_(EtMR),
+     nChargedPtCut_(nChargedPtCut),
+     nChargedPtCutMR_(nChargedPtCutMR)
+       {
+           subevents_.reserve(0);
+           ;}
 
 
 
@@ -52,6 +59,9 @@ namespace edm {
       int NchargedMR() const {return nChargedMR_;}
       double MeanPt() const {return meanPt_;}
       double MeanPtMR() const {return meanPtMR_;}
+      double EtMR() const {return EtMR_;}
+      int NchargedPtCut() const {return nChargedPtCut_;}
+      int NchargedPtCutMR() const {return nChargedPtCutMR_;}
 
       void setGenParticles(const reco::GenParticleCollection*) const;
       const std::vector<reco::GenParticleRef>    getSubEvent(unsigned int sub_id) const;
@@ -73,8 +83,9 @@ namespace edm {
       int nChargedMR_;
       double meanPt_;
       double meanPtMR_;
-
-
+      double EtMR_;
+      int nChargedPtCut_;
+      int nChargedPtCutMR_;
 
    };
 }
