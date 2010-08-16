@@ -42,6 +42,7 @@ BaseParticlePropagator::init() {
 bool 
 BaseParticlePropagator::propagate() { 
 
+
   //
   // Check that the particle is not already on the cylinder surface
   //
@@ -105,7 +106,7 @@ BaseParticlePropagator::propagate() {
     //
     // Check the decay time
     //
-    double delTime = propDir * (zProp-Z())*mass()/Pz();
+    double delTime = propDir * mass() * solution;
     double factor = 1.;
     properTime += delTime;
     if ( properTime > properDecayTime ) {
@@ -247,7 +248,7 @@ BaseParticlePropagator::propagate() {
       //
       if ( rProp < rCyl ) {
 
-	if ( firstLoop ) {
+	if ( firstLoop || fabs(pZ)/pT < 1E-10 ) {
 
 	  success = 0;
 
@@ -273,7 +274,7 @@ BaseParticlePropagator::propagate() {
     //
     // Check the decay time
     //
-    double delTime = propDir * (zProp-Z())*mass() / pZ;
+    double delTime = propDir * (phiProp-phi0)*radius*mass() / pT;
     double factor = 1.;
     properTime += delTime;
     if ( properTime > properDecayTime ) {
@@ -284,13 +285,13 @@ BaseParticlePropagator::propagate() {
 
     zProp = Z() + (zProp-Z())*factor;
 
-    phiProp = phi0 + (zProp - Z()) / radius * pT / pZ;
+    phiProp = phi0 + (phiProp-phi0)*factor;
 
     double sProp = std::sin(phiProp);
     double cProp = std::cos(phiProp);
     double xProp = xC + radius * sProp;
     double yProp = yC - radius * cProp;
-    double tProp = T() + (zProp-Z())*E()/pZ;
+    double tProp = T() + (phiProp-phi0)*radius*E()/pT;
     double pxProp = pT * cProp;
     double pyProp = pT * sProp;
 
