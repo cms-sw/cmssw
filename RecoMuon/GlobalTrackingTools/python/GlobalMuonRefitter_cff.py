@@ -23,6 +23,9 @@ GlobalMuonRefitter = cms.PSet(
     PropDirForCosmics = cms.bool(False),
     RefitRPCHits = cms.bool(True),
 
+    # thrs for MC_38Y_V7 
+    DYTthrs =  cms.vint32(15, 45, 15, 20, 30, 10, 30, 10, 15, 10, 10, 10),
+
     # muon station to be skipped
     SkipStation		= cms.int32(-1),
 
