@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.174 2010/07/26 19:25:57 eulisse Exp $
+// $Id: CmsShowMain.cc,v 1.175 2010/08/10 12:38:41 eulisse Exp $
 //
 
 // system include files
@@ -98,6 +98,7 @@ static const char* const kLiveCommandOpt  = "live";
 static const char* const kFieldCommandOpt = "field";
 static const char* const kFreePaletteCommandOpt = "free-palette";
 static const char* const kAutoSaveAllViews = "auto-save-all-views";
+static const char* const kEnableFPE        = "enable-fpe";
 
 
 //
@@ -141,7 +142,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
          (kLoopCommandOpt,                                   "Loop events in play mode")
          (kPlainRootCommandOpt,                              "Plain ROOT without event display")
          (kRootInteractiveCommandOpt,                        "Enable root interactive prompt")
-         (kDebugCommandOpt,                                  "Start the display from a debugger and producer a crash report")
+         (kDebugCommandOpt,                                  "Start the display from a debugger and produce a crash report")
+         (kEnableFPE,                                        "Enable detection of floating-point exceptions")
          (kLogLevelCommandOpt, po::value<unsigned int>(),    "Set log level starting from 0 to 4 : kDebug, kInfo, kWarning, kError")
          (kAdvancedRenderCommandOpt,                         "Use advance options to improve rendering quality       (anti-alias etc)")
          (kSoftCommandOpt,                                   "Try to force software rendering to avoid problems with bad hardware drivers")
@@ -289,6 +291,9 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       if(vm.count(kAutoSaveAllViews)) {
          m_autoSaveAllViewsFormat  = vm[kAutoSaveAllViews].as<std::string>();
          m_autoSaveAllViewsFormat += "%d_%d_%d_%s.png";
+      }
+      if(vm.count(kEnableFPE)) {
+         gSystem->SetFPEMask();
       }
       startupTasks()->startDoingTasks();
    } catch(std::exception& iException) {
