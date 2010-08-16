@@ -17,7 +17,7 @@ import FWCore.ParameterSet.Config as cms
 #    include reconstruction, simulation and analysis
 #  FEVTSIMDIGIHLTDEBUG FEVTSIMHLTDEBUG
 #
-#  $Id: EventContentCosmics_cff.py,v 1.19 2010/05/27 20:19:05 chrjones Exp $
+#  $Id: EventContentCosmics_cff.py,v 1.20 2010/07/07 10:35:03 mussgill Exp $
 #
 #
 #
@@ -313,3 +313,5 @@ ALCARECOEventContent.outputCommands.extend(OutALCARECORpcCalHLT_noDrop.outputCom
 ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlBeamHalo_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlBeamHaloOverlaps_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlBeamHalo_noDrop.outputCommands)
+
+ALCARECOEventContent.outputCommands.append('drop *_MEtoEDMConverter_*_*')
