@@ -45,12 +45,10 @@ CSCHaloData = cms.EDProducer("CSCHaloDataProducer",
                              # The expected time of a collision recHit will be t = time_0 + time-of-flight
                              # A recHit more than +/- time_window from collision timing will be declared "out-of-time"                      
                              # recHit times are in [ns]
-                             RecHitTime0 = cms.double(200.), 
-                             RecHitTimeWindow = cms.double(10000.),
+                             RecHitTime0 = cms.double(0.), 
+                             RecHitTimeWindow = cms.double(25.),
 
                              # If this is Data, the expected collision bx will be 3 instead of 6
                              #ExpectedBX = cms.int32(3)   # if Data
                              ExpectedBX = cms.int32(6)   # if MC
                              )
-
-
