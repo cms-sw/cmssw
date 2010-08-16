@@ -56,7 +56,7 @@ void PixelTripletHLTGenerator::hitTriplets(
 
   int size = theLayers.size();
 
-  typedef map<const DetLayer *,  std::pair<ThirdHitRZPrediction<PixelRecoLineRZ>, ThirdHitCorrection  >  PrecompMap;
+  typedef map<const DetLayer *,  std::pair<ThirdHitRZPrediction<PixelRecoLineRZ>, ThirdHitCorrection  > >  PrecompMap;
   PrecompMap mapPred;
 
   //  const LayerHitMap **thirdHitMap = new const LayerHitMap* [size];

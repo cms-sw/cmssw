@@ -15,6 +15,8 @@ public:
 
   typedef PixelRecoRange<float> Range; 
 
+  ThirdHitCorrection(){}
+
   ThirdHitCorrection( 
       const edm::EventSetup &es, 
       float pt, 
@@ -22,7 +24,20 @@ public:
       const PixelRecoLineRZ & line,
       const PixelRecoPointRZ & constraint,
       bool useMultipleScattering,
+      bool useBendingCorrection = false) 
+  { 
+    init(es, pt, layer, line, constraint, useMultipleScattering, useBendingCorrection);
+  }
+
+  void init( 
+	    const edm::EventSetup &es, 
+      float pt, 
+      const DetLayer * layer,
+      const PixelRecoLineRZ & line,
+      const PixelRecoPointRZ & constraint,
+      bool useMultipleScattering,
       bool useBendingCorrection = false);
+
 
   ~ThirdHitCorrection(){}
  

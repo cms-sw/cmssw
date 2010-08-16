@@ -14,23 +14,22 @@ template <class T> inline T sqr( T t) {return t*t;}
 
 using pixelrecoutilities::LongitudinalBendingCorrection;
 
-ThirdHitCorrection::ThirdHitCorrection(const edm::EventSetup& es, 
-      float pt,
-      const DetLayer * layer,
-      const PixelRecoLineRZ & line,
-      const PixelRecoPointRZ & constraint,
-      bool useMultipleScattering,
-      bool useBendingCorrection)
-  :
-    theBarrel(false),
-    theUseMultipleScattering(useMultipleScattering),
-    theUseBendingCorrection( useBendingCorrection),
-    theLine(line),
-    theMultScattCorrRPhi(0),
-    theMScoeff(0),
-    theBendingCorrection(){
+void ThirdHitCorrection::init(const edm::EventSetup& es, 
+			 float pt,
+			 const DetLayer * layer,
+			 const PixelRecoLineRZ & line,
+			 const PixelRecoPointRZ & constraint,
+			 bool useMultipleScattering,
+			 bool useBendingCorrection) {
+
+  theUseMultipleScattering = useMultipleScattering;
+  theUseBendingCorrection = useBendingCorrection;
+  theLine = line;
+  theMultScattCorrRPhi =0;
+  theMScoeff=0;
 
   if (!theUseMultipleScattering && !theUseBendingCorrection) return;
+
   float overSinTheta = std::sqrt(1.f+sqr(line.cotLine()));
   float overCosTheta = overSinTheta/std::abs(line.cotLine());
   theBarrel = (layer->location() == GeomDetEnumerators::barrel);
