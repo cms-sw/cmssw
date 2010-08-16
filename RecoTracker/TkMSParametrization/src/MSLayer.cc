@@ -173,8 +173,9 @@ if (theX0Data.hasX0) {
     case barrel:  
       return theX0Data.sumX0D
 	*std::sqrt( std::sqrt(   (1.f+cotTheta*cotTheta)
-                      / (1.f+theX0Data.cotTheta*theX0Data.cotTheta)));
-        return theX0Data.sumX0D;
+				 / (1.f+theX0Data.cotTheta*theX0Data.cotTheta)
+				 )
+		    );
     case endcap: 
       return (theX0Data.hasFSlope) ?  
          theX0Data.sumX0D 

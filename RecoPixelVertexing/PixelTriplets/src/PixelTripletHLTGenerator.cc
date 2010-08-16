@@ -52,23 +52,20 @@ void PixelTripletHLTGenerator::hitTriplets(
   
   thePairGenerator->hitPairs(region,pairs,ev,es);
 
-  if (pairs.size() ==0) return;
+  if (pairs.empty()) return;
 
   int size = theLayers.size();
 
-  typedef map<const DetLayer *,  std::pair<ThirdHitRZPrediction<PixelRecoLineRZ>, ThirdHitCorrection  > >  PrecompMap;
-  PrecompMap mapPred;
+  typedef std::vector<ThirdHitRZPrediction<PixelRecoLineRZ> >  Preds;
+  Preds preds(size);
 
-  //  const LayerHitMap **thirdHitMap = new const LayerHitMap* [size];
   const RecHitsSortedInPhi **thirdHitMap = new const RecHitsSortedInPhi*[size];
-  // fill the precomputation map
+  // fill the prediciton vetor
   for (int il=0; il!=size; ++il) {
      thirdHitMap[il] = &(*theLayerCache)(&theLayers[il], region, ev, es);
-     if ( mapPred.find(theLayers[il].detLayer())==mapPred.end()) {
-       ThirdHitRZPrediction<PixelRecoLineRZ> & pred = mapPred[theLayers[il].detLayer()].first;
-       pred.initLayer(theLayers[il].detLayer());
-       pred.initTolerance(extraHitRZtolerance);
-     }
+     ThirdHitRZPrediction<PixelRecoLineRZ> & pred = preds[il];
+     pred.initLayer(theLayers[il].detLayer());
+     pred.initTolerance(extraHitRZtolerance);
   }
 
 
@@ -88,10 +85,6 @@ void PixelTripletHLTGenerator::hitTriplets(
     ThirdHitPredictionFromInvParabola predictionRPhi(gp1,gp2,imppar,curv,extraHitRPhitolerance);
     ThirdHitPredictionFromInvParabola predictionRPhitmp(gp1tmp,gp2tmp,imppar+region.origin().perp(),curv,extraHitRPhitolerance);
 
-    for (PrecompMap::iterator it=mapPred.begin(); it!=mapPred.end(); ++it ) {
-      const DetLayer * layer = (*it).first;
-      (*it).second.second.init(es, region.ptMin(), layer, line, point2, useMScat, useBend);
-    }
 
     for (int il=0; il!=size; ++il) {
       const DetLayer * layer = theLayers[il].detLayer();
@@ -99,9 +92,9 @@ void PixelTripletHLTGenerator::hitTriplets(
 //                          || layer->subDetector() == GeomDetEnumerators::PixelEndcap); 
       bool barrelLayer = (layer->location() == GeomDetEnumerators::barrel);
 
-      ThirdHitCorrection & correction = mapPred[theLayers[il].detLayer()].second;
+      ThirdHitCorrection correction(es, region.ptMin(), layer, line, point2, useMScat, useBend); 
       
-      ThirdHitRZPrediction<PixelRecoLineRZ> & predictionRZ =  mapPred[theLayers[il].detLayer()].first;
+      ThirdHitRZPrediction<PixelRecoLineRZ> & predictionRZ =  preds[il];
 
       predictionRZ.initPropagator(&line);
       Range rzRange = predictionRZ();
