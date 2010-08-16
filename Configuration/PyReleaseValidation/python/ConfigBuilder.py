@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.205 $"
+__version__ = "$Revision: 1.206 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -67,6 +67,8 @@ class ConfigBuilder(object):
 
         self._options = options
         self.with_output = with_output
+	if hasattr(self._options,"no_output_flag") and self._options.no_output_flag:
+		self.with_output = False
         self.with_input = with_input
         if process == None:
             self.process = cms.Process(self._options.name)
@@ -1018,7 +1020,7 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.205 $"),
+              (version=cms.untracked.string("$Revision: 1.206 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
