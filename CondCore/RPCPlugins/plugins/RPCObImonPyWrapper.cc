@@ -15,6 +15,13 @@
 #include <iostream>
 #include <fstream>
 
+#include "TROOT.h"
+#include "TCanvas.h"
+#include "TStyle.h"
+#include "TColor.h"
+#include "TH1D.h"
+#include "TH2D.H"
+
 namespace cond {
 
   namespace rpcobimon {
@@ -134,9 +141,9 @@ namespace cond {
   };
 
 
-  template<>
-  std::string
-  PayLoadInspector<RPCObImon>::dump() const {return std::string();}
+//   template<>
+//   std::string
+//   PayLoadInspector<RPCObImon>::dump() const {return std::string();}
 
   template<>
   std::string PayLoadInspector<RPCObImon>::summary() const {
@@ -155,11 +162,22 @@ namespace cond {
   // return the real name of the file including extension...
   template<>
   std::string PayLoadInspector<RPCObImon>::plot(std::string const & filename,
-						   std::string const &, std::vector<int> const&, std::vector<float> const& ) const {
-    std::string fname = filename + ".txt";
-    std::ofstream f(fname.c_str());
-    f << dump();
-    return fname;
+						std::string const &,
+						std::vector<int> const&,
+						std::vector<float> const& ) const {
+
+    TH1D *hTry=new TH1D("hTry","Prova",10,0.,10.);
+
+    for(int ip=1;ip<=10;ip++)
+      hTry->SetBinContent(ip,ip*ip-ip);
+    
+    hTry->Draw();
+
+    //     std::string fname = filename + ".txt";
+    //     std::ofstream f(fname.c_str());
+    //     f << summary();
+    //     return fname;
+
   }
   
 }
