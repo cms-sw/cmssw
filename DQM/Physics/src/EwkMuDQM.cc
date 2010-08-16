@@ -204,16 +204,16 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup &) {
       // Muon collection
       Handle<View<Muon> > muonCollection;
       if (!ev.getByLabel(muonTag_, muonCollection)) {
-            LogWarning("") << ">>> Muon collection does not exist !!!";
-            return;
+	//LogWarning("") << ">>> Muon collection does not exist !!!";
+	return;
       }
       unsigned int muonCollectionSize = muonCollection->size();
 
       // Beam spot
       Handle<reco::BeamSpot> beamSpotHandle;
       if (!ev.getByLabel(InputTag("offlineBeamSpot"), beamSpotHandle)) {
-            LogWarning("") << ">>> No beam spot found !!!";
-            return;
+	//LogWarning("") << ">>> No beam spot found !!!";
+	return;
       }
   
       // MET
@@ -221,8 +221,8 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup &) {
       double met_py = 0.;
       Handle<View<MET> > metCollection;
       if (!ev.getByLabel(metTag_, metCollection)) {
-            LogWarning("") << ">>> MET collection does not exist !!!";
-            return;
+	//LogWarning("") << ">>> MET collection does not exist !!!";
+	return;
       }
       const MET& met = metCollection->at(0);
       met_px = met.px();
@@ -242,8 +242,8 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup &) {
       // Trigger
       Handle<TriggerResults> triggerResults;
       if (!ev.getByLabel(trigTag_, triggerResults)) {
-            LogWarning("") << ">>> TRIGGER collection does not exist !!!";
-            return;
+	//LogWarning("") << ">>> TRIGGER collection does not exist !!!";
+	return;
       }
       const edm::TriggerNames & trigNames = ev.triggerNames(*triggerResults);
       bool trigger_fired = false;
@@ -309,8 +309,8 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup &) {
       // Jet collection
       Handle<View<Jet> > jetCollection;
       if (!ev.getByLabel(jetTag_, jetCollection)) {
-            LogError("") << ">>> JET collection does not exist !!!";
-            return;
+	//LogError("") << ">>> JET collection does not exist !!!";
+	return;
       }
       unsigned int jetCollectionSize = jetCollection->size();
       int njets = 0;

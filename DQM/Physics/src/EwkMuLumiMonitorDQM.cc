@@ -233,7 +233,7 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
       // Trigger
       Handle<TriggerResults> triggerResults;
       if (!ev.getByLabel(trigTag_, triggerResults)) {
-	LogWarning("") << ">>> TRIGGER collection does not exist !!!";
+	//LogWarning("") << ">>> TRIGGER collection does not exist !!!";
 	return;
       }
       ev.getByLabel(trigTag_, triggerResults); 
@@ -250,7 +250,7 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
       edm::Handle< trigger::TriggerEvent > handleTriggerEvent;
       LogTrace("") << ">>> Trigger bit: " << trigger_fired << " (" << hltPath_ << ")";
       if ( ! ev.getByLabel( trigEv_, handleTriggerEvent ))  {
-	LogWarning( "errorTriggerEventValid" ) << "trigger::TriggerEvent product with InputTag " << trigEv_.encode() << " not in event";
+	//LogWarning( "errorTriggerEventValid" ) << "trigger::TriggerEvent product with InputTag " << trigEv_.encode() << " not in event";
 	return;
       }
       ev.getByLabel( trigEv_, handleTriggerEvent );
@@ -281,7 +281,7 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
       // Beam spot
       Handle<reco::BeamSpot> beamSpotHandle;
       if (!ev.getByLabel(InputTag("offlineBeamSpot"), beamSpotHandle)) {
-	LogWarning("") << ">>> No beam spot found !!!";
+	//LogWarning("") << ">>> No beam spot found !!!";
 	return;
       }
 
@@ -289,7 +289,7 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
 	//  looping on muon....
       Handle<View<Muon> >   muons;     
       if (!ev.getByLabel(muonTag_, muons)) {           
-	LogError("") << ">>> muon collection does not exist !!!";     
+	//LogError("") << ">>> muon collection does not exist !!!";     
 	return;     
       }
       
@@ -407,7 +407,7 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
 	if ( !(isZGolden2HLT_ || isZGolden1HLT_ )){
 	  Handle<View<MET> > metCollection;     
 	  if (!ev.getByLabel(metTag_, metCollection)) {           
-	    LogError("") << ">>> MET collection does not exist !!!";           
+	    //LogError("") << ">>> MET collection does not exist !!!";           
 	    return;     
 	  }     
 	  const MET& met = metCollection->at(0);   
@@ -507,13 +507,13 @@ void EwkMuLumiMonitorDQM::analyze (const Event & ev, const EventSetup &) {
 	    // look at the tracks....
 	    Handle< TrackCollection >   tracks;     
 	    if (!ev.getByLabel(trackTag_, tracks)) {           
-	      LogError("") << ">>> track collection does not exist !!!";     
+	      //LogError("") << ">>> track collection does not exist !!!";     
 	      return;     
 	    }
 	    ev.getByLabel(trackTag_, tracks);        
 	    Handle< CaloTowerCollection >   calotower;     
 	    if (!ev.getByLabel(caloTowerTag_, calotower)) {           
-	      LogError("") << ">>> calotower collection does not exist !!!";     
+	      //LogError("") << ">>> calotower collection does not exist !!!";     
 	      return;     
 	    } 
 	    ev.getByLabel(caloTowerTag_, calotower);

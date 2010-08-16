@@ -202,7 +202,7 @@ void QcdUeDQM::beginRun(const Run &run, const EventSetup &iSetup)
   bool changed(true);
   if (hltConfig.init(run,iSetup,"HLT",changed)) {
     if (changed) {
-      LogInfo("QcdUeDQM")  << "QcdUeDQM:analyze: The number of valid triggers has changed since beginning of job." << std::endl;
+      //LogInfo("QcdUeDQM")  << "QcdUeDQM:analyze: The number of valid triggers has changed since beginning of job." << std::endl;
     }
   }
 
