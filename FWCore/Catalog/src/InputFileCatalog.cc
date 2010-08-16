@@ -17,7 +17,9 @@ namespace edm {
     fallbackFileNames_(fileNames.size()),
     fileCatalogItems_(),
     fileLocator_(),
-    fallbackFileLocator_() {
+    overrideFileLocator_(),
+    fallbackFileLocator_(),
+    overrideFallbackFileLocator_() {
 
     init(fileNames, override, "", noThrow);
   }
@@ -28,11 +30,13 @@ namespace edm {
     fallbackFileNames_(fileNames.size()),
     fileCatalogItems_(),
     fileLocator_(),
-    fallbackFileLocator_() {
+    overrideFileLocator_(),
+    fallbackFileLocator_(),
+    overrideFallbackFileLocator_() {
 
     init(fileNames, override, overrideFallback, noThrow);
   }
-  
+
   InputFileCatalog::~InputFileCatalog() {}
 
   void InputFileCatalog::init(std::vector<std::string> const& fileNames, std::string const& inputOverride, std::string const& inputOverrideFallback, bool noThrow) {
@@ -57,7 +61,11 @@ namespace edm {
           overrideFileLocator_.reset(new FileLocator(inputOverride, false));
         }
         if (!fallbackFileLocator_) {
-          fallbackFileLocator_.reset(new FileLocator("", true));
+          try {
+            fallbackFileLocator_.reset(new FileLocator("", true));
+          } catch (cms::Exception const& e) {
+            // No valid fallback locator is OK too.
+          }
         }
         if (!overrideFallbackFileLocator_ && !inputOverrideFallback.empty()) {
           overrideFallbackFileLocator_.reset(new FileLocator(inputOverrideFallback, true));
@@ -68,23 +76,28 @@ namespace edm {
       fileCatalogItems_.push_back(FileCatalogItem(*it, *lt, *ft));
     }
   }
-  
+
   void InputFileCatalog::findFile(std::string& pfn, std::string& fallbackPfn, std::string const& lfn, bool noThrow) {
     if (overrideFileLocator_) {
       pfn = overrideFileLocator_->pfn(lfn);
-    }
-    if (pfn.empty())
+      if (pfn.empty()) {
+        pfn = fileLocator_->pfn(lfn);
+      }
+    } else {
       pfn = fileLocator_->pfn(lfn);
+    }
     if (pfn.empty() && !noThrow) {
       throw cms::Exception("LogicalFileNameNotFound", "FileCatalog::findFile()\n")
-	<< "Logical file name '" << lfn << "' was not found in the file catalog.\n"
-	<< "If you wanted a local file, you forgot the 'file:' prefix\n"
-	<< "before the file name in your configuration file.\n";
+        << "Logical file name '" << lfn << "' was not found in the file catalog.\n"
+        << "If you wanted a local file, you forgot the 'file:' prefix\n"
+        << "before the file name in your configuration file.\n";
     }
     if (overrideFallbackFileLocator_) {
       fallbackPfn = overrideFallbackFileLocator_->pfn(lfn);
-    }
-    if (fallbackPfn.empty() && fallbackFileLocator_) {
+      if (fallbackFileLocator_ && fallbackPfn.empty()) {
+        fallbackPfn = fallbackFileLocator_->pfn(lfn);
+      }
+    } else if (fallbackFileLocator_) {
       fallbackPfn = fallbackFileLocator_->pfn(lfn);
       // Empty fallback PFN is OK.
     }
