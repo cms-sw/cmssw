@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Tue March 28 09:46:41 EST 2010
-// $Id: FWSimpleProxyBuilder.cc,v 1.10 2010/08/12 19:29:57 amraktad Exp $
+// $Id: FWSimpleProxyBuilder.cc,v 1.11 2010/08/13 12:45:34 amraktad Exp $
 //
 
 // system include files
@@ -59,6 +59,23 @@ FWSimpleProxyBuilder::~FWSimpleProxyBuilder()
 //
 // member functions
 //
+
+void
+FWSimpleProxyBuilder::clean()
+{
+   for (Product_it i = m_products.begin(); i != m_products.end(); ++i)
+   {
+      if ((*i)->m_elements)
+      {
+         TEveElement* elms = (*i)->m_elements;
+         for (TEveElement::List_i it = elms->BeginChildren(); it != elms->EndChildren(); ++it)
+            (*it)->DestroyElements();
+      }
+   }
+
+   cleanLocal();
+}
+
 void
 FWSimpleProxyBuilder::itemChangedImp(const FWEventItem* iItem)
 {

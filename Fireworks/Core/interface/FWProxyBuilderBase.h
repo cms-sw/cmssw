@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:12 CET 2010
-// $Id: FWProxyBuilderBase.h,v 1.12 2010/05/31 19:44:02 matevz Exp $
+// $Id: FWProxyBuilderBase.h,v 1.13 2010/06/02 22:35:17 chrjones Exp $
 //
 
 // system include files
@@ -131,12 +131,16 @@ protected:
    virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
    virtual void buildViewType(const FWEventItem* iItem, TEveElementList*, FWViewType::EType, const FWViewContext*);
 
-   void clean();
+   virtual void clean();
    virtual void cleanLocal();
 
    // utility
    TEveCompound* createCompound(bool set_color=true, bool propagate_color_to_all_children=false) const;
 
+   // ---------- member data --------------------------------
+   typedef std::vector<Product*>::iterator Product_it;
+
+   std::vector<Product*> m_products;
 
 private:
    void applyChangesToAllModels();
@@ -144,10 +148,8 @@ private:
    void setProjectionLayer(float);
 
    // ---------- member data --------------------------------
-   typedef std::vector<Product*>::iterator Product_it;
 
    FWInteractionList*    m_interactionList;
-   std::vector<Product*> m_products;
 
    const FWEventItem* m_item;
 

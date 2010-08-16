@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones, AljaMrak-Tadel
 //         Created:  Tue March 28  2 09:46:36 EST 2010
-// $Id: FWSimpleProxyBuilder.h,v 1.7 2010/05/31 19:44:02 matevz Exp $
+// $Id: FWSimpleProxyBuilder.h,v 1.8 2010/06/18 12:31:57 matevz Exp $
 //
 
 // system include files
@@ -49,6 +49,7 @@ protected:
    void increaseComponentTransparency(unsigned int index, TEveElement* holder,
                                       const std::string& name, Char_t transpOffset);
 
+   virtual void clean();
    FWSimpleProxyHelper m_helper;
 private:
    FWSimpleProxyBuilder(const FWSimpleProxyBuilder&); // stop default

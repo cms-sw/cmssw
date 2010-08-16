@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:00 CET 2010
-// $Id: FWProxyBuilderBase.cc,v 1.23 2010/06/22 19:11:26 amraktad Exp $
+// $Id: FWProxyBuilderBase.cc,v 1.24 2010/08/12 19:29:57 amraktad Exp $
 //
 
 // system include files
@@ -19,6 +19,7 @@
 #include "TEveElement.h"
 #include "TEveCompound.h"
 #include "TEveManager.h"
+#include "TEveProjectionManager.h"
 #include "TEveSelection.h"
 
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
@@ -120,12 +121,14 @@ FWProxyBuilderBase::build()
    {
       try 
       {
-         bool firstTime = m_products.size();
+         size_t itemSize = m_item->size(); //cashed
+
          clean();
          for (Product_it i = m_products.begin(); i != m_products.end(); ++i)
          {
             // printf("build() %s \n", m_item->name().c_str());
             TEveElementList* elms = (*i)->m_elements;
+            size_t oldSize = elms->NumChildren();
 
             if (haveSingleProduct())
             {
@@ -138,16 +141,38 @@ FWProxyBuilderBase::build()
 
             // Project all children of current product.
             // If product is not registered into any projection-manager,
-            // this does nothing.
-            // It might be cleaner to check view-type / supported view-types.
-            if (firstTime) setProjectionLayer(item()->layer());
-            elms->ProjectAllChildren();
-
-            if (m_interactionList)
+            // this does nothing.          
+            TEveProjectable* pable = dynamic_cast<TEveProjectable*>(elms);
+            if (pable->HasProjecteds())
             {
-               unsigned int idx = 0;
-               for (TEveElement::List_i it = elms->BeginChildren(); it !=  elms->EndChildren(); ++it)
-                  m_interactionList->added(*it, idx++);
+               for (TEveProjectable::ProjList_i i = pable->BeginProjecteds(); i != pable->EndProjecteds(); ++i)
+               {
+                  TEveProjectionManager *pmgr = (*i)->GetManager();
+                  Float_t oldDepth = pmgr->GetCurrentDepth();
+                  pmgr->SetCurrentDepth(item()->layer());
+                  size_t cnt = 0;
+                  for (TEveElement::List_i prodIt = elms->BeginChildren(); prodIt != elms->EndChildren(); ++prodIt, ++cnt)
+                  {
+                     if (cnt < oldSize) // reused projected holder
+                        pmgr->SubImportChildren(*prodIt, (*i)->GetProjectedAsElement());
+                     else if (cnt < itemSize) // new product holder
+                        pmgr->SubImportElements(*prodIt, (*i)->GetProjectedAsElement());
+                     else
+                        break;
+                  }
+                  pmgr->SetCurrentDepth(oldDepth);
+               }
+            }
+         
+
+            if (m_interactionList && itemSize > oldSize)
+            {
+               TEveElement::List_i elIt = elms->BeginChildren();
+               for (size_t cnt = 0; cnt < itemSize; ++cnt, ++elIt)
+               {
+                  if (cnt >= oldSize )
+                     m_interactionList->added(*elIt, cnt);
+               }
             }
          }
       }
@@ -352,11 +377,7 @@ FWProxyBuilderBase::clean()
    for (Product_it i = m_products.begin(); i != m_products.end(); ++i)
    {
       if ((*i)->m_elements)
-      {
-         TEveElement* elms = (*i)->m_elements;
-         for (TEveElement::List_i it = elms->BeginChildren(); it != elms->EndChildren(); ++it)
-            (*it)->DestroyElements();
-      }
+         (*i)->m_elements->DestroyElements();
    }
 
    cleanLocal();
