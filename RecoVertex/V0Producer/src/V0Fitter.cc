@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.48 2010/06/19 03:24:33 drell Exp $
+// $Id: V0Fitter.cc,v 1.50 2010/08/05 22:06:39 wmtan Exp $
 //
 //
 
@@ -31,6 +31,8 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
+#include "TrackingTools/IPTools/interface/IPTools.h"
 
 #include <Math/Functions.h>
 #include <Math/SVector.h>
@@ -165,6 +167,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     if( tmpRef->normalizedChi2() < tkChi2Cut &&
         tmpRef->numberOfValidHits() >= tkNhitsCut ) {
       TransientTrack tmpTk( *tmpRef, &(*bFieldHandle), globTkGeomHandle );
+      // Old way of calculating daughter IP, switching to 3D
+      /*
       TrajectoryStateTransform theTransform;
       FreeTrajectoryState initialFTS = theTransform.initialFreeState(*tmpRef, magField);
       TSCBLBuilderNoMaterial blsBuilder;
@@ -182,6 +186,15 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	  theTransTracks.push_back( tmpTk );
 	}
       }
+      */
+      // NEW 3D IP method:
+      
+      std::pair<bool, Measurement1D> dau3DIpPair = IPTools::absoluteImpactParameter3D(tmpTk, (*theBestPriVtx));
+      if( dau3DIpPair.first && dau3DIpPair.second.significance() > impactParameterSigCut ) {
+	theTrackRefs.push_back( tmpRef );
+	theTransTracks.push_back( tmpTk );
+      }
+      
     }
   }
 
