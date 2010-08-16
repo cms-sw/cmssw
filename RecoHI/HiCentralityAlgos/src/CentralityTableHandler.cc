@@ -9,15 +9,12 @@ using namespace std;
 using namespace popcon;
 
 void CentralityTableHandler::getNewObjects(){
-
   cond::TagInfo const & tagInfo_ = tagInfo();
   cond::LogDBEntry const & logDBEntry_ = logDBEntry();     
   Ref payload = lastPayload();
-
-  cond::Time_t snc = -9;
+  cond::Time_t snc = 1;
   TFile* inputTFile_ = new TFile(inputTFileName_.data(),"read");
-
-  runnum_ = snc;
+  runnum_ = 1;
   CentralityBins* CB = (CentralityBins*) inputTFile_->Get(Form("%s/run%d",centralityTag_.data(),runnum_));
   cout<<centralityTag_.data()<<endl;
   CentralityTable* CT = new CentralityTable();
@@ -34,6 +31,7 @@ void CentralityTableHandler::getNewObjects(){
     thisBin->n_hard.var  = CB->NhardSigmaOfBin(j);
     thisBin->b.mean = CB->bMeanOfBin(j);
     thisBin->b.var = CB->bSigmaOfBin(j);
+
     CT->m_table.push_back(*thisBin);
   }
 
