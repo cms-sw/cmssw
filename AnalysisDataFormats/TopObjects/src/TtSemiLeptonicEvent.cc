@@ -56,13 +56,14 @@ TtSemiLeptonicEvent::print(const int verbosity)
     // header for each hypothesis
     log << "-------------------------------------------------- \n";
     switch(hypKey) {
-    case kGeom          : log << " Geom"         ; break;
-    case kWMassMaxSumPt : log << " WMassMaxSumPt"; break;
-    case kMaxSumPtWMass : log << " MaxSumPtWMass"; break;
-    case kGenMatch      : log << " GenMatch"     ; break;
-    case kMVADisc       : log << " MVADisc"      ; break;
-    case kKinFit        : log << " KinFit"       ; break;
-    default             : log << " Unknown";
+    case kGeom              : log << " Geom"             ; break;
+    case kWMassDeltaTopMass : log << " WMassDeltaTopMass"; break;
+    case kWMassMaxSumPt     : log << " WMassMaxSumPt"    ; break;
+    case kMaxSumPtWMass     : log << " MaxSumPtWMass"    ; break;
+    case kGenMatch          : log << " GenMatch"         ; break;
+    case kMVADisc           : log << " MVADisc"          ; break;
+    case kKinFit            : log << " KinFit"           ; break;
+    default                 : log << " Unknown";
     }
     log << "-Hypothesis: \n";
     log << " * Number of real neutrino solutions: " << this->numberOfRealNeutrinoSolutions(hypKey) << "\n";

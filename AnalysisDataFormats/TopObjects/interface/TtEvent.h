@@ -28,7 +28,7 @@ class TtEvent {
 
  public:
   /// supported classes of event hypotheses
-  enum HypoClassKey {kGeom, kWMassMaxSumPt, kMaxSumPtWMass, kGenMatch, kMVADisc, kKinFit, kKinSolution};
+  enum HypoClassKey {kGeom, kWMassMaxSumPt, kMaxSumPtWMass, kGenMatch, kMVADisc, kKinFit, kKinSolution, kWMassDeltaTopMass};
   /// pair of hypothesis and lepton jet combinatorics for a given hypothesis
   typedef std::pair<reco::CompositeCandidate, std::vector<int> > HypoCombPair;
 
