@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 20:33:06 CET 2010
-// $Id: FWRPZViewGeometry.cc,v 1.3 2010/06/18 10:17:16 yana Exp $
+// $Id: FWRPZViewGeometry.cc,v 1.4 2010/06/23 09:28:53 yana Exp $
 //
 
 // system include files
@@ -237,27 +237,35 @@ FWRPZViewGeometry::makeMuonGeometryRhoZ()
       // Station 3: ring 1 has 18 chambers, ring 2 has 36 chambers
       // Station 4: ring 1 has 18 chambers
       Int_t maxChambers = 36;
+      Int_t step = 9;
       for ( Int_t iStation=1; iStation<=4; ++iStation) {
          std::ostringstream s; s << "Station" << iStation;
          TEveElementList* cStation  = new TEveElementList( s.str().c_str() );
          cEndcap->AddElement( cStation );
-         for ( Int_t iRing=1; iRing<=4; ++iRing) {
+         for( Int_t iRing=1; iRing<=4; ++iRing )
+	 {
             if (iStation > 1 && iRing > 2) continue;
 	    if( iStation > 3 && iRing > 1 ) continue;
             std::ostringstream s; s << "Ring" << iRing;
             double min_rho(1000), max_rho(0), min_z(2000), max_z(-2000);
 	    ( iRing == 1 && iStation > 1 ) ? ( maxChambers = 18 ) : ( maxChambers = 36 );
-            for ( Int_t iChamber=1; iChamber<=maxChambers; ++iChamber) {
+	    ( iRing == 1 && iStation > 1 ) ? ( step = 5 ) : (  step = 18 );
+	    // Skip most of the chambers since they will project
+	    // the same way as the two top ones and the two bottom ones
+            for( Int_t iChamber = step; iChamber <= maxChambers; iChamber += step )
+	    {
                Int_t iLayer = 0; // chamber
-	       CSCDetId id(iEndcap, iStation, iRing, iChamber, iLayer);
+	       CSCDetId id( iEndcap, iStation, iRing, iChamber, iLayer );
 	       TEveGeoShape* shape = m_detIdToMatrix->getShape( id.rawId() );
-	       if ( !shape ) continue;
-	       // get matrix from the main geometry, since detIdToGeo has reflected and
-	       // rotated reference frame to get proper local coordinates
-	       TGeoManager* manager = m_detIdToMatrix->getManager();
-	       manager->cd( m_detIdToMatrix->getPath( id.rawId() ) );
-	       const TGeoHMatrix* matrix = manager->GetCurrentMatrix();
-	       estimateProjectionSizeCSC( matrix, shape->GetShape(), min_rho, max_rho, min_z, max_z );
+	       if( !shape ) continue;
+	       estimateProjectionSizeCSC( m_detIdToMatrix->getMatrix( id.rawId()),
+					  shape->GetShape(), min_rho, max_rho, min_z, max_z );
+	       ++iChamber;
+	       CSCDetId nextid( iEndcap, iStation, iRing, iChamber, iLayer );
+	       TEveGeoShape* nextshape = m_detIdToMatrix->getShape( nextid.rawId() );
+	       if( !nextshape ) continue;
+	       estimateProjectionSizeCSC( m_detIdToMatrix->getMatrix( nextid.rawId()),
+					  nextshape->GetShape(), min_rho, max_rho, min_z, max_z );
             }
             if ( min_rho > max_rho || min_z > max_z ) continue;
             cStation->AddElement( makeShape( s.str().c_str(), min_rho, max_rho, min_z, max_z ) );
