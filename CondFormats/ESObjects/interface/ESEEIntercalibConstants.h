@@ -60,21 +60,25 @@ class ESEEIntercalibConstants {
 
   private:
 
+    // both planes work perfectly
     float gammaLow0_;
     float alphaLow0_;
     float gammaHigh0_;
     float alphaHigh0_;
 
+    // both planes do not work at all
     float gammaLow1_;
     float alphaLow1_;
     float gammaHigh1_;
     float alphaHigh1_;
 
+    // only the first plane works
     float gammaLow2_;
     float alphaLow2_;
     float gammaHigh2_;
     float alphaHigh2_;
 
+    // only the second plane works
     float gammaLow3_;
     float alphaLow3_;
     float gammaHigh3_;
