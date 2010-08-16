@@ -2,13 +2,11 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.95 2010/07/26 15:13:59 matevz Exp $
+// $Id: CmsShowNavigator.cc,v 1.96 2010/07/26 19:25:57 eulisse Exp $
 //
-#define private public
-// FIXME: need access to private data members 
+
 #include "DataFormats/FWLite/interface/Event.h"
 #include "Fireworks/Core/src/CmsShowMain.h"
-#undef private
 
 #include "Fireworks/Core/interface/FWEventItem.h"
 
@@ -230,19 +228,15 @@ CmsShowNavigator::goTo(FileQueue_i fi, int event)
 void
 CmsShowNavigator::goToRunEvent(Int_t run, Int_t event)
 {
-// FIXME: commented out since not supported by 3_8_0_pre8
-/*   fwlite::Event* fwEvent = 0;
-   edm::FileIndex::const_iterator it;
-
    for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
    {
-      fwEvent = (*file)->event();
-      fwEvent->fillFileIndex();
-      it = fwEvent->fileIndex_.findEventPosition(run, 0, event, true);
-      if (fwEvent->fileIndex_.end() != it)
-         goTo(file, (*file)->getTreeEntryFromEventId(event));
+      Long64_t index = (*file)->event()->indexFromEventId(run, 0, event);
+      if (index >= 0)
+      {
+         goTo(file, index);
+         break;
+      }
    }
-*/
 }
 
 //______________________________________________________________________________
@@ -465,10 +459,10 @@ CmsShowNavigator::updateFileFilters()
    for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
    {
       if ( m_filesNeedUpdate) (*file)->needUpdate();
-      (*file)->updateFilters(m_main.m_eiManager.get(), m_filterMode == kOr);
+      (*file)->updateFilters(m_main.context()->eventItemsManager(), m_filterMode == kOr);
    }
    updateSelectorsInfo();
-    m_filesNeedUpdate = false;
+   m_filesNeedUpdate = false;
 
    // go to nearest file
    if (!(*m_currentFile)->isEventSelected(m_currentEvent))

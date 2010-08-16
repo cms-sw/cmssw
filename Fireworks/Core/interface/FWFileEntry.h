@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWFileEntry
-// $Id: FWFileEntry.h,v 1.9 2009/12/07 21:14:07 amraktad Exp $
+// $Id: FWFileEntry.h,v 1.10 2009/12/11 12:50:16 amraktad Exp $
 //
 
 // system include files
@@ -79,15 +79,13 @@ public:
    int  previousSelectedEvent(int event);
 
    void needUpdate() { m_needUpdate = true; }
-   void updateFilters(FWEventItemsManager* eiMng, bool isOR);
-
-   int  getTreeEntryFromEventId(int entry);
+   void updateFilters(const FWEventItemsManager* eiMng, bool isOR);
 
 private:
    FWFileEntry(const FWFileEntry&);    // stop default
    const FWFileEntry& operator=(const FWFileEntry&);    // stop default
    
-   void runFilter(Filter* fe, FWEventItemsManager* eiMng);
+   void runFilter(Filter* fe, const FWEventItemsManager* eiMng);
    bool filterEventsWithCustomParser(Filter* filter);
 
    std::string            m_name;
