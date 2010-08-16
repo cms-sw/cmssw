@@ -13,7 +13,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.96 2010/08/05 16:20:09 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.97 2010/08/06 15:52:19 dinardo Exp $
 
 
 #include "DQM/BeamMonitor/plugins/Vx3DHLTAnalyzer.h"
@@ -1069,7 +1069,7 @@ void Vx3DHLTAnalyzer::beginJob()
  
   // ### Set internal variables ###
   nBinsHistoricalPlot = 80;
-  nBinsWholeHistory   = 4000; // Corresponds to about 24h of data taking: 24h * 60min * 60s / 23s per lumi-block = 3757
+  nBinsWholeHistory   = 3000; // Corresponds to about 20h of data taking: 20h * 60min * 60s / 23s per lumi-block = 3130
   // ##############################
 
   if ( dbe ) 
