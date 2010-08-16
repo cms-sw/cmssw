@@ -255,7 +255,9 @@ namespace TopSingleLepton {
   {
     // fetch trigger event if configured such 
     edm::Handle<edm::TriggerResults> triggerTable;
-    if(!triggerTable_.label().empty()) event.getByLabel(triggerTable_, triggerTable);
+    if(!triggerTable_.label().empty()) {
+      if( !event.getByLabel(triggerTable_, triggerTable) ) return;
+    }
 
     /* 
     ------------------------------------------------------------
@@ -271,7 +273,9 @@ namespace TopSingleLepton {
 
     // check availability of electron id
     edm::Handle<edm::ValueMap<float> > electronId; 
-    if(!electronId_.label().empty()) event.getByLabel(electronId_, electronId);
+    if(!electronId_.label().empty()) {
+      if( !event.getByLabel(electronId_, electronId) ) return;
+    }
 
     // loop electron collection
     unsigned int eMult=0, eMultIso=0;
@@ -311,7 +315,10 @@ namespace TopSingleLepton {
 
     // fill monitoring plots for muons
     unsigned int mMult=0, mMultIso=0;
-    edm::Handle<edm::View<reco::Muon> > muons; event.getByLabel(muons_, muons);
+
+    edm::Handle<edm::View<reco::Muon> > muons;
+    if( !event.getByLabel(muons_, muons) ) return;
+
     for(edm::View<reco::Muon>::const_iterator muon=muons->begin(); muon!=muons->end(); ++muon){
       // restrict to globalMuons
       if( muon->isGlobalMuon() ){ 
@@ -348,9 +355,9 @@ namespace TopSingleLepton {
     // check availability of the btaggers
     edm::Handle<reco::JetTagCollection> btagEff, btagPur, btagVtx;
     if( includeBTag_ ){ 
-      event.getByLabel(btagEff_, btagEff);
-      event.getByLabel(btagPur_, btagPur);
-      event.getByLabel(btagVtx_, btagVtx); 
+      if( !event.getByLabel(btagEff_, btagEff) ) return;
+      if( !event.getByLabel(btagPur_, btagPur) ) return;
+      if( !event.getByLabel(btagVtx_, btagVtx) ) return;
     }
     // load jet corrector if configured such
     const JetCorrector* corrector=0;
@@ -378,8 +385,16 @@ namespace TopSingleLepton {
     // loop jet collection
     std::vector<reco::Jet> correctedJets;
     unsigned int mult=0, multBEff=0, multBPur=0, multBVtx=0;
-    edm::Handle<edm::View<reco::Jet> > jets; event.getByLabel(jets_, jets);
-    edm::Handle<reco::JetIDValueMap> jetID; if(jetIDSelect_){ event.getByLabel(jetIDLabel_, jetID); }
+
+
+    edm::Handle<edm::View<reco::Jet> > jets; 
+    if( !event.getByLabel(jets_, jets) ) return;
+
+    edm::Handle<reco::JetIDValueMap> jetID; 
+    if(jetIDSelect_){ 
+      if( !event.getByLabel(jetIDLabel_, jetID) ) return;
+    }
+
     for(edm::View<reco::Jet>::const_iterator jet=jets->begin(); jet!=jets->end(); ++jet){
       // check jetID for calo jets
       unsigned int idx = jet-jets->begin();
@@ -437,7 +452,7 @@ namespace TopSingleLepton {
     // fill monitoring histograms for met
     for(std::vector<edm::InputTag>::const_iterator met_=mets_.begin(); met_!=mets_.end(); ++met_){
       edm::Handle<edm::View<reco::MET> > met;
-      event.getByLabel(*met_, met);
+      if( !event.getByLabel(*met_, met) ) continue;
       if(met->begin()!=met->end()){
 	unsigned int idx=met_-mets_.begin();
 	if(idx==0) fill("metCalo_" , met->begin()->et());
@@ -515,12 +530,12 @@ TopSingleLeptonDQM::analyze(const edm::Event& event, const edm::EventSetup& setu
 { 
   if(!triggerTable_.label().empty()){
     edm::Handle<edm::TriggerResults> triggerTable;
-    event.getByLabel(triggerTable_, triggerTable);
+    if( !event.getByLabel(triggerTable_, triggerTable) ) return;
     if(!accept(event, *triggerTable, triggerPaths_)) return;
   }
   if(!beamspot_.label().empty()){
     edm::Handle<reco::BeamSpot> beamspot;
-    event.getByLabel(beamspot_, beamspot);
+    if( !event.getByLabel(beamspot_, beamspot) ) return;
     if(!(*beamspotSelect_)(*beamspot)) return;
   }
   // apply selection steps

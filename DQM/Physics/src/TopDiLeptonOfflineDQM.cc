@@ -250,7 +250,9 @@ namespace TopDiLeptonOffline {
   {
     // fetch trigger event if configured such 
     edm::Handle<edm::TriggerResults> triggerTable;
-    if(!triggerTable_.label().empty()) event.getByLabel(triggerTable_, triggerTable);
+    if(!triggerTable_.label().empty()) {
+      if( !event.getByLabel(triggerTable_, triggerTable) ) return;
+    }
 
     /* 
     ------------------------------------------------------------
@@ -262,7 +264,10 @@ namespace TopDiLeptonOffline {
 
     // buffer isolated muons
     std::vector<const reco::Muon*> isoMuons;
-    edm::Handle<edm::View<reco::Muon> > muons; event.getByLabel(muons_, muons);
+
+    edm::Handle<edm::View<reco::Muon> > muons;
+    if( !event.getByLabel(muons_, muons) ) return;
+
     for(edm::View<reco::Muon>::const_iterator muon=muons->begin(); muon!=muons->end(); ++muon){
       // restrict to globalMuons
       if( muon->isGlobalMuon() ){ 
@@ -291,8 +296,13 @@ namespace TopDiLeptonOffline {
     // buffer isolated electronss
     std::vector<const reco::GsfElectron*> isoElecs;
     edm::Handle<edm::ValueMap<float> > electronId; 
-    if(!electronId_.label().empty()) event.getByLabel(electronId_, electronId);
-    edm::Handle<edm::View<reco::GsfElectron> > elecs; event.getByLabel(elecs_, elecs);
+    if(!electronId_.label().empty()) {
+      if( !event.getByLabel(electronId_, electronId) ) return;
+    }
+
+    edm::Handle<edm::View<reco::GsfElectron> > elecs;
+    if( !event.getByLabel(elecs_, elecs) ) return;
+
     for(edm::View<reco::GsfElectron>::const_iterator elec=elecs->begin(); elec!=elecs->end(); ++elec){
       // restrict to electrons with good electronId
       int idx = elec-elecs->begin();
@@ -342,8 +352,14 @@ namespace TopDiLeptonOffline {
     unsigned int mult=0;
     // buffer leadingJets
     std::vector<reco::Jet> leadingJets;
-    edm::Handle<edm::View<reco::Jet> > jets; event.getByLabel(jets_, jets);
-    edm::Handle<reco::JetIDValueMap> jetID; if(jetIDSelect_){ event.getByLabel(jetIDLabel_, jetID);}
+    edm::Handle<edm::View<reco::Jet> > jets; 
+    if( !event.getByLabel(jets_, jets) ) return;
+
+    edm::Handle<reco::JetIDValueMap> jetID;
+    if(jetIDSelect_){ 
+      if( !event.getByLabel(jetIDLabel_, jetID) ) return;
+    }
+
     for(edm::View<reco::Jet>::const_iterator jet=jets->begin(); jet!=jets->end(); ++jet){
       unsigned int idx=jet-jets->begin();
       if( jetIDSelect_ && dynamic_cast<const reco::CaloJet*>(jets->refAt(idx).get())){
@@ -412,7 +428,10 @@ namespace TopDiLeptonOffline {
     // buffer for event logging 
     reco::MET caloMET;
     for(std::vector<edm::InputTag>::const_iterator met_=mets_.begin(); met_!=mets_.end(); ++met_){
-      edm::Handle<edm::View<reco::MET> > met; event.getByLabel(*met_, met);
+
+      edm::Handle<edm::View<reco::MET> > met;
+      if( !event.getByLabel(*met_, met) ) continue;
+
       if(met->begin()!=met->end()){
 	unsigned int idx=met_-mets_.begin();
 	if(idx==0){
@@ -576,17 +595,17 @@ TopDiLeptonOfflineDQM::analyze(const edm::Event& event, const edm::EventSetup& s
 { 
   if(!triggerTable_.label().empty()){
     edm::Handle<edm::TriggerResults> triggerTable;
-    event.getByLabel(triggerTable_, triggerTable);
+    if( !event.getByLabel(triggerTable_, triggerTable) ) return;
     if(!accept(event, *triggerTable, triggerPaths_)) return;
   }
   if(!vertex_.label().empty()){
     edm::Handle<std::vector<reco::Vertex> > vertex;
-    event.getByLabel(vertex_, vertex);
+    if( !event.getByLabel(vertex_, vertex) ) return;
     if(vertex->empty() || !(*vertexSelect_)(vertex->front())) return;
   }
   if(!beamspot_.label().empty()){
     edm::Handle<reco::BeamSpot> beamspot;
-    event.getByLabel(beamspot_, beamspot);
+    if( !event.getByLabel(beamspot_, beamspot) ) return;
     if(!(*beamspotSelect_)(*beamspot)) return;
   }
   // apply selection steps
