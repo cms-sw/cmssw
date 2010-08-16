@@ -5,8 +5,7 @@
 
 TrajectoryStateOnSurface
 KFSwitching1DUpdator::update(const TSOS& aTsos, const TransientTrackingRecHit& aHit) const {
-  if(//aHit.isMatched() || 
-     aHit.detUnit()->type().isTrackerPixel() || aHit.detUnit()->type().isEndcap()) {
+  if( !aHit.detUnit() || aHit.detUnit()->type().isTrackerPixel() || (!theDoEndCap && aHit.detUnit()->type().isEndcap())) {
     return localUpdator().update(aTsos, aHit);
   } else {
     return stripUpdator().update(aTsos, aHit);
