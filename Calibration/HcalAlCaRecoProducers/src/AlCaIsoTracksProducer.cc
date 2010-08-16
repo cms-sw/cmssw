@@ -41,6 +41,8 @@
 
 #include "DataFormats/Provenance/interface/ProductID.h"
 
+#include "Calibration/HcalAlCaRecoProducers/plugins/ConeDefinition.h"
+
 #include <boost/regex.hpp> 
 
 double getDistInCM(double eta1, double phi1, double eta2, double phi2)
@@ -84,7 +86,7 @@ bool checkHLTMatch(edm::Event& iEvent, edm::InputTag hltEventTag_, std::vector<s
     {
       for (unsigned l=0; l<hltFilterTag_.size(); l++)
 	{
-	  if (trEv->filterTag(iFilt).label()==hltFilterTag_[l]) 
+	  if ((trEv->filterTag(iFilt).label()).substr(0,27)==hltFilterTag_[l]) 
 	    {
 	      KEYS=trEv->filterKeys(iFilt);
 	    }
@@ -113,7 +115,7 @@ std::pair<double,double> getL1triggerDirection(edm::Event& iEvent, edm::InputTag
   const trigger::size_type nFilt(trEv->sizeFilters());
   for (trigger::size_type iFilt=0; iFilt!=nFilt; iFilt++)
     {
-      if (trEv->filterTag(iFilt).label()==l1FilterTag_) KEYS=trEv->filterKeys(iFilt); 
+      if ((trEv->filterTag(iFilt).label()).substr(0,14)==l1FilterTag_) KEYS=trEv->filterKeys(iFilt); 
     }
   trigger::size_type nReg=KEYS.size();
   double etaTrig=-10000;
@@ -145,7 +147,7 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig)
   hbheLabel_= iConfig.getParameter<edm::InputTag>("HBHEInput");
   
   m_dvCut = iConfig.getParameter<double>("vtxCut");
-  m_ddirCut = iConfig.getParameter<double>("RIsolAtECALSurface");
+  m_ddirCut = iConfig.getParameter<double>("RIsolAtHCALSurface");
   useConeCorr_=iConfig.getParameter<bool>("UseLowPtConeCorrection");
   m_pCut = iConfig.getParameter<double>("MinTrackP");
   m_ptCut = iConfig.getParameter<double>("MinTrackPt");
@@ -284,16 +286,20 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	    
     TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, trackAssociator_.getFreeTrajectoryState(iSetup, *track), parameters_);
     
+    GlobalPoint gPointHcal(info.trkGlobPosAtHcal.x(),info.trkGlobPosAtHcal.y(),info.trkGlobPosAtHcal.z());
+
+    GlobalVector trackMomAtHcal = info.trkMomAtHcal;
+    
     double etaecal=info.trkGlobPosAtEcal.eta();
     double phiecal=info.trkGlobPosAtEcal.phi();
-    
-//    double thetaecal = 2*atan(exp(-etaecal));
+
+    if (etaecal==0&&phiecal==0) continue;    
 
     //check matching to HLT object (optional)
 
     if (checkHLTMatch_&&!checkHLTMatch(iEvent, hltEventTag_, hltFiltTag_, etaecal, phiecal,hltMatchingCone_)) continue;
     
-    if (fabs(etaecal)>etaMax_) continue;
+    if (fabs(track->eta())>etaMax_) continue;
     
     // check charged isolation from all other tracks
     double maxPNearby=-10;
@@ -307,12 +313,16 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	
 	TrackDetMatchInfo info1 = trackAssociator_.associate(iEvent, iSetup, trackAssociator_.getFreeTrajectoryState(iSetup, *track1), parameters_);
 	
+	GlobalPoint gPointHcal1(info1.trkGlobPosAtHcal.x(),info1.trkGlobPosAtHcal.y(),info1.trkGlobPosAtHcal.z());
+
 	double etaecal1=info1.trkGlobPosAtEcal.eta();
 	double phiecal1=info1.trkGlobPosAtEcal.phi();
    
         if (etaecal1==0&&phiecal1==0) continue;	
 
-	double ecDist=getDistInCM(etaecal,phiecal,etaecal1,phiecal1);
+	double hcDist=getDistInPlaneTrackDir(gPointHcal, trackMomAtHcal, gPointHcal1);
+
+//        double hcDist=getDistInCM(etaecal,phiecal,etaecal1,phiecal1);
 
 	// increase required separation for low momentum tracks
 	double factor=1.;
@@ -323,8 +333,8 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	     if(ptrack<10.)factor+=(10.-ptrack)/20.;
 	     if(ptrack1<10.)factor1+=(10.-ptrack1)/20.;
 	   }
-
-	if( ecDist <  m_ddirCut*factor*factor1 ) 
+	
+	if( hcDist <  m_ddirCut*factor*factor1 ) 
 	  {
 	    //calculate maximum P and sum P near seed track
 	    if (track1->p()>maxPNearby)
@@ -385,15 +395,16 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	  }
 	for (std::vector<EcalRecHit>::const_iterator ehit=tmpEcalRecHitCollection->begin(); ehit!=tmpEcalRecHitCollection->end(); ehit++) 
 	  {
-	  	    ////////////////////// FIND ECAL CLUSTER ENERGY
+	    ////////////////////// FIND ECAL CLUSTER ENERGY
 	    // R scheme of ECAL CLUSTERIZATION
 	    GlobalPoint posH = geo->getPosition((*ehit).detid());
 	    double phihit = posH.phi();
 	    double etahit = posH.eta();
 	    
-	    double dHit=getDist(etaecal,phiecal,etahit,phihit);
+	    double dHit=deltaR(etaecal,phiecal,etahit,phihit);
 	    
-	    double dHitCM=getDistInCM(etaecal,phiecal,etahit,phihit);
+	    double dHitCM=getDistInPlaneTrackDir(gPointHcal, trackMomAtHcal, posH);
+	    
 	    if (dHitCM<cluRad_)
 	      {
 		ecClustR+=ehit->energy();
@@ -403,6 +414,7 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	      {
 		ecOutRingR+=ehit->energy();
 	      }
+
 	    //////////////////////////////////
 	    //NxN scheme & check whether hit was used or not, if not used push into usedHits
 	    bool hitIsUsed=false;
@@ -483,7 +495,7 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	    double phihit = posH.phi();
 	    double etahit = posH.eta();
 	    
-	    double dHit=getDist(etaecal,phiecal,etahit,phihit);
+	    double dHit=deltaR(etaecal,phiecal,etahit,phihit);
 	    
 	    if(dHit<1.)  
 
