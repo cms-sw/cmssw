@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: smCleanupFiles.pl,v 1.8 2010/04/30 09:35:14 gbauer Exp $
+# $Id: smCleanupFiles.pl,v 1.9 2010/08/16 09:53:47 gbauer Exp $
 
 use strict;
 use warnings;
@@ -306,7 +306,7 @@ print      "where HOSTNAME=? and ( RUNNUMBER>? or LAST_WRITE_TIME+$fileageSMI>sy
 		    $qinstance->bind_param(2,$hostname);
 		    my $qinstanceCheck = $qinstance->execute() or die("Error: Query2 failed - $dbh->errstr \n");
 		    my @result = $qinstance->fetchrow_array;
-		    my $diff = $h_notfiles{$run}{$instance}{$label}-$result[4]+$result[6];
+		    my $diff = $h_notfiles{$run}{$instance}{$label}-$result[5]+$result[6];
 		    print "SELECT-OUT: $result[0], Label=$result[1], INST=$result[2], $result[3], CREA=$result[4], INJ=$result[5], DELE=$result[6], UNACC=$result[7] || diff=$diff\n";
 		    
 		    
@@ -327,7 +327,7 @@ print      "where HOSTNAME=? and ( RUNNUMBER>? or LAST_WRITE_TIME+$fileageSMI>sy
 ## #check results:
 		    $qinstanceCheck = $qinstance->execute() or die("Error: Query failed - $dbh->errstr \n");
 		    @result = $qinstance->fetchrow_array;
-		    $diff = $h_notfiles{$run}{$instance}{$label}-$result[4]+$result[6];
+		    $diff = $h_notfiles{$run}{$instance}{$label}-$result[5]+$result[6];
 		    print "SELECT-OUT: $result[0], Label=$result[1], INST=$result[2], $result[3], CREA=$result[4], INJ=$result[5], DELE=$result[6], UNACC=$result[7] || diff=$diff\n";
 		    
 		    
