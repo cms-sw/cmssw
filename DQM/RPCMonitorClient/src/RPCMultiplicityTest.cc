@@ -19,13 +19,7 @@ using namespace std;
 RPCMultiplicityTest::RPCMultiplicityTest(const ParameterSet& ps ){
   LogVerbatim ("multiplicity") << "[RPCMultiplicityTest]: Constructor";
 
-
-  std::string prefixDir = ps.getUntrackedParameter<std::string>("RPCFolder", "RPC");
-  std::string recHitType =  ps.getUntrackedParameter<std::string>("NoiseOrMuons", "Noise");
-  std::string gFolder = ps.getUntrackedParameter<std::string>("GlobalFolder", "SummaryHistograms");
-  
-  globalFolder_ =  prefixDir + "/" +  recHitType +"/" + gFolder;
-
+  globalFolder_ = ps.getUntrackedParameter<string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms");
   prescaleFactor_ = ps.getUntrackedParameter<int>("DiagnosticPrescale", 1);
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
   numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
@@ -113,20 +107,24 @@ void RPCMultiplicityTest::endRun(const Run& r, const EventSetup& iSetup,vector<M
 
   //Get NumberOfDigi ME for each roll
   for (unsigned int i = 0 ; i<meVector.size(); i++){
-      
+    
+    bool flag= false;
+    
     DQMNet::TagList tagList;
     tagList = meVector[i]->getTags();
     DQMNet::TagList::iterator tagItr = tagList.begin();
     
-    while (tagItr != tagList.end()) {
-      if((*tagItr) ==  rpcdqm::MULTIPLICITY){
-      myNumDigiMe_.push_back(meVector[i]);
-      myDetIds_.push_back(detIdVector[i]);
-      break;
-      }
+    while (tagItr != tagList.end() && !flag ) {
+      if((*tagItr) ==  rpcdqm::MULTIPLICITY)
+	flag= true;
+      
       tagItr++;
     }
     
+    if(flag){
+      myNumDigiMe_.push_back(meVector[i]);
+      myDetIds_.push_back(detIdVector[i]);
+    }
   }
 }
 

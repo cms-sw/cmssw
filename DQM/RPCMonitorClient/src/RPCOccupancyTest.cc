@@ -15,15 +15,11 @@ using namespace std;
 RPCOccupancyTest::RPCOccupancyTest(const ParameterSet& ps ){
   LogVerbatim ("rpceventsummary") << "[RPCOccupancyTest]: Constructor";
   
-  subsystemFolder_ = ps.getUntrackedParameter<std::string>("RPCFolder", "RPC");
-  std::string recHitType =  ps.getUntrackedParameter<std::string>("NoiseOrMuons", "Noise");
-  std::string gFolder = ps.getUntrackedParameter<std::string>("GlobalFolder", "SummaryHistograms");
-  
-  globalFolder_ =  subsystemFolder_ + "/" +  recHitType +"/" + gFolder;
-
+  globalFolder_ = ps.getUntrackedParameter<string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms");
   prescaleFactor_ = ps.getUntrackedParameter<int>("DiagnosticPrescale", 1);
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
   numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
+
 }
 
 RPCOccupancyTest::~RPCOccupancyTest(){
@@ -203,16 +199,17 @@ void RPCOccupancyTest::endRun(const Run& r, const EventSetup& c,vector<MonitorEl
     tagList = meVector[i]->getTags();
     DQMNet::TagList::iterator tagItr = tagList.begin();
     
-    while (tagItr != tagList.end() ) {
-      if((*tagItr) ==  rpcdqm::OCCUPANCY){
-	myOccupancyMe_.push_back(meVector[i]);
-	myDetIds_.push_back(detIdVector[i]);
+    while (tagItr != tagList.end() && !flag ) {
+      if((*tagItr) ==  rpcdqm::OCCUPANCY)
 	flag= true;      
-      }
       tagItr++;
     }
+    
+    if(flag){
+      myOccupancyMe_.push_back(meVector[i]);
+      myDetIds_.push_back(detIdVector[i]);
+    }
   }
-
 }
 
 void RPCOccupancyTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context){} 
@@ -225,9 +222,10 @@ void RPCOccupancyTest::clientOperation(EventSetup const& iSetup) {
 
   LogVerbatim ("rpceventsummary") <<"[RPCOccupancyTest]: Client Operation";
 
-   MonitorElement * RPCEvents = dbe_->get(subsystemFolder_ +"/RPCEvents");  
-   if (RPCEvents)  rpcevents_ = RPCEvents -> getIntValue(); 
-   else rpcevents_ = 0;
+   MonitorElement * RPCEvents = dbe_->get(globalFolder_ +"/RPCEvents");  
+   rpcevents_ = RPCEvents -> getEntries(); 
+
+   //Clear distributions
 
    //Clear Distributions
    int limit = numberOfDisks_ * 2;
@@ -327,7 +325,9 @@ if (!myMe) return;
     if(NormOccup)  NormOccup->setBinContent(xBin,yBin, normoccup);
     if(NormOccupD) NormOccupD->Fill(normoccup);
 
-     
+    //cout<<detId.region()<<endl;
+    
+    
     if(detId.region()==0) {
       if(detId.station()==1 )Barrel_OccBySt -> Fill(1, normoccup);
       if(detId.station()==2 )Barrel_OccBySt -> Fill(2, normoccup);
@@ -336,6 +336,10 @@ if (!myMe) return;
       
       }
     else if(detId.region()==1) {
+      
+      //if(detId.station()==1)  EndCap_OccByDisk->Fill();
+      //else if (detId.station()==2) 
+      //else 
       
       if(detId.ring()==3) {
 	EndCap_OccByRng -> Fill(1, normoccup);

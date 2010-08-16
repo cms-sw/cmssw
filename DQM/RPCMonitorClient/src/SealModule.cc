@@ -28,8 +28,14 @@ DEFINE_FWK_MODULE(RPCDCSSummary);
 #include <DQM/RPCMonitorClient/interface/RPCDataCertification.h>
 DEFINE_FWK_MODULE(RPCDataCertification);
 
+//Used to read ME from ROOT files
+#include <DQM/RPCMonitorClient/interface/ReadMeFromFile.h>
+DEFINE_FWK_MODULE(ReadMeFromFile);
+
+//General Client
 #include <DQM/RPCMonitorClient/interface/RPCDqmClient.h>
 DEFINE_FWK_MODULE(RPCDqmClient);
+
 
 #include <DQM/RPCMonitorClient/interface/RPCChamberQuality.h>
 DEFINE_FWK_MODULE(RPCChamberQuality);
@@ -38,4 +44,5 @@ DEFINE_FWK_MODULE(RPCChamberQuality);
 #include <DQM/RPCMonitorClient/interface/RPCEfficiencySecond.h>
 DEFINE_FWK_MODULE(RPCEfficiencySecond);
 
-
+#include <DQM/RPCMonitorClient/interface/RPCEfficiencyShiftHisto.h>
+DEFINE_FWK_MODULE(RPCEfficiencyShiftHisto);

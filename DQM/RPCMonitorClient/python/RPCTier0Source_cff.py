@@ -1,7 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQM.RPCMonitorDigi.RPCDigiMonitoring_cfi import *
-rpcdigidqm.SaveRootFile = False
+rpcdigidqm.DigiEventsInterval = 100
+rpcdigidqm.dqmshifter = True
+rpcdigidqm.dqmexpert = True
+rpcdigidqm.dqmsuperexpert = False
+rpcdigidqm.DigiDQMSaveRootFile = False
 
 
 # FED integrity

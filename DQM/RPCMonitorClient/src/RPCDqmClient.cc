@@ -25,26 +25,26 @@
 //DQMServices
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-RPCDqmClient::RPCDqmClient(const edm::ParameterSet& iConfig)
+using namespace edm;
+using namespace std;
+
+/////////////////REMEMBER TO PUT THE LOG MESSAGES!!!!!!process.timing = cms.Service('Timing')!!!!! 
+
+RPCDqmClient::RPCDqmClient(const ParameterSet& iConfig)
 
 {
- edm::LogVerbatim ("rpcdqmclient") << "[RPCDqmClient]: Constructor";
+ LogVerbatim ("rpcdqmclient") << "[RPCDqmClient]: Constructor";
 
   parameters_ = iConfig;
   
   //check enabling
   enableDQMClients_ =parameters_.getUntrackedParameter<bool> ("EnableRPCDqmClients",true); 
   minimumEvents_= parameters_.getUntrackedParameter<int>("MinimumRPCEvents", 10000);
-
+  globalFolder_= parameters_.getUntrackedParameter<string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms");
   //get prescale factor
-  prescaleGlobalFactor_ = parameters_.getUntrackedParameter<int>("DiagnosticPrescale", 5);
+  prescaleGlobalFactor_ = parameters_.getUntrackedParameter<int>("DiagnosticGlobalPrescale", 5);
 
-  prefixDir_ = parameters_.getUntrackedParameter<std::string>("RPCFolder", "RPC");
-  recHitType_ =  parameters_.getUntrackedParameter<std::string>("NoiseOrMuons", "Noise");
-  std::string gFolder = parameters_.getUntrackedParameter<std::string>("GlobalFolder", "SummaryHistograms");
-
-  globalFolder_ =  prefixDir_+ "/" +  recHitType_ +"/" + gFolder;
-
+  prefixDir_ = parameters_.getUntrackedParameter<string>("RPCDirectory", "RPC/RecHits");
 
   //make default client list  
   clientList_.push_back("RPCMultiplicityTest");
@@ -59,28 +59,29 @@ RPCDqmClient::RPCDqmClient(const edm::ParameterSet& iConfig)
 RPCDqmClient::~RPCDqmClient(){dbe_ = 0;}
 
 void RPCDqmClient::beginJob(){
- edm::LogVerbatim ("rpcdqmclient") << "[RPCDqmClient]: Begin Job";
+ LogVerbatim ("rpcdqmclient") << "[RPCDqmClient]: Begin Job";
   if (!enableDQMClients_) return;                 ;
 
-  dbe_ = edm::Service<DQMStore>().operator->();
+  dbe_ = Service<DQMStore>().operator->();
   dbe_->setVerbose(0);
   
+
   //Do whatever the begin jobs of all client modules do
-  for(std::vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ )
+  for(vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ )
    (*it)->beginJob(dbe_);
   
 }
 
-void  RPCDqmClient::endRun(const edm::Run& r, const edm::EventSetup& c){
-   edm::LogVerbatim ("rpcdqmclient") << "[RPCDqmClient]: End Run";
+void  RPCDqmClient::endRun(const Run& r, const EventSetup& c){
+   LogVerbatim ("rpcdqmclient") << "[RPCDqmClient]: End Run";
   if (!enableDQMClients_) return;
 
   init_ = false;
 
-  std::vector<MonitorElement *>  myMeVect;
-  std::vector<RPCDetId>   myDetIds;
+  vector<MonitorElement *>  myMeVect;
+  vector<RPCDetId>   myDetIds;
 
-  edm::ESHandle<RPCGeometry> rpcGeo;
+  ESHandle<RPCGeometry> rpcGeo;
   c.get<MuonGeometryRecord>().get(rpcGeo);
  
   dbe_->setCurrentFolder(prefixDir_);
@@ -103,7 +104,7 @@ void  RPCDqmClient::endRun(const edm::Run& r, const edm::EventSetup& c){
 	//loop on clients
 	for( unsigned int cl = 0; cl<clientModules_.size(); cl++ ){
 
- 	  MonitorElement * myMe = dbe_->get(prefixDir_+"/"+ folderStr->folderStructure(detId, recHitType_)+"/"+clientHisto_[cl]+ "_"+RPCname.name()); 
+ 	  MonitorElement * myMe = dbe_->get(prefixDir_+"/"+ folderStr->folderStructure(detId)+"/"+clientHisto_[cl]+ "_"+RPCname.name()); 
 
 	  if (!myMe || find(myMeVect.begin(), myMeVect.end(), myMe)!=myMeVect.end())continue;
 
@@ -116,34 +117,34 @@ void  RPCDqmClient::endRun(const edm::Run& r, const edm::EventSetup& c){
     }
   }//end loop on all geometry and get all histos  
   
-  for (std::vector<RPCClient*>::iterator  it= clientModules_.begin(); it!=clientModules_.end(); it++ )
+  for (vector<RPCClient*>::iterator  it= clientModules_.begin(); it!=clientModules_.end(); it++ )
     (*it)->endRun(r,c,myMeVect, myDetIds);
 
-  MonitorElement * RPCEvents = dbe_->get(prefixDir_+"/RPCEvents");  
+  MonitorElement * RPCEvents = dbe_->get(globalFolder_ +"/RPCEvents");  
 
-  float   rpcevents = 0;
-  if(RPCEvents) rpcevents = RPCEvents -> getIntValue();
-
+  float   rpcevents = minimumEvents_;
+  if(RPCEvents) rpcevents = RPCEvents -> getEntries();
+    
   if(rpcevents < minimumEvents_) return;
 
-  for (std::vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ )
+  for (vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ )
     (*it)->clientOperation(c);
 
 }
 
-void RPCDqmClient::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) {
+void RPCDqmClient::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
   if (!enableDQMClients_) return;
 
-  for ( std::vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ )
+  for ( vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ )
     (*it)->beginLuminosityBlock(lumiSeg,context);
 }
 
-void RPCDqmClient::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void RPCDqmClient::analyze(const Event& iEvent, const EventSetup& iSetup)
 {
 
  if (!enableDQMClients_) return;
 
- for ( std::vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ )
+ for ( vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ )
     (*it)->analyze( iEvent,iSetup);
 }
 
@@ -154,15 +155,15 @@ void RPCDqmClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::
  
   if (!enableDQMClients_ ) return;
     
-  for (std::vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ )
+  for (vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ )
     (*it)->endLuminosityBlock( lumiSeg, c);
 }
 
 
-void  RPCDqmClient::beginRun(const edm::Run& r, const edm::EventSetup& c){
+void  RPCDqmClient::beginRun(const Run& r, const EventSetup& c){
 
  if (!enableDQMClients_) return;
-   for ( std::vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ )
+   for ( vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ )
     (*it)->beginRun(r,c);
 }
 
@@ -170,16 +171,16 @@ void  RPCDqmClient::beginRun(const edm::Run& r, const edm::EventSetup& c){
 void RPCDqmClient::endJob() {
  if (!enableDQMClients_) return;
  
- for ( std::vector<RPCClient*>::iterator it= clientModules_.begin(); it!=clientModules_.end(); it++ )
+ for ( vector<RPCClient*>::iterator it= clientModules_.begin(); it!=clientModules_.end(); it++ )
     (*it)->endJob();
 }
 
 
 void RPCDqmClient::makeClientMap() {
   
-  std::vector< std::string>  clientList,clientNames,clientHisto; 
-  std::vector<RPCClient*> clientModules;
-  std::vector<int> clientTag;
+  vector<string>  clientList,clientNames,clientHisto; 
+  vector<RPCClient*> clientModules;
+  vector<int> clientTag;
   
   //clear global vectors;
   clientNames_.clear();

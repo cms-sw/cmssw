@@ -1,3 +1,9 @@
+/**************************************
+ *         Autor: David Lomidze       *
+ *           INFN di Napoli           *
+ *           06 March 2009            *
+ *************************************/
+
 #include <DQM/RPCMonitorClient/interface/RPCNoisyStripTest.h>
 #include "DQM/RPCMonitorDigi/interface/utils.h"
 
@@ -17,14 +23,9 @@ using namespace edm;
 using namespace std;
 
 RPCNoisyStripTest::RPCNoisyStripTest(const ParameterSet& ps ){
-  LogVerbatim ("rpcnoisystriptest") << "[RPCNoisyStripTest]: Constructor";
+  LogVerbatim ("rpcnoisetest") << "[RPCNoisyStripTest]: Constructor";
  
-
- std::string prefixDir = ps.getUntrackedParameter<std::string>("RPCFolder", "RPC");
-  std::string recHitType =  ps.getUntrackedParameter<std::string>("NoiseOrMuons", "Noise");
-  std::string gFolder = ps.getUntrackedParameter<std::string>("GlobalFolder", "SummaryHistograms");
-  
-  globalFolder_ =  prefixDir + "/" +  recHitType +"/" + gFolder;
+  globalFolder_ = ps.getUntrackedParameter<string>("RPCGlobalFolder", "RPC/RecHits/SummaryHistograms");
   prescaleFactor_ = ps.getUntrackedParameter<int>("DiagnosticPrescale", 1);
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
   numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
@@ -34,13 +35,13 @@ RPCNoisyStripTest::RPCNoisyStripTest(const ParameterSet& ps ){
 RPCNoisyStripTest::~RPCNoisyStripTest(){dbe_=0;}
 
 void RPCNoisyStripTest::beginJob(DQMStore * dbe){
- LogVerbatim ("rpcnoisystriptest") << "[RPCNoisyStripTest]: Begin job ";
+ LogVerbatim ("rpcnoisetest") << "[RPCNoisyStripTest]: Begin job ";
  dbe_ = dbe;
 
 }
 
 void RPCNoisyStripTest::endRun(const Run& r, const EventSetup& iSetup,vector<MonitorElement *> meVector, vector<RPCDetId> detIdVector){
- LogVerbatim ("rpcnoisystriptest") << "[RPCNoisyStripTest]: End run";
+ LogVerbatim ("rpcnoisetest") << "[RPCNoisyStripTest]: End run";
  
  
  MonitorElement* me;
@@ -127,20 +128,23 @@ void RPCNoisyStripTest::endRun(const Run& r, const EventSetup& iSetup,vector<Mon
  //Get NumberOfDigi ME for each roll
  for (unsigned int i = 0 ; i<meVector.size(); i++){
    
+   bool flag= false;
+   
    DQMNet::TagList tagList;
    tagList = meVector[i]->getTags();
    DQMNet::TagList::iterator tagItr = tagList.begin();
    
-   while (tagItr != tagList.end()) {
-     if((*tagItr) ==  rpcdqm::OCCUPANCY){
-       myOccupancyMe_.push_back(meVector[i]);
-       myDetIds_.push_back(detIdVector[i]);
-       break;
-     }
+   while (tagItr != tagList.end() && !flag ) {
+     if((*tagItr) ==  rpcdqm::OCCUPANCY)
+       flag= true;
      
      tagItr++;
    }
    
+   if(flag){
+     myOccupancyMe_.push_back(meVector[i]);
+     myDetIds_.push_back(detIdVector[i]);
+   }
  }
 }
 
@@ -153,7 +157,7 @@ void RPCNoisyStripTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Event
 void RPCNoisyStripTest::clientOperation(EventSetup const& iSetup) {  
 
 
-  LogVerbatim ("rpcnoisystriptest") <<"[RPCNoisyStripTest]: Client Operation";
+  LogVerbatim ("rpcnoisetest") <<"[RPCNoisyStripTest]: Client Operation";
   
   //Clear Distributions
   int limit = numberOfDisks_ * 2;
