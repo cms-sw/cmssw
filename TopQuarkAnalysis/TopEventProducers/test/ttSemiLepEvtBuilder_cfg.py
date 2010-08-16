@@ -51,7 +51,7 @@ process.ttSemiLepEvent.verbosity = 1
 ## choose which hypotheses to produce
 from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import *
 addTtSemiLepHypotheses(process,
-                       ["kGeom", "kWMassMaxSumPt", "kMaxSumPtWMass", "kMVADisc", "kKinFit"]
+                       ["kGeom", "kWMassDeltaTopMass", "kWMassMaxSumPt", "kMaxSumPtWMass", "kMVADisc", "kKinFit"]
                        )
 #removeTtSemiLepHypGenMatch(process)
 
@@ -60,6 +60,9 @@ addTtSemiLepHypotheses(process,
 
 ## change maximum number of jets taken into account per event (default: 4)
 #setForAllTtSemiLepHypotheses(process, "maxNJets", 5)
+
+## solve kinematic equation to determine neutrino pz
+#setForAllTtSemiLepHypotheses(process, "neutrinoSolutionType", 2)
 
 ## change maximum number of jet combinations taken into account per event (default: 1)
 #process.findTtSemiLepJetCombMVA.maxNComb        = -1
