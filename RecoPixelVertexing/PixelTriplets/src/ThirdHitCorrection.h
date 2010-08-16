@@ -24,7 +24,7 @@ public:
       bool useMultipleScattering,
       bool useBendingCorrection = false);
 
-  ~ThirdHitCorrection();
+  ~ThirdHitCorrection(){}
  
   void correctRPhiRange( Range & range) const;
   void correctRZRange( Range & range) const;
@@ -35,7 +35,6 @@ private:
   bool theUseMultipleScattering;
   bool theUseBendingCorrection;
 
-  float theCosTheta, theSinTheta;
   PixelRecoLineRZ theLine;
   float theMultScattCorrRPhi;
   float theMScoeff;

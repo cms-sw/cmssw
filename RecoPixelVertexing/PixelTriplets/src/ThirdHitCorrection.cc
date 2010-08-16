@@ -39,9 +39,9 @@ ThirdHitCorrection::ThirdHitCorrection(const edm::EventSetup& es,
     MultipleScatteringParametrisation sigmaRPhi(layer, es);
     theMultScattCorrRPhi = 3.f*sigmaRPhi(pt, line.cotLine(), constraint);
     if (theBarrel) {
-      if (theSinTheta > 1.e-5f) theMScoeff =  theMultScattCorrRPhi*overSinTheta; 
+      theMScoeff =  theMultScattCorrRPhi*overSinTheta; 
     } else {
-      if (theCosTheta > 1.e-5f) theMScoeff =  theMultScattCorrRPhi*overCosTheta;
+      theMScoeff =  theMultScattCorrRPhi*overCosTheta;
     }
   }
 
