@@ -175,11 +175,12 @@ BaseParticlePropagator::propagate() {
     // Check for rounding errors in the ArcSin.
     double sinPhiProp = 
       (rProp*rProp-radius*radius-dist*dist)/( 2.*dist*radius);
+    
     //
     double deltaPhi = 1E99;
 
     // Taylor development up to third order for large momenta 
-    if ( 1.-fabs(sinPhiProp) < 1E-12 ) { 
+    if ( 1.-fabs(sinPhiProp) < 1E-9 ) { 
 
       double cphi0 = std::cos(phi0);
       double sphi0 = std::sin(phi0);
@@ -524,7 +525,7 @@ BaseParticlePropagator::propagateToHcalEntrance(bool first) {
 
   // If went through the bottom of HB cylinder -> re-propagate to HE surface
   if (done && success == 2) {
-    setPropagationConditions(99999.0, 400.458, first);
+    setPropagationConditions(300.0, 400.458, first);
     propDir = 0;
     done = propagate();
     propDir = 1;
@@ -545,7 +546,7 @@ BaseParticlePropagator::propagateToVFcalEntrance(bool first) {
   // TODO: include proper geometry
   // Geometry taken from DAQ TDR Chapter 13
 
-  setPropagationConditions(130.0 , 1110.0, first);
+  setPropagationConditions(400.0 , 1110.0, first);
   propDir = 0;
   bool done = propagate();
   propDir = 1;
