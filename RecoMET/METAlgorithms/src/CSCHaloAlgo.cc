@@ -351,6 +351,17 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	   LocalPoint rhitlocal = (*dRHIter).localPosition();
 	   const CSCChamber* chamber = TheCSCGeometry.chamber(idrec);
 	   GlobalPoint globalPosition = chamber->toGlobal(rhitlocal);
+	   float globZ = globalPosition.z();
+	   if ( RHTime < (recHit_t0 - recHit_twindow) )
+	     {
+	       if( globZ > 0 )
+		 n_recHitsP++;
+	       else
+		 n_recHitsM++;
+	     }
+	   
+	   /*
+
 	   float globX = globalPosition.x();
 	   float globY = globalPosition.y();
 	   float globZ = globalPosition.z();
@@ -362,6 +373,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	       else
 		 n_recHitsM++;
 	     }
+	   */
 	 }
      }
    TheCSCHaloData.SetNOutOfTimeHits(n_recHitsP+n_recHitsM);
