@@ -42,7 +42,7 @@ class TtEvtBuilder : public edm::EDProducer {
   /// produce function (this one is not even accessible for
   /// derived classes)
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  // fill data members that are decay-channel specific
+  /// fill data members that are decay-channel specific
   virtual void fillSpecific(C&, const edm::Event&);
 
  private:
