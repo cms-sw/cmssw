@@ -25,24 +25,23 @@ ThirdHitCorrection::ThirdHitCorrection(const edm::EventSetup& es,
     theBarrel(false),
     theUseMultipleScattering(useMultipleScattering),
     theUseBendingCorrection( useBendingCorrection),
-    theCosTheta(0.), theSinTheta(0.),
     theLine(line),
-    theMultScattCorrRPhi(0.),
-    theMScoeff(0.),
+    theMultScattCorrRPhi(0),
+    theMScoeff(0),
     theBendingCorrection(){
 
   if (!theUseMultipleScattering && !theUseBendingCorrection) return;
-  theSinTheta = 1.f/std::sqrt(1.f+sqr(line.cotLine()));
-  theCosTheta = std::abs(line.cotLine())*theSinTheta;
+  float overSinTheta = std::sqrt(1.f+sqr(line.cotLine()));
+  float overCosTheta = overSinTheta/std::abs(line.cotLine());
   theBarrel = (layer->location() == GeomDetEnumerators::barrel);
 
   if (theUseMultipleScattering) {
     MultipleScatteringParametrisation sigmaRPhi(layer, es);
     theMultScattCorrRPhi = 3.f*sigmaRPhi(pt, line.cotLine(), constraint);
     if (theBarrel) {
-      if (theSinTheta > 1.e-5f) theMScoeff =  theMultScattCorrRPhi/theSinTheta; 
+      if (theSinTheta > 1.e-5f) theMScoeff =  theMultScattCorrRPhi*overSinTheta; 
     } else {
-      if (theCosTheta > 1.e-5f) theMScoeff =  theMultScattCorrRPhi/theCosTheta;
+      if (theCosTheta > 1.e-5f) theMScoeff =  theMultScattCorrRPhi*overCosTheta;
     }
   }
 
@@ -50,7 +49,6 @@ ThirdHitCorrection::ThirdHitCorrection(const edm::EventSetup& es,
 
 }
 
-ThirdHitCorrection::~ThirdHitCorrection(){}
 
 void ThirdHitCorrection::correctRPhiRange( Range & range) const
 {
