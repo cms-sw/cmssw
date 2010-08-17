@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Thu Aug 12 05:34:11 EDT 2010
-// $Id$
+// $Id: CentralityBinProducer.cc,v 1.1 2010/08/12 10:14:58 yilmaz Exp $
 //
 //
 
@@ -71,9 +71,9 @@ class CentralityBinProducer : public edm::EDProducer {
 //
 // constructors and destructor
 //
-CentralityBinProducer::CentralityBinProducer(const edm::ParameterSet& iConfig)
+CentralityBinProducer::CentralityBinProducer(const edm::ParameterSet& iConfig) :
+  cbins_(0)
 {
-
    src_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("hiCentrality"));
    centralityBase_ = iConfig.getUntrackedParameter<std::string>("base","HF");
    produces<int>();  
