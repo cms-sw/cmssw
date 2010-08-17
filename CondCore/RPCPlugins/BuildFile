@@ -3,5 +3,6 @@
 <use name=CondCore/ESSources>
 <use name=CondFormats/RPCObjects>
 <use name=CondFormats/DataRecord>
-
+<use name=root>
+<use name=rootgraphics>
 <flags EDM_PLUGIN=1>
