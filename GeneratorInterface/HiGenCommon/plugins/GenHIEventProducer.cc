@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Thu Aug 13 08:39:51 EDT 2009
-// $Id: GenHIEventProducer.cc,v 1.4 2010/08/15 19:33:09 dmoon Exp $
+// $Id: GenHIEventProducer.cc,v 1.5 2010/08/17 15:31:13 dmoon Exp $
 //
 //
 
@@ -26,6 +26,7 @@ Implementation:
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -56,7 +57,6 @@ class GenHIEventProducer : public edm::EDProducer {
         edm::ESHandle < ParticleDataTable > pdt;
 
         double ptCut_;
-        bool _DoGetData;
 
 };
 
@@ -77,8 +77,6 @@ GenHIEventProducer::GenHIEventProducer(const edm::ParameterSet& iConfig)
     produces<edm::GenHIEvent>();
     hepmcSrc_ = iConfig.getParameter<std::vector<std::string> >("generators");
     ptCut_ = iConfig.getParameter<double> ("ptCut"); // ptCut added
-    _DoGetData = iConfig.getParameter<bool> ("DoGetData"); // ptCut added
-    //ptCut_ = iConfig.getParameter<double> >("ptCut"); // ptCut added
 }
 
 
@@ -101,9 +99,7 @@ GenHIEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     using namespace edm;
 
-    _DoGetData = false;
-
-    if(_DoGetData){if(!(pdt.isValid())) iSetup.getData(pdt);}
+    if(!(pdt.isValid())) iSetup.getData(pdt);
 
     double b = -1;
     int npart = -1;
