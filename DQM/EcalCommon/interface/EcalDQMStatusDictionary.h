@@ -5,8 +5,8 @@
   \file Status.h
   \brief dictionary for Ecal DQM status codes
   \author G. Della Ricca
-  \version $Revision: 1.7 $
-  \date $Date: 2010/08/08 10:45:36 $
+  \version $Revision: 1.8 $
+  \date $Date: 2010/08/09 09:53:01 $
 */
 
 #include <boost/cstdint.hpp>
@@ -26,12 +26,12 @@ class EcalDQMStatusDictionary {
 
   static void getDictionary(std::vector<codeDef> &dict) {
     dict.clear();
-    for (unsigned int i=0; i<DICTSIZE; i++) dict.push_back(getDef(i));
+    for (unsigned int i=0; i<DICTSIZE1+DICTSIZE2; i++) dict.push_back(getDef(i));
   }
 
   static void getCodes(std::vector<codeDef>& codeVec, uint32_t code) {
       codeVec.clear();
-      for (unsigned int i=0; i<DICTSIZE; i++) {
+      for (unsigned int i=0; i<DICTSIZE1+DICTSIZE2; i++) {
 	if (code & getDef(i).code) {
 	  codeVec.push_back(getDef(i));
       }
@@ -43,11 +43,14 @@ class EcalDQMStatusDictionary {
   EcalDQMStatusDictionary() {}; // Hidden to force static use
   ~EcalDQMStatusDictionary() {};  // Hidden to force static use
 
-  const static unsigned int DICTSIZE = 30;
+  const static unsigned int DICTSIZE1 = 30;
+  const static unsigned int DICTSIZE2 = 2;
 
   static codeDef getDef(unsigned int i) {
-    const static codeDef DICT[DICTSIZE] =
+    const static codeDef DICT[DICTSIZE1+DICTSIZE2] =
       {
+
+        // single status codes
 
 	{ ((uint32_t) 1 << EcalDQMStatusHelper::CH_ID_ERROR), "CH_ID_ERROR" },
 	{ ((uint32_t) 1 << EcalDQMStatusHelper::CH_GAIN_ZERO_ERROR), "CH_GAIN_ZERO_ERROR" },
@@ -85,7 +88,48 @@ class EcalDQMStatusDictionary {
 	{ ((uint32_t) 1 << EcalDQMStatusHelper::STATUS_FLAG_ERROR), "STATUS_FLAG_ERROR"},
 
 	{ ((uint32_t) 1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_WARNING), "PHYSICS_BAD_CHANNEL_WARNING"},
-	{ ((uint32_t) 1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_ERROR), "PHYSICS_BAD_CHANNEL_ERROR"}
+	{ ((uint32_t) 1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_ERROR), "PHYSICS_BAD_CHANNEL_ERROR"},
+
+        // combined status codes
+
+        { ((uint32_t) 1 << EcalDQMStatusHelper::TT_SIZE_ERROR |
+                      1 << EcalDQMStatusHelper::STATUS_FLAG_ERROR |
+                      1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_MEAN_ERROR |
+                      1 << EcalDQMStatusHelper::PEDESTAL_MIDDLE_GAIN_MEAN_ERROR |
+                      1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR |
+                      1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR |
+                      1 << EcalDQMStatusHelper::TESTPULSE_LOW_GAIN_MEAN_ERROR |
+                      1 << EcalDQMStatusHelper::TESTPULSE_MIDDLE_GAIN_MEAN_ERROR |
+                      1 << EcalDQMStatusHelper::TESTPULSE_HIGH_GAIN_MEAN_ERROR |
+                      1 << EcalDQMStatusHelper::LASER_MEAN_ERROR |
+                      1 << EcalDQMStatusHelper::LED_MEAN_ERROR |
+                      1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_WARNING |
+                      1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_ERROR), "DISABLED_TOWER"},
+
+        { ((uint32_t) 1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_MEAN_ERROR |
+                      1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_RMS_ERROR |
+                      1 << EcalDQMStatusHelper::PEDESTAL_MIDDLE_GAIN_MEAN_ERROR |
+                      1 << EcalDQMStatusHelper::PEDESTAL_MIDDLE_GAIN_RMS_ERROR |
+                      1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR |
+                      1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_RMS_ERROR |
+                      1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR |
+                      1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR |
+                      1 << EcalDQMStatusHelper::TESTPULSE_LOW_GAIN_MEAN_ERROR |
+                      1 << EcalDQMStatusHelper::TESTPULSE_LOW_GAIN_RMS_ERROR |
+                      1 << EcalDQMStatusHelper::TESTPULSE_MIDDLE_GAIN_MEAN_ERROR |
+                      1 << EcalDQMStatusHelper::TESTPULSE_MIDDLE_GAIN_RMS_ERROR |
+                      1 << EcalDQMStatusHelper::TESTPULSE_HIGH_GAIN_MEAN_ERROR |
+                      1 << EcalDQMStatusHelper::TESTPULSE_HIGH_GAIN_RMS_ERROR |
+                      1 << EcalDQMStatusHelper::LASER_MEAN_ERROR |
+                      1 << EcalDQMStatusHelper::LASER_RMS_ERROR |
+                      1 << EcalDQMStatusHelper::LASER_TIMING_MEAN_ERROR |
+                      1 << EcalDQMStatusHelper::LASER_TIMING_RMS_ERROR |
+                      1 << EcalDQMStatusHelper::LED_MEAN_ERROR |
+                      1 << EcalDQMStatusHelper::LED_RMS_ERROR |
+                      1 << EcalDQMStatusHelper::LED_TIMING_MEAN_ERROR | 
+                      1 << EcalDQMStatusHelper::LED_TIMING_RMS_ERROR |
+                      1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_WARNING |
+                      1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_ERROR), "DEAD_CHANNEL"}
 
       };
 
