@@ -5,8 +5,8 @@
   \file Status.h
   \brief dictionary for Ecal DQM status codes
   \author G. Della Ricca
-  \version $Revision: 1.12 $
-  \date $Date: 2010/08/17 13:42:04 $
+  \version $Revision: 1.13 $
+  \date $Date: 2010/08/17 13:44:11 $
 */
 
 #include <boost/cstdint.hpp>
@@ -41,10 +41,10 @@ class EcalDQMStatusDictionary {
  private:
 
   EcalDQMStatusDictionary() {}; // Hidden to force static use
-  ~EcalDQMStatusDictionary() {};  // Hidden to force static use
+  ~EcalDQMStatusDictionary() {}; // Hidden to force static use
 
   const static unsigned int DICTSIZE1 = 30;
-  const static unsigned int DICTSIZE2 = 7;
+  const static unsigned int DICTSIZE2 =  7;
 
   static codeDef getDef(unsigned int i) {
     const static codeDef DICT[DICTSIZE1+DICTSIZE2] =
