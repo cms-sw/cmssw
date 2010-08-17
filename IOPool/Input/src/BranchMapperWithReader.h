@@ -2,7 +2,7 @@
 #define IOPool_Input_BranchMapperWithReader
 
 /*----------------------------------------------------------------------
-  
+
 BranchMapperWithReader:
 
 ----------------------------------------------------------------------*/
@@ -11,13 +11,12 @@ BranchMapperWithReader:
 
 #include <vector>
 
-class TBranch;
 namespace edm {
+  class RootTree;
   class BranchMapperWithReader : public BranchMapper {
   public:
     BranchMapperWithReader();
-    BranchMapperWithReader(TBranch * branch,
-                           input::EntryNumber entryNumber);
+    BranchMapperWithReader(RootTree* rootTree, bool useCache);
 
     virtual ~BranchMapperWithReader() {}
     void insertIntoMap(ProductID const& oldProductID, BranchID const& branchID);
@@ -26,10 +25,10 @@ namespace edm {
     virtual void readProvenance_() const;
     virtual BranchID oldProductIDToBranchID_(ProductID const& oldProductID) const;
 
-    TBranch * branchPtr_; 
-    input::EntryNumber entryNumber_;
+    RootTree* rootTree_;
+    bool useCache_;
     ProductProvenanceVector infoVector_;
-    mutable ProductProvenanceVector * pInfoVector_;
+    mutable ProductProvenanceVector* pInfoVector_;
     std::map<unsigned int, BranchID> oldProductIDToBranchIDMap_;
   };
 }
