@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/01 16:27:19 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/06/29 15:42:03 $
+ *  $Revision: 1.5 $
  *  \author A. Vilela Pereira
  */
 
@@ -173,8 +173,8 @@ DTTTrigData DTTTrigResidualCorrection::correction(const DTSuperLayerId& slId) {
   }
  
   double corrMean = tTrigMean;
-  double corrSigma = tTrigSigma;
-  double corrKFact = kFactor + resTime/tTrigSigma;
+  double corrSigma = (tTrigSigma != 0.) ? tTrigSigma : 1.;
+  double corrKFact = (tTrigSigma != 0.) ? (kFactor + resTime/tTrigSigma) : resTime;
 
   return DTTTrigData(corrMean,corrSigma,corrKFact);  
 }

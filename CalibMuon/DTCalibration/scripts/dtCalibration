@@ -358,7 +358,7 @@ if __name__ == '__main__':
             runTtrigResidualCorr(run,None,residualsFirst,config,False)
  
         # Common steps
-        #runTtrigValidResidCorr(run,runselection,trial,ttrig_ResidCorr_db,config,False)
+        runTtrigValidResidCorr(run,runselection,trial,ttrig_ResidCorr_db,config,False)
         runTtrigValidSummary(run,residualsResidCorr,summaryResiduals,config,False)
         runDQMMerge(run,dqm_output_dir,config,False)
 
