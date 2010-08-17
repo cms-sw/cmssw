@@ -5,34 +5,36 @@ process = cms.Process("SiPixelTemplateDBReaderTest")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("CalibTracker.SiPixelESProducers.SiPixelTemplateDBObjectESProducer_cfi")
-process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
 magfield = float(sys.argv[2])
-#version = "v2"
+#version = "v3"
 version = sys.argv[3]
 
-## Change to True if you want to test 3.8T standalone; others done by default;
-testStandalone = False
+## Change to False if you do not want to test the global tag
+testGlobalTag = True
 
 if(magfield==0):
     magfieldString = "0T"
-    testStandalone = True
-elif(magfield==2):
+    magfieldCffStr = "0T"
+elif(magfield==2   or magfield==20):
     magfieldString = "2T"
-    testStandalone = True
-elif(magfield==3):
+    magfieldCffStr = "20T"
+elif(magfield==3   or magfield==30):
     magfieldString = "3T"
-    testStandalone = True
+    magfieldCffStr = "30T"
 elif(magfield==3.5 or magfield==35):
     magfieldString = "35T"
-    testStandalone = True
-elif(magfield==4):
+    magfieldCffStr = "35T"
+elif(magfield==4   or magfield==40):
     magfieldString = "4T"
-    testStandalone = True
+    magfieldCffStr = "40T"
 else:
     magfieldString = "38T"
+    magfieldCffStr = "38T"
     magfield = 3.8
-#    testStandalone = True
+
+#Load the correct Magnetic Field
+process.load("Configuration.StandardSequences.MagneticField_"+magfieldCffStr+"_cff")
 
 #Change to True if you would like a more detailed error output
 wantDetailedOutput = False
@@ -45,29 +47,30 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 
+if testGlobalTag :
+    process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+    process.GlobalTag.globaltag = "GR10_P_V7::All"
+    
 #Uncomment these two lines to get from the global tag
-#process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-#process.GlobalTag.globaltag = "MC_3XY_V23::All"
-
-process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-                                      process.CondDBSetup,
-                                      toGet = cms.VPSet(cms.PSet(
-    record = cms.string('SiPixelTemplateDBObjectRcd'),
-    tag = cms.string('SiPixelTemplateDBObject' + magfieldString + version)
-    )),
-                                      timetype = cms.string('runnumber'),
-                                      connect = cms.string('sqlite_file:siPixelTemplates' + magfieldString + '.db')
-                                      )
-process.PoolDBESSource.DBParameters.authenticationPath='.'
-process.PoolDBESSource.DBParameters.messageLevel=0
+else:
+    process.PoolDBESSource = cms.ESSource("PoolDBESSource",
+                                          process.CondDBSetup,
+                                          toGet = cms.VPSet(cms.PSet(
+        record = cms.string('SiPixelTemplateDBObjectRcd'),
+        tag = cms.string('SiPixelTemplateDBObject' + magfieldString + version)
+        )),
+                                          timetype = cms.string('runnumber'),
+                                          connect = cms.string('sqlite_file:siPixelTemplates' + magfieldString + '.db')
+                                          )
+    process.PoolDBESSource.DBParameters.authenticationPath='.'
+    process.PoolDBESSource.DBParameters.messageLevel=0
 
 process.reader = cms.EDAnalyzer("SiPixelTemplateDBObjectReader",
                               siPixelTemplateCalibrationLocation = cms.string(
                              "CalibTracker/SiPixelESProducers"),
                               wantDetailedTemplateDBErrorOutput = cms.bool(wantDetailedOutput),
                               wantFullTemplateDBOutput = cms.bool(wantFullOutput),
-                              MagneticField = cms.double(magfield),
-                              TestStandalone = cms.bool(testStandalone)
+                              TestGlobalTag = cms.bool(testGlobalTag)
                               )
 
 process.myprint = cms.OutputModule("AsciiOutputModule")

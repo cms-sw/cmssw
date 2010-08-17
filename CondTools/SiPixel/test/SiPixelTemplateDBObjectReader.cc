@@ -6,13 +6,13 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 SiPixelTemplateDBObjectReader::SiPixelTemplateDBObjectReader(const edm::ParameterSet& iConfig):
 	theTemplateCalibrationLocation( iConfig.getParameter<std::string>("siPixelTemplateCalibrationLocation") ),
 	theDetailedTemplateDBErrorOutput( iConfig.getParameter<bool>("wantDetailedTemplateDBErrorOutput") ),
 	theFullTemplateDBOutput( iConfig.getParameter<bool>("wantFullTemplateDBOutput") ),
-	theMagField( iConfig.getParameter<double>("MagneticField") ),
-	testStandalone( iConfig.getParameter<bool>("TestStandalone") ),
+	testGlobalTag( iConfig.getParameter<bool>("TestGlobalTag") ),
 	hasTriggeredWatcher(false)
 {
 }
@@ -29,8 +29,23 @@ SiPixelTemplateDBObjectReader::beginJob()
 void
 SiPixelTemplateDBObjectReader::analyze(const edm::Event& iEvent, const edm::EventSetup& setup)
 {
-	//To test Standalone without the ESProducer
-	if(testStandalone) {
+	//To test with the ESProducer
+	if(testGlobalTag) {
+		edm::ESHandle<MagneticField> magfield;
+		setup.get<IdealMagneticFieldRecord>().get(magfield);
+		GlobalPoint center(0.0, 0.0, 0.0);
+		float theMagField = magfield.product()->inTesla(center).mag();
+
+		std::cout << "\nTesting global tag at magfield = " << theMagField << std::endl;
+		if(SiPixTemplDBObjWatcher_.check(setup)) {
+			edm::ESHandle<SiPixelTemplateDBObject> templateH;
+			setup.get<SiPixelTemplateDBObjectESProducerRcd>().get(templateH);
+			dbobject = *templateH.product();
+			hasTriggeredWatcher=true;
+		}
+	}
+	else {
+		std::cout << "\nLoading from file " << std::endl;
 		if(SiPixTemplDBObjWatcher_.check(setup)) {
 			edm::ESHandle<SiPixelTemplateDBObject> templateH;
 			setup.get<SiPixelTemplateDBObjectRcd>().get(templateH);
@@ -38,6 +53,7 @@ SiPixelTemplateDBObjectReader::analyze(const edm::Event& iEvent, const edm::Even
 			hasTriggeredWatcher=true;
 		}
 	}
+
 	if(hasTriggeredWatcher) {
 		std::vector<short> tempMapId;
 		
