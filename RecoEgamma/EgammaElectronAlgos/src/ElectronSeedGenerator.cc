@@ -73,7 +73,7 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset)
  {
   // use of a theMeasurementTrackerName
   if (pset.exists("measurementTrackerName"))
-   { theMeasurementTrackerName = pset.getParameter<bool>("measurementTrackerName") ; }
+   { theMeasurementTrackerName = pset.getParameter<std::string>("measurementTrackerName") ; }
 
   // use of reco vertex
   if (pset.exists("useRecoVertex"))
