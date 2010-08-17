@@ -3,17 +3,27 @@
 #include "CondCore/Utilities/interface/PayLoadInspector.h"
 #include "CondCore/Utilities/interface/InspectorPythonWrapper.h"
 
+/////////////////
+#include "TROOT.h"
+#include "TCanvas.h"
+#include "TStyle.h"
+#include "TColor.h"
+#include "TLine.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+
 #include <string>
+#include <fstream>
 #include <sstream>
 #include <algorithm>
 #include <numeric>
 #include <iterator>
+#include <iostream>
+#include <fstream>
 #include <boost/ref.hpp>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/iterator/transform_iterator.hpp>
-#include <iostream>
-#include <fstream>
 
 #include "TROOT.h"
 #include "TCanvas.h"
@@ -21,6 +31,7 @@
 #include "TColor.h"
 #include "TH1D.h"
 #include "TH2D.h"
+
 
 namespace cond {
 
@@ -166,18 +177,27 @@ namespace cond {
 						std::vector<int> const&,
 						std::vector<float> const& ) const {
 
+    TCanvas canvas("CC map","CC map",800,800);    
+	
     TH1D *hTry=new TH1D("hTry","Prova",10,0.,10.);
 
     for(int ip=1;ip<=10;ip++)
       hTry->SetBinContent(ip,ip*ip-ip);
     
     hTry->Draw();
+    
+    canvas.SaveAs(filename.c_str());
+    return filename.c_str();
+ 
+    hTry->Draw();
 
     //     std::string fname = filename + ".txt";
     //     std::ofstream f(fname.c_str());
     //     f << summary();
     //     return fname;
+
    return std::string();
+
   }
   
 }
