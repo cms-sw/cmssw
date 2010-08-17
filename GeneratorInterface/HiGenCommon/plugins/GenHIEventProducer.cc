@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Thu Aug 13 08:39:51 EDT 2009
-// $Id: GenHIEventProducer.cc,v 1.3 2010/08/12 16:36:07 yilmaz Exp $
+// $Id: GenHIEventProducer.cc,v 1.4 2010/08/15 19:33:09 dmoon Exp $
 //
 //
 
@@ -56,7 +56,8 @@ class GenHIEventProducer : public edm::EDProducer {
         edm::ESHandle < ParticleDataTable > pdt;
 
         double ptCut_;
-        
+        bool _DoGetData;
+
 };
 
 //
@@ -76,6 +77,7 @@ GenHIEventProducer::GenHIEventProducer(const edm::ParameterSet& iConfig)
     produces<edm::GenHIEvent>();
     hepmcSrc_ = iConfig.getParameter<std::vector<std::string> >("generators");
     ptCut_ = iConfig.getParameter<double> ("ptCut"); // ptCut added
+    _DoGetData = iConfig.getParameter<bool> ("DoGetData"); // ptCut added
     //ptCut_ = iConfig.getParameter<double> >("ptCut"); // ptCut added
 }
 
@@ -99,7 +101,9 @@ GenHIEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     using namespace edm;
 
-    if(!(pdt.isValid())) iSetup.getData(pdt);
+    _DoGetData = false;
+
+    if(_DoGetData){if(!(pdt.isValid())) iSetup.getData(pdt);}
 
     double b = -1;
     int npart = -1;
@@ -139,9 +143,7 @@ GenHIEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             meanPt += pt;
             // Get the total energy bym
             if(fabs(eta)<1.0){
-                //cout<<"energy : "<<energy<<endl;
                 TotEnergy += energy;
-                //cout<<"TotEnergy 1 : "<<TotEnergy<<endl;
             }
             if(pt>ptCut_){
                 nChargedPtCut++;
@@ -169,11 +171,9 @@ GenHIEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             }
         }
     }
-    //cout<<"TotEnergy 2 : "<<TotEnergy<<endl;
     // Get the normalized total energy bym
     if(TotEnergy != 0){
         EtMR = TotEnergy/2;
-        //cout<<"EtMR : "<<EtMR<<endl;
     }
 
     if(nChargedMR != 0){
@@ -196,9 +196,6 @@ GenHIEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                 nChargedPtCut, // bym
                 nChargedPtCutMR  // bym
                 ));
-
-
-
 
     iEvent.put(pGenHI);
 
