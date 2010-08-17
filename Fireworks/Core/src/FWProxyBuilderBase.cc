@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:00 CET 2010
-// $Id: FWProxyBuilderBase.cc,v 1.24 2010/08/12 19:29:57 amraktad Exp $
+// $Id: FWProxyBuilderBase.cc,v 1.25 2010/08/16 17:59:11 amraktad Exp $
 //
 
 // system include files
@@ -151,12 +151,17 @@ FWProxyBuilderBase::build()
                   Float_t oldDepth = pmgr->GetCurrentDepth();
                   pmgr->SetCurrentDepth(item()->layer());
                   size_t cnt = 0;
+
+                  // LATER: when root patches are in CMSSW use TEveProjected::GetProjectedAsElement() instead of dynamic_cast
+                  // TEveElement* projectedAsElement = (*i)->GetProjectedAsElement();                              
+                  TEveElement* projectedAsElement = dynamic_cast<TEveElement*>(*i);
+
                   for (TEveElement::List_i prodIt = elms->BeginChildren(); prodIt != elms->EndChildren(); ++prodIt, ++cnt)
                   {
                      if (cnt < oldSize) // reused projected holder
-                        pmgr->SubImportChildren(*prodIt, (*i)->GetProjectedAsElement());
+                        pmgr->SubImportChildren(*prodIt, projectedAsElement);
                      else if (cnt < itemSize) // new product holder
-                        pmgr->SubImportElements(*prodIt, (*i)->GetProjectedAsElement());
+                        pmgr->SubImportElements(*prodIt, projectedAsElement);
                      else
                         break;
                   }
