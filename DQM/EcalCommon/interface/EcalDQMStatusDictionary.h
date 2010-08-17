@@ -5,8 +5,8 @@
   \file Status.h
   \brief dictionary for Ecal DQM status codes
   \author G. Della Ricca
-  \version $Revision: 1.11 $
-  \date $Date: 2010/08/17 12:13:38 $
+  \version $Revision: 1.12 $
+  \date $Date: 2010/08/17 13:42:04 $
 */
 
 #include <boost/cstdint.hpp>
@@ -161,7 +161,7 @@ class EcalDQMStatusDictionary {
                       1 << EcalDQMStatusHelper::PEDESTAL_MIDDLE_GAIN_RMS_ERROR |
                       1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_RMS_ERROR |
                       1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR |
-                      1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_WARNING), "noise_problem"}
+                      1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_ERROR), "noise_problem"}
 
       };
 
