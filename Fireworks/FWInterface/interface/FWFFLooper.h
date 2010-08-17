@@ -21,6 +21,7 @@ namespace edm
 
 class FWFFNavigator;
 class FWFFMetadataManager;
+class FWPathsPopup;
 
 namespace fireworks
 {
@@ -32,6 +33,7 @@ class TEveElement;
 class TEveMagField;
 class TEveTrackPropagator;
 class TRint;
+class TGWindow;
 
 class FWFFLooper : public CmsShowMainBase, public edm::EDLooperBase
 {
@@ -60,6 +62,8 @@ public:
    virtual void stopPlaying() {}
    virtual void autoLoadNewEvent() {}
 
+   void showPathsGUI(const TGWindow *p);
+
    void quit();
 
    virtual void startingNewLoop(unsigned int);
@@ -80,10 +84,10 @@ private:
 
    TEveMagField *m_MagField;
    
-
    bool          m_AllowStep;
    bool          m_ShowEvent;
    bool          m_firstTime;
+   FWPathsPopup  *m_pathsGUI;
 };
 
 #endif

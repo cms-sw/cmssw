@@ -3,6 +3,7 @@
 #include "Fireworks/FWInterface/src/FWFFNavigator.h"
 #include "Fireworks/FWInterface/src/FWFFMetadataManager.h"
 #include "Fireworks/FWInterface/src/FWFFMetadataUpdateRequest.h"
+#include "Fireworks/FWInterface/src/FWPathsPopup.h"
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
 #include "Fireworks/Core/interface/FWEveViewManager.h"
 #include "Fireworks/Core/interface/FWTableViewManager.h"
@@ -128,7 +129,8 @@ FWFFLooper::FWFFLooper(edm::ParameterSet const&ps)
      m_Rint(m_appHelper->app()),
      m_AllowStep(true),
      m_ShowEvent(true),
-     m_firstTime(true)
+     m_firstTime(true),
+     m_pathsGUI(0)
 {
    printf("FWFFLooper::FWFFLooper CTOR\n");
 
@@ -178,6 +180,9 @@ FWFFLooper::FWFFLooper(edm::ParameterSet const&ps)
 void
 FWFFLooper::attachTo(edm::ActivityRegistry &ar)
 {
+   m_pathsGUI = new FWPathsPopup(scheduleInfo());
+
+   ar.watchPostModule(m_pathsGUI, &FWPathsPopup::postModule);
    ar.watchPostEndJob(this, &FWFFLooper::postEndJob);
 }
 
@@ -272,6 +277,10 @@ FWFFLooper::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
       setupViewManagers();
       setupConfiguration();
       setupActions();
+      
+      guiManager()->showEventFilterGUI_.connect(boost::bind(&FWFFLooper::showPathsGUI, this, _1));
+      guiManager()->filterButtonClicked_.connect(boost::bind(&FWGUIManager::showEventFilterGUI, guiManager()));
+
       m_firstTime = false;
    }
 
@@ -366,4 +375,15 @@ FWFFLooper::endOfLoop(const edm::EventSetup&, unsigned int)
 {
    printf("FWFFLooper::endOfLoop");
    return kStop;
+}
+
+void
+FWFFLooper::showPathsGUI(const TGWindow *)
+{
+   if (!m_pathsGUI)
+      return;
+   if (m_pathsGUI->IsMapped())
+      m_pathsGUI->UnmapWindow();
+   else
+      m_pathsGUI->MapWindow();
 }
