@@ -8,7 +8,7 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCWireDigiProxyBuilder.cc,v 1.8 2010/08/10 12:52:43 mccauley Exp $
+// $Id: FWCSCWireDigiProxyBuilder.cc,v 1.9 2010/08/13 14:07:19 mccauley Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -155,12 +155,9 @@ FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* prod
     for ( CSCWireDigiCollection::const_iterator dit = range.first;
           dit != range.second; ++dit )        
     { 
-      TEveCompound* compound = createCompound();
-      setupAddElement(compound, product);
-
       TEveStraightLineSet* wireDigiSet = new TEveStraightLineSet();
       wireDigiSet->SetLineWidth(3);
-      setupAddElement(wireDigiSet, compound);
+      setupAddElement(wireDigiSet, product);
 
       // NOTE: Can use wire group as well as wire number? Check in validation.
       int wireGroup = (*dit).getWireGroup();
