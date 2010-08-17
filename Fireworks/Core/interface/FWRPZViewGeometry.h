@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 21:01:12 CET 2010
-// $Id$
+// $Id: FWRPZViewGeometry.h,v 1.1 2010/04/06 20:00:35 amraktad Exp $
 //
 
 // system include files
@@ -59,11 +59,11 @@ private:
    TEveElement* makeMuonGeometryRhoZ();
    TEveElement* makeTrackerGeometryRhoPhi();
    TEveElement* makeTrackerGeometryRhoZ();
-   void estimateProjectionSizeDT(const TGeoHMatrix*, const TGeoShape*, double&, double&, double&, double& );
-   void estimateProjectionSizeCSC(const TGeoHMatrix*, const TGeoShape*, double&, double&, double&, double& );
+   void estimateProjectionSizeDT( const TGeoHMatrix*, const TGeoShape*, double&, double&, double&, double& );
+   void estimateProjectionSizeCSC( const TGeoHMatrix*, const TGeoShape*, double&, double&, double&, double& );
    void estimateProjectionSize( const Double_t*, double&, double&, double&, double& );
 
-   TEveGeoShape* makeShape( const char*, double, double, double, double );
+   TEveGeoShape* makeShape( double, double, double, double, Color_t );
 
    const DetIdToMatrix*    m_detIdToMatrix;
    const FWColorManager*   m_colorManager;

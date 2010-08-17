@@ -8,29 +8,26 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 20:33:06 CET 2010
-// $Id: FWRPZViewGeometry.cc,v 1.4 2010/06/23 09:28:53 yana Exp $
+// $Id: FWRPZViewGeometry.cc,v 1.5 2010/08/16 16:10:56 yana Exp $
 //
 
 // system include files
 #include <iostream>
-#include <sstream>
 
 // user include files
 
-#include "TClass.h"
-#include "TGeoManager.h"
+//#include "TClass.h"
+//#include "TGeoManager.h"
 #include "TGeoBBox.h"
 
 #include "TEveElement.h"
 #include "TEvePointSet.h"
 #include "TEveStraightLineSet.h"
-#include "TEvePolygonSetProjected.h"
 #include "TEveGeoNode.h"
 
 #include "Fireworks/Core/interface/FWRPZViewGeometry.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
-#include "Fireworks/Core/interface/TEveElementIter.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
@@ -153,35 +150,24 @@ FWRPZViewGeometry::makeTrackerGeometryRhoPhi()
 //______________________________________________________________________________
 
 TEveElement*
-FWRPZViewGeometry::makeMuonGeometryRhoPhi()
+FWRPZViewGeometry::makeMuonGeometryRhoPhi( void )
 {
    // rho-phi view
    TEveElementList* container = new TEveElementList( "MuonRhoPhi" );
    Int_t iWheel = 0;
-   for (Int_t iStation = 1; iStation <= 4; ++iStation)
+   Color_t color = m_colorManager->geomColor( kFWMuonBarrelLineColorIndex );
+   
+   for( Int_t iStation = 1; iStation <= 4; ++iStation )
    {
-      std::ostringstream s;
-      s << "Station" << iStation;
-      TEveElementList* cStation  = new TEveElementList( s.str().c_str() );
-      container->AddElement( cStation );
-      for (Int_t iSector = 1 ; iSector <= 14; ++iSector)
+      for( Int_t iSector = 1 ; iSector <= 14; ++iSector )
       {
-         if ( iStation < 4 && iSector > 12 ) continue;
-         DTChamberId id(iWheel, iStation, iSector);
+         if( iStation < 4 && iSector > 12 ) continue;
+         DTChamberId id( iWheel, iStation, iSector );
          TEveGeoShape* shape = m_detIdToMatrix->getShape( id.rawId() );
-         if ( shape ) cStation->AddElement(shape);
+	 shape->SetMainTransparency( 50 );
+	 shape->SetMainColor( color );
+         if( shape ) container->AddElement( shape );
       }
-      
-      // set background geometry visibility parameters
-      TEveElementIter iter(container);
-      while ( TEveElement* element = iter.current() ) {
-         element->SetMainTransparency(50);
-         element->SetMainColor(m_colorManager->geomColor(kFWMuonBarrelMainColorIndex));
-         if ( TEvePolygonSetProjected* poly = dynamic_cast<TEvePolygonSetProjected*>(element) )
-            poly->SetLineColor(m_colorManager->geomColor(kFWMuonBarrelLineColorIndex));
-         iter.next();
-      }
-      
    }
 
    return container;
@@ -190,76 +176,75 @@ FWRPZViewGeometry::makeMuonGeometryRhoPhi()
 //______________________________________________________________________________
 
 TEveElement*
-FWRPZViewGeometry::makeMuonGeometryRhoZ()
+FWRPZViewGeometry::makeMuonGeometryRhoZ( void )
 {
    // lets project everything by hand
-   if ( !m_detIdToMatrix ) return 0;
+   if( !m_detIdToMatrix ) return 0;
 
    TEveElementList* container = new TEveElementList( "MuonRhoZ" );
 
    TEveElementList* dtContainer = new TEveElementList( "DT" );
    container->AddElement( dtContainer );
 
-   for ( Int_t iWheel = -2; iWheel <= 2; ++iWheel ) {
-      std::ostringstream s; s << "Wheel" << iWheel;
-      TEveElementList* cWheel  = new TEveElementList( s.str().c_str() );
-      dtContainer->AddElement( cWheel );
-      for ( Int_t iStation=1; iStation<=4; ++iStation) {
-         std::ostringstream s; s << "Station" << iStation;
-         double min_rho(1000), max_rho(0), min_z(2000), max_z(-2000);
+   Color_t color = m_colorManager->geomColor( kFWMuonBarrelLineColorIndex );
+   for( Int_t iWheel = -2; iWheel <= 2; ++iWheel )
+   {
+      for( Int_t iStation = 1; iStation <= 4; ++iStation )
+      {
+	 double min_rho(1000), max_rho(0), min_z(2000), max_z(-2000);
 
-         for ( Int_t iSector=1; iSector<=14; ++iSector) {
-            if (iStation<4 && iSector>12) continue;
-            DTChamberId id(iWheel, iStation, iSector);
-            TEveGeoShape* shape = m_detIdToMatrix->getShape( id.rawId() );
+	 // This will give us a quarter of DTs
+	 // which is enough for our projection
+         for( Int_t iSector = 1; iSector <= 4; ++iSector )
+	 {
+            DTChamberId id( iWheel, iStation, iSector );
+	    unsigned int rawid = id.rawId();
+            TEveGeoShape* shape = m_detIdToMatrix->getShape( rawid );
             if (!shape ) continue;
-            estimateProjectionSizeDT( m_detIdToMatrix->getMatrix( id.rawId() ),
+            estimateProjectionSizeDT( m_detIdToMatrix->getMatrix( rawid ),
                                       shape->GetShape(), min_rho, max_rho, min_z, max_z );
          }
          if ( min_rho > max_rho || min_z > max_z ) continue;
-         cWheel->AddElement( makeShape( s.str().c_str(), min_rho, max_rho, min_z, max_z ) );
-         cWheel->AddElement( makeShape( s.str().c_str(), -max_rho, -min_rho, min_z, max_z ) );
+         dtContainer->AddElement( makeShape( min_rho, max_rho, min_z, max_z, color ) );
+         dtContainer->AddElement( makeShape( -max_rho, -min_rho, min_z, max_z, color ) );
       }
    }
 
    TEveElementList* cscContainer = new TEveElementList( "CSC" );
    container->AddElement( cscContainer );
-   for ( Int_t iEndcap = 1; iEndcap <= 2; ++iEndcap ) { // 1=forward (+Z), 2=backward(-Z)
-      TEveElementList* cEndcap = 0;
-      if (iEndcap == 1)
-         cEndcap = new TEveElementList( "Forward" );
-      else
-         cEndcap = new TEveElementList( "Backward" );
-      cscContainer->AddElement( cEndcap );
+   
+   Int_t maxChambers = 36;
+   Int_t step = 9;
+   Int_t iLayer = 0; // chamber
+   color = m_colorManager->geomColor( kFWMuonEndCapLineColorIndex );
+   for( Int_t iEndcap = 1; iEndcap <= 2; ++iEndcap ) // 1=forward (+Z), 2=backward(-Z)
+   {
       // Actual CSC geometry:
       // Station 1 has 4 rings with 36 chambers in each
       // Station 2: ring 1 has 18 chambers, ring 2 has 36 chambers
       // Station 3: ring 1 has 18 chambers, ring 2 has 36 chambers
       // Station 4: ring 1 has 18 chambers
-      Int_t maxChambers = 36;
-      Int_t step = 9;
-      for ( Int_t iStation=1; iStation<=4; ++iStation) {
-         std::ostringstream s; s << "Station" << iStation;
-         TEveElementList* cStation  = new TEveElementList( s.str().c_str() );
-         cEndcap->AddElement( cStation );
-         for( Int_t iRing=1; iRing<=4; ++iRing )
+      for( Int_t iStation = 1; iStation <= 4; ++iStation )
+      {
+         for( Int_t iRing = 1; iRing <= 4; ++iRing )
 	 {
-            if (iStation > 1 && iRing > 2) continue;
+            if( iStation > 1 && iRing > 2 ) continue;
 	    if( iStation > 3 && iRing > 1 ) continue;
-            std::ostringstream s; s << "Ring" << iRing;
             double min_rho(1000), max_rho(0), min_z(2000), max_z(-2000);
 	    ( iRing == 1 && iStation > 1 ) ? ( maxChambers = 18 ) : ( maxChambers = 36 );
 	    ( iRing == 1 && iStation > 1 ) ? ( step = 5 ) : (  step = 18 );
+	    
 	    // Skip most of the chambers since they will project
 	    // the same way as the two top ones and the two bottom ones
             for( Int_t iChamber = step; iChamber <= maxChambers; iChamber += step )
 	    {
-               Int_t iLayer = 0; // chamber
 	       CSCDetId id( iEndcap, iStation, iRing, iChamber, iLayer );
 	       TEveGeoShape* shape = m_detIdToMatrix->getShape( id.rawId() );
 	       if( !shape ) continue;
 	       estimateProjectionSizeCSC( m_detIdToMatrix->getMatrix( id.rawId()),
 					  shape->GetShape(), min_rho, max_rho, min_z, max_z );
+
+	       // and a chamber next to it
 	       ++iChamber;
 	       CSCDetId nextid( iEndcap, iStation, iRing, iChamber, iLayer );
 	       TEveGeoShape* nextshape = m_detIdToMatrix->getShape( nextid.rawId() );
@@ -268,31 +253,9 @@ FWRPZViewGeometry::makeMuonGeometryRhoZ()
 					  nextshape->GetShape(), min_rho, max_rho, min_z, max_z );
             }
             if ( min_rho > max_rho || min_z > max_z ) continue;
-            cStation->AddElement( makeShape( s.str().c_str(), min_rho, max_rho, min_z, max_z ) );
-            cStation->AddElement( makeShape( s.str().c_str(), -max_rho, -min_rho, min_z, max_z ) );
+            cscContainer->AddElement( makeShape( min_rho, max_rho, min_z, max_z, color ) );
+            cscContainer->AddElement( makeShape( -max_rho, -min_rho, min_z, max_z, color ) );
          }
-      }
-   }
-   
-   {
-      TEveElementIter iter(dtContainer);
-      while ( TEveElement* element = iter.current() ) {
-         element->SetMainTransparency(50);
-         element->SetMainColor(m_colorManager->geomColor(kFWMuonBarrelMainColorIndex));
-         if ( TEvePolygonSetProjected* poly = dynamic_cast<TEvePolygonSetProjected*>(element) )
-            poly->SetLineColor(m_colorManager->geomColor(kFWMuonBarrelLineColorIndex));
-         iter.next();
-      }
-   }
-   
-   {
-      TEveElementIter iter(cscContainer);
-      while ( iter.current() ) {
-         iter.current()->SetMainTransparency(50);
-         iter.current()->SetMainColor(m_colorManager->geomColor(kFWMuonEndCapMainColorIndex));
-         if ( TEvePolygonSetProjected* poly = dynamic_cast<TEvePolygonSetProjected*>(iter.current()) )
-            poly->SetLineColor(m_colorManager->geomColor(kFWMuonEndCapLineColorIndex));
-         iter.next();
       }
    }
    
@@ -302,8 +265,7 @@ FWRPZViewGeometry::makeMuonGeometryRhoZ()
 //______________________________________________________________________________
 
 TEveGeoShape*
-FWRPZViewGeometry::makeShape( const char* name,
-                              double min_rho, double max_rho, double min_z, double max_z )
+FWRPZViewGeometry::makeShape( double min_rho, double max_rho, double min_z, double max_z, Color_t color )
 {
    TEveTrans t;
    t(1,1) = 1; t(1,2) = 0; t(1,3) = 0;
@@ -311,20 +273,24 @@ FWRPZViewGeometry::makeShape( const char* name,
    t(3,1) = 0; t(3,2) = 0; t(3,3) = 1;
    t(1,4) = 0; t(2,4) = (min_rho+max_rho)/2; t(3,4) = (min_z+max_z)/2;
 
-   TEveGeoShape* shape = new TEveGeoShape(name);
+   TEveGeoShape* shape = new TEveGeoShape;
    shape->SetTransMatrix(t.Array());
 
    shape->SetRnrSelf(kTRUE);
    shape->SetRnrChildren(kTRUE);
    TGeoBBox* box = new TGeoBBox( 0, (max_rho-min_rho)/2, (max_z-min_z)/2 );
    shape->SetShape( box );
+   shape->SetMainTransparency( 50 );
+   shape->SetMainColor( color );
+
    return shape;
 }
 
 //______________________________________________________________________________
 
-void FWRPZViewGeometry::estimateProjectionSizeDT( const TGeoHMatrix* matrix, const TGeoShape* shape,
-                                                     double& min_rho, double& max_rho, double& min_z, double& max_z )
+void
+FWRPZViewGeometry::estimateProjectionSizeDT( const TGeoHMatrix* matrix, const TGeoShape* shape,
+					     double& min_rho, double& max_rho, double& min_z, double& max_z )
 {
    const TGeoBBox* box = dynamic_cast<const TGeoBBox*>( shape );
    if ( !box ) return;
@@ -373,16 +339,12 @@ void FWRPZViewGeometry::estimateProjectionSizeDT( const TGeoHMatrix* matrix, con
    estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
 }
 
-void FWRPZViewGeometry::estimateProjectionSizeCSC( const TGeoHMatrix* matrix, const TGeoShape* shape,
-                                                      double& min_rho, double& max_rho, double& min_z, double& max_z )
+void
+FWRPZViewGeometry::estimateProjectionSizeCSC( const TGeoHMatrix* matrix, const TGeoShape* shape,
+					      double& min_rho, double& max_rho, double& min_z, double& max_z )
 {
-   // const TGeoTrap* trap = dynamic_cast<const TGeoTrap*>( shape );
    const TGeoBBox* bb = dynamic_cast<const TGeoBBox*>( shape );
-   if ( !bb ) {
-      fwLog(fwlog::kWarning) << "CSC shape is not TGeoBBox. Ignored\n";
-      shape->IsA()->Print();
-      return;
-   }
+   if( !bb ) return;
 
    // we will test 3 points on both sides ( +/- z)
    // local z is along Rho
@@ -413,8 +375,9 @@ void FWRPZViewGeometry::estimateProjectionSizeCSC( const TGeoHMatrix* matrix, co
    estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
 }
 
-void FWRPZViewGeometry::estimateProjectionSize( const Double_t* global,
-                                                   double& min_rho, double& max_rho, double& min_z, double& max_z )
+void
+FWRPZViewGeometry::estimateProjectionSize( const Double_t* global,
+					   double& min_rho, double& max_rho, double& min_z, double& max_z )
 {
    double rho = sqrt(global[0] *global[0]+global[1] *global[1]);
    if ( min_rho > rho ) min_rho = rho;
