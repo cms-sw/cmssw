@@ -5,8 +5,8 @@
   \file Status.h
   \brief dictionary for Ecal DQM status codes
   \author G. Della Ricca
-  \version $Revision: 1.9 $
-  \date $Date: 2010/08/17 09:01:24 $
+  \version $Revision: 1.10 $
+  \date $Date: 2010/08/17 11:14:29 $
 */
 
 #include <boost/cstdint.hpp>
@@ -44,7 +44,7 @@ class EcalDQMStatusDictionary {
   ~EcalDQMStatusDictionary() {};  // Hidden to force static use
 
   const static unsigned int DICTSIZE1 = 30;
-  const static unsigned int DICTSIZE2 = 6;
+  const static unsigned int DICTSIZE2 = 7;
 
   static codeDef getDef(unsigned int i) {
     const static codeDef DICT[DICTSIZE1+DICTSIZE2] =
@@ -104,7 +104,7 @@ class EcalDQMStatusDictionary {
                       1 << EcalDQMStatusHelper::LASER_MEAN_ERROR |
                       1 << EcalDQMStatusHelper::LED_MEAN_ERROR |
                       1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_WARNING |
-                      1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_ERROR), "disabled_tower"},
+                      1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_ERROR), "disabled_channel"},
 
         { ((uint32_t) 1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_MEAN_ERROR |
                       1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_RMS_ERROR |
@@ -155,7 +155,13 @@ class EcalDQMStatusDictionary {
         { ((uint32_t) 1 << EcalDQMStatusHelper::LED_MEAN_ERROR |
                       1 << EcalDQMStatusHelper::LED_RMS_ERROR |
                       1 << EcalDQMStatusHelper::LED_TIMING_MEAN_ERROR |
-                      1 << EcalDQMStatusHelper::LED_TIMING_RMS_ERROR), "led_problem"}
+                      1 << EcalDQMStatusHelper::LED_TIMING_RMS_ERROR), "led_problem"},
+
+        { ((uint32_t) 1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_RMS_ERROR |
+                      1 << EcalDQMStatusHelper::PEDESTAL_MIDDLE_GAIN_RMS_ERROR |
+                      1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_RMS_ERROR |
+                      1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR |
+                      1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_ERROR), "noise_problem"}
 
       };
 
