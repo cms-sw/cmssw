@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.175 2010/08/10 12:38:41 eulisse Exp $
+// $Id: CmsShowMain.cc,v 1.176 2010/08/16 14:49:39 matevz Exp $
 //
 
 // system include files
@@ -119,8 +119,13 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       delete w;
    }
    catch (std::exception& iException) {
-      std::cerr <<"Insufficient GL support. " << iException.what() << std::endl;
-      throw;
+      std::cerr << "Failed creating an OpenGL window: " << iException.what() << "\n"
+         "Things to check:\n"
+         "- Is DISPLAY environment variable set?\n"
+         "- Are OpenGL libraries installed?\n"
+         "- If running remotely, make sure you use 'ssh -X' or 'ssh -Y'.\n"
+         "See also: https://twiki.cern.ch/twiki/bin/viewauth/CMS/WorkBookFireworks\n";
+      gSystem->Exit(1);
    }
 
    eiManager()->setContext(m_context.get());
