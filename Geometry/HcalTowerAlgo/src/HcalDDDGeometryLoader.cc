@@ -70,7 +70,7 @@ void HcalDDDGeometryLoader::fill(HcalSubdetector          subdet,
 				 CaloSubdetectorGeometry* geom           ) {
 
   // start by making the new HcalDetIds
-  std::vector<HcalCellType::HcalCellType> hcalCells = numberingFromDDD->HcalCellTypes(subdet);
+  std::vector<HcalCellType> hcalCells = numberingFromDDD->HcalCellTypes(subdet);
   geometryDDD->insertCell(hcalCells);
 #ifdef DebugLog
   LogDebug("HCalGeom") << "HcalDDDGeometryLoader::fill gets " 
@@ -141,7 +141,7 @@ void HcalDDDGeometryLoader::fill(HcalSubdetector          subdet,
 
 CaloCellGeometry* 
 HcalDDDGeometryLoader::makeCell( const HcalDetId& detId,
-				 HcalCellType::HcalCellType hcalCell,
+				 HcalCellType hcalCell,
 				 double phi, 
 				 double dphi,
 				 CaloSubdetectorGeometry* geom) const {

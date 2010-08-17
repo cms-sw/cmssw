@@ -51,7 +51,7 @@ cond::DuplicateIOVUtilities::~DuplicateIOVUtilities(){
 int cond::DuplicateIOVUtilities::execute(){
 
   std::string sourceTag = getOptionValue<std::string>("tag");
-  std::string destTag("");
+  std::string destTag(sourceTag);
   if(hasOptionValue("destTag")) destTag = getOptionValue<std::string>("destTag");
   cond::Time_t from = getOptionValue<cond::Time_t>("fromTime");
   cond::Time_t since = getOptionValue<cond::Time_t>("sinceTime");
@@ -65,7 +65,11 @@ int cond::DuplicateIOVUtilities::execute(){
   std::string destiovtoken("");
   cond::TimeType iovtype;
   std::string timetypestr("");
-    
+   
+  if(debug){
+    std::cout << "source tag " << sourceTag << std::endl;
+    std::cout << "dest   tag  " << destTag << std::endl;
+  }  
     
   // find tag
   {
@@ -91,7 +95,8 @@ int cond::DuplicateIOVUtilities::execute(){
     }
     destDb.transaction().commit();
     if(debug){
-      std::cout<<"iov token "<< iovtoken<<std::endl;
+      std::cout<<"source iov token "<< iovtoken<<std::endl;
+      std::cout<<"dest   iov token "<< destiovtoken<<std::endl;
       std::cout<<"iov type "<<  timetypestr<<std::endl;
     }
   }
@@ -107,6 +112,7 @@ int cond::DuplicateIOVUtilities::execute(){
   
   int size=0;
   bool newIOV = destiovtoken.empty();
+  /* we allow multiple iov pointing to the same payload...
   if (!newIOV) {
     // to be streamlined
     cond::IOVProxy iov( destDb,destiovtoken,false,true);
@@ -123,6 +129,7 @@ int cond::DuplicateIOVUtilities::execute(){
       return 0;
     }
   }
+  */
 
   std::auto_ptr<cond::Logger> logdb;
   if(doLog){
@@ -145,20 +152,20 @@ int cond::DuplicateIOVUtilities::execute(){
 
   // create if does not exist;
   if (newIOV) {
-    std::auto_ptr<cond::IOVEditor> editor(iovmanager.newIOVEditor());
+    cond::IOVEditor editor(destDb);
     cond::DbScopedTransaction transaction(destDb);
     transaction.start(false);
-    editor->create(iovtype);
-    destiovtoken=editor->token();
-    editor->append(since,payload);
+    editor.create(iovtype);
+    destiovtoken=editor.token();
+    editor.append(since,payload);
     transaction.commit();
   } else {
     //append it
-    std::auto_ptr<cond::IOVEditor> editor(iovmanager.newIOVEditor(destiovtoken));
+    cond::IOVEditor editor(destDb,destiovtoken);
     cond::DbScopedTransaction transaction(destDb);
     transaction.start(false);
-    editor->append(since,payload);
-    editor->stamp(cond::userInfo(),false);
+    editor.append(since,payload);
+    editor.stamp(cond::userInfo(),false);
     transaction.commit();
   }
 

@@ -1,8 +1,7 @@
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 #include "DataFormats/Math/interface/invertPosDefMatrix.h"
-// #include <iostream>
 
-// using namespace std;
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 TrajectoryStateOnSurface 
 TrajectoryStateCombiner::combine(const TSOS& Tsos1, const TSOS& Tsos2) const {
@@ -18,9 +17,10 @@ TrajectoryStateCombiner::combine(const TSOS& Tsos1, const TSOS& Tsos2) const {
   AlgebraicMatrix55 K = C1*Csum;
 
   if(!ok) {
-//     if ( infoV )
-//       cout<<"KFTrajectorySmoother: inversion of Csum failed!"
-// 	  <<Tsos1.localError().matrix()<<endl;
+    edm::LogError("MatrixInversionFailure")
+      <<"the inversion of the combined error matrix failed. Impossible to get a combined state."
+      <<"\nmatrix 1:"<<C1
+      <<"\nmatrix 2:"<<C2;
     return TSOS();
   }
 

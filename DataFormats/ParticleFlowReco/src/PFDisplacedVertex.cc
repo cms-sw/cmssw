@@ -3,6 +3,7 @@
 using namespace std;
 using namespace reco;
 
+
 PFDisplacedVertex::PFDisplacedVertex() : Vertex(),
 					 vertexType_(ANY)
 {}
@@ -67,32 +68,6 @@ PFDisplacedVertex::trackPosition(const reco::TrackBaseRef& originalTrack) const 
   return pos;
 
 }
-
-
-std::string 
-PFDisplacedVertex::nameVertexType() const {
-  switch (vertexType_){
-  case ANY:   return "ANY";
-  case FAKE:  return "FAKE";
-  case LOOPER: return "LOOPER";
-  case NUCL: return "NUCL";
-  case NUCL_LOOSE: return "NUCL_LOOSE";
-  case NUCL_KINK: return "NUCL_KINK";
-  case CONVERSION: return "CONVERSION";
-  case CONVERSION_LOOSE: return "CONVERSION_LOOSE";
-  case K0_DECAY: return "K0_DECAY";
-  case LAMBDA_DECAY: return "LAMBDA_DECAY";
-  case LAMBDABAR_DECAY: return "LAMBDABAR_DECAY";
-  case KPLUS_DECAY: return "KPLUS_DECAY";
-  case KMINUS_DECAY: return "KMINUS_DECAY";
-  case KPLUS_DECAY_LOOSE: return "KPLUS_DECAY_LOOSE";
-  case KMINUS_DECAY_LOOSE: return "KMINUS_DECAY_LOOSE";
-  case BSM_VERTEX: return "BSM_VERTEX";
-  default: return "?";
-  }
-  return "?";
-}
-
 
 
 const math::XYZTLorentzVector 
@@ -164,8 +139,8 @@ PFDisplacedVertex::getMass2(string massHypo, double mass) const {
 void PFDisplacedVertex::Dump( ostream& out ) const {
   if(! out ) return;
 
-  out << "      === This is a " << nameVertexType().data()
-      << " Displaced Vertex ===" << endl;
+  out << "" << endl;
+  out << "==================== This is a Displaced Vertex ===============" << endl;
 
   out << " Vertex chi2 = " << chi2() << " ndf = " << ndof()<< " normalised chi2 = " << normalizedChi2()<< endl;
 
@@ -183,11 +158,8 @@ void PFDisplacedVertex::Dump( ostream& out ) const {
               
   vector <PFDisplacedVertex::PFTrackHitFullInfo> pattern = trackHitFullInfos();
   vector <PFDisplacedVertex::VertexTrackType> trackType = trackTypes();
-  out << "The tracks list is: " << endl; 
-
   for (unsigned i = 0; i < pattern.size(); i++){
-    out << i << " key = " << originalTrack(refittedTracks()[i]).key()
-	<< " pT = " << refittedTracks()[i].pt()
+    out << "track " << i 
 	<< " type = " << trackType[i]
 	<< " nHit BeforeVtx = " << pattern[i].first.first 
 	<< " AfterVtx = " << pattern[i].second.first
@@ -196,22 +168,16 @@ void PFDisplacedVertex::Dump( ostream& out ) const {
 	<< endl;
   }
 
-  math::XYZTLorentzVector mom_prim = primaryMomentum((string) "PI", true);
-  math::XYZTLorentzVector mom_sec = secondaryMomentum((string) "PI", true);
 
-  // out << "Primary P:\t E " << setprecision(3) << setw(5) << mom_prim.E() 
-  out << "Primary P:\t E " << mom_prim.E() 
-      << "\tPt = " << mom_prim.Pt()
-      << "\tPz = " << mom_prim.Pz()
-      << "\tM = "  << mom_prim.M() 
-      << "\tEta = " << mom_prim.Eta() 
-      << "\tPhi = " << mom_prim.Phi() << endl;
+  out << "Primary P: E " << primaryMomentum((string) "MASSLESS", false).E() 
+      << " Pt = " << primaryMomentum((string) "MASSLESS", false).Pt() 
+      << " Pz = " << primaryMomentum((string) "MASSLESS", false).Pz()
+      << " M = "  << primaryMomentum((string) "MASSLESS", false).M() << endl;
 
-  out << "Secondary P:\t E " << mom_sec.E()
-      << "\tPt = " << mom_sec.Pt()
-      << "\tPz = " << mom_sec.Pz()
-      << "\tM = "  << mom_sec.M() 
-      << "\tEta = " << mom_sec.Eta()
-      << "\tPhi = " << mom_prim.Phi() << endl;
+  out << "Secondary P: E " << secondaryMomentum((string) "PI", true).E() 
+      << " Pt = " << secondaryMomentum((string) "PI", true).Pt() 
+      << " Pz = " << secondaryMomentum((string) "PI", true).Pz()
+      << " M = "  << secondaryMomentum((string) "PI", true).M() << endl;
+  out << "" << endl;
 }
 

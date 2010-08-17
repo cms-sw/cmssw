@@ -36,7 +36,6 @@
 #include <TF1.h>
 #include <TH2F.h>
 #include <TFile.h>
-#include <TNtuple.h>
 #include <iomanip>
 #include <fstream>
 
@@ -235,12 +234,6 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   tpgFactor->GetYaxis()->SetTitle("eta") ;
   tpgFactor->GetXaxis()->SetTitle("phi") ;  
 
-  TH1F * hshapeEB = new TH1F("shapeEB", "shapeEB", 250, 0., 10.) ;
-  TH1F * hshapeEE = new TH1F("shapeEE", "shapeEE", 250, 0., 10.) ;
-
-  string branch("fed:tcc:tower:stripInTower:xtalInStrip:CCU:VFE:xtalInVFE:xtalInCCU:ieta:iphi:ix:iy:iz:hashedId:ic:ietaTT:iphiTT:TCCch") ;
-  TNtuple *ntuple = new TNtuple("tpgmap","TPG geometry map",branch.c_str()) ;
-
 
 
   ////////////////////////////
@@ -395,7 +388,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       fgr_conf_id_=fe_main_info.getFgrId();
       sli_conf_id_=fe_main_info.getSliId();
       if(fe_main_info.getBxtId()>0) bxt_conf_id_=fe_main_info.getBxtId();
-      if(fe_main_info.getBttId()>0 && btt_conf_id_==0 ) btt_conf_id_=fe_main_info.getBttId();
+      if(fe_main_info.getBxtId()>0) btt_conf_id_=fe_main_info.getBttId();
       // those that are not written specifically in this program are propagated
       // from the previous record with the same tag and the highest version
 
@@ -408,6 +401,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     }
 
   }
+
+
 
   /////////////////////////////////////////
   // Compute linearization coeff section //
@@ -422,36 +417,9 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   map<int, linStruc> linEtaSlice ;
   map< vector<int>, linStruc > linMap ;
 
-  // count number of strip per tower
-  int NbOfStripPerTCC[108][68] ; 
-  for (int i=0 ; i<108 ; i++)
-    for (int j=0 ; j<68 ; j++) 
-      NbOfStripPerTCC[i][j] = 0 ;
-  const std::vector<DetId> & ebCells = theBarrelGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel);
-  const std::vector<DetId> & eeCells = theEndcapGeometry_->getValidDetIds(DetId::Ecal, EcalEndcap);
-  for (vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
-    EBDetId id(*it) ;
-    const EcalTrigTowerDetId towid= id.tower();
-    const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(id) ;
-    int tccNb = theMapping_->TCCid(towid) ;
-    int towerInTCC = theMapping_->iTT(towid) ;
-    int stripInTower = elId.pseudoStripId() ;  
-    if (stripInTower>NbOfStripPerTCC[tccNb-1][towerInTCC-1]) NbOfStripPerTCC[tccNb-1][towerInTCC-1] = stripInTower ;
-  }
-  for (vector<DetId>::const_iterator it = eeCells.begin(); it != eeCells.end(); ++it) {
-    EEDetId id(*it) ;
-    const EcalTrigTowerDetId towid= (*eTTmap_).towerOf(id) ;
-    const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(id) ;
-    int tccNb = theMapping_->TCCid(towid) ;
-    int towerInTCC = theMapping_->iTT(towid) ; 
-    int stripInTower = elId.pseudoStripId() ;
-    if (stripInTower>NbOfStripPerTCC[tccNb-1][towerInTCC-1]) NbOfStripPerTCC[tccNb-1][towerInTCC-1] = stripInTower ;
-  }
-
-
-
   // loop on EB xtals
   if (writeToFiles_) (*out_file_)<<"COMMENT ====== barrel crystals ====== "<<std::endl ;
+  const std::vector<DetId>& ebCells = theBarrelGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel);
 
   // special case of eta slices
   for (vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
@@ -471,20 +439,10 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     int xtalInVFE = Id.xtalId() ;
     int xtalWithinCCUid = 5*(VFEid-1) + xtalInVFE -1 ; // Evgueni expects [0,24]
          
-    (*geomFile_)<<"dccNb = "<<dccNb<<" tccNb = "<<tccNb<<" towerInTCC = "<<towerInTCC
-		<<" stripInTower = "<<stripInTower<<" xtalInStrip = "<<xtalInStrip
-		<<" CCUid = "<<CCUid<<" VFEid = "<<VFEid<<" xtalInVFE = "<<xtalInVFE
-		<<" xtalWithinCCUid = "<<xtalWithinCCUid<<" ieta = "<<id.ieta()<<" iphi = "<<id.iphi()
-		<<" xtalhashedId = "<<id.hashedIndex()<<" xtalNb = "<<id.ic()
-		<<" ietaTT = "<<towid.ieta()<<" iphiTT = "<<towid.iphi()<<endl ;
-
-    int TCCch = towerInTCC ;
-    float val[] = {dccNb+600,tccNb,towerInTCC,stripInTower,
-		   xtalInStrip,CCUid,VFEid,xtalInVFE,xtalWithinCCUid,id.ieta(),id.iphi(),
-		   -999,-999,towid.ieta()/abs(towid.ieta()),id.hashedIndex(),
-		   id.ic(),towid.ieta(),towid.iphi(), TCCch} ;
-    ntuple->Fill(val) ;
-    
+    (*geomFile_)<<"dccNb="<<dccNb<<" tccNb="<<tccNb<<" towerInTCC="<<towerInTCC
+		<<" stripInTower="<<stripInTower<<" xtalInStrip="<<xtalInStrip
+		<<" CCUid="<<CCUid<<" VFEid="<<VFEid<<" xtalInVFE="<<xtalInVFE
+		<<" xtalWithinCCUid="<<xtalWithinCCUid<<" ieta="<<id.ieta()<<" iphi="<<id.iphi()<<endl ;
     
     if (tccNb == 37 && stripInTower == 3 && xtalInStrip == 3 && (towerInTCC-1)%4==0) {
       int etaSlice = towid.ietaAbs() ;
@@ -647,6 +605,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
   // loop on EE xtals
   if (writeToFiles_) (*out_file_)<<"COMMENT ====== endcap crystals ====== "<<std::endl ;
+  const std::vector<DetId> & eeCells = theEndcapGeometry_->getValidDetIds(DetId::Ecal, EcalEndcap);
   
   // special case of eta slices
   for (vector<DetId>::const_iterator it = eeCells.begin(); it != eeCells.end(); ++it) {
@@ -666,21 +625,10 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     int xtalInVFE = Id.xtalId() ;
     int xtalWithinCCUid = 5*(VFEid-1) + xtalInVFE -1 ; // Evgueni expects [0,24]
 
-    (*geomFile_)<<"dccNb = "<<dccNb<<" tccNb = "<<tccNb<<" towerInTCC = "<<towerInTCC
-		<<" stripInTower = "<<stripInTower<<" xtalInStrip = "<<xtalInStrip
-		<<" CCUid = "<<CCUid<<" VFEid = "<<VFEid<<" xtalInVFE = "<<xtalInVFE
-		<<" xtalWithinCCUid = "<<xtalWithinCCUid<<" ix = "<<id.ix()<<" iy = "<<id.iy()
-		<<" xtalhashedId = "<<id.hashedIndex()<<" xtalNb = "<<id.isc()
-		<<" ietaTT = "<<towid.ieta()<<" iphiTT = "<<towid.iphi()<<endl ;
-
-    int TCCch = stripInTower ;
-    for (int j=0 ; j<towerInTCC-1 ; j++) TCCch += NbOfStripPerTCC[tccNb-1][j] ;
-    float val[] = {dccNb+600,tccNb,towerInTCC,stripInTower,
-		   xtalInStrip,CCUid,VFEid,xtalInVFE,xtalWithinCCUid,-999,-999,
-		   id.ix(),id.iy(),towid.ieta()/abs(towid.ieta()),id.hashedIndex(),
-		   id.ic(),towid.ieta(),towid.iphi(),TCCch} ;
-    ntuple->Fill(val) ;    
-
+    (*geomFile_)<<"dccNb="<<dccNb<<" tccNb="<<tccNb<<" towerInTCC="<<towerInTCC
+		<<" stripInTower="<<stripInTower<<" xtalInStrip="<<xtalInStrip
+		<<" CCUid="<<CCUid<<" VFEid="<<VFEid<<" xtalInVFE="<<xtalInVFE
+		<<" xtalWithinCCUid="<<xtalWithinCCUid<<" ix="<<id.ix()<<" iy="<<id.iy()<<endl ;
      
     if ((tccNb == 76 || tccNb == 94) && stripInTower == 1 && xtalInStrip == 3 && (towerInTCC-1)%4==0) {
       int etaSlice = towid.ietaAbs() ;
@@ -901,9 +849,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   double    phase = parameterMap.simParameters(barrel).timePhase();
   EcalShape shape(phase); 
 #endif
-
-  std::vector<unsigned int> weights = computeWeights(shape, hshapeEB) ;
-
+  std::vector<unsigned int> weights = computeWeights(shape) ;
 
   if (weights.size() == 5) {
     if (writeToFiles_) {
@@ -990,8 +936,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   }
 
   // endcap
-  uint threshold, lut_tower ;
-  uint lut_strip;
+  uint threshold, lut_strip, lut_tower ;
   computeFineGrainEEParameters(threshold, lut_strip, lut_tower) ; 
 
   // and here we store the fgr part
@@ -1214,9 +1159,9 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   // last we insert the FE_CONFIG_MAIN table 
  if (writeToDB_) {
    
-   int conf_id_=db_->writeToConfDB_TPGMain(ped_conf_id_,lin_conf_id_, lut_conf_id_, fgr_conf_id_, 
+   /*int conf_id_=db_->writeToConfDB_TPGMain(ped_conf_id_,lin_conf_id_, lut_conf_id_, fgr_conf_id_, 
 					sli_conf_id_, wei_conf_id_, bxt_conf_id_, btt_conf_id_, tag_, version_) ;
-   
+   */
  }
 
 
@@ -1296,10 +1241,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   tpgFactorEEMinus->Write() ;
   IC->Write() ;
   tpgFactor->Write() ;
-  hshapeEB->Write() ;
-  hshapeEE->Write() ;
-  ntuple->Write() ;
   saving.Close () ;
+
 }
 
 void EcalTPGParamBuilder::beginJob()
@@ -1486,9 +1429,9 @@ double EcalTPGParamBuilder::uncodeWeight(int iweight, int complement2)
 }
 
 #if (CMSSW_VERSION>=340)
-std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShapeBase & shape, TH1F * histo)
+std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShapeBase & shape)
 #else
-std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape, TH1F * histo)
+std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape)
 #endif
 {
   std::cout<<"Computing Weights..."<<std::endl ;
@@ -1503,17 +1446,14 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape,
   double sumf2 = 0. ;
   for (uint sample = 0 ; sample<nSample_ ; sample++) {
     double time = timeMax - ((double)sampleMax_-(double)sample)*25. ;
-    //time -= 12. ;
     sumf += shape(time)/max ;
     sumf2 += shape(time)/max * shape(time)/max ;
-    for (int subtime = 0 ; subtime<25 ; subtime++) histo->Fill(float(sample*25. + subtime)/25., shape(time+subtime)) ;
   }
   double lambda = 1./(sumf2-sumf*sumf/nSample_) ;
   double gamma = -lambda*sumf/nSample_ ;
   double * weight = new double[nSample_] ;
   for (uint sample = 0 ; sample<nSample_ ; sample++) {
     double time = timeMax - ((double)sampleMax_-(double)sample)*25. ;
-    //time -= 12. ;
     weight[sample] = lambda*shape(time)/max + gamma ;
   }
 
@@ -1566,23 +1506,6 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape,
       iweight[index] -- ; 
     } 
   }
-
-  // let's check again
-  isumw  = 0 ;  
-  for (uint sample = 0 ; sample<nSample_ ; sample++) isumw  += iweight[sample] ;
-  imax = (uint)(pow(2.,int(complement2_))-1) ;
-  isumw = (isumw & imax ) ;
-  ampl = 0. ;
-  for (uint sample = 0 ; sample<nSample_ ; sample++) {
-     double time = timeMax - ((double)sampleMax_-(double)sample)*25. ;
-     double new_weight = uncodeWeight(iweight[sample], complement2_) ;
-     ampl += new_weight*shape(time) ;
-     std::cout<<"weight unbiased after integer conversion="<<new_weight<<" shape="<<shape(time)<<std::endl ;
-  }
-  std::cout<<"Weights: sum="<<isumw<<std::endl ;
-  std::cout<<"Weights: sum (weight*shape) = "<<ampl<<std::endl ;
-
-
 
   std::vector<unsigned int> theWeights ;
   for (uint sample = 0 ; sample<nSample_ ; sample++) theWeights.push_back(iweight[sample]) ;
@@ -1762,7 +1685,7 @@ void EcalTPGParamBuilder::realignBaseline(linStruc & lin, bool forceBase12to0)
 
   for (int i=0 ; i<3 ; i++) {
     //cout<<lin.pedestal_[i]<<" "<<base[i]<<endl ;
-    lin.pedestal_[i] = base[i] ;
+    //lin.pedestal_[i] = base[i] ;
   }
 
 }

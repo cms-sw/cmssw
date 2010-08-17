@@ -23,9 +23,7 @@ process.SiStripQualityRcdSource = cms.ESSource( "EmptyESSource",
 
 process.load("RecoLocalTracker.SiStripClusterizer.test.ClusterizerUnitTestFunctions_cff")
 process.load("RecoLocalTracker.SiStripClusterizer.test.ClusterizerUnitTests_cff")
-testDefinition = cms.VPSet() + [ process.OldAlgorithmPre31,
-                                 process.EmmulatePre31,
-                                 process.Post31 ]
+testDefinition = cms.VPSet() + [ process.clusterizerTests ]
 
 process.es           = cms.ESProducer("ClusterizerUnitTesterESProducer", ClusterizerTestGroups = testDefinition  )
 process.runUnitTests = cms.EDAnalyzer("ClusterizerUnitTester",           ClusterizerTestGroups = testDefinition  )

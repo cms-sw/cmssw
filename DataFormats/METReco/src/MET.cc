@@ -73,12 +73,14 @@ MET::MET( double sumet_, std::vector<CorrMETData> corr_,
 
 // function that calculates the MET significance from the vector information.
 double MET::significance() const {
+  if(signif_dxx==0 && signif_dyy==0 && signif_dxy==0 && signif_dyx==0)
+    return -1;
   TMatrixD metmat = getSignificanceMatrix();
   TVectorD metvec(2);
   metvec(0)=this->px();
   metvec(1)=this->py();
   double signif = -1;
-  if(metmat.Abs()>0.000001){
+  if(fabs(metmat.Determinant())>0.000001){
     metmat.Invert();
     signif = metvec * (metmat * metvec);
   }

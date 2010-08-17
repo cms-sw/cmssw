@@ -88,7 +88,7 @@ void ESFEDIntegrityTask::setup(void){
   char histo[200];
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/FEDIntegrity");
+    dqmStore_->setCurrentFolder(prefixME_ + "/" + fedDirName_);
 
     sprintf(histo, "FEDEntries");
     meESFedsEntries_ = dqmStore_->book1D(histo, histo, 56, 520, 576);
@@ -107,7 +107,7 @@ void ESFEDIntegrityTask::cleanup(void){
   if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/FEDIntegrity");
+    dqmStore_->setCurrentFolder(prefixME_ + "/" + fedDirName_);
 
     if ( meESFedsEntries_ ) dqmStore_->removeElement( meESFedsEntries_->getName() );
     meESFedsEntries_ = 0;

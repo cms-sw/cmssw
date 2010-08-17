@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2010/03/28 14:00:03 $
- * $Revision: 1.101 $
+ * $Date: 2010/03/29 12:18:39 $
+ * $Revision: 1.102 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -325,7 +325,7 @@ void EBTriggerTowerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     }
 
   } else {
-    edm::LogWarning("EBTriggerTowerTask") << emulCollection_ << " not available";
+    edm::LogInfo("EBTriggerTowerTask") << emulCollection_ << " not available";
   }
 
 }

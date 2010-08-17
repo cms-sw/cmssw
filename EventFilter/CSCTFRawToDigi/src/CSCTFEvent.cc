@@ -49,26 +49,16 @@ unsigned int CSCTFEvent::unpack(const unsigned short *buf, unsigned int length) 
 			header.unpack(spWord);
 
 			// Counter block exists only in format version 4.3 and higher
-			if( header.format_version() && !header.empty() )
-				if( length > index+1 ){ spWord += 4; } else { coruptions |= OUT_OF_BUFFER; break; }
+			if( header.format_version() && !header.empty() ) spWord += 4;
 
-			// Calculate expected record length (internal variable 'shift' counts 16-bit words)
+			// calculate expected record length (internal variable 'shift' counts 16-bit words)
 			for(unsigned short tbin=0,shift=0; tbin<header.nTBINs() && !header.empty(); tbin++){
-				// check if didn't pass end of event, keep in mind that 'length', 'index', and 'spWordCountExpected' counts 64-bit words
-				if( length <= index+spWordCountExpected+2 ){
+				// check if didn't pass end of event, keep in mind that 'index' counts 64-bit words, and 'sp_record_length' - 16-bits
+				if( length <= index+spWordCountExpected+1 ){
 					coruptions |= OUT_OF_BUFFER;
 					break;
 				} else {
-					// In the format version >=5.3 with zero_supression
-					if( header.format_version()>=3 && header.suppression() ){
-						//  we seek the loop index untill it matches the current non-empty tbin
-						if( ((spWord[shift+7]>>8) & 0x7) != tbin ) continue;
-						//  otherwise there may be no more non-empty tbins and we ran into the trailer
-						if( (spWord[shift+0]&0xF000)==0xF000 && (spWord[shift+1]&0xF000)==0xF000 && (spWord[shift+2]&0xF000)==0xF000 && (spWord[shift+3]&0xF000)==0xF000 &&
-							(spWord[shift+4]&0xF000)==0xE000 && (spWord[shift+5]&0xF000)==0xE000 && (spWord[shift+6]&0xF000)==0xE000 && (spWord[shift+7]&0xF000)==0xE000 ) break;
-					}
-
-					// Data Block Header always exists if we got so far
+					// Data Block Header always exists
 					spWordCountExpected += 2;
 					// 15 ME data blocks
 					for(unsigned int me_block=0; me_block<15; me_block++)
@@ -83,7 +73,7 @@ unsigned int CSCTFEvent::unpack(const unsigned short *buf, unsigned int length) 
 						if( header.active()&0x40 && (!header.suppression() || spWord[shift+1]&(0xF<<(sp_block*4))) )
 							spWordCountExpected += 1;
 
-					shift = spWordCountExpected*4; // multiply by 4 because 'shift' is a 16-bit array index and 'spWordCountExpected' conuts 64-bit words
+					shift = spWordCountExpected*4;
 				}
 			}
 
@@ -92,8 +82,6 @@ unsigned int CSCTFEvent::unpack(const unsigned short *buf, unsigned int length) 
 
 			if( coruptions&OUT_OF_BUFFER ) break;
 		}
-
-		//if( !spHeader && spTrailer ) coruptions |= NONSENSE; ///???
 
 		if( (word_1&0xF000F000F000F000LL)==0xF000F000F000F000LL &&
 			(word_2&0xF000F000F000F000LL)==0xE000E000E000E000LL ){
@@ -110,12 +98,11 @@ unsigned int CSCTFEvent::unpack(const unsigned short *buf, unsigned int length) 
 			}
 			// main unpacking
 			const unsigned short *spWord = (unsigned short*) &dduWord[index-spWordCount-1];
-			if( nRecords<12 ) {
-				if( sp[nRecords++].unpack(spWord) ) coruptions |= NONSENSE;
-			} else {
+			if( nRecords<12 ) sp[nRecords++].unpack(spWord);
+			else {
 				coruptions |= CONFIGURATION;
 				break;
-			}
+			} 
 		}
 
 		index++;

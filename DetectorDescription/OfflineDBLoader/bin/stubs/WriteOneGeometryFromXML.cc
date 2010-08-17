@@ -46,7 +46,7 @@ WriteOneGeometryFromXML::beginRun( const edm::Run&, edm::EventSetup const& es)
   //  std::cout << "About to do...   size_t callbackToken=mydbservice->callbackToken(\"PIdealGeometry\");" << std::endl;
   //  size_t callbackToken=mydbservice->callbackToken("PIdealGeometry");
   //  std::cout << "Got back token " << callbackToken << std::endl;
-  edm::ESTransientHandle<DDCompactView> pDD;
+  edm::ESHandle<DDCompactView> pDD;
 
   es.get<IdealGeometryRecord>().get(label_, pDD );
   if (pDD.isValid()) 

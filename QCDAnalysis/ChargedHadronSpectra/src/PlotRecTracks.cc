@@ -202,7 +202,7 @@ FreeTrajectoryState PlotRecTracks::getTrajectoryAtOuterPoint
 /*****************************************************************************/
 void PlotRecTracks::printRecTracks(const edm::Event& ev)
 {
-  theHitAssociator = new TrackerHitAssociator::TrackerHitAssociator(ev);
+  theHitAssociator = new TrackerHitAssociator(ev);
 
   file << ", If[rt, {AbsolutePointSize[6]";
 

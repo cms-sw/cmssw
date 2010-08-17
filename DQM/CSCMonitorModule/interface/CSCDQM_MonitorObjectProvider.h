@@ -116,7 +116,7 @@ namespace cscdqm {
 
     public:
     
-      virtual const CSCDetId getCSCDetId(const unsigned int crateId, const unsigned int dmbId) const = 0;
+      virtual bool getCSCDetId(const unsigned int crateId, const unsigned int dmbId, CSCDetId& detId) const = 0;
       virtual MonitorObject *bookMonitorObject (const HistoBookRequest& p_req) = 0; 
   };
 

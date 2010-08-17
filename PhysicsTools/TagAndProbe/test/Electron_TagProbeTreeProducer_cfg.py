@@ -30,8 +30,7 @@ process.source = cms.Source("PoolSource",
 '/store/relval/CMSSW_3_4_1/RelValZEE/GEN-SIM-RECO/MC_3XY_V14-v1/0004/4E4D206B-8DED-DE11-966A-001617E30F50.root'
     )
 )
-
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )    
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )    
 
 
 ##   ____                         ____ _           _            
@@ -60,24 +59,6 @@ process.goodSuperClusters = cms.EDFilter("CandViewSelector",
 )                                         
                                          
 
-#### remove real jets (with high hadronic energy fraction) from SC collection
-##### this improves the purity of the probe sample without affecting efficiency
-
-process.myJets = cms.EDFilter("CaloJetSelector",   
-    src = cms.InputTag("ak5CaloJets"),
-    cut = cms.string('energyFractionHadronic > 0.15')
-)
-
-
-process.goodSuperClustersClean = cms.EDFilter("CandViewCleaner",
-    srcCands = cms.InputTag("goodSuperClusters"),
-    module_label = cms.string(''),
-    srcObjects = cms.VInputTag(cms.InputTag("myJets")),
-    deltaRMin = cms.double(0.2)
-)
-
-
-
 ## process.superClusters = cms.EDFilter("EgammaHLTRecoEcalCandidateProducers",
 ##    scHybridBarrelProducer =  cms.InputTag("hybridSuperClusters","", "RECO"),
 ##    scIslandEndcapProducer =  cms.InputTag("multi5x5SuperClustersWithPreshower","", "RECO"),    
@@ -87,8 +68,7 @@ process.goodSuperClustersClean = cms.EDFilter("CandViewCleaner",
 
 process.sc_sequence = cms.Sequence( process.superClusters *
                                     process.superClusterCands *
-                                    process.goodSuperClusters *
-                                    process.myJets * process.goodSuperClustersClean)
+                                    process.goodSuperClusters)
 
 
 ##    ____      __ _____ _           _                   
@@ -107,7 +87,7 @@ process.PassingGsf = cms.EDFilter("GsfElectronRefSelector",
 
 
 process.GsfMatchedSuperClusterCands = cms.EDProducer("ElectronMatchedCandidateProducer",
-   src     = cms.InputTag("goodSuperClustersClean"),
+   src     = cms.InputTag("goodSuperClusters"),
    ReferenceElectronCollection = cms.untracked.InputTag("PassingGsf"),
    deltaR =  cms.untracked.double(0.3)
 )
@@ -124,12 +104,7 @@ process.GsfMatchedSuperClusterCands = cms.EDProducer("ElectronMatchedCandidatePr
 process.PassingIsolation = cms.EDFilter("GsfElectronRefSelector",
     src = cms.InputTag("gsfElectrons"),
     cut = cms.string(process.PassingGsf.cut.value() +
-         " && (( isEB && (dr04TkSumPt<7.2) && (dr04EcalRecHitSumEt<5.7) && (dr04HcalTowerSumEt<8.1)"
-         " && (deltaEtaSuperClusterTrackAtVtx<0.0071) && (deltaPhiSuperClusterTrackAtVtx<1.0)"
-         " && (sigmaEtaEta<0.01))"
-         " || (isEE && (dr04TkSumPt<5.1) && (dr04EcalRecHitSumEt<5.0) && (dr04HcalTowerSumEt<3.4)"
-         " && (deltaEtaSuperClusterTrackAtVtx<0.0066) && (deltaPhiSuperClusterTrackAtVtx<1.0)"
-         " && (sigmaEtaEta<0.028)))")
+         " && (dr04TkSumPt/pt<0.2) && (dr04EcalRecHitSumEt/et<0.2) && (dr04HcalTowerSumEt/et<0.2)")  
 )
 
 ##    _____ _           _                     ___    _ 
@@ -178,7 +153,7 @@ JET_COLL = "ak5CaloJets"
 JET_CUTS = "pt > 20 && abs(eta) < 3 && (.05 < emEnergyFraction < .9)"
 
 process.superClusterDRToNearestJet = cms.EDProducer("DeltaRNearestObjectComputer",
-    probes = cms.InputTag("goodSuperClustersClean"),
+    probes = cms.InputTag("goodSuperClusters"),
        # ^^--- NOTA BENE: if probes are defined by ref, as in this case, 
        #       this must be the full collection, not the subset by refs.
     objects = cms.InputTag(JET_COLL),
@@ -222,7 +197,7 @@ process.ele_sequence = cms.Sequence(
 #  Tag & probe selection ######
 
 process.tagSC = cms.EDProducer("CandViewShallowCloneCombiner",
-    decay = cms.string("Tag goodSuperClustersClean"), # charge coniugate states are implied
+    decay = cms.string("Tag goodSuperClusters"), # charge coniugate states are implied
     checkCharge = cms.bool(False),                           
     cut   = cms.string("60 < mass < 120"),
 )
@@ -254,8 +229,7 @@ process.tagHLT = cms.EDProducer("CandViewShallowCloneCombiner",
 
 
 process.allTagsAndProbes = cms.Sequence(
-    process.tagSC +
-    process.tagGsf +
+    process.tagSC + process.tagGsf +
     process.tagIso + process.tagId + process.tagHLT
 )
 
@@ -277,7 +251,7 @@ process.McMatchTag = cms.EDFilter("MCTruthDeltaRMatcherNew",
 
 process.McMatchSC = cms.EDFilter("MCTruthDeltaRMatcherNew",
     pdgId = cms.vint32(11),
-    src = cms.InputTag("goodSuperClustersClean"),
+    src = cms.InputTag("goodSuperClusters"),
     distMin = cms.double(0.3),
     matched = cms.InputTag("genParticles")
 )
@@ -349,9 +323,7 @@ recoCommonStuff = cms.PSet(
         py  = cms.string("py()"),
         pz  = cms.string("pz()"),
         theta  = cms.string("theta()"),
-    ),
-   ignoreExceptions =  cms.bool (True),
-   fillTagTree      =  cms.bool (True),  
+    )
 )
 
 mcTruthCommonStuff = cms.PSet(
@@ -363,6 +335,23 @@ mcTruthCommonStuff = cms.PSet(
 )   
 
 
+##    _____             _____              
+##   |_   _|_ _  __ _  |_   _| __ ___  ___ 
+##     | |/ _` |/ _` |   | || '__/ _ \/ _ \
+##     | | (_| | (_| |   | || | |  __/  __/
+##     |_|\__,_|\__, |   |_||_|  \___|\___|
+##              |___/                      
+
+## store variables for tag electron into a separate TTree
+process.TagTree = cms.EDAnalyzer("TagProbeFitTreeProducer",
+     recoCommonStuff,
+     isMC = cms.bool(False),
+     tagProbePairs = cms.InputTag("tagSC"),
+     arbitration   = cms.string("OneProbe"),
+     flags = cms.PSet(),
+    allProbes     = cms.InputTag("Tag")
+)                                 
+     
 ##    ____   ____       __     ____      __ 
 ##   / ___| / ___|      \ \   / ___|___ / _|
 ##   \___ \| |      _____\ \ | |  _/ __| |_ 
@@ -380,7 +369,7 @@ process.SCToGsf = cms.EDAnalyzer("TagProbeFitTreeProducer",
         passing = cms.InputTag("GsfMatchedSuperClusterCands")
     ),
     probeMatches  = cms.InputTag("McMatchSC"),
-    allProbes     = cms.InputTag("goodSuperClustersClean")
+    allProbes     = cms.InputTag("goodSuperClusters")
 )
 process.SCToGsf.variables.drjet = cms.InputTag("superClusterDRToNearestJet")
 
@@ -445,8 +434,7 @@ process.IdToHLT.variables.drjet = cms.InputTag("GsfDRToNearestJet")
 
 
 process.tree_sequence = cms.Sequence(
-    process.SCToGsf +
-    process.GsfToIso +
+    process.TagTree + process.SCToGsf + process.GsfToIso +
     process.IsoToId + process.IdToHLT
 )    
 

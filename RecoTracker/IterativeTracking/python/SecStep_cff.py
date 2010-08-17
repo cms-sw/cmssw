@@ -137,15 +137,10 @@ secStepTrkLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.cl
     chi2n_par = 0.7,
     res_par = ( 0.003, 0.001 ),
     minNumberLayers = 3,
-    d0_par1 = ( 1.5, 4.0 ),
-    dz_par1 = ( 1.5, 4.0 ),
-    d0_par2 = ( 1.5, 4.0 ),
-    dz_par2 = ( 1.5, 4.0 )
-    )
-
-secStepLoose = RecoTracker.FinalTrackSelectors.simpleTrackListMerger_cfi.simpleTrackListMerger.clone(
-    TrackProducer1 = 'secStepVtxLoose',
-    TrackProducer2 = 'secStepTrkLoose'
+    d0_par1 = ( 1.6, 4.0 ),
+    dz_par1 = ( 1.6, 4.0 ),
+    d0_par2 = ( 1.6, 4.0 ),
+    dz_par2 = ( 1.6, 4.0 )
     )
 
 
@@ -175,15 +170,10 @@ secStepTrkTight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.cl
     minNumberLayers = 5,
     minNumber3DLayers = 3,
     maxNumberLostLayers = 1,
-    d0_par1 = ( 1.0, 4.0 ),
-    dz_par1 = ( 1.0, 4.0 ),
-    d0_par2 = ( 1.0, 4.0 ),
-    dz_par2 = ( 1.0, 4.0 )
-    )
-
-secStepTight = RecoTracker.FinalTrackSelectors.simpleTrackListMerger_cfi.simpleTrackListMerger.clone(
-    TrackProducer1 = 'secStepVtxTight',
-    TrackProducer2 = 'secStepTrkTight'
+    d0_par1 = ( 1.1, 4.0 ),
+    dz_par1 = ( 1.1, 4.0 ),
+    d0_par2 = ( 1.1, 4.0 ),
+    dz_par2 = ( 1.1, 4.0 )
     )
 
 
@@ -213,10 +203,10 @@ secStepTrk = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPuri
     minNumberLayers = 5,
     minNumber3DLayers = 3,
     maxNumberLostLayers = 1,
-    d0_par1 = ( 0.9, 4.0 ),
-    dz_par1 = ( 0.9, 4.0 ),
-    d0_par2 = ( 0.9, 4.0 ),
-    dz_par2 = ( 0.9, 4.0 )
+    d0_par1 = ( 1.0, 4.0 ),
+    dz_par1 = ( 1.0, 4.0 ),
+    d0_par2 = ( 1.0, 4.0 ),
+    dz_par2 = ( 1.0, 4.0 )
     )
 
 secStep = RecoTracker.FinalTrackSelectors.simpleTrackListMerger_cfi.simpleTrackListMerger.clone(
@@ -230,6 +220,6 @@ secondStep = cms.Sequence(firstfilter*
                           secTriplets*
                           secTrackCandidates*
                           secWithMaterialTracks*
-                          secStepVtxLoose*secStepTrkLoose*secStepLoose*
-                          secStepVtxTight*secStepTrkTight*secStepTight*
+                          secStepVtxLoose*secStepTrkLoose*
+                          secStepVtxTight*secStepTrkTight*
                           secStepVtx*secStepTrk*secStep)

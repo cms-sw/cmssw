@@ -1,5 +1,11 @@
 2010-02-02  Emilio Meschi  <emilio.meschi@cern.ch>
 
+	* tag V00-00-07
+	* added EvF pseudo-FED and split trivial SLINK Constants in separate
+	header file
+
+2010-02-02  Emilio Meschi  <emilio.meschi@cern.ch>
+
 	* tag V00-00-06
 	* minimal fixes
 	

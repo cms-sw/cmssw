@@ -15,10 +15,7 @@ process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
 # IdealGeometryRecord
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
-process.load("CalibCalorimetry.Configuration.Ecal_FakeConditions_cff")
-
 process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff")
-
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:/data/uberthon/tpg/elec_unsupp_pt10-100.root')

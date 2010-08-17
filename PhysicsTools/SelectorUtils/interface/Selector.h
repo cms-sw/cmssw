@@ -10,22 +10,23 @@
   The user can then turn individual cuts on and off at will. 
 
   \author Salvatore Rappoccio
-  \version  $Id: Selector.h,v 1.4 2010/03/10 17:26:55 srappocc Exp $
+  \version  $Id: Selector.h,v 1.8 2010/04/25 17:06:34 hegner Exp $
 */
 
 
 #include "PhysicsTools/SelectorUtils/interface/strbitset.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Common/interface/EventBase.h"
 #include <fstream>
 #include <functional>
 
 /// Functor that operates on <T>
 template<class T>
-class Selector : public std::binary_function<T, std::strbitset, bool>  {
+class Selector : public std::binary_function<T, pat::strbitset, bool>  {
   
  public:
   typedef T                                            data_type;
-  typedef std::binary_function<T,std::strbitset,bool>  base_type;
+  typedef std::binary_function<T,pat::strbitset,bool>  base_type;
   typedef std::pair<std::string, size_t>               cut_flow_item;
   typedef std::vector<cut_flow_item>                   cut_flow_map;
   typedef std::map<std::string, int>                   int_map;
@@ -69,7 +70,7 @@ class Selector : public std::binary_function<T, std::strbitset, bool>  {
   }
 
   /// This provides the interface for base classes to select objects
-  virtual bool operator()( T const & t, std::strbitset & ret ) = 0;
+  virtual bool operator()( T const & t, pat::strbitset & ret ) = 0;
 
   /// This provides an alternative signature without the second ret
   virtual bool operator()( T const & t )
@@ -80,6 +81,23 @@ class Selector : public std::binary_function<T, std::strbitset, bool>  {
     return (bool)retInternal_;
   }
   
+
+  /// This provides an alternative signature that includes extra information
+  virtual bool operator()( T const & t, edm::EventBase const & e, pat::strbitset & ret)
+  {
+    return operator()(t, ret);
+  }
+
+  /// This provides an alternative signature that includes extra information
+  virtual bool operator()( T const & t, edm::EventBase const & e)
+  {
+    retInternal_.set(false);
+    operator()(t, e, retInternal_);
+    setIgnored(retInternal_);
+    return (bool)retInternal_;
+  }
+
+
   /// Set a given selection cut, on or off
   void set(std::string s, bool val = true) {
     bits_[s] = val;
@@ -129,7 +147,7 @@ class Selector : public std::binary_function<T, std::strbitset, bool>  {
   }
 
   /// Passing cuts
-  void passCut( std::strbitset & ret, std::string const & s ) {
+  void passCut( pat::strbitset & ret, std::string const & s ) {
     ret[s] = true;
     cut_flow_map::iterator found = cutFlow_.end();
     for ( cut_flow_map::iterator cutsBegin = cutFlow_.begin(),
@@ -152,8 +170,8 @@ class Selector : public std::binary_function<T, std::strbitset, bool>  {
   };
 
   /// Get an empty bitset with the proper names
-  std::strbitset getBitTemplate() const { 
-    std::strbitset ret = bits_; 
+  pat::strbitset getBitTemplate() const { 
+    pat::strbitset ret = bits_; 
     ret.set(false);
     for ( cut_flow_map::const_iterator cutsBegin = cutFlow_.begin(),
 	    cutsEnd = cutFlow_.end(), icut = cutsBegin;
@@ -164,7 +182,7 @@ class Selector : public std::binary_function<T, std::strbitset, bool>  {
   }
 
   /// set ignored bits
-  void setIgnored( std::strbitset & ret ) {
+  void setIgnored( pat::strbitset & ret ) {
     for ( cut_flow_map::const_iterator cutsBegin = cutFlow_.begin(),
 	    cutsEnd = cutFlow_.end(), icut = cutsBegin;
 	  icut != cutsEnd; ++icut ) {
@@ -193,9 +211,24 @@ class Selector : public std::binary_function<T, std::strbitset, bool>  {
     } 
   }
 
+  /// Print the cuts being considered
+  void printActiveCuts(std::ostream & out) const { 
+    bool already_printed_one = false;
+    for ( cut_flow_map::const_iterator cutsBegin = cutFlow_.begin(),
+	    cutsEnd = cutFlow_.end(), icut = cutsBegin;
+	  icut != cutsEnd; ++icut ) {
+      if ( considerCut( icut->first ) ) {
+	if( already_printed_one ) out << ", ";
+	out << icut->first;
+	already_printed_one = true;
+      }
+    } 
+    out << std::endl;
+  }
+
  protected:
-  std::strbitset bits_;        //!< the bitset indexed by strings
-  std::strbitset retInternal_; //!< internal ret if users don't care about return bits
+  pat::strbitset bits_;        //!< the bitset indexed by strings
+  pat::strbitset retInternal_; //!< internal ret if users don't care about return bits
   int_map        intCuts_;     //!< the int-value cut map
   double_map     doubleCuts_;  //!< the double-value cut map
   cut_flow_map   cutFlow_;     //!< map of cut flows in "human" order

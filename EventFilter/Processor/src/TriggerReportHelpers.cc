@@ -147,6 +147,12 @@ void TriggerReportHelpers::formatReportTable(edm::TriggerReport &tr,
     paths_[i] = tr.trigPathSummaries[i].name;
     it->setField("pathName",paths_[i]);
     ost << i << "=" << paths_[i].value_ << ", ";
+
+    // reset the l1 and ps positions to pick up modifications of the menu
+    // that result in paths being displaced up and down
+    l1pos_[i] = -1;
+    pspos_[i] = -1;
+
     for(unsigned int j=0;j<tr.trigPathSummaries[i].moduleInPathSummaries.size();j++) {
       std::string label = tr.trigPathSummaries[i].moduleInPathSummaries[j].moduleLabel;
       for(unsigned int k = 0; k < descs.size(); k++)

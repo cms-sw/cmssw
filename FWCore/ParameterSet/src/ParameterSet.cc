@@ -819,15 +819,14 @@ namespace edm {
   }
 
   // Free function to return a parameterSet given its ID.
-  ParameterSet
+  const ParameterSet&
   getParameterSet(ParameterSetID const& id) {
-    ParameterSet result;
-    if(!pset::Registry::instance()->getMapped(id, result)) {
+    ParameterSet const* result=0;
+    if( 0 == (result =pset::Registry::instance()->getMapped(id))) {
       throw edm::Exception(errors::Configuration,"MissingParameterSet:")
         << "Parameter Set ID '" << id << "' not found.";
     }
-    result.setID(id);
-    return result;
+    return *result;
   }
 
   void ParameterSet::deprecatedInputTagWarning(std::string const& name, 

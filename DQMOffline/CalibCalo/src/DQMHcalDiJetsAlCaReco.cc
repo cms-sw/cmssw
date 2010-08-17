@@ -3,8 +3,8 @@
  *
  * \author Olga Kodolova
  *        
- * $Date: 2009/04/17 15:07:59 $
- * $Revision: 1.2 $
+ * $Date: 2010/04/07 13:05:45 $
+ * $Revision: 1.4 $
  *
  *
  * Description: Monitoring of Phi Symmetry Calibration Stream  
@@ -30,7 +30,7 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/DetId/interface/DetId.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 // #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -100,7 +100,7 @@ void DQMHcalDiJetsAlCaReco::beginJob(){
   hiDistrProbeJetEnergy_->setAxisTitle("E, GeV", 1);
   hiDistrProbeJetEnergy_->setAxisTitle("# jets", 2);
 
-  hiDistrProbeJetEta_ = dbe_->book1D("ProbeJetEta", "the number of probe jets", 100,-5., 5.); 
+  hiDistrProbeJetEta_ = dbe_->book1D("ProbeJetEta", "the number of probe jets", 100, -5., 5.); 
   hiDistrProbeJetEta_->setAxisTitle("#eta", 1);
   hiDistrProbeJetEta_->setAxisTitle("# jets", 2);
 
@@ -112,7 +112,7 @@ void DQMHcalDiJetsAlCaReco::beginJob(){
   hiDistrTagJetEnergy_->setAxisTitle("E, GeV", 1);
   hiDistrTagJetEnergy_->setAxisTitle("# jets", 2);
 
-  hiDistrTagJetEta_ = dbe_->book1D("TagJetEta", "the number of  tag jets", 100, 5., 5.); 
+  hiDistrTagJetEta_ = dbe_->book1D("TagJetEta", "the number of  tag jets", 100, -5., 5.); 
   hiDistrTagJetEta_->setAxisTitle("#eta", 1);
   hiDistrTagJetEta_->setAxisTitle("# jets", 2);
 
@@ -149,9 +149,17 @@ void DQMHcalDiJetsAlCaReco::analyze(const Event& iEvent,
 
    CaloJet jet1, jet2, jet3;
    Float_t etVetoJet; 
-   try {
+
    edm::Handle<CaloJetCollection> jets;
    iEvent.getByLabel(jets_,jets);
+   
+  if(!jets.isValid()){
+    LogDebug("") << "DQMHcalDiJetsAlCaReco: Error! can't getjet product!" << std::endl;
+    return ;
+  }
+   
+   
+   
    if(jets->size()>1){
     jet1 = (*jets)[0];
     jet2 = (*jets)[1];
@@ -176,59 +184,76 @@ void DQMHcalDiJetsAlCaReco::analyze(const Event& iEvent,
      etVetoJet = jet3.et();
      hiDistrEtThirdJet_->Fill(etVetoJet);
    } else { etVetoJet = 0.; hiDistrEtThirdJet_->Fill(etVetoJet); }
-   }catch (cms::Exception& e) { // can't find it!
-     if (!allowMissingInputs_) { throw e; }
-   }
 
-   try {
+
+
       Handle<EcalRecHitCollection> ec;
       iEvent.getByLabel(ec_,ec);
+      
+  if(!ec.isValid()){
+    LogDebug("") << "DQMHcalDiJetsAlCaReco: Error! can't get ec product!" << std::endl;
+    return ;
+  }
+      
+      
       for(EcalRecHitCollection::const_iterator ecItr = (*ec).begin();
                                                 ecItr != (*ec).end(); ++ecItr)
       {
         hiDistrRecHitEnergyEBEE_->Fill(ecItr->energy()); 
       }
-   } catch (cms::Exception& e) { // can't find it!
-      if (!allowMissingInputs_) throw e;
-   }
 
-   try {
+
+
+
       Handle<HBHERecHitCollection> hbhe;
       iEvent.getByLabel(hbhe_, hbhe);
+
+  if(!hbhe.isValid()){
+    LogDebug("") << "DQMHcalDiJetsAlCaReco: Error! can't get hbhe product!" << std::endl;
+    return ;
+  }
+
+
       for(HBHERecHitCollection::const_iterator hbheItr=hbhe->begin();
                                                  hbheItr!=hbhe->end(); hbheItr++)
       {
 	hiDistrRecHitEnergyHBHE_->Fill(hbheItr->energy()); 
       }
-   } catch (cms::Exception& e) { // can't find it!
-      if (!allowMissingInputs_) throw e;
-   }
 
-   try {
+   
       Handle<HORecHitCollection> ho;
       iEvent.getByLabel(ho_, ho);
+
+  if(!ho.isValid()){
+    LogDebug("") << "DQMHcalDiJetsAlCaReco: Error! can't get ho product!" << std::endl;
+    return ;
+  }
+
+
       for(HORecHitCollection::const_iterator hoItr=ho->begin();
                                                hoItr!=ho->end(); hoItr++)
       {
          hiDistrRecHitEnergyHO_->Fill(hoItr->energy());
 
       }
-   } catch (cms::Exception& e) { // can't find it!
-      if (!allowMissingInputs_) throw e;
-   }
 
 
-   try {
+
+
       Handle<HFRecHitCollection> hf;
       iEvent.getByLabel(hf_, hf);
+
+  if(!hf.isValid()){
+    LogDebug("") << "DQMHcalDiJetsAlCaReco: Error! can't get hf product!" << std::endl;
+    return ;
+  }
+
+
       for(HFRecHitCollection::const_iterator hfItr=hf->begin();
                                                hfItr!=hf->end(); hfItr++)
       {
 	hiDistrRecHitEnergyHF_->Fill(hfItr->energy()); 
       }
-   } catch (cms::Exception& e) { // can't find it!
-      if (!allowMissingInputs_) throw e;
-   }
 	
 } //analyze
 

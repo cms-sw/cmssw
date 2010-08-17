@@ -14,7 +14,7 @@ EDProduct that is a sequence.
 //
 // Original Author:  
 //         Created:  Mon Dec 18 09:48:30 CST 2006
-// $Id: View.h,v 1.8 2008/06/03 21:30:15 wmtan Exp $
+// $Id: View.h,v 1.9 2009/09/29 21:43:21 lsexton Exp $
 //
 
 #include <vector>
@@ -187,22 +187,20 @@ namespace edm
       assert (numElements == helpers->size());
       
       items_.reserve(numElements);
+       ptrs_.reserve(refs_.size());
       for (std::vector<void const*>::size_type i = 0; i < pointers.size(); ++i) {
-	items_.push_back(static_cast<pointer>(pointers[i]));
+        void const* p = pointers[i];
+	items_.push_back(static_cast<pointer>(p));
+        if(0!=p) {
+           ptrs_.push_back(Ptr<T>(helpers->id(),static_cast<const T*> (p),helpers->keyForIndex(i)));
+        } else if (helpers->productGetter()!=0) {
+           ptrs_.push_back(Ptr<T>(helpers->id(), helpers->keyForIndex(i), helpers->productGetter()));
+        } else{
+           ptrs_.push_back(Ptr<T>(helpers->id(), 0, helpers->keyForIndex(i)));
+        }
       }
       RefToBaseVector<T> temp(helpers);
       refs_.swap(temp); 
-      ptrs_.reserve(refs_.size());
-      for(typename RefToBaseVector<T>::const_iterator i = refs_.begin(); i != refs_.end(); ++i) {
-	RefToBase<T> ref = *i;
-	if (ref.get() != 0) {
-	  ptrs_.push_back(Ptr<T>(ref.id(), ref.get(), ref.key()));
-	} else if (ref.productGetter() != 0) {
-	  ptrs_.push_back(Ptr<T>(ref.id(), ref.key(), ref.productGetter()));
-	} else {
-	  ptrs_.push_back(Ptr<T>(ref.id(), 0, ref.key()));
-	}
-      }
     }
   }
 

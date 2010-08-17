@@ -71,22 +71,26 @@ double PFSCEnergyCalibration::SCCorrEtEtaBarrel(double et, double eta) {
 //   double bb9 = -5.14434e-05;
 //   double bb10 = 1.42516e-07; 
   
-
+  
+  double temp_et = et;
+  // Avoid energy correction divergency at low Et. 
+  if(temp_et < 2)
+    temp_et = 2;
 
   
   double d0 = 15.0;     // sharpness of the curve
   double d1 = -0.00181;
   double d2 = 1.081;
   
-  double p0 = bb[0] + bb[1]/(et + bb[2]) - bb[3]/(et) ;
-  double p1 = bb[4] + bb[5]/(bb[6] + et);
+  double p0 = bb[0] + bb[1]/(temp_et + bb[2]) - bb[3]/(temp_et) ;
+  double p1 = bb[4] + bb[5]/(bb[6] + temp_et);
 
   
 
   // for the momentum the fixed value d2 is prefered to p2
-  double p2 = bb[7] + bb[8]*et + bb[9]*et*et + bb[10]*et*et*et;
+  double p2 = bb[7] + bb[8]*temp_et + bb[9]*temp_et*temp_et + bb[10]*temp_et*temp_et*temp_et;
   
-  if(et > 130) {
+  if(temp_et > 130) {
     double y = 130;
     p2 = bb[7] + bb[8]*y + bb[9]*y*y + bb[10]*y*y*y;
   }
@@ -120,11 +124,14 @@ double PFSCEnergyCalibration::SCCorrEtEtaEndcap(double et, double eta) {
 //   double c7 = -2.21845;
 //   double c8 = 3.42062;
   
+  double temp_et = et;
+  // Avoid energy correction divergency at low Et. 
+  if(temp_et < 2)
+    temp_et = 2;
 
-
-  double p0 = cc[0] + cc[1]/(cc[2] + et);
-  double p1 = cc[3] + cc[4]/(cc[5] + et);
-  double p2 = cc[6] + cc[7]/(cc[8] + et);
+  double p0 = cc[0] + cc[1]/(cc[2] + temp_et);
+  double p1 = cc[3] + cc[4]/(cc[5] + temp_et);
+  double p2 = cc[6] + cc[7]/(cc[8] + temp_et);
     
     
     fCorr = p0 + p1*fabs(eta) +  p2*eta*eta;

@@ -10,7 +10,8 @@ OHltRateCounter::OHltRateCounter(unsigned int size) {
     sPureCount.push_back(0);
     pureCount.push_back(0);
     prescaleCount.push_back(0);
-    
+    prescaleCountL1.push_back(0);    
+
     itmp.push_back(0);
   }
   for (unsigned int j=0;j<size;j++) {

@@ -3,8 +3,8 @@
  * \file DQMDcsInfoClient.cc
  * \author Andreas Meyer
  * Last Update:
- * $Date: 2010/03/29 18:34:06 $
- * $Revision: 1.2 $
+ * $Date: 2010/03/29 19:21:21 $
+ * $Revision: 1.3 $
  * $Author: ameyer $
  *
 */
@@ -90,6 +90,9 @@ DQMDcsInfoClient::endRun(const edm::Run& r, const edm::EventSetup& c)
   reportSummary_=dbe_->bookFloat("reportSummary");
   reportSummary_->Fill(1.);
   
+  reportSummaryMap_ = dbe_->get(subsystemname_ +"/EventInfo/reportSummaryMap");
+  if (reportSummaryMap_) dbe_->removeElement(reportSummaryMap_->getName());
+
   reportSummaryMap_ = dbe_->book2D("reportSummaryMap",
                      "HV and GT vs Lumi", nlsmax, 1., nlsmax+1, 25, 0., 25.);
   reportSummaryMap_->setBinLabel(1," CSC+",2);   

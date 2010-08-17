@@ -130,7 +130,7 @@ void FEDErrors::initialiseFED(const unsigned int aFedID,
 	// 3=TIB, 4=TID, 5=TOB, 6=TEC (TECB here)
 	switch(DetId(lDetid).subdetId()) {
 	case 3:
-	  lSubid = 2;
+	  lSubid = 2; //TIB
 	  break;
 
 	case 4:
@@ -142,7 +142,7 @@ void FEDErrors::initialiseFED(const unsigned int aFedID,
 	  }
 
 	case 5:
-	  lSubid = 5;
+	  lSubid = 5; //TOB
 	  break;
 
 	case 6:
@@ -678,6 +678,7 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
     if (lMedValid && !foundError && lPassedMonitoringFEDcheck && aDoMeds) {
       //get CM values
       const sistrip::FEDChannel & lChannel = aBuffer->channel(iCh);
+ 
       HistogramBase::fillHistogram(aMedianHist0,
 				   lChannel.cmMedian(0));
       HistogramBase::fillHistogram(aMedianHist1,
@@ -781,7 +782,7 @@ void FEDErrors::fillBadChannelList(const bool doTkHistoMap,
 void FEDErrors::incrementLumiErrors(const bool hasError,
 				    const unsigned int aSubDet){
   if (!lumiErr_.nTotal.size()) return;
-  if (aSubDet > lumiErr_.nTotal.size()) {
+  if (aSubDet >= lumiErr_.nTotal.size()) {
     edm::LogError("SiStripMonitorHardware") << " -- FED " << fedID_ 
 					    << ", invalid subdetid : " << aSubDet
 					    << ", size of lumiErr : " 

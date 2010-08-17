@@ -1,7 +1,7 @@
 #include "OutputDDToDDL.h"
 
 #include <FWCore/ServiceRegistry/interface/Service.h>
-#include <FWCore/Framework/interface/ESTransientHandle.h>
+#include <FWCore/Framework/interface/ESHandle.h>
 
 #include <DetectorDescription/Core/interface/DDLogicalPart.h>
 #include <DetectorDescription/Core/interface/DDSpecifics.h>
@@ -63,7 +63,7 @@ OutputDDToDDL::beginRun( const edm::Run&, edm::EventSetup const& es)
 {
   std::cout<<"OutputDDToDDL::beginRun"<<std::endl;
 
-  edm::ESTransientHandle<DDCompactView> pDD;
+  edm::ESHandle<DDCompactView> pDD;
 
   es.get<IdealGeometryRecord>().get( pDD );
 

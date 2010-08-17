@@ -18,29 +18,45 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // constructor
-SiStripCoralIface::SiStripCoralIface( std::string connectionString , std::string authenticationPath, const bool debug) : m_connect(connectionString), debug_(debug) {
-  session=new cond::DBSession;
-  session->configuration().setAuthenticationMethod(cond::XML);
-  session->configuration().setMessageLevel(cond::Debug);
-  session->configuration().setAuthenticationPath(authenticationPath);
+SiStripCoralIface::SiStripCoralIface( std::string connectionString , std::string authenticationPath, const bool debug) : m_connectionString(connectionString), m_session(), debug_(debug)
+{
+  std::cout << "Building coral interface" << std::endl;
+  // session=new cond::DBSession;
+  // session->configuration().setAuthenticationMethod(cond::XML);
+//   m_session.configuration().setMessageLevel(cond::Debug);
+//   m_session.configuration().setAuthenticationPath(authenticationPath);
+  // m_connection.configuration().setMessageLevel(cond::Debug);
+  m_connection.configuration().setAuthenticationPath(authenticationPath);
+  m_connection.configure();
   initialize();
 }
 
 // destructor
 SiStripCoralIface::~SiStripCoralIface() {	
   LogTrace("SiStripCoralIface") << "[SiStripCoralIface::" << __func__ << "] Destructor called."; 
-  con->disconnect();
-  delete session;
+  // con->disconnect();
+  m_connection.close();
+  // delete session;
 }
 
 // open DB connection
 void  SiStripCoralIface::initialize() {
-  con = new cond::Connection(m_connect,-1);
-  session->open();
-  con->connect(session);
-  m_coraldb = &(con->coralTransaction()); 
-  m_coraldb->start(true);
-  LogTrace("SiStripCoralIface") << "[SiStripCoralIface::" << __func__ << "] Database connection opened"; 
+  // con = new cond::Connection(m_connect,-1);
+  m_session = m_connection.createSession();
+  m_session.open(m_connectionString);
+  // con->connect(session);
+  try {
+    m_transaction.reset( new cond::DbScopedTransaction(m_session) );
+    m_transaction->start(true);
+    LogTrace("SiStripCoralIface") << "[SiStripCoralIface::" << __func__ << "] Database connection opened"; 
+  }
+  catch (...) {
+    edm::LogError("SiStripCoralIface") << "Database connection failed";     
+    exit(1);
+  }
+
+  // m_coraldb = &(con->coralTransaction()); 
+  // m_coraldb->start(true);
 }
 
 // access the status change or lastValue tables
@@ -48,7 +64,8 @@ void SiStripCoralIface::doQuery(std::string queryType, coral::TimeStamp startTim
 				std::vector<float> &vec_actualValue, std::vector<std::string> &vec_dpname)
 {
   //  coral::IQuery* query = m_coraldb->coralSessionProxy().nominalSchema().newQuery();
-  coral::IQuery* query = m_coraldb->coralSessionProxy().schema("CMS_TRK_DCS_PVSS_COND").newQuery();
+  // coral::IQuery* query = m_transaction->coralSessionProxy().schema("CMS_TRK_DCS_PVSS_COND").newQuery();
+  std::auto_ptr<coral::IQuery> query( m_session.schema(std::string("CMS_TRK_DCS_PVSS_COND")).newQuery());
   std::string condition;
 
   LogTrace("SiStripCoralIface") << "[SiStripCoralIface::" << __func__ << "] table to be accessed: " << queryType;
@@ -110,7 +127,8 @@ void SiStripCoralIface::doSettingsQuery(coral::TimeStamp startTime, coral::TimeS
 					std::vector<float> &vec_settings, std::vector<std::string> &vec_dpname, std::vector<uint32_t> &vec_dpid) 
 {
   //  coral::IQuery* query = m_coraldb->coralSessionProxy().nominalSchema().newQuery();
-  coral::IQuery* query = m_coraldb->coralSessionProxy().schema("CMS_TRK_DCS_PVSS_COND").newQuery();
+  // coral::IQuery* query = m_transaction->coralSessionProxy().schema("CMS_TRK_DCS_PVSS_COND").newQuery();
+  std::auto_ptr<coral::IQuery> query( m_session.schema(std::string("CMS_TRK_DCS_PVSS_COND")).newQuery());
   query->addToOutputList("FWCAENCHANNEL.CHANGE_DATE","CHANGE_DATE");
   query->addToOutputList("FWCAENCHANNEL.SETTINGS_V0","VSET");
   query->addToOutputList("FWCAENCHANNEL.DPID","DPID");
@@ -150,7 +168,8 @@ void SiStripCoralIface::doSettingsQuery(coral::TimeStamp startTime, coral::TimeS
 void SiStripCoralIface::doNameQuery(std::vector<std::string> &vec_dpname, std::vector<uint32_t> &vec_dpid) 
 {
   //coral::IQuery* query = m_coraldb->coralSessionProxy().nominalSchema().newQuery();
-  coral::IQuery* query = m_coraldb->coralSessionProxy().schema("CMS_TRK_DCS_PVSS_COND").newQuery();
+  std::auto_ptr<coral::IQuery> query( m_session.schema(std::string("CMS_TRK_DCS_PVSS_COND")).newQuery());
+  // coral::IQuery* query = m_transaction->coralSessionProxy().schema("CMS_TRK_DCS_PVSS_COND").newQuery();
   query->addToOutputList("DP_NAME2ID.DPNAME","DPNAME");
   query->addToOutputList("DP_NAME2ID.ID","DPID");
   query->addToTableList("DP_NAME2ID");

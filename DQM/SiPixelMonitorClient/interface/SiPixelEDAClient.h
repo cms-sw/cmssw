@@ -53,7 +53,9 @@ private:
   unsigned long long m_cacheID_;
   int nLumiSecs_;
   int nEvents_;
-
+  int nEvents_lastLS_;
+  
+  
   DQMStore* bei_;  
 
   SiPixelWebInterface* sipixelWebInterface_;
@@ -79,6 +81,8 @@ private:
   bool doHitEfficiency_;
   
   std::ostringstream html_out_;
+  
+  
 };
 
 

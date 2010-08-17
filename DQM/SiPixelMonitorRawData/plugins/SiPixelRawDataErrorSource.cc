@@ -106,27 +106,38 @@ void SiPixelRawDataErrorSource::endJob(void){
 void SiPixelRawDataErrorSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   eventNo++;
-//std::cout<<"Event number: "<<eventNo<<std::endl;
+  //std::cout<<"Event number: "<<eventNo<<std::endl;
   // get input data
   edm::Handle< edm::DetSetVector<SiPixelRawDataError> >  input;
   iEvent.getByLabel( src_, input );
   if (!input.isValid()) return; 
+
+  // Get DQM interface
+  DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
    
+  int nEventBPIXModuleErrors = 0; int nEventFPIXModuleErrors = 0; int nEventBPIXFEDErrors = 0; int nEventFPIXFEDErrors = 0;
+
 
   std::map<uint32_t,SiPixelRawDataErrorModule*>::iterator struct_iter;
   std::map<uint32_t,SiPixelRawDataErrorModule*>::iterator struct_iter2;
-
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     
-    (*struct_iter).second->fill(*input, reducedSet, modOn, ladOn, bladeOn);
-    
+    int numberOfModuleErrors = (*struct_iter).second->fill(*input, reducedSet, modOn, ladOn, bladeOn);
+    if((*struct_iter).first >= 302055684 && (*struct_iter).first <= 302197792 ) nEventBPIXModuleErrors = nEventBPIXModuleErrors + numberOfModuleErrors;
+    if((*struct_iter).first >= 343999748 && (*struct_iter).first <= 352477708 ) nEventFPIXModuleErrors = nEventFPIXModuleErrors + numberOfModuleErrors;
   }
-
   for (struct_iter2 = theFEDStructure.begin() ; struct_iter2 != theFEDStructure.end() ; struct_iter2++) {
     
-    (*struct_iter2).second->fillFED(*input);
-    
+    int numberOfFEDErrors = (*struct_iter2).second->fillFED(*input);
+    if((*struct_iter2).first >= 0 && (*struct_iter2).first <= 31) nEventBPIXFEDErrors = nEventBPIXFEDErrors + numberOfFEDErrors;
+    if((*struct_iter2).first >= 32 && (*struct_iter2).first <= 39) nEventFPIXFEDErrors = nEventFPIXFEDErrors + numberOfFEDErrors;    
   }
+  MonitorElement* me = theDMBE->get("Pixel/AdditionalPixelErrors/byLumiErrors");
+  if(me){
+    me->setBinContent(0,eventNo);
+    if(nEventBPIXModuleErrors+nEventBPIXFEDErrors>0) me->setBinContent(1,nEventBPIXModuleErrors+nEventBPIXFEDErrors);
+    if(nEventFPIXModuleErrors+nEventFPIXFEDErrors>0) me->setBinContent(2,nEventFPIXModuleErrors+nEventFPIXFEDErrors);
+  }    
 
   // slow down...
   if(slowDown) usleep(100000);
@@ -168,11 +179,11 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup& iSetup){
 	uint32_t id = detId();
 	SiPixelRawDataErrorModule* theModule = new SiPixelRawDataErrorModule(id, ncols, nrows);
 	
-        PixelEndcapName::HalfCylinder side = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).halfCylinder();
-        int disk   = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).diskName();
-        int blade  = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).bladeName();
-        int panel  = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).pannelName();
-        int module = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).plaquetteName();
+        PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id)).halfCylinder();
+        int disk   = PixelEndcapName(DetId(id)).diskName();
+        int blade  = PixelEndcapName(DetId(id)).bladeName();
+        int panel  = PixelEndcapName(DetId(id)).pannelName();
+        int module = PixelEndcapName(DetId(id)).plaquetteName();
 
         char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
         char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
@@ -198,6 +209,7 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup& iSetup){
   fedIds.first = 0;
   fedIds.second = 39;
   for (int fedId = fedIds.first; fedId <= fedIds.second; fedId++) {
+    //std::cout<<"Adding FED module: "<<fedId<<std::endl;
     uint32_t id = static_cast<uint32_t> (fedId);
     SiPixelRawDataErrorModule* theModule = new SiPixelRawDataErrorModule(id);
     theFEDStructure.insert(pair<uint32_t,SiPixelRawDataErrorModule*> (id,theModule));
@@ -209,6 +221,13 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup& iSetup){
 // Book MEs
 //------------------------------------------------------------------
 void SiPixelRawDataErrorSource::bookMEs(){
+  
+  // Get DQM interface
+  DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
+  theDMBE->setCurrentFolder("Pixel/AdditionalPixelErrors");
+  char title[80]; sprintf(title, "By-LumiSection Error counters");
+  byLumiErrors = theDMBE->book1D("byLumiErrors",title,2,0.,2.);
+  byLumiErrors->setLumiFlag();
   
   std::map<uint32_t,SiPixelRawDataErrorModule*>::iterator struct_iter;
   std::map<uint32_t,SiPixelRawDataErrorModule*>::iterator struct_iter2;

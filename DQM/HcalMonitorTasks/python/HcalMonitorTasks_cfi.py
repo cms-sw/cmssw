@@ -17,6 +17,8 @@ from DQM.HcalMonitorTasks.HcalDetDiagLEDMonitor_cfi import*
 from DQM.HcalMonitorTasks.HcalDetDiagNoiseMonitor_cfi import*
 from DQM.HcalMonitorTasks.HcalDetDiagTimingMonitor_cfi import*
 
+from DQM.HcalMonitorTasks.HcalLSbyLSMonitor_cfi import*
+
 hcalMonitorTasksTestSequence=cms.Sequence(hcalDigiMonitor
                                           *hcalHotCellMonitor
                                           *hcalDeadCellMonitor
@@ -25,6 +27,7 @@ hcalMonitorTasksTestSequence=cms.Sequence(hcalDigiMonitor
                                           *hcalRawDataMonitor
                                           *hcalTrigPrimMonitor
                                           *hcalNZSMonitor
+                                          *hcalLSbyLSMonitor
                                           )
 
 hcalMonitorTasksOnlineSequence = cms.Sequence(hcalDigiMonitor
@@ -49,6 +52,7 @@ hcalMonitorTasksOfflineSequence = cms.Sequence(hcalDigiMonitor
                                                *hcalBeamMonitor
                                                *hcalRawDataMonitor
                                                *hcalDetDiagNoiseMonitor
+                                               *hcalLSbyLSMonitor
                                                )
 
 
@@ -79,7 +83,7 @@ def SetTaskParams(process,param, value):
            hcalRawDataMonitor, hcalBeamMonitor, hcalTrigPrimMonitor, hcalNZSMonitor,
            hcalDataIntegrityMonitor, hcalDetDiagLaserMonitor, hcalDetDiagLEDMonitor,
            hcalDetDiagNoiseMonitor, hcalDetDiagPedestalMonitor,
-           hcalDetDiagTimingMonitor]
+           hcalDetDiagTimingMonitor, hcalLSbyLSMonitor]
     
     for i in tasks:
         if isstring==False:

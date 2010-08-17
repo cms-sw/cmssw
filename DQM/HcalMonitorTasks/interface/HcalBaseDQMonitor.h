@@ -108,7 +108,8 @@ protected:
   MonitorElement *ProblemsVsLB;
   MonitorElement *ProblemsVsLB_HB, *ProblemsVsLB_HE;
   MonitorElement *ProblemsVsLB_HO, *ProblemsVsLB_HF;
-
+  MonitorElement* ProblemsCurrentLB;  // show problems just for this LB
+ 
   int NLumiBlocks_;
 };// class HcalBaseDQMonitor : public edm::EDAnalyzer
 

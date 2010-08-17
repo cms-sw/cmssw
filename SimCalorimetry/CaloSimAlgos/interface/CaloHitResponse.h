@@ -45,9 +45,6 @@ public:
   /// geometry needed for time-of-flight
   void setGeometry(const CaloGeometry * geometry) { theGeometry = geometry; }
 
-
-      virtual bool keepBlank() const { return true ; }
-
   /// Complete cell digitization.
   virtual void run(MixCollection<PCaloHit> & hits);
 
@@ -81,7 +78,7 @@ public:
   void addHit(const PCaloHit * hit, CaloSamples & frame) const;
 
   /// creates the signal corresponding to this hit
-  virtual CaloSamples makeAnalogSignal(const PCaloHit & inputHit) const;
+  CaloSamples makeAnalogSignal(const PCaloHit & inputHit) const;
 
   /// finds the amplitude contribution from this hit, applying
   /// photostatistics, if needed.  Results are in photoelectrons

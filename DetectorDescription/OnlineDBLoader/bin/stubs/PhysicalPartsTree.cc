@@ -2,7 +2,6 @@
 
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/EventSetup.h>
-#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 
@@ -75,7 +74,7 @@ void PhysicalPartsTree::beginRun( const edm::Run&, const edm::EventSetup& iSetup
 
 
   std::cout << "PhysicalPartsTree Analyzer..." << std::endl;
-  edm::ESTransientHandle<DDCompactView> pDD;
+  edm::ESHandle<DDCompactView> pDD;
 
   iSetup.get<IdealGeometryRecord>().get( "", pDD );
   

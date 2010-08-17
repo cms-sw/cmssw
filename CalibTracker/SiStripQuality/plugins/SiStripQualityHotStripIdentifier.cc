@@ -17,8 +17,7 @@
 
 
 
-SiStripQualityHotStripIdentifier::SiStripQualityHotStripIdentifier(const edm::ParameterSet& iConfig) : 
-  ConditionDBWriter<SiStripBadStrip>::ConditionDBWriter<SiStripBadStrip>(iConfig),
+SiStripQualityHotStripIdentifier::SiStripQualityHotStripIdentifier(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiStripBadStrip>(iConfig),
   m_cacheID_(0), 
   dataLabel_(iConfig.getUntrackedParameter<std::string>("dataLabel","")),
   conf_(iConfig), 
@@ -27,7 +26,6 @@ SiStripQualityHotStripIdentifier::SiStripQualityHotStripIdentifier(const edm::Pa
   Track_src_(iConfig.getUntrackedParameter<edm::InputTag>( "Track_src" )),
   tracksCollection_in_EventTree(iConfig.getUntrackedParameter<bool>("RemoveTrackClusters",false))
 {
-  edm::LogInfo("SiStripQualityHotStripIdentifier") << " ctor ";  
   reader = new SiStripDetInfoFileReader(fp_.fullPath());  
 
   edm::ParameterSet pset=iConfig.getUntrackedParameter< edm::ParameterSet > ("ClusterSelection",edm::ParameterSet());
@@ -38,12 +36,9 @@ SiStripQualityHotStripIdentifier::SiStripQualityHotStripIdentifier(const edm::Pa
 }
 
 SiStripQualityHotStripIdentifier::~SiStripQualityHotStripIdentifier(){
-  edm::LogInfo("SiStripQualityHotStripIdentifier") << " dtor";
 }
 
 SiStripBadStrip* SiStripQualityHotStripIdentifier::getNewObject(){
-
-  edm::LogInfo("SiStripQualityHotStripIdentifier") <<"SiStripQualityHotStripIdentifier::getNewObject called"<<std::endl;
 
   SiStripBadStrip* obj=new SiStripBadStrip();
   

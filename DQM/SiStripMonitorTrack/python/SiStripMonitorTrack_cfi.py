@@ -13,11 +13,8 @@ SiStripMonitorTrack = cms.EDAnalyzer(
     RawDigiProducer = cms.string('simSiStripDigis'),
     RawDigiLabel    = cms.string('VirginRaw'),
     
-    MTCCData = cms.bool(False),
     OutputMEsInRootFile = cms.bool(False),
     OutputFileName = cms.string('test_monitortrackparameters_rs.root'),    
-    
-    FolderName = cms.string('Track/GlobalParameters'),
     
     Cluster_src = cms.InputTag('siStripClusters'),
     
@@ -27,9 +24,8 @@ SiStripMonitorTrack = cms.EDAnalyzer(
     OffHisto_On   = cms.bool(True),
     Trend_On      = cms.bool(False),
     HistoFlag_On  = cms.bool(False),
-#    CCAnalysis_On = cms.bool(False),
-   RingFlag_On   = cms.bool(False),
-   TkHistoMap_On = cms.bool(True),   
+    RingFlag_On   = cms.bool(False),
+    TkHistoMap_On = cms.bool(True),   
     
     ClusterConditions = cms.PSet( On       = cms.bool(False),
                                   minStoN  = cms.double(0.0),
@@ -38,19 +34,19 @@ SiStripMonitorTrack = cms.EDAnalyzer(
                                   maxWidth = cms.double(200.0)
                                   ),
     
-    TH1nClustersOn = cms.PSet( Nbinx = cms.int32(50),
+    TH1nClustersOn = cms.PSet( Nbinx = cms.int32(100),
                              xmin  = cms.double(-0.5),
-                             xmax  = cms.double(99.5)
+                             xmax  = cms.double(499.5)
                              ),   
 
-    TH1nClustersOff = cms.PSet( Nbinx = cms.int32(50),
+    TH1nClustersOff = cms.PSet( Nbinx = cms.int32(100),
                              xmin  = cms.double(-0.5),
-                             xmax  = cms.double(299.5)
+                             xmax  = cms.double(999.5)
                              ),
     
-    TH1ClusterCharge = cms.PSet( Nbinx = cms.int32(200),
+    TH1ClusterCharge = cms.PSet( Nbinx = cms.int32(100),
                                  xmin  = cms.double(-0.5),
-                                 xmax  = cms.double(799.5)
+                                 xmax  = cms.double(999.5)
                                  ),
     
     TH1ClusterStoN = cms.PSet( Nbinx = cms.int32(100),
@@ -63,7 +59,11 @@ SiStripMonitorTrack = cms.EDAnalyzer(
                                      xmax  = cms.double(399.5)
                                      ),
     
-    TH1ClusterStoNCorr = cms.PSet( Nbinx = cms.int32(50),
+    TH1ClusterStoNCorr = cms.PSet( Nbinx = cms.int32(200),
+                                   xmin  = cms.double(-0.5),
+                                   xmax  = cms.double(199.5)
+                                   ),
+    TH1ClusterStoNCorrMod = cms.PSet( Nbinx = cms.int32(50),
                                    xmin  = cms.double(-0.5),
                                    xmax  = cms.double(199.5)
                                    ),
@@ -104,6 +104,8 @@ SiStripMonitorTrack = cms.EDAnalyzer(
     Trending = cms.PSet( Nbins      = cms.int32(10),
                          Steps      = cms.int32(5),
                          UpdateMode = cms.int32(1)
-                         )
+                         ),
+
+    UseDCSFiltering = cms.bool(True)
     
     )

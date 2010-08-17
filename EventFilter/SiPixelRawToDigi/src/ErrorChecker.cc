@@ -225,7 +225,7 @@ uint32_t ErrorChecker::errorDetId(const SiPixelFrameConverter* converter,
       int status = converter->toDetector(cabling, detIdx);
       if (status) break;
       
-      if(DetId::DetId(detIdx.rawId).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) return detIdx.rawId;
+      if(DetId(detIdx.rawId).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) return detIdx.rawId;
       break;
     }
     case  37 : case  38: {
