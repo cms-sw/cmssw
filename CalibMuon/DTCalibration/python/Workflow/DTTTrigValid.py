@@ -4,12 +4,12 @@ from CrabTask import *
 import os
 
 class DTTTrigValid:
-    def __init__(self, run, dir, input_file, config):
+    def __init__(self, run, dir, input_db, config):
         self.pset_name = 'DTkFactValidation_1_cfg.py'
         self.outputfile = 'residuals.root,DQM.root'
         self.config = config
         self.dir = dir
-        self.inputfile = input_file
+        self.inputdb = input_db
 
         #self.crab_template = os.environ['CMSSW_BASE'] + '/src/Workflow/' + 'templates/crab/crab_Valid_TEMPL.cfg'
         #self.pset_template = os.environ['CMSSW_BASE'] + '/src/Workflow/' + 'templates/config/DTkFactValidation_1_TEMPL_cfg.py'
@@ -37,7 +37,7 @@ class DTTTrigValid:
         import FWCore.ParameterSet.Config as cms
         self.process = loadCmsProcess(self.pset_template)
         self.process.GlobalTag.globaltag = self.config.globaltag
-        if(self.inputfile):
+        if(self.inputdb):
             self.process.calibDB = cms.ESSource("PoolDBESSource",self.process.CondDBSetup,
                                                             timetype = cms.string('runnumber'),
                                                             toGet = cms.VPSet(cms.PSet(
@@ -47,7 +47,7 @@ class DTTTrigValid:
                                                             connect = cms.string('sqlite_file:'),
                                                             authenticationMethod = cms.untracked.uint32(0))
 
-            self.process.calibDB.connect = 'sqlite_file:%s' % os.path.basename(self.inputfile)
+            self.process.calibDB.connect = 'sqlite_file:%s' % os.path.basename(self.inputdb)
             self.process.es_prefer_calibDB = cms.ESPrefer('PoolDBESSource','calibDB') 
 
         if hasattr(self.config,'preselection') and self.config.preselection:
@@ -61,7 +61,8 @@ class DTTTrigValid:
         loadCrabDefault(crab_cfg_parser,self.config)
         crab_cfg_parser.set('CMSSW','pset',self.pset_name)
         crab_cfg_parser.set('CMSSW','output_file',self.outputfile)
-        crab_cfg_parser.set('USER','additional_input_files',self.inputfile)
+        if self.inputdb: crab_cfg_parser.set('USER','additional_input_files',self.inputdb)
+        else: crab_cfg_parser.remove_option('USER','additional_input_files')
         self.crab_cfg = crab_cfg_parser
 
     def writeCfg(self):

@@ -65,7 +65,7 @@ def runTtrigCorrFirst(run,config,runStep=True):
         print "Finished processing:"
         for pset in dtTtrigCorrFirst.configs: print "--->",pset
 
-def runTtrigValid(run,runselection,trial,input_file,config,runStep=True):
+def runTtrigValid(run,runselection,trial,input_db,config,runStep=True):
 
     print "Processing tTrig validation"
     config.runselection = runselection
@@ -73,7 +73,10 @@ def runTtrigValid(run,runselection,trial,input_file,config,runStep=True):
     datasetstr = getDatasetStr(config.datasetpath)
     config.userdircaf = 'TTRIGCalibration/' + datasetstr + '/Run' + str(run) + '/Validation/First/' + 'v' + str(trial)
     
-    dtTtrigValid = DTTTrigValid(run,config.valid_dir,input_file,config) 
+    dtTtrigValid = DTTTrigValid(run=run,
+                                dir=config.valid_dir,
+                                input_db=input_db,
+                                config=config) 
     dtTtrigValid.writeCfg()
 
     if runStep:
@@ -99,10 +102,15 @@ def runTtrigValid(run,runselection,trial,input_file,config,runStep=True):
 
     return None
 
-def runTtrigResidualCorr(run,config,runStep=True):
+def runTtrigResidualCorr(run,input_db,root_file,config,runStep=True):
 
     print "Processing tTrig residual correction"
-    dtTtrigResidualCorr = DTTTrigResidualCorr(run,config.run_dir,config.result_dir,config)
+    dtTtrigResidualCorr = DTTTrigResidualCorr(run=run,
+                                              dir=config.run_dir,
+                                              input_db=input_db,
+                                              residuals=root_file,
+                                              result_dir=config.result_dir,
+                                              config=config)
     dtTtrigResidualCorr.writeCfg()
 
     if runStep:  
@@ -111,7 +119,7 @@ def runTtrigResidualCorr(run,config,runStep=True):
         print "Finished processing:"
         for pset in dtTtrigResidualCorr.configs: print "--->",pset
 
-def runTtrigValidResidCorr(run,runselection,trial,input_file,config,runStep=True):
+def runTtrigValidResidCorr(run,runselection,trial,input_db,config,runStep=True):
 
     print "Processing tTrig final validation"
     config.runselection = runselection
@@ -119,7 +127,10 @@ def runTtrigValidResidCorr(run,runselection,trial,input_file,config,runStep=True
     datasetstr = getDatasetStr(config.datasetpath)
     config.userdircaf = 'TTRIGCalibration/' + datasetstr + '/Run' + str(run) + '/Validation/ResidCorr/' + 'v' + str(trial)
 
-    dtTtrigValid_ResidCorr = DTTTrigValid(run,config.valid_dir,input_file,config)
+    dtTtrigValid_ResidCorr = DTTTrigValid(run=run,
+                                          dir=config.valid_dir,
+                                          input_db=input_db,
+                                          config=config)
     dtTtrigValid_ResidCorr.writeCfg()
 
     if runStep:
@@ -193,11 +204,11 @@ if __name__ == '__main__':
     input = parseInput(inputFields,requiredFields)
     """
     
-    parser = optparse.OptionParser(usage="usage: %prog [options]")
+    parser = optparse.OptionParser(usage="usage: %prog arg1 arg2 [options]")
     parser.add_option("-r","--run", dest="run", help="set reference run number (typically first run in list)")
     parser.add_option("--runselection", dest="runselection", help="run list or range")
     parser.add_option("--trial", dest="trial", help="trial number used to in the naming of output directories")
-    parser.add_option("--castorpath", dest="castorpath", help="path to user area at CAF")
+    parser.add_option("--castorpath", dest="castorpath", default=('/castor/cern.ch/cms/store/caf/user/%s' % os.environ['USER']), help="path to user area at CAF (default /castor/cern.ch/cms/store/caf/user/username)")
     parser.add_option("--datasetpath", dest="datasetpath", help="dataset name to process")
     parser.add_option("--globaltag", dest="globaltag", help="global tag identifier (without the '::All' string)")
     parser.add_option("--preselection", dest="preselection", help="configuration fragment and sequence name, separated by a ':', defining a pre-selection filter")
@@ -216,11 +227,19 @@ if __name__ == '__main__':
  
     (input, args) = parser.parse_args()
 
+    input.workflowType = 'ttrig'
+    # Only tTrig workflow implemented
+    if len(args) > 0 and args[0] != 'ttrig': parser.error('option "%s" not allowed' % args[0])
+    allowedModes = ('timeboxes','residuals')
+    input.workflowMode = 'timeboxes'
+    if len(args) > 1:
+        if args[1] not in allowedModes: parser.error('option "%s" not allowed' % args[1])
+        input.workflowMode = args[1]  
+    
     requiredFields = ('run','datasetpath','globaltag','templatepath')
     for item in requiredFields:
         if not getattr(input,item):
             parser.error('field "%s" needs to be set' % item) 
-            #raise RuntimeError,'Need to set "%s"' % item
 
     run = input.run
     runselection = None
@@ -269,6 +288,13 @@ if __name__ == '__main__':
     config.globaltag = input.globaltag + '::All'
 
     if config.stageOutCAF:
+        """ 
+        castorPath = '' 
+        if not input.castorpath: castorPath = '/castor/cern.ch/cms/store/caf/user/' + os.environ['USER']
+        else: castorPath = input.castorpath
+        """  
+        if not input.castorpath: parser.error('field "%s" needs to be set' % 'castorpath')
+        print "Writing files at",input.castorpath
         config.castor_prefix = input.castorpath
         config.castorpath = input.castorpath
 
@@ -322,40 +348,48 @@ if __name__ == '__main__':
 
     if input.no_exec:
         print "Only cfg files will be written"
-        runTtrigProd(run,runselection,trial,config,False)
-        runTtrigCorrFirst(run,config,False)
-        runTtrigValid(run,runselection,trial,ttrig_second_db,config,False)        
-        runTtrigResidualCorr(run,config,False)
-        runTtrigValidResidCorr(run,runselection,trial,ttrig_ResidCorr_db,config,False)
+        if input.workflowMode == 'timeboxes':
+            runTtrigProd(run,runselection,trial,config,False)
+            runTtrigCorrFirst(run,config,False)
+            runTtrigValid(run,runselection,trial,ttrig_second_db,config,False)
+            runTtrigResidualCorr(run,ttrig_second_db,residualsFirst,config,False)                
+        elif input.workflowMode == 'residuals':
+            runTtrigValid(run,runselection,trial,None,config,False)
+            runTtrigResidualCorr(run,None,residualsFirst,config,False)
+ 
+        # Common steps
+        #runTtrigValidResidCorr(run,runselection,trial,ttrig_ResidCorr_db,config,False)
         runTtrigValidSummary(run,residualsResidCorr,summaryResiduals,config,False)
         runDQMMerge(run,dqm_output_dir,config,False)
 
         sys.exit(0)
 
-    if not os.path.exists(timeBoxes): runTtrigProd(run,runselection,trial,config)
+    if input.workflowMode == 'timeboxes':
+        if not os.path.exists(timeBoxes): runTtrigProd(run,runselection,trial,config)
+        if not os.path.exists(timeBoxes): raise RuntimeError,'Could not produce %s'%timeBoxes
+
+        if not os.path.exists(ttrig_second_db): runTtrigCorrFirst(run,config)
+        if not os.path.exists(ttrig_second_db): raise RuntimeError,'Could not produce %s'%ttrig_second_db
+
+        if not os.path.exists(residualsFirst): runTtrigValid(run,runselection,trial,ttrig_second_db,config)
+        if not os.path.exists(residualsFirst): raise RuntimeError,'Could not produce %s'%residualsFirst
+
+        if not os.path.exists(ttrig_ResidCorr_db): runTtrigResidualCorr(run,ttrig_second_db,residualsFirst,config)
+        if not os.path.exists(ttrig_ResidCorr_db): raise RuntimeError,'Could not produce %s'%ttrig_ResidCorr_db
+    elif input.workflowMode == 'residuals':
+        if not os.path.exists(residualsFirst): runTtrigValid(run,runselection,trial,None,config)
+        if not os.path.exists(residualsFirst): raise RuntimeError,'Could not produce %s'%residualsFirst
+
+        if not os.path.exists(ttrig_ResidCorr_db): runTtrigResidualCorr(run,None,residualsFirst,config)
+        if not os.path.exists(ttrig_ResidCorr_db): raise RuntimeError,'Could not produce %s'%ttrig_ResidCorr_db
    
-    if not os.path.exists(timeBoxes): raise RuntimeError,'Could not produce %s'%timeBoxes
-
-    if not os.path.exists(ttrig_second_db): runTtrigCorrFirst(run,config)
-
-    if not os.path.exists(ttrig_second_db): raise RuntimeError,'Could not produce %s'%ttrig_second_db
-
-    if not os.path.exists(residualsFirst): runTtrigValid(run,runselection,trial,ttrig_second_db,config)
-
-    if not os.path.exists(residualsFirst): raise RuntimeError,'Could not produce %s'%residualsFirst
-
-    if not os.path.exists(ttrig_ResidCorr_db): runTtrigResidualCorr(run,config)
-
-    if not os.path.exists(ttrig_ResidCorr_db): raise RuntimeError,'Could not produce %s'%ttrig_ResidCorr_db      
-
+    # Common steps
     project_valid_ResidCorr = None
     if not os.path.exists(residualsResidCorr):
         project_valid_ResidCorr = runTtrigValidResidCorr(run,runselection,trial,ttrig_ResidCorr_db,config)
-
     if not os.path.exists(residualsResidCorr): raise RuntimeError,'Could not produce %s'%residualsResidCorr
 
     if not os.path.exists(summaryResiduals): runTtrigValidSummary(run,residualsResidCorr,summaryResiduals,config)
-
     if not os.path.exists(summaryResiduals): raise RuntimeError,'Could not produce %s'%summaryResiduals
 
     if config.stageOutLocal:
