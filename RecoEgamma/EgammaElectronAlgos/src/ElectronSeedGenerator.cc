@@ -66,10 +66,15 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset)
    deltaPhi1Low_(pset.getParameter<double>("DeltaPhi1Low")),
    deltaPhi1High_(pset.getParameter<double>("DeltaPhi1High")),
    myMatchEle(0), myMatchPos(0),
-   thePropagator(0), theMeasurementTracker(0),
+   thePropagator(0),
+   theMeasurementTracker(0),
    theSetup(0), pts_(0),
    cacheIDMagField_(0),/*cacheIDGeom_(0),*/cacheIDNavSchool_(0),cacheIDCkfComp_(0),cacheIDTrkGeom_(0)
  {
+  // use of a theMeasurementTrackerName
+  if (pset.exists("measurementTrackerName"))
+   { theMeasurementTrackerName = pset.getParameter<bool>("measurementTrackerName") ; }
+
   // use of reco vertex
   if (pset.exists("useRecoVertex"))
    { useRecoVertex_ = pset.getParameter<bool>("useRecoVertex") ; }
@@ -155,8 +160,8 @@ void ElectronSeedGenerator::setupES(const edm::EventSetup& setup) {
   }
 
   if (!fromTrackerSeeds_ && cacheIDCkfComp_!=setup.get<CkfComponentsRecord>().cacheIdentifier()) {
-    edm::ESHandle<MeasurementTracker>    measurementTrackerHandle;
-    setup.get<CkfComponentsRecord>().get(measurementTrackerHandle);
+    edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
+    setup.get<CkfComponentsRecord>().get(theMeasurementTrackerName,measurementTrackerHandle);
     cacheIDCkfComp_=setup.get<CkfComponentsRecord>().cacheIdentifier();
     theMeasurementTracker = measurementTrackerHandle.product();
     tochange=true;

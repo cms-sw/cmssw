@@ -12,6 +12,9 @@ ecalDrivenElectronSeedsParameters = cms.PSet(
     dynamicPhiRoad = cms.bool(True),
     searchInTIDTEC = cms.bool(True), ##  possibility to inhibit extended forward coverage
 
+    # specify where to get the hits from
+    measurementTrackerName = cms.string(""),
+
     # SC filtering
     SCEtCut = cms.double(4.0),
 

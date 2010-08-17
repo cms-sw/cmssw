@@ -102,6 +102,7 @@ class ElectronSeedGenerator
   KFUpdator * theUpdator;
   PropagatorWithMaterial * thePropagator;
 
+  std::string theMeasurementTrackerName;
   const MeasurementTracker*     theMeasurementTracker;
   const NavigationSchool*       theNavigationSchool;
 
