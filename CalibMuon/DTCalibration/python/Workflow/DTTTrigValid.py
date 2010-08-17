@@ -34,9 +34,22 @@ class DTTTrigValid:
         self.task = CrabTask(self.dir,self.crab_cfg)
 
     def initProcess(self):
+        import FWCore.ParameterSet.Config as cms
         self.process = loadCmsProcess(self.pset_template)
         self.process.GlobalTag.globaltag = self.config.globaltag
-        self.process.calibDB.connect = 'sqlite_file:%s' % os.path.basename(self.inputfile)
+        if(self.inputfile):
+            self.process.calibDB = cms.ESSource("PoolDBESSource",self.process.CondDBSetup,
+                                                            timetype = cms.string('runnumber'),
+                                                            toGet = cms.VPSet(cms.PSet(
+                                                                record = cms.string('DTTtrigRcd'),
+                                                                tag = cms.string('ttrig')
+                                                            )),
+                                                            connect = cms.string('sqlite_file:'),
+                                                            authenticationMethod = cms.untracked.uint32(0))
+
+            self.process.calibDB.connect = 'sqlite_file:%s' % os.path.basename(self.inputfile)
+            self.process.es_prefer_calibDB = cms.ESPrefer('PoolDBESSource','calibDB') 
+
         if hasattr(self.config,'preselection') and self.config.preselection:
             pathsequence = self.config.preselection.split(':')[0]
             seqname = self.config.preselection.split(':')[1]
