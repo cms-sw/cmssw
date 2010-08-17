@@ -26,7 +26,11 @@ namespace edm {
   public:
     typedef input::BranchMap BranchMap;
     typedef input::EntryNumber EntryNumber;
-    RootTree(boost::shared_ptr<TFile> filePtr, BranchType const& branchType);
+    RootTree(boost::shared_ptr<TFile> filePtr,
+             BranchType const& branchType,
+             unsigned int maxVirtualSize,
+             unsigned int cacheSize,
+             unsigned int learningEntries);
     ~RootTree();
 
     bool isValid() const;
@@ -56,11 +60,14 @@ namespace edm {
       branch->SetAddress(&pbuf);
       input::getEntryWithCache(branch, entryNumber_, treeCache_.get(), filePtr_.get());
     }
+    template <typename T>
+    void fillBranchEntryNoCache(TBranch* branch, T*& pbuf) {
+      branch->SetAddress(&pbuf);
+      input::getEntry(branch, entryNumber_);
+    }
     TTree const* tree() const {return tree_;}
     TTree* tree() {return tree_;}
     TTree const* metaTree() const {return metaTree_;}
-    void setCacheSize(unsigned int cacheSize);
-    void setTreeMaxVirtualSize(int treeMaxVirtualSize);
     BranchMap const& branches() const {return *branches_;}
     std::vector<ProductStatus> const& productStatuses() const {return productStatuses_;} // backward compatibility
 
@@ -74,6 +81,9 @@ namespace edm {
     void resetTraining() {trained_ = kFALSE;}
 
   private:
+    void setCacheSize(unsigned int cacheSize);
+    void setTreeMaxVirtualSize(int treeMaxVirtualSize);
+
     boost::shared_ptr<TFile> filePtr_;
 // We use bare pointers for pointers to some ROOT entities.
 // Root owns them and uses bare pointers internally.
@@ -92,6 +102,7 @@ namespace edm {
     std::vector<std::string> branchNames_;
     boost::shared_ptr<BranchMap> branches_;
     bool trained_; // Set to true if the ROOT TTreeCache started training.
+    unsigned int learningEntries_;
 
     // below for backward compatibility
     std::vector<ProductStatus> productStatuses_; // backward compatibility

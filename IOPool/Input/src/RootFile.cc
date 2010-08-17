@@ -134,9 +134,9 @@ namespace edm {
       whyNotFastClonable_(0),
       reportToken_(0),
       eventAux_(),
-      eventTree_(filePtr_, InEvent),
-      lumiTree_(filePtr_, InLumi),
-      runTree_(filePtr_, InRun),
+      eventTree_(filePtr_, InEvent, treeMaxVirtualSize, treeCacheSize, input::defaultLearningEntries),
+      lumiTree_(filePtr_, InLumi, treeMaxVirtualSize, input::defaultNonEventCacheSize, input::defaultNonEventLearningEntries),
+      runTree_(filePtr_, InRun, treeMaxVirtualSize, input::defaultNonEventCacheSize, input::defaultNonEventLearningEntries),
       treePointers_(),
       lastEventEntryNumberRead_(-1LL),
       productRegistry_(),
@@ -151,12 +151,6 @@ namespace edm {
       branchChildren_(new BranchChildren),
       duplicateChecker_(duplicateChecker),
       provenanceAdaptor_() {
-
-    eventTree_.setCacheSize(treeCacheSize);
-
-    eventTree_.setTreeMaxVirtualSize(treeMaxVirtualSize);
-    lumiTree_.setTreeMaxVirtualSize(treeMaxVirtualSize);
-    runTree_.setTreeMaxVirtualSize(treeMaxVirtualSize);
 
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InLumi]  = &lumiTree_;
@@ -1556,7 +1550,15 @@ namespace edm {
     boost::shared_ptr<BranchMapper>
     makeBranchMapperInRelease300(RootTree& rootTree) {
       boost::shared_ptr<BranchMapperWithReader> mapper(
-        new BranchMapperWithReader(rootTree.branchEntryInfoBranch(), rootTree.entryNumber()));
+        new BranchMapperWithReader(&rootTree, false));
+      mapper->setDelayedRead(true);
+      return mapper;
+    }
+
+    boost::shared_ptr<BranchMapper>
+    makeBranchMapperInRelease390(RootTree& rootTree) {
+      boost::shared_ptr<BranchMapperWithReader> mapper(
+        new BranchMapperWithReader(&rootTree, true));
       mapper->setDelayedRead(true);
       return mapper;
     }
@@ -1564,7 +1566,9 @@ namespace edm {
 
   boost::shared_ptr<BranchMapper>
   RootFile::makeBranchMapper(RootTree& rootTree, BranchType const& type) const {
-    if(fileFormatVersion().splitProductIDs()) {
+    if(fileFormatVersion().noMetaDataTrees()) {
+      return makeBranchMapperInRelease390(rootTree);
+    } else if(fileFormatVersion().splitProductIDs()) {
       return makeBranchMapperInRelease300(rootTree);
     } else if(fileFormatVersion().perEventProductIDs()) {
       return makeBranchMapperInRelease210(rootTree, type);

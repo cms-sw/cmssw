@@ -19,7 +19,10 @@ namespace edm {
   class RootDelayedReader;
   class RootTree;
   namespace input {
-    unsigned int const defaultCacheSize = 20 * 1024 * 1024;
+    unsigned int const defaultCacheSize = 20U * 1024 * 1024;
+    unsigned int const defaultNonEventCacheSize = 1U * 1024 * 1024;
+    unsigned int const defaultLearningEntries = 20U;
+    unsigned int const defaultNonEventLearningEntries = 1U;
     struct BranchInfo {
       BranchInfo(ConstBranchDescription const& prod) :
         branchDescription_(prod),
@@ -30,15 +33,15 @@ namespace edm {
       ConstBranchDescription branchDescription_;
       TBranch* productBranch_;
       TBranch* provenanceBranch_; // For backward compatibility
-      mutable TClass * classCache_;
+      mutable TClass* classCache_;
       mutable Int_t offsetToEDProduct_;
     };
     typedef std::map<BranchKey const, BranchInfo> BranchMap;
     typedef Long64_t EntryNumber;
-    Int_t getEntry(TBranch * branch, EntryNumber entryNumber);
-    Int_t getEntry(TTree * tree, EntryNumber entryNumber);
-    Int_t getEntryWithCache(TBranch * branch, EntryNumber entryNumber, TTreeCache* treeCache, TFile* filePtr);
-    Int_t getEntryWithCache(TTree * tree, EntryNumber entryNumber, TTreeCache* treeCache, TFile* filePtr);
+    Int_t getEntry(TBranch* branch, EntryNumber entryNumber);
+    Int_t getEntry(TTree* tree, EntryNumber entryNumber);
+    Int_t getEntryWithCache(TBranch* branch, EntryNumber entryNumber, TTreeCache* treeCache, TFile* filePtr);
+    Int_t getEntryWithCache(TTree* tree, EntryNumber entryNumber, TTreeCache* treeCache, TFile* filePtr);
   }
 }
 #endif
