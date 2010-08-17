@@ -5,8 +5,8 @@
   \file Status.h
   \brief dictionary for Ecal DQM status codes
   \author G. Della Ricca
-  \version $Revision: 1.8 $
-  \date $Date: 2010/08/09 09:53:01 $
+  \version $Revision: 1.9 $
+  \date $Date: 2010/08/17 09:01:24 $
 */
 
 #include <boost/cstdint.hpp>
@@ -44,7 +44,7 @@ class EcalDQMStatusDictionary {
   ~EcalDQMStatusDictionary() {};  // Hidden to force static use
 
   const static unsigned int DICTSIZE1 = 30;
-  const static unsigned int DICTSIZE2 = 2;
+  const static unsigned int DICTSIZE2 = 6;
 
   static codeDef getDef(unsigned int i) {
     const static codeDef DICT[DICTSIZE1+DICTSIZE2] =
@@ -104,7 +104,7 @@ class EcalDQMStatusDictionary {
                       1 << EcalDQMStatusHelper::LASER_MEAN_ERROR |
                       1 << EcalDQMStatusHelper::LED_MEAN_ERROR |
                       1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_WARNING |
-                      1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_ERROR), "DISABLED_TOWER"},
+                      1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_ERROR), "disabled_tower"},
 
         { ((uint32_t) 1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_MEAN_ERROR |
                       1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_RMS_ERROR |
@@ -129,7 +129,33 @@ class EcalDQMStatusDictionary {
                       1 << EcalDQMStatusHelper::LED_TIMING_MEAN_ERROR | 
                       1 << EcalDQMStatusHelper::LED_TIMING_RMS_ERROR |
                       1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_WARNING |
-                      1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_ERROR), "DEAD_CHANNEL"}
+                      1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_ERROR), "dead_channel"},
+
+        { ((uint32_t) 1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_MEAN_ERROR |
+                      1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_RMS_ERROR |
+                      1 << EcalDQMStatusHelper::PEDESTAL_MIDDLE_GAIN_MEAN_ERROR |
+                      1 << EcalDQMStatusHelper::PEDESTAL_MIDDLE_GAIN_RMS_ERROR |
+                      1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR |
+                      1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_RMS_ERROR |
+                      1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR |
+                      1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR), "pedestal_problem"},
+
+        { ((uint32_t) 1 << EcalDQMStatusHelper::TESTPULSE_LOW_GAIN_MEAN_ERROR |
+                      1 << EcalDQMStatusHelper::TESTPULSE_LOW_GAIN_RMS_ERROR |
+                      1 << EcalDQMStatusHelper::TESTPULSE_MIDDLE_GAIN_MEAN_ERROR |
+                      1 << EcalDQMStatusHelper::TESTPULSE_MIDDLE_GAIN_RMS_ERROR |
+                      1 << EcalDQMStatusHelper::TESTPULSE_HIGH_GAIN_MEAN_ERROR |
+                      1 << EcalDQMStatusHelper::TESTPULSE_HIGH_GAIN_RMS_ERROR), "testpulse_problem"},
+
+        { ((uint32_t) 1 << EcalDQMStatusHelper::LASER_MEAN_ERROR |
+                      1 << EcalDQMStatusHelper::LASER_RMS_ERROR |
+                      1 << EcalDQMStatusHelper::LASER_TIMING_MEAN_ERROR |
+                      1 << EcalDQMStatusHelper::LASER_TIMING_RMS_ERROR), "laser_problem"},
+
+        { ((uint32_t) 1 << EcalDQMStatusHelper::LED_MEAN_ERROR |
+                      1 << EcalDQMStatusHelper::LED_RMS_ERROR |
+                      1 << EcalDQMStatusHelper::LED_TIMING_MEAN_ERROR |
+                      1 << EcalDQMStatusHelper::LED_TIMING_RMS_ERROR), "led_problem"}
 
       };
 
