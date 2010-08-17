@@ -8,7 +8,7 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWRPCDigiProxyBuilder.cc,v 1.8 2010/08/13 14:07:19 mccauley Exp $
+// $Id: FWRPCDigiProxyBuilder.cc,v 1.9 2010/08/17 12:58:57 amraktad Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -102,9 +102,6 @@ FWRPCDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product,
       
       int strip = (*dit).strip();
       double centreOfStrip = (strip-0.5)*pitch + offset;
-
-      // Need to find actual intersection (for endcaps) but this should be 
-      // good enough for debugging purposes 
 
       double localPointTop[3] =
       {

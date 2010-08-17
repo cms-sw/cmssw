@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: FWRPCRecHitProxyBuilder.cc,v 1.10 2010/07/02 11:37:40 mccauley Exp $
+// $Id: FWRPCRecHitProxyBuilder.cc,v 1.11 2010/07/23 07:50:12 yana Exp $
 //
 
 #include "TEveGeoNode.h"
@@ -123,4 +123,5 @@ FWRPCRecHitProxyBuilder::buildViewType(const RPCRecHit& iData,
   setupAddElement(recHitSet, &oItemHolder);
 }
 
-REGISTER_FWPROXYBUILDER( FWRPCRecHitProxyBuilder, RPCRecHit, "RPC RecHits", FWViewType::kAll3DBits | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER( FWRPCRecHitProxyBuilder, RPCRecHit, "RPC RecHits", 
+                         FWViewType::kAll3DBits | FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);

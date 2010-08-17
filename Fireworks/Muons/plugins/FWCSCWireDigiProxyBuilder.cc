@@ -8,7 +8,7 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCWireDigiProxyBuilder.cc,v 1.9 2010/08/13 14:07:19 mccauley Exp $
+// $Id: FWCSCWireDigiProxyBuilder.cc,v 1.10 2010/08/17 12:58:57 amraktad Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -159,14 +159,13 @@ FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* prod
       wireDigiSet->SetLineWidth(3);
       setupAddElement(wireDigiSet, product);
 
-      // NOTE: Can use wire group as well as wire number? Check in validation.
       int wireGroup = (*dit).getWireGroup();
 
       double yOfWire = yOfFirstWire + ((wireGroup-1)*wireSpacing)/cosWireAngle;
+      yOfWire += length*0.5;
 
-      double wireLength = (topWidth-bottomWidth)*0.5 / length;
-      wireLength *= yOfWire;
-      yOfWire -= length;
+      double wireLength = yOfWire*(topWidth-bottomWidth) / length;
+      wireLength += bottomWidth;
      
       double localPointLeft[3] = 
       {
@@ -193,6 +192,6 @@ FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* prod
 }
 
 REGISTER_FWPROXYBUILDER(FWCSCWireDigiProxyBuilder, CSCWireDigiCollection, "CSCWireDigi", 
-                        FWViewType::kAll3DBits || FWViewType::kAllRPZBits);
+                        FWViewType::kAll3DBits | FWViewType::kAllRPZBits);
 
 

@@ -8,7 +8,7 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCStripDigiProxyBuilder.cc,v 1.7 2010/08/13 14:07:19 mccauley Exp $
+// $Id: FWCSCStripDigiProxyBuilder.cc,v 1.8 2010/08/17 12:58:57 amraktad Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -128,21 +128,21 @@ FWCSCStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
             //double xOfStrip = yAxisOrientation*yOrigin*tanStripAngle; this is x of strip at origin
              
             double localPointTop[3] = 
-               {
-                  yAxisOrientation*(yOrigin+length)*tanStripAngle, length, 0.0
-               };
+              {
+                yAxisOrientation*(yOrigin+length)*tanStripAngle, length, 0.0
+              };
 
             double localPointBottom[3] = 
-               {
-                  yAxisOrientation*(yOrigin-length)*tanStripAngle, length, 0.0
-               };
-                  
+              {
+                yAxisOrientation*(yOrigin-length)*tanStripAngle, -length, 0.0
+              };
+      
             double globalPointTop[3];
             double globalPointBottom[3];
-
+        
             matrix->LocalToMaster(localPointTop, globalPointTop);
             matrix->LocalToMaster(localPointBottom, globalPointBottom);
-       
+        
             stripDigiSet->AddLine(globalPointBottom[0], globalPointBottom[1], globalPointBottom[2],
                                   globalPointTop[0], globalPointTop[1], globalPointTop[2]);
          }
@@ -151,5 +151,5 @@ FWCSCStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
 }
 
 REGISTER_FWPROXYBUILDER(FWCSCStripDigiProxyBuilder, CSCStripDigiCollection, "CSCStripDigi", 
-                        FWViewType::kAll3DBits || FWViewType::kAllRPZBits);
+                        FWViewType::kAll3DBits | FWViewType::kAllRPZBits);
 
