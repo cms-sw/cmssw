@@ -16,7 +16,7 @@ ora::MultiIndexDataTrie::~MultiIndexDataTrie(){
 }
 
 size_t ora::MultiIndexDataTrie::push( const std::vector<int>& indexes,
-                                      boost::shared_ptr<const Record>& data ){
+                                      Record & data ){
   size_t s=0;
   MultiIndexDataTrie* trie = this;
   for( size_t i=0;i<indexes.size();i++){
@@ -38,7 +38,7 @@ size_t ora::MultiIndexDataTrie::push( const std::vector<int>& indexes,
     }
     trie = nt;
   }
-  trie->m_data = data;
+  trie->m_data.swap(data);
   return s;
 }
 

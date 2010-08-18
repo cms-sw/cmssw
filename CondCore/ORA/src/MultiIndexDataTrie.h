@@ -16,7 +16,7 @@ namespace ora {
     MultiIndexDataTrie();
     virtual ~MultiIndexDataTrie();
 
-    size_t push( const std::vector<int>& indexes, boost::shared_ptr<const Record>& data );
+    size_t push( const std::vector<int>& indexes, Record & data );
     //const Record& lookup( const std::vector<int>& indexes ) const;
     boost::shared_ptr<const Record> lookupAndClear( const std::vector<int>& indexes );
 
@@ -34,7 +34,7 @@ namespace ora {
     private:
 
     std::vector<MultiIndexDataTrie*> m_children;
-    boost::shared_ptr<const Record> m_data;
+    Record m_data;
     
   };
   
