@@ -6,6 +6,7 @@ from RecoMuon.GlobalTrackingTools.MuonTrackingRegionCommon_cff import *
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 from RecoMuon.TrackingTools.MuonErrorMatrixValues_cff import *
 from RecoMuon.TrackerSeedGenerator.TrackerSeedCleaner_cff import *
+from RecoMuon.TrackerSeedGenerator.TSGs_cff import *
 # include  "RecoMuon/TrackerSeedGenerator/data/TSGs.cff"
 
 def makeOIStateSet():
@@ -172,6 +173,18 @@ def makeOIHitSet():
       SelectState = cms.bool( False )
       )        
 
+def OIStatePropagators(hltL3TrajectorySeed,pset):
+    if (not hasattr(hltL3TrajectorySeed.ServiceParameters,"Propagators")):
+        hltL3TrajectorySeed.ServiceParameters.Propagators = cms.untracked.vstring()
+    hltL3TrajectorySeed.ServiceParameters.Propagators.append(pset.propagatorCompatibleName.value())
+    hltL3TrajectorySeed.ServiceParameters.Propagators.append(pset.propagatorName.value())
+ 
+def OIHitPropagators(hltL3TrajectorySeed,pset):
+    if (not hasattr(hltL3TrajectorySeed.ServiceParameters,"Propagators")):
+        hltL3TrajectorySeed.ServiceParameters.Propagators = cms.untracked.vstring()
+    hltL3TrajectorySeed.ServiceParameters.Propagators.append('PropagatorWithMaterial')
+    hltL3TrajectorySeed.ServiceParameters.Propagators.append(pset.Propagator.value())
+
 def makeIOHitSet():
     return  cms.PSet(
         ComponentName = cms.string( "FastTSGFromIOHit" ),       
@@ -189,7 +202,8 @@ def makeOIHitCascadeSet():
         ComponentName = cms.string('DualByL2TSG'),
         PSetNames = cms.vstring('skipTSG','iterativeTSG'),
         skipTSG = cms.PSet(    ),
-        iterativeTSG = makeOIHitSet(),        
+        iterativeTSG = makeOIHitSet(),
+        #iterativeTSG = TSGsBlock.TSGFromPropagation,        
         L3TkCollectionA = cms.InputTag('hltL3MuonsOIS'),
         )
 
@@ -218,26 +232,35 @@ def l3seeds(tsg = "old"):
                             SeedCollectionLabels = cms.VInputTag(cms.InputTag("pixelTripletSeeds","PixelTriplet"), cms.InputTag("globalPixelSeeds","GlobalPixel"))
                             )
     elif( tsg == "OIState" ):
-        return cms.EDProducer("TSGFromL2Muon",
-            tkSeedGenerator = cms.string('TSGForRoadSearchOI'),
-            TSGFromCombinedHits = cms.PSet( ),
-            ServiceParameters = cms.PSet(
-                RPCLayers = cms.bool(True),
-                UseMuonNavigation = cms.untracked.bool(True),
-                Propagators = cms.untracked.vstring('SteppingHelixPropagatorOpposite', 
-                    'SteppingHelixPropagatorAlong')
-                ),
-            TSGFromPropagation = cms.PSet(    ),
-            TSGFromPixelTriplets = cms.PSet(    ),
+        return cms.EDProducer(
+            "TSGFromL2Muon",
+            MuonServiceProxy,
+            MuonTrackingRegionBuilder = cms.PSet(),
+            TrackerSeedCleaner = cms.PSet(),
+            TkSeedGenerator = TSGsBlock.TSGForRoadSearchOI,
             MuonCollectionLabel = cms.InputTag("hltL2Muons","UpdatedAtVtx"),
-            TSGForRoadSearchOI = makeOIStateSet(),
-            MuonTrackingRegionBuilder = cms.PSet(    ),
-            TSGFromMixedPairs = cms.PSet(    ),
-            PCut = cms.double(2.5),
-            TrackerSeedCleaner = cms.PSet(    ),
             PtCut = cms.double(1.0),
-            TSGForRoadSearchIOpxl = cms.PSet(    ),
-            TSGFromPixelPairs = cms.PSet(    )
+            PCut = cms.double(2.5),
+            #
+#            tkSeedGenerator = cms.string('TSGForRoadSearchOI'),
+#            TSGFromCombinedHits = cms.PSet( ),
+#            ServiceParameters = cms.PSet(
+#                RPCLayers = cms.bool(True),
+#                UseMuonNavigation = cms.untracked.bool(True),
+#                Propagators = cms.untracked.vstring('SteppingHelixPropagatorOpposite', 
+#                    'SteppingHelixPropagatorAlong')
+#                ),
+#            TSGFromPropagation = cms.PSet(    ),
+#            TSGFromPixelTriplets = cms.PSet(    ),
+#            MuonCollectionLabel = cms.InputTag("hltL2Muons","UpdatedAtVtx"),
+#            TSGForRoadSearchOI = makeOIStateSet(),
+#            MuonTrackingRegionBuilder = cms.PSet(    ),
+#            TSGFromMixedPairs = cms.PSet(    ),
+#            PCut = cms.double(2.5),
+#            TrackerSeedCleaner = cms.PSet(    ),
+#            PtCut = cms.double(1.0),
+#            TSGForRoadSearchIOpxl = cms.PSet(    ),
+#            TSGFromPixelPairs = cms.PSet(    )
             )
     elif( tsg == "OIHit" ):
         return cms.EDProducer("TSGFromL2Muon",
@@ -303,43 +326,61 @@ def l3seeds(tsg = "old"):
     elif( tsg == "OIHitCascade"):
         return cms.EDProducer(
             "TSGFromL2Muon",
-            tkSeedGenerator = cms.string('TSGFromPropagation'),
-            TSGFromCombinedHits = cms.PSet(    ),
-            ServiceParameters = cms.PSet(
-               RPCLayers = cms.bool(True),
-               UseMuonNavigation = cms.untracked.bool(True),
-               Propagators = cms.untracked.vstring(
-                  'SteppingHelixPropagatorOpposite', 
-                  'SteppingHelixPropagatorAlong', 'PropagatorWithMaterial',
-                  'SmartPropagatorAnyOpposite')
-               ),
-            TSGFromPixelTriplets = cms.PSet(    ),
+            MuonServiceProxy,
+            MuonTrackingRegionBuilder = cms.PSet(),
+            TrackerSeedCleaner = cms.PSet(),
+            #TkSeedGenerator = TSGsBlock.TSGFromPropagation,
+            TkSeedGenerator = makeOIHitCascadeSet(),
             MuonCollectionLabel = cms.InputTag("hltL2Muons","UpdatedAtVtx"),
-            TSGForRoadSearchOI = cms.PSet(),
-            TSGFromPropagation = makeOIHitCascadeSet(),
-            MuonTrackingRegionBuilder = cms.PSet(    ),
-            TSGFromMixedPairs = cms.PSet(    ),
-            PCut = cms.double(2.5),
-            TrackerSeedCleaner = cms.PSet(    ),
             PtCut = cms.double(1.0),
-            TSGForRoadSearchIOpxl = cms.PSet(    ),
-            TSGFromPixelPairs = cms.PSet(    )
+            PCut = cms.double(2.5),
+            ####
+            #tkSeedGenerator = cms.string('TSGFromPropagation'),
+            #TSGFromCombinedHits = cms.PSet(    ),
+            #ServiceParameters = cms.PSet(
+            #   RPCLayers = cms.bool(True),
+            #   UseMuonNavigation = cms.untracked.bool(True),
+            #   Propagators = cms.untracked.vstring(
+            #      'SteppingHelixPropagatorOpposite', 
+            #      'SteppingHelixPropagatorAlong', 'PropagatorWithMaterial',
+            #      'SmartPropagatorAnyOpposite')
+            #   ),
+            #TSGFromPixelTriplets = cms.PSet(    ),
+            #MuonCollectionLabel = cms.InputTag("hltL2Muons","UpdatedAtVtx"),
+            #TSGForRoadSearchOI = cms.PSet(),
+            #TSGFromPropagation = makeOIHitCascadeSet(),
+            #MuonTrackingRegionBuilder = cms.PSet(    ),
+            #TSGFromMixedPairs = cms.PSet(    ),
+            #PCut = cms.double(2.5),
+            #TrackerSeedCleaner = cms.PSet(    ),
+            #PtCut = cms.double(1.0),
+            #TSGForRoadSearchIOpxl = cms.PSet(    ),
+            #TSGFromPixelPairs = cms.PSet(    )
             )
     elif( tsg == "IOHitCascade"):
         return cms.EDProducer(
             "TSGFromL2Muon",
-            PCut = cms.double(2.5),
+            MuonServiceProxy,
+            #MuonTrackingRegionBuilder = cms.PSet(),
+            TrackerSeedCleaner = cms.PSet(),
+            #TkSeedGenerator = TSGsBlock.TSGFromCombinedHits,
+            TkSeedGenerator = makeIOHitCascadeSet(),
+            MuonCollectionLabel = cms.InputTag("hltL2Muons","UpdatedAtVtx"),
             PtCut = cms.double(1.0),
-            tkSeedGenerator = cms.string('TSGFromCombinedHits'),
-            ServiceParameters = cms.PSet(
-               RPCLayers = cms.bool(True),
-               UseMuonNavigation = cms.untracked.bool(True),
-               Propagators = cms.untracked.vstring(
-                  'SteppingHelixPropagatorOpposite', 
-                  'SteppingHelixPropagatorAlong', 'PropagatorWithMaterial',
-                  'SmartPropagatorAnyOpposite')
-               ),
-            TrackerSeedCleaner = cms.PSet(    ),
+            PCut = cms.double(2.5),
+            #####
+            #PCut = cms.double(2.5),
+            #PtCut = cms.double(1.0),
+            #tkSeedGenerator = cms.string('TSGFromCombinedHits'),
+            #ServiceParameters = cms.PSet(
+            #   RPCLayers = cms.bool(True),
+            #   UseMuonNavigation = cms.untracked.bool(True),
+            #   Propagators = cms.untracked.vstring(
+            #      'SteppingHelixPropagatorOpposite', 
+            #      'SteppingHelixPropagatorAlong', 'PropagatorWithMaterial',
+            #      'SmartPropagatorAnyOpposite')
+            #   ),
+            #TrackerSeedCleaner = cms.PSet(    ),
             MuonTrackingRegionBuilder = cms.PSet(
                EtaR_UpperLimit_Par1 = cms.double( 0.25 ),
                Eta_fixed = cms.double( 0.2 ),
@@ -361,8 +402,8 @@ def l3seeds(tsg = "old"):
                UseVertex = cms.bool( False ),
                EscapePt = cms.double( 1.5 )
                ),
-            MuonCollectionLabel = cms.InputTag("hltL2Muons","UpdatedAtVtx"),
-            TSGFromCombinedHits = makeIOHitCascadeSet(),
+            #MuonCollectionLabel = cms.InputTag("hltL2Muons","UpdatedAtVtx"),
+            #TSGFromCombinedHits = makeIOHitCascadeSet(),
             )
     
 hltL3TrajectorySeed = l3seeds("OIState")
