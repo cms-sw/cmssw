@@ -213,11 +213,13 @@ bool SelectionStep<Object>::select(const edm::Event& event)
 {
   // fetch input collection
   edm::Handle<edm::View<Object> > src; 
-  event.getByLabel(src_, src);
+  if( !event.getByLabel(src_, src) ) return false;
 
   // load electronId value map if configured such
   edm::Handle<edm::ValueMap<float> > electronId;
-  if(!electronId_.label().empty()) event.getByLabel(electronId_, electronId);
+  if(!electronId_.label().empty()) {
+    if( !event.getByLabel(electronId_, electronId) ) return false;
+  }
 
   // determine multiplicity of selected objects
   int n=0;
@@ -244,7 +246,7 @@ bool SelectionStep<Object>::select(const edm::Event& event, const edm::EventSetu
 {
   // fetch input collection
   edm::Handle<edm::View<Object> > src; 
-  event.getByLabel(src_, src);
+  if( !event.getByLabel(src_, src) ) return false;
 
   // load btag collection if configured such
   // NOTE that the JetTagCollection needs an
@@ -253,14 +255,14 @@ bool SelectionStep<Object>::select(const edm::Event& event, const edm::EventSetu
   edm::Handle<edm::View<reco::Jet> > bjets; 
   edm::Handle<reco::JetTagCollection> btagger;
   if(!btagLabel_.label().empty()){ 
-    event.getByLabel(src_, bjets);
-    event.getByLabel(btagLabel_, btagger);
+    if( !event.getByLabel(src_, bjets) ) return false;
+    if( !event.getByLabel(btagLabel_, btagger) ) return false;
   }
   
   // load jetID value map if configured such 
   edm::Handle<reco::JetIDValueMap> jetID;
   if(jetIDSelect_){
-    event.getByLabel(jetIDLabel_, jetID);
+    if( !event.getByLabel(jetIDLabel_, jetID) ) return false;
   }
 
   // load jet corrector if configured such
