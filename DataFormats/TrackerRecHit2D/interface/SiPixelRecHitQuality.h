@@ -39,7 +39,7 @@ class SiPixelRecHitQuality {
     double        probY_1_over_log_units;
     char          probY_width;
     //
-		QualWordType  qBin_mask;
+    QualWordType  qBin_mask;
     int           qBin_shift;
     char          qBin_width;
     //
@@ -54,50 +54,56 @@ class SiPixelRecHitQuality {
     QualWordType  twoROC_mask;
     int           twoROC_shift;
     char          twoROC_width;
-		//
-		QualWordType  hasFilledProb_mask;
-		int           hasFilledProb_shift;
-		char          hasFilledProb_width;
-  
+    //
+    QualWordType  hasFilledProb_mask;
+    int           hasFilledProb_shift;
+    char          hasFilledProb_width;
+    
     char spare_width;
-
-		//--- Template fit probability, in X and Y directions
+    
+    //--- Template fit probability, in X and Y directions
     //    To pack: int raw = - log(prob)/log(prob_units)
     //    Unpack : prob = prob_units^{-raw}
     //
-    inline float probabilityX( QualWordType qualWord ) const     {
+    //--- We've obsoleted probX and probY in favor of probXY and probQ as of 09/10
+    inline float probabilityX( QualWordType qualWord ) const {
+      edm::LogWarning("ObsoleteVariable") << "Since 39x, probabilityX and probabilityY have been replaced by probabilityXY and probabilityQ";
+      return -10;
+    }
+    inline float probabilityY( QualWordType qualWord ) const {
+      edm::LogWarning("ObsoleteVariable") << "Since 39x, probabilityX and probabilityY have been replaced by probabilityXY and probabilityQ";
+      return -10;
+    }
+    
+    inline float probabilityXY( QualWordType qualWord ) const     {
       int raw = (qualWord >> probX_shift) & probX_mask;
-			if(raw<0 || raw >2047) {
-				edm::LogWarning("OutOfBounds") << "Probability outside the bounds of the quality word. Defaulting to Prob=0. Raw = " << raw << " QualityWord = " << qualWord;
-				raw = 2047;
-			}
-			float prob = 0;
-			if   (raw==2047) prob = 0;
-      else             prob = pow( probX_units, (float)( -raw)) ;
+      if(raw<0 || raw >2047) {
+        edm::LogWarning("OutOfBounds") << "Probability outside the bounds of the quality word. Defaulting to Prob=0. Raw = " << raw << " QualityWord = " << qualWord;
+        raw = 2047;
+      }
+      float prob = (raw==2047) ? 0: pow( probX_units, (float)( -raw) );
       // cout << "Bits = " << raw << " --> Prob = " << prob << endl;
       return prob;
     }
-    inline float probabilityY( QualWordType qualWord ) const     {
+    inline float probabilityQ( QualWordType qualWord ) const     {
       int raw = (qualWord >> probY_shift) & probY_mask;
-			if(raw<0 || raw >2047) {
-				edm::LogWarning("OutOfBounds") << "Probability outside the bounds of the quality word. Defaulting to Prob=0. Raw = " << raw << " QualityWord = " << qualWord;
-				raw = 2047;
-			}
-			float prob = 0;
-			if   (raw==2047) prob = 0;
-      else             prob = pow( probY_units, (float)( -raw)) ;
+      if(raw<0 || raw >2047) {
+        edm::LogWarning("OutOfBounds") << "Probability outside the bounds of the quality word. Defaulting to Prob=0. Raw = " << raw << " QualityWord = " << qualWord;
+        raw = 2047;
+      }
+      float prob = (raw==2047) ? 0 : pow( probY_units, (float)( -raw) );
       // cout << "Bits = " << raw << " --> Prob = " << prob << endl;
       return prob;
     }
     //
     //--- Charge `bin' (0,1,2,3 ~ charge, qBin==4 is a new minimum charge state, qBin=5 is unphysical, qBin6,7 = unused)
     inline int qBin( QualWordType qualWord ) const     {
-			int qbin = (qualWord >> qBin_shift) & qBin_mask;
-			if(qbin<0 || qbin >7) {
-				edm::LogWarning("OutOfBounds") << "Qbin outside the bounds of the quality word. Defaulting to Qbin=0. Qbin = " << qbin << " QualityWord = " << qualWord;
-				qbin=0;
-			}
-			return qbin;
+      int qbin = (qualWord >> qBin_shift) & qBin_mask;
+      if(qbin<0 || qbin >7) {
+        edm::LogWarning("OutOfBounds") << "Qbin outside the bounds of the quality word. Defaulting to Qbin=0. Qbin = " << qbin << " QualityWord = " << qualWord;
+        qbin=0;
+      }
+      return qbin;
     }
     //--- Quality flags (true or false):
     //--- cluster is on the edge of the module, or straddles a dead ROC
@@ -113,45 +119,41 @@ class SiPixelRecHitQuality {
       return (qualWord >> twoROC_shift) & twoROC_mask;
     }
     //--- the probability is filled
-		inline bool hasFilledProb( QualWordType qualWord ) const {
-			return (qualWord >> hasFilledProb_shift) & hasFilledProb_mask;
-		}
-
+    inline bool hasFilledProb( QualWordType qualWord ) const {
+      return (qualWord >> hasFilledProb_shift) & hasFilledProb_mask;
+    }
+    
     //------------------------------------------------------
     //--- Setters: the inverse of the above.
     //------------------------------------------------------
     //
-		inline void setProbabilityX( float prob, QualWordType & qualWord ) {
-			if(prob<0 || prob>1) {
-				edm::LogWarning("OutOfBounds") << "Prob outside the bounds of the quality word. Defaulting to Prob=0. Prob = " << prob << " QualityWord = " << qualWord;
-				prob=0;
-			}
-			double draw = 0;
-			if   (prob <= 9E-8) draw = 2047;
-			else                draw = - log( (double) prob ) * probX_1_over_log_units;
+    inline void setProbabilityXY( float prob, QualWordType & qualWord ) {
+      if(prob<0 || prob>1) {
+        edm::LogWarning("OutOfBounds") << "Prob outside the bounds of the quality word. Defaulting to Prob=0. Prob = " << prob << " QualityWord = " << qualWord;
+        prob=0;
+      }
+      double draw = (prob<=1.6E-13) ? 2047 : - log( (double) prob ) * probX_1_over_log_units;
       unsigned int raw = (int) (draw+0.5);   // convert to integer, round correctly
       // cout << "Prob = " << prob << " --> Bits = " << raw << endl;
       qualWord |= ((raw & probX_mask) << probX_shift);
     }
-    inline void setProbabilityY( float prob, QualWordType & qualWord ) {
-			if(prob<0 || prob>1) {
-				edm::LogWarning("OutOfBounds") << "Prob outside the bounds of the quality word. Defaulting to Prob=0. Prob = " << prob << " QualityWord = " << qualWord;
-				prob=0;
-			}
-			double draw = 0;
-			if   (prob <= 9E-8) draw = 2047;
-      else                draw = - log( (double) prob ) * probY_1_over_log_units;
+    inline void setProbabilityQ( float prob, QualWordType & qualWord ) {
+      if(prob<0 || prob>1) {
+        edm::LogWarning("OutOfBounds") << "Prob outside the bounds of the quality word. Defaulting to Prob=0. Prob = " << prob << " QualityWord = " << qualWord;
+        prob=0;
+      }
+      double draw = (prob<=1E-5) ? 2047 : - log( (double) prob ) * probY_1_over_log_units;
       unsigned int raw = (int) (draw+0.5);   // convert to integer, round correctly
       // cout << "Prob = " << prob << " --> Bits = " << raw << endl;
       qualWord |= ((raw & probY_mask) << probY_shift);
     }
-
+    
     
     inline void setQBin( int qbin, QualWordType & qualWord ) {
-			if(qbin<0 || qbin >7) {
-				edm::LogWarning("OutOfBounds") << "Qbin outside the bounds of the quality word. Defaulting to Qbin=0. Qbin = " << qbin << " QualityWord = " << qualWord;
-				qbin=0;
-			}
+      if(qbin<0 || qbin >7) {
+        edm::LogWarning("OutOfBounds") << "Qbin outside the bounds of the quality word. Defaulting to Qbin=0. Qbin = " << qbin << " QualityWord = " << qualWord;
+        qbin=0;
+      }
       qualWord |= ((qbin & qBin_mask) << qBin_shift);
     }
     
@@ -164,16 +166,13 @@ class SiPixelRecHitQuality {
     inline void setSpansTwoROCs( bool flag, QualWordType & qualWord ) {
       qualWord |= ((flag & twoROC_mask) << twoROC_shift);
     }
-		inline void setHasFilledProb( bool flag, QualWordType & qualWord ) {
-			qualWord |= ((flag & hasFilledProb_mask) << hasFilledProb_shift);
-		}
-	
+    inline void setHasFilledProb( bool flag, QualWordType & qualWord ) {
+      qualWord |= ((flag & hasFilledProb_mask) << hasFilledProb_shift);
+    }
   };
-
-
- public:
+  
+public:
   static Packing   thePacking;
 };  
-
 
 #endif

@@ -29,7 +29,7 @@ public:
 
   typedef edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster > ClusterRef;
 
-  SiPixelRecHit(): BaseSiTrackerRecHit2DLocalPos(), qualWord_(0), cluster_()  {}
+  SiPixelRecHit(): BaseSiTrackerRecHit2DLocalPos(), qualWord_(0), cluster_() {}
 
   ~SiPixelRecHit() {}
   
@@ -75,6 +75,7 @@ public:
 
 
   //--- Template fit probability, in X and Y directions
+  //--- These are obsolete and will be taken care of in the quality code
   inline float probabilityX() const     {
     return SiPixelRecHitQuality::thePacking.probabilityX( qualWord_ );
   }
@@ -82,7 +83,15 @@ public:
     return SiPixelRecHitQuality::thePacking.probabilityY( qualWord_ );
   }
 
-	//--- Charge `bin' (values 0, 1, 2, 3) according to Morris's template
+  //--- Template fit probability, in X and Y direction combined and in charge
+  inline float probabilityXY() const     {
+    return SiPixelRecHitQuality::thePacking.probabilityXY( qualWord_ );
+  }
+  inline float probabilityQ() const     {
+    return SiPixelRecHitQuality::thePacking.probabilityQ( qualWord_ );
+  }
+
+  //--- Charge `bin' (values 0, 1, 2, 3) according to Morris's template
   //--- code. qBin==4 is unphysical, qBin=5,6,7 are yet unused)
   //
   inline int qBin() const     {
@@ -104,17 +113,17 @@ public:
     return SiPixelRecHitQuality::thePacking.spansTwoROCs( qualWord_ );
   }
 
-	//--- Quality flag for whether the probability is filled
-	inline bool hasFilledProb() const {
-		return SiPixelRecHitQuality::thePacking.hasFilledProb( qualWord_ );
-	}
+  //--- Quality flag for whether the probability is filled
+  inline bool hasFilledProb() const {
+    return SiPixelRecHitQuality::thePacking.hasFilledProb( qualWord_ );
+  }
   
   //--- Setters for the above
-	inline void setProbabilityX( float prob ) {
-    SiPixelRecHitQuality::thePacking.setProbabilityX( prob, qualWord_ );
+  inline void setProbabilityXY( float prob ) {
+    SiPixelRecHitQuality::thePacking.setProbabilityXY( prob, qualWord_ );
   }
-  inline void setProbabilityY( float prob ) {
-    SiPixelRecHitQuality::thePacking.setProbabilityY( prob, qualWord_ );
+  inline void setProbabilityQ( float prob ) {
+    SiPixelRecHitQuality::thePacking.setProbabilityQ( prob, qualWord_ );
   }  
   inline void setQBin( int qbin ) {
     SiPixelRecHitQuality::thePacking.setQBin( qbin, qualWord_ );
@@ -128,9 +137,9 @@ public:
   inline void setSpansTwoROCs( bool flag ) {
     SiPixelRecHitQuality::thePacking.setSpansTwoROCs( flag, qualWord_ );
   }
-	inline void setHasFilledProb( bool flag ) {
-		SiPixelRecHitQuality::thePacking.setHasFilledProb( flag, qualWord_ );
-	}
+  inline void setHasFilledProb( bool flag ) {
+    SiPixelRecHitQuality::thePacking.setHasFilledProb( flag, qualWord_ );
+  }
 
 private:
 

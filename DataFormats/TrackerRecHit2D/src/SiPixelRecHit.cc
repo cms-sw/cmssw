@@ -20,7 +20,6 @@ bool SiPixelRecHit::sharesInput( const TrackingRecHit* other,
   return cluster_ == otherCast->cluster();
 }
 
-
 //--- The overall probability.  flags is the 32-bit-packed set of flags that
 //--- our own concrete implementation of clusterProbability() uses to direct
 //--- the computation based on the information stored in the quality word
@@ -29,26 +28,17 @@ bool SiPixelRecHit::sharesInput( const TrackingRecHit* other,
 //--- Flags are static and kept in the transient rec hit.
 float SiPixelRecHit::clusterProbability(unsigned int flags) const
 {
-	if (!hasFilledProb()) {
-		return 1;
-	}
-	else if (flags == 0) {
-		if(probabilityX() != 0 && probabilityY() != 0) {
-			return probabilityX()*probabilityY() * (1 - log(probabilityX()*probabilityY()));
-		}
-		else {
-			return 0;
-		}
-	}
-	else if (flags == 1) {
-    return probabilityX();
-	}
-	else if (flags == 2) {
-		return probabilityY();
+  if (!hasFilledProb()) {
+    return 1;
   }
-	else {
-		return 0;
-	}
-	
+  else if (flags == 1) {
+    return probabilityXY() * probabilityQ();
+  }
+  else if (flags == 2) {
+    return probabilityQ();
+  }
+  else {
+    return probabilityXY();
+  }
 }
 
