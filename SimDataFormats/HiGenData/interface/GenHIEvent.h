@@ -16,6 +16,7 @@ namespace edm {
 	 ncoll_(-99),
 	 nhard_(-99),
 	 phi_(-99),
+	eccentricity_(-99),
 	 nCharged_(-99),
 	 nChargedMR_(-99),
 	 meanPt_(-99),
@@ -27,21 +28,21 @@ namespace edm {
 	       subevents_.reserve(0);
 	       ;}
 
-	 GenHIEvent(double b, int npart, int ncoll, int nhard, double phi,double nCharged,double nChargedMR,double meanPt,double meanPtMR,double EtMR,int nChargedPtCut,int nChargedPtCutMR) : 
-	 //GenHIEvent(double b, int npart, int ncoll, int nhard, double phi,double nCharged,double nChargedMR,double meanPt,double meanPtMR) : 
-	 b_(b), 
-     npart_(npart), 
-     ncoll_(ncoll), 
-     nhard_(nhard), 
-     phi_(phi),
-     nCharged_(nCharged),
-     nChargedMR_(nChargedMR),
-     meanPt_(meanPt),
-     meanPtMR_(meanPtMR),
-     EtMR_(EtMR),
-     nChargedPtCut_(nChargedPtCut),
-     nChargedPtCutMR_(nChargedPtCutMR)
-       {
+	GenHIEvent(double b, int npart, int ncoll, int nhard, double phi, double ecc = -99, double nCharged = -99,double nChargedMR=-99,double meanPt=-99,double meanPtMR=-99,double EtMR=-99,int nChargedPtCut=-99,int nChargedPtCutMR=-99) : 
+	  b_(b), 
+	  npart_(npart), 
+	  ncoll_(ncoll), 
+	  nhard_(nhard), 
+	  phi_(phi),
+	  eccentricity_(ecc),
+	  nCharged_(nCharged),
+	  nChargedMR_(nChargedMR),
+	  meanPt_(meanPt),
+	  meanPtMR_(meanPtMR),
+	  EtMR_(EtMR),
+	  nChargedPtCut_(nChargedPtCut),
+	  nChargedPtCutMR_(nChargedPtCutMR)
+	    {
            subevents_.reserve(0);
            ;}
 
@@ -55,6 +56,7 @@ namespace edm {
       int Ncoll() const {return ncoll_;}
       int Nhard() const {return nhard_;}
       double evtPlane() const {return phi_;}
+      double eccentricity() const {return eccentricity_;}
       int Ncharged() const {return nCharged_;}
       int NchargedMR() const {return nChargedMR_;}
       double MeanPt() const {return meanPt_;}
@@ -62,7 +64,6 @@ namespace edm {
       double EtMR() const {return EtMR_;}
       int NchargedPtCut() const {return nChargedPtCut_;}
       int NchargedPtCutMR() const {return nChargedPtCutMR_;}
-
       void setGenParticles(const reco::GenParticleCollection*) const;
       const std::vector<reco::GenParticleRef>    getSubEvent(unsigned int sub_id) const;
 
@@ -78,7 +79,7 @@ namespace edm {
       int ncoll_;
       int nhard_;
       double phi_;
-
+      double eccentricity_;
       int nCharged_;
       int nChargedMR_;
       double meanPt_;
