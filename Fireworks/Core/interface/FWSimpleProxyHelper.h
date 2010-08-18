@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 15:13:17 EST 2008
-// $Id: FWSimpleProxyHelper.h,v 1.1 2008/12/02 21:11:52 chrjones Exp $
+// $Id: FWSimpleProxyHelper.h,v 1.2 2009/01/23 21:35:41 amraktad Exp $
 //
 
 // system include files
@@ -38,8 +38,7 @@ public:
    const void* offsetObject(const void* iObj) const {
       return static_cast<const char*> (iObj)+m_objectOffset;
    }
-   void fillTitle(const FWEventItem& iItem, int iIndex, std::string& oTitle) const;
-
+   
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------

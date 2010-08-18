@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 15:13:22 EST 2008
-// $Id: FWSimpleProxyHelper.cc,v 1.1 2008/12/02 21:11:53 chrjones Exp $
+// $Id: FWSimpleProxyHelper.cc,v 1.2 2009/01/23 21:35:44 amraktad Exp $
 //
 
 // system include files
@@ -77,21 +77,6 @@ FWSimpleProxyHelper::itemChanged(const FWEventItem* iItem)
       m_objectOffset=static_cast<char*>(dummy.Address())-static_cast<char*>(castTo.Address());
    }
 }
-
-//
-// const member functions
-//
-void
-FWSimpleProxyHelper::fillTitle(const FWEventItem& iItem, int iIndex, std::string& oTitle) const
-{
-   oTitle = iItem.modelName(iIndex);
-   std::stringstream s;
-   if(iItem.haveInterestingValue()) {
-      s<<oTitle<<", "<<iItem.modelInterestingValueAsString(iIndex);
-      oTitle=s.str();
-   }
-}
-
 
 //
 // static member functions

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Nov 30 16:14:58 EST 2008
-// $Id: FWItemValueGetter.h,v 1.1 2008/12/01 00:51:21 chrjones Exp $
+// $Id: FWItemValueGetter.h,v 1.2 2009/01/23 21:35:41 amraktad Exp $
 //
 
 // system include files
@@ -37,7 +37,7 @@ public:
 
    // ---------- const member functions ---------------------
    double valueFor(const void*) const;
-   std::string stringValueFor(const void*) const;
+   const std::string& stringValueFor(const void*) const;
 
    bool isValid() const;
 

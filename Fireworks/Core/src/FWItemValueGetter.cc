@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Nov 30 16:15:43 EST 2008
-// $Id: FWItemValueGetter.cc,v 1.3 2009/01/23 21:35:43 amraktad Exp $
+// $Id: FWItemValueGetter.cc,v 1.4 2009/03/04 16:51:16 chrjones Exp $
 //
 
 // system include files
@@ -49,20 +49,19 @@ recursiveFindMember(const std::string& iName,
 
 namespace {
    template <class T>
-   std::string valueToString(const std::string& iName,
-                             const std::string& iUnit,
-                             const Reflex::Object& iObject,
-                             const Reflex::Member& iMember) {
-      std::stringstream s;
-      s.setf(std::ios_base::fixed,std::ios_base::floatfield);
-      s.precision(1);
+   const std::string& valueToString(const std::string& iName,
+                                    const std::string& iUnit,
+                                    const Reflex::Object& iObject,
+                                    const Reflex::Member& iMember)
+   {
+      static std::string bala(128, 0);
       T temp;
       iMember.Invoke(iObject,temp);
-      s<<iName <<": "<<temp<<" "<<iUnit;
-      return s.str();
+      snprintf(&bala[0], 127, "%s: %.1f %s", iName.c_str(), temp, iUnit.c_str());
+      return bala;
    }
 
-   typedef std::string (*FunctionType)(const std::string&, const std::string&,const Reflex::Object&, const Reflex::Member&);
+   typedef const std::string& (*FunctionType)(const std::string&, const std::string&,const Reflex::Object&, const Reflex::Member&);
    typedef std::map<std::string, FunctionType> TypeToStringMap;
 
    template<typename T>
@@ -88,22 +87,25 @@ namespace {
 }
 
 static
-std::string
+const std::string&
 stringValueFor(const ROOT::Reflex::Object& iObj, 
                const ROOT::Reflex::Member& iMember,
-               const std::string& iUnit) {
+               const std::string& iUnit)
+{
+   static std::string     s_empty_string;
    static TypeToStringMap s_map;
-   if(s_map.empty() ) {
+   if (s_map.empty())
+   {
       addToStringMap<float>(s_map);
       addToStringMap<double>(s_map);
    }
    Reflex::Type returnType = iMember.TypeOf().ReturnType().FinalType();
-   
 
    TypeToStringMap::iterator itFound =s_map.find(returnType.TypeInfo().name());
-   if(itFound == s_map.end()) {
+   if (itFound == s_map.end())
+   {
       //std::cout <<" could not print because type is "<<iObj.TypeOf().TypeInfo().name()<<std::endl;
-      return std::string();
+      return s_empty_string;
    }
 
    return itFound->second(iMember.Name(),iUnit,iObj,iMember);
@@ -193,7 +195,7 @@ FWItemValueGetter::valueFor(const void* iObject) const
    return ::doubleValueFor(obj,m_memberFunction);
 }
 
-std::string
+const std::string&
 FWItemValueGetter::stringValueFor(const void* iObject) const
 {
    ROOT::Reflex::Object temp(m_type,

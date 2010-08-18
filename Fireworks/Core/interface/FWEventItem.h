@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.42 2010/07/21 09:43:21 eulisse Exp $
+// $Id: FWEventItem.h,v 1.43 2010/07/21 17:03:25 matevz Exp $
 //
 
 // system include files
@@ -117,7 +117,7 @@ public:
    ///one value from the model which is normally used for the popup
    bool haveInterestingValue() const;
    double modelInterestingValue(int iIndex) const;
-   std::string modelInterestingValueAsString(int iIndex) const;
+   const std::string& modelInterestingValueAsString(int iIndex) const;
 
    bool isCollection() const;
 

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.50 2010/07/23 16:02:54 eulisse Exp $
+// $Id: FWEventItem.cc,v 1.51 2010/08/09 07:57:10 eulisse Exp $
 //
 
 // system include files
@@ -595,7 +595,8 @@ FWEventItem::modelInterestingValue(int iIndex) const
    getPrimaryData();
    return m_interestingValueGetter.valueFor(m_accessor->modelData(iIndex));
 }
-std::string
+
+const std::string&
 FWEventItem::modelInterestingValueAsString(int iIndex) const
 {
    getPrimaryData();
