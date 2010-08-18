@@ -29,10 +29,8 @@ namespace ora {
    
   };
 
-  boost::shared_ptr<RecordSpecImpl> emptySpecs(new RecordSpecImpl);
 
-
-  RecordSpec::RecordSpec() : specs(emptySpecs) {}
+  RecordSpec::RecordSpec() : specs(new RecordSpecImpl) {}
 
   RecordSpec::~RecordSpec(){}
 
@@ -44,6 +42,7 @@ namespace ora {
     specs->indexes.insert(std::make_pair(specs->items.back().name,(int)(specs->items.size())-1));
     return specs->items.size()-1;
   }
+
 
 
   Record::Record(){}
