@@ -12,6 +12,7 @@ pixelVertices = cms.EDProducer("PrimaryVertexProducer",
     useBeamConstraint = cms.bool(True),
     minNdof  = cms.double(2.0),               # new 
     TkFilterParameters = cms.PSet(
+        algorithm=cms.string('filter'),
         maxNormalizedChi2 = cms.double(100.0),
 
         maxD0Significance = cms.double(100.0), ## 100 is for when the beamspot is not well known (ONLY FOR STARTUP)

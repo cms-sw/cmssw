@@ -3,6 +3,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "RecoVertex/PrimaryVertexProducer/interface/TrackFilterForPVFinding.h"
+#include "RecoVertex/PrimaryVertexProducer/interface/HITrackFilterForPVFinding.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/GapClusterizerInZ.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/DAClusterizerInZ.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
@@ -19,7 +21,6 @@ using namespace reco;
 PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::ParameterSet& conf)
   // extract relevant parts of config for components
   : theConfig(conf), 
-    theTrackFilter(conf.getParameter<edm::ParameterSet>("TkFilterParameters")), 
     theVertexSelector(VertexDistanceXY(), 
 		      conf.getParameter<edm::ParameterSet>("PVSelParameters").getParameter<double>("maxDistanceToBeam"))
 {
@@ -32,6 +33,17 @@ PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::Parame
   fVerbose           = conf.getUntrackedParameter<bool>("verbose", false);
   fMinNdof           = conf.getParameter<double>("minNdof");
   fFailsafe          = true; //conf.getUntrackedParameter<bool>("failsafe",true);
+
+
+  // select and configure the track selection
+  std::string trackSelectionAlgorithm=conf.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<std::string>("algorithm");
+  if(trackSelectionAlgorithm=="filter"){
+    theTrackFilter= new TrackFilterForPVFinding( conf.getParameter<edm::ParameterSet>("TkFilterParameters") );
+  }else if (trackSelectionAlgorithm=="filterWithThreshold"){
+    theTrackFilter= new HITrackFilterForPVFinding(conf.getParameter<edm::ParameterSet>("TkFilterParameters"));
+  }else{
+    throw VertexException("PrimaryVertexProducerAlgorithm: unknown track selection algorithm: " + trackSelectionAlgorithm);  
+  }
 
 
   // select and configure the track clusterizer
@@ -72,6 +84,7 @@ PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::Parame
 PrimaryVertexProducerAlgorithm::~PrimaryVertexProducerAlgorithm() 
 {
   if (theFitter) delete theFitter;
+  if (theTrackFilter) delete theTrackFilter;
   if (theTrackClusterizer) delete theTrackClusterizer;
 }
 
@@ -115,17 +128,7 @@ PrimaryVertexProducerAlgorithm::vertices(const std::vector<reco::TransientTrack>
 
 
   // select tracks
-  std::vector<TransientTrack> seltks;
-
-  if (validBS){
-    for (std::vector<reco::TransientTrack>::const_iterator itk = tracks.begin();
-	 itk != tracks.end(); itk++) {
-      if (theTrackFilter(*itk)) seltks.push_back(*itk);
-    }
-  } else {
-    seltks = tracks;
-  }
-
+  std::vector<TransientTrack> seltks = theTrackFilter->select( tracks );
 
 
   // clusterize tracks in Z

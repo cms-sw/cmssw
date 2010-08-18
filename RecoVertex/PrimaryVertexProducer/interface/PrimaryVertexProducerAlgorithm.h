@@ -15,14 +15,14 @@
 //
 // Original Author:  Pascal Vanlaer
 //         Created:  Tue Feb 28 11:06:34 CET 2006
-// $Id: PrimaryVertexProducerAlgorithm.h,v 1.13 2010/04/29 06:15:17 werdmann Exp $
+// $Id: PrimaryVertexProducerAlgorithm.h,v 1.14 2010/07/30 18:23:45 wmtan Exp $
 //
 //
 
 // user include files
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexReconstructor.h"
-#include "RecoVertex/PrimaryVertexProducer/interface/TrackFilterForPVFinding.h"
+#include "RecoVertex/PrimaryVertexProducer/interface/TrackFilterForPVFindingBase.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/TrackClusterizerInZ.h"
 #include "RecoVertex/TrimmedKalmanVertexFinder/interface/KalmanTrimmedVertexFinder.h"
 #include "RecoVertex/VertexTools/interface/VertexCompatibleWithBeam.h"
@@ -59,7 +59,7 @@ private:
   // ----------member data ---------------------------
   // vtx finding algorithm components
   edm::ParameterSet theConfig;
-  TrackFilterForPVFinding theTrackFilter;
+  TrackFilterForPVFindingBase* theTrackFilter; 
   TrackClusterizerInZ* theTrackClusterizer;
   KalmanTrimmedVertexFinder theFinder;
   VertexCompatibleWithBeam theVertexSelector;

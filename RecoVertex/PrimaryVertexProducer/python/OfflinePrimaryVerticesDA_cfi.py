@@ -11,6 +11,7 @@ offlinePrimaryVerticesDA = cms.EDProducer("PrimaryVertexProducer",
         maxDistanceToBeam = cms.double(1.0) # meaningless for constrained fits
     ),
     TkFilterParameters = cms.PSet(
+        algorithm=cms.string('filter'),
         maxNormalizedChi2 = cms.double(5.0),
         minPixelLayersWithHits=cms.int32(2),
         minSiliconLayersWithHits = cms.int32(5),

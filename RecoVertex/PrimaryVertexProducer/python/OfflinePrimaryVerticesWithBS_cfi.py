@@ -11,6 +11,7 @@ offlinePrimaryVerticesWithBS = cms.EDProducer("PrimaryVertexProducer",
     beamSpotLabel = cms.InputTag("offlineBeamSpot"),
     minNdof  = cms.double(2.0),
     TkFilterParameters = cms.PSet(
+        algorithm=cms.string('filter'),
         maxNormalizedChi2 = cms.double(5.0),
         minSiliconLayersWithHits = cms.int32(5), # >=5  (TDR > 7 hits)
         minPixelLayersWithHits = cms.int32(2),   # >=2  (TDR > 2 hits)
