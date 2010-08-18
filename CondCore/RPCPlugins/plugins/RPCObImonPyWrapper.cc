@@ -162,8 +162,9 @@ namespace cond {
 
     std::vector<RPCObImon::I_Item> const & imon = object().ObImon_rpc;
 
+    ss <<"DetID\t"<<"Ival\t"<<"Time\t"<<"Day\n";
     for(unsigned int i = 0; i < imon.size(); ++i ){
-      ss <<imon[i].dpid <<" "<<imon[i].value<<" "<<imon[i].time<<" "<<imon[i].day<<" ";
+      ss <<imon[i].dpid <<"\t"<<imon[i].value<<"\t"<<imon[i].time<<"\t"<<imon[i].day<<"\n";
     }
 
     return ss.str();
