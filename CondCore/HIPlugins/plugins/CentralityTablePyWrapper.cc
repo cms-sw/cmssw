@@ -18,17 +18,27 @@ namespace cond {
 
     std::stringstream ss;
 
+    ss<<"Bin \t";
+    ss<<"Lower Boundary\t";
+    ss<<"Npart \t";
+    ss<<"sigma \t";
+    ss<<"Ncoll \t";
+    ss<<"sigma \t";
+    ss<<"B \t";
+    ss<<"sigma \t"<<std::endl;
+    ss<<"__________________________________________________"<<std::endl;
+
     for(unsigned int j=0; j<table.m_table.size(); j++){
 
       const CentralityTable::CBin& thisBin = table.m_table[j];
-
-      ss<<"HF Cut = "<<thisBin.bin_edge<<std::endl;
-      ss<<"Npart = "<<thisBin.n_part.mean<<std::endl;
-      ss<<"sigma = "<<thisBin.n_part.var<<std::endl;
-      ss<<"Ncoll = "<<thisBin.n_coll.mean<<std::endl;
-      ss<<"sigma = "<<thisBin.n_coll.var<<std::endl;
-      ss<<"B     = "<<thisBin.b.mean<<std::endl;
-      ss<<"sigma = "<<thisBin.b.var<<std::endl;
+      ss<<j<<" \t";
+      ss<<thisBin.bin_edge <<"\t";
+      ss<<thisBin.n_part.mean<<" \t";
+      ss<<thisBin.n_part.var<<" \t";
+      ss<<thisBin.n_coll.mean<<" \t";
+      ss<<thisBin.n_coll.var<<" \t";
+      ss<<thisBin.b.mean<<" \t";
+      ss<<thisBin.b.var<<" \t"<<std::endl;
       ss<<"__________________________________________________"<<std::endl;
 
     }
