@@ -301,7 +301,7 @@ if 'GlobalTag' in locals():
         cms.PSet(  
             record  = cms.string( "L1GtTriggerMenuRcd" ),
             tag     = cms.string( "%s" ),
-            connect = GlobalTag.connect.replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T')
+            connect = cms.untracked.string( GlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T') )
         )
     )
 """ % menuL1Override
@@ -312,13 +312,13 @@ else:
       menuConfigSource =  "file:/tmp/InputCollection.root"
     else:
       # offline we can run on data, on mc, or on a user-specified dataset
-      if runOnData:
-        menuConfigSource = "/store/data/Run2010A/MinimumBias/RAW/v1/000/140/381/08F3BCC8-6092-DF11-AE9B-001D09F2525D.root" 
-      elif menuDataset:
+      if menuDataset:
         # query DBS and extract the files for the specified dataset
         files = pipe("dbsql 'find file where dataset like %s'" % menuDataset)
-        files = [ f for f in files.split('\n') if 'store' in f ]
+        files = [ f for f in files.split('\n') if 'store' in f ][0:10]
         menuConfigSource = ','.join(files)
+      elif runOnData:
+        menuConfigSource = "/store/data/Run2010A/MinimumBias/RAW/v1/000/140/381/08F3BCC8-6092-DF11-AE9B-001D09F2525D.root" 
       else:
         menuConfigSource =  "file:RelVal_DigiL1Raw_%s.root" % processType
 
@@ -409,7 +409,7 @@ if 'GlobalTag' in process.__dict__:
         data = data + "    from Configuration.PyReleaseValidation.autoCond import autoCond\n"
         data = data + "    process.GlobalTag.globaltag = autoCond['%s']\n" % menuGlobalTag[5:]
       else:
-        data = data + "    process.GlobalTag.globaltag = %s\n" % menuGlobalTag
+        data = data + "    process.GlobalTag.globaltag = '%s'\n" % menuGlobalTag
 
     # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
     if menuL1Override:
@@ -420,7 +420,7 @@ if 'GlobalTag' in process.__dict__:
         cms.PSet(  
             record  = cms.string( "L1GtTriggerMenuRcd" ),
             tag     = cms.string( "%s" ),
-            connect = process.GlobalTag.connect.replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T')
+            connect = cms.untracked.string( process.GlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T') )
         )
     )
 """ % menuL1Override
