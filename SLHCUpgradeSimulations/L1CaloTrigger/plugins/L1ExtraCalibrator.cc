@@ -37,19 +37,24 @@ class L1ExtraCalibrator : public edm::EDProducer {
 
    private:
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
+  
+  edm::InputTag eGamma_;
+  edm::InputTag isoEGamma_;
+  edm::InputTag taus_;
+  edm::InputTag isoTaus_;
+  edm::InputTag jets_;
+  
+  std::vector<double> eGammaCoeffB_;
+  std::vector<double> tauCoeffB_;
+  std::vector<double> eGammaCoeffE_;
+  std::vector<double> tauCoeffE_;
+  std::vector<double> eGammaBinCorr_;
+  std::vector<double> tauBinCorr_;
 
-      edm::InputTag eGamma_;
-      edm::InputTag isoEGamma_;
-      edm::InputTag taus_;
-      edm::InputTag isoTaus_;
-      edm::InputTag jets_;
 
-  std::vector<double> eGammaCoeff_;
-  std::vector<double> tauCoeff_;
-
-  math::PtEtaPhiMLorentzVector calibratedP4(const math::PtEtaPhiMLorentzVector&,const  std::vector<double>&);
+  math::PtEtaPhiMLorentzVector calibratedP4(const math::PtEtaPhiMLorentzVector&,const  std::vector<double>&, const std::vector<double>&);
 
 
 };
@@ -64,8 +69,12 @@ L1ExtraCalibrator::L1ExtraCalibrator(const edm::ParameterSet& iConfig):
   taus_(iConfig.getParameter<edm::InputTag>("taus")),
   isoTaus_(iConfig.getParameter<edm::InputTag>("isoTaus")),
   jets_(iConfig.getParameter<edm::InputTag>("jets")),
-  eGammaCoeff_(iConfig.getParameter<std::vector<double> >("eGammaCoefficients")),
-  tauCoeff_(iConfig.getParameter<std::vector<double> >("tauCoefficients"))
+  eGammaCoeffB_(iConfig.getParameter<std::vector<double> >("eGammaCoefficientsB")),
+  tauCoeffB_(iConfig.getParameter<std::vector<double> >("tauCoefficientsB")),
+  eGammaCoeffE_(iConfig.getParameter<std::vector<double> >("eGammaCoefficientsE")),
+  tauCoeffE_(iConfig.getParameter<std::vector<double> >("tauCoefficientsE")),
+  eGammaBinCorr_(iConfig.getParameter<std::vector<double> >("eGammaBinCorr")),
+  tauBinCorr_(iConfig.getParameter<std::vector<double> >("tauBinCorr"))
 {
   //Register Product
   produces<l1extra::L1EmParticleCollection>("EGamma");
@@ -99,43 +108,65 @@ L1ExtraCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
    edm::Handle<L1EmParticleCollection> eg;
-   if(iEvent.getByLabel(eGamma_,eg)) 
+   if(iEvent.getByLabel(eGamma_,eg)) {
      for(unsigned int i=0;i<eg->size();++i) {
        L1EmParticle p = eg->at(i);
-       p.setP4(calibratedP4(p.polarP4(),eGammaCoeff_));
+       //Pass E or B coefficients depending on p.eta().
+       if (fabs(p.eta())<1.6){
+	 p.setP4(calibratedP4(p.polarP4(),eGammaCoeffB_,eGammaBinCorr_));
+       } else if (fabs(p.eta())<2.5){
+	 p.setP4(calibratedP4(p.polarP4(),eGammaCoeffE_,eGammaBinCorr_));
+       }
        l1EGamma->push_back(p);
      }
+   }
 
    edm::Handle<L1EmParticleCollection> ieg;
-   if(iEvent.getByLabel(isoEGamma_,ieg)) 
+   if(iEvent.getByLabel(isoEGamma_,ieg)) {
      for(unsigned int i=0;i<ieg->size();++i) {
        L1EmParticle p = ieg->at(i);
-       p.setP4(calibratedP4(p.polarP4(),eGammaCoeff_));
+       if (fabs(p.eta())<1.6){
+	 p.setP4(calibratedP4(p.polarP4(),eGammaCoeffB_,eGammaBinCorr_));
+       } else if (fabs(p.eta())<2.5){
+	 p.setP4(calibratedP4(p.polarP4(),eGammaCoeffE_,eGammaBinCorr_));
+       }
        l1IsoEGamma->push_back(p);
      }
-
+   }
+   
    edm::Handle<L1JetParticleCollection> tau;
-   if(iEvent.getByLabel(taus_,tau)) 
+   if(iEvent.getByLabel(taus_,tau)) {
      for(unsigned int i=0;i<tau->size();++i) {
        L1JetParticle p = tau->at(i);
-       p.setP4(calibratedP4(p.polarP4(),tauCoeff_));
+       if (fabs(p.eta())<1.6){
+	 p.setP4(calibratedP4(p.polarP4(),tauCoeffB_,tauBinCorr_));
+       } else if (fabs(p.eta())<2.5){
+	 p.setP4(calibratedP4(p.polarP4(),tauCoeffE_,tauBinCorr_));
+       }
        l1Tau->push_back(p);
      }
-
+   }
+   
    edm::Handle<L1JetParticleCollection> itau;
-   if(iEvent.getByLabel(isoTaus_,itau)) 
+   if(iEvent.getByLabel(isoTaus_,itau)) {
      for(unsigned int i=0;i<itau->size();++i) {
        L1JetParticle p = itau->at(i);
-       p.setP4(calibratedP4(p.polarP4(),tauCoeff_));
+       if (fabs(p.eta())<1.6){
+	 p.setP4(calibratedP4(p.polarP4(),tauCoeffB_,tauBinCorr_));
+       } else if (fabs(p.eta())<2.5){
+	 p.setP4(calibratedP4(p.polarP4(),tauCoeffE_,tauBinCorr_));
+       }
        l1IsoTau->push_back(p);
      }
+   }
 
    edm::Handle<L1JetParticleCollection> jets;
-   if(iEvent.getByLabel(jets_,jets)) 
+   if(iEvent.getByLabel(jets_,jets)) {
      for(unsigned int i=0;i<jets->size();++i) {
        L1JetParticle p = jets->at(i);
        l1Jet->push_back(p);
      }
+   }
 
 
    iEvent.put(l1EGamma,"EGamma");
@@ -143,7 +174,6 @@ L1ExtraCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.put(l1Tau,"Taus");
    iEvent.put(l1IsoTau,"IsoTaus");
    iEvent.put(l1Jet,"Jets");
-
 
 }
 // ------------ method called once each job just after ending the event loop  ------------
@@ -153,11 +183,66 @@ L1ExtraCalibrator::endJob() {
 
 
 math::PtEtaPhiMLorentzVector 
-L1ExtraCalibrator::calibratedP4(const math::PtEtaPhiMLorentzVector& p4,const  std::vector<double>& coeffs)
+L1ExtraCalibrator::calibratedP4(const math::PtEtaPhiMLorentzVector& p4,const  std::vector<double>& coeffs, const std::vector<double>& binCorrs)
 {
   
-  double factor = coeffs.at(0)+coeffs.at(1)*fabs(p4.eta()) + coeffs.at(2)*p4.eta()*p4.eta();
-  math::PtEtaPhiMLorentzVector calibrated(factor*p4.pt(),p4.eta(),p4.phi(),0.0); 
+  //    double factor = coeffs.at(0)+coeffs.at(1)*fabs(p4.eta()) + coeffs.at(2)*p4.eta()*p4.eta();
+  double factor = 0;
+  double bfactor = 0;
+    if ( fabs(p4.eta())<1.6 ){
+      factor = coeffs.at(0) + coeffs.at(1)*fabs(p4.eta())+ coeffs.at(2)*fabs(p4.eta())*fabs(p4.eta());
+      //      printf("factorB is %f \n",factor);
+    } else if ( fabs(p4.eta())<2.5 ){
+      factor = coeffs.at(0) + coeffs.at(1)*(fabs(p4.eta())-1.6)+ coeffs.at(2)*(fabs(p4.eta())-1.6)*(fabs(p4.eta())-1.6);
+      //printf("factorE is %f \n",factor);
+    }
+
+  // apply bin-by-bin corrections
+  if (fabs(p4.eta())>=0 && fabs(p4.eta())<0.2){
+    bfactor=binCorrs.at(0);
+    printf("bin 0: corr. of %f\n",bfactor);
+  } else if (fabs(p4.eta())>=0.2 && fabs(p4.eta())<0.4){
+    bfactor=binCorrs.at(1);
+    printf("bin 1: corr. of %f\n",bfactor);
+  } else if (fabs(p4.eta())>=0.4 && fabs(p4.eta())<0.6){
+    bfactor=binCorrs.at(2);
+    printf("bin 2: corr. of %f\n",bfactor);
+  } else if (fabs(p4.eta())>=0.6 && fabs(p4.eta())<0.8){
+    bfactor=binCorrs.at(3);
+    printf("bin 3: corr. of %f\n",bfactor);
+  } else if (fabs(p4.eta())>=0.8 && fabs(p4.eta())<1.0){
+    bfactor=binCorrs.at(4);
+    printf("bin 4: corr. of %f\n",bfactor);
+  } else if (fabs(p4.eta())>=1.0 && fabs(p4.eta())<1.2){
+    bfactor=binCorrs.at(5);
+    printf("bin 5: corr. of %f\n",bfactor);
+  } else if (fabs(p4.eta())>=1.2 && fabs(p4.eta())<1.4){
+    bfactor=binCorrs.at(6);
+    printf("bin 6: corr. of %f\n",bfactor);
+  } else if (fabs(p4.eta())>=1.4 && fabs(p4.eta())<1.6){
+    bfactor=binCorrs.at(7);
+    printf("bin 7: corr. of %f\n",bfactor);
+  } else if (fabs(p4.eta())>=1.6 && fabs(p4.eta())<1.8){
+    bfactor=binCorrs.at(8);
+    printf("bin 8: corr. of %f\n",bfactor);
+  } else if (fabs(p4.eta())>=1.8 && fabs(p4.eta())<2.0){
+    bfactor=binCorrs.at(9);
+    printf("bin 9: corr. of %f\n",bfactor);
+  } else if (fabs(p4.eta())>=2.0 && fabs(p4.eta())<2.2){
+    bfactor=binCorrs.at(10);
+    printf("bin 10: corr. of %f\n",bfactor);
+  } else if (fabs(p4.eta())>=2.2 && fabs(p4.eta())<2.4){
+    bfactor=binCorrs.at(11);
+    printf("bin 11: corr. of %f\n",bfactor);
+  } else if (fabs(p4.eta())>=2.4 && fabs(p4.eta())<2.6){
+    bfactor=binCorrs.at(12);
+    printf("bin 12: corr. of %f\n",bfactor);
+  } else {
+    bfactor=1.0;
+    printf("no bin found! Corr. set to 1.0");
+  }
+  math::PtEtaPhiMLorentzVector calibrated(factor*bfactor*p4.pt(),p4.eta(),p4.phi(),0.0);
+
   return calibrated;
 }
 

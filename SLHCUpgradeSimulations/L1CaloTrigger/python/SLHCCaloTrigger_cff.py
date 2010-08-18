@@ -11,7 +11,8 @@ SLHCCaloTrigger  = cms.Sequence(L1CaloTowerProducer+
                                 L1CaloJetFilter+
                                 L1CaloJetExpander+
                                 rawSLHCL1ExtraParticles+
-                                SLHCL1ExtraParticles
+                                SLHCL1ExtraParticles+
+                                l1extraParticlesCalibrated
 )
 
 #uncomment the lines below for verbose (Huge amount of printouts!)

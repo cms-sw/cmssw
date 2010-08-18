@@ -1,7 +1,7 @@
 //
 // Original Author:  Michail BACHTIS
 //         Created:  Tue Jul 22 12:21:36 CEST 2008
-// $Id: CaloTriggerAnalyzer.h,v 1.1 2010/04/27 00:36:37 bachtis Exp $
+// $Id: CaloTriggerAnalyzer.h,v 1.2 2010/05/31 16:30:41 bachtis Exp $
 
 
 
@@ -20,7 +20,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "TH1F.h"
-
+#include "TProfile.h"
 class CaloTriggerAnalyzer : public edm::EDAnalyzer {
    public:
       explicit CaloTriggerAnalyzer(const edm::ParameterSet&);
@@ -36,6 +36,9 @@ class CaloTriggerAnalyzer : public edm::EDAnalyzer {
       double threshold_;
       double maxEta_;
 
+      float highestGenPt;
+      float highPt;
+      TH1F * eta;
 
       TH1F * ptNum;   
       TH1F * ptDenom;
@@ -47,8 +50,13 @@ class CaloTriggerAnalyzer : public edm::EDAnalyzer {
       TH1F * dPhi;
       TH1F * highestPt;
       TH1F * secondPt;
-
+      TH1F * highestPtGen;
+      TH1F * RPt;
+      TH1F * absEta;
+      TProfile * RPtEta;
+      TProfile * RPtEtaFull;
 };
+
 
 
 

@@ -45,9 +45,6 @@ class L1ExtraTranslator : public edm::EDProducer {
       int nParticles_; //Number of Objects to produce
       int nJets_; //Number of Objects to produce
 
-
-
-
 };
 
 

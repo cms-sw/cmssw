@@ -11,7 +11,7 @@ process.maxEvents = cms.untracked.PSet(
 process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 
 # Generate ttbar events
-process.load("Configuration.Generator.TTbar_cfi")
+process.load("Configuration.Generator.ZEE_cfi")
 
 # Common inputs, with fake conditions
 process.load("FastSimulation.Configuration.CommonInputs_cff")
@@ -112,8 +112,8 @@ process.load("FastSimulation.Configuration.EventContent_cff")
 process.o1 = cms.OutputModule("PoolOutputModule",
 	outputCommands = cms.untracked.vstring('drop *_*_*_*',
                                  'keep *_L1Calo*_*_*',
-                                 'keep *_SLHCL1ExtraParticles_*_*',
-                                 'keep *_l1extraParticles_*_*'),
+                                 'keep *_*SLHCL1ExtraParticles_*_*',
+                                 'keep *_l1extraParticles*_*_*'),
     fileName = cms.untracked.string('SLHC_LHC_Output.root')
 )
 process.outpath = cms.EndPath(process.o1)

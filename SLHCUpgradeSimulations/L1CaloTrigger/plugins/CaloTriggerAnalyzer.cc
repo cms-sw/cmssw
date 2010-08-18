@@ -1,3 +1,4 @@
+
 #include "SLHCUpgradeSimulations/L1CaloTrigger/plugins/CaloTriggerAnalyzer.h"
 #include "Math/GenVector/VectorUtil.h"
 #include <iostream>
@@ -22,10 +23,14 @@ CaloTriggerAnalyzer::CaloTriggerAnalyzer(const edm::ParameterSet& iConfig):
   pt       = fs->make<TH1F>( "pt"      , "pt", 20  ,  0. , 100. );
   highestPt= fs->make<TH1F>( "highestPt"      , "highestPt", 20  ,  0. , 100. );
   secondPt = fs->make<TH1F>( "secondHighestPt", "secondHighestPt", 20  ,  0. , 100. );
+  highestPtGen=fs->make<TH1F>("highestPtGen","highestPtGen",100, 0., 1000.);
   dPt      = fs->make<TH1F>( "dPt"      , "dPt", 50  , -1  , 1 );
   dEta     = fs->make<TH1F>( "dEta"      , "dEta", 50  , -0.5  , 0.5 );
   dPhi     = fs->make<TH1F>( "dPhi"      , "dPhi", 50  , -0.5  , 0.5 );
-
+  RPt = fs->make<TH1F>("RPt", "Pt_Ratio", 10, 0, 2.);
+  RPtEta = fs->make<TProfile>("RPtEta","Pt_Ratio as fcn of abs(eta)",13,0.0,2.6,0,2);
+  RPtEtaFull = fs->make<TProfile>("RPtEtaFull","Pt_Ratio as fcn of eta",26,-2.6,2.6,0,2);
+  absEta = fs->make<TH1F>("abseta","abs(eta)",13,0.,2.6);
 }
 
 
@@ -53,13 +58,17 @@ CaloTriggerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   bool gotSrc = iEvent.getByLabel(src_,src);
 
   if(gotSrc) {
+    highPt=0;
     for(edm::View<reco::Candidate>::const_iterator i = src->begin(); i!= src->end();++i)
       {
 	pt->Fill(i->pt());
+	if (i->pt()>highPt){
+	  highPt=i->pt();
+	}
       }
 
     if(src->size()>0)
-      highestPt->Fill(src->at(0).pt());
+      highestPt->Fill(highPt);
     else
       highestPt->Fill(0.0);
 
@@ -71,44 +80,60 @@ CaloTriggerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   }
 
-  if(gotRef)
-    for(edm::View<reco::Candidate>::const_iterator i = ref->begin(); i!= ref->end();++i)
+  if(gotRef) {
+    //get highest Pt gen object--loop over all to make sure it's the highest!
+    highestGenPt=-1.0;
+    for(edm::View<reco::Candidate>::const_iterator i = ref->begin(); i!= ref->end();++i){
+
+      if (i->pt()>highestGenPt){
+	highestGenPt=i->pt();
+	highestPtGen->Fill(i->pt());
+      }
+      
       if(fabs(i->eta())<maxEta_&&i->pt()>threshold_/2.)
-      {
-	ptDenom->Fill(i->pt());
-	etaDenom->Fill(i->eta());
-	
-	printf("ref pt = %f  eta = %f phi = %f\n",i->pt(),i->eta(),i->phi());
-
-	if(gotSrc)
-	  {
-	    bool matched=false;
-	    math::XYZTLorentzVector highestV(0.0001,0.,0.,0.0002);
-	    for(edm::View<reco::Candidate>::const_iterator j = src->begin(); j!= src->end();++j)
-	      if(j->pt()>threshold_)
-	      {
-		if(ROOT::Math::VectorUtil::DeltaR(i->p4(),j->p4())<DR_) {
-		  printf("matched pt = %f  eta = %f phi = %f\n",j->pt(),j->eta(),j->phi());
-		  
-		  if(j->pt()>highestV.pt())
-		    highestV = j->p4();
-
-		  matched=true;
-		}
-
-	      }
-
+	{
+	  ptDenom->Fill(i->pt());
+	  etaDenom->Fill(i->eta());
+	  
+	  printf("ref pt = %f  eta = %f phi = %f\n",i->pt(),i->eta(),i->phi());
+	  
+	  if(gotSrc)
+	    {
+	      bool matched=false;
+	      math::XYZTLorentzVector highestV(0.0001,0.,0.,0.0002);
+	      for(edm::View<reco::Candidate>::const_iterator j = src->begin(); j!= src->end();++j)
+		if(j->pt()>threshold_)
+		  {
+		    if(ROOT::Math::VectorUtil::DeltaR(i->p4(),j->p4())<DR_) {
+		      printf("matched pt = %f  eta = %f phi = %f\n",j->pt(),j->eta(),j->phi());
+		      
+		      if(j->pt()>highestV.pt())
+			highestV = j->p4();
+		      
+		      matched=true;
+		    }
+		    
+		  }
+	      
 	    if(matched)
 	      {
+		RPt->Fill(i->pt()/highestV.pt());
+		RPtEtaFull->Fill(highestV.eta(), i->pt()/highestV.pt());
+		RPtEta->Fill(fabs(highestV.eta()), i->pt()/highestV.pt());
+
+		printf("matched abs(eta) = %f \n", fabs(highestV.eta()) );
+		absEta->Fill(fabs(highestV.eta()));
 		dPt->Fill((highestV.pt()-i->pt())/i->pt());
 		dEta->Fill(highestV.eta()-i->eta());
 		dPhi->Fill(highestV.phi()-i->phi());
-
+		
 		ptNum->Fill(i->pt());
 		etaNum->Fill(i->eta());
 	      }
-	  }
-      }
+	    }
+	}
+    }
+  }
 }
 
 DEFINE_FWK_MODULE(CaloTriggerAnalyzer);
