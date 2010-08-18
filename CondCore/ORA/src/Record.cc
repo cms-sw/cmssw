@@ -76,6 +76,13 @@ namespace ora {
   }
 
 
+  void swap(Record & lh) {
+    specs.swap(lh.specs);
+    m_field.swap(lh.m_field);
+    m_null.swap(lh.m_null);
+  }
+
+
   int Record::index(std::string const & iname) const {
     RecordSpecImpl::Lookup::const_iterator p = specs->indexes.find(iname);
     return (p==specs->indexes.end()) ? -1 : (*p).second;

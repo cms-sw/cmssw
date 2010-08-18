@@ -35,6 +35,8 @@ namespace ora {
     ~Record();
     void destroy();
     
+    void swap(Record & lh);
+
     size_t size() const { return m_null.size();}
 
     template<typename T>
@@ -68,4 +70,9 @@ namespace ora {
   };
 
 }
+
+void swap(ora::Record & rh, ora::Record & lh) {
+  rh.swap(lh);
+}
+
 #endif //  CondCore_ORA_Record_H

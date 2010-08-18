@@ -84,6 +84,17 @@ void testRecordFeatures() {
   std::cout << ff << std::endl;
   brecord.data<float>(50) = 12.56;
   std::cout << ff << std::endl;
+
+  std::cout << "verify swap" << std::endl;
+  
+  Record record2;
+  std::cout << "before swap" << record2.size() << " " << record.size() << std::endl;
+  swap(record, record2);
+  std::cout << "after swap" << record2.size() << " " << record.size() << std::endl;
+  std::cout << record2.index("f_50")  << " " << record.index("f_50") << std::endl;
+  std::cout << record2.data<float>(50) << std::endl;
+
+
 }
 
 // now the real stuff...
@@ -168,6 +179,7 @@ int main() {
     testRecord(v,v2);
     if (v!=v2) std::cout << "error in Record" << std::endl;
     checkmem("after Record done");
+
     testAttributeList(v,v3);
     if (v!=v3) std::cout << "error in AttributeList" << std::endl;
     checkmem("after AttributeList done");
