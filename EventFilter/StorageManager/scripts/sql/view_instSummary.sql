@@ -305,8 +305,10 @@ BEGIN
           		hourPC3 := (hourPC - minPC)/3;
           		minPC20 := 20*minPC;
 
-          		--time diff relative to now for scheduled deletes for this node--in MIN:
-          		deltaT  :=  (hour6 - hourPC3) +  (mins - minPC20)/60.0;  
+          		--time diff relative to now for scheduled deletes for this node--in MIN 
+                        --  (generous 25 min offset to keep ahead of any variance within a PC's window)::
+          		deltaT  :=  (hour6 - hourPC3) +  (mins - minPC20 - 25)/60.0;  
+
 
  --DBMS_OUTPUT.PUT_LINE ( ' deltaT= '|| TO_CHAR(deltaT,'9999.99')  || ' hourPC= '  ||  hourPC  ||  ' minPC= '  ||  minPC  ||  '  hourPC3= '  ||   hourPC3  ||  ' minPC20= '  || minPC20  ||   '   << ' );
   
@@ -320,7 +322,7 @@ BEGIN
 --DBMS_OUTPUT.PUT_LINE ( 'estimated last delete time: ' || TO_CHAR(tLastDelete, 'DD HH24:MI:SS')  );
 
 
-                        tdeletable := time_diff(tLastDelete,StartRunTime) - 3.25*3600;
+                        tdeletable := time_diff(tLastDelete,StartRunTime) - 3.0*3600;
                         if ( tdeletable < 0 ) THEN
 				tdeletable := 0;
 			END IF;
