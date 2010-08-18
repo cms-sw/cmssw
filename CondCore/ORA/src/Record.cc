@@ -29,7 +29,7 @@ namespace ora {
    
   };
 
-  boost::shared_ptr<RecordSpecImpl> emptySpecs;
+  boost::shared_ptr<RecordSpecImpl> emptySpecs(new RecordSpecImpl);
 
 
   RecordSpec::RecordSpec() : specs(emptySpecs) {}
