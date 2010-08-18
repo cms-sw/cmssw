@@ -4,7 +4,8 @@
 #include <string>
 #include <vector>
 //#include <memory>
-#include "Record.h"
+#include "CondCore/ORA/interface/Record.h"
+
 
 namespace ora {
 
