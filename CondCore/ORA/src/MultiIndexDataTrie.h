@@ -4,11 +4,10 @@
 #include <string>
 #include <vector>
 //#include <memory>
-#include <boost/shared_ptr.hpp>
+#include "Record.h"
 
 namespace ora {
 
-  class Record;
 
     // class describing an elementary part of data to be stored 
   class MultiIndexDataTrie {

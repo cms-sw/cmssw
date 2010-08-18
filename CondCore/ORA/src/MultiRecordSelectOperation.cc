@@ -5,12 +5,10 @@
 #include "CoralBase/Blob.h"
 
 namespace ora {
-  Record* newRecordFromAttributeList( RecordSpec& spec, const coral::AttributeList& data ){
-    Record* ret = new Record( spec );
+  void newRecordFromAttributeList( Record & rec, const coral::AttributeList& data ){
     for( size_t i=0;i<data.size();i++ ){
-      ret->set( i, const_cast<void*>(data[i].addressOfData()) );
+      rec.set( i, const_cast<void*>(data[i].addressOfData()) );
     }
-    return ret;
   }
 
   coral::AttributeList* newAttributeListFromRecord( coral::AttributeListSpecification& spec, const Record& data ){
@@ -111,8 +109,9 @@ void ora::MultiRecordSelectOperation::execute(){
     for(size_t i=0;i<m_idCols.size();i++){
       indexes.push_back( row[m_idCols[i]].data<int>() );
     }
-    boost::shared_ptr<const Record> rec( newRecordFromAttributeList( m_spec, row ) );
-    m_cache.push( indexes,rec );
+    Record rec(m_spec);
+    newRecordFromAttributeList(rec, row ) );
+    m_cache.push( indexes, rec );
   }
   m_query.clear();
 }
