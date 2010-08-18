@@ -223,6 +223,8 @@ FWECALDetailViewBuilder::fillData( const EcalRecHitCollection *hits,
 	k != kEnd; ++k )
    {
       // get reco geometry
+      double centerEta = 0;
+      double centerPhi = 0;
       const std::vector<Float_t>& points = m_geom->getCorners( k->id().rawId());
       if( ! points.empty() )
       {
@@ -233,93 +235,101 @@ FWECALDetailViewBuilder::fillData( const EcalRecHitCollection *hits,
 	    v += TEveVector( points[j], points[j + 1], points[j + 2] );
 	    j +=3;
 	 }
-	 double size = k->energy() / cosh( v.Eta());
-
-	 // check what slice to put in
-	 int slice = 0;
-	 std::map<DetId, int>::const_iterator itr = m_detIdsToColor.find(k->id());
-	 if (itr != m_detIdsToColor.end()) slice = itr->second;
-
-	 // if in the EB
-	 if (k->id().subdetId() == EcalBarrel) {
-	    // do phi wrapping
-	    double phi = v.Phi();
-	    if (v.Phi() > m_phi + M_PI) phi -= 2 * M_PI;
-	    if (v.Phi() < m_phi - M_PI) phi += 2 * M_PI;
-
-	    // check if the hit is in the window to be drawn
-	    if (!(fabs(v.Eta() - m_eta) < barrelCR
-		  && fabs(phi - m_phi) < barrelCR)) continue;
-
-	    double minEta(10), maxEta(-10), minPhi(4), maxPhi(-4);
-	    if ( points.size() == 24 ) {
-	       // calorimeter crystalls have slightly non-symetrical form in eta-phi projection
-	       // so if we simply get the largest eta and phi, cells will overlap
-	       // therefore we get a smaller eta-phi range representing the inner square
-	       // we also should use only points from the inner face of the crystal, since
-	       // non-projecting direction of crystals leads to large shift in eta on outter
-	       // face.
-	       int j = 0;
-	       for( unsigned int i = 0; i < 8; ++i )
-	       {
-		  TEveVector crystal( points[j], points[j + 1], points[j + 2] );
-		  j += 3;
-		  double eta = crystal.Eta();
-		  double phi = crystal.Phi();
-		  if ( crystal.Perp() > 135 ) continue;
-		  if ( minEta - eta > 0.01) minEta = eta;
-		  if ( eta - minEta > 0 && eta - minEta < 0.01 ) minEta = eta;
-		  if ( eta - maxEta > 0.01) maxEta = eta;
-		  if ( maxEta - eta > 0 && maxEta - eta < 0.01 ) maxEta = eta;
-		  if ( minPhi - phi > 0.01) minPhi = phi;
-		  if ( phi - minPhi > 0 && phi - minPhi < 0.01 ) minPhi = phi;
-		  if ( phi - maxPhi > 0.01) maxPhi = phi;
-		  if ( maxPhi - phi > 0 && maxPhi - phi < 0.01 ) maxPhi = phi;
-	       }
-	    }
-	    else 
-	    {
-	       minEta = v.Eta() - 0.0172 / 2;
-	       maxEta = v.Eta() + 0.0172 / 2;
-	       minPhi = phi     - 0.0172 / 2;
-	       maxPhi = phi     + 0.0172 / 2;
-	    }
-	    if (minPhi >= (m_phi-barrelCR) && maxPhi <= (m_phi+barrelCR) &&
-		minEta >= (m_eta-barrelCR) && maxEta <= (m_eta+barrelCR))
-	    {
-	       data->AddTower(minEta, maxEta, minPhi, maxPhi);
-	       data->FillSlice(slice, size);
-	    }
-	    // otherwise in the EE
-	 } else if (k->id().subdetId() == EcalEndcap) {
-
-	    // check if the hit is in the window to be drawn
-	    if (!(fabs(v.Eta() - m_eta) < (m_size*0.0172)
-		  && fabs(v.Phi() - m_phi) < (m_size*0.0172)))
-	       continue;
-
-	    if ( points.size() == 24 ) {
-	       double minX(9999), maxX(-9999), minY(9999), maxY(-9999);
-	       int j = 0;
-	       for( unsigned int i = 0; i < 8; ++i )
-	       {
-		  TEveVector crystal( points[j], points[j + 1], points[j + 2] );
-		  j += 3;
-		  double x = crystal.fX;
-		  double y = crystal.fY;
-		  if( fabs( crystal.fZ ) > 330 ) continue;
-		  if( minX - x > 0.01 ) minX = x;
-		  if( x - maxX > 0.01 ) maxX = x;
-		  if( minY - y > 0.01 ) minY = y;
-		  if( y - maxY > 0.01 ) maxY = y;
-	       }
-	       data->AddTower( minX, maxX, minY, maxY );
-	    }
-	    data->FillSlice( slice, size );
-	 }
+	 centerEta = v.Eta();
+	 centerPhi = v.Phi();
       }
       else
-	fwLog(fwlog::kInfo) << "cannot get geometry for DetId: "<< k->id().rawId()  <<". Ignored.\n";
+	 fwLog( fwlog::kInfo ) << "cannot get geometry for DetId: "<< k->id().rawId() << ". Ignored.\n";
+      
+      double size = k->energy() / cosh( centerEta );
+
+      // check what slice to put in
+      int slice = 0;
+      std::map<DetId, int>::const_iterator itr = m_detIdsToColor.find(k->id());
+      if (itr != m_detIdsToColor.end()) slice = itr->second;
+
+      // if in the EB
+      if( k->id().subdetId() == EcalBarrel )
+      {
+	 // do phi wrapping
+	 if( centerPhi > m_phi + M_PI) centerPhi -= 2 * M_PI;
+	 if( centerPhi < m_phi - M_PI) centerPhi += 2 * M_PI;
+
+	 // check if the hit is in the window to be drawn
+	 if( !( fabs( centerEta - m_eta ) < barrelCR
+		&& fabs( centerPhi - m_phi ) < barrelCR )) continue;
+
+	 double minEta(10), maxEta(-10), minPhi(4), maxPhi(-4);
+	 if( points.size() == 24 )
+	 {
+	    // calorimeter crystalls have slightly non-symetrical form in eta-phi projection
+	    // so if we simply get the largest eta and phi, cells will overlap
+	    // therefore we get a smaller eta-phi range representing the inner square
+	    // we also should use only points from the inner face of the crystal, since
+	    // non-projecting direction of crystals leads to large shift in eta on outter
+	    // face.
+	    int j = 0;
+	    for( unsigned int i = 0; i < 8; ++i )
+	    {
+	       TEveVector crystal( points[j], points[j + 1], points[j + 2] );
+	       j += 3;
+	       double eta = crystal.Eta();
+	       double phi = crystal.Phi();
+	       if ( crystal.Perp() > 135 ) continue;
+	       if ( minEta - eta > 0.01) minEta = eta;
+	       if ( eta - minEta > 0 && eta - minEta < 0.01 ) minEta = eta;
+	       if ( eta - maxEta > 0.01) maxEta = eta;
+	       if ( maxEta - eta > 0 && maxEta - eta < 0.01 ) maxEta = eta;
+	       if ( minPhi - phi > 0.01) minPhi = phi;
+	       if ( phi - minPhi > 0 && phi - minPhi < 0.01 ) minPhi = phi;
+	       if ( phi - maxPhi > 0.01) maxPhi = phi;
+	       if ( maxPhi - phi > 0 && maxPhi - phi < 0.01 ) maxPhi = phi;
+	    }
+	 }
+	 else 
+	 {
+	    double delta = 0.0172 * 0.5;
+	    minEta = centerEta - delta;
+	    maxEta = centerEta + delta;
+	    minPhi = centerPhi - delta;
+	    maxPhi = centerPhi + delta;
+	 }
+	 if( minPhi >= ( m_phi - barrelCR ) && maxPhi <= ( m_phi + barrelCR ) &&
+	     minEta >= ( m_eta - barrelCR ) && maxEta <= ( m_eta + barrelCR ))
+	 {
+	    data->AddTower( minEta, maxEta, minPhi, maxPhi );
+	    data->FillSlice( slice, size );
+	 }
+	 // otherwise in the EE
+      }
+      else if( k->id().subdetId() == EcalEndcap )
+      {
+	 // check if the hit is in the window to be drawn
+	 double crystalSize = m_size * 0.0172;
+	 if( !( fabs( centerEta - m_eta ) < ( crystalSize )
+		&& fabs( centerPhi - m_phi ) < ( crystalSize )))
+	    continue;
+
+	 if( points.size() == 24 )
+	 {
+	    double minX(9999), maxX(-9999), minY(9999), maxY(-9999);
+	    int j = 0;
+	    for( unsigned int i = 0; i < 8; ++i )
+	    {
+	       TEveVector crystal( points[j], points[j + 1], points[j + 2] );
+	       j += 3;
+	       double x = crystal.fX;
+	       double y = crystal.fY;
+	       if( fabs( crystal.fZ ) > 330 ) continue;
+	       if( minX - x > 0.01 ) minX = x;
+	       if( x - maxX > 0.01 ) maxX = x;
+	       if( minY - y > 0.01 ) minY = y;
+	       if( y - maxY > 0.01 ) maxY = y;
+	    }
+	    data->AddTower( minX, maxX, minY, maxY );
+	 }
+	 data->FillSlice( slice, size );
+      }
    } // end loop on hits
 
    data->DataChanged();
