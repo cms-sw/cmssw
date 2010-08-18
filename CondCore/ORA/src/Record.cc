@@ -76,7 +76,7 @@ namespace ora {
   }
 
 
-  void swap(Record & lh) {
+  void Record::swap(Record & lh) {
     specs.swap(lh.specs);
     m_field.swap(lh.m_field);
     m_null.swap(lh.m_null);

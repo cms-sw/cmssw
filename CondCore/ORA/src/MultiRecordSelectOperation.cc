@@ -110,7 +110,7 @@ void ora::MultiRecordSelectOperation::execute(){
       indexes.push_back( row[m_idCols[i]].data<int>() );
     }
     Record rec(m_spec);
-    newRecordFromAttributeList(rec, row ) );
+    newRecordFromAttributeList(rec, row );
     m_cache.push( indexes, rec );
   }
   m_query.clear();

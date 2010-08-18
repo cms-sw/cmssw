@@ -71,7 +71,7 @@ namespace ora {
 
 }
 
-void swap(ora::Record & rh, ora::Record & lh) {
+inline void swap(ora::Record & rh, ora::Record & lh) {
   rh.swap(lh);
 }
 
