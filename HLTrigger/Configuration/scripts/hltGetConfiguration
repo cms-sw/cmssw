@@ -292,39 +292,18 @@ if 'PrescaleService' in locals():
     PrescaleService.prescaleTable = cms.VPSet( )
 """
 
-    # if requested, override the L1 menu from the GlobalTag
+    # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
     if menuL1Override:
       data = data + """
-# override L1 menu
-Level1MenuOverride = cms.ESSource( "PoolDBESSource",
-    appendToDataLabel = cms.string( "" ),
-    timetype = cms.string( "runnumber" ),
-    connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG" ),
-    DumpStat = cms.untracked.bool( False ),
-    BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" ),
-    globaltag = cms.string( "" ),
-    RefreshEachRun = cms.untracked.bool( True ),
-    DBParameters = cms.PSet(
-      authenticationPath = cms.untracked.string( "." ),
-      connectionRetrialPeriod = cms.untracked.int32( 10 ),
-      idleConnectionCleanupPeriod = cms.untracked.int32( 10 ),
-      messageLevel = cms.untracked.int32( 0 ),
-      enablePoolAutomaticCleanUp = cms.untracked.bool( False ),
-      enableConnectionSharing = cms.untracked.bool( True ),
-      enableReadOnlySessionOnUpdateConnection = cms.untracked.bool( False ),
-      connectionTimeOut = cms.untracked.int32( 0 ),
-      connectionRetrialTimeOut = cms.untracked.int32( 60 )
-    ),
-    toGet = cms.VPSet(
-      cms.PSet(
-        record = cms.string( "L1GtTriggerMenuRcd" ),
-        tag = cms.string( "%s" )
-      )
+# override the L1 menu (requires the GlobalTag to be defined)
+if 'GlobalTag' in locals():
+    GlobalTag.toGet.append(
+        cms.PSet(  
+            record  = cms.string( "L1GtTriggerMenuRcd" ),
+            tag     = cms.string( "%s" ),
+            connect = GlobalTag.connect.replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T')
+        )
     )
-)
-es_prefer_Level1MenuOverride = cms.ESPrefer( "PoolDBESSource", "Level1MenuOverride" )
-Level1MenuOverride.connect   = 'frontier://FrontierProd/CMS_COND_31X_L1T'
-Level1MenuOverride.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
 """ % menuL1Override
 
 else:
@@ -397,41 +376,6 @@ process.options = cms.untracked.PSet(
 )
 """ % processName
 
-    # override the L1 menu
-    if menuL1Override:
-      data = data + """
-# override L1 menu
-process.Level1MenuOverride = cms.ESSource( "PoolDBESSource",
-    BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" ),
-    connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_COND_31X_L1T" ),
-    label = cms.untracked.string( "" ),
-    globaltag = cms.string( "" ),
-    tag = cms.untracked.string( "" ),
-    RefreshEachRun = cms.untracked.bool( True ),
-    appendToDataLabel = cms.string( "" ),
-    DBParameters = cms.PSet(
-      authenticationPath = cms.untracked.string( "." ),
-      connectionRetrialPeriod = cms.untracked.int32( 10 ),
-      idleConnectionCleanupPeriod = cms.untracked.int32( 10 ),
-      messageLevel = cms.untracked.int32( 0 ),
-      enablePoolAutomaticCleanUp = cms.untracked.bool( False ),
-      enableConnectionSharing = cms.untracked.bool( True ),
-      enableReadOnlySessionOnUpdateConnection = cms.untracked.bool( False ),
-      connectionTimeOut = cms.untracked.int32( 0 ),
-      connectionRetrialTimeOut = cms.untracked.int32( 60 )
-    ),
-    toGet = cms.VPSet(
-      cms.PSet(  record = cms.string( "L1GtTriggerMenuRcd" ),
-        tag = cms.string( "%s" )
-      )
-    ),
-    timetype = cms.string( "runnumber" ),
-    siteLocalConfig = cms.untracked.bool( False ),
-    messagelevel = cms.untracked.uint32( 0 )
-)
-process.es_prefer_Level1MenuOverride = cms.ESPrefer( "PoolDBESSource", "Level1MenuOverride" )
-""" % menuL1Override
-
     # overwrite GlobalTag
     # the logic is:
     #   - for running online, do nothing
@@ -460,18 +404,26 @@ if 'GlobalTag' in process.__dict__:
           else:
             menuGlobalTag = globalTag[None]
 
-      # check if the GlobalTag is an autoCond or explicit (now also for real data)
+      # check if the GlobalTag is an autoCond or an explicit tag
       if menuGlobalTag[0:5] == 'auto:':
         data = data + "    from Configuration.PyReleaseValidation.autoCond import autoCond\n"
         data = data + "    process.GlobalTag.globaltag = autoCond['%s']\n" % menuGlobalTag[5:]
       else:
         data = data + "    process.GlobalTag.globaltag = %s\n" % menuGlobalTag
 
-      data = data + "\n"
-      data = data + "if 'Level1MenuOverride' in process.__dict__:\n"
-      data = data + "    process.Level1MenuOverride.connect   = 'frontier://FrontierProd/CMS_COND_31X_L1T'\n"
-      if runOnData:
-        data = data + "    process.Level1MenuOverride.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')\n"
+    # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
+    if menuL1Override:
+      data = data + """
+# override the L1 menu
+if 'GlobalTag' in process.__dict__:
+    process.GlobalTag.toGet.append(
+        cms.PSet(  
+            record  = cms.string( "L1GtTriggerMenuRcd" ),
+            tag     = cms.string( "%s" ),
+            connect = process.GlobalTag.connect.replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T')
+        )
+    )
+""" % menuL1Override
 
     # the following is stolen from HLTrigger.Configuration.customL1THLT_Options
     data = data + """
