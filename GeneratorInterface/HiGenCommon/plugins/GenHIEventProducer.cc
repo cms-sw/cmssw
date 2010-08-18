@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Thu Aug 13 08:39:51 EDT 2009
-// $Id: GenHIEventProducer.cc,v 1.5 2010/08/17 15:31:13 dmoon Exp $
+// $Id: GenHIEventProducer.cc,v 1.6 2010/08/17 15:52:34 dmoon Exp $
 //
 //
 
@@ -56,8 +56,8 @@ class GenHIEventProducer : public edm::EDProducer {
         std::vector<std::string> hepmcSrc_;
         edm::ESHandle < ParticleDataTable > pdt;
 
-        double ptCut_;
-
+  double ptCut_;
+  bool doParticleInfo_;
 };
 
 //
@@ -76,7 +76,10 @@ GenHIEventProducer::GenHIEventProducer(const edm::ParameterSet& iConfig)
 {
     produces<edm::GenHIEvent>();
     hepmcSrc_ = iConfig.getParameter<std::vector<std::string> >("generators");
-    ptCut_ = iConfig.getParameter<double> ("ptCut"); // ptCut added
+    doParticleInfo_ = iConfig.getUntrackedParameter<bool>("doParticleInfo",false);
+    if(doParticleInfo_){
+      ptCut_ = iConfig.getUntrackedParameter<double> ("ptCut",1.);
+    }
 }
 
 
@@ -106,6 +109,7 @@ GenHIEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     int ncoll = 0;
     int nhard = 0;
     double phi = 0;
+    double ecc = -1;
 
     int nCharged = 0;
     int nChargedMR = 0;
@@ -122,14 +126,15 @@ GenHIEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         iEvent.getByLabel(hepmcSrc_[ihep],hepmc);
 
         const HepMC::GenEvent* evt = hepmc->GetEvent();
-        HepMC::GenEvent::particle_const_iterator begin = evt->particles_begin();
-        HepMC::GenEvent::particle_const_iterator end = evt->particles_end();
-        for(HepMC::GenEvent::particle_const_iterator it = begin; it != end; ++it){
-            if((*it)->status() != 1) continue;
-            int pdg_id = (*it)->pdg_id();
+	if(doParticleInfo_){
+	  HepMC::GenEvent::particle_const_iterator begin = evt->particles_begin();
+	  HepMC::GenEvent::particle_const_iterator end = evt->particles_end();
+	  for(HepMC::GenEvent::particle_const_iterator it = begin; it != end; ++it){
+	    if((*it)->status() != 1) continue;
+	    int pdg_id = (*it)->pdg_id();
             const ParticleData * part = pdt->particle(pdg_id );
             int charge = static_cast<int>(part->charge());
-
+	    
             if(charge == 0) continue;
             float pt = (*it)->momentum().perp();
             float eta = (*it)->momentum().eta();
@@ -139,21 +144,21 @@ GenHIEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             meanPt += pt;
             // Get the total energy bym
             if(fabs(eta)<1.0){
-                TotEnergy += energy;
+	      TotEnergy += energy;
             }
             if(pt>ptCut_){
-                nChargedPtCut++;
-                if(fabs(eta)<0.5){
-                    nChargedPtCutMR++;
+	      nChargedPtCut++;
+	      if(fabs(eta)<0.5){
+		  nChargedPtCutMR++;
                 }
             }
             // end bym
-
+	    
             if(fabs(eta) > 0.5) continue;
             nChargedMR++;
             meanPtMR += pt;
-        }
-
+	  }
+	}
         const HepMC::HeavyIon* hi = evt->heavy_ion();
 
         if(hi){
@@ -164,6 +169,7 @@ GenHIEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                 npart = np;
                 b = hi->impact_parameter();
                 phi = hi->event_plane_angle();
+		ecc = hi->eccentricity();
             }
         }
     }
@@ -180,18 +186,19 @@ GenHIEventProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
 
     std::auto_ptr<edm::GenHIEvent> pGenHI(new edm::GenHIEvent(b,
-                npart,
-                ncoll,
-                nhard,
-                phi, 
-                nCharged,
-                nChargedMR,
-                meanPt,
-                meanPtMR,								
-                EtMR, // bym
-                nChargedPtCut, // bym
-                nChargedPtCutMR  // bym
-                ));
+							      npart,
+							      ncoll,
+							      nhard,
+							      phi, 
+							      ecc,
+							      nCharged,
+							      nChargedMR,
+							      meanPt,
+							      meanPtMR,	  
+							      EtMR, 
+							      nChargedPtCut,
+							      nChargedPtCutMR
+							      ));
 
     iEvent.put(pGenHI);
 
