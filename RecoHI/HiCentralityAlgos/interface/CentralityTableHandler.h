@@ -12,7 +12,8 @@ class CentralityTableHandler : public popcon::PopConSourceHandler<CentralityTabl
  public:
   CentralityTableHandler(edm::ParameterSet const & pset):
     //    popcon::PopConSourceHandler<CentralityTable>(pset),
-    inputTFileName_(pset.getParameter<std::string>("inputFile"))
+    inputTFileName_(pset.getParameter<std::string>("inputFile")),
+    centralityTag_(pset.getParameter<std::string>("rootTag"))
       {;}
     ~CentralityTableHandler(){;}
     void getNewObjects();

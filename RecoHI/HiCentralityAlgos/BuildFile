@@ -24,6 +24,7 @@
    <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/Common>
+   <use name=CondFormats/DataRecord>
    <use name=CondCore/DBCommon>
    <use name=CondCore/DBOutputService>
 </export>
