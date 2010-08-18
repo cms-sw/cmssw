@@ -26,10 +26,13 @@ namespace ora {
     
     Lookup indexes;
 
+   
   };
 
+  boost::shared_ptr<RecordSpecImpl> emptySpecs;
 
-  RecordSpec::RecordSpec() : specs(new RecordSpecImpl()) {}
+
+  RecordSpec::RecordSpec() : specs(emptySpecs) {}
 
   RecordSpec::~RecordSpec(){}
 
