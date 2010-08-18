@@ -50,17 +50,17 @@ FWHBHERecHitProxyBuilder::build( const FWEventItem* iItem, TEveElementList* prod
    unsigned int index = 0;
    for( it = collection->begin(); it != itEnd; ++it, ++index )
    {
-      Float_t energy = (*it).energy();
-
-      TEveCompound* compound = createCompound();
-      setupAddElement( compound, product );
-
       const std::vector<Float_t>& corners = iItem->getGeom()->getCorners(( *it ).detid());
-      if( corners.empty()) {
-         continue;
+      if( corners.empty())
+      {
+	 TEveCompound* compound = createCompound();
+	 setupAddElement( compound, product );
+
+	 continue;
       }
 
-      fireworks::drawEnergyScaledBox3D( corners, energy / m_maxEnergy, compound, this, true );
+      Float_t energy = (*it).energy();
+      fireworks::drawEnergyScaledBox3D( corners, energy / m_maxEnergy, product, this, true );
    }
 }
 

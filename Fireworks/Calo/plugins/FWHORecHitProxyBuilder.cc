@@ -51,7 +51,11 @@ FWHORecHitProxyBuilder::build( const FWEventItem* iItem, TEveElementList* produc
    for( it = collection->begin(); it != itEnd; ++it, ++index )
    {
       const std::vector<Float_t>& corners = iItem->getGeom()->getCorners(( *it ).detid().rawId());
-      if( corners.empty() ) {
+      if( corners.empty())
+      {
+	TEveCompound* compound = createCompound();
+	setupAddElement( compound, product );
+
 	continue;
       }
 
