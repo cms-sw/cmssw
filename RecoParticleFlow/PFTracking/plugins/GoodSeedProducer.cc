@@ -20,6 +20,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/ParticleFlowReco/interface/PreId.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
 #include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"  
@@ -49,7 +51,10 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
  
   tracksContainers_ = 
     iConfig.getParameter< vector < InputTag > >("TkColList");
-  
+
+  muonColl_ = 
+    iConfig.getParameter< InputTag >("MuColl");
+
   minPt_=iConfig.getParameter<double>("MinPt");
   maxPt_=iConfig.getParameter<double>("MaxPt");
   maxEta_=iConfig.getParameter<double>("MaxEta");
@@ -210,6 +215,9 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
     if ((*iklus).layer()==-12) ps2Clus.push_back(*iklus);
   }
   
+  Handle< reco::MuonCollection > recMuons;
+  iEvent.getByLabel(muonColl_, recMuons);
+
   //Vector of track collections
   for (uint istr=0; istr<tracksContainers_.size();istr++){
     
@@ -231,9 +239,32 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
     //loop over the track collection
     for(uint i=0;i<Tk.size();i++){		
+
+      // reject the track if it's bad quality, except if it has a good global muon fit.
       if (useQuality_ &&
-	  (!(Tk[i].quality(trackQuality_)))) continue;
-      
+	  (!(Tk[i].quality(trackQuality_)))){
+
+	bool isMuCandidate = false;
+
+	TrackRef trackRef(tkRefCollection, i);
+
+	if(recMuons.isValid() ) {
+	  for(unsigned j=0;j<recMuons->size(); j++) {
+	    reco::MuonRef muonref( recMuons, j );
+	    if (muonref->track().isNonnull()) 
+	      if( muonref->track() == trackRef && muonref->isGlobalMuon()){
+		isMuCandidate=true;
+		//cout<<" SAVING TRACK "<<endl;
+		break;
+	      }
+	  }
+	}
+
+	if(!isMuCandidate){
+	  continue;	  
+	}
+	
+      }
       reco::PreId myPreId;
       bool GoodPreId=false;
 

@@ -142,6 +142,7 @@ class GoodSeedProducer : public edm::EDProducer {
       edm::InputTag pfCLusTagECLabel_;
       edm::InputTag pfCLusTagHCLabel_;
       std::vector<edm::InputTag> tracksContainers_;
+      edm::InputTag muonColl_;
       
 
       std::string fitterName_;
