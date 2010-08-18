@@ -1,7 +1,7 @@
 /*
 Author: Brian L. Dorney
 Date: July 29th 2010
-Version: 1.0
+Version: 2.2
 First Release In: CMSSW_3_8_X
 
 Modified From: PythiaFilter.cc
@@ -15,26 +15,33 @@ For a description of Herwig Status Codes, See:
 http://webber.home.cern.ch/webber/hw65_manual.html#htoc96
 (Section 8.3.1)
 
-This Filter Finds the Parton (|pdg_id()|=1,2,3,4,5 or 21) in the final state
-(before hadronization WITHIN THE EVENT occurs) with the highest Transverse 
-Momentum (Pt), and compares this to the filtering range as defined by the user
-in a Python Config File.
+This Filter Finds all final state quarks (pdg_id=1,2,3,4 or 5, status=158 or 159) with Pt>1 GeV/c
+that occur before the first cluster (pdg_id=91) appears in the event cascade. This is done per event.
+
+Then a histogram (which is RESET EACH EVENT) 2D histogram is formed, the Final State quarks
+are then plotted in eta-phi space.  These histogram entries are weighted by the quark Pt.
+
+This forms a 2D eta-phi "jet" topology for each event, and acts as a very rudimentary jet algorithm
+
+The maximum bin entry (i.e. "jet") in this histogram is the highest Pt "Jet" in the event.
+
+This is then used for filtering.
+
+The size of each bin in this 2D histogram corresponds roughly to a cone radius of 0.5
 
 i.e. This Filter Checks:
-minptcut <= HighestPartonPt < maxptcut
+minptcut <= Highest Pt "Jet" < maxptcut
 
 If this is true, the event is accepted.
 */
 
 #include "GeneratorInterface/GenFilters/interface/HerwigMaxPtPartonFilter.h"
- 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-#include <iostream>
+#include <math.h>
 
 using namespace edm;
 using namespace std;
-
 
 HerwigMaxPtPartonFilter::HerwigMaxPtPartonFilter(const edm::ParameterSet& iConfig) :
   label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
@@ -42,7 +49,10 @@ HerwigMaxPtPartonFilter::HerwigMaxPtPartonFilter(const edm::ParameterSet& iConfi
   maxptcut(iConfig.getUntrackedParameter("MaxPt", 10000.)),
   processID(iConfig.getUntrackedParameter("ProcessID", 0)){
     //now do what ever initialization is needed
- 
+
+  
+  hFSPartons_JS_PtWgting = new TH2D("hFSPartons_JS_PtWgting","#phi-#eta Space of FS Partons (p_{T} wgt'ing)",20,-5.205,5.205,32,-M_PI,M_PI);
+  
 }
  
  
@@ -50,7 +60,9 @@ HerwigMaxPtPartonFilter::~HerwigMaxPtPartonFilter(){
   
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
- 
+
+  if(hFSPartons_JS_PtWgting) delete hFSPartons_JS_PtWgting;
+  
 }
  
  
@@ -60,70 +72,67 @@ HerwigMaxPtPartonFilter::~HerwigMaxPtPartonFilter(){
  
 // ------------ method called to produce the data  ------------
 bool HerwigMaxPtPartonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup){
-  using namespace edm;
   
-  accepted = false; //The Accept/Reject Variable
-  isParton = false; //Keeps track of whether a particle is a parton as described above
-  maxPartonPt=0.0; //Self Explanatory
-  ChosenPartonId=0; ChosenPartonSt=0;
-  pos1stCluster=0; //keeps track of the position of the first herwig cluster in the event
-		 //This is when Hadronization within the event occurs.
-  counter = 0; //keeps track of the particle index in the event
+  //Histogram, reset each event
+  hFSPartons_JS_PtWgting->Reset();
+  
+  bool accepted = false; //The Accept/Reject Variable
+  bool isFSQuark = false; //Keeps track of whether a particle is a Final State Quark
+  double maxPartonPt=0.0; //Self Explanatory
+
+  //int ChosenPartonId=0, ChosenPartonSt=0;
+
+  int pos1stCluster=0; //keeps track of the position of the first herwig cluster in the event
+
+  //This is when Hadronization within the event occurs.
+  long counter = 0; //keeps track of the particle index in the event
   
   Handle<HepMCProduct> evt;
   iEvent.getByLabel(label_, evt);
- 
-  HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evt->GetEvent()));
-     
+  
+  const HepMC::GenEvent * myGenEvent = evt->GetEvent();
+  
+  
   if(processID == 0 || processID == myGenEvent->signal_process_id()) { //processId if statement
-   
+    
     //Find the Position of the 1st Herwig Cluster
-    for ( HepMC::GenEvent::particle_iterator p = myGenEvent->particles_begin();p != myGenEvent->particles_end(); ++p ) {     
-      pos1stCluster++;
+    for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();p != myGenEvent->particles_end(); ++p ) {     
       if(abs((*p)->pdg_id())==91){
-	//pos1stCluster = (*p) - myGenEvent->particles_begin();
 	break;
       }
+      pos1stCluster++; //Starts at Zero, like the Collection
     }
     
     //Loop through the all particles in the event
-    for ( HepMC::GenEvent::particle_iterator p = myGenEvent->particles_begin();p != myGenEvent->particles_end(); ++p ) {     
-      //parton criterion
-      if( abs((*p)->pdg_id())==1 ||
-	  abs((*p)->pdg_id())==2 ||
-	  abs((*p)->pdg_id())==3 ||
-	  abs((*p)->pdg_id())==4 ||
-	  abs((*p)->pdg_id())==5 ||
-	  abs((*p)->pdg_id())==21){
-	isParton=true;
-      }//end if parton criterion
+    for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();p != myGenEvent->particles_end(); ++p ) {     
+      //"Garbage" Cut, 1 GeV/c Pt Cut on All Particles Considered
+      if((*p)->momentum().perp()>1.0){
+	//Final State Quark criterion
+	if(abs((*p)->pdg_id())==1 || abs((*p)->pdg_id())==2 || abs((*p)->pdg_id())==3 || abs((*p)->pdg_id())==4 || abs((*p)->pdg_id())==5){
+	  if( counter<pos1stCluster && ((*p)->status()==158 || (*p)->status()==159) ){
+	    isFSQuark=true;
+	  }
+	}//end if FS Quark criterion
+      }//End "Garbage" Cut
       
-      //status & position criterion
-      if(isParton && ((*p)->status()==158 || (*p)->status()==159) && counter<pos1stCluster){
-	//Find Maximum Pt of Partons
-	if((*p)->momentum().perp()>maxPartonPt){
-	  maxPartonPt=(*p)->momentum().perp();//Record Max Parton Pt
-	  //ChosenPartonId=(*p)->pdg_id(); ChosenPartonSt=(*p)->status(); //Debugging Purposes
-          //cout<<"The New Max Pt is " << maxPartonPt << endl; //Debugging Purposes
-	}
-      } //end if status & position criterion
+      if(isFSQuark){
+	hFSPartons_JS_PtWgting->Fill( (*p)->momentum().eta(), (*p)->momentum().phi(), (*p)->momentum().perp()); //weighted by Particle Pt
+      }
       
       counter++;
-      isParton=false;
-    } //end for loop
+      isFSQuark=false;
+    } //end all particles loop
+    
+    maxPartonPt=hFSPartons_JS_PtWgting->GetMaximum();
     
     //The Actual Filtering Process
     if(maxPartonPt>=minptcut && maxPartonPt<maxptcut){
       accepted=true; //Accept the Event
-      //cout<<"Parton Used to filter was " << ChosenPartonId << " with status " << ChosenPartonSt << " and Pt " << maxPartonPt << endl;	/Debugging Purposes
+
     }//End Filtering
-    
   }//end processId if statement
   
-  
   else{ accepted = true; }
- 
-  delete myGenEvent; 
  
   if (accepted){return true; } 
   else {return false;}

@@ -25,6 +25,7 @@
 
 // system include files
 #include <memory>
+#include "TH2.h"
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -35,35 +36,28 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
 //
 // class decleration
 //
 
 class HerwigMaxPtPartonFilter : public edm::EDFilter {
-public:
-  explicit HerwigMaxPtPartonFilter(const edm::ParameterSet&);
-  ~HerwigMaxPtPartonFilter();
-  
-  
+   public:
+      explicit HerwigMaxPtPartonFilter(const edm::ParameterSet&);
+      ~HerwigMaxPtPartonFilter();
+
+
   virtual bool filter(edm::Event&, const edm::EventSetup&);
-private:
-  // ----------member data ---------------------------
+  private:
+      // ----------member data ---------------------------
+      
+  TH2D *hFSPartons_JS_PtWgting;
   
+
   std::string label_;
-  
-  bool accepted;
-  bool isParton;
   
   double minptcut;
   double maxptcut;
-  double maxPartonPt;
-  
   int processID;
-  int ChosenPartonId, ChosenPartonSt;
-  int pos1stCluster;
-  
-  long counter;
-};
 
+};
 #endif
