@@ -126,14 +126,21 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
 
   //--------------------------------------------------------------------------
   //--- Accessors of other auxiliary quantities
-  inline float probabilityX()  const { return probabilityX_;   }
-  inline float probabilityY()  const { return probabilityY_;   }
+  inline float probabilityX()  const { return probabilityX_ ;  }
+  inline float probabilityY()  const { return probabilityY_ ;  }
+  inline float probabilityXY() const {
+    if ( probabilityX_ !=0 && probabilityY_ !=0 ) {
+      return probabilityX_ * probabilityY_ * (1 - log(probabilityX_ * probabilityY_) ) ;
+    }
+    else return 0;
+  }
+  inline float probabilityQ()  const { return probabilityQ_ ;  }
   inline float qBin()          const { return qBin_ ;          }
-	inline bool  isOnEdge()      const { return isOnEdge_ ;      }
-	inline bool  hasBadPixels()  const { return hasBadPixels_ ;  }
-	inline bool  spansTwoRocks() const { return spansTwoROCs_ ;  }
-	inline bool  hasFilledProb() const { return hasFilledProb_ ; }
-
+  inline bool  isOnEdge()      const { return isOnEdge_ ;      }
+  inline bool  hasBadPixels()  const { return hasBadPixels_ ;  }
+  inline bool  spansTwoRocks() const { return spansTwoROCs_ ;  }
+  inline bool  hasFilledProb() const { return hasFilledProb_ ; }
+  
   //--- Flag to control how SiPixelRecHits compute clusterProbability().
   //--- Note this is set via the configuration file, and it's simply passed
   //--- to each TSiPixelRecHit.
@@ -200,11 +207,12 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
   //--- Probability
   mutable float probabilityX_ ; 
   mutable float probabilityY_ ; 
+  mutable float probabilityQ_ ; 
   mutable float qBin_ ;
-	mutable bool  isOnEdge_ ;
-	mutable bool  hasBadPixels_ ;
-	mutable bool  spansTwoROCs_ ;
-	mutable bool  hasFilledProb_ ;
+  mutable bool  isOnEdge_ ;
+  mutable bool  hasBadPixels_ ;
+  mutable bool  spansTwoROCs_ ;
+  mutable bool  hasFilledProb_ ;
 
   //--- A flag that could be used to change the behavior of
   //--- clusterProbability() in TSiPixelRecHit (the *transient* one).  

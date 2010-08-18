@@ -217,7 +217,7 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
   float nonsense = -99999.9; // nonsense init value
   templXrec_ = templYrec_ = templSigmaX_ = templSigmaY_ = nonsense;
 	// If the template recontruction fails, we want to return 1.0 for now
-	templProbY_ = templProbX_ = 1.0;
+	templProbY_ = templProbX_ = templProbQ_ = 1.0;
 	templQbin_ = 0;
 	// We have a boolean denoting whether the reco failed or not
 	hasFilledProb_ = false;
@@ -383,6 +383,7 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
   // (for which there are also inline getters).  &&& templProbX_ etc. should be retired...
   probabilityX_  = templProbX_;
   probabilityY_  = templProbY_;
+  probabilityQ_  = templProbQ_;
   qBin_          = templQbin_;
 	if(ierr==0) hasFilledProb_ = true;
 	

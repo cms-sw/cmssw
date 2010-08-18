@@ -43,9 +43,10 @@ const float degsPerRad = 57.29578;
 //-----------------------------------------------------------------------------
 PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *mag, const SiPixelLorentzAngle * lorentzAngle, const SiPixelCPEGenericErrorParm * genErrorParm, const SiPixelTemplateDBObject * templateDBobject)
   : theDet(0), nRecHitsTotal_(0), nRecHitsUsedEdge_(0),
-		probabilityX_(0.0), probabilityY_(0.0), qBin_(0),
-		isOnEdge_(0), hasBadPixels_(0), spansTwoROCs_(0),
-		hasFilledProb_(0), clusterProbComputationFlag_(0)
+    probabilityX_(0.0), probabilityY_(0.0),
+    probabilityQ_(0.0), qBin_(0),
+    isOnEdge_(0), hasBadPixels_(0), spansTwoROCs_(0),
+    hasFilledProb_(0), clusterProbComputationFlag_(0)
 {
   //--- Lorentz angle tangent per Tesla
   //   theTanLorentzAnglePerTesla =
@@ -618,9 +619,6 @@ PixelCPEBase::computeLorentzShifts() const
   }
 }
 
-
-
-
 //-----------------------------------------------------------------------------
 //! A convenience method to fill a whole SiPixelRecHitQuality word in one shot.
 //! This way, we can keep the details of what is filled within the pixel
@@ -631,31 +629,27 @@ SiPixelRecHitQuality::QualWordType
 PixelCPEBase::rawQualityWord() const
 {
   SiPixelRecHitQuality::QualWordType qualWord(0);
-
-	SiPixelRecHitQuality::thePacking.setProbabilityX  ( probabilityX_ ,
-						    qualWord );
-
-  SiPixelRecHitQuality::thePacking.setProbabilityY  ( probabilityY_ , 
-						    qualWord );
-
+  
+  SiPixelRecHitQuality::thePacking.setProbabilityXY ( probabilityXY() ,
+                                                      qualWord );
+  
+  SiPixelRecHitQuality::thePacking.setProbabilityQ  ( probabilityQ_ , 
+                                                      qualWord );
+  
   SiPixelRecHitQuality::thePacking.setQBin          ( (int)qBin_, 
-					             qualWord );
-
-	SiPixelRecHitQuality::thePacking.setIsOnEdge      ( isOnEdge_,
-  						        qualWord );
-
-	SiPixelRecHitQuality::thePacking.setHasBadPixels  ( hasBadPixels_,
-  					                qualWord );
-
-	SiPixelRecHitQuality::thePacking.setSpansTwoROCs  ( spansTwoROCs_,
-     					                qualWord );
-
-	SiPixelRecHitQuality::thePacking.setHasFilledProb ( hasFilledProb_,
-  						        qualWord );
-
-	
-	
-
-
+                                                      qualWord );
+  
+  SiPixelRecHitQuality::thePacking.setIsOnEdge      ( isOnEdge_,
+                                                      qualWord );
+  
+  SiPixelRecHitQuality::thePacking.setHasBadPixels  ( hasBadPixels_,
+                                                      qualWord );
+  
+  SiPixelRecHitQuality::thePacking.setSpansTwoROCs  ( spansTwoROCs_,
+                                                      qualWord );
+  
+  SiPixelRecHitQuality::thePacking.setHasFilledProb ( hasFilledProb_,
+                                                      qualWord );
+  
   return qualWord;
 }
