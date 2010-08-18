@@ -62,10 +62,9 @@ void CSCStripElectronicsSim::initParameters() {
 
   //calculate the offset to the peak
   float averageDistance = theLayer->surface().position().mag();
-  float averageTimeOfFlight = averageDistance * cm / c_light; // Units of c_light: mm/ns
+  theAverageTimeOfFlight = averageDistance * cm / c_light; // Units of c_light: mm/ns
   int chamberType = theSpecs->chamberType();
-
-  theTimingOffset = theShapingTime + averageTimeOfFlight
+  theTimingOffset = theShapingTime + theAverageTimeOfFlight
          + theBunchTimingOffsets[chamberType];
 //TODO make sure config gets overridden
   theSignalStartTime = theTimingOffset
@@ -423,8 +422,13 @@ void CSCStripElectronicsSim::createDigi(int channel, const CSCAnalogSignal & sig
   int chamberType = theSpecs->chamberType();
 
   for(int scaBin = 0; scaBin < nScaBins_; ++scaBin) {
+    float t = theSignalStartTime+theSCATimingOffsets[chamberType]
+              +scaBin*sca_time_bin_size;
+    // undo the correction for TOF, instead, using some nominal
+    // value from ME2/1
+    t += 29. - theAverageTimeOfFlight;
     scaCounts[scaBin] = static_cast< int >
-      ( pedestal + signal.getValue(theSignalStartTime+theSCATimingOffsets[chamberType]+scaBin*sca_time_bin_size) * gain );
+      ( pedestal + signal.getValue(t) * gain );
   }
   CSCStripDigi newDigi(channel, scaCounts);
 
