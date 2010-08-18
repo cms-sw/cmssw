@@ -141,7 +141,7 @@ bool BscSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
     LogDebug("BscSim") << "BscSD :  number of hits = " << theHC->entries() << std::endl;
 #endif
 
-    if (HitExists() == false && edeposit>0. &&  theHC->entries()< 100 ){ 
+    if (HitExists() == false && edeposit>0. ){ 
       CreateNewHit();
       return true;
     }
@@ -295,7 +295,6 @@ void BscSD::CreateNewHit() {
   LogDebug("BscSim") << std::endl;
 #endif          
     
-
   currentHit = new BscG4Hit;
   currentHit->setTrackID(primaryID);
   currentHit->setTimeSlice(tSlice);
@@ -309,7 +308,6 @@ void BscSD::CreateNewHit() {
   currentHit->setThetaAtEntry(ThetaAtEntry);
   currentHit->setPhiAtEntry(PhiAtEntry);
 
-// currentHit->setEntry(entrancePoint);
   currentHit->setEntry(hitPoint);
 
   currentHit->setEntryLocalP(hitPointLocal);
@@ -331,7 +329,7 @@ void BscSD::CreateNewHit() {
  
 
 void BscSD::UpdateHit() {
-  //
+
   if (Eloss > 0.) {
     currentHit->addEnergyDeposit(edepositEM,edepositHAD);
 
@@ -343,8 +341,6 @@ void BscSD::UpdateHit() {
     //AZ
     currentHit->setEnergyLoss(Eloss);
   }  
-
-
 
   // buffer for next steps:
   tsID           = tSliceID;
@@ -372,10 +368,7 @@ G4ThreeVector BscSD::SetToLocalExit(G4ThreeVector globalPoint){
 void BscSD::EndOfEvent(G4HCofThisEvent* ) {
 
   // here we loop over transient hits and make them persistent
-  if(theHC->entries() > 100){
-    LogDebug("BscSim") << "BscSD: warning!!! Number of hits exceed 100 and =" << theHC->entries() << "\n";
-  }
-  for (int j=0; j<theHC->entries() && j<100; j++) {
+  for (int j=0; j<theHC->entries(); j++) {
     //AZ:
     BscG4Hit* aHit = (*theHC)[j];
     LogDebug("BscSim") << "hit number" << j << "unit ID = "<<aHit->getUnitID()<< "\n";
@@ -395,23 +388,6 @@ void BscSD::EndOfEvent(G4HCofThisEvent* ) {
 			       aHit->getTrackID(),
 			       aHit->getThetaAtEntry(),
 			       aHit->getPhiAtEntry()));
-
-    /*
-      aHit->getEM(),
-      aHit->getHadr(),
-      aHit->getIncidentEnergy(),
-      aHit->getTimeSlice(),
-      aHit->getEntry(),
-      aHit->getEntryLocalP(),
-      aHit->getExitLocalP(),
-      aHit->getParentId(),
-      aHit->getX(), 
-      aHit->getY(), 
-      aHit->getZ(), 
-      aHit->getVx(), 
-      aHit->getVy(), 
-      aHit->getVz() 
-    */
   }
   Summarize();
 }
