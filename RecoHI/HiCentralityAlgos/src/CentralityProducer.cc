@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.22 2010/08/14 17:03:55 nart Exp $
+// $Id: CentralityProducer.cc,v 1.23 2010/08/15 16:35:25 nart Exp $
 //
 //
 
@@ -299,15 +299,15 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        }
      }
 
-     creco -> ntracksPtCut_ = trackCounter; 
-     creco -> ntracksEtaCut_ = trackCounterEta;
-     creco -> ntracksEtaPtCut_ = trackCounterEtaPt;
+     creco->ntracksPtCut_ = trackCounter; 
+     creco->ntracksEtaCut_ = trackCounterEta;
+     creco->ntracksEtaPtCut_ = trackCounterEtaPt;
 
   }else{
-     creco -> trackMultiplicity_ = inputCentrality->Ntracks();
-     creco -> ntracksPtCut_= inputCentrality->NtracksPtCut();
-     creco -> ntracksEtaCut_= inputCentrality->NtracksEtaCut();
-     creco -> ntracksEtaPtCut_= inputCentrality->NtracksEtaPtCut();
+     creco->trackMultiplicity_ = inputCentrality->Ntracks();
+     creco->ntracksPtCut_= inputCentrality->NtracksPtCut();
+     creco->ntracksEtaCut_= inputCentrality->NtracksEtaCut();
+     creco->ntracksEtaPtCut_= inputCentrality->NtracksEtaPtCut();
   }
 
 

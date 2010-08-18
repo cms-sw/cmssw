@@ -46,7 +46,7 @@ EEbcs10_MC_AMPT2760GeV_MC_3XY_V25_NoZS_v0 \
 HFhits5_MC_AMPT2760GeV_MC_3XY_V25_NoZS_v0 \
 EEbcs5_MC_AMPT2760GeV_MC_3XY_V25_NoZS_v0
 do
-cmsRun runTestDB.py outputTag=$tag inputFile=$input outputFile=$output
+cmsRun makeDBFromTFile.py outputTag=$tag inputFile=$input outputFile=$output
 done
 
 

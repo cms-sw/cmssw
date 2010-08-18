@@ -59,11 +59,11 @@ process.makeCentralityTableDB = cms.EDAnalyzer('CentralityPopConProducer',
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.CondDBCommon.connect = "oracle://cms_orcoff_prep/CMS_COND_PHYSICSTOOLS"
 process.CondDBCommon.DBParameters.messageLevel = cms.untracked.int32(3)
-process.CondDBCommon.DBParameters.authenticationPath = "/afs/cern.ch/cms/DB/conddb"
+process.CondDBCommon.DBParameters.authenticationPath = "authPath"
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDBCommon,
-                                          logconnect = cms.untracked.string("sqlite_file:" + "Logs" + ivars.outputFile),
+                                          logconnect = cms.untracked.string("sqlite_file:" + "LogsTest.db"),
                                           timetype = cms.untracked.string("runnumber"),
                                           toPut = cms.VPSet(cms.PSet(record = cms.string(hiRecord),
                                                                      tag = cms.string(ivars.outputTag)
