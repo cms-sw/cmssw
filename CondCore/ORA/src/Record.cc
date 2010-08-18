@@ -84,6 +84,7 @@ namespace ora {
 
 
   int Record::index(std::string const & iname) const {
+    if (m_field.empty()) return -1;
     RecordSpecImpl::Lookup::const_iterator p = specs->indexes.find(iname);
     return (p==specs->indexes.end()) ? -1 : (*p).second;
   }
