@@ -38,6 +38,13 @@ def warn (*args, **kwargs):
     else:
         print "%s (%s):" % (filename, lineNum)
 
+########################
+## ################## ##
+## ## ############ ## ##
+## ## ## Handle ## ## ##
+## ## ############ ## ##
+## ################## ##
+########################
 
 class Handle:
     """Python interface to FWLite Handle class"""
@@ -114,6 +121,316 @@ class Handle:
         self._exception = None
 
 
+#######################
+## ################# ##
+## ## ########### ## ##
+## ## ## Lumis ## ## ##
+## ## ########### ## ##
+## ################# ##
+#######################
+
+class Lumis:
+    """Python interface to FWLite LuminosityBlock"""
+    def __init__ (self, inputFiles = '', **kwargs):
+        self._lumi = None
+        self._lumiCounts = 0
+        self._tfile = None
+        self._maxLumis = 0
+        if isinstance (inputFiles, list):
+            # it's a list
+            self._filenames = inputFiles[:]
+        elif isinstance (inputFiles, VarParsing):
+            # it's a VarParsing object
+            options = inputFiles
+            self._maxLumis           = options.maxEvents
+            self._filenames           = options.inputFiles
+        else:
+            # it's probably a single string
+            self._filenames = [inputFiles]
+        ##############################
+        ## Parse optional arguments ##
+        ##############################
+        if kwargs.has_key ('maxEvents'):
+            self._maxLumis = kwargs['maxEvents']
+            del kwargs['maxEvents']
+        if kwargs.has_key ('options'):
+            options = kwargs ['options']
+            self._maxLumis           = options.maxEvents
+            self._filenames           = options.inputFiles
+            self._secondaryFilenames  = options.secondaryInputFiles
+            del kwargs['options']
+        # Since we deleted the options as we used them, that means
+        # that kwargs should be empty.  If it's not, that means that
+        # somebody passed in an argument that we're not using and we
+        # should complain.
+        if len (kwargs):
+            raise RuntimeError, "Unknown arguments %s" % kwargs
+        if not self._filenames:
+            raise RuntimeError, "No input files given"
+        if not self._createFWLiteLumi():
+            # this shouldn't happen as you are getting nothing the
+            # very first time out, but let's at least check to
+            # avoid problems.
+            raise RuntimeError, "Never and information about Lumi"
+
+
+    def __del__ (self):
+        """(Internal) Destructor"""
+        # print "Goodbye cruel world, I'm leaving you today."
+        del self._lumi
+        # print "Goodbye, goodbye, goodbye."
+
+
+    def __iter__ (self):
+        return self._next()
+
+
+    def aux (self):
+        try:
+            return self._lumi.luminosityBlockAuxiliary()
+        except:
+            raise RuntimeError, "Lumis.aux() called on object in invalid state"
+
+
+    def luminosityBlockAuxiliary (self):
+        try:
+            return self._lumi.luminosityBlockAuxiliary()
+        except:
+            raise RuntimeError, "Lumis.luminosityBlockAuxiliary() called on object in invalid state"
+        
+
+    def getByLabel (self, *args):
+        """Calls FWLite's getByLabel.  Called:
+        getByLabel (moduleLabel, handle)
+        getByLabel (moduleLabel, productInstanceLabel, handle),
+        getByLabel (moduleLabel, productInstanceLabel, processLabel, handle),
+        or
+        getByLabel ( (mL, pIL,pL), handle)
+        """
+        length = len (args)
+        if length < 2 or length > 4:
+            # not called correctly
+            raise RuntimeError, "Incorrect number of arguments"
+        # handle is always the last argument
+        argsList = list (args)
+        handle = argsList.pop()
+        if len(argsList)==1 and \
+               ( isinstance (argsList[0], tuple) or
+                 isinstance (argsList[0], list) ) :
+            if len (argsList) > 3:
+                raise RuntimeError, "getByLabel Error: label tuple has too " \
+                      "many arguments '%s'" % argsList[0]
+            argsList = list(argsList[0])
+        while len(argsList) < 3:
+            argsList.append ('')
+        (moduleLabel, productInstanceLabel, processLabel) = argsList
+        labelString = "'" + "', '".join(argsList) + "'"
+        handle._setStatus ( self._lumi.getByLabel( handle._typeInfoGetter(),
+                                                   moduleLabel,
+                                                   productInstanceLabel,
+                                                   processLabel,
+                                                   handle._addressOf() ),
+                            labelString )
+        return handle.isValid()
+
+
+    ##############################
+    ## Private Member Functions ##
+    ##############################
+
+    def _createFWLiteLumi (self):
+        """(Internal) Creates an FWLite Lumi"""
+        # are there any files left?
+        if not self._filenames:
+            return False
+        if self._lumi:
+            del self._lumi
+            self._lumi = None
+        self._veryFirstTime = False
+        self._currFilename = self._filenames.pop(0)
+        #print "Opening file", self._currFilename
+        if self._tfile:
+            del self._tfile
+        self._tfile = ROOT.TFile.Open (self._currFilename)
+        self._lumi = ROOT.fwlite.LuminosityBlock (self._tfile);
+        self._lumi.toBegin()
+        return True
+
+
+    def _next (self):
+        """(Internal) Iterator internals"""
+        while True:
+            if self._lumi.atEnd():
+                if not self._createFWLiteLumi():
+                    # there are no more files here, so we are done
+                    break
+            yield self
+            self._lumiCounts += 1
+            if self._maxLumis > 0 and self._lumiCounts >= self._maxLumis:
+                break
+            self._lumi.__preinc__()
+            
+                    
+        
+######################
+## ################ ##
+## ## ########## ## ##
+## ## ## Runs ## ## ##
+## ## ########## ## ##
+## ################ ##
+######################
+
+class Runs:
+    """Python interface to FWLite LuminosityBlock"""
+    def __init__ (self, inputFiles = '', **kwargs):
+        self._run = None
+        self._runCounts = 0
+        self._tfile = None
+        self._maxRuns = 0
+        if isinstance (inputFiles, list):
+            # it's a list
+            self._filenames = inputFiles[:]
+        elif isinstance (inputFiles, VarParsing):
+            # it's a VarParsing object
+            options = inputFiles
+            self._maxRuns           = options.maxEvents
+            self._filenames           = options.inputFiles
+        else:
+            # it's probably a single string
+            self._filenames = [inputFiles]
+        ##############################
+        ## Parse optional arguments ##
+        ##############################
+        if kwargs.has_key ('maxEvents'):
+            self._maxRuns = kwargs['maxEvents']
+            del kwargs['maxEvents']
+        if kwargs.has_key ('options'):
+            options = kwargs ['options']
+            self._maxRuns           = options.maxEvents
+            self._filenames           = options.inputFiles
+            self._secondaryFilenames  = options.secondaryInputFiles
+            del kwargs['options']
+        # Since we deleted the options as we used them, that means
+        # that kwargs should be empty.  If it's not, that means that
+        # somebody passed in an argument that we're not using and we
+        # should complain.
+        if len (kwargs):
+            raise RuntimeError, "Unknown arguments %s" % kwargs
+        if not self._filenames:
+            raise RuntimeError, "No input files given"
+        if not self._createFWLiteRun():
+            # this shouldn't happen as you are getting nothing the
+            # very first time out, but let's at least check to
+            # avoid problems.
+            raise RuntimeError, "Never and information about Run"
+
+
+    def __del__ (self):
+        """(Internal) Destructor"""
+        # print "Goodbye cruel world, I'm leaving you today."
+        del self._run
+        # print "Goodbye, goodbye, goodbye."
+
+
+    def __iter__ (self):
+        return self._next()
+
+
+    def aux (self):
+        try:
+            return self._run.runAuxiliary()
+        except:
+            raise RuntimeError, "Runs.aux() called on object in invalid state"
+
+
+    def runAuxiliary (self):
+        try:
+            return self._run.runAuxiliary()
+        except:
+            raise RuntimeError, "Runs.runAuxiliary() called on object in invalid state"
+        
+
+    def getByLabel (self, *args):
+        """Calls FWLite's getByLabel.  Called:
+        getByLabel (moduleLabel, handle)
+        getByLabel (moduleLabel, productInstanceLabel, handle),
+        getByLabel (moduleLabel, productInstanceLabel, processLabel, handle),
+        or
+        getByLabel ( (mL, pIL,pL), handle)
+        """
+        length = len (args)
+        if length < 2 or length > 4:
+            # not called correctly
+            raise RuntimeError, "Incorrect number of arguments"
+        # handle is always the last argument
+        argsList = list (args)
+        handle = argsList.pop()
+        if len(argsList)==1 and \
+               ( isinstance (argsList[0], tuple) or
+                 isinstance (argsList[0], list) ) :
+            if len (argsList) > 3:
+                raise RuntimeError, "getByLabel Error: label tuple has too " \
+                      "many arguments '%s'" % argsList[0]
+            argsList = list(argsList[0])
+        while len(argsList) < 3:
+            argsList.append ('')
+        (moduleLabel, productInstanceLabel, processLabel) = argsList
+        labelString = "'" + "', '".join(argsList) + "'"
+        handle._setStatus ( self._run.getByLabel( handle._typeInfoGetter(),
+                                                   moduleLabel,
+                                                   productInstanceLabel,
+                                                   processLabel,
+                                                   handle._addressOf() ),
+                            labelString )
+        return handle.isValid()
+
+                    
+       
+
+    ##############################
+    ## Private Member Functions ##
+    ##############################
+
+    def _createFWLiteRun (self):
+        """(Internal) Creates an FWLite Run"""
+        # are there any files left?
+        if not self._filenames:
+            return False
+        if self._run:
+            del self._run
+            self._run = None
+        self._veryFirstTime = False
+        self._currFilename = self._filenames.pop(0)
+        #print "Opening file", self._currFilename
+        if self._tfile:
+            del self._tfile
+        self._tfile = ROOT.TFile.Open (self._currFilename)
+        self._run = ROOT.fwlite.Run (self._tfile);
+        self._run.toBegin()
+        return True
+
+
+    def _next (self):
+        """(Internal) Iterator internals"""
+        while True:
+            if self._run.atEnd():
+                if not self._createFWLiteRun():
+                    # there are no more files here, so we are done
+                    break
+            yield self
+            self._runCounts += 1
+            if self._maxRuns > 0 and self._runCounts >= self._maxRuns:
+                break
+            self._run.__preinc__()
+            
+
+########################
+## ################## ##
+## ## ############ ## ##
+## ## ## Events ## ## ##
+## ## ############ ## ##
+## ################## ##
+########################
 
 class Events:
     """Python interface to FWLite ChainEvent class"""
