@@ -486,9 +486,9 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
     // we're now dealing with a track
     unsigned iTrack = iEle;
+    reco::MuonRef muonRef = elements[iTrack].muonRef();    
 
     if(debug_) { 
-      cout<<"TRACK"<<endl;
       if ( !active[iTrack] ) 
 	cout << "Already used by electrons, muons, conversions" << endl;
     }
@@ -499,7 +499,9 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
   
     reco::TrackRef trackRef = elements[iTrack].trackRef();
     assert( !trackRef.isNull() ); 
-                      
+                  
+  
+
 
     // look for associated elements of all types
     //COLINFEB16 
@@ -654,7 +656,6 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	std::cout << elements[iTrack] << std::endl; 
       
       // Is it a "tight" muon ?
-
       bool thisIsAMuon = PFMuonAlgo::isMuon(elements[iTrack]);
       if ( thisIsAMuon ) trackMomentum = 0.;
 
@@ -1336,8 +1337,22 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	(*pfCandidates_)[tmpi].addElementInBlock( blockref, iTrack );
 	(*pfCandidates_)[tmpi].addElementInBlock( blockref, iHcal );
 	double muonHcal = std::min(muonHCAL_[0]+muonHCAL_[1],totalHcal);
-	// if muon is isolated, take the whole Hcal energy
-	if(thisIsAnIsolatedMuon) muonHcal = totalHcal;
+
+	// if muon is isolated and pT is less than the calo energy, absorb the calo energy	
+	bool letMuonEatCaloEnergy = false;
+
+	if(thisIsAnIsolatedMuon){
+	  double totalCaloEnergy = totalHcal;
+	  unsigned iEcal = 0;
+	  if( !sortedEcals.empty() ) { 
+	    iEcal = sortedEcals.begin()->second; 
+	    PFClusterRef eclusterref = elements[iEcal].clusterRef();
+	    totalCaloEnergy += eclusterref->energy();
+	  }
+	  if(muonRef->pt() > totalCaloEnergy) letMuonEatCaloEnergy = true;
+	}
+
+	if(letMuonEatCaloEnergy) muonHcal = totalHcal;
 	double muonEcal =0.;
 	unsigned iEcal = 0;
 	if( !sortedEcals.empty() ) { 
@@ -1345,7 +1360,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  PFClusterRef eclusterref = elements[iEcal].clusterRef();
 	  (*pfCandidates_)[tmpi].addElementInBlock( blockref, iEcal);
 	  muonEcal = std::min(muonECAL_[0]+muonECAL_[1],eclusterref->energy());
-	  if(thisIsAnIsolatedMuon) muonEcal = eclusterref->energy();
+	  if(letMuonEatCaloEnergy) muonEcal = eclusterref->energy();
 	  // If the muon expected energy accounts for the whole ecal cluster energy, lock the ecal cluster
 	  if ( eclusterref->energy() - muonEcal  < 0.2 ) active[iEcal] = false;
 	  (*pfCandidates_)[tmpi].setEcalEnergy(muonEcal);
@@ -1354,7 +1369,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	(*pfCandidates_)[tmpi].setHcalEnergy(muonHcal);
 	(*pfCandidates_)[tmpi].setRawHcalEnergy(totalHcal);
 
-	if(thisIsAnIsolatedMuon){
+	if(letMuonEatCaloEnergy){
 	  muonHCALEnergy += totalHcal;
 	  muonHCALError += 0.;
 	  muonECALEnergy += muonEcal;
@@ -1650,19 +1665,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
 	  bool isTrack = elements[it->second.first].muonRef()->isTrackerMuon();
 	  double trackMomentum = elements[it->second.first].trackRef()->p();
-//	  double trackPt = elements[it->second.first].trackRef()->pt();
-	  /* // 20 GeV cut on loose muon selection, now in PFMuon Algo
-	  if(PFMuonAlgo::isGlobalLooseMuon( elements[it->second.first].muonRef() )) {
-	    double muonPt = elements[it->second.first].muonRef()->combinedMuon()->pt();
-	    double staPt = elements[it->second.first].muonRef()->standAloneMuon()->pt();
-	    
-	    if ( staPt < 20. && muonPt < 20. && trackPt < 20. ) continue;	  
-	    if ( !isTrack && muonPt < 20. ) continue;
-	  }
-	  else{
-	    if(trackPt<20.) continue;
-	  }
-	  */
+
 	  // look for ECAL elements associated to iTrack (associated to iHcal)
 	  std::multimap<double, unsigned> sortedEcals;
 	  block.associatedElements( iTrack,  linkData,
@@ -1689,8 +1692,6 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
 	  if(PFMuonAlgo::isGlobalLooseMuon(elements[it->second.first].muonRef())){
 	    // Take the best pt measurement
-	    double muonPt = elements[it->second.first].muonRef()->combinedMuon()->pt();
-	    double staPt = elements[it->second.first].muonRef()->standAloneMuon()->pt();
 	    double muonMomentum = elements[it->second.first].muonRef()->combinedMuon()->p();
 	    double staMomentum = elements[it->second.first].muonRef()->standAloneMuon()->p();
 	    double trackPtError = elements[it->second.first].trackRef()->ptError();
@@ -1698,23 +1699,23 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	    double staPtError = elements[it->second.first].muonRef()->standAloneMuon()->ptError();
 	    double globalCorr = 1;
 
-	    if ( !isTrack || 
-		 ( muonPt > 20. && muonPtError < trackPtError && muonPtError < staPtError ) ) 
-	      globalCorr = muonMomentum/trackMomentum;
-	    else if ( staPt > 20. && staPtError < trackPtError && staPtError < muonPtError ) 
-	      globalCorr = staMomentum/trackMomentum;
+	    // for loose muons we choose whichever fit has the best error, since the track is often mis-recontructed or there are problems with arbitration
+	    if(!isTrack || muonPtError < trackPtError || staPtError < trackPtError){	      
+	      if(muonPtError < staPtError) globalCorr = muonMomentum/trackMomentum;
+	      else globalCorr = staMomentum/trackMomentum;
+	    }
 	    (*pfCandidates_)[tmpi].rescaleMomentum(globalCorr);
-
+	    
 	    if (debug_){
 	      std::cout << "\tElement  " << elements[iTrack] << std::endl 
-			<< "PFAlgo: particle type set to muon (global, loose)" <<"muon pT "<<elements[it->second.first].muonRef()->pt()<<std::endl; 
+			<< "PFAlgo: particle type set to muon (global, loose), pT = "<<elements[it->second.first].muonRef()->pt()<<std::endl; 
 	      PFMuonAlgo::printMuonProperties(elements[it->second.first].muonRef());
-	      }
+	    }
 	  }
 	  else{
 	    if (debug_){
 	      std::cout << "\tElement  " << elements[iTrack] << std::endl 
-	                << "PFAlgo: particle type set to muon (tracker, loose)" <<"muon pT "<<elements[it->second.first].muonRef()->pt()<<std::endl;
+	                << "PFAlgo: particle type set to muon (tracker, loose), pT = "<<elements[it->second.first].muonRef()->pt()<<std::endl;
 	      PFMuonAlgo::printMuonProperties(elements[it->second.first].muonRef()); 
 	    }
 	  }
@@ -2556,7 +2557,6 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
 
 
   // Except if it is a muon, of course ! 
-
   bool thisIsAMuon = PFMuonAlgo::isMuon(elt);
   bool thisIsAnIsolatedMuon = PFMuonAlgo::isIsolatedMuon(elt);
 
@@ -2569,24 +2569,37 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
 
   if ( thisIsAMuon ) { 
     
-    //start with default muon pT and overwrite if usePFMuonMomAssign_ == true or it's an isolated !tracker muon
+    //By default take muon kinematics directly from the muon object (usually determined by the track) 
     px = muonRef->px();
     py = muonRef->py();
     pz = muonRef->pz();
     energy = sqrt(muonRef->p()*muonRef->p() + 0.1057*0.1057);
 
-    if(thisIsAnIsolatedMuon){
-      // only take the global pT if it's not a tracker muon, never take the standAlone pT
-      if(!muonRef->isTrackerMuon()){
-	reco::TrackRef combinedMu = muonRef->combinedMuon(); 
+    reco::TrackBase::TrackQuality trackQualityHighPurity = TrackBase::qualityByName("highPurity");
+    if(debug_)if(!trackRef->quality(trackQualityHighPurity))cout<<" Low Purity Track "<<endl;
+
+    if(muonRef->isGlobalMuon() && !usePFMuonMomAssign_){
+    
+      reco::TrackRef combinedMu = muonRef->combinedMuon(); 
+
+      // take the global fit instead under special circumstances
+      bool useGlobalFit = false;
+      
+      if(thisIsAnIsolatedMuon && !muonRef->isTrackerMuon()) useGlobalFit = true;
+      else if(!trackRef->quality(trackQualityHighPurity)) useGlobalFit = true;
+      else if(muonRef->pt() > combinedMu->pt() &&
+	      track.hitPattern().numberOfValidTrackerHits() < 8 &&
+	      track.ptError() > 5.0*  combinedMu->ptError()) useGlobalFit = true;
+
+      if(useGlobalFit){
 	px = combinedMu->px();
 	py = combinedMu->py();
 	pz = combinedMu->pz();
 	energy = sqrt(combinedMu->p()*combinedMu->p() + 0.1057*0.1057);   
       }
-    } 
-    //Consider overwriting for global muons, for tracker only muons use default assignment (track pT)    
+    }      
     else if(usePFMuonMomAssign_){
+      // If this option is set we take more liberties choosing the muon kinematics (not advised by the muon POG)
       if(thisIsAGlobalTightMuon)
 	{
 	  // If the global muon above 10 GeV and is a tracker muon take the global pT	  
@@ -2644,7 +2657,6 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
   // setting the muon ref if there is
   if (muonRef.isNonnull()) {
     pfCandidates_->back().setMuonRef( muonRef );
-
     // setting the muon particle type if it is a global muon
     if ( thisIsAMuon) {
       particleType = reco::PFCandidate::mu;
@@ -2655,7 +2667,7 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
 	else if(thisIsAnIsolatedMuon) cout << "PFAlgo: particle type set to muon (isolated), pT = " <<muonRef->pt()<< endl; 
 	else cout<<" problem with muon assignment "<<endl;
 	PFMuonAlgo::printMuonProperties( muonRef );
-	}
+      }
     }
   }  
 
