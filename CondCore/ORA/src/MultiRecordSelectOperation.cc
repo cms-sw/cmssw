@@ -42,8 +42,8 @@ void ora::MultiRecordSelectOperation::addOrderId(const std::string& columnName){
 
 void ora::MultiRecordSelectOperation::selectRow( const std::vector<int>& selection ){
   //m_row = &m_cache.lookup( selection );
-  boost::shared_ptr<const Record> rec = m_cache.lookupAndClear( selection );
-  m_row.reset( newAttributeListFromRecord( m_query.attributeListSpecification(), *rec ) );
+  Record rec; m_cache.lookupAndClear( selection,rec );
+  m_row.reset( newAttributeListFromRecord( m_query.attributeListSpecification(), rec ) );
 }
 
 size_t ora::MultiRecordSelectOperation::selectionSize( const std::vector<int>& selection,

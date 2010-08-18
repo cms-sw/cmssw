@@ -66,7 +66,7 @@ size_t ora::MultiIndexDataTrie::push( const std::vector<int>& indexes,
 }
 **/  
 
-boost::shared_ptr<const ora::Record> ora::MultiIndexDataTrie::lookupAndClear( const std::vector<int>& indexes ) {
+void ora::MultiIndexDataTrie::lookupAndClear( const std::vector<int>& indexes, Record & rec ) {
   MultiIndexDataTrie* branch = this;
   MultiIndexDataTrie* trie = 0;
   size_t i=0;
@@ -85,14 +85,13 @@ boost::shared_ptr<const ora::Record> ora::MultiIndexDataTrie::lookupAndClear( co
     }
   }
   MultiIndexDataTrie* leaf = trie->m_children[indexes[i-1]];
-  if(!leaf->m_data.get()){
+  if(0==leaf->m_data.size()){
     throwException( "No Data for the specified index combination.",
                     "MultiIndexDataTrie::lookupAndClear" );
   }
-  boost::shared_ptr<const Record> tmp = leaf->m_data;
+  rec.swap(leaf->m_data);
   delete leaf;
   trie->m_children[indexes[i-1]] = 0;
-  return tmp;  
 }
 
 size_t ora::MultiIndexDataTrie::size() const {
@@ -105,7 +104,7 @@ void ora::MultiIndexDataTrie::clear(){
     if(*iT) delete *iT;
   }
   m_children.clear();
-  m_data.reset();
+  Record tmp; tmp.swap(m_data);
 }
 
 size_t ora::MultiIndexDataTrie::branchSize( const std::vector<int>& indexes, size_t depth ) const{

@@ -18,7 +18,7 @@ namespace ora {
 
     size_t push( const std::vector<int>& indexes, Record & data );
     //const Record& lookup( const std::vector<int>& indexes ) const;
-    boost::shared_ptr<const Record> lookupAndClear( const std::vector<int>& indexes );
+    boost::shared_ptr<const Record> lookupAndClear( const std::vector<int>& indexes, Record & rec );
 
     void clear();
     size_t size() const;
