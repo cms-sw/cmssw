@@ -61,7 +61,10 @@ void PixelTripletHLTGenerator::hitTriplets(
   typedef std::vector<ThirdHitRZPrediction<PixelRecoLineRZ> >  Preds;
   Preds preds(size);
 
-  const RecHitsSortedInPhi **thirdHitMap = new const RecHitsSortedInPhi*[size];
+  std::vector<const RecHitsSortedInPhi *> thirdHitMap(size);
+  typedef RecHitsSortedInPhi::Hit Hit;
+  vector<Hit> thirdHits;
+
   // fill the prediciton vetor
   for (int il=0; il!=size; ++il) {
      thirdHitMap[il] = &(*theLayerCache)(&theLayers[il], region, ev, es);
@@ -136,8 +139,7 @@ void PixelTripletHLTGenerator::hitTriplets(
 //          pixelLayer ? thirdHitMap[il]->loop(phiRange, rzRange) : 
 //          thirdHitMap[il]->loop();
 
-      typedef RecHitsSortedInPhi::Hit Hit;
-      vector<Hit> thirdHits;
+      thirdHits.clear();
       thirdHitMap[il]->hits(phiRange.min(),phiRange.max(), thirdHits);
   
       static float nSigmaRZ = std::sqrt(12.f);
@@ -149,7 +151,6 @@ void PixelTripletHLTGenerator::hitTriplets(
         if (theMaxElement!=0 && result.size() >= theMaxElement){
 	  result.clear();
 	  edm::LogError("TooManySeeds")<<" number of triples exceed maximum. no triplets produced.";
-	  delete [] thirdHitMap;
 	  return;
 	}
         const Hit& hit = (*th);
@@ -190,7 +191,6 @@ void PixelTripletHLTGenerator::hitTriplets(
     }
   }
 
-  delete [] thirdHitMap;
 }
 
 bool PixelTripletHLTGenerator::checkPhiInRange(float phi, float phi1, float phi2) const
