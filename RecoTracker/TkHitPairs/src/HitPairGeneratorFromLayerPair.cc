@@ -63,21 +63,20 @@ void HitPairGeneratorFromLayerPair::hitPairs(
 
   static const float nSigmaRZ = std::sqrt(12.f);
   static const float nSigmaPhi = 3.f;
-  typedef RecHitsSortedInPhi::HitIter IT;
   vector<Hit> innerHits;
-  for (IT oh = outerHits.first; oh!= outerHits.second; ++oh) { 
+  for (RecHitsSortedInPhi::HitIter oh = outerHits.first; oh!= outerHits.second; ++oh) { 
     Hit ohit = (*oh).hit();
     GlobalPoint oPos = ohit->globalPosition();  
-    PixelRecoRange<float> phiRange = deltaPhi( oPos.perp(), oPos.phi(), oPos.z(), nSigmaPhi*(*oh)->errorGlobalRPhi());    
+    PixelRecoRange<float> phiRange = deltaPhi( oPos.perp(), oPos.phi(), oPos.z(), nSigmaPhi*(ohit->errorGlobalRPhi()));    
 
     if (phiRange.empty()) continue;
 
-    const HitRZCompatibility *checkRZ = region.checkRZ(theInnerLayer.detLayer(), *oh, iSetup);
+    const HitRZCompatibility *checkRZ = region.checkRZ(theInnerLayer.detLayer(), ohit, iSetup);
     if(!checkRZ) continue;
 
     innerHits.clear();
     innerHitsMap.hits(phiRange.min(), phiRange.max(), innerHits);
-    for (IT ih=innerHits.begin(), ieh = innerHits.end(); ih < ieh; ++ih) {  
+    for ( vector<Hit>::cost_iterator ih=innerHits.begin(), ieh = innerHits.end(); ih < ieh; ++ih) {  
       GlobalPoint innPos = (*ih)->globalPosition();
       float r_reduced = std::sqrt( sqr(innPos.x()-region.origin().x())+sqr(innPos.y()-region.origin().y()));
       Range allowed;
