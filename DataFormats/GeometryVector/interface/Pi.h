@@ -32,6 +32,11 @@ namespace Geom {
   inline double twoPi()  {return 2. *3.141592653589793238;}
   inline double halfPi() {return 0.5*3.141592653589793238;}
 
+  inline float fpi()     {return     3.141592653589793238f;}
+  inline float ftwoPi()  {return 2.f *3.141592653589793238f;}
+  inline float fhalfPi() {return 0.5f*3.141592653589793238f;}
+
+
 }
 
 #endif
