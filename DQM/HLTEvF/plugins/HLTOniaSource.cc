@@ -15,7 +15,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
-#include "DataFormats/TrackReco/interface/Track.h"
+//#include "DataFormats/TrackReco/interface/Track.h"
 
 //HLTrigger
 #include "HLTrigger/HLTanalyzers/interface/JetUtil.h"
@@ -31,14 +31,14 @@ HLTOniaSource::HLTOniaSource(const edm::ParameterSet& pset){
   LogVerbatim ("oniatriggermonitor") << "[HLTOniaSource]: Constructor";
  
   //HLTrigger Path Names
-  std::vector<std::string> myTriggerPaths;
+  vector<string> myTriggerPaths;
   myTriggerPaths.push_back("HLT_Mu0_Track0_Jpsi");
   myTriggerPaths.push_back("HLT_Mu3_Track0_Jpsi");
   myTriggerPaths.push_back("HLT_Mu5_Track0_Jpsi");
-  triggerPath_ = pset.getUntrackedParameter<std::vector<std::string> >("TriggerPathNames",myTriggerPaths);
+  triggerPath_ = pset.getUntrackedParameter<vector<string> >("TriggerPathNames",myTriggerPaths);
 
   //Tag for Onia Muons
-  std::vector<InputTag> myOniaMuonTags;
+  vector<InputTag> myOniaMuonTags;
                                          
   myOniaMuonTags.push_back(InputTag("hltMu0TrackJpsiL3Filtered0", "", "HLT"));
   myOniaMuonTags.push_back(InputTag("hltMu3TrackJpsiL3Filtered3", "", "HLT"));
@@ -55,23 +55,23 @@ HLTOniaSource::HLTOniaSource(const edm::ParameterSet& pset){
 
   //Tag Trigger Summary
   triggerSummaryRAWTag_ = pset.getUntrackedParameter<InputTag>("TriggerSummaryTag",edm::InputTag("hltTriggerSummaryRAW", "", "HLT"));
-  hltProcessName_  = pset.getUntrackedParameter<std::string>("TriggerProcessName","HLT");
+  hltProcessName_  = pset.getUntrackedParameter<string>("TriggerProcessName","HLT");
   //Tag for Pixel tracks after Onia filter
-  std::vector<InputTag> pxlTagsAfterFilter;
+  vector<InputTag> pxlTagsAfterFilter;
   pxlTagsAfterFilter.push_back(InputTag("hltMu0TrackJpsiPixelMassFiltered", "", "HLT"));
   pxlTagsAfterFilter.push_back(InputTag("hltMu3TrackJpsiPixelMassFiltered", "", "HLT"));
   pxlTagsAfterFilter.push_back(InputTag("hltMu5TrackJpsiPixelMassFiltered", "", "HLT"));
-  pixelTagsAfterFilter_=  pset.getUntrackedParameter< std::vector<edm::InputTag> >("PixelTagAfterFilter",pxlTagsAfterFilter);
+  pixelTagsAfterFilter_=  pset.getUntrackedParameter< vector<edm::InputTag> >("PixelTagAfterFilter",pxlTagsAfterFilter);
 
   //Tag for Tracker tracks after Onia filter
-  std::vector<InputTag> trxTagsAfterFilter;
+  vector<InputTag> trxTagsAfterFilter;
   trxTagsAfterFilter.push_back(InputTag("hltMu0TrackJpsiTrackMassFiltered", "", "HLT"));
   trxTagsAfterFilter.push_back(InputTag("hltMu3TrackJpsiTrackMassFiltered", "", "HLT"));
   trxTagsAfterFilter.push_back(InputTag("hltMu5TrackJpsiTrackMassFiltered", "", "HLT"));
-  trackTagsAfterFilter_ = pset.getUntrackedParameter< std::vector<edm::InputTag> >("TrackTagAfterFilter",trxTagsAfterFilter);
+  trackTagsAfterFilter_ = pset.getUntrackedParameter< vector<edm::InputTag> >("TrackTagAfterFilter",trxTagsAfterFilter);
 
   //Foldering output
-  subsystemFolder_ = pset.getUntrackedParameter<std::string>("SubSystemFolder","HLT/HLTMonMuon/Onia");
+  subsystemFolder_ = pset.getUntrackedParameter<string>("SubSystemFolder","HLT/HLTMonMuon/Onia");
 }
 
 
@@ -189,9 +189,9 @@ void HLTOniaSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
     for(size_t i=0; i<oniaMuonTag_.size(); i++){
 
-      std::vector<RecoChargedCandidateRef> myMuonFilterCands;        
-      std::vector<RecoChargedCandidateRef> myPixelFilterCands;   
-      std::vector<RecoChargedCandidateRef> myTrackFilterCands;   
+      vector<RecoChargedCandidateRef> myMuonFilterCands;        
+      vector<RecoChargedCandidateRef> myPixelFilterCands;   
+      vector<RecoChargedCandidateRef> myTrackFilterCands;   
       
       //Get Onia Muons
       size_t indexM = rawTriggerEvent->filterIndex(oniaMuonTag_[i]);
@@ -240,9 +240,9 @@ void HLTOniaSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 void  HLTOniaSource::endJob() {}
 
-void  HLTOniaSource::bookOniaTriggerMEs( std::map<std::string, MonitorElement *>  & myMap, std::string meName){
+void  HLTOniaSource::bookOniaTriggerMEs( map<string, MonitorElement *>  & myMap, string meName){
 
-    std::stringstream myMeName;
+    stringstream myMeName;
 
     //PT    
     myMeName.str("");
@@ -327,9 +327,9 @@ void  HLTOniaSource::bookOniaTriggerMEs( std::map<std::string, MonitorElement *>
 }
 
 
-void  HLTOniaSource::bookOniaTriggerInvariantMassMEs( std::map<std::string, MonitorElement *>  & myMap, std::string label1, std::string label2 ){
+void  HLTOniaSource::bookOniaTriggerInvariantMassMEs( map<string, MonitorElement *>  & myMap, string label1, string label2 ){
 
-  std::stringstream meName;
+  stringstream meName;
   //Same charge 
   meName.str("");
   meName<<label1<<"_"<<label2<<"_SameCharge_InvariantMass";
@@ -379,8 +379,8 @@ void  HLTOniaSource::bookOniaTriggerInvariantMassMEs( std::map<std::string, Moni
 }
 
 
-void  HLTOniaSource::fillOniaTriggerMEs( Handle<TrackCollection> &  collection, std::string collectionLabel,  std::map<std::string, MonitorElement *>  & mapME ){
-   // std::cout << "[HLTOniaSource]: fillOniaTriggerMEs " << collectionLabel << std::endl;
+void  HLTOniaSource::fillOniaTriggerMEs( Handle<TrackCollection> &  collection, string collectionLabel,  map<string, MonitorElement *>  & mapME ){
+   // cout << "[HLTOniaSource]: fillOniaTriggerMEs " << collectionLabel << endl;
 
   TrackCollection myCollection;
   if (collection.isValid()) {
@@ -401,11 +401,11 @@ void  HLTOniaSource::fillOniaTriggerMEs( Handle<TrackCollection> &  collection, 
       if(mapME[collectionLabel+"etapt"]){ mapME[collectionLabel+"etapt"]->Fill(tk->pt(),tk->eta()); }
       if(mapME[collectionLabel+"charge"]){ mapME[collectionLabel+"charge"]->Fill(tk->charge()); }
 
-      if(mapME[collectionLabel+"dxy"]){ mapME[collectionLabel+"dxy"]->Fill(tk->dxy(BSPosition_)); }
-      if(mapME[collectionLabel+"dz"]){ mapME[collectionLabel+"dz"]->Fill(tk->dz(BSPosition_)); }
+     //  if(mapME[collectionLabel+"dxy"]){ mapME[collectionLabel+"dxy"]->Fill(tk->dxy(BSPosition_)); }
+//       if(mapME[collectionLabel+"dz"]){ mapME[collectionLabel+"dz"]->Fill(tk->dz(BSPosition_)); }
 
-      if(mapME[collectionLabel+"validhits"]) { mapME[collectionLabel+"validhits"]->Fill(tk->numberOfValidHits()); }
-      if(mapME[collectionLabel+"normchi"]){  mapME[collectionLabel+"normchi"]->Fill(tk->normalizedChi2()); }
+//       if(mapME[collectionLabel+"validhits"]) { mapME[collectionLabel+"validhits"]->Fill(tk->numberOfValidHits()); }
+//       if(mapME[collectionLabel+"normchi"]){  mapME[collectionLabel+"normchi"]->Fill(tk->normalizedChi2()); }
     }
     if(mapME[collectionLabel+"nrcand"]){  mapME[collectionLabel+"nrcand"]->Fill(num);}
 
@@ -413,36 +413,32 @@ void  HLTOniaSource::fillOniaTriggerMEs( Handle<TrackCollection> &  collection, 
 }
 
 
-void  HLTOniaSource::fillOniaTriggerMEs(std::vector<reco::RecoChargedCandidateRef>  &  candidateVector, std::string collectionLabel,  std::map<std::string, MonitorElement *>  & mapME ){
+void  HLTOniaSource::fillOniaTriggerMEs(std::vector<reco::RecoChargedCandidateRef>  &  candidateVector, string collectionLabel,  map<string, MonitorElement *>  & mapME ){
     
   for (unsigned int  i=0; i!=candidateVector.size(); i++) {
-   TrackRef tk = candidateVector[i]->get<TrackRef>();
-   if(!tk.isAvailable()){ 
-     LogWarning ("oniatriggermonitor") << "[HLTOniaSource]: Could not access TrackRef for collection  "<<collectionLabel<<" for cand "<<i;
-     continue;
+    RecoChargedCandidate tk = (*candidateVector[i]);
 
-  }
    //Fill MEs  
-   if(mapME[collectionLabel+"pt"]){  mapME[collectionLabel+"pt"]->Fill(tk->pt()); }
-   if(mapME[collectionLabel+"p"])  { mapME[collectionLabel+"p"]->Fill(tk->p()); }
-   if(mapME[collectionLabel+"eta"]) { mapME[collectionLabel+"eta"]->Fill(tk->eta()); }
-   if(mapME[collectionLabel+"phi"]) { mapME[collectionLabel+"phi"]->Fill(tk->phi()); }
-   if(mapME[collectionLabel+"etaphi"]){ mapME[collectionLabel+"etaphi"]->Fill(tk->phi(),tk->eta()); }
-   if(mapME[collectionLabel+"etapt"]){ mapME[collectionLabel+"etapt"]->Fill(tk->pt(),tk->eta()); }
-   if(mapME[collectionLabel+"charge"]){ mapME[collectionLabel+"charge"]->Fill(tk->charge()); }
+   if(mapME[collectionLabel+"pt"]){  mapME[collectionLabel+"pt"]->Fill(tk.pt()); }
+   if(mapME[collectionLabel+"p"])  { mapME[collectionLabel+"p"]->Fill(tk.p()); }
+   if(mapME[collectionLabel+"eta"]) { mapME[collectionLabel+"eta"]->Fill(tk.eta()); }
+   if(mapME[collectionLabel+"phi"]) { mapME[collectionLabel+"phi"]->Fill(tk.phi()); }
+   if(mapME[collectionLabel+"etaphi"]){ mapME[collectionLabel+"etaphi"]->Fill(tk.phi(),tk.eta()); }
+   if(mapME[collectionLabel+"etapt"]){ mapME[collectionLabel+"etapt"]->Fill(tk.pt(),tk.eta()); }
+   if(mapME[collectionLabel+"charge"]){ mapME[collectionLabel+"charge"]->Fill(tk.charge()); }
    
-   if(mapME[collectionLabel+"dxy"]){ mapME[collectionLabel+"dxy"]->Fill(tk->dxy(BSPosition_)); }
-   if(mapME[collectionLabel+"dz"]){ mapME[collectionLabel+"dz"]->Fill(tk->dz(BSPosition_)); }
+  //  if(mapME[collectionLabel+"dxy"]){ mapME[collectionLabel+"dxy"]->Fill(tk.dxy(BSPosition_)); }
+//    if(mapME[collectionLabel+"dz"]){ mapME[collectionLabel+"dz"]->Fill(tk.dz(BSPosition_)); }
    
-   if(mapME[collectionLabel+"validhits"]) { mapME[collectionLabel+"validhits"]->Fill(tk->numberOfValidHits()); }
-   if(mapME[collectionLabel+"normchi"]){  mapME[collectionLabel+"normchi"]->Fill(tk->normalizedChi2()); }
+//    if(mapME[collectionLabel+"validhits"]) { mapME[collectionLabel+"validhits"]->Fill(tk.numberOfValidHits()); }
+//    if(mapME[collectionLabel+"normchi"]){  mapME[collectionLabel+"normchi"]->Fill(tk.normalizedChi2()); }
   }
  
   if(mapME[collectionLabel+"nrcand"]){  mapME[collectionLabel+"nrcand"]->Fill( candidateVector.size());}
 }
 
 
-void  HLTOniaSource::fillOniaTriggerMEs( Handle<RecoChargedCandidateCollection> &  collection, std::string collectionLabel,  std::map<std::string, MonitorElement *>  & mapME ){
+void  HLTOniaSource::fillOniaTriggerMEs( Handle<reco::RecoChargedCandidateCollection> &  collection, string collectionLabel,  map<string, MonitorElement *>  & mapME ){
 
   RecoChargedCandidateCollection myCollection;
   if (collection.isValid()) {
@@ -452,85 +448,71 @@ void  HLTOniaSource::fillOniaTriggerMEs( Handle<RecoChargedCandidateCollection> 
     int num = 0;
     typedef RecoChargedCandidateCollection::const_iterator cand;
     for (cand i=myCollection.begin(); i!=myCollection.end(); i++) {
-      TrackRef tk = i->get<TrackRef>();
-      if(!tk.isAvailable()){ 
-	LogWarning ("oniatriggermonitor") << "[HLTOniaSource]: Could not access TrackRef for collection  "<<collectionLabel;
-	return;
-      }
+      RecoChargedCandidate tk = (*i);
+
       num++; 
      //Fill MEs  
-      if(mapME[collectionLabel+"pt"]){  mapME[collectionLabel+"pt"]->Fill(tk->pt()); }
-      if(mapME[collectionLabel+"p"])  { mapME[collectionLabel+"p"]->Fill(tk->p()); }
-      if(mapME[collectionLabel+"eta"]) { mapME[collectionLabel+"eta"]->Fill(tk->eta()); }
-      if(mapME[collectionLabel+"phi"]) { mapME[collectionLabel+"phi"]->Fill(tk->phi()); }
-      if(mapME[collectionLabel+"etaphi"]){ mapME[collectionLabel+"etaphi"]->Fill(tk->phi(),tk->eta()); }
-      if(mapME[collectionLabel+"etapt"]){ mapME[collectionLabel+"etapt"]->Fill(tk->pt(),tk->eta()); }
-      if(mapME[collectionLabel+"charge"]){ mapME[collectionLabel+"charge"]->Fill(tk->charge()); }
+      if(mapME[collectionLabel+"pt"]){  mapME[collectionLabel+"pt"]->Fill(tk.pt()); }
+      if(mapME[collectionLabel+"p"])  { mapME[collectionLabel+"p"]->Fill(tk.p()); }
+      if(mapME[collectionLabel+"eta"]) { mapME[collectionLabel+"eta"]->Fill(tk.eta()); }
+      if(mapME[collectionLabel+"phi"]) { mapME[collectionLabel+"phi"]->Fill(tk.phi()); }
+      if(mapME[collectionLabel+"etaphi"]){ mapME[collectionLabel+"etaphi"]->Fill(tk.phi(),tk.eta()); }
+      if(mapME[collectionLabel+"etapt"]){ mapME[collectionLabel+"etapt"]->Fill(tk.pt(),tk.eta()); }
+      if(mapME[collectionLabel+"charge"]){ mapME[collectionLabel+"charge"]->Fill(tk.charge()); }
 
-      if(mapME[collectionLabel+"dxy"]){ mapME[collectionLabel+"dxy"]->Fill(tk->dxy(BSPosition_)); }
-      if(mapME[collectionLabel+"dz"]){ mapME[collectionLabel+"dz"]->Fill(tk->dz(BSPosition_)); }
+   //    if(mapME[collectionLabel+"dxy"]){ mapME[collectionLabel+"dxy"]->Fill(tk.dxy(BSPosition_)); }
+//       if(mapME[collectionLabel+"dz"]){ mapME[collectionLabel+"dz"]->Fill(tk.dz(BSPosition_)); }
 
-      if(mapME[collectionLabel+"validhits"]) { mapME[collectionLabel+"validhits"]->Fill(tk->numberOfValidHits()); }
-      if(mapME[collectionLabel+"normchi"]){  mapME[collectionLabel+"normchi"]->Fill(tk->normalizedChi2()); }
+//       if(mapME[collectionLabel+"validhits"]) { mapME[collectionLabel+"validhits"]->Fill(tk.numberOfValidHits()); }
+//       if(mapME[collectionLabel+"normchi"]){  mapME[collectionLabel+"normchi"]->Fill(tk.normalizedChi2()); }
     }
     if(mapME[collectionLabel+"nrcand"]){  mapME[collectionLabel+"nrcand"]->Fill(num);}
   }
 }
 
  
-void HLTOniaSource::fillInvariantMass(std::vector<RecoChargedCandidateRef> & cand1,  std::vector<RecoChargedCandidateRef> & cand2, std::string cand1Label, std::string  cand2Label){
+void HLTOniaSource::fillInvariantMass(vector<RecoChargedCandidateRef> & cand1,  vector<RecoChargedCandidateRef> & cand2, string cand1Label, string  cand2Label){
 
     //Loop on collection to calculate invariate mass
     for(size_t i = 0 ; i< cand1.size(); i++) {
-      if( cand2.size() > 0 )  {
-	//Highest PT
-	string chargeLabel = "same";
-	
-	//Check relative charge
-	if(cand1[i]->charge() * cand2[0]->charge() < 0) chargeLabel = "opposite";
-	if(massME_[cand1Label+cand2Label+chargeLabel+"highestpt"]){
-	  massME_[cand1Label+cand2Label+chargeLabel+"highestpt"]->Fill((cand1[i]->p4()+cand2[0]->p4()).mass());
-	}
-	if(massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]){
-	  TrackRef tk1 = cand1[i]->get<TrackRef>();
-	  TrackRef tk2 = cand2[0]->get<TrackRef>();
-	  if(tk1.isAvailable() && tk2.isAvailable()) {
-	    massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]->Fill(fabs(tk1->dz(BSPosition_) - tk2->dz(BSPosition_)));
-	  }else { 
-	    LogWarning ("oniatriggermonitor") << "[HLTOniaSource]: Could not access TrackRef for collection  "<<cand1Label<<" or "<< cand2Label;
-	    return;
-	  }
-	}
+    
+      //Highest PT
+      string chargeLabel = "same";
+      
+      //Check relative charge
+      if(cand1[i]->charge() * cand2[0]->charge() < 0) chargeLabel = "opposite";
+      if(massME_[cand1Label+cand2Label+chargeLabel+"highestpt"]){
+	massME_[cand1Label+cand2Label+chargeLabel+"highestpt"]->Fill((cand1[i]->p4()+cand2[0]->p4()).mass());
       }
-
+      if(massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]){
+	RecoChargedCandidate tk1 = (*cand1[i]);
+	RecoChargedCandidate tk2 = (*cand2[0]);
+	//	  TrackRef tk1 = cand1[i]->get<TrackRef>();
+	//	    massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]->Fill(fabs(tk1->dz(BSPosition_) - tk2->dz(BSPosition_)));
+      }
+      
+      
       for (size_t j= 0; j< cand2.size(); j++) {
-
+	
 	if(cand2[j]->p() < 3) continue; //Check if momentum is greater than 3GeV.
 	string chargeLabel = "same";
 	//Check relative charge
 	if(cand1[i]->charge() * cand2[j]->charge() < 0) chargeLabel = "opposite";
 	if(massME_[cand1Label+cand2Label+chargeLabel]){
-	   massME_[cand1Label+cand2Label+chargeLabel]->Fill((cand1[i]->p4()+cand2[j]->p4()).mass());
+	  massME_[cand1Label+cand2Label+chargeLabel]->Fill((cand1[i]->p4()+cand2[j]->p4()).mass());
 	}
 	if(massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]){
-	  TrackRef tk1 = cand1[i]->get<TrackRef>();
-	  TrackRef tk2 = cand2[j]->get<TrackRef>();
-	  if(tk1.isAvailable() && tk2.isAvailable()) {
-	  massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]->Fill(fabs(tk1->dz(BSPosition_) - tk2->dz(BSPosition_)));
-	}else { 
-	    LogWarning ("oniatriggermonitor") << "[HLTOniaSource]: Could not access TrackRef for collection  "<<cand1Label<<" or "<< cand2Label;
-	    return;
-	  }
+	  RecoChargedCandidate tk1 = (*cand1[i]);
+	  RecoChargedCandidate tk2 = (*cand2[j]);
+	  //	  massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]->Fill(fabs(tk1->dz(BSPosition_) - tk2->dz(BSPosition_)));
 	}
       }
     }
-
-    
-
-
 }
 
-void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef> & cand1,  RecoChargedCandidateCollection &  cand2, std::string cand1Label, std::string  cand2Label){
+
+
+void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef> & cand1,  RecoChargedCandidateCollection &  cand2, string cand1Label, string  cand2Label){
   
   typedef RecoChargedCandidateCollection::const_iterator cand;
     //Loop on collection to calculate invariate mass
@@ -546,34 +528,24 @@ void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef>
 	}
 	
 	if(massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]){
-	  TrackRef tk1 = cand1[i]->get<TrackRef>();
-	  TrackRef tk2 = candItr->get<TrackRef>();
-	  if(tk1.isAvailable() && tk2.isAvailable()) {
-	    massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]->Fill(fabs(tk1->dz(BSPosition_) - tk2->dz(BSPosition_)));
-	  }else { 
-	    LogWarning ("oniatriggermonitor") << "[HLTOniaSource]: Could not access TrackRef for collection  "<<cand1Label<<" or "<< cand2Label;
-	    return;
-	  }
+	  RecoChargedCandidate tk1 = (*cand1[i]);
+	  RecoChargedCandidate tk2 = (*candItr);
+	  //	    massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]->Fill(fabs(tk1->dz(BSPosition_) - tk2->dz(BSPosition_)));
 	}
       }
 
-      for (cand candIter= cand2.begin(); candIter!=cand2.end(); candIter++) {
-	if(candIter->p() < 3) continue; //Check if momentum is greater than 3GeV.
+      for (cand candItr2= cand2.begin(); candItr2!=cand2.end(); candItr2++) {
+	if(candItr2->p() < 3) continue; //Check if momentum is greater than 3GeV.
 	string  chargeLabel = "same";
 	//Check relative charge
-	if(cand1[i]->charge() * candIter->charge() < 0) chargeLabel = "opposite";
+	if(cand1[i]->charge() * candItr2->charge() < 0) chargeLabel = "opposite";
 	if(massME_[cand1Label+cand2Label+chargeLabel]){
-	   massME_[cand1Label+cand2Label+chargeLabel]->Fill((cand1[i]->p4()+candIter->p4()).mass());
+	   massME_[cand1Label+cand2Label+chargeLabel]->Fill((cand1[i]->p4()+candItr2->p4()).mass());
 	}
 	if(massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]){
-	  TrackRef tk1 = cand1[i]->get<TrackRef>();
-	  TrackRef tk2 = candIter->get<TrackRef>();
-	  if(tk1.isAvailable() && tk2.isAvailable()) {
-	  massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]->Fill(fabs(tk1->dz(BSPosition_) - tk2->dz(BSPosition_)));
-	  }else { 
-	    LogWarning ("oniatriggermonitor") << "[HLTOniaSource]: Could not access TrackRef for collection  "<<cand1Label<<" or "<< cand2Label;
-	    return;
-	  }
+	  RecoChargedCandidate tk1 = (*cand1[i]);
+	  RecoChargedCandidate tk2 = (*candItr2);
+	  //	  massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]->Fill(fabs(tk1->dz(BSPosition_) - tk2->dz(BSPosition_)));
 	}
       }
     }
@@ -581,7 +553,7 @@ void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef>
 
 
 
-void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef> & cand1,  TrackCollection &  cand2, std::string cand1Label, std::string  cand2Label){
+void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef> & cand1,  TrackCollection &  cand2, string cand1Label, string  cand2Label){
   
   typedef TrackCollection::const_iterator cand;
 
@@ -601,13 +573,8 @@ void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef>
 	}
 	
 	if(massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]){
-	  TrackRef tk = cand1[i]->get<TrackRef>();
-	  if(tk.isAvailable() ) {
-	    massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]->Fill(fabs(tk->dz(BSPosition_) - candItr->dz(BSPosition_)));
-	  }else { 
-	    LogWarning ("oniatriggermonitor") << "[HLTOniaSource]: Could not access TrackRef for collection  "<<cand1Label;
-	    return;
-	  }
+	  RecoChargedCandidate tk1 = (*cand1[i]);
+	  //  massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]->Fill(fabs(tk->dz(BSPosition_) - candItr->dz(BSPosition_)));
 	}
       }
 
@@ -624,13 +591,8 @@ void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef>
 	   massME_[cand1Label+cand2Label+chargeLabel]->Fill((cand1[i]->p4()+candLVector).mass());
 	}
 	if(massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]){
-	  TrackRef tk = cand1[i]->get<TrackRef>();
-	  if(tk.isAvailable() ) {
-	    massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]->Fill(fabs(tk->dz(BSPosition_) - candIter->dz(BSPosition_)));
-	  }else { 
-	    LogWarning ("oniatriggermonitor") << "[HLTOniaSource]: Could not access TrackRef for collection  "<<cand1Label;
-	    return;	    
-	  }
+	  RecoChargedCandidate tk1 = (*cand1[i]);
+	  //	    massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]->Fill(fabs(tk->dz(BSPosition_) - candIter->dz(BSPosition_)));
 	}
       }
     }
@@ -641,25 +603,25 @@ bool HLTOniaSource::checkHLTConfiguration(const edm::Run & run, const edm::Event
   HLTConfigProvider hltConfig;
   bool changed(false);
   if(hltConfig.init(run , setup, triggerProcessName, changed)){
-    LogVerbatim("hltoniasource") << "Successfully initialized HLTConfigProvider with process name: "<<triggerProcessName<<std::endl;
+    LogVerbatim("hltoniasource") << "Successfully initialized HLTConfigProvider with process name: "<<triggerProcessName<<endl;
 
-    std::stringstream os;
-    std::vector<std::string> triggerNames = hltConfig.triggerNames();
+    stringstream os;
+    vector<string> triggerNames = hltConfig.triggerNames();
     
     for( size_t i = 0; i < triggerNames.size(); i++) {
       if (find(triggerPath_.begin(), triggerPath_.end(), triggerNames[i]) == triggerPath_.end()) continue; 
-      LogVerbatim("hltoniasource") << "[HLTOniaSource]: Trigger Path: "<<triggerNames[i]<<std::endl;
-      std::vector<std::string> moduleNames = hltConfig.moduleLabels( triggerNames[i] );
+      LogVerbatim("hltoniasource") << "[HLTOniaSource]: Trigger Path: "<<triggerNames[i]<<endl;
+      vector<string> moduleNames = hltConfig.moduleLabels( triggerNames[i] );
       for( size_t j = 0; j < moduleNames.size(); j++) {
 	TString name = moduleNames[j];
-	LogVerbatim("hltoniasource") << "\t  Fliter Name: "<<moduleNames[j]<<std::endl;
+	LogVerbatim("hltoniasource") << "\t  Fliter Name: "<<moduleNames[j]<<endl;
       }
     }
 
     return true;
 
   }else{
-    LogVerbatim("hltoniasource") << "Could not initialize HLTConfigProvider with process name: "<<triggerProcessName<<std::endl;
+    LogVerbatim("hltoniasource") << "Could not initialize HLTConfigProvider with process name: "<<triggerProcessName<<endl;
     return false;  
   }
   return true;
