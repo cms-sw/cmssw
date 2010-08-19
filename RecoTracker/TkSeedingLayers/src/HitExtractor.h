@@ -29,19 +29,19 @@ private:
   const SeedingLayer    &sl_;
   const edm::EventSetup &es_;
 };
-
-template <typename DSTV, typename A, typename B>
-void range2SeedingHits(DSTV const & dstv,
-        HitExtractor::Hits & v,
-        std::pair<A,B> const & sel,
-        const SeedingLayer &sl, const edm::EventSetup &es) {
+  
+  template <typename DSTV, typename A, typename B>
+  inline void range2SeedingHits(DSTV const & dstv,
+				HitExtractor::Hits & v,
+				std::pair<A,B> const & sel,
+				const SeedingLayer &sl, const edm::EventSetup &es) {
     typename DSTV::Range range = dstv.equal_range(sel.first,sel.second);
     v.reserve(v.size()+std::distance(range.first, range.second));
     for(typename DSTV::const_iterator id=range.first; id!=range.second; id++){
       std::transform((*id).begin(), (*id).end(), std::back_inserter(v), HitConv(sl,es));
     }
-}
-
+  }
+  
 }
 
 #endif
