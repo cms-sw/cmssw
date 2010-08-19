@@ -34,7 +34,9 @@ subtract_(const uint32_t& detId,std::vector<T>& digis){
   typename std::vector<T>::iterator fs,ls;
   float offset = 0;  
   std::vector< std::pair<float,float> > subset;
-  subset.reserve(128); 
+  subset.reserve(128);
+
+  _vmedians.clear(); 
 
   for( uint16_t APV=0; APV< digis.size()/128; ++APV)
   {
@@ -68,6 +70,8 @@ subtract_(const uint32_t& detId,std::vector<T>& digis){
       if ( subset.size() == 0 ) break;
       offset = pairMedian(subset);
     }        
+
+    _vmedians.push_back(std::make_pair<short,float>((strip-digis.begin())/128,offset));
 
     // remove offset
     fs = digis.begin()+APV*128;
