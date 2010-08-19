@@ -12,6 +12,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
+#include "DataFormats/GeometryVector/interface/Pi.h"
+
 using pixelrecoutilities::LongitudinalBendingCorrection;
 typedef PixelRecoRange<float> Range;
 
@@ -138,11 +140,11 @@ void PixelTripletHLTGenerator::hitTriplets(
       vector<Hit> thirdHits;
       thirdHitMap[il]->hits(phiRange.min(),phiRange.max(), thirdHits);
   
-      static double nSigmaRZ = sqrt(12.);
-      static double nSigmaPhi = 3.;
+      static float nSigmaRZ = std::sqrt(12.f);
+      static float nSigmaPhi = 3.f;
    
       typedef vector<Hit>::const_iterator IH;
-      for (IH th=thirdHits.begin(), eh=thirdHits.end(); th < eh; ++th) {
+      for (IH th=thirdHits.begin(), eh=thirdHits.end(); th !=eh; ++th) {
 
         if (theMaxElement!=0 && result.size() >= theMaxElement){
 	  result.clear();
@@ -162,25 +164,25 @@ void PixelTripletHLTGenerator::hitTriplets(
           Range allowedZ = predictionRZ(p3_r);
           correction.correctRZRange(allowedZ);
 
-          double zErr = nSigmaRZ * sqrt(hit->globalPositionError().czz());
+          float zErr = nSigmaRZ * std::sqrt(float(hit->globalPositionError().czz()));
           Range hitRange(p3_z-zErr, p3_z+zErr);
           Range crossingRange = allowedZ.intersection(hitRange);
           if (crossingRange.empty())  continue;
         } else {
           Range allowedR = predictionRZ(p3_z);
           correction.correctRZRange(allowedR); 
-          double rErr = nSigmaRZ * sqrt(hit->globalPositionError().rerr( hit->globalPosition()));
+          float rErr = nSigmaRZ * std::sqrt(float(hit->globalPositionError().rerr( hit->globalPosition())));
           Range hitRange(p3_r-rErr, p3_r+rErr);
           Range crossingRange = allowedR.intersection(hitRange);
           if (crossingRange.empty())  continue;
         }
 
-	double phiErr = nSigmaPhi*sqrt(hit->globalPositionError().phierr(hit->globalPosition()));
+	float phiErr = nSigmaPhi*std::sqrt(float(hit->globalPositionError().phierr(hit->globalPosition())));
         for (int icharge=-1; icharge <=1; icharge+=2) {
           Range rangeRPhi = predictionRPhi(p3_r, icharge);
           correction.correctRPhiRange(rangeRPhi);
           if (checkPhiInRange(p3_phi, rangeRPhi.first/p3_r-phiErr, rangeRPhi.second/p3_r+phiErr)) {
-            result.push_back( OrderedHitTriplet( (*ip).inner(), (*ip).outer(), *th)); 
+            result.push_back( OrderedHitTriplet( (*ip).inner(), (*ip).outer(), hit)); 
             break;
           } 
         }
@@ -193,8 +195,8 @@ void PixelTripletHLTGenerator::hitTriplets(
 
 bool PixelTripletHLTGenerator::checkPhiInRange(float phi, float phi1, float phi2) const
 {
-  while (phi > phi2) phi -=  2*M_PI;
-  while (phi < phi1) phi +=  2*M_PI;
+  while (phi > phi2) phi -=  Geom::ftwopi();
+  while (phi < phi1) phi +=  Geom::ftwopi();
   return (  (phi1 <= phi) && (phi <= phi2) );
 }  
 
@@ -203,8 +205,8 @@ std::pair<float,float> PixelTripletHLTGenerator::mergePhiRanges(
 {
   float r2_min=r2.first;
   float r2_max=r2.second;
-  while (r1.first-r2_min > M_PI) { r2_min += 2*M_PI; r2_max += 2*M_PI;}
-  while (r1.first-r2_min < -M_PI) { r2_min -= 2*M_PI;  r2_max -= 2*M_PI; }
+  while (r1.first-r2_min > Geom::fpi()) { r2_min += Geom::ftwopi(); r2_max += Geom::ftwopi();}
+  while (r1.first-r2_min < -Geom::fpi()) { r2_min -= Geom::ftwopi();  r2_max -= Geom::ftwopi(); }
   
   return std::make_pair(min(r1.first,r2_min),max(r1.second,r2_max));
 }
