@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2010/03/07 17:30:47 $
- *  $Revision: 1.81 $
+ *  $Date: 2010/05/10 00:29:25 $
+ *  $Revision: 1.82 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -428,7 +428,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   LogTrace(metname) << "Create the collection of Tracks";
   
   edm::Handle<reco::BeamSpot> beamSpot;
-  event.getByType(beamSpot);
+  event.getByLabel(theBeamSpotInputTag,beamSpot);
 
   reco::TrackRef::key_type trackIndex = 0;
   //  reco::TrackRef::key_type trackUpdatedIndex = 0;
