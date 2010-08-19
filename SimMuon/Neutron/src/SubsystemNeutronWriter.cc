@@ -29,6 +29,7 @@ SubsystemNeutronWriter::SubsystemNeutronWriter(edm::ParameterSet const& pset)
   theInputTag(pset.getParameter<edm::InputTag>("input")),
   theNeutronTimeCut(pset.getParameter<double>("neutronTimeCut")),
   theTimeWindow(pset.getParameter<double>("timeWindow")),
+  theT0(pset.getParameter<double>("t0")),
   theNEvents(0),
   initialized(false),
   useLocalDetId_(true)
@@ -139,10 +140,10 @@ void SubsystemNeutronWriter::writeHits(int chamberType, edm::PSimHitContainer & 
     if(tof > theNeutronTimeCut) {
       if(tof > (startTime + theTimeWindow) ) { // 1st in cluster
         startTime = tof;
-        // set the time to be 0-25 at start of event
-        smearing = 0.;
+        // set the time to be [t0, t0+25] at start of event
+        smearing = theT0;
         if(theRandFlat) {
-          smearing = theRandFlat->fire(25.);
+          smearing += theRandFlat->fire(25.);
         }
         if(!cluster.empty()) {
           LogDebug("SubsystemNeutronWriter") << "filling old cluster";
