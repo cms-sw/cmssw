@@ -59,15 +59,15 @@ void HitPairGeneratorFromLayerPair::hitPairs(
 
   InnerDeltaPhi deltaPhi(*theInnerLayer.detLayer(), region, iSetup);
 
-  vector<Hit> outerHits = outerHitsMap.hits();
+  RecHitsSortedInPhi::Range outerHits = outerHitsMap.all();
 
   static const float nSigmaRZ = std::sqrt(12.f);
   static const float nSigmaPhi = 3.f;
-  typedef vector<Hit>::const_iterator IT;
+  typedef RecHitsSortedInPhi::HitIter IT;
   vector<Hit> innerHits;
-  for (IT oh = outerHits.begin(), oeh = outerHits.end(); oh < oeh; ++oh) { 
-   
-    GlobalPoint oPos = (*oh)->globalPosition();  
+  for (IT oh = outerHits.first; oh!= outerHits.second; ++oh) { 
+    Hit const & ohit = (*oh).TheHit;
+    GlobalPoint oPos = ohit.globalPosition();  
     PixelRecoRange<float> phiRange = deltaPhi( oPos.perp(), oPos.phi(), oPos.z(), nSigmaPhi*(*oh)->errorGlobalRPhi());    
 
     if (phiRange.empty()) continue;
@@ -99,7 +99,7 @@ void HitPairGeneratorFromLayerPair::hitPairs(
 	  delete checkRZ;
 	  return;
 	}
-        result.push_back( OrderedHitPair( *ih, *oh) );
+        result.push_back( OrderedHitPair( *ih, ohit) );
       }
     }
     delete checkRZ;

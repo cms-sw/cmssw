@@ -68,6 +68,11 @@ public:
     return result;
   }
 
+
+  Range all() const {
+    return Range(theHits.begin(); i!=theHits.end());
+  }
+
 private:
 
   std::vector<HitWithPhi> theHits;
