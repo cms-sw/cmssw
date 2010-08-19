@@ -96,6 +96,31 @@
       <rChild name="testLogicalParts:torus"/>
       <Translation z="-8.5*m" y="5.5*m" x="0"/>
     </PosPart>
-
+<!-- beyond this point I'm not worrying about overlaps :( -->
+    <PosPart copyNumber="1">
+      <rParent name="testLogicalParts:MotherOfAllBoxes"/>
+      <rChild name="testLogicalParts:asphere"/>
+      <Translation z="-8.7*m" y="5.7*m" x="0."/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="testLogicalParts:MotherOfAllBoxes"/>
+      <rChild name="testLogicalParts:anorb"/>
+      <Translation z="-8.8*m" y="5.8*m" x="0."/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="testLogicalParts:MotherOfAllBoxes"/>
+      <rChild name="testLogicalParts:etube"/>
+      <Translation z="-8.9*m" y="5.9*m" x="0."/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="testLogicalParts:MotherOfAllBoxes"/>
+      <rChild name="testLogicalParts:anellipsoid"/>
+      <Translation z="-9.*m" y="6.*m" x="0."/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="testLogicalParts:MotherOfAllBoxes"/>
+      <rChild name="testLogicalParts:para"/>
+      <Translation z="-9.1*m" y="6.1*m" x="0."/>
+    </PosPart>
   </PosPartSection>
 </DDDefinition>

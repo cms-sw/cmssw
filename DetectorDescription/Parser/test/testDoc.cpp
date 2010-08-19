@@ -514,31 +514,34 @@ int main(int argc, char *argv[])
 	  cpv.setRoot(DDRootDef::instance().root());
 	}
 	  DDExpandedView ev(cpv);
-	  if (ev.firstChild()) {
-	    ev.firstChild();
-	    ev.nextSibling();
-	    std::cout << ev.geoHistory() << std::endl;
-	    ev.nextSibling();
-	    std::cout << ev.geoHistory() << std::endl;
-	    ev.firstChild();
-	    std::cout << ev.geoHistory() << std::endl;
-	    ev.nextSibling();
-	    std::cout << ev.geoHistory() << std::endl;
-	    ev.nextSibling();
-	    std::cout << ev.geoHistory() << std::endl;
-	    ev.firstChild();
-	    std::cout << ev.geoHistory() << std::endl;
-	    ev.nextSibling();
-	    std::cout << ev.geoHistory() << std::endl;
-	    ev.firstChild();
-	    std::cout << ev.geoHistory() << std::endl;
-	    ev.nextSibling();
-	    std::cout << ev.geoHistory() << std::endl;
-	    ev.firstChild();
-	    std::cout << ev.geoHistory() << std::endl;
-	    ev.nextSibling();
+	  while (ev.next()) {
 	    std::cout << ev.geoHistory() << std::endl;
 	  }
+// 	  if (ev.firstChild()) {
+// 	    ev.firstChild();
+// 	    ev.nextSibling();
+// 	    std::cout << ev.geoHistory() << std::endl;
+// 	    ev.nextSibling();
+// 	    std::cout << ev.geoHistory() << std::endl;
+// 	    ev.firstChild();
+// 	    std::cout << ev.geoHistory() << std::endl;
+// 	    ev.nextSibling();
+// 	    std::cout << ev.geoHistory() << std::endl;
+// 	    ev.nextSibling();
+// 	    std::cout << ev.geoHistory() << std::endl;
+// 	    ev.firstChild();
+// 	    std::cout << ev.geoHistory() << std::endl;
+// 	    ev.nextSibling();
+// 	    std::cout << ev.geoHistory() << std::endl;
+// 	    ev.firstChild();
+// 	    std::cout << ev.geoHistory() << std::endl;
+// 	    ev.nextSibling();
+// 	    std::cout << ev.geoHistory() << std::endl;
+// 	    ev.firstChild();
+// 	    std::cout << ev.geoHistory() << std::endl;
+// 	    ev.nextSibling();
+// 	    std::cout << ev.geoHistory() << std::endl;
+// 	  }
 // // 	} else {
 // // 	  cpv.setRoot(DDRootDef::instance().root());
 // // 	  std::cout << cpv.root() << std::endl;

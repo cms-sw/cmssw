@@ -59,6 +59,10 @@ problem with it.  Can a Polycone come to a point "in the real world?" -->
       <RotationByAxis axis="y" angle="90*deg"/>
       <Translation x="0" y="0" z="50*cm"/>
     </IntersectionSolid>
-    <Sphere name="asphere" innerRadius="1.*m" outerRadius="1.1*m" startPhi="0*deg" deltaPhi="180*deg" startTheta="15*deg" deltaTheta="90*deg"/>
+    <Sphere name="asphere" innerRadius="1.*cm" outerRadius="1.1*cm" startPhi="0*deg" deltaPhi="180*deg" startTheta="15*deg" deltaTheta="90*deg"/>
+    <Orb name="anorb" radius="1.*cm"/>
+    <EllipticalTube name="etube" xSemiAxis=".5*cm" ySemiAxis="1.*cm" zHeight="3.*cm"/>
+    <Ellipsoid name="anelipsoid" xSemiAxis=".5*cm" ySemiAxis="1.*cm" zSemiAxis="3.*cm" zBottomCut="0.*cm" zTopCut="1.5*cm"/>
+    <Parallelepiped name="para" xHalf="5.*cm" yHalf="6.*cm" zHalf="7.*cm" alpha="15*deg" theta="30*deg" phi="45*deg"/>
   </SolidSection>
 </DDDefinition>

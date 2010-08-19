@@ -28,9 +28,13 @@
 #include "DDLDivision.h"
 #include "DDLElementRegistry.h"
 #include "DDLElementaryMaterial.h"
+#include "DDLEllipticalTube.h"
+#include "DDLEllipsoid.h"
 #include "DDLLogicalPart.h"
 #include "DDLMap.h"
 #include "DDLNumeric.h"
+#include "DDLOrb.h"
+#include "DDLParallelepiped.h"
 #include "DDLPolyGenerator.h"
 #include "DDLPosPart.h"
 #include "DDLPseudoTrap.h"
@@ -146,6 +150,22 @@ DDXMLElement* DDLElementRegistry::getElement(const std::string& name)
     else if (name == "Sphere")
       {
 	myret = new DDLSphere(this);
+      }
+    else if (name == "Orb")
+      {
+	myret = new DDLOrb(this);
+      }
+    else if (name == "EllipticalTube")
+      {
+	myret = new DDLEllipticalTube(this);
+      }
+    else if (name == "Ellipsoid")
+      {
+	myret = new DDLEllipsoid(this);
+      }
+    else if (name == "Sphere")
+      {
+	myret = new DDLParallelepiped(this);
       }
 
     //  LogicalParts, Positioners, Materials, Rotations, Reflections
