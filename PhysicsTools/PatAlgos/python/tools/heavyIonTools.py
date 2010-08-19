@@ -49,14 +49,23 @@ class ProductionDefaults(ConfigToolBase):
         
     def toolCode(self, process):        
         ## adapt jet defaults
+
+        patJets = getattr(process, jetCollectionString())
+        patJets.jetSource  = cms.InputTag("iterativeConePu5CaloJets")
+
         jetCors  = getattr(process, 'patJetCorrFactors')
         jetCors.jetSource = cms.InputTag("iterativeConePu5CaloJets")
-        
+        jetCors.corrLevels = cms.PSet(L2Relative = cms.string("L2Relative_IC5Calo"),
+                                      L3Absolute = cms.string("L3Absolute_IC5Calo"))
+
+        partonMatch = getattr(process, 'patJetPartonMatch')
+        partonMatch.src = cms.InputTag("iterativeConePu5CaloJets")
+        partonMatch.matched = cms.InputTag("hiPartons")
+
         jetMatch = getattr(process, 'patJetGenJetMatch')
         jetMatch.src     = cms.InputTag("iterativeConePu5CaloJets")
         jetMatch.matched = cms.InputTag("heavyIonCleanedGenJets")
         
-        patJets = getattr(process, jetCollectionString())
         patJets.addBTagInfo         = False
         patJets.addTagInfos         = False
         patJets.addDiscriminators   = False
@@ -64,10 +73,11 @@ class ProductionDefaults(ConfigToolBase):
         patJets.addJetCharge        = False
         patJets.addJetID            = False
         patJets.getJetMCFlavour     = False
-        patJets.addGenPartonMatch   = False
+        patJets.addGenPartonMatch   = True
         patJets.addGenJetMatch      = True
-        patJets.jetSource  = cms.InputTag("iterativeConePu5CaloJets")
-        
+        patJets.embedGenJetMatch    = True
+        patJets.embedGenPartonMatch   = True
+
         ## adapt muon defaults
         muonMatch = getattr(process, 'muonMatch')
         muonMatch.matched = cms.InputTag("hiGenParticles")
@@ -94,7 +104,7 @@ class ProductionDefaults(ConfigToolBase):
             cms.InputTag("isoDR41"),cms.InputTag("isoDR42"),cms.InputTag("isoDR43"),cms.InputTag("isoDR44")
             )
         patPhotons.photonIDSource = cms.InputTag("PhotonIDProd","PhotonCutBasedIDLoose")
-        
+        del patPhotons.photonIDSources
         
 productionDefaults=ProductionDefaults()
 

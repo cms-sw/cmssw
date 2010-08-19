@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.168 $"
+__version__ = "$Revision: 1.172.2.4 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -17,7 +17,7 @@ defaultOptions.pileup = 'NoPileUp'
 defaultOptions.geometry = 'Extended'
 defaultOptions.geometryExtendedOptions = ['ExtendedGFlash','Extended','NoCastor']
 defaultOptions.magField = 'Default'
-defaultOptions.conditions = 'FrontierConditions_GlobalTag,STARTUP_V5::All'
+defaultOptions.conditions = 'auto:startup'
 defaultOptions.scenarioOptions=['pp','cosmics','nocoll','HeavyIons']
 defaultOptions.harvesting= 'AtRunEnd'
 defaultOptions.gflash = False
@@ -44,7 +44,7 @@ def dumpPython(process,name):
     theObject = getattr(process,name)
     if isinstance(theObject,cms.Path) or isinstance(theObject,cms.EndPath) or isinstance(theObject,cms.Sequence):
         return "process."+name+" = " + theObject.dumpPython("process")
-    elif isinstance(theObject,_Module):
+    elif isinstance(theObject,_Module) or isinstance(theObject,cms.ESProducer):
         return "process."+name+" = " + theObject.dumpPython()
 
 
@@ -125,6 +125,15 @@ class ConfigBuilder(object):
            if 'HARVESTING' in self._options.step:
                self.process.source.processingMode = cms.untracked.string("RunsAndLumis")
 
+           if self._options.dbsquery!='':
+               self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring())
+               import os
+               print "the query is",self._options.dbsquery
+               for line in os.popen('dbs search --query "%s"'%(self._options.dbsquery,)):
+                   if (line.find(".root")!=-1):
+                       self.process.source.fileNames.append(line.replace("\n",""))
+	       print "found files: ",self.process.source.fileNames.value()
+
         if 'GEN' in self._options.step or (not self._options.filein and hasattr(self._options, "evt_type")):
             if self.process.source is None:
                 self.process.source=cms.Source("EmptySource")
@@ -150,6 +159,8 @@ class ConfigBuilder(object):
                    self.additionalObjects.insert(0,name)
                 if isinstance(theObject, cms.Sequence):
                    self.additionalObjects.append(name)
+		if isinstance(theObject, cmstypes.ESProducer):
+                   self.additionalObjects.append(name)			
         return
 
     def addOutput(self):
@@ -230,7 +241,7 @@ class ConfigBuilder(object):
 		    print "Possible options are:", pileupMap.keys()
                     sys.exit(-1)
             else:
-                    self.loadAndRemember("FastSimulation.PileUpProducer.PileUpSimulator10TeV_cfi")
+                    self.loadAndRemember("FastSimulation.PileUpProducer.PileUpSimulator7TeV_cfi")
                     self.loadAndRemember("FastSimulation/Configuration/FamosSequences_cff")
 		    self.executeAndRemember('process.famosPileUp.PileUpSimulator = process.PileUpSimulatorBlock.PileUpSimulator')
                     self.executeAndRemember("process.famosPileUp.PileUpSimulator.averageNumber = %s" %pileupMap[self._options.pileup])
@@ -402,7 +413,7 @@ class ConfigBuilder(object):
 	
 	self.EVTCONTDefaultCFF="Configuration/EventContent/EventContent_cff"
 	self.defaultMagField='38T'
-	self.defaultBeamSpot='Early10TeVCollision'
+	self.defaultBeamSpot='Realistic7TeVCollision'
 
         # if fastsim switch event content
 	if "FASTSIM" in self._options.step:
@@ -433,6 +444,8 @@ class ConfigBuilder(object):
 	    self.eventcontent='FEVT'
 
         if self._options.scenario=='HeavyIons':
+	    # self.VALIDATIONDefaultCFF="Configuration/StandardSequences/ValidationHeavyIons_cff"
+            # self.VALIDATIONDefaultSeq='validationHeavyIons'
             self.EVTCONTDefaultCFF="Configuration/EventContent/EventContentHeavyIons_cff"
             self.RECODefaultCFF="Configuration/StandardSequences/ReconstructionHeavyIons_cff"
    	    self.RECODefaultSeq='reconstructionHeavyIons'
@@ -447,7 +460,8 @@ class ConfigBuilder(object):
                 self.GeometryCFF='Configuration/StandardSequences/Geometry'+self._options.geometry+'GFlash_cff'
         else:
                 self.GeometryCFF='Configuration/StandardSequences/Geometry'+self._options.geometry+'_cff'
-                
+	
+	# Mixing
 	if self._options.isMC==True and self._options.himix==False:
  	    self.PileupCFF='Configuration/StandardSequences/Mixing'+self._options.pileup+'_cff'
         elif self._options.isMC==True and self._options.himix==True:	 
@@ -455,7 +469,7 @@ class ConfigBuilder(object):
         else:
 	    self.PileupCFF=''
 	    
-	#beamspot
+	# beamspot
 	if self._options.beamspot != None:
 	    self.beamspot=self._options.beamspot
 	else:
@@ -470,7 +484,10 @@ class ConfigBuilder(object):
         output = cms.OutputModule("PoolOutputModule")
 	output.SelectEvents = stream.selectEvents
 	output.outputCommands = stream.content
-	output.fileName = cms.untracked.string(stream.name+'.root')
+	if (hasattr(self._options, 'dirout')):
+		output.fileName = cms.untracked.string(self._options.dirout+stream.name+'.root')
+	else:
+		output.fileName = cms.untracked.string(stream.name+'.root')
 	output.dataset  = cms.untracked.PSet( dataTier = stream.dataTier, 
 					      filterName = cms.untracked.string(stream.name))
 	if workflow in ("producers,full"):
@@ -716,6 +733,8 @@ class ConfigBuilder(object):
         else:    
             self.loadAndRemember(sequence.split(',')[0])
         self.process.validation_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
+        # if 'genvalid' in sequence.split(',')[-1]:
+        #     self.loadAndRemember("IOMC.RandomEngine.IOMC_cff")    
         self.schedule.append(self.process.validation_step)
         print self._options.step
         if not "DIGI"  in self._options.step.split(","):
@@ -755,7 +774,7 @@ class ConfigBuilder(object):
         if 'alcaHarvesting' in harvestingList:
             harvestingList.remove('alcaHarvesting')
                     
-        if len(harvestingList) != 0:
+        if len(harvestingList) != 0: #  and 'dummyHarvesting' not in harvestingList :
             print "The following harvesting could not be found : ", harvestingList
             raise
 
@@ -801,9 +820,7 @@ class ConfigBuilder(object):
             self.executeAndRemember("process.famosSimHits.SimulateTracking = True")
 
             # the settings have to be the same as for the generator to stay consistent  
-            print '  Set comEnergy to famos decay processing to 10 TeV. Please edit by hand if it needs to be different.'
-            print '  The pile up is taken from 10 TeV files. To switch to other files remove the inclusion of "PileUpSimulator10TeV_cfi"'
-            self.executeAndRemember('process.famosSimHits.ActivateDecays.comEnergy = 10000')
+            print '  The pile up is taken from 7 TeV files. To switch to other files remove the inclusion of "PileUpSimulator7TeV_cfi"'
 	    
             self.executeAndRemember("process.simulation = cms.Sequence(process.simulationWithFamos)")
             self.executeAndRemember("process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)")
@@ -844,7 +861,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.168 $"),
+              (version=cms.untracked.string("$Revision: 1.172.2.4 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )

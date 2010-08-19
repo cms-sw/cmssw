@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFMergeRankEtaQLUT
 //
 // 
-//   $Date: 2007/04/02 15:45:38 $
-//   $Revision: 1.3 $
+//   $Date: 2006/11/17 08:25:34 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -72,10 +72,7 @@ unsigned L1MuGMTLFMergeRankEtaQLUT::TheLookupFunction (int idx, unsigned eta, un
     if (q==3) flag =1;
   }
 
-  // use local quality as rank
-  unsigned rank_etaq = q;
-  // in the overlap region promote RPC
-  if( (idx==1 || idx==3) && (fabs(etaValue)>1. && fabs(etaValue)<1.23) ) rank_etaq=7;
+  unsigned rank_etaq = 0;
 
   return flag << 7 | rank_etaq;
 }

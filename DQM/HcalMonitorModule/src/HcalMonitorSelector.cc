@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorSelector.cc
  * 
- * $Date: 2008/08/13 17:06:44 $
- * $Revision: 1.10 $
+ * $Date: 2010/04/04 15:54:24 $
+ * $Revision: 1.11 $
  * \author W Fisher
  *
 */
@@ -31,7 +31,8 @@ void HcalMonitorSelector::processEvent(const edm::Event& e){
   return;
 
   edm::Handle<HcalTBTriggerData> triggerD;
-  if (e.getByType(triggerD)==0)
+  e.getByType(triggerD);
+  if (!triggerD.isValid()) 
     {
       m_runNum=-1; 
       //If we don't have the trigger data, just activate everyone!

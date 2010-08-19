@@ -36,7 +36,7 @@ SiPixelGainCalibrationForHLT::SiPixelGainCalibrationForHLT(float minPed, float m
          << "[SiPixelGainCalibrationHLT::SiPixelGainCalibrationHLT] Dead flag was set to " << deadFlag_ << ", and it must be set less than or equal to 255";
 }
 
-bool SiPixelGainCalibrationForHLT::put(const uint32_t& DetId, Range input, const int& nCols) {
+bool SiPixelGainCalibrationForHLT::put(const uint32_t& DetId, Range input, const int& nCols, const int& ROCRows) {
   // put in SiPixelGainCalibrationForHLT of DetId
 
   Registry::iterator p = std::lower_bound(indexes.begin(),indexes.end(),DetId,SiPixelGainCalibrationForHLT::StrictWeakOrdering());
@@ -49,19 +49,20 @@ bool SiPixelGainCalibrationForHLT::put(const uint32_t& DetId, Range input, const
   detregistry.ibegin=v_pedestals.size();
   detregistry.iend=v_pedestals.size()+sd;
   detregistry.ncols=nCols;
+  detregistry.rocrows=ROCRows;
   indexes.insert(p,detregistry);
 
   v_pedestals.insert(v_pedestals.end(),input.first,input.second);
   return true;
 }
 
-const int SiPixelGainCalibrationForHLT::getNCols(const uint32_t& DetId) const {
+const int SiPixelGainCalibrationForHLT::getNCols(const uint32_t& DetId, int *ROCRows) const {
   // get number of columns of DetId
   RegistryIterator p = std::lower_bound(indexes.begin(),indexes.end(),DetId,SiPixelGainCalibrationForHLT::StrictWeakOrdering());
   if (p==indexes.end()|| p->detid!=DetId) 
     return 0;
   else
-  {
+  {  if (ROCRows!=0) { *ROCRows=p->rocrows;}
     return p->ncols;
   }
 }
@@ -77,12 +78,14 @@ const SiPixelGainCalibrationForHLT::Range SiPixelGainCalibrationForHLT::getRange
 }
 
 const std::pair<const SiPixelGainCalibrationForHLT::Range, const int>
-SiPixelGainCalibrationForHLT::getRangeAndNCols(const uint32_t& DetId) const {
+SiPixelGainCalibrationForHLT::getRangeAndNCols(const uint32_t& DetId, int* ROCRows) const {
   RegistryIterator p = std::lower_bound(indexes.begin(),indexes.end(),DetId,SiPixelGainCalibrationForHLT::StrictWeakOrdering());
   if (p==indexes.end()|| p->detid!=DetId) 
     return std::make_pair(SiPixelGainCalibrationForHLT::Range(v_pedestals.end(),v_pedestals.end()), 0); 
   else 
+    { if (ROCRows!=0) { *ROCRows=p->rocrows;}
     return std::make_pair(SiPixelGainCalibrationForHLT::Range(v_pedestals.begin()+p->ibegin,v_pedestals.begin()+p->iend), p->ncols);
+    }
 }
 
 void SiPixelGainCalibrationForHLT::getDetIds(std::vector<uint32_t>& DetIds_) const {
@@ -123,13 +126,13 @@ void SiPixelGainCalibrationForHLT::setData(float ped, float gain, std::vector<ch
   ::memcpy((void*)(&vped[vped.size()-2]),(void*)(&data),2);
 }
 
-float SiPixelGainCalibrationForHLT::getPed(const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn, bool& isNoisyColumn) const {
+float SiPixelGainCalibrationForHLT::getPed(const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn, bool& isNoisyColumn, const int& ROCRows) const {
    // TODO MERGE THIS FUNCTION WITH GET GAIN, then provide wrappers
 
   // determine what averaged data block we are in (there should be 1 or 2 of these depending on if plaquette is 1 by X or 2 by X
   unsigned int lengthOfColumnData  = (range.second-range.first)/nCols;
   unsigned int lengthOfAveragedDataInEachColumn = 2;  // we always only have two values per column averaged block 
-  unsigned int numberOfDataBlocksToSkip = row / numberOfRowsToAverageOver_;
+  unsigned int numberOfDataBlocksToSkip = row / ROCRows;
 
   const DecodingStructure & s = (const DecodingStructure & ) *(range.first+col*lengthOfColumnData + lengthOfAveragedDataInEachColumn*numberOfDataBlocksToSkip);
 
@@ -138,7 +141,7 @@ float SiPixelGainCalibrationForHLT::getPed(const int& col, const int& row, const
   else if ((s.ped & 0xFF) == noisyFlag_)
      isNoisyColumn = true;
 
-  int maxRow = (lengthOfColumnData/lengthOfAveragedDataInEachColumn)*numberOfRowsToAverageOver_ - 1;
+  int maxRow = (lengthOfColumnData/lengthOfAveragedDataInEachColumn)*ROCRows - 1;
   if (col >= nCols || row > maxRow){
     throw cms::Exception("CorruptedData")
       << "[SiPixelGainCalibrationForHLT::getPed] Pixel out of range: col " << col << " row: " << row;
@@ -146,12 +149,12 @@ float SiPixelGainCalibrationForHLT::getPed(const int& col, const int& row, const
   return decodePed(s.ped & 0xFF);  
 }
 
-float SiPixelGainCalibrationForHLT::getGain(const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn, bool& isNoisyColumn) const {
+float SiPixelGainCalibrationForHLT::getGain(const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn, bool& isNoisyColumn, const int& ROCRows) const {
 
   // determine what averaged data block we are in (there should be 1 or 2 of these depending on if plaquette is 1 by X or 2 by X
   unsigned int lengthOfColumnData  = (range.second-range.first)/nCols;
   unsigned int lengthOfAveragedDataInEachColumn = 2;  // we always only have two values per column averaged block 
-  unsigned int numberOfDataBlocksToSkip = row / numberOfRowsToAverageOver_;
+  unsigned int numberOfDataBlocksToSkip = row / ROCRows;
 
   const DecodingStructure & s = (const DecodingStructure & ) *(range.first+col*lengthOfColumnData + lengthOfAveragedDataInEachColumn*numberOfDataBlocksToSkip);
 
@@ -160,7 +163,7 @@ float SiPixelGainCalibrationForHLT::getGain(const int& col, const int& row, cons
   else if ((s.gain & 0xFF) == noisyFlag_)
      isNoisyColumn = true;
      
-  int maxRow = (lengthOfColumnData/lengthOfAveragedDataInEachColumn)*numberOfRowsToAverageOver_ - 1;
+  int maxRow = (lengthOfColumnData/lengthOfAveragedDataInEachColumn)*ROCRows - 1;
   if (col >= nCols || row > maxRow){
     throw cms::Exception("CorruptedData")
       << "[SiPixelGainCalibrationForHLT::getGain] Pixel out of range: col " << col << " row: " << row;

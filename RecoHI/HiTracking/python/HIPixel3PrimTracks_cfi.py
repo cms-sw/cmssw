@@ -45,4 +45,4 @@ hiPixel3PrimTracks = cms.EDProducer("PixelTrackProducer",
 )
 
 # increase threshold for triplets in generation step (default: 10000)
-hiPixel3PrimTracks.OrderedHitsFactoryPSet.GeneratorPSet.maxTriplets = 1000000
+hiPixel3PrimTracks.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = 1000000

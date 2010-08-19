@@ -7,7 +7,6 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "SLHCUpgradeSimulations/Geometry/interface/DDPixBarStackLinearGap.h"
@@ -52,7 +51,7 @@ void DDPixBarStackLinearGap::initialize(const DDNumericArguments & nArgs,
 			  << rotMat;
 }
 
-void DDPixBarStackLinearGap::execute() {
+void DDPixBarStackLinearGap::execute(DDCompactView& cpv) {
 
   DDName mother = parent().name();
   DDName child(DDSplit(childName).first, DDSplit(childName).second);
@@ -73,13 +72,13 @@ void DDPixBarStackLinearGap::execute() {
     }
 	
     DDTranslation tran = base + (offset + double(i)*delta)*direction;
-    DDpos (child, mother, 2*i+1, tran, rot);
+    cpv.position (child, mother, 2*i+1, tran, rot);
     LogDebug("TrackerGeom") << "DDPixBarStackLinearGap test: " << child << " number "
 			    << 2*i+1 << " positioned in " << mother << " at "
 			    << tran << " with " << rot;
 
     DDTranslation tran2 = base - (offset + double(i)*delta)*direction;
-    DDpos (child, mother, 2*i+2, tran2, rot);
+    cpv.position (child, mother, 2*i+2, tran2, rot);
     LogDebug("TrackerGeom") << "DDPixBarStackLinearGap test: " << child << " number "
                             << 2*i+2 << " positioned in " << mother << " at "
                             << tran2 << " with " << rot;
@@ -88,13 +87,13 @@ void DDPixBarStackLinearGap::execute() {
       if((i+1)!=number){
         i++;
         DDTranslation tran3 = zbase + (offset + double(i)*delta)*direction;
-        DDpos (child, mother, 2*i+1, tran3, rot);
+        cpv.position (child, mother, 2*i+1, tran3, rot);
         LogDebug("TrackerGeom") << "DDPixBarStackLinearGap test: " << child << " number "
                             << 2*i+1 << " positioned in " << mother << " at "
                             << tran3 << " with " << rot;
     
         DDTranslation tran4 = zbase - (offset + double(i)*delta)*direction;
-        DDpos (child, mother, 2*i+2, tran4, rot);
+        cpv.position (child, mother, 2*i+2, tran4, rot);
         LogDebug("TrackerGeom") << "DDPixBarStackLinearGap test: " << child << " number "
                             << 2*i+2 << " positioned in " << mother << " at "
                             << tran4 << " with " << rot;

@@ -43,6 +43,7 @@ VertexAssociatorByTracks::VertexAssociatorByTracks (const edm::ParameterSet & co
                     param.getParameter<int>("minHitTP"),
                     param.getParameter<bool>("signalOnlyTP"),
                     param.getParameter<bool>("chargedOnlyTP"),
+		    param.getParameter<bool>("stableOnlyTP"),
                     param.getParameter<std::vector<int> >("pdgIdTP")
                 );
 }

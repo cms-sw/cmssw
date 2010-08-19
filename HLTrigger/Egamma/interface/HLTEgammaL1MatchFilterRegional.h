@@ -9,6 +9,9 @@
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
+#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
+
 //
 // class decleration
 //
@@ -36,6 +39,10 @@ class HLTEgammaL1MatchFilterRegional : public HLTFilter {
       double region_phi_size_;
       double barrel_end_;
       double endcap_end_;
+
+ public:
+      bool matchedToL1Cand(const std::vector<l1extra::L1EmParticleRef >& l1Cands,const float scEta,const float scPhi);
+
 };
 
 #endif //HLTEgammaL1MatchFilterRegional_h

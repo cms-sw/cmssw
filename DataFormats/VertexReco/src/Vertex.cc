@@ -1,6 +1,8 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include <Math/GenVector/PxPyPzE4D.h>                                                                                                   
+#include <Math/GenVector/PxPyPzM4D.h>       
 
-// $Id: Vertex.cc,v 1.14 2007/09/13 16:05:25 speer Exp $
+// $Id: Vertex.cc,v 1.17 2010/04/16 08:08:28 arizzi Exp $
 using namespace reco;
 using namespace std;
 
@@ -108,3 +110,55 @@ Track Vertex::refittedTrack(const TrackRef & track) const
 {
   return refittedTrack(TrackBaseRef(track));
 }
+
+math::XYZTLorentzVectorD Vertex::p4(float mass,float minWeight) const
+{
+
+ math::XYZTLorentzVectorD sum;
+ ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double> > vec;
+
+ if(hasRefittedTracks()) {
+ for(std::vector<Track>::const_iterator iter = refittedTracks_.begin();
+     iter != refittedTracks_.end(); ++iter) {
+   if (trackWeight(originalTrack(*iter)) >=minWeight) {
+   vec.SetPx(iter->px());
+   vec.SetPy(iter->py());
+   vec.SetPz(iter->pz());
+   vec.SetM(mass);
+   sum += vec;
+   }
+  }
+ }
+ else
+ {
+ for(std::vector<reco::TrackBaseRef>::const_iterator iter = tracks_begin();
+            iter != tracks_end(); iter++) {
+  if (trackWeight(*iter) >=minWeight) {
+   vec.SetPx((*iter)->px());
+   vec.SetPy((*iter)->py());
+   vec.SetPz((*iter)->pz());
+   vec.SetM(mass);
+   sum += vec;
+   }
+  }
+ }
+ return sum;
+}
+
+unsigned int Vertex::nTracks(float minWeight) const
+{
+ int n=0;
+ if(hasRefittedTracks()) {
+ for(std::vector<Track>::const_iterator iter = refittedTracks_.begin(); iter != refittedTracks_.end(); ++iter) 
+   if (trackWeight(originalTrack(*iter)) >=minWeight) 
+     n++;
+ }
+ else
+ {
+  for(std::vector<reco::TrackBaseRef>::const_iterator iter = tracks_begin(); iter != tracks_end(); iter++) 
+   if (trackWeight(*iter) >=minWeight) 
+    n++;  
+ } 
+ return n;
+}
+

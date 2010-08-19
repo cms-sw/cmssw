@@ -3,7 +3,7 @@
 
 // Original Author:  Giovanni Petrucciani
 //         Created:  Fri May 25 10:06:02 CEST 2007
-// $Id: TrackWithVertexSelector.h,v 1.2 2010/01/06 16:39:33 lowette Exp $
+// $Id: TrackWithVertexSelector.h,v 1.3 2010/02/11 00:10:52 wmtan Exp $
 
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -36,7 +36,6 @@ class TrackWithVertexSelector {
       double        zetaVtx_, rhoVtx_;
 
       typedef math::XYZPoint Point;
-      bool testPoint(const Point &point, const Point &vtx) const ;
 };
 
 #endif

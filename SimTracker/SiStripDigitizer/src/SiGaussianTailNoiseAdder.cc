@@ -20,8 +20,9 @@ SiGaussianTailNoiseAdder::~SiGaussianTailNoiseAdder(){
 
 void SiGaussianTailNoiseAdder::addNoise(std::vector<double> &in,
 					size_t& minChannel, size_t& maxChannel,
-					int numStrips, float noiseRMS){
- 
+					int ns, float nrms){
+  numStrips = ns; 
+  noiseRMS = nrms; 
   std::vector<std::pair<int,float> > generatedNoise;
   genNoise->generate(numStrips,threshold,noiseRMS,generatedNoise);
   
@@ -41,53 +42,26 @@ void SiGaussianTailNoiseAdder::addNoise(std::vector<double> &in,
   }
 }
 
-void SiGaussianTailNoiseAdder::addNoiseVR(std::vector<double> &in, std::vector<float> &noiseRMS){
+void SiGaussianTailNoiseAdder::createRaw(std::vector<double> &in,
+					 size_t& minChannel, size_t& maxChannel,
+					 int ns, float nrms, float ped){
   // Add noise
   // Full Gaussian noise is added everywhere
-  for (size_t iChannel=0; iChannel!=in.size(); iChannel++) {
-     if(noiseRMS[iChannel] > 0.) in[iChannel] += gaussDistribution->fire(0.,noiseRMS[iChannel]);
-  }
-}
-
-void SiGaussianTailNoiseAdder::addPedestals(std::vector<double> &in,std::vector<float> & ped){
-	for (size_t iChannel=0; iChannel!=in.size(); iChannel++) {
-      if(ped[iChannel]>0.) in[iChannel] += ped[iChannel];      
-    }
-}
-
-void SiGaussianTailNoiseAdder::addCMNoise(std::vector<double> &in, float cmnRMS, std::vector<bool> &badChannels){
-  int nAPVs = in.size()/128;
-  std::vector<float> CMNv;
-  for(int APVn =0; APVn < nAPVs; ++APVn) CMNv.push_back(gaussDistribution->fire(0.,cmnRMS));
-  for (size_t iChannel=0; iChannel!=in.size(); iChannel++) {
-     if(!badChannels[iChannel]) in[iChannel] += CMNv[(int)(iChannel/128)];
-  }
-}
-
-void SiGaussianTailNoiseAdder::addBaselineShift(std::vector<double> &in, std::vector<bool> &badChannels){
-  int nAPVs = in.size()/128;
-  std::vector<float> vShift;
-  double apvCharge, apvMult;
+  numStrips = ns; 
+  noiseRMS = nrms; 
   
-  size_t iChannel;
-  for(int APVn =0; APVn < nAPVs; ++APVn){
-   	apvMult=0; apvCharge=0;
-	for(iChannel=APVn*128; iChannel!=APVn*128+128; ++iChannel) {
-  	   if(in[iChannel]>0){
-	   	 ++apvMult;
-	   	  apvCharge+= in[iChannel];
-	   }
-	   if(apvMult==0) vShift.push_back(0);
-	   else vShift.push_back(apvCharge/apvMult);
-  	}
+  // noise on strips with signal:
+  for (size_t iChannel=minChannel; iChannel<maxChannel; iChannel++) {
+    if(in[iChannel] != 0) {
+      in[iChannel] += gaussDistribution->fire(0.,noiseRMS);
+    }
   }
-     
-  for (iChannel=0; iChannel!=in.size(); ++iChannel) {
-     if(!badChannels[iChannel]) in[iChannel] -= vShift[(int)(iChannel/128)];
+
+  // Noise on the other strips
+  genNoise->generateRaw(noiseRMS,in);
+  
+  // Add pedestals (no CMN)
+  for (size_t iChannel=0; iChannel!=in.size(); iChannel++) {
+    in[iChannel] += ped;           
   }
 }
-
-
-
-
-

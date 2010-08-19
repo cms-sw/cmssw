@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-_Cosmics_
+_cosmics_
 
 Test for Cosmics Scenario implementation
 
@@ -33,7 +33,6 @@ class cosmicsScenarioTest(unittest.TestCase):
 
     def testA(self):
         """get the scenario"""
-
         try:
             scenario = getScenario("cosmics")
         except Exception, ex:
@@ -44,12 +43,9 @@ class cosmicsScenarioTest(unittest.TestCase):
 
     def testPromptReco(self):
         """test promptReco method"""
-
-        
-        
         scenario = getScenario("cosmics")
         try:
-            process = scenario.promptReco("GLOBALTAG::ALL", ['MuAlCalIsolatedMu'])
+            process = scenario.promptReco("GLOBALTAG::ALL")
             writePSetFile("testPromptReco.py", process)
         except Exception, ex:
             msg = "Failed to create Prompt Reco configuration\n"
@@ -57,58 +53,46 @@ class cosmicsScenarioTest(unittest.TestCase):
             msg += str(ex)
             self.fail(msg)
 
-        
-        
-
-
-    def testDQMHarvesting(self):
-        """test dqmHarvesting  method"""
-
-
-        scenario = getScenario("cosmics")
-
-        try:
-            process = scenario.dqmHarvesting("dataset", 123456,
-                                             "GLOBALTAG::ALL")
-            
-            writePSetFile("testDQMHarvesting.py", process)
-        except Exception, ex:
-            msg = "Failed creating DQM Harvesting configuration "
-            msg += "for cosmics scenario:\n"
-            msg += str(ex)
-            self.fail(msg)
 
     def testExpressProcessing(self):
         """ test expressProcessing method"""
         scenario = getScenario("cosmics")
-
         try:
-            process = scenario.expressProcessing("GLOBALTAG::ALL",
-                                                 ['RECO', 'RAW'],
-                                                 ['Dataset1'],)
+            process = scenario.expressProcessing("GLOBALTAG::ALL")
             writePSetFile("testExpressProcessing.py", process)
         except Exception, ex:
-            msg = "Error calling cosmics.expressProcessing:\n"
+            msg = "Failed to create Express Processing configuration\n"
+            msg += "for cosmics Scenario\n"
             msg += str(ex)
             self.fail(msg)
 
-        
-            
-            
 
-            
     def testAlcaSkim(self):
-            """ test alcaSkim method"""
-            scenario = getScenario("cosmics")
-#        try:
+        """ test alcaSkim method"""
+        scenario = getScenario("cosmics")
+        try:
             process = scenario.alcaSkim(["MuAlCalIsolatedMu"])
             writePSetFile("testAlcaReco.py", process)
-#        except Exception, ex:
-#            msg = "Error preparing Alca Reco configuration\n"
-#            msg += str(ex)
-#            self.fail(msg)
-                              
+        except Exception, ex:
+           msg = "Failed to create Alca Skimming configuration\n"
+           msg += "for cosmics Scenario\n"
+           msg += str(ex)
+           self.fail(msg)
 
-    
+
+    def testDQMHarvesting(self):
+        """test dqmHarvesting  method"""
+        scenario = getScenario("cosmics")
+        try:
+            process = scenario.dqmHarvesting("dataset", 123456,
+                                             "GLOBALTAG::ALL")
+            writePSetFile("testDQMHarvesting.py", process)
+        except Exception, ex:
+            msg = "Failed to create DQM Harvesting configuration "
+            msg += "for cosmics scenario:\n"
+            msg += str(ex)
+            self.fail(msg)
+
+
 if __name__ == '__main__':
     unittest.main()

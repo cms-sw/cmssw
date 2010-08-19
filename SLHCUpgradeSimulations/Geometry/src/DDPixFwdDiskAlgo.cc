@@ -8,7 +8,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
-#include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "SLHCUpgradeSimulations/Geometry/interface/DDPixFwdDiskAlgo.h"
@@ -55,7 +54,7 @@ void DDPixFwdDiskAlgo::initialize(const DDNumericArguments & nArgs,
   }
 }
 
-void DDPixFwdDiskAlgo::execute() {
+void DDPixFwdDiskAlgo::execute(DDCompactView& cpv) {
 
   int    copy   = startCopyNo;
   DDName mother = parent().name();
@@ -69,7 +68,8 @@ void DDPixFwdDiskAlgo::execute() {
     if (flagString[iBlade] == flagSelector[0]) {
       std::string rotstr = DDSplit(rotName).first +dbl_to_string(double(copy));
 
-      double phi  = (iBlade+0.5)*deltaPhi - 90.*CLHEP::deg;
+      double phi  = (iBlade+0.5)*deltaPhi;
+//      double phi  = (iBlade+0.5)*deltaPhi - 90.*CLHEP::deg;
       double phix = std::atan2(std::sin(phi)*std::cos(bladeAngle),
 			       std::cos(phi)*std::cos(bladeAngle));
       double thetx= std::acos(-std::sin(bladeAngle));
@@ -101,7 +101,7 @@ void DDPixFwdDiskAlgo::execute() {
       double zpos = anchorR*(std::cos(bladeAngle)*std::sin(bladeTilt))+zPlane+
 	bladeZShift[iBlade];
       DDTranslation tran(xpos, ypos, zpos);
-      DDpos (child, mother, copy, tran, rot);
+      cpv.position (child, mother, copy, tran, rot);
       LogDebug("TrackerGeom") << "DDPixFwdDiskAlgo test: " << child 
 			      << " number " << copy << " positioned in "
 			      << mother << " at " << tran << " with " << rot;

@@ -8,8 +8,8 @@
 #include "EventFilter/Utilities/interface/SquidNet.h"
 #include "EventFilter/Utilities/interface/Vulture.h"
 
-#include "MasterQueue.h"
-#include "SlaveQueue.h"
+#include "EventFilter/Utilities/interface/MasterQueue.h"
+#include "EventFilter/Utilities/interface/SlaveQueue.h"
 #include "SubProcess.h"
 #include "FWEPWrapper.h"
 
@@ -242,7 +242,8 @@ namespace evf
     xdata::UnsignedInteger32         superSleepSec_; 
     std::list<std::string>           names_;
     xdata::String                    iDieUrl_;
-    Vulture                         *vulture_; 
+    Vulture                         *vulture_;
+    pid_t			     vp_;
   };
   
 } // namespace evf

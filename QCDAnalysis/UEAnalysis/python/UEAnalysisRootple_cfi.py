@@ -1,79 +1,23 @@
 import FWCore.ParameterSet.Config as cms
 
-UEAnalysisRootple = cms.EDProducer("AnalysisRootpleProducer",
-                                   TracksCollectionName      = cms.InputTag("goodTracks"),
-                                   RecoCaloJetCollectionName = cms.InputTag("iterativeCone5CaloJets"),
-                                   ChgGenJetCollectionName   = cms.InputTag("IC5ChgGenJet"),
-                                   MCEvent                   = cms.InputTag("generator"),
-                                   TracksJetCollectionName   = cms.InputTag("IC5TracksJet"),
-                                   triggerEvent              = cms.InputTag("hltTriggerSummaryAOD"),
-                                   ChgGenPartCollectionName  = cms.InputTag("chargeParticles"),
-                                   OnlyRECO                  = cms.bool(True),
-                                   GenJetCollectionName      = cms.InputTag("IC5GenJet"),
-                                   triggerResults            = cms.InputTag("TriggerResults","","HLT"),
-                                   genEventScale             = cms.InputTag("generator") 
-                                   )
-#/// Pythia: genEventScale = cms.InputTag("genEventScale")
-#/// Herwig: genEventScale = cms.InputTag("genEventKTValue")
-
-UEAnalysisRootple500 = cms.EDProducer("AnalysisRootpleProducer",
-                                      TracksCollectionName      = cms.InputTag("goodTracks"),
-                                      RecoCaloJetCollectionName = cms.InputTag("iterativeCone5CaloJets"),
-                                      ChgGenJetCollectionName   = cms.InputTag("IC5ChgGenJet500"),
-                                      MCEvent                   = cms.InputTag("generator"),
-                                      TracksJetCollectionName   = cms.InputTag("IC5TracksJet500"),
-                                      triggerEvent              = cms.InputTag("hltTriggerSummaryAOD"),
-                                      ChgGenPartCollectionName  = cms.InputTag("chargeParticles"),
-                                      OnlyRECO                  = cms.bool(True),
-                                      GenJetCollectionName      = cms.InputTag("IC5GenJet500"),
-                                      triggerResults            = cms.InputTag("TriggerResults","","HLT"),
-                                      genEventScale             = cms.InputTag("generator") 
+ueAnalysisRootple = cms.EDProducer("AnalysisRootpleProducer",
+    #label of selected tracks
+    TracksCollectionName = cms.untracked.InputTag("goodTracks"),
+    #label of Jet made with Tracks
+    TracksJetCollectionName = cms.untracked.InputTag("iterativeCone5BasicJetsSeed10"),
+    #label of Jet made with only charged MC particles
+    ChgGenJetCollectionName = cms.untracked.InputTag("iterativeCone5ChgGenJetsSeed10"),
+    #lable of MC event
+    MCEvent = cms.untracked.InputTag("source"),
+    #label of charged MC particles
+    ChgGenPartCollectionName = cms.untracked.InputTag("chargeParticles"),
+    OnlyRECO = cms.untracked.bool(True),
+    #label of standard Calo Jet 
+    RecoCaloJetCollectionName = cms.untracked.InputTag("iterativeCone5CaloJets"),
+    #label of Jet made with MC particles
+    GenJetCollectionName = cms.untracked.InputTag("iterativeCone5GenJetsSeed10"),
+    #label of trigger results
+    triggerResults = cms.InputTag("TriggerResults")
 )
-
-UEAnalysisRootple1500 = cms.EDProducer("AnalysisRootpleProducer",
-                                       TracksCollectionName      = cms.InputTag("goodTracks"),
-                                       RecoCaloJetCollectionName = cms.InputTag("iterativeCone5CaloJets"),
-                                       ChgGenJetCollectionName   = cms.InputTag("IC5ChgGenJet1500"),
-                                       MCEvent                   = cms.InputTag("generator"),
-                                       TracksJetCollectionName   = cms.InputTag("IC5TracksJet1500"),
-                                       triggerEvent              = cms.InputTag("hltTriggerSummaryAOD"),
-                                       ChgGenPartCollectionName  = cms.InputTag("chargeParticles"),
-                                       OnlyRECO                  = cms.bool(True),
-                                       GenJetCollectionName      = cms.InputTag("IC5GenJet1500"),
-                                       triggerResults            = cms.InputTag("TriggerResults","","HLT"),
-                                       genEventScale             = cms.InputTag("generator")
-)
-
-
-UEAnalysisRootple700 = cms.EDProducer("AnalysisRootpleProducer",
-                                      TracksCollectionName      = cms.InputTag("goodTracks"),
-                                      RecoCaloJetCollectionName = cms.InputTag("iterativeCone5CaloJets"),
-                                      ChgGenJetCollectionName   = cms.InputTag("IC5ChgGenJet700"),
-                                      MCEvent                   = cms.InputTag("generator"),
-                                      TracksJetCollectionName   = cms.InputTag("IC5TracksJet700"),
-                                      triggerEvent              = cms.InputTag("hltTriggerSummaryAOD"),
-                                      ChgGenPartCollectionName  = cms.InputTag("chargeParticles"),
-                                      OnlyRECO                  = cms.bool(True),
-                                      GenJetCollectionName      = cms.InputTag("IC5GenJet700"),
-                                      triggerResults            = cms.InputTag("TriggerResults","","HLT"),
-                                      genEventScale             = cms.InputTag("generator") 
-)
-
-
-UEAnalysisRootple1100 = cms.EDProducer("AnalysisRootpleProducer",
-                                      TracksCollectionName      = cms.InputTag("goodTracks"),
-                                      RecoCaloJetCollectionName = cms.InputTag("iterativeCone5CaloJets"),
-                                      ChgGenJetCollectionName   = cms.InputTag("IC5ChgGenJet700"),
-                                      MCEvent                   = cms.InputTag("generator"),
-                                      TracksJetCollectionName   = cms.InputTag("IC5TracksJet700"),
-                                      triggerEvent              = cms.InputTag("hltTriggerSummaryAOD"),
-                                      ChgGenPartCollectionName  = cms.InputTag("chargeParticles"),
-                                      OnlyRECO                  = cms.bool(True),
-                                      GenJetCollectionName      = cms.InputTag("IC5GenJet700"),
-                                      triggerResults            = cms.InputTag("TriggerResults","","HLT"),
-                                      genEventScale             = cms.InputTag("generator") 
-)
-
-UEAnalysis = cms.Sequence(UEAnalysisRootple*UEAnalysisRootple500*UEAnalysisRootple1500*UEAnalysisRootple700*UEAnalysisRootple1100)
 
 

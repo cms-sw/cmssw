@@ -68,7 +68,7 @@ void L1TechReader::init(const Data & data) {
     BOOST_FOREACH(const AlgorithmMap::value_type & entry, triggerMap)
       if (boost::regex_match(entry.first, re)) {
         match = true;
-        if (data.ignoreL1Mask() or (mask.gtTriggerMask()[entry.second.algoBitNumber()] & data.daqPartitions()) == data.daqPartitions())
+        if (data.ignoreL1Mask() or (mask.gtTriggerMask()[entry.second.algoBitNumber()] & data.daqPartitions()) != data.daqPartitions()) // unmasked in one or more partitions
           m_triggers.push_back( std::make_pair(entry.first, entry.second.algoBitNumber()) );
       }
 

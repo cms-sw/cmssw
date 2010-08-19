@@ -25,21 +25,6 @@ goodZToMuMuVtxed1HLTLoose.src = cms.InputTag("goodZToMuMu1HLTLoose")
 goodZToMuMu1HLTPathLoose.__iadd__(goodZToMuMuVtxed1HLTLoose)
 goodZToMuMu1HLTPathLoose.setLabel("goodZToMuMu1HLTLoose")
 
-
-goodZToMuMuVtxedBB2HLTLoose = copy.deepcopy(goodZToMuMuVtxedAtLeast1HLTLoose)
-goodZToMuMuVtxedBB2HLTLoose.src = cms.InputTag("goodZToMuMuBB2HLTLoose")
-goodZToMuMuBB2HLTPathLoose.__iadd__(goodZToMuMuVtxedBB2HLTLoose)
-goodZToMuMuBB2HLTPathLoose.setLabel("goodZToMuMuBB2HLTLoose")
-
-
-goodZToMuMuVtxedAB1HLTLoose = copy.deepcopy(goodZToMuMuVtxedAtLeast1HLTLoose)
-goodZToMuMuVtxedAB1HLTLoose.src = cms.InputTag("goodZToMuMuAB1HLTLoose")
-goodZToMuMuAB1HLTPathLoose.__iadd__(goodZToMuMuVtxedAB1HLTLoose)
-goodZToMuMuAB1HLTPathLoose.setLabel("goodZToMuMuAB1HLTLoose")
-
-
-
-
 ## oneNonIsolatedZToMuMuVtxed= copy.deepcopy(goodZToMuMuVtxedAtLeast1HLT)
 ## oneNonIsolatedZToMuMuVtxed.src= cms.InputTag("oneNonIsolatedZToMuMuAtLeast1HLT")
 ## oneNonIsolatedZToMuMuPath.__iadd__(oneNonIsolatedZToMuMuVtxed)
@@ -79,12 +64,6 @@ goodZToMuMuOneTrackVtxedLoose.src = cms.InputTag("goodZToMuMuOneTrackFirstHLTLoo
 goodZToMuMuOneTrackPathLoose.__iadd__(goodZToMuMuOneTrackVtxedLoose)
 goodZToMuMuOneTrackPathLoose.setLabel("goodZToMuMuOneTrackLoose")
 
-goodZToMuMuOneTrackerMuonVtxedLoose= copy.deepcopy(goodZToMuMuVtxedAtLeast1HLTLoose)
-goodZToMuMuOneTrackerMuonVtxedLoose.src = cms.InputTag("goodZToMuMuOneTrackerMuonFirstHLTLoose")
-goodZToMuMuOneTrackerMuonPathLoose.__iadd__(goodZToMuMuOneTrackerMuonVtxedLoose)
-goodZToMuMuOneTrackerMuonPathLoose.setLabel("goodZToMuMuOneTrackerMuonLoose")
-
-
 
 
 ### ntuples....
@@ -120,19 +99,6 @@ goodZToMuMuVtxed1HLTNtupleLoose.src= cms.InputTag("goodZToMuMuVtxed1HLTLoose")
 goodZToMuMu1HLTPathLoose.__iadd__(goodZToMuMuVtxed1HLTNtupleLoose)
 goodZToMuMu1HLTPathLoose.setLabel("goodZToMuMu1HLTLoose")
 
-goodZToMuMuVtxedBB2HLTNtupleLoose = copy.deepcopy(goodZToMuMuVtxedNtupleLoose)
-goodZToMuMuVtxedBB2HLTNtupleLoose.src= cms.InputTag("goodZToMuMuVtxedBB2HLTLoose")
-goodZToMuMuBB2HLTPathLoose.__iadd__(goodZToMuMuVtxedBB2HLTNtupleLoose)
-goodZToMuMuBB2HLTPathLoose.setLabel("goodZToMuMuBB2HLTLoose")
-
-
-goodZToMuMuVtxedAB1HLTNtupleLoose = copy.deepcopy(goodZToMuMuVtxedNtupleLoose)
-goodZToMuMuVtxedAB1HLTNtupleLoose.src= cms.InputTag("goodZToMuMuVtxedAB1HLTLoose")
-goodZToMuMuAB1HLTPathLoose.__iadd__(goodZToMuMuVtxedAB1HLTNtupleLoose)
-goodZToMuMuAB1HLTPathLoose.setLabel("goodZToMuMuAB1HLTLoose")
-
-
-
 ## oneNonIsolatedZToMuMuVtxedNtuple = copy.deepcopy(goodZToMuMuVtxedNtuple)
 ## oneNonIsolatedZToMuMuVtxedNtuple.src = cms.InputTag("oneNonIsolatedZToMuMuVtxed")
 ## oneNonIsolatedZToMuMuPath.__iadd__(oneNonIsolatedZToMuMuVtxedNtuple)
@@ -155,10 +121,8 @@ goodZToMuMuAB1HLTPathLoose.setLabel("goodZToMuMuAB1HLTLoose")
 ## goodZToMuMuSameCharge1HLTPathLoose.setLabel("goodZToMuMuSameCharge1HLTLoose")
 
 
-
-
 goodZToMuMuVtxedSameChargeNtupleLoose= copy.deepcopy(goodZToMuMuVtxedNtupleLoose)
-goodZToMuMuVtxedSameChargeNtupleLoose.src =  cms.InputTag("goodZToMuMuSameChargeAtLeast1HLTLoose")
+goodZToMuMuVtxedSameChargeNtupleLoose.src =  cms.InputTag("goodZToMuMuVtxedSameChargeAtLeast1HLTLoose")
 goodZToMuMuSameChargePathLoose.__iadd__(goodZToMuMuVtxedSameChargeNtupleLoose)
 goodZToMuMuSameChargePathLoose.setLabel("goodZToMuMuSameChargeLoose")
 
@@ -174,12 +138,6 @@ goodZToMuMuOneTrackPathLoose.__iadd__(goodZToMuMuVtxedOneTrackNtupleLoose)
 goodZToMuMuOneTrackPathLoose.setLabel("goodZToMuMuOneTrackLoose")
 
 
-goodZToMuMuVtxedOneTrackerMuonNtupleLoose= copy.deepcopy(goodZToMuMuVtxedNtupleLoose)
-goodZToMuMuVtxedOneTrackerMuonNtupleLoose.src =cms.InputTag("goodZToMuMuOneTrackerMuonVtxedLoose")
-goodZToMuMuOneTrackerMuonPathLoose.__iadd__(goodZToMuMuVtxedOneTrackerMuonNtupleLoose)
-goodZToMuMuOneTrackerMuonPathLoose.setLabel("goodZToMuMuOneTrackerMuonLoose")
-
-
 
 vtxedNtuplesOut = cms.OutputModule(
     "PoolOutputModule",
@@ -190,8 +148,6 @@ vtxedNtuplesOut = cms.OutputModule(
       "keep *_goodZToMuMuVtxedNtupleLoose_*_*",
       "keep *_goodZToMuMuVtxed1HLTNtupleLoose_*_*",
       "keep *_goodZToMuMuVtxed2HLTNtupleLoose_*_*",
-      "keep *_goodZToMuMuVtxedAB1HLTNtupleLoose_*_*",
-      "keep *_goodZToMuMuVtxedBB2HLTNtupleLoose_*_*",
 #      "keep *_goodZToMuMuVtxedSameCharge2HLTNtupleLoose_*_*",
       "keep *_goodZToMuMuVtxedSameChargeNtupleLoose_*_*",
 #      "keep *_nonIsolatedZToMuMuVtxedNtuple_*_*",
@@ -199,7 +155,6 @@ vtxedNtuplesOut = cms.OutputModule(
 #      "keep *_twoNonIsolatedZToMuMuVtxedNtuple_*_*",
       "keep *_goodZToMuMuVtxedOneStandAloneNtupleLoose_*_*",
       "keep *_goodZToMuMuVtxedOneTrackNtupleLoose_*_*",
-      "keep *_goodZToMuMuVtxedOneTrackerMuonNtupleLoose_*_*",
  #     "keep *_goodZToMuMu2HLTVtxedNtuple_*_*",
       
     ),
@@ -208,15 +163,12 @@ vtxedNtuplesOut = cms.OutputModule(
         "goodZToMuMuPathLoose",
         "goodZToMuMu1HLTPathLoose",
         "goodZToMuMu2HLTPathLoose",
-        "goodZToMuMuAB1HLTPathLoose",
-        "goodZToMuMuBB2HLTPathLoose",
 #        "goodZToMuMuSameCharge2HLTPathLoose",
         "goodZToMuMuSameChargePathLoose",
  #       "nonIsolatedZToMuMuPath",
  #       "oneNonIsolatedZToMuMuPath",
  #       "twoNonIsolatedZToMuMuPath",
         "goodZToMuMuOneTrackPathLoose",
-        "goodZToMuMuOneTrackerMuonPathLoose",
         "goodZToMuMuOneStandAloneMuonPathLoose",
       )
     )

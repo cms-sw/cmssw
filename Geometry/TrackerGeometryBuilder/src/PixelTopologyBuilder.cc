@@ -14,6 +14,8 @@ PixelTopology* PixelTopologyBuilder::build(const Bounds* bs,double rocRow,double
   thePixelROCCols = rocCol; // number of pixel cols in ROC
   thePixelROCsInY = rocInY; // number of ROCs per module in y
 
+  
+
   float width = bs->width(); // module width = Xsize
   float length = bs->length(); // module length = Ysize
 
@@ -26,8 +28,9 @@ PixelTopology* PixelTopologyBuilder::build(const Bounds* bs,double rocRow,double
   //float pitchY = length/float(ncols);
 
   // temporary before we find a better way to do this 
-  const int BIG_PIX_PER_ROC_X = 1; // 1 big pixel  in x direction, rows
-  const int BIG_PIX_PER_ROC_Y = 2; // 2 big pixels in y direction, cols
+  //mlw
+  const int BIG_PIX_PER_ROC_X = 0; // 1 big pixel  in x direction, rows
+  const int BIG_PIX_PER_ROC_Y = 0; // 2 big pixels in y direction, cols
 
   // Take into account the large edge pixles
   // 1 big pixel per ROC
@@ -43,7 +46,8 @@ PixelTopology* PixelTopologyBuilder::build(const Bounds* bs,double rocRow,double
   //   <<" big pixels "<<BIG_PIX_PER_ROC_X<<"/"<<BIG_PIX_PER_ROC_Y
   //   <<std::endl;   
 
-  return new RectangularPixelTopology(nrows,ncols,pitchX,pitchY);
+  return new RectangularPixelTopology(nrows,ncols,pitchX,pitchY,
+				      (int)rocInX, (int)rocInY, (int)rocRow, (int)rocCol);
 
 }
 

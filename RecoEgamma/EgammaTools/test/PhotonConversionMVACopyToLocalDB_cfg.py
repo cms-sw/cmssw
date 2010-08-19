@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Demo")
 
-#process.PhotonConversionMVAComputerSave = cms.ESSource("PhotonConversionMVAComputerSave",
 process.PhotonConversionMVAComputerFileSource = cms.ESSource("PhotonConversionMVAComputerFileSource",
         label = cms.string('test.mva'),
         )
@@ -18,7 +17,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
             ))
         )
 
-process.PhotonConversionMVAComputerSave = cms.EDAnalyzer("PhotonConversionMVAComputerSave",
+process.PhotonConversionMVAComputerSave = cms.EDAnalyzer("PhotonConversionMVAComputerContainerSaveCondDB",
         toPut = cms.vstring(),
         toCopy = cms.vstring("label")
         )

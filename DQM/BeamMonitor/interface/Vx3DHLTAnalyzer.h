@@ -16,7 +16,7 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.h,v 1.15 2010/03/30 09:17:30 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.h,v 1.22 2010/04/24 16:48:06 dinardo Exp $
 //
 //
 
@@ -45,6 +45,9 @@
 using namespace std;
 
 
+// #################
+// # Fit variables #
+// #################
 #define DIM 3
 void Gauss3DFunc(int& /*npar*/, double* /*gin*/, double& fval, double* par, int /*iflag*/);
 typedef struct
@@ -56,11 +59,15 @@ typedef struct
 } VertexType;
 vector<VertexType> Vertices;
 bool considerVxCovariance;
-int counterVx;         // Counts the number of vertices taken into account for the fit
-double maxTransRadius; // Max transverse radius in which the vertices must be [cm]
-double maxLongLength;  // Max longitudinal length in which the vertices must be [cm]
-double xPos,yPos,zPos; // x,y,z approximate positions of the beam spot
+unsigned int counterVx; // Counts the number of vertices taken into account for the fit
+double maxTransRadius;  // Max transverse radius in which the vertices must be [cm]
+double maxLongLength;   // Max longitudinal length in which the vertices must be [cm]
+double xPos,yPos,zPos;  // x,y,z approximate positions of the beam spot
 double pi;
+// ######################
+// # cfg file parameter #
+// ######################
+double VxErrCorr;       // Coefficient to compensate the under-estimation of the vertex errors
 
 
 class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
@@ -73,7 +80,7 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       virtual void beginJob();
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual unsigned int HitCounter(const edm::Event& iEvent);
-      virtual char* formatTime(const time_t t);
+      virtual char* formatTime(const time_t& t);
       virtual int MyFit(vector<double>* vals);
       virtual void reset(string ResetType);
       virtual void writeToFile(vector<double>* vals,
@@ -88,12 +95,15 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
 				      const edm::EventSetup& iSetup);
       virtual void endJob();
 
-      // cfg file parameters
+
+      // #######################
+      // # cfg file parameters #
+      // #######################
       edm::InputTag vertexCollection;
       bool debugMode;
       unsigned int nLumiReset;
       bool dataFromFit;
-      int minNentries;
+      unsigned int minNentries;
       double xRange;
       double xStep;
       double yRange;
@@ -102,7 +112,10 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       double zStep;
       string fileName;
 
-      // Histograms
+
+      // ##############
+      // # Histograms #
+      // ##############
       MonitorElement* mXlumi;
       MonitorElement* mYlumi;
       MonitorElement* mZlumi;
@@ -125,29 +138,36 @@ class Vx3DHLTAnalyzer : public edm::EDAnalyzer {
       MonitorElement* Vx_ZX_profile;
       MonitorElement* Vx_ZY_profile;
 
-      MonitorElement* hitCounter;
+      MonitorElement* goodVxCounter;
 
       MonitorElement* fitResults;
+
+      MonitorElement* hitCounter;
 
       MonitorElement* reportSummary;
       MonitorElement* reportSummaryMap;
       
-      // Internal variables
+
+      // ######################
+      // # Internal variables #
+      // ######################
       ofstream outputFile;
       ofstream outputDebugFile;
-      unsigned int runNumber;
-      unsigned int lumiCounter;
-      unsigned int totalHits;
-      unsigned int maxLumiIntegration;
-      int numberGoodFits;
-      int numberFits;
       edm::TimeValue_t beginTimeOfFit;
       edm::TimeValue_t endTimeOfFit;
+      int nBinsHistoricalPlot;
+      unsigned int runNumber;
+      unsigned int lumiCounter;
+      unsigned int lumiCounterHisto;
+      unsigned int totalHits;
+      unsigned int maxLumiIntegration;
+      unsigned int numberGoodFits;
+      unsigned int numberFits;
       unsigned int beginLumiOfFit;
       unsigned int endLumiOfFit;
       unsigned int lastLumiOfFit;
-      int nBinsHistoricalPlot;
       double minVxDoF;
+      double minVxWgt;
       bool internalDebug;
 };
 

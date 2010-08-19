@@ -36,3 +36,5 @@ TrackerCosmicTrackMon.TrackPyMin            = cms.double(-50.0)
 
 TrackerCosmicTrackMon.TrackPzMax            = cms.double(50.0)
 TrackerCosmicTrackMon.TrackPzMin            = cms.double(-50.0)
+
+TrackerCosmicTrackMon.doLumiAnalysis        = cms.bool(False)                       

@@ -41,8 +41,8 @@ SiPixelCondObjBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& 
    unsigned int run=iEvent.id().run();
    int nmodules = 0;
    uint32_t nchannels = 0;
-//    int mycol = 415;
-//    int myrow = 159;
+   //   int mycol = 415;
+   //   int myrow = 159;
 
    edm::LogInfo("SiPixelCondObjBuilder") << "... creating dummy SiPixelGainCalibration Data for Run " << run << "\n " << std::endl;
    //
@@ -72,9 +72,11 @@ SiPixelCondObjBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& 
        // Get the module sizes.
        int nrows = topol.nrows();      // rows in x
        int ncols = topol.ncolumns();   // cols in y
+       int numROCX = topol.rocsX(), numROCY = topol.rocsY();
        //std::cout << " ---> PIXEL DETID " << detid << " Cols " << ncols << " Rows " << nrows << std::endl;
 
-       PixelIndices pIndexConverter( ncols , nrows );
+       PixelIndices pIndexConverter( ncols , nrows,  numROCX, numROCY );
+       //       PixelIndices pIndexConverter( ncols , nrows );
 
        std::vector<char> theSiPixelGainCalibration;
 

@@ -12,14 +12,17 @@
 #include "EventFilter/Utilities/interface/GlobalEventNumber.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
+#include "EvffedFillerRB.h"
+
 #include "interface/shared/frl_header.h"
 #include "interface/shared/fed_header.h"
 #include "interface/shared/fed_trailer.h"
 #include "interface/shared/i2oXFunctionCodes.h"
 #include "interface/evb/i2oEVBMsgs.h"
 
-#include "toolbox/mem/Reference.h"
 
+#include "xdaq/Application.h"
+#include "toolbox/mem/Reference.h"
 #include "xcept/tools.h"
 
 #include <sstream>
@@ -52,13 +55,19 @@ unsigned int FUResource::gtpeId_ =  FEDNumbering::MINTriggerEGTPFEDID;
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-FUResource::FUResource(UInt_t fuResourceId,log4cplus::Logger logger)
+FUResource::FUResource(UInt_t fuResourceId
+		       , log4cplus::Logger logger
+		       , EvffedFillerRB *frb
+		       , xdaq::Application *app)
   : log_(logger)
   , fuResourceId_(fuResourceId)
   , superFragHead_(0)
   , superFragTail_(0)
   , nbBytes_(0)
   , superFragSize_(0)
+  , frb_(frb)
+  , app_(app)
+  , nextEventWillHaveCRCError_(false)
 {
   release();
 }
@@ -150,13 +159,39 @@ void FUResource::process(MemRef_t* bufRef)
       LOG4CPLUS_ERROR(log_,"EVENT LOST:"
 		      <<xcept::stdformat_exception_history(e));
       fatalError_=true;
-      bufRef->setNextReference(next); //what is this ???!?!?! - why ? - 
-      // see if removing this fixes problem with crashing RB
+      itBufRef->setNextReference(next); 
     }
     
     itBufRef=next;
   }
-  
+  if(isComplete()){
+    frb_->putHeader(evtNumber_,0);
+    frb_->putTrailer();
+    fedSize_[frb_->fedId()]=frb_->size();  
+    UChar_t *startPos = shmCell_->writeData(frb_->getPayload(),frb_->size());
+    superFragSize_=frb_->size();
+    if (!shmCell_->markSuperFrag(iSuperFrag_,superFragSize_,startPos)) {
+      nbErrors_++;
+      stringstream oss;
+      oss<<"Failed to mark super fragment in shared mem buffer."
+	 <<" fuResourceId:"<<fuResourceId_
+	 <<" evtNumber:"<<evtNumber_
+	 <<" iSuperFrag:"<<iSuperFrag_;
+      XCEPT_RAISE(evf::Exception,oss.str());
+    }
+    
+    if (!shmCell_->markFed(frb_->fedId(),frb_->size(),startPos)) {
+      nbErrors_++;
+      stringstream oss;
+      oss<<"Failed to mark fed in buffer."
+	 <<" evtNumber:"<<evtNumber_
+	 <<" fedId:"<<frb_->fedId()
+	 <<" fedSize:"<<frb_->size()
+	 <<" fedAddr:0x"<<hex<<(unsigned long)frb_->getPayload()<<dec;
+      XCEPT_RAISE(evf::Exception,oss.str());
+    }
+
+  }
   return;
 }
 
@@ -321,6 +356,7 @@ void FUResource::processDataBlock(MemRef_t* bufRef)
 	 <<" evtNumber:"<<evtNumber_
 	 <<" buResourceId:"<<buResourceId_
 	 <<" iSuperFrag:"<<iSuperFrag_;
+      removeLastAppendedBlockFromSuperFrag();
       XCEPT_RETHROW(evf::Exception,oss.str(),e);
     }
     
@@ -462,6 +498,28 @@ void FUResource::appendBlockToSuperFrag(MemRef_t* bufRef)
   return;
 }
 
+//______________________________________________________________________________
+void FUResource::removeLastAppendedBlockFromSuperFrag()
+{
+  if (0==superFragHead_) {
+    //nothing to do... why did we get here then ???
+  }
+  else if(superFragHead_==superFragTail_){
+    superFragHead_ = 0; 
+    superFragTail_ = 0;
+  }
+  else{
+    MemRef_t *next = 0;
+    MemRef_t *current = superFragHead_;
+    while((next=current->getNextReference()) != superFragTail_){
+      //get to the next-to-last block
+    }
+    superFragTail_ = current;
+    current->setNextReference(0);
+  }
+  return;
+}
+
 
 //______________________________________________________________________________
 void FUResource::superFragSize() throw (evf::Exception)
@@ -571,7 +629,8 @@ void FUResource::findFEDs() throw (evf::Exception)
   
   fedt_t  *fedTrailer    =0;
   fedh_t  *fedHeader     =0;
-  
+
+
   
   superFragAddr =shmCell_->superFragAddr(iSuperFrag_);
   superFragSize =shmCell_->superFragSize(iSuperFrag_);
@@ -677,13 +736,21 @@ void FUResource::findFEDs() throw (evf::Exception)
       fedTrailer->conscheck &= (~FED_CRCS_MASK);
       fedTrailer->conscheck &= (~FED_RBIT_MASK);
       crcChk=compute_crc(fedHeaderAddr,fedSize);
-      
+      if(nextEventWillHaveCRCError_ && random() > RAND_MAX/2){
+	crc--;
+	nextEventWillHaveCRCError_ = false;
+      }
       if (crc!=crcChk) {
-	LOG4CPLUS_INFO(log_,"crc check failed."
-		       <<" evtNumber:"<<evtNumber_
-		       <<" fedid:"<<fedId
-		       <<" crc:"<<crc
-		       <<" chk:"<<crcChk);
+	std::ostringstream oss;
+	oss << "crc check failed."
+	    <<" evtNumber:"<<evtNumber_
+	    <<" fedid:"<<fedId
+	    <<" crc:"<<crc
+	    <<" chk:"<<crcChk;
+	LOG4CPLUS_INFO(log_,oss.str());
+	XCEPT_DECLARE(evf::Exception,
+		      sentinelException, oss.str());
+	app_->notifyQualified("error",sentinelException);
 	nbErrors_++;
 	nbCrcErrors_++;
       }

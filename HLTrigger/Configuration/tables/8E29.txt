@@ -66,15 +66,12 @@ HLT_L1Mu14_L1SingleJet6U
 HLT_L1Mu14_L1ETM30
 HLT_ZeroBias
 HLT_ZeroBiasPixel_SingleTrack
-HLT_MinBiasEcal
-HLT_MinBiasHcal
+HLT_PixelTracks_Multiplicity70
 HLT_CSCBeamHalo
 HLT_CSCBeamHaloOverlapRing1
 HLT_CSCBeamHaloOverlapRing2
 HLT_CSCBeamHaloRing2or3
-HLT_BackwardBSC
-HLT_ForwardBSC
-HLT_HighMultiplicityBSC
+HLT_L1Tech_BSC_HighMultiplicity
 HLT_RPCBarrelCosmics
 HLT_TrackerCosmics
 HLT_StoppedHSCP_8E29
@@ -88,7 +85,6 @@ AlCa_EcalEta_8E29
 AlCa_RPCMuonNoHits
 AlCa_RPCMuonNoTriggers
 AlCa_RPCMuonNormalisation
-HLT_HighMult40
 HLTriggerFinalPath
 HLTAnalyzerEndpath
 HLTOutput

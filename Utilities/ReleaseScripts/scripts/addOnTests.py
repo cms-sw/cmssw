@@ -98,22 +98,34 @@ class StandardTester(object):
             pass
 
 
-        tstPkgs = ['FastSimulation', 'HLTrigger', 'PhysicsTools']
-        cmd = ''
+        tstPkgs = { 'FastSimulation' : [ 'Configuration' ],
+	            'HLTrigger'      : [ 'Configuration' ],
+		    'PhysicsTools'   : [ 'PatAlgos'      ],
+		  }
 
-        #-ap: make sure the actual package is there, not just the subsystem ...
+	#-ap: make sure the actual package is there, not just the subsystem ...
         # and set symlinks accordingly ...
-        pkgPath = '../src/'
+        pkgPath = os.environ['CMSSW_BASE'] + '/src/'
         relPath = '$CMSSW_RELEASE_BASE/src/'
-        for tstPkg in tstPkgs:
-            if os.path.exists(pkgPath + tstPkg):
-                cmd  = 'ln -s ' + pkgPath + tstPkg + ' .;'
-            else:
-                cmd  = 'ln -s ' + relPath + tstPkg + ' .;'
-            try:
-                print "setting up symlink for ",tstPkg,'using ',cmd
+        cmd = ''
+        for tstSys in tstPkgs:
+          if not os.path.exists(pkgPath + tstSys):
+             cmd  = 'ln -s ' + relPath + tstSys + ' .;'
+             try:
+                print 'setting up symlink for ' + tstSys + ' using ' + cmd
                 os.system(cmd)
-            except:
+             except:
+                pass
+          else:
+	    for tstPkg in tstPkgs[tstSys]:
+              if not os.path.exists(pkgPath + tstSys + "/" + tstPkg):
+                 cmd  = 'mkdir -p ' + tstSys + '; ln -s ' + relPath + tstSys + '/' + tstPkg + ' ' + tstSys +';'
+              else:
+                 cmd  = 'mkdir -p ' + tstSys + '; ln -s ' + pkgPath + tstSys + '/' + tstPkg + ' ' + tstSys +';'
+              try:
+                print 'setting up symlink for ' + tstSys + '/' + tstPkg + ' using ' + cmd
+                os.system(cmd)
+              except:
                 pass
 
         return
@@ -132,7 +144,7 @@ class StandardTester(object):
                   'fastsim2' : ['cmsRun ../FastSimulation/Configuration/test/IntegrationTest_cfg.py'],
                   'fastsim3' : ['cmsRun ../FastSimulation/Configuration/test/ExampleWithHLT_1E31_cfg.py'],
                   'fastsim4' : ['cmsRun ../FastSimulation/Configuration/test/IntegrationTestWithHLT_cfg.py'],
-                  'pat1'     : ['cmsRun ../PhysicsTools/PatAlgos/test/patLayer1_fromAOD_full_cfg.py'],
+                  'pat1'     : ['cmsRun ../PhysicsTools/PatAlgos/test/IntegrationTest_cfg.py'],
                 }
 
         hltTests = { 'hlt1' : ['cmsDriver.py TTbar_Tauola.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW -n 10 --conditions auto:startup --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAW --fileout file:RelVal_DigiL1Raw_8E29.root',
@@ -143,7 +155,9 @@ class StandardTester(object):
                      'hlt2' : ['cmsDriver.py TTbar_Tauola.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW -n 10 --conditions auto:mc --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAW --fileout file:RelVal_DigiL1Raw_1E31.root',
                       'cmsRun ../HLTrigger/Configuration/test/OnLine_HLT_1E31.py',
                       'ln -s RelVal_DigiL1Raw_1E31.root RelVal_DigiL1Raw_HIon.root',
-                      'cmsRun ../HLTrigger/Configuration/test/OnLine_HLT_HIon.py']
+                      'cmsRun ../HLTrigger/Configuration/test/OnLine_HLT_HIon.py'],
+                     'hlt3' : ['cmsRun ../HLTrigger/Configuration/test/OnData_HLT_8E29.py'],
+                     'hlt4' : ['cmsRun ../HLTrigger/Configuration/test/OnData_HLT_GRun.py']
                      }
 
     	commands={}

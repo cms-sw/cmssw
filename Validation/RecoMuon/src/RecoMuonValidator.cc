@@ -72,13 +72,7 @@ struct RecoMuonValidator::MuonME {
 
     // - Resolutions
     hErrP_   = dqm->book1D("ErrP"  , "#Delta(p)/p"        , hDim.nBinErr, hDim.minErrP  , hDim.maxErrP  );
-    hErrPBarrel_   = dqm->book1D("ErrP_barrel"  , "#Delta(p)/p"        , hDim.nBinErr, hDim.minErrP  , hDim.maxErrP  );
-    hErrPOverlap_   = dqm->book1D("ErrP_overlap"  , "#Delta(p)/p"        , hDim.nBinErr, hDim.minErrP  , hDim.maxErrP  );
-    hErrPEndcap_   = dqm->book1D("ErrP_endcap"  , "#Delta(p)/p"        , hDim.nBinErr, hDim.minErrP  , hDim.maxErrP  );
     hErrPt_  = dqm->book1D("ErrPt" , "#Delta(p_{T})/p_{T}", hDim.nBinErr, hDim.minErrPt , hDim.maxErrPt );
-    hErrPtBarrel_  = dqm->book1D("ErrPt_barrel" , "#Delta(p_{T})/p_{T}", hDim.nBinErr, hDim.minErrPt , hDim.maxErrPt );
-    hErrPtOverlap_  = dqm->book1D("ErrPt_overlap" , "#Delta(p_{T})/p_{T}", hDim.nBinErr, hDim.minErrPt , hDim.maxErrPt );
-    hErrPtEndcap_  = dqm->book1D("ErrPt_endcap" , "#Delta(p_{T})/p_{T}", hDim.nBinErr, hDim.minErrPt , hDim.maxErrPt );
     hErrEta_ = dqm->book1D("ErrEta", "#sigma(#eta))"      , hDim.nBinErr, hDim.minErrEta, hDim.maxErrEta);
     hErrPhi_ = dqm->book1D("ErrPhi", "#sigma(#phi)"       , hDim.nBinErr, hDim.minErrPhi, hDim.maxErrPhi);
     hErrDxy_ = dqm->book1D("ErrDxy", "#sigma(d_{xy})"     , hDim.nBinErr, hDim.minErrDxy, hDim.maxErrDxy);
@@ -264,17 +258,6 @@ struct RecoMuonValidator::MuonME {
     hErrDxy_->Fill(errDxy);
     hErrDz_ ->Fill(errDz );
 
-    if(fabs(simEta) > 0. && fabs(simEta) < 0.8) {
-      hErrPBarrel_->Fill(errP);
-      hErrPtBarrel_->Fill(errPt);
-    } else if (fabs(simEta) > 0.8 && fabs(simEta) < 1.2) {
-      hErrPOverlap_->Fill(errP);
-      hErrPtOverlap_->Fill(errPt);
-    } else if (fabs(simEta) > 1.2 ){
-      hErrPEndcap_->Fill(errP);
-      hErrPtEndcap_->Fill(errPt);
-    }
-
     hErrP_vs_Eta_  ->Fill(simEta, errP  );
     hErrPt_vs_Eta_ ->Fill(simEta, errPt );
     hErrQPt_vs_Eta_->Fill(simEta, errQPt);
@@ -316,8 +299,6 @@ struct RecoMuonValidator::MuonME {
 
   MEP hP_, hPt_, hEta_, hPhi_;
   MEP hErrP_, hErrPt_, hErrEta_, hErrPhi_;
-  MEP hErrPBarrel_, hErrPOverlap_, hErrPEndcap_;
-  MEP hErrPtBarrel_, hErrPtOverlap_, hErrPtEndcap_;
   MEP hErrDxy_, hErrDz_;
 
   MEP hErrP_vs_Eta_, hErrPt_vs_Eta_, hErrQPt_vs_Eta_;
@@ -351,8 +332,6 @@ struct RecoMuonValidator::CommonME {
   MEP hNSimHits_;
 
   MEP hTrkToGlbDiffNTrackerHits_, hStaToGlbDiffNMuonHits_;
-  MEP hTrkToGlbDiffNTrackerHitsEta_, hStaToGlbDiffNMuonHitsEta_;
-  MEP hTrkToGlbDiffNTrackerHitsPt_, hStaToGlbDiffNMuonHitsPt_;
 };
 
 RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
@@ -436,6 +415,7 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
                                          tpset.getParameter<int>("minHit"),
                                          tpset.getParameter<bool>("signalOnly"),
                                          tpset.getParameter<bool>("chargedOnly"),
+                                         tpset.getParameter<bool>("stableOnlyTP"),
                                          tpset.getParameter<std::vector<int> >("pdgId"));
 
   // the service parameters
@@ -474,17 +454,11 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
   commonME_->hNSim_  = theDQM->book1D("NSim" , "Number of particles per event", hDim.nTrks, 0, hDim.nTrks);
   commonME_->hNMuon_ = theDQM->book1D("NMuon", "Number of muons per event"    , hDim.nTrks, 0, hDim.nTrks);
 
-  const int nHits = 201;
-  commonME_->hNSimHits_ = theDQM->book1D("NSimHits", "Number of simHits", nHits, -100.5, 100.5);
+  const int nHits = 40;
+  commonME_->hNSimHits_ = theDQM->book1D("NSimHits", "Number of simHits", nHits, 0, nHits);
 
-  commonME_->hTrkToGlbDiffNTrackerHits_ = theDQM->book1D("TrkGlbDiffNTrackerHits", "Difference of number of tracker hits (tkMuon - globalMuon)", nHits, -100.5, 100.5);
-  commonME_->hStaToGlbDiffNMuonHits_ = theDQM->book1D("StaGlbDiffNMuonHits", "Difference of number of muon hits (staMuon - globalMuon)", nHits, -100.5, 100.5);
-
-  commonME_->hTrkToGlbDiffNTrackerHitsEta_ = theDQM->book2D("TrkGlbDiffNTrackerHitsEta", "Difference of number of tracker hits (tkMuon - globalMuon)",   hDim.nBinEta, hDim.minEta, hDim.maxEta,nHits, -100.5, 100.5);
-  commonME_->hStaToGlbDiffNMuonHitsEta_ = theDQM->book2D("StaGlbDiffNMuonHitsEta", "Difference of number of muon hits (staMuon - globalMuon)",   hDim.nBinEta, hDim.minEta, hDim.maxEta,nHits, -100.5, 100.5);
-
-  commonME_->hTrkToGlbDiffNTrackerHitsPt_ = theDQM->book2D("TrkGlbDiffNTrackerHitsPt", "Difference of number of tracker hits (tkMuon - globalMuon)",  hDim.nBinPt, hDim.minPt, hDim.maxPt,nHits, -100.5, 100.5);
-  commonME_->hStaToGlbDiffNMuonHitsPt_ = theDQM->book2D("StaGlbDiffNMuonHitsPt", "Difference of number of muon hits (staMuon - globalMuon)",  hDim.nBinPt, hDim.minPt, hDim.maxPt,nHits, -100.5, 100.5);
+  commonME_->hTrkToGlbDiffNTrackerHits_ = theDQM->book1D("TrkGlbDiffNTrackerHits", "Difference of number of tracker hits (tkMuon - globalMuon)", nHits/4, 0, nHits);
+  commonME_->hStaToGlbDiffNMuonHits_ = theDQM->book1D("StaGlbDiffNMuonHits", "Difference of number of muon hits (staMuon - globalMuon", nHits/4, 0, nHits);
 
   // - histograms on tracking variables
   theDQM->setCurrentFolder(subDir_+"/Trk");
@@ -635,7 +609,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     if ( iMuon->isTrackerMuon() ) {
       const TrackRef trkTrack = iMuon->track();
 
-      trkNTrackerHits = countTrackerHits(*trkTrack);
+      trkNTrackerHits = trkTrack->hitPattern().numberOfValidTrackerHits();
 
       trkMuME_->hNTrackerHits_->Fill(trkNTrackerHits);
       trkMuME_->hNTrackerHits_vs_Pt_->Fill(trkTrack->pt(), trkNTrackerHits);
@@ -645,7 +619,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     if ( iMuon->isStandAloneMuon() ) {
       const TrackRef staTrack = iMuon->standAloneMuon();
 
-      staNMuonHits = countMuonHits(*staTrack);
+      staNMuonHits = staTrack->recHitsSize();
 
       staMuME_->hNMuonHits_->Fill(staNMuonHits);
       staMuME_->hNMuonHits_vs_Pt_->Fill(staTrack->pt(), staNMuonHits);
@@ -659,8 +633,8 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     if ( iMuon->isGlobalMuon() ) {
       const TrackRef glbTrack = iMuon->combinedMuon();
 
-      glbNTrackerHits = countTrackerHits(*glbTrack);
-      glbNMuonHits = countMuonHits(*glbTrack);
+      glbNTrackerHits = glbTrack->hitPattern().numberOfValidTrackerHits();
+      glbNMuonHits = glbTrack->hitPattern().numberOfValidMuonHits();
 
       glbMuME_->hNTrackerHits_->Fill(glbNTrackerHits);
       glbMuME_->hNTrackerHits_vs_Pt_->Fill(glbTrack->pt(), glbNTrackerHits);
@@ -673,17 +647,10 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
       glbMuME_->hNTrksEta_->Fill(glbTrack->eta());
       glbMuME_->hNTrksPt_->Fill(glbTrack->pt());
       
-      commonME_->hTrkToGlbDiffNTrackerHitsEta_->Fill(glbTrack->eta(),trkNTrackerHits-glbNTrackerHits);
-      commonME_->hStaToGlbDiffNMuonHitsEta_->Fill(glbTrack->eta(),staNMuonHits-glbNMuonHits);
-      
-      commonME_->hTrkToGlbDiffNTrackerHitsPt_->Fill(glbTrack->pt(),trkNTrackerHits-glbNTrackerHits);
-      commonME_->hStaToGlbDiffNMuonHitsPt_->Fill(glbTrack->pt(),staNMuonHits-glbNMuonHits);
-      
-      commonME_->hTrkToGlbDiffNTrackerHits_->Fill(trkNTrackerHits-glbNTrackerHits);
-      commonME_->hStaToGlbDiffNMuonHits_->Fill(staNMuonHits-glbNMuonHits);
-
     }
 
+    commonME_->hTrkToGlbDiffNTrackerHits_->Fill(trkNTrackerHits-glbNTrackerHits);
+    commonME_->hStaToGlbDiffNMuonHits_->Fill(staNMuonHits-glbNMuonHits);
   }
 
   // Analyzer reco::Track
@@ -751,7 +718,7 @@ RecoMuonValidator::countMuonHits(const reco::Track& track) const {
   TransientTrackingRecHit::ConstRecHitContainer result;
   
   int count = 0;
-
+  
   for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
     if((*hit)->isValid()) {
       DetId recoid = (*hit)->geographicalId();
@@ -766,7 +733,7 @@ RecoMuonValidator::countTrackerHits(const reco::Track& track) const {
   TransientTrackingRecHit::ConstRecHitContainer result;
   
   int count = 0;
-
+  
   for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
     if((*hit)->isValid()) {
       DetId recoid = (*hit)->geographicalId();

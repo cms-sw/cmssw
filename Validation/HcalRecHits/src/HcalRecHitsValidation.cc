@@ -412,22 +412,22 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       }
       
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_HB" ) ;
-      meRecHitsEnergyHB = dbe_->book1D(histo, histo, 2010 , -10. , 2000.); 
+      meRecHitsEnergyHB = dbe_->book1D(histo, histo, 510 , -10. , 500.); 
       
       sprintf (histo, "HcalRecHitTask_timing_HB" ) ;
-      meTimeHB = dbe_->book1D(histo, histo, 200 , -100. , 100.); 
+      meTimeHB = dbe_->book1D(histo, histo, 2000 , -100. , 100.); 
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_HB" ) ;
-      meTE_HB = dbe_->book2D(histo, histo, 3000, -5., 2995.,  300, -50., 100.);
+      meTE_HB = dbe_->book2D(histo, histo, 300, -5., 295.,  300, -50., 100.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_HB_depth1" ) ;
-      meTE_HB1 = dbe_->book2D(histo, histo, 3000, -5., 2995.,  300, -50., 100.);
+      meTE_HB1 = dbe_->book2D(histo, histo, 300, -5., 295.,  300, -50., 100.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_HB_depth2" ) ;
-      meTE_HB2 = dbe_->book2D(histo, histo, 3000, -5., 2995.,  300, -50., 100.);
+      meTE_HB2 = dbe_->book2D(histo, histo, 300, -5., 295.,  300, -50., 100.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_HB" ) ;
-      meTEprofileHB = dbe_->bookProfile(histo, histo, 3000, -5., 2995., 300, -50., 100.); 
+      meTEprofileHB = dbe_->bookProfile(histo, histo, 300, -5., 295., 300, -50., 100.); 
       
       if(imc != 0) {
 	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HB");
@@ -478,16 +478,16 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       meTimeHE = dbe_->book1D(histo, histo, 200 , -100. , 100.); 
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_HE" ) ;
-      meTE_HE = dbe_->book2D(histo, histo, 1000, -5., 995.,  300, -50., 100.);
+      meTE_HE = dbe_->book2D(histo, histo, 300, -5., 295.,  300, -50., 100.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_HE_depth1" ) ;
-      meTE_HE1 = dbe_->book2D(histo, histo, 1000, -5., 995., 300, -50., 100.);
+      meTE_HE1 = dbe_->book2D(histo, histo, 300, -5., 295., 300, -50., 100.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_HE_depth2" ) ;
-      meTE_HE2 = dbe_->book2D(histo, histo, 1000, -5., 995.,  300, -50., 100.);
+      meTE_HE2 = dbe_->book2D(histo, histo, 300, -5., 295.,  300, -50., 100.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_HE" ) ;
-      meTEprofileHE = dbe_->bookProfile(histo, histo, 1000, -5., 995., 300, -50., 100.); 
+      meTEprofileHE = dbe_->bookProfile(histo, histo, 300, -5., 295., 300, -50., 100.); 
       
       if(imc != 0) {
 	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HE");
@@ -522,13 +522,13 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       meRecHitsEnergyHO = dbe_->book1D(histo, histo, 510 , -10. , 500.); 
       
       sprintf (histo, "HcalRecHitTask_timing_HO" ) ;
-      meTimeHO = dbe_->book1D(histo, histo, 200 , -100., 100.); 
+      meTimeHO = dbe_->book1D(histo, histo, 2000 , -100., 100.); 
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_HO" ) ;
-      meTE_HO= dbe_->book2D(histo, histo, 1000, -5., 995., 300, -50., 100.);
+      meTE_HO= dbe_->book2D(histo, histo, 300, -5., 295., 300, -50., 100.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_HO" ) ;
-      meTEprofileHO = dbe_->bookProfile(histo, histo, 1000, -5., 995.,  300, -50., 100.); 
+      meTEprofileHO = dbe_->bookProfile(histo, histo, 300, -5., 295.,  300, -50., 100.); 
       
       if(imc != 0) {
 	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HO");
@@ -566,19 +566,19 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       meRecHitsEnergyHF = dbe_->book1D(histo, histo, 1010 , -10. , 1000.); 
 
       sprintf (histo, "HcalRecHitTask_timing_HF" ) ;
-      meTimeHF = dbe_->book1D(histo, histo, 200 , -100. , 100.); 
+      meTimeHF = dbe_->book1D(histo, histo, 2000 , -100. , 100.); 
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_HF" ) ;
-      meTE_HF = dbe_->book2D(histo, histo, 1000, -5., 995., 300, -50., 100.);
+      meTE_HF = dbe_->book2D(histo, histo, 300, -5., 295., 300, -50., 100.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_HFL" ) ;
-      meTE_HFL = dbe_->book2D(histo, histo, 1000, -5., 995., 300, -50., 100.);
+      meTE_HFL = dbe_->book2D(histo, histo, 300, -5., 295., 300, -50., 100.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_HFS" ) ;
-      meTE_HFS = dbe_->book2D(histo, histo, 1000, -5., 995., 300, -50., 100.);
+      meTE_HFS = dbe_->book2D(histo, histo, 300, -5., 295., 300, -50., 100.);
       
       sprintf (histo, "HcalRecHitTask_timing_vs_energy_profile_HF" ) ;
-      meTEprofileHF = dbe_->bookProfile(histo, histo, 1000, -5., 995., 300, -50., 100.); 
+      meTEprofileHF = dbe_->bookProfile(histo, histo, 300, -5., 295., 300, -50., 100.); 
             
       if(imc != 0) {
 	sprintf (histo, "HcalRecHitTask_energy_rechits_vs_simhits_HF");

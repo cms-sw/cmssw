@@ -43,6 +43,7 @@ private:
   std::ofstream outputFile_; 
   std::string filePath_;
 
+  bool writeROCInfo_;
 
 };
 #endif

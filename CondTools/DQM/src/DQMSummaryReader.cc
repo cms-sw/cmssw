@@ -32,10 +32,10 @@ DQMSummaryReader::~DQMSummaryReader() {}
 
 void DQMSummaryReader::run() {}
 
-DQMSummary::DQMSummary DQMSummaryReader::readData(const std::string & table, /*const std::string & column,*/ const long long r_number) {
+DQMSummary DQMSummaryReader::readData(const std::string & table, /*const std::string & column,*/ const long long r_number) {
   m_tableToRead = table; // to be  CMS_DQM_SUMMARY.summarycontent
   //m_columnToRead = column;  // to be run, lumisec
-  DQMSummary::DQMSummary dqmSummary;
+  DQMSummary dqmSummary;
   dqmSummary.m_run = r_number;
   std::cout<< "Entering readData" << std::endl;
   coral::ISession* session = this->connect(m_connectionString,

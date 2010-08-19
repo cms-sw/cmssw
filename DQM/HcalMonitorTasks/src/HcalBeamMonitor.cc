@@ -139,6 +139,8 @@ void HcalBeamMonitor::cleanup()
     {
       dbe_->setCurrentFolder(subdir_);
       dbe_->removeContents();
+      dbe_->setCurrentFolder(subdir_+"LSvalues");
+      dbe_->removeContents();
     } // if (dbe_)
 } // void HcalBeamMonitor::cleanup()
 
@@ -362,7 +364,7 @@ void HcalBeamMonitor::setup()
   HFlumi_Occupancy_between_thrs_r2->getTH1F()->SetMinimum(0);
   HFlumi_Occupancy_below_thr_r2->getTH1F()->SetMinimum(0);
  
-  HFlumi_Occupancy_per_channel_vs_lumiblock_RING1 = dbe_->bookProfile("HFlumiRing1OccupancyPerChannelVsLB)",
+  HFlumi_Occupancy_per_channel_vs_lumiblock_RING1 = dbe_->bookProfile("HFlumiRing1OccupancyPerChannelVsLB",
 								      "HFlumi Occupancy per channel vs lumi-block (RING 1);LS; -ln(empty fraction)",
 								      NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
   HFlumi_Occupancy_per_channel_vs_lumiblock_RING2 = dbe_->bookProfile("HFlumiRing2OccupancyPerChannelVsLB","HFlumi Occupancy per channel vs lumi-block (RING 2);LS; -ln(empty fraction)",NLumiBlocks_,0.5,NLumiBlocks_+0.5,100,0,10000);
@@ -877,18 +879,24 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	//  At some point, allow for calculations when channels are masked (and less than 144 channels expected)
 
 	// Check Ring 1
-	double logvalue=0;
-	if (emptytowersRing1>0 && ring1totalchannels_>0)
-	  logvalue=-1.*log(emptytowersRing1/ring1totalchannels_);
-	HFlumi_Occupancy_per_channel_vs_lumiblock_RING1->Fill(currentLS,logvalue);
-	HFlumi_Occupancy_per_channel_vs_BX_RING1->Fill(bunchCrossing,logvalue);
-	
+	double logvalue=-1;
+	if (ring1totalchannels_>0)
+	  {
+	    if (emptytowersRing1>0)
+	      logvalue=-1.*log(emptytowersRing1/ring1totalchannels_);
+	    HFlumi_Occupancy_per_channel_vs_lumiblock_RING1->Fill(currentLS,logvalue);
+	    HFlumi_Occupancy_per_channel_vs_BX_RING1->Fill(bunchCrossing,logvalue);
+	  }
 	// Check Ring 2
-	logvalue=0;
-	if (emptytowersRing2>0 && ring2totalchannels_>0)
-	  logvalue=-1.*log(emptytowersRing2/ring2totalchannels_);
-	HFlumi_Occupancy_per_channel_vs_lumiblock_RING2->Fill(currentLS,logvalue);
-	HFlumi_Occupancy_per_channel_vs_BX_RING2->Fill(bunchCrossing,logvalue);
+	logvalue=-1;
+	if (ring2totalchannels_>0)
+	  {
+	    if (emptytowersRing2>0)
+	      logvalue=-1.*log(emptytowersRing2/ring2totalchannels_);
+	    HFlumi_Occupancy_per_channel_vs_lumiblock_RING2->Fill(currentLS,logvalue);
+	    HFlumi_Occupancy_per_channel_vs_BX_RING2->Fill(bunchCrossing,logvalue);
+	  }
+
 	HFlumi_ETsum_vs_BX->Fill(bunchCrossing,pow(etx*etx+ety*ety,0.5));
 	int hfeta=ETA_OFFSET_HF;
 	for (int i=-1*hfeta;i<=hfeta;++i)
@@ -1107,6 +1115,7 @@ void HcalBeamMonitor::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   HcalBaseDQMonitor::beginLuminosityBlock(lumiSeg,c);
 
   if (lumiSeg.luminosityBlock()==lastProcessedLS_) return; // we're seeing more events from current lumi section (after some break) -- should not reset histogram
+  ProblemsCurrentLB->Reset();
   HFlumi_occ_LS->Reset();
   std::stringstream title;
   title <<"HFlumi occupancy for LS # " <<currentLS;
@@ -1202,8 +1211,12 @@ void HcalBeamMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 	} // loop over y
     } // loop over x
 
+  // Fill problem histogram underflow bind with number of events
+  ProblemsCurrentLB->Fill(-1,-1,levt_);
   if (ndeadcells+nhotcells>=minBadCells_)
     {
+      // Fill with number of error channels * events (assume bad for all events in LS)
+      ProblemsCurrentLB->Fill(6,0,(ndeadcells+nhotcells)*levt_);
       for (int x=1;x<=HFlumi_occ_LS->getTH2F()->GetNbinsX();++x)
 	{
 	  for (int y=1;y<=HFlumi_occ_LS->getTH2F()->GetNbinsY();++y)

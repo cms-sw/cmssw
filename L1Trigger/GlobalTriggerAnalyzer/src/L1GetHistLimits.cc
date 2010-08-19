@@ -23,7 +23,9 @@
 #include <string>
 
 // user include files
-#include "DataFormats/Math/interface/deltaR.h"
+#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1PhiConversion.h"
+#include "DataFormats/Math/interface/normalizedPhi.h"
+
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtMiss.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtTotal.h"
@@ -160,20 +162,17 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject,
 
                 } else {
                     m_l1HistLimits.nrBins = muScales->getPhiScale()->getNBins();
-                    m_l1HistLimits.lowerBinValue
-                            = L1GetHistLimits::PiConversion
-                                    * muScales->getPhiScale()->getScaleMin();
-                    m_l1HistLimits.upperBinValue
-                            = L1GetHistLimits::PiConversion
-                                    * muScales->getPhiScale()->getScaleMax();
+                    m_l1HistLimits.lowerBinValue = rad2deg(
+                            muScales->getPhiScale()->getScaleMin());
+                    m_l1HistLimits.upperBinValue = rad2deg(
+                            muScales->getPhiScale()->getScaleMax());
 
                     m_l1HistLimits.binThresholds.resize(m_l1HistLimits.nrBins
                             + 1);
 
                     for (int iBin = 0; iBin <= m_l1HistLimits.nrBins; iBin++) {
-                        m_l1HistLimits.binThresholds[iBin]
-                                = L1GetHistLimits::PiConversion
-                                  * muScales->getPhiScale()->getValue(iBin);
+                        m_l1HistLimits.binThresholds[iBin] = rad2deg(
+                                muScales->getPhiScale()->getValue(iBin));
                     }
 
                     // set last bin upper edge
@@ -248,25 +247,31 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject,
 
                     m_l1HistLimits.nrBins
                             = caloGeomScales->numberGctEmJetPhiBins();
-                    m_l1HistLimits.lowerBinValue
-                            = L1GetHistLimits::PiConversion
-                                    * caloGeomScales->emJetPhiBinLowEdge(0);
-                    m_l1HistLimits.upperBinValue
-                            = L1GetHistLimits::PiConversion
-                                    * caloGeomScales->emJetPhiBinHighEdge(
-                                            m_l1HistLimits.nrBins - 1);
-
                     m_l1HistLimits.binThresholds.resize(m_l1HistLimits.nrBins
                             + 1);
 
                     for (int iBin = 0; iBin < m_l1HistLimits.nrBins; ++iBin) {
-                        m_l1HistLimits.binThresholds[iBin]
-                                = L1GetHistLimits::PiConversion
-                                        * caloGeomScales->emJetPhiBinLowEdge(iBin);
+
+                        m_l1HistLimits.binThresholds[iBin] = rad2deg(
+                                caloGeomScales->emJetPhiBinLowEdge(iBin));
+
+                        // treat correctly the 10 deg anti-clockwise rotation
+                        if (rad2deg(caloGeomScales->emJetPhiBinHighEdge(iBin))
+                                < m_l1HistLimits.binThresholds[iBin]) {
+                            m_l1HistLimits.binThresholds[iBin]
+                                    = m_l1HistLimits.binThresholds[iBin] - 360.;
+                        }
 
                     }
 
+                    m_l1HistLimits.lowerBinValue
+                            = m_l1HistLimits.binThresholds[0];
+
                     // last bin upper limit
+                    m_l1HistLimits.upperBinValue = rad2deg(
+                            caloGeomScales->emJetPhiBinHighEdge(
+                                    m_l1HistLimits.nrBins - 1));
+
                     m_l1HistLimits.binThresholds[m_l1HistLimits.nrBins]
                             = m_l1HistLimits.upperBinValue;
 
@@ -334,29 +339,37 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject,
                             = m_l1HistLimits.upperBinValue;
 
                 } else {
+
                     m_l1HistLimits.nrBins
                             = caloGeomScales->numberGctEmJetPhiBins();
-                    m_l1HistLimits.lowerBinValue
-                            = L1GetHistLimits::PiConversion
-                                    * caloGeomScales->emJetPhiBinLowEdge(0);
-                    m_l1HistLimits.upperBinValue
-                            = L1GetHistLimits::PiConversion
-                                    * caloGeomScales->emJetPhiBinHighEdge(
-                                            m_l1HistLimits.nrBins - 1);
-
                     m_l1HistLimits.binThresholds.resize(m_l1HistLimits.nrBins
                             + 1);
 
                     for (int iBin = 0; iBin < m_l1HistLimits.nrBins; ++iBin) {
-                        m_l1HistLimits.binThresholds[iBin]
-                                = L1GetHistLimits::PiConversion
-                                        * caloGeomScales->emJetPhiBinLowEdge(iBin);
+
+                        m_l1HistLimits.binThresholds[iBin] = rad2deg(
+                                caloGeomScales->emJetPhiBinLowEdge(iBin));
+
+                        // treat correctly the 10 deg anti-clockwise rotation
+                        if (rad2deg(caloGeomScales->emJetPhiBinHighEdge(iBin))
+                                < m_l1HistLimits.binThresholds[iBin]) {
+                            m_l1HistLimits.binThresholds[iBin]
+                                    = m_l1HistLimits.binThresholds[iBin] - 360.;
+                        }
 
                     }
 
+                    m_l1HistLimits.lowerBinValue
+                            = m_l1HistLimits.binThresholds[0];
+
                     // last bin upper limit
+                    m_l1HistLimits.upperBinValue = rad2deg(
+                            caloGeomScales->emJetPhiBinHighEdge(
+                                    m_l1HistLimits.nrBins - 1));
+
                     m_l1HistLimits.binThresholds[m_l1HistLimits.nrBins]
                             = m_l1HistLimits.upperBinValue;
+
                 }
 
             }
@@ -399,21 +412,18 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject,
                 } else {
                     m_l1HistLimits.nrBins
                             = caloGeomScales->numberGctEtSumPhiBins();
-                    m_l1HistLimits.lowerBinValue
-                            = L1GetHistLimits::PiConversion
-                                    * caloGeomScales->etSumPhiBinLowEdge(0);
-                    m_l1HistLimits.upperBinValue
-                            = L1GetHistLimits::PiConversion
-                                    * caloGeomScales->etSumPhiBinHighEdge(
-                                            m_l1HistLimits.nrBins - 1);
+                    m_l1HistLimits.lowerBinValue = rad2deg(
+                            caloGeomScales->etSumPhiBinLowEdge(0));
+                    m_l1HistLimits.upperBinValue = rad2deg(
+                            caloGeomScales->etSumPhiBinHighEdge(
+                                    m_l1HistLimits.nrBins - 1));
 
                     m_l1HistLimits.binThresholds.resize(m_l1HistLimits.nrBins
                             + 1);
 
                     for (int iBin = 0; iBin < m_l1HistLimits.nrBins; ++iBin) {
-                        m_l1HistLimits.binThresholds[iBin]
-                                = L1GetHistLimits::PiConversion
-                                        * caloGeomScales->etSumPhiBinLowEdge(iBin);
+                        m_l1HistLimits.binThresholds[iBin] = rad2deg(
+                                caloGeomScales->etSumPhiBinLowEdge(iBin));
 
                     }
 
@@ -532,21 +542,18 @@ void L1GetHistLimits::getHistLimits(const L1GtObject& l1GtObject,
                 } else {
                     m_l1HistLimits.nrBins
                             = caloGeomScales->numberGctHtSumPhiBins();
-                    m_l1HistLimits.lowerBinValue
-                            = L1GetHistLimits::PiConversion
-                                    * caloGeomScales->htSumPhiBinLowEdge(0);
-                    m_l1HistLimits.upperBinValue
-                            = L1GetHistLimits::PiConversion
-                                    * caloGeomScales->htSumPhiBinHighEdge(
-                                            m_l1HistLimits.nrBins - 1);
+                    m_l1HistLimits.lowerBinValue = rad2deg(
+                            caloGeomScales->htSumPhiBinLowEdge(0));
+                    m_l1HistLimits.upperBinValue = rad2deg(
+                            caloGeomScales->htSumPhiBinHighEdge(
+                                    m_l1HistLimits.nrBins - 1));
 
                     m_l1HistLimits.binThresholds.resize(m_l1HistLimits.nrBins
                             + 1);
 
                     for (int iBin = 0; iBin < m_l1HistLimits.nrBins; ++iBin) {
-                        m_l1HistLimits.binThresholds[iBin]
-                                = L1GetHistLimits::PiConversion
-                                        * caloGeomScales->htSumPhiBinLowEdge(iBin);
+                        m_l1HistLimits.binThresholds[iBin] = rad2deg(
+                                caloGeomScales->htSumPhiBinLowEdge(iBin));
 
                     }
 
@@ -813,6 +820,3 @@ const std::vector<float>& L1GetHistLimits::l1HistBinThresholds(
     return m_l1HistLimits.binThresholds;
 
 }
-
-// static constant members
-const double L1GetHistLimits::PiConversion = 180. / acos(-1.);

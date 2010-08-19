@@ -4,8 +4,8 @@
 /** \class MuonTrackValidator
  *  Class that produces histograms to validate Muon Track Reconstruction performances
  *
- *  $Date: 2010/03/25 10:27:54 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/03/26 17:47:00 $
+ *  $Revision: 1.3 $
  */
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -29,6 +29,7 @@ class MuonTrackValidator : public edm::EDAnalyzer, protected MuonTrackValidatorB
 					  pset.getParameter<int>("minHitTP"),
 					  pset.getParameter<bool>("signalOnlyTP"),
 					  pset.getParameter<bool>("chargedOnlyTP"),
+					  pset.getParameter<bool>("stableOnlyTP"), //needs cfi.py parameter? idr 10/6/10
 					  pset.getParameter<std::vector<int> >("pdgIdTP"));
     cosmictpSelector = CosmicTrackingParticleSelector(pset.getParameter<double>("ptMinTP"),
 						      pset.getParameter<double>("minRapidityTP"),

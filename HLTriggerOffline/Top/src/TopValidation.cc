@@ -13,7 +13,7 @@
 //
 // Original Author:  Patricia LOBELLE PARDO ()
 //         Created:  Tue Sep 23 11:06:32 CEST 2008
-// $Id: TopValidation.cc,v 1.9 2010/01/19 16:45:22 olzem Exp $
+// $Id: TopValidation.cc,v 1.10 2010/02/17 19:31:05 wdd Exp $
 //
 //
 
@@ -87,8 +87,14 @@ TopValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // Trigger 
   Handle<TriggerResults> trh;
-  try {iEvent.getByLabel(inputTag_,trh);} catch(...) {;}
-  
+  iEvent.getByLabel(inputTag_,trh);
+  if( ! trh.isValid() ) {
+    LogDebug("") << "HL TriggerResults with label ["+inputTag_.encode()+"] not found!";
+    return;
+  }  
+
+
+
   const edm::TriggerNames & triggerNames = iEvent.triggerNames(*trh);
  
   //////////////////////////////////

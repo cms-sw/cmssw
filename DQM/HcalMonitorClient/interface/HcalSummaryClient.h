@@ -28,6 +28,7 @@ class HcalSummaryClient : public HcalBaseDQClient {
   void cleanup(void);
   
   void fillReportSummary(int LS);
+  void fillReportSummaryLSbyLS(int LS);
 
   bool hasErrors_Temp(void);  
   bool hasWarnings_Temp(void);

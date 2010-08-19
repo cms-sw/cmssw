@@ -19,7 +19,7 @@ MuonAssociatorEDProducer::~MuonAssociatorEDProducer() {}
 
 void MuonAssociatorEDProducer::beginJob() {
   LogTrace("MuonAssociatorEDProducer") << "MuonAssociatorEDProducer::beginJob : constructing MuonAssociatorByHits";
-  associatorByHits = new MuonAssociatorByHits::MuonAssociatorByHits(parset_);
+  associatorByHits = new MuonAssociatorByHits(parset_);
 }
 
 void MuonAssociatorEDProducer::endJob() {}

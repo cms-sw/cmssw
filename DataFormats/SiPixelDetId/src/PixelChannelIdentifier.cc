@@ -60,7 +60,18 @@ PixelChannelIdentifier::Packing::Packing(const int row_w, const int column_w,
 //     :W          9             #. column number     (512)
 //     :TIME       4             #. time (ns)         (16)
 //     :ADC       11             #. charge            (2048)
+//
+// MODIFY 20.5.2008 for SLHC Simulations
+// Change to enable more pixels per row/column for larger modules in x and y
+// Since time is not used in CMSSW anymore it is reduced to 1 bit and charge
+// in adc counts is reduced since 255 is its maximum value
+//   #. name     no. bits
+//     :V          11            #. row number        (2048)
+//     :W          11            #. column number     (2048)
+//     :TIME       1             #. time (ns)         (2)
+//     :ADC        9             #. charge            (512)
+
 */
 
 // Initialization of static data members - DEFINES DIGI PACKING !
-PixelChannelIdentifier::Packing PixelChannelIdentifier::thePacking( 8, 9, 4, 11); // row, col, time, adc
+PixelChannelIdentifier::Packing PixelChannelIdentifier::thePacking( 11, 11, 1, 9); // row, col, time, adc

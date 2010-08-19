@@ -1,4 +1,4 @@
-// $Id: Ready.cc,v 1.13 2010/02/09 14:54:55 mommsen Exp $
+// $Id: Ready.cc,v 1.14 2010/02/18 14:47:45 mommsen Exp $
 /// @file: Ready.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -41,10 +41,9 @@ void Ready::do_entryActionWork()
   // update all configuration parameters
   std::string errorMsg = "Failed to update configuration parameters in Ready state";
   try
-    {
-      sharedResources->_configuration->updateAllParams();
-    }
-  // we don't have access to the sentinel here. Send an alarm instead.
+  {
+    sharedResources->_configuration->updateAllParams();
+  }
   catch(xcept::Exception &e)
   {
     XCEPT_DECLARE_NESTED(stor::exception::Configuration,
@@ -107,13 +106,13 @@ void Ready::do_entryActionWork()
   // configure the disk monitoring
   ResourceMonitorCollection& rmc =
     sharedResources->_statisticsReporter->getResourceMonitorCollection();
-  rmc.configureDisks(dwParams);
-  ResourceMonitorParams rmp =
-    sharedResources->_configuration->getResourceMonitorParams();
-  rmc.configureResources(rmp);
   AlarmParams ap =
     sharedResources->_configuration->getAlarmParams();
+  ResourceMonitorParams rmp =
+    sharedResources->_configuration->getResourceMonitorParams();
   rmc.configureAlarms(ap);
+  rmc.configureResources(rmp);
+  rmc.configureDisks(dwParams);
   
   // configure the run monitoring
   RunMonitorCollection& run_mc =

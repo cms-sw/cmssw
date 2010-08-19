@@ -292,7 +292,7 @@ ostream& reco::operator<<(  ostream& out,
       out<<endl;
     }
 
-        
+    
     out<<endl<<"\tlink data (distance x 1000) for tracking links : "<<endl;
     out<<setiosflags(ios::right);
     out<<"\t" << setw(width) << " ";
@@ -323,7 +323,7 @@ ostream& reco::operator<<(  ostream& out,
       }
       out<<endl;
     }
-    
+
     out<<setprecision(3);  
     out<<resetiosflags(ios::right|ios::fixed);
 

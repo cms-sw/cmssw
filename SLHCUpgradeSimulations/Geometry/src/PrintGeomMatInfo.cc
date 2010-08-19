@@ -261,7 +261,7 @@ void PrintGeomMatInfo::dumpG4LVLeafWithMat(G4LogicalVolume * lv, uint leafDepth,
            << ": "<< lv->GetMaterial()->GetName() << " :" << lv->GetMaterial()->GetRadlen() 
            << ":" << " :" << total_multipler << ":" 
            << " thk :" << thick << ": x/X0 :" << thick/lv->GetMaterial()->GetRadlen()
-           << ":" << std::endl;
+           << ":" << " Kg : " << lv->GetMass()/kg << std::endl;
     } else {
        for (uint ii=0; ii < leafDepth; ii++) out << "  ";
        out << " LV:(" << leafDepth << ") " << lv->GetName() << " (" << count << ")" << std::endl;

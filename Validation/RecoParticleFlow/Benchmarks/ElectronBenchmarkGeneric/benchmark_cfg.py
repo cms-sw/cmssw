@@ -14,7 +14,7 @@ process.source = cms.Source("PoolSource",
         '/store/relval/CMSSW_3_3_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V9-v1/0008/12755919-88B6-DE11-8FF2-000423D996C8.root', 
         '/store/relval/CMSSW_3_3_0/RelValQCD_Pt_80_120/GEN-SIM-RECO/MC_31X_V9-v1/0008/04B93222-89B6-DE11-93E9-001D09F29524.root')
 )
-process.pfAllElectrons = cms.EDProducer("PdgIdPFCandidateSelector",
+process.pfAllElectrons = cms.EDFilter("PdgIdPFCandidateSelector",
     pdgId = cms.vint32(11, -11),
     src = cms.InputTag("pfNoPileUp")
 )

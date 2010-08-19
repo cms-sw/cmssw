@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2010/03/28 17:41:13 $
- * $Revision: 1.71 $
+ * $Date: 2010/03/29 12:18:39 $
+ * $Revision: 1.72 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -390,7 +390,7 @@ void EETriggerTowerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     }
 
   } else {
-    edm::LogWarning("EETriggerTowerTask") << emulCollection_ << " not available";
+    edm::LogInfo("EETriggerTowerTask") << emulCollection_ << " not available";
   }
 
 }

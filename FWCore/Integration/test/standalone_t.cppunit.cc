@@ -91,6 +91,7 @@ void testStandalone::readFile()
                             ")\n"
                             "process.InitRootHandlers = cms.Service('InitRootHandlers')\n"
                             "process.JobReportService = cms.Service('JobReportService')\n"
+                            "process.add_(cms.Service('SiteLocalConfigService'))\n"
 			    // "process.MessageLogger = cms.Service('MessageLogger')\n"
                            );
 

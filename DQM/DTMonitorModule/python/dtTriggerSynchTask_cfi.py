@@ -20,7 +20,8 @@ dtTriggerSynchMonitor = cms.EDAnalyzer("DTLocalTriggerSynchTask",
             wirePropCorrType = cms.int32(0),
             doWirePropCorrection = cms.bool(False),
             doT0Correction = cms.bool(False),
-            debug = cms.untracked.bool(False)
+            debug = cms.untracked.bool(False),
+            tTrigLabel = cms.string('')
     ),
     tTrigMode = cms.string('DTTTrigSyncFromDB')
 )

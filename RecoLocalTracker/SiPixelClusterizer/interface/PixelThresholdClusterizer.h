@@ -50,9 +50,6 @@
 // Parameter Set:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-// TimeMe class:
-//#include "Utilities/Timing/interface/TimingReport.h"
-
 #include <vector>
 
 
@@ -90,11 +87,15 @@ class PixelThresholdClusterizer : public PixelClusterizerBase {
   float theClusterThreshold;  // Cluster threshold in electrons
   int   theConversionFactor;  // adc to electron conversion factor
   int   theOffset;            // adc to electron conversion offset
+  int   theStackADC;          // The maximum ADC count for the stack layers
+  int   theFirstStack;        // The index of the first stack layer
 
   //! Geometry-related information
   int  theNumOfRows;
   int  theNumOfCols;
   uint32_t detid_;
+  uint32_t layer_;
+
   bool dead_flag;
   bool doMissCalibrate; // Use calibration or not
   bool doSplitClusters;
@@ -106,17 +107,6 @@ class PixelThresholdClusterizer : public PixelClusterizerBase {
 );
   // Calibrate the ADC charge to electrons 
   int calibrate(int adc, int col, int row);
-
-/*   void initTiming(); */
-/*   TimingReport::Item * theSetupTimer; */
-/*   TimingReport::Item * theClustersTimer; */
-/*   TimingReport::Item * theClusterizeTimer; */
-/*   TimingReport::Item * theRecHitTimer; */
-/*   TimingReport::Item * theCopyTimer; */
-/*   TimingReport::Item * theClearTimer; */
-/*   TimingReport::Item * theMakeClustTimer; */
-/*   TimingReport::Item * theCacheGetTimer; */
-/*   TimingReport::Item * theCachePutTimer; */
 
 };
 

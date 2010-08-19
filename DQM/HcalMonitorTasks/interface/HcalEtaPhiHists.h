@@ -591,6 +591,7 @@ inline void FillUnphysicalHEHFBins(EtaPhiHists &hh)
   // First 2 depths have 5-10-20 degree corrections
   for (unsigned int d=0;d<3;++d)
     {
+      if (!hh.depth[d]) continue;
       for (int eta=0;eta<hh.depth[d]->getNbinsX();++eta)
 	{
 	  ieta=CalcIeta(eta,d+1);
@@ -624,6 +625,7 @@ inline void FillUnphysicalHEHFBins(MonitorElement* hh)
 {
   // Fills unphysical HE/HF bins for Summary Histogram
   // Summary Histogram is binned with the same binning as the Depth 1 EtaPhiHists
+  if (hh==0) return; 
   int ieta=0;
   int iphi=0;
   int etabins = hh->getNbinsX();

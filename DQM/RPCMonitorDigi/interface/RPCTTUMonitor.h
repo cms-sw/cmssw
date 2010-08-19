@@ -13,7 +13,7 @@
 //
 // Original Author:  Andres Felipe Osorio Oliveros
 //         Created:  Wed Sep 30 09:32:55 CEST 2009
-// $Id: RPCTTUMonitor.h,v 1.1 2009/10/16 16:04:35 cimmino Exp $
+// $Id: RPCTTUMonitor.h,v 1.3 2010/03/15 19:04:06 cimmino Exp $
 //
 //
 
@@ -58,7 +58,6 @@
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"

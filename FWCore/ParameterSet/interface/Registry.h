@@ -51,7 +51,7 @@ namespace edm {
 
   }  // namespace pset
 
-  ParameterSet getProcessParameterSet();
+  ParameterSet const& getProcessParameterSet();
 
 }  // namespace edm
 

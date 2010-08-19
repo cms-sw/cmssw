@@ -13,7 +13,7 @@
 //
 // Original Author:  pts/91
 //         Created:  Wed Sep 26 17:08:29 CEST 2007
-// $Id: RPCGEO.cc,v 1.5 2009/11/13 13:36:55 fambrogl Exp $
+// $Id: RPCGEO.cc,v 1.4 2009/08/25 23:22:32 case Exp $
 //
 //
 
@@ -77,8 +77,11 @@ class RPCGEO : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-RPCGEO::RPCGEO(const edm::ParameterSet& iConfig){
+RPCGEO::RPCGEO(const edm::ParameterSet& iConfig)
+
+{
    //now do what ever initialization is needed
+
 }
 
 
@@ -120,11 +123,8 @@ RPCGEO::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    int ENDCAProll[5][4];
    int rollsNearDiskp3=0;	 
    int rollsNearDiskp2=0;
-   float sumstripwbarrel = 0; 
-   float sumstripwendcap = 0;
-   float areabarrel = 0; 
-   float areaendcap = 0;
 
+   
    for(int i=1;i<5;i++){
      for(int j=1;j<4;j++){
        ENDCAP[i][j]=0;
@@ -206,6 +206,7 @@ RPCGEO::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   break;
 	 }
        }
+       
 
        for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
 	 RPCDetId rpcId = (*r)->id();
@@ -222,12 +223,15 @@ RPCGEO::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	 if (rpcId.region()==0){ 
 	   //std::cout<<"Getting the RPC Topolgy"<<std::endl;
+	   
 	   const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&((*r)->topology()));
+
 	   float stripl = top_->stripLength();
 	   float stripw = top_->pitch();
-	   areabarrel = areabarrel + stripl*stripw*stripsinthisroll;
-	   sumstripwbarrel=sumstripwbarrel+stripw*stripsinthisroll;
-	   std::cout<<" AllInfo"<<rpcsrv.name()<<" stripl="<<stripl<<" stripw="<<stripw<<" stripsinthisroll="<<stripsinthisroll<<" area roll="<<stripl*stripw<<" area total barrel="<<areabarrel<<std::endl;
+
+	   std::cout<<" AllInfo"<<rpcsrv.name()<<" stripl="<<stripl<<" stripw="<<stripw<<" stripsinthisroll="<<stripsinthisroll<<std::endl;
+
+	   
 	   counterRollsBarrel++; 
 	   if(rpcId.station()==4){
 	     counterRollsMB4++;
@@ -252,14 +256,15 @@ RPCGEO::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   else counterRollsMB1MB2MB3++;
 	 }else{
 	   const TrapezoidalStripTopology* top_= dynamic_cast<const TrapezoidalStripTopology*> (&((*r)->topology()));
+	   
 	   float s1 = static_cast<float>(1)-0.5;
 	   float sLast = static_cast<float>(stripsinthisroll)-0.5;
+
 	   float stripl = top_->stripLength();
 	   float stripw = top_->pitch();
-	   areaendcap = areaendcap + stripw*stripl*stripsinthisroll;
-	   sumstripwendcap=sumstripwendcap+stripw*stripsinthisroll;
 
-	   std::cout<<" AllInfo"<<rpcsrv.name()<<" stripl="<<stripl<<" stripw="<<stripw<<" stripsinthisroll="<<stripsinthisroll<<" area roll="<<stripl*stripw<<" area total endcap="<<areaendcap<<std::endl;
+	   std::cout<<" AllInfo"<<rpcsrv.name()<<" stripl="<<stripl<<" stripw="<<stripw<<" stripsinthisroll="<<stripsinthisroll<<std::endl;
+
 	   const BoundPlane & RPCSurface = (*r)->surface();
 	   GlobalPoint FirstStripCenterPointInGlobal = RPCSurface.toGlobal(top_->localPosition(s1));
 	   GlobalPoint LastStripCenterPointInGlobal = RPCSurface.toGlobal(top_->localPosition(sLast));
@@ -412,8 +417,8 @@ RPCGEO::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::cout<<"\n Total Number of Rolls in EndCap= "<<counterRollsEndCap<<std::endl;
    std::cout<<"Total Number of Rolls in Barrel= "<<counterRollsBarrel<<std::endl;   
 
-   std::cout<<"\n Total Number of Strips in Barrel= "<<counterstripsBarrel<<std::endl;
-   std::cout<<"Total Number of Strips in EndCap= "<<counterstripsEndCap<<std::endl;
+   std::cout<<"\n Total Number of Strips in EndCap= "<<counterstripsBarrel<<std::endl;
+   std::cout<<"Total Number of Strips in Barrel= "<<counterstripsEndCap<<std::endl;
  
    std::cout<<"\n Total Number of Rolls in MB4= "<<counterRollsMB4<<std::endl;
    std::cout<<"Total Number of Rolls in MB1,MB2,MB3= "<<counterRollsMB1MB2MB3<<std::endl;
@@ -445,15 +450,6 @@ RPCGEO::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    std::cout<<"Rolls in Near Disk 2= "<<rollsNearDiskp2<<std::endl;
    std::cout<<"Rolls in Near Disk 3= "<<rollsNearDiskp3<<std::endl;
-
-   std::cout<<"Average Strip in Barrel= "<<sumstripwbarrel/counterstripsBarrel<<std::endl;
-   std::cout<<"Average Strip in EndCap= "<<sumstripwendcap/counterstripsEndCap<<std::endl;
-
-   std::cout<<"Expected RMS Barrel= "<<(sumstripwbarrel/counterstripsBarrel)/sqrt(12)<<std::endl;
-   std::cout<<"Expected RMS EndCap= "<<(sumstripwendcap/counterstripsEndCap)/sqrt(12)<<std::endl;
-
-   std::cout<<"Area Covered in Barrel = "<<areabarrel/10000<<"m^2"<<std::endl;
-   std::cout<<"Area Covered in EndCap = "<<areaendcap/10000<<"m^2"<<std::endl;
 
 }
 

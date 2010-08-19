@@ -1,4 +1,5 @@
 <use name=clhep>
+<use name=boost>
 <use name=rootmath>
 <export>
  <lib name=RecoTrackerDebugTools>

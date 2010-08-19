@@ -7,6 +7,8 @@
 
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEParmError.h"
 
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+
 // MessageLogger
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -95,6 +97,17 @@ PixelCPEParmError::localError( const SiPixelCluster& cluster, const GeomDetUnit 
       " Edgex = " << edgex          << " Edgey = " << edgey << 
       " ErrX = " << xerr            << " ErrY  = " << yerr;
   }
+
+  //Bug fix for outer pixel layers
+  DetId detid(det.geographicalId());
+  if (detid.subdetId()==1) {
+    PXBDetId pxbdetid(detid);
+    if(pxbdetid.layer()>4){
+      xerr = thePitchX / sqrt(12.);
+      yerr = thePitchY / sqrt(12.);
+    }
+  }
+
   return LocalError(xerr*xerr, 0,yerr*yerr);
 }
 
@@ -110,7 +123,7 @@ PixelCPEParmError::localError( const SiPixelCluster& cluster, const GeomDetUnit 
 float 
 PixelCPEParmError::xpos(const SiPixelCluster& cluster) const {
   int size = cluster.sizeX();
-                                                                               
+
   if (size == 1) {
     float baryc = cluster.x();
     // the middle of only one pixel is equivalent to the baryc.
@@ -127,7 +140,6 @@ PixelCPEParmError::xpos(const SiPixelCluster& cluster) const {
   float maxEdge = theTopol->localX(float(imax));   // right inner edge
   float center = (minEdge + maxEdge)/2.; // center of inner part
   float wInner = maxEdge-minEdge; // width of the inner part
-  
   // get the charge in the edge pixels
   const vector<SiPixelCluster::Pixel>& pixelsVec = cluster.pixels();
   float q1 = 0.;
@@ -157,7 +169,6 @@ PixelCPEParmError::xpos(const SiPixelCluster& cluster) const {
   //etashift = theEtaFunc.xEtaShift(size,thePitchX,charatio,alpha_);
   //pos = pos - etashift;
   //}
-
   return pos;
 }
 

@@ -1,5 +1,5 @@
 //
-// $Id: Electron.cc,v 1.19 2009/08/26 08:39:25 cbern Exp $
+// $Id: Electron.cc,v 1.20.12.1 2010/04/20 14:43:50 srappocc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -18,7 +18,8 @@ Electron::Electron() :
     embeddedTrack_(false),
     embeddedPFCandidate_(false),
     cachedDB_(false),
-    dB_(0.0)
+    dB_(0.0),
+    edB_(0.0)
 {
 }
 
@@ -32,7 +33,8 @@ Electron::Electron(const reco::GsfElectron & anElectron) :
     embeddedTrack_(false),
     embeddedPFCandidate_(false),
     cachedDB_(false),
-    dB_(0.0)
+    dB_(0.0),
+    edB_(0.0)
 {
 }
 
@@ -45,7 +47,8 @@ Electron::Electron(const edm::RefToBase<reco::GsfElectron> & anElectronRef) :
     embeddedTrack_(false),
     embeddedPFCandidate_(false),
     cachedDB_(false),
-    dB_(0.0)
+    dB_(0.0),
+    edB_(0.0)
 {
 }
 
@@ -57,7 +60,8 @@ Electron::Electron(const edm::Ptr<reco::GsfElectron> & anElectronRef) :
     embeddedTrack_(false),
     embeddedPFCandidate_(false),
     cachedDB_(false),
-    dB_(0.0)
+    dB_(0.0),
+    edB_(0.0)
 {
 }
 
@@ -172,6 +176,17 @@ void Electron::embedPFCandidate() {
 double Electron::dB() const {
   if ( cachedDB_ ) {
     return dB_;
+  } else {
+    return std::numeric_limits<double>::max();
+  }
+}
+
+/// edB gives the uncertainty on the impact parameter wrt the beamline.
+/// If this is not cached it is not meaningful, since
+/// it relies on the distance to the beamline. 
+double Electron::edB() const {
+  if ( cachedDB_ ) {
+    return edB_;
   } else {
     return std::numeric_limits<double>::max();
   }

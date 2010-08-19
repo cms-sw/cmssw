@@ -2,6 +2,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -83,7 +84,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 
 // initialize cabling map or update if necessary
   if (recordWatcher.check( es )) {
-    edm::ESHandle<SiPixelFedCablingMap> cablingMap;
+    edm::ESTransientHandle<SiPixelFedCablingMap> cablingMap;
     es.get<SiPixelFedCablingMapRcd>().get( cablingMap );
     fedList = cablingMap->fedIds();
     if(useCablingTree_ && cabling_) delete cabling_; 

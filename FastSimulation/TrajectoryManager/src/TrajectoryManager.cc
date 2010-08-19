@@ -60,8 +60,8 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
   myDecayEngine(0), 
   theGeomTracker(0),
   theGeomSearchTracker(0),
-  theLayerMap(56, static_cast<const DetLayer*>(0)), // reserve space for layers here
-  theNegLayerOffset(27),
+  theLayerMap(120, static_cast<const DetLayer*>(0)), // reserve space for layers here
+  theNegLayerOffset(51),
   //  myHistos(0),
   random(engine)
 
@@ -275,11 +275,11 @@ TrajectoryManager::reconstruct()
 	  PP.charge()!=0. &&                         // Consider only charged particles
 	  cyliter->sensitive() &&                    // Consider only sensitive layers
 	  PP.Perp2()>pTmin*pTmin;                    // Consider only pT > pTmin
-	
+
         // Material effects are simulated there
 	if ( theMaterialEffects ) 
           theMaterialEffects->interact(*mySimEvent,*cyliter,PP,fsimi); 
-
+	
 	// There is a PP.setXYZT=(0,0,0,0) if bremss fails
 	saveHit &= PP.E()>1E-6;
 

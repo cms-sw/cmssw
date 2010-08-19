@@ -13,6 +13,8 @@
 #include <iomanip>
 #include <iostream>
 
+using namespace std;
+
 /**
  * @class SiStripDetSummary
  * @author M. De Mattia
@@ -31,24 +33,7 @@
 class SiStripDetSummary
 {
 public:
-  SiStripDetSummary() : computeMean_(true)
-  {
-    // Initialize countMap_ with zeros
-    // WARNING: this initialization is strongly connected with how the map is filled in the add method
-    // TIB: layers = 4, stereo = the first 2
-    // TOB: layers = 6, stereo = the first 2
-    // TEC: wheels = 9, stereo = 9
-    // TID: wheels = 3, stereo = 3
-    unsigned int layers[] = {4, 6, 9, 3};
-    unsigned int stereo[] = {2, 2, 9, 3};
-    for( unsigned int subDet = 0; subDet < 4; ++subDet ) {
-      // Layers start from 1
-      for( unsigned int layer = 1; layer <= layers[subDet]; ++layer ) {
-	countMap_[1000*(subDet+1)+layer*10] = 0;
-	if( layer <= stereo[subDet] ) countMap_[1000*(subDet+1)+layer*10+1] = 0;
-      }
-    }
-  }
+  SiStripDetSummary() : computeMean_(true) {}
 
   /// Used to compute the mean value of the value variable divided by subdetector, layer and mono/stereo
   void add(const DetId & detid, const float & value);
@@ -63,17 +48,17 @@ public:
    * Method used to write the output. By default mean == true and it writes the mean value. If mean == false
    * it will write the count.
    */
-  void print(std::stringstream& ss, const bool mean = true) const;
+  void print(stringstream& ss, const bool mean = true) const;
 
-  std::map<int, int> getCounts()
+  map<int, int> getCounts()
   {
     return countMap_;
   }
 protected:
   // Maps to store the value and the counts
-  std::map<int, double> meanMap_;
-  std::map<int, double> rmsMap_;
-  std::map<int, int> countMap_;
+  map<int, double> meanMap_;
+  map<int, double> rmsMap_;
+  map<int, int> countMap_;
   bool computeMean_;
 };
 

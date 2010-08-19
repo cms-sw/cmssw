@@ -8,7 +8,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
-#include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -81,7 +80,7 @@ void DDPixBarStackLayerAlgo::initialize(const DDNumericArguments & nArgs,
 
 ////////////////////////////////////////////////////////////////////////////////
 // The algorithm itself
-void DDPixBarStackLayerAlgo::execute() {
+void DDPixBarStackLayerAlgo::execute(DDCompactView& cpv) {
   if ((number%2==1)&&(layout==1)) { 
         number+=1;
         std::cout << "\nAsking for an invalid layout ... Adjusting the number of ladders to compensate.\n";
@@ -211,7 +210,7 @@ void DDPixBarStackLayerAlgo::execute() {
 //------------------------------------------------------------------------------------------------------------
 // Put coolant in the cool tube
 
-  DDpos (cool, coolTube, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
+  cpv.position (cool, coolTube, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
 
   LogDebug("PixelGeom") << "DDPixBarStackLayerAlgo test: " << cool.name() 
 			<< " number 1 positioned in " << coolTube.name() 
@@ -248,7 +247,7 @@ void DDPixBarStackLayerAlgo::execute() {
     name = idName + dbl_to_string(component_copy_no);
     rot = DDrot(DDName(name,idNameSpace), 90*CLHEP::deg, phix, 90*CLHEP::deg, phiy, 0.,0.);
 
-    DDpos (ladderFullDown, layer, component_copy_no, tran, rot);
+    cpv.position (ladderFullDown, layer, component_copy_no, tran, rot);
 
     LogDebug("PixelGeom") << "DDPixBarStackLayerAlgo test: " << ladderFullDown 
 			    << " number " << component_copy_no
@@ -263,7 +262,7 @@ void DDPixBarStackLayerAlgo::execute() {
     name = idName + dbl_to_string(component_copy_no);
     rot = DDrot(DDName(name,idNameSpace), 90*CLHEP::deg, phix, 90*CLHEP::deg, phiy, 0.,0.);
 
-    DDpos (ladderFullUp, layer, component_copy_no, tran, rot);
+    cpv.position (ladderFullUp, layer, component_copy_no, tran, rot);
 
     LogDebug("PixelGeom") << "DDPixBarStackLayerAlgo test: " << ladderFullUp 
 			    << " number " << component_copy_no
@@ -311,7 +310,7 @@ void DDPixBarStackLayerAlgo::execute() {
     name = idName + "xxx"+dbl_to_string(i+10000);
 
     rot = DDrot(DDName(name,idNameSpace), 90*CLHEP::deg, phix, 90*CLHEP::deg, phiy, 0.,0.);
-    DDpos (coolTube, layer, i+1, tran, rot);
+    cpv.position (coolTube, layer, i+1, tran, rot);
     LogDebug("PixelGeom") << "DDPixBarStackLayerAlgo test: " << coolTube.name() 
 			  << " number " << i+1 << " positioned in " 
 			  << layer.name() << " at " << tran << " with "<< rot;

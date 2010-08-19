@@ -1,7 +1,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
-
+//DEFINE_SEAL_MODULE(); //idr 10/6/10
 
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 
@@ -37,11 +37,17 @@ DEFINE_FWK_EVENTSETUP_SOURCE(SiStripThresholdFakeESSource);
 #include "CalibTracker/SiStripESProducers/interface/SiStripApvGainGenerator.h"
 typedef SiStripTemplateFakeESSource< SiStripApvGain, SiStripApvGainRcd, SiStripApvGainGenerator > SiStripApvGainFakeESSource;
 DEFINE_FWK_EVENTSETUP_SOURCE(SiStripApvGainFakeESSource);
+//try this...  idr 8/2/10
+typedef SiStripTemplateFakeESSource< SiStripApvGain, SiStripApvGainSimRcd, SiStripApvGainGenerator > SiStripApvGainSimFakeESSource;
+DEFINE_FWK_EVENTSETUP_SOURCE(SiStripApvGainSimFakeESSource);
 
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
 #include "CalibTracker/SiStripESProducers/interface/SiStripLorentzAngleGenerator.h"
 typedef SiStripTemplateFakeESSource< SiStripLorentzAngle, SiStripLorentzAngleRcd, SiStripLorentzAngleGenerator > SiStripLorentzAngleFakeESSource;
 DEFINE_FWK_EVENTSETUP_SOURCE(SiStripLorentzAngleFakeESSource);
+//and here... idr 9/2/10
+typedef SiStripTemplateFakeESSource< SiStripLorentzAngle, SiStripLorentzAngleSimRcd, SiStripLorentzAngleGenerator > SiStripLorentzAngleSimFakeESSource;
+DEFINE_FWK_EVENTSETUP_SOURCE(SiStripLorentzAngleSimFakeESSource);
 
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "CalibTracker/SiStripESProducers/interface/SiStripBadModuleGenerator.h"

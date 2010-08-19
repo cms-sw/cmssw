@@ -20,21 +20,24 @@
 // Modify to the new random number services. d.k. 5/07
 // Protect against sigma=0 (delta tracks on the surface). d.k.5/07
 // Change the TOF cut to lower and upper limit. d.k. 7/07
-//
-// July 2008: Split Lorentz Angle configuration in BPix/FPix (V. Cuplov)
+// Split Lorentz Angle configuration in BPix/FPix: V. Cuplov, Rice University 7/08
 // tanLorentzAngleperTesla_FPix=0.0912 and tanLorentzAngleperTesla_BPix=0.106
-// Sept. 2008: Disable Pixel modules which are declared dead in the configuration python file. (V. Cuplov)
-// Oct. 2008: Accessing/Reading the Lorentz angle from the DataBase instead of the cfg file. (V. Cuplov)
+// Disable Pixel modules which are declared dead in the configuration python file. (sept 2008)
+// Accessing/Reading the Lorentz angle from the DataBase instead of the cfg file. (oct 2008)
 // Accessing dead modules from the DB. Implementation done and tested on a test.db
 // Do not use this option for now. The PixelQuality Objects are not in the official DB yet.
-// Feb. 2009: Split Fpix and Bpix threshold and use official numbers (V. Cuplov)
+// Accessing dead modules via DB is tested using GlobalTag STARTUP_30X (jan 2009). Ok
+// Split Fpix and Bpix threshold and use official numbers (fev 2009)
 // ThresholdInElectrons_FPix = 2870 and ThresholdInElectrons_BPix = 3700
 // update the electron to VCAL conversion using: VCAL_electrons = VCAL * 65.5 - 414
-// Feb. 2009: Threshold gaussian smearing (V. Cuplov)
+// Threshold gaussian smearing: (fev. 2009)
+// Fpix: Mean=2870 and RMS=200 
+// Bpix: Mean=3700 and RMS=410
 // March, 2009: changed DB access to *SimRcd objects (to de-couple the DB objects from reco chain) (F. Blekman) 
 // May, 2009: Pixel charge VCAL smearing. (V. Cuplov)
 // November, 2009: new parameterization of the pixel response. (V. Cuplov)
 // December, 2009: Fix issue with different compilers.
+ 
 
 #include <vector>
 #include <iostream>
@@ -47,6 +50,7 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandFlat.h"
+
 
 //#include "SimTracker/SiPixelDigitizer/interface/PixelIndices.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
@@ -119,6 +123,16 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   GeVperElectron = 3.61E-09; // 1 electron =3.61eV, 1keV=277e, mod 9/06 d.k.
   Sigma0 = 0.00037;           // Charge diffusion constant 7->3.7 
   Dist300 = 0.0300;          //   normalized to 300micron Silicon
+  //
+  // Numbers of Layers
+  NumberOfBarrelLayers = conf_.getParameter<int>("NumPixelBarrel");
+  NumberOfEndcapDisks  = conf_.getParameter<int>("NumPixelEndcap");
+
+  cout << "Number of Pixel Barrel Layer " << NumberOfBarrelLayers << endl;
+  //  NumberOfBarrelLayers = 8;
+  //  NumberOfEndcapDisks = 3;
+
+  NumberOfTotLayers = NumberOfBarrelLayers + NumberOfEndcapDisks;
 
   alpha2Order = conf_.getParameter<bool>("Alpha2Order");   // switch on/off of E.B effect   
 
@@ -131,14 +145,19 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   theElectronPerADC=conf_.getParameter<double>("ElectronPerAdc");
 
   // ADC saturation value, 255=8bit adc.
+  // theFirstStackLayer is the first BPix layer that gets the theAdcFullScaleStack ADC count
   //theAdcFullScale=conf_.getUntrackedParameter<int>("AdcFullScale",255);
   theAdcFullScale=conf_.getParameter<int>("AdcFullScale");
+  theAdcFullScaleStack=conf_.getParameter<int>("AdcFullScaleStack");
+  theFirstStackLayer=conf_.getParameter<int>("FirstStackLayer");
 
   // Pixel threshold in units of noise:
   // thePixelThreshold=conf_.getParameter<double>("ThresholdInNoiseUnits");
   // Pixel threshold in electron units.
   theThresholdInE_FPix=conf_.getParameter<double>("ThresholdInElectrons_FPix");
   theThresholdInE_BPix=conf_.getParameter<double>("ThresholdInElectrons_BPix");
+  //Carlotta" enables different threshold in layer 1 when we have smaller pixel pitch
+  theThresholdInE_BPix_L1=conf_.getParameter<double>("ThresholdInElectrons_BPix_L1");
 
   // Add threshold gaussian smearing:
   addThresholdSmearing = conf_.getParameter<bool>("AddThresholdSmearing");
@@ -150,7 +169,7 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   FPix_p1 = conf_.getParameter<double>("FPix_SignalResponse_p1");
   FPix_p2 = conf_.getParameter<double>("FPix_SignalResponse_p2");
   FPix_p3 = conf_.getParameter<double>("FPix_SignalResponse_p3");
-
+  
   BPix_p0 = conf_.getParameter<double>("BPix_SignalResponse_p0");
   BPix_p1 = conf_.getParameter<double>("BPix_SignalResponse_p1");
   BPix_p2 = conf_.getParameter<double>("BPix_SignalResponse_p2");
@@ -191,11 +210,20 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
  
   // Control the pixel inefficiency
   thePixelLuminosity=conf_.getParameter<int>("AddPixelInefficiency");
+                                                               //--Hec: ADD HERE INNEFICIENCY INPUT PARARAMETERS [Sep-09]
+  PixelEff     = conf_.getParameter<double>("PixelEff");       //--Hec: Pixel
+  PixelColEff  = conf_.getParameter<double>("PixelColEff");    //--Hec: Column
+  PixelChipEff = conf_.getParameter<double>("PixelChipEff");   //--Hec: Chip
+
+  cout<<"My Eff Input: thePixelLuminosity= "<<thePixelLuminosity
+  <<" PixelEff="<<PixelEff<<" PixelColEff="<<PixelColEff<<" PixelChipEff="<<PixelChipEff<<endl;   //--Hec:
+
 
   // Get the constants for the miss-calibration studies
   doMissCalibrate=conf_.getParameter<bool>("MissCalibrate"); // Enable miss-calibration
   theGainSmearing=conf_.getParameter<double>("GainSmearing"); // sigma of the gain smearing
   theOffsetSmearing=conf_.getParameter<double>("OffsetSmearing"); //sigma of the offset smearing
+
 
   //pixel inefficiency
   // the first 3 settings [0],[1],[2] are for the barrel pixels
@@ -203,10 +231,14 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
 
   if (thePixelLuminosity==-1) {  // No inefficiency, all 100% efficient
     pixelInefficiency=false;
-    for (int i=0; i<6;i++) {
+    for (int i=0; i<NumberOfTotLayers;i++) {
       thePixelEfficiency[i]     = 1.;  // pixels = 100%
       thePixelColEfficiency[i]  = 1.;  // columns = 100%
       thePixelChipEfficiency[i] = 1.; // chips = 100%
+      cout << "Calling No ineEfficiency: NumberOfTotLayers "<<i
+           <<" Pixels: " <<thePixelEfficiency[i]
+           <<" Columns: "<<thePixelColEfficiency[i]
+           <<" Chips: "  <<thePixelChipEfficiency[i]<<endl;            //--Hec:
     }
     
     // include only the static (non rate depedent) efficiency 
@@ -214,68 +246,78 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   } else if (thePixelLuminosity==0) { // static effciency
     pixelInefficiency=true;
     // Default efficiencies 
-    for (int i=0; i<6;i++) {
-      if(i<3) {  // For the barrel
+    for (int i=0; i<NumberOfTotLayers;i++) {
+      if(i<NumberOfBarrelLayers) {  // For the barrel
 	// Assume 1% inefficiency for single pixels, 
 	// this is given by faulty bump-bonding and seus.  
-	thePixelEfficiency[i]     = 1.-0.001;  // pixels = 99.9%
+	thePixelEfficiency[i]     = PixelEff;           //--Hec: 1.-0.001;  // pixels = 99.9%
 	// For columns make 0.1% default.
-	thePixelColEfficiency[i]  = 1.-0.001;  // columns = 99.9%
+	thePixelColEfficiency[i]  = PixelColEff;        //--Hec: 1.-0.001;  // columns = 99.9%
 	// A flat 0.1% inefficiency due to lost rocs
-	thePixelChipEfficiency[i] = 1.-0.001; // chips = 99.9%
+	thePixelChipEfficiency[i] = PixelChipEff;       //--Hec: 1.-0.001; // chips = 99.9%
+        cout << "Calling Barrel Eff. NumberOfBarrelLayers: "<<i
+             <<" Pixels: " <<thePixelEfficiency[i]
+             <<" Columns: "<<thePixelColEfficiency[i]
+             <<" Chips: "  <<thePixelChipEfficiency[i]<<endl;            //--Hec:
       } else { // For the endcaps
 	// Assume 1% inefficiency for single pixels, 
 	// this is given by faulty bump-bonding and seus.  
-	thePixelEfficiency[i]     = 1.-0.001;  // pixels = 99.9%
+	thePixelEfficiency[i]     = PixelEff;           //--Hec:  1.-0.001;  // pixels = 99.9%
 	// For columns make 0.1% default.
-	thePixelColEfficiency[i]  = 1.-0.001;  // columns = 99.9%
+	thePixelColEfficiency[i]  = PixelColEff;        //--Hec:  1.-0.001;  // columns = 99.9%
 	// A flat 0.1% inefficiency due to lost rocs
-	thePixelChipEfficiency[i] = 1.-0.001; // chips = 99.9%
+	thePixelChipEfficiency[i] = PixelChipEff;       //--Hec:  1.-0.001; // chips = 99.9%
+        cout << "Calling EndCap Eff. "<<NumberOfBarrelLayers<<" "<<i
+             <<" Pixels: " <<thePixelEfficiency[i]
+             <<" Columns: "<<thePixelColEfficiency[i]
+             <<" Chips: "  <<thePixelChipEfficiency[i]<<endl;            //--Hec:
       }
     }
     
     // Include also luminosity rate dependent inefficieny
   } else if (thePixelLuminosity>0) { // Include effciency
+    cout << "Luminosity ineEfficiency [Need to be check]"<<endl;            //--Hec:
     pixelInefficiency=true;
     // Default efficiencies 
-    for (int i=0; i<6;i++) {
-      if(i<3) { // For the barrel
+    for (int i=0; i<NumberOfTotLayers;i++) {
+      if(i<NumberOfBarrelLayers) { // For the barrel
 	// Assume 1% inefficiency for single pixels, 
 	// this is given by faulty bump-bonding and seus.  
-	thePixelEfficiency[i]     = 1.-0.01;  // pixels = 99%
+	thePixelEfficiency[i]     = PixelEff;             //--Hec: 1.-0.01;  // pixels = 99%
 	// For columns make 1% default.
-	thePixelColEfficiency[i]  = 1.-0.01;  // columns = 99%
+	thePixelColEfficiency[i]  = PixelColEff;          //--Hec: 1.-0.01;  // columns = 99%
 	// A flat 0.25% inefficiency due to lost data packets from TBM
-	thePixelChipEfficiency[i] = 1.-0.0025; // chips = 99.75%
+	thePixelChipEfficiency[i] = PixelChipEff;         //--Hec: 1.-0.0025; // chips = 99.75%
       } else { // For the endcaps
 	// Assume 1% inefficiency for single pixels, 
 	// this is given by faulty bump-bonding and seus.  
-	thePixelEfficiency[i]     = 1.-0.01;  // pixels = 99%
+	thePixelEfficiency[i]     = PixelEff;             //--Hec: 1.-0.01;  // pixels = 99%
 	// For columns make 1% default.
-	thePixelColEfficiency[i]  = 1.-0.01;  // columns = 99%
+	thePixelColEfficiency[i]  = PixelColEff;          //--Hec: 1.-0.01;  // columns = 99%
 	// A flat 0.25% inefficiency due to lost data packets from TBM
-	thePixelChipEfficiency[i] = 1.-0.0025; // chips = 99.75%
+	thePixelChipEfficiency[i] = PixelChipEff;         //--Hec: 1.-0.0025; // chips = 99.75%
       }
     }
    
     // Special cases ( High-lumi for 4cm layer) where the readout losses are higher
     if(thePixelLuminosity==10) { // For high luminosity, bar layer 1
-      thePixelColEfficiency[0] = 1.-0.034; // 3.4% for r=4 only
-      thePixelEfficiency[0]    = 1.-0.015; // 1.5% for r=4
+      thePixelEfficiency[0]     = PixelEff;          //--Hec: 1.-0.015; // 1.5% for r=4
+      thePixelColEfficiency[0]  = PixelColEff;       //--Hec: 1.-0.034; // 3.4% for r=4 only
+      thePixelChipEfficiency[0] = PixelChipEff;      //--Hec: I added this variable here
     }
     
   } // end the pixel inefficiency part
 
   // Init the random number services  
-  if(addNoise || thePixelLuminosity || fluctuateCharge || addThresholdSmearing ) {
+    if(addNoise || thePixelLuminosity || fluctuateCharge || addThresholdSmearing ) {
     gaussDistribution_ = new CLHEP::RandGaussQ(rndEngine, 0., theReadoutNoise);
     gaussDistributionVCALNoise_ = new CLHEP::RandGaussQ(rndEngine, 0., 1.);
     flatDistribution_ = new CLHEP::RandFlat(rndEngine, 0., 1.);
-    
+
     if(addNoise) { 
       theNoiser = new GaussianTailNoiseGenerator(rndEngine);
     }
-    
+
     if(fluctuateCharge) {
       fluctuate = new SiG4UniversalFluctuation(rndEngine);
     }
@@ -284,10 +326,11 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
     if(addThresholdSmearing) {
       smearedThreshold_FPix_ = new CLHEP::RandGaussQ(rndEngine, theThresholdInE_FPix , theThresholdSmearing_FPix);
       smearedThreshold_BPix_ = new CLHEP::RandGaussQ(rndEngine, theThresholdInE_BPix , theThresholdSmearing_BPix);
+      //Carlotta
+      smearedThreshold_BPix_L1_ = new CLHEP::RandGaussQ(rndEngine, theThresholdInE_BPix_L1 , theThresholdSmearing_BPix);
     }
 
     } //end Init the random number services
-
 
   // Prepare for the analog amplitude miss-calibration
   if(doMissCalibrate) {
@@ -382,8 +425,11 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
 			      << "threshold in electron BPix = " 
 			      << theThresholdInE_BPix 
 			      <<" " << theElectronPerADC << " " << theAdcFullScale 
+			      <<" or "<< theAdcFullScaleStack
 			      << " The delta cut-off is set to " << tMax
-			      << " pix-inefficiency "<<thePixelLuminosity;
+			      << " pix-inefficiency "<<thePixelLuminosity
+                              << " Number of Barrel Pixel layers: "<<NumberOfBarrelLayers;
+
 
 }
 //=========================================================================
@@ -393,22 +439,20 @@ SiPixelDigitizerAlgorithm::~SiPixelDigitizerAlgorithm() {
   
   // Destructor
   delete gaussDistribution_;
-  delete gaussDistributionVCALNoise_;
+  if (gaussDistributionVCALNoise_) { delete gaussDistributionVCALNoise_;}
   delete flatDistribution_;
-
   delete theSiPixelGainCalibrationService_;
 
   // Threshold gaussian smearing:
   if(addThresholdSmearing) {
     delete smearedThreshold_FPix_;
     delete smearedThreshold_BPix_;
+    //Carlotta
+    delete smearedThreshold_BPix_L1_;
   }
 
   if(addNoise) delete theNoiser;
   if(fluctuateCharge) delete fluctuate;
-
-
-
   
 }
 
@@ -454,6 +498,8 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
     topol=&det->specificTopology(); // cache topology
     numColumns = topol->ncolumns();  // det module number of cols&rows
     numRows = topol->nrows();
+    numROCX = topol->rocsX();
+    numROCY = topol->rocsY();
     
     // full detector thickness
     moduleThickness = det->specificSurface().bounds().thickness(); 
@@ -461,7 +507,7 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
     // The index converter is only needed when inefficiencies or misscalibration
     // are simulated.
     if((pixelInefficiency>0) || doMissCalibrate ) {  // Init pixel indices
-      pIndexConverter = new PixelIndices(numColumns,numRows);
+      pIndexConverter = new PixelIndices(numColumns,numRows, numROCX, numROCY);
     }
     
     // Noise already defined in electrons
@@ -469,15 +515,23 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
     // Find the threshold in noise units, needed for the noiser.
 
   unsigned int Sub_detid=DetId(detID).subdetId();
-
+  //Carlotta
+  int lay = 0;
+  lay = PXBDetId(detID).layer();
+    
   if(theNoiseInElectrons>0.){
     if(Sub_detid == PixelSubdetector::PixelBarrel){ // Barrel modules
       if(addThresholdSmearing) { 
-	thePixelThresholdInE = smearedThreshold_BPix_->fire(); // gaussian smearing 
+      //Start of Carlotta's addition
+	  //thePixelThresholdInE = smearedThreshold_BPix_->fire(); // gaussian smearing 
+          if (lay == 1)  { thePixelThresholdInE = smearedThreshold_BPix_L1_->fire(); } // gaussian smearing
+          else { thePixelThresholdInE = smearedThreshold_BPix_->fire(); } // gaussian smearing
       } else {
-	thePixelThresholdInE = theThresholdInE_BPix; // no smearing
+	  //thePixelThresholdInE = theThresholdInE_BPix; // no smearing
+          if (lay == 1) { thePixelThresholdInE = theThresholdInE_BPix_L1; } //no smearing
+          else { thePixelThresholdInE = theThresholdInE_BPix; } // no smearing
       }
-      
+      //End of Carlotta's addition
       thePixelThreshold = thePixelThresholdInE/theNoiseInElectrons; 
       
       //      std::cout << "digitize(): theNoiseInElectrons>0 and BPix: threshold in electrons is: " << thePixelThresholdInE << std::endl;
@@ -496,8 +550,7 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
   } else {
     thePixelThreshold = 0.;
   }
-
-
+  
 #ifdef TP_DEBUG
     LogDebug ("PixelDigitizer") 
       << " PixelDigitizer "  
@@ -530,6 +583,12 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
 	induce_signal(*ssbegin); // *ihit needed only for SimHit<-->Digi link
       } //  end if 
     } // end for 
+
+    //    if(use_module_killing_ && use_deadmodule_DB_) // remove dead modules using DB
+    //      module_killing_DB();
+
+    if(use_module_killing_ && !use_deadmodule_DB_) // remove dead modules using the list in cfg file
+      module_killing_conf();
   
     if(addNoise) add_noise();  // generate noise
     // Do only if needed 
@@ -551,7 +610,6 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
   }
 
   make_digis();
-
   return internal_coll;
 }
 
@@ -1043,21 +1101,26 @@ void SiPixelDigitizerAlgorithm::make_digis() {
 			       << " List pixels passing threshold ";
 #endif  
   
+
+  //  std::cout << "make_digis(): we enter the make_digis.... " << std::endl;
+
   // Loop over hit pixels
 
   for ( signal_map_iterator i = _signal.begin(); i != _signal.end(); i++) {
     
-        float signalInElectrons = (*i).second ;   // signal in electrons
-
-	//       std::cout << "signalInElectrons = " << signalInElectrons << std::endl;
-
+    float signalInElectrons = (*i).second ;   // signal in electrons
     // Do the miss calibration for calibration studies only.
     //if(doMissCalibrate) signalInElectrons = missCalibrate(signalInElectrons)
 
     // Do only for pixels above threshold
 
-       if ( signalInElectrons >= thePixelThresholdInE) { // check threshold
-             
+    //    std::cout << "make_digis(): signalInElectrons is " << signalInElectrons << std::endl;
+
+    if ( signalInElectrons >= thePixelThresholdInE) { // check threshold
+      
+      //      unsigned int Sub_detid=DetId(detID).subdetId();
+      //      std::cout << "make_digis(): For (Sub_detid, detID) = (" << Sub_detid << ", "<< detID << ") " << "thePixelThresholdInE vaut " << thePixelThresholdInE << std::endl;
+
       int chan =  (*i).first;  // channel number
       pair<int,int> ip = PixelDigi::channelToPixel(chan);
       int adc=0;  // ADC count as integer
@@ -1070,8 +1133,18 @@ void SiPixelDigitizerAlgorithm::make_digis() {
       } else { // Just do a simple electron->adc conversion
 	adc = int( signalInElectrons / theElectronPerADC ); // calibrate gain
       }
+      unsigned int Subid=DetId(detID).subdetId();
+      int layerIndex=0;
+      if (Subid==  PixelSubdetector::PixelBarrel){layerIndex=PXBDetId(detID).layer();}
       adc = min(adc, theAdcFullScale); // Check maximum value
 
+      if (layerIndex>=theFirstStackLayer) {
+        	// Set to 1 if over the threshold 
+	if (theAdcFullScaleStack==1) {adc=1;}
+		// Make it a linear fit to the full scale of the normal adc count.   Start new adc from 1 not zero.
+	if (theAdcFullScaleStack!=1&&theAdcFullScaleStack!=theAdcFullScale) {adc = int (1 + adc * (theAdcFullScaleStack-1)/float(theAdcFullScale) );}
+        }
+      //std::cout<<"\nSiPixelDigitizer with Layer "<<layerIndex<<" ADC= "<<adc;
 #ifdef TP_DEBUG
       LogDebug ("Pixel Digitizer") 
 	<< (*i).first << " " << (*i).second << " " << signalInElectrons 
@@ -1121,49 +1194,54 @@ void SiPixelDigitizerAlgorithm::add_noise() {
 #endif
  
   // First add noise to hit pixels
-  
+  // Use here the FULL readout noise, including TBM,ALT,AOH,OPT-REC.
   for ( signal_map_iterator i = _signal.begin(); i != _signal.end(); i++) {
+    //float noise  = RandGaussQ::shoot(0.,theReadoutNoise);
     
-         if(addChargeVCALSmearing) 
+    //    std::cout << "Initial signal is: " << (*i).second << std::endl;
+
+    if(addChargeVCALSmearing) 
       {
+	float theSmearedChargeRMS=0.;
+	
 	if((*i).second < 3000)
-	  {
-	    theSmearedChargeRMS = 543.6 - (*i).second * 0.093;
-	  } else if((*i).second < 6000){
-	    theSmearedChargeRMS = 307.6 - (*i).second * 0.01;
-	  } else{
-	    theSmearedChargeRMS = -432.4 +(*i).second * 0.123;
+	  { theSmearedChargeRMS = 543.6 - (*i).second * 0.093;}
+	else if( (*i).second < 6000)
+	  { theSmearedChargeRMS = 307.6 - (*i).second * 0.01;}
+	else
+	  { theSmearedChargeRMS = -432.4 +(*i).second * 0.123;}
+
+	//Noise from Vcal smearing
+	float noise_ChargeVCALSmearing = theSmearedChargeRMS * gaussDistributionVCALNoise_->fire() ;
+	(*i).second += Amplitude( noise_ChargeVCALSmearing,0,-1.); 
+
+	//Noise from full readout
+	float noise  = gaussDistribution_->fire() ;
+	if(((*i).second + Amplitude(noise+noise_ChargeVCALSmearing,0,-1.)) < 0. ) {
+	  (*i).second.set(0);}
+	else{
+	  (*i).second +=Amplitude(noise+noise_ChargeVCALSmearing,0,-1.);
 	}
 
-	// Noise from Vcal smearing:
-	float noise_ChargeVCALSmearing = theSmearedChargeRMS * gaussDistributionVCALNoise_->fire() ;
-	// Noise from full readout:
-	float noise  = gaussDistribution_->fire() ;
+	//	std::cout << "The signal after read out noise is: " << (*i).second << std::endl;
 
-		if(((*i).second + Amplitude(noise+noise_ChargeVCALSmearing,0,-1.)) < 0. ) {
-		  (*i).second.set(0);}
-		else{
-	(*i).second +=Amplitude(noise+noise_ChargeVCALSmearing,0,-1.);
-		}
 
-		//		std::cout<< "signal after noise " << (*i).second << std::endl;
 
-      } // End if addChargeVCalSmearing
-	 else
-     {
+      } // end if(addChargeVCALSmearing)
+    else 
+      {
 	// Noise: ONLY full READOUT Noise.
 	// Use here the FULL readout noise, including TBM,ALT,AOH,OPT-REC.
 
-	float noise  = gaussDistribution_->fire() ;
-		if(((*i).second + Amplitude(noise,0,-1.)) < 0. ) {
-		  (*i).second.set(0);}
-		else{
-	(*i).second +=Amplitude(noise,0,-1.);
-		}
-     } // end if only Noise from full readout
-    
+    float noise  = gaussDistribution_->fire() ;
+    if(((*i).second + Amplitude(noise,0,-1.)) < 0. ) {
+      (*i).second.set(0);}
+    else{
+      (*i).second +=Amplitude(noise,0,-1.);
+    } // end if only Noise from full readout
+      }
   }
-
+  
   if(!addNoisyPixels)  // Option to skip noise in non-hit pixels
     return;
 
@@ -1172,6 +1250,10 @@ void SiPixelDigitizerAlgorithm::add_noise() {
   int numberOfPixels = (numRows * numColumns);
   map<int,float, less<int> > otherPixels;
   map<int,float, less<int> >::iterator mapI;
+
+  //  unsigned int Sub_detid=DetId(detID).subdetId();
+  //  std::cout << "add_noise: " << "Subdetid = " << Sub_detid << " and detID " << detID << " the threshold is " << thePixelThreshold << " and the threshold in electrons = " << thePixelThresholdInE << std::endl;
+
 
   theNoiser->generate(numberOfPixels, 
                       thePixelThreshold, //thr. in un. of nois
@@ -1211,8 +1293,8 @@ void SiPixelDigitizerAlgorithm::add_noise() {
       _signal[chan] = Amplitude (noise, 0,-1.);
     }
   }
-
-}
+  
+} 
 
 /***********************************************************************/
 
@@ -1233,10 +1315,15 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
     pixelEfficiency  = thePixelEfficiency[layerIndex-1];
     columnEfficiency = thePixelColEfficiency[layerIndex-1];
     chipEfficiency   = thePixelChipEfficiency[layerIndex-1];
+
+    // already initialized in calling routine (digitize) and deleted there after this call
+    //pIndexConverter = new PixelIndices(numColumns,numRows, numROCX, numROCY);  //--Hec: [Sep-09] Initialize variables
+    int ax = pIndexConverter->GetdefaultDetSizeInX();  //--Hec:
+    int ay = pIndexConverter->GetdefaultDetSizeInY();  //--Hec:
  
     // This should never happen
-    if(numColumns>416)  LogWarning ("Pixel Geometry") <<" wrong columns in barrel "<<numColumns;
-    if(numRows>160)  LogWarning ("Pixel Geometry") <<" wrong rows in barrel "<<numRows;
+    if(numColumns>ay)  LogWarning ("Pixel Geometry") <<" wrong columns in barrel "<<numColumns;   //--Hec:
+    if(numRows   >ax)  LogWarning ("Pixel Geometry") <<" wrong rows in barrel "    <<numRows;     //--Hec:
     
   } else {                // forward disks
    
@@ -1261,9 +1348,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
   
   // Initilize the index converter
   //PixelIndices indexConverter(numColumns,numRows);
-  int chipIndex = 0;
-  int rowROC = 0;
-  int colROC = 0;
+  int chipIndex=0, rowROC=0, colROC=0;
   map<int, int, less<int> >chips, columns;
   map<int, int, less<int> >::iterator iter;
   
@@ -1340,33 +1425,33 @@ float SiPixelDigitizerAlgorithm::missCalibrate(int col,int row,
 
   // Central values
   //const float p0=0.00352, p1=0.868, p2=112., p3=113.; // pix(0,0,0)
-  //  const float p0=0.00382, p1=0.886, p2=112.7, p3=113.0; // average roc=0
+  //const float p0=0.00382, p1=0.886, p2=112.7, p3=113.0; // average roc=0
   //const float p0=0.00492, p1=1.998, p2=90.6, p3=134.1; // average roc=6
   // Smeared (rms)
   //const float s0=0.00020, s1=0.051, s2=5.4, s3=4.4; // average roc=0
   //const float s0=0.00015, s1=0.043, s2=3.2, s3=3.1; // col average roc=0
 
-  // Make 2 sets of parameters for Fpix and BPIx:
-
+   // Make 2 sets of parameters for Fpix and BPIx:
+ 
   float p0=0.0;
   float p1=0.0;
   float p2=0.0;
   float p3=0.0;
-
+  
   unsigned int Sub_detid=DetId(detID).subdetId();
-
-    if (Sub_detid == PixelSubdetector::PixelBarrel){// barrel layers
-      p0 = BPix_p0;
-      p1 = BPix_p1;
-      p2 = BPix_p2;
-      p3 = BPix_p3;
-    } else {// forward disks
-      p0 = FPix_p0;
-      p1 = FPix_p1;
-      p2 = FPix_p2;
-      p3 = FPix_p3;
-    }
-
+  
+  if (Sub_detid == PixelSubdetector::PixelBarrel){// barrel layers
+    p0 = BPix_p0;
+    p1 = BPix_p1;
+    p2 = BPix_p2;
+    p3 = BPix_p3;
+  } else {// forward disks
+    p0 = FPix_p0;
+    p1 = FPix_p1;
+    p2 = FPix_p2;
+    p3 = FPix_p3;
+  }
+  
   //  const float electronsPerVCAL = 65.5; // our present VCAL calibration (feb 2009)
   //  const float electronsPerVCAL_Offset = -414.0; // our present VCAL calibration (feb 2009)
   float newAmp = 0.; //Modified signal
@@ -1374,10 +1459,13 @@ float SiPixelDigitizerAlgorithm::missCalibrate(int col,int row,
   // Convert electrons to VCAL units
   float signal = (signalInElectrons-electronsPerVCAL_Offset)/electronsPerVCAL;
 
+  //  std::cout << "electronsPerVCAL = " << electronsPerVCAL << " and electronsPerVCAL_Offset = " << electronsPerVCAL_Offset << std::endl;
+
+  //
   // Simulate the analog response with fixed parametrization
   newAmp = p3 + p2 * tanh(p0*signal - p1);
-
-
+  
+  //
   // Use the pixel-by-pixel calibrations
   //transform to ROC index coordinates
   //int chipIndex=0, colROC=0, rowROC=0;
@@ -1549,6 +1637,7 @@ void SiPixelDigitizerAlgorithm::module_killing_conf(void){
   if(Module=="whole"){
     for(signal_map_iterator i = _signal.begin();i != _signal.end(); i++) {    
       i->second.set(0.); // reset amplitude
+      //      std::cout << "whole dead module is removed " << detid << std::endl;
     }
   }
   
@@ -1557,10 +1646,12 @@ void SiPixelDigitizerAlgorithm::module_killing_conf(void){
     
     if(Module=="tbmA" && ip.first>=80 && ip.first<=159){
       i->second.set(0.);
+      //      std::cout << "tbmA dead module is removed " << detid << std::endl;
     }
     
     if( Module=="tbmB" && ip.first<=79){
       i->second.set(0.);
+      //      std::cout << "tbmB dead module is removed " << detid << std::endl;
 
     }
 
@@ -1569,6 +1660,7 @@ void SiPixelDigitizerAlgorithm::module_killing_conf(void){
 
 
 //****************************************************************************************************
+  
 void SiPixelDigitizerAlgorithm::module_killing_DB(void){
   if(!use_module_killing_)
     return;
@@ -1583,9 +1675,10 @@ void SiPixelDigitizerAlgorithm::module_killing_DB(void){
   for (size_t id=0;id<disabledModules.size();id++)
     {
       if(detid==disabledModules[id].DetID){
+      
 	isbad=true;
-        badmodule = disabledModules[id];
-	//	std::cout << "Dead module from DB is: " << detid << " and its error is: " << badmodule.errorType << std::endl;
+	badmodule = disabledModules[id];
+	//std::cout << "Dead module from DB is: " << detid << std::endl;
 	break;
       }
     }
@@ -1593,8 +1686,6 @@ void SiPixelDigitizerAlgorithm::module_killing_DB(void){
   if(!isbad)
     return;
   
-  //std::cout << "2nd round: Dead module from DB is: " << detid << " and its error is: " << badmodule.errorType << std::endl;
-
   if(badmodule.errorType == 0){
     for(signal_map_iterator i = _signal.begin();i != _signal.end(); i++) {    
       i->second.set(0.); // reset amplitude
@@ -1612,6 +1703,5 @@ void SiPixelDigitizerAlgorithm::module_killing_DB(void){
     if( badmodule.errorType == 2 && ip.first<=79){
       i->second.set(0.);
     }
-  }
-
+  } 
 }

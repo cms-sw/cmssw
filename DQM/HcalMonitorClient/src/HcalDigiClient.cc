@@ -11,8 +11,8 @@
 /*
  * \file HcalDigiClient.cc
  * 
- * $Date: 2010/03/25 11:02:25 $
- * $Revision: 1.62 $
+ * $Date: 2010/03/25 21:23:47 $
+ * $Revision: 1.63 $
  * \author J. Temple
  * \brief DigiClient class
  */
@@ -46,6 +46,7 @@ HcalDigiClient::HcalDigiClient(std::string myname, const edm::ParameterSet& ps)
   minevents_    = ps.getUntrackedParameter<int>("Digi_minevents",
 						ps.getUntrackedParameter<int>("minevents",1));
   ProblemCellsByDepth=0;
+  HFTiming_averageTime=0;
 }
 
 void HcalDigiClient::analyze()
@@ -67,17 +68,20 @@ void HcalDigiClient::analyze()
   if (me!=0)
     TimingStudyOcc=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_,TimingStudyOcc, debug_);
 
-  HFTiming_averageTime->Reset();
-  if (TimingStudyTime!=0 && TimingStudyOcc!=0)
+  if (HFTiming_averageTime!=0)
     {
-      int etabins=(HFTiming_averageTime->getTH2F())->GetNbinsX();
-      int phibins=(HFTiming_averageTime->getTH2F())->GetNbinsY();
-      for (int x=1;x<=etabins;++x)
-	for (int y=1;y<=phibins;++y)
-	  if (TimingStudyOcc->GetBinContent(x,y)!=0)
-	    HFTiming_averageTime->setBinContent(x,y,TimingStudyTime->GetBinContent(x,y)*1./TimingStudyOcc->GetBinContent(x,y));
+      HFTiming_averageTime->Reset();
+      if (TimingStudyTime!=0 && TimingStudyOcc!=0)
+        {
+          int etabins=(HFTiming_averageTime->getTH2F())->GetNbinsX();
+          int phibins=(HFTiming_averageTime->getTH2F())->GetNbinsY();
+          for (int x=1;x<=etabins;++x)
+	    for (int y=1;y<=phibins;++y)
+	      if (TimingStudyOcc->GetBinContent(x,y)!=0)
+	        HFTiming_averageTime->setBinContent(x,y,TimingStudyTime->GetBinContent(x,y)*1./TimingStudyOcc->GetBinContent(x,y));
+        }
+      HFTiming_averageTime->getTH2F()->SetMinimum(0);
     }
-  HFTiming_averageTime->getTH2F()->SetMinimum(0);
 }
 
 void HcalDigiClient::calculateProblems()
@@ -95,7 +99,7 @@ void HcalDigiClient::calculateProblems()
       (ProblemCells->getTH2F())->SetMaximum(1.05);
       (ProblemCells->getTH2F())->SetMinimum(0.);
     }
-  for  (unsigned int d=0;d<ProblemCellsByDepth->depth.size();++d)
+  for  (unsigned int d=0;ProblemCellsByDepth!=0 && d<ProblemCellsByDepth->depth.size();++d)
     {
       if (ProblemCellsByDepth->depth[d]!=0) 
 	{
@@ -141,7 +145,7 @@ void HcalDigiClient::calculateProblems()
       return;
     }
 
-  for (unsigned int d=0;d<ProblemCellsByDepth->depth.size();++d)
+  for (unsigned int d=0;ProblemCellsByDepth!=0 && d<ProblemCellsByDepth->depth.size();++d)
     {
       if (ProblemCellsByDepth->depth[d]==0) continue;
       if (BadDigisByDepth[d]==0 || GoodDigisByDepth[d]==0) continue;

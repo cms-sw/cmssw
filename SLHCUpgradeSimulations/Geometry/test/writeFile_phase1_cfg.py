@@ -7,8 +7,10 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("SLHCUpgradeSimulations.Geometry.PhaseI_cmsSimIdealGeometryXML_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'MC_31X_V8::All'
+process.GlobalTag.globaltag = 'MC_36Y_V9::All'
 process.TrackerDigiGeometryESModule.applyAlignment = False
+print process.TrackerGeometricDetESModule.fromDDD
+print process.TrackerDigiGeometryESModule.fromDDD,process.TrackerDigiGeometryESModule.applyAlignment
 
 process.source = cms.Source("EmptyIOVSource",
     firstValue = cms.uint64(1),

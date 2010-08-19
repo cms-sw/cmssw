@@ -20,13 +20,13 @@ public:
 
   virtual DetId getClosestCell(const GlobalPoint& r) const ;
 
-  int insertCell (std::vector<HcalCellType::HcalCellType> const & );
+  int insertCell (std::vector<HcalCellType> const & );
 
 private:
 
   mutable std::vector<DetId> m_validIds ;
 
-  std::vector<HcalCellType::HcalCellType> hcalCells_;
+  std::vector<HcalCellType> hcalCells_;
   mutable DetId::Detector                 lastReqDet_;
   mutable int                             lastReqSubdet_;
 

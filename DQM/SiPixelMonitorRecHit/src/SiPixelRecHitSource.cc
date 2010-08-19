@@ -14,7 +14,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.cc,v 1.24 2010/01/07 17:03:54 merkelp Exp $
+// $Id: SiPixelRecHitSource.cc,v 1.25 2010/01/11 16:20:50 merkelp Exp $
 //
 //
 // Adapted by:  Keith Rose
@@ -218,11 +218,11 @@ void SiPixelRecHitSource::buildStructure(const edm::EventSetup& iSetup){
 		
 	      }	else if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
 		LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
-                PixelEndcapName::HalfCylinder side = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).halfCylinder();
-                int disk   = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).diskName();
-                int blade  = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).bladeName();
-                int panel  = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).pannelName();
-                int module = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).plaquetteName();
+                PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id)).halfCylinder();
+                int disk   = PixelEndcapName(DetId(id)).diskName();
+                int blade  = PixelEndcapName(DetId(id)).bladeName();
+                int panel  = PixelEndcapName(DetId(id)).pannelName();
+                int module = PixelEndcapName(DetId(id)).plaquetteName();
 
                 char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
                 char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);

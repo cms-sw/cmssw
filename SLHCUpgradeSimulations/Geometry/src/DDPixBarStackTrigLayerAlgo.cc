@@ -8,7 +8,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
-#include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -48,7 +47,7 @@ void DDPixBarStackTrigLayerAlgo::initialize(const DDNumericArguments & nArgs,
                         << " layerR  = " << layerR << std::endl;
 }
 
-void DDPixBarStackTrigLayerAlgo::execute() {
+void DDPixBarStackTrigLayerAlgo::execute(DDCompactView& cpv) {
 
   DDName      mother = parent().name();
   std::string idName = DDSplit(mother).first;
@@ -99,7 +98,7 @@ void DDPixBarStackTrigLayerAlgo::execute() {
       rot = DDrot(DDName(rots,idNameSpace), 90*CLHEP::deg, phix, 90*CLHEP::deg, phiy, 0.,0.);
 
      //Place each Ladder into this Stack  Trig Layer
-      DDpos (ladderFull, layer, copy, tran, rot);
+      cpv.position (ladderFull, layer, copy, tran, rot);
 
       LogDebug("PixelGeom") << "DDPixBarStackTrigLayerAlgo test: " << ladderFull 
 			    << " number " << copy << " positioned in " 
