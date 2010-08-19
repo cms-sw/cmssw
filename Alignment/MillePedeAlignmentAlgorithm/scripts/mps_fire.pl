@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg      3-Jul-2007
 #     A. Parenti, DESY Hamburg    21-Apr-2008
-#     $Revision: 1.18 $ by $Author: parenti $
-#     $Date: 2010/03/23 16:07:13 $
+#     $Revision: 1.19 $ by $Author: parenti $
+#     $Date: 2010/06/14 15:01:44 $
 #
 #  Submit jobs that are setup in local mps database
 #  
@@ -51,7 +51,7 @@ if ( $helpwanted != 0 ) {
   print "Usage:\n  mps_fire.pl [-m[f]] [maxjobs]";
   print "\nmaxjobs:       Number of Mille jobs to be submitted (default is one)";
   print "\nKnown options:";
-  print "\n  -m   Submit the Pede job.";
+  print "\n  -m   Submit all setup Pede jobs, maxJobs is ignored.";
   print "\n  -mf  Force the submission of the Pede job in case";
   print "\n          some Mille jobs are not in the OK state.\n";
   print "\n  -h   This help.";
@@ -66,6 +66,9 @@ $thePwd = `pwd`;
 chomp $thePwd;
 $theJobData = "$thePwd/jobData";
 
+# set the job name
+$theJobName = "mpalign";
+if ($addFiles ne "") { $theJobName = $addFiles; }
 
 if ($fireMerge == 0) {
     # fire the "normal" parallel jobs
@@ -82,10 +85,6 @@ if ($fireMerge == 0) {
     } else {
 	$resources = "-q ".$resources;
     }
-
-    # set the job name
-    $theJobName = "mpalign";
-    if ($addFiles ne "") { $theJobName = $addFiles; }
 
     $nSub = 0;
     for ($i = 0; $i < $nJobs; ++$i) {
@@ -176,8 +175,10 @@ if ($fireMerge == 0) {
           }
         } # end of 'else' from if($forceMerge)
 
-        print "bsub -J almerge -R \"type==SLC5_64\" $resources $theJobData/@JOBDIR[$i]/theScript.sh\n";
-        $result = `bsub -J almerge -R \"type==SLC5_64\" $resources $theJobData/@JOBDIR[$i]/theScript.sh`;
+        my $nMerge = $i - $nJobs; # 'index' of this merge job
+        my $curJobName = "m".$nMerge."_".$theJobName;
+        print "bsub -J $curJobName -R \"type==SLC5_64\" $resources $theJobData/@JOBDIR[$i]/theScript.sh\n";
+        $result = `bsub -J $curJobName -R \"type==SLC5_64\" $resources $theJobData/@JOBDIR[$i]/theScript.sh`;
         print "     $result";
         chomp $result;
         $nn = ($result =~ m/Job \<(\d+)\> is submitted/);
