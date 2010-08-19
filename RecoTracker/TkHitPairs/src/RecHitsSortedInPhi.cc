@@ -14,21 +14,21 @@ RecHitsSortedInPhi::RecHitsSortedInPhi( const std::vector<Hit>& hits)
 void RecHitsSortedInPhi::hits( float phiMin, float phiMax, vector<Hit>& result) const
 {
   if ( phiMin < phiMax) {
-    if ( phiMin < -Geom::pi()) {
-      copyResult( unsafeRange( phiMin + Geom::twoPi(), Geom::pi()), result);
-      copyResult( unsafeRange( -Geom::pi(), phiMax), result);
+    if ( phiMin < -Geom::fpi()) {
+      copyResult( unsafeRange( phiMin + Geom::ftwoPi(), Geom::fpi()), result);
+      copyResult( unsafeRange( -Geom::fpi(), phiMax), result);
     }
     else if (phiMax > Geom::pi()) {
-      copyResult( unsafeRange( phiMin, Geom::pi()), result);
-      copyResult( unsafeRange( -Geom::pi(), phiMax-Geom::twoPi()), result);
+      copyResult( unsafeRange( phiMin, Geom::fpi()), result);
+      copyResult( unsafeRange( -Geom::fpi(), phiMax-Geom::ftwoPi()), result);
     }
     else {
       copyResult( unsafeRange( phiMin, phiMax), result);
     }
   }
   else {
-    copyResult( unsafeRange( phiMin, Geom::pi()), result);
-    copyResult( unsafeRange( -Geom::pi(), phiMax), result);
+    copyResult( unsafeRange( phiMin, Geom::fpi()), result);
+    copyResult( unsafeRange( -Geom::fpi(), phiMax), result);
   }
 }
 
