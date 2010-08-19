@@ -12,7 +12,7 @@
 
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.34 2010/02/22 18:19:58 saout Exp $
+// $Id: SoftLepton.cc,v 1.35 2010/02/26 18:16:18 saout Exp $
 
 
 #include <memory>
@@ -93,6 +93,7 @@ const reco::Vertex SoftLepton::s_nominalBeamSpot(
 // ------------ c'tor --------------------------------------------------------------------
 SoftLepton::SoftLepton(const edm::ParameterSet & iConfig) :
   m_jets(          iConfig.getParameter<edm::InputTag>( "jets" ) ),
+  m_vertexType(    iConfig.getParameter<std::string>  ( "vertexType" ) ),
   m_primaryVertex( iConfig.getParameter<edm::InputTag>( "primaryVertex" ) ),
   m_leptons(       iConfig.getParameter<edm::InputTag>( "leptons" ) ),
   m_leptonCands(   iConfig.exists("leptonCands") ? iConfig.getParameter<edm::InputTag>( "leptonCands" ) : edm::InputTag() ),
@@ -104,12 +105,6 @@ SoftLepton::SoftLepton(const edm::ParameterSet & iConfig) :
   m_muonSelection( (muon::SelectionType) iConfig.getParameter<unsigned int>( "muonSelection" ) )
 {
   produces<reco::SoftLeptonTagInfoCollection>();
-  if (m_primaryVertex.label() == "nominal")
-    m_pvType = VERTEX_NOMINAL;
-  else if (m_primaryVertex.label() == "beamspot")
-    m_pvType = VERTEX_BEAMSPOT;
-  else
-    m_pvType = VERTEX_PRIMARY;
 }
 
 // ------------ d'tor --------------------------------------------------------------------
@@ -163,17 +158,17 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
   
   // input primary vetex (optional, can be "nominal" or "beamspot")
   reco::Vertex vertex;
-  if (m_pvType == VERTEX_NOMINAL) 
+  if (m_vertexType == "nominal") 
   {
     vertex = s_nominalBeamSpot;
   } 
-  else if (m_pvType == VERTEX_BEAMSPOT) 
+  else if (m_vertexType == "beamspot") 
   {
     edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-    event.getByType(recoBeamSpotHandle);
+    event.getByLabel(m_primaryVertex, recoBeamSpotHandle);
     vertex = reco::Vertex(recoBeamSpotHandle->position(), recoBeamSpotHandle->covariance3D(), 1, 1, 0);
   } 
-  else if (m_pvType == VERTEX_PRIMARY) 
+  else if (m_vertexType == "vertex") 
   {
     Handle<reco::VertexCollection> h_primaryVertex;
     event.getByLabel(m_primaryVertex, h_primaryVertex);
