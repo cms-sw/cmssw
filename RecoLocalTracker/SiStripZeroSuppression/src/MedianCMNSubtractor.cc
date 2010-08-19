@@ -14,11 +14,15 @@ subtract_(const uint32_t& detId,std::vector<T>& digis){
     end(   digis.end()   ),
     endAPV;
   
+  _vmedians.clear();
+  
   while( strip < end ) {
     endAPV = strip+128; tmp.clear();
     tmp.insert(tmp.end(),strip,endAPV);
     const float offset = median(tmp);
 
+    _vmedians.push_back(std::make_pair<short,float>((strip-digis.begin())/128,offset));
+    
     while (strip < endAPV) {
       *strip = static_cast<T>(*strip-offset);
       strip++;
