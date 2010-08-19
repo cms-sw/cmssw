@@ -93,7 +93,6 @@ const reco::Vertex SoftLepton::s_nominalBeamSpot(
 // ------------ c'tor --------------------------------------------------------------------
 SoftLepton::SoftLepton(const edm::ParameterSet & iConfig) :
   m_jets(          iConfig.getParameter<edm::InputTag>( "jets" ) ),
-  m_vertexType(    iConfig.getParameter<std::string>  ( "vertexType" ) ),
   m_primaryVertex( iConfig.getParameter<edm::InputTag>( "primaryVertex" ) ),
   m_leptons(       iConfig.getParameter<edm::InputTag>( "leptons" ) ),
   m_leptonCands(   iConfig.exists("leptonCands") ? iConfig.getParameter<edm::InputTag>( "leptonCands" ) : edm::InputTag() ),
@@ -156,28 +155,15 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
     throw edm::Exception(edm::errors::NotFound) << "Object " << m_jets << " of type among (\"reco::JetTracksAssociationCollection\", \"edm::View<reco::Jet>\") not found";
   } } while (false);
   
-  // input primary vetex (optional, can be "nominal" or "beamspot")
+  // input primary vetex
   reco::Vertex vertex;
-  if (m_vertexType == "nominal") 
-  {
+  Handle<reco::VertexCollection> h_primaryVertex;
+  event.getByLabel(m_primaryVertex, h_primaryVertex);
+  if (h_primaryVertex.isValid() and not h_primaryVertex->empty())
+    vertex = h_primaryVertex->front();
+  else
+    // fall back to nominal beam spot
     vertex = s_nominalBeamSpot;
-  } 
-  else if (m_vertexType == "beamspot") 
-  {
-    edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-    event.getByLabel(m_primaryVertex, recoBeamSpotHandle);
-    vertex = reco::Vertex(recoBeamSpotHandle->position(), recoBeamSpotHandle->covariance3D(), 1, 1, 0);
-  } 
-  else if (m_vertexType == "vertex") 
-  {
-    Handle<reco::VertexCollection> h_primaryVertex;
-    event.getByLabel(m_primaryVertex, h_primaryVertex);
-    if (!h_primaryVertex->empty())
-      vertex = h_primaryVertex->front();
-    else
-      // fall back to nominal beam spot
-      vertex = s_nominalBeamSpot;
-  }
 
   // input leptons (can be of different types)
   Leptons leptons;
@@ -284,7 +270,7 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
     Handle< ValueMap<float> > h_leptonId;
     event.getByLabel(m_leptonId, h_leptonId);
 
-    for(Leptons::iterator lepton = leptons.begin(); lepton != leptons.end(); ++lepton)
+    for (Leptons::iterator lepton = leptons.begin(); lepton != leptons.end(); ++lepton)
       lepton->second[leptonId] = (*h_leptonId)[lepton->first];
   }
 

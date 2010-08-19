@@ -3,9 +3,6 @@ import RecoBTag.SoftLepton.muonSelection
 
 # SoftLeptonTagInfo producer for tagging caloJets with global muons 
 softMuonTagInfos = cms.EDProducer("SoftLepton",
-    #Type of vertex.  Options are nominal(0,0,0), beamspot, or vertex
-    vertexType = cms.string("vertex"),
-    #InputTag for the vertex type above
     primaryVertex = cms.InputTag("offlinePrimaryVertices"),
     jets = cms.InputTag("ak5CaloJets"),
     leptons = cms.InputTag("muons"),

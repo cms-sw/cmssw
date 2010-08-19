@@ -22,7 +22,6 @@
 // system include files
 #include <memory>
 #include <map>
-#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -90,7 +89,6 @@ private:
 
   // configuration   
   const edm::InputTag m_jets;
-  const std::string   m_vertexType;
   const edm::InputTag m_primaryVertex;
   const edm::InputTag m_leptons;
   const edm::InputTag m_leptonCands;
