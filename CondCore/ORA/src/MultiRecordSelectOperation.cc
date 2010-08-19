@@ -5,13 +5,13 @@
 #include "CoralBase/Blob.h"
 
 namespace {
-  void newRecordFromAttributeList( Record & rec, const coral::AttributeList& data ){
+  void newRecordFromAttributeList( ora::Record & rec, const coral::AttributeList& data ){
     for( size_t i=0;i<data.size();i++ ){
       rec.set( i, const_cast<void*>(data[i].addressOfData()) );
     }
   }
   
-  void newAttributeListFromRecord( coral::AttributeList& alist, const Record& data ){
+  void newAttributeListFromRecord( coral::AttributeList& alist, const ora::Record& data ){
     for( size_t i=0;i<data.size();i++ ){
       alist[i].setValueFromAddress( data.get(i) );
     }
