@@ -20,7 +20,11 @@ if len(args)!=2:
 castorDir = args[0]
 regexp = args[1]
 
-files = castortools.emptyFiles( castorDir, regexp )
+if options.negate:
+    print 'files will NOT be removed'
+
+files = castortools.emptyFiles( castorDir, regexp,
+                                castortools.isCastorDir(castorDir) )
 
 if options.negate:
     print 'NOT removing ',  

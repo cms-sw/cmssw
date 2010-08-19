@@ -64,9 +64,14 @@ void nEvents(const char* f) {
     print 'closed'
 
 # returns the number of events in a file 
-def numberOfEvents( file ):
-    output = os.popen('edmFileUtil -f rfio:%s' % file)
-    
+def numberOfEvents( file, castor=True):
+
+    cmd = 'edmFileUtil -f rfio:%s' % file
+    if castor==False:
+        cmd = 'edmFileUtil -f file:%s' % file
+        
+    output = os.popen(cmd)
+        
     pattern = re.compile( '\( (\d+) events,' )
 
     for line in output.readlines():
@@ -79,7 +84,7 @@ def emptyFiles( dir, regexp, castor=True):
     emptyFiles = []
     for file in allFiles:
         print 'file ',file
-        num = numberOfEvents(file)
+        num = numberOfEvents(file, castor)
         print 'nEvents = ', num
         if num==0:
             emptyFiles.append( file )

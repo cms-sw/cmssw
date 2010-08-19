@@ -34,10 +34,10 @@ class BatchManager:
         self.parser_.add_option("-n", "--negate", action="store_true",
                                 dest="negate", default=False,
                                 help="create jobs, but do nothing")
-        self.parser_.add_option("-q", "--queue",  
-                          dest="queue",
-                          help="batch queue where to send the jobs. default is cms8nht3 (you need to be in the CERN group to have access)",
-                          default="cms8nht3")
+        #        self.parser_.add_option("-q", "--queue",  
+        #                          dest="queue",
+        #                          help="batch queue where to send the jobs. default is cms8nht3 (you need to be in the CERN group to have access)",
+        #                          default="cms8nht3")
         #self.parser_.add_option(
         #    "-b", "--batch-script",  
         #    dest="batchScript",

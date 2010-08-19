@@ -85,7 +85,7 @@ chunkSize = int(args[2])
 
 print 'Merging files in: ', castorDir
 
-matchingFiles = castortools.matchingFiles( castorDir, regexp, protocol='rfio', castor=True)
+matchingFiles = castortools.matchingFiles( castorDir, regexp, protocol='rfio:', castor=True)
 
 # grouping files
 count = 0
