@@ -36,7 +36,10 @@ private:
 				std::pair<A,B> const & sel,
 				const SeedingLayer &sl, const edm::EventSetup &es) {
     typename DSTV::Range range = dstv.equal_range(sel.first,sel.second);
-    v.reserve(v.size()+std::distance(range.first, range.second));
+    size_t ts = v.size();
+    for(typename DSTV::const_iterator id=range.first; id!=range.second; id++)
+      ts += std::distance((*id).begin(), (*id).end());
+    v.reserve(ts);
     for(typename DSTV::const_iterator id=range.first; id!=range.second; id++){
       std::transform((*id).begin(), (*id).end(), std::back_inserter(v), HitConv(sl,es));
     }
