@@ -72,7 +72,8 @@ private:
 
   std::vector<HitWithPhi> theHits;
 
-  void copyResult( const Range& range, std::vector<Hit>& result) const {
+  static void copyResult( const Range& range, std::vector<Hit>& result) {
+    result.reserve(std::distance(range.second-range.first);
     for (HitIter i = range.first; i != range.second; i++) result.push_back( i->hit());
   }
 
