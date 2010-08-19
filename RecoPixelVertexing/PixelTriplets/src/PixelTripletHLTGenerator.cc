@@ -195,8 +195,8 @@ void PixelTripletHLTGenerator::hitTriplets(
 
 bool PixelTripletHLTGenerator::checkPhiInRange(float phi, float phi1, float phi2) const
 {
-  while (phi > phi2) phi -=  Geom::ftwopi();
-  while (phi < phi1) phi +=  Geom::ftwopi();
+  while (phi > phi2) phi -=  Geom::ftwoPi();
+  while (phi < phi1) phi +=  Geom::ftwoPi();
   return (  (phi1 <= phi) && (phi <= phi2) );
 }  
 
@@ -205,8 +205,8 @@ std::pair<float,float> PixelTripletHLTGenerator::mergePhiRanges(
 {
   float r2_min=r2.first;
   float r2_max=r2.second;
-  while (r1.first-r2_min > Geom::fpi()) { r2_min += Geom::ftwopi(); r2_max += Geom::ftwopi();}
-  while (r1.first-r2_min < -Geom::fpi()) { r2_min -= Geom::ftwopi();  r2_max -= Geom::ftwopi(); }
+  while (r1.first-r2_min > Geom::fpi()) { r2_min += Geom::ftwoPi(); r2_max += Geom::ftwoPi();}
+  while (r1.first-r2_min < -Geom::fpi()) { r2_min -= Geom::ftwoPi();  r2_max -= Geom::ftwoPi(); }
   
   return std::make_pair(min(r1.first,r2_min),max(r1.second,r2_max));
 }
