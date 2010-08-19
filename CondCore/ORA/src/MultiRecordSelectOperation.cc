@@ -44,7 +44,7 @@ void ora::MultiRecordSelectOperation::selectRow( const std::vector<int>& selecti
                     "MultiRecordSelectOperation::selectRow" );
   //m_row = &m_cache.lookup( selection );
   Record rec; m_cache.lookupAndClear( selection,rec );
-  newAttributeListFromRecord( *m_row, rec ) );
+  newAttributeListFromRecord( *m_row, rec );
 }
 
 size_t ora::MultiRecordSelectOperation::selectionSize( const std::vector<int>& selection,
