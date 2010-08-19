@@ -4,19 +4,17 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/Blob.h"
 
-namespace ora {
+namespace {
   void newRecordFromAttributeList( Record & rec, const coral::AttributeList& data ){
     for( size_t i=0;i<data.size();i++ ){
       rec.set( i, const_cast<void*>(data[i].addressOfData()) );
     }
   }
-
-  coral::AttributeList* newAttributeListFromRecord( coral::AttributeListSpecification& spec, const Record& data ){
-    coral::AttributeList* ret = new coral::AttributeList( spec, true );
+  
+  void newAttributeListFromRecord( coral::AttributeList& alist, const Record& data ){
     for( size_t i=0;i<data.size();i++ ){
-      (*ret)[i].setValueFromAddress( data.get(i) );
+      alist[i].setValueFromAddress( data.get(i) );
     }
-    return ret;
   }
   
 }
@@ -41,9 +39,12 @@ void ora::MultiRecordSelectOperation::addOrderId(const std::string& columnName){
 }
 
 void ora::MultiRecordSelectOperation::selectRow( const std::vector<int>& selection ){
+  if(!m_row.get())
+    throwException( "No row available.",
+                    "MultiRecordSelectOperation::selectRow" );
   //m_row = &m_cache.lookup( selection );
   Record rec; m_cache.lookupAndClear( selection,rec );
-  m_row.reset( newAttributeListFromRecord( m_query.attributeListSpecification(), rec ) );
+  newAttributeListFromRecord( *m_row, rec ) );
 }
 
 size_t ora::MultiRecordSelectOperation::selectionSize( const std::vector<int>& selection,
@@ -100,7 +101,7 @@ std::string& ora::MultiRecordSelectOperation::whereClause(){
 
 void ora::MultiRecordSelectOperation::execute(){
   //m_row = 0;
-  m_row.reset();
+  //  m_row.reset();
   m_cache.clear();
   m_query.execute();
   while( m_query.nextCursorRow() ){
@@ -113,6 +114,7 @@ void ora::MultiRecordSelectOperation::execute(){
     newRecordFromAttributeList(rec, row );
     m_cache.push( indexes, rec );
   }
+  m_row.reset(new coral::AttributeList(m_query.attributeListSpecification(), true ));
   m_query.clear();
 }
 
