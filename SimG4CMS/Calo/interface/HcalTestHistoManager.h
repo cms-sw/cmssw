@@ -5,13 +5,13 @@
 // Histogram managing class for analysis in HcalTest
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "DataSvc/Ref.h"
-#include "FileCatalog/IFileCatalog.h"
+//#include "DataSvc/Ref.h"
+//#include "FileCatalog/IFileCatalog.h"
 #include <memory>
 
-namespace pool {
-  class IDataSvc;
-}
+//namespace pool {
+//  class IDataSvc;
+//}
 
 #include <string>
 class HcalTestHistoClass;
@@ -26,12 +26,12 @@ public:
   void fillTree(HcalTestHistoClass *  histos);
 
 private:
-  pool::IFileCatalog            lcat;
-  std::auto_ptr<pool::IDataSvc> svc;
+  //  pool::IFileCatalog            lcat;
+  //std::auto_ptr<pool::IDataSvc> svc;
   
-  pool::Placement               placeH;
-  pool::Placement               placeVx;
-  pool::Ref<HcalTestHistoClass> h;
+  //pool::Placement               placeH;
+  //pool::Placement               placeVx;
+  //pool::Ref<HcalTestHistoClass> h;
  
 };
 

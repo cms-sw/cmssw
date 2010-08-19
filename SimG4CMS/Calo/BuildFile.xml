@@ -20,7 +20,6 @@
 <use   name="boost"/>
 <use   name="geant4core"/>
 <use   name="root"/>
-<use   name="DataSvc"/>
 <use   name="rootrflx"/>
 <use   name="rootmath"/>
 <export>
