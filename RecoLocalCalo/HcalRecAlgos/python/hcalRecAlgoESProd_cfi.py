@@ -31,7 +31,7 @@ hcalRecAlgos = cms.ESProducer("HcalRecAlgoESProducer",
                   ChannelStatus = cms.vstring('')
                 ),
         cms.PSet( Level = cms.int32(1),
-                  RecHitFlags = cms.vstring(),
+                  RecHitFlags = cms.vstring(''),
                   ChannelStatus = cms.vstring('HcalCellCaloTowerProb')
                 ),
         cms.PSet( Level = cms.int32(5),
