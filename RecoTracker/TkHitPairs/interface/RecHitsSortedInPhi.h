@@ -35,7 +35,7 @@ public:
 
   RecHitsSortedInPhi( const std::vector<Hit>& hits);
 
-  bool empty() const { return theHits.size()==0; }
+  bool empty() const { return theHits.empty(); }
 
   // Returns the hits in the phi range (phi in radians).
   //  The phi interval ( phiMin, phiMax) defined as the signed path along the 
@@ -63,7 +63,7 @@ public:
   Range unsafeRange( float phiMin, float phiMax) const;
 
   std::vector<Hit> hits() const {
-    std::vector<Hit> result;
+    std::vector<Hit> result; result.reserve(theHits.size());
     for (HitIter i=theHits.begin(); i!=theHits.end(); i++) result.push_back(i->hit());
     return result;
   }

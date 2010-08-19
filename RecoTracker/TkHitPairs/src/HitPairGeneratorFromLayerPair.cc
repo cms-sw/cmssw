@@ -20,7 +20,7 @@ using namespace ctfseeding;
 using namespace std;
 
 typedef PixelRecoRange<float> Range;
-template <class T> T sqr( T t) {return t*t;}
+template<class T> inline T sqr( T t) {return t*t;}
 
 
 
@@ -61,9 +61,10 @@ void HitPairGeneratorFromLayerPair::hitPairs(
 
   vector<Hit> outerHits = outerHitsMap.hits();
 
-  float nSigmaRZ = sqrt(12.);
-  float nSigmaPhi = 3.;
+  static const float nSigmaRZ = std::sqrt(12.f);
+  static const float nSigmaPhi = 3.f;
   typedef vector<Hit>::const_iterator IT;
+  vector<Hit> innerHits;
   for (IT oh = outerHits.begin(), oeh = outerHits.end(); oh < oeh; ++oh) { 
    
     GlobalPoint oPos = (*oh)->globalPosition();  
@@ -74,11 +75,11 @@ void HitPairGeneratorFromLayerPair::hitPairs(
     const HitRZCompatibility *checkRZ = region.checkRZ(theInnerLayer.detLayer(), *oh, iSetup);
     if(!checkRZ) continue;
 
-    vector<Hit> innerHits;
+    innerHits.clear();
     innerHitsMap.hits(phiRange.min(), phiRange.max(), innerHits);
     for (IT ih=innerHits.begin(), ieh = innerHits.end(); ih < ieh; ++ih) {  
       GlobalPoint innPos = (*ih)->globalPosition();
-      float r_reduced = sqrt( sqr(innPos.x()-region.origin().x())+sqr(innPos.y()-region.origin().y()));
+      float r_reduced = std::sqrt( sqr(innPos.x()-region.origin().x())+sqr(innPos.y()-region.origin().y()));
       Range allowed;
       Range hitRZ;
       if (theInnerLayer.detLayer()->location() == barrel) {
