@@ -54,4 +54,3 @@ SiPixelRecHitQuality::Packing::Packing()
 //  Initialize the packing format singleton
 SiPixelRecHitQuality::Packing SiPixelRecHitQuality::thePacking;
 
-

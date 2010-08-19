@@ -77,21 +77,21 @@ class SiPixelRecHitQuality {
     
     inline float probabilityXY( QualWordType qualWord ) const     {
       int raw = (qualWord >> probX_shift) & probX_mask;
-      if(raw<0 || raw >2047) {
-        edm::LogWarning("OutOfBounds") << "Probability outside the bounds of the quality word. Defaulting to Prob=0. Raw = " << raw << " QualityWord = " << qualWord;
-        raw = 2047;
+      if(raw<0 || raw >16383) {
+        edm::LogWarning("OutOfBounds") << "Probability XY outside the bounds of the quality word. Defaulting to Prob=0. Raw = " << raw << " QualityWord = " << qualWord;
+        raw = 16383;
       }
-      float prob = (raw==2047) ? 0: pow( probX_units, (float)( -raw) );
+      float prob = (raw==16383) ? 0: pow( probX_units, (float)( -raw) );
       // cout << "Bits = " << raw << " --> Prob = " << prob << endl;
       return prob;
     }
     inline float probabilityQ( QualWordType qualWord ) const     {
       int raw = (qualWord >> probY_shift) & probY_mask;
-      if(raw<0 || raw >2047) {
-        edm::LogWarning("OutOfBounds") << "Probability outside the bounds of the quality word. Defaulting to Prob=0. Raw = " << raw << " QualityWord = " << qualWord;
-        raw = 2047;
+      if(raw<0 || raw >255) {
+        edm::LogWarning("OutOfBounds") << "Probability Q outside the bounds of the quality word. Defaulting to Prob=0. Raw = " << raw << " QualityWord = " << qualWord;
+        raw = 255;
       }
-      float prob = (raw==2047) ? 0 : pow( probY_units, (float)( -raw) );
+      float prob = (raw==255) ? 0 : pow( probY_units, (float)( -raw) );
       // cout << "Bits = " << raw << " --> Prob = " << prob << endl;
       return prob;
     }
@@ -129,20 +129,20 @@ class SiPixelRecHitQuality {
     //
     inline void setProbabilityXY( float prob, QualWordType & qualWord ) {
       if(prob<0 || prob>1) {
-        edm::LogWarning("OutOfBounds") << "Prob outside the bounds of the quality word. Defaulting to Prob=0. Prob = " << prob << " QualityWord = " << qualWord;
+        edm::LogWarning("OutOfBounds") << "Prob XY outside the bounds of the quality word. Defaulting to Prob=0. Prob = " << prob << " QualityWord = " << qualWord;
         prob=0;
       }
-      double draw = (prob<=1.6E-13) ? 2047 : - log( (double) prob ) * probX_1_over_log_units;
+      double draw = (prob<=1.6E-13) ? 16383 : - log( (double) prob ) * probX_1_over_log_units;
       unsigned int raw = (int) (draw+0.5);   // convert to integer, round correctly
       // cout << "Prob = " << prob << " --> Bits = " << raw << endl;
       qualWord |= ((raw & probX_mask) << probX_shift);
     }
     inline void setProbabilityQ( float prob, QualWordType & qualWord ) {
       if(prob<0 || prob>1) {
-        edm::LogWarning("OutOfBounds") << "Prob outside the bounds of the quality word. Defaulting to Prob=0. Prob = " << prob << " QualityWord = " << qualWord;
+        edm::LogWarning("OutOfBounds") << "Prob Q outside the bounds of the quality word. Defaulting to Prob=0. Prob = " << prob << " QualityWord = " << qualWord;
         prob=0;
       }
-      double draw = (prob<=1E-5) ? 2047 : - log( (double) prob ) * probY_1_over_log_units;
+      double draw = (prob<=1E-5) ? 255 : - log( (double) prob ) * probY_1_over_log_units;
       unsigned int raw = (int) (draw+0.5);   // convert to integer, round correctly
       // cout << "Prob = " << prob << " --> Bits = " << raw << endl;
       qualWord |= ((raw & probY_mask) << probY_shift);
