@@ -20,7 +20,7 @@ private:
  public:
 
   HITrackFilterForPVFinding(const edm::ParameterSet& conf):TrackFilterForPVFinding(conf){
-    NumTracksThreshold_=conf.getParameter<int>("numTracksTreshold");
+    NumTracksThreshold_=conf.getParameter<int>("numTracksThreshold");
     //std::cout << "HITrackFilterForPVFinding  numTracksThreshold="<< NumTracksThreshold_ <<  std::endl;
   }
     
