@@ -114,7 +114,7 @@ L1ExtraCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        //Pass E or B coefficients depending on p.eta().
        if (fabs(p.eta())<1.6){
 	 p.setP4(calibratedP4(p.polarP4(),eGammaCoeffB_,eGammaBinCorr_));
-       } else if (fabs(p.eta())<2.5){
+       } else if (fabs(p.eta())<2.6){
 	 p.setP4(calibratedP4(p.polarP4(),eGammaCoeffE_,eGammaBinCorr_));
        }
        l1EGamma->push_back(p);
@@ -127,7 +127,7 @@ L1ExtraCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        L1EmParticle p = ieg->at(i);
        if (fabs(p.eta())<1.6){
 	 p.setP4(calibratedP4(p.polarP4(),eGammaCoeffB_,eGammaBinCorr_));
-       } else if (fabs(p.eta())<2.5){
+       } else if (fabs(p.eta())<2.6){
 	 p.setP4(calibratedP4(p.polarP4(),eGammaCoeffE_,eGammaBinCorr_));
        }
        l1IsoEGamma->push_back(p);
@@ -140,7 +140,7 @@ L1ExtraCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        L1JetParticle p = tau->at(i);
        if (fabs(p.eta())<1.6){
 	 p.setP4(calibratedP4(p.polarP4(),tauCoeffB_,tauBinCorr_));
-       } else if (fabs(p.eta())<2.5){
+       } else if (fabs(p.eta())<2.6){
 	 p.setP4(calibratedP4(p.polarP4(),tauCoeffE_,tauBinCorr_));
        }
        l1Tau->push_back(p);
@@ -153,7 +153,7 @@ L1ExtraCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        L1JetParticle p = itau->at(i);
        if (fabs(p.eta())<1.6){
 	 p.setP4(calibratedP4(p.polarP4(),tauCoeffB_,tauBinCorr_));
-       } else if (fabs(p.eta())<2.5){
+       } else if (fabs(p.eta())<2.6){
 	 p.setP4(calibratedP4(p.polarP4(),tauCoeffE_,tauBinCorr_));
        }
        l1IsoTau->push_back(p);
@@ -200,43 +200,43 @@ L1ExtraCalibrator::calibratedP4(const math::PtEtaPhiMLorentzVector& p4,const  st
   // apply bin-by-bin corrections
   if (fabs(p4.eta())>=0 && fabs(p4.eta())<0.2){
     bfactor=binCorrs.at(0);
-    printf("bin 0: corr. of %f\n",bfactor);
+    printf("bin 0: corr. of %f\t abs(eta) of %f \n",bfactor,fabs(p4.eta()));
   } else if (fabs(p4.eta())>=0.2 && fabs(p4.eta())<0.4){
     bfactor=binCorrs.at(1);
-    printf("bin 1: corr. of %f\n",bfactor);
+    printf("bin 1: corr. of %f\t abs(eta) of %f \n",bfactor,fabs(p4.eta()));
   } else if (fabs(p4.eta())>=0.4 && fabs(p4.eta())<0.6){
     bfactor=binCorrs.at(2);
-    printf("bin 2: corr. of %f\n",bfactor);
+    printf("bin 2: corr. of %f\t abs(eta) of %f \n",bfactor,fabs(p4.eta()));
   } else if (fabs(p4.eta())>=0.6 && fabs(p4.eta())<0.8){
     bfactor=binCorrs.at(3);
-    printf("bin 3: corr. of %f\n",bfactor);
+    printf("bin 3: corr. of %f\t abs(eta) of %f \n",bfactor,fabs(p4.eta()));
   } else if (fabs(p4.eta())>=0.8 && fabs(p4.eta())<1.0){
     bfactor=binCorrs.at(4);
-    printf("bin 4: corr. of %f\n",bfactor);
+    printf("bin 4: corr. of %f\t abs(eta) of %f \n",bfactor,fabs(p4.eta()));
   } else if (fabs(p4.eta())>=1.0 && fabs(p4.eta())<1.2){
     bfactor=binCorrs.at(5);
-    printf("bin 5: corr. of %f\n",bfactor);
+    printf("bin 5: corr. of %f\t abs(eta) of %f \n",bfactor,fabs(p4.eta()));
   } else if (fabs(p4.eta())>=1.2 && fabs(p4.eta())<1.4){
     bfactor=binCorrs.at(6);
-    printf("bin 6: corr. of %f\n",bfactor);
+    printf("bin 6: corr. of %f\t abs(eta) of %f \n",bfactor,fabs(p4.eta()));
   } else if (fabs(p4.eta())>=1.4 && fabs(p4.eta())<1.6){
     bfactor=binCorrs.at(7);
-    printf("bin 7: corr. of %f\n",bfactor);
+    printf("bin 7: corr. of %f\t abs(eta) of %f \n",bfactor,fabs(p4.eta()));
   } else if (fabs(p4.eta())>=1.6 && fabs(p4.eta())<1.8){
     bfactor=binCorrs.at(8);
-    printf("bin 8: corr. of %f\n",bfactor);
+    printf("bin 8: corr. of %f\t abs(eta) of %f \n",bfactor,fabs(p4.eta()));
   } else if (fabs(p4.eta())>=1.8 && fabs(p4.eta())<2.0){
     bfactor=binCorrs.at(9);
-    printf("bin 9: corr. of %f\n",bfactor);
+    printf("bin 9: corr. of %f\t abs(eta) of %f \n",bfactor,fabs(p4.eta()));
   } else if (fabs(p4.eta())>=2.0 && fabs(p4.eta())<2.2){
     bfactor=binCorrs.at(10);
-    printf("bin 10: corr. of %f\n",bfactor);
+    printf("bin 10: corr. of %f\t abs(eta) of %f \n",bfactor,fabs(p4.eta()));
   } else if (fabs(p4.eta())>=2.2 && fabs(p4.eta())<2.4){
     bfactor=binCorrs.at(11);
-    printf("bin 11: corr. of %f\n",bfactor);
+    printf("bin 11: corr. of %f\t abs(eta) of %f \n",bfactor,fabs(p4.eta()));
   } else if (fabs(p4.eta())>=2.4 && fabs(p4.eta())<2.6){
     bfactor=binCorrs.at(12);
-    printf("bin 12: corr. of %f\n",bfactor);
+    printf("bin 12: corr. of %f\t abs(eta) of %f \n",bfactor,fabs(p4.eta()));
   } else {
     bfactor=1.0;
     printf("no bin found! Corr. set to 1.0");
