@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("makeSD")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('JetMETAOD central skim'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/Skimming/test/CSmaker_JetMETAOD_PDJetMET_35e29_cfg.py,v $')
 )
@@ -47,8 +47,8 @@ import HLTrigger.HLTfilters.hltHighLevelDev_cfi
 
 ### JetMET AOD CS
 process.DiJetAve_1e29 = HLTrigger.HLTfilters.hltHighLevelDev_cfi.hltHighLevelDev.clone(andOr = True)
-process.DiJetAve_1e29.HLTPaths = ("HLT_DiJetAve15U","HLT_DiJetAve30U","HLT_DiJetAve50U")
-process.DiJetAve_1e29.HLTPathsPrescales  = cms.vuint32(1,1,1)
+process.DiJetAve_1e29.HLTPaths = ("HLT_DiJetAve15U","HLT_DiJetAve30U","HLT_DiJetAve50U","HLT_DiJetAve70U")
+process.DiJetAve_1e29.HLTPathsPrescales  = cms.vuint32(1,1,1,1)
 process.DiJetAve_1e29.HLTOverallPrescale = cms.uint32(1)
 process.DiJetAve_1e29.andOr = True
 
