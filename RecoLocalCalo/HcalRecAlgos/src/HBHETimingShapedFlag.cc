@@ -114,8 +114,9 @@ void HBHETimingShapedFlagSetter::SetTimingShapedFlags(HBHERecHit& hbhe)
 	}
     }
   // Apply offset, gain
-  twinmax=win_offset_+twinmax*win_gain_;  
   twinmin=win_offset_-twinmax*win_gain_;
+  twinmax=win_offset_+twinmax*win_gain_; 
+  
   // Set status high if time outside expected range
   if (rhtime<=twinmin || rhtime >= twinmax)
     status=1; // set status to 1
