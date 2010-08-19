@@ -5,6 +5,9 @@ AlignmentMuonSelector = cms.EDFilter("AlignmentMuonSelectorModule",
     filter = cms.bool(True),
 
     applyBasicCuts = cms.bool(True),
+
+    pMin = cms.double(0.0),
+    pMax = cms.double(999999.0),
     ptMin = cms.double(10.0),
     ptMax = cms.double(999999.0),
     etaMin = cms.double(-2.4),

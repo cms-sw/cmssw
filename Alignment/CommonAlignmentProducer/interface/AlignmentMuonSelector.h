@@ -9,9 +9,9 @@
  * 
  * \author Javier Fernandez, IFCA
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.4 $
  *
- * $Id: AlignmentMuonSelector.h,v 1.3 2007/12/04 23:39:24 ratnik Exp $
+ * $Id: AlignmentMuonSelector.h,v 1.4 2009/03/08 02:12:37 dlange Exp $
  *
  */
 
@@ -59,7 +59,7 @@ class AlignmentMuonSelector
   /// private data members
   bool applyBasicCuts,applyNHighestPt,applyMultiplicityFilter,applyMassPairFilter;
   int nHighestPt,minMultiplicity;
-  double ptMin,ptMax,etaMin,etaMax,phiMin,phiMax;
+  double pMin,pMax,ptMin,ptMax,etaMin,etaMax,phiMin,phiMax;
   double nHitMinSA,nHitMaxSA,chi2nMaxSA;
   double nHitMinGB,nHitMaxGB,chi2nMaxGB;
   double nHitMinTO,nHitMaxTO,chi2nMaxTO;
