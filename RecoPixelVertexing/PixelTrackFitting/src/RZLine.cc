@@ -12,7 +12,7 @@ RZLine::RZLine(const std::vector<float> & aR,
 
 RZLine::RZLine(const vector<GlobalPoint> & points, 
 	       const vector<GlobalError> & errors, 
-	       const vector<bool> isBarrel) : r(points.size()), z(points.size()), errZ(points.size());
+	       const vector<bool> isBarrel) : r(points.size()), z(points.size()), errZ(points.size())
 {
   int nPoints = points.size();
   for (int i=0; i<nPoints; i++) {
