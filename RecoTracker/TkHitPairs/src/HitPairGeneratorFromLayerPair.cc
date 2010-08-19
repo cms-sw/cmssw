@@ -76,7 +76,7 @@ void HitPairGeneratorFromLayerPair::hitPairs(
 
     innerHits.clear();
     innerHitsMap.hits(phiRange.min(), phiRange.max(), innerHits);
-    for ( vector<Hit>::cost_iterator ih=innerHits.begin(), ieh = innerHits.end(); ih < ieh; ++ih) {  
+    for ( vector<Hit>::const_iterator ih=innerHits.begin(), ieh = innerHits.end(); ih < ieh; ++ih) {  
       GlobalPoint innPos = (*ih)->globalPosition();
       float r_reduced = std::sqrt( sqr(innPos.x()-region.origin().x())+sqr(innPos.y()-region.origin().y()));
       Range allowed;
