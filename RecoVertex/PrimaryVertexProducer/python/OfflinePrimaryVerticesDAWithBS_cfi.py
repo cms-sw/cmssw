@@ -4,11 +4,11 @@ offlinePrimaryVerticesDA = cms.EDProducer("PrimaryVertexProducer",
     verbose = cms.untracked.bool(False),
     algorithm = cms.string('AdaptiveVertexFitter'),
     TrackLabel = cms.InputTag("generalTracks"),
-    useBeamConstraint = cms.bool(False),
+    useBeamConstraint = cms.bool(True),
     beamSpotLabel = cms.InputTag("offlineBeamSpot"),
-    minNdof  = cms.double(0.0),
+    minNdof  = cms.double(2.0),
     PVSelParameters = cms.PSet(
-        maxDistanceToBeam = cms.double(1.0)
+        maxDistanceToBeam = cms.double(1.0) # meaningless for constrained fits
     ),
     TkFilterParameters = cms.PSet(
         algorithm=cms.string('filter'),
