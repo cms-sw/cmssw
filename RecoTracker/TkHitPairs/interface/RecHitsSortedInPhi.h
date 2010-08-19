@@ -70,7 +70,7 @@ public:
 
 
   Range all() const {
-    return Range(theHits.begin(); i!=theHits.end());
+    return Range(theHits.begin(), theHits.end());
   }
 
 private:

@@ -66,8 +66,8 @@ void HitPairGeneratorFromLayerPair::hitPairs(
   typedef RecHitsSortedInPhi::HitIter IT;
   vector<Hit> innerHits;
   for (IT oh = outerHits.first; oh!= outerHits.second; ++oh) { 
-    Hit const & ohit = (*oh).TheHit;
-    GlobalPoint oPos = ohit.globalPosition();  
+    Hit ohit = (*oh).hit();
+    GlobalPoint oPos = ohit->globalPosition();  
     PixelRecoRange<float> phiRange = deltaPhi( oPos.perp(), oPos.phi(), oPos.z(), nSigmaPhi*(*oh)->errorGlobalRPhi());    
 
     if (phiRange.empty()) continue;
