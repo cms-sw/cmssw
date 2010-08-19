@@ -135,7 +135,8 @@ void PixelTripletHLTGenerator::hitTriplets(
 //          thirdHitMap[il]->loop();
 
       typedef RecHitsSortedInPhi::Hit Hit;
-      vector<Hit> thirdHits = thirdHitMap[il]->hits(phiRange.min(),phiRange.max());
+      vector<Hit> thirdHits;
+      thirdHitMap[il]->hits(phiRange.min(),phiRange.max(), thirdHits);
   
       static double nSigmaRZ = sqrt(12.);
       static double nSigmaPhi = 3.;
@@ -174,10 +175,10 @@ void PixelTripletHLTGenerator::hitTriplets(
           if (crossingRange.empty())  continue;
         }
 
+	double phiErr = nSigmaPhi*sqrt(hit->globalPositionError().phierr(hit->globalPosition()));
         for (int icharge=-1; icharge <=1; icharge+=2) {
           Range rangeRPhi = predictionRPhi(p3_r, icharge);
           correction.correctRPhiRange(rangeRPhi);
-          double phiErr = nSigmaPhi*sqrt(hit->globalPositionError().phierr(hit->globalPosition()));
           if (checkPhiInRange(p3_phi, rangeRPhi.first/p3_r-phiErr, rangeRPhi.second/p3_r+phiErr)) {
             result.push_back( OrderedHitTriplet( (*ip).inner(), (*ip).outer(), *th)); 
             break;
