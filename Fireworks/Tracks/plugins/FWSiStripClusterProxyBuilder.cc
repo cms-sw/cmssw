@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWSiStripClusterProxyBuilder.cc,v 1.12 2010/06/03 13:38:32 eulisse Exp $
+// $Id: FWSiStripClusterProxyBuilder.cc,v 1.13 2010/06/18 12:44:47 yana Exp $
 //
 
 #include "TEveGeoNode.h"
@@ -11,81 +11,84 @@
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"
 
-#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
 class FWSiStripClusterProxyBuilder : public FWSimpleProxyBuilderTemplate<SiStripCluster>
 {
 public:
-   FWSiStripClusterProxyBuilder() {}
-   virtual ~FWSiStripClusterProxyBuilder() {}
+   FWSiStripClusterProxyBuilder( void ) {}
+   virtual ~FWSiStripClusterProxyBuilder( void ) {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
 protected:
-   virtual void build(const SiStripCluster& iData, unsigned int iIndex,
-                      TEveElement& oItemHolder, const FWViewContext*);
-   virtual void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
-                                  FWViewType::EType viewType, const FWViewContext* vc);
+   virtual void build( const SiStripCluster& iData, unsigned int iIndex,
+		       TEveElement& oItemHolder, const FWViewContext* );
+   virtual void localModelChanges( const FWModelId& iId, TEveElement* iCompound,
+				   FWViewType::EType viewType, const FWViewContext* vc );
 
 private:
-   FWSiStripClusterProxyBuilder(const FWSiStripClusterProxyBuilder&);
-   const FWSiStripClusterProxyBuilder& operator=(const FWSiStripClusterProxyBuilder&);              
+   FWSiStripClusterProxyBuilder( const FWSiStripClusterProxyBuilder& );
+   const FWSiStripClusterProxyBuilder& operator=( const FWSiStripClusterProxyBuilder& );              
 };
 
 void
-FWSiStripClusterProxyBuilder::build(const SiStripCluster& iData,           
-                                    unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*)
-{  
-  DetId detid(iData.geographicalId());
+FWSiStripClusterProxyBuilder::build( const SiStripCluster& iData,           
+				     unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* )
+{
+  unsigned int rawid = iData.geographicalId();
+  const DetIdToMatrix *geom = item()->getGeom();
  
-  TEveGeoShape* shape = item()->getGeom()->getShape(detid);
+  TEveGeoShape* shape = geom->getShape( rawid );
   
-  if (shape) 
+  if( shape ) 
   {
-    setupAddElement(shape, &oItemHolder);
-    Char_t transp = item()->defaultDisplayProperties().transparency();
-    shape->SetMainTransparency(TMath::Min(100, 80 + transp / 5));
+    shape->SetElementName( "Det" );
+    setupAddElement( shape, &oItemHolder );
   }
-
   else
   {
-    fwLog(fwlog::kWarning) 
-      <<"ERROR: failed to get shape of SiStripCluster with detid: "
-      << detid <<std::endl;
+    fwLog( fwlog::kWarning ) 
+      << "failed to get shape of SiStripCluster with detid: "
+      << rawid << std::endl;
   }
+  increaseComponentTransparency( iIndex, &oItemHolder, "Det", 60 );
   
-  TEveStraightLineSet *scposition = new TEveStraightLineSet( "strip" );
+  TEveStraightLineSet *lineSet = new TEveStraightLineSet( "strip" );
+  setupAddElement( lineSet, &oItemHolder );
+
+  const TGeoHMatrix* matrix = geom->getMatrix( rawid );
+  std::vector<Float_t> pars = geom->getParameters( rawid );
+  if( pars.empty() || (! matrix ))
+  {
+    fwLog( fwlog::kError )
+      << "failed to get topology of SiStripCluster with detid: " 
+      << rawid << std::endl;
+
+      return;
+  }
+
+  short firststrip = iData.firstStrip();
+  double localTop[3] = { 0.0, 0.0, 0.0 };
+  double localBottom[3] = { 0.0, 0.0, 0.0 };
+
+  fireworks::localSiStrip( firststrip, localTop, localBottom, pars, rawid );
+
+  double globalTop[3];
+  double globalBottom[3];
+  matrix->LocalToMaster( localTop, globalTop );
+  matrix->LocalToMaster( localBottom, globalBottom );
   
-  double bc = iData.barycenter();
-
-  TVector3 point;
-  TVector3 pointA;
-  TVector3 pointB;
-
-  fireworks::localSiStrip(point, pointA, pointB, bc, detid, item());
-
-  scposition->AddLine(pointA.X(), pointA.Y(), pointA.Z(), 
-                      pointB.X(), pointB.Y(), pointB.Z() );
-  
-  scposition->SetLineColor(kRed);
-
-  setupAddElement(scposition, &oItemHolder);
+  lineSet->AddLine( globalTop[0], globalTop[1], globalTop[2],
+		    globalBottom[0], globalBottom[1], globalBottom[2] );  
 }
 
 void
-FWSiStripClusterProxyBuilder::localModelChanges(const FWModelId& iId, TEveElement* iCompound,
-                                                FWViewType::EType viewType, const FWViewContext* vc)
+FWSiStripClusterProxyBuilder::localModelChanges( const FWModelId& iId, TEveElement* iCompound,
+						 FWViewType::EType viewType, const FWViewContext* vc )
 {
-  const FWDisplayProperties& dp = item()->modelInfo(iId.index()).displayProperties();
-
-  TEveElement* det = iCompound->FirstChild();
-  if (det)
-  {
-     Char_t det_transp = TMath::Min(100, 80 + dp.transparency() / 5);
-     det->SetMainTransparency(det_transp);
-  }
+  increaseComponentTransparency( iId.index(), iCompound, "Det", 60 );
 }
 
 
-REGISTER_FWPROXYBUILDER(FWSiStripClusterProxyBuilder, SiStripCluster, "SiStripCluster", FWViewType::kAll3DBits | FWViewType::kAllRPZBits);
+REGISTER_FWPROXYBUILDER( FWSiStripClusterProxyBuilder, SiStripCluster, "SiStripCluster", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );

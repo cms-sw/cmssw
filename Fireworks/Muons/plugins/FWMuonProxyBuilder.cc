@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec  4 19:28:07 EST 2008
-// $Id: FWMuonProxyBuilder.cc,v 1.11 2010/06/18 12:44:05 yana Exp $
+// $Id: FWMuonProxyBuilder.cc,v 1.12 2010/07/30 08:36:01 yana Exp $
 //
 
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
@@ -50,7 +50,7 @@ void
 FWMuonProxyBuilder::localModelChanges( const FWModelId& iId, TEveElement* iCompound,
                                        FWViewType::EType viewType, const FWViewContext* vc )
 {
-   increaseComponentTransparency(iId.index(), iCompound, "Chamber", 60 );
+   increaseComponentTransparency( iId.index(), iCompound, "Chamber", 60 );
 }
 
 REGISTER_FWPROXYBUILDER( FWMuonProxyBuilder, reco::Muon, "Muons", FWViewType::kAll3DBits | FWViewType::kRhoZBit );

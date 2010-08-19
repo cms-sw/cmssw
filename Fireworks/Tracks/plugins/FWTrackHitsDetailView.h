@@ -41,6 +41,22 @@ private:
    void build (const FWModelId &id, const reco::Track*);
    void setTextInfo (const FWModelId &id, const reco::Track*);
    void makeLegend( void );
+
+   void
+   addTrackerHits3D( std::vector<TVector3> &points,
+		     class TEveElementList *tList,
+		     Color_t color, int size );
+
+   void
+   addHits( const reco::Track& track,
+	    const FWEventItem* iItem,
+	    TEveElement* trkList,
+	    bool addNearbyHits );
+   void
+   addModules( const reco::Track& track,
+	       const FWEventItem* iItem,
+	       TEveElement* trkList,
+	       bool addLostHits );
   
    TLegend             *m_legend;
 };

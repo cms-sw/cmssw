@@ -17,16 +17,20 @@
 #include "TLegend.h"
 
 // CMSSW includes
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
 
 // Fireworks includes
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
-
+#include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/CSGAction.h"
 #include "Fireworks/Core/interface/FWIntValueListener.h"
 #include "Fireworks/Core/interface/FWMagField.h"
+#include "Fireworks/Core/interface/fwLog.h"
 
 #include "Fireworks/Tracks/plugins/FWTrackHitsDetailView.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"
@@ -82,17 +86,18 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track)
    p->MapSubwindows();
    p->Layout();
 
-   m_modules = new TEveElementList("Modules");
-   m_eveScene->AddElement(m_modules);
-   m_moduleLabels = new TEveElementList("Modules");
-   m_eveScene->AddElement(m_moduleLabels);
-   if( track->extra().isAvailable() )
-      fireworks::addModules(*track, id.item(), m_modules, true);
-   m_hits = new TEveElementList("Hits");
-   m_eveScene->AddElement(m_hits);
-   if( track->extra().isAvailable() )
-      fireworks::addHits(*track, id.item(), m_hits, true);
-   for (TEveElement::List_i i=m_modules->BeginChildren(); i!=m_modules->EndChildren(); ++i)
+   m_modules = new TEveElementList( "Modules" );
+   m_eveScene->AddElement( m_modules );
+   m_moduleLabels = new TEveElementList( "Modules" );
+   m_eveScene->AddElement( m_moduleLabels );
+   m_hits = new TEveElementList( "Hits" );
+   m_eveScene->AddElement( m_hits );
+   if( track->extra().isAvailable())
+   {
+      addModules( *track, id.item(), m_modules, true );
+      addHits( *track, id.item(), m_hits, true );
+   }
+   for( TEveElement::List_i i = m_modules->BeginChildren(), end = m_modules->EndChildren(); i != end; ++i )
    {
       TEveGeoShape* gs = dynamic_cast<TEveGeoShape*>(*i);
       if (gs == 0 && (*i != 0)) {
@@ -130,21 +135,6 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track)
    prop->SetRnrFV(kTRUE);
    trk->SetMainColor(id.item()->defaultDisplayProperties().color());
    m_eveScene->AddElement(trk);
-
-// -- add PixelHits
-//LatB
-//    std::vector<TVector3> pixelPoints;
-//    fireworks::pushPixelHits(pixelPoints, *id.item(), *track);
-//    TEveElementList* list = new TEveElementList("PixelHits");
-//    fireworks::addTrackerHits3D(pixelPoints, list, kRed, 2);
-//    m_eveScene->AddElement(list);
-	
-//    list = new TEveElementList("SiStripClusterHits");
-// 	fireworks::addSiStripClusters(id.item(), *track, list, kRed);
-//    m_eveScene->AddElement(list);
-//LatB
-
-   // m_eveScene->Repaint(true);
 
    viewerGL()->SetStyle(TGLRnrCtx::kOutline);
    viewerGL()->SetDrawCameraCenter(kTRUE);
@@ -301,7 +291,161 @@ FWTrackHitsDetailView::makeLegend( void )
    legend5->SetMarkerStyle( kFullDotLarge );
    legend5->SetMarkerSize( 2 );
    m_legend->AddEntry( legend5, "Camera center", "p");
-}   
+}
+
+void
+FWTrackHitsDetailView::addTrackerHits3D( std::vector<TVector3> &points, class TEveElementList *tList, Color_t color, int size ) 
+{
+   // !AT this is  detail view specific, should move to track hits
+   // detail view
+
+   TEvePointSet* pointSet = new TEvePointSet();
+   pointSet->SetMarkerSize(size);
+   pointSet->SetMarkerStyle(4);
+   pointSet->SetPickable(kTRUE);
+   pointSet->SetTitle("Pixel Hits");
+   pointSet->SetMarkerColor(color);
+		
+   for( std::vector<TVector3>::const_iterator it = points.begin(), itEnd = points.end(); it != itEnd; ++it) {
+      pointSet->SetNextPoint(it->x(), it->y(), it->z());
+   }
+   tList->AddElement(pointSet);
+}
+
+void
+FWTrackHitsDetailView::addHits( const reco::Track& track,
+				const FWEventItem* iItem,
+				TEveElement* trkList,
+				bool addNearbyHits )
+{
+   std::vector<TVector3> pixelPoints;
+   fireworks::pushPixelHits( pixelPoints, *iItem, track );
+   TEveElementList* pixels = new TEveElementList( "Pixels" );
+   trkList->AddElement( pixels );
+   if( addNearbyHits )
+   {
+      // get the extra hits
+      std::vector<TVector3> pixelExtraPoints;
+      fireworks::pushNearbyPixelHits( pixelExtraPoints, *iItem, track );
+      // draw first the others
+      addTrackerHits3D( pixelExtraPoints, pixels, kRed, 1 );
+      // then the good ones, so they're on top
+      addTrackerHits3D( pixelPoints, pixels, kGreen, 1 );
+   }
+   else
+   {
+      // just add those points with the default color
+      addTrackerHits3D( pixelPoints, pixels, iItem->defaultDisplayProperties().color(), 1 );
+   }
+
+   // strips
+   TEveElementList* strips = new TEveElementList( "Strips" );
+   trkList->AddElement( strips );
+   fireworks::addSiStripClusters( iItem, track, strips, addNearbyHits, false );
+}
+
+//______________________________________________________________________________
+
+void
+FWTrackHitsDetailView::addModules( const reco::Track& track,
+				   const FWEventItem* iItem,
+				   TEveElement* trkList,
+				   bool addLostHits )
+{
+   std::set<unsigned int> ids;
+   for( trackingRecHit_iterator recIt = track.recHitsBegin(), recItEnd = track.recHitsEnd();
+	recIt != recItEnd; ++recIt )
+   {
+      DetId detid = (*recIt)->geographicalId();
+      if( !addLostHits && !(*recIt)->isValid()) continue;
+      if( detid.rawId() != 0 )
+      {
+	 TString name("");
+	 switch( detid.det())
+	 {
+	 case DetId::Tracker:
+	    switch( detid.subdetId())
+	    {
+	    case SiStripDetId::TIB:
+	       name = "TIB ";
+	       break;
+	    case SiStripDetId::TOB:
+	       name = "TOB ";
+	       break;
+	    case SiStripDetId::TID:
+	       name = "TID ";
+	       break;
+	    case SiStripDetId::TEC:
+	       name = "TEC ";
+	       break;
+	    case PixelSubdetector::PixelBarrel:
+	       name = "Pixel Barrel ";
+	       break;
+	    case PixelSubdetector::PixelEndcap:
+	       name = "Pixel Endcap ";
+	    default:
+	       break;
+	    }
+	    break;
+	    
+	 case DetId::Muon:
+	    switch( detid.subdetId())
+	    {
+	    case MuonSubdetId::DT:
+	       name = "DT";
+	       detid = DetId( DTChamberId( detid )); // get rid of layer bits
+	       break;
+	    case MuonSubdetId::CSC:
+	       name = "CSC";
+	       break;
+	    case MuonSubdetId::RPC:
+	       name = "RPC";
+	       break;
+	    default:
+	       break;
+	    }
+	    break;
+	 default:
+	    break;
+	 }
+	 if( ! ids.insert( detid.rawId()).second ) continue;
+	 if( iItem->getGeom())
+	 {
+	    TEveGeoShape* shape = iItem->getGeom()->getShape( detid );
+	    if( 0 != shape )
+	    {
+	       shape->SetMainTransparency( 65 );
+	       shape->SetPickable( kTRUE );
+	       switch(( *recIt )->type())
+	       {
+	       case TrackingRecHit::valid:
+		  shape->SetMainColor( iItem->defaultDisplayProperties().color());
+		  break;
+	       case TrackingRecHit::missing:
+		  name += "LOST ";
+		  shape->SetMainColor( kRed );
+		  break;
+	       case TrackingRecHit::inactive:
+		  name += "INACTIVE ";
+		  shape->SetMainColor( 28 );
+		  break;
+	       case TrackingRecHit::bad:
+		  name += "BAD ";
+		  shape->SetMainColor( 218 );
+		  break;
+	       }
+	       shape->SetTitle( name + ULong_t( detid.rawId()));
+	       trkList->AddElement( shape );
+	    }
+	    else
+	    {
+	       fwLog( fwlog::kInfo ) <<  "Failed to get shape extract for a tracking rec hit: "
+				     << "\n" << fireworks::info( detid ) << std::endl;
+	    }
+	 }
+      }
+   }
+}
 
 void
 FWTrackHitsDetailView::rnrLabels()

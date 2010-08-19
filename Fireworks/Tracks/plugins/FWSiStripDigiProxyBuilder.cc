@@ -6,16 +6,16 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiStripDigiProxyBuilder.cc,v 1.11 2010/08/11 13:05:39 yana Exp $
+// $Id: FWSiStripDigiProxyBuilder.cc,v 1.12 2010/08/12 12:44:48 yana Exp $
 //
 
-//#include "TEveCompound.h"
-#include "TEvePointSet.h"
+#include "TEveStraightLineSet.h"
 
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Core/interface/fwLog.h"
+#include "Fireworks/Tracks/interface/TrackUtils.h"
 
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -24,18 +24,19 @@
 class FWSiStripDigiProxyBuilder : public FWProxyBuilderBase
 {
 public:
-  FWSiStripDigiProxyBuilder() {}
-  virtual ~FWSiStripDigiProxyBuilder() {}
+  FWSiStripDigiProxyBuilder( void ) {}
+  virtual ~FWSiStripDigiProxyBuilder( void ) {}
 
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
-  virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
-  FWSiStripDigiProxyBuilder(const FWSiStripDigiProxyBuilder&);    
-  const FWSiStripDigiProxyBuilder& operator=(const FWSiStripDigiProxyBuilder&);
+  virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* );
+  FWSiStripDigiProxyBuilder( const FWSiStripDigiProxyBuilder& );    
+  const FWSiStripDigiProxyBuilder& operator=( const FWSiStripDigiProxyBuilder& );
 };
 
-void FWSiStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
+void
+FWSiStripDigiProxyBuilder::build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* )
 {
   const edm::DetSetVector<SiStripDigi>* digis = 0;
 
@@ -54,30 +55,34 @@ void FWSiStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList*
     const uint32_t& id = ds.id;
 
     const TGeoHMatrix* matrix = geom->getMatrix( id );
+    const std::vector<Float_t>& pars = geom->getParameters( id );
         
     for( edm::DetSet<SiStripDigi>::const_iterator idigi = ds.data.begin(), idigiEnd = ds.data.end();
 	 idigi != idigiEnd; ++idigi )        
     {
-      TEvePointSet* pointSet = new TEvePointSet;
-      pointSet->SetMarkerSize( 2 );
-      pointSet->SetMarkerStyle( 2 );
-      setupAddElement( pointSet, product );
+      TEveStraightLineSet *lineSet = new TEveStraightLineSet( "strip" );
+      setupAddElement( lineSet, product );
 
-      // For now, take the center of the strip as the local position 
-      if( ! matrix )
+      if( pars.empty() || (! matrix ))
       {
 	fwLog( fwlog::kWarning ) 
-	  << "failed get geometry of SiStripDigi with detid: "
+	  << "failed get geometry and topology of SiStripDigi with detid: "
 	  << id << std::endl;
 	continue;
       }
-   
-      double local[3] = { 0.0, 0.0, 0.0 };
-      double global[3] = { 0.0, 0.0, 0.0 };
-         
-      matrix->LocalToMaster( local, global );
-      pointSet->SetNextPoint( global[0], global[1], global[2] );
+      short strip = (*idigi).strip();
+      double localTop[3] = { 0.0, 0.0, 0.0 };
+      double localBottom[3] = { 0.0, 0.0, 0.0 };
 
+      fireworks::localSiStrip( strip, localTop, localBottom, pars, id );
+
+      double globalTop[3];
+      double globalBottom[3];
+      matrix->LocalToMaster( localTop, globalTop );
+      matrix->LocalToMaster( localBottom, globalBottom );
+  
+      lineSet->AddLine( globalTop[0], globalTop[1], globalTop[2],
+			globalBottom[0], globalBottom[1], globalBottom[2] );
     } // end of iteration over digis  
   } // end of iteration over the DetSetVector
 }

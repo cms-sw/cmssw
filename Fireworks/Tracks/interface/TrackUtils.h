@@ -4,7 +4,7 @@
 //
 // Package:     Tracks
 // Class  :     TrackUtils
-// $Id: TrackUtils.h,v 1.19 2010/08/06 14:07:49 yana Exp $
+// $Id: TrackUtils.h,v 1.20 2010/08/12 12:44:48 yana Exp $
 //
 
 // system include files
@@ -66,34 +66,17 @@ TEveTrack* prepareTrack( const reco::Track& track,
  
 double pixelLocalX( const double mpx, const int m_nrows );
 double pixelLocalY( const double mpy, const int m_ncols );
-void localSiStrip( TVector3& point, TVector3& pointA, TVector3& pointB, double bc, DetId id, const FWEventItem* iItem );
+
+void localSiStrip( short strip, Double_t* localTop, Double_t* localBottom, const std::vector<Float_t>& pars, unsigned int id );
+
 void pushPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, const reco::Track &t );   
 void pushNearbyPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, const reco::Track &t );   
 void pushPixelCluster( std::vector<TVector3> &pixelPoints, const TGeoHMatrix *m, DetId id, const SiPixelCluster &c, const std::vector<Float_t>& pars ); 
 
-
-void pushSiStripHits( std::vector<TVector3> &monoPoints, std::vector<TVector3> &stereoPoints, const FWEventItem &iItem, const reco::Track &t );
-void addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveElement *tList, bool addNearbyClusters, bool master);
-
-
-// DETAIL VIEWS
-void addTrackerHits3D( std::vector<TVector3> &points, class TEveElementList *tList,
-                       Color_t color, int size );
-void
-addHits(const reco::Track& track,
-        const FWEventItem* iItem,
-        TEveElement* trkList,
-        bool addNearbyHits);
-void
-addModules(const reco::Track& track,
-           const FWEventItem* iItem,
-           TEveElement* trkList,
-           bool addLostHits);
-
+void addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveElement *tList, bool addNearbyClusters, bool master );
 
 // Helpers for data extraction
-const SiStripCluster* extractClusterFromTrackingRecHit(const TrackingRecHit* rh);
-
+const SiStripCluster* extractClusterFromTrackingRecHit( const TrackingRecHit* rh );
 
 // Helper functions to get human readable informationa about given DetId
 // (copied from TrackingTools/TrackAssociator)

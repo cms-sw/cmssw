@@ -44,19 +44,26 @@
   if( det )                                                     \
   {                                                             \
     const StripTopology* topo = dynamic_cast<const StripTopology*>( &det->specificTopology()); \
-    m_fwGeometry->idToName[rawid].topology[0] = topo->nstrips();            \
-    m_fwGeometry->idToName[rawid].topology[1] = topo->stripLength();        \
+    m_fwGeometry->idToName[rawid].topology[0] = 0;            		    \
+    m_fwGeometry->idToName[rawid].topology[1] = topo->nstrips();            \
+    m_fwGeometry->idToName[rawid].topology[2] = topo->stripLength();        \
     if( const RadialStripTopology* rtop = dynamic_cast<const RadialStripTopology*>( topo )) \
     {                                                                   \
-      m_fwGeometry->idToName[rawid].topology[2] = rtop->phiPitch();	\
+      m_fwGeometry->idToName[rawid].topology[0] = 1;			\
+      m_fwGeometry->idToName[rawid].topology[3] = rtop->yAxisOrientation(); \
+      m_fwGeometry->idToName[rawid].topology[4] = rtop->originToIntersection(); \
+      m_fwGeometry->idToName[rawid].topology[5] = rtop->phiOfOneEdge(); \
+      m_fwGeometry->idToName[rawid].topology[6] = rtop->angularWidth(); \
     }                                                                   \
     else if( dynamic_cast<const RectangularStripTopology*>( topo ))     \
     {                                                                   \
-      m_fwGeometry->idToName[rawid].topology[2] = topo->pitch();	\
+      m_fwGeometry->idToName[rawid].topology[0] = 2;			\
+      m_fwGeometry->idToName[rawid].topology[3] = topo->pitch();	\
     }									\
     else if( dynamic_cast<const TrapezoidalStripTopology*>( topo ))     \
     {                                                                   \
-      m_fwGeometry->idToName[rawid].topology[2] = topo->pitch();	\
+      m_fwGeometry->idToName[rawid].topology[0] = 3;			\
+      m_fwGeometry->idToName[rawid].topology[3] = topo->pitch();	\
     }									\
   }                                                                     \
 									  
