@@ -132,11 +132,17 @@ reco::Track* PixelFitterByHelixProjections::run(
 
 int PixelFitterByHelixProjections::charge(const vector<GlobalPoint> & points) const
 {
+  // the cross product will tell me...
+  float dir = (points[1].x()-points[0].x())* (points[2].y()-points[1].y()) - 
+    (points[1].y()-points[0].y())* (points[2].x()-points[1].x());
+
+
    GlobalVector v21 = points[1]-points[0];
    GlobalVector v32 = points[2]-points[1];
    float dphi = v32.phi() - v21.phi();
    while (dphi >  Geom::fpi()) dphi -=  Geom::ftwoPi();
    while (dphi < -Geom::fpi()) dphi +=  Geom::ftwoPi();
+   std::cout << "I got the charge wrong..." << dir << " " << dphi << std::endl;
    return (dphi > 0) ? -1 : 1;
 }
 
