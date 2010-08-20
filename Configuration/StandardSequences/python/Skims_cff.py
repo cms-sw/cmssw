@@ -16,7 +16,7 @@ SKIMStreamLogerror = cms.FilteredStream(
     name = 'Logerror',
     paths = (pathlogerror),
     content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(SelectEvents=cms.vstring('pathlogerror')),
+    selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW-RECO')
     )
 
@@ -30,7 +30,7 @@ SKIMStreamBEAMBKGV3 = cms.FilteredStream(
     name = 'BEAMBKGV3',
     paths = (pathpfgskim3noncross),
     content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(SelectEvents=cms.vstring('pathpfgskim3noncross')),
+    selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW-RECO')
     )
 
@@ -44,7 +44,7 @@ SKIMStreamCSC = cms.FilteredStream(
     name = 'CSC',
     paths = (pathCSCSkim),
     content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(SelectEvents=cms.vstring('pathCSCSkim')),
+    selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW-RECO')
     )
 
@@ -59,7 +59,7 @@ SKIMStreamDT = cms.FilteredStream(
     name = 'DT',
     paths = (pathdtSkim,pathHLTdtSkim),
     content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(SelectEvents=cms.vstring('pathdtSkim','pathHLTdtSkim')),
+    selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW-RECO')
     )
 
@@ -74,7 +74,7 @@ SKIMStreamL1MuBit = cms.FilteredStream(
     name = 'L1MuBit',
     paths = (pathL1MuBitSkim),
     content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(SelectEvents=cms.vstring('pathL1MuBitSkim')),
+    selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW-RECO')
     )
 
@@ -88,7 +88,33 @@ SKIMStreamRPC = cms.FilteredStream(
     name = 'RPC',
     paths = (pathrpcTecSkim),
     content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(SelectEvents=cms.vstring('pathrpcTecSkim')),
+    selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW-RECO')
     )
 
+#####################
+
+from DPGAnalysis.Skims.singleMuonSkim_cff import *
+from DPGAnalysis.Skims.singleElectronSkim_cff import *
+from DPGAnalysis.Skims.muonTagProbeFilters_cff import *
+from DPGAnalysis.Skims.electronTagProbeFilters_cff import *
+from DPGAnalysis.Skims.singlePhotonSkim_cff import *
+from DPGAnalysis.Skims.jetSkim_cff import *
+from DPGAnalysis.Skims.METSkim_cff import *
+from DPGAnalysis.Skims.singlePfTauSkim_cff import *
+
+singleMuPt5SkimPath=cms.Path(singleMuPt5RecoQualitySeq)
+singleElectronPt5SkimPath=cms.Path(singleElectronPt5RecoQualitySeq)
+singlePhotonPt5SkimPath=cms.Path(singlePhotonPt5QualitySeq)
+muonJPsiMMSkimPath=cms.Path(muonJPsiMMRecoQualitySeq)
+jetSkimPath=cms.Path(jetRecoQualitySeq)
+singlePfTauPt15SkimPath=cms.Path(singlePfTauPt15QualitySeq)
+SKIMStreamTPG = cms.FilteredStream(
+    responsible = 'TPG',
+    name = 'TPG',
+    paths = (singleMuPt5SkimPath,singleElectronPt5SkimPath,singlePhotonPt5SkimPath,muonJPsiMMSkimPath,jetSkimPath,singlePfTauPt15SkimPath),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('USER')
+    )
+    
