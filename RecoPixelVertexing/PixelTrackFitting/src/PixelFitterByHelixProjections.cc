@@ -34,6 +34,7 @@
 #include "RZLine.h"
 #include "CircleFromThreePoints.h"
 #include "PixelTrackBuilder.h"
+#include "DataFormats/GeometryVector/interface/Pi.h"
 
 using namespace std;
 
@@ -75,8 +76,8 @@ reco::Track* PixelFitterByHelixProjections::run(
     theTTRecHitBuilder = ttrhbESH.product();
   }
 
-  
-  for ( size_t i=0; i!=nhtis; ++i) {
+
+  for ( size_t i=0; i!=nhits; ++i) {
     TransientTrackingRecHit::RecHitPointer recHit = theTTRecHitBuilder->build(hits[i]);
     points[i]  = GlobalPoint( recHit->globalPosition().x()-region.origin().x(), 
 			      recHit->globalPosition().y()-region.origin().y(),
@@ -134,8 +135,8 @@ int PixelFitterByHelixProjections::charge(const vector<GlobalPoint> & points) co
    GlobalVector v21 = points[1]-points[0];
    GlobalVector v32 = points[2]-points[1];
    float dphi = v32.phi() - v21.phi();
-   while (dphi >  M_PI) dphi -= 2*M_PI;
-   while (dphi < -M_PI) dphi += 2*M_PI;
+   while (dphi >  Geom::fpi()) dphi -=  Geom::ftwoPi();;
+   while (dphi < -Geom::fpi() dphi +=  Geom::ftwoPi();;
    return (dphi > 0) ? -1 : 1;
 }
 
@@ -144,16 +145,11 @@ float PixelFitterByHelixProjections::cotTheta(
 {
    float dr = outer.perp()-inner.perp();
    float dz = outer.z()-inner.z();
-   return (fabs(dr) > 1.e-3) ? dz/dr : 0;
+   return (std::abs(dr) > 1.e-3f) ? dz/dr : 0;
 }
 
 float PixelFitterByHelixProjections::phi(float xC, float yC, int charge) const{
-  float phiC = 0.f;
-
-  if (charge>0) phiC = std::atan2(xC,-yC);
-  else phiC = std::atan2(-xC,yC);
-
-  return phiC;
+  return  (charge>0) ? std::atan2(xC,-yC) :  std::atan2(-xC,yC);
 }
 
 float PixelFitterByHelixProjections::zip(float d0, float phi_p, float curv, 
@@ -163,14 +159,14 @@ float PixelFitterByHelixProjections::zip(float d0, float phi_p, float curv,
 //phi = asin(r*rho/2) with asin(x) ~= x+x**3/(2*3)
 //
 
-  float phi0 = phi_p - M_PI_2;
+  float phi0 = phi_p - Geom::fhalfPi();
   GlobalPoint pca(d0*std::cos(phi0), d0*std::sin(phi0),0.);
 
   float rho3 = curv*curv*curv;
   float r1 = (pinner-pca).perp();
-  double phi1 = r1*curv/2 + r1*r1*r1*rho3/48.;
+  double phi1 = r1*(curv*0.5f) + r1*r1*r1*(rho3/48.f);
   float r2 = (pouter-pca).perp();
-  double phi2 = r2*curv/2 + r2*r2*r2*rho3/48.;
+  double phi2 = r2*(curv*0.5f) + r2*r2*r2*(rho3/48.f);
   double z1 = pinner.z();
   double z2 = pouter.z();
 
@@ -181,9 +177,9 @@ float PixelFitterByHelixProjections::zip(float d0, float phi_p, float curv,
 double PixelFitterByHelixProjections::errZip2( float apt, float eta) const 
 {
   double ziperr=0;
-  float pt = (apt <= 10.) ? apt: 10.;
+  double pt = (apt <= 10.) ? apt: 10.;
   double p1=0, p2=0,p3=0,p4=0;
-  float feta = fabs(eta);
+  float feta = std::abs(eta);
   if (feta<=0.8){
     p1 = 0.12676e-1;
     p2 = -0.22411e-2;
@@ -206,9 +202,9 @@ double PixelFitterByHelixProjections::errZip2( float apt, float eta) const
 
 double PixelFitterByHelixProjections::errTip2(float apt, float eta) const
 {
-  float pt = (apt <= 10.) ? apt : 10.;
+  double pt = (apt <= 10.) ? apt : 10.;
   double p1=0, p2=0;
-  float feta = fabs(eta);
+  float feta = std::abs(eta);
   if (feta<=0.8)
     {
       p1=5.9e-3;
