@@ -19,7 +19,7 @@ using namespace std;
 using namespace reco;
 
 
-template <class T> T sqr( T t) {return t*t;}
+template <class T> T inline sqr( T t) {return t*t;}
 
 reco::Track * PixelTrackBuilder::build(
       const Measurement1D & pt,
@@ -37,21 +37,21 @@ reco::Track * PixelTrackBuilder::build(
   LogDebug("PixelTrackBuilder::build");
   LogTrace("")<<"reconstructed TRIPLET kinematics:\n"<<print(pt,phi,cotTheta,tip,zip,chi2,charge);
 
-  float sinTheta = 1/sqrt(1+sqr(cotTheta.value()));
-  float cosTheta = cotTheta.value()*sinTheta;
+  double sinTheta = 1/std::sqrt(1+sqr(cotTheta.value()));
+  double cosTheta = cotTheta.value()*sinTheta;
   int tipSign = tip.value() > 0 ? 1 : -1;
 
-  AlgebraicSymMatrix m(5,0);
-  float invPtErr = 1./sqr(pt.value()) * pt.error();
-  m[0][0] = sqr(sinTheta) * (
+  AlgebraicSymMatrix55 m;
+  double invPtErr = 1./sqr(pt.value()) * pt.error();
+  m(0,0) = sqr(sinTheta) * (
               sqr(invPtErr)
             + sqr(cotTheta.error()/pt.value()*cosTheta * sinTheta)
             );
-  m[0][2] = sqr( cotTheta.error()) * cosTheta * sqr(sinTheta) / pt.value();
-  m[1][1] = sqr( phi.error() );
-  m[2][2] = sqr( cotTheta.error());
-  m[3][3] = sqr( tip.error() );
-  m[4][4] = sqr( zip.error() );
+  m(0,2) = sqr( cotTheta.error()) * cosTheta * sqr(sinTheta) / pt.value();
+  m(1,1) = sqr( phi.error() );
+  m(2,2) = sqr( cotTheta.error());
+  m(3,3) = sqr( tip.error() );
+  m(4,4) = sqr( zip.error() );
   LocalTrajectoryError error(m);
 
   LocalTrajectoryParameters lpar(
@@ -59,10 +59,13 @@ reco::Track * PixelTrackBuilder::build(
     LocalVector(0., -tipSign*pt.value()*cotTheta.value(), pt.value()),
     charge);
 
+  
+  float sp = std::sin(phi.value());
+  float cp = std::cos(phi.value());
   Surface::RotationType rot(
-      sin(phi.value())*tipSign, -cos(phi.value())*tipSign,           0,
-                     0,                 0,                  -1*tipSign,
-      cos(phi.value()),          sin(phi.value()),                   0);
+			    sp*tipSign, -cp*tipSign,           0,
+			    0         ,           0,    -tipSign,
+			    cp        ,  sp        ,           0);
   BoundPlane * impPointPlane = new BoundPlane(origin, rot);
 
   TrajectoryStateOnSurface impactPointState( lpar , error, *impPointPlane, mf, 1.0);
