@@ -10,7 +10,6 @@
 namespace  pixelrecoutilities {
   void LongitudinalBendingCorrection::init(float pt, const edm::EventSetup& es)
   {
-    static  FieldAt0 fieldAt0(es);
     theInvCurv =  pt*PixelRecoUtilities::fieldInInvGev(es);
     coeff = 1.f/(4.f*6.f*theInvCurv*theInvCurv);
   }
