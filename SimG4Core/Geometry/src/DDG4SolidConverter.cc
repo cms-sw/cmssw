@@ -17,22 +17,26 @@ DDG4SolidConverter::DDG4SolidConverter()
    // could also be done 'dynamically' from outside 
    // would then need to have a 'register' method ...
   par_=0;
-   convDispatch_[ddbox]    = DDG4SolidConverter::box; 
-   convDispatch_[ddtubs]   = DDG4SolidConverter::tubs;
-   convDispatch_[ddtrap]   = DDG4SolidConverter::trap;
-   convDispatch_[ddcons]   = DDG4SolidConverter::cons;
-   convDispatch_[ddpolycone_rrz]   = DDG4SolidConverter::polycone_rrz;
-   convDispatch_[ddpolycone_rz]    = DDG4SolidConverter::polycone_rz;
-   convDispatch_[ddpolyhedra_rrz]  = DDG4SolidConverter::polyhedra_rrz;
-   convDispatch_[ddpolyhedra_rz]   = DDG4SolidConverter::polyhedra_rz;   
-   convDispatch_[ddtorus]          = DDG4SolidConverter::torus;   
-   convDispatch_[ddreflected]      = DDG4SolidConverter::reflected;
-   convDispatch_[ddunion]          = DDG4SolidConverter::unionsolid;
-   convDispatch_[ddintersection]   = DDG4SolidConverter::intersection;
-   convDispatch_[ddsubtraction]    = DDG4SolidConverter::subtraction;
-   convDispatch_[ddpseudotrap]     = DDG4SolidConverter::pseudotrap;
-   convDispatch_[ddtrunctubs]      = DDG4SolidConverter::trunctubs;
-   convDispatch_[ddsphere]         = DDG4SolidConverter::sphere;   
+  convDispatch_[ddbox]            = DDG4SolidConverter::box; 
+  convDispatch_[ddtubs]           = DDG4SolidConverter::tubs;
+  convDispatch_[ddtrap]           = DDG4SolidConverter::trap;
+  convDispatch_[ddcons]           = DDG4SolidConverter::cons;
+  convDispatch_[ddpolycone_rrz]   = DDG4SolidConverter::polycone_rrz;
+  convDispatch_[ddpolycone_rz]    = DDG4SolidConverter::polycone_rz;
+  convDispatch_[ddpolyhedra_rrz]  = DDG4SolidConverter::polyhedra_rrz;
+  convDispatch_[ddpolyhedra_rz]   = DDG4SolidConverter::polyhedra_rz;   
+  convDispatch_[ddtorus]          = DDG4SolidConverter::torus;   
+  convDispatch_[ddreflected]      = DDG4SolidConverter::reflected;
+  convDispatch_[ddunion]          = DDG4SolidConverter::unionsolid;
+  convDispatch_[ddintersection]   = DDG4SolidConverter::intersection;
+  convDispatch_[ddsubtraction]    = DDG4SolidConverter::subtraction;
+  convDispatch_[ddpseudotrap]     = DDG4SolidConverter::pseudotrap;
+  convDispatch_[ddtrunctubs]      = DDG4SolidConverter::trunctubs;
+  convDispatch_[ddsphere]         = DDG4SolidConverter::sphere;   
+  convDispatch_[ddorb]            = DDG4SolidConverter::orb;   
+  convDispatch_[ddellipticaltube] = DDG4SolidConverter::ellipticaltube;   
+  convDispatch_[ddellipsoid]      = DDG4SolidConverter::ellipsoid;   
+  convDispatch_[ddparallelepiped] = DDG4SolidConverter::para;   
 }
 
 
@@ -518,9 +522,56 @@ G4VSolid * DDG4SolidConverter::sphere(const DDSolid & s)
    LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: sphere = " << s ;  
    DDSphere sp(s);
    return new G4Sphere(s.name().name(), sp.innerRadius(),
-                               sp.outerRadius(),
-			       sp.startPhi(),
-			       sp.deltaPhi(),
-			       sp.startTheta(),
-		               sp.deltaTheta());
+		       sp.outerRadius(),
+		       sp.startPhi(),
+		       sp.deltaPhi(),
+		       sp.startTheta(),
+		       sp.deltaTheta());
 }
+
+#include "G4Orb.hh"
+G4VSolid * DDG4SolidConverter::orb(const DDSolid & s) 
+{
+   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: orb = " << s ;  
+   DDOrb sp(s);
+   return new G4Orb(s.name().name(), sp.radius());
+}
+
+#include "G4EllipticalTube.hh"
+G4VSolid * DDG4SolidConverter::ellipticaltube(const DDSolid & s) 
+{
+   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: ellipticaltube = " << s ;  
+   DDEllipticalTube sp(s);
+   return new G4EllipticalTube(s.name().name(),
+			       sp.xSemiAxis(),
+                               sp.ySemiAxis(),
+			       sp.zHeight());
+}
+
+#include "G4Ellipsoid.hh"
+G4VSolid * DDG4SolidConverter::ellipsoid(const DDSolid & s) 
+{
+   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: ellipsoid = " << s ;  
+   DDEllipsoid sp(s);
+   return new G4Ellipsoid(s.name().name(),
+			  sp.xSemiAxis(),
+			  sp.ySemiAxis(),
+			  sp.zSemiAxis(),
+			  sp.zBottomCut(),
+			  sp.zTopCut());
+}
+
+#include "G4Para.hh"
+G4VSolid * DDG4SolidConverter::para(const DDSolid & s) 
+{
+   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: parallelepiped = " << s ;  
+   DDParallelepiped sp(s);
+   return new G4Para(s.name().name(),
+		     sp.xHalf(),
+		     sp.yHalf(),
+		     sp.zHalf(),
+		     sp.alpha(),
+		     sp.theta(),
+		     sp.phi());
+}
+
