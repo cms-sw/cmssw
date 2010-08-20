@@ -8,7 +8,6 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 class TrackingRecHit;
 class MagneticField;
-class TrajectoryStateOnSurface;
 class FreeTrajectoryState;
 
 class PixelTrackBuilder {
@@ -25,20 +24,7 @@ public:
       const MagneticField * mf,
       const GlobalPoint   & reference = GlobalPoint(0,0,0) // reference point of a track for IP computation 
   ) const;   
-
-private:
-  std::string print(const reco::Track & track, const GlobalPoint & origin) const; 
-  std::string print(const TrajectoryStateOnSurface & state) const;
-  std::string print( const Measurement1D & pt,
-    const Measurement1D & phi,
-    const Measurement1D & cotTheta,
-    const Measurement1D & tip,
-    const Measurement1D & zip,
-    float chi2,
-    int   charge) const;
-
-  void checkState(const TrajectoryStateOnSurface & state, const MagneticField* mf, const GlobalPoint & origin) const;
-
+  
 };
 
 #endif

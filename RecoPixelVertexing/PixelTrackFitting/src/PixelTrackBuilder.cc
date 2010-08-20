@@ -8,6 +8,7 @@
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryError.h"
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryState/interface/BasicTrajectoryStateOnSurface.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
@@ -72,7 +73,7 @@ namespace {
   
   std::string print(const  BasicTrajectoryStateOnSurface & state)
   {
-    
+    // TrajectoryStateOnSurface state(bstate);
     float pt_v = state.globalMomentum().perp();
     float phi_v = state.globalMomentum().phi();
     float theta_v = state.globalMomentum().theta();
@@ -105,8 +106,10 @@ namespace {
   }
 
 
-  void checkState(const  BasicTrajectoryStateOnSurface & state, const MagneticField* mf, const GlobalPoint & origin)
+  void checkState(const  BasicTrajectoryStateOnSurface & bstate, const MagneticField* mf, const GlobalPoint & origin)
   {
+    TrajectoryStateOnSurface state(bstate);
+    
     LogTrace("")<<" *** PixelTrackBuilder::checkState: ";
     LogTrace("")<<"INPUT,  ROTATION" << endl<<state.surface().rotation();
     LogTrace("")<<"INPUT,  TSOS:"<<endl<<state;
