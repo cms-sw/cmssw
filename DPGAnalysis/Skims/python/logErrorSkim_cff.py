@@ -5,4 +5,4 @@ stableBeam = cms.EDFilter("HLTBeamModeFilter",
                           AllowedBeamMode = cms.vuint32(11)
                           )
 
-logerrorpath=cms.Path(gtEvmDigis+stableBeam+logErrorFilter)
+logerrorseq=cms.Sequence(gtEvmDigis+stableBeam+logErrorFilter)
