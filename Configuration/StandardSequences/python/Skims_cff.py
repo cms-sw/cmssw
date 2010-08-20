@@ -8,47 +8,86 @@ skimContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
 skimContent.outputCommands.append("drop *_*_*_SKIM")
 
 #############
-from FWCore.Modules.logErrorFilter_cfi import *
-from Configuration.StandardSequences.RawToDigi_Data_cff import gtEvmDigis
-stableBeam = cms.EDFilter("HLTBeamModeFilter",
-                          L1GtEvmReadoutRecordTag = cms.InputTag("gtEvmDigis"),
-                          AllowedBeamMode = cms.vuint32(11)
-                          )
-
-logerrorpath=cms.Path(gtEvmDigis+stableBeam+logErrorFilter)
+from  DPGAnalysis.Skims.logErrorSkim_cff import *
+pathlogerror =cms.Path(logerrorseq)
 
 SKIMStreamLogerror = cms.FilteredStream(
     responsible = 'reco convener',
-    name = 'logerror',
-    paths = (logerrorpath),
+    name = 'Logerror',
+    paths = (pathlogerror),
     content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(SelectEvents=cms.vstring('logerrorpath')),
+    selectEvents = cms.untracked.PSet(SelectEvents=cms.vstring('pathlogerror')),
     dataTier = cms.untracked.string('RAW-RECO')
     )
 
 
 ##############
-from HLTrigger.special.hltPhysicsDeclared_cfi import *
-hltPhysicsDeclared.L1GtReadoutRecordTag = 'gtDigis'
-hltbeamgas = cms.EDFilter("HLTHighLevel",
-                          TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
-                          HLTPaths = cms.vstring('HLT_L1_BptxXOR_BscMinBiasOR'), # provide list of HLT paths (or patterns) you want
-                          eventSetupPathsKey = cms.string(''),
-                          andOr              = cms.bool(True),
-                          throw              = cms.bool(False)
-                          )
-pfgskim3noncross = cms.Path(hltPhysicsDeclared*hltbeamgas)
+from  DPGAnalysis.Skims.BeamBkgSkim_cff import *
+pathpfgskim3noncross = cms.Path(pfgskim3noncrossseq)
 
 SKIMStreamBEAMBKGV3 = cms.FilteredStream(
     responsible = 'PFG',
     name = 'BEAMBKGV3',
-    paths = (pfgskim3noncross),
+    paths = (pathpfgskim3noncross),
     content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(SelectEvents=cms.vstring('pfgskim3noncross')),
+    selectEvents = cms.untracked.PSet(SelectEvents=cms.vstring('pathpfgskim3noncross')),
     dataTier = cms.untracked.string('RAW-RECO')
     )
 
 ###########
     
+from DPGAnalysis.Skims.cscSkim_cff import *
+pathCSCSkim =cms.Path(cscHaloSkimseq)  
 
+SKIMStreamCSC = cms.FilteredStream(
+    responsible = 'DPG',
+    name = 'CSC',
+    paths = (pathCSCSkim),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(SelectEvents=cms.vstring('pathCSCSkim')),
+    dataTier = cms.untracked.string('RAW-RECO')
+    )
+
+#####################
+
+from DPGAnalysis.Skims.dtActivitySkim_cff import *
+pathdtSkim =cms.Path(dtSkimseq)  
+
+SKIMStreamDT = cms.FilteredStream(
+    responsible = 'DPG',
+    name = 'DT',
+    paths = (pathdtSkim),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(SelectEvents=cms.vstring('pathdtSkim')),
+    dataTier = cms.untracked.string('RAW-RECO')
+    )
+
+
+#####################
+
+from DPGAnalysis.Skims.L1MuonBitSkim_cff import *
+pathL1MuBitSkim =cms.Path(l1MuBitsSkimseq)  
+
+SKIMStreamL1MuBit = cms.FilteredStream(
+    responsible = 'DPG',
+    name = 'L1MuBit',
+    paths = (pathdtSkim),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(SelectEvents=cms.vstring('pathL1MuBitSkim')),
+    dataTier = cms.untracked.string('RAW-RECO')
+    )
+
+#####################
+
+from DPGAnalysis.Skims.RPCSkim_cff import *
+pathrpcTecSkim =cms.Path(rpcTecSkimseq)  
+
+SKIMStreamRPC = cms.FilteredStream(
+    responsible = 'DPG',
+    name = 'RPC',
+    paths = (pathrpcTecSkim),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(SelectEvents=cms.vstring('pathrpcTecSkim')),
+    dataTier = cms.untracked.string('RAW-RECO')
+    )
 
