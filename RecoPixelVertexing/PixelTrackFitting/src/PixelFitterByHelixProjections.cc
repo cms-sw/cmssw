@@ -49,9 +49,9 @@ reco::Track* PixelFitterByHelixProjections::run(
   int nhits = hits.size();
   if (nhits <2) return 0;
 
-  vector<GlobalPoint> points;
-  vector<GlobalError> errors;
-  vector<bool> isBarrel;
+  vector<GlobalPoint> points(nhits);
+  vector<GlobalError> errors(nhits);
+  vector<bool> isBarrel(nhits);
   
   static edm::ESWatcher<TrackerDigiGeometryRecord> watcherTrackerDigiGeometryRecord;
   if (!theTracker || watcherTrackerDigiGeometryRecord.check(es)) {
@@ -75,17 +75,15 @@ reco::Track* PixelFitterByHelixProjections::run(
     theTTRecHitBuilder = ttrhbESH.product();
   }
 
-  for ( vector<const TrackingRecHit*>::const_iterator ih = hits.begin(); ih != hits.end(); ih++) {
-
-//    const GeomDet * det = theTracker->idToDet( (**ih).geographicalId());
-//    GlobalPoint p = det->surface().toGlobal( (**ih).localPosition());
-
-    TransientTrackingRecHit::RecHitPointer recHit = theTTRecHitBuilder->build(*ih);
-    points.push_back( GlobalPoint( recHit->globalPosition().x()-region.origin().x(), 
-                                   recHit->globalPosition().y()-region.origin().y(),
-                                   recHit->globalPosition().z()-region.origin().z() ) );
-    errors.push_back( recHit->globalPositionError());
-    isBarrel.push_back( recHit->detUnit()->type().isBarrel() );
+  
+  for ( size_t i=0; i!=nhtis; ++i) {
+    TransientTrackingRecHit::RecHitPointer recHit = theTTRecHitBuilder->build(hits[i]);
+    points[i]  = GlobalPoint( recHit->globalPosition().x()-region.origin().x(), 
+			      recHit->globalPosition().y()-region.origin().y(),
+			      recHit->globalPosition().z()-region.origin().z() 
+			      );
+    errors[i] = recHit->globalPositionError();
+    isBarrel[i] = recHit->detUnit()->type().isBarrel();
   }
 
   CircleFromThreePoints circle = (nhits==2) ?
@@ -96,22 +94,22 @@ reco::Track* PixelFitterByHelixProjections::run(
   float curvature = circle.curvature();
 
   float invPt = PixelRecoUtilities::inversePt( circle.curvature(), es);
-  float valPt = (invPt > 1.e-4) ? 1./invPt : 1.e4;
-  float errPt = 0.055*valPt + 0.017*valPt*valPt;
+  float valPt = (invPt > 1.e-4f) ? 1.f/invPt : 1.e4f;
+  float errPt = 0.055f*valPt + 0.017f*valPt*valPt;
 
   CircleFromThreePoints::Vector2D center = circle.center();
-  float valTip = charge * (center.mag()-1/curvature);
+  float valTip = charge * (center.mag()-1.f/curvature);
 
-  float errTip = sqrt(errTip2(valPt, points.back().eta()));
+  float errTip = std::sqrt(errTip2(valPt, points.back().eta()));
 
   float valPhi = PixelFitterByHelixProjections::phi(center.x(), center.y(), charge);
-  float errPhi = 0.002;
+  float errPhi = 0.002f;
 
   float valZip = zip(valTip, valPhi, curvature, points[0],points[1]);
   float errZip = sqrt(errZip2(valPt, points.back().eta()));
 
   float valCotTheta = PixelFitterByHelixProjections::cotTheta(points[0],points[1]);
-  float errCotTheta = 0.002;
+  float errCotTheta = 0.002f;
 
   float chi2 = 0;
   if (nhits > 2) {
@@ -142,7 +140,7 @@ int PixelFitterByHelixProjections::charge(const vector<GlobalPoint> & points) co
 }
 
 float PixelFitterByHelixProjections::cotTheta(
-   const GlobalPoint& inner, const GlobalPoint& outer) const
+					      const GlobalPoint& inner, const GlobalPoint& outer) const
 {
    float dr = outer.perp()-inner.perp();
    float dz = outer.z()-inner.z();
@@ -150,10 +148,10 @@ float PixelFitterByHelixProjections::cotTheta(
 }
 
 float PixelFitterByHelixProjections::phi(float xC, float yC, int charge) const{
-  float phiC = 0.;
+  float phiC = 0.f;
 
-  if (charge>0) phiC = atan2(xC,-yC);
-  else phiC = atan2(-xC,yC);
+  if (charge>0) phiC = std::atan2(xC,-yC);
+  else phiC = std::atan2(-xC,yC);
 
   return phiC;
 }
@@ -166,7 +164,7 @@ float PixelFitterByHelixProjections::zip(float d0, float phi_p, float curv,
 //
 
   float phi0 = phi_p - M_PI_2;
-  GlobalPoint pca(d0*cos(phi0), d0*sin(phi0),0.);
+  GlobalPoint pca(d0*std::cos(phi0), d0*std::sin(phi0),0.);
 
   float rho3 = curv*curv*curv;
   float r1 = (pinner-pca).perp();
