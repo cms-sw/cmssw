@@ -43,13 +43,13 @@ def customiseCommon(process):
     process.offlinePrimaryVerticesWithBS.TkFilterParameters.maxD0Significance = 100
     process.offlinePrimaryVerticesWithBS.TkFilterParameters.minPixelLayersWithHits = 2
     process.offlinePrimaryVerticesWithBS.TkFilterParameters.minSiliconLayersWithHits = 5
-    process.offlinePrimaryVerticesWithBS.TkClusParameters.TkGapClusParameters.zSeparation = 1
+    process.offlinePrimaryVerticesWithBS.TkClusParameters.TkGapClusParameters.zSeparation = 0.2
     process.offlinePrimaryVertices.PVSelParameters.maxDistanceToBeam = 2
     process.offlinePrimaryVertices.TkFilterParameters.maxNormalizedChi2 = 20
     process.offlinePrimaryVertices.TkFilterParameters.maxD0Significance = 100
     process.offlinePrimaryVertices.TkFilterParameters.minPixelLayersWithHits = 2
     process.offlinePrimaryVertices.TkFilterParameters.minSiliconLayersWithHits = 5
-    process.offlinePrimaryVertices.TkClusParameters.TkGapClusParameters.zSeparation = 1
+    process.offlinePrimaryVertices.TkClusParameters.TkGapClusParameters.zSeparation = 0.2
 
     ## ECAL 
     process.ecalRecHit.ChannelStatusToBeExcluded = [ 1, 2, 3, 4, 8, 9, 10, 11, 12, 13, 14, 78, 142 ]
