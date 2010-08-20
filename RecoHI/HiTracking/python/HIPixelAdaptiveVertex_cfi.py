@@ -25,7 +25,7 @@ hiPixelAdaptiveVertex = cms.EDProducer("PrimaryVertexProducer",
     TkClusParameters = cms.PSet(
         algorithm = cms.string("gap"),
         TkGapClusParameters = cms.PSet(
-            zSeparation = cms.double(0.1)        ## 1 mm max separation between clusters
+            zSeparation = cms.double(1.0)        ## 1 cm max separation between clusters
         )
     )
 )
