@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate.h (v8.11)
+//  SiPixelTemplate.h (v8.13)
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
@@ -53,6 +53,7 @@
 //  V8.10 - Add Vavilov distribution interpolation
 //  V8.11 - Renormalize the x-templates for Guofan's cluster size calculation
 //  V8.12 - Technical fix to qavg issue.
+//  V8.13 - Fix qbin and fastsim interpolaters to avoid changing class variables
 //
 // Created by Morris Swartz on 10/27/06.
 // Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
