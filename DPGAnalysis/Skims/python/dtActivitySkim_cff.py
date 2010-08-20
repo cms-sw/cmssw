@@ -3,24 +3,19 @@ from EventFilter.DTRawToDigi.dtunpackerDDUGlobal_cfi import dtunpacker
 
 muonDTDigis = dtunpacker.clone()
 
-hltDTActivityFilter = cms.EDFilter( "HLTDTActivityFilter",
- inputDCC         = cms.InputTag( "dttfDigis" ),   
- inputDDU         = cms.InputTag( "muonDTDigis" ),   
- inputDigis       = cms.InputTag( "muonDTDigis" ),   
- processDCC       = cms.bool( False ),   
- processDDU       = cms.bool( False ),   
- processDigis     = cms.bool( True ),   
- processingMode   = cms.int32( 0 ),   # 0=(DCC | DDU) | Digis/ 
-                                      # 1=(DCC & DDU) | Digis/
-                                      # 2=(DCC | DDU) & Digis/
-                                      # 3=(DCC & DDU) & Digis/   
- minChamberLayers = cms.int32( 6 ),
- maxStation       = cms.int32( 3 ),
- minQual          = cms.int32( 2 ),   # 0-1=L 2-3=H 4=LL 5=HL 6=HH/
- minDDUBX         = cms.int32( 9 ),
- maxDDUBX         = cms.int32( 14 ),
- minActiveChambs  = cms.int32( 1 ),
- activeSectors    = cms.vint32(1,2,3,4,5,6,7,8,9,10,11,12)
+import HLTrigger.special.hltDTActivityFilter_cfi
+
+hltDTActivityFilter = HLTrigger.special.hltDTActivityFilter_cfi.hltDTActivityFilter.clone(
+    inputDCC         = cms.InputTag( "dttfDigis" ),   
+    inputDDU         = cms.InputTag( "muonDTDigis" ),   
+    inputDigis       = cms.InputTag( "muonDTDigis" ),   
+    processDCC       = cms.bool( False ),   
+    processDDU       = cms.bool( False ),
+    processRPC       = cms.bool( False ),
+    processDigis     = cms.bool( True ),   
+    minChamberLayers = cms.int32( 6 ),
+    minDDUBX         = cms.int32( 9 ),
+    maxDDUBX         = cms.int32( 14 ),
 )
 
 # this is for filtering on HLT path
