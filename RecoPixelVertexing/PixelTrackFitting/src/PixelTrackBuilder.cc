@@ -21,6 +21,111 @@ using namespace reco;
 
 template <class T> T inline sqr( T t) {return t*t;}
 
+namespace {
+  std::string print(
+		    const Measurement1D & pt,
+		    const Measurement1D & phi,
+		    const Measurement1D & cotTheta,
+		    const Measurement1D & tip,
+		    const Measurement1D & zip,
+		    float chi2,
+		    int   charge)
+  {
+    ostringstream str;
+    str <<"\t pt: "  << pt.value() <<"+/-"<<pt.error()  
+        <<"\t phi: " << phi.value() <<"+/-"<<phi.error()
+        <<"\t cot: " << cotTheta.value() <<"+/-"<<cotTheta.error()
+        <<"\t tip: " << tip.value() <<"+/-"<<tip.error()
+        <<"\t zip: " << zip.value() <<"+/-"<<zip.error()
+        <<"\t charge: " << charge;
+    return str.str();
+  }
+
+  std::string print(const reco::Track & track, const GlobalPoint & origin)
+  {
+    
+    math::XYZPoint bs(origin.x(), origin.y(), origin.z());
+    
+    Measurement1D phi( track.phi(), track.phiError());
+    
+    float theta = track.theta();
+    float cosTheta = cos(theta);
+    float sinTheta = sin(theta);
+    float errLambda2 = sqr( track.lambdaError() );
+    Measurement1D cotTheta(cosTheta/sinTheta, sqrt(errLambda2)/sqr(sinTheta));
+    
+    float pt_v = track.pt();
+    float errInvP2 = sqr(track.qoverpError());
+    float covIPtTheta = track.covariance(TrackBase::i_qoverp, TrackBase::i_lambda);
+    float errInvPt2 = (   errInvP2
+			  + sqr(cosTheta/pt_v)*errLambda2
+			  + 2*(cosTheta/pt_v)*covIPtTheta
+			  ) / sqr(sinTheta);
+    Measurement1D pt(pt_v, sqr(pt_v)*sqrt(errInvPt2));
+    
+    Measurement1D tip(track.dxy(bs), track.d0Error());
+    
+    Measurement1D zip(track.dz(bs), track.dzError());
+    
+    return print(pt, phi, cotTheta, tip, zip, track.chi2(),  track.charge());
+  }
+  
+  std::string print(const  BasicTrajectoryStateOnSurface & state)
+  {
+    
+    float pt_v = state.globalMomentum().perp();
+    float phi_v = state.globalMomentum().phi();
+    float theta_v = state.globalMomentum().theta();
+    
+    CurvilinearTrajectoryError curv = state.curvilinearError();
+    float errPhi2 = curv.matrix()(3,3);
+    float errLambda2 = curv.matrix()(2,2);
+    float errInvP2 = curv.matrix()(1,1);
+    float covIPtTheta = curv.matrix()(1,2);
+    float cosTheta = cos(theta_v);
+    float sinTheta = sin(theta_v);
+    float errInvPt2 = (   errInvP2
+			  + sqr(cosTheta/pt_v)*errLambda2
+			  + 2*(cosTheta/pt_v)*covIPtTheta) / sqr(sinTheta);
+    float errCotTheta = sqrt(errLambda2)/sqr(sinTheta) ;
+    Measurement1D pt(pt_v, sqr(pt_v) * sqrt(errInvPt2));
+    Measurement1D phi(phi_v, sqrt(errPhi2) );
+    Measurement1D cotTheta(cosTheta/sinTheta, errCotTheta);
+    
+    float zip_v = state.globalPosition().z();
+    float zip_e = sqrt( state.localError().matrix()(4,4));
+    Measurement1D zip(zip_v, zip_e);
+    
+    float tip_v  = state.localPosition().x(); 
+    int tip_sign = (state.localMomentum().y()*cotTheta.value() > 0) ? -1 : 1;
+    float tip_e  = sqrt( state.localError().matrix()(3,3) );
+    Measurement1D tip( tip_sign*tip_v, tip_e);
+    
+    return print(pt, phi, cotTheta, tip, zip, 0., state.charge());
+  }
+
+
+  void checkState(const  BasicTrajectoryStateOnSurface & state, const MagneticField* mf, const GlobalPoint & origin)
+  {
+    LogTrace("")<<" *** PixelTrackBuilder::checkState: ";
+    LogTrace("")<<"INPUT,  ROTATION" << endl<<state.surface().rotation();
+    LogTrace("")<<"INPUT,  TSOS:"<<endl<<state;
+    
+    TransverseImpactPointExtrapolator tipe(mf);
+    TrajectoryStateOnSurface test= tipe.extrapolate(state, origin);
+    LogTrace("")<<"CHECK-1 ROTATION" << endl<<"\n"<<test.surface().rotation();
+    LogTrace("")<<"CHECK-1 TSOS" << endl<<test;
+    
+    TSCPBuilderNoMaterial tscpBuilder;
+    TrajectoryStateClosestToPoint tscp =
+      tscpBuilder(*(state.freeState()), origin);
+    FreeTrajectoryState fs = tscp.theState();
+    LogTrace("")<<"CHECK-2 FTS: " << fs;
+  }
+
+}
+
+
 reco::Track * PixelTrackBuilder::build(
       const Measurement1D & pt,
       const Measurement1D & phi, 
@@ -93,102 +198,3 @@ reco::Track * PixelTrackBuilder::build(
   return track;
 }
 
-std::string PixelTrackBuilder::print(
-    const Measurement1D & pt,
-    const Measurement1D & phi,
-    const Measurement1D & cotTheta,
-    const Measurement1D & tip,
-    const Measurement1D & zip,
-    float chi2,
-    int   charge) const
-{
-    ostringstream str;
-    str <<"\t pt: "  << pt.value() <<"+/-"<<pt.error()  
-        <<"\t phi: " << phi.value() <<"+/-"<<phi.error()
-        <<"\t cot: " << cotTheta.value() <<"+/-"<<cotTheta.error()
-        <<"\t tip: " << tip.value() <<"+/-"<<tip.error()
-        <<"\t zip: " << zip.value() <<"+/-"<<zip.error()
-        <<"\t charge: " << charge;
-    return str.str();
-}
-
-std::string PixelTrackBuilder::print(const reco::Track & track, const GlobalPoint & origin) const
-{
-
-  math::XYZPoint bs(origin.x(), origin.y(), origin.z());
-
-  Measurement1D phi( track.phi(), track.phiError());
-
-  float theta = track.theta();
-  float cosTheta = cos(theta);
-  float sinTheta = sin(theta);
-  float errLambda2 = sqr( track.lambdaError() );
-  Measurement1D cotTheta(cosTheta/sinTheta, sqrt(errLambda2)/sqr(sinTheta));
-
-  float pt_v = track.pt();
-  float errInvP2 = sqr(track.qoverpError());
-  float covIPtTheta = track.covariance(TrackBase::i_qoverp, TrackBase::i_lambda);
-  float errInvPt2 = (   errInvP2
-                      + sqr(cosTheta/pt_v)*errLambda2
-                      + 2*(cosTheta/pt_v)*covIPtTheta
-                     ) / sqr(sinTheta);
-  Measurement1D pt(pt_v, sqr(pt_v)*sqrt(errInvPt2));
-
-  Measurement1D tip(track.dxy(bs), track.d0Error());
-
-  Measurement1D zip(track.dz(bs), track.dzError());
-
-  return print(pt, phi, cotTheta, tip, zip, track.chi2(),  track.charge());
-}
-
-std::string PixelTrackBuilder::print(const TrajectoryStateOnSurface & state) const
-{
-
-  float pt_v = state.globalMomentum().perp();
-  float phi_v = state.globalMomentum().phi();
-  float theta_v = state.globalMomentum().theta();
-
-  CurvilinearTrajectoryError curv = state.curvilinearError();
-  float errPhi2 = curv.matrix()(3,3);
-  float errLambda2 = curv.matrix()(2,2);
-  float errInvP2 = curv.matrix()(1,1);
-  float covIPtTheta = curv.matrix()(1,2);
-  float cosTheta = cos(theta_v);
-  float sinTheta = sin(theta_v);
-  float errInvPt2 = (   errInvP2
-                      + sqr(cosTheta/pt_v)*errLambda2
-                      + 2*(cosTheta/pt_v)*covIPtTheta) / sqr(sinTheta);
-  float errCotTheta = sqrt(errLambda2)/sqr(sinTheta) ;
-  Measurement1D pt(pt_v, sqr(pt_v) * sqrt(errInvPt2));
-  Measurement1D phi(phi_v, sqrt(errPhi2) );
-  Measurement1D cotTheta(cosTheta/sinTheta, errCotTheta);
-
-  float zip_v = state.globalPosition().z();
-  float zip_e = sqrt( state.localError().matrix()(4,4));
-  Measurement1D zip(zip_v, zip_e);
-
-  float tip_v  = state.localPosition().x(); 
-  int tip_sign = (state.localMomentum().y()*cotTheta.value() > 0) ? -1 : 1;
-  float tip_e  = sqrt( state.localError().matrix()(3,3) );
-  Measurement1D tip( tip_sign*tip_v, tip_e);
-
-  return print(pt, phi, cotTheta, tip, zip, 0., state.charge());
-}
-
-void PixelTrackBuilder::checkState(const TrajectoryStateOnSurface & state, const MagneticField* mf, const GlobalPoint & origin) const
-{
-  LogTrace("")<<" *** PixelTrackBuilder::checkState: ";
-  LogTrace("")<<"INPUT,  ROTATION" << endl<<state.surface().rotation();
-  LogTrace("")<<"INPUT,  TSOS:"<<endl<<state;
-  
-  TransverseImpactPointExtrapolator tipe(mf);
-  TrajectoryStateOnSurface test= tipe.extrapolate(state, origin);
-  LogTrace("")<<"CHECK-1 ROTATION" << endl<<"\n"<<test.surface().rotation();
-  LogTrace("")<<"CHECK-1 TSOS" << endl<<test;
-
-  TSCPBuilderNoMaterial tscpBuilder;
-  TrajectoryStateClosestToPoint tscp =
-      tscpBuilder(*(state.freeState()), origin);
-  FreeTrajectoryState fs = tscp.theState();
-  LogTrace("")<<"CHECK-2 FTS: " << fs;
-}
