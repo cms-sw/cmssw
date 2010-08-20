@@ -17,7 +17,7 @@ using namespace edm;
 CSCValidation::CSCValidation(const ParameterSet& pset){ 
 
   // Get the various input parameters
-  rootFileName         = pset.getUntrackedParameter<string>("rootFileName","valHists.root");
+  rootFileName         = pset.getUntrackedParameter<std::string>("rootFileName","valHists.root");
   isSimulation         = pset.getUntrackedParameter<bool>("isSimulation",false);
   writeTreeToFile      = pset.getUntrackedParameter<bool>("writeTreeToFile",true);
   detailedAnalysis     = pset.getUntrackedParameter<bool>("detailedAnalysis",false);
@@ -517,8 +517,8 @@ void CSCValidation::doOccupancies(edm::Handle<CSCStripDigiCollection> strips, ed
 
 bool CSCValidation::doTrigger(edm::Handle<L1MuGMTReadoutCollection> pCollection){
 
-  vector<L1MuGMTReadoutRecord> L1Mrec = pCollection->getRecords();
-  vector<L1MuGMTReadoutRecord>::const_iterator igmtrr;
+  std::vector<L1MuGMTReadoutRecord> L1Mrec = pCollection->getRecords();
+  std::vector<L1MuGMTReadoutRecord>::const_iterator igmtrr;
 
   bool csc_l1a  = false;
   bool dt_l1a   = false;
@@ -1076,7 +1076,7 @@ void CSCValidation::doResolution(edm::Handle<CSCSegmentCollection> cscSegments, 
     int jRH = 0;
     CLHEP::HepMatrix sp(6,1);
     CLHEP::HepMatrix se(6,1);
-    for ( vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); iRH++) {
+    for ( std::vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); iRH++) {
       jRH++;
       CSCDetId idRH = (CSCDetId)(*iRH).cscDetId();
       int kRing    = idRH.ring();
@@ -1154,7 +1154,7 @@ void CSCValidation::doStandalone(Handle<reco::TrackCollection> saMuons){
     int nRPCHitsm = 0;
     int np = 0;
     int nm = 0;
-    vector<CSCDetId> staChambers;
+    std::vector<CSCDetId> staChambers;
     for (trackingRecHit_iterator hit = muon->recHitsBegin(); hit != muon->recHitsEnd(); ++hit ) {
       const DetId detId( (*hit)->geographicalId() );
       if (detId.det() == DetId::Muon) {
@@ -1381,7 +1381,7 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires, edm
 
   std::vector <uint> seg_ME2(2,0) ;
   std::vector <uint> seg_ME3(2,0) ;
-  std::vector < pair <CSCDetId, CSCSegment> > theSegments(4);
+  std::vector < std::pair <CSCDetId, CSCSegment> > theSegments(4);
   // Segments
   for(CSCSegmentCollection::const_iterator segEffIt=cscSegments->begin(); segEffIt != cscSegments->end(); segEffIt++) {
     CSCDetId idseg  = (CSCDetId)(*segEffIt).cscDetId();
@@ -1404,7 +1404,7 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires, edm
       }
       // is the segment good
       if(1== seg_tmp&& 6==(*segEffIt).nRecHits() && (*segEffIt).chi2()/(*segEffIt).degreesOfFreedom()<3.){
-	pair <CSCDetId, CSCSegment> specSeg = make_pair( (CSCDetId)(*segEffIt).cscDetId(),*segEffIt);
+	std::pair <CSCDetId, CSCSegment> specSeg = make_pair( (CSCDetId)(*segEffIt).cscDetId(),*segEffIt);
 	theSegments[2*(idseg.endcap()-1)+(idseg.station() -2)] = specSeg;
       }
     }
@@ -1412,14 +1412,14 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires, edm
     if(2==idseg.station()){
 	++seg_ME2[idseg.endcap() -1];
        if(1==seg_ME2[idseg.endcap() -1] && 6==(*segEffIt).nRecHits() && (*segEffIt).chi2()/(*segEffIt).degreesOfFreedom()<3.){
-           pair <CSCDetId, CSCSegment> specSeg = make_pair( (CSCDetId)(*segEffIt).cscDetId(),*segEffIt);
+           std::pair <CSCDetId, CSCSegment> specSeg = make_pair( (CSCDetId)(*segEffIt).cscDetId(),*segEffIt);
            theSegments[2*(idseg.endcap()-1)+(idseg.station() -2)] = specSeg;
        }
     }
     else if(3==idseg.station()){
 	++seg_ME3[idseg.endcap() -1];
 	if(1==seg_ME3[idseg.endcap() -1] && 6==(*segEffIt).nRecHits() && (*segEffIt).chi2()/(*segEffIt).degreesOfFreedom()<3.){
-         pair <CSCDetId, CSCSegment> specSeg = make_pair( (CSCDetId)(*segEffIt).cscDetId(),*segEffIt);
+         std::pair <CSCDetId, CSCSegment> specSeg = make_pair( (CSCDetId)(*segEffIt).cscDetId(),*segEffIt);
 	 theSegments[2*(idseg.endcap()-1)+(idseg.station() -2)] = specSeg;
        }
     }
@@ -1464,7 +1464,7 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires, edm
   }
 
 // pick a segment only if there are no others in the station
-  std::vector < pair <CSCDetId, CSCSegment> * > theSeg;
+  std::vector < std::pair <CSCDetId, CSCSegment> * > theSeg;
   if(1==seg_ME2[0]) theSeg.push_back(&theSegments[0]);
   if(1==seg_ME3[0]) theSeg.push_back(&theSegments[1]);
   if(1==seg_ME2[1]) theSeg.push_back(&theSegments[2]);
@@ -1491,7 +1491,7 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires, edm
     // Pick which chamber with which segment to test
     for(unsigned int nCh=0;nCh<ChamberContainer.size();nCh++){
       const CSCChamber *cscchamber = ChamberContainer[nCh];
-      pair <CSCDetId, CSCSegment> * thisSegment = 0;
+      std::pair <CSCDetId, CSCSegment> * thisSegment = 0;
       for(uint iSeg =0;iSeg<theSeg.size();++iSeg ){
         if(cscchamber->id().endcap() == theSeg[iSeg]->first.endcap()){ 
           if(1==cscchamber->id().station() || 3==cscchamber->id().station() ){
@@ -1764,8 +1764,8 @@ float CSCValidation::getSignal(const CSCStripDigiCollection& stripdigis, CSCDetI
     if (id == idCS){
 
       // First, find the Signal-Pedestal for center strip
-      vector<CSCStripDigi>::const_iterator digiItr = (*sIt).second.first;
-      vector<CSCStripDigi>::const_iterator last = (*sIt).second.second;
+      std::vector<CSCStripDigi>::const_iterator digiItr = (*sIt).second.first;
+      std::vector<CSCStripDigi>::const_iterator last = (*sIt).second.second;
       for ( ; digiItr != last; ++digiItr ) {
         int thisStrip = digiItr->getStrip();
         if (thisStrip == (centerStrip)){
@@ -1820,7 +1820,7 @@ void CSCValidation::doNoiseHits(edm::Handle<CSCRecHit2DCollection> recHits, edm:
     CSCDetId idrec = (CSCDetId)(*recIt).cscDetId();
 
     //Store the Rechits into a Map
-    AllRechits.insert(pair<CSCDetId , CSCRecHit2D>(idrec,*recIt));
+    AllRechits.insert(std::pair<CSCDetId , CSCRecHit2D>(idrec,*recIt));
 
     // Find the strip containing this hit
     CSCRecHit2D::ChannelContainer hitstrips = (*recIt).channels();
@@ -1837,7 +1837,7 @@ void CSCValidation::doNoiseHits(edm::Handle<CSCRecHit2DCollection> recHits, edm:
   for(CSCSegmentCollection::const_iterator it=cscSegments->begin(); it != cscSegments->end(); it++) {
 
     std::vector<CSCRecHit2D> theseRecHits = (*it).specificRecHits();
-    for ( vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); iRH++) {
+    for ( std::vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); iRH++) {
       CSCDetId idRH = (CSCDetId)(*iRH).cscDetId();
       LocalPoint lpRH = (*iRH).localPosition();
       float xrec = lpRH.x();
@@ -1860,7 +1860,7 @@ void CSCValidation::doNoiseHits(edm::Handle<CSCRecHit2DCollection> recHits, edm:
 	  break;}
 	}
       }
-      if(!RHalreadyinMap){ SegRechits.insert(pair<CSCDetId , CSCRecHit2D>(idRH,*iRH));}
+      if(!RHalreadyinMap){ SegRechits.insert(std::pair<CSCDetId , CSCRecHit2D>(idRH,*iRH));}
     }
   }
 
@@ -1876,7 +1876,7 @@ void CSCValidation::doNoiseHits(edm::Handle<CSCRecHit2DCollection> recHits, edm:
 
 void CSCValidation::findNonAssociatedRecHits(edm::ESHandle<CSCGeometry> cscGeom,  edm::Handle<CSCStripDigiCollection> strips){
  
-  for(multimap<CSCDetId , CSCRecHit2D>::iterator allRHiter =  AllRechits.begin();allRHiter != AllRechits.end(); ++allRHiter){
+  for(std::multimap<CSCDetId , CSCRecHit2D>::iterator allRHiter =  AllRechits.begin();allRHiter != AllRechits.end(); ++allRHiter){
 	CSCDetId idRH = allRHiter->first;
     LocalPoint lpRH = (allRHiter->second).localPosition();
     float xrec = lpRH.x();
@@ -1917,14 +1917,14 @@ void CSCValidation::findNonAssociatedRecHits(edm::ESHandle<CSCGeometry> cscGeom,
 			} 	    
 		}
     }
-    if(!foundmatch){NonAssociatedRechits.insert(pair<CSCDetId , CSCRecHit2D>(idRH,allRHiter->second));}
+    if(!foundmatch){NonAssociatedRechits.insert(std::pair<CSCDetId , CSCRecHit2D>(idRH,allRHiter->second));}
   }
 
-  for(map<CSCRecHit2D,float,ltrh>::iterator iter =  distRHmap.begin();iter != distRHmap.end(); ++iter){
+  for(std::map<CSCRecHit2D,float,ltrh>::iterator iter =  distRHmap.begin();iter != distRHmap.end(); ++iter){
     histos->fill1DHist(iter->second,"hdistRH","Distance of Non Associated RecHit from closest Segment RecHit",500,0.,100.,"NonAssociatedRechits");
   }
 
-  for(multimap<CSCDetId , CSCRecHit2D>::iterator iter =  NonAssociatedRechits.begin();iter != NonAssociatedRechits.end(); ++iter){
+  for(std::multimap<CSCDetId , CSCRecHit2D>::iterator iter =  NonAssociatedRechits.begin();iter != NonAssociatedRechits.end(); ++iter){
     CSCDetId idrec = iter->first;
     int kEndcap  = idrec.endcap();
     int cEndcap  = idrec.endcap();
@@ -2002,7 +2002,7 @@ void CSCValidation::findNonAssociatedRecHits(edm::ESHandle<CSCGeometry> cscGeom,
     
   }
 
-   for(multimap<CSCDetId , CSCRecHit2D>::iterator iter =  SegRechits.begin();iter != SegRechits.end(); ++iter){
+   for(std::multimap<CSCDetId , CSCRecHit2D>::iterator iter =  SegRechits.begin();iter != SegRechits.end(); ++iter){
 	   CSCDetId idrec = iter->first;
 	   int kEndcap  = idrec.endcap();
 	   int cEndcap  = idrec.endcap();
@@ -2149,11 +2149,11 @@ int CSCValidation::getWidth(const CSCStripDigiCollection& stripdigis, CSCDetId i
   for (sIt = stripdigis.begin(); sIt != stripdigis.end(); sIt++){
 	  CSCDetId id = (CSCDetId)(*sIt).first;
 	  if (id == idRH){
-		  vector<CSCStripDigi>::const_iterator digiItr = (*sIt).second.first;
-		  vector<CSCStripDigi>::const_iterator first = (*sIt).second.first;
-		  vector<CSCStripDigi>::const_iterator last = (*sIt).second.second;
-		  vector<CSCStripDigi>::const_iterator it = (*sIt).second.first;
-		  vector<CSCStripDigi>::const_iterator itr = (*sIt).second.first;
+		  std::vector<CSCStripDigi>::const_iterator digiItr = (*sIt).second.first;
+		  std::vector<CSCStripDigi>::const_iterator first = (*sIt).second.first;
+		  std::vector<CSCStripDigi>::const_iterator last = (*sIt).second.second;
+		  std::vector<CSCStripDigi>::const_iterator it = (*sIt).second.first;
+		  std::vector<CSCStripDigi>::const_iterator itr = (*sIt).second.first;
 		  //std::cout << " IDRH " << id <<std::endl;
 		  int St = idRH.station();
 		  int Rg    = idRH.ring();
@@ -2203,7 +2203,7 @@ void CSCValidation::doGasGain(const CSCWireDigiCollection& wirecltn,
      float y;
      int channel=0,mult,wire,layer,idlayer,idchamber,ring;
      int wire_strip_rechit_present;
-     string name,title,endcapstr;
+     std::string name,title,endcapstr;
      ostringstream ss;
      CSCIndexer indexer;
      std::map<int,int>::iterator intIt;
@@ -2442,7 +2442,7 @@ void CSCValidation::doGasGain(const CSCWireDigiCollection& wirecltn,
 
 void CSCValidation::doAFEBTiming(const CSCWireDigiCollection& wirecltn) {
      ostringstream ss;
-     string name,title,endcapstr;
+     std::string name,title,endcapstr;
      float x,y;
      int wire,wiretbin,nmbwiretbin,layer,afeb,idlayer,idchamber;
      int channel=0; // for  CSCIndexer::dbIndex(id, channel); irrelevant here
@@ -2507,7 +2507,7 @@ void CSCValidation::doAFEBTiming(const CSCWireDigiCollection& wirecltn) {
 
 void CSCValidation::doCompTiming(const CSCComparatorDigiCollection& compars) {
 
-     ostringstream ss;      string name,title,endcap;
+     ostringstream ss;      std::string name,title,endcap;
      float x,y;
      int strip,tbin,layer,cfeb,idlayer,idchamber,idum;
      int channel=0; // for  CSCIndexer::dbIndex(id, channel); irrelevant here
@@ -2571,7 +2571,7 @@ void CSCValidation::doADCTiming(const CSCRecHit2DCollection& rechitcltn) {
      float  adc_3_3_sum,adc_3_3_wtbin,x,y;
      int cfeb,idchamber,ring;
 
-     string name,title,endcapstr;
+     std::string name,title,endcapstr;
      ostringstream ss;
      std::vector<float> zer(6,0.0);
 
@@ -2635,7 +2635,7 @@ void CSCValidation::doADCTiming(const CSCRecHit2DCollection& rechitcltn) {
                  ss<<"adc_3_3_weight_time_bin_vs_cfeb_occupancy_ME_"<<idchamber;
                  name=ss.str(); ss.str("");
 
-                 string endcapstr;
+                 std::string endcapstr;
                  if(id.endcap() == 1) endcapstr = "+";
                  if(id.endcap() == 2) endcapstr = "-";
                  ring=id.ring(); if(id.ring()==4) ring=1;
