@@ -5,8 +5,8 @@
   \file UtilsClient.h
   \brief Ecal Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.18 $
-  \date $Date: 2010/03/28 09:07:09 $
+  \version $Revision: 1.19 $
+  \date $Date: 2010/08/06 12:28:07 $
 */
 
 #include <string>
@@ -215,8 +215,10 @@ class UtilsClient {
     return( 1 );
   }
 
- protected:
-  UtilsClient() {}
+ private:
+
+  UtilsClient() {}; // Hidden to force static use
+  ~UtilsClient() {}; // Hidden to force static use
 
 };
 
