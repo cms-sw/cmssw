@@ -38,6 +38,116 @@
 
 using namespace std;
 
+namespace {
+
+  int charge(const vector<GlobalPoint> & points) {
+    // the cross product will tell me...
+    float dir = (points[1].x()-points[0].x())* (points[2].y()-points[1].y()) - 
+      (points[1].y()-points[0].y())* (points[2].x()-points[1].x());
+    
+    /*
+      GlobalVector v21 = points[1]-points[0];
+      GlobalVector v32 = points[2]-points[1];
+      float dphi = v32.phi() - v21.phi();
+      while (dphi >  Geom::fpi()) dphi -=  Geom::ftwoPi();
+      while (dphi < -Geom::fpi()) dphi +=  Geom::ftwoPi();
+      return (dphi > 0) ? -1 : 1;
+    */
+    return (dir>0) -1 : 1;
+  }
+
+  float cotTheta(const GlobalPoint& inner, const GlobalPoint& outer) {
+    float dr = outer.perp()-inner.perp();
+    float dz = outer.z()-inner.z();
+    return (std::abs(dr) > 1.e-3f) ? dz/dr : 0;
+  }
+
+  float phi(float xC, float yC, int charge) const{
+    return  (charge>0) ? std::atan2(xC,-yC) :  std::atan2(-xC,yC);
+  }
+
+  float zip(float d0, float phi_p, float curv, 
+	    const GlobalPoint& pinner, const GlobalPoint& pouter) {
+    //
+    //phi = asin(r*rho/2) with asin(x) ~= x+x**3/(2*3) = x(1+x*x/6);
+    //
+    
+    float phi0 = phi_p - Geom::fhalfPi();
+    GlobalPoint pca(d0*std::cos(phi0), d0*std::sin(phi0),0.);
+    
+    float rho2 = curv*curv;
+    float r1s = (pinner-pca).perp2();
+    double phi1 = std::sqrt(r1s)*(curv*0.5f)*(1.f+r1s*(rho2/24.f));
+    float r2s = (pouter-pca).perp2();
+    double phi2 = std::sqrt(r2s)*(curv*0.5f)*(1.f+r2s*(rho2/24.f));
+    double z1 = pinner.z();
+    double z2 = pouter.z();
+    
+    return z1 - phi1/(phi1-phi2)*(z1-z2);
+  }
+  
+  double errZip( float apt, float eta) {
+    double ziperr=0;
+    double pt = (apt <= 10.) ? apt: 10.;
+    double p1=0, p2=0,p3=0,p4=0;
+    float feta = std::abs(eta);
+    if (feta<=0.8){
+      p1 = 0.12676e-1;
+      p2 = -0.22411e-2;
+      p3 = 0.2987e-3;
+      p4 = -0.12779e-4;
+    } else if (feta <=1.6){
+      p1 = 0.24047e-1;
+      p2 = -0.66935e-2;
+      p3 = 0.88111e-3;
+      p4 = -0.38482e-4;
+    } else {
+      p1 = 0.56084e-1;
+      p2 = -0.13960e-1;
+      p3 = 0.15744e-2;
+      p4 = -0.60757e-4;
+    }
+    ziperr = p1 + p2*pt + p3*pt*pt +p4*pt*pt*pt;
+    return ziperr;
+  }
+  
+  double errZip2( float apt, float eta) {
+    double err = errZip(apt,eta);
+    return err*err;
+  }
+
+
+  double errTip(float apt, float eta) {
+    double pt = (apt <= 10.) ? apt : 10.;
+    double p1=0, p2=0;
+    float feta = std::abs(eta);
+    if (feta<=0.8)
+      {
+	p1=5.9e-3;
+	p2=4.7e-3;
+      }
+    else if (feta <=1.6){
+      p1 = 4.9e-3;
+      p2 = 7.1e-3;
+    }
+    else {
+      p1 = 6.4e-3;
+      p2 = 1.0e-2;
+    }
+    double err=0;
+    if (pt != 0) err = (p1 + p2/pt);
+    return err;
+  }
+  
+  double errTip2(float apt, float eta) {
+    doule err = errTip(apt,eta);
+    return err*err;
+  }
+
+
+}
+
+
 PixelFitterByHelixProjections::PixelFitterByHelixProjections(
    const edm::ParameterSet& cfg) 
  : theConfig(cfg), theTracker(0), theField(0), theTTRecHitBuilder(0) { }
@@ -91,7 +201,7 @@ reco::Track* PixelFitterByHelixProjections::run(
         CircleFromThreePoints( GlobalPoint(0.,0.,0.), points[0], points[1]) :
         CircleFromThreePoints(points[0],points[1],points[2]); 
 
-  int charge = PixelFitterByHelixProjections::charge(points);
+  int charge = charge(points);
   float curvature = circle.curvature();
 
   float invPt = PixelRecoUtilities::inversePt( circle.curvature(), es);
@@ -101,15 +211,15 @@ reco::Track* PixelFitterByHelixProjections::run(
   CircleFromThreePoints::Vector2D center = circle.center();
   float valTip = charge * (center.mag()-1.f/curvature);
 
-  float errTip = std::sqrt(errTip2(valPt, points.back().eta()));
+  float errTip = errTip(valPt, points.back().eta());
 
   float valPhi = PixelFitterByHelixProjections::phi(center.x(), center.y(), charge);
   float errPhi = 0.002f;
 
   float valZip = zip(valTip, valPhi, curvature, points[0],points[1]);
-  float errZip = sqrt(errZip2(valPt, points.back().eta()));
+  float errZip = errZip(valPt, points.back().eta());
 
-  float valCotTheta = PixelFitterByHelixProjections::cotTheta(points[0],points[1]);
+  float valCotTheta = cotTheta(points[0],points[1]);
   float errCotTheta = 0.002f;
 
   float chi2 = 0;
@@ -130,103 +240,6 @@ reco::Track* PixelFitterByHelixProjections::run(
   return builder.build(pt, phi, cotTheta, tip, zip, chi2, charge, hits, theField, region.origin() );
 }
 
-int PixelFitterByHelixProjections::charge(const vector<GlobalPoint> & points) const
-{
-  // the cross product will tell me...
-  float dir = (points[1].x()-points[0].x())* (points[2].y()-points[1].y()) - 
-    (points[1].y()-points[0].y())* (points[2].x()-points[1].x());
 
-
-   GlobalVector v21 = points[1]-points[0];
-   GlobalVector v32 = points[2]-points[1];
-   float dphi = v32.phi() - v21.phi();
-   while (dphi >  Geom::fpi()) dphi -=  Geom::ftwoPi();
-   while (dphi < -Geom::fpi()) dphi +=  Geom::ftwoPi();
-   std::cout << "I got the charge wrong..." << dir << " " << dphi << std::endl;
-   return (dphi > 0) ? -1 : 1;
-}
-
-float PixelFitterByHelixProjections::cotTheta(
-					      const GlobalPoint& inner, const GlobalPoint& outer) const
-{
-   float dr = outer.perp()-inner.perp();
-   float dz = outer.z()-inner.z();
-   return (std::abs(dr) > 1.e-3f) ? dz/dr : 0;
-}
-
-float PixelFitterByHelixProjections::phi(float xC, float yC, int charge) const{
-  return  (charge>0) ? std::atan2(xC,-yC) :  std::atan2(-xC,yC);
-}
-
-float PixelFitterByHelixProjections::zip(float d0, float phi_p, float curv, 
-    const GlobalPoint& pinner, const GlobalPoint& pouter) const
-{
-//
-//phi = asin(r*rho/2) with asin(x) ~= x+x**3/(2*3)
-//
-
-  float phi0 = phi_p - Geom::fhalfPi();
-  GlobalPoint pca(d0*std::cos(phi0), d0*std::sin(phi0),0.);
-
-  float rho3 = curv*curv*curv;
-  float r1 = (pinner-pca).perp();
-  double phi1 = r1*(curv*0.5f) + r1*r1*r1*(rho3/48.f);
-  float r2 = (pouter-pca).perp();
-  double phi2 = r2*(curv*0.5f) + r2*r2*r2*(rho3/48.f);
-  double z1 = pinner.z();
-  double z2 = pouter.z();
-
-  return z1 - phi1/(phi1-phi2)*(z1-z2);
-}
-
-
-double PixelFitterByHelixProjections::errZip2( float apt, float eta) const 
-{
-  double ziperr=0;
-  double pt = (apt <= 10.) ? apt: 10.;
-  double p1=0, p2=0,p3=0,p4=0;
-  float feta = std::abs(eta);
-  if (feta<=0.8){
-    p1 = 0.12676e-1;
-    p2 = -0.22411e-2;
-    p3 = 0.2987e-3;
-    p4 = -0.12779e-4;
-  } else if (feta <=1.6){
-    p1 = 0.24047e-1;
-    p2 = -0.66935e-2;
-    p3 = 0.88111e-3;
-    p4 = -0.38482e-4;
-  } else {
-    p1 = 0.56084e-1;
-    p2 = -0.13960e-1;
-    p3 = 0.15744e-2;
-    p4 = -0.60757e-4;
-  }
-  ziperr = p1 + p2*pt + p3*pt*pt +p4*pt*pt*pt;
-  return ziperr*ziperr;
-}
-
-double PixelFitterByHelixProjections::errTip2(float apt, float eta) const
-{
-  double pt = (apt <= 10.) ? apt : 10.;
-  double p1=0, p2=0;
-  float feta = std::abs(eta);
-  if (feta<=0.8)
-    {
-      p1=5.9e-3;
-      p2=4.7e-3;
-    }
-  else if (feta <=1.6){
-    p1 = 4.9e-3;
-    p2 = 7.1e-3;
-  }
-  else {
-    p1 = 6.4e-3;
-    p2 = 1.0e-2;
-  }
-  float err=0;
-  if (pt != 0) err = (p1 + p2/pt);
-  return err*err;
-}
 
 

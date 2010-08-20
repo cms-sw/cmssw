@@ -25,6 +25,8 @@ public:
       const std::vector<const TrackingRecHit *>& hits,
       const TrackingRegion& region) const;
 private:
+  /* these are just static and local moved to local namespace in cc .... 
+  /*
   int charge(const std::vector<GlobalPoint> & points) const;
   float cotTheta(const GlobalPoint& pinner, const GlobalPoint& pouter) const;
   float phi(float xC, float yC, int charge) const;
@@ -33,7 +35,7 @@ private:
     const GlobalPoint& pinner, const GlobalPoint& pouter) const;
   double errZip2(float apt, float eta) const;
   double errTip2(float apt, float eta) const;
-
+  */
 private:
   edm::ParameterSet theConfig;
 
