@@ -21,6 +21,7 @@ public:
   float chi2(float cotTheta, float intercept) const;
 
 private:
-  std::vector<float> r,z,errZ;
+  std::vector<float> storage;
+  float * r,z,errZ;
 };
 #endif

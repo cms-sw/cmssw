@@ -6,10 +6,10 @@ template <class T> inline T sqr( T t) {return t*t;}
 
 RZLine::RZLine(const std::vector<float> & aR, 
 	       const std::vector<float> & aZ, 
-	       const std::vector<float> & aErrZ)
-  : storage(3*ar.size()) {
+	       const std::vector<float> & aErrZ) :
+  storage(3*ar.size()) {
   nPoints = ar.size();
-  r = *storage.front();
+  r = &storage.front();
   z = r+nPoints;
   errZ2 = z+nPoints;
   for (int i=0; i<nPoints; i++) {
@@ -21,10 +21,11 @@ RZLine::RZLine(const std::vector<float> & aR,
 
 RZLine::RZLine(const vector<GlobalPoint> & points, 
 	       const vector<GlobalError> & errors, 
-	       const vector<bool> isBarrel) : : storage(3*ar.size()) {
+	       const vector<bool> isBarrel) : 
+  storage(3*ar.size()) {
   int nPoints = points.size();
   int nPoints = points.size();
-  r = *storage.front();
+  r = &storage.front();
   z = r+nPoints;
   errZ2 = z+nPoints;
   for (int i=0; i!=nPoints; ++i) {
