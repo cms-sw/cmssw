@@ -108,7 +108,7 @@ namespace {
 
   void checkState(const  BasicTrajectoryStateOnSurface & bstate, const MagneticField* mf, const GlobalPoint & origin)
   {
-    TrajectoryStateOnSurface state(bstate);
+    TrajectoryStateOnSurface state(bstate.clone());
     
     LogTrace("")<<" *** PixelTrackBuilder::checkState: ";
     LogTrace("")<<"INPUT,  ROTATION" << endl<<state.surface().rotation();
