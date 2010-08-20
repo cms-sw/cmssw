@@ -77,7 +77,7 @@ reco::Track* PixelFitterByHelixProjections::run(
   }
 
 
-  for ( size_t i=0; i!=nhits; ++i) {
+  for ( int i=0; i!=nhits; ++i) {
     TransientTrackingRecHit::RecHitPointer recHit = theTTRecHitBuilder->build(hits[i]);
     points[i]  = GlobalPoint( recHit->globalPosition().x()-region.origin().x(), 
 			      recHit->globalPosition().y()-region.origin().y(),
@@ -135,8 +135,8 @@ int PixelFitterByHelixProjections::charge(const vector<GlobalPoint> & points) co
    GlobalVector v21 = points[1]-points[0];
    GlobalVector v32 = points[2]-points[1];
    float dphi = v32.phi() - v21.phi();
-   while (dphi >  Geom::fpi()) dphi -=  Geom::ftwoPi();;
-   while (dphi < -Geom::fpi() dphi +=  Geom::ftwoPi();;
+   while (dphi >  Geom::fpi()) dphi -=  Geom::ftwoPi();
+   while (dphi < -Geom::fpi()) dphi +=  Geom::ftwoPi();
    return (dphi > 0) ? -1 : 1;
 }
 
