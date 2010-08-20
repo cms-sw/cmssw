@@ -3,8 +3,8 @@
 
 /** \class AlcaBeamMonitor
  * *
- *  $Date: 2010/08/11 21:58:56 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/08/13 18:37:50 $
+ *  $Revision: 1.2 $
  *  \author  Lorenzo Uplegger/FNAL
  *   
  */
@@ -66,7 +66,8 @@ class AlcaBeamMonitor : public edm::EDAnalyzer {
   PVFitter*   thePVFitter_;
   
   // MonitorElements:
-  MonitorElement* h_d0_phi0;
+  MonitorElement* hD0Phi0_;
+  MonitorElement* hDxyBS_;
 
   //Containers
   BeamSpotContainer  							      beamSpotsMap_;
