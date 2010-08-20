@@ -22,7 +22,10 @@ class TkTransientTrackingRecHitBuilder : public TransientTrackingRecHitBuilder {
   const PixelClusterParameterEstimator * pixelClusterParameterEstimator(){return pixelCPE;}
   const StripClusterParameterEstimator * stripClusterParameterEstimator(){return stripCPE;}
   const SiStripRecHitMatcher           * siStripRecHitMatcher(){return theMatcher;}
-    
+
+
+private:
+  TransientTrackingRecHit::RecHitPointer oldbuild (const TrackingRecHit * p) const ;
 
 
  private:
