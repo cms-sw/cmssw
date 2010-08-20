@@ -88,7 +88,7 @@ bool ProbeTreeProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   // sort only if a function was provided
   if(sortDescendingBy_.size()>0) sort(selectedProbes.begin(), selectedProbes.end(), boost::bind(&Pair::second, _1) > boost::bind(&Pair::second, _2));
   // fill the first maxProbes_ into the tree
-  for (size_t i = 0; i < (maxProbes_<0 ? selectedProbes.size() : maxProbes_); ++i){
+  for (size_t i = 0; i < (maxProbes_<0 ? selectedProbes.size() : std::min((size_t)maxProbes_, selectedProbes.size())); ++i){
     probeFiller_->fill(selectedProbes[i].first);
     result = true;
   }
