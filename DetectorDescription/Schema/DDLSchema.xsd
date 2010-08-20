@@ -866,6 +866,34 @@
       </xsd:extension>
     </xsd:complexContent>
   </xsd:complexType>
+  <xsd:complexType name="OrbType">
+    <xsd:complexContent>
+      <xsd:extension base="SolidType">
+        <xsd:attributeGroup ref="OrbAttributes"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="EllipticalTubeType">
+    <xsd:complexContent>
+      <xsd:extension base="SolidType">
+        <xsd:attributeGroup ref="EllipticalTubeAttributes"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="EllipsoidType">
+    <xsd:complexContent>
+      <xsd:extension base="SolidType">
+        <xsd:attributeGroup ref="EllipsoidAttributes"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="ParallelepipedType">
+    <xsd:complexContent>
+      <xsd:extension base="SolidType">
+        <xsd:attributeGroup ref="ParallelepipedAttributes"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
  
   <!-- Elements -->
   
@@ -889,6 +917,10 @@
   <xsd:element name="RZPoint" type="RZPointType"/>
   <xsd:element name="ReflectionSolid" type="ReflectionSolidType" substitutionGroup="Solid"/>
   <xsd:element name="Sphere" type="SphereType" substitutionGroup="Solid"/>
+  <xsd:element name="Orb" type="OrbType" substitutionGroup="Solid"/>
+  <xsd:element name="EllipticalTube" type="EllipticalTubeType" substitutionGroup="Solid"/>
+  <xsd:element name="Ellipsoid" type="EllipsoidType" substitutionGroup="Solid"/>
+  <xsd:element name="Parallelepiped" type="ParallelepipedType" substitutionGroup="Solid"/>
 
   <!-- Groups (non-Attribute) -->
 
@@ -1023,10 +1055,33 @@
   <xsd:attributeGroup name="SphereAttributes">
     <xsd:attribute name="innerRadius" use="required" type="lengthT"/>
     <xsd:attribute name="outerRadius" use="required" type="lengthT"/>
-    <xsd:attribute name="startPhi" use="optional" type="angleT"/>
-    <xsd:attribute name="deltaPhi" use="optional" type="angleT"/>
-    <xsd:attribute name="startTheta" use="optional" type="angleT"/>
-    <xsd:attribute name="deltaTheta" use="optional" type="angleT"/>
+    <xsd:attribute name="startPhi" use="required" type="angleT"/>
+    <xsd:attribute name="deltaPhi" use="required" type="angleT"/>
+    <xsd:attribute name="startTheta" use="required" type="angleT"/>
+    <xsd:attribute name="deltaTheta" use="required" type="angleT"/>
+  </xsd:attributeGroup>
+  <xsd:attributeGroup name="OrbAttributes">
+    <xsd:attribute name="radius" use="required" type="lengthT"/>
+  </xsd:attributeGroup>
+  <xsd:attributeGroup name="EllipticalTubeAttributes">
+    <xsd:attribute name="xSemiAxis" use="required" type="lengthT"/>
+    <xsd:attribute name="ySemiAxis" use="required" type="lengthT"/>
+    <xsd:attribute name="zHeight" use="required" type="lengthT"/>
+  </xsd:attributeGroup>
+  <xsd:attributeGroup name="EllipsoidAttributes">
+    <xsd:attribute name="xSemiAxis" use="required" type="lengthT"/>
+    <xsd:attribute name="ySemiAxis" use="required" type="lengthT"/>
+    <xsd:attribute name="zSemiAxis" use="required" type="lengthT"/>
+    <xsd:attribute name="zBottomCut" use="optional" type="lengthT"/>
+    <xsd:attribute name="zTopCut" use="optional" type="lengthT"/>
+  </xsd:attributeGroup>
+  <xsd:attributeGroup name="ParallelepipedAttributes">
+    <xsd:attribute name="xHalf" use="required" type="lengthT"/>
+    <xsd:attribute name="yHalf" use="required" type="lengthT"/>
+    <xsd:attribute name="zHalf" use="required" type="angleT"/>
+    <xsd:attribute name="alpha" use="required" type="angleT"/>
+    <xsd:attribute name="theta" use="required" type="angleT"/>
+    <xsd:attribute name="phi" use="required" type="angleT"/>
   </xsd:attributeGroup>
   <xsd:attributeGroup name="SolidAttributes">
     <xsd:attribute name="name" use="required" type="xsd:string"/>
