@@ -40,10 +40,10 @@ using namespace std;
 
 namespace {
 
-  int charge(const vector<GlobalPoint> & points) {
+  int charge(const std::vector<GlobalPoint> & points) {
     // the cross product will tell me...
-    float dir = (points[1].x()-points[0].x())* (points[2].y()-points[1].y()) - 
-      (points[1].y()-points[0].y())* (points[2].x()-points[1].x());
+    float dir = (points[1].x()-points[0].x())*(points[2].y()-points[1].y())
+      - (points[1].y()-points[0].y())*(points[2].x()-points[1].x());
     
     /*
       GlobalVector v21 = points[1]-points[0];
@@ -53,7 +53,7 @@ namespace {
       while (dphi < -Geom::fpi()) dphi +=  Geom::ftwoPi();
       return (dphi > 0) ? -1 : 1;
     */
-    return (dir>0) -1 : 1;
+    return (dir>0) ? -1 : 1;
   }
 
   float cotTheta(const GlobalPoint& inner, const GlobalPoint& outer) {
@@ -62,7 +62,7 @@ namespace {
     return (std::abs(dr) > 1.e-3f) ? dz/dr : 0;
   }
 
-  float phi(float xC, float yC, int charge) const{
+  inline float phi(float xC, float yC, int charge) {
     return  (charge>0) ? std::atan2(xC,-yC) :  std::atan2(-xC,yC);
   }
 
@@ -140,7 +140,7 @@ namespace {
   }
   
   double errTip2(float apt, float eta) {
-    doule err = errTip(apt,eta);
+    double err = errTip(apt,eta);
     return err*err;
   }
 
@@ -201,7 +201,7 @@ reco::Track* PixelFitterByHelixProjections::run(
         CircleFromThreePoints( GlobalPoint(0.,0.,0.), points[0], points[1]) :
         CircleFromThreePoints(points[0],points[1],points[2]); 
 
-  int charge = charge(points);
+  int iCharge = charge(points);
   float curvature = circle.curvature();
 
   float invPt = PixelRecoUtilities::inversePt( circle.curvature(), es);
@@ -209,15 +209,15 @@ reco::Track* PixelFitterByHelixProjections::run(
   float errPt = 0.055f*valPt + 0.017f*valPt*valPt;
 
   CircleFromThreePoints::Vector2D center = circle.center();
-  float valTip = charge * (center.mag()-1.f/curvature);
+  float valTip = iCharge * (center.mag()-1.f/curvature);
 
-  float errTip = errTip(valPt, points.back().eta());
+  float errValTip = errTip(valPt, points.back().eta());
 
-  float valPhi = PixelFitterByHelixProjections::phi(center.x(), center.y(), charge);
+  float valPhi = phi(center.x(), center.y(), charge);
   float errPhi = 0.002f;
 
   float valZip = zip(valTip, valPhi, curvature, points[0],points[1]);
-  float errZip = errZip(valPt, points.back().eta());
+  float errValZip = errZip(valPt, points.back().eta());
 
   float valCotTheta = cotTheta(points[0],points[1]);
   float errCotTheta = 0.002f;
@@ -234,10 +234,10 @@ reco::Track* PixelFitterByHelixProjections::run(
   Measurement1D pt(valPt, errPt);
   Measurement1D phi(valPhi, errPhi);
   Measurement1D cotTheta(valCotTheta, errCotTheta);
-  Measurement1D tip(valTip, errTip);
-  Measurement1D zip(valZip, errZip);
+  Measurement1D tip(valTip, errValTip);
+  Measurement1D zip(valZip, errValZip);
 
-  return builder.build(pt, phi, cotTheta, tip, zip, chi2, charge, hits, theField, region.origin() );
+  return builder.build(pt, phi, cotTheta, tip, zip, chi2, iCharge, hits, theField, region.origin() );
 }
 
 
