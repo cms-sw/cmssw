@@ -177,7 +177,7 @@ reco::Track * PixelTrackBuilder::build(
 
   // BTSOS hold BP in a shared pointer and  will be autodeleted when BTSOS goes out of scope...
   // to avoid memory churn we allocate it locally and just avoid it be deleted by refcount... 
-  BoundPlane impPointPlane(origin, rot);
+  Plane impPointPlane(origin, rot);
   // (twice just to be sure!)
   impPointPlane.addReference(); impPointPlane.addReference();
   // use Base (too avoid a useless new) 
