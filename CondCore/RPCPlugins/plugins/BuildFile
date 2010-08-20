@@ -1,6 +1,7 @@
 <library file="RPCObImonPyWrapper.cc" name= RPCObImonPyInterface>
 <use name=CondCore/Utilities>
 <use name=CondFormats/RPCObjects>
+#<use name=DataFormats/MuonDetId>
 <use name=boost>
 <use name=boost_filesystem>
 <use name=boost_python>
@@ -30,12 +31,12 @@
 <flags EDM_PLUGIN=1>
 </library>
 
-<library file="RPCObVmonPyWrapper.cc" name= RPCObVmonPyInterface>
-<use name=CondCore/Utilities>
-<use name=CondFormats/RPCObjects>
-<use name=boost>
-<use name=boost_filesystem>
-<use name=boost_python>
-<use name=boost_regex>
-<flags EDM_PLUGIN=1>
-</library>
+#<library file="RPCObVmonPyWrapper.cc" name= RPCObVmonPyInterface>
+#<use name=CondCore/Utilities>
+#<use name=CondFormats/RPCObjects>
+#<use name=boost>
+#<use name=boost_filesystem>
+#<use name=boost_python>
+#<use name=boost_regex>
+#<flags EDM_PLUGIN=1>
+#</library>
