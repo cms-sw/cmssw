@@ -213,7 +213,7 @@ reco::Track* PixelFitterByHelixProjections::run(
 
   float errValTip = errTip(valPt, points.back().eta());
 
-  float valPhi = phi(center.x(), center.y(), charge);
+  float valPhi = phi(center.x(), center.y(), iCharge);
   float errPhi = 0.002f;
 
   float valZip = zip(valTip, valPhi, curvature, points[0],points[1]);
