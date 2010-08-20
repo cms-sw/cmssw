@@ -19,8 +19,8 @@ RecoProducerFP420::RecoProducerFP420(const edm::ParameterSet& conf):conf_(conf) 
 
   length         = conf_.getParameter<double>("BeamLineLength" );//m
   verbosity      = conf_.getUntrackedParameter<int>("VerbosityLevel");
-  beam1filename  = conf_.getParameter<string>("Beam1");
-  beam2filename  = conf_.getParameter<string>("Beam2");  
+  beam1filename  = conf_.getParameter<std::string>("Beam1");
+  beam2filename  = conf_.getParameter<std::string>("Beam2");  
 
   edm::LogInfo ("RecoProducerFP420") << "RecoProducerFP420 parameters: \n" 
 				     << "   Verbosity: " << verbosity << "\n"

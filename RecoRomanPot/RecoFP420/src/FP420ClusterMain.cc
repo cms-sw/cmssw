@@ -211,7 +211,7 @@ void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420> &input, std::auto_pt
 	      if ( clusterMode_ == "ClusterProducerFP420" ) {
 		
 		std::vector<ClusterFP420> collector;
-		// 	    vector<ClusterFP420> collector;
+		// 	    std::vector<ClusterFP420> collector;
 		
 		if (UseNoiseBadElectrodeFlagFromDB_==false){	  
 		  
@@ -329,8 +329,8 @@ void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420> &input, std::auto_pt
 	      std::cout <<"  ======renew collector size = " << collector.size() << std::endl;
 	      std::cout <<" ===" << std::endl;
 	      std::cout <<" ===" << std::endl;
-	      vector<ClusterFP420>::const_iterator simHitIter = collector.begin();
-	      vector<ClusterFP420>::const_iterator simHitIterEnd = collector.end();
+	      std::vector<ClusterFP420>::const_iterator simHitIter = collector.begin();
+	      std::vector<ClusterFP420>::const_iterator simHitIterEnd = collector.end();
 	      // loop in #clusters
 	      for (;simHitIter != simHitIterEnd; ++simHitIter) {
 		const ClusterFP420 icluster = *simHitIter;

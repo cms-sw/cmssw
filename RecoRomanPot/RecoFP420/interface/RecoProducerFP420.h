@@ -37,8 +37,8 @@ private:
   H_RecRPObject * m_rp420_f;
   H_RecRPObject * m_rp420_b;
 
-  string beam1filename;
-  string beam2filename;
+  std::string beam1filename;
+  std::string beam2filename;
 
 };
 #endif

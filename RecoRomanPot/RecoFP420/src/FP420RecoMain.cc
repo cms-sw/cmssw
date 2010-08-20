@@ -117,8 +117,8 @@ void FP420RecoMain::run(edm::Handle<TrackCollectionFP420> &input, std::auto_ptr<
     if (verbosity > 1) {
       std::cout << "FP420RecoMain: track collector.size=" << collector.size() << std::endl;
     }
-    vector<TrackFP420>::const_iterator simHitIter = collector.begin();
-    vector<TrackFP420>::const_iterator simHitIterEnd = collector.end();
+    std::vector<TrackFP420>::const_iterator simHitIter = collector.begin();
+    std::vector<TrackFP420>::const_iterator simHitIterEnd = collector.end();
     for (;simHitIter != simHitIterEnd; ++simHitIter) {
       const TrackFP420 itrack = *simHitIter;
       double x1 = (    itrack.bx()*z1 + (itrack.ax()-VtxXcur)       )*1000.;//um
@@ -213,8 +213,8 @@ void FP420RecoMain::run(edm::Handle<TrackCollectionFP420> &input, std::auto_ptr<
       std::cout <<"=======FP420RecoMain:check of re-new zcollector size = " << zcollector.size() << std::endl;
       std::cout <<" ===" << std::endl;
       std::cout <<" ===" << std::endl;
-      vector<RecoFP420>::const_iterator simHitIter = zcollector.begin();
-      vector<RecoFP420>::const_iterator simHitIterEnd = zcollector.end();
+      std::vector<RecoFP420>::const_iterator simHitIter = zcollector.begin();
+      std::vector<RecoFP420>::const_iterator simHitIterEnd = zcollector.end();
       // loop in recoess
       for (;simHitIter != simHitIterEnd; ++simHitIter) {
 	const RecoFP420 itrack = *simHitIter;

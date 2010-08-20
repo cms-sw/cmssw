@@ -175,7 +175,7 @@ void FP420TrackMain::run(edm::Handle<ClusterCollectionFP420> &input, std::auto_p
       int StID = 1111;
       if(det==2) StID = 2222;
       std::vector<TrackFP420> collector;
-      // 	    vector<TrackFP420> collector;
+      // 	    std::vector<TrackFP420> collector;
       collector.clear();
       
       // if ( trackMode_ == "TrackProducerMaxAmplitudeFP420") {

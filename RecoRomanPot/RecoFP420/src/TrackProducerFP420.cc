@@ -263,8 +263,8 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 	    }
 	    //============================================================================================================
 	    
-	    vector<ClusterFP420>::const_iterator simHitIter = currentclust.begin();
-	    vector<ClusterFP420>::const_iterator simHitIterEnd = currentclust.end();
+	    std::vector<ClusterFP420>::const_iterator simHitIter = currentclust.begin();
+	    std::vector<ClusterFP420>::const_iterator simHitIterEnd = currentclust.end();
 	    
 	    if(xytype ==1){
 	      if(ii != ii0) {

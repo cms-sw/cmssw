@@ -162,7 +162,7 @@ namespace cms
 
 
     std::vector<HDigiFP420> input;
-    for(vector<HDigiFP420>::const_iterator vsim=digis->begin();
+    for(std::vector<HDigiFP420>::const_iterator vsim=digis->begin();
 	vsim!=digis->end(); ++vsim){
       input.push_back(*vsim);
     }
