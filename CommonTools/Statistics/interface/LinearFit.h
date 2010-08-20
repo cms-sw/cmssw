@@ -23,7 +23,7 @@ public:
 
 // template version, no std (error alrady double...)
 template<typename T> 
-void linearFit( T const  * __restrict__ x, T const  * __restrict__ x, int ndat,
+void linearFit( T const  * __restrict__ x, T const  * __restrict__ y, int ndat,
 		T const  * __restrict__ sigy2,  
 		T & slope, T & intercept,
 		T & covss, T & covii, T & covsi) {
