@@ -43,13 +43,19 @@ void DDLEllipsoid::processElement (const std::string& name, const std::string& n
   DCOUT_V('P', "DDLEllipsoid::processElement started");
   ExprEvalInterface & ev = ExprEvalSingleton::instance();
   DDXMLAttribute atts = getAttributeSet();
-
+  double zbot(0.), ztop(0.);
+  if ( atts.find("zBottomCut") != atts.end() ) {
+    zbot = ev.eval(nmspace, atts.find("zBottomCut")->second);
+  }
+  if ( atts.find("zTopCut") != atts.end() ) {
+    ztop = ev.eval(nmspace, atts.find("zTopCut")->second);
+  }
   DDSolid ddel = DDSolidFactory::ellipsoid(getDDName(nmspace)
 					   , ev.eval(nmspace, atts.find("xSemiAxis")->second)
 					   , ev.eval(nmspace, atts.find("ySemiAxis")->second)
 					   , ev.eval(nmspace, atts.find("zSemiAxis")->second)
-					   , ev.eval(nmspace, atts.find("zBottomCut")->second)
-					   , ev.eval(nmspace, atts.find("zTopCut")->second));
+					   , zbot
+					   , ztop);
 
 
   DDLSolid::setReference(nmspace, cpv);

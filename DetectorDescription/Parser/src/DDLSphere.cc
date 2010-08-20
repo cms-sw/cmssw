@@ -43,15 +43,14 @@ void DDLSphere::processElement (const std::string& name, const std::string& nmsp
   DCOUT_V('P', "DDLSphere::processElement started");
   ExprEvalInterface & ev = ExprEvalSingleton::instance();
   DDXMLAttribute atts = getAttributeSet();
-
-  DDSolid ddspere = DDSolidFactory::sphere(getDDName(nmspace)
-					   , ev.eval(nmspace, atts.find("innerRadius")->second)
-					   , ev.eval(nmspace, atts.find("outerRadius")->second)
-					   , ev.eval(nmspace, atts.find("startPhi")->second)
-					   , ev.eval(nmspace, atts.find("deltaPhi")->second)
-					   , ev.eval(nmspace, atts.find("startTheta")->second)
-					   , ev.eval(nmspace, atts.find("deltaTheta")->second));
-
+  DDSolid ddsphere = DDSolidFactory::sphere(getDDName(nmspace)
+					    , ev.eval(nmspace, atts.find("innerRadius")->second)
+					    , ev.eval(nmspace, atts.find("outerRadius")->second)
+					    , ev.eval(nmspace, atts.find("startPhi")->second)
+					    , ev.eval(nmspace, atts.find("deltaPhi")->second)
+					    , ev.eval(nmspace, atts.find("startTheta")->second)
+					    , ev.eval(nmspace, atts.find("deltaTheta")->second));
+  
 
   DDLSolid::setReference(nmspace, cpv);
 
