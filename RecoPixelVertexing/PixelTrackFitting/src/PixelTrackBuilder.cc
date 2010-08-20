@@ -7,7 +7,7 @@
 
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryError.h"
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryParameters.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/TrajectoryState/interface/BaseTrajectoryStateOnSurface.h"
 
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
