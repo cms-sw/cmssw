@@ -1,7 +1,11 @@
 #include "CondFormats/RPCObjects/interface/RPCObCond.h"
+#include "CondFormats/RPCObjects/interface/RPCObPVSSmap.h"
 
 #include "CondCore/Utilities/interface/PayLoadInspector.h"
 #include "CondCore/Utilities/interface/InspectorPythonWrapper.h"
+
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 
 /////////////////
 #include "TROOT.h"
@@ -161,12 +165,18 @@ namespace cond {
     std::stringstream ss;
 
     std::vector<RPCObImon::I_Item> const & imon = object().ObImon_rpc;
-
+    
     ss <<"DetID\t"<<"Ival\t"<<"Time\t"<<"Day\n";
     for(unsigned int i = 0; i < imon.size(); ++i ){
+      //      for(unsigned int p = 0; p < ipvss.size(); ++p){
+      // 	if(imon[i].dpid()!=ipvss[p].dpid())continue;
+      // 	RPCDetId rpcId(ipvss[p].region(),ipvss[p].ring(),ipvss[p].station(),ipvss[p].sector(),ipvss[p].layer(),ipvss[p].subsector(),1);
+      // 	RPCGeomServ rGS(rpcId);
+      // 	std::string chName(rGS.name().substr(0,rGS.name().find("_BACKWARD")));
       ss <<imon[i].dpid <<"\t"<<imon[i].value<<"\t"<<imon[i].time<<"\t"<<imon[i].day<<"\n";
+      //      }
     }
-
+    
     return ss.str();
    }
 
@@ -178,19 +188,41 @@ namespace cond {
 						std::vector<int> const&,
 						std::vector<float> const& ) const {
 
-    TCanvas canvas("CC map","CC map",800,800);    
-	
-    TH1D *hTry=new TH1D("hTry","Prova",10,0.,10.);
+    TCanvas canvas("iC","iC",800,800);    
 
-    for(int ip=1;ip<=10;ip++)
-      hTry->SetBinContent(ip,ip*ip-ip);
-    
-    hTry->Draw();
-    
+    TH1D *iDistr=new TH1D("iDistr","IOV-averaged Imon Distribution;Average Current(uA);Entries/1uA",100,0.,100.);
+
+    std::vector<RPCObImon::I_Item> const & imon = object().ObImon_rpc;
+
+    int tempId(0),count(0);
+    double tempAve(0.);
+    for(unsigned int i = 0;i < imon.size(); ++i){
+      if(i==0){
+	count++;
+	tempAve+=imon[i].value;
+	tempId=imon[i].dpid;
+      }
+      else {
+	if(imon[i].dpid==tempId){
+	  count++;
+	  tempAve+=imon[i].value;	  
+	}
+	else{
+	  iDistr->Fill(tempAve/(double)count);
+	  count=1;
+	  tempAve=imon[i].value;
+	  tempId=imon[i].dpid;
+	}
+      }
+    }
+
+
+    iDistr->Draw();
+
     canvas.SaveAs(filename.c_str());
     return filename.c_str();
- 
-    hTry->Draw();
+
+    iDistr->Draw();
 
     //     std::string fname = filename + ".txt";
     //     std::ofstream f(fname.c_str());
