@@ -5,8 +5,8 @@
   \file Masks.h
   \brief channel masking
   \author G. Della Ricca
-  \version $Revision: 1.5 $
-  \date $Date: 2010/08/06 15:31:18 $
+  \version $Revision: 1.6 $
+  \date $Date: 2010/08/09 09:00:10 $
 */
 
 #include <string>
@@ -33,6 +33,9 @@ class Masks {
   static bool maskPn( int ism, int i1, uint32_t bits, const EcalSubdetector subdet ) throw( std::runtime_error );
 
 private:
+
+  Masks() {}; // Hidden to force static use
+  ~Masks() {}; // Hidden to force static use
 
   static bool init;
 

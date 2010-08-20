@@ -5,8 +5,8 @@
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.33 $
-  \date $Date: 2010/08/09 09:00:10 $
+  \version $Revision: 1.34 $
+  \date $Date: 2010/08/09 11:27:17 $
 */
 
 #include <string>
@@ -113,6 +113,9 @@ class Numbers {
   static bool validEE( const int ism, const int ix, const int iy );
 
 private:
+
+  Numbers() {}; // Hidden to force static use
+  ~Numbers() {}; // Hidden to force static use
 
   static bool init;
 

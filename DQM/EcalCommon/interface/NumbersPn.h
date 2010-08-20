@@ -4,8 +4,8 @@
 /*!
   \file NumbersPn.h
   \brief Some "id" conversions
-  \version $Revision: 1.8 $
-  \date $Date: 2010/08/06 12:28:07 $
+  \version $Revision: 1.9 $
+  \date $Date: 2010/08/08 08:16:15 $
 */
 
 #include <string>
@@ -21,6 +21,11 @@ class NumbersPn {
   static void getPNs( const int ism, const int ix, const int iy, std::vector<int>& PNsInLM ) throw( std::runtime_error );
 
   static int iLM( const int ism, const int ix, const int iy ) throw( std::runtime_error );
+
+ private:
+
+  NumbersPn() {}; // Hidden to force static use
+  ~NumbersPn() {}; // Hidden to force static use
 
 };
 

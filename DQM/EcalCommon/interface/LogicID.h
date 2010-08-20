@@ -5,8 +5,8 @@
   \file LogicID.h
   \brief Cache logicID vector from database
   \author B. Gobbo 
-  \version $Revision: 1.11 $
-  \date $Date: 2010/08/04 19:59:59 $
+  \version $Revision: 1.12 $
+  \date $Date: 2010/08/06 12:28:07 $
 */
 
 #include <vector>
@@ -113,8 +113,10 @@ static EcalLogicID getEcalLogicID( const char* name,
 
 }
 
- protected:
-  LogicID() {}
+private:
+
+  LogicID() {}; // Hidden to force static use
+  ~LogicID() {}; // Hidden to force static use
 
 };
 
