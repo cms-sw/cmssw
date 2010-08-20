@@ -7,7 +7,7 @@
 
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryError.h"
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryParameters.h"
-#include "TrackingTools/TrajectoryState/interface/BasicSingleTrajectoryStateOnSurface.h"
+#include "TrackingTools/TrajectoryState/interface/BasicTrajectoryStateOnSurface.h"
 
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
@@ -73,7 +73,7 @@ reco::Track * PixelTrackBuilder::build(
   // (twice just to be sure!)
   impPointPlane.addReference(); impPointPlane.addReference();
   // use Base (too avoid a useless new) 
-  BasicSingleTrajectoryStateOnSurface impactPointState( lpar , error, impPointPlane, mf, 1.0);
+  BasicTrajectoryStateOnSurface impactPointState( lpar , error, impPointPlane, mf, 1.0);
   
   //checkState(impactPointState,mf);
   LogTrace("")<<"constructed TSOS :\n"<<print(impactPointState);
