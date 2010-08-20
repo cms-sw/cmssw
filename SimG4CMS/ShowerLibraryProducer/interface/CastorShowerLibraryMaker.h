@@ -16,8 +16,6 @@
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
 
-#include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
-
 #include "G4RunManager.hh"
 #include "G4SDManager.hh"
 #include "G4Step.hh"
@@ -132,7 +130,6 @@ private:
   std::vector<int> PGParticleIDs; //p. gun particle IDs
   bool DoHadSL; // true if hadronic SL should be produced
   bool DoEmSL;  // true if electromag. SL should be produced
-  std::vector<G4PrimaryParticle*> thePrims; // list of primaries for this event
   
   // Pointers for user defined class objects to be stored to Root file
   CastorShowerLibraryInfo   *emInfo;
@@ -154,8 +151,8 @@ private:
   void GetKinematics(G4PrimaryParticle* ,
        double& px, double& py, double& pz, double& pInit, double& eta, double& phi);
 
-  std::vector<G4PrimaryParticle*>  GetPrimary(const G4Event * );
-  bool FillShowerEvent(CaloG4HitCollection* ,CastorShowerEvent*, int);
+  std::vector<G4PrimaryParticle*>  GetPrimary(const EndOfEvent * );
+  bool FillShowerEvent(G4HCofThisEvent* ,CastorShowerEvent*, int);
   void InitSLHolder(ShowerLib& );
 
   void printSLstatus(int , int, int);

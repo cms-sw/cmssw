@@ -105,17 +105,17 @@ Realistic900GeVCollisionVtxSmearingParameters = cms.PSet(
     Y0 = cms.double(0.3993),
     Z0 = cms.double(0.8222)
 )
-# 7 TeV realistic collisions, transverse beam size is 33 microns
+# 7 TeV realistic collisions, transverse beam size is 43 microns
 Realistic7TeVCollisionVtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
-    BetaStar = cms.double(200.0),
+    BetaStar = cms.double(350.0),
     Emittance = cms.double(0.536e-07),
     Alpha = cms.double(0.0),
-    SigmaZ = cms.double(2.87),
+    SigmaZ = cms.double(6.26),
     TimeOffset = cms.double(0.0),
-    X0 = cms.double(0.2434),
-    Y0 = cms.double(0.3834),
-    Z0 = cms.double(0.7552)
+    X0 = cms.double(0.2440),
+    Y0 = cms.double(0.3929),
+    Z0 = cms.double(0.4145)
 )
 # 10 TeV collisions, transverse beam size = 46 microns
 Early10TeVCollisionVtxSmearingParameters = cms.PSet(

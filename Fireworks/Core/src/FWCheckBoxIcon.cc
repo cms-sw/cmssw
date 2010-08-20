@@ -8,10 +8,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 19 16:25:17 CST 2009
-// $Id: FWCheckBoxIcon.cc,v 1.4 2010/03/17 13:02:37 matevz Exp $
+// $Id: FWCheckBoxIcon.cc,v 1.3 2009/05/03 05:26:08 elmer Exp $
 //
 
 // system include files
+#include "TVirtualX.h"
 #include "TGPicture.h"
 #include "TGClient.h"
 #include "TSystem.h"
@@ -19,6 +20,7 @@
 
 // user include files
 #include "Fireworks/Core/src/FWCheckBoxIcon.h"
+
 
 //
 // constants, enums and typedefs

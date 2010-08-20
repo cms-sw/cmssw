@@ -1,3 +1,9 @@
+/**************************************
+ *         Autor: David Lomidze       *
+ *           INFN di Napoli           *
+ *           06 March 2009            *
+ *************************************/
+
 #include <DQM/RPCMonitorClient/interface/RPCNoisyStripTest.h>
 #include "DQM/RPCMonitorDigi/interface/utils.h"
 
@@ -140,8 +146,6 @@ void RPCNoisyStripTest::endRun(const Run& r, const EventSetup& iSetup,vector<Mon
      myDetIds_.push_back(detIdVector[i]);
    }
  }
-
- this->clientOperation(iSetup);
 }
 
 void RPCNoisyStripTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context){} 

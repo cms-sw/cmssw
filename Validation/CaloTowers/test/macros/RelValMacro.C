@@ -2,7 +2,7 @@
 
 void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int nHist1, const int nHist2, const int nProfInd, const int nHistTot, TString ref_vers, TString val_vers, TString HistDir);
 
-void RelValMacro(TString ref_vers="218", TString val_vers="218", TString rfname, TString vfname, TString InputStream="InputRelVal.txt", int harvest=0){
+void RelValMacro(TString ref_vers="218", TString val_vers="218", TString rfname, TString vfname, TString InputStream="InputRelVal.txt"){
 
   ifstream RelValStream;
 
@@ -17,9 +17,6 @@ void RelValMacro(TString ref_vers="218", TString val_vers="218", TString rfname,
   const int CT_nHist1   = 22+15;
   const int CT_nHist2   = 6;
   const int CT_nProf    = 6;
-
-  TString           CT_HistDir = "DQMData/CaloTowersV/CaloTowersTask";
-  if (harvest == 1) CT_HistDir = "DQMData/Run 1/CaloTowersV/Run summary/CaloTowersTask";
   
   //RecHits
   const int RH_nHistTot = 95+4; 
@@ -27,18 +24,15 @@ void RelValMacro(TString ref_vers="218", TString val_vers="218", TString rfname,
   const int RH_nHist2   = 4;
   const int RH_nProfInd = 12;
 
-  TString           RH_HistDir = "DQMData/HcalRecHitsV/HcalRecHitTask";
-  if (harvest == 1) RH_HistDir = "DQMData/Run 1/HcalRecHitsV/Run summary/HcalRecHitTask";
+  TString RH_HistDir = "DQMData/HcalRecHitsV/HcalRecHitTask";
 
   //RBX Noise
   const int RBX_nHistTot = 6;
   const int RBX_nHist1   = 5;
 
-  TString           RBX_HistDir = "DQMData/NoiseRatesV/NoiseRatesTask";
-  if (harvest == 1) RBX_HistDir = "DQMData/Run 1/NoiseRatesV/Run summary/NoiseRatesTask";
+  TString RBX_HistDir = "DQMData/NoiseRatesV/NoiseRatesTask";
 
-
-  ProcessSubDetCT(Ref_File, Val_File, RelValStream, CT_nHist1, CT_nHist2, CT_nProf, CT_nHistTot, ref_vers, val_vers, CT_HistDir);
+  ProcessSubDetCT(Ref_File, Val_File, RelValStream, CT_nHist1, CT_nHist2, CT_nProf, CT_nHistTot, ref_vers, val_vers);
 
   ProcessRelVal(Ref_File, Val_File, RelValStream, RH_nHist1, RH_nHist2, RH_nProfInd, RH_nHistTot, ref_vers, val_vers, RH_HistDir);
 
@@ -233,10 +227,10 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
     //Profiles not associated with histograms
     else if (DimSwitch == "PR" || DimSwitch == "PRwide"){
       //Get profiles from files
-      ref_file.cd(HistDir);   
+      ref_file.cd("DQMData/HcalRecHitsV/HcalRecHitTask");   
       ref_prof[npi] = (TProfile*) gDirectory->Get(HistName);
       
-      val_file.cd(HistDir);   
+      val_file.cd("DQMData/HcalRecHitsV/HcalRecHitTask");   
       val_prof[npi] = (TProfile*) gDirectory->Get(HistName);
       
       //Legend
@@ -346,12 +340,12 @@ void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int
       
       recstr>>HistName2;
 
-      ref_file.cd(HistDir);   
+      ref_file.cd("DQMData/HcalRecHitsV/HcalRecHitTask");   
       
       ref_hist2[nh2] = (TH2F*) gDirectory->Get(HistName);
       ref_prof[npi]  = (TProfile*) gDirectory->Get(HistName2);
       
-      val_file.cd(HistDir);   
+      val_file.cd("DQMData/HcalRecHitsV/HcalRecHitTask");   
       
       val_hist2[nh2] = (TH2F*) gDirectory->Get(HistName);
       val_prof[npi]  = (TProfile*) gDirectory->Get(HistName2);

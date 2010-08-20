@@ -50,7 +50,7 @@ namespace TopSingleLepton {
     /// book histograms in subdirectory _directory_
     void book(std::string directory);
     /// fill monitor histograms with electronId and jetCorrections
-    void fill(const edm::Event& event, const edm::EventSetup& setup);
+    void fill(const edm::Event& event, const edm::EventSetup& setup) const;
 
   private:
     /// deduce monitorPath from label, the label is expected
@@ -71,46 +71,28 @@ namespace TopSingleLepton {
     void fill(const std::string histName, double value) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(value); };
     /// fill histogram if it had been booked before (2-dim version)
     void fill(const std::string histName, double xValue, double yValue) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(xValue, yValue); };
-    /// fill histogram if it had been booked before (2-dim version)
-    void fill(const std::string histName, double xValue, double yValue, double zValue) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(xValue, yValue, zValue); };
 
   private:
     /// verbosity level for booking
     Level verbosity_;
     /// instance label 
     std::string label_;
-    /// considers a vector of METs
-    std::vector<edm::InputTag> mets_;
     /// input sources for monitoring
     edm::InputTag elecs_, muons_, jets_; 
-
-    /// trigger table
-    edm::InputTag triggerTable_;
-    /// trigger paths for monitoring, expected 
-    /// to be of form signalPath:MonitorPath
-    std::vector<std::string> triggerPaths_;
-
+    /// considers a vector of METs
+    std::vector<edm::InputTag> mets_;
     /// electronId
     edm::InputTag electronId_;
-    /// extra isolation criterion on electron
-    StringCutObjectSelector<reco::GsfElectron>* elecIso_;
-    /// extra selection on electrons
-    StringCutObjectSelector<reco::GsfElectron>* elecSelect_;
-
-    /// extra isolation criterion on muon
-    StringCutObjectSelector<reco::Muon>* muonIso_;
     /// extra selection on muons
     StringCutObjectSelector<reco::Muon>* muonSelect_;
-
+    /// extra isolation criterion on muon
+    StringCutObjectSelector<reco::Muon>* muonIso_;
+    /// extra selection on electrons
+    StringCutObjectSelector<reco::GsfElectron>* elecSelect_;
+    /// extra isolation criterion on electron
+    StringCutObjectSelector<reco::GsfElectron>* elecIso_;
     /// jetCorrector
     std::string jetCorrector_;
-    /// jetID as an extra selection type 
-    edm::InputTag jetIDLabel_;
-    /// extra jetID selection on calo jets
-    StringCutObjectSelector<reco::JetID>* jetIDSelect_;
-    /// extra selection on jets (here given as std::string as it depends
-    /// on the the jet type, which selections are valid and which not)
-    std::string jetSelect_;
     /// include btag information or not
     /// to be determined from the cfg  
     bool includeBTag_;
@@ -118,11 +100,14 @@ namespace TopSingleLepton {
     edm::InputTag btagEff_, btagPur_, btagVtx_;
     /// btag working points
     double btagEffWP_, btagPurWP_, btagVtxWP_;
+    /// trigger table
+    edm::InputTag triggerTable_;
+    /// trigger paths for monitoring, expected 
+    /// to be of form signalPath:MonitorPath
+    std::vector<std::string> triggerPaths_;
     /// mass window upper and lower edge
     double lowerEdge_, upperEdge_;
 
-    /// number of logged interesting events
-    int logged_;
     /// storage manager
     DQMStore* store_;
     /// histogram container  
@@ -181,7 +166,7 @@ namespace TopSingleLepton {
    step (which is not monitored in the context of this module) with an instance of the 
    MonitorEnsemble class. The following objects are supported for selection:
 
-    - jets  : of type reco::Jet (jets), reco::CaloJet (jets/calo) or reco::PFJet (jets/pflow)
+    - jets  : of type reco::Jet
     - elecs : of type reco::GsfElectron
     - muons : of type reco::Muon
     - met   : of type reco::MET
@@ -235,7 +220,7 @@ class TopSingleLeptonDQM : public edm::EDAnalyzer  {
   /// the configuration of the selection for the SelectionStep class, 
   /// MonitoringEnsemble keeps an instance of the MonitorEnsemble class to 
   /// be filled _after_ each selection step
-  std::map<std::string, std::pair<edm::ParameterSet, TopSingleLepton::MonitorEnsemble*> > selection_;
+    std::map<std::string, std::pair<edm::ParameterSet, TopSingleLepton::MonitorEnsemble*> > selection_;
 };
 
 #endif

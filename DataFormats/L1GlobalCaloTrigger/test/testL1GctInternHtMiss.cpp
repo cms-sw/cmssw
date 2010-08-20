@@ -50,7 +50,7 @@ void terminateIfAssertNotWorking()
   cout << "ERROR! Cannot run unit test as the assert() function is being\n"
           "optimised away by the compiler.  Please recompile test with\n"
           "the debug options enabled and without #define NDEBUG" << endl;
-  exit(1);
+  exit(0);
 }
 
 void testMethodsOfNullVariant()

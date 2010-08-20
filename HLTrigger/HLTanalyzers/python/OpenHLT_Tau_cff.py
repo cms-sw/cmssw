@@ -215,8 +215,7 @@ openhltL25TauPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer
     ),
     OrderedHitsFactoryPSet = cms.PSet( 
       ComponentName = cms.string( "StandardHitPairGenerator" ),
-      SeedingLayers = cms.string( "PixelLayerPairs" ),
-      maxElement = cms.uint32( 0 )      
+      SeedingLayers = cms.string( "PixelLayerPairs" )
     ),
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
     SeedCreatorPSet = cms.PSet( 

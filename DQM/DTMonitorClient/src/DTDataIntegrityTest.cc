@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTest.cc
  * 
- * $Date: 2010/04/14 18:22:05 $
- * $Revision: 1.34 $
+ * $Date: 2010/03/16 17:46:49 $
+ * $Revision: 1.33 $
  * \author S. Bolognesi - CERN
  *
  */
@@ -129,46 +129,54 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
  
     //Each nTimeBin onUpdate remove timing histos and book a new bunch of them
     stringstream dduId_s; dduId_s << dduId;
-    
+
     string histoType;
-    
-    //Check if the list of ROS is compatible with the channels enabled
-    string rosStatusName = "DT/00-DataIntegrity/FED" + dduId_s.str() + "/FED" + dduId_s.str() + "_ROSStatus";
-    MonitorElement * FED_ROSStatus = dbe->get(rosStatusName);
+
+
+//     //Check if the list of ROS is compatible with the channels enabled
+//     MonitorElement * ros_histo = dbe->get(getMEName("ROSStatus",dduId));
+//     if (ros_histo) {
+//       // FIXME: check that the channel is on
+//     }
+
      
-    // Fill the summary histo   
-    // Get the error summary histo
-    string wheelSummaryName = "DT/00-DataIntegrity/FED" + dduId_s.str() + "_ROSSummary";
-    MonitorElement * FED_ROSSummary = dbe->get(wheelSummaryName);
+ 
 
-    // Get the histos for FED integrity
-    string fedIntegrityFolder = "DT/FEDIntegrity_DT/";
-    MonitorElement * hFEDEntry = dbe->get(fedIntegrityFolder+"FEDEntries");
-    MonitorElement * hFEDFatal = dbe->get(fedIntegrityFolder+"FEDFatal");
-    MonitorElement * hFEDNonFatal = dbe->get(fedIntegrityFolder+"FEDNonFatal");
+     // Fill the summary histo   
+     // Get the error summary histo
+     string wheelSummaryName = "DT/00-DataIntegrity/FED" + dduId_s.str() + "_ROSSummary";
+     MonitorElement * FED_ROSSummary = dbe->get(wheelSummaryName);
 
-    if(FED_ROSSummary && FED_ROSStatus) {
-      TH2F * histoFEDSummary = FED_ROSSummary->getTH2F();
-      TH2F * histoROSStatus  = FED_ROSStatus->getTH2F();
-      // Check that the FED is in the ReadOut using the FEDIntegrity histos
-      bool fedNotReadout = (hFEDEntry->getBinContent(dduId-769) == 0 &&
+     
+     
+
+
+     // Get the histos for FED integrity
+     string fedIntegrityFolder = "DT/FEDIntegrity/";
+     MonitorElement * hFEDEntry = dbe->get(fedIntegrityFolder+"FEDEntries");
+     MonitorElement * hFEDFatal = dbe->get(fedIntegrityFolder+"FEDFatal");
+     MonitorElement * hFEDNonFatal = dbe->get(fedIntegrityFolder+"FEDNonFatal");
+
+     if(FED_ROSSummary) {
+       TH2F * histo_FEDSummary = FED_ROSSummary->getTH2F();
+       // Check that the FED is in the ReadOut using the FEDIntegrity histos
+       bool fedNotReadout = (hFEDEntry->getBinContent(dduId-769) == 0 &&
 			    hFEDFatal->getBinContent(dduId-769) == 0 &&
 			    hFEDNonFatal->getBinContent(dduId-769) == 0); 
-      for(int rosNumber = 1; rosNumber <= 12; ++rosNumber) { // loop on the ROS
-	int wheelNumber, sectorNumber;
-	if (!readOutToGeometry(dduId,rosNumber,wheelNumber,sectorNumber)) {
-	  int result = -2;
-	  float nErrors  = histoFEDSummary->Integral(1,14,rosNumber,rosNumber);
-	  nErrors += histoROSStatus->Integral(2,8,rosNumber,rosNumber);
-	  nErrors += histoROSStatus->Integral(10,12,rosNumber,rosNumber);
-	  if(nErrors == 0) { // no errors
-	    result = 0;
-	  } else { // there are errors
-	    result = 2;
-	  }
-	  summaryHisto->setBinContent(sectorNumber,wheelNumber+3,result);
-	  int tdcResult = -2;
-	  float nTDCErrors = histoFEDSummary->Integral(15,15,rosNumber,rosNumber); 
+       for(int rosNumber = 1; rosNumber <= 12; ++rosNumber) { // loop on the ROS
+	 int wheelNumber, sectorNumber;
+	 if (!readOutToGeometry(dduId,rosNumber,wheelNumber,sectorNumber)) {
+	   int result = -2;
+	   float nErrors = histo_FEDSummary->Integral(1,14,rosNumber,rosNumber);
+	   if(nErrors == 0) { // no errors
+	     result = 0;
+	   } else { // there are errors
+	     result = 2;
+	   }
+	   summaryHisto->setBinContent(sectorNumber,wheelNumber+3,result);
+	   int tdcResult = -2;
+	   // FIXME check that this is the right range
+	   float nTDCErrors = histo_FEDSummary->Integral(15,15,rosNumber,rosNumber); 
 	   if(nTDCErrors == 0) { // no errors
 	     tdcResult = 0;
 	   } else { // there are errors
@@ -178,29 +186,29 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
 	   // FIXME: different errors should have different weights
 	   float sectPerc = max((float)0., ((float)nevents-nErrors)/(float)nevents);
 	   glbSummaryHisto->setBinContent(sectorNumber,wheelNumber+3,sectPerc);
-	   
+
 	   if(fedNotReadout) {
 	     // no data in this FED: it is off
 	     summaryHisto->setBinContent(sectorNumber,wheelNumber+3,1);
 	     summaryTDCHisto->setBinContent(sectorNumber,wheelNumber+3,1);
 	     glbSummaryHisto->setBinContent(sectorNumber,wheelNumber+3,0);
 	   }
-	}
-      }
-      
-    } else { // no data in this FED: it is off
-      for(int rosNumber = 1; rosNumber <= 12; ++rosNumber) {
-	int wheelNumber, sectorNumber;
-	if (!readOutToGeometry(dduId,rosNumber,wheelNumber,sectorNumber)) {
-	  summaryHisto->setBinContent(sectorNumber,wheelNumber+3,1);
-	  summaryTDCHisto->setBinContent(sectorNumber,wheelNumber+3,1);
-	  glbSummaryHisto->setBinContent(sectorNumber,wheelNumber+3,0);
-	} 
-      }
-    }
-    
-  }
+	 }
+       }
+       
+     } else { // no data in this FED: it is off
+       for(int rosNumber = 1; rosNumber <= 12; ++rosNumber) {
+	 int wheelNumber, sectorNumber;
+	 if (!readOutToGeometry(dduId,rosNumber,wheelNumber,sectorNumber)) {
+	   summaryHisto->setBinContent(sectorNumber,wheelNumber+3,1);
+	   summaryTDCHisto->setBinContent(sectorNumber,wheelNumber+3,1);
+	   glbSummaryHisto->setBinContent(sectorNumber,wheelNumber+3,0);
+	 } 
+       }
+     }
   
+  }
+
 }
 
 

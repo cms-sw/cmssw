@@ -1,5 +1,4 @@
 #include "Fireworks/Core/interface/TEveElementIter.h"
-#include "Fireworks/Core/interface/fwLog.h"
 #include "TEveElement.h"
 #include "TNamed.h"
 #include <iostream>
@@ -34,7 +33,7 @@ TEveElementIter::TEveElementIter( TEveElement* element, const char* regular_expr
       ++(parents.top().second);
    }
    if ( index >= indexLimit ) {
-      fwLog(fwlog::kError) << " tree loop limit is reached!\n"
+      std::cout << "ERROR: tree loop limit is reached!\n"
                 << "You either have a tree with loops or navigation logic is broken." << std::endl;
       elements.clear();
    }

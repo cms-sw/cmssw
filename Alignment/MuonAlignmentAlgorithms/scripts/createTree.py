@@ -42,8 +42,6 @@ NAME_TO_TITLE = {
 "dt_polynomials.png" : "residuals relations to misalignments",
 "csc_bellcurves.png" : "residuals distributions",
 "csc_polynomials.png" : "residuals relations to misalignments",
-'dt_curvature_deltax.png' : 'Delta x residuals vs. curvature',
-'dt_curvature_deltadxdz.png' : 'Delta dxdz residuals vs. curvature',
 "medians.png" : "medians distribution"
 }
 ######################################################

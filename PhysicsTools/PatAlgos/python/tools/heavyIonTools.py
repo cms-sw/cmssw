@@ -56,7 +56,13 @@ class ProductionDefaults(ConfigToolBase):
         jetCors  = getattr(process, 'patJetCorrFactors')
         jetCors.jetSource = cms.InputTag("iterativeConePu5CaloJets")
         jetCors.corrLevels = cms.PSet(L2Relative = cms.string("L2Relative_IC5Calo"),
-                                      L3Absolute = cms.string("L3Absolute_IC5Calo"))
+                                      L3Absolute = cms.string("L3Absolute_IC5Calo"),
+                                      L1Offset   = cms.string('none'),
+                                      L4EMF      = cms.string('none'),
+                                      L5Flavor   = cms.string('none'),
+                                      L6UE       = cms.string('none'),
+                                      L7Parton   = cms.string('none') 
+                                      )
 
         partonMatch = getattr(process, 'patJetPartonMatch')
         partonMatch.src = cms.InputTag("iterativeConePu5CaloJets")

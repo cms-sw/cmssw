@@ -93,7 +93,7 @@ RectangularCartesianMFGrid::uncheckedValueInTesla( const LocalPoint& p) const
 //   TimeMe t(timer,false);
 
   LinearGridInterpolator3D interpol( grid_);
-  GridType::ReturnType value = interpol.interpolate( p.x(), p.y(), p.z());
+  GridType::ValueType value = interpol.interpolate( p.x(), p.y(), p.z());
   return LocalVector(value);
 }
 

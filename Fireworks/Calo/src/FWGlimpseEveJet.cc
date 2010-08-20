@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul  4 10:23:00 EDT 2008
-// $Id: FWGlimpseEveJet.cc,v 1.6 2009/01/23 21:35:40 amraktad Exp $
+// $Id: FWGlimpseEveJet.cc,v 1.5 2008/12/12 06:07:27 dmytro Exp $
 //
 
 // system include files
@@ -73,7 +73,7 @@ FWGlimpseEveJet::setScale(float iScale)
 {
    //it appears that Reset resets the color as well so we need to set it back
    Color_t color = GetMainColor();
-   Char_t trans  = GetMainTransparency();
+   UChar_t trans = GetMainTransparency();
    Reset();
 
    double height = m_jet->et()*iScale;
@@ -114,10 +114,10 @@ FWGlimpseEveJet::SetMainColor(Color_t iColor)
 }
 
 void
-FWGlimpseEveJet::SetMainTransparency(Char_t iTrans)
+FWGlimpseEveJet::SetMainTransparency(UChar_t iTrans)
 {
    TEveBoxSet::SetMainTransparency(iTrans);
-   DigitColor(GetMainColor(), iTrans);
+   DigitColor( GetMainColor(), iTrans );
 }
 
 //

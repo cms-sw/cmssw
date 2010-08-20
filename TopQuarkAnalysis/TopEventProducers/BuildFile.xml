@@ -1,5 +1,6 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
+<use   name="CommonTools/Utils"/>
 <use   name="DataFormats/PatCandidates"/>
 <use   name="AnalysisDataFormats/TopObjects"/>
 <use   name="TopQuarkAnalysis/TopSkimming"/>

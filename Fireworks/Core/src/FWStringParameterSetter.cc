@@ -8,18 +8,21 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 11:22:32 CDT 2008
-// $Id: FWStringParameterSetter.cc,v 1.1 2009/10/07 12:46:47 dmytro Exp $
+// $Id: FWStringParameterSetter.cc,v 1.4 2009/01/23 21:35:42 amraktad Exp $
 //
 
 // system include files
 #include "TGLabel.h"
+#include "TGButton.h"
 #include "TGTextEntry.h"
-
 #include <assert.h>
 #include <iostream>
+#include "TGedFrame.h"
 
 // user include files
 #include "Fireworks/Core/src/FWStringParameterSetter.h"
+#include "Fireworks/Core/interface/FWStringParameter.h"
+
 
 //
 // constants, enums and typedefs

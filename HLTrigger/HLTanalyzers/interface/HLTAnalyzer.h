@@ -67,7 +67,7 @@ private:
   HLTInfo     hlt_analysis_;
   RECOVertex  vrt_analysis_;
 
-  int firstLumi_, lastLumi_, towerThreshold_;
+  int firstLumi_, lastLumi_;
   double xSection_, filterEff_, treeWeight;
 
   edm::InputTag recjets_,reccorjets_,genjets_,recmet_,genmet_,ht_, calotowers_,hltresults_,genEventInfo_;

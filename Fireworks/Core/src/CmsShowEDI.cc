@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.38 2010/06/10 10:20:15 eulisse Exp $
+// $Id: CmsShowEDI.cc,v 1.28 2009/08/12 19:18:45 chrjones Exp $
 //
 
 // system include files
@@ -24,13 +24,12 @@
 #include "TGString.h"
 #include "TColor.h"
 #include "TG3DLine.h"
-#include "TGNumberEntry.h"
 #include "TGTextEntry.h"
 #include "TGTextView.h"
 #include "TGLayout.h"
 #include "TGFont.h"
 #include "TEveManager.h"
-#include "TGSlider.h"
+
 #include "TGMsgBox.h"
 #include "TGComboBox.h"
 
@@ -47,7 +46,7 @@
 #include "Fireworks/Core/interface/FWExpressionException.h"
 #include "Fireworks/Core/src/FWGUIValidatingTextEntry.h"
 #include "Fireworks/Core/src/FWExpressionValidator.h"
-#include "Fireworks/Core/src/FWDialogBuilder.h"
+
 
 //
 // constants, enums and typedefs
@@ -70,78 +69,144 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
    SetCleanup(kDeepCleanup);
 
    m_selectionManager->itemSelectionChanged_.connect(boost::bind(&CmsShowEDI::fillEDIFrame,this));
+   TGHorizontalFrame* objectFrame = new TGHorizontalFrame(this);
+   m_objectLabel = new TGLabel(objectFrame, " ");
+   TGFont* defaultFont = gClient->GetFontPool()->GetFont(m_objectLabel->GetDefaultFontStruct());
+   m_objectLabel->SetTextFont(gClient->GetFontPool()->GetFont(defaultFont->GetFontAttributes().fFamily, 14, defaultFont->GetFontAttributes().fWeight + 2, defaultFont->GetFontAttributes().fSlant));
+   m_objectLabel->SetTextJustify(kTextLeft);
+   objectFrame->AddFrame(m_objectLabel, new TGLayoutHints(kLHintsExpandX));
+   AddFrame(objectFrame, new TGLayoutHints(kLHintsExpandX, 2, 2, 0, 0));
+   m_tabs = new TGTab(this, GetWidth(), GetHeight());
+   TGVerticalFrame* graphicsFrame = new TGVerticalFrame(m_tabs, 200, 400);
+   TGHorizontalFrame* colorSelectFrame = new TGHorizontalFrame(graphicsFrame, 200, 100);
+   TGLabel* colorSelectLabel = new TGLabel(colorSelectFrame, "Color:");
+   colorSelectFrame->AddFrame(colorSelectLabel, new TGLayoutHints(kLHintsNormal, 0, 50, 0, 0));
+   const char* graphicsLabel = " ";
+   std::vector<Color_t> colors;
+   m_colorSelectWidget = new FWColorSelect(colorSelectFrame, graphicsLabel, 0, colorMgr, -1);
+   m_colorSelectWidget->SetEnabled(kFALSE);
+   colorSelectFrame->AddFrame(m_colorSelectWidget);
+   graphicsFrame->AddFrame(colorSelectFrame);
+   TGHorizontal3DLine* colorVisSeperator = new TGHorizontal3DLine(graphicsFrame, 200, 5);
+   graphicsFrame->AddFrame(colorVisSeperator, new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
+   m_isVisibleButton = new TGCheckButton(graphicsFrame, "Visible");
+   m_isVisibleButton->SetState(kButtonDown, kFALSE);
+   m_isVisibleButton->SetEnabled(kFALSE);
+   graphicsFrame->AddFrame(m_isVisibleButton);
+   TGHorizontal3DLine* separator = new TGHorizontal3DLine(graphicsFrame, 200, 5);
+   graphicsFrame->AddFrame(separator, new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
+   TGLabel* orderLabel = new TGLabel(graphicsFrame, "Set Drawing Order");
+   graphicsFrame->AddFrame(orderLabel);
+   m_frontButton = new TGTextButton(graphicsFrame,"Move Projected to Front");
+   m_frontButton->SetEnabled(kFALSE);
+   graphicsFrame->AddFrame(m_frontButton);
+   m_backButton = new TGTextButton(graphicsFrame,"Move Projected to Back");
+   m_backButton->SetEnabled(kFALSE);
+   graphicsFrame->AddFrame(m_backButton);
+   m_tabs->AddTab("Graphics", graphicsFrame);
 
-   FWDialogBuilder builder(this);
-
-   builder.indent(4)
-          .addLabel(" ", 14, 2, &m_objectLabel)
-          .vSpacer()
-          .tabs(&m_tabs)
-          .beginTab("Graphics")
-            .indent(3)
-            .addLabel("Color", 8)
-            .addColorPicker(colorMgr, &m_colorSelectWidget).expand(false)
-            .addHSeparator()
-            .addLabel("Opacity", 8)
-            .addHSlider(150, &m_opacitySlider)
-            .addHSeparator()
-            .addCheckbox("Visible", &m_isVisibleButton)
-            .addHSeparator()
-            .addLabel("Drawing order", 8)
-            .addTextButton("To back", &m_backButton).floatLeft().expand(false)
-            .addNumberEntry(0.0, 4, TGNumberFormat::kNESInteger,
-                            FWEventItem::minLayerValue(), 
-                            FWEventItem::maxLayerValue(), 
-                            &m_layerEntry).expand(false).floatLeft()
-            .addTextButton("To front", &m_frontButton).expand(false)
-            .vSpacer()
-          .endTab()
-          .beginTab("Filter")
-            .indent(3)
-            .addLabel("Expression", 8)
-            .addValidatingTextEntry(0, &m_filterExpressionEntry).floatLeft()
-            .addTextButton("Filter", &m_filterButton).expand(false)
-            .addTextView("", &m_filterError)
-            .vSpacer()
-          .endTab()
-          .beginTab("Select")
-            .indent(3)
-            .addLabel("Expression", 8)
-            .addValidatingTextEntry(0, &m_selectExpressionEntry)
-            .addTextButton("Select", &m_selectButton).floatLeft().expand(false)
-            .addTextButton("Select all", &m_selectAllButton).expand(false)
-            .addTextView("", &m_selectError)
-            .vSpacer()
-          .endTab()
-          .beginTab("Data")
-            .indent(3)
-            .addLabel("Name:", 8)
-            .addTextEntry("None", &m_nameEntry)
-            .addLabel("Labels:", 8)
-            .addLabel("Type:", 8)
-            .addTextEntry("None", &m_typeEntry)
-            .addLabel("Module:", 8)
-            .addTextEntry("None", &m_moduleEntry)
-            .addLabel("Instance:", 8)
-            .addTextEntry("None", &m_instanceEntry)
-            .addLabel("Process:", 8)
-            .addTextEntry("None", &m_processEntry)
-            .addHSeparator()
-            .addTextButton("Remove collection", &m_removeButton).expand(false)
-            .vSpacer()
-         .endTab()
-       .untabs();
-
+   // Filter tab
+   TGVerticalFrame* filterFrame = new TGVerticalFrame(m_tabs, 200, 600);
+   TGLabel* filterExpressionLabel = new TGLabel(filterFrame, "Expression:");
+   filterFrame->AddFrame(filterExpressionLabel);
+   m_filterExpressionEntry = new FWGUIValidatingTextEntry(filterFrame);
+   m_filterExpressionEntry->setValidator(m_validator);
+   m_filterExpressionEntry->SetEnabled(kFALSE);
+   filterFrame->AddFrame(m_filterExpressionEntry, new TGLayoutHints(kLHintsExpandX));
+   m_filterButton = new TGTextButton(filterFrame, "Filter");
+   m_filterButton->SetEnabled(kFALSE);
+   filterFrame->AddFrame(m_filterButton);
+   m_filterError = new TGTextView(filterFrame);
    m_filterError->SetForegroundColor(gVirtualX->GetPixel(kRed));
    m_filterError->SetBackgroundColor(TGFrame::GetDefaultFrameBackground());
    m_filterError->ChangeOptions(0);
-   
+   filterFrame->AddFrame(m_filterError, new TGLayoutHints(kLHintsExpandX| kLHintsExpandY));
+   //taken from TGComboBox.cxx
+   m_tabs->AddTab("Filter", filterFrame);
+
+   // Select tab
+   TGVerticalFrame* selectFrame = new TGVerticalFrame(m_tabs, 200, 600);
+   TGLabel* expressionLabel = new TGLabel(selectFrame, "Expression:");
+   selectFrame->AddFrame(expressionLabel);
+   m_selectExpressionEntry = new FWGUIValidatingTextEntry(selectFrame);
+   m_selectExpressionEntry->setValidator(m_validator);
+   m_selectExpressionEntry->SetEnabled(kFALSE);
+   selectFrame->AddFrame(m_selectExpressionEntry,new TGLayoutHints(kLHintsExpandX));
+   m_selectButton = new TGTextButton(selectFrame, "Select");
+   m_selectButton->SetEnabled(kFALSE);
+   selectFrame->AddFrame(m_selectButton);
+   TGHorizontal3DLine* selectSeperator1 = new TGHorizontal3DLine(selectFrame, 200, 5);
+   selectFrame->AddFrame(selectSeperator1, new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
+   m_selectAllButton = new TGTextButton(selectFrame, "Select All");
+   m_selectAllButton->SetEnabled(kFALSE);
+   selectFrame->AddFrame(m_selectAllButton);
+   m_selectError = new TGTextView(selectFrame);
    m_selectError->SetForegroundColor(gVirtualX->GetPixel(kRed));
    m_selectError->SetBackgroundColor(TGFrame::GetDefaultFrameBackground());
    m_selectError->ChangeOptions(0);
+   selectFrame->AddFrame(m_selectError, new TGLayoutHints(kLHintsExpandX| kLHintsExpandY));
+   m_tabs->AddTab("Select", selectFrame);
+
+   // Data tab
+   TGVerticalFrame* dataFrame = new TGVerticalFrame(m_tabs, 200, 600);
+   TGLabel* nameLabel = new TGLabel(dataFrame, "Name:");
+   dataFrame->AddFrame(nameLabel);
+   m_nameEntry = new TGTextEntry(dataFrame);
+   m_nameEntry->SetEnabled(kFALSE);
+   dataFrame->AddFrame(m_nameEntry,new TGLayoutHints(kLHintsExpandX));
+   TGHorizontal3DLine* dataSeperator = new TGHorizontal3DLine(dataFrame, 200, 5);
+   dataFrame->AddFrame(dataSeperator, new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
+   TGLabel* labelsLabel = new TGLabel(dataFrame, "Labels:");
+   dataFrame->AddFrame(labelsLabel);
+   UInt_t textWidth = (UInt_t)(0.4 * dataFrame->GetWidth());
+   TGHorizontalFrame* typeFrame = new TGHorizontalFrame(dataFrame);
+   TGLabel* typeLabel = new TGLabel(typeFrame, "Type: ", TGLabel::GetDefaultGC() (), TGLabel::GetDefaultFontStruct(), kFixedWidth);
+   typeLabel->SetWidth(textWidth);
+   typeLabel->SetTextJustify(kTextLeft);
+   typeFrame->AddFrame(typeLabel, new TGLayoutHints(kLHintsNormal, 2, 0, 0, 0));
+   m_typeEntry = new TGTextEntry(typeFrame);
+   m_typeEntry->SetEnabled(kFALSE);
+   typeFrame->AddFrame(m_typeEntry, new TGLayoutHints(kLHintsExpandX, 0, 2, 0, 0));
+   dataFrame->AddFrame(typeFrame, new TGLayoutHints(kLHintsExpandX));
+   TGHorizontalFrame* moduleFrame = new TGHorizontalFrame(dataFrame);
+   TGLabel* moduleLabel = new TGLabel(moduleFrame, "Module: ", TGLabel::GetDefaultGC() (), TGLabel::GetDefaultFontStruct(), kFixedWidth);
+   moduleLabel->SetWidth(textWidth);
+   moduleLabel->SetTextJustify(kTextLeft);
+   moduleFrame->AddFrame(moduleLabel, new TGLayoutHints(kLHintsNormal, 2, 0, 0, 0));
+   m_moduleEntry = new TGTextEntry(moduleFrame);
+   m_moduleEntry->SetEnabled(kFALSE);
+   moduleFrame->AddFrame(m_moduleEntry, new TGLayoutHints(kLHintsExpandX, 0, 2, 0, 0));
+   dataFrame->AddFrame(moduleFrame, new TGLayoutHints(kLHintsExpandX));
+   TGHorizontalFrame* instanceFrame = new TGHorizontalFrame(dataFrame);
+   TGLabel* instanceLabel = new TGLabel(instanceFrame, "Instance: ", TGLabel::GetDefaultGC() (), TGLabel::GetDefaultFontStruct(), kFixedWidth);
+   instanceLabel->SetWidth(textWidth);
+   instanceLabel->SetTextJustify(kTextLeft);
+   instanceFrame->AddFrame(instanceLabel, new TGLayoutHints(kLHintsNormal, 2, 0, 0, 0));
+   m_instanceEntry = new TGTextEntry(instanceFrame);
+   //  m_instanceEntry->SetWidth(boxWidth);
+   m_instanceEntry->SetEnabled(kFALSE);
+   instanceFrame->AddFrame(m_instanceEntry, new TGLayoutHints(kLHintsExpandX, 0, 2, 0, 0));
+   dataFrame->AddFrame(instanceFrame, new TGLayoutHints(kLHintsExpandX));
+   TGHorizontalFrame* processFrame = new TGHorizontalFrame(dataFrame);
+   TGLabel* processLabel = new TGLabel(processFrame, "Process: ", TGLabel::GetDefaultGC() (), TGLabel::GetDefaultFontStruct(), kFixedWidth);
+   processLabel->SetWidth(textWidth);
+   processLabel->SetTextJustify(kTextLeft);
+   processFrame->AddFrame(processLabel, new TGLayoutHints(kLHintsNormal, 2, 0, 0, 0));
+   m_processEntry = new TGTextEntry(processFrame);
+   //  m_processEntry->SetWidth(boxWidth);
+   m_processEntry->SetEnabled(kFALSE);
+   processFrame->AddFrame(m_processEntry, new TGLayoutHints(kLHintsExpandX, 0, 2, 0, 0));
+   dataFrame->AddFrame(processFrame, new TGLayoutHints(kLHintsExpandX));
+   dataSeperator = new TGHorizontal3DLine(dataFrame, 200, 5);
+   dataFrame->AddFrame(dataSeperator, new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
+   m_removeButton = new TGTextButton(dataFrame, "Remove Collection");
+   m_removeButton->SetEnabled(kFALSE);
+   dataFrame->AddFrame(m_removeButton);
+
+   m_tabs->AddTab("Data", dataFrame);
+   AddFrame(m_tabs, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0, 0, 0, 0));
 
    m_colorSelectWidget->Connect("ColorChosen(Color_t)", "CmsShowEDI", this, "changeItemColor(Color_t)");
-   m_opacitySlider->Connect("PositionChanged(Int_t)", "CmsShowEDI", this, "changeItemOpacity(Int_t)");
    m_isVisibleButton->Connect("Toggled(Bool_t)", "CmsShowEDI", this, "toggleItemVisible(Bool_t)");
    m_filterExpressionEntry->Connect("ReturnPressed()", "CmsShowEDI", this, "runFilter()");
    m_filterButton->Connect("Clicked()", "CmsShowEDI", this, "runFilter()");
@@ -151,12 +216,11 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
    m_selectAllButton->Connect("Clicked()", "CmsShowEDI", this, "selectAll()");
    m_frontButton->Connect("Clicked()","CmsShowEDI",this,"moveToFront()");
    m_backButton->Connect("Clicked()","CmsShowEDI",this,"moveToBack()");
-   m_layerEntry->Connect("ValueSet(Long_t)","CmsShowEDI",this,"moveToLayer(Long_t)");
+
 
    SetWindowName("Collection Controller");
+   Resize(GetDefaultSize());
    MapSubwindows();
-   Resize(200, 300);
-   
    Layout();
    
    fillEDIFrame();
@@ -171,7 +235,6 @@ CmsShowEDI::~CmsShowEDI()
 {
    disconnectAll();
    m_colorSelectWidget->Disconnect("ColorSelected(Pixel_t)", this, "changeItemColor(Pixel_t)");
-   m_opacitySlider->Disconnect("PositionChanged(Int_t)", this, "changeItemColor");
    m_isVisibleButton->Disconnect("Toggled(Bool_t)", this, "toggleItemVisible(Bool_t)");
    m_filterExpressionEntry->Disconnect("ReturnPressed()", this, "runFilter()");
    m_selectExpressionEntry->Disconnect("ReturnPressed()", this, "runSelection()");
@@ -181,7 +244,7 @@ CmsShowEDI::~CmsShowEDI()
    m_removeButton->Disconnect("Clicked()", this, "removeItem()");
    m_frontButton->Disconnect("Clicked()",this,"moveToFront()");
    m_backButton->Disconnect("Clicked()",this,"moveToBack()");
-   m_layerEntry->Disconnect("ValueSet(Long_t)",this,"moveToLayer(Long_t)");
+
    //  delete m_objectLabel;
    //  delete m_colorSelectWidget;
    //  delete m_isVisibleButton;
@@ -219,11 +282,9 @@ CmsShowEDI::fillEDIFrame() {
       disconnectAll();
       m_item = iItem;
       if(0 != m_item) {
-         const FWDisplayProperties &p = iItem->defaultDisplayProperties();
          m_objectLabel->SetText(iItem->name().c_str());
-         m_colorSelectWidget->SetColorByIndex(p.color(),kFALSE);
-         m_opacitySlider->SetPosition(100 - p.transparency());
-         m_isVisibleButton->SetDisabledAndSelected(p.isVisible());
+         m_colorSelectWidget->SetColorByIndex(m_colorManager->colorToIndex(iItem->defaultDisplayProperties().color()),kFALSE);
+         m_isVisibleButton->SetDisabledAndSelected(iItem->defaultDisplayProperties().isVisible());
          m_validator->setType(ROOT::Reflex::Type::ByTypeInfo(*(iItem->modelType()->GetTypeInfo())));
          m_filterExpressionEntry->SetText(iItem->filterExpression().c_str());
          m_filterError->Clear();
@@ -235,7 +296,6 @@ CmsShowEDI::fillEDIFrame() {
          m_processEntry->SetText(iItem->processName().c_str());
          //  else m_isVisibleButton->SetState(kButtonDown, kFALSE);
          m_colorSelectWidget->SetEnabled(kTRUE);
-         m_opacitySlider->SetEnabled(kTRUE);
          m_isVisibleButton->SetEnabled(kTRUE);
          m_filterExpressionEntry->SetEnabled(kTRUE);
          m_selectExpressionEntry->SetEnabled(kTRUE);
@@ -243,8 +303,8 @@ CmsShowEDI::fillEDIFrame() {
          m_selectButton->SetEnabled(kTRUE);
          m_selectAllButton->SetEnabled(kTRUE);
          m_removeButton->SetEnabled(kTRUE);
-         updateLayerControls();
-         m_layerEntry->SetState(kTRUE);
+         if(!m_item->isInFront()) {m_frontButton->SetEnabled(kTRUE);}
+         if(!m_item->isInBack()) {m_backButton->SetEnabled(kTRUE);}
          m_displayChangedConn = m_item->defaultDisplayPropertiesChanged_.connect(boost::bind(&CmsShowEDI::updateDisplay, this));
          m_modelChangedConn = m_item->changed_.connect(boost::bind(&CmsShowEDI::updateFilter, this));
          //    m_selectionChangedConn = m_selectionManager->selectionChanged_.connect(boost::bind(&CmsShowEDI::updateSelection, this));
@@ -285,37 +345,29 @@ CmsShowEDI::removeItem() {
 void
 CmsShowEDI::updateDisplay() {
    //std::cout<<"Updating display"<<std::endl;
-   const FWDisplayProperties &props = m_item->defaultDisplayProperties();
-   m_colorSelectWidget->SetColorByIndex(props.color(),kFALSE);
-   m_opacitySlider->SetPosition(100 - props.transparency());
-   m_isVisibleButton->SetState(props.isVisible() ? kButtonDown : kButtonUp, kFALSE);
+   m_colorSelectWidget->SetColorByIndex(m_colorManager->colorToIndex(m_item->defaultDisplayProperties().color()),kFALSE);
+   m_isVisibleButton->SetState(m_item->defaultDisplayProperties().isVisible() ? kButtonDown : kButtonUp, kFALSE);
 }
 
-void
-CmsShowEDI::updateLayerControls()
-{
-   m_backButton->SetEnabled(!m_item->isInBack());
-   m_frontButton->SetEnabled(!m_item->isInFront());
-   m_layerEntry->SetIntNumber(m_item->layer());
-}
 void
 CmsShowEDI::moveToBack()
 {
    m_item->moveToBack();
-   updateLayerControls();
+   m_backButton->SetEnabled(kFALSE);
+   if(!m_item->isInFront()) {
+      m_frontButton->SetEnabled(kTRUE);
+   }
 }
 void
 CmsShowEDI::moveToFront()
 {
    m_item->moveToFront();
-   updateLayerControls();
+   m_frontButton->SetEnabled(kFALSE);
+   if(!m_item->isInBack()) {
+      m_backButton->SetEnabled(kTRUE);
+   }
 }
-void
-CmsShowEDI::moveToLayer(Long_t)
-{
-   m_item->moveToLayer(static_cast<Int_t>(m_layerEntry->GetIntNumber()));
-   updateLayerControls(); 
-}
+
 
 void
 CmsShowEDI::updateFilter() {
@@ -331,7 +383,6 @@ CmsShowEDI::disconnectAll() {
       m_destroyedConn.disconnect();
       m_item = 0;
       m_colorSelectWidget->SetColorByIndex(0,kFALSE);
-      m_opacitySlider->SetPosition(100);
       m_isVisibleButton->SetDisabledAndSelected(kTRUE);
       m_filterExpressionEntry->SetText(0);
       m_selectExpressionEntry->SetText(0);
@@ -342,8 +393,6 @@ CmsShowEDI::disconnectAll() {
       m_processEntry->SetText(0);
       //  else m_isVisibleButton->SetState(kButtonDown, kFALSE);
       m_colorSelectWidget->SetEnabled(kFALSE);
-      m_opacitySlider->SetEnabled(kFALSE);
-      
       m_isVisibleButton->SetEnabled(kFALSE);
       m_filterExpressionEntry->SetEnabled(kFALSE);
       m_filterButton->SetEnabled(kFALSE);
@@ -351,48 +400,18 @@ CmsShowEDI::disconnectAll() {
       m_selectButton->SetEnabled(kFALSE);
       m_selectAllButton->SetEnabled(kFALSE);
       m_removeButton->SetEnabled(kFALSE);
-      m_backButton->SetEnabled(kFALSE);
-      m_frontButton->SetEnabled(kFALSE);
-      m_layerEntry->SetIntNumber(0);
-      m_layerEntry->SetState(kFALSE);
-      m_layerEntry->GetNumberEntry()->SetEnabled(kFALSE);
-      m_layerEntry->GetButtonUp()->SetEnabled(kFALSE);
-      m_layerEntry->GetButtonDown()->SetEnabled(kFALSE);
    }
 }
 
-/** Set the item color. 
-    
-    Notice that I changed this to use a "Copy and modify approach", rather
-    than a "create with old properties" method which was not propagating 
-    transparency.
-  */
 void
 CmsShowEDI::changeItemColor(Color_t color) {
-   FWDisplayProperties changeProperties = m_item->defaultDisplayProperties();
-   changeProperties.setColor(color);
+   const FWDisplayProperties changeProperties(color, m_item->defaultDisplayProperties().isVisible());
    m_item->setDefaultDisplayProperties(changeProperties);
 }
 
-/** See changeItemColor for additional details.*/
 void
 CmsShowEDI::toggleItemVisible(Bool_t on) {
-   FWDisplayProperties changeProperties = m_item->defaultDisplayProperties();
-   changeProperties.setIsVisible(on);
-   m_item->setDefaultDisplayProperties(changeProperties);
-}
-
-/** Changes selected item opacity. Notice that we use opacity rather than
-    transparency because this way the slider is by default 100% rather than 0.
-    This is more a more natural and positive way of looking at things. 
-    
-    Glass is full! 
-    
-    See changeItemColor for additional details.*/
-void
-CmsShowEDI::changeItemOpacity(Int_t opacity) {
-   FWDisplayProperties changeProperties = m_item->defaultDisplayProperties();
-   changeProperties.setTransparency(100 - opacity);
+   const FWDisplayProperties changeProperties(m_item->defaultDisplayProperties().color(), on);
    m_item->setDefaultDisplayProperties(changeProperties);
 }
 

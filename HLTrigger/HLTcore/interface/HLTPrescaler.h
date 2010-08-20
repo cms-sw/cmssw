@@ -7,8 +7,8 @@
  *  This class is an HLTFilter (-> EDFilter) implementing an HLT
  *  Prescaler module with associated book keeping.
  *
- *  $Date: 2009/12/02 18:47:06 $
- *  $Revision: 1.16 $
+ *  $Date: 2010/06/21 13:16:18 $
+ *  $Revision: 1.17 $
  *
  *  \author Martin Grunewald
  *  \author Philipp Schieferdecker
@@ -62,6 +62,10 @@ private:
 
   /// GT payload, to extract the prescale column index
   edm::InputTag gtDigi_;
+
+  /// "seed" used to initialize the prescale counter
+  static const
+  unsigned int prescaleSeed_;
 
 };
 

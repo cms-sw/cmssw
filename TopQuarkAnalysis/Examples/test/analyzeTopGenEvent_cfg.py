@@ -30,7 +30,7 @@ process.options = cms.untracked.PSet(
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('START36_V4::All')
+process.GlobalTag.globaltag = cms.string('START38_V7::All')
 
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
 
