@@ -12,8 +12,9 @@ hltBeamHalo = cms.EDFilter("HLTHighLevel",
      throw = cms.bool(False)    # throw exception on unknown path names
  )
 
-#### the path
-cscHaloSkimseq = cms.Sequence(hltBeamHalo+cscSkim)
+cscSkimAloneSeq = cms.Sequence(cscSkim)
+cscHLTSkimSeq = cms.Sequence(hltBeamHalo)
+cscSkimseq = cms.Sequence(hltBeamHalo+cscSkim)
 
 
 
