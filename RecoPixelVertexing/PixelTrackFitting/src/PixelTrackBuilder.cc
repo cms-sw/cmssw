@@ -66,9 +66,14 @@ reco::Track * PixelTrackBuilder::build(
 			    sp*tipSign, -cp*tipSign,           0,
 			    0         ,           0,    -tipSign,
 			    cp        ,  sp        ,           0);
-  BoundPlane * impPointPlane = new BoundPlane(origin, rot);
 
-  TrajectoryStateOnSurface impactPointState( lpar , error, *impPointPlane, mf, 1.0);
+  // BTSOS hold BP in a shared pointer and  will be autodeleted when BTSOS goes out of scope...
+  // to avoid memory churn we allocate it locally and just avoid it be deleted by refcount... 
+  BoundPlane impPointPlane(origin, rot);
+  // (twice just to be sure!)
+  impPointPlane.addReference(); impPointPlane.addReference();
+  // use Base (too avoid a useless new) 
+  BaseTrajectoryStateOnSurface impactPointState( lpar , error, impPointPlane, mf, 1.0);
   
   //checkState(impactPointState,mf);
   LogTrace("")<<"constructed TSOS :\n"<<print(impactPointState);
