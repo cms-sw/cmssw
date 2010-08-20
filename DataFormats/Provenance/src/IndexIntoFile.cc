@@ -1,5 +1,6 @@
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include <algorithm>
 #include <ostream>
@@ -54,7 +55,16 @@ namespace edm {
 
     assert((currentRun() == run && currentIndex() == index) || currentRun() == invalidRun);
     if (lumi == invalidLumi) {
-      assert(currentLumi() == invalidLumi);
+      if (currentLumi() != invalidLumi) {
+        throw Exception(errors::LogicError)
+          << "In IndexIntoFile::addEntry. Entries were added in illegal order.\n"
+          << "This means the IndexIntoFile product in the output file will be corrupted.\n"
+          << "The output file will be unusable for most purposes.\n"
+          << "If this occurs after an unrelated exception was thrown in\n"
+          << "endLuminosityBlock or endRun then ignore this exception and fix\n"
+          << "the primary exception. This is an expected side effect.\n"
+          << "Otherwise please report this to the core framework developers\n";
+      }
       currentIndex() = invalidIndex;
       currentRun() = invalidRun;
       currentLumi() = invalidLumi;
@@ -269,8 +279,16 @@ namespace edm {
          ++iter) {
       std::map<IndexRunKey, EntryNumber_t>::const_iterator firstRunEntry = 
         runToFirstEntry().find(IndexRunKey(iter->processHistoryIDIndex(), iter->run()));
-      assert(firstRunEntry != runToFirstEntry().end());
-
+      if (firstRunEntry == runToFirstEntry().end()) {
+        throw Exception(errors::LogicError)
+          << "In IndexIntoFile::sortVector_Run_Or_Lumi_Entries. A run entry is missing.\n"
+          << "This means the IndexIntoFile product in the output file will be corrupted.\n"
+          << "The output file will be unusable for most purposes.\n"
+          << "If this occurs after an unrelated exception was thrown in\n"
+          << "endLuminosityBlock or endRun then ignore this exception and fix\n"
+          << "the primary exception. This is an expected side effect.\n"
+          << "Otherwise please report this to the core framework developers\n";
+      }
       iter->setOrderPHIDRun(firstRunEntry->second);
     }
     stable_sort_all(runOrLumiEntries_);
