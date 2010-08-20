@@ -22,6 +22,7 @@ public:
 
 private:
   std::vector<float> storage;
-  float * r,z,errZ;
+  int nPoints;
+  float *r, *z, *errZ2;
 };
 #endif
