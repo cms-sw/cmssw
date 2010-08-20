@@ -48,5 +48,6 @@ if __name__ == '__main__':
 
     # print out integrated luminosity numbers if requested
     if options.intLumi:
-        print "delivered %f (units?) recorded %s (units)" % \
+        print "\nNote: These numbers should be considered approximate.  For official numbers, please use lumiCalc.py"
+        print "delivered %.1f mb,  recorded %.1f mb" % \
               (delivered, recorded)
