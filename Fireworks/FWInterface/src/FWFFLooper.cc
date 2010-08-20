@@ -27,7 +27,11 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
+// FIXME: module changer needs to have hold of the schedule!
+#define private public
 #include "FWCore/Framework/interface/ScheduleInfo.h"
+#define private private
+#include "FWCore/Framework/interface/ModuleChanger.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -130,7 +134,8 @@ FWFFLooper::FWFFLooper(edm::ParameterSet const&ps)
      m_AllowStep(true),
      m_ShowEvent(true),
      m_firstTime(true),
-     m_pathsGUI(0)
+     m_pathsGUI(0),
+     m_changer(0)
 {
    printf("FWFFLooper::FWFFLooper CTOR\n");
 
@@ -180,7 +185,7 @@ FWFFLooper::FWFFLooper(edm::ParameterSet const&ps)
 void
 FWFFLooper::attachTo(edm::ActivityRegistry &ar)
 {
-   m_pathsGUI = new FWPathsPopup(scheduleInfo());
+   m_pathsGUI = new FWPathsPopup();
 
    ar.watchPostModule(m_pathsGUI, &FWPathsPopup::postModule);
    ar.watchPostEndJob(this, &FWFFLooper::postEndJob);
@@ -204,6 +209,12 @@ FWFFLooper::startingNewLoop(unsigned int count)
    // Initialise on first loop.
    if (count == 0)
    {
+      const edm::ScheduleInfo *info = scheduleInfo();
+      const edm::Schedule *schedule = info->schedule_;
+      m_changer = new edm::ModuleChanger(const_cast<edm::Schedule *>(scheduleInfo()->schedule_));
+      setModuleChanger(m_changer);
+      m_pathsGUI->setup(m_changer, info);
+      
       printf("FWFFLooper: starting first loop!\n");
       // We need to enter the GUI loop in order to 
       // have all the callbacks executed. The last callback will
@@ -316,12 +327,19 @@ FWFFLooper::duringLoop(const edm::Event &event,
 {
    printf("FWFFLooper::postProcessEvent: Starting GUI loop.\n");
 
+   m_pathsGUI->hasChanges() = false;
    m_metadataManager->update(new FWFFMetadataUpdateRequest(event));
    m_navigator->setCurrentEvent(&event);
    checkPosition();
    draw();
    m_Rint->Run(kTRUE);
-   controller.setTransitionToNextEvent();
+   if (m_pathsGUI->hasChanges())
+   {
+      std::cerr << "reloading Event" << std::endl;
+      controller.setTransitionToEvent(event.id());
+   }
+   else
+      controller.setTransitionToNextEvent();
    return kContinue;
 }
 

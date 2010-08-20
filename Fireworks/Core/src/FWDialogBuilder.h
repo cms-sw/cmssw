@@ -18,6 +18,7 @@ class TGCheckButton;
 class FWGUIValidatingTextEntry;
 class TGTab;
 class FWColorManager;
+class TGTextEdit;
 
 class FWLayoutBuilder
 {
@@ -97,6 +98,8 @@ public:
    
    FWDialogBuilder &addTextView(const char *defaultText = 0,
                                 TGTextView **out = 0);
+   FWDialogBuilder &addTextEdit(const char *defaultText = 0,
+                                TGTextEdit **out = 0);
    FWDialogBuilder &addColorPicker(const FWColorManager *manager,
                                    FWColorSelect **out = 0);
    

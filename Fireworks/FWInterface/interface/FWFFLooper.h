@@ -17,6 +17,7 @@ namespace edm
    class Event;
    class EventSetup;
    class ProcessingController;
+   class ModuleChanger;
 }
 
 class FWFFNavigator;
@@ -88,6 +89,7 @@ private:
    bool          m_ShowEvent;
    bool          m_firstTime;
    FWPathsPopup  *m_pathsGUI;
+   edm::ModuleChanger *m_changer;
 };
 
 #endif

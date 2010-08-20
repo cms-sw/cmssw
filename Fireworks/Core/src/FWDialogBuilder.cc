@@ -13,6 +13,7 @@
 #include "TGSlider.h"
 #include "TGTab.h"
 #include "TGTextView.h"
+#include "TGTextEdit.h"
 #include "TGNumberEntry.h"
 
 FWLayoutBuilder::FWLayoutBuilder(TGCompositeFrame *window)
@@ -241,6 +242,18 @@ FWDialogBuilder::addTextView(const char *defaultText /*= 0*/,
    currentFrame()->AddFrame(view, nextHints());
    expand(true, true);
    return extract(view, out);
+}
+
+FWDialogBuilder &
+FWDialogBuilder::addTextEdit(const char *defaultText /*= 0*/,
+                             TGTextEdit **out /*= 0 */)
+{
+   TGTextEdit *edit = new TGTextEdit(nextFrame(), 100, 100);
+   if (defaultText)
+      edit->AddLine(defaultText);
+   currentFrame()->AddFrame(edit, nextHints());
+   expand(true, true);
+   return extract(edit, out);
 }
 
 FWDialogBuilder &
