@@ -222,14 +222,14 @@ void CSCTFSPCoreLogic::loadData(const CSCTriggerContainer<csctf::TrackStub>& the
 			    if(stubi->getQuality()%2==1)
 			      {
 				//io_[relative_bx].mb1aVp   = stubi->isValid();
-				io_[relative_bx].mb1aVp	  = stubi->getStrip();
-				io_[relative_bx].mb1aQp   = stubi->getQuality();
-				io_[relative_bx].mb1aPhip = stubi->phiPacked();
+				io_[relative_bx].mb1bVp	  = stubi->getStrip();
+				io_[relative_bx].mb1bQp   = stubi->getQuality();
+				io_[relative_bx].mb1bPhip = stubi->phiPacked();
 			      }
 			  } else {
-			    io_[relative_bx].mb1aVp	  = stubi->getStrip();
-			    io_[relative_bx].mb1aQp   = stubi->getQuality();
-			    io_[relative_bx].mb1aPhip = stubi->phiPacked();
+			    io_[relative_bx].mb1bVp	  = stubi->getStrip();
+			    io_[relative_bx].mb1bQp   = stubi->getQuality();
+			    io_[relative_bx].mb1bPhip = stubi->phiPacked();
 			  }
 			break;
 		    /*case 3:
