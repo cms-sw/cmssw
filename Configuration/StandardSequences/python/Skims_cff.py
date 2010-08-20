@@ -52,13 +52,14 @@ SKIMStreamCSC = cms.FilteredStream(
 
 from DPGAnalysis.Skims.dtActivitySkim_cff import *
 pathdtSkim =cms.Path(dtSkimseq)  
-
+pathHLTdtSkim =cms.Path(dtHLTSkimseq)
+    
 SKIMStreamDT = cms.FilteredStream(
     responsible = 'DPG',
     name = 'DT',
-    paths = (pathdtSkim),
+    paths = (pathdtSkim,pathHLTdtSkim),
     content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(SelectEvents=cms.vstring('pathdtSkim')),
+    selectEvents = cms.untracked.PSet(SelectEvents=cms.vstring('pathdtSkim','pathHLTdtSkim')),
     dataTier = cms.untracked.string('RAW-RECO')
     )
 
@@ -71,7 +72,7 @@ pathL1MuBitSkim =cms.Path(l1MuBitsSkimseq)
 SKIMStreamL1MuBit = cms.FilteredStream(
     responsible = 'DPG',
     name = 'L1MuBit',
-    paths = (pathdtSkim),
+    paths = (pathL1MuBitSkim),
     content = skimContent.outputCommands,
     selectEvents = cms.untracked.PSet(SelectEvents=cms.vstring('pathL1MuBitSkim')),
     dataTier = cms.untracked.string('RAW-RECO')
