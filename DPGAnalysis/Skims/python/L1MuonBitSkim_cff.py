@@ -16,4 +16,4 @@ l1RequestPhAlgos.L1NrBxInEvent = cms.int32(5)
 l1RequestPhAlgos.L1SeedsLogicalExpression = cms.string(
     'L1_SingleMuBeamHalo OR L1_SingleMuOpen OR L1_SingleMu0 OR L1_SingleMu3 OR L1_SingleMu5 OR L1_SingleMu7 OR L1_SingleMu10 OR L1_SingleMu14 OR L1_SingleMu20 OR L1_DoubleMuOpen OR L1_DoubleMu3')
 
-l1MuBitsSkim = cms.Path(l1RequestPhAlgos)
+l1MuBitsSkimseq = cms.Sequence(l1RequestPhAlgos)

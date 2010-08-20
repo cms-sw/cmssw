@@ -32,6 +32,6 @@ HLTDT =cms.EDFilter("HLTHighLevel",
      throw = cms.bool(False)    # throw exception on unknown path names
  )
 
-dtHLTSkim = cms.Path(HLTDT)
+dtHLTSkimseq = cms.Sequence(HLTDT)
 
-dtSkim=cms.Path(muonDTDigis+hltDTActivityFilter)
+dtSkimseq=cms.Sequence(muonDTDigis+hltDTActivityFilter)

@@ -13,7 +13,7 @@ hltBeamHalo = cms.EDFilter("HLTHighLevel",
  )
 
 #### the path
-cscHaloSkim = cms.Path(hltBeamHalo+cscSkim)
+cscHaloSkimseq = cms.Sequence(hltBeamHalo+cscSkim)
 
 
 

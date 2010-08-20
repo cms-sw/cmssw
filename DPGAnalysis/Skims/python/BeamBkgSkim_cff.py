@@ -7,4 +7,4 @@ hltbeamgas = cms.EDFilter("HLTHighLevel",
                           andOr              = cms.bool(True),
                           throw              = cms.bool(False)
                           )
-pfgskim3noncross = cms.Path(hltPhysicsDeclared*hltbeamgas)
+pfgskim3noncrossseq = cms.Sequence(hltPhysicsDeclared*hltbeamgas)

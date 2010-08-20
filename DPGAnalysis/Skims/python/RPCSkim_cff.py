@@ -4,4 +4,4 @@ l1RequestTecAlgos = hltLevel1GTSeed.clone()
 l1RequestTecAlgos.L1TechTriggerSeeding = cms.bool(True)
 l1RequestTecAlgos.L1SeedsLogicalExpression = cms.string('31')
 
-rpcTecSkim = cms.Path(l1RequestTecAlgos)
+rpcTecSkimseq = cms.Sequence(l1RequestTecAlgos)
