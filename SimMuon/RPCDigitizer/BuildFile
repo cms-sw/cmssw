@@ -32,6 +32,8 @@
 <use name=SimDataFormats/TrackingHit>
 <use name=SimGeneral/HepPDTRecord>
 <use name=Utilities/General>
+<use name=SimMuon/Neutron>
+
 <flags EDM_PLUGIN=1>
 
 <export>
