@@ -54,8 +54,10 @@ subtract_(const uint32_t& detId,std::vector<T>& digis){
       fs = digis.begin()+istrip-127;
       ls = digis.begin()+istrip+1;
       
-      while (fs < ls)
-	*fs++ = static_cast<T>(*fs-FixedBias-CM);
+      while (fs < ls) {
+	*fs = static_cast<T>(*fs-FixedBias-CM);
+	fs++;
+      }
 
       sumVal = 0.0;
       sumWt =  0.0;
