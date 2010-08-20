@@ -7,37 +7,49 @@ template <class T> inline T sqr( T t) {return t*t;}
 RZLine::RZLine(const std::vector<float> & aR, 
 	       const std::vector<float> & aZ, 
 	       const std::vector<float> & aErrZ)
-  : r(aR), z(aZ), errZ(aErrZ)
-{}
+  : storage(3*ar.size()) {
+  nPoints = ar.size();
+  r = *storage.front();
+  z = r+nPoints;
+  errZ2 = z+nPoints;
+  for (int i=0; i<nPoints; i++) {
+    r[i] = aR[i];
+    z[i]=aZ[i];
+    errZ2[i] = aErrZ[i]*aErrZ[i];
+  } 
+}
 
 RZLine::RZLine(const vector<GlobalPoint> & points, 
 	       const vector<GlobalError> & errors, 
-	       const vector<bool> isBarrel) : r(points.size()), z(points.size()), errZ(points.size())
-{
+	       const vector<bool> isBarrel) : : storage(3*ar.size()) {
   int nPoints = points.size();
-  for (int i=0; i<nPoints; i++) {
+  int nPoints = points.size();
+  r = *storage.front();
+  z = r+nPoints;
+  errZ2 = z+nPoints;
+  for (int i=0; i!=nPoints; ++i) {
     const GlobalPoint & p = points[i];
     r[i] = p.perp();
     z[i] = p.z();
   }
 
-  float simpleCot = ( z.back()-z.front() )/ (r.back() - r.front() );
-  for (int i=0; i<nPoints; i++) {
-    errZ[i] = (isBarrel[i]) ? std::sqrt(errors[i].czz()) :  
-      std::sqrt(errors[i].rerr(points[i]) ) * simpleCot;
+  float simpleCot2 = ( z[nPoints-1]-z[0] )/ (r[nPoints-1] - r[0] );
+  simpleCot2 *= simpleCot2;
+  for (int i=0; i!=nPoints; ++i) {
+    errZ2[i] = (isBarrel[i]) ? errors[i].czz() :  
+      errors[i].rerr(points[i])  * simpleCot2;
   }
 }
 
 void RZLine::fit(float & cotTheta, float & intercept, 
     float &covss, float &covii, float &covsi) const
 {
-  LinearFit().fit( r,z, r.size(), errZ, cotTheta, intercept, covss, covii, covsi);
+  linearFit( r, z, nPoints, errZ2, cotTheta, intercept, covss, covii, covsi);
 }
 
 float RZLine::chi2(float cotTheta, float intercept) const
 {
   float chi2 = 0.f;
-  int r_size = r.size();  
-  for (int i=0; i< r_size; i++) chi2 += sqr( ((z[i]-intercept) - cotTheta*r[i]) / errZ[i]);
+  for (int i=0; i!=nPoints; ++i) chi2 += sqr( ((z[i]-intercept) - cotTheta*r[i]) ) / errZ2[i];
   return chi2;
 }
