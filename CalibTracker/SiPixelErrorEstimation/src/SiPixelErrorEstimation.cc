@@ -117,6 +117,13 @@ void SiPixelErrorEstimation::beginJob()
       ttree_track_hits_->Branch("nsimhit", &nsimhit, "nsimhit/I", bufsize);
       ttree_track_hits_->Branch("pidhit" , &pidhit , "pidhit/I" , bufsize);
       ttree_track_hits_->Branch("simproc", &simproc, "simproc/I", bufsize);
+
+      ttree_track_hits_->Branch("hit_probx" , &hit_probx , "hit_probx/F" , bufsize);
+      ttree_track_hits_->Branch("hit_proby" , &hit_proby , "hit_proby/F" , bufsize);
+      ttree_track_hits_->Branch("hit_cprob0", &hit_cprob0, "hit_cprob0/F", bufsize);
+      ttree_track_hits_->Branch("hit_cprob1", &hit_cprob1, "hit_cprob1/F", bufsize);
+      ttree_track_hits_->Branch("hit_cprob2", &hit_cprob2, "hit_cprob2/F", bufsize);
+
     } // if ( include_trk_hits_ )
 
   // ----------------------------------------------------------------------
@@ -240,8 +247,11 @@ void SiPixelErrorEstimation::beginJob()
   ttree_all_hits_->Branch("gypix", all_pixgy, "gy[npix]/F", bufsize);
   ttree_all_hits_->Branch("gzpix", all_pixgz, "gz[npix]/F", bufsize);
   
-  ttree_all_hits_->Branch("hit_probx", &all_hit_probx, "hit_probx/F" , bufsize);
-  ttree_all_hits_->Branch("hit_proby", &all_hit_proby, "hit_proby/F" , bufsize);
+  ttree_all_hits_->Branch("all_hit_probx",  &all_hit_probx,  "all_hit_probx/F" , bufsize);
+  ttree_all_hits_->Branch("all_hit_proby",  &all_hit_proby,  "all_hit_proby/F" , bufsize);
+  ttree_all_hits_->Branch("all_hit_cprob0", &all_hit_cprob0, "all_hit_cprob0/F", bufsize);
+  ttree_all_hits_->Branch("all_hit_cprob1", &all_hit_cprob1, "all_hit_cprob1/F", bufsize);
+  ttree_all_hits_->Branch("all_hit_cprob2", &all_hit_cprob2, "all_hit_cprob2/F", bufsize);
 
 }
 
@@ -449,7 +459,10 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 
 	  all_hit_probx = -9999;
 	  all_hit_proby = -9999;
-	  
+	  all_hit_cprob0 = -9999;
+	  all_hit_cprob1 = -9999;
+	  all_hit_cprob2 = -9999;
+
 	  // cout << "...7..." << endl;
 
 	  all_nsimhit = (int)matched.size();
@@ -474,6 +487,12 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  const int maxPixelRow = pixeliter->cluster()->maxPixelRow();
 	  const int minPixelCol = pixeliter->cluster()->minPixelCol();
 	  const int minPixelRow = pixeliter->cluster()->minPixelRow();
+	  
+	  //all_hit_probx  = (float)pixeliter->probabilityX();
+	  //all_hit_proby  = (float)pixeliter->probabilityY();
+	  all_hit_cprob0 = (float)pixeliter->clusterProbability(0);
+	  all_hit_cprob1 = (float)pixeliter->clusterProbability(1);
+	  all_hit_cprob2 = (float)pixeliter->clusterProbability(2);
 	  
 	  // cout << "...9..." << endl;
 
@@ -722,6 +741,9 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	      all_pixgy[i]= GP.y();
 	      all_pixgz[i]= GP.z();
 	    }
+
+	 
+
 	  
 	  // cout << "...23..." << endl;
 
@@ -811,7 +833,13 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 		      
 		      simhitx = -9999.9;
 		      simhity = -9999.9;
-		      
+
+		      hit_probx = -9999.9;
+		      hit_proby = -9999.9;
+		      hit_cprob0 = -9999.9;
+		      hit_cprob1 = -9999.9;
+		      hit_cprob2 = -9999.9;
+  
 		      position = (*it)->localPosition();
 		      error = (*it)->localPositionError();
 		      
@@ -825,6 +853,13 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 		      nxpix = matchedhit->cluster()->sizeX();
 		      nypix = matchedhit->cluster()->sizeY();
 		      charge = matchedhit->cluster()->charge();
+
+		      //hit_probx  = (float)matchedhit->probabilityX();
+		      //hit_proby  = (float)matchedhit->probabilityY();
+		      hit_cprob0 = (float)matchedhit->clusterProbability(0);
+		      hit_cprob1 = (float)matchedhit->clusterProbability(1);
+		      hit_cprob2 = (float)matchedhit->clusterProbability(2);
+		      
 		      
 		      //Association of the rechit to the simhit
 		      matched.clear();

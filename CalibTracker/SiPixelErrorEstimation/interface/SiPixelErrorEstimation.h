@@ -136,6 +136,12 @@ class SiPixelErrorEstimation : public edm::EDAnalyzer
   int evt;
   int run;
 
+  float hit_probx;
+  float hit_proby;
+  float hit_cprob0;
+  float hit_cprob1;
+  float hit_cprob2;
+
    // variables that go in the output ttree_sll_hits_
   
   int all_subdetid;
@@ -256,6 +262,9 @@ class SiPixelErrorEstimation : public edm::EDAnalyzer
     
   float all_hit_probx;
   float all_hit_proby;
+  float all_hit_cprob0;
+  float all_hit_cprob1;
+  float all_hit_cprob2;
 
   // ----------------------------------
 
