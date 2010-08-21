@@ -12,7 +12,7 @@ process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 
 #global tags for conditions data: https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'MC_37Y_V1::All'
+process.GlobalTag.globaltag = 'MC_38Y_V8::All'
 
 ##################################################################################
 
@@ -21,7 +21,9 @@ options = VarParsing.VarParsing ('standard')
 
 # setup any defaults you want
 options.output = 'test_out.root'
-options.files= '/store/relval/CMSSW_3_7_0_pre2/RelValHydjetQ_B0_2760GeV/GEN-SIM-RAW/MC_37Y_V1-v1/0018/3E6CC7B5-B852-DF11-9991-002618943916.root'
+options.files = [
+'/store/relval/CMSSW_3_8_1/RelValPyquen_DiJet_pt80to120_2760GeV/GEN-SIM-RECO/MC_38Y_V8-v1/0013/DE5989EA-C9A3-DF11-8ABB-001A92811738.root',
+'/store/relval/CMSSW_3_8_1/RelValPyquen_DiJet_pt80to120_2760GeV/GEN-SIM-RECO/MC_38Y_V8-v1/0013/2ED099B1-C2A3-DF11-A22A-001A92971B82.root']
 options.maxEvents = 1 
 
 # get and parse the command line arguments
@@ -33,7 +35,7 @@ options.parseArguments()
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.debugModules = ['*']  
-process.MessageLogger.categories = ['HeavyIonVertexing','heavyIonHLTVertexing']
+process.MessageLogger.categories = ['HeavyIonVertexing','heavyIonHLTVertexing','MinBiasTracking']
 process.MessageLogger.cerr = cms.untracked.PSet(
     threshold = cms.untracked.string('DEBUG'),
     DEBUG = cms.untracked.PSet(
@@ -71,24 +73,28 @@ process.maxEvents = cms.untracked.PSet(
 #Reconstruction			
 process.load("Configuration.StandardSequences.RawToDigi_cff")		    # RawToDigi
 process.load("Configuration.StandardSequences.ReconstructionHeavyIons_cff") # full heavy ion reconstruction
+process.load("RecoHI.HiTracking.secondStep_cff")                            # pair-seeded step
 
 ##############################################################################
 # Output EDM File
 process.load("Configuration.EventContent.EventContentHeavyIons_cff")        #load keep/drop output commands
 process.output = cms.OutputModule("PoolOutputModule",
                                   process.FEVTDEBUGEventContent,
-                                  compressionLevel = cms.untracked.int32(2),
-                                  commitInterval = cms.untracked.uint32(1),
                                   fileName = cms.untracked.string(options.output)
                                   )
+process.output.outputCommands.extend(["keep *_*_*_TEST"])
 
 ##################################################################################
-# Paths
+# Sub-sequences
 process.rechits = cms.Sequence(process.siPixelRecHits*process.siStripMatchedRecHits)
 process.vtxreco = cms.Sequence(process.offlineBeamSpot * process.trackerlocalreco * process.hiPixelVertices)
 process.pxlreco = cms.Sequence(process.vtxreco * process.hiPixel3PrimTracks)
 process.trkreco = cms.Sequence(process.offlineBeamSpot * process.trackerlocalreco * process.heavyIonTracking)
-process.reco = cms.Path(process.RawToDigi * process.trkreco)
-#process.rereco = cms.Path(process.rechits * process.heavyIonTracking)
+
+# Paths
+#process.reco = cms.Path(process.RawToDigi * process.trkreco)           # for RECO from RAW
+process.rereco = cms.Path(process.rechits * process.heavyIonTracking    # for reRECO from RECO
+                          * process.secondStep                          # plus pair-seeded iteration
+                          )
 process.save = cms.EndPath(process.output)
 

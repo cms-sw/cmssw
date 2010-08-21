@@ -27,11 +27,11 @@ from RecoHI.HiTracking.HISelectedTracks_cfi import *
 
 ### paths
 heavyIonTracking = cms.Sequence(hiPixelVertices
-								* hiPrimSeeds
-								* hiPrimTrackCandidates
-								* hiGlobalPrimTracks
-								* hiSelectedTracks
-								)
+                                * hiPrimSeeds
+                                * hiPrimTrackCandidates
+                                * hiGlobalPrimTracks
+                                * hiTracksWithQuality
+                                )
 
 
 

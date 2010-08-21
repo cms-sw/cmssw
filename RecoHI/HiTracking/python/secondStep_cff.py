@@ -1,13 +1,23 @@
 import FWCore.ParameterSet.Config as cms
 
 #################################
+# Filter on quality tracks
+firstStepFilter = cms.EDProducer("QualityFilter",
+    TrackQuality = cms.string('highPurity'),
+    recTracks = cms.InputTag("hiSelectedTracks")
+)
+
 # Remaining clusters
 hiNewClusters = cms.EDProducer("TrackClusterRemover",
-    trajectories = cms.InputTag("hiSelectedTracks"),
+    trajectories = cms.InputTag("firstStepFilter"),
     pixelClusters = cms.InputTag("siPixelClusters"),
     stripClusters = cms.InputTag("siStripClusters"),
     Common = cms.PSet(
-        maxChi2 = cms.double(30.) # remove none=0, remove all=9999
+      maxChi2 = cms.double(30.) # remove none=0, remove all=9999
+    ),
+    Strip = cms.PSet(
+      maxChi2 = cms.double(30.),
+      maxSize = cms.uint32(3)   # only remove strip clusters with size<=3
     )
 )
 
@@ -80,16 +90,31 @@ hiNewGlobalTracks.clusterRemovalInfo = 'hiNewClusters'
 hiNewGlobalTracks.src                = 'hiNewTrackCandidates'
 hiNewGlobalTracks.TrajectoryInEvent  = cms.bool(True)
 
+#################################
 #selection
 import RecoHI.HiTracking.HISelectedTracks_cfi
+hiNewTracksWithLooseQuality = RecoHI.HiTracking.HISelectedTracks_cfi.hiTracksWithLooseQuality.clone(
+    src = "hiNewGlobalTracks"
+    )
+hiNewTracksWithTightQuality = RecoHI.HiTracking.HISelectedTracks_cfi.hiTracksWithTightQuality.clone(
+    src = "hiNewTracksWithLooseQuality"
+    )
 hiNewSelectedTracks = RecoHI.HiTracking.HISelectedTracks_cfi.hiSelectedTracks.clone(
-    src = cms.InputTag("hiNewGlobalTracks"),
-    max_z0 = 1.0
+    src = "hiNewTracksWithTightQuality"
     )
 
-
+# merging tracks with previous iteration
+import RecoTracker.FinalTrackSelectors.simpleTrackListMerger_cfi
+hiMergedTracks = RecoTracker.FinalTrackSelectors.simpleTrackListMerger_cfi.simpleTrackListMerger.clone(
+    TrackProducer1 = 'hiSelectedTracks',
+    TrackProducer2 = 'hiNewSelectedTracks',
+    promoteTrackQuality = True,
+    copyExtras = True
+)
 
 #################################
 
-secondStep = cms.Sequence(hiNewClusters * hiNewPixelRecHits * hiNewStripRecHits * hiNewSeedFromPairs *
-                          hiNewTrackCandidates * hiNewGlobalTracks * hiNewSelectedTracks)
+secondStep = cms.Sequence(firstStepFilter * hiNewClusters * hiNewPixelRecHits * hiNewStripRecHits *
+                          hiNewSeedFromPairs * hiNewTrackCandidates * hiNewGlobalTracks *
+                          hiNewTracksWithLooseQuality * hiNewTracksWithTightQuality * hiNewSelectedTracks *
+                          hiMergedTracks)
