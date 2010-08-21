@@ -392,6 +392,18 @@ if (liveCMS == 1) | (playCMS == 1) :
   process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
   process.prefer("GlobalTag")
 
+if (globalDAQ == 1) | (liveCMS == 1) : 
+  process.GlobalTag.toGet = cms.VPSet(
+    cms.PSet(record = cms.string("EcalDQMChannelStatusRcd"),
+             tag = cms.string("EcalDQMChannelStatus_v01_online"),
+             connect = cms.untracked.string("sqlite_file:/nfshome0/ecalpro/MASKING-DQM/mask-ECAL.db")
+            ),
+    cms.PSet(record = cms.string("EcalDQMTowerStatusRcd"),
+             tag = cms.string("EcalDQMTowerStatus_v01_online"),
+             connect = cms.untracked.string("sqlite_file:/nfshome0/ecalpro/MASKING-DQM/mask-ECAL.db")
+            )
+  )
+
 process.MessageLogger = cms.Service("MessageLogger",
   cout = cms.untracked.PSet(
     threshold = cms.untracked.string('WARNING'),
@@ -650,13 +662,13 @@ process.simEcalTriggerPrimitiveDigis.Label = 'ecalEBunpacker'
 process.simEcalTriggerPrimitiveDigis.InstanceEB = 'ebDigis'
 process.simEcalTriggerPrimitiveDigis.InstanceEE = 'eeDigis'
 
-if (localDAQ == 1) | (globalDAQ == 1) :
+if (localDAQ == 1) :
   process.ecalBarrelMonitorClient.maskFile = 'DQM/EcalBarrelMonitorModule/test/data/maskfile-EB.dat'
 
 process.ecalBarrelMonitorClient.location = 'P5_Co'
 process.ecalBarrelMonitorClient.enabledClients = ['Integrity', 'StatusFlags', 'Occupancy', 'PedestalOnline', 'Pedestal', 'TestPulse', 'Laser', 'Timing', 'Cosmic', 'TriggerTower', 'Cluster', 'Summary']
 
-if (localDAQ == 1) | (globalDAQ == 1) :
+if (localDAQ == 1) :
   process.ecalEndcapMonitorClient.maskFile = 'DQM/EcalEndcapMonitorModule/test/data/maskfile-EE.dat'
 
 process.ecalEndcapMonitorClient.location = 'P5_Co'
