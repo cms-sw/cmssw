@@ -32,7 +32,10 @@ ecalEndcapMonitorClient = cms.EDAnalyzer("EcalEndcapMonitorXdaqClient",
         6, 7, 8, 9, 10, 
         11, 12, 13, 14, 15, 
         16, 17, 18),
-    verbose = cms.untracked.bool(True),
+    laserWavelengths = cms.untracked.vint32(1, 2, 3, 4),
+    ledWavelengths = cms.untracked.vint32(1, 2),
+    MGPAGains = cms.untracked.vint32(1, 6, 12),
+    MGPAGainsPN = cms.untracked.vint32(1, 16),                                      verbose = cms.untracked.bool(True),
     debug = cms.untracked.bool(False),
     prescaleFactor = cms.untracked.int32(1)
 )

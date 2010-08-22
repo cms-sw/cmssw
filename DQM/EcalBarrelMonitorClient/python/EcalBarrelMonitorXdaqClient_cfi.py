@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-ecalBarrelMonitorClient = cms.EDAnalyzer("EcalBarrelMonitorXdaqClient",
+ecalBarrelMonitorXdaqClient = cms.EDAnalyzer("EcalBarrelMonitorXdaqClient",
     inputFile = cms.untracked.string(''),
     dbName = cms.untracked.string(''),
     dbHostName = cms.untracked.string(''),
@@ -35,6 +35,9 @@ ecalBarrelMonitorClient = cms.EDAnalyzer("EcalBarrelMonitorXdaqClient",
         26, 27, 28, 29, 30, 
         31, 32, 33, 34, 35, 
         36),
+    laserWavelengths = cms.untracked.vint32(1, 2, 3, 4),
+    MGPAGains = cms.untracked.vint32(1, 6, 12),
+    MGPAGainsPN = cms.untracked.vint32(1, 16),
     verbose = cms.untracked.bool(True),
     debug = cms.untracked.bool(False),
     prescaleFactor = cms.untracked.int32(1)

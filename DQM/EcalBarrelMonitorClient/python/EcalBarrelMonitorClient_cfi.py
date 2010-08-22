@@ -37,7 +37,7 @@ ecalBarrelMonitorClient = cms.EDAnalyzer("EcalBarrelMonitorClient",
         36),
     laserWavelengths = cms.untracked.vint32(1, 2, 3, 4),
     MGPAGains = cms.untracked.vint32(1, 6, 12),
-    MGPAGainsPN = cms.untracked.vint32(1, 16),                                         
+    MGPAGainsPN = cms.untracked.vint32(1, 16),
     verbose = cms.untracked.bool(True),
     debug = cms.untracked.bool(False),
     prescaleFactor = cms.untracked.int32(1)
