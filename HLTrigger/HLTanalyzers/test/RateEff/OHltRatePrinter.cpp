@@ -123,6 +123,7 @@ void OHltRatePrinter::printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu) {
   float cuPhysRate = 0.; 
   float cuPhysRateErr = 0.; 
   float hltPrescaleCorrection = 1.;
+  float l1PrescaleCorrection = 1.;
 
   for (unsigned int i=0;i<menu->GetTriggerSize();i++) { 
     cumulRate += spureRate[i]; 
@@ -158,7 +159,21 @@ void OHltRatePrinter::printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu) {
     } 
 
     for (unsigned int j=0;j<vtmp.size();j++) { 
-      tempTrigSeedPrescales += itmp[j]; 
+
+      if(cfg->readRefPrescalesFromNtuple)
+	{
+	  for (unsigned int k=0;k<menu->GetL1TriggerSize();k++)
+	    {
+	      if((menu->GetL1TriggerName(k)) == (vtmp[j]))
+		{
+		  l1PrescaleCorrection = averageRefPrescaleL1[k];
+		  tempTrigSeedPrescales += (itmp[j]*l1PrescaleCorrection);
+		}
+	    }
+	}
+      else
+	tempTrigSeedPrescales += itmp[j]; 
+
       if (j<(vtmp.size()-1)) { 
 	tempTrigSeedPrescales = tempTrigSeedPrescales + ", "; 
       } 
@@ -354,8 +369,6 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu) {
       vector<TString> vtmp;  
       vector<int> itmp;  
 
-      cout << "HLT name = " << menu->GetTriggerName(i) << endl;
- 
       typedef map< TString, vector<TString> >  mymap;  
       for(mymap::const_iterator it = mapL1seeds.begin();it != mapL1seeds.end(); ++it) {  
 	if (it->first.CompareTo(menu->GetTriggerName(i)) == 0) {  
@@ -371,7 +384,6 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu) {
 	    {
 	      // For a single L1 seed, loop over the map, find the online prescale, and multiply by the online HLT prescale
 	      TString l1seedname = (it->second)[0]; 
-	      cout << "\tL1 seed = " << l1seedname << endl;
 
 	      for (unsigned int k=0;k<menu->GetL1TriggerSize();k++) { 
 		if (l1seedname == menu->GetL1TriggerName(k))
