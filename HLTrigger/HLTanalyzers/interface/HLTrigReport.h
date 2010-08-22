@@ -7,8 +7,8 @@
  *  This class is an EDAnalyzer implementing TrigReport (statistics
  *  printed to log file) for HL triggers
  *
- *  $Date: 2010/02/24 21:43:21 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/08/05 21:35:49 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *
@@ -18,7 +18,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-
+#include "FWCore/Common/interface/TriggerNames.h"
 #include<vector>
 #include<string>
 

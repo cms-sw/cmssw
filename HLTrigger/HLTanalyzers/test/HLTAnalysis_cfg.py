@@ -28,20 +28,15 @@ if (isData):
 
 #####  Global Tag ###############################################
     
-# Which AlCa condition for what. Available from pre11
-# * DESIGN_31X_V1 - no smearing, alignment and calibration constants = 1.  No bad channels.
-# * MC_31X_V1 (was IDEAL_31X) - conditions intended for 31X physics MC production: no smearing,
-#   alignment and calibration constants = 1.  Bad channels are masked.
-# * STARTUP_31X_V1 (was STARTUP_31X) - conditions needed for HLT 8E29 menu studies: As MC_31X_V1 (including bad channels),
-#   but with alignment and calibration constants smeared according to knowledge from CRAFT.
-# * CRAFT08_31X_V1 (was CRAFT_31X) - conditions for CRAFT08 reprocessing.
-# * CRAFT_31X_V1P, CRAFT_31X_V1H - initial conditions for 2009 cosmic data taking - as CRAFT08_31X_V1 but with different
-#   tag names to allow append IOV, and DT cabling map corresponding to 2009 configuration (10 FEDs).
+# Which AlCa condition for what. 
+# See https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions#Global_t
+# for the complete list of global tags for a given release
 # Meanwhile...:
 
 if (isData):
     # GLOBAL_TAG='GR09_H_V6OFF::All' # collisions 2009
-    GLOBAL_TAG='GR10_H_V6A::All' # collisions2010
+    # GLOBAL_TAG='GR10_H_V6A::All' # collisions2010, CMSSW_3_6_X
+    GLOBAL_TAG='GR_R_38X_V9A::All' # collisions2010, preliminary tag for CMSSW_3_8_X
 else:
     GLOBAL_TAG='MC_31X_V2::All'
     if (MENU == "LUMI8e29"): GLOBAL_TAG= 'STARTUP3X_V15::All'

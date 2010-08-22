@@ -6,6 +6,7 @@ import FWCore.ParameterSet.Config as cms
 from HLTrigger.Configuration.HLT_FULL_cff import *
 
 openhltTauPrescaler = cms.EDFilter("HLTPrescaler",
+                                   L1GtReadoutRecordTag = cms.InputTag("gtDigis"),
     makeFilterObject = cms.bool(True),
     eventOffset = cms.uint32(0),
     prescaleFactor = cms.uint32(1)

@@ -2,9 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     ### GEN objects
+
     mctruth                         = cms.InputTag("genParticles"),
-    # genEventScale                   = cms.InputTag("genEventScale"),
     genEventInfo                    = cms.InputTag("generator"),
+
 
     ### SIM objects
     simhits                         = cms.InputTag("g4SimHits"),
@@ -29,16 +30,18 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     HLTProcessName                  = cms.string("HLT"),
     
     ### reconstructed objects
-    genjets                         = cms.InputTag("iterativeCone5GenJets"),
+    genjets                         = cms.InputTag("iterativeCone5HiGenJets"),
     genmet                          = cms.InputTag("genMet"),
-    recjets                         = cms.InputTag("hltIterativeCone5CaloJets"),
-    reccorjets                      = cms.InputTag("hltMCJetCorJetIcone5"),
+    recjets                         = cms.InputTag("hltIterativeCone5PileupSubtractionCaloJets"),
+    reccorjets                      = cms.InputTag("hltMCJetCorJetIcone5PU"),
     recmet                          = cms.InputTag("hltMet"),
     ht                              = cms.InputTag("hltHtMet"),
     calotowers                      = cms.InputTag("hltTowerMakerForAll"),
     muon                            = cms.InputTag("muons"),
+    Photon                          = cms.InputTag("photons"),                          
     Electron                        = cms.InputTag("pixelMatchGsfElectrons"),
-    Photon                          = cms.InputTag("photons"),
+    BarrelPhoton                    = cms.InputTag("hltIslandSuperClustersHI:islandBarrelSuperClustersHI"),
+    EndcapPhoton                    = cms.InputTag("hltIslandSuperClustersHI:islandEndcapSuperClustersHI"),
     
     ### muon OpenHLT objects                             
     MuCandTag2                      = cms.InputTag("hltL2MuonCandidates"),
@@ -95,6 +98,13 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     PerformanceBJetsL25             = cms.InputTag("openHltBSoftmuonL25BJetTags"),
     PerformanceBJetsL3              = cms.InputTag("openHltBPerfMeasL3BJetTags"),
 
+
+    ### Heavy Ion OpenHLT related objects                             
+    Centrality    = cms.InputTag("hiCentrality"),
+    CentralityBin    = cms.InputTag("centralityBin"),
+    EvtPlane      = cms.InputTag("hiEvtPlane","recoLevel"),
+    HiMC          = cms.InputTag("heavyIon"),
+                             
     ### AlCa OpenHLT related objects
     EERecHits                   = cms.InputTag("hltEcalRecHitAll","EcalRecHitsEE"),
     EBRecHits                   = cms.InputTag("hltEcalRecHitAll","EcalRecHitsEB"),
@@ -142,6 +152,27 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
         CalJetMin     = cms.double(0.0),
         GenJetMin     = cms.double(0.0),
         Monte         = cms.bool(True),
-        Debug         = cms.bool(False)
+        Debug         = cms.bool(False),
+
+      ### added in 2010 ###
+      DoHeavyIon           = cms.untracked.bool(False),
+
+                ### MCTruth
+##                DoParticles          = cms.untracked.bool(True),
+##                DoRapidity           = cms.untracked.bool(False),
+##                DoVerticesByParticle = cms.untracked.bool(True),
+
+                ### Egamma
+##                DoPhotons            = cms.untracked.bool(True),
+##                DoElectrons          = cms.untracked.bool(True),
+##                DoSuperClusters      = cms.untracked.bool(False),
+
+                ### Muon
+                DoL1Muons            = cms.untracked.bool(True),
+##                DoL2Muons            = cms.untracked.bool(True),
+##                DoL3Muons            = cms.untracked.bool(True),
+##                DoOfflineMuons       = cms.untracked.bool(True),
+##                DoQuarkonia         = cms.untracked.bool(True)
+        
     )
 )

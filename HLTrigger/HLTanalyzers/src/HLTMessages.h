@@ -1,6 +1,7 @@
 #ifndef HLTrigger_HLTanalyzers_HLTMessages_h
 #define HLTrigger_HLTanalyzers_HLTMessages_h
 
+extern const char * kSubEventMap;
 extern const char * kRecjets;
 extern const char * kRecCorjets;
 extern const char * kGenjets;

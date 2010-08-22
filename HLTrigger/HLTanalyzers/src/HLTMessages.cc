@@ -1,5 +1,6 @@
 #include "HLTMessages.h"
 
+const char * kSubEventMap                 = "subevent map";
 const char * kRecjets                     = "uncorrected reconstructed jets";
 const char * kRecCorjets                  = "corrected reconstructed jets";
 const char * kGenjets                     = "generator jets";
