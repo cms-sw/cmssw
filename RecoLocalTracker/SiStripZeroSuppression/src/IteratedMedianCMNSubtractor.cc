@@ -62,7 +62,7 @@ subtract_(const uint32_t& detId,std::vector<T>& digis){
       std::vector< std::pair<float,float> >::iterator si = subset.begin();
       while(  si != subset.end() )
       {
-        if( si->first-offset < cut_to_avoid_signal_*si->second )  
+        if( si->first-offset > cut_to_avoid_signal_*si->second )  
           si = subset.erase(si);
         else
           ++si;
