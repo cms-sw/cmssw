@@ -247,9 +247,17 @@ process.load("DQM.EcalBarrelMonitorTasks.EcalBarrelMonitorTasks_cfi")
 
 process.load("DQM.EcalEndcapMonitorTasks.EcalEndcapMonitorTasks_cfi")
 
-process.load("DQM.EcalBarrelMonitorClient.EcalBarrelMonitorClient_cfi")
+if (localDAQ == 1) | (liveCMS == 1) :
+  process.load("DQM.EcalBarrelMonitorClient.EcalBarrelMonitorClient_cfi")
 
-process.load("DQM.EcalEndcapMonitorClient.EcalEndcapMonitorClient_cfi")
+  process.load("DQM.EcalEndcapMonitorClient.EcalEndcapMonitorClient_cfi")
+
+if (globalDAQ==1) | (liveECAL==1) :
+  import DQM.EcalBarrelMonitorClient.EcalBarrelMonitorDbClient_cfi
+  process.ecalBarrelMonitorClient = DQM.EcalBarrelMonitorClient.EcalBarrelMonitorDbClient_cfi.ecalBarrelMonitorDbClient.clone()
+
+  import DQM.EcalEndcapMonitorClient.EcalEndcapMonitorDbClient_cfi
+  process.ecalEndcapMonitorClient = DQM.EcalEndcapMonitorClient.EcalEndcapMonitorDbClient_cfi.ecalEndcapMonitorDbClient.clone()
 
 process.load("DQMServices.Core.DQM_cfg")
 
