@@ -252,7 +252,7 @@ if (localDAQ == 1) | (liveCMS == 1) :
 
   process.load("DQM.EcalEndcapMonitorClient.EcalEndcapMonitorClient_cfi")
 
-if (globalDAQ==1) | (liveECAL==1) :
+if (globalDAQ == 1) | (liveECAL == 1) :
   import DQM.EcalBarrelMonitorClient.EcalBarrelMonitorDbClient_cfi
   process.ecalBarrelMonitorClient = DQM.EcalBarrelMonitorClient.EcalBarrelMonitorDbClient_cfi.ecalBarrelMonitorDbClient.clone()
 
