@@ -125,13 +125,15 @@ class PFElectronAlgo {
   // Pure Tracking observ.
   float dPtOverPt_gsf,chi2_gsf,DPtOverPt_gsf,
     chi2_kf,DPtOverPt_kf;
-  int nhit_gsf,nhit_kf;
+  //  int nhit_gsf,nhit_kf;
+  float nhit_gsf,nhit_kf;
   
   // Tracker-Ecal observ. 
   float EtotPinMode,EGsfPoutMode,EtotBremPinPoutMode;
   float DEtaGsfEcalClust;
   float SigmaEtaEta; 
-  int lateBrem,firstBrem,earlyBrem;
+  //int lateBrem,firstBrem,earlyBrem;
+  float lateBrem,firstBrem,earlyBrem;
   float HOverHE,HOverPin;
 
   bool isvalid_;

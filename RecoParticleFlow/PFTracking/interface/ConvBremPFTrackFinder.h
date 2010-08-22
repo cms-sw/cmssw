@@ -83,6 +83,7 @@ class ConvBremPFTrackFinder {
   TMVA::Reader    *tmvaReader_;
   std::vector<reco::PFRecTrackRef> pfRecTrRef_vec_;
   float secR,secPout,ptRatioGsfKF,sTIP,Epout,detaBremKF,secPin;
-  int nHITS1;
+  //int nHITS1;
+  float nHITS1;
 
 };
