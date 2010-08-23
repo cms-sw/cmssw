@@ -50,8 +50,8 @@ FWHFRecHitProxyBuilder::build( const FWEventItem* iItem, TEveElementList* produc
    unsigned int index = 0;
    for( it = collection->begin(); it != itEnd; ++it, ++index )
    {
-      const std::vector<Float_t>& corners = iItem->getGeom()->getCorners(( *it ).detid().rawId());
-      if( corners.empty())
+      const float* corners = iItem->getGeom()->getCorners(( *it ).detid().rawId());
+      if( corners == 0 )
       {
 	 TEveCompound* compound = createCompound();
 	 setupAddElement( compound, product );

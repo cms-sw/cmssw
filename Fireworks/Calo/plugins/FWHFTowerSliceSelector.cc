@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Wed Jun  2 17:39:44 CEST 2010
-// $Id: FWHFTowerSliceSelector.cc,v 1.6 2010/08/12 12:44:46 yana Exp $
+// $Id: FWHFTowerSliceSelector.cc,v 1.7 2010/08/18 14:12:18 yana Exp $
 //
 
 // system include files
@@ -81,8 +81,8 @@ bool
 FWHFTowerSliceSelector::findBinFromId( HcalDetId& detId, int tower) const
 {    
    TEveCaloData::vCellId_t cellIds;
-   const std::vector<float>& corners = m_item->getGeom()->getCorners( detId.rawId());
-   if( corners.empty())
+   const float* corners = m_item->getGeom()->getCorners( detId.rawId());
+   if( corners == 0 )
    {
      fwLog( fwlog::kInfo ) << "FWHFTowerSliceSelector cannot get geometry for DetId: "<< detId.rawId() << ". Ignored.\n";
      return false;

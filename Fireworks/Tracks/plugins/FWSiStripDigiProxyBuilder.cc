@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiStripDigiProxyBuilder.cc,v 1.12 2010/08/12 12:44:48 yana Exp $
+// $Id: FWSiStripDigiProxyBuilder.cc,v 1.13 2010/08/19 13:39:18 yana Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -55,7 +55,7 @@ FWSiStripDigiProxyBuilder::build( const FWEventItem* iItem, TEveElementList* pro
     const uint32_t& id = ds.id;
 
     const TGeoHMatrix* matrix = geom->getMatrix( id );
-    const std::vector<Float_t>& pars = geom->getParameters( id );
+    const float* pars = geom->getParameters( id );
         
     for( edm::DetSet<SiStripDigi>::const_iterator idigi = ds.data.begin(), idigiEnd = ds.data.end();
 	 idigi != idigiEnd; ++idigi )        
@@ -63,7 +63,7 @@ FWSiStripDigiProxyBuilder::build( const FWEventItem* iItem, TEveElementList* pro
       TEveStraightLineSet *lineSet = new TEveStraightLineSet( "strip" );
       setupAddElement( lineSet, product );
 
-      if( pars.empty() || (! matrix ))
+      if( pars == 0 || (! matrix ))
       {
 	fwLog( fwlog::kWarning ) 
 	  << "failed get geometry and topology of SiStripDigi with detid: "

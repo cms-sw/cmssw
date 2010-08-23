@@ -4,7 +4,7 @@
 //
 // Package:     Tracks
 // Class  :     TrackUtils
-// $Id: TrackUtils.h,v 1.20 2010/08/12 12:44:48 yana Exp $
+// $Id: TrackUtils.h,v 1.21 2010/08/19 13:39:17 yana Exp $
 //
 
 // system include files
@@ -67,11 +67,11 @@ TEveTrack* prepareTrack( const reco::Track& track,
 double pixelLocalX( const double mpx, const int m_nrows );
 double pixelLocalY( const double mpy, const int m_ncols );
 
-void localSiStrip( short strip, Double_t* localTop, Double_t* localBottom, const std::vector<Float_t>& pars, unsigned int id );
+void localSiStrip( short strip, Double_t* localTop, Double_t* localBottom, const float* pars, unsigned int id );
 
 void pushPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, const reco::Track &t );   
 void pushNearbyPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, const reco::Track &t );   
-void pushPixelCluster( std::vector<TVector3> &pixelPoints, const TGeoHMatrix *m, DetId id, const SiPixelCluster &c, const std::vector<Float_t>& pars ); 
+void pushPixelCluster( std::vector<TVector3> &pixelPoints, const TGeoHMatrix *m, DetId id, const SiPixelCluster &c, const float* pars ); 
 
 void addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveElement *tList, bool addNearbyClusters, bool master );
 

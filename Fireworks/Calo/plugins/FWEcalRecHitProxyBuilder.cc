@@ -35,8 +35,8 @@ private:
 void
 FWEcalRecHitProxyBuilder::build( const EcalRecHit& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) 
 {
-   const std::vector<Float_t>& corners = item()->getGeom()->getCorners( iData.detid());
-   if( corners.empty() ) {
+   const float* corners = item()->getGeom()->getCorners( iData.detid());
+   if( corners == 0 ) {
       return;
    }
    Float_t scale = 10.0;

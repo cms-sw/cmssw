@@ -7,7 +7,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiPixelClusterProxyBuilder.cc,v 1.12 2010/05/06 14:14:10 mccauley Exp $
+// $Id: FWSiPixelClusterProxyBuilder.cc,v 1.13 2010/08/06 14:07:50 yana Exp $
 //
 
 #include "TEvePointSet.h"
@@ -57,7 +57,7 @@ FWSiPixelClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementList* 
 
     const DetIdToMatrix *geom = iItem->getGeom();
     const TGeoHMatrix* matrix = geom->getMatrix( id );
-    std::vector<Float_t> pars = geom->getParameters( id );
+    const float* pars = geom->getParameters( id );
 
     const edmNew::DetSet<SiPixelCluster> & clusters = *set;
       
@@ -67,7 +67,7 @@ FWSiPixelClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementList* 
       TEvePointSet* pointSet = new TEvePointSet;
       setupAddElement( pointSet, product );
       
-      if( ! matrix || pars.empty()) 
+      if( ! matrix || pars == 0 ) 
       {
 	fwLog( fwlog::kWarning ) 
 	  << "failed get geometry of SiPixelCluster with detid: "

@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiPixelDigiProxyBuilder.cc,v 1.12 2010/08/11 13:05:39 yana Exp $
+// $Id: FWSiPixelDigiProxyBuilder.cc,v 1.13 2010/08/12 12:44:48 yana Exp $
 //
 
 #include "TEveCompound.h"
@@ -56,7 +56,7 @@ void FWSiPixelDigiProxyBuilder::build( const FWEventItem* iItem, TEveElementList
     unsigned int id = ds.id;
 
     const TGeoHMatrix *matrix = geom->getMatrix( id );
-    std::vector<Float_t> pars = geom->getParameters( id );
+    const float* pars = geom->getParameters( id );
          
     for( edm::DetSet<PixelDigi>::const_iterator idigi = ds.data.begin(), idigiEnd = ds.data.end();
 	 idigi != idigiEnd; ++idigi )
@@ -66,7 +66,7 @@ void FWSiPixelDigiProxyBuilder::build( const FWEventItem* iItem, TEveElementList
       pointSet->SetMarkerStyle( 2 );
       setupAddElement( pointSet, product );
 
-      if( ! matrix || pars.empty()) 
+      if( ! matrix || pars == 0 ) 
       {
 	fwLog( fwlog::kWarning ) 
 	  << "failed get geometry of SiPixelDigi with detid: "

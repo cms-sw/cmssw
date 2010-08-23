@@ -225,8 +225,8 @@ FWECALDetailViewBuilder::fillData( const EcalRecHitCollection *hits,
       // get reco geometry
       double centerEta = 0;
       double centerPhi = 0;
-      const std::vector<Float_t>& points = m_geom->getCorners( k->id().rawId());
-      if( ! points.empty() )
+      const float* points = m_geom->getCorners( k->id().rawId());
+      if( points != 0 )
       {
 	 TEveVector v;
 	 int j = 0;
@@ -260,7 +260,7 @@ FWECALDetailViewBuilder::fillData( const EcalRecHitCollection *hits,
 		&& fabs( centerPhi - m_phi ) < barrelCR )) continue;
 
 	 double minEta(10), maxEta(-10), minPhi(4), maxPhi(-4);
-	 if( points.size() == 24 )
+	 if( points != 0 )
 	 {
 	    // calorimeter crystalls have slightly non-symetrical form in eta-phi projection
 	    // so if we simply get the largest eta and phi, cells will overlap
@@ -310,7 +310,7 @@ FWECALDetailViewBuilder::fillData( const EcalRecHitCollection *hits,
 		&& fabs( centerPhi - m_phi ) < ( crystalSize )))
 	    continue;
 
-	 if( points.size() == 24 )
+	 if( points != 0 )
 	 {
 	    double minX(9999), maxX(-9999), minY(9999), maxY(-9999);
 	    int j = 0;

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Dec  5 15:32:33 EST 2008
-// $Id: makeSuperCluster.cc,v 1.8 2010/08/12 12:44:48 yana Exp $
+// $Id: makeSuperCluster.cc,v 1.9 2010/08/13 08:14:15 yana Exp $
 //
 
 // system include files
@@ -37,8 +37,8 @@ bool makeRhoPhiSuperCluster( FWProxyBuilderBase* pb,
    std::vector<double> phis;
    for( std::vector<std::pair<DetId, float> >::const_iterator id = detids.begin(), end = detids.end(); id != end; ++id )
    {
-     const std::vector<Float_t>& corners = pb->context().getGeom()->getCorners( id->first.rawId());
-     if( ! corners.empty() )
+     const float* corners = pb->context().getGeom()->getCorners( id->first.rawId());
+     if( corners != 0 )
      {
        std::vector<float> centre( 3, 0 );
 
@@ -75,8 +75,8 @@ bool makeRhoZSuperCluster( FWProxyBuilderBase* pb,
    std::vector<std::pair<DetId, float> > detids = iCluster->hitsAndFractions();
    for( std::vector<std::pair<DetId, float> >::const_iterator id = detids.begin(), end = detids.end(); id != end; ++id )
    {
-     const std::vector<Float_t>& corners = pb->context().getGeom()->getCorners( id->first.rawId());
-     if( ! corners.empty())
+     const float* corners = pb->context().getGeom()->getCorners( id->first.rawId());
+     if( corners != 0 )
      {
        std::vector<float> centre( 3, 0 );
 

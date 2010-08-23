@@ -11,8 +11,8 @@ namespace fireworks
    void invertBox( std::vector<float> &corners );
    void addBox( const std::vector<float> &corners, TEveElement*,  FWProxyBuilderBase*);
 
-   void drawEnergyScaledBox3D( const std::vector<float> &corners, float scale, TEveElement*,  FWProxyBuilderBase*, bool invert = false );
-   void drawEnergyTower3D( const std::vector<float> &corners, float scale, TEveElement*, FWProxyBuilderBase*, bool reflect = false );
+   void drawEnergyScaledBox3D( const float* corners, float scale, TEveElement*,  FWProxyBuilderBase*, bool invert = false );
+   void drawEnergyTower3D( const float* corners, float scale, TEveElement*, FWProxyBuilderBase*, bool reflect = false );
 }
 
 #endif

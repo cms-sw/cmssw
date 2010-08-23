@@ -8,7 +8,7 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCWireDigiProxyBuilder.cc,v 1.10 2010/08/17 12:58:57 amraktad Exp $
+// $Id: FWCSCWireDigiProxyBuilder.cc,v 1.11 2010/08/17 15:21:42 mccauley Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -135,17 +135,15 @@ FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* prod
       continue;
     }
     
-    std::vector<float> parameters = iItem->getGeom()->getParameters(cscDetId.rawId());
+    const float* parameters = iItem->getGeom()->getParameters(cscDetId.rawId());
 
-    if ( parameters.empty() )
+    if ( parameters == 0 )
     {
       fwLog(fwlog::kWarning)<<"Parameters empty for CSC with detid: "
                             << cscDetId.rawId() <<std::endl;
       continue;
     }
     
-    assert(parameters.size() >= 8);
-
     double wireSpacing = parameters[6];
     float wireAngle = parameters[7];
     float cosWireAngle = cos(wireAngle);

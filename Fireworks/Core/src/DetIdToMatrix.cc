@@ -15,6 +15,7 @@
 #include <cassert>
 #include <sstream>
 #include <stdexcept>
+#include <algorithm>
 
 DetIdToMatrix::~DetIdToMatrix( void )
 {
@@ -120,23 +121,23 @@ DetIdToMatrix::loadMap( const char* fileName )
    for( unsigned int i = 0; i < tree->GetEntries(); ++i)
    {
       tree->GetEntry( i );
-      m_idToInfo[id].path = path;
+      RecoGeomInfo p;
+      p.id = id;
+      p.path = path;
       if( loadPoints )
       {
-         std::vector<Float_t> p( 24 );
 	 for( unsigned int j = 0; j < 24; ++j )
-	    p[j] = points[j];
-	 m_idToInfo[id].points.swap( p );
+	    p.points[j] = points[j];
       }
       if( loadParameters )
       {
-         std::vector<Float_t> t( 9 );
 	 for( unsigned int j = 0; j < 9; ++j )
-	    t[j] = topology[j];
-	 m_idToInfo[id].parameters.swap( t );
-      }      
+	    p.parameters[j] = topology[j];
+      }
+      m_idToInfo.push_back( p );
    }
    file->Close();
+   std::sort( m_idToInfo.begin(), m_idToInfo.end() );
 }
 
 void
@@ -145,11 +146,19 @@ DetIdToMatrix::initMap( FWRecoGeom::InfoMapItr begin, FWRecoGeom::InfoMapItr end
   for( std::map<unsigned int, FWRecoGeom::Info>::const_iterator it = begin;
        it != end; ++it )
   {
-    unsigned int rawid = it->first;
-    m_idToInfo[rawid].path = it->second.name;
-    m_idToInfo[rawid].points = it->second.points;
-    m_idToInfo[rawid].parameters = it->second.topology;
+    unsigned int id = it->first;
+
+    RecoGeomInfo p;
+    p.id = id;
+    p.path = it->second.name;
+    for( unsigned int j = 0; j < 24; ++j )
+      p.points[j] = it->second.points[j];
+    for( unsigned int j = 0; j < 9; ++j )
+      p.parameters[j] = it->second.topology[j];
+
+    m_idToInfo.push_back( p );
   }
+  std::sort( m_idToInfo.begin(), m_idToInfo.end() );
 }
 
 const TGeoHMatrix*
@@ -177,9 +186,9 @@ DetIdToMatrix::getMatrix( unsigned int id ) const
 const char*
 DetIdToMatrix::getPath( unsigned int id ) const
 {
-   std::map<unsigned int, RecoGeomInfo>::const_iterator it = m_idToInfo.find( id );
+   IdToInfoItr it = DetIdToMatrix::find( id );
    if( it != m_idToInfo.end())
-      return it->second.path.c_str();
+      return ( *it ).path.c_str();
    else
       return 0;
 }
@@ -187,10 +196,10 @@ DetIdToMatrix::getPath( unsigned int id ) const
 const TGeoVolume*
 DetIdToMatrix::getVolume( unsigned int id ) const
 {
-   std::map<unsigned int, RecoGeomInfo>::const_iterator it = m_idToInfo.find( id );
+   IdToInfoItr it = DetIdToMatrix::find( id );
    if( it != m_idToInfo.end())
    {
-      m_manager->cd( it->second.path.c_str());
+      m_manager->cd( ( *it ).path.c_str());
       return m_manager->GetCurrentVolume();
    }
    else
@@ -202,9 +211,9 @@ DetIdToMatrix::getMatchedIds( const char* regular_expression ) const
 {
    std::vector<unsigned int> ids;
    TPRegexp regexp( regular_expression );
-   for( std::map<unsigned int, RecoGeomInfo>::const_iterator it = m_idToInfo.begin(), itEnd = m_idToInfo.end();
+   for( IdToInfoItr it = m_idToInfo.begin(), itEnd = m_idToInfo.end();
 	it != itEnd; ++it )
-      if( regexp.MatchB( it->second.path )) ids.push_back( it->first );
+      if( regexp.MatchB(( *it ).path )) ids.push_back(( *it ).id );
    return ids;
 }
 
@@ -213,10 +222,10 @@ DetIdToMatrix::getMatchedIds( Detector det, SubDetector subdet ) const
 {
    std::vector<unsigned int> ids;
    unsigned int mask =(det<<4)|(subdet);
-   for( std::map<unsigned int, RecoGeomInfo>::const_iterator it = m_idToInfo.begin(), itEnd = m_idToInfo.end();
+   for( IdToInfoItr it = m_idToInfo.begin(), itEnd = m_idToInfo.end();
 	it != itEnd; ++it )
    {
-     unsigned int id = it->first;
+     unsigned int id = ( *it ).id;
      if((((( id >> kDetOffset ) & 0xF ) << 4) | (( id >> kSubdetOffset ) & 0x7 )) == mask )
        ids.push_back( id );
    }
@@ -288,34 +297,40 @@ DetIdToMatrix::getPoints( unsigned int id ) const
    return m_eveVector;
 }
 
-const std::vector<Float_t>&
+const float*
 DetIdToMatrix::getCorners( unsigned int id ) const
 {
    // reco geometry points
-   std::map<unsigned int, RecoGeomInfo>::const_iterator it = m_idToInfo.find( id );
+   IdToInfoItr it = DetIdToMatrix::find( id );
    if( it == m_idToInfo.end())
    {
       fwLog( fwlog::kWarning ) << "no reco corners geometry is found for id " <<  id << std::endl;
-      return m_float;
+      return 0;
    }
    else
    {
-      return it->second.points;
+      return ( *it ).points;
    }
 }
 
-const std::vector<Float_t>&
+const float*
 DetIdToMatrix::getParameters( unsigned int id ) const
 {
    // reco geometry parameters
-   std::map<unsigned int, RecoGeomInfo>::const_iterator it = m_idToInfo.find( id );
+   IdToInfoItr it = DetIdToMatrix::find( id );
    if( it == m_idToInfo.end())
    {
       fwLog( fwlog::kWarning ) << "no reco parameters are found for id " <<  id << std::endl;
-      return m_float;
+      return 0;
    }
    else
    {
-      return it->second.parameters;
+      return ( *it ).parameters;
    }
+}
+
+DetIdToMatrix::IdToInfoItr
+DetIdToMatrix::find( unsigned int id ) const
+{
+  return std::find_if( m_idToInfo.begin(), m_idToInfo.end(), find_id( id ));
 }

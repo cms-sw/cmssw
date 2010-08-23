@@ -27,8 +27,8 @@ FWCaloClusterProxyBuilder::build( const reco::CaloCluster& iData, unsigned int i
   for( std::vector<std::pair<DetId, float> >::iterator it = clusterDetIds.begin(), itEnd = clusterDetIds.end();
        it != itEnd; ++it )
   {
-    const std::vector<Float_t>& corners = item()->getGeom()->getCorners( (*it).first );
-    if( corners.empty() ) {
+    const float* corners = item()->getGeom()->getCorners( (*it).first );
+    if( corners == 0 ) {
       continue;
     }
     fireworks::drawEnergyTower3D( corners, (*it).second, &oItemHolder, this, false );

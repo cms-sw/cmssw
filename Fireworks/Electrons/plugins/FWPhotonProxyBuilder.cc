@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 26 14:52:01 EST 2008
-// $Id: FWPhotonProxyBuilder.cc,v 1.15 2010/08/12 12:44:47 yana Exp $
+// $Id: FWPhotonProxyBuilder.cc,v 1.16 2010/08/13 08:14:14 yana Exp $
 //
 
 #include "TEveBox.h"
@@ -72,9 +72,9 @@ FWPhotonProxyBuilder::buildViewType( const reco::Photon& photon, unsigned int iI
       box->SetPickable( true );
       setupAddElement( box, &oItemHolder );
 
-      const std::vector<Float_t>& corners = geom->getCorners( id->first.rawId() );
+      const float* corners = geom->getCorners( id->first.rawId() );
       
-      if( corners.empty() )
+      if( corners == 0 )
       {
         fwLog( fwlog::kWarning )
 	  << "No corners available for supercluster constituent" << std::endl;

@@ -31,7 +31,7 @@ namespace
   }
   
   void
-  addTube( TEveBox* shape, const TGeoHMatrix* matrix, double localPos[3],  std::vector<Float_t> &pars )
+  addTube( TEveBox* shape, const TGeoHMatrix* matrix, double localPos[3],  const float* pars )
   {
     const Float_t width = pars[0] / 2.;
     const Float_t thickness = pars[1] / 2.;
@@ -85,7 +85,7 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
   for( DTDigiCollection::DigiRangeIterator det = digis->begin(), detEnd = digis->end(); det != detEnd; ++det )
   {
     const DTLayerId& layerId = (*det).first;
-    std::vector<Float_t> pars = iItem->getGeom()->getParameters( layerId );
+    const float* pars = iItem->getGeom()->getParameters( layerId );
 
     int superLayer = layerId.superlayerId().superLayer();
 
@@ -102,7 +102,7 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
       TEveCompound* compound = createCompound();
       setupAddElement( compound, product );
 
-      if( pars.empty() || (! matrix )) {
+      if( pars == 0 || (! matrix )) {
 	fwLog( fwlog::kError )
 	  << "failed get geometry of DT layer with detid: " 
 	  << layerId << std::endl;

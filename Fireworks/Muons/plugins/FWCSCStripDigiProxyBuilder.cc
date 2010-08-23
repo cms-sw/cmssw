@@ -8,7 +8,7 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCStripDigiProxyBuilder.cc,v 1.8 2010/08/17 12:58:57 amraktad Exp $
+// $Id: FWCSCStripDigiProxyBuilder.cc,v 1.9 2010/08/17 15:21:42 mccauley Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -89,16 +89,14 @@ FWCSCStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
          continue;
       }
 
-      std::vector<float> parameters = iItem->getGeom()->getParameters(cscDetId.rawId());
+      const float* parameters = iItem->getGeom()->getParameters(cscDetId.rawId());
       
-      if ( parameters.empty() )
+      if ( parameters == 0 )
       {
          fwLog(fwlog::kWarning)<<"Parameters empty for CSC layer with detid: " 
                                << cscDetId.rawId() <<std::endl;
          continue;
       }
-
-      assert(parameters.size() >= 6);
 
       float yAxisOrientation = parameters[0];
       float centreToIntersection = parameters[1];

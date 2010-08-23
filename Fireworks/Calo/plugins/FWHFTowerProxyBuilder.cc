@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 16:41:27 CEST 2010
-// $Id: FWHFTowerProxyBuilder.cc,v 1.15 2010/08/12 12:44:46 yana Exp $
+// $Id: FWHFTowerProxyBuilder.cc,v 1.16 2010/08/18 14:12:18 yana Exp $
 //
 
 // system include files
@@ -149,8 +149,8 @@ FWHFTowerProxyBuilderBase::fillTowerForDetId( HcalDetId& detId, float val )
    const static float upPhiLimit = Pi() -10*DegToRad() -1e-5;
 
    TEveCaloData::vCellId_t cellIds;
-   const std::vector<float>& corners = item()->getGeom()->getCorners( detId.rawId());
-   if( corners.empty())
+   const float* corners = item()->getGeom()->getCorners( detId.rawId());
+   if( corners != 0 )
    {
      fwLog( fwlog::kInfo ) << "FWHFTowerProxyBuilderBase cannot get geometry for DetId: "<< detId.rawId() << ". Ignored.\n";
      return -1;

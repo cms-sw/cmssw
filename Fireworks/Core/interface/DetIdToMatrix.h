@@ -40,8 +40,10 @@ public:
    };
 
    DetIdToMatrix( void )
-     : m_manager( 0 )
-    {}
+     : m_manager( 0 )       
+    {
+      m_idToInfo.reserve( 260000 );
+    }
    ~DetIdToMatrix( void );
 
    // load full CMS geometry
@@ -91,30 +93,49 @@ public:
    const std::vector<TEveVector>& getPoints( unsigned int id ) const;
 
    // get reco geometry
-   const std::vector<Float_t>& getCorners( unsigned int id ) const;
+   const float* getCorners( unsigned int id ) const;
 
    // get reco topology/parameters
-   const std::vector<Float_t>& getParameters( unsigned int id ) const;
+   const float* getParameters( unsigned int id ) const;
 
    TGeoManager* getManager( void ) const {
       return m_manager;
    }
+  
+   struct RecoGeomInfo
+   {
+      unsigned int id;
+      std::string path;
+      float points[24];
+      float parameters[9];
+
+      bool operator< ( const RecoGeomInfo& o ) const { 
+         return ( this->id < o.id );
+      }
+   };
+
+   struct find_id : std::unary_function<RecoGeomInfo, bool> {
+      unsigned int id;
+      find_id( unsigned int id ) : id( id ) {}
+      bool operator () ( const RecoGeomInfo& o ) const {
+         return o.id == id;
+      }
+   };
+  
+   typedef std::vector<DetIdToMatrix::RecoGeomInfo> IdToInfo;
+   typedef std::vector<DetIdToMatrix::RecoGeomInfo>::const_iterator IdToInfoItr;
+
 private:
   
-  mutable std::map<unsigned int, TGeoHMatrix> m_idToMatrix;
+   mutable std::map<unsigned int, TGeoHMatrix> m_idToMatrix;
+  
+   IdToInfo m_idToInfo;
+  
+   mutable TGeoManager* m_manager;
+  
+   IdToInfoItr find( unsigned int ) const;
 
-  struct RecoGeomInfo
-  {
-    std::string path;
-    std::vector<Float_t> points;
-    std::vector<Float_t> parameters;
-  };
-  mutable std::map<unsigned int, RecoGeomInfo> m_idToInfo;
-  
-  mutable TGeoManager* m_manager;
-  
-  std::vector<TEveVector> m_eveVector;
-  std::vector<Float_t> m_float;
+   std::vector<TEveVector> m_eveVector;
 };
 
 #endif

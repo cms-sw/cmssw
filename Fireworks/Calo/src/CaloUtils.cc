@@ -37,7 +37,7 @@ namespace fireworks
       pb->setupAddElement( eveBox, comp );
    }
 
-   void drawEnergyScaledBox3D( const std::vector<float> &corners, float scale, TEveElement* comp, FWProxyBuilderBase* pb, bool invert )
+   void drawEnergyScaledBox3D( const float* corners, float scale, TEveElement* comp, FWProxyBuilderBase* pb, bool invert )
    {
       std::vector<float> scaledCorners( 24 );
       std::vector<float> centre( 3, 0 );
@@ -66,9 +66,11 @@ namespace fireworks
       addBox( scaledCorners, comp, pb );
    }
 
-   void drawEnergyTower3D( const std::vector<float> &corners, float scale, TEveElement* comp, FWProxyBuilderBase* pb, bool reflect )
+   void drawEnergyTower3D( const float* corners, float scale, TEveElement* comp, FWProxyBuilderBase* pb, bool reflect )
    {
-      std::vector<float> scaledCorners = corners;
+     std::vector<float> scaledCorners( 24 );
+     for( int i = 0; i < 24; ++i )
+        scaledCorners[i] = corners[i];
       // Coordinates of a front face scaled 
       if( reflect )
       {

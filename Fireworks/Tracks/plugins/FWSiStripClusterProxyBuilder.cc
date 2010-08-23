@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWSiStripClusterProxyBuilder.cc,v 1.13 2010/06/18 12:44:47 yana Exp $
+// $Id: FWSiStripClusterProxyBuilder.cc,v 1.14 2010/08/19 13:39:17 yana Exp $
 //
 
 #include "TEveGeoNode.h"
@@ -58,8 +58,8 @@ FWSiStripClusterProxyBuilder::build( const SiStripCluster& iData,
   setupAddElement( lineSet, &oItemHolder );
 
   const TGeoHMatrix* matrix = geom->getMatrix( rawid );
-  std::vector<Float_t> pars = geom->getParameters( rawid );
-  if( pars.empty() || (! matrix ))
+  const float* pars = geom->getParameters( rawid );
+  if( pars == 0 || (! matrix ))
   {
     fwLog( fwlog::kError )
       << "failed to get topology of SiStripCluster with detid: " 

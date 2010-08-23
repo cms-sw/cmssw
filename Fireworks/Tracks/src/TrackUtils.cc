@@ -2,7 +2,7 @@
 //
 // Package:     Tracks
 // Class  :     TrackUtils
-// $Id: TrackUtils.cc,v 1.36 2010/08/12 12:44:49 yana Exp $
+// $Id: TrackUtils.cc,v 1.37 2010/08/19 13:39:18 yana Exp $
 //
 
 // system include files
@@ -289,7 +289,7 @@ pixelLocalY( const double mpy, const int ncols )
 //
 // Returns strip geometry in local coordinates of a detunit.
 // The strip is a line from a localTop to a localBottom point.
-void localSiStrip( short strip, Double_t* localTop, Double_t* localBottom, const std::vector<Float_t>& pars, unsigned int id )
+void localSiStrip( short strip, Double_t* localTop, Double_t* localBottom, const float* pars, unsigned int id )
 {
   Float_t topology = pars[0];
   Float_t halfStripLength = pars[2] * 0.5;
@@ -436,8 +436,8 @@ addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveEl
    {
       unsigned int rawid = (*it)->geographicalId();
       const TGeoHMatrix* matrix = geom->getMatrix( rawid );
-      std::vector<Float_t> pars = geom->getParameters( rawid );
-      if( pars.empty() || (! matrix ))
+      const float* pars = geom->getParameters( rawid );
+      if( pars == 0 || (! matrix ))
       {
 	 fwLog( fwlog::kError )
 	   << "failed to get topology of SiStripCluster with detid: " 
@@ -584,8 +584,8 @@ pushNearbyPixelHits(std::vector<TVector3> &pixelPoints, const FWEventItem &iItem
 
       DetId id = (*it)->geographicalId();
       const TGeoHMatrix *m = detIdToGeo->getMatrix(id);
-      const std::vector<Float_t>& pars = detIdToGeo->getParameters( id );
-      if( pars.empty() || (! m )) {
+      const float* pars = detIdToGeo->getParameters( id );
+      if( pars == 0 || (! m )) {
 	fwLog( fwlog::kError )
 	  << "failed get geometry of Tracker Det with raw id: " 
 	  << id.rawId() << std::endl;
@@ -635,8 +635,8 @@ pushPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, con
       // -- get position of center of wafer, assuming (0,0,0) is the center
       DetId id = (*it)->geographicalId();
       const TGeoHMatrix *m = detIdToGeo->getMatrix( id );
-      const std::vector<Float_t>& pars = detIdToGeo->getParameters( id );
-      if( pars.empty() || (! m ))
+      const float* pars = detIdToGeo->getParameters( id );
+      if( pars == 0 || (! m ))
       {
 	fwLog( fwlog::kError )
 	  << "failed get geometry of Tracker Det with raw id: " 
@@ -667,7 +667,7 @@ pushPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, con
 }
   
 void
-pushPixelCluster( std::vector<TVector3> &pixelPoints, const TGeoHMatrix *m, DetId id, const SiPixelCluster &c, const std::vector<Float_t>& pars )
+pushPixelCluster( std::vector<TVector3> &pixelPoints, const TGeoHMatrix *m, DetId id, const SiPixelCluster &c, const float* pars )
 {
    double row = c.minPixelRow();
    double col = c.minPixelCol();
