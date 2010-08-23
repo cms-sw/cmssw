@@ -1,6 +1,6 @@
 #include "Fireworks/FWInterface/src/FWPathsPopup.h"
+#include "Fireworks/FWInterface/interface/FWFFLooper.h"
 #include "FWCore/Framework/interface/ScheduleInfo.h"
-#include "FWCore/Framework/interface/ModuleChanger.h"
 #include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -11,14 +11,14 @@
 #include "TSystem.h"
 #include <iostream>
 
-FWPathsPopup::FWPathsPopup()
+FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
    : TGMainFrame(gClient->GetRoot(), 200, 200),
      m_info(0),
      m_moduleName(0),
      m_moduleLabel(0),
      m_textEdit(0),
      m_apply(0),
-     m_changer(0),
+     m_looper(looper),
      m_hasChanges(false)
 {
    FWDialogBuilder builder(this);
@@ -37,11 +37,9 @@ FWPathsPopup::FWPathsPopup()
 
 /** Finish the setup of the GUI */
 void
-FWPathsPopup::setup(const edm::ModuleChanger *changer, const edm::ScheduleInfo *info)
+FWPathsPopup::setup(const edm::ScheduleInfo *info)
 {
-   assert(changer);
    assert(info);
-   m_changer = changer;
    m_info = info;
 }
 
@@ -102,11 +100,11 @@ FWPathsPopup::scheduleReloadEvent()
       {
          const std::string &moduleName = modulesInConfig[mni];
          std::cout << moduleName << std::endl;
-         edm::ParameterSet *modulePSet(ps->getPSetForUpdate(moduleName));
+         const edm::ParameterSet *modulePSet(ps->getPSetForUpdate(moduleName));
          parameterNames = modulePSet->getParameterNames();
          for (size_t pi = 0, pe = parameterNames.size(); pi != pe; ++pi)
             std::cout << "  " << parameterNames[pi] << std::endl;
-         m_changer->changeModule(moduleName, *modulePSet);
+         m_looper->requestChanges(moduleName, *modulePSet);
       }
       m_hasChanges = true;
       gSystem->ExitLoop();

@@ -18,6 +18,7 @@ namespace edm
    class EventSetup;
    class ProcessingController;
    class ModuleChanger;
+   class ParameterSet;
 }
 
 class FWFFNavigator;
@@ -70,6 +71,7 @@ public:
    virtual void startingNewLoop(unsigned int);
    virtual edm::EDLooperBase::Status endOfLoop(const edm::EventSetup&, unsigned int);
    virtual edm::EDLooperBase::Status duringLoop(const edm::Event&, const edm::EventSetup&, edm::ProcessingController&); 
+   void requestChanges(const std::string &, const edm::ParameterSet &);
 private:
    FWFFLooper(const FWFFLooper&);                  // stop default
    const FWFFLooper& operator=(const FWFFLooper&); // stop default
@@ -89,7 +91,9 @@ private:
    bool          m_ShowEvent;
    bool          m_firstTime;
    FWPathsPopup  *m_pathsGUI;
-   edm::ModuleChanger *m_changer;
+   
+   typedef std::map<std::string, edm::ParameterSet> ModuleChanges;
+   ModuleChanges m_scheduledChanges;
 };
 
 #endif

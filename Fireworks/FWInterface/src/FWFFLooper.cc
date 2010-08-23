@@ -131,8 +131,7 @@ FWFFLooper::FWFFLooper(edm::ParameterSet const&ps)
      m_AllowStep(true),
      m_ShowEvent(true),
      m_firstTime(true),
-     m_pathsGUI(0),
-     m_changer(0)
+     m_pathsGUI(0)
 {
    printf("FWFFLooper::FWFFLooper CTOR\n");
 
@@ -182,7 +181,7 @@ FWFFLooper::FWFFLooper(edm::ParameterSet const&ps)
 void
 FWFFLooper::attachTo(edm::ActivityRegistry &ar)
 {
-   m_pathsGUI = new FWPathsPopup();
+   m_pathsGUI = new FWPathsPopup(this);
 
    ar.watchPostModule(m_pathsGUI, &FWPathsPopup::postModule);
    ar.watchPostEndJob(this, &FWFFLooper::postEndJob);
@@ -207,8 +206,8 @@ FWFFLooper::startingNewLoop(unsigned int count)
    if (count == 0)
    {
       const edm::ScheduleInfo *info = scheduleInfo();
-      m_pathsGUI->setup(moduleChanger(), info);
-      
+      m_pathsGUI->setup(info);
+
       printf("FWFFLooper: starting first loop!\n");
       // We need to enter the GUI loop in order to 
       // have all the callbacks executed. The last callback will
@@ -389,6 +388,14 @@ edm::EDLooperBase::Status
 FWFFLooper::endOfLoop(const edm::EventSetup&, unsigned int)
 {
    printf("FWFFLooper::endOfLoop");
+   // Looks like the module changer is availble only here.
+   for (ModuleChanges::iterator i = m_scheduledChanges.begin(),
+                                e = m_scheduledChanges.end();
+        i != e; ++i)
+   {
+      moduleChanger()->changeModule(i->first, i->second);
+   }
+   m_scheduledChanges.clear();
    return kContinue;
 }
 
@@ -401,4 +408,10 @@ FWFFLooper::showPathsGUI(const TGWindow *)
       m_pathsGUI->UnmapWindow();
    else
       m_pathsGUI->MapWindow();
+}
+
+void
+FWFFLooper::requestChanges(const std::string &moduleLabel, const edm::ParameterSet& ps)
+{
+   m_scheduledChanges[moduleLabel] = ps;
 }
