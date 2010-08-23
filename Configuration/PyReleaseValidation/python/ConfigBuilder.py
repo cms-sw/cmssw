@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.207 $"
+__version__ = "$Revision: 1.208 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -772,22 +772,22 @@ class ConfigBuilder(object):
 
     def prepare_SKIM(self, sequence = "all"):
         ''' Enrich the schedule with skimming fragments'''
-        if (sequence=="all"):
-                print "not implemented yet, please specify a list of skims with -s SKIM:skim1+skim2+..."
-        else:
-                skimlist=sequence.split('+')
-                skimConfig = self.loadAndRemember(self.SKIMDefaultCFF)
-                #print "dictionnary for skims:",skimConfig.__dict__
-                for skim in skimConfig.__dict__:
-                        skimstream = getattr(skimConfig,skim)
-                        if (not isinstance(skimstream,cms.FilteredStream)):
-                                continue
-                        shortname = skim.replace('SKIMStream','')
-                        if (not shortname in skimlist):
-                                continue
-                        self.addExtraStream(skim,skimstream)
-                        skimlist.remove(shortname)
-
+	skimlist=sequence.split('+')
+	skimConfig = self.loadAndRemember(self.SKIMDefaultCFF)
+	#print "dictionnary for skims:",skimConfig.__dict__
+	for skim in skimConfig.__dict__:
+		skimstream = getattr(skimConfig,skim)
+		if (not isinstance(skimstream,cms.FilteredStream)):
+			continue
+		shortname = skim.replace('SKIMStream','')
+		if (sequence=="all"):
+			self.addExtraStream(skim,skimstream)
+		elif (shortname in skimlist):
+			self.addExtraStream(skim,skimstream)
+			skimlist.remove(shortname)
+			
+	if (skimlist.__len__()!=0 and sequence!="all"):
+		print 'WARNING, possible typo with SKIM:'+'+'.join(skimlist)
 
     def prepare_POSTRECO(self, sequence = None):
         """ Enrich the schedule with the postreco step """
@@ -1030,7 +1030,7 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.207 $"),
+              (version=cms.untracked.string("$Revision: 1.208 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
