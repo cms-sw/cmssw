@@ -7,5 +7,5 @@ hltstoppedhscp = cms.EDFilter("HLTHighLevel",
                                       throw = cms.bool(False)    # throw exception on unknown path names
  )
 
-HSCPSkim =cms.Sequence(process.hltstoppedhscp)
+HSCPSkim =cms.Sequence(hltstoppedhscp)
 
