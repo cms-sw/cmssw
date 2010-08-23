@@ -77,10 +77,12 @@ hiNewCkfTrajectoryBuilder = RecoTracker.CkfPattern.CkfTrajectoryBuilderESProduce
     alwaysUseInvalidHits = False
     )
 
+from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi import *
 import RecoHI.HiTracking.HICkfTrackCandidates_cff
 hiNewTrackCandidates = RecoHI.HiTracking.HICkfTrackCandidates_cff.hiPrimTrackCandidates.clone(
     src = cms.InputTag('hiNewSeedFromPairs'),
-    TrajectoryBuilder = 'hiNewCkfTrajectoryBuilder'
+    TrajectoryBuilder = 'hiNewCkfTrajectoryBuilder',
+    TrajectoryCleaner = 'TrajectoryCleanerBySharedHits' ## since there are multiple seeding patterns
     )
 
 #fitting
