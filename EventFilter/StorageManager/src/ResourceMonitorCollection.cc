@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.35 2010/04/12 15:38:42 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.36 2010/07/20 15:16:57 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <stdio.h>
@@ -583,6 +583,7 @@ namespace {
     char* tmp = strrchr(buf, ')');  // split into "PID (cmd" and "<rest>"
     num = sscanf(tmp + 4,           // skip ') %c '
       "%d", &ppid);
+    close(fd);
     return ( num == 1 && ppid == 1 ); // scan succeeded and parent pid is 1
   }
 
