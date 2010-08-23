@@ -3,9 +3,9 @@
 #include <fstream>
 #include <iomanip>
 
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalPreshowerMonitorClient/interface/ESSummaryClient.h"
 
 using namespace edm;
