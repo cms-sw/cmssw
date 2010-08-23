@@ -27,7 +27,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
-// FIXME: module changer needs to have hold of the schedule!
 #include "FWCore/Framework/interface/ScheduleInfo.h"
 #include "FWCore/Framework/interface/ModuleChanger.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
