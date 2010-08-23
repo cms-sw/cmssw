@@ -1,3 +1,16 @@
+2010-08-23 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-02-06
+	* Do not leave the /proc file handle open when checking
+	  for master processes.
+
+2010-08-06 William Tanenbaum <wmtan@fnal.gov>
+
+	* tag V06-02-05
+	* Remove improper using directives in headers and add namespace
+	  qualifiers, typedefs, or proper using directives.
+	* Convert BuildFiles to XML
+
 2010-07-20 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V06-02-04
