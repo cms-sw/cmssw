@@ -247,7 +247,7 @@ process.load("DQM.EcalBarrelMonitorTasks.EcalBarrelMonitorTasks_cfi")
 
 process.load("DQM.EcalEndcapMonitorTasks.EcalEndcapMonitorTasks_cfi")
 
-if (localDAQ == 1) | (liveCMS == 1) :
+if (localDAQ == 1) | (liveCMS == 1) | (playCMS == 1) :
   process.load("DQM.EcalBarrelMonitorClient.EcalBarrelMonitorClient_cfi")
 
   process.load("DQM.EcalEndcapMonitorClient.EcalEndcapMonitorClient_cfi")
