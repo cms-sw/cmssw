@@ -28,9 +28,7 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
 // FIXME: module changer needs to have hold of the schedule!
-#define private public
 #include "FWCore/Framework/interface/ScheduleInfo.h"
-#define private private
 #include "FWCore/Framework/interface/ModuleChanger.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
@@ -210,10 +208,7 @@ FWFFLooper::startingNewLoop(unsigned int count)
    if (count == 0)
    {
       const edm::ScheduleInfo *info = scheduleInfo();
-      const edm::Schedule *schedule = info->schedule_;
-      m_changer = new edm::ModuleChanger(const_cast<edm::Schedule *>(scheduleInfo()->schedule_));
-      setModuleChanger(m_changer);
-      m_pathsGUI->setup(m_changer, info);
+      m_pathsGUI->setup(moduleChanger(), info);
       
       printf("FWFFLooper: starting first loop!\n");
       // We need to enter the GUI loop in order to 
@@ -234,9 +229,8 @@ FWFFLooper::startingNewLoop(unsigned int count)
 void 
 FWFFLooper::postEndJob()
 {
-   printf("FWFFLooper::postEndJob\n");
-
-   TEveManager::Terminate();
+//   printf("FWFFLooper::postEndJob\n");
+//   TEveManager::Terminate();
 }
 
 void
@@ -337,6 +331,7 @@ FWFFLooper::duringLoop(const edm::Event &event,
    {
       std::cerr << "reloading Event" << std::endl;
       controller.setTransitionToEvent(event.id());
+      return kStop;
    }
    else
       controller.setTransitionToNextEvent();
@@ -387,12 +382,15 @@ FWFFLooper::quit()
    gSystem->Exit(0);
 }
 
-// FIXME: empty for the time being... Just trying to get it running.
+/** This is called at the end of looping.
+    We always continue because we want the transition
+    set in the ProcessingController to happen.
+  */
 edm::EDLooperBase::Status
 FWFFLooper::endOfLoop(const edm::EventSetup&, unsigned int)
 {
    printf("FWFFLooper::endOfLoop");
-   return kStop;
+   return kContinue;
 }
 
 void

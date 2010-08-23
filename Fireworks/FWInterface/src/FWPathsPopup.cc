@@ -35,10 +35,12 @@ FWPathsPopup::FWPathsPopup()
    Layout();
 }
 
-
+/** Finish the setup of the GUI */
 void
-FWPathsPopup::setup(edm::ModuleChanger *changer, const edm::ScheduleInfo *info)
+FWPathsPopup::setup(const edm::ModuleChanger *changer, const edm::ScheduleInfo *info)
 {
+   assert(changer);
+   assert(info);
    m_changer = changer;
    m_info = info;
 }
