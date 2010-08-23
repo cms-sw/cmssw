@@ -38,3 +38,8 @@ globalRecoPbPb = cms.Sequence(heavyIonTracking
 #--------------------------------------------------------------------------
 # Full sequence (LOCAL RECO + HIGH LEVEL RECO) 
 # in Configuration.StandardSequences.ReconstructionHeavyIons_cff
+
+# Modify zero-suppression sequence here
+from RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi import *
+siStripZeroSuppression.storeCM = cms.bool(True)
+

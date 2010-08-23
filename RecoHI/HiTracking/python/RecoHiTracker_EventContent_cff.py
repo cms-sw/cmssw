@@ -12,6 +12,13 @@ RecoHiTrackerFEVT = cms.PSet(
 		'keep recoVertexs_hiSelectedVertex_*_*'		
     )
 )
+
+RecoHiTrackerLocalFEVT = cms.PSet(
+   outputCommands = cms.untracked.vstring(
+   'keep *_*_APVCM_*'
+   )
+)
+
 #RECO content
 RecoHiTrackerRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_hiGlobalPrimTracks_*_*', 
@@ -22,6 +29,13 @@ RecoHiTrackerRECO = cms.PSet(
 		'keep recoVertexs_hiSelectedVertex_*_*'		
     )
 )
+
+RecoHiTrackerLocalRECO = cms.PSet(
+   outputCommands = cms.untracked.vstring(
+   'keep *_*_APVCM_*'
+   )
+)
+
 #AOD content
 RecoHiTrackerAOD = cms.PSet(
     outputCommands = cms.untracked.vstring('keep recoTracks_hiSelectedTracks_*_*',

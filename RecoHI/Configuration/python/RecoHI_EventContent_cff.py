@@ -25,6 +25,7 @@ RecoHIFEVT = cms.PSet(
     )
 
 RecoHIRECO.outputCommands.extend(RecoHiTrackerRECO.outputCommands)
+RecoHIRECO.outputCommands.extend(RecoHiTrackerLocalRECO.outputCommands)
 RecoHIRECO.outputCommands.extend(RecoHiJetsRECO.outputCommands)
 RecoHIRECO.outputCommands.extend(RecoHiEgammaRECO.outputCommands)
 RecoHIRECO.outputCommands.extend(RecoHiEvtPlaneRECO.outputCommands)
@@ -39,6 +40,7 @@ RecoHIAOD.outputCommands.extend(RecoHiCentralityAOD.outputCommands)
 RecoHIAOD.outputCommands.extend(RecoHiMuonAOD.outputCommands)
 
 RecoHIFEVT.outputCommands.extend(RecoHiTrackerFEVT.outputCommands)
+RecoHIFEVT.outputCommands.extend(RecoHiTrackerLocalFEVT.outputCommands)
 RecoHIFEVT.outputCommands.extend(RecoHiJetsFEVT.outputCommands)
 RecoHIFEVT.outputCommands.extend(RecoHiEgammaFEVT.outputCommands)
 RecoHIFEVT.outputCommands.extend(RecoHiEvtPlaneFEVT.outputCommands)
