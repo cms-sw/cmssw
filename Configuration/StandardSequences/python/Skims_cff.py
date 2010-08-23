@@ -11,7 +11,7 @@ def documentSkims():
         
         shortname = skim.replace('SKIMStream','')
         print shortname
-        for token in ['name','responsible']:
+        for token in ['name','responsible','dataTier']:
             print token,":",skimstream[token]
             
         listOfOptions.append(skimstream['name'])
