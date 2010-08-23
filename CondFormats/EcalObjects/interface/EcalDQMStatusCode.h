@@ -8,7 +8,7 @@ class EcalDQMStatusCode {
   public:
     EcalDQMStatusCode();
     EcalDQMStatusCode(const EcalDQMStatusCode & codeStatus);
-    EcalDQMStatusCode(const uint16_t& encodedStatus) : status_(encodedStatus) {};
+    EcalDQMStatusCode(const uint32_t& encodedStatus) : status_(encodedStatus) {};
     ~EcalDQMStatusCode();
 
     //get Methods to be defined according to the final definition

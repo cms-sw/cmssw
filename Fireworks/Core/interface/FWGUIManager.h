@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.103 2010/06/14 18:12:03 matevz Exp $
+// $Id: FWGUIManager.h,v 1.98 2010/03/04 21:32:40 chrjones Exp $
 //
 
 // system include files
@@ -26,7 +26,6 @@
 #include <sigc++/sigc++.h>
 #include "Rtypes.h"
 #include "GuiTypes.h"
-#include "TGFileDialog.h"
 #include <memory>
 
 // user include files
@@ -93,7 +92,6 @@ class FWViewManagerManager;
 class FWColorManager;
 class CmsShowBrightnessPopup;
 class CmsShowHelpPopup;
-class FWJobMetadataManager;
 
 class FWGUIManager : public FWConfigurable
 {
@@ -112,7 +110,6 @@ public:
                 FWModelChangeManager*,
                 FWColorManager*,
                 const FWViewManagerManager*,
-                FWJobMetadataManager*,
 		          const CmsShowMain*,
                 bool iDebugInterface = false);
    virtual ~FWGUIManager();
@@ -121,12 +118,9 @@ public:
    //configuration management interface
    void addTo(FWConfiguration&) const;
    void setFrom(const FWConfiguration&);
-   void setWindowInfoFrom(const FWConfiguration& iFrom, TGMainFrame* iFrame);
-
+   
    TGVerticalFrame* createList(TGSplitFrame *p);
    void createViews(TGTab *p);
-   void exportImageOfMainView();
-   void exportImagesOfAllViews();
    void exportAllViews(const std::string& format);
 
    void createEDIFrame();
@@ -195,7 +189,6 @@ public:
    void checkSubviewAreaIconState(TEveWindow*);
    void subviewIsBeingDestroyed(FWGUISubviewArea*);
    void subviewDestroy(FWGUISubviewArea*); // timeout funct
-   void subviewDestroyAll();
    void subviewInfoSelected(FWGUISubviewArea*);
    void subviewInfoUnselected(FWGUISubviewArea*);
    void subviewSwapped(FWGUISubviewArea*);
@@ -207,7 +200,6 @@ public:
    sigc::signal<void> filterButtonClicked_;
    sigc::signal<void, const TGWindow*> showEventFilterGUI_;
    sigc::signal<void, const std::string&> writeToConfigurationFile_;
-   sigc::signal<void, const std::string&> loadFromConfigurationFile_;
    sigc::signal<void, int, int> changedEventId_;
    sigc::signal<void> goingToQuit_;
    sigc::signal<void> writeToPresentConfigurationFile_;
@@ -225,18 +217,16 @@ private:
    TEveWindow* getSwapCandidate();
    
    void newItem(const FWEventItem*);
+   
+   void exportImageOfMainView();
 
-   bool promptForConfigurationFile(std::string &result, enum EFileDialogMode mode);
-   void promptForSaveConfigurationFile();
-   void promptForLoadConfigurationFile();
+   void promptForConfigurationFile();
    
    void delaySliderChanged(Int_t);
    
    void finishUpColorChange();
    
    void setViewPopup(TEveWindow*);
-
-   void measureWMOffsets();
    
    // ---------- static member data --------------------------------   
    
@@ -252,7 +242,6 @@ private:
    //views are owned by their individual view managers
    FWDetailViewManager*        m_detailViewManager;
    const FWViewManagerManager* m_viewManagerManager;
-   FWJobMetadataManager *      m_metadataManager;
    FWModelContextMenuHandler*  m_contextMenuHandler;
    
    const CmsShowMain*    m_cmsShowMain;
@@ -283,8 +272,6 @@ private:
    sigc::connection   m_modelChangeConn;
 
    std::auto_ptr<CmsShowTaskExecutor> m_tasks;
-
-   int m_WMOffsetX, m_WMOffsetY, m_WMDecorH;
 };
 
 

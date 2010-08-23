@@ -23,7 +23,7 @@ process.source = cms.Source("PoolSource",
 )
 ## define maximal number of events to loop over
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(50)
 )
 ## configure process options
 process.options = cms.untracked.PSet(
@@ -34,22 +34,10 @@ process.options = cms.untracked.PSet(
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('START36_V4::All')
+process.GlobalTag.globaltag = cms.string('START38_V7::All')
 
 ## std sequence for pat
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
-
-#from PhysicsTools.PatAlgos.tools.cmsswVersionTools import *
-
-# run the 3.3.x software on Summer 09 MC from 3.1.x:
-#   - change the name from "ak" (3.3.x) to "antikt) (3.1.x)
-#   - run jet ID (not run in 3.1.x)
-#run33xOn31xMC( process,
-#               jetSrc = cms.InputTag("antikt5CaloJets"),
-#               jetIdTag = "antikt5"
-#               )
-
-#restrictInputToAOD31X( process )
 
 ## do event filtering on generator level
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")

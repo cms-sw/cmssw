@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2010/06/04 12:34:38 $
- * $Revision: 1.76 $
+ * $Date: 2010/08/11 14:49:02 $
+ * $Revision: 1.84 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -28,19 +28,19 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalEndcapMonitorTasks/interface/EEOccupancyTask.h>
+#include "DQM/EcalEndcapMonitorTasks/interface/EEOccupancyTask.h"
 
 EEOccupancyTask::EEOccupancyTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  initGeometry_ = false;
+  initCaloGeometry_ = false;
 
   dqmStore_ = edm::Service<DQMStore>().operator->();
 
@@ -140,12 +140,11 @@ void EEOccupancyTask::beginJob(void){
 
 void EEOccupancyTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
-  if( !initGeometry_ ) {
-    // ideal
-    Numbers::initGeometry(c, false);
-    // calo geometry
+  Numbers::initGeometry(c, false);
+
+  if( !initCaloGeometry_ ) {
     c.get<CaloGeometryRecord>().get(pGeometry_);
-    initGeometry_ = true;
+    initCaloGeometry_ = true;
   }
 
   if ( ! mergeRuns_ ) this->reset();
@@ -161,7 +160,7 @@ void EEOccupancyTask::reset(void) {
   for (int i = 0; i < 18; i++) {
     if ( meOccupancy_[i] ) meOccupancy_[i]->Reset();
     if ( meOccupancyMem_[i] ) meOccupancyMem_[i]->Reset();
-    if ( meEERecHitEnergy_[i] ) meEERecHitEnergy_[i]->Reset(); 
+    if ( meEERecHitEnergy_[i] ) meEERecHitEnergy_[i]->Reset();
     if ( meSpectrum_[i] ) meSpectrum_[i]->Reset();
   }
 
@@ -578,11 +577,11 @@ void EEOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
       if ( Numbers::subDet( *dcchItr ) != EcalEndcap ) continue;
-      
+
       int ism = Numbers::iSM( *dcchItr, EcalEndcap );
 
       int runtype = dcchItr->getRunType();
-            
+
       if ( runtype == EcalDCCHeaderBlock::COSMIC ||
            runtype == EcalDCCHeaderBlock::MTCC ||
            runtype == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
@@ -651,7 +650,7 @@ void EEOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       float xeey = eey - 0.5;
 
       if ( runType[ism-1] == physics || runType[ism-1] == notdata ) {
-        
+
         if ( ism >=1 && ism <= 9 ) {
           if ( meEEDigiOccupancy_[0] ) meEEDigiOccupancy_[0]->Fill( xeex, xeey );
           if ( meEEDigiOccupancyProEta_[0] ) meEEDigiOccupancyProEta_[0]->Fill( eta );
@@ -661,17 +660,17 @@ void EEOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
           if ( meEEDigiOccupancyProEta_[1] ) meEEDigiOccupancyProEta_[1]->Fill( eta );
           if ( meEEDigiOccupancyProPhi_[1] ) meEEDigiOccupancyProPhi_[1]->Fill( phi );
         }
-        
+
       }
-      
+
       if ( runType[ism-1] == testpulse ) {
-        
+
         if ( ism >=1 && ism <= 9 ) {
           if ( meEETestPulseDigiOccupancy_[0] ) meEETestPulseDigiOccupancy_[0]->Fill( xeex, xeey );
         } else {
           if ( meEETestPulseDigiOccupancy_[1] ) meEETestPulseDigiOccupancy_[1]->Fill( xeex, xeey );
         }
-        
+
       }
 
       if ( runType[ism-1] == laser ) {
@@ -681,9 +680,9 @@ void EEOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
         } else {
           if ( meEELaserDigiOccupancy_[1] ) meEELaserDigiOccupancy_[1]->Fill( xeex, xeey );
         }
-        
+
       }
-      
+
       if ( runType[ism-1] == led ) {
 
         if ( ism >=1 && ism <= 9 ) {
@@ -695,7 +694,7 @@ void EEOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
 
       if ( runType[ism-1] == pedestal ) {
-        
+
         if ( ism >=1 && ism <= 9 ) {
           if ( meEEPedestalDigiOccupancy_[0] ) meEEPedestalDigiOccupancy_[0]->Fill( xeex, xeey );
         } else {
@@ -729,7 +728,7 @@ void EEOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       PnId        = PnId - 0.5;
       float st    = 0.0;
-      
+
       for (int chInStrip = 1; chInStrip <= 5; chInStrip++){
         if ( meOccupancyMem_[ism-1] ) {
           st = chInStrip - 0.5;
@@ -748,7 +747,7 @@ void EEOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   // channel status
   edm::ESHandle<EcalChannelStatus> pChannelStatus;
   c.get<EcalChannelStatusRcd>().get(pChannelStatus);
-  const EcalChannelStatus *chStatus = pChannelStatus.product();
+  const EcalChannelStatus* chStatus = pChannelStatus.product();
 
   edm::Handle<EcalRecHitCollection> rechits;
 
@@ -786,7 +785,7 @@ void EEOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       float xeey = eey - 0.5;
 
       if ( runType[ism-1] == physics || runType[ism-1] == notdata ) {
-            
+
         if ( ism >= 1 && ism <= 9 ) {
           if ( meEERecHitOccupancy_[0] ) meEERecHitOccupancy_[0]->Fill( xeex, xeey );
           if ( meEERecHitOccupancyProEta_[0] ) meEERecHitOccupancyProEta_[0]->Fill( eta );
@@ -797,11 +796,11 @@ void EEOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
           if ( meEERecHitOccupancyProPhi_[1] ) meEERecHitOccupancyProPhi_[1]->Fill( phi );
         }
 
-        uint32_t flag = rechitItr->recoFlag();      
+        uint32_t flag = rechitItr->recoFlag();
         uint32_t sev = EcalSeverityLevelAlgo::severityLevel(id, *rechits, *chStatus );
 
         if ( rechitItr->energy() > recHitEnergyMin_ && flag == EcalRecHit::kGood && sev == EcalSeverityLevelAlgo::kGood ) {
-          
+
           if ( ism >= 1 && ism <= 9 ) {
             if ( meEERecHitOccupancyThr_[0] ) meEERecHitOccupancyThr_[0]->Fill( xeex, xeey );
             if ( meEERecHitOccupancyProEtaThr_[0] ) meEERecHitOccupancyProEtaThr_[0]->Fill( eta );
@@ -811,7 +810,7 @@ void EEOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
             if ( meEERecHitOccupancyProEtaThr_[1] ) meEERecHitOccupancyProEtaThr_[1]->Fill( eta );
             if ( meEERecHitOccupancyProPhiThr_[1] ) meEERecHitOccupancyProPhiThr_[1]->Fill( phi );
           }
-          
+
         }
 
         if ( flag == EcalRecHit::kGood && sev == EcalSeverityLevelAlgo::kGood ) {
@@ -843,7 +842,7 @@ void EEOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       int ism = Numbers::iSM( tpdigiItr->id() );
 
-      vector<DetId>* crystals = Numbers::crystals( tpdigiItr->id() );
+      std::vector<DetId>* crystals = Numbers::crystals( tpdigiItr->id() );
 
       for ( unsigned int i=0; i<crystals->size(); i++ ) {
 
@@ -867,7 +866,7 @@ void EEOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
         float xeey = eey - 0.5;
 
         if ( runType[ism-1] == physics || runType[ism-1] == notdata ) {
-          
+
           if ( ism >= 1 && ism <= 9 ) {
             if ( meEETrigPrimDigiOccupancy_[0] ) meEETrigPrimDigiOccupancy_[0]->Fill( xeex, xeey );
             if ( meEETrigPrimDigiOccupancyProEta_[0] ) meEETrigPrimDigiOccupancyProEta_[0]->Fill( eta );
@@ -877,9 +876,9 @@ void EEOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
             if ( meEETrigPrimDigiOccupancyProEta_[1] ) meEETrigPrimDigiOccupancyProEta_[1]->Fill( eta );
             if ( meEETrigPrimDigiOccupancyProPhi_[1] ) meEETrigPrimDigiOccupancyProPhi_[1]->Fill( phi );
           }
-          
+
           if ( tpdigiItr->compressedEt() > trigPrimEtMin_ ) {
-            
+
             if ( ism >= 1 && ism <= 9 ) {
               if ( meEETrigPrimDigiOccupancyThr_[0] ) meEETrigPrimDigiOccupancyThr_[0]->Fill( xeex, xeey );
               if ( meEETrigPrimDigiOccupancyProEtaThr_[0] ) meEETrigPrimDigiOccupancyProEtaThr_[0]->Fill( eta );
@@ -889,7 +888,7 @@ void EEOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
               if ( meEETrigPrimDigiOccupancyProEtaThr_[1] ) meEETrigPrimDigiOccupancyProEtaThr_[1]->Fill( eta );
               if ( meEETrigPrimDigiOccupancyProPhiThr_[1] ) meEETrigPrimDigiOccupancyProPhiThr_[1]->Fill( phi );
             }
-            
+
           }
 
         }

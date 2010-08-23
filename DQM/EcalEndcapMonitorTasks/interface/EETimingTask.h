@@ -4,8 +4,8 @@
 /*
  * \file EETimingTask.h
  *
- * $Date: 2009/12/11 20:31:39 $
- * $Revision: 1.15 $
+ * $Date: 2010/03/31 14:31:51 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */
@@ -13,10 +13,11 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
 class MonitorElement;
@@ -85,7 +86,7 @@ MonitorElement* meTimeDelta_, *meTimeDelta2D_;
 edm::ESHandle<CaloGeometry> pGeometry_;
 
 bool init_;
-bool initGeometry_;
+bool initCaloGeometry_;
 
 };
 

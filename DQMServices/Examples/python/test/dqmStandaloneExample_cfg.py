@@ -30,16 +30,15 @@ process.DQM.collectorPort = 9190
 ### path where to save the output file
 ### optionally change fileSaving conditions
 process.dqmSaver.dirName = '.'
-process.dqmSaver.saveByTime = -1
+process.dqmSaver.saveByTime = 4
 process.dqmSaver.saveByLumiSection = -1
-process.dqmSaver.saveByMinute = -1
+process.dqmSaver.saveByMinute = 8
 process.dqmSaver.saveByRun = 1
 process.dqmSaver.saveAtJobEnd = True
 
 ######################################################################################
 ### include your reference file
-#process.DQMStore.referenceFileName = 'rfio:/castor/cern.ch/cms/store/temp/dqm/offline/harvesting_output/data/dqmoffline/3_5_7/MinimumBias__Commissioning10-Apr20ReReco-v1__RECO/run_132462/nevents_18816/DQM_V0001_R000132462__MinimumBias__Commissioning10-Apr20ReReco-v1__RECO_1_1.root'
-#process.DQMStore.referenceFileName = 'ref.root'
+process.DQMStore.referenceFileName = 'ref.root'
 
 ######################################################################################
 ### set this in order to add up histograms that already exist
@@ -48,16 +47,11 @@ process.dqmSaver.saveAtJobEnd = True
 ######################################################################################
 ### loading of root files into DQMStore (stripping out Run and RunSummary)
 process.load("DQMServices.Components.DQMFileReader_cfi")
-#process.dqmFileReader.referenceFileName = cms.untracked.string ("file:ref.root") 
-#process.dqmFileReader.referenceFileName = cms.untracked.string ("rfio:/castor/cern.ch/cms/store/temp/dqm/offline/harvesting_output/data/dqmoffline/3_5_7/MinimumBias__Commissioning10-Apr20ReReco-v1__RECO/run_132462/nevents_18816/DQM_V0001_R000132462__MinimumBias__Commissioning10-Apr20ReReco-v1__RECO_1_1.root")
-#process.dqmFileReader.referenceFileName = cms.untracked.string ("/store/temp/dqm/offline/harvesting_output/data/dqmoffline/3_5_7/MinimumBias__Commissioning10-Apr20ReReco-v1__RECO/run_132462/nevents_18816/DQM_V0001_R000132462__MinimumBias__Commissioning10-Apr20ReReco-v1__RECO_1_1.root")
-
-
-#process.dqmFileReader.FileNames = cms.untracked.vstring ( 
-#       "file:ref.root",
-#       "file:ref.root",
-#       "file:ref.root"
-#       )
+process.dqmFileReader.FileNames = cms.untracked.vstring ( 
+       "file:ref.root",
+       "file:ref.root",
+       "file:ref.root"
+       )
 
 ######################################################################################
 ###  DQM Source program (in DQMServices/Examples/src/DQMSourceExample.cc)
@@ -80,10 +74,6 @@ process.qTester    = cms.EDFilter("QualityTester",
 ######################################################################################
 ### include to get DQM histogramming services
 process.load("DQMServices.Components.DQMStoreStats_cfi")
-
-######################################################################################
-### include to get DQM histogramming services
-process.load("DQMServices.Components.DQMProvInfo_cfi")
 
 ######################################################################################
 ### DQM Client program (in DQMServices/Examples/src/DQMClientExample.cc)
@@ -117,11 +107,10 @@ process.load("DQMServices.Components.DQMMessageLogger_cfi")
 process.p = cms.Path(
                      process.dqmFileReader*
 		     process.dqmEnv*
-#                     process.dqmSource*
-#                     process.qTester*
+                     process.dqmSource*
+                     process.qTester*
 		     process.dqmStoreStats*
-		     process.dqmProvInfo*
-#		     process.dqmClient*
+		     process.dqmClient*
 #		     process.logErrorHarvester*process.logErrorDQM*
 		     process.dqmSaver
 		    )

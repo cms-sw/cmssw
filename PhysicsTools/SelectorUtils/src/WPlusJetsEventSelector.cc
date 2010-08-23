@@ -22,6 +22,7 @@ WPlusJetsEventSelector::WPlusJetsEventSelector( edm::ParameterSet const & params
   jetIdLoose_      (params.getParameter<edm::ParameterSet>("jetIdLoose") ),
   pfjetIdLoose_    (params.getParameter<edm::ParameterSet>("pfjetIdLoose") ),
   minJets_         (params.getParameter<int> ("minJets") ),
+  muJetDR_         (params.getParameter<double>("muJetDR")),
   muPlusJets_      (params.getParameter<bool>("muPlusJets") ),
   ePlusJets_       (params.getParameter<bool>("ePlusJets") ),
   muPtMin_         (params.getParameter<double>("muPtMin")), 
@@ -75,7 +76,6 @@ WPlusJetsEventSelector::WPlusJetsEventSelector( edm::ParameterSet const & params
   set( ">=5 Jets", minJets_ >= 5); 
 
   dR_ = 0.3;
-  muJetDR_ = 0.3;
 
   if ( params.exists("cutsToIgnore") )
     setIgnoredCuts( params.getParameter<std::vector<std::string> >("cutsToIgnore") );
@@ -272,7 +272,8 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, pat::str
 
 
 	  if ( ignoreCut("== 1 Tight Lepton, Mu Veto") || 
-	       ( (muPlusJets_ && oneMuonMuVeto)  )
+	       ePlusJets_ ||
+	       (muPlusJets_ && oneMuonMuVeto)
 	       ) {
 	    passCut(ret, "== 1 Tight Lepton, Mu Veto");
 

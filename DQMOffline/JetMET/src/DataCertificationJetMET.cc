@@ -5,7 +5,7 @@
 // 
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.45 2010/05/18 15:09:03 hatake Exp $
+// $Id: DataCertificationJetMET.cc,v 1.44 2010/05/18 12:06:42 sturdy Exp $
 //
 
 #include "DQMOffline/JetMET/interface/DataCertificationJetMET.h"
@@ -378,7 +378,7 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
       else if (QReport_JetPt[jtyp][1]->getStatus()==300) 
 	qr_Jet_Pt[jtyp][1] = 0;
       else
-	qr_Jet_Pt[jtyp][1] = -1;
+	qr_Jet_Pt[jtyp][1] = 0;
     }
     else qr_Jet_Pt[jtyp][1] = -2;
     
@@ -526,6 +526,16 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
 	   (qr_Jet_Pt[jtyp][1]           == 0)
 	   )
 	dc_Jet[jtyp] = 0;
+      else if ( (qr_Jet_EFrac[jtyp][0]   == -2) ||
+	   (qr_Jet_EFrac[jtyp][1]        == -2) ||
+	   (qr_Jet_Constituents[jtyp][1] == -2) || 
+	   (qr_Jet_Constituents[jtyp][0] == -2) ||
+	   (qr_Jet_Eta[jtyp]             == -2) ||
+	   (qr_Jet_Phi[jtyp]             == -2) ||
+	   (qr_Jet_Pt[jtyp][0]           == -2) ||
+	   (qr_Jet_Pt[jtyp][1]           == -2)
+	   )
+	dc_Jet[jtyp] = -2;
       else if ( (qr_Jet_EFrac[jtyp][0]        == -1) &&
 		(qr_Jet_EFrac[jtyp][1]        == -1) &&
 		(qr_Jet_Constituents[jtyp][1] == -1) && 
@@ -536,16 +546,6 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
 		(qr_Jet_Pt[jtyp][1]           == -1 )
 		)
 	dc_Jet[jtyp] = -1;
-      else if ( (qr_Jet_EFrac[jtyp][0]   == -2) &&
-	   (qr_Jet_EFrac[jtyp][1]        == -2) &&
-	   (qr_Jet_Constituents[jtyp][1] == -2) && 
-	   (qr_Jet_Constituents[jtyp][0] == -2) &&
-	   (qr_Jet_Eta[jtyp]             == -2) &&
-	   (qr_Jet_Phi[jtyp]             == -2) &&
-	   (qr_Jet_Pt[jtyp][0]           == -2) &&
-	   (qr_Jet_Pt[jtyp][1]           == -2)
-	   )
-	dc_Jet[jtyp] = -2;
       else
 	dc_Jet[jtyp] = 1;
     }
@@ -558,6 +558,14 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
 	   (qr_Jet_Pt[jtyp][1] == 0)
 	   )
 	dc_Jet[jtyp] = 0;
+      else if ( (qr_Jet_NTracks[0] == -2) || 
+	   (qr_Jet_NTracks[1]      == -2) ||
+	   (qr_Jet_Eta[jtyp]       == -2) ||
+	   (qr_Jet_Phi[jtyp]       == -2) ||
+	   (qr_Jet_Pt[jtyp][0]     == -2) ||
+	   (qr_Jet_Pt[jtyp][1]     == -2)
+	   )
+	dc_Jet[jtyp] = -2;
       else if ( (qr_Jet_NTracks[0]  == -1) && 
 		(qr_Jet_NTracks[1]  == -1) &&
 		(qr_Jet_Eta[jtyp]   == -1) &&
@@ -566,21 +574,13 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
 		(qr_Jet_Pt[jtyp][1] == -1)
 		)
 	dc_Jet[jtyp] = -1;
-      else if ( (qr_Jet_NTracks[0] == -2) &&
-	   (qr_Jet_NTracks[1]      == -2) &&
-	   (qr_Jet_Eta[jtyp]       == -2) &&
-	   (qr_Jet_Phi[jtyp]       == -2) &&
-	   (qr_Jet_Pt[jtyp][0]     == -2) &&
-	   (qr_Jet_Pt[jtyp][1]     == -2)
-	   )
-	dc_Jet[jtyp] = -2;
       else
 	dc_Jet[jtyp] = 1;
     }
     
     if (verbose_) std::cout<<"Certifying Jet algo: "<<jtyp<<" with value: "<<dc_Jet[jtyp]<<std::endl;
-    CertificationSummaryMap->Fill(2, 4-jtyp, dc_Jet[jtyp]);
-    reportSummaryMap->Fill(2, 4-jtyp, dc_Jet[jtyp]);
+    CertificationSummaryMap->Fill(3., jtyp, dc_Jet[jtyp]);
+    reportSummaryMap->Fill(3., jtyp, dc_Jet[jtyp]);
   }
 
 
@@ -787,6 +787,19 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
 	(qr_MET_METPhi[mtyp][1]  == 0)
 	)
       dc_MET[mtyp] = 0;
+    else if ( 
+	(qr_MET_MExy[mtyp][0][0] == -2) ||
+	(qr_MET_MExy[mtyp][0][1] == -2) ||
+	(qr_MET_MEt[mtyp][0]     == -2) ||
+	(qr_MET_SumEt[mtyp][0]   == -2) ||
+	(qr_MET_METPhi[mtyp][0]  == -2) ||
+	(qr_MET_MExy[mtyp][1][0] == -2) ||
+	(qr_MET_MExy[mtyp][1][1] == -2) ||
+	(qr_MET_MEt[mtyp][1]     == -2) ||
+	(qr_MET_SumEt[mtyp][1]   == -2) ||
+	(qr_MET_METPhi[mtyp][1]  == -2)
+	)
+      dc_MET[mtyp] = -2;
     else if (
 	     (qr_MET_MExy[mtyp][0][0] == -1) &&
 	     (qr_MET_MExy[mtyp][0][1] == -1) &&
@@ -800,64 +813,14 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
 	     (qr_MET_METPhi[mtyp][1]  == -1)
 	     )
       dc_MET[mtyp] = -1;
-    else if ( 
-	(qr_MET_MExy[mtyp][0][0] == -2) &&
-	(qr_MET_MExy[mtyp][0][1] == -2) &&
-	(qr_MET_MEt[mtyp][0]     == -2) &&
-	(qr_MET_SumEt[mtyp][0]   == -2) &&
-	(qr_MET_METPhi[mtyp][0]  == -2) &&
-	(qr_MET_MExy[mtyp][1][0] == -2) &&
-	(qr_MET_MExy[mtyp][1][1] == -2) &&
-	(qr_MET_MEt[mtyp][1]     == -2) &&
-	(qr_MET_SumEt[mtyp][1]   == -2) &&
-	(qr_MET_METPhi[mtyp][1]  == -2)
-	)
-      dc_MET[mtyp] = -2;
     else
       dc_MET[mtyp] = 1;
 
     if (verbose_) std::cout<<"Certifying MET algo: "<<mtyp<<" with value: "<<dc_MET[mtyp]<<std::endl;
-    CertificationSummaryMap->Fill(1, 4-mtyp, dc_MET[mtyp]);
-    reportSummaryMap->Fill(1, 4-mtyp, dc_MET[mtyp]);
+    CertificationSummaryMap->Fill(2., mtyp, dc_MET[mtyp]);
+    reportSummaryMap->Fill(2., mtyp, dc_MET[mtyp]);
   }
 
-
-  //-----------------------------
-  // CaloTowers DQM Data Certification
-  //-----------------------------
-
-  //
-  // Prepare test histograms
-  //
-  //MonitorElement *meCTOcc[3];
-  //MonitorElement *meCTEn[3];
-  //MonitorElement *meCT[3];
-  //MonitorElement *meCT[3];
- 
-  //RunDir = "";
-  //if (RunDir == "") newHistoName = "JetMET/MET/";
-  //else              newHistoName = RunDir+"/JetMET/Run summary/MET/";
-
-  //meMExy[0][0] = dbe_->get(newHistoName+"CaloMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEx");
-  //meMExy[0][1] = dbe_->get(newHistoName+"CaloMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEy");
-  //meMExy[1][0] = dbe_->get(newHistoName+"CaloMETNoHF/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEx");
-				   
-  //----------------------------------------------------------------------------
-  //--- Extract quality test results and fill data certification results for MET
-  //----------------------------------------------------------------------------
-
-  float qr_CT_Occ[3] = {-2.};
-  float dc_CT[3]     = {-2.};
-  dc_CT[0]  = -2.;
-  dc_CT[1]  = -2.;
-  dc_CT[2]  = -2.;
-
-  for (int cttyp = 0; cttyp < 3; ++cttyp) {
-    
-    if (verbose_) std::cout<<"Certifying CaloTowers with value: "<<dc_CT[cttyp]<<std::endl;
-    CertificationSummaryMap->Fill(0, 4-cttyp, dc_CT[cttyp]);
-    reportSummaryMap->Fill(0, 4-cttyp, dc_CT[cttyp]);
-  }
   dbe_->setCurrentFolder("");  
 
 }

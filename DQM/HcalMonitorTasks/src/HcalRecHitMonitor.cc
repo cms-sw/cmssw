@@ -1,4 +1,5 @@
 #include "DQM/HcalMonitorTasks/interface/HcalRecHitMonitor.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Common/interface/TriggerNames.h" 
 #include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"

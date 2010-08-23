@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:42 EDT 2008
-// $Id: CmsShowEDI.h,v 1.15 2010/05/31 15:44:01 eulisse Exp $
+// $Id: CmsShowEDI.h,v 1.12 2009/05/27 15:40:13 chrjones Exp $
 //
 
 // system include files
@@ -34,9 +34,7 @@ class FWColorManager;
 class FWEventItem;
 class TGLabel;
 class FWColorSelect;
-class TGHSlider;
 class TGCheckButton;
-class TGNumberEntry;
 class TGTextEntry;
 class TGTextButton;
 class TGTextView;
@@ -69,15 +67,11 @@ public:
    void disconnectAll();
    void changeItemColor(Color_t color );
    void toggleItemVisible(Bool_t on = kTRUE);
-   void changeItemOpacity(Int_t opacity); 
    void runFilter();
    void runSelection();
    void selectAll();
-
-   void updateLayerControls();
    void moveToBack();
    void moveToFront();
-   void moveToLayer(Long_t);
 
    void show(FWDataCategories);
 private:
@@ -92,9 +86,7 @@ private:
    TGTextButton* m_removeButton;
    TGTextButton* m_frontButton;
    TGTextButton* m_backButton;
-   TGNumberEntry* m_layerEntry;
    FWColorSelect* m_colorSelectWidget;
-   TGHSlider*     m_opacitySlider;
    TGCheckButton* m_isVisibleButton;
    FWGUIValidatingTextEntry* m_filterExpressionEntry;
    FWGUIValidatingTextEntry* m_selectExpressionEntry;

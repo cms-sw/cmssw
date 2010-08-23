@@ -1,6 +1,7 @@
 #include "DQM/HcalMonitorClient/interface/HcalBaseDQClient.h"
 #include "DQM/HcalMonitorClient/interface/HcalHistoUtils.h"
 #include "DQM/HcalMonitorClient/interface/HcalClientUtils.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <iostream>
 #include <fstream>
 

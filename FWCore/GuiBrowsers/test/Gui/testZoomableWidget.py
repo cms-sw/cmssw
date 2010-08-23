@@ -34,7 +34,8 @@ class ZoomableWidgetTestCase(unittest.TestCase):
         self.widget=VispaWidget(self.zoomableWidget)
         self.widget.move(10,10)
         self.widget.show()
-        self.app.exec_()
+        if not hasattr(unittest,"NO_GUI_TEST"):
+            self.app.exec_()
 
 if __name__ == "__main__":
     Profiling.analyze("unittest.main()",__file__,"ZoomableScrollArea|VispaWidget|ZoomableWidget")

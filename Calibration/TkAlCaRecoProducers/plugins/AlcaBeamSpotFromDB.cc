@@ -6,7 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: AlcaBeamSpotFromDB.cc,v 1.1 2010/06/21 18:02:20 yumiceva Exp $
+ version $Id: AlcaBeamSpotFromDB.cc,v 1.2 2010/06/29 15:51:16 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -25,6 +25,7 @@ ________________________________________________________________**/
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 

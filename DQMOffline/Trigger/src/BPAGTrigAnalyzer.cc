@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel Vander Donckt
 //         Created:  Tue Jul 24 12:17:12 CEST 2007
-// $Id: BPAGTrigAnalyzer.cc,v 1.5 2010/01/12 14:11:20 dellaric Exp $
+// $Id: BPAGTrigAnalyzer.cc,v 1.6 2010/03/16 14:35:40 slaunwhj Exp $
 //
 //
 
@@ -226,8 +226,8 @@ void BPAGTrigAnalyzer::beginRun(edm::Run const& currentRun, edm::EventSetup cons
       }
 
     
-      StringCutObjectSelector<Muon> tempRecoSelector(customCuts);
-      StringCutObjectSelector<TriggerObject> tempHltSelector(hltCuts);
+      StringCutObjectSelector<reco::Muon> tempRecoSelector(customCuts);
+      StringCutObjectSelector<trigger::TriggerObject> tempHltSelector(hltCuts);
     
       // create a custom selector
       MuonSelectionStruct tempStruct(tempRecoSelector, tempHltSelector,
@@ -235,8 +235,8 @@ void BPAGTrigAnalyzer::beginRun(edm::Run const& currentRun, edm::EventSetup cons
                                      //customChi2Cut, customNHitsCut,
                                      targetTrackCollection, requiredTriggers);
 
-      StringCutObjectSelector<Muon> tagTempRecoSelector(tagCustomCuts);
-      StringCutObjectSelector<TriggerObject> tagTempHltSelector(tagHltCuts);
+      StringCutObjectSelector<reco::Muon> tagTempRecoSelector(tagCustomCuts);
+      StringCutObjectSelector<trigger::TriggerObject> tagTempHltSelector(tagHltCuts);
     
       MuonSelectionStruct tempTagSelStruct(tagTempRecoSelector, tagTempHltSelector,
                                            tagCustomName, tagCustomD0Cut, tagCustomZ0Cut, 

@@ -1,4 +1,8 @@
+#include "TColor.h"
+#include "TG3DLine.h"
 #include "TGFont.h"
+#include "TClass.h"
+#include "TGFrame.h"
 #include "TGButton.h"
 #include "TGLabel.h"
 #include "TGSlider.h"

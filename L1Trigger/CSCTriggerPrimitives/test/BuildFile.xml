@@ -8,10 +8,6 @@
 <use   name="L1Trigger/CSCCommonTrigger"/>
 <use   name="L1Trigger/CSCTriggerPrimitives"/>
 <use   name="SimDataFormats/TrackingHit"/>
-<use   name="CommonTools/Utils"/>
-<use   name="CommonTools/UtilAlgos"/>
-
-
 <library   file="*Analyzer.cc" name="L1TriggerCSCTriggerPrimitivesAnalyzer">
 </library>
 <library   file="CSCTriggerPrimitivesReader.cc" name="CSCTriggerPrimitivesReader">

@@ -1,7 +1,7 @@
 #ifndef TopJetAnalyzer_h  
 #define TopJetAnalyzer_h
 
-#include "TH1.h"
+#include "TH1F.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -24,14 +24,13 @@ class TopJetAnalyzer : public edm::EDAnalyzer {
   virtual void endJob() ;
 
   edm::InputTag input_;
+  bool verbose_;
   
-  TH1I *Num_Jets;
-  TH1F *pt_Jets;
-  TH1F *energy_Jets;
-  TH1F *eta_Jets;
-  TH1F *phi_Jets;
-
-  TH1F *btag_Jets;
+  TH1F *mult_;
+  TH1F *en_;
+  TH1F *pt_;
+  TH1F *eta_;
+  TH1F *phi_;
 };  
 
 #endif  

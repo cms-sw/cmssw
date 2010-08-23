@@ -1,51 +1,41 @@
 #ifndef LMFRUNDAT_H
 #define LMFRUNDAT_H
 
-#include <math.h>
+#include <vector>
+#include <stdexcept>
 
-/*
- Copyright (c) Giovanni.Organtini@roma1.infn.it 2010
-*/
+#include "OnlineDB/EcalCondDB/interface/IDataItem.h"
+#include "OnlineDB/EcalCondDB/interface/LMFRunIOV.h"
+#include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
-#include "OnlineDB/EcalCondDB/interface/LMFDat.h"
-
-/**
- *   LMF_RUN_DAT interface
- */
-class LMFRunDat : public LMFDat {
+class LMFRunDat : public IDataItem {
  public:
+  friend class EcalCondDBInterface;
   LMFRunDat();
-  LMFRunDat(EcalDBConnection *conn);
-  LMFRunDat(oracle::occi::Environment* env,
-	    oracle::occi::Connection* conn);
-  ~LMFRunDat() { }
+  ~LMFRunDat();
 
-  int getEvents(const EcalLogicID &id) {
-    return (int)rint(getData(id, "NEVENTS"));
-  }
-  int getQualityFlag(const EcalLogicID &id) {
-    return (int)rint(getData(id, "QUALITY_FLAG"));
-  }
-  LMFRunDat& setEvents(const EcalLogicID &id, int n) {
-    LMFDat::setData(id, "NEVENTS", (float)n);
-    return *this;
-  }
-  LMFRunDat& setQualityFlag(const EcalLogicID &id, int q) {
-    LMFDat::setData(id, "QUALITY_FLAG", (float)q);
-    return *this;
-  }
-  LMFRunDat& setData(const EcalLogicID &id, int n, int q) {
-    LMFDat::setData(id, "NEVENTS", (float)n);
-    LMFDat::setData(id, "QUALITY_FLAG", (float)q);
-    return *this;
-  }
-  LMFRunDat& Data(const EcalLogicID &id, const std::vector<float> &v) {
-    LMFDat::setData(id, v);
-    return *this;
-  }
+  // User data methods
+  inline std::string getTable() { return "LMF_RUN_DAT"; }
 
- protected:
+  inline void setNumEvents(int num) { m_numEvents = num; }
+  inline int getNumEvents() const { return m_numEvents; }
 
+  inline void setQualityFlag(int x) { m_status = x; }
+  inline int getQualityFlag() const { return m_status; }
+
+ private:
+  void prepareWrite() 
+    throw(std::runtime_error);
+
+  void writeDB(const EcalLogicID* ecid, const LMFRunDat* item, LMFRunIOV* iov )
+    throw(std::runtime_error);
+
+  void fetchData(std::map< EcalLogicID, LMFRunDat >* fillMap, LMFRunIOV* iov)
+     throw(std::runtime_error);
+
+  // User data
+  int m_numEvents;
+  int m_status;
 };
 
 #endif

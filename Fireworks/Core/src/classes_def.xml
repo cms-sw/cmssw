@@ -6,8 +6,6 @@
   <class name="DetIdToMatrix::Range"/>
   <class name="TEveElementIter"/>
   <class name="FWGUIManager"/>
-  <class name="FWDetailViewManager"/>
-  <class name="FWEveViewManager"/>
   <class name="CmsShowEDI"/>
   <class name="FWGUIValidatingTextEntry"/>
   <class name="CmsShowBrightnessPopup"/>
@@ -15,6 +13,7 @@
   <class name="CmsShowViewPopup"/>
   <class name="FWGUISubviewArea"/>
   <class name="FWConfiguration"/>
+  <class name="FWRhoPhiZViewManager"/>
   <class name="FWParameterSetterBase"/>
   <class name="FWDoubleParameterSetter"/>
   <class name="FWDoubleParameter"/>
@@ -28,12 +27,11 @@
   <class name="FWStringParameter"/>
   <class name="FWLongParameterSetter"/>
   <class name="FWLongParameter"/>
-  <class name="FWEnumParameterSetter"/>
-  <class name="FWEnumParameter"/>
   <class name="FWConfiguration::KeyValues"/>
   <class name="CSGAction"/>
   <class name="CmsShowMainFrame"/>
   <class name="CmsShowMain"/>
+  <class name="FWGlimpseViewManager"/>
   <class name="FWViewBase"/>
   <class name="FWTableView"/>
   <class name="FWTriggerTableView"/>
@@ -43,5 +41,4 @@
   <class name="CmsShowModelPopupDetailViewButtonAdapter"/>
   <class name="CmsShowSearchFiles"/>
   <class name="FWTEventList"/>
-  <class name="FWTSelectorToEventList"/>
 </lcgdict>

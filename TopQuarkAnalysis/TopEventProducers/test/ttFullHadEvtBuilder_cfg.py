@@ -19,7 +19,7 @@ process.source = cms.Source("PoolSource",
 
 ## define maximal number of events to loop over
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(50)
 )
 
 ## configure process options
@@ -32,7 +32,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 
 ## configure conditions
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('START36_V4::All')
+process.GlobalTag.globaltag = cms.string('START38_V7::All')
 
 ## load magnetic field
 process.load("Configuration.StandardSequences.MagneticField_cff")
@@ -70,7 +70,7 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName     = cms.untracked.string('ttFullHadEvtBuilder.root'),
     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('p') ),
     outputCommands = cms.untracked.vstring('drop *'),                      
-    dropMetaDataForDroppedData = cms.untracked.bool(True)
+    dropMetaData = cms.untracked.string('DROPPED')
 )
 process.outpath = cms.EndPath(process.out)
 

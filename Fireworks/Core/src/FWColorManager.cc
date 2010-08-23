@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.27 2010/06/17 14:02:37 matevz Exp $
+// $Id: FWColorManager.cc,v 1.24 2010/03/14 22:12:24 matevz Exp $
 //
 
 // system include files
@@ -17,6 +17,8 @@
 #include <boost/shared_ptr.hpp>
 #include "TColor.h"
 #include "TROOT.h"
+#include "TGLUtil.h"
+#include "TObjArray.h"
 #include "TMath.h"
 #include "TEveUtil.h"
 #include "TGLViewer.h"
@@ -35,20 +37,25 @@
 //static std::vector<Color_t>* s_forWhite=0;
 //static std::vector<Color_t>* s_forBlack=0;
 
-const Color_t FWColorManager::s_defaultStartColorIndex    = 1000;
-const Color_t FWColorManager::s_defaultStartGeometryIndex = 1100;
-
-Color_t FWColorManager::getDefaultStartColorIndex()    { return s_defaultStartColorIndex; }
-Color_t FWColorManager::getDefaultStartGeometryIndex() { return s_defaultStartGeometryIndex; }
 
 enum {
-   kFWRed     = 1008,
-   kFWBlue    = 1005,
-   kFWCyan    = 1007,
-   kFWGreen   = 1009,
-   kFWMagenta = 1001,
-   kFWOrange  = 1004,
-   kFWYellow  = 1000
+   kFWRed =8,
+   kFWBlue = 5,
+   kFWCyan = 7,
+   kFWGreen = 9,
+   kFWMagenta = 1,
+   kFWOrange = 4,
+   kFWYellow = 0
+/*
+   kFWRed =0,
+   kFWBlue = 1,
+   kFWCyan = 2,
+   kFWGreen = 3,
+   kFWMagenta = 4,
+   kFWOrange = 5,
+   kFWYellow = 6,
+   kFWGray = 7
+ */
 };
 
 static const float s_forWhite[][3] ={
@@ -137,7 +144,7 @@ static const float s_geomForWhite[][3] ={
 { 0.77, 0.77, 0.77 }, // calo3d grid
 { 0.77, 0.77, 0.77 }, // lego grid
 { 0.54, 0.54, 0.54 }, // lego boundrary
-{ 0.33, 0.33, 0.33 }  // lego font
+{ 0.33, 0.33, 0.33 } // lego font
 };
 
 static const float s_geomForBlack[][3] ={
@@ -224,49 +231,70 @@ FWColorManager::~FWColorManager()
 //
 // member functions
 
-void FWColorManager::initialize()
+void FWColorManager::initialize(bool limit_palette)
 {
-  // Save default ROOT colors.
-  TEveUtil::SetColorBrightness(0, kFALSE);
+   m_limitPalette = limit_palette;
 
-  m_startColorIndex = s_defaultStartColorIndex;
-  m_numColorIndices = s_size;
+   TObjArray* colorTable = dynamic_cast<TObjArray*>(gROOT->GetListOfColors());
+   if (m_limitPalette)
+   {
+      m_startColorIndex = static_cast<TColor*>(colorTable->Last())->GetNumber()+1;
+      m_numColorIndices = s_size;
 
-  unsigned int index = m_startColorIndex;
-  //std::cout <<"start color index "<<m_startColorIndex<<std::endl;
+      unsigned int index = m_startColorIndex;
+      //std::cout <<"start color index "<<m_startColorIndex<<std::endl;
    
-  const float(* itEnd)[3] = s_forBlack+s_size;
-  for(const float(* it)[3] = s_forBlack;
-      it != itEnd;
-      ++it) {
-    //NOTE: this constructor automatically places this color into the gROOT color list
-    //std::cout <<" color "<< index <<" "<<(*it)[0]<<" "<<(*it)[1]<<" "<<(*it)[2]<<std::endl;
-    new TColor(index++,(*it)[0],(*it)[1],(*it)[2]);
-  }
+      const float(* itEnd)[3] = s_forBlack+s_size;
+      for(const float(* it)[3] = s_forBlack;
+          it != itEnd;
+          ++it) {
+         //NOTE: this constructor automatically places this color into the gROOT color list
+         //std::cout <<" color "<< index <<" "<<(*it)[0]<<" "<<(*it)[1]<<" "<<(*it)[2]<<std::endl;
+         new TColor(index++,(*it)[0],(*it)[1],(*it)[2]);
+      }
 
-  m_startGeomColorIndex = index = s_defaultStartGeometryIndex;
-  itEnd = s_geomForBlack+s_geomSize;
-  for(const float(* it)[3] = s_geomForBlack;
-      it != itEnd;
-      ++it) {
-    //NOTE: this constructor automatically places this color into the gROOT color list
-    new TColor(index++,(*it)[0],(*it)[1],(*it)[2]);
-  }   
+      m_startGeomColorIndex = index;
+      itEnd = s_geomForBlack+s_geomSize;
+      for(const float(* it)[3] = s_geomForBlack;
+          it != itEnd;
+          ++it) {
+         //NOTE: this constructor automatically places this color into the gROOT color list
+         new TColor(index++,(*it)[0],(*it)[1],(*it)[2]);
+      }   
+   }
+   else
+   {
+      // Save default ROOT colors.
+      TEveUtil::SetColorBrightness(0, kFALSE);
+
+      m_startColorIndex = 0;
+      m_numColorIndices = static_cast<TColor*>(colorTable->Last())->GetNumber();
+      m_startGeomColorIndex = m_numColorIndices + 1;
+      unsigned int index    = m_numColorIndices + 1;
+      const float(* itEnd)[3] = s_geomForBlack+s_geomSize;
+      for(const float(* it)[3] = s_geomForBlack;
+          it != itEnd;
+          ++it) {
+         //NOTE: this constructor automatically places this color into the gROOT color list
+         new TColor(index++,(*it)[0],(*it)[1],(*it)[2]);
+      }
+   }
 }
 
 void FWColorManager::updateColors()
 {
-   if (backgroundColorIndex() == kBlackIndex)
-   {
-      resetColors(s_forBlack,s_size,m_startColorIndex,  m_gammaOff);
+   if(backgroundColorIndex() == kBlackIndex) {
+      if (m_limitPalette)
+         resetColors(s_forBlack,s_size,m_startColorIndex,  m_gammaOff);
+      else
+         TEveUtil::SetColorBrightness(1.666*m_gammaOff);
       resetColors(s_geomForBlack, s_geomSize, m_startGeomColorIndex,  m_gammaOff);
-      TEveUtil::SetColorBrightness(1.666*m_gammaOff);
-   }
-   else
-   {
-      resetColors(s_forWhite,s_size,m_startColorIndex,  m_gammaOff);
+   } else {
+      if (m_limitPalette)
+         resetColors(s_forWhite,s_size,m_startColorIndex,  m_gammaOff);
+      else
+         TEveUtil::SetColorBrightness(1.666*m_gammaOff - 2.5);
       resetColors(s_geomForWhite, s_geomSize, m_startGeomColorIndex,  m_gammaOff);
-      TEveUtil::SetColorBrightness(1.666*m_gammaOff - 2.5);
    }
    FWChangeSentry sentry(*m_changeManager);
    colorsHaveChanged_();
@@ -341,18 +369,16 @@ FWColorManager::setColorSetViewer(TGLViewer* v, Color_t iColor)
 //
 // const member functions
 //
-
-
-void
-FWColorManager::fillLimitedColors(std::vector<Color_t>& cv) const
+Color_t 
+FWColorManager::indexToColor(unsigned int iIndex) const
 {
-   cv.reserve(cv.size() + m_numColorIndices);
-   for (Color_t i = m_startColorIndex; i < borderOfLimitedColors(); ++i)
-   {
-      cv.push_back(i);
-   }
+   return m_startColorIndex+iIndex;
 }
-
+unsigned int 
+FWColorManager::numberOfIndicies() const
+{
+   return m_numColorIndices;
+}
 
 FWColorManager::BackgroundColorIndex 
 FWColorManager::backgroundColorIndex() const
@@ -363,27 +389,37 @@ FWColorManager::backgroundColorIndex() const
    return kWhiteIndex;
 }
 
+unsigned int 
+FWColorManager::colorToIndex(Color_t iColor) const
+{
+   if(iColor < static_cast<int>(m_startColorIndex) ) {
+      std::cerr <<"asked to convert a non-standard color "<<iColor<<". Will attempt to use old color scheme"<<std::endl;
+      return oldColorToIndex(iColor);
+   }
+   return iColor - m_startColorIndex;
+}
+
 bool 
 FWColorManager::colorHasIndex(Color_t iColor) const
 {
-   return iColor > 0 && iColor < m_startColorIndex + m_numColorIndices;
+   return iColor >= static_cast<int>(m_startColorIndex);
 }
 
 
 Color_t 
 FWColorManager::geomColor(FWGeomColorIndex iIndex) const
 {
-   return m_startGeomColorIndex + iIndex;
+   return m_startGeomColorIndex+iIndex;
 }
 
 
-static boost::shared_ptr<std::map<Color_t,Color_t> > m_oldColorToIndexMap;
+static boost::shared_ptr<std::map<Color_t,unsigned int> > m_oldColorToIndexMap;
 
-Color_t
+unsigned int 
 FWColorManager::oldColorToIndex(Color_t iColor) const
 {
    if(0==m_oldColorToIndexMap.get()) {
-      m_oldColorToIndexMap = boost::shared_ptr<std::map<Color_t,Color_t> >(new std::map<Color_t,Color_t>());
+      m_oldColorToIndexMap = boost::shared_ptr<std::map<Color_t,unsigned int> >(new std::map<Color_t,unsigned int>());
       (*m_oldColorToIndexMap)[kRed]=kFWRed;
       (*m_oldColorToIndexMap)[kBlue]=kFWBlue;
       (*m_oldColorToIndexMap)[kYellow]=kFWYellow;

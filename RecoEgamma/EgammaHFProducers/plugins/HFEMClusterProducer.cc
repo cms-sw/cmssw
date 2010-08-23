@@ -20,8 +20,7 @@ HFEMClusterProducer::HFEMClusterProducer(edm::ParameterSet const& conf): hfreco_
 	      conf.getParameter<double>("seedThresholdET"),
 	      conf.getParameter<double>("maximumSL"),
 	      conf.getParameter<double>("maximumRenergy"),
-	      conf.getParameter<bool>("usePMTFlag"),
-	      conf.getParameter<bool>("usePulseFlag"));
+	      conf.getParameter<bool>("useFlag"));
 }
 
 void HFEMClusterProducer::produce(edm::Event & e, edm::EventSetup const& iSetup) {  

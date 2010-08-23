@@ -1,3 +1,9 @@
+2010-07-20 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-02-04
+	* When counting processes, only consider master processes,
+	  i.e. those with PPID 1.
+
 2010-07-01 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V06-02-03
@@ -63,6 +69,12 @@
 	  This requires the new IOPool/Streamer data format.
 	* First round of refactoring of the consumer handling code to
 	  make it usable for the SM proxy server.
+
+2010-07-20 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-10-04
+	* When counting processes, only consider master processes,
+	  i.e. those with PPID 1.
 
 2010-06-25 Remi Mommsen <Remigius.Mommsen@cern.ch>
 

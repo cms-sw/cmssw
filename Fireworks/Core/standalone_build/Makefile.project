@@ -20,7 +20,7 @@ ifeq ($(shell uname), Linux)
         ExtraProjectLibs = -L./ -l$(LibCore)
 else
    ifeq ($(shell uname), Darwin)
-      ExecLibs = -lThread -lEve -lRint -lRGL -lCore -lGUI  -lNet -L./ -L/usr/X11R6/lib -l$(LibProject) -l$(LibCore) -lCore
+      ExecLibs = -lEve -lRint -lRGL -lCore -lGUI  -lNet -L./ -L/usr/X11R6/lib -l$(LibProject) -l$(LibCore) -lCore
       ExtraProjectLibs =  -L/usr/X11R6/lib -lGL -lGLU -L./ -l$(LibCore) \
       -Wl,-dylib_file,/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib:/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib
    endif

@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2010/02/16 09:51:25 $
- * $Revision: 1.44 $
+ * $Date: 2010/08/08 08:46:05 $
+ * $Revision: 1.46 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -27,10 +27,9 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
-#include <DQM/EcalCommon/interface/UtilsClient.h>
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBSelectiveReadoutTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBSelectiveReadoutTask.h"
 
 EBSelectiveReadoutTask::EBSelectiveReadoutTask(const edm::ParameterSet& ps){
 
@@ -61,8 +60,16 @@ EBSelectiveReadoutTask::EBSelectiveReadoutTask(const edm::ParameterSet& ps){
   EBDccEventSizeMap_ = 0;
   EBReadoutUnitForcedBitMap_ = 0;
   EBFullReadoutSRFlagMap_ = 0;
+  EBFullReadoutSRFlagCount_ = 0;
+  EBZeroSuppression1SRFlagMap_ = 0;
   EBHighInterestTriggerTowerFlagMap_ = 0;
+  EBMediumInterestTriggerTowerFlagMap_ = 0;
   EBLowInterestTriggerTowerFlagMap_ = 0;
+  EBTTFlags_ = 0;
+  EBCompleteZSMap_ = 0;
+  EBCompleteZSCount_ = 0;
+  EBDroppedFRMap_ = 0;
+  EBDroppedFRCount_ = 0;
   EBEventSize_ = 0;
   EBHighInterestPayload_ = 0;
   EBLowInterestPayload_ = 0;
@@ -102,9 +109,14 @@ void EBSelectiveReadoutTask::beginRun(const edm::Run& r, const edm::EventSetup& 
   for(int ietindex = 0; ietindex < 34; ietindex++ ) {
     for(int iptindex = 0; iptindex < 72; iptindex++ ) {
       nEvtFullReadout[iptindex][ietindex] = 0;
+      nEvtZS1Readout[iptindex][ietindex] = 0;
+      nEvtZSReadout[iptindex][ietindex] = 0;
+      nEvtCompleteReadoutIfZS[iptindex][ietindex] = 0;
+      nEvtDroppedReadoutIfFR[iptindex][ietindex] = 0;
       nEvtRUForced[iptindex][ietindex] = 0;
       nEvtAnyReadout[iptindex][ietindex] = 0;
       nEvtHighInterest[iptindex][ietindex] = 0;
+      nEvtMediumInterest[iptindex][ietindex] = 0;
       nEvtLowInterest[iptindex][ietindex] = 0;
       nEvtAnyInterest[iptindex][ietindex] = 0;
     }
@@ -130,9 +142,25 @@ void EBSelectiveReadoutTask::reset(void) {
 
   if ( EBFullReadoutSRFlagMap_ ) EBFullReadoutSRFlagMap_->Reset();
 
+  if ( EBFullReadoutSRFlagCount_ ) EBFullReadoutSRFlagCount_->Reset();
+
+  if ( EBZeroSuppression1SRFlagMap_ ) EBZeroSuppression1SRFlagMap_->Reset(); 
+
   if ( EBHighInterestTriggerTowerFlagMap_ ) EBHighInterestTriggerTowerFlagMap_->Reset();
 
+  if ( EBMediumInterestTriggerTowerFlagMap_ ) EBMediumInterestTriggerTowerFlagMap_->Reset();
+
   if ( EBLowInterestTriggerTowerFlagMap_ ) EBLowInterestTriggerTowerFlagMap_->Reset();
+  
+  if ( EBTTFlags_ ) EBTTFlags_->Reset();
+
+  if ( EBCompleteZSMap_ ) EBCompleteZSMap_->Reset();
+  
+  if ( EBCompleteZSCount_ ) EBCompleteZSCount_->Reset();
+
+  if ( EBDroppedFRMap_ ) EBDroppedFRMap_->Reset();
+
+  if ( EBDroppedFRCount_ ) EBDroppedFRCount_->Reset();
 
   if ( EBEventSize_ ) EBEventSize_->Reset();
 
@@ -192,17 +220,57 @@ void EBSelectiveReadoutTask::setup(void) {
     EBFullReadoutSRFlagMap_->setAxisTitle("jeta", 2);
     EBFullReadoutSRFlagMap_->setAxisTitle("rate", 3);
 
+    sprintf(histo, "EBSRT full readout SR Flags Number");
+    EBFullReadoutSRFlagCount_ = dqmStore_->book1D(histo, histo, 200, 0., 200.);
+    EBFullReadoutSRFlagCount_->setAxisTitle("Readout Units number", 1);
+
+    sprintf(histo, "EBSRT zero suppression 1 SR Flags");
+    EBZeroSuppression1SRFlagMap_ = dqmStore_->book2D(histo, histo, 72, 0, 72, 34, -17, 17);
+    EBZeroSuppression1SRFlagMap_->setAxisTitle("jphi", 1);
+    EBZeroSuppression1SRFlagMap_->setAxisTitle("jeta", 2);
+    EBZeroSuppression1SRFlagMap_->setAxisTitle("rate", 3);
+
     sprintf(histo, "EBSRT high interest TT Flags");
     EBHighInterestTriggerTowerFlagMap_ = dqmStore_->book2D(histo, histo, 72, 0, 72, 34, -17, 17);
     EBHighInterestTriggerTowerFlagMap_->setAxisTitle("jphi", 1);
     EBHighInterestTriggerTowerFlagMap_->setAxisTitle("jeta", 2);
     EBHighInterestTriggerTowerFlagMap_->setAxisTitle("rate", 3);
 
+    sprintf(histo, "EBSRT medium interest TT Flags");
+    EBMediumInterestTriggerTowerFlagMap_ = dqmStore_->book2D(histo, histo, 72, 0, 72, 34, -17, 17);
+    EBMediumInterestTriggerTowerFlagMap_->setAxisTitle("jphi", 1);
+    EBMediumInterestTriggerTowerFlagMap_->setAxisTitle("jeta", 2);
+    EBMediumInterestTriggerTowerFlagMap_->setAxisTitle("rate", 3);
+
     sprintf(histo, "EBSRT low interest TT Flags");
     EBLowInterestTriggerTowerFlagMap_ = dqmStore_->book2D(histo, histo, 72, 0, 72, 34, -17, 17);
     EBLowInterestTriggerTowerFlagMap_->setAxisTitle("jphi", 1);
     EBLowInterestTriggerTowerFlagMap_->setAxisTitle("jeta", 2);
     EBLowInterestTriggerTowerFlagMap_->setAxisTitle("rate", 3);
+
+    sprintf(histo, "EBSRT TT Flags");
+    EBTTFlags_ = dqmStore_->book1D(histo, histo, 8, 0., 8.);
+    EBTTFlags_->setAxisTitle("TT Flag value", 1);
+
+    sprintf(histo, "EBSRT ZS Flagged Fully Readout");
+    EBCompleteZSMap_ = dqmStore_->book2D(histo, histo, 72, 0, 72, 34, -17, 17);
+    EBCompleteZSMap_->setAxisTitle("jphi", 1);
+    EBCompleteZSMap_->setAxisTitle("jeta", 2);
+    EBCompleteZSMap_->setAxisTitle("rate", 3);
+
+    sprintf(histo, "EBSRT ZS Flagged Fully Readout Number");
+    EBCompleteZSCount_ = dqmStore_->book1D(histo, histo, 20, 0., 20.);
+    EBCompleteZSCount_->setAxisTitle("Readout Units number", 1);
+
+    sprintf(histo, "EBSRT FR Flagged Dropped Readout");
+    EBDroppedFRMap_ = dqmStore_->book2D(histo, histo, 72, 0, 72, 34, -17, 17);
+    EBDroppedFRMap_->setAxisTitle("jphi", 1);
+    EBDroppedFRMap_->setAxisTitle("jeta", 2);
+    EBDroppedFRMap_->setAxisTitle("rate", 3);
+
+    sprintf(histo, "EBSRT FR Flagged Dropped Readout Number");
+    EBDroppedFRCount_ = dqmStore_->book1D(histo, histo, 20, 0., 20.);
+    EBDroppedFRCount_->setAxisTitle("Readout Units number", 1);
 
     sprintf(histo, "EBSRT event size");
     EBEventSize_ = dqmStore_->book1D(histo, histo, 100, 0, 200);
@@ -254,11 +322,35 @@ void EBSelectiveReadoutTask::cleanup(void){
     if ( EBFullReadoutSRFlagMap_ ) dqmStore_->removeElement( EBFullReadoutSRFlagMap_->getName() );
     EBFullReadoutSRFlagMap_ = 0;
 
+    if ( EBFullReadoutSRFlagCount_ ) dqmStore_->removeElement( EBFullReadoutSRFlagCount_->getName() );
+    EBFullReadoutSRFlagCount_ = 0;
+
+    if ( EBFullReadoutSRFlagCount_ ) dqmStore_->removeElement( EBFullReadoutSRFlagCount_->getName() );
+    EBFullReadoutSRFlagCount_ = 0;
+
     if ( EBHighInterestTriggerTowerFlagMap_ ) dqmStore_->removeElement( EBHighInterestTriggerTowerFlagMap_->getName() );
     EBHighInterestTriggerTowerFlagMap_ = 0;
 
+    if ( EBMediumInterestTriggerTowerFlagMap_ ) dqmStore_->removeElement( EBMediumInterestTriggerTowerFlagMap_->getName() );
+    EBMediumInterestTriggerTowerFlagMap_ = 0;
+
     if ( EBLowInterestTriggerTowerFlagMap_ ) dqmStore_->removeElement( EBLowInterestTriggerTowerFlagMap_->getName() );
     EBLowInterestTriggerTowerFlagMap_ = 0;
+
+    if ( EBTTFlags_ ) dqmStore_->removeElement( EBTTFlags_->getName() );
+    EBTTFlags_ = 0;
+
+    if ( EBCompleteZSMap_ ) dqmStore_->removeElement( EBCompleteZSMap_->getName() );
+    EBCompleteZSMap_ = 0;
+
+    if ( EBCompleteZSCount_ ) dqmStore_->removeElement( EBCompleteZSCount_->getName() );
+    EBCompleteZSCount_ = 0;
+
+    if ( EBDroppedFRMap_ ) dqmStore_->removeElement( EBDroppedFRMap_->getName() );
+    EBDroppedFRMap_ = 0;
+
+    if ( EBDroppedFRCount_ ) dqmStore_->removeElement( EBDroppedFRCount_->getName() );
+    EBDroppedFRCount_ = 0;
 
     if ( EBEventSize_ ) dqmStore_->removeElement( EBEventSize_->getName() );
     EBEventSize_ = 0;
@@ -310,8 +402,55 @@ void EBSelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
   }
 
   // Selective Readout Flags
+  int nFRO, nCompleteZS, nDroppedFRO;
+  nFRO = 0;
+  nCompleteZS = 0;
+  nDroppedFRO = 0;
   edm::Handle<EBSrFlagCollection> ebSrFlags;
   if ( e.getByLabel(EBSRFlagCollection_,ebSrFlags) ) {
+
+    // Data Volume
+    double aLowInterest=0;
+    double aHighInterest=0;
+    double aAnyInterest=0;
+
+    edm::Handle<EBDigiCollection> ebDigis;
+    if ( e.getByLabel(EBDigiCollection_ , ebDigis) ) {
+
+      anaDigiInit();
+
+      for (unsigned int digis=0; digis<ebDigis->size(); ++digis){
+        EBDataFrame ebdf = (*ebDigis)[digis];
+        anaDigi(ebdf, *ebSrFlags);
+      }
+
+      //low interest channels:
+      aLowInterest = nEbLI_*bytesPerCrystal/kByte;
+      EBLowInterestPayload_->Fill(aLowInterest);
+
+      //low interest channels:
+      aHighInterest = nEbHI_*bytesPerCrystal/kByte;
+      EBHighInterestPayload_->Fill(aHighInterest);
+
+      //any-interest channels:
+      aAnyInterest = getEbEventSize(nEb_)/kByte;
+      EBEventSize_->Fill(aAnyInterest);
+
+      //event size by tower:
+      for(int ietindex = 0; ietindex < 34; ietindex++ ) {
+        for(int iptindex = 0; iptindex < 72; iptindex++ ) {
+
+          float xiet = (ietindex < 17) ? ietindex + 0.5 : (16-ietindex) + 0.5;
+          float xipt = iptindex + 0.5;
+
+          double towerSize =  nCryTower[iptindex][ietindex] * bytesPerCrystal;
+          EBTowerSize_->Fill(xipt, xiet, towerSize);
+
+        }
+      }
+    } else {
+      edm::LogWarning("EBSelectiveReadoutTask") << EBDigiCollection_ << " not available";
+    }
 
     for ( EBSrFlagCollection::const_iterator it = ebSrFlags->begin(); it != ebSrFlags->end(); ++it ) {
 
@@ -326,14 +465,33 @@ void EBSelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
       int ipt = id.iphi() + 2;
       if ( ipt > 72 ) ipt = ipt - 72;
       int iptindex = ipt - 1;
+      int ism = Numbers::iSM( id );
+      int itt = Numbers::iTT( id );
 
       nEvtAnyReadout[iptindex][ietindex]++;
 
       int flag = it->value() & ~EcalSrFlag::SRF_FORCED_MASK;
 
-      if(flag == EcalSrFlag::SRF_FULL) nEvtFullReadout[iptindex][ietindex]++;
+      if(flag == EcalSrFlag::SRF_FULL) {
+        nEvtFullReadout[iptindex][ietindex]++;
+        nFRO++;
+        if(nPerRu_[ism-1][itt-1] == 0) {
+          nEvtDroppedReadoutIfFR[iptindex][ietindex]++;
+          nDroppedFRO++;
+        }
+      }
+
+      if(flag == EcalSrFlag::SRF_ZS1) nEvtZS1Readout[iptindex][ietindex]++;
 
       if(it->value() & EcalSrFlag::SRF_FORCED_MASK) nEvtRUForced[iptindex][ietindex]++;
+
+      if(flag == EcalSrFlag::SRF_ZS1 || flag == EcalSrFlag::SRF_ZS2) {
+        nEvtZSReadout[iptindex][ietindex]++;
+        if(nPerRu_[ism-1][itt-1] == getCrystalCount()) {
+          nEvtCompleteReadoutIfZS[iptindex][ietindex]++;
+          nCompleteZS++;
+        }
+      }
 
     }
   } else {
@@ -363,6 +521,21 @@ void EBSelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
         EBFullReadoutSRFlagMap_->setBinContent(binpt, binet, fraction);
         EBFullReadoutSRFlagMap_->setBinError(binpt, binet, error);
 
+
+        fraction = float(nEvtZS1Readout[iptindex][ietindex]) / float(nEvtAnyReadout[iptindex][ietindex]);
+        error = sqrt(fraction*(1-fraction)/float(nEvtAnyReadout[iptindex][ietindex]));
+
+        h2d = EBZeroSuppression1SRFlagMap_->getTH2F();
+
+        if ( h2d ) {
+          binpt = h2d->GetXaxis()->FindBin(xipt);
+          binet = h2d->GetYaxis()->FindBin(xiet);
+        }
+
+        EBZeroSuppression1SRFlagMap_->setBinContent(binpt, binet, fraction);
+        EBZeroSuppression1SRFlagMap_->setBinError(binpt, binet, error);
+
+
         fraction = float(nEvtRUForced[iptindex][ietindex]) / float(nEvtAnyReadout[iptindex][ietindex]);
         error = sqrt(fraction*(1-fraction)/float(nEvtAnyReadout[iptindex][ietindex]));
 
@@ -376,55 +549,43 @@ void EBSelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
         EBReadoutUnitForcedBitMap_->setBinContent(binpt, binet, fraction);
         EBReadoutUnitForcedBitMap_->setBinError(binpt, binet, error);
 
+        if( nEvtZSReadout[iptindex][ietindex] ) {
+          fraction = float(nEvtCompleteReadoutIfZS[iptindex][ietindex]) / float(nEvtZSReadout[iptindex][ietindex]);
+          error = sqrt(fraction*(1-fraction)/float(nEvtAnyReadout[iptindex][ietindex]));
+
+          h2d = EBCompleteZSMap_->getTH2F();
+          
+          if ( h2d ) {
+            binpt = h2d->GetXaxis()->FindBin(xipt);
+            binet = h2d->GetYaxis()->FindBin(xiet);
+          }
+          
+          EBCompleteZSMap_->setBinContent(binpt, binet, fraction);
+          EBCompleteZSMap_->setBinError(binpt, binet, error);
+        }
+
+        if( nEvtFullReadout[iptindex][ietindex] ) {
+          fraction = float(nEvtDroppedReadoutIfFR[iptindex][ietindex]) / float(nEvtFullReadout[iptindex][ietindex]);
+          error = sqrt(fraction*(1-fraction)/float(nEvtAnyReadout[iptindex][ietindex]));
+          
+          h2d = EBDroppedFRMap_->getTH2F();
+          
+          if ( h2d ) {
+            binpt = h2d->GetXaxis()->FindBin(xipt);
+            binet = h2d->GetYaxis()->FindBin(xiet);
+          }
+          
+          EBDroppedFRMap_->setBinContent(binpt, binet, fraction);
+          EBDroppedFRMap_->setBinError(binpt, binet, error);
+        }
       }
 
     }
   }
 
-  if (!ebSrFlags.isValid()) return;
-
-  // Data Volume
-  double aLowInterest=0;
-  double aHighInterest=0;
-  double aAnyInterest=0;
-
-  edm::Handle<EBDigiCollection> ebDigis;
-  if ( e.getByLabel(EBDigiCollection_ , ebDigis) ) {
-
-    anaDigiInit();
-
-    for (unsigned int digis=0; digis<ebDigis->size(); ++digis){
-      EBDataFrame ebdf = (*ebDigis)[digis];
-      anaDigi(ebdf, *ebSrFlags);
-    }
-
-    //low interest channels:
-    aLowInterest = nEbLI_*bytesPerCrystal/kByte;
-    EBLowInterestPayload_->Fill(aLowInterest);
-
-    //low interest channels:
-    aHighInterest = nEbHI_*bytesPerCrystal/kByte;
-    EBHighInterestPayload_->Fill(aHighInterest);
-
-    //any-interest channels:
-    aAnyInterest = getEbEventSize(nEb_)/kByte;
-    EBEventSize_->Fill(aAnyInterest);
-
-    //event size by tower:
-    for(int ietindex = 0; ietindex < 34; ietindex++ ) {
-      for(int iptindex = 0; iptindex < 72; iptindex++ ) {
-
-        float xiet = (ietindex < 17) ? ietindex + 0.5 : (16-ietindex) + 0.5;
-        float xipt = iptindex + 0.5;
-
-        double towerSize =  nCryTower[iptindex][ietindex] * bytesPerCrystal;
-        EBTowerSize_->Fill(xipt, xiet, towerSize);
-
-      }
-    }
-  } else {
-    edm::LogWarning("EBSelectiveReadoutTask") << EBDigiCollection_ << " not available";
-  }
+  EBFullReadoutSRFlagCount_->Fill( nFRO );
+  EBCompleteZSCount_->Fill( nCompleteZS );
+  EBDroppedFRCount_->Fill( nDroppedFRO );
 
   edm::Handle<EcalTrigPrimDigiCollection> TPCollection;
   if ( e.getByLabel(EcalTrigPrimDigiCollection_, TPCollection) ) {
@@ -447,7 +608,11 @@ void EBSelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
 
       if ( (TPdigi->ttFlag() & 0x3) == 0 ) nEvtLowInterest[iptindex][ietindex]++;
 
+      if ( (TPdigi->ttFlag() & 0x3) == 1 ) nEvtMediumInterest[iptindex][ietindex]++;
+
       if ( (TPdigi->ttFlag() & 0x3) == 3 ) nEvtHighInterest[iptindex][ietindex]++;
+
+      EBTTFlags_->Fill( TPdigi->ttFlag() );
 
       float xiet = (ietindex < 17) ? ietindex + 0.5 : (16-ietindex) + 0.5;
       float xipt = iptindex + 0.5;
@@ -482,6 +647,21 @@ void EBSelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
 
         EBHighInterestTriggerTowerFlagMap_->setBinContent(binpt, binet, fraction);
         EBHighInterestTriggerTowerFlagMap_->setBinError(binpt, binet, error);
+
+
+        fraction = float(nEvtMediumInterest[iptindex][ietindex]) / float(nEvtAnyInterest[iptindex][ietindex]);
+        error = sqrt(fraction*(1-fraction)/float(nEvtAnyInterest[iptindex][ietindex]));
+
+        h2d = EBMediumInterestTriggerTowerFlagMap_->getTH2F();
+
+        if ( h2d ) {
+          binpt = h2d->GetXaxis()->FindBin(xipt);
+          binet = h2d->GetYaxis()->FindBin(xiet);
+        }
+
+        EBMediumInterestTriggerTowerFlagMap_->setBinContent(binpt, binet, fraction);
+        EBMediumInterestTriggerTowerFlagMap_->setBinError(binpt, binet, error);
+
 
         fraction = float(nEvtLowInterest[iptindex][ietindex]) / float(nEvtAnyInterest[iptindex][ietindex]);
         error = sqrt(fraction*(1-fraction)/float(nEvtAnyInterest[iptindex][ietindex]));
@@ -531,20 +711,21 @@ void EBSelectiveReadoutTask::anaDigi(const EBDataFrame& frame, const EBSrFlagCol
     int ipt = towid.iphi() + 2;
     if ( ipt > 72 ) ipt = ipt - 72;
     int iptindex = ipt - 1;
+    
+    int ism = Numbers::iSM( id );
+    int itt = Numbers::iTT( towid );
 
     nCryTower[iptindex][ietindex]++;
-  }
-
-  EBSrFlagCollection::const_iterator srf = srFlagColl.find(readOutUnitOf(id));
-
-  if(srf == srFlagColl.end()){
-    return;
-  }
-
-  bool highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)
-                       == EcalSrFlag::SRF_FULL);
-
-  if(barrel){
+    
+    EBSrFlagCollection::const_iterator srf = srFlagColl.find(readOutUnitOf(id));
+    
+    if(srf == srFlagColl.end()){
+      return;
+    }
+    
+    bool highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)
+                         == EcalSrFlag::SRF_FULL);
+    
 
     int dccZsFIRval = dccZsFIR(frame, firWeights_, firstFIRSample_, 0);
 
@@ -555,9 +736,10 @@ void EBSelectiveReadoutTask::anaDigi(const EBDataFrame& frame, const EBSrFlagCol
       ++nEbLI_;
       EBLowInterestZsFIR_->Fill( dccZsFIRval );
     }
+    ++nPerDcc_[dccNum(id)-1];
+    ++nPerRu_[ism-1][itt-1];
   }
 
-  ++nPerDcc_[dccNum(id)-1];
 }
 
 void EBSelectiveReadoutTask::anaDigiInit(){
@@ -567,6 +749,12 @@ void EBSelectiveReadoutTask::anaDigiInit(){
   bzero(nPerDcc_, sizeof(nPerDcc_));
   bzero(nRuPerDcc_, sizeof(nRuPerDcc_));
   bzero(ebRuActive_, sizeof(ebRuActive_));
+
+  for(int idcc=0; idcc<nECALDcc; idcc++) {
+    for(int isc=0; isc<nDccChs; isc++) {
+      nPerRu_[idcc][isc] = 0;
+    }
+  }
 
   for(int ietindex = 0; ietindex < 34; ietindex++ ) {
     for(int iptindex = 0; iptindex < 72; iptindex++ ) {

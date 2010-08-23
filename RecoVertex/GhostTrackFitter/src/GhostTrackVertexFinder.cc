@@ -184,6 +184,8 @@ static CachingVertex<5> vertexAtState(const TransientTrack &ghostTrack,
 		linTrackFactory.linearizedTrackState(point, ghostTrack),
 		linTrackFactory.linearizedTrackState(point, recTrack)
 	};
+	if ( !linState[0]->isValid() || !linState[1]->isValid() )
+ 	  return CachingVertex<5>();
 
 	Matrix3S cov = SMatrixIdentity();
 	cov *= 10000;

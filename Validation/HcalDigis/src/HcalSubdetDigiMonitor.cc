@@ -164,9 +164,6 @@ HcalSubdetDigiMonitor::HcalSubdetDigiMonitor(DQMStore* dbe,
     sprintf (histo, "HcalDigiTask_all_amplitudes_vs_bin_%s", sub);
     meAll10slices = book2D(histo, nbin, digiAmp);
 
-    sprintf (histo, "HcalDigiTask_all_amplitudes_vs_bin_1D_%s", sub);
-    meAll10slices1D = book1D(histo, nbin);
-
     sprintf (histo, "HcalDigiTask_bin_5_frac_%s", sub);
     meBin5Frac = book1D(histo, frac);
     sprintf (histo, "HcalDigiTask_bin_6_7_frac_%s", sub);

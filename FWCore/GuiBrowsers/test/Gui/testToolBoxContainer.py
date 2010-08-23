@@ -26,7 +26,8 @@ class ToolBoxContainerTestCase(unittest.TestCase):
         container.addWidget(QTextEdit("ganz viel text\n mit zeilenumbruechen\n."))
         container.addWidget(QTextEdit("anderer inhalt."))
         container.show()
-        self.app.exec_()
+        if not hasattr(unittest,"NO_GUI_TEST"):
+            self.app.exec_()
 
 if __name__ == "__main__":
     Profiling.analyze("unittest.main()",__file__,"ToolBoxContainer")

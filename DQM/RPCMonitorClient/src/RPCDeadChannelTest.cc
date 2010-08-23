@@ -110,8 +110,6 @@ void RPCDeadChannelTest::endRun(const Run& r, const EventSetup& iSetup,vector<Mo
       myDetIds_.push_back(detIdVector[i]);
    }
  }  
-
- this->clientOperation(iSetup);
 }
 
 void RPCDeadChannelTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {}
