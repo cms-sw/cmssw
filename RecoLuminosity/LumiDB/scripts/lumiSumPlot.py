@@ -9,16 +9,16 @@ class constants(object):
         self.NORM=1.0
         self.LUMIVERSION='0001'
         self.NBX=3564
-        self.BEAMMODE='stable' #possible choices stable,quiet,either
         self.VERBOSE=False
     def defaultfrontierConfigString(self):
         return """<frontier-connect><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier1.cern.ch:3128"/><proxy url="http://cmst0frontier2.cern.ch:3128"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier1.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier2.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier3.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier4.cern.ch:8000/FrontierInt"/></frontier-connect>"""
 
-def getLumiOrderByLS(dbsession,c,runList,selectionDict,hltpath='',beamstatus=None,beamenergy=None,beamenergyfluctuation=0.0):
+def getLumiOrderByLS(dbsession,c,runList,selectionDict,hltpath='',beamstatus=None,beamenergy=None,beamfluctuation=None):
     '''
     input:  runList[runnum], selectionDict{runnum:[ls]}
     output: [[runnumber,runstarttime,lsnum,lsstarttime,delivered,recorded,recordedinpath]]
     '''
+    #print 'getLumiOrderByLS selectionDict seen ',selectionDict
     t=lumiTime.lumiTime()
     result=[]#[[runnumber,runstarttime,lsnum,lsstarttime,delivered,recorded]]
     dbsession.transaction().start(True)
@@ -27,8 +27,7 @@ def getLumiOrderByLS(dbsession,c,runList,selectionDict,hltpath='',beamstatus=Non
     for runnum in runList:
         delivered=0.0
         recorded=0.0 
-        if len(selectionDict)!=0 and not selectionDict.has_key(runnum):
-            continue
+        
         #print 'looking for run ',runnum
         q=dbsession.nominalSchema().newQuery()
         runsummary=lumiQueryAPI.runsummaryByrun(q,runnum)
@@ -37,10 +36,14 @@ def getLumiOrderByLS(dbsession,c,runList,selectionDict,hltpath='',beamstatus=Non
         if len(runstarttimeStr)==0:
             if c.VERBOSE: print 'warning request run ',runnum,' has no runsummary, skip'
             continue
+        if len(selectionDict)!=0 and not selectionDict.has_key(runnum):
+            if runnum<max(selectionDict.keys()):
+                result.append([runnum,runstarttimeStr,1,t.StrToDatetime(runstarttimeStr),0.0,0.0])
+            continue
         #print 'runsummary ',runsummary
         lumitrginfo={}
         q=dbsession.nominalSchema().newQuery()
-        lumitrginfo=lumiQueryAPI.lumisummarytrgbitzeroByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamenergyfluctuation) #q2
+        lumitrginfo=lumiQueryAPI.lumisummarytrgbitzeroByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation) #q2
         del q
         #print 'lumitrginfo ',lumitrginfo
         if len(lumitrginfo)==0:
@@ -78,13 +81,14 @@ def getLumiOrderByLS(dbsession,c,runList,selectionDict,hltpath='',beamstatus=Non
         print sortedresult
     return sortedresult           
 
-def getLumiInfoForRuns(dbsession,c,runList,selectionDict,hltpath='',beamstatus=None,beamenergy=None,beamenergyfluctuation=0.0):
+def getLumiInfoForRuns(dbsession,c,runList,selectionDict,hltpath='',beamstatus=None,beamenergy=None,beamfluctuation=0.0):
     '''
     input: runList[runnum], selectionDict{runnum:[ls]}
     output:{runnumber:[delivered,recorded,recordedinpath] }
     '''
     t=lumiTime.lumiTime()
     result={}#runnumber:[lumisumoverlumils,lumisumovercmsls-deadtimecorrected,lumisumovercmsls-deadtimecorrected*hltcorrection_hltpath]
+    #print 'selectionDict seen ',selectionDict
     dbsession.transaction().start(True)
     for runnum in runList:
         totallumi=0.0
@@ -92,11 +96,12 @@ def getLumiInfoForRuns(dbsession,c,runList,selectionDict,hltpath='',beamstatus=N
         recorded=0.0 
         recordedinpath=0.0
         if len(selectionDict)!=0 and not selectionDict.has_key(runnum):
-            result[runnum]=[0.0,0.0,0.0]
+            if runnum<max(selectionDict.keys()):
+                result[runnum]=[0.0,0.0,0.0]
             continue
         #print 'looking for run ',runnum
         q=dbsession.nominalSchema().newQuery()
-        totallumi=lumiQueryAPI.lumisumByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamenergyfluctuation) #q1
+        totallumi=lumiQueryAPI.lumisumByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation) #q1
         del q
         if not totallumi:
             result[runnum]=[0.0,0.0,0.0]
@@ -106,7 +111,7 @@ def getLumiInfoForRuns(dbsession,c,runList,selectionDict,hltpath='',beamstatus=N
         hltinfo={}
         hlttrgmap={}
         q=dbsession.nominalSchema().newQuery()
-        lumitrginfo=lumiQueryAPI.lumisummarytrgbitzeroByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamenergyfluctuation) #q2
+        lumitrginfo=lumiQueryAPI.lumisummarytrgbitzeroByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation) #q2
         del q
         if len(lumitrginfo)==0:
             result[runnum]=[0.0,0.0,0.0]
@@ -159,10 +164,12 @@ def main():
     parser.add_argument('-n',dest='normfactor',action='store',help='normalization factor (optional, default to 1.0)')
     parser.add_argument('-i',dest='inputfile',action='store',help='lumi range selection file (optional)')
     parser.add_argument('-o',dest='outputfile',action='store',help='csv outputfile name (optional)')
-    parser.add_argument('-b',dest='beammode',action='store',help='beam mode, optional, no default')
     parser.add_argument('-lumiversion',dest='lumiversion',action='store',help='lumi data version, optional for all, default 0001')
     parser.add_argument('-begin',dest='begin',action='store',help='begin value of x-axi (required)')
     parser.add_argument('-end',dest='end',action='store',help='end value of x-axi (optional). Default to the maximum exists DB')
+    parser.add_argument('-beamenergy',dest='beamenergy',action='store',type=float,required=False,help='beamenergy (in GeV) selection criteria,e.g. 3.5e3')
+    parser.add_argument('-beamfluctuation',dest='beamfluctuation',action='store',type=float,required=False,help='allowed beamenergy fluctuation (in GeV),e.g. 0.2e3')
+    parser.add_argument('-beamstatus',dest='beamstatus',action='store',required=False,help='selection criteria beam status,e.g. STABLE BEAMS')
     parser.add_argument('-hltpath',dest='hltpath',action='store',help='specific hltpath to calculate the recorded luminosity. If specified aoverlays the recorded luminosity for the hltpath on the plot')
     parser.add_argument('-batch',dest='batch',action='store',help='graphical mode to produce PNG file. Specify graphical file here. Default to lumiSum.png')
     parser.add_argument('--interactive',dest='interactive',action='store_true',help='graphical mode to draw plot in a TK pannel.')
@@ -172,12 +179,15 @@ def main():
     #graphical mode options
     parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose mode, print result also to screen')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
-    # parse arguments
+    # parse arguments    
     batchmode=True
     args=parser.parse_args()
     connectstring=args.connect
     begvalue=args.begin
     endvalue=args.end
+    beamstatus=args.beamstatus
+    beamenergy=args.beamenergy
+    beamfluctuation=args.beamfluctuation
     xaxitype='run'
     connectparser=connectstrParser.connectstrParser(connectstring)
     connectparser.parse()
@@ -210,7 +220,6 @@ def main():
         msg.setMsgVerbosity(coral.message_Level_Debug)
     ifilename=''
     ofilename='integratedlumi.png'
-    beammode='stable'
     timeformat=''
     if args.authpath and len(args.authpath)!=0:
         os.environ['CORAL_AUTH_PATH']=args.authpath
@@ -218,8 +227,6 @@ def main():
         c.NORM=float(args.normfactor)
     if args.lumiversion:
         c.LUMIVERSION=args.lumiversion
-    if args.beammode:
-        c.BEAMMODE=args.beammode
     if args.verbose:
         c.VERBOSE=True
     if args.inputfile:
@@ -254,13 +261,13 @@ def main():
     #            lslist=runsandls[run]
     #            lslist.sort()
     #            selectionDict[run]=lslist
-    if ifilename:
+    if len(ifilename)!=0:
         ifparser=inputFilesetParser.inputFilesetParser(ifilename)
         runsandls=ifparser.runsandls()
         keylist=runsandls.keys()
         keylist.sort()
         for run in keylist:
-            if selectionDict.has_key(run):
+            if not selectionDict.has_key(run):
                 lslist=runsandls[run]
                 lslist.sort()
                 selectionDict[run]=lslist
@@ -318,7 +325,7 @@ def main():
     
     if args.action == 'run':
         result={}        
-        result=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus='STABLE BEAMS',beamenergy=3.5e3,beamenergyfluctuation=0.2e3)
+        result=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation)
         xdata=[]
         ydata={}
         ydata['Delivered']=[]
@@ -340,7 +347,7 @@ def main():
         m.plotSumX_Run(xdata,ydata)
     elif args.action == 'fill':        
         lumiDict={}
-        lumiDict=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus='STABLE BEAMS',beamenergy=3.5e3,beamenergyfluctuation=0.2e3)
+        lumiDict=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation)
         xdata=[]
         ydata={}
         ydata['Delivered']=[]
@@ -366,9 +373,9 @@ def main():
         m.plotSumX_Fill(xdata,ydata,fillDict)
     elif args.action == 'time' : 
         lumiDict={}
-        lumiDict=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus='STABLE BEAMS',beamenergy=3.5e3,beamenergyfluctuation=0.2e3)
+        lumiDict=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation)
         #lumiDict=getLumiInfoForRuns(session,c,runList,selectionDict,hltpath,beamstatus='STABLE BEAMS')
-        xdata=runDict    #runDict{day:[runs]}    
+        xdata={}#{run:[starttime,stoptime]}
         ydata={}
         ydata['Delivered']=[]
         ydata['Recorded']=[]
@@ -381,14 +388,16 @@ def main():
         for run in keylist:
             ydata['Delivered'].append(lumiDict[run][0])
             ydata['Recorded'].append(lumiDict[run][1])
-            starttime=xdata[run][0]
-            stoptime=xdata[run][1]
+            starttime=runDict[run][0]
+            stoptime=runDict[run][1]
+            xdata[run]=[starttime,stoptime]
             if args.outputfile :
-                reporter.writeRow([run,starttime,stoptime,lumiDict[run][0],lumiDict[run][1]])   
+                reporter.writeRow([run,starttime,stoptime,lumiDict[run][0],lumiDict[run][1]])
         m.plotSumX_Time(xdata,ydata,minTime,maxTime)
     elif args.action == 'perday':
         daydict={}#{day:[[run,cmslsnum,lsstarttime,delivered,recorded]]}
-        lumibyls=getLumiOrderByLS(session,c,runList,selectionDict,hltpath,beamstatus='STABLE BEAMS',beamenergy=3.5e3,beamenergyfluctuation=0.2e3)
+        #print 'input selectionDict ',selectionDict
+        lumibyls=getLumiOrderByLS(session,c,runList,selectionDict,hltpath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation)
         #print 'lumibyls ',lumibyls
         #lumibyls [[runnumber,runstarttime,lsnum,lsstarttime,delivered,recorded,recordedinpath]]
         if args.outputfile:
