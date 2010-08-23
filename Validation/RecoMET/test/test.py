@@ -53,7 +53,8 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 #process.GlobalTag.globaltag = cms.string("MC_31X_V8::All")
-process.GlobalTag.globaltag = cms.string("MC_3XY_V12::All")   
+#process.GlobalTag.globaltag = cms.string("MC_3XY_V12::All")   
+process.GlobalTag.globaltag = cms.string("MC_38Y_V9::All")
 
 process.load("RecoLocalCalo.Configuration.hcalLocalReco_cff")
 
@@ -62,7 +63,8 @@ process.DQMStore = cms.Service("DQMStore")
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
 
-    '/store/relval/CMSSW_3_7_0_pre2/RelValZMM/GEN-SIM-RECO/START37_V1-v1/0017/78448BF0-A252-DF11-B3DC-00261894392B.root'
+    #'/store/relval/CMSSW_3_7_0_pre2/RelValZMM/GEN-SIM-RECO/START37_V1-v1/0017/78448BF0-A252-DF11-B3DC-00261894392B.root'
+    '/store/relval/CMSSW_3_9_0_pre2/RelValTTbar/GEN-SIM-RECO/MC_38Y_V9-v1/0014/14B76A1A-FEA7-DF11-8046-00261894384F.root'
     )
                             
 
@@ -72,7 +74,7 @@ process.source = cms.Source("PoolSource",
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(8000) )
 
 
-process.fileSaver = cms.EDFilter("METFileSaver",
+process.fileSaver = cms.EDAnalyzer("METFileSaver",
     OutputFile = cms.untracked.string('Test.root') )
 process.p = cms.Path(process.fileSaver*
                      process.calotoweroptmaker*
