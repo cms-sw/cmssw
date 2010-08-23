@@ -10,6 +10,7 @@
 //FWCore
 #include "FWCore/ServiceRegistry/interface/Service.h"
 //DataFormats
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -21,57 +22,52 @@
 #include "HLTrigger/HLTanalyzers/interface/JetUtil.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-using namespace edm;
-using namespace std;
-using namespace reco;
-using namespace trigger;
-
 HLTOniaSource::HLTOniaSource(const edm::ParameterSet& pset){
 
-  LogVerbatim ("oniatriggermonitor") << "[HLTOniaSource]: Constructor";
+  edm::LogVerbatim ("oniatriggermonitor") << "[HLTOniaSource]: Constructor";
  
   //HLTrigger Path Names
-  vector<string> myTriggerPaths;
+  std::vector<std::string> myTriggerPaths;
   myTriggerPaths.push_back("HLT_Mu0_Track0_Jpsi");
   myTriggerPaths.push_back("HLT_Mu3_Track0_Jpsi");
   myTriggerPaths.push_back("HLT_Mu5_Track0_Jpsi");
-  triggerPath_ = pset.getUntrackedParameter<vector<string> >("TriggerPathNames",myTriggerPaths);
+  triggerPath_ = pset.getUntrackedParameter<std::vector<std::string> >("TriggerPathNames",myTriggerPaths);
 
   //Tag for Onia Muons
-  vector<InputTag> myOniaMuonTags;
+  std::vector<edm::InputTag> myOniaMuonTags;
                                          
-  myOniaMuonTags.push_back(InputTag("hltMu0TrackJpsiL3Filtered0", "", "HLT"));
-  myOniaMuonTags.push_back(InputTag("hltMu3TrackJpsiL3Filtered3", "", "HLT"));
-  myOniaMuonTags.push_back(InputTag("hltMu5TrackJpsiL3Filtered5", "", "HLT"));
+  myOniaMuonTags.push_back(edm::InputTag("hltMu0TrackJpsiL3Filtered0", "", "HLT"));
+  myOniaMuonTags.push_back(edm::InputTag("hltMu3TrackJpsiL3Filtered3", "", "HLT"));
+  myOniaMuonTags.push_back(edm::InputTag("hltMu5TrackJpsiL3Filtered5", "", "HLT"));
   oniaMuonTag_ = pset.getUntrackedParameter<std::vector<edm::InputTag> >("OniaMuonTag",myOniaMuonTags);
 
   //Tag for Pixel tracks before Onia filter
-  pixelTag_ = pset.getUntrackedParameter<InputTag>("PixelTag",edm::InputTag("hltPixelTracks", "", "HLT"));
+  pixelTag_ = pset.getUntrackedParameter<edm::InputTag>("PixelTag",edm::InputTag("hltPixelTracks", "", "HLT"));
  
   //Tag for Tracker tracks before Onia filter
-  trackTag_ = pset.getUntrackedParameter<InputTag>("TrackTag",edm::InputTag("hltMuTrackJpsiCtfTrackCands","", "HLT"));
+  trackTag_ = pset.getUntrackedParameter<edm::InputTag>("TrackTag",edm::InputTag("hltMuTrackJpsiCtfTrackCands","", "HLT"));
 
-  beamSpotTag_ = pset.getUntrackedParameter<InputTag>("BeamSpotTag",edm::InputTag("hltOfflineBeamSpot", "", "HLT"));
+  beamSpotTag_ = pset.getUntrackedParameter<edm::InputTag>("BeamSpotTag",edm::InputTag("hltOfflineBeamSpot", "", "HLT"));
 
   //Tag Trigger Summary
-  triggerSummaryRAWTag_ = pset.getUntrackedParameter<InputTag>("TriggerSummaryTag",edm::InputTag("hltTriggerSummaryRAW", "", "HLT"));
-  hltProcessName_  = pset.getUntrackedParameter<string>("TriggerProcessName","HLT");
+  triggerSummaryRAWTag_ = pset.getUntrackedParameter<edm::InputTag>("TriggerSummaryTag",edm::InputTag("hltTriggerSummaryRAW", "", "HLT"));
+  hltProcessName_  = pset.getUntrackedParameter<std::string>("TriggerProcessName","HLT");
   //Tag for Pixel tracks after Onia filter
-  vector<InputTag> pxlTagsAfterFilter;
-  pxlTagsAfterFilter.push_back(InputTag("hltMu0TrackJpsiPixelMassFiltered", "", "HLT"));
-  pxlTagsAfterFilter.push_back(InputTag("hltMu3TrackJpsiPixelMassFiltered", "", "HLT"));
-  pxlTagsAfterFilter.push_back(InputTag("hltMu5TrackJpsiPixelMassFiltered", "", "HLT"));
-  pixelTagsAfterFilter_=  pset.getUntrackedParameter< vector<edm::InputTag> >("PixelTagAfterFilter",pxlTagsAfterFilter);
+  std::vector<edm::InputTag> pxlTagsAfterFilter;
+  pxlTagsAfterFilter.push_back(edm::InputTag("hltMu0TrackJpsiPixelMassFiltered", "", "HLT"));
+  pxlTagsAfterFilter.push_back(edm::InputTag("hltMu3TrackJpsiPixelMassFiltered", "", "HLT"));
+  pxlTagsAfterFilter.push_back(edm::InputTag("hltMu5TrackJpsiPixelMassFiltered", "", "HLT"));
+  pixelTagsAfterFilter_=  pset.getUntrackedParameter< std::vector<edm::InputTag> >("PixelTagAfterFilter",pxlTagsAfterFilter);
 
   //Tag for Tracker tracks after Onia filter
-  vector<InputTag> trxTagsAfterFilter;
-  trxTagsAfterFilter.push_back(InputTag("hltMu0TrackJpsiTrackMassFiltered", "", "HLT"));
-  trxTagsAfterFilter.push_back(InputTag("hltMu3TrackJpsiTrackMassFiltered", "", "HLT"));
-  trxTagsAfterFilter.push_back(InputTag("hltMu5TrackJpsiTrackMassFiltered", "", "HLT"));
-  trackTagsAfterFilter_ = pset.getUntrackedParameter< vector<edm::InputTag> >("TrackTagAfterFilter",trxTagsAfterFilter);
+  std::vector<edm::InputTag> trxTagsAfterFilter;
+  trxTagsAfterFilter.push_back(edm::InputTag("hltMu0TrackJpsiTrackMassFiltered", "", "HLT"));
+  trxTagsAfterFilter.push_back(edm::InputTag("hltMu3TrackJpsiTrackMassFiltered", "", "HLT"));
+  trxTagsAfterFilter.push_back(edm::InputTag("hltMu5TrackJpsiTrackMassFiltered", "", "HLT"));
+  trackTagsAfterFilter_ = pset.getUntrackedParameter< std::vector<edm::InputTag> >("TrackTagAfterFilter",trxTagsAfterFilter);
 
   //Foldering output
-  subsystemFolder_ = pset.getUntrackedParameter<string>("SubSystemFolder","HLT/HLTMonMuon/Onia");
+  subsystemFolder_ = pset.getUntrackedParameter<std::string>("SubSystemFolder","HLT/HLTMonMuon/Onia");
 }
 
 
@@ -79,9 +75,9 @@ HLTOniaSource::~HLTOniaSource(){dbe_ = 0;}
 
 void  HLTOniaSource::beginJob(){
 
-  dbe_ = Service<DQMStore>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
   if( !dbe_ ) {
-    LogVerbatim ("oniatriggermonitor") << "[HLTOniaSource]: Could not access DQM Store.";
+    edm::LogVerbatim ("oniatriggermonitor") << "[HLTOniaSource]: Could not access DQM Store.";
     return;
   }
 }
@@ -147,79 +143,79 @@ void HLTOniaSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if(!hltConfigInit_) return;
 
   //Get Pixel Tracks
-  Handle<TrackCollection> pixelCands;
+  edm::Handle<reco::TrackCollection> pixelCands;
   iEvent.getByLabel(pixelTag_, pixelCands);
 
-  TrackCollection mypixelCands; //This is needed for the sort!!!!
+  reco::TrackCollection mypixelCands; //This is needed for the sort!!!!
   if (pixelCands.isValid()) {
     mypixelCands =  *  pixelCands;   
     sort(mypixelCands.begin(), mypixelCands.end(),PtGreater());  
     this->fillOniaTriggerMEs(pixelCands , pixelTag_.label(), pixelME_ );
   }else {
-    LogVerbatim ("oniatriggermonitor") << "[HLTOniaSource]: Could not access pixel collection with tag "<<pixelTag_;
+    edm::LogVerbatim ("oniatriggermonitor") << "[HLTOniaSource]: Could not access pixel collection with tag "<<pixelTag_;
   }
    
   //Get Tracker Tracks
-  Handle<RecoChargedCandidateCollection>  trackCands;
+  edm::Handle<reco::RecoChargedCandidateCollection>  trackCands;
   iEvent.getByLabel(trackTag_, trackCands);
-  RecoChargedCandidateCollection mytrackCands; //This is needed for the sort!!!!
+  reco::RecoChargedCandidateCollection mytrackCands; //This is needed for the sort!!!!
   if(trackCands.isValid()) {
     mytrackCands =  * trackCands;   
     sort(mytrackCands.begin(),mytrackCands.end(),PtGreater());  
     this->fillOniaTriggerMEs(trackCands ,  trackTag_.label(), trackME_ );   
    }else {
-    LogVerbatim ("oniatriggermonitor") << "[HLTOniaSource]: Could not access track collection with tag "<<trackTag_;
+    edm::LogVerbatim ("oniatriggermonitor") << "[HLTOniaSource]: Could not access track collection with tag "<<trackTag_;
    }
     
   //Get Beamspot 
-  Handle<BeamSpot> recoBeamSpotHandle;
+  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   iEvent.getByLabel(beamSpotTag_, recoBeamSpotHandle);
   if (recoBeamSpotHandle.isValid()) {
     BSPosition_ = recoBeamSpotHandle->position();
   }else {
-    LogVerbatim ("oniatriggermonitor") << "[HLTOniaSource]: Could not access beam spot info with tag "<<beamSpotTag_;
+    edm::LogVerbatim ("oniatriggermonitor") << "[HLTOniaSource]: Could not access beam spot info with tag "<<beamSpotTag_;
   }  
 
 
   //Get Trigger Summary RA
-  Handle<TriggerEventWithRefs> rawTriggerEvent;
+  edm::Handle<trigger::TriggerEventWithRefs> rawTriggerEvent;
   iEvent.getByLabel(triggerSummaryRAWTag_, rawTriggerEvent );
   
   if( rawTriggerEvent.isValid() ){
 
     for(size_t i=0; i<oniaMuonTag_.size(); i++){
 
-      vector<RecoChargedCandidateRef> myMuonFilterCands;        
-      vector<RecoChargedCandidateRef> myPixelFilterCands;   
-      vector<RecoChargedCandidateRef> myTrackFilterCands;   
+      std::vector<reco::RecoChargedCandidateRef> myMuonFilterCands;        
+      std::vector<reco::RecoChargedCandidateRef> myPixelFilterCands;   
+      std::vector<reco::RecoChargedCandidateRef> myTrackFilterCands;   
       
       //Get Onia Muons
       size_t indexM = rawTriggerEvent->filterIndex(oniaMuonTag_[i]);
 
       if ( indexM < rawTriggerEvent->size() ){
-	rawTriggerEvent->getObjects( indexM, TriggerMuon, myMuonFilterCands );
+	rawTriggerEvent->getObjects( indexM, trigger::TriggerMuon, myMuonFilterCands );
 	this->fillOniaTriggerMEs( myMuonFilterCands,  oniaMuonTag_[i].label(), muonME_ );
       }else{
-	LogVerbatim ("oniatriggermonitor") << "[HLTOniaSource]: Did not find muons with tag "<<oniaMuonTag_[i];
+	edm::LogVerbatim ("oniatriggermonitor") << "[HLTOniaSource]: Did not find muons with tag "<<oniaMuonTag_[i];
       }
       //Get Onia Pixel
       size_t indexP = rawTriggerEvent->filterIndex(pixelTagsAfterFilter_[i]);
       if ( indexP < rawTriggerEvent->size() ){
-	rawTriggerEvent->getObjects( indexP, TriggerTrack , myPixelFilterCands );
+	rawTriggerEvent->getObjects( indexP, trigger::TriggerTrack , myPixelFilterCands );
 	this->fillOniaTriggerMEs( myPixelFilterCands,pixelTagsAfterFilter_[i].label(), pixelAfterFilterME_);   
 	sort(myPixelFilterCands.begin(), myPixelFilterCands.end(),PtGreaterRef());    
       }else{
-	LogVerbatim ("oniatriggermonitor") << "[HLTOniaSource]: Did not find pixel with tag "<<pixelTagsAfterFilter_[i];
+	edm::LogVerbatim ("oniatriggermonitor") << "[HLTOniaSource]: Did not find pixel with tag "<<pixelTagsAfterFilter_[i];
       }
 
       //Get Onia Tracker Tracks
       size_t indexT = rawTriggerEvent->filterIndex(trackTagsAfterFilter_[i]);
       if ( indexT < rawTriggerEvent->size() ){
-	rawTriggerEvent->getObjects( indexT, TriggerTrack , myTrackFilterCands );
+	rawTriggerEvent->getObjects( indexT, trigger::TriggerTrack , myTrackFilterCands );
      	this->fillOniaTriggerMEs( myTrackFilterCands,trackTagsAfterFilter_[i].label(), trackAfterFilterME_ );   
 	sort(myTrackFilterCands.begin(), myTrackFilterCands.end(),PtGreaterRef());    
       }else{
-	LogVerbatim ("oniatriggermonitor") << "[HLTOniaSource]: Did not find tracks with tag "<<trackTagsAfterFilter_[i];
+	edm::LogVerbatim ("oniatriggermonitor") << "[HLTOniaSource]: Did not find tracks with tag "<<trackTagsAfterFilter_[i];
       }
 
       if( myMuonFilterCands.size() > 0){
@@ -232,7 +228,7 @@ void HLTOniaSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
     }//ADD INVARIANT MASSES
   }else{
-    LogVerbatim ("oniatriggermonitor") << "[HLTOniaSource]: Could not access trigger collection with tag "<<triggerSummaryRAWTag_;
+    edm::LogVerbatim ("oniatriggermonitor") << "[HLTOniaSource]: Could not access trigger collection with tag "<<triggerSummaryRAWTag_;
   }
   
 }
@@ -240,9 +236,9 @@ void HLTOniaSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 void  HLTOniaSource::endJob() {}
 
-void  HLTOniaSource::bookOniaTriggerMEs( map<string, MonitorElement *>  & myMap, string meName){
+void  HLTOniaSource::bookOniaTriggerMEs( std::map<std::string, MonitorElement *>  & myMap, std::string meName){
 
-    stringstream myMeName;
+    std::stringstream myMeName;
 
     //PT    
     myMeName.str("");
@@ -327,9 +323,9 @@ void  HLTOniaSource::bookOniaTriggerMEs( map<string, MonitorElement *>  & myMap,
 }
 
 
-void  HLTOniaSource::bookOniaTriggerInvariantMassMEs( map<string, MonitorElement *>  & myMap, string label1, string label2 ){
+void  HLTOniaSource::bookOniaTriggerInvariantMassMEs( std::map<std::string, MonitorElement *>  & myMap, std::string label1, std::string label2 ){
 
-  stringstream meName;
+  std::stringstream meName;
   //Same charge 
   meName.str("");
   meName<<label1<<"_"<<label2<<"_SameCharge_InvariantMass";
@@ -379,16 +375,16 @@ void  HLTOniaSource::bookOniaTriggerInvariantMassMEs( map<string, MonitorElement
 }
 
 
-void  HLTOniaSource::fillOniaTriggerMEs( Handle<TrackCollection> &  collection, string collectionLabel,  map<string, MonitorElement *>  & mapME ){
+void  HLTOniaSource::fillOniaTriggerMEs( edm::Handle<reco::TrackCollection> &  collection, std::string collectionLabel,  std::map<std::string, MonitorElement *>  & mapME ){
    // cout << "[HLTOniaSource]: fillOniaTriggerMEs " << collectionLabel << endl;
 
-  TrackCollection myCollection;
+  reco::TrackCollection myCollection;
   if (collection.isValid()) {
     myCollection = * collection;
  
     // int nCollection= myCollection.size();
 
-    typedef TrackCollection::const_iterator cand;
+    typedef reco::TrackCollection::const_iterator cand;
     int num = 0;
     for (cand tk=myCollection.begin(); tk!=myCollection.end(); tk++) {
       num++;
@@ -413,10 +409,10 @@ void  HLTOniaSource::fillOniaTriggerMEs( Handle<TrackCollection> &  collection, 
 }
 
 
-void  HLTOniaSource::fillOniaTriggerMEs(std::vector<reco::RecoChargedCandidateRef>  &  candidateVector, string collectionLabel,  map<string, MonitorElement *>  & mapME ){
+void  HLTOniaSource::fillOniaTriggerMEs(std::vector<reco::RecoChargedCandidateRef>  &  candidateVector, std::string collectionLabel,  std::map<std::string, MonitorElement *>  & mapME ){
     
   for (unsigned int  i=0; i!=candidateVector.size(); i++) {
-    RecoChargedCandidate tk = (*candidateVector[i]);
+    reco::RecoChargedCandidate tk = (*candidateVector[i]);
 
    //Fill MEs  
    if(mapME[collectionLabel+"pt"]){  mapME[collectionLabel+"pt"]->Fill(tk.pt()); }
@@ -438,17 +434,17 @@ void  HLTOniaSource::fillOniaTriggerMEs(std::vector<reco::RecoChargedCandidateRe
 }
 
 
-void  HLTOniaSource::fillOniaTriggerMEs( Handle<reco::RecoChargedCandidateCollection> &  collection, string collectionLabel,  map<string, MonitorElement *>  & mapME ){
+void  HLTOniaSource::fillOniaTriggerMEs( edm::Handle<reco::RecoChargedCandidateCollection> &  collection, std::string collectionLabel,  std::map<std::string, MonitorElement *>  & mapME ){
 
-  RecoChargedCandidateCollection myCollection;
+  reco::RecoChargedCandidateCollection myCollection;
   if (collection.isValid()) {
     myCollection = * collection;
  
     // int nCollection= myCollection.size();
     int num = 0;
-    typedef RecoChargedCandidateCollection::const_iterator cand;
+    typedef reco::RecoChargedCandidateCollection::const_iterator cand;
     for (cand i=myCollection.begin(); i!=myCollection.end(); i++) {
-      RecoChargedCandidate tk = (*i);
+      reco::RecoChargedCandidate tk = (*i);
 
       num++; 
      //Fill MEs  
@@ -471,13 +467,13 @@ void  HLTOniaSource::fillOniaTriggerMEs( Handle<reco::RecoChargedCandidateCollec
 }
 
  
-void HLTOniaSource::fillInvariantMass(vector<RecoChargedCandidateRef> & cand1,  vector<RecoChargedCandidateRef> & cand2, string cand1Label, string  cand2Label){
+void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef> & cand1,  std::vector<reco::RecoChargedCandidateRef> & cand2, std::string cand1Label, std::string  cand2Label){
 
     //Loop on collection to calculate invariate mass
     for(size_t i = 0 ; i< cand1.size(); i++) {
     
       //Highest PT
-      string chargeLabel = "same";
+      std::string chargeLabel = "same";
       
       //Check relative charge
       if(cand1[i]->charge() * cand2[0]->charge() < 0) chargeLabel = "opposite";
@@ -485,8 +481,8 @@ void HLTOniaSource::fillInvariantMass(vector<RecoChargedCandidateRef> & cand1,  
 	massME_[cand1Label+cand2Label+chargeLabel+"highestpt"]->Fill((cand1[i]->p4()+cand2[0]->p4()).mass());
       }
       if(massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]){
-	RecoChargedCandidate tk1 = (*cand1[i]);
-	RecoChargedCandidate tk2 = (*cand2[0]);
+	reco::RecoChargedCandidate tk1 = (*cand1[i]);
+	reco::RecoChargedCandidate tk2 = (*cand2[0]);
 	//	  TrackRef tk1 = cand1[i]->get<TrackRef>();
 	//	    massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]->Fill(fabs(tk1->dz(BSPosition_) - tk2->dz(BSPosition_)));
       }
@@ -495,15 +491,15 @@ void HLTOniaSource::fillInvariantMass(vector<RecoChargedCandidateRef> & cand1,  
       for (size_t j= 0; j< cand2.size(); j++) {
 	
 	if(cand2[j]->p() < 3) continue; //Check if momentum is greater than 3GeV.
-	string chargeLabel = "same";
+	std::string chargeLabel = "same";
 	//Check relative charge
 	if(cand1[i]->charge() * cand2[j]->charge() < 0) chargeLabel = "opposite";
 	if(massME_[cand1Label+cand2Label+chargeLabel]){
 	  massME_[cand1Label+cand2Label+chargeLabel]->Fill((cand1[i]->p4()+cand2[j]->p4()).mass());
 	}
 	if(massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]){
-	  RecoChargedCandidate tk1 = (*cand1[i]);
-	  RecoChargedCandidate tk2 = (*cand2[j]);
+	  reco::RecoChargedCandidate tk1 = (*cand1[i]);
+	  reco::RecoChargedCandidate tk2 = (*cand2[j]);
 	  //	  massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]->Fill(fabs(tk1->dz(BSPosition_) - tk2->dz(BSPosition_)));
 	}
       }
@@ -512,15 +508,15 @@ void HLTOniaSource::fillInvariantMass(vector<RecoChargedCandidateRef> & cand1,  
 
 
 
-void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef> & cand1,  RecoChargedCandidateCollection &  cand2, string cand1Label, string  cand2Label){
+void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef> & cand1,  reco::RecoChargedCandidateCollection &  cand2, std::string cand1Label, std::string  cand2Label){
   
-  typedef RecoChargedCandidateCollection::const_iterator cand;
+  typedef reco::RecoChargedCandidateCollection::const_iterator cand;
     //Loop on collection to calculate invariate mass
     for(size_t i = 0 ; i< cand1.size(); i++) {
       //Highest PT
       if(cand2.begin() != cand2.end()  &&  cand2.begin()->p()>3) {
 	cand candItr = cand2.begin();
-	string chargeLabel = "same";	
+	std::string chargeLabel = "same";	
 	//Check relative charge
 	if(cand1[i]->charge() * candItr->charge() < 0) chargeLabel = "opposite";
 	if(massME_[cand1Label+cand2Label+chargeLabel+"highestpt"]){
@@ -528,23 +524,23 @@ void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef>
 	}
 	
 	if(massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]){
-	  RecoChargedCandidate tk1 = (*cand1[i]);
-	  RecoChargedCandidate tk2 = (*candItr);
+	  reco::RecoChargedCandidate tk1 = (*cand1[i]);
+	  reco::RecoChargedCandidate tk2 = (*candItr);
 	  //	    massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]->Fill(fabs(tk1->dz(BSPosition_) - tk2->dz(BSPosition_)));
 	}
       }
 
       for (cand candItr2= cand2.begin(); candItr2!=cand2.end(); candItr2++) {
 	if(candItr2->p() < 3) continue; //Check if momentum is greater than 3GeV.
-	string  chargeLabel = "same";
+	std::string  chargeLabel = "same";
 	//Check relative charge
 	if(cand1[i]->charge() * candItr2->charge() < 0) chargeLabel = "opposite";
 	if(massME_[cand1Label+cand2Label+chargeLabel]){
 	   massME_[cand1Label+cand2Label+chargeLabel]->Fill((cand1[i]->p4()+candItr2->p4()).mass());
 	}
 	if(massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]){
-	  RecoChargedCandidate tk1 = (*cand1[i]);
-	  RecoChargedCandidate tk2 = (*candItr2);
+	  reco::RecoChargedCandidate tk1 = (*cand1[i]);
+	  reco::RecoChargedCandidate tk2 = (*candItr2);
 	  //	  massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]->Fill(fabs(tk1->dz(BSPosition_) - tk2->dz(BSPosition_)));
 	}
       }
@@ -553,9 +549,9 @@ void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef>
 
 
 
-void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef> & cand1,  TrackCollection &  cand2, string cand1Label, string  cand2Label){
+void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef> & cand1,  reco::TrackCollection &  cand2, std::string cand1Label, std::string  cand2Label){
   
-  typedef TrackCollection::const_iterator cand;
+  typedef reco::TrackCollection::const_iterator cand;
 
     //Loop on collection to calculate invariate mass
     for(size_t i = 0 ; i< cand1.size(); i++) {
@@ -564,7 +560,7 @@ void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef>
 	cand candItr = cand2.begin();
 	math::PtEtaPhiMLorentzVector bestPtCandLVector(candItr->pt(), candItr->eta(), candItr->phi(), 1.056);
  
-	string chargeLabel = "same";
+	std::string chargeLabel = "same";
 	
 	//Check relative charge
 	if(cand1[i]->charge() * candItr->charge() < 0) chargeLabel = "opposite";
@@ -573,7 +569,7 @@ void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef>
 	}
 	
 	if(massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]){
-	  RecoChargedCandidate tk1 = (*cand1[i]);
+	  reco::RecoChargedCandidate tk1 = (*cand1[i]);
 	  //  massME_[cand1Label+cand2Label+chargeLabel+"highestpt"+"maxdzmuontrack"]->Fill(fabs(tk->dz(BSPosition_) - candItr->dz(BSPosition_)));
 	}
       }
@@ -584,14 +580,14 @@ void HLTOniaSource::fillInvariantMass(std::vector<reco::RecoChargedCandidateRef>
 
 	math::PtEtaPhiMLorentzVector candLVector(candIter->pt(), candIter->eta(), candIter->phi(), 1.056);
  
-	string chargeLabel = "same";
+	std::string chargeLabel = "same";
 	//Check relative charge
 	if(cand1[i]->charge() * candIter->charge() < 0) chargeLabel = "opposite";
 	if(massME_[cand1Label+cand2Label+chargeLabel]){
 	   massME_[cand1Label+cand2Label+chargeLabel]->Fill((cand1[i]->p4()+candLVector).mass());
 	}
 	if(massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]){
-	  RecoChargedCandidate tk1 = (*cand1[i]);
+	  reco::RecoChargedCandidate tk1 = (*cand1[i]);
 	  //	    massME_[cand1Label+cand2Label+chargeLabel+"maxdzmuontrack"]->Fill(fabs(tk->dz(BSPosition_) - candIter->dz(BSPosition_)));
 	}
       }
@@ -603,25 +599,25 @@ bool HLTOniaSource::checkHLTConfiguration(const edm::Run & run, const edm::Event
   HLTConfigProvider hltConfig;
   bool changed(false);
   if(hltConfig.init(run , setup, triggerProcessName, changed)){
-    LogVerbatim("hltoniasource") << "Successfully initialized HLTConfigProvider with process name: "<<triggerProcessName<<endl;
+    edm::LogVerbatim("hltoniasource") << "Successfully initialized HLTConfigProvider with process name: "<<triggerProcessName;
 
-    stringstream os;
-    vector<string> triggerNames = hltConfig.triggerNames();
+    std::stringstream os;
+    std::vector<std::string> triggerNames = hltConfig.triggerNames();
     
     for( size_t i = 0; i < triggerNames.size(); i++) {
       if (find(triggerPath_.begin(), triggerPath_.end(), triggerNames[i]) == triggerPath_.end()) continue; 
-      LogVerbatim("hltoniasource") << "[HLTOniaSource]: Trigger Path: "<<triggerNames[i]<<endl;
-      vector<string> moduleNames = hltConfig.moduleLabels( triggerNames[i] );
+      edm::LogVerbatim("hltoniasource") << "[HLTOniaSource]: Trigger Path: "<<triggerNames[i];
+      std::vector<std::string> moduleNames = hltConfig.moduleLabels( triggerNames[i] );
       for( size_t j = 0; j < moduleNames.size(); j++) {
 	TString name = moduleNames[j];
-	LogVerbatim("hltoniasource") << "\t  Fliter Name: "<<moduleNames[j]<<endl;
+	edm::LogVerbatim("hltoniasource") << "\t  Fliter Name: "<<moduleNames[j];
       }
     }
 
     return true;
 
   }else{
-    LogVerbatim("hltoniasource") << "Could not initialize HLTConfigProvider with process name: "<<triggerProcessName<<endl;
+    edm::LogVerbatim("hltoniasource") << "Could not initialize HLTConfigProvider with process name: "<<triggerProcessName;
     return false;  
   }
   return true;
