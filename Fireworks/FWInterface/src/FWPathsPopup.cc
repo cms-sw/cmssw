@@ -5,10 +5,13 @@
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "Fireworks/Core/src/FWDialogBuilder.h"
+
 #include "TGLabel.h"
 #include "TGTextEdit.h"
 #include "TGText.h"
 #include "TSystem.h"
+#include "TGTextView.h"
+
 #include <iostream>
 
 FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
@@ -16,6 +19,7 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
      m_info(0),
      m_moduleName(0),
      m_moduleLabel(0),
+     m_modulePaths(0),
      m_textEdit(0),
      m_apply(0),
      m_looper(looper),
@@ -23,8 +27,10 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
 {
    FWDialogBuilder builder(this);
    builder.indent(4)
-          .addLabel(" ", 15, 1, &m_moduleName)
-          .addLabel(" ", 15, 1 ,&m_moduleLabel)
+          .addLabel("Modules in paths", 8)
+          //.addTextView(" ", &m_modulePaths)
+          //.addLabel(" ", 15, 1, &m_moduleName)
+          //.addLabel(" ", 15, 1 ,&m_moduleLabel)
           .addTextEdit("", &m_textEdit)
           .addTextButton("Apply changes and reload", &m_apply);
 
@@ -41,7 +47,34 @@ FWPathsPopup::setup(const edm::ScheduleInfo *info)
 {
    assert(info);
    m_info = info;
+
+   m_info->availableModuleLabels(m_availableModuleLabels);
+   m_info->availablePaths(m_availablePaths);
+
+   //`makeTextView();
 }
+
+void FWPathsPopup::makeTextView()
+{
+  for ( std::vector<std::string>::iterator pi = m_availablePaths.begin(),
+                                        piEnd = m_availablePaths.end();
+        pi != piEnd; ++pi )
+  {
+    std::vector<std::string> modulesInPath;
+    m_info->modulesInPath(*pi, modulesInPath);
+
+    m_modulePaths->AddLine((*pi).c_str());
+
+    for ( std::vector<std::string>::iterator mi = modulesInPath.begin(),
+                                          miEnd = modulesInPath.end();
+          mi != miEnd; ++mi )
+    {
+      std::string str = "   "+(*mi);
+      m_modulePaths->AddLine(str.c_str());
+    }
+  } 
+}
+
 
 /** Gets called by CMSSW as we process events. **/
 void

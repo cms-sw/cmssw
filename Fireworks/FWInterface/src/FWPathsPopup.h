@@ -16,6 +16,7 @@ class FWFFLooper;
 class TGLabel;
 class TGTextEdit;
 class TGTextButton;
+class TGTextView;
 
 class FWPathsPopup : public TGMainFrame
 {
@@ -32,6 +33,13 @@ private:
    TGLabel                  *m_moduleLabel;
    TGTextEdit               *m_textEdit;
    TGTextButton             *m_apply;
+   TGTextView               *m_modulePaths;
+
+   // Filled from ScheduleInfo
+   std::vector<std::string> m_availableModuleLabels;
+   std::vector<std::string> m_availablePaths;
+  
+   void makeTextView();
 
 #ifndef __CINT__
    FWFFLooper               *m_looper;
