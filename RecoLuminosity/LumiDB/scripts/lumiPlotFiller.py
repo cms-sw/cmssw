@@ -1,10 +1,17 @@
 #! /usr/bin/env python
-import os,sys,commands,time,datetime
+import os,os.path,sys,commands,time,datetime,shutil
 import coral
 from RecoLuminosity.LumiDB import argparse,lumiQueryAPI,lumiTime,csvReporter
 ###
 #Script to fill the lumi monitoring site. This is not a generic tool
 ###
+def findFileTrueName(filename):
+    '''given a filename, find its true name
+    '''
+    truename=filename
+    if os.path.islink(filename):
+        truename=os.path.realpath(filename)
+    return truename
 def createRunList(c,p='.',o='.',dryrun=False):
     '''
      input:
@@ -32,7 +39,7 @@ def createRunList(c,p='.',o='.',dryrun=False):
             report.writeRow([run])
     else:
         print allruns
-def totalLumivstime(c,p='.',i='',o='.',begTime="03/30/10 10:00:00.00",endTime=None,selectionfile=None,beamstatus=None,beamenergy=None,beamenergyfluctuation=None,dryrun=False,withTextOutput=False):
+def totalLumivstime(c,p='.',i='',o='.',begTime="03/30/10 10:00:00.00",endTime=None,selectionfile=None,beamstatus=None,beamenergy=None,beamfluctuation=None,dryrun=False,withTextOutput=False):
     '''
     input:
       c connect string
@@ -43,9 +50,21 @@ def totalLumivstime(c,p='.',i='',o='.',begTime="03/30/10 10:00:00.00",endTime=No
     plotoutname='totallumivstime.png'
     textoutname='totallumivstime.csv'
     elements=['lumiSumPlot.py','-c',c,'-P',p,'-begin','"'+begTime+'"','-batch',os.path.join(o,plotoutname),'time']
+    if selectionfile:
+        elements.append('-i')
+        elements.append(selectionfile)
     if endTime:
-        elements.append('-end ')
+        elements.append('-end')
         elements.append('"'+endTime+'"')
+    if beamstatus:
+        elements.append('-beamstatus')
+        elements.append('"'+beamstatus.upper()+'"')
+    if beamenergy:
+        elements.append('-beamenergy')
+        elements.append(str(beamenergy))
+    if beamfluctuation:
+        elements.append('-beamfluctuation')
+        elements.append(str(beamfluctuation))   
     if withTextOutput:
         elements.append('-o')
         elements.append(os.path.join(o,textoutname))
@@ -54,7 +73,7 @@ def totalLumivstime(c,p='.',i='',o='.',begTime="03/30/10 10:00:00.00",endTime=No
     if not dryrun:
         statusAndOutput=commands.getstatusoutput(command)
         print statusAndOutput[1]
-def totalLumivstimeLastweek(c,p='.',i='',o='.',selectionfile=None,beamstatus=None,beamenergy=None,beamenergyfluctuation=None,dryrun=False,withTextOutput=False):
+def totalLumivstimeLastweek(c,p='.',i='',o='.',selectionfile=None,beamstatus=None,beamenergy=None,beamfluctuation=None,dryrun=False,withTextOutput=False):
     '''
     input:
       c connect string
@@ -76,12 +95,22 @@ def totalLumivstimeLastweek(c,p='.',i='',o='.',selectionfile=None,beamstatus=Non
     if withTextOutput:
         elements.append('-o')
         elements.append(os.path.join(o,textoutname))
+    if beamstatus:
+        elements.append('-beamstatus')
+        elements.append('"'+beamstatus.upper()+'"')
+    if beamenergy:
+        elements.append('-beamenergy')
+        elements.append(str(beamenergy))
+    if beamfluctuation:
+        elements.append('-beamfluctuation')
+        elements.append(str(beamfluctuation))   
     command=' '.join(elements)
     print command
     if not dryrun:
         statusAndOutput=commands.getstatusoutput(command)
         print statusAndOutput[1]
-def lumiPerDay(c,p='.',i='',o='',begTime="03/30/10 10:00:00.00",endTime=None,selectionfile=None,beamstatus=None,beamenergy=None,beamenergyfluctuation=None,dryrun=False,withTextOutput=False):
+        
+def lumiPerDay(c,p='.',i='',o='',begTime="03/30/10 10:00:00.00",endTime=None,selectionfile=None,beamstatus=None,beamenergy=None,beamfluctuation=None,dryrun=False,withTextOutput=False):
     '''
     input:
       c connect string
@@ -92,9 +121,21 @@ def lumiPerDay(c,p='.',i='',o='',begTime="03/30/10 10:00:00.00",endTime=None,sel
     plotoutname='lumiperday.png'
     textoutname='lumiperday.csv'
     elements=['lumiSumPlot.py','-c',c,'-P',p,'-begin','"'+begTime+'"','-batch',os.path.join(o,plotoutname),'perday']
+    if selectionfile:
+        elements.append('-i')
+        elements.append(selectionfile)
     if endTime:
         elements.append('-end')
         elements.append('"'+endTime+'"')
+    if beamstatus:
+        elements.append('-beamstatus')
+        elements.append('"'+beamstatus.upper()+'"')
+    if beamenergy:
+        elements.append('-beamenergy')
+        elements.append(str(beamenergy))
+    if beamfluctuation:
+        elements.append('-beamfluctuation')
+        elements.append(str(beamfluctuation))
     if withTextOutput:
         elements.append('-o')
         elements.append(os.path.join(o,textoutname))
@@ -103,7 +144,7 @@ def lumiPerDay(c,p='.',i='',o='',begTime="03/30/10 10:00:00.00",endTime=None,sel
     if not dryrun:
         statusAndOutput=commands.getstatusoutput(command)
         print statusAndOutput[1]
-def totalLumivsRun(c,p='.',i='',o='',begRun="132440",endRun=None,selectionfile=None,beamenergy=None,beamenergyfluctuation=None,dryrun=False,withTextOutput=False):
+def totalLumivsRun(c,p='.',i='',o='',begRun="132440",endRun=None,selectionfile=None,beamstatus=None,beamenergy=None,beamfluctuation=None,dryrun=False,withTextOutput=False):
     '''
     input:
       c connect string
@@ -117,6 +158,15 @@ def totalLumivsRun(c,p='.',i='',o='',begRun="132440",endRun=None,selectionfile=N
     if endRun:
         elements.append('-end')
         elements.append(endRun)
+    if beamstatus:
+        elements.append('-beamstatus')
+        elements.append('"'+beamstatus.upper()+'"')
+    if beamenergy:
+        elements.append('-beamenergy')
+        elements.append(str(beamenergy))
+    if beamfluctuation:
+        elements.append('-beamfluctuation')
+        elements.append(str(beamfluctuation))
     if withTextOutput:
         elements.append('-o')
         elements.append(os.path.join(o,textoutname))
@@ -126,7 +176,7 @@ def totalLumivsRun(c,p='.',i='',o='',begRun="132440",endRun=None,selectionfile=N
         statusAndOutput=commands.getstatusoutput(command)
         print statusAndOutput[1]
 
-def totalLumivsFill(c,p='.',i='',o='',begFill="1005",endFill=None,selectionfile=None,beamenergy=None,beamenergyfluctuation=None,dryrun=False,withTextOutput=False):
+def totalLumivsFill(c,p='.',i='',o='',begFill="1005",endFill=None,selectionfile=None,beamenergy=None,beamstatus=None,beamfluctuation=None,dryrun=False,withTextOutput=False):
     '''
     input:
       c connect string
@@ -140,6 +190,15 @@ def totalLumivsFill(c,p='.',i='',o='',begFill="1005",endFill=None,selectionfile=
     if endFill:
         elements.append('-end')
         elements.append(endFill)
+    if beamstatus:
+        elements.append('-beamstatus')
+        elements.append('"'+beamstatus.upper()+'"')
+    if beamenergy:
+        elements.append('-beamenergy')
+        elements.append(str(beamenergy))
+    if beamfluctuation:
+        elements.append('-beamfluctuation')
+        elements.append(str(beamfluctuation))
     if withTextOutput:
         elements.append('-o')
         elements.append(os.path.join(o,textoutname))
@@ -188,16 +247,21 @@ def instPeakPerday(c,p='.',o='.',begTime="03/30/10 10:00:00.00",endTime=None,dry
     if not dryrun:
         statusAndOutput=commands.getstatusoutput(command)
         print statusAndOutput[1]
+        
 def main():
+    actionlist=['instperrun','instpeakvstime','totalvstime','totallumilastweek','totalvsfill','totalvsrun','perday','createrunlist','physicsperday','physicsvstime']
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="Produce lumi plots")
     parser.add_argument('-c',dest='connect',action='store',required=True,help='connect string to lumiDB')
     parser.add_argument('-P',dest='authpath',action='store',required=False,help='auth path. Optional. Default to .')
     parser.add_argument('-L',dest='logpath',action='store',required=False,help='log path. Optional. Default to .')
     parser.add_argument('-i',dest='ifile',action='store',required=False,help='input selection file. Optional.')
     parser.add_argument('-o',dest='opath',action='store',required=False,help='output file path. Optional')
+    parser.add_argument('-beamenergy',dest='beamenergy',action='store',required=False,help='beamenergy (in GeV) selection criteria,e.g. 3.5e3')
+    parser.add_argument('-beamfluctuation',dest='beamfluctuation',action='store',required=False,help='allowed beamenergy fluctuation (in GeV),e.g. 0.2e3')
+    parser.add_argument('-beamstatus',dest='beamstatus',action='store',required=False,help='selection criteria beam status,e.g. STABLE BEAMS')
     parser.add_argument('--withTextOutput',dest='withtextoutput',action='store_true',help='write to text output file')
     parser.add_argument('--dryrun',dest='dryrun',action='store_true',help='dryrun mode')
-    parser.add_argument('action',choices=['instperrun','instpeakvstime','totalvstime','totallumilastweek','totalvsfill','totalvsrun','perday','createrunlist'],help='command actions')
+    parser.add_argument('action',choices=actionlist,help='command actions')
     args=parser.parse_args()
 
     authpath='.'
@@ -206,6 +270,15 @@ def main():
     connectstr=args.connect
     isDryrun=False
     withTextOutput=False
+    beamstatus=None
+    beamenergy=None
+    beamfluctuation=None
+    if args.beamenergy:
+        beamenergy=args.beamenergy
+    if args.beamstatus:
+        beamstatus=args.beamstatus
+    if args.beamfluctuation:
+        beamfluctuation=args.beamfluctuation
     if args.dryrun:
         isDryrun=True
     if args.withtextoutput:
@@ -238,16 +311,47 @@ def main():
                 runs.append(int(run))
         else:
             runs=['132440','']
-        totalLumivsRun(connectstr,p=authpath,begRun=str(runs[0]),o=opath,endRun=str(runs[-1]),dryrun=isDryrun,withTextOutput=withTextOutput)
+        totalLumivsRun(connectstr,p=authpath,begRun=str(runs[0]),o=opath,endRun=str(runs[-1]),beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,dryrun=isDryrun,withTextOutput=withTextOutput)
     if args.action == 'instpeakvstime':
         instPeakPerday(connectstr,p=authpath,o=opath,dryrun=isDryrun,withTextOutput=withTextOutput)
     if args.action == 'totalvstime':
-        totalLumivstime(connectstr,p=authpath,o=opath,dryrun=isDryrun,withTextOutput=withTextOutput)
+        totalLumivstime(connectstr,p=authpath,o=opath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,dryrun=isDryrun,withTextOutput=withTextOutput)
     if args.action == 'totallumilastweek':
-        totalLumivstimeLastweek(connectstr,p=authpath,o=opath,dryrun=isDryrun,withTextOutput=withTextOutput)
+        totalLumivstimeLastweek(connectstr,p=authpath,o=opath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,dryrun=isDryrun,withTextOutput=withTextOutput)
     if args.action == 'totalvsfill':
-        totalLumivsFill(connectstr,p=authpath,o=opath,dryrun=isDryrun,withTextOutput=withTextOutput)
+        totalLumivsFill(connectstr,p=authpath,o=opath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,dryrun=isDryrun,withTextOutput=withTextOutput)
     if args.action == 'perday':       
-        lumiPerDay(connectstr,p=authpath,o=opath,dryrun=isDryrun,withTextOutput=withTextOutput)
+        lumiPerDay(connectstr,p=authpath,o=opath,dryrun=isDryrun,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,withTextOutput=withTextOutput)
+    if args.action == 'physicsperday' or args.action == 'physicsvstime':
+        if not args.ifile:
+            print 'input selection file is required'
+            return 3
+        if not os.path.isfile(args.ifile):
+            print 'file: '+args.ifile+' does not exist'
+            return 4
+        truefilename=findFileTrueName(args.ifile)
+        #
+        #if truefilename modification time is more recent than the output plot, replot it
+        #
+        inputmodtime=os.path.getmtime(truefilename)
+        if not os.path.isfile(os.path.join(opath,'lumiperday.png')) or not os.path.isfile(os.path.join(opath,'totallumivstime.png')):
+            if not isDryrun:
+                shutil.copy2(truefilename,os.path.join(opath,os.path.basename(truefilename)))
+            print 'cp '+truefilename+' '+os.path.join(opath,os.path.basename(truefilename))
+        else:
+            outputmodtime=os.path.getmtime(os.path.join(opath,'lumiperday.png'))
+            if inputmodtime > outputmodtime :
+                print 'physics selection file '+truefilename+' modified, updating physics plots: '
+                if not isDryrun:
+                    shutil.copy2(truefilename,os.path.join(opath,os.path.basename(truefilename)))
+                    print 'cp '+truefilename+' '+os.path.join(opath,os.path.basename(truefilename))
+                else:
+                    print 'physics selection file older than plot, do nothing'
+                    return 0
+        if args.action == 'physicsperday':
+           lumiPerDay(connectstr,p=authpath,selectionfile=truefilename,o=opath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,dryrun=isDryrun,withTextOutput=withTextOutput)
+        if args.action == 'physicsvstime':
+           totalLumivstime(connectstr,p=authpath,selectionfile=truefilename,o=opath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,dryrun=isDryrun,withTextOutput=withTextOutput)
+
 if __name__=='__main__':
     main()
