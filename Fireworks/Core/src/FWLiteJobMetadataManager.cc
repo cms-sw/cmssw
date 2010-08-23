@@ -32,11 +32,8 @@ FWLiteJobMetadataManager::doUpdate(FWJobMetadataUpdateRequest *request)
 
    m_event = liteRequest->event_;
    const TFile *file = liteRequest->file_;
-   if (!file)
-   {
-      usableData().clear(); // If the file is there, there is no collection to add.
-      return true; // The update was successful, albeit dull.
-   }
+
+   assert(file);
    
    usableData().clear();
    

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.176 2010/08/16 14:49:39 matevz Exp $
+// $Id: CmsShowMain.cc,v 1.177 2010/08/17 16:28:56 matevz Exp $
 //
 
 // system include files
@@ -112,7 +112,14 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
                                       selectionManager(),
                                       eiManager(),
                                       colorManager(),
-                                      m_metadataManager.get()))
+                                      m_metadataManager.get())),
+     m_loadedAnyInputFile(false),
+     m_openFile(0),
+     m_live(false),
+     m_liveTimer(new SignalTimer()),
+     m_liveTimeout(600000),
+     m_lastPointerPositionX(-999),
+     m_lastPointerPositionY(-999)
 {
    try {
       TGLWidget* w = TGLWidget::Create(gClient->GetDefaultRoot(), kTRUE, kTRUE, 0, 10, 10);
@@ -284,7 +291,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
 
       if(vm.count(kLiveCommandOpt))
       {
-         f = boost::bind(&CmsShowMainBase::setLiveMode, this);
+         f = boost::bind(&CmsShowMain::setLiveMode, this);
          startupTasks()->addTask(f);
       }
       
@@ -300,11 +307,21 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       if(vm.count(kEnableFPE)) {
          gSystem->SetFPEMask();
       }
+
+      if (vm.count(kPortCommandOpt)) { 	 
+         f=boost::bind(&CmsShowMain::connectSocket, this); 	 
+         startupTasks()->addTask(f); 	 
+      }
+
       startupTasks()->startDoingTasks();
+
+    
    } catch(std::exception& iException) {
       std::cerr <<"CmsShowMain caught exception "<<iException.what()<<std::endl;
       throw;
    }
+
+  
 }
 
 //
@@ -580,7 +597,10 @@ CmsShowMain::setupDataHandling()
          openData();
       }
       else
+      {
          m_loadedAnyInputFile = true;
+
+      }
    }
 
    if (m_loadedAnyInputFile)
@@ -602,9 +622,15 @@ CmsShowMain::setupSocket(unsigned int iSocket)
    {
       fwLog(fwlog::kError) << "CmsShowMain::setupSocket, can't create socket on port "<< iSocket << "." << std::endl;
       exit(0);
-   }
-   m_monitor->Connect("Ready(TSocket*)","CmsShowMain",this,"notified(TSocket*)");
+   }    
    m_monitor->Add(server);
+}
+
+void
+CmsShowMain::connectSocket()
+{
+  m_monitor->Connect("Ready(TSocket*)","CmsShowMain",this,"notified(TSocket*)");
+
 }
 
 void
@@ -646,11 +672,11 @@ CmsShowMain::notified(TSocket* iSocket)
       s <<"New file notified '"<<fileName<<"'";
       guiManager()->updateStatus(s.str().c_str());
 
-      bool appended = m_navigator->appendFile(fileName, true, live());
+      bool appended = m_navigator->appendFile(fileName, true, m_live);
 
       if (appended)
       {
-         if (live() && isPlaying() && forward())
+         if (m_live && isPlaying() && forward())
             m_navigator->activateNewFileOnNextEvent();
          else if (!isPlaying())
             checkPosition();
@@ -681,7 +707,7 @@ void
 CmsShowMain::stopPlaying()
 {
    stopAutoLoadTimer();
-   if (live())
+   if (m_live)
       m_navigator->resetNewFileOnNextEvent();
    setIsPlaying(false);
    guiManager()->enableActions();
@@ -725,3 +751,57 @@ CmsShowMain::postFiltering()
    guiManager()->setFilterButtonText(m_navigator->filterStatusMessage());
 }
 
+//______________________________________________________________________________
+
+void
+CmsShowMain::setLiveMode()
+{
+   m_live = true;
+   m_liveTimer.reset(new SignalTimer());
+   m_liveTimer->timeout_.connect(boost::bind(&CmsShowMain::checkLiveMode,this));
+
+   Window_t rootw, childw;
+   Int_t root_x, root_y, win_x, win_y;
+   UInt_t mask;
+   gVirtualX->QueryPointer(gClient->GetDefaultRoot()->GetId(),
+                           rootw, childw,
+                           root_x, root_y,
+                           win_x, win_y,
+                           mask);
+
+
+   m_liveTimer->SetTime(m_liveTimeout);
+   m_liveTimer->Reset();
+   m_liveTimer->TurnOn();
+}
+
+void
+CmsShowMain::checkLiveMode()
+{
+   m_liveTimer->TurnOff();
+
+   Window_t rootw, childw;
+   Int_t root_x, root_y, win_x, win_y;
+   UInt_t mask;
+   gVirtualX->QueryPointer(gClient->GetDefaultRoot()->GetId(),
+                           rootw, childw,
+                           root_x, root_y,
+                           win_x, win_y,
+                           mask);
+
+
+   if ( !isPlaying() &&
+        m_lastPointerPositionX == root_x && 
+        m_lastPointerPositionY == root_y )
+   {
+      guiManager()->playEventsAction()->switchMode();
+   }
+
+   m_lastPointerPositionX = root_x;
+   m_lastPointerPositionY = root_y;
+
+
+   m_liveTimer->SetTime((Long_t)(m_liveTimeout));
+   m_liveTimer->Reset();
+   m_liveTimer->TurnOn();
+}

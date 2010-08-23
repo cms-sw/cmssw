@@ -47,10 +47,10 @@ public:
    FWSelectionManager         *selectionManager() { return m_selectionManager.get(); }
    FWViewManagerManager       *viewManager() { return m_viewManager.get(); }
    FWGUIManager               *guiManager() 
-      { 
-         assert(m_guiManager.get() && "Call CmsShowMainBase::setup first!"); 
-         return m_guiManager.get(); 
-      }
+   { 
+      assert(m_guiManager.get() && "Call CmsShowMainBase::setup first!"); 
+      return m_guiManager.get(); 
+   }
    
    CmsShowTaskExecutor        *startupTasks() { return m_startupTasks.get(); }
    
@@ -86,15 +86,12 @@ public:
    virtual void checkPosition() = 0;
    bool forward() const { return m_forward; }
    bool loop() const { return m_loop; }
-   bool live() const { return m_live; }
    virtual void quit() = 0;
    
    void setupAutoLoad(float x);
    void startAutoLoadTimer();
    void stopAutoLoadTimer();
-   void setLiveMode();
    void setupDebugSupport();
-   void checkLiveMode();
    
    void setPlayDelay(Float_t val);
    void playForward();
@@ -106,6 +103,17 @@ public:
 
    void setPlayLoop();
    void unsetPlayLoop();
+
+protected: 
+   class SignalTimer : public TTimer {
+   public:
+      virtual Bool_t Notify() {
+         timeout_();
+         return true;
+      }
+      sigc::signal<void> timeout_;
+   };
+
 private:
    // The base class is responsible for the destruction of fwlite / FF
    // agnostic managers.
@@ -118,17 +126,9 @@ private:
    std::auto_ptr<CmsShowTaskExecutor>    m_startupTasks;
    std::auto_ptr<FWViewManagerManager>   m_viewManager;
 
-   class SignalTimer : public TTimer {
-   public:
-      virtual Bool_t Notify() {
-         timeout_();
-         return true;
-      }
-      sigc::signal<void> timeout_;
-   };
+  
 
    std::auto_ptr<SignalTimer>                 m_autoLoadTimer;
-   std::auto_ptr<SignalTimer>                 m_liveTimer;
    
    // These are actually set by the concrete implementation via the setup 
    // method.
@@ -144,10 +144,6 @@ private:
    bool                                  m_forward;
    bool                                  m_isPlaying;
    bool                                  m_loop;
-   Int_t                                 m_lastPointerPositionX;
-   Int_t                                 m_lastPointerPositionY;
-   bool                                  m_live;
-   int                                   m_liveTimeout;
    Float_t                               m_playDelay;
    std::string                           m_configFileName;
    std::string                           m_geometryFilename;

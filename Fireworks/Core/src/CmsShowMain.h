@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.51 2010/07/26 19:25:57 eulisse Exp $
+// $Id: CmsShowMain.h,v 1.52 2010/08/10 12:38:41 eulisse Exp $
 //
 
 #include "Fireworks/Core/interface/CmsShowMainBase.h"
@@ -89,6 +89,7 @@ private:
    void loadGeometry();
    void setupDataHandling();
    void setupSocket(unsigned int);
+   void connectSocket();
 
    virtual void autoLoadNewEvent();
    virtual void checkPosition();
@@ -103,6 +104,9 @@ private:
    void preFiltering();
    void postFiltering();
 
+   void setLiveMode();
+   void checkLiveMode();
+
    // ---------- member data --------------------------------
    std::auto_ptr<CmsShowNavigator>           m_navigator;
    std::auto_ptr<FWLiteJobMetadataManager>   m_metadataManager;
@@ -113,9 +117,14 @@ private:
    const TFile             *m_openFile;
 
    std::auto_ptr<CmsShowSearchFiles>  m_searchFiles;
-   Bool_t  m_autoLoadTimerRunning;
 
-   Int_t m_liveTimeout;
+   // live options
+   bool                         m_live;
+   std::auto_ptr<SignalTimer>   m_liveTimer;
+   int                          m_liveTimeout;
+   Int_t                        m_lastPointerPositionX;
+   Int_t                        m_lastPointerPositionY;
+
    std::string m_autoSaveAllViewsFormat;
 
    std::auto_ptr<TMonitor> m_monitor;

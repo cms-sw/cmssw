@@ -45,14 +45,13 @@ CmsShowMainBase::CmsShowMainBase()
      m_startupTasks(new CmsShowTaskExecutor),
      m_viewManager(new FWViewManagerManager(m_changeManager.get(), m_colorManager.get())),
      m_autoLoadTimer(new SignalTimer()),
-     m_liveTimer(0), // FIXME: we not initialising it here?!?!?!?
+     m_navigator(0),
+     m_metadataManager(0),
+     m_context(0),
      m_autoLoadTimerRunning(kFALSE),
      m_forward(true),
      m_isPlaying(false),
-     m_lastPointerPositionX(-999),
-     m_lastPointerPositionY(-999),
-     m_live(0),
-     m_liveTimeout(600000),
+     m_loop(false),
      m_playDelay(3.f)
 {
 }
@@ -358,27 +357,6 @@ CmsShowMainBase::setupConfiguration()
    }
 }
 
-void
-CmsShowMainBase::setLiveMode()
-{
-   m_live = true;
-   m_liveTimer.reset(new SignalTimer());
-   m_liveTimer->timeout_.connect(boost::bind(&CmsShowMainBase::checkLiveMode,this));
-
-   Window_t rootw, childw;
-   Int_t root_x, root_y, win_x, win_y;
-   UInt_t mask;
-   gVirtualX->QueryPointer(gClient->GetDefaultRoot()->GetId(),
-                           rootw, childw,
-                           root_x, root_y,
-                           win_x, win_y,
-                           mask);
-
-
-   m_liveTimer->SetTime(m_liveTimeout);
-   m_liveTimer->Reset();
-   m_liveTimer->TurnOn();
-}
 
 void
 CmsShowMainBase::setPlayDelay(Float_t val)
@@ -421,37 +399,6 @@ void
 CmsShowMainBase::unsetPlayLoopImp()
 {
    m_loop = false;
-}
-
-void
-CmsShowMainBase::checkLiveMode()
-{
-   m_liveTimer->TurnOff();
-
-   Window_t rootw, childw;
-   Int_t root_x, root_y, win_x, win_y;
-   UInt_t mask;
-   gVirtualX->QueryPointer(gClient->GetDefaultRoot()->GetId(),
-                           rootw, childw,
-                           root_x, root_y,
-                           win_x, win_y,
-                           mask);
-
-
-   if ( !m_isPlaying &&
-        m_lastPointerPositionX == root_x && 
-        m_lastPointerPositionY == root_y )
-   {
-      m_guiManager->playEventsAction()->switchMode();
-   }
-
-   m_lastPointerPositionX = root_x;
-   m_lastPointerPositionY = root_y;
-
-
-   m_liveTimer->SetTime((Long_t)(m_liveTimeout));
-   m_liveTimer->Reset();
-   m_liveTimer->TurnOn();
 }
 
 void 
