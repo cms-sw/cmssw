@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.23 2010/08/15 16:35:25 nart Exp $
+// $Id: CentralityProducer.cc,v 1.24 2010/08/18 09:45:40 yilmaz Exp $
 //
 //
 
@@ -78,6 +78,7 @@ class CentralityProducer : public edm::EDFilter {
    bool producePixelhits_;
    bool produceTracks_;
    bool reuseAny_;
+   bool producePixelTracks_;
 
   double midRapidityRange_;
   double trackPtCut_;
@@ -92,6 +93,7 @@ class CentralityProducer : public edm::EDFilter {
    edm::InputTag srcZDChits_;
    edm::InputTag srcPixelhits_;
    edm::InputTag srcTracks_;
+   edm::InputTag srcPixelTracks_;
 
    edm::InputTag reuseTag_;
 
@@ -122,6 +124,8 @@ CentralityProducer::CentralityProducer(const edm::ParameterSet& iConfig)
    produceETmidRap_ = iConfig.getParameter<bool>("produceETmidRapidity");
    producePixelhits_ = iConfig.getParameter<bool>("producePixelhits");
    produceTracks_ = iConfig.getParameter<bool>("produceTracks");
+   producePixelTracks_ = iConfig.getParameter<bool>("producePixelTracks");
+
    midRapidityRange_ = iConfig.getParameter<double>("midRapidityRange");
    trackPtCut_ = iConfig.getParameter<double>("trackPtCut");
    trackEtaCut_ = iConfig.getParameter<double>("trackEtaCut");
@@ -140,6 +144,7 @@ CentralityProducer::CentralityProducer(const edm::ParameterSet& iConfig)
    if(produceZDChits_) srcZDChits_ = iConfig.getParameter<edm::InputTag>("srcZDChits");
    if(producePixelhits_) srcPixelhits_ = iConfig.getParameter<edm::InputTag>("srcPixelhits");
    if(produceTracks_) srcTracks_ = iConfig.getParameter<edm::InputTag>("srcTracks");
+   if(producePixelTracks_) srcPixelTracks_ = iConfig.getParameter<edm::InputTag>("srcPixelTracks");
    
    reuseAny_ = !produceHFhits_ || !produceHFtowers_ || !produceBasicClusters_ || !produceEcalhits_ || !produceZDChits_;
    if(reuseAny_) reuseTag_ = iConfig.getParameter<edm::InputTag>("srcReUse");
@@ -271,7 +276,6 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
         } 
      }
      creco->pixelMultiplicity_ = nPixel;
-//     cout <<nPixel<<endl;
      
   }else{
      creco->pixelMultiplicity_ = inputCentrality->multiplicityPixel();
@@ -310,6 +314,16 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      creco->ntracksEtaPtCut_= inputCentrality->NtracksEtaPtCut();
   }
 
+  if(producePixelTracks_){
+  
+    edm::Handle<reco::TrackCollection> pixeltracks;
+    iEvent.getByLabel(srcPixelTracks_,pixeltracks);
+    int nPixelTracks = pixeltracks->size();
+    creco->nPixelTracks_ = nPixelTracks;
+  }
+  else{
+    creco->nPixelTracks_ = inputCentrality->NpixelTracks();
+  }
 
   iEvent.put(creco);
   return true;

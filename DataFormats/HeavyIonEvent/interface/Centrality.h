@@ -1,5 +1,5 @@
 //
-// $Id: Centrality.h,v 1.10 2010/08/12 10:16:02 yilmaz Exp $
+// $Id: Centrality.h,v 1.11 2010/08/14 17:06:50 nart Exp $
 //
 
 #ifndef DataFormats_Centrality_h
@@ -42,7 +42,7 @@ public:
   double NtracksPtCut() const {return ntracksPtCut_;}
   double NtracksEtaCut() const {return ntracksEtaCut_;}
   double NtracksEtaPtCut() const {return ntracksEtaPtCut_;}
-
+  double NpixelTracks() const {return nPixelTracks_;}
 
   double zdcSum() const {return zdcSumPlus_ + zdcSumMinus_;}
   double zdcSumPlus() const {return zdcSumPlus_;}
@@ -76,6 +76,7 @@ protected:
   double ntracksPtCut_;
   double ntracksEtaCut_;
   double ntracksEtaPtCut_;
+  double nPixelTracks_;
 
 };
 
