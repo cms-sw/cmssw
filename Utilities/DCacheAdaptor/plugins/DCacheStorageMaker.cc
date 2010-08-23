@@ -14,7 +14,7 @@ class DCacheStorageMaker : public StorageMaker
       the protocol is 'gsidcap', in which case return the whole thing.  */
   static std::string normalise (const std::string &proto, const std::string &path)
   {
-    size_t p = path.find("/pnfs");
+    std::string::size_type p = path.find("/pnfs");
     if (p < 3)
       return (proto == "gsidcap") ? proto + ':' + path.substr(p) : path.substr(p);
 
