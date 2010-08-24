@@ -17,6 +17,7 @@ class TGLabel;
 class TGTextEdit;
 class TGTextButton;
 class TGTextView;
+class TGHtml;
 
 class FWPathsPopup : public TGMainFrame
 {
@@ -28,7 +29,8 @@ public:
    bool &hasChanges() { return m_hasChanges; };
    void setup(const edm::ScheduleInfo *info);
 private:
-   void makeTextView();
+   void makePathsTextView();
+   void makePathsHtmlView();
 
    const edm::ScheduleInfo  *m_info;
 
@@ -40,7 +42,10 @@ private:
 
    TGLabel                  *m_moduleLabel;   
    TGLabel                  *m_moduleName;
-   TGTextView               *m_modulePaths;
+   
+   TGTextView               *m_modulePathsText;
+   TGHtml                   *m_modulePathsHtml;
+
    TGTextEdit               *m_textEdit;
    TGTextButton             *m_apply;
 
