@@ -58,6 +58,8 @@ SKIMStreamBeamBkg = cms.FilteredStream(
     
 from DPGAnalysis.Skims.cscSkim_cff import *
 pathCSCSkim =cms.Path(cscSkimseq)  
+pathCSCHLTSkim = cms.Path(cscHLTSkimSeq)
+pathCSCAloneSkim = cms.Path(cscSkimAloneSeq)
 
 SKIMStreamCSC = cms.FilteredStream(
     responsible = 'DPG',
@@ -67,6 +69,22 @@ SKIMStreamCSC = cms.FilteredStream(
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW-RECO')
     )
+SKIMStreamCSCHLT = cms.FilteredStream(
+    responsible = 'DPG',
+    name = 'CSCHLT',
+    paths = (pathCSCHLTSkim),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+    )
+SKIMStreamCSCAlone = cms.FilteredStream(
+    responsible = 'DPG',
+    name = 'CSCAlone',
+    paths = (pathCSCAloneSkim),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+   )
 
 #####################
 
