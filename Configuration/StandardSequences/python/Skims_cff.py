@@ -45,9 +45,9 @@ SKIMStreamLogError = cms.FilteredStream(
 from  DPGAnalysis.Skims.BeamBkgSkim_cff import *
 pathpfgskim3noncross = cms.Path(pfgskim3noncrossseq)
 
-SKIMStreamBEAMBKGV3 = cms.FilteredStream(
+SKIMStreamBeamBkg = cms.FilteredStream(
     responsible = 'PFG',
-    name = 'BEAMBKGV3',
+    name = 'BeamBkg',
     paths = (pathpfgskim3noncross),
     content = skimContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
