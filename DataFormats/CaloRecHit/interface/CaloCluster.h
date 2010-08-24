@@ -7,7 +7,12 @@
  *
  * \author Shahram Rahatlou, INFN
  *
- * \version $Id: CaloCluster.h,v 1.17 2009/03/27 18:55:45 dlevans Exp $
+ * \version $Id: CaloCluster.h,v 1.1 2010/08/18 14:05:10 rompotis Exp $
+ * Comments:
+ * modified AlgoId enumeration to include cleaning status flags
+ * In summary:
+ * algoID_ < 200 object is in clean collection
+ * algoID_ >=100 object is in unclean collection
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -25,7 +30,11 @@ namespace reco {
   class CaloCluster {
   public:
     
-    enum AlgoId { island = 0, hybrid = 1, fixedMatrix = 2, dynamicHybrid = 3, multi5x5 = 4, particleFlow = 5 , undefined = 100};
+    enum AlgoId { island = 0, hybrid = 1, fixedMatrix = 2, dynamicHybrid = 3, multi5x5 = 4, particleFlow = 5 , 
+		  islandCommon = 100, islandUncleanOnly = 200,  hybridCommon = 101, hybridUncleanOnly = 201,
+		  fixedMatrixCommon = 102, fixedMatrixUncleanOnly = 202,
+		  dynamicHybridCommon = 103, dynamicHybridUncleanOnly = 204, multi5x5Common = 104, multi5x5UncleanOnly = 204, 
+		  particleFlowCommon = 105, particleFlowUncleanOnly = 205,  undefined = 1000};
 
    //FIXME:  
    //temporary fix... to be removed before 310 final
@@ -141,7 +150,10 @@ namespace reco {
     /// algorithm identifier
     AlgoId algo() const { return algoID_; }
     AlgoID algoID() const { return algo(); }
-    
+    void setAlgoId(const AlgoId aid) { algoID_ = aid;  }
+    bool isInClean() const { if (algoID_ < islandUncleanOnly){ return true;} else return false;}
+    bool isInUnclean() const { if (algoID_ >= islandCommon){ return true;} else return false;}
+
     const CaloID& caloID() const {return caloID_;}
 
     void addHitAndFraction( DetId id, float fraction ) { 
