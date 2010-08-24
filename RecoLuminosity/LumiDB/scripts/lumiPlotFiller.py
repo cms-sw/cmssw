@@ -58,7 +58,8 @@ def totalLumivstime(c,p='.',i='',o='.',begTime="03/30/10 10:00:00.00",endTime=No
         elements.append('"'+endTime+'"')
     if beamstatus:
         elements.append('-beamstatus')
-        elements.append('"'+beamstatus.upper()+'"')
+        if beamstatus=='stable':
+            elements.append('"STABLE BEAMS"')
     if beamenergy:
         elements.append('-beamenergy')
         elements.append(str(beamenergy))
@@ -97,7 +98,8 @@ def totalLumivstimeLastweek(c,p='.',i='',o='.',selectionfile=None,beamstatus=Non
         elements.append(os.path.join(o,textoutname))
     if beamstatus:
         elements.append('-beamstatus')
-        elements.append('"'+beamstatus.upper()+'"')
+        if beamstatus=='stable':
+            elements.append('"STABLE BEAMS"')
     if beamenergy:
         elements.append('-beamenergy')
         elements.append(str(beamenergy))
@@ -129,7 +131,8 @@ def lumiPerDay(c,p='.',i='',o='',begTime="03/30/10 10:00:00.00",endTime=None,sel
         elements.append('"'+endTime+'"')
     if beamstatus:
         elements.append('-beamstatus')
-        elements.append('"'+beamstatus.upper()+'"')
+        if beamstatus=='stable':
+            elements.append('"STABLE BEAMS"')
     if beamenergy:
         elements.append('-beamenergy')
         elements.append(str(beamenergy))
@@ -160,7 +163,8 @@ def totalLumivsRun(c,p='.',i='',o='',begRun="132440",endRun=None,selectionfile=N
         elements.append(endRun)
     if beamstatus:
         elements.append('-beamstatus')
-        elements.append('"'+beamstatus.upper()+'"')
+        if beamstatus=='stable':
+            elements.append('"STABLE BEAMS"')
     if beamenergy:
         elements.append('-beamenergy')
         elements.append(str(beamenergy))
@@ -192,7 +196,8 @@ def totalLumivsFill(c,p='.',i='',o='',begFill="1005",endFill=None,selectionfile=
         elements.append(endFill)
     if beamstatus:
         elements.append('-beamstatus')
-        elements.append('"'+beamstatus.upper()+'"')
+        if beamstatus=='stable':
+            elements.append('"STABLE BEAMS"')
     if beamenergy:
         elements.append('-beamenergy')
         elements.append(str(beamenergy))
@@ -258,7 +263,7 @@ def main():
     parser.add_argument('-o',dest='opath',action='store',required=False,help='output file path. Optional')
     parser.add_argument('-beamenergy',dest='beamenergy',action='store',required=False,help='beamenergy (in GeV) selection criteria,e.g. 3.5e3')
     parser.add_argument('-beamfluctuation',dest='beamfluctuation',action='store',required=False,help='allowed beamenergy fluctuation (in GeV),e.g. 0.2e3')
-    parser.add_argument('-beamstatus',dest='beamstatus',action='store',required=False,help='selection criteria beam status,e.g. STABLE BEAMS')
+    parser.add_argument('-beamstatus',dest='beamstatus',action='store',required=False,help='selection criteria beam status,e.g. stable')
     parser.add_argument('--withTextOutput',dest='withtextoutput',action='store_true',help='write to text output file')
     parser.add_argument('--dryrun',dest='dryrun',action='store_true',help='dryrun mode')
     parser.add_argument('action',choices=actionlist,help='command actions')
