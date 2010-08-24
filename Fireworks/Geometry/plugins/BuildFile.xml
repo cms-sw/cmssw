@@ -13,7 +13,7 @@
 	<flags EDM_PLUGIN="1"/>
 </library>
 
-<library file="DumpSimGeometry.cc" name="FireworksGeometrySimGeometryPlugin">
+<library file="DumpSimGeometry.cc" name="FireworksGeometryDumpSimGeometryPlugin">
 	<use name="Fireworks/Geometry"/>
         <use name="FWCore/Framework"/>
         <use name="FWCore/PluginManager"/>

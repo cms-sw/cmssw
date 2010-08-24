@@ -22,8 +22,6 @@ process.add_(cms.ESProducer("TGeoMgrFromDdd",
         level   = cms.untracked.int32(14)
 ))
 
-process.dump = cms.EDAnalyzer("DumpGeom",
-        verbose = cms.untracked.bool(False),
-)
+process.dump = cms.EDAnalyzer("DumpSimGeometry")
 
 process.p = cms.Path(process.dump)

@@ -1,7 +1,7 @@
 void std_init()
 {
    TEveManager::Create();
-   gGeoManager = gEve->GetGeometry("cmsGeom.root");
+   gGeoManager = gEve->GetGeometry("cmsSimGeom-14.root");
    gGeoManager->DefaultColors();
 }
 

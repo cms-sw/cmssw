@@ -1,5 +1,6 @@
-Expects cmsGeom11.root file in this directory. It is produced by
-running 'cmsRun dump_cfg.py'. It can be symlinked here.
+Expects cmsSimGeom-14.root file in this directory. It is produced by
+running 'cmsRun dumpSimGeometry_cfg.py' in the python/ sub-directory.
+It can be symlinked here.
 
 To run:
   root.exe geom_cms.C

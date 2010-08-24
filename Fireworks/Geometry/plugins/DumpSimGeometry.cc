@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Wed Sep 26 08:27:23 EDT 2007
-// $Id: DumpSimGeometry.cc,v 1.5 2010/07/07 20:29:37 matevz Exp $
+// $Id: DumpSimGeometry.cc,v 1.1 2010/08/24 13:20:15 matevz Exp $
 //
 //
 
@@ -92,7 +92,7 @@ DumpSimGeometry::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
    std::cout << "In the DumpSimGeometry::analyze method...obtained main geometry, level="
              << level << std::endl;
    
-   TFile f(TString::Format("cmsGeom%d.root", level), "RECREATE");
+   TFile f(TString::Format("cmsSimGeom-%d.root", level), "RECREATE");
    f.WriteTObject(geom);
    f.Close();
 }
