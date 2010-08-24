@@ -40,10 +40,9 @@ public:
    };
 
    DetIdToMatrix( void )
-     : m_manager( 0 )       
-    {
-      m_idToInfo.reserve( 260000 );
-    }
+     : m_idToInfo( 260000 ),
+       m_manager( 0 )       
+    {}
    ~DetIdToMatrix( void );
 
    // load full CMS geometry
@@ -52,7 +51,7 @@ public:
    // load DetId to RecoGeomInfo map
    void loadMap( const char* fileName );
 
-   void initMap( FWRecoGeom::InfoMapItr begin, FWRecoGeom::InfoMapItr end );
+   void initMap( const FWRecoGeom::InfoMap& map );
 
    void manager( TGeoManager* geom )
     {
@@ -109,18 +108,15 @@ public:
       float points[24];
       float parameters[9];
 
-      bool operator< ( const RecoGeomInfo& o ) const { 
-         return ( this->id < o.id );
+      bool operator< ( unsigned int id ) const { 
+         return ( this->id < id );
       }
    };
-
-   struct find_id : std::unary_function<RecoGeomInfo, bool> {
-      unsigned int id;
-      find_id( unsigned int id ) : id( id ) {}
-      bool operator () ( const RecoGeomInfo& o ) const {
-         return o.id == id;
-      }
-   };
+  
+   bool match_id( const RecoGeomInfo& o, unsigned int mask ) const {
+     unsigned int id = o.id;
+     return ((((( id >> kDetOffset ) & 0xF ) << 4) | (( id >> kSubdetOffset ) & 0x7 )) == mask );
+   }
   
    typedef std::vector<DetIdToMatrix::RecoGeomInfo> IdToInfo;
    typedef std::vector<DetIdToMatrix::RecoGeomInfo>::const_iterator IdToInfoItr;

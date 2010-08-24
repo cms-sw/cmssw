@@ -118,47 +118,48 @@ DetIdToMatrix::loadMap( const char* fileName )
    if( loadParameters )
       tree->SetBranchAddress( "topology", &topology );
    
-   for( unsigned int i = 0; i < tree->GetEntries(); ++i)
+   unsigned int treeSize = tree->GetEntries();
+   m_idToInfo.resize( treeSize );
+   for( unsigned int i = 0; i < treeSize; ++i )
    {
       tree->GetEntry( i );
-      RecoGeomInfo p;
-      p.id = id;
-      p.path = path;
+
+      m_idToInfo[i].id = id;
+      m_idToInfo[i].path = path;
       if( loadPoints )
       {
 	 for( unsigned int j = 0; j < 24; ++j )
-	    p.points[j] = points[j];
+	    m_idToInfo[i].points[j] = points[j];
       }
       if( loadParameters )
       {
 	 for( unsigned int j = 0; j < 9; ++j )
-	    p.parameters[j] = topology[j];
+	    m_idToInfo[i].parameters[j] = topology[j];
       }
-      m_idToInfo.push_back( p );
    }
    file->Close();
-   std::sort( m_idToInfo.begin(), m_idToInfo.end() );
 }
 
 void
-DetIdToMatrix::initMap( FWRecoGeom::InfoMapItr begin, FWRecoGeom::InfoMapItr end )
+DetIdToMatrix::initMap( const FWRecoGeom::InfoMap& map )
 {
+  FWRecoGeom::InfoMapItr begin = map.begin();
+  FWRecoGeom::InfoMapItr end = map.end();
+  unsigned int mapSize = map.size();
+  m_idToInfo.resize( mapSize );
+  unsigned int i = 0;
   for( std::map<unsigned int, FWRecoGeom::Info>::const_iterator it = begin;
-       it != end; ++it )
+       it != end; ++it, ++i )
   {
     unsigned int id = it->first;
 
-    RecoGeomInfo p;
-    p.id = id;
-    p.path = it->second.name;
+    m_idToInfo[i].id = id;
+    m_idToInfo[i].path = it->second.name;
     for( unsigned int j = 0; j < 24; ++j )
-      p.points[j] = it->second.points[j];
+      m_idToInfo[i].points[j] = it->second.points[j];
     for( unsigned int j = 0; j < 9; ++j )
-      p.parameters[j] = it->second.topology[j];
-
-    m_idToInfo.push_back( p );
+      m_idToInfo[i].parameters[j] = it->second.topology[j];
   }
-  std::sort( m_idToInfo.begin(), m_idToInfo.end() );
 }
 
 const TGeoHMatrix*
@@ -221,13 +222,12 @@ std::vector<unsigned int>
 DetIdToMatrix::getMatchedIds( Detector det, SubDetector subdet ) const
 {
    std::vector<unsigned int> ids;
-   unsigned int mask =(det<<4)|(subdet);
+   unsigned int mask = ( det << 4 ) | ( subdet );
    for( IdToInfoItr it = m_idToInfo.begin(), itEnd = m_idToInfo.end();
 	it != itEnd; ++it )
    {
-     unsigned int id = ( *it ).id;
-     if((((( id >> kDetOffset ) & 0xF ) << 4) | (( id >> kSubdetOffset ) & 0x7 )) == mask )
-       ids.push_back( id );
+      if( DetIdToMatrix::match_id( *it, mask ))
+	 ids.push_back(( *it ).id );
    }
    
    return ids;
@@ -332,5 +332,7 @@ DetIdToMatrix::getParameters( unsigned int id ) const
 DetIdToMatrix::IdToInfoItr
 DetIdToMatrix::find( unsigned int id ) const
 {
-  return std::find_if( m_idToInfo.begin(), m_idToInfo.end(), find_id( id ));
+  DetIdToMatrix::IdToInfoItr begin = m_idToInfo.begin();
+  DetIdToMatrix::IdToInfoItr end = m_idToInfo.end();
+  return std::lower_bound( begin, end, id );
 }
