@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+#set -x
 # strip of the directory name for this shell script
 export SHELLDIR=`dirname $0`
 # if no directory specified we need to use the local directory
@@ -36,7 +36,8 @@ do
       --soft)  softflag=on ; originalOptions="${originalOptions} --soft";;
       -d|--debug) debugflag=on;;
       -di|--debug-interactive) debuginteractiveflag=on;;
-      --eve|--prompt) originalOptions="${originalOptions} --eve -r";;
+      --prompt) originalOptions="${originalOptions} $1 -r";;
+      --eve) originalOptions="${originalOptions} --eve -r";;
       -r|--root-interactive) rootflag=on; originalOptions="${originalOptions} -r";;
       *) originalOptions="$originalOptions $1";;
     esac
