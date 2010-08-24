@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.19 2010/08/09 16:10:21 mccauley Exp $
+// $Id: ValidateGeometry.cc,v 1.20 2010/08/12 14:47:44 mccauley Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -332,16 +332,14 @@ ValidateGeometry::validateRPCGeometry(const int regionNumber, const char* region
       
         compareShape(det, shape->GetShape());
 
-        std::vector<float> parameters = detIdToMatrix_.getParameters(rpcDetId.rawId());
+        const float* parameters = detIdToMatrix_.getParameters(rpcDetId.rawId());
 
-        if ( parameters.empty() )
+        if ( parameters == 0 )
         {
           std::cout<<"Parameters empty for RPC with detid: "
                    << rpcDetId.rawId() <<std::endl;
           continue;
         }
-
-        assert(parameters.size() >= 3);
               
         // Yes, I know that below I'm comparing the equivalence
         // of floating point numbers
@@ -462,16 +460,14 @@ ValidateGeometry::validateDTSuperLayerGeometry()
       compareShape(superlayer, shape->GetShape());
 
 
-      std::vector<float> parameters = detIdToMatrix_.getParameters(chId.rawId());
+      const float* parameters = detIdToMatrix_.getParameters(chId.rawId());
 
-      if ( parameters.empty() )
+      if ( parameters == 0 )
       {
         std::cout<<"Parameters empty for DT superlayer with detid: "
                  << chId.rawId() <<std::endl;
         continue;
       }
-      
-      assert(parameters.size() >= 3);
 
       float width = superlayer->surface().bounds().width();
       assert(width == parameters[0]);
@@ -530,17 +526,15 @@ ValidateGeometry::validateDTLayerGeometry()
       
       compareShape(layer, shape->GetShape());
 
-            
-      std::vector<float> parameters = detIdToMatrix_.getParameters(layerId.rawId());
+        
+      const float* parameters = detIdToMatrix_.getParameters(layerId.rawId());
       
-      if ( parameters.empty() )
+      if ( parameters == 0 )
       {
         std::cout<<"Parameters empty for DT layer with detid: " 
                  << layerId.rawId() <<std::endl;
         continue;
       }
-
-      assert(parameters.size() >= 9); 
            
       float width = layer->surface().bounds().width();
       assert(width == parameters[6]); 
@@ -682,16 +676,14 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
         continue;
       }
       
-      std::vector<float> parameters = detIdToMatrix_.getParameters(detId.rawId());
+      const float* parameters = detIdToMatrix_.getParameters(detId.rawId());
 
-      if ( parameters.empty() )
+      if ( parameters == 0 )
       {
         std::cout<<"Parameters empty for CSC layer with detid: "
                  << detId.rawId() <<std::endl;
         continue;
       }
-
-      assert(parameters.size() >= 8);
 
       int yAxisOrientation = layer->geometry()->topology()->yAxisOrientation();
       assert(yAxisOrientation == parameters[0]);
@@ -774,19 +766,13 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
               
       for ( int nWireGroup = 1; nWireGroup <= layer->geometry()->numberOfWireGroups(); 
             ++nWireGroup )
-      {
-        //double lengthOfWireGroup = layer->geometry()->lengthOfWireGroup(nWireGroup);
+      {  
+        float yOfWire1 = layer->geometry()->yOfWire(nWireGroup); 
 
-        for ( int nWire = 1; nWire <= layer->geometry()->numberOfWiresPerGroup(nWireGroup);
-              ++nWire )
-        {    
-          float yOfWire1 = layer->geometry()->yOfWire(nWire); 
+        double yOfWire2 = yOfFirstWire*cosWireAngle + (nWireGroup-1)*wireSpacing;
+        yOfWire2 /= cosWireAngle;
 
-          double yOfWire2 = yOfFirstWire*cosWireAngle + (nWire-1)*wireSpacing;
-          yOfWire2 /= cosWireAngle;
-
-          wire_positions.push_back(yOfWire1-yOfWire2);
-        }
+        wire_positions.push_back(yOfWire1-yOfWire2);
       } 
     }
   }
@@ -817,16 +803,14 @@ ValidateGeometry::validateCaloGeometry(DetId::Detector detector,
   {
     unsigned int rawId = (*it).rawId();
 
-    std::vector<float> points = detIdToMatrix_.getCorners(rawId);
+    const float* points = detIdToMatrix_.getCorners(rawId);
 
-    if ( points.empty() )
+    if ( points == 0 )
     { 
       std::cout <<"Failed to get points of "<< detname 
                 <<" element with detid: "<< rawId <<std::endl;
       continue;
     }
-
-    assert(points.size() == 24);
 
     const CaloCellGeometry* cellGeometry = geometry->getGeometry(*it);
     const CaloCellGeometry::CornersVec& corners = cellGeometry->getCorners();
@@ -938,16 +922,14 @@ ValidateGeometry::validatePixelTopology(const TrackerGeometry::DetContainer& det
   {
     unsigned int rawId = (*it)->geographicalId().rawId();
 
-    std::vector<float> parameters = detIdToMatrix_.getParameters(rawId);
+    const float* parameters = detIdToMatrix_.getParameters(rawId);
 
-    if ( parameters.empty() )
+    if ( parameters == 0 )
     {
       std::cout<<"Parameters empty for "<< detname <<" element with detid: "
                << rawId <<std::endl;
       continue;
     }
-  
-    assert(parameters.size() >= 2);
 
     if ( const PixelGeomDetUnit* det = dynamic_cast<const PixelGeomDetUnit*>(trackerGeometry_->idToDetUnit((*it)->geographicalId())) )
     {           
@@ -975,17 +957,15 @@ ValidateGeometry::validateStripTopology(const TrackerGeometry::DetContainer& det
         it != itEnd; ++it )
   {
     unsigned int rawId = (*it)->geographicalId().rawId();
+    
+    const float* parameters = detIdToMatrix_.getParameters(rawId);
 
-    std::vector<float> parameters = detIdToMatrix_.getParameters(rawId);
-
-    if ( parameters.empty() )
+    if ( parameters == 0 )
     {    
       std::cout<<"Parameters empty for "<< detname <<" element with detid: "
                << rawId <<std::endl;
       continue;
     }
-    
-    assert(parameters.size() >= 1);
 
     if ( const StripGeomDetUnit* det = dynamic_cast<const StripGeomDetUnit*>(trackerGeometry_->idToDet((*it)->geographicalId())) )
     {
