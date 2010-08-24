@@ -15,6 +15,7 @@
 #include "TGTextView.h"
 #include "TGTextEdit.h"
 #include "TGNumberEntry.h"
+#include "TGHtml.h"
 
 FWLayoutBuilder::FWLayoutBuilder(TGCompositeFrame *window)
    : m_window(window),
@@ -242,6 +243,15 @@ FWDialogBuilder::addTextView(const char *defaultText /*= 0*/,
    currentFrame()->AddFrame(view, nextHints());
    expand(true, true);
    return extract(view, out);
+}
+
+FWDialogBuilder &
+FWDialogBuilder::addHtml(TGHtml **out /*= 0*/)
+{
+  TGHtml *html = new TGHtml(nextFrame(), 100, 100);
+  currentFrame()->AddFrame(html, nextHints());   
+  expand(true, true);
+  return extract(html, out);
 }
 
 FWDialogBuilder &

@@ -19,6 +19,7 @@ class FWGUIValidatingTextEntry;
 class TGTab;
 class FWColorManager;
 class TGTextEdit;
+class TGHtml;
 
 class FWLayoutBuilder
 {
@@ -98,6 +99,11 @@ public:
    
    FWDialogBuilder &addTextView(const char *defaultText = 0,
                                 TGTextView **out = 0);
+
+  // Is default text meaningful here as the html is
+  // a document with structure?
+   FWDialogBuilder &addHtml(TGHtml **out = 0);
+
    FWDialogBuilder &addTextEdit(const char *defaultText = 0,
                                 TGTextEdit **out = 0);
    FWDialogBuilder &addColorPicker(const FWColorManager *manager,
