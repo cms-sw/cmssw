@@ -206,7 +206,7 @@ void UncleanSCRecoveryProducer::produce(edm::Event& evt,
                 const reco::SuperCluster unsc = uncleanSC[isc]; 
                 reco::SuperCluster newSC(unsc.energy(), unsc.position(), 
                                          seed, clusterPtrVector );
-                newSC.setAlgoId(reco::CaloCluster::hybridUncleanOnly);
+                newSC.setFlags(reco::CaloCluster::uncleanOnly);
                 superClusters.push_back(newSC);
         }
         // run over the clean SC: only those who are in common between the
@@ -229,7 +229,7 @@ void UncleanSCRecoveryProducer::produce(edm::Event& evt,
                 }
                 reco::SuperCluster newSC(csc.energy(), csc.position(), 
                                          seed, clusterPtrVector );
-                newSC.setAlgoId(reco::CaloCluster::hybridCommon);
+                newSC.setFlags(reco::CaloCluster::common);
                 superClusters.push_back(newSC);
         }
 

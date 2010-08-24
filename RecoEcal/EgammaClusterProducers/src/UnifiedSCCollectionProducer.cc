@@ -41,20 +41,17 @@
   in the unclean collection and a collection with the unclean only SC.
   This collection has the algoID enumeration of the SC altered
   such that:
-  algoID = algoID         cluster is only in the cleaned collection
-  algoID = algoID + 100   cluster is common in both collections
-  algoID = algoID + 200   cluster is only in the uncleaned collection
+  flags = 0   (cleanedOnly)     cluster is only in the cleaned collection
+  flags = 100 (common)          cluster is common in both collections
+  flags = 200 (uncleanedOnly)   cluster is only in the uncleaned collection
 
   In that way the user can get hold of objects from the
-  -  cleaned   collection only if they choose algoID <  200
-  -  uncleaned collection only if they choose algoID >= 100
-
+  -  cleaned   collection only if they choose flags <  200
+  -  uncleaned collection only if they choose flags >= 100
 
   18 Aug 2010
   Nikolaos Rompotis and Chris Seez  - Imperial College London
   many thanks to David Wardrope, Shahram Rahatlou and Federico Ferri
-
-
 */
 
 
@@ -351,59 +348,23 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
     reco::SuperCluster newSC(unsc.energy(), unsc.position(), 
 			     seed, clusterPtrVector );
     // now set the algoID for this SC again
-    const  reco::CaloCluster::AlgoId myAlgoId = unsc.algo();
     if (inUncleanOnlyInd[isc] == 1) {
-      // set up the quality to unclean only .............
-      if ( myAlgoId == reco::CaloCluster::island) {
-	newSC.setAlgoId(reco::CaloCluster::islandUncleanOnly);
-      }
-      else if (myAlgoId == reco::CaloCluster::fixedMatrix) {
-	newSC.setAlgoId(reco::CaloCluster::fixedMatrixUncleanOnly);
-      }
-      else if (myAlgoId == reco::CaloCluster::dynamicHybrid) {
-	newSC.setAlgoId(reco::CaloCluster::dynamicHybridUncleanOnly);
-      }
-      else if (myAlgoId == reco::CaloCluster::multi5x5) {
-	newSC.setAlgoId(reco::CaloCluster::multi5x5UncleanOnly);
-      }
-      else if (myAlgoId == reco::CaloCluster::particleFlow) {
-	newSC.setAlgoId(reco::CaloCluster::particleFlowUncleanOnly);
-      }
-      else { // take hybrid or undefined together
-	newSC.setAlgoId(reco::CaloCluster::hybridUncleanOnly);
-      }
-      superClustersUncleanOnly.push_back(newSC);
+            // set up the quality to unclean only .............
+            newSC.setFlags(reco::CaloCluster::uncleanOnly);
+            superClustersUncleanOnly.push_back(newSC);
     }
     else {
-      // set up the quality to common  .............
-      if ( myAlgoId == reco::CaloCluster::island) {
-	newSC.setAlgoId(reco::CaloCluster::islandCommon);
-      }
-      else if (myAlgoId == reco::CaloCluster::fixedMatrix) {
-	newSC.setAlgoId(reco::CaloCluster::fixedMatrixCommon);
-      }
-      else if (myAlgoId == reco::CaloCluster::dynamicHybrid) {
-	newSC.setAlgoId(reco::CaloCluster::dynamicHybridCommon);
-      }
-      else if (myAlgoId == reco::CaloCluster::multi5x5) {
-	newSC.setAlgoId(reco::CaloCluster::multi5x5Common);
-      }
-      else if (myAlgoId == reco::CaloCluster::particleFlow) {
-	newSC.setAlgoId(reco::CaloCluster::particleFlowCommon);
-      }
-      else { // take hybrid or undefined together
-	newSC.setAlgoId(reco::CaloCluster::hybridCommon);
-      }
-      // common SC will be put in the clean SC collection
-      superClusters.push_back(newSC);
+            // set up the quality to common  .............
+            newSC.setFlags(reco::CaloCluster::common);
+            superClusters.push_back(newSC);
     }
     // now you can store your SC
 
   } // end loop over unclean SC _______________________________________________
-  //  algoID numbering scheme
-  //  algoID = algoID         cluster is only in the cleaned collection
-  //  algoID = algoID + 100   cluster is common in both collections
-  //  algoID = algoID + 200   cluster is only in the uncleaned collection
+  //  flags numbering scheme
+  //  flags =   0 = cleanedOnly     cluster is only in the cleaned collection
+  //  flags = 100 = common          cluster is common in both collections
+  //  flags = 200 = uncleanedOnly   cluster is only in the uncleaned collection
 
   // now loop over the clean SC and do the same but now you have to avoid the
   // the duplicated ones ______________________________________________________
@@ -427,11 +388,11 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
     const reco::SuperCluster csc = cleanSC[jsc]; 
     reco::SuperCluster newSC(csc.energy(), csc.position(),
 			     seed, clusterPtrVector );
-    const  reco::CaloCluster::AlgoId myAlgoId = csc.algo();
-    if (myAlgoId < reco::CaloCluster::islandCommon) {
-      newSC.setAlgoId(myAlgoId);
+    const uint32_t myFlags = csc.flags();
+    if (myFlags < reco::CaloCluster::common) {
+      newSC.setFlags(myFlags);
     } else {
-      newSC.setAlgoId(reco::CaloCluster::hybrid);
+      newSC.setFlags(reco::CaloCluster::cleanOnly);
     }
     // add it to the collection:
     superClusters.push_back(newSC);
