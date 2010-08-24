@@ -33,7 +33,7 @@
 #include <stdlib.h>
 
 CastorShowerLibraryMaker::CastorShowerLibraryMaker(const edm::ParameterSet &p) : 
-                             NPGParticle(0),DoHadSL(false),DoEmSL(false),
+                             NPGParticle(0),DoHadSL(false),DoEmSL(false),DeActivatePhysicsProcess(false),
                              emShower(NULL) , hadShower(NULL) {
 
   MapOfSecondaries.clear();
@@ -51,6 +51,7 @@ CastorShowerLibraryMaker::CastorShowerLibraryMaker(const edm::ParameterSet &p) :
   emSLHolder.SLEtaBins      = p_SLM.getParameter<std::vector<double> >("SLemEtaBins");
   emSLHolder.SLPhiBins      = p_SLM.getParameter<std::vector<double> >("SLemPhiBins");
   PGParticleIDs             = p_SLM.getParameter<std::vector<int> >("PartID");
+  DeActivatePhysicsProcess  = p_SLM.getParameter<bool>("DeActivatePhysicsProcess");
   NPGParticle               = PGParticleIDs.size(); 
 //
   for(unsigned int i=0;i<PGParticleIDs.size();i++) {
@@ -223,6 +224,8 @@ void CastorShowerLibraryMaker::update(const BeginOfEvent * evt) {
 
   eventIndex++;
   stepIndex = 0;
+  InsideCastor = false;
+  PrimaryMomentum.clear();
   int NAccepted =0;
 // reset the pointers to the shower objects
   SLShowerptr = NULL;
@@ -239,6 +242,7 @@ void CastorShowerLibraryMaker::update(const BeginOfEvent * evt) {
   for(unsigned int i=0;i<thePrims.size();i++) {
      G4PrimaryParticle* thePrim = thePrims.at(i);
      int particleType = thePrim->GetPDGcode();
+
      std::string SLType("");
      if (particleType==11) {
         SLShowerptr = &emSLHolder;
@@ -261,7 +265,11 @@ void CastorShowerLibraryMaker::update(const BeginOfEvent * evt) {
                   << "\n========================================================================"
                   << std::endl;
 
-     if (!SLacceptEvent(ebin,etabin,phibin)) {
+     if (!(SLacceptEvent(ebin,etabin,phibin))) {
+     //for(int i=0;i<=ebin;i++) {
+     //   if (SLacceptEvent(i,etabin,phibin)) {
+     //      break;
+     //   }
         edm::LogInfo("CastorShowerLibraryMaker") << "Event not accepted for ebin="
              << ebin<<",etabin="<<etabin<<",phibin="<<phibin<<std::endl;
         continue;
@@ -284,11 +292,78 @@ void CastorShowerLibraryMaker::update(const G4Step * aStep) {
    static int CurrentPrimary = 0;
    G4Track *trk = aStep->GetTrack();
    if (trk->GetCurrentStepNumber()==1) {
-      if (trk->GetParentID()==0) CurrentPrimary = (int)trk->GetDynamicParticle()->GetPDGcode();
-      if (CurrentPrimary==0) 
-         SimG4Exception("CastorShowerLibraryMaker::update(G4Step) -> Primary particle undefined");
+      if (trk->GetParentID()==0) {
+         CurrentPrimary = (int)trk->GetDynamicParticle()->GetPDGcode();
+         if (CurrentPrimary==0) 
+             SimG4Exception("CastorShowerLibraryMaker::update(G4Step) -> Primary particle undefined");
+         InsideCastor=false;
+// Deactivate the physics process
+         if (DeActivatePhysicsProcess) {
+            G4ProcessManager *p_mgr = trk->GetDefinition()->GetProcessManager();
+            G4ProcessVector *pvec = p_mgr->GetProcessList();
+            for (int i = 0;i<pvec->size();i++) {
+                G4VProcess *proc = (*pvec)(i);
+                if (proc->GetProcessName()!="Transportation"&&
+                    proc->GetProcessName()!="Decay") {
+                    std::cout << "DeActivating process: " << proc->GetProcessName() << std::endl;
+                    p_mgr->SetProcessActivation(proc,false);
+                }
+            } 
+         }
+      }
+      else if (!InsideCastor) {
+         std::cout<<"CastorShowerLibraryMaker::update(G4Step) -> Killing expurious track" << std::endl;
+         trk->SetTrackStatus(fKillTrackAndSecondaries);
+         return;
+      }
       MapOfSecondaries[CurrentPrimary].insert((int)trk->GetTrackID());
    }
+// Checks if primary already inside CASTOR
+   std::string CurVolume = trk->GetVolume()->GetName();
+   if (!InsideCastor&&(
+       //CurVolume=="C3EF"||CurVolume=="C4EF"||CurVolume=="CAEL"||
+       //CurVolume=="CAHL"||CurVolume=="C3HF"||CurVolume=="C4HF")) {
+       //CurVolume=="CastorB"||
+       CurVolume=="CAST")) {
+       //CurVolume=="CAIR")) {
+       InsideCastor=true;
+// Activate the physics process
+       if (trk->GetParentID()==0&&DeActivatePhysicsProcess) {
+          G4ProcessManager *p_mgr = trk->GetDefinition()->GetProcessManager();
+          G4ProcessVector *pvec = p_mgr->GetProcessList();
+          for (int i = 0;i<pvec->size();i++) {
+              G4VProcess *proc = (*pvec)(i);
+              if (proc->GetProcessName()!="Transportation"&&
+                 proc->GetProcessName()!="Decay") {
+                 std::cout << "  Activating process: " << proc->GetProcessName() << std::endl;
+                 p_mgr->SetProcessActivation(proc,true);
+              }
+          }
+       }
+       //PrimaryMomentum[CurrentPrimary]=aStep->GetPreStepPoint()->GetMomentum();
+       PrimaryMomentum[CurrentPrimary]=trk->GetMomentum();
+       KillSecondaries(aStep);
+       return;
+   } 
+// Kill the secondaries if they have been produced before entering castor
+   if (CurrentPrimary!=0&&trk->GetParentID()==0&&!InsideCastor) {
+      KillSecondaries(aStep);
+      if (verbosity) {
+         double pre_phi = aStep->GetPreStepPoint()->GetMomentum().phi();
+         double cur_phi = trk->GetMomentum().phi();
+         if (pre_phi!=cur_phi) {
+            std::cout << "Primary track phi :  " << pre_phi << " changed in current step: "
+                      << cur_phi << " by processes:" << std::endl;
+            const G4VProcess *proc = aStep->GetPreStepPoint()->GetProcessDefinedStep();
+            std::cout << "           " << proc->GetProcessName()
+                      << "  In volume " << CurVolume << std::endl;
+         }
+      }
+   }
+
+//==============================================
+/*
+*/
 /*
   if(aStep->IsFirstStepInVolume()) { 
     edm::LogInfo("CastorShowerLibraryMaker") << "CastorShowerLibraryMaker::update(const G4Step * aStep):"
@@ -356,15 +431,19 @@ void CastorShowerLibraryMaker::update(const EndOfEvent * evt) {
         SLShowerptr = &hadSLHolder;
         SLType = "Hadronic";
      }
+     edm::LogInfo("CastorShowerLibraryMaker") << "\n Primary (thePrim) trackID is " << thePrim->GetTrackID() << "\n" ;
 
 // Obtain primary particle's initial momentum (pInit)
      double px=0., py=0., pz=0., pInit = 0., eta = 0., phi = 0.;
-
-     GetKinematics(thePrim,px,py,pz,pInit,eta,phi);
-     edm::LogInfo("CastorShowerLibraryMaker") << "\n Primary (thePrim) trackID is " << thePrim->GetTrackID() << "\n" ;
-
+     //GetKinematics(thePrim,px,py,pz,pInit,eta,phi);
+     //px=py=pz=pInit=eta=phi=0;
+     GetKinematics(particleType,px,py,pz,pInit,eta,phi);
 // Check if current event falls into any bin
 // first: energy
+     if (pInit==0) {
+        edm::LogInfo("CastorShowerLibraryMaker") << "Primary did not hit CASTOR" << std::endl;
+        continue;
+     }
      int ebin = FindEnergyBin(pInit);
      int etabin= FindEtaBin(eta);
      int phibin = FindPhiBin(phi);
@@ -372,10 +451,10 @@ void CastorShowerLibraryMaker::update(const EndOfEvent * evt) {
      printSLstatus(ebin,etabin,phibin);
      if (!SLacceptEvent(ebin,etabin,phibin)) {
         edm::LogInfo("CastorShowerLibraryMaker") << "Event not accepted for ebin="
-             << ebin<<",etabin="<<etabin<<",phibin="<<phibin<<std::endl;
+             << ebin<<",etabin="<<etabin<<",phibin="<<phibin
+             <<"("<< pInit <<","<<eta<<","<<phi<<")" <<std::endl;
         continue;
      }
-     NEvtAccepted++;
 //
 // event passed. Fill the vector accordingly
 //  
@@ -397,6 +476,9 @@ void CastorShowerLibraryMaker::update(const EndOfEvent * evt) {
 // Get Hit information
      if (FillShowerEvent(theCAFI,shower,particleType)) { 
 //  Primary particle information
+        edm::LogInfo("CastorShowerLibraryMaker") << "New SL event: Primary = " << particleType
+             << "; Energy = " << pInit << "; Eta = " << eta << "; Phi = " << phi
+             << "; Nhits = " << shower->getNhit() << std::endl;
         shower->setPrimE(pInit);
         shower->setPrimEta(eta);
         shower->setPrimPhi(phi);
@@ -407,12 +489,23 @@ void CastorShowerLibraryMaker::update(const EndOfEvent * evt) {
         SLnEvtInBinEta(ebin,etabin)++;
         SLnEvtInBinPhi(ebin,etabin,phibin)++;
         NHitInEvent+=shower->getNhit();
+        NEvtAccepted++;
       }
+      else {shower->Clear();}
   }
-  if ((NEvtAccepted==2&&theCAFI->entries()!=NHitInEvent)||
-      (NEvtAccepted==1&&NHitInEvent>theCAFI->entries())) {
+// Check for unassociated energy
+     
+  if (NEvtAccepted==int(thePrims.size())&&theCAFI->entries()!=NHitInEvent){
      std::cout << "WARNING: Inconsistent Number of Hits -> Hits in collection: "<< theCAFI->entries()
           << "   Hits in the showers: " << NHitInEvent << std::endl;
+     double miss_energy=0;
+     double tot_energy=0;
+     GetMissingEnergy(theCAFI,miss_energy,tot_energy);
+     if (miss_energy>0) {
+        std::cout << "Total missing energy: " << miss_energy
+               << " for an incident energy: " << tot_energy
+               << std::endl;
+     }
   }
          
 /*
@@ -447,8 +540,9 @@ void CastorShowerLibraryMaker::update(const EndOfRun * run)
   ibine=ibineta=ibinphi=ievt=jbine=jbineta=jbinphi=jevt=0;
 
   int  nEvtInTree = 0;
-  int  maxEvtInTree=std::max(hadSLHolder.nEvtPerBinE*hadSLHolder.SLEnergyBins.size(),
-                             emSLHolder.nEvtPerBinE*emSLHolder.SLEnergyBins.size());
+  int  nEMevt  = emSLHolder.nEvtPerBinE*emSLHolder.SLEnergyBins.size();
+  int  nHadevt = hadSLHolder.nEvtPerBinE*hadSLHolder.SLEnergyBins.size();
+  int  maxEvtInTree=std::max(nEMevt,nHadevt);
 
   emInfo = &emSLHolder.SLInfo;
   hadInfo= &hadSLHolder.SLInfo;
@@ -456,7 +550,7 @@ void CastorShowerLibraryMaker::update(const EndOfRun * run)
   while(nEvtInTree<maxEvtInTree) {
     if (emShower) emShower->Clear();
     if (hadShower) hadShower->Clear();
-    while(ibine<emSLHolder.SLEnergyBins.size()){
+    while(ibine<emSLHolder.SLEnergyBins.size()&&nEMevt>0){
       emShower = &(emSLHolder.SLCollection.at(ibine).at(ibineta).at(ibinphi).at(ievt));
       ievt++;
       if (ievt==emSLHolder.nEvtPerBinPhi) {ievt=0;ibinphi++;}
@@ -464,7 +558,7 @@ void CastorShowerLibraryMaker::update(const EndOfRun * run)
       if (ibineta==emSLHolder.SLEtaBins.size()) {ibineta=0;ibine++;}
       break;
     }
-    while(jbine<hadSLHolder.SLEnergyBins.size()){
+    while(jbine<hadSLHolder.SLEnergyBins.size()&&nHadevt>0){
       hadShower = &(hadSLHolder.SLCollection.at(jbine).at(jbineta).at(jbinphi).at(jevt));
       jevt++;
       if (jevt==hadSLHolder.nEvtPerBinPhi) {jevt=0;jbinphi++;}
@@ -590,22 +684,36 @@ bool CastorShowerLibraryMaker::IsSLReady()
   SLShowerptr=NULL;
   return true;
 }
-void CastorShowerLibraryMaker::GetKinematics(G4PrimaryParticle* thePrim,double& px, double& py, double& pz, double& pInit, double& eta, double& phi)
+void CastorShowerLibraryMaker::GetKinematics(int thePrim,double& px, double& py, double& pz, double& pInit, double& eta, double& phi)
 {
-    px=py=pz=phi=eta=0.0;
     if (thePrim==0) return;
-    px = thePrim->GetPx()/GeV;
-    py = thePrim->GetPy()/GeV;
-    pz = thePrim->GetPz()/GeV;
-    pInit = sqrt(pow(px,2.)+pow(py,2.)+pow(pz,2.));
-    if (pInit==0) {
-      std::cout << "CastorShowerLibraryMaker::GetKinematics: ERROR: primary has p=0 " << std::endl;
-      return;
-    }
+    if (PrimaryMomentum.find(thePrim)==PrimaryMomentum.end()) return;
+    px = PrimaryMomentum[thePrim].x()/GeV;
+    py = PrimaryMomentum[thePrim].y()/GeV;
+    pz = PrimaryMomentum[thePrim].z()/GeV;
+    pInit=PrimaryMomentum[thePrim].mag()/GeV;
+    if (pInit==0) return;
     double costheta = pz/pInit;
     double theta = acos(std::min(std::max(costheta,double(-1.)),double(1.)));
     eta = -log(tan(theta/2.0));
     phi = (px==0 && py==0) ? 0 : atan2(py,px); // the recommended way of calculating phi
+    phi = PrimaryMomentum[thePrim].phi();
+}
+void CastorShowerLibraryMaker::GetKinematics(G4PrimaryParticle* thePrim,double& px, double& py, double& pz, double& pInit, double& eta, double& phi)
+{
+    px=py=pz=phi=eta=0.0;
+    if (thePrim==0) return;
+    px = thePrim->GetMomentum().x()/GeV;
+    py = thePrim->GetMomentum().y()/GeV;
+    pz = thePrim->GetMomentum().z()/GeV;
+    pInit = thePrim->GetMomentum().mag()/GeV;
+    //pInit = sqrt(pow(px,2.)+pow(py,2.)+pow(pz,2.));
+    if (pInit==0) return;
+    double costheta = pz/pInit;
+    double theta = acos(std::min(std::max(costheta,double(-1.)),double(1.)));
+    eta = -log(tan(theta/2.0));
+    phi = (px==0 && py==0) ? 0 : atan2(py,px); // the recommended way of calculating phi
+    phi = thePrim->GetMomentum().phi();
     //if (px!=0) phi=atan(py/px);
 }
 std::vector<G4PrimaryParticle*> CastorShowerLibraryMaker::GetPrimary(const G4Event * evt)
@@ -649,6 +757,7 @@ void CastorShowerLibraryMaker::printSLstatus(int ebin,int etabin,int phibin)
      std::cout << "Electromagnetic" << std::endl;
      SLShowerptr = &emSLHolder;
      this->printSLstatus(ebin,etabin,phibin);
+     std::cout << "Hadronic" << std::endl;
      SLShowerptr = &hadSLHolder;
      this->printSLstatus(ebin,etabin,phibin);
      SLShowerptr = NULL;
@@ -685,19 +794,22 @@ void CastorShowerLibraryMaker::printSLstatus(int ebin,int etabin,int phibin)
 }
 bool CastorShowerLibraryMaker::SLacceptEvent(int ebin, int etabin, int phibin)
 {
-     if (ebin<0) return false;
+     if (SLShowerptr==NULL) {
+        edm::LogInfo("CastorShowerLibraryMaker::SLacceptEvent:") << "Error. NULL pointer to CastorShowerEvent";
+        return false;
+     }
+     if (ebin<0||ebin>=int(SLShowerptr->SLEnergyBins.size())) return false;
      if (SLisEBinFilled(ebin)) return false;
 
-     if (etabin<0) return false;
+     if (etabin<0||etabin>=int(SLShowerptr->SLEtaBins.size())) return false;
      if (SLisEtaBinFilled(ebin,etabin)) return false;
 
-     if (phibin<0) return false;
+     if (phibin<0||phibin>=int(SLShowerptr->SLPhiBins.size())) return false;
      if (SLisPhiBinFilled(ebin,etabin,phibin)) return false;
      return true;
 }
 bool CastorShowerLibraryMaker::FillShowerEvent(CaloG4HitCollection* theCAFI, CastorShowerEvent* shower,int ipart)
 {
-     CastorNumberingScheme *theCastorNumScheme = new CastorNumberingScheme();
      unsigned int volumeID=0;
      double en_in_fi = 0.;
      //double totalEnergy = 0;
@@ -716,6 +828,7 @@ bool CastorShowerLibraryMaker::FillShowerEvent(CaloG4HitCollection* theCAFI, Cas
         return false;
      }
 
+     CastorNumberingScheme *theCastorNumScheme = new CastorNumberingScheme();
 // Hit position
      math::XYZPoint entry;
      math::XYZPoint position;
@@ -725,7 +838,8 @@ bool CastorShowerLibraryMaker::FillShowerEvent(CaloG4HitCollection* theCAFI, Cas
        CaloG4Hit* aHit  = (*theCAFI)[ihit];
        int hit_particleID = aHit->getTrackID();
        if (MapOfSecondaries[ipart].find(hit_particleID)==MapOfSecondaries[ipart].end()) {
-          if (verbosity) edm::LogInfo("CastorShowerLibraryMaker") << "Skipping hit from trackID " << hit_particleID;
+          if (verbosity) edm::LogInfo("CastorShowerLibraryMaker")
+              << "Skipping hit from trackID " << hit_particleID;
           continue;
        }
        volumeID         = aHit->getUnitID();
@@ -780,15 +894,23 @@ bool CastorShowerLibraryMaker::FillShowerEvent(CaloG4HitCollection* theCAFI, Cas
        shower->setNphotons(hitEnergy);
        shower->setTime(time);
        nHits++;
+/*
+       std::cout << "Hit energy: " << aHit->getEnergyDeposit() <<" Sector: " << sector
+                 << " Module: " << zmodule << " Time: " << time 
+                 << " Primary: " << ipart << " E: " << PrimaryMomentum[ipart].mag()/GeV 
+                 << " Eta: " << PrimaryMomentum[ipart].eta()
+                 << " Phi: " << PrimaryMomentum[ipart].phi()
+                 << std::endl;
+*/
      }
 // Write number of hits to CastorShowerEvent instance
      if (nHits==0) {
         edm::LogInfo("CastorShowerLibraryMaker") << "No hits found for this track (trackID=" << ipart << ")." << std::endl;
+        if (theCastorNumScheme) delete theCastorNumScheme;
         return false;
      }
      shower->setNhit(nHits);
 
-     edm::LogInfo("CastorShowerLibraryMaker") << "Filling the SL vector with new element ("<<nHits<<" hits)";
 // update the event counters
      if (theCastorNumScheme) delete theCastorNumScheme;
      return true;
@@ -845,4 +967,35 @@ bool CastorShowerLibraryMaker::SLisPhiBinFilled(int ebin,int etabin,int phibin)
    }
    if (SLShowerptr->nEvtInBinPhi.at(ebin).at(etabin).at(phibin)<(int)SLShowerptr->nEvtPerBinPhi) return false;
    return true;
+}
+void CastorShowerLibraryMaker::KillSecondaries(const G4Step * aStep) {
+   G4TrackVector *p_sec = aStep->GetSecondary();
+   for(int i=0;i<int(p_sec->size());i++) {
+      /*if (verbosity)*/ std::cout << "Killing track ID " << p_sec->at(i)->GetTrackID() << " and its secondaries"
+          << " Produced by Process " << p_sec->at(i)->GetCreatorProcess()->GetProcessName()
+          << " in the volume " << aStep->GetTrack()->GetVolume()->GetName()
+          << std::endl;
+      p_sec->at(i)->SetTrackStatus(fKillTrackAndSecondaries);
+   }
+}
+
+void CastorShowerLibraryMaker::GetMissingEnergy(CaloG4HitCollection* theCAFI,double& miss_energy,double& tot_energy){
+// Get the total deposited energy and the one from hit not associated to a primary
+     miss_energy = 0;
+     tot_energy = 0;
+     for (int ihit = 0; ihit < theCAFI->entries(); ihit++) {
+         int id = (*theCAFI)[ihit]->getTrackID();
+         tot_energy+=(*theCAFI)[ihit]->getEnergyDeposit();
+         int hit_prim = 0;
+         for(unsigned int i=0;i<thePrims.size();i++) {
+            int particleType = thePrims.at(i)->GetPDGcode();
+            if (MapOfSecondaries[particleType].find(id)!=MapOfSecondaries[particleType].end())
+               hit_prim = particleType;
+         }
+         if (hit_prim==0) {
+            std::cout << "Track ID " << id << " produced a hit which is not associated with a primary."
+            << std::endl;
+            miss_energy+=(*theCAFI)[ihit]->getEnergyDeposit();
+         }
+     }
 }

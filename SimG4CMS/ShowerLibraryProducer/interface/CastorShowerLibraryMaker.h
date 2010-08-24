@@ -132,6 +132,8 @@ private:
   std::vector<int> PGParticleIDs; //p. gun particle IDs
   bool DoHadSL; // true if hadronic SL should be produced
   bool DoEmSL;  // true if electromag. SL should be produced
+  bool InsideCastor; // true if particle step inside CASTOR
+  bool DeActivatePhysicsProcess; //cfg parameter: True if phys. proc. should be off from IP to Castor
   std::vector<G4PrimaryParticle*> thePrims; // list of primaries for this event
   
   // Pointers for user defined class objects to be stored to Root file
@@ -145,6 +147,7 @@ private:
   std::map<int,std::set<int> > MapOfSecondaries; // map to hold all secondaries ID keyed by
                                                  // the PDG code of the primary
 
+  std::map<int,G4ThreeVector> PrimaryMomentum;
 // private methods
   int FindEnergyBin(double e);
   int FindEtaBin(double eta);
@@ -152,6 +155,8 @@ private:
   bool SLacceptEvent(int, int, int);
   bool IsSLReady();
   void GetKinematics(G4PrimaryParticle* ,
+       double& px, double& py, double& pz, double& pInit, double& eta, double& phi);
+  void GetKinematics(int ,
        double& px, double& py, double& pz, double& pInit, double& eta, double& phi);
 
   std::vector<G4PrimaryParticle*>  GetPrimary(const G4Event * );
@@ -165,6 +170,8 @@ private:
   bool         SLisEBinFilled(int ebin);
   bool         SLisEtaBinFilled(int ebin, int etabin);
   bool         SLisPhiBinFilled(int ebin, int etabin, int phibin);
+  void KillSecondaries(const G4Step * step);
+  void GetMissingEnergy(CaloG4HitCollection* ,double& ,double& );
 
   // Root pointers
   TFile* theFile;

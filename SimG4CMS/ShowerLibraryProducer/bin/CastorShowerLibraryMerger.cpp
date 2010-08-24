@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
      throw cms::Exception("Unknown", "CastorShowerLibraryMerger") 
                                    << "Opening of " << OutPutFile << " fails\n";
   } else {
-     /*edm::LogInfo*/ std::cout << ("CastorShowerLibraryMerger")  << "Successfully openned " << OutPutFile << " for output."; 
+     /*edm::LogInfo*/ std::cout << ("CastorShowerLibraryMerger")  << "Successfully openned " << OutPutFile << " for output.\n"; 
   }
 // Create the output tree
   Int_t split = 1;
@@ -105,7 +105,8 @@ int main(int argc, char* argv[])
         ebin_em.insert(ebin_em.end(),emInfo->Energy.getBin().begin(),emInfo->Energy.getBin().end());
         if (nevt_perbin_e_em>0) {
            if (nevt_perbin_e_em!=int(emInfo->Energy.getNEvtPerBin())) {
-              std::cout << "CastorShowerLibraryMerger: ERROR: Number of events per energy bin not the same. Exiting." << std::endl;
+              std::cout << "CastorShowerLibraryMerger: ERROR: Number of events per energy bin not the same. Exiting."
+                        << std::endl;
               exit(1);
            }
         }
@@ -114,7 +115,8 @@ int main(int argc, char* argv[])
 
         if (emInfo_out->Eta.getBin().size()>0) {
            if (emInfo_out->Eta.getBin()!=emInfo->Eta.getBin()) {
-              std::cout << "CastorShowerLibraryMerger: ERROR: Eta bins not the same in all files. Exiting." << std::endl;
+              std::cout << "CastorShowerLibraryMerger: ERROR: Eta bins not the same in all files. Exiting."
+                        << std::endl;
               exit(1);
            }
         }
@@ -127,7 +129,8 @@ int main(int argc, char* argv[])
            
         if (emInfo_out->Phi.getBin().size()>0) {
            if (emInfo_out->Phi.getBin()!=emInfo->Phi.getBin()) {
-              std::cout << "CastorShowerLibraryMerger: ERROR: Phi bins not the same in all files. Exiting." << std::endl;
+              std::cout << "CastorShowerLibraryMerger: ERROR: Phi bins not the same in all files. Exiting."
+                        << std::endl;
               exit(1);
            }
         }
@@ -153,7 +156,8 @@ int main(int argc, char* argv[])
         
         if (hadInfo_out->Eta.getBin().size()>0) {
            if (hadInfo_out->Eta.getBin()!=hadInfo->Eta.getBin()) {
-              std::cout << "CastorShowerLibraryMerger: ERROR: Eta bins not the same in all files. Exiting." << std::endl;
+              std::cout << "CastorShowerLibraryMerger: ERROR: Eta bins not the same in all files. Exiting."
+                        << std::endl;
               exit(1);
            }
         }
@@ -165,7 +169,8 @@ int main(int argc, char* argv[])
         }
         if (hadInfo_out->Phi.getBin().size()>0) {
            if (hadInfo_out->Phi.getBin()!=hadInfo->Phi.getBin()) {
-              std::cout << "CastorShowerLibraryMerger: ERROR: Phi bins not the same in all files. Exiting." << std::endl;
+              std::cout << "CastorShowerLibraryMerger: ERROR: Phi bins not the same in all files. Exiting."
+                        << std::endl;
               exit(1);
            }
         }

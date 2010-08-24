@@ -1,3 +1,4 @@
+#<Flags CXXFLAGS="-O0 -g -DDEBUG">
 <use name=SimG4Core/Watcher>
 <use name=SimG4Core/SensitiveDetector>
 <use name=SimG4Core/Notification> 
