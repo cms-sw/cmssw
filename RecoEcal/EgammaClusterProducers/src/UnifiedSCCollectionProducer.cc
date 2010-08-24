@@ -1,0 +1,521 @@
+// C/C++ headers
+#include <iostream>
+#include <vector>
+#include <memory>
+
+// Framework
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+// Reconstruction Classes
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+
+// Class header file
+#include "RecoEcal/EgammaClusterProducers/interface/UnifiedSCCollectionProducer.h"
+#include "RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h"
+#include "DataFormats/EgammaReco/interface/ClusterShape.h"
+#include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
+#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+
+
+
+
+/*
+  UnifiedSCCollectionProducer:
+  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  Takes  as  input the cleaned  and the  uncleaned collection of SC
+  and  produces two collections of SC: one with the clean SC, but flagged
+  such that with the algoID value one can identify the SC that are also
+  in the unclean collection and a collection with the unclean only SC.
+  This collection has the algoID enumeration of the SC altered
+  such that:
+  algoID = algoID         cluster is only in the cleaned collection
+  algoID = algoID + 100   cluster is common in both collections
+  algoID = algoID + 200   cluster is only in the uncleaned collection
+
+  In that way the user can get hold of objects from the
+  -  cleaned   collection only if they choose algoID <  200
+  -  uncleaned collection only if they choose algoID >= 100
+
+
+  18 Aug 2010
+  Nikolaos Rompotis and Chris Seez  - Imperial College London
+  many thanks to David Wardrope, Shahram Rahatlou and Federico Ferri
+
+
+*/
+
+
+UnifiedSCCollectionProducer::UnifiedSCCollectionProducer(const edm::ParameterSet& ps)
+{
+  //
+  // The debug level
+  std::string debugString = ps.getParameter<std::string>("debugLevel");
+  if      (debugString == "DEBUG")   debugL = HybridClusterAlgo::pDEBUG;
+  else if (debugString == "INFO")    debugL = HybridClusterAlgo::pINFO;
+  else                               debugL = HybridClusterAlgo::pERROR;
+
+  // get the parameters
+  // the cleaned collection:
+  cleanBcCollection_ = ps.getParameter<std::string>("cleanBcCollection");
+  cleanBcProducer_ = ps.getParameter<std::string>("cleanBcProducer");
+  cleanScCollection_ = ps.getParameter<std::string>("cleanScCollection");
+  cleanScProducer_ = ps.getParameter<std::string>("cleanScProducer");
+  // the uncleaned collection
+  uncleanBcCollection_ = ps.getParameter<std::string>("uncleanBcCollection");
+  uncleanBcProducer_   = ps.getParameter<std::string>("uncleanBcProducer");
+  uncleanScCollection_ = ps.getParameter<std::string>("uncleanScCollection");
+  uncleanScProducer_   = ps.getParameter<std::string>("uncleanScProducer");
+  // the names of the products to be produced:
+  //
+  // the clean collection: this is as it was before, but labeled
+  bcCollection_ = ps.getParameter<std::string>("bcCollection");
+  scCollection_ = ps.getParameter<std::string>("scCollection");
+  // the unclean only collection: SC unique to the unclean collection
+  bcCollectionUncleanOnly_ = ps.getParameter<std::string>("bcCollectionUncleanOnly");
+  scCollectionUncleanOnly_ = ps.getParameter<std::string>("scCollectionUncleanOnly");
+  // the products:
+  produces< reco::BasicClusterCollection >(bcCollection_);
+  produces< reco::SuperClusterCollection >(scCollection_);
+  produces< reco::BasicClusterCollection >(bcCollectionUncleanOnly_);
+  produces< reco::SuperClusterCollection >(scCollectionUncleanOnly_);
+  
+}
+
+
+UnifiedSCCollectionProducer::~UnifiedSCCollectionProducer() {;}
+
+
+void UnifiedSCCollectionProducer::produce(edm::Event& evt, 
+				      const edm::EventSetup& es)
+{
+  if (debugL <= HybridClusterAlgo::pINFO)
+  std::cout << ">>>>> Entering UnifiedSCCollectionProducer <<<<<" << std::endl;
+  // get the input collections
+  // __________________________________________________________________________
+  //
+  // cluster collections:
+  edm::Handle<reco::BasicClusterCollection> pCleanBC;
+  edm::Handle<reco::SuperClusterCollection> pCleanSC;
+  //
+  edm::Handle<reco::BasicClusterCollection> pUncleanBC;
+  edm::Handle<reco::SuperClusterCollection> pUncleanSC;
+  // clean collections ________________________________________________________
+  evt.getByLabel(cleanBcProducer_, cleanBcCollection_, pCleanBC);
+  if (!(pCleanBC.isValid())) 
+    {
+      if (debugL <= HybridClusterAlgo::pINFO)
+	std::cout << "could not handle clean basic clusters" << std::endl;
+      return;
+    }
+  const  reco::BasicClusterCollection cleanBS = *(pCleanBC.product());
+  //
+  evt.getByLabel(cleanScProducer_, cleanScCollection_, pCleanSC);
+  if (!(pCleanSC.isValid())) 
+    {
+      if (debugL <= HybridClusterAlgo::pINFO)
+	std::cout << "could not handle clean super clusters" << std::endl;
+      return;
+    }
+  const  reco::SuperClusterCollection cleanSC = *(pCleanSC.product());
+
+  // unclean collections ______________________________________________________
+  evt.getByLabel(uncleanBcProducer_, uncleanBcCollection_, pUncleanBC);
+  if (!(pUncleanBC.isValid())) 
+    {
+      if (debugL <= HybridClusterAlgo::pINFO)
+	std::cout << "could not handle unclean Basic Clusters!" << std::endl;
+      return;
+    }
+  const  reco::BasicClusterCollection uncleanBC = *(pUncleanBC.product());
+  //
+  evt.getByLabel(uncleanScProducer_, uncleanScCollection_, pUncleanSC);
+  if (!(pUncleanSC.isValid())) 
+    {
+      if (debugL <= HybridClusterAlgo::pINFO)
+	std::cout << "could not handle unclean super clusters!" << std::endl;
+      return;
+    }
+  const  reco::SuperClusterCollection uncleanSC = *(pUncleanSC.product());
+  // collections are all taken now ____________________________________________
+  //
+  //
+  // the collections to be produced ___________________________________________
+  reco::BasicClusterCollection basicClusters;
+  reco::SuperClusterCollection superClusters;
+  //
+  reco::BasicClusterCollection basicClustersUncleanOnly;
+  reco::SuperClusterCollection superClustersUncleanOnly;
+  //
+  // run over the uncleaned SC and check how many of them are matched to 
+  // the cleaned ones
+  // if you find a matched one, then keep the info that it is matched 
+  //    along with which clean SC was matched + its basic clusters
+  // if you find an unmatched one, keep the info and store its basic clusters
+  //
+  // 
+  int uncleanSize = (int) uncleanSC.size();
+  int cleanSize = (int) cleanSC.size();
+  if (debugL <= HybridClusterAlgo::pDEBUG)
+    std::cout << "Size of Clean Collection: " << cleanSize 
+	      << ", uncleanSize: " << uncleanSize  << std::endl;
+
+
+  // keep the indices
+  std::vector<int> inUncleanOnlyInd;      // counting the unclean
+  std::vector<int> inCleanInd;            // counting the unclean
+  std::vector<int> inCleanOnlyInd;        // counting the clean
+  std::vector<DetId> scUncleanSeedDetId;  // counting the unclean
+  std::vector<DetId> scCleanSeedDetId;    // counting the clean
+  // ontains the index of the SC that owns that BS
+  // first basic cluster index, second: 0 for unclean and 1 for clean
+  std::vector< std::pair<int, int> > basicClusterOwner; 
+  std::vector< std::pair<int, int> > basicClusterOwnerUncleanOnly; 
+  // if this basic cluster is a seed it is 1
+  std::vector<int> uncleanBasicClusterIsSeed;
+
+  // loop over unclean SC _____________________________________________________
+  for (int isc =0; isc< uncleanSize; ++isc) {
+    const reco::SuperCluster unsc = uncleanSC[isc];    
+    const std::vector< std::pair<DetId, float> >   
+      uhits = unsc.hitsAndFractions();
+    int uhitsSize = (int) uhits.size();
+    bool foundTheSame = false;
+    for (int jsc=0; jsc < cleanSize; ++jsc) { // loop over the cleaned SC
+      const reco::SuperCluster csc = cleanSC[jsc];
+      const std::vector<std::pair<DetId,float> > chits=csc.hitsAndFractions();
+      int chitsSize = (int) chits.size();
+      foundTheSame = false;
+      if (unsc.seed()->seed()==csc.seed()->seed() && chitsSize == uhitsSize) { 
+	// if the clusters are exactly the same then because the clustering
+	// algorithm works in a deterministic way, the order of the rechits
+	// will be the same
+	for (int i=0; i< chitsSize; ++i) {
+	  if (uhits[i].first != chits[i].first ) { break;}
+	}
+	foundTheSame = true;
+      }
+      if (foundTheSame) { // ok you have found it:
+	// this supercluster belongs to both collections
+	inUncleanOnlyInd.push_back(0);
+	inCleanInd.push_back(jsc); // keeps the index of the clean SC
+	scUncleanSeedDetId.push_back(unsc.seed()->seed());
+	//
+	// keep its basic clusters:
+	reco::CaloCluster_iterator bciter = unsc.clustersBegin();
+	for (; bciter != unsc.clustersEnd(); ++bciter) {
+	  // the basic clusters
+	  reco::CaloClusterPtr myclusterptr = *bciter;
+	  reco::CaloCluster mycluster = *myclusterptr;
+	  basicClusters.push_back(mycluster);
+	  // index of the unclean SC
+	  basicClusterOwner.push_back( std::make_pair(isc,0) ); 
+	} 
+	break; // break the loop over unclean sc
+      }
+    }
+    if (not foundTheSame) { // this SC is only in the unclean collection
+      // mark it as unique in the uncleaned
+      inUncleanOnlyInd.push_back(1);
+      scUncleanSeedDetId.push_back(unsc.seed()->seed());
+      // keep all its basic clusters
+      reco::CaloCluster_iterator bciter = unsc.clustersBegin();
+      for (; bciter != unsc.clustersEnd(); ++bciter) {
+	// the basic clusters
+	reco::CaloClusterPtr myclusterptr = *bciter;
+	reco::CaloCluster mycluster = *myclusterptr;
+	basicClustersUncleanOnly.push_back(mycluster);
+	basicClusterOwnerUncleanOnly.push_back( std::make_pair(isc,0) );
+      }
+    }
+  } // loop over the unclean SC _______________________________________________
+  //
+  int inCleanSize = (int) inCleanInd.size();
+  //
+  // loop over the clean SC, check that are not in common with the unclean
+  // ones and then store their SC as before ___________________________________
+  for (int jsc =0; jsc< cleanSize; ++jsc) {
+    // check whether this index is already in the common collection
+    bool takenAlready = false;
+    for (int j=0; j< inCleanSize; ++j) {
+      if (jsc == inCleanInd[j]) { takenAlready = true ;break;}
+    }
+    if (takenAlready) {
+      inCleanOnlyInd.push_back(0);
+      scCleanSeedDetId.push_back(DetId(0));
+      continue;
+    }
+    inCleanOnlyInd.push_back(1);
+    const reco::SuperCluster csc = cleanSC[jsc];
+    scCleanSeedDetId.push_back(csc.seed()->seed());
+    reco::CaloCluster_iterator bciter = csc.clustersBegin();
+    for (; bciter != csc.clustersEnd(); ++bciter) {
+      // the basic clusters
+      reco::CaloClusterPtr myclusterptr = *bciter;
+      reco::CaloCluster mycluster = *myclusterptr;
+      basicClusters.push_back(mycluster);
+      basicClusterOwner.push_back( std::make_pair(jsc,1) );
+    }
+  } // end loop over clean SC _________________________________________________
+  //
+  //
+  // at this point we have the basic cluster collection ready
+  // 
+  int bcSize = (int) basicClusters.size();
+  int bcSizeUncleanOnly = (int) basicClustersUncleanOnly.size();
+  if (debugL == HybridClusterAlgo::pDEBUG)
+    std::cout << "Found cleaned SC: " << cleanSize <<  " uncleaned SC: " 
+	      << uncleanSize << std::endl;
+  //
+  // export the clusters to the event from the clean clusters
+  std::auto_ptr< reco::BasicClusterCollection> 
+    basicClusters_p(new reco::BasicClusterCollection);
+  basicClusters_p->assign(basicClusters.begin(), basicClusters.end());
+  edm::OrphanHandle<reco::BasicClusterCollection> bccHandle =  
+    evt.put(basicClusters_p, bcCollection_);
+  if (!(bccHandle.isValid())) {
+    if (debugL <= HybridClusterAlgo::pINFO)
+      std::cout << "could not handle the new BasicClusters!" << std::endl;
+    return;
+  }
+  reco::BasicClusterCollection basicClustersProd = *bccHandle;
+  if (debugL == HybridClusterAlgo::pDEBUG)
+    std::cout << "Got the BasicClusters from the event again" << std::endl;
+  //
+  // export the clusters to the event: from the unclean only clusters
+  std::auto_ptr< reco::BasicClusterCollection> 
+    basicClustersUncleanOnly_p(new reco::BasicClusterCollection);
+  basicClustersUncleanOnly_p->assign(basicClustersUncleanOnly.begin(), 
+				     basicClustersUncleanOnly.end());
+  edm::OrphanHandle<reco::BasicClusterCollection> bccHandleUncleanOnly =  
+    evt.put(basicClustersUncleanOnly_p, bcCollectionUncleanOnly_);
+  if (!(bccHandleUncleanOnly.isValid())) {
+    if (debugL <= HybridClusterAlgo::pINFO)
+      std::cout << "could not handle the new BasicClusters (Unclean Only)!" << std::endl;
+    return;
+  }
+  reco::BasicClusterCollection basicClustersUncleanOnlyProd = *bccHandleUncleanOnly;
+  if (debugL == HybridClusterAlgo::pDEBUG)
+    std::cout << "Got the BasicClusters from the event again  (Unclean Only)" << std::endl;
+  //
+
+  // now we can build the SC collection
+  //
+  // start again from the unclean collection
+  // all the unclean SC will become members of the new collection
+  // with different algoIDs ___________________________________________________
+  for (int isc=0; isc< uncleanSize; ++isc) {
+    //std::cout << "working in ucl #" << isc << std::endl;
+    reco::CaloClusterPtrVector clusterPtrVector;
+    // the seed is the basic cluster with the highest energy
+    reco::CaloClusterPtr seed; 
+    if (inUncleanOnlyInd[isc] == 1) { // unclean SC Unique in Unclean
+      for (int jbc=0; jbc< bcSizeUncleanOnly; ++jbc) {
+	std::pair<int, int> theBcOwner = basicClusterOwnerUncleanOnly[jbc];
+	if (theBcOwner.first == isc && theBcOwner.second == 0) {
+	  reco::CaloClusterPtr currentClu=reco::CaloClusterPtr(bccHandleUncleanOnly,jbc);
+	  clusterPtrVector.push_back(currentClu);
+	  if (scUncleanSeedDetId[isc] == currentClu->seed()) {
+	    seed = currentClu;
+	  }
+	}
+      }
+
+    }
+    else { // unclean SC common in clean and unclean
+      for (int jbc=0; jbc< bcSize; ++jbc) {
+	std::pair<int, int> theBcOwner = basicClusterOwner[jbc];
+	if (theBcOwner.first == isc && theBcOwner.second == 0) {
+	  reco::CaloClusterPtr currentClu=reco::CaloClusterPtr(bccHandle,jbc);
+	  clusterPtrVector.push_back(currentClu);
+	  if (scUncleanSeedDetId[isc] == currentClu->seed()) {
+	    seed = currentClu;
+	  }
+	}
+      }
+    }
+    //std::cout << "before getting the uncl" << std::endl;
+    const reco::SuperCluster unsc = uncleanSC[isc]; 
+    reco::SuperCluster newSC(unsc.energy(), unsc.position(), 
+			     seed, clusterPtrVector );
+    // now set the algoID for this SC again
+    const  reco::CaloCluster::AlgoId myAlgoId = unsc.algo();
+    if (inUncleanOnlyInd[isc] == 1) {
+      // set up the quality to unclean only .............
+      if ( myAlgoId == reco::CaloCluster::island) {
+	newSC.setAlgoId(reco::CaloCluster::islandUncleanOnly);
+      }
+      else if (myAlgoId == reco::CaloCluster::fixedMatrix) {
+	newSC.setAlgoId(reco::CaloCluster::fixedMatrixUncleanOnly);
+      }
+      else if (myAlgoId == reco::CaloCluster::dynamicHybrid) {
+	newSC.setAlgoId(reco::CaloCluster::dynamicHybridUncleanOnly);
+      }
+      else if (myAlgoId == reco::CaloCluster::multi5x5) {
+	newSC.setAlgoId(reco::CaloCluster::multi5x5UncleanOnly);
+      }
+      else if (myAlgoId == reco::CaloCluster::particleFlow) {
+	newSC.setAlgoId(reco::CaloCluster::particleFlowUncleanOnly);
+      }
+      else { // take hybrid or undefined together
+	newSC.setAlgoId(reco::CaloCluster::hybridUncleanOnly);
+      }
+      superClustersUncleanOnly.push_back(newSC);
+    }
+    else {
+      // set up the quality to common  .............
+      if ( myAlgoId == reco::CaloCluster::island) {
+	newSC.setAlgoId(reco::CaloCluster::islandCommon);
+      }
+      else if (myAlgoId == reco::CaloCluster::fixedMatrix) {
+	newSC.setAlgoId(reco::CaloCluster::fixedMatrixCommon);
+      }
+      else if (myAlgoId == reco::CaloCluster::dynamicHybrid) {
+	newSC.setAlgoId(reco::CaloCluster::dynamicHybridCommon);
+      }
+      else if (myAlgoId == reco::CaloCluster::multi5x5) {
+	newSC.setAlgoId(reco::CaloCluster::multi5x5Common);
+      }
+      else if (myAlgoId == reco::CaloCluster::particleFlow) {
+	newSC.setAlgoId(reco::CaloCluster::particleFlowCommon);
+      }
+      else { // take hybrid or undefined together
+	newSC.setAlgoId(reco::CaloCluster::hybridCommon);
+      }
+      // common SC will be put in the clean SC collection
+      superClusters.push_back(newSC);
+    }
+    // now you can store your SC
+
+  } // end loop over unclean SC _______________________________________________
+  //  algoID numbering scheme
+  //  algoID = algoID         cluster is only in the cleaned collection
+  //  algoID = algoID + 100   cluster is common in both collections
+  //  algoID = algoID + 200   cluster is only in the uncleaned collection
+
+  // now loop over the clean SC and do the same but now you have to avoid the
+  // the duplicated ones ______________________________________________________
+  for (int jsc=0; jsc< cleanSize; ++jsc) {
+    //std::cout << "working in cl #" << jsc << std::endl;
+    // check that the SC is not in the unclean collection
+    if (inCleanOnlyInd[jsc] == 0) continue;
+    reco::CaloClusterPtrVector clusterPtrVector;
+    // the seed is the basic cluster with the highest energy
+    reco::CaloClusterPtr seed; 
+    for (int jbc=0; jbc< bcSize; ++jbc) {
+      std::pair<int, int> theBcOwner = basicClusterOwner[jbc];
+      if (theBcOwner.first == jsc && theBcOwner.second == 1) {
+	reco::CaloClusterPtr currentClu=reco::CaloClusterPtr(bccHandle,jbc);
+	clusterPtrVector.push_back(currentClu);
+	if (scCleanSeedDetId[jsc] == currentClu->seed()) {
+	  seed = currentClu;
+	}
+      }
+    }
+    const reco::SuperCluster csc = cleanSC[jsc]; 
+    reco::SuperCluster newSC(csc.energy(), csc.position(),
+			     seed, clusterPtrVector );
+    const  reco::CaloCluster::AlgoId myAlgoId = csc.algo();
+    if (myAlgoId < reco::CaloCluster::islandCommon) {
+      newSC.setAlgoId(myAlgoId);
+    } else {
+      newSC.setAlgoId(reco::CaloCluster::hybrid);
+    }
+    // add it to the collection:
+    superClusters.push_back(newSC);
+  } // end loop over clean SC _________________________________________________
+
+  if (debugL == HybridClusterAlgo::pDEBUG)
+    std::cout << "New SC collection was created" << std::endl;
+
+  std::auto_ptr< reco::SuperClusterCollection> 
+    superClusters_p(new reco::SuperClusterCollection);
+  superClusters_p->assign(superClusters.begin(), superClusters.end());
+
+  evt.put(superClusters_p, scCollection_);
+  if (debugL == HybridClusterAlgo::pDEBUG)
+    std::cout << "Clusters (Basic/Super) added to the Event! :-)" << std::endl;
+
+  std::auto_ptr< reco::SuperClusterCollection> 
+    superClustersUncleanOnly_p(new reco::SuperClusterCollection);
+  superClustersUncleanOnly_p->assign(superClustersUncleanOnly.begin(), 
+				     superClustersUncleanOnly.end());
+
+  evt.put(superClustersUncleanOnly_p, scCollectionUncleanOnly_);
+
+  // ----- debugging ----------
+  // print the new collection SC quantities
+  if (debugL == HybridClusterAlgo::pDEBUG) {
+    // print out the clean collection SC
+    std::cout << "Clean Collection SC " << std::endl;
+    for (int i=0; i < cleanSize; ++i) {
+      const reco::SuperCluster csc = cleanSC[i];
+      std::cout << " >>> clean    #" << i << "; Energy: " << csc.energy()
+		<< " eta: " << csc.eta() 
+		<< " sc seed detid: " << csc.seed()->seed().rawId()
+		<< std::endl;
+    }
+    // the unclean SC
+    std::cout << "Unclean Collection SC " << std::endl;
+    for (int i=0; i < uncleanSize; ++i) {
+      const reco::SuperCluster usc = uncleanSC[i];
+      std::cout << " >>> unclean  #" << i << "; Energy: " << usc.energy()
+		<< " eta: " << usc.eta() 
+		<< " sc seed detid: " << usc.seed()->seed().rawId()
+		<< std::endl;
+    }
+    // the new collection
+    std::cout << "The new SC clean collection with size "<< superClusters.size()  << std::endl;
+
+    int new_unclean = 0, new_clean=0;
+    for (int i=0; i < (int) superClusters.size(); ++i) {
+      const reco::SuperCluster nsc = superClusters[i];
+      std::cout << "SC was got" << std::endl;
+      std::cout << " ---> energy: " << nsc.energy() << std::endl;
+      std::cout << " ---> eta: " << nsc.eta() << std::endl;
+      std::cout << " ---> inClean: " << nsc.isInClean() << std::endl;
+      std::cout << " ---> id: " << nsc.seed()->seed().rawId() << std::endl;
+
+      std::cout << " >>> newSC    #" << i << "; Energy: " << nsc.energy()
+		<< " eta: " << nsc.eta()  << " isClean=" 
+		<< nsc.isInClean() << " isUnclean=" << nsc.isInUnclean()
+		<< " sc seed detid: " << nsc.seed()->seed().rawId()
+		<< std::endl;
+      if (nsc.isInUnclean()) ++new_unclean;
+      if (nsc.isInClean()) ++new_clean;
+    }
+    std::cout << "The new SC unclean only collection with size "<< superClustersUncleanOnly.size()  << std::endl;
+    for (int i=0; i < (int) superClustersUncleanOnly.size(); ++i) {
+      const reco::SuperCluster nsc = superClustersUncleanOnly[i];
+      std::cout << " >>> newSC    #" << i << "; Energy: " << nsc.energy()
+		<< " eta: " << nsc.eta()  << " isClean=" 
+		<< nsc.isInClean() << " isUnclean=" << nsc.isInUnclean()
+		<< " sc seed detid: " << nsc.seed()->seed().rawId()
+		<< std::endl;
+      if (nsc.isInUnclean()) ++new_unclean;
+      if (nsc.isInClean()) ++new_clean;      
+    }
+    if ( (new_unclean != uncleanSize) || (new_clean != cleanSize) ) {
+      std::cout << ">>>>!!!!!! MISMATCH: new unclean/ old unclean= " 
+		<< new_unclean << " / " << uncleanSize 
+	        << ", new clean/ old clean" << new_clean << " / " << cleanSize
+		<< std::endl;
+    }
+  }
+}
+
+
+
+
