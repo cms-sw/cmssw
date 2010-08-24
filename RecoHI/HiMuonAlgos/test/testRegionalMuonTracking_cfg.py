@@ -93,18 +93,25 @@ process.goodStaMuons = cms.EDFilter("TrackSelector",
                                  )
 
 process.HiTrackingRegionFactoryFromSTAMuonsBlock.MuonSrc="goodStaMuons"
-#using modified MuonTrackingRegionBuilder.cc to pass (x,y) vertex info and use fixed dz if UseFixedRegion=True
-process.HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.UseFixedRegion=True #this is only for eta/phi
-process.HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.DeltaZ_Region=0.2 #this is only for beamspot
+#using modified MuonTrackingRegionBuilder.cc to pass (x,y) vertex info
+process.HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.UseFixedRegion=True
+process.HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.DeltaR=0.1
+process.HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Dz_min=0.2
+process.HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.PtMin_max=5.0
 process.hiPixel3PrimTracks.RegionFactoryPSet = process.HiTrackingRegionFactoryFromSTAMuonsBlock
 process.hiNewSeedFromPairs.RegionFactoryPSet = process.HiTrackingRegionFactoryFromSTAMuonsBlock
+
+process.hiTracksWithLooseQuality.keepAllTracks=True
+
+process.hiNewTrackCandidates.TrajectoryCleaner = 'TrajectoryCleanerBySharedHits'
+process.ckfBaseTrajectoryFilter.filterPset.minimumNumberOfHits=10  # was 6
 
 ### open up trajectory builder parameters
 process.MaterialPropagator.Mass = 0.105 #muon (HI default is pion)
 process.OppositeMaterialPropagator.Mass = 0.105
-process.ckfBaseTrajectoryFilter.filterPset.maxLostHits=1
-process.ckfBaseTrajectoryFilter.filterPset.maxConsecLostHits=1
-process.CkfTrajectoryBuilder.maxCand = 5 
+process.ckfBaseTrajectoryFilter.filterPset.maxLostHits=1          # was 1
+process.ckfBaseTrajectoryFilter.filterPset.maxConsecLostHits=1    # was 1
+process.CkfTrajectoryBuilder.maxCand = 5                          # was 5
 
 # Output EDM File
 process.load("Configuration.EventContent.EventContentHeavyIons_cff")        #load keep/drop output commands
