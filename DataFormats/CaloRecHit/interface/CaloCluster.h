@@ -7,7 +7,7 @@
  *
  * \author Shahram Rahatlou, INFN
  *
- * \version $Id: CaloCluster.h,v 1.1 2010/08/18 14:05:10 rompotis Exp $
+ * \version $Id: CaloCluster.h,v 1.19 2010/08/24 12:42:01 ferriff Exp $
  * Comments:
  * modified AlgoId enumeration to include cleaning status flags
  * In summary:
@@ -30,11 +30,10 @@ namespace reco {
   class CaloCluster {
   public:
     
-    enum AlgoId { island = 0, hybrid = 1, fixedMatrix = 2, dynamicHybrid = 3, multi5x5 = 4, particleFlow = 5 , 
-		  islandCommon = 100, islandUncleanOnly = 200,  hybridCommon = 101, hybridUncleanOnly = 201,
-		  fixedMatrixCommon = 102, fixedMatrixUncleanOnly = 202,
-		  dynamicHybridCommon = 103, dynamicHybridUncleanOnly = 204, multi5x5Common = 104, multi5x5UncleanOnly = 204, 
-		  particleFlowCommon = 105, particleFlowUncleanOnly = 205,  undefined = 1000};
+    enum AlgoId { island = 0, hybrid = 1, fixedMatrix = 2, dynamicHybrid = 3, multi5x5 = 4, particleFlow = 5,  undefined = 1000};
+
+    // super-cluster flags
+    enum SCFlags { cleanOnly = 0, common = 100, uncleanOnly = 200 };
 
    //FIXME:  
    //temporary fix... to be removed before 310 final
@@ -43,17 +42,17 @@ namespace reco {
    /// default constructor. Sets energy and position to zero
     CaloCluster() : 
       energy_(0), 
-      algoID_( undefined ) {}
+      algoID_( undefined ), flags_(0) {}
 
     /// constructor with algoId, to be used in all child classes
     CaloCluster(AlgoID algoID) : 
       energy_(0), 
-      algoID_( algoID ) {}
+      algoID_( algoID ), flags_(0) {}
 
     CaloCluster( double energy,
                  const math::XYZPoint& position,
                  const CaloID& caloID) :
-      energy_ (energy), position_ (position), caloID_(caloID),algoID_( undefined ) {}
+      energy_ (energy), position_ (position), caloID_(caloID),algoID_( undefined ), flags_(0) {}
 
 
     /// resets the CaloCluster (position, energy, hitsAndFractions)
@@ -62,24 +61,26 @@ namespace reco {
      /// constructor from values 
      CaloCluster( double energy,  
  		 const math::XYZPoint& position ) : 
-       energy_ (energy), position_ (position),algoID_( undefined ) {} 
+       energy_ (energy), position_ (position),algoID_( undefined ), flags_(0) {} 
 
 
     CaloCluster( double energy,
 		 const math::XYZPoint& position,
 		 const CaloID& caloID,
-                 const AlgoID& algoID) :
+                 const AlgoID& algoID,
+                 uint32_t flags = 0) :
       energy_ (energy), position_ (position), 
-      caloID_(caloID), algoID_(algoID) {}
+      caloID_(caloID), algoID_(algoID), flags_(flags) {}
 
     CaloCluster( double energy,
                  const math::XYZPoint& position,
                  const CaloID& caloID,
                  const std::vector< std::pair< DetId, float > > &usedHitsAndFractions,
                  const AlgoId algoId,
-		 const DetId seedId = DetId(0)) :
+		 const DetId seedId = DetId(0),
+                 uint32_t flags = 0) :
       energy_ (energy), position_ (position), caloID_(caloID), 
-	hitsAndFractions_(usedHitsAndFractions), algoID_(algoId), seedId_(seedId) {}
+	hitsAndFractions_(usedHitsAndFractions), algoID_(algoId), seedId_(seedId), flags_(flags) {}
 
    //FIXME:
    /// temporary compatibility constructor
@@ -87,8 +88,9 @@ namespace reco {
                  const math::XYZPoint& position,
                  float chi2,
                  const std::vector<DetId > &usedHits,
-                 const AlgoId algoId) :
-      energy_ (energy), position_ (position),  algoID_(algoId)
+                 const AlgoId algoId,
+                 uint32_t flags = 0) :
+      energy_ (energy), position_ (position),  algoID_(algoId), flags_(flags)
        {
           hitsAndFractions_.reserve(usedHits.size());
           for(size_t i = 0; i < usedHits.size(); i++) hitsAndFractions_.push_back(std::pair< DetId, float > ( usedHits[i],1.));
@@ -150,9 +152,11 @@ namespace reco {
     /// algorithm identifier
     AlgoId algo() const { return algoID_; }
     AlgoID algoID() const { return algo(); }
-    void setAlgoId(const AlgoId aid) { algoID_ = aid;  }
-    bool isInClean() const { if (algoID_ < islandUncleanOnly){ return true;} else return false;}
-    bool isInUnclean() const { if (algoID_ >= islandCommon){ return true;} else return false;}
+
+    uint32_t flags() const { return flags_; }
+    void setFlags( uint32_t flags) { flags_ = flags; }
+    bool isInClean()   const { return flags_ < uncleanOnly; }
+    bool isInUnclean() const { return flags_ >= common; }
 
     const CaloID& caloID() const {return caloID_;}
 
@@ -194,6 +198,9 @@ namespace reco {
 
     /// DetId of seed
     DetId		seedId_;
+
+    /// flags (e.g. for handling of cleaned/uncleaned SC)
+    uint32_t            flags_;
 
   };
 
