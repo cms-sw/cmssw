@@ -88,6 +88,11 @@
 	* First round of refactoring of the consumer handling code to
 	  make it usable for the SM proxy server.
 
+2010-08-24 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V05-10-05
+	* Backport fix for /proc file handler to branch_3_5_x.
+
 2010-07-20 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V05-10-04
