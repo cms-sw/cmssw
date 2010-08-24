@@ -10,15 +10,12 @@
 # Michael Anderson
 # Sept 15, 2009
 
-import sys, os, shutil, getopt
+import sys, os, shutil
 #----------------------------------------------------------------------
 # parameters
 #----------------------------------------------------------------------
 # CMSSW Module to check out & compile
 module="HLTriggerOffline/Egamma"
-
-# Config file in module to run with cmsRun
-configFile="test/test_cfg.py"
 
 # Root file name outputted by running module
 outputRootFile="DQM_V0001_HLT_R000000001.root"
@@ -293,6 +290,13 @@ parser.add_option("--cvstag",
                   metavar="TAG")
 
 
+parser.add_option("--cfg",
+                  dest="configFile",
+                  default = "test/test_cfg.py",
+                  type="str",
+                  help="Base config file (relative to HLTriggerOffline/Egamma) to run with cmsRun. Change this e.g. when you want to run on data instead of MC.",
+                  metavar="CFG_FILE.py")
+
 parser.add_option("--cfg-add",
                   dest="cfg_add",
                   default = [],
@@ -376,12 +380,12 @@ execCmd("scramv1 b")
 os.chdir(module)
 
 # Place file names in python config file
-print "Placing into " + configFile + " and copying to test_cfg_new.py"
+print "Placing into " + options.configFile + " and copying to test_cfg_new.py"
 
 #----------------------------------------
 # append things to the config file
 #----------------------------------------
-fout = open(configFile,"a")
+fout = open(options.configFile,"a")
 print >> fout,"process.source.fileNames = " + str(FILES)
 print >> fout,"process.post.dataSet = cms.untracked.string('" + datasetToCheck +"')"
 
@@ -420,7 +424,7 @@ if len(options.cfg_add) > 0:
 fout.close()
 
 #----------------------------------------
-shutil.copy(configFile, "test_cfg_new.py")
+shutil.copy(options.configFile, "test_cfg_new.py")
 logfile = os.path.join(os.getcwd(),"log")
 print "Starting cmsRun test_cfg_new.py >& " + logfile
 execCmd("eval `scramv1 runtime -sh` && cmsRun test_cfg_new.py >& " + logfile)
