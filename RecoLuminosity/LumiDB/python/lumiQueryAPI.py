@@ -58,8 +58,8 @@ def lslengthsec (numorbit, numbx):
 
 def lsBylsLumi (deadtable):
     """
-    input: {lsnum:[deadtime, instlumi, bit_0, norbits]}
-    output: {lsnum:[instlumi, recordedlumi]}
+    input: {lsnum:[deadtime, instlumi, bit_0, norbits...]}
+    output: {lsnum:[instlumi, recordedlumi...]}
     """
     result = {}
     for myls, deadArray in deadtable.items():
@@ -277,7 +277,7 @@ def recordedLumiForRun (dbsession, parameters, runnum, lslist = None):
         queryCondition["runnumber"].setData (int (runnum))
         queryCondition["lumiversion"].setData (parameters.lumiversion)
         #queryCondition["alive"].setData (True)
-        query.setCondition ("lumisummary.RUNNUM = :runnumber and lumisummary.LUMIVERSION = :lumiversion AND lumisummary.CMSLSNUM = trg.CMSLSNUM and lumisummary.RUNNUM = trg.RUNNUM", queryCondition)
+        query.setCondition ("lumisummary.RUNNUM =:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLSNUM and lumisummary.RUNNUM=trg.RUNNUM", queryCondition)
         #query.setCondition ("trg.RUNNUM = :runnumber AND lumisummary.RUNNUM = :runnumber and lumisummary.LUMIVERSION = :lumiversion AND lumisummary.CMSLSNUM = trg.CMSLSNUM AND lumisummary.cmsalive = :alive AND trg.BITNUM = :bitnum", queryCondition)
         #query.addToOutputList ("sum (lumisummary.INSTLUMI* (1-trg.DEADTIME/ (lumisummary.numorbit*3564)))", "recorded")
         query.addToOutputList ("lumisummary.CMSLSNUM", "cmsls")
@@ -380,9 +380,8 @@ def dumpData (lumidata, filename):
                   filename csvname
     """
     
-    r = csvReporter.csvReporter (filename)
-    r.writeRows (lumidata)
-
+    r = csvReporter.csvReporter(filename)
+    r.writeRows(lumidata)
 
 def calculateTotalRecorded (deadtable):
     """
