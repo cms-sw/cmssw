@@ -282,9 +282,9 @@ double L1GctJetFinderParams::orcaStyleCorrect(const double Et, const std::vector
 double L1GctJetFinderParams::simpleCorrect(const double Et, const std::vector<double>& coeffs) const
 {
   // function is :
-  //    Et_out = A + B/[ (log10(Et_in))^C + D ]
+  //    Et_out = A + B/[ (log10(Et_in))^C + D ] + E/Et_in
   // 
-  // fitcor_as_str = "[0]+[1]/(pow(log10(x),[2])+[3])"
+  //    fitcor_as_str = "[0]+[1]/(pow(log10(x),[2])+[3]) + [4]/x"
   // 
 
   return coeffs.at(0) + coeffs.at(1)/(pow(log10(Et),coeffs.at(2))+coeffs.at(3)) + (coeffs.at(4)/Et);
