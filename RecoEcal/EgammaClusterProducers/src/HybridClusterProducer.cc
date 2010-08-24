@@ -17,7 +17,6 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 
@@ -32,9 +31,6 @@
 
 // Class header file
 #include "RecoEcal/EgammaClusterProducers/interface/HybridClusterProducer.h"
-#include "RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h"
-#include "DataFormats/EgammaReco/interface/ClusterShape.h"
-#include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 
  
@@ -61,7 +57,6 @@ HybridClusterProducer::HybridClusterProducer(const edm::ParameterSet& ps)
   providedParameters.insert(std::make_pair("X0",ps.getParameter<double>("posCalc_x0")));
 
   posCalculator_ = PositionCalc(providedParameters);
-  shapeAlgo_ = ClusterShapeAlgo(providedParameters);
 
   hybrid_p = new HybridClusterAlgo(ps.getParameter<double>("HybridBarrelSeedThr"), 
                                    ps.getParameter<int>("step"),
@@ -89,14 +84,8 @@ HybridClusterProducer::HybridClusterProducer(const edm::ParameterSet& ps)
      hybrid_p->setDynamicPhiRoad(bremRecoveryPset);
   }
 
-
-  clustershapecollection_ = ps.getParameter<std::string>("clustershapecollection");
-  clusterShapeAssociation_ = ps.getParameter<std::string>("shapeAssociation");
-
-  produces< reco::ClusterShapeCollection>(clustershapecollection_);
   produces< reco::BasicClusterCollection >(basicclusterCollection_);
   produces< reco::SuperClusterCollection >(superclusterCollection_);
-  produces< reco::BasicClusterShapeAssociationCollection >(clusterShapeAssociation_);
   nEvt_ = 0;
 }
 
@@ -152,16 +141,6 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   if (debugL == HybridClusterAlgo::pDEBUG)
     std::cout << "Finished clustering - BasicClusterCollection returned to producer..." << std::endl;
 
-  std::vector <reco::ClusterShape> ClusVec;
-  for (int erg=0;erg<int(basicClusters.size());++erg){
-    reco::ClusterShape TestShape = shapeAlgo_.Calculate(basicClusters[erg],hit_collection,geometry_p,topology.get());
-    ClusVec.push_back(TestShape);
-  }
-  std::auto_ptr< reco::ClusterShapeCollection> clustersshapes_p(new reco::ClusterShapeCollection);
-  clustersshapes_p->assign(ClusVec.begin(), ClusVec.end());
-  edm::OrphanHandle<reco::ClusterShapeCollection> clusHandle = evt.put(clustersshapes_p, 
-								       clustershapecollection_);
-
   // create an auto_ptr to a BasicClusterCollection, copy the clusters into it and put in the Event:
   std::auto_ptr< reco::BasicClusterCollection > basicclusters_p(new reco::BasicClusterCollection);
   basicclusters_p->assign(basicClusters.begin(), basicClusters.end());
@@ -198,14 +177,6 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   superclusters_p->assign(superClusters.begin(), superClusters.end());
   
   evt.put(superclusters_p, superclusterCollection_);
-
-  // BasicClusterShapeAssociationMap
-  std::auto_ptr<reco::BasicClusterShapeAssociationCollection> shapeAssocs_p(new reco::BasicClusterShapeAssociationCollection);
-  for (unsigned int i = 0; i < clusterCollection.size(); i++){
-    shapeAssocs_p->insert(edm::Ref<reco::BasicClusterCollection>(bccHandle,i),edm::Ref<reco::ClusterShapeCollection>(clusHandle,i));
-  }  
-  
-  evt.put(shapeAssocs_p,clusterShapeAssociation_);
 
   if (debugL == HybridClusterAlgo::pDEBUG)
     std::cout << "Hybrid Clusters (Basic/Super) added to the Event! :-)" << std::endl;

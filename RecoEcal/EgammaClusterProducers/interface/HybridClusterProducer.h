@@ -11,7 +11,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoEcal/EgammaClusterAlgos/interface/HybridClusterAlgo.h"
-#include "RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 
 //
@@ -36,14 +35,11 @@ class HybridClusterProducer : public edm::EDProducer
       std::string superclusterCollection_;
       std::string hitproducer_;
       std::string hitcollection_;
-      std::string clustershapecollection_;
-      std::string clusterShapeAssociation_; //association map
 
       HybridClusterAlgo::DebugLevel debugL;
 
       HybridClusterAlgo * hybrid_p; // clustering algorithm
       PositionCalc posCalculator_; // position calculation algorithm
-      ClusterShapeAlgo shapeAlgo_; // cluster shape algorithm
 
       bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0));}
 };

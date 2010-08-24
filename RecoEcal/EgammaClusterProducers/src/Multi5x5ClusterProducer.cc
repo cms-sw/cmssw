@@ -17,7 +17,6 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "DataFormats/CaloRecHit/interface/CaloID.h"
 
 // Geometry
@@ -30,9 +29,6 @@
 
 // EgammaCoreTools
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-#include "RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h"
-#include "DataFormats/EgammaReco/interface/ClusterShape.h"
-#include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
 
 // Class header file
 #include "RecoEcal/EgammaClusterProducers/interface/Multi5x5ClusterProducer.h"
@@ -77,23 +73,10 @@ Multi5x5ClusterProducer::Multi5x5ClusterProducer(const edm::ParameterSet& ps)
   providedParameters.insert(std::make_pair("W0",ps.getParameter<double>("posCalc_w0")));
   providedParameters.insert(std::make_pair("X0",ps.getParameter<double>("posCalc_x0")));
   posCalculator_ = PositionCalc(providedParameters);
-  shapeAlgo_ = ClusterShapeAlgo(providedParameters);
-
-  clustershapecollectionEB_ = ps.getParameter<std::string>("clustershapecollectionEB");
-  clustershapecollectionEE_ = ps.getParameter<std::string>("clustershapecollectionEE");
-
-  //AssociationMap
-  barrelClusterShapeAssociation_ = ps.getParameter<std::string>("barrelShapeAssociation");
-  endcapClusterShapeAssociation_ = ps.getParameter<std::string>("endcapShapeAssociation");
 
   // Produces a collection of barrel and a collection of endcap clusters
-
-  produces< reco::ClusterShapeCollection>(clustershapecollectionEE_);
   produces< reco::BasicClusterCollection >(endcapClusterCollection_);
-  produces< reco::ClusterShapeCollection>(clustershapecollectionEB_);
   produces< reco::BasicClusterCollection >(barrelClusterCollection_);
-  produces< reco::BasicClusterShapeAssociationCollection >(barrelClusterShapeAssociation_);
-  produces< reco::BasicClusterShapeAssociationCollection >(endcapClusterShapeAssociation_);
 
   island_p = new Multi5x5ClusterAlgo(barrelSeedThreshold, endcapSeedThreshold,  v_chstatus, posCalculator_,verbosity);
 
@@ -111,10 +94,10 @@ void Multi5x5ClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es
 {
 
   if (doEndcap_) {
-    clusterizeECALPart(evt, es, endcapHitProducer_, endcapHitCollection_, endcapClusterCollection_, endcapClusterShapeAssociation_, reco::CaloID::DET_ECAL_ENDCAP); 
+    clusterizeECALPart(evt, es, endcapHitProducer_, endcapHitCollection_, endcapClusterCollection_, reco::CaloID::DET_ECAL_ENDCAP); 
   }
   if (doBarrel_) {
-    clusterizeECALPart(evt, es, barrelHitProducer_, barrelHitCollection_, barrelClusterCollection_, barrelClusterShapeAssociation_, reco::CaloID::DET_ECAL_BARREL);
+    clusterizeECALPart(evt, es, barrelHitProducer_, barrelHitCollection_, barrelClusterCollection_, reco::CaloID::DET_ECAL_BARREL);
   }
 
   nEvt_++;
@@ -148,7 +131,6 @@ void Multi5x5ClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Eve
                                                const std::string& hitProducer,
                                                const std::string& hitCollection,
                                                const std::string& clusterCollection,
-					       const std::string& clusterShapeAssociation,
                                                const reco::CaloID::Detectors detector)
 {
   // get the hit collection from the event:
@@ -161,7 +143,6 @@ void Multi5x5ClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Eve
   const CaloSubdetectorGeometry *geometry_p;
   CaloSubdetectorTopology *topology_p;
 
-  std::string clustershapetag;
   if (detector == reco::CaloID::DET_ECAL_BARREL) 
     {
       geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
@@ -180,22 +161,6 @@ void Multi5x5ClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Eve
   reco::BasicClusterCollection clusters;
   clusters = island_p->makeClusters(hitCollection_p, geometry_p, topology_p, geometryES_p, detector);
 
-  //Create associated ClusterShape objects.
-  std::vector <reco::ClusterShape> ClusVec;
-  for (int erg=0;erg<int(clusters.size());++erg){
-    reco::ClusterShape TestShape = shapeAlgo_.Calculate(clusters[erg],hitCollection_p,geometry_p,topology_p);
-    ClusVec.push_back(TestShape);
-  }
-
-  //Put clustershapes in event, but retain a Handle on them.
-  std::auto_ptr< reco::ClusterShapeCollection> clustersshapes_p(new reco::ClusterShapeCollection);
-  clustersshapes_p->assign(ClusVec.begin(), ClusVec.end());
-  edm::OrphanHandle<reco::ClusterShapeCollection> clusHandle; 
-  if (detector == reco::CaloID::DET_ECAL_ENDCAP) 
-    clusHandle= evt.put(clustersshapes_p, clustershapecollectionEB_);
-  else
-    clusHandle= evt.put(clustersshapes_p, clustershapecollectionEE_);
-
   // create an auto_ptr to a BasicClusterCollection, copy the barrel clusters into it and put in the Event:
   std::auto_ptr< reco::BasicClusterCollection > clusters_p(new reco::BasicClusterCollection);
   clusters_p->assign(clusters.begin(), clusters.end());
@@ -204,14 +169,6 @@ void Multi5x5ClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Eve
     bccHandle = evt.put(clusters_p, barrelClusterCollection_);
   else
     bccHandle = evt.put(clusters_p, endcapClusterCollection_);
-
-
-  // BasicClusterShapeAssociationMap
-  std::auto_ptr<reco::BasicClusterShapeAssociationCollection> shapeAssocs_p(new reco::BasicClusterShapeAssociationCollection);
-  for (unsigned int i = 0; i < clusHandle->size(); i++){
-    shapeAssocs_p->insert(edm::Ref<reco::BasicClusterCollection>(bccHandle,i),edm::Ref<reco::ClusterShapeCollection>(clusHandle,i));
-  }  
-  evt.put(shapeAssocs_p,clusterShapeAssociation);
 
   delete topology_p;
 }
