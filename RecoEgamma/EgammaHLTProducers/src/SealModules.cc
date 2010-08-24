@@ -4,6 +4,7 @@
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTElectronTrackIsolationProducers.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTCombinedIsolationProducer.h"
+#include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTElectronCombinedIsolationProducer.h"
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTElectronDetaDphiProducer.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTRecoEcalCandidateProducers.h"
@@ -54,3 +55,4 @@ DEFINE_FWK_MODULE(ESListOfFEDSProducer);
 DEFINE_FWK_MODULE(ESRecHitsMerger);
 DEFINE_FWK_MODULE(EgammaHLTNxNClusterProducer);
 DEFINE_FWK_MODULE(EgammaHLTCombinedIsolationProducer);
+DEFINE_FWK_MODULE(EgammaHLTElectronCombinedIsolationProducer);
