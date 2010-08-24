@@ -56,7 +56,7 @@ FWPathsPopup::setup(const edm::ScheduleInfo *info)
    m_info->availableModuleLabels(m_availableModuleLabels);
    m_info->availablePaths(m_availablePaths);
 
-   makePathsTextView();
+   //makePathsTextView();
    //makePathsHtmlView();
 }
 
@@ -102,6 +102,8 @@ FWPathsPopup::makePathsHtmlView()
 void 
 FWPathsPopup::makePathsTextView()
 {
+  m_modulePathsText->Clear();
+
   for ( std::vector<std::string>::iterator pi = m_availablePaths.begin(),
                                         piEnd = m_availablePaths.end();
         pi != piEnd; ++pi )
@@ -144,7 +146,8 @@ FWPathsPopup::makePathsTextView()
       {
         std::string vpstr = "   " + vpi->first + vpi->second.toString();
         m_modulePathsText->AddLine(vpstr.c_str());
-      }  
+      }
+     
     }
   } 
 }
@@ -157,6 +160,15 @@ FWPathsPopup::postModule(edm::ModuleDescription const& description)
   //m_moduleLabel->SetText(description.moduleLabel().c_str());
    gSystem->ProcessEvents();
 }
+
+void
+FWPathsPopup::postProcessEvent(edm::Event const& event, edm::EventSetup const& eventSetup)
+{
+  gSystem->ProcessEvents();
+  makePathsTextView();
+}
+
+
 
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
 #include "FWCore/Utilities/interface/Exception.h"

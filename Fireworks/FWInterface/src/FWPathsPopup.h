@@ -9,6 +9,8 @@ namespace edm
 {
    class ScheduleInfo;
    class ModuleDescription;
+   class Event;
+   class EventSetup;
 }
 
 class FWFFLooper;
@@ -24,6 +26,7 @@ class FWPathsPopup : public TGMainFrame
 public:
    FWPathsPopup(FWFFLooper *);
 
+   void postProcessEvent(edm::Event const&, edm::EventSetup const&);
    void postModule(edm::ModuleDescription const&);
    void scheduleReloadEvent();
    bool &hasChanges() { return m_hasChanges; };

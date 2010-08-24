@@ -183,6 +183,7 @@ FWFFLooper::attachTo(edm::ActivityRegistry &ar)
 {
    m_pathsGUI = new FWPathsPopup(this);
 
+   ar.watchPostProcessEvent(m_pathsGUI, &FWPathsPopup::postProcessEvent);
    ar.watchPostModule(m_pathsGUI, &FWPathsPopup::postModule);
    ar.watchPostEndJob(this, &FWFFLooper::postEndJob);
 }
