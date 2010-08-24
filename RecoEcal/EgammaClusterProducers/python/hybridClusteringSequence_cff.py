@@ -13,5 +13,11 @@ uncleanedHybridSuperClusters = hybridSuperClusters.clone()
 uncleanedHybridSuperClusters.RecHitSeverityToBeExcluded = cms.vint32(999)
 uncleanedHybridSuperClusters.excludeFlagged = False
 
-hybridClusteringSequence = cms.Sequence(hybridSuperClusters*correctedHybridSuperClusters * uncleanedHybridSuperClusters )
+from RecoEcal.EgammaClusterProducers.unifiedSCCollection_cfi import *
+from RecoEcal.EgammaClusterProducers.uncleanSCRecovery_cfi import *
 
+hybridClusteringSequence = cms.Sequence(
+                hybridSuperClusters * correctedHybridSuperClusters
+                * uncleanedHybridSuperClusters
+                * nonDuplicatedHybridSuperClusters
+                * uncleanSCRecovered)
