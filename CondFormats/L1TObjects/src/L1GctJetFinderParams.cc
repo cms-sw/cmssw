@@ -287,7 +287,7 @@ double L1GctJetFinderParams::simpleCorrect(const double Et, const std::vector<do
   // fitcor_as_str = "[0]+[1]/(pow(log10(x),[2])+[3])"
   // 
 
-  return coeffs.at(0) + coeffs.at(1)/(pow(log10(Et),coeffs.at(2))+coeffs.at(3));
+  return coeffs.at(0) + coeffs.at(1)/(pow(log10(Et),coeffs.at(2))+coeffs.at(3)) + (coeffs.at(4)/Et);
 
 }
 
