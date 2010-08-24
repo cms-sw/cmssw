@@ -16,4 +16,4 @@ from RecoLocalCalo.EcalRecProducers.ecalPreshowerRecHit_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi import *
 ecalLocalRecoSequence = cms.Sequence(ecalGlobalUncalibRecHit*ecalDetIdToBeRecovered*ecalRecHit+ecalPreshowerRecHit)
 ecalLocalRecoSequence_nopreshower = cms.Sequence(ecalGlobalUncalibRecHit*ecalRecHit)
-ecalRecHit.ChannelStatusToBeExcluded = [ 10, 11, 12, 13, 14, 78, 142 ]
+ecalRecHit.ChannelStatusToBeExcluded = [ 3, 4, 8, 9, 10, 11, 12, 13, 14 ]
