@@ -87,7 +87,12 @@ def customiseCosmicMC(process):
     
     return process
         
-
+##############################################################################
+def customiseVALSKIM(process):
+    process= customisePPData(process)
+    process.reconstruction.remove(process.lumiProducer)
+    return process
+                
 ##############################################################################
 def customiseExpress(process):
     process= customisePPData(process)
