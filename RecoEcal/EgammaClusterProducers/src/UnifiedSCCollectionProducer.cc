@@ -16,19 +16,13 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 
 // Class header file
 #include "RecoEcal/EgammaClusterProducers/interface/UnifiedSCCollectionProducer.h"
-#include "RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h"
-#include "DataFormats/EgammaReco/interface/ClusterShape.h"
-#include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-
-
 
 
 /*
@@ -66,15 +60,11 @@ UnifiedSCCollectionProducer::UnifiedSCCollectionProducer(const edm::ParameterSet
 
   // get the parameters
   // the cleaned collection:
-  cleanBcCollection_ = ps.getParameter<std::string>("cleanBcCollection");
-  cleanBcProducer_ = ps.getParameter<std::string>("cleanBcProducer");
-  cleanScCollection_ = ps.getParameter<std::string>("cleanScCollection");
-  cleanScProducer_ = ps.getParameter<std::string>("cleanScProducer");
+  cleanBcCollection_ = ps.getParameter<edm::InputTag>("cleanBcCollection");
+  cleanScCollection_ = ps.getParameter<edm::InputTag>("cleanScCollection");
   // the uncleaned collection
-  uncleanBcCollection_ = ps.getParameter<std::string>("uncleanBcCollection");
-  uncleanBcProducer_   = ps.getParameter<std::string>("uncleanBcProducer");
-  uncleanScCollection_ = ps.getParameter<std::string>("uncleanScCollection");
-  uncleanScProducer_   = ps.getParameter<std::string>("uncleanScProducer");
+  uncleanBcCollection_ = ps.getParameter<edm::InputTag>("uncleanBcCollection");
+  uncleanScCollection_ = ps.getParameter<edm::InputTag>("uncleanScCollection");
   // the names of the products to be produced:
   //
   // the clean collection: this is as it was before, but labeled
@@ -110,7 +100,7 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
   edm::Handle<reco::BasicClusterCollection> pUncleanBC;
   edm::Handle<reco::SuperClusterCollection> pUncleanSC;
   // clean collections ________________________________________________________
-  evt.getByLabel(cleanBcProducer_, cleanBcCollection_, pCleanBC);
+  evt.getByLabel(cleanBcCollection_, pCleanBC);
   if (!(pCleanBC.isValid())) 
     {
       if (debugL <= HybridClusterAlgo::pINFO)
@@ -119,7 +109,7 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
     }
   const  reco::BasicClusterCollection cleanBS = *(pCleanBC.product());
   //
-  evt.getByLabel(cleanScProducer_, cleanScCollection_, pCleanSC);
+  evt.getByLabel(cleanScCollection_, pCleanSC);
   if (!(pCleanSC.isValid())) 
     {
       if (debugL <= HybridClusterAlgo::pINFO)
@@ -129,7 +119,7 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
   const  reco::SuperClusterCollection cleanSC = *(pCleanSC.product());
 
   // unclean collections ______________________________________________________
-  evt.getByLabel(uncleanBcProducer_, uncleanBcCollection_, pUncleanBC);
+  evt.getByLabel(uncleanBcCollection_, pUncleanBC);
   if (!(pUncleanBC.isValid())) 
     {
       if (debugL <= HybridClusterAlgo::pINFO)
@@ -138,7 +128,7 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
     }
   const  reco::BasicClusterCollection uncleanBC = *(pUncleanBC.product());
   //
-  evt.getByLabel(uncleanScProducer_, uncleanScCollection_, pUncleanSC);
+  evt.getByLabel(uncleanScCollection_, pUncleanSC);
   if (!(pUncleanSC.isValid())) 
     {
       if (debugL <= HybridClusterAlgo::pINFO)

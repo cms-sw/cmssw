@@ -15,8 +15,6 @@ uncleanedNonDuplicatedHybridSuperClusters = cms.EDProducer("CleanAndMergeProduce
             # names of collections to be produced:
             bcCollection = cms.string('hybridBarrelBasicClusters'),
             scCollection = cms.string('hybridBarrelSuperClusters'),
-            cShapeCollection = cms.string(''),
-            clShapeAssoc = cms.string('hybridShapeAssoc'),
             refScCollection = cms.string('hybridCleanedCollectionRef'),
             # some extras (taken from hybridSuperClusters_cfi.py )
             ecalhitproducer = cms.string('ecalRecHit'),
