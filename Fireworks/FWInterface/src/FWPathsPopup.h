@@ -28,23 +28,25 @@ public:
    bool &hasChanges() { return m_hasChanges; };
    void setup(const edm::ScheduleInfo *info);
 private:
-   const edm::ScheduleInfo  *m_info;
-   TGLabel                  *m_moduleName;
-   TGLabel                  *m_moduleLabel;
-   TGTextEdit               *m_textEdit;
-   TGTextButton             *m_apply;
-   TGTextView               *m_modulePaths;
-
-   // Filled from ScheduleInfo
-   std::vector<std::string> m_availableModuleLabels;
-   std::vector<std::string> m_availablePaths;
-  
    void makeTextView();
+
+   const edm::ScheduleInfo  *m_info;
 
 #ifndef __CINT__
    FWFFLooper               *m_looper;
 #endif
    bool                     m_hasChanges;
+
+
+   TGLabel                  *m_moduleLabel;   
+   TGLabel                  *m_moduleName;
+   TGTextView               *m_modulePaths;
+   TGTextEdit               *m_textEdit;
+   TGTextButton             *m_apply;
+
+   // Filled from ScheduleInfo
+   std::vector<std::string> m_availableModuleLabels;
+   std::vector<std::string> m_availablePaths;
    ClassDef(FWPathsPopup, 0);
 };
 

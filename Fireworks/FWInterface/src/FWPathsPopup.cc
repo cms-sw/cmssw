@@ -17,20 +17,20 @@
 FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
    : TGMainFrame(gClient->GetRoot(), 200, 200),
      m_info(0),
-     m_moduleName(0),
+     m_looper(looper),
+     m_hasChanges(false),
      m_moduleLabel(0),
+     m_moduleName(0),
      m_modulePaths(0),
      m_textEdit(0),
-     m_apply(0),
-     m_looper(looper),
-     m_hasChanges(false)
+     m_apply(0)
 {
    FWDialogBuilder builder(this);
    builder.indent(4)
           .addLabel("Modules in paths", 8)
-          //.addTextView(" ", &m_modulePaths)
-          //.addLabel(" ", 15, 1, &m_moduleName)
-          //.addLabel(" ", 15, 1 ,&m_moduleLabel)
+          .addLabel(" ", 15, 1, &m_moduleName)
+          .addLabel(" ", 15, 1 ,&m_moduleLabel)
+          .addTextView("", &m_modulePaths)
           .addTextEdit("", &m_textEdit)
           .addTextButton("Apply changes and reload", &m_apply);
 
