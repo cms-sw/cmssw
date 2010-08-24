@@ -122,7 +122,7 @@ void OHltRatePrinter::printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu) {
   float physCutThruErr = 0.; 
   float cuPhysRate = 0.; 
   float cuPhysRateErr = 0.; 
-  float hltPrescaleCorrection = 1.;
+  float hltPrescaleCorrection = 1;
   float l1PrescaleCorrection = 1.;
 
   for (unsigned int i=0;i<menu->GetTriggerSize();i++) { 
@@ -166,8 +166,14 @@ void OHltRatePrinter::printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu) {
 	    {
 	      if((menu->GetL1TriggerName(k)) == (vtmp[j]))
 		{
-		  l1PrescaleCorrection = averageRefPrescaleL1[k];
-		  tempTrigSeedPrescales += (itmp[j]*l1PrescaleCorrection);
+		  if((menu->GetL1TriggerName(k)).Contains("OpenL1_")) {
+		    l1PrescaleCorrection = 1.0;
+		    tempTrigSeedPrescales += (itmp[j]*l1PrescaleCorrection);
+		  }
+		  else {
+                    l1PrescaleCorrection = averageRefPrescaleL1[k];
+                    tempTrigSeedPrescales += (itmp[j]*l1PrescaleCorrection);
+		  }
 		}
 	    }
 	}
@@ -182,7 +188,13 @@ void OHltRatePrinter::printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu) {
     tempTrigSeeds = menu->GetSeedCondition(menu->GetTriggerName(i));
 
     if(cfg->readRefPrescalesFromNtuple)   
-      hltPrescaleCorrection = averageRefPrescaleHLT[i];   
+      {
+	if ((menu->GetTriggerName(i).Contains("OpenHLT_"))) {
+	  hltPrescaleCorrection = 1.0;
+	}
+	else
+	  hltPrescaleCorrection = averageRefPrescaleHLT[i];   
+      }
     else   
       hltPrescaleCorrection = menu->GetReferenceRunPrescale(i);   
 
@@ -623,7 +635,7 @@ void OHltRatePrinter::printHltRatesTex(OHltConfig *cfg, OHltMenu *menu) {
   float physCutThruErr = 0.;
   float cuPhysRate = 0.;
   float cuPhysRateErr = 0.;
-  float hltPrescaleCorrection = 0.;
+  float hltPrescaleCorrection = 1.;
   vector<TString> footTrigSeedPrescales;
   vector<TString> footTrigSeeds;
   vector<TString> footTrigNames;
