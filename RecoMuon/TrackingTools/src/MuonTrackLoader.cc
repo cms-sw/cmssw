@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2010/05/10 00:29:25 $
- *  $Revision: 1.82 $
+ *  $Date: 2010/08/19 18:27:08 $
+ *  $Revision: 1.83 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -357,19 +357,21 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
   }
 
   //missing hits quality check  
-  for (  links = trackLinksCollection->begin();  links != trackLinksCollection->end(); ++links ) {
-    int hitTk = ( links->trackerTrack().isNonnull()) ? links->trackerTrack().get()->hitPattern().numberOfValidTrackerHits() : 0;
-    int hitGlbTk = ( links->globalTrack().isNonnull()) ?  links->globalTrack().get()->hitPattern().numberOfValidTrackerHits() : 0;
-    int hitSta =  ( links->standAloneTrack().isNonnull()) ? links->standAloneTrack().get()->recHitsSize() : 0;
-    int hitGlbSta = ( links->globalTrack().isNonnull()) ? links->globalTrack().get()->hitPattern().numberOfValidMuonHits() : 0;
-    int hitGlb =  ( links->globalTrack().isNonnull()) ? links->globalTrack().get()->hitPattern().numberOfValidHits() : 0;
-        
-    int missingSta = hitSta-hitGlbSta;
-    int missingTk = hitTk-hitGlbTk;
-    
-    if (fabs(missingSta + missingTk) > 3){
-      LogTrace(metname)<<"Global Muon Missing Hits!";
-      LogTrace(metname)<<" nGlb: " << hitGlb << " nSta: " << hitSta << " nTk:" << hitTk << " nStaMissing: " <<  missingSta << " nTkMissing: " << missingTk;
+  if( combinedTracks->size() > 0 && trackerTracks->size() > 0 ) {
+    for (  links = trackLinksCollection->begin();  links != trackLinksCollection->end(); ++links ) {
+      int hitTk = ( links->trackerTrack().isNonnull()) ? links->trackerTrack().get()->hitPattern().numberOfValidTrackerHits() : 0;
+      int hitGlbTk = ( links->globalTrack().isNonnull()) ?  links->globalTrack().get()->hitPattern().numberOfValidTrackerHits() : 0;
+      int hitSta =  ( links->standAloneTrack().isNonnull()) ? links->standAloneTrack().get()->recHitsSize() : 0;
+      int hitGlbSta = ( links->globalTrack().isNonnull()) ? links->globalTrack().get()->hitPattern().numberOfValidMuonHits() : 0;
+      int hitGlb =  ( links->globalTrack().isNonnull()) ? links->globalTrack().get()->hitPattern().numberOfValidHits() : 0;
+      
+      int missingSta = hitSta-hitGlbSta;
+      int missingTk = hitTk-hitGlbTk;
+      
+      if (fabs(missingSta + missingTk) > 3){
+	LogTrace(metname)<<"Global Muon Missing Hits!";
+	LogTrace(metname)<<" nGlb: " << hitGlb << " nSta: " << hitSta << " nTk:" << hitTk << " nStaMissing: " <<  missingSta << " nTkMissing: " << missingTk;
+      }
     }
   }
   
