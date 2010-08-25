@@ -145,8 +145,8 @@ namespace cond {
     
   const BlobStreamingService::uuid BlobStreamingService::variantIds[nVariants] = {
     BlobStreamingService::uuid(0,0)
-    ,BlobStreamingService::uuid(0xf4e92f169c974e8e, 0x97851f372586010d)
-    ,BlobStreamingService::uuid(0xc9a95a45e60243cf, 0x8dc549534f9a9274)
+    ,BlobStreamingService::uuid(0xf4e92f169c974e8eLL, 0x97851f372586010dLL)
+    ,BlobStreamingService::uuid(0xc9a95a45e60243cfLL, 0x8dc549534f9a9274LL)
   };
   
   
