@@ -23,7 +23,7 @@ dqmStoreStats.runOnEndJob = cms.untracked.bool(True)
 
 
 process.maxEvents = cms.untracked.PSet(
-#input = cms.untracked.int32(10)
+input = cms.untracked.int32(10)
 )
 
 
@@ -31,6 +31,7 @@ process.maxEvents = cms.untracked.PSet(
 from Validation.RecoEgamma.photonValidationSequence_cff import *
 from Validation.RecoEgamma.photonPostprocessing_cfi import *
 
+photonValidation.OutputMEsInRootFile = True
 photonValidation.OutputFileName = 'PhotonValidationRelVal390pre2_H130GGgluonfusion.root'
 
 photonPostprocessing.batch = cms.bool(True)
@@ -84,5 +85,6 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('pippo.root')
 )
 
-process.p1 = cms.Path(process.tpSelection*process.photonValidationSequence*process.photonPostprocessing*process.dqmStoreStats)
+#process.p1 = cms.Path(process.tpSelection*process.photonValidationSequence*process.photonPostprocessing*process.dqmStoreStats)
+process.p1 = cms.Path(process.tpSelection*process.photonValidationSequence*process.dqmStoreStats)
 process.schedule = cms.Schedule(process.p1)
