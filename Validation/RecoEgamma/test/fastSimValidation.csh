@@ -18,7 +18,7 @@
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
 setenv CMSSWver1 3_9_0
-setenv RELEASE 390TEST_2
+setenv RELEASE 390
 setenv PRERELEASE pre2 
 
 
@@ -60,8 +60,8 @@ setenv FASTSIM ${WorkDir1}/PhotonValidationRelVal${RELEASE}_SingleGammaPt10.root
 
 else if ($SAMPLE == SingleGammaPt35IDEAL) then 
 
-setenv FULLSIM ${WorkDir1}/PhotonValidationRelVal390pre2_SingleGammaPt35.root
-setenv FASTSIM ${WorkDir1}/PhotonValidationRelVal390pre2_SingleGammaPt35_FastSim.root
+setenv FULLSIM ${WorkDir1}/PhotonValidationRelVal${RELEASE}_SingleGammaPt35.root
+setenv FASTSIM ${WorkDir1}/PhotonValidationRelVal${RELEASE}_SingleGammaPt35_FastSim.root
 
 
 else if ($SAMPLE == SingleGammaFlatPt10_100IDEAL) then 
