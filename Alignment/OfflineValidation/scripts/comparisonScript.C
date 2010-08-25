@@ -43,7 +43,7 @@ void comparisonScript(string inFile="../test/testComparison.root",string outDir=
 	// plots the normal 3x3 plus dx/dy vs. r/z/phi
 	// stores each histogram to output file (including dr/dz/r*dphi 1D plots)
 	//syntax (TCut Cut, dirrectory name, bool savePlot, std::string plotName, bool autolimits, int ColorCode (0=z/-z separation| 1= subdetector seperation ))
-	c1.plot3x5( levelCut, "Tracker",true,"Tracker.eps", true,0 );
+	c1.plot3x5( levelCut, "Tracker",true,"Tracker.eps", true,1 );
 	c1.plot3x5( levelCut+PXBCut, "PXB", true,  "PXB.eps", true ,0);
 	c1.plot3x5( levelCut+PXFCut, "PXF", true,  "PXF.eps", true ,0);
 	c1.plot3x5( levelCut+TIBCut, "TIB", true,  "TIB.eps", true ,0);
@@ -53,7 +53,7 @@ void comparisonScript(string inFile="../test/testComparison.root",string outDir=
 
 	//again this time only for 2D modules
 
-	c1.plot3x5( levelCut+Det2dCut, "Tracker2D",true,"Tracker2D.eps", true ,0);
+	c1.plot3x5( levelCut+Det2dCut, "Tracker2D",true,"Tracker2D.eps", true ,1);
 	//c1.plot3x5( levelCut+PXBCut+Det2dCut, "PXB2D", true,  "PXB2D.eps", true );
 	//c1.plot3x5( levelCut+PXFCut+Det2dCut, "PXF2D", true,  "PXF2D.eps", true );
 	c1.plot3x5( levelCut+TIBCut+Det2dCut, "TIB2D", true,  "TIB2D.eps", true ,0);
@@ -67,12 +67,12 @@ void comparisonScript(string inFile="../test/testComparison.root",string outDir=
 	// all arguments are stored to output file
 	//syntax (TCut Cut, dirrectory name, bool savePlot, std::string plotName, bool autolimits, int ColorCode (0=z/-z separation| 1= subdetector seperation ))
 	c1.plot3x5Profile( levelCut, "Tracker", 50,true,"Tracker.eps", false ,1);
-	c1.plot3x5Profile( levelCut+PXBCut,"PXB", 50, true,  "PXB.eps", false ,1);
-	c1.plot3x5Profile( levelCut+PXFCut,"PXF", 50, true,  "PXF.eps", false,1 );
-	c1.plot3x5Profile( levelCut+TIBCut,"TIB", 50 , true,  "TIB.eps", false,1 );
-	c1.plot3x5Profile( levelCut+TIDCut,"TID", 50, true,  "TID.eps", false,1) ;
-	c1.plot3x5Profile( levelCut+TOBCut,"TOB", 50, true,  "TOB.eps", false ,1);
-	c1.plot3x5Profile( levelCut+TECCut,"TEC", 50, true,  "TEC.eps", false,1 );
+	c1.plot3x5Profile( levelCut+PXBCut,"PXB", 50, true,  "PXB.eps", false ,0);
+	c1.plot3x5Profile( levelCut+PXFCut,"PXF", 50, true,  "PXF.eps", false,0 );
+	c1.plot3x5Profile( levelCut+TIBCut,"TIB", 50 , true,  "TIB.eps", false,0 );
+	c1.plot3x5Profile( levelCut+TIDCut,"TID", 50, true,  "TID.eps", false,0) ;
+	c1.plot3x5Profile( levelCut+TOBCut,"TOB", 50, true,  "TOB.eps", false ,0);
+	c1.plot3x5Profile( levelCut+TECCut,"TEC", 50, true,  "TEC.eps", false,0 );
 	
 	
 }

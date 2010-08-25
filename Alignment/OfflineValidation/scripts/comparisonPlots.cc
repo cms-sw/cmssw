@@ -61,7 +61,12 @@ void comparisonPlots::plot3x5(TCut Cut, char* dirName, bool savePlot, std::strin
 	
   //int ColorCodeHalfBarrels = 1; //color seperation of moodules corresponding to the different subdets
   //if you want to seperate corresponding to the halfbarrels (+z or -z) set colorcode !=1
-  
+   gStyle->SetTitleAlign(22);
+  gStyle->SetTitleX(0.5);
+  gStyle->SetTitleY(0.97);
+  //gStyle->SetShadowColor(0);
+   //gStyle->SetTitleSize(.5);
+  gStyle->SetTitleFont(62);
   
   // ---------  create directory for histograms ---------
   //const char* dirName = Cut;
@@ -354,7 +359,8 @@ void comparisonPlots::plot3x5(TCut Cut, char* dirName, bool savePlot, std::strin
 	h_rdphi->Draw();
 	if (savePlot) c0->Print((_outputDir+"plot3x1_"+plotName).c_str());
 	
-	mgr_drVr->SetTitle("#Delta r vs. r");           
+	mgr_drVr->SetTitle("#Delta r vs. r");
+	//TStyle::SetTitleAlign(23)
 	mgr_dzVr->SetTitle("#Delta z vs. r");           
 	mgr_rdphiVr->SetTitle("r#Delta #phi vs. r");    
 	mgr_dxVr->SetTitle("#Delta x vs. r");           
@@ -438,7 +444,14 @@ void comparisonPlots::plot3x5(TCut Cut, char* dirName, bool savePlot, std::strin
 }
 
 void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool savePlot, std::string plotName, bool autolimits,int ColorCode ){
-  
+
+  //for all histograms set the title centered
+  gStyle->SetTitleAlign(22);
+  gStyle->SetTitleX(0.5);
+  gStyle->SetTitleY(0.97);
+  //gStyle->SetShadowColor(0);
+   //gStyle->SetTitleSize(.5);
+  gStyle->SetTitleFont(62);
   //int ColorCodeHalfBarrels = 1; //color seperation of moodules corresponding to the different subdets
   //if you want to seperate corresponding to the halfbarrels (+z or -z) set colorcode !=1
 	// ---------  create directory for histograms ---------
@@ -542,9 +555,16 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 	  mgr_drVr->Add(gr_drVr_Array[i]);
 	  }
 	}
+	//y-axis scaled 2 times the max value for values >5 micron
+	//for max values<5 micron set fixed range to 10 micron
+	if ( (mgr_drVr->GetMaximum("nostack")>0.00005)||(mgr_drVr->GetMinimum("nostack")<-0.00005) ){
 	mgr_drVr->SetMaximum( 2.*mgr_drVr->GetMaximum("nostack") );
 	mgr_drVr->SetMinimum( 2.*mgr_drVr->GetMinimum("nostack") );
-	
+	}
+	else{
+	  mgr_drVr->SetMaximum(100*mgr_drVr->GetMaximum("nostack"));
+	  mgr_drVr->SetMinimum( 100.*mgr_drVr->GetMinimum("nostack"));
+	}
 	
 	//data->Project("hprof_dzVr", "dz:r",Cut,"prof");
 	TProfile* gr_dzVr_Array[j];
@@ -558,10 +578,14 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 	  mgr_dzVr->Add(gr_dzVr_Array[i]);
 	  }
 	}
-	mgr_dzVr->SetMaximum( 2.*mgr_dzVr->GetMaximum("nostack") );
-	mgr_dzVr->SetMinimum( 2.*mgr_dzVr->GetMinimum("nostack") );
-	
-
+	if ( (mgr_dzVr->GetMaximum("nostack")>0.00005)||(mgr_dzVr->GetMinimum("nostack")<-0.00005) ){
+	  mgr_dzVr->SetMaximum( 2.*mgr_dzVr->GetMaximum("nostack") );
+	  mgr_dzVr->SetMinimum( 2.*mgr_dzVr->GetMinimum("nostack") );
+	}	
+	else{
+	  mgr_dzVr->SetMaximum( 100.*mgr_dzVr->GetMaximum("nostack") );
+	  mgr_dzVr->SetMinimum( 100.*mgr_dzVr->GetMinimum("nostack") );
+	}
 
 	//data->Project("hprof_rdphiVr", "r*dphi:r",Cut,"prof");
 	TProfile* gr_rdphiVr_Array[j];
@@ -575,9 +599,14 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 	  mgr_rdphiVr->Add(gr_rdphiVr_Array[i]);
 	  }
 	}
+	if ( (mgr_rdphiVr->GetMaximum("nostack")>0.00005)||(mgr_rdphiVr->GetMinimum("nostack")<-0.00005) ){
 	mgr_rdphiVr->SetMaximum( 2.*mgr_rdphiVr->GetMaximum("nostack") );
 	mgr_rdphiVr->SetMinimum( 2.*mgr_rdphiVr->GetMinimum("nostack") );
-	
+	}
+	else{
+	mgr_rdphiVr->SetMaximum( 100.*mgr_rdphiVr->GetMaximum("nostack") );
+	mgr_rdphiVr->SetMinimum( 100.*mgr_rdphiVr->GetMinimum("nostack") );
+	}
 	  
 	//data->Project("hprof_dxVr", "dx:r",Cut,"prof");
 	TProfile* gr_dxVr_Array[j];
@@ -591,43 +620,55 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 	  mgr_dxVr->Add(gr_dxVr_Array[i]);
 	  }
 	}
-	
+	if ( (mgr_dxVr->GetMaximum("nostack")>0.00005)||(mgr_dxVr->GetMinimum("nostack")<-0.00005) ){
 	mgr_dxVr->SetMaximum( 2.*mgr_dxVr->GetMaximum("nostack") );
 	mgr_dxVr->SetMinimum( 2.*mgr_dxVr->GetMinimum("nostack") );
-	
+	}
+	else{
+	  mgr_dxVr->SetMaximum( 100.*mgr_dxVr->GetMaximum("nostack") );
+	  mgr_dxVr->SetMinimum( 100.*mgr_dxVr->GetMinimum("nostack") );
+}
 	
 	//data->Project("hprof_dyVr", "dy:r",Cut,"prof");
 	TProfile* gr_dyVr_Array[j];
 	THStack* mgr_dyVr=new THStack();
 	for ( int i = 0; i < j; i++) {
-		data->Draw("dy:r>>hprof_dyVr",Cut+zCut[i],"prof");	  
-		if (hprof_dyVr->GetEntries()>0){
-		gr_dyVr_Array[i] = (TProfile*)hprof_dyVr->Clone() ;
-		gr_dyVr_Array[i]->SetMarkerColor(int(i/4)+i+1);	  
-		gr_dyVr_Array[i]->SetLineColor(int(i/4)+i+1);	  
-		mgr_dyVr->Add(gr_dyVr_Array[i]);
-		}
+	  data->Draw("dy:r>>hprof_dyVr",Cut+zCut[i],"prof");	  
+	  if (hprof_dyVr->GetEntries()>0){
+	    gr_dyVr_Array[i] = (TProfile*)hprof_dyVr->Clone() ;
+	    gr_dyVr_Array[i]->SetMarkerColor(int(i/4)+i+1);	  
+	    gr_dyVr_Array[i]->SetLineColor(int(i/4)+i+1);	  
+	    mgr_dyVr->Add(gr_dyVr_Array[i]);
+	  }
 	}
-	
-	mgr_dyVr->SetMaximum( 2.*mgr_dyVr->GetMaximum("nostack") );
-	mgr_dyVr->SetMinimum( 2.*mgr_dyVr->GetMinimum("nostack") );
-	
+	if ( (mgr_dyVr->GetMaximum("nostack")>0.00005)||(mgr_dyVr->GetMinimum("nostack")<-0.00005) ){
+	  mgr_dyVr->SetMaximum( 2.*mgr_dyVr->GetMaximum("nostack") );
+	  mgr_dyVr->SetMinimum( 2.*mgr_dyVr->GetMinimum("nostack") );
+	}
+	else{
+	  mgr_dyVr->SetMaximum( 100.*mgr_dyVr->GetMaximum("nostack") );
+	  mgr_dyVr->SetMinimum( 100.*mgr_dyVr->GetMinimum("nostack") );
+	}
 	//data->Project("hprof_drVz", "dr:z",Cut,"prof");
 	TProfile* gr_drVz_Array[j];
 	THStack* mgr_drVz=new THStack();
 	for ( int i = 0; i < j; i++) {
-		data->Draw("dr:z>>hprof_drVz",Cut+zCut[i],"prof");	  
-		if (hprof_drVz->GetEntries()>0){
-		gr_drVz_Array[i] = (TProfile*)hprof_drVz->Clone() ; 
-		gr_drVz_Array[i]->SetMarkerColor(int(i/4)+i+1);	  
-		gr_drVz_Array[i]->SetLineColor(int(i/4)+i+1);	  
-		mgr_drVz->Add(gr_drVz_Array[i]);
-		}
+	  data->Draw("dr:z>>hprof_drVz",Cut+zCut[i],"prof");	  
+	  if (hprof_drVz->GetEntries()>0){
+	    gr_drVz_Array[i] = (TProfile*)hprof_drVz->Clone() ; 
+	    gr_drVz_Array[i]->SetMarkerColor(int(i/4)+i+1);	  
+	    gr_drVz_Array[i]->SetLineColor(int(i/4)+i+1);	  
+	    mgr_drVz->Add(gr_drVz_Array[i]);
+	  }
 	}
-	
+	if ( (mgr_drVr->GetMaximum("nostack")>0.00005)||(mgr_drVr->GetMinimum("nostack")<-0.00005) ){
 	mgr_drVz->SetMaximum( 2.*mgr_drVz->GetMaximum("nostack") );
 	mgr_drVz->SetMinimum( 2.*mgr_drVz->GetMinimum("nostack") );
-	
+	}
+	else{
+	mgr_drVz->SetMaximum( 100.*mgr_drVz->GetMaximum("nostack") );
+	mgr_drVz->SetMinimum( 100.*mgr_drVz->GetMinimum("nostack") );
+	}
 	//data->Project("hprof_dzVz", "dz:z",Cut,"prof");
 	TProfile* gr_dzVz_Array[j];
 	THStack* mgr_dzVz=new THStack();
@@ -640,9 +681,14 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 		mgr_dzVz->Add(gr_dzVz_Array[i]);
 		}
 	}
+	if ( (mgr_dzVr->GetMaximum("nostack")>0.00005)||(mgr_dzVr->GetMinimum("nostack")<-0.00005) ){
 	mgr_dzVz->SetMaximum( 2.*mgr_dzVz->GetMaximum("nostack") );
 	mgr_dzVz->SetMinimum( 2.*mgr_dzVz->GetMinimum("nostack") );
-
+	}
+	else{
+	mgr_dzVz->SetMaximum( 100.*mgr_dzVz->GetMaximum("nostack") );
+	mgr_dzVz->SetMinimum( 100.*mgr_dzVz->GetMinimum("nostack") );
+	}
 
 	//data->Project("hprof_rdphiVz", "r*dphi:z",Cut,"prof");
 	TProfile* gr_rdphiVz_Array[j];
@@ -656,9 +702,14 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 	    mgr_rdphiVz->Add(gr_rdphiVz_Array[i]);
 	  }
 	}
+	if ( (mgr_rdphiVz->GetMaximum("nostack")>0.00005)||(mgr_rdphiVz->GetMinimum("nostack")<-0.00005) ){
 	mgr_rdphiVz->SetMaximum( 2.*mgr_rdphiVz->GetMaximum("nostack") );
 	mgr_rdphiVz->SetMinimum( 2.*mgr_rdphiVz->GetMinimum("nostack") );
-
+	}
+	else{
+	mgr_rdphiVz->SetMaximum( 100.*mgr_rdphiVz->GetMaximum("nostack") );
+	mgr_rdphiVz->SetMinimum( 100.*mgr_rdphiVz->GetMinimum("nostack") );
+	}
 	//data->Project("hprof_dxVz", "dx:z",Cut,"prof");
 	TProfile* gr_dxVz_Array[j];
 	THStack* mgr_dxVz=new THStack();
@@ -671,9 +722,14 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 		mgr_dxVz->Add(gr_dxVz_Array[i]);
 	  }
 	}
+	if ( (mgr_dxVz->GetMaximum("nostack")>0.00005)||(mgr_dxVz->GetMinimum("nostack")<-0.00005) ){
 	mgr_dxVz->SetMaximum( 2.*mgr_dxVz->GetMaximum("nostack") );
 	mgr_dxVz->SetMinimum( 2.*mgr_dxVz->GetMinimum("nostack") );
-
+	}
+	else{
+	  mgr_dxVz->SetMaximum( 100.*mgr_dxVz->GetMaximum("nostack") );
+	  mgr_dxVz->SetMinimum( 100.*mgr_dxVz->GetMinimum("nostack") );
+	}
 	
 	//data->Project("hprof_dyVz", "dy:z",Cut,"prof");
 	TProfile* gr_dyVz_Array[j];
@@ -687,11 +743,14 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 		mgr_dyVz->Add(gr_dyVz_Array[i],"p");
 		}
 	}
-	
-	mgr_dyVz->SetMaximum( 2.*mgr_dyVz->GetMaximum("nostack") );
-	mgr_dyVz->SetMinimum( 2.*mgr_dyVz->GetMinimum("nostack") );
-
-	
+	if ( (mgr_dyVz->GetMaximum("nostack")>0.00005)||(mgr_dyVz->GetMinimum("nostack")<-0.00005) ){
+	  mgr_dyVz->SetMaximum( 2.*mgr_dyVz->GetMaximum("nostack") );
+	  mgr_dyVz->SetMinimum( 2.*mgr_dyVz->GetMinimum("nostack") );
+	}
+	else{
+	  mgr_dyVz->SetMaximum( 100.*mgr_dyVz->GetMaximum("nostack") );
+	  mgr_dyVz->SetMinimum( 100.*mgr_dyVz->GetMinimum("nostack") );
+	}
 
 	//data->Project("hprof_drVphi", "dr:phi",Cut,"prof");
 	TProfile* gr_drVphi_Array[j];
@@ -705,9 +764,14 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 		mgr_drVphi->Add(gr_drVphi_Array[i],"p");
 	}
 	}
+	if ( (mgr_drVphi->GetMaximum("nostack")>0.00005)||(mgr_drVphi->GetMinimum("nostack")<-0.00005) ){
 	mgr_drVphi->SetMaximum( 2.*mgr_drVphi->GetMaximum("nostack") );
 	mgr_drVphi->SetMinimum( 2.*mgr_drVphi->GetMinimum("nostack") );
-
+	}
+	else{
+	  mgr_drVphi->SetMaximum( 100.*mgr_drVphi->GetMaximum("nostack") );
+	  mgr_drVphi->SetMinimum( 100.*mgr_drVphi->GetMinimum("nostack") );
+	}
 	//data->Project("hprof_dzVphi", "dz:phi",Cut,"prof");
 	TProfile* gr_dzVphi_Array[j];
 	THStack* mgr_dzVphi=new THStack();
@@ -720,9 +784,14 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 		mgr_dzVphi->Add(gr_dzVphi_Array[i],"p");
 	}
 	}
+	if ( (mgr_dzVphi->GetMaximum("nostack")>0.00005)||(mgr_dzVphi->GetMinimum("nostack")<-0.00005) ){
 	mgr_dzVphi->SetMaximum( 2.*mgr_dzVphi->GetMaximum("nostack") );
 	mgr_dzVphi->SetMinimum( 2.*mgr_dzVphi->GetMinimum("nostack") );
-
+	}
+	else{
+	mgr_dzVphi->SetMaximum( 100.*mgr_dzVphi->GetMaximum("nostack") );
+	mgr_dzVphi->SetMinimum( 100.*mgr_dzVphi->GetMinimum("nostack") );
+	}
 	//data->Project("hprof_rdphiVphi", "r*dphi:phi",Cut,"prof");
 	TProfile* gr_rdphiVphi_Array[j];
 	THStack* mgr_rdphiVphi=new THStack();
@@ -735,9 +804,14 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 		mgr_rdphiVphi->Add(gr_rdphiVphi_Array[i],"p");
 	}
 	}
-	mgr_dzVphi->SetMaximum( 2.*mgr_dzVphi->GetMaximum("nostack") );
-	mgr_dzVphi->SetMinimum( 2.*mgr_dzVphi->GetMinimum("nostack") );
-
+	if ( (mgr_rdphiVphi->GetMaximum("nostack")>0.00005)||(mgr_rdphiVphi->GetMinimum("nostack")<-0.00005) ){
+	mgr_rdphiVphi->SetMaximum( 2.*mgr_rdphiVphi->GetMaximum("nostack") );
+	mgr_rdphiVphi->SetMinimum( 2.*mgr_rdphiVphi->GetMinimum("nostack") );
+	}
+	else{
+	  mgr_rdphiVphi->SetMaximum( 100.*mgr_rdphiVphi->GetMaximum("nostack") );
+	  mgr_rdphiVphi->SetMinimum( 100.*mgr_rdphiVphi->GetMinimum("nostack") );
+	}
 	//data->Project("hprof_dxVphi", "dx:phi",Cut,"prof");
 	TProfile* gr_dxVphi_Array[j];
 	THStack* mgr_dxVphi=new THStack();
@@ -750,9 +824,14 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 		mgr_dxVphi->Add(gr_dxVphi_Array[i],"p");
 		}
 	}
+	if ( (mgr_dxVphi->GetMaximum("nostack")>0.00005)||(mgr_dxVphi->GetMinimum("nostack")<-0.00005) ){
 	mgr_dxVphi->SetMaximum( 2.*mgr_dxVphi->GetMaximum("nostack") );
 	mgr_dxVphi->SetMinimum( 2.*mgr_dxVphi->GetMinimum("nostack") );
-
+	}
+	else{
+	mgr_dxVphi->SetMaximum( 100.*mgr_dxVphi->GetMaximum("nostack") );
+	mgr_dxVphi->SetMinimum( 100.*mgr_dxVphi->GetMinimum("nostack") );
+	}
 	//data->Project("hprof_dyVphi", "dy:phi",Cut,"prof");
 	TProfile* gr_dyVphi_Array[j];
 	THStack* mgr_dyVphi=new THStack();
@@ -765,9 +844,14 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 		mgr_dyVphi->Add(gr_dyVphi_Array[i],"p");
 	}
 	}
+if ( (mgr_dyVphi->GetMaximum("nostack")>0.00005)||(mgr_dyVphi->GetMinimum("nostack")<-0.00005) ){
 	mgr_dyVphi->SetMaximum( 2.*mgr_dyVphi->GetMaximum("nostack") );
 	mgr_dyVphi->SetMinimum( 2.*mgr_dyVphi->GetMinimum("nostack") );
-
+ }
+ else{
+	mgr_dyVphi->SetMaximum( 100.*mgr_dyVphi->GetMaximum("nostack") );
+	mgr_dyVphi->SetMinimum( 100.*mgr_dyVphi->GetMinimum("nostack") );
+ }
 	
 	// ---------  draw histograms ---------
 	/*TCanvas* c0 = new TCanvas("c0", "c0", 200, 10, 900, 300);
