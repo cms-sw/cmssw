@@ -126,7 +126,6 @@ class PhotonValidator : public edm::EDAnalyzer
   double dCotHardCutValue_;
   bool signal_;
   bool fastSim_;
-  
 
   /// global variable for the MC photon
   double mcPhi_;
@@ -180,7 +179,7 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement*   h_SimConvTwoTracks_[5];
   MonitorElement*   h_SimConvTwoMTracks_[5];
   MonitorElement*   h_SimConvTwoMTracksAndVtxPGT0_[5];
-  MonitorElement*   h_SimConvTwoMTracksAndVtxPGT005_[5];
+  MonitorElement*   h_SimConvTwoMTracksAndVtxPGT0005_[5];
   MonitorElement*   h_SimConvTwoMTracksAndVtxPGT01_[5];
   // Denominators for conversion fake rate
   MonitorElement*   h_RecoConvTwoTracks_[5];
@@ -360,6 +359,17 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* h_convVtxdY_;
   MonitorElement* h_convVtxdZ_;
   MonitorElement* h_convVtxdR_;
+
+  MonitorElement* h_convVtxdX_barrel_;
+  MonitorElement* h_convVtxdY_barrel_;
+  MonitorElement* h_convVtxdZ_barrel_;
+  MonitorElement* h_convVtxdR_barrel_;
+
+  MonitorElement* h_convVtxdX_endcap_;
+  MonitorElement* h_convVtxdY_endcap_;
+  MonitorElement* h_convVtxdZ_endcap_;
+  MonitorElement* h_convVtxdR_endcap_;
+
   MonitorElement* h_convVtxdEta_;
   MonitorElement* h_convVtxdPhi_;
 

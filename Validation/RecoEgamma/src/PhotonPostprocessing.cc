@@ -11,7 +11,7 @@
  **  
  **
  **  $Id: PhotonPostprocessing
- **  $Date: 2009/07/29 21:21:01 $ 
+ **  $Date: 2009/12/18 20:45:13 $ 
  **  author: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   
@@ -124,12 +124,12 @@ void PhotonPostprocessing::endJob()
   // 
   histname = "convEffVsEtaTwoTracksAndVtxProbGT0";
   convEffEtaTwoTracksAndVtxProbGT0_ =  dbe_->book1D(histname,histname,etaBin2,etaMin, etaMax);
-  histname = "convEffVsEtaTwoTracksAndVtxProbGT005";
-  convEffEtaTwoTracksAndVtxProbGT005_ =  dbe_->book1D(histname,histname,etaBin2,etaMin, etaMax);
+  histname = "convEffVsEtaTwoTracksAndVtxProbGT0005";
+  convEffEtaTwoTracksAndVtxProbGT0005_ =  dbe_->book1D(histname,histname,etaBin2,etaMin, etaMax);
   histname = "convEffVsRTwoTracksAndVtxProbGT0";
   convEffRTwoTracksAndVtxProbGT0_ =  dbe_->book1D(histname,histname,rBin,rMin,rMax);
-  histname = "convEffVsRTwoTracksAndVtxProbGT005";
-  convEffRTwoTracksAndVtxProbGT005_ =  dbe_->book1D(histname,histname,rBin,rMin,rMax);
+  histname = "convEffVsRTwoTracksAndVtxProbGT0005";
+  convEffRTwoTracksAndVtxProbGT0005_ =  dbe_->book1D(histname,histname,rBin,rMin,rMax);
   //
   histname = "convEffVsEtaOneTrack";
   convEffEtaOneTrack_ =  dbe_->book1D(histname,histname,etaBin2,etaMin, etaMax);
@@ -180,9 +180,9 @@ void PhotonPostprocessing::endJob()
   dividePlots(dbe_->get(effPathName+"convEffVsZTwoTracks"),dbe_->get(simInfoPathName+"h_SimConvTwoMTracksZ"),dbe_->get(simInfoPathName+"h_VisSimConvZ"),"effic");
   dividePlots(dbe_->get(effPathName+"convEffVsEtTwoTracks"),dbe_->get(simInfoPathName+"h_SimConvTwoMTracksEt"),dbe_->get(simInfoPathName+"h_VisSimConvEt"),"effic");
   dividePlots(dbe_->get(effPathName+"convEffVsEtaTwoTracksAndVtxProbGT0"),dbe_->get(simInfoPathName+"h_SimConvTwoMTracksEtaAndVtxPGT0"),dbe_->get(simInfoPathName+"h_SimConvTwoMTracksEta"),"effic");
-  dividePlots(dbe_->get(effPathName+"convEffVsEtaTwoTracksAndVtxProbGT005"),dbe_->get(simInfoPathName+"h_SimConvTwoMTracksEtaAndVtxPGT005"),dbe_->get(simInfoPathName+"h_SimConvTwoMTracksEta"),"effic");
+  dividePlots(dbe_->get(effPathName+"convEffVsEtaTwoTracksAndVtxProbGT0005"),dbe_->get(simInfoPathName+"h_SimConvTwoMTracksEtaAndVtxPGT0005"),dbe_->get(simInfoPathName+"h_SimConvTwoMTracksEta"),"effic");
   dividePlots(dbe_->get(effPathName+"convEffVsRTwoTracksAndVtxProbGT0"),dbe_->get(simInfoPathName+"h_SimConvTwoMTracksRAndVtxPGT0"),dbe_->get(simInfoPathName+"h_SimConvTwoMTracksR"),"effic");
-  dividePlots(dbe_->get(effPathName+"convEffVsRTwoTracksAndVtxProbGT005"),dbe_->get(simInfoPathName+"h_SimConvTwoMTracksRAndVtxPGT005"),dbe_->get(simInfoPathName+"h_SimConvTwoMTracksR"),"effic");
+  dividePlots(dbe_->get(effPathName+"convEffVsRTwoTracksAndVtxProbGT0005"),dbe_->get(simInfoPathName+"h_SimConvTwoMTracksRAndVtxPGT0005"),dbe_->get(simInfoPathName+"h_SimConvTwoMTracksR"),"effic");
   //
   dividePlots(dbe_->get(effPathName+"convEffVsEtaOneTrack"),dbe_->get(simInfoPathName+"h_SimConvOneMTracksEta"),dbe_->get(simInfoPathName+"h_VisSimConvEta"),"effic");
   dividePlots(dbe_->get(effPathName+"convEffVsROneTrack"),dbe_->get(simInfoPathName+"h_SimConvOneMTracksR"),dbe_->get(simInfoPathName+"h_VisSimConvR"),"effic");
