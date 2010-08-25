@@ -1,6 +1,6 @@
 //
 // See header file for description
-// $Id: PrescaleWeightProvider.cc,v 1.1 2010/08/17 17:15:27 vadler Exp $
+// $Id: PrescaleWeightProvider.cc,v 1.1 2010/08/23 18:44:13 avetisya Exp $
 //
 
 
@@ -62,7 +62,7 @@ void PrescaleWeightProvider::initRun( const edm::Run & run, const edm::EventSetu
   } else if ( hltConfig_.size() <= 0 ) {
     if ( verbosity_ > 0 ) edm::LogError( "PrescaleWeightProvider" ) << "HLT config size error";
     init_ = false;
-  } else {
+  } else if ( hltChanged ) {
     if ( verbosity_ > 0 ) edm::LogInfo( "PrescaleWeightProvider" ) << "HLT configuration changed";
   }
   if ( ! init_ ) return;
@@ -76,7 +76,7 @@ void PrescaleWeightProvider::initRun( const edm::Run & run, const edm::EventSetu
 }
 
 
-int PrescaleWeightProvider::prescaleWeight ( const edm::Event & event, const edm::EventSetup & setup )
+int PrescaleWeightProvider::prescaleWeight( const edm::Event & event, const edm::EventSetup & setup )
 {
   if ( ! init_ ) return 1;
 
@@ -103,7 +103,7 @@ int PrescaleWeightProvider::prescaleWeight ( const edm::Event & event, const edm
       continue;
     }
     if ( ! triggerResults->accept( hltIndex ) ) continue;
-    
+
     const std::vector< std::pair < bool, std::string > > level1Seeds = hltConfig_.hltL1GTSeeds( hltPath );
     if ( level1Seeds.size() != 1 ) {
       if ( verbosity_ > 0 ) edm::LogError( "PrescaleWeightProvider::prescaleWeight" ) << "HLT path \"" << hltPath << "\" provides too many L1 seeds";
@@ -126,7 +126,7 @@ int PrescaleWeightProvider::prescaleWeight ( const edm::Event & event, const edm
 	if ( ! l1GtUtils.decision( event, techName, errorCode ) ) continue;
 	if ( errorCode != 0 ) continue;
 	l1TempPrescale = l1GtUtils.prescaleFactor( event, techName, errorCode );
-	if ( errorCode != 0 ) continue; 
+	if ( errorCode != 0 ) continue;
       }
       else { // algorithmic triggers
         if ( ! l1GtUtils.decision( event, l1SeedPaths_.at( uj ), errorCode ) ) continue;
@@ -142,7 +142,7 @@ int PrescaleWeightProvider::prescaleWeight ( const edm::Event & event, const edm
       if ( verbosity_ > 0 ) edm::LogError( "PrescaleWeightProvider::prescaleWeight" ) << "Unable to find the L1 prescale for HLT path \"" << hltPath << "\"";
       continue;
     }
-    
+
     int hltPrescale( hltConfig_.prescaleValue( event, setup, hltPath ) );
 
     if ( hltPrescale * l1Prescale > 0 ) {
@@ -166,7 +166,7 @@ void PrescaleWeightProvider::parseL1Seeds( const std::string & l1Seeds )
   l1SeedPaths_.clear();
   std::stringstream ss( l1Seeds );
   std::string       buf;
-  
+
   while ( ss.good() && ! ss.eof() ){
     ss >> buf;
     if ( buf[0] == '('  || buf[ buf.size() - 1 ] == ')' || buf == "AND" || buf == "NOT" ){
