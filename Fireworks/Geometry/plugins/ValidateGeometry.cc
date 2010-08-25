@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.20 2010/08/12 14:47:44 mccauley Exp $
+// $Id: ValidateGeometry.cc,v 1.21 2010/08/24 11:45:38 mccauley Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -186,8 +186,9 @@ ValidateGeometry::analyze(const edm::Event& event, const edm::EventSetup& eventS
     std::cout<<"Validating DT chamber geometry"<<std::endl;
     validateDTChamberGeometry();
 
-    std::cout<<"Validating DT superlayer geometry"<<std::endl;
-    validateDTSuperLayerGeometry();
+    //std::cout<<"Validating DT superlayer geometry"<<std::endl;
+    // This is not included in geom file anymore
+    //validateDTSuperLayerGeometry();
 
     std::cout<<"Validating DT layer geometry"<<std::endl;
     validateDTLayerGeometry();
@@ -973,17 +974,34 @@ ValidateGeometry::validateStripTopology(const TrackerGeometry::DetContainer& det
       // fails for many of the detids...
       
       const StripTopology* st = dynamic_cast<const StripTopology*>(&det->specificTopology()); 
+      
       if ( st ) 
       {
-        assert(parameters[0] == st->nstrips());                             
-        assert(parameters[1] == st->stripLength());
+        //assert(parameters[0] == 0);
+        assert(parameters[1] == st->nstrips());                             
+        assert(parameters[2] == st->stripLength());
       
         if( const RadialStripTopology* rst = dynamic_cast<const RadialStripTopology*>(st)) 
-          assert(parameters[2] == rst->phiPitch());                                                                           
+        {
+          assert(parameters[0] == 1);
+          assert(parameters[3] == rst->yAxisOrientation());
+          assert(parameters[4] == rst->originToIntersection());
+          assert(parameters[5] == rst->phiOfOneEdge());
+          assert(parameters[6] == rst->angularWidth());
+        }
+         
         else if( dynamic_cast<const RectangularStripTopology*>(st))                                                                
-          assert(parameters[2] == st->pitch());     
+        {
+          assert(parameters[0] == 2);
+          assert(parameters[3] == st->pitch());
+        }
+        
         else if( dynamic_cast<const TrapezoidalStripTopology*>(st))  
-          assert(parameters[2] == st->pitch());                               
+        {
+          assert(parameters[0] == 3); 
+          assert(parameters[3] == st->pitch());                               
+        }
+        
         else
           std::cout<<"Failed to get pitch for "<< detname <<" "<< rawId <<std::endl;
       }
