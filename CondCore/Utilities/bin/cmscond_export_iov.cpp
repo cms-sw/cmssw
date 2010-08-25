@@ -77,7 +77,7 @@ int cond::ExportIOVUtilities::execute(){
   std::string destiovtoken("");
   cond::TimeType sourceiovtype;
 
-  cond::DbSession sourcedb = openDbSession("sourceConnect");
+  cond::DbSession sourcedb = openDbSession("sourceConnect", true);
   cond::DbSession destdb = openDbSession("destConnect");
     
   // find tag in source
