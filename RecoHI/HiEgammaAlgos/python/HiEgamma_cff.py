@@ -22,7 +22,6 @@ photons.minR9Barrel = cms.double(0.01)  #0.94
 photons.minR9Endcap = cms.double(0.8)   #0.95
 photons.maxHoverEEndcap = cms.double(0.5)  #0.5
 photons.maxHoverEBarrel = cms.double(0.99)  #0.5
-photons.isolationSumsCalculatorSet.trackProducer = cms.InputTag("hiSelectedTracks")
 photons.primaryVertexProducer = cms.string('hiSelectedVertex') # replace the primary vertex
 photons.isolationSumsCalculatorSet.trackProducer = cms.InputTag("hiSelectedTracks")
 
