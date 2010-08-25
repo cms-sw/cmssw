@@ -2,8 +2,9 @@ __author__="Aurelija"
 __date__ ="$Jul 12, 2010 10:08:20 AM$"
 
 import re
+from os.path import split
 
-#fileList is list of files pathes or could be a tuple of [path, [filesLines]]
+#fileList is list of files pathes or could be a tuple of (path, [fileLines])
 def finds(fileList, regularExpression):
     info = []
     lines = []

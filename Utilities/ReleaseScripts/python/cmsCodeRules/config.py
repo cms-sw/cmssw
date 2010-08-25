@@ -11,6 +11,10 @@ picklePath = os.getcwd()
 txtPath = os.getcwd()
 htmlPath = os.getcwd()
 
+# exception for directories and files 
+
+exceptPathes = []
+
 # --------------------------------------------------------------------------------
 # configuration info for each rule ...
 
@@ -29,6 +33,8 @@ Configuration[ruleName]['description'] = 'Search for "using" keyword in header f
 Configuration[ruleName]['filesToMatch'] = ['*.h']
 Configuration[ruleName]['skipComments']  = True
 Configuration[ruleName]['filter'] = '\susing\s|\Ausing\s' #should be regular expression
+Configuration[ruleName]['exceptPathes'] = []
+Configuration[ruleName]['exceptLines'] = []
 
 # --------------------------------------------------------------------------------
 
@@ -42,7 +48,8 @@ Configuration[ruleName]['description'] = 'Search for CXXFLAGS flags that are set
 Configuration[ruleName]['filesToMatch'] = ['BuildFile', 'BuildFile.xml']
 Configuration[ruleName]['skipComments']  = True
 Configuration[ruleName]['filter'] = '\s(CXXFLAGS|CPPFLAGS)(\+|=|\w|\"|\'|-|\s)*(-g|-O0)(\s|\'|\")' #should be regular expression
-
+Configuration[ruleName]['exceptPathes'] = []
+Configuration[ruleName]['exceptLines'] = []
 # --------------------------------------------------------------------------------
 
 # configuration for rule 3
@@ -55,7 +62,8 @@ Configuration[ruleName]['description'] = 'Search for "catch(...)" statements in 
 Configuration[ruleName]['filesToMatch'] = ['*.cc', '*.cxx']
 Configuration[ruleName]['skipComments']  = True
 Configuration[ruleName]['filter'] = 'catch\(\s*\.\.\.\s*\)' #should be regular expression
-
+Configuration[ruleName]['exceptPathes'] = []
+Configuration[ruleName]['exceptLines'] = []
 # --------------------------------------------------------------------------------
 
 # configuration for rule 4
@@ -68,7 +76,8 @@ Configuration[ruleName]['description'] = 'Search for "copyright" declaration in 
 Configuration[ruleName]['filesToMatch'] = ['*.h', '*.c', '*.cc', '*.cxx']
 Configuration[ruleName]['skipComments']  = False
 Configuration[ruleName]['filter'] = '(\A|\W)(c|C)(o|O)(p|P)(y|Y)(r|R)(i|I)(g|G)(h|H)(t|T)\W(\+|=|\w|\"|\'|-|\s)*(\((c|C)\)|\d{4})' #should be regular expression
-
+Configuration[ruleName]['exceptPathes'] = []#could be file name, dir. But should path pnly from that directory in which we are searching
+Configuration[ruleName]['exceptLines'] = []
 # --------------------------------------------------------------------------------
 
 # configuration for rule 5
@@ -81,7 +90,8 @@ Configuration[ruleName]['description'] = 'Search for "pragma" statement in *.c, 
 Configuration[ruleName]['filesToMatch'] = ['*.h', '*.c', '*.cc', '*.cxx']
 Configuration[ruleName]['skipComments']  = True
 Configuration[ruleName]['filter'] = '#\s*pragma\s' #should be regular expression
-
+Configuration[ruleName]['exceptPathes'] = []
+Configuration[ruleName]['exceptLines'] = []
 # --------------------------------------------------------------------------------
 
 rulesDescription  = "Rule number    Description\n"

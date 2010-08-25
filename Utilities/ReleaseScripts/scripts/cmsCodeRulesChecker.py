@@ -3,22 +3,23 @@
 __author__="Aurelija"
 __date__ ="$2010-07-14 16.48.55$"
 
+from os.path import join, isdir
+import re
 import os
-import os.path
 import sys
 from Utilities.ReleaseScripts.cmsCodeRules.keyFinder import finds
-from Utilities.ReleaseScripts.cmsCodeRules.filesFinder import getFilesPathes
+from Utilities.ReleaseScripts.cmsCodeRules.filesFinder import getFilePathesFromWalk
 from Utilities.ReleaseScripts.cmsCodeRules.pickleFileCreater import createPickleFile
-import Utilities.ReleaseScripts.cmsCodeRules.config 
-from Utilities.ReleaseScripts.cmsCodeRules.config import Configuration, rulesNames, rulesDescription, helpMsg
+from Utilities.ReleaseScripts.cmsCodeRules.pathToRegEx import pathesToRegEx, pathToRegEx
+from Utilities.ReleaseScripts.cmsCodeRules.config import Configuration, rulesNames, rulesDescription, helpMsg, checkPath, picklePath, txtPath
 from Utilities.ReleaseScripts.commentSkipper.commentSkipper import filter
 from Utilities.ReleaseScripts.cmsCodeRules.showPage import run
 
 configuration = Configuration
 RULES = rulesNames
-checkPath = [Utilities.ReleaseScripts.cmsCodeRules.config.checkPath]
-picklePath = Utilities.ReleaseScripts.cmsCodeRules.config.picklePath
-txtPath = Utilities.ReleaseScripts.cmsCodeRules.config.txtPath
+checkPath = checkPath
+picklePath = picklePath
+txtPath = txtPath
 
 def splitPathes(listRule, pathHead):
     try:
@@ -29,7 +30,7 @@ def splitPathes(listRule, pathHead):
         print "Error: given wrong type of parameter in function splitPathes."
     return listRule
 
-def runRules(ruleNumberList, directoryList):
+def runRules(ruleNumberList, directory):
 
     result = []
     osWalk = []
@@ -40,25 +41,56 @@ def runRules(ruleNumberList, directoryList):
             print '\nWrite -h for help'
             return -1
 
-    for directory in directoryList:
-        osWalk.extend(os.walk(directory))
+    osWalk.extend(os.walk(directory))
 
     for ruleNr in ruleNumberList:
         files = []
         rule = str(ruleNr)
         rule = configuration[ruleNr]
 
-
         filesToMatch = rule['filesToMatch']
         for fileType in filesToMatch:
-            #fileList = filesFinder.getFilesPathesFromDirectories(directoryList, [fileType])
-            fileList = getFilesPathes(osWalk, [fileType])#
+            fileList = getFilePathesFromWalk(osWalk, fileType, checkPath)
+# ------------------------------------------------------------------------------
+            for path in pathesToRegEx(rule['exceptPathes']):
+                FileList = []
+                for file in fileList:
+                    File = file.replace(join(checkPath, ""), "")
+                    if not re.match(path, File):
+                        FileList.append(file)
+                fileList = FileList
+# ------------------------------------------------------------------------------
+            filesLinesList = []
             if rule['skipComments'] == True:
-                fileList = filter(fileList)
-            files.extend(fileList)
+                filesLinesList = filter(fileList)
+# ------------------------------------------------------------------------------
+            for Nr, fileLine in enumerate(rule['exceptLines']):
+                file, line = fileLine.split(":")
+                regEx = pathToRegEx(file)
+                for index, file in enumerate(fileList):
+                    File = file.replace(join(checkPath, ""), "")
+                    if re.match(regEx, File):
+                        if rule['skipComments'] == True or Nr > 0:
+                            filesLinesList[index] = (filesLinesList[index][0], omitLine(filesLinesList[index][1], line))
+                        else:
+                            filesLinesList.append([file, omitLine(file, line)])
+                    elif rule['skipComments'] == False:
+                        filesLinesList.append((file, open(file).readlines()))
+            files.extend(filesLinesList)
+# ------------------------------------------------------------------------------
         listRule = finds(files, rule['filter'])
-        result.append((ruleNr, splitPathes(listRule, checkPath[0])))
+        result.append((ruleNr, splitPathes(listRule, checkPath)))
     return result
+
+def omitLine(file, line):
+    try:
+        if type(file).__name__ != 'list':
+            fileLines = open(file).readlines()
+        else: fileLines = file
+        fileLines[int(line)-1] = ''
+    except IndexError:
+        print 'File = "' + file +'" has only ' + str(len(fileLines)) + ' lines. Wrong given line number: ' + str(line)
+    return fileLines
 
 def printOut(listOfResult, filePath = None):
     file = None
@@ -115,8 +147,8 @@ if __name__ == "__main__":
         elif (arg == '-d'):
             i+=1
             if i < argvLen:
-                checkPath = [sys.argv[i]]
-                if not os.path.isdir(checkPath[0]):
+                checkPath = sys.argv[i]
+                if not isdir(checkPath):
                     goodParameters = False
                     print 'Error: wrong directory "%s"' %checkPath
                     break
@@ -129,7 +161,7 @@ if __name__ == "__main__":
             if i+1 < argvLen and sys.argv[i+1][0] != '-':
                 i+=1
                 picklePath = sys.argv[i]
-                if not os.path.isdir(picklePath):
+                if not isdir(picklePath):
                     goodParameters = False
                     print 'Error: wrong directory "%s"' %picklePath
                     break                
@@ -138,7 +170,7 @@ if __name__ == "__main__":
             if i+1 < argvLen and sys.argv[i+1][0] != '-':
                 i+=1
                 txtPath = sys.argv[i]
-                if not os.path.isdir(txtPath):
+                if not isdir(txtPath):
                     goodParameters = False
                     print 'Error: wrong directory "%s"' %txtPath
                     break
