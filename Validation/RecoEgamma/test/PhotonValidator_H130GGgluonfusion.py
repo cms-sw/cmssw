@@ -85,6 +85,5 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('pippo.root')
 )
 
-#process.p1 = cms.Path(process.tpSelection*process.photonValidationSequence*process.photonPostprocessing*process.dqmStoreStats)
-process.p1 = cms.Path(process.tpSelection*process.photonValidationSequence*process.dqmStoreStats)
+process.p1 = cms.Path(process.tpSelection*process.photonValidationSequence*process.photonPostprocessing*process.dqmStoreStats)
 process.schedule = cms.Schedule(process.p1)
