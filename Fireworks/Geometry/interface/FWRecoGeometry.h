@@ -14,7 +14,8 @@ class FWRecoGeometry
 {
 public:
   FWRecoGeometry( void )
-    : m_manager( 0 )
+    : idToName( 260000 ),
+      m_manager( 0 )
     {}
   
   virtual ~FWRecoGeometry( void ) 
@@ -30,7 +31,7 @@ public:
     {
       m_manager = geom;
     }
-
+  
 private:
   TGeoManager* m_manager;
 };

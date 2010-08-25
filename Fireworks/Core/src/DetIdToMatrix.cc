@@ -148,17 +148,15 @@ DetIdToMatrix::initMap( const FWRecoGeom::InfoMap& map )
   unsigned int mapSize = map.size();
   m_idToInfo.resize( mapSize );
   unsigned int i = 0;
-  for( std::map<unsigned int, FWRecoGeom::Info>::const_iterator it = begin;
+  for( FWRecoGeom::InfoMapItr it = begin;
        it != end; ++it, ++i )
   {
-    unsigned int id = it->first;
-
-    m_idToInfo[i].id = id;
-    m_idToInfo[i].path = it->second.name;
+    m_idToInfo[i].id = it->id;
+    m_idToInfo[i].path = it->name;
     for( unsigned int j = 0; j < 24; ++j )
-      m_idToInfo[i].points[j] = it->second.points[j];
+      m_idToInfo[i].points[j] = it->points[j];
     for( unsigned int j = 0; j < 9; ++j )
-      m_idToInfo[i].parameters[j] = it->second.topology[j];
+      m_idToInfo[i].parameters[j] = it->topology[j];
   }
 }
 

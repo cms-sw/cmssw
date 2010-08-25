@@ -67,6 +67,10 @@ private:
   const TrackerGeometry* m_trackerGeom;
   
   boost::shared_ptr<FWRecoGeometry> m_fwGeometry;
+  unsigned int insert_id( unsigned int rawid, const std::string name = "" );
+  void fillPoints( unsigned int id, std::vector<GlobalPoint>::const_iterator begin, std::vector<GlobalPoint>::const_iterator end );
+  
+  unsigned int m_current;
 };
 
 #endif // GEOMETRY_FWRECO_GEOMETRY_ES_PRODUCER_H

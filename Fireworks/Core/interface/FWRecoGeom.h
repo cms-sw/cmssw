@@ -12,22 +12,18 @@ public:
 
   struct Info
   {
+    unsigned int id;
     std::string name;
-    std::vector<float> points; // x1,y1,z1...x8,y8,z8
-    std::vector<float> topology;
-    Info( const std::string& iname )
-      : name( iname ),
-	points( 24, 0 ),
-	topology( 9, 0 )
-      {}
-    Info( void )
-      : points( 24, 0 ),
-	topology( 9, 0 )
-      {}
+    float points[24]; // x1,y1,z1...x8,y8,z8
+    float topology[9];
+
+    bool operator< ( const Info& o ) const { 
+      return ( this->id < o.id );
+    }
   };
   
-  typedef std::map<unsigned int, FWRecoGeom::Info> InfoMap;
-  typedef std::map<unsigned int, FWRecoGeom::Info>::const_iterator InfoMapItr;
+  typedef std::vector<FWRecoGeom::Info> InfoMap;
+  typedef std::vector<FWRecoGeom::Info>::const_iterator InfoMapItr;
 };
 
 #endif // CORE_FWRECO_GEOM_H

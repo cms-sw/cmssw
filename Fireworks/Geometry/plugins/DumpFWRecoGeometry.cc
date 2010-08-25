@@ -55,17 +55,17 @@ DumpFWRecoGeometry::analyze( const edm::Event& event, const edm::EventSetup& eve
   tree->Branch( "points", &v_vertex, "points[24]/F" );
   tree->Branch( "topology", &v_params, "topology[9]/F" );
 
-  for( std::map<unsigned int, FWRecoGeom::Info>::const_iterator it = geoh.product()->idToName.begin(),
-							       end = geoh.product()->idToName.end();
+  for( FWRecoGeom::InfoMapItr it = geoh.product()->idToName.begin(),
+			     end = geoh.product()->idToName.end();
        it != end; ++it )
   {
-    v_id = it->first;
-    *v_path = it->second.name.c_str();
+    v_id = it->id;
+    *v_path = it->name.c_str();
     for( unsigned int i = 0; i < 24; ++i )
-      v_vertex[i] = it->second.points[i];
+      v_vertex[i] = it->points[i];
     for( unsigned int i = 0; i < 9; ++i )
-      v_params[i] = it->second.topology[i];
-    strcpy( v_name, it->second.name.c_str());
+      v_params[i] = it->topology[i];
+    strcpy( v_name, it->name.c_str());
     tree->Fill();
   }
   file.WriteTObject( &*geom );
