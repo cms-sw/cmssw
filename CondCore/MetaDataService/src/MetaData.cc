@@ -178,6 +178,7 @@ bool cond::MetaData::hasTag( const std::string& name ) const{
   try{
     coral::ITable& mytable=m_coraldb.nominalSchema().tableHandle( cond::MetaDataNames::metadataTable() );
     std::auto_ptr< coral::IQuery > query(mytable.newQuery());
+    query->setRowCacheSize( 100 );
     coral::AttributeList BindVariableList;
     //std::string condition=cond::MetaDataNames::tagColumn()+" = '"+name+"'";
     std::string condition=cond::MetaDataNames::tagColumn()+" = :name";
