@@ -168,7 +168,7 @@ def main():
     parser.add_argument('-begin',dest='begin',action='store',help='begin value of x-axi (required)')
     parser.add_argument('-end',dest='end',action='store',help='end value of x-axi (optional). Default to the maximum exists DB')
     parser.add_argument('-beamenergy',dest='beamenergy',action='store',type=float,required=False,help='beamenergy (in GeV) selection criteria,e.g. 3.5e3')
-    parser.add_argument('-beamfluctuation',dest='beamfluctuation',action='store',type=float,required=False,help='allowed fraction of beamenergy to fluctuate (in GeV),e.g. 0.1')
+    parser.add_argument('-beamfluctuation',dest='beamfluctuation',action='store',type=float,required=False,help='allowed fraction of beamenergy to fluctuate, e.g. 0.1')
     parser.add_argument('-beamstatus',dest='beamstatus',action='store',required=False,help='selection criteria beam status,e.g. STABLE BEAMS')
     parser.add_argument('-hltpath',dest='hltpath',action='store',help='specific hltpath to calculate the recorded luminosity. If specified aoverlays the recorded luminosity for the hltpath on the plot')
     parser.add_argument('-batch',dest='batch',action='store',help='graphical mode to produce PNG file. Specify graphical file here. Default to lumiSum.png')
