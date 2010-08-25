@@ -29,6 +29,7 @@ namespace {
     edm::Wrapper<CaloTowerCollection> w1;
     edm::Wrapper<CaloTowerFwdRefVector> w2;
     edm::Wrapper<CaloTowerFwdPtrVector> w3;
+    edm::Wrapper< std::vector<CaloTower> > w4;
 
     edm::reftobase::Holder<reco::Candidate, CaloTowerRef> rbh;
     edm::reftobase::RefHolder<CaloTowerRef> rbrh;

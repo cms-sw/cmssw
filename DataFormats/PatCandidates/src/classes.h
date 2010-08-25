@@ -176,9 +176,6 @@ namespace {
               PAT Dataformats beyond PatObjects
        ==========================================================================================================================   */
   std::vector<edm::Ptr<CaloTower> > v_p_ct;
-  std::vector<CaloTower> v_ct;
-
-  edm::Wrapper<std::vector<CaloTower> > wv_ct;
 
   edm::Wrapper<edm::ValueMap<pat::JetCorrFactors> >  w_vm_jcf;
 
