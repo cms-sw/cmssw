@@ -27,7 +27,7 @@ class ParametersObject (object):
         self.NBX             = 3564  # number beam crossings
         self.rotationRate    = 11245.613 # for 3.5 TeV Beam energy
         self.normFactor      = 6.37
-        self.beammode        = 'stable' #possible choices stable, quiet, either
+        self.beammode        = '' #possible choices stable, quiet, either
         self.verbose         = False
         self.noWarnings      = False
         self.lumischema      = 'CMS_LUMI_PROD'
@@ -147,6 +147,7 @@ def deliveredLumiForRun (dbsession, parameters, runnum):
     delivered = 0.0
     totalls = 0
     try:
+        conditionstring="RUNNUM = :runnum AND LUMIVERSION = :lumiversion"
         dbsession.transaction().start (True)
         schema = dbsession.nominalSchema()
         query = schema.tableHandle (nameDealer.lumisummaryTableName()).newQuery()
@@ -158,12 +159,17 @@ def deliveredLumiForRun (dbsession, parameters, runnum):
         queryBind.extend ("lumiversion", "string")
         queryBind["runnum"].setData (int (runnum))
         queryBind["lumiversion"].setData (parameters.lumiversion)
+        
+        if len(parameters.beammode)!=0:
+            conditionstring=conditionstring+' and BEAMSTATUS=:beamstatus'
+            queryBind.extend('beamstatus','string')
+            queryBind['beamstatus'].setData(parameters.beammode)
         result = coral.AttributeList()
         result.extend ("totallumi", "float")
         result.extend ("totalls", "unsigned int")
         result.extend ("norbits", "unsigned int")
         query.defineOutput (result)
-        query.setCondition ("RUNNUM = :runnum AND LUMIVERSION = :lumiversion", queryBind)
+        query.setCondition (conditionstring,queryBind)
         query.limitReturnedRows (1)
         query.groupBy ('NUMORBIT')
         cursor = query.execute()
@@ -190,7 +196,6 @@ def deliveredLumiForRun (dbsession, parameters, runnum):
         dbsession.transaction().rollback()
         del dbsession
 
-
 def recordedLumiForRun (dbsession, parameters, runnum, lslist = None):
     """
     lslist = None means to take all in the db
@@ -204,6 +209,7 @@ def recordedLumiForRun (dbsession, parameters, runnum, lslist = None):
     lumidata.append (trgtable)
     lumidata.append (deadtable)
     collectedseeds = [] #[ (hltpath, l1seed)]
+    conditionstring='trghltmap.HLTKEY = cmsrunsummary.HLTKEY AND cmsrunsummary.RUNNUM = :runnumber'
     try:
         dbsession.transaction().start (True)
         schema = dbsession.nominalSchema()
@@ -213,8 +219,7 @@ def recordedLumiForRun (dbsession, parameters, runnum, lslist = None):
         queryCondition = coral.AttributeList()
         queryCondition.extend ("runnumber", "unsigned int")
         queryCondition["runnumber"].setData (int (runnum))
-        query.setCondition ("trghltmap.HLTKEY = cmsrunsummary.HLTKEY AND cmsrunsummary.RUNNUM = :runnumber",
-                            queryCondition)
+        query.setCondition (conditionstring,queryCondition)
         query.addToOutputList ("trghltmap.HLTPATHNAME", "hltpathname")
         query.addToOutputList ("trghltmap.L1SEED", "l1seed")
         result = coral.AttributeList()
@@ -263,8 +268,7 @@ def recordedLumiForRun (dbsession, parameters, runnum, lslist = None):
                 
         cursor.close()
         del hltprescQuery
-        dbsession.transaction().commit()
-        
+        dbsession.transaction().commit()      
         dbsession.transaction().start (True)
         schema = dbsession.nominalSchema()
         query = schema.newQuery()
@@ -273,13 +277,14 @@ def recordedLumiForRun (dbsession, parameters, runnum, lslist = None):
         queryCondition = coral.AttributeList()
         queryCondition.extend ("runnumber", "unsigned int")
         queryCondition.extend ("lumiversion", "string")
-        #queryCondition.extend ("alive", "bool")
         queryCondition["runnumber"].setData (int (runnum))
         queryCondition["lumiversion"].setData (parameters.lumiversion)
-        #queryCondition["alive"].setData (True)
-        query.setCondition ("lumisummary.RUNNUM =:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLSNUM and lumisummary.RUNNUM=trg.RUNNUM", queryCondition)
-        #query.setCondition ("trg.RUNNUM = :runnumber AND lumisummary.RUNNUM = :runnumber and lumisummary.LUMIVERSION = :lumiversion AND lumisummary.CMSLSNUM = trg.CMSLSNUM AND lumisummary.cmsalive = :alive AND trg.BITNUM = :bitnum", queryCondition)
-        #query.addToOutputList ("sum (lumisummary.INSTLUMI* (1-trg.DEADTIME/ (lumisummary.numorbit*3564)))", "recorded")
+        conditionstring='lumisummary.RUNNUM =:runnumber and lumisummary.LUMIVERSION =:lumiversion AND lumisummary.CMSLSNUM=trg.CMSLSNUM and lumisummary.RUNNUM=trg.RUNNUM'
+        if len(parameters.beammode)!=0:
+            conditionstring=conditionstring+' and lumisummary.BEAMSTATUS=:beamstatus'
+            queryCondition.extend('beamstatus','string')
+            queryCondition['beamstatus'].setData(parameters.beammode)
+        query.setCondition(conditionstring,queryCondition)
         query.addToOutputList ("lumisummary.CMSLSNUM", "cmsls")
         query.addToOutputList ("lumisummary.INSTLUMI", "instlumi")
         query.addToOutputList ("lumisummary.NUMORBIT", "norbits")
@@ -288,8 +293,6 @@ def recordedLumiForRun (dbsession, parameters, runnum, lslist = None):
         query.addToOutputList ("trg.DEADTIME",         "trgdeadtime")
         query.addToOutputList ("trg.PRESCALE",         "trgprescale")
         query.addToOutputList ("trg.BITNUM",           "trgbitnum")
-        #query.addToOrderList ("trg.BITNAME")
-        #query.addToOrderList ("trg.CMSLSNUM")
 
         result = coral.AttributeList()
         result.extend ("cmsls",       "unsigned int")

@@ -27,7 +27,7 @@ if __name__ == '__main__':
     parser.add_argument('-r',dest='runnumber',action='store',type=int,help='run number,optional')
     parser.add_argument('-i',dest='inputfile',action='store',help='lumi range selection file,optional')
     parser.add_argument('-o',dest='outputfile',action='store',help='output to csv file,optional')
-    parser.add_argument('-b',dest='beammode',action='store',choices=beamModeChoices,help='beam mode choice',default='stable')
+    parser.add_argument('-b',dest='beammode',action='store',choices=beamModeChoices,required=False,help='beam mode choice')
     parser.add_argument('-lumiversion',dest='lumiversion',action='store',default='0001',help='lumi data version, optional')
     parser.add_argument('-hltpath',dest='hltpath',action='store',default='all',help='specific hltpath to calculate the recorded luminosity,optional')
     parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',help='specific path to site-local-config.xml file, optional. If path undefined, fallback to cern proxy&server')
@@ -53,7 +53,8 @@ if __name__ == '__main__':
     parameters.noWarnings  = options.nowarning
     parameters.norm        = options.normfactor
     parameters.lumiversion = options.lumiversion
-    parameters.beammode    = options.beammode
+    if options.beammode=='stable':
+        parameters.beammode    = 'STABLE BEAMS'
     parameters.xingMinLum  = options.xingMinLum
     
     lumiXing = False
