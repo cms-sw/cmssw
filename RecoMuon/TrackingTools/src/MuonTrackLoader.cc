@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2010/08/19 18:27:08 $
- *  $Revision: 1.83 $
+ *  $Date$
+ *  $Revision$
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -318,6 +318,7 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
 
     combinedTrajs.push_back((*it)->trajectory());
     if ( thePutTkTrackFlag ) trackerTrajs.push_back((*it)->trackerTrajectory());
+
     else {
       if ((*it)->trackerTrajectory()) delete ((*it)->trackerTrajectory());
     }
@@ -332,10 +333,13 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
   
   // create the TrackCollection of combined Trajectories
   // FIXME: could this be done one track at a time in the previous loop?
+  LogTrace(metname) << "Build combinedTracks";
   OrphanHandle<reco::TrackCollection> combinedTracks = loadTracks(combinedTrajs, event);
 
   OrphanHandle<reco::TrackCollection> trackerTracks;
   if(thePutTkTrackFlag) {
+    LogTrace(metname) << "Build trackerTracks: "
+		      << trackerTrajs.size();
     trackerTracks = loadTracks(trackerTrajs, event, theL2SeededTkLabel, theSmoothTkTrackFlag);
   } else {
     for (TrajectoryContainer::iterator it = trackerTrajs.begin(); it != trackerTrajs.end(); ++it) {
@@ -343,7 +347,8 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
     }
   }
 
-  
+  LogTrace(metname) << "Set the final links in the MuonTrackLinks collection";
+
   reco::MuonTrackLinksCollection::iterator links = trackLinksCollection->begin();
   for ( unsigned int position = 0; position != combinedTracks->size(); ++position, ++links) {
     reco::TrackRef combinedTR(combinedTracks, position);
@@ -356,30 +361,32 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
     if(thePutTkTrackFlag) links->setTrackerTrack(trackerTR);
   }
 
-  //missing hits quality check  
   if( combinedTracks->size() > 0 && trackerTracks->size() > 0 ) {
-    for (  links = trackLinksCollection->begin();  links != trackLinksCollection->end(); ++links ) {
-      int hitTk = ( links->trackerTrack().isNonnull()) ? links->trackerTrack().get()->hitPattern().numberOfValidTrackerHits() : 0;
-      int hitGlbTk = ( links->globalTrack().isNonnull()) ?  links->globalTrack().get()->hitPattern().numberOfValidTrackerHits() : 0;
-      int hitSta =  ( links->standAloneTrack().isNonnull()) ? links->standAloneTrack().get()->recHitsSize() : 0;
-      int hitGlbSta = ( links->globalTrack().isNonnull()) ? links->globalTrack().get()->hitPattern().numberOfValidMuonHits() : 0;
-      int hitGlb =  ( links->globalTrack().isNonnull()) ? links->globalTrack().get()->hitPattern().numberOfValidHits() : 0;
-      
-      int missingSta = hitSta-hitGlbSta;
-      int missingTk = hitTk-hitGlbTk;
-      
-      if (fabs(missingSta + missingTk) > 3){
-	LogTrace(metname)<<"Global Muon Missing Hits!";
-	LogTrace(metname)<<" nGlb: " << hitGlb << " nSta: " << hitSta << " nTk:" << hitTk << " nStaMissing: " <<  missingSta << " nTkMissing: " << missingTk;
-      }
+  // Not a so great thing to do... this loop is not needed at all, especially for HLT
+  // missing hits quality check  
+  for (  links = trackLinksCollection->begin();  links != trackLinksCollection->end(); ++links ) {
+    int hitTk = ( links->trackerTrack().isNonnull()) ? links->trackerTrack().get()->hitPattern().numberOfValidTrackerHits() : 0;
+    int hitGlbTk = ( links->globalTrack().isNonnull()) ?  links->globalTrack().get()->hitPattern().numberOfValidTrackerHits() : 0;
+    int hitSta =  ( links->standAloneTrack().isNonnull()) ? links->standAloneTrack().get()->recHitsSize() : 0;
+    int hitGlbSta = ( links->globalTrack().isNonnull()) ? links->globalTrack().get()->hitPattern().numberOfValidMuonHits() : 0;
+    int hitGlb =  ( links->globalTrack().isNonnull()) ? links->globalTrack().get()->hitPattern().numberOfValidHits() : 0;
+    int missingSta = hitSta-hitGlbSta;
+    int missingTk = hitTk-hitGlbTk;
+
+    if (fabs(missingSta + missingTk) > 3){
+      LogTrace(metname)<<"Global Muon Missing Hits!";
+      LogTrace(metname)<<" nGlb: " << hitGlb << " nSta: " << hitSta << " nTk:" << hitTk << " nStaMissing: " <<  missingSta << " nTkMissing: " << missingTk;
     }
   }
-  
+  }
+  else LogWarning(metname)<<"The MuonTrackLinkCollection is incomplete. combinedTracks->size()="<<combinedTracks->size()
+			  <<", trackerTracks->size()="<<trackerTracks->size();
+ 
   // put the MuonCollection in the event
   LogTrace(metname) << "put the MuonCollection in the event" << "\n";
   
   return event.put(trackLinksCollection);
-}
+} 
 
 OrphanHandle<reco::TrackCollection> 
 MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
