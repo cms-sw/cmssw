@@ -96,7 +96,8 @@ namespace cond {
   
   
   void BlobStreamingService::read( const coral::Blob& blobData, void* addressOfContainer,  Reflex::Type const & classDictionary ) {
-    Variant v = findVariant(blobData.startingAddress());
+    // protect against small blobs...
+    Variant v =  (size_t(blobData.size()) < m_idsize + sizeof(unsigned long long)) ? OLD : findVariant(blobData.startingAddress());
     switch (v) {
     case OLD :
       {
