@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.84 2010/08/04 14:27:04 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.85 2010/08/04 15:03:31 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -941,7 +941,7 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
     vector<string> jetmetPaths;
     vector<string> restPaths;
     vector<string> allPaths;
-    // fill vectors of Muon, Egamma, JetMET, Rest, and Special paths
+    // fill vectors of Muon, Egamma, JetMet, Rest, and Special paths
     for(PathInfoCollection::iterator v = hltPathsDiagonal_.begin(); v!= hltPathsDiagonal_.end(); ++v ) {
 
       std::string pathName = v->getPath();
@@ -985,7 +985,7 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
     fGroupName.push_back("Muon");
     fGroupName.push_back("Egamma");
     fGroupName.push_back("Tau");
-    fGroupName.push_back("JetMET");
+    fGroupName.push_back("JetMet");
     fGroupName.push_back("Rest");
     fGroupName.push_back("Special");
 
@@ -1008,7 +1008,7 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
 
     fGroupNamePathsPair.push_back(make_pair("Tau",tauPaths));
 
-    fGroupNamePathsPair.push_back(make_pair("JetMET",jetmetPaths));
+    fGroupNamePathsPair.push_back(make_pair("JetMet",jetmetPaths));
 
     fGroupNamePathsPair.push_back(make_pair("Rest",restPaths));
 
