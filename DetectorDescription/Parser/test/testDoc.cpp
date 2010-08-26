@@ -192,12 +192,12 @@ int DDLTestDoc::readConfig(const std::string& filename)
     std::cout << "\nXMLException: parsing '" << filename << "'\n"
 	 << "Exception message is: \n"
 	 << std::string(StrX(toCatch.getMessage()).localForm()) << "\n" ;
-    return -1;
+    return 1;
   }
   catch (...)
     {
       std::cout << "\nUnexpected exception during parsing: '" << filename << "'\n";
-      return 4;
+      return 3;
     }
 
   fnames_ = sch->getFileNames();
