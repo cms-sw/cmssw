@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOnline.cc,v 1.33 2010/03/25 15:03:37 rekovic Exp $
+// $Id: FourVectorHLTOnline.cc,v 1.34 2010/08/07 14:55:56 wmtan Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQM/HLTEvF/interface/FourVectorHLTOnline.h"
@@ -838,7 +838,7 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
     std::vector<std::string> jetmetPaths;
     std::vector<std::string> restPaths;
     std::vector<std::string> allPaths;
-    // fill vectors of Muon, Egamma, JetMET, Rest, and Special paths
+    // fill vectors of Muon, Egamma, JetMet, Rest, and Special paths
     for(PathInfoCollection::iterator v = hltPathsDiagonal_.begin(); v!= hltPathsDiagonal_.end(); ++v ) {
 
       std::string pathName = v->getPath();
@@ -882,7 +882,7 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
     fGroupName.push_back("Muon");
     fGroupName.push_back("Egamma");
     fGroupName.push_back("Tau");
-    fGroupName.push_back("JetMET");
+    fGroupName.push_back("JetMet");
     fGroupName.push_back("Rest");
     fGroupName.push_back("Special");
 
@@ -905,7 +905,7 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
 
     fGroupNamePathsPair.push_back(make_pair("Tau",tauPaths));
 
-    fGroupNamePathsPair.push_back(make_pair("JetMET",jetmetPaths));
+    fGroupNamePathsPair.push_back(make_pair("JetMet",jetmetPaths));
 
     fGroupNamePathsPair.push_back(make_pair("Rest",restPaths));
 
