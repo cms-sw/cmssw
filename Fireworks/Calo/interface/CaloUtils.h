@@ -13,6 +13,7 @@ namespace fireworks
 
    void drawEnergyScaledBox3D( const float* corners, float scale, TEveElement*,  FWProxyBuilderBase*, bool invert = false );
    void drawEnergyTower3D( const float* corners, float scale, TEveElement*, FWProxyBuilderBase*, bool reflect = false );
+   void drawEtTower3D( const float* corners, float scale, TEveElement*, FWProxyBuilderBase*, bool reflect = false );
 }
 
 #endif
