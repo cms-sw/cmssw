@@ -59,8 +59,8 @@ namespace evf{
 	  curl_easy_setopt(han, CURLOPT_PROXY, "localhost:3128");
 
 	curl_easy_setopt(han, CURLOPT_URL, hostname.c_str());
-	curl_easy_setopt(han, CURLOPT_VERBOSE);
-	curl_easy_setopt(han, CURLOPT_NOSIGNAL);
+	curl_easy_setopt(han, CURLOPT_VERBOSE,"");
+	curl_easy_setopt(han, CURLOPT_NOSIGNAL,"");
 	//	curl_easy_setopt(han, CURLOPT_TIMEOUT, 60.0L);
 
 	curl_easy_setopt(han, CURLOPT_WRITEFUNCTION, &write_data);
