@@ -403,12 +403,12 @@ if (liveCMS == 1) | (playCMS == 1) :
 if (globalDAQ == 1) | (liveECAL == 1) : 
   process.GlobalTag.toGet = cms.VPSet(
     cms.PSet(record = cms.string("EcalDQMChannelStatusRcd"),
-             tag = cms.string("EcalDQMChannelStatus_v01_online"),
-             connect = cms.untracked.string("sqlite_file:/nfshome0/ecalpro/MASKING-DQM/mask-ECAL.db")
+             tag = cms.string("EcalDQMChannelStatus_v1_hlt"),
+             connect = cms.untracked.string("frontier://FrontierOnProd/CMS_COND_34X_ECAL")
             ),
     cms.PSet(record = cms.string("EcalDQMTowerStatusRcd"),
-             tag = cms.string("EcalDQMTowerStatus_v01_online"),
-             connect = cms.untracked.string("sqlite_file:/nfshome0/ecalpro/MASKING-DQM/mask-ECAL.db")
+             tag = cms.string("EcalDQMTowerStatus_v1_hlt"),
+             connect = cms.untracked.string("frontier://FrontierOnProd/CMS_COND_34X_ECAL")
             )
   )
 
