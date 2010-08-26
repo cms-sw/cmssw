@@ -305,6 +305,12 @@ parser.add_option("--cfg-add",
                   help="line to add to the generated cmsRun configuration file. Can be specified several times",
                   metavar="CFG_LINE")
 
+parser.add_option("--num-events",
+                  dest="num_events",
+                  default = None,
+                  type="int",
+                  help="set maxEvents to run over a limited number of events",
+                  metavar="NUM")
 
 (options, ARGV) = parser.parse_args()
 
@@ -376,6 +382,17 @@ else:
 print "Checking out tag '" + options.cvstag + "' of " + module
 
 execCmd("cvs -Q co -r " + options.cvstag + " " + module)
+
+#--------------------
+# check if the (possibly user specified) config file does exist
+# or not. Note that we can do this only AFTER the CVS checkout
+if not os.path.exists(os.path.join(module,options.configFile)):
+    print >> sys.stderr,"config file " + options.configFile + " does not exist"
+    print os.getcwd()
+    sys.exit(1)
+#--------------------
+
+
 execCmd("scramv1 b")
 os.chdir(module)
 
@@ -421,6 +438,18 @@ if len(options.cfg_add) > 0:
     print >> fout
     print >> fout,"#----------------------------------------"
 
+#----------------------------------------
+# max. events to run on
+if options.num_events != None:
+    print >> fout
+    print >> fout,"#----------------------------------------"
+    print >> fout,"# maximum number of events specified"
+    print >> fout,"#----------------------------------------"
+    print >> fout,"process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )"
+    print >> fout,"#----------------------------------------"
+
+#----------------------------------------
+# close config file
 fout.close()
 
 #----------------------------------------
