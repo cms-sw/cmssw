@@ -13,7 +13,7 @@
   for a general overview of the selectors. 
 
   \author Salvatore Rappoccio
-  \version  $Id: PFJetIDSelectionFunctor.h,v 1.13 2010/08/09 13:50:05 srappocc Exp $
+  \version  $Id: PFJetIDSelectionFunctor.h,v 1.1 srappocc Exp $
 */
 
 
@@ -144,7 +144,12 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
   // 
   bool operator()( const pat::Jet & jet, pat::strbitset & ret )  
   {
-    if ( version_ == FIRSTDATA ) return firstDataCuts( jet, ret );
+    if ( version_ == FIRSTDATA ) {
+      if ( jet.corrStep() == "raw" ) 
+	return firstDataCuts( jet, ret );
+      else 
+	return firstDataCuts( jet.correctedJet(pat::JetCorrFactors::Raw), ret );
+    }
     else {
       return false;
     }
