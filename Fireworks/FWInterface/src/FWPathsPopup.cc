@@ -111,14 +111,14 @@ FWPathsPopup::makePathsTextView()
     std::vector<std::string> modulesInPath;
     m_info->modulesInPath(*pi, modulesInPath);
 
-    m_modulePathsText->AddLine((*pi).c_str());
+    m_modulePathsText->AddLineFast((*pi).c_str());
 
     for ( std::vector<std::string>::iterator mi = modulesInPath.begin(),
                                           miEnd = modulesInPath.end();
           mi != miEnd; ++mi )
     {
       std::string str = "  "+(*mi);
-      m_modulePathsText->AddLine(str.c_str());
+      m_modulePathsText->AddLineFast(str.c_str());
   
       const edm::ParameterSet* parameterSet = m_info->parametersForModule(*mi);
 
@@ -129,7 +129,7 @@ FWPathsPopup::makePathsTextView()
             ti != tiEnd; ++ti )
       {
         std::string tstr = "    " + ti->first + ti->second.toString();
-        m_modulePathsText->AddLine(tstr.c_str());
+        m_modulePathsText->AddLineFast(tstr.c_str());
       }
     
       for ( edm::ParameterSet::psettable::const_iterator pi = 
@@ -137,7 +137,7 @@ FWPathsPopup::makePathsTextView()
             pi != piEnd; ++pi )
       {
         std::string pstr = "    " + pi->first + pi->second.toString();
-        m_modulePathsText->AddLine(pstr.c_str());
+        m_modulePathsText->AddLineFast(pstr.c_str());
       }
 
       for ( edm::ParameterSet::vpsettable::const_iterator vpi = 
@@ -145,11 +145,12 @@ FWPathsPopup::makePathsTextView()
             vpi != vpiEnd; ++vpi )
       {
         std::string vpstr = "   " + vpi->first + vpi->second.toString();
-        m_modulePathsText->AddLine(vpstr.c_str());
+        m_modulePathsText->AddLineFast(vpstr.c_str());
       }
      
     }
   } 
+  m_modulePathsText->Update();
 }
 
 /** Gets called by CMSSW as we process events. **/
