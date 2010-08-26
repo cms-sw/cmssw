@@ -144,15 +144,15 @@ def getLumiInfoForRuns(dbsession,c,runList,selectionDict,hltpath='',beamstatus=N
             deadfrac=float(valuelist[6])/float(valuelist[5])
             trgprescale=valuelist[8]
             recorded=recorded+valuelist[0]*(1.0-deadfrac)*lslength
-           # print cmslsnum,valuelist[0]*lslength,valuelist[0]*(1.0-deadfrac)*lslength,lslength,deadfrac
+            if c.VERBOSE: print runnum,cmslsnum,valuelist[0]*lslength,valuelist[0]*(1.0-deadfrac)*lslength,lslength,deadfrac
             if hlttrgmap.has_key(hltpath) and hltinfo.has_key(cmslsnum):
                 hltprescale=hltinfo[cmslsnum][2]
                 trgprescale=trgbitinfo[cmslsnum][3]
                 recordedinpath=recordedinpath+valuelist[0]*(1.0-deadfrac)*lslength*hltprescale*trgprescale
         result[runnum]=[delivered,recorded,recordedinpath]
     dbsession.transaction().commit()
-    if c.VERBOSE:
-        print result
+    #if c.VERBOSE:
+    #    print result
     return result           
 
 def main():
