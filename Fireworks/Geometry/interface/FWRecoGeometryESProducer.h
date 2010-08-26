@@ -44,17 +44,16 @@ private:
   TGeoShape*        createShape( const GeomDet *det );
   TGeoVolume*       createVolume( const std::string& name, const GeomDet *det, const std::string& matname = "Air" );
   TGeoMaterial*     createMaterial( const std::string& name );
-  const std::string path( TGeoVolume* top, const std::string& name, int copy );
 
-  void addCSCGeometry( TGeoVolume* top, const std::string& name = "CSC", int copy = 1 );
-  void addDTGeometry( TGeoVolume* top, const std::string& name = "DT", int copy = 1 );
-  void addRPCGeometry( TGeoVolume* top, const std::string& name = "RPC", int copy = 1 );
-  void addPixelBarrelGeometry( TGeoVolume* top, const std::string& name = "PixelBarrel", int copy = 1 );
-  void addPixelForwardGeometry( TGeoVolume* top, const std::string& name = "PixelForward", int copy = 1 );
-  void addTIBGeometry( TGeoVolume* top, const std::string& name = "TIB", int copy = 1 );
-  void addTOBGeometry( TGeoVolume* top, const std::string& name = "TOB", int copy = 1 );
-  void addTIDGeometry( TGeoVolume* top, const std::string& name = "TID", int copy = 1 );
-  void addTECGeometry( TGeoVolume* top, const std::string& name = "TEC", int copy = 1 );
+  void addCSCGeometry( TGeoVolume* top, const std::string& path, int copy = 1 );
+  void addDTGeometry( TGeoVolume* top, const std::string& path, int copy = 1 );
+  void addRPCGeometry( TGeoVolume* top, const std::string& path, int copy = 1 );
+  void addPixelBarrelGeometry( TGeoVolume* top, const std::string& path, int copy = 1 );
+  void addPixelForwardGeometry( TGeoVolume* top, const std::string& path, int copy = 1 );
+  void addTIBGeometry( TGeoVolume* top, const std::string& path, int copy = 1 );
+  void addTOBGeometry( TGeoVolume* top, const std::string& path, int copy = 1 );
+  void addTIDGeometry( TGeoVolume* top, const std::string& path, int copy = 1 );
+  void addTECGeometry( TGeoVolume* top, const std::string& path, int copy = 1 );
   void addCaloGeometry( void );
   
   std::map<std::string, TGeoShape*>    m_nameToShape;
@@ -67,7 +66,7 @@ private:
   const TrackerGeometry* m_trackerGeom;
   
   boost::shared_ptr<FWRecoGeometry> m_fwGeometry;
-  unsigned int insert_id( unsigned int rawid, const std::string name = "" );
+  unsigned int insert_id( unsigned int rawid, const std::string& name = "" );
   void fillPoints( unsigned int id, std::vector<GlobalPoint>::const_iterator begin, std::vector<GlobalPoint>::const_iterator end );
   
   unsigned int m_current;
