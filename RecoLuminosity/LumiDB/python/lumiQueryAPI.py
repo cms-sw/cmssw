@@ -139,9 +139,10 @@ def recordedLumiForRange (dbsession, parameters, inputRange):
 
 
 def deliveredLumiForRun (dbsession, parameters, runnum):    
-    """select sum (INSTLUMI), count (INSTLUMI) from lumisummary where
-    runnum = 124025 and lumiversion = '0001'; apply norm factor and ls
-    length in sec on the query result unit E27cm^-2 (= 1 / mb)"""    
+    """
+    select sum (INSTLUMI), count (INSTLUMI) from lumisummary where runnum = 124025 and lumiversion = '0001';
+    select INSTLUMI,NUMORBIT  from lumisummary where runnum = 124025 and lumiversion = '0001'
+    query result unit E27cm^-2 (= 1 / mb)"""    
     #if parameters.verbose:
     #    print 'deliveredLumiForRun : norm : ', parameters.norm, ' : run : ', runnum
     #output ['run', 'totalls', 'delivered', 'beammode']
@@ -152,8 +153,9 @@ def deliveredLumiForRun (dbsession, parameters, runnum):
         dbsession.transaction().start (True)
         schema = dbsession.nominalSchema()
         query = schema.tableHandle (nameDealer.lumisummaryTableName()).newQuery()
-        query.addToOutputList ("sum (INSTLUMI)", "totallumi")
-        query.addToOutputList ("count (INSTLUMI)", "totalls")
+        #query.addToOutputList ("sum (INSTLUMI)", "totallumi")
+        #query.addToOutputList ("count (INSTLUMI)", "totalls")
+        query.addToOutputList("INSTLUMI",'instlumi')
         query.addToOutputList ("NUMORBIT", "norbits")
         queryBind = coral.AttributeList()
         queryBind.extend ("runnum", "unsigned int")
@@ -166,27 +168,23 @@ def deliveredLumiForRun (dbsession, parameters, runnum):
             queryBind.extend('beamstatus','string')
             queryBind['beamstatus'].setData(parameters.beammode)
         result = coral.AttributeList()
-        result.extend ("totallumi", "float")
-        result.extend ("totalls", "unsigned int")
+        result.extend ("instlumi", "float")
         result.extend ("norbits", "unsigned int")
         query.defineOutput (result)
         query.setCondition (conditionstring,queryBind)
-        query.limitReturnedRows (1)
-        query.groupBy ('NUMORBIT')
+        #query.limitReturnedRows (1)
+        #query.groupBy ('NUMORBIT')
         cursor = query.execute()
         while cursor.next():
-            delivereddata = cursor.currentRow()['totallumi'].data()
-            totallsdata = cursor.currentRow()['totalls'].data()
-            norbitsdata = cursor.currentRow()['norbits'].data()
-            if delivereddata:
-                totalls = totallsdata
-                norbits = norbitsdata
-                lstime = lslengthsec (norbits, parameters.NBX)
-                delivered = delivereddata*parameters.norm*lstime
+            instlumi = cursor.currentRow()['instlumi'].data()
+            norbits = cursor.currentRow()['norbits'].data()
+            if instlumi and norbits:
+                lstime = lslengthsec(norbits, parameters.NBX)
+                delivered=delivered+instlumi*parameters.norm*lstime
+                totalls+=1
         del query
         dbsession.transaction().commit()
         lumidata = []
-
         if delivered == 0.0:
             lumidata = [str (runnum), 'N/A', 'N/A', 'N/A']
         else:
