@@ -71,6 +71,7 @@ def lsBylsLumi (deadtable):
             deadfrac = float (deadArray[0]) / float (deadArray[2])
         recordedLumi = instlumi * (1.0 - deadfrac)
         myLsList = [instlumi, recordedLumi]
+        #print myls,instlumi,recordedLumi,lstime,deadfrac
         if len (deadArray) > 4:
             myLsList.extend (deadArray[4:])
         result[myls] = myLsList
