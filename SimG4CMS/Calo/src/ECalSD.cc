@@ -53,6 +53,7 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
   storeTrack   = m_EC.getParameter<bool>("StoreSecondary");
   crystalMat   = m_EC.getUntrackedParameter<std::string>("XtalMat","E_PbWO4");
   bool isItTB  = m_EC.getUntrackedParameter<bool>("TestBeam", false);
+  bool nullNS  = m_EC.getUntrackedParameter<bool>("NullNumbering", false);
   storeRL      = m_EC.getUntrackedParameter<bool>("StoreRadLength", false);
   
   //Material list for HB/HE/HO sensitive detectors
@@ -76,7 +77,8 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
   else                  depth2Name = " ";
 
   EcalNumberingScheme* scheme=0;
-  if      (name == "EcalHitsEB") scheme = dynamic_cast<EcalNumberingScheme*>(new EcalBarrelNumberingScheme());
+  if (nullNS)                    scheme = 0;
+  else if (name == "EcalHitsEB") scheme = dynamic_cast<EcalNumberingScheme*>(new EcalBarrelNumberingScheme());
   else if (name == "EcalHitsEE") scheme = dynamic_cast<EcalNumberingScheme*>(new EcalEndcapNumberingScheme());
   else if (name == "EcalHitsES") {
     if (isItTB) scheme = dynamic_cast<EcalNumberingScheme*>(new ESTBNumberingScheme());
@@ -219,8 +221,12 @@ uint16_t ECalSD::getRadiationLength(G4Step * aStep) {
 }
 
 uint32_t ECalSD::setDetUnitId(G4Step * aStep) { 
-  getBaseNumber(aStep);
-  return (numberingScheme == 0 ? 0 : numberingScheme->getUnitID(theBaseNumber));
+  if (numberingScheme == 0) {
+    return 1;
+  } else {
+    getBaseNumber(aStep);
+    return numberingScheme->getUnitID(theBaseNumber);
+  }
 }
 
 void ECalSD::setNumberingScheme(EcalNumberingScheme* scheme) {
