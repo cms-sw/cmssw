@@ -169,10 +169,8 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, pat::str
       event.getByLabel (muonTag_, muonHandle);
 
       edm::Handle< vector< pat::Jet > > jetHandle;
-      event.getByLabel (jetTag_, jetHandle);
 
       edm::Handle< edm::OwnVector<reco::Candidate> > jetClonesHandle ;
-      event.getByLabel( jetClonesTag_, jetClonesHandle );
 
       edm::Handle< vector< pat::MET > > metHandle;
       event.getByLabel (metTag_, metHandle);
@@ -203,6 +201,7 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, pat::str
 
 
       if ( !useJetClones_ ) {
+	event.getByLabel (jetTag_, jetHandle);
 	pat::strbitset ret1 = jetIdLoose_.getBitTemplate();
 	pat::strbitset ret2 = pfjetIdLoose_.getBitTemplate();
 	for ( std::vector<pat::Jet>::const_iterator jetBegin = jetHandle->begin(),
@@ -237,6 +236,7 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, pat::str
 	}
       }// end if not using jet clones
       else {
+	event.getByLabel( jetClonesTag_, jetClonesHandle );
 	// Here, we assume the user has made some ShallowClones of the jets with selection
 	// already applied, for speed purposes.
 	for ( edm::OwnVector<reco::Candidate>::const_iterator jetBegin = jetClonesHandle->begin(),

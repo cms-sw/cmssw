@@ -66,6 +66,12 @@ class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
     set("ED0");
     set("SD0");
     set("RelIso");
+
+
+    indexD0_            = index_type(&bits_, "D0"           );
+    indexED0_           = index_type(&bits_, "ED0"          );
+    indexSD0_           = index_type(&bits_, "SD0"          );
+    indexRelIso_        = index_type(&bits_, "RelIso"       );
     
   }
 
@@ -96,10 +102,10 @@ class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
     
     double relIso = (ecalIso + hcalIso + trkIso) / et;
 
-    if ( fabs(corr_d0) <  cut("D0",     double()) || ignoreCut("D0")      ) passCut(ret, "D0"     );
-    if ( fabs(corr_ed0)<  cut("ED0",    double()) || ignoreCut("ED0")     ) passCut(ret, "ED0"    );
-    if ( fabs(corr_sd0)<  cut("SD0",    double()) || ignoreCut("SD0")     ) passCut(ret, "SD0"    );
-    if ( relIso        <  cut("RelIso", double()) || ignoreCut("RelIso")  ) passCut(ret, "RelIso" );
+    if ( fabs(corr_d0) <  cut(indexD0_,     double()) || ignoreCut(indexD0_)      ) passCut(ret, indexD0_     );
+    if ( fabs(corr_ed0)<  cut(indexED0_,    double()) || ignoreCut(indexED0_)     ) passCut(ret, indexED0_    );
+    if ( fabs(corr_sd0)<  cut(indexSD0_,    double()) || ignoreCut(indexSD0_)     ) passCut(ret, indexSD0_    );
+    if ( relIso        <  cut(indexRelIso_, double()) || ignoreCut(indexRelIso_)  ) passCut(ret, indexRelIso_ );
 
     setIgnored(ret);
     return (bool)ret;
@@ -109,6 +115,11 @@ class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
  private: // member variables
   
   Version_t version_;
+
+  index_type indexD0_;            
+  index_type indexED0_;           
+  index_type indexSD0_;           
+  index_type indexRelIso_;        
   
 };
 

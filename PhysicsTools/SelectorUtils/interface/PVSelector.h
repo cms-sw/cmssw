@@ -25,6 +25,13 @@ public:
     set("PV Z");
     set("PV RHO");
 
+    indexNDOF_ = index_type (&bits_, "PV NDOF");
+    indexZ_    = index_type (&bits_, "PV Z");
+    indexRho_  = index_type (&bits_, "PV RHO");
+    
+    if ( params.exists("cutsToIgnore") )
+      setIgnoredCuts( params.getParameter<std::vector<std::string> >("cutsToIgnore") );
+
     retInternal_ = getBitTemplate();
   }
   
@@ -39,15 +46,15 @@ public:
 
     if ( pv.isFake() ) return false;
 
-    if ( pv.ndof() >= cut("PV NDOF", double() )
-	 || ignoreCut("PV NDOF")    ) {
-      passCut(ret, "PV NDOF" );
-      if ( fabs(pv.z()) <= cut("PV Z", double()) 
-	   || ignoreCut("PV Z")    ) {
-	passCut(ret, "PV Z" );
-	if ( fabs(pv.position().Rho()) <= cut("PV RHO", double() )
-	     || ignoreCut("PV RHO") ) {
-	  passCut( ret, "PV RHO");
+    if ( pv.ndof() >= cut(indexNDOF_, double() )
+	 || ignoreCut(indexNDOF_)    ) {
+      passCut(ret, indexNDOF_ );
+      if ( fabs(pv.z()) <= cut(indexZ_, double()) 
+	   || ignoreCut(indexZ_)    ) {
+	passCut(ret, indexZ_ );
+	if ( fabs(pv.position().Rho()) <= cut(indexRho_, double() )
+	     || ignoreCut(indexRho_) ) {
+	  passCut( ret, indexRho_);
 	}
       }
     }
@@ -64,6 +71,10 @@ public:
 private:
   edm::InputTag                           pvSrc_;
   edm::Handle<std::vector<reco::Vertex> > h_primVtx;
+
+  index_type indexNDOF_;
+  index_type indexZ_;
+  index_type indexRho_;
 };
 
 #endif

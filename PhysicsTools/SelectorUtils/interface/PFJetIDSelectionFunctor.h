@@ -13,7 +13,7 @@
   for a general overview of the selectors. 
 
   \author Salvatore Rappoccio
-  \version  $Id: PFJetIDSelectionFunctor.h,v 1.12 2010/06/26 12:53:41 srappocc Exp $
+  \version  $Id: PFJetIDSelectionFunctor.h,v 1.13 2010/08/09 13:50:05 srappocc Exp $
 */
 
 
@@ -83,6 +83,15 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     if ( params.exists("NCH") ) set("NCH", params.getParameter<int>   ("NCH") );
     if ( params.exists("nConstuents") ) set("nConstituents", params.getParameter<int> ("nConstituents") );
 
+
+
+    indexNConstituents_ = index_type (&bits_, "nConstituents");
+    indexNEF_ = index_type (&bits_, "NEF");
+    indexNHF_ = index_type (&bits_, "NHF");
+    indexCEF_ = index_type (&bits_, "CEF");
+    indexCHF_ = index_type (&bits_, "CHF");
+    indexNCH_ = index_type (&bits_, "NCH");
+
     retInternal_ = getBitTemplate();
     
   }
@@ -117,6 +126,14 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
       set("NCH", 0);
       set("nConstituents", 1);      
     }
+
+
+    indexNConstituents_ = index_type (&bits_, "nConstituents");
+    indexNEF_ = index_type (&bits_, "NEF");
+    indexNHF_ = index_type (&bits_, "NHF");
+    indexCEF_ = index_type (&bits_, "CEF");
+    indexCHF_ = index_type (&bits_, "CHF");
+    indexNCH_ = index_type (&bits_, "NCH");
 
     retInternal_ = getBitTemplate();   
  }
@@ -249,13 +266,13 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
 
 
     // Cuts for all |eta|:
-    if ( ignoreCut("nConstituents") || nconstituents > cut("nConstituents", int() ) ) passCut( ret, "nConstituents");
-    if ( ignoreCut("NEF")           || ( nef < cut("NEF", double()) ) ) passCut( ret, "NEF");
-    if ( ignoreCut("NHF")           || ( nhf < cut("NHF", double()) ) ) passCut( ret, "NHF");    
+    if ( ignoreCut(indexNConstituents_) || nconstituents > cut(indexNConstituents_, int() ) ) passCut( ret, indexNConstituents_);
+    if ( ignoreCut(indexNEF_)           || ( nef < cut(indexNEF_, double()) ) ) passCut( ret, indexNEF_);
+    if ( ignoreCut(indexNHF_)           || ( nhf < cut(indexNHF_, double()) ) ) passCut( ret, indexNHF_);    
     // Cuts for |eta| < 2.4:
-    if ( ignoreCut("CEF")           || ( cef < cut("CEF", double()) || std::abs(jet.eta()) > 2.4 ) ) passCut( ret, "CEF");
-    if ( ignoreCut("CHF")           || ( chf > cut("CHF", double()) || std::abs(jet.eta()) > 2.4 ) ) passCut( ret, "CHF");
-    if ( ignoreCut("NCH")           || ( nch > cut("NCH", int())    || std::abs(jet.eta()) > 2.4 ) ) passCut( ret, "NCH");    
+    if ( ignoreCut(indexCEF_)           || ( cef < cut(indexCEF_, double()) || std::abs(jet.eta()) > 2.4 ) ) passCut( ret, indexCEF_);
+    if ( ignoreCut(indexCHF_)           || ( chf > cut(indexCHF_, double()) || std::abs(jet.eta()) > 2.4 ) ) passCut( ret, indexCHF_);
+    if ( ignoreCut(indexNCH_)           || ( nch > cut(indexNCH_, int())    || std::abs(jet.eta()) > 2.4 ) ) passCut( ret, indexNCH_);    
 
     setIgnored( ret );
     return (bool)ret;
@@ -265,6 +282,13 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
   
   Version_t version_;
   Quality_t quality_;
+
+  index_type indexNConstituents_;
+  index_type indexNEF_;
+  index_type indexNHF_;
+  index_type indexCEF_;
+  index_type indexCHF_;
+  index_type indexNCH_;
   
 };
 
