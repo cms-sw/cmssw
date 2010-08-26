@@ -185,6 +185,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         StoreSecondary  = cms.bool(False),
         XtalMat         = cms.untracked.string('E_PbWO4'),
         TestBeam        = cms.untracked.bool(False),
+        NullNumbering   = cms.untracked.bool(False),
         StoreRadLength  = cms.untracked.bool(False)
     ),
     HCalSD = cms.PSet(
