@@ -36,8 +36,8 @@ setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 #setenv SAMPLE PhotonJetPt80
 #setenv SAMPLE PhotonJetPt470
 
-#setenv SAMPLE SingleGammaPt10IDEAL
-setenv SAMPLE SingleGammaPt35IDEAL
+setenv SAMPLE SingleGammaPt10IDEAL
+#setenv SAMPLE SingleGammaPt35IDEAL
 ##setenv SAMPLE SingleGammaFlatPt10_100IDEAL
 #setenv SAMPLE H130GGgluonfusionSTARTUP
 #setenv SAMPLE PhotonJets_Pt_10
@@ -56,7 +56,7 @@ if ($SAMPLE == SingleGammaPt10IDEAL) then
 
 
 setenv FULLSIM ${WorkDir1}/PhotonValidationRelVal${RELEASE}_SingleGammaPt10.root
-setenv FASTSIM ${WorkDir1}/PhotonValidationRelVal${RELEASE}_SingleGammaPt10.root
+setenv FASTSIM ${WorkDir1}/PhotonValidationRelVal${RELEASE}_SingleGammaPt10_FastSim.root
 
 else if ($SAMPLE == SingleGammaPt35IDEAL) then 
 
@@ -67,19 +67,19 @@ setenv FASTSIM ${WorkDir1}/PhotonValidationRelVal${RELEASE}_SingleGammaPt35_Fast
 else if ($SAMPLE == SingleGammaFlatPt10_100IDEAL) then 
 
 setenv FULLSIM ${WorkDir1}/PhotonValidationRelVal${RELEASE}_SingleGammaFlatPt10To100.root
-setenv FASTSIM ${WorkDir1}/PhotonValidationRelVal${RELEASE}_SingleGammaFlatPt10To100.root
+setenv FASTSIM ${WorkDir1}/PhotonValidationRelVal${RELEASE}_SingleGammaFlatPt10To100_FastSim.root
 
 
 else if ($SAMPLE == H130GGgluonfusionSTARTUP) then 
 
 setenv FULLSIM ${WorkDir1}/PhotonValidationRelVal${RELEASE}_H130GGgluonfusion.root
-setenv FASTSIM ${WorkDir1}/PhotonValidationRelVal${RELEASE}_H130GGgluonfusion.root
+setenv FASTSIM ${WorkDir1}/PhotonValidationRelVal${RELEASE}_H130GGgluonfusion_FastSim.root
 
 
 else if ($SAMPLE == PhotonJets_Pt_10) then
 
 setenv FULLSIM ${WorkDir1}/PhotonValidationRelVal${RELEASE}_PhotonJets_Pt_10.root
-setenv FASTSIM ${WorkDir1}/PhotonValidationRelVal${RELEASE}_PhotonJets_Pt_10.root
+setenv FASTSIM ${WorkDir1}/PhotonValidationRelVal${RELEASE}_PhotonJets_Pt_10_FastSim.root
 
 
 else if ($SAMPLE ==  GammaJets_Pt_80_120STARTUP) then 
@@ -278,8 +278,8 @@ if (-e validation.C) rm validation.C
 touch validation.C
 cat > begin.C <<EOF
 {
-TFile *file_old = TFile::Open("$FULLSIM");
-TFile *file_new = TFile::Open("$FASTSIM");
+TFile *file_old = TFile::Open("$FASTSIM");
+TFile *file_new = TFile::Open("$FULLSIM");
 
 EOF
 cat begin.C >>& validation.C
