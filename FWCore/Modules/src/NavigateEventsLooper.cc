@@ -73,10 +73,13 @@ namespace edm {
       std::cout << "(0) process the next event\n";
     }
     else if (pc.forwardState() == ProcessingController::kNextFileExists) {
-      std::cout << "(0) process the next event if there are any (at last event in the open file. there are more files)\n";
+      std::cout << "(0) process the next event if it exists (at last event in the open file. there are more files)\n";
     }
     else if (pc.forwardState() == ProcessingController::kAtLastEvent) {
       std::cout << "(0) will stop the loop because this is the last event\n";
+    }
+    else if (pc.forwardState() == ProcessingController::kUnknownForward) {
+      std::cout << "(0) process the next event (if it exists)\n";
     }
 
     if (pc.canRandomAccess()) {
