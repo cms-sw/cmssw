@@ -133,9 +133,9 @@ namespace popcon {
     
     
     
-    
-    m_dbService->setLogHeaderForRecord(m_record,source.id(),"PopCon v3.0; " + 
-				       cond::userInfo() + displayIovHelper(payloads) +  ret.second);
+    if(m_LoggingOn)
+      m_dbService->setLogHeaderForRecord(m_record,source.id(),"PopCon v4.0; " + 
+					 cond::userInfo() + displayIovHelper(payloads) +  ret.second);
     
     
     displayHelper(payloads);
