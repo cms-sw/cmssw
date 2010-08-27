@@ -15,6 +15,7 @@ RootInputFileSequence: This is an InputSource
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/GroupSelectorRules.h"
+#include "FWCore/Framework/interface/ProcessingController.h"
 #include "FWCore/Sources/interface/EventSkipperByID.h"
 #include "FWCore/Sources/interface/VectorInputSource.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
@@ -55,6 +56,7 @@ namespace edm {
     void endJob();
     InputSource::ItemType getNextItemType();
     bool skipEvents(int offset, PrincipalCache& cache);
+    bool goToEvent(EventID const& eventID, PrincipalCache& cache);
     bool skipToItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event);
     void rewind_();
     void reset(PrincipalCache& cache);
@@ -65,6 +67,8 @@ namespace edm {
     void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches);
     boost::shared_ptr<ProductRegistry const> fileProductRegistry() const;
     static void fillDescription(ParameterSetDescription & desc);
+    ProcessingController::ForwardState forwardState() const;
+    ProcessingController::ReverseState reverseState() const;
   private:
     void initFile(bool skipBadFiles);
     bool nextFile(PrincipalCache& cache);
@@ -106,6 +110,7 @@ namespace edm {
     bool primaryFiles_;
     boost::shared_ptr<DuplicateChecker> duplicateChecker_;
     bool dropDescendants_;
+    bool usingGoToEvent_;
   }; // class RootInputFileSequence
 }
 #endif

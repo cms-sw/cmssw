@@ -12,7 +12,8 @@ namespace edm {
 
   DuplicateChecker::DuplicateChecker(ParameterSet const& pset) :
     dataType_(unknown),
-    itIsKnownTheFileHasNoDuplicates_(false)
+    itIsKnownTheFileHasNoDuplicates_(false),
+    disabled_(false)
   {
     // The default value provided as the second argument to the getUntrackedParameter function call
     // is not used when the ParameterSet has been validated and the parameters are not optional
@@ -34,6 +35,13 @@ namespace edm {
         << "the \"duplicateCheckMode\" parameter, legal values are:\n"
         << "\"noDuplicateCheck\", \"checkEachFile\", \"checkEachRealDataFile\", \"checkAllFilesOpened\"\n";
     }
+  }
+
+  void DuplicateChecker::disable() {
+    disabled_ = true;
+    dataType_ = unknown;
+    relevantPreviousEvents_.clear();
+    itIsKnownTheFileHasNoDuplicates_ = false;
   }
 
   void DuplicateChecker::inputFileOpened(

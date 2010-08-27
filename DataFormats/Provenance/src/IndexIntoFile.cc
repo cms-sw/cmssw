@@ -538,6 +538,50 @@ namespace edm {
   }
 
   IndexIntoFile::IndexIntoFileItr
+  IndexIntoFile::findPosition(SortOrder sortOrder, RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) const {
+    if (sortOrder == IndexIntoFile::numericalOrder) {
+      return findPosition(run, lumi, event); // a faster algorithm
+    }
+    IndexIntoFileItr itr = begin(sortOrder);
+    IndexIntoFileItr itrEnd = end(sortOrder);
+    
+    while (itr != itrEnd) {
+      if (itr.run() != run) {
+        itr.advanceToNextRun();
+      }
+      else {
+        if (lumi == invalidLumi && event == invalidEvent) {
+          return itr;
+        }
+        else if (lumi != invalidLumi && itr.peekAheadAtLumi() != lumi) {
+          if (!itr.skipLumiInRun()) {
+            itr.advanceToNextRun();
+          }
+        }
+        else {
+          if (event == invalidEvent) {
+            return itr;
+          }
+          else {
+            EventNumber_t eventNumber = getEventNumberOfEntry(itr.peekAheadAtEventEntry());
+            if (eventNumber == event) {
+              return itr;
+            }
+            else {
+              if (!itr.skipToNextEventInLumi()) {
+                if (!itr.skipLumiInRun()) {
+                  itr.advanceToNextRun();
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return itrEnd;
+  }
+
+  IndexIntoFile::IndexIntoFileItr
   IndexIntoFile::findEventPosition(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) const {
     assert(event != invalidEvent);
     IndexIntoFileItr iter = findPosition(run, lumi, event);
@@ -1117,6 +1161,15 @@ namespace edm {
     setInvalid();
   }
 
+  bool IndexIntoFile::IndexIntoFileItrImpl::skipToNextEventInLumi() {
+    if (indexToEvent_ >= nEvents_) return false;
+    if ((indexToEvent_ + 1)  < nEvents_) {
+      ++indexToEvent_;
+      return true;
+    }
+    return nextEventRange();
+  }
+
   void IndexIntoFile::IndexIntoFileItrImpl::initializeRun() {
 
     indexToLumi_ = invalidIndex;
@@ -1153,6 +1206,16 @@ namespace edm {
             indexToEventRange_ == right.indexToEventRange_ &&
             indexToEvent_ == right.indexToEvent_ &&
             nEvents_ == right.nEvents_);
+  }
+
+  void
+  IndexIntoFile::IndexIntoFileItrImpl::copyPosition(IndexIntoFileItrImpl const& position) {
+    type_ = position.type_;
+    indexToRun_ = position.indexToRun_;
+    indexToLumi_ = position.indexToLumi_;
+    indexToEventRange_ = position.indexToEventRange_;
+    indexToEvent_ = position.indexToEvent_;
+    nEvents_ = position.nEvents_;
   }
 
   void IndexIntoFile::IndexIntoFileItrImpl::setInvalid() {
@@ -1562,6 +1625,11 @@ namespace edm {
          entryType = getEntryType()) {
 	    impl_->next();
     }
+  }
+
+  void
+  IndexIntoFile::IndexIntoFileItr::copyPosition(IndexIntoFileItr const& position) {
+    impl_->copyPosition(*position.impl_);
   }
 
   IndexIntoFile::Transients::Transients() : previousAddedIndex_(invalidIndex),

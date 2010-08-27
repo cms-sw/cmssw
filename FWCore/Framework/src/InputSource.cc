@@ -387,6 +387,12 @@ namespace edm {
     this->skip(offset);
   }
 
+  bool
+  InputSource::goToEvent(EventID const& eventID) {
+    doneReadAhead_ = false;
+    return this->goToEvent_(eventID);
+  }
+
   void
   InputSource::issueReports(EventID const& eventID, LuminosityBlockNumber_t const& lumi) {
     if(edm::isInfoEnabled()) {
@@ -446,6 +452,16 @@ namespace edm {
         << "Random access is not implemented for this type of Input Source\n"
         << "Contact a Framework Developer\n";
   }
+
+  bool
+  InputSource::goToEvent_(EventID const& eventID) {
+      throw edm::Exception(errors::LogicError)
+        << "InputSource::goToEvent_()\n"
+        << "Random access is not implemented for this type of Input Source\n"
+        << "Contact a Framework Developer\n";
+      return true;
+  }
+
 
   void
   InputSource::rewind_() {
@@ -567,6 +583,21 @@ namespace edm {
   InputSource::preForkReleaseResources() {}
   void
   InputSource::postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialChildren) {}
+
+  bool
+  InputSource::randomAccess_() const {
+    return false;
+  }
+
+  ProcessingController::ForwardState
+  InputSource::forwardState_() const {
+    return ProcessingController::kUnknownForward;
+  }
+
+  ProcessingController::ReverseState
+  InputSource::reverseState_() const {
+    return ProcessingController::kUnknownReverse;
+  }
 
   ProcessHistoryID const&
   InputSource::processHistoryID() const {

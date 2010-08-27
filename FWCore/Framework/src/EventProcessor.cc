@@ -1960,13 +1960,28 @@ namespace edm {
     schedule_->processOneOccurrence<OccurrenceTraits<EventPrincipal, BranchActionBegin> >(*pep, es);
  
     if (looper_) {
-      ///NOTE: this is where we'd query the source to see its state
-      ProcessingController pc(ProcessingController::kUnknown, false);
-      EDLooperBase::Status status = looper_->doDuringLoop(*pep, esp_->eventSetup(),pc);
-      ///NOTE: this is where we'd use the transition status of pc to decide if
-      // we must tell the source to go to a different next event
-      
+      bool randomAccess = input_->randomAccess();
+      ProcessingController::ForwardState forwardState = input_->forwardState();
+      ProcessingController::ReverseState reverseState = input_->reverseState();
+      ProcessingController pc(forwardState, reverseState, randomAccess);
+
+      EDLooperBase::Status status = EDLooperBase::kContinue;
+      do {
+        status = looper_->doDuringLoop(*pep, esp_->eventSetup(), pc);
+
+        bool succeeded = true;
+        if (randomAccess) {
+          if (pc.requestedTransition() == ProcessingController::kToPreviousEvent) {
+            input_->skipEvents(-2);
+          }
+          else if (pc.requestedTransition() == ProcessingController::kToSpecifiedEvent) {
+            succeeded = input_->goToEvent(pc.specifiedEventTransition());
+          }
+        }
+        pc.setLastOperationSucceeded(succeeded);
+      } while (!pc.lastOperationSucceeded());
       if (status != EDLooperBase::kContinue) shouldWeStop_ = true;
+
     }
 
     FDEBUG(1) << "\tprocessEvent\n";

@@ -17,6 +17,7 @@ PoolSource: This is an InputSource
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Sources/interface/VectorInputSource.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
+#include "FWCore/Framework/interface/ProcessingController.h"
 
 #include "boost/scoped_ptr.hpp"
 #include "boost/array.hpp"
@@ -49,6 +50,7 @@ namespace edm {
     virtual ItemType getNextItemType();
     virtual EventPrincipal* readIt(EventID const& id);
     virtual void skip(int offset);
+    virtual bool goToEvent_(EventID const& eventID);
     virtual void rewind_();
     virtual void readMany_(int number, EventPrincipalVector& result);
     virtual void readManyRandom_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber);
@@ -57,6 +59,9 @@ namespace edm {
     virtual void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches);
     virtual void preForkReleaseResources();
     virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialEvents);
+    virtual bool randomAccess_() const;
+    virtual ProcessingController::ForwardState forwardState_() const;
+    virtual ProcessingController::ReverseState reverseState_() const;
 
     RootServiceChecker rootServiceChecker_;
     boost::scoped_ptr<RootInputFileSequence> primaryFileSequence_;

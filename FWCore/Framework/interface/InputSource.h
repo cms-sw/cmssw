@@ -54,6 +54,7 @@ Some examples of InputSource subclasses may be:
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/ProcessingController.h"
 
 namespace edm {
   class ParameterSet;
@@ -128,6 +129,8 @@ namespace edm {
     /// Skip the number of events specified.
     /// Offset may be negative.
     void skipEvents(int offset);
+
+    bool goToEvent(EventID const& eventID);
 
     /// Begin again at the first event
     void rewind() {
@@ -242,6 +245,10 @@ namespace edm {
     /// Called by the framework when the lumi principal cache is cleared
     void respondToClearingLumiCache();
 
+    bool randomAccess() const { return randomAccess_(); }
+    ProcessingController::ForwardState forwardState() const { return forwardState_(); }
+    ProcessingController::ReverseState reverseState() const { return reverseState_(); }
+
     using ProductRegistryHelper::produces;
     using ProductRegistryHelper::typeLabelList;
 
@@ -333,6 +340,7 @@ namespace edm {
     virtual boost::shared_ptr<FileBlock> readFile_();
     virtual void closeFile_() {}
     virtual void skip(int);
+    virtual bool goToEvent_(EventID const& eventID);
     virtual void setRun(RunNumber_t r);
     virtual void setLumi(LuminosityBlockNumber_t lb);
     virtual void rewind_();
@@ -347,8 +355,10 @@ namespace edm {
     virtual void endJob();
     virtual void preForkReleaseResources();
     virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialChildren);
+    virtual bool randomAccess_() const;
+    virtual ProcessingController::ForwardState forwardState_() const;
+    virtual ProcessingController::ReverseState reverseState_() const;
 
-     
   private:
 
     boost::shared_ptr<ActivityRegistry> actReg_;

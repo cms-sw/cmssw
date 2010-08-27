@@ -35,6 +35,8 @@ namespace edm {
 
     DuplicateChecker(ParameterSet const& pset);
 
+    void disable();
+
     void inputFileOpened(
       bool realData,
       IndexIntoFile const& indexIntoFile,
@@ -47,7 +49,8 @@ namespace edm {
 
     bool checkDisabled() const {
       return duplicateCheckMode_ == noDuplicateCheck ||
-	(duplicateCheckMode_ == checkEachRealDataFile && dataType_ == isSimulation);
+	(duplicateCheckMode_ == checkEachRealDataFile && dataType_ == isSimulation) ||
+        disabled_;
     }
 
     bool isDuplicateAndCheckActive(int index,
@@ -78,6 +81,8 @@ namespace edm {
     std::set<IndexIntoFile::IndexRunLumiEventKey> relevantPreviousEvents_;
 
     bool itIsKnownTheFileHasNoDuplicates_;
+
+    bool disabled_;
   };
 }
 #endif

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug  6 16:06:01 CDT 2010
-// $Id$
+// $Id: ProcessingController.h,v 1.1 2010/08/09 21:04:54 chrjones Exp $
 //
 
 // system include files
@@ -30,22 +30,29 @@ namespace edm {
    class ProcessingController {
       
    public:
-      enum State {
-         kAtFirstEvent,
+      enum ForwardState {
+         kEventsAheadInFile,
+         kNextFileExists, // but no events ahead in this file
          kAtLastEvent,
-         kAtFirstAndLastEvent, //there is only one event available
-         kEventsEitherDirection,
-         kUnknown //returned by a source which is not random accessable
+         kUnknownForward // returned by a source which is not random accessible
       };
-      
-      ProcessingController(State iState, bool iCanRandomAccess);
+
+      enum ReverseState {
+         kEventsBackwardsInFile,
+         kPreviousFileExists, // but no events backwards in this file
+         kAtFirstEvent,
+         kUnknownReverse // returned by a source which is not random accessible
+      };
+
+      ProcessingController(ForwardState forwardState, ReverseState reverseState, bool iCanRandomAccess);
       //virtual ~ProcessingController();
       
       // ---------- const member functions ---------------------
-      
+
       ///Returns the present state of processing
-      State processingState() const;
-      
+      ForwardState forwardState() const;
+      ReverseState reverseState() const;
+
       ///Returns 'true' if the job's source can randomly access
       bool canRandomAccess() const;
 
@@ -60,7 +67,9 @@ namespace edm {
       ///If 'setTransitionToEvent was called this returns the value passed,
       /// else it returns an invalid EventID
       edm::EventID specifiedEventTransition() const;
-      
+
+      bool lastOperationSucceeded() const;
+
       // ---------- static member functions --------------------
       
       // ---------- member functions ---------------------------
@@ -79,20 +88,21 @@ namespace edm {
        If event iID can not be found in the source, the job will drop out of the event loop.
        */
       void setTransitionToEvent( edm::EventID const& iID);
-      
+
+      void setLastOperationSucceeded(bool value);
+
    private:
       ProcessingController(const ProcessingController&); // stop default
       
       const ProcessingController& operator=(const ProcessingController&); // stop default
       
       // ---------- member data --------------------------------
-      State state_;
+      ForwardState forwardState_;
+      ReverseState reverseState_;
       Transition transition_;
       EventID specifiedEvent_;
       bool canRandomAccess_;
-      
+      bool lastOperationSucceeded_;
    };
 }
-
-
 #endif

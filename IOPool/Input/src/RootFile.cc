@@ -113,7 +113,8 @@ namespace edm {
                      bool dropDescendants,
                      std::vector<boost::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
                      std::vector<boost::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile,
-                     std::vector<ProcessHistoryID>& orderedProcessHistoryIDs) :
+                     std::vector<ProcessHistoryID>& orderedProcessHistoryIDs,
+                     bool usingGoToEvent) :
       file_(fileName),
       logicalFile_(logicalFileName),
       processConfiguration_(processConfiguration),
@@ -303,7 +304,7 @@ namespace edm {
     ProcessHistoryRegistry::instance()->insertCollection(pHistVector);
     ProcessConfigurationRegistry::instance()->insertCollection(procConfigVector);
 
-    validateFile(secondaryFile);
+    validateFile(secondaryFile, usingGoToEvent);
 
     // Read the parentage tree.  Old format files are handled internally in readParentageTree().
     readParentageTree();
@@ -518,8 +519,12 @@ namespace edm {
 
   IndexIntoFile::IndexIntoFileItr
   RootFile::indexIntoFileIter() const {
-    assert(indexIntoFileIter_ != indexIntoFileEnd_);
     return indexIntoFileIter_;
+  }
+
+  void
+  RootFile::setPosition(IndexIntoFile::IndexIntoFileItr const& position) {
+    indexIntoFileIter_.copyPosition(position);
   }
 
   bool
@@ -616,6 +621,31 @@ namespace edm {
       return getNextEntryTypeWanted();
     }
     return IndexIntoFile::kEvent;
+  }
+
+  bool
+  RootFile::wasLastEventJustRead() const {
+    IndexIntoFile::IndexIntoFileItr itr(indexIntoFileIter_);
+    itr.advanceToEvent();
+    return itr.getEntryType() == IndexIntoFile::kEnd;
+  }
+
+  bool
+  RootFile::wasFirstEventJustRead() const {
+    IndexIntoFile::IndexIntoFileItr itr(indexIntoFileIter_);
+    int phIndex;
+    RunNumber_t run;
+    LuminosityBlockNumber_t lumi;
+    IndexIntoFile::EntryNumber_t eventEntry;
+    itr.skipEventBackward(phIndex,
+                          run,
+                          lumi,
+                          eventEntry);
+    itr.skipEventBackward(phIndex,
+                          run,
+                          lumi,
+                          eventEntry);
+    return eventEntry == IndexIntoFile::invalidEntry;
   }
 
   namespace {
@@ -874,7 +904,7 @@ namespace edm {
   }
 
   void
-  RootFile::validateFile(bool secondaryFile) {
+  RootFile::validateFile(bool secondaryFile, bool usingGoToEvent) {
     if(!fid_.isValid()) {
       fid_ = FileID(createGlobalIdentifier());
     }
@@ -898,7 +928,7 @@ namespace edm {
     indexIntoFile_.setEventFinder(boost::shared_ptr<IndexIntoFile::EventFinder>(new RootFileEventFinder(eventTree_)));
     // We fill the event numbers explicitly if we need to find events in closed files,
     // such as for secondary files (or secondary sources) or if duplicate checking across files.
-    if (secondaryFile || (duplicateChecker_ && duplicateChecker_->checkingAllFiles())) {
+    if (secondaryFile || (duplicateChecker_ && duplicateChecker_->checkingAllFiles()) || usingGoToEvent) {
       indexIntoFile_.fillEventNumbers();
     }
     if (secondaryFile || !noEventSort_) {
@@ -1105,6 +1135,10 @@ namespace edm {
 
     while(offset < 0) {
 
+      if(duplicateChecker_) {
+        duplicateChecker_->disable();
+      }
+
       int phIndexOfEvent = IndexIntoFile::invalidIndex;
       RunNumber_t runOfEvent =  IndexIntoFile::invalidRun;
       LuminosityBlockNumber_t lumiOfEvent = IndexIntoFile::invalidLumi;
@@ -1130,6 +1164,28 @@ namespace edm {
     eventTree_.resetTraining();
 
     return (indexIntoFileIter_ == indexIntoFileEnd_);
+  }
+
+  bool
+  RootFile::goToEvent(EventID const& eventID) {
+
+    indexIntoFile_.fillEventNumbers();
+
+    if (duplicateChecker_) {
+      duplicateChecker_->disable();
+    }
+
+    IndexIntoFile::SortOrder sortOrder = IndexIntoFile::numericalOrder;
+    if (noEventSort_) sortOrder = IndexIntoFile::firstAppearanceOrder;
+
+    IndexIntoFile::IndexIntoFileItr iter = 
+      indexIntoFile_.findPosition(sortOrder, eventID.run(), eventID.luminosityBlock(), eventID.event());
+
+    if (iter == indexIntoFile_.end(sortOrder)) {
+      return false;
+    }
+    indexIntoFileIter_ = iter;
+    return true;
   }
 
   // readEvent() is responsible for creating, and setting up, the

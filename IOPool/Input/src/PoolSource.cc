@@ -245,6 +245,11 @@ namespace edm {
     primaryFileSequence_->skipEvents(offset, principalCache());
   }
 
+  bool
+  PoolSource::goToEvent_(EventID const& eventID) {
+    return primaryFileSequence_->goToEvent(eventID, principalCache());
+  }
+
   void
   PoolSource::readMany_(int number, EventPrincipalVector& result) {
     assert (!secondaryFileSequence_);
@@ -284,5 +289,20 @@ namespace edm {
     RootInputFileSequence::fillDescription(desc);
 
     descriptions.add("source", desc);
+  }
+
+  bool
+  PoolSource::randomAccess_() const {
+    return true;
+  }
+
+  ProcessingController::ForwardState
+  PoolSource::forwardState_() const {
+    return primaryFileSequence_->forwardState();
+  }
+
+  ProcessingController::ReverseState
+  PoolSource::reverseState_() const {
+    return primaryFileSequence_->reverseState();
   }
 }

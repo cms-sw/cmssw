@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Aug  9 09:33:31 CDT 2010
-// $Id$
+// $Id: ProcessingController.cc,v 1.1 2010/08/09 21:04:56 chrjones Exp $
 //
 
 // system include files
@@ -28,11 +28,13 @@ using namespace edm;
 //
 // constructors and destructor
 //
-ProcessingController::ProcessingController(ProcessingController::State iState, bool iCanRandomAccess):
-state_(iState),
+ProcessingController::ProcessingController(ForwardState forwardState, ReverseState reverseState, bool iCanRandomAccess) :
+forwardState_(forwardState),
+reverseState_(reverseState),
 transition_(kToNextEvent),
 specifiedEvent_(),
-canRandomAccess_(iCanRandomAccess)
+canRandomAccess_(iCanRandomAccess),
+lastOperationSucceeded_(true)
 {
 }
 
@@ -79,13 +81,25 @@ ProcessingController::setTransitionToEvent( edm::EventID const& iID)
    specifiedEvent_ =iID;
 }
 
+void
+ProcessingController::setLastOperationSucceeded(bool value)
+{
+  lastOperationSucceeded_ = value;
+}
+
 //
 // const member functions
 //
-ProcessingController::State 
-ProcessingController::processingState() const
+ProcessingController::ForwardState 
+ProcessingController::forwardState() const
 {
-   return state_;
+   return forwardState_;
+}
+
+ProcessingController::ReverseState 
+ProcessingController::reverseState() const
+{
+   return reverseState_;
 }
 
 bool 
@@ -107,11 +121,8 @@ ProcessingController::specifiedEventTransition() const
    return specifiedEvent_;
 }
 
-// ---------- static member functions --------------------
-
-// ---------- member functions ---------------------------
-
-
-//
-// static member functions
-//
+bool
+ProcessingController::lastOperationSucceeded() const
+{
+  return lastOperationSucceeded_;
+}

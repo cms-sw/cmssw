@@ -81,6 +81,12 @@ pushd ${LOCAL_TMP_DIR}
   cmsRun -p ${LOCAL_TEST_DIR}/${test}FastCloning_cfg.py 2> testFastCloning.txt
   grep "Tree branches have different numbers of entries" testFastCloning.txt || die "cmsRun testRunMergeFastCloning_cfg.py" $?
 
+  echo testLooperEventNavigation-----------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/testLooperEventNavigation_cfg.py < ${LOCAL_TEST_DIR}/testLooperEventNavigation.txt || die "cmsRun testLooperEventNavigation_cfg.py " $?
+
+  echo testLooperEventNavigation1-----------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/testLooperEventNavigation1_cfg.py < ${LOCAL_TEST_DIR}/testLooperEventNavigation.txt || die "cmsRun testLooperEventNavigation1_cfg.py " $?
+
 popd
 
 exit 0

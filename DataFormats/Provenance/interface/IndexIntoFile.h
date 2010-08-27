@@ -257,6 +257,9 @@ namespace edm {
       IndexIntoFileItr
       findPosition(RunNumber_t run, LuminosityBlockNumber_t lumi = 0U, EventNumber_t event = 0U) const;
 
+      IndexIntoFileItr
+      findPosition(SortOrder sortOrder, RunNumber_t run, LuminosityBlockNumber_t lumi = 0U, EventNumber_t event = 0U) const;
+
       /// Same as findPosition,except the entry type of the returned iterator will be kEvent or kEnd and the event argument must be nonzero.
       /// This means the next thing to be processed will be the event if it is found.
       IndexIntoFileItr
@@ -506,6 +509,7 @@ namespace edm {
 
         void advanceToNextRun();
         void advanceToNextLumiOrRun();
+        bool skipToNextEventInLumi();
         void initializeRun();
 
         void initializeLumi() {initializeLumi_();}
@@ -522,6 +526,8 @@ namespace edm {
         int indexToEventRange() const { return indexToEventRange_; }
         long long indexToEvent() const { return indexToEvent_; }
         long long nEvents() const { return nEvents_; }
+
+        void copyPosition(IndexIntoFileItrImpl const& position);
 
       protected:
 
@@ -654,6 +660,10 @@ namespace edm {
         /// In that case instead of always returning 0 (invalid), it will return the lumi that will be processed next
         LuminosityBlockNumber_t peekAheadAtLumi() const { return impl_->peekAheadAtLumi(); }
 
+        /// Same as entry() except when the the current type is kRun or kLumi.
+        /// In that case instead of always returning 0 (invalid), it will return the event entry that will be processed next
+        EntryNumber_t peekAheadAtEventEntry() const { return impl_->peekAheadAtEventEntry(); }
+
         // This is intentionally not implemented.
         // It would be difficult to implement for the no sort mode,
         // either slow or using extra memory.
@@ -703,6 +713,10 @@ namespace edm {
         /// Returns false if there is not one.
         bool skipLumiInRun() { return impl_->skipLumiInRun(); }
 
+        /// Move to the next event in the current lumi.
+        /// Returns false if there is not one.
+        bool skipToNextEventInLumi() { return impl_->skipToNextEventInLumi(); }
+
         void advanceToNextRun() {impl_->advanceToNextRun();}
         void advanceToNextLumiOrRun() {impl_->advanceToNextLumiOrRun();}
 
@@ -722,6 +736,9 @@ namespace edm {
 
         /// Should only be used internally and for tests
         void initializeLumi() {impl_->initializeLumi();}
+
+        /// Copy the position without modifying the pointer to the IndexIntoFile or size
+        void copyPosition(IndexIntoFileItr const& position);
 
       private:
 

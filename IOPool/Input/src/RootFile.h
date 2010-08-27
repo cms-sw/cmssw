@@ -64,7 +64,8 @@ namespace edm {
              bool dropDescendantsOfDroppedProducts,
              std::vector<boost::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
              std::vector<boost::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile,
-             std::vector<ProcessHistoryID>& orderedProcessHistoryIDs);
+             std::vector<ProcessHistoryID>& orderedProcessHistoryIDs,
+             bool usingGoToEvent);
     ~RootFile();
     void reportOpened(std::string const& inputType);
     void close();
@@ -110,18 +111,23 @@ namespace edm {
     }
 
     bool skipEvents(int& offset);
+    bool goToEvent(EventID const& eventID);
     bool nextEventEntry() {return eventTree_.next();}
     IndexIntoFile::EntryType getNextEntryTypeWanted();
     boost::shared_ptr<IndexIntoFile> indexIntoFileSharedPtr() const {
       return indexIntoFileSharedPtr_;
     }
+    bool wasLastEventJustRead() const;
+    bool wasFirstEventJustRead() const;
+    IndexIntoFile::IndexIntoFileItr indexIntoFileIter() const;
+    void setPosition(IndexIntoFile::IndexIntoFileItr const& position);
+
   private:
     RootTreePtrArray& treePointers() {return treePointers_;}
     bool skipThisEntry();
     IndexIntoFile::EntryType getEntryTypeWithSkipping();
-    IndexIntoFile::IndexIntoFileItr indexIntoFileIter() const;
     void setIfFastClonable(int remainingEvents, int remainingLumis);
-    void validateFile(bool secondaryFile);
+    void validateFile(bool secondaryFile, bool usingGoToEvent);
     void fillIndexIntoFile();
     void fillEventAuxiliary();
     void fillThisEventAuxiliary();

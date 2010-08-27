@@ -62,7 +62,8 @@ namespace edm {
     groupSelectorRules_(pset, "inputCommands", "InputSource"),
     primaryFiles_(primaryFiles),
     duplicateChecker_(primaryFiles ? new DuplicateChecker(pset) : 0),
-    dropDescendants_(pset.getUntrackedParameter<bool>("dropDescendantsOfDroppedBranches", primary())) {
+    dropDescendants_(pset.getUntrackedParameter<bool>("dropDescendantsOfDroppedBranches", primary())),
+    usingGoToEvent_(false) {
 
     //we now allow the site local config to specify what the TTree cache size should be
     edm::Service<edm::SiteLocalConfig> pSLC;
@@ -144,7 +145,7 @@ namespace edm {
       // we can delete the IndexIntoFile for the file we are closing.
       // If we can't delete it, we need to save only what we need to save.
       size_t currentIndexIntoFile = fileIter_ - fileIterBegin_;
-      bool deleteIndexIntoFile = primaryFiles_ && !(duplicateChecker_ && duplicateChecker_->checkingAllFiles());
+      bool deleteIndexIntoFile = primaryFiles_ && !(duplicateChecker_ && duplicateChecker_->checkingAllFiles() && !usingGoToEvent_);
       if (deleteIndexIntoFile) {
 	indexesIntoFiles_[currentIndexIntoFile].reset();
       } else {
@@ -196,7 +197,7 @@ namespace edm {
 	  setRun_,
 	  noEventSort_,
 	  groupSelectorRules_, !primaryFiles_, duplicateChecker_, dropDescendants_,
-	  indexesIntoFiles_, currentIndexIntoFile, orderedProcessHistoryIDs_));
+						 indexesIntoFiles_, currentIndexIntoFile, orderedProcessHistoryIDs_, usingGoToEvent_));
 
       indexesIntoFiles_[currentIndexIntoFile] = rootFile_->indexIntoFileSharedPtr();
       rootFile_->reportOpened(primary() ?
@@ -398,10 +399,63 @@ namespace edm {
       }
       if(numberOfEventsToSkip_ < 0 && !previousFile(cache)) {
         numberOfEventsToSkip_ = 0;
+        fileIter_ = fileIterEnd_;
         return false;
       }
     }
     return true;
+  }
+
+  bool
+  RootInputFileSequence::goToEvent(EventID const& eventID, PrincipalCache& cache) {
+    usingGoToEvent_ = true;
+    if (rootFile_) {
+      if (rootFile_->goToEvent(eventID)) {
+        return true;
+      }
+      // If only one input file, give up now, to save time.
+      if(rootFile_ && indexesIntoFiles_.size() == 1) {
+	return false;
+      }
+      // Save the current file and position so that we can restore them
+      // if we fail to restore the desired event
+      bool closedOriginalFile = false;
+      std::vector<FileCatalogItem>::const_iterator originalFile = fileIter_;
+      IndexIntoFile::IndexIntoFileItr originalPosition = rootFile_->indexIntoFileIter();
+
+      // Look for item (run/lumi/event) in files previously opened without reopening unnecessary files.
+      typedef std::vector<boost::shared_ptr<IndexIntoFile> >::const_iterator Iter;
+      for(Iter it = indexesIntoFiles_.begin(), itEnd = indexesIntoFiles_.end(); it != itEnd; ++it) {
+	if(*it && (*it)->containsItem(eventID.run(), eventID.luminosityBlock(), eventID.event())) {
+          // We found it. Close the currently open file, and open the correct one.
+	  fileIter_ = fileIterBegin_ + (it - indexesIntoFiles_.begin());
+	  initFile(false);
+	  // Now get the item from the correct file.
+          bool found = rootFile_->goToEvent(eventID);
+	  assert (found);
+	  return true;
+	}
+      }
+      // Look for item in files not yet opened.
+      for(Iter it = indexesIntoFiles_.begin(), itEnd = indexesIntoFiles_.end(); it != itEnd; ++it) {
+	if(!*it) {
+	  fileIter_ = fileIterBegin_ + (it - indexesIntoFiles_.begin());
+	  initFile(false);
+          closedOriginalFile = true;
+          if ((*it)->containsItem(eventID.run(), eventID.luminosityBlock(), eventID.event())) {
+            if  (rootFile_->goToEvent(eventID)) {
+	      return true;
+	    }
+          }
+	}
+      }
+      if (closedOriginalFile) {
+        fileIter_ = originalFile;
+        initFile(false);
+        rootFile_->setPosition(originalPosition);
+      }
+    }
+    return false;
   }
 
   bool
@@ -624,5 +678,35 @@ namespace edm {
     GroupSelectorRules::fillDescription(desc, "inputCommands");
     EventSkipperByID::fillDescription(desc);
     DuplicateChecker::fillDescription(desc);
+  }
+
+  ProcessingController::ForwardState
+  RootInputFileSequence::forwardState() const {
+    if (rootFile_) {
+      if (!rootFile_->wasLastEventJustRead()) {
+        return ProcessingController::kEventsAheadInFile;
+      }
+      std::vector<FileCatalogItem>::const_iterator itr(fileIter_);
+      if (itr != fileIterEnd_) ++itr;
+      if (itr != fileIterEnd_) {
+        return ProcessingController::kNextFileExists;
+      }
+      return ProcessingController::kAtLastEvent;
+    }
+    return ProcessingController::kUnknownForward;
+  }
+
+  ProcessingController::ReverseState
+  RootInputFileSequence::reverseState() const {
+    if (rootFile_) {
+      if (!rootFile_->wasFirstEventJustRead()) {
+        return ProcessingController::kEventsBackwardsInFile;
+      }
+      if (fileIter_ != fileIterBegin_) {
+        return ProcessingController::kPreviousFileExists;
+      }
+      return ProcessingController::kAtFirstEvent;
+    }
+    return ProcessingController::kUnknownReverse;
   }
 }
