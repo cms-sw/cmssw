@@ -148,7 +148,7 @@ class matplotRender():
         ax.legend(tuple(legendlist),loc='upper left')
         self.__fig.subplots_adjust(bottom=0.1,left=0.1)
         
-    def plotSumX_Time(self,rawxdata,rawydata,minTime,maxTime,nticks=6):
+    def plotSumX_Time(self,rawxdata,rawydata,minTime,maxTime,nticks=6,annotateBoundaryRunnum=False):
         '''
         input:
            rawxdata runDict{runnumber:[delivered,recorded,recorded_hltpath]}
@@ -195,14 +195,18 @@ class matplotRender():
         trans=matplotlib.transforms.BlendedGenericTransform(ax.transData,ax.transAxes)
         #print 'run boundary ',runs[0],runs[-1]
         #print 'xpoints boundary ',xpoints[0],xpoints[-1]
-        ax.text(xpoints[0],1.025,str(runs[0]),transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))        
-        ax.text(xpoints[-1],1.025,str(runs[-1]),transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
-        
+        if annotateBoundaryRunnum:
+            ax.text(xpoints[0],1.025,str(runs[0]),transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))        
+            ax.text(xpoints[-1],1.025,str(runs[-1]),transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
+        yearStr=minTime.strftime('%Y')
+        firstimeStr=minTime.strftime('%b %d %H:%M')
+        lasttimeStr=maxTime.strftime('%b %d %H:%M')
+        ax.set_title('Total Integrated Luminosity '+yearStr+' ('+firstimeStr+' UTC - '+lasttimeStr+' UTC)',size='small',family='fantasy')
         ax.legend(tuple(legendlist),loc='upper left')
         self.__fig.autofmt_xdate(bottom=0.18,rotation=0)
         self.__fig.subplots_adjust(bottom=0.1,left=0.1)
         
-    def plotPerdayX_Time(self,days,databyday,minTime,maxTime,boundaryInfo=[],nticks=6):
+    def plotPerdayX_Time(self,days,databyday,minTime,maxTime,boundaryInfo=[],nticks=6,annotateBoundaryRunnum=False):
         '''input
             databyday {'Delivered':[lumiperday]}
             boundaryInfo [[begintime,begininfo],[endtime,endinfo]]
@@ -231,19 +235,24 @@ class matplotRender():
             legendlist.append(ylabel+' Max '+'%.2f'%(max(databyday[ylabel]))+' '+'nb$^{-1}$')
         ax.legend(tuple(legendlist),loc='upper left')
         ax.set_xbound(lower=matplotlib.dates.date2num(minTime),upper=matplotlib.dates.date2num(maxTime))
-        if len(boundaryInfo)!=0:
-            begtime=boundaryInfo[0][0]
-            beginfo=boundaryInfo[0][1]
-            endtime=boundaryInfo[1][0]
-            endinfo=boundaryInfo[1][1]
-            #annotations
-            trans=matplotlib.transforms.BlendedGenericTransform(ax.transData,ax.transAxes)
-            ax.text(matplotlib.dates.date2num(begtime),1.025,beginfo,transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))        
-            ax.text(matplotlib.dates.date2num(endtime),1.025,endinfo,transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
+        if annotateBoundaryRunnum:
+            if len(boundaryInfo)!=0:
+                begtime=boundaryInfo[0][0]
+                beginfo=boundaryInfo[0][1]
+                endtime=boundaryInfo[1][0]
+                endinfo=boundaryInfo[1][1]
+                #annotations
+                trans=matplotlib.transforms.BlendedGenericTransform(ax.transData,ax.transAxes)
+                ax.text(matplotlib.dates.date2num(begtime),1.025,beginfo,transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))        
+                ax.text(matplotlib.dates.date2num(endtime),1.025,endinfo,transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
+        yearStr=minTime.strftime('%Y')
+        firstimeStr=minTime.strftime('%b %d %H:%M')
+        lasttimeStr=maxTime.strftime('%b %d %H:%M')
+        ax.set_title('Integrated Luminosity/Day '+yearStr+' ('+firstimeStr+' UTC - '+lasttimeStr+' UTC)',size='small',family='fantasy')
         self.__fig.autofmt_xdate(bottom=0.18,rotation=0)
         self.__fig.subplots_adjust(bottom=0.18,left=0.1)
 
-    def plotPeakPerday_Time(self,daydict,minTime,maxTime,nticks=6):
+    def plotPeakPerday_Time(self,daydict,minTime,maxTime,nticks=6,annotateBoundaryRunnum=False):
         '''
         Input: daydict={}#{day:[run,lsnum,instlumi]}
         '''
@@ -290,11 +299,16 @@ class matplotRender():
         legendlist.append('Max Inst %.2f'%(ymax)+' '+'$\mu$b$^{-1}$s$^{-1}$')
         ax.legend(tuple(legendlist),loc='upper left')
         ax.set_xbound(lower=matplotlib.dates.date2num(minTime),upper=matplotlib.dates.date2num(maxTime))
-        #annotations
-        trans=matplotlib.transforms.BlendedGenericTransform(ax.transData,ax.transAxes)
-        ax.text(xpoints[0],1.025,beginfo,transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
-        ax.text(xpoints[-1],1.025,endinfo,transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
-        ax.annotate(maxinfo,xy=(xmax,ymax),xycoords='data',xytext=(0,13),textcoords='offset points',arrowprops=dict(facecolor='green',shrink=0.05),size='x-small',horizontalalignment='center',color='green',bbox=dict(facecolor='white'))
+        if annotateBoundaryRunnum:
+           #annotations
+           trans=matplotlib.transforms.BlendedGenericTransform(ax.transData,ax.transAxes)
+           ax.text(xpoints[0],1.025,beginfo,transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
+           ax.text(xpoints[-1],1.025,endinfo,transform=trans,horizontalalignment='left',size='x-small',color='green',bbox=dict(facecolor='white'))
+           ax.annotate(maxinfo,xy=(xmax,ymax),xycoords='data',xytext=(0,13),textcoords='offset points',arrowprops=dict(facecolor='green',shrink=0.05),size='x-small',horizontalalignment='center',color='green',bbox=dict(facecolor='white'))
+        yearStr=minTime.strftime('%Y')
+        firstimeStr=minTime.strftime('%b %d %H:%M')
+        lasttimeStr=maxTime.strftime('%b %d %H:%M')
+        ax.set_title('Peak Luminosity/Day '+yearStr+' ('+firstimeStr+' UTC - '+lasttimeStr+' UTC)',size='small',family='fantasy')
         self.__fig.autofmt_xdate(bottom=0.18,rotation=0)
         self.__fig.subplots_adjust(bottom=0.1,left=0.1)
 

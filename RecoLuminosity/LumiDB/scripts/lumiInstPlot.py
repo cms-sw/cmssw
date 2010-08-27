@@ -117,6 +117,7 @@ def main():
     parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',help='specific path to site-local-config.xml file, default to $CMS_PATH/SITECONF/local/JobConfig, if path undefined, fallback to cern proxy&server')
     parser.add_argument('action',choices=['peakperday','run'],help='plot type of choice')
     #graphical mode options
+    parser.add_argument('--annotateboundary',dest='annotateboundary',action='store_true',help='annotate boundary run numbers')
     parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose mode, print result also to screen')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     # parse arguments
@@ -246,7 +247,7 @@ def main():
             result[day]=[todaysmaxrun,todaysmaxls,todaysmaxinst]
             if args.outputfile :
                 reporter.writeRow([day,todaysmaxrun,todaysmaxls,todaysmaxinst])
-        m.plotPeakPerday_Time(result,minTime,maxTime)
+        m.plotPeakPerday_Time(result,minTime,maxTime,annotateBoundaryRunnum=args.annotateboundary)
     if args.action == 'run':
         runnumber=runList[0]
         lumiperrun=getLumiPerRun(session,c,runnumber)#[[lsnumber,deliveredInst,recordedInst,norbit,startorbit,fillnum,runstarttime,runstoptime]]

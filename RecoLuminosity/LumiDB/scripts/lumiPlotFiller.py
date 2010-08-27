@@ -39,7 +39,7 @@ def createRunList(c,p='.',o='.',dryrun=False):
             report.writeRow([run])
     else:
         print allruns
-def totalLumivstime(c,p='.',i='',o='.',begTime="03/30/10 10:00:00.00",endTime=None,selectionfile=None,beamstatus=None,beamenergy=None,beamfluctuation=None,dryrun=False,withTextOutput=False):
+def totalLumivstime(c,p='.',i='',o='.',begTime="03/30/10 10:00:00.00",endTime=None,selectionfile=None,beamstatus=None,beamenergy=None,beamfluctuation=None,dryrun=False,withTextOutput=False,annotateBoundaryRunnum=False):
     '''
     input:
       c connect string
@@ -69,6 +69,8 @@ def totalLumivstime(c,p='.',i='',o='.',begTime="03/30/10 10:00:00.00",endTime=No
     if withTextOutput:
         elements.append('-o')
         elements.append(os.path.join(o,textoutname))
+    if annotateBoundaryRunnum:
+        elements.append('--annotateboundary')
     command=' '.join(elements)
     print command
     if not dryrun:
@@ -112,7 +114,7 @@ def totalLumivstimeLastweek(c,p='.',i='',o='.',selectionfile=None,beamstatus=Non
         statusAndOutput=commands.getstatusoutput(command)
         print statusAndOutput[1]
         
-def lumiPerDay(c,p='.',i='',o='',begTime="03/30/10 10:00:00.00",endTime=None,selectionfile=None,beamstatus=None,beamenergy=None,beamfluctuation=None,dryrun=False,withTextOutput=False):
+def lumiPerDay(c,p='.',i='',o='',begTime="03/30/10 10:00:00.00",endTime=None,selectionfile=None,beamstatus=None,beamenergy=None,beamfluctuation=None,dryrun=False,withTextOutput=False,annotateBoundaryRunnum=False):
     '''
     input:
       c connect string
@@ -142,6 +144,8 @@ def lumiPerDay(c,p='.',i='',o='',begTime="03/30/10 10:00:00.00",endTime=None,sel
     if withTextOutput:
         elements.append('-o')
         elements.append(os.path.join(o,textoutname))
+    if annotateBoundaryRunnum:
+        elements.append('--annotateboundary')
     command=' '.join(elements)
     print command
     if not dryrun:
@@ -231,7 +235,7 @@ def instLumiForRuns(c,runnumbers,p='.',o='',dryrun=False):
         if not dryrun:
             statusAndOutput=commands.getstatusoutput(command)
             print statusAndOutput[1]
-def instPeakPerday(c,p='.',o='.',begTime="03/30/10 10:00:00.00",endTime=None,dryrun=False,withTextOutput=False):
+def instPeakPerday(c,p='.',o='.',begTime="03/30/10 10:00:00.00",endTime=None,dryrun=False,withTextOutput=False,annotateBoundaryRunnum=False):
     '''
     input:
       c connect string
@@ -247,6 +251,8 @@ def instPeakPerday(c,p='.',o='.',begTime="03/30/10 10:00:00.00",endTime=None,dry
     if withTextOutput:
         elements.append('-o')
         elements.append(os.path.join(o,textoutname))
+    if annotateBoundaryRunnum:
+        elements.append('--annotateboundary')
     command=' '.join(elements)
     print command
     if not dryrun:
@@ -263,6 +269,7 @@ def main():
     parser.add_argument('-o',dest='opath',action='store',required=False,help='output file path. Optional')
     parser.add_argument('-beamenergy',dest='beamenergy',action='store',required=False,help='beamenergy (in GeV) selection criteria,e.g. 3.5e3')
     parser.add_argument('-beamfluctuation',dest='beamfluctuation',action='store',required=False,help='allowed beamenergy fluctuation (in GeV),e.g. 0.2e3')
+    parser.add_argument('--annotateboundary',dest='annotateboundary',action='store_true',help='annotate boundary run numbers')
     parser.add_argument('-beamstatus',dest='beamstatus',action='store',required=False,help='selection criteria beam status,e.g. stable')
     parser.add_argument('--withTextOutput',dest='withtextoutput',action='store_true',help='write to text output file')
     parser.add_argument('--dryrun',dest='dryrun',action='store_true',help='dryrun mode')
@@ -318,15 +325,15 @@ def main():
             runs=['132440','']
         totalLumivsRun(connectstr,p=authpath,begRun=str(runs[0]),o=opath,endRun=str(runs[-1]),beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,dryrun=isDryrun,withTextOutput=withTextOutput)
     if args.action == 'instpeakvstime':
-        instPeakPerday(connectstr,p=authpath,o=opath,dryrun=isDryrun,withTextOutput=withTextOutput)
+        instPeakPerday(connectstr,p=authpath,o=opath,dryrun=isDryrun,withTextOutput=withTextOutput,annotateBoundaryRunnum=args.annotateboundary)
     if args.action == 'totalvstime':
-        totalLumivstime(connectstr,p=authpath,o=opath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,dryrun=isDryrun,withTextOutput=withTextOutput)
+        totalLumivstime(connectstr,p=authpath,o=opath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,dryrun=isDryrun,withTextOutput=withTextOutput,annotateBoundaryRunnum=args.annotateboundary)
     if args.action == 'totallumilastweek':
         totalLumivstimeLastweek(connectstr,p=authpath,o=opath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,dryrun=isDryrun,withTextOutput=withTextOutput)
     if args.action == 'totalvsfill':
         totalLumivsFill(connectstr,p=authpath,o=opath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,dryrun=isDryrun,withTextOutput=withTextOutput)
     if args.action == 'perday':       
-        lumiPerDay(connectstr,p=authpath,o=opath,dryrun=isDryrun,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,withTextOutput=withTextOutput)
+        lumiPerDay(connectstr,p=authpath,o=opath,dryrun=isDryrun,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,withTextOutput=withTextOutput,annotateBoundaryRunnum=args.annotateboundary)
     if args.action == 'physicsperday' or args.action == 'physicsvstime':
         if not args.ifile:
             print 'input selection file is required'

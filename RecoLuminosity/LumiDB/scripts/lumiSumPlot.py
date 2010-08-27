@@ -173,6 +173,7 @@ def main():
     parser.add_argument('-beamstatus',dest='beamstatus',action='store',required=False,help='selection criteria beam status,e.g. STABLE BEAMS')
     parser.add_argument('-hltpath',dest='hltpath',action='store',help='specific hltpath to calculate the recorded luminosity. If specified aoverlays the recorded luminosity for the hltpath on the plot')
     parser.add_argument('-batch',dest='batch',action='store',help='graphical mode to produce PNG file. Specify graphical file here. Default to lumiSum.png')
+    parser.add_argument('--annotateboundary',dest='annotateboundary',action='store_true',help='annotate boundary run numbers')
     parser.add_argument('--interactive',dest='interactive',action='store_true',help='graphical mode to draw plot in a TK pannel.')
     parser.add_argument('-timeformat',dest='timeformat',action='store',help='specific python timeformat string (optional).  Default mm/dd/yy hh:min:ss.00')
     parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',help='specific path to site-local-config.xml file, default to $CMS_PATH/SITECONF/local/JobConfig, if path undefined, fallback to cern proxy&server')
@@ -180,7 +181,7 @@ def main():
     #graphical mode options
     parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose mode, print result also to screen')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
-    # parse arguments    
+    # parse arguments
     batchmode=True
     args=parser.parse_args()
     connectstring=args.connect
@@ -394,7 +395,7 @@ def main():
             xdata[run]=[starttime,stoptime]
             if args.outputfile :
                 reporter.writeRow([run,starttime,stoptime,lumiDict[run][0],lumiDict[run][1]])
-        m.plotSumX_Time(xdata,ydata,minTime,maxTime)
+        m.plotSumX_Time(xdata,ydata,minTime,maxTime,args.hltpath,annotateBoundaryRunnum=args.annotateboundary)
     elif args.action == 'perday':
         daydict={}#{day:[[run,cmslsnum,lsstarttime,delivered,recorded]]}
         #print 'input selectionDict ',selectionDict
@@ -433,7 +434,7 @@ def main():
         #print 'beginfo ',beginfo
         #print 'endinfo ',endinfo
         #print resultbyday
-        m.plotPerdayX_Time(days,resultbyday,minTime,maxTime,boundaryInfo=[beginfo,endinfo])
+        m.plotPerdayX_Time(days,resultbyday,minTime,maxTime,boundaryInfo=[beginfo,endinfo],annotateBoundaryRunnum=args.annotateboundary)
     else:
         raise Exception,'must specify the type of x-axi'
 
