@@ -38,6 +38,7 @@ namespace cond {
     typedef std::pair<unsigned long long, unsigned long long> uuid;
     
     static const size_t m_idsize=sizeof(uuid);
+    static const size_t m_offset = m_idsize + sizeof(unsigned long long));
     static const size_t nVariants=3;
     
     enum Variant { OLD, COMPRESSED_TBUFFER, COMPRESSED_CHARS }; 
@@ -97,7 +98,7 @@ namespace cond {
   
   void BlobStreamingService::read( const coral::Blob& blobData, void* addressOfContainer,  Reflex::Type const & classDictionary ) {
     // protect against small blobs...
-    Variant v =  (size_t(blobData.size()) < m_idsize + sizeof(unsigned long long)) ? OLD : findVariant(blobData.startingAddress());
+    Variant v =  (size_t(blobData.size()) < m_offset) ? OLD : findVariant(blobData.startingAddress());
     switch (v) {
     case OLD :
       {
@@ -168,10 +169,10 @@ namespace cond {
   
   
   boost::shared_ptr<coral::Blob> BlobStreamingService::compress(const void* addr, size_t isize) {
-    size_t usize = isize + m_idsize + sizeof(unsigned long long);
+    size_t usize = isize + m_offset;
     boost::shared_ptr<coral::Blob> theBlob( new coral::Blob(usize));
     uLongf destLen = compressBound(isize);
-    void * startingAddress = (unsigned char*)(theBlob->startingAddress())+ m_idsize + sizeof(unsigned long long);
+    void * startingAddress = (unsigned char*)(theBlob->startingAddress())+ m_offset;
     int zerr =  compress2( (unsigned char*)(startingAddress), &destLen,
 			   (unsigned char*)(addr), isize,
 			  9);
@@ -186,8 +187,8 @@ namespace cond {
   }
 
   boost::shared_ptr<coral::Blob> BlobStreamingService::expand(const coral::Blob& blobIn) {
-    if (size_t(blobIn.size()) < m_idsize + sizeof(unsigned long long)) return boost::shared_ptr<coral::Blob>(new coral::Blob());
-    long long csize =  blobIn.size() - (m_idsize + sizeof(unsigned long long));
+    if (size_t(blobIn.size()) < m_offset) return boost::shared_ptr<coral::Blob>(new coral::Blob());
+    long long csize =  blobIn.size() - m_offset;
     unsigned char const * startingAddress = (unsigned char const*)(blobIn.startingAddress())+ m_idsize;
     unsigned long long usize = *reinterpret_cast<unsigned long long const*>(startingAddress);
     startingAddress +=  sizeof(unsigned long long);
