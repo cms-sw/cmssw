@@ -224,19 +224,26 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       int rc = 0;
       
       // Loop over all oh jets, select events where both pT of a pair are above threshold and in HF+ and HF-
-      for (int i=0;i<NrecoJetCorCal;i++) {
-	if(recoJetCorCalPt[i] > 15.0 && recoJetCorCalEta[i] > 3.0 && recoJetCorCalEta[i] < 5.0) {  // Jet pT/eta cut
-	  for (int j=0;j<NrecoJetCorCal && j!=i;j++) {
-	    if(recoJetCorCalPt[j] > 15.0 && recoJetCorCalEta[j] > -5.0 && recoJetCorCalEta[j] < -3.0) {  // Jet pT/eta cut
+      for (int i=0;i<NrecoJetCal;i++) {
+	if(((recoJetCalPt[i]/0.7) > 15.0) && (recoJetCalEta[i] > 3.0) && (recoJetCalEta[i] < 5.1)) {  // Jet pT/eta cut
+	  for (int j=0;j<NrecoJetCal && j!=i;j++) {
+	    if(((recoJetCalPt[j]/0.7) > 15.0) && (recoJetCalEta[j] > -5.1) && (recoJetCalEta[j] < -3.0)) {  // Jet pT/eta cut
 	      rc++;
 	    }
 	  }
 	}      
-	if(rc > 0)
-	  {
-	    if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+	if(((recoJetCalPt[i]/0.7) > 15.0) && (recoJetCalEta[i] > -5.1) && (recoJetCalEta[i] < -3.0)) {  // Jet pT/eta cut 
+	  for (int j=0;j<NrecoJetCal && j!=i;j++) { 
+	    if(((recoJetCalPt[j]/0.7) > 15.0) && (recoJetCalEta[j] > 3.0) && (recoJetCalEta[j] < 5.1)) {  // Jet pT/eta cut 
+	      rc++; 
+	    }
 	  }
+	}
       }
+      if(rc > 0)
+	{
+	  if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+	}
     }
   }
 /* DiJetAve */
