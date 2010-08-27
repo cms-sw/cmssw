@@ -11,6 +11,7 @@ offlinePrimaryVerticesFromCosmicTracks = cms.EDProducer("PrimaryVertexProducer",
     algorithm = cms.string('AdaptiveVertexFitter'),
     minNdof  = cms.double(0.0),
     TkFilterParameters = cms.PSet(
+        algorithm=cms.string('filter'),
         maxNormalizedChi2 = cms.double(5.0),
         minSiliconLayersWithHits = cms.int32(7), ## hits > 7
 
