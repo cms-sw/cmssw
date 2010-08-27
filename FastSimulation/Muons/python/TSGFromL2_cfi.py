@@ -204,7 +204,7 @@ def makeOIHitCascadeSet():
         skipTSG = cms.PSet(    ),
         iterativeTSG = makeOIHitSet(),
         #iterativeTSG = TSGsBlock.TSGFromPropagation,        
-        L3TkCollectionA = cms.InputTag('hltL3MuonsOIS'),
+        L3TkCollectionA = cms.InputTag('hltL3MuonsOIState'),
         )
 
 def makeIOHitCascadeSet():
