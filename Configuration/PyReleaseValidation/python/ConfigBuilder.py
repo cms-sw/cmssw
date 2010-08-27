@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.208 $"
+__version__ = "$Revision: 1.209 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -160,7 +160,11 @@ class ConfigBuilder(object):
                 evt_type = evt_type.replace("/",".")
             else:
                 evt_type = ('Configuration.Generator.'+evt_type).replace('/','.')
-            __import__(evt_type)
+            import os.path
+            try:
+                 __import__(evt_type)
+            except ImportError:
+                 return
             generatorModule = sys.modules[evt_type]
             self.process.extend(generatorModule)
             # now add all modules and sequences to the process
@@ -614,6 +618,8 @@ class ConfigBuilder(object):
           elif self._options.himix==True:
               self.process.generation_step = cms.Path( self.process.pgen_himix )
               self.loadAndRemember("SimGeneral/MixingModule/himixGEN_cff")
+          elif sequence == 'pgen_genonly':
+              self.process.generation_step = cms.Path ( self.process.pgen_genonly )
           else:
               self.process.generation_step = cms.Path( self.process.pgen )
 
@@ -622,9 +628,9 @@ class ConfigBuilder(object):
         self.schedule.append(self.process.generation_step)
 
         # is there a production filter sequence given?
-        if "ProductionFilterSequence" in self.additionalObjects and ("generator" in self.additionalObjects or 'hiSignal' in self.additionalObjects) and sequence == None:
+        if "ProductionFilterSequence" in self.additionalObjects and ("generator" in self.additionalObjects or 'hiSignal' in self.additionalObjects) and ( sequence == None or sequence == 'pgen_genonly' ):
             sequence = "ProductionFilterSequence"
-        elif "generator" in self.additionalObjects and sequence == None:
+        elif "generator" in self.additionalObjects and ( sequence == None or sequence == 'pgen_genonly' ):
             sequence = "generator"
 
         if sequence:
@@ -1030,7 +1036,7 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.208 $"),
+              (version=cms.untracked.string("$Revision: 1.209 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
