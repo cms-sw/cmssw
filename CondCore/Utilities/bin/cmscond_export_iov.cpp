@@ -100,8 +100,7 @@ int cond::ExportIOVUtilities::execute(){
   
   // find tag in destination
   cond::DbScopedTransaction transaction(destdb);
-  int destClient = transaction.start(false);
-  std::cout << "Transaction on dest DB open by " << destClient << std::endl;
+  transaction.start(false);
   //destdb.initializeMapping( cond::IOVNames::iovMappingVersion(),
   //                          cond::IOVNames::iovMappingXML());
   
