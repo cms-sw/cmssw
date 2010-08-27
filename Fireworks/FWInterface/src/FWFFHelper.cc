@@ -33,7 +33,7 @@ FWFFHelper::FWFFHelper(const edm::ParameterSet &ps, const edm::ActivityRegistry 
    gROOT->SetBatch(kFALSE);
    std::cout<<"calling NeedGraphicsLibs()"<<std::endl;
    TApplication::NeedGraphicsLibs();
-
+ 
    try {
       TGLWidget* w = TGLWidget::Create(gClient->GetDefaultRoot(), kTRUE, kTRUE, 0, 10, 10);
       delete w;
@@ -42,6 +42,7 @@ FWFFHelper::FWFFHelper(const edm::ParameterSet &ps, const edm::ActivityRegistry 
       std::cerr <<"Insufficient GL support. " << iException.what() << std::endl;
       throw;
    }
+   
 
    TEveManager::Create(kFALSE, "FIV");
 }

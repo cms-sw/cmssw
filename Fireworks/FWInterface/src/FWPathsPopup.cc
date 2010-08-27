@@ -11,10 +11,10 @@
 #include "TGTextEdit.h"
 #include "TGText.h"
 #include "TSystem.h"
-#include "TGTextView.h"
 #include "TGHtml.h"
 
 #include <iostream>
+#include <sstream>
 
 FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
    : TGMainFrame(gClient->GetRoot(), 200, 200),
@@ -23,7 +23,6 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
      m_hasChanges(false),
      m_moduleLabel(0),
      m_moduleName(0),
-     m_modulePathsText(0),
      m_modulePathsHtml(0),
      m_textEdit(0),
      m_apply(0)
@@ -31,11 +30,8 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
    FWDialogBuilder builder(this);
    builder.indent(4)
           .addLabel("Available paths", 10)
-          //.addLabel(" ", 15, 1, &m_moduleName)
-          //.addLabel(" ", 15, 1 ,&m_moduleLabel)
-          .addTextView("", &m_modulePathsText)
           .spaceDown(10)
-          //.addHtml(&m_modulePathsHtml)
+          .addHtml(&m_modulePathsHtml)
           .addTextEdit("", &m_textEdit)
           .addTextButton("Apply changes and reload", &m_apply);
 
@@ -56,26 +52,297 @@ FWPathsPopup::setup(const edm::ScheduleInfo *info)
    m_info->availableModuleLabels(m_availableModuleLabels);
    m_info->availablePaths(m_availablePaths);
 
-   //makePathsTextView();
-   //makePathsHtmlView();
+   makePathsView();
 }
 
-void
-FWPathsPopup::makePathsHtmlView()
+// It would be nice if we could use some of the 
+// utilities from Entry. 
+// Why couldn't the type just be the type?
+const char*
+FWPathsPopup::typeCodeToChar(char typeCode)
 {
-  // ROOT, are you really asking me to do it this way?
+  switch(typeCode)
+  {
+  case 'b':  return "Bool";
+  case 'B':  return "VBool";
+  case 'i' : return "vint32";
+  case 'I' : return "int32";
+  case 'u' : return "vuint32";
+  case 'U' : return "uint32";
+  case 'l' : return "vint64";
+  case 'L' : return "int64";
+  case 'x' : return "vuint64";
+  case 'X' : return "uint64";
+  case 's' : return "vstring";
+  case 'S' : return "string";
+  case 'd' : return "vdouble";
+  case 'D' : return "double";
+  case 'p' : return "vPSet";
+  case 'P' : return "PSet";
+  case 'T' : return "path";
+  case 'F' : return "FileInPath";
+  case 't' : return "InputTag";
+  case 'v' : return "VInputTag";
+  case 'e' : return "VEventID";
+  case 'E' : return "EventID";
+  case 'm' : return "VLuminosityBlockID";
+  case 'M' : return "LuminosityBlockID";
+  case 'a' : return "VLuminosityBlockRange";    
+  case 'A' : return "LuminosityBlockRange";
+  case 'r' : return "VEventRange";
+  case 'R' : return "EventRange";
+  default:   return "Type not known";
+  }
+}
+
+// Crikey! I'm ending up writing a ParameterSet parser here!
+// I probably could use the results from the << operator
+// in Entry but it's not quite what I want for format.
+// Also, it's not clear to me how to break it up into html
+// elements.
+void 
+FWPathsPopup::handleEntry(const edm::Entry& entry, 
+                          const std::string& key, TString& html)
+{
+  html += "<li>" + key + "    " 
+          + (entry.isTracked() ? "tracked    " : "untracked    ")
+          + typeCodeToChar(entry.typeCode());
+
+  switch(entry.typeCode())
+  {
+  case 'b':
+    {
+      std::stringstream ss;
+      ss << entry.getBool();
+      html += "    " + ss.str();
+      break;
+    }
+  case 'B':
+    {
+      html += "   [Ack! no access from entry for VBool?]";
+      break;
+    }
+  case 'i':
+    {
+      std::stringstream ss;
+      html += "    ";
+      std::vector<int> ints = entry.getVInt32();
+      for ( std::vector<int>::const_iterator ii = ints.begin(), iiEnd = ints.end();
+            ii != iiEnd; ++ii )
+      {
+        ss << *ii <<"  ";
+        html += ss.str();
+      }
+      break;
+    }
+  case 'I':
+    {
+      std::stringstream ss;
+      ss << entry.getInt32();
+      html += "   " + ss.str();
+      break;
+    }
+  case 'u':
+    {
+      std::stringstream ss;
+      html += "    ";
+      std::vector<unsigned> us = entry.getVUInt32();
+      for ( std::vector<unsigned>::const_iterator ui = us.begin(), uiEnd = us.end();
+            ui != uiEnd; ++ui )
+      {
+        ss << *ui <<" ";
+        html += ss.str();
+      } 
+      break;
+    }
+  case 'U':
+    {
+      std::stringstream ss;
+      ss << entry.getUInt32();
+      html += "   " + ss.str();
+      break;
+    }
+  case 'l':
+    {
+      std::stringstream ss;
+      html += "    ";
+      std::vector<long long> ints = entry.getVInt64();
+      for ( std::vector<long long>::const_iterator ii = ints.begin(), iiEnd = ints.end();
+            ii != iiEnd; ++ii )
+      {
+        ss << *ii << " ";
+        html += ss.str();
+      }
+      break;
+    }
+  case 'L':
+    {
+      std::stringstream ss;
+      ss << entry.getInt64();
+      html += "   " + ss.str();
+      break;
+    }
+  case 'x':
+    {
+      std::stringstream ss;
+      html += "    ";
+      // This the 1st time in my life I have written "unsigned long long"! Exciting.
+      std::vector<unsigned long long> us = entry.getVUInt64();
+      for ( std::vector<unsigned long long>::const_iterator ui = us.begin(), uiEnd = us.end();
+            ui != uiEnd; ++ui )
+      {
+        ss << *ui <<" ";
+        html += ss.str();
+      }
+      break;
+    }
+  case 'X':
+    {
+      std::stringstream ss;
+      ss << entry.getUInt64();
+      html += "    " + ss.str();
+      break;
+    }
+  case 's':
+    {
+      std::vector<std::string> strs = entry.getVString();
+      html += "    ";
+      for ( std::vector<std::string>::const_iterator si = strs.begin(), siEnd = strs.end();
+            si != siEnd; ++si )
+      {
+        html += *si + " ";
+      }
+      break;
+    }
+  case 'S':
+    {
+      html += "    " + entry.getString();
+      break;
+    }
+  case 'd':
+    {
+      std::stringstream ss;
+      html += "    ";
+      std::vector<double> ds = entry.getVDouble();
+      for ( std::vector<double>::const_iterator di = ds.begin(), diEnd = ds.end();
+            di != diEnd; ++di )
+      {
+        ss << *di <<" ";
+        html += ss.str();
+      }
+      break;
+    }
+  case 'D':
+    {   
+      std::stringstream ss;
+      ss << entry.getDouble();
+      html += "    " + ss.str();
+      break;
+    }
+  case 'p':
+    {
+      std::vector<edm::ParameterSet> psets = entry.getVPSet();
+      html += "    ";
+      for ( std::vector<edm::ParameterSet>::const_iterator psi = psets.begin(), psiEnd = psets.end();
+            psi != psiEnd; ++psi )
+      {
+        handlePSet(&(*psi), html);
+      }
+      break;
+    }
+  case 'P':
+    {    
+      handlePSet(&(entry.getPSet()), html);
+      break;
+    }
+  case 'v':
+    {
+      std::stringstream ss;
+      html += "    ";
+      std::vector<edm::InputTag> tags = entry.getVInputTag();
+      for ( std::vector<edm::InputTag>::const_iterator ti = tags.begin(), tiEnd = tags.end();
+            ti != tiEnd; ++ti )
+      {
+        ss << ti->encode() <<" ";
+        html += ss.str();
+      }
+      break;
+    }
+  default:
+    {
+      html += "   [Not supported yet. Are you sure you want this?]";
+      break;
+    }
+  }
+}
+
+void 
+FWPathsPopup::handlePSetEntry(const edm::ParameterSetEntry& entry, 
+                              const std::string& key, TString& html)
+{
+  html += "<li>" + key + "    " 
+          + (entry.isTracked() ? "tracked    " : "untracked    ")
+          + "PSet";
+
+  handlePSet(&(entry.pset()), html);
+}
+
+void 
+FWPathsPopup::handleVPSetEntry(const edm::VParameterSetEntry& entry, 
+                               const std::string& key, TString& html)
+{
+  html += "<li>" + key + "    " 
+          + (entry.isTracked() ? "tracked    " : "untracked    ")
+          + "vPSet";
+
+  for ( std::vector<edm::ParameterSet>::const_iterator psi = entry.vpset().begin(),
+                                                    psiEnd = entry.vpset().end();
+        psi != psiEnd; ++psi )
+  {
+    handlePSet(&(*psi), html);
+  }
+}       
+
+void 
+FWPathsPopup::handlePSet(const edm::ParameterSet* ps, TString& html)
+{
+  html += "<ul>";
+
+  for ( edm::ParameterSet::table::const_iterator ti = 
+          ps->tbl().begin(), tiEnd = ps->tbl().end();
+        ti != tiEnd; ++ti )
+    handleEntry(ti->second, ti->first, html);
+    
+  for ( edm::ParameterSet::psettable::const_iterator pi = 
+          ps->psetTable().begin(), piEnd = ps->psetTable().end();
+        pi != piEnd; ++pi )
+    handlePSetEntry(pi->second, pi->first, html);
+
+  for ( edm::ParameterSet::vpsettable::const_iterator vpi = 
+          ps->vpsetTable().begin(), vpiEnd = ps->vpsetTable().end();
+        vpi != vpiEnd; ++vpi )
+    handleVPSetEntry(vpi->second, vpi->first, html);
+
+  html += "</ul>";
+}
+
+//#include <fstream>
+//std:ofstream fout("path-view.html");
+
+void
+FWPathsPopup::makePathsView()
+{
+  m_modulePathsHtml->Clear();
 
   TString html;
 
-  html = "<html><head><title>Module paths</title></head><body>";
+  html = "<html><head><title>Available paths</title></head><body>";
 
   for ( std::vector<std::string>::iterator pi = m_availablePaths.begin(),
                                         piEnd = m_availablePaths.end();
         pi != piEnd; ++pi )
   {
-    html += "<h1>";
-    html += *pi;
-    html += "</h1>";
+    html += "<h1>"+ *pi + "</h1>";
 
     std::vector<std::string> modulesInPath;
     m_info->modulesInPath(*pi, modulesInPath);
@@ -84,81 +351,28 @@ FWPathsPopup::makePathsHtmlView()
                                           miEnd = modulesInPath.end();
           mi != miEnd; ++mi )
     {
-      html += "<h2>";
-      html += *mi;
-      html += "</h2>";
+      const edm::ParameterSet* ps = m_info->parametersForModule(*mi);
+
+      // Need to get the module type from the parameter set before we handle the set itself
+      const edm::ParameterSet::table& pst = ps->tbl();    
+      const edm::ParameterSet::table::const_iterator ti = pst.find("@module_edm_type");
+
+      html += "<h2>" + ti->second.getString() + "  " + *mi  + "</h2>";
+      handlePSet(ps, html); 
     }
   } 
 
-  html += "</font>";
   html += "</body></html>";
-  
+  //fout<< html <<std::endl;
+
   m_modulePathsHtml->ParseText((char*)html.Data());
 }
 
-// Make a text view (indenting to create "poor-man's html")
-// as right now TGHtml has a font problem which causes a crash
-
-void 
-FWPathsPopup::makePathsTextView()
-{
-  m_modulePathsText->Clear();
-
-  for ( std::vector<std::string>::iterator pi = m_availablePaths.begin(),
-                                        piEnd = m_availablePaths.end();
-        pi != piEnd; ++pi )
-  {
-    std::vector<std::string> modulesInPath;
-    m_info->modulesInPath(*pi, modulesInPath);
-
-    m_modulePathsText->AddLineFast((*pi).c_str());
-
-    for ( std::vector<std::string>::iterator mi = modulesInPath.begin(),
-                                          miEnd = modulesInPath.end();
-          mi != miEnd; ++mi )
-    {
-      std::string str = "  "+(*mi);
-      m_modulePathsText->AddLineFast(str.c_str());
-  
-      const edm::ParameterSet* parameterSet = m_info->parametersForModule(*mi);
-
-      // Need to clean up the formatting of this
-
-      for ( edm::ParameterSet::table::const_iterator ti = 
-              parameterSet->tbl().begin(), tiEnd = parameterSet->tbl().end();
-            ti != tiEnd; ++ti )
-      {
-        std::string tstr = "    " + ti->first + ti->second.toString();
-        m_modulePathsText->AddLineFast(tstr.c_str());
-      }
-    
-      for ( edm::ParameterSet::psettable::const_iterator pi = 
-              parameterSet->psetTable().begin(), piEnd = parameterSet->psetTable().end();
-            pi != piEnd; ++pi )
-      {
-        std::string pstr = "    " + pi->first + pi->second.toString();
-        m_modulePathsText->AddLineFast(pstr.c_str());
-      }
-
-      for ( edm::ParameterSet::vpsettable::const_iterator vpi = 
-              parameterSet->vpsetTable().begin(), vpiEnd = parameterSet->vpsetTable().end();
-            vpi != vpiEnd; ++vpi )
-      {
-        std::string vpstr = "   " + vpi->first + vpi->second.toString();
-        m_modulePathsText->AddLineFast(vpstr.c_str());
-      }
-     
-    }
-  } 
-  m_modulePathsText->Update();
-}
 
 /** Gets called by CMSSW as we process events. **/
 void
 FWPathsPopup::postModule(edm::ModuleDescription const& description)
 {
-  //m_moduleName->SetText(description.moduleName().c_str());
-  //m_moduleLabel->SetText(description.moduleLabel().c_str());
    gSystem->ProcessEvents();
 }
 
@@ -166,10 +380,8 @@ void
 FWPathsPopup::postProcessEvent(edm::Event const& event, edm::EventSetup const& eventSetup)
 {
   gSystem->ProcessEvents();
-  makePathsTextView();
+  makePathsView();
 }
-
-
 
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
 #include "FWCore/Utilities/interface/Exception.h"

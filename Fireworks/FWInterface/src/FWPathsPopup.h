@@ -11,6 +11,10 @@ namespace edm
    class ModuleDescription;
    class Event;
    class EventSetup;
+   class ParameterSet;
+   class Entry;
+   class ParameterSetEntry;
+   class VParameterSetEntry;
 }
 
 class FWFFLooper;
@@ -18,8 +22,8 @@ class FWFFLooper;
 class TGLabel;
 class TGTextEdit;
 class TGTextButton;
-class TGTextView;
 class TGHtml;
+class TString;
 
 class FWPathsPopup : public TGMainFrame
 {
@@ -32,8 +36,13 @@ public:
    bool &hasChanges() { return m_hasChanges; };
    void setup(const edm::ScheduleInfo *info);
 private:
-   void makePathsTextView();
-   void makePathsHtmlView();
+   void makePathsView();
+
+   const char* typeCodeToChar(char);
+   void handlePSet(const edm::ParameterSet* ps, TString&);
+   void handleEntry(const edm::Entry&, const std::string&, TString&);
+   void handlePSetEntry(const edm::ParameterSetEntry&, const std::string&, TString&);
+   void handleVPSetEntry(const edm::VParameterSetEntry&, const std::string&, TString&);
 
    const edm::ScheduleInfo  *m_info;
 
@@ -42,11 +51,9 @@ private:
 #endif
    bool                     m_hasChanges;
 
-
    TGLabel                  *m_moduleLabel;   
    TGLabel                  *m_moduleName;
    
-   TGTextView               *m_modulePathsText;
    TGHtml                   *m_modulePathsHtml;
 
    TGTextEdit               *m_textEdit;
