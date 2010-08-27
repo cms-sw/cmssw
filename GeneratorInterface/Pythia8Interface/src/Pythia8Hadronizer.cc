@@ -236,6 +236,7 @@ void Pythia8Hadronizer::statistics()
 	pythia->statistics();
 
 	double xsec = pythia->info.sigmaGen(); // cross section in mb
+    xsec *= 1.0e9; // translate to pb (CMS/Gen "convention" as of May 2009)
 	runInfo().setInternalXSec(xsec);
 }
 
