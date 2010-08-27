@@ -395,7 +395,7 @@ def main():
             xdata[run]=[starttime,stoptime]
             if args.outputfile :
                 reporter.writeRow([run,starttime,stoptime,lumiDict[run][0],lumiDict[run][1]])
-        m.plotSumX_Time(xdata,ydata,minTime,maxTime,args.hltpath,annotateBoundaryRunnum=args.annotateboundary)
+        m.plotSumX_Time(xdata,ydata,minTime,maxTime,hltpath=hltpath,annotateBoundaryRunnum=args.annotateboundary)
     elif args.action == 'perday':
         daydict={}#{day:[[run,cmslsnum,lsstarttime,delivered,recorded]]}
         #print 'input selectionDict ',selectionDict

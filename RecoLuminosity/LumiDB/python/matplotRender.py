@@ -148,7 +148,7 @@ class matplotRender():
         ax.legend(tuple(legendlist),loc='upper left')
         self.__fig.subplots_adjust(bottom=0.1,left=0.1)
         
-    def plotSumX_Time(self,rawxdata,rawydata,minTime,maxTime,nticks=6,annotateBoundaryRunnum=False):
+    def plotSumX_Time(self,rawxdata,rawydata,minTime,maxTime,hltpath='',nticks=6,annotateBoundaryRunnum=False):
         '''
         input:
            rawxdata runDict{runnumber:[delivered,recorded,recorded_hltpath]}
