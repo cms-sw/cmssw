@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.50 2010/07/29 17:10:16 babar Exp $
+# $Id: InjectWorker.pl,v 1.51 2010/08/27 15:14:09 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -474,17 +474,20 @@ sub update_db {
             return;
         }
     }
-    $kernel->post( 'logger', debug => "Updating $handler with:"
-        . join( " ", map { "$params[$_]=$bind_params[$_]" } 0 .. $#params ) );
+    $kernel->post( 'logger',
+        debug => "Updating $handler with:"
+          . join( " ", map { "$params[$_]=$bind_params[$_]" } 0 .. $#params ) );
 
     # redirect setuplabel/streams to different destinations according to
     # https://twiki.cern.ch/twiki/bin/view/CMS/SMT0StreamTransferOptions
     my $stream = $args->{STREAM};
     return
       if defined $stream
-          and (   $stream eq 'EcalCalibration'
-              or $stream =~ /_EcalNFS$/    #skip EcalCalibration
-          or $stream =~ /_NoTransfer$/ );      #skip if NoTransfer option is set
+          and (
+                 $stream eq 'EcalCalibration'
+              or $stream =~ /_EcalNFS$/      #skip EcalCalibration
+              or $stream =~ /_NoTransfer$/
+          );                                 #skip if NoTransfer option is set
 
     my $errflag = 0;
     my $rows = $heap->{sths}->{$handler}->execute(@bind_params) or $errflag = 1;
@@ -512,7 +515,7 @@ sub update_db {
               . "), but $rows. Will NOT notify!" );
         return;
     }
-    elsif( $handler eq 'closeFile' ) {
+    elsif ( $handler eq 'closeFile' ) {
 
         # Notify Tier0 by creating an entry in the notify logfile
         return if $stream =~ /_DontNotifyT0$/;    #skip if DontNotify
@@ -524,10 +527,10 @@ sub update_db {
                 'notifyTier0.pl',
                 grep defined,
                 map { exists $args->{$_} ? "--$_=$args->{$_}" : undef }
-                qw( APPNAME APPVERSION RUNNUMBER LUMISECTION FILENAME
-                PATHNAME HOSTNAME DESTINATION SETUPLABEL
-                STREAM TYPE NEVENTS FILESIZE CHECKSUM
-                HLTKEY INDEX STARTTIME STOPTIME )
+                  qw( APPNAME APPVERSION RUNNUMBER LUMISECTION FILENAME
+                  PATHNAME HOSTNAME DESTINATION SETUPLABEL
+                  STREAM TYPE NEVENTS FILESIZE CHECKSUM
+                  HLTKEY INDEX STARTTIME STOPTIME )
             )
         );
     }
@@ -665,8 +668,7 @@ sub sig_child {
 
 # Got a new line in a logfile
 sub got_log_line {
-    my ( $kernel, $heap, $line, $wheelID ) =
-      @_[ KERNEL, HEAP, ARG0, ARG1 ];
+    my ( $kernel, $heap, $line, $wheelID ) = @_[ KERNEL, HEAP, ARG0, ARG1 ];
     my $file = $heap->{watchlist}->{$wheelID};
     $kernel->post( 'logger', debug => "In $file, got line: $line" );
     if ( $line =~ /(?:(insert|close)File)/i ) {
@@ -780,21 +782,21 @@ sub read_changes {
 sub sig_abort {
     my ( $kernel, $heap, $signal ) = @_[ KERNEL, HEAP, ARG0 ];
     $kernel->post( 'logger', info => "Shutting down on signal SIG$signal" );
-    $kernel->yield( 'save_offsets' );
-    $kernel->yield( 'shutdown' );
+    $kernel->yield('save_offsets');
+    $kernel->yield('shutdown');
     $kernel->sig_handled;
 }
 
 # Clean shutdown
 sub shutdown {
     my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
-    if( $heap->{dbh} ) {
+    if ( $heap->{dbh} ) {
         $kernel->call( 'logger', info => "Disconnecting from the DB" );
-        unless( $heap->{dbh}->{AutoCommit} ) {
-            $heap->{dbh}->commit or $kernel->call( 'logger',
-                warning => "Commit failed!" );
+        unless ( $heap->{dbh}->{AutoCommit} ) {
+            $heap->{dbh}->commit
+              or $kernel->call( 'logger', warning => "Commit failed!" );
         }
-        unless( $heap->{dbh}->disconnect ) {
+        unless ( $heap->{dbh}->disconnect ) {
             $kernel->call( 'logger',
                 warning => "Disconnection from Oracle failed: $DBI::errstr" );
         }
