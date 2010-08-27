@@ -298,6 +298,20 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }    
     }    
   }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_QuadJet40U") == 0) { 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
+      if(OpenHltQuadJetPassed(40.)>=1) {     
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }    
+      }     
+    }     
+  } 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_QuadJet50U") == 0) { 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
+      if(OpenHltQuadJetPassed(50.)>=1) {     
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }    
+      }     
+    }     
+  } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_FwdJet40") == 0) {       
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if(OpenHltFwdCorJetPassed(40.)>=1) {       
@@ -312,6 +326,20 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }     
     }     
   } 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_QuadJet40") == 0) {  
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
+      if(OpenHltQuadCorJetPassed(40.)>=1) {      
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }     
+      }      
+    }      
+  }  
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_QuadJet50") == 0) {  
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
+      if(OpenHltQuadCorJetPassed(50.)>=1) {      
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }     
+      }      
+    }      
+  }  
 
   /* MET */
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1MET20") == 0) {       
