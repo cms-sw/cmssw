@@ -83,7 +83,7 @@ namespace edm {
 	// std::sort(v.begin(), v.end(),
 	// 	  bind(quality, boost::lambda::_2) < bind(quality, boost::lambda::_1));
            std::sort(v.begin(), v.end(), 
-                  boost::bind(std::less<double>(), 
+                  boost::bind(std::less<Q>(), 
                   boost::bind(&std::pair<index, Q>::second,_2), boost::bind( &std::pair<index, Q>::second,_1)
                              )
            );
