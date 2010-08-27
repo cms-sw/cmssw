@@ -32,6 +32,8 @@
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
+#include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
+#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 
@@ -84,7 +86,11 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
     
     LocalPoint lPHit = hit->localPosition();
     LocalPoint lPTrk = tsos.localPosition();
-    
+    LocalVector lVTrk = tsos.localDirection();
+
+    hitStruct.localAlpha = atan2(lVTrk.x(), lVTrk.z()); // wrt. normal tg(alpha)=x/z
+    hitStruct.localBeta  = atan2(lVTrk.y(), lVTrk.z()); // wrt. normal tg(beta)= y/z
+
     //LocalError errHit = hit->localPositionError();
     // adding APE to hitError
     AlgebraicROOTObject<2>::SymMatrix mat = asSMatrix<2>(hit->parametersError());
@@ -113,7 +119,13 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
     hitStruct.resY = res.y();
     hitStruct.resErrX = resXErr;
     hitStruct.resErrY = resYErr;
-    
+
+    // hitStruct.localX = lPhit.x();
+    // hitStruct.localY = lPhit.y();
+    // EM: use predictions for local coordinates
+    hitStruct.localX = lPTrk.x();
+    hitStruct.localY = lPTrk.y();
+
     // now calculate residuals taking global orientation of modules and radial topology in TID/TEC into account
     float resXprime(999.F), resYprime(999.F);
     float resXprimeErr(999.F), resYprimeErr(999.F);
@@ -124,6 +136,11 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
       float resXTopol(999.F), resYTopol(999.F);
       
       const Surface& surface = hit->detUnit()->surface();
+      const BoundPlane& boundplane = hit->detUnit()->surface();
+      const Bounds& bound = boundplane.bounds();
+      
+      float length = 0;
+      float width = 0;
       LocalPoint lPModule(0.,0.,0.), lUDirection(1.,0.,0.), lVDirection(0.,1.,0.);
       GlobalPoint gPModule    = surface.toGlobal(lPModule),
 	          gUDirection = surface.toGlobal(lUDirection),
@@ -139,7 +156,13 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
 	resYTopol = res.y();
 	resXprimeErr = resXErr;
 	resYprimeErr = resYErr;
-      
+
+	const RectangularPlaneBounds *rectangularBound = dynamic_cast<const RectangularPlaneBounds*>(&bound);
+	length = rectangularBound->length();
+	width = rectangularBound->width();
+	hitStruct.localXnorm = 2*hitStruct.localX/width;
+	hitStruct.localYnorm = 2*hitStruct.localY/length;
+	
       } else if (IntSubDetID == PixelSubdetector::PixelEndcap) {
 	
 	uOrientation = gUDirection.perp() - gPModule.perp() >= 0 ? +1.F : -1.F;
@@ -148,6 +171,12 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
 	resYTopol = res.y();
 	resXprimeErr = resXErr;
 	resYprimeErr = resYErr;
+	
+	const RectangularPlaneBounds *rectangularBound = dynamic_cast<const RectangularPlaneBounds*>(&bound);
+	length = rectangularBound->length();
+	width = rectangularBound->width();
+	hitStruct.localXnorm = 2*hitStruct.localX/width;
+	hitStruct.localYnorm = 2*hitStruct.localY/length;
 	
       } else if (IntSubDetID == StripSubdetector::TID ||
 		 IntSubDetID == StripSubdetector::TEC) {
@@ -197,6 +226,13 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
 									       + sinPhiTrk*sinPhiTrk/pow(cosPhiTrk,4)*measTrkErr.uu() );
 	resYprimeErr = std::sqrt(measHitErr.vv()*localStripLengthHit*localStripLengthHit
 				 + measTrkErr.vv()*localStripLengthTrk*localStripLengthTrk + helpSummand );  
+
+	const TrapezoidalPlaneBounds *trapezoidalBound = dynamic_cast<const TrapezoidalPlaneBounds*>(&bound);
+	length = trapezoidalBound->length();
+	width = trapezoidalBound->widthAtHalfLength();
+	hitStruct.localXnorm = 2*hitStruct.localX/width;
+	hitStruct.localYnorm = 2*hitStruct.localY/length;
+
       } else {
 	edm::LogWarning("TrackerValidationVariables") << "@SUB=TrackerValidationVariables::fillHitQuantities" 
 						      << "No valid tracker subdetector " << IntSubDetID;
@@ -335,16 +371,18 @@ TrackerValidationVariables::fillTrackQuantities(const edm::Event& event, std::ve
 void
 TrackerValidationVariables::fillHitQuantities(const edm::Event& event, std::vector<AVHitStruct> & v_avhitout)
 {
-  edm::Handle<std::vector<Trajectory> > trajCollectionHandle;
-  event.getByLabel(conf_.getParameter<std::string>("trajectoryInput"),trajCollectionHandle);
-  
-  LogDebug("TrackerValidationVariables") << "trajColl->size(): " << trajCollectionHandle->size() ;
+  edm::Handle<TrajTrackAssociationCollection> TrajTracksMap;
+  if (event.getByLabel(conf_.getParameter<edm::InputTag>("Tracks"), TrajTracksMap)) {
+ 
+    const Trajectory* trajectory;
 
-  for (std::vector<Trajectory>::const_iterator it = trajCollectionHandle->begin(), itEnd = trajCollectionHandle->end(); 
-       it!=itEnd;
-       ++it) {
-    
-    fillHitQuantities(&(*it), v_avhitout);
-  
+    for ( TrajTrackAssociationCollection::const_iterator iPair = TrajTracksMap->begin();
+          iPair != TrajTracksMap->end();
+	  ++iPair) {
+
+      trajectory = &(*(*iPair).key);
+      
+      fillHitQuantities(trajectory, v_avhitout);
+    }
   }
 }
