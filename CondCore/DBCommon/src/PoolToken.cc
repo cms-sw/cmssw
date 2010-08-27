@@ -4,6 +4,7 @@
 //
 #include <cstring>
 #include <cstdio>
+#include "Reflex/Reflex.h"
 
 namespace cond {
   
@@ -48,8 +49,20 @@ namespace cond {
                           int oid1,
                           const std::string& className ){
     char buff[20];
-    genMD5(className,buff);
-    std::string clguid = ((Guid*)buff)->toString();
+    std::string clguid("");
+    //  first lookup the class guid in the dictionary
+    Reflex::Type containerType = Reflex::Type::ByName( className );
+    if( containerType ){
+      Reflex::PropertyList props = containerType.Properties();
+      if( props.HasProperty("ClassID")){
+        clguid = props.PropertyAsString("ClassID");
+      }
+    }
+    // if not found, generate one...
+    if( clguid.empty() ){
+      genMD5(className,buff);
+      clguid = ((Guid*)buff)->toString();
+    }
     int tech = 0xB01;
     char text[128];
     std::string str = "[DB="+std::string(guid_null)+"][CNT=" + containerName + "][CLID="+clguid+"]";
