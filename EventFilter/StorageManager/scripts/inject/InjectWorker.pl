@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.48 2010/07/21 09:38:45 babar Exp $
+# $Id: InjectWorker.pl,v 1.50 2010/07/29 17:10:16 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -483,8 +483,8 @@ sub update_db {
     return
       if defined $stream
           and (   $stream eq 'EcalCalibration'
-              or $stream =~ '_EcalNFS$'    #skip EcalCalibration
-          or $stream =~ '_NoTransfer$' );      #skip if NoTransfer option is set
+              or $stream =~ /_EcalNFS$/    #skip EcalCalibration
+          or $stream =~ /_NoTransfer$/ );      #skip if NoTransfer option is set
 
     my $errflag = 0;
     my $rows = $heap->{sths}->{$handler}->execute(@bind_params) or $errflag = 1;
@@ -515,7 +515,7 @@ sub update_db {
     elsif( $handler eq 'closeFile' ) {
 
         # Notify Tier0 by creating an entry in the notify logfile
-        return if $stream =~ '_DontNotifyT0$';    #skip if DontNotify
+        return if $stream =~ /_DontNotifyT0$/;    #skip if DontNotify
 
         $kernel->post(
             'notify',
@@ -571,12 +571,12 @@ sub close_file {
     $args->{DESTINATION} = 'Global';
     my $setuplabel = $args->{SETUPLABEL};
     my $stream     = $args->{STREAM};
-    if (   $setuplabel =~ 'TransferTest'
-        || $stream =~ '_TransferTest$' )
+    if (   $setuplabel =~ /TransferTest/
+        || $stream =~ /_TransferTest$/ )
     {
         $args->{DESTINATION} = 'TransferTest';    # transfer but delete after
     }
-    elsif ( $stream =~ '_NoRepack$' || $stream eq 'Error' ) {
+    elsif ( $stream =~ /_NoRepack$/ || $stream eq 'Error' ) {
         $args->{DESTINATION} = 'GlobalNoRepacking';    # do not repack
         $args->{INDFILE}     = '';
         $args->{INDFILESIZE} = -1;
