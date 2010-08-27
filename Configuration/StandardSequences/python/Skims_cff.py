@@ -11,6 +11,10 @@ def documentSkims():
         
         shortname = skim.replace('SKIMStream','')
         print shortname
+        if shortname!=skimstream['name']:
+            print '#### ERROR ####'
+            print 'skim name and stream name should be the same for consistency',shortname,'!=',skimstream['name']
+            
         for token in ['name','responsible','dataTier']:
             print token,":",skimstream[token]
             
@@ -233,6 +237,19 @@ SKIMStreamValSkim = cms.FilteredStream(
     content = skimContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW-RECO')
+    )
+
+#####################
+
+from Configuration.Skimming.PDWG_DiJetAODSkim_cff import *
+diJetAveSkimPath = cms.Path(DiJetAveSkim_Trigger)
+SKIMStreamDiJet = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'DiJet',
+    paths = (diJetAveSkimPath),
+    content = DiJetAveSkim_EventContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('USER')
     )
 
 
