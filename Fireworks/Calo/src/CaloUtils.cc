@@ -65,6 +65,38 @@ namespace fireworks
 
       addBox( scaledCorners, comp, pb );
    }
+  
+   void drawEtScaledBox3D( const float* corners, float energy, float maxEnergy, TEveElement* comp, FWProxyBuilderBase* pb, bool invert )
+   {
+      std::vector<float> scaledCorners( 24 );
+      std::vector<float> centre( 3, 0 );
+
+      for( unsigned int i = 0; i < 24; i += 3 )
+      {	 
+	centre[0] += corners[i];
+	centre[1] += corners[i + 1];
+	centre[2] += corners[i + 2];
+      }
+
+      for( unsigned int i = 0; i < 3; ++i )
+	centre[i] *= 1.0f / 8.0f;
+
+      TEveVector c( centre[0], centre[1], centre[2] );
+      float scale = energy / maxEnergy * sin( c.Theta());
+      
+       // Coordinates for a scaled version of the original box
+      for( unsigned int i = 0; i < 24; i += 3 )
+      {	
+	scaledCorners[i] = centre[0] + ( corners[i] - centre[0] ) * scale;
+	scaledCorners[i + 1] = centre[1] + ( corners[i + 1] - centre[1] ) * scale;
+	scaledCorners[i + 2] = centre[2] + ( corners[i + 2] - centre[2] ) * scale;
+      }
+      
+      if( invert )
+	 invertBox( scaledCorners );
+
+      addBox( scaledCorners, comp, pb );
+   }
 
    void drawEnergyTower3D( const float* corners, float scale, TEveElement* comp, FWProxyBuilderBase* pb, bool reflect )
    {
