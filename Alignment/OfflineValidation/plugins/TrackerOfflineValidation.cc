@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.38 2010/07/09 11:36:16 jdraeger Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.39 2010/08/03 10:10:06 mussgill Exp $
 //
 //
 
@@ -84,11 +84,11 @@ public:
   
   enum HistogrammType { XResidual, NormXResidual, 
 			XprimeResidual, NormXprimeResidual, 
-			YprimeResidual, NormYprimeResidual};
+			YprimeResidual, NormYprimeResidual,
+			XResidualProfile, YResidualProfile };
   
 private:
 
-  
   struct ModuleHistos{
     ModuleHistos() :  ResHisto(), NormResHisto(), ResXprimeHisto(), NormResXprimeHisto(), 
 		      ResYprimeHisto(), NormResYprimeHisto() {} 
@@ -98,9 +98,15 @@ private:
     TH1* NormResXprimeHisto;
     TH1* ResYprimeHisto;
     TH1* NormResYprimeHisto;
+
+    TH1* LocalX;
+    TH1* LocalY;
+    TProfile* ResXvsXProfile;
+    TProfile* ResXvsYProfile;
+    TProfile* ResYvsXProfile;
+    TProfile* ResYvsYProfile;
   };
-
-
+  
   // container struct to organize collection of histogramms during endJob
   struct SummaryContainer{
     SummaryContainer() : sumXResiduals_(), summaryXResiduals_(), 
@@ -213,6 +219,12 @@ private:
   TH1* bookTH1F(bool isTransient, DirectoryWrapper& tfd, const char* histName, const char* histTitle, 
 		int nBinsX, double lowX, double highX);
 
+  TProfile* bookTProfile(bool isTransient, DirectoryWrapper& tfd, const char* histName, const char* histTitle, 
+			 int nBinsX, double lowX, double highX);
+
+  TProfile* bookTProfile(bool isTransient, DirectoryWrapper& tfd, const char* histName, const char* histTitle, 
+			 int nBinsX, double lowX, double highX, double lowY, double highY);
+
   void getBinning(uint32_t subDetId, TrackerOfflineValidation::HistogrammType residualtype, 
 		  int& nBinsX, double& lowerBoundX, double& upperBoundX);
 
@@ -241,6 +253,7 @@ private:
   // parameters from cfg to steer
   const bool lCoorHistOn_;
   const bool moduleLevelHistsTransient_;
+  const bool moduleLevelProfiles_;
   const bool overlappOn_;
   const bool stripYResiduals_;
   const bool useFwhm_;
@@ -338,6 +351,7 @@ template <> TH1* TrackerOfflineValidation::DirectoryWrapper::make<TH2F>(const ch
 TrackerOfflineValidation::TrackerOfflineValidation(const edm::ParameterSet& iConfig)
   : parSet_(iConfig), bareTkGeomPtr_(0), lCoorHistOn_(parSet_.getParameter<bool>("localCoorHistosOn")),
     moduleLevelHistsTransient_(parSet_.getParameter<bool>("moduleLevelHistsTransient")),
+    moduleLevelProfiles_(parSet_.getParameter<bool>("moduleLevelProfiles")),
     overlappOn_(parSet_.getParameter<bool>("overlappOn")), 
     stripYResiduals_(parSet_.getParameter<bool>("stripYResiduals")), 
     useFwhm_(parSet_.getParameter<bool>("useFwhm")),
@@ -354,7 +368,8 @@ TrackerOfflineValidation::~TrackerOfflineValidation()
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
   for( std::vector<TH1*>::const_iterator it = vDeleteObjects_.begin(), itEnd = vDeleteObjects_.end(); 
-       it != itEnd; ++it) delete *it;
+       it != itEnd;
+       ++it) delete *it;
 }
 
 
@@ -585,7 +600,10 @@ TrackerOfflineValidation::bookHists(DirectoryWrapper& tfd, const Alignable& ali,
   // construct histogramm title and name
   std::stringstream histoname, histotitle, normhistoname, normhistotitle, 
     xprimehistoname, xprimehistotitle, normxprimehistoname, normxprimehistotitle,
-    yprimehistoname, yprimehistotitle, normyprimehistoname, normyprimehistotitle;
+    yprimehistoname, yprimehistotitle, normyprimehistoname, normyprimehistotitle,
+    localxname, localxtitle, localyname, localytitle,
+    resxvsxprofilename, resxvsxprofiletitle, resyvsxprofilename, resyvsxprofiletitle,
+    resxvsyprofilename, resxvsyprofiletitle, resyvsyprofilename, resyvsyprofiletitle; 
   
   std::string wheel_or_layer;
 
@@ -613,15 +631,37 @@ TrackerOfflineValidation::bookHists(DirectoryWrapper& tfd, const Alignable& ali,
   yprimehistotitle << "Y' Residual for module " << id.rawId() << ";(y_{pred} - y_{rec})' [cm]";
   normyprimehistotitle << "Normalized Y' Residual for module " << id.rawId() << ";(y_{pred} - y_{rec})'/#sigma";
   
+  if ( moduleLevelProfiles_ ) {
+    localxname << "h_localx_subdet_" << subdetandlayer.first 
+	       << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
+    localyname << "h_localy_subdet_" << subdetandlayer.first 
+	       << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
+    localxtitle << "u local for module " << id.rawId() << "; u_{pred,r}";
+    localytitle << "v local for module " << id.rawId() << "; v_{pred,r}";
+
+    resxvsxprofilename << "p_residuals_x_vs_x_subdet_" << subdetandlayer.first 
+		       << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
+    resyvsxprofilename << "p_residuals_y_vs_x_subdet_" << subdetandlayer.first 
+		       << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
+    resxvsyprofilename << "p_residuals_x_vs_y_subdet_" << subdetandlayer.first 
+		       << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
+    resyvsyprofilename << "p_residuals_y_vs_y_subdet_" << subdetandlayer.first 
+		       << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
+    resxvsxprofiletitle << "U Residual vs u for module " << id.rawId() << "; u_{pred,r} ;(u_{pred} - u_{rec})/tan#alpha [cm]";
+    resyvsxprofiletitle << "V Residual vs u for module " << id.rawId() << "; u_{pred,r} ;(v_{pred} - v_{rec})/tan#beta  [cm]";
+    resxvsyprofiletitle << "U Residual vs v for module " << id.rawId() << "; v_{pred,r} ;(u_{pred} - u_{rec})/tan#alpha [cm]";
+    resyvsyprofiletitle << "V Residual vs v for module " << id.rawId() << "; v_{pred,r} ;(v_{pred} - v_{rec})/tan#beta  [cm]";
+  }
   
   if( this->isDetOrDetUnit( subtype ) ) {
     ModuleHistos &histStruct = this->getHistStructFromMap(id);
     int nbins = 0;
     double xmin = 0., xmax = 0.;
-    
+    double ymin = -0.1, ymax = 0.1;
+
     // do not allow transient hists in DQM mode
     bool moduleLevelHistsTransient(moduleLevelHistsTransient_);
-    if(dqmMode_)moduleLevelHistsTransient = false;
+    if (dqmMode_) moduleLevelHistsTransient = false;
     
     // decide via cfg if hists in local coordinates should be booked 
     if(lCoorHistOn_) {
@@ -643,6 +683,23 @@ TrackerOfflineValidation::bookHists(DirectoryWrapper& tfd, const Alignable& ali,
 						   normxprimehistoname.str().c_str(),normxprimehistotitle.str().c_str(),
 						   nbins, xmin, xmax);
 
+    if ( moduleLevelProfiles_ ) {
+      this->getBinning(id.subdetId(), XResidualProfile, nbins, xmin, xmax);      
+
+      histStruct.LocalX = this->bookTH1F(moduleLevelHistsTransient, tfd,
+					 localxname.str().c_str(),localxtitle.str().c_str(),
+					 nbins, xmin, xmax);
+      histStruct.LocalY = this->bookTH1F(moduleLevelHistsTransient, tfd,
+					 localyname.str().c_str(),localytitle.str().c_str(),
+					 nbins, xmin, xmax);
+      histStruct.ResXvsXProfile = this->bookTProfile(moduleLevelHistsTransient, tfd,
+						     resxvsxprofilename.str().c_str(),resxvsxprofiletitle.str().c_str(),
+						     nbins, xmin, xmax, ymin, ymax);
+      histStruct.ResXvsYProfile = this->bookTProfile(moduleLevelHistsTransient, tfd,
+						     resxvsyprofilename.str().c_str(),resxvsyprofiletitle.str().c_str(),
+						     nbins, xmin, xmax, ymin, ymax);
+    }
+
     if( this->isPixel(subdetandlayer.first) || stripYResiduals_ ) {
       this->getBinning(id.subdetId(), YprimeResidual, nbins, xmin, xmax);
       histStruct.ResYprimeHisto = this->bookTH1F(moduleLevelHistsTransient, tfd,
@@ -652,22 +709,57 @@ TrackerOfflineValidation::bookHists(DirectoryWrapper& tfd, const Alignable& ali,
       histStruct.NormResYprimeHisto = this->bookTH1F(moduleLevelHistsTransient, tfd, 
 						     normyprimehistoname.str().c_str(),normyprimehistotitle.str().c_str(),
 						     nbins, xmin, xmax);
+
+      if ( moduleLevelProfiles_ ) {
+	this->getBinning(id.subdetId(), YResidualProfile, nbins, xmin, xmax);      
+	
+	histStruct.ResYvsXProfile = this->bookTProfile(moduleLevelHistsTransient, tfd,
+						       resyvsxprofilename.str().c_str(),resyvsxprofiletitle.str().c_str(),
+						       nbins, xmin, xmax, ymin, ymax);
+	histStruct.ResYvsYProfile = this->bookTProfile(moduleLevelHistsTransient, tfd,
+						       resyvsyprofilename.str().c_str(),resyvsyprofiletitle.str().c_str(),
+						       nbins, xmin, xmax, ymin, ymax);
+      }
     }
   }
 }
 
 
 TH1* TrackerOfflineValidation::bookTH1F(bool isTransient, DirectoryWrapper& tfd, const char* histName, const char* histTitle, 
-		int nBinsX, double lowX, double highX)
+					int nBinsX, double lowX, double highX)
 {
-  if(isTransient) {
+  if (isTransient) {
     vDeleteObjects_.push_back(new TH1F(histName, histTitle, nBinsX, lowX, highX));
     return vDeleteObjects_.back(); // return last element of vector
-  }
+  } 
   else
     return tfd.make<TH1F>(histName, histTitle, nBinsX, lowX, highX);
 }
 
+TProfile* TrackerOfflineValidation::bookTProfile(bool isTransient, DirectoryWrapper& tfd, const char* histName, const char* histTitle, 
+						 int nBinsX, double lowX, double highX)
+{
+  if (isTransient) {
+    TProfile * profile = new TProfile(histName, histTitle, nBinsX, lowX, highX);
+    vDeleteObjects_.push_back(profile);
+    return profile;
+  }
+  else
+    return (TProfile*)tfd.make<TProfile>(histName, histTitle, nBinsX, lowX, highX);
+}
+
+
+TProfile* TrackerOfflineValidation::bookTProfile(bool isTransient, DirectoryWrapper& tfd, const char* histName, const char* histTitle, 
+						 int nBinsX, double lowX, double highX, double lowY, double highY)
+{
+  if (isTransient) {
+    TProfile * profile = new TProfile(histName, histTitle, nBinsX, lowX, highX, lowY, highY);
+    vDeleteObjects_.push_back(profile);
+    return profile;
+  }
+  else
+    return (TProfile*)tfd.make<TProfile>(histName, histTitle, nBinsX, lowX, highX, lowY, highY);
+}
 
 bool TrackerOfflineValidation::isBarrel(uint32_t subDetId)
 {
@@ -732,6 +824,14 @@ TrackerOfflineValidation::getBinning(uint32_t subDetId,
     case NormYprimeResidual :
       if(isPixel) binningPSet = parSet_.getParameter<edm::ParameterSet>("TH1NormYResPixelModules");             
       else binningPSet        = parSet_.getParameter<edm::ParameterSet>("TH1NormYResStripModules");  
+      break;
+    case XResidualProfile :
+      if(isPixel) binningPSet = parSet_.getParameter<edm::ParameterSet>("TProfileXResPixelModules");                
+      else binningPSet        = parSet_.getParameter<edm::ParameterSet>("TProfileXResStripModules");                
+      break;
+    case YResidualProfile :
+      if(isPixel) binningPSet = parSet_.getParameter<edm::ParameterSet>("TProfileYResPixelModules");                
+      else binningPSet        = parSet_.getParameter<edm::ParameterSet>("TProfileYResStripModules");                
       break;
     }
   nBinsX      = binningPSet.getParameter<int32_t>("Nbinx");		       
@@ -932,11 +1032,31 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 	if(itH->resXprimeErr != 0 && itH->resXprimeErr != -999 ) {	
 	  histStruct.NormResXprimeHisto->Fill(itH->resXprime/itH->resXprimeErr);
 	}
+      }     
+
+      if ( moduleLevelProfiles_ ) {
+	float tgalpha = tan(itH->localAlpha);
+	if ( fabs(tgalpha)>0.0001 ){
+	  histStruct.LocalX->Fill(itH->localXnorm, tgalpha*tgalpha); 
+	  histStruct.LocalY->Fill(itH->localYnorm, tgalpha*tgalpha); 
+	  histStruct.ResXvsXProfile->Fill(itH->localXnorm, itH->resX/tgalpha, tgalpha*tgalpha); 
+	  histStruct.ResXvsYProfile->Fill(itH->localYnorm, itH->resX/tgalpha, tgalpha*tgalpha); 
+	}
       }
+      
       if (itH->resYprime != -999.) {
 	if (this->isPixel(detid.subdetId()) ||
 	    stripYResiduals_ ) {
 	  histStruct.ResYprimeHisto->Fill(itH->resYprime);
+
+	  if ( moduleLevelProfiles_ ) {
+	    float tgbeta = tan(itH->localBeta);
+	    if ( fabs(tgbeta)!=0 ){
+	      histStruct.ResYvsXProfile->Fill(itH->localXnorm, itH->resY/tgbeta, tgbeta*tgbeta); 
+	      histStruct.ResYvsYProfile->Fill(itH->localYnorm, itH->resY/tgbeta, tgbeta*tgbeta); 
+	    }
+	  }
+
 	  if (itH->resYprimeErr != 0 && itH->resYprimeErr != -999. ) {	
 	    histStruct.NormResYprimeHisto->Fill(itH->resYprime/itH->resYprimeErr);
 	  } 
@@ -988,7 +1108,7 @@ TrackerOfflineValidation::endJob()
   DirectoryWrapper f("",moduleDirectory_,dqmMode_);
   this->collateSummaryHists(f,(aliTracker), 0, aliobjid, vTrackerprofiles);
   
-  if(dqmMode_)return;
+  if (dqmMode_) return;
   // Should be excluded in dqmMode, since TTree is not usable
   // In dqmMode tree operations are are sourced out to the additional module TrackerOfflineValidationSummary
   

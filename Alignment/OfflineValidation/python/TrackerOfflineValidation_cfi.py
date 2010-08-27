@@ -6,6 +6,8 @@ TrackerOfflineValidation = cms.EDAnalyzer("TrackerOfflineValidation",
     Tracks                    = cms.InputTag("TrackRefitter"),
     localCoorHistosOn         = cms.bool(False),
     moduleLevelHistsTransient = cms.bool(False),  # Do not switch on in DQM mode, TrackerOfflineValidationSummary needs it
+    moduleLevelProfiles       = cms.bool(False),  # Do not switch on in DQM mode
+    localCoorProfilesOn       = cms.bool(False),
     stripYResiduals           = cms.bool(False),                                        
     overlappOn                = cms.bool(False),                                      
     useFwhm                   = cms.bool(True),
@@ -64,6 +66,22 @@ TrackerOfflineValidation = cms.EDAnalyzer("TrackerOfflineValidation",
     # Y residuals native coordinates (Pixel)                                         
     TH1YResPixelModules = cms.PSet(
         Nbinx = cms.int32(100), xmin = cms.double(-0.5), xmax = cms.double(0.5)
+    ),
+    # X Residuals vs reduced local coordinates (Strip)                      
+    TProfileXResStripModules = cms.PSet(
+        Nbinx = cms.int32(20), xmin = cms.double(-1.0), xmax = cms.double(1.0)
+    ),
+    # X Residuals vs reduced local coordinates (Strip)                      
+    TProfileYResStripModules = cms.PSet(
+        Nbinx = cms.int32(20), xmin = cms.double(-1.0), xmax = cms.double(1.0)
+    ),
+    # X Residuals vs reduced local coordinates (Pixel)                      
+    TProfileXResPixelModules = cms.PSet(
+        Nbinx = cms.int32(20), xmin = cms.double(-1.0), xmax = cms.double(1.0)
+    ),
+    # X Residuals vs reduced local coordinates (Pixel)                      
+    TProfileYResPixelModules = cms.PSet(
+        Nbinx = cms.int32(20), xmin = cms.double(-1.0), xmax = cms.double(1.0)
     )
 )
 

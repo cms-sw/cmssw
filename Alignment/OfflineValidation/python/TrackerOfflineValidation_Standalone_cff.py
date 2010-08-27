@@ -54,6 +54,22 @@ TrackerOfflineValidation.TH1YResPixelModules.Nbinx = 2000
 TrackerOfflineValidation.TH1YResPixelModules.xmin = -0.1 #-0.5
 TrackerOfflineValidation.TH1YResPixelModules.xmax = 0.1 #0.5
 
+TrackerOfflineValidation.TProfileXResStripModules.Nbinx = 34
+TrackerOfflineValidation.TProfileXResStripModules.xmin = -1.02
+TrackerOfflineValidation.TProfileXResStripModules.xmax = 1.02
+
+TrackerOfflineValidation.TProfileXResPixelModules.Nbinx = 17
+TrackerOfflineValidation.TProfileXResPixelModules.xmin = -1.02
+TrackerOfflineValidation.TProfileXResPixelModules.xmax = 1.02
+
+TrackerOfflineValidation.TProfileYResStripModules.Nbinx = 34
+TrackerOfflineValidation.TProfileYResStripModules.xmin = -1.02
+TrackerOfflineValidation.TProfileYResStripModules.xmax = 1.02
+
+TrackerOfflineValidation.TProfileYResPixelModules.Nbinx = 17
+TrackerOfflineValidation.TProfileYResPixelModules.xmin = -1.02
+TrackerOfflineValidation.TProfileYResPixelModules.xmax = 1.02
+
 # First clone contains the standard histogram binning for both, Standalone and DQMmode
 TrackerOfflineValidationBinned = TrackerOfflineValidation.clone()
 
@@ -64,6 +80,7 @@ TrackerOfflineValidationBinned = TrackerOfflineValidation.clone()
 TrackerOfflineValidationStandalone = TrackerOfflineValidationBinned.clone(
     Tracks = 'TrackRefitterForOfflineValidation',
     moduleLevelHistsTransient = cms.bool(True),
+    moduleLevelProfiles = cms.bool(False)
 )
 
 ##
