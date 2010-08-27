@@ -339,24 +339,30 @@ def main():
         #if truefilename modification time is more recent than the output plot, replot it
         #
         inputmodtime=os.path.getmtime(truefilename)
+        #print 'inputmodtime ',inputmodtime
         if not os.path.isfile(os.path.join(opath,'lumiperday.png')) or not os.path.isfile(os.path.join(opath,'totallumivstime.png')):
             if not isDryrun:
                 shutil.copy2(truefilename,os.path.join(opath,os.path.basename(truefilename)))
             print 'cp '+truefilename+' '+os.path.join(opath,os.path.basename(truefilename))
+            if args.action == 'physicsperday':
+                lumiPerDay(connectstr,p=authpath,selectionfile=truefilename,o=opath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,dryrun=isDryrun,withTextOutput=withTextOutput)
+            if args.action == 'physicsvstime':
+                totalLumivstime(connectstr,p=authpath,selectionfile=truefilename,o=opath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,dryrun=isDryrun,withTextOutput=withTextOutput)
         else:
             outputmodtime=os.path.getmtime(os.path.join(opath,'lumiperday.png'))
+            #print 'outputmodtime ',outputmodtime
             if inputmodtime > outputmodtime :
                 print 'physics selection file '+truefilename+' modified, updating physics plots: '
                 if not isDryrun:
                     shutil.copy2(truefilename,os.path.join(opath,os.path.basename(truefilename)))
                     print 'cp '+truefilename+' '+os.path.join(opath,os.path.basename(truefilename))
-                else:
-                    print 'physics selection file older than plot, do nothing'
-                    return 0
-        if args.action == 'physicsperday':
-           lumiPerDay(connectstr,p=authpath,selectionfile=truefilename,o=opath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,dryrun=isDryrun,withTextOutput=withTextOutput)
-        if args.action == 'physicsvstime':
-           totalLumivstime(connectstr,p=authpath,selectionfile=truefilename,o=opath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,dryrun=isDryrun,withTextOutput=withTextOutput)
+                    if args.action == 'physicsperday':
+                        lumiPerDay(connectstr,p=authpath,selectionfile=truefilename,o=opath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,dryrun=isDryrun,withTextOutput=withTextOutput)
+                    if args.action == 'physicsvstime':
+                        totalLumivstime(connectstr,p=authpath,selectionfile=truefilename,o=opath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,dryrun=isDryrun,withTextOutput=withTextOutput)
+            else:
+                print 'physics selection file older than plot, do nothing'
+                return 0
 
 if __name__=='__main__':
     main()
