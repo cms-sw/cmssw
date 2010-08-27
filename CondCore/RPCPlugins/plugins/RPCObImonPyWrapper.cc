@@ -168,7 +168,13 @@ namespace cond {
     
     ss <<"DetID\t"<<"Ival\t"<<"Time\t"<<"Day\n";
     for(unsigned int i = 0; i < imon.size(); ++i ){
-     ss <<imon[i].dpid <<"\t"<<imon[i].value<<"\t"<<imon[i].time<<"\t"<<imon[i].day<<"\n";
+      //      for(unsigned int p = 0; p < ipvss.size(); ++p){
+      // 	if(imon[i].dpid()!=ipvss[p].dpid())continue;
+      // 	RPCDetId rpcId(ipvss[p].region(),ipvss[p].ring(),ipvss[p].station(),ipvss[p].sector(),ipvss[p].layer(),ipvss[p].subsector(),1);
+      // 	RPCGeomServ rGS(rpcId);
+      // 	std::string chName(rGS.name().substr(0,rGS.name().find("_BACKWARD")));
+      ss <<imon[i].dpid <<"\t"<<imon[i].value<<"\t"<<imon[i].time<<"\t"<<imon[i].day<<"\n";
+      //      }
     }
     
     return ss.str();

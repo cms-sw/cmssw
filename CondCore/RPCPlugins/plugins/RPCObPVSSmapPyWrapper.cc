@@ -43,6 +43,7 @@ namespace cond {
 
     std::vector<RPCObPVSSmap::Item> const & vdetid = object().ObIDMap_rpc;
 
+
     for(unsigned int i = 0; i < vdetid.size(); ++i ){
       ss <<vdetid[i].dpid <<" "<<vdetid[i].region<<" "<<vdetid[i].ring<<" "<<vdetid[i].sector<<" "<<vdetid[i].station<<" "<<vdetid[i].layer<<" "<<vdetid[i].subsector<<" "<<vdetid[i].suptype<<" ";
     }
