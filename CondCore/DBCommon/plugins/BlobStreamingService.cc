@@ -38,7 +38,7 @@ namespace cond {
     typedef std::pair<unsigned long long, unsigned long long> uuid;
     
     static const size_t m_idsize=sizeof(uuid);
-    static const size_t m_offset = m_idsize + sizeof(unsigned long long));
+    static const size_t m_offset = m_idsize + sizeof(unsigned long long);
     static const size_t nVariants=3;
     
     enum Variant { OLD, COMPRESSED_TBUFFER, COMPRESSED_CHARS }; 
