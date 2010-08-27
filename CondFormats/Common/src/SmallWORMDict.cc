@@ -1,6 +1,5 @@
 #include "CondFormats/Common/interface/SmallWORMDict.h"
-
-
+#include <cstring>
 
 namespace cond {
 
