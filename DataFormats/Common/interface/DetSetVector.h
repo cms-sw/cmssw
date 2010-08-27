@@ -40,8 +40,9 @@ behavior (usually a core dump).
 #include <vector>
 
 #include "boost/concept_check.hpp"
-#include "boost/lambda/bind.hpp"
 #include "boost/mpl/if.hpp"
+#include "boost/bind.hpp"
+
 
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/FillView.h"
@@ -368,8 +369,7 @@ namespace edm {
   {
     std::transform(this->begin(), this->end(),
 		   std::back_inserter(result),
-		   boost::lambda::bind(&DetSet<T>::id, 
-				       boost::lambda::_1));
+		   boost::bind(&DetSet<T>::id,_1));
   }
 
   template <class T>
