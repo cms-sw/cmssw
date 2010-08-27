@@ -31,9 +31,9 @@ class ParametersObject (object):
         self.verbose         = False
         self.noWarnings      = False
         self.lumischema      = 'CMS_LUMI_PROD'
-        self.lumidb          = 'oracle://cms_orcoff_prod/cms_lumi_prod'
-        self.lumisummaryname = 'LUMISUMMARY'
-        self.lumidetailname  = 'LUMIDETAIL'
+        #self.lumidb          = 'oracle://cms_orcoff_prod/cms_lumi_prod'
+        #self.lumisummaryname = 'LUMISUMMARY'
+        #self.lumidetailname  = 'LUMIDETAIL'
         self.lumiXing        = False
         self.xingMinLum      = 1e-4
         self.minBiasXsec     = 71300 # unit: microbarn
@@ -783,9 +783,8 @@ def xingLuminosityForRun (dbsession, runnum, parameters, lumiXingDict = {},
         detailCondition['runnum'].setData (runnum)
         detailCondition['algoname'].setData ('OCC1')
         query = schema.newQuery()
-        query.addToTableList  (parameters.lumisummaryname, 's')
-        query.addToTableList  (parameters.lumidetailname,  'd')
-        #query.addToOrderList  ('s.STARTORBIT',    'startorbit')
+        query.addToTableList(nameDealer.cmsrunsummaryTableName(), 's')
+        query.addToTableList(nameDealer.lumidetailTableName(),  'd')
         query.addToOutputList ('s.STARTORBIT',    'startorbit')
         query.addToOutputList ('s.CMSLSNUM',      'cmslsnum')
         query.addToOutputList ('d.BXLUMIVALUE',   'bxlumivalue')
