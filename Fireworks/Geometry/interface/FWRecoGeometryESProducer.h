@@ -40,27 +40,20 @@ private:
   FWRecoGeometryESProducer( const FWRecoGeometryESProducer& );
   const FWRecoGeometryESProducer& operator=( const FWRecoGeometryESProducer& );
 
-  TGeoManager*      createManager( int level );
   TGeoShape*        createShape( const GeomDet *det );
-  TGeoVolume*       createVolume( const std::string& name, const GeomDet *det, const std::string& matname = "Air" );
-  TGeoMaterial*     createMaterial( const std::string& name );
+  TGeoVolume*       createVolume( unsigned int rawid, const GeomDet *det );
 
-  void addCSCGeometry( TGeoVolume* top, const std::string& path, int copy = 1 );
-  void addDTGeometry( TGeoVolume* top, const std::string& path, int copy = 1 );
-  void addRPCGeometry( TGeoVolume* top, const std::string& path, int copy = 1 );
-  void addPixelBarrelGeometry( TGeoVolume* top, const std::string& path, int copy = 1 );
-  void addPixelForwardGeometry( TGeoVolume* top, const std::string& path, int copy = 1 );
-  void addTIBGeometry( TGeoVolume* top, const std::string& path, int copy = 1 );
-  void addTOBGeometry( TGeoVolume* top, const std::string& path, int copy = 1 );
-  void addTIDGeometry( TGeoVolume* top, const std::string& path, int copy = 1 );
-  void addTECGeometry( TGeoVolume* top, const std::string& path, int copy = 1 );
+  void addCSCGeometry( TGeoVolume* top, const std::string& path, const std::string& name = "CSC", int copy = 1 );
+  void addDTGeometry( TGeoVolume* top, const std::string& path, const std::string& name = "DT", int copy = 1 );
+  void addRPCGeometry( TGeoVolume* top, const std::string& path, const std::string& name = "RPC", int copy = 1 );
+  void addPixelBarrelGeometry( TGeoVolume* top, const std::string& path, const std::string& name = "PixelBarrel", int copy = 1 );
+  void addPixelForwardGeometry( TGeoVolume* top, const std::string& path, const std::string& name = "PixelForward", int copy = 1 );
+  void addTIBGeometry( TGeoVolume* top, const std::string& path, const std::string& name = "TIB", int copy = 1 );
+  void addTOBGeometry( TGeoVolume* top, const std::string& path, const std::string& name = "TOB", int copy = 1 );
+  void addTIDGeometry( TGeoVolume* top, const std::string& path, const std::string& name = "TID", int copy = 1 );
+  void addTECGeometry( TGeoVolume* top, const std::string& path, const std::string& name = "TEC", int copy = 1 );
   void addCaloGeometry( void );
   
-  std::map<std::string, TGeoShape*>    m_nameToShape;
-  std::map<std::string, TGeoVolume*>   m_nameToVolume;
-  std::map<std::string, TGeoMaterial*> m_nameToMaterial;
-  std::map<std::string, TGeoMedium*>   m_nameToMedium;
-
   edm::ESTransientHandle<GlobalTrackingGeometry> m_geomRecord;
   edm::ESTransientHandle<CaloGeometry>           m_caloGeom;
   const TrackerGeometry* m_trackerGeom;
@@ -70,6 +63,8 @@ private:
   void fillPoints( unsigned int id, std::vector<GlobalPoint>::const_iterator begin, std::vector<GlobalPoint>::const_iterator end );
   
   unsigned int m_current;
+  TGeoMaterial* m_material;
+  TGeoMedium*   m_medium;
 };
 
 #endif // GEOMETRY_FWRECO_GEOMETRY_ES_PRODUCER_H

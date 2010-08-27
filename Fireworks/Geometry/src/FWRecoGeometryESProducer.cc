@@ -30,6 +30,24 @@
 #include "TTree.h"
 #include "TError.h"
 
+class FWGeoAssemblyFast : public TGeoVolumeAssembly
+{
+public:
+   FWGeoAssemblyFast( const char *name )
+     : TGeoVolumeAssembly( name )
+    {}
+   
+  void AddNodeFast( const TGeoVolume *vol, Int_t copy_no, TGeoMatrix *mat, Option_t *option = "" )
+    {
+      TGeoVolume::AddNode( vol, copy_no, mat, option );
+    }
+  
+  void Update(void)
+    {
+      fShape->ComputeBBox();
+    }
+};
+
 # define ADD_PIXEL_TOPOLOGY( rawid, detUnit )			\
   const PixelGeomDetUnit* det = dynamic_cast<const PixelGeomDetUnit*>( detUnit ); \
   if( det )							\
@@ -68,7 +86,9 @@
   }                                                                     \
 									  
 FWRecoGeometryESProducer::FWRecoGeometryESProducer( const edm::ParameterSet& )
-  : m_current( -1 )
+  : m_current( -1 ),
+    m_material( 0 ),
+    m_medium( 0 )
 {
   setWhatProduced( this );
 }
@@ -124,10 +144,10 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
   m_fwGeometry->manager( geom );
   
   // Default material is Vacuum
-  TGeoMaterial *matVacuum = new TGeoMaterial( "Vacuum", 0 ,0 ,0 );
+  m_material = new TGeoMaterial( "Vacuum", 0 ,0 ,0 );
   // so is default medium
-  TGeoMedium *vacuum = new TGeoMedium( "Vacuum", 1, matVacuum );
-  TGeoVolume *top = geom->MakeBox( "CMS", vacuum, 270., 270., 120. );
+  m_medium = new TGeoMedium( "Vacuum", 1, m_material );
+  TGeoVolume *top = geom->MakeBox( "CMS", m_medium, 270., 270., 120. );
   
   if( 0 == top )
   {
@@ -140,7 +160,7 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
   
   // Path to the top volume
   std::stringstream p;
-  p << top->GetName() << "_" << top->GetNumber();
+  p << top->GetName() << "_" << top->GetNumber() << "/";
   const std::string path = p.str();
   
   addPixelBarrelGeometry( top, path );
@@ -152,7 +172,8 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
   addDTGeometry( top, path );
   addCSCGeometry( top, path );
   addRPCGeometry( top, path );
-
+  top->GetShape()->ComputeBBox();
+  
   addCaloGeometry();
   
   geom->CloseGeometry();
@@ -160,11 +181,6 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
   m_fwGeometry->idToName.resize( m_current + 1 );
   std::vector<FWRecoGeom::Info>( m_fwGeometry->idToName ).swap( m_fwGeometry->idToName );
   std::sort( m_fwGeometry->idToName.begin(), m_fwGeometry->idToName.end());
-  
-  m_nameToShape.clear();
-  m_nameToVolume.clear();
-  m_nameToMaterial.clear();
-  m_nameToMedium.clear();
 
   return m_fwGeometry;
 }
@@ -188,35 +204,19 @@ FWRecoGeometryESProducer::createShape( const GeomDet *det )
     float thickness   = par [2];
     float apothem     = par [3];
 
-    std::stringstream s;
-    s << "T_"
-      << hBottomEdge << "_"
-      << hTopEdge << "_"
-      << thickness << "_"
-      << apothem;
-    std::string name = s.str();
-
-    // Do not create identical shape,
-    // if one already exists
-    shape = m_nameToShape[name];
-    if( 0 == shape )
-    {
-      shape = new TGeoTrap(
-	name.c_str(),
-	thickness,  //dz
-	0, 	    //theta
-	0, 	    //phi
-	apothem,    //dy1
-	hBottomEdge,//dx1
-	hTopEdge,   //dx2
-	0, 	    //alpha1
-	apothem,    //dy2
-	hBottomEdge,//dx3
-	hTopEdge,   //dx4
-	0);         //alpha2
-
-      m_nameToShape[name] = shape;
-    }
+    shape = new TGeoTrap(
+      "Trap",
+      thickness,  //dz
+      0, 	    //theta
+      0, 	    //phi
+      apothem,    //dy1
+      hBottomEdge,//dx1
+      hTopEdge,   //dx2
+      0, 	    //alpha1
+      apothem,    //dy2
+      hBottomEdge,//dx3
+      hTopEdge,   //dx4
+      0);         //alpha2
   }
   if( dynamic_cast<const RectangularPlaneBounds *> (b))
   {
@@ -225,22 +225,7 @@ FWRecoGeometryESProducer::createShape( const GeomDet *det )
     float width = det->surface().bounds ().width();
     float thickness = det->surface().bounds().thickness();
 
-    std::stringstream s;
-    s << "R_"
-      << width << "_"
-      << length << "_"
-      << thickness;
-    std::string name = s.str();
-
-    // Do not create identical shape,
-    // if one already exists
-    shape = m_nameToShape[name];
-    if( 0 == shape )
-    {
-      shape = new TGeoBBox( name.c_str(), width / 2., length / 2., thickness / 2. ); // dx, dy, dz
-
-      m_nameToShape[name] = shape;
-    }
+    shape = new TGeoBBox( "Box", width / 2., length / 2., thickness / 2. ); // dx, dy, dz
   }
   
   return shape;
@@ -248,50 +233,25 @@ FWRecoGeometryESProducer::createShape( const GeomDet *det )
 
 /** Create TGeo volume for GeomDet */
 TGeoVolume* 
-FWRecoGeometryESProducer::createVolume( const std::string& name, const GeomDet *det, const std::string& material )
+FWRecoGeometryESProducer::createVolume( unsigned int rawid, const GeomDet *det )
 {
-  TGeoVolume* volume = m_nameToVolume[name];
-  if( 0 == volume )
-  { 
-    TGeoShape* solid = createShape( det );
-    TGeoMedium* medium = m_nameToMedium[material];
-    if( 0 == medium )
-    {
-      medium = new TGeoMedium( material.c_str(), 0, createMaterial( material ));
-      m_nameToMedium[material] = medium;
-    }
-    if( solid )
-    {
-      volume = new TGeoVolume( name.c_str(),
-			       solid,
-			       medium );
-      m_nameToVolume[name] = volume;
-    }
-  }  
+  TGeoVolume* volume = 0;
+  TGeoShape* solid = createShape( det );
+  if( solid )
+  {
+    volume = new TGeoVolume( Form( "%u", rawid),
+			     solid,
+			     m_medium );
+  }
   
   return volume;
 }
 
-/** Create TGeo material based on its name */
-TGeoMaterial*
-FWRecoGeometryESProducer::createMaterial( const std::string& name )
-{
-  TGeoMaterial *material = m_nameToMaterial[name];
-
-  if( material == 0 )
-  {
-    // FIXME: Do we need to set real parameters of the material?
-    material = new TGeoMaterial( name.c_str(),
-                                 0, 0, 0 );
-    m_nameToMaterial[name] = material;
-  }
-
-  return material;
-}
-
 void
-FWRecoGeometryESProducer::addCSCGeometry( TGeoVolume* top, const std::string& path, int copy )
+FWRecoGeometryESProducer::addCSCGeometry( TGeoVolume* top, const std::string& path, const std::string& iName, int copy )
 {
+  FWGeoAssemblyFast *assembly = new FWGeoAssemblyFast( iName.c_str());
+  std::stringstream s;
   DetId detId( DetId::Muon, 2 ); 
   const CSCGeometry* cscGeometry = (const CSCGeometry*) m_geomRecord->slaveGeometry( detId );
   for( std::vector<CSCChamber*>::const_iterator it = cscGeometry->chambers().begin(),
@@ -303,17 +263,15 @@ FWRecoGeometryESProducer::addCSCGeometry( TGeoVolume* top, const std::string& pa
     if( chamber )
     {
       unsigned int rawid = chamber->geographicalId();
-      std::stringstream s;
-      s << rawid;
-      std::string name = s.str();
       
-      TGeoVolume* child = createVolume( name, chamber );
-      top->AddNode( child, copy, createPlacement( chamber ));
+      TGeoVolume* child = createVolume( rawid, chamber );
+      assembly->AddNodeFast( child, copy, createPlacement( chamber ));
       child->SetLineColor( kBlue );
 
-      std::stringstream p;
-      p << path << "/" << name << "_" << copy;
-      /* unsigned int current = */ insert_id( rawid, p.str());
+      s.clear();
+      s.str( "" );
+      s << path << iName << "_1/" << rawid << "_1";
+      /* unsigned int current = */ insert_id( rawid, s.str());
       //
       // CSC layers geometry
       //
@@ -326,17 +284,15 @@ FWRecoGeometryESProducer::addCSCGeometry( TGeoVolume* top, const std::string& pa
 	if( layer )
 	{
 	  unsigned int rawid = layer->geographicalId();
-	  std::stringstream s;
-	  s << rawid;
-	  std::string name = s.str();
-      
-	  TGeoVolume* child = createVolume( name, layer );
-	  top->AddNode( child, copy, createPlacement( layer ));
+
+	  TGeoVolume* child = createVolume( rawid, layer );
+	  assembly->AddNodeFast( child, copy, createPlacement( layer ));
 	  child->SetLineColor( kBlue );
       
-	  std::stringstream p;
-	  p << path << "/" << name << "_" << copy;
-	  unsigned int current = insert_id( rawid, p.str());
+	  s.clear();
+	  s.str( "" );
+	  s << path << iName << "_1/" << rawid << "_1";
+	  unsigned int current = insert_id( rawid, s.str());
 
 	  const CSCStripTopology* stripTopology = layer->geometry()->topology();
 	  m_fwGeometry->idToName[current].topology[0] = stripTopology->yAxisOrientation();
@@ -353,11 +309,16 @@ FWRecoGeometryESProducer::addCSCGeometry( TGeoVolume* top, const std::string& pa
       }
     }
   }
+  assembly->Update();
+
+  top->AddNode( assembly, copy );
 }
 
 void
-FWRecoGeometryESProducer::addDTGeometry( TGeoVolume* top, const std::string& path, int copy )
+FWRecoGeometryESProducer::addDTGeometry( TGeoVolume* top, const std::string& path, const std::string& iName, int copy )
 {
+  FWGeoAssemblyFast *assembly = new FWGeoAssemblyFast( iName.c_str());
+  std::stringstream s;
   DetId detId( DetId::Muon, 1 );
   const DTGeometry* dtGeometry = (const DTGeometry*) m_geomRecord->slaveGeometry( detId );
 
@@ -373,17 +334,15 @@ FWRecoGeometryESProducer::addDTGeometry( TGeoVolume* top, const std::string& pat
     if( chamber )
     {
       unsigned int rawid = chamber->geographicalId().rawId();
-      std::stringstream s;
-      s << rawid;
-      std::string name = s.str();
       
-      TGeoVolume* child = createVolume( name, chamber );
-      top->AddNode( child, copy, createPlacement( chamber ));
+      TGeoVolume* child = createVolume( rawid, chamber );
+      assembly->AddNodeFast( child, copy, createPlacement( chamber ));
       child->SetLineColor( kRed );
       
-      std::stringstream p;
-      p << path << "/" << name << "_" << copy;
-      /* unsigned int current = */ insert_id( rawid, p.str());
+      s.clear();
+      s.str( "" );
+      s << path << iName << "_1/" << rawid << "_1";
+      /* unsigned int current = */ insert_id( rawid, s.str());
     }
   }
 
@@ -397,17 +356,15 @@ FWRecoGeometryESProducer::addDTGeometry( TGeoVolume* top, const std::string& pat
     if( layer )
     {
       unsigned int rawid = layer->id().rawId();
-      std::stringstream s;
-      s << rawid;
-      std::string name = s.str();
       
-      TGeoVolume* child = createVolume( name, layer );
-      top->AddNode( child, copy, createPlacement( layer ));
+      TGeoVolume* child = createVolume( rawid, layer );
+      assembly->AddNodeFast( child, copy, createPlacement( layer ));
       child->SetLineColor( kBlue );
       
-      std::stringstream p;
-      p << path << "/" << name << "_" << copy;
-      unsigned int current = insert_id( rawid, p.str());
+      s.clear();
+      s.str( "" );
+      s << path << iName << "_1/" << rawid << "_1";
+      unsigned int current = insert_id( rawid, s.str());
 
       const DTTopology& topo = layer->specificTopology();
       const BoundPlane& surf = layer->surface();
@@ -425,11 +382,16 @@ FWRecoGeometryESProducer::addDTGeometry( TGeoVolume* top, const std::string& pat
       m_fwGeometry->idToName[current].topology[8] = surf.bounds().length();
     }
   }  
+  assembly->Update();
+
+  top->AddNode( assembly, copy );
 }
 
 void
-FWRecoGeometryESProducer::addRPCGeometry( TGeoVolume* top, const std::string& path, int copy )
+FWRecoGeometryESProducer::addRPCGeometry( TGeoVolume* top, const std::string& path, const std::string& iName, int copy )
 {
+  FWGeoAssemblyFast *assembly = new FWGeoAssemblyFast( iName.c_str());
+  std::stringstream s;
   //
   // RPC rolls geometry
   //
@@ -443,17 +405,15 @@ FWRecoGeometryESProducer::addRPCGeometry( TGeoVolume* top, const std::string& pa
     if( roll )
     {
       unsigned int rawid = roll->geographicalId().rawId();
-      std::stringstream s;
-      s << rawid;
-      std::string name = s.str();
       
-      TGeoVolume* child = createVolume( name, roll );
-      top->AddNode( child, copy, createPlacement( roll ));
+      TGeoVolume* child = createVolume( rawid, roll );
+      assembly->AddNodeFast( child, copy, createPlacement( roll ));
       child->SetLineColor( kYellow );
       
-      std::stringstream p;
-      p << path << "/" << name << "_" << copy;
-      unsigned int current = insert_id( rawid, p.str());
+      s.clear();
+      s.str( "" );
+      s << path << iName << "_1/" << rawid << "_1";
+      unsigned int current = insert_id( rawid, s.str());
 
       const StripTopology& topo = roll->specificTopology();
       m_fwGeometry->idToName[current].topology[0] = roll->nstrips();
@@ -461,161 +421,208 @@ FWRecoGeometryESProducer::addRPCGeometry( TGeoVolume* top, const std::string& pa
       m_fwGeometry->idToName[current].topology[2] = topo.pitch();
     }
   }
+  assembly->Update();
+
+  top->AddNode( assembly, copy );
 }
 
 void
-FWRecoGeometryESProducer::addPixelBarrelGeometry( TGeoVolume* top, const std::string& path, int copy )
+FWRecoGeometryESProducer::addPixelBarrelGeometry( TGeoVolume* top, const std::string& path, const std::string& iName, int copy )
 {
+  FWGeoAssemblyFast *assembly = new FWGeoAssemblyFast( iName.c_str());
+  std::stringstream s;
   for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsPXB().begin(),
 						    end = m_trackerGeom->detsPXB().end();
        it != end; ++it)
   {
-    DetId detid = ( *it )->geographicalId();
-    unsigned int rawid = detid.rawId();
+    const GeomDet *det = *it;
 
-    std::stringstream s;
-    s << rawid;
-    std::string name = s.str();
+    if( det )
+    {     
+      DetId detid = det->geographicalId();
+      unsigned int rawid = detid.rawId();
 
-    TGeoVolume* child = createVolume( name, *it );
-    top->AddNode( child, copy, createPlacement( *it ));
-    child->SetLineColor( kGreen );
+      TGeoVolume* child = createVolume( rawid, det );
+      assembly->AddNodeFast( child, copy, createPlacement( det ));
+      child->SetLineColor( kGreen );
 
-    std::stringstream p;
-    p << path << "/" << name << "_" << copy;
-    unsigned int current = insert_id( rawid, p.str());
+      s.clear();
+      s.str( "" );
+      s << path << iName << "_1/" << rawid << "_1";
+      unsigned int current = insert_id( rawid, s.str());
 
-    ADD_PIXEL_TOPOLOGY( current, m_trackerGeom->idToDetUnit( detid ));
+      ADD_PIXEL_TOPOLOGY( current, m_trackerGeom->idToDetUnit( detid ));
+    }
   }
+  assembly->Update();
+
+  top->AddNode( assembly, copy );
 }
 
 void
-FWRecoGeometryESProducer::addPixelForwardGeometry( TGeoVolume* top, const std::string& path, int copy )
+FWRecoGeometryESProducer::addPixelForwardGeometry( TGeoVolume* top, const std::string& path, const std::string& iName, int copy )
 {
+  FWGeoAssemblyFast *assembly = new FWGeoAssemblyFast( iName.c_str());
+  std::stringstream s;
   for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsPXF().begin(),
 						    end = m_trackerGeom->detsPXF().end();
        it != end; ++it )
   {
-    DetId detid = ( *it )->geographicalId();
-    unsigned int rawid = detid.rawId();
+    const GeomDet *det = *it;
 
-    std::stringstream s;
-    s << rawid;
-    std::string name = s.str();
+    if( det )
+    {     
+      DetId detid = det->geographicalId();
+      unsigned int rawid = detid.rawId();
 
-    TGeoVolume* child = createVolume( name, *it );
-    top->AddNode( child, copy, createPlacement( *it ));
-    child->SetLineColor( kGreen );
+      TGeoVolume* child = createVolume( rawid, det );
+      assembly->AddNodeFast( child, copy, createPlacement( det ));
+      child->SetLineColor( kGreen );
 
-    std::stringstream p;
-    p << path << "/" << name << "_" << copy;
-    unsigned int current = insert_id( rawid, p.str());
+      s.clear();
+      s.str( "" );
+      s << path << iName << "_1/" << rawid << "_1";
+      unsigned int current = insert_id( rawid, s.str());
     
-    ADD_PIXEL_TOPOLOGY( current, m_trackerGeom->idToDetUnit( detid ));
+      ADD_PIXEL_TOPOLOGY( current, m_trackerGeom->idToDetUnit( detid ));
+    }
   }
+  
+  assembly->Update();
+
+  top->AddNode( assembly, copy );
 }
 
 void
-FWRecoGeometryESProducer::addTIBGeometry( TGeoVolume* top, const std::string& path, int copy ) 
+FWRecoGeometryESProducer::addTIBGeometry( TGeoVolume* top, const std::string& path, const std::string& iName, int copy ) 
 {
+  FWGeoAssemblyFast *assembly = new FWGeoAssemblyFast( iName.c_str());
+  std::stringstream s;
   for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTIB().begin(),
 						    end = m_trackerGeom->detsTIB().end();
        it != end; ++it )
   {
-    DetId detid = ( *it )->geographicalId();
-    unsigned int rawid = detid.rawId();
-    std::stringstream s;
-    s << rawid;
-    std::string name = s.str();
+    const GeomDet *det = *it;
+
+    if( det )
+    {     
+      DetId detid = det->geographicalId();
+      unsigned int rawid = detid.rawId();
     
-    TGeoVolume* child = createVolume( name, *it );
-    top->AddNode( child, copy, createPlacement( *it ));
-    child->SetLineColor( kGreen );
+      TGeoVolume* child = createVolume( rawid, det );
+      assembly->AddNodeFast( child, copy, createPlacement( det ));
+      child->SetLineColor( kGreen );
 
-    std::stringstream p;
-    p << path << "/" << name << "_" << copy;
-    unsigned int current = insert_id( rawid, p.str());
+      s.clear();
+      s.str( "" );
+      s << path << iName << "_1/" << rawid << "_1";
+      unsigned int current = insert_id( rawid, s.str());
 
-    ADD_SISTRIP_TOPOLOGY( current, m_trackerGeom->idToDet( detid ));
+      ADD_SISTRIP_TOPOLOGY( current, m_trackerGeom->idToDet( detid ));
+    }
   }
+  assembly->Update();
+
+  top->AddNode( assembly, copy );
 }
 
 void
-FWRecoGeometryESProducer::addTOBGeometry( TGeoVolume* top, const std::string& path, int copy )
+FWRecoGeometryESProducer::addTOBGeometry( TGeoVolume* top, const std::string& path, const std::string& iName, int copy )
 {
+  FWGeoAssemblyFast *assembly = new FWGeoAssemblyFast( iName.c_str());
+  std::stringstream s;
   for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTOB().begin(),
 						    end = m_trackerGeom->detsTOB().end();
        it != end; ++it )
   {
-    DetId detid = ( *it )->geographicalId();
-    unsigned int rawid = detid.rawId();
+    const GeomDet *det = *it;
 
-    std::stringstream s;
-    s << rawid;
-    std::string name = s.str();
+    if( det )
+    {     
+      DetId detid = det->geographicalId();
+      unsigned int rawid = detid.rawId();
 
-    TGeoVolume* child = createVolume( name, *it );
-    top->AddNode( child, copy, createPlacement( *it ));
-    child->SetLineColor( kGreen );
+      TGeoVolume* child = createVolume( rawid, det );
+      assembly->AddNodeFast( child, copy, createPlacement( det ));
+      child->SetLineColor( kGreen );
 
-    std::stringstream p;
-    p << path << "/" << name << "_" << copy;
-    unsigned int current = insert_id( rawid, p.str());
+      s.clear();
+      s.str( "" );
+      s << path << iName << "_1/" << rawid << "_1";
+      unsigned int current = insert_id( rawid, s.str());
 
-    ADD_SISTRIP_TOPOLOGY( current, m_trackerGeom->idToDet( detid ));
+      ADD_SISTRIP_TOPOLOGY( current, m_trackerGeom->idToDet( detid ));
+    }
   }
+  assembly->Update();
+
+  top->AddNode( assembly, copy );
 }
 
 void
-FWRecoGeometryESProducer::addTIDGeometry( TGeoVolume* top, const std::string& path, int copy )
+FWRecoGeometryESProducer::addTIDGeometry( TGeoVolume* top, const std::string& path, const std::string& iName, int copy )
 {
+  FWGeoAssemblyFast *assembly = new FWGeoAssemblyFast( iName.c_str());
+  std::stringstream s;
   for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTID().begin(),
 						    end = m_trackerGeom->detsTID().end();
        it != end; ++it)
   {
-    DetId detid = ( *it )->geographicalId();
-    unsigned int rawid = detid.rawId();
+    const GeomDet *det = *it;
 
-    std::stringstream s;
-    s << rawid;
-    std::string name = s.str();
+    if( det )
+    {     
+      DetId detid = det->geographicalId();
+      unsigned int rawid = detid.rawId();
 
-    TGeoVolume* child = createVolume( name, *it );
-    top->AddNode( child, copy, createPlacement( *it ));
-    child->SetLineColor( kGreen );
+      TGeoVolume* child = createVolume( rawid, det );
+      assembly->AddNodeFast( child, copy, createPlacement( det ));
+      child->SetLineColor( kGreen );
 
-    std::stringstream p;
-    p << path << "/" << name << "_" << copy;
-    unsigned int current = insert_id( rawid, p.str());
+      s.clear();
+      s.str( "" );
+      s << path << iName << "_1/" << rawid << "_1";
+      unsigned int current = insert_id( rawid, s.str());
 
-    ADD_SISTRIP_TOPOLOGY( current, m_trackerGeom->idToDet( detid ));
+      ADD_SISTRIP_TOPOLOGY( current, m_trackerGeom->idToDet( detid ));
+    }
   }
+  assembly->Update();
+
+  top->AddNode( assembly, copy );
 }
 
 void
-FWRecoGeometryESProducer::addTECGeometry( TGeoVolume* top, const std::string& path, int copy )
+FWRecoGeometryESProducer::addTECGeometry( TGeoVolume* top, const std::string& path, const std::string& iName, int copy )
 {
+  FWGeoAssemblyFast *assembly = new FWGeoAssemblyFast( iName.c_str());
+  std::stringstream s;
   for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTEC().begin(),
 						    end = m_trackerGeom->detsTEC().end();
        it != end; ++it )
   {
-    DetId detid = ( *it )->geographicalId();
-    unsigned int rawid = detid.rawId();
+    const GeomDet *det = *it;
 
-    std::stringstream s;
-    s << rawid;
-    std::string name = s.str();
+    if( det )
+    {     
+      DetId detid = det->geographicalId();
+      unsigned int rawid = detid.rawId();
 
-    TGeoVolume* child = createVolume( name, *it );
-    top->AddNode( child, copy, createPlacement( *it ));
-    child->SetLineColor( kGreen );
+      TGeoVolume* child = createVolume( rawid, det );
+      assembly->AddNodeFast( child, copy, createPlacement( det ));
+      child->SetLineColor( kGreen );
 
-    std::stringstream p;
-    p << path << "/" << name << "_" << copy;
-    unsigned int current = insert_id( rawid, p.str());
+      s.clear();
+      s.str( "" );
+      s << path << iName << "_1/" << rawid << "_1";
+      unsigned int current = insert_id( rawid, s.str());
 
-    ADD_SISTRIP_TOPOLOGY( current, m_trackerGeom->idToDet( detid ));
+      ADD_SISTRIP_TOPOLOGY( current, m_trackerGeom->idToDet( detid ));
+    }
   }
+  assembly->Update();
+
+  top->AddNode( assembly, copy );
 }
 
 void
