@@ -158,7 +158,7 @@ cond::service::PoolDBOutputService::initDB()
       //m_logdb->releaseWriteLock();
     }
   }catch( const std::exception& er ){
-    throw cond::Exception( "PoolDBOutputService::initDB "+std::string(er.what()) );
+    throw cond::Exception( std::string(er.what()) + " from PoolDBOutputService::initDB" );
   }
   m_dbstarted=true;
 }
@@ -219,10 +219,10 @@ void
 cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken, cond::Time_t firstSinceTime, cond::Time_t firstTillTime,const std::string& recordName, bool withlogging){
   Record& myrecord=this->lookUpRecord(recordName);
   if (!m_dbstarted) this->initDB();
-  if(!myrecord.m_isNewTag) throw cond::Exception("PoolDBOutputService::createNewIOV not a new tag");
+  if(!myrecord.m_isNewTag) throw cond::Exception(myrecord.m_tag + " is not a new tag from PoolDBOutputService::createNewIOV");
   std::string iovToken;
   if(withlogging){
-    if(!m_logdb) throw cond::Exception("cannot log to non-existing log db");
+    if(!m_logdb) throw cond::Exception("Log db was not set from PoolDBOutputService::createNewIOV");
     m_logdb->getWriteLock();
   }
  
@@ -267,7 +267,7 @@ cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken,
       m_logdb->logFailedOperationNow(a,destconnect,objToken,myrecord.m_tag,myrecord.timetypestr(),payloadIdx,firstSinceTime,std::string(er.what()));
       m_logdb->releaseWriteLock();
     }
-    throw cond::Exception("PoolDBOutputService::createNewIOV "+std::string(er.what()));
+    throw cond::Exception(std::string(er.what()) + " from PoolDBOutputService::createNewIOV ");
   }
   if(withlogging){
     m_logdb->releaseWriteLock();
@@ -283,7 +283,7 @@ cond::service::PoolDBOutputService::add( GetToken const & payloadToken,
   Record& myrecord=this->lookUpRecord(recordName);
   if (!m_dbstarted) this->initDB();
   if(withlogging){
-    if(!m_logdb) throw cond::Exception("cannot log to non-existing log db");
+    if(!m_logdb) throw cond::Exception("Log db was not set from PoolDBOutputService::add");
     m_logdb->getWriteLock();
   }
 
@@ -308,7 +308,7 @@ cond::service::PoolDBOutputService::add( GetToken const & payloadToken,
       m_logdb->logFailedOperationNow(a,destconnect,objToken,myrecord.m_tag,myrecord.timetypestr(),payloadIdx,time,std::string(er.what()));
       m_logdb->releaseWriteLock();
     }
-    throw cond::Exception("PoolDBOutputService::add "+std::string(er.what()));
+    throw cond::Exception(std::string(er.what()) + " from PoolDBOutputService::add ");
   }
   if(withlogging){
     m_logdb->releaseWriteLock();
@@ -318,14 +318,14 @@ cond::service::PoolDBOutputService::add( GetToken const & payloadToken,
 cond::service::PoolDBOutputService::Record& 
 cond::service::PoolDBOutputService::lookUpRecord(const std::string& recordName){
   std::map<std::string,Record>::iterator it=m_callbacks.find(recordName);
-  if(it==m_callbacks.end()) throw cond::UnregisteredRecordException(recordName);
+  if(it==m_callbacks.end()) throw cond::UnregisteredRecordException(recordName + " from PoolDBOutputService::lookUpRecord");
   return it->second;
 }
 
 cond::UserLogInfo& 
 cond::service::PoolDBOutputService::lookUpUserLogInfo(const std::string& recordName){
   std::map<std::string,cond::UserLogInfo>::iterator it=m_logheaders.find(recordName);
-  if(it==m_logheaders.end()) throw cond::UnregisteredRecordException(recordName);
+  if(it==m_logheaders.end()) throw cond::Exception("Log db was not set for record " + recordName + " from PoolDBOutputService::lookUpUserLogInfo");
   return it->second;
 }
 
@@ -336,7 +336,7 @@ cond::service::PoolDBOutputService::appendIOV(cond::DbSession& pooldb,
 						   const std::string& payloadToken, 
 						   cond::Time_t sinceTime){
   if( record.m_isNewTag ) {
-    throw cond::Exception(std::string("PoolDBOutputService::appendIOV: cannot append to non-existing tag ")+record.m_tag );  
+    throw cond::Exception(std::string("Cannot append to non-existing tag ") + record.m_tag + std::string(" from PoolDBOutputService::appendIOV"));  
   }
 
   cond::IOVEditor editor(pooldb,record.m_iovtoken);
@@ -355,7 +355,7 @@ cond::service::PoolDBOutputService::closeIOV(Time_t lastTill, const std::string&
   // not fully working.. not be used for now...
   Record & record  = lookUpRecord(recordName);
   if( record.m_isNewTag ) {
-    throw cond::Exception(std::string("PoolDBOutputService::closeIOV: cannot close non-existing tag ")+record.m_tag );
+    throw cond::Exception(std::string("Cannot close non-existing tag ") + record.m_tag + std::string(" from PoolDBOutputService::closeIOV"));
   }
   cond::DbScopedTransaction transaction(m_session);
   transaction.start(false); 
@@ -378,7 +378,7 @@ cond::service::PoolDBOutputService::setLogHeaderForRecord(const std::string& rec
 
 const cond::Logger& 
 cond::service::PoolDBOutputService::queryLog()const{
-  if(!m_logdb) throw cond::Exception("PoolDBOutputService::queryLog ERROR: logging is off");
+  if(!m_logdb) throw cond::Exception("Log database is not set from PoolDBOutputService::queryLog");
   return *m_logdb;
 }
 
