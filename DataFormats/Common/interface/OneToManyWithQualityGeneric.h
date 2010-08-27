@@ -6,8 +6,8 @@
 #include <map>
 #include <vector>
 #include <algorithm>
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
+#include <boost/bind.hpp>
+
 #include "DataFormats/Common/interface/MapRefViewTrait.h"
 
 namespace edm {
@@ -79,9 +79,15 @@ namespace edm {
       //      using namespace boost::lambda;
       for(typename map_type::iterator i = m.begin(), iEnd = m.end(); i != iEnd; ++i) {
 	map_assoc & v = i->second;
-	Q std::pair<index, Q>::*quality = &std::pair<index, Q>::second;
-	std::sort(v.begin(), v.end(),
-		  bind(quality, boost::lambda::_2) < bind(quality, boost::lambda::_1));
+	// Q std::pair<index, Q>::*quality = &std::pair<index, Q>::second;
+	// std::sort(v.begin(), v.end(),
+	// 	  bind(quality, boost::lambda::_2) < bind(quality, boost::lambda::_1));
+           std::sort(v.begin(), v.end(), 
+                  boost::bind(std::less<double>(), 
+                  boost::bind(&std::pair<index, Q>::second,_2), boost::bind( &std::pair<index, Q>::second,_1)
+                             )
+           );
+
       }
     }
     /// fill transient map
