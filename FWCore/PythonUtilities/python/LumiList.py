@@ -9,8 +9,8 @@ or could be subclassed renaming a function or two.
 This code began life in COMP/CRAB/python/LumiList.py
 """
 
-__revision__ = "$Id: LumiList.py,v 1.6 2010/07/20 16:28:35 ewv Exp $"
-__version__ = "$Revision: 1.6 $"
+__revision__ = "$Id: LumiList.py,v 1.7 2010/07/20 16:46:49 cplager Exp $"
+__version__ = "$Revision: 1.7 $"
 
 import json
 import re
@@ -217,6 +217,13 @@ class LumiList(object):
         return theList
 
 
+    def getRuns(self):
+        '''
+        return the sorted list of runs contained
+        '''
+        return sorted (self.compactList.keys())
+
+
     def getCMSSWString(self):
         """
         Turn compactList into a list of the format
@@ -245,6 +252,19 @@ class LumiList(object):
         jsonFile = open(fileName,'w')
         jsonFile.write("%s\n" % self)
         jsonFile.close()
+
+
+    def removeRuns (self, runList):
+        '''
+        removes runs from runList from collection
+        '''
+        for run in runList:
+            run = str(run)
+            if self.compactList.has_key (run):
+                del self.compactList[run]
+            else:
+                print "LumiList.removeRuns() Warning: run %s not found. Action skpped." % run
+            
 
 '''
 # Unit test code
