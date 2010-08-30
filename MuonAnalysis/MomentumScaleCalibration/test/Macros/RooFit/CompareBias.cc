@@ -3,6 +3,7 @@
 #include "TH1.h"
 #include "TString.h"
 #include "TROOT.h"
+#include "TLegend.h"
 
 #include "/home/destroyar/Desktop/MuScleFit/RooFitTest/Macros/FitMassSlices.cc"
 #include "/home/destroyar/Desktop/MuScleFit/RooFitTest/Macros/Legend.h"
@@ -14,8 +15,10 @@ public:
   {
     gROOT->SetStyle("Plain");
 
+    doFit_ = false;
+
     TString fileNum1("0");
-    TString fileNum2("3");
+    TString fileNum2("1");
 
     TString inputFileName("_MuScleFit.root");
     TString outputFileName("BiasCheck_");
@@ -28,14 +31,15 @@ public:
     FitMassSlices fitter1;
     FitMassSlices fitter2;
 
-    fitter1.rebinX = 4;
+    fitter1.rebinX = 1;
     fitter1.sigma2 = 1.;
-    fitter1.fit(fileNum1+"_MuScleFit.root", "BiasCheck_"+fileNum1+".root", "doubleGaussian", "exponential", 3.1, 2.95, 3.25, 0.03, 0., 0.1);
+    // fitter1.fit(fileNum1+"_MuScleFit.root", "BiasCheck_"+fileNum1+".root", "crystalBall", "", 3.095, 2.8, 3.2, 0.04, 0., 0.1);
+    fitter1.fit(fileNum1+"_MuScleFit.root", "BiasCheck_"+fileNum1+".root", "crystalBall", "", 3.095, 2.8, 3.2, 0.04, 0.01, 0.1);
 
     if( fileNum2 != "" ) {
-      fitter2.rebinX = 4;
+      fitter2.rebinX = 1;
       fitter2.sigma2 = 1.;
-      fitter2.fit(fileNum2+"_MuScleFit.root", "BiasCheck_"+fileNum2+".root", "doubleGaussian", "exponential", 3.1, 2.95, 3.25, 0.03, 0., 0.1);
+      fitter2.fit(fileNum2+"_MuScleFit.root", "BiasCheck_"+fileNum2+".root", "crystalBall", "", 3.095, 2.8, 3.2, 0.04, 0.01, 0.1);
     }
 
     file1_ = new TFile(outputFile1, "READ");
@@ -81,8 +85,13 @@ protected:
     // fitWithRooFit(histo1, histo2, histoName, fitType, xMin, xMax);
 
     // Fit with standard root, but then we also need to build the legends.
-    fitWithRoot(histo1, histo2, xMin, xMax, fitType);
-
+    if( doFit_ ) {
+      fitWithRoot(histo1, histo2, xMin, xMax, fitType);
+    }
+    else {
+      TCanvas * canvas = drawCanvas(histo1, histo2, true);
+      canvas->Write();
+    }
     gDirectory->GetMotherDir()->cd();
   }
 
@@ -125,16 +134,28 @@ protected:
       histo2->Fit(f2, "", "", xMin, xMax);
     }
 
+    TCanvas * canvas = drawCanvas(histo1, histo2);
+
+    f1->Draw("same");
+    if( histo2 != 0 ) {
+      f2->Draw("same");
+      f2->SetLineColor(kRed);
+    }
     TwinLegend legends;
     legends.setText(f1, f2);
+    legends.Draw("same");
 
+    canvas->Write();
+  }
+
+  TCanvas * drawCanvas(TH1 * histo1, TH1 * histo2, const bool addLegend = false)
+  {
     TCanvas * canvas = new TCanvas(TString(histo1->GetName())+"_canvas", TString(histo1->GetName())+" canvas", 1000, 800);
     canvas->Draw();
     canvas->cd();
     histo1->Draw();
     histo1->SetMarkerStyle(24);
     histo1->SetMarkerSize(0.5);
-    f1->Draw("same");
 
     if( histo2 != 0 ) {
       histo2->SetLineColor(kRed);
@@ -142,21 +163,22 @@ protected:
       histo2->SetMarkerSize(0.5);
       histo2->SetMarkerStyle(24);
       histo2->Draw("same");
-      f2->SetLineColor(kRed);
-      f2->Draw("same");
+      if( addLegend ) {
+	TLegend * leg = new TLegend(0.1,0.7,0.48,0.9);
+	leg->AddEntry(histo1,"Before calibration","pl");
+	leg->AddEntry(histo2,"After calibration","pl");
+	leg->Draw("same");
+      }
     }
 
-    legends.Draw("same");
-
-    canvas->Write();
+    return canvas;
   }
-
 
   void fitWithRooFit(TH1 * histo1, TH1 * histo2, const TString & histoName,
 		     const TString & fitType, const double & xMin, const double & xMax)
   {
     FitWithRooFit fitter;
-    fitter.initConstant(3.097, 3.0, 3.2);
+    fitter.initConstant(3.097, 3.05, 3.15);
     // fitter.initLinearTerm(0., -1., 1.);
 
     RooPlot * rooPlot1 = fit( histo1, file1_->GetName(), &fitter, fitType, xMin, xMax );
@@ -196,4 +218,5 @@ protected:
 
   TFile * file1_;
   TFile * file2_;
+  bool doFit_;
 };

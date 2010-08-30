@@ -29,17 +29,17 @@ void CrystalBallFitOnData_JPsi()
   TH1F * inputHisto = (TH1F*)inputFile.Get("hRecBestResAllEvents_Mass");
   inputHisto->Rebin(4);
 
-  double xMin = 2.2;
+  double xMin = 2.5;
   double xMax = 4.;
   RooRealVar x("x", "Mass (GeV)", xMin, xMax);
 
   RooDataHist histo("dh", "dh", x, Import(*inputHisto));
 
   // Build the CB
-  RooRealVar peak("peak","peak", 3.095, 2.2, 4.);
+  RooRealVar peak("peak","peak", 3.095, 2.5, 4.);
   RooRealVar sigma("sigma","sigma", 0.04, 0.001, 0.1);
   RooRealVar alpha("alpha", "alpha", 1., 0., 10.);
-  RooRealVar n("n", "n", 1., -10000., 10000.);
+  RooRealVar n("n", "n", 1., 0., 100.);
   RooCBShape signal("signal", "signal", x, peak, sigma, alpha, n);
 
   // Build the exponential background pdf

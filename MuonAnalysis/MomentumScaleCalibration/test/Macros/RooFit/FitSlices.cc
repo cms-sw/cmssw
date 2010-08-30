@@ -34,6 +34,10 @@ public:
     fitXslices.fitter()->initSigma( sigma, sigmaMin, sigmaMax );
     fitXslices.fitter()->initSigma2( sigma2, sigma2Min, sigma2Max );
 
+    fitXslices.fitter()->initAlpha(1.6, 0., 10.);
+    fitXslices.fitter()->initN(2, 0., 10.);
+    fitXslices.fitter()->initFGCB(0.4, 0., 1.);
+
     std::cout << "Fit slices: initialization complete" << std::endl;
     TH2 * histoPt = (TH2*)inputFile->FindObjectAny(histoName);
     // TH2 * histoPt = 0;

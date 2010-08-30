@@ -34,8 +34,8 @@ public:
     fitter_.initExpCoeff( -1., -10., 0. );
     fitter_.initFsig(0.5, 0., 1.);
 
-    fitter_.initAlpha(-3., 2., 3.1);
-    fitter_.initN(-0.01, 0., 1.);
+    fitter_.initAlpha(3., 0., 4.);
+    fitter_.initN(1, 0., 100.);
   }
 
   FitWithRooFit * fitter()
