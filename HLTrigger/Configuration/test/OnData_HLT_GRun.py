@@ -13743,6 +13743,12 @@ process.HLTDQMOutput = cms.EndPath( process.hltPreHLTDQM + process.hltPreHLTDQMS
 process.HLTMONOutput = cms.EndPath( process.hltPreHLTMON + process.hltPreHLTMONSmart + process.hltOutputHLTMON )
 
 
+# remove HLT prescales
+if 'PrescaleService' in process.__dict__:
+    process.PrescaleService.lvl1DefaultLabel = cms.untracked.string( '0' )
+    process.PrescaleService.lvl1Labels = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
+    process.PrescaleService.prescaleTable = cms.VPSet( )
+
 # set process name
 process.setName_('HLTGRun')
 
@@ -13761,9 +13767,15 @@ if 'GlobalTag' in process.__dict__:
     from Configuration.PyReleaseValidation.autoCond import autoCond
     process.GlobalTag.globaltag = autoCond['hltonline']
 
-if 'Level1MenuOverride' in process.__dict__:
-    process.Level1MenuOverride.connect   = 'frontier://FrontierProd/CMS_COND_31X_L1T'
-    process.Level1MenuOverride.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
+# override the L1 menu
+if 'GlobalTag' in process.__dict__:
+    process.GlobalTag.toGet.append(
+        cms.PSet(  
+            record  = cms.string( "L1GtTriggerMenuRcd" ),
+            tag     = cms.string( "L1GtTriggerMenu_L1Menu_Commissioning2010_v3_mc" ),
+            connect = cms.untracked.string( process.GlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T') )
+        )
+    )
 
 # adapt HLT modules to the correct process name
 if 'hltTrigReport' in process.__dict__:
