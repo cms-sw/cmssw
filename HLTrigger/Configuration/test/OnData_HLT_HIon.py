@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_6_2/HIon/V42 (CMSSW_3_6_2_HLT11)
+# /dev/CMSSW_3_9_0/pre3/HIon/V1 (CMSSW_3_8_1_ZOLTAN1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_2/HIon/V42')
+  tableName = cms.string('/dev/CMSSW_3_9_0/pre3/HIon/V1')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -20,24 +20,24 @@ process.streams = cms.PSet(
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   Calibration = cms.vstring( 'TestEnables' ),
   HLTDQMResults = cms.vstring(  ),
+  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   DQM = cms.vstring( 'OnlineMonitor' ),
   EventDisplay = cms.vstring( 'EventDisplay' ),
   Express = cms.vstring( 'ExpressPhysics' ),
-  A = cms.vstring( 'MinimumBias',
-    'JetMET',
-    'EG',
+  A = cms.vstring( 'EG',
     'EGMonitor',
+    'MinimumBias',
+    'JetMET',
     'JetMETTauMonitor',
     'HcalHPDNoise',
     'RandomTriggers',
     'HcalNZS',
     'Cosmics',
+    'Commissioning',
     'Mu',
     'MuOnia',
     'MuMonitor',
-    'Commissioning',
     'BTau' ),
-  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
   HLTDQM = cms.vstring( 'OnlineHltMonitor' )
 )
@@ -48,29 +48,29 @@ process.datasets = cms.PSet(
   EcalLaser = cms.vstring(  ),
   AlCaP0 = cms.vstring(  ),
   TestEnables = cms.vstring(  ),
+  AlCaPhiSymEcal = cms.vstring(  ),
   OnlineMonitor = cms.vstring( 'HLT_L1DoubleMuOpen',
     'HLT_L1Tech_HCAL_HF',
     'HLT_L1Tech_BSC_minBias',
     'HLT_ZeroBiasPixel_SingleTrack' ),
   EventDisplay = cms.vstring(  ),
   ExpressPhysics = cms.vstring(  ),
+  EG = cms.vstring(  ),
+  EGMonitor = cms.vstring(  ),
   MinimumBias = cms.vstring( 'HLT_L1Tech_HCAL_HF',
     'HLT_ZeroBiasPixel_SingleTrack',
     'HLT_L1Tech_BSC_minBias' ),
   JetMET = cms.vstring(  ),
-  EG = cms.vstring(  ),
-  EGMonitor = cms.vstring(  ),
   JetMETTauMonitor = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
   RandomTriggers = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
   Cosmics = cms.vstring(  ),
+  Commissioning = cms.vstring(  ),
   Mu = cms.vstring(  ),
   MuOnia = cms.vstring(  ),
   MuMonitor = cms.vstring( 'HLT_L1DoubleMuOpen' ),
-  Commissioning = cms.vstring(  ),
   BTau = cms.vstring(  ),
-  AlCaPhiSymEcal = cms.vstring(  ),
   OfflineMonitor = cms.vstring( 'HLT_L1DoubleMuOpen',
     'HLT_L1Tech_HCAL_HF',
     'HLT_ZeroBiasPixel_SingleTrack',
@@ -877,25 +877,13 @@ process.StraightLinePropagator = cms.ESProducer( "StraightLinePropagatorESProduc
 )
 process.StripCPEfromTrackAngleESProducer = cms.ESProducer( "StripCPEESProducer",
   ComponentName = cms.string( "StripCPEfromTrackAngle" ),
+  appendToDataLabel = cms.string( "" ),
   TanDiffusionAngle = cms.double( 0.01 ),
   ThicknessRelativeUncertainty = cms.double( 0.02 ),
   NoiseThreshold = cms.double( 2.3 ),
   MaybeNoiseThreshold = cms.double( 3.5 ),
   UncertaintyScaling = cms.double( 1.42 ),
-  MinimumUncertainty = cms.double( 0.01 ),
-  APVpeakmode = cms.bool( False ),
-  CouplingConstant = cms.double( 0.1 ),
-  appendToDataLabel = cms.string( "" ),
-  OutOfTime = cms.PSet( 
-    TIBlateFP = cms.double( 0.0 ),
-    TIDlateFP = cms.double( 0.0 ),
-    TOBlateFP = cms.double( 0.0 ),
-    TEClateFP = cms.double( 0.0 ),
-    TOBlateBP = cms.double( 0.0 ),
-    TEClateBP = cms.double( 0.0 ),
-    TIBlateBP = cms.double( 0.0 ),
-    TIDlateBP = cms.double( 0.0 )
-  )
+  MinimumUncertainty = cms.double( 0.01 )
 )
 process.TTRHBuilderPixelOnly = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProducer",
   ComponentName = cms.string( "TTRHBuilderPixelOnly" ),
@@ -2129,6 +2117,10 @@ if 'GlobalTag' in process.__dict__:
     process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
     from Configuration.PyReleaseValidation.autoCond import autoCond
     process.GlobalTag.globaltag = autoCond['hltonline']
+
+if 'Level1MenuOverride' in process.__dict__:
+    process.Level1MenuOverride.connect   = 'frontier://FrontierProd/CMS_COND_31X_L1T'
+    process.Level1MenuOverride.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
 
 # adapt HLT modules to the correct process name
 if 'hltTrigReport' in process.__dict__:

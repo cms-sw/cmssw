@@ -1,9 +1,9 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-MASTER="/dev/CMSSW_3_8_1/HLT"         # no explicit version, take te most recent 
-TARGET="/dev/CMSSW_3_8_1/\$TABLE"     # no explicit version, take te most recent 
-TABLES="8E29 1E31 GRun HIon"          # $TABLE in the above variable will be expanded to these TABLES
+MASTER="/dev/CMSSW_3_9_0/pre3/HLT"          # no explicit version, take te most recent 
+TARGET="/dev/CMSSW_3_9_0/pre3/\$TABLE"      # no explicit version, take te most recent 
+TABLES="GRun HIon"                          # $TABLE in the above variable will be expanded to these TABLES
 
 # print extra messages ?
 VERBOSE=false
