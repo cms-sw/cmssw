@@ -1,8 +1,8 @@
 # Auto generated configuration file
 # using: 
-# Revision: 1.172.2.1 
+# Revision: 1.211 
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: promptSkimReco -s RAW2DIGI,L1Reco,RECO --data --magField AutoFromDBCurrent --scenario pp --datatier RECO --eventcontent RECO --conditions GR10_P_V6::All --customise Configuration/GlobalRuns/reco_TLR_36X.py --no_exec --python_filename=promptSkimReco_Collision.py --custFcn customisePrompt --filtername CollisionRecoSequence --geometry DB
+# with command line options: promptSkimReco -s RAW2DIGI,L1Reco,RECO --data --magField AutoFromDBCurrent --scenario pp --datatier RECO --eventcontent RECO --conditions GR10_P_V9::All --customise Configuration/GlobalRuns/reco_TLR_38X.py --cust_function customisePrompt --no_exec --python_filename=promptSkimReco_Collision.py --filtername CollisionRecoSequence
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('RECO')
@@ -21,7 +21,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.172.2.1 $'),
+    version = cms.untracked.string('$Revision: 1.211 $'),
     annotation = cms.untracked.string('promptSkimReco nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -50,7 +50,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 # Additional output definition
 
 # Other statements
-process.GlobalTag.globaltag = 'GR10_P_V6::All'
+process.GlobalTag.globaltag = 'GR10_P_V9::All'
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
@@ -82,10 +82,6 @@ def customiseCommon(process):
     process.thTripletsA.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000
     process.thTripletsB.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000
 
-    ## local tracker strip reconstruction
-    process.OutOfTime.TOBlateBP=0.071
-    process.OutOfTime.TIBlateBP=0.036
-
     ###### FIXES TRIPLETS FOR LARGE BS DISPLACEMENT ######
 
     ### prevent bias in pixel vertex
@@ -106,36 +102,9 @@ def customiseCommon(process):
     process.secTriplets.RegionFactoryPSet.RegionPSet.nSigmaZ  = cms.double(4.47)  
     process.secTriplets.RegionFactoryPSet.RegionPSet.originHalfLength = 44.7
 
-    ## Primary Vertex
-    process.offlinePrimaryVerticesWithBS.PVSelParameters.maxDistanceToBeam = 2
-    process.offlinePrimaryVerticesWithBS.TkFilterParameters.maxNormalizedChi2 = 20
-    process.offlinePrimaryVerticesWithBS.TkFilterParameters.maxD0Significance = 100
-    process.offlinePrimaryVerticesWithBS.TkFilterParameters.minPixelLayersWithHits = 2
-    process.offlinePrimaryVerticesWithBS.TkFilterParameters.minSiliconLayersWithHits = 5
-    process.offlinePrimaryVerticesWithBS.TkClusParameters.TkGapClusParameters.zSeparation = 1
-    process.offlinePrimaryVertices.PVSelParameters.maxDistanceToBeam = 2
-    process.offlinePrimaryVertices.TkFilterParameters.maxNormalizedChi2 = 20
-    process.offlinePrimaryVertices.TkFilterParameters.maxD0Significance = 100
-    process.offlinePrimaryVertices.TkFilterParameters.minPixelLayersWithHits = 2
-    process.offlinePrimaryVertices.TkFilterParameters.minSiliconLayersWithHits = 5
-    process.offlinePrimaryVertices.TkClusParameters.TkGapClusParameters.zSeparation = 1
-
     ## ECAL 
     process.ecalRecHit.ChannelStatusToBeExcluded = [ 1, 2, 3, 4, 8, 9, 10, 11, 12, 13, 14, 78, 142 ]
 
-
-    ## HCAL temporary fixes
-    process.hfreco.samplesToAdd = 4
-    
-    ## EGAMMA
-    process.photons.minSCEtBarrel = 5.
-    process.photons.minSCEtEndcap =5.
-    process.photonCore.minSCEt = 5.
-    process.conversionTrackCandidates.minSCEt =5.
-    process.conversions.minSCEt =5.
-    process.trackerOnlyConversions.rCut = 2.
-    process.trackerOnlyConversions.vtxChi2 = 0.0005
-    
     ###
     ###  end of top level replacements
     ###
@@ -147,28 +116,35 @@ def customiseCommon(process):
 ##############################################################################
 def customisePPData(process):
     process= customiseCommon(process)
-    process.hfreco.firstSample=3
-    ##Preshower
-    process.ecalPreshowerRecHit.ESBaseline = 0
 
-    ##Preshower algo for data is different than for MC
-    process.ecalPreshowerRecHit.ESRecoAlgo = 1
+    ## particle flow HF cleaning
+    process.particleFlowRecHitHCAL.LongShortFibre_Cut = 30.
+    process.particleFlowRecHitHCAL.ApplyPulseDPG = True
 
+    ## HF cleaning for data only
+    process.hcalRecAlgos.SeverityLevels[3].RecHitFlags.remove("HFDigiTime")
+    process.hcalRecAlgos.SeverityLevels[4].RecHitFlags.append("HFDigiTime")
+
+    ##beam-halo-id for data only
+    process.CSCHaloData.ExpectedBX = cms.int32(3)
+
+    ## hcal hit flagging
+    process.hfreco.PETstat.flagsToSkip  = 2
+    process.hfreco.S8S1stat.flagsToSkip = 18
+    process.hfreco.S9S1stat.flagsToSkip = 26
+    
     return process
 
 
 ##############################################################################
 def customisePPMC(process):
     process=customiseCommon(process)
-    process.hfreco.firstSample=1
     
     return process
 
 ##############################################################################
 def customiseCosmicData(process):
-    process.ecalPreshowerRecHit.ESBaseline = 0
-    process.ecalPreshowerRecHit.ESRecoAlgo = 1
-    
+
     return process
 
 ##############################################################################
@@ -176,14 +152,19 @@ def customiseCosmicMC(process):
     
     return process
         
-
+##############################################################################
+def customiseVALSKIM(process):
+    process= customisePPData(process)
+    process.reconstruction.remove(process.lumiProducer)
+    return process
+                
 ##############################################################################
 def customiseExpress(process):
     process= customisePPData(process)
 
     import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
     process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
-
+    
     return process
 
 ##############################################################################
