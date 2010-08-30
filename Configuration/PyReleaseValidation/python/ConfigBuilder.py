@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.212 $"
+__version__ = "$Revision: 1.213 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -128,7 +128,6 @@ class ConfigBuilder(object):
             exec(command.replace("process.","self.process."))
 
     def addCommon(self):
-        #if 'HARVESTING' in self._options.step or 'ALCAHARVEST' in self._options.step:
 	if 'HARVESTING' in self.stepMap.keys() or 'ALCAHARVEST' in self.stepMap.keys():
             self.process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNotFound'),fileMode = cms.untracked.string('FULLMERGE'))
         else:
@@ -148,7 +147,6 @@ class ConfigBuilder(object):
            elif self._options.filetype == "MCDB":
                self.process.source=cms.Source("MCDBSource", articleID = cms.uint32(int(self._options.filein)), supportedProtocols = cms.untracked.vstring("rfio"))
 
-           #if 'HARVESTING' in self._options.step or 'ALCAHARVEST' in self._options.step:
 	   if 'HARVESTING' in self.stepMap.keys() or 'ALCAHARVEST' in self.stepMap.keys():
                self.process.source.processingMode = cms.untracked.string("RunsAndLumis")
 
@@ -169,7 +167,6 @@ class ConfigBuilder(object):
 		       print "found parent files:",self.process.source.secondaryFileNames.value()
 		       
 
-	#if 'GEN' in self._options.step or (not self._options.filein and hasattr(self._options, "evt_type")):
         if 'GEN' in self.stepMap.keys() or (not self._options.filein and hasattr(self._options, "evt_type")):		
             if self.process.source is None:
                 self.process.source=cms.Source("EmptySource")
@@ -245,7 +242,6 @@ class ConfigBuilder(object):
         output.dataset.filterName = cms.untracked.string(self._options.filtername)
 
         # if the only step is alca we don't need to put in an output
-        #if not self._options.step.split(',')[0].split(':')[0] == 'ALCA':
 	if not(self.stepMap.has_key('ALCA') and self.stepMap.__len__()==1):
             self.process.output = output
             self.process.out_step = cms.EndPath(self.process.output)
@@ -283,7 +279,6 @@ class ConfigBuilder(object):
         conditionsSP=self._options.conditions.split(',')
 
         # here we check if we have fastsim or fullsim
-        #if "FAST" in self._options.step:
 	if "FAST" in self.stepMap.keys():
             self.loadAndRemember('FastSimulation/Configuration/RandomServiceInitialization_cff')
 
@@ -356,7 +351,6 @@ class ConfigBuilder(object):
           pfnPrefix = str( conditions[2] )
 
         # FULL or FAST SIM ?
-        #if "FASTSIM" in self._options.step:
 	if "FASTSIM" in self.stepMap.keys():
             self.loadAndRemember('FastSimulation/Configuration/CommonInputs_cff')
 
@@ -451,7 +445,6 @@ class ConfigBuilder(object):
         if self._options.geometry not in defaultOptions.geometryExtendedOptions:
             self.SIMDefaultCFF="Configuration/StandardSequences/SimIdeal_cff"
 
-        #if "DATAMIX" in self._options.step:
 	if "DATAMIX" in self.stepMap.keys():
             self.DATAMIXDefaultCFF="Configuration/StandardSequences/DataMixer"+self._options.datamix+"_cff"
             self.DIGIDefaultCFF="Configuration/StandardSequences/DigiDM_cff"
@@ -485,7 +478,6 @@ class ConfigBuilder(object):
         self.defaultBeamSpot='Realistic7TeVCollision'
 
         # if fastsim switch event content
-        #if "FASTSIM" in self._options.step:
 	if "FASTSIM" in self.stepMap.keys():
                 self.EVTCONTDefaultCFF = "FastSimulation/Configuration/EventContent_cff"
 
@@ -627,7 +619,6 @@ class ConfigBuilder(object):
         self.loadAndRemember(self.GENDefaultCFF)
 
         #check if we are dealing with fastsim -> no vtx smearing
-        #if "FASTSIM" in self._options.step:
 	if "FASTSIM" in self.stepMap.jeys():
           self.process.pgen.remove(self.process.VertexSmearing)
           self.process.pgen.remove(self.process.GeneInfo)
@@ -746,7 +737,6 @@ class ConfigBuilder(object):
         """ Enrich the schedule with the HLT simulation step"""
         loadDir='HLTrigger'
         fastSim=False
-        #if 'FASTSIM' in self._options.step:
 	if 'FASTSIM' in self.stepMap.keys():
                 fastSim=True
                 loadDir='FastSimulation'
@@ -764,7 +754,6 @@ class ConfigBuilder(object):
 
         self.schedule.append(self.process.HLTSchedule)
         [self.blacklist_paths.append(path) for path in self.process.HLTSchedule if isinstance(path,(cms.Path,cms.EndPath))]
-        #if (fastSim and 'HLT' in self._options.step):
 	if (fastSim and 'HLT' in self.stepMap.keys()):
                 self.finalizeFastSimHLT()
 
@@ -841,7 +830,6 @@ class ConfigBuilder(object):
 
 
     def prepare_VALIDATION(self, sequence = 'validation'):
-        #if "FASTSIM" in self._options.step:
 	if "FASTSIM" in self.stepMap.keys():
             self.loadAndRemember("FastSimulation.Configuration.Validation_cff")
             self.process.prevalidation_step = cms.Path( self.process.prevalidation )
@@ -858,7 +846,6 @@ class ConfigBuilder(object):
             self.loadAndRemember("IOMC.RandomEngine.IOMC_cff")
         self.schedule.append(self.process.validation_step)
         print self._options.step
-        #if not "DIGI"  in self._options.step.split(","):
 	if not 'DIGI'  in self.stepMap.keys():
             self.executeAndRemember("process.mix.playback = True")
         return
@@ -938,13 +925,11 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
         if hasattr(self._options,"hltProcess") and self._options.hltProcess:
                 # if specified, change the process name used to acess the HLT results in the [HLT]DQM sequence
                 self.dqmMassaging = self.renameHLTforDQM(sequence.split(',')[-1], self._options.hltProcess)
-        #elif (',HLT' in self._options.step or 'HLT,' in self._options.step or 'HLT:' in self._options.step):
 	elif 'HLT' in self.stepMap.keys():
                 # otherwise, if both HLT and DQM are run in the same process, change the DQM process name to the current process name
                 self.dqmMassaging = self.renameHLTforDQM(sequence.split(',')[-1], self.process.name_())
 
         # if both HLT and DQM are run in the same process, schedule [HLT]DQM in an EndPath
-        #if 'HLT' in self._options.step:
 	if 'HLT' in self.stepMap.keys():
                 # need to put [HLT]DQM in an EndPath, to access the HLT trigger results
                 self.process.dqmoffline_step = cms.EndPath( getattr(self.process, sequence.split(',')[-1]) )
@@ -1009,7 +994,6 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
             self.loadAndRemember(self.ENDJOBDefaultCFF)
         else:
             self.loadAndRemember(sequence.split(',')[0])
-        #if "FASTSIM" in self._options.step:
 	if "FASTSIM" in self.stepMap.keys():
             self.process.endjob_step = cms.EndPath( getattr(self.process, sequence.split(',')[-1]) )
         else:
@@ -1027,7 +1011,6 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
         self.loadAndRemember("FastSimulation/Configuration/FamosSequences_cff")
 
         if sequence in ('all','allWithHLTFiltering',''):
-            #if not 'HLT' in self._options.step:
 	    if not 'HLT' in self.stepMap.keys():
                     self.prepare_HLT(sequence=None)
 
@@ -1044,7 +1027,6 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
             self._options.name = "HLT"
 
             # if we don't want to filter after HLT but simulate everything regardless of what HLT tells, we have to add reconstruction explicitly
-            #if sequence == 'all' and not 'HLT' in self._options.step: #(a)
 	    if sequence == 'all' and not 'HLT' in self.stepMap.keys(): #(a)		    
                 self.finalizeFastSimHLT()
         elif sequence == 'famosWithEverything':
@@ -1075,7 +1057,7 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.212 $"),
+              (version=cms.untracked.string("$Revision: 1.213 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -1093,7 +1075,6 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
         self.addConditions()
         self.loadAndRemember(self.EVTCONTDefaultCFF)  #load the event contents regardless
 
-        #if not 'HARVESTING' in self._options.step and not 'SKIM' in self._options.step and not 'ALCAHARVEST' in self._options.step and not 'ALCAOUTPUT' in self._options.step and self.with_output:
 	if not 'HARVESTING' in self.stepMap.keys() and not 'SKIM' in self.stepMap.keys() and not 'ALCAHARVEST' in self.stepMap.keys() and not 'ALCAOUTPUT' in self.stepMap.keys() and self.with_output:
             self.addOutput()
 
