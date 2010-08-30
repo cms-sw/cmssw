@@ -180,6 +180,8 @@ HLT_path_name_extra0   = "HLT_Photon15_L1R"
 HLT_filter_name_extra0 = cms.untracked.InputTag("hltL1NonIsoHLTNonIsoSinglePhotonEt15HcalIsolFilter","",HLT_process_name)
 HLT_path_name_extra1   = "HLT_Photon15_Cleaned_L1R"
 HLT_filter_name_extra1 = cms.untracked.InputTag("hltL1NonIsoHLTNonIsoSinglePhotonEt15CleanedHcalIsolFilter","",HLT_process_name)
+HLT_path_name_extra2   = "HLT_Ele15_SW_L1R"
+HLT_filter_name_extra2 = cms.untracked.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15PixelMatchFilter","",HLT_process_name)
 
 process.zeeFilter = cms.EDFilter('ZeeCandidateFilter',
                                   ### the input collections needed:
@@ -211,8 +213,8 @@ process.zeeFilter = cms.EDFilter('ZeeCandidateFilter',
                                   useHLTObjectETCut = cms.untracked.bool(True),
                                   hltObjectETCut = cms.untracked.double(15.),
                                   useExtraTrigger = cms.untracked.bool(True),
-                                  vHltpathExtra = cms.untracked.vstring(HLT_path_name_extra0,HLT_path_name_extra1),
-                                  vHltpathFilterExtra = cms.untracked.VInputTag(HLT_filter_name_extra0, HLT_filter_name_extra1),
+                                  vHltpathExtra = cms.untracked.vstring(HLT_path_name_extra0,HLT_path_name_extra1,HLT_path_name_extra2),
+                                  vHltpathFilterExtra = cms.untracked.VInputTag(HLT_filter_name_extra0, HLT_filter_name_extra1, HLT_filter_name_extra2),
                                   # ET Cut in the SC
                                   ETCut = cms.untracked.double(20.),                                  
                                   METCut = cms.untracked.double(0.),
