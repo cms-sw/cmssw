@@ -36,6 +36,7 @@ import FWCore.ParameterSet.Config as cmsShowPrivate
 process.looper = cmsShowPrivate.Looper(%s)
 process.FWFFHelper = cmsShowPrivate.Service("FWFFHelper")
 process.add_(cmsShowPrivate.ESProducer("FWRecoGeometryESProducer"))
+process.add_(cmsShowPrivate.Service("InitRootHandlers", ResetRootErrHandler = cmsShowPrivate.untracked.bool(False)))
 """ % ",".join(serviceOpts))
    dest.flush()
    if opts.debug:
