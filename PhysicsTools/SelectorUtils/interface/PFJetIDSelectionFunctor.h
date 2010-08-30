@@ -13,7 +13,7 @@
   for a general overview of the selectors. 
 
   \author Salvatore Rappoccio
-  \version  $Id: PFJetIDSelectionFunctor.h,v 1.1 srappocc Exp $
+  \version  $Id: PFJetIDSelectionFunctor.h,v 1.15 2010/08/26 19:50:11 srappocc Exp $
 */
 
 
@@ -36,7 +36,6 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
   
  PFJetIDSelectionFunctor( edm::ParameterSet const & params ) 
  {
-   std::cout << "Instantiated PFJetIDSelectionFunctor" << std::endl;
    std::string versionStr = params.getParameter<std::string>("version");
    std::string qualityStr = params.getParameter<std::string>("quality");
 
