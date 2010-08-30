@@ -1,4 +1,4 @@
-// $Id: EventConsumerRegistrationInfo.cc,v 1.9 2010/04/16 14:40:14 mommsen Exp $
+// $Id: EventConsumerRegistrationInfo.cc,v 1.10 2010/04/19 10:35:23 mommsen Exp $
 /// @file: EventConsumerRegistrationInfo.cc
 
 #include "EventFilter/StorageManager/interface/EventConsumerRegistrationInfo.h"
@@ -15,10 +15,10 @@ namespace stor
 {
 
   EventConsumerRegistrationInfo::EventConsumerRegistrationInfo
-  ( const string& consumerName,
+  ( const std::string& consumerName,
     const std::string& triggerSelection,
     const FilterList& selEvents,
-    const string& outputModuleLabel,
+    const std::string& outputModuleLabel,
     const int& queueSize,
     const enquing_policy::PolicyTag& queuePolicy,
     const utils::duration_t& secondsToStale,
@@ -64,7 +64,7 @@ namespace stor
     _common._queueId = id;
   }
 
-  string
+  std::string
   EventConsumerRegistrationInfo::do_consumerName() const
   {
     return _common._consumerName;

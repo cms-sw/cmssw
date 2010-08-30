@@ -22,18 +22,7 @@
  12Feb09  First Release of the code for CMSSW_2_2_X
  17Sep09  First Release for CMSSW_3_1_X
  09Dec09  Option to ignore trigger
- 25Feb10  Added options to use Conversion Rejection, Expected missing hits                      
-          and valid hit at first PXB                                                            
-          Added option to calculate these criteria and store them in the pat electron object    
-          this is done by setting in the configuration the flags                                
-          calculateValidFirstPXBHit = true                                                      
-          calculateConversionRejection = true                                                   
-          calculateExpectedMissinghits = true                                                   
-          Then the code calculates them and you can access all these from pat::Electron         
-          myElec.userInt("PassValidFirstPXBHit")      0 fail, 1 passes                          
-          myElec.userInt("PassConversionRejection")   0 fail, 1 passes                          
-          myElec.userInt("NumberOfExpectedMissingHits") the number of lost hits  
- 28May10  Implementation of Spring10 selections
+
  Contact:
  Nikolaos.Rompotis@Cern.ch
  Imperial College London
@@ -42,7 +31,7 @@
 //
 // Original Author:  Nikolaos Rompotis
 //         Created:  Thu Feb 12 11:22:04 CET 2009
-// $Id: ZeeCandidateFilter.cc,v 1.6 2010/02/25 15:05:12 rompotis Exp $
+// $Id: ZeeCandidateFilter.cc,v 1.4 2010/02/11 00:11:36 wmtan Exp $
 //
 //
 
@@ -75,14 +64,7 @@
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 #include "DataFormats/PatCandidates/interface/TriggerObject.h"
 //
-// for conversion finder 
-#include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-//
-#include "DataFormats/Scalers/interface/DcsStatus.h"
+
 //
 // class declaration
 //
@@ -93,9 +75,9 @@ class ZeeCandidateFilter : public edm::EDFilter {
       ~ZeeCandidateFilter();
 
    private:
-      virtual Bool_t filter(edm::Event&, const edm::EventSetup&);
+      virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
-      Bool_t isInFiducial(Double_t eta);
+      bool isInFiducial(double eta);
       
       // ----------member data ---------------------------
 
@@ -106,22 +88,16 @@ class ZeeCandidateFilter : public edm::EDFilter {
   edm::InputTag electronCollectionTag_;
   edm::InputTag metCollectionTag_;
   //
-  Double_t BarrelMaxEta_;
-  Double_t EndCapMaxEta_;
-  Double_t EndCapMinEta_;
+  double BarrelMaxEta_;
+  double EndCapMaxEta_;
+  double EndCapMinEta_;
 
-  Double_t ETCut_;
-  Double_t METCut_;
+  double ETCut_;
+  double METCut_;
 
-  Bool_t electronMatched2HLT_;
-  Double_t electronMatched2HLT_DR_;
-  Bool_t useTriggerInfo_;
-  Bool_t calculateValidFirstPXBHit_;
-  Bool_t calculateConversionRejection_;
-  Double_t dist_, dcot_, dist2_, dcot2_;
-  Bool_t calculateExpectedMissingHits_;
-  Bool_t dataMagneticFieldSetUp_;
-  edm::InputTag dcsTag_;
+  bool electronMatched2HLT_;
+  double electronMatched2HLT_DR_;
+  bool useTriggerInfo_;
 };
 #endif
 //
@@ -142,15 +118,15 @@ ZeeCandidateFilter::ZeeCandidateFilter(const edm::ParameterSet& iConfig)
   // I N P U T      P A R A M E T E R S  *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
   // *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
   // Cuts
-  Double_t ETCut_D = 20.;
+  double ETCut_D = 20.;
   ETCut_ = iConfig.getUntrackedParameter<double>("ETCut",ETCut_D);
-  Double_t METCut_D = 0.;
+  double METCut_D = 0.;
   METCut_ = iConfig.getUntrackedParameter<double>("METCut",METCut_D);
   //
   //
-  Double_t BarrelMaxEta_D = 1.4442;
-  Double_t EndCapMinEta_D = 1.56;
-  Double_t EndCapMaxEta_D = 2.5;
+  double BarrelMaxEta_D = 1.4442;
+  double EndCapMinEta_D = 1.56;
+  double EndCapMaxEta_D = 2.5;
   BarrelMaxEta_ = iConfig.getUntrackedParameter<double>("BarrelMaxEta",
                                                         BarrelMaxEta_D);
   EndCapMaxEta_ = iConfig.getUntrackedParameter<double>("EndCapMaxEta",
@@ -184,22 +160,6 @@ IsolFilter","","HLT");
   electronMatched2HLT_ = iConfig.getUntrackedParameter<bool>("electronMatched2HLT");
   electronMatched2HLT_DR_=iConfig.getUntrackedParameter<double>("electronMatched2HLT_DR");
   //
-  // extra preselection variables calculated:
-  calculateValidFirstPXBHit_ =
-    iConfig.getUntrackedParameter<Bool_t>("calculateValidFirstPXBHit",false);
-  calculateConversionRejection_ =
-    iConfig.getUntrackedParameter<Bool_t>("calculateConversionRejection",false);
-  dist_ = iConfig.getUntrackedParameter<Double_t>("conversionRejectionDist", 0.02);
-  dcot_ = iConfig.getUntrackedParameter<Double_t>("conversionRejectionDcot", 0.02);
-  dist2_ = iConfig.getUntrackedParameter<Double_t>("conversionRejectionDist2", 0.02);
-  dcot2_ = iConfig.getUntrackedParameter<Double_t>("conversionRejectionDcot2", 0.02);
-  dataMagneticFieldSetUp_ = iConfig.getUntrackedParameter<Bool_t>("dataMagneticFieldSetUp",false);
-  if (dataMagneticFieldSetUp_) {
-    dcsTag_ = iConfig.getUntrackedParameter<edm::InputTag>("dcsTag");
-  }
-  calculateExpectedMissingHits_ =
-    iConfig.getUntrackedParameter<Bool_t>("calculateExpectedMissingHits",false);
-  //
   // *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
   //
   // now print a summary with what exactly the filter does:
@@ -227,27 +187,6 @@ IsolFilter","","HLT");
   std::cout << "ZeeCandidateFilter:    EndcapMin: " << EndCapMinEta_
 	    << "  EndcapMax: " << EndCapMaxEta_
 	    <<std::endl;
-  if (calculateValidFirstPXBHit_) {
-    std::cout << "ZeeCandidateFilter: Info about whether there is a valid 1st layer PXB hit "
-              << "will be stored: you can access that later by "
-              << "myElec.userInt(\"PassValidFirstPXBHit\")==1" << std::endl;
-  }
-  if (calculateExpectedMissingHits_) {
-    std::cout << "ZeeCandidateFilter: Missing Hits from expected inner layers "
-              << "will be calculated and stored: you can access them later by "
-              << "myElec.userInt(\"NumberOfExpectedMissingHits\")"   << std::endl;
-  }
-  if (calculateConversionRejection_) {
-    std::cout << "ZeeCandidateFilter: EGAMMA Conversion Rejection criteria "
-              << "will be calculated and stored: you can access them later by "
-              << "demanding for a successful electron "
-              << "myElec.userInt(\"PassConversionRejection\")==1"
-              << std::endl;
-  }
-  if (dataMagneticFieldSetUp_) {
-    std::cout << "ZeeCandidateFilter: Data Configuration for Magnetic Field DCS tag " 
-	      << dcsTag_  << std::endl;
-  }
   // extra info in the event
   produces< pat::CompositeCandidateCollection > ("selectedZeeCandidates").setBranchAlias
     ("selectedZeeCandidates");
@@ -282,11 +221,11 @@ ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // the event should pass the trigger, otherwise no zee candidate -*-*
    edm::Handle<edm::TriggerResults> HLTResults;
    iEvent.getByLabel(triggerCollectionTag_, HLTResults);
-   Int_t passTrigger = 0;  
+   int passTrigger = 0;  
    if (HLTResults.isValid()) {
      const edm::TriggerNames & triggerNames = iEvent.triggerNames(*HLTResults);
-     UInt_t trigger_size = HLTResults->size();
-     UInt_t trigger_position = triggerNames.triggerIndex(hltpath_);
+     unsigned int trigger_size = HLTResults->size();
+     unsigned int trigger_position = triggerNames.triggerIndex(hltpath_);
      if (trigger_position < trigger_size)
        passTrigger = (int) HLTResults->accept(trigger_position);
    }
@@ -300,17 +239,17 @@ ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      //      <<std::endl;
      return false; // RETURN: trigger does not fire
    }
-   Int_t numberOfHLTFilterObjects = 0;
+   int numberOfHLTFilterObjects = 0;
    //
    edm::Handle<trigger::TriggerEvent> pHLT;
    iEvent.getByLabel(triggerEventTag_, pHLT);
-   const Int_t nF(pHLT->sizeFilters());
-   const Int_t filterInd = pHLT->filterIndex(hltpathFilter_);
+   const int nF(pHLT->sizeFilters());
+   const int filterInd = pHLT->filterIndex(hltpathFilter_);
    if (nF != filterInd) {
      const trigger::Vids& VIDS (pHLT->filterIds(filterInd));
      const trigger::Keys& KEYS(pHLT->filterKeys(filterInd));
-     const Int_t nI(VIDS.size());
-     const Int_t nK(KEYS.size());
+     const int nI(VIDS.size());
+     const int nK(KEYS.size());
      numberOfHLTFilterObjects = (nI>nK)? nI:nK;
    }
    else {
@@ -343,38 +282,38 @@ ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //  ------------------------------------------------------------------
    pat::ElectronCollection::const_iterator elec;
    // check how many electrons there are in the event
-   const Int_t Nelecs = pElecs->size();
-   if (Nelecs <= 1) return false; // RETURN: at least 2 electrons in the event
+   const int Nelecs = pElecs->size();
+   if (Nelecs <= 1) return false; // RETURN: at least 2 electrons int he event
    //
-   Int_t  counter = 0;
+   int  counter = 0;
    std::vector<int> indices;
    std::vector<double> ETs;
    pat::ElectronCollection myElectrons;
    for (elec = pElecs->begin(); elec != pElecs->end(); ++elec) {
      if (isInFiducial(elec->caloPosition().eta())) {
-       Double_t sc_et = elec->caloEnergy()/cosh(elec->caloPosition().eta());
+       double sc_et = elec->caloEnergy()/cosh(elec->caloPosition().eta());
        indices.push_back(counter); ETs.push_back(sc_et);
        myElectrons.push_back(*elec);
        ++counter;
      }
    }
-   const Int_t  event_elec_number = (int) indices.size();
+   const int  event_elec_number = (int) indices.size();
    //cout << "This event has " << event_elec_number << " electrons" << endl;
    if (event_elec_number <=1) 
      return false; // if none of the electron in fiducial
    // be careful now: you allocate some memory with new ...................
    // so whenever you return you must release this memory .................
-   Int_t *sorted = new int[event_elec_number];
-   Double_t *et = new double[event_elec_number];
-   for (Int_t i=0; i<event_elec_number; ++i) {
+   int *sorted = new int[event_elec_number];
+   double *et = new double[event_elec_number];
+   for (int i=0; i<event_elec_number; ++i) {
      et[i] = ETs[i];
    }
    // array sorted now has the indices of the highest ET electrons
    TMath::Sort(event_elec_number, et, sorted, true);
    //
    // if the 2 highest electrons in the event has ET < ETCut_ return
-   Int_t max_et_index = sorted[0];
-   Int_t max_et_index2 = sorted[1];
+   int max_et_index = sorted[0];
+   int max_et_index2 = sorted[1];
    if (ETs[max_et_index]<ETCut_ || ETs[max_et_index2]<ETCut_) {
      delete [] sorted;  delete [] et;
      return false; // RETURN: demand the highest ET electrons ET>ETcut
@@ -386,18 +325,18 @@ ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //
    // one of them is matched to an HLT object .......................
    if (electronMatched2HLT_ && useTriggerInfo_) {
-     Int_t trigger_int_probe = 0;
+     int trigger_int_probe = 0;
      if (nF != filterInd) {
        const trigger::Keys& KEYS(pHLT->filterKeys(filterInd));
-       const Int_t nK(KEYS.size());
-       for (Int_t iTrig = 0;iTrig <nK; ++iTrig ) {
+       const int nK(KEYS.size());
+       for (int iTrig = 0;iTrig <nK; ++iTrig ) {
 	 const trigger::TriggerObject& TO(TOC[KEYS[iTrig]]);
-	 Double_t dr_ele_HLT = 
+	 double dr_ele_HLT = 
 	   reco::deltaR(maxETelec.eta(),maxETelec.phi(),TO.eta(),TO.phi());
-	 Double_t dr_ele_HLT2 = 
+	 double dr_ele_HLT2 = 
 	   reco::deltaR(maxETelec2.eta(),maxETelec2.phi(),TO.eta(),TO.phi());
-	 if (TMath::Abs(dr_ele_HLT)<electronMatched2HLT_DR_ ||
-	     TMath::Abs(dr_ele_HLT2)<electronMatched2HLT_DR_) {
+	 if (fabs(dr_ele_HLT)<electronMatched2HLT_DR_ ||
+	     fabs(dr_ele_HLT2)<electronMatched2HLT_DR_) {
 	   ++trigger_int_probe; break;
 	 }
        }
@@ -427,63 +366,12 @@ ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
    *************************************************************/
    //
-   // special preselection requirement info stored in the electrons
-   if (calculateValidFirstPXBHit_) {
-     std::string vfpx("PassValidFirstPXBHit");
-     Bool_t fail1 =
-       not maxETelec.gsfTrack()->hitPattern().hasValidHitInFirstPixelBarrel();
-     Bool_t fail2 =
-       not maxETelec2.gsfTrack()->hitPattern().hasValidHitInFirstPixelBarrel();
-     if (fail1) maxETelec.addUserInt(vfpx,0);
-     else maxETelec.addUserInt(vfpx,1);
-     if (fail2) maxETelec2.addUserInt(vfpx,0);
-     else maxETelec2.addUserInt(vfpx,1);
-   }
-   if (calculateExpectedMissingHits_) {
-     Int_t numberOfLostInnerHits = (int) maxETelec.gsfTrack()->trackerExpectedHitsInner().numberOfHits();
-     Int_t numberOfLostInnerHits2 = (int) maxETelec2.gsfTrack()->trackerExpectedHitsInner().numberOfHits();
-     maxETelec.addUserInt("NumberOfExpectedMissingHits",numberOfLostInnerHits);
-     maxETelec2.addUserInt("NumberOfExpectedMissingHits",numberOfLostInnerHits2);
-   }
-   if (calculateConversionRejection_) {
-     Double_t bfield;
-     if (dataMagneticFieldSetUp_) {
-       edm::Handle<DcsStatusCollection> dcsHandle;
-       iEvent.getByLabel(dcsTag_, dcsHandle);
-       // scale factor = 3.801/18166.0 which are
-       // average values taken over a stable two
-       // week period
-       Double_t currentToBFieldScaleFactor = 2.09237036221512717e-04;
-       Double_t current = (*dcsHandle)[0].magnetCurrent();
-       bfield = current*currentToBFieldScaleFactor;
-     } else {
-       edm::ESHandle<MagneticField> magneticField;
-       iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
-       const  MagneticField *mField = magneticField.product();
-       bfield = mField->inTesla(GlobalPoint(0.,0.,0.)).z();
-     }
-     edm::Handle<reco::TrackCollection> ctfTracks;
-     if ( iEvent.getByLabel("generalTracks", ctfTracks) ) {
-       ConversionFinder cf;
-       Bool_t isConv = cf.isElFromConversion(maxETelec, ctfTracks, bfield, dist_, dcot_);
-       Bool_t isConv2 = cf.isElFromConversion(maxETelec2, ctfTracks, bfield, dist2_, dcot2_);
-       if (isConv) maxETelec.addUserInt("PassConversionRejection",0);
-       else maxETelec.addUserInt("PassConversionRejection",1);
-       if (isConv2) maxETelec2.addUserInt("PassConversionRejection",0);
-       else maxETelec2.addUserInt("PassConversionRejection",1);
-     }
-     else {
-       std::cout << "WARNING! Track Collection with input name: generalTracks"
-                 << " was not found. Conversion Rejection is not going to be"
-                 << " applied!!!" << std::endl;
-     }
-   }
    //
    // get the met now:
    const pat::METCollection *pMet = patMET.product();
    const pat::METCollection::const_iterator met = pMet->begin();
    const pat::MET myMET = *met;
-   Double_t metEt = met->et();
+   double metEt = met->et();
    //
    if (metEt < METCut_) {
      delete [] sorted;  delete [] et;
@@ -516,10 +404,10 @@ void
 ZeeCandidateFilter::endJob() {
 }
 
-Bool_t ZeeCandidateFilter::isInFiducial(Double_t eta)
+bool ZeeCandidateFilter::isInFiducial(double eta)
 {
-  if (TMath::Abs(eta) < BarrelMaxEta_) return true;
-  else if (TMath::Abs(eta) < EndCapMaxEta_ && TMath::Abs(eta) > EndCapMinEta_)
+  if (fabs(eta) < BarrelMaxEta_) return true;
+  else if (fabs(eta) < EndCapMaxEta_ && fabs(eta) > EndCapMinEta_)
     return true;
   return false;
 

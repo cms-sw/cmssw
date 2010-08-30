@@ -1,7 +1,7 @@
 #ifndef TopMuonAnalyzer_h  
 #define TopMuonAnalyzer_h
 
-#include "TH1.h"
+#include "TH1F.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -23,15 +23,14 @@ class TopMuonAnalyzer : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
            	
-  edm::InputTag inputElec_;
-  edm::InputTag inputMuon_;
+  edm::InputTag input_;
+  bool verbose_;
 
-  TH1I *Num_Leptons;
-  TH1I *Num_Muons;
-  TH1F *pt_Muons;
-  TH1F *energy_Muons;
-  TH1F *eta_Muons;
-  TH1F *phi_Muons;
+  TH1F *mult_;
+  TH1F *en_;
+  TH1F *pt_;
+  TH1F *eta_;
+  TH1F *phi_;
 };  
 
 #endif  

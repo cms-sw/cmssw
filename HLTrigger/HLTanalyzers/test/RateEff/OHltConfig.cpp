@@ -214,11 +214,13 @@ void OHltConfig::fillMenu(OHltMenu *omenu)
   // temporary vars
   const char* stmp; float ftmp; int itmp; int refprescaletmp; //bool btmp; 
   const char* seedstmp;
+    
   /**** Menu ****/ 
   cfg.lookupValue("menu.isL1Menu",isL1Menu); 
   omenu->SetIsL1Menu(isL1Menu);
   cfg.lookupValue("menu.doL1preloop",doL1preloop); 
   omenu->SetDoL1preloop(doL1preloop);
+
   Setting &m = cfg.lookup("menu.triggers");
   const int nm = (const int)m.getLength();
   //cout << nm << endl;
@@ -229,6 +231,7 @@ void OHltConfig::fillMenu(OHltMenu *omenu)
     //cout << "Trigger: " << stmp << endl;
 
     if (isL1Menu){
+      
       TString ss1 = "menu.triggers.["; ss1 +=i; ss1=ss1+"].[1]";
       Setting &tt1 = cfg.lookup(ss1.Data());
       itmp = tt1;
@@ -270,6 +273,7 @@ void OHltConfig::fillMenu(OHltMenu *omenu)
         } 
 
       omenu->AddTrigger(stmp,seedstmp,itmp,ftmp,refprescaletmp);
+
     }
   }
 
@@ -286,6 +290,7 @@ void OHltConfig::fillMenu(OHltMenu *omenu)
 	TString ss1 = "menu.L1triggers.["; ss1 +=i; ss1=ss1+"].[1]";
 	Setting &tt1 = cfg.lookup(ss1.Data());
 	itmp = tt1;
+	//cout << itmp << endl;
       } else {
 	itmp = 1;
       }

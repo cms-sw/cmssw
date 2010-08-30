@@ -18,12 +18,11 @@ JacobianLocalToCartesian::JacobianLocalToCartesian(const Surface& surface,
   double qbp = localParameters.qbp();
   double dxdz = localParameters.dxdz();
   double dydz = localParameters.dydz();
-  TrackCharge iq = localParameters.charge();
+  TrackCharge q = localParameters.charge();
   // for neutrals: qbp is 1/p instead of q/p - 
   //   equivalent to charge 1
-  if ( iq==0 )  iq = 1;
+  if ( q==0 )  q = 1;
   double pzSign = localParameters.pzSign();
-  double q = iq*pzSign;
   double sqr = sqrt(dxdz*dxdz + dydz*dydz + 1);
   double den = -q/(sqr*sqr*sqr*qbp);
 
@@ -31,15 +30,15 @@ JacobianLocalToCartesian::JacobianLocalToCartesian(const Surface& surface,
   AlgebraicMatrix65 & lJacobian = theJacobian;
   lJacobian(0,3) = 1.;
   lJacobian(1,4) = 1.;
-  lJacobian(3,0) = ( dxdz*(-q/(sqr*qbp*qbp)) ); 
-  lJacobian(3,1) = ( q/(sqr*qbp) + (den*dxdz*dxdz) );
-  lJacobian(3,2) = ( (den*dxdz*dydz) );
-  lJacobian(4,0) = ( dydz*(-q/(sqr*qbp*qbp)) );
-  lJacobian(4,1) = ( (den*dxdz*dydz) );
-  lJacobian(4,2) = ( q/(sqr*qbp) + (den*dydz*dydz) );
-  lJacobian(5,0) = ( -q/(sqr*qbp*qbp) );
-  lJacobian(5,1) = ( (den*dxdz) );
-  lJacobian(5,2) = ( (den*dydz) );
+  lJacobian(3,0) = pzSign * ( (-q*dxdz)/(sqr*qbp*qbp) ); 
+  lJacobian(3,1) = pzSign * ( q/(sqr*qbp) + (den*dxdz*dxdz) );
+  lJacobian(3,2) = pzSign * ( (den*dxdz*dydz) );
+  lJacobian(4,0) = pzSign * ( (-q*dydz)/(sqr*qbp*qbp) );
+  lJacobian(4,1) = pzSign * ( (den*dxdz*dydz) );
+  lJacobian(4,2) = pzSign * ( q/(sqr*qbp) + (den*dydz*dydz) );
+  lJacobian(5,0) = pzSign * ( -q/(sqr*qbp*qbp) );
+  lJacobian(5,1) = pzSign * ( (den*dxdz) );
+  lJacobian(5,2) = pzSign * ( (den*dydz) );
   
   /*
   GlobalVector g1 = surface.toGlobal(LocalVector(1., 0., 0.));

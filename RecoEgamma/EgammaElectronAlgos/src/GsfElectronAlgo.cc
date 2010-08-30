@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.96 2010/05/14 23:04:09 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.98 2010/07/29 12:05:31 chamont Exp $
 //
 //
 
@@ -23,6 +23,7 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronMomentumCorrector.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronEnergyCorrector.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
@@ -84,19 +85,6 @@
 using namespace edm ;
 using namespace std ;
 using namespace reco ;
-
-template <typename Col>
-class ExceptionSafeStlPtrCol : public Col
- {
-  public :
-    ExceptionSafeStlPtrCol() : Col() {}
-    ~ExceptionSafeStlPtrCol()
-     {
-      typename Col::const_iterator it ;
-      for ( it = Col::begin() ; it != Col::end() ; it++ )
-       { delete (*it) ; }
-     }
- } ;
 
 
 GsfElectronAlgo::GsfElectronAlgo
@@ -383,7 +371,7 @@ void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
   if (applyAmbResolution_)
    {
     //resolveElectrons(tempEle1, outEle);
-    resolveElectrons(tempEle1, outEle, pEBRecHits, pEERecHits);
+    resolveElectrons(tempEle1, outEle, pEBRecHits, pEERecHits,bs);
 
     LogTrace("GsfElectronAlgo") << "========== GsfElectronAlgo Info (after amb. solving) ==========";
     LogTrace("GsfElectronAlgo") << "Event " << e.id();
@@ -479,7 +467,7 @@ void GsfElectronAlgo::process(
     if (mva<noCutMin) { throw cms::Exception("GsfElectronAlgo|UnexpectedMvaValue")<<"unexpected MVA value: "<<mva ; }
 
     // electron basic cluster
-    CaloClusterPtr elbcRef = getEleBasicCluster(gsfTrackRef,&theClus) ;
+    CaloClusterPtr elbcRef = getEleBasicCluster(gsfTrackRef,&theClus,bs) ;
 
     // calculate Trajectory StatesOnSurface....
     if (!calculateTSOS(*gsfTrackRef,theClus, bs)) continue ;
@@ -517,7 +505,7 @@ void GsfElectronAlgo::process(
       elbcRef,ctfTrackRef,fracShHits,HoE1,HoE2,tkIsolation03,tkIsolation04,
       hadDepth1Isolation03,hadDepth2Isolation03,hadDepth1Isolation04,hadDepth2Isolation04,
       ecalBarrelIsol03,ecalEndcapIsol03,ecalBarrelIsol04,ecalEndcapIsol04,
-      reducedEBRecHits,reducedEERecHits,mva,outEle) ;
+      reducedEBRecHits,reducedEERecHits,mva,bs,outEle) ;
 
     LogInfo("GsfElectronAlgo")<<"Constructed new electron with energy  "<< theClus.energy();
 
@@ -547,7 +535,8 @@ bool GsfElectronAlgo::preselectCutBasedFlag( GsfElectron * ele, const reco::Beam
   if ((!eg)&&(!pf)) { throw cms::Exception("GsfElectronAlgo|NeitherEcalNorPureTrackerDriven")<<"An electron cannot be neither egamma nor purely pflow" ; }
 
   // Et cut
-  double etValue = ele->superCluster()->energy()/cosh(ele->superCluster()->eta()) ;
+  double etaValue = EleRelPoint(ele->superCluster()->position(),bs.position()).eta() ;
+  double etValue = ele->superCluster()->energy()/cosh(etaValue) ;
   LogTrace("GsfElectronAlgo") << "Et : " << etValue ;
   if (eg && ele->isEB() && (etValue < minSCEtBarrel_)) return false ;
   if (eg && ele->isEE() && (etValue < minSCEtEndcaps_)) return false ;
@@ -662,19 +651,6 @@ bool GsfElectronAlgo::preselectMvaFlag( GsfElectron * ele )
    { return false ; }
  }
 
-// utilities for constructor
-float normalized_dphi( float dphi )
- {
-  if (fabs(dphi)>CLHEP::pi) return (dphi<0?CLHEP::twopi+dphi:dphi-CLHEP::twopi) ;
-  else return dphi ;
- }
-
-math::XYZPoint convert( const GlobalPoint & gp )
- { return math::XYZPoint(gp.x(),gp.y(),gp.z()) ; }
-
-math::XYZVector convert( const GlobalVector & gv )
- { return math::XYZVector(gv.x(),gv.y(),gv.z()) ; }
-
 // interface to be improved...
 void GsfElectronAlgo::createElectron
  ( const GsfElectronCoreRef & coreRef,
@@ -688,7 +664,7 @@ void GsfElectronAlgo::createElectron
    EgammaRecHitIsolation & ecalBarrelIso03,EgammaRecHitIsolation & ecalEndcapsIso03,
    EgammaRecHitIsolation & ecalBarrelIso04,EgammaRecHitIsolation & ecalEndcapsIso04,
    edm::Handle<EcalRecHitCollection> reducedEBRecHits,edm::Handle<EcalRecHitCollection> reducedEERecHits,
-   float mva, GsfElectronPtrCollection & outEle )
+   float mva, const reco::BeamSpot & bs, GsfElectronPtrCollection & outEle )
 
  {
   GsfTrackRef trackRef = coreRef->gsfTrack() ;
@@ -739,12 +715,18 @@ void GsfElectronAlgo::createElectron
   tcMatching.eSeedClusterOverP = (vtxMom_.mag()>0.)?(seedCluster.energy()/vtxMom_.mag()):(-1) ;
   tcMatching.eSeedClusterOverPout = (seedMom.mag()>0.)?(seedCluster.energy()/seedMom.mag()):(-1.) ;
   tcMatching.eEleClusterOverPout = (eleMom.mag()>0.)?(elbcRef->energy()/eleMom.mag()):(-1.) ;
-  tcMatching.deltaEtaSuperClusterAtVtx = scRef->eta()-sclPos_.eta() ;
-  tcMatching.deltaEtaSeedClusterAtCalo = seedCluster.eta() - seedPos.eta() ;
-  tcMatching.deltaEtaEleClusterAtCalo = elbcRef->eta() - seedPos.eta() ;
-  tcMatching.deltaPhiEleClusterAtCalo = normalized_dphi(elbcRef->phi()-elePos.phi()) ;
-  tcMatching.deltaPhiSuperClusterAtVtx = normalized_dphi(scRef->phi()-sclPos_.phi()) ;
-  tcMatching.deltaPhiSeedClusterAtCalo = normalized_dphi(seedCluster.phi()-seedPos.phi()) ;
+
+  EleRelPointPair scAtVtx(scRef->position(),sclPos_,bs.position()) ;
+  tcMatching.deltaEtaSuperClusterAtVtx = scAtVtx.dEta() ;
+  tcMatching.deltaPhiSuperClusterAtVtx = scAtVtx.dPhi() ;
+
+  EleRelPointPair seedAtCalo(seedCluster.position(),seedPos,bs.position()) ;
+  tcMatching.deltaEtaSeedClusterAtCalo = seedAtCalo.dEta() ;
+  tcMatching.deltaPhiSeedClusterAtCalo = seedAtCalo.dPhi() ;
+
+  EleRelPointPair ecAtCalo(elbcRef->position(),elePos,bs.position()) ;
+  tcMatching.deltaEtaEleClusterAtCalo = ecAtCalo.dEta() ;
+  tcMatching.deltaPhiEleClusterAtCalo = ecAtCalo.dPhi() ;
 
 
   //=======================================================
@@ -752,13 +734,13 @@ void GsfElectronAlgo::createElectron
   //=======================================================
 
   reco::GsfElectron::TrackExtrapolations tkExtra ;
-  tkExtra.positionAtVtx = convert(vtxPos) ;
-  tkExtra.positionAtCalo = convert(sclPos_) ;
-  tkExtra.momentumAtVtx = convert(vtxMom_) ;
-  tkExtra.momentumAtCalo = convert(sclMom) ;
-  tkExtra.momentumOut = convert(seedMom) ;
-  tkExtra.momentumAtEleClus = convert(eleMom) ;
-  tkExtra.momentumAtVtxWithConstraint = convert(vtxMomWithConstraint);
+  ele_convert(vtxPos,tkExtra.positionAtVtx) ;
+  ele_convert(sclPos_,tkExtra.positionAtCalo) ;
+  ele_convert(vtxMom_,tkExtra.momentumAtVtx) ;
+  ele_convert(sclMom,tkExtra.momentumAtCalo) ;
+  ele_convert(seedMom,tkExtra.momentumOut) ;
+  ele_convert(eleMom,tkExtra.momentumAtEleClus) ;
+  ele_convert(vtxMomWithConstraint,tkExtra.momentumAtVtxWithConstraint) ;
 
 
   //=======================================================
@@ -856,7 +838,7 @@ void GsfElectronAlgo::createElectron
   // energy corrections only for ecalDriven electrons
   if (ele->core()->ecalDrivenSeed()) {
     ElectronEnergyCorrector theEnCorrector(superClusterErrorFunction_);
-    theEnCorrector.correct(*ele, applyEtaCorrection_);
+    theEnCorrector.correct(*ele, bs, applyEtaCorrection_);
     ElectronMomentumCorrector theMomCorrector;
     theMomCorrector.correct(*ele,vtxTSOS_);
   }
@@ -878,28 +860,31 @@ void GsfElectronAlgo::createElectron
  }
 
 
-const CaloClusterPtr GsfElectronAlgo::getEleBasicCluster(const GsfTrackRef &t, const SuperCluster *scRef) {
-
-    CaloClusterPtr eleRef;
-    TrajectoryStateOnSurface tempTSOS;
-    TrajectoryStateOnSurface outTSOS = mtsTransform_->outerStateOnSurface(*t);
-    float dphimin = 1.e30;
-    for (CaloCluster_iterator bc=scRef->clustersBegin(); bc!=scRef->clustersEnd(); bc++) {
-      GlobalPoint posclu((*bc)->position().x(),(*bc)->position().y(),(*bc)->position().z());
-      tempTSOS = mtsTransform_->extrapolatedState(outTSOS,posclu) ;
-      if (!tempTSOS.isValid()) tempTSOS=outTSOS;
-      GlobalPoint extrap = tempTSOS.globalPosition();
-      float dphi = posclu.phi() - extrap.phi();
-      if (fabs(dphi)>CLHEP::pi) dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
-      if (fabs(dphi)<dphimin) {
-        dphimin = fabs(dphi);
-	eleRef = (*bc);
-	eleTSOS_ = tempTSOS;
-      }
-    }
-    return eleRef;
-
-}
+const CaloClusterPtr GsfElectronAlgo::getEleBasicCluster
+ ( const GsfTrackRef & t,
+   const SuperCluster * scRef,
+   const reco::BeamSpot & bs )
+ {
+  CaloClusterPtr eleRef ;
+  TrajectoryStateOnSurface tempTSOS ;
+  TrajectoryStateOnSurface outTSOS = mtsTransform_->outerStateOnSurface(*t) ;
+  float dphimin = 1.e30 ;
+  for (CaloCluster_iterator bc=scRef->clustersBegin(); bc!=scRef->clustersEnd(); bc++)
+   {
+    GlobalPoint posclu((*bc)->position().x(),(*bc)->position().y(),(*bc)->position().z()) ;
+    tempTSOS = mtsTransform_->extrapolatedState(outTSOS,posclu) ;
+    if (!tempTSOS.isValid()) tempTSOS=outTSOS ;
+    GlobalPoint extrap = tempTSOS.globalPosition() ;
+    float dphi = EleRelPointPair(posclu,extrap,bs.position()).dPhi() ;
+    if (fabs(dphi)<dphimin)
+     {
+      dphimin = fabs(dphi) ;
+      eleRef = (*bc);
+      eleTSOS_ = tempTSOS ;
+     }
+   }
+  return eleRef ;
+ }
 
 bool  GsfElectronAlgo::calculateTSOS(const GsfTrack &t,const SuperCluster & theClus, const BeamSpot & bs){
 
@@ -909,8 +894,9 @@ bool  GsfElectronAlgo::calculateTSOS(const GsfTrack &t,const SuperCluster & theC
 
     //at vertex
     // innermost state propagation to the beam spot position
-    vtxTSOS_ = mtsTransform_->extrapolatedState(innTSOS_,
-	GlobalPoint(bs.position().x(),bs.position().y(),bs.position().z()));
+    GlobalPoint bsPos ;
+    ele_convert(bs.position(),bsPos) ;
+    vtxTSOS_ = mtsTransform_->extrapolatedState(innTSOS_,bsPos) ;
     if (!vtxTSOS_.isValid()) vtxTSOS_=innTSOS_;
 
     //at seed
@@ -943,9 +929,10 @@ bool better_electron( const reco::GsfElectron * e1, const reco::GsfElectron * e2
  { return (fabs(e1->eSuperClusterOverP()-1)<fabs(e2->eSuperClusterOverP()-1)) ; }
 
 //void GsfElectronAlgo::resolveElectrons( GsfElectronPtrCollection & inEle, reco::GsfElectronCollection & outEle)
-void GsfElectronAlgo::resolveElectrons( GsfElectronPtrCollection & inEle, reco::GsfElectronCollection & outEle,
-       edm::Handle<EcalRecHitCollection> & reducedEBRecHits,
-       edm::Handle<EcalRecHitCollection> & reducedEERecHits )
+void GsfElectronAlgo::resolveElectrons
+ ( GsfElectronPtrCollection & inEle, reco::GsfElectronCollection & outEle,
+   edm::Handle<EcalRecHitCollection> & reducedEBRecHits, edm::Handle<EcalRecHitCollection> & reducedEERecHits,
+   const reco::BeamSpot & bs )
  {
   GsfElectronPtrCollection::iterator e1, e2 ;
   if (ambSortingStrategy_==0)
@@ -976,11 +963,12 @@ void GsfElectronAlgo::resolveElectrons( GsfElectronPtrCollection & inEle, reco::
        { sameCluster = (scRef1==scRef2) ; }
       else if (ambClustersOverlapStrategy_==1)
        {
+        float threshold = 1.*cosh(EleRelPoint(scRef1->position(),bs.position()).eta()) ;
     	  sameCluster =
-         ( (EgAmbiguityTools::sharedEnergy(&(*eleClu1),&(*eleClu2),reducedEBRecHits,reducedEERecHits)>=1.*cosh(scRef1->eta())) ||
-    	   (EgAmbiguityTools::sharedEnergy(&(*scRef1->seed()),&(*eleClu2),reducedEBRecHits,reducedEERecHits)>=1.*cosh(scRef1->eta())) ||
-    	   (EgAmbiguityTools::sharedEnergy(&(*eleClu1),&(*scRef2->seed()),reducedEBRecHits,reducedEERecHits)>=1.*cosh(scRef1->eta())) ||
-    	   (EgAmbiguityTools::sharedEnergy(&(*scRef1->seed()),&(*scRef2->seed()),reducedEBRecHits,reducedEERecHits)>=1.*cosh(scRef1->eta())) ) ;
+         ( (EgAmbiguityTools::sharedEnergy(&(*eleClu1),&(*eleClu2),reducedEBRecHits,reducedEERecHits)>=threshold) ||
+    	     (EgAmbiguityTools::sharedEnergy(&(*scRef1->seed()),&(*eleClu2),reducedEBRecHits,reducedEERecHits)>=threshold) ||
+    	     (EgAmbiguityTools::sharedEnergy(&(*eleClu1),&(*scRef2->seed()),reducedEBRecHits,reducedEERecHits)>=threshold) ||
+    	     (EgAmbiguityTools::sharedEnergy(&(*scRef1->seed()),&(*scRef2->seed()),reducedEBRecHits,reducedEERecHits)>=threshold) ) ;
        }
       else
        { throw cms::Exception("GsfElectronAlgo|UnknownAmbiguityClustersOverlapStrategy")<<"value of ambClustersOverlapStrategy_ is : "<<ambClustersOverlapStrategy_ ; }
@@ -1110,12 +1098,13 @@ void GsfElectronAlgo::computeCharge
    int & charge, GsfElectron::ChargeInfo & info )
  {
   // determine charge from SC
-  GlobalPoint orig(bs.position().x(), bs.position().y(), bs.position().z()) ;
-  GlobalPoint scpos(sc->position().x(), sc->position().y(), sc->position().z()) ;
+  GlobalPoint orig, scpos ;
+  ele_convert(bs.position(),orig) ;
+  ele_convert(sc->position(),scpos) ;
   GlobalVector scvect(scpos-orig) ;
   GlobalPoint inntkpos = innTSOS_.globalPosition() ;
   GlobalVector inntkvect = GlobalVector(inntkpos-orig) ;
-  float dPhiInnEle=normalized_dphi(scvect.phi()-inntkvect.phi()) ;
+  float dPhiInnEle=normalized_phi(scvect.phi()-inntkvect.phi()) ;
   if(dPhiInnEle>0) info.scPixCharge = -1 ;
   else info.scPixCharge = 1 ;
 

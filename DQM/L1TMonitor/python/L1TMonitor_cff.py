@@ -8,4 +8,3 @@ from DQM.L1TMonitor.L1TGT_readout_cff import *
 from DQM.L1TMonitor.L1TGCT_readout_cff import *
 from DQM.L1TMonitor.L1TMonitor_unpacking_cff import *
 from DQM.L1TMonitor.L1TMonScalers_cff import *
-

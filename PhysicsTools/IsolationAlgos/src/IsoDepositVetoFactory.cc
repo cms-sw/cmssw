@@ -95,8 +95,7 @@ IsoDepositVetoFactory::make(const char *string, reco::isodeposit::EventDependent
         rectangularEtaPhiVeto("RectangularEtaPhiVeto\\(([+-]?\\d+\\.\\d+),([+-]?\\d+\\.\\d+),([+-]?\\d+\\.\\d+),([+-]?\\d+\\.\\d+)\\)"),
         numCrystal("NumCrystalVeto\\((\\d+\\.\\d+)\\)"),
         numCrystalEtaPhi("NumCrystalEtaPhiVeto\\((\\d+\\.\\d+),(\\d+\\.\\d+)\\)"),
-        otherCandidatesDR("OtherCandidatesByDR\\((\\w+:?\\w*:?\\w*),\\s*(\\d+\\.?|\\d*\\.\\d*)\\)"),
-        otherCand("^(.*?):(.*)"),
+        otherCandidates("OtherCandidatesByDR\\((\\w+:?\\w*:?\\w*),\\s*(\\d+\\.?|\\d*\\.\\d*)\\)"),
         number("^(\\d+\\.?|\\d*\\.\\d*)$");
     boost::cmatch match;
     
@@ -127,14 +126,9 @@ IsoDepositVetoFactory::make(const char *string, reco::isodeposit::EventDependent
         return new NumCrystalVeto(Direction(), atof(match[1].first));
     } else if (regex_match(string, match, numCrystalEtaPhi)) {
         return new NumCrystalEtaPhiVeto(Direction(),atof(match[1].first),atof(match[2].first));
-    } else if (regex_match(string, match, otherCandidatesDR)) {
+    } else if (regex_match(string, match, otherCandidates)) {
         OtherCandidatesDeltaRVeto *ret = new OtherCandidatesDeltaRVeto(edm::InputTag(match[1]), 
                                                                         atof(match[2].first));
-        evdep = ret;
-        return ret;
-    } else if (regex_match(string, match, otherCand)) {
-        OtherCandVeto *ret = new OtherCandVeto(edm::InputTag(match[1]), 
-                                                           make(match[2].first));
         evdep = ret;
         return ret;
     } else {

@@ -13,6 +13,7 @@ using namespace stor;
 
 class testStreamQueue : public CppUnit::TestFixture
 {
+  typedef toolbox::mem::Reference Reference;
   CPPUNIT_TEST_SUITE(testStreamQueue);
   CPPUNIT_TEST(enq_deq);
   CPPUNIT_TEST(enq_deq_memlimit);

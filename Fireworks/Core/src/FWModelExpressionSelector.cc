@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Jan 23 10:37:22 EST 2008
-// $Id: FWModelExpressionSelector.cc,v 1.9 2009/04/27 16:53:29 dmytro Exp $
+// $Id: FWModelExpressionSelector.cc,v 1.8.8.1 2009/04/24 02:18:41 dmytro Exp $
 //
 
 // system include files
@@ -24,6 +24,7 @@
 #include "Fireworks/Core/interface/FWModelExpressionSelector.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
+#include "Fireworks/Core/src/fwCintInterfaces.h"
 #include "Fireworks/Core/interface/FWExpressionException.h"
 #include "Fireworks/Core/src/expressionFormatHelpers.h"
 //

@@ -5,29 +5,37 @@
 // Package:    HLTDTActivityFilter
 // Class:      HLTDTActivityFilter
 // 
-/**\class HLTDTActivityFilter HLTDTActivityFilter.cc filter/HLTDTActivityFilter/src/HLTDTActivityFilter.cc
 
-Description: Filter to select HCAL abort gap events
 
-Implementation:
-<Notes on implementation>
+/*
+
+Description: Filter to select events with activity in the muon barrel system
+
 */
+
+
 //
 // Original Author:  Carlo Battilana
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTDTActivityFilter.h,v 1.1 2009/11/26 16:02:47 goys Exp $
+// $Id: HLTDTActivityFilter.h,v 1.2 2010/03/08 10:54:32 goys Exp $
 //
 //
 
 
-// include files
+// Fwk header files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
+
+// c++ header files
 #include<bitset>
 #include <string>
+
+class DTGeometry;
+class L1MuRegionalCand;
 
 //
 // class declaration
@@ -35,28 +43,42 @@ Implementation:
 
 class HLTDTActivityFilter : public HLTFilter {
 public:
+
   explicit HLTDTActivityFilter(const edm::ParameterSet&);
   virtual ~HLTDTActivityFilter();
-  
+
 private:
+
   virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual bool beginRun(edm::Run& iRun, const edm::EventSetup& iSetup);
+
+  bool hasActivity(const std::bitset<4> &);  
+  bool matchChamber(const uint32_t &, const L1MuRegionalCand&);
   
+  enum activityType { DCC=0, DDU=1, RPC=2, DIGI=3 };
+  
+
   // ----------member data ---------------------------
 
-  /// input
-  edm::InputTag inputDCC_ ; 
-  edm::InputTag inputDDU_ ; 
-  edm::InputTag inputDigis_ ; 
-
-  bool processDCC_, processDDU_, processDigis_;
-  int processingMode_;
-  int minQual_;
-  int maxStation_;
-  int minBX_;
-  int maxBX_;
-  int minActiveChambs_;
-  int minChambLayers_;
+  edm::InputTag inputTag_[4]; 
+  bool process_[4];
   std::bitset<15> activeSecs_;
+
+  edm::ESHandle<DTGeometry> dtGeom_;
+
+  bool  orTPG_;
+  bool  orRPC_;
+  bool  orDigi_;
+
+  int   minQual_;
+  int   maxStation_;
+  int   minBX_[3];
+  int   maxBX_[3];
+  int   minActiveChambs_;
+  int   minChambLayers_;
+  
+  float maxDeltaPhi_;
+  float maxDeltaEta_;
 
 };
 

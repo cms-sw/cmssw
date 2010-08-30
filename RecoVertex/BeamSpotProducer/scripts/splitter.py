@@ -22,7 +22,7 @@ def main():
         exit(error)
     sourceDir = sys.argv[1] + '/'
 
-    fileList = ls(sourceDir,".txt")
+    fileList = ls(sourceDir)
 
     fileObjList = {}
 

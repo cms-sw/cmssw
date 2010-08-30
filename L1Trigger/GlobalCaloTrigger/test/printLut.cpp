@@ -11,7 +11,7 @@ int main(int argc, char **argv)
   const std::string filename=(argc==1 ? "" : std::string(argv[1]));
   if (filename=="") {
     std::cout << "No filename argument supplied - exiting" << std::endl;
-    return 0;
+    return -1;
   }
 
   bool allOk=true;

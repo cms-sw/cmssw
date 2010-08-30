@@ -110,16 +110,10 @@ void BlockWipedPoolAllocated::usePool() {
 }
 
 
-
 void * BlockWipedPoolAllocated::operator new(size_t s) {
   s_alive++;
   return (s_usePool) ? allocator(s).alloc() : ::operator new(s);
 }
-
-static void *  BlockWipedPoolAllocated::operator new(size_t s, void * p) {
-  return p;
-}
-
 
 void BlockWipedPoolAllocated::operator delete(void * p, size_t s) {
   s_alive--;
