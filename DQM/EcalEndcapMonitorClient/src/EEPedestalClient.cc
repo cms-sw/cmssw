@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2010/08/09 13:44:54 $
- * $Revision: 1.117 $
+ * $Date: 2010/08/30 13:14:08 $
+ * $Revision: 1.118 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -865,7 +865,7 @@ void EEPedestalClient::analyze(void) {
 
         if ( ism >= 1 && ism <= 9 ) jx = 101 - jx;
 
-	bool innerCrystals = std::abs(jx-50) >= 5 && std::abs(jx-50) <= 10 && std::abs(jy-50) >= 5 && std::abs(jy-50) <= 10; 
+	bool innerCrystals = std::abs(jx-50) >= 5 && std::abs(jx-50) <= 10 && std::abs(jy-50) >= 5 && std::abs(jy-50) <= 10;
 
         if ( Numbers::validEE(ism, jx, jy) ) {
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(ix, iy, 2.);
