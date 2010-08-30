@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.24 2010/06/22 17:09:11 amraktad Exp $
+// $Id: FWEveView.cc,v 1.25 2010/07/02 17:36:16 amraktad Exp $
 //
 
 
@@ -66,13 +66,16 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type, unsigned i
    m_cameraGuide(0),
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
    m_imageScale(this, "Image Scale", 1.0, 1.0, 6.0),
-   m_eventInfoLevel(this, "Overlay Event Info", 0l, 0l, 2l),
-   m_drawCMSLogo(this,"Show Logo",false),
-#else
-   m_eventInfoLevel(this, "Overlay Event Info", 0l, 0l, 2l),
-   m_drawCMSLogo(this,"Show Logo",false),
-   m_lineWidth(this,"Line width",1.0,1.0,10.0),
 #endif
+   m_eventInfoLevel(this, "Overlay Event Info", 0l, 0l, 2l),
+   m_drawCMSLogo(this,"Show Logo",false),
+   m_pointSmooth(this, "Smooth points", false),
+   m_pointSize(this, "Point size", 1.0, 1.0, 10.0),
+   m_lineSmooth(this, "Smooth lines", false),
+   m_lineWidth(this,"Line width",1.0,1.0,10.0),
+   m_lineOutlineScale(this, "Outline width scale", 1.0, 0.01, 10.0),
+   m_lineWireframeScale(this, "Wireframe width scale", 1.0, 0.01, 10.0),
+
    m_showCameraGuide(this,"Show Camera Guide",false),
    m_viewContext(new FWViewContext())
 {
@@ -125,9 +128,12 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type, unsigned i
    embeddedViewer->AddOverlayElement(m_cameraGuide);
    m_showCameraGuide.changed_.connect(boost::bind(&TGLCameraGuide::SetBinaryState,m_cameraGuide, _1));
 
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,26,0)  
-   m_lineWidth.changed_.connect(boost::bind(&FWEveView::lineWidthChanged,this));
-#endif
+   m_pointSmooth.changed_.connect(boost::bind(&FWEveView::pointLineScalesChanged,this));
+   m_pointSize.changed_.connect(boost::bind(&FWEveView::pointLineScalesChanged,this));
+   m_lineSmooth.changed_.connect(boost::bind(&FWEveView::pointLineScalesChanged,this));
+   m_lineWidth.changed_.connect(boost::bind(&FWEveView::pointLineScalesChanged,this));
+   m_lineOutlineScale.changed_.connect(boost::bind(&FWEveView::pointLineScalesChanged,this));
+   m_lineWireframeScale.changed_.connect(boost::bind(&FWEveView::pointLineScalesChanged,this));
 }
 
 FWEveView::~FWEveView()
@@ -175,12 +181,15 @@ FWEveView::saveImageTo(const std::string& iName) const
 
 //-------------------------------------------------------------------------------
 void
-FWEveView::lineWidthChanged()
+FWEveView::pointLineScalesChanged()
 {
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,26,0)
-   viewerGL()->SetLineScale(m_lineWidth.value());
+   viewerGL()->SetSmoothPoints(m_pointSmooth.value());
+   viewerGL()->SetPointScale  (m_pointSize.value());
+   viewerGL()->SetSmoothLines (m_lineSmooth.value());
+   viewerGL()->SetLineScale   (m_lineWidth.value());
+   viewerGL()->SetOLLineW     (m_lineOutlineScale.value());
+   viewerGL()->SetWFLineW     (m_lineWireframeScale.value());
    viewerGL()->RequestDraw();
-#endif
 }
 
 void

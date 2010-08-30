@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.h,v 1.12 2010/06/18 19:51:24 amraktad Exp $
+// $Id: FWEveView.h,v 1.13 2010/06/22 17:09:11 amraktad Exp $
 //
 
 
@@ -81,7 +81,7 @@ public:
 
 protected:
    virtual void resetCamera();
-   virtual void lineWidthChanged();
+   virtual void pointLineScalesChanged();
 
    void addToOrthoCamera(TGLOrthoCamera*, FWConfiguration&) const;
    void setFromOrthoCamera(TGLOrthoCamera*, const FWConfiguration&);
@@ -112,9 +112,13 @@ private:
    FWEnumParameter   m_eventInfoLevel;
    FWBoolParameter   m_drawCMSLogo;
 
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,26,0)
+   FWBoolParameter   m_pointSmooth;
+   FWDoubleParameter m_pointSize;
+   FWBoolParameter   m_lineSmooth;
    FWDoubleParameter m_lineWidth;
-#endif
+   FWDoubleParameter m_lineOutlineScale;
+   FWDoubleParameter m_lineWireframeScale;
+
    FWBoolParameter   m_showCameraGuide;
 
    boost::shared_ptr<FWViewContextMenuHandlerGL>   m_viewContextMenu;
