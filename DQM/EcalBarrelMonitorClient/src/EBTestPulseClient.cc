@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2010/08/05 11:35:06 $
- * $Revision: 1.231 $
+ * $Date: 2010/08/08 08:46:03 $
+ * $Revision: 1.232 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -872,7 +872,7 @@ void EBTestPulseClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean01 - meanAmpl01) > fabs(percentVariation_ * meanAmpl01) || mean01 < amplitudeThreshold_ )
+          if ( std::abs(mean01 - meanAmpl01) > std::abs(percentVariation_ * meanAmpl01) || mean01 < amplitudeThreshold_ )
             val = 0.;
           if ( rms01 > RMSThreshold_ )
             val = 0.;
@@ -896,7 +896,7 @@ void EBTestPulseClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean02 - meanAmpl02) > fabs(percentVariation_ * meanAmpl02) || mean02 < amplitudeThreshold_ )
+          if ( std::abs(mean02 - meanAmpl02) > std::abs(percentVariation_ * meanAmpl02) || mean02 < amplitudeThreshold_ )
             val = 0.;
           if ( rms02 > RMSThreshold_ )
             val = 0.;
@@ -920,7 +920,7 @@ void EBTestPulseClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean03 - meanAmpl03) > fabs(percentVariation_ * meanAmpl03) || mean03 < amplitudeThreshold_ )
+          if ( std::abs(mean03 - meanAmpl03) > std::abs(percentVariation_ * meanAmpl03) || mean03 < amplitudeThreshold_ )
             val = 0.;
           if ( rms03 > RMSThreshold_ )
             val = 0.;

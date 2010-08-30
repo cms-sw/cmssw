@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2010/03/29 12:18:39 $
- * $Revision: 1.102 $
+ * $Date: 2010/05/02 15:26:51 $
+ * $Revision: 1.103 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -402,7 +402,7 @@ EBTriggerTowerTask::processDigis( const edm::Event& e, const edm::Handle<EcalTri
 
     int ismt = Numbers::iSM( tpdigiItr->id() );
 
-    int iet = abs(tpdigiItr->id().ieta());
+    int iet = std::abs(tpdigiItr->id().ieta());
     int ipt = tpdigiItr->id().iphi();
 
     // phi_tower: change the range from global to SM-local

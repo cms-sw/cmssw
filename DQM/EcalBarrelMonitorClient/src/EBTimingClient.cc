@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2010/08/05 11:35:06 $
- * $Revision: 1.105 $
+ * $Date: 2010/08/08 08:46:03 $
+ * $Revision: 1.106 $
  * \author G. Della Ricca
  *
 */
@@ -365,7 +365,7 @@ void EBTimingClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean01 - expectedMean_) > discrepancyMean_ )
+          if ( std::abs(mean01 - expectedMean_) > discrepancyMean_ )
             val = 0.;
           if ( rms01 > RMSThreshold_ )
             val = 0.;

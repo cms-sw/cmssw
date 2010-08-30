@@ -1,8 +1,8 @@
 /*
  * \file EcalDQMStatusWriter.cc
  *
- * $Date: 2010/08/09 14:19:22 $
- * $Revision: 1.17 $
+ * $Date: 2010/08/09 15:12:33 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  *
 */
@@ -398,11 +398,11 @@ EcalDQMTowerStatus* EcalDQMStatusWriter::readEcalDQMTowerStatusFromFile(const ch
           int ipt = (itt-1)%4+1;
 
           if ( sm<0 ) {
-            ipt = ipt+(abs(sm)-1)*4-2;
+            ipt = ipt+(std::abs(sm)-1)*4-2;
             if ( ipt < 1 ) ipt = ipt+72;
             if ( ipt > 72 ) ipt = ipt-72;
           } else {
-            ipt = (5-ipt)+(abs(sm)-1)*4-2;
+            ipt = (5-ipt)+(std::abs(sm)-1)*4-2;
             if ( ipt < 1 ) ipt = ipt+72;
             if ( ipt > 72 ) ipt = ipt-72;
           }

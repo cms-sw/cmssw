@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2010/08/08 08:46:05 $
- * $Revision: 1.46 $
+ * $Date: 2010/08/12 09:05:47 $
+ * $Revision: 1.47 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -459,7 +459,7 @@ void EBSelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
       if ( Numbers::subDet( id ) != EcalBarrel ) continue;
 
       int iet = id.ieta();
-      int ietindex = (iet>0) ? iet - 1 : 16 + abs(iet);
+      int ietindex = (iet>0) ? iet - 1 : 16 + std::abs(iet);
       // phi_tower: change the range from global to SM-local
       // phi==0 is in the middle of a SM
       int ipt = id.iphi() + 2;
@@ -597,7 +597,7 @@ void EBSelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
       if ( Numbers::subDet( TPdigi->id() ) != EcalBarrel ) continue;
 
       int iet = TPdigi->id().ieta();
-      int ietindex = (iet>0) ? iet - 1 : 16 + abs(iet);
+      int ietindex = (iet>0) ? iet - 1 : 16 + std::abs(iet);
       // phi_tower: change the range from global to SM-local
       // phi==0 is in the middle of a SM
       int ipt = TPdigi->id().iphi() + 2;
@@ -705,7 +705,7 @@ void EBSelectiveReadoutTask::anaDigi(const EBDataFrame& frame, const EBSrFlagCol
 
     EcalTrigTowerDetId towid = id.tower();
     int iet = towid.ieta();
-    int ietindex = (iet>0) ? iet - 1 : 16 + abs(iet);
+    int ietindex = (iet>0) ? iet - 1 : 16 + std::abs(iet);
     // phi_tower: change the range from global to SM-local
     // phi==0 is in the middle of a SM
     int ipt = towid.iphi() + 2;
@@ -875,7 +875,7 @@ EBSelectiveReadoutTask::getFIRWeights(const std::vector<double>&
   const static int maxWeight = 0xEFF; //weights coded on 11+1 signed bits
   for(unsigned i=0; i < std::min((size_t)nFIRTaps,normalizedWeights.size()); ++i){
     firWeights[i] = lround(normalizedWeights[i] * (1<<10));
-    if(abs(firWeights[i])>maxWeight){//overflow
+    if(std::abs(firWeights[i])>maxWeight){//overflow
       firWeights[i] = firWeights[i]<0?-maxWeight:maxWeight;
     }
   }

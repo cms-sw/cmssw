@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2010/08/09 13:22:18 $
- * $Revision: 1.104 $
+ * $Date: 2010/08/09 13:44:54 $
+ * $Revision: 1.105 $
  * \author G. Della Ricca
  *
 */
@@ -395,7 +395,7 @@ void EETimingClient::analyze(void) {
           float val;
 
           val = 1.;
-          if ( fabs(mean01 - expectedMean_) > discrepancyMean_ )
+          if ( std::abs(mean01 - expectedMean_) > discrepancyMean_ )
             val = 0.;
           if ( rms01 > RMSThreshold_ )
             val = 0.;

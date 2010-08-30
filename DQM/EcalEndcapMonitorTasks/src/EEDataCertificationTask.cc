@@ -1,8 +1,8 @@
 /*
  * \file EEDataCertificationTask.cc
  *
- * $Date: 2010/08/08 14:21:02 $
- * $Revision: 1.24 $
+ * $Date: 2010/08/11 14:57:34 $
+ * $Revision: 1.25 $
  * \author E. Di Marco
  *
 */
@@ -231,7 +231,7 @@ void EEDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
             xcert = 0.0;
           } else {
             // do not consider the white value of DAQ and DCS (problems with DB)
-            xcert = fabs(xvalDQM) * fabs(xvalDAQ) * fabs(xvalDCS);
+            xcert = std::abs(xvalDQM) * std::abs(xvalDAQ) * std::abs(xvalDCS);
           }
 
           if ( meEEDataCertificationSummaryMap_ ) meEEDataCertificationSummaryMap_->setBinContent( jx, jy, xcert );
@@ -319,7 +319,7 @@ void EEDataCertificationTask::endRun(const edm::Run& r, const edm::EventSetup& c
             xcert = 0.0;
           } else {
             // do not consider the white value of DAQ and DCS (problems with DB)
-            xcert = fabs(xvalDQM) * fabs(xvalDAQ) * fabs(xvalDCS);
+            xcert = std::abs(xvalDQM) * std::abs(xvalDAQ) * std::abs(xvalDCS);
           }
 
           if ( meEEDataCertificationSummaryMap_ ) meEEDataCertificationSummaryMap_->setBinContent( jx, jy, xcert );

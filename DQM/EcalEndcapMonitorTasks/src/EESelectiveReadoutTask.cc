@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2010/08/08 08:46:09 $
- * $Revision: 1.49 $
+ * $Date: 2010/08/12 09:05:51 $
+ * $Revision: 1.50 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -1168,7 +1168,7 @@ EESelectiveReadoutTask::getFIRWeights(const std::vector<double>&
   const static int maxWeight = 0xEFF; //weights coded on 11+1 signed bits
   for(unsigned i=0; i < std::min((size_t)nFIRTaps,normalizedWeights.size()); ++i){
     firWeights[i] = lround(normalizedWeights[i] * (1<<10));
-    if(abs(firWeights[i])>maxWeight){//overflow
+    if(std::abs(firWeights[i])>maxWeight){//overflow
       firWeights[i] = firWeights[i]<0?-maxWeight:maxWeight;
     }
   }

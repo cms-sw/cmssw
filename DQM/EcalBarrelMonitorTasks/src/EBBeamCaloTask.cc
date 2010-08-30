@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2010/06/14 13:30:18 $
- * $Revision: 1.78 $
+ * $Date: 2010/08/08 08:46:04 $
+ * $Revision: 1.79 $
  * \author A. Ghezzi
  *
  */
@@ -704,14 +704,14 @@ void EBBeamCaloTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     if (! tb_moving){meBBCaloCryRead_->Fill(deta_c, dphi_c);}
     //else {meBBCaloCryReadMoving_->Fill(deta_c, dphi_c);}
 
-    if(abs(deta_c) >3 || abs(dphi_c) >3){continue;}
+    if(std::abs(deta_c) > 3 || std::abs(dphi_c) > 3){continue;}
     int i_toBeRead = deta_c -7*dphi_c + 24;
     if( i_toBeRead > -1 &&  i_toBeRead <49){
       cry_to_beRead[i_toBeRead]++;
       //if( (ievt_ == 4000 || ievt_ == 13000 || ievt_ == 13002 ) &&   i_toBeRead == 5){ cry_to_beRead[i_toBeRead] -=1;}
     }
 
-    if(abs(deta_c) >1 || abs(dphi_c) >1){continue;}
+    if(std::abs(deta_c) > 1 || std::abs(dphi_c) > 1){continue;}
     int i_in_array = deta_c -3*dphi_c + 4;
 
     if( i_in_array < 0 || i_in_array > 8 ){continue;}
@@ -801,7 +801,7 @@ void EBBeamCaloTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       maxEne=R_ene;
       ieM =ie; ipM = ip;
     }
-    if(abs(deta_c) >1 || abs(dphi_c) >1){continue;}
+    if(std::abs(deta_c) > 1 || std::abs(dphi_c) > 1){continue;}
     meEBBCaloBeamCentered_->Fill(deta_c,dphi_c,R_ene);
 
     if( i_in_array < 0 || i_in_array > 8 ){continue;}

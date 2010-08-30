@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2010/08/04 08:20:12 $
- * $Revision: 1.95 $
+ * $Date: 2010/08/08 08:46:02 $
+ * $Revision: 1.96 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -444,8 +444,8 @@ void EBBeamCaloClient::analyze(void) {
         //if( hBE1vsCry_) {E1=hBE1vsCry_->GetBinContent(step);}
         if( hBE1vsCry_) {E1=hBE1vsCry_->GetBinContent(cry);}
         bool RMS3x3  =  (  E3x3RMS < RMSEne3x3_ && E3x3RMS >= 0 );
-        bool Mean3x3 =  ( fabs( E3x3 - aveEne3x3_ ) < E3x3Th_);
-        bool Mean1   =  ( fabs( E1 - aveEne1_ ) < E1Th_ );
+        bool Mean3x3 =  ( std::abs( E3x3 - aveEne3x3_ ) < E3x3Th_);
+        bool Mean1   =  ( std::abs( E1 - aveEne1_ ) < E1Th_ );
         int ieta = ( cry - 1)/20 + 1 ;//+1 for the bin
         int iphi = ( cry - 1)%20 + 1 ;//+1 for the bin
         //fill the RedGreen histo
@@ -481,8 +481,8 @@ void EBBeamCaloClient::analyze(void) {
     if(hBE3x3_) {nEvt = hBE3x3_->GetEntries();}
     if(nEvt > 1*prescaling_ && hBE3x3_ && hBEne1_ && hBCryOnBeam_ && meEBBCaloRedGreen_) {//check for mean and RMS
       bool RMS3x3  =  ( hBE3x3_->GetRMS() < RMSEne3x3_ );
-      bool Mean3x3 =  ( fabs( hBE3x3_->GetMean() - aveEne3x3_ ) < E3x3Th_ );
-      bool Mean1   =  ( fabs( hBEne1_->GetMean() - aveEne1_ ) < E1Th_ );
+      bool Mean3x3 =  ( std::abs( hBE3x3_->GetMean() - aveEne3x3_ ) < E3x3Th_ );
+      bool Mean1   =  ( std::abs( hBEne1_->GetMean() - aveEne1_ ) < E1Th_ );
       //fill the RedGreen histo
       int ieta=0,iphi=0;
       float found =0; //there should be just one bin filled but...

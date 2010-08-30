@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2010/08/08 08:46:04 $
- * $Revision: 1.87 $
+ * $Date: 2010/08/11 14:57:34 $
+ * $Revision: 1.88 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -609,7 +609,7 @@ void EBClusterTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       float e3x3 = EcalClusterTools::e3x3( *bCluster, ebRecHits, topology );
 
       // fill the selected cluster collection
-      float pt = fabs( bCluster->energy()*sin(bCluster->position().theta()) );
+      float pt = std::abs( bCluster->energy()*sin(bCluster->position().theta()) );
       if ( pt > thrClusEt_ && e2x2/e3x3 > thrS4S9_ ) bcSel.push_back(*bCluster);
     }
 
@@ -619,11 +619,11 @@ void EBClusterTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   for ( reco::BasicClusterCollection::const_iterator bc1 = bcSel.begin(); bc1 != bcSel.end(); ++bc1 ) {
     TLorentzVector bc1P;
-    bc1P.SetPtEtaPhiE(fabs(bc1->energy()*sin(bc1->position().theta())),
+    bc1P.SetPtEtaPhiE(std::abs(bc1->energy()*sin(bc1->position().theta())),
                       bc1->eta(), bc1->phi(), bc1->energy());
     for ( reco::BasicClusterCollection::const_iterator bc2 = bc1+1; bc2 != bcSel.end(); ++bc2 ) {
       TLorentzVector bc2P;
-      bc2P.SetPtEtaPhiE(fabs(bc2->energy()*sin(bc2->position().theta())),
+      bc2P.SetPtEtaPhiE(std::abs(bc2->energy()*sin(bc2->position().theta())),
                         bc2->eta(), bc2->phi(), bc2->energy());
 
       TLorentzVector candP = bc1P + bc2P;
@@ -710,10 +710,10 @@ void EBClusterTask::analyze(const edm::Event& e, const edm::EventSetup& c){
         // look for the two most energetic super clusters
         if ( sCluster->energy() > sc1_p.Energy() ) {
           sc2_p=sc1_p;
-          sc1_p.SetPtEtaPhiE(fabs(sCluster->energy()*sin(sCluster->position().theta())),
+          sc1_p.SetPtEtaPhiE(std::abs(sCluster->energy()*sin(sCluster->position().theta())),
                              sCluster->eta(), sCluster->phi(), sCluster->energy());
         } else if ( sCluster->energy() > sc2_p.Energy() ) {
-          sc2_p.SetPtEtaPhiE(fabs(sCluster->energy()*sin(sCluster->position().theta())),
+          sc2_p.SetPtEtaPhiE(std::abs(sCluster->energy()*sin(sCluster->position().theta())),
                              sCluster->eta(), sCluster->phi(), sCluster->energy());
         }
       }
