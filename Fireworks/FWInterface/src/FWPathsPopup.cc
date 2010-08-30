@@ -252,7 +252,8 @@ FWPathsPopup::handleEntry(const edm::Entry& entry,
     }
   case 'P':
     {    
-      handlePSet(&(entry.getPSet()), html);
+      edm::ParameterSet psets = entry.getPSet();
+      handlePSet(&psets, html);
       break;
     }
   case 'v':
@@ -356,8 +357,10 @@ FWPathsPopup::makePathsView()
       // Need to get the module type from the parameter set before we handle the set itself
       const edm::ParameterSet::table& pst = ps->tbl();    
       const edm::ParameterSet::table::const_iterator ti = pst.find("@module_edm_type");
-
-      html += "<h2>" + ti->second.getString() + "  " + *mi  + "</h2>";
+      if (ti == pst.end())
+         html += "<h2>Unknown module type: " + *mi + "</h2>";
+      else
+         html += "<h2>" + ti->second.getString() + "  " + *mi  + "</h2>";
       handlePSet(ps, html); 
     }
   } 
