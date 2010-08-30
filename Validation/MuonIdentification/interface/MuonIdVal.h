@@ -13,7 +13,7 @@
 //
 // Original Author:  Jacob Ribnik
 //         Created:  Wed Apr 18 13:48:08 CDT 2007
-// $Id: MuonIdVal.h,v 1.6 2009/03/25 15:15:29 jribnik Exp $
+// $Id: MuonIdVal.h,v 1.7 2010/01/21 22:34:00 jribnik Exp $
 //
 //
 
@@ -36,6 +36,7 @@
 #include "DataFormats/MuonReco/interface/MuonTime.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtraMap.h"
+#include "DataFormats/MuonReco/interface/MuonCosmicCompatibility.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -52,6 +53,7 @@
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+
 
 class MuonIdVal : public edm::EDAnalyzer {
    public:
@@ -71,6 +73,7 @@ class MuonIdVal : public edm::EDAnalyzer {
       edm::InputTag inputDTRecSegment4DCollection_;
       edm::InputTag inputCSCSegmentCollection_;
       edm::InputTag inputMuonTimeExtraValueMap_;
+      edm::InputTag inputMuonCosmicCompatibilityValueMap_;
       bool useTrackerMuons_;
       bool useGlobalMuons_;
       bool useTrackerMuonsNotGlobalMuons_;
@@ -79,6 +82,7 @@ class MuonIdVal : public edm::EDAnalyzer {
       bool makeTimePlots_;
       bool make2DPlots_;
       bool makeAllChamberPlots_;
+      bool makeCosmicCompatibilityPlots_;
       std::string baseFolder_;
 
       edm::Handle<reco::MuonCollection> muonCollectionH_;
@@ -87,6 +91,7 @@ class MuonIdVal : public edm::EDAnalyzer {
       edm::Handle<reco::MuonTimeExtraMap> combinedMuonTimeExtraValueMapH_;
       edm::Handle<reco::MuonTimeExtraMap> cscMuonTimeExtraValueMapH_;
       edm::Handle<reco::MuonTimeExtraMap> dtMuonTimeExtraValueMapH_;
+      edm::Handle<edm::ValueMap<reco::MuonCosmicCompatibility> > muonCosmicCompatibilityValueMapH_;
       edm::ESHandle<GlobalTrackingGeometry> geometry_;
 
       // trackerMuon == 0; globalMuon == 1
@@ -144,7 +149,13 @@ class MuonIdVal : public edm::EDAnalyzer {
       MonitorElement* hTMOneStationAngTightBool[4];
       MonitorElement* hTMLastStationOptimizedBarrelLowPtLooseBool[4];
       MonitorElement* hTMLastStationOptimizedBarrelLowPtTightBool[4];
-
+    
+      //cosmic compatibilities
+      MonitorElement* hCombinedCosmicCompat[4];
+      MonitorElement* hTimeCosmicCompat[4];
+      MonitorElement* hB2BCosmicCompat[4];
+      MonitorElement* hOverlapCosmicCompat[4];
+        
       // by station
       MonitorElement* hDTPullxPropErr[4][4];
       MonitorElement* hDTPulldXdZPropErr[4][4];

@@ -6,6 +6,7 @@ MuonIdVal::MuonIdVal(const edm::ParameterSet& iConfig)
    inputDTRecSegment4DCollection_ = iConfig.getParameter<edm::InputTag>("inputDTRecSegment4DCollection");
    inputCSCSegmentCollection_ = iConfig.getParameter<edm::InputTag>("inputCSCSegmentCollection");
    inputMuonTimeExtraValueMap_ = iConfig.getParameter<edm::InputTag>("inputMuonTimeExtraValueMap");
+   inputMuonCosmicCompatibilityValueMap_ = iConfig.getParameter<edm::InputTag>("inputMuonCosmicCompatibilityValueMap");
    useTrackerMuons_ = iConfig.getUntrackedParameter<bool>("useTrackerMuons");
    useGlobalMuons_ = iConfig.getUntrackedParameter<bool>("useGlobalMuons");
    useTrackerMuonsNotGlobalMuons_ = iConfig.getUntrackedParameter<bool>("useTrackerMuonsNotGlobalMuons");
@@ -14,6 +15,7 @@ MuonIdVal::MuonIdVal(const edm::ParameterSet& iConfig)
    makeTimePlots_ = iConfig.getUntrackedParameter<bool>("makeTimePlots");
    make2DPlots_ = iConfig.getUntrackedParameter<bool>("make2DPlots");
    makeAllChamberPlots_ = iConfig.getUntrackedParameter<bool>("makeAllChamberPlots");
+   makeCosmicCompatibilityPlots_ = iConfig.getUntrackedParameter<bool>("makeCosmicCompatibilityPlots");
    baseFolder_ = iConfig.getUntrackedParameter<std::string>("baseFolder");
 
    dbe_ = 0;
@@ -92,6 +94,13 @@ MuonIdVal::beginJob()
       hTMOneStationAngTightBool[i] = dbe_->book1D("hTMOneStationAngTightBool", "TMOneStationAngTight Boolean", 2, -0.5, 1.5);
       hTMLastStationOptimizedBarrelLowPtLooseBool[i] = dbe_->book1D("hTMLastStationOptimizedBarrelLowPtLooseBool", "TMLastStationOptimizedBarrelLowPtLoose Boolean", 2, -0.5, 1.5);
       hTMLastStationOptimizedBarrelLowPtTightBool[i] = dbe_->book1D("hTMLastStationOptimizedBarrelLowPtTightBool", "TMLastStationOptimizedBarrelLowPtTight Boolean", 2, -0.5, 1.5);
+
+      if (makeCosmicCompatibilityPlots_) {
+	hCombinedCosmicCompat[i] = dbe_->book1D("hCombinedCosmicCompat", "hCombinedCosmicCompatibility float", 40, 0., 10.);
+	hTimeCosmicCompat[i] = dbe_->book1D("hTimeCosmicCompat", "hTimeCosmicCompatibility float", 6, 0., 3.);
+	hB2BCosmicCompat[i] = dbe_->book1D("hB2BCosmicCompat", "Number of back-to-back partners", 10, 0, 10);
+	hOverlapCosmicCompat[i] = dbe_->book1D("hOverlapCosmicCompat", "Overlap between muons and 1Leg", 2, 0, 2);
+      }
 
       // by station
       for(int station = 0; station < 4; ++station)
@@ -263,6 +272,8 @@ MuonIdVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(inputMuonTimeExtraValueMap_.label(), "combined", combinedMuonTimeExtraValueMapH_);
    iEvent.getByLabel(inputMuonTimeExtraValueMap_.label(), "csc", cscMuonTimeExtraValueMapH_);
    iEvent.getByLabel(inputMuonTimeExtraValueMap_.label(), "dt", dtMuonTimeExtraValueMapH_);
+   iEvent.getByLabel(inputMuonCosmicCompatibilityValueMap_.label(), muonCosmicCompatibilityValueMapH_);
+  
    iSetup.get<GlobalTrackingGeometryRecord>().get(geometry_);
 
    unsigned int muonIdx = 0;
@@ -352,6 +363,15 @@ MuonIdVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          hTMLastStationOptimizedBarrelLowPtLooseBool[i]->Fill(muon::isGoodMuon(*muon, muon::TMLastStationOptimizedBarrelLowPtLoose));
          hTMLastStationOptimizedBarrelLowPtTightBool[i]->Fill(muon::isGoodMuon(*muon, muon::TMLastStationOptimizedBarrelLowPtTight));
 
+         if (makeCosmicCompatibilityPlots_) {
+	   MuonRef muonRef(muonCollectionH_, muonIdx);
+	   MuonCosmicCompatibility muonCosmicCompatibility = (*muonCosmicCompatibilityValueMapH_)[muonRef];
+	   hCombinedCosmicCompat[i]->Fill(muonCosmicCompatibility.cosmicCompatibility);
+	   hTimeCosmicCompat[i]->Fill(muonCosmicCompatibility.timeCompatibility);
+	   hB2BCosmicCompat[i]->Fill(muonCosmicCompatibility.backToBackCompatibility);
+	   hOverlapCosmicCompat[i]->Fill(muonCosmicCompatibility.overlapCompatibility);
+         }
+	 
          // by station
          for(int station = 0; station < 4; ++station)
          {
