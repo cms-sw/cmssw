@@ -323,6 +323,9 @@ WenuPlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
   event_caloMET_phi= (Float_t) myMet->phi();
   event_pfMET_phi  = (Float_t) myPfMet->phi();
   event_tcMET_phi  = (Float_t) myTcMet->phi();
+  event_caloSumEt  = (Float_t) myMet->sumEt();
+  event_pfSumEt  = (Float_t) myPfMet->sumEt();
+  event_tcSumEt  = (Float_t) myTcMet->sumEt();
   // transverse mass for the user's convenience
   event_caloMT     = (Float_t) TMath::Sqrt(2.*(ele_sc_gsf_et*event_caloMET -
     (ele_sc_gsf_et*TMath::Cos(ele_sc_phi)*event_caloMET*TMath::Cos(event_caloMET_phi)
@@ -1049,6 +1052,9 @@ WenuPlots::beginJob()
     vbtfSele_tree->Branch("ele2nd_sc_gsf_et", &ele2nd_sc_gsf_et,"ele2nd_sc_gsf_et/F");
     vbtfSele_tree->Branch("ele2nd_passes_selection", &ele2nd_passes_selection,"ele2nd_passes_selection/I");
     vbtfSele_tree->Branch("ele2nd_ecalDriven",&ele2nd_ecalDriven,"ele2nd_ecalDriven/I");
+    vbtfSele_tree->Branch("event_caloSumEt",&event_caloSumEt,"event_caloSumEt/F");  
+    vbtfSele_tree->Branch("event_pfSumEt",&event_pfSumEt,"event_pfSumEt/F");
+    vbtfSele_tree->Branch("event_tcSumEt",&event_tcSumEt,"event_tcSumEt/F");
   }
   vbtfSele_tree->Branch("event_datasetTag",&event_datasetTag,"event_dataSetTag/I");  
   // 
@@ -1105,6 +1111,9 @@ WenuPlots::beginJob()
   vbtfPresele_tree->Branch("event_caloMET_phi",&event_caloMET_phi,"event_caloMET_phi/F");  
   vbtfPresele_tree->Branch("event_pfMET_phi",&event_pfMET_phi,"event_pfMET_phi/F");
   vbtfPresele_tree->Branch("event_tcMET_phi",&event_tcMET_phi,"event_tcMET_phi/F");
+  vbtfPresele_tree->Branch("event_caloSumEt",&event_caloSumEt,"event_caloSumEt/F");  
+  vbtfPresele_tree->Branch("event_pfSumEt",&event_pfSumEt,"event_pfSumEt/F");
+  vbtfPresele_tree->Branch("event_tcSumEt",&event_tcSumEt,"event_tcSumEt/F");
   // the extra jet variables:
   if (includeJetInformationInNtuples_) {
     vbtfPresele_tree->Branch("calojet_et",calojet_et,"calojet_et[5]/F");

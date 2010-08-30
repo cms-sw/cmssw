@@ -199,6 +199,7 @@ class WenuPlots : public edm::EDAnalyzer {
   Int_t   ele_gsfCharge, ele_ctfCharge, ele_scPixCharge;
   Float_t ele_eop, ele_tip_bs, ele_tip_pv;
   Float_t event_caloMET, event_pfMET, event_tcMET;
+  Float_t event_caloSumEt, event_pfSumEt, event_tcSumEt;
   Float_t event_caloMET_phi, event_pfMET_phi, event_tcMET_phi;
   Float_t event_caloMT, event_pfMT, event_tcMT;
   Float_t calojet_et[5];

@@ -673,8 +673,18 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        // average values taken over a stable two
        // week period
        Double_t currentToBFieldScaleFactor = 2.09237036221512717e-04;
-       Double_t current = (*dcsHandle)[0].magnetCurrent();
-       bfield = current*currentToBFieldScaleFactor;
+       if ((*dcsHandle).size() >0) {
+	 Double_t current = (*dcsHandle)[0].magnetCurrent();
+	 bfield = current*currentToBFieldScaleFactor;
+       } else {
+	 //std::cout << "WEnuCandidateFilter: Requested Data Magnetic Field
+	 //Configuration, but current was not found in data: work with Ideal
+	 //Magnetic Field now"<< std::endl;
+	 edm::ESHandle<MagneticField> magneticField;
+	 iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+	 const  MagneticField *mField = magneticField.product();
+	 bfield = mField->inTesla(GlobalPoint(0.,0.,0.)).z();
+       }
      } else {
        edm::ESHandle<MagneticField> magneticField;
        iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
@@ -694,8 +704,9 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        Double_t dist_2ndele = 0;
        Double_t dcot_2ndele = 0;
        if (hasSecondElectron) {
+	 ConversionFinder convFinder2;
 	 ConversionInfo convInfo2nd = 
-	   convFinder.getConversionInfo(secondETelec, ctfTracks, bfield);
+	   convFinder2.getConversionInfo(secondETelec, ctfTracks, bfield);
 	 dist_2ndele = convInfo2nd.dist();
 	 dcot_2ndele = convInfo2nd.dcot();
        }
@@ -710,6 +721,17 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   secondETelec.addUserFloat("Dist", Float_t(dist_2ndele));
 	   secondETelec.addUserFloat("Dcot", Float_t(dcot_2ndele));
 	 }
+	 //std::cout << "First Elec: " << dist << "/" << dcot << " eta: " << maxETelec.superCluster()->eta() << std::endl;
+	 //std::cout << "Sec   Elec: " << dist_2ndele << "/" << dcot_2ndele 
+	 //	   << " has 2nd ele: " << hasSecondElectron << " eta: " << secondETelec.superCluster()->eta() << std::endl;
+	 //std::cout << "Values from the addUserFloat: "
+	 //	   << maxETelec.userFloat("Dist") << "/" 
+	 //	   << maxETelec.userFloat("Dcot") << std::endl;
+	 //if (hasSecondElectron) {
+	 //std::cout << "Values from the addUserFloat: "
+	 //	   << secondETelec.userFloat("Dist") << "/" 
+	 //	   << secondETelec.userFloat("Dcot") << std::endl;
+	 //}
 	 if (isConv) 
 	   maxETelec.addUserInt("PassConversionRejection",0);
 	 else
@@ -723,7 +745,7 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    }
    //
-   //std::cout << "HLT matching starts" << std::endl;
+   //   std::cout << "HLT matching starts" << std::endl;
    if (electronMatched2HLT_ && useTriggerInfo_) {
      Double_t matched_dr_distance = 999999.;
      Double_t matched_dr_distance_2nd = 999999.;
