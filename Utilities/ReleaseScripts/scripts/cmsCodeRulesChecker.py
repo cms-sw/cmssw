@@ -49,10 +49,18 @@ def runRules(ruleNumberList, directory):
         rule = configuration[ruleNr]
 
         filesToMatch = rule['filesToMatch']
+        exceptLines = []
+        exceptPathes = []
+        for path in rule['exceptPathes']:
+            try:
+                file, line = path.split(":")
+                exceptLines.append((pathToRegEx(file), line))
+            except ValueError:
+                exceptPathes.append(pathToRegEx(path))
         for fileType in filesToMatch:
             fileList = getFilePathesFromWalk(osWalk, fileType, checkPath)
 # ------------------------------------------------------------------------------
-            for path in pathesToRegEx(rule['exceptPathes']):
+            for path in exceptPathes:
                 FileList = []
                 for file in fileList:
                     File = file.replace(join(checkPath, ""), "")
@@ -64,9 +72,8 @@ def runRules(ruleNumberList, directory):
             if rule['skipComments'] == True:
                 filesLinesList = filter(fileList)
 # ------------------------------------------------------------------------------
-            for Nr, fileLine in enumerate(rule['exceptLines']):
-                file, line = fileLine.split(":")
-                regEx = pathToRegEx(file)
+            for Nr, fileLine in enumerate(exceptLines):
+                regEx, line = fileLine
                 for index, file in enumerate(fileList):
                     File = file.replace(join(checkPath, ""), "")
                     if re.match(regEx, File):
