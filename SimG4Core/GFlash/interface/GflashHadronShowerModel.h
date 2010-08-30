@@ -10,6 +10,8 @@
 
 class GflashHadronShowerProfile;
 class GflashPiKShowerProfile;
+class GflashKaonPlusShowerProfile;
+class GflashKaonMinusShowerProfile;
 class GflashProtonShowerProfile;
 class GflashAntiProtonShowerProfile;
 class GflashHistogram;
@@ -42,6 +44,8 @@ private:
   edm::ParameterSet theParSet;
   GflashHadronShowerProfile *theProfile;
   GflashPiKShowerProfile *thePiKProfile;
+  GflashKaonPlusShowerProfile *theKaonPlusProfile;
+  GflashKaonMinusShowerProfile *theKaonMinusProfile;
   GflashProtonShowerProfile *theProtonProfile;
   GflashAntiProtonShowerProfile *theAntiProtonProfile;
 

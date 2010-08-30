@@ -16,69 +16,67 @@ void GflashProtonShowerProfile::loadParameters()
     double r1 = 0.0;
     double r2 = 0.0;
 
-    const double correl_hadem[4] = { -7.8255e-01,  1.7976e-01, -8.8001e-01,  2.3474e+00 };
-    double energyRho =  fTanh(einc,correl_hadem); 
+    //@@@ energy dependent energyRho based on tuning with testbeam data
+    double energyRho =  fTanh(einc,Gflash::correl_hadem); 
 
     r1 = CLHEP::RandGaussQ::shoot();
-    double pscale = 5.0463e-01-8.1210e-02*std::tanh(1.8231*(std::log(einc)-2.7472));
-    double tscale = 0.035+0.045*std::tanh(1.5*(std::log(einc)-2.5));
 
     if(showerType == 0 || showerType == 1) {
-      energyScale[Gflash::kESPM] = einc*(pscale + (0.4/einc)*depthScale(position.getRho(),151.,22.)
-					 +(fTanh(einc,Gflash::emscale[2]) + tscale*depthScale(position.getRho(),151.,22.) )*r1);
-      energyMeanHcal  = (fTanh(einc,Gflash::hadscale[0]) +
-			 (0.8297+0.2359*tanh(-0.8*(log(einc)-4.0)))*depthScale(position.getRho(),Gflash::RFrontCrystalEB,Gflash::LengthCrystalEB));
-      energySigmaHcal = (fTanh(einc,Gflash::hadscale[2]) +
-			 fTanh(einc,Gflash::hadscale[3])*depthScale(position.getRho(),Gflash::RFrontCrystalEB,Gflash::LengthCrystalEB));
-      //Hcal energy dependent scale
-      energyMeanHcal *= 1.+(-0.015+0.015*tanh(6.0*(energyScale[Gflash::kESPM]/einc-0.1)))*(0.5+0.5*tanh(0.025*(einc-150.0)));
-      energySigmaHcal *= (1.05-0.4*tanh(0.010*(einc-80.0)));
-      
+      energyScale[Gflash::kESPM] = einc*(fTanh(einc,Gflash::pro_emscale[0]) + fTanh(einc,Gflash::emcorr_pid[8]) +
+	(fTanh(einc,Gflash::pro_emscale[2]) + fTanh(einc,Gflash::pro_emscale[3])*depthScale(position.getRho(),151.,22.) )*r1);
+
+      energyMeanHcal  = (fTanh(einc,Gflash::pro_hadscale[0]) + 
+			 fTanh(einc,Gflash::pro_hadscale[1])*depthScale(position.getRho(),Gflash::RFrontCrystalEB,Gflash::LengthCrystalEB));
+      energySigmaHcal = (fTanh(einc,Gflash::pro_hadscale[2]) + 
+			 fTanh(einc,Gflash::pro_hadscale[3])*depthScale(position.getRho(),Gflash::RFrontCrystalEB,Gflash::LengthCrystalEB));
+
       r2 = CLHEP::RandGaussQ::shoot();
-      energyScale[Gflash::kHB] = std::max(0.0,
-	exp(energyMeanHcal+energySigmaHcal*(energyRho*r1 + sqrt(1.0- energyRho*energyRho)*r2 ))-0.05*einc);
+      energyScale[Gflash::kHB] =  std::max(0.0, 
+	einc*fTanh(einc,Gflash::hadcorr_pid[8]) + 
+	exp(energyMeanHcal+energySigmaHcal*(energyRho*r1 + sqrt(1.0- energyRho*energyRho)*r2))-0.05*einc);
     }
     else {
-      energyScale[Gflash::kENCA] = einc*(pscale + (0.4/einc)*depthScale(std::fabs(position.getZ()),338.0,21.)
-					 +(fTanh(einc,Gflash::emscale[2]) + tscale*depthScale(std::fabs(position.getZ()),338.0,21.) )*r1);
+      energyScale[Gflash::kENCA] = einc*(fTanh(einc,Gflash::pro_emscale[0]) + fTanh(einc,Gflash::emcorr_pid[9]) +
+	(fTanh(einc,Gflash::pro_emscale[2]) + fTanh(einc,Gflash::pro_emscale[3])*depthScale(std::fabs(position.getZ()),338.0,21.))*r1);
+
       //@@@extend depthScale for HE
-      energyMeanHcal  = (fTanh(einc,Gflash::hadscale[0]) +
-			 (0.8297+0.2359*tanh(-0.8*(log(einc)-4.0)))*depthScale(std::fabs(position.getZ()),Gflash::ZFrontCrystalEE,Gflash::LengthCrystalEE));
-      energySigmaHcal = (fTanh(einc,Gflash::hadscale[2]) +
-			 fTanh(einc,Gflash::hadscale[3])*depthScale(std::fabs(position.getZ()),Gflash::ZFrontCrystalEE,Gflash::LengthCrystalEE));
+      energyMeanHcal  = (fTanh(einc,Gflash::pro_hadscale[0]) +
+			 fTanh(einc,Gflash::pro_hadscale[1])*depthScale(std::fabs(position.getZ()),Gflash::ZFrontCrystalEE,Gflash::LengthCrystalEE));
+      energySigmaHcal = (fTanh(einc,Gflash::pro_hadscale[2]) +
+			 fTanh(einc,Gflash::pro_hadscale[3])*depthScale(std::fabs(position.getZ()),Gflash::ZFrontCrystalEE,Gflash::LengthCrystalEE));
       r2 = CLHEP::RandGaussQ::shoot();
-      energyScale[Gflash::kHE] = std::max(0.0,
-	exp(energyMeanHcal+energySigmaHcal*(energyRho*r1 + sqrt(1.0- energyRho*energyRho)*r2 ))-0.05*einc);
+      energyScale[Gflash::kHE] =  std::max(0.0, 
+	einc*fTanh(einc,Gflash::hadcorr_pid[9]) + 
+        exp(energyMeanHcal+energySigmaHcal*(energyRho*r1 + sqrt(1.0- energyRho*energyRho)*r2 ))-0.05*einc);
     }
   }
   else if(showerType == 2 || showerType == 6 || showerType == 3 || showerType == 7) { 
     //Hcal response for mip-like pions (mip)
-    double gap_corr = 1.0;
-    
-    energyMeanHcal  = fTanh(einc,Gflash::protonscale[0]);
-    energySigmaHcal = fTanh(einc,Gflash::protonscale[1]);
-    gap_corr = fTanh(einc,Gflash::protonscale[2]);
-         
-    if(showerType == 2 ) {
-      energyScale[Gflash::kHB] = std::max(0.0,
-	exp(energyMeanHcal+1.15*energySigmaHcal*CLHEP::RandGaussQ::shoot())-2.0
-	- gap_corr*einc*depthScale(position.getRho(),Gflash::Rmin[Gflash::kHB],28.));
+     
+    energyMeanHcal  = fTanh(einc,Gflash::pro_hadscale[4]);
+    energySigmaHcal = fTanh(einc,Gflash::pro_hadscale[5]);
+    double gap_corr = einc * fTanh(einc,Gflash::pro_hadscale[6]);
+
+    if(showerType == 2 || showerType == 3) {
+      energyScale[Gflash::kHB] = std::max(0.0, einc*fTanh(einc,Gflash::mipcorr_pid[8]) +
+				 exp(energyMeanHcal+energySigmaHcal*CLHEP::RandGaussQ::shoot())-2.0);
+      if(showerType == 2) {
+	energyScale[Gflash::kHB] = std::max(0.0,energyScale[Gflash::kHB]
+				 - gap_corr*depthScale(position.getRho(),Gflash::Rmin[Gflash::kHB],28.));
+      }
     }
-    else if(showerType == 6) {
-      energyScale[Gflash::kHE] = std::max(0.0,
-	exp(energyMeanHcal+1.15*energySigmaHcal*CLHEP::RandGaussQ::shoot())-2.0
-	- gap_corr*einc*depthScale(std::fabs(position.getZ()),Gflash::Zmin[Gflash::kHB],60.));
-    }
-    else {
-      energyScale[Gflash::kHB] = std::max(0.0,
-	exp(energyMeanHcal+energySigmaHcal*CLHEP::RandGaussQ::shoot())-2.0);
-      energyScale[Gflash::kHE] = energyScale[Gflash::kHB];
+    else if(showerType == 6 || showerType == 7 ) {
+      energyScale[Gflash::kHE] = std::max(0.0, einc*fTanh(einc,Gflash::mipcorr_pid[9]) +
+				 exp(energyMeanHcal+energySigmaHcal*CLHEP::RandGaussQ::shoot())-2.0);
+      if(showerType == 6) {
+	energyScale[Gflash::kHE] = std::max(0.0,energyScale[Gflash::kHE]
+				 - gap_corr*depthScale(std::fabs(position.getZ()),Gflash::Zmin[Gflash::kHE],66.));
+      }
     }
   }
 
   // parameters for the longitudinal profiles
   //@@@check longitudinal profiles of endcaps for possible variations
-
   double *rhoHcal = new double [2*Gflash::NPar];
   double *correlationVectorHcal = new double [Gflash::NPar*(Gflash::NPar+1)/2];
 
@@ -92,7 +90,6 @@ void GflashProtonShowerProfile::loadParameters()
   if(showerType==0) showerType = 1; 
 
   //Hcal parameters are always needed regardless of showerType
-
   for(int i = 0 ; i < 2*Gflash::NPar ; i++ ) {
     rhoHcal[i] = fTanh(einc,Gflash::rho[i + showerType*2*Gflash::NPar]);
   }
@@ -108,7 +105,7 @@ void GflashProtonShowerProfile::loadParameters()
       correlationSum += correlationVectorHcal[i*(i+1)/2+j]*normalZ[j];
     }
     longHcal[i] = fTanh(einc,Gflash::par[i+showerType*Gflash::NPar]) +
-                  fTanh(einc,Gflash::par[i+(4+showerType)*Gflash::NPar])*correlationSum;
+		  fTanh(einc,Gflash::par[i+(4+showerType)*Gflash::NPar])*correlationSum;
   }
 
   delete [] rhoHcal;
@@ -119,9 +116,9 @@ void GflashProtonShowerProfile::loadParameters()
   for (int i = 0 ; i < Gflash::Nrpar ; i++) {
     lateralPar[Gflash::kHB][i] = fLnE1(einc,Gflash::rpar[i+showerType*Gflash::Nrpar]);
 
+    //tuning for pure hadronic response: +10%
     if(showerType==3 && i == 0) lateralPar[Gflash::kHB][i] *= 1.1;
     lateralPar[Gflash::kHE][i] = lateralPar[Gflash::kHB][i];
-
   }
 
   //Ecal parameters are needed if and only if the shower starts inside the crystal
@@ -147,7 +144,6 @@ void GflashProtonShowerProfile::loadParameters()
       }
       longEcal[i] = fTanh(einc,Gflash::par[i]) +
 	fTanh(einc,Gflash::par[i+4*Gflash::NPar])*correlationSum;
-
     }
 
     delete [] rhoEcal;

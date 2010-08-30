@@ -4,6 +4,8 @@
 
 #include "SimGeneral/GFlash/interface/GflashHadronShowerProfile.h"
 #include "SimGeneral/GFlash/interface/GflashPiKShowerProfile.h"
+#include "SimGeneral/GFlash/interface/GflashKaonPlusShowerProfile.h"
+#include "SimGeneral/GFlash/interface/GflashKaonMinusShowerProfile.h"
 #include "SimGeneral/GFlash/interface/GflashProtonShowerProfile.h"
 #include "SimGeneral/GFlash/interface/GflashAntiProtonShowerProfile.h"
 #include "SimGeneral/GFlash/interface/GflashNameSpace.h"
@@ -31,6 +33,8 @@ GflashHadronShowerModel::GflashHadronShowerModel(G4String modelName, G4Region* e
 {
   theProfile = new GflashHadronShowerProfile(parSet);
   thePiKProfile = new GflashPiKShowerProfile(parSet);
+  theKaonPlusProfile = new GflashKaonPlusShowerProfile(parSet);
+  theKaonMinusProfile = new GflashKaonMinusShowerProfile(parSet);
   theProtonProfile = new GflashProtonShowerProfile(parSet);
   theAntiProtonProfile = new GflashAntiProtonShowerProfile(parSet);
   theHisto = GflashHistogram::instance();
@@ -100,7 +104,9 @@ void GflashHadronShowerModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fas
   G4ParticleDefinition* particleType = fastTrack.GetPrimaryTrack()->GetDefinition();
   
   theProfile = thePiKProfile;
-  if(particleType == G4AntiProton::AntiProtonDefinition()) theProfile = theAntiProtonProfile;
+  if(particleType == G4KaonMinus::KaonMinusDefinition()) theProfile = theKaonMinusProfile;
+  else if(particleType == G4KaonPlus::KaonPlusDefinition()) theProfile = theKaonPlusProfile;
+  else if(particleType == G4AntiProton::AntiProtonDefinition()) theProfile = theAntiProtonProfile;
   else if(particleType == G4Proton::ProtonDefinition()) theProfile = theProtonProfile;
 
   //input variables for GflashHadronShowerProfile
