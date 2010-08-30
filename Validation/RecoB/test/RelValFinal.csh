@@ -22,12 +22,14 @@ mkdir TTbar_${val_rel}_vs_${ref_rel}_Startup
 mkdir TTbar_${val_rel}_vs_${ref_rel}_FastSim
 mkdir QCD_${val_rel}_vs_${ref_rel}_MC
 mkdir QCD_${val_rel}_vs_${ref_rel}_Startup
+mkdir FastSim_TTbar_${val_rel}_vs_TTbar_${val_rel}
 
 cat ValidationBTag_Template.xml | sed -e s%CURDIR%${cur_dir}%g | sed -e s/REFREL/${ref_rel}/g | sed -e s/VALREL/${val_rel}/g | sed -e s/SAMPLE/TTbar_MC/g > TTbar_${val_rel}_vs_${ref_rel}_MC/ValidationBTag_catprod.xml
 cat ValidationBTag_Template.xml | sed -e s%CURDIR%${cur_dir}%g | sed -e s/REFREL/${ref_rel}/g | sed -e s/VALREL/${val_rel}/g | sed -e s/SAMPLE/TTbar_Startup/g > TTbar_${val_rel}_vs_${ref_rel}_Startup/ValidationBTag_catprod.xml
 cat ValidationBTag_Template.xml | sed -e s%CURDIR%${cur_dir}%g | sed -e s/REFREL/${ref_rel}/g | sed -e s/VALREL/${val_rel}/g | sed -e s/SAMPLE/TTbar_FastSim/g > TTbar_${val_rel}_vs_${ref_rel}_FastSim/ValidationBTag_catprod.xml
 cat ValidationBTag_Template.xml | sed -e s%CURDIR%${cur_dir}%g | sed -e s/REFREL/${ref_rel}/g | sed -e s/VALREL/${val_rel}/g | sed -e s/SAMPLE/QCD_MC/g > QCD_${val_rel}_vs_${ref_rel}_MC/ValidationBTag_catprod.xml
 cat ValidationBTag_Template.xml | sed -e s%CURDIR%${cur_dir}%g | sed -e s/REFREL/${ref_rel}/g | sed -e s/VALREL/${val_rel}/g | sed -e s/SAMPLE/QCD_Startup/g > QCD_${val_rel}_vs_${ref_rel}_Startup/ValidationBTag_catprod.xml
+cat ValidationBTag_Template.xml | sed -e s%CURDIR%${cur_dir}%g | sed -e s/SAMPLE_REFREL/TTbar_MC_${val_rel}/g | sed -e s/SAMPLE_VALREL/TTbar_FastSim_${val_rel}/g  | sed -e s/VALREL_SAMPLE/${val_rel}_TTbar_MC/g | sed -e s/REFREL_SAMPLE/${val_rel}_TTbar_FastSim/g | sed -e s/SAMPLE/TTbar/g | sed -e s/VALREL/${val_rel}/g > FastSim_TTbar_${val_rel}_vs_TTbar_${val_rel}/ValidationBTag_catprod.xml
 
 cd TTbar_${val_rel}_vs_${ref_rel}_MC
 cuy.py -b -x ValidationBTag_catprod.xml -p gif << +EOF
@@ -74,14 +76,27 @@ rm ValidationBTag_catprod.xml
 cp /afs/cern.ch/cms/btag/www/validation/img/0_leg*.gif .
 cd ..
 
+cd FastSim_TTbar_${val_rel}_vs_TTbar_${val_rel}
+cuy.py -b -x ValidationBTag_catprod.xml -p gif << +EOF
+q
++EOF
+rm cuy.root
+#rm ValidationBTag_catprod.xml
+cp /afs/cern.ch/cms/btag/www/validation/img/0_leg*.gif .
+cd ..
+
+
 mkdir $finaldir
-mv *_${val_rel}_vs_${ref_rel}_* $finaldir
+mv *_${val_rel}_vs_${ref_rel}_*                 $finaldir/
+mv FastSim_TTbar_${val_rel}_vs_TTbar_${val_rel} $finaldir/
+
 
 echo '<a href="https://cms-btag-validation.web.cern.ch/cms-btag-validation/validation/index_RecoB_'${finaldir}_TTbar_${val_rel}_vs_${ref_rel}_MC.html'">'TTbar_${val_rel}_vs_${ref_rel}_MC'</a><br>' > index.html
 echo '<a href="https://cms-btag-validation.web.cern.ch/cms-btag-validation/validation/index_RecoB_'${finaldir}_TTbar_${val_rel}_vs_${ref_rel}_Startup.html'">'TTbar_${val_rel}_vs_${ref_rel}_Startup'</a><br>' >> index.html
 echo '<a href="https://cms-btag-validation.web.cern.ch/cms-btag-validation/validation/index_RecoB_'${finaldir}_TTbar_${val_rel}_vs_${ref_rel}_FastSim.html'">'TTbar_${val_rel}_vs_${ref_rel}_FastSim'</a><br>' >> index.html
 echo '<a href="https://cms-btag-validation.web.cern.ch/cms-btag-validation/validation/index_RecoB_'${finaldir}_QCD_${val_rel}_vs_${ref_rel}_MC.html'">'QCD_${val_rel}_vs_${ref_rel}_MC'</a><br>' >> index.html
 echo '<a href="https://cms-btag-validation.web.cern.ch/cms-btag-validation/validation/index_RecoB_'${finaldir}_QCD_${val_rel}_vs_${ref_rel}_Startup.html'">'QCD_${val_rel}_vs_${ref_rel}_Startup'</a><br>' >> index.html
+echo '<a href="https://cms-btag-validation.web.cern.ch/cms-btag-validation/validation/index_RecoB_'${finaldir}_FastSim_TTbar_${val_rel}_vs_TTbar_${val_rel}.html'">'FastSim_TTbar_${val_rel}_vs_TTbar_${val_rel}'</a><br>' >> index.html
 
 mv index.html /afs/cern.ch/cms/btag/www/validation/${finaldir}_topdir.html
 
