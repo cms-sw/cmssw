@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_6_2/HIon/V42 (CMSSW_3_6_2_HLT11)
+# /dev/CMSSW_3_9_0/pre3/HIon/V1 (CMSSW_3_8_1_ZOLTAN1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_6_2/HIon/V42')
+  tableName = cms.string('/dev/CMSSW_3_9_0/pre3/HIon/V1')
 )
 
 streams = cms.PSet( 
@@ -16,24 +16,24 @@ streams = cms.PSet(
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   Calibration = cms.vstring( 'TestEnables' ),
   HLTDQMResults = cms.vstring(  ),
+  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   DQM = cms.vstring( 'OnlineMonitor' ),
   EventDisplay = cms.vstring( 'EventDisplay' ),
   Express = cms.vstring( 'ExpressPhysics' ),
-  A = cms.vstring( 'MinimumBias',
-    'JetMET',
-    'EG',
+  A = cms.vstring( 'EG',
     'EGMonitor',
+    'MinimumBias',
+    'JetMET',
     'JetMETTauMonitor',
     'HcalHPDNoise',
     'RandomTriggers',
     'HcalNZS',
     'Cosmics',
+    'Commissioning',
     'Mu',
     'MuOnia',
     'MuMonitor',
-    'Commissioning',
     'BTau' ),
-  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
   HLTDQM = cms.vstring( 'OnlineHltMonitor' )
 )
@@ -44,29 +44,29 @@ datasets = cms.PSet(
   EcalLaser = cms.vstring(  ),
   AlCaP0 = cms.vstring(  ),
   TestEnables = cms.vstring(  ),
+  AlCaPhiSymEcal = cms.vstring(  ),
   OnlineMonitor = cms.vstring( 'HLT_L1DoubleMuOpen',
     'HLT_L1Tech_HCAL_HF',
     'HLT_L1Tech_BSC_minBias',
     'HLT_ZeroBiasPixel_SingleTrack' ),
   EventDisplay = cms.vstring(  ),
   ExpressPhysics = cms.vstring(  ),
+  EG = cms.vstring(  ),
+  EGMonitor = cms.vstring(  ),
   MinimumBias = cms.vstring( 'HLT_L1Tech_HCAL_HF',
     'HLT_ZeroBiasPixel_SingleTrack',
     'HLT_L1Tech_BSC_minBias' ),
   JetMET = cms.vstring(  ),
-  EG = cms.vstring(  ),
-  EGMonitor = cms.vstring(  ),
   JetMETTauMonitor = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
   RandomTriggers = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
   Cosmics = cms.vstring(  ),
+  Commissioning = cms.vstring(  ),
   Mu = cms.vstring(  ),
   MuOnia = cms.vstring(  ),
   MuMonitor = cms.vstring( 'HLT_L1DoubleMuOpen' ),
-  Commissioning = cms.vstring(  ),
   BTau = cms.vstring(  ),
-  AlCaPhiSymEcal = cms.vstring(  ),
   OfflineMonitor = cms.vstring( 'HLT_L1DoubleMuOpen',
     'HLT_L1Tech_HCAL_HF',
     'HLT_ZeroBiasPixel_SingleTrack',
