@@ -62,10 +62,11 @@ process.source = cms.Source("PoolSource",
 #    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/BE8B579A-C978-DF11-BB94-003048CF6334.root',
 #    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/B0A78AFA-BE78-DF11-88A2-003048CF6334.root',
 #    '/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/AC3549F8-BE78-DF11-B07B-003048F0E186.root',
-    'rfio:/castor/cern.ch/cms/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/FE96AFA9-C678-DF11-9E4C-003048F0E7FC.root'
+#    'rfio:/castor/cern.ch/cms/store/data/Run2010A/EG/RECO/Jun14thReReco_v1/0001/FE96AFA9-C678-DF11-9E4C-003048F0E7FC.root'
+    'rfio:/castor/cern.ch/cms/store/data/Run2010A/EG/RECO/v4/000/140/359/B84453AC-1C92-DF11-B1F8-001617E30D52.root',
     )
 )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 ## Load additional processes
 process.load("Configuration.StandardSequences.Geometry_cff")
@@ -180,6 +181,12 @@ HLT_filter_name_extra0 = cms.untracked.InputTag("hltL1NonIsoHLTNonIsoSinglePhoto
 HLT_path_name_extra1   = "HLT_Photon15_Cleaned_L1R"
 HLT_filter_name_extra1 = cms.untracked.InputTag("hltL1NonIsoHLTNonIsoSinglePhotonEt15CleanedHcalIsolFilter","",HLT_process_name)
 
+#HLT_path_name_extra2   = "HLT_Ele15_LW_L1R"
+#HLT_filter_name_extra2 = cms.untracked.InputTag("hltL1NonIsoHLTNonIsoSingleElectronLWEt15PixelMatchFilter","",HLT_process_name)
+
+HLT_path_name_extra2   = "HLT_Ele15_SW_L1R"
+HLT_filter_name_extra2 = cms.untracked.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15PixelMatchFilter","",HLT_process_name)
+
 process.wenuFilter = cms.EDFilter('WenuCandidateFilter',
                                   ### the input collections needed:
                                   electronCollectionTag = cms.untracked.InputTag("patElectrons","","PAT"),
@@ -192,6 +199,7 @@ process.wenuFilter = cms.EDFilter('WenuCandidateFilter',
                                   hltpathFilter = cms.untracked.InputTag(HLT_filter_name,"",HLT_process_name),
                                   ebRecHits = cms.untracked.InputTag("reducedEcalRecHitsEB"),
                                   eeRecHits = cms.untracked.InputTag("reducedEcalRecHitsEE"),
+                                  PrimaryVerticesCollection = cms.untracked.InputTag("offlinePrimaryVertices"),
                                   ### here the preselection is applied
                                   # fiducial cuts:
                                   BarrelMaxEta = cms.untracked.double(1.4442),
@@ -209,8 +217,8 @@ process.wenuFilter = cms.EDFilter('WenuCandidateFilter',
                                   useHLTObjectETCut = cms.untracked.bool(True),
                                   hltObjectETCut = cms.untracked.double(15.),
                                   useExtraTrigger = cms.untracked.bool(True),
-                                  vHltpathExtra = cms.untracked.vstring(HLT_path_name_extra0,HLT_path_name_extra1),
-                                  vHltpathFilterExtra = cms.untracked.VInputTag(HLT_filter_name_extra0, HLT_filter_name_extra1),
+                                  vHltpathExtra = cms.untracked.vstring(HLT_path_name_extra0,HLT_path_name_extra1,HLT_path_name_extra2),
+                                  vHltpathFilterExtra = cms.untracked.VInputTag(HLT_filter_name_extra0, HLT_filter_name_extra1, HLT_filter_name_extra2),
                                   # ET Cut in the SC
                                   ETCut = cms.untracked.double(20.),                                  
                                   METCut = cms.untracked.double(0.),
