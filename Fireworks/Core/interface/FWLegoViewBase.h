@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWLegoViewBase.h,v 1.7 2010/06/25 14:46:15 amraktad Exp $
+// $Id: FWLegoViewBase.h,v 1.8 2010/06/25 15:02:47 amraktad Exp $
 //
 
 // system include files
@@ -27,7 +27,7 @@
 #include "Fireworks/Core/interface/FWBoolParameter.h"
 #include "Fireworks/Core/interface/FWDoubleParameter.h"
 #include "Fireworks/Core/interface/FWLongParameter.h"
-#include "Fireworks/Core/interface/FWEvePtr.h"
+#include "Fireworks/Core/interface/Context.h"
 
 // forward declarations
 class TEveViewer;
@@ -45,7 +45,7 @@ public:
 
    virtual void setFrom(const FWConfiguration&);
 
-   virtual void setContext(fireworks::Context&);
+   virtual void setContext(const fireworks::Context&);
 
    virtual void eventBegin();
    virtual void eventEnd();

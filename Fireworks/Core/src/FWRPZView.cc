@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.16 2010/06/18 10:17:16 yana Exp $
+// $Id: FWRPZView.cc,v 1.17 2010/06/18 19:51:24 amraktad Exp $
 //
 
 // system include files
@@ -102,21 +102,45 @@ FWRPZView::~FWRPZView()
 //
 
 void
-FWRPZView::setContext(fireworks::Context& context)
+FWRPZView::setContext(const fireworks::Context& ctx)
 {
-   // detector
-   FWRPZViewGeometry* geo = new FWRPZViewGeometry(context.getGeom(), context.colorManager());
+   FWEveView::setContext(ctx);
+   float_t eps = 0.005;
+   FWRPZViewGeometry* geo = new FWRPZViewGeometry(ctx);
    m_projMgr->ImportElements(geo->getGeoElements(typeId()), geoScene());
 
-   // calo
-   TEveCaloData* data = context.getCaloData();
+   TEveCaloData* data = context().getCaloData();
+
    TEveCalo3D* calo3d = new TEveCalo3D(data);
+
    m_calo = static_cast<TEveCalo2D*> (m_projMgr->ImportElements(calo3d, eventScene()));
-   
-   m_calo->SetBarrelRadius(129);
-   m_calo->SetEndCapPos(310);
-   m_calo->SetMaxTowerH( 150 );
-   m_calo->SetScaleAbs( false );
+   m_calo->SetBarrelRadius(context().caloR1(false));
+   m_calo->SetEndCapPos(context().caloZ1(false));
+   m_calo->SetMaxTowerH(100);
+   m_calo->SetScaleAbs(!m_caloAutoScale.value());
+   m_calo->SetAutoRange(false);
+
+   if (typeId() == FWViewType::kRhoZ && context().caloSplit())
+   {
+      m_calo->SetAutoRange(false);
+      m_calo->SetEta(-context().caloTransEta() -eps, context().caloTransEta() + eps);
+
+      m_caloEndCap1 = static_cast<TEveCalo2D*> (m_projMgr->ImportElements(calo3d, eventScene()));
+      m_caloEndCap1->SetBarrelRadius(context().caloR2(false));
+      m_caloEndCap1->SetEndCapPos(context().caloZ2(false));
+      m_caloEndCap1->SetMaxTowerH(100);
+      m_caloEndCap1->SetScaleAbs(!m_caloAutoScale.value());
+      m_caloEndCap1->SetAutoRange(false);
+      m_caloEndCap1->SetEta(-context().caloMaxEta(), -context().caloTransEta() + eps);
+
+      m_caloEndCap2 = static_cast<TEveCalo2D*> (m_projMgr->ImportElements(calo3d, eventScene()));
+      m_caloEndCap2->SetBarrelRadius(context().caloR2(false));
+      m_caloEndCap2->SetEndCapPos(context().caloZ2(false));
+      m_caloEndCap2->SetMaxTowerH(100);
+      m_caloEndCap2->SetScaleAbs(!m_caloAutoScale.value());
+      m_caloEndCap2->SetAutoRange(false);
+      m_caloEndCap2->SetEta(context().caloTransEta() -eps, context().caloMaxEta());
+   }
 }
 
 void
@@ -178,10 +202,14 @@ FWRPZView::setFrom(const FWConfiguration& iFrom)
 void
 FWRPZView::updateCaloParameters()
 {
-   double eta_range = 5.191;
-   if ( m_showHF && !m_showHF->value() ) eta_range = 3.0;
-   if ( m_showEndcaps && !m_showEndcaps->value() ) eta_range = 1.479;
-   m_calo->SetEta(-eta_range,eta_range);
+   if (typeId() == FWViewType::kRhoPhi)
+   {
+      // rng controllers only in RhoPhi
+      double eta_range = context().caloMaxEta();
+      if (m_showHF->value() ) eta_range = 3.0;
+      if (!m_showEndcaps->value() ) eta_range = context().caloTransEta();
+      m_calo->SetEta(-eta_range,eta_range);
+   }
 
    m_calo->SetMaxValAbs( 150/m_caloFixedScale.value() );
    m_calo->SetScaleAbs( !m_caloAutoScale.value() );

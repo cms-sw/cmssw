@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRPZView.h,v 1.7 2010/05/03 18:40:45 amraktad Exp $
+// $Id: FWRPZView.h,v 1.9 2010/05/10 19:36:46 amraktad Exp $
 //
 
 // system include files
@@ -47,7 +47,7 @@ public:
    virtual void addTo(FWConfiguration&) const;
 
    // ---------- member functions ---------------------------
-   virtual void setContext(fireworks::Context&);
+   virtual void setContext(const fireworks::Context&);
    virtual void setFrom(const FWConfiguration&);
 
    //returns the new element created from this import
@@ -70,6 +70,8 @@ private:
    FWEvePtr<TEveProjectionManager> m_projMgr;
    FWEvePtr<TEveProjectionAxes>    m_axes;
    TEveCalo2D*                     m_calo;
+   TEveCalo2D*        m_caloEndCap1;
+   TEveCalo2D*        m_caloEndCap2;
 
    // parameters
    FWLongParameter    m_overlayEventInfoLevel;

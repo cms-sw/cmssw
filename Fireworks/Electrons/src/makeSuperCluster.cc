@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Dec  5 15:32:33 EST 2008
-// $Id: makeSuperCluster.cc,v 1.9 2010/08/13 08:14:15 yana Exp $
+// $Id: makeSuperCluster.cc,v 1.10 2010/08/23 15:26:32 yana Exp $
 //
 
 // system include files
@@ -22,6 +22,7 @@
 #include "Fireworks/Core/interface/BuilderUtils.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h" 
 
 namespace fireworks {
@@ -37,24 +38,24 @@ bool makeRhoPhiSuperCluster( FWProxyBuilderBase* pb,
    std::vector<double> phis;
    for( std::vector<std::pair<DetId, float> >::const_iterator id = detids.begin(), end = detids.end(); id != end; ++id )
    {
-     const float* corners = pb->context().getGeom()->getCorners( id->first.rawId());
-     if( corners != 0 )
-     {
-       std::vector<float> centre( 3, 0 );
+      const float* corners = pb->context().getGeom()->getCorners( id->first.rawId());
+      if( corners != 0 )
+      {
+         std::vector<float> centre( 3, 0 );
 
-       for( unsigned int i = 0; i < 24; i += 3 )
-       {	 
-	 centre[0] += corners[i];
-	 centre[1] += corners[i + 1];
-	 centre[2] += corners[i + 2];
-       }
+         for( unsigned int i = 0; i < 24; i += 3 )
+         {	 
+            centre[0] += corners[i];
+            centre[1] += corners[i + 1];
+            centre[2] += corners[i + 2];
+         }
        
-       phis.push_back( TEveVector( centre[0], centre[1], centre[2] ).Phi());
-     }
+         phis.push_back( TEveVector( centre[0], centre[1], centre[2] ).Phi());
+      }
    }
    std::pair<double,double> phiRange = fw::getPhiRange( phis, iPhi );
-   const double r = 122;
-   TGeoBBox *sc_box = new TGeoTubeSeg( r - 1, r + 1, 1,
+   const double r = pb->context().caloR1();
+   TGeoBBox *sc_box = new TGeoTubeSeg( r - 2, r , 1,
                                        phiRange.first * 180 / M_PI - 0.5,
                                        phiRange.second * 180 / M_PI + 0.5 ); // 0.5 is roughly half size of a crystal
    TEveGeoShape *sc = fw::getShape( "supercluster", sc_box, pb->item()->defaultDisplayProperties().color());
@@ -75,27 +76,35 @@ bool makeRhoZSuperCluster( FWProxyBuilderBase* pb,
    std::vector<std::pair<DetId, float> > detids = iCluster->hitsAndFractions();
    for( std::vector<std::pair<DetId, float> >::const_iterator id = detids.begin(), end = detids.end(); id != end; ++id )
    {
-     const float* corners = pb->context().getGeom()->getCorners( id->first.rawId());
-     if( corners != 0 )
-     {
-       std::vector<float> centre( 3, 0 );
+      const float* corners = pb->context().getGeom()->getCorners( id->first.rawId());
+      if( corners != 0 )
+      {
+         std::vector<float> centre( 3, 0 );
 
-       for( unsigned int i = 0; i < 24; i += 3 )
-       {	 
-	 centre[0] += corners[i];
-	 centre[1] += corners[i + 1];
-	 centre[2] += corners[i + 2];
-       }
+         for( unsigned int i = 0; i < 24; i += 3 )
+         {	 
+            centre[0] += corners[i];
+            centre[1] += corners[i + 1];
+            centre[2] += corners[i + 2];
+         }
 
-       double theta = TEveVector( centre[0], centre[1], centre[2] ).Theta();
-       if( theta > theta_max ) theta_max = theta;
-       if( theta < theta_min ) theta_min = theta;
-     }
+         double theta = TEveVector( centre[0], centre[1], centre[2] ).Theta();
+         if( theta > theta_max ) theta_max = theta;
+         if( theta < theta_min ) theta_min = theta;
+      }
    }
    // expand theta range by the size of a crystal to avoid segments of zero length
-   double z_ecal = 302; // ECAL endcap inner surface
-   double r_ecal = 122;
-   fw::addRhoZEnergyProjection( pb, &oItemHolder, r_ecal, z_ecal,
+   bool barrel = true; 
+   if ((theta_max > 0 && theta_max <  pb->context().caloTransAngle()) || 
+       ( theta_min > (TMath::Pi() -pb->context().caloTransAngle())) )
+   {
+        barrel = false; 
+   }
+ 
+   double z_ecal = barrel ? pb->context().caloZ1() : pb->context().caloZ2();
+   double r_ecal = barrel ? pb->context().caloR1() : pb->context().caloR2();
+
+   fw::addRhoZEnergyProjection( pb, &oItemHolder, r_ecal-1, z_ecal-1,
 				theta_min - 0.003, theta_max + 0.003,
                                 iPhi );
 

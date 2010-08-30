@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 10:29:00 EST 2008
-// $Id: FWViewManagerBase.h,v 1.17 2009/11/05 22:06:02 dmytro Exp $
+// $Id: FWViewManagerBase.h,v 1.18 2010/04/08 19:45:25 amraktad Exp $
 //
 
 // system include files
@@ -57,7 +57,7 @@ public:
    // ---------- member functions ---------------------------
    virtual void newItem(const FWEventItem*) = 0;
 
-   void setContext(fireworks::Context* x) { m_context = x; }
+   void setContext(const fireworks::Context* x) { m_context = x; }
    
    void setChangeManager(FWModelChangeManager* iCM);
    void setColorManager(FWColorManager* iCM);
@@ -73,7 +73,7 @@ public:
 
    // ---------- const member functions ---------------------
 
-   fireworks::Context& context() const { return *m_context; }
+   const fireworks::Context& context() const { return *m_context; }
 
 protected:
    FWViewManagerBase();
@@ -99,7 +99,7 @@ private:
    const FWViewManagerBase& operator=(const FWViewManagerBase&);    // stop default
 
    // ---------- member data --------------------------------
-   fireworks::Context*   m_context;
+   const fireworks::Context*   m_context;
 
    FWModelChangeManager* m_changeManager;
    FWColorManager*       m_colorManager;

@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 21:01:12 CET 2010
-// $Id: FWRPZViewGeometry.h,v 1.1 2010/04/06 20:00:35 amraktad Exp $
+// $Id: FWRPZViewGeometry.h,v 1.2 2010/08/17 08:27:58 yana Exp $
 //
 
 // system include files
@@ -36,10 +36,15 @@ class TEveGeoShape;
 class DetIdToMatrix;
 class FWColorManager;
 
+namespace fireworks
+{
+   class Context;
+}
+
 class FWRPZViewGeometry
 {
 public:
-   FWRPZViewGeometry(const DetIdToMatrix*,  const FWColorManager*);
+   FWRPZViewGeometry(const fireworks::Context& context);
    virtual ~FWRPZViewGeometry();
 
    // ---------- const member functions ---------------------
@@ -57,16 +62,16 @@ private:
 
    TEveElement* makeMuonGeometryRhoPhi();
    TEveElement* makeMuonGeometryRhoZ();
-   TEveElement* makeTrackerGeometryRhoPhi();
-   TEveElement* makeTrackerGeometryRhoZ();
+   TEveElement* makeCaloOutlineRhoPhi();
+   TEveElement* makeCaloOutlineRhoZ();
    void estimateProjectionSizeDT( const TGeoHMatrix*, const TGeoShape*, double&, double&, double&, double& );
    void estimateProjectionSizeCSC( const TGeoHMatrix*, const TGeoShape*, double&, double&, double&, double& );
    void estimateProjectionSize( const Double_t*, double&, double&, double&, double& );
 
    TEveGeoShape* makeShape( double, double, double, double, Color_t );
 
-   const DetIdToMatrix*    m_detIdToMatrix;
-   const FWColorManager*   m_colorManager;
+   const fireworks::Context&    m_context; // cached
+   const DetIdToMatrix*    m_detIdToMatrix; // cached
 
    static TEveElementList*  s_rhoPhiGeo;
    static TEveElementList*  s_rhoZGeo;

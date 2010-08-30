@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCaloTauProxyBuilder.cc,v 1.10 2010/05/03 15:47:33 amraktad Exp $
+// $Id: FWCaloTauProxyBuilder.cc,v 1.11 2010/06/18 10:17:51 yana Exp $
 //
 
 // system include files
@@ -63,9 +63,7 @@ FWCaloTauProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList*
    iItem->get( caloTaus );
    if( caloTaus == 0 ) return;
 
-   float r_ecal = fireworks::Context::s_ecalR;
-   float z_ecal = fireworks::Context::s_ecalZ;
-   float transition_angle = fireworks::Context::s_transitionAngle;
+   float transition_angle = context().caloTransAngle();
       
    Int_t idx = 0;
    for( reco::CaloTauCollection::const_iterator it = caloTaus->begin(), itEnd = caloTaus->end(); it != itEnd; ++it, ++idx)
@@ -95,6 +93,15 @@ FWCaloTauProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList*
       double phi = (*it).phi();
       double theta = (*it).theta();
       double size = (*it).et();
+
+      bool barrel = true;
+      if (theta< context().caloTransAngle() || theta > (TMath::Pi() - context().caloTransAngle()))
+      {
+         barrel = false;
+      }
+      float r_ecal = barrel ? context().caloR1() : context().caloR2() ;
+      float z_ecal = barrel ? context().caloZ1() : context().caloZ2();
+  
 
       TEveCompound* comp = createCompound();
 

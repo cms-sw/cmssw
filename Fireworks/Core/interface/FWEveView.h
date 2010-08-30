@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.h,v 1.13 2010/06/22 17:09:11 amraktad Exp $
+// $Id: FWEveView.h,v 1.14 2010/08/30 15:32:23 matevz Exp $
 //
 
 
@@ -43,8 +43,9 @@ class FWViewContext;
 
 namespace fireworks
 {
-class Context;
+   class Context;
 }
+
 
 class FWEveView : public FWViewBase
 {
@@ -61,7 +62,8 @@ public:
    virtual void eventEnd();
    virtual void eventBegin();
 
-   virtual void setContext(fireworks::Context&) {}
+   virtual void setContext(const fireworks::Context& x) { m_context = &x ;}
+   const fireworks::Context& context()  { return *m_context; } 
 
    // ---------- const member functions --------------------- 
 
@@ -69,8 +71,6 @@ public:
    virtual const std::string& typeName() const;
    FWViewType::EType typeId() const { return m_type.id(); }
    
- //  const FWViewType& viewType() const { return m_viewType; }
-
    TEveViewer* viewer()      { return m_viewer; }
    TEveScene*  eventScene()  { return m_eventScene;}
    TEveScene*  geoScene()    { return m_geoScene; }
@@ -104,6 +104,8 @@ private:
    FWEventAnnotation*   m_overlayEventInfo;  
    CmsAnnotation*       m_overlayLogo;
    TGLCameraGuide*      m_cameraGuide;
+
+   const fireworks::Context*  m_context;
 
    // parameters
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DViewBase.cc,v 1.6 2010/06/18 10:17:14 yana Exp $
+// $Id: FW3DViewBase.cc,v 1.7 2010/06/22 17:38:11 amraktad Exp $
 //
 #include <boost/bind.hpp>
 
@@ -59,8 +59,10 @@ FW3DViewBase::~FW3DViewBase()
 {
 }
 
-void FW3DViewBase::setContext(fireworks::Context& context)
+void FW3DViewBase::setContext(const fireworks::Context& context)
 {
+   FWEveView::setContext(context);
+
    m_geometry = new FW3DViewGeometry(context.getGeom());
    geoScene()->AddElement(m_geometry);
    

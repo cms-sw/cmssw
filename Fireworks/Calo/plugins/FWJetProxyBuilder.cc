@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWJetProxyBuilder.cc,v 1.14 2010/06/18 12:31:56 matevz Exp $
+// $Id: FWJetProxyBuilder.cc,v 1.15 2010/06/18 19:51:23 amraktad Exp $
 //
 #include "TGeoArb8.h"
 #include "TEveGeoNode.h"
@@ -127,7 +127,7 @@ void
 FWJetRhoPhiProxyBuilder::build(const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder,
                                const FWViewContext* vc) 
 {
-   float ecalR = fireworks::Context::s_ecalR;
+   float ecalR = context().caloR1() + 4;
    double phi = iData.phi();
    
    std::vector<double> phis;
@@ -217,9 +217,10 @@ FWJetRhoZProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveE
 {
    static const std::vector<std::pair<double,double> > thetaBins = fireworks::thetaBins();
 
-   float r_ecal = fireworks::Context::s_ecalR;
-   float z_ecal = fireworks::Context::s_ecalZ;
-   float transition_angle = fireworks::Context::s_transitionAngle;
+   float_t offr = 4;
+   float r_ecal = context().caloR1() + offr;
+   float z_ecal = context().caloZ1() + offr/tan(context().caloTransAngle());
+   float transition_angle = context().caloTransAngle();
 
    double theta = iData.theta();
    double eta = iData.eta();
@@ -230,10 +231,16 @@ FWJetRhoZProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveE
    // if jet is made of a single tower, the length of the jet will
    // be identical to legth of the displayed tower
    double r(0);
-   ( theta < transition_angle || M_PI-theta < transition_angle ) ?
-     r = z_ecal/fabs(cos(theta)) :
-     r = r_ecal/sin(theta);
-   
+   if ( theta < transition_angle || M_PI-theta < transition_angle)
+   {
+      z_ecal = context().caloZ2() + offr/tan(context().caloTransAngle());
+      r = z_ecal/fabs(cos(theta));
+   }
+   else
+   {
+      r = r_ecal/sin(theta);
+   }
+
    double size = iData.et();
    double etaSize = sqrt( iData.etaetaMoment() );
    
@@ -300,7 +307,7 @@ FWJetRhoZProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveE
    }
    
    for( int i = 0; i<8; ++i ) {
-     points[i+8] = points[i];
+      points[i+8] = points[i];
    }
    TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
    const FWDisplayProperties &p = item()->defaultDisplayProperties();

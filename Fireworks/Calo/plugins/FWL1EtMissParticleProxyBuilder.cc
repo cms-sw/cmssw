@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWL1EtMissParticleProxyBuilder.cc,v 1.4 2010/04/21 15:38:20 yana Exp $
+// $Id: FWL1EtMissParticleProxyBuilder.cc,v 1.5 2010/05/03 15:47:35 amraktad Exp $
 //
 
 // system include files
@@ -40,9 +40,6 @@ void
 FWL1EtMissParticleProxyBuilder::build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*) 
 {
    double scale = 10;
-   float r_ecal = fireworks::Context::s_ecalR;
-   float z_ecal = fireworks::Context::s_ecalZ;
-   float transition_angle = fireworks::Context::s_transitionAngle;
    double phi = iData.phi();
    double theta = iData.theta();
    double size = iData.pt() * scale;
@@ -52,11 +49,11 @@ FWL1EtMissParticleProxyBuilder::build( const l1extra::L1EtMissParticle& iData, u
    // if jet is made of a single tower, the length of the jet will
    // be identical to legth of the displayed tower
    double r(0);
-   if( theta < transition_angle || M_PI-theta < transition_angle )
-     r = z_ecal/fabs( cos( theta ));
+   if( theta < context().caloTransAngle() || M_PI-theta < context().caloTransAngle())
+      r = context().caloZ2()/fabs(cos(theta));
    else
-     r = r_ecal/sin( theta );
-   
+      r = context().caloR1()/sin(theta);
+ 
    TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("l1EtMissParticle");
    marker->SetLineWidth( 2 );
    marker->SetLineStyle( 2 );
@@ -64,6 +61,10 @@ FWL1EtMissParticleProxyBuilder::build( const l1extra::L1EtMissParticle& iData, u
 		    (r+size)*cos(phi)*sin(theta), (r+size)*sin(phi)*sin(theta), (r+size)*cos(theta) );
    setupAddElement(marker, &oItemHolder);
 }
+
+REGISTER_FWPROXYBUILDER(FWL1EtMissParticleProxyBuilder, l1extra::L1EtMissParticle, "L1EtMissParticle", FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
+
+//==============================================================================
 
 class FWL1EtMissParticleGlimpseProxyBuilder : public FWSimpleProxyBuilderTemplate<l1extra::L1EtMissParticle>
 {
@@ -102,6 +103,10 @@ FWL1EtMissParticleGlimpseProxyBuilder::build( const l1extra::L1EtMissParticle& i
 
    setupAddElement(container, &oItemHolder);
 }
+
+REGISTER_FWPROXYBUILDER(FWL1EtMissParticleGlimpseProxyBuilder, l1extra::L1EtMissParticle, "L1EtMissParticle", FWViewType::kGlimpseBit);
+
+//==============================================================================
 
 class FWL1EtMissParticleLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<l1extra::L1EtMissParticle>
 {
@@ -142,6 +147,4 @@ FWL1EtMissParticleLegoProxyBuilder::build( const l1extra::L1EtMissParticle& iDat
    setupAddElement(container, &oItemHolder);
 }
 
-REGISTER_FWPROXYBUILDER(FWL1EtMissParticleProxyBuilder, l1extra::L1EtMissParticle, "L1EtMissParticle", FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
-REGISTER_FWPROXYBUILDER(FWL1EtMissParticleGlimpseProxyBuilder, l1extra::L1EtMissParticle, "L1EtMissParticle", FWViewType::kGlimpseBit);
 REGISTER_FWPROXYBUILDER(FWL1EtMissParticleLegoProxyBuilder, l1extra::L1EtMissParticle, "L1EtMissParticle", FWViewType::kLegoBit);

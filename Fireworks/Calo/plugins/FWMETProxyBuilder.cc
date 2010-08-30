@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWMETProxyBuilder.cc,v 1.13 2010/06/18 10:17:51 yana Exp $
+// $Id: FWMETProxyBuilder.cc,v 1.14 2010/06/18 19:51:23 amraktad Exp $
 //
 
 // system include files
@@ -77,7 +77,7 @@ FWMETProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType type,
 void
 FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext* vc)
 {
-   float r_ecal = fireworks::Context::s_ecalR;
+   float r_ecal = context().caloR1();
    double phi  = met.phi();
    double size = met.et();
 

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:21:45 EDT 2008
-// $Id: Context.h,v 1.14 2010/06/07 17:54:01 amraktad Exp $
+// $Id: Context.h,v 1.15 2010/07/23 08:35:03 eulisse Exp $
 //
 
 // system include files
@@ -78,18 +78,24 @@ public:
    TEveCaloDataHist*    getCaloData()   const { return m_caloData; }
    TEveCaloDataVec*     getCaloDataHF() const { return m_caloDataHF; }
 
-  const  DetIdToMatrix* getGeom()  const { return m_geom; }   
+   const  DetIdToMatrix* getGeom()  const { return m_geom; }   
 
    // ---------- member functions ---------------------------
+ 
+   bool  caloSplit() const;
+   float caloR1(bool offset = true) const;
+   float caloR2(bool offset = true) const;
+   float caloZ1(bool offset = true) const;
+   float caloZ2(bool offset = true) const;
+
+   void initEveElements();
+   void deleteEveElements();
 
    // ---------- static member  ---------------------------
 
-   static const float s_ecalR;
-   static const float s_ecalZ;
-   static const float s_transitionAngle;
-
-  void initEveElements();
-  void deleteEveElements();
+   static float  caloTransEta();
+   static float  caloTransAngle();
+   static double caloMaxEta();
 
 private:
    Context(const Context&); // stop default
@@ -112,6 +118,24 @@ private:
 
    TEveCaloDataHist     *m_caloData;
    TEveCaloDataVec      *m_caloDataHF;
+
+   bool                  m_caloSplit;
+
+   // calo data
+   static const float s_caloTransEta;
+   static const float s_caloTransAngle;
+   // simplified 
+   static const float s_caloR; 
+   static const float s_caloZ;
+   // barrel
+   static const float s_caloR1; 
+   static const float s_caloZ1;
+   // endcap
+   static const float s_caloR2;
+   static const float s_caloZ2;
+   // proxy-builder offsets
+   static const float s_caloOffR;
+   static const float s_caloOffZ;
 };
 }
 

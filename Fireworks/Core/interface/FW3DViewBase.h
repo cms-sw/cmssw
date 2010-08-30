@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FW3DViewBase.h,v 1.4 2010/04/16 13:44:06 amraktad Exp $
+// $Id: FW3DViewBase.h,v 1.5 2010/05/03 15:47:37 amraktad Exp $
 //
 
 // system include files
@@ -50,7 +50,7 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   virtual void setContext(fireworks::Context&);
+   virtual void setContext(const fireworks::Context&);
 
    // To be fixed.
    void updateGlobalSceneScaleParameters();

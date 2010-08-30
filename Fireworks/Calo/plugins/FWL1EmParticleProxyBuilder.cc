@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWL1EmParticleProxyBuilder.cc,v 1.3 2010/04/21 15:38:20 yana Exp $
+// $Id: FWL1EmParticleProxyBuilder.cc,v 1.4 2010/05/03 15:47:34 amraktad Exp $
 //
 
 // system include files
@@ -39,9 +39,6 @@ void
 FWL1EmParticleProxyBuilder::build( const l1extra::L1EmParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*) 
 {
    double scale = 10;
-   float r_ecal = fireworks::Context::s_ecalR;
-   float z_ecal = fireworks::Context::s_ecalZ;
-   float transition_angle = fireworks::Context::s_transitionAngle;
    double phi = iData.phi();
    double theta = iData.theta();
    double size = iData.pt() * scale;
@@ -51,10 +48,10 @@ FWL1EmParticleProxyBuilder::build( const l1extra::L1EmParticle& iData, unsigned 
    // if jet is made of a single tower, the length of the jet will
    // be identical to legth of the displayed tower
    double r(0);
-   if( theta < transition_angle || M_PI-theta < transition_angle )
-     r = z_ecal/fabs(cos(theta));
+   if( theta < context().caloTransAngle() || M_PI-theta < context().caloTransAngle())
+      r = context().caloZ2()/fabs(cos(theta));
    else
-     r = r_ecal/sin(theta);
+      r = context().caloR1()/sin(theta);
    
    TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("l1EmParticle");
    marker->SetLineWidth( 2 );

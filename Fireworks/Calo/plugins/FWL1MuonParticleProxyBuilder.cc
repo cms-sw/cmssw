@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWL1MuonParticleProxyBuilder.cc,v 1.5 2010/05/03 15:47:35 amraktad Exp $
+// $Id: FWL1MuonParticleProxyBuilder.cc,v 1.6 2010/06/18 10:17:51 yana Exp $
 //
 
 // system include files
@@ -39,9 +39,6 @@ void
 FWL1MuonParticleProxyBuilder::build( const l1extra::L1MuonParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*) 
 {
    double scale = 10;
-   float r_ecal = fireworks::Context::s_ecalR;
-   float z_ecal = fireworks::Context::s_ecalZ;
-   float transition_angle = fireworks::Context::s_transitionAngle;
    double phi = iData.phi();
    double theta = iData.theta();
    double size = iData.pt() * scale;
@@ -51,10 +48,10 @@ FWL1MuonParticleProxyBuilder::build( const l1extra::L1MuonParticle& iData, unsig
    // if jet is made of a single tower, the length of the jet will
    // be identical to legth of the displayed tower
    double r(0);
-   if( theta < transition_angle || M_PI-theta < transition_angle )
-     r = z_ecal/fabs(cos(theta));
+   if( theta < context().caloTransAngle() || M_PI-theta < context().caloTransAngle())
+      r = context().caloZ2()/fabs(cos(theta));
    else
-     r = r_ecal/sin(theta);
+      r = context().caloR1()/sin(theta);
    
    TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("l1MuonParticle");
    marker->SetLineWidth( 2 );
@@ -107,5 +104,5 @@ FWL1MuonParticleLegoProxyBuilder::build( const l1extra::L1MuonParticle& iData, u
 }
 
 
-REGISTER_FWPROXYBUILDER(FWL1MuonParticleProxyBuilder, l1extra::L1MuonParticle, "L1MuonParticle", FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER(FWL1MuonParticleProxyBuilder, l1extra::L1MuonParticle, "L1MuonParticle", FWViewType::kAllRPZBits);
 REGISTER_FWPROXYBUILDER(FWL1MuonParticleLegoProxyBuilder, l1extra::L1MuonParticle, "L1MuonParticle", FWViewType::kLegoBit);

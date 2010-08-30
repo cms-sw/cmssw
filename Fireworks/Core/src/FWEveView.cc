@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.25 2010/07/02 17:36:16 amraktad Exp $
+// $Id: FWEveView.cc,v 1.26 2010/08/30 15:32:23 matevz Exp $
 //
 
 
@@ -64,6 +64,7 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type, unsigned i
    m_overlayEventInfo(0),
    m_overlayLogo(0),
    m_cameraGuide(0),
+   m_context(0),
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
    m_imageScale(this, "Image Scale", 1.0, 1.0, 6.0),
 #endif

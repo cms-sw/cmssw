@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 20:33:06 CET 2010
-// $Id: FWRPZViewGeometry.cc,v 1.5 2010/08/16 16:10:56 yana Exp $
+// $Id: FWRPZViewGeometry.cc,v 1.6 2010/08/17 08:27:58 yana Exp $
 //
 
 // system include files
@@ -16,8 +16,6 @@
 
 // user include files
 
-//#include "TClass.h"
-//#include "TGeoManager.h"
 #include "TGeoBBox.h"
 
 #include "TEveElement.h"
@@ -28,6 +26,7 @@
 #include "Fireworks/Core/interface/FWRPZViewGeometry.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
+#include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
@@ -48,10 +47,11 @@ TEveElementList* FWRPZViewGeometry::s_rhoZGeo   = 0;
 //
 // constructors and destructor
 //
-FWRPZViewGeometry::FWRPZViewGeometry(const DetIdToMatrix* m,  const FWColorManager* colMng):
-   m_detIdToMatrix(m),
-   m_colorManager(colMng)
+FWRPZViewGeometry::FWRPZViewGeometry(const fireworks::Context& context):
+   m_context(context),
+   m_detIdToMatrix(0)
 {
+   m_detIdToMatrix = context.getGeom();
 }
 
 // FWRPZViewGeometry::FWRPZViewGeometry(const FWRPZViewGeometry& rhs)
@@ -77,7 +77,7 @@ FWRPZViewGeometry::getGeoElements(const FWViewType::EType type)
          s_rhoPhiGeo = new TEveElementList("Geomtery RhoPhi");
          s_rhoPhiGeo->IncDenyDestroy();
          s_rhoPhiGeo->AddElement(makeMuonGeometryRhoPhi());
-         s_rhoPhiGeo->AddElement(makeTrackerGeometryRhoPhi());
+         s_rhoPhiGeo->AddElement(makeCaloOutlineRhoPhi());
 
       }
       return s_rhoPhiGeo;
@@ -90,7 +90,7 @@ FWRPZViewGeometry::getGeoElements(const FWViewType::EType type)
          
          s_rhoZGeo->IncDenyDestroy();
          s_rhoZGeo->AddElement(makeMuonGeometryRhoZ());
-         s_rhoZGeo->AddElement(makeTrackerGeometryRhoZ());
+         s_rhoZGeo->AddElement(makeCaloOutlineRhoZ());
       }
       return s_rhoZGeo;
    }
@@ -101,38 +101,40 @@ FWRPZViewGeometry::getGeoElements(const FWViewType::EType type)
 
 
 TEveElement*
-FWRPZViewGeometry::makeTrackerGeometryRhoZ()
+FWRPZViewGeometry::makeCaloOutlineRhoZ()
 {
+   using namespace fireworks;
+
    TEveElementList* list = new TEveElementList( "TrackerRhoZ" );
 
-   TEvePointSet* ref = new TEvePointSet("reference");
-   ref->SetPickable(kTRUE);
-   ref->SetTitle("(0,0,0)");
-   ref->SetMarkerStyle(4);
-   ref->SetMarkerColor(kWhite);
-   ref->SetNextPoint(0.,0.,0.);
-   list->AddElement(ref);
+   float ri = m_context.caloZ2()*tan(2*atan(exp(-m_context.caloMaxEta())));
 
    TEveStraightLineSet* el = new TEveStraightLineSet( "outline" );
    el->SetPickable(kFALSE);
-   el->SetLineColor(m_colorManager->geomColor(kFWTrackerColorIndex));
-   el->AddLine(0, 123,-300, 0, 123, 300);
-   el->AddLine(0, 123, 300, 0,-123, 300);
-   el->AddLine(0,-123, 300, 0,-123,-300);
-   el->AddLine(0,-123,-300, 0, 123,-300);
+   el->SetLineColor(m_context.colorManager()->geomColor(kFWTrackerColorIndex));
+
+   el->AddLine(0,  m_context.caloR1(), -m_context.caloZ1(), 0,  m_context.caloR1(),  m_context.caloZ1());
+   el->AddLine(0, -m_context.caloR1(),  m_context.caloZ1(), 0, -m_context.caloR1(), -m_context.caloZ1());
+
+   el->AddLine(0, -m_context.caloR2(),   m_context.caloZ2(), 0,  -ri,   m_context.caloZ2());
+   el->AddLine(0, ri,  m_context.caloZ2(), 0,  m_context.caloR2(), m_context.caloZ2());
+
+   el->AddLine(0, -m_context.caloR2(),   -m_context.caloZ2(), 0,  -ri,   -m_context.caloZ2());
+   el->AddLine(0, ri,  -m_context.caloZ2(), 0,  m_context.caloR2(), -m_context.caloZ2());
+
    list->AddElement(el);
  
    return el;
-
 }
 
 TEveElement*
-FWRPZViewGeometry::makeTrackerGeometryRhoPhi()
-{
+FWRPZViewGeometry::makeCaloOutlineRhoPhi()
+{ 
    TEveStraightLineSet* el = new TEveStraightLineSet( "TrackerRhoPhi" );
-   el->SetLineColor(m_colorManager->geomColor(kFWTrackerColorIndex));
+
+   el->SetLineColor(m_context.colorManager()->geomColor(kFWTrackerColorIndex));
    const unsigned int nSegments = 100;
-   const double r = 123;
+   const double r =  m_context.caloR1();
    for ( unsigned int i = 1; i <= nSegments; ++i )
       el->AddLine(r*sin(TMath::TwoPi()/nSegments*(i-1)), r*cos(TMath::TwoPi()/nSegments*(i-1)), 0,
                   r*sin(TMath::TwoPi()/nSegments*i), r*cos(TMath::TwoPi()/nSegments*i), 0);
@@ -155,7 +157,7 @@ FWRPZViewGeometry::makeMuonGeometryRhoPhi( void )
    // rho-phi view
    TEveElementList* container = new TEveElementList( "MuonRhoPhi" );
    Int_t iWheel = 0;
-   Color_t color = m_colorManager->geomColor( kFWMuonBarrelLineColorIndex );
+   Color_t color = m_context.colorManager()->geomColor( kFWMuonBarrelLineColorIndex );
    
    for( Int_t iStation = 1; iStation <= 4; ++iStation )
    {
@@ -186,7 +188,7 @@ FWRPZViewGeometry::makeMuonGeometryRhoZ( void )
    TEveElementList* dtContainer = new TEveElementList( "DT" );
    container->AddElement( dtContainer );
 
-   Color_t color = m_colorManager->geomColor( kFWMuonBarrelLineColorIndex );
+   Color_t color = m_context.colorManager()->geomColor( kFWMuonBarrelLineColorIndex );
    for( Int_t iWheel = -2; iWheel <= 2; ++iWheel )
    {
       for( Int_t iStation = 1; iStation <= 4; ++iStation )
@@ -216,7 +218,7 @@ FWRPZViewGeometry::makeMuonGeometryRhoZ( void )
    Int_t maxChambers = 36;
    Int_t step = 9;
    Int_t iLayer = 0; // chamber
-   color = m_colorManager->geomColor( kFWMuonEndCapLineColorIndex );
+   color = m_context.colorManager()->geomColor( kFWMuonEndCapLineColorIndex );
    for( Int_t iEndcap = 1; iEndcap <= 2; ++iEndcap ) // 1=forward (+Z), 2=backward(-Z)
    {
       // Actual CSC geometry:

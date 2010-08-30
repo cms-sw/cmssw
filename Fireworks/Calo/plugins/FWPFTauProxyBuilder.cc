@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWPFTauProxyBuilder.cc,v 1.9 2010/04/22 13:05:49 yana Exp $
+// $Id: FWPFTauProxyBuilder.cc,v 1.10 2010/05/03 15:47:36 amraktad Exp $
 //
 
 // system include files
@@ -62,9 +62,7 @@ FWPFTauProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* p
    iItem->get( pfTaus );
    if( pfTaus == 0 ) return;
 
-   float r_ecal = fireworks::Context::s_ecalR;
-   float z_ecal = fireworks::Context::s_ecalZ;
-   float transition_angle = fireworks::Context::s_transitionAngle;
+   float transition_angle = context().caloTransAngle();
       
    Int_t idx = 0;
    for( reco::PFTauCollection::const_iterator it = pfTaus->begin(), itEnd = pfTaus->end(); it != itEnd; ++it, ++idx)
@@ -93,6 +91,14 @@ FWPFTauProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* p
       double theta = (*it).theta();
       double size = (*it).et();
 
+      bool barrel = true;
+      if (theta< context().caloTransAngle() || theta > (TMath::Pi() - context().caloTransAngle()))
+      {
+         barrel = false;
+      }
+      float r_ecal = barrel ? context().caloR1() : context().caloR2() ;
+      float z_ecal = barrel ? context().caloZ1() : context().caloZ2();
+  
       TEveElementList* comp = createCompound();
 
       // FIXME: Should it be only in RhoPhi and RhoZ?

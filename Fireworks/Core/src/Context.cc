@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:57:12 EDT 2008
-// $Id: Context.cc,v 1.24 2010/07/23 08:35:03 eulisse Exp $
+// $Id: Context.cc,v 1.25 2010/08/12 19:02:04 amraktad Exp $
 //
 
 // system include files
@@ -32,9 +32,22 @@ using namespace fireworks;
 // static data member definitions
 //
 
-const float Context::s_ecalR = 126;
-const float Context::s_ecalZ = 306;
-const float Context::s_transitionAngle = atan( s_ecalR/s_ecalZ );
+const float Context::s_caloTransEta = 1.479; 
+const float Context::s_caloTransAngle = 2*atan(exp(-s_caloTransEta));
+
+// simplified
+const float Context::s_caloZ  = 290; 
+const float Context::s_caloR  = s_caloZ*tan(s_caloTransAngle);
+// barrel
+const float Context::s_caloR1 = 129;
+const float Context::s_caloZ1 = s_caloR1/tan(s_caloTransAngle);
+// endcap
+const float Context::s_caloZ2 = 315.4;
+const float Context::s_caloR2 = s_caloZ2*tan(s_caloTransAngle);
+// calorimeter offset between TEveCalo and outlines (used by proxy builders)
+const float Context::s_caloOffR = 10;
+const float Context::s_caloOffZ = s_caloOffR/tan(s_caloTransAngle);
+
 
 //
 // constructors and destructor
@@ -56,7 +69,8 @@ Context::Context(FWModelChangeManager* iCM,
    m_muonPropagator(0),
    m_magField(0),
    m_caloData(0),
-   m_caloDataHF(0)
+   m_caloDataHF(0),
+   m_caloSplit(false)
 {
 }
 
@@ -73,8 +87,8 @@ Context::initEveElements()
    // common propagator, helix stepper
    m_propagator = new TEveTrackPropagator();
    m_propagator->SetMagFieldObj(m_magField, false);
-   m_propagator->SetMaxR(123.0);
-   m_propagator->SetMaxZ(300.0);
+   m_propagator->SetMaxR(caloR2());
+   m_propagator->SetMaxZ(caloZ2());
    m_propagator->SetDelta(0.01);
    m_propagator->SetProjTrackBreaking(TEveTrackPropagator::kPTB_UseLastPointPos);
    m_propagator->SetRnrPTBMarkers(kTRUE);
@@ -83,9 +97,9 @@ Context::initEveElements()
    m_trackerPropagator = new TEveTrackPropagator();
    m_trackerPropagator->SetStepper( TEveTrackPropagator::kRungeKutta );
    m_trackerPropagator->SetMagFieldObj(m_magField, false);
-   m_trackerPropagator->SetDelta(0.02);
-   m_trackerPropagator->SetMaxR(123.0);
-   m_trackerPropagator->SetMaxZ(300.0);
+   m_trackerPropagator->SetDelta(0.01);
+   m_trackerPropagator->SetMaxR(caloR1());
+   m_trackerPropagator->SetMaxZ(caloZ2());
    m_trackerPropagator->SetProjTrackBreaking(TEveTrackPropagator::kPTB_UseLastPointPos);
    m_trackerPropagator->SetRnrPTBMarkers(kTRUE);
    m_trackerPropagator->IncDenyDestroy();
@@ -142,16 +156,57 @@ Context::deleteEveElements()
    m_caloDataHF->DecDenyDestroy();
 }
 
+
+
+float Context::caloR1(bool offset)  const
+{
+   float v = m_caloSplit ? s_caloR1 : s_caloR;
+   if (offset) v -= s_caloOffR;
+   return v;
+}
+
+float Context::caloR2(bool offset) const
+{
+   float v = m_caloSplit ? s_caloR2 : s_caloR;
+   if (offset) v -= s_caloOffR;
+   return v;
+}
+float Context::caloZ1(bool offset) const
+{ 
+   float v = m_caloSplit ? s_caloZ1 : s_caloZ;
+   if (offset) v -= s_caloOffZ;
+   return v; 
+}
+
+float Context::caloZ2(bool offset) const
+{ 
+   float v = m_caloSplit ? s_caloZ2 : s_caloZ;
+   if (offset) v -= s_caloOffZ; 
+   return v;
+}
+
+bool Context::caloSplit() const
+{
+   return m_caloSplit;
+}
+
 //
 // static member functions
 //
 
 
-//
-// static data member definitions
-//
-//
-// const member functions
-//
-//
-// member functions
+float Context::caloTransEta()
+{
+   return s_caloTransEta;
+}
+
+float Context::caloTransAngle()
+{
+   return s_caloTransAngle;
+}
+
+double Context::caloMaxEta()
+{
+   using namespace  fw3dlego;
+   return xbins_hf[xbins_hf_n -1];
+}

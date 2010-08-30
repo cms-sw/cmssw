@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Apr  7 14:40:47 CEST 2010
-// $Id: FW3DView.cc,v 1.43 2010/06/23 10:24:53 amraktad Exp $
+// $Id: FW3DView.cc,v 1.44 2010/06/23 12:39:52 amraktad Exp $
 //
 
 // system include files
@@ -40,7 +40,9 @@ FW3DView::FW3DView(TEveWindowSlot* slot, FWViewType::EType typeId):
    FW3DViewBase(slot, typeId),
    m_caloFixedScale(this,"Calo scale (GeV/meter)",2.,0.001,100.),
    m_caloAutoScale (this,"Calo auto scale",true),
-   m_calo(0)
+   m_calo(0),
+   m_caloEndCap1(0),
+   m_caloEndCap2(0)
 {
    viewerGL()->CurrentCamera().SetFixDefCenter(kTRUE);
    m_caloFixedScale.changed_.connect(boost::bind(&FW3DView::updateCaloParameters, this));
@@ -67,25 +69,55 @@ FW3DView::~FW3DView()
 //
 //   return *this;
 // }
-
+float off= 1.02;
 //
 // member functions
 //
-void FW3DView::setContext(fireworks::Context& context)
+void FW3DView::setContext(const fireworks::Context& ctx)
 { 
-   FW3DViewBase::setContext(context);
+   FW3DViewBase::setContext(ctx);
   
-   TEveCaloData* data = context.getCaloData();
+   TEveCaloData* data = context().getCaloData();
 
+   float_t eps = 0.005;
    m_calo = new TEveCalo3D(data);
+   m_calo->SetElementName("calo barrel");
    m_calo->SetMaxTowerH( 150 );
    m_calo->SetScaleAbs( false );
-   m_calo->SetBarrelRadius(129);
-   m_calo->SetEndCapPos(310);
-   m_calo->SetFrameTransparency(80);
-   viewContext()->getEnergyScale("Calo")->setVal(m_calo->GetValToHeight());
 
+   m_calo->SetBarrelRadius(context().caloR1(false));
+   m_calo->SetEndCapPos(context().caloZ1(false));
+   m_calo->SetFrameTransparency(80);
    eventScene()->AddElement(m_calo);
+
+   if (context().caloSplit())
+   {
+      m_calo->SetEta(-context().caloTransEta() -eps, context().caloTransEta() + eps);
+      m_calo->SetAutoRange(false);
+
+      m_caloEndCap1 = new TEveCalo3D(data);
+      m_caloEndCap1->SetElementName("endcap backwad");
+      m_caloEndCap1->SetMaxTowerH( 150 );
+      m_caloEndCap1->SetScaleAbs( false );
+      m_caloEndCap1->SetBarrelRadius(context().caloR2(false));
+      m_caloEndCap1->SetEndCapPos(context().caloZ2(false));
+      m_caloEndCap1->SetFrameTransparency(80);
+      m_caloEndCap1->SetEta(-context().caloMaxEta(), -context().caloTransEta() + eps);
+      m_caloEndCap1->SetAutoRange(false);
+      eventScene()->AddElement(m_caloEndCap1);
+   
+      m_caloEndCap2 = new TEveCalo3D(data);
+      m_caloEndCap2->SetElementName("endcap forward");
+      m_caloEndCap2->SetMaxTowerH( 150 );
+      m_caloEndCap2->SetScaleAbs( false );
+      m_caloEndCap2->SetBarrelRadius(context().caloR2(false));
+      m_caloEndCap2->SetEndCapPos(context().caloZ2());
+      m_caloEndCap2->SetFrameTransparency(80);
+      m_caloEndCap2->SetEta(context().caloTransEta() -eps, context().caloMaxEta());
+      m_caloEndCap2->SetAutoRange(false);
+      eventScene()->AddElement(m_caloEndCap2);
+   }
+   viewContext()->getEnergyScale("Calo")->setVal(m_calo->GetValToHeight());
 }
 
 void FW3DView::updateCaloParameters()

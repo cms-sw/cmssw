@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Wed Apr  7 14:41:26 CEST 2010
-// $Id: FW3DView.h,v 1.22 2010/04/16 13:44:06 amraktad Exp $
+// $Id: FW3DView.h,v 1.23 2010/05/03 15:47:37 amraktad Exp $
 //
 
 // system include files
@@ -33,7 +33,7 @@ public:
    FW3DView(TEveWindowSlot*, FWViewType::EType);
    virtual ~FW3DView();
 
-   virtual void setContext(fireworks::Context&);
+   virtual void setContext(const fireworks::Context&);
    virtual void eventEnd();
    
    
@@ -56,6 +56,9 @@ private:
    FWDoubleParameter  m_caloFixedScale;
    FWBoolParameter    m_caloAutoScale;
    TEveCalo3D*        m_calo;
+   TEveCalo3D*        m_caloEndCap1;
+   TEveCalo3D*        m_caloEndCap2;
+
 };
 
 

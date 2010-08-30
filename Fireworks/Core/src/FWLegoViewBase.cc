@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWLegoViewBase.cc,v 1.9 2010/06/25 14:46:16 amraktad Exp $
+// $Id: FWLegoViewBase.cc,v 1.10 2010/07/26 17:59:29 amraktad Exp $
 //
 
 // system include files
@@ -88,9 +88,11 @@ FWLegoViewBase::~FWLegoViewBase()
    m_lego->Destroy();
 }
 
-void FWLegoViewBase::setContext(fireworks::Context& context)
-{ 
-   TEveCaloData* data = getCaloData(context);
+void FWLegoViewBase::setContext(const fireworks::Context& ctx)
+{
+   FWEveView::setContext(ctx);
+  
+   TEveCaloData* data = ctx.getCaloData();
    data->GetEtaBins()->SetTitleFont(120);
    data->GetEtaBins()->SetTitle("h");
    data->GetPhiBins()->SetTitleFont(120);
