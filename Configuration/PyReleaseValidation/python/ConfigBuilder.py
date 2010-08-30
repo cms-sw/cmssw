@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.213 $"
+__version__ = "$Revision: 1.214 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -84,7 +84,7 @@ class ConfigBuilder(object):
 			self.stepMap[stepName]=(stepParts[2].split('+'),stepParts[1])
 		else:
 			raise ValueError("Step definition "+step+" invalid")
-	print "map of steps is:",self.stepMap
+	#print "map of steps is:",self.stepMap
 	
         self.with_output = with_output
 	if hasattr(self._options,"no_output_flag") and self._options.no_output_flag:
@@ -1057,7 +1057,7 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.213 $"),
+              (version=cms.untracked.string("$Revision: 1.214 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
