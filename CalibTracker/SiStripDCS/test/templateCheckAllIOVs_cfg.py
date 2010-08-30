@@ -67,11 +67,11 @@ process.poolDBESSource = cms.ESSource("PoolDBESSource",
         messageLevel = cms.untracked.int32(2),
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
-    connect = cms.string('DATABASE'),
+    connect = cms.string('DATABASECONNECTION'),
     toGet = cms.VPSet(cms.PSet(
     timetype = cms.untracked.string('timestamp'),
         record = cms.string('SiStripDetVOffRcd'),
-        tag = cms.string('SiStripDetVOff_Fake_31X')
+        tag = cms.string('TAG')
     ))
 )
 
