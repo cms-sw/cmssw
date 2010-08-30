@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.51 2010/08/27 15:14:09 babar Exp $
+# $Id: InjectWorker.pl,v 1.52 2010/08/27 15:15:03 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -142,7 +142,7 @@ exit 0;
 
 # time routine for SQL commands timestamp
 sub gettimestamp($) {
-    return strftime "%Y-%m-%d %H:%M:%S", localtime time;
+    return strftime "%Y-%m-%d %H:%M:%S", localtime $_[0];
 }
 
 # POE events
