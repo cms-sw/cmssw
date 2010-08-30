@@ -114,6 +114,9 @@ for path_key in top_dir.GetListOfKeys():
     if num_gen_events > 0:
         print "(%.1f%% eff.)" % (100 * total / float(num_gen_events)),
 
+    elif options.summary_mode:
+        print "(no entries)",
+
     print
 
     if not options.summary_mode:
