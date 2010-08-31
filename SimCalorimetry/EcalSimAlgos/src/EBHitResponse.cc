@@ -19,8 +19,14 @@ EBHitResponse::EBHitResponse( const CaloVSimParameterMap* parameterMap ,
 
    m_apdOnly  ( apdOnly  ) ,
    m_apdPars  ( apdPars  ) ,
-   m_apdShape ( apdShape ) 
+   m_apdShape ( apdShape ) ,
+   m_timeOffVec ( kNOffsets, apdParameters()->timeOffset() )
 {
+   for( unsigned int i ( 0 ) ; i != kNOffsets ; ++i )
+   {
+      m_timeOffVec[ i ] +=
+	 ranGauss()->fire( 0 , apdParameters()->timeOffWidth() ) ;
+   }
 }
 
 EBHitResponse::~EBHitResponse()
@@ -72,15 +78,9 @@ EBHitResponse::putAnalogSignal( const PCaloHit& hit )
 
 	 const double jitter ( hit.time() - timeOfFlight( detId ) ) ;
 
-	 const double timeOff ( apdParameters()->timeOffset() ) ;
-
-	 const double timeOffWid ( apdParameters()->timeOffWidth() ) ;
-
-	 const double timeSpread ( timeOffWid*ranGauss()->fire() ) ;
-
 	 const double tzero ( apdShape()->timeToRise()
 			      - jitter
-			      - timeOff - timeSpread 
+			      - offsets()[ EBDetId( detId ).denseIndex()%kNOffsets ]
 			      - BUNCHSPACE*( parameters.binOfMaximum()
 					     - phaseShift()            ) ) ;
 	 double binTime ( tzero ) ;
