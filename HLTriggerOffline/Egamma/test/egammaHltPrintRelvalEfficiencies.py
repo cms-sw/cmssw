@@ -64,6 +64,22 @@ parser.add_option("--path",
                   help="restrict printout to specific path. "+ 
                        "This option can be given more than once to select several paths.",
                   )
+
+parser.add_option("--ignore-empty",
+                  dest="ignore_empty_paths",
+                  action='store_true',
+                  default = False,
+                  help="Print only information about non-empty paths (i.e. those with at least one entry in the total_eff histogram).",
+                  )
+
+parser.add_option("--ignore-zero-eff",
+                  dest="ignore_zero_efficiency",
+                  action='store_true',
+                  default = False,
+                  help="Print only information about paths which have at least one entry in the bin of the last module in the overview histogram. Note that this also excludes those paths excluded by --ignore-empty .",
+                  )
+
+
 (options, ARGV) = parser.parse_args()
 
 if len(ARGV) != 1:
@@ -105,6 +121,23 @@ for path_key in top_dir.GetListOfKeys():
 
     total = total_eff_histo.GetBinContent(num_modules)
     num_gen_events = total_eff_histo.GetBinContent(num_modules + 1)
+
+    if num_gen_events == 0 and options.ignore_empty_paths:
+        continue
+
+    # check whether at least one event passed all modules
+    if options.ignore_zero_efficiency:
+        # get number of entries in last module
+
+        last_module_index = num_modules - 1
+        
+        last_module_accepted_events = total_eff_histo.GetBinContent(last_module_index+1)
+
+        if last_module_accepted_events < 1:
+            continue
+
+    
+    #--------------------
 
     if not options.summary_mode:
         print "----------------------------------------"
