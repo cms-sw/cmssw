@@ -45,6 +45,7 @@ SpecifiedEvenetContent=cms.PSet(
       'keep EcalRecHitsSorted_reducedHSCPEcalRecHitsEE_*_*',
       'keep HBHERecHitsSorted_reducedHSCPhbhereco__*',
       'keep edmTriggerResults_TriggerResults__*',
+	  'keep *_hltTriggerSummaryAOD_*_*',
       )
     )
 exoticaHSCPOutputModule.outputCommands.extend(SpecifiedEvenetContent.outputCommands)
