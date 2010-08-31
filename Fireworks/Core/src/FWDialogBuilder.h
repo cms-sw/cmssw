@@ -121,7 +121,7 @@ public:
                                    TGNumberEntry **out);
    
    FWDialogBuilder &addCheckbox(const char *text, TGCheckButton **out = 0);
-   FWDialogBuilder &addTable(FWTableManagerBase *manager, FWTableWidget **out);
+   FWDialogBuilder &addTable(FWTableManagerBase *manager, FWTableWidget **out = 0);
 
       
    FWDialogBuilder &addHSeparator(size_t horizontalPadding = 4, 
