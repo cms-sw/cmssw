@@ -1,5 +1,5 @@
 //
-// $Id: Centrality.cc,v 1.11 2010/08/14 17:05:39 nart Exp $
+// $Id: Centrality.cc,v 1.12 2010/08/23 16:40:43 nart Exp $
 //
 
 #include "DataFormats/HeavyIonEvent/interface/Centrality.h"
@@ -49,7 +49,7 @@ const CentralityBins* getCentralityBinsFromDB(const edm::EventSetup& iSetup){
    edm::ESHandle<CentralityTable> inputDB_;
    iSetup.get<HeavyIonRcd>().get(inputDB_);
    int nbinsMax = inputDB_->m_table.size();
-   cout<<"nbinsMax "<<nbinsMax<<endl;
+   //cout<<"nbinsMax "<<nbinsMax<<endl;
    CentralityBins* CB = new CentralityBins("ctemp","",nbinsMax);
    for(int j=0; j<nbinsMax; j++){
 
