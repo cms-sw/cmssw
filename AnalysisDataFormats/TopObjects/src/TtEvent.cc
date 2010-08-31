@@ -18,13 +18,14 @@ TtEvent::HypoClassKey
 TtEvent::hypoClassKeyFromString(const std::string& label) const 
 {
    static HypoClassKeyStringToEnum hypoClassKeyStringToEnumMap[] = {
-      { "kGeom",          kGeom          },
-      { "kWMassMaxSumPt", kWMassMaxSumPt },
-      { "kMaxSumPtWMass", kMaxSumPtWMass },
-      { "kGenMatch",      kGenMatch      },
-      { "kMVADisc",       kMVADisc       },
-      { "kKinFit",        kKinFit        },
-      { "kKinSolution",   kKinSolution   },
+      { "kGeom",              kGeom             },
+      { "kWMassMaxSumPt",     kWMassMaxSumPt    },
+      { "kMaxSumPtWMass",     kMaxSumPtWMass    },
+      { "kGenMatch",          kGenMatch         },
+      { "kMVADisc",           kMVADisc          },
+      { "kKinFit",            kKinFit           },
+      { "kKinSolution",       kKinSolution      },
+      { "kWMassDeltaTopMass", kWMassDeltaTopMass},
       { 0, (HypoClassKey)-1 }
    };
 
