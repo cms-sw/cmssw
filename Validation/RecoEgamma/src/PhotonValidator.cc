@@ -81,8 +81,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2010/01/25 20:26:27 $ 
- **  $Revision: 1.55 $
+ **  $Date: 2010/08/25 14:20:02 $ 
+ **  $Revision: 1.57 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -842,6 +842,7 @@ void  PhotonValidator::beginJob() {
     h_phoERes_[2][0] = dbe_->book1D(histname+"convAll"," Photon rec/true Energy if r9<0.93: All ecal ", resBin,resMin, resMax);
     h_phoERes_[2][1] = dbe_->book1D(histname+"convBarrel"," Photon rec/true Energyif r9<0.93: Barrel ",resBin,resMin, resMax);
     h_phoERes_[2][2] = dbe_->book1D(histname+"convEndcap"," Photon rec/true Energyif r9<0.93: Endcap ",resBin,resMin, resMax);
+  
 
     histname="eResVsEta";
     h2_eResVsEta_[0] = dbe_->book2D(histname+"All"," All photons E/Etrue vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0., 2.5);
@@ -850,6 +851,7 @@ void  PhotonValidator::beginJob() {
     histname="pEResVsEta";
     p_eResVsEta_[0] = dbe_->bookProfile(histname+"All","All photons  E/Etrue vs #eta: all Ecal ",etaBin2,etaMin,etaMax,resBin,resMin, resMax,"");
     p_eResVsEta_[1] = dbe_->bookProfile(histname+"Unconv","Unconv photons  E/Etrue vs #eta: all Ecal",etaBin2,etaMin,etaMax,resBin,resMin, resMax,"");
+    p_eResVsEta_[2] = dbe_->bookProfile(histname+"Conv","Conv photons  E/Etrue vs #eta: all Ecal",etaBin2,etaMin,etaMax,resBin,resMin, resMax,"");
 
 
     histname="eResVsEt";
@@ -1482,7 +1484,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   }
   
 
-  //cout << " PhotonValidator mcPhotons.size() " << mcPhotons.size() << endl;
+  //  cout << " PhotonValidator mcPhotons.size() " << mcPhotons.size() << endl;
   for ( std::vector<PhotonMCTruth>::const_iterator mcPho=mcPhotons.begin(); mcPho !=mcPhotons.end(); mcPho++) {
     if ( (*mcPho).fourMomentum().et() < minPhoEtCut_ ) continue;
     //    if ( signal_ ) 
@@ -1626,6 +1628,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       int iMatch=-1;
       bool matched=false;
     
+      //std::cout << " Reco photon size " <<  photonCollection.size() << std::endl;
       for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
 	reco::Photon aPho = reco::Photon(*iPho);
 	thePhotons.push_back(aPho);
@@ -1806,7 +1809,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       //
       if (  (*mcPho).isAConversion() == 0 ) {
 	h2_eResVsEta_[1]->Fill (mcEta_, photonE/ (*mcPho).fourMomentum().e()  ) ;
-	p_eResVsEta_[1]->Fill (mcEta_, photonE/(*mcPho).fourMomentum().e()  ) ;
+
 
 
 	h2_r9VsEta_[1] -> Fill (mcEta_, r9);
@@ -1850,14 +1853,16 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       if ( r9 > 0.93 )  {
 	h_phoERes_[1][0]->Fill( photonE / (*mcPho).fourMomentum().e() );
 	h2_eResVsEt_[0][1]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;  
-	p_eResVsEt_[0][1]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;      
+	p_eResVsEt_[0][1]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ; 
+	p_eResVsEta_[1]->Fill (mcEta_,photonE/ (*mcPho).fourMomentum().e()  ) ;     
 
       } else if ( r9 <= 0.93 ) {  
 	h_phoERes_[2][0]->Fill(photonE / (*mcPho).fourMomentum().e() );
 	h2_eResVsEt_[0][2]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 	p_eResVsEt_[0][2]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
+	p_eResVsEta_[2]->Fill (mcEta_,photonE/ (*mcPho).fourMomentum().e()  ) ;     
       }
-
+	
     
           
       if ( phoIsInBarrel ) {
