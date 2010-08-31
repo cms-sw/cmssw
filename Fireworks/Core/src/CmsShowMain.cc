@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.177 2010/08/17 16:28:56 matevz Exp $
+// $Id: CmsShowMain.cc,v 1.178 2010/08/23 14:45:36 amraktad Exp $
 //
 
 // system include files
@@ -421,8 +421,8 @@ void CmsShowMain::openData()
       fi.fIniDir = ".";
       this is bad because the destructor calls delete[] on fIniDir.
     */
-   fi.fIniDir = new char[10];
-   strcpy(fi.fIniDir, ".");
+   fi.fIniDir = new char[128];
+   strncpy(fi.fIniDir, ".", 127);
    new TGFileDialog(gClient->GetDefaultRoot(), guiManager()->getMainFrame(), kFDOpen, &fi);
    guiManager()->updateStatus("loading file ...");
    if (fi.fFilename) {
