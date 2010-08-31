@@ -4,6 +4,7 @@
 #include "CondCore/ORA/interface/Transaction.h"
 #include "CondCore/ORA/interface/Exception.h"
 #include "CondCore/ORA/interface/IBlobStreamingService.h"
+#include "CondCore/ORA/test/Serializer.h"
 #include "classes.h"
 //
 #include <cstdlib>
@@ -168,7 +169,9 @@ int main(){
     db.configuration().setMessageVerbosity( coral::Debug );
     PrimitiveContainerStreamingService* blobServ = new PrimitiveContainerStreamingService;
     db.configuration().setBlobStreamingService( blobServ );
-    std::string connStr( "oracle://cms_orcoff_prep/CMS_COND_WEB" );
+    std::string connStr( "oracle://cms_orcoff_prep/CMS_COND_UNIT_TESTS" );
+    ora::Serializer serializer( "ORA_TEST" );
+    serializer.lock( connStr );
     db.connect( connStr );
     ora::ScopedTransaction trans( db.transaction() );
     trans.start( false );

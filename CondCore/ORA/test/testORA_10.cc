@@ -4,6 +4,7 @@
 #include "CondCore/ORA/interface/Transaction.h"
 #include "CondCore/ORA/interface/Exception.h"
 #include "CondCore/ORA/interface/IReferenceHandler.h"
+#include "CondCore/ORA/test/Serializer.h"
 #include <cstdlib>
 #include <iostream>
 
@@ -18,7 +19,9 @@ int main(){
     ::putenv(const_cast<char*>(pathenv.c_str()));
     ora::Database db;
     db.configuration().setMessageVerbosity( coral::Debug );
-    std::string connStr( "oracle://cms_orcoff_prep/CMS_COND_WEB" );
+    std::string connStr( "oracle://cms_orcoff_prep/CMS_COND_UNIT_TESTS" );
+    ora::Serializer serializer( "ORA_TEST" );
+    serializer.lock( connStr );
     db.connect( connStr );
     ora::ScopedTransaction trans( db.transaction() );
     trans.start( false );
