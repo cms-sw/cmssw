@@ -16,52 +16,14 @@ process.load("DQMServices.Core.DQM_cfg")
 # Input
 process.source = cms.Source(
     "PoolSource",
-    debugVebosity = cms.untracked.uint32(10),
-    debugFlag = cms.untracked.bool(True),
+#    debugVebosity = cms.untracked.uint32(10),
+#    debugFlag = cms.untracked.bool(True),
     # untracked vstring fileNames = {'file:ecal_digis.root'}
     # untracked vstring fileNames = {'/store/unmerged/RelVal/2006/9/24/RelVal101Z-EE/GEN-SIM-DIGI-RECO/0005/0AC156B5-094C-DB11-A4D3-000E0C4D2475.root'}
     # untracked uint32 skipEvents = 476
     fileNames = cms.untracked.vstring(
-        #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW330pre2/SingleParticlePID-11-pT35/SingleParticlePID-11-pT35_0.root', 
-        #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW330pre2/SingleParticlePID-11-pT35/SingleParticlePID-11-pT35_1.root', 
-        #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW330pre2/SingleParticlePID-11-pT35/SingleParticlePID-11-pT35_2.root', 
-        #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW330pre2/SingleParticlePID-11-pT35/SingleParticlePID-11-pT35_3.root', 
-        #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW330pre2/SingleParticlePID-11-pT35/SingleParticlePID-11-pT35_4.root', 
-        #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW330pre2/SingleParticlePID-11-pT35/SingleParticlePID-11-pT35_5.root', 
-        #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW330pre2/SingleParticlePID-11-pT35/SingleParticlePID-11-pT35_6.root', 
-        #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW330pre2/SingleParticlePID-11-pT35/SingleParticlePID-11-pT35_7.root', 
-        #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW330pre2/SingleParticlePID-11-pT35/SingleParticlePID-11-pT35_8.root', 
-        #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW330pre2/SingleParticlePID-11-pT35/SingleParticlePID-11-pT35_9.root', 
-        #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW330pre2/SingleParticlePID11-pT35/SingleParticlePID11-pT35_0.root', 
-        #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW330pre2/SingleParticlePID11-pT35/SingleParticlePID11-pT35_1.root', 
-        #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW330pre2/SingleParticlePID11-pT35/SingleParticlePID11-pT35_2.root', 
-        #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW330pre2/SingleParticlePID11-pT35/SingleParticlePID11-pT35_3.root', 
-        #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW330pre2/SingleParticlePID11-pT35/SingleParticlePID11-pT35_4.root', 
-        #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW330pre2/SingleParticlePID11-pT35/SingleParticlePID11-pT35_5.root', 
-        #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW330pre2/SingleParticlePID11-pT35/SingleParticlePID11-pT35_6.root', 
-        #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW330pre2/SingleParticlePID11-pT35/SingleParticlePID11-pT35_7.root', 
-        #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW330pre2/SingleParticlePID11-pT35/SingleParticlePID11-pT35_8.root', 
-        #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW330pre2/SingleParticlePID11-pT35/SingleParticlePID11-pT35_9.root'
-        'file:SingleParticlePID-11-pT35_0.root', 
-        'file:SingleParticlePID-11-pT35_1.root', 
-        'file:SingleParticlePID-11-pT35_2.root', 
-        'file:SingleParticlePID-11-pT35_3.root', 
-        'file:SingleParticlePID-11-pT35_4.root', 
-        'file:SingleParticlePID-11-pT35_5.root', 
-        'file:SingleParticlePID-11-pT35_6.root', 
-        'file:SingleParticlePID-11-pT35_7.root', 
-        'file:SingleParticlePID-11-pT35_8.root', 
-        'file:SingleParticlePID-11-pT35_9.root', 
-        'file:SingleParticlePID11-pT35_0.root', 
-        'file:SingleParticlePID11-pT35_1.root', 
-        'file:SingleParticlePID11-pT35_2.root', 
-        'file:SingleParticlePID11-pT35_3.root', 
-        'file:SingleParticlePID11-pT35_4.root', 
-        'file:SingleParticlePID11-pT35_5.root', 
-        'file:SingleParticlePID11-pT35_6.root', 
-        'file:SingleParticlePID11-pT35_7.root', 
-        'file:SingleParticlePID11-pT35_8.root', 
-        'file:SingleParticlePID11-pT35_9.root'
+        '/store/relval/CMSSW_3_8_2/RelValSingleElectronPt35/GEN-SIM-RECO/MC_38Y_V9-v1/0018/E4F2A372-B8AF-DF11-8CAB-001A928116AE.root',
+        '/store/relval/CMSSW_3_8_2/RelValSingleElectronPt35/GEN-SIM-RECO/MC_38Y_V9-v1/0017/6A590E94-7CAF-DF11-AC72-001A9281171C.root'
     ),
     noEventSort = cms.untracked.bool(True),
     duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
@@ -69,14 +31,19 @@ process.source = cms.Source(
 
 # Famos configuration
 process.load("FastSimulation.Configuration.CommonInputs_cff")
+from Configuration.PyReleaseValidation.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['mc']
+
+# Famos sequences
 process.load("FastSimulation.Configuration.FamosSequences_cff")
-process.load("Configuration.StandardSequences.MagneticField_40T_cff")
-process.GlobalTag.globaltag = "MC_31X_V8::All"
-#process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 # No SimHits
+#process.simulation = cms.Sequence(process.simulationWithFamos)
 process.famosSimHits.SimulateCalorimetry = False
 process.famosSimHits.SimulateTracking = False
+# Number of pileup events per crossing
+process.famosPileUp.PileUpSimulator.averageNumber = 0.0
 # No vertex smearing
 process.famosSimHits.VertexGenerator.BetaStar = 0.00001
 # Use CMMSW170 tuning
@@ -84,8 +51,9 @@ process.misalignedTrackerInteractionGeometry.TrackerMaterial.TrackerMaterialVers
 process.TrackerInteractionGeometryESProducer.TrackerMaterial.TrackerMaterialVersion = 4
 
 
-process.testME = cms.EDFilter(
-    "testMaterialEffects",
+#process.testME = cms.EDFilter(
+process.testME = cms.EDAnalyzer(
+   "testMaterialEffects",
 
     # Full, Fast radii and lengths for plots
     BPCylinderRadius = cms.untracked.vdouble(3.2, 3.05),
@@ -203,7 +171,7 @@ process.testME = cms.EDFilter(
     )
 )
 
-# Path to ryn what is needed
+# Path to run what is needed
 process.p = cms.Path(
     process.offlineBeamSpot+
     process.famosPileUp+
