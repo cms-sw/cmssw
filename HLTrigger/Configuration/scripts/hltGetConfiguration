@@ -378,20 +378,28 @@ process.options = cms.untracked.PSet(
 
     # overwrite GlobalTag
     # the logic is:
-    #   - for running online, do nothing
+    #   - for running online, do nothing, unless a globaltag has been specified on the command line
     #   - for running offline on data, only add the pfnPrefix
     #   - for running offline on mc, take the GT from the command line of the processType
     #      - if the GT is "auto:...", insert the code to read it from Configuration.PyReleaseValidation.autoCond
 
-    if not runOnline:
-      data = data + """
-# override the GlobalTag connection string
+    if runOnline:
+      if menuGlobalTag:
+        data = data + """
+# override the GlobalTag 
 if 'GlobalTag' in process.__dict__:
-    process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
+    process.GlobalTag.globaltag = '%s'
+""" % menuGlobalTag
+
+    else:
+      data = data + """
+# override the GlobalTag connection string and pfnPrefix
+if 'GlobalTag' in process.__dict__:
 """
 
       if runOnData:
-        # don't override the GlobalTag, add only the pfnPrefix
+        # override the GlobalTag connection string and pfnPrefix
+        data = data + "    process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'\n"
         data = data + "    process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')\n"
         # check if a specific GlobalTag was specified on the command line, or choose one for 'data'
         if not menuGlobalTag:
