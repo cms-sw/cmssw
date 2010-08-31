@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 21:01:12 CET 2010
-// $Id: FWRPZViewGeometry.h,v 1.2 2010/08/17 08:27:58 yana Exp $
+// $Id: FWRPZViewGeometry.h,v 1.3 2010/08/30 15:42:32 amraktad Exp $
 //
 
 // system include files
@@ -26,7 +26,7 @@
 #include "Fireworks/Core/interface/FWViewType.h"
 
 // forward declarations
-class TGeoHMatrix;
+class TGeoMatrix;
 class TGeoShape;
 
 class TEveElement;
@@ -64,8 +64,8 @@ private:
    TEveElement* makeMuonGeometryRhoZ();
    TEveElement* makeCaloOutlineRhoPhi();
    TEveElement* makeCaloOutlineRhoZ();
-   void estimateProjectionSizeDT( const TGeoHMatrix*, const TGeoShape*, double&, double&, double&, double& );
-   void estimateProjectionSizeCSC( const TGeoHMatrix*, const TGeoShape*, double&, double&, double&, double& );
+   void estimateProjectionSizeDT( const TGeoMatrix*, const TGeoShape*, double&, double&, double&, double& );
+   void estimateProjectionSizeCSC( const TGeoMatrix*, const TGeoShape*, double&, double&, double&, double& );
    void estimateProjectionSize( const Double_t*, double&, double&, double&, double& );
 
    TEveGeoShape* makeShape( double, double, double, double, Color_t );

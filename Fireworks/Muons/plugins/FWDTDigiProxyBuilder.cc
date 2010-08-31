@@ -23,7 +23,7 @@
 namespace 
 {
   void 
-  addMarkers( TEvePointSet* pointSet, const TGeoHMatrix* matrix, double localPos[3] ) 
+  addMarkers( TEvePointSet* pointSet, const TGeoMatrix* matrix, double localPos[3] ) 
   {
     double globalPos[3];			
     matrix->LocalToMaster( localPos, globalPos );
@@ -31,7 +31,7 @@ namespace
   }
   
   void
-  addTube( TEveBox* shape, const TGeoHMatrix* matrix, double localPos[3],  const float* pars )
+  addTube( TEveBox* shape, const TGeoMatrix* matrix, double localPos[3],  const float* pars )
   {
     const Float_t width = pars[0] / 2.;
     const Float_t thickness = pars[1] / 2.;
@@ -91,7 +91,7 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
 
     double localPos[3] = { 0.0, 0.0, 0.0 };
 		
-    const TGeoHMatrix* matrix = item()->getGeom()->getMatrix( layerId );
+    const TGeoMatrix* matrix = item()->getGeom()->getMatrix( layerId );
     
     const DTDigiCollection::Range &range = (*det).second;
 

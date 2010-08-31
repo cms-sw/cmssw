@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiStripDigiProxyBuilder.cc,v 1.13 2010/08/19 13:39:18 yana Exp $
+// $Id: FWSiStripDigiProxyBuilder.cc,v 1.14 2010/08/23 15:26:42 yana Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -54,7 +54,7 @@ FWSiStripDigiProxyBuilder::build( const FWEventItem* iItem, TEveElementList* pro
     edm::DetSet<SiStripDigi> ds = *it;
     const uint32_t& id = ds.id;
 
-    const TGeoHMatrix* matrix = geom->getMatrix( id );
+    const TGeoMatrix* matrix = geom->getMatrix( id );
     const float* pars = geom->getParameters( id );
         
     for( edm::DetSet<SiStripDigi>::const_iterator idigi = ds.data.begin(), idigiEnd = ds.data.end();

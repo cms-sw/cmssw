@@ -1,11 +1,9 @@
-#include "TGeoManager.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TEveGeoNode.h"
 #include "TPRegexp.h"
 #include "TSystem.h"
-#include "TGeoCompositeShape.h"
-#include "TGeoBoolNode.h"
+#include "TGeoArb8.h"
 
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Core/interface/fwLog.h"
@@ -17,11 +15,12 @@
 #include <stdexcept>
 #include <algorithm>
 
+DetIdToMatrix::DetIdToMatrix( void )
+  : m_idToInfo( 260000 )
+{}
+
 DetIdToMatrix::~DetIdToMatrix( void )
-{
-   // ATTN: not sure I own the manager
-   // if ( m_manager ) delete m_manager;
-}
+{}
 
 TFile*
 DetIdToMatrix::findFile( const char* fileName )
@@ -63,35 +62,8 @@ DetIdToMatrix::findFile( const char* fileName )
 }
 
 void
-DetIdToMatrix::loadGeometry( const char* fileName )
-{
-   m_manager = 0;
-   if( TFile* file = findFile( fileName ))
-   {
-      // load geometry
-      m_manager = static_cast<TGeoManager*>(file->Get( "cmsGeo" ));
-      file->Close();
-   }
-   else
-   {
-      throw std::runtime_error( "ERROR: failed to find geometry file. Initialization failed." );
-   }
-   if( !m_manager )
-   {
-      throw std::runtime_error( "ERROR: cannot find geometry in the file. Initialization failed." );
-      return;
-   }
-}
-
-void
 DetIdToMatrix::loadMap( const char* fileName )
-{
-   if( ! m_manager )
-   {
-      throw std::runtime_error( "ERROR: CMS detector geometry is not available. DetId to Matrix map Initialization failed." );
-      return;
-   }
-
+{  
    TFile* file = findFile( fileName );
    if( ! file )
    {
@@ -106,17 +78,27 @@ DetIdToMatrix::loadMap( const char* fileName )
    }
    
    unsigned int id;
-   char path[1000];
    Float_t points[24];
    Float_t topology[9];
+   Float_t shape[5];
+   Float_t translation[3];
+   Float_t matrix[9];
    bool loadPoints = tree->GetBranch( "points" ) != 0;
    bool loadParameters = tree->GetBranch( "topology" ) != 0;
+   bool loadShape = tree->GetBranch( "shape" ) != 0;
+   bool loadTranslation = tree->GetBranch( "translation" ) != 0;
+   bool loadMatrix = tree->GetBranch( "matrix" ) != 0;
    tree->SetBranchAddress( "id", &id );
-   tree->SetBranchAddress( "path", &path );
    if( loadPoints )
       tree->SetBranchAddress( "points", &points );
    if( loadParameters )
       tree->SetBranchAddress( "topology", &topology );
+   if( loadShape )
+      tree->SetBranchAddress( "shape", &shape );
+   if( loadTranslation )
+      tree->SetBranchAddress( "translation", &translation );
+   if( loadMatrix )
+      tree->SetBranchAddress( "matrix", &matrix );
    
    unsigned int treeSize = tree->GetEntries();
    m_idToInfo.resize( treeSize );
@@ -125,7 +107,6 @@ DetIdToMatrix::loadMap( const char* fileName )
       tree->GetEntry( i );
 
       m_idToInfo[i].id = id;
-      m_idToInfo[i].path = path;
       if( loadPoints )
       {
 	 for( unsigned int j = 0; j < 24; ++j )
@@ -135,6 +116,21 @@ DetIdToMatrix::loadMap( const char* fileName )
       {
 	 for( unsigned int j = 0; j < 9; ++j )
 	    m_idToInfo[i].parameters[j] = topology[j];
+      }
+      if( loadShape )
+      {
+	 for( unsigned int j = 0; j < 5; ++j )
+	    m_idToInfo[i].shape[j] = shape[j];
+      }
+      if( loadTranslation )
+      {
+	 for( unsigned int j = 0; j < 9; ++j )
+	    m_idToInfo[i].translation[j] = translation[j];
+      }
+      if( loadMatrix )
+      {
+	 for( unsigned int j = 0; j < 9; ++j )
+	    m_idToInfo[i].matrix[j] = matrix[j];
       }
    }
    file->Close();
@@ -152,68 +148,51 @@ DetIdToMatrix::initMap( const FWRecoGeom::InfoMap& map )
        it != end; ++it, ++i )
   {
     m_idToInfo[i].id = it->id;
-    m_idToInfo[i].path = it->name;
     for( unsigned int j = 0; j < 24; ++j )
       m_idToInfo[i].points[j] = it->points[j];
     for( unsigned int j = 0; j < 9; ++j )
       m_idToInfo[i].parameters[j] = it->topology[j];
+    for( unsigned int j = 0; j < 5; ++j )
+      m_idToInfo[i].shape[j] = it->shape[j];
+    for( unsigned int j = 0; j < 3; ++j )
+      m_idToInfo[i].translation[j] = it->translation[j];
+    for( unsigned int j = 0; j < 9; ++j )
+      m_idToInfo[i].matrix[j] = it->matrix[j];
   }
 }
 
-const TGeoHMatrix*
+const TGeoMatrix*
 DetIdToMatrix::getMatrix( unsigned int id ) const
 {
-   std::map<unsigned int, TGeoHMatrix>::const_iterator it = m_idToMatrix.find( id );
-   if( it != m_idToMatrix.end()) return &( it->second );
-
-   const char* path = getPath( id );
-   if( !path )
-      return 0;
-   if( !m_manager->cd(path))
+   std::map<unsigned int, TGeoMatrix*>::iterator mit = m_idToMatrix.find( id );
+   if( mit != m_idToMatrix.end()) return mit->second;
+   
+   IdToInfoItr it = DetIdToMatrix::find( id );
+   if( it == m_idToInfo.end())
    {
-      DetId detId( id );
-      fwLog( fwlog::kError ) << "incorrect path " << path << "\nfor DetId: " << detId.det() << " : " << id << std::endl;
+      fwLog( fwlog::kWarning ) << "no reco geometry is found for id " <<  id << std::endl;
       return 0;
    }
-
-   TGeoHMatrix m = *( m_manager->GetCurrentMatrix());
-
-   m_idToMatrix[id] = m;
-   return &m_idToMatrix[id];
-}
-
-const char*
-DetIdToMatrix::getPath( unsigned int id ) const
-{
-   IdToInfoItr it = DetIdToMatrix::find( id );
-   if( it != m_idToInfo.end())
-      return ( *it ).path.c_str();
    else
-      return 0;
+   {
+      TGeoTranslation trans(( *it ).translation[0], ( *it ).translation[1], ( *it ).translation[2] );
+      TGeoRotation rotation;
+      const Double_t matrix[9] = { it->matrix[0], it->matrix[1], it->matrix[2],
+				   it->matrix[3], it->matrix[4], it->matrix[5],
+				   it->matrix[6], it->matrix[7], it->matrix[8]
+      };
+      rotation.SetMatrix( matrix );
+
+      m_idToMatrix[id] = new TGeoCombiTrans( trans, rotation );
+      return m_idToMatrix[id];
+   }
 }
 
 const TGeoVolume*
 DetIdToMatrix::getVolume( unsigned int id ) const
 {
-   IdToInfoItr it = DetIdToMatrix::find( id );
-   if( it != m_idToInfo.end())
-   {
-      m_manager->cd( ( *it ).path.c_str());
-      return m_manager->GetCurrentVolume();
-   }
-   else
-      return 0;
-}
-
-std::vector<unsigned int>
-DetIdToMatrix::getMatchedIds( const char* regular_expression ) const
-{
-   std::vector<unsigned int> ids;
-   TPRegexp regexp( regular_expression );
-   for( IdToInfoItr it = m_idToInfo.begin(), itEnd = m_idToInfo.end();
-	it != itEnd; ++it )
-      if( regexp.MatchB(( *it ).path )) ids.push_back(( *it ).id );
-   return ids;
+  std::cout << "DetIdToMatrix::getVolume: no volume!!!" << std::endl;
+  return 0;
 }
 
 std::vector<unsigned int>
@@ -231,68 +210,60 @@ DetIdToMatrix::getMatchedIds( Detector det, SubDetector subdet ) const
    return ids;
 }
 
-TEveGeoShape*
-DetIdToMatrix::getShape( const char* path, const char* name, const TGeoMatrix* matrix /* = 0 */) const
+TGeoShape*
+DetIdToMatrix::getShape( unsigned int id ) const
 {
-   if( ! m_manager || ! path || ! name )
-      return 0;
-   m_manager->cd( path );
-   // it's possible to get a corrected matrix from outside
-   // if it's not provided, we take whatever the geo manager has
-   if( ! matrix )
-      matrix = m_manager->GetCurrentMatrix();
-
-   TEveGeoShape* shape = new TEveGeoShape( name, path );
-   shape->SetElementTitle( name );
-   shape->SetTransMatrix( *matrix );
-   TGeoShape* gs = m_manager->GetCurrentVolume()->GetShape();
-   
-   //------------------------------------------------------------------------------//
-   // FIXME !!!!!!!!!!!!!!
-   // hack zone to make CSC complex shape visible
-   // loop over bool shapes till we get something non-composite on the left side.
-   if( TGeoCompositeShape* composite = dynamic_cast<TGeoCompositeShape*>( gs ))
+   IdToInfoItr it = DetIdToMatrix::find( id );
+   if( it == m_idToInfo.end())
    {
-      int depth = 0;
-      TGeoShape* nextShape( gs );
-      do
-      {
-	 if( depth > 10 ) break;
-	 nextShape = composite->GetBoolNode()->GetLeftShape();
-	 composite = dynamic_cast<TGeoCompositeShape*>( nextShape );
-	 ++depth;
-      } while( depth < 10 && composite != 0 );
-      if( composite == 0 )
-         gs = nextShape;
+      fwLog( fwlog::kWarning ) << "no reco geoemtry found for id " <<  id << std::endl;
+      return 0;
    }
-   //------------------------------------------------------------------------------//
-   UInt_t id = TMath::Max( gs->GetUniqueID(), UInt_t( 1 ));
-   gs->SetUniqueID( id );
-   shape->SetShape( gs );
-   TGeoVolume* volume = m_manager->GetCurrentVolume();
-   shape->SetMainColor( volume->GetLineColor());
-   shape->SetRnrSelf( kTRUE );
-   shape->SetRnrChildren( kTRUE );
-   return shape;
+   else 
+   {
+      TEveGeoManagerHolder gmgr( TEveGeoShape::GetGeoMangeur());
+      TGeoShape* geoShape = 0;
+      if(( *it ).shape[0] == 1 ) 
+      {
+	 geoShape = new TGeoTrap(
+	   ( *it ).shape[3], //dz
+	   0, 	             //theta
+	   0, 	             //phi
+	   ( *it ).shape[4], //dy1
+	   ( *it ).shape[1], //dx1
+	   ( *it ).shape[2], //dx2
+	   0, 	    	     //alpha1
+	   ( *it ).shape[4], //dy2
+	   ( *it ).shape[1], //dx3
+	   ( *it ).shape[2], //dx4
+	   0);               //alpha2
+      }
+      else
+	 geoShape = new TGeoBBox(( *it ).shape[1], ( *it ).shape[2], ( *it ).shape[3] );
+      
+      return geoShape;
+   }
 }
 
 TEveGeoShape*
-DetIdToMatrix::getShape( unsigned int id,
-			 bool corrected /* = false */ ) const
+DetIdToMatrix::getEveShape( unsigned int id  ) const
 {
-   std::ostringstream s;
-   s << id;
-   if( corrected )
-      return getShape( getPath(id), s.str().c_str(), getMatrix( id ));
+   IdToInfoItr it = DetIdToMatrix::find( id );
+   if( it == m_idToInfo.end())
+   {
+      fwLog( fwlog::kWarning ) << "no reco geoemtry found for id " <<  id << std::endl;
+      return 0;
+   }
    else
-      return getShape( getPath(id), s.str().c_str());
-}
-
-const std::vector<TEveVector>&
-DetIdToMatrix::getPoints( unsigned int id ) const
-{
-   fwLog( fwlog::kWarning ) << "Obsolete function: use getCorners instead!" << std::endl;
-   return m_eveVector;
+   {
+      TEveGeoManagerHolder gmgr( TEveGeoShape::GetGeoMangeur());
+      TEveGeoShape* shape = new TEveGeoShape;
+      TGeoShape* geoShape = getShape( id );
+      shape->SetShape( geoShape );
+      const TGeoMatrix* matrix = getMatrix( id );
+      shape->SetTransMatrix( *matrix );
+      return shape;
+   }
 }
 
 const float*
@@ -324,6 +295,22 @@ DetIdToMatrix::getParameters( unsigned int id ) const
    else
    {
       return ( *it ).parameters;
+   }
+}
+
+const float*
+DetIdToMatrix::getShapePars( unsigned int id ) const
+{
+   // reco geometry parameters
+   IdToInfoItr it = DetIdToMatrix::find( id );
+   if( it == m_idToInfo.end())
+   {
+      fwLog( fwlog::kWarning ) << "no reco parameters are found for id " <<  id << std::endl;
+      return 0;
+   }
+   else
+   {
+      return ( *it ).shape;
    }
 }
 

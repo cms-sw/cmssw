@@ -8,7 +8,7 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWRPCDigiProxyBuilder.cc,v 1.10 2010/08/17 15:21:42 mccauley Exp $
+// $Id: FWRPCDigiProxyBuilder.cc,v 1.11 2010/08/23 15:26:37 yana Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -59,7 +59,7 @@ FWRPCDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product,
 
     float offset = 0.;
 
-    const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix(rawid);
+    const TGeoMatrix* matrix = iItem->getGeom()->getMatrix(rawid);
     const float* parameters = iItem->getGeom()->getParameters(rawid);
  
     if( parameters == 0 )

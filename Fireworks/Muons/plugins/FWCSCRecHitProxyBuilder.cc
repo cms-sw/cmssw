@@ -3,7 +3,7 @@
 // Package:     Muons
 // Class  :     FWCSCRecHitProxyBuilder
 //
-// $Id: FWCSCRecHitProxyBuilder.cc,v 1.9 2010/07/28 13:51:33 yana Exp $
+// $Id: FWCSCRecHitProxyBuilder.cc,v 1.10 2010/08/17 15:21:42 mccauley Exp $
 //
 
 #include "TEvePointSet.h"
@@ -36,7 +36,7 @@ FWCSCRecHitProxyBuilder::build( const CSCRecHit2D& iData,
 				unsigned int iIndex, TEveElement& oItemHolder, 
                                 const FWViewContext* )
 {       
-  const TGeoHMatrix* matrix = item()->getGeom()->getMatrix( iData.cscDetId().rawId() );
+  const TGeoMatrix* matrix = item()->getGeom()->getMatrix( iData.cscDetId().rawId() );
   
   if ( ! matrix ) 
   {     

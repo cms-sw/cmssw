@@ -2,7 +2,7 @@
 //
 // Package:     Muons
 // Class  :     FWMuonBuilder
-// $Id: FWMuonBuilder.cc,v 1.30 2010/07/27 15:52:46 yana Exp $
+// $Id: FWMuonBuilder.cc,v 1.31 2010/07/28 13:10:27 yana Exp $
 //
 
 #include "TEveVSDStructs.h"
@@ -49,7 +49,7 @@ std::vector<TEveVector> getRecoTrajectoryPoints( const reco::Muon* muon,
       localTrajectoryPoint[1] = chamber->y;
       localTrajectoryPoint[2] = 0;
 
-      const TGeoHMatrix* matrix = geom->getMatrix( chamber->id.rawId());
+      const TGeoMatrix* matrix = geom->getMatrix( chamber->id.rawId());
       if ( matrix )
       {
          matrix->LocalToMaster( localTrajectoryPoint, globalTrajectoryPoint );
@@ -86,18 +86,28 @@ void addMatchInformation( const reco::Muon* muon,
     double segmentLength = 0.0;
     double segmentLimit  = 0.0;
 
-    TEveGeoShape* shape = geom->getShape( rawid );
-    if( shape ) 
+    TEveGeoShape* shape = new TEveGeoShape;
+    shape->SetElementName( "Chamber" );
+    shape->RefMainTrans().Scale( 0.999, 0.999, 0.999 );
+    TGeoShape* geoShape = geom->getShape( rawid );
+    const TGeoMatrix* matrix = geom->getMatrix( rawid );
+    if( ! matrix )
     {
-      shape->SetElementName( "Chamber" );
-      shape->RefMainTrans().Scale( 0.999, 0.999, 0.999 );
-
-      if( TGeoTrap* trap = dynamic_cast<TGeoTrap*>( shape->GetShape()))
+      fwLog( fwlog::kError )
+	<< "failed to get matrix for muon chamber with detid: "
+	<< rawid << std::endl;
+      return;
+    }
+    if( geoShape ) 
+    {
+      shape->SetShape( geoShape );
+      shape->SetTransMatrix( *matrix );
+      if( TGeoTrap* trap = dynamic_cast<TGeoTrap*>( geoShape ))
       {
         segmentLength = trap->GetDz();
         segmentLimit  = trap->GetH1();
       }
-      else if( TGeoBBox* box = dynamic_cast<TGeoBBox*>( shape->GetShape()))
+      else if( TGeoBBox* box = dynamic_cast<TGeoBBox*>( geoShape ))
       {
 	segmentLength = box->GetDZ();
       }
@@ -121,16 +131,6 @@ void addMatchInformation( const reco::Muon* muon,
       pb->setupAddElement( shape, parentList );
     }
      
-    const TGeoHMatrix* matrix = geom->getMatrix( rawid );
-    
-    if( ! matrix )
-    {
-      fwLog( fwlog::kError )
-	<< "failed to get matrix for muon chamber with detid: "
-	<< rawid << std::endl;
-      return;
-    }
-
     for( std::vector<reco::MuonSegmentMatch>::const_iterator segment = chamber->segmentMatches.begin(),
 							  segmentEnd = chamber->segmentMatches.end();
 	 segment != segmentEnd; ++segment )
@@ -184,7 +184,7 @@ buggyMuon( const reco::Muon* muon,
       localTrajectoryPoint[1] = chamber->y;
       localTrajectoryPoint[2] = 0;
 
-      const TGeoHMatrix* matrix = geom->getMatrix( chamber->id.rawId());
+      const TGeoMatrix* matrix = geom->getMatrix( chamber->id.rawId());
       if( matrix )
       {
          matrix->LocalToMaster( localTrajectoryPoint, globalTrajectoryPoint );

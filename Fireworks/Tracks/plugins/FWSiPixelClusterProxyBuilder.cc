@@ -7,7 +7,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiPixelClusterProxyBuilder.cc,v 1.13 2010/08/06 14:07:50 yana Exp $
+// $Id: FWSiPixelClusterProxyBuilder.cc,v 1.14 2010/08/23 15:26:40 yana Exp $
 //
 
 #include "TEvePointSet.h"
@@ -56,7 +56,7 @@ FWSiPixelClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementList* 
     unsigned int id = set->detId();
 
     const DetIdToMatrix *geom = iItem->getGeom();
-    const TGeoHMatrix* matrix = geom->getMatrix( id );
+    const TGeoMatrix* matrix = geom->getMatrix( id );
     const float* pars = geom->getParameters( id );
 
     const edmNew::DetSet<SiPixelCluster> & clusters = *set;

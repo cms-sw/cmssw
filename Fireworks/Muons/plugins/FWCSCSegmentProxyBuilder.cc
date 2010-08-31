@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCSegmentProxyBuilder.cc,v 1.13 2010/06/18 12:44:05 yana Exp $
+// $Id: FWCSCSegmentProxyBuilder.cc,v 1.14 2010/07/28 13:31:35 yana Exp $
 //
 
 #include "TEveGeoNode.h"
@@ -42,7 +42,7 @@ FWCSCSegmentProxyBuilder::build( const CSCSegment& iData,
 				 unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* )
 {
   unsigned int rawid = iData.cscDetId().rawId();
-  const TGeoHMatrix* matrix = item()->getGeom()->getMatrix( rawid );
+  const TGeoMatrix* matrix = item()->getGeom()->getMatrix( rawid );
   
   if( ! matrix ) 
   {
@@ -59,45 +59,42 @@ FWCSCSegmentProxyBuilder::build( const CSCSegment& iData,
   double length    = 0.0;
   double thickness = 0.0;
 
-  TEveGeoShape* shape = item()->getGeom()->getShape( rawid );
-  if( shape ) 
+  TEveGeoShape* shape = item()->getGeom()->getEveShape( rawid );
+  if( TGeoTrap* trap = dynamic_cast<TGeoTrap*>( shape->GetShape())) // Trapezoidal
   {
-    if( TGeoTrap* trap = dynamic_cast<TGeoTrap*>( shape->GetShape()))
-    {
-      length = trap->GetDz();
-      thickness = trap->GetH1();
+     length = trap->GetDz();
+     thickness = trap->GetH1();
 
-      LocalPoint pos = iData.localPosition();
-      LocalVector dir = iData.localDirection();   
-      LocalVector unit = dir.unit();
+     LocalPoint pos = iData.localPosition();
+     LocalVector dir = iData.localDirection();   
+     LocalVector unit = dir.unit();
     
-      double localPosition[3]     = {  pos.x(),  pos.y(),  pos.z() };
-      double localDirectionIn[3]  = {  dir.x(),  dir.y(),  dir.z() };
-      double localDirectionOut[3] = { -dir.x(), -dir.y(), -dir.z() };
+     double localPosition[3]     = {  pos.x(),  pos.y(),  pos.z() };
+     double localDirectionIn[3]  = {  dir.x(),  dir.y(),  dir.z() };
+     double localDirectionOut[3] = { -dir.x(), -dir.y(), -dir.z() };
   
-      Double_t distIn = trap->DistFromInside( localPosition, localDirectionIn );
-      Double_t distOut = trap->DistFromInside( localPosition, localDirectionOut );
-      LocalVector vIn = unit * distIn;
-      LocalVector vOut = -unit * distOut;
-      double localSegmentInnerPoint[3] = { localPosition[0] + vIn.x(),
-					   localPosition[1] + vIn.y(),
-					   localPosition[2] + vIn.z() 
-      };
+     Double_t distIn = trap->DistFromInside( localPosition, localDirectionIn );
+     Double_t distOut = trap->DistFromInside( localPosition, localDirectionOut );
+     LocalVector vIn = unit * distIn;
+     LocalVector vOut = -unit * distOut;
+     double localSegmentInnerPoint[3] = { localPosition[0] + vIn.x(),
+					  localPosition[1] + vIn.y(),
+					  localPosition[2] + vIn.z() 
+     };
       
-      double localSegmentOuterPoint[3] = { localPosition[0] + vOut.x(),
-					   localPosition[1] + vOut.y(),
-					   localPosition[2] + vOut.z() 
-      };
+     double localSegmentOuterPoint[3] = { localPosition[0] + vOut.x(),
+					  localPosition[1] + vOut.y(),
+					  localPosition[2] + vOut.z() 
+     };
 
-      double globalSegmentInnerPoint[3];
-      double globalSegmentOuterPoint[3];
+     double globalSegmentInnerPoint[3];
+     double globalSegmentOuterPoint[3];
 
-      matrix->LocalToMaster( localSegmentInnerPoint,  globalSegmentInnerPoint );
-      matrix->LocalToMaster( localSegmentOuterPoint,  globalSegmentOuterPoint );
+     matrix->LocalToMaster( localSegmentInnerPoint,  globalSegmentInnerPoint );
+     matrix->LocalToMaster( localSegmentOuterPoint,  globalSegmentOuterPoint );
 
-      segmentSet->AddLine( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
-			   globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
-    }
+     segmentSet->AddLine( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
+			  globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );	
   }
 }
 

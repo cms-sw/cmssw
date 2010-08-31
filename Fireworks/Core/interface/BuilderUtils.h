@@ -53,14 +53,14 @@ public:
    }
 };
 
-TEveElementList *getEcalCrystals (const EcalRecHitCollection *,
-                                  const DetIdToMatrix &,
-                                  const std::vector<DetId> &);
-TEveElementList *getEcalCrystals (const EcalRecHitCollection *,
-                                  const DetIdToMatrix &,
-                                  double eta, double phi,
-                                  int n_eta = 5, int n_phi = 10);
-//    TEveElementList *getMuonCalTowers (double eta, double phi);
+// TEveElementList *getEcalCrystals (const EcalRecHitCollection *,
+//                                   const DetIdToMatrix &,
+//                                   const std::vector<DetId> &);
+// TEveElementList *getEcalCrystals (const EcalRecHitCollection *,
+//                                   const DetIdToMatrix &,
+//                                   double eta, double phi,
+//                                   int n_eta = 5, int n_phi = 10);
+// //    TEveElementList *getMuonCalTowers (double eta, double phi);
 
 std::string getTimeGMT(const edm::EventBase& event);
 std::string getLocalTime(const edm::EventBase& event);

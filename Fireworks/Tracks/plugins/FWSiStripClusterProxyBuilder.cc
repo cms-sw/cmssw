@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWSiStripClusterProxyBuilder.cc,v 1.14 2010/08/19 13:39:17 yana Exp $
+// $Id: FWSiStripClusterProxyBuilder.cc,v 1.15 2010/08/23 15:26:42 yana Exp $
 //
 
 #include "TEveGeoNode.h"
@@ -39,7 +39,7 @@ FWSiStripClusterProxyBuilder::build( const SiStripCluster& iData,
   unsigned int rawid = iData.geographicalId();
   const DetIdToMatrix *geom = item()->getGeom();
  
-  TEveGeoShape* shape = geom->getShape( rawid );
+  TEveGeoShape* shape = geom->getEveShape( rawid );
   
   if( shape ) 
   {
@@ -57,7 +57,7 @@ FWSiStripClusterProxyBuilder::build( const SiStripCluster& iData,
   TEveStraightLineSet *lineSet = new TEveStraightLineSet( "strip" );
   setupAddElement( lineSet, &oItemHolder );
 
-  const TGeoHMatrix* matrix = geom->getMatrix( rawid );
+  const TGeoMatrix* matrix = geom->getMatrix( rawid );
   const float* pars = geom->getParameters( rawid );
   if( pars == 0 || (! matrix ))
   {

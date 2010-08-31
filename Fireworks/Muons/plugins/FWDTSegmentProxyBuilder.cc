@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWDTSegmentProxyBuilder.cc,v 1.8 2010/05/21 13:45:46 mccauley Exp $
+// $Id: FWDTSegmentProxyBuilder.cc,v 1.9 2010/07/28 13:12:19 yana Exp $
 //
 
 #include "TEveGeoNode.h"
@@ -42,7 +42,7 @@ FWDTSegmentProxyBuilder::build( const DTRecSegment4D& iData,
 				unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* )
 {
   unsigned int rawid = iData.chamberId().rawId();
-  const TGeoHMatrix* matrix = item()->getGeom()->getMatrix( rawid );
+  const TGeoMatrix* matrix = item()->getGeom()->getMatrix( rawid );
 
   if( ! matrix ) 
   {
@@ -56,7 +56,7 @@ FWDTSegmentProxyBuilder::build( const DTRecSegment4D& iData,
   segmentSet->SetLineWidth( 3 );
   setupAddElement( segmentSet, &oItemHolder );
    
-  TEveGeoShape* shape = item()->getGeom()->getShape( rawid );
+  TEveGeoShape* shape = item()->getGeom()->getEveShape( rawid );
   if( shape ) 
   {
     if( TGeoBBox* box = dynamic_cast<TGeoBBox*>( shape->GetShape()))

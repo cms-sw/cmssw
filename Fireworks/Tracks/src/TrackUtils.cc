@@ -2,7 +2,7 @@
 //
 // Package:     Tracks
 // Class  :     TrackUtils
-// $Id: TrackUtils.cc,v 1.37 2010/08/19 13:39:18 yana Exp $
+// $Id: TrackUtils.cc,v 1.38 2010/08/23 15:26:43 yana Exp $
 //
 
 // system include files
@@ -435,7 +435,7 @@ addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveEl
    for( trackingRecHit_iterator it = t.recHitsBegin(), itEnd = t.recHitsEnd(); it != itEnd; ++it )
    {
       unsigned int rawid = (*it)->geographicalId();
-      const TGeoHMatrix* matrix = geom->getMatrix( rawid );
+      const TGeoMatrix* matrix = geom->getMatrix( rawid );
       const float* pars = geom->getParameters( rawid );
       if( pars == 0 || (! matrix ))
       {
@@ -583,7 +583,7 @@ pushNearbyPixelHits(std::vector<TVector3> &pixelPoints, const FWEventItem &iItem
       const TrackingRecHit* rh = &(**it);
 
       DetId id = (*it)->geographicalId();
-      const TGeoHMatrix *m = detIdToGeo->getMatrix(id);
+      const TGeoMatrix *m = detIdToGeo->getMatrix(id);
       const float* pars = detIdToGeo->getParameters( id );
       if( pars == 0 || (! m )) {
 	fwLog( fwlog::kError )
@@ -634,7 +634,7 @@ pushPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, con
       const TrackingRecHit* rh = &(**it);			
       // -- get position of center of wafer, assuming (0,0,0) is the center
       DetId id = (*it)->geographicalId();
-      const TGeoHMatrix *m = detIdToGeo->getMatrix( id );
+      const TGeoMatrix *m = detIdToGeo->getMatrix( id );
       const float* pars = detIdToGeo->getParameters( id );
       if( pars == 0 || (! m ))
       {
@@ -667,7 +667,7 @@ pushPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, con
 }
   
 void
-pushPixelCluster( std::vector<TVector3> &pixelPoints, const TGeoHMatrix *m, DetId id, const SiPixelCluster &c, const float* pars )
+pushPixelCluster( std::vector<TVector3> &pixelPoints, const TGeoMatrix *m, DetId id, const SiPixelCluster &c, const float* pars )
 {
    double row = c.minPixelRow();
    double col = c.minPixelCol();

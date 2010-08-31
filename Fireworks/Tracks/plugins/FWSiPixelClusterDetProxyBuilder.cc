@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiPixelClusterDetProxyBuilder.cc,v 1.2 2010/05/05 10:42:18 mccauley Exp $
+// $Id: FWSiPixelClusterDetProxyBuilder.cc,v 1.3 2010/06/18 12:44:47 yana Exp $
 //
 
 #include "TEveGeoNode.h"
@@ -54,7 +54,7 @@ void FWSiPixelClusterDetProxyBuilder::build( const FWEventItem* iItem, TEveEleme
       for( edmNew::DetSet<SiPixelCluster>::const_iterator itc = clusters.begin(), edc = clusters.end(); 
            itc != edc; ++itc ) 
       {
-        TEveGeoShape* shape = iItem->getGeom()->getShape(detid);
+        TEveGeoShape* shape = iItem->getGeom()->getEveShape(detid);
        
         if ( shape )
         {

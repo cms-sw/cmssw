@@ -411,7 +411,7 @@ FWTrackHitsDetailView::addModules( const reco::Track& track,
 	 if( ! ids.insert( detid.rawId()).second ) continue;
 	 if( iItem->getGeom())
 	 {
-	    TEveGeoShape* shape = iItem->getGeom()->getShape( detid );
+	    TEveGeoShape* shape = iItem->getGeom()->getEveShape( detid );
 	    if( 0 != shape )
 	    {
 	       shape->SetMainTransparency( 65 );

@@ -9,6 +9,7 @@
  <use name="DataFormats/SiStripDigi"/>
  <use name="DataFormats/TrackReco"/>
  <use name="DataFormats/TrackingRecHit"/>
+ <use name="DataFormats/GeometrySurface"/>
  <use name="Fireworks/Core"/>
  <use name="Fireworks/Tracks"/>
  <use name="rootinteractive"/>

@@ -3,7 +3,7 @@
 // Package:     Muons
 // Class  :     FWDTRecHitProxyBuilder
 //
-// $Id: FWDTRecHitProxyBuilder.cc,v 1.8 2010/07/23 13:53:37 yana Exp $
+// $Id: FWDTRecHitProxyBuilder.cc,v 1.9 2010/07/28 13:51:36 yana Exp $
 //
 
 #include "TEvePointSet.h"
@@ -21,7 +21,7 @@ namespace
 {
   void 
   addLineWithMarkers( TEveStraightLineSet* recHitSet, TEvePointSet* pointSet, 
-		      const TGeoHMatrix* matrix, double lLocalPos[3], double rLocalPos[3] ) 
+		      const TGeoMatrix* matrix, double lLocalPos[3], double rLocalPos[3] ) 
   {
     double leftGlobalPoint[3];
     double rightGlobalPoint[3];
@@ -64,7 +64,7 @@ FWDTRecHitProxyBuilder::buildViewType( const DTRecHit1DPair& iData, unsigned int
   const DTLayerId& layerId = iData.wireId().layerId();
   int superLayer = layerId.superlayerId().superLayer();
 
-  const TGeoHMatrix* matrix = item()->getGeom()->getMatrix( layerId );
+  const TGeoMatrix* matrix = item()->getGeom()->getMatrix( layerId );
     
   if( ! matrix ) 
   {

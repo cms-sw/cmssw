@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.21 2010/08/24 11:45:38 mccauley Exp $
+// $Id: ValidateGeometry.cc,v 1.22 2010/08/25 10:25:03 mccauley Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -96,7 +96,7 @@ private:
   void validateStripTopology(const TrackerGeometry::DetContainer& dets,
                              const char* detname);
         
-  void compareTransform(const GlobalPoint& point, const TGeoHMatrix* matrix);
+  void compareTransform(const GlobalPoint& point, const TGeoMatrix* matrix);
 
   void compareShape(const GeomDet* det, TGeoShape* shape);
 
@@ -148,7 +148,6 @@ ValidateGeometry::ValidateGeometry(const edm::ParameterSet& iConfig)
   : infileName_(iConfig.getUntrackedParameter<std::string>("infileName")),
     outfileName_(iConfig.getUntrackedParameter<std::string>("outfileName"))
 {
-  detIdToMatrix_.loadGeometry(infileName_.c_str());
   detIdToMatrix_.loadMap(infileName_.c_str());
 
   outFile_ = new TFile(outfileName_.c_str(), "RECREATE");
@@ -311,7 +310,7 @@ ValidateGeometry::validateRPCGeometry(const int regionNumber, const char* region
         const GeomDetUnit* det = rpcGeometry_->idToDetUnit(rpcDetId);
         GlobalPoint gp = det->surface().toGlobal(LocalPoint(0.0, 0.0, 0.0)); 
       
-        const TGeoHMatrix* matrix = detIdToMatrix_.getMatrix(rpcDetId.rawId());
+        const TGeoMatrix* matrix = detIdToMatrix_.getMatrix(rpcDetId.rawId());
 
         if ( ! matrix )
         {
@@ -393,7 +392,7 @@ ValidateGeometry::validateDTChamberGeometry()
       DTChamberId chId = chamber->id();
       GlobalPoint gp = chamber->surface().toGlobal(LocalPoint(0.0, 0.0, 0.0)); 
      
-      const TGeoHMatrix* matrix = detIdToMatrix_.getMatrix(chId.rawId());
+      const TGeoMatrix* matrix = detIdToMatrix_.getMatrix(chId.rawId());
  
       if ( ! matrix )   
       {     
@@ -438,7 +437,7 @@ ValidateGeometry::validateDTSuperLayerGeometry()
       DTSuperLayerId chId = superlayer->id();
       GlobalPoint gp = superlayer->surface().toGlobal(LocalPoint(0.0, 0.0, 0.0)); 
      
-      const TGeoHMatrix* matrix = detIdToMatrix_.getMatrix(chId.rawId());
+      const TGeoMatrix* matrix = detIdToMatrix_.getMatrix(chId.rawId());
  
       if ( ! matrix )   
       {     
@@ -505,7 +504,7 @@ ValidateGeometry::validateDTLayerGeometry()
       DTLayerId layerId = layer->id();
       GlobalPoint gp = layer->surface().toGlobal(LocalPoint(0.0, 0.0, 0.0)); 
      
-      const TGeoHMatrix* matrix = detIdToMatrix_.getMatrix(layerId.rawId());
+      const TGeoMatrix* matrix = detIdToMatrix_.getMatrix(layerId.rawId());
  
       if ( ! matrix )   
       {     
@@ -590,7 +589,7 @@ ValidateGeometry::validateCSChamberGeometry(const int endcap, const char* detnam
       DetId detId = chamber->geographicalId();
       GlobalPoint gp = chamber->surface().toGlobal(LocalPoint(0.0,0.0,0.0));
 
-      const TGeoHMatrix* matrix = detIdToMatrix_.getMatrix(detId.rawId());
+      const TGeoMatrix* matrix = detIdToMatrix_.getMatrix(detId.rawId());
   
       if ( ! matrix ) 
       {     
@@ -637,7 +636,7 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
       DetId detId = layer->geographicalId();
       GlobalPoint gp = layer->surface().toGlobal(LocalPoint(0.0,0.0,0.0));
 
-      const TGeoHMatrix* matrix = detIdToMatrix_.getMatrix(detId.rawId());
+      const TGeoMatrix* matrix = detIdToMatrix_.getMatrix(detId.rawId());
   
       if ( ! matrix ) 
       {     
@@ -846,7 +845,7 @@ ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetContainer& d
     GlobalPoint gp = (trackerGeometry_->idToDet((*it)->geographicalId()))->surface().toGlobal(LocalPoint(0.0,0.0,0.0));
     unsigned int rawId = (*it)->geographicalId().rawId();
 
-    const TGeoHMatrix* matrix = detIdToMatrix_.getMatrix(rawId);
+    const TGeoMatrix* matrix = detIdToMatrix_.getMatrix(rawId);
 
     if ( ! matrix )
     {
@@ -886,7 +885,7 @@ ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetUnitContaine
     GlobalPoint gp = (trackerGeometry_->idToDet((*it)->geographicalId()))->surface().toGlobal(LocalPoint(0.0,0.0,0.0));
     unsigned int rawId = (*it)->geographicalId().rawId();
 
-    const TGeoHMatrix* matrix = detIdToMatrix_.getMatrix(rawId);
+    const TGeoMatrix* matrix = detIdToMatrix_.getMatrix(rawId);
 
     if ( ! matrix )
     {
@@ -1017,7 +1016,7 @@ ValidateGeometry::validateStripTopology(const TrackerGeometry::DetContainer& det
 
 void    
 ValidateGeometry::compareTransform(const GlobalPoint& gp,
-                                   const TGeoHMatrix* matrix)
+                                   const TGeoMatrix* matrix)
 {
   double local[3] = 
     {

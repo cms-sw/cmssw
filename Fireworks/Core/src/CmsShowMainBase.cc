@@ -432,7 +432,6 @@ CmsShowMainBase::loadGeometry()
    try 
    {
       guiManager()->updateStatus("Loading geometry...");
-      m_detIdToGeo.loadGeometry(m_geometryFilename.c_str());
       m_detIdToGeo.loadMap(m_geometryFilename.c_str());
       m_context->setGeom(&m_detIdToGeo);
    }

@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiPixelDigiProxyBuilder.cc,v 1.13 2010/08/12 12:44:48 yana Exp $
+// $Id: FWSiPixelDigiProxyBuilder.cc,v 1.14 2010/08/23 15:26:41 yana Exp $
 //
 
 #include "TEveCompound.h"
@@ -55,7 +55,7 @@ void FWSiPixelDigiProxyBuilder::build( const FWEventItem* iItem, TEveElementList
     edm::DetSet<PixelDigi> ds = *it;
     unsigned int id = ds.id;
 
-    const TGeoHMatrix *matrix = geom->getMatrix( id );
+    const TGeoMatrix *matrix = geom->getMatrix( id );
     const float* pars = geom->getParameters( id );
          
     for( edm::DetSet<PixelDigi>::const_iterator idigi = ds.data.begin(), idigiEnd = ds.data.end();

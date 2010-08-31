@@ -225,7 +225,7 @@ FWTrackResidualDetailView::getSignedResidual (const DetIdToMatrix *detIdToGeo, u
    double local1[3] = { 0, 0, 0 };
    double local2[3] = { resX, 0, 0 };
    double global1[3], global2[3];
-   const TGeoHMatrix *m = detIdToGeo->getMatrix(id);
+   const TGeoMatrix *m = detIdToGeo->getMatrix(id);
    assert(m != 0);
    m->LocalToMaster(local1, global1);
    m->LocalToMaster(local2, global2);

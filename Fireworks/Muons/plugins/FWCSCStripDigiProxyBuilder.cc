@@ -8,7 +8,7 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCStripDigiProxyBuilder.cc,v 1.9 2010/08/17 15:21:42 mccauley Exp $
+// $Id: FWCSCStripDigiProxyBuilder.cc,v 1.10 2010/08/23 15:26:36 yana Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -59,7 +59,7 @@ FWCSCStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
       const CSCDetId& cscDetId = (*dri).first;
       const CSCStripDigiCollection::Range& range = (*dri).second;
 
-      const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix(cscDetId.rawId());
+      const TGeoMatrix* matrix = iItem->getGeom()->getMatrix(cscDetId.rawId());
     
       if ( ! matrix )
       {
@@ -68,9 +68,9 @@ FWCSCStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
          continue;
       }
      
-      TEveGeoShape* shape = iItem->getGeom()->getShape(cscDetId.rawId());
+      const float* shape = iItem->getGeom()->getShapePars(cscDetId.rawId());
 
-      if ( ! shape )
+      if( shape == 0 )
       {
          fwLog(fwlog::kWarning)<<"Failed to get shape of CSC with detid: "
                                << cscDetId.rawId() <<std::endl;
@@ -79,8 +79,8 @@ FWCSCStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
 
       double length;
 
-      if ( TGeoTrap* trap = dynamic_cast<TGeoTrap*>(shape->GetShape()) )
-         length = trap->GetH1();
+      if( shape[0] == 1 )
+         length = shape[3]; //trap->GetH1();
 
       else
       {

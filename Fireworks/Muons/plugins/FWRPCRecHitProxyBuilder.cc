@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: FWRPCRecHitProxyBuilder.cc,v 1.11 2010/07/23 07:50:12 yana Exp $
+// $Id: FWRPCRecHitProxyBuilder.cc,v 1.12 2010/08/17 15:21:42 mccauley Exp $
 //
 
 #include "TEveGeoNode.h"
@@ -53,7 +53,7 @@ FWRPCRecHitProxyBuilder::buildViewType(const RPCRecHit& iData,
 {
   RPCDetId rpcId = iData.rpcId();
 
-  const TGeoHMatrix* matrix = item()->getGeom()->getMatrix(rpcId);
+  const TGeoMatrix* matrix = item()->getGeom()->getMatrix(rpcId);
   
   if ( ! matrix ) 
   {
@@ -68,7 +68,7 @@ FWRPCRecHitProxyBuilder::buildViewType(const RPCRecHit& iData,
   TEveStraightLineSet* recHitSet = new TEveStraightLineSet(s.str().c_str());
   recHitSet->SetLineWidth(3);
 
-  TEveGeoShape* shape = item()->getGeom()->getShape(rpcId);
+  TEveGeoShape* shape = item()->getGeom()->getEveShape(rpcId);
 
   if ( shape && ( type == FWViewType::k3D || type == FWViewType::kISpy ) ) 
   {

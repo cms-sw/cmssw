@@ -8,7 +8,7 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCWireDigiProxyBuilder.cc,v 1.11 2010/08/17 15:21:42 mccauley Exp $
+// $Id: FWCSCWireDigiProxyBuilder.cc,v 1.12 2010/08/23 15:26:36 yana Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -99,7 +99,7 @@ FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* prod
     const CSCDetId& cscDetId = (*dri).first;
     const CSCWireDigiCollection::Range& range = (*dri).second;
  
-    const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix(cscDetId.rawId());
+    const TGeoMatrix* matrix = iItem->getGeom()->getMatrix(cscDetId.rawId());
     
     if ( ! matrix )
     {
@@ -108,9 +108,9 @@ FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* prod
       continue;
     }
 
-    TEveGeoShape* shape = iItem->getGeom()->getShape(cscDetId.rawId());
+    const float* shape = iItem->getGeom()->getShapePars( cscDetId.rawId());
 
-    if ( ! shape )
+    if( shape == 0 )
     {
       fwLog(fwlog::kWarning)<<"Failed to get shape of CSC chamber with detid: "
                             << cscDetId.rawId() <<std::endl;
@@ -121,13 +121,12 @@ FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* prod
     double topWidth;
     double bottomWidth;
    
-    if ( TGeoTrap* trap = dynamic_cast<TGeoTrap*>(shape->GetShape()) )
+    if( shape[0] == 0 )
     {
-      topWidth = trap->GetTl1()*2.0;
-      bottomWidth = trap->GetBl1()*2.0;
-      length = trap->GetH1()*2.0;
+      topWidth = shape[1]; // trap->GetTl1()*2.0;
+      bottomWidth = shape[2]; //trap->GetBl1()*2.0;
+      length = shape[3]; //trap->GetH1()*2.0;
     }
-
     else
     {
       fwLog(fwlog::kWarning)<<"Failed to get trapezoid from shape for CSC with detid: "

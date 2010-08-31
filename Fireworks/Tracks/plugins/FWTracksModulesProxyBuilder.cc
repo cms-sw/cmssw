@@ -49,7 +49,7 @@ FWTracksModulesProxyBuilder::build( const reco::Track& track, unsigned int iInde
 		  detid = DetId( DTChamberId( detid )); // get rid of layer bits
             }
 
-            TEveGeoShape* shape = item()->getGeom()->getShape( detid );
+            TEveGeoShape* shape = item()->getGeom()->getEveShape( detid );
             if( shape )
             {
                setupAddElement( shape, &oItemHolder );
