@@ -236,7 +236,7 @@ Bool_t CmsAnnotation::Handle(TGLRnrCtx&          rnrCtx,
          {
             fParent->RequestDraw(rnrCtx.ViewerLOD());
             delete this;
-            retrun kTRUE;
+            return kTRUE;
          }
       }
       case kMotionNotify:
