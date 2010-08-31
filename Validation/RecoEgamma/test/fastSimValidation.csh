@@ -17,15 +17,16 @@
 
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
-setenv CMSSWver1 3_9_0
-setenv RELEASE 390
-setenv PRERELEASE pre2 
+setenv CMSSWver1 3_8_2
+setenv RELEASE 382
+setenv PRERELEASE 
 
 
 setenv RELEASE ${RELEASE}${PRERELEASE}
 
+setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/testForFastSimIn382/src/Validation/RecoEgamma/test
 #setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
-setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${PRERELEASE}/src/Validation/RecoEgamma/test
+#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${PRERELEASE}/src/Validation/RecoEgamma/test
 
 
 #Name of sample (affects output directory name and htmldescription only) 
@@ -36,8 +37,8 @@ setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 #setenv SAMPLE PhotonJetPt80
 #setenv SAMPLE PhotonJetPt470
 
-setenv SAMPLE SingleGammaPt10IDEAL
-#setenv SAMPLE SingleGammaPt35IDEAL
+#setenv SAMPLE SingleGammaPt10IDEAL
+setenv SAMPLE SingleGammaPt35IDEAL
 ##setenv SAMPLE SingleGammaFlatPt10_100IDEAL
 #setenv SAMPLE H130GGgluonfusionSTARTUP
 #setenv SAMPLE PhotonJets_Pt_10
@@ -222,6 +223,9 @@ scpEResVsR9Endcap
 pEResVsEtAll
 pEResVsEtBarrel
 pEResVsEtEndcap
+pEResVsEtaAll
+pEResVsEtaUnconv
+pEResVsEtaConv
 pEcalRecHitSumEtConeDR04VsEtaAll
 pEcalRecHitSumEtConeDR04VsEtBarrel
 pEcalRecHitSumEtConeDR04VsEtEndcap
