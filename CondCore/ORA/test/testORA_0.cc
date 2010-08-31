@@ -245,7 +245,6 @@ int main(){
       boost::shared_ptr<std::string> s = iter1.get<std::string>();
       std::cout << " **** Cont="<<contH1.name()<<" val="<<*s<<std::endl;
     }
-    ::sleep(5);
     db.drop();
     trans5.commit();
     db.disconnect();
