@@ -234,5 +234,5 @@ process.DQM.collectorHost = ''
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.prefer("GlobalTag")
-process.GlobalTag.globaltag = "CRAFT09_R_V4::All"
+process.GlobalTag.globaltag = "GR_R_38X_V9::All"
 
