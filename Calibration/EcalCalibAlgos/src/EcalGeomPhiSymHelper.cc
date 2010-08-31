@@ -8,12 +8,13 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 
 //Channel status
 
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatusCode.h"
-
+#include <fstream>
 
 void EcalGeomPhiSymHelper::setup(const CaloGeometry* geometry, 
 				 const EcalChannelStatus* chStatus,
@@ -81,7 +82,7 @@ void EcalGeomPhiSymHelper::setup(const CaloGeometry* geometry,
     cellPhi_[ix][iy] = cellGeometry->getPosition().phi();
 
     // calculate and store eta-phi area for each crystal front face Shoelace formuls
-    const CaloCellGeometry::CornersVec& cellCorners (cellGeometry->getCorners()) ;
+       const CaloCellGeometry::CornersVec& cellCorners (cellGeometry->getCorners()) ;
     cellArea_[ix][iy]=0.;
 
     for (int i=0; i<4; i++) {
@@ -93,9 +94,16 @@ void EcalGeomPhiSymHelper::setup(const CaloGeometry* geometry,
     }
    
 
-    cellArea_[ix][iy] = cellArea_[ix][iy]/2.;
+    cellArea_[ix][iy] = fabs(cellArea_[ix][iy])/2.;
+/*
+    const double deltaPhi =
+      (dynamic_cast<const EcalEndcapGeometry*>(endcapGeometry))->deltaPhi(ee);
 
+    const double deltaEta =
+      (dynamic_cast<const EcalEndcapGeometry*>(endcapGeometry))->deltaEta(ee) ;
 
+    cellArea_[ix][iy] = deltaEta*deltaPhi;
+*/
     int chs= (*chStatus)[*endcapIt].getStatusCode() & 0x001F;
     if( chs <=  statusThresold)
       goodCell_endc[ix][iy][sign] = true;
@@ -110,6 +118,7 @@ void EcalGeomPhiSymHelper::setup(const CaloGeometry* geometry,
     double eta_ring_minus1= cellPos_[ring-1][50].eta()  ;
     double eta_ring = cellPos_[ring][50].eta()  ; 
     etaBoundary_[ring]=(eta_ring+eta_ring_minus1)/2.;
+    std::cout << "Eta ring " << ring << " : " << eta_ring << std::endl; 
   }
 
 
@@ -118,7 +127,8 @@ void EcalGeomPhiSymHelper::setup(const CaloGeometry* geometry,
 
   // determine to which ring each endcap crystal belongs,
   // the number of crystals in each ring,
-  // and the mean et-phi area of the crystals in each ring
+  // and the mean eta-phi area of the crystals in each ring
+
   for (int ring=0; ring<kEndcEtaRings; ring++) {
     nRing_[ring]=0;
     meanCellArea_[ring]=0.;
@@ -130,6 +140,8 @@ void EcalGeomPhiSymHelper::setup(const CaloGeometry* geometry,
 	  endcapRing_[ix][iy]=ring;
 	  nRing_[ring]++;
 	  
+	  
+
 	  for(int sign=0; sign<kSides; sign++){
 	    if( !goodCell_endc[ix][iy][sign] )
 	      nBads_endc[ring]++;
@@ -168,6 +180,15 @@ void EcalGeomPhiSymHelper::setup(const CaloGeometry* geometry,
   
     } //ring
 
-
-  
+    // Print out detid->ring association 
+    std::fstream eeringsf("endcaprings.dat",std::ios::out);
+    for (endcapIt=endcapCells.begin(); endcapIt!=endcapCells.end();endcapIt++){
+      EEDetId eedet(*endcapIt);
+      eeringsf<< eedet.hashedIndex()<< " " 
+	      << endcapRing_[eedet.ix()-1][eedet.iy()-1] << " " 
+              << cellPhi_ [eedet.ix()-1][eedet.iy()-1] << " "
+              << cellArea_[eedet.ix()-1][eedet.iy()-1]/
+	         meanCellArea_[endcapRing_[eedet.ix()-1][eedet.iy()-1]] <<   std::endl;
+              
+    }
 }

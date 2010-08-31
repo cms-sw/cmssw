@@ -143,7 +143,7 @@ class PhiSymmetryCalibration :  public edm::EDAnalyzer
   
 
   bool reiteration_;
-  std::string oldcalibfile_;
+  std::string oldcalibfile_; //searched for in Calibration/EcalCalibAlgos/data
   
   /// the old calibration constants (when reiterating, the last ones derived)
   EcalIntercalibConstants oldCalibs_;

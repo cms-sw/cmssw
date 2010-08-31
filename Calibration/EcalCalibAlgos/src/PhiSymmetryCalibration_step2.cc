@@ -43,7 +43,7 @@ void PhiSymmetryCalibration_step2::analyze( const edm::Event& ev,
 
   if (firstpass_) {
     setUp(se);
-    firstpass_=false;
+    firstpass_=false;    
   }
 }
 
@@ -160,7 +160,7 @@ void PhiSymmetryCalibration_step2::endJob(){
   // perform the area correction for endcap etsum
   // NOT  USED  ANYMORE
 
-  /*
+  
   for (int ix=0; ix<kEndcWedgesX; ix++) {
     for (int iy=0; iy<kEndcWedgesY; iy++) {
 
@@ -169,12 +169,12 @@ void PhiSymmetryCalibration_step2::endJob(){
       if (ring!=-1) {
 	for (int sign=0; sign<kSides; sign++) {
 	  etsum_endc_uncorr[ix][iy][sign] = etsum_endc_[ix][iy][sign];
-	  etsum_endc_[ix][iy][sign]*=meanCellArea_[ring]/cellArea_[ix][iy];
+	  etsum_endc_[ix][iy][sign]*=e_.meanCellArea_[ring]/e_.cellArea_[ix][iy];
 	}
       }
     }
   }
-  */
+  
 
   // ETsum histos, maps and other usefull histos (area,...)
   // are filled and saved here
@@ -306,6 +306,32 @@ void PhiSymmetryCalibration_step2::endJob(){
   fillConstantsHistos();
   
   outResidHistos();
+ 
+  // finally output global etsums
+  fstream ebf("etsummary_barl.dat",ios::out);
+  fstream eef("etsummary_endc.dat",ios::out);
+  
+  for (int ieta=0; ieta<kBarlRings; ieta++) {
+    for (int iphi=0; iphi<kBarlWedges; iphi++) {
+      for (int sign=0; sign<kSides; sign++) {
+
+	ebf<< ieta<< " " << iphi << " " <<sign <<" " 
+	   << etsum_barl_[ieta][iphi][sign]<<endl;
+	  
+      }
+    }
+  }
+  
+  for (int ix=0; ix<kEndcWedgesX; ix++) {
+    for (int iy=0; iy<kEndcWedgesY; iy++) {
+      for (int sign=0; sign<kSides; sign++) {
+	eef<<ix<<" " <<iy<<" " <<sign<<" "
+	   <<  etsum_endc_[ix][iy][sign]<<endl;
+	  
+	  
+      }
+    }
+  }
   
 }
 
@@ -785,7 +811,6 @@ void PhiSymmetryCalibration_step2::readEtSums(){
   while ( etsum_endc_in >> dummy >> ix >> iy >> sign >> etsum >> nhits>>dummy ) {
     etsum_endc_[ix][iy][sign]+=etsum;
     nhits_endc_[ix][iy][sign]+=nhits;
-
   }
 
   std::ifstream k_barl_in("k_barl.dat", ios::in);

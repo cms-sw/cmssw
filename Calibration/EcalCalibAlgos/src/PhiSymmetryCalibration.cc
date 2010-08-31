@@ -562,12 +562,17 @@ void PhiSymmetryCalibration::setUp(const edm::EventSetup& setup){
   if (reiteration_){   
     
     EcalCondHeader h;
-    namespace fs = boost::filesystem;
-    fs::path p(oldcalibfile_.c_str(),fs::native);
-    if (!fs::exists(p)) edm::LogError("PhiSym") << "File not found: " 
-						<< oldcalibfile_ <<endl;  
+    // namespace fs = boost::filesystem;
+//     fs::path p(oldcalibfile_.c_str(),fs::native);
+//     if (!fs::exists(p)) edm::LogError("PhiSym") << "File not found: " 
+// 						<< oldcalibfile_ <<endl;
     
-    int ret=EcalIntercalibConstantsXMLTranslator::readXML(oldcalibfile_,h,oldCalibs_);    
+    edm::FileInPath fip("Calibration/EcalCalibAlgos/data/"+oldcalibfile_);
+    
+
+    
+    int ret=
+    EcalIntercalibConstantsXMLTranslator::readXML(fip.fullPath(),h,oldCalibs_);    
     if (ret) edm::LogError("PhiSym")<<"Error reading XML files"<<endl;;
     
   } else {
