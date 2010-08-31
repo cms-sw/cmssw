@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 import sys,os,commands
 from CommonMethods import *
+
 def main():
     if len(sys.argv) < 3:
-        error = "Usage: copy.py fromDir destDir (optional filter)"
+        error = "Usage: copyFiles.py fromDir destDir (optional filter)"
         exit(error)
     fromDir = sys.argv[1]
     if (fromDir[len(fromDir)-1] != '/'):
