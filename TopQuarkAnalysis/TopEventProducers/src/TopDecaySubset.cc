@@ -5,16 +5,17 @@
 #include "AnalysisDataFormats/TopObjects/interface/TopGenEvent.h"
 #include "TopQuarkAnalysis/TopEventProducers/interface/TopDecaySubset.h"
 
-
 // maximal number of daughters 
 // to be printed for debugging
 static const unsigned int kMAX=5; 
 
 /// default constructor
 TopDecaySubset::TopDecaySubset(const edm::ParameterSet& cfg): 
-  addRadiation_( cfg.getParameter<bool>( "addRadiation" ) ),
-  src_( cfg.getParameter<edm::InputTag>( "src" ) ), 
-  showerModel_(kStart)
+  src_         (cfg.getParameter<edm::InputTag>("src")),
+  addRadiation_(cfg.getParameter<bool>("addRadiation")),
+  printSource_ (cfg.getParameter<bool>("printSource" )),
+  printTarget_ (cfg.getParameter<bool>("printTarget" )),
+  showerModel_ (kStart)
 {
   // mapping of the corresponding fillMode; see FillMode 
   // enumerator of TopDecaySubset for available modes
@@ -39,9 +40,9 @@ TopDecaySubset::produce(edm::Event& event, const edm::EventSetup& setup)
   edm::Handle<reco::GenParticleCollection> src;
   event.getByLabel(src_, src);
 
-  // print full listing of input collection for 
-  // debuging with 'TopDecaySubset_printSource'
-  printSource(*src);
+  // print full listing of input particles
+  if(printSource_)
+    printSource(*src);
   // determine shower model
   if(showerModel_==kStart) showerModel_=checkShowerModel(*src);
 
@@ -60,9 +61,9 @@ TopDecaySubset::produce(edm::Event& event, const edm::EventSetup& setup)
   // fill references
   fillReferences(ref, *target);
 
-  // print full listing of input collection for 
-  // debuging with 'TopDecaySubset_printTarget'
-  printTarget(*target);
+  // print final particle listing
+  if(printTarget_)
+    printTarget(*target);
 
   // write vectors to the event
   event.put(target);
@@ -395,7 +396,7 @@ TopDecaySubset::fillReferences(const reco::GenParticleRefProd& ref, reco::GenPar
 void 
 TopDecaySubset::printSource(const reco::GenParticleCollection& src)
 {
-  edm::LogVerbatim log("TopDecaySubset_printSource");
+  edm::LogVerbatim log("TopDecaySubset");
   log << "\n   idx   pdg   stat      px          py         pz             mass          daughter pdg's  "
       << "\n===========================================================================================\n";
 
@@ -449,7 +450,7 @@ TopDecaySubset::printSource(const reco::GenParticleCollection& src)
 void 
 TopDecaySubset::printTarget(reco::GenParticleCollection& sel)
 {
-  edm::LogVerbatim log("TopDecaySubset_printTarget");
+  edm::LogVerbatim log("TopDecaySubset");
   log << "\n   idx   pdg   stat      px          py         pz             mass          daughter pdg's  "
       << "\n===========================================================================================\n";
 

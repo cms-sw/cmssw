@@ -4,8 +4,8 @@ process = cms.Process("TEST")
 
 ## add message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.categories.append('TopDecaySubset_printTarget')
-process.MessageLogger.cerr.TopDecaySubset_printTarget = cms.untracked.PSet(
+process.MessageLogger.categories.append('TopDecaySubset')
+process.MessageLogger.cerr.TopDecaySubset = cms.untracked.PSet(
     limit = cms.untracked.int32(10)
 )
 
@@ -32,5 +32,10 @@ process.GlobalTag.globaltag = cms.string('START38_V7::All')
 
 ## produce decaySubset
 process.load("TopQuarkAnalysis.TopEventProducers.producers.TopDecaySubset_cfi")
+
+## enable per-event printout of particle listings (for debugging)
+#process.decaySubset.printSource = True
+#process.decaySubset.printTarget = True
+
 ## path
 process.p = cms.Path(process.decaySubset)

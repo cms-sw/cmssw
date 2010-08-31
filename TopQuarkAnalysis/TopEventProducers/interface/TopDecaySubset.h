@@ -62,20 +62,24 @@ class TopDecaySubset : public edm::EDProducer {
   void addDaughters(int& idx, const reco::GenParticle::const_iterator part, reco::GenParticleCollection& target, bool recursive=true);
   /// fill vector including all radiations from quarks originating from W/top
   void addRadiation(int& idx, const reco::GenParticle::const_iterator part, reco::GenParticleCollection& target);
-  /// print the whole decay chain if particle with pdgId is contained in the top decay chain
-  void printTarget(reco::GenParticleCollection& target);
   /// print the whole listing if particle with pdgId is contained in the top decay chain
   void printSource(const reco::GenParticleCollection& src);
+  /// print the whole decay chain if particle with pdgId is contained in the top decay chain
+  void printTarget(reco::GenParticleCollection& target);
 
  private:
   /// mode of decaySubset creation 
   FillMode fillMode_;
-  /// add radiation or not?
-  bool addRadiation_;
-  /// input tag for the genParticle source
-  edm::InputTag src_;                    
   /// parton shower mode (filled in checkShowerModel)
   ShowerModel showerModel_;
+  /// input tag for the genParticle source
+  edm::InputTag src_;
+  /// add radiation or not?
+  bool addRadiation_;
+  /// print the whole list of input particles or not?
+  bool printSource_;
+  /// print the final list of particles or not?
+  bool printTarget_;
 
   /// index in new evt listing of parts with daughters; 
   /// has to be set to -1 in produce to deliver consistent 
