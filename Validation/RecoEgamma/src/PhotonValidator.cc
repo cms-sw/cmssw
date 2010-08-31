@@ -81,8 +81,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2010/08/25 14:20:02 $ 
- **  $Revision: 1.57 $
+ **  $Date: 2010/08/31 13:03:02 $ 
+ **  $Revision: 1.58 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -1105,7 +1105,7 @@ void  PhotonValidator::beginJob() {
     h_convVtxdX_endcap_ =   dbe_->book1D("convVtxdX_endcap"," Photon Reco conversion vtx dX,  |eta|>1.2",100, -20.,20.);
     h_convVtxdY_endcap_ =   dbe_->book1D("convVtxdY_endcap"," Photon Reco conversion vtx dY,  |eta|>1.2",100, -20.,20.);
     h_convVtxdZ_endcap_ =   dbe_->book1D("convVtxdZ_endcap"," Photon Reco conversion vtx dZ,  |eta|>1.2",100, -20.,20.);
-    h_convVtxdR_endcap_ =   dbe_->book1D("convVtxdR_edncap"," Photon Reco conversion vtx dR,  |eta|>1.2 ",100, -20.,20.);
+    h_convVtxdR_endcap_ =   dbe_->book1D("convVtxdR_endcap"," Photon Reco conversion vtx dR,  |eta|>1.2 ",100, -20.,20.);
 
 
     h_convVtxdPhi_ =   dbe_->book1D("convVtxdPhi"," Photon Reco conversion vtx dPhi",100, -0.005,0.005);
