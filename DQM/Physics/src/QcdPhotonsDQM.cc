@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/06/15 15:32:47 $
- *  $Revision: 1.24 $
+ *  $Date: 2010/06/16 15:53:52 $
+ *  $Revision: 1.25 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -126,10 +126,7 @@ void QcdPhotonsDQM::beginJob() {
 
   // Photon Et for different jet configurations
   Float_t bins_et[] = {15,20,30,50,80};
-  Float_t bins_fisher[] = {-1,-0.9,-0.8,-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.5,0.6};
   int num_bins_et = 4;
-  int num_bins_fisher = 15;
-  h_photon_fisher_vs_et = theDbe->book2D("fisher_vs_et", "Lead #gamma: Fisher vs E_{T}", num_bins_et, bins_et, num_bins_fisher, bins_fisher);
   h_photon_et_jetcs = theDbe->book1D("h_photon_et_jetcs", "#gamma with highest E_{T} (#eta(jet)<1.45, #eta(#gamma)#eta(jet)>0);E_{T}(#gamma) (GeV)", num_bins_et, bins_et);
   h_photon_et_jetco = theDbe->book1D("h_photon_et_jetco", "#gamma with highest E_{T} (#eta(jet)<1.45, #eta(#gamma)#eta(jet)<0);E_{T}(#gamma) (GeV)", num_bins_et, bins_et);
   h_photon_et_jetfs = theDbe->book1D("h_photon_et_jetfs", "#gamma with highest E_{T} (1.55<#eta(jet)<2.5, #eta(#gamma)#eta(jet)>0);E_{T}(#gamma) (GeV)", num_bins_et, bins_et);
@@ -165,10 +162,12 @@ void QcdPhotonsDQM::beginRun( const edm::Run &r, const edm::EventSetup &iSetup )
   // isValidHltConfig_ used to short-circuit analyze() in case of problems
   isValidHltConfig_ = hltConfigProvider_.init( r, iSetup, theHltMenu, isConfigChanged );
 
+  num_events_in_run = 0;
 }
 
 
 void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
+  num_events_in_run++;
 
   // short-circuit if hlt problems
   if( ! isValidHltConfig_ ) return;
@@ -246,7 +245,6 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   float photon_et  = -9.0;
   float photon_eta = -9.0;
   float photon_phi = -9.0;
-  float photon_fisher = -9.0;
   bool  photon_passPhotonID = false;
   bool  found_lead_pho = false;
   int   photon_count_bar = 0;
@@ -295,12 +293,6 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
       photon_et  = recoPhoton->et();
       photon_eta = recoPhoton->eta();
       photon_phi = recoPhoton->phi();
-      if ( pho_current_isEB ) {
-	photon_fisher = -0.069*recoPhoton->ecalRecHitSumEtConeDR04()-0.036*recoPhoton->hcalTowerSumEtConeDR04()-0.026*recoPhoton->trkSumPtHollowConeDR04()+0.384;
-      } else if (pho_current_isEE) {
-	// TO DO: create fisher for endcap photons
-	photon_fisher = -0.069*recoPhoton->ecalRecHitSumEtConeDR04()-0.036*recoPhoton->hcalTowerSumEtConeDR04()-0.026*recoPhoton->trkSumPtHollowConeDR04()+0.384;
-      }
     }
   }
   
@@ -364,8 +356,6 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
     // Photon Et hists for different orientations to the jet
     if ( fabs(photon_eta)<1.45 && photon_passPhotonID ) {  // Lead photon is in barrel
-      h_photon_fisher_vs_et->Fill( photon_et, photon_fisher );
-
       if (fabs(jet_eta)<1.45){                          //   jet is in barrel
 	if (photon_eta*jet_eta>0) {
 	  h_photon_et_jetcs->Fill(photon_et);
@@ -407,6 +397,9 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 void QcdPhotonsDQM::endJob(void) {}
 
 void QcdPhotonsDQM::endRun(const edm::Run& run, const edm::EventSetup& es) {
+  if (num_events_in_run>0) { 
+    h_triggers_passed->getTH1F()->Scale(1.0/num_events_in_run);
+  }
   h_photon_et_ratio_co_cs->getTH1F()->Divide( h_photon_et_jetco->getTH1F(), h_photon_et_jetcs->getTH1F() );
   h_photon_et_ratio_fo_fs->getTH1F()->Divide( h_photon_et_jetfo->getTH1F(), h_photon_et_jetfs->getTH1F() );
   h_photon_et_ratio_cs_fs->getTH1F()->Divide( h_photon_et_jetcs->getTH1F(), h_photon_et_jetfs->getTH1F() );
