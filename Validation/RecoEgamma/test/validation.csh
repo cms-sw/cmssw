@@ -316,7 +316,7 @@ cat > scaledhistosForConvertedPhotons <<EOF
   PoverEtracksEndcap
   convVtxdR
   convVtxdR_barrel
-  convVtxdR_edncap
+  convVtxdR_endcap
   convVtxdZ
   convVtxdZ_barrel
   convVtxdZ_endcap
