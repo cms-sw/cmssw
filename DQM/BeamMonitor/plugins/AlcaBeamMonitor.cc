@@ -2,8 +2,8 @@
  * \file AlcaBeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/08/13 18:37:50 $
- * $Revision: 1.2 $
+ * $Date: 2010/08/20 21:07:26 $
+ * $Revision: 1.3 $
  *
  */
 
@@ -21,6 +21,9 @@
 #include "RecoVertex/BeamSpotProducer/interface/PVFitter.h"
 #include "DQM/BeamMonitor/plugins/AlcaBeamMonitor.h"
 #include "DQMServices/Core/interface/QReport.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include <numeric>
 //#include <iostream>
 
