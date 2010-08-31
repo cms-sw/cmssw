@@ -189,7 +189,7 @@ def ls(dir,filter=""):
 def cp(fromDir,toDir,listOfFiles,overwrite=False,smallList=False):
     cpCommand   = ''
     copiedFiles = []
-    if fromDir.find('castor') != -1:
+    if fromDir.find('castor') != -1 or toDir.find('castor') != -1 :
     	cpCommand = 'rf'
     elif fromDir.find('resilient') != -1:
     	cpCommand = 'dc'
@@ -272,6 +272,8 @@ def weight(x1, x1err,x2,x2err):
     x2     = float(x2)
     x2err  = float(x2err)
     tmperr = 0.
+    if x2err < 1e-6 :
+	x2err = 1e-6
     if x1err < 1e-6:
 	x1 = x2/(x2err * x2err)
 	tmperr = 1/(x2err*x2err)

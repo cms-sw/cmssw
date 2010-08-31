@@ -114,6 +114,7 @@ def copyToWorkflowdir(path):
                     print "File " + ifile + " already exists in destination. We will overwrite it."
                 else:
                     print "File " + ifile + " already exists in destination. Keep original file."
+                    listoffiles.append( workflowdirArchive + ifile )
                     continue
     	    listoffiles.append( workflowdirArchive + ifile )
     	    # copy to local disk
@@ -205,7 +206,6 @@ if __name__ == '__main__':
 	IOVbase = option.IOVbase
     
     listoffiles = copyToWorkflowdir(option.data)
-        
     # sort list of data files in chronological order
     sortedlist = {}
 
@@ -217,8 +217,13 @@ if __name__ == '__main__':
             npayloads = len(alllines)/23
             for i in range(0,npayloads):
                 block = alllines[i * 23: (i+1)*23]
-                line = block[2]
-                atime = time.strptime(line.split()[1] +  " " + line.split()[2] + " " + line.split()[3],"%Y.%m.%d %H:%M:%S %Z")
+                #line = block[2]
+                #atime = time.strptime(line.split()[1] +  " " + line.split()[2] + " " + line.split()[3],"%Y.%m.%d %H:%M:%S %Z")
+                line = block[0]
+                atime = line.split()[1]
+                print line
+
+                print atime
                 sortedlist[atime] = block
             break
         
@@ -265,15 +270,15 @@ if __name__ == '__main__':
     iov_since_first = '1'
     total_files = len(keys)
     
+    destDB = 'oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT'
+    if option.Test:
+        destDB = 'oracle://cms_orcoff_prep/CMS_COND_BEAMSPOT'
+
+    iov_comment = 'Beam spot position'
     for key in keys:
 	
 	iov_since = '1'
 	iov_till = ''
-	iov_comment = ''
-	destDB = 'oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT'
-        if option.Test:
-            destDB = 'oracle://cms_orcoff_prep/CMS_COND_BEAMSPOT'
-	iov_comment = 'Beam spot position'
 	
 	suffix = "_" + str(nfile)
 	writedb_template = os.getenv("CMSSW_BASE") + "/src/RecoVertex/BeamSpotProducer/test/write2DB_template.py"

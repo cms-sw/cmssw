@@ -51,7 +51,7 @@ def main():
     dropbox = "/DropBox"
     print sortedKeys[0]
     print finalList[sortedKeys[0]].fileName
-    uploadSqliteFile(payloadDir, final_sqlite_file_name, dropbox)
+#    uploadSqliteFile(payloadDir, final_sqlite_file_name, dropbox)
             
 
 

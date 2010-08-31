@@ -31,7 +31,7 @@ def main():
                         exit(error)
                     runNumber = int(line.split(' ')[1])
         file.close()
-        newFileName = fileName.replace("None",str(runNumber))
+        newFileName = fileName.replace("1_.txt",str(runNumber)+"_1_.txt")
         if fileName != newFileName:
             aCmd = "mv " + destDir + fileName + " " + destDir + newFileName
             print aCmd

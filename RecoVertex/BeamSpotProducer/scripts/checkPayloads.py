@@ -94,11 +94,14 @@ def getListOfRunsAndLumiFromRR(lastRun=-1,runErrors={}):
 def main():
     printExtra = False
     tagNumber = "14"
-    if len(sys.argv) == 2:
+    if len(sys.argv) >= 2:
         if not sys.argv[1].isdigit():
             exit("USAGE: ./checkPayloads.py (optional tagNumber)")
         else:
             tagNumber = sys.argv[1]
+    destDB = ""
+    if(len(sys.argv) >= 3):
+        destDB = sys.argv[2]
     #132573 Beam lost immediately
     #132958 Bad strips
     #133081 Bad pixels bad strips
@@ -114,13 +117,21 @@ def main():
     #140133 Beams dumped
     #140182 No pixel and Strips with few entries
     #141865 Pixel are bad but Strips work. Run is acceptable but need relaxed cuts since there are no pixels. BeamWidth measurement is bad 80um compared to 40um
-    knownMissingRunList = [132573,132958,133081,133242,133472,133473,136290,138560,138562,139455,140133,140182]
+    #142461 Run crashed immediately due to PIX, stable beams since LS1
+    #142465 PostCollsions10, beams lost, HCAl DQM partly working
+    #142503 Bad pixels bad strips
+    #142653 Strips not in data taking
+    #143977 No Beam Strips and Pixels bad
+    
+    knownMissingRunList = [132573,132958,133081,133242,133472,133473,136290,138560,138562,139455,140133,140182,142461,142465,142503,142653,143977]
     tagName = "BeamSpotObjects_2009_v" + tagNumber + "_offline"
     print "Checking payloads for tag " + tagName
     runErrors = {}
     listOfRunsAndLumiFromRR = getListOfRunsAndLumiFromRR(-1,runErrors)
-    listOfIOVs = getUploadedIOVs(tagName) 
-
+    if(destDB != ""):
+        listOfIOVs = getUploadedIOVs(tagName,destDB) 
+    else:
+        listOfIOVs = getUploadedIOVs(tagName)
     RRRuns = listOfRunsAndLumiFromRR.keys()
     RRRuns.sort()
     for run in RRRuns:
