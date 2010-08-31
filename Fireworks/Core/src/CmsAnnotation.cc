@@ -234,8 +234,9 @@ Bool_t CmsAnnotation::Handle(TGLRnrCtx&          rnrCtx,
          fDrag = kNone;
          if (recID == 7)
          {
-            delete this;
             fParent->RequestDraw(rnrCtx.ViewerLOD());
+            delete this;
+            retrun kTRUE;
          }
       }
       case kMotionNotify:
