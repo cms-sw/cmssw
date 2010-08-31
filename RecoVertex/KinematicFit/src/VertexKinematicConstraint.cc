@@ -32,7 +32,7 @@ AlgebraicVector VertexKinematicConstraint::value(const std::vector<KinematicStat
 //charged particle
    double a_i = - ch * i->magneticField()->inInverseGeV(pos).z();
    double j = a_i*(d_x * mom.x() + d_y * mom.y())/(pt*pt);
-   if(fabs(j)>1.0){
+   if(std::fabs(j)>1.0){
 	   LogDebug("VertexKinematicConstraint")
        << "Warning! asin("<<j<<")="<<asin(j)<<". Fit will be aborted.\n";
    }
@@ -78,7 +78,7 @@ AlgebraicMatrix VertexKinematicConstraint::parametersDerivative(const std::vecto
       double r_y = d_x - 2* mom.y()*(d_x*mom.x()+d_y*mom.y())/(pt*pt);
       double s = 1/(pt*pt*sqrt(1 - j*j));
 
-      if(fabs(j)>1.0){
+      if(std::fabs(j)>1.0){
 	      LogDebug("VertexKinematicConstraint")
 	      << "Warning! asin("<<j<<")="<<asin(j)<<". Fit will be aborted.\n";
       }

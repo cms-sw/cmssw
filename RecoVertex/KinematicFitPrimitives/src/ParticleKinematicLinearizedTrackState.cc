@@ -85,7 +85,7 @@ void  ParticleKinematicLinearizedTrackState::computeJacobians() const
 //  bool valid = thePredState.isValid();
 //  if (!valid) std::cout <<"Help!!!!!!!!! State is invalid\n";
 //  if (!valid) return;
- if (abs(theCharge)<1e-5) {
+ if (std::abs(theCharge)<1e-5) {
 
 //neutral track
   computeNeutralJacobians();
@@ -162,7 +162,7 @@ AlgebraicVector6 ParticleKinematicLinearizedTrackState::refittedParamFromEquatio
 	const RefCountedRefittedTrackState & theRefittedState) const
 {
   AlgebraicVectorM momentum = theRefittedState->momentumVector();
-  if ((momentum(2)*predictedStateMomentumParameters()(2) <  0)&&(fabs(momentum(2))>M_PI/2) ) {
+  if ((momentum(2)*predictedStateMomentumParameters()(2) <  0)&&(std::fabs(momentum(2))>M_PI/2) ) {
     if (predictedStateMomentumParameters()(2) < 0.) momentum(2)-= 2*M_PI;
     if (predictedStateMomentumParameters()(2) > 0.) momentum(2)+= 2*M_PI;
   }

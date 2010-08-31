@@ -92,7 +92,7 @@ RefCountedKinematicTree LagrangeParentParticleFitter::fit(RefCountedKinematicTre
    exPoint = refPar;
    AlgebraicVector vlp = cs->value(exPoint).first;
    for(int i = 1; i< vl.num_row();i++)
-   {df += abs(vlp(i));}
+   {df += std::abs(vlp(i));}
    nstep++; 
   }while(df>theMaxDiff && nstep<theMaxStep);
   
@@ -229,7 +229,7 @@ std::vector<RefCountedKinematicTree>  LagrangeParentParticleFitter::fit(std::vec
   exPoint = refPar;
   AlgebraicVector vlp = cs->value(exPoint).first;
   for(int i = 1; i< vl.num_row();i++)
-  {df += abs(vlp(i));}
+  {df += std::abs(vlp(i));}
   nstep++; 
  }while(df>theMaxDiff && nstep<theMaxStep);
 //here math and iterative part is finished, starting an output production

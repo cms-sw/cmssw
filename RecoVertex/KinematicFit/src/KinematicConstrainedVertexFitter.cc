@@ -134,12 +134,12 @@ RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(std::vector<RefCou
 
   AlgebraicVector vValue = vCons->value(lStates, lPoint);
   for(int i = 1; i<=vValue.num_row();++i)
-  {eq += abs(vValue(i));}
+  {eq += std::abs(vValue(i));}
   if(cs !=0)
   {
    AlgebraicVector cVal = cs->value(lStates, lPoint);
    for(int i = 1; i<=cVal.num_row();++i)
-   {eq += abs(cVal(i));}
+   {eq += std::abs(cVal(i));}
   }
   if (nit == 0) {
     if (eq>theMaxInitial) return ReferenceCountingPointer<KinematicTree>(new KinematicTree());
