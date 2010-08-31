@@ -1,5 +1,7 @@
 #include "Fireworks/FWInterface/src/FWPathsPopup.h"
 #include "Fireworks/FWInterface/interface/FWFFLooper.h"
+#include "Fireworks/TableWidget/interface/FWTableManagerBase.h"
+#include "Fireworks/TableWidget/interface/FWTextTableCellRenderer.h"
 #include "FWCore/Framework/interface/ScheduleInfo.h"
 #include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
@@ -16,8 +18,348 @@
 #include <iostream>
 #include <sstream>
 
+/** Attempt to create a table based editor for the PSET. */
+class FWPSetTableManager : public FWTableManagerBase 
+{
+public:
+   /** Custom structure for holding the table contents */
+   struct PSetData
+   {
+      std::string label;
+      std::string value;
+      int         level;
+      bool        tracked;
+      std::string type;
+   };
+
+   FWPSetTableManager()
+      : m_selectedRow(-1) 
+   {
+      reset();
+   }
+   
+   void update(const edm::ScheduleInfo *info)
+   {
+      m_entries.clear();
+      std::vector<std::string> availablePaths;
+      info->availablePaths(availablePaths);
+      for (size_t i = 0, e = availablePaths.size(); i != e; ++i)
+      {
+         PSetData pathEntry;
+         pathEntry.label = availablePaths[i];
+         pathEntry.level= 0;
+         m_entries.push_back(pathEntry);
+
+         std::vector<std::string> pathModules;
+         info->modulesInPath(pathEntry.label, pathModules);
+         for (size_t mi = 0, me = pathModules.size(); mi != me; ++mi)
+         {
+            PSetData moduleEntry;
+            moduleEntry.label = pathModules[mi];
+            moduleEntry.level = 1;
+            m_entries.push_back(moduleEntry);
+         }
+      }
+      dataChanged();
+   }
+
+   virtual void implSort(int, bool)
+   {
+      m_row_to_index.clear();
+      for (size_t i = 0, e = m_entries.size(); i != e; ++i)
+         m_row_to_index.push_back(i);
+   }
+
+   virtual int unsortedRowNumber(int unsorted) const
+   {
+      return unsorted;
+   }
+
+   virtual int numberOfRows() const {
+      return m_entries.size();
+   }
+
+   virtual int numberOfColumns() const {
+      return 2;
+   }
+   
+   virtual std::vector<std::string> getTitles() const 
+   {
+      std::vector<std::string> returnValue;
+      returnValue.reserve(2);
+      returnValue.push_back("Setting                 ");
+      returnValue.push_back("Value                   ");
+      return returnValue;
+   }
+   
+   virtual FWTableCellRendererBase* cellRenderer(int iSortedRowNumber, int iCol) const
+   {
+      if(static_cast<int>(m_row_to_index.size()) > iSortedRowNumber) 
+      {
+         int unsortedRow =  m_row_to_index[iSortedRowNumber];
+         const PSetData& data = m_entries[unsortedRow];
+
+         if (iCol == 0)
+            m_renderer.setData(data.label, false);
+         else if (iCol == 1)
+            m_renderer.setData(data.value, false);
+         else
+            m_renderer.setData(std::string(), false);
+      }
+      else 
+         m_renderer.setData(std::string(), false);
+
+      return &m_renderer;
+   }
+
+   void setSelection (int row, int mask) {
+      if(mask == 4) {
+         if( row == m_selectedRow) {
+            row = -1;
+         }
+      }
+      changeSelection(row);
+   }
+
+   virtual const std::string title() const {
+      return "Modules & their parameters";
+   }
+
+   int selectedRow() const {
+      return m_selectedRow;
+   }
+   //virtual void sort (int col, bool reset = false);
+   virtual bool rowIsSelected(int row) const 
+   {
+      return m_selectedRow == row;
+   }
+
+   void reset() 
+   {
+      changeSelection(-1);
+      m_row_to_index.clear();
+      m_row_to_index.reserve(m_entries.size());
+      for(size_t i = 0, e = m_entries.size(); i != e; ++i)
+         m_row_to_index.push_back(i);
+      
+      dataChanged();
+   }
+
+   void handlePSetEntry(const edm::ParameterSetEntry& entry, const std::string& key)
+   {
+      PSetData data;
+      data.label = key;
+      data.tracked = entry.isTracked();
+      m_entries.push_back(data);
+
+      handlePSet(entry.pset());
+   }
+
+   void handleVPSetEntry(const edm::VParameterSetEntry& entry,
+                         const std::string& key)
+   {
+      PSetData data;
+      data.label = key;
+      data.tracked = entry.isTracked();
+      m_entries.push_back(data);
+
+      std::stringstream ss;
+
+      for (size_t i = 0, e = entry.vpset().size(); i != e; ++i)
+      {
+          ss.clear();
+          ss << key << "[" << i << "]";
+          PSetData vdata;
+          vdata.label = ss.str();
+          vdata.tracked = entry.isTracked();
+          m_entries.push_back(vdata);
+
+          handlePSet(entry.vpset()[i]);
+      }
+   }
+
+   void handlePSet(const edm::ParameterSet &ps)
+   {
+      typedef edm::ParameterSet::table::const_iterator TIterator;
+      for (TIterator i = ps.tbl().begin(), e = ps.tbl().end(); i != e; ++i)
+         handleEntry(i->second, i->first);
+
+      typedef edm::ParameterSet::psettable::const_iterator PSIterator;
+      for (PSIterator i = ps.psetTable().begin(), e = ps.psetTable().end(); i != e; ++i)
+         handlePSetEntry(i->second, i->first);
+
+      typedef edm::ParameterSet::vpsettable::const_iterator VPSIterator;
+      for (VPSIterator i = ps.vpsetTable().begin(), e = ps.vpsetTable().end(); i != e; ++i)
+         handleVPSetEntry(i->second, i->first);
+   }
+    
+   template <class T>
+   void createScalarString(PSetData &data, T v)
+   {
+      std::stringstream ss;
+      data.value = ss.str();
+      m_entries.push_back(data);
+   }
+
+   template <typename T>
+   void createVectorString(PSetData &data, const T &v, bool quotes)
+   {
+      std::stringstream ss;
+      ss << "[";
+      for (size_t ii = 0, ie = v.size(); ii != ie; ++ii)
+      {
+         if (quotes)
+            ss << "\""; 
+         ss << v[ii];
+         if (ii + 1 != ie) 
+            ss << ", ";
+         if (quotes)
+            ss << "\"";
+      }
+      ss << "]";
+      data.value = ss.str();
+      m_entries.push_back(data);
+   }
+
+   void handleEntry(const edm::Entry &entry,const std::string &key)
+   {
+      std::stringstream ss;
+      PSetData data;
+      data.label = key;
+      data.tracked = entry.isTracked();
+      data.type = entry.typeCode();
+
+      switch(entry.typeCode())
+      {
+      case 'b':
+        {
+          data.value = entry.getBool() ? "True" : "False";
+          m_entries.push_back(data);
+          break;
+        }
+      case 'B':
+        {
+          data.value = "[Ack! no access from entry for VBool?]";
+          m_entries.push_back(data);
+          break;
+        }
+      case 'i':
+        {
+          createVectorString(data, entry.getVInt32(), false);
+          break;
+        }
+      case 'I':
+         {
+            createScalarString(data, entry.getInt32());
+            break;
+         }
+      case 'u':
+         {
+            createVectorString(data, entry.getVUInt32(), false);
+            break;
+         }
+      case 'U':
+         {
+            createScalarString(data, entry.getUInt32());
+            break;
+         }
+      case 'l':
+         {
+            createVectorString(data, entry.getVInt64(), false);
+            break;
+         }
+      case 'L':
+         {
+            createScalarString(data, entry.getInt32());
+            break;
+         }
+      case 'x':
+         {
+            createVectorString(data, entry.getVUInt64(), false);
+            break;
+         }
+      case 'X':
+         {
+            createScalarString(data, entry.getUInt64());
+            break;
+         }
+      case 's':
+         {
+            createVectorString(data, entry.getVString(), false);
+            break;
+         }
+      case 'S':
+         {
+            createScalarString(data, entry.getString());
+            break;
+         }
+      case 'd':
+         {
+            createVectorString(data, entry.getVDouble(), true);
+            break;
+         }
+      case 'D':
+         {   
+            createScalarString(data, entry.getDouble());
+            break;
+         }
+      case 'p':
+        {
+          std::vector<edm::ParameterSet> psets = entry.getVPSet();
+          for (size_t psi = 0, pse = psets.size(); psi != pse; ++psi)
+            handlePSet(psets[psi]);
+          break;
+        }
+      case 'P':
+        {    
+          handlePSet(entry.getPSet());
+          break;
+        }
+      case 't':
+         {
+            data.value = entry.getInputTag().encode();
+            break;
+         } 
+      case 'v':
+         {
+            std::vector<std::string> tags;
+            tags.resize(entry.getVInputTag().size());
+            for (size_t iti = 0, ite = tags.size(); iti != ite; ++iti) 
+               tags[iti] = entry.getVInputTag()[iti].encode();
+            createVectorString(data, tags, true);
+            break;
+         }
+      default:
+        {
+          break;
+        }
+      }
+   }
+    
+   sigc::signal<void,int> indexSelected_;
+private:
+   void changeSelection(int iRow) 
+   {
+      if(iRow != m_selectedRow) {
+         m_selectedRow=iRow;
+         if(-1 == iRow) {
+            indexSelected_(-1);
+         } else {
+            indexSelected_(iRow);
+         }
+         visualPropertiesChanged();
+      }
+   }
+
+   std::vector<PSetData>           m_entries;
+   std::vector<int>                m_row_to_index;
+   int                             m_selectedRow;
+   std::string                     m_filter;
+   mutable FWTextTableCellRenderer m_renderer;
+};
+
 FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
-   : TGMainFrame(gClient->GetRoot(), 200, 200),
+   : TGMainFrame(gClient->GetRoot(), 400, 600),
      m_info(0),
      m_looper(looper),
      m_hasChanges(false),
@@ -25,13 +367,15 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
      m_moduleName(0),
      m_modulePathsHtml(0),
      m_textEdit(0),
-     m_apply(0)
+     m_apply(0),
+     m_psTable(new FWPSetTableManager())
 {
    FWDialogBuilder builder(this);
    builder.indent(4)
           .addLabel("Available paths", 10)
           .spaceDown(10)
           .addHtml(&m_modulePathsHtml)
+          .addTable(m_psTable).expand(true, true)
           .addTextEdit("", &m_textEdit)
           .addTextButton("Apply changes and reload", &m_apply);
 
@@ -100,7 +444,7 @@ FWPathsPopup::typeCodeToChar(char typeCode)
 // in Entry but it's not quite what I want for format.
 // Also, it's not clear to me how to break it up into html
 // elements.
-void 
+void
 FWPathsPopup::handleEntry(const edm::Entry& entry, 
                           const std::string& key, TString& html)
 {
@@ -108,11 +452,11 @@ FWPathsPopup::handleEntry(const edm::Entry& entry,
           + (entry.isTracked() ? "tracked    " : "untracked    ")
           + typeCodeToChar(entry.typeCode());
 
+  std::stringstream ss;
   switch(entry.typeCode())
   {
   case 'b':
     {
-      std::stringstream ss;
       ss << entry.getBool();
       html += "    " + ss.str();
       break;
@@ -124,7 +468,6 @@ FWPathsPopup::handleEntry(const edm::Entry& entry,
     }
   case 'i':
     {
-      std::stringstream ss;
       html += "    ";
       std::vector<int> ints = entry.getVInt32();
       for ( std::vector<int>::const_iterator ii = ints.begin(), iiEnd = ints.end();
@@ -137,14 +480,12 @@ FWPathsPopup::handleEntry(const edm::Entry& entry,
     }
   case 'I':
     {
-      std::stringstream ss;
       ss << entry.getInt32();
       html += "   " + ss.str();
       break;
     }
   case 'u':
     {
-      std::stringstream ss;
       html += "    ";
       std::vector<unsigned> us = entry.getVUInt32();
       for ( std::vector<unsigned>::const_iterator ui = us.begin(), uiEnd = us.end();
@@ -157,14 +498,12 @@ FWPathsPopup::handleEntry(const edm::Entry& entry,
     }
   case 'U':
     {
-      std::stringstream ss;
       ss << entry.getUInt32();
       html += "   " + ss.str();
       break;
     }
   case 'l':
     {
-      std::stringstream ss;
       html += "    ";
       std::vector<long long> ints = entry.getVInt64();
       for ( std::vector<long long>::const_iterator ii = ints.begin(), iiEnd = ints.end();
@@ -177,14 +516,12 @@ FWPathsPopup::handleEntry(const edm::Entry& entry,
     }
   case 'L':
     {
-      std::stringstream ss;
       ss << entry.getInt64();
       html += "   " + ss.str();
       break;
     }
   case 'x':
     {
-      std::stringstream ss;
       html += "    ";
       // This the 1st time in my life I have written "unsigned long long"! Exciting.
       std::vector<unsigned long long> us = entry.getVUInt64();
@@ -198,7 +535,6 @@ FWPathsPopup::handleEntry(const edm::Entry& entry,
     }
   case 'X':
     {
-      std::stringstream ss;
       ss << entry.getUInt64();
       html += "    " + ss.str();
       break;
@@ -221,7 +557,6 @@ FWPathsPopup::handleEntry(const edm::Entry& entry,
     }
   case 'd':
     {
-      std::stringstream ss;
       html += "    ";
       std::vector<double> ds = entry.getVDouble();
       for ( std::vector<double>::const_iterator di = ds.begin(), diEnd = ds.end();
@@ -234,7 +569,6 @@ FWPathsPopup::handleEntry(const edm::Entry& entry,
     }
   case 'D':
     {   
-      std::stringstream ss;
       ss << entry.getDouble();
       html += "    " + ss.str();
       break;
@@ -258,7 +592,6 @@ FWPathsPopup::handleEntry(const edm::Entry& entry,
     }
   case 'v':
     {
-      std::stringstream ss;
       html += "    ";
       std::vector<edm::InputTag> tags = entry.getVInputTag();
       for ( std::vector<edm::InputTag>::const_iterator ti = tags.begin(), tiEnd = tags.end();
@@ -371,7 +704,6 @@ FWPathsPopup::makePathsView()
   m_modulePathsHtml->ParseText((char*)html.Data());
 }
 
-
 /** Gets called by CMSSW as we process events. **/
 void
 FWPathsPopup::postModule(edm::ModuleDescription const& description)
@@ -382,8 +714,8 @@ FWPathsPopup::postModule(edm::ModuleDescription const& description)
 void
 FWPathsPopup::postProcessEvent(edm::Event const& event, edm::EventSetup const& eventSetup)
 {
-  gSystem->ProcessEvents();
-  makePathsView();
+   gSystem->ProcessEvents();
+   m_psTable->update(m_info);
 }
 
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
