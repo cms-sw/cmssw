@@ -182,6 +182,8 @@ CSCDCCExaminer::CSCDCCExaminer(ExaminerMaskType mask):nERRORS(29),nWARNINGS(5),n
   DDU_WordCount                = 0;
   DDU_WordMismatch_Occurrences = 0;
   DDU_WordsSinceLastTrailer    = 0;
+  ALCT_ZSE                     = 0;
+  nWG_round_up                 = 0;
 
   TMB_WordsRPC  = 0;
   TMB_Firmware_Revision = 0;
@@ -209,8 +211,20 @@ CSCDCCExaminer::CSCDCCExaminer(ExaminerMaskType mask):nERRORS(29),nWARNINGS(5),n
 int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
   if( length<=0 ) return -1;
 
-  // 'buffer' is a sliding pointer; keep track of the true buffer
+  /// 'buffer' is a sliding pointer; keep track of the true buffer
   buffer_start = buffer;
+
+  
+  /// Check for presence of data blocks inside TMB data
+  bool fTMB_Scope_Start = false;
+  bool fTMB_MiniScope_Start = false; 
+  bool fTMB_RPC_Start = false;
+  bool fTMB_BlockedCFEBs_Start = false;
+ 
+  bool fTMB_Scope = false;
+  bool fTMB_MiniScope = false; 
+  bool fTMB_RPC = false;
+  bool fTMB_BlockedCFEBs = false;
 
   while( length>0 ){
     // == Store last 4 read buffers in pipeline-like memory (note that memcpy works quite slower!)
@@ -234,9 +248,22 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
     // this counter is reset if DDU Trailer is found
     if ( fDDU_Trailer ) {++DDU_WordsSinceLastTrailer; }
 
-    // increment counter of 16-bit words since last DMB*ALCT Header match
-    // this counter is reset if ALCT Header is found right after DMB Header
-    if ( fALCT_Header ) { ALCT_WordsSinceLastHeader = ALCT_WordsSinceLastHeader + 4; }
+    /// increment counter of 16-bit words since last DMB*ALCT Header match
+    /// this counter is reset if ALCT Header is found right after DMB Header
+    if ( fALCT_Header ) {
+    /// decode the actual counting if zero suppression enabled 
+        if(ALCT_ZSE){
+          for(int g=0; g<4; g++){
+             if(buf0[g]==0x1000){
+               ALCT_WordsSinceLastHeader = ALCT_WordsSinceLastHeader + nWG_round_up;
+          } 
+          else if(buf0[g]!=0x3000) ALCT_WordsSinceLastHeader = ALCT_WordsSinceLastHeader + 1;
+         } 
+        }
+        else ALCT_WordsSinceLastHeader = ALCT_WordsSinceLastHeader + 4;
+     /// increment counter of 16-bit words without zero suppression decoding
+        ALCT_WordsSinceLastHeaderZeroSuppressed = ALCT_WordsSinceLastHeaderZeroSuppressed + 4;
+    }
 
     // increment counter of 16-bit words since last DMB*TMB Header match
     // this counter is reset if TMB Header is found right after DMB Header or ALCT Trailer
@@ -483,6 +510,18 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
       fTMB_Format2007= true;
       uniqueALCT   = true;
       uniqueTMB    = true;
+
+      fTMB_Scope_Start = false;
+      fTMB_MiniScope_Start = false;
+      fTMB_RPC_Start = false;
+      fTMB_BlockedCFEBs_Start = false;
+
+      fTMB_Scope = false;
+      fTMB_MiniScope = false;
+      fTMB_RPC = false;
+      fTMB_BlockedCFEBs = false;       
+
+
       zeroCounts();
       CFEB_CRC                  = 0;
 
@@ -527,6 +566,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
         fALCT_Format2007          = true;
         ALCT_CRC                  = 0;
         ALCT_WordsSinceLastHeader = 4;
+        ALCT_WordsSinceLastHeaderZeroSuppressed = 4;
 
         // Calculate expected number of ALCT words
         ALCT_WordsExpected = 12; // header and trailer always exists
@@ -534,7 +574,8 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
         //  Aauxilary variables
         //   number of wire groups per layer:
         int  nWGs_per_layer = ( (buf1[2]&0x0007) + 1 ) * 16 ;
-        int  nWG_round_up   = int(nWGs_per_layer/12)+(nWGs_per_layer%3?1:0);
+        // words in the layer
+        nWG_round_up   = int(nWGs_per_layer/12)+(nWGs_per_layer%3?1:0);
         //   configuration present:
         bool config_present =  buf1[0]&0x4000;
         //   lct overflow:
@@ -545,6 +586,16 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
         int  lct_tbins      = (buf1[3]&0x01E0)>>5;
         //   fifo_tbins:
         int  raw_tbins      = (buf1[3]&0x001F);
+        
+        ///   Check if ALCT zero suppression enable:
+        ALCT_ZSE            = (buf1[1]&0x1000)>>12;
+        
+        /*
+        std::cout << " Number of Wire Groups: " << nWG_round_up << std::endl;
+        std::cout << " ALCT_ZSE: " << ALCT_ZSE << std::endl; 
+        std::cout << " raw_tbins: " << std::dec << raw_tbins << std::endl;
+        std::cout << " LCT Tbins: " << lct_tbins << std::endl;
+         */
 
         //  Data block sizes:
         //   3 words of Vertex ID register + 5 words of config. register bits:
@@ -557,6 +608,8 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
         int alct_0_1_size  = ( !lct_overflow ? 2*lct_tbins : 0 );
         //   raw hit dump size:
         int raw_hit_dump_size=(!raw_overflow ? nWG_round_up*6*raw_tbins : 0 );
+
+        //std::cout << " Raw Hit Dump: " << std::dec << raw_hit_dump_size << std::endl;
 
         ALCT_WordsExpected += config_size + colreg_size + hot_ch_size + alct_0_1_size + raw_hit_dump_size;
 
@@ -588,8 +641,8 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
               cout<<" <A";
         }
     }
+    //std::cout << " ALCT Word Expected: " << ALCT_WordsExpected << std::endl;
 
-	// New TMB format
     if( (buf0[0]&0xFFFF)==0xDB0C ){
         fTMB_Header              = true;
         fTMB_Format2007          = true;
@@ -675,7 +728,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 	bCHAMB_ERR[currentChamber] |= 0x1;
       } // some bits in 1st D-Trailer are lost
 
-      // Check calculated CRC sum against reported
+      /// Check calculated CRC sum against reported
       if( checkCrcALCT ){
     uint32_t crc = ( fALCT_Format2007 ? buf0[1] : buf0[0] ) & 0x7ff;
     crc |= ((uint32_t)( ( fALCT_Format2007 ? buf0[2] : buf0[1] ) & 0x7ff)) << 11;
@@ -694,6 +747,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
       CFEB_CRC     = 0;
       //ALCT_WordCount = (buf0[3]&0x03FF);
       ALCT_WordCount = (buf0[3]&0x07FF);
+      //ALCT_WordCount = (buf0[3]&0x0FFF);
       CFEB_SampleWordCount = 0;
       cout << "A> ";
     }
@@ -730,6 +784,59 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
       }
       TMB_WordsRPC += 2; // add header/trailer for block of RPC raw hits
     }
+
+
+	
+    // Check for RPC data
+    if ( fTMB_Header && (scanbuf(buf0,4, 0x6B04)>=0) ) {
+        fTMB_RPC_Start = true;
+      }
+
+    // Check for Scope data
+    if ( fTMB_Header && (scanbuf(buf0,4, 0x6B05)>=0) ) { 
+        fTMB_Scope_Start = true;
+      }
+
+    // Check for Mini-Scope data
+    if ( fTMB_Header && (scanbuf(buf0,4, 0x6B07)>=0) ) { 
+	fTMB_MiniScope_Start = true;
+      }
+    
+    // Check for Blocked CFEBs data
+    if ( fTMB_Header && (scanbuf(buf0,4, 0x6BCB)>=0) ) { 
+        fTMB_BlockedCFEBs_Start = true;
+      }
+
+    
+    // Check for end of RPC data
+    if ( fTMB_Header && fTMB_RPC_Start 
+	&& (scanbuf(buf0,4, 0x6E04)>=0) ) {
+        fTMB_RPC = true;
+      }
+
+    // Check for end of Scope data
+    if ( fTMB_Header && fTMB_Scope_Start 
+	&& (scanbuf(buf0,4, 0x6E05)>=0) ) {
+        fTMB_Scope = true;
+      }
+
+    // Check for end of Mini-Scope data
+    if ( fTMB_Header && fTMB_MiniScope_Start 
+	&& (scanbuf(buf0,4, 0x6E07)>=0) ) {
+        fTMB_MiniScope = true;
+      }
+
+    // Check for end of Blocked CFEBs data
+    if ( fTMB_Header && fTMB_BlockedCFEBs_Start 
+	&& (scanbuf(buf0,4, 0x6ECB)>=0) ) {
+        fTMB_BlockedCFEBs = true;
+      }
+
+ /* 
+    if ( fTMB_Header && (scanbuf(buf0,4, 0x6E04)>=0) ) {
+          TMB_WordsExpected += TMB_WordsRPC; 
+      }
+*/
 
     // == TMB Trailer found
     if(
@@ -785,19 +892,27 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
       //
       // If word count is not multiple of 4, add 2 optional words and
       // 4 trailer words.
-      if( buf_1[1]==0x6E0C || buf_1[1]==0x6B05 ) {
+  
+      int pos = scanbuf(buf_1,4,0x6E0C);
+      if (pos==1) {
 	TMB_WordsExpected += 6;
-	// Add RPC counts if RPC raw hits included.
-	if( buf_1[0]==0x6E04 )
-	  TMB_WordsExpected += TMB_WordsRPC;
       }
       // If word count is multiple of 4, add 4 trailer words.
-      else if( buf_1[3]==0x6E0C || buf_1[3]==0x6B05 ) {
+      else if (pos==3) {
 	TMB_WordsExpected += 4;
-	// Add RPC counts if RPC raw hits included.
-	if( buf_1[2]==0x6E04 )
-	  TMB_WordsExpected += TMB_WordsRPC;
       }
+
+      // Correct expected wordcount by RPC data size
+      if (fTMB_RPC) 
+	TMB_WordsExpected += TMB_WordsRPC;
+
+      // Correct expected wordcount by MiniScope data size (22 words + 2 signature words)
+      if (fTMB_MiniScope) 
+	TMB_WordsExpected += 24;
+
+      // Correct expected wordcount by BlockedCFEBs data size (20 words + 2 signature words) 
+      if (fTMB_BlockedCFEBs) 
+	TMB_WordsExpected += 22;
 
       CFEB_SampleWordCount = 0;
       cout << "T> ";
@@ -986,6 +1101,18 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
       }
       fDMB_Trailer = false;
 
+     // Print DMB E-Trailer marker
+      cout<<" DMB="<<(buf0[1]&0x000F);
+      cout << "; "
+           << ALCT_WordsSinceLastHeader << "-"
+           << ALCT_WordCount << "-"
+           << ALCT_WordsExpected
+           << "      "
+           << TMB_WordsSinceLastHeader << "-"
+           << TMB_WordCount << "-"
+           << TMB_WordsExpected
+           << endl;
+
      checkTriggerHeadersAndTrailers();
 
       //
@@ -1009,7 +1136,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 	  }
 
       currentChamber=-1;
-
+/*
       // Print DMB E-Trailer marker
       cout<<" DMB="<<(buf0[1]&0x000F);
       cout << "; "
@@ -1021,6 +1148,8 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 	   << TMB_WordCount << "-"
 	   << TMB_WordsExpected
 	   << endl;
+*/
+
     }
 
     // == DDU Trailer found
@@ -1053,6 +1182,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
       fDDU_Header=false;
 
       if( fDMB_Header || fDMB_Trailer ){
+       // std::cout << " Ex-Err: DMB (Header, Trailer) " << std::endl;
 	fERROR[5] = true;
 	bERROR   |= 0x20;
 	fCHAMB_ERR[5].insert(currentChamber);
@@ -1222,8 +1352,10 @@ void CSCDCCExaminer::clear()
 void CSCDCCExaminer::zeroCounts()
 {
   ALCT_WordsSinceLastHeader = 0;
+  ALCT_WordsSinceLastHeaderZeroSuppressed =0;
   ALCT_WordCount            = 0;
   ALCT_WordsExpected        = 0;
+  ALCT_ZSE                  = 0;
   TMB_WordsSinceLastHeader  = 0;
   TMB_WordCount             = 0;
   TMB_WordsExpected         = 0;
@@ -1236,7 +1368,7 @@ void CSCDCCExaminer::zeroCounts()
 
 void CSCDCCExaminer::checkDAVs() 
 {
-  if( DAV_ALCT ){
+  if( DAV_ALCT ){ 
     fERROR[21] = true;
     bERROR   |= 0x200000;
     fCHAMB_ERR[21].insert(currentChamber);
@@ -1261,8 +1393,14 @@ void CSCDCCExaminer::checkDAVs()
 
 
 void CSCDCCExaminer::checkTriggerHeadersAndTrailers()
-{
-  if( !fALCT_Header && ( ALCT_WordsSinceLastHeader!=ALCT_WordCount || ALCT_WordsSinceLastHeader!=ALCT_WordsExpected ) ){
+{   /*
+    std::cout << " Ex-ALCT-Word-count " << std::endl;
+    std::cout << " ALCT Words Since Last Header: " <<  ALCT_WordsSinceLastHeader << std::endl;
+    std::cout << " ALCT Word Count: " <<  ALCT_WordCount << std::endl;
+    std::cout << " ALCT Words Expected: " << ALCT_WordsExpected << std::endl;
+    */
+  if( !fALCT_Header && ( ALCT_WordsSinceLastHeader!=ALCT_WordCount || ALCT_WordsSinceLastHeader!=ALCT_WordsExpected )
+    && ALCT_ZSE==0 ){
     fERROR[9] = true;
     bERROR   |= 0x200;
     fCHAMB_ERR[9].insert(currentChamber);
@@ -1272,6 +1410,19 @@ void CSCDCCExaminer::checkTriggerHeadersAndTrailers()
     ALCT_WordsSinceLastHeader = 0;
     ALCT_WordsExpected        = 0;
   } // ALCT Word Count Error
+
+if( !fALCT_Header && (ALCT_WordsSinceLastHeader!=ALCT_WordsExpected 
+    || ALCT_WordsSinceLastHeaderZeroSuppressed!=ALCT_WordCount) && ALCT_ZSE!=0 ){
+    fERROR[9] = true;
+    bERROR   |= 0x200;
+    fCHAMB_ERR[9].insert(currentChamber);
+    bCHAMB_ERR[currentChamber] |= 0x200;
+    ALCT_WordsSinceLastHeaderZeroSuppressed =0;
+    ALCT_WordsSinceLastHeader = 0;
+    ALCT_WordCount            = 0;
+    ALCT_WordsSinceLastHeader = 0;
+    ALCT_WordsExpected        = 0;
+  } // ALCT Word Count Error With zero suppression
 
   if( !fTMB_Header && ( TMB_WordsSinceLastHeader!=TMB_WordCount || TMB_WordsSinceLastHeader!=TMB_WordsExpected ) ){
     fERROR[14] = true;
@@ -1297,6 +1448,7 @@ void CSCDCCExaminer::checkTriggerHeadersAndTrailers()
     bERROR   |= 0x80;
     fCHAMB_ERR[7].insert(currentChamber);
     bCHAMB_ERR[currentChamber] |= 0x80;
+    ALCT_WordsSinceLastHeaderZeroSuppressed =0;
     ALCT_WordsSinceLastHeader = 0;
     ALCT_WordsExpected        = 0;
     fALCT_Header = 0;
@@ -1311,4 +1463,15 @@ void CSCDCCExaminer::checkTriggerHeadersAndTrailers()
     TMB_WordsExpected        = 0;
     fTMB_Header = false;
   }
+}
+
+inline int CSCDCCExaminer::scanbuf(const uint16_t* &buffer, int32_t length, uint16_t sig, uint16_t mask)
+{
+	for (int i=0; i<length; i++)
+	{
+	   if ( (buffer[i]&mask) == sig) { 
+		return i;
+	   }
+	}
+        return -1;
 }

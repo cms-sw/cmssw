@@ -173,6 +173,10 @@ private:
   /// this won't be filled when real data is read it.  It's only used when packing
   /// simulated data, so we know how many wire and strip channels to make.
   int theChamberType;
+  
+  /// Auxiliary bufer to recove the ALCT raw payload from zero suppression 
+  unsigned short * alctZSErecovered;
+  int zseEnable; 
 };
 
 std::ostream & operator<<(std::ostream & os, const CSCEventData & evt);

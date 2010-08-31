@@ -11,6 +11,8 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCCLCTData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBScope.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCTMBMiniScope.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCTMBBlockedCFEB.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBTrailer.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCRPCData.h"
 #include <bitset>
@@ -38,6 +40,12 @@ class CSCTMBData {
   /// check this before using TMB Scope
   bool hasTMBScope() const { return theTMBScopeIsPresent;}
   CSCTMBScope & tmbScope() const;
+  /// check this before using TMB mini scope
+  bool hasTMBMiniScope() const { return theTMBMiniScopeIsPresent; }
+  CSCTMBMiniScope & tmbMiniScope() const;
+  /// check this before TMB Block CFEB
+  bool hasTMBBlockedCFEB() const { return theBlockedCFEBIsPresent; }
+  CSCTMBBlockedCFEB & tmbBlockedCFEB() const;
   CSCTMBTrailer * tmbTrailer() {return &theTMBTrailer;}
   /// check this before using RPC
   bool hasRPC() const {return theRPCDataIsPresent;}
@@ -69,9 +77,17 @@ class CSCTMBData {
   CSCTMBHeader theTMBHeader;
   CSCCLCTData theCLCTData;
   CSCRPCData theRPCData;
-  /// The tmb scope is not present in most of data hence its dynamic
+  /// The TMB scope is not present in most of data hence its dynamic
   bool theTMBScopeIsPresent;
   CSCTMBScope * theTMBScope;
+
+  /// The TMB MiniScope must presen in every event, hovewer make it dynamic
+  /// as for the main scope
+  bool theTMBMiniScopeIsPresent;
+  CSCTMBMiniScope * theTMBMiniScope;
+
+  bool theBlockedCFEBIsPresent;
+  CSCTMBBlockedCFEB * theTMBBlockedCFEB;
 
   CSCTMBTrailer theTMBTrailer;
   static bool debug;

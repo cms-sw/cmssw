@@ -18,7 +18,10 @@ CSCEventData::CSCEventData(int chamberType) :
   theALCTTrailer(0),
   theTMBData(0),
   theDMBTrailer(),
-  theChamberType(chamberType){
+  theChamberType(chamberType),
+  alctZSErecovered(0),
+  zseEnable(0)
+{
   
   for(unsigned i = 0; i < 5; ++i) {
     theCFEBData[i] = 0;
@@ -63,7 +66,7 @@ void CSCEventData::unpack_data(unsigned short * buf)
   }
    
   pos += theDMBHeader.sizeInWords();
-
+  
   if (nalct() ==1)  {
     if (isALCT(pos)) {//checking for ALCTData
       theALCTHeader = new CSCALCTHeader( pos );
@@ -74,9 +77,115 @@ void CSCEventData::unpack_data(unsigned short * buf)
 	//dataPresent|=0x40;
 	pos += theALCTHeader->sizeInWords(); //size of the header
 	//fill ALCT Digis
-	theALCTHeader->ALCTDigis();    
-	theAnodeData = new CSCAnodeData(*theALCTHeader, pos);  
-	pos += theAnodeData->sizeInWords(); // size of the data is determined during unpacking
+	theALCTHeader->ALCTDigis();
+ 
+	//theAnodeData = new CSCAnodeData(*theALCTHeader, pos);
+        
+        
+        /// The size of the ALCT payload is determined here
+        /*
+        std::cout << " ****The ALCT information from CSCEventData.cc (begin)**** " << std::endl; ///to_rm
+        std::cout << " alctHeader2007().size: " << theALCTHeader->alctHeader2007().sizeInWords() << std::endl; ///to_rm
+        std::cout << " ALCT Header Content: " << std::endl; ///to_rm
+        /// to_rm (6 lines)
+        for(int k=0; k<theALCTHeader->sizeInWords(); k+=4){
+           std::cout << std::hex << theALCTHeader->data()[k+3] 
+                     << " " << theALCTHeader->data()[k+2]
+                     << " " << theALCTHeader->data()[k+1]
+                     << " " << theALCTHeader->data()[k] << std::dec << std::endl;
+           }
+         */
+        //std::cout << " ALCT Size: " << theAnodeData->sizeInWords() << std::endl;
+        /// Check if Zero Suppression ALCT Enabled 
+        // int zseEnable = 0;
+        zseEnable = (theALCTHeader->data()[5] & 0x1000) >> 12;
+        //std::cout << " ZSE Bit: " <<  zseEnable << std::endl; /// to_rm
+        int sizeInWord_ZSE =0;
+
+        //alctZSErecovered = new unsigned short [theAnodeData->sizeInWords()];
+
+        if(zseEnable){
+        /// Aauxilary variables neede to recover zero suppression
+        /// Calculate the number of wire groups per layer
+        int  nWGs_per_layer = ( (theALCTHeader->data()[6]&0x0007) + 1 ) * 16 ;
+        /// Calculate the number of words in the layer
+        int nWG_round_up   = int(nWGs_per_layer/12)+(nWGs_per_layer%3?1:0);
+        //std::cout << " Words per layer: " << nWG_round_up << std::endl; ///to_rm
+        unsigned short * posZSE = pos;
+        std::vector<unsigned short> alctZSErecoveredVector;
+        alctZSErecoveredVector.clear();
+
+        //alctZSErecovered = new unsigned short [theAnodeData->sizeInWords()];
+        //delete [] alctZSErecovered;
+        //std::cout << " ALCT Buffer with ZSE: " << std::endl; ///to_rm
+        /// unsigned short * posZSEtmpALCT = pos; 
+        /// This is just to dump the actual ALCT payload ** begin **
+        /// For debuggin purposes
+        //unsigned short * posZSEdebug = pos; ///to_rm
+
+        /// to_rm (8 lines)
+        /*
+        while (*posZSEdebug != 0xDE0D){
+              unsigned short d = *posZSEdebug;
+              unsigned short c = *(posZSEdebug+1);
+              unsigned short b = *(posZSEdebug+2);
+              unsigned short a = *(posZSEdebug+3);
+              posZSEdebug+=4;
+              std::cout << std::hex << a << " " << b << " " << c << " " << d << std::dec << std::endl;
+        }
+        */
+        /// This is just to dump the actual ALCT payload ** end **
+
+        /// Actual word counting and recovering the original ALCT payload
+        int alctZSErecoveredPos=0;
+        while (*posZSE != 0xDE0D){              
+              if( (*posZSE == 0x1000) && (*posZSE != 0x3000)){
+                for(int j=0; j<nWG_round_up; j++){
+                   alctZSErecoveredVector.push_back(0x0000);
+                }
+                alctZSErecoveredPos+=nWG_round_up;
+              }
+              else {
+              alctZSErecoveredVector.push_back(*posZSE);
+              ++alctZSErecoveredPos;
+              }               
+              posZSE++;
+              sizeInWord_ZSE++;
+        }
+
+        alctZSErecovered = new unsigned short [alctZSErecoveredVector.size()];
+        
+        /// Convert the recovered vector into the array
+        for(int l=0; l<(int)alctZSErecoveredVector.size(); l++){
+            alctZSErecovered[l]=alctZSErecoveredVector[l];
+        }
+ 
+        unsigned short *posRecovered = alctZSErecovered;
+        theAnodeData = new CSCAnodeData(*theALCTHeader, posRecovered);
+        
+        /// This is to check the content of the recovered ALCT payload
+        /// to_rm (7 lines)
+        /*
+        std::cout << " The ALCT payload recovered: " << std::endl;
+        for(int k=0; k<theAnodeData->sizeInWords(); k+=4){
+           std::cout << std::hex << alctZSErecovered[k+3] << " "
+                                 << alctZSErecovered[k+2] << " "
+                                 << alctZSErecovered[k+1] << " "
+                                 << alctZSErecovered[k] << std::dec << std::endl;
+        }
+        */
+        //delete [] alctZSErecovered;
+        //std::cout << " ALCT SizeZSE : " << sizeInWord_ZSE << std::endl; ///to_rm
+        //std::cout << " ALCT SizeZSE Recovered: " << alctZSErecoveredPos << std::endl; ///to_rm
+        //std::cout << " ALCT Size Expected: " << theAnodeData->sizeInWords() << std::endl; ///to_rm
+        pos +=sizeInWord_ZSE;
+        }
+        else{
+        //pos +=sizeInWord_ZSE;
+        theAnodeData = new CSCAnodeData(*theALCTHeader, pos);
+	pos += theAnodeData->sizeInWords(); // size of the data is determined during unpacking 
+        }       
+        //std::cout << " ****The ALCT information from CSCEventData.cc (end)**** " << std::endl; ///to_rm
 	theALCTTrailer = new CSCALCTTrailer( pos );
 	pos += theALCTTrailer->sizeInWords();
       }
@@ -171,6 +280,8 @@ void CSCEventData::init() {
   for(int icfeb = 0; icfeb < 5; ++icfeb) {
     theCFEBData[icfeb] = 0;
   }
+  alctZSErecovered=0;
+  zseEnable=0;
 }
 
 
@@ -198,6 +309,9 @@ void CSCEventData::copy(const CSCEventData & data) {
 
 
 void CSCEventData::destroy() {
+  if(zseEnable){
+  delete [] alctZSErecovered;
+  }
   delete theALCTHeader;
   delete theAnodeData;
   delete theALCTTrailer;
@@ -205,6 +319,11 @@ void CSCEventData::destroy() {
   for(int icfeb = 0; icfeb < 5; ++icfeb) {
     delete theCFEBData[icfeb];
   }
+/*
+  std::cout << "Before delete alctZSErecovered " << std::endl;
+  delete [] alctZSErecovered;
+  std::cout << "After delete alctZSErecovered " << std::endl;
+*/  
 }
 
 

@@ -92,14 +92,20 @@ private:
         /// checks DAV_ALCT, DAV_TMB, and DAV_CFEB
         void checkDAVs();
         void checkTriggerHeadersAndTrailers();
+
+        inline int scanbuf(const uint16_t* &buf, int32_t length, uint16_t sig, uint16_t mask=0xFFFF);
+
 	uint32_t DDU_WordsSinceLastHeader;
 	uint32_t DDU_WordCount;
 	uint32_t DDU_WordMismatch_Occurrences;
 	uint32_t DDU_WordsSinceLastTrailer;
-
+        
 	uint32_t ALCT_WordsSinceLastHeader;
+        uint32_t ALCT_WordsSinceLastHeaderZeroSuppressed; 
 	uint32_t ALCT_WordCount;
 	uint32_t ALCT_WordsExpected;
+        uint32_t ALCT_ZSE;       /// check zero suppression mode
+        uint32_t nWG_round_up;   /// to decode if zero suppression enabled
 
 	uint32_t TMB_WordsSinceLastHeader;
 	uint32_t TMB_WordCount;
@@ -173,7 +179,13 @@ public:
 
 	ExaminerStatusType errorsForChamber(CSCIdType chamber) const {
 		std::map<CSCIdType,ExaminerStatusType>::const_iterator item = bCHAMB_ERR.find(chamber);
-		if( item != bCHAMB_ERR.end() ) return item->second; else return 0;
+                /// Print (for debugging, to be removed)
+                
+                // for(item =bCHAMB_ERR.begin() ; item !=bCHAMB_ERR.end() ; item++)
+                //std::cout << " Ex-errors: " << std::hex << (*item).second << std::dec << std::endl;
+
+                item = bCHAMB_ERR.find(chamber);
+                if( item != bCHAMB_ERR.end() ) return item->second; else return 0;
 	}
 
 	ExaminerStatusType warningsForChamber(CSCIdType chamber) const {

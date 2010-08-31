@@ -1,7 +1,7 @@
 /** \class CSCTMBData
  *
- *  $Date: 2008/11/06 10:54:54 $
- *  $Revision: 1.28 $
+ *  $Date: 2009/03/10 19:29:54 $
+ *  $Revision: 1.29 $
  *  \author A. Tumanov - Rice
  */
 
@@ -22,6 +22,10 @@ CSCTMBData::CSCTMBData()
     theCLCTData(&theTMBHeader),
     theTMBScopeIsPresent(false), 
     theTMBScope(0),
+    theTMBMiniScopeIsPresent(false), 
+    theTMBMiniScope(0),
+    theBlockedCFEBIsPresent(false),
+    theTMBBlockedCFEB(0),
     theTMBTrailer(theTMBHeader.sizeInWords()+theCLCTData.sizeInWords(), 2007),
     theRPCDataIsPresent(false)
 {
@@ -36,6 +40,10 @@ CSCTMBData::CSCTMBData(unsigned short *buf)
     theCLCTData(&theTMBHeader),
     theTMBScopeIsPresent(false), 
     theTMBScope(0), 
+    theTMBMiniScopeIsPresent(false), 
+    theTMBMiniScope(0), 
+    theBlockedCFEBIsPresent(false),
+    theTMBBlockedCFEB(0),
     theTMBTrailer(theTMBHeader.sizeInWords()+theCLCTData.sizeInWords(), 2007),
     theRPCDataIsPresent(false){
   size_ = UnpackTMB(buf);
@@ -48,7 +56,9 @@ CSCTMBData::CSCTMBData(const CSCTMBData& data):
   theB0CLine(data.theB0CLine), theE0FLine(data.theE0FLine),
   theTMBHeader(data.theTMBHeader),
   theCLCTData(data.theCLCTData), theRPCData(data.theRPCData),
-  theTMBScopeIsPresent(data.theTMBScopeIsPresent), 
+  theTMBScopeIsPresent(data.theTMBScopeIsPresent),
+  theTMBMiniScopeIsPresent(data.theTMBMiniScopeIsPresent),
+  theBlockedCFEBIsPresent(data.theBlockedCFEBIsPresent),
   theTMBTrailer(data.theTMBTrailer),
   size_(data.size_), cWordCnt(data.cWordCnt),
   theRPCDataIsPresent(data.theRPCDataIsPresent)
@@ -59,12 +69,37 @@ CSCTMBData::CSCTMBData(const CSCTMBData& data):
   else {
     theTMBScope = 0;
   }
+  
+  if (theTMBMiniScopeIsPresent) {
+    theTMBMiniScope = new CSCTMBMiniScope(*(data.theTMBMiniScope));
+  }
+  else {
+    theTMBMiniScope = 0;
+  }
+  
+  if (theBlockedCFEBIsPresent) {
+     theTMBBlockedCFEB = new CSCTMBBlockedCFEB(*(data.theTMBBlockedCFEB));
+  }
+  else {
+    theTMBBlockedCFEB = 0;
+  }
+  
 }
 
 CSCTMBData::~CSCTMBData(){
   if (theTMBScopeIsPresent) {
     delete theTMBScope;
     theTMBScopeIsPresent = false;
+  }
+
+  if (theTMBMiniScopeIsPresent) {
+    delete theTMBMiniScope;
+    theTMBMiniScopeIsPresent = false;
+  }
+
+  if (theBlockedCFEBIsPresent) {
+    delete theTMBBlockedCFEB;
+    theBlockedCFEBIsPresent = false;
   }
 }
 
@@ -182,7 +217,6 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
       return 0;
     }
   }
-  
 
   int TotTMBReadout=0;
   switch (firmwareVersion) {
@@ -196,7 +230,8 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
     edm::LogError("CSCTMBData|CSCRawToDigi") << "can't find TotTMBReadout - unknown firmware version!";
     break;
   }
-
+  
+//std::cout << " !!!TMB Scope!!! " << std::endl;
   if (buf[currentPosition]==0x6b05) {
     int b05Line = currentPosition;
     LogTrace("CSCTMBData|CSCRawToDigi") << "found scope!";
@@ -214,7 +249,43 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
 	<< "+++ CSCTMBData warning: found 0x6b05 line, but not 0x6e05! +++";
     }
   }
-  
+
+  /// Now Find the miniscope
+  if (buf[currentPosition]==0x6b07){
+     int Line6b07 = currentPosition;
+     LogTrace("CSCTMBData") << " TMBData ---> Begin of MiniScope found " ;
+     int Line6E07 = findLine(buf, 0x6E07, currentPosition, TotTMBReadout-currentPosition);
+     if(Line6E07 !=-1){
+       LogTrace("CSCTMBData") << " TMBData --> End of MiniScope found " << Line6E07-Line6b07+1 << " words ";
+       theTMBMiniScopeIsPresent = true;
+       theTMBMiniScope = new CSCTMBMiniScope(buf, Line6b07, Line6E07);
+       currentPosition += (Line6E07-Line6b07+1);
+     }
+     else {
+      LogTrace("CSCTMBData")
+	<< "+++ CSCTMBData warning MiniScope!: found 0x6b07 line, but not 0x6e07! +++";
+    }
+  }
+  /// end for the mini scope
+
+ /// Now Find the blocked CFEB DiStrips List Format
+  if (buf[currentPosition]==0x6BCB){
+  int Line6BCB = currentPosition;
+     LogTrace("CSCTMBData") << " TMBData ---> Begin of Blocked CFEB found " ;
+     int Line6ECB = findLine(buf, 0x6ECB, currentPosition, TotTMBReadout-currentPosition);
+     if(Line6ECB !=-1){
+       LogTrace("CSCTMBData") << " TMBData --> End of Blocked CFEB found " << Line6ECB-Line6BCB+1 << " words ";
+       theBlockedCFEBIsPresent = true;
+       theTMBBlockedCFEB = new CSCTMBBlockedCFEB(buf, Line6BCB, Line6ECB);
+       currentPosition += (Line6ECB-Line6BCB+1);
+     }
+     else {
+      LogTrace("CSCTMBData")
+	<< "+++ CSCTMBData warning Blocked CFEB!: found 0x6BCB line, but not 0x6ECB! +++";
+    }
+  }
+ /// end for the blocked CFEB DiStrips List Format  
+
   int maxLine = findLine(buf, 0xde0f, currentPosition, TotTMBReadout-currentPosition);
   if(maxLine == -1) 
     {
@@ -279,6 +350,19 @@ CSCTMBScope & CSCTMBData::tmbScope() const
 {
   if (!theTMBScopeIsPresent) throw("No TMBScope in this chamber");
   return * theTMBScope;
+}
+
+CSCTMBMiniScope & CSCTMBData::tmbMiniScope() const
+{
+  if (!theTMBMiniScopeIsPresent) throw("No TMBScope in this chamber");
+  return * theTMBMiniScope;
+}
+
+
+CSCTMBBlockedCFEB & CSCTMBData::tmbBlockedCFEB() const
+{
+  if (!theBlockedCFEBIsPresent) throw("No TMB Blocked CFEB in this chamber");
+  return * theTMBBlockedCFEB;
 }
 
 
