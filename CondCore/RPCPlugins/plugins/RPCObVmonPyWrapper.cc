@@ -166,7 +166,7 @@ namespace cond {
 
     std::vector<RPCObVmon::V_Item> const & imon = object().ObVmon_rpc;
     
-    ss <<"DetID\t"<<"Ival\t"<<"Time\t"<<"Day\n";
+    ss <<"DetID\t"<<"Vval\t"<<"Time\t"<<"Day\n";
     for(unsigned int i = 0; i < imon.size(); ++i ){
       //      for(unsigned int p = 0; p < ipvss.size(); ++p){
       // 	if(imon[i].dpid()!=ipvss[p].dpid())continue;
