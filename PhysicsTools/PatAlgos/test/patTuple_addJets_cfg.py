@@ -17,7 +17,7 @@ addJetCollection(process,cms.InputTag('JetPlusTrackZSPCorJetAntiKt5'),
                  doBTagging   = True,
                  jetCorrLabel = ('AK5','JPT'),
                  doType1MET   = False,
-                 doL1Cleaning = False,
+                 doL1Cleaning = True,
                  doL1Counters = True,                 
                  genJetCollection = cms.InputTag("ak5GenJets"),
                  doJetID      = True,
@@ -32,7 +32,7 @@ addJetCollection(process,cms.InputTag('ak7CaloJets'),
                  jetCorrLabel = ('AK7', 'Calo'),
                  doType1MET   = True,
                  doL1Cleaning = True,                 
-                 doL1Counters = False,
+                 doL1Counters = True,
                  genJetCollection=cms.InputTag("ak7GenJets"),
                  doJetID      = True,
                  jetIdLabel   = "ak7"
@@ -46,7 +46,7 @@ addJetCollection(process,cms.InputTag('kt4CaloJets'),
                  jetCorrLabel = ('KT4','Calo'),
                  doType1MET   = True,
                  doL1Cleaning = True,                 
-                 doL1Counters = False,
+                 doL1Counters = True,
                  genJetCollection=cms.InputTag("kt4GenJets"),
                  doJetID      = True,
                  jetIdLabel   = "kt4"
@@ -60,7 +60,7 @@ addJetCollection(process,cms.InputTag('kt6CaloJets'),
                  jetCorrLabel = None,
                  doType1MET   = False,
                  doL1Cleaning = True,                 
-                 doL1Counters = False,
+                 doL1Counters = True,
                  genJetCollection=cms.InputTag("kt6GenJets"),
                  doJetID      = True,
                  jetIdLabel   = "kt6"
@@ -100,4 +100,4 @@ process.maxEvents.input = 10              ##  (e.g. -1 to run on all events)
 #                                         ##
 #   process.out.fileName = ...            ##  (e.g. 'myTuple.root')
 #                                         ##
-process.options.wantSummary = False       ##  (to suppress the long output at the end of the job)    
+process.options.wantSummary = True       ##  (to suppress the long output at the end of the job)    

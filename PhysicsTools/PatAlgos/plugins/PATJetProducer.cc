@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.49 2010/08/09 19:03:20 srappocc Exp $
+// $Id: PATJetProducer.cc,v 1.50 2010/08/10 01:54:55 srappocc Exp $
 
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -219,8 +219,14 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     Jet ajet(jetRef);
 
     // add the FwdPtrs to the CaloTowers
-    if (ajet.isCaloJet() && embedCaloTowers_) {
-      const reco::CaloJet *cj = dynamic_cast<const reco::CaloJet *>(jetRef.get());
+    if ( (ajet.isCaloJet() || ajet.isJPTJet() ) && embedCaloTowers_) {
+      const reco::CaloJet *cj = 0;
+      const reco::JPTJet * jptj = 0;
+      if ( ajet.isCaloJet()) cj = dynamic_cast<const reco::CaloJet *>(jetRef.get());      
+      else { 
+	jptj = dynamic_cast<const reco::JPTJet *>(jetRef.get() );
+	cj = dynamic_cast<const reco::CaloJet *>(jptj->getCaloJetRef().get() );
+      }
       pat::CaloTowerFwdPtrCollection itowersRef;
       std::vector< CaloTowerPtr > itowers = cj->getCaloConstituents();
       for ( std::vector<CaloTowerPtr>::const_iterator towBegin = itowers.begin(),
