@@ -4,6 +4,8 @@ test=testRunMerge
 
 function die { echo Failure $1: status $2 ; exit $2 ; }
 
+echo LOCAL_TMP_DIR = ${LOCAL_TMP_DIR}
+
 pushd ${LOCAL_TMP_DIR}
   echo ${test}PROD0 ------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}PROD0_cfg.py || die "cmsRun ${test}PROD0_cfg.py" $?
@@ -82,10 +84,12 @@ pushd ${LOCAL_TMP_DIR}
   grep "Tree branches have different numbers of entries" testFastCloning.txt || die "cmsRun testRunMergeFastCloning_cfg.py" $?
 
   echo testLooperEventNavigation-----------------------------------------------------
-  cmsRun -p ${LOCAL_TEST_DIR}/testLooperEventNavigation_cfg.py < ${LOCAL_TEST_DIR}/testLooperEventNavigation.txt || die "cmsRun testLooperEventNavigation_cfg.py " $?
+  cmsRun -p ${LOCAL_TEST_DIR}/testLooperEventNavigation_cfg.py < ${LOCAL_TEST_DIR}/testLooperEventNavigation.txt > testLooperEventNavigationOutput.txt || die "cmsRun testLooperEventNavigation_cfg.py " $?
+  diff ${LOCAL_TEST_DIR}/unit_test_outputs/testLooperEventNavigationOutput.txt testLooperEventNavigationOutput.txt || die "comparing testLooperEventNavigationOutput.txt" $?
 
   echo testLooperEventNavigation1-----------------------------------------------------
-  cmsRun -p ${LOCAL_TEST_DIR}/testLooperEventNavigation1_cfg.py < ${LOCAL_TEST_DIR}/testLooperEventNavigation.txt || die "cmsRun testLooperEventNavigation1_cfg.py " $?
+  cmsRun -p ${LOCAL_TEST_DIR}/testLooperEventNavigation1_cfg.py < ${LOCAL_TEST_DIR}/testLooperEventNavigation.txt > testLooperEventNavigationOutput1.txt || die "cmsRun testLooperEventNavigation1_cfg.py " $?
+  diff ${LOCAL_TEST_DIR}/unit_test_outputs/testLooperEventNavigationOutput.txt testLooperEventNavigationOutput1.txt || die "comparing testLooperEventNavigationOutput1.txt" $?
 
 popd
 

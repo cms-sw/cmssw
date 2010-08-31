@@ -38,6 +38,7 @@ namespace edm {
     fileIterBegin_(fileCatalogItems().begin()),
     fileIterEnd_(fileCatalogItems().end()),
     fileIter_(fileIterEnd_),
+    fileIterLastOpened_(fileIterEnd_),
     rootFile_(),
     parametersMustMatch_(BranchDescription::Permissive),
     branchesMustMatch_(BranchDescription::Permissive),
@@ -139,18 +140,24 @@ namespace edm {
   }
 
   void RootInputFileSequence::initFile(bool skipBadFiles) {
-    if (rootFile_ && rootFile_.unique()) {
-      // We are really going to close the open file.
-      // If this is the primary sequence, and we are not duplicate checking across files,
-      // we can delete the IndexIntoFile for the file we are closing.
-      // If we can't delete it, we need to save only what we need to save.
-      size_t currentIndexIntoFile = fileIter_ - fileIterBegin_;
-      bool deleteIndexIntoFile = primaryFiles_ && !(duplicateChecker_ && duplicateChecker_->checkingAllFiles() && !usingGoToEvent_);
+    // We are really going to close the open file.
+
+    // If this is the primary sequence, we are not duplicate checking across files
+    // and we are not using random access to find events, then we can delete the
+    // IndexIntoFile for the file we are closing. If we can't delete all of it,
+    // then we can delete the parts we do not need.
+    if (fileIterLastOpened_ != fileIterEnd_) {
+      size_t currentIndexIntoFile = fileIterLastOpened_ - fileIterBegin_;
+      bool needIndexesForDuplicateChecker = duplicateChecker_ && duplicateChecker_->checkingAllFiles() && !duplicateChecker_->checkDisabled();
+      bool deleteIndexIntoFile = primaryFiles_ &&
+                                 !needIndexesForDuplicateChecker &&
+                                 !usingGoToEvent_;
       if (deleteIndexIntoFile) {
-	indexesIntoFiles_[currentIndexIntoFile].reset();
+    	  indexesIntoFiles_[currentIndexIntoFile].reset();
       } else {
-	if (indexesIntoFiles_[currentIndexIntoFile]) indexesIntoFiles_[currentIndexIntoFile]->inputFileClosed();
+    	  if (indexesIntoFiles_[currentIndexIntoFile]) indexesIntoFiles_[currentIndexIntoFile]->inputFileClosed();
       }
+      fileIterLastOpened_ = fileIterEnd_;
     }
     closeFile_();
 
@@ -199,6 +206,7 @@ namespace edm {
 	  groupSelectorRules_, !primaryFiles_, duplicateChecker_, dropDescendants_,
 						 indexesIntoFiles_, currentIndexIntoFile, orderedProcessHistoryIDs_, usingGoToEvent_));
 
+      fileIterLastOpened_ = fileIter_;
       indexesIntoFiles_[currentIndexIntoFile] = rootFile_->indexIntoFileSharedPtr();
       rootFile_->reportOpened(primary() ?
 	 (primaryFiles_ ? "primaryFiles" : "secondaryFiles") : "mixingFiles");

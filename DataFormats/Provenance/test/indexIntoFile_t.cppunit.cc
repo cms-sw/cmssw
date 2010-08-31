@@ -1864,6 +1864,20 @@ void TestIndexIntoFile::testFind() {
       indexIntoFile.sortEvents(); 
     }
 
+    TestEventFinder* ptr(new TestEventFinder);
+    ptr->push_back(7);
+    ptr->push_back(6);
+    ptr->push_back(5);
+    ptr->push_back(4);
+    ptr->push_back(7);
+    ptr->push_back(6);
+    ptr->push_back(5);
+    ptr->push_back(4);
+    ptr->push_back(7);
+    ptr->push_back(6);
+    boost::shared_ptr<IndexIntoFile::EventFinder> shptr(ptr);
+    indexIntoFile.setEventFinder(shptr);
+
     edm::IndexIntoFile::IndexIntoFileItr iter = indexIntoFile.findPosition(1000, 0, 0);
     CPPUNIT_ASSERT(iter == indexIntoFile.end(IndexIntoFile::numericalOrder));  
 
@@ -1978,13 +1992,60 @@ void TestIndexIntoFile::testFind() {
 
     iter = indexIntoFile.findPosition(2, 12, 5);
     iter1 = indexIntoFile.findPosition(2, 0, 5);
+    iter2 = indexIntoFile.findPosition(IndexIntoFile::numericalOrder, 2, 0, 5);
+    iter3 = indexIntoFile.findPosition(IndexIntoFile::firstAppearanceOrder, 2, 0, 5);
     CPPUNIT_ASSERT(iter == iter1);
+    CPPUNIT_ASSERT(iter == iter2);    
+    CPPUNIT_ASSERT(iter != iter3);    
     CPPUNIT_ASSERT(iter.type() == IndexIntoFile::kRun);
     CPPUNIT_ASSERT(iter.indexToRun() == 1);
     CPPUNIT_ASSERT(iter.indexToLumi() == 2);
     CPPUNIT_ASSERT(iter.indexToEventRange() == 2);
     CPPUNIT_ASSERT(iter.indexToEvent() == 1);
     CPPUNIT_ASSERT(iter.nEvents() == 4);
+    CPPUNIT_ASSERT(iter3.type() == IndexIntoFile::kRun);
+    CPPUNIT_ASSERT(iter3.indexToRun() == 1);
+    CPPUNIT_ASSERT(iter3.indexToLumi() == 2);
+    CPPUNIT_ASSERT(iter3.indexToEventRange() == 3);
+    CPPUNIT_ASSERT(iter3.indexToEvent() == 0);
+    CPPUNIT_ASSERT(iter3.nEvents() == 2);
+
+    iter3 = indexIntoFile.findPosition(IndexIntoFile::firstAppearanceOrder, 2, 0, 0);
+    CPPUNIT_ASSERT(iter3.type() == IndexIntoFile::kRun);
+    CPPUNIT_ASSERT(iter3.indexToRun() == 1);
+    CPPUNIT_ASSERT(iter3.indexToLumi() == 2);
+    CPPUNIT_ASSERT(iter3.indexToEventRange() == 2);
+    CPPUNIT_ASSERT(iter3.indexToEvent() == 0);
+    CPPUNIT_ASSERT(iter3.nEvents() == 2);
+
+    iter3 = indexIntoFile.findPosition(IndexIntoFile::firstAppearanceOrder, 2, 12, 0);
+    CPPUNIT_ASSERT(iter3.type() == IndexIntoFile::kRun);
+    CPPUNIT_ASSERT(iter3.indexToRun() == 1);
+    CPPUNIT_ASSERT(iter3.indexToLumi() == 2);
+    CPPUNIT_ASSERT(iter3.indexToEventRange() == 2);
+    CPPUNIT_ASSERT(iter3.indexToEvent() == 0);
+    CPPUNIT_ASSERT(iter3.nEvents() == 2);
+
+    iter3 = indexIntoFile.findPosition(IndexIntoFile::firstAppearanceOrder, 2, 12, 4);
+    CPPUNIT_ASSERT(iter3.type() == IndexIntoFile::kRun);
+    CPPUNIT_ASSERT(iter3.indexToRun() == 1);
+    CPPUNIT_ASSERT(iter3.indexToLumi() == 2);
+    CPPUNIT_ASSERT(iter3.indexToEventRange() == 3);
+    CPPUNIT_ASSERT(iter3.indexToEvent() == 1);
+    CPPUNIT_ASSERT(iter3.nEvents() == 2);
+
+    iter = indexIntoFile.end(IndexIntoFile::firstAppearanceOrder);
+    CPPUNIT_ASSERT(iter != iter3);
+    iter.copyPosition(iter3);
+    CPPUNIT_ASSERT(iter == iter3);
+
+    iter3 = indexIntoFile.findPosition(IndexIntoFile::firstAppearanceOrder, 6, 100, 0);
+    CPPUNIT_ASSERT(iter3.type() == IndexIntoFile::kRun);
+    CPPUNIT_ASSERT(iter3.indexToRun() == 9);
+    CPPUNIT_ASSERT(iter3.indexToLumi() == 11);
+    CPPUNIT_ASSERT(iter3.indexToEventRange() == -1);
+    CPPUNIT_ASSERT(iter3.indexToEvent() == 0);
+    CPPUNIT_ASSERT(iter3.nEvents() == 0);
 
     iter = indexIntoFile.findPosition(2, 12, 6);
     iter1 = indexIntoFile.findPosition(2, 0, 6);

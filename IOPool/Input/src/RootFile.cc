@@ -928,7 +928,8 @@ namespace edm {
     indexIntoFile_.setEventFinder(boost::shared_ptr<IndexIntoFile::EventFinder>(new RootFileEventFinder(eventTree_)));
     // We fill the event numbers explicitly if we need to find events in closed files,
     // such as for secondary files (or secondary sources) or if duplicate checking across files.
-    if (secondaryFile || (duplicateChecker_ && duplicateChecker_->checkingAllFiles()) || usingGoToEvent) {
+    bool needIndexesForDuplicateChecker = duplicateChecker_ && duplicateChecker_->checkingAllFiles() && !duplicateChecker_->checkDisabled();
+    if (secondaryFile || needIndexesForDuplicateChecker || usingGoToEvent) {
       indexIntoFile_.fillEventNumbers();
     }
     if (secondaryFile || !noEventSort_) {
@@ -1124,14 +1125,6 @@ namespace edm {
       }
       --offset;
     }
-
-    // Note that when skipping backwards, duplicate events are counted
-    // (and they are not recorded for purposes of duplicate checking).
-    // Probably duplicate checking  should be disabled if skipping
-    // backwards. If it is not disabled, then skipping forward N events
-    // and then skipping backwards N events might not leave one at the
-    // same position ... This is strange behavior, although it will not
-    // crash or throw.
 
     while(offset < 0) {
 

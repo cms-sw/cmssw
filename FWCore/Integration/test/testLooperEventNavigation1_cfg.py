@@ -63,6 +63,12 @@ process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
     1, 1, 0,
     1, 1, 11,
     1, 1, 0,
+    1, 0, 0,
+    1, 0, 0,
+    1, 1, 0,
+    1, 1, 20,
+    1, 1, 21,
+    1, 1, 0,
     1, 0, 0
     )
 )

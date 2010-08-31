@@ -90,6 +90,7 @@ namespace edm {
     std::vector<FileCatalogItem>::const_iterator fileIterBegin_;
     std::vector<FileCatalogItem>::const_iterator fileIterEnd_;
     std::vector<FileCatalogItem>::const_iterator fileIter_;
+    std::vector<FileCatalogItem>::const_iterator fileIterLastOpened_;
     RootFileSharedPtr rootFile_;
     BranchDescription::MatchMode parametersMustMatch_;
     BranchDescription::MatchMode branchesMustMatch_;
