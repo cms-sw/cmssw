@@ -13,7 +13,7 @@
   for a general overview of the selectors. 
 
   \author Salvatore Rappoccio (Update: Amnon Harel)
-  \version  $Id: JetIDSelectionFunctor.h,v 1.13 2010/08/26 17:11:47 srappocc Exp $
+  \version  $Id: JetIDSelectionFunctor.h,v 1.14 2010/08/26 19:50:11 srappocc Exp $
 */
 
 
@@ -233,8 +233,8 @@ class JetIDSelectionFunctor : public Selector<pat::Jet>  {
   // 
   bool operator()( const pat::Jet & jet, pat::strbitset & ret )  
   {
-    if ( ! jet.isCaloJet() ) {
-      edm::LogWarning( "NYI" )<<"Criteria for pat::Jet-s other than CaloJets are not yet implemented";
+    if ( ! jet.isCaloJet() && !jet.isJPTJet() ) {
+      edm::LogWarning( "NYI" )<<"Criteria for pat::Jet-s other than CaloJets and JPTJets are not yet implemented";
       return false;
     }
     if ( version_ == CRAFT08 ) return craft08Cuts( jet.p4(), jet.emEnergyFraction(), jet.jetID(), ret );

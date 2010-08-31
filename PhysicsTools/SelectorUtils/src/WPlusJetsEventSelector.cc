@@ -213,7 +213,7 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, pat::str
 										     ijet->p4() * jetScale_ ) );
     
 	  bool passJetID = false;
-	  if ( ijet->isCaloJet() ) passJetID = jetIdLoose_(*ijet, ret1);
+	  if ( ijet->isCaloJet() || ijet->isJPTJet() ) passJetID = jetIdLoose_(*ijet, ret1);
 	  else passJetID = pfjetIdLoose_(*ijet, ret2);
 	  if ( scaledJet.pt() > jetPtMin_ && fabs(scaledJet.eta()) < jetEtaMax_ && passJetID ) {
 	    selectedJets_.push_back( scaledJet );
