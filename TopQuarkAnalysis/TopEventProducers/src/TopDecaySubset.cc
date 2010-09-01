@@ -125,7 +125,7 @@ TopDecaySubset::checkSanity(const reco::GenParticleCollection& parts) const
       throw edm::Exception( edm::errors::LogicError, "W boson is not contained in the original particle listing \n");
     }
   }
-  if( showerModel_==kNone ){
+  if( showerModel_==kNone && tops_.size()>0 ){
     throw edm::Exception( edm::errors::LogicError, "Particle listing does not correspond to any of the supported listings \n");
   }
 }
