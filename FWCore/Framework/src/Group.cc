@@ -214,11 +214,8 @@ namespace edm {
 
     TypeTemplate valueTypeTemplate = value_type.TemplateFamily();
 
-    return
-      is_sequence
-      ? (elementType==wantedElementType ||
-	 elementType.HasBase(wantedElementType))
-      : false;
+    return (elementType==wantedElementType ||
+	    elementType.HasBase(wantedElementType));
   }
 
   void
