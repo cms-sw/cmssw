@@ -51,7 +51,10 @@ namespace edm {
       }
 
       void trim(std::string& s, const std::string& drop = " \t") {
-        s = s.erase(s.find_last_not_of(drop)+1);
+        std::string::size_type p = s.find_last_not_of(drop);
+        if(p != std::string::npos) {
+          s = s.erase(p+1);
+        }
         s = s.erase(0, s.find_first_not_of(drop));
       }
 
