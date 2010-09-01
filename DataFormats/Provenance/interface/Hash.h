@@ -74,12 +74,19 @@ namespace edm {
     template<typename Op>
       bool
       compareUsing(Hash<I> const& iOther, Op op) const {
-        if(hash_detail::isCompactForm_(hash_) == hash_detail::isCompactForm_(iOther.hash_)) {
+        bool meCF = hash_detail::isCompactForm_(hash_);
+        bool otherCF = hash_detail::isCompactForm_(iOther.hash_);
+        if(meCF == otherCF) {
           return op(this->hash_,iOther.hash_);
         }
-        Hash<I> tMe(*this);
-        Hash<I> tOther(iOther);
-        return op(tMe.hash_,tOther.hash_);
+        if(meCF) {
+           Hash<I> temp(iOther);
+           hash_detail::fixup_(temp.hash_);
+           return op(this->hash_,temp.hash_);
+        } 
+        Hash<I> temp(*this);
+        hash_detail::fixup_(temp.hash_);
+        return op(temp.hash_,iOther.hash_);
       }
 
     value_type hash_;
@@ -105,7 +112,6 @@ namespace edm {
   template <int I>
   inline
   Hash<I>::Hash(Hash<I> const& iOther) : hash_(iOther.hash_) {
-    hash_detail::fixup_(hash_);
   }
 
   template <int I>
@@ -113,7 +119,6 @@ namespace edm {
   Hash<I> const& 
   Hash<I>::operator=(Hash<I> const& iRHS) {
     hash_ = iRHS.hash_;
-    hash_detail::fixup_(hash_);
     return *this;
   }
   
@@ -177,9 +182,7 @@ namespace edm {
   inline
   void 
   Hash<I>::swap(Hash<I>& other) {
-    hash_detail::fixup_(hash_);
     hash_.swap(other.hash_);
-    hash_detail::fixup_(hash_);
   }
 
   template <int I>
