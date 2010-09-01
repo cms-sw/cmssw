@@ -2,12 +2,15 @@
 #include "Fireworks/FWInterface/interface/FWFFLooper.h"
 #include "Fireworks/TableWidget/interface/FWTableManagerBase.h"
 #include "Fireworks/TableWidget/interface/FWTextTableCellRenderer.h"
+#include "Fireworks/Core/src/FWDialogBuilder.h"
+
 #include "FWCore/Framework/interface/ScheduleInfo.h"
 #include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
-#include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "Fireworks/Core/src/FWDialogBuilder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/Provenance/interface/EventRange.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 
 #include "TGLabel.h"
 #include "TGTextEdit.h"
@@ -58,6 +61,9 @@ public:
             moduleEntry.label = pathModules[mi];
             moduleEntry.level = 1;
             m_entries.push_back(moduleEntry);
+
+            const edm::ParameterSet* ps = info->parametersForModule(pathModules[mi]);
+            handlePSet(*ps);
          }
       }
       dataChanged();
@@ -100,9 +106,10 @@ public:
          const PSetData& data = m_entries[unsortedRow];
 
          if (iCol == 0)
-            m_renderer.setData(data.label, false);
+           m_renderer.setData(data.label, false);
          else if (iCol == 1)
-            m_renderer.setData(data.value, false);
+           m_renderer.setData(data.value, false);
+         
          else
             m_renderer.setData(std::string(), false);
       }
@@ -197,6 +204,7 @@ public:
    void createScalarString(PSetData &data, T v)
    {
       std::stringstream ss;
+      ss << v;
       data.value = ss.str();
       m_entries.push_back(data);
    }
@@ -239,7 +247,7 @@ public:
         }
       case 'B':
         {
-          data.value = "[Ack! no access from entry for VBool?]";
+          data.value = entry.getBool() ? "True" : "False";
           m_entries.push_back(data);
           break;
         }
@@ -295,7 +303,7 @@ public:
          }
       case 'd':
          {
-            createVectorString(data, entry.getVDouble(), true);
+            createVectorString(data, entry.getVDouble(), false);
             break;
          }
       case 'D':
@@ -328,7 +336,69 @@ public:
                tags[iti] = entry.getVInputTag()[iti].encode();
             createVectorString(data, tags, true);
             break;
-         }
+         }        
+      case 'F':
+        {
+          entry.getFileInPath().write(ss);
+          createVectorString(data, ss.str(), true);
+          break;
+        }
+      case 'e':
+        {
+          std::vector<edm::MinimalEventID> ids;
+          ids.resize(entry.getVEventID().size());
+          for ( size_t iri = 0, ire = ids.size(); iri != ire; ++iri )
+            ids[iri] = entry.getVEventID()[iri];
+          createVectorString(data, ids, true);
+          break;
+        }
+      case 'E':
+        {
+          createScalarString(data, entry.getEventID());
+          break;
+        }
+      case 'm':
+        {
+          std::vector<edm::LuminosityBlockID> ids;
+          ids.resize(entry.getVLuminosityBlockID().size());
+          for ( size_t iri = 0, ire = ids.size(); iri != ire; ++iri )
+            ids[iri] = entry.getVLuminosityBlockID()[iri];
+          createVectorString(data, ids, true);
+          break;
+        }
+      case 'M':
+        {
+          createScalarString(data, entry.getLuminosityBlockID());
+          break;
+        }
+      case 'a':
+        {
+          std::vector<edm::LuminosityBlockRange> ranges;
+          ranges.resize(entry.getVLuminosityBlockRange().size());
+          for ( size_t iri = 0, ire = ranges.size(); iri != ire; ++iri )
+            ranges[iri] = entry.getVLuminosityBlockRange()[iri];
+          createVectorString(data, ranges, true);
+          break;
+        }
+      case 'A':
+        {
+          createScalarString(data, entry.getLuminosityBlockRange());
+          break;
+        }
+      case 'r':
+        {
+          std::vector<edm::EventRange> ranges;
+          ranges.resize(entry.getVEventRange().size());
+          for ( size_t iri = 0, ire = ranges.size(); iri != ire; ++iri )
+            ranges[iri] = entry.getVEventRange()[iri];
+          createVectorString(data, ranges, true);
+          break;
+        }
+      case 'R':
+        {
+          createScalarString(data, entry.getEventRange());
+          break;          
+        }
       default:
         {
           break;
@@ -408,7 +478,7 @@ FWPathsPopup::typeCodeToChar(char typeCode)
   switch(typeCode)
   {
   case 'b':  return "Bool";
-  case 'B':  return "VBool";
+  case 'B':  return "Bool";
   case 'i' : return "vint32";
   case 'I' : return "int32";
   case 'u' : return "vuint32";
@@ -462,8 +532,9 @@ FWPathsPopup::handleEntry(const edm::Entry& entry,
       break;
     }
   case 'B':
-    {
-      html += "   [Ack! no access from entry for VBool?]";
+    { 
+      ss << entry.getBool();
+      html += "    " + ss.str();
       break;
     }
   case 'i':
@@ -602,6 +673,86 @@ FWPathsPopup::handleEntry(const edm::Entry& entry,
       }
       break;
     }
+  case 't':
+    {
+      ss << entry.getInputTag();
+      html += "    " + ss.str();
+      break;
+    }
+  case 'e':
+    {
+      html += "    ";
+      std::vector<edm::MinimalEventID> ids = entry.getVEventID();
+      for ( size_t iri = 0, ire = ids.size(); iri != ire; ++iri )
+      {
+        ss << ids[iri];
+        html += " " + ss.str();
+      }
+      break;
+    }
+  case 'E':
+    {
+      ss << entry.getEventID();
+      html += "   " + ss.str();
+      break;
+    }
+  case 'm':
+    {
+      html += "    ";
+      std::vector<edm::LuminosityBlockID> ids = entry.getVLuminosityBlockID();
+      for ( size_t iri = 0, ire = ids.size(); iri != ire; ++iri )
+      {
+        ss << ids[iri];
+        html += " " + ss.str();
+      }
+      break;
+    }      
+  case 'M':
+    {
+      ss << entry.getLuminosityBlockID();
+      html += "   " + ss.str();
+      break;
+    }      
+  case 'a':
+    {
+      html += "   ";
+      std::vector<edm::LuminosityBlockRange> ranges = entry.getVLuminosityBlockRange();
+      for ( size_t iri = 0, ire = ranges.size(); iri != ire; ++iri )
+      {
+        ss << ranges[iri];
+        html += " " + ss.str();
+      }
+      break;
+    }    
+  case 'A':
+    {
+      ss << entry.getLuminosityBlockRange();
+      html += "   " + ss.str();
+      break;
+    }    
+  case 'r':
+    {
+      html += "   ";
+      std::vector<edm::EventRange> ranges = entry.getVEventRange();
+      for ( size_t iri = 0, ire = ranges.size(); iri != ire; ++iri )
+      {
+        ss << ranges[iri];
+        html += " " + ss.str();
+      }
+      break;
+    }
+  case 'R':
+    {
+      ss << entry.getEventRange();
+      html += "   " + ss.str();
+      break;          
+    }
+  case 'F':
+    {
+      entry.getFileInPath().write(ss);
+      html += "   " + ss.str();
+      break;
+    }
   default:
     {
       html += "   [Not supported yet. Are you sure you want this?]";
@@ -661,7 +812,7 @@ FWPathsPopup::handlePSet(const edm::ParameterSet* ps, TString& html)
 }
 
 //#include <fstream>
-//std:ofstream fout("path-view.html");
+//std::ofstream fout("path-view.html");
 
 void
 FWPathsPopup::makePathsView()
