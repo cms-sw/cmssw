@@ -174,8 +174,6 @@ namespace edm {
         std::string const to("");
 
         return regex_replace(iCapName, ex, to, boost::match_default | boost::format_sed);
-
-        return iCapName;
       }
 
       //Cint requires that we register the type and library containing the type
