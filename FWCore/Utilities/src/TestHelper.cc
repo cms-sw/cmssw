@@ -1,5 +1,5 @@
 //------------------------------------------------------------
-// $Id: TestHelper.cc,v 1.9 2008/11/11 11:27:34 elmer Exp $
+// $Id: TestHelper.cc,v 1.10 2008/11/11 15:57:35 dsr Exp $
 //------------------------------------------------------------
 #include <cerrno>
 #include <cstdlib>
@@ -112,6 +112,7 @@ int do_work(int argc, char* argv[], char** env)
 	  std::cerr << "SCRAM_ARCH not set and attempt to set it failed\n";
 	  return -1;
 	}
+      arch = getenv("SCRAM_ARCH");
     }
 
   int rc=0;
