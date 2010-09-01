@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: sm_nfscopy.sh,v 1.6 2008/11/05 14:50:06 loizides Exp $
+# $Id: sm_nfscopy.sh,v 1.7 2010/07/22 08:22:34 babar Exp $
 
 nfsserver=$1
 filename=$2
@@ -42,11 +42,11 @@ if test -n "$parallel"; then
 fi
 
 if test -n "$debug" -o "$nfsserver" = "local" -o -n "`mount | grep $nfsserver`"; then
-    if $execmd; then
+    if ! $execmd; then
         echo "Warning $0: error executing $execmd for parameters $@." >&2
         exit 125;
     fi
-    if $execmd2; then
+    if ! $execmd2; then
         echo "Warning $0: error executing $execm2 for parameters $@." >&2
         exit 126;
     fi
