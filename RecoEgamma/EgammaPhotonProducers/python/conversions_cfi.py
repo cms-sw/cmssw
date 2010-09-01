@@ -28,6 +28,10 @@ conversions = cms.EDProducer("ConvertedPhotonProducer",
     deltaCotCut = cms.double(0.05),
     minApproachDisCut  = cms.double(0.),
     maxNumOfCandidates = cms.int32(3),
-    risolveConversionAmbiguity = cms.bool(True)                         
+    risolveConversionAmbiguity = cms.bool(True),
+    maxDistance = cms.double(0.001),#vertex fitting quality
+    maxOfInitialValue = cms.double(9999.),#fitting initial value
+    maxNbrOfIterations = cms.int32(40),#fitting steps
+
  )
 

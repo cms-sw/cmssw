@@ -29,7 +29,7 @@ class ConversionVertexFinder {
 
 public:
 
-  ConversionVertexFinder();
+  ConversionVertexFinder(const edm::ParameterSet& config);
 
 
   ~ConversionVertexFinder();
@@ -40,6 +40,10 @@ public:
   bool run(std::vector<reco::TransientTrack>  pair, reco::Vertex& the_vertex) ;
   
 
+ private:
+  edm::ParameterSet conf_;
+  double maxDistance_, maxOfInitialValue_;
+  int maxNbrOfIterations_;//0.001, 1.4, 40 parameter for vertex
 
 
 };

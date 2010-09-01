@@ -31,10 +31,14 @@
 
 
 
-ConversionVertexFinder::ConversionVertexFinder( ){ 
-  
+ConversionVertexFinder::ConversionVertexFinder(const edm::ParameterSet& config ):
+  conf_(config)
+{ 
   LogDebug("ConversionVertexFinder") << "ConversionVertexFinder CTOR  " <<  "\n";  
-
+  maxDistance_ = conf_.getParameter<double>("maxDistance");
+  maxOfInitialValue_ = conf_.getParameter<double>("maxOfInitialValue");
+  maxNbrOfIterations_ = conf_.getParameter<int>("maxNbrOfIterations");
+  
 }
 
 ConversionVertexFinder::~ConversionVertexFinder() {
@@ -53,12 +57,12 @@ bool  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair, reco:
   float ndf = 0.;
   float mass = 0.000000511;
   
-  /*
-    edm::ParameterSet pSet;
-    pSet.addParameter<double>("maxDistance", maxDistance_);//0.001
-    pSet.addParameter<double>("maxOfInitialValue",maxOfInitialValue_) ;//1.4
-    pSet.addParameter<int>("maxNbrOfIterations", maxNbrOfIterations_);//40
-  */
+  
+  edm::ParameterSet pSet;
+  pSet.addParameter<double>("maxDistance", maxDistance_);//0.001
+  pSet.addParameter<double>("maxOfInitialValue",maxOfInitialValue_) ;//1.4
+  pSet.addParameter<int>("maxNbrOfIterations", maxNbrOfIterations_);//40
+ 
   
   KinematicParticleFactoryFromTransientTrack pFactory;
   
@@ -70,7 +74,7 @@ bool  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair, reco:
   MultiTrackKinematicConstraint *  constr = new ColinearityKinematicConstraint(ColinearityKinematicConstraint::PhiTheta);
   
   KinematicConstrainedVertexFitter kcvFitter;
-  //kcvFitter.setParameters(pSet);
+  kcvFitter.setParameters(pSet);
   RefCountedKinematicTree myTree = kcvFitter.fit(particles, constr);
   if( myTree->isValid() ) {
     myTree->movePointerToTheTop();                                                                                

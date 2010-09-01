@@ -100,7 +100,7 @@ ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config
   // instantiate the Track Pair Finder algorithm
   theTrackPairFinder_ = new ConversionTrackPairFinder ();
   // instantiate the Vertex Finder algorithm
-  theVertexFinder_ = new ConversionVertexFinder ();
+  theVertexFinder_ = new ConversionVertexFinder ( conf_);
 
 
   // Inizilize my global event counter
