@@ -5,8 +5,8 @@
 //   Description: Sector Receiver 
 //
 //
-//   $Date: 2008/12/12 08:21:40 $
-//   $Revision: 1.16 $
+//   $Date: 2009/05/12 09:07:29 $
+//   $Revision: 1.17 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -36,6 +36,8 @@
 #include "L1Trigger/DTTrackFinder/src/L1MuDTDataBuffer.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegLoc.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegPhi.h"
+#include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h"
+#include "L1Trigger/CSCTrackFinder/interface/CSCTrackFinderDataTypes.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhDigi.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"
@@ -57,6 +59,16 @@ using namespace std;
 L1MuDTSectorReceiver::L1MuDTSectorReceiver(L1MuDTSectorProcessor& sp) : 
         m_sp(sp) {
 
+ edm::ParameterSet csclutpar;
+ csclutpar.addUntrackedParameter<bool>("ReadLUTs", false);
+ csclutpar.addUntrackedParameter<bool>("Binary",   false);
+ csclutpar.addUntrackedParameter<std::string>("LUTPath", "./");
+
+ csclut_[0][1] = new CSCSectorReceiverLUT( 1, 1, 1, 1, csclutpar, true);
+ csclut_[1][1] = new CSCSectorReceiverLUT( 1, 1, 2, 1, csclutpar, true);
+ csclut_[0][0] = new CSCSectorReceiverLUT( 2, 1, 1, 1, csclutpar, true);
+ csclut_[1][0] = new CSCSectorReceiverLUT( 2, 1, 2, 1, csclutpar, true);
+
 }
 
 
@@ -66,7 +78,12 @@ L1MuDTSectorReceiver::L1MuDTSectorReceiver(L1MuDTSectorProcessor& sp) :
 L1MuDTSectorReceiver::~L1MuDTSectorReceiver() { 
 
 //  reset();
-  
+
+  delete  csclut_[0][1];
+  delete  csclut_[1][1];
+  delete  csclut_[0][0];
+  delete  csclut_[1][0];
+
 }
 
 
@@ -268,10 +285,12 @@ void L1MuDTSectorReceiver::receiveCSCData(int bx, const edm::Event& e, const edm
     if ( subsector == 2 && phiCSC <  2048 ) continue;
         
     // convert CSC phi to DTBX phi
-    double dphi = ((double) phiCSC) - 2048.*16./31.;
-    if ( sector%2 == 0 ) dphi = dphi  - 2048.*30./ 31.;
-    dphi = dphi*62.*M_PI/180.;
-    int phi = static_cast<int>(floor( dphi ));
+    lclphidat lclPhi =
+      csclut_[subsector-1][(wheel+3)/6]->localPhi(csc_iter->getStrip(),csc_iter->getPattern(),csc_iter->getQuality(),csc_iter->getBend());
+    gblphidat gblPhiDT =
+      csclut_[subsector-1][(wheel+3)/6]->globalPhiMB(lclPhi.phi_local,csc_iter->getKeyWG(),csc_iter->cscid());
+    int phi = gblPhiDT.global_phi;
+    if ( phi > 2047 ) phi -= 4096; 
     if ( phi < -2048 || phi > 2047 ) continue; 
 
     if ( msks->get_inrec_chdis_csc(m_sp.id().wheel(), m_sp.id().sector()) ) continue;
