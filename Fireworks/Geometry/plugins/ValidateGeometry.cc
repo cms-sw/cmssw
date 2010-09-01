@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.22 2010/08/25 10:25:03 mccauley Exp $
+// $Id: ValidateGeometry.cc,v 1.23 2010/08/31 15:30:20 yana Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -72,7 +72,6 @@ private:
                            const char* regionName);
 
   void validateDTChamberGeometry();
-  void validateDTSuperLayerGeometry();
   void validateDTLayerGeometry();
 
   void validateCSChamberGeometry(const int endcap,
@@ -97,9 +96,8 @@ private:
                              const char* detname);
         
   void compareTransform(const GlobalPoint& point, const TGeoMatrix* matrix);
-
-  void compareShape(const GeomDet* det, TGeoShape* shape);
-
+  void compareShape(const GeomDet* det, const float* shape);
+  
   double getDistance(const GlobalPoint& point1, const GlobalPoint& point2);
 
   void makeHistograms(const char* detector);
@@ -185,10 +183,6 @@ ValidateGeometry::analyze(const edm::Event& event, const edm::EventSetup& eventS
     std::cout<<"Validating DT chamber geometry"<<std::endl;
     validateDTChamberGeometry();
 
-    //std::cout<<"Validating DT superlayer geometry"<<std::endl;
-    // This is not included in geom file anymore
-    //validateDTSuperLayerGeometry();
-
     std::cout<<"Validating DT layer geometry"<<std::endl;
     validateDTLayerGeometry();
   }
@@ -246,7 +240,6 @@ ValidateGeometry::analyze(const edm::Event& event, const edm::EventSetup& eventS
   }
   else
     fwLog(fwlog::kWarning)<<"Invalid Tracker geometry"<<std::endl;
-
 
   eventSetup.get<CaloGeometryRecord>().get(caloGeometry_);
 
@@ -321,7 +314,7 @@ ValidateGeometry::validateRPCGeometry(const int regionNumber, const char* region
 
         compareTransform(gp, matrix);
 
-        const TGeoVolume* shape = detIdToMatrix_.getVolume(rpcDetId.rawId());
+        const float* shape = detIdToMatrix_.getShapePars(rpcDetId.rawId());
 
         if ( ! shape )
         {
@@ -330,7 +323,7 @@ ValidateGeometry::validateRPCGeometry(const int regionNumber, const char* region
           continue;
         }
       
-        compareShape(det, shape->GetShape());
+        compareShape(det, shape);
 
         const float* parameters = detIdToMatrix_.getParameters(rpcDetId.rawId());
 
@@ -403,7 +396,7 @@ ValidateGeometry::validateDTChamberGeometry()
 
       compareTransform(gp, matrix);
 
-      const TGeoVolume* shape = detIdToMatrix_.getVolume(chId.rawId());
+      const float* shape = detIdToMatrix_.getShapePars(chId.rawId());
 
       if ( ! shape )
       {
@@ -412,77 +405,13 @@ ValidateGeometry::validateDTChamberGeometry()
         continue;
       }
       
-      compareShape(chamber, shape->GetShape());
+      compareShape(chamber, shape);
     }
   }
 
   makeHistograms("DT chamber");
 }
 
-void 
-ValidateGeometry::validateDTSuperLayerGeometry()
-{
-  clearData();
-
-  std::vector<DTSuperLayer*> superlayers = dtGeometry_->superLayers();
-  
-  for ( std::vector<DTSuperLayer*>::const_iterator it = superlayers.begin(), 
-                                                itEnd = superlayers.end(); 
-        it != itEnd; ++it)
-  {
-    const DTSuperLayer* superlayer = *it;
-      
-    if ( superlayer )
-    {
-      DTSuperLayerId chId = superlayer->id();
-      GlobalPoint gp = superlayer->surface().toGlobal(LocalPoint(0.0, 0.0, 0.0)); 
-     
-      const TGeoMatrix* matrix = detIdToMatrix_.getMatrix(chId.rawId());
- 
-      if ( ! matrix )   
-      {     
-        std::cout<<"Failed to get matrix of DT superlayer with detid: " 
-                 << chId.rawId() <<std::endl;
-        continue;
-      }
-
-      compareTransform(gp, matrix);
-
-      const TGeoVolume* shape = detIdToMatrix_.getVolume(chId.rawId());
-
-      if ( ! shape )
-      {
-        std::cout<<"Failed to get shape of DT superlayer with detid: "
-                 << chId.rawId() <<std::endl;
-        continue;
-      }
-      
-      compareShape(superlayer, shape->GetShape());
-
-
-      const float* parameters = detIdToMatrix_.getParameters(chId.rawId());
-
-      if ( parameters == 0 )
-      {
-        std::cout<<"Parameters empty for DT superlayer with detid: "
-                 << chId.rawId() <<std::endl;
-        continue;
-      }
-
-      float width = superlayer->surface().bounds().width();
-      assert(width == parameters[0]);
-
-      float thickness = superlayer->surface().bounds().thickness();
-      assert(thickness = parameters[1]);
-
-      float length = superlayer->surface().bounds().length();
-      assert(length == parameters[2]);
-
-    }
-  }
-
-  makeHistograms("DT superlayer");
-}
 
 void 
 ValidateGeometry::validateDTLayerGeometry()
@@ -515,7 +444,7 @@ ValidateGeometry::validateDTLayerGeometry()
 
       compareTransform(gp, matrix);
 
-      const TGeoVolume* shape = detIdToMatrix_.getVolume(layerId.rawId());
+      const float* shape = detIdToMatrix_.getShapePars(layerId.rawId());
 
       if ( ! shape )
       {
@@ -524,7 +453,7 @@ ValidateGeometry::validateDTLayerGeometry()
         continue;
       }
       
-      compareShape(layer, shape->GetShape());
+      compareShape(layer, shape);
 
         
       const float* parameters = detIdToMatrix_.getParameters(layerId.rawId());
@@ -600,7 +529,7 @@ ValidateGeometry::validateCSChamberGeometry(const int endcap, const char* detnam
 
       compareTransform(gp, matrix);
 
-      const TGeoVolume* shape = detIdToMatrix_.getVolume(detId.rawId());
+      const float* shape = detIdToMatrix_.getShapePars(detId.rawId());
 
       if ( ! shape )
       {
@@ -609,7 +538,7 @@ ValidateGeometry::validateCSChamberGeometry(const int endcap, const char* detnam
         continue;
       }
       
-      compareShape(chamber, shape->GetShape());
+      compareShape(chamber, shape);
     }
   }
 
@@ -647,7 +576,7 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
 
       compareTransform(gp, matrix);
 
-      const TGeoVolume* shape = detIdToMatrix_.getVolume(detId.rawId());
+      const float* shape = detIdToMatrix_.getShapePars(detId.rawId());
 
       if ( ! shape )
       {
@@ -656,26 +585,22 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
         continue;
       }
       
-      compareShape(layer, shape->GetShape());
+      compareShape(layer, shape);
 
       double length;
-      double topWidth;
-      double bottomWidth;
  
-      if ( TGeoTrap* trap = dynamic_cast<TGeoTrap*>(shape->GetShape()) )
+      if ( shape[0] == 1 )
       {
-        topWidth = trap->GetTl1();
-        bottomWidth = trap->GetBl1();
-        length = trap->GetH1();
+        length = shape[4];
       }
-      
+       
       else
       {      
         std::cout<<"Failed to get trapezoid from shape for CSC layer with detid: "
                  << detId.rawId() <<std::endl;
         continue;
       }
-      
+
       const float* parameters = detIdToMatrix_.getParameters(detId.rawId());
 
       if ( parameters == 0 )
@@ -856,7 +781,7 @@ ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetContainer& d
 
     compareTransform(gp, matrix);
 
-    const TGeoVolume* shape = detIdToMatrix_.getVolume(rawId);
+    const float* shape = detIdToMatrix_.getShapePars(rawId);
 
     if ( ! shape )
     {
@@ -865,7 +790,7 @@ ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetContainer& d
       continue;
     }
 
-    compareShape(*it, shape->GetShape());
+    compareShape(*it, shape);
   }
   
   makeHistograms(detname);
@@ -897,7 +822,7 @@ ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetUnitContaine
     compareTransform(gp, matrix);
 
 
-    const TGeoVolume* shape = detIdToMatrix_.getVolume(rawId);
+    const float* shape = detIdToMatrix_.getShapePars(rawId);
 
     if ( ! shape )
     {
@@ -906,7 +831,7 @@ ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetUnitContaine
       continue;
     }
 
-    compareShape(*it, shape->GetShape());
+    compareShape(*it, shape);
   }
   
   makeHistograms(detname);
@@ -1031,16 +956,9 @@ ValidateGeometry::compareTransform(const GlobalPoint& gp,
   globalDistances_.push_back(distance);
 }
 
-
 void 
-ValidateGeometry::compareShape(const GeomDet* det, TGeoShape* shape)
+ValidateGeometry::compareShape(const GeomDet* det, const float* shape)
 {
-  /*
-    X -> width
-    Y -> length
-    Z -> thickness
-  */
-
   double shape_topWidth;
   double shape_bottomWidth;
   double shape_length;
@@ -1049,22 +967,22 @@ ValidateGeometry::compareShape(const GeomDet* det, TGeoShape* shape)
   bool tgeotrap = false;
   bool tgeobbox = false;
 
-  if ( TGeoTrap* trap = dynamic_cast<TGeoTrap*>(shape) )
+  if ( shape[0] == 1 )
   {
-    shape_topWidth = trap->GetTl1()*2.0;
-    shape_bottomWidth = trap->GetBl1()*2.0;
-    shape_length = trap->GetH1()*2.0;
-    shape_thickness = trap->GetDz()*2.0;
+    shape_topWidth = shape[2];
+    shape_bottomWidth = shape[1];
+    shape_length = shape[4];
+    shape_thickness = shape[3];
 
     tgeotrap = true;
   }
-
-  else if ( TGeoBBox* box = dynamic_cast<TGeoBBox*>(shape) )
+  
+  else if ( shape[0] == 2 )
   {
-    shape_topWidth = box->GetDX()*2.0;
-    shape_bottomWidth = shape_topWidth;
-    shape_length = box->GetDY()*2.0;
-    shape_thickness = box->GetDZ()*2.0;
+    shape_topWidth = shape[1];
+    shape_bottomWidth = shape[1];
+    shape_length = shape[2];
+    shape_thickness = shape[3];
 
     tgeobbox = true;
   }
@@ -1089,20 +1007,20 @@ ValidateGeometry::compareShape(const GeomDet* det, TGeoShape* shape)
 
     assert(ps.size() == 4);
     
-    bottomWidth = ps[0]*2.0;
-    topWidth = ps[1]*2.0;
-    thickness = ps[2]*2.0;
-    length = ps[3]*2.0;
+    bottomWidth = ps[0];
+    topWidth = ps[1];
+    thickness = ps[2];
+    length = ps[3];
 
     trapezoid = true;
   }
 
   else if ( (dynamic_cast<const RectangularPlaneBounds*>(bounds)) )
   {
-    length = det->surface().bounds().length();
-    topWidth = det->surface().bounds().width();
+    length = det->surface().bounds().length()*0.5;
+    topWidth = det->surface().bounds().width()*0.5;
     bottomWidth = topWidth;
-    thickness = det->surface().bounds().thickness();
+    thickness = det->surface().bounds().thickness()*0.5;
 
     rectangle = true;
   }
@@ -1129,6 +1047,8 @@ ValidateGeometry::compareShape(const GeomDet* det, TGeoShape* shape)
 
   return;
 }
+
+
 
 
 double 
