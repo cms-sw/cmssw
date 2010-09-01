@@ -3,9 +3,9 @@
 # Pass in name and status
 function die { echo $1: status $2 ;  exit $2; }
 
-mkdir ${CMSSW_BASE}/test/SITECONF
-mkdir ${CMSSW_BASE}/test/SITECONF/local
-mkdir ${CMSSW_BASE}/test/SITECONF/local/JobConfig
+mkdir -p ${CMSSW_BASE}/test/SITECONF
+mkdir -p ${CMSSW_BASE}/test/SITECONF/local
+mkdir -p ${CMSSW_BASE}/test/SITECONF/local/JobConfig
 cp ${LOCAL_TEST_DIR}/no-source-site-local-config.testfile ${CMSSW_BASE}/test/SITECONF/local/JobConfig/site-local-config.xml
 
 F1=${LOCAL_TEST_DIR}/test_sitelocalconfig_no_source_cfg.py
@@ -18,6 +18,10 @@ F2=${LOCAL_TEST_DIR}/test_sitelocalconfig_source_cfg.py
 
 F3=${LOCAL_TEST_DIR}/test_sitelocalconfig_override_cfg.py
 (cmsRun $F3 ) || die "Failure using $F3" $?
+
+cp ${LOCAL_TEST_DIR}/no-source-site-local-config.testfile ${CMSSW_BASE}/test/SITECONF/local/JobConfig/site-local-config.xml
+F3=${LOCAL_TEST_DIR}/test_sitelocalconfig_override_cfg.py
+(cmsRun $F3 ) || die "Failure using $F3 with no-source site-local-config" $?
 
 
 
