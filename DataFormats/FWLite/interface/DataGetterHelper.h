@@ -78,14 +78,12 @@ namespace fwlite {
             DataGetterHelper(const DataGetterHelper&); // stop default
 
             const DataGetterHelper& operator=(const DataGetterHelper&); // stop default
-            TTree* tree_;
-            Long64_t index_;
             internal::Data& getBranchDataFor(const std::type_info&, const char*, const char*, const char*) const;
             void getBranchData(edm::EDProductGetter*, Long64_t, internal::Data&) const;
 
             // ---------- member data --------------------------------
+            TTree* tree_;
             mutable boost::shared_ptr<BranchMapReader> branchMap_;
-            // ---------- member data --------------------------------
             typedef std::map<internal::DataKey, boost::shared_ptr<internal::Data> > KeyToDataMap;
             mutable KeyToDataMap data_;
             mutable std::vector<const char*> labels_;
