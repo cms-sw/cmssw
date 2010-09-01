@@ -43,6 +43,7 @@ namespace edm {
   : label_(""),
     instance_(""),
     process_(),
+    branchType_(NumBranchTypes),
     cachedOffset_(0U),
     fillCount_(0),
     productRegistry_(0) {
