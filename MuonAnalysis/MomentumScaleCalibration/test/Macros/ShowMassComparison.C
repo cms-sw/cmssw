@@ -20,7 +20,7 @@ void getHistograms(const TString canvasName, TH1F * & histo1, TH1D * & histo2, c
 void ShowMassComparison(const TString & resonance = "Z")
 {
   TString canvasName("Allres");
-  if( resonance == "Upsilons" || resonance == "LowPtResonances" || resonance == "AllResonances" ) {
+  if( resonance == "Psis" || resonance == "Upsilons" || resonance == "LowPtResonances" || resonance == "AllResonances" ) {
     canvasName += "Together";
   }
   TH1F * histo1 = 0;
