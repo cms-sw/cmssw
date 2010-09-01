@@ -13,7 +13,7 @@
 //
 // Original Author:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: TrackerOnlyConversionProducer.cc,v 1.21 2010/06/03 14:34:47 nancy Exp $
+// $Id: TrackerOnlyConversionProducer.cc,v 1.22 2010/07/12 21:02:01 nancy Exp $
 //
 //
 
@@ -438,6 +438,7 @@ bool TrackerOnlyConversionProducer::checkVertex(const reco::TrackRef& tk_l, cons
     pSet.addParameter<double>("maxDistance", maxDistance_);//0.001
     pSet.addParameter<double>("maxOfInitialValue",maxOfInitialValue_) ;//1.4
     pSet.addParameter<int>("maxNbrOfIterations", maxNbrOfIterations_);//40
+   
 
     KinematicParticleFactoryFromTransientTrack pFactory;
 
