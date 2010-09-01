@@ -1,4 +1,4 @@
-// $Id: reftobase_t.cppunit.cc,v 1.7.4.1 2008/11/04 19:24:08 wmtan Exp $
+// $Id: reftobase_t.cppunit.cc,v 1.8 2008/12/18 04:53:08 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/Ref.h"
@@ -69,6 +69,6 @@ testRefToBase::check()
   CPPUNIT_ASSERT(b1.castTo<Ref<std::vector<Inherit1> > >() == r1);
   bool throwed = false;
   try { b1.castTo<Ref<std::vector<Inherit2> > >(); } 
-  catch (edm::Exception e) { throwed = true; }
+  catch (edm::Exception const& e) { throwed = true; }
   CPPUNIT_ASSERT(throwed);
 }
