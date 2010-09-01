@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2010/08/08 08:46:02 $
- * $Revision: 1.218 $
+ * $Date: 2010/08/11 15:01:44 $
+ * $Revision: 1.219 $
  * \author G. Della Ricca
  *
 */
@@ -323,7 +323,7 @@ void EBSummaryClient::setup(void) {
 
     if ( meLaserL1Ampl_ ) dqmStore_->removeElement( meLaserL1Ampl_->getName() );
     sprintf(histo, "EBLT laser L1 amplitude summary");
-    meLaserL1Ampl_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 2000., "s");
+    meLaserL1Ampl_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 4096, 0., 4096., "s");
     for (int i = 0; i < 36; i++) {
       meLaserL1Ampl_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
@@ -337,7 +337,7 @@ void EBSummaryClient::setup(void) {
 
     if ( meLaserL1AmplOverPN_ ) dqmStore_->removeElement( meLaserL1AmplOverPN_->getName() );
     sprintf(histo, "EBLT laser L1 amplitude over PN summary");
-    meLaserL1AmplOverPN_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 20., "s");
+    meLaserL1AmplOverPN_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 4096, 0., 4096.*12., "s");
     for (int i = 0; i < 36; i++) {
       meLaserL1AmplOverPN_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
@@ -374,7 +374,7 @@ void EBSummaryClient::setup(void) {
 
     if ( meLaserL2Ampl_ ) dqmStore_->removeElement( meLaserL2Ampl_->getName() );
     sprintf(histo, "EBLT laser L2 amplitude summary");
-    meLaserL2Ampl_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 2000., "s");
+    meLaserL2Ampl_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 4096, 0., 4096., "s");
     for (int i = 0; i < 36; i++) {
       meLaserL2Ampl_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
@@ -388,7 +388,7 @@ void EBSummaryClient::setup(void) {
 
     if ( meLaserL2AmplOverPN_ ) dqmStore_->removeElement( meLaserL2AmplOverPN_->getName() );
     sprintf(histo, "EBLT laser L2 amplitude over PN summary");
-    meLaserL2AmplOverPN_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 20., "s");
+    meLaserL2AmplOverPN_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 4096, 0., 4096.*12., "s");
     for (int i = 0; i < 36; i++) {
       meLaserL2AmplOverPN_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
@@ -425,7 +425,7 @@ void EBSummaryClient::setup(void) {
 
     if ( meLaserL3Ampl_ ) dqmStore_->removeElement( meLaserL3Ampl_->getName() );
     sprintf(histo, "EBLT laser L3 amplitude summary");
-    meLaserL3Ampl_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 2000., "s");
+    meLaserL3Ampl_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 4096, 0., 4096., "s");
     for (int i = 0; i < 36; i++) {
       meLaserL3Ampl_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
@@ -439,7 +439,7 @@ void EBSummaryClient::setup(void) {
 
     if ( meLaserL3AmplOverPN_ ) dqmStore_->removeElement( meLaserL3AmplOverPN_->getName() );
     sprintf(histo, "EBLT laser L3 amplitude over PN summary");
-    meLaserL3AmplOverPN_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 20., "s");
+    meLaserL3AmplOverPN_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 4096, 0., 4096.*12., "s");
     for (int i = 0; i < 36; i++) {
       meLaserL3AmplOverPN_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
@@ -476,7 +476,7 @@ void EBSummaryClient::setup(void) {
 
     if ( meLaserL4Ampl_ ) dqmStore_->removeElement( meLaserL4Ampl_->getName() );
     sprintf(histo, "EBLT laser L4 amplitude summary");
-    meLaserL4Ampl_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 2000., "s");
+    meLaserL4Ampl_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 4096, 0., 4096., "s");
     for (int i = 0; i < 36; i++) {
       meLaserL4Ampl_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
@@ -490,7 +490,7 @@ void EBSummaryClient::setup(void) {
 
     if ( meLaserL4AmplOverPN_ ) dqmStore_->removeElement( meLaserL4AmplOverPN_->getName() );
     sprintf(histo, "EBLT laser L4 amplitude over PN summary");
-    meLaserL4AmplOverPN_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 20., "s");
+    meLaserL4AmplOverPN_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 4096, 0., 4096.*12., "s");
     for (int i = 0; i < 36; i++) {
       meLaserL4AmplOverPN_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
@@ -601,7 +601,7 @@ void EBSummaryClient::setup(void) {
 
     if( meTestPulseAmplG01_ ) dqmStore_->removeElement( meTestPulseAmplG01_->getName() );
     sprintf(histo, "EBTPT test pulse amplitude G01 summary");
-    meTestPulseAmplG01_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 4096, 0., 4096., "s");
+    meTestPulseAmplG01_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 4096, 0., 4096.*12., "s");
     for (int i = 0; i < 36; i++) {
       meTestPulseAmplG01_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
@@ -612,7 +612,7 @@ void EBSummaryClient::setup(void) {
 
     if( meTestPulseAmplG06_ ) dqmStore_->removeElement( meTestPulseAmplG06_->getName() );
     sprintf(histo, "EBTPT test pulse amplitude G06 summary");
-    meTestPulseAmplG06_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 4096, 0., 4096., "s");
+    meTestPulseAmplG06_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 4096, 0., 4096.*12., "s");
     for (int i = 0; i < 36; i++) {
       meTestPulseAmplG06_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
@@ -623,7 +623,7 @@ void EBSummaryClient::setup(void) {
 
     if( meTestPulseAmplG12_ ) dqmStore_->removeElement( meTestPulseAmplG12_->getName() );
     sprintf(histo, "EBTPT test pulse amplitude G12 summary");
-    meTestPulseAmplG12_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 4096, 0., 4096., "s");
+    meTestPulseAmplG12_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 4096, 0., 4096.*12., "s");
     for (int i = 0; i < 36; i++) {
       meTestPulseAmplG12_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
