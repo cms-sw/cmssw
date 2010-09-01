@@ -201,19 +201,28 @@ L1TScalersSCAL::L1TScalersSCAL(const edm::ParameterSet& ps):
 
     				
     dbe_->setCurrentFolder("L1T/L1TScalersSCAL/LumiScalers");
-    instLumi = dbe_->book1D("Instant Lumi","Instant Lumi",100,0,100);
-    instLumiErr = dbe_->book1D("Instant Lumi Err","Instant Lumi Err",100,
-			       0,100);
-    instLumiQlty = dbe_->book1D("Instant Lumi Qlty","Instant Lumi Qlty",100,
-				0,100);
-    instEtLumi = dbe_->book1D("Instant Et Lumi","Instant Et Lumi",100,0,100);
-    instEtLumiErr = dbe_->book1D("Instant Et Lumi Err","Instant Et Lumi Err",
-				 100,0,100);
-    instEtLumiQlty = dbe_->book1D("Instant Et Lumi Qlty",
-				  "Instant Et Lumi Qlty",100,0,100);
-    sectionNum = dbe_->book1D("Section Number","Section Number",100,0,100);
-    startOrbit = dbe_->book1D("Start Orbit","Start Orbit",100,0,100);
-    numOrbits = dbe_->book1D("Num Orbits","Num Orbits",100,0,100);
+    //instLumi = dbe_->book1D("Instant Lumi","Instant Lumi",100,0,100);
+    instLumi = dbe_->book1D("Instant_Lumi","Instant_Lumi", maxNbins,-0.5,double(maxNbins)-0.5);
+    //instLumiErr = dbe_->book1D("Instant Lumi Err","Instant Lumi Err",100,
+    //			       0,100);
+    instLumiErr = dbe_->book1D("Instant_Lumi_Err","Instant_Lumi_Err",maxNbins,-0.5,double(maxNbins)-0.5);
+    //instLumiQlty = dbe_->book1D("Instant Lumi Qlty","Instant Lumi Qlty",100,
+    //				0,100);
+    instLumiQlty = dbe_->book1D("Instant_Lumi_Qlty","Instant_Lumi_Qlty",maxNbins,-0.5,double(maxNbins)-0.5);
+    //instEtLumi = dbe_->book1D("Instant Et Lumi","Instant Et Lumi",100,0,100);
+    instEtLumi = dbe_->book1D("Instant_Et_Lumi","Instant_Et_Lumi",maxNbins,-0.5,double(maxNbins)-0.5);
+    //instEtLumiErr = dbe_->book1D("Instant Et Lumi Err","Instant Et Lumi Err",
+    //				 100,0,100);
+    instEtLumiErr = dbe_->book1D("Instant_Et_Lumi_Err","Instant_Et_Lumi_Err",maxNbins,-0.5,double(maxNbins)-0.5);
+    //instEtLumiQlty = dbe_->book1D("Instant Et Lumi Qlty",
+    //				  "Instant Et Lumi Qlty",100,0,100);
+    instEtLumiQlty = dbe_->book1D("Instant_Et_Lumi_Qlty",
+				  "Instant_Et_Lumi_Qlty",maxNbins,-0.5,double(maxNbins)-0.5);
+    //sectionNum = dbe_->book1D("Section Number","Section Number",100,0,100);
+    //startOrbit = dbe_->book1D("Start Orbit","Start Orbit",100,0,100);
+    startOrbit = dbe_->book1D("Start_Orbit","Start_Orbit", maxNbins,-0.5,double(maxNbins)-0.5);
+    //numOrbits = dbe_->book1D("Num Orbits","Num Orbits",100,0,100);
+    numOrbits = dbe_->book1D("Num_Orbits","Num_Orbits", maxNbins,-0.5,double(maxNbins)-0.5);
         
     
     dbe_->setCurrentFolder("L1T/L1TScalersSCAL/L1AcceptBunchCrossing");
@@ -472,17 +481,20 @@ L1TScalersSCAL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       //for(LumiScalersCollection::const_iterator it3 = lumiScalers->begin();
       //it3 != lumiScalers->end();
       //++it3){
+      unsigned int lumisection = it3->sectionNumber();
+      if(lumisection){
        
-      instLumi->Fill(it3->instantLumi());
-      instLumiErr->Fill(it3->instantLumiErr()); 
-      instLumiQlty->Fill(it3->instantLumiQlty()); 
-      instEtLumi->Fill(it3->instantETLumi()); 
-      instEtLumiErr->Fill(it3->instantETLumiErr()); 
-      instEtLumiQlty->Fill(it3->instantETLumiQlty()); 
-      sectionNum->Fill(it3->sectionNumber()); 
-      startOrbit->Fill(it3->startOrbit()); 
-      numOrbits->Fill(it3->numOrbits()); 
-       
+	instLumi->setBinContent(lumisection+1, it3->instantLumi());
+	instLumiErr->setBinContent(lumisection+1, it3->instantLumiErr()); 
+	instLumiQlty->setBinContent(lumisection+1, it3->instantLumiQlty()); 
+	instEtLumi->setBinContent(lumisection+1, it3->instantETLumi()); 
+	instEtLumiErr->setBinContent(lumisection+1, it3->instantETLumiErr()); 
+	instEtLumiQlty->setBinContent(lumisection+1, it3->instantETLumiQlty()); 
+	//sectionNum->Fill(it3->sectionNumber()); 
+	startOrbit->setBinContent(lumisection+1, it3->startOrbit()); 
+	numOrbits->setBinContent(lumisection+1, it3->numOrbits()); 
+
+      }       
       /*
 	char line2[128];
 	sprintf(line2," InstantLumi:       %e  Err: %e  Qlty: %d",
