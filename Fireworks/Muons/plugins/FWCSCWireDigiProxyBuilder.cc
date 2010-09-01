@@ -8,7 +8,7 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCWireDigiProxyBuilder.cc,v 1.12 2010/08/23 15:26:36 yana Exp $
+// $Id: FWCSCWireDigiProxyBuilder.cc,v 1.13 2010/08/31 15:30:21 yana Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -121,11 +121,11 @@ FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* prod
     double topWidth;
     double bottomWidth;
    
-    if( shape[0] == 0 )
+    if( shape[0] == 1 )
     {
-      topWidth = shape[1]; // trap->GetTl1()*2.0;
-      bottomWidth = shape[2]; //trap->GetBl1()*2.0;
-      length = shape[3]; //trap->GetH1()*2.0;
+      topWidth = shape[2];
+      bottomWidth = shape[1];
+      length = shape[4]; 
     }
     else
     {
@@ -143,9 +143,9 @@ FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* prod
       continue;
     }
     
-    double wireSpacing = parameters[6];
-    float wireAngle = parameters[7];
-    float cosWireAngle = cos(wireAngle);
+    double wireSpacing  = parameters[6];
+    float  wireAngle    = parameters[7];
+    float  cosWireAngle = cos(wireAngle);
 
     double yOfFirstWire = getYOfFirstWire(cscDetId.station(), cscDetId.ring(), length); 
              
@@ -159,10 +159,10 @@ FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* prod
       int wireGroup = (*dit).getWireGroup();
 
       double yOfWire = yOfFirstWire + ((wireGroup-1)*wireSpacing)/cosWireAngle;
-      yOfWire += length*0.5;
+      yOfWire += length;
 
       double wireLength = yOfWire*(topWidth-bottomWidth) / length;
-      wireLength += bottomWidth;
+      wireLength += bottomWidth*2.0;
      
       double localPointLeft[3] = 
       {
