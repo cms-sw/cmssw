@@ -79,13 +79,12 @@ namespace edm {
         if(meCF == otherCF) {
           return op(this->hash_,iOther.hash_);
         }
+        //copy constructor will do compact form conversion
         if(meCF) {
            Hash<I> temp(iOther);
-           hash_detail::fixup_(temp.hash_);
            return op(this->hash_,temp.hash_);
         } 
         Hash<I> temp(*this);
-        hash_detail::fixup_(temp.hash_);
         return op(temp.hash_,iOther.hash_);
       }
 
@@ -112,6 +111,7 @@ namespace edm {
   template <int I>
   inline
   Hash<I>::Hash(Hash<I> const& iOther) : hash_(iOther.hash_) {
+     hash_detail::fixup_(hash_);
   }
 
   template <int I>
@@ -119,6 +119,7 @@ namespace edm {
   Hash<I> const& 
   Hash<I>::operator=(Hash<I> const& iRHS) {
     hash_ = iRHS.hash_;
+    hash_detail::fixup_(hash_);
     return *this;
   }
   

@@ -155,7 +155,7 @@ void testParameterSetID::oldRootFileCompatibilityTest()
   CPPUNIT_ASSERT(dflt.isCompactForm());
 
   ParameterSetID evilCopy(*evil);
-  CPPUNIT_ASSERT(not evilCopy.isCompactForm());
+  CPPUNIT_ASSERT(evilCopy.isCompactForm());
   
   CPPUNIT_ASSERT(dflt == evilCopy);
   CPPUNIT_ASSERT(evilCopy == *evil);
