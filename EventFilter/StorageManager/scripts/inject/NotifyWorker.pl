@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: NotifyWorker.pl,v 1.4 2010/07/21 09:37:04 babar Exp $
+# $Id: NotifyWorker.pl,v 1.5 2010/08/30 12:36:08 babar Exp $
 # --
 # NotifyWoker.pl
 # Monitors a directory, and sends notifications to Tier0
@@ -46,7 +46,7 @@ my $log4perlConfig = '/opt/injectworker/log4perl.conf';
 
 # To rotate logfiles daily
 sub get_logfile {
-    return strftime "$logpath/$_[0]-%Y%m%d-$host.log", localtime $_[0];
+    return strftime "$logpath/$_[0]-%Y%m%d-$host.log", localtime time;
 }
 
 # Create logger
