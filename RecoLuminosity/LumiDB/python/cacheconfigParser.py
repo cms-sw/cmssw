@@ -51,7 +51,7 @@ if __name__ == '__main__':
     print 'parameterdict'
     print p.parameterdict()
 
-    p.parse('/afs/cern.ch/user/x/xiezhen/w1/lumical/CMSSW_3_5_0_pre5/src/RecoLuminosity/LumiDB/site-local-config.xml')
+    p.parse('/afs/cern.ch/user/x/xiezhen/w1/site-local-config.xml')
     print 'proxies'
     print p.proxylist()
     print 'servers'
