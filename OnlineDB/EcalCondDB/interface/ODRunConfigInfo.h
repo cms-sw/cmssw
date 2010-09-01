@@ -45,6 +45,9 @@ std::string getTriggerMode() const{  return m_trigger_mode;}
 void setNumberOfEvents(int x) { m_num_events = x ;}
 int getNumberOfEvents() const{  return m_num_events ;}
 //
+void setUsageStatus(std::string x) { m_usage_status = x;}
+std::string getUsageStatus() const{  return m_usage_status;}
+//
 
 
   RunTypeDef getRunTypeDef() const;
@@ -70,6 +73,7 @@ int getNumberOfEvents() const{  return m_num_events ;}
   int m_defaults;
   std::string m_trigger_mode;
   int m_num_events;
+  std::string m_usage_status;
 
   // Methods from IUniqueDBObject
   int fetchNextId()  throw(std::runtime_error);
