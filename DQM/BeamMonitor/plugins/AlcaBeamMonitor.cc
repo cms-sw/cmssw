@@ -2,8 +2,8 @@
  * \file AlcaBeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/08/20 21:07:26 $
- * $Revision: 1.3 $
+ * $Date: 2010/08/31 23:16:59 $
+ * $Revision: 1.4 $
  *
  */
 
@@ -427,7 +427,6 @@ void AlcaBeamMonitor::endLuminosityBlock(const LuminosityBlock& iLumi, const Eve
   if (theBeamFitter_->runPVandTrkFitter()) {
     beamSpotsMap_["BF"][iLumi.luminosityBlock()] = theBeamFitter_->getBeamSpot();
   }
-  theBeamFitter_ = new BeamFitter(parameters_);
   theBeamFitter_->resetTrkVector();
   theBeamFitter_->resetLSRange();
   theBeamFitter_->resetRefTime();

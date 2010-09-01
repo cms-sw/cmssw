@@ -40,7 +40,7 @@ process.BeamSpotDBSource = cms.ESSource("PoolDBESSource",
                                         process.CondDBSetup,
                                         toGet = cms.VPSet(cms.PSet(
     								   record = cms.string('BeamSpotObjectsRcd'),			        
-#    								   tag = cms.string('BeamSpotObjects_2009_LumiBased_SigmaZ_v14_offline') 
+#    								   tag = cms.string('BeamSpotObjects_2009_LumiBased_v16_offline') 
     								   tag = cms.string('BeamSpotObject_ByLumi') 
     								  )
 						         ),								        
