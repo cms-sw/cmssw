@@ -32,7 +32,7 @@ from Validation.RecoEgamma.photonValidationSequence_cff import *
 from Validation.RecoEgamma.photonPostprocessing_cfi import *
 
 photonValidation.OutputMEsInRootFile = True
-photonValidation.OutputFileName = 'PhotonValidationRelVal390pre2_SingleGammaPt35TEST.root'
+photonValidation.OutputFileName = 'PhotonValidationRelVal390pre2_SingleGammaPt35.root'
 
 
 photonPostprocessing.batch = cms.bool(True)
