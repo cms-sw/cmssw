@@ -11,8 +11,8 @@
 /*
  * \file HcalCoarsePedestalClient.cc
  * 
- * $Date: 2010/07/17 01:00:21 $
- * $Revision: 1.2 $
+ * $Date: 2010/08/09 18:59:26 $
+ * $Revision: 1.3 $
  * \author J. Temple
  * \brief CoarsePedestalClient class
  */
@@ -269,14 +269,26 @@ void HcalCoarsePedestalClient::beginRun(void)
     }
   std::string s=subdir_+"CoarsePedestal_parameters/ADCdiff_Problem_Threshold";
   me=dqmStore_->get(s.c_str());
-  if (me==0 && debug_>0) std::cout <<"<HcalCoarsePedestalClient::beginRun> Could not get value with name "<<s<<std::endl;
+  if (me==0)
+    {
+      if (debug_>0) 
+	std::cout <<"<HcalCoarsePedestalClient::beginRun> Could not get value with name "<<s<<std::endl;
+    }
   else 
     ADCDiffThresh_=me->getFloatValue();
   s=subdir_+"CoarsePedestal_parameters/minEventsNeededForPedestalCalculation";
 
   me=dqmStore_->get(s.c_str());
-  if (me==0 && debug_>0) std::cout <<"<HcalCoarsePedestalClient::beginRun> Could not get value with name "<<s<<"\n\t  Continuing on using default 'minevents' value of "<<minevents_<<std::endl;
-  int temp=me->getIntValue();
+  int temp = 0;
+  if (me==0) 
+    {
+      if (debug_>0)
+	{
+	  std::cout <<"<HcalCoarsePedestalClient::beginRun> Could not get value with name "<<s<<"\n\t  Continuing on using default 'minevents' value of "<<minevents_<<std::endl;
+	}
+    }
+  else 
+    temp=me->getIntValue();
   if (temp>minevents_)
     {
       if (debug_>0)
