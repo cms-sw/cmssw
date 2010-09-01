@@ -5,7 +5,7 @@
 // 
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul  5 11:44:26 EDT 2006
-// $Id: EDLooperBase.cc,v 1.15 2010/07/22 15:00:28 chrjones Exp $
+// $Id: EDLooperBase.cc,v 1.1 2010/08/09 21:04:56 chrjones Exp $
 
 #include "FWCore/Framework/interface/EDLooperBase.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -24,7 +24,7 @@
 
 namespace edm {
 
-  EDLooperBase::EDLooperBase() : iCounter_(0) { }
+  EDLooperBase::EDLooperBase() : iCounter_(0), act_table_(0), moduleChanger_(0) { }
   EDLooperBase::~EDLooperBase() { }
 
   void
