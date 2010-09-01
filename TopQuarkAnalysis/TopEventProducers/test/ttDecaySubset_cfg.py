@@ -35,7 +35,7 @@ process.load("TopQuarkAnalysis.TopEventProducers.producers.TopDecaySubset_cfi")
 
 ## enable per-event printout of particle listings (for debugging)
 #process.decaySubset.printSource = True
-#process.decaySubset.printTarget = True
+process.decaySubset.printTarget = True
 
 ## path
 process.p = cms.Path(process.decaySubset)
