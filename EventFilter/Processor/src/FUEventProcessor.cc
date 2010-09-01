@@ -1035,8 +1035,7 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 		      subs_[i].setParams(p);
 		      spMStates_[i] = p->Ms;
 		      spmStates_[i] = p->ms;
-		      if(p->Ms == edm::event_processor::sError || p->Ms == edm::event_processor::sInvalid
-			 || p->Ms == edm::event_processor::sStopping){
+		      if(p->Ms == edm::event_processor::sStopping){
 			std::ostringstream ost;
 			ost << "edm::eventprocessor slot " << i << " process id " 
 			    << subs_[i].pid() << " not in Running state : Mstate=" 
