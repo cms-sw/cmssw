@@ -178,7 +178,7 @@ namespace edm {
       try {
         n = branch->GetEntry(entryNumber);
       }
-      catch(cms::Exception e) {
+      catch(cms::Exception const& e) {
 	throw edm::Exception(edm::errors::FileReadError) << e.explainSelf() << "\n";
       }
       return n;
@@ -190,7 +190,7 @@ namespace edm {
       try {
         n = tree->GetEntry(entryNumber);
       }
-      catch(cms::Exception e) {
+      catch(cms::Exception const& e) {
 	throw edm::Exception(edm::errors::FileReadError) << e.explainSelf() << "\n";
       }
       return n;
