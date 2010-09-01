@@ -13,6 +13,7 @@ appear in one worker.
 #include <memory>
 
 #include "FWCore/Framework/src/WorkerT.h"
+#include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 namespace edm {
