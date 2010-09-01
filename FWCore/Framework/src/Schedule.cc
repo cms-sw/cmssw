@@ -346,7 +346,7 @@ namespace edm {
         if (!vMaxEventsOut.empty()) {
           try {
             desc.maxEvents_ = vMaxEventsOut.getUntrackedParameter<int>(moduleLabel);
-	  } catch (edm::Exception) {
+	  } catch (edm::Exception const&) {
             throw edm::Exception(errors::Configuration) <<
               "\nNo entry in 'maxEvents' for output module label '" << moduleLabel << "'.\n";
 	  }
