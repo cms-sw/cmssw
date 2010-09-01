@@ -16,7 +16,7 @@
 //
 // Original Author:  Dan Riley
 //         Created:  Tue May 20 10:31:32 EDT 2008
-// $Id: BranchMapReader.h,v 1.10 2010/01/28 22:15:51 ewv Exp $
+// $Id: BranchMapReader.h,v 1.11 2010/02/11 17:19:09 ewv Exp $
 //
 
 // system include files
@@ -62,7 +62,7 @@ namespace fwlite {
   class BranchMapReader {
   public:
     BranchMapReader(TFile* file);
-    BranchMapReader() : strategy_(0) {}
+    BranchMapReader() : strategy_(0),fileVersion_(0) {}
 
       // ---------- const member functions ---------------------
 
