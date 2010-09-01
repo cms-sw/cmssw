@@ -350,9 +350,9 @@ namespace edm {
 
     preRead();
     EventPrincipal* result = readEvent_();
-    assert(lbCache->run() == result->run());
-    assert(lbCache->luminosityBlock() == result->luminosityBlock());
     if (result != 0) {
+      assert(lbCache->run() == result->run());
+      assert(lbCache->luminosityBlock() == result->luminosityBlock());
       Event event(*result, moduleDescription());
       postRead(event);
       if (remainingEvents_ > 0) --remainingEvents_;
