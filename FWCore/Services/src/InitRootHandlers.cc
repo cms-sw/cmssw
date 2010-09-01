@@ -120,7 +120,7 @@ void RootErrorHandler(int level, bool die, char const* location, char const* mes
 // Root has declared a fatal error.  Throw an EDMException unless the
 // message corresponds to a pending signal. In that case, do not throw
 // but let the OS deal with the signal in the usual way.
-  if (die && (location != std::string("TUnixSystem::DispatchSignals"))) {
+  if (die && (el_location != std::string("@SUB=TUnixSystem::DispatchSignals"))) {
      std::ostringstream sstr;
      sstr << "Fatal Root Error: " << el_location << "\n" << el_message << '\n';
      edm::Exception except(edm::errors::FatalRootError, sstr.str());
