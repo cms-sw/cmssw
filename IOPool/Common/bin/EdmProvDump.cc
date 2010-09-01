@@ -771,9 +771,9 @@ int main(int argc, char* argv[]) {
 
   try {
     edmplugin::PluginManager::configure(edmplugin::standard::config());
-  } catch(cms::Exception& e) {
-    std::cout << "cms::Exception caught in "
-    << "EdmProvDump"
+  } catch(std::exception& e) {
+    std::cout << "exception caught in "
+    << "EdmProvDump while configuring the PluginManager"
     << '\n'
     << e.what();
     return 1;
@@ -794,7 +794,7 @@ int main(int argc, char* argv[]) {
     edm::ServiceRegistry::Operate operate(tempToken);
   } catch(cms::Exception& e) {
     std::cout << "cms::Exception caught in "
-    << "EdmProvDump"
+    << "EdmProvDump while setting up the ServiceRegistry"
     << '\n'
     << e.what();
     return 1;

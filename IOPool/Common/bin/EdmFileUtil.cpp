@@ -94,9 +94,9 @@ int main(int argc, char* argv[]) {
   //dl  std::string datafile = vm["file"].as<std::string>(); 
   try {
     edmplugin::PluginManager::configure(edmplugin::standard::config());
-  } catch(cms::Exception& e) {
-    std::cout << "cms::Exception caught in "
-    <<"EdmFileUtil"
+  } catch(std::exception& e) {
+    std::cout << "exception caught in "
+    <<"EdmFileUtil while configuring the PluginManager"
     << '\n'
     << e.what();
     return 1;
