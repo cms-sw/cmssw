@@ -337,6 +337,10 @@ namespace fwlite {
       mapperFilled_ = false;
       TTree* metaDataTree = dynamic_cast<TTree*>(currentFile_->Get(edm::poolNames::metaDataTreeName().c_str()));
 
+      if(0 == metaDataTree) {
+         throw edm::Exception(edm::errors::EventCorruption) 
+           <<"No "<<edm::poolNames::metaDataTreeName()<<" TTree in file";
+      }
       branchIDLists_.reset(new edm::BranchIDLists);
       edm::BranchIDLists* branchIDListsPtr = branchIDLists_.get();
       if (metaDataTree->FindBranch(edm::poolNames::branchIDListBranchName().c_str()) != 0) {
@@ -446,7 +450,9 @@ namespace fwlite {
       Strategy::updateFile(file);
       mapperFilled_ = false;
       TTree* metaDataTree = dynamic_cast<TTree*>(currentFile_->Get(edm::poolNames::metaDataTreeName().c_str()));
-
+      if(0==metaDataTree) {
+         throw edm::Exception(edm::errors::EventCorruption) <<"No "<<edm::poolNames::metaDataTreeName()<<" TTree in file";
+      } 
       branchIDLists_.reset(new edm::BranchIDLists);
       edm::BranchIDLists* branchIDListsPtr = branchIDLists_.get();
       if (metaDataTree->FindBranch(edm::poolNames::branchIDListBranchName().c_str()) != 0) {
@@ -521,6 +527,9 @@ namespace fwlite {
 
 BranchMapReader::BranchMapReader(TFile* file) :
     fileVersion_(-1) {
+  if (0==file) {
+     throw cms::Exception("NoFile")<<"The TFile pointer is null";
+  }
   strategy_ = newStrategy(file, getFileVersion(file));
 }
 
