@@ -14,7 +14,7 @@ ifeq ($(shell uname), Linux)
  else
    ifeq ($(shell uname), Darwin)
       BoostLibs := boost_thread  boost_iostreams boost_signals  boost_filesystem boost_system boost_program_options boost_regex
-      RootLibs  := Cint Core  Net Tree Hist Matrix MathCore MathMore Reflex EG Eve FTGL Ged Geom GeomPainter Gpad Graf Graf3d Gui Physics RGL Rint TreePlayer RIO GuiHtml
+      RootLibs  := Cint Core  Net Tree Hist Matrix MathCore MathMore Reflex EG Eve FTGL Ged Geom GeomPainter Gpad Graf Graf3d Gui Physics RGL Rint TreePlayer RIO GuiHtml Thread
       ProjectLibs :=  $(BoostLibs) $(RootLibs) CLHEP-2.0.4.2 gsl gslcblas HepMC sigc-2.0.0 dl
 
       ProjectIncludes += external/inc/clhep/2.0.4.2/include
