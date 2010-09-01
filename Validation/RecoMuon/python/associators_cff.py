@@ -21,7 +21,16 @@ TrackAssociatorByPosDeltaR.ComponentName = 'TrackAssociatorByDeltaR'
 TrackAssociatorByPosDeltaR.method = cms.string('momdr')
 TrackAssociatorByPosDeltaR.QCut = cms.double(0.5)
 TrackAssociatorByPosDeltaR.ConsiderAllSimHits = cms.bool(True)
-    
+
+#
+# Configuration for Muon track extractor
+#
+
+import SimMuon.MCTruth.MuonTrackProducer_cfi
+extractedGlobalMuons = SimMuon.MCTruth.MuonTrackProducer_cfi.muonTrackProducer.clone()
+extractedGlobalMuons.selectionTags = ('AllGlobalMuons',)
+extractedGlobalMuons.trackType = "globalTrack"
+extractedMuonTracks_seq = cms.Sequence( extractedGlobalMuons )
 
 #
 # Associators for Full Sim + Reco:
@@ -48,7 +57,7 @@ tpToStaUpdTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
 tpToGlbTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
     associator = cms.string('TrackAssociatorByDeltaR'),
     label_tp = cms.InputTag('mergedtruth', 'MergedTrackTruth'),
-    label_tr = cms.InputTag('globalMuons')
+    label_tr = cms.InputTag('extractedGlobalMuons')
 )
 
 tpToStaSETTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
@@ -270,7 +279,8 @@ tpToGlbCosmicMuonAssociation.UseMuon = True
 #
 
 muonAssociation_seq = cms.Sequence(
-    (tpToTkMuonAssociation+tpToStaMuonAssociation+tpToStaUpdMuonAssociation+tpToGlbMuonAssociation)
+    extractedMuonTracks_seq
+    +(tpToTkMuonAssociation+tpToStaMuonAssociation+tpToStaUpdMuonAssociation+tpToGlbMuonAssociation)
     +(tpToTkmuTrackAssociation)
 #   +(tpToTkmuTrackAssociation+tpToStaTrackAssociation+tpToStaUpdTrackAssociation+tpToGlbTrackAssociation)
 )
@@ -317,7 +327,7 @@ tpToStaUpdTrackAssociationFS = cms.EDProducer('TrackAssociatorEDProducer',
 tpToGlbTrackAssociationFS = cms.EDProducer('TrackAssociatorEDProducer',
     associator = cms.string('TrackAssociatorByDeltaR'),
     label_tp = cms.InputTag('mergedtruth', 'MergedTrackTruth'),
-    label_tr = cms.InputTag('globalMuons')
+    label_tr = cms.InputTag('extractedGlobalMuons')
 )
 
 tpToTevFirstTrackAssociationFS = cms.EDProducer('TrackAssociatorEDProducer',
@@ -417,7 +427,7 @@ tpToStaUpdMuonAssociationFS.tracksTag = 'standAloneMuons:UpdatedAtVtx'
 tpToStaUpdMuonAssociationFS.UseTracker = False
 tpToStaUpdMuonAssociationFS.UseMuon = True
 
-tpToGlbMuonAssociationFS.tracksTag = 'globalMuons'
+tpToGlbMuonAssociationFS.tracksTag = 'extractedGlobalMuons'
 tpToGlbMuonAssociationFS.tpTag = 'mergedtruth:MergedTrackTruth'
 tpToGlbMuonAssociationFS.UseTracker = True
 tpToGlbMuonAssociationFS.UseMuon = True
@@ -465,16 +475,16 @@ tpToL3MuonAssociationFS.UseGrouped = False
 
 
 
-muonAssociationFastSim_seq = cms.Sequence(tpToTkMuonAssociationFS
-                                          +tpToStaMuonAssociationFS+tpToStaUpdMuonAssociationFS+tpToGlbMuonAssociationFS
-                                          +tpToTevFirstMuonAssociationFS+tpToTevPickyMuonAssociationFS
-                                          +tpToTevDytMuonAssociationFS
-                                          +tpToTkmuTrackAssociationFS
-#                                          +tpToStaTrackAssociationFS+tpToStaUpdTrackAssociationFS+tpToGlbTrackAssociationFS
-#                                          +tpToTevFirstTrackAssociationFS+tpToTevPickyTrackAssociationFS
-)
+muonAssociationFastSim_seq = cms.Sequence(
+        extractedMuonTracks_seq
+        +(tpToTkMuonAssociationFS+tpToStaMuonAssociationFS+tpToStaUpdMuonAssociationFS+tpToGlbMuonAssociationFS)
+        +(tpToTevFirstMuonAssociationFS+tpToTevPickyMuonAssociationFS+tpToTevDytMuonAssociationFS)
+        +tpToTkmuTrackAssociationFS
+#        +tpToStaTrackAssociationFS+tpToStaUpdTrackAssociationFS+tpToGlbTrackAssociationFS
+#        +tpToTevFirstTrackAssociationFS+tpToTevPickyTrackAssociationFS
+        )
 muonAssociationHLTFastSim_seq = cms.Sequence(
     tpToL2MuonAssociationFS+tpToL2UpdMuonAssociationFS+tpToL3MuonAssociationFS+tpToL3TkMuonAssociationFS
 #    +tpToL2TrackAssociationFS+tpToL2UpdTrackAssociationFS+tpToL3TrackAssociationFS+tpToL3TkTrackTrackAssociationFS
-)
+    )
 

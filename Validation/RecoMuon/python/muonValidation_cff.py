@@ -199,15 +199,6 @@ recoMuonVTrackAssoc.trkMuAssocLabel = 'tpToTkmuTrackAssociation'
 recoMuonVTrackAssoc.staMuAssocLabel = 'tpToStaUpdTrackAssociation'
 recoMuonVTrackAssoc.glbMuAssocLabel = 'tpToGlbTrackAssociation'
 
-# Configuration for Muon track extractor
-
-import SimMuon.MCTruth.MuonTrackProducer_cfi
-extractedGlobalMuons = SimMuon.MCTruth.MuonTrackProducer_cfi.muonTrackProducer.clone()
-extractedGlobalMuons.selectionTags = ('AllGlobalMuons',)
-extractedGlobalMuons.trackType = "globalTrack"
-
-extractedMuonTracks_seq = cms.Sequence( extractedGlobalMuons )
-
 # Muon validation sequence
 muonValidation_seq = cms.Sequence(trkMuonTrackVTrackAssoc
                                  +staMuonTrackVMuonAssoc+staUpdMuonTrackVMuonAssoc+glbMuonTrackVMuonAssoc
@@ -221,7 +212,7 @@ muonValidationCosmic_seq = cms.Sequence(trkCosmicMuonTrackVTrackAssoc
                                  +staCosmicMuonTrackVMuonAssoc+glbCosmicMuonTrackVMuonAssoc)
 
 # The muon association and validation sequence
-recoMuonValidation = cms.Sequence((extractedMuonTracks_seq + muonAssociation_seq*muonValidation_seq)
+recoMuonValidation = cms.Sequence((muonAssociation_seq*muonValidation_seq)
                                   +(muonAssociationTEV_seq*muonValidationTEV_seq)
                                   +(muonAssociationSET_seq*muonValidationSET_seq)
                                   )
