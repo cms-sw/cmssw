@@ -364,7 +364,7 @@ void edm::TrieFactory<T>::clear()
 
 template <typename T>
 edm::TrieNode<T>::TrieNode() :
-  _brother(0), _brotherLabel(0), _firstSubNode(0), _firstSubNodeLabel(0)
+  _brother(0), _brotherLabel(0), _firstSubNode(0), _firstSubNodeLabel(0),_value()
   /// we can not set _value here because type is unknown. assert that
   /// the value is set later with setValue()
 {

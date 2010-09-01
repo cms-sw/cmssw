@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ValueMap.h,v 1.16 2009/01/30 11:45:36 elmer Exp $
+ * \version $Id: ValueMap.h,v 1.17 2009/11/04 15:30:20 wmtan Exp $
  *
  */
 
@@ -157,7 +157,7 @@ namespace edm {
 
     struct const_iterator {
       typedef ptrdiff_t difference_type;
-      const_iterator() {}
+      const_iterator():values_(0) {}
       ProductID id() const { return i_->first; }
       typename container::const_iterator begin() const { 
 	return values_->begin() + i_->second; 

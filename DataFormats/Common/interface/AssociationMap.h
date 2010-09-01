@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMap.h,v 1.38 2008/03/31 21:12:10 wmtan Exp $
+ * $Id: AssociationMap.h,v 1.39 2009/11/04 15:30:19 wmtan Exp $
  *
  */
 #include "DataFormats/Common/interface/RefVector.h"
@@ -49,7 +49,7 @@ namespace edm {
       typedef value_type * pointer;
       typedef value_type & reference;
       typedef typename map_type::const_iterator::iterator_category iterator_category;
-      const_iterator() { }
+      const_iterator(): map_(0) { }
       const_iterator(const self * map, typename map_type::const_iterator mi) :
 	map_(map), i(mi) { }
       const_iterator & operator=(const const_iterator & it) {
