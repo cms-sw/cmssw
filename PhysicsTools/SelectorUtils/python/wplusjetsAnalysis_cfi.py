@@ -13,6 +13,7 @@ wplusjetsAnalysis = cms.PSet(
     muonSrc = cms.InputTag('selectedPatMuons'),
     electronSrc = cms.InputTag('selectedPatElectrons'),
     jetSrc = cms.InputTag('selectedPatJets'),
+    jetClonesSrc = cms.InputTag('myClones'),
     metSrc = cms.InputTag('patMETs'),
     trigSrc = cms.InputTag('patTriggerEvent'),
     muTrig = cms.string('HLT_Mu9'),
@@ -86,5 +87,7 @@ wplusjetsAnalysis = cms.PSet(
     jetEtaMax      = cms.double( 2.4 ),
     jetScale       = cms.double( 1.0 ),
     metMin         = cms.double( 0.0 ),
-    muJetDR        = cms.double( 0.3 )
+    muJetDR        = cms.double( 0.3 ),
+    useJetClones   = cms.bool(False),
+    eleJetDR       = cms.double( 0.3 )
 )

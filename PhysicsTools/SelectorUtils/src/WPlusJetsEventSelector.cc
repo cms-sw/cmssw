@@ -25,6 +25,7 @@ WPlusJetsEventSelector::WPlusJetsEventSelector( edm::ParameterSet const & params
   pfjetIdLoose_    (params.getParameter<edm::ParameterSet>("pfjetIdLoose") ),
   minJets_         (params.getParameter<int> ("minJets") ),
   muJetDR_         (params.getParameter<double>("muJetDR")),
+  eleJetDR_        (params.getParameter<double>("eleJetDR")),
   muPlusJets_      (params.getParameter<bool>("muPlusJets") ),
   ePlusJets_       (params.getParameter<bool>("ePlusJets") ),
   muPtMin_         (params.getParameter<double>("muPtMin")), 
@@ -95,9 +96,6 @@ WPlusJetsEventSelector::WPlusJetsEventSelector( edm::ParameterSet const & params
   jet3Index_ = index_type(&bits_, std::string(">=3 Jets"));
   jet4Index_ = index_type(&bits_, std::string(">=4 Jets"));
   jet5Index_ = index_type(&bits_, std::string(">=5 Jets")); 
-
-
-  dR_ = 0.3;
 
   if ( params.exists("cutsToIgnore") )
     setIgnoredCuts( params.getParameter<std::vector<std::string> >("cutsToIgnore") );
@@ -225,7 +223,7 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, pat::str
 	      for( std::vector<reco::ShallowClonePtrCandidate>::const_iterator electronBegin = selectedElectrons_.begin(),
 		     electronEnd = selectedElectrons_.end(), ielectron = electronBegin;
 		   ielectron != electronEnd; ++ielectron ) {
-		if( reco::deltaR( ielectron->eta(), ielectron->phi(), scaledJet.eta(), scaledJet.phi() ) < dR_ )
+		if( reco::deltaR( ielectron->eta(), ielectron->phi(), scaledJet.eta(), scaledJet.phi() ) < eleJetDR_ )
 		  {  indeltaR = true; }
 	      }
 	      if( !indeltaR ) {
@@ -258,7 +256,7 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, pat::str
 	      for( std::vector<reco::ShallowClonePtrCandidate>::const_iterator electronBegin = selectedElectrons_.begin(),
 		     electronEnd = selectedElectrons_.end(), ielectron = electronBegin;
 		   ielectron != electronEnd; ++ielectron ) {
-		if( reco::deltaR( ielectron->eta(), ielectron->phi(), scaledJet.eta(), scaledJet.phi() ) < dR_ )
+		if( reco::deltaR( ielectron->eta(), ielectron->phi(), scaledJet.eta(), scaledJet.phi() ) < eleJetDR_ )
 		  {  indeltaR = true; }
 	      }
 	      if( !indeltaR ) {
