@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Wed Sep 26 08:27:23 EDT 2007
-// $Id: DisplayGeom.cc,v 1.21 2010/01/17 09:00:30 innocent Exp $
+// $Id: DisplayGeom.cc,v 1.1 2010/04/01 21:58:00 chrjones Exp $
 //
 //
 
@@ -71,7 +71,9 @@ class DisplayGeom : public edm::EDAnalyzer {
 //
 DisplayGeom::DisplayGeom(const edm::ParameterSet& iConfig):
    level_(iConfig.getUntrackedParameter<int>("level",4)),
-   verbose_(iConfig.getUntrackedParameter<bool>("verbose",false))
+   verbose_(iConfig.getUntrackedParameter<bool>("verbose",false)),
+   app_(0),
+   plugin_(0)
 {
    //now do what ever initialization is needed
 
@@ -100,7 +102,8 @@ DisplayGeom::~DisplayGeom()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-
+  
+   delete plugin_;
 }
 
 
