@@ -39,57 +39,57 @@
 
 namespace cond {
 
-  namespace rpcobimon {
+  namespace rpcobvmon {
     enum How { detid, day, time, current};
 
     void extractDetId(RPCObVmon const & pl, std::vector<int> const & which,std::vector<float> & result,const float& starttime, const float& endtime) {
-      std::vector<RPCObVmon::V_Item> const & imon = pl.ObVmon_rpc;
-      for(unsigned int i = 0; i < imon.size(); ++i ){
+      std::vector<RPCObVmon::V_Item> const & vmon = pl.ObVmon_rpc;
+      for(unsigned int i = 0; i < vmon.size(); ++i ){
 	if (which[0] == 0){
-	  result.push_back(imon[i].dpid);
+	  result.push_back(vmon[i].dpid);
 	}
 	else{
-	  if(imon[i].dpid == which[0])
-	    result.push_back(imon[i].dpid);
+	  if(vmon[i].dpid == which[0])
+	    result.push_back(vmon[i].dpid);
 	}
       }
     }
     
     void extractDay(RPCObVmon const & pl, std::vector<int> const & which,std::vector<float> & result,const float& starttime, const float& endtime) {
-      std::vector<RPCObVmon::V_Item> const & imon = pl.ObVmon_rpc;
-      for(unsigned int i = 0; i < imon.size(); ++i ){
+      std::vector<RPCObVmon::V_Item> const & vmon = pl.ObVmon_rpc;
+      for(unsigned int i = 0; i < vmon.size(); ++i ){
 	if (which[0] == 0){
-	  result.push_back(imon[i].day);
+	  result.push_back(vmon[i].day);
 	}
 	else{
-	  if(imon[i].dpid == which[0])
-	    result.push_back(imon[i].day);
+	  if(vmon[i].dpid == which[0])
+	    result.push_back(vmon[i].day);
 	}
       }
     }
 
     void extractTime(RPCObVmon const & pl, std::vector<int> const & which,std::vector<float> & result,const float& starttime, const float& endtime) {
-      std::vector<RPCObVmon::V_Item> const & imon = pl.ObVmon_rpc;
-      for(unsigned int i = 0; i < imon.size(); ++i ){
+      std::vector<RPCObVmon::V_Item> const & vmon = pl.ObVmon_rpc;
+      for(unsigned int i = 0; i < vmon.size(); ++i ){
 	if (which[0] == 0){
-	  result.push_back(imon[i].time);
+	  result.push_back(vmon[i].time);
 	}
 	else{
-	  if(imon[i].dpid == which[0])
-	    result.push_back(imon[i].time);
+	  if(vmon[i].dpid == which[0])
+	    result.push_back(vmon[i].time);
 	}
       }
     }
 
     void extractCurrent(RPCObVmon const & pl, std::vector<int> const & which,std::vector<float> & result,const float& starttime,const float& endtime) {
-      std::vector<RPCObVmon::V_Item> const & imon = pl.ObVmon_rpc;
-      for(unsigned int i = 0; i < imon.size(); ++i ){
+      std::vector<RPCObVmon::V_Item> const & vmon = pl.ObVmon_rpc;
+      for(unsigned int i = 0; i < vmon.size(); ++i ){
 	if (which[0] == 0){
-	  result.push_back(imon[i].value);
+	  result.push_back(vmon[i].value);
 	}
 	else{
-	  if(imon[i].dpid == which[0])
-	    result.push_back(imon[i].value);
+	  if(vmon[i].dpid == which[0])
+	    result.push_back(vmon[i].value);
 	}
       }
     }
@@ -100,17 +100,17 @@ namespace cond {
   template<>
   struct ExtractWhat<RPCObVmon> {
 
-    rpcobimon::How m_how;
+    rpcobvmon::How m_how;
     std::vector<int> m_which;
     float m_starttime;
     float m_endtime;
 
-    rpcobimon::How const & how() const { return m_how;}
+    rpcobvmon::How const & how() const { return m_how;}
     std::vector<int> const & which() const { return m_which;}
     float const & startTime() const {return m_starttime;}
     float const & endTime() const {return m_endtime;}
 
-    void set_how(rpcobimon::How i) {m_how=i;}
+    void set_how(rpcobvmon::How i) {m_how=i;}
     void set_which(std::vector<int> & i) { m_which.swap(i);}
     void set_starttime(float& i){m_starttime = i;}
     void set_endtime(float& i){m_endtime = i;}
@@ -122,12 +122,12 @@ namespace cond {
   class ValueExtractor<RPCObVmon>: public  BaseValueExtractor<RPCObVmon> {
   public:
 
-    static rpcobimon::RPCObVmonExtractor & extractor(rpcobimon::How how) {
-      static  rpcobimon::RPCObVmonExtractor fun[4] = { 
-	rpcobimon::RPCObVmonExtractor(rpcobimon::extractDetId),
-	rpcobimon::RPCObVmonExtractor(rpcobimon::extractDay),
-	rpcobimon::RPCObVmonExtractor(rpcobimon::extractTime),
-	rpcobimon::RPCObVmonExtractor(rpcobimon::extractCurrent)
+    static rpcobvmon::RPCObVmonExtractor & extractor(rpcobvmon::How how) {
+      static  rpcobvmon::RPCObVmonExtractor fun[4] = { 
+	rpcobvmon::RPCObVmonExtractor(rpcobvmon::extractDetId),
+	rpcobvmon::RPCObVmonExtractor(rpcobvmon::extractDay),
+	rpcobvmon::RPCObVmonExtractor(rpcobvmon::extractTime),
+	rpcobvmon::RPCObVmonExtractor(rpcobvmon::extractCurrent)
               };
       return fun[how];
     }
@@ -164,16 +164,16 @@ namespace cond {
   std::string PayLoadInspector<RPCObVmon>::summary() const {
     std::stringstream ss;
 
-    std::vector<RPCObVmon::V_Item> const & imon = object().ObVmon_rpc;
+    std::vector<RPCObVmon::V_Item> const & vmon = object().ObVmon_rpc;
     
     ss <<"DetID\t"<<"Vval\t"<<"Time\t"<<"Day\n";
-    for(unsigned int i = 0; i < imon.size(); ++i ){
+    for(unsigned int i = 0; i < vmon.size(); ++i ){
       //      for(unsigned int p = 0; p < ipvss.size(); ++p){
-      // 	if(imon[i].dpid()!=ipvss[p].dpid())continue;
+      // 	if(vmon[i].dpid()!=ipvss[p].dpid())continue;
       // 	RPCDetId rpcId(ipvss[p].region(),ipvss[p].ring(),ipvss[p].station(),ipvss[p].sector(),ipvss[p].layer(),ipvss[p].subsector(),1);
       // 	RPCGeomServ rGS(rpcId);
       // 	std::string chName(rGS.name().substr(0,rGS.name().find("_BACKWARD")));
-      ss <<imon[i].dpid <<"\t"<<imon[i].value<<"\t"<<imon[i].time<<"\t"<<imon[i].day<<"\n";
+      ss <<vmon[i].dpid <<"\t"<<vmon[i].value<<"\t"<<vmon[i].time<<"\t"<<vmon[i].day<<"\n";
       //      }
     }
     
@@ -190,39 +190,39 @@ namespace cond {
 
     TCanvas canvas("iC","iC",800,800);    
 
-    TH1D *iDistr=new TH1D("iDistr","IOV-averaged Vmon Distribution;Average Current(uA);Entries/1uA",100,0.,100.);
+    TH1D *vDistr=new TH1D("vDistr","IOV-averaged Vmon Distribution;Average HV(V);Entries/50 V ",100,5000.,10000.);
 
-    std::vector<RPCObVmon::V_Item> const & imon = object().ObVmon_rpc;
+    std::vector<RPCObVmon::V_Item> const & vmon = object().ObVmon_rpc;
 
     int tempId(0),count(0);
     double tempAve(0.);
-    for(unsigned int i = 0;i < imon.size(); ++i){
+    for(unsigned int i = 0;i < vmon.size(); ++i){
       if(i==0){
 	count++;
-	tempAve+=imon[i].value;
-	tempId=imon[i].dpid;
+	tempAve+=vmon[i].value;
+	tempId=vmon[i].dpid;
       }
       else {
-	if(imon[i].dpid==tempId){
+	if(vmon[i].dpid==tempId){
 	  count++;
-	  tempAve+=imon[i].value;	  
+	  tempAve+=vmon[i].value;	  
 	}
 	else{
-	  iDistr->Fill(tempAve/(double)count);
+	  vDistr->Fill(tempAve/(double)count);
 	  count=1;
-	  tempAve=imon[i].value;
-	  tempId=imon[i].dpid;
+	  tempAve=vmon[i].value;
+	  tempId=vmon[i].dpid;
 	}
       }
     }
 
 
-    iDistr->Draw();
+    vDistr->Draw();
 
     canvas.SaveAs(filename.c_str());
     return filename.c_str();
 
-    iDistr->Draw();
+    //    vDistr->Draw();
 
     //     std::string fname = filename + ".txt";
     //     std::ofstream f(fname.c_str());
@@ -240,11 +240,11 @@ namespace condPython {
   template<>
   void defineWhat<RPCObVmon>() {
 
-    enum_<cond::rpcobimon::How>("How")
-      .value("detid",cond::rpcobimon::detid)
-      .value("day",cond::rpcobimon::day) 
-      .value("time",cond::rpcobimon::time)
-      .value("current",cond::rpcobimon::current)
+    enum_<cond::rpcobvmon::How>("How")
+      .value("detid",cond::rpcobvmon::detid)
+      .value("day",cond::rpcobvmon::day) 
+      .value("time",cond::rpcobvmon::time)
+      .value("current",cond::rpcobvmon::current)
       ;
 
     typedef cond::ExtractWhat<RPCObVmon> What;
