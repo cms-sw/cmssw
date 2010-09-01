@@ -35,23 +35,22 @@ class LuminosityBlockRange
    public:
 
 
-      LuminosityBlockRange() {
-        edm::LuminosityBlockRange(0,0,0,0);
+      LuminosityBlockRange():
+        startRun_(0), endRun_(0), 
+        startLumi_(edm::LuminosityBlockID::maxLuminosityBlockNumber()),
+        endLumi_(edm::LuminosityBlockID::maxLuminosityBlockNumber()),
+        startLumiID_(startRun_,startLumi_),
+        endLumiID_(endRun_,endLumi_){
       }
 
       LuminosityBlockRange(RunNumber_t startRun, LuminosityBlockNumber_t startLuminosityBlock,
                            RunNumber_t endRun,   LuminosityBlockNumber_t endLuminosityBlock) :
-	startRun_(startRun), endRun_(endRun),  startLumi_(startLuminosityBlock), endLumi_(endLuminosityBlock){
-         // Special cases since 0 means maximum
-         edm::LuminosityBlockID dummy =    edm::LuminosityBlockID();
-         if (startLuminosityBlock == 0) {
-           startLumi_ = dummy.maxLuminosityBlockNumber();
-         }
-         if (endLuminosityBlock == 0) {
-           endLumi_ = dummy.maxLuminosityBlockNumber();
-         }
-         startLumiID_ = edm::LuminosityBlockID(startRun_, startLumi_);
-         endLumiID_   = edm::LuminosityBlockID(  endRun_,   endLumi_);
+	startRun_(startRun), endRun_(endRun),  
+        // Special cases since 0 means maximum
+        startLumi_(startLuminosityBlock!=0? startLuminosityBlock : edm::LuminosityBlockID::maxLuminosityBlockNumber()), 
+        endLumi_(endLuminosityBlock!=0? endLuminosityBlock : edm::LuminosityBlockID::maxLuminosityBlockNumber()),
+        startLumiID_(startRun_,startLumi_),
+        endLumiID_(endRun_,endLumi_) {
       }
 
       //virtual ~LuminosityBlockID();

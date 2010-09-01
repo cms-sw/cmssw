@@ -33,24 +33,25 @@ namespace edm {
 
    public:
 
-      EventRange() {
-        edm::EventRange(0,0,0,0);
-      }
+      EventRange(): 
+        startRun_(0), endRun_(0),  
+        // Special cases since 0 means maximum
+        startEvent_(edm::MinimalEventID::maxEventNumber()),
+        endEvent_(edm::MinimalEventID::maxEventNumber()),
+        startEventID_(startRun_, startEvent_),
+        endEventID_(endRun_,  endEvent_)
+      {}
+     
 
       EventRange(RunNumber_t startRun, EventNumber_t startEvent,
                            RunNumber_t endRun,   EventNumber_t endEvent) :
-	startRun_(startRun), endRun_(endRun),  startEvent_(startEvent), endEvent_(endEvent){
-         // Special cases since 0 means maximum
-         edm::MinimalEventID dummy = edm::MinimalEventID();
-         if (startEvent == 0) {
-           startEvent_ = dummy.maxEventNumber();
-         }
-         if (endEvent == 0) {
-           endEvent_ = dummy.maxEventNumber();
-         }
-         startEventID_ = edm::MinimalEventID(startRun_, startEvent_);
-         endEventID_   = edm::MinimalEventID(endRun_,  endEvent_);
-      }
+        startRun_(startRun), endRun_(endRun),  
+        // Special cases since 0 means maximum
+        startEvent_(startEvent !=0? startEvent : edm::MinimalEventID::maxEventNumber()),
+        endEvent_(endEvent !=0? endEvent : edm::MinimalEventID::maxEventNumber()),
+        startEventID_(startRun_, startEvent_),
+        endEventID_(endRun_,  endEvent_)
+      {}
 
 //      virtual ~EventRange();
 
