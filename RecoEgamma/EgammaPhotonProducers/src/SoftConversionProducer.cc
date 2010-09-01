@@ -73,7 +73,7 @@ void  SoftConversionProducer::beginRun (edm::Run& r, edm::EventSetup const & the
   theTrackPairFinder_ = new ConversionTrackPairFinder ();
 
   // instantiate the Vertex Finder algorithm
-  theVertexFinder_ = new ConversionVertexFinder ();
+  theVertexFinder_ = new ConversionVertexFinder (conf_);
   
   // instantiate the algorithm for finding the position of the track extrapolation at the Ecal front face
   theEcalImpactPositionFinder_ = new   ConversionTrackEcalImpactPoint ( &(*theMF_) );
