@@ -30,6 +30,8 @@ namespace edm {
     output_(output),
     fileMode_(fileMode),
     emptyRunLumiMode_(emptyRunLumiMode),
+    run_(0),
+    lumi_(0),
     shouldWeCloseOutput_(true),
     shouldWeEndLoop_(true),
     shouldWeStop_(false)  {
