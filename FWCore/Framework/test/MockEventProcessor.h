@@ -69,7 +69,7 @@ namespace edm {
 
   private:
     std::string mockData_;
-    mutable std::ostream & output_;
+    std::ostream & output_;
     statemachine::FileMode fileMode_;
     statemachine::EmptyRunLumiMode emptyRunLumiMode_;
 
