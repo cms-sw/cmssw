@@ -164,7 +164,7 @@ namespace edmtest {
       value_(p.getParameter<int>("ivalue")) {
       produces<Int16_tProduct>();
     }
-    explicit Int16_tProducer(boost::int16_t i, boost::uint16_t j) : value_(i), uvalue_(j) {
+    explicit Int16_tProducer(boost::int16_t i, boost::uint16_t j) : value_(i) {
       produces<Int16_tProduct>();
     }
     virtual ~Int16_tProducer() { }
@@ -172,7 +172,6 @@ namespace edmtest {
     
   private:
     boost::int16_t value_;
-    boost::uint16_t uvalue_;
   };
 
   void
