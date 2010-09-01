@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Apr  7 17:10:11 EDT 2007
-// $Id: standard.cc,v 1.1.2.1 2007/04/09 18:46:51 chrjones Exp $
+// $Id: standard.cc,v 1.2 2007/04/12 12:51:12 wmtan Exp $
 //
 
 // system include files
@@ -26,7 +26,7 @@ namespace edmplugin {
       const char *path = getenv ("LD_LIBRARY_PATH");
       if (! path) path = "";
       
-      std::string spath(path? path: "");
+      std::string spath(path);
       std::string::size_type last=0;
       std::string::size_type i=0;
       std::vector<std::string> paths;
