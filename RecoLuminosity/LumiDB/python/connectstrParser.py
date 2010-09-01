@@ -49,7 +49,6 @@ class connectstrParser(object):
         for k,v in parameterDict.items():
             ##if attr name=url, concatenate; if attrname=value discard
             if k=='load' and v[0][0]=='balance':
-                print 'hello',v
                 result+='(loadbalance='+v[0][1]+')'
                 continue
             for (attrname,attrvalue) in v:
