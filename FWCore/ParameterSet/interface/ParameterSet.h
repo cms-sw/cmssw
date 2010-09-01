@@ -132,14 +132,14 @@ namespace edm {
 
     template <typename T> 
     void 
-    addParameter(std::string const& name, T value) {
+    addParameter(std::string const& name, T const& value) {
       invalidateRegistration(name);
       insert(true, name, Entry(name, value, true));
     }
 
     template <typename T> 
     void 
-    addParameter(char const* name, T value) {
+    addParameter(char const* name, T const& value) {
       invalidateRegistration(name);
       insert(true, name, Entry(name, value, true));
     }
@@ -197,13 +197,13 @@ namespace edm {
     
     template <typename T>
     void
-    addUntrackedParameter(std::string const& name, T value) {
+    addUntrackedParameter(std::string const& name, T const& value) {
       insert(true, name, Entry(name, value, false));
     }
 
     template <typename T>
     void
-    addUntrackedParameter(char const* name, T value) {
+    addUntrackedParameter(char const* name, T const& value) {
       insert(true, name, Entry(name, value, false));
     }
 
@@ -490,35 +490,35 @@ namespace edm {
   
   template <>
   void
-  ParameterSet::addParameter<ParameterSet>(std::string const& name, ParameterSet value);
+  ParameterSet::addParameter<ParameterSet>(std::string const& name, ParameterSet const& value);
 
   template <>
   void
-  ParameterSet::addParameter<ParameterSet>(char const* name, ParameterSet value);
+  ParameterSet::addParameter<ParameterSet>(char const* name, ParameterSet const& value);
 
   template <>
   void
-  ParameterSet::addUntrackedParameter<ParameterSet>(std::string const& name, ParameterSet value);
+  ParameterSet::addUntrackedParameter<ParameterSet>(std::string const& name, ParameterSet const& value);
 
   template <>
   void
-  ParameterSet::addUntrackedParameter<ParameterSet>(char const* name, ParameterSet value);
+  ParameterSet::addUntrackedParameter<ParameterSet>(char const* name, ParameterSet const& value);
 
   template <>
   void
-  ParameterSet::addParameter<VParameterSet>(std::string const& name, VParameterSet value);
+  ParameterSet::addParameter<VParameterSet>(std::string const& name, VParameterSet const& value);
 
   template <>
   void
-  ParameterSet::addParameter<VParameterSet>(char const* name, VParameterSet value);
+  ParameterSet::addParameter<VParameterSet>(char const* name, VParameterSet const& value);
 
   template <>
   void
-  ParameterSet::addUntrackedParameter<VParameterSet>(std::string const& name, VParameterSet value);
+  ParameterSet::addUntrackedParameter<VParameterSet>(std::string const& name, VParameterSet const& value);
 
   template <>
   void
-  ParameterSet::addUntrackedParameter<VParameterSet>(char const* name, VParameterSet value);
+  ParameterSet::addUntrackedParameter<VParameterSet>(char const* name, VParameterSet const& value);
 
   // untracked parameters
   
