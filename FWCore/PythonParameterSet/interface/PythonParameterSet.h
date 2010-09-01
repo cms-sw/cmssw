@@ -34,7 +34,7 @@ public:
     }
     else
     {
-      result = theParameterSet.template getUntrackedParameter<T>(name, result);
+      result = theParameterSet.template getUntrackedParameter<T>(name);
     }
     return result;
   }
@@ -42,7 +42,7 @@ public:
 
   template <class T>
   void
-  addParameter(bool tracked, std::string const& name, T value)
+  addParameter(bool tracked, std::string const& name, T const& value)
   {
    if(tracked)
    {
