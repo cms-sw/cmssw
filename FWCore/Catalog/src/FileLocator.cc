@@ -36,8 +36,9 @@ namespace {
     std::string result = outputFormat;
 
     for (int i = 1; i < matches.numMatches(); ++i) {
-	// If this is not true, man, we are in trouble...
-	assert(i < 1000000);
+	// If this is true, man, we are in trouble...
+	if (i >= 1000000)
+          throw cms::Exception("Fatal Error on edm::FileLocator: more than 1000000 relocation entries in the file catalog. Are you sure???");
 	sprintf(buffer, "%i", i);
 	std::string variableRegexp = std::string("[$]") + buffer;
 	std::string matchResult = matches.matchString(inputString, i);
@@ -121,11 +122,9 @@ namespace edm {
       throw cms::Exception(std::string("TrivialFileCatalog::connect: Malformed trivial catalog"));
     }
 
+    // ruleNode is actually always a DOMElement because it's the result of
+    // a `getElementsByTagName()` in the calling method.
     DOMElement* ruleElement = static_cast<DOMElement *>(ruleNode);	
-
-    if (!ruleElement) {
-      throw cms::Exception(std::string("TrivialFileCatalog::connect: Malformed trivial catalog"));
-    }
 
     std::string protocol = _toString(ruleElement->getAttribute(_toDOMS("protocol")));	
     std::string destinationMatchRegexp = _toString(ruleElement->getAttribute(_toDOMS("destination-match")));
