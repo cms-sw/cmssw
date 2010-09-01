@@ -11,11 +11,11 @@ namespace edm {
     try {
       f();
     }
-    catch (cms::Exception e) {
+    catch (cms::Exception const& e) {
       hasThrown_ = true;
       exception_ << e;
     }
-    catch (std::exception e) {
+    catch (std::exception const& e) {
       hasThrown_ = true;
       exception_ << e.what();
     }

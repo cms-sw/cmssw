@@ -27,7 +27,7 @@ namespace {
         std::string result;
         typeDemangle(iType.name(), result);
         return result;
-      } catch (cms::Exception e) {
+      } catch (const cms::Exception& e) {
         edm::Exception theError(errors::DictionaryNotFound,"NoMatch");
         theError << "TypeID::className: No dictionary for class " << iType.name() << '\n';
         theError.append(e);
