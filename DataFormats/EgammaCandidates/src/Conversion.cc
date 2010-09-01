@@ -119,7 +119,7 @@ std::vector<reco::TrackRef>  Conversion::tracks() const {
 
 bool Conversion::isConverted() const {
   
-  if ( this->nTracks() > 0) 
+  if ( this->nTracks() == 2 ) 
     return true;
   else
     return false;
