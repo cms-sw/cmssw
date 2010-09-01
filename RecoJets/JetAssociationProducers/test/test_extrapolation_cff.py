@@ -10,7 +10,8 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'GR09_R_35X_V2::All'
+process.GlobalTag.globaltag = 'GR10_P_V8::All'
+
 
 ### Extrapolation
 process.load("RecoJets.JetAssociationProducers.trackExtrapolator_cfi")

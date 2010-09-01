@@ -18,7 +18,10 @@
 //
 // Original Author:  Salvatore Rappoccio (salvatore.rappoccio@cern.ch)
 //         Created:  Mon Feb 22 11:54:41 CET 2010
-// $Id$
+// $Id: TrackExtrapolator.h,v 1.1 2010/03/16 21:45:54 srappocc Exp $
+//
+// Revision by: John Paul Chou (chou@hep.brown.edu)
+//              Modified algorithm to extrapolate correctly to the endcap front face.
 //
 //
 
@@ -47,7 +50,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-
+#include "TrackingTools/TrackAssociator/interface/FiducialVolume.h"
 
 //
 // class declaration
@@ -66,7 +69,6 @@ class TrackExtrapolator : public edm::EDProducer {
       // ----------member data ---------------------------
 
       edm::InputTag tracksSrc_;    /// Input tracks
-      std::vector<double> radii_;  /// Radii to extrapolate to
       reco::TrackBase::TrackQuality trackQuality_; /// track quality of the tracks we care about
 
 
@@ -75,14 +77,14 @@ class TrackExtrapolator : public edm::EDProducer {
       /// Propagate a track to a given radius, given the magnetic
       /// field and the propagator. Store the resulting
       /// position, momentum, and direction. 
-      bool propagateTrackToR( const reco::Track& fTrack,
-			      const MagneticField& fField,
-			      const Propagator& fPropagator,
-			      const double & R,
-			      reco::TrackBase::Point & resultPos,
-			      reco::TrackBase::Vector & resultMom,
-			      reco::TrackBase::Vector & resultDir
-			      );
+      bool propagateTrackToVolume( const reco::Track& fTrack,
+				   const MagneticField& fField,
+				   const Propagator& fPropagator,
+				   const FiducialVolume& volume,
+				   reco::TrackBase::Point & resultPos,
+				   reco::TrackBase::Vector & resultMom,
+				   reco::TrackBase::Vector & resultDir
+				   );
 
       
 
