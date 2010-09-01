@@ -45,7 +45,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jun 23 14:06:56 EDT 2005
-// $Id: eventsetup_dependsOn.h,v 1.8 2008/03/20 18:52:10 chrjones Exp $
+// $Id: eventsetup_dependsOn.h,v 1.9 2010/07/24 14:15:27 wmtan Exp $
 //
 
 // system include files
@@ -114,7 +114,7 @@ namespace edm {
             struct TwoHolder {
                typedef T T1_t;
                typedef U T2_t;
-               TwoHolder(T i1, U i2) : h1_(i1), h2_(i2) {}
+               TwoHolder(const T& i1, const U& i2) : h1_(i1), h2_(i2) {}
                T h1_;
                U h2_;
             };
