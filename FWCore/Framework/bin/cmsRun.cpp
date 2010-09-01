@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
   // We must initialize the plug-in manager first
   try {
     edmplugin::PluginManager::configure(edmplugin::standard::config());
-  } catch(cms::Exception& e) {
+  } catch(const std::exception& e) {
     std::cerr << e.what() << std::endl;
     return 1;
   }
