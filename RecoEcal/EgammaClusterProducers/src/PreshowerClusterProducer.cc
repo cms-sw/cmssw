@@ -267,6 +267,6 @@ void PreshowerClusterProducer::set(const edm::EventSetup& es) {
 
   double ESGain = gain->getESGain();
   mip_ = (ESGain == 1) ? mipToGeV->getESValueLow() : mipToGeV->getESValueHigh(); 
-  gamma_ = (ESGain == 1) ? esEEInterCalib->getGammaLow() : esEEInterCalib->getGammaHigh();
-  alpha_ = (ESGain == 1) ? esEEInterCalib->getAlphaLow() : esEEInterCalib->getAlphaHigh();
+  gamma_ = (ESGain == 1) ? esEEInterCalib->getGammaLow0() : esEEInterCalib->getGammaHigh0();
+  alpha_ = (ESGain == 1) ? esEEInterCalib->getAlphaLow0() : esEEInterCalib->getAlphaHigh0();
 }
