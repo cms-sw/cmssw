@@ -96,10 +96,6 @@ int main(int argc, char* argv[])
   unsigned int iEvent=0;
   fwlite::Event ev(inFile);
   for(ev.toBegin(); !ev.atEnd(); ++ev, ++iEvent){
-
-    // break loop after end of file is reached 
-    // or after 1000 events have been processed
-    if( iEvent==1000 ) break;
     
     // simple event counter
     if(iEvent>0 && iEvent%100==0){
