@@ -170,7 +170,7 @@ FWTrackResidualDetailView::build (const FWModelId &id, const reco::Track* track)
             continue;
 
          char det_str2[256];
-         sprintf(det_str2,"%s/%i",m_det_tracker_str[substruct[m_det[j]]-1],subsubstruct[m_det[j]]);
+         snprintf(det_str2, 255, "%s/%i",m_det_tracker_str[substruct[m_det[j]]-1],subsubstruct[m_det[j]]);
          h_res->GetYaxis()->SetBinLabel(j+1, det_str2);
 
          int diff=m_det[j+1]-m_det[j];
@@ -282,19 +282,19 @@ FWTrackResidualDetailView::setTextInfo(const FWModelId &/*id*/, const reco::Trac
    y-= yStep;
    latex->DrawLatex(x0, y, "sgn(#hat{X}#bullet#hat{#phi}) #times #frac{X_{hit} - X_{traj}}{#sqrt{#sigma^{2}_{hit} + #sigma^{2}_{traj}}}" );
    y-= 2.5*yStep;
-   sprintf(mytext,"layers hit: %i", m_ndet);
+   snprintf(mytext, 255, "layers hit: %i", m_ndet);
    latex->DrawLatex(x0, y, mytext);
    y -= yStep;
-   sprintf(mytext,"valid Si hits: %i", nvalid);
+   snprintf(mytext, 255,"valid Si hits: %i", nvalid);
    latex->DrawLatex(x0, y, mytext);
    y -= yStep;
-   sprintf(mytext,"total Si hits: %i", m_nhits);
+   snprintf(mytext, 255,"total Si hits: %i", m_nhits);
    latex->DrawLatex(x0, y, mytext);
    y -= yStep;
-   sprintf(mytext,"valid Si pixel hits: %i", npix);
+   snprintf(mytext, 255,"valid Si pixel hits: %i", npix);
    latex->DrawLatex(x0, y, mytext);
    y -= yStep;
-   sprintf(mytext,"valid Si strip hits: %i", nstrip);
+   snprintf(mytext, 255, "valid Si strip hits: %i", nstrip);
    latex->DrawLatex(x0, y, mytext);
    
 

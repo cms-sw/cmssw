@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.27 2010/06/17 14:02:37 matevz Exp $
+// $Id: FWColorManager.cc,v 1.28 2010/06/18 10:17:15 yana Exp $
 //
 
 // system include files
@@ -175,7 +175,7 @@ void resetColors(const float(* iColors)[3], unsigned int iSize, unsigned int iSt
    assert(0!=c);
    
    for(unsigned int i = index; i< index+iSize; ++i,++iColors) {
-      TColor* c = dynamic_cast<TColor*> (colorTable->At(i));
+      TColor* c = static_cast<TColor*> (colorTable->At(i));
       float red = (*iColors)[0];
       float green = (*iColors)[1];
       float blue = (*iColors)[2];

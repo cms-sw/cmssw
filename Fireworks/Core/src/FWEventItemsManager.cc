@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.36 2010/06/18 10:17:15 yana Exp $
+// $Id: FWEventItemsManager.cc,v 1.37 2010/07/21 17:03:26 matevz Exp $
 //
 
 // system include files
@@ -38,6 +38,7 @@
 //
 FWEventItemsManager::FWEventItemsManager(FWModelChangeManager* iManager) :
    m_changeManager(iManager),
+   m_context(0),
    m_event(0),
    m_accessorFactory(new FWItemAccessorFactory())
 {

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 29 13:39:56 PST 2008
-// $Id: FWModelFilter.cc,v 1.11 2009/04/27 16:53:29 dmytro Exp $
+// $Id: FWModelFilter.cc,v 1.12 2010/06/18 10:17:16 yana Exp $
 //
 
 // system include files
@@ -131,7 +131,7 @@ FWModelFilter::passesFilter(const void* iObject) const
    return (*m_selector)(o);
 }
 
-const bool
+bool
 FWModelFilter::trivialFilter() const
 {
    return m_expression.empty();

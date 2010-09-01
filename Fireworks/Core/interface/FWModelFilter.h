@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 29 13:39:51 PST 2008
-// $Id: FWModelFilter.h,v 1.6.8.1 2009/04/24 02:18:41 dmytro Exp $
+// $Id: FWModelFilter.h,v 1.7 2009/04/27 16:53:29 dmytro Exp $
 //
 
 // system include files
@@ -44,7 +44,7 @@ public:
 
    bool passesFilter(const void*) const;
 
-   const bool trivialFilter() const;
+   bool trivialFilter() const;
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------

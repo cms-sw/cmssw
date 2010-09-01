@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:36:34 EST 2008
-// $Id: FWGenericParameterWithRange.h,v 1.1 2010/02/12 15:36:46 eulisse Exp $
+// $Id: FWGenericParameterWithRange.h,v 1.2 2010/02/13 14:01:33 eulisse Exp $
 //
 
 // user include files
@@ -30,7 +30,9 @@ class FWGenericParameterWithRange : public FWGenericParameter<T>
 
 public:
    FWGenericParameterWithRange(void)
-   :FWGenericParameter<T>()
+   :FWGenericParameter<T>(),
+    m_min(-1),
+    m_max(-1)
    {}
 
    FWGenericParameterWithRange(FWParameterizable* iParent,

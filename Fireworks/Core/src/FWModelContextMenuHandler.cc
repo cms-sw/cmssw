@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 22 13:26:04 CDT 2009
-// $Id: FWModelContextMenuHandler.cc,v 1.15 2010/06/16 14:04:40 matevz Exp $
+// $Id: FWModelContextMenuHandler.cc,v 1.16 2010/06/18 10:17:16 yana Exp $
 //
 
 // system include files
@@ -153,6 +153,9 @@ m_colorManager(iCM),
 m_guiManager(iGM),
 m_seperator(0),
 m_viewSeperator(0),
+m_afterViewSeperator(0),
+m_x(0),
+m_y(0),
 m_nDetailViewEntries(0),
 m_nViewEntries(0),
 m_viewHander(0)

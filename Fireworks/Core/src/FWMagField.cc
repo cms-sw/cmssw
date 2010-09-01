@@ -21,7 +21,8 @@ FWMagField::FWMagField() :
    m_guessValHist(0),
    m_numberOfFieldIsOnEstimates(0),
    m_numberOfFieldEstimates(0),
-   m_updateFieldEstimate(true)
+   m_updateFieldEstimate(true),
+   m_guessedField(0)
 {
    m_guessValHist = new TH1F("FieldEstimations", "Field estimations from tracks and muons",
                              200, -4.5, 4.5);

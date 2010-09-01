@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWL1EtMissParticleProxyBuilder.cc,v 1.5 2010/05/03 15:47:35 amraktad Exp $
+// $Id: FWL1EtMissParticleProxyBuilder.cc,v 1.6 2010/08/30 15:42:32 amraktad Exp $
 //
 
 // system include files
@@ -62,7 +62,7 @@ FWL1EtMissParticleProxyBuilder::build( const l1extra::L1EtMissParticle& iData, u
    setupAddElement(marker, &oItemHolder);
 }
 
-REGISTER_FWPROXYBUILDER(FWL1EtMissParticleProxyBuilder, l1extra::L1EtMissParticle, "L1EtMissParticle", FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
+REGISTER_FWPROXYBUILDER(FWL1EtMissParticleProxyBuilder, l1extra::L1EtMissParticle, "L1EtMissParticle", FWViewType::kAllRPZBits);
 
 //==============================================================================
 
@@ -84,13 +84,6 @@ private:
 void
 FWL1EtMissParticleGlimpseProxyBuilder::build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*) 
 {
-   char title[1024];
-   sprintf( title, "L1 MET: %0.1f GeV", iData.et() );
-   TEveCompound* container = new TEveCompound( "L1EtMissParticle", title );
-   container->OpenCompound();
-   //guarantees that CloseCompound will be called no matter what happens
-   boost::shared_ptr<TEveCompound> sentry( container, boost::mem_fn( &TEveCompound::CloseCompound ));
-   
    double phi = iData.phi();
    double size = iData.et();
    TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet( "L1EtMissParticle" );
@@ -99,9 +92,7 @@ FWL1EtMissParticleGlimpseProxyBuilder::build( const l1extra::L1EtMissParticle& i
    marker->AddLine( 0, 0, 0, size*cos(phi), size*sin(phi), 0);
    marker->AddLine( size*0.9*cos(phi+0.03), size*0.9*sin(phi+0.03), 0, size*cos(phi), size*sin(phi), 0);
    marker->AddLine( size*0.9*cos(phi-0.03), size*0.9*sin(phi-0.03), 0, size*cos(phi), size*sin(phi), 0);
-   setupAddElement(marker, container);
-
-   setupAddElement(container, &oItemHolder);
+   setupAddElement(marker, &oItemHolder);
 }
 
 REGISTER_FWPROXYBUILDER(FWL1EtMissParticleGlimpseProxyBuilder, l1extra::L1EtMissParticle, "L1EtMissParticle", FWViewType::kGlimpseBit);
@@ -125,26 +116,17 @@ private:
 
 void
 FWL1EtMissParticleLegoProxyBuilder::build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*) 
-{
-   char title[1024];
-   sprintf(title, "L1 MET: %0.1f GeV", iData.et());
-   TEveCompound* container = new TEveCompound( "L1EtMissParticle", title );
-   container->OpenCompound();
-   //guarantees that CloseCompound will be called no matter what happens
-   boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
-   
+{   
    TEveStraightLineSet* mainLine = new TEveStraightLineSet( "MET phi" );
    mainLine->AddLine(-5.191, iData.phi(), 0.1, 5.191, iData.phi(), 0.1 );
-   setupAddElement(mainLine, container);
+   setupAddElement(mainLine, &oItemHolder);
    
    double phi = iData.phi();
    phi = phi > 0 ? phi - M_PI : phi + M_PI;
    TEveStraightLineSet* secondLine = new TEveStraightLineSet( "MET opposite phi" );
    secondLine->SetLineStyle(7);
    secondLine->AddLine(-5.191, phi, 0.1, 5.191, phi, 0.1 );
-   setupAddElement(secondLine, container);
-
-   setupAddElement(container, &oItemHolder);
+   setupAddElement(secondLine, &oItemHolder);
 }
 
 REGISTER_FWPROXYBUILDER(FWL1EtMissParticleLegoProxyBuilder, l1extra::L1EtMissParticle, "L1EtMissParticle", FWViewType::kLegoBit);

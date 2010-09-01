@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWL1JetParticleProxyBuilder.cc,v 1.5 2010/05/03 15:47:35 amraktad Exp $
+// $Id: FWL1JetParticleProxyBuilder.cc,v 1.6 2010/08/30 15:42:32 amraktad Exp $
 //
 
 // system include files
@@ -61,6 +61,10 @@ FWL1JetParticleProxyBuilder::build( const l1extra::L1JetParticle& iData, unsigne
    setupAddElement(marker, &oItemHolder);
 }
 
+REGISTER_FWPROXYBUILDER(FWL1JetParticleProxyBuilder, l1extra::L1JetParticle, "L1JetParticle", FWViewType::kAllRPZBits);
+
+//==============================================================================
+
 class FWL1JetParticleLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<l1extra::L1JetParticle>
 {
 public:
@@ -82,9 +86,7 @@ FWL1JetParticleLegoProxyBuilder::build( const l1extra::L1JetParticle& iData, uns
    const unsigned int nLineSegments = 6;
    const double jetRadius = 0.5;
 
-   char title[1024];
-   sprintf(title,"L1 Jet %d, Et: %0.1f GeV", iIndex,iData.et());
-   TEveStraightLineSet* container = new TEveStraightLineSet( "l1JetParticle", title );
+   TEveStraightLineSet* container = new TEveStraightLineSet( "l1JetParticle");
    for( unsigned int iphi = 0; iphi < nLineSegments; ++iphi ) {
       container->AddLine(iData.eta()+jetRadius*cos(2*M_PI/nLineSegments*iphi),
 			 iData.phi()+jetRadius*sin(2*M_PI/nLineSegments*iphi),
@@ -96,6 +98,4 @@ FWL1JetParticleLegoProxyBuilder::build( const l1extra::L1JetParticle& iData, uns
    setupAddElement(container, &oItemHolder);
 }
 
-
-REGISTER_FWPROXYBUILDER(FWL1JetParticleProxyBuilder, l1extra::L1JetParticle, "L1JetParticle", FWViewType::kRhoPhiBit  | FWViewType::kRhoZBit);
 REGISTER_FWPROXYBUILDER(FWL1JetParticleLegoProxyBuilder, l1extra::L1JetParticle, "L1JetParticle", FWViewType::kLegoBit);

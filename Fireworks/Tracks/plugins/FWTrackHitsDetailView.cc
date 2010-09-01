@@ -51,7 +51,6 @@ FWTrackHitsDetailView::~FWTrackHitsDetailView ()
 void
 FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track)
 {      
-   bool labelsOn = false;
    {
       TGCompositeFrame* f  = new TGVerticalFrame(m_guiFrame);
       m_guiFrame->AddFrame(f);
@@ -69,7 +68,7 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track)
    {
       CSGAction* action = new CSGAction(this, "Show Module Labels");
       TGCheckButton* b = new TGCheckButton(m_guiFrame, "Show Module Labels" );
-      b->SetState(labelsOn ? kButtonDown : kButtonUp, false);
+      b->SetState(kButtonUp, false);
       m_guiFrame->AddFrame(b, new TGLayoutHints( kLHintsNormal, 2, 3, 1, 4));
       TQObject::Connect(b, "Clicked()", "CSGAction", action, "activate()");
       action->activated.connect(sigc::mem_fun(this, &FWTrackHitsDetailView::rnrLabels));
@@ -117,7 +116,7 @@ FWTrackHitsDetailView::build (const FWModelId &id, const reco::Track* track)
       text->SetFontSize(12);
       m_moduleLabels->AddElement(text); 
    }
-   m_moduleLabels->SetRnrChildren(labelsOn);
+   m_moduleLabels->SetRnrChildren(false);
 
    TEveTrackPropagator* prop = new TEveTrackPropagator();
    prop->SetMagFieldObj(item()->context().getField(), false);

@@ -14,7 +14,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWGenParticleProxyBuilder.cc,v 1.4 2010/04/20 20:49:42 amraktad Exp $
+// $Id: FWGenParticleProxyBuilder.cc,v 1.5 2010/05/03 15:47:41 amraktad Exp $
 // 
 
 #include "TDatabasePDG.h"
@@ -57,16 +57,18 @@ FWGenParticleProxyBuilder::build(const reco::GenParticle& iData, unsigned int iI
    if (!s_pdg)
       s_pdg = new TDatabasePDG();
  
-   char s[1024];
-   TParticlePDG* pID = s_pdg->GetParticle(iData.pdgId());
-   if ( pID )
-      sprintf(s,"gen %s, Pt: %0.1f GeV", pID->GetName(), iData.pt());
-   else
-      sprintf(s,"gen pdg %d, Pt: %0.1f GeV", iData.pdgId(), iData.pt());
-
+ 
    TEveTrack* trk = fireworks::prepareCandidate( iData, context().getTrackPropagator() );    
    trk->MakeTrack();
-   trk->SetTitle(s);
+   /*
+     trk->SetTitle(s);
+     char s[1024];
+     TParticlePDG* pID = s_pdg->GetParticle(iData.pdgId());
+     if ( pID )
+     sprintf(s,"gen %s, Pt: %0.1f GeV", pID->GetName(), iData.pt());
+     else
+     sprintf(s,"gen pdg %d, Pt: %0.1f GeV", iData.pdgId(), iData.pt());
+   */
    setupAddElement(trk, &oItemHolder);
 }
 
