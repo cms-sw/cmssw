@@ -80,7 +80,7 @@ namespace {
   template<typename T>
   static
   void overrideFromPSet(char const* iName, edm::ParameterSet const& iPSet,
-                        T& iHolder, T const* iPointer) {
+                        T& iHolder, T const*& iPointer) {
      if(iPSet.exists(iName)) {
         iHolder = iPSet.getUntrackedParameter<T>(iName);
         iPointer = &iHolder;
