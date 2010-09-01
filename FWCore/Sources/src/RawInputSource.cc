@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RawInputSource.cc,v 1.26 2009/09/01 23:28:21 wmtan Exp $
+$Id: RawInputSource.cc,v 1.27 2009/09/23 23:33:07 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Sources/interface/RawInputSource.h"
@@ -15,6 +15,7 @@ namespace edm {
 				       InputSourceDescription const& desc) :
     InputSource(pset, desc),
     runNumber_(RunNumber_t()),
+    luminosityBlockNumber_(),
     newRun_(false),
     newLumi_(false),
     eventCached_(false) {
