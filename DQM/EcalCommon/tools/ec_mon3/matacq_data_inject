@@ -44,7 +44,7 @@ $renotify = "--renotify" if ( $opts{'renotify'} );
 
 my $file;
 
-my @files = split('\n', `find $path -maxdepth 1 -name 'matacq.*.dat' -printf '%f\n' | sort`);
+my @files = split('\n', `find $path -maxdepth 1 -name 'matacq.*.dat' -printf '%f\n' 2>&1 | sort`);
 
 foreach $file ( @files ) {
 
@@ -161,7 +161,7 @@ foreach $file ( @files ) {
 
 }
 
-@files = split('\n', `find $path -maxdepth 1 -name 'matacq.*.log' -printf '%f\n' | sort`);
+@files = split('\n', `find $path -maxdepth 1 -name 'matacq.*.log' -printf '%f\n' 2>&1 | sort`);
 
 foreach $file ( @files ) {
 

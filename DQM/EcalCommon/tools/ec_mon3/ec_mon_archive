@@ -82,7 +82,7 @@ if ( @done_runs == 0 ) {
 
     my ($loc, $num, $lun, $out, $fun, $fil, $ful) = split('\.', "$runfile");
 
-    my @datfiles = split('\n', `find $config{'ec_mon_master_rundir'}/daq-data/ -maxdepth 1 -name '$loc.$num.*.dat' -printf '%f\n' | sort`);
+    my @datfiles = split('\n', `find $config{'ec_mon_master_rundir'}/daq-data/ -maxdepth 1 -name '$loc.$num.*.dat' -printf '%f\n' 2>&1 | sort`);
 
     foreach $run ( @datfiles ) {
 
@@ -267,7 +267,7 @@ if ( @failed_runs == 0 ) {
 
     my ($loc, $num, $out, $fun, $fil, $typ, $sta) = split('\.', "$runfile");
 
-    my @datfiles = split('\n', `find $config{'ec_mon_master_rundir'}/daq-data/ -maxdepth 1 -name '$loc.$num.*.dat' -printf '%f\n' | sort`);
+    my @datfiles = split('\n', `find $config{'ec_mon_master_rundir'}/daq-data/ -maxdepth 1 -name '$loc.$num.*.dat' -printf '%f\n' 2>&1 | sort`);
 
     foreach $run ( @datfiles ) {
 
