@@ -320,69 +320,61 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
 void
 TrackerValidationVariables::fillTrackQuantities(const edm::Event& event, std::vector<AVTrackStruct> & v_avtrackout)
 {
+  edm::InputTag TrjTrackTag = conf_.getParameter<edm::InputTag>("Tracks");
   edm::Handle<TrajTrackAssociationCollection> TrajTracksMap;
-  if (event.getByLabel(conf_.getParameter<edm::InputTag>("Tracks"), TrajTracksMap)) {
- 
-    const Trajectory* trajectory;
-    const reco::Track* track;
-
-    for ( TrajTrackAssociationCollection::const_iterator iPair = TrajTracksMap->begin();
-          iPair != TrajTracksMap->end();
-	  ++iPair) {
-
-      trajectory = &(*(*iPair).key);
-      track = &(*(*iPair).val);
-
-      AVTrackStruct trackStruct;
-      LogDebug("TrackerValidationVariables") << "track pt " << track->p();
-     
-      trackStruct.p = track->p();
-      trackStruct.pt = track->pt();
-      trackStruct.ptError = track->ptError();
-      trackStruct.px = track->px();
-      trackStruct.py = track->py();
-      trackStruct.pz = track->pz();
-      trackStruct.eta = track->eta();
-      trackStruct.phi = track->phi();
-      trackStruct.chi2 = track->chi2();
-      trackStruct.chi2Prob= TMath::Prob(track->chi2(),track->ndof());
-      trackStruct.normchi2 = track->normalizedChi2();
-      GlobalPoint gPoint(track->vx(), track->vy(), track->vz());
-      double theLocalMagFieldInInverseGeV = magneticField_->inInverseGeV(gPoint).z();
-      trackStruct.kappa = -track->charge()*theLocalMagFieldInInverseGeV/track->pt();
-      trackStruct.charge = track->charge();
-      trackStruct.d0 = track->d0();
-      trackStruct.dz = track->dz();
-      trackStruct.numberOfValidHits = track->numberOfValidHits();
-      trackStruct.numberOfLostHits = track->numberOfLostHits();
-
-      fillHitQuantities(trajectory, trackStruct.hits);
-      
-      v_avtrackout.push_back(trackStruct);
-    }
+  event.getByLabel(TrjTrackTag, TrajTracksMap);
+  LogDebug("TrackerValidationVariables") << "TrajTrack collection size " << TrajTracksMap->size();
+  
+  const Trajectory* trajectory;
+  const reco::Track* track;
+  
+  for ( TrajTrackAssociationCollection::const_iterator iPair = TrajTracksMap->begin();
+	iPair != TrajTracksMap->end();
+	++iPair) {
     
-  } else {
-
-    edm::LogError("TrackerValidationVariables") << "@SUB=TrackerValidationVariables::fillQuantities" 
-						<< "No track collection found: skipping event";
+    trajectory = &(*(*iPair).key);
+    track = &(*(*iPair).val);
+    
+    AVTrackStruct trackStruct;
+    
+    trackStruct.p = track->p();
+    trackStruct.pt = track->pt();
+    trackStruct.ptError = track->ptError();
+    trackStruct.px = track->px();
+    trackStruct.py = track->py();
+    trackStruct.pz = track->pz();
+    trackStruct.eta = track->eta();
+    trackStruct.phi = track->phi();
+    trackStruct.chi2 = track->chi2();
+    trackStruct.chi2Prob= TMath::Prob(track->chi2(),track->ndof());
+    trackStruct.normchi2 = track->normalizedChi2();
+    GlobalPoint gPoint(track->vx(), track->vy(), track->vz());
+    double theLocalMagFieldInInverseGeV = magneticField_->inInverseGeV(gPoint).z();
+    trackStruct.kappa = -track->charge()*theLocalMagFieldInInverseGeV/track->pt();
+    trackStruct.charge = track->charge();
+    trackStruct.d0 = track->d0();
+    trackStruct.dz = track->dz();
+    trackStruct.numberOfValidHits = track->numberOfValidHits();
+    trackStruct.numberOfLostHits = track->numberOfLostHits();
+    
+    fillHitQuantities(trajectory, trackStruct.hits);
+    
+    v_avtrackout.push_back(trackStruct);
   }
 }
 
 void
 TrackerValidationVariables::fillHitQuantities(const edm::Event& event, std::vector<AVHitStruct> & v_avhitout)
 {
-  edm::Handle<TrajTrackAssociationCollection> TrajTracksMap;
-  if (event.getByLabel(conf_.getParameter<edm::InputTag>("Tracks"), TrajTracksMap)) {
- 
-    const Trajectory* trajectory;
+  edm::Handle<std::vector<Trajectory> > trajCollectionHandle;
+  event.getByLabel(conf_.getParameter<std::string>("trajectoryInput"), trajCollectionHandle);
+  
+  LogDebug("TrackerValidationVariables") << "trajColl->size(): " << trajCollectionHandle->size() ;
 
-    for ( TrajTrackAssociationCollection::const_iterator iPair = TrajTracksMap->begin();
-          iPair != TrajTracksMap->end();
-	  ++iPair) {
-
-      trajectory = &(*(*iPair).key);
-      
-      fillHitQuantities(trajectory, v_avhitout);
-    }
+  for (std::vector<Trajectory>::const_iterator it = trajCollectionHandle->begin(), itEnd = trajCollectionHandle->end(); 
+       it!=itEnd;
+       ++it) {
+    
+    fillHitQuantities(&(*it), v_avhitout);
   }
 }
