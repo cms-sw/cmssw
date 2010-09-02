@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date$
- *  $Revision$
+ *  $Date: 2010/08/26 00:48:26 $
+ *  $Revision: 1.85 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -361,27 +361,9 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
     if(thePutTkTrackFlag) links->setTrackerTrack(trackerTR);
   }
 
-  if( combinedTracks->size() > 0 && trackerTracks->size() > 0 ) {
-  // Not a so great thing to do... this loop is not needed at all, especially for HLT
-  // missing hits quality check  
-  for (  links = trackLinksCollection->begin();  links != trackLinksCollection->end(); ++links ) {
-    int hitTk = ( links->trackerTrack().isNonnull()) ? links->trackerTrack().get()->hitPattern().numberOfValidTrackerHits() : 0;
-    int hitGlbTk = ( links->globalTrack().isNonnull()) ?  links->globalTrack().get()->hitPattern().numberOfValidTrackerHits() : 0;
-    int hitSta =  ( links->standAloneTrack().isNonnull()) ? links->standAloneTrack().get()->recHitsSize() : 0;
-    int hitGlbSta = ( links->globalTrack().isNonnull()) ? links->globalTrack().get()->hitPattern().numberOfValidMuonHits() : 0;
-    int hitGlb =  ( links->globalTrack().isNonnull()) ? links->globalTrack().get()->hitPattern().numberOfValidHits() : 0;
-    int missingSta = hitSta-hitGlbSta;
-    int missingTk = hitTk-hitGlbTk;
-
-    if (fabs(missingSta + missingTk) > 3){
-      LogTrace(metname)<<"Global Muon Missing Hits!";
-      LogTrace(metname)<<" nGlb: " << hitGlb << " nSta: " << hitSta << " nTk:" << hitTk << " nStaMissing: " <<  missingSta << " nTkMissing: " << missingTk;
-    }
-  }
-  }
-  else LogWarning(metname)<<"The MuonTrackLinkCollection is incomplete. combinedTracks->size()="<<combinedTracks->size()
-			  <<", trackerTracks->size()="<<trackerTracks->size();
- 
+  if( thePutTkTrackFlag && trackerTracks.isValid() && !(combinedTracks->size() > 0 && trackerTracks->size() > 0 ) )
+    LogWarning(metname)<<"The MuonTrackLinkCollection is incomplete"; 
+  
   // put the MuonCollection in the event
   LogTrace(metname) << "put the MuonCollection in the event" << "\n";
   
