@@ -8,7 +8,7 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCWireDigiProxyBuilder.cc,v 1.13 2010/08/31 15:30:21 yana Exp $
+// $Id: FWCSCWireDigiProxyBuilder.cc,v 1.14 2010/09/01 16:18:08 mccauley Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -46,36 +46,29 @@ private:
 double
 FWCSCWireDigiProxyBuilder::getYOfFirstWire(const int station, const int ring, const double length)                             
 {
-  double yAlignmentFrame;
+  double yAlignmentFrame = 3.49;
   double alignmentPinToFirstWire;
 
   if ( station == 1 ) 
-  {
-    yAlignmentFrame = 0.0;
- 
+  { 
     if ( ring == 1 || ring == 4 )
+    {
       alignmentPinToFirstWire = 1.065;
-    else
+      yAlignmentFrame = 0.0;
+    }
+        
+    else // ME12, ME 13 
       alignmentPinToFirstWire = 2.85;
   }
   
   else if ( station == 4 && ring == 1 )
-  {   
     alignmentPinToFirstWire = 3.04;
-    yAlignmentFrame = 3.49;
-  }
-  
+      
   else if ( station == 3 && ring == 1 )
-  {    
     alignmentPinToFirstWire =  2.84;
-    yAlignmentFrame = 3.49;
-  } 
-     
-  else
-  {
+      
+  else  // ME21, ME22, ME32, ME42 
     alignmentPinToFirstWire = 2.87;
-    yAlignmentFrame = 3.49;
-  }
   
   return (yAlignmentFrame-length) + alignmentPinToFirstWire;
 }
