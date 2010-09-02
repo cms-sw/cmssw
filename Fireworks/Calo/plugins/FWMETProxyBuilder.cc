@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWMETProxyBuilder.cc,v 1.14 2010/06/18 19:51:23 amraktad Exp $
+// $Id: FWMETProxyBuilder.cc,v 1.15 2010/08/30 15:42:32 amraktad Exp $
 //
 
 // system include files
@@ -102,7 +102,7 @@ FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEve
       double max_phi = phi+M_PI/36/2;
 
       TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
-      TEveGeoShape *element = fw::getShape( "spread", new TGeoTubeSeg( r_ecal - 1, r_ecal + 1, 1, min_phi*180/M_PI, max_phi*180/M_PI ), 0 );
+      TEveGeoShape *element = fw::getShape( "spread", new TGeoTubeSeg( r_ecal - 2, r_ecal, 1, min_phi*180/M_PI, max_phi*180/M_PI ), 0 );
       element->SetPickable( kTRUE );
       setupAddElement( element, &oItemHolder );
    }

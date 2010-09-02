@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWJetProxyBuilder.cc,v 1.16 2010/08/30 15:42:31 amraktad Exp $
+// $Id: FWJetProxyBuilder.cc,v 1.17 2010/09/02 18:28:11 amraktad Exp $
 //
 #include "TGeoArb8.h"
 #include "TEveGeoNode.h"
@@ -51,7 +51,7 @@ private:
 void
 FWJetProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*) 
 {
-   FW3DEveJet* cone = new FW3DEveJet(iData, "Cone");
+   FW3DEveJet* cone = new FW3DEveJet(iData, context());
    cone->SetPickable(kTRUE);
    setupAddElement(cone, &oItemHolder);
 

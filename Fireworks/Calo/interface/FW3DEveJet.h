@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul  4 10:22:47 EDT 2008
-// $Id: FW3DEveJet.h,v 1.2 2009/01/23 21:35:39 amraktad Exp $
+// $Id: FW3DEveJet.h,v 1.3 2009/04/16 17:08:31 amraktad Exp $
 //
 
 // system include files
@@ -29,12 +29,15 @@ namespace reco {
    class Jet;
 }
 
+namespace fireworks {
+   class Context;
+}
+
 class FW3DEveJet : public TEveJetCone
 {
 
 public:
-   FW3DEveJet(const reco::Jet& iJet,
-              const Text_t* iName, const Text_t* iTitle="");
+   FW3DEveJet(const reco::Jet& iJet, const fireworks::Context& ctx);
    virtual ~FW3DEveJet();
 
    // ---------- const member functions ---------------------
