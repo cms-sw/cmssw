@@ -92,6 +92,7 @@ namespace {
   {
     // Define the output stream for all output
     std::ostream & os = std::cout;
+    std::ios::fmtflags oldFlags = os.flags();
 
     ++iPlugin;
 
@@ -107,10 +108,12 @@ namespace {
       }
       os << std::left << std::setw(6) << iPlugin << " " << std::setw(50) << pluginInfo.name_; 
       os << " " << pluginInfo.loadable_.leaf() << "\n";
+      os.flags(oldFlags);
       return;
     }
 
     os << std::left << iPlugin << "  " << pluginInfo.name_ << "  " << pluginInfo.loadable_.leaf() << "\n";
+    os.flags(oldFlags);
 
     std::auto_ptr<edm::ParameterSetDescriptionFillerBase> filler;
 

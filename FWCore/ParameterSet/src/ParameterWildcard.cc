@@ -99,7 +99,7 @@ namespace edm {
       indentation -= DocFormatHelper::offsetSectionContent();
     }
 
-    os << std::setfill(' ') << std::setw(indentation) << "";
+    printSpaces(os, indentation);
     os << "Section " << dfh.section() << "." << dfh.counter()
        << " description of PSet matching wildcard:";
     os << "\n";
@@ -222,7 +222,7 @@ namespace edm {
       indentation -= DocFormatHelper::offsetSectionContent();
     }
 
-    os << std::setfill(' ') << std::setw(indentation) << "";
+    printSpaces(os, indentation);
     os << "Section " << dfh.section() << "." << dfh.counter()
        << " description used to validate all PSets which are in the VPSet matching the wildcard:";
     os << "\n";

@@ -183,10 +183,10 @@ namespace edm {
     ss << dfh.section() << "." << dfh.counter();
     std::string newSection = ss.str();
 
-    os << std::setfill(' ') << std::setw(indentation) << "";
+    printSpaces(os, indentation);
     os << "Section " << newSection
        << " XOR group description:\n";
-    os << std::setfill(' ') << std::setw(indentation) << "";
+    printSpaces(os, indentation);
     if (optional) {
       os << "This optional XOR group requires exactly one or none of the following to be in the PSet\n";
     }

@@ -164,10 +164,10 @@ namespace edm {
     ss << dfh.section() << "." << dfh.counter();
     std::string newSection = ss.str();
 
-    os << std::setfill(' ') << std::setw(indentation) << "";
+    printSpaces(os, indentation);
     os << "Section " << newSection
        << " AND group description:\n";
-    os << std::setfill(' ') << std::setw(indentation) << "";
+    printSpaces(os, indentation);
     if (optional) {
       os << "This optional AND group requires all or none of the following to be in the PSet\n";
     }

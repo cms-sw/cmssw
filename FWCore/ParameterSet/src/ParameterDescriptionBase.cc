@@ -145,7 +145,8 @@ namespace edm {
     if (startWithComma) os << ",";
     startWithComma = true;
 
-    os << "\n" << std::setfill(' ') << std::setw(indentation) << "";
+    os << "\n";
+    printSpaces(os, indentation);
 
     os << label()
        << " = cms.";
@@ -178,6 +179,7 @@ namespace edm {
     else {
 
       if (dfh.brief()) {
+        std::ios::fmtflags oldFlags = os.flags();
 
         dfh.indent(os);
         os << std::left << std::setw(dfh.column1()) << label() << " ";
@@ -201,6 +203,7 @@ namespace edm {
           os << "";
         }
         os << " ";
+        os.flags(oldFlags);
         printDefault_(os, writeToCfi, dfh);
       }
       // not brief
@@ -229,7 +232,6 @@ namespace edm {
         }
         os << "\n";
       }
-      os << std::right;
     }
   }
 
@@ -269,7 +271,7 @@ namespace edm {
       indentation -= DocFormatHelper::offsetSectionContent();
     }
 
-    os << std::setfill(' ') << std::setw(indentation) << "";
+    printSpaces(os, indentation);
     os << "Section " << dfh.section() << "." << dfh.counter()
        << " " << label() << " default contents: ";
     writeDoc_(os, indentation + 2);

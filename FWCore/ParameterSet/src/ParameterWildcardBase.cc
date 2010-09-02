@@ -94,6 +94,7 @@ namespace edm {
       if (dfh.brief()) {
 
         dfh.indent(os);
+        std::ios::fmtflags oldFlags = os.flags();
         os << std::left << std::setw(dfh.column1()) << "wildcard: *" << " ";
 
         if (isTracked()) {
@@ -125,6 +126,7 @@ namespace edm {
           os << "  (see Section " << dfh.section()
              << "." << dfh.counter() << ")\n";
         }
+        os.flags(oldFlags);
       }
       // not brief
       else {
@@ -165,7 +167,6 @@ namespace edm {
         }
         os << "\n";
       }
-      os << std::right;
     }
   }
 

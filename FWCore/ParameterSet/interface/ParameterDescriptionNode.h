@@ -213,6 +213,7 @@ namespace edm {
       checkAndGetLabelsAndTypes_(usedLabels, parameterTypes, wildcardTypes);
     }
 
+    static void printSpaces(std::ostream & os, int n);
 
   protected:
 

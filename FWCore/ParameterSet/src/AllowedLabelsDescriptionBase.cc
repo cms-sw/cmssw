@@ -143,13 +143,13 @@ namespace edm {
       indentation -= DocFormatHelper::offsetSectionContent();
     }
 
-    os << std::setfill(' ') << std::setw(indentation) << "";
+    printSpaces(os, indentation);
     os << "Section " << dfh.section() << "." << dfh.counter()
        << " " << parameterHoldingLabels_.label()
        << " - allowed labels description\n";
-    os << std::setfill(' ') << std::setw(indentation) << "";
+    printSpaces(os, indentation);
     os << "The following parameter contains a list of parameter labels\n";
-    os << std::setfill(' ') << std::setw(indentation) << "";
+    printSpaces(os, indentation);
     os << "which are allowed to be in the PSet\n";
     if (!dfh.brief()) os << "\n";
 

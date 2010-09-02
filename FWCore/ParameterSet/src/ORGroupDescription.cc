@@ -172,10 +172,10 @@ namespace edm {
     ss << dfh.section() << "." << dfh.counter();
     std::string newSection = ss.str();
 
-    os << std::setfill(' ') << std::setw(indentation) << "";
+    printSpaces(os, indentation);
     os << "Section " << newSection
        << " OR group description:\n";
-    os << std::setfill(' ') << std::setw(indentation) << "";
+    printSpaces(os, indentation);
     if (optional) {
       // An optional OR group is kind of pointless, it would be
       // easier just make the parameters be independent optional parameters

@@ -114,7 +114,7 @@ namespace edm {
     ss << dfh.section() << "." << dfh.counter();
     std::string newSection = ss.str();
 
-    os << std::setfill(' ') << std::setw(indentation) << "";
+    printSpaces(os, indentation);
     os << "Section " << newSection
        << " " << label() << " PSet description:\n";
     if (!dfh.brief()) os << "\n";
@@ -311,25 +311,21 @@ namespace edm {
     }
 
     if (!partOfDefaultOfVPSet_) {
-      os << std::setfill(' ') << std::setw(indentation) << "";
+      printSpaces(os, indentation);
       os << "Section " << dfh.section() << "." << dfh.counter()
          << " " << label() << " VPSet description:\n";
 
-      os << std::setfill(' ')
-         << std::setw(indentation + DocFormatHelper::offsetSectionContent())
-         << ""
-         << "All elements will be validated using the PSet description in Section "
+      printSpaces(os, indentation + DocFormatHelper::offsetSectionContent());
+      os << "All elements will be validated using the PSet description in Section "
          << dfh.section() << "." << dfh.counter() << ".1.\n";
     }
     else {
-      os << std::setfill(' ') << std::setw(indentation) << "";
+      printSpaces(os, indentation);
       os << "Section " << dfh.section() << "." << dfh.counter()
          << " " << " VPSet description for VPSet that is part of the default of a containing VPSet:\n";
     }
 
-    os << std::setfill(' ')
-       << std::setw(indentation + DocFormatHelper::offsetSectionContent())
-       << "";
+    printSpaces(os, indentation + DocFormatHelper::offsetSectionContent());
 
     unsigned subsectionOffset = 2;
     if (partOfDefaultOfVPSet_) subsectionOffset = 1;
@@ -341,9 +337,7 @@ namespace edm {
 
       if (vPset_.size() > 0U) {
         for (unsigned i = 0; i < vPset_.size(); ++i) {
-          os << std::setfill(' ')
-             << std::setw(indentation + DocFormatHelper::offsetSectionContent())
-             << "";
+          printSpaces(os, indentation + DocFormatHelper::offsetSectionContent());
           os << "[" << (i) << "]: see Section " << dfh.section() 
              << "." << dfh.counter() << "." << (i + subsectionOffset) << "\n";
         }
@@ -361,7 +355,7 @@ namespace edm {
       ss << dfh.section() << "." << dfh.counter() << ".1";
       std::string newSection = ss.str();
 
-      os << std::setfill(' ') << std::setw(indentation) << "";
+      printSpaces(os, indentation);
       os << "Section " << newSection << " description of PSet used to validate elements of VPSet:\n";
       if (!dfh.brief()) os << "\n";
 
@@ -381,7 +375,7 @@ namespace edm {
         ss << dfh.section() << "." << dfh.counter() << "." << (i + subsectionOffset);
         std::string newSection = ss.str();
 
-        os << std::setfill(' ') << std::setw(indentation) << "";
+        printSpaces(os, indentation);
         os << "Section " << newSection << " PSet description of "
            << "default VPSet element [" << i << "]\n";
         if (!dfh.brief()) os << "\n";
@@ -414,7 +408,9 @@ namespace edm {
                        bool & nextOneStartsWithAComma) {
     if (nextOneStartsWithAComma) os << ",";
     nextOneStartsWithAComma = true;
-    os << "\n" << std::setw(indentation + 2) << " ";
+    os << "\n";
+    printSpaces(os, indentation + 2);
+
     os << "cms.PSet(";
 
     bool startWithComma = false;
@@ -436,7 +432,8 @@ namespace edm {
                                  boost::ref(os),
                                  indentation,
                                  boost::ref(nextOneStartsWithAComma)));
-    os << "\n" << std::setw(indentation) << " ";
+    os << "\n";
+    printSpaces(os, indentation);
   }
 
   void
@@ -637,6 +634,7 @@ namespace edm {
     template <class T>
     void writeVector(std::ostream & os, int indentation, std::vector<T> const& value_, ValueFormat format) {
       std::ios_base::fmtflags ff = os.flags(std::ios_base::dec);
+      char oldFill = os.fill();
       os.width(0);
       if (value_.size() == 0U && format == DOC) {
         os << "empty";
@@ -659,6 +657,7 @@ namespace edm {
         if (format == CFI) os << "\n" << std::setw(indentation) << "";
       }
       os.flags(ff);
+      os.fill(oldFill);
     }
 
     void writeValue(std::ostream & os, int indentation, int const& value_, ValueFormat format) {

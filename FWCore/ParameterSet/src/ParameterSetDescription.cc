@@ -162,7 +162,9 @@ namespace edm {
                                   boost::ref(wroteSomething)));
 
     if (wroteSomething) {
+      char oldFill = os.fill();
       os << "\n" << std::setfill(' ') << std::setw(indentation - 2) << "";
+      os.fill(oldFill);
     }
   }
 

@@ -196,6 +196,7 @@ namespace edm {
       os << "\n";
     }
 
+    char oldFill = os.fill();
     if (descriptions_.empty() && !defaultDescDefined_) {
       indentation += DocFormatHelper::offsetModuleLabel();
       os << std::setfill(' ') << std::setw(indentation) << "";
@@ -203,6 +204,7 @@ namespace edm {
       os << std::setfill(' ') << std::setw(indentation) << "";
       os << "PSets will not be validated and no cfi files will be generated.\n";
       if (!brief) os << "\n";
+      os.fill(oldFill);
       return;
     }
 
@@ -215,6 +217,7 @@ namespace edm {
       os << std::setfill(' ') << std::setw(indentation) << "";
       os << "Its PSets will not be validated, and no cfi files will be generated.\n";
       if (!brief) os << "\n";
+      os.fill(oldFill);
       return;
     }
 
@@ -322,7 +325,9 @@ namespace edm {
     ss << counter.iPlugin << "." << counter.iSelectedModule;
     std::string section = ss.str();
 
+    char oldFill = os.fill();
     os << std::setfill(' ') << std::setw(indentation) << "";
+    os.fill(oldFill);
     os << section << " ";
     if (label == std::string("@default")) {
       os << "description without a module label\n";

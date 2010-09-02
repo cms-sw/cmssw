@@ -165,11 +165,11 @@ namespace edm {
     ss << dfh.section() << "." << dfh.counter();
     std::string newSection = ss.str();
 
-    os << std::setfill(' ') << std::setw(indentation) << "";
+    printSpaces(os, indentation);
     os << "Section " << newSection;
     if (optional) os << " optional";
     os << " IfExists pair description:\n";
-    os << std::setfill(' ') << std::setw(indentation) << "";
+    printSpaces(os, indentation);
     if (optional) {
       os << "If the first parameter exists, then the second is allowed to exist\n";
     }

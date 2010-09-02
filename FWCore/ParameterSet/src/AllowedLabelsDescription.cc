@@ -65,9 +65,7 @@ namespace edm {
     std::string newSection = ss.str();
 
     if (dfh.brief()) {
-      os << std::setfill(' ')
-         << std::setw(indentation + DocFormatHelper::offsetSectionContent())
-         << "";
+      printSpaces(os, indentation + DocFormatHelper::offsetSectionContent());
     }
     else {
       dfh.indent2(os);
@@ -75,7 +73,7 @@ namespace edm {
     os << "see Section " << newSection << "\n";
     if (!dfh.brief()) os << "\n";
 
-    os << std::setfill(' ') << std::setw(indentation) << "";
+    printSpaces(os, indentation);
     os << "Section " << newSection
        << " PSet description:\n";
     if (!dfh.brief()) os << "\n";
@@ -162,9 +160,7 @@ namespace edm {
     std::string newSection = ss.str();
 
     if (dfh.brief()) {
-      os << std::setfill(' ')
-         << std::setw(indentation + DocFormatHelper::offsetSectionContent())
-         << "";
+      printSpaces(os, indentation + DocFormatHelper::offsetSectionContent());
     }
     else {
       dfh.indent2(os);
@@ -172,7 +168,7 @@ namespace edm {
     os << "see Section " << newSection << "\n";
     if (!dfh.brief()) os << "\n";
 
-    os << std::setfill(' ') << std::setw(indentation) << "";
+    printSpaces(os, indentation);
     os << "Section " << newSection
        << " PSet description used to validate all elements of VPSet's:\n";
     if (!dfh.brief()) os << "\n";

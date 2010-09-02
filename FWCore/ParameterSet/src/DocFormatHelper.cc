@@ -46,6 +46,8 @@ namespace edm {
                                          size_t indent,
                                          size_t suggestedWidth) {
 
+    char oldFill = os.fill();
+
     size_t length = text.size();
 
     // The position in the text where we start printing the next line
@@ -109,13 +111,18 @@ namespace edm {
       }
       startNextSearch = pos + 1U;
     }
+    os.fill(oldFill);
   }
 
   void DocFormatHelper::indent(std::ostream & os) const {
+    char oldFill = os.fill();
     os << std::setfill(' ') << std::setw(indentation_) << "";
+    os.fill(oldFill);
   }
 
   void DocFormatHelper::indent2(std::ostream & os) const {
+    char oldFill = os.fill();
     os << std::setfill(' ') << std::setw(startColumn2_) << "";
+    os.fill(oldFill);
   }
 }

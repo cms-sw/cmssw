@@ -101,6 +101,7 @@ namespace edm {
 
 	std::stringstream ss;
         ss << switchLabel << " (switch)"; 
+        std::ios::fmtflags oldFlags = os.flags();
         os << std::left << std::setw(dfh.column1()) << ss.str();
         os << " ";
 
@@ -121,6 +122,7 @@ namespace edm {
         if (!writeToCfi) os << " (do not write to cfi)";
 
         os << " see Section " << dfh.section() << "." << dfh.counter() << "\n";
+        os.flags(oldFlags);
       }
       // not brief
       else {
@@ -173,14 +175,14 @@ namespace edm {
     ss << dfh.section() << "." << dfh.counter();
     std::string newSection = ss.str();
 
-    os << std::setfill(' ') << std::setw(indentation) << "";
+    printSpaces(os, indentation);
     os << "Section " << newSection
        << " " << switchLabel << " (switch):\n";
     
     if (!dfh.brief()) {
-      os << std::setfill(' ') << std::setw(indentation) << "";
+      printSpaces(os, indentation);
       os << "The value of \"" << switchLabel << "\" controls which other parameters\n";
-      os << std::setfill(' ') << std::setw(indentation) << "";
+      printSpaces(os, indentation);
       os << "are required or allowed to be in the PSet.\n";
     }
     if (!dfh.brief()) os << "\n";

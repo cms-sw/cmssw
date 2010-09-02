@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <cassert>
+#include <ostream>
 
 #define TYPE_TO_ENUM(type,e_val) template<> ParameterTypes ParameterTypeToEnum::toEnum<type >(){ return e_val; }
 #define TYPE_TO_NAME(type) case k_ ## type: return #type
@@ -117,6 +118,13 @@ namespace edm {
     }
   }
 
+  void
+  ParameterDescriptionNode::printSpaces(std::ostream & os, int n) {
+    char oldFill = os.fill(' ');
+    os.width(n);
+    os << "";
+    os.fill(oldFill);
+  }
 
   // operator>> ---------------------------------------------
 
