@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.23 2010/08/31 15:30:20 yana Exp $
+// $Id: ValidateGeometry.cc,v 1.24 2010/09/01 16:16:07 mccauley Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -657,35 +657,32 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
       int ring    = layer->id().ring();
 
       double alignmentPinToFirstWire;
-      double yAlignmentFrame;
+      double yAlignmentFrame = 3.49;
    
       if ( station == 1 ) 
-      {
-        yAlignmentFrame = 0.0;
- 
+      { 
         if ( ring == 1 || ring == 4 )
+        {
           alignmentPinToFirstWire = 1.065;
-        else
+          yAlignmentFrame = 0.0;
+        }
+        
+        else // ME12, ME 13 
           alignmentPinToFirstWire = 2.85;
       }
       
       else if ( station == 4 && ring == 1 )
-      {
         alignmentPinToFirstWire = 3.04;
-        yAlignmentFrame = 3.49;
-      }
       
       else if ( station == 3 && ring == 1 )
-      {
         alignmentPinToFirstWire =  2.84;
-        yAlignmentFrame = 3.49;
-      }
       
-      else  
-      {
+      else  // ME21, ME22, ME32, ME42 
         alignmentPinToFirstWire = 2.87;
-        yAlignmentFrame = 3.49;
-      }
+     
+      
+      std::cout<<"ME"<< station <<" "<< ring <<":  "<< alignmentPinToFirstWire <<" "<< yAlignmentFrame <<std::endl;
+
 
       double yOfFirstWire = (yAlignmentFrame-length) + alignmentPinToFirstWire;
               
