@@ -12,7 +12,6 @@
 // then include all the relevent worker headers in the
 // implementation file only.
 #include "FWCore/Framework/src/WorkerT.h"
-#include "FWCore/Framework/src/OutputWorker.h"
 
 
 #define DEFINE_FWK_MODULE(type) \

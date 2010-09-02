@@ -221,4 +221,8 @@ namespace edm {
   };
 }
 
+//this is included after the class definition since this header also needs to know about OutputModule
+// we put this here since all OutputModules need this header to create their plugin
+#include "FWCore/Framework/src/OutputWorker.h"
+
 #endif
