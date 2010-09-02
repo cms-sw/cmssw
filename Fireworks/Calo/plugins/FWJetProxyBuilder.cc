@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWJetProxyBuilder.cc,v 1.15 2010/06/18 19:51:23 amraktad Exp $
+// $Id: FWJetProxyBuilder.cc,v 1.16 2010/08/30 15:42:31 amraktad Exp $
 //
 #include "TGeoArb8.h"
 #include "TEveGeoNode.h"
@@ -66,6 +66,7 @@ FWJetProxyBuilder::localModelChanges(const FWModelId& iId, TEveElement* iCompoun
    increaseComponentTransparency(iId.index(), iCompound, "Cone", 80);
 }
 
+REGISTER_FWPROXYBUILDER( FWJetProxyBuilder, reco::Jet, "Jets", FWViewType::kAll3DBits );
 
 //------------------------------------------------------------------------------
 
@@ -189,6 +190,7 @@ FWJetRhoPhiProxyBuilder::localModelChanges(const FWModelId& iId, TEveElement* iC
 }
 
 
+REGISTER_FWPROXYBUILDER( FWJetRhoPhiProxyBuilder, reco::Jet, "Jets", FWViewType::kRhoPhiBit );
 //______________________________________________________________________________
 
 
@@ -332,6 +334,8 @@ FWJetRhoZProxyBuilder::localModelChanges(const FWModelId& iId, TEveElement* iCom
 }
 
 
+REGISTER_FWPROXYBUILDER( FWJetRhoZProxyBuilder, reco::Jet, "Jets", FWViewType::kRhoZBit );
+
 //______________________________________________________________________________
 
 
@@ -361,6 +365,8 @@ FWJetGlimpseProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TE
    cone->SetMainTransparency( 50 );
    setupAddElement( cone, &oItemHolder );
 }
+
+REGISTER_FWPROXYBUILDER( FWJetGlimpseProxyBuilder, reco::Jet, "Jets", FWViewType::kGlimpseBit );
 
 //______________________________________________________________________________
 
@@ -401,9 +407,4 @@ FWJetLegoProxyBuilder::build(const reco::Jet& iData, unsigned int iIndex, TEveEl
    }
    setupAddElement(container, &oItemHolder);
 }
-
-REGISTER_FWPROXYBUILDER( FWJetProxyBuilder, reco::Jet, "Jets", FWViewType::kAll3DBits );
-REGISTER_FWPROXYBUILDER( FWJetRhoPhiProxyBuilder, reco::Jet, "Jets", FWViewType::kRhoPhiBit );
-REGISTER_FWPROXYBUILDER( FWJetRhoZProxyBuilder, reco::Jet, "Jets", FWViewType::kRhoZBit );
-REGISTER_FWPROXYBUILDER( FWJetGlimpseProxyBuilder, reco::Jet, "Jets", FWViewType::kGlimpseBit );
 REGISTER_FWPROXYBUILDER( FWJetLegoProxyBuilder, reco::Jet, "Jets", FWViewType::kLegoBit | FWViewType::kLegoHFBit );

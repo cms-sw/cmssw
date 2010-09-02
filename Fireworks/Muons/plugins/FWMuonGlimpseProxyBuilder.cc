@@ -3,11 +3,11 @@
 // Package:     Muons
 // Class  :     FWMuonGlimpseProxyBuilder
 //
-// $Id: FWMuonGlimpseProxyBuilder.cc,v 1.11 2010/06/18 12:44:05 yana Exp $
+// $Id: FWMuonGlimpseProxyBuilder.cc,v 1.1 2010/07/30 08:36:01 yana Exp $
 //
 
+#include "TEveScalableStraightLineSet.h"
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
-#include "Fireworks/Core/interface/FWEveScalableStraightLineSet.h"
 #include "Fireworks/Candidates/interface/CandidateUtils.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 
@@ -31,7 +31,7 @@ private:
 void
 FWMuonGlimpseProxyBuilder::build( const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* )
 {
-   FWEveScalableStraightLineSet* marker = new FWEveScalableStraightLineSet( "", "" );
+   TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet( "", "" );
    marker->SetLineWidth( 2 );
    fireworks::addStraightLineSegment( marker, &iData, 1.0 );
    setupAddElement( marker, &oItemHolder );

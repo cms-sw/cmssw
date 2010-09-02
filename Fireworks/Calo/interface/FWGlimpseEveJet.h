@@ -16,23 +16,21 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul  4 10:22:47 EDT 2008
-// $Id: FWGlimpseEveJet.h,v 1.6 2009/01/23 21:35:39 amraktad Exp $
+// $Id: FWGlimpseEveJet.h,v 1.7 2010/06/01 11:15:30 matevz Exp $
 //
 
 // system include files
 #include "TEveBoxSet.h"
 
 // user include files
-#include "Fireworks/Core/interface/FWEveValueScaled.h"
 
 // forward declarations
 namespace reco {
    class Jet;
 }
 
-class FWGlimpseEveJet : public TEveBoxSet, public FWEveValueScaled
+class FWGlimpseEveJet : public TEveBoxSet
 {
-
 public:
    FWGlimpseEveJet(const reco::Jet* iJet,
                    const Text_t* iName, const Text_t* iTitle="");

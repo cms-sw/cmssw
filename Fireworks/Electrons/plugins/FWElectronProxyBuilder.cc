@@ -8,10 +8,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWElectronProxyBuilder.cc,v 1.15 2010/05/03 15:47:40 amraktad Exp $
+// $Id: FWElectronProxyBuilder.cc,v 1.16 2010/06/18 12:42:18 yana Exp $
 //
 #include "TEveCompound.h"
 #include "TEveTrack.h"
+#include "TEveScalableStraightLineSet.h"
 
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -129,8 +130,6 @@ REGISTER_FWPROXYBUILDER( FWElectronProxyBuilder, reco::GsfElectron, "Electrons",
 // 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Fireworks/Core/interface/FWEveScalableStraightLineSet.h"
-
 class FWElectronGlimpseProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::GsfElectron> {
 public:
    FWElectronGlimpseProxyBuilder() {}
@@ -149,7 +148,7 @@ private:
 void
 FWElectronGlimpseProxyBuilder::build( const reco::GsfElectron& iData, unsigned int iIndex,TEveElement& oItemHolder , const FWViewContext*) 
 {
-   FWEveScalableStraightLineSet* marker = new FWEveScalableStraightLineSet("", "");
+   TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("", "");
    marker->SetLineWidth(2);
    fireworks::addStraightLineSegment( marker, &iData, 1.0 );
    setupAddElement(marker, &oItemHolder);
