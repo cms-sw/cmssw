@@ -1,3 +1,9 @@
+2010-09-02 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-02-08
+	* EoLS msg from EVM does not have an initial header as other SM msg do.
+	  Thus, reset this faulty bit in order to not discard the EoLS msg.
+
 2010-08-23 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V06-02-07
