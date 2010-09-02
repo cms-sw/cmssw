@@ -50,11 +50,12 @@ class MassSearchReplaceParamVisitor(object):
 class MassSearchReplaceAnyInputTagVisitor(object):
     """Visitor that travels within a cms.Sequence, looks for a parameter and replace its value
        It will climb down within PSets, VPSets and VInputTags to find its target"""
-    def __init__(self,paramSearch,paramReplace,verbose=False):
+    def __init__(self,paramSearch,paramReplace,verbose=False,moduleLabelOnly=False):
         self._paramSearch  = self.standardizeInputTagFmt(paramSearch)
         self._paramReplace = self.standardizeInputTagFmt(paramReplace)
         self._moduleName   = ''
         self._verbose=verbose
+        self._moduleLabelOnly=moduleLabelOnly
     def doIt(self,pset,base):
         if isinstance(pset, cms._Parameterizable):
             for name in pset.parameters_().keys():
@@ -73,11 +74,22 @@ class MassSearchReplaceAnyInputTagVisitor(object):
                          if (n == self._paramSearch):
                             if self._verbose:print "Replace %s.%s[%d] %s ==> %s " % (base, name, i, self._paramSearch, self._paramReplace)
                             value[i] = self._paramReplace
+                         elif self._moduleLabelOnly and n.moduleLabel == self._paramSearch.moduleLabel:
+                            nrep = n; nrep.moduleLabel = self._paramReplace.moduleLabel
+                            if self._verbose:print "Replace %s.%s[%d] %s ==> %s " % (base, name, i, n, nrep)
+                            value[i] = nrep
                 elif type == 'cms.InputTag':
                     if value == self._paramSearch:
                         if self._verbose:print "Replace %s.%s %s ==> %s " % (base, name, self._paramSearch, self._paramReplace)
                         from copy import deepcopy
                         setattr(pset, name, deepcopy(self._paramReplace) )
+                    elif self._moduleLabelOnly and value.moduleLabel == self._paramSearch.moduleLabel:
+                        from copy import deepcopy
+                        repl = deepcopy(getattr(pset, name))
+                        repl.moduleLabel = self._paramReplace.moduleLabel
+                        setattr(pset, name, repl)
+                        if self._verbose:print "Replace %s.%s %s ==> %s " % (base, name, value, repl)
+                        
 
     @staticmethod 
     def standardizeInputTagFmt(inputTag):
@@ -153,7 +165,7 @@ class CloneSequenceVisitor(object):
         if not len(self._sequenceStack) == 1:
             raise StandardError, "someting went wrong, the sequence stack looks like: %s"%self._sequenceStack
         for label in self._moduleLabels:
-            massSearchReplaceAnyInputTag(self._sequenceStack[-1], label, label+self._postfix)
+            massSearchReplaceAnyInputTag(self._sequenceStack[-1], label, label+self._postfix, moduleLabelOnly=True, verbose=False)
         self._moduleLabels = [] #prevent the InputTag replacement next time this is called.
         return self._sequenceStack[-1]
 
@@ -198,9 +210,9 @@ def listSequences(sequence):
     sequence.visit(visitor)
     return visitor.modules()
 
-def massSearchReplaceAnyInputTag(sequence, oldInputTag, newInputTag) : 
+def massSearchReplaceAnyInputTag(sequence, oldInputTag, newInputTag,verbose=False,moduleLabelOnly=False) : 
     """Replace InputTag oldInputTag with newInputTag, at any level of nesting within PSets, VPSets, VInputTags..."""
-    sequence.visit(MassSearchReplaceAnyInputTagVisitor(oldInputTag,newInputTag))
+    sequence.visit(MassSearchReplaceAnyInputTagVisitor(oldInputTag,newInputTag,verbose=verbose,moduleLabelOnly=moduleLabelOnly))
     
 def jetCollectionString(prefix='', algo='', type=''):
     """
@@ -267,10 +279,10 @@ if __name__=="__main__":
            p = cms.Process("test")
            p.a = cms.EDProducer("a", src=cms.InputTag("gen"))
            p.b = cms.EDProducer("b", src=cms.InputTag("a"))
-           p.c = cms.EDProducer("c", src=cms.InputTag("b"))
+           p.c = cms.EDProducer("c", src=cms.InputTag("b","instance"))
            p.s = cms.Sequence(p.a*p.b*p.c *p.a)
            cloneProcessingSnippet(p, p.s, "New")
-           self.assertEqual(p.dumpPython(),'import FWCore.ParameterSet.Config as cms\n\nprocess = cms.Process("test")\n\nprocess.a = cms.EDProducer("a",\n    src = cms.InputTag("gen")\n)\n\n\nprocess.c = cms.EDProducer("c",\n    src = cms.InputTag("b")\n)\n\n\nprocess.cNew = cms.EDProducer("c",\n    src = cms.InputTag("bNew")\n)\n\n\nprocess.bNew = cms.EDProducer("b",\n    src = cms.InputTag("aNew")\n)\n\n\nprocess.aNew = cms.EDProducer("a",\n    src = cms.InputTag("gen")\n)\n\n\nprocess.b = cms.EDProducer("b",\n    src = cms.InputTag("a")\n)\n\n\nprocess.s = cms.Sequence(process.a*process.b*process.c*process.a)\n\n\nprocess.sNew = cms.Sequence(process.aNew+process.bNew+process.cNew)\n\n\n')
+           self.assertEqual(p.dumpPython(),'import FWCore.ParameterSet.Config as cms\n\nprocess = cms.Process("test")\n\nprocess.a = cms.EDProducer("a",\n    src = cms.InputTag("gen")\n)\n\n\nprocess.c = cms.EDProducer("c",\n    src = cms.InputTag("b","instance")\n)\n\n\nprocess.cNew = cms.EDProducer("c",\n    src = cms.InputTag("bNew","instance")\n)\n\n\nprocess.bNew = cms.EDProducer("b",\n    src = cms.InputTag("aNew")\n)\n\n\nprocess.aNew = cms.EDProducer("a",\n    src = cms.InputTag("gen")\n)\n\n\nprocess.b = cms.EDProducer("b",\n    src = cms.InputTag("a")\n)\n\n\nprocess.s = cms.Sequence(process.a*process.b*process.c*process.a)\n\n\nprocess.sNew = cms.Sequence(process.aNew+process.bNew+process.cNew)\n\n\n')
        def testContains(self):
            p = cms.Process("test")
            p.a = cms.EDProducer("a", src=cms.InputTag("gen"))
