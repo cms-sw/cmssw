@@ -11,7 +11,7 @@ process.maxEvents = cms.untracked.PSet(
 process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 
 # Generate ttbar events
-process.load("Configuration.Generator.ZEE_cfi")
+process.load("Configuration.Generator.TTbar_cfi")
 
 # Famos sequences (NO HLT)
 process.load("FastSimulation.Configuration.CommonInputs_cff")
@@ -23,7 +23,7 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 
 # If you want to turn on/off pile-up
-process.famosPileUp.PileUpSimulator.averageNumber = 5.0
+process.famosPileUp.PileUpSimulator.averageNumber = 25.0
 # You may not want to simulate everything for your study
 process.famosSimHits.SimulateCalorimetry = True
 process.famosSimHits.SimulateTracking = False
@@ -61,7 +61,7 @@ process.horeco.doDigis = True
 process.hfreco.doDigis = True
 
 
-process.load("SLHCUpgradeSimulations.L1CaloTrigger.SLHCCaloTriggerAnalysis_cfi")
+process.load("SLHCUpgradeSimulations.L1CaloTrigger.SLHCCaloTriggerAnalysisCalibrated_cfi")
 
 process.p1 = cms.Path(process.generator+
                       process.famosWithEverything+
@@ -78,10 +78,15 @@ process.source = cms.Source("EmptySource")
 # To write out events
 process.load("FastSimulation.Configuration.EventContent_cff")
 process.o1 = cms.OutputModule("PoolOutputModule",
-    outputCommands = cms.untracked.vstring('drop *_*_*_*',
-                                           'keep *_L1Calo*_*_*',
-                                           'keep *_SLHCL1ExtraParticles_*_*',
-                                           'keep *_genParticles_*_*'),
+                              outputCommands = cms.untracked.vstring('drop *_*_*_*',
+                                                                     'keep *_L1Calo*_*_*',
+                                                                     'keep *_*SLHCL1ExtraParticles*_*_*',
+                                                                     'keep *_*l1extraParticles*_*_*',
+                                                                     'keep *_genParticles_*_*',
+                                                                     'keep recoGen*_*_*_*',
+                                                                     'keep *_simEcalTriggerPrimitiveDigis_*_*',
+                                                                     'keep *_simHcalTriggerPrimitiveDigis_*_*'
+                                                                     ),
     fileName = cms.untracked.string('SLHCOutput.root')
 )
 process.outpath = cms.EndPath(process.o1)

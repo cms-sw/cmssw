@@ -49,14 +49,8 @@ process.famosSimHits.SimulateTracking = True
 # Parameterized magnetic field
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 
-#Set RCT config
-process.load("L1TriggerConfig.RCTConfigProducers.L1RCTConfig_cff")
-process.RCTConfigProducers.eMinForHoECut = cms.double(1.0)
-process.RCTConfigProducers.eicIsolationThreshold = cms.uint32(6)
-
-
 # Number of pileup events per crossing
-process.famosPileUp.PileUpSimulator.averageNumber = 0.0
+process.famosPileUp.PileUpSimulator.averageNumber = 25
 
 # Get frontier conditions   - not applied in the HCAL, see below
 from Configuration.PyReleaseValidation.autoCond import autoCond
@@ -79,7 +73,7 @@ process.misalignedCSCGeometry.applyAlignment = True
 # process.caloRecHits.RecHitsFactory.HCAL.Refactor_mean = 1.0
 # process.caloRecHits.RecHitsFactory.HCAL.fileNameHcal = "hcalmiscalib_0.0.xml"
 
-process.load("SLHCUpgradeSimulations.L1CaloTrigger.SLHCCaloTriggerAnalysis_cfi")
+#process.load("SLHCUpgradeSimulations.L1CaloTrigger.SLHCCaloTriggerAnalysis_cfi")
 
 # Famos with everything !
 #Load Scales
@@ -109,12 +103,17 @@ process.schedule.append(process.p1)
 # To write out events 
 process.load("FastSimulation.Configuration.EventContent_cff")
 process.o1 = cms.OutputModule("PoolOutputModule",
-	outputCommands = cms.untracked.vstring('drop *_*_*_*',
-                                               'keep *_L1Calo*_*_*',
-                                               'keep *_SLHCL1ExtraParticles_*_*',
-                                               'keep *_l1extraParticles_*_*',
-                                               'keep *_genParticles_*_*'),
-                              fileName = cms.untracked.string('SLHC_LHC_Output.root')
+                              outputCommands = cms.untracked.vstring('drop *_*_*_*',
+                                                                     'keep *_L1Calo*_*_*',
+                                                                     'keep *_*SLHCL1ExtraParticles*_*_*',
+                                                                     'keep *_*l1extraParticles*_*_*',
+                                                                     'keep *_genParticles_*_*',
+                                                                     'keep recoGen*_*_*_*',
+                                                                     'keep *_simEcalTriggerPrimitiveDigis_*_*',
+                                                                     'keep *_simHcalTriggerPrimitiveDigis_*_*'
+                                                                     ),
+                              
+                              fileName = cms.untracked.string('SLHCOutput.root')
                               )
 
 process.outpath = cms.EndPath(process.o1)
@@ -135,4 +134,3 @@ process.load("FWCore/MessageService/MessageLogger_cfi")
 
 # Make the job crash in case of missing product
 process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNotFound') )
-

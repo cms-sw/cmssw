@@ -61,7 +61,7 @@ process.horeco.doDigis = True
 process.hfreco.doDigis = True
 
 
-process.load("SLHCUpgradeSimulations.L1CaloTrigger.SLHCCaloTriggerAnalysis_cfi")
+process.load("SLHCUpgradeSimulations.L1CaloTrigger.SLHCCaloTriggerAnalysisCalibrated_cfi")
 
 process.p1 = cms.Path(process.generator+
                       process.famosWithEverything+
@@ -69,7 +69,7 @@ process.p1 = cms.Path(process.generator+
                       process.simHcalTriggerPrimitiveDigis+
                       process.SLHCCaloTrigger+
                       process.mcSequence+
-                      process.analysisSequence
+                      process.analysisSequenceCalibrated
 )
 
 
