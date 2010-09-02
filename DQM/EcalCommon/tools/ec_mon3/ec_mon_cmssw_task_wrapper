@@ -409,7 +409,11 @@ if (localDAQ == 1) :
   process.GlobalTag.globaltag = "GR10_H_V0::All"
   process.prefer("GlobalTag")
 
-if (globalDAQ == 1) | (liveECAL == 1) :
+if (globalDAQ == 1) :
+  process.GlobalTag.globaltag = "GR10_H_V6::All"
+  process.prefer("GlobalTag")
+
+if (liveECAL == 1) :
   process.GlobalTag.globaltag = "GR10_H_V8::All"
   process.prefer("GlobalTag")
 
