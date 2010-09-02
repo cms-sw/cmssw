@@ -4,6 +4,7 @@ TrackerOfflineValidation = cms.EDAnalyzer("TrackerOfflineValidation",
     useInDqmMode              = cms.bool(False),  # Switch between Standalone tool (using TFileService) and DQM-based version (using DQMStore)
     moduleDirectoryInOutput   = cms.string(""),   # at present adopted only in DQM mode (TFileService attaches the ModuleName as directory automatically)
     Tracks                    = cms.InputTag("TrackRefitter"),
+    trajectoryInput           = cms.string('TrackRefitter'),  # Only needed in DQM mode
     localCoorHistosOn         = cms.bool(False),
     moduleLevelHistsTransient = cms.bool(False),  # Do not switch on in DQM mode, TrackerOfflineValidationSummary needs it
     moduleLevelProfiles       = cms.bool(False),  # Do not switch on in DQM mode
@@ -19,7 +20,7 @@ TrackerOfflineValidation = cms.EDAnalyzer("TrackerOfflineValidation",
         Nbinx = cms.int32(100), xmin = cms.double(-5.0), xmax = cms.double(5.0)
     ),
 
-    # X Residuals, normal local coordinates (Strip)                      
+    # X Residuals, normal local coordinates (Strip)
     TH1XResStripModules = cms.PSet(
         Nbinx = cms.int32(100), xmin = cms.double(-0.5), xmax = cms.double(0.5)
     ),
