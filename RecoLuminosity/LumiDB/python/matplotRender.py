@@ -64,14 +64,29 @@ class matplotRender():
             xpoints.append(x)
             xidx.append(rawxdata.index(x)) #get the index of the sample points
             #print 'xidx : ',rawxdata.index(x)
+        t=sum(rawydata['Delivered'])
+        denomitor=1.0
+        unitstring='$\mu$b$^{-1}$'
+        if t>=1.0e3 and t<1.0e06:
+            denomitor=1.0e3
+            unitstring='nb$^{-1}$'
+        elif t>=1.0e6 and t<1.0e9:
+            denomitor=1.0e6
+            unitstring='pb$^{-1}$'
+        elif t>=1.0e9 and t<1.0e12:
+            denomitor=1.0e9
+            unitstring='fb$^{-1}$'
+        elif  t>=1.0e12 and t<1.0e15:
+            denomitor=1.0e12
+            unitstring='ab$^{-1}$'
         for ylabel,yvalues in rawydata.items():
-            ypoints[ylabel]=[]
+            ypoints[ylabel]=[]           
             for i in xidx:
-                ypoints[ylabel].append(sum(yvalues[0:i])/1000.0)
-            ytotal[ylabel]=sum(yvalues)/1000.0    
+                ypoints[ylabel].append(sum(yvalues[0:i])/denomitor)
+            ytotal[ylabel]=sum(yvalues)/denomitor  
         ax=self.__fig.add_subplot(111)
         ax.set_xlabel(r'Run',position=(0.95,0))
-        ax.set_ylabel(r'L nb$^{-1}$',position=(0,0.9))
+        ax.set_ylabel(r'L '+unitstring,position=(0,0.9))
         xticklabels=ax.get_xticklabels()
         for tx in xticklabels:
             tx.set_rotation(30)
@@ -91,7 +106,7 @@ class matplotRender():
             if self.colormap.has_key(ylabel):
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
-            legendlist.append(ylabel+' '+'%.2f'%(ytotal[ylabel])+' '+'nb$^{-1}$')
+            legendlist.append(ylabel+' '+'%.2f'%(ytotal[ylabel])+' '+unitstring)
         #font=FontProperties(size='medium',weight='demibold')
         #annotations
         trans=matplotlib.transforms.BlendedGenericTransform(ax.transData,ax.transAxes)
@@ -108,9 +123,25 @@ class matplotRender():
         xpoints.sort()
         beginfo=''
         endinfo=''
+        t=sum(rawydata['Delivered'])
+        denomitor=1.0
+        unitstring='$\mu$b$^{-1}$'
+        if t>=1.0e3 and t<1.0e06:
+            denomitor=1.0e3
+            unitstring='nb$^{-1}$'
+        elif t>=1.0e6 and t<1.0e9:
+            denomitor=1.0e6
+            unitstring='pb$^{-1}$'
+        elif t>=1.0e9 and t<1.0e12:
+            denomitor=1.0e9
+            unitstring='fb$^{-1}$'
+        elif  t>=1.0e12 and t<1.0e15:
+            denomitor=1.0e12
+            unitstring='ab$^{-1}$'
+            
         for ylabel,yvalue in rawydata.items():
             ypoints[ylabel]=[]
-            ytotal[ylabel]=sum(rawydata[ylabel])/1000.0
+            ytotal[ylabel]=sum(rawydata[ylabel])/denomitor
             for idx,fill in enumerate(xpoints):
                 runlist=rawfillDict[fill]
                 if idx==0:
@@ -118,10 +149,10 @@ class matplotRender():
                 if idx==len(xpoints)-1:
                     endinfo=str(fill)+':'+str(runlist[-1])
                 xidx=rawxdata.index(max(runlist))
-                ypoints[ylabel].append(sum(yvalue[0:xidx])/1000.0)
+                ypoints[ylabel].append(sum(yvalue[0:xidx])/denomitor)
         ax=self.__fig.add_subplot(111)
         ax.set_xlabel(r'LHC Fill Number',position=(0.84,0))
-        ax.set_ylabel(r'L nb$^{-1}$',position=(0,0.9))
+        ax.set_ylabel(r'L '+unitstring,position=(0,0.9))
         ax.set_xbound(lower=xpoints[0],upper=xpoints[-1])
         xticklabels=ax.get_xticklabels()
         majorLocator=matplotlib.ticker.LinearLocator( nticks )
@@ -139,7 +170,7 @@ class matplotRender():
             if self.colormap.has_key(ylabel):
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
-            legendlist.append(ylabel+' '+'%.2f'%(ytotal[ylabel])+' '+'nb$^{-1}$')
+            legendlist.append(ylabel+' '+'%.2f'%(ytotal[ylabel])+' '+unitstring)
         #font=FontProperties(size='medium',weight='demibold')
         #annotations
         trans=matplotlib.transforms.BlendedGenericTransform(ax.transData,ax.transAxes)
@@ -163,11 +194,28 @@ class matplotRender():
         for idx,run in enumerate(runs):
             xpoints.append(matplotlib.dates.date2num(rawxdata[run][0]))
             xidx.append(idx)
+            
+        t=sum(rawydata['Delivered'])
+        denomitor=1.0
+        unitstring='$\mu$b$^{-1}$'
+        if t>=1.0e3 and t<1.0e06:
+            denomitor=1.0e3
+            unitstring='nb$^{-1}$'
+        elif t>=1.0e6 and t<1.0e9:
+            denomitor=1.0e6
+            unitstring='pb$^{-1}$'
+        elif t>=1.0e9 and t<1.0e12:
+            denomitor=1.0e9
+            unitstring='fb$^{-1}$'
+        elif  t>=1.0e12 and t<1.0e15:
+            denomitor=1.0e12
+            unitstring='ab$^{-1}$'
+            
         for ylabel,yvalue in rawydata.items():
             ypoints[ylabel]=[]
             for i in xidx:
-                ypoints[ylabel].append(sum(yvalue[0:i])/1000.0)
-            ytotal[ylabel]=sum(yvalue)/1000.0
+                ypoints[ylabel].append(sum(yvalue[0:i])/denomitor)
+            ytotal[ylabel]=sum(yvalue)/denomitor
         ax=self.__fig.add_subplot(111)
         dateFmt=matplotlib.dates.DateFormatter('%d/%m')
         majorLoc=matplotlib.ticker.LinearLocator(numticks=nticks)
@@ -175,7 +223,7 @@ class matplotRender():
         minorLoc=matplotlib.ticker.LinearLocator(numticks=nticks*4)
         ax.xaxis.set_major_formatter(dateFmt)
         ax.set_xlabel(r'Date',position=(0.84,0))
-        ax.set_ylabel(r'L nb$^{-1}$',position=(0,0.9))
+        ax.set_ylabel(r'L '+unitstring,position=(0,0.9))
         ax.xaxis.set_minor_locator(minorLoc)
         ax.set_xbound(lower=xpoints[0],upper=xpoints[-1])
         xticklabels=ax.get_xticklabels()
@@ -190,7 +238,7 @@ class matplotRender():
             if self.colormap.has_key(ylabel):
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
-            legendlist.append(ylabel+' '+'%.2f'%(ytotal[ylabel])+' '+'nb$^{-1}$')
+            legendlist.append(ylabel+' '+'%.2f'%(ytotal[ylabel])+' '+unitstring)
         #annotations
         trans=matplotlib.transforms.BlendedGenericTransform(ax.transData,ax.transAxes)
         #print 'run boundary ',runs[0],runs[-1]
@@ -217,7 +265,7 @@ class matplotRender():
         minorLoc=matplotlib.ticker.LinearLocator(numticks=nticks*4)
         ax.xaxis.set_major_formatter(dateFmt)
         ax.set_xlabel(r'Date',position=(0.84,0))
-        ax.set_ylabel(r'L nb$^{-1}$',position=(0,0.9))
+    
         ax.xaxis.set_major_locator(majorLoc)
         ax.xaxis.set_minor_locator(minorLoc)
         xticklabels=ax.get_xticklabels()
@@ -227,12 +275,30 @@ class matplotRender():
         legendlist=[]
         keylist=databyday.keys()
         keylist.sort()
+
+        t=max(databyday['Delivered'])
+        denomitor=1.0
+        unitstring='$\mu$b$^{-1}$'
+        if t>=1.0e3 and t<1.0e06:
+            denomitor=1.0e3
+            unitstring='nb$^{-1}$'
+        elif t>=1.0e6 and t<1.0e9:
+            denomitor=1.0e6
+            unitstring='pb$^{-1}$'
+        elif t>=1.0e9 and t<1.0e12:
+            denomitor=1.0e9
+            unitstring='fb$^{-1}$'
+        elif  t>=1.0e12 and t<1.0e15:
+            denomitor=1.0e12
+            unitstring='ab$^{-1}$'
+
+        ax.set_ylabel(r'L '+unitstring,position=(0,0.9))    
         for ylabel in keylist:
             cl='k'
             if self.colormap.has_key(ylabel):
                 cl=self.colormap[ylabel]
-            ax.plot(days,databyday[ylabel],label=ylabel,color=cl,drawstyle='steps')
-            legendlist.append(ylabel+' Max '+'%.2f'%(max(databyday[ylabel]))+' '+'nb$^{-1}$')
+            ax.plot(days,[y/denomitor for y in databyday[ylabel]],label=ylabel,color=cl,drawstyle='steps')
+            legendlist.append(ylabel+' Max '+'%.2f'%(max(databyday[ylabel])/denomitor)+' '+unitstring)
         ax.legend(tuple(legendlist),loc='upper left')
         ax.set_xbound(lower=matplotlib.dates.date2num(minTime),upper=matplotlib.dates.date2num(maxTime))
         if annotateBoundaryRunnum:
@@ -276,13 +342,28 @@ class matplotRender():
                 runmax=daydict[day][0]
                 lsmax=daydict[day][1]
                 maxinfo=str(runmax)+':'+str(lsmax)
+        denomitor=1.0
+        unitstring='$\mu$b$^{-1}$s$^{-1}$'
+        if ymax>=1.0e3 and ymax<1.0e06:
+            denomitor=1.0e3
+            unitstring='nb$^{-1}$s$^{-1}$'
+        elif ymax>=1.0e6 and ymax<1.0e9:
+            denomitor=1.0e6
+            unitstring='pb$^{-1}$s$^{-1}$'
+        elif ymax>=1.0e9 and ymax<1.0e12:
+            denomitor=1.0e9
+            unitstring='fb$^{-1}$s$^{-1}$'
+        elif ymax>=1.0e12 and ymax<1.0e15:
+            denomitor=1.0e12
+            unitstring='ab$^{-1}$s$^{-1}$'
+            
         ax=self.__fig.add_subplot(111)
         dateFmt=matplotlib.dates.DateFormatter('%d/%m')
         majorLoc=matplotlib.ticker.LinearLocator(numticks=nticks)
         minorLoc=matplotlib.ticker.LinearLocator(numticks=nticks*4)
         ax.xaxis.set_major_formatter(dateFmt)
         ax.set_xlabel(r'Date',position=(0.84,0))
-        ax.set_ylabel(r'L $\mu$b$^{-1}$s$^{-1}$',position=(0,0.9))
+        ax.set_ylabel(r'L '+unitstring,position=(0,0.9))
         ax.xaxis.set_major_locator(majorLoc)
         ax.xaxis.set_minor_locator(minorLoc)
         xticklabels=ax.get_xticklabels()
@@ -295,8 +376,8 @@ class matplotRender():
         #print 'maxinfo ',maxinfo
         #print 'beginfo ',beginfo
         #print 'endinfo ',endinfo
-        ax.plot(xpoints,ypoints,label='Max Inst',color=cl,drawstyle='steps')
-        legendlist.append('Max Inst %.2f'%(ymax)+' '+'$\mu$b$^{-1}$s$^{-1}$')
+        ax.plot(xpoints,[y/denomitor for y in ypoints],label='Max Inst',color=cl,drawstyle='steps')
+        legendlist.append('Max Inst %.2f'%(ymax/denomitor)+' '+unitstring)
         ax.legend(tuple(legendlist),loc='upper left')
         ax.set_xbound(lower=matplotlib.dates.date2num(minTime),upper=matplotlib.dates.date2num(maxTime))
         if annotateBoundaryRunnum:
@@ -377,9 +458,23 @@ class matplotRender():
             legendlist.append(ylabel)      
         #ax.axhline(0,color='green',linewidth=0.2)
         ax.axvline(xpoints[ncmsls-1],color='green',linewidth=0.2)
-  
-        colLabels=('run','fill','max inst(/$\mu$b/s)','delivered(/$\mu$b)','recorded(/$\mu$b)')
-        cellText=[[str(runnum),str(fill),'%.3f'%(peakinst),'%.3f'%totaldelivered,'%.3f'%(totalrecorded)]]
+
+        denomitor=1.0
+        unitstring='/$\mu$b'
+        if totaldelivered>=1.0e3 and totaldelivered<1.0e06:
+            denomitor=1.0e3
+            unitstring='/nb'
+        elif totaldelivered>=1.0e6 and totaldelivered<1.0e9:
+            denomitor=1.0e6
+            unitstring='/pb'
+        elif totaldelivered>=1.0e9 and totaldelivered<1.0e12:
+            denomitor=1.0e9
+            unitstring='/fb'
+        elif totaldelivered>=1.0e12 and totaldelivered<1.0e15:
+            denomitor=1.0e12
+            unitstring='/ab'
+        colLabels=('run','fill','max inst(/$\mu$b/s)','delivered('+unitstring+')','recorded('+unitstring+')')
+        cellText=[[str(runnum),str(fill),'%.3f'%(peakinst),'%.3f'%(totaldelivered/denomitor),'%.3f'%(totalrecorded/denomitor)]]
        
         sumtable=axtab.table(cellText=cellText,colLabels=colLabels,colWidths=[0.12,0.1,0.27,0.27,0.27],cellLoc='center',loc='center')
         trans=matplotlib.transforms.BlendedGenericTransform(ax.transData,ax.transAxes)        

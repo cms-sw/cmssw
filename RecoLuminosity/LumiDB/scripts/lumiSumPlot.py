@@ -425,8 +425,10 @@ def main():
         for day in days:
             daydata=daydict[day]
             mytransposed=CommonUtil.transposed(daydata,defaultval=0.0)
-            delivered=sum(mytransposed[0])/1000.0
-            recorded=sum(mytransposed[1])/1000.0
+            #delivered=sum(mytransposed[0])/1000.0
+            #recorded=sum(mytransposed[1])/1000.0
+            delivered=sum(mytransposed[0])
+            recorded=sum(mytransposed[1])
             resultbyday['Delivered'].append(delivered)#in nb-1
             resultbyday['Recorded'].append(recorded)
             if args.outputfile:
