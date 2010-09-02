@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCaloTauProxyBuilder.cc,v 1.11 2010/06/18 10:17:51 yana Exp $
+// $Id: FWCaloTauProxyBuilder.cc,v 1.12 2010/08/30 15:42:31 amraktad Exp $
 //
 
 // system include files
@@ -166,13 +166,12 @@ FWCaloTauProxyBuilder::addConstituentTracks( const reco::CaloTau &caloTau, class
 {
    for( reco::TrackRefVector::iterator i = caloTau.signalTracks().begin(), iEnd = caloTau.signalTracks().end();
 	i != iEnd; ++i ) {
-     TEveTrack* track( 0 );
-     if( i->isAvailable() ) {
-        track = fireworks::prepareTrack( **i, context().getTrackPropagator() );
-     }
-     track->MakeTrack();
-     if( track )
-        product->AddElement( track );
+      TEveTrack* track( 0 );
+      if( i->isAvailable() ) {
+         track = fireworks::prepareTrack( **i, context().getTrackPropagator() );
+         track->MakeTrack();
+         product->AddElement( track );
+      }
    }	
 }
 

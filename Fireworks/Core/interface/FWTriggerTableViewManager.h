@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWTriggerTableViewManager
-// $Id: FWTriggerTableViewManager.h,v 1.5 2009/09/24 14:55:25 chrjones Exp $
+// $Id: FWTriggerTableViewManager.h,v 1.1 2009/10/06 18:56:06 dmytro Exp $
 //
 
 // system include files
@@ -18,7 +18,6 @@
 
 #include "Fireworks/Core/interface/FWViewManagerBase.h"
 #include "Fireworks/Core/interface/FWTriggerTableView.h"
-#include "Fireworks/Core/interface/FWEveValueScaler.h"
 #include "Fireworks/Core/interface/FWConfigurable.h"
 
 class FWViewBase;

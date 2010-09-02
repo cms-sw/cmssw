@@ -10,7 +10,6 @@
 class TGFrame;
 class TGCompositeFrame;
 class FWTableWidget;
-class FWEveValueScaler;
 class TEveWindowFrame;
 class TEveWindowSlot;
 class FWL1TriggerTableViewManager;

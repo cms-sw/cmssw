@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWTriggerTableView
-// $Id: FWTriggerTableView.h,v 1.3 2010/01/27 15:36:58 amraktad Exp $
+// $Id: FWTriggerTableView.h,v 1.4 2010/06/14 13:43:28 yana Exp $
 //
 
 // system include files
@@ -25,7 +25,6 @@
 class TGFrame;
 class TGCompositeFrame;
 class FWTableWidget;
-class FWEveValueScaler;
 class TEveWindowFrame;
 class TEveWindowSlot;
 class FWTriggerTableViewManager;

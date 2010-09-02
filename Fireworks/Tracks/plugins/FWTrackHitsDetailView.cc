@@ -148,7 +148,7 @@ void
 FWTrackHitsDetailView::setBackgroundColor(Color_t col)
 {
    // Callback for cmsShow change of background
-   return;
+
    FWColorManager::setColorSetViewer(viewerGL(), col);
 
    // adopt label colors to background, this should be implemneted in TEveText

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:08 EDT 2008
-// $Id: CmsShowModelPopup.cc,v 1.25 2010/06/07 16:37:49 eulisse Exp $
+// $Id: CmsShowModelPopup.cc,v 1.26 2010/06/16 14:04:39 matevz Exp $
 //
 
 // system include file
@@ -211,7 +211,7 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr)
                             m_adapters.back(), "wasClicked()");
          }
       }
-      else if (viewChoices.size()>0)
+      else if (!viewChoices.empty())
       {
          for (size_t i = 1, e = viewChoices.size(); i != e; ++i)
             ShowFrame(m_openDetailedViewButtons[i]);
@@ -274,7 +274,7 @@ CmsShowModelPopup::disconnectAll() {
    m_isVisibleButton->SetEnabled(kFALSE);
    m_openDetailedViewButtons.front()->SetEnabled(kFALSE);
    m_openDetailedViewButtons.front()->SetText("Open Detail View ...");
-   assert(m_openDetailedViewButtons.size() > 0);
+   assert(!m_openDetailedViewButtons.empty());
    for(size_t i = 1, e = m_openDetailedViewButtons.size(); i != e; ++i)
       HideFrame(m_openDetailedViewButtons[i]);
 }

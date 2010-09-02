@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 10:29:00 EST 2008
-// $Id: FWTableViewManager.h,v 1.6 2010/03/03 17:19:02 eulisse Exp $
+// $Id: FWTableViewManager.h,v 1.7 2010/05/27 08:45:00 eulisse Exp $
 //
 
 // system include files
@@ -30,7 +30,6 @@
 
 #include "Fireworks/Core/interface/FWViewManagerBase.h"
 #include "Fireworks/Core/interface/FWTableView.h"
-#include "Fireworks/Core/interface/FWEveValueScaler.h"
 #include "Fireworks/Core/interface/FWConfigurable.h"
 
 class FWViewBase;

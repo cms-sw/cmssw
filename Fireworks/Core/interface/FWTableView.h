@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWTableView.h,v 1.6 2009/06/12 13:40:01 amraktad Exp $
+// $Id: FWTableView.h,v 1.7 2009/09/23 20:30:57 chrjones Exp $
 //
 
 // system include files
@@ -40,7 +40,6 @@ class TGTextEntry;
 class FWEventItem;
 class FWTableViewManager;
 class FWTableWidget;
-class FWEveValueScaler;
 class TEveWindowFrame;
 class TEveWindowSlot;
 class FWTableViewManager;
