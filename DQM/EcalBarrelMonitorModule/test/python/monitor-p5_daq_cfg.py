@@ -240,6 +240,5 @@ process.ecalBarrelMonitorClient.superModules = [32]
 process.DQM.collectorHost = ''
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.prefer("GlobalTag")
 process.GlobalTag.globaltag = "GR_R_38X_V9::All"
 
