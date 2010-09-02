@@ -3,8 +3,6 @@
 
 #include <vector>
 
-#include "TString.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -174,9 +172,9 @@ TtEvtBuilder<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
 
   // set kMvaDisc extras
   if( ttEvent.isHypoAvailable(TtEvent::kMVADisc) ) {
-    edm::Handle<TString> meth;
+    edm::Handle<std::string> meth;
     evt.getByLabel(meth_, meth);
-    ttEvent.setMvaMethod( (std::string) *meth );
+    ttEvent.setMvaMethod( *meth );
 
     edm::Handle<std::vector<double> > disc;
     evt.getByLabel(disc_, disc);
