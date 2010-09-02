@@ -64,6 +64,10 @@
 //  5 3/27/09  mf	Properly treat charsOnLine, which had been fouled due to
 //			change 3.  In log() and emitToken().
 //
+//  6 9/2/10  mf	Initialize preambleMode in each ctor, and remove the
+//			unnecessary use of tprm which was preserving a moot 
+//			initial value.
+//
 // ----------------------------------------------------------------------
 
 
@@ -139,6 +143,7 @@ ELoutput::ELoutput()
 , wantFullContext     ( false      )
 , wantTimeSeparate    ( false      )
 , wantEpilogueSeparate( false      )
+, preambleMode        ( true       )		// 006 9/2/10 mf
 {
 
   #ifdef ELoutputCONSTRUCTOR_TRACE
@@ -166,6 +171,7 @@ ELoutput::ELoutput( std::ostream & os_ , bool emitAtStart )
 , wantFullContext     ( false )
 , wantTimeSeparate    ( false )
 , wantEpilogueSeparate( false )
+, preambleMode        ( true  )		// 006 9/2/10 mf
 {
 
   #ifdef ELoutputCONSTRUCTOR_TRACE
@@ -174,12 +180,10 @@ ELoutput::ELoutput( std::ostream & os_ , bool emitAtStart )
 
                                         // Enh 001 2/13/01 mf
   if (emitAtStart) {
-    bool tprm = preambleMode;
     preambleMode = true;
     emitToken( "\n=================================================", true );
     emitToken( "\nMessage Log File written by MessageLogger service \n" );
     emitToken( "\n=================================================\n", true );
-    preambleMode = tprm;
   }
 
 }  // ELoutput()
@@ -199,13 +203,13 @@ ELoutput::ELoutput( const ELstring & fileName, bool emitAtStart )
 , wantFullContext     ( false )
 , wantTimeSeparate    ( false )
 , wantEpilogueSeparate( false )
+, preambleMode        ( true  )		// 006 9/2/10 mf
 {
 
   #ifdef ELoutputCONSTRUCTOR_TRACE
     std::cerr << "Constructor for ELoutput( " << fileName << " )\n";
   #endif
 
-  bool tprm = preambleMode;
   preambleMode = true;
   if ( os && *os )  {
     #ifdef ELoutputCONSTRUCTOR_TRACE
@@ -245,7 +249,7 @@ ELoutput::ELoutput( const ELstring & fileName, bool emitAtStart )
     emitToken( "\n=======================================================\n",
                                                                 true );
   }
-  preambleMode = tprm;
+  // preambleMode = tprm; removed 9/2/10 mf see change log 6
 
   #ifdef ELoutputCONSTRUCTOR_TRACE
     std::cerr << "Constructor for ELoutput completed.\n";
@@ -268,6 +272,7 @@ ELoutput::ELoutput( const ELoutput & orig )
 , wantFullContext     ( orig.wantFullContext      )
 , wantTimeSeparate    ( orig.wantTimeSeparate     )
 , wantEpilogueSeparate( orig.wantEpilogueSeparate )
+, preambleMode        ( orig.preambleMode         )	// 006 9/2/10 mf
 {
 
   #ifdef ELoutputCONSTRUCTOR_TRACE
