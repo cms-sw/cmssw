@@ -78,7 +78,7 @@ public:
             handlePSet(*ps);
          }
       }
-      dataChanged();
+      reset();
    }
 
    virtual void implSort(int, bool)
@@ -186,7 +186,7 @@ public:
 
       for (size_t i = 0, e = entry.vpset().size(); i != e; ++i)
       {
-          ss.clear();
+          ss.str("");
           ss << key << "[" << i << "]";
           PSetData vdata;
           vdata.label = ss.str();
