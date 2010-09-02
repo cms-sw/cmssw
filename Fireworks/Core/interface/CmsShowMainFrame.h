@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.36 2009/12/04 22:50:06 amraktad Exp $
+// $Id: CmsShowMainFrame.h,v 1.37 2010/07/26 15:13:58 matevz Exp $
 //
 
 // system include files
@@ -97,6 +97,7 @@ protected:
    FWCustomIconsButton* m_filterEnableBtn;
    TGTextButton*        m_filterShowGUIBtn;
    TGNumberEntryField*  m_runEntry;
+   TGNumberEntryField*  m_lumiEntry;
    TGNumberEntryField*  m_eventEntry;
    FWIntValueListener*  m_delaySliderListener;
    
@@ -106,12 +107,14 @@ private:
    CmsShowMainFrame(const CmsShowMainFrame&); // stop default
    const CmsShowMainFrame& operator=(const CmsShowMainFrame&); // stop default
 
-   void makeFixedSizeLabel(TGHorizontalFrame* p, const char* txt, UInt_t bgCol, UInt_t txtCol);
+   void makeFixedSizeLabel(TGHorizontalFrame* p, const char* txt,
+                           UInt_t bgCol, UInt_t txtCol,
+                           Int_t  width, Int_t  height);
+
    // ---------- member data --------------------------------
 
    FWGUIManager *m_manager;
    Long_t m_tooltipDelay;
-   TGLabel* m_lumiBlock;
    TGLabel* m_timeText;
    CSGAction *m_nextEvent;
    CSGAction *m_previousEvent;

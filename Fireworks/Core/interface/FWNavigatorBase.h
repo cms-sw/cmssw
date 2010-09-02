@@ -4,7 +4,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: FWNavigatorBase.h,v 1.2 2010/07/26 15:13:59 matevz Exp $
+// $Id: FWNavigatorBase.h,v 1.3 2010/07/26 19:25:57 eulisse Exp $
 //
 
 // system include files
@@ -14,6 +14,8 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWConfigurable.h"
+
+#include "DataFormats/Provenance/interface/EventID.h"
 
 // forward declarations
 class CmsShowMainBase;
@@ -44,7 +46,7 @@ public:
    virtual void firstEvent() = 0;
    virtual void lastEvent() = 0;
    // FIXME -- should be Long64_t.
-   virtual void goToRunEvent(Int_t,Int_t) = 0;
+   virtual void goToRunEvent(edm::RunNumber_t, edm::LuminosityBlockNumber_t, edm::EventNumber_t) = 0;
 
    virtual bool isLastEvent() = 0;
    virtual bool isFirstEvent() = 0;

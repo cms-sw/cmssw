@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.211 2010/07/16 14:34:17 eulisse Exp $
+// $Id: FWGUIManager.cc,v 1.212 2010/07/26 15:13:59 matevz Exp $
 
 //
 
@@ -184,6 +184,7 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
       m_cmsShowMainFrame->m_delaySliderListener->valueChanged_.connect(boost::bind(&FWGUIManager::delaySliderChanged,this,_1));
 
       TQObject::Connect(m_cmsShowMainFrame->m_runEntry,   "ReturnPressed()", "FWGUIManager", this, "runIdChanged()");
+      TQObject::Connect(m_cmsShowMainFrame->m_lumiEntry,  "ReturnPressed()", "FWGUIManager", this, "lumiIdChanged()");
       TQObject::Connect(m_cmsShowMainFrame->m_eventEntry, "ReturnPressed()", "FWGUIManager", this, "eventIdChanged()");
 
       TQObject::Connect(m_cmsShowMainFrame->m_filterShowGUIBtn, "Clicked()", "FWGUIManager", this, "showEventFilterGUI()");
@@ -1320,14 +1321,24 @@ FWGUIManager::setDelayBetweenEvents(Float_t val)
 
 void FWGUIManager::runIdChanged()
 {
+   m_cmsShowMainFrame->m_lumiEntry->SetText("",kFALSE);
+   m_cmsShowMainFrame->m_lumiEntry->SetFocus();
+}
+
+void FWGUIManager::lumiIdChanged()
+{
    m_cmsShowMainFrame->m_eventEntry->SetText("",kFALSE);
    m_cmsShowMainFrame->m_eventEntry->SetFocus();
 }
 
 void FWGUIManager::eventIdChanged()
 {
-  changedEventId_.emit(m_cmsShowMainFrame->m_runEntry->GetIntNumber(),
-		       m_cmsShowMainFrame->m_eventEntry->GetIntNumber());
+   // XXXX Temporary cast from double ... until GetUIntNumber() is available
+   // in TGNumberEntryField.
+   edm::RunNumber_t             rn = static_cast<edm::RunNumber_t>            (m_cmsShowMainFrame->m_runEntry->GetNumber());
+   edm::LuminosityBlockNumber_t ln = static_cast<edm::LuminosityBlockNumber_t>(m_cmsShowMainFrame->m_lumiEntry->GetNumber());
+   edm::EventNumber_t           en = static_cast<edm::EventNumber_t>          (m_cmsShowMainFrame->m_eventEntry->GetNumber());
+   changedEventId_.emit(rn, ln, en);
 }
 
 void

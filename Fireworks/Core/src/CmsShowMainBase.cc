@@ -80,7 +80,7 @@ CmsShowMainBase::setupActions()
    if (m_guiManager->getAction(cmsshow::sQuit) != 0) 
       m_guiManager->getAction(cmsshow::sQuit)->activated.connect(sigc::mem_fun(*this, &CmsShowMainBase::quit));
  
-   m_guiManager->changedEventId_.connect(boost::bind(&CmsShowMainBase::goToRunEvent,this,_1,_2));
+   m_guiManager->changedEventId_.connect(boost::bind(&CmsShowMainBase::goToRunEvent,this,_1,_2,_3));
    
    m_guiManager->playEventsAction()->started_.connect(sigc::mem_fun(*this, &CmsShowMainBase::playForward));
    m_guiManager->playEventsBackwardsAction()->started_.connect(sigc::mem_fun(*this,&CmsShowMainBase::playBackward));
@@ -155,9 +155,9 @@ CmsShowMainBase::doLastEvent()
 }
 
 void
-CmsShowMainBase::goToRunEvent(int run, int event)
+CmsShowMainBase::goToRunEvent(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event)
 {
-   m_navigator->goToRunEvent(run, event);
+   m_navigator->goToRunEvent(run, lumi, event);
    checkPosition();
    draw();
 }

@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.96 2010/07/26 19:25:57 eulisse Exp $
+// $Id: CmsShowNavigator.cc,v 1.97 2010/08/16 15:33:20 matevz Exp $
 //
 
 #include "DataFormats/FWLite/interface/Event.h"
@@ -226,11 +226,11 @@ CmsShowNavigator::goTo(FileQueue_i fi, int event)
 }
 
 void
-CmsShowNavigator::goToRunEvent(Int_t run, Int_t event)
+CmsShowNavigator::goToRunEvent(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event)
 {
    for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
    {
-      Long64_t index = (*file)->event()->indexFromEventId(run, 0, event);
+      Long64_t index = (*file)->event()->indexFromEventId(run, lumi, event);
       if (index >= 0)
       {
          goTo(file, index);

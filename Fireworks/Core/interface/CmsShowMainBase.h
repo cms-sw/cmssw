@@ -4,6 +4,8 @@
 #include "Fireworks/Core/interface/FWPhysicsObjectDesc.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 
+#include "DataFormats/Provenance/interface/EventID.h"
+
 #include <memory>
 #include <string>
 #include <cassert>
@@ -82,7 +84,7 @@ public:
    void doPreviousEvent();
    void doNextEvent();
    void doLastEvent();
-   void goToRunEvent(int, int);
+   void goToRunEvent(edm::RunNumber_t, edm::LuminosityBlockNumber_t, edm::EventNumber_t);
    virtual void checkPosition() = 0;
    bool forward() const { return m_forward; }
    bool loop() const { return m_loop; }

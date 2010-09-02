@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.106 2010/07/16 14:34:18 eulisse Exp $
+// $Id: FWGUIManager.h,v 1.107 2010/07/26 15:13:58 matevz Exp $
 //
 
 // system include files
@@ -31,6 +31,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWConfigurable.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 
 // forward declarations
 class TGPictureButton;
@@ -188,6 +189,7 @@ public:
    void updateEventFilterEnable(bool);
    
    void runIdChanged();
+   void lumiIdChanged();
    void eventIdChanged();
    void checkSubviewAreaIconState(TEveWindow*);
    void subviewIsBeingDestroyed(FWGUISubviewArea*);
@@ -205,7 +207,7 @@ public:
    sigc::signal<void, const TGWindow*> showEventFilterGUI_;
    sigc::signal<void, const std::string&> writeToConfigurationFile_;
    sigc::signal<void, const std::string&> loadFromConfigurationFile_;
-   sigc::signal<void, int, int> changedEventId_;
+   sigc::signal<void, edm::RunNumber_t, edm::LuminosityBlockNumber_t, edm::EventNumber_t> changedEventId_;
    sigc::signal<void> goingToQuit_;
    sigc::signal<void> writeToPresentConfigurationFile_;
    

@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.95 2010/06/18 10:17:14 yana Exp $
+// $Id: CmsShowMainFrame.cc,v 1.96 2010/07/26 15:13:59 matevz Exp $
 
 #include "FWCore/Common/interface/EventBase.h"
 
@@ -23,6 +23,7 @@
 #include <TGMenu.h>
 #include <TGLabel.h>
 #include <TGTab.h>
+#include <TGPack.h>
 #include <TGStatusBar.h>
 #include <TGNumberEntry.h>
 #include <KeySymbols.h>
@@ -65,6 +66,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    m_filterEnableBtn(),
    m_filterShowGUIBtn(),
    m_runEntry(0),
+   m_lumiEntry(0),
    m_eventEntry(0),
    m_delaySliderListener(0),
    m_fworksAbout(0)
@@ -228,9 +230,10 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    AddFrame(new TGFrame(this, 1, 1, kChildFrame, 0x503020),
             new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
 
-   TGHorizontalFrame *fullbar = new TGHorizontalFrame(this, this->GetWidth(), 30,0, backgroundColor);
    m_statBar = new TGStatusBar(this, this->GetWidth(), 12);
    AddFrame(m_statBar, new TGLayoutHints(kLHintsBottom | kLHintsExpandX));
+
+   TGHorizontalFrame *fullbar = new TGHorizontalFrame(this, this->GetWidth(), 30,0, backgroundColor);
 
    /**************************************************************************/
    // controls
@@ -283,9 +286,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
                                      fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"button-gotolast-disabled.png"),
                                      new TGLayoutHints(kLHintsCenterY| kLHintsLeft, 2, 3, 10, 0));
 
-
-
-   controlFrame->AddFrame(buttonFrame, new TGLayoutHints(kLHintsTop | kLHintsLeft, 10, 0, 0, 0));
+   controlFrame->AddFrame(buttonFrame, new TGLayoutHints(kLHintsTop, 10, 0, 0, 0));
 
    /**************************************************************************/
 
@@ -301,130 +302,140 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    m_delaySlider->SetBackgroundColor(0x1a1a1a);
    m_delaySlider->ChangeSliderPic(sldBtn);
 
-   controlFrame->AddFrame(sliderFrame, new TGLayoutHints(kLHintsTop | kLHintsLeft, 10, 0, 0, 0));
+   controlFrame->AddFrame(sliderFrame, new TGLayoutHints(kLHintsTop, 10, 0, 0, 0));
 
-   fullbar->AddFrame(controlFrame, new TGLayoutHints(kLHintsLeft, 2, 2, 5, 5));
+   fullbar->AddFrame(controlFrame, new TGLayoutHints(kLHintsLeft, 2, 2, 5, 8));
 
    m_delaySliderListener =  new FWIntValueListener();
    TQObject::Connect(m_delaySlider, "PositionChanged(Int_t)", "FWIntValueListenerBase",  m_delaySliderListener, "setValue(Int_t)");
 
-   /**************************************************************************/
+   //==============================================================================
+
    // delay label
-   TGVerticalFrame* delayFrame = new TGVerticalFrame(fullbar, 60, 10, 0, backgroundColor);
-   TGLabel *label = new TGLabel(delayFrame, "Delay");
-   label->SetTextJustify(kTextCenterX);
-   label->SetTextColor(0xb3b3b3);
-   label->SetBackgroundColor(backgroundColor);
-   delayFrame->AddFrame(label, new TGLayoutHints(kLHintsTop | kLHintsCenterX, 0, 0, 22, 0));
+   {
+      TGVerticalFrame* delayFrame = new TGVerticalFrame(fullbar, 60, 10, 0, backgroundColor);
 
-   TGHorizontalFrame *labFixed = new TGHorizontalFrame(delayFrame, 70, 20, kFixedSize, backgroundColor);
-   m_delayLabel = new TGLabel(labFixed, "0.0s");
-   m_delayLabel->SetBackgroundColor(backgroundColor);
-   m_delayLabel->SetTextJustify(kTextCenterX);
-   m_delayLabel->SetTextColor(0xffffff);
-   labFixed->AddFrame(m_delayLabel, new TGLayoutHints(kLHintsTop | kLHintsCenterX |kLHintsExpandX, 0, 0, 0, 0));
-   delayFrame->AddFrame(labFixed, new TGLayoutHints(kLHintsLeft, 0, 4, 0, 0));
+      TGLabel *label = new TGLabel(delayFrame, "Delay");
+      label->SetTextJustify(kTextCenterX);
+      label->SetTextColor(0xb3b3b3);
+      label->SetBackgroundColor(backgroundColor);
+      delayFrame->AddFrame(label, new TGLayoutHints(kLHintsTop | kLHintsCenterX, 0, 0, 22, 0));
 
-   fullbar->AddFrame(delayFrame, new TGLayoutHints(kLHintsTop | kFixedSize, 0, 0, 0, 0));
+      TGHorizontalFrame *labFixed = new TGHorizontalFrame(delayFrame, 70, 20, kFixedSize, backgroundColor);
+      m_delayLabel = new TGLabel(labFixed, "0.0s");
+      m_delayLabel->SetBackgroundColor(backgroundColor);
+      m_delayLabel->SetTextJustify(kTextCenterX);
+      m_delayLabel->SetTextColor(0xffffff);
+      labFixed->AddFrame(m_delayLabel, new TGLayoutHints(kLHintsTop | kLHintsCenterX | kLHintsExpandX, 0, 0, 0, 0));
+      delayFrame->AddFrame(labFixed, new TGLayoutHints(kLHintsLeft, 0, 4, 0, 0));
 
-   /**************************************************************************/
+      fullbar->AddFrame(delayFrame, new TGLayoutHints(kLHintsLeft, 0, 0, 0, 0));
+   }
+
+   //==============================================================================
+
    // text/num entries
 
-   Int_t maxW =  fullbar->GetWidth() - controlFrame->GetWidth();
-   TGVerticalFrame *texts = new TGVerticalFrame(fullbar, 400, 48, kFixedSize, backgroundColor);
-   Int_t entryHeight = 20;
+   Int_t entryHeight = 22;
+   TGVerticalFrame *texts = new TGVerticalFrame(fullbar, 400, 10, 0, backgroundColor);
 
    // upper row
-   TGHorizontalFrame *runInfo = new TGHorizontalFrame(texts, maxW, entryHeight, 0);
-   runInfo->SetBackgroundColor(backgroundColor);
-   TGHorizontalFrame *rLeft = new TGHorizontalFrame(runInfo, 200, 20);
-   makeFixedSizeLabel(rLeft, "Run", backgroundColor, 0xffffff);
-   m_runEntry = new TGNumberEntryField(rLeft, -1, 0, TGNumberFormat::kNESInteger);
-   rLeft->AddFrame(m_runEntry, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,0,0,0));
-   runInfo->AddFrame(rLeft, new TGLayoutHints(kLHintsLeft));
+   {
+      TGPack *runInfo = new TGPack(texts, 400, entryHeight, kFixedHeight);
+      printf("(TGPack*)%p\n", runInfo);
+      runInfo->SetVertical(kFALSE);
+      runInfo->SetUseSplitters(kFALSE);
+      runInfo->SetBackgroundColor(backgroundColor);
 
-   TGHorizontalFrame *rRight = new TGHorizontalFrame(runInfo, 200, 20);
-   makeFixedSizeLabel(rRight, "Event", backgroundColor, 0xffffff);
-   m_eventEntry = new TGNumberEntryField(rRight, -1, 0, TGNumberFormat::kNESInteger);
-   rRight->AddFrame(m_eventEntry, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,2,0,0));
+      TGHorizontalFrame *rLeft = new TGHorizontalFrame(runInfo, 1, entryHeight);
+      makeFixedSizeLabel(rLeft, "Run", backgroundColor, 0xffffff, 26, entryHeight);
+      m_runEntry = new TGNumberEntryField(rLeft, -1, 0, TGNumberFormat::kNESReal);
+      rLeft->AddFrame(m_runEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX, 0,8,0,0));
+      runInfo->AddFrameWithWeight(rLeft, 0, 0.28);
 
-   runInfo->AddFrame(rRight, new TGLayoutHints(kLHintsRight));
+      TGHorizontalFrame *rMid = new TGHorizontalFrame(runInfo, 1, entryHeight);
+      makeFixedSizeLabel(rMid, "Lumi", backgroundColor, 0xffffff, 36, entryHeight);
+      m_lumiEntry = new TGNumberEntryField(rMid, -1, 0, TGNumberFormat::kNESReal);
+      rMid->AddFrame(m_lumiEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX, 0,8,0,0));
+      runInfo->AddFrameWithWeight(rMid, 0, 0.32);
 
-   texts->AddFrame(runInfo, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,0,0,1));
+      TGHorizontalFrame *rRight = new TGHorizontalFrame(runInfo, 1, entryHeight);
+      makeFixedSizeLabel(rRight, "Event", backgroundColor, 0xffffff, 42, entryHeight);
+      m_eventEntry = new TGNumberEntryField(rRight, -1, 0, TGNumberFormat::kNESReal);
+      rRight->AddFrame(m_eventEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX, 0,0,0,0));
+      runInfo->AddFrameWithWeight(rRight, 0, 0.4);
+
+      texts->AddFrame(runInfo, new TGLayoutHints(kLHintsTop | kLHintsExpandX, 0,0,0,4));
+   }
 
    // lower row
-   TGHorizontalFrame *filterFrame = new TGHorizontalFrame(texts, maxW, entryHeight, 0, backgroundColor);
+   {
+      TGHorizontalFrame *filterFrame = new TGHorizontalFrame(texts, 400, entryHeight, 0, backgroundColor);
    
-   TGCompositeFrame *lframe = new TGHorizontalFrame(filterFrame, 50, entryHeight, kFixedSize, backgroundColor);
-
-   // filter state Off
-   m_filterIcons[0] = fClient->GetPicture("unchecked_t.xpm");
-   m_filterIcons[1] = fClient->GetPicture("unchecked_t.xpm");
-   m_filterIcons[2] = fClient->GetPicture("unchecked_dis_t.xpm");
+      // filter state Off
+      m_filterIcons[0] = fClient->GetPicture("unchecked_t.xpm");
+      m_filterIcons[1] = fClient->GetPicture("unchecked_t.xpm");
+      m_filterIcons[2] = fClient->GetPicture("unchecked_dis_t.xpm");
    
-   // filter state On
-   m_filterIcons[3] = fClient->GetPicture("checked_t.xpm");
-   m_filterIcons[4] = fClient->GetPicture("checked_t.xpm");
-   m_filterIcons[5] = fClient->GetPicture("checked_dis_t.xpm");
+      // filter state On
+      m_filterIcons[3] = fClient->GetPicture("checked_t.xpm");
+      m_filterIcons[4] = fClient->GetPicture("checked_t.xpm");
+      m_filterIcons[5] = fClient->GetPicture("checked_dis_t.xpm");
    
-   // filter withdrawn
-   m_filterIcons[6] = fClient->GetPicture(FWCheckBoxIcon::coreIcondir() + "icon-alert-ltgraybg.png");
-   m_filterIcons[7] = fClient->GetPicture(FWCheckBoxIcon::coreIcondir() + "icon-alert-ltgraybg-over.png");
-   m_filterIcons[8] = fClient->GetPicture(FWCheckBoxIcon::coreIcondir() + "icon-alert-ltgraybg.png");
+      // filter withdrawn
+      m_filterIcons[6] = fClient->GetPicture(FWCheckBoxIcon::coreIcondir() + "icon-alert-ltgraybg.png");
+      m_filterIcons[7] = fClient->GetPicture(FWCheckBoxIcon::coreIcondir() + "icon-alert-ltgraybg-over.png");
+      m_filterIcons[8] = fClient->GetPicture(FWCheckBoxIcon::coreIcondir() + "icon-alert-ltgraybg.png");
    
-   m_filterEnableBtn = new FWCustomIconsButton(lframe, m_filterIcons[0], m_filterIcons[1], m_filterIcons[2]);
-   m_filterEnableBtn->SetBackgroundColor(backgroundColor);
-   m_filterEnableBtn->SetToolTipText("Enable/disable event filtering");
-   lframe->AddFrame(m_filterEnableBtn, new TGLayoutHints(kLHintsRight | kLHintsCenterY,0,0,2,2));
-   filterFrame->AddFrame(lframe, new TGLayoutHints(kLHintsLeft|kLHintsCenterY,0,0,0,0));
+      m_filterEnableBtn = new FWCustomIconsButton(filterFrame, m_filterIcons[0], m_filterIcons[1], m_filterIcons[2]);
+      m_filterEnableBtn->SetBackgroundColor(backgroundColor);
+      m_filterEnableBtn->SetToolTipText("Enable/disable event filtering");
+      filterFrame->AddFrame(m_filterEnableBtn, new TGLayoutHints(kLHintsLeft, 4,0,3,0));
 
-   m_filterShowGUIBtn = new TGTextButton(filterFrame,"Event filtering is OFF");
-   m_filterShowGUIBtn->SetBackgroundColor(backgroundColor);
-   m_filterShowGUIBtn->SetTextColor(0xFFFFFF);
-   m_filterShowGUIBtn->SetToolTipText("Edit filters");
-   filterFrame->AddFrame(m_filterShowGUIBtn,new TGLayoutHints(kLHintsExpandX|kLHintsLeft|kLHintsTop,4,1,2,2));
+      m_filterShowGUIBtn = new TGTextButton(filterFrame,"Event filtering is OFF");
+      m_filterShowGUIBtn->SetBackgroundColor(backgroundColor);
+      m_filterShowGUIBtn->SetTextColor(0xFFFFFF);
+      m_filterShowGUIBtn->SetToolTipText("Edit filters");
+      filterFrame->AddFrame(m_filterShowGUIBtn, new TGLayoutHints(kLHintsLeft | kLHintsExpandX, 6,7,0,0));
 
-   texts->AddFrame(filterFrame, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 0,0,1,0));
-   fullbar->AddFrame(texts, new TGLayoutHints(kLHintsNormal| kLHintsCenterY, 20, 5, 5, 5));
+      texts->AddFrame(filterFrame, new TGLayoutHints(kLHintsTop | kLHintsExpandX, 0,0,4,0));
+   }
 
-   /**************************************************************************/
+   fullbar->AddFrame(texts, new TGLayoutHints(kLHintsLeft | kLHintsExpandX, 5, 5, 12, 0));
+
+   //==============================================================================
+
    TGVerticalFrame *texts2 = new TGVerticalFrame(fullbar, 200, 44, kFixedSize, backgroundColor);
-
-   // Lumi
-   m_lumiBlock = new TGLabel(texts2, "Lumi block id: ");
-   m_lumiBlock->SetTextJustify(kTextLeft);
-   m_lumiBlock->SetTextColor(0xffffff);
-   m_lumiBlock->SetBackgroundColor(backgroundColor);
-   texts2->AddFrame(m_lumiBlock, new TGLayoutHints(kLHintsNormal | kLHintsExpandX| kLHintsBottom, 0,0,3,1));
 
    // time
    m_timeText = new TGLabel(texts2, "...");
    m_timeText->SetTextJustify(kTextLeft);
    m_timeText->SetTextColor(0xffffff);
    m_timeText->SetBackgroundColor(backgroundColor);
-   texts2->AddFrame(m_timeText, new TGLayoutHints(kLHintsNormal | kLHintsExpandX| kLHintsBottom, 0,0,0,1));
+   texts2->AddFrame(m_timeText, new TGLayoutHints(kLHintsTop | kLHintsExpandX, 0,0,0,1));
 
-   fullbar->AddFrame(texts2, new TGLayoutHints(kLHintsNormal| kLHintsCenterY, 6, 5, 5, 5));
+   fullbar->AddFrame(texts2, new TGLayoutHints(kLHintsLeft, 5, 5, 16, 5));
 
-   /**************************************************************************/
+   //==============================================================================
+
    //  logo
    {
       TGVerticalFrame* parentLogoFrame = new TGVerticalFrame(fullbar, 70, 53, kFixedSize); 
       parentLogoFrame->SetBackgroundColor(backgroundColor);
-      fullbar->AddFrame(parentLogoFrame, new TGLayoutHints(kLHintsRight| kLHintsCenterY, 0, 0, 0 ));
+      fullbar->AddFrame(parentLogoFrame, new TGLayoutHints(kLHintsRight | kLHintsCenterY));
 
       TGVerticalFrame* logoFrame = new TGVerticalFrame(parentLogoFrame, 53, 53, kFixedSize);
       TImage *logoImg  = TImage::Open(FWCheckBoxIcon::coreIcondir() + "CMSRedOnBlackThick.png");
       logoFrame->SetBackgroundPixmap(logoImg->GetPixmap());
-      parentLogoFrame->AddFrame(logoFrame, new TGLayoutHints(kLHintsRight | kLHintsCenterY, 0, 17, 0, 0));
+      parentLogoFrame->AddFrame(logoFrame, new TGLayoutHints(kLHintsRight | kLHintsCenterY, 0, 14, 0, 0));
    }
    {
       TGCompositeFrame *logoFrame = new TGCompositeFrame(this, 61, 23, kFixedSize | kHorizontalFrame, backgroundColor);
       FWCustomIconsButton *infoBut =
          new FWCustomIconsButton(logoFrame, fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"fireworksSmallGray.png"),
-                                            fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"fireworksSmallGray-green.png"),
-                                            fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"fireworksSmallGray-red.png"),
-                                            fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"fireworksSmallGray-red.png"));
+                                 fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"fireworksSmallGray-green.png"),
+                                 fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"fireworksSmallGray-red.png"),
+                                 fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"fireworksSmallGray-red.png"));
       logoFrame->AddFrame(infoBut);
       infoBut->Connect("Clicked()", "CmsShowMainFrame", this, "showFWorksInfo()");
       //TImage *logoImg  = TImage::Open( FWCheckBoxIcon::coreIcondir() + "fireworksSmallGray.png");
@@ -432,7 +443,8 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
       menuTopFrame->AddFrame(logoFrame, new TGLayoutHints(kLHintsRight | kLHintsBottom, 0, 13, 3, 1));
    }
   
-   /**************************************************************************/
+   //==============================================================================
+
    AddFrame(fullbar, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
 
    //Start disabled
@@ -503,16 +515,17 @@ CmsShowMainFrame::createNewViewerAction(const std::string& iActionName)
 
 void CmsShowMainFrame::loadEvent(const edm::EventBase& event)
 {
-   if (event.id().run() != static_cast<unsigned int>(m_runEntry->GetIntNumber()))
-      m_runEntry->SetIntNumber(event.id().run());
+   // XXXX Waiting for GetUIntNumber() in TGNumberEntryField.
+   if (event.id().run() != static_cast<edm::RunNumber_t>(m_runEntry->GetNumber()))
+      m_runEntry->SetHexNumber(event.id().run());
 
-   if (event.id().event() != static_cast<unsigned int>(m_eventEntry->GetIntNumber()))
-      m_eventEntry->SetIntNumber(event.id().event());
+   if (event.id().run() != static_cast<edm::LuminosityBlockNumber_t>(m_lumiEntry->GetNumber()))
+      m_lumiEntry->SetHexNumber(event.id().luminosityBlock());
+
+   if (event.id().event() != static_cast<unsigned int>(m_eventEntry->GetNumber()))
+      m_eventEntry->SetHexNumber(event.id().event());
 
    m_timeText->SetText( fw::getLocalTime( event ).c_str() );
-   char title[128];
-   snprintf(title,128,"Lumi block id: %d", event.eventAuxiliary().luminosityBlock());
-   m_lumiBlock->SetText( title );
 }
 
 void CmsShowMainFrame::enableNavigatorControls()
@@ -649,20 +662,20 @@ CmsShowMainFrame::setPlayDelayGUI(Float_t val, Bool_t sliderChanged)
 }
 
 void
-CmsShowMainFrame::makeFixedSizeLabel(TGHorizontalFrame* p, const char* txt, UInt_t bgCol,  UInt_t txtCol)
+CmsShowMainFrame::makeFixedSizeLabel(TGHorizontalFrame* p, const char* txt,
+                                     UInt_t bgCol, UInt_t txtCol,
+                                     Int_t  width, Int_t  height)
 {
    // Utility function.
 
-   Int_t labW = 50;
-   Int_t labH = 20;
 
    p->SetBackgroundColor(bgCol);
-   TGCompositeFrame *lframe = new TGHorizontalFrame(p, labW, labH, kFixedSize, bgCol);
+   TGCompositeFrame *lframe = new TGHorizontalFrame(p, width, height, kFixedSize, bgCol);
    TGLabel* label = new TGLabel(lframe, txt);
    label->SetBackgroundColor(bgCol);
    label->SetTextColor(txtCol);
-   lframe->AddFrame(label,     new TGLayoutHints(kLHintsRight | kLHintsBottom));
-   p->AddFrame(lframe, new TGLayoutHints(kLHintsLeft  | kLHintsBottom, 0, 4, 0, 0));
+   lframe->AddFrame(label, new TGLayoutHints(kLHintsRight | kLHintsTop, 0, 4));
+   p->AddFrame(lframe, new TGLayoutHints(kLHintsLeft, 0, 0, 3, 0));
 }
 
 class InfoFrame : public TGMainFrame {

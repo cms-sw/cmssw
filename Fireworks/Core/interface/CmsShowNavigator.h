@@ -4,7 +4,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.h,v 1.51 2010/07/16 12:08:18 eulisse Exp $
+// $Id: CmsShowNavigator.h,v 1.52 2010/07/26 15:13:58 matevz Exp $
 //
 
 // system include files
@@ -13,10 +13,12 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWNavigatorBase.h"
-#include "DataFormats/FWLite/interface/Event.h"
 #include "Fireworks/Core/interface/FWEventSelector.h"
 #include "Fireworks/Core/interface/FWConfigurable.h"
 #include "Fireworks/Core/interface/FWFileEntry.h"
+
+#include "DataFormats/FWLite/interface/Event.h"
+
 #include "TEventList.h"
 
 // forward declarations
@@ -93,7 +95,7 @@ public:
    virtual bool previousSelectedEvent();
    virtual void firstEvent();
    virtual void lastEvent();
-   virtual void goToRunEvent(Int_t,Int_t);
+   virtual void goToRunEvent(edm::RunNumber_t, edm::LuminosityBlockNumber_t, edm::EventNumber_t);
    void goTo(FileQueue_i fi, int event);
 
    void eventFilterEnableCallback(Bool_t);
