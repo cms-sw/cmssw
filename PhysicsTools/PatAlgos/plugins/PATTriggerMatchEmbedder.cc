@@ -10,10 +10,10 @@
    .
 
   \author   Volker Adler
-  \version  $Id: PATTriggerMatchEmbedder.cc,v 1.4 2010/04/20 21:39:47 vadler Exp $
+  \version  $Id: PATTriggerMatchEmbedder.cc,v 1.7 2010/09/01 18:56:48 vadler Exp $
 */
 //
-// $Id: PATTriggerMatchEmbedder.cc,v 1.4 2010/04/20 21:39:47 vadler Exp $
+// $Id: PATTriggerMatchEmbedder.cc,v 1.7 2010/09/01 18:56:48 vadler Exp $
 //
 
 
@@ -55,11 +55,11 @@ namespace pat {
   };
 
   typedef PATTriggerMatchEmbedder< Electron > PATTriggerMatchElectronEmbedder;
-  typedef PATTriggerMatchEmbedder< Jet >         PATTriggerMatchJetEmbedder;
-  typedef PATTriggerMatchEmbedder< MET >         PATTriggerMatchMETEmbedder;
-  typedef PATTriggerMatchEmbedder< Muon >        PATTriggerMatchMuonEmbedder;
-  typedef PATTriggerMatchEmbedder< Photon >      PATTriggerMatchPhotonEmbedder;
-  typedef PATTriggerMatchEmbedder< Tau >     PATTriggerMatchTauEmbedder;
+  typedef PATTriggerMatchEmbedder< Jet >      PATTriggerMatchJetEmbedder;
+  typedef PATTriggerMatchEmbedder< MET >      PATTriggerMatchMETEmbedder;
+  typedef PATTriggerMatchEmbedder< Muon >     PATTriggerMatchMuonEmbedder;
+  typedef PATTriggerMatchEmbedder< Photon >   PATTriggerMatchPhotonEmbedder;
+  typedef PATTriggerMatchEmbedder< Tau >      PATTriggerMatchTauEmbedder;
 
 }
 

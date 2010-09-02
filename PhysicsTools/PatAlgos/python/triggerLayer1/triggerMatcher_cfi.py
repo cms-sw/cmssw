@@ -10,253 +10,254 @@ import FWCore.ParameterSet.Config as cms
 # are NOT tuned (using old values from TQAF MC match, January 2008)
 
 
-## L1 ##
+## Default example matches ##
 
-# matches to HLT_IsoMu3
-muonTriggerMatchL1Muon = cms.EDProducer( "PATTriggerMatcherDRDPtLessByR"
+# firing trigger objects used in succeeding HLT path 'HLT_Mu9'
+cleanMuonTriggerMatchHLTMu9 = cms.EDProducer(
+  "PATTriggerMatcherDRDPtLessByR"                 # match by DeltaR only, best match by DeltaR
 , src     = cms.InputTag( "cleanPatMuons" )
-, matched = cms.InputTag( "patTrigger" )
-, andOr          = cms.bool( False )
+, matched = cms.InputTag( "patTrigger" )          # default producer label as defined in PhysicsTools/PatAlgos/python/triggerLayer1/triggerProducer_cfi.py
+, andOr                      = cms.bool( False )  # AND
+, filterIdsEnum              = cms.vstring( '*' ) # wildcard, overlaps with 'filterIds'
+, filterIds                  = cms.vint32( 0 )    # wildcard, overlaps with 'filterIdsEnum'
+, filterLabels               = cms.vstring( '*' ) # wildcard
+, pathNames                  = cms.vstring(
+    'HLT_Mu9'
+  )
+, pathLastFilterAcceptedOnly = cms.bool( True )   # select only trigger objects used in last filters of succeeding paths
+, collectionTags             = cms.vstring( '*' ) # wildcard
+, maxDPtRel = cms.double( 0.5 )
+, maxDeltaR = cms.double( 0.5 )
+, resolveAmbiguities    = cms.bool( True )        # only one match per trigger object
+, resolveByMatchQuality = cms.bool( True )        # take best match found per reco object: by DeltaR here (s. above)
+)
+
+# firing trigger objects used in succeeding HLT path 'HLT_DoubleMu3'
+cleanMuonTriggerMatchHLTDoubleIsoMu3 = cms.EDProducer(
+  "PATTriggerMatcherDRDPtLessByR"                 # match by DeltaR only, best match by DeltaR
+, src     = cms.InputTag( "cleanPatMuons" )
+, matched = cms.InputTag( "patTrigger" )          # default producer label as defined in PhysicsTools/PatAlgos/python/triggerLayer1/triggerProducer_cfi.py
+, andOr                      = cms.bool( False )  # AND
+, filterIdsEnum              = cms.vstring( '*' ) # wildcard, overlaps with 'filterIds'
+, filterIds                  = cms.vint32( 0 )    # wildcard, overlaps with 'filterIdsEnum'
+, filterLabels               = cms.vstring( '*' ) # wildcard
+, pathNames                  = cms.vstring(
+    'HLT_DoubleMu3'
+  )
+, pathLastFilterAcceptedOnly = cms.bool( True )   # select only trigger objects used in last filters of succeeding paths
+, collectionTags             = cms.vstring( '*' ) # wildcard
+, maxDPtRel = cms.double( 0.5 )
+, maxDeltaR = cms.double( 0.5 )
+, resolveAmbiguities    = cms.bool( True )        # only one match per trigger object
+, resolveByMatchQuality = cms.bool( True )        # take best match found per reco object: by DeltaR here (s. above)
+)
+
+# firing trigger objects used in succeeding HLT path 'HLT_Photon20_Cleaned_L1R'
+cleanPhotonTriggerMatchHLTPhoton20CleanedL1R = cms.EDProducer(
+  "PATTriggerMatcherDRDPtLessByR"                 # match by DeltaR only, best match by DeltaR
+, src     = cms.InputTag( "cleanPatPhotons" )
+, matched = cms.InputTag( "patTrigger" )          # default producer label as defined in PhysicsTools/PatAlgos/python/triggerLayer1/triggerProducer_cfi.py
+, andOr                      = cms.bool( False )  # AND
+, filterIdsEnum              = cms.vstring( '*' ) # wildcard, overlaps with 'filterIds'
+, filterIds                  = cms.vint32( 0 )    # wildcard, overlaps with 'filterIdsEnum'
+, filterLabels               = cms.vstring( '*' ) # wildcard
+, pathNames                  = cms.vstring(
+    'HLT_Photon20_Cleaned_L1R'
+  )
+, pathLastFilterAcceptedOnly = cms.bool( True )   # select only trigger objects used in last filters of succeeding paths
+, collectionTags             = cms.vstring( '*' ) # wildcard
+, maxDPtRel = cms.double( 0.5 )
+, maxDeltaR = cms.double( 0.5 )
+, resolveAmbiguities    = cms.bool( True )        # only one match per trigger object
+, resolveByMatchQuality = cms.bool( True )        # take best match found per reco object: by DeltaR here (s. above)
+)
+
+# firing trigger objects used in succeeding HLT path 'HLT_Ele20_SW_L1R'
+cleanElectronTriggerMatchHLTEle20SWL1R = cms.EDProducer(
+  "PATTriggerMatcherDRDPtLessByR"                 # match by DeltaR only, best match by DeltaR
+, src     = cms.InputTag( "cleanPatElectrons" )
+, matched = cms.InputTag( "patTrigger" )          # default producer label as defined in PhysicsTools/PatAlgos/python/triggerLayer1/triggerProducer_cfi.py
+, andOr                      = cms.bool( False )  # AND
+, filterIdsEnum              = cms.vstring( '*' ) # wildcard, overlaps with 'filterIds'
+, filterIds                  = cms.vint32( 0 )    # wildcard, overlaps with 'filterIdsEnum'
+, filterLabels               = cms.vstring( '*' ) # wildcard
+, pathNames                  = cms.vstring(
+    'HLT_Ele20_SW_L1R'
+  )
+, pathLastFilterAcceptedOnly = cms.bool( True )   # select only trigger objects used in last filters of succeeding paths
+, collectionTags             = cms.vstring( '*' ) # wildcard
+, maxDPtRel = cms.double( 0.5 )
+, maxDeltaR = cms.double( 0.5 )
+, resolveAmbiguities    = cms.bool( True )        # only one match per trigger object
+, resolveByMatchQuality = cms.bool( True )        # take best match found per reco object: by DeltaR here (s. above)
+)
+
+# firing trigger objects used in succeeding HLT path 'HLT_DoubleLooseIsoTau15'
+cleanTauTriggerMatchHLTDoubleLooseIsoTau15 = cms.EDProducer(
+  "PATTriggerMatcherDRDPtLessByR"                 # match by DeltaR only, best match by DeltaR
+, src     = cms.InputTag( "cleanPatTaus" )
+, matched = cms.InputTag( "patTrigger" )          # default producer label as defined in PhysicsTools/PatAlgos/python/triggerLayer1/triggerProducer_cfi.py
+, andOr                      = cms.bool( False )  # AND
+, filterIdsEnum              = cms.vstring( '*' ) # wildcard, overlaps with 'filterIds'
+, filterIds                  = cms.vint32( 0 )    # wildcard, overlaps with 'filterIdsEnum'
+, filterLabels               = cms.vstring( '*' ) # wildcard
+, pathNames                  = cms.vstring(
+    'HLT_DoubleLooseIsoTau15'
+  )
+, pathLastFilterAcceptedOnly = cms.bool( True )   # select only trigger objects used in last filters of succeeding paths
+, collectionTags             = cms.vstring( '*' ) # wildcard
+, maxDPtRel = cms.double( 0.5 )
+, maxDeltaR = cms.double( 0.5 )
+, resolveAmbiguities    = cms.bool( True )        # only one match per trigger object
+, resolveByMatchQuality = cms.bool( True )        # take best match found per reco object: by DeltaR here (s. above)
+)
+
+# firing trigger objects used in succeeding HLT path 'HLT_Jet15U'
+cleanJetTriggerMatchHLTJet15U = cms.EDProducer(
+  "PATTriggerMatcherDRLessByR"                    # match by DeltaR only, best match by DeltaR
+, src     = cms.InputTag( 'cleanPatJets' )
+, matched = cms.InputTag( 'patTrigger' )          # default producer label as defined in PhysicsTools/PatAlgos/python/triggerLayer1/triggerProducer_cfi.py
+, andOr                      = cms.bool( False )  # AND
+, filterIdsEnum              = cms.vstring( '*' ) # wildcard, overlaps with 'filterIds'
+, filterIds                  = cms.vint32( 0 )    # wildcard, overlaps with 'filterIdsEnum'
+, filterLabels               = cms.vstring( '*' ) # wildcard
+, pathNames                  = cms.vstring(
+  'HLT_Jet15U'
+  )
+, pathLastFilterAcceptedOnly = cms.bool( True )   # select only trigger objects used in last filters of succeeding paths
+, collectionTags             = cms.vstring( '*' ) # wildcard
+, maxDPtRel = cms.double( 3.0 )
+, maxDeltaR = cms.double( 0.4 )
+, resolveAmbiguities    = cms.bool( True )        # only one match per trigger object
+, resolveByMatchQuality = cms.bool( True )        # take best match found per reco object: by DeltaR here (s. above)
+)
+
+# firing trigger objects used in succeeding HLT path 'HLT_MET45'
+metTriggerMatchHLTMET45 = cms.EDProducer(
+  "PATTriggerMatcherDRLessByR"                    # match by DeltaR only, best match by DeltaR
+, src     = cms.InputTag( 'patMETs' )
+, matched = cms.InputTag( 'patTrigger' )          # default producer label as defined in PhysicsTools/PatAlgos/python/triggerLayer1/triggerProducer_cfi.py
+, andOr                      = cms.bool( False )  # AND
+, filterIdsEnum              = cms.vstring( '*' ) # wildcard, overlaps with 'filterIds'
+, filterIds                  = cms.vint32( 0 )    # wildcard, overlaps with 'filterIdsEnum'
+, filterLabels               = cms.vstring( '*' ) # wildcard
+, pathNames                  = cms.vstring(
+    'HLT_MET45'
+  )
+, pathLastFilterAcceptedOnly = cms.bool( True )   # select only trigger objects used in last filters of succeeding paths
+, collectionTags             = cms.vstring( '*' ) # wildcard
+, maxDPtRel = cms.double( 3.0 )
+, maxDeltaR = cms.double( 0.4 )
+, resolveAmbiguities    = cms.bool( True )        # only one match per trigger object
+, resolveByMatchQuality = cms.bool( True )        # take best match found per reco object: by DeltaR here (s. above)
+)
+
+
+triggerMatchingDefaultSequence = cms.Sequence(
+  cleanMuonTriggerMatchHLTMu9
++ cleanMuonTriggerMatchHLTDoubleIsoMu3
++ cleanPhotonTriggerMatchHLTPhoton20CleanedL1R
++ cleanElectronTriggerMatchHLTEle20SWL1R
++ cleanTauTriggerMatchHLTDoubleLooseIsoTau15
++ cleanJetTriggerMatchHLTJet15U
++ metTriggerMatchHLTMET45
+)
+
+
+## Further examples ##
+
+# L1 e/gammas by original collection
+cleanElectronTriggerMatchL1EGammaCollection = cms.EDProducer(
+  "PATTriggerMatcherDRLessByR"                  # match by DeltaR only, best match by DeltaR
+, src     = cms.InputTag( 'cleanPatElectrons' )
+, matched = cms.InputTag( 'patTrigger' )        # default producer label as defined in PhysicsTools/PatAlgos/python/triggerLayer1/triggerProducer_cfi.py
+, andOr          = cms.bool( False )            # AND
+, filterIdsEnum  = cms.vstring( '*' )           # wildcard, overlaps with 'filterIds'
+, filterIds      = cms.vint32( 0 )              # wildcard, overlaps with 'filterIdsEnum'
+, filterLabels   = cms.vstring( '*' )           # wildcard
+, pathNames      = cms.vstring( '*' )           # wildcard
+, collectionTags = cms.vstring(
+    'l1extraParticles:NonIsolated'
+  , 'l1extraParticles:Isolated'
+  )                                             # L1 e/gammas by original collection
+, maxDPtRel = cms.double( 0.5 )
+, maxDeltaR = cms.double( 0.5 )
+, resolveAmbiguities    = cms.bool( True )      # only one match per trigger object
+, resolveByMatchQuality = cms.bool( False )     # take first match found per reco object
+)
+
+# L1 and HLT muons by ID
+cleanMuonTriggerMatchTriggerMuon = cms.EDProducer(
+  "PATTriggerMatcherDRDPtLessByR"           # match by DeltaR and DeltaPt, best match by DeltaR
+, src     = cms.InputTag( 'cleanPatMuons' )
+, matched = cms.InputTag( 'patTrigger' )    # default producer label as defined in PhysicsTools/PatAlgos/python/triggerLayer1/triggerProducer_cfi.py
+, andOr          = cms.bool( False )        # AND
 , filterIdsEnum  = cms.vstring(
     'TriggerL1Mu'
   , 'TriggerMuon'
-  )
-, filterIds      = cms.vint32( 0 )
-, filterLabels   = cms.vstring( '*' )
-, pathNames      = cms.vstring( '*' )
-, collectionTags = cms.vstring( '*' )
+  )                                         # L1 and HLT muons
+, filterIds      = cms.vint32( 0 )          # wildcard, overlaps with 'filterIdsEnum'
+# alternative:
+# , filterIdsEnum  = cms.vstring( '*' )
+# , filterIds      = cms.vint32(
+#     -81
+#   ,  83
+#   )
+, filterLabels   = cms.vstring( '*' )       # wildcard
+, pathNames      = cms.vstring( '*' )       # wildcard
+, collectionTags = cms.vstring( '*' )       # wildcard
 , maxDPtRel = cms.double( 0.5 )
 , maxDeltaR = cms.double( 0.5 )
-, resolveAmbiguities    = cms.bool( True )
-, resolveByMatchQuality = cms.bool( False )
+, resolveAmbiguities    = cms.bool( True )  # only one match per trigger object
+, resolveByMatchQuality = cms.bool( False ) # take first match found per reco object
 )
 
-
-## PAT Tuple (modified), HLT 8E29 (start-up) ##
-
-# matches to HLT_IsoMu3
-muonTriggerMatchHLTIsoMu3 = cms.EDProducer( "PATTriggerMatcherDRDPtLessByR"
-, src     = cms.InputTag( "cleanPatMuons" )
-, matched = cms.InputTag( "patTrigger" )
-, andOr          = cms.bool( False )
-, filterIdsEnum  = cms.vstring( '*' )
-, filterIds      = cms.vint32( 0 )
-, filterLabels   = cms.vstring( '*' )
-, pathNames      = cms.vstring(
-    'HLT_IsoMu3'
-  )
-# , pathLastFilterAcceptedOnly = cms.bool( True )
-, collectionTags = cms.vstring( '*' )
+# firing trigger objects used in succeeding HLT paths of PD /Mu
+cleanMuonTriggerMatchPDMu = cms.EDProducer(
+  "PATTriggerMatcherDRDPtLessByR"                 # match by DeltaR and DeltaPt, best match by DeltaR
+, src     = cms.InputTag( 'cleanPatMuons' )
+, matched = cms.InputTag( 'patTrigger' )          # default producer label as defined in PhysicsTools/PatAlgos/python/triggerLayer1/triggerProducer_cfi.py
+, andOr                      = cms.bool( False )  # AND
+, filterIdsEnum              = cms.vstring( '*' ) # wildcard, overlaps with 'filterIds'
+, filterIds                  = cms.vint32( 0 )    # wildcard, overlaps with 'filterIdsEnum'
+, filterLabels               = cms.vstring( '*' ) # wildcard
+, pathNames                  = cms.vstring(
+    'HLT_DoubleMu3'
+  , 'HLT_IsoMu3'
+  , 'HLT_L1Mu14_L1ETM30'
+  , 'HLT_L1Mu14_L1SingleEG10'
+  , 'HLT_L1Mu14_L1SingleJet6U'
+  , 'HLT_L1Mu20'
+  , 'HLT_L2Mu11'
+  , 'HLT_L2Mu9'
+  , 'HLT_Mu3'
+  , 'HLT_Mu5'
+  , 'HLT_Mu9'
+  )                                               # PD /Mu definition (as in CMSSW_3_8_0_pre8 RelVal)
+, pathLastFilterAcceptedOnly = cms.bool( True )   # select only trigger objects used in last filters of succeeding paths
+, collectionTags             = cms.vstring( '*' ) # wildcard
 , maxDPtRel = cms.double( 0.5 )
 , maxDeltaR = cms.double( 0.5 )
-, resolveAmbiguities    = cms.bool( True )
-, resolveByMatchQuality = cms.bool( False )
+, resolveAmbiguities    = cms.bool( True )        # only one match per trigger object
+, resolveByMatchQuality = cms.bool( True )        # take best match found per reco object: by DeltaR here (s. above)
 )
 
-# matches to HLT_Mu3
-muonTriggerMatchHLTMu3 = cms.EDProducer( "PATTriggerMatcherDRDPtLessByR"
-, src     = cms.InputTag( "cleanPatMuons" )
-, matched = cms.InputTag( "patTrigger" )
-, andOr          = cms.bool( False )
-, filterIdsEnum  = cms.vstring( '*' )
-, filterIds      = cms.vint32( 0 )
-, filterLabels   = cms.vstring( '*' )
-, pathNames      = cms.vstring(
+# all trigger objects used in HLT path 'HLT_Mu3' (fake MET)
+metTriggerMatchHLTMu3 = cms.EDProducer(
+  "PATTriggerMatcherDRLessByR"                    # match by DeltaR only, best match by DeltaR
+, src     = cms.InputTag( 'patMETs' )
+, matched = cms.InputTag( 'patTrigger' )          # default producer label as defined in PhysicsTools/PatAlgos/python/triggerLayer1/triggerProducer_cfi.py
+, andOr                      = cms.bool( False )  # AND
+, filterIdsEnum              = cms.vstring( '*' ) # wildcard, overlaps with 'filterIds'
+, filterIds                  = cms.vint32( 0 )    # wildcard, overlaps with 'filterIdsEnum'
+, filterLabels               = cms.vstring( '*' ) # wildcard
+, pathNames                  = cms.vstring(
     'HLT_Mu3'
   )
-# , pathLastFilterAcceptedOnly = cms.bool( True )
-, collectionTags = cms.vstring( '*' )
+, pathLastFilterAcceptedOnly = cms.bool( False )  # select all trigger objects used in the path, independently of success
+, collectionTags             = cms.vstring( '*' ) # wildcard
 , maxDPtRel = cms.double( 0.5 )
 , maxDeltaR = cms.double( 0.5 )
-, resolveAmbiguities    = cms.bool( True )
-, resolveByMatchQuality = cms.bool( False )
-)
-
-# # matches to HLT_DoubleIsoMu3
-# muonTriggerMatchHLTDoubleIsoMu3 = cms.EDProducer( "PATTriggerMatcherDRDPtLessByR"
-# , src     = cms.InputTag( "cleanPatMuons" )
-# , matched = cms.InputTag( "patTrigger" )
-# , andOr          = cms.bool( False )
-# , filterIdsEnum  = cms.vstring( '*' )
-# , filterIds      = cms.vint32( 0 )
-# , filterLabels   = cms.vstring( '*' )
-# , pathNames      = cms.vstring(
-#     'HLT_DoubleIsoMu3'
-#   )
-# # , pathLastFilterAcceptedOnly = cms.bool( True )
-# , collectionTags = cms.vstring( '*' )
-# , maxDPtRel = cms.double( 0.5 )
-# , maxDeltaR = cms.double( 0.5 )
-# , resolveAmbiguities    = cms.bool( True )
-# , resolveByMatchQuality = cms.bool( False )
-# )
-
-# matches to HLT_DoubleMu3
-muonTriggerMatchHLTDoubleMu3 = cms.EDProducer( "PATTriggerMatcherDRDPtLessByR"
-, src     = cms.InputTag( "cleanPatMuons" )
-, matched = cms.InputTag( "patTrigger" )
-, andOr          = cms.bool( False )
-, filterIdsEnum  = cms.vstring( '*' )
-, filterIds      = cms.vint32( 0 )
-, filterLabels   = cms.vstring( '*' )
-, pathNames      = cms.vstring(
-    'HLT_DoubleMu3'
-  )
-# , pathLastFilterAcceptedOnly = cms.bool( True )
-, collectionTags = cms.vstring( '*' )
-, maxDPtRel = cms.double( 0.5 )
-, maxDeltaR = cms.double( 0.5 )
-, resolveAmbiguities    = cms.bool( True )
-, resolveByMatchQuality = cms.bool( False )
-)
-
-# # matches to HLT_IsoEle15_LW_L1I
-# electronTriggerMatchHLTIsoEle15LWL1I = cms.EDProducer( "PATTriggerMatcherDRDPtLessByR"
-# , src     = cms.InputTag( "cleanPatElectrons" )
-# , matched = cms.InputTag( "patTrigger" )
-# , andOr          = cms.bool( False )
-# , filterIdsEnum  = cms.vstring( '*' )
-# , filterIds      = cms.vint32( 0 )
-# , filterLabels   = cms.vstring( '*' )
-# , pathNames      = cms.vstring(
-#     'HLT_IsoEle15_LW_L1I'
-#   )
-# # , pathLastFilterAcceptedOnly = cms.bool( True )
-# , collectionTags = cms.vstring( '*' )
-# , maxDPtRel = cms.double( 0.5 )
-# , maxDeltaR = cms.double( 0.5 )
-# , resolveAmbiguities    = cms.bool( True )
-# , resolveByMatchQuality = cms.bool( False )
-# )
-
-# matches to HLT_Ele15_LW_L1R
-electronTriggerMatchHLTEle15LWL1R = cms.EDProducer( "PATTriggerMatcherDRDPtLessByR"
-, src     = cms.InputTag( "cleanPatElectrons" )
-, matched = cms.InputTag( "patTrigger" )
-, andOr          = cms.bool( False )
-, filterIdsEnum  = cms.vstring( '*' )
-, filterIds      = cms.vint32( 0 )
-, filterLabels   = cms.vstring( '*' )
-, pathNames      = cms.vstring(
-    'HLT_Ele15_LW_L1R'
-  )
-# , pathLastFilterAcceptedOnly = cms.bool( True )
-, collectionTags = cms.vstring( '*' )
-, maxDPtRel = cms.double( 0.5 )
-, maxDeltaR = cms.double( 0.5 )
-, resolveAmbiguities    = cms.bool( True )
-, resolveByMatchQuality = cms.bool( False )
-)
-
-# # matches to HLT_DoubleIsoEle10_LW_L1I
-# electronTriggerMatchHLTDoubleIsoEle10LWL1I = cms.EDProducer( "PATTriggerMatcherDRDPtLessByR"
-# , src     = cms.InputTag( "cleanPatElectrons" )
-# , matched = cms.InputTag( "patTrigger" )
-# , andOr          = cms.bool( False )
-# , filterIdsEnum  = cms.vstring( '*' )
-# , filterIds      = cms.vint32( 0 )
-# , filterLabels   = cms.vstring( '*' )
-# , pathNames      = cms.vstring(
-#     'HLT_DoubleIsoEle10_LW_L1I'
-#   )
-# # , pathLastFilterAcceptedOnly = cms.bool( True )
-# , collectionTags = cms.vstring( '*' )
-# , maxDPtRel = cms.double( 0.5 )
-# , maxDeltaR = cms.double( 0.5 )
-# , resolveAmbiguities    = cms.bool( True )
-# , resolveByMatchQuality = cms.bool( False )
-# )
-
-# matches to HLT_DoubleEle5_SW_L1R
-electronTriggerMatchHLTDoubleEle5SWL1R = cms.EDProducer( "PATTriggerMatcherDRDPtLessByR"
-, src     = cms.InputTag( "cleanPatElectrons" )
-, matched = cms.InputTag( "patTrigger" )
-, andOr          = cms.bool( False )
-, filterIdsEnum  = cms.vstring( '*' )
-, filterIds      = cms.vint32( 0 )
-, filterLabels   = cms.vstring( '*' )
-, pathNames      = cms.vstring(
-    'HLT_DoubleEle5_SW_L1R'
-  )
-# , pathLastFilterAcceptedOnly = cms.bool( True )
-, collectionTags = cms.vstring( '*' )
-, maxDPtRel = cms.double( 0.5 )
-, maxDeltaR = cms.double( 0.5 )
-, resolveAmbiguities    = cms.bool( True )
-, resolveByMatchQuality = cms.bool( False )
-)
-
-# # matches to HLT_LooseIsoTau_MET30_L1MET
-# tauTriggerMatchHLTLooseIsoTauMET30L1MET = cms.EDProducer( "PATTriggerMatcherDRDPtLessByR"
-# , src     = cms.InputTag( "cleanPatTaus" )
-# , matched = cms.InputTag( "patTrigger" )
-# , andOr          = cms.bool( False )
-# , filterIdsEnum  = cms.vstring( '*' )
-# , filterIds      = cms.vint32( 0 )
-# , filterLabels   = cms.vstring( '*' )
-# , pathNames      = cms.vstring(
-#     'HLT_LooseIsoTau_MET30_L1MET'
-#   )
-# # , pathLastFilterAcceptedOnly = cms.bool( True )
-# , collectionTags = cms.vstring( '*' )
-# , maxDPtRel = cms.double( 0.5 )
-# , maxDeltaR = cms.double( 0.5 )
-# , resolveAmbiguities    = cms.bool( True )
-# , resolveByMatchQuality = cms.bool( False )
-# )
-
-# matches to HLT_DoubleLooseIsoTau15
-tauTriggerMatchHLTDoubleLooseIsoTau15 = cms.EDProducer( "PATTriggerMatcherDRDPtLessByR"
-, src     = cms.InputTag( "cleanPatTaus" )
-, matched = cms.InputTag( "patTrigger" )
-, andOr          = cms.bool( False )
-, filterIdsEnum  = cms.vstring( '*' )
-, filterIds      = cms.vint32( 0 )
-, filterLabels   = cms.vstring( '*' )
-, pathNames      = cms.vstring(
-    'HLT_DoubleLooseIsoTau15'
-  )
-# , pathLastFilterAcceptedOnly = cms.bool( True )
-, collectionTags = cms.vstring( '*' )
-, maxDPtRel = cms.double( 0.5 )
-, maxDeltaR = cms.double( 0.5 )
-, resolveAmbiguities    = cms.bool( True )
-, resolveByMatchQuality = cms.bool( False )
-)
-
-
-## Sequences ##
-
-# patTriggerMatcherPhoton = cms.Sequence(
-# )
-patTriggerMatcherElectron = cms.Sequence(
-  electronTriggerMatchHLTEle15LWL1R
-+ electronTriggerMatchHLTDoubleEle5SWL1R
-)
-patTriggerMatcherMuon = cms.Sequence(
-  muonTriggerMatchL1Muon
-+ muonTriggerMatchHLTIsoMu3
-+ muonTriggerMatchHLTMu3
-+ muonTriggerMatchHLTDoubleMu3
-)
-patTriggerMatcherTau = cms.Sequence(
- tauTriggerMatchHLTDoubleLooseIsoTau15
-)
-# patTriggerMatcherJet = cms.Sequence(
-# )
-# patTriggerMatcherMET = cms.Sequence(
-# )
-
-# patTriggerMatcher = cms.Sequence(
-#   patTriggerMatcherPhoton
-# + patTriggerMatcherElectron
-# + patTriggerMatcherMuon
-# + patTriggerMatcherTau
-# + patTriggerMatcherJet
-# + patTriggerMatcherMET
-# )
-patTriggerMatcher = cms.Sequence(
-  patTriggerMatcherElectron
-+ patTriggerMatcherMuon
-+ patTriggerMatcherTau
+, resolveAmbiguities    = cms.bool( True )        # only one match per trigger object
+, resolveByMatchQuality = cms.bool( True )        # take best match found per reco object: by DeltaR here (s. above)
 )
