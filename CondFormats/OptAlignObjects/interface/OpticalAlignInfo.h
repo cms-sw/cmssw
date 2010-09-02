@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
- 
+
 #include "CondFormats/OptAlignObjects/interface/OAQuality.h"
 
 /**

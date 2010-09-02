@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2010/04/02 08:18:10 $
- * $Revision: 1.83 $
+ * $Date: 2010/04/02 08:20:43 $
+ * $Revision: 1.84 $
  * \author G. Della Ricca
  *
  */
@@ -21,9 +21,9 @@
 
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBIntegrityTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBIntegrityTask.h"
 
 EBIntegrityTask::EBIntegrityTask(const edm::ParameterSet& ps){
 

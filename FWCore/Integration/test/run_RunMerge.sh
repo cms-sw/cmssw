@@ -41,6 +41,9 @@ pushd ${LOCAL_TMP_DIR}
   echo ${test}MERGE2------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}MERGE2_cfg.py || die "cmsRun ${test}MERGE2_cfg.py" $?
 
+  echo ${test}MERGE3------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/${test}MERGE3_cfg.py || die "cmsRun ${test}MERGE3_cfg.py" $?
+
   echo ${test}TEST------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}TEST_cfg.py || die "cmsRun ${test}TEST_cfg.py" $?
 

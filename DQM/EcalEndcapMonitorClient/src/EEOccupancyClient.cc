@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyClient.cc
  *
- * $Date: 2010/01/25 21:12:26 $
- * $Revision: 1.37 $
+ * $Date: 2010/08/04 08:20:13 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -21,13 +21,13 @@
 #ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+#include "DQM/EcalCommon/interface/LogicID.h"
 #endif
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
-#include "DQM/EcalCommon/interface/LogicID.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EEOccupancyClient.h>
+#include "DQM/EcalEndcapMonitorClient/interface/EEOccupancyClient.h"
 
 EEOccupancyClient::EEOccupancyClient(const edm::ParameterSet& ps) {
 

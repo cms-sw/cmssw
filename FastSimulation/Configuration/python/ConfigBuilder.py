@@ -18,7 +18,7 @@ __triggerTable = {
 }
 
 # default trigger, used if none is specified
-__default = '8E29'
+__default = 'GRun'
 
 
 def getDefaultTrigger():

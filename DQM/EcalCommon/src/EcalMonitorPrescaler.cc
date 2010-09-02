@@ -1,18 +1,18 @@
-// $Id: EcalMonitorPrescaler.cc,v 1.14 2010/03/27 20:44:49 dellaric Exp $
+// $Id: EcalMonitorPrescaler.cc,v 1.15 2010/03/29 14:25:43 dellaric Exp $
 
 /*!
   \file EcalMonitorPrescaler.cc
   \brief Ecal specific Prescaler
   \author G. Della Ricca
-  \version $Revision: 1.14 $
-  \date $Date: 2010/03/27 20:44:49 $
+  \version $Revision: 1.15 $
+  \date $Date: 2010/03/29 14:25:43 $
 */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 
-#include <DQM/EcalCommon/interface/EcalMonitorPrescaler.h>
+#include "DQM/EcalCommon/interface/EcalMonitorPrescaler.h"
 
 EcalMonitorPrescaler::EcalMonitorPrescaler(const edm::ParameterSet& ps) {
 

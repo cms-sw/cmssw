@@ -37,20 +37,6 @@ def customiseCommon(process):
     process.secTriplets.RegionFactoryPSet.RegionPSet.nSigmaZ  = cms.double(4.47)  
     process.secTriplets.RegionFactoryPSet.RegionPSet.originHalfLength = 44.7
 
-    ## Primary Vertex
-    process.offlinePrimaryVerticesWithBS.PVSelParameters.maxDistanceToBeam = 2
-    process.offlinePrimaryVerticesWithBS.TkFilterParameters.maxNormalizedChi2 = 20
-    process.offlinePrimaryVerticesWithBS.TkFilterParameters.maxD0Significance = 100
-    process.offlinePrimaryVerticesWithBS.TkFilterParameters.minPixelLayersWithHits = 2
-    process.offlinePrimaryVerticesWithBS.TkFilterParameters.minSiliconLayersWithHits = 5
-    process.offlinePrimaryVerticesWithBS.TkClusParameters.TkGapClusParameters.zSeparation = 1
-    process.offlinePrimaryVertices.PVSelParameters.maxDistanceToBeam = 2
-    process.offlinePrimaryVertices.TkFilterParameters.maxNormalizedChi2 = 20
-    process.offlinePrimaryVertices.TkFilterParameters.maxD0Significance = 100
-    process.offlinePrimaryVertices.TkFilterParameters.minPixelLayersWithHits = 2
-    process.offlinePrimaryVertices.TkFilterParameters.minSiliconLayersWithHits = 5
-    process.offlinePrimaryVertices.TkClusParameters.TkGapClusParameters.zSeparation = 1
-
     ## ECAL 
     process.ecalRecHit.ChannelStatusToBeExcluded = [ 1, 2, 3, 4, 8, 9, 10, 11, 12, 13, 14, 78, 142 ]
 

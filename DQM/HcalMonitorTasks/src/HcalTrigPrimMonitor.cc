@@ -1,4 +1,5 @@
 #include "DQM/HcalMonitorTasks/interface/HcalTrigPrimMonitor.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 HcalTrigPrimMonitor::HcalTrigPrimMonitor (const edm::ParameterSet& ps) :
    dataLabel_(ps.getParameter<edm::InputTag>("dataLabel")),

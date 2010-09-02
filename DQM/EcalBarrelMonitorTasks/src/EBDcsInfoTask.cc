@@ -1,3 +1,12 @@
+/*
+ * \file EBDcsInfoTask.cc
+ *
+ * $Date: 2010/08/08 08:56:00 $
+ * $Revision: 1.15 $
+ * \author E. Di Marco
+ *
+*/
+
 #include <iostream>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -11,7 +20,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
 #include "DQM/EcalBarrelMonitorTasks/interface/EBDcsInfoTask.h"
 
@@ -40,11 +49,11 @@ EBDcsInfoTask::~EBDcsInfoTask() {
 void EBDcsInfoTask::beginJob(void){
 
   char histo[200];
-  
+
   if ( dqmStore_ ) {
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
-    
+
     sprintf(histo, "DCSSummary");
     meEBDcsFraction_ = dqmStore_->bookFloat(histo);
     meEBDcsFraction_->Fill(0.0);
@@ -92,7 +101,7 @@ void EBDcsInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
     edm::LogWarning("EBDcsInfoTask") << "EcalDCSTowerStatus record not valid";
     return;
   }
-  const EcalDCSTowerStatus *dcsStatus = pDCSStatus.product();
+  const EcalDCSTowerStatus* dcsStatus = pDCSStatus.product();
 
   for(int iz=-1; iz<=1; iz+=2) {
     for(int iptt=0 ; iptt<72; iptt++) {
@@ -100,7 +109,7 @@ void EBDcsInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
         if (EcalTrigTowerDetId::validDetId(iz,EcalBarrel,iett+1,iptt+1 )){
 
           EcalTrigTowerDetId ebid(iz,EcalBarrel,iett+1,iptt+1);
-          
+
           uint16_t dbStatus = 0; // 0 = good
           EcalDCSTowerStatus::const_iterator dcsStatusIt = dcsStatus->find( ebid.rawId() );
           if ( dcsStatusIt != dcsStatus->end() ) dbStatus = dcsStatusIt->getStatusCode();
@@ -111,7 +120,7 @@ void EBDcsInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
             readyRun[ipttEB][iettEB] = 0;
             readyLumi[ipttEB][iettEB] = 0;
           }
-          
+
         }
       }
     }
@@ -158,11 +167,11 @@ void EBDcsInfoTask::reset(void) {
 
 
 void EBDcsInfoTask::cleanup(void){
-  
+
   if ( dqmStore_ ) {
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
-    
+
     if ( meEBDcsFraction_ ) dqmStore_->removeElement( meEBDcsFraction_->getName() );
 
     if ( meEBDcsActiveMap_ ) dqmStore_->removeElement( meEBDcsActiveMap_->getName() );
@@ -185,10 +194,10 @@ void EBDcsInfoTask::fillMonitorElements(int ready[72][34]) {
 
   for ( int iett = 0; iett < 34; iett++ ) {
     for ( int iptt = 0; iptt < 72; iptt++ ) {
-      
+
       if(meEBDcsActiveMap_) meEBDcsActiveMap_->setBinContent( iptt+1, iett+1, ready[iptt][iett] );
 
-      int ism = ( iett<17 ) ? iptt/4 : 18+iptt/4; 
+      int ism = ( iett<17 ) ? iptt/4 : 18+iptt/4;
       if(ready[iptt][iett]) {
         readySum[ism]++;
         readySumTot++;
@@ -205,6 +214,6 @@ void EBDcsInfoTask::fillMonitorElements(int ready[72][34]) {
 
 }
 
-void EBDcsInfoTask::analyze(const edm::Event& e, const edm::EventSetup& c){ 
+void EBDcsInfoTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
 }

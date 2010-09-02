@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2010/02/17 17:49:55 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/03/16 14:36:39 $
+ *  $Revision: 1.5 $
  *  
  *  \author  J. Slaunwhite (modified from above
  */
@@ -53,9 +53,6 @@
 
 
 typedef math::XYZTLorentzVector LorentzVector;
-using reco::Muon;
-using trigger::TriggerObject;
-
 
 class HLTMuonBPAG: public HLTMuonMatchAndPlot {
 

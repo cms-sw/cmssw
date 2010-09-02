@@ -11,7 +11,6 @@
 #include "EventFilter/AutoBU/interface/BU.h"
 
 #include "FWCore/Utilities/interface/CRC16.h"
-#include "EventFilter/Utilities/interface/DebugUtils.h"
 
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -37,8 +36,6 @@ BU::BU(xdaq::ApplicationStub *s)
   : xdaq::Application(s)
   , log_(getApplicationLogger())
   , buAppDesc_(getApplicationDescriptor())
-  , evmAppDesc_(0)
-  , evmInstance_(-1)
   , fuAppDesc_(0)
   , buAppContext_(getApplicationContext())
   , fsm_(this)
@@ -73,13 +70,11 @@ BU::BU(xdaq::ApplicationStub *s)
   , replay_(false)
   , crc_(true)
   , overwriteEvtId_(true)
-  , forceGT_(false)
   , firstEvent_(1)
   , queueSize_(32)
   , eventBufferSize_(0x400000)
   , msgBufferSize_(32768)
   , fedSizeMax_(65536)
-  , evtIdRqstsAndOrReleasesBufRef_(0)
   , fedSizeMean_(1024)
   , fedSizeWidth_(1024)
   , useFixedFedSize_(false)
@@ -108,9 +103,8 @@ BU::BU(xdaq::ApplicationStub *s)
   // i2o callbacks
   i2o::bind(this,&BU::I2O_BU_ALLOCATE_Callback,I2O_BU_ALLOCATE,XDAQ_ORGANIZATION_ID);
   i2o::bind(this,&BU::I2O_BU_DISCARD_Callback, I2O_BU_DISCARD, XDAQ_ORGANIZATION_ID);
-  i2o::bind(this,&BU::I2O_BU_CONFIRM_Callback, I2O_BU_CONFIRM, XDAQ_ORGANIZATION_ID);
   
-  // allocate i2o memory pool
+  // allocate i2o memery pool
   string i2oPoolName=sourceId_+"_i2oPool";
   try {
     toolbox::mem::HeapAllocator *allocator=new toolbox::mem::HeapAllocator();
@@ -140,24 +134,8 @@ BU::BU(xdaq::ApplicationStub *s)
     }
   }
   xgi::bind(this,&evf::BU::customWebPage,"customWebPage");
-
-  //  determine evm appdesc and instance if present 
-
-  std::set< xdaq::ApplicationDescriptor* > evms;
   
-  evms =
-    getApplicationContext()->
-    getDefaultZone()->
-    getApplicationDescriptors("rubuilder::evm::Application");
-  if(evms.size() == 0)
-    {
-      LOG4CPLUS_INFO(log_,"No EVM found in configuration ...");      
-    }
-  else
-    {
-      evmAppDesc_ = *(evms.begin());
-      evmInstance_ = evmAppDesc_->getInstance();
-    }
+  
   // export parameters to info space(s)
   exportParameters();
 
@@ -178,11 +156,6 @@ BU::BU(xdaq::ApplicationStub *s)
   
   // propagate crc flag to BUEvent
   BUEvent::setComputeCrc(crc_.value_);
-
-  I2O_EVM_ALLOCATE_CLEAR_Packing_ = 8;
-  evtIdRqstsAndOrReleasesBufSize_ = sizeof(EvtIdRqstsAndOrReleasesMsg) -
-    sizeof(EvtIdRqstAndOrRelease) +
-    I2O_EVM_ALLOCATE_CLEAR_Packing_ * sizeof(EvtIdRqstAndOrRelease);
 }
 
 
@@ -224,7 +197,7 @@ bool BU::enabling(toolbox::task::WorkLoop* wl)
     LOG4CPLUS_INFO(log_,"Start enabling ...");
     // determine valid fed ids (assumes Playback EP is already configured hence PBRDP::instance 
     // not null in case we are playing back)
-    if (0!=PlaybackRawDataProvider::instance() || forceGT_) {
+    if (0!=PlaybackRawDataProvider::instance()) {
       for (unsigned int i=0;i<(unsigned int)FEDNumbering::MAXFEDID+1;i++)
 	if (FEDNumbering::inRange(i)) validFedIds_.push_back(i);
     }
@@ -241,83 +214,6 @@ bool BU::enabling(toolbox::task::WorkLoop* wl)
     string msg = "enabling FAILED: " + (string)e.what();
     fsm_.fireFailed(msg,this);
   }
-
-  if(evmInstance_.value_ < 0) return false; 
-
-  EvtIdRqstAndOrRelease      rqstAndOrRelease;
-  toolbox::mem::Reference    *bufRef          = 0;
-  I2O_MESSAGE_FRAME          *stdMsg          = 0;
-  I2O_PRIVATE_MESSAGE_FRAME  *pvtMsg          = 0;
-  EvtIdRqstsAndOrReleasesMsg *msg             = 0;
-  U32                        nbElementsPacked = 0;
-  unsigned int               resourceId       = 0;
-  
-  
-  // For each resource
-  while(!freeIds_.empty())
-    {
-      resourceId = freeIds_.front(); freeIds_.pop();
-      // Prepare an event id request
-      rqstAndOrRelease.type        = 0; // 0 = Requesting an event id
-      rqstAndOrRelease.eventId     = 0; // Not applicable
-      rqstAndOrRelease.eventNumber = 0; // Not applicable
-      rqstAndOrRelease.resourceId  = resourceId;
-
-      // If there is no message under construction, then create one
-      if(bufRef == 0)
-        {
-	  
-	  bufRef=toolbox::mem::getMemoryPoolFactory()->getFrame(i2oPool_,
-								evtIdRqstsAndOrReleasesBufSize_);
-	  stdMsg = (I2O_MESSAGE_FRAME*)bufRef->getDataLocation();
-	  pvtMsg = (I2O_PRIVATE_MESSAGE_FRAME*)stdMsg;
-	  msg    = (EvtIdRqstsAndOrReleasesMsg*)stdMsg;
-	  
-	  stdMsg->InitiatorAddress = i2o::utils::getAddressMap()->getTid(buAppDesc_);
-	  stdMsg->TargetAddress    = i2o::utils::getAddressMap()->getTid(evmAppDesc_);
-	  stdMsg->Function         = I2O_PRIVATE_MESSAGE;
-	  stdMsg->VersionOffset    = 0;
-	  stdMsg->MsgFlags         = 0;
-	  
-	  pvtMsg->XFunctionCode    = I2O_EVM_ALLOCATE_CLEAR;
-	  pvtMsg->OrganizationID   = XDAQ_ORGANIZATION_ID;
-
-	  msg->srcIndex            = instance_;
-	  msg->nbElements          = 0;
-        }
-      
-      // Pack the event id request into the message
-      nbElementsPacked =
-	packEvtIdRqstsAndOrReleasesMsg(rqstAndOrRelease, bufRef);
-      
-      // Send the message if it is full
-      if(nbElementsPacked == I2O_EVM_ALLOCATE_CLEAR_Packing_)
-        {
-	  // Update parameters showing message payloads and counts
-// 	  monitoringInfoSpace_->lock(); appInfoSpace_->lock();
-// 	  I2O_EVM_ALLOCATE_CLEAR_Payload_.value_ +=
-// 	    nbElementsPacked * sizeof(EvtIdRqstAndOrRelease);
-// 	  I2O_EVM_ALLOCATE_CLEAR_LogicalCount_.value_ += nbElementsPacked;
-// 	  I2O_EVM_ALLOCATE_CLEAR_I2oCount_.value_++;
-// 	  monitoringInfoSpace_->unlock(); appInfoSpace_->unlock();
-	  
-	  try
-            {
-	      buAppContext_->postFrame
-                (
-		 bufRef,
-		 buAppDesc_,
-		 evmAppDesc_);
-	      bufRef = 0;
-            }
-            catch(xcept::Exception &e)
-            {
-	      LOG4CPLUS_ERROR(log_,
-                              "Failed to send initial event id requests " << e.what());
-            }
-        }
-    }
-
   
   return false;
 }
@@ -450,6 +346,7 @@ void BU::I2O_BU_DISCARD_Callback(toolbox::mem::Reference *bufRef)
   I2O_MESSAGE_FRAME           *stdMsg=(I2O_MESSAGE_FRAME*)bufRef->getDataLocation();
   I2O_BU_DISCARD_MESSAGE_FRAME*msg   =(I2O_BU_DISCARD_MESSAGE_FRAME*)stdMsg;
   unsigned int buResourceId=msg->buResourceId[0];
+
   lock();
   int result=sentIds_.erase(buResourceId);
   unlock();
@@ -459,109 +356,13 @@ void BU::I2O_BU_DISCARD_Callback(toolbox::mem::Reference *bufRef)
   }
   else {
     lock();
-    if(evmInstance_>=0)
-      {  
-	I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME *block =
-	  (I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME*)resTrigPairs_[buResourceId]->getDataLocation();
-	uint32_t evn = block->eventNumber;
-	uint32_t evi = block->eventId;
-	resTrigPairs_[buResourceId]->release();
-	resTrigPairs_[buResourceId] = 0;
-	recycle(buResourceId,evn,evi);
-      }
     freeIds_.push(buResourceId);
     nbEventsDiscarded_.value_++;
     unlock();
-    if(evmInstance_<0) postBuild();
+    postBuild();
   }
   
   bufRef->release();
-}
-
-//______________________________________________________________________________
-void BU::recycle(const U32 resourceId, const U32 evn, const U32 evi)
-{
-
-  EvtIdRqstAndOrRelease      rqstAndOrRelease;
-  I2O_MESSAGE_FRAME          *stdMsg          = 0;
-  I2O_PRIVATE_MESSAGE_FRAME  *pvtMsg          = 0;
-  U32                        nbElementsPacked = 0;
-
-
-  // Prepare a resource request to release an event id and request another
-  rqstAndOrRelease.type        = 1; // 1 = Releasing id and requesting another
-  rqstAndOrRelease.eventId     = evi;
-  rqstAndOrRelease.eventNumber = evn;
-  rqstAndOrRelease.resourceId  = resourceId;
-
-  // If there is no message under construction, then create one
-  if(evtIdRqstsAndOrReleasesBufRef_ == 0)
-    {
-      evtIdRqstsAndOrReleasesBufRef_ =
-	toolbox::mem::getMemoryPoolFactory()->getFrame(i2oPool_,
-						       evtIdRqstsAndOrReleasesBufSize_);
-      stdMsg =
-	(I2O_MESSAGE_FRAME*)evtIdRqstsAndOrReleasesBufRef_->getDataLocation();
-      pvtMsg                      = (I2O_PRIVATE_MESSAGE_FRAME*)stdMsg;
-      EvtIdRqstsAndOrReleasesMsg *evtIdRqstsAndOrReleasesMsg = (EvtIdRqstsAndOrReleasesMsg*)stdMsg;
-
-      stdMsg->InitiatorAddress = i2o::utils::getAddressMap()->getTid(buAppDesc_);
-      stdMsg->TargetAddress    = i2o::utils::getAddressMap()->getTid(evmAppDesc_);
-      stdMsg->Function         = I2O_PRIVATE_MESSAGE;
-      stdMsg->VersionOffset    = 0;
-      stdMsg->MsgFlags         = 0;
-      
-      pvtMsg->XFunctionCode    = I2O_EVM_ALLOCATE_CLEAR;
-      pvtMsg->OrganizationID   = XDAQ_ORGANIZATION_ID;
-
-      evtIdRqstsAndOrReleasesMsg->srcIndex   = instance_;
-      evtIdRqstsAndOrReleasesMsg->nbElements = 0;
-    }
-
-  // Pack the request into the message under construction
-  nbElementsPacked = packEvtIdRqstsAndOrReleasesMsg
-    (
-     rqstAndOrRelease, evtIdRqstsAndOrReleasesBufRef_
-     );
-
-  // Send the message if it is full
-  if(nbElementsPacked == I2O_EVM_ALLOCATE_CLEAR_Packing_)
-    {
-
-      try
-        {
-	  buAppContext_->postFrame
-            (
-                evtIdRqstsAndOrReleasesBufRef_,
-                buAppDesc_,
-                evmAppDesc_
-            );
-	  evtIdRqstsAndOrReleasesBufRef_ = 0;
-        }
-        catch(xcept::Exception &e)
-        {
-            LOG4CPLUS_ERROR(log_,
-			    "Failed to send I2O_EVM_ALLOCATE_CLEAR " << e.what());
-        }
-    }
-
-}
-
-//______________________________________________________________________________
-void BU::I2O_BU_CONFIRM_Callback(toolbox::mem::Reference *bufRef)
-{
-  I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME *block =
-    (I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME*)bufRef->getDataLocation();
-
-  uint32_t evn = block->eventNumber;
-  uint32_t evi = block->eventId;
-  uint32_t bui = block->buResourceId;
-  lock();
-  allocatedIds_.push(bui);
-  resTrigPairs_[bui] = bufRef;
-  unlock();
-  postBuild();
-  //  bufRef->release(); // don't forget to do this later on
 }
 
 
@@ -625,16 +426,8 @@ void BU::startBuildingWorkLoop() throw (evf::Exception)
 bool BU::building(toolbox::task::WorkLoop* wl)
 {
   waitBuild();
-  unsigned int buResourceId = 0;
   lock();
-  if(evmInstance_ < 0)
-    {
-      buResourceId = freeIds_.front(); freeIds_.pop();
-    }
-  else
-    {
-      buResourceId = allocatedIds_.front(); allocatedIds_.pop();
-    }
+  unsigned int buResourceId=freeIds_.front(); freeIds_.pop();
   unlock();
   
   if (buResourceId>=(uint32_t)events_.size()) {
@@ -849,8 +642,6 @@ void BU::exportParameters()
   gui_->addStandardParam("mode",              &mode_);
   gui_->addStandardParam("replay",            &replay_);
   gui_->addStandardParam("overwriteEvtId",    &overwriteEvtId_);
-  gui_->addStandardParam("forceGT",           &forceGT_);
-  gui_->addStandardParam("emvInstance",       &evmInstance_);
   gui_->addStandardParam("crc",               &crc_);
   gui_->addStandardParam("firstEvent",        &firstEvent_);
   gui_->addStandardParam("queueSize",         &queueSize_);
@@ -902,10 +693,7 @@ void BU::reset()
   sentIds_.clear();
   
   sem_init(&lock_,0,1);
-  if(evmInstance_<0)
-    sem_init(&buildSem_,0,queueSize_);
-  else
-    sem_init(&buildSem_,0,0);
+  sem_init(&buildSem_,0,queueSize_);
   sem_init(&sendSem_,0,0);
   sem_init(&rqstSem_,0,0);
   
@@ -913,8 +701,6 @@ void BU::reset()
     events_.push_back(new BUEvent(i,eventBufferSize_));
     freeIds_.push(i);
   }
-  resTrigPairs_.resize(queueSize_,0);
-  
 }
 
 
@@ -961,7 +747,7 @@ bool BU::generateEvent(BUEvent* evt)
       unsigned int   fedId  =validFedIds_[i];
       unsigned int   fedSize=event->FEDData(fedId).size();
       unsigned char* fedAddr=event->FEDData(fedId).data();
-      if (overwriteEvtId_.value_) {
+      if (overwriteEvtId_.value_ && fedAddr != 0) {
 	fedh_t *fedHeader=(fedh_t*)fedAddr;
 	fedHeader->eventid=(fedHeader->eventid&0xFF000000)+(evtNumber&0x00FFFFFF);
       }
@@ -973,43 +759,19 @@ bool BU::generateEvent(BUEvent* evt)
   else {
     unsigned int evtNumber=(firstEvent_+evtNumber_++)%0x1000000;
     evt->initialize(evtNumber);
-    unsigned char *fedAddr = 0;
-    uint32_t nbBytes = 0;         
-    if(evmInstance_>=0)
-      {
-	unsigned int buResourceId = evt->buResourceId();
-	toolbox::mem::Reference *bufRef = resTrigPairs_[buResourceId];
-	if(bufRef==0)
-	  {
-	    LOG4CPLUS_ERROR(log_,"Reference is NULL for resource Id " << buResourceId );
-	    XCEPT_RAISE(evf::Exception, "reference is NULL for resourceId ");
-	  }
-	I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME *frame = (I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME *)bufRef->getDataLocation();
-	I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME *block =
-	  (I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME*)bufRef->getDataLocation();
-	evtNumber = block->eventNumber;
-	size_t blksize = bufRef->getDataSize();
-
-	unsigned char *frlHeaderAddr = (unsigned char*)(bufRef->getDataLocation())+sizeof(I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME);
-	fedAddr = frlHeaderAddr+sizeof(frlh_t);
-	frlh_t *frlHeader      = (frlh_t*)frlHeaderAddr;
-	nbBytes = frlHeader->segsize & FRL_SEGSIZE_MASK;
-      }
     unsigned int fedSizeMin=fedHeaderSize_+fedTrailerSize_;
     for (unsigned int i=0;i<validFedIds_.size();i++) {
       unsigned int fedId(validFedIds_[i]);
       unsigned int fedSize(fedSizeMean_);
       if (!useFixedFedSize_) {
-	double logFedSize=RandGauss::shoot(gaussianMean_,gaussianWidth_);
+	double logFedSize=CLHEP::RandGauss::shoot(gaussianMean_,gaussianWidth_);
 	fedSize=(unsigned int)(std::exp(logFedSize));
 	if (fedSize<fedSizeMin)  fedSize=fedSizeMin;
 	if (fedSize>fedSizeMax_) fedSize=fedSizeMax_;
 	fedSize-=fedSize%8;
       }
-      if(fedId==812 && nbBytes != 0)
-	evt->writeFed(fedId, fedAddr, nbBytes);
-      else
-	evt->writeFed(fedId,0,fedSize);
+      
+      evt->writeFed(fedId,0,fedSize);
       evt->writeFedHeader(i);
       evt->writeFedTrailer(i);
     }
@@ -1337,8 +1099,8 @@ void BU::dumpFrame(unsigned char* data,unsigned int len)
     }
     c+=8;
     
-    printf ("%4d: %s%s ||  %s%s  %x\n",
-	    c-8, left1, left2, right1, right2, (int)&data[c-8]);
+    printf ("%4d: %s%s ||  %s%s  %p\n",
+	    c-8, left1, left2, right1, right2, &data[c-8]);
   }
   
   fflush(stdout);	

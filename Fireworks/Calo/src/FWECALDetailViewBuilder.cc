@@ -1,26 +1,44 @@
 // FIXME - needed to set fixed eta-phi limits. Without the
 //         visible area may change widely depending on energy
 //         deposition availability
-
+#define protected public
 #include "TEveCaloData.h"
-#include "TEveViewer.h"
-#include "TEveCalo.h"
-#include "TAxis.h"
-#include "THLimitsFinder.h"
-#include "TLatex.h"
+#undef protected
 
+#include "TEveViewer.h"
+#include "TEveScene.h"
+#include "TEveManager.h"
+#include "TEveCalo.h"
+#include "TColor.h"
+#include "TAxis.h"
+#include "TGLViewer.h"
+#include "THLimitsFinder.h"
+#include "TEveCaloLegoOverlay.h"
+#include "TLatex.h"
+#include "TBox.h"
+
+#include "Fireworks/Core/interface/FWModelId.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWDetailViewBase.h"
 #include "Fireworks/Calo/interface/FWECALDetailViewBuilder.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Core/interface/fw3dlego_xbins.h"
-#include "Fireworks/Core/interface/fwLog.h"
+
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/FWLite/interface/Event.h"
 
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
+#include <utility>
+
+
 #include "TGeoMatrix.h"
 #include "TEveTrans.h"
+#include "TEveStraightLineSet.h"
 
 #include <utility>
 
@@ -34,52 +52,63 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
    if (fabs(m_eta) < 1.5) {
       try {
          handle_hits.getByLabel(*m_event, "ecalRecHit", "EcalRecHitsEB");
-	 if( handle_hits.isValid() )
-	    hits = handle_hits.ptr();
+         hits = handle_hits.ptr();
       }
       catch (...)
       {
-         fwLog(fwlog::kWarning) <<"no barrel ECAL rechits are available, "
-            "showing crystal location but not energy" << std::endl;
+         std::cout <<"no barrel ECAL rechits are available, "
+         "showing crystal location but not energy" << std::endl;
       }
    } else {
       try {
          handle_hits.getByLabel(*m_event, "ecalRecHit", "EcalRecHitsEE");
-	 if( handle_hits.isValid() )
-	    hits = handle_hits.ptr();
+         hits = handle_hits.ptr();
       }
       catch (...)
       {
-         fwLog(fwlog::kWarning) <<"no endcap ECAL rechits are available, "
-            "showing crystal location but not energy" << std::endl;
+         std::cout <<"no endcap ECAL rechits are available, "
+         "showing crystal location but not energy" << std::endl;
       }
    }
-     
+
    // data
-   TEveCaloDataVec* data = new TEveCaloDataVec( 1 + m_colors.size() );
-   data->RefSliceInfo(0).Setup("hits (not clustered)", 0.0, m_defaultColor );
-   for( size_t i = 0; i < m_colors.size(); ++i )
+   TEveCaloDataVec* data = new TEveCaloDataVec(1 + m_colors.size());
+   data->IncDenyDestroy();
+   data->RefSliceInfo(0).Setup("hits (not clustered)", 0.0, m_defaultColor);
+   for (size_t i = 0; i < m_colors.size(); ++i)
    {
-      data->RefSliceInfo(i + 1).Setup( "hits (clustered)", 0.0, m_colors[i] );
+      data->RefSliceInfo(i + 1).Setup("hits (not clustered)", 0.0, m_colors[i]);
    }
 
-   if( handle_hits.isValid() ) 
-      // fill
-      fillData( hits, data );
+   // fill
+   fillData(hits, data);
 
    // axis
    Double_t etaMin(0), etaMax(0), phiMin(0), phiMax(0);
-   // it's hard to define properly visible area in X-Y,
-   // so we rely on auto limits
-   data->GetEtaLimits(etaMin, etaMax);
-   data->GetPhiLimits(phiMin, phiMax);
-   Double_t bl, bh, bw;
-   Int_t bn, n = 20;
-   THLimitsFinder::Optimize(etaMin, etaMax, n, bl, bh, bn, bw);
-   data->SetEtaBins( new TAxis(bn, bl, bh));
-   THLimitsFinder::Optimize(phiMin, phiMax, n, bl, bh, bn, bw);
-   data->SetPhiBins( new TAxis(bn, bl, bh));
-
+   if (fabs(m_eta) < 1.5) {
+      // setting requested view size
+      // data driven limits may lead to
+      // very asymmetric and hard to use regions
+      etaMin = m_eta-m_size*0.0172;
+      etaMax = m_eta+m_size*0.0172;
+      phiMin = m_phi-m_size*0.0172;
+      phiMax = m_phi+m_size*0.0172;
+      data->fEtaMin = etaMin;
+      data->fEtaMax = etaMax;
+      data->fPhiMin = phiMin;
+      data->fPhiMax = phiMax;
+   }else{
+      // it's hard to define properly visible area in X-Y,
+      // so we rely on auto limits
+      data->GetEtaLimits(etaMin, etaMax);
+      data->GetPhiLimits(phiMin, phiMax);
+      Double_t bl, bh, bw;
+      Int_t bn, n = 20;
+      THLimitsFinder::Optimize(etaMin, etaMax, n, bl, bh, bn, bw);
+      data->SetEtaBins( new TAxis(bn, bl, bh));
+      THLimitsFinder::Optimize(phiMin, phiMax, n, bl, bh, bn, bw);
+      data->SetPhiBins( new TAxis(bn, bl, bh));
+   }
    // make tower grid
    std::vector<double> etaBinsWithinLimits;
    etaBinsWithinLimits.push_back(etaMin);
@@ -148,9 +177,9 @@ void FWECALDetailViewBuilder::setColor(Color_t color, const std::vector<DetId> &
       m_detIdsToColor[detIds[i]] = slice;
 }
 
-void
-FWECALDetailViewBuilder::showSuperCluster( const reco::SuperCluster &cluster, Color_t color )
+void FWECALDetailViewBuilder::showSuperCluster(const reco::SuperCluster &cluster, Color_t color)
 {
+
    std::vector<DetId> clusterDetIds;
    const std::vector<std::pair<DetId, float> > &hitsAndFractions = cluster.hitsAndFractions();
    for (size_t j = 0; j < hitsAndFractions.size(); ++j)
@@ -158,71 +187,73 @@ FWECALDetailViewBuilder::showSuperCluster( const reco::SuperCluster &cluster, Co
       clusterDetIds.push_back(hitsAndFractions[j].first);
    }
 
-   setColor( color, clusterDetIds );
+   setColor(color, clusterDetIds);
+
 }
 
-void
-FWECALDetailViewBuilder::showSuperClusters( Color_t color1, Color_t color2 )
+void FWECALDetailViewBuilder::showSuperClusters(Color_t color1, Color_t color2)
 {
-   // get the superclusters from the event
-   fwlite::Handle<reco::SuperClusterCollection> collection;
 
-   if( fabs( m_eta ) < 1.5 ) {
+   // get the superclusters from the event
+
+   fwlite::Handle<reco::SuperClusterCollection> handle_superclusters;
+   const reco::SuperClusterCollection *superclusters = 0;
+
+   if (fabs(m_eta) < 1.5) {
       try {
-         collection.getByLabel( *m_event, "correctedHybridSuperClusters" );
+         handle_superclusters.getByLabel(*m_event, "correctedHybridSuperClusters");
+         superclusters = handle_superclusters.ptr();
       }
       catch (...)
       {
-         fwLog(fwlog::kWarning) <<"no barrel superclusters are available" << std::endl;
+         std::cout <<"no barrel superclusters are available" << std::endl;
       }
    } else {
       try {
-         collection.getByLabel( *m_event, "correctedMulti5x5SuperClustersWithPreshower" );
+         handle_superclusters.getByLabel(*m_event, "correctedMulti5x5SuperClustersWithPreshower");
+         superclusters = handle_superclusters.ptr();
       }
       catch (...)
       {
-         fwLog(fwlog::kWarning) <<"no endcap superclusters are available" << std::endl;
+         std::cout <<"no endcap superclusters are available" << std::endl;
       }
    }
-   if( collection.isValid() )
-   {
-      unsigned int colorIndex = 0;
-      // sort clusters in eta so neighboring clusters have distinct colors
-      reco::SuperClusterCollection sorted = *collection.product();
-      std::sort( sorted.begin(), sorted.end(), superClusterEtaLess );
-      for( size_t i = 0; i < sorted.size(); ++i )
-      {
-	 if( !(fabs(sorted[i].eta() - m_eta) < (m_size*0.0172)
-	       && fabs(sorted[i].phi() - m_phi) < (m_size*0.0172)) )
-	   continue;
 
-	 if( colorIndex %2 == 0 )
-	    showSuperCluster( sorted[i], color1 );
-	 else
-	    showSuperCluster( sorted[i], color2 );
-	 ++colorIndex;
-      }
+   unsigned int colorIndex = 0;
+   // sort clusters in eta so neighboring clusters have distinct colors
+   reco::SuperClusterCollection sorted = *superclusters;
+   std::sort(sorted.begin(), sorted.end(), superClusterEtaLess);
+   for (size_t i = 0; i < sorted.size(); ++i)
+   {
+      if (!(fabs(sorted[i].eta() - m_eta) < (m_size*0.0172)
+            && fabs(sorted[i].phi() - m_phi) < (m_size*0.0172)) )
+         continue;
+
+      if (colorIndex %2 == 0) showSuperCluster(sorted[i], color1);
+      else showSuperCluster(sorted[i], color2);
+      ++colorIndex;
+
    }
+
 }
 
-void
-FWECALDetailViewBuilder::fillData( const EcalRecHitCollection *hits,
-				   TEveCaloDataVec *data )
+void FWECALDetailViewBuilder::fillData(const EcalRecHitCollection *hits,
+                                       TEveCaloDataVec *data)
 {
-   const float barrelCR = m_size*0.0172; // barrel cell range
 
    // loop on all the detids
-   for( EcalRecHitCollection::const_iterator k = hits->begin(), kEnd = hits->end();
-        k != kEnd; ++k ) {
-      const TGeoHMatrix *matrix = m_geom->getMatrix( k->id().rawId() );
-      if( matrix == 0 ) {
-         fwLog(fwlog::kInfo) << " cannot get geometry for DetId: "<< k->id().rawId()  <<". Ignored.\n";
+   for (EcalRecHitCollection::const_iterator k = hits->begin();
+        k != hits->end(); ++k) {
+
+      const TGeoHMatrix *matrix = m_geom->getMatrix(k->id().rawId());
+      if ( matrix == 0 ) {
+         printf("Warning: cannot get geometry for DetId: %d. Ignored.\n",k->id().rawId());
          continue;
       }
 
-      TVector3 v( matrix->GetTranslation()[0],
-		  matrix->GetTranslation()[1],
-		  matrix->GetTranslation()[2] );
+      TVector3 v(matrix->GetTranslation()[0],
+                 matrix->GetTranslation()[1],
+                 matrix->GetTranslation()[2]);
 
       // set the et
       double size = k->energy()/cosh(v.Eta());
@@ -243,10 +274,9 @@ FWECALDetailViewBuilder::fillData( const EcalRecHitCollection *hits,
          if (v.Phi() < m_phi - M_PI) phi += 2 * M_PI;
 
          // check if the hit is in the window to be drawn
-         if (!(fabs(v.Eta() - m_eta) < barrelCR
-               && fabs(phi - m_phi) < barrelCR)) continue;
+         if (!(fabs(v.Eta() - m_eta) < (m_size*0.0172)
+               && fabs(phi - m_phi) < (m_size*0.0172))) continue;
 
-         double minEta(10), maxEta(-10), minPhi(4), maxPhi(-4);
          if ( points.size() == 8 ) {
             // calorimeter crystalls have slightly non-symetrical form in eta-phi projection
             // so if we simply get the largest eta and phi, cells will overlap
@@ -254,8 +284,8 @@ FWECALDetailViewBuilder::fillData( const EcalRecHitCollection *hits,
             // we also should use only points from the inner face of the crystal, since
             // non-projecting direction of crystals leads to large shift in eta on outter
             // face.
-            for (unsigned int i=0; i<points.size(); ++i)
-            {
+            double minEta(10), maxEta(-10), minPhi(4), maxPhi(-4);
+            for (unsigned int i=0; i<points.size(); ++i) {
                double eta = points[i].Eta();
                double phi = points[i].Phi();
                if ( points[i].Perp() > 135 ) continue;
@@ -268,20 +298,13 @@ FWECALDetailViewBuilder::fillData( const EcalRecHitCollection *hits,
                if ( phi - maxPhi > 0.01) maxPhi = phi;
                if ( maxPhi - phi > 0 && maxPhi - phi < 0.01 ) maxPhi = phi;
             }
-         }
-         else 
-         {
-            minEta = v.Eta() - 0.0172 / 2;
-            maxEta = v.Eta() + 0.0172 / 2;
-            minPhi = phi     - 0.0172 / 2;
-            maxPhi = phi     + 0.0172 / 2;
-         }
-         if (minPhi >= (m_phi-barrelCR) && maxPhi <= (m_phi+barrelCR) &&
-             minEta >= (m_eta-barrelCR) && maxEta <= (m_eta+barrelCR))
-         {
             data->AddTower(minEta, maxEta, minPhi, maxPhi);
-            data->FillSlice(slice, size);
+         } else {
+            data->AddTower(v.Eta() - 0.0172 / 2, v.Eta() + 0.0172 / 2,
+                           phi - 0.0172 / 2, phi + 0.0172 / 2);
          }
+         data->FillSlice(slice, size);
+
          // otherwise in the EE
       } else if (k->id().subdetId() == EcalEndcap) {
 
@@ -311,6 +334,7 @@ FWECALDetailViewBuilder::fillData( const EcalRecHitCollection *hits,
    } // end loop on hits
 
    data->DataChanged();
+
 }
 
 double

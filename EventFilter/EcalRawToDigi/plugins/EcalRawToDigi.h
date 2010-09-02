@@ -9,8 +9,8 @@
  *
  * \file EcalRawToDigi.h
  *
- * $Date: 2009/10/19 17:25:37 $
- * $Revision: 1.4 $
+ * $Date: 2009/07/27 20:32:24 $
+ * $Revision: 1.3 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -52,9 +52,6 @@ class EcalRawToDigi : public edm::EDProducer{
    */
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
   
-  // function called at start of each run
-  virtual void beginRun(edm::Run& run, const edm::EventSetup& es);
-  
   /**
    * Class destructor
    */
@@ -94,12 +91,19 @@ class EcalRawToDigi : public edm::EDProducer{
 
   //an electronics mapper class 
   EcalElectronicsMapper * myMap_;
-  
+
+ 
   //Ecal unpacker
   DCCDataUnpacker * theUnpacker_;
+
+   
   
   uint nevts_; // NA: for testing
   double  RUNNING_TIME_, SETUP_TIME_;
+  
+  
 };
+
+
 
 #endif

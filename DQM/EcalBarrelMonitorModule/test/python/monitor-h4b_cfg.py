@@ -207,7 +207,6 @@ process.ecalUncalibHit.EEdigiCollection = 'ecalEBunpacker:eeDigis'
 process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEB'
 process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEE'
 
-process.ecalBarrelMonitorClient.maskFile = ''
 process.ecalBarrelMonitorClient.location = 'H4B'
 process.ecalBarrelMonitorClient.superModules = [19]
 

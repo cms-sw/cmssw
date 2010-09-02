@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedProducer.cc,v 1.15 2010/03/12 12:42:03 chamont Exp $
+// $Id: ElectronSeedProducer.cc,v 1.16 2010/04/30 13:54:23 chamont Exp $
 //
 //
 
@@ -25,6 +25,7 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronSeedGenerator.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/SeedFilter.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/Records/interface/CaloTopologyRecord.h"
@@ -48,7 +49,7 @@
 using namespace reco ;
 
 ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
- :
+ : beamSpotTag_("offlineBeamSpot"),
    //conf_(iConfig),
    seedFilter_(0), applyHOverECut_(true), hcalHelper_(0)
    , caloGeom_(0), caloGeomCacheId_(0), caloTopo_(0), caloTopoCacheId_(0)
@@ -59,6 +60,10 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
   SCEtCut_ = conf_.getParameter<double>("SCEtCut") ;
   fromTrackerSeeds_ = conf_.getParameter<bool>("fromTrackerSeeds") ;
   prefilteredSeeds_ = conf_.getParameter<bool>("preFilteredSeeds") ;
+
+  // new beamSpot tag
+  if (conf_.exists("beamSpot"))
+   { beamSpotTag_ = conf_.getParameter<edm::InputTag>("beamSpot") ; }
 
   // for H/E
 //  if (conf_.exists("applyHOverECut"))
@@ -111,6 +116,9 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
  {
   LogDebug("ElectronSeedProducer") <<"[ElectronSeedProducer::produce] entering " ;
 
+  edm::Handle<reco::BeamSpot> theBeamSpot ;
+  e.getByLabel(beamSpotTag_,theBeamSpot) ;
+
   if (hcalHelper_)
    {
     hcalHelper_->checkSetup(iSetup) ;
@@ -154,7 +162,7 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
      {
       SuperClusterRefVector clusterRefs ;
       std::vector<float> hoe1s, hoe2s ;
-      filterClusters(clusters,/*mhbhe_,*/clusterRefs,hoe1s,hoe2s) ;
+      filterClusters(*theBeamSpot,clusters,/*mhbhe_,*/clusterRefs,hoe1s,hoe2s) ;
       if ((fromTrackerSeeds_) && (prefilteredSeeds_))
        { filterSeeds(e,iSetup,clusterRefs) ; }
       matcher_->run(e,iSetup,clusterRefs,hoe1s,hoe2s,theInitialSeedColl,*seeds) ;
@@ -186,14 +194,16 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 //===============================
 
 void ElectronSeedProducer::filterClusters
- ( const edm::Handle<reco::SuperClusterCollection> & superClusters,
+ ( const reco::BeamSpot & bs,
+   const edm::Handle<reco::SuperClusterCollection> & superClusters,
    /*HBHERecHitMetaCollection * mhbhe,*/ SuperClusterRefVector & sclRefs,
    std::vector<float> & hoe1s, std::vector<float> & hoe2s )
  {
   for (unsigned int i=0;i<superClusters->size();++i)
    {
     const SuperCluster & scl = (*superClusters)[i] ;
-    if (scl.energy()/cosh(scl.eta())>SCEtCut_)
+    double sclEta = EleRelPoint(scl.position(),bs.position()).eta() ;
+    if (scl.energy()/cosh(sclEta)>SCEtCut_)
      {
 //      if ((applyHOverECut_==true)&&((hcalHelper_->hcalESum(scl)/scl.energy()) > maxHOverE_))
 //       { continue ; }

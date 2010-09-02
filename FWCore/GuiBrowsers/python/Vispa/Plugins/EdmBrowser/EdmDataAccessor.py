@@ -10,11 +10,6 @@ from Vispa.Plugins.EventBrowser.EventFileAccessor import EventFileAccessor
 from Vispa.Main.Exceptions import exception_traceback
 from Vispa.Plugins.EdmBrowser.ParticleDataList import defaultParticleDataList
 
-import ROOT
-from ROOT import *
-
-from DataFormats.FWLite import Events, Handle
-
 def eq(self,other):
     return id(self)==id(other)
 def ne(self,other):
@@ -220,7 +215,8 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
             root_types=["ROOT::"]
             if typ=="" or "void" in typ or True in [t in typ for t in hidden_types]:
                 return None
-            if True in [t in typ for t in root_types] and ROOT.TClass.GetClass(typ)==None:
+            from ROOT import TClass
+            if True in [t in typ for t in root_types] and TClass.GetClass(typ)==None:
                 return "ERROR: Cannot display object of type "+typ
             try:
                 object=object()
@@ -509,9 +505,11 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
                     linecontent=[l.strip(" \n").rstrip(".") for l in line.split("\"")]
                     self._branches+=[(linecontent[0]+"_"+linecontent[1]+"_"+linecontent[3]+"_"+linecontent[5],None,linecontent[1],linecontent[3],linecontent[5])]
                 else:
-                    linecontent=line.strip("\n").split("_")
-                    self._branches+=[(linecontent[0]+"_"+linecontent[1]+"_"+linecontent[2]+"_"+linecontent[3],None,linecontent[1],linecontent[2],linecontent[3])]
+                    linecontent=line.strip("\n").split(" ")[0].split("_")
+                    if len(linecontent)>3:
+                        self._branches+=[(linecontent[0]+"_"+linecontent[1]+"_"+linecontent[2]+"_"+linecontent[3],None,linecontent[1],linecontent[2],linecontent[3])]
         elif os.path.splitext(filename)[1].lower()==".root":
+            from DataFormats.FWLite import Events, Handle
             self._events = Events(self._filename)
             self._numEvents=self._events.size()
             branches=self._events.object().getBranchDescriptions()

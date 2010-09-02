@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2010/03/31 14:31:51 $
- * $Revision: 1.61 $
+ * $Date: 2010/08/11 14:21:54 $
+ * $Revision: 1.69 $
  * \author G. Della Ricca
  *
 */
@@ -23,19 +23,19 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalEndcapMonitorTasks/interface/EETimingTask.h>
+#include "DQM/EcalEndcapMonitorTasks/interface/EETimingTask.h"
 
 EETimingTask::EETimingTask(const edm::ParameterSet& ps){
 
   init_ = false;
 
-  initGeometry_ = false;
+  initCaloGeometry_ = false;
 
   dqmStore_ = edm::Service<DQMStore>().operator->();
 
@@ -84,12 +84,11 @@ void EETimingTask::beginJob(void){
 
 void EETimingTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
-  if( !initGeometry_ ) { 
-    // ideal
-    Numbers::initGeometry(c, true);
-    // calo geometry
+  Numbers::initGeometry(c, true);
+
+  if( !initCaloGeometry_ ) {
     c.get<CaloGeometryRecord>().get(pGeometry_);
-    initGeometry_ = true;
+    initCaloGeometry_ = true;
   }
 
   if ( ! mergeRuns_ ) this->reset();
@@ -113,7 +112,7 @@ void EETimingTask::reset(void) {
     if ( meTimeSummary1D_[i] ) meTimeSummary1D_[i]->Reset();
     if ( meTimeSummaryMap_[i] ) meTimeSummaryMap_[i]->Reset();
     if ( meTimeSummaryMapProjEta_[i] )  meTimeSummaryMapProjEta_[i]->Reset();
-    if ( meTimeSummaryMapProjPhi_[i] )  meTimeSummaryMapProjPhi_[i]->Reset();    
+    if ( meTimeSummaryMapProjPhi_[i] )  meTimeSummaryMapProjPhi_[i]->Reset();
   }
 
   if ( meTimeDelta_ ) meTimeDelta_->Reset();
@@ -150,7 +149,7 @@ void EETimingTask::setup(void){
       meTimeAmpli_[i]->setAxisTitle("time (ns)", 2);
       dqmStore_->tag(meTimeAmpli_[i], i+1);
     }
-    
+
     sprintf(histo, "EETMT timing vs amplitude summary EE -");
     meTimeAmpliSummary_[0] = dqmStore_->book2D(histo, histo, 100, 0., 10., 50, -50., 50.);
     meTimeAmpliSummary_[0]->setAxisTitle("energy (GeV)", 1);
@@ -241,7 +240,7 @@ void EETimingTask::cleanup(void){
 
       if ( meTimeSummaryMap_[i] ) dqmStore_->removeElement( meTimeSummaryMap_[i]->getName() );
       meTimeSummaryMap_[i] = 0;
-      
+
       if ( meTimeSummaryMapProjEta_[i] ) dqmStore_->removeElement( meTimeSummaryMapProjEta_[i]->getName() );
       meTimeSummaryMapProjEta_[i] = 0;
 
@@ -313,7 +312,7 @@ void EETimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   // channel status
   edm::ESHandle<EcalChannelStatus> pChannelStatus;
   c.get<EcalChannelStatusRcd>().get(pChannelStatus);
-  const EcalChannelStatus *chStatus = pChannelStatus.product();
+  const EcalChannelStatus* chStatus = pChannelStatus.product();
 
   float sumTime_hithr[2] = {0.,0.};
   int n_hithr[2] = {0,0};
@@ -332,7 +331,7 @@ void EETimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       int ix = id.ix();
       int iy = id.iy();
       int iz = ( id.positiveZ() ) ? 1 : 0;
-      
+
       int ism = Numbers::iSM( id );
 
       if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
@@ -362,29 +361,29 @@ void EETimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       float xval = hitItr->energy();
       float yval = hitItr->time();
 
-      uint32_t flag = hitItr->recoFlag();      
-      // uint32_t sev = EcalSeverityLevelAlgo::severityLevel(id, *hits, *chStatus );
-      EcalChannelStatus::const_iterator chsIt = chStatus->find( id );
-      uint16_t dbStatus = 0; // 0 = good
-      if ( chsIt != chStatus->end() ) dbStatus = chsIt->getStatusCode();
+      uint32_t flag = hitItr->recoFlag();
+      uint32_t sev = EcalSeverityLevelAlgo::severityLevel(id, *hits, *chStatus );
 
-      float theta = pGeometry_->getGeometry(id)->getPosition().theta();
-      float eta = pGeometry_->getGeometry(id)->getPosition().eta();
-      float phi = pGeometry_->getGeometry(id)->getPosition().phi();
+      const GlobalPoint& pos = pGeometry_->getGeometry(id)->getPosition();
+
+      float theta = pos.theta();
+      float eta = pos.eta();
+      float phi = pos.phi();
+
       float et = hitItr->energy() * fabs(sin(theta));
 
-      if ( (flag == EcalRecHit::kGood || flag == EcalRecHit::kOutOfTime) && dbStatus == 0 ) {
+      if ( (flag == EcalRecHit::kGood || flag == EcalRecHit::kOutOfTime) && sev != EcalSeverityLevelAlgo::kWeird ) {
         if ( meTimeAmpli ) meTimeAmpli->Fill(xval, yval);
         if ( meTimeAmpliSummary_[iz] ) meTimeAmpliSummary_[iz]->Fill(xval, yval);
         if ( et > 0.600 ) {
           if ( meTimeMap ) meTimeMap->Fill(xix, xiy, yval+50.);
           if ( meTime ) meTime->Fill(yval);
           if ( meTimeSummary1D_[iz] ) meTimeSummary1D_[iz]->Fill(yval);
-          
+
           if ( meTimeSummaryMap_[iz] ) meTimeSummaryMap_[iz]->Fill(xix, xiy, yval+50.);
           if ( meTimeSummaryMapProjEta_[iz] ) meTimeSummaryMapProjEta_[iz]->Fill(eta, yval);
           if ( meTimeSummaryMapProjPhi_[iz] ) meTimeSummaryMapProjPhi_[iz]->Fill(phi, yval);
-          
+
           sumTime_hithr[iz] += yval;
           n_hithr[iz]++;
         }

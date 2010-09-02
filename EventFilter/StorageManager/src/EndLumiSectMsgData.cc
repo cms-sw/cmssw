@@ -1,4 +1,4 @@
-// $Id: EndLumiSectMsgData.cc,v 1.5 2010/05/03 13:51:09 mommsen Exp $
+// $Id: EndLumiSectMsgData.cc,v 1.6 2010/05/17 15:59:10 mommsen Exp $
 /// @file: EndLumiSectMsgData.cc
 
 #include "EventFilter/StorageManager/src/ChainData.h"
@@ -20,10 +20,13 @@ namespace stor
       _runNumber(0),
       _lumiSection(0)
     {
+      _expectedNumberOfFragments = 1; //EoLS has always only one fragment
       addFirstFragment(pRef);
+      // EoLS message from EVM does not have an initial header.
+      // Thus, reset this faulty bit
+      _faultyBits &= ~CORRUPT_INITIAL_HEADER;
 
-      if (validateDataLocation(pRef, INVALID_INITIAL_REFERENCE) &&
-          validateMessageCode(pRef, _i2oMessageCode))
+      if ( !faulty() )
       {
         I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME* msg_frame =
           (I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME*)( pRef->getDataLocation() );

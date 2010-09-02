@@ -17,7 +17,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.h,v 1.27 2010/03/15 00:17:55 charlot Exp $
+// $Id: PixelHitMatcher.h,v 1.29 2010/07/28 09:09:35 amartell Exp $
 //
 //
 
@@ -50,41 +50,45 @@ class LayerMeasurements;
 class TrackerGeometry;
 
 class RecHitWithDist
-{
- public:
-
-  typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
-  typedef TransientTrackingRecHit::RecHitPointer        RecHitPointer;
-  typedef TransientTrackingRecHit::RecHitContainer      RecHitContainer;
-
-  RecHitWithDist(ConstRecHitPointer rh, float &dphi) : rh_(rh), dphi_(dphi)
-    {}
-  ConstRecHitPointer  recHit() const {return rh_;}
-  float dPhi() const {return dphi_;}
-  void invert() {dphi_*=-1.;}
-
- private:
-
-   ConstRecHitPointer rh_;
-   float dphi_;
-};
-
-
-class RecHitWithInfo
  {
-  public:
+  public :
 
     typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
     typedef TransientTrackingRecHit::RecHitPointer        RecHitPointer;
     typedef TransientTrackingRecHit::RecHitContainer      RecHitContainer;
 
+    RecHitWithDist( ConstRecHitPointer rh, float & dphi )
+     : rh_(rh), dphi_(dphi)
+     {}
+
+    ConstRecHitPointer recHit() const { return rh_ ; }
+    float dPhi() const { return dphi_ ; }
+
+    void invert() { dphi_*=-1. ; }
+
+  private :
+
+    ConstRecHitPointer rh_ ;
+    float dphi_ ;
+
+ } ;
+
+
+class RecHitWithInfo
+ {
+  public :
+
+    typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer ;
+    typedef TransientTrackingRecHit::RecHitPointer        RecHitPointer ;
+    typedef TransientTrackingRecHit::RecHitContainer      RecHitContainer ;
+
     RecHitWithInfo( ConstRecHitPointer rh, int subDet =0,
-       float dRz =std::numeric_limits<float>::infinity(),
-       float dPhi =std::numeric_limits<float>::infinity() )
-     : rh_(rh), subDet_(subDet), dRz_(dRz), dPhi_(dPhi) {}
+       float dRz = std::numeric_limits<float>::infinity(),
+       float dPhi = std::numeric_limits<float>::infinity() )
+     : rh_(rh), subDet_(subDet), dRz_(dRz), dPhi_(dPhi)
+     {}
 
     ConstRecHitPointer recHit() const { return rh_; }
-
     int subDet() { return subDet_ ; }
     float dRz() { return dRz_ ; }
     float dPhi() { return dPhi_ ; }
@@ -97,6 +101,7 @@ class RecHitWithInfo
     int subDet_ ;
     float dRz_ ;
     float dPhi_ ;
+
  } ;
 
 class SeedWithInfo
@@ -105,7 +110,8 @@ class SeedWithInfo
 
     SeedWithInfo( TrajectorySeed seed, int subDet2, float dRz2, float dPhi2 , int subDet1, float dRz1, float dPhi1)
      : seed_(seed), subDet2_(subDet2), dRz2_(dRz2), dPhi2_(dPhi2), subDet1_(subDet1),
-     dRz1_(dRz1), dPhi1_(dPhi1) {}
+       dRz1_(dRz1), dPhi1_(dPhi1)
+     {}
 
     const TrajectorySeed & seed() { return seed_ ; }
 
@@ -127,65 +133,72 @@ class SeedWithInfo
     float dPhi1_ ;
  } ;
 
-class PixelHitMatcher {
- public:
+class PixelHitMatcher
+ {
+  public :
 
-  typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
-  typedef TransientTrackingRecHit::RecHitPointer        RecHitPointer;
-  typedef TransientTrackingRecHit::RecHitContainer      RecHitContainer;
+    typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
+    typedef TransientTrackingRecHit::RecHitPointer        RecHitPointer;
+    typedef TransientTrackingRecHit::RecHitContainer      RecHitContainer;
 
-  PixelHitMatcher(float phi1min, float phi1max, float phi2min, float phi2max,
-		  float z2minB, float z2maxB, float r2minF, float r2maxF,
-		  float rMinI, float rMaxI, bool searchInTIDTEC);
+    PixelHitMatcher
+     ( float phi1min, float phi1max,
+       //float phi2min, float phi2max,
+       float phi2minB, float phi2maxB, float phi2minF, float phi2maxF,
+		   float z2minB, float z2maxB, float r2minF, float r2maxF,
+		   float rMinI, float rMaxI, bool searchInTIDTEC ) ;
 
-  virtual ~PixelHitMatcher();
-  void setES(const MagneticField*, const MeasurementTracker *theMeasurementTracker, const TrackerGeometry *trackerGeometry);
+    virtual ~PixelHitMatcher() ;
+    void setES( const MagneticField *, const MeasurementTracker * theMeasurementTracker, const TrackerGeometry * trackerGeometry ) ;
 
-  std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> >
-  compatibleHits(const GlobalPoint& xmeas, const GlobalPoint& vprim, float energy, float charge);
+    std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> >
+    compatibleHits(const GlobalPoint& xmeas, const GlobalPoint& vprim, float energy, float charge ) ;
 
-  //   compatibleSeeds(edm::Handle<TrajectorySeedCollection> &seeds, const GlobalPoint& xmeas,
-  std::vector<SeedWithInfo>
-  compatibleSeeds
-    ( TrajectorySeedCollection * seeds, const GlobalPoint & xmeas,
-      const GlobalPoint & vprim, float energy, float charge ) ;
+    // compatibleSeeds(edm::Handle<TrajectorySeedCollection> &seeds, const GlobalPoint& xmeas,
+    std::vector<SeedWithInfo>
+    compatibleSeeds
+      ( TrajectorySeedCollection * seeds, const GlobalPoint & xmeas,
+        const GlobalPoint & vprim, float energy, float charge ) ;
 
-  std::vector<CLHEP::Hep3Vector> predicted1Hits();
-  std::vector<CLHEP::Hep3Vector> predicted2Hits();
+    std::vector<CLHEP::Hep3Vector> predicted1Hits() ;
+    std::vector<CLHEP::Hep3Vector> predicted2Hits();
 
-  void set1stLayer (float dummyphi1min, float dummyphi1max);
-  void set1stLayerZRange (float zmin1, float zmax1);
-  void set2ndLayer (float dummyphi2min, float dummyphi2max);
+    void set1stLayer( float dummyphi1min, float dummyphi1max ) ;
+    void set1stLayerZRange( float zmin1, float zmax1 ) ;
+    //void set2ndLayer( float dummyphi2min, float dummyphi2max ) ;
+    void set2ndLayer( float dummyphi2minB, float dummyphi2maxB, float dummyphi2minF, float dummyphi2maxF ) ;
 
-  float getVertex();
-  void setUseRecoVertex(bool val);
+    float getVertex() ;
+    void setUseRecoVertex( bool val ) ;
 
- private:
+  private :
 
-  RecHitContainer hitsInTrack;
+    RecHitContainer hitsInTrack ;
 
-  std::vector<CLHEP::Hep3Vector> pred1Meas;
-  std::vector<CLHEP::Hep3Vector> pred2Meas;
-  FTSFromVertexToPointFactory myFTS;
-  BarrelMeasurementEstimator meas1stBLayer;
-  BarrelMeasurementEstimator meas2ndBLayer;
-  ForwardMeasurementEstimator meas1stFLayer;
-  ForwardMeasurementEstimator meas2ndFLayer;
-  PixelMatchStartLayers startLayers;
-  PropagatorWithMaterial *prop1stLayer;
-  PropagatorWithMaterial *prop2ndLayer;
-  const GeometricSearchTracker *theGeometricSearchTracker;
-  const LayerMeasurements *theLayerMeasurements;
-  const MagneticField* theMagField;
-  const TrackerGeometry * theTrackerGeometry;
+    std::vector<CLHEP::Hep3Vector> pred1Meas ;
+    std::vector<CLHEP::Hep3Vector> pred2Meas ;
+    FTSFromVertexToPointFactory myFTS ;
+    BarrelMeasurementEstimator meas1stBLayer ;
+    BarrelMeasurementEstimator meas2ndBLayer ;
+    ForwardMeasurementEstimator meas1stFLayer ;
+    ForwardMeasurementEstimator meas2ndFLayer ;
+    PixelMatchStartLayers startLayers ;
+    PropagatorWithMaterial * prop1stLayer ;
+    PropagatorWithMaterial * prop2ndLayer ;
+    const GeometricSearchTracker * theGeometricSearchTracker ;
+    const LayerMeasurements * theLayerMeasurements ;
+    const MagneticField* theMagField ;
+    const TrackerGeometry * theTrackerGeometry ;
 
-  float vertex_;
+    float vertex_;
 
-  bool searchInTIDTEC_;
-  bool useRecoVertex_;
-  std::vector<std::pair<const GeomDet*, TrajectoryStateOnSurface> >  mapTsos_;
-  std::vector<std::pair<std::pair<const GeomDet*,GlobalPoint>,  TrajectoryStateOnSurface> >  mapTsos2_;
-};
+    bool searchInTIDTEC_ ;
+    bool useRecoVertex_ ;
+    std::vector<std::pair<const GeomDet*, TrajectoryStateOnSurface> >  mapTsos_ ;
+    std::vector<std::pair<std::pair<const GeomDet*,GlobalPoint>,  TrajectoryStateOnSurface> >  mapTsos2_ ;
+
+} ;
+
 #endif
 
 

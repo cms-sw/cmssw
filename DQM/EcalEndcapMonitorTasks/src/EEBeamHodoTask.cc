@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoTask.cc
  *
- * $Date: 2009/10/26 17:33:51 $
- * $Revision: 1.28 $
+ * $Date: 2010/03/27 20:08:00 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -25,9 +25,9 @@
 
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalEndcapMonitorTasks/interface/EEBeamHodoTask.h>
+#include "DQM/EcalEndcapMonitorTasks/interface/EEBeamHodoTask.h"
 
 EEBeamHodoTask::EEBeamHodoTask(const edm::ParameterSet& ps){
 

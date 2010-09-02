@@ -31,7 +31,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(20)
 )
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_8_0_pre2/RelValWjet_Pt_80_120/GEN-SIM-RECO/MC_38Y_V0-v1/0004/BABF20D7-1F74-DF11-822E-001A92971B80.root')
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_2_2/RelValQCD_Pt_80_120/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP31X_V2-v1/0001/A03E16E9-3C78-DE11-B612-0018F3D09620.root')
 )
 
 process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck")

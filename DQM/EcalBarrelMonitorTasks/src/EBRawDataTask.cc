@@ -1,8 +1,8 @@
 /*
  * \file EBRawDataTask.cc
  *
- * $Date: 2010/06/29 18:44:22 $
- * $Revision: 1.32 $
+ * $Date: 2010/08/09 11:29:34 $
+ * $Revision: 1.38 $
  * \author E. Di Marco
  *
 */
@@ -25,7 +25,7 @@
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/FEDRawData/src/fed_header.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
 #include "DQM/EcalBarrelMonitorTasks/interface/EBRawDataTask.h"
 
@@ -61,6 +61,8 @@ EBRawDataTask::EBRawDataTask(const edm::ParameterSet& ps) {
   meEBL1ASRPErrors_ = 0;
   meEBBunchCrossingSRPErrors_ = 0;
 
+  meEBSynchronizationErrorsByLumi_ = 0;
+
   calibrationBX_ = 3490;
 
 }
@@ -76,6 +78,12 @@ void EBRawDataTask::beginJob(void){
     dqmStore_->setCurrentFolder(prefixME_ + "/EBRawDataTask");
     dqmStore_->rmdir(prefixME_ + "/EBRawDataTask");
   }
+
+}
+
+void EBRawDataTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup) {
+
+  if ( meEBSynchronizationErrorsByLumi_ ) meEBSynchronizationErrorsByLumi_->Reset();
 
 }
 
@@ -109,6 +117,7 @@ void EBRawDataTask::reset(void) {
   if ( meEBBunchCrossingTCCErrors_ ) meEBBunchCrossingTCCErrors_->Reset();
   if ( meEBL1ASRPErrors_ ) meEBL1ASRPErrors_->Reset();
   if ( meEBBunchCrossingSRPErrors_ ) meEBBunchCrossingSRPErrors_->Reset();
+  if ( meEBSynchronizationErrorsByLumi_ ) meEBSynchronizationErrorsByLumi_->Reset();
 
 }
 
@@ -280,6 +289,13 @@ void EBRawDataTask::setup(void){
       meEBBunchCrossingSRPErrors_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
 
+    sprintf(histo, "EBRDT FE synchronization errors by lumi");
+    meEBSynchronizationErrorsByLumi_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
+    meEBSynchronizationErrorsByLumi_->setLumiFlag();
+    for (int i = 0; i < 36; i++) {
+      meEBSynchronizationErrorsByLumi_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+    }
+
   }
 
 }
@@ -339,10 +355,16 @@ void EBRawDataTask::cleanup(void){
     if ( meEBBunchCrossingSRPErrors_ ) dqmStore_->removeElement( meEBBunchCrossingSRPErrors_->getName() );
     meEBBunchCrossingSRPErrors_ = 0;
 
+    if ( meEBSynchronizationErrorsByLumi_ ) dqmStore_->removeElement( meEBSynchronizationErrorsByLumi_->getName() );
+    meEBSynchronizationErrorsByLumi_ = 0;
+
   }
 
   init_ = false;
 
+}
+
+void EBRawDataTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup) {
 }
 
 void EBRawDataTask::endJob(void) {
@@ -358,6 +380,9 @@ void EBRawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   if ( ! init_ ) this->setup();
 
   ievt_++;
+
+  // fill bin 0 with number of events in the lumi
+  if ( meEBSynchronizationErrorsByLumi_ ) meEBSynchronizationErrorsByLumi_->Fill(0.);
 
   int evt_runNumber = e.id().run();
 
@@ -397,10 +422,10 @@ void EBRawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       // use the most frequent among the ECAL FEDs
 
-      map<int,int> ECALDCC_L1A_FreqMap;
-      map<int,int> ECALDCC_OrbitNumber_FreqMap;
-      map<int,int> ECALDCC_BunchCrossing_FreqMap;
-      map<int,int> ECALDCC_TriggerType_FreqMap;
+      std::map<int,int> ECALDCC_L1A_FreqMap;
+      std::map<int,int> ECALDCC_OrbitNumber_FreqMap;
+      std::map<int,int> ECALDCC_BunchCrossing_FreqMap;
+      std::map<int,int> ECALDCC_TriggerType_FreqMap;
 
       int ECALDCC_L1A_MostFreqCounts = 0;
       int ECALDCC_OrbitNumber_MostFreqCounts = 0;
@@ -529,19 +554,27 @@ void EBRawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       const std::vector<short> feBxs = dcchItr->getFEBxs();
       const std::vector<short> tccBx = dcchItr->getTCCBx();
       const short srpBx = dcchItr->getSRPBx();
+      const std::vector<short> status = dcchItr->getFEStatus();
+
+      std::vector<int> BxSynchStatus;
+      BxSynchStatus.reserve((int)feBxs.size());
 
       for(int fe=0; fe<(int)feBxs.size(); fe++) {
-        if(ism==9 && fe==21) continue; // mask known bad tower
-        if(feBxs[fe] != ECALDCC_BunchCrossing && feBxs[fe] != -1) meEBBunchCrossingFEErrors_->Fill( xism, 1/(float)feBxs.size() );
+        // do not consider desynch errors if the DCC detected them
+        if( ( status[fe] == 10 || status[fe] == 11 )) continue;
+        if(feBxs[fe] != ECALDCC_BunchCrossing && feBxs[fe] != -1 && ECALDCC_BunchCrossing != -1) {
+          meEBBunchCrossingFEErrors_->Fill( xism, 1/(float)feBxs.size() );
+          BxSynchStatus[fe] = 0;
+        } else BxSynchStatus[fe] = 1;
       }
 
-      // vector of TCC channels has 4 elements for both EB and EE. 
+      // vector of TCC channels has 4 elements for both EB and EE.
       // EB uses [0], EE uses [0-3].
       if(tccBx.size() == MAX_TCC_SIZE) {
-        if(tccBx[0] != ECALDCC_BunchCrossing && tccBx[0] != -1) meEBBunchCrossingTCCErrors_->Fill( xism );
+        if(tccBx[0] != ECALDCC_BunchCrossing && tccBx[0] != -1 && ECALDCC_BunchCrossing != -1) meEBBunchCrossingTCCErrors_->Fill( xism );
       }
 
-      if(srpBx != ECALDCC_BunchCrossing && srpBx != -1) meEBBunchCrossingSRPErrors_->Fill( xism );
+      if(srpBx != ECALDCC_BunchCrossing && srpBx != -1 && ECALDCC_BunchCrossing != -1) meEBBunchCrossingSRPErrors_->Fill( xism );
 
       const std::vector<short> feLv1 = dcchItr->getFELv1();
       const std::vector<short> tccLv1 = dcchItr->getTCCLv1();
@@ -549,18 +582,24 @@ void EBRawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       // Lv1 in TCC,SRP,FE are limited to 12 bits(LSB), while in the DCC Lv1 has 24 bits
       int ECALDCC_L1A_12bit = ECALDCC_L1A & 0xfff;
+      int feLv1Offset = ( e.isRealData() ) ? 1 : 0; // in MC FE Lv1A counter starts from 1, in data from 0
+
       for(int fe=0; fe<(int)feLv1.size(); fe++) {
-        if(ism==9 && fe==21) continue; // mask known bad tower
-        if(feLv1[fe] != ECALDCC_L1A_12bit - 1 && feLv1[fe] != -1) meEBL1AFEErrors_->Fill( xism, 1/(float)feLv1.size() );
+        // do not consider desynch errors if the DCC detected them
+        if( ( status[fe] == 9 || status[fe] == 11 )) continue;
+        if(feLv1[fe]+feLv1Offset != ECALDCC_L1A_12bit && feLv1[fe] != -1 && ECALDCC_L1A_12bit - 1 != -1) {
+          meEBL1AFEErrors_->Fill( xism, 1/(float)feLv1.size() );
+          meEBSynchronizationErrorsByLumi_->Fill( xism, 1/(float)feLv1.size() );
+        } else if( BxSynchStatus[fe]==0 ) meEBSynchronizationErrorsByLumi_->Fill( xism, 1/(float)feLv1.size() );
       }
 
-      // vector of TCC channels has 4 elements for both EB and EE. 
+      // vector of TCC channels has 4 elements for both EB and EE.
       // EB uses [0], EE uses [0-3].
       if(tccLv1.size() == MAX_TCC_SIZE) {
-        if(tccLv1[0] != ECALDCC_L1A_12bit && tccLv1[0] != -1) meEBL1ATCCErrors_->Fill( xism );
+        if(tccLv1[0] != ECALDCC_L1A_12bit && tccLv1[0] != -1 && ECALDCC_L1A_12bit - 1 != -1) meEBL1ATCCErrors_->Fill( xism );
       }
 
-      if(srpLv1 != ECALDCC_L1A_12bit && srpLv1 != -1) meEBL1ASRPErrors_->Fill( xism );
+      if(srpLv1 != ECALDCC_L1A_12bit && srpLv1 != -1 && ECALDCC_L1A_12bit - 1 != -1) meEBL1ASRPErrors_->Fill( xism );
 
       if ( gtFedDataSize == 0 ) {
 

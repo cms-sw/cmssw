@@ -1,8 +1,6 @@
 #include "RecoTauTag/RecoTau/interface/CaloRecoTauAlgorithm.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
-#include "DataFormats/JetReco/interface/JetCollection.h"
-
 CaloRecoTauAlgorithm::CaloRecoTauAlgorithm() : TransientTrackBuilder_(0),MagneticField_(0),chargedpi_mass_(0.13957018){}  
 CaloRecoTauAlgorithm::CaloRecoTauAlgorithm(const ParameterSet& iConfig) : TransientTrackBuilder_(0),MagneticField_(0),chargedpi_mass_(0.13957018){
   LeadTrack_minPt_                    = iConfig.getParameter<double>("LeadTrack_minPt");

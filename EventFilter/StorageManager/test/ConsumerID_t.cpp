@@ -64,7 +64,7 @@ testConsumerID::output()
 {
   ostringstream out;
   ConsumerID id(18);
-  out << id << endl;
+  out << id << std::endl;
   CPPUNIT_ASSERT(out.str() == "18\n");
 }
 

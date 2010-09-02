@@ -1,8 +1,6 @@
 HLT_Activity_Ecal_SC15
 HLT_Activity_Ecal_SC7
 HLT_Activity_CSC
-HLT_Activity_L1A
-HLT_Activity_PixelClusters
 HLT_Activity_DT
 HLT_Activity_DT_Tuned
 HLT_SelectEcalSpikes_L1R

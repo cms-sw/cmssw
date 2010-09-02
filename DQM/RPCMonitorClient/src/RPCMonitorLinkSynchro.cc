@@ -7,7 +7,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
-//#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
@@ -38,14 +38,12 @@ RPCMonitorLinkSynchro::RPCMonitorLinkSynchro( const edm::ParameterSet& cfg)
 
 RPCMonitorLinkSynchro::~RPCMonitorLinkSynchro()
 { 
-// LogTrace("") << "RPCMonitorLinkSynchro destructor"; 
 }
 
 void RPCMonitorLinkSynchro::beginRun(const edm::Run&, const edm::EventSetup& es)
 {
-// LogTrace("") << "RPCMonitorLinkSynchro::beginRun !!!!" << std::endl;
- if (theCablingWatcher.check(es)) {
-    ESHandle<RPCEMap> readoutMapping;
+  if (theCablingWatcher.check(es)) {
+    ESTransientHandle<RPCEMap> readoutMapping;
     es.get<RPCEMapRcd>().get(readoutMapping);
     RPCReadOutMapping * cabling = readoutMapping->convert();
     LogTrace("") << "RPCMonitorLinkSynchro - record has CHANGED!!, read map, VERSION: " << cabling->version();
@@ -57,17 +55,8 @@ void RPCMonitorLinkSynchro::beginRun(const edm::Run&, const edm::EventSetup& es)
 void RPCMonitorLinkSynchro::endLuminosityBlock(const LuminosityBlock& ls, const EventSetup& es)
 {
 
-//  LogTrace("") << "RPCMonitorLinkSynchro END OF LUMI BLOCK CALLED!";
-
   RPCLinkSynchroHistoMaker hm(theSynchroStat);
   hm.fill(me_delaySummary->getTH1F(), me_delaySpread->getTH2F(), me_topOccup->getTH2F(), me_topSpread->getTH2F());
-
-//  hm.fillDelaySpreadHisto(me_delaySpread->getTH2F());
-//  hm.fillDelayHisto(me_delaySummary->getTH1F());
-
-//  me_delaySummary->update();
-//  me_delaySpread->update();
-//  for (unsigned int i=0;i<3;++i)me_notComplete[i]->update();
 }
 
 void RPCMonitorLinkSynchro::beginJob()
@@ -100,42 +89,32 @@ void RPCMonitorLinkSynchro::beginJob()
 
 }
 
+TObjArray RPCMonitorLinkSynchro::histos() const
+{
+  TObjArray result;
+  result.Add(me_delaySummary->getTH1F());
+  result.Add(me_delaySpread->getTH2F());
+  result.Add(me_topOccup->getTH2F());
+  result.Add(me_topSpread->getTH2F());
+  for (unsigned int i=0;i<=2;i++) result.Add(me_notComplete[i]->getTH2F());
+  return result;
+}
+
 
 void RPCMonitorLinkSynchro::endJob()
 {
-//  RPCLinkSynchroHistoMaker hm(theSynchroStat);
-//  hm.fill();
-  bool writeHistos = theConfig.getUntrackedParameter<bool>("writeHistograms", false);
-  if (writeHistos) {
-    std::string histoFile = theConfig.getUntrackedParameter<std::string>("histoFileName");
-    TFile f(histoFile.c_str(),"RECREATE");
-    me_delaySummary->getTH1F()->Write();
-    me_delaySpread->getTH2F()->Write();
-    me_topOccup->getTH2F()->Write();
-    me_topSpread->getTH2F()->Write();
-    for (unsigned int i=0;i<=2;i++) me_notComplete[i]->getTH2F()->Write();
-//    hCPU.Write();
-    edm::LogInfo(" END JOB, histos saved!");
-    f.Close();
-  }
-
   if (theConfig.getUntrackedParameter<bool>("dumpDelays")) LogInfo("RPCMonitorLinkSynchro DumpDelays") <<  theSynchroStat.dumpDelays();
-
 }
 
 void RPCMonitorLinkSynchro::analyze(const edm::Event& ev, const edm::EventSetup& es)
 {
   edm::Handle<RPCRawSynchro::ProdItem> synchroCounts;
   ev.getByType(synchroCounts);
-//  theTimer.start();
   std::vector<LinkBoardElectronicIndex> problems;
-  theSynchroStat.add(*synchroCounts.product(), problems);
-//  theTimer.stop();
+  const RPCRawSynchro::ProdItem &vItem = select(*synchroCounts.product(), ev,es);
+  theSynchroStat.add(vItem, problems);
 
   for (std::vector<LinkBoardElectronicIndex>::const_iterator it=problems.begin(); it != problems.end(); ++it) {
     me_notComplete[it->dccId-790]->Fill(it->dccInputChannelNum,it->tbLinkInputNum);    
   }
-
-//  std::cout << "TIMING IS: (real)" << theTimer.lastMeasurement().real() << std::endl;
-//  hCPU.Fill(theTimer.lastMeasurement().real());
 }

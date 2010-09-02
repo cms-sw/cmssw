@@ -8,11 +8,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 08:43:47 EDT 2008
-// $Id: FWItemTVirtualCollectionProxyAccessor.cc,v 1.4 2010/06/03 19:26:59 chrjones Exp $
+// $Id: FWItemTVirtualCollectionProxyAccessor.cc,v 1.2 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
 #include "Reflex/Object.h"
+#include <TClass.h>
 #include "TVirtualCollectionProxy.h"
 
 // user include files
@@ -32,12 +33,10 @@
 //
 FWItemTVirtualCollectionProxyAccessor::FWItemTVirtualCollectionProxyAccessor(
    const TClass* iType,
-   boost::shared_ptr<TVirtualCollectionProxy> iProxy,
-   size_t iOffset)
+   boost::shared_ptr<TVirtualCollectionProxy> iProxy)
    : m_type(iType),
      m_colProxy(iProxy),
-     m_data(0),
-     m_offset(iOffset)
+     m_data(0)
 {
 }
 
@@ -77,7 +76,7 @@ FWItemTVirtualCollectionProxyAccessor::setWrapper(const ROOT::Reflex::Object& iW
       }
       m_data = product.Address();
       assert(0!=m_data);
-      m_colProxy->PushProxy(static_cast<char*>(const_cast<void*>(m_data))+m_offset);
+      m_colProxy->PushProxy(static_cast<char*>(const_cast<void*>(m_data)));
    } else {
       reset();
    }

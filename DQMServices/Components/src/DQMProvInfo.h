@@ -4,8 +4,8 @@
 /*
  * \file DQMProvInfo.h
  *
- * $Date: 2010/06/26 13:15:30 $
- * $Revision: 1.10 $
+ * $Date: 2010/03/29 18:34:06 $
+ * $Revision: 1.8 $
  * \author A.Meyer - DESY
  *
 */
@@ -45,7 +45,6 @@ private:
 
   std::string getShowTags(void);
   void makeProvInfo();  
-  void makeHLTKeyInfo(const edm::Run& r, const edm::EventSetup &c);  
   void makeDcsInfo(const edm::Event& e);  
   void makeGtInfo(const edm::Event& e);
 
@@ -58,16 +57,13 @@ private:
   int lastlumi_;
   
   bool physDecl_;
-  bool dcs25[25];
+  bool dcs24[24];
   
   int lhcFill_;
   int beamMode_;
   int momentum_;
   int intensity1_;
   int intensity2_;
-  
-  
-  std::string nameProcess_;
   
    // histograms
   MonitorElement * versCMSSW_ ;
@@ -86,9 +82,6 @@ private:
   MonitorElement * hMomentum_;
   MonitorElement * hIntensity1_;
   MonitorElement * hIntensity2_;
-
-  MonitorElement * hIsCollisionsRun_;
-  MonitorElement * hHltKey_;
   
   MonitorElement * reportSummary_;
   MonitorElement * reportSummaryMap_;

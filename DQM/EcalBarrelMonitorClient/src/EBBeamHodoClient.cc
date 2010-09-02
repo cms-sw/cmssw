@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2010/01/25 21:12:24 $
- * $Revision: 1.71 $
+ * $Date: 2010/03/27 20:07:56 $
+ * $Revision: 1.72 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -19,7 +19,7 @@
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalBarrelMonitorClient/interface/EBBeamHodoClient.h>
+#include "DQM/EcalBarrelMonitorClient/interface/EBBeamHodoClient.h"
 
 EBBeamHodoClient::EBBeamHodoClient(const edm::ParameterSet& ps) {
 
