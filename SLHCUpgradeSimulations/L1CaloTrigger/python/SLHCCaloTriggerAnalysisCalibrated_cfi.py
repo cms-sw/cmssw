@@ -47,21 +47,21 @@ SLHCTaus = cms.EDAnalyzer('CaloTriggerAnalyzer',
                           src    = cms.InputTag("SLHCL1ExtraParticles","Taus"),
                           ref    = cms.InputTag("tauGenJetsSelectorAllHadrons"),
                           deltaR = cms.double(0.5),
-                          threshold = cms.double(5)
+                          threshold = cms.double(30)
                           )
 
 SLHCisoTaus = cms.EDAnalyzer('CaloTriggerAnalyzer',
                              src    = cms.InputTag("SLHCL1ExtraParticles","IsoTaus"),
                              ref    = cms.InputTag("tauGenJetsSelectorAllHadrons"),
                              deltaR = cms.double(0.5),
-                             threshold = cms.double(5)
+                             threshold = cms.double(30)
                              )
 
 LHCTaus = cms.EDAnalyzer('CaloTriggerAnalyzer',
                          src    = cms.InputTag("l1extraParticlesCalibrated","Taus"),
                          ref    = cms.InputTag("tauGenJetsSelectorAllHadrons"),
                          deltaR = cms.double(0.5),
-                         threshold = cms.double(5)
+                         threshold = cms.double(30)
                          )
 
 mcSequence = cms.Sequence(mcElectrons*
@@ -74,28 +74,28 @@ SLHCelectrons = cms.EDAnalyzer('CaloTriggerAnalyzer',
                                src    = cms.InputTag("SLHCL1ExtraParticles","EGamma"),
                                ref    = cms.InputTag("mcElectrons"),
                                deltaR = cms.double(0.3),
-                               threshold = cms.double(5.)
+                               threshold = cms.double(30.)
                                )
 
 LHCelectrons = cms.EDAnalyzer('CaloTriggerAnalyzer',
                               src    = cms.InputTag("l1extraParticlesCalibrated","EGamma"),
                               ref    = cms.InputTag("mcElectrons"),
                               deltaR = cms.double(0.3),
-                              threshold = cms.double(5.)
+                              threshold = cms.double(30.)
                               )
 
 SLHCisoElectrons = cms.EDAnalyzer('CaloTriggerAnalyzer',
                                   src    = cms.InputTag("SLHCL1ExtraParticles","IsoEGamma"),
                                   ref    = cms.InputTag("mcElectrons"),
                                   deltaR = cms.double(0.3),
-                                  threshold = cms.double(5.)
+                                  threshold = cms.double(30.)
                                   )
 
 LHCisoElectrons = cms.EDAnalyzer('CaloTriggerAnalyzer',
                                  src    = cms.InputTag("l1extraParticlesCalibrated","IsoEGamma"),
                                  ref    = cms.InputTag("mcElectrons"),
                                  deltaR = cms.double(0.3),
-                                 threshold = cms.double(5.)
+                                 threshold = cms.double(30.)
                                  )
 
 LHCallE = cms.EDProducer("CandViewMerger",
@@ -106,7 +106,7 @@ LHCallElectrons = cms.EDAnalyzer('CaloTriggerAnalyzer',
                                  src    = cms.InputTag("LHCallE"),
                                  ref    = cms.InputTag("mcElectrons"),
                                  deltaR = cms.double(0.3),
-                                 threshold = cms.double(5.)
+                                 threshold = cms.double(30.)
                                  )
 
 
@@ -114,28 +114,28 @@ SLHCphotons = cms.EDAnalyzer('CaloTriggerAnalyzer',
                              src    = cms.InputTag("SLHCL1ExtraParticles","EGamma"),
                              ref    = cms.InputTag("mcPhotons"),
                              deltaR = cms.double(0.3),
-                             threshold = cms.double(10.)
+                             threshold = cms.double(30.)
                              )
 
 LHCphotons = cms.EDAnalyzer('CaloTriggerAnalyzer',
                             src    = cms.InputTag("l1extraParticlesCalibrated","EGamma"),
                             ref    = cms.InputTag("mcPhotons"),
                             deltaR = cms.double(0.3),
-                            threshold = cms.double(10.)
+                            threshold = cms.double(30.)
                             )
 
 SLHCisoPhotons = cms.EDAnalyzer('CaloTriggerAnalyzer',
                                 src    = cms.InputTag("SLHCL1ExtraParticles","IsoEGamma"),
                                 ref    = cms.InputTag("mcPhotons"),
                                 deltaR = cms.double(0.3),
-                                threshold = cms.double(5.)
+                                threshold = cms.double(30.)
                                 )
 
 LHCisoPhotons = cms.EDAnalyzer('CaloTriggerAnalyzer',
                                src    = cms.InputTag("l1extraParticlesCalibrated","IsoEGamma"),
                                ref    = cms.InputTag("mcPhotons"),
                                deltaR = cms.double(0.3),
-                               threshold = cms.double(5.)
+                               threshold = cms.double(30.)
                                )
 
 LHCallG = cms.EDProducer("CandViewMerger",
@@ -146,7 +146,7 @@ LHCallPhotons = cms.EDAnalyzer('CaloTriggerAnalyzer',
                                src    = cms.InputTag("LHCallG"),
                                ref    = cms.InputTag("mcPhotons"),
                                deltaR = cms.double(0.3),
-                               threshold = cms.double(5.)
+                               threshold = cms.double(30.)
                                )
 
 

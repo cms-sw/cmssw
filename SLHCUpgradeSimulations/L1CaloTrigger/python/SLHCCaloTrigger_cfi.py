@@ -58,6 +58,7 @@ SLHCL1ExtraParticles = cms.EDProducer("L1ExtraCalibrator",
                                       taus = cms.InputTag("rawSLHCL1ExtraParticles","Taus"),
                                       isoTaus = cms.InputTag("rawSLHCL1ExtraParticles","IsoTaus"),
                                       jets = cms.InputTag("rawSLHCL1ExtraParticles","Jets"),
+
                                       ##How to calibrate  
                                       ##Scale factor = MC/RAW = a+b |eta| +c|eta|^2 
                                       ##Give the coeffs for egamma and taus 
@@ -72,20 +73,27 @@ SLHCL1ExtraParticles = cms.EDProducer("L1ExtraCalibrator",
                                       eGammaCoefficientsE = cms.vdouble(1.43,-0.470,0.0),
                                       tauCoefficientsE    = cms.vdouble(1.52,-0.197,0.0),
 
-                                      ## 18.Aug.2010 -- Added bin-by-bin correction factors to further improve upon functional form.
-                                      ## These correction factors are pulled from the MC/Reco( |eta| ) plots after the above calibrations
-                                      ## were applied.
-                                      eGammaBinCorr = cms.vdouble( 0.995280 , 0.999074 , 1.014316 , 1.005148 , 0.992236 , 0.998246 , 1.017787 , 1.137927 , 1.105248 , 0.948162 , 0.896218 , 0.774255 , 0.886956),
-                                      tauBinCorr = cms.vdouble( 1.065728, 1.054150, 1.090152, 1.102329, 1.105562, 1.143280, 1.149978, 1.187399, 1.156080, 1.095267, 1.078722, 0.994069, 1.053809)
-                                                                          
                                       #eGammaCoefficientsB = cms.vdouble(1.0,0.0,0.0),
                                       #tauCoefficientsB    = cms.vdouble(1.0,0.0,0.0),
                                       #eGammaCoefficientsE = cms.vdouble(1.0,0.0,0.0),
-                                      #tauCoefficientsE    = cms.vdouble(1.0,0.0,0.0)
+                                      #tauCoefficientsE    = cms.vdouble(1.0,0.0,0.0) 
+
+                                      ## 18.Aug.2010 -- Added bin-by-bin correction factors to further improve upon functional form.
+                                      ## These correction factors are pulled from the MC/Reco( |eta| ) plots after the above calibrations
+                                      ## were applied (ZEE and HTT)
+
+                                      #Calibration good for 5GeV threshold
+                                      #eGammaBinCorr = cms.vdouble( 0.995280 , 0.999074 , 1.014316 , 1.005148 , 0.992236 , 0.998246 , 1.017787 , 1.137927 , 1.105248 , 0.948162 , 0.896218 , 0.774255 , 0.890730),
+                                      #tauBinCorr = cms.vdouble( 1.065728, 1.054150, 1.090152, 1.102329, 1.105562, 1.143280, 1.149978, 1.187399, 1.156080, 1.095267, 1.078722, 0.994069, 1.034597)
                                       
-                                      #eGammaCoefficients = cms.vdouble(1.05,-0.00288,0.108),
-                                      #tauCoefficients    = cms.vdouble(1.34,0.002,0.06)
-)
+                                      #Calibration good for 30GeV threshold
+                                      eGammaBinCorr = cms.vdouble( 0.980478 , 0.977497 , 0.991688 , 0.974088 , 0.957387 , 0.958428 , 0.946692 , 1.010764 , 1.000194 , 0.876818 , 0.859533 , 0.766770 , 0.852342),
+                                      tauBinCorr=cms.vdouble( 0.966896, 0.968547, 0.981441, 0.993066, 1.003556, 1.036209, 1.043883, 1.089409, 1.051449, 0.968977, 0.962960, 0.875468, 0.944211)
+                                      
+                                      #eGammaBinCorr = cms.vdouble( 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0),
+                                      #tauBinCorr = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+                                      
+                                      )
 
 l1extraParticlesCalibrated = cms.EDProducer("L1ExtraCalibrator",
                                             eGamma = cms.InputTag("l1extraParticles","NonIsolated"),
@@ -105,18 +113,26 @@ l1extraParticlesCalibrated = cms.EDProducer("L1ExtraCalibrator",
                                             tauCoefficientsB    = cms.vdouble(1.26,0.0,0.0610),
                                             eGammaCoefficientsE = cms.vdouble(1.33,-0.0949,0.0),
                                             tauCoefficientsE    = cms.vdouble(1.32,-0.278,0.0),
-
+                                            
+                                            #eGammaCoefficientsB = cms.vdouble(1.0,0.0,0.0),
+                                            #tauCoefficientsB    = cms.vdouble(1.0,0.0,0.0),
+                                            #eGammaCoefficientsE = cms.vdouble(1.0,0.0,0.0),
+                                            #tauCoefficientsE    = cms.vdouble(1.0,0.0,0.0)
+                                            
                                             ## 18.Aug.2010 -- Added bin-by-bin correction factors to further improve upon functional form.
                                             ## These correction factors are pulled from the MC/Reco( |eta| ) plots after the above calibrations
                                             ## were applied.  Factors of 1.0 correspond to the bins where the LHC trigger objects are not produced.
-                                            eGammaBinCorr = cms.vdouble( 1.001927, 1.000000, 1.051150, 1.000000, 1.054222, 1.000000, 1.041449, 1.094124, 1.000000, 1.035675, 1.000000, 1.000000, 1.228740),
-                                            tauBinCorr = cms.vdouble( 0.922142, 1.000000, 0.934793, 1.000000, 0.960299, 1.000000, 0.977273, 1.023410, 1.000000, 1.004015, 1.000000, 1.000000, 0.969207)
-                                                                     
-                                            #eGammaCoefficientsB = cms.vdouble(1.0,0.0,0.0),
-#                                            tauCoefficientsB    = cms.vdouble(1.0,0.0,0.0),
-#                                            eGammaCoefficientsE = cms.vdouble(1.0,0.0,0.0),
-#                                            tauCoefficientsE    = cms.vdouble(1.0,0.0,0.0)
+
+
+                                            #Calibration good for 5 GeV thresholds
+                                            #eGammaBinCorr = cms.vdouble( 1.001927, 1.000000, 1.051150, 1.000000, 1.054222, 1.000000, 1.041449, 1.094124, 1.000000, 1.035675, 1.000000, 1.000000, 1.022532),
+                                            #tauBinCorr = cms.vdouble( 0.922142, 1.000000, 0.934793, 1.000000, 0.960299, 1.000000, 0.977273, 1.023410, 1.000000, 1.004015, 1.000000, 1.000000, 0.928593)
                                             
-                                            #eGammaCoefficients = cms.vdouble(1.217,-0.0086,0.0184),
-                                            #tauCoefficients    = cms.vdouble(1.148,0.0007,0.08637)
-                                           )
+                                            #Calibration good for 30 GeV threshold.
+                                            eGammaBinCorr = cms.vdouble( 1.044700, 1.000000, 1.045531, 1.000000, 1.025850, 1.000000, 0.994333, 1.000238, 1.000000, 0.984849, 1.000000, 1.000000, 0.988361),
+                                            tauBinCorr=cms.vdouble( 0.908360, 1.000000, 0.904475, 1.000000, 0.913780, 1.000000, 0.927715, 0.969766, 1.000000, 0.953172, 1.000000, 1.000000, 0.900906)
+                                                                                
+                                            #eGammaBinCorr = cms.vdouble( 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0 , 1.0),
+                                            #tauBinCorr = cms.vdouble( 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+                                                                                        
+                                            )
