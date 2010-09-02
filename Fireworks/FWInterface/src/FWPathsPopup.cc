@@ -18,6 +18,7 @@
 #include "TGText.h"
 #include "TSystem.h"
 #include "TGHtml.h"
+#include "TGFont.h"
 
 #include <iostream>
 #include <sstream>
@@ -36,8 +37,29 @@ public:
       std::string type;
    };
 
+   const TGGC &
+   boldCG()
+   {
+      static bool init = true;
+      static TGGC s_boldCG(*gClient->GetResourcePool()->GetFrameGC());
+//      if (init)
+//      {
+//         TGFontPool *pool = gClient->GetFontPool();
+//         TGFont *font = pool->FindFontByHandle(s_boldCG.GetFont());
+//         FontAttributes_t attributes = font->GetFontAttributes();
+//         attributes.fWeight = EFontWeight::kFontWeightBold;
+//         TGFont *newFont = pool->GetFont(attributes.fFamily, 12,
+//                                         attributes.fWeight, attributes.fSlant);
+
+//         s_boldCG.SetFont(newFont->GetFontHandle());
+//         init = false;
+//      }
+      return s_boldCG;
+   }
+
    FWPSetTableManager()
-      : m_selectedRow(-1) 
+      : m_selectedRow(-1),
+        m_boldRenderer()
    {
       reset();
    }
@@ -112,23 +134,31 @@ public:
    
    virtual FWTableCellRendererBase* cellRenderer(int iSortedRowNumber, int iCol) const
    {
+      FWTextTableCellRenderer *renderer = &m_renderer;
+
       if(static_cast<int>(m_row_to_index.size()) > iSortedRowNumber) 
       {
          int unsortedRow =  m_row_to_index[iSortedRowNumber];
          const PSetData& data = m_entries[unsortedRow];
+         
+         FWTextTableCellRenderer *renderer;
+         if (data.level == 0)
+            renderer = &m_boldRenderer;
+         else
+            renderer = &m_renderer;
 
          if (iCol == 0)
-           m_renderer.setData(data.label, false);
+           renderer->setData(data.label, false);
          else if (iCol == 1)
-           m_renderer.setData(data.value, false);
+           renderer->setData(data.value, false);
          
          else
-            m_renderer.setData(std::string(), false);
+            renderer->setData(std::string(), false);
       }
       else 
-         m_renderer.setData(std::string(), false);
+         renderer->setData(std::string(), false);
 
-      return &m_renderer;
+      return renderer;
    }
 
    void setSelection (int row, int mask) {
@@ -438,6 +468,7 @@ private:
    int                             m_selectedRow;
    std::string                     m_filter;
    mutable FWTextTableCellRenderer m_renderer;
+   mutable FWTextTableCellRenderer m_boldRenderer;
 };
 
 FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
