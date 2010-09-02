@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.215 $"
+__version__ = "$Revision: 1.216 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -279,7 +279,7 @@ class ConfigBuilder(object):
         conditionsSP=self._options.conditions.split(',')
 
         # here we check if we have fastsim or fullsim
-	if "FAST" in self.stepMap.keys():
+	if "FASTSIM" in self.stepMap.keys():
             self.loadAndRemember('FastSimulation/Configuration/RandomServiceInitialization_cff')
 
             # pile up handling for fastsim
@@ -1057,7 +1057,7 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.215 $"),
+              (version=cms.untracked.string("$Revision: 1.216 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
