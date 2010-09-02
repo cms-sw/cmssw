@@ -111,7 +111,7 @@ L1ExtraTranslator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 //EGamma
 	 if(finalClusters.at(i).isEGamma()&&NEGamma<nParticles_)
 	   {
-	     printf("New L1 EGAMMA pt,eta,phi %f %f %f\n",finalClusters.at(i).p4().pt(),finalClusters.at(i).p4().eta(),finalClusters.at(i).p4().phi()); 
+	     // printf("New L1 EGAMMA pt,eta,phi %f %f %f\n",finalClusters.at(i).p4().pt(),finalClusters.at(i).p4().eta(),finalClusters.at(i).p4().phi()); 
 	     l1EGamma->push_back(L1EmParticle(finalClusters.at(i).p4()));
 	     NEGamma++;
 	   }

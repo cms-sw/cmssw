@@ -21,7 +21,7 @@ CaloTriggerAnalyzer::CaloTriggerAnalyzer(const edm::ParameterSet& iConfig):
   etaNum   = fs->make<TH1F>( "etaNum"  , "etaNum"  , 20  ,  -2.5, 2.5 );
   etaDenom = fs->make<TH1F>( "etaDenom", "etaDenom", 20  ,  -2.5, 2.5 );
   pt       = fs->make<TH1F>( "pt"      , "pt", 20  ,  0. , 100. );
-  highestPt= fs->make<TH1F>( "highestPt"      , "highestPt", 20  ,  0. , 100. );
+  highestPt= fs->make<TH1F>( "highestPt"      , "highestPt", 50  ,  0. , 100. );
   secondPt = fs->make<TH1F>( "secondHighestPt", "secondHighestPt", 20  ,  0. , 100. );
   highestPtGen=fs->make<TH1F>("highestPtGen","highestPtGen",100, 0., 1000.);
   dPt      = fs->make<TH1F>( "dPt"      , "dPt", 50  , -1  , 1 );
@@ -30,7 +30,7 @@ CaloTriggerAnalyzer::CaloTriggerAnalyzer(const edm::ParameterSet& iConfig):
   RPt = fs->make<TH1F>("RPt", "Pt_Ratio", 10, 0, 2.);
   RPtEta = fs->make<TProfile>("RPtEta","Pt_Ratio as fcn of abs(eta)",13,0.0,2.6,0,2);
   RPtEtaFull = fs->make<TProfile>("RPtEtaFull","Pt_Ratio as fcn of eta",26,-2.6,2.6,0,2);
-  absEta = fs->make<TH1F>("abseta","abs(eta)",13,0.,2.6);
+  absEta = fs->make<TH1F>("abseta","abs(eta)",13,0.,2.6); 
 }
 
 
@@ -51,6 +51,7 @@ CaloTriggerAnalyzer::~CaloTriggerAnalyzer()
 void
 CaloTriggerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  std::cout << src_ << std::endl;
   edm::Handle<edm::View<reco::Candidate> > ref;
   edm::Handle<edm::View<reco::Candidate> > src;
 
