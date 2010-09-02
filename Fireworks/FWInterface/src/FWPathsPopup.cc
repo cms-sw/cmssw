@@ -1,6 +1,7 @@
 #include "Fireworks/FWInterface/src/FWPathsPopup.h"
 #include "Fireworks/FWInterface/interface/FWFFLooper.h"
 #include "Fireworks/TableWidget/interface/FWTableManagerBase.h"
+#include "Fireworks/TableWidget/interface/FWTableWidget.h"
 #include "Fireworks/TableWidget/interface/FWTextTableCellRenderer.h"
 #include "Fireworks/Core/src/FWDialogBuilder.h"
 
@@ -49,20 +50,31 @@ public:
       for (size_t i = 0, e = availablePaths.size(); i != e; ++i)
       {
          PSetData pathEntry;
-         pathEntry.label = availablePaths[i];
+         pathEntry.label = "Path";
+         pathEntry.value = availablePaths[i];
          pathEntry.level= 0;
          m_entries.push_back(pathEntry);
 
          std::vector<std::string> pathModules;
-         info->modulesInPath(pathEntry.label, pathModules);
+         info->modulesInPath(pathEntry.value, pathModules);
          for (size_t mi = 0, me = pathModules.size(); mi != me; ++mi)
          {
             PSetData moduleEntry;
-            moduleEntry.label = pathModules[mi];
+           
+            const edm::ParameterSet* ps = info->parametersForModule(pathModules[mi]);
+
+            const edm::ParameterSet::table& pst = ps->tbl();  
+            const edm::ParameterSet::table::const_iterator ti = pst.find("@module_edm_type");
+      
+            if (ti == pst.end())
+              moduleEntry.label = "Unknown module name";
+            else
+              moduleEntry.label = ti->second.getString();
+
+            moduleEntry.value = pathModules[mi];
             moduleEntry.level = 1;
             m_entries.push_back(moduleEntry);
 
-            const edm::ParameterSet* ps = info->parametersForModule(pathModules[mi]);
             handlePSet(*ps);
          }
       }
@@ -93,7 +105,7 @@ public:
    {
       std::vector<std::string> returnValue;
       returnValue.reserve(2);
-      returnValue.push_back("Setting                 ");
+      returnValue.push_back("Type                    ");
       returnValue.push_back("Value                   ");
       return returnValue;
    }
@@ -445,12 +457,16 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
           .addLabel("Available paths", 10)
           .spaceDown(10)
           .addHtml(&m_modulePathsHtml)
-          .addTable(m_psTable).expand(true, true)
+     .addTable(m_psTable, &m_tableWidget).expand(true, true)
           .addTextEdit("", &m_textEdit)
           .addTextButton("Apply changes and reload", &m_apply);
 
    m_apply->Connect("Clicked()", "FWPathsPopup", this, "scheduleReloadEvent()");
    m_apply->SetEnabled(true);
+
+   m_tableWidget->SetBackgroundColor(0xffffff);
+   m_tableWidget->SetLineSeparatorColor(0x000000);
+   m_tableWidget->SetHeaderBackgroundColor(0xececec);
 
    MapSubwindows();
    Layout();

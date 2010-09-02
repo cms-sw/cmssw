@@ -25,6 +25,7 @@ class TGTextButton;
 class TGHtml;
 class TString;
 class FWPSetTableManager;
+class FWTableWidget;
 
 class FWPathsPopup : public TGMainFrame
 {
@@ -60,6 +61,7 @@ private:
    TGTextEdit               *m_textEdit;
    TGTextButton             *m_apply;
    FWPSetTableManager       *m_psTable;
+   FWTableWidget            *m_tableWidget;
 
    // Filled from ScheduleInfo
    std::vector<std::string> m_availableModuleLabels;
