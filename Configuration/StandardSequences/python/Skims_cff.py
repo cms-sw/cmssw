@@ -252,4 +252,30 @@ SKIMStreamDiJet = cms.FilteredStream(
     dataTier = cms.untracked.string('USER')
     )
 
+#####################
+
+from Configuration.Skimming.PDWG_TauSkim_cff import *
+tauSkimPath = cms.Path( tauSkimSequence )
+SKIMStreamTau = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'Tau',
+    paths = (tauSkimPath),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+    )
+
+
+#####################
+
+from Configuration.Skimming.PDWG_OniaSkim_cff import *
+oniaSkimPath = cms.Path(oniaSkimSequence)
+SKIMStreamOnia = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'Onia',
+    paths = (oniaSkimPath),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+    )
 

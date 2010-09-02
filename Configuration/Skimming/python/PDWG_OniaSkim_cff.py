@@ -14,3 +14,9 @@ OniaSkimDiMuonFilter = cms.EDFilter("CandViewCountFilter",
     src       = cms.InputTag("OniaSkimDiMuons"),
     minNumber = cms.uint32(1),
 )
+
+oniaSkimSequence = cms.Sequence(
+    OniaSkimGoodMuons *
+    OniaSkimDiMuons *
+    OniaSkimDiMuonFilter
+    )

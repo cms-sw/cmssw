@@ -32,3 +32,10 @@ TauSkimPFTauSkimmed = cms.EDFilter("CandViewCountFilter",
   src = cms.InputTag('TauSkimPFTausSelected'),
   minNumber = cms.uint32(1)
 )
+
+tauSkimSequence = cms.Sequence(
+    TauSkimTrigger *
+    TauSkimScraping *
+    TauSkimPFTausSelected *
+    TauSkimPFTauSkimmed
+    )
