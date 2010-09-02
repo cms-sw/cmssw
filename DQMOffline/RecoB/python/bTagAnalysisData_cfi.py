@@ -23,62 +23,77 @@ bTagAnalysis = cms.EDAnalyzer("BTagPerformanceAnalyzerOnData",
         cms.PSet(
             bTagTrackIPAnalysisBlock,
             type = cms.string('TrackIP'),
-            label = cms.InputTag("impactParameterTagInfos")
+            label = cms.InputTag("impactParameterTagInfos"),
+            folder = cms.string("IPTag")
         ), 
         cms.PSet(
             bTagCombinedSVAnalysisBlock,
             ipTagInfos = cms.InputTag("impactParameterTagInfos"),
             type = cms.string('GenericMVA'),
             svTagInfos = cms.InputTag("secondaryVertexTagInfos"),
-            label = cms.InputTag("combinedSecondaryVertex")
+            label = cms.InputTag("combinedSecondaryVertex"),
+            folder = cms.string("CSVTag")
+            
         ), 
         cms.PSet(
             bTagTrackCountingAnalysisBlock,
-            label = cms.InputTag("trackCountingHighEffBJetTags")
+            label = cms.InputTag("trackCountingHighEffBJetTags"),
+            folder = cms.string("TCHE")
         ), 
         cms.PSet(
             bTagTrackCountingAnalysisBlock,
-            label = cms.InputTag("trackCountingHighPurBJetTags")
+            label = cms.InputTag("trackCountingHighPurBJetTags"),
+            folder = cms.string("TCHP")
         ), 
         cms.PSet(
             bTagProbabilityAnalysisBlock,
-            label = cms.InputTag("jetProbabilityBJetTags")
+            label = cms.InputTag("jetProbabilityBJetTags"),
+            folder = cms.string("JP")            
         ), 
         cms.PSet(
             bTagBProbabilityAnalysisBlock,
-            label = cms.InputTag("jetBProbabilityBJetTags")
+            label = cms.InputTag("jetBProbabilityBJetTags"),
+            folder = cms.string("JBP")            
         ), 
         cms.PSet(
             bTagSimpleSVAnalysisBlock,
-            label = cms.InputTag("simpleSecondaryVertexHighEffBJetTags")
+            label = cms.InputTag("simpleSecondaryVertexHighEffBJetTags"),
+            folder = cms.string("SSVHE")
         ), 
         cms.PSet(
             bTagSimpleSVAnalysisBlock,
-            label = cms.InputTag("simpleSecondaryVertexHighPurBJetTags")
+            label = cms.InputTag("simpleSecondaryVertexHighPurBJetTags"),
+            folder = cms.string("SSVHP")
         ), 
         cms.PSet(
             bTagGenericAnalysisBlock,
-            label = cms.InputTag("combinedSecondaryVertexBJetTags")
+            label = cms.InputTag("combinedSecondaryVertexBJetTags"),
+            folder = cms.string("CSV")
         ), 
         cms.PSet(
             bTagGenericAnalysisBlock,
-            label = cms.InputTag("combinedSecondaryVertexMVABJetTags")
+            label = cms.InputTag("combinedSecondaryVertexMVABJetTags"),
+            folder = cms.string("CSVMVA")
         ), 
         cms.PSet(
             bTagGenericAnalysisBlock,
-            label = cms.InputTag("ghostTrackBJetTags")
+            label = cms.InputTag("ghostTrackBJetTags"),
+            folder = cms.string("GhTrk")
         ), 
         cms.PSet(
             bTagSoftLeptonAnalysisBlock,
-            label = cms.InputTag("softMuonBJetTags")
+            label = cms.InputTag("softMuonBJetTags"),
+            folder = cms.string("SMT")
         ),
         cms.PSet(
             bTagSoftLeptonByIPAnalysisBlock,
-            label = cms.InputTag("softMuonByIP3dBJetTags")
+            label = cms.InputTag("softMuonByIP3dBJetTags"),
+            folder = cms.string("SMTIP3d")
         ), 
         cms.PSet(
             bTagSoftLeptonByPtAnalysisBlock,
-            label = cms.InputTag("softMuonByPtBJetTags")
+            label = cms.InputTag("softMuonByPtBJetTags"),
+            folder = cms.string("SMTPt")
         ) 
     ),
     mcPlots = cms.bool(False)

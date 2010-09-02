@@ -14,7 +14,7 @@ SoftLeptonTagPlotter::SoftLeptonTagPlotter(const std::string & tagName,
 	const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet, const bool& mc, const bool& update) :
     BaseTagInfoPlotter(tagName, etaPtBin), mcPlots_(mc)
 {
-  const std::string softLepDir("SoftLepton"+theExtensionString);
+  const std::string softLepDir(theExtensionString.substr(1));
 
   for (int i = 0; i < s_leptons; i++) {
     std::ostringstream s("");

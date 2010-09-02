@@ -27,7 +27,7 @@ TrackIPTagPlotter::TrackIPTagPlotter(const std::string & tagName,
   maxJetDistance(pSet.getParameter<double>("MaxJetDistance")),
   finalized(false)
 {
-  const std::string trackIPDir("TrackIPPlots" + theExtensionString);
+  const std::string trackIPDir(theExtensionString.substr(1));
 
   trkNbr3D = new TrackIPHistograms<int>
 	("selTrksNbr_3D" + theExtensionString, "Number of selected tracks for 3D IPS", 31, -0.5, 30.5,
@@ -701,7 +701,7 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
 }
 
 void TrackIPTagPlotter::createPlotsForFinalize (){
-  const std::string trackIPDir("TrackIPPlots" + theExtensionString);
+  const std::string trackIPDir(theExtensionString.substr(1));
   effPurFromHistos[0] = new EffPurFromHistos (tkcntHistosSig3D[1],trackIPDir, mcPlots_, 
 		nBinEffPur_, startEffPur_,
 		endEffPur_);

@@ -12,7 +12,7 @@ TrackCountingTagPlotter::TrackCountingTagPlotter(const std::string & tagName,
   endEffPur_(pSet.getParameter<double>("endEffPur")),
   willFinalize_(wf), lowerIPSBound(-35.0), upperIPSBound(35.0), finalized(false)
 {
-  const std::string dir("TrackCounting"+theExtensionString);
+  const std::string dir(theExtensionString.substr(1));
 
   trkNbr3D = new FlavourHistograms<int>
 	("selTrksNbr_3D" + theExtensionString, "Number of selected tracks for 3D IPS" + theExtensionString, 31, -0.5, 30.5,

@@ -78,6 +78,8 @@ void BTagPerformanceAnalyzerOnData::bookHistos(const edm::ParameterSet& pSet)
                                    "JetTag";
     if (dataFormatType == "JetTag") {
       const InputTag& moduleLabel = iModule->getParameter<InputTag>("label");
+      const string& folderName    = iModule->getParameter<string>("folder");
+      std::cout << " JetTag::ModuleLabel ===> " << moduleLabel.label() << " FolderName ===> " << folderName << std::endl; 
       jetTagInputTags.push_back(moduleLabel);
       binJetTagPlotters.push_back(vector<JetTagPlotter*>()) ;
       // Contains plots for each bin of rapidity and pt.
@@ -114,7 +116,7 @@ void BTagPerformanceAnalyzerOnData::bookHistos(const edm::ParameterSet& pSet)
 	  const EtaPtBin& etaPtBin = getEtaPtBin(iEta, iPt);
 	  
 	  // Instantiate the genertic b tag plotter
-	  JetTagPlotter *jetTagPlotter = new JetTagPlotter(moduleLabel.label(), etaPtBin,
+	  JetTagPlotter *jetTagPlotter = new JetTagPlotter(folderName, etaPtBin,
 							   iModule->getParameter<edm::ParameterSet>("parameters"), mcPlots_, update, finalize);
 	  binJetTagPlotters.back().push_back ( jetTagPlotter ) ;
 	  
@@ -160,6 +162,9 @@ void BTagPerformanceAnalyzerOnData::bookHistos(const edm::ParameterSet& pSet)
     } else {
       // tag info retrievel is deferred (needs availability of EventSetup)
       const InputTag& moduleLabel = iModule->getParameter<InputTag>("label");
+      const string& folderName    = iModule->getParameter<string>("folder");
+      std::cout << " TagInfo::ModuleLabel ===> " << moduleLabel.label() << " FolderName ===> " << folderName << std::endl; 
+
       tagInfoInputTags.push_back(vector<edm::InputTag>());
       tiDataFormatType.push_back(dataFormatType);
       binTagInfoPlotters.push_back(vector<BaseTagInfoPlotter*>()) ;
@@ -172,8 +177,9 @@ void BTagPerformanceAnalyzerOnData::bookHistos(const edm::ParameterSet& pSet)
 	  
 	  // Instantiate the tagInfo plotter
 	  
-	  BaseTagInfoPlotter *jetTagPlotter = theFactory.buildPlotter(dataFormatType, moduleLabel.label(), etaPtBin, 
-								      iModule->getParameter<edm::ParameterSet>("parameters"), update, mcPlots_, finalize);
+	  BaseTagInfoPlotter *jetTagPlotter = theFactory.buildPlotter(dataFormatType, moduleLabel.label(),
+		      etaPtBin, iModule->getParameter<edm::ParameterSet>("parameters"), folderName,
+                      update, mcPlots_, finalize);
 	  binTagInfoPlotters.back().push_back ( jetTagPlotter ) ;
           binTagInfoPlottersToModuleConfig.insert(make_pair(jetTagPlotter, iModule - moduleConfig.begin()));
 	}

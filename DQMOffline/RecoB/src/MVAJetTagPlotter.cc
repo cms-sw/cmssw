@@ -16,9 +16,10 @@ using namespace reco;
 MVAJetTagPlotter::MVAJetTagPlotter(const std::string &tagName,
                                    const EtaPtBin &etaPtBin,
                                    const ParameterSet &pSet,
+                                   const std::string& folderName,
                                    const bool& update,
                                    const bool& mc) :
-	BaseTagInfoPlotter(tagName, etaPtBin),
+	BaseTagInfoPlotter(folderName, etaPtBin),
 	jetTagComputer(tagName), computer(0),
 	categoryVariable(btau::lastTaggingVariable)
 {
@@ -35,7 +36,7 @@ MVAJetTagPlotter::MVAJetTagPlotter(const std::string &tagName,
 		ostringstream ss;
 		ss << "CAT" << i;
 		categoryPlotters.push_back(
-			new TaggingVariablePlotter(tagName, etaPtBin,
+			new TaggingVariablePlotter(folderName, etaPtBin,
 			                           pSets[i], update,mc,
 			                           i ? ss.str() : string()));
 	}

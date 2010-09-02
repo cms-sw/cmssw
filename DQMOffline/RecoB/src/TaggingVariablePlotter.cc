@@ -47,7 +47,7 @@ TaggingVariablePlotter::TaggingVariablePlotter(const std::string &tagName,
 					       const bool& mc,
 					       const string &category) : BaseTagInfoPlotter(tagName, etaPtBin), mcPlots_(mc)
 {
-  const std::string tagVarDir("TaggingVariable" + theExtensionString);
+  const std::string tagVarDir(theExtensionString.substr(1));
 
 	const vector<string>& pSets = pSet.getParameterNames();
 	for(vector<string>::const_iterator iter = pSets.begin();

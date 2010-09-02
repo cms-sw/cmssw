@@ -13,7 +13,7 @@ TrackProbabilityTagPlotter::TrackProbabilityTagPlotter(const std::string & tagNa
   endEffPur_(pSet.getParameter<double>("endEffPur")),
   finalized(false), mcPlots_(mc), willFinalize_(wf)
 {
-  const std::string dir("TrackProbability"+theExtensionString);
+  const std::string dir(theExtensionString.substr(1));
 
   tkcntHistosSig3D[4] = new FlavourHistograms<double>
        ("ips_3D" + theExtensionString, "3D Probability of impact parameter",

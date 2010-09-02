@@ -19,7 +19,7 @@ JetTagPlotter::JetTagPlotter (const std::string & tagName, const EtaPtBin & etaP
 
   // to have a shorter name .....
   const std::string & es = theExtensionString;
-  const std::string jetTagDir("JetTag" + es);
+  const std::string jetTagDir(es.substr(1));
 
 
   if (mcPlots_){
@@ -176,7 +176,8 @@ void JetTagPlotter::analyzeTag(const reco::Jet & jet,
 //   dJetPartonPseudoRapidity->fill(jetFlav, jetFlavour.underlyingParton4Vec().Eta() );
   }
   //  dJetMultiplicity->fill(jetFlavourour, jetTag.tracks().size()); //fixme
-  dDiscriminator->fill(jetFlavour, discriminator );
+  if (isinf(discriminator) ) dDiscriminator->fill(jetFlavour, -999.0 );
+  else dDiscriminator->fill(jetFlavour, discriminator );
   dJetRecMomentum->fill(jetFlavour, jet.p() );
   dJetRecPt->fill(jetFlavour, jet.pt() );
   dJetRecPseudoRapidity->fill(jetFlavour, jet.eta() );
@@ -196,7 +197,8 @@ void JetTagPlotter::analyzeTag(const reco::JetTag & jetTag,
 //   dJetPartonPseudoRapidity->fill(jetFlav, jetFlavour.underlyingParton4Vec().Eta() );
   }
   //  dJetMultiplicity->fill(jetFlavourour, jetTag.tracks().size()); //fixme
-  dDiscriminator->fill(jetFlavour, jetTag.second );
+  if (isinf(jetTag.second) ) dDiscriminator->fill(jetFlavour, -999.0 );
+  else dDiscriminator->fill(jetFlavour, jetTag.second);
   dJetRecMomentum->fill(jetFlavour, jetTag.first->p() );
   dJetRecPt->fill(jetFlavour, jetTag.first->pt() );
   dJetRecPseudoRapidity->fill(jetFlavour, jetTag.first->eta() );
@@ -208,7 +210,7 @@ void JetTagPlotter::analyzeTag(const reco::JetTag & jetTag,
 
 
 void JetTagPlotter::createPlotsForFinalize(){
-    effPurFromHistos = new EffPurFromHistos ( dDiscriminator,"JetTag"+theExtensionString,mcPlots_, 
+  effPurFromHistos = new EffPurFromHistos ( dDiscriminator,theExtensionString.substr(1),mcPlots_, 
 					    nBinEffPur_, startEffPur_, endEffPur_);
 
 }
@@ -220,7 +222,7 @@ void JetTagPlotter::finalize()
   // produce the misid. vs. eff histograms
   //
 
-  effPurFromHistos = new EffPurFromHistos ( dDiscriminator,"JetTag"+theExtensionString,mcPlots_, 
+  effPurFromHistos = new EffPurFromHistos ( dDiscriminator,theExtensionString.substr(1),mcPlots_, 
 					    nBinEffPur_, startEffPur_, endEffPur_);
   effPurFromHistos->compute();
   finalized = true;
