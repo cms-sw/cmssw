@@ -22,8 +22,6 @@ namespace {
   typedef edm::Ptr<pat::Muon> PtrMuon;
   typedef edm::Ptr<pat::Electron> PtrElec;
   struct dictionary {
-    TString tstr;
-    edm::Wrapper<TString> w_tstr;
     edm::Wrapper<std::vector<std::vector<int> > > w_v_vint;
 
     PtrMet  p_met;
