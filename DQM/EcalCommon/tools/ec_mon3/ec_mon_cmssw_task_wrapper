@@ -395,10 +395,7 @@ if (liveECAL == 1) :
     headerRetryInterval = cms.untracked.int32(3)
   )
 
-if (liveCMS == 1) :
-  process.load("DQM.Integration.test.inputsource_cfi")
-
-if (playCMS == 1) :
+if (liveCMS == 1) | (playCMS == 1) :
   process.load("DQM.Integration.test.inputsource_cfi")
 
 if (localDAQ == 1) | (globalDAQ == 1) | (liveECAL == 1) :
