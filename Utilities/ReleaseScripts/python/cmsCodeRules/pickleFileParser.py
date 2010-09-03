@@ -39,6 +39,8 @@ def splitToPackages(ruleResult):
     packageResult = []
     info = []
 
+    if not ruleResult: return info
+
     ruleResult = ruleResult.items()
     ruleResult.sort()
     file, lines = ruleResult.pop(0)

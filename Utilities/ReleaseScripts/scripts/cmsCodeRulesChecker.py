@@ -4,14 +4,14 @@ __author__="Aurelija"
 __date__ ="$2010-07-14 16.48.55$"
 
 from os.path import join, isdir
-import re
 import os
+import re
 import sys
 from Utilities.ReleaseScripts.cmsCodeRules.keyFinder import finds
 from Utilities.ReleaseScripts.cmsCodeRules.filesFinder import getFilePathesFromWalk
 from Utilities.ReleaseScripts.cmsCodeRules.pickleFileCreater import createPickleFile
-from Utilities.ReleaseScripts.cmsCodeRules.pathToRegEx import pathesToRegEx, pathToRegEx
-from Utilities.ReleaseScripts.cmsCodeRules.config import Configuration, rulesNames, rulesDescription, helpMsg, checkPath, picklePath, txtPath
+from Utilities.ReleaseScripts.cmsCodeRules.config import Configuration, rulesNames, rulesDescription, helpMsg, checkPath, picklePath, txtPath, exceptPathes
+from Utilities.ReleaseScripts.cmsCodeRules.pathToRegEx import pathToRegEx
 from Utilities.ReleaseScripts.commentSkipper.commentSkipper import filter
 from Utilities.ReleaseScripts.cmsCodeRules.showPage import run
 
@@ -43,24 +43,28 @@ def runRules(ruleNumberList, directory):
 
     osWalk.extend(os.walk(directory))
 
+    exceptPathesForEachRule = []
+    for path in exceptPathes:
+        exceptPathesForEachRule.append(join(checkPath, path))
+
     for ruleNr in ruleNumberList:
         files = []
         rule = str(ruleNr)
         rule = configuration[ruleNr]
 
         filesToMatch = rule['filesToMatch']
-        exceptLines = []
-        exceptPathes = []
+        exceptRuleLines = []
+        exceptRulePathes = []
         for path in rule['exceptPathes']:
             try:
                 file, line = path.split(":")
-                exceptLines.append((pathToRegEx(file), line))
+                exceptRuleLines.append((pathToRegEx(file), line))
             except ValueError:
-                exceptPathes.append(pathToRegEx(path))
+                exceptRulePathes.append(pathToRegEx(path))
         for fileType in filesToMatch:
-            fileList = getFilePathesFromWalk(osWalk, fileType, checkPath)
+            fileList = getFilePathesFromWalk(osWalk, fileType, exceptPathesForEachRule)
 # ------------------------------------------------------------------------------
-            for path in exceptPathes:
+            for path in exceptRulePathes:
                 FileList = []
                 for file in fileList:
                     File = file.replace(join(checkPath, ""), "")
@@ -71,8 +75,10 @@ def runRules(ruleNumberList, directory):
             filesLinesList = []
             if rule['skipComments'] == True:
                 filesLinesList = filter(fileList)
+            elif not exceptRuleLines:
+                filesLinesList = fileList
 # ------------------------------------------------------------------------------
-            for Nr, fileLine in enumerate(exceptLines):
+            for Nr, fileLine in enumerate(exceptRuleLines):
                 regEx, line = fileLine
                 for index, file in enumerate(fileList):
                     File = file.replace(join(checkPath, ""), "")
@@ -85,7 +91,7 @@ def runRules(ruleNumberList, directory):
                         filesLinesList.append((file, open(file).readlines()))
             files.extend(filesLinesList)
 # ------------------------------------------------------------------------------
-        listRule = finds(files, rule['filter'])
+        listRule = finds(files, rule['filter'], rule['exceptFilter'])
         result.append((ruleNr, splitPathes(listRule, checkPath)))
     return result
 
@@ -171,7 +177,7 @@ if __name__ == "__main__":
                 if not isdir(picklePath):
                     goodParameters = False
                     print 'Error: wrong directory "%s"' %picklePath
-                    break                
+                    break
         elif (arg == '-s'):
             createTxt = True
             if i+1 < argvLen and sys.argv[i+1][0] != '-':
@@ -200,7 +206,7 @@ if __name__ == "__main__":
             result = runRules(ruleNumbers, checkPath)
                     
             if result != -1:
-                if len(sys.argv) == 1 or printResult or (createPickle == False and createTxt == False):
+                if argvLen == 1 or printResult or (createPickle == False and createTxt == False):
                     printOut(result)
                 else:
                     if createPickle:
