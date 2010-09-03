@@ -9,15 +9,15 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.97 2010/09/02 19:54:04 matevz Exp $
+// $Id: CmsShowMainFrame.cc,v 1.98 2010/09/03 08:43:11 matevz Exp $
 
 #include "FWCore/Common/interface/EventBase.h"
 
 // system include files
 #include <TCollection.h>
 #include <TApplication.h>
+#include <TEveWindow.h>
 #include <TGClient.h>
-#include <TGSplitFrame.h>
 #include <TGLayout.h>
 #include <TGButton.h>
 #include <TGMenu.h>
@@ -392,6 +392,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
       filterFrame->AddFrame(m_filterEnableBtn, new TGLayoutHints(kLHintsLeft, 4,0,3,0));
 
       m_filterShowGUIBtn = new TGTextButton(filterFrame,"Event filtering is OFF");
+      m_filterShowGUIBtn->ChangeOptions(kRaisedFrame);
       m_filterShowGUIBtn->SetBackgroundColor(backgroundColor);
       m_filterShowGUIBtn->SetTextColor(0xFFFFFF);
       m_filterShowGUIBtn->SetToolTipText("Edit filters");
@@ -464,16 +465,23 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    copy->disable();
    paste->disable();
    
-   
-   TGSplitFrame *csArea = new TGSplitFrame(this, this->GetWidth(), this->GetHeight()-42);
-   csArea->VSplit(200);
-   csArea->GetFirst()->AddFrame(m_manager->createList(csArea->GetFirst()), new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY));
-   TGTab *tabFrame = new TGTab(csArea->GetSecond(), csArea->GetSecond()->GetWidth(), csArea->GetSecond()->GetHeight());
+   //==============================================================================
 
-   m_manager->createViews(tabFrame);
+   TGPack *csArea = new TGPack(this, this->GetWidth(), this->GetHeight()-42);
+   csArea->SetVertical(kFALSE);
 
-   csArea->GetSecond()->AddFrame(tabFrame, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY));
-   AddFrame(csArea,new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY,2,2,0,2));
+   TGCompositeFrame *cf = m_manager->createList(csArea);
+   csArea->AddFrameWithWeight(cf, 0, 20);
+
+   TEveCompositeFrameInPack *slot = new TEveCompositeFrameInPack(csArea, 0, csArea);
+   csArea->AddFrameWithWeight(slot, 0, 80);
+   TEveWindowSlot *ew_slot = TEveWindow::CreateDefaultWindowSlot();
+   ew_slot->PopulateEmptyFrame(slot);
+   m_manager->createViews(ew_slot);
+
+   AddFrame(csArea,new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY, 0, 0, 0, 2));
+   csArea->MapSubwindows();
+
    SetWindowName("cmsShow");
 }
 

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.107 2010/07/26 15:13:58 matevz Exp $
+// $Id: FWGUIManager.h,v 1.108 2010/09/02 19:54:03 matevz Exp $
 //
 
 // system include files
@@ -42,7 +42,7 @@ class TGFrame;
 class TGSplitFrame;
 class TGVerticalFrame;
 class TGMainFrame;
-class TGTab;
+class TGPack;
 class TGCompositeFrame;
 class TGCheckButton;
 class TGPopupMenu;
@@ -121,8 +121,8 @@ public:
    void setFrom(const FWConfiguration&);
    void setWindowInfoFrom(const FWConfiguration& iFrom, TGMainFrame* iFrame);
 
-   TGVerticalFrame* createList(TGSplitFrame *p);
-   void createViews(TGTab *p);
+   TGVerticalFrame* createList(TGCompositeFrame *p);
+   void createViews(TEveWindowSlot *slot);
    void exportImageOfMainView();
    void exportImagesOfAllViews();
    void exportAllViews(const std::string& format);

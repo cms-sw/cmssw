@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.212 2010/07/26 15:13:59 matevz Exp $
+// $Id: FWGUIManager.cc,v 1.213 2010/09/02 19:54:04 matevz Exp $
 
 //
 
@@ -25,7 +25,6 @@
 #include "TGTextEntry.h"
 #include "TGNumberEntry.h"
 #include "TSystem.h"
-#include "TGSplitFrame.h"
 #include "TGLViewer.h"
 #include "TEveBrowser.h"
 #include "TEveManager.h"
@@ -590,17 +589,14 @@ FWGUIManager::subviewSwapped(FWGUISubviewArea* sva)
 }
 
 TGVerticalFrame*
-FWGUIManager::createList(TGSplitFrame *p)
+FWGUIManager::createList(TGCompositeFrame *p)
 {
    TGVerticalFrame *listFrame = new TGVerticalFrame(p, p->GetWidth(), p->GetHeight());
 
-   TGHorizontalFrame* addFrame = new TGHorizontalFrame(p,p->GetWidth(), 10);
+   TGHorizontalFrame* addFrame = new TGHorizontalFrame(listFrame, p->GetWidth(), 10, kRaisedFrame);
    TGLabel* addLabel = new TGLabel(addFrame,"Summary View");
-   addLabel->SetTextJustify(kTextLeft);
-
-   addFrame->AddFrame(addLabel, new TGLayoutHints(kLHintsCenterY|kLHintsLeft|kLHintsExpandX,2,2,2,2));
-   listFrame->AddFrame(addFrame, new TGLayoutHints(kLHintsExpandX|kLHintsLeft|kLHintsTop,2,2,2,2));
-
+   addFrame->AddFrame(addLabel, new TGLayoutHints(kLHintsCenterX, 0,0,2,2));
+   listFrame->AddFrame(addFrame, new TGLayoutHints(kLHintsExpandX | kLHintsTop));
 
    m_summaryManager = new FWSummaryManager(listFrame,
                                            m_selectionManager,
@@ -609,21 +605,22 @@ FWGUIManager::createList(TGSplitFrame *p)
                                            m_changeManager,
                                            m_colorManager);
    const unsigned int backgroundColor=0x2f2f2f;
-   TGTextButton* addDataButton = new TGTextButton(m_summaryManager->widget(),"Add Collection");
+   TGTextButton* addDataButton = new TGTextButton(m_summaryManager->widget(), "Add Collection");
+   addDataButton->ChangeOptions(kRaisedFrame);
    addDataButton->SetBackgroundColor(backgroundColor);
    addDataButton->SetTextColor(0xFFFFFF);
    addDataButton->SetToolTipText("Show additional collections");
    addDataButton->Connect("Clicked()", "FWGUIManager", this, "addData()");
-   m_summaryManager->widget()->AddFrame(addDataButton,new TGLayoutHints(kLHintsExpandX|kLHintsLeft|kLHintsTop,2,2,2,2));
+   m_summaryManager->widget()->AddFrame(addDataButton, new TGLayoutHints(kLHintsExpandX|kLHintsLeft|kLHintsTop));
    listFrame->AddFrame(m_summaryManager->widget(), new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
 
    return listFrame;
 }
 
 void
-FWGUIManager::createViews(TGTab *tab)
+FWGUIManager::createViews(TEveWindowSlot *slot)
 {
-   m_viewPrimPack = TEveWindow::CreateWindowInTab(tab)->MakePack();
+   m_viewPrimPack = slot->MakePack();
    m_viewPrimPack->SetHorizontal();
    m_viewPrimPack->SetElementName("Views");
    m_viewPrimPack->SetShowTitleBar(kFALSE);
