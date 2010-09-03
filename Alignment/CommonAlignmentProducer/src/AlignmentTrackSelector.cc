@@ -61,7 +61,7 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
   matchedrecHitsTag_( cfg.getParameter<edm::InputTag>("matchedrecHits") ),
   countStereoHitAs2D_( cfg.getParameter<bool>( "countStereoHitAs2D" ) ),
   nHitMin2D_( cfg.getParameter<unsigned int>( "nHitMin2D" ) ),
-  // Ugly to use the same getParameter 6 times, but this allows const cut variables...
+  // Ugly to use the same getParameter n times, but this allows const cut variables...
   minHitsinTIB_(cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTIB" ) ),
   minHitsinTOB_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTOB" ) ),
   minHitsinTID_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTID" ) ),
@@ -78,6 +78,8 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
   minHitsinENDCAP_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inENDCAP" ) ),
   minHitsinENDCAPplus_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inENDCAPplus" ) ),
   minHitsinENDCAPminus_ (cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inENDCAPminus" ) ),
+  maxHitDiffEndcaps_( cfg.getParameter<double>( "maxHitDiffEndcaps" ) ),
+  nLostHitMax_( cfg.getParameter<double>( "nLostHitMax" ) ),
   clusterValueMapTag_(cfg.getParameter<edm::InputTag>("hitPrescaleMapTag")),
   minPrescaledHits_( cfg.getParameter<int>("minPrescaledHits")),
   applyPrescaledHitsFilter_(clusterValueMapTag_.encode().size() && minPrescaledHits_ > 0)
@@ -114,6 +116,7 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
 	<< "\netamin,etamax:   " << etaMin_  << "," << etaMax_
 	<< "\nphimin,phimax:   " << phiMin_  << "," << phiMax_
 	<< "\nnhitmin,nhitmax: " << nHitMin_ << "," << nHitMax_
+	<< "\nnlosthitmax:     " << nLostHitMax_
 	<< "\nnhitmin2D:       " << nHitMin2D_
         << (countStereoHitAs2D_ ? "," : ", not") << " counting hits on SiStrip stereo modules as 2D" 
 	<< "\nchi2nmax:        " << chi2nMax_;
@@ -142,6 +145,10 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
       edm::LogInfo("AlignmentTrackSelector")
         << "Minimum number of hits in EndCap (TID+TEC)/EndCap+/EndCap- = "
         << minHitsinENDCAP_ << "/" << minHitsinENDCAPplus_ << "/" << minHitsinENDCAPminus_;
+
+      edm::LogInfo("AlignmentTrackSelector")
+	<< "Max value of |nHitsinENDCAPplus - nHitsinENDCAPminus| = "
+	<< maxHitDiffEndcaps_;
 
       if (trkQualityStrings.size()) {
 	edm::LogInfo("AlignmentTrackSelector")
@@ -184,7 +191,7 @@ AlignmentTrackSelector::select(const Tracks& tracks, const edm::Event& evt) cons
        || tracks.size() > static_cast<unsigned int>(maxMultiplicity_))) {
     return Tracks(); // empty collection
   }
-  
+
   Tracks result = tracks;
   // apply basic track cuts (if selected)
   if (applyBasicCuts_) result= this->basicCuts(result, evt);
@@ -230,6 +237,7 @@ AlignmentTrackSelector::basicCuts(const Tracks& tracks, const edm::Event& evt) c
     float eta=trackp->eta();
     float phi=trackp->phi();
     int nhit = trackp->numberOfValidHits(); 
+    int nlosthit = trackp->numberOfLostHits(); 
     float chi2n = trackp->normalizedChi2();
     float d0    = trackp->d0();
     float dz    = trackp->dz();
@@ -242,6 +250,7 @@ AlignmentTrackSelector::basicCuts(const Tracks& tracks, const edm::Event& evt) c
        && eta>etaMin_ && eta<etaMax_ 
        && phi>phiMin_ && phi<phiMax_ 
        && nhit>=nHitMin_ && nhit<=nHitMax_
+       && nlosthit<=nLostHitMax_
        && chi2n<chi2nMax_
        && d0>=d0Min_ && d0<=d0Max_
        && dz>=dzMin_ && dz<=dzMax_) {
@@ -265,7 +274,7 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
   // checking hit requirements beyond simple number of valid hits
 
   if (minHitsinTIB_ || minHitsinTOB_ || minHitsinTID_ || minHitsinTEC_
-      || minHitsinENDCAP_ || minHitsinENDCAPplus_ || minHitsinENDCAPminus_
+      || minHitsinENDCAP_ || minHitsinENDCAPplus_ || minHitsinENDCAPminus_ || (maxHitDiffEndcaps_ < 999)
       || minHitsinTIDplus_ || minHitsinTIDminus_
       || minHitsinFPIXplus_ || minHitsinFPIXminus_
       || minHitsinTECplus_ || minHitsinTECminus_
@@ -352,6 +361,7 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
     return (nhitinTIB >= minHitsinTIB_ && nhitinTOB >= minHitsinTOB_ 
             && nhitinTID >= minHitsinTID_ && nhitinTEC >= minHitsinTEC_ 
             && nhitinENDCAP >= minHitsinENDCAP_ && nhitinENDCAPplus >= minHitsinENDCAPplus_ && nhitinENDCAPminus >= minHitsinENDCAPminus_
+	    && abs(nhitinENDCAPplus-nhitinENDCAPminus) <= maxHitDiffEndcaps_
             && nhitinTIDplus >= minHitsinTIDplus_ && nhitinTIDminus >= minHitsinTIDminus_
             && nhitinFPIXplus >= minHitsinFPIXplus_ && nhitinFPIXminus >= minHitsinFPIXminus_
             && nhitinTECplus >= minHitsinTECplus_ && nhitinTECminus >= minHitsinTECminus_
