@@ -3,27 +3,27 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.30.2.2 $'),
+    version = cms.untracked.string('$Revision: 1.34 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/MinBiasPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined MinBias skim')
 )
 # selection eff. on 1000 events
-#file:/tmp/malgeri/Background.root
-#/tmp/malgeri/Background.root ( 0 events, 664191 bytes )
-#file:/tmp/malgeri/MinBiascscskimEvents.root
-#/tmp/malgeri/MinBiascscskimEvents.root ( 0 events, 664212 bytes )
-#file:/tmp/malgeri/MuonDPGSkim.root
-#/tmp/malgeri/MuonDPGSkim.root ( 95 events, 40887080 bytes )
-#file:/tmp/malgeri/StoppedHSCP_filter.root
-#/tmp/malgeri/StoppedHSCP_filter.root ( 124 events, 28507733 bytes )
-#file:/tmp/malgeri/ValSkim.root
-#/tmp/malgeri/ValSkim.root ( 22 events, 9588726 bytes )
-#file:/tmp/malgeri/ecalrechitfilter.root
-#/tmp/malgeri/ecalrechitfilter.root ( 23 events, 14583758 bytes )
-#file:/tmp/malgeri/logerror_filter.root
-#/tmp/malgeri/logerror_filter.root ( 14 events, 9389296 bytes )
-#file:/tmp/malgeri/TPGSkim.root
-#/tmp/malgeri/TPGSkim.root ( 46 events, 20271643 bytes )
+#file:/tmp/azzi/Background.root
+#/tmp/azzi/Background.root ( 0 events, 664191 bytes )
+#file:/tmp/azzi/MinBiascscskimEvents.root
+#/tmp/azzi/MinBiascscskimEvents.root ( 0 events, 664212 bytes )
+#file:/tmp/azzi/MuonDPGSkim.root
+#/tmp/azzi/MuonDPGSkim.root ( 95 events, 40887080 bytes )
+#file:/tmp/azzi/StoppedHSCP_filter.root
+#/tmp/azzi/StoppedHSCP_filter.root ( 124 events, 28507733 bytes )
+#file:/tmp/azzi/ValSkim.root
+#/tmp/azzi/ValSkim.root ( 22 events, 9588726 bytes )
+#file:/tmp/azzi/ecalrechitfilter.root
+#/tmp/azzi/ecalrechitfilter.root ( 23 events, 14583758 bytes )
+#file:/tmp/azzi/logerror_filter.root
+#/tmp/azzi/logerror_filter.root ( 14 events, 9389296 bytes )
+#file:/tmp/azzi/TPGSkim.root
+#/tmp/azzi/TPGSkim.root ( 46 events, 20271643 bytes )
 
 #
 #
@@ -98,7 +98,7 @@ process.cscHaloSkim = cms.Path(process.hltBeamHalo+process.cscSkim)
 #### output 
 process.outputBeamHaloSkim = cms.OutputModule("PoolOutputModule",
     outputCommands = process.FEVTEventContent.outputCommands,
-    fileName = cms.untracked.string("/tmp/malgeri/MinBiascscskimEvents.root"),
+    fileName = cms.untracked.string("/tmp/azzi/MinBiascscskimEvents.root"),
     dataset = cms.untracked.PSet(
       dataTier = cms.untracked.string('RAW-RECO'),
       filterName = cms.untracked.string('CSCSkim_BeamHalo_MinBias')
@@ -106,86 +106,6 @@ process.outputBeamHaloSkim = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('cscHaloSkim'))
 )
 
-###################### DT Activity Filter ######################
-
-from EventFilter.DTRawToDigi.dtunpackerDDUGlobal_cfi import dtunpacker
-
-process.muonDTDigis = dtunpacker.clone()
-
-process.hltDTActivityFilter = cms.EDFilter( "HLTDTActivityFilter",
- inputDCC         = cms.InputTag( "dttfDigis" ),   
- inputDDU         = cms.InputTag( "muonDTDigis" ),   
- inputDigis       = cms.InputTag( "muonDTDigis" ),   
- processDCC       = cms.bool( False ),   
- processDDU       = cms.bool( False ),   
- processDigis     = cms.bool( True ),   
- processingMode   = cms.int32( 0 ),   # 0=(DCC | DDU) | Digis/ 
-                                      # 1=(DCC & DDU) | Digis/
-                                      # 2=(DCC | DDU) & Digis/
-                                      # 3=(DCC & DDU) & Digis/   
- minChamberLayers = cms.int32( 6 ),
- maxStation       = cms.int32( 3 ),
- minQual          = cms.int32( 2 ),   # 0-1=L 2-3=H 4=LL 5=HL 6=HH/
- minDDUBX         = cms.int32( 9 ),
- maxDDUBX         = cms.int32( 14 ),
- minActiveChambs  = cms.int32( 1 ),
- activeSectors    = cms.vint32(1,2,3,4,5,6,7,8,9,10,11,12)
-)
-
-# this is for filtering on HLT path
-process.HLTDT =cms.EDFilter("HLTHighLevel",
-     TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
-     HLTPaths = cms.vstring('HLT_L1MuOpen','HLT_Activity_DT'),           # provide list of HLT paths (or patterns) you want
-     eventSetupPathsKey = cms.string(''), # not empty => use read paths from AlCaRecoTriggerBitsRcd via this key
-     andOr = cms.bool(True),             # how to deal with multiple triggers: True (OR) accept if ANY is true, False (AND) accept if ALL are true
-     throw = cms.bool(False)    # throw exception on unknown path names
- )
-
-process.dtHLTSkim = cms.Path(process.HLTDT)
-
-process.dtSkim=cms.Path(process.muonDTDigis+process.hltDTActivityFilter)
-
-
-
-############################ L1 Muon bits #################################
-
-process.l1RequestPhAlgos = process.hltLevel1GTSeed.clone()
-# False allows to read directly from L1 instead fo candidate ObjectMap
-process.l1RequestPhAlgos.L1UseL1TriggerObjectMaps = cms.bool(False)
-    #
-    # option used forL1UseL1TriggerObjectMaps = False only
-    # number of BxInEvent: 1: L1A=0; 3: -1, L1A=0, 1; 5: -2, -1, L1A=0, 1, 
-# online is used 5
-process.l1RequestPhAlgos.L1NrBxInEvent = cms.int32(5)
-
-# Request the or of the following bits: from 54 to 62 and 106-107
-
-process.l1RequestPhAlgos.L1SeedsLogicalExpression = cms.string(
-    'L1_SingleMuBeamHalo OR L1_SingleMuOpen OR L1_SingleMu0 OR L1_SingleMu3 OR L1_SingleMu5 OR L1_SingleMu7 OR L1_SingleMu10 OR L1_SingleMu14 OR L1_SingleMu20 OR L1_DoubleMuOpen OR L1_DoubleMu3')
-
-process.l1MuBitsSkim = cms.Path(process.l1RequestPhAlgos)
-
-###########################################################################
-
-
-########################## RPC Filters ############################
-
-process.l1RequestTecAlgos = process.hltLevel1GTSeed.clone()
-
-process.l1RequestTecAlgos.L1TechTriggerSeeding = cms.bool(True)
-process.l1RequestTecAlgos.L1SeedsLogicalExpression = cms.string('31')
-
-process.rpcTecSkim = cms.Path(process.l1RequestTecAlgos)
-
-###########################################################################
-
-
-########################## CSC Filter ############################
-# path already defined above
-#### the paths (single paths wrt combined paths above)
-process.cscHLTSkim = cms.Path(process.hltBeamHalo)
-process.cscSkimAlone = cms.Path(process.cscSkim)
-###########################################################################
 
 ########################## Muon tracks Filter ############################
 process.muonSkim=cms.EDFilter("CandViewCountFilter", 
@@ -195,22 +115,18 @@ process.muonTracksSkim = cms.Path(process.muonSkim)
 
 ###########################################################################
 
-
-
-process.outputMuonDPGSkim = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('/tmp/malgeri/MuonDPGSkim.root'),
+process.outputMuonSkim = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('/tmp/azzi/MuonSkim.root'),
     outputCommands = cms.untracked.vstring('keep *','drop *_MEtoEDMConverter_*_*'),
     dataset = cms.untracked.PSet(
-    	      dataTier = cms.untracked.string('RAW-RECO'),
-    	      filterName = cms.untracked.string('MuonDPG_skim')),
+    	      dataTier = cms.untracked.string('RECO'),
+    	      filterName = cms.untracked.string('Muon_skim')),
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring("l1MuBitsSkim","dtHLTSkim","dtSkim","cscHLTSkim","cscSkimAlone","rpcTecSkim","muonTracksSkim")
+        SelectEvents = cms.vstring("muonTracksSkim")
     )
 )
 ####################################################################################
 
-
-####################################################################################
 ##################################stoppedHSCP############################################
 
 
@@ -227,7 +143,7 @@ process.HSCP=cms.Path(process.hltstoppedhscp)
 
 process.outHSCP = cms.OutputModule("PoolOutputModule",
                                outputCommands =  process.FEVTEventContent.outputCommands,
-                               fileName = cms.untracked.string('/tmp/malgeri/StoppedHSCP_filter.root'),
+                               fileName = cms.untracked.string('/tmp/azzi/StoppedHSCP_filter.root'),
                                dataset = cms.untracked.PSet(
                                   dataTier = cms.untracked.string('RAW-RECO'),
                                   filterName = cms.untracked.string('Skim_StoppedHSCP')),
@@ -258,7 +174,7 @@ process.pfgskim3noncross = cms.Path(process.hltPhysicsDeclared*process.hltbeamga
 #### output
 process.outputpfgskim3 = cms.OutputModule("PoolOutputModule",
  outputCommands = process.FEVTEventContent.outputCommands,
- fileName = cms.untracked.string("/tmp/malgeri/Background.root"),
+ fileName = cms.untracked.string("/tmp/azzi/Background.root"),
  dataset = cms.untracked.PSet(
    dataTier = cms.untracked.string('RAW-RECO'),
    filterName = cms.untracked.string('BEAMBKGV3')
@@ -285,7 +201,7 @@ process.logerrorpath=cms.Path(process.gtEvmDigis+process.stableBeam+process.logE
 
 process.outlogerr = cms.OutputModule("PoolOutputModule",
                                outputCommands =  process.FEVTEventContent.outputCommands,
-                               fileName = cms.untracked.string('/tmp/malgeri/logerror_filter.root'),
+                               fileName = cms.untracked.string('/tmp/azzi/logerror_filter.root'),
                                dataset = cms.untracked.PSet(
                                   dataTier = cms.untracked.string('RAW-RECO'),
                                   filterName = cms.untracked.string('Skim_logerror')),
@@ -350,7 +266,7 @@ process.relvalmuonskim = cms.Path(process.primaryVertexFilter+process.noscraping
 #### output 
 process.outputvalskim = cms.OutputModule("PoolOutputModule",
                                          outputCommands = process.FEVTEventContent.outputCommands,
-                                         fileName = cms.untracked.string("/tmp/malgeri/ValSkim.root"),
+                                         fileName = cms.untracked.string("/tmp/azzi/ValSkim.root"),
                                          dataset = cms.untracked.PSet(
     dataTier = cms.untracked.string('RAW-RECO'),
     filterName = cms.untracked.string('valskim')
@@ -392,7 +308,7 @@ process.singlePfTauPt15SkimPath=cms.Path(process.singlePfTauPt15QualitySeq)
 
 process.outTPGSkim = cms.OutputModule("PoolOutputModule",
     outputCommands = process.FEVTHLTALLEventContent.outputCommands,
-    fileName = cms.untracked.string("/tmp/malgeri/TPGSkim.root"),
+    fileName = cms.untracked.string("/tmp/azzi/TPGSkim.root"),
     dataset = cms.untracked.PSet(
       dataTier = cms.untracked.string('USER'),
       filterName = cms.untracked.string('TPGSkim')
@@ -426,8 +342,7 @@ process.options = cms.untracked.PSet(
  wantSummary = cms.untracked.bool(True)
 )
 
-process.outpath = cms.EndPath(process.outputBeamHaloSkim+process.outputMuonDPGSkim+process.outHSCP+process.outputpfgskim3+process.outlogerr+process.outputvalskim+process.outTPGSkim)
-
+process.outpath = cms.EndPath(process.outputBeamHaloSkim+process.outputMuonSkim+process.outHSCP+process.outputpfgskim3+process.outlogerr+process.outputvalskim+process.outTPGSkim)
 
 
  

@@ -3,14 +3,14 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.27 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/MinBiasPDSkim_cfg.py,v $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
+    name = cms.untracked.string('$Source: /local/projects/CMSSW/rep/CMSSW/DPGAnalysis/Skims/python/CommPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined Commissioning skim')
 )
 
 # efficiency on 1000 input events
 # file:/tmp/malgeri/COMM_MuonDPGSkim.root
-# /tmp/malgeri/COMM_MuonDPGSkim.root ( 271 events, 118916076 bytes )
+# /tmp/azzi/COMM_MuonDPGSkim.root ( 271 events, 118916076 bytes )
 
 #
 #
@@ -20,15 +20,19 @@ process.configurationMetadata = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
 # run 136066 lumi~500
-'/store/data/Run2010A/Commissioning/RECO/v1/000/136/066/244E5A07-9466-DF11-9091-000423D95220.root'),
+#'/store/data/Run2010A/Commissioning/RECO/v1/000/136/066/244E5A07-9466-DF11-9091-000423D95220.root'
+'/store/data/Run2010A/Commissioning/RAW/v1/000/144/112/FCD879E2-D4B3-DF11-BFE5-0030487C778E.root'
+),
                            secondaryFileNames = cms.untracked.vstring(
-'/store/data/Run2010A/Commissioning/RAW/v1/000/136/066/28D89EF5-3C66-DF11-9AAA-0019B9F705A3.root')
+#'/store/data/Run2010A/Commissioning/RAW/v1/000/144/112/FCD879E2-D4B3-DF11-BFE5-0030487C778E.root'
+#'/store/data/Run2010A/Commissioning/RAW/v1/000/136/066/28D89EF5-3C66-DF11-9AAA-0019B9F705A3.root'
+)
 )
 
-process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*", "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT")
+process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(1000)
 )
 
 
@@ -40,7 +44,7 @@ process.load('Configuration/StandardSequences/GeometryIdeal_cff')
 
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'GR10_P_V6::All' 
+process.GlobalTag.globaltag = 'GR10_P_V8::All' 
 
 process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
 process.load("Configuration/StandardSequences/Reconstruction_cff")
@@ -65,29 +69,39 @@ from EventFilter.DTRawToDigi.dtunpackerDDUGlobal_cfi import dtunpacker
 process.muonDTDigis = dtunpacker.clone()
 
 process.hltDTActivityFilter = cms.EDFilter( "HLTDTActivityFilter",
- inputDCC         = cms.InputTag( "dttfDigis" ),   
- inputDDU         = cms.InputTag( "muonDTDigis" ),   
- inputDigis       = cms.InputTag( "muonDTDigis" ),   
- processDCC       = cms.bool( False ),   
- processDDU       = cms.bool( False ),   
- processDigis     = cms.bool( True ),   
- processingMode   = cms.int32( 0 ),   # 0=(DCC | DDU) | Digis/ 
-                                      # 1=(DCC & DDU) | Digis/
-                                      # 2=(DCC | DDU) & Digis/
-                                      # 3=(DCC & DDU) & Digis/   
- minChamberLayers = cms.int32( 6 ),
- maxStation       = cms.int32( 3 ),
- minQual          = cms.int32( 2 ),   # 0-1=L 2-3=H 4=LL 5=HL 6=HH/
- minDDUBX         = cms.int32( 9 ),
- maxDDUBX         = cms.int32( 14 ),
- minActiveChambs  = cms.int32( 1 ),
- activeSectors    = cms.vint32(1,2,3,4,5,6,7,8,9,10,11,12)
-)
+    inputDCC         = cms.InputTag( "dttfDigis" ),
+    inputDDU         = cms.InputTag( "muonDTDigis" ),
+    inputRPC         = cms.InputTag( "hltGtDigis" ),
+    inputDigis       = cms.InputTag( "muonDTDigis" ),
+    processDCC       = cms.bool( False ),
+    processDDU       = cms.bool( False ),
+    processRPC       = cms.bool( False ),
+    processDigis     = cms.bool( True ),
+
+    maxDeltaPhi = cms.double( 1.0 ),
+    maxDeltaEta = cms.double( 0.3 ),
+
+    orTPG         = cms.bool( True ),
+    orRPC         = cms.bool( True ),
+    orDigi        = cms.bool( True ),
+
+    minChamberLayers = cms.int32( 5 ),
+    maxStation       = cms.int32( 3 ),
+    minTPGQual       = cms.int32( 2 ),   # 0-1=L 2-3=H 4=LL 5=HL 6=HH
+    minDDUBX         = cms.int32( 8 ),
+    maxDDUBX         = cms.int32( 13 ),
+    minDCCBX         = cms.int32( -1 ),
+    maxDCCBX         = cms.int32( 1 ),
+    minRPCBX         = cms.int32( -1 ),
+    maxRPCBX         = cms.int32( 1 ),
+    minActiveChambs  = cms.int32( 1 ),
+    activeSectors    = cms.vint32(1,2,3,4,5,6,7,8,9,10,11,12)
+                                     )
 
 # this is for filtering on HLT path
 process.HLTDT =cms.EDFilter("HLTHighLevel",
      TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
-     HLTPaths = cms.vstring('HLT_L1MuOpen','HLT_Activity_DT'),           # provide list of HLT paths (or patterns) you want
+     HLTPaths = cms.vstring('HLT_L1MuOpen','HLT_Activity_DT', 'HLT_Activity_DT_Tuned'),           # provide list of HLT paths (or patterns) you want
      eventSetupPathsKey = cms.string(''), # not empty => use read paths from AlCaRecoTriggerBitsRcd via this key
      andOr = cms.bool(True),             # how to deal with multiple triggers: True (OR) accept if ANY is true, False (AND) accept if ALL are true
      throw = cms.bool(False)    # throw exception on unknown path names
@@ -96,7 +110,6 @@ process.HLTDT =cms.EDFilter("HLTHighLevel",
 process.dtHLTSkim = cms.Path(process.HLTDT)
 
 process.dtSkim=cms.Path(process.muonDTDigis+process.hltDTActivityFilter)
-
 
 
 ############################ L1 Muon bits #################################
@@ -163,7 +176,7 @@ process.muonTracksSkim = cms.Path(process.muonSkim)
 
 
 process.outputMuonDPGSkim = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('/tmp/malgeri/COMM_MuonDPGSkim.root'),
+    fileName = cms.untracked.string('/tmp/COMM_MuonDPGSkim.root'),
     outputCommands = cms.untracked.vstring('keep *','drop *_MEtoEDMConverter_*_*'),
     dataset = cms.untracked.PSet(
     	      dataTier = cms.untracked.string('RAW-RECO'),
