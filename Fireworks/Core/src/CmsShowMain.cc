@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.179 2010/08/31 17:38:39 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.180 2010/09/02 18:10:10 amraktad Exp $
 //
 
 // system include files
@@ -422,7 +422,8 @@ void CmsShowMain::openData()
       this is bad because the destructor calls delete[] on fIniDir.
     */
    fi.fIniDir = new char[128];
-   strncpy(fi.fIniDir, ".", 127);
+   strncpy(fi.fIniDir, ".", 127);  
+   guiManager()->updateStatus("waiting for data file ...");
    new TGFileDialog(gClient->GetDefaultRoot(), guiManager()->getMainFrame(), kFDOpen, &fi);
    guiManager()->updateStatus("loading file ...");
    if (fi.fFilename) {
@@ -446,6 +447,7 @@ void CmsShowMain::appendData()
     */
    fi.fIniDir = new char[128];
    strncpy(fi.fIniDir,  ".", 127);
+   guiManager()->updateStatus("waiting for data file ...");
    new TGFileDialog(gClient->GetDefaultRoot(), guiManager()->getMainFrame(), kFDOpen, &fi);
    guiManager()->updateStatus("loading file ...");
    if (fi.fFilename) {
