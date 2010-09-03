@@ -92,7 +92,7 @@ class TtEvent {
   int correspondingHypo(const HypoClassKey& key1, const unsigned& hyp1, const HypoClassKey& key2) const;
 
   /// print pt, eta, phi, mass of a given candidate into an existing LogInfo
-  void printParticle(edm::LogInfo &log, const char* name, const reco::Candidate* cand);
+  void printParticle(edm::LogInfo &log, const char* name, const reco::Candidate* cand) const;
 
   /// set leptonic decay channels
   void setLepDecays(const WDecay::LeptonType& lepDecTop1, const WDecay::LeptonType& lepDecTop2) { lepDecays_=std::make_pair(lepDecTop1, lepDecTop2); };

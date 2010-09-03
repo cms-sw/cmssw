@@ -94,7 +94,7 @@ class TtSemiLeptonicEvent: public TtEvent {
 
   /// print full content of the structure as formated 
   /// LogInfo to the MessageLogger output for debugging
-  void print(const int verbosity=1);
+  void print(const int verbosity=1) const;
 
   /// get number of real neutrino solutions for a given hypo class
   const int numberOfRealNeutrinoSolutions(const HypoClassKey& key) const { return (numberOfRealNeutrinoSolutions_.find(key)==numberOfRealNeutrinoSolutions_.end() ? -999 : numberOfRealNeutrinoSolutions_.find(key)->second); };
