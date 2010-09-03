@@ -16,23 +16,6 @@ bool KinematicState::operator==(const KinematicState& other) const
  return res;
 }
 
-ParticleMass KinematicState::mass() const
-{return param.vector()[6];}
-
-KinematicParameters KinematicState::kinematicParameters() const
-{return param;}
-
-KinematicParametersError KinematicState::kinematicParametersError() const
-{return err;}
-
-GlobalVector KinematicState::globalMomentum() const
-{return param.momentum();}
-
-GlobalPoint KinematicState::globalPosition() const
-{return param.position();}
-
-TrackCharge KinematicState::particleCharge() const
-{return ch;}
 
 FreeTrajectoryState KinematicState::freeTrajectoryState() const
 {

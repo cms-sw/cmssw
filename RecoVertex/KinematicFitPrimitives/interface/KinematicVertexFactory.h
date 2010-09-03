@@ -25,7 +25,7 @@ public:
  * Constructor with vertex state, chi2 and ndf.
  * Previous state of the vertex pointer is set to 0.
  */	
- RefCountedKinematicVertex vertex(const VertexState& state, float totalChiSq, float degreesOfFr) 
+ static RefCountedKinematicVertex vertex(const VertexState& state, float totalChiSq, float degreesOfFr) 
  {
   return ReferenceCountingPointer<KinematicVertex>(new KinematicVertex(state,totalChiSq,
                                                                            degreesOfFr));
@@ -35,7 +35,7 @@ public:
  * Constructor with previous (before constraint)
  * state of the vertex
  */
-  RefCountedKinematicVertex vertex(const VertexState state, 
+  static RefCountedKinematicVertex vertex(const VertexState state, 
                       const ReferenceCountingPointer<KinematicVertex> pVertex,
                                       float totalChiSq, float degreesOfFr)
  {
@@ -47,7 +47,7 @@ public:
 /**
  * Direct conversion from caching vertex
  */
- RefCountedKinematicVertex vertex(const CachingVertex<6>& vertex)
+ static RefCountedKinematicVertex vertex(const CachingVertex<6>& vertex)
  {
   return  ReferenceCountingPointer<KinematicVertex>(new KinematicVertex(vertex)); 
  }
@@ -56,7 +56,7 @@ public:
  * Method producing invalid kinematic vertices
  * to mark top production and final state decay vertices
  */ 
-  RefCountedKinematicVertex vertex()
+ static  RefCountedKinematicVertex vertex()
  {
   return  ReferenceCountingPointer<KinematicVertex>(new KinematicVertex()); 
  }

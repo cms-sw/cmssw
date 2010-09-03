@@ -83,7 +83,7 @@ std::pair<AlgebraicVector, AlgebraicVector> MultipleKinematicConstraint::value(c
  int count = 1;
  for(std::vector<RefCountedKinematicParticle>::const_iterator i = par.begin(); i!=par.end(); i++)
  {
-  for(int j = 1; j<8; j++){param((count -1)*7+j) = (*i)->currentState().kinematicParameters().vector()(j);}
+  for(int j = 1; j<8; j++){param((count -1)*7+j) = (*i)->currentState().kinematicParameters().vector()(j-1);}
   count++;
  } 
 
@@ -114,7 +114,7 @@ std::pair<AlgebraicMatrix, AlgebraicVector> MultipleKinematicConstraint::derivat
  int count = 1;
  for(std::vector<RefCountedKinematicParticle>::const_iterator i = par.begin(); i!=par.end(); i++)
  {
-  for(int j = 1; j<8; j++){param((count -1)*7+j) = (*i)->currentState().kinematicParameters().vector()(j);}
+  for(int j = 1; j<8; j++){param((count -1)*7+j) = (*i)->currentState().kinematicParameters().vector()(j-1);}
   count++;
  } 
  int total = 0;

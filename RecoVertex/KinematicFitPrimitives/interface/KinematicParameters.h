@@ -29,7 +29,7 @@ public:
    * 
    * The order of the parameters is (x,y,z,p_x,p_y,p_z,m)
    */
-  AlgebraicVector7 vector() const {return par;}
+  AlgebraicVector7 const & vector() const {return par;}
 
   /**
    * \brief Allows to access directly one component of the vector (index between 0 and 6)

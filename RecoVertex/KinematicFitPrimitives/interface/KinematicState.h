@@ -41,21 +41,24 @@ public:
   /**
    * The mass of the particle
    */
- ParticleMass mass() const;
+  ParticleMass mass() const {return param.vector()[6];}
 
 /**
  * Access methods to parameters
  * and private data
  */
- KinematicParameters kinematicParameters() const;
 
- KinematicParametersError kinematicParametersError() const;
- 
- GlobalVector globalMomentum() const;
- 
- GlobalPoint globalPosition() const;
- 
- TrackCharge particleCharge() const;
+KinematicParameters const & kinematicParameters() const {return param;}
+
+KinematicParametersError const & kinematicParametersError() const {return err;}
+
+GlobalVector globalMomentum() const {return param.momentum();}
+
+GlobalPoint  globalPosition() const {return param.position();}
+
+TrackCharge particleCharge() const {return ch;}
+
+
 
 /**
  * KinematicState -> FreeTrajectoryState 
