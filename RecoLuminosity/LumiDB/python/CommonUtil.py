@@ -1,6 +1,6 @@
 '''This module collects some frequently used helper functions
 '''
-import time
+import time,ast,re,json
 def pairwise(lst):
     """
     yield item i and item i+1 in lst. e.g.
@@ -101,6 +101,26 @@ def inclusiveRange(start,stop,step):
         v+=step
     if v>=stop:
         yield stop
+        
+def tolegalJSON(inputstring):
+   '''
+   convert json like string to legal json string
+   add double quote around json keys if they are not there, change single quote to double quote around keys
+   '''
+   strresult=inputstring.strip()
+   strresult=re.sub("\s+","",strresult)
+   try:
+       mydict=ast.literal_eval(strresult)
+   except SyntaxError:
+       print 'error in converting string to dict'
+       raise
+   result={}
+   for k,v in mydict.items():
+       if not isinstance(k,str):
+           result[str(k)]=v
+       else:
+           result[k]=v
+   return re.sub("'",'"',str(result))
 
 if __name__=='__main__':
     a=[1,2,3,4,5]
@@ -113,3 +133,16 @@ if __name__=='__main__':
     print 'before ',seqbag
     print 'after ',transposed(seqbag,None)
     print [i for i in inclusiveRange(1,3,1)]
+    
+    result=tolegalJSON('{1:[],2:[[1,3],[4,5]]}')
+    print result
+    pp=json.loads(result)
+    print pp["2"]
+    result=tolegalJSON("{'1':[],'2':[[1,3],[4,5]]}")
+    print result
+    pp=json.loads(result)
+    print pp["2"]
+    result=tolegalJSON('{"1":[],"2":[[1,3],[4,5]]}')
+    print result
+    pp=json.loads(result)
+    print pp["2"]
