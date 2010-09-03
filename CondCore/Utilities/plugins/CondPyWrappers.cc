@@ -145,7 +145,7 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
   
   class_<cond::GlobalTag >("GlobalTag", init<>())
     .def("size", &cond::GlobalTag::size)
-    .add_property("elements", range( &cond::GlobalTag::begin,  &cond::GlobalTag::end))
+    .add_property("elements",  boost::python::range( &cond::GlobalTag::begin,  &cond::GlobalTag::end))
     ;
 
   class_<std::vector<std::string> >("VString")
@@ -184,7 +184,7 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
     .def("comment", &cond::IOVProxy::comment)
     .def("revision",&cond::IOVProxy::revision)
     .def("timestamp",&cond::IOVProxy::timestamp)
-    .add_property("elements", range( &cond::IOVProxy::begin,  &cond::IOVProxy::end))
+    .add_property("elements", boost::python::range( &cond::IOVProxy::begin,  &cond::IOVProxy::end))
     ;
   
   
