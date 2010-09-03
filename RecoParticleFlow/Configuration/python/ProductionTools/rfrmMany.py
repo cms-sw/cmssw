@@ -10,6 +10,10 @@ parser.add_option("-n", "--negate", action="store_true",
                   dest="negate",
                   help="do not proceed",
                   default=False)
+parser.add_option("-k", "--kill", action="store_true",
+                  dest="kill",
+                  help="really remove the files",
+                  default=False)
 
 (options,args) = parser.parse_args()
 
@@ -26,7 +30,9 @@ if options.negate:
     print 'NOT removing ',  
     pprint.pprint(files)
 else:
-    print 'Removing ',  
-    pprint.pprint(files)
-    trash = castortools.createSubDir( castorDir, 'Trash')
-    castortools.move( trash, files )
+    if options.kill == False:
+        pprint.pprint(files)
+        trash = castortools.createSubDir( castorDir, 'Trash')
+        castortools.move( trash, files )
+    else:
+        castortools.remove( files )

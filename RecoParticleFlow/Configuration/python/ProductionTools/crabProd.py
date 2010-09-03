@@ -16,7 +16,7 @@ parser.add_option("-n", "--negate", action="store_true",
 parser.add_option("-c", "--castorBaseDir", 
                   dest="castorBaseDir",
                   help="Base castor directory. Subdirectories will be created automatically for each prod",
-                  default="/castor/cern.ch/user/c/cbern/cmst3/Test")
+                  default="/castor/cern.ch/user/c/cbern/cmst3/SusyJetMET")
 
 (options,args) = parser.parse_args()
 
@@ -28,7 +28,7 @@ sampleName = args[0]
 
 print 'starting prod for sample:', sampleName
 
-# preparing castor dir
+# preparing castor dir -----------------
 
 cdir = options.castorBaseDir 
 cdir += sampleName
@@ -39,7 +39,7 @@ rfchmod = 'rfchmod 775 ' + cdir
 print rfchmod
 os.system( rfchmod )
 
-# making local crab directory
+# making local crab directory ---------
 ldir = '.' + sampleName
 
 mkdir = 'mkdir -p ' + ldir
@@ -57,24 +57,33 @@ print newCrabPath
 newCrab = open(newCrabPath,'w')
 oldCrab = open('crab.cfg','r')
 newPSet = ""
+newJson = ""
 
-patternDataSet = re.compile("\w*datasetpath")
-patternRemoteDir = re.compile('\w*user_remote_dir')
-patternPSet = re.compile('pset=(.*py)\w*')
+patternDataSet = re.compile("\s*datasetpath")
+patternRemoteDir = re.compile('\s*user_remote_dir')
+patternPSet = re.compile('pset=(.*py)\s*')
+patternLumiMask = re.compile('lumi_mask\s*=\s*(\S+)\s*')
 
 for line in oldCrab.readlines():
     if patternDataSet.match( line ):
-#        print 'not writing ', line
+        # removing dataset lines
         continue
     if patternRemoteDir.match( line ):
-#        print 'not writing ', line
+        # removing remote dir lines 
         continue
+    # find and copy parameter set cfg
     match = patternPSet.match( line )
     if match != None:
         pset  = match.group(1)
         newPSet = ldir + "/" + match.group(1)
         os.system('cp %s %s' % (pset, newPSet) )
-        
+    # find and copy json file
+    match = patternLumiMask.match( line )
+    if match != None:
+        json  = match.group(1)
+        newJson = ldir + "/" + match.group(1)
+        os.system('cp %s %s' % (json, newJson) )
+   
     newCrab.write( line )
 
 newCrab.write('[CMSSW]\n')
@@ -85,11 +94,14 @@ match = patStripOffCastor.match( cdir )
 newCrab.write('[USER]\n')
 newCrab.write('user_remote_dir = %s\n' % match.group(1))
 
+os.system('echo %s >> ~/DataSets.txt' % cdir ) 
+
 print ''
 print 'SUMMARY'
 print cdir
 print ldir
 print newCrabPath
 print newPSet
+print newJson
 
 
