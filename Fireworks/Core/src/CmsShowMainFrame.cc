@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.96 2010/07/26 15:13:59 matevz Exp $
+// $Id: CmsShowMainFrame.cc,v 1.97 2010/09/02 19:54:04 matevz Exp $
 
 #include "FWCore/Common/interface/EventBase.h"
 
@@ -342,7 +342,6 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    // upper row
    {
       TGPack *runInfo = new TGPack(texts, 400, entryHeight, kFixedHeight);
-      printf("(TGPack*)%p\n", runInfo);
       runInfo->SetVertical(kFALSE);
       runInfo->SetUseSplitters(kFALSE);
       runInfo->SetBackgroundColor(backgroundColor);
