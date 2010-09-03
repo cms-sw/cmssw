@@ -212,6 +212,7 @@ if __name__ == '__main__':
     parser.add_option("--datasetpath", dest="datasetpath", help="dataset name to process")
     parser.add_option("--globaltag", dest="globaltag", help="global tag identifier (without the '::All' string)")
     parser.add_option("--preselection", dest="preselection", help="configuration fragment and sequence name, separated by a ':', defining a pre-selection filter")
+    parser.add_option("--inputDB", dest="inputDB", help="when running in 'ttrig residuals' mode sets initial DB (instead of using the one in the GT)")
     parser.add_option("--email", dest="email", help="user email")
     parser.add_option("--templatepath", dest="templatepath", help="path to dir with template cfg files")
     parser.add_option("--runOnGrid", action="store_true", dest="runOnGrid", default=False, help="workflow will be run on the Grid (instead of the CAF)")
@@ -345,6 +346,10 @@ if __name__ == '__main__':
     summaryResiduals = os.path.abspath(result_dir + '/' + 'SummaryResiduals_' + run + '.root')
     #castorDirResidCorr = config.castor_prefix + 'TTRIGCalibration/Validation/ResidCorr/Run' + str(run) + '/v' + str(trial)
     dqm_output_dir = ''
+ 
+    ttrig_input_db = None
+    if input.workflowMode == 'residuals' and hasattr(input,'inputDB') and input.inputDB:
+        ttrig_input_db = os.path.abspath(input.inputDB)
 
     if input.no_exec:
         print "Only cfg files will be written"
@@ -354,11 +359,15 @@ if __name__ == '__main__':
             runTtrigValid(run,runselection,trial,ttrig_second_db,config,False)
             runTtrigResidualCorr(run,ttrig_second_db,residualsFirst,config,False)                
         elif input.workflowMode == 'residuals':
-            runTtrigValid(run,runselection,trial,None,config,False)
-            runTtrigResidualCorr(run,None,residualsFirst,config,False)
+            if ttrig_input_db:
+                runTtrigValid(run,runselection,trial,ttrig_input_db,config,False)
+                runTtrigResidualCorr(run,ttrig_input_db,residualsFirst,config,False)           
+            else:
+                runTtrigValid(run,runselection,trial,None,config,False)
+                runTtrigResidualCorr(run,None,residualsFirst,config,False)
  
         # Common steps
-        runTtrigValidResidCorr(run,runselection,trial,ttrig_ResidCorr_db,config,False)
+        #runTtrigValidResidCorr(run,runselection,trial,ttrig_ResidCorr_db,config,False)
         runTtrigValidSummary(run,residualsResidCorr,summaryResiduals,config,False)
         runDQMMerge(run,dqm_output_dir,config,False)
 
@@ -377,10 +386,14 @@ if __name__ == '__main__':
         if not os.path.exists(ttrig_ResidCorr_db): runTtrigResidualCorr(run,ttrig_second_db,residualsFirst,config)
         if not os.path.exists(ttrig_ResidCorr_db): raise RuntimeError,'Could not produce %s'%ttrig_ResidCorr_db
     elif input.workflowMode == 'residuals':
-        if not os.path.exists(residualsFirst): runTtrigValid(run,runselection,trial,None,config)
+        if not os.path.exists(residualsFirst):
+            if ttrig_input_db: runTtrigValid(run,runselection,trial,ttrig_input_db,config)
+            else: runTtrigValid(run,runselection,trial,None,config)
         if not os.path.exists(residualsFirst): raise RuntimeError,'Could not produce %s'%residualsFirst
 
-        if not os.path.exists(ttrig_ResidCorr_db): runTtrigResidualCorr(run,None,residualsFirst,config)
+        if not os.path.exists(ttrig_ResidCorr_db):
+            if ttrig_input_db: runTtrigResidualCorr(run,ttrig_input_db,residualsFirst,config) 
+            else: runTtrigResidualCorr(run,None,residualsFirst,config)
         if not os.path.exists(ttrig_ResidCorr_db): raise RuntimeError,'Could not produce %s'%ttrig_ResidCorr_db
    
     # Common steps
