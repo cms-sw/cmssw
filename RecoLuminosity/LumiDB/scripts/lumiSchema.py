@@ -10,6 +10,7 @@ def createLumi(dbsession):
     schema=dbsession.nominalSchema()
     db=dbUtil.dbUtil(schema)
     #cms run summary table
+    
     cmsrunsummary=coral.TableDescription()
     cmsrunsummary.setName( nameDealer.cmsrunsummaryTableName() )
     cmsrunsummary.insertColumn('RUNNUM','unsigned int')
@@ -155,6 +156,18 @@ def createLumi(dbsession):
     lumihltresult.insertColumn( 'HLTPATH','float' )
     lumihltresult.insertColumn( 'RECORDEDLUMI','float' )
     db.createTable(lumihltresult,False)
+    
+    #lumivalidation table
+    lumivalidation=coral.TableDescription()
+    lumivalidation.setName( nameDealer.lumivalidationTableName() )
+    lumivalidation.insertColumn( 'RUNNUM','unsigned int' )
+    lumivalidation.insertColumn( 'CMSLSNUM','unsigned int' )
+    lumivalidation.insertColumn( 'FLAG','string' )
+    lumivalidation.insertColumn( 'COMMENT','string' )
+    lumivalidation.setPrimaryKey(('RUNNUM','CMSLSNUM'))
+    lumivalidation.setNotNullConstraint('FLAG',True)
+    
+    db.createTable(lumivalidation,False)
     dbsession.transaction().commit()
     
 def dropLumi(dbsession):

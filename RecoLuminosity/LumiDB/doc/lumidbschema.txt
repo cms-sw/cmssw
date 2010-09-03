@@ -18,6 +18,12 @@ alter table LUMIDETAIL add (constraint DETAILSOURCE foreign key (LUMISUMMARY_ID)
 
 Glossary: FK=Foreign Key, PK=Primary Key
           lumiversion represents each lumi (re)processing
+========
+table a:  LUMIVALIDATION 
+columns:  runnum(uint32,PK), NOT NULL
+          cmslsnum(uint32,PK), NOT NULL 
+	  flag(string), NOT NULL
+          comment(string), NOT NULL
 
 ========
 table 1:  CMSRUNSUMMARY 

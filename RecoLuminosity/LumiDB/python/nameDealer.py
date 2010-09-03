@@ -29,6 +29,9 @@ def lumiresultTableName():
 def lumihltresultTableName():
 	return 'INTLUMIHLT'
 
+def lumivalidationTableName():
+       return 'LUMIVALIDATION'
+
 def idTableName( dataTableName ):
 	return dataTableName+"_ID"
 
