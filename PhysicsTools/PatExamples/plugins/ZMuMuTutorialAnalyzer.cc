@@ -41,6 +41,7 @@ private:
   float dRConeVeto_, ptThresholdVeto_, dRIsolationCone_;
   TH1F * h_muFromZ_pt_;
   TH1F * h_muFromZ_eta_;
+  TH1F * h_zMuMuAll_mass_;
   TH1F * h_zMuMu_mass_;
   TH1F * h_zMuMuMatched_mass_;
   TH1F * h_zMuMuMC_mass_;
@@ -60,6 +61,7 @@ ZMuMuTutorialAnalyzer::ZMuMuTutorialAnalyzer(const edm::ParameterSet& pset) :
   edm::Service<TFileService> fs;
   h_muFromZ_pt_ = fs->make<TH1F>( "muPt", "mu pT(GeV/c)", 200, 0., 200. );
   h_muFromZ_eta_ = fs->make<TH1F>( "muEta", "mu eta", 100, -2.5, 2.5 );
+  h_zMuMuAll_mass_ = fs->make<TH1F>( "ZMuMuAllmass", "ZMuMu mass(GeV)", 200, 0., 200. );
   h_zMuMu_mass_ = fs->make<TH1F>( "ZMuMumass", "ZMuMu mass(GeV)", 200, 0., 200. );
   h_zMuMuMatched_mass_ = fs->make<TH1F>( "ZMuMuMatchedmass", "ZMuMu mass(GeV)", 200, 0., 200. );
   h_zMuMuMC_mass_ = fs->make<TH1F>( "ZMuMuMCmass", "ZMuMu mass(GeV)", 200, 0., 200. );
@@ -76,6 +78,7 @@ void ZMuMuTutorialAnalyzer::analyze(const edm::Event& event, const edm::EventSet
   // looping on dimuons candidates
   for( size_t i = 0; i < nDimuons; i++ ) {
     const Candidate & dimuonCand = (*dimuons)[ i ];
+    h_zMuMuAll_mass_->Fill( dimuonCand.mass() );
     // accessing the daughters of the dimuon candidate
     const Candidate * lep0 = dimuonCand.daughter( 0 );
     const Candidate * lep1 = dimuonCand.daughter( 1 );
@@ -103,7 +106,7 @@ void ZMuMuTutorialAnalyzer::analyze(const edm::Event& event, const edm::EventSet
       if( (fabs(etaMu0) > etacut_) || (fabs(etaMu1) > etacut_) )
 	continue;
 
-      // Accessing pre-computed tracker isolation
+      // Accessing the pre-computed user-defined tracker isolation
       // Note: if you want the POG-defined isolation you must use muonDau0.trackIso();
       float trackerIsoMu0 = muonDau0.userIsolation(pat::TrackIso);
 
