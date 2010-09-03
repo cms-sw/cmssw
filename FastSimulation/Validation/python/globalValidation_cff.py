@@ -14,6 +14,7 @@ from Validation.RecoTrack.TrackValidation_fastsim_cff import *
 from Validation.RecoMuon.muonValidationFastSim_cff import *
 from Validation.MuonIsolation.MuIsoVal_cff import *
 from Validation.MuonIdentification.muonIdVal_cff import *
+muonIdVal.makeCosmicCompatibilityPlots = False
 
 from DQMOffline.RecoB.dqmAnalyzer_cff import *
 
