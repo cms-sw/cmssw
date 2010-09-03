@@ -33,7 +33,7 @@ public:
    virtual void firstEvent() {}
    virtual void lastEvent() {}
    // FIXME: does not do anything for the time being.
-   virtual void goToRunEvent(Int_t, Int_t) {}
+   virtual void goToRunEvent(edm::RunNumber_t, edm::LuminosityBlockNumber_t, edm::EventNumber_t) {}
    // This hopefully means that the GUI will always show
    // previous event grayed out.
    virtual bool isLastEvent() { return false; }
