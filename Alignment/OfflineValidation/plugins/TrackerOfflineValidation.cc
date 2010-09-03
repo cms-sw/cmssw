@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.39 2010/08/03 10:10:06 mussgill Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.40 2010/08/27 06:29:59 mussgill Exp $
 //
 //
 
@@ -549,6 +549,35 @@ TrackerOfflineValidation::bookGlobalHists(DirectoryWrapper& tfd )
   vTrack2DHistos_.push_back(tfd.make<TH2F>("h2_normchi2_vs_kappa",
 					   "#kappa vs. #chi^{2}/ndof;#chi^{2}/ndof;#kappa",
 					   100,0.,10, 100,-.03,.03));
+
+  /****************** Definition of 2-D Histos of ResX vs momenta ****************************/
+  vTrack2DHistos_.push_back(tfd.make<TH2F>("p_vs_resXprime_pixB",
+					   "#momentum vs. #resX in pixB;#momentum;#resX",
+					   15,0.,15., 200, -0.1,0.1));			   
+  vTrack2DHistos_.push_back(tfd.make<TH2F>("p_vs_resXprime_pixE",
+					   "#momentum vs. #resX in pixE;#momentum;#resX",
+					   15,0.,15., 200, -0.1,0.1)); 
+  vTrack2DHistos_.push_back(tfd.make<TH2F>("p_vs_resXprime_TIB",
+					   "#momentum vs. #resX in TIB;#momentum;#resX",
+					   15,0.,15., 200, -0.1,0.1)); 
+  vTrack2DHistos_.push_back(tfd.make<TH2F>("p_vs_resXprime_TID",
+					   "#momentum vs. #resX in TID;#momentum;#resX",
+					   15,0.,15., 200, -0.1,0.1)); 
+  vTrack2DHistos_.push_back(tfd.make<TH2F>("p_vs_resXprime_TOB",
+					   "#momentum vs. #resX in TOB;#momentum;#resX",
+					   15,0.,15., 200, -0.1,0.1));
+  vTrack2DHistos_.push_back(tfd.make<TH2F>("p_vs_resXprime_TEC",
+					   "#momentum vs. #resX in TEC;#momentum;#resX",
+					   15,0.,15., 200, -0.1,0.1)); 	
+
+  /****************** Definition of 2-D Histos of ResY vs momenta ****************************/
+  vTrack2DHistos_.push_back(tfd.make<TH2F>("p_vs_resYprime_pixB",
+					   "#momentum vs. #resY in pixB;#momentum;#resY",
+					   15,0.,15., 200, -0.1,0.1));			   
+  vTrack2DHistos_.push_back(tfd.make<TH2F>("p_vs_resYprime_pixE",
+					   "#momentum vs. #resY in pixE;#momentum;#resY",
+					   15,0.,15., 200, -0.1,0.1)); 
+
 }
 
 
@@ -773,19 +802,21 @@ bool TrackerOfflineValidation::isEndCap(uint32_t subDetId)
 {
   return ( subDetId == StripSubdetector::TID ||
 	   subDetId == StripSubdetector::TEC ||
-	   subDetId == PixelSubdetector::PixelEndcap);
+	   subDetId == PixelSubdetector::PixelEndcap );
 }
 
 
 bool TrackerOfflineValidation::isPixel(uint32_t subDetId)
 {
-  return (subDetId == PixelSubdetector::PixelBarrel || subDetId == PixelSubdetector::PixelEndcap);
+  return (subDetId == PixelSubdetector::PixelBarrel ||
+	  subDetId == PixelSubdetector::PixelEndcap );
 }
 
 
 bool TrackerOfflineValidation::isDetOrDetUnit(align::StructureType type)
 {
-  return ( type == align::AlignableDet || type == align::AlignableDetUnit);
+  return ( type == align::AlignableDet ||
+	   type == align::AlignableDetUnit );
 }
 
 
@@ -1029,25 +1060,63 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
       }
       if (itH->resXprime != -999.) {
 	histStruct.ResXprimeHisto->Fill(itH->resXprime);
+
+	/******************************* Fill 2-D histo ResX vs momenta *****************************/
+        if (detid.subdetId() == PixelSubdetector::PixelBarrel) { 
+          static const int resXvsPindex_2d = this->GetIndex(vTrack2DHistos_,"p_vs_resXprime_pixB");
+          vTrack2DHistos_[resXvsPindex_2d]->Fill(itT->p,itH->resXprime);
+        }	
+        if (detid.subdetId() == PixelSubdetector::PixelEndcap) { 
+          static const int resXvsPindex_2d = this->GetIndex(vTrack2DHistos_,"p_vs_resXprime_pixE");
+          vTrack2DHistos_[resXvsPindex_2d]->Fill(itT->p,itH->resXprime);
+        }
+        if (detid.subdetId() == StripSubdetector::TIB) { 
+	  static const int resXvsPindex_2d = this->GetIndex(vTrack2DHistos_,"p_vs_resXprime_TIB");
+          vTrack2DHistos_[resXvsPindex_2d]->Fill(itT->p,itH->resXprime);
+        }
+	if (detid.subdetId() == StripSubdetector::TID) { 
+          static const int resXvsPindex_2d = this->GetIndex(vTrack2DHistos_,"p_vs_resXprime_TID");
+          vTrack2DHistos_[resXvsPindex_2d]->Fill(itT->p,itH->resXprime);
+        }
+        if (detid.subdetId() == StripSubdetector::TOB) { 
+	  static const int resXvsPindex_2d = this->GetIndex(vTrack2DHistos_,"p_vs_resXprime_TOB");
+          vTrack2DHistos_[resXvsPindex_2d]->Fill(itT->p,itH->resXprime);
+        }
+        if (detid.subdetId() == StripSubdetector::TEC) {   
+          static const int resXvsPindex_2d = this->GetIndex(vTrack2DHistos_,"p_vs_resXprime_TEC");
+          vTrack2DHistos_[resXvsPindex_2d]->Fill(itT->p,itH->resXprime);
+        }
+	/******************************************/
+
+	if ( moduleLevelProfiles_ ) {
+	  float tgalpha = tan(itH->localAlpha);
+	  if ( fabs(tgalpha)>0.0001 ){
+	    histStruct.LocalX->Fill(itH->localXnorm, tgalpha*tgalpha); 
+	    histStruct.LocalY->Fill(itH->localYnorm, tgalpha*tgalpha); 
+	    histStruct.ResXvsXProfile->Fill(itH->localXnorm, itH->resX/tgalpha, tgalpha*tgalpha); 
+	    histStruct.ResXvsYProfile->Fill(itH->localYnorm, itH->resX/tgalpha, tgalpha*tgalpha); 
+	  }
+	}
+
 	if(itH->resXprimeErr != 0 && itH->resXprimeErr != -999 ) {	
 	  histStruct.NormResXprimeHisto->Fill(itH->resXprime/itH->resXprimeErr);
 	}
       }     
-
-      if ( moduleLevelProfiles_ ) {
-	float tgalpha = tan(itH->localAlpha);
-	if ( fabs(tgalpha)>0.0001 ){
-	  histStruct.LocalX->Fill(itH->localXnorm, tgalpha*tgalpha); 
-	  histStruct.LocalY->Fill(itH->localYnorm, tgalpha*tgalpha); 
-	  histStruct.ResXvsXProfile->Fill(itH->localXnorm, itH->resX/tgalpha, tgalpha*tgalpha); 
-	  histStruct.ResXvsYProfile->Fill(itH->localYnorm, itH->resX/tgalpha, tgalpha*tgalpha); 
-	}
-      }
       
       if (itH->resYprime != -999.) {
-	if (this->isPixel(detid.subdetId()) ||
-	    stripYResiduals_ ) {
+	if (this->isPixel(detid.subdetId()) || stripYResiduals_ ) {
 	  histStruct.ResYprimeHisto->Fill(itH->resYprime);
+
+	  /******************************* Fill 2-D histo ResY vs momenta *****************************/
+	  if (detid.subdetId() == PixelSubdetector::PixelBarrel) { 
+	    static const int resYvsPindex_2d = this->GetIndex(vTrack2DHistos_,"p_vs_resYprime_pixB");
+	    vTrack2DHistos_[resYvsPindex_2d]->Fill(itT->p,itH->resYprime);
+	  }	
+	  if (detid.subdetId() == PixelSubdetector::PixelEndcap) { 
+	    static const int resYvsPindex_2d = this->GetIndex(vTrack2DHistos_,"p_vs_resYprime_pixE");
+	    vTrack2DHistos_[resYvsPindex_2d]->Fill(itT->p,itH->resYprime);
+	  }
+	  /******************************************/
 
 	  if ( moduleLevelProfiles_ ) {
 	    float tgbeta = tan(itH->localBeta);
