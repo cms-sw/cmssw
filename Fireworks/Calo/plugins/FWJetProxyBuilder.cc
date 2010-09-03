@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWJetProxyBuilder.cc,v 1.18 2010/09/02 19:28:40 amraktad Exp $
+// $Id: FWJetProxyBuilder.cc,v 1.19 2010/09/03 10:20:04 yana Exp $
 //
 #include "TGeoArb8.h"
 #include "TEveGeoNode.h"
@@ -393,21 +393,6 @@ void
 FWJetLegoProxyBuilder::build(const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder,
                              const FWViewContext*) 
 {
-   /* TEveStraightLineSet* container = new TEveStraightLineSet( "circle" );
-
-   const unsigned int nLineSegments = 20;
-   const double jetRadius = 0.5;
-   for (unsigned int iphi = 0; iphi < nLineSegments; ++iphi)
-   {
-      container->AddLine(iData.eta()+jetRadius*cos(2*M_PI/nLineSegments*iphi),
-                         iData.phi()+jetRadius*sin(2*M_PI/nLineSegments*iphi),
-                         0.01,
-                         iData.eta()+jetRadius*cos(2*M_PI/nLineSegments*(iphi+1)),
-                         iData.phi()+jetRadius*sin(2*M_PI/nLineSegments*(iphi+1)),
-                         0.01);
-   }
-   setupAddElement(container, &oItemHolder);
-    */
    fireworks::addCircle( iData.eta(), iData.phi(), 0.5, 20, &oItemHolder, this );
 }
 REGISTER_FWPROXYBUILDER( FWJetLegoProxyBuilder, reco::Jet, "Jets", FWViewType::kLegoBit | FWViewType::kLegoHFBit );
