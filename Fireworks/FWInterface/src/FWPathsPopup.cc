@@ -38,7 +38,7 @@ public:
    };
 
   /*
-    Form TGFont.h
+    From TGFont.h
 
   enum EFontWeight {
    kFontWeightNormal = 0,
@@ -61,10 +61,18 @@ public:
       TGFont *font = pool->FindFontByHandle(s_boldGC.GetFont());
       FontAttributes_t attributes = font->GetFontAttributes();
 
-      // Enum doesn't seem to work so do this
-      attributes.fWeight = 3;
-      TGFont *newFont = pool->GetFont(attributes.fFamily, 12,
-                                      attributes.fWeight, attributes.fSlant);
+      attributes.fWeight = 1; // This doesn't seem to work
+      //TGFont *newFont = pool->GetFont(attributes.fFamily, 9,
+      //                                attributes.fWeight, attributes.fSlant);
+
+      // But this does:
+      TGFont* newFont = pool->GetFont("-*-helvetica-bold-r-*-*-12-*-*-*-*-*-iso8859-1");
+      
+      if ( ! newFont )
+        return s_boldGC;
+
+      std::cout<<"boldGC: "<< std::endl;
+      newFont->Print();
 
       s_boldGC.SetFont(newFont->GetFontHandle());
 
@@ -74,20 +82,47 @@ public:
    const TGGC&
    italicGC()
    {
-      static TGGC s_boldGC(*gClient->GetResourcePool()->GetFrameGC());
+      static TGGC s_italicGC(*gClient->GetResourcePool()->GetFrameGC());
  
       TGFontPool *pool = gClient->GetFontPool();
-      TGFont *font = pool->FindFontByHandle(s_boldGC.GetFont());
+      TGFont *font = pool->FindFontByHandle(s_italicGC.GetFont());
       FontAttributes_t attributes = font->GetFontAttributes();
 
       attributes.fSlant = 1;
       TGFont *newFont = pool->GetFont(attributes.fFamily, 9,
                                       attributes.fWeight, attributes.fSlant);
 
-      s_boldGC.SetFont(newFont->GetFontHandle());
+      std::cout<<"italicGC: "<< std::endl;
+      newFont->Print();
 
-      return s_boldGC;
+      s_italicGC.SetFont(newFont->GetFontHandle());
+
+      return s_italicGC;
    }
+
+  const TGGC&
+  redGC()
+    {
+      static TGGC s_redGC(*gClient->GetResourcePool()->GetFrameGC());
+      GCValues_t gvals(*(s_redGC.GetAttributes()));
+      
+      TGFontPool *pool = gClient->GetFontPool();
+      TGFont *font = pool->FindFontByHandle(s_redGC.GetFont());
+
+      gvals.fMask = kGCFont;
+      gvals.fFont = font->GetFontHandle();
+    
+      return s_redGC;
+    }
+  
+  
+  const TGGC&
+  greenGC()
+    {
+      static TGGC s_greenGC(*gClient->GetResourcePool()->GetFrameGC());
+      return s_greenGC;
+    }
+  
 
    FWPSetTableManager()
       : m_selectedRow(-1)
@@ -95,6 +130,9 @@ public:
       m_boldRenderer.setGraphicsContext(&boldGC());
       m_italicRenderer.setGraphicsContext(&italicGC());
 
+      std::cout<<"Available fonts: "<<std::endl;
+      gClient->GetFontPool()->Print();
+        
       reset();
    }
    
