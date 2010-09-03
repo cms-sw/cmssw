@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.85 2010/08/04 15:03:31 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.86 2010/08/26 11:25:13 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -566,7 +566,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
     for(int i = 0; i < npath; ++i) {
 
-     if (triggerResults->accept(i) && triggerNames.triggerName(i).find(v->getDenomPath()) != std::string::npos )
+     if (triggerResults->accept(i) && triggerNames.triggerName(i).find(v->getDenomPath()) != std::string::npos && triggerNames.triggerName(i).find("HLT_Mult") == std::string::npos )
      { 
         denompassed = true;
         break;
