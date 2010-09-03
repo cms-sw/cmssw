@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.40 2010/07/22 19:34:46 srappocc Exp $
+// $Id: PATElectronProducer.cc,v 1.41 2010/07/28 13:07:53 srappocc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -162,6 +162,11 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   // Get the collection of electrons from the event
   edm::Handle<edm::View<reco::GsfElectron> > electrons;
   iEvent.getByLabel(electronSrc_, electrons);
+
+  if (iEvent.isRealData()){
+       addGenMatch_ = false;
+       embedGenMatch_ = false;
+   }
 
   // Get the ESHandle for the transient track builder, if needed for
   // high level selection embedding

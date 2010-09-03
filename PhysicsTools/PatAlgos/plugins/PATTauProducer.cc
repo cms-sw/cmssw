@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.32.16.2 2010/02/22 11:38:22 mbluj Exp $
+// $Id: PATTauProducer.cc,v 1.33 2010/02/22 14:54:31 mbluj Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"
@@ -159,6 +159,12 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     std::auto_ptr<std::vector<Tau> > patTaus(new std::vector<Tau>()); 
     iEvent.put(patTaus);
     return;
+  }
+
+  if (iEvent.isRealData()){
+    addGenMatch_ = false;
+    embedGenMatch_ = false;
+    addGenJetMatch_ = false;
   }
 
   if (isolator_.enabled()) isolator_.beginEvent(iEvent,iSetup);

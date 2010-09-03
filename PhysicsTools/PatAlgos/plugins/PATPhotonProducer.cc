@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.cc,v 1.26 2009/10/13 14:23:56 rwolf Exp $
+// $Id: PATPhotonProducer.cc,v 1.27 2009/10/15 17:17:26 rwolf Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATPhotonProducer.h"
@@ -109,6 +109,11 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
   // Get the vector of Photon's from the event
   edm::Handle<edm::View<reco::Photon> > photons;
   iEvent.getByLabel(photonSrc_, photons);
+
+  if (iEvent.isRealData()){
+    addGenMatch_ = false;
+    embedGenMatch_ = false;
+  }
 
   // prepare the MC matching
   std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > > genMatches(genMatchSrc_.size());

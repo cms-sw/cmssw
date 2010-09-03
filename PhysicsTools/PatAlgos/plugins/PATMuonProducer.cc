@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.38 2010/07/22 19:34:46 srappocc Exp $
+// $Id: PATMuonProducer.cc,v 1.39 2010/07/28 13:07:53 srappocc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -130,6 +130,11 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 {  
   edm::Handle<edm::View<reco::Muon> > muons;
   iEvent.getByLabel(muonSrc_, muons);
+
+  if (iEvent.isRealData()){
+    addGenMatch_ = false;
+    embedGenMatch_ = false;
+  }
 
   // get the ESHandle for the transient track builder,
   // if needed for high level selection embedding
