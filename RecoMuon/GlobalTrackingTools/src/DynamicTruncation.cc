@@ -6,8 +6,8 @@
  *  compatibility degree between the extrapolated track
  *  state and the reconstructed segment in the muon chambers
  *
- *  $Date: 2010/06/27 17:33:33 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/08/16 18:09:34 $
+ *  $Revision: 1.4 $
  *
  *  Authors :
  *  D. Pagano & G. Bruno - UCL Louvain
@@ -194,8 +194,10 @@ void DynamicTruncation::compatibleDets(TrajectoryStateOnSurface& tsos, map<int, 
     //    cout << comps.size() << " compatible Dets with " << navLayers[ilayer]->subDetector() << " Layer " << ilayer << " "
     //    	 << dumper.dumpLayer(navLayers[ilayer]) << " " << endl;
     if (comps.size() > 0) {
-      DetId id(comps.front().first->geographicalId().rawId());
-      detMap[ilayer].push_back(id);
+      for ( unsigned int icomp=0; icomp<comps.size(); icomp++ ) {
+	DetId id(comps[icomp].first->geographicalId().rawId());
+	detMap[ilayer].push_back(id);
+      }
     }
   }
   if (theEstimator) delete theEstimator;
