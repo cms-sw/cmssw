@@ -15,7 +15,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 100
 # Input files
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-    'file:/scratch2/users/fabozzi/summer10/FE2F8537-9A80-DF11-B80E-0026189438C9.root'
+    'file:/scratch1/cms/data/relval_382/zmm/62C86D62-BFAF-DF11-85B3-003048678A6C.root'
     )
 )
 #import os
@@ -44,6 +44,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("ElectroWeakAnalysis.Skimming.zMuMuSubskimOutputModule_cfi")
 
 ## to run the MC truth uncomment the following
+## look also at python/ZMuMuAnalysisSchedules_cff.py
 process.load("ElectroWeakAnalysis.Skimming.zMuMu_SubskimPathsWithMCTruth_cff")
 process.zMuMuSubskimOutputModule.outputCommands.extend(process.mcEventContent.outputCommands)
 ####
@@ -72,11 +73,11 @@ process.vtxedNtuplesOut.fileName = cms.untracked.string('file:VtxedNtupleLoose_t
 #process.patTrigger.triggerEvent = cms.InputTag( "hltTriggerSummaryAOD::REDIGI" )
 
 ### 3_6_X reprocessed MC: to process REDIGI HLT tables uncomment the following
-process.dimuonsHLTFilter.TriggerResultsTag = cms.InputTag("TriggerResults","","REDIGI36X")
-process.patTrigger.processName = "REDIGI36X"
-process.patTriggerEvent.processName = "REDIGI36X"
-process.patTrigger.triggerResults = cms.InputTag( "TriggerResults::REDIGI36X" )
-process.patTrigger.triggerEvent = cms.InputTag( "hltTriggerSummaryAOD::REDIGI36X" )
+#process.dimuonsHLTFilter.TriggerResultsTag = cms.InputTag("TriggerResults","","REDIGI36X")
+#process.patTrigger.processName = "REDIGI36X"
+#process.patTriggerEvent.processName = "REDIGI36X"
+#process.patTrigger.triggerResults = cms.InputTag( "TriggerResults::REDIGI36X" )
+#process.patTrigger.triggerEvent = cms.InputTag( "hltTriggerSummaryAOD::REDIGI36X" )
 
 ### plots
 process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesPlots_cff")
