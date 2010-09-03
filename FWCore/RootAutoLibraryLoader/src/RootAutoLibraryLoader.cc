@@ -31,6 +31,8 @@
 #include "Cintex/Cintex.h"
 #include "TClass.h"
 
+// We cannot use the MessageLogger here because this is also used by standalones that do not have the logger.
+
 //
 // constants, enums and typedefs
 //
@@ -60,7 +62,7 @@ namespace {
 // static data member definitions
 //
 //hold onto the previous autolibrary loader
-typedef int (*CallbackPtr)(char*,char*);
+typedef int (*CallbackPtr)(char*, char*);
 static CallbackPtr gPrevious = 0;
 static char const* kDummyLibName = "*dummy";
 
@@ -78,7 +80,7 @@ namespace edm {
       }
 
       void
-      addWrapperOfVectorOfBuiltin(std::map<std::string, std::string>& iMap, const char* iBuiltin) {
+      addWrapperOfVectorOfBuiltin(std::map<std::string, std::string>& iMap, char const* iBuiltin) {
          static std::string sReflexPrefix("edm::Wrapper<std::vector<");
          static std::string sReflexPostfix("> >");
 
@@ -142,7 +144,7 @@ namespace edm {
 
       //Based on code in ROOT's TCint.cxx file
 
-      int ALL_AutoLoadCallback(char *c, char *l) {
+      int ALL_AutoLoadCallback(char* c, char* l) {
         //NOTE: if the library (i.e. 'l') is an empty string this means we are dealing with a namespace
         // These checks appear to avoid a crash of ROOT during shutdown of the application
         if(0 == c || 0 == l || l[0] == 0) {
@@ -186,7 +188,7 @@ namespace edm {
         };
 
       void registerTypes() {
-        edmplugin::PluginManager*db =  edmplugin::PluginManager::get();
+        edmplugin::PluginManager* db =  edmplugin::PluginManager::get();
 
         typedef edmplugin::PluginManager::CategoryToInfos CatToInfos;
 
@@ -245,9 +247,9 @@ namespace edm {
           std::string::size_type pos = 0;
           while(std::string::npos != (pos = className.find_first_of(toFind, pos))) {
             if (className[pos] == '<') {break;}
-            if (className.size() <= pos+1 || className[pos+1] != ':') {break;}
+            if (className.size() <= pos + 1 || className[pos + 1] != ':') {break;}
             //should check to see if this is a class or not
-            G__set_class_autoloading_table(const_cast<char*>(className.substr(0, pos).c_str()), const_cast<char *>(""));
+            G__set_class_autoloading_table(const_cast<char*>(className.substr(0, pos).c_str()), const_cast<char*>(""));
             //std::cout << "namespace " << className.substr(0, pos).c_str() << std::endl;
             pos += 2;
           }
@@ -265,9 +267,9 @@ namespace edm {
             //std::cout << "&&&&& found special case " << itSpecial->first << std::endl;
             std::string name = itSpecial->second;
             Reflex::Type t = Reflex::Type::ByName(name);
-            
-            if( (Reflex::Type()==t) and 
-                (not edmplugin::PluginCapabilities::get()->tryToLoad(cPrefix + name)) ) {
+
+            if((Reflex::Type() == t) and
+                (not edmplugin::PluginCapabilities::get()->tryToLoad(cPrefix + name))) {
               std::cout << "failed to load plugin for " << cPrefix + name << std::endl;
               continue;
             } else {
@@ -278,7 +280,7 @@ namespace edm {
                 continue;
               }
               TClass* reflexNamedClass = TClass::GetClass(t.TypeInfo());
-              if(0 == reflexNamedClass){
+              if(0 == reflexNamedClass) {
                 std::cout << "failed to get TClass by typeid for " << name << std::endl;
                 continue;
               }
@@ -333,7 +335,7 @@ namespace edm {
    // member functions
    //
 
-   TClass *
+   TClass*
    RootAutoLibraryLoader::GetClass(char const* classname, Bool_t load) {
       TClass* returnValue = 0;
       if(classname == classNameAttemptingToLoad_) {
@@ -345,9 +347,8 @@ namespace edm {
             className.replace(idx, 18, std::string("string"));
             //if basic_string<char> was the last argument to a templated class
             // then there would be an extra space to separate the two '>'
-            if(className.size()>idx+6 &&
-               className[idx+6]==' ') {
-              className.replace(idx+6,1,"");
+            if(className.size() > idx + 6 && className[idx + 6] == ' ') {
+              className.replace(idx + 6, 1, "");
             }
             classNameAttemptingToLoad_ = className.c_str();
             returnValue = gROOT->GetClass(className.c_str(), kTRUE);
@@ -374,11 +375,11 @@ namespace edm {
       return returnValue;
    }
 
-   TClass *
+   TClass*
    RootAutoLibraryLoader::GetClass(type_info const& typeinfo, Bool_t load) {
      //std::cout << "looking for type " << typeinfo.name() << std::endl;
       TClass* returnValue = 0;
-      if(load){
+      if(load) {
          return GetClass(typeinfo.name(), load);
       }
       return returnValue;
@@ -396,7 +397,7 @@ namespace edm {
      // std::cout << "LoadAllDictionaries" << std::endl;
      enable();
 
-     edmplugin::PluginManager*db =  edmplugin::PluginManager::get();
+     edmplugin::PluginManager* db =  edmplugin::PluginManager::get();
 
      typedef edmplugin::PluginManager::CategoryToInfos CatToInfos;
 
