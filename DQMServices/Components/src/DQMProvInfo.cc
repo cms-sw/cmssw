@@ -2,9 +2,9 @@
  * \file DQMProvInfo.cc
  * \author A.Raval / A.Meyer - DESY
  * Last Update:
- * $Date: 2010/07/02 13:10:07 $
- * $Revision: 1.24 $
- * $Author: ameyer $
+ * $Date: 2010/07/20 19:39:14 $
+ * $Revision: 1.26 $
+ * $Author: wmtan $
  *
  */
 
@@ -267,6 +267,11 @@ std::string
 DQMProvInfo::getShowTags(void)
 {
    TString out;
+   TString cwd;
+   TString showtagswd;
+   cwd=gSystem->pwd();
+   showtagswd=gSystem->ExpandPathName("$CMSSW_BASE/");
+   gSystem->ChangeDirectory(showtagswd);
    FILE *pipe = gSystem->OpenPipe("showtags u -t", "r");
 
    TString line;
@@ -287,6 +292,7 @@ DQMProvInfo::getShowTags(void)
    out.ReplaceAll("\n","");
 
    Int_t r = gSystem->ClosePipe(pipe);
+   gSystem->ChangeDirectory(cwd);
    if (r) {
      gSystem->Error("ShowTags","problem running command showtags -u -t");
    }
