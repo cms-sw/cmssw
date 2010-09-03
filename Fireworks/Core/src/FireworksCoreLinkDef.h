@@ -4,6 +4,7 @@
 #include "Fireworks/Core/interface/FWSummaryManager.h"
 #include "Fireworks/Core/src/FWGUIEventDataAdder.h"
 #include "Fireworks/Core/src/FWColorSelect.h"
+#include "Fireworks/Core/src/FWNumberEntry.h"
 #include "Fireworks/Core/src/FWCollectionSummaryWidget.h"
 #include "Fireworks/Core/src/FWCompactVerticalLayout.h"
 #include "Fireworks/Core/src/FWModelContextMenuHandler.h"
@@ -23,6 +24,7 @@
 #pragma link C++ class FWColorPopup;
 #pragma link C++ class FWColorRow;
 #pragma link C++ class FWColorSelect;
+#pragma link C++ class FWNumberEntryField;
 
 #pragma link C++ class FWCollectionSummaryWidget;
 #pragma link C++ class FWSummaryManager;

@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.213 2010/09/02 19:54:04 matevz Exp $
+// $Id: FWGUIManager.cc,v 1.214 2010/09/03 15:32:39 matevz Exp $
 
 //
 
@@ -22,8 +22,6 @@
 
 #include "TGButton.h"
 #include "TGLabel.h"
-#include "TGTextEntry.h"
-#include "TGNumberEntry.h"
 #include "TSystem.h"
 #include "TGLViewer.h"
 #include "TEveBrowser.h"
@@ -56,6 +54,7 @@
 #include "Fireworks/Core/interface/FWNavigatorBase.h"
 
 #include "Fireworks/Core/src/FWGUIEventDataAdder.h"
+#include "Fireworks/Core/src/FWNumberEntry.h"
 
 #include "Fireworks/Core/interface/CSGAction.h"
 
@@ -1318,24 +1317,21 @@ FWGUIManager::setDelayBetweenEvents(Float_t val)
 
 void FWGUIManager::runIdChanged()
 {
-   m_cmsShowMainFrame->m_lumiEntry->SetText("",kFALSE);
+   m_cmsShowMainFrame->m_lumiEntry->SetText("", kFALSE);
    m_cmsShowMainFrame->m_lumiEntry->SetFocus();
 }
 
 void FWGUIManager::lumiIdChanged()
 {
-   m_cmsShowMainFrame->m_eventEntry->SetText("",kFALSE);
+   m_cmsShowMainFrame->m_eventEntry->SetText("", kFALSE);
    m_cmsShowMainFrame->m_eventEntry->SetFocus();
 }
 
 void FWGUIManager::eventIdChanged()
 {
-   // XXXX Temporary cast from double ... until GetUIntNumber() is available
-   // in TGNumberEntryField.
-   edm::RunNumber_t             rn = static_cast<edm::RunNumber_t>            (m_cmsShowMainFrame->m_runEntry->GetNumber());
-   edm::LuminosityBlockNumber_t ln = static_cast<edm::LuminosityBlockNumber_t>(m_cmsShowMainFrame->m_lumiEntry->GetNumber());
-   edm::EventNumber_t           en = static_cast<edm::EventNumber_t>          (m_cmsShowMainFrame->m_eventEntry->GetNumber());
-   changedEventId_.emit(rn, ln, en);
+   changedEventId_.emit(m_cmsShowMainFrame->m_runEntry->GetUIntNumber(),
+                        m_cmsShowMainFrame->m_lumiEntry->GetUIntNumber(),
+                        m_cmsShowMainFrame->m_eventEntry->GetUIntNumber());
 }
 
 void

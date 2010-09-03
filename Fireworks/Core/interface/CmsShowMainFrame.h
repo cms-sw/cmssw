@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.37 2010/07/26 15:13:58 matevz Exp $
+// $Id: CmsShowMainFrame.h,v 1.38 2010/09/02 19:54:03 matevz Exp $
 //
 
 // system include files
@@ -42,11 +42,11 @@ class CSGContinuousAction;
 class FWGUIManager;
 class TGPopupMenu;
 class TGTextEntry;
-class TGNumberEntryField;
 class TGLabel;
 class TGSlider;
 class FWIntValueListener;
 class FWCustomIconsButton;
+class FWNumberEntryField;
 
 namespace edm {
    class EventBase;
@@ -96,9 +96,9 @@ public:
 protected:
    FWCustomIconsButton* m_filterEnableBtn;
    TGTextButton*        m_filterShowGUIBtn;
-   TGNumberEntryField*  m_runEntry;
-   TGNumberEntryField*  m_lumiEntry;
-   TGNumberEntryField*  m_eventEntry;
+   FWNumberEntryField*  m_runEntry;
+   FWNumberEntryField*  m_lumiEntry;
+   FWNumberEntryField*  m_eventEntry;
    FWIntValueListener*  m_delaySliderListener;
    
    const TGPicture*     m_filterIcons[9];

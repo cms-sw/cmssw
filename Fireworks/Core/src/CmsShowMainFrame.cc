@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.98 2010/09/03 08:43:11 matevz Exp $
+// $Id: CmsShowMainFrame.cc,v 1.99 2010/09/03 15:32:39 matevz Exp $
 
 #include "FWCore/Common/interface/EventBase.h"
 
@@ -25,9 +25,7 @@
 #include <TGTab.h>
 #include <TGPack.h>
 #include <TGStatusBar.h>
-#include <TGNumberEntry.h>
 #include <KeySymbols.h>
-#include <TGTextEntry.h>
 #include <TGSlider.h>
 
 #include <TSystem.h>
@@ -46,6 +44,7 @@
 #include "Fireworks/Core/interface/FWIntValueListener.h"
 #include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/src/FWCheckBoxIcon.h"
+#include "Fireworks/Core/src/FWNumberEntry.h"
 
 #include <fstream>
 
@@ -348,19 +347,19 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 
       TGHorizontalFrame *rLeft = new TGHorizontalFrame(runInfo, 1, entryHeight);
       makeFixedSizeLabel(rLeft, "Run", backgroundColor, 0xffffff, 26, entryHeight);
-      m_runEntry = new TGNumberEntryField(rLeft, -1, 0, TGNumberFormat::kNESReal);
+      m_runEntry = new FWNumberEntryField(rLeft, -1, 0, TGNumberFormat::kNESInteger, TGNumberFormat::kNEAPositive);
       rLeft->AddFrame(m_runEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX, 0,8,0,0));
       runInfo->AddFrameWithWeight(rLeft, 0, 0.28);
 
       TGHorizontalFrame *rMid = new TGHorizontalFrame(runInfo, 1, entryHeight);
       makeFixedSizeLabel(rMid, "Lumi", backgroundColor, 0xffffff, 36, entryHeight);
-      m_lumiEntry = new TGNumberEntryField(rMid, -1, 0, TGNumberFormat::kNESReal);
+      m_lumiEntry = new FWNumberEntryField(rMid, -1, 0, TGNumberFormat::kNESInteger, TGNumberFormat::kNEAPositive);
       rMid->AddFrame(m_lumiEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX, 0,8,0,0));
       runInfo->AddFrameWithWeight(rMid, 0, 0.32);
 
       TGHorizontalFrame *rRight = new TGHorizontalFrame(runInfo, 1, entryHeight);
       makeFixedSizeLabel(rRight, "Event", backgroundColor, 0xffffff, 42, entryHeight);
-      m_eventEntry = new TGNumberEntryField(rRight, -1, 0, TGNumberFormat::kNESReal);
+      m_eventEntry = new FWNumberEntryField(rRight, -1, 0, TGNumberFormat::kNESInteger, TGNumberFormat::kNEAPositive);
       rRight->AddFrame(m_eventEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX, 0,0,0,0));
       runInfo->AddFrameWithWeight(rRight, 0, 0.4);
 
@@ -522,15 +521,9 @@ CmsShowMainFrame::createNewViewerAction(const std::string& iActionName)
 
 void CmsShowMainFrame::loadEvent(const edm::EventBase& event)
 {
-   // XXXX Waiting for GetUIntNumber() in TGNumberEntryField.
-   if (event.id().run() != static_cast<edm::RunNumber_t>(m_runEntry->GetNumber()))
-      m_runEntry->SetHexNumber(event.id().run());
-
-   if (event.id().run() != static_cast<edm::LuminosityBlockNumber_t>(m_lumiEntry->GetNumber()))
-      m_lumiEntry->SetHexNumber(event.id().luminosityBlock());
-
-   if (event.id().event() != static_cast<unsigned int>(m_eventEntry->GetNumber()))
-      m_eventEntry->SetHexNumber(event.id().event());
+   m_runEntry  ->SetUIntNumber(event.id().run());
+   m_lumiEntry ->SetUIntNumber(event.id().luminosityBlock());
+   m_eventEntry->SetUIntNumber(event.id().event());
 
    m_timeText->SetText( fw::getLocalTime( event ).c_str() );
 }
