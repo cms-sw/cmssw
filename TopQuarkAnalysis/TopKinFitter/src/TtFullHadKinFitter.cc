@@ -7,9 +7,7 @@
 
 #include "AnalysisDataFormats/TopObjects/interface/TtFullHadEvtPartons.h"
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtFullHadKinFitter.h"
-
-//introduced to repair kinFit w/o resolutions from pat
-#include "TopQuarkAnalysis/TopObjectResolutions/interface/Jet.h"
+#include "TopQuarkAnalysis/TopKinFitter/interface/CovarianceMatrix.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -195,89 +193,13 @@ TtFullHadKinFitter::fit(const std::vector<pat::Jet>& jets)
   TLorentzVector p4LightPBar( lightPBar.px(), lightPBar.py(), lightPBar.pz(), lightPBar.energy() );
 
   // initialize covariance matrices
-  TMatrixD m1 (3,3), m2 (3,3), m3 (3,3), m4 (3,3);
-  TMatrixD m1b(4,4), m2b(4,4), m3b(4,4), m4b(4,4);
-  TMatrixD m5 (3,3), m5b(4,4), m6 (3,3), m6b(4,4);
-  m1 .Zero(), m2 .Zero(), m3 .Zero(), m4 .Zero();
-  m1b.Zero(), m2b.Zero(), m3b.Zero(), m4b.Zero();
-  m5 .Zero(), m5b.Zero(), m6 .Zero(), m6b.Zero();
-
-  // jet resolutions
-  {
-    //FIXME this dirty hack needs a clean solution soon!
-    double q1pt  = p4LightQ.Pt() , q2pt  = p4LightQBar.Pt();
-    double q3pt  = p4LightP.Pt() , q4pt  = p4LightPBar.Pt();
-    double b1pt  = p4B     .Pt() , b2pt  = p4BBar     .Pt();
-    double q1eta = p4LightQ.Eta(), q2eta = p4LightQBar.Eta();
-    double q3eta = p4LightP.Eta(), q4eta = p4LightPBar.Eta();
-    double b1eta = p4B     .Eta(), b2eta = p4BBar     .Eta();
-
-    res::HelperJet jetRes;
-    if( jetParam_==kEMom ){
-      m1b(0,0) = pow(jetRes.a(q1pt, q1eta, res::HelperJet::kUds), 2);
-      m1b(1,1) = pow(jetRes.b(q1pt, q1eta, res::HelperJet::kUds), 2);
-      m1b(2,2) = pow(jetRes.c(q1pt, q1eta, res::HelperJet::kUds), 2);
-      m1b(3,3) = pow(jetRes.d(q1pt, q1eta, res::HelperJet::kUds), 2);
-      m2b(0,0) = pow(jetRes.a(q2pt, q2eta, res::HelperJet::kUds), 2); 
-      m2b(1,1) = pow(jetRes.b(q2pt, q2eta, res::HelperJet::kUds), 2); 
-      m2b(2,2) = pow(jetRes.c(q2pt, q2eta, res::HelperJet::kUds), 2);
-      m2b(3,3) = pow(jetRes.d(q2pt, q2eta, res::HelperJet::kUds), 2);
-      m3b(0,0) = pow(jetRes.a(b1pt, b1eta, res::HelperJet::kB  ), 2); 
-      m3b(1,1) = pow(jetRes.b(b1pt, b1eta, res::HelperJet::kB  ), 2); 
-      m3b(2,2) = pow(jetRes.c(b1pt, b1eta, res::HelperJet::kB  ), 2);
-      m3b(3,3) = pow(jetRes.d(b1pt, b1eta, res::HelperJet::kB  ), 2);
-      m4b(0,0) = pow(jetRes.a(q3pt, q3eta, res::HelperJet::kUds), 2);
-      m4b(1,1) = pow(jetRes.b(q3pt, q3eta, res::HelperJet::kUds), 2);
-      m4b(2,2) = pow(jetRes.c(q3pt, q3eta, res::HelperJet::kUds), 2);
-      m4b(3,3) = pow(jetRes.d(q3pt, q3eta, res::HelperJet::kUds), 2);
-      m5b(0,0) = pow(jetRes.a(q4pt, q4eta, res::HelperJet::kUds), 2); 
-      m5b(1,1) = pow(jetRes.b(q4pt, q4eta, res::HelperJet::kUds), 2); 
-      m5b(2,2) = pow(jetRes.c(q4pt, q4eta, res::HelperJet::kUds), 2);
-      m5b(3,3) = pow(jetRes.d(q4pt, q4eta, res::HelperJet::kUds), 2);
-      m6b(0,0) = pow(jetRes.a(b2pt, b2eta, res::HelperJet::kB  ), 2); 
-      m6b(1,1) = pow(jetRes.b(b2pt, b2eta, res::HelperJet::kB  ), 2); 
-      m6b(2,2) = pow(jetRes.c(b2pt, b2eta, res::HelperJet::kB  ), 2);
-      m6b(3,3) = pow(jetRes.d(b2pt, b2eta, res::HelperJet::kB  ), 2);
-    } else if( jetParam_==kEtEtaPhi ){
-      m1 (0,0) = pow(jetRes.pt (q1pt, q1eta, res::HelperJet::kUds), 2);
-      m1 (1,1) = pow(jetRes.eta(q1pt, q1eta, res::HelperJet::kUds), 2);
-      m1 (2,2) = pow(jetRes.phi(q1pt, q1eta, res::HelperJet::kUds), 2);
-      m2 (0,0) = pow(jetRes.pt (q2pt, q2eta, res::HelperJet::kUds), 2); 
-      m2 (1,1) = pow(jetRes.eta(q2pt, q2eta, res::HelperJet::kUds), 2); 
-      m2 (2,2) = pow(jetRes.phi(q2pt, q2eta, res::HelperJet::kUds), 2);
-      m3 (0,0) = pow(jetRes.pt (b1pt, b1eta, res::HelperJet::kB  ), 2); 
-      m3 (1,1) = pow(jetRes.eta(b1pt, b1eta, res::HelperJet::kB  ), 2); 
-      m3 (2,2) = pow(jetRes.phi(b1pt, b1eta, res::HelperJet::kB  ), 2);
-      m4 (0,0) = pow(jetRes.pt (q3pt, q3eta, res::HelperJet::kUds), 2);
-      m4 (1,1) = pow(jetRes.eta(q3pt, q3eta, res::HelperJet::kUds), 2);
-      m4 (2,2) = pow(jetRes.phi(q3pt, q3eta, res::HelperJet::kUds), 2);
-      m5 (0,0) = pow(jetRes.pt (q4pt, q4eta, res::HelperJet::kUds), 2); 
-      m5 (1,1) = pow(jetRes.eta(q4pt, q4eta, res::HelperJet::kUds), 2); 
-      m5 (2,2) = pow(jetRes.phi(q4pt, q4eta, res::HelperJet::kUds), 2);
-      m6 (0,0) = pow(jetRes.pt (b2pt, b2eta, res::HelperJet::kB  ), 2); 
-      m6 (1,1) = pow(jetRes.eta(b2pt, b2eta, res::HelperJet::kB  ), 2); 
-      m6 (2,2) = pow(jetRes.phi(b2pt, b2eta, res::HelperJet::kB  ), 2);
-    } else if( jetParam_==kEtThetaPhi ) {
-      m1 (0,0) = pow(jetRes.pt   (q1pt, q1eta, res::HelperJet::kUds), 2);
-      m1 (1,1) = pow(jetRes.theta(q1pt, q1eta, res::HelperJet::kUds), 2);
-      m1 (2,2) = pow(jetRes.phi  (q1pt, q1eta, res::HelperJet::kUds), 2);
-      m2 (0,0) = pow(jetRes.pt   (q2pt, q2eta, res::HelperJet::kUds), 2); 
-      m2 (1,1) = pow(jetRes.theta(q2pt, q2eta, res::HelperJet::kUds), 2); 
-      m2 (2,2) = pow(jetRes.phi  (q2pt, q2eta, res::HelperJet::kUds), 2);
-      m3 (0,0) = pow(jetRes.pt   (b1pt, b1eta, res::HelperJet::kB  ), 2); 
-      m3 (1,1) = pow(jetRes.theta(b1pt, b1eta, res::HelperJet::kB  ), 2); 
-      m3 (2,2) = pow(jetRes.phi  (b1pt, b1eta, res::HelperJet::kB  ), 2);
-      m4 (0,0) = pow(jetRes.pt   (q3pt, q3eta, res::HelperJet::kUds), 2);
-      m4 (1,1) = pow(jetRes.theta(q3pt, q3eta, res::HelperJet::kUds), 2);
-      m4 (2,2) = pow(jetRes.phi  (q3pt, q3eta, res::HelperJet::kUds), 2);
-      m5 (0,0) = pow(jetRes.pt   (q4pt, q4eta, res::HelperJet::kUds), 2); 
-      m5 (1,1) = pow(jetRes.theta(q4pt, q4eta, res::HelperJet::kUds), 2); 
-      m5 (2,2) = pow(jetRes.phi  (q4pt, q4eta, res::HelperJet::kUds), 2);
-      m6 (0,0) = pow(jetRes.pt   (b2pt, b2eta, res::HelperJet::kB  ), 2); 
-      m6 (1,1) = pow(jetRes.theta(b2pt, b2eta, res::HelperJet::kB  ), 2); 
-      m6 (2,2) = pow(jetRes.phi  (b2pt, b2eta, res::HelperJet::kB  ), 2);
-    }
-  }
+  CovarianceMatrix covM;
+  TMatrixD m1 = covM.setupMatrix(lightQ,    jetParam_);
+  TMatrixD m2 = covM.setupMatrix(lightQBar, jetParam_);
+  TMatrixD m3 = covM.setupMatrix(b,         jetParam_, "bjet");
+  TMatrixD m4 = covM.setupMatrix(lightP,    jetParam_, "bjet");
+  TMatrixD m5 = covM.setupMatrix(lightPBar, jetParam_);
+  TMatrixD m6 = covM.setupMatrix(bBar     , jetParam_);
 
   // set the kinematics of the objects to be fitted
   b_        ->setIni4Vec(&p4B        );
@@ -287,21 +209,13 @@ TtFullHadKinFitter::fit(const std::vector<pat::Jet>& jets)
   lightP_   ->setIni4Vec(&p4LightP   );
   lightPBar_->setIni4Vec(&p4LightPBar);
   
-  if (jetParam_==kEMom) {
-    lightQ_   ->setCovMatrix(&m1b);
-    lightQBar_->setCovMatrix(&m2b);
-    b_        ->setCovMatrix(&m3b);
-    lightP_   ->setCovMatrix(&m4b);
-    lightPBar_->setCovMatrix(&m5b);
-    bBar_     ->setCovMatrix(&m6b);
-  } else {
-    lightQ_   ->setCovMatrix( &m1);
-    lightQBar_->setCovMatrix( &m2);
-    b_        ->setCovMatrix( &m3);
-    lightP_   ->setCovMatrix( &m4);
-    lightPBar_->setCovMatrix( &m5);
-    bBar_     ->setCovMatrix( &m6);
-  }
+  // initialize covariance matrices
+  lightQ_   ->setCovMatrix( &m1);
+  lightQBar_->setCovMatrix( &m2);
+  b_        ->setCovMatrix( &m3);
+  lightP_   ->setCovMatrix( &m4);
+  lightPBar_->setCovMatrix( &m5);
+  bBar_     ->setCovMatrix( &m6);
   
   // perform the fit!
   fitter_->fit();
