@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.216 $"
+__version__ = "$Revision: 1.217 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -203,74 +203,51 @@ class ConfigBuilder(object):
 
     def addOutput(self):
         """ Add output module to the process """
+	result=""
+	streamTypes=self.eventcontent.split(',')
+	tiers=self._options.datatier.split(',')
+	if len(streamTypes)!=len(tiers):
+		raise Exception("number of event content arguments does not match number of datatier arguments")
+	
+	for i,(streamType,tier) in enumerate(zip(streamTypes,tiers)):
+		theEventContent = getattr(self.process, streamType+"EventContent")
+		if i==0:
+			theFileName=self._options.outfile_name
+			theFilterName=self._options.filtername
+		else:
+			theFileName=self._options.outfile_name.replace('.root','_in'+streamType+'.root')
+			theFilterName=""
+			
+		output = cms.OutputModule("PoolOutputModule",
+					  theEventContent,
+					  fileName = cms.untracked.string(theFileName),
+					  dataset = cms.untracked.PSet(dataTier = cms.untracked.string(tier),
+								       filterName = cms.untracked.string(theFilterName)
+								       )
+					  )
+		if hasattr(self.process,"generation_step"):
+			output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('generation_step'))
+			
+		if streamType=='ALCARECO':
+			output.dataset.filterName = cms.untracked.string('StreamALCACombined')
 
-        theEventContent = getattr(self.process, self.eventcontent.split(',')[0]+"EventContent")
-        output = cms.OutputModule("PoolOutputModule",
-                                  theEventContent,
-                                  fileName = cms.untracked.string(self._options.outfile_name),
-                                  dataset = cms.untracked.PSet(dataTier = cms.untracked.string(self._options.datatier))
-                                 )
+		outputModuleName=streamType+'output'
+		setattr(self.process,outputModuleName,output)
+		outputModule=getattr(self.process,outputModuleName)
+		setattr(self.process,outputModuleName+'_step',cms.EndPath(outputModule))
+		path=getattr(self.process,outputModuleName+'_step')
+		self.schedule.append(path)
+		
+		def doNotInlineEventContent(instance,label = "process."+streamType+"EventContent.outputCommands"):
+			return label
+		outputModule.outputCommands.__dict__["dumpPython"] = doNotInlineEventContent
+		result+="\nprocess."+outputModuleName+" = "+outputModule.dumpPython()
+		
+	# if the only step is alca we don't need to put in an output
+	if self._options.step.split(',')[0].split(':')[0] == 'ALCA':
+		result="\n"
 
-        # check if a second (parallel to RECO) output was requested via the eventcontent option
-        # this can (for now) only be of type "AOD","AODSIM" or "ALCARECO" and will use the datatier of the same name
-        secondOutput = None
-        for evtContent in ['AOD', 'AODSIM','ALCARECO']:
-            if evtContent in self.eventcontent.split(',') :
-                theSecondEventContent = getattr(self.process, evtContent+"EventContent")
-                secondOutput = cms.OutputModule("PoolOutputModule",
-                                           theSecondEventContent,
-                                           fileName = cms.untracked.string(self._options.outfile_name.replace('.root','_secondary.root')),
-                                           dataset = cms.untracked.PSet(dataTier = cms.untracked.string(evtContent))
-                                           )
-                if evtContent=='ALCARECO':
-                        secondOutput.dataset.filterName = cms.untracked.string('StreamALCACombined')
-
-        if 'DQM' in self.eventcontent.split(','):
-                dqmOutput = cms.OutputModule("PoolOutputModule",
-                                             outputCommands = cms.untracked.vstring('drop *','keep *_MEtoEDMConverter_*_*'),
-                                             fileName = cms.untracked.string(self._options.dirout+'DQMStream.root'),
-                                             dataset = cms.untracked.PSet(filterName = cms.untracked.string(''),dataTier = cms.untracked.string('DQM'))
-                                             )
-                self.additionalOutputs['DQMStream'] = dqmOutput
-                setattr(self.process,'DQMStream',dqmOutput)
-
-        # if there is a generation step in the process, that one should be used as filter decision
-        if hasattr(self.process,"generation_step"):
-            output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('generation_step'))
-
-        # add the filtername
-        output.dataset.filterName = cms.untracked.string(self._options.filtername)
-
-        # if the only step is alca we don't need to put in an output
-	if not(self.stepMap.has_key('ALCA') and self.stepMap.__len__()==1):
-            self.process.output = output
-            self.process.out_step = cms.EndPath(self.process.output)
-            self.schedule.append(self.process.out_step)
-
-            # ATTENTION: major tweaking to avoid inlining of event content
-            # should we do that?
-            def dummy(instance,label = "process."+self.eventcontent.split(',')[0]+"EventContent.outputCommands"):
-                return label
-
-            self.process.output.outputCommands.__dict__["dumpPython"] = dummy
-            result = "\n"+self.process.output.dumpPython()
-
-            # now do the same for the second output, if required
-            if secondOutput:
-                self.process.secondOutput = secondOutput
-                self.process.out_stepSecond = cms.EndPath(self.process.secondOutput)
-                self.schedule.append(self.process.out_stepSecond)
-                # ATTENTION: major tweaking to avoid inlining of event content
-                # should we do that?
-                # Note: we need to return the _second_ arg from the list of eventcontents ...
-                if len(self.eventcontent.split(',')) > 1 :
-                    def dummy2(instance,label = "process."+self.eventcontent.split(',')[1]+"EventContent.outputCommands"):
-                        return label
-
-                    self.process.secondOutput.outputCommands.__dict__["dumpPython"] = dummy2
-                    result += "\n"+self.process.secondOutput.dumpPython()
-
-            return result
+	return result
 
     def addStandardSequences(self):
         """
@@ -1057,7 +1034,7 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.216 $"),
+              (version=cms.untracked.string("$Revision: 1.217 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -1075,8 +1052,9 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
         self.addConditions()
         self.loadAndRemember(self.EVTCONTDefaultCFF)  #load the event contents regardless
 
+	outputModuleCfgCode=""
 	if not 'HARVESTING' in self.stepMap.keys() and not 'SKIM' in self.stepMap.keys() and not 'ALCAHARVEST' in self.stepMap.keys() and not 'ALCAOUTPUT' in self.stepMap.keys() and self.with_output:
-            self.addOutput()
+		outputModuleCfgCode=self.addOutput()
 
         self.addCommon()
 
@@ -1106,13 +1084,9 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
         self.pythonCfgCode += "process.source = "+self.process.source.dumpPython()
 
         # dump the output definition
-        if hasattr(self.process,"output"):
-            self.pythonCfgCode += "\n# Output definition\n"
-            self.pythonCfgCode += "process.output = "+self.process.output.dumpPython()
-        if hasattr(self.process,"secondOutput"):
-            self.pythonCfgCode += "\n# Second Output definition\n"
-            self.pythonCfgCode += "process.secondOutput = "+self.process.secondOutput.dumpPython()
-
+	self.pythonCfgCode += "\n# Output definition\n"
+	self.pythonCfgCode += outputModuleCfgCode
+	
         # dump all additional outputs (e.g. alca or skim streams)
         self.pythonCfgCode += "\n# Additional output definition\n"
         #I do not understand why the keys are not normally ordered.
