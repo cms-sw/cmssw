@@ -6,7 +6,7 @@
 #include "TopQuarkAnalysis/TopObjectResolutions/interface/Jet.h"
 #include "TopQuarkAnalysis/TopObjectResolutions/interface/Muon.h"
 #include "TopQuarkAnalysis/TopObjectResolutions/interface/Electron.h"
-#include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiLepKinFitter.h"
+#include "TopQuarkAnalysis/TopKinFitter/interface/TopKinFitter.h"
 
 class CovarianceMatrix {
     
@@ -16,12 +16,12 @@ class CovarianceMatrix {
   ~CovarianceMatrix(){};
  
   template <class ObjectType>
-    TMatrixD setupMatrix(const pat::PATObject<ObjectType>& object, TtSemiLepKinFitter::Param param, std::string resolutionProvider);
+    TMatrixD setupMatrix(const pat::PATObject<ObjectType>& object, TopKinFitter::Param param, std::string resolutionProvider);
 };
 
 
 template <class ObjectType>
-TMatrixD CovarianceMatrix::setupMatrix(const pat::PATObject<ObjectType>& object, TtSemiLepKinFitter::Param param, std::string resolutionProvider = "")
+TMatrixD CovarianceMatrix::setupMatrix(const pat::PATObject<ObjectType>& object, TopKinFitter::Param param, std::string resolutionProvider = "")
 {
   TMatrixD CovM3 (3,3); CovM3.Zero();
   TMatrixD CovM4 (4,4); CovM4.Zero();
