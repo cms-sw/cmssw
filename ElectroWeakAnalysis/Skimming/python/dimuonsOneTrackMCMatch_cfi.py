@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-dimuonsOneTrackMCMatch = cms.EDFilter("MCTruthCompositeMatcherNew",
+dimuonsOneTrackMCMatch = cms.EDProducer("MCTruthCompositeMatcherNew",
     src = cms.InputTag("dimuonsOneTrack"),
     #
     # comment PAT match because works only for layer-0 muons

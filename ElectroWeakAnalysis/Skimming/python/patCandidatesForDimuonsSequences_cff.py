@@ -5,12 +5,10 @@ from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
 # PAT TRACKS
 
 # before pat: conversion to track candidates for pat; isolation 
-#from PhysicsTools.PatAlgos.recoLayer0.genericTrackCandidates_cff import *
 from ElectroWeakAnalysis.Skimming.patAODTrackCandSequence_cff import *
 patAODTrackCands.cut = 'pt > 10.'
 
 # before pat: MC match
-#from PhysicsTools.PatAlgos.mcMatchLayer0.trackMuMatch_cfi import *
 from ElectroWeakAnalysis.Skimming.trackMuMatch_cfi import *
 trackMuMatch.maxDeltaR = 0.15
 trackMuMatch.maxDPtRel = 1.0
@@ -47,7 +45,7 @@ allPatTracks = patGenericParticles.clone(
 )
 
 from PhysicsTools.PatAlgos.selectionLayer1.trackSelector_cfi import *
-selectedPatTracks.cut = 'pt > 10.'
+selectedPatTracks.cut = 'pt > 10. & track.dxy()<1.0'
 
 # PAT MUONS
 
@@ -86,18 +84,14 @@ patMuons.userIsolation = cms.PSet(
     )
 
 from PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi import *
-selectedPatMuons.cut = 'pt > 0. & abs(eta) < 100.0'
+selectedPatMuons.cut = 'pt > 10. & abs(eta) < 100.0'
 
 # trigger info
 from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import *
-# to access 8E29 menus
-#patTrigger.triggerResults = cms.InputTag( "TriggerResults::HLT8E29" )
-#patTrigger.triggerEvent = cms.InputTag( "hltTriggerSummaryAOD::HLT8E29" )
-# to access 1E31 menus
 patTrigger.triggerResults = cms.InputTag( "TriggerResults::HLT" )
 patTrigger.triggerEvent = cms.InputTag( "hltTriggerSummaryAOD::HLT" )
 
-muonTriggerMatchHLTMuons = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
+muonTriggerMatchHLTMuons = cms.EDProducer( "PATTriggerMatcherDRDPtLessByR",
     src     = cms.InputTag( "selectedPatMuons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
@@ -106,21 +100,18 @@ muonTriggerMatchHLTMuons = cms.EDFilter( "PATTriggerMatcherDRDPtLessByR",
     filterLabels   = cms.vstring( '*' ),
     pathNames      = cms.vstring( 'HLT_Mu9' ),
     collectionTags = cms.vstring( '*' ),
-    maxDPtRel = cms.double( 1.0 ),
+    maxDPtRel = cms.double( 1000.0 ),
     maxDeltaR = cms.double( 0.2 ),
     resolveAmbiguities    = cms.bool( True ),
     resolveByMatchQuality = cms.bool( True )
 )
 
 from PhysicsTools.PatAlgos.triggerLayer1.triggerEventProducer_cfi import *
-#patTriggerEvent.patTriggerMatches  = [ "muonTriggerMatchHLTMu9" ]
 patTriggerEvent.patTriggerMatches  = cms.VInputTag( "muonTriggerMatchHLTMuons" )
-#patTriggerEvent.patTriggerMatches  = cms.VInputTag( "muonTriggerMatchHLTMu9" )
 
 patTriggerSequence = cms.Sequence(
     patTrigger *
     muonTriggerMatchHLTMuons *
-#    muonTriggerMatchHLTMu9 *
     patTriggerEvent
 )
 
