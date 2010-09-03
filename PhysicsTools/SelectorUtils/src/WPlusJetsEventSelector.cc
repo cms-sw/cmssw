@@ -11,7 +11,6 @@ WPlusJetsEventSelector::WPlusJetsEventSelector( edm::ParameterSet const & params
   muonTag_         (params.getParameter<edm::InputTag>("muonSrc") ),
   electronTag_     (params.getParameter<edm::InputTag>("electronSrc") ),
   jetTag_          (params.getParameter<edm::InputTag>("jetSrc") ),
-  jetClonesTag_    (params.getParameter<edm::InputTag>("jetClonesSrc") ),
   metTag_          (params.getParameter<edm::InputTag>("metSrc") ),  
   trigTag_         (params.getParameter<edm::InputTag>("trigSrc") ),
   muTrig_          (params.getParameter<std::string>("muTrig")),
@@ -39,8 +38,7 @@ WPlusJetsEventSelector::WPlusJetsEventSelector( edm::ParameterSet const & params
   jetPtMin_        (params.getParameter<double>("jetPtMin")), 
   jetEtaMax_       (params.getParameter<double>("jetEtaMax")), 
   jetScale_        (params.getParameter<double>("jetScale")),
-  metMin_          (params.getParameter<double>("metMin")),
-  useJetClones_    (params.getParameter<bool>("useJetClones"))
+  metMin_          (params.getParameter<double>("metMin"))
 {
   // make the bitset
   push_back( "Inclusive"      );
@@ -193,97 +191,13 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, pat::str
       }
 
 
-      met_ = reco::ShallowClonePtrCandidate( edm::Ptr<pat::MET>( metHandle, 0),
-					     metHandle->at(0).charge(),
-					     metHandle->at(0).p4() );
-
-
-      if ( !useJetClones_ ) {
-	event.getByLabel (jetTag_, jetHandle);
-	pat::strbitset ret1 = jetIdLoose_.getBitTemplate();
-	pat::strbitset ret2 = pfjetIdLoose_.getBitTemplate();
-	for ( std::vector<pat::Jet>::const_iterator jetBegin = jetHandle->begin(),
-		jetEnd = jetHandle->end(), ijet = jetBegin;
-	      ijet != jetEnd; ++ijet ) {
-
-	  reco::ShallowClonePtrCandidate scaledJet ( reco::ShallowClonePtrCandidate( edm::Ptr<pat::Jet>( jetHandle, ijet - jetBegin ),
-										     ijet->charge(),
-										     ijet->p4() * jetScale_ ) );
-    
-	  bool passJetID = false;
-	  if ( ijet->isCaloJet() || ijet->isJPTJet() ) passJetID = jetIdLoose_(*ijet, ret1);
-	  else passJetID = pfjetIdLoose_(*ijet, ret2);
-	  if ( scaledJet.pt() > jetPtMin_ && fabs(scaledJet.eta()) < jetEtaMax_ && passJetID ) {
-	    selectedJets_.push_back( scaledJet );
-	    if ( muPlusJets_ ) {
-	      cleanedJets_.push_back( scaledJet );
-	    } else {
-	      //Remove some jets
-	      bool indeltaR = false;
-	      for( std::vector<reco::ShallowClonePtrCandidate>::const_iterator electronBegin = selectedElectrons_.begin(),
-		     electronEnd = selectedElectrons_.end(), ielectron = electronBegin;
-		   ielectron != electronEnd; ++ielectron ) {
-		if( reco::deltaR( ielectron->eta(), ielectron->phi(), scaledJet.eta(), scaledJet.phi() ) < eleJetDR_ )
-		  {  indeltaR = true; }
-	      }
-	      if( !indeltaR ) {
-		cleanedJets_.push_back( scaledJet );
-	      }
-	    }
-	  }
-	}
-      }// end if not using jet clones
-      else {
-	event.getByLabel( jetClonesTag_, jetClonesHandle );
-	// Here, we assume the user has made some ShallowClones of the jets with selection
-	// already applied, for speed purposes.
-	for ( edm::OwnVector<reco::Candidate>::const_iterator jetBegin = jetClonesHandle->begin(),
-		jetEnd = jetClonesHandle->end(), ijet = jetBegin; ijet != jetEnd; ++ijet ) {
-
-	  // reco::ShallowCloneCandidate const & originalClone = dynamic_cast<reco::ShallowCloneCandidate const &>( *ijet );
-
-	  reco::ShallowClonePtrCandidate scaledJet ( reco::ShallowClonePtrCandidate( edm::Ptr<reco::Candidate>( jetClonesHandle, ijet - jetBegin ),
-										     ijet->charge(),
-										     ijet->p4() * jetScale_ ) );
-    
-	  if ( scaledJet.pt() > jetPtMin_ && fabs(scaledJet.eta()) < jetEtaMax_ ) {
-	    selectedJets_.push_back( scaledJet );
-	    if ( muPlusJets_ ) {
-	      cleanedJets_.push_back( scaledJet );
-	    } else {
-	      //Remove some jets
-	      bool indeltaR = false;
-	      for( std::vector<reco::ShallowClonePtrCandidate>::const_iterator electronBegin = selectedElectrons_.begin(),
-		     electronEnd = selectedElectrons_.end(), ielectron = electronBegin;
-		   ielectron != electronEnd; ++ielectron ) {
-		if( reco::deltaR( ielectron->eta(), ielectron->phi(), scaledJet.eta(), scaledJet.phi() ) < eleJetDR_ )
-		  {  indeltaR = true; }
-	      }
-	      if( !indeltaR ) {
-		cleanedJets_.push_back( scaledJet );
-	      }
-	    }
-	  }
-
-
-	  
-	}
-      }
-
       for ( std::vector<pat::Muon>::const_iterator muonBegin = muonHandle->begin(),
 	      muonEnd = muonHandle->end(), imuon = muonBegin;
 	    imuon != muonEnd; ++imuon ) {
 	if ( !imuon->isGlobalMuon() ) continue;
-
-	//Now, check that the muon isn't within muJetDR_ of any jet
-	bool inDeltaR = false;
-	for (std::vector<reco::ShallowClonePtrCandidate>::const_iterator iJet = selectedJets_.begin();
-	     iJet != selectedJets_.end(); ++iJet) {
-	  if ( reco::deltaR(imuon->eta(), imuon->phi(), iJet->eta(), iJet->phi()) < muJetDR_ ) inDeltaR = true;
-	}
 	
 	// Tight cuts
-	bool passTight = muonIdTight_(*imuon,event) && imuon->isTrackerMuon() && !inDeltaR;
+	bool passTight = muonIdTight_(*imuon,event) && imuon->isTrackerMuon() ;
 	if (  imuon->pt() > muPtMin_ && fabs(imuon->eta()) < muEtaMax_ && 
 	     passTight ) {
 
@@ -298,6 +212,56 @@ bool WPlusJetsEventSelector::operator() ( edm::EventBase const & event, pat::str
       }
 
 
+      met_ = reco::ShallowClonePtrCandidate( edm::Ptr<pat::MET>( metHandle, 0),
+					     metHandle->at(0).charge(),
+					     metHandle->at(0).p4() );
+
+
+
+      event.getByLabel (jetTag_, jetHandle);
+      pat::strbitset ret1 = jetIdLoose_.getBitTemplate();
+      pat::strbitset ret2 = pfjetIdLoose_.getBitTemplate();
+      for ( std::vector<pat::Jet>::const_iterator jetBegin = jetHandle->begin(),
+	      jetEnd = jetHandle->end(), ijet = jetBegin;
+	    ijet != jetEnd; ++ijet ) {
+	reco::ShallowClonePtrCandidate scaledJet ( reco::ShallowClonePtrCandidate( edm::Ptr<pat::Jet>( jetHandle, ijet - jetBegin ),
+										   ijet->charge(),
+										   ijet->p4() * jetScale_ ) );    
+	bool passJetID = false;
+	if ( ijet->isCaloJet() || ijet->isJPTJet() ) passJetID = jetIdLoose_(*ijet, ret1);
+	else passJetID = pfjetIdLoose_(*ijet, ret2);
+	if ( scaledJet.pt() > jetPtMin_ && fabs(scaledJet.eta()) < jetEtaMax_ && passJetID ) {
+	  selectedJets_.push_back( scaledJet );
+
+	  if ( muPlusJets_ ) {
+
+	    //Remove some jets
+	    bool indeltaR = false;
+	    for( std::vector<reco::ShallowClonePtrCandidate>::const_iterator muonBegin = selectedMuons_.begin(),
+		   muonEnd = selectedMuons_.end(), imuon = muonBegin;
+		 imuon != muonEnd; ++imuon ) {
+	      if( reco::deltaR( imuon->eta(), imuon->phi(), scaledJet.eta(), scaledJet.phi() ) < muJetDR_ )
+		{  indeltaR = true; }
+	    }
+	    if( !indeltaR ) {
+	      cleanedJets_.push_back( scaledJet );
+	    }// end if jet is not within dR of a muon
+	  }// end if mu+jets
+	  else {
+	    //Remove some jets
+	    bool indeltaR = false;
+	    for( std::vector<reco::ShallowClonePtrCandidate>::const_iterator electronBegin = selectedElectrons_.begin(),
+		   electronEnd = selectedElectrons_.end(), ielectron = electronBegin;
+		 ielectron != electronEnd; ++ielectron ) {
+	      if( reco::deltaR( ielectron->eta(), ielectron->phi(), scaledJet.eta(), scaledJet.phi() ) < eleJetDR_ )
+		{  indeltaR = true; }
+	    }
+	    if( !indeltaR ) {
+	      cleanedJets_.push_back( scaledJet );
+	    }// end if jet is not within dR of an electron
+	  }// end if e+jets
+	}// end if pass id and kin cuts
+      }// end loop over jets
 
 
 

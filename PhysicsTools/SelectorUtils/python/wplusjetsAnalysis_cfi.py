@@ -89,5 +89,6 @@ wplusjetsAnalysis = cms.PSet(
     metMin         = cms.double( 0.0 ),
     muJetDR        = cms.double( 0.3 ),
     useJetClones   = cms.bool(False),
-    eleJetDR       = cms.double( 0.3 )
+    eleJetDR       = cms.double( 0.3 ),
+    rawJetPtCut    = cms.double( 0.0 )
 )

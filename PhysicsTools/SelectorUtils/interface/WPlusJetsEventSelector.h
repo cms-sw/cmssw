@@ -54,7 +54,6 @@ class WPlusJetsEventSelector : public EventSelector {
   edm::InputTag               muonTag_;
   edm::InputTag               electronTag_;
   edm::InputTag               jetTag_;
-  edm::InputTag               jetClonesTag_;
   edm::InputTag               metTag_;
   edm::InputTag               trigTag_;
 
@@ -103,11 +102,6 @@ class WPlusJetsEventSelector : public EventSelector {
   double jetScale_;
 
   double metMin_;
-
-  bool useJetClones_;
-
-  
-
 
   index_type   inclusiveIndex_; 
   index_type   triggerIndex_;   
