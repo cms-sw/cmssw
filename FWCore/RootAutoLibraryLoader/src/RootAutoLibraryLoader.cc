@@ -343,12 +343,18 @@ namespace edm {
          std::string::size_type idx = className.find("basic_string<char>");
          if (idx != std::string::npos) {
             className.replace(idx, 18, std::string("string"));
+            //if basic_string<char> was the last argument to a templated class
+            // then there would be an extra space to separate the two '>'
+            if(className.size()>idx+6 &&
+               className[idx+6]==' ') {
+              className.replace(idx+6,1,"");
+            }
             classNameAttemptingToLoad_ = className.c_str();
             returnValue = gROOT->GetClass(className.c_str(), kTRUE);
             classNameAttemptingToLoad_ = classname;
             return returnValue;
          }
-         std::cerr << "WARNING: Reflex failed to create CINT dictionary for " << classname << std::endl;
+         std::cerr << "WARNING[RootAutoLibraryLoader]: Reflex failed to create CINT dictionary for " << classname << std::endl;
          return 0;
       }
       //std::cout << "looking for " << classname << " load " << (load? "T":"F") << std::endl;
