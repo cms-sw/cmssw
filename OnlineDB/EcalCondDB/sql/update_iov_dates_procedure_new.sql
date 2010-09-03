@@ -3,12 +3,14 @@
  * Procedure to validate an IoV to be inserted and update a previous
  * IoV so that there are no overlaps.
  * 
+ * GO: september 2010
  * This new procedure allows multiple IOVs with the same start date
+ * IOVs have a mask based on which one can assign a given IOV to a given table
  *	
  */
 CREATE OR REPLACE PROCEDURE update_iov_dates_new
 ( my_table IN VARCHAR2,
-  my_dattable_id IN NUMBER, 
+  my_mask IN NUMBER, 
   start_col IN VARCHAR2,
   end_col IN VARCHAR2,
   new_start IN DATE,
@@ -31,9 +33,9 @@ CREATE OR REPLACE PROCEDURE update_iov_dates_new
     -- Fetch IOV immediately after this one 
     sql_str := 'SELECT min(' || start_col || ') FROM ' || my_table || 
                ' WHERE ' || start_col || ' > :s AND tag_id = :t ' || 
-               ' AND DATTABLE_ID = :i';
+               ' AND MASK = :i';
     EXECUTE IMMEDIATE sql_str INTO future_start USING new_start, new_tag_id,
-	my_dattable_id;
+	my_mask;
 
     IF future_start IS NOT NULL THEN
       -- truncate this IOV
@@ -43,9 +45,9 @@ CREATE OR REPLACE PROCEDURE update_iov_dates_new
     -- Fetch the most recent IoV prior to this one
     sql_str := 'SELECT max(' || start_col || ') FROM ' || my_table || 
                ' WHERE ' || start_col || ' <= :s AND tag_id = :t' ||
-               ' AND DATTABLE_ID = :i';
+               ' AND MASK = :i';
     EXECUTE IMMEDIATE sql_str INTO last_start USING new_start, new_tag_id,
-	my_dattable_id;
+	my_mask;
 
     IF last_start IS NULL THEN
         -- table has no previous data for this tag, nothing to do
@@ -53,9 +55,9 @@ CREATE OR REPLACE PROCEDURE update_iov_dates_new
     END IF;
 
     -- Fetch the end of this most recent IoV
-    sql_str := 'SELECT ' || end_col || ' FROM ' || my_table || ' WHERE ' || start_col || ' = :s AND tag_id = :t AND DATTABLE_ID = :i';
+    sql_str := 'SELECT ' || end_col || ' FROM ' || my_table || ' WHERE ' || start_col || ' = :s AND tag_id = :t AND MASK = :i';
     EXECUTE IMMEDIATE sql_str INTO last_end USING last_start, new_tag_id,
-	my_dattable_id;
+	my_mask;
 
     IF new_start = last_start THEN
         -- Attempted to insert overlapping IoV!
@@ -63,8 +65,8 @@ CREATE OR REPLACE PROCEDURE update_iov_dates_new
     ELSIF new_start < last_end THEN
        -- Truncate the last IoV
        sql_str := 'UPDATE ' || my_table || ' SET ' || end_col || ' = :new_start' || 
-                  ' WHERE ' || start_col || ' = :last_start AND ' || end_col || ' = :last_end AND tag_id = :t AND DATTABLE_ID = :i';
-       EXECUTE IMMEDIATE sql_str USING new_start, last_start, last_end, new_tag_id, my_dattable_id;
+                  ' WHERE ' || start_col || ' = :last_start AND ' || end_col || ' = :last_end AND tag_id = :t AND MASK = :i';
+       EXECUTE IMMEDIATE sql_str USING new_start, last_start, last_end, new_tag_id, my_mask;
     END IF;
   END;
 /
