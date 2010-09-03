@@ -1,7 +1,8 @@
 <library file="RPCObImonPyWrapper.cc" name= RPCObImonPyInterface>
+<use name=CondCore/DBCommon>
 <use name=CondCore/Utilities>
 <use name=CondFormats/RPCObjects>
-#<use name=DataFormats/MuonDetId>
+<use name=Geometry/RPCGeometry>
 <use name=boost>
 <use name=boost_filesystem>
 <use name=boost_python>
@@ -32,8 +33,10 @@
 </library>
 
 <library file="RPCObVmonPyWrapper.cc" name= RPCObVmonPyInterface>
+<use name=CondCore/DBCommon>
 <use name=CondCore/Utilities>
 <use name=CondFormats/RPCObjects>
+<use name=Geometry/RPCGeometry>
 <use name=boost>
 <use name=boost_filesystem>
 <use name=boost_python>

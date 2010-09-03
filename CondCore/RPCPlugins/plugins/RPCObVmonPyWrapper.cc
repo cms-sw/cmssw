@@ -1,6 +1,13 @@
 #include "CondFormats/RPCObjects/interface/RPCObCond.h"
 #include "CondFormats/RPCObjects/interface/RPCObPVSSmap.h"
 
+#include "CondCore/DBCommon/interface/DbConnection.h"
+#include "CondCore/DBCommon/interface/DbConnectionConfiguration.h"
+#include "CondCore/DBCommon/interface/DbSession.h"
+
+#include "CondCore/ORA/interface/Database.h"
+#include "CondCore/DBCommon/interface/PoolToken.h"
+
 #include "CondCore/Utilities/interface/PayLoadInspector.h"
 #include "CondCore/Utilities/interface/InspectorPythonWrapper.h"
 
@@ -27,6 +34,7 @@
 #include <boost/ref.hpp>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
 #include <boost/iterator/transform_iterator.hpp>
 
 #include "TROOT.h"
@@ -159,27 +167,63 @@ namespace cond {
 //   template<>
 //   std::string
 //   PayLoadInspector<RPCObVmon>::dump() const {return std::string();}
-
+  
   template<>
   std::string PayLoadInspector<RPCObVmon>::summary() const {
-    std::stringstream ss;
 
+    //hardcoded values
+    std::string authPath="/afs/cern.ch/cms/DB/conddb";
+    std::string conString="oracle://cms_orcoff_prod/CMS_COND_31X_RPC";
+
+    //frontend sends token instead of filename
+    std::string token="[DB=00000000-0000-0000-0000-000000000000][CNT=RPCObPVSSmap][CLID=53B2D2D9-1F4E-9CA9-4D71-FFCCA123A454][TECH=00000B01][OID=0000000C-00000000]";
+
+    //make connection object
+    DbConnection dbConn;
+
+    //set in configuration object authentication path
+    dbConn.configuration().setAuthenticationPath(authPath);
+    dbConn.configure();
+
+    //create session object from connection
+    DbSession dbSes=dbConn.createSession();
+
+    //try to make connection
+    dbSes.open(conString,true);
+    
+    //start a transaction (true=readOnly)
+    dbSes.transaction().start(true);
+
+    //get the actual object
+    boost::shared_ptr<RPCObPVSSmap> pvssPtr;
+    pvssPtr=dbSes.getTypedObject<RPCObPVSSmap>(token);
+
+    //we have the object...
+    std::vector<RPCObPVSSmap::Item> pvssCont=pvssPtr->ObIDMap_rpc;
+    
+    std::stringstream ss;
+    
     std::vector<RPCObVmon::V_Item> const & vmon = object().ObVmon_rpc;
     
-    ss <<"DetID\t"<<"Vval\t"<<"Time\t"<<"Day\n";
+    ss <<"DetID\t\t"<<"V(V)\t"<<"Time\t"<<"Day\n";
     for(unsigned int i = 0; i < vmon.size(); ++i ){
-      //      for(unsigned int p = 0; p < ipvss.size(); ++p){
-      // 	if(vmon[i].dpid()!=ipvss[p].dpid())continue;
-      // 	RPCDetId rpcId(ipvss[p].region(),ipvss[p].ring(),ipvss[p].station(),ipvss[p].sector(),ipvss[p].layer(),ipvss[p].subsector(),1);
-      // 	RPCGeomServ rGS(rpcId);
-      // 	std::string chName(rGS.name().substr(0,rGS.name().find("_BACKWARD")));
-      ss <<vmon[i].dpid <<"\t"<<vmon[i].value<<"\t"<<vmon[i].time<<"\t"<<vmon[i].day<<"\n";
-      //      }
+      for(unsigned int p = 0; p < pvssCont.size(); ++p){
+       	if(vmon[i].dpid!=pvssCont[p].dpid ||
+	   pvssCont[p].ring==0 || pvssCont[p].station==0 ||
+	   pvssCont[p].sector==0 || pvssCont[p].layer==0 ||
+	   pvssCont[p].subsector==0)continue;
+	RPCDetId rpcId(pvssCont[p].region,pvssCont[p].ring,pvssCont[p].station,pvssCont[p].sector,pvssCont[p].layer,pvssCont[p].subsector,1);
+	RPCGeomServ rGS(rpcId);
+	std::string chName(rGS.name().substr(0,rGS.name().find("_Backward")));
+	ss <<chName <<"\t"<<vmon[i].value<<"\t"<<vmon[i].time<<"\t"<<vmon[i].day<<"\n";
+      }
     }
     
+    dbSes.close();
+    
     return ss.str();
-   }
-
+  }
+  
 
   // return the real name of the file including extension...
   template<>
@@ -188,7 +232,7 @@ namespace cond {
 						std::vector<int> const&,
 						std::vector<float> const& ) const {
 
-    TCanvas canvas("iC","iC",800,800);    
+    TCanvas canvas("hV","hV",800,800);    
 
     TH1D *vDistr=new TH1D("vDistr","IOV-averaged Vmon Distribution;Average HV(V);Entries/50 V ",100,5000.,10000.);
 
@@ -221,15 +265,6 @@ namespace cond {
 
     canvas.SaveAs(filename.c_str());
     return filename.c_str();
-
-    //    vDistr->Draw();
-
-    //     std::string fname = filename + ".txt";
-    //     std::ofstream f(fname.c_str());
-    //     f << summary();
-    //     return fname;
-
-   return std::string();
 
   }
   
