@@ -5,8 +5,11 @@
 #include "TChain.h"
 #include "HepMC/HeavyIon.h"
 #include "HepMC/GenEvent.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+
+#include "DataFormats/Luminosity/interface/LumiSummary.h" 
 
 /** \class EventHeader
   *  
@@ -32,6 +35,7 @@ private:
 	int fLumiBlock;
         int fBx;
         int fOrbit;
+	float fAvgInstLumi;
 
   // input variables
   bool _Debug;
