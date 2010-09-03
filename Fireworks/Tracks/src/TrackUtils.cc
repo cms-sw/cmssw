@@ -2,7 +2,7 @@
 //
 // Package:     Tracks
 // Class  :     TrackUtils
-// $Id: TrackUtils.cc,v 1.38 2010/08/23 15:26:43 yana Exp $
+// $Id: TrackUtils.cc,v 1.39 2010/08/31 15:30:22 yana Exp $
 //
 
 // system include files
@@ -161,7 +161,7 @@ prepareTrack( const reco::Track& track,
 }
 
 // Transform measurement to local coordinates in X dimension
-double
+float
 pixelLocalX( const double mpx, const int nrows )
 {
   // Calculate the edge of the active sensor with respect to the center,
@@ -194,7 +194,7 @@ pixelLocalX( const double mpx, const int nrows )
 }
 
 // Transform measurement to local coordinates in Y dimension
-double
+float
 pixelLocalY( const double mpy, const int ncols )
 {
   // Calculate the edge of the active sensor with respect to the center,
@@ -289,7 +289,7 @@ pixelLocalY( const double mpy, const int ncols )
 //
 // Returns strip geometry in local coordinates of a detunit.
 // The strip is a line from a localTop to a localBottom point.
-void localSiStrip( short strip, Double_t* localTop, Double_t* localBottom, const float* pars, unsigned int id )
+void localSiStrip( short strip, float* localTop, float* localBottom, const float* pars, unsigned int id )
 {
   Float_t topology = pars[0];
   Float_t halfStripLength = pars[2] * 0.5;
@@ -326,7 +326,7 @@ void localSiStrip( short strip, Double_t* localTop, Double_t* localBottom, const
   else if( pars[0] == 0 ) // StripTopology
   {
     fwLog( fwlog::kError )
-      << "did not expect StripTopology of "
+      << "did not find StripTopology of "
       << id << std::endl;
   }
 }
@@ -435,16 +435,16 @@ addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveEl
    for( trackingRecHit_iterator it = t.recHitsBegin(), itEnd = t.recHitsEnd(); it != itEnd; ++it )
    {
       unsigned int rawid = (*it)->geographicalId();
-      const TGeoMatrix* matrix = geom->getMatrix( rawid );
-      const float* pars = geom->getParameters( rawid );
-      if( pars == 0 || (! matrix ))
+      if( ! geom->contains( rawid ))
       {
 	 fwLog( fwlog::kError )
-	   << "failed to get topology of SiStripCluster with detid: " 
+	   << "failed to get geometry of SiStripCluster with detid: " 
 	   << rawid << std::endl;
 	 
 	 continue;
       }
+	
+      const float* pars = geom->getParameters( rawid );
       
       // -- get phi from SiStripHit
       TrackingRecHitRef rechitRef = *it;
@@ -468,24 +468,24 @@ addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveEl
 
 	       if( &*itc == cluster )
 	       {
-		  scposition->SetTitle( Form( "Exact SiStripCluster from TrackingRecHit, first strip %0.2f", firststrip ));
+		  scposition->SetTitle( Form( "Exact SiStripCluster from TrackingRecHit, first strip %d", firststrip ));
 		  scposition->SetLineColor( kGreen );
 	       }
 	       else
 	       {
-		  scposition->SetTitle( Form( "SiStripCluster, first strip %0.2f", firststrip ));
+		  scposition->SetTitle( Form( "SiStripCluster, first strip %d", firststrip ));
 		  scposition->SetLineColor( kRed );
 	       }
 	       
-	       double localTop[3] = { 0.0, 0.0, 0.0 };
-	       double localBottom[3] = { 0.0, 0.0, 0.0 };
+	       float localTop[3] = { 0.0, 0.0, 0.0 };
+	       float localBottom[3] = { 0.0, 0.0, 0.0 };
 
 	       fireworks::localSiStrip( firststrip, localTop, localBottom, pars, rawid );
 
-	       double globalTop[3];
-	       double globalBottom[3];
-	       matrix->LocalToMaster( localTop, globalTop );
-	       matrix->LocalToMaster( localBottom, globalBottom );
+	       float globalTop[3];
+	       float globalBottom[3];
+	       geom->localToGlobal( rawid, localTop, globalTop );
+	       geom->localToGlobal( rawid, localBottom, globalBottom );
   
 	       scposition->AddLine( globalTop[0], globalTop[1], globalTop[2],
 				    globalBottom[0], globalBottom[1], globalBottom[2] );
@@ -499,17 +499,17 @@ addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveEl
 	    TEveStraightLineSet *scposition = new TEveStraightLineSet;
             scposition->SetDepthTest( false );
 	    scposition->SetPickable( kTRUE );
-	    scposition->SetTitle( Form( "SiStripCluster, first strip %0.2f", firststrip ));
+	    scposition->SetTitle( Form( "SiStripCluster, first strip %d", firststrip ));
 	    
-	    double localTop[3] = { 0.0, 0.0, 0.0 };
-	    double localBottom[3] = { 0.0, 0.0, 0.0 };
+	    float localTop[3] = { 0.0, 0.0, 0.0 };
+	    float localBottom[3] = { 0.0, 0.0, 0.0 };
 
 	    fireworks::localSiStrip( firststrip, localTop, localBottom, pars, rawid );
 
-	    double globalTop[3];
-	    double globalBottom[3];
-	    matrix->LocalToMaster( localTop, globalTop );
-	    matrix->LocalToMaster( localBottom, globalBottom );
+	    float globalTop[3];
+	    float globalBottom[3];
+	    geom->localToGlobal( rawid, localTop, globalTop );
+	    geom->localToGlobal( rawid, localBottom, globalBottom );
   
 	    scposition->AddLine( globalTop[0], globalTop[1], globalTop[2],
 				 globalBottom[0], globalBottom[1], globalBottom[2] );
@@ -532,17 +532,17 @@ addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveEl
                   TEveStraightLineSet *scposition = new TEveStraightLineSet;
                   scposition->SetDepthTest( false );
 		  scposition->SetPickable( kTRUE );
-		  scposition->SetTitle( Form( "Lost SiStripCluster, first strip %0.2f", firststrip ));
+		  scposition->SetTitle( Form( "Lost SiStripCluster, first strip %d", firststrip ));
 
-		  double localTop[3] = { 0.0, 0.0, 0.0 };
-		  double localBottom[3] = { 0.0, 0.0, 0.0 };
+		  float localTop[3] = { 0.0, 0.0, 0.0 };
+		  float localBottom[3] = { 0.0, 0.0, 0.0 };
 
 		  fireworks::localSiStrip( firststrip, localTop, localBottom, pars, rawid );
 
-		  double globalTop[3];
-		  double globalBottom[3];
-		  matrix->LocalToMaster( localTop, globalTop );
-		  matrix->LocalToMaster( localBottom, globalBottom );
+		  float globalTop[3];
+		  float globalBottom[3];
+		  geom->localToGlobal( rawid, localTop, globalTop );
+		  geom->localToGlobal( rawid, localBottom, globalBottom );
   
 		  scposition->AddLine( globalTop[0], globalTop[1], globalTop[2],
 				       globalBottom[0], globalBottom[1], globalBottom[2] );
@@ -566,46 +566,54 @@ addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveEl
 //______________________________________________________________________________
 
 void
-pushNearbyPixelHits(std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, const reco::Track &t) {
+pushNearbyPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, const reco::Track &t )
+{
    const edmNew::DetSetVector<SiPixelCluster> * allClusters = 0;
-   for( trackingRecHit_iterator it = t.recHitsBegin(), itEnd = t.recHitsEnd(); it != itEnd; ++it) {
-      if (typeid(**it) == typeid(SiPixelRecHit)) {
+   for( trackingRecHit_iterator it = t.recHitsBegin(), itEnd = t.recHitsEnd(); it != itEnd; ++it)
+   {
+      if( typeid(**it) == typeid( SiPixelRecHit ))
+      {
          const SiPixelRecHit &hit = static_cast<const SiPixelRecHit &>(**it);
-         if (hit.cluster().isNonnull() && hit.cluster().isAvailable()) { allClusters = hit.cluster().product(); break; }
+         if( hit.cluster().isNonnull() && hit.cluster().isAvailable())
+	 {
+	    allClusters = hit.cluster().product();
+	    break;
+	 }
       }
    }
-   if (allClusters == 0) return;
+   if( allClusters == 0 ) return;
 
-   const DetIdToMatrix *detIdToGeo = iItem.getGeom();
+   const DetIdToMatrix *geom = iItem.getGeom();
 
    for( trackingRecHit_iterator it = t.recHitsBegin(), itEnd = t.recHitsEnd(); it != itEnd; ++it )
    {
       const TrackingRecHit* rh = &(**it);
 
       DetId id = (*it)->geographicalId();
-      const TGeoMatrix *m = detIdToGeo->getMatrix(id);
-      const float* pars = detIdToGeo->getParameters( id );
-      if( pars == 0 || (! m )) {
-	fwLog( fwlog::kError )
-	  << "failed get geometry of Tracker Det with raw id: " 
-	  << id.rawId() << std::endl;
+      if( ! geom->contains( id ))
+      {
+	 fwLog( fwlog::kError )
+	    << "failed to get geometry of Tracker Det with raw id: " 
+	    << id.rawId() << std::endl;
 
 	continue;
       }
 
       // -- in which detector are we?
       unsigned int subdet = (unsigned int)id.subdetId();
-      if ((subdet != PixelSubdetector::PixelBarrel) && (subdet != PixelSubdetector::PixelEndcap)) continue;
+      if(( subdet != PixelSubdetector::PixelBarrel ) && ( subdet != PixelSubdetector::PixelEndcap )) continue;
 
-      const SiPixelCluster *hitCluster = 0;
-      const SiPixelRecHit* pixel = dynamic_cast<const SiPixelRecHit*>(rh);
-      if (pixel != 0) hitCluster = pixel->cluster().get();
+      const SiPixelCluster* hitCluster = 0;
+      if( const SiPixelRecHit* pixel = dynamic_cast<const SiPixelRecHit*>( rh ))
+	 hitCluster = pixel->cluster().get();
       edmNew::DetSetVector<SiPixelCluster>::const_iterator itds = allClusters->find(id.rawId());
-      if (itds != allClusters->end()) {
+      if( itds != allClusters->end())
+      {
          const edmNew::DetSet<SiPixelCluster> & clustersOnThisDet = *itds;
-         //if (clustersOnThisDet.size() > (hitCluster != 0)) std::cout << "DRAWING EXTRA CLUSTERS: N = " << (clustersOnThisDet.size() - (hitCluster != 0))<< std::endl;
-         for (edmNew::DetSet<SiPixelCluster>::const_iterator itc = clustersOnThisDet.begin(), edc = clustersOnThisDet.end(); itc != edc; ++itc) {
-	   if (&*itc != hitCluster) pushPixelCluster(pixelPoints, m, id, *itc, pars );
+	 for( edmNew::DetSet<SiPixelCluster>::const_iterator itc = clustersOnThisDet.begin(), edc = clustersOnThisDet.end(); itc != edc; ++itc )
+	 {
+	   if( &*itc != hitCluster )
+	      pushPixelCluster( pixelPoints, *geom, id, *itc, geom->getParameters( id ));
          }
       }
    }
@@ -619,8 +627,8 @@ pushPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, con
    /*
     * -- return for each Pixel Hit a 3D point
     */
-   const DetIdToMatrix *detIdToGeo = iItem.getGeom();
-		
+   const DetIdToMatrix *geom = iItem.getGeom();
+   
    double dz = t.dz();
    double vz = t.vz();
    double etaT = t.eta();
@@ -634,17 +642,15 @@ pushPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, con
       const TrackingRecHit* rh = &(**it);			
       // -- get position of center of wafer, assuming (0,0,0) is the center
       DetId id = (*it)->geographicalId();
-      const TGeoMatrix *m = detIdToGeo->getMatrix( id );
-      const float* pars = detIdToGeo->getParameters( id );
-      if( pars == 0 || (! m ))
+      if( ! geom->contains( id ))
       {
-	fwLog( fwlog::kError )
-	  << "failed get geometry of Tracker Det with raw id: " 
-	  << id.rawId() << std::endl;
+	 fwLog( fwlog::kError )
+	    << "failed to get geometry of Tracker Det with raw id: " 
+	    << id.rawId() << std::endl;
 
 	continue;
       }
-			
+
       // -- in which detector are we?			
       unsigned int subdet = (unsigned int)id.subdetId();
 			
@@ -653,26 +659,22 @@ pushPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, con
 	 fwLog( fwlog::kDebug ) << cnt++ << " -- "
 				<< subdets[subdet];
 								
-         const SiPixelRecHit* pixel = dynamic_cast<const SiPixelRecHit*>(rh);
-         if( !pixel )
+         if( const SiPixelRecHit* pixel = dynamic_cast<const SiPixelRecHit*>( rh ))
 	 {
-            fwLog( fwlog::kDebug ) << "can't find SiPixelRecHit" << std::endl;
-            continue;
-         }
-         const SiPixelCluster& c = *( pixel->cluster() );
-         pushPixelCluster( pixelPoints, m, id, c, pars );
-      } else
-         return;         // return if any non-Pixel DetID shows up
+	    const SiPixelCluster& c = *( pixel->cluster());
+	    pushPixelCluster( pixelPoints, *geom, id, c, geom->getParameters( id ));
+	 } 
+      }
    }
 }
   
 void
-pushPixelCluster( std::vector<TVector3> &pixelPoints, const TGeoMatrix *m, DetId id, const SiPixelCluster &c, const float* pars )
+pushPixelCluster( std::vector<TVector3> &pixelPoints, const DetIdToMatrix &geom, DetId id, const SiPixelCluster &c, const float* pars )
 {
    double row = c.minPixelRow();
    double col = c.minPixelCol();
-   double lx = 0.;
-   double ly = 0.;
+   float lx = 0.;
+   float ly = 0.;
    
    int nrows = (int)pars[0];
    int ncols = (int)pars[1];
@@ -683,9 +685,9 @@ pushPixelCluster( std::vector<TVector3> &pixelPoints, const TGeoMatrix *m, DetId
       << ", row: " << row << ", col: " << col 
       << ", lx: " << lx << ", ly: " << ly ;
 				
-   double local[3] = { lx, ly, 0. };
-   double global[3];
-   m->LocalToMaster( local, global );
+   float local[3] = { lx, ly, 0. };
+   float global[3];
+   geom.localToGlobal( id, local, global );
    TVector3 pb( global[0], global[1], global[2] );
    pixelPoints.push_back( pb );
 				

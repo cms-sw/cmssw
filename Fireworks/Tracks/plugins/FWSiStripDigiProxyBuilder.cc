@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiStripDigiProxyBuilder.cc,v 1.14 2010/08/23 15:26:42 yana Exp $
+// $Id: FWSiStripDigiProxyBuilder.cc,v 1.15 2010/08/31 15:30:21 yana Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -54,32 +54,30 @@ FWSiStripDigiProxyBuilder::build( const FWEventItem* iItem, TEveElementList* pro
     edm::DetSet<SiStripDigi> ds = *it;
     const uint32_t& id = ds.id;
 
-    const TGeoMatrix* matrix = geom->getMatrix( id );
     const float* pars = geom->getParameters( id );
         
     for( edm::DetSet<SiStripDigi>::const_iterator idigi = ds.data.begin(), idigiEnd = ds.data.end();
 	 idigi != idigiEnd; ++idigi )        
     {
-      TEveStraightLineSet *lineSet = new TEveStraightLineSet( "strip" );
+      TEveStraightLineSet *lineSet = new TEveStraightLineSet;
       setupAddElement( lineSet, product );
 
-      if( pars == 0 || (! matrix ))
+      if( ! geom->contains( id ))
       {
 	fwLog( fwlog::kWarning ) 
 	  << "failed get geometry and topology of SiStripDigi with detid: "
 	  << id << std::endl;
 	continue;
       }
-      short strip = (*idigi).strip();
-      double localTop[3] = { 0.0, 0.0, 0.0 };
-      double localBottom[3] = { 0.0, 0.0, 0.0 };
+      float localTop[3] = { 0.0, 0.0, 0.0 };
+      float localBottom[3] = { 0.0, 0.0, 0.0 };
 
-      fireworks::localSiStrip( strip, localTop, localBottom, pars, id );
+      fireworks::localSiStrip(( *idigi ).strip(), localTop, localBottom, pars, id );
 
-      double globalTop[3];
-      double globalBottom[3];
-      matrix->LocalToMaster( localTop, globalTop );
-      matrix->LocalToMaster( localBottom, globalBottom );
+      float globalTop[3];
+      float globalBottom[3];
+      geom->localToGlobal( id, localTop, globalTop );
+      geom->localToGlobal( id, localBottom, globalBottom );
   
       lineSet->AddLine( globalTop[0], globalTop[1], globalTop[2],
 			globalBottom[0], globalBottom[1], globalBottom[2] );
@@ -87,4 +85,4 @@ FWSiStripDigiProxyBuilder::build( const FWEventItem* iItem, TEveElementList* pro
   } // end of iteration over the DetSetVector
 }
 
-REGISTER_FWPROXYBUILDER( FWSiStripDigiProxyBuilder, edm::DetSetVector<SiStripDigi>, "SiStripDigi", FWViewType::kAll3DBits | FWViewType::kRhoPhiBit | FWViewType::kRhoZBit );
+REGISTER_FWPROXYBUILDER( FWSiStripDigiProxyBuilder, edm::DetSetVector<SiStripDigi>, "SiStripDigi", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );

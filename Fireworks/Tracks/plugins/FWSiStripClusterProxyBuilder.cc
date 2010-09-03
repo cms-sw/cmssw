@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWSiStripClusterProxyBuilder.cc,v 1.15 2010/08/23 15:26:42 yana Exp $
+// $Id: FWSiStripClusterProxyBuilder.cc,v 1.16 2010/08/31 15:30:21 yana Exp $
 //
 
 #include "TEveGeoNode.h"
@@ -26,7 +26,7 @@ protected:
 		       TEveElement& oItemHolder, const FWViewContext* );
    virtual void localModelChanges( const FWModelId& iId, TEveElement* iCompound,
 				   FWViewType::EType viewType, const FWViewContext* vc );
-
+  
 private:
    FWSiStripClusterProxyBuilder( const FWSiStripClusterProxyBuilder& );
    const FWSiStripClusterProxyBuilder& operator=( const FWSiStripClusterProxyBuilder& );              
@@ -57,27 +57,24 @@ FWSiStripClusterProxyBuilder::build( const SiStripCluster& iData,
   TEveStraightLineSet *lineSet = new TEveStraightLineSet( "strip" );
   setupAddElement( lineSet, &oItemHolder );
 
-  const TGeoMatrix* matrix = geom->getMatrix( rawid );
-  const float* pars = geom->getParameters( rawid );
-  if( pars == 0 || (! matrix ))
+  if( ! geom->contains( rawid ))
   {
     fwLog( fwlog::kError )
-      << "failed to get topology of SiStripCluster with detid: " 
+      << "failed to geometry of SiStripCluster with detid: " 
       << rawid << std::endl;
 
       return;
   }
 
-  short firststrip = iData.firstStrip();
-  double localTop[3] = { 0.0, 0.0, 0.0 };
-  double localBottom[3] = { 0.0, 0.0, 0.0 };
+  float localTop[3] = { 0.0, 0.0, 0.0 };
+  float localBottom[3] = { 0.0, 0.0, 0.0 };
 
-  fireworks::localSiStrip( firststrip, localTop, localBottom, pars, rawid );
+  fireworks::localSiStrip( iData.firstStrip(), localTop, localBottom, geom->getParameters( rawid ), rawid );
 
-  double globalTop[3];
-  double globalBottom[3];
-  matrix->LocalToMaster( localTop, globalTop );
-  matrix->LocalToMaster( localBottom, globalBottom );
+  float globalTop[3];
+  float globalBottom[3];
+  geom->localToGlobal( rawid, localTop, globalTop );
+  geom->localToGlobal( rawid, localBottom, globalBottom );
   
   lineSet->AddLine( globalTop[0], globalTop[1], globalTop[2],
 		    globalBottom[0], globalBottom[1], globalBottom[2] );  

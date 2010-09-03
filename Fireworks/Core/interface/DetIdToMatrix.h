@@ -73,6 +73,8 @@ public:
    // get reco topology/parameters
    const float* getParameters( unsigned int id ) const;
 
+   void localToGlobal( unsigned int id, const float* local, float* global ) const;
+
    struct RecoGeomInfo
    {
       unsigned int id;
@@ -95,12 +97,19 @@ public:
    typedef std::vector<DetIdToMatrix::RecoGeomInfo> IdToInfo;
    typedef std::vector<DetIdToMatrix::RecoGeomInfo>::const_iterator IdToInfoItr;
 
+   bool contains( unsigned int id ) const {
+     return DetIdToMatrix::find( id ) != m_idToInfo.end();
+   }
+
+  void clear( void ) { m_idToInfo.clear(); m_idToMatrix.clear(); }
+  
 private:
    mutable std::map<unsigned int, TGeoMatrix*> m_idToMatrix;
 
    IdToInfo m_idToInfo;
   
    IdToInfoItr find( unsigned int ) const;
+   void localToGlobal( const RecoGeomInfo& info, const float* local, float* global ) const;
 };
 
 #endif

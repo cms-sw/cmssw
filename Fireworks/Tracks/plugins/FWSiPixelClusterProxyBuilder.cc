@@ -7,7 +7,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiPixelClusterProxyBuilder.cc,v 1.14 2010/08/23 15:26:40 yana Exp $
+// $Id: FWSiPixelClusterProxyBuilder.cc,v 1.15 2010/08/31 15:30:21 yana Exp $
 //
 
 #include "TEvePointSet.h"
@@ -56,7 +56,6 @@ FWSiPixelClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementList* 
     unsigned int id = set->detId();
 
     const DetIdToMatrix *geom = iItem->getGeom();
-    const TGeoMatrix* matrix = geom->getMatrix( id );
     const float* pars = geom->getParameters( id );
 
     const edmNew::DetSet<SiPixelCluster> & clusters = *set;
@@ -67,7 +66,7 @@ FWSiPixelClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementList* 
       TEvePointSet* pointSet = new TEvePointSet;
       setupAddElement( pointSet, product );
       
-      if( ! matrix || pars == 0 ) 
+      if( ! geom->contains( id ))
       {
 	fwLog( fwlog::kWarning ) 
 	  << "failed get geometry of SiPixelCluster with detid: "
@@ -75,17 +74,16 @@ FWSiPixelClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementList* 
 	continue;
       }
 
-      double localPoint[3] = 
+      float localPoint[3] = 
         {     
           fireworks::pixelLocalX(( *itc ).minPixelRow(), ( int )pars[0] ),
 	  fireworks::pixelLocalY(( *itc ).minPixelCol(), ( int )pars[1] ),
 	  0.0
         };
 
-      double globalPoint[3];
-        
-      matrix->LocalToMaster( localPoint, globalPoint );
-      
+      float globalPoint[3];
+      geom->localToGlobal( id, localPoint, globalPoint );
+
       pointSet->SetNextPoint( globalPoint[0], globalPoint[1], globalPoint[2] );
     }
   }    

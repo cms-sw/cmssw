@@ -28,6 +28,8 @@ private:
 void
 FWTrackTrackingRecHitProxyBuilder::build( const reco::Track& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) 
 {
+   const DetIdToMatrix *geom = item()->getGeom();
+  
    for( trackingRecHit_iterator it = iData.recHitsBegin(), itEnd = iData.recHitsEnd(); it != itEnd; ++it )
    {
       TEvePointSet* pointSet = new TEvePointSet;
@@ -39,11 +41,11 @@ FWTrackTrackingRecHitProxyBuilder::build( const reco::Track& iData, unsigned int
       if( rechit->isValid())
       {
 	unsigned int rawid = rechit->geographicalId().rawId();
-	const TGeoMatrix* matrix = item()->getGeom()->getMatrix( rawid );
 
-	if(! matrix ) {
+	if(! geom->contains( rawid ))
+	{
 	   fwLog( fwlog::kError )
-	      << "failed get matrix for detid: " 
+	      << "failed get geometry for detid: " 
 	      << rawid << std::endl;
 	}
 
@@ -63,10 +65,9 @@ FWTrackTrackingRecHitProxyBuilder::build( const reco::Track& iData, unsigned int
 	  }
 	}
 
-	double localPos[3] = { pos.x(), pos.y(), pos.z() };
-	
-	double globalPos[3];			
-	matrix->LocalToMaster( localPos, globalPos );
+	float localPos[3] = { pos.x(), pos.y(), pos.z() };	
+	float globalPos[3];			
+	geom->localToGlobal( rawid, localPos, globalPos );
 	pointSet->SetNextPoint( globalPos[0], globalPos[1], globalPos[2] );
       }
    }

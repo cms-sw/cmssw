@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiPixelDigiProxyBuilder.cc,v 1.14 2010/08/23 15:26:41 yana Exp $
+// $Id: FWSiPixelDigiProxyBuilder.cc,v 1.15 2010/08/31 15:30:21 yana Exp $
 //
 
 #include "TEveCompound.h"
@@ -55,7 +55,6 @@ void FWSiPixelDigiProxyBuilder::build( const FWEventItem* iItem, TEveElementList
     edm::DetSet<PixelDigi> ds = *it;
     unsigned int id = ds.id;
 
-    const TGeoMatrix *matrix = geom->getMatrix( id );
     const float* pars = geom->getParameters( id );
          
     for( edm::DetSet<PixelDigi>::const_iterator idigi = ds.data.begin(), idigiEnd = ds.data.end();
@@ -66,7 +65,7 @@ void FWSiPixelDigiProxyBuilder::build( const FWEventItem* iItem, TEveElementList
       pointSet->SetMarkerStyle( 2 );
       setupAddElement( pointSet, product );
 
-      if( ! matrix || pars == 0 ) 
+      if( ! geom->contains( id ))
       {
 	fwLog( fwlog::kWarning ) 
 	  << "failed get geometry of SiPixelDigi with detid: "
@@ -74,14 +73,13 @@ void FWSiPixelDigiProxyBuilder::build( const FWEventItem* iItem, TEveElementList
       }
       else
       {	
-	double localPoint[3] = {     
+	float localPoint[3] = {     
 	  fireworks::pixelLocalX(( *idigi ).row(), pars[0] ),
 	  fireworks::pixelLocalY(( *idigi ).column(), pars[1] ),
 	  0.0 };
 	
-	double globalPoint[3];
-        
-	matrix->LocalToMaster( localPoint, globalPoint );
+	float globalPoint[3];
+	geom->localToGlobal( id, localPoint, globalPoint );
       
 	pointSet->SetNextPoint( globalPoint[0], globalPoint[1], globalPoint[2] );
       }

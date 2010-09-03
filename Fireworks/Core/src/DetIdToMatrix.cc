@@ -101,7 +101,8 @@ DetIdToMatrix::loadMap( const char* fileName )
       tree->SetBranchAddress( "matrix", &matrix );
    
    unsigned int treeSize = tree->GetEntries();
-   m_idToInfo.resize( treeSize );
+   if( m_idToInfo.size() != treeSize )
+       m_idToInfo.resize( treeSize );
    for( unsigned int i = 0; i < treeSize; ++i )
    {
       tree->GetEntry( i );
@@ -142,7 +143,8 @@ DetIdToMatrix::initMap( const FWRecoGeom::InfoMap& map )
   FWRecoGeom::InfoMapItr begin = map.begin();
   FWRecoGeom::InfoMapItr end = map.end();
   unsigned int mapSize = map.size();
-  m_idToInfo.resize( mapSize );
+  if( m_idToInfo.size() != mapSize )
+    m_idToInfo.resize( mapSize );
   unsigned int i = 0;
   for( FWRecoGeom::InfoMapItr it = begin;
        it != end; ++it, ++i )
@@ -314,10 +316,36 @@ DetIdToMatrix::getShapePars( unsigned int id ) const
    }
 }
 
+void
+DetIdToMatrix::localToGlobal( unsigned int id, const float* local, float* global ) const
+{
+   IdToInfoItr it = DetIdToMatrix::find( id );
+   if( it == m_idToInfo.end())
+   {
+      fwLog( fwlog::kWarning ) << "no reco geometry is found for id " <<  id << std::endl;
+   }
+   else
+   {
+      localToGlobal( *it, local, global );
+   }
+}
+
 DetIdToMatrix::IdToInfoItr
 DetIdToMatrix::find( unsigned int id ) const
 {
   DetIdToMatrix::IdToInfoItr begin = m_idToInfo.begin();
   DetIdToMatrix::IdToInfoItr end = m_idToInfo.end();
   return std::lower_bound( begin, end, id );
+}
+
+void
+DetIdToMatrix::localToGlobal( const RecoGeomInfo& info, const float* local, float* global ) const
+{
+   for( int i = 0; i < 3; ++i )
+   {
+      global[i] = info.translation[i] 
+		  + local[0] * info.matrix[3 * i]
+		  + local[1] * info.matrix[3 * i + 1]
+		  + local[2] * info.matrix[3 * i + 2];
+   }
 }
