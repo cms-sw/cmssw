@@ -37,30 +37,64 @@ public:
       std::string type;
    };
 
-   const TGGC &
-   boldCG()
-   {
-      static bool init = true;
-      static TGGC s_boldCG(*gClient->GetResourcePool()->GetFrameGC());
-//      if (init)
-//      {
-//         TGFontPool *pool = gClient->GetFontPool();
-//         TGFont *font = pool->FindFontByHandle(s_boldCG.GetFont());
-//         FontAttributes_t attributes = font->GetFontAttributes();
-//         attributes.fWeight = EFontWeight::kFontWeightBold;
-//         TGFont *newFont = pool->GetFont(attributes.fFamily, 12,
-//                                         attributes.fWeight, attributes.fSlant);
+  /*
+    Form TGFont.h
 
-//         s_boldCG.SetFont(newFont->GetFontHandle());
-//         init = false;
-//      }
-      return s_boldCG;
+  enum EFontWeight {
+   kFontWeightNormal = 0,
+   kFontWeightMedium = 0,
+   kFontWeightBold = 1,
+   kFontWeightLight = 2,
+   kFontWeightDemibold = 3,
+   kFontWeightBlack = 4,
+   kFontWeightUnknown = -1
+  };
+  */
+
+
+   const TGGC&
+   boldGC()
+   {
+      static TGGC s_boldGC(*gClient->GetResourcePool()->GetFrameGC());
+ 
+      TGFontPool *pool = gClient->GetFontPool();
+      TGFont *font = pool->FindFontByHandle(s_boldGC.GetFont());
+      FontAttributes_t attributes = font->GetFontAttributes();
+
+      // Enum doesn't seem to work so do this
+      attributes.fWeight = 3;
+      TGFont *newFont = pool->GetFont(attributes.fFamily, 12,
+                                      attributes.fWeight, attributes.fSlant);
+
+      s_boldGC.SetFont(newFont->GetFontHandle());
+
+      return s_boldGC;
+   }
+
+   const TGGC&
+   italicGC()
+   {
+      static TGGC s_boldGC(*gClient->GetResourcePool()->GetFrameGC());
+ 
+      TGFontPool *pool = gClient->GetFontPool();
+      TGFont *font = pool->FindFontByHandle(s_boldGC.GetFont());
+      FontAttributes_t attributes = font->GetFontAttributes();
+
+      attributes.fSlant = 1;
+      TGFont *newFont = pool->GetFont(attributes.fFamily, 9,
+                                      attributes.fWeight, attributes.fSlant);
+
+      s_boldGC.SetFont(newFont->GetFontHandle());
+
+      return s_boldGC;
    }
 
    FWPSetTableManager()
-      : m_selectedRow(-1),
-        m_boldRenderer()
+      : m_selectedRow(-1)
    {
+      m_boldRenderer.setGraphicsContext(&boldGC());
+      m_italicRenderer.setGraphicsContext(&italicGC());
+
       reset();
    }
    
@@ -131,34 +165,37 @@ public:
       returnValue.push_back("Value                   ");
       return returnValue;
    }
-   
+  
    virtual FWTableCellRendererBase* cellRenderer(int iSortedRowNumber, int iCol) const
-   {
-      FWTextTableCellRenderer *renderer = &m_renderer;
+   {  
+     if(static_cast<int>(m_row_to_index.size()) > iSortedRowNumber) 
+     {
+       FWTextTableCellRenderer* renderer;
 
-      if(static_cast<int>(m_row_to_index.size()) > iSortedRowNumber) 
-      {
-         int unsortedRow =  m_row_to_index[iSortedRowNumber];
-         const PSetData& data = m_entries[unsortedRow];
-         
-         FWTextTableCellRenderer *renderer;
-         if (data.level == 0)
-            renderer = &m_boldRenderer;
-         else
-            renderer = &m_renderer;
+       int unsortedRow =  m_row_to_index[iSortedRowNumber];
+       const PSetData& data = m_entries[unsortedRow];
 
-         if (iCol == 0)
-           renderer->setData(data.label, false);
-         else if (iCol == 1)
-           renderer->setData(data.value, false);
-         
-         else
-            renderer->setData(std::string(), false);
-      }
-      else 
+       if ( data.level == 0 )
+         renderer = &m_boldRenderer;
+       else if ( data.level == 1 )
+         renderer = &m_italicRenderer;
+       else renderer = &m_renderer;
+
+       if (iCol == 0)
+         renderer->setData(data.label, false);
+       else if (iCol == 1)
+         renderer->setData(data.value, false);
+       else
          renderer->setData(std::string(), false);
 
-      return renderer;
+       return renderer;
+     }
+     
+     else
+     {
+       m_renderer.setData(std::string(), false);
+       return &m_renderer;
+     }
    }
 
    void setSelection (int row, int mask) {
@@ -467,8 +504,10 @@ private:
    std::vector<int>                m_row_to_index;
    int                             m_selectedRow;
    std::string                     m_filter;
-   mutable FWTextTableCellRenderer m_renderer;
+
+   mutable FWTextTableCellRenderer m_renderer;  
    mutable FWTextTableCellRenderer m_boldRenderer;
+   mutable FWTextTableCellRenderer m_italicRenderer;
 };
 
 FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
