@@ -15,8 +15,9 @@
 
 /// default constructor
 TtFullHadKinFitter::TtFullHadKinFitter():
-  fitter_(0), b_(0), bBar_(0), lightQ_(0), lightQBar_(0), lightP_(0), lightPBar_(0),
-  jetParam_(kEMom), maxNrIter_(200), maxDeltaS_(5e-5), maxF_(1e-4), mW_(80.4), mTop_(173.)
+  TopKinFitter(),
+  b_(0), bBar_(0), lightQ_(0), lightQBar_(0), lightP_(0), lightPBar_(0),
+  jetParam_(kEMom)
 {
   setupFitter();
 }
@@ -37,9 +38,9 @@ TtFullHadKinFitter::intToConstraint(std::vector<unsigned int> constraints)
 /// constructor initialized with build-in types as custom parameters (only included to keep TtHadEvtSolutionMaker.cc running)
 TtFullHadKinFitter::TtFullHadKinFitter(int jetParam, int maxNrIter, double maxDeltaS, double maxF,
 				       std::vector<unsigned int> constraints, double mW, double mTop):
-  fitter_(0), b_(0), bBar_(0), lightQ_(0), lightQBar_(0), lightP_(0), lightPBar_(0),
-  jetParam_((Param)jetParam), maxNrIter_(maxNrIter), maxDeltaS_(maxDeltaS), maxF_(maxF),
-  constraints_(intToConstraint(constraints)), mW_(mW), mTop_(mTop)
+  TopKinFitter(maxNrIter, maxDeltaS, maxF, mW, mTop),
+  b_(0), bBar_(0), lightQ_(0), lightQBar_(0), lightP_(0), lightPBar_(0),
+  jetParam_((Param)jetParam), constraints_(intToConstraint(constraints))
 {
   setupFitter();
 }
@@ -47,9 +48,9 @@ TtFullHadKinFitter::TtFullHadKinFitter(int jetParam, int maxNrIter, double maxDe
 /// constructor initialized with build-in types and class enum's custom parameters
 TtFullHadKinFitter::TtFullHadKinFitter(Param jetParam, int maxNrIter, double maxDeltaS, double maxF,
 				       std::vector<Constraint> constraints, double mW, double mTop):
-  fitter_(0), b_(0), bBar_(0), lightQ_(0), lightQBar_(0), lightP_(0), lightPBar_(0),
-  jetParam_(jetParam), maxNrIter_(maxNrIter), maxDeltaS_(maxDeltaS), maxF_(maxF),
-  constraints_(constraints), mW_(mW), mTop_(mTop)
+  TopKinFitter(maxNrIter, maxDeltaS, maxF, mW, mTop),
+  b_(0), bBar_(0), lightQ_(0), lightQBar_(0), lightP_(0), lightPBar_(0),
+  jetParam_(jetParam), constraints_(constraints)
 {
   setupFitter();
 }
@@ -57,7 +58,6 @@ TtFullHadKinFitter::TtFullHadKinFitter(Param jetParam, int maxNrIter, double max
 /// default destructor
 TtFullHadKinFitter::~TtFullHadKinFitter() 
 {
-  delete fitter_;
   delete b_; 
   delete bBar_; 
   delete lightQ_;
@@ -155,14 +155,6 @@ TtFullHadKinFitter::setupFitter()
   printSetup();
   setupJets();
   setupConstraints();
-
-  fitter_= new TKinFitter("TtFullHadronicFit", "TtFullHadronicFit");
-
-  // configure fit
-  fitter_->setMaxNbIter(maxNrIter_);
-  fitter_->setMaxDeltaS(maxDeltaS_);
-  fitter_->setMaxF(maxF_);
-  fitter_->setVerbosity(0);
 
   // add measured particles
   fitter_->addMeasParticle(b_);

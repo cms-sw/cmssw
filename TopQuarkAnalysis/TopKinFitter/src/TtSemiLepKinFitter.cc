@@ -12,10 +12,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 /// default configuration is: Parametrization kEMom, Max iterations = 200, deltaS<= 5e-5, maxF<= 1e-4, no constraints
-TtSemiLepKinFitter::TtSemiLepKinFitter(): 
-  fitter_(0), hadB_(0), hadP_(0), hadQ_(0), lepB_(0), lepton_(0), neutrino_(0),
-  jetParam_(kEMom), lepParam_(kEMom), metParam_(kEMom),
-  maxNrIter_(200), maxDeltaS_( 5e-5), maxF_(1e-4), mW_(80.4), mTop_(173.)
+TtSemiLepKinFitter::TtSemiLepKinFitter():
+  TopKinFitter(),
+  hadB_(0), hadP_(0), hadQ_(0), lepB_(0), lepton_(0), neutrino_(0),
+  jetParam_(kEMom), lepParam_(kEMom), metParam_(kEMom)
 {
   setupFitter();
 }
@@ -23,16 +23,15 @@ TtSemiLepKinFitter::TtSemiLepKinFitter():
 TtSemiLepKinFitter::TtSemiLepKinFitter(Param jetParam, Param lepParam, Param metParam,
 				       int maxNrIter, double maxDeltaS, double maxF,
 				       std::vector<Constraint> constraints, double mW, double mTop):
-  fitter_(0), hadB_(0), hadP_(0), hadQ_(0), lepB_(0), lepton_(0), neutrino_(0),
-  jetParam_(jetParam), lepParam_(lepParam), metParam_(metParam),
-  maxNrIter_(maxNrIter), maxDeltaS_(maxDeltaS), maxF_(maxF), constrList_(constraints), mW_(mW), mTop_(mTop)
+  TopKinFitter(maxNrIter, maxDeltaS, maxF, mW, mTop),
+  hadB_(0), hadP_(0), hadQ_(0), lepB_(0), lepton_(0), neutrino_(0),
+  jetParam_(jetParam), lepParam_(lepParam), metParam_(metParam)
 {
   setupFitter();
 }
 
 TtSemiLepKinFitter::~TtSemiLepKinFitter() 
 {
-  delete fitter_;
   delete hadB_; 
   delete hadP_; 
   delete hadQ_;
@@ -137,14 +136,6 @@ void TtSemiLepKinFitter::setupFitter()
   setupJets();
   setupLeptons();
   setupConstraints();
-
-  fitter_= new TKinFitter("TtSemiLeptonicFit", "TtSemiLeptonicFit");
-
-  // configure fit
-  fitter_->setMaxNbIter(maxNrIter_);
-  fitter_->setMaxDeltaS(maxDeltaS_);
-  fitter_->setMaxF(maxF_);
-  fitter_->setVerbosity(0);
 
   // add measured particles
   fitter_->addMeasParticle(hadB_);
@@ -394,13 +385,4 @@ TtSemiEvtSolution TtSemiLepKinFitter::addKinFitInfo(TtSemiEvtSolution* asol)
     fitsol.setProbChi2( fitProb() );
   }
   return fitsol;
-}
-
-/// change format from TMatrixD to specially sorted vector<float>
-std::vector<float> TtSemiLepKinFitter::translateCovM(TMatrixD& inMatrix){
-  std::vector<float> outMatrix; 
-  for(int ii=0; ii<inMatrix.GetNrows(); ii++){
-    for(int jj=0; jj<inMatrix.GetNcols(); jj++) outMatrix.push_back(inMatrix(ii,jj));
-  }
-  return outMatrix;
 }
