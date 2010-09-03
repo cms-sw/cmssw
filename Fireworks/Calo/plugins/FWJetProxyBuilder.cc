@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWJetProxyBuilder.cc,v 1.17 2010/09/02 18:28:11 amraktad Exp $
+// $Id: FWJetProxyBuilder.cc,v 1.18 2010/09/02 19:28:40 amraktad Exp $
 //
 #include "TGeoArb8.h"
 #include "TEveGeoNode.h"
@@ -25,6 +25,7 @@
 
 #include "Fireworks/Calo/interface/FW3DEveJet.h"
 #include "Fireworks/Calo/interface/FWGlimpseEveJet.h"
+#include "Fireworks/Calo/interface/CaloUtils.h"
 #include "Fireworks/Calo/interface/thetaBins.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
@@ -392,7 +393,7 @@ void
 FWJetLegoProxyBuilder::build(const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder,
                              const FWViewContext*) 
 {
-   TEveStraightLineSet* container = new TEveStraightLineSet( "circle" );
+   /* TEveStraightLineSet* container = new TEveStraightLineSet( "circle" );
 
    const unsigned int nLineSegments = 20;
    const double jetRadius = 0.5;
@@ -406,5 +407,7 @@ FWJetLegoProxyBuilder::build(const reco::Jet& iData, unsigned int iIndex, TEveEl
                          0.01);
    }
    setupAddElement(container, &oItemHolder);
+    */
+   fireworks::addCircle( iData.eta(), iData.phi(), 0.5, 20, &oItemHolder, this );
 }
 REGISTER_FWPROXYBUILDER( FWJetLegoProxyBuilder, reco::Jet, "Jets", FWViewType::kLegoBit | FWViewType::kLegoHFBit );

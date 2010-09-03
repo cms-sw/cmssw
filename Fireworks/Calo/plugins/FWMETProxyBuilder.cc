@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWMETProxyBuilder.cc,v 1.15 2010/08/30 15:42:32 amraktad Exp $
+// $Id: FWMETProxyBuilder.cc,v 1.16 2010/09/02 19:28:40 amraktad Exp $
 //
 
 // system include files
@@ -122,77 +122,4 @@ FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEve
 
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//
-//   GLIMPSE specific proxy builder
-// 
-////////////////////////////////////////////////////////////////////////////////
-
-
-class FWMETGlimpseProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::MET>
-{
-public:
-   FWMETGlimpseProxyBuilder() {}
-   virtual ~FWMETGlimpseProxyBuilder() {}
-
-   REGISTER_PROXYBUILDER_METHODS();
-
-private:
-   FWMETGlimpseProxyBuilder( const FWMETGlimpseProxyBuilder& );    // stop default
-   const FWMETGlimpseProxyBuilder& operator=( const FWMETGlimpseProxyBuilder& );    // stop default
-
-   virtual void build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*);
-};
-
-void 
-FWMETGlimpseProxyBuilder::build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*) 
-{
-   double phi = iData.phi();
-   double size = iData.et();
-   TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet( "energy" );
-   marker->SetLineWidth( 2 );
-   marker->AddLine( 0, 0, 0, size*cos(phi), size*sin(phi), 0);
-   marker->AddLine( size*0.9*cos(phi+0.03), size*0.9*sin(phi+0.03), 0, size*cos(phi), size*sin(phi), 0);
-   marker->AddLine( size*0.9*cos(phi-0.03), size*0.9*sin(phi-0.03), 0, size*cos(phi), size*sin(phi), 0);
-   setupAddElement( marker, &oItemHolder );
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//
-//   LEGO specific proxy builder
-// 
-////////////////////////////////////////////////////////////////////////////////
-
-class FWMETLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::MET>
-{
-public:
-   FWMETLegoProxyBuilder() {}
-   virtual ~FWMETLegoProxyBuilder() {}
-
-   REGISTER_PROXYBUILDER_METHODS();
-
-private:
-   FWMETLegoProxyBuilder( const FWMETLegoProxyBuilder& );    // stop default
-   const FWMETLegoProxyBuilder& operator=( const FWMETLegoProxyBuilder& );    // stop default
-
-   virtual void build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*);
-};
-
-void
-FWMETLegoProxyBuilder::build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext*) 
-{
-   TEveStraightLineSet* mainLine = new TEveStraightLineSet( "MET phi" );
-   mainLine->AddLine(-5.191, iData.phi(), 0.01, 5.191, iData.phi(), 0.01 );
-   setupAddElement( mainLine, &oItemHolder );
-
-   double phi = iData.phi();
-   phi = phi > 0 ? phi - M_PI : phi + M_PI;
-   TEveStraightLineSet* secondLine = new TEveStraightLineSet( "MET opposite phi" );
-   secondLine->SetLineStyle( 7 );
-   secondLine->AddLine(-5.191, phi, 0.01, 5.191, phi, 0.01 );
-   setupAddElement( secondLine, &oItemHolder );
-}
-
 REGISTER_FWPROXYBUILDER( FWMETProxyBuilder, reco::MET, "recoMET", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
-REGISTER_FWPROXYBUILDER( FWMETGlimpseProxyBuilder, reco::MET, "recoMET", FWViewType::kGlimpseBit );
-REGISTER_FWPROXYBUILDER( FWMETLegoProxyBuilder, reco::MET, "recoMET", FWViewType::kLegoBit );
