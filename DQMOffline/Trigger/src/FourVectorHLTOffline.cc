@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.86 2010/08/26 11:25:13 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.87 2010/09/03 11:05:26 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -1213,7 +1213,7 @@ void FourVectorHLTOffline::beginRun(const edm::Run& run, const edm::EventSetup& 
        
        histoname = labelname+"_onOneOverEtOn";
        title = labelname+" 1 / onE_t online";
-       onOneOverEtOn =  dbe->book1D(histoname.c_str(), title.c_str(),nBinsOneOverEt_, 0, 1);
+       onOneOverEtOn =  dbe->book1D(histoname.c_str(), title.c_str(),nBinsOneOverEt_, 0, 0.1);
        onOneOverEtOn->setAxisTitle("HLT 1/Et [1/GeV]");
        
        histoname = labelname+"_offEtOff";
