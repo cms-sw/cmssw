@@ -20,7 +20,7 @@
 
 typedef SingleObjectSelector<
           edm::View<reco::Candidate>,
-          StringCutObjectSelector<reco::Candidate>,
+  StringCutObjectSelector<reco::Candidate, true>,
           reco::CandidateCollection
        > CandViewSelector;
 
