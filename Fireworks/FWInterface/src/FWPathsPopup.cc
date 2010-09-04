@@ -104,22 +104,16 @@ public:
   redGC()
     {
       static TGGC s_redGC(*gClient->GetResourcePool()->GetFrameGC());
-      GCValues_t gvals(*(s_redGC.GetAttributes()));
-      
-      TGFontPool *pool = gClient->GetFontPool();
-      TGFont *font = pool->FindFontByHandle(s_redGC.GetFont());
-
-      gvals.fMask = kGCFont;
-      gvals.fFont = font->GetFontHandle();
-    
+      s_redGC.SetForeground(gVirtualX->GetPixel(kRed));
       return s_redGC;
     }
-  
-  
+ 
+ 
   const TGGC&
   greenGC()
     {
       static TGGC s_greenGC(*gClient->GetResourcePool()->GetFrameGC());
+      s_greenGC.SetForeground(gVirtualX->GetPixel(kGreen));
       return s_greenGC;
     }
   
