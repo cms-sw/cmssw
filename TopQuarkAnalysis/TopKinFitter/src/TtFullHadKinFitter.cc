@@ -196,10 +196,10 @@ TtFullHadKinFitter::fit(const std::vector<pat::Jet>& jets)
   CovarianceMatrix covM;
   TMatrixD m1 = covM.setupMatrix(lightQ,    jetParam_);
   TMatrixD m2 = covM.setupMatrix(lightQBar, jetParam_);
-  TMatrixD m3 = covM.setupMatrix(b,         jetParam_, "bjet");
-  TMatrixD m4 = covM.setupMatrix(lightP,    jetParam_, "bjet");
+  TMatrixD m3 = covM.setupMatrix(b,         jetParam_, "bjets");
+  TMatrixD m4 = covM.setupMatrix(lightP,    jetParam_);
   TMatrixD m5 = covM.setupMatrix(lightPBar, jetParam_);
-  TMatrixD m6 = covM.setupMatrix(bBar     , jetParam_);
+  TMatrixD m6 = covM.setupMatrix(bBar     , jetParam_, "bjets");
 
   // set the kinematics of the objects to be fitted
   b_        ->setIni4Vec(&p4B        );
