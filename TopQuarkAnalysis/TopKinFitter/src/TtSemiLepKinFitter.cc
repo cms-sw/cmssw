@@ -175,8 +175,8 @@ int TtSemiLepKinFitter::fit(const std::vector<pat::Jet>& jets, const pat::Lepton
   CovarianceMatrix covM;
   TMatrixD m1 = covM.setupMatrix(hadP,     jetParam_);
   TMatrixD m2 = covM.setupMatrix(hadQ,     jetParam_);
-  TMatrixD m3 = covM.setupMatrix(hadB,     jetParam_, "bjet");
-  TMatrixD m4 = covM.setupMatrix(lepB,     jetParam_, "bjet");
+  TMatrixD m3 = covM.setupMatrix(hadB,     jetParam_, "bjets");
+  TMatrixD m4 = covM.setupMatrix(lepB,     jetParam_, "bjets");
   TMatrixD m5 = covM.setupMatrix(lepton,   lepParam_);
   TMatrixD m6 = covM.setupMatrix(neutrino, metParam_);
 
