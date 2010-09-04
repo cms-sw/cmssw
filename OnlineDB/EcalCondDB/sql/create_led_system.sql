@@ -78,6 +78,8 @@ BEGIN
 END;
 /
 
+@update_iov_dates_procedure_new
+
 /* Tags */
 CREATE TABLE LED_SYSTEM_TAG (
 	TAG_ID		NUMBER(10) NOT NULL,
