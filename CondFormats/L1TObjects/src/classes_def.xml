@@ -6,6 +6,7 @@
   <class name="L1MuSymmetricBinnedScale">
     <field name="m_Scale" mapping="blob" />
   </class>
+  <class name="L1MuPacking"/>
   <class name="L1MuPseudoSignedPacking"/>
   <class name="L1MuTriggerScales"/>
   <class name="L1MuTriggerPtScale"/>
