@@ -43,9 +43,9 @@ JPTZSPCorrectorICone5 = cms.PSet(
     DzVertexCut     = cms.double(0.2),
     
     # Response and efficiency maps
-    ResponseMap   = cms.string("CondFormats/JetMETObjects/data/CMSSW_340_response.txt"),
-    EfficiencyMap = cms.string("CondFormats/JetMETObjects/data/CMSSW_340_TrackNonEff.txt"),
-    LeakageMap    = cms.string("CondFormats/JetMETObjects/data/CMSSW_167_TrackLeakage.txt"),
+    ResponseMap   = cms.string("CondFormats/JetMETObjects/data/CMSSW_362_response.txt"),
+    EfficiencyMap = cms.string("CondFormats/JetMETObjects/data/CMSSW_362_TrackNonEff.txt"),
+    LeakageMap    = cms.string("CondFormats/JetMETObjects/data/CMSSW_362_TrackLeakage.txt"),
 
     # Jet-related
     MaxJetEta = cms.double(3.0)
