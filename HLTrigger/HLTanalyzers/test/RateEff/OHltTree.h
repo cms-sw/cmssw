@@ -2472,6 +2472,8 @@ public :
 		       float L1TauEtThr, float L1CenJetThr);
   int OpenHltTauL2SCPassed(float Et,float L25Tpt, int L25Tiso, float L3Tpt, int L3Tiso,
 			   float L1TauEtThr, float L1CenJetThr);
+  int OpenHltTauL2SCMETPassed(float Et,float L25Tpt, int L25Tiso, float L3Tpt, int L3Tiso, float met,
+  		  float L1TauThr, float L1CenJetThr);
   int OpenHlt2Tau1LegL3IsoPassed(float Et,float L25Tpt, int L25Tiso, float L3Tpt,
 				 float L1TauEtThr, float L1CenJetThr);
   int OpenHltElecTauL2SCPassed(float elecEt, int elecL1iso, float elecTiso, float elecHiso,
@@ -2505,6 +2507,8 @@ public :
   int OpenHltQuadCorJetPassed(double pt);
   int OpenHltJRMuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso,double ptl3hi);
   int OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold) ;
+  int OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold, double etajetthreshold) ;
+  int OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold, double etajetthreshold, int Njetthreshjold) ;
   int OpenHltMHT(double MHTthreshold, double jetthreshold) ;
   int OpenHlt1PixelTrackPassed(float minpt, float minsep, float miniso);
   int readRefPrescaleFromFile(TString st); 
