@@ -38,8 +38,6 @@ class TopKinFitter {
  protected:
   /// convert Param to human readable form
   std::string param(const Param& param) const;
-  /// change format from TMatrixD to specially sorted vector<float>
-  std::vector<float> translateCovM(TMatrixD& inMatrix) const;
   
  protected:
   // kinematic fitter

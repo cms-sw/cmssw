@@ -18,16 +18,6 @@ TopKinFitter::~TopKinFitter()
   delete fitter_;
 }
 
-/// change format from TMatrixD to specially sorted vector<float>
-std::vector<float> TopKinFitter::translateCovM(TMatrixD& inMatrix) const
-{
-  std::vector<float> outMatrix; 
-  for(int ii=0; ii<inMatrix.GetNrows(); ii++){
-    for(int jj=0; jj<inMatrix.GetNcols(); jj++) outMatrix.push_back(inMatrix(ii,jj));
-  }
-  return outMatrix;
-}
-
 /// convert Param to human readable form
 std::string 
 TopKinFitter::param(const Param& param) const

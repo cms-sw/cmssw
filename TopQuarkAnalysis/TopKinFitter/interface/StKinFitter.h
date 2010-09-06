@@ -1,5 +1,5 @@
 //
-// $Id: StKinFitter.h,v 1.2 2008/02/17 11:38:30 rwolf Exp $
+// $Id: StKinFitter.h,v 1.3 2010/09/06 11:07:13 snaumann Exp $
 //
 
 #ifndef TopKinFitter_StKinFitter_h
@@ -45,7 +45,6 @@ class StKinFitter : public TopKinFitter {
     TFitConstraintM  * cons3_;
     // other parameters
     Param jetParam_, lepParam_, metParam_;
-    bool doNeutrinoResol_;
     std::vector<int> constraints_;
 };
 
