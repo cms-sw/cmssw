@@ -42,7 +42,7 @@ class csvSelectionParser(object):
         return len(self.__result.keys())
     def numls(self,run):
         return len(self.__result[run])
-    
+        
 if __name__ == '__main__':
     result={}
     #filename='../test/lumi_by_LS_all.csv'

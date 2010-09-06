@@ -183,6 +183,7 @@ def dropLumi(dbsession):
     db.dropTable( nameDealer.trghltMapTableName() )
     db.dropTable( nameDealer.lumiresultTableName() )
     db.dropTable( nameDealer.lumihltresultTableName() )
+    db.dropTable( nameDealer.lumivalidationTableName() )
     dbsession.transaction().commit()
     
 def describeLumi(dbsession):

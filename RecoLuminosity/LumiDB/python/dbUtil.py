@@ -46,14 +46,18 @@ class dbUtil(object):
                   print '\t',columndesp.name(),columndesp.type()
         except Exception, e:
             raise Exception, str(e)
-    def existRow( self, tableName, condition, conditionbindDict):
+    def existRow( self, tableName, condition, conditionDefDict,conditionDict):
         """
         Return true if one row fulfills the selection criteria
         """
         try:
             tableHandle = self.__schema.tableHandle(tableName)
             query = tableHandle.newQuery()
-            query.setCondition(condition,conditionbindDict)
+            queryBind=coral.AttributeList()
+            for colname,coltype in conditionDefDict.items():
+                queryBind.extend(colname,coltype)
+                queryBind[colname].setData(conditionDict[colname])
+            query.setCondition(condition,queryBind)
             cursor = query.execute()
             result=False
             while ( cursor.next() ):
@@ -77,26 +81,52 @@ class dbUtil(object):
                 inputData[name].setData(tabrowValueDict[name])
             editor.insertRow( inputData )
         except Exception, e:
-            raise Exception, str(e)
-    def bulkInsert( self, tableName, tabrowDefDict, bulkinput):
+            raise Exception, 'dbUtil.insertOneRow:'+str(e)
+    def updateRows( self,tableName,updateAction,updateCondition,bindvarDef,bulkinput):
+        '''
+        update rows, note update must be ordered
+        input :
+           tableName, string
+           updateAction,string  e.g. flag=:newflag
+           conditionstring, string ,e.g. runnum=:runnum and cmslsnum=:cmslsnum
+           bindvarDef,[('newflag':'string'),('runnum','unsigned int'),('cmslsnum','unsigned int')]
+           bulkinput,[[('newflag','GOOD'),('runnum',1234),('cmslsnum',1)],[]]
+        '''
+        try:
+            dataEditor=self.__schema.tableHandle(tableName).dataEditor()
+            updateData=coral.AttributeList()
+            for (columnname,columntype) in bindvarDef:
+                updateData.extend(columnname,columntype)
+            bulkOperation=dataEditor.bulkUpdateRows(updateAction,updateCondition,updateData,len(bulkinput))
+            for valuelist in bulkinput:
+                for (columnname,columnvalue) in valuelist:
+                    updateData[columnname].setData(columnvalue)
+                bulkOperation.processNextIteration()
+            bulkOperation.flush()
+            del bulkOperation
+        except Exception, e:
+            raise Exception, 'dbUtil.updateRows:'+str(e)
+    def bulkInsert( self, tableName, tabrowDef, bulkinput):
         """
-        Bulk insert bulkinput=[{}]
+        input:
+           tableName, string
+           tabrowDef,[('RUNNUM':'unsigned int'),('CMSLSNUM','unsigned int'),('FLAG','string'),('COMMENT','string')]
+           bulkinput,[[('RUNNUM',1234),('CMSLSNUM',1234),('FLAG','GOOD'),('COMMENT','coment')],[]]
         """
         try:
             dataEditor=self.__schema.tableHandle(tableName).dataEditor()
             insertdata=coral.AttributeList()
-            for (columnname,columntype) in tabrowDefDict.items():
-                insertdata.extend(columnname,columntype)
-                
+            for (columnname,columntype) in tabrowDef:
+                insertdata.extend(columnname,columntype)                
             bulkOperation=dataEditor.bulkInsert(insertdata,len(bulkinput))
-            for valuedict in bulkinput:
-                for (columnname,columnvalue) in valuedict.items():
+            for valuelist in bulkinput:
+                for (columnname,columnvalue) in valuelist:
                     insertdata[columnname].setData(columnvalue)
                 bulkOperation.processNextIteration()
             bulkOperation.flush()
             del bulkOperation
         except Exception, e:
-            raise Exception, str(e)
+            raise Exception, 'dbUtil.bulkInsert:'+str(e)
         
     def deleteRows( self, tableName, condition, conditionbindDict ):
         """

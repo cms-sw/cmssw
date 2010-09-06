@@ -4,11 +4,83 @@ import os,sys
 import coral
 import json,csv
 #import optparse
-from RecoLuminosity.LumiDB import inputFilesetParser,selectionParser,argparse,CommonUtil
+from RecoLuminosity.LumiDB import inputFilesetParser,selectionParser,argparse,CommonUtil,dbUtil,nameDealer
 import RecoLuminosity.LumiDB.lumiQueryAPI as LumiQueryAPI
 
-#from pprint import pprint
-
+def insertupdateValidationData(dbsession,data):
+    '''
+    input: data {run:[[ls,status,comment]]}
+    '''
+    toreplacenocomment=[]#[[('RUNNUM',runnum),('CMSLSNUM',cmslsnum),('FLAG',flag)],[]]
+    toreplacewcomment=[]#[[('RUNNUM',runnum),('CMSLSNUM',cmslsnum),('FLAG',flag),('COMMENT',comment)],[]]
+    toinsert=[] #[[('RUNNUM',runnum),('CMSLSNUM',cmslsnum),('FLAG',flag),('COMMENT',comment)],[]]
+    try:
+        dbsession.transaction().start(True)
+        dbutil=dbUtil.dbUtil(dbsession.nominalSchema())
+        for run,alllsdata in data.items():
+            for lsdata in alllsdata:
+                condition='RUNNUM=:runnum AND CMSLSNUM=:cmslsnum'
+                conditionDefDict={}
+                conditionDefDict['runnum']='unsigned int'
+                conditionDefDict['cmslsnum']='unsigned int'
+                conditionDict={}
+                conditionDict['runnum']=run
+                conditionDict['cmslsnum']=lsdata[0]
+                if dbutil.existRow(nameDealer.lumivalidationTableName(),condition,conditionDefDict,conditionDict):
+                    if len(lsdata)>2 and lsdata[2]:
+                        toreplacewcomment.append([('runnum',run),('cmslsnum',lsdata[0]),('flag',lsdata[1]),('comment',lsdata[2])])
+                    else: 
+                        toreplacenocomment.append([('runnum',run),('cmslsnum',lsdata[0]),('flag',lsdata[1]),('comment','')])
+                else:
+                    if len(lsdata)>2 and lsdata[2]:
+                        toinsert.append([('RUNNUM',run),('CMSLSNUM',lsdata[0]),('FLAG',lsdata[1]),('COMMENT',lsdata[2])])
+                    else:
+                        toinsert.append([('RUNNUM',run),('CMSLSNUM',lsdata[0]),('FLAG',lsdata[1]),('COMMENT','N/A')])
+        dbsession.transaction().commit()
+        #print 'toreplace with comment ',toreplacewcomment
+        #print 'toreplace without comment ',toreplacenocomment
+        #print 'toinsert ',toinsert
+        #perform insert
+        if len(toinsert)!=0:
+            dbsession.transaction().start(False)
+            dbutil=dbUtil.dbUtil(dbsession.nominalSchema())
+            tabrowDef=[]
+            tabrowDef.append(('RUNNUM','unsigned int'))
+            tabrowDef.append(('CMSLSNUM','unsigned int'))
+            tabrowDef.append(('FLAG','string'))
+            tabrowDef.append(('COMMENT','string'))
+            dbutil.bulkInsert(nameDealer.lumivalidationTableName(),tabrowDef,toinsert)
+            dbsession.transaction().commit()
+        #perform update with comment
+        if len(toreplacewcomment)!=0:
+            dbsession.transaction().start(False)
+            dbutil=dbUtil.dbUtil(dbsession.nominalSchema())
+            updateAction='FLAG=:flag,COMMENT=:comment'
+            updateCondition='RUNNUM=:runnum and CMSLSNUM=:cmslsnum'
+            bindvarDef=[]        
+            bindvarDef.append(('flag','string'))
+            bindvarDef.append(('comment','string'))
+            bindvarDef.append(('runnum','unsigned int'))
+            bindvarDef.append(('cmslsnum','unsigned int'))
+            dbutil.updateRows(nameDealer.lumivalidationTableName(),updateAction,updateCondition,bindvarDef,toreplacewcomment)
+            dbsession.transaction().commit()
+        #perform update with NO comment
+        if len(toreplacenocomment)!=0:
+            dbsession.transaction().start(False)
+            dbutil=dbUtil.dbUtil(dbsession.nominalSchema())
+            updateAction='FLAG=:flag'
+            updateCondition='RUNNUM=:runnum and CMSLSNUM=:cmslsnum'
+            bindvarDef=[]        
+            bindvarDef.append(('flag','string'))
+            bindvarDef.append(('runnum','unsigned int'))
+            bindvarDef.append(('cmslsnum','unsigned int'))
+            dbutil.updateRows(nameDealer.lumivalidationTableName(),updateAction,updateCondition,bindvarDef,toreplacenocomment)
+            dbsession.transaction().commit()
+    except Exception, e:
+        dbsession.transaction().rollback()
+        del dbsession
+        raise Exception, 'lumiValidate.insertupdateValidationData:'+str(e)
+    
 ##############################
 ## ######################## ##
 ## ## ################## ## ##
@@ -38,9 +110,15 @@ def main():
     os.environ['CORAL_AUTH_PATH'] = options.authpath
     connectstring=options.connect
     svc = coral.ConnectionService()
+    msg=coral.MessageStream('')
+    if options.debug:
+        msg.setMsgVerbosity(coral.message_Level_Debug)
+    else:
+        msg.setMsgVerbosity(coral.message_Level_Error)
     session=svc.connect(connectstring,accessMode=coral.access_Update)
     session.typeConverter().setCppTypeForSqlType("unsigned int","NUMBER(10)")
     session.typeConverter().setCppTypeForSqlType("unsigned long long","NUMBER(20)")
+    
     result={}#parsing result {run:[[ls,status,comment]]}
     if options.debug :
         msg=coral.MessageStream('')
@@ -71,6 +149,9 @@ def main():
         if not options.flag:
             print 'option -flag is required for update'
             raise
+        if options.flag.upper() not in allowedFlags:
+            print 'unrecognised flag ',options.flag
+            raise
         runlsjson=CommonUtil.tolegalJSON(options.runls)
         sparser=selectionParser.selectionParser(runlsjson)
         runsandls=sparser.runsandls()
@@ -81,7 +162,7 @@ def main():
                 result[run]=[]
             for ls in lslist:
                 result[run].append([ls,statusStr,commentStr])
-    print result
+    insertupdateValidationData(session,result)
     del session
     del svc
 if __name__ == '__main__':
