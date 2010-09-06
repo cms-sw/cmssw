@@ -155,7 +155,7 @@ def main():
         runlsjson=CommonUtil.tolegalJSON(options.runls)
         sparser=selectionParser.selectionParser(runlsjson)
         runsandls=sparser.runsandls()
-        commentStr='N/A'
+        commentStr='NA'
         statusStr=options.flag
         for run,lslist in runsandls.items():
             if not result.has_key(run):
