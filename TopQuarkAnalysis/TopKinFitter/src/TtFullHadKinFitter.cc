@@ -7,7 +7,6 @@
 
 #include "AnalysisDataFormats/TopObjects/interface/TtFullHadEvtPartons.h"
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtFullHadKinFitter.h"
-#include "TopQuarkAnalysis/TopKinFitter/interface/CovarianceMatrix.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -18,6 +17,7 @@ TtFullHadKinFitter::TtFullHadKinFitter():
   jetParam_(kEMom)
 {
   setupFitter();
+  covM=0;
 }
 
 /// used to convert vector of int's to vector of constraints (just used in TtFullHadKinFitter(int, int, double, double, std::vector<unsigned int>))
@@ -41,6 +41,7 @@ TtFullHadKinFitter::TtFullHadKinFitter(int jetParam, int maxNrIter, double maxDe
   jetParam_((Param)jetParam), constraints_(intToConstraint(constraints))
 {
   setupFitter();
+  covM=0;
 }
 
 /// constructor initialized with build-in types and class enum's custom parameters
@@ -51,6 +52,7 @@ TtFullHadKinFitter::TtFullHadKinFitter(Param jetParam, int maxNrIter, double max
   jetParam_(jetParam), constraints_(constraints)
 {
   setupFitter();
+  covM=0;
 }
 
 /// default destructor
@@ -62,6 +64,7 @@ TtFullHadKinFitter::~TtFullHadKinFitter()
   delete lightQBar_; 
   delete lightP_; 
   delete lightPBar_;
+  delete covM;
   for(std::map<Constraint, TFitConstraintM*>::iterator it = massConstr_.begin(); it != massConstr_.end(); ++it)
     delete it->second;
 }
@@ -170,7 +173,7 @@ TtFullHadKinFitter::setupFitter()
 
 /// kinematic fit interface
 int 
-TtFullHadKinFitter::fit(const std::vector<pat::Jet>& jets)
+TtFullHadKinFitter::fit(const std::vector<pat::Jet>& jets, const std::vector<edm::ParameterSet> udscResolutions, const std::vector<edm::ParameterSet> bResolutions)
 {
   if( jets.size()<6 ){
     throw edm::Exception( edm::errors::Configuration, "Cannot run the TtFullHadKinFitter with less than 6 jets" );
@@ -193,13 +196,13 @@ TtFullHadKinFitter::fit(const std::vector<pat::Jet>& jets)
   TLorentzVector p4LightPBar( lightPBar.px(), lightPBar.py(), lightPBar.pz(), lightPBar.energy() );
 
   // initialize covariance matrices
-  CovarianceMatrix covM;
-  TMatrixD m1 = covM.setupMatrix(lightQ,    jetParam_);
-  TMatrixD m2 = covM.setupMatrix(lightQBar, jetParam_);
-  TMatrixD m3 = covM.setupMatrix(b,         jetParam_, "bjets");
-  TMatrixD m4 = covM.setupMatrix(lightP,    jetParam_);
-  TMatrixD m5 = covM.setupMatrix(lightPBar, jetParam_);
-  TMatrixD m6 = covM.setupMatrix(bBar     , jetParam_, "bjets");
+  if(!covM) covM = new CovarianceMatrix(udscResolutions, bResolutions);
+  TMatrixD m1 = covM->setupMatrix(lightQ,    jetParam_);
+  TMatrixD m2 = covM->setupMatrix(lightQBar, jetParam_);
+  TMatrixD m3 = covM->setupMatrix(b,         jetParam_, "bjets");
+  TMatrixD m4 = covM->setupMatrix(lightP,    jetParam_);
+  TMatrixD m5 = covM->setupMatrix(lightPBar, jetParam_);
+  TMatrixD m6 = covM->setupMatrix(bBar     , jetParam_, "bjets");
 
   // set the kinematics of the objects to be fitted
   b_        ->setIni4Vec(&p4B        );
@@ -233,6 +236,14 @@ TtFullHadKinFitter::fit(const std::vector<pat::Jet>& jets)
     fittedLightPBar_= pat::Particle(reco::LeafCandidate(0, math::XYZTLorentzVector(lightPBar_->getCurr4Vec()->X(), lightPBar_->getCurr4Vec()->Y(), lightPBar_->getCurr4Vec()->Z(), lightPBar_->getCurr4Vec()->E()), math::XYZPoint()));
   }
   return fitter_->getStatus();
+}
+
+/// kinematic fit interface
+int 
+TtFullHadKinFitter::fit(const std::vector<pat::Jet>& jets)
+{
+  const std::vector<edm::ParameterSet> emptyResolutionVector;
+  return fit(jets, emptyResolutionVector, emptyResolutionVector);
 }
 
 /// add kin fit information to the old event solution (in for legacy reasons)

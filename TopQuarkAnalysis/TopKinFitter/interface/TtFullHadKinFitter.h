@@ -7,7 +7,10 @@
 
 #include "AnalysisDataFormats/TopObjects/interface/TtHadEvtSolution.h"
 
+#include "TopQuarkAnalysis/TopKinFitter/interface/CovarianceMatrix.h"
 #include "TopQuarkAnalysis/TopKinFitter/interface/TopKinFitter.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class TAbsFitParticle;
 class TFitConstraintM;
@@ -43,6 +46,7 @@ class TtFullHadKinFitter : public TopKinFitter {
 
   /// kinematic fit interface
   int fit(const std::vector<pat::Jet>& jets);
+  int fit(const std::vector<pat::Jet>& jets, const std::vector<edm::ParameterSet> udscResolutions, const std::vector<edm::ParameterSet> bResolutions);
   /// return fitted b quark candidate
   const pat::Particle fittedB() const { return (fitter_->getStatus()==0 ? fittedB_ : pat::Particle()); };
   /// return fitted b quark candidate
@@ -89,6 +93,9 @@ class TtFullHadKinFitter : public TopKinFitter {
   Param jetParam_;
   /// vector of constraints to be used
   std::vector<Constraint> constraints_;
+
+  /// get object resolutions and put them into a matrix
+  CovarianceMatrix * covM;
 };
 
 #endif
