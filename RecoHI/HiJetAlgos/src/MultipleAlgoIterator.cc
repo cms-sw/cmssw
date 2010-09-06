@@ -71,7 +71,9 @@ void MultipleAlgoIterator::subtractPedestal(vector<fastjet::PseudoJet> & coll)
 
    int it = -100;
    int ip = -100;
-        
+
+   vector<fastjet::PseudoJet> newcoll;
+
    for (vector<fastjet::PseudoJet>::iterator input_object = coll.begin (),
 	   fjInputsEnd = coll.end(); 
 	input_object != fjInputsEnd; ++input_object) {
@@ -99,7 +101,12 @@ void MultipleAlgoIterator::subtractPedestal(vector<fastjet::PseudoJet> & coll)
 			    towP4.pz(),
 			    towP4.energy() );
       input_object->set_user_index(index);
+
+      if(etnew > 0. && dropZeroTowers_) newcoll.push_back(*input_object);
    }
+
+   if(dropZeroTowers_) coll = newcoll;
+
 }
 
 void MultipleAlgoIterator::calculatePedestal( vector<fastjet::PseudoJet> const & coll )

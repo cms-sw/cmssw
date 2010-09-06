@@ -6,7 +6,9 @@
 class MultipleAlgoIterator : public PileUpSubtractor {
  public:
    MultipleAlgoIterator(const edm::ParameterSet& iConfig) : PileUpSubtractor(iConfig),
-      sumRecHits_(iConfig.getParameter<bool>("sumRecHits")){;}
+     sumRecHits_(iConfig.getParameter<bool>("sumRecHits")),
+     dropZeroTowers_(iConfig.getUntrackedParameter<bool>("dropZeroTowers",true))
+       {;}
     virtual void offsetCorrectJets();
     void rescaleRMS(double s);
     double getEt(const reco::CandidatePtr & in) const;
@@ -15,6 +17,7 @@ class MultipleAlgoIterator : public PileUpSubtractor {
     virtual void subtractPedestal(std::vector<fastjet::PseudoJet> & coll);
 
     bool sumRecHits_;
+    bool dropZeroTowers_;
     ~MultipleAlgoIterator(){;}
     
 };
