@@ -455,7 +455,7 @@ void TagProbeFitter::doFitEfficiency(RooWorkspace* w, string pdfName, RooRealVar
       efficiency.setAsymError(0,cerr);
     } else {
       efficiency.setVal(1);
-      efficiency.setAsymError(-cerr,1);
+      efficiency.setAsymError(-cerr,0);
     }
   }
 }
