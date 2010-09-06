@@ -101,7 +101,7 @@ LogErrorFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetup) {
   } else {
     if (atLeastOneEntry_) {
       if (avoidCategories_.size() != 0) {
-        for (uint iE = 0; iE != errorsAndWarnings->size(); ++iE) {
+        for (unsigned int iE = 0; iE != errorsAndWarnings->size(); ++iE) {
           //veto categories from user input.
           if (std::find(avoidCategories_.begin(),avoidCategories_.end(), ((*errorsAndWarnings)[iE]).category) != avoidCategories_.end()) {
 	    continue;
@@ -115,9 +115,9 @@ LogErrorFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetup) {
       }
     } else {
       if (atLeastOneError_ || atLeastOneWarning_) {
-        uint nError = 0;
-        uint nWarning = 0;
-	for (uint iE = 0; iE != errorsAndWarnings->size(); ++iE) {
+        unsigned int nError = 0;
+        unsigned int nWarning = 0;
+	for (unsigned int iE = 0; iE != errorsAndWarnings->size(); ++iE) {
 	  //veto categories from user input.
 	  if (avoidCategories_.size() != 0) {
 	    if (std::find(avoidCategories_.begin(),avoidCategories_.end(), ((*errorsAndWarnings)[iE]).category) != avoidCategories_.end()) {

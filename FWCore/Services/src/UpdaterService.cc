@@ -32,7 +32,7 @@ void UpdaterService::theInit(){
 bool UpdaterService::checkOnce(std::string tag){
   bool answer=true;
 
-  std::map<std::string, uint>::iterator i=theCounts.find(tag);
+  std::map<std::string, unsigned int>::iterator i=theCounts.find(tag);
   if (i!=theCounts.end()){
     i->second++;
     answer=false;

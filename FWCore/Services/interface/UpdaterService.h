@@ -28,7 +28,7 @@ class UpdaterService {
 
  private:
   void theInit();
-  std::map< std::string, uint > theCounts;
+  std::map< std::string, unsigned int > theCounts;
   const edm::EventID * theEventId;
 };
 
