@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:43:50 EST 2009
-// $Id: FWTextTableCellRenderer.h,v 1.2 2009/03/04 15:30:02 chrjones Exp $
+// $Id: FWTextTableCellRenderer.h,v 1.3 2009/05/05 08:36:06 elmer Exp $
 //
 
 // system include files
@@ -48,7 +48,8 @@ public:
    virtual ~FWTextTableCellRenderer();
    
    // ---------- const member functions ---------------------
-   const TGGC* graphicsContext() const { return m_context;}
+   const TGGC* graphicsContext() const { return m_context; }
+   const TGGC* highlightContext() const { return m_highlightContext; }
    virtual UInt_t width() const;
    virtual UInt_t height() const;
    
@@ -57,8 +58,11 @@ public:
    
    // ---------- member functions ---------------------------
    void setData(const std::string&, bool isSelected);
+   const std::string &data() { return m_data; }
    void setGraphicsContext(const TGGC* iContext) { m_context = iContext;}
+   void setHighlightContext(const TGGC* context) { m_highlightContext = context; }
    void setJustify(Justify);
+   bool selected() { return m_isSelected; }
    
    virtual void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight);
    
