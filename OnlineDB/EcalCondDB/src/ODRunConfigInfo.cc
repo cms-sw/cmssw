@@ -160,7 +160,7 @@ void ODRunConfigInfo::setByID(int id)
      Statement* stmt = m_conn->createStatement();
 
      stmt->setSQL("SELECT tag, version, run_type_def_id, run_mode_def_id, num_of_sequences, description, defaults,"
-		  " trg_mode,num_of_events, db_timestamp"
+		  " trg_mode,num_of_events, db_timestamp, usage_status"
 		  " FROM ECAL_RUN_CONFIGURATION_DAT WHERE config_id = :1");
      stmt->setInt(1, id);
      
@@ -182,7 +182,7 @@ void ODRunConfigInfo::setByID(int id)
        m_runModeDef.setByID(run_mode_id);
        m_runTypeDef.setConnection(m_env, m_conn);
        m_runTypeDef.setByID(run_type_id);
-
+       m_usage_status=rset->getString(11);
      } else {
        throw(runtime_error("ODRunConfigInfo::setByID:  Given config_id is not in the database"));
      }
@@ -205,8 +205,8 @@ void ODRunConfigInfo::prepareWrite()
   try {
     m_writeStmt = m_conn->createStatement();
     m_writeStmt->setSQL("INSERT INTO ECAL_RUN_CONFIGURATION_DAT (CONFIG_ID, tag, version, run_type_def_id, "
-		 " run_mode_def_id, num_of_sequences, defaults, trg_mode, num_of_events, description ) "
-		 " VALUES (:1, :2, :3 , :4, :5, :6 ,:7, :8, :9, :10 )");
+		 " run_mode_def_id, num_of_sequences, defaults, trg_mode, num_of_events, description, usage_status ) "
+		 " VALUES (:1, :2, :3 , :4, :5, :6 ,:7, :8, :9, :10 , :11)");
 
     m_writeStmt->setInt(1, next_id);
     m_ID=next_id;
@@ -247,6 +247,7 @@ void ODRunConfigInfo::writeDB()
     m_writeStmt->setString(8, this->getTriggerMode());
     m_writeStmt->setInt(9, this->getNumberOfEvents());
     m_writeStmt->setString(10, this->getDescription());
+    m_writeStmt->setString(11, this->getUsageStatus());
 
     m_writeStmt->executeUpdate();
 
