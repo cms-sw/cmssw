@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiStripDigiProxyBuilder.cc,v 1.15 2010/08/31 15:30:21 yana Exp $
+// $Id: FWSiStripDigiProxyBuilder.cc,v 1.16 2010/09/03 14:47:59 yana Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -76,8 +76,7 @@ FWSiStripDigiProxyBuilder::build( const FWEventItem* iItem, TEveElementList* pro
 
       float globalTop[3];
       float globalBottom[3];
-      geom->localToGlobal( id, localTop, globalTop );
-      geom->localToGlobal( id, localBottom, globalBottom );
+      geom->localToGlobal( id, localTop, globalTop, localBottom, globalBottom );
   
       lineSet->AddLine( globalTop[0], globalTop[1], globalTop[2],
 			globalBottom[0], globalBottom[1], globalBottom[2] );

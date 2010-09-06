@@ -61,9 +61,6 @@ public:
    // get shape description parameters
    const float* getShapePars( unsigned int id  ) const;
 
-   // get the detector volume in the geometry manager
-   const TGeoVolume* getVolume( unsigned int id ) const;
-
    // get all known detector ids with id matching mask
    std::vector<unsigned int> getMatchedIds( Detector det, SubDetector subdet ) const;
 
@@ -74,6 +71,7 @@ public:
    const float* getParameters( unsigned int id ) const;
 
    void localToGlobal( unsigned int id, const float* local, float* global ) const;
+   void localToGlobal( unsigned int id, const float* local1, float* global1, const float* local2, float* global2 ) const;
 
    struct RecoGeomInfo
    {
@@ -101,7 +99,7 @@ public:
      return DetIdToMatrix::find( id ) != m_idToInfo.end();
    }
 
-  void clear( void ) { m_idToInfo.clear(); m_idToMatrix.clear(); }
+   void clear( void ) { m_idToInfo.clear(); m_idToMatrix.clear(); }
   
 private:
    mutable std::map<unsigned int, TGeoMatrix*> m_idToMatrix;
@@ -110,6 +108,7 @@ private:
   
    IdToInfoItr find( unsigned int ) const;
    void localToGlobal( const RecoGeomInfo& info, const float* local, float* global ) const;
+   TGeoShape* getShape( const RecoGeomInfo& info ) const;
 };
 
 #endif

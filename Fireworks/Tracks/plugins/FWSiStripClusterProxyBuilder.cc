@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWSiStripClusterProxyBuilder.cc,v 1.16 2010/08/31 15:30:21 yana Exp $
+// $Id: FWSiStripClusterProxyBuilder.cc,v 1.17 2010/09/03 14:47:59 yana Exp $
 //
 
 #include "TEveGeoNode.h"
@@ -73,8 +73,7 @@ FWSiStripClusterProxyBuilder::build( const SiStripCluster& iData,
 
   float globalTop[3];
   float globalBottom[3];
-  geom->localToGlobal( rawid, localTop, globalTop );
-  geom->localToGlobal( rawid, localBottom, globalBottom );
+  geom->localToGlobal( rawid, localTop, globalTop, localBottom, globalBottom );
   
   lineSet->AddLine( globalTop[0], globalTop[1], globalTop[2],
 		    globalBottom[0], globalBottom[1], globalBottom[2] );  

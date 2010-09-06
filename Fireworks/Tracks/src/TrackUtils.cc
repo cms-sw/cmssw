@@ -2,7 +2,7 @@
 //
 // Package:     Tracks
 // Class  :     TrackUtils
-// $Id: TrackUtils.cc,v 1.39 2010/08/31 15:30:22 yana Exp $
+// $Id: TrackUtils.cc,v 1.40 2010/09/03 14:47:59 yana Exp $
 //
 
 // system include files
@@ -484,8 +484,7 @@ addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveEl
 
 	       float globalTop[3];
 	       float globalBottom[3];
-	       geom->localToGlobal( rawid, localTop, globalTop );
-	       geom->localToGlobal( rawid, localBottom, globalBottom );
+	       geom->localToGlobal( rawid, localTop, globalTop, localBottom, globalBottom );
   
 	       scposition->AddLine( globalTop[0], globalTop[1], globalTop[2],
 				    globalBottom[0], globalBottom[1], globalBottom[2] );
@@ -508,8 +507,7 @@ addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveEl
 
 	    float globalTop[3];
 	    float globalBottom[3];
-	    geom->localToGlobal( rawid, localTop, globalTop );
-	    geom->localToGlobal( rawid, localBottom, globalBottom );
+	    geom->localToGlobal( rawid, localTop, globalTop, localBottom, globalBottom );
   
 	    scposition->AddLine( globalTop[0], globalTop[1], globalTop[2],
 				 globalBottom[0], globalBottom[1], globalBottom[2] );
@@ -541,8 +539,7 @@ addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveEl
 
 		  float globalTop[3];
 		  float globalBottom[3];
-		  geom->localToGlobal( rawid, localTop, globalTop );
-		  geom->localToGlobal( rawid, localBottom, globalBottom );
+		  geom->localToGlobal( rawid, localTop, globalTop, localBottom, globalBottom );
   
 		  scposition->AddLine( globalTop[0], globalTop[1], globalTop[2],
 				       globalBottom[0], globalBottom[1], globalBottom[2] );

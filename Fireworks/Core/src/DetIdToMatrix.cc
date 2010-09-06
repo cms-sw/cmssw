@@ -172,29 +172,23 @@ DetIdToMatrix::getMatrix( unsigned int id ) const
    IdToInfoItr it = DetIdToMatrix::find( id );
    if( it == m_idToInfo.end())
    {
-      fwLog( fwlog::kWarning ) << "no reco geometry is found for id " <<  id << std::endl;
+      fwLog( fwlog::kWarning ) << "no reco geometry found for id " <<  id << std::endl;
       return 0;
    }
    else
    {
-      TGeoTranslation trans(( *it ).translation[0], ( *it ).translation[1], ( *it ).translation[2] );
+      const RecoGeomInfo& info = *it;
+      TGeoTranslation trans( info.translation[0], info.translation[1], info.translation[2] );
       TGeoRotation rotation;
-      const Double_t matrix[9] = { it->matrix[0], it->matrix[1], it->matrix[2],
-				   it->matrix[3], it->matrix[4], it->matrix[5],
-				   it->matrix[6], it->matrix[7], it->matrix[8]
+      const Double_t matrix[9] = { info.matrix[0], info.matrix[1], info.matrix[2],
+				   info.matrix[3], info.matrix[4], info.matrix[5],
+				   info.matrix[6], info.matrix[7], info.matrix[8]
       };
       rotation.SetMatrix( matrix );
 
       m_idToMatrix[id] = new TGeoCombiTrans( trans, rotation );
       return m_idToMatrix[id];
    }
-}
-
-const TGeoVolume*
-DetIdToMatrix::getVolume( unsigned int id ) const
-{
-  std::cout << "DetIdToMatrix::getVolume: no volume!!!" << std::endl;
-  return 0;
 }
 
 std::vector<unsigned int>
@@ -223,28 +217,34 @@ DetIdToMatrix::getShape( unsigned int id ) const
    }
    else 
    {
-      TEveGeoManagerHolder gmgr( TEveGeoShape::GetGeoMangeur());
-      TGeoShape* geoShape = 0;
-      if(( *it ).shape[0] == 1 ) 
-      {
-	 geoShape = new TGeoTrap(
-	   ( *it ).shape[3], //dz
-	   0, 	             //theta
-	   0, 	             //phi
-	   ( *it ).shape[4], //dy1
-	   ( *it ).shape[1], //dx1
-	   ( *it ).shape[2], //dx2
-	   0, 	    	     //alpha1
-	   ( *it ).shape[4], //dy2
-	   ( *it ).shape[1], //dx3
-	   ( *it ).shape[2], //dx4
-	   0);               //alpha2
-      }
-      else
-	 geoShape = new TGeoBBox(( *it ).shape[1], ( *it ).shape[2], ( *it ).shape[3] );
-      
-      return geoShape;
+      return getShape( *it );
    }
+}
+
+TGeoShape*
+DetIdToMatrix::getShape( const RecoGeomInfo& info ) const 
+{
+   TEveGeoManagerHolder gmgr( TEveGeoShape::GetGeoMangeur());
+   TGeoShape* geoShape = 0;
+   if( info.shape[0] == 1 ) 
+   {
+      geoShape = new TGeoTrap(
+	 info.shape[3], //dz
+	 0,             //theta
+	 0,             //phi
+	 info.shape[4], //dy1
+	 info.shape[1], //dx1
+	 info.shape[2], //dx2
+	 0,             //alpha1
+	 info.shape[4], //dy2
+	 info.shape[1], //dx3
+	 info.shape[2], //dx4
+	 0);            //alpha2
+   }
+   else
+      geoShape = new TGeoBBox( info.shape[1], info.shape[2], info.shape[3] );
+      
+   return geoShape;
 }
 
 TEveGeoShape*
@@ -258,12 +258,18 @@ DetIdToMatrix::getEveShape( unsigned int id  ) const
    }
    else
    {
+      const RecoGeomInfo& info = *it;
+      double array[16] = { info.matrix[0], info.matrix[3], info.matrix[6], 0.,
+			   info.matrix[1], info.matrix[4], info.matrix[7], 0.,
+			   info.matrix[2], info.matrix[5], info.matrix[8], 0.,
+			   info.translation[0], info.translation[1], info.translation[2], 1.
+      };
       TEveGeoManagerHolder gmgr( TEveGeoShape::GetGeoMangeur());
       TEveGeoShape* shape = new TEveGeoShape;
-      TGeoShape* geoShape = getShape( id );
+      TGeoShape* geoShape = getShape( info );
       shape->SetShape( geoShape );
-      const TGeoMatrix* matrix = getMatrix( id );
-      shape->SetTransMatrix( *matrix );
+      // Set transformation matrix from a column-major array
+      shape->SetTransMatrix( array );
       return shape;
    }
 }
@@ -275,7 +281,7 @@ DetIdToMatrix::getCorners( unsigned int id ) const
    IdToInfoItr it = DetIdToMatrix::find( id );
    if( it == m_idToInfo.end())
    {
-      fwLog( fwlog::kWarning ) << "no reco corners geometry is found for id " <<  id << std::endl;
+      fwLog( fwlog::kWarning ) << "no reco geometry found for id " <<  id << std::endl;
       return 0;
    }
    else
@@ -291,7 +297,7 @@ DetIdToMatrix::getParameters( unsigned int id ) const
    IdToInfoItr it = DetIdToMatrix::find( id );
    if( it == m_idToInfo.end())
    {
-      fwLog( fwlog::kWarning ) << "no reco parameters are found for id " <<  id << std::endl;
+      fwLog( fwlog::kWarning ) << "no reco geometry found for id " <<  id << std::endl;
       return 0;
    }
    else
@@ -307,7 +313,7 @@ DetIdToMatrix::getShapePars( unsigned int id ) const
    IdToInfoItr it = DetIdToMatrix::find( id );
    if( it == m_idToInfo.end())
    {
-      fwLog( fwlog::kWarning ) << "no reco parameters are found for id " <<  id << std::endl;
+      fwLog( fwlog::kWarning ) << "no reco geometry found for id " <<  id << std::endl;
       return 0;
    }
    else
@@ -322,11 +328,26 @@ DetIdToMatrix::localToGlobal( unsigned int id, const float* local, float* global
    IdToInfoItr it = DetIdToMatrix::find( id );
    if( it == m_idToInfo.end())
    {
-      fwLog( fwlog::kWarning ) << "no reco geometry is found for id " <<  id << std::endl;
+      fwLog( fwlog::kWarning ) << "no reco geometry found for id " <<  id << std::endl;
    }
    else
    {
       localToGlobal( *it, local, global );
+   }
+}
+
+void
+DetIdToMatrix::localToGlobal( unsigned int id, const float* local1, float* global1, const float* local2, float* global2 ) const
+{
+   IdToInfoItr it = DetIdToMatrix::find( id );
+   if( it == m_idToInfo.end())
+   {
+      fwLog( fwlog::kWarning ) << "no reco geometry found for id " <<  id << std::endl;
+   }
+   else
+   {
+      localToGlobal( *it, local1, global1 );
+      localToGlobal( *it, local2, global2 );
    }
 }
 
