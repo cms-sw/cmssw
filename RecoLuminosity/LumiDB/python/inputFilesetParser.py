@@ -11,7 +11,7 @@ class inputFilesetParser(object):
         if len(self.__inputselectionfile)!=0:
             basename,extension=os.path.splitext(self.__inputselectionfile)
             if extension=='.csv':#if file ends with .csv,use csv parser,else parse as json file
-                self.__inputfileparsingResult=csvSelectionParser.csvSelectionParser(self.__inputselectionfile)
+                self.__inputSelectionFileparsingResult=csvSelectionParser.csvSelectionParser(self.__inputselectionfile)
             else:
                 selectf=open(self.__inputselectionfile,'r')
                 inputfilecontent=selectf.read()

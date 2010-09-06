@@ -4,7 +4,7 @@ import os,sys
 import coral
 import json
 #import optparse
-from RecoLuminosity.LumiDB import csvSelectionParser,selectionParser,argparse,CommonUtil
+from RecoLuminosity.LumiDB import inputFilesetParser,selectionParser,argparse,CommonUtil
 import RecoLuminosity.LumiDB.lumiQueryAPI as LumiQueryAPI
 
 #from pprint import pprint
@@ -41,6 +41,7 @@ def main():
     session=svc.connect(connectstring,accessMode=coral.access_Update)
     session.typeConverter().setCppTypeForSqlType("unsigned int","NUMBER(10)")
     session.typeConverter().setCppTypeForSqlType("unsigned long long","NUMBER(20)")
+
     if options.debug :
         msg=coral.MessageStream('')
         msg.setMsgVerbosity(coral.message_Level_Debug)
@@ -49,7 +50,8 @@ def main():
         if not options.inputfile:
             print 'inputfile -i option is required for batchupdate'
             raise
-        
+        fparser=inputFilesetParser.inputFilesetParser(options.inputfile)
+        runsandls=fparser.runsandls()
     if options.action=='update':
         #update flag interactively, require -runls argument
         #runls={run:[]} populate all CMSLSNUM found in LUMISUMMARY
@@ -59,7 +61,9 @@ def main():
             print 'option -runls is required for update'
             raise
         runlsjson=CommonUtil.tolegalJSON(options.runls)
-        print runlsjson
+        sparser=selectionParser.selectionParser(runlsjson)
+        runsandls=sparser.runsandls()
+    print runsandls
     del session
     del svc
 if __name__ == '__main__':
