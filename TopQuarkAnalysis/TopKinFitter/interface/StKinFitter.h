@@ -1,5 +1,5 @@
 //
-// $Id: StKinFitter.h,v 1.1 2007/09/19 23:05:31 lowette Exp $
+// $Id: StKinFitter.h,v 1.2 2008/02/17 11:38:30 rwolf Exp $
 //
 
 #ifndef TopKinFitter_StKinFitter_h
@@ -7,9 +7,9 @@
 
 #include "AnalysisDataFormats/TopObjects/interface/StEvtSolution.h"
 
+#include "TopQuarkAnalysis/TopKinFitter/interface/TopKinFitter.h"
+
 #include "TLorentzVector.h"
-#include "TMatrixD.h"
-#include "TMath.h"
 
 #include <vector>
 
@@ -17,17 +17,13 @@ class TKinFitter;
 class TAbsFitParticle;
 class TFitConstraintM;
 
-class StKinFitter {
-
-  public:
-
-    enum Parametrization { EMom, EtEtaPhi, EtThetaPhi };
+class StKinFitter : public TopKinFitter {
 
   public:
 
     StKinFitter();
     StKinFitter(int jetParam, int lepParam, int metParam, int maxNrIter, double maxDeltaS, double maxF, std::vector<int> constraints);
-    StKinFitter(Parametrization jetParam, Parametrization lepParam, Parametrization metParam, int maxNrIter, double maxDeltaS, double maxF, std::vector<int> constraints);
+    StKinFitter(Param jetParam, Param lepParam, Param metParam, int maxNrIter, double maxDeltaS, double maxF, std::vector<int> constraints);
     ~StKinFitter();
 
     StEvtSolution addKinFitInfo(StEvtSolution * asol);
@@ -35,12 +31,9 @@ class StKinFitter {
   private:
 
     void setupFitter();
-    std::vector<float> translateCovM(TMatrixD &);
 
   private:
 
-    // the kinematic fitter
-    TKinFitter * theFitter_;
     // the particles that enter the kinematic fit
     TAbsFitParticle * fitBottom_;
     TAbsFitParticle * fitLight_;
@@ -51,11 +44,8 @@ class StKinFitter {
     TFitConstraintM  * cons2_;
     TFitConstraintM  * cons3_;
     // other parameters
-    Parametrization jetParam_, lepParam_, metParam_;
+    Param jetParam_, lepParam_, metParam_;
     bool doNeutrinoResol_;
-    int maxNrIter_;
-    double maxDeltaS_;
-    double maxF_;
     std::vector<int> constraints_;
 };
 
