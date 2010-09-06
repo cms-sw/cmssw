@@ -50,8 +50,7 @@ KalmanTrackToTrackCovCalculator<N>::operator()
         if(ifail != 0) throw VertexException
 	  ("KalmanTrackToTrackCovarianceCalculator::rightW matrix inversion failed");
         AlgebraicMatrix3M rightPart = (ROOT::Math::Transpose(rightA)) * rightG * rightB * rightW;
-	AlgebraicMatrixMM covariance  = leftPart * vertexC * rightPart;
-        internalMap[(*j)] = AlgebraicSymMatrixMM(covariance.LowerBlock());
+	internalMap[(*j)] = leftPart * vertexC * rightPart;
       }       
     }        
     returnMap[*i] = internalMap;
