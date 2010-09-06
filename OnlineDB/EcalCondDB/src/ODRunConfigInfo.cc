@@ -11,6 +11,7 @@ using namespace oracle::occi;
 
 ODRunConfigInfo::ODRunConfigInfo()
 {
+  m_env = NULL;
   m_conn = NULL;
   m_ID = 0;
   //
@@ -159,7 +160,7 @@ void ODRunConfigInfo::setByID(int id)
      Statement* stmt = m_conn->createStatement();
 
      stmt->setSQL("SELECT tag, version, run_type_def_id, run_mode_def_id, num_of_sequences, description, defaults,"
-		  " trg_mode,num_of_events, db_timestamp, usage_status"
+		  " trg_mode,num_of_events, db_timestamp"
 		  " FROM ECAL_RUN_CONFIGURATION_DAT WHERE config_id = :1");
      stmt->setInt(1, id);
      
@@ -181,7 +182,7 @@ void ODRunConfigInfo::setByID(int id)
        m_runModeDef.setByID(run_mode_id);
        m_runTypeDef.setConnection(m_env, m_conn);
        m_runTypeDef.setByID(run_type_id);
-       m_usage_status=rset->getString(11);
+
      } else {
        throw(runtime_error("ODRunConfigInfo::setByID:  Given config_id is not in the database"));
      }
@@ -204,8 +205,8 @@ void ODRunConfigInfo::prepareWrite()
   try {
     m_writeStmt = m_conn->createStatement();
     m_writeStmt->setSQL("INSERT INTO ECAL_RUN_CONFIGURATION_DAT (CONFIG_ID, tag, version, run_type_def_id, "
-		 " run_mode_def_id, num_of_sequences, defaults, trg_mode, num_of_events, description, usage_status ) "
-		 " VALUES (:1, :2, :3 , :4, :5, :6 ,:7, :8, :9, :10 , :11)");
+		 " run_mode_def_id, num_of_sequences, defaults, trg_mode, num_of_events, description ) "
+		 " VALUES (:1, :2, :3 , :4, :5, :6 ,:7, :8, :9, :10 )");
 
     m_writeStmt->setInt(1, next_id);
     m_ID=next_id;
@@ -246,7 +247,6 @@ void ODRunConfigInfo::writeDB()
     m_writeStmt->setString(8, this->getTriggerMode());
     m_writeStmt->setInt(9, this->getNumberOfEvents());
     m_writeStmt->setString(10, this->getDescription());
-    m_writeStmt->setString(11, this->getUsageStatus());
 
     m_writeStmt->executeUpdate();
 
@@ -293,3 +293,54 @@ int ODRunConfigInfo::updateDefaultCycle()
   return m_ID;
 }
 
+void ODRunConfigInfo::clear(){
+  m_num_seq = 0;
+  m_runTypeDef = RunTypeDef();
+  m_runModeDef = RunModeDef();
+  m_defaults = 0;
+  m_trigger_mode = "";
+  m_num_events = 0;
+}
+
+void ODRunConfigInfo::fetchData(ODRunConfigInfo * result)
+  throw(runtime_error)
+{
+  this->checkConnection();
+  DateHandler dh(m_env, m_conn);
+  //  result->clear();
+  int idid=0;
+
+  if(result->getId()==0){
+    //throw(runtime_error("FEConfigMainInfo::fetchData(): no Id defined for this FEConfigMainInfo "));
+    idid=result->fetchID();
+  }
+
+  try {
+    m_readStmt->setSQL("SELECT config_id, tag, version, run_type_def_id, run_mode_def_id, \
+      num_of_sequences, description, defaults, trg_mode, num_of_events, db_timestamp \
+      FROM ECAL_RUN_CONFIGURATION_DAT WHERE config_id = :1 ");
+    m_readStmt->setInt(1, result->getId());
+
+    ResultSet* rset = m_readStmt->executeQuery();
+    rset->next();
+
+    result->setId(               rset->getInt(1) );
+    result->setTag(              rset->getString(2) );
+    result->setVersion(          rset->getInt(3) );
+    //    RunTypeDef myRunType = rset->getInt(4);
+    //    result->setRunTypeDef( myRunType );
+    //    RunModeDef myRunMode = rset->getInt(5);
+    //    result->setRunModeDef( myRunMode );
+    result->setNumberOfSequences(rset->getInt(6) );
+    result->setDescription(      rset->getString(7) );
+    result->setDefaults(         rset->getInt(8) );
+    result->setTriggerMode(      rset->getString(9) );
+    result->setNumberOfEvents(   rset->getInt(10) );
+    Date dbdate = rset->getDate(11);
+    result->setDBTime(dh.dateToTm( dbdate ));
+
+  } catch (SQLException &e) {
+    cout << " ODRunConfigInfo::fetchData():  " << e.getMessage() << endl;
+    throw(runtime_error("ODRunConfigInfo::fetchData():  "+e.getMessage()));
+  }
+}
