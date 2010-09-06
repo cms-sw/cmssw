@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2010/03/12 19:14:38 $
- *  $Revision: 1.35 $
+ *  $Date: 2010/08/09 19:05:57 $
+ *  $Revision: 1.36 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -29,12 +29,14 @@
 TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig) :theTkLayerMeasurements (0), theTracker(0), theMeasTracker(0), theNavigation(0), theService(0), theEstimator(0), theTSTransformer(0), theSigmaZ(0), theConfig (iConfig)
 {
   theCategory = "Muon|RecoMuon|TSGFromPropagation";
+  theMeasTrackerName = iConfig.getParameter<std::string>("MeasurementTrackerName");
 
 }
 
 TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig, const MuonServiceProxy* service) : theTkLayerMeasurements (0), theTracker(0), theMeasTracker(0), theNavigation(0), theService(service),theUpdator(0), theEstimator(0), theTSTransformer(0), theSigmaZ(0), theConfig (iConfig)
 {
   theCategory = "Muon|RecoMuon|TSGFromPropagation";
+  theMeasTrackerName = iConfig.getParameter<std::string>("MeasurementTrackerName");
 }
 
 TSGFromPropagation::~TSGFromPropagation()
@@ -203,7 +205,7 @@ void TSGFromPropagation::setEvent(const edm::Event& iEvent) {
   if ( theUpdateStateFlag && newCacheId_MT != theCacheId_MT ) {
     LogTrace(theCategory) << "Measurment Tracker Geometry changed!";
     theCacheId_MT = newCacheId_MT;
-    theService->eventSetup().get<CkfComponentsRecord>().get(theMeasTracker);
+    theService->eventSetup().get<CkfComponentsRecord>().get(theMeasTrackerName,theMeasTracker);
     measTrackerChanged = true;
   }
 
