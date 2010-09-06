@@ -26,7 +26,6 @@ class inputFilesetParser(object):
                 irow=0
                 for row in csvReader:
                     if hasHeader and irow==0:
-                        print 'header row ',row
                         self.__inputResultHeader=row
                     else:
                         self.__inputResult.append(row)

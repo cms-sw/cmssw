@@ -2,7 +2,7 @@
 VERSION='1.00'
 import os,sys
 import coral
-import json
+import json,csv
 #import optparse
 from RecoLuminosity.LumiDB import inputFilesetParser,selectionParser,argparse,CommonUtil
 import RecoLuminosity.LumiDB.lumiQueryAPI as LumiQueryAPI
@@ -41,17 +41,25 @@ def main():
     session=svc.connect(connectstring,accessMode=coral.access_Update)
     session.typeConverter().setCppTypeForSqlType("unsigned int","NUMBER(10)")
     session.typeConverter().setCppTypeForSqlType("unsigned long long","NUMBER(20)")
-
+    result={}#parsing result {run:[[ls,status,comment]]}
     if options.debug :
         msg=coral.MessageStream('')
         msg.setMsgVerbosity(coral.message_Level_Debug)
+    
     if options.action=='batchupdate':
         #populate from csv file, require -i argument
         if not options.inputfile:
             print 'inputfile -i option is required for batchupdate'
             raise
-        fparser=inputFilesetParser.inputFilesetParser(options.inputfile)
-        runsandls=fparser.runsandls()
+        csvReader=csv.reader(open(options.inputfile),delimiter=',')
+        for row in csvReader:
+            fieldrun=str(row[0]).strip()
+            fieldls=str(row[1]).strip()
+            fieldstatus=row[2]
+            fieldcomment=row[3]
+            if not result.has_key(int(fieldrun)):
+                result[int(fieldrun)]=[]
+            result[int(fieldrun)].append([int(fieldls),fieldstatus,fieldcomment])
     if options.action=='update':
         #update flag interactively, require -runls argument
         #runls={run:[]} populate all CMSLSNUM found in LUMISUMMARY
@@ -60,10 +68,20 @@ def main():
         if not options.runls:
             print 'option -runls is required for update'
             raise
+        if not options.flag:
+            print 'option -flag is required for update'
+            raise
         runlsjson=CommonUtil.tolegalJSON(options.runls)
         sparser=selectionParser.selectionParser(runlsjson)
         runsandls=sparser.runsandls()
-    print runsandls
+        commentStr='N/A'
+        statusStr=options.flag
+        for run,lslist in runsandls.items():
+            if not result.has_key(run):
+                result[run]=[]
+            for ls in lslist:
+                result[run].append([ls,statusStr,commentStr])
+    print result
     del session
     del svc
 if __name__ == '__main__':
