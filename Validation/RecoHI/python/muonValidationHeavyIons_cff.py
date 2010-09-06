@@ -33,6 +33,7 @@ tpToGlbTrackAssociation.label_tp = 'cutsTpMuons'
 # Muon association sequences
 # (some are commented out until timing is addressed)
 hiMuonAssociation_seq = cms.Sequence(
+    extractedMuonTracks_seq + 
     tpToTkMuonAssociation+
     tpToStaMuonAssociation+
     tpToStaUpdMuonAssociation+
