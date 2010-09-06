@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Thu Aug 12 05:34:11 EDT 2010
-// $Id: CentralityBinProducer.cc,v 1.1 2010/08/12 10:14:58 yilmaz Exp $
+// $Id: CentralityBinProducer.cc,v 1.2 2010/08/17 19:39:28 yilmaz Exp $
 //
 //
 
@@ -104,18 +104,20 @@ CentralityBinProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    iEvent.getByLabel(src_,cent);
 
    double hf = cent->EtHFhitSum();
-   double hft = cent->EtHFtowerSum();
-   double hftp = cent->EtHFtowerSumPlus();
-   double hftm = cent->EtHFtowerSumMinus();
-   double eb = cent->EtEBSum();
-   double ee = cent->EtEESum();
-   double eep = cent->EtEESumPlus();
-   double eem = cent->EtEESumMinus();
-   double zdc = cent->zdcSum();
-   double zdcm = cent->zdcSumMinus();
-   double zdcp = cent->zdcSumPlus();
-   double npix = cent->multiplicityPixel();
-   double et = cent->EtMidRapiditySum();
+   /*
+     double hft = cent->EtHFtowerSum();
+     double hftp = cent->EtHFtowerSumPlus();
+     double hftm = cent->EtHFtowerSumMinus();
+     double eb = cent->EtEBSum();
+     double ee = cent->EtEESum();
+     double eep = cent->EtEESumPlus();
+     double eem = cent->EtEESumMinus();
+     double zdc = cent->zdcSum();
+     double zdcm = cent->zdcSumMinus();
+     double zdcp = cent->zdcSumPlus();
+     double npix = cent->multiplicityPixel();
+     double et = cent->EtMidRapiditySum();
+   */
 
    int bin = 0;
    if(centralityBase_ == "HF") bin = cbins_->getBin(hf);
