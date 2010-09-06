@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Wed Dec  9 16:14:56 CET 2009
-// $Id: ZmumuPFEmbedder.cc,v 1.4 2010/04/26 17:44:33 fruboes Exp $
+// $Id: ZmumuPFEmbedder.cc,v 1.6 2010/07/09 11:30:09 fruboes Exp $
 //
 //
 
@@ -120,8 +120,8 @@ ZmumuPFEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    const std::vector< reco::Muon > * toBeAdded = selectedZMuonsHandle.product();
    //std::vector< reco::Muon > toBeAdded;
    // TODO - check col size
-   reco::Muon l1 = *(toBeAdded->begin());
-   reco::Muon l2 = *(toBeAdded->rbegin());
+   //reco::Muon l1 = *(toBeAdded->begin());
+   //reco::Muon l2 = *(toBeAdded->rbegin());
    
    // iterate over pfcandidates, make copy if its not a selected muon
    PFCandidateConstIterator it = pfIn->begin();
@@ -129,10 +129,20 @@ ZmumuPFEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    for (;it!=itE;++it) {
      int pdg = std::abs( it->pdgId() );
+     double minDR = 10;
+     /* 
      double dr1 = reco::deltaR( *it, l1); 
      double dr2 = reco::deltaR( *it, l2); 
+     */
+     std::vector< reco::Muon >::const_iterator itSelectedMu = toBeAdded->begin();
+     std::vector< reco::Muon >::const_iterator itSelectedMuE = toBeAdded->end();
+     for (; itSelectedMu != itSelectedMuE; ++itSelectedMu ){
+       double dr = reco::deltaR( *it, *itSelectedMu);
+       if (dr < minDR)  minDR = dr;
+     }
 
-     if ( pdg == 13 && (dr1 < 0.001 || dr2 < 0.002 ) ) { // it is a selected muon, do not copy
+     //if ( pdg == 13 && (dr1 < 0.001 || dr2 < 0.002 ) ) { // it is a selected muon, do not copy
+     if ( pdg == 13 && (minDR < 0.001 ) ) { // it is a selected muon, do not copy
        
        
      } else {
@@ -159,7 +169,7 @@ void ZmumuPFEmbedder::produceTrackColl(edm::Event & iEvent, const std::vector< r
    std::auto_ptr< reco::TrackCollection  > newCol(new reco::TrackCollection );
 
    double epsilon = 0.00001;
-   int nMatched = 0;
+   unsigned int nMatched = 0;
    
    for ( reco::TrackCollection::const_iterator it = tks->begin() ; it != tks->end(); ++it) 
    {
@@ -182,7 +192,7 @@ void ZmumuPFEmbedder::produceTrackColl(edm::Event & iEvent, const std::vector< r
      }
      if (ok)  newCol->push_back(*it);  
    }
-   if (nMatched!=2) std::cout << "TTT ARGGGHGH " << nMatched << std::endl;
+   if (nMatched!=toBeAdded->size() ) std::cout << "TTT ARGGGHGH " << nMatched << std::endl;
 
    iEvent.put(newCol);
 

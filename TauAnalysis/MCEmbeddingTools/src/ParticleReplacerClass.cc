@@ -47,7 +47,18 @@ ParticleReplacerClass::ParticleReplacerClass(const edm::ParameterSet& pset, bool
     {
       LogInfo("Replacer") << "will transform mumu into taunu (as coming from a W boson)";
       break;
-    }         
+    }    
+		case 3:
+		{
+			LogInfo("Replacer") << "Will transform  mu-nu into tau-nu. No mass correction will be made.";
+			break;
+		}
+		default:
+		{
+			throw cms::Exception("ParticleReplacerClass")  << "Unknown transformation mode!\n";
+			break;
+		}
+            
 	}
 	
 	// If one wants to use two instances of this module in one
@@ -158,6 +169,39 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerClass::produce(const reco::MuonCo
       particles.push_back(tau2);                      
       break;
     }  
+    case 3: // mu-nu->tau-nu
+    {
+      if (muons.size()!=2)
+      {
+        LogError("Replacer") << "transformation mode mu-nu ->tau-nu - wrong input";
+        return std::auto_ptr<HepMC::GenEvent>(0);
+      }
+
+      targetParticleMass_  = 1.77690;
+      targetParticlePdgID_ = 15;
+      int targetParticlePdgIDNu_ = 16;
+      
+      reco::Muon muon1 = muons.at(0);
+      reco::Muon::LorentzVector l(muon1.px(), muon1.py(), muon1.pz(), 
+                                sqrt(
+                                muon1.px()*muon1.px()+
+                                muon1.py()*muon1.py()+
+                                muon1.pz()*muon1.pz()+targetParticleMass_*targetParticleMass_));
+
+      reco::Particle tau1(muon1.charge(), l, muon1.vertex(), targetParticlePdgID_*std::abs(muon1.pdgId())/muon1.pdgId() 
+                                , 0, true
+                         );
+      tau1.setStatus(1);
+      particles.push_back(tau1);
+
+      reco::Muon nu    = muons.at(1);
+      reco::Particle nutau( 0, nu.p4(), nu.vertex(), -targetParticlePdgIDNu_*std::abs(muon1.pdgId())/muon1.pdgId(), 0, true);
+      nutau.setStatus(1);
+      particles.push_back(nutau);
+ 
+      break;
+    }  
+
 	}
 	
 	if (particles.size()==0)
@@ -231,19 +275,23 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerClass::produce(const reco::MuonCo
                 startVtx->add_particle_in( new GenParticle( FourVector(0,0,-7000,7000), 2212, 3 ) );
 
                 GenVertex * decayvtx = new GenVertex(FourVector(production_point.x()*10,production_point.y()*10,production_point.z()*10,0));
-		//GenVertex * decayvtx = new GenVertex(FourVector(production_point.x(),production_point.y(),production_point.z(),0));
-
 		HepMC::GenParticle * mother_particle = new HepMC::GenParticle((FourVector)mother_particle_p4, motherParticleID_, (generatorMode_=="Pythia" ? 3 : 2), Flow(), Polarization(0,0));
-                startVtx->add_particle_out(mother_particle);
-        
-		decayvtx->add_particle_in(mother_particle);
-		
-		evt = new HepMC::GenEvent();
+                if (transformationMode_ == 3) {
+                  //std::cout << "Overriding mother particle id\n" << std::endl;
+                  int muPDG = particles.begin()->pdgId();
+                  int id = -24*muPDG/std::abs(muPDG);
+                  mother_particle->set_pdg_id(id);
+                }
 
+                startVtx->add_particle_out(mother_particle);
+                decayvtx->add_particle_in(mother_particle);
+  		evt = new HepMC::GenEvent();
 		for (std::vector<reco::Particle>::const_iterator it=particles.begin();it!=particles.end();it++)
 		{
+                        //std::cout << "XXX" << it->p4().pt() << " " << it->pdgId() << std::endl;
 			decayvtx->add_particle_out(new HepMC::GenParticle((FourVector)it->p4(), it->pdgId(), 1, Flow(), Polarization(0,0)));			
 		}
+
 		evt->add_vertex(startVtx);
 		evt->add_vertex(decayvtx);
 	}

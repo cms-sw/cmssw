@@ -28,18 +28,19 @@ filterEmptyEv = cms.EDFilter("EmptyEventsFilter",
     target =  cms.untracked.int32(1) 
 )
 
-adaptedMuonsFromDiTauCands = cms.EDProducer("CompositePtrCandidateT1T2MEtAdapter",
-    diTau  = cms.untracked.InputTag("zMuMuCandsMuEta"),
-    pfCands = cms.untracked.InputTag("particleFlow","")
+adaptedMuonsFromWmunu = cms.EDProducer("PATMuonMETAdapter",
+   patMuCands = cms.untracked.InputTag("patMuonsPFlow"),
+   patMet = cms.untracked.InputTag("patMETsPFlow")
 )
+
 
 dimuonsGlobal = cms.EDProducer('ZmumuPFEmbedder',
     tracks = cms.InputTag("generalTracks"),
-    selectedMuons = cms.InputTag("adaptedMuonsFromDiTauCands","zMusExtracted"),
+    selectedMuons = cms.InputTag("adaptedMuonsFromWmunu","zMusExtracted"),
     keepMuonTrack = cms.bool(False)
 )
 
 generator = newSource.clone()
-generator.src = cms.InputTag("adaptedMuonsFromDiTauCands","zMusExtracted")
+generator.src = cms.InputTag("adaptedMuonsFromWmunu","zMusExtracted")
 
-ProductionFilterSequence = cms.Sequence(adaptedMuonsFromDiTauCands*dimuonsGlobal*generator*filterEmptyEv)
+ProductionFilterSequence = cms.Sequence(adaptedMuonsFromWmunu*dimuonsGlobal*generator*filterEmptyEv)
