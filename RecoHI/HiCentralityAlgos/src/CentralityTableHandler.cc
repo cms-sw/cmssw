@@ -9,8 +9,8 @@ using namespace std;
 using namespace popcon;
 
 void CentralityTableHandler::getNewObjects(){
-  cond::TagInfo const & tagInfo_ = tagInfo();
-  cond::LogDBEntry const & logDBEntry_ = logDBEntry();     
+  //  cond::TagInfo const & tagInfo_ = tagInfo();
+  //  cond::LogDBEntry const & logDBEntry_ = logDBEntry();     
   Ref payload = lastPayload();
   cond::Time_t snc = 1;
   TFile* inputTFile_ = new TFile(inputTFileName_.data(),"read");
