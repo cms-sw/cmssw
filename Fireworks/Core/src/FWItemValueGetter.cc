@@ -8,17 +8,17 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Nov 30 16:15:43 EST 2008
-// $Id: FWItemValueGetter.cc,v 1.4 2009/03/04 16:51:16 chrjones Exp $
+// $Id: FWItemValueGetter.cc,v 1.5 2010/08/18 10:30:12 amraktad Exp $
 //
 
 // system include files
 #include <sstream>
 #include "Reflex/Object.h"
 #include "Reflex/Base.h"
+#include <cstdio>
 
 // user include files
 #include "Fireworks/Core/interface/FWItemValueGetter.h"
-
 
 //
 // constants, enums and typedefs
