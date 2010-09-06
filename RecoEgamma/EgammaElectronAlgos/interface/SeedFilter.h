@@ -50,6 +50,7 @@ class SeedFilter {
 
   edm::InputTag beamSpotTag_;
 
+  std::string measurementTrackerName_;
 };
 
 #endif // SeedFilter_H
