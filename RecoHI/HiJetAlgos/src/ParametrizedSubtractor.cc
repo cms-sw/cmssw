@@ -257,8 +257,8 @@ double ParametrizedSubtractor::getPileUpAtTower(const reco::CandidatePtr & in) c
 
 double ParametrizedSubtractor::getPU(int ieta,bool addMean, bool addSigma) const {   
 
-   double e = hEta[bin_]->GetBinContent(hEta[bin_]->FindBin(ieta));
-   double c = fPU->Eval(centrality_);
+  //double e = hEta[bin_]->GetBinContent(hEta[bin_]->FindBin(ieta));
+  //double c = fPU->Eval(centrality_);
 
    double em = hEtaMean[bin_]->GetBinContent(hEtaMean[bin_]->FindBin(ieta));
    double cm = fMean->Eval(centrality_);
