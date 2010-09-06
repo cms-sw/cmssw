@@ -23,6 +23,37 @@
 #include <iostream>
 #include <sstream>
 
+class FWTextTreeCellRenderer : public FWTextTableCellRenderer
+{
+public:
+   FWTextTreeCellRenderer(const TGGC* iContext = &(getDefaultGC()),
+                          const TGGC* iHighlightContext = &(getHighlightGC()),
+                          Justify iJustify = kJustifyLeft)
+      : FWTextTableCellRenderer(iContext, iHighlightContext, iJustify),
+        m_indentation(0)
+      {}
+
+   virtual void setIndentation(int indentation = 0) { m_indentation = indentation; }
+   virtual void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight)
+      {
+         if (selected())
+         {
+            GContext_t c = highlightContext()->GetGC();
+            gVirtualX->FillRectangle(iID, c, iX, iY, iWidth, iHeight);
+            
+            gVirtualX->DrawLine(iID,graphicsContext()->GetGC(),iX-1,iY-1,iX-1,iY+iHeight);
+            gVirtualX->DrawLine(iID,graphicsContext()->GetGC(),iX+iWidth,iY-1,iX+iWidth,iY+iHeight);
+            gVirtualX->DrawLine(iID,graphicsContext()->GetGC(),iX-1,iY-1,iX+iWidth,iY-1);
+            gVirtualX->DrawLine(iID,graphicsContext()->GetGC(),iX-1,iY+iHeight,iX+iWidth,iY+iHeight);
+         }
+         FontMetrics_t metrics;
+         font()->GetFontMetrics(&metrics);
+         gVirtualX->DrawString(iID, graphicsContext()->GetGC(), iX+m_indentation, iY+metrics.fAscent, data().c_str(),data().size());
+      }
+private:
+   int   m_indentation;
+};
+
 /** Attempt to create a table based editor for the PSET. */
 class FWPSetTableManager : public FWTableManagerBase 
 {
@@ -35,6 +66,7 @@ public:
       int         level;
       bool        tracked;
       std::string type;
+      size_t      parent;
    };
 
   /*
@@ -100,6 +132,22 @@ public:
       return s_italicGC;
    }
 
+   const TGGC &
+   pathGC()
+   {
+      static TGGC s_pathGC(boldGC());
+      s_pathGC.SetForeground(gVirtualX->GetPixel(kRed-5));
+      return s_pathGC;
+   }
+   
+   const TGGC &
+   pathBackgroundGC()
+   {
+      static TGGC s_pathBackgroundGC(*gClient->GetResourcePool()->GetFrameGC());
+      s_pathBackgroundGC.SetBackground(gVirtualX->GetPixel(kGray));
+      return s_pathBackgroundGC;
+   }
+
   const TGGC&
   redGC()
     {
@@ -123,8 +171,9 @@ public:
    {
       m_boldRenderer.setGraphicsContext(&boldGC());
       m_italicRenderer.setGraphicsContext(&italicGC());
+      m_pathRenderer.setGraphicsContext(&pathGC());
 
-      std::cout<<"Available fonts: "<<std::endl;
+      std::cout << "Available fonts: " << std::endl;
       gClient->GetFontPool()->Print();
         
       reset();
@@ -138,33 +187,38 @@ public:
       for (size_t i = 0, e = availablePaths.size(); i != e; ++i)
       {
          PSetData pathEntry;
-         pathEntry.label = "Path";
-         pathEntry.value = availablePaths[i];
+         pathEntry.label = availablePaths[i];
+         pathEntry.value = "Path";
          pathEntry.level= 0;
+         pathEntry.parent = -1;
+         m_parentStack.push_back(m_entries.size());
          m_entries.push_back(pathEntry);
 
          std::vector<std::string> pathModules;
-         info->modulesInPath(pathEntry.value, pathModules);
+         info->modulesInPath(availablePaths[i], pathModules);
          for (size_t mi = 0, me = pathModules.size(); mi != me; ++mi)
          {
             PSetData moduleEntry;
            
             const edm::ParameterSet* ps = info->parametersForModule(pathModules[mi]);
 
-            const edm::ParameterSet::table& pst = ps->tbl();  
+            const edm::ParameterSet::table& pst = ps->tbl();
             const edm::ParameterSet::table::const_iterator ti = pst.find("@module_edm_type");
       
             if (ti == pst.end())
-              moduleEntry.label = "Unknown module name";
+              moduleEntry.value = "Unknown module name";
             else
-              moduleEntry.label = ti->second.getString();
+              moduleEntry.value = ti->second.getString();
 
-            moduleEntry.value = pathModules[mi];
-            moduleEntry.level = 1;
+            moduleEntry.label = pathModules[mi];
+            moduleEntry.parent = m_parentStack.back();
+            moduleEntry.level = m_parentStack.size();
+            m_parentStack.push_back(m_entries.size());
             m_entries.push_back(moduleEntry);
-
             handlePSet(*ps);
+            m_parentStack.pop_back();
          }
+         m_parentStack.pop_back();
       }
       reset();
    }
@@ -193,41 +247,47 @@ public:
    {
       std::vector<std::string> returnValue;
       returnValue.reserve(2);
-      returnValue.push_back("Type                    ");
-      returnValue.push_back("Value                   ");
+      returnValue.push_back("Label");
+      returnValue.push_back("Value");
       return returnValue;
    }
   
    virtual FWTableCellRendererBase* cellRenderer(int iSortedRowNumber, int iCol) const
    {  
-     if(static_cast<int>(m_row_to_index.size()) > iSortedRowNumber) 
-     {
-       FWTextTableCellRenderer* renderer;
+      // If the index is outside the table, we simply return an empty cell.
+      // FIXME: how is this actually possible???
+      if (static_cast<int>(m_row_to_index.size()) <= iSortedRowNumber)
+      {
+         m_renderer.setData(std::string(), false);
+         return &m_renderer;
+      }
 
-       int unsortedRow =  m_row_to_index[iSortedRowNumber];
-       const PSetData& data = m_entries[unsortedRow];
+      // Do the actual rendering.
+      FWTextTreeCellRenderer* renderer;
 
-       if ( data.level == 0 )
-         renderer = &m_boldRenderer;
-       else if ( data.level == 1 )
+      int unsortedRow =  m_row_to_index[iSortedRowNumber];
+      const PSetData& data = m_entries[unsortedRow];
+   
+      if ( data.level == 0 )
+         renderer = &m_pathRenderer;
+      else if (data.level == 1)
          renderer = &m_italicRenderer;
-       else renderer = &m_renderer;
+      else 
+         renderer = &m_renderer;
 
-       if (iCol == 0)
+      renderer->setIndentation(0);
+
+      if (iCol == 0)
+      {
+         renderer->setIndentation(data.level * 10);
          renderer->setData(data.label, false);
-       else if (iCol == 1)
+      }
+      else if (iCol == 1)
          renderer->setData(data.value, false);
-       else
+      else
          renderer->setData(std::string(), false);
 
-       return renderer;
-     }
-     
-     else
-     {
-       m_renderer.setData(std::string(), false);
-       return &m_renderer;
-     }
+      return renderer;
    }
 
    void setSelection (int row, int mask) {
@@ -268,9 +328,13 @@ public:
       PSetData data;
       data.label = key;
       data.tracked = entry.isTracked();
+      data.level = m_parentStack.size();
+      data.parent = m_parentStack.back();
+      m_parentStack.push_back(m_entries.size());
       m_entries.push_back(data);
 
       handlePSet(entry.pset());
+      m_parentStack.pop_back();
    }
 
    void handleVPSetEntry(const edm::VParameterSetEntry& entry,
@@ -279,6 +343,9 @@ public:
       PSetData data;
       data.label = key;
       data.tracked = entry.isTracked();
+      data.level = m_parentStack.size();
+      data.parent = m_parentStack.back();
+      m_parentStack.push_back(m_entries.size());
       m_entries.push_back(data);
 
       std::stringstream ss;
@@ -290,10 +357,14 @@ public:
           PSetData vdata;
           vdata.label = ss.str();
           vdata.tracked = entry.isTracked();
+          vdata.level = m_parentStack.size();
+          vdata.parent = m_parentStack.back();
+          m_parentStack.push_back(m_entries.size());
           m_entries.push_back(vdata);
-
           handlePSet(entry.vpset()[i]);
+          m_parentStack.pop_back();
       }
+      m_parentStack.pop_back();
    }
 
    void handlePSet(const edm::ParameterSet &ps)
@@ -347,6 +418,8 @@ public:
       data.label = key;
       data.tracked = entry.isTracked();
       data.type = entry.typeCode();
+      data.level = m_parentStack.size();
+      data.parent = m_parentStack.back();
 
       switch(entry.typeCode())
       {
@@ -533,13 +606,15 @@ private:
    }
 
    std::vector<PSetData>           m_entries;
+   std::vector<size_t>             m_parentStack;
    std::vector<int>                m_row_to_index;
    int                             m_selectedRow;
    std::string                     m_filter;
 
-   mutable FWTextTableCellRenderer m_renderer;  
-   mutable FWTextTableCellRenderer m_boldRenderer;
-   mutable FWTextTableCellRenderer m_italicRenderer;
+   mutable FWTextTreeCellRenderer m_renderer;  
+   mutable FWTextTreeCellRenderer m_pathRenderer;
+   mutable FWTextTreeCellRenderer m_boldRenderer;
+   mutable FWTextTreeCellRenderer m_italicRenderer;
 };
 
 FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
@@ -768,9 +843,7 @@ FWPathsPopup::handleEntry(const edm::Entry& entry,
       html += "    ";
       for ( std::vector<edm::ParameterSet>::const_iterator psi = psets.begin(), psiEnd = psets.end();
             psi != psiEnd; ++psi )
-      {
         handlePSet(&(*psi), html);
-      }
       break;
     }
   case 'P':
