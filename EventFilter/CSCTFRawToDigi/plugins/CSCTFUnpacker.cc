@@ -220,7 +220,7 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 
 						track.first.setLocalPhi(iter->phi());
 						track.first.setEtaPacked(iter->eta());
-						track.first.setChargePacked((~iter->charge())&0x1);
+						track.first.setChargePacked(iter->charge());
 
 						track.first.m_output_link = iter->id();
 						if( track.first.m_output_link ){

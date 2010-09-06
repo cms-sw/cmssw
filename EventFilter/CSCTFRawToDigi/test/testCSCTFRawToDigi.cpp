@@ -1,7 +1,7 @@
 /* \file testCSCTFRawToDigi.cc
  *
- *  $Date: 2008/01/31 12:34:00 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/06/21 17:23:58 $
+ *  $Revision: 1.7 $
  *  \author L. Gray , ripped from testDaqSource
  */
 
@@ -78,10 +78,10 @@ void testCSCTFRawToDigi::testCreateDigis(){
                             "process.MessageLogger.debugModules = cms.untracked.vstring('*')           \n"
                             "process.source = cms.Source(\"EmptySource\")                              \n"
                             "process.csctfsinglegen = cms.EDProducer(\"CSCTFSingleGen\")               \n"
-                            "process.csctfpacker.lctProducer = cms.untracked.InputTag(\"csctfsinglegen:\")\n"
-                            "process.csctfpacker.mbProducer   = cms.untracked.InputTag(\"null:\")      \n"
-                            "process.csctfpacker.trackProducer = cms.untracked.InputTag(\"null:\")     \n"
-                            "process.csctfunpacker.producer = cms.untracked.InputTag(\"csctfpacker\",\"CSCTFRawData\")\n"
+                            "process.csctfpacker.lctProducer = cms.InputTag(\"csctfsinglegen:\")\n"
+                            "process.csctfpacker.mbProducer   = cms.InputTag(\"null:\")      \n"
+                            "process.csctfpacker.trackProducer = cms.InputTag(\"null:\")     \n"
+                            "process.csctfunpacker.producer = cms.InputTag(\"csctfpacker\",\"CSCTFRawData\")\n"
                             "process.csctfanalyzer = cms.EDAnalyzer(\"CSCTFAnalyzer\",                 \n"
                             "  mbProducer     = cms.untracked.InputTag(\"csctfunpacker:DT\"),          \n"
                             "  lctProducer    = cms.untracked.InputTag(\"csctfunpacker:\"),            \n"
