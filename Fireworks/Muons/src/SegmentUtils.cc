@@ -2,23 +2,19 @@
 #include "Fireworks/Core/interface/fwLog.h"
 
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-#include "TEveStraightLineSet.h"
-#include "TGeoMatrix.h"
 
-#include <iostream>
-#include <cassert>
 #include <math.h>
 
 namespace fireworks
 {
   void createSegment( int detector, 
 		      bool matchedSegment,
-		      double segmentLength,
-		      double segmentLimit,
-		      double* segmentPosition,   
-		      double* segmentDirection,
-		      double* segmentInnerPoint, 
-		      double* segmentOuterPoint )
+		      float segmentLength,
+		      float segmentLimit,
+		      float* segmentPosition,   
+		      float* segmentDirection,
+		      float* segmentInnerPoint, 
+		      float* segmentOuterPoint )
   {
     if( detector == MuonSubdetId::CSC )
     {

@@ -8,11 +8,10 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCStripDigiProxyBuilder.cc,v 1.11 2010/08/31 15:30:21 yana Exp $
+// $Id: FWCSCStripDigiProxyBuilder.cc,v 1.12 2010/09/01 16:18:08 mccauley Exp $
 //
 
 #include "TEveStraightLineSet.h"
-#include "TEveGeoNode.h"
 #include "TEveCompound.h"
 
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
@@ -21,8 +20,6 @@
 #include "Fireworks/Core/interface/fwLog.h"
 
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
-
-#include <TGeoArb8.h>
 
 class FWCSCStripDigiProxyBuilder : public FWProxyBuilderBase
 {
@@ -45,58 +42,36 @@ FWCSCStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
   
    iItem->get(digis);
 
-   if ( ! digis ) 
+   if( ! digis ) 
    {
-      fwLog(fwlog::kWarning)<<"Failed to get CSCStripDigis"<<std::endl;
+      fwLog( fwlog::kWarning ) << "failed to get CSCStripDigis"<<std::endl;
       return;
    }
+   const DetIdToMatrix *geom = iItem->getGeom();
 
    int thresholdOffset = 9;       
 
    for ( CSCStripDigiCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end();
          dri != driEnd; ++dri )
    {    
-      const CSCDetId& cscDetId = (*dri).first;
+      unsigned int rawid = (*dri).first.rawId();
       const CSCStripDigiCollection::Range& range = (*dri).second;
 
-      const TGeoMatrix* matrix = iItem->getGeom()->getMatrix(cscDetId.rawId());
-    
-      if ( ! matrix )
+      if( ! geom->contains( rawid ))
       {
-         fwLog(fwlog::kWarning)<<"Failed to get geometry of CSC with detid: "
-                               << cscDetId.rawId() <<std::endl;
-         continue;
+         fwLog( fwlog::kWarning ) << "failed to get geometry of CSC with detid: "
+				  << rawid << std::endl;
+
+	 TEveCompound* compound = createCompound();
+	 setupAddElement( compound, product );
+
+	 continue;
       }
      
-      const float* shape = iItem->getGeom()->getShapePars(cscDetId.rawId());
+      const float* shape = geom->getShapePars( rawid );
+      float length = shape[4];
 
-      if( shape == 0 )
-      {
-         fwLog(fwlog::kWarning)<<"Failed to get shape of CSC with detid: "
-                               << cscDetId.rawId() <<std::endl;
-         continue;
-      }
-
-      double length;
-
-      if( shape[0] == 1 )
-         length = shape[4];
-
-      else
-      {
-         fwLog(fwlog::kWarning)<<"Failed to get trapezoid from shape for CSC with detid: "
-                               << cscDetId.rawId() <<std::endl;
-         continue;
-      }
-
-      const float* parameters = iItem->getGeom()->getParameters(cscDetId.rawId());
-      
-      if ( parameters == 0 )
-      {
-         fwLog(fwlog::kWarning)<<"Parameters empty for CSC layer with detid: " 
-                               << cscDetId.rawId() <<std::endl;
-         continue;
-      }
+      const float* parameters = geom->getParameters( rawid );
 
       float yAxisOrientation = parameters[0];
       float centreToIntersection = parameters[1];
@@ -115,34 +90,33 @@ FWCSCStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
          TEveStraightLineSet* stripDigiSet = new TEveStraightLineSet();
          setupAddElement(stripDigiSet, product);
              
-         if ( std::find_if(adcCounts.begin(),adcCounts.end(),bind2nd(std::greater<int>(),signalThreshold)) != adcCounts.end() ) 
+         if( std::find_if( adcCounts.begin(), adcCounts.end(), bind2nd( std::greater<int>(), signalThreshold )) != adcCounts.end()) 
          {
             stripDigiSet->SetLineWidth(3);
             int stripId = (*dit).getStrip();  
 
-            double yOrigin = centreToIntersection-yCentre;      
-            double stripAngle = phiOfOneEdge + yAxisOrientation*(stripId-(0.5-stripOffset))*angularWidth;
-            double tanStripAngle = tan(stripAngle);
-            //double xOfStrip = yAxisOrientation*yOrigin*tanStripAngle; this is x of strip at origin
+            float yOrigin = centreToIntersection-yCentre;      
+            float stripAngle = phiOfOneEdge + yAxisOrientation*(stripId-(0.5-stripOffset))*angularWidth;
+            float tanStripAngle = tan(stripAngle);
+            //float xOfStrip = yAxisOrientation*yOrigin*tanStripAngle; this is x of strip at origin
              
-            double localPointTop[3] = 
+            float localPointTop[3] = 
               {
                 yAxisOrientation*(yOrigin+length)*tanStripAngle, length, 0.0
               };
 
-            double localPointBottom[3] = 
+            float localPointBottom[3] = 
               {
                 yAxisOrientation*(yOrigin-length)*tanStripAngle, -length, 0.0
               };
       
-            double globalPointTop[3];
-            double globalPointBottom[3];
+            float globalPointTop[3];
+            float globalPointBottom[3];
         
-            matrix->LocalToMaster(localPointTop, globalPointTop);
-            matrix->LocalToMaster(localPointBottom, globalPointBottom);
+            geom->localToGlobal( rawid, localPointTop, globalPointTop, localPointBottom, globalPointBottom);
         
-            stripDigiSet->AddLine(globalPointBottom[0], globalPointBottom[1], globalPointBottom[2],
-                                  globalPointTop[0], globalPointTop[1], globalPointTop[2]);
+            stripDigiSet->AddLine( globalPointBottom[0], globalPointBottom[1], globalPointBottom[2],
+                                   globalPointTop[0], globalPointTop[1], globalPointTop[2] );
          }
       }       
    }   

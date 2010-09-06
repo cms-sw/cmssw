@@ -3,7 +3,7 @@
 // Package:     Muons
 // Class  :     FWCSCRecHitProxyBuilder
 //
-// $Id: FWCSCRecHitProxyBuilder.cc,v 1.10 2010/08/17 15:21:42 mccauley Exp $
+// $Id: FWCSCRecHitProxyBuilder.cc,v 1.11 2010/08/31 15:30:20 yana Exp $
 //
 
 #include "TEvePointSet.h"
@@ -36,14 +36,16 @@ FWCSCRecHitProxyBuilder::build( const CSCRecHit2D& iData,
 				unsigned int iIndex, TEveElement& oItemHolder, 
                                 const FWViewContext* )
 {       
-  const TGeoMatrix* matrix = item()->getGeom()->getMatrix( iData.cscDetId().rawId() );
+  const DetIdToMatrix *geom = item()->getGeom();
+  unsigned int rawid = iData.cscDetId().rawId();
   
-  if ( ! matrix ) 
-  {     
+  if( ! geom->contains( rawid ))
+  {
     fwLog( fwlog::kError ) << "failed to get geometry of CSC layer with detid: " 
-			   << iData.cscDetId().rawId() <<std::endl;
+			   << rawid <<std::endl;
     return;
   }
+  DetIdToMatrix::IdToInfoItr det = geom->find( rawid );
 
   TEveStraightLineSet* recHitSet = new TEveStraightLineSet;
   setupAddElement( recHitSet, &oItemHolder );
@@ -51,41 +53,41 @@ FWCSCRecHitProxyBuilder::build( const CSCRecHit2D& iData,
   TEvePointSet* pointSet = new TEvePointSet;
   setupAddElement( pointSet, &oItemHolder );
   
-  double localPositionX = iData.localPosition().x();
-  double localPositionY = iData.localPosition().y();
+  float localPositionX = iData.localPosition().x();
+  float localPositionY = iData.localPosition().y();
   
-  double localPositionXX = sqrt( iData.localPositionError().xx());
-  double localPositionYY = sqrt( iData.localPositionError().yy());
+  float localPositionXX = sqrt( iData.localPositionError().xx());
+  float localPositionYY = sqrt( iData.localPositionError().yy());
   
-  double localU1Point[3] = 
+  float localU1Point[3] = 
     {
       localPositionX - localPositionXX, localPositionY, 0.0
     };
   
-  double localU2Point[3] = 
+  float localU2Point[3] = 
     {
       localPositionX + localPositionXX, localPositionY, 0.0
     };
   
-  double localV1Point[3] = 
+  float localV1Point[3] = 
     {
       localPositionX, localPositionY - localPositionYY, 0.0
     };
   
-  double localV2Point[3] = 
+  float localV2Point[3] = 
     {
       localPositionX, localPositionY + localPositionYY, 0.0
     };
 
-  double globalU1Point[3];
-  double globalU2Point[3];
-  double globalV1Point[3];
-  double globalV2Point[3];
+  float globalU1Point[3];
+  float globalU2Point[3];
+  float globalV1Point[3];
+  float globalV2Point[3];
 
-  matrix->LocalToMaster( localU1Point, globalU1Point );
-  matrix->LocalToMaster( localU2Point, globalU2Point );
-  matrix->LocalToMaster( localV1Point, globalV1Point );
-  matrix->LocalToMaster( localV2Point, globalV2Point );
+  geom->localToGlobal( *det, localU1Point, globalU1Point );
+  geom->localToGlobal( *det, localU2Point, globalU2Point );
+  geom->localToGlobal( *det, localV1Point, globalV1Point );
+  geom->localToGlobal( *det, localV2Point, globalV2Point );
 
   pointSet->SetNextPoint( globalU1Point[0], globalU1Point[1], globalU1Point[2] ); 
   pointSet->SetNextPoint( globalU2Point[0], globalU2Point[1], globalU2Point[2] );

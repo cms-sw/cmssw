@@ -81,44 +81,45 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
   {
     return;
   }
+  const DetIdToMatrix *geom = iItem->getGeom();
 	
   for( DTDigiCollection::DigiRangeIterator det = digis->begin(), detEnd = digis->end(); det != detEnd; ++det )
   {
     const DTLayerId& layerId = (*det).first;
-    const float* pars = iItem->getGeom()->getParameters( layerId );
+    unsigned int rawid = layerId.rawId();
+    const DTDigiCollection::Range &range = (*det).second;
+
+    if( ! geom->contains( rawid ))
+    {
+      fwLog( fwlog::kWarning ) << "failed to get geometry of DT with detid: "
+			       << rawid << std::endl;
+
+      TEveCompound* compound = createCompound();
+      setupAddElement( compound, product );
+
+      continue;
+    }
+
+    const float* pars = geom->getParameters( rawid );
+    const TGeoMatrix* matrix = geom->getMatrix( rawid );
 
     int superLayer = layerId.superlayerId().superLayer();
 
     double localPos[3] = { 0.0, 0.0, 0.0 };
 		
-    const TGeoMatrix* matrix = item()->getGeom()->getMatrix( layerId );
-    
-    const DTDigiCollection::Range &range = (*det).second;
-
     // Loop over the digis of this DetUnit
     for( DTDigiCollection::const_iterator it = range.first;
 	 it != range.second; ++it )
     {
-      TEveCompound* compound = createCompound();
-      setupAddElement( compound, product );
-
-      if( pars == 0 || (! matrix )) {
-	fwLog( fwlog::kError )
-	  << "failed get geometry of DT layer with detid: " 
-	  << layerId << std::endl;
-
-	continue;
-      }
-			
       // The x wire position in the layer, starting from its wire number.
-      Float_t firstChannel = pars[3];
-      Float_t nChannels = pars[5];
+      float firstChannel = pars[3];
+      float nChannels = pars[5];
       localPos[0] = ((*it).wire() - ( firstChannel - 1 ) - 0.5 ) * pars[0] - nChannels / 2.0 * pars[0];
 
       if( type == FWViewType::k3D || type == FWViewType::kISpy )
       {
 	TEveBox* box = new TEveBox;
-	setupAddElement( box, compound );
+	setupAddElement( box, product );
 	addTube( box, matrix, localPos, pars );
       }
       if(( type == FWViewType::kRhoPhi && superLayer != 2 ) ||
@@ -126,11 +127,11 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
       {
 	TEvePointSet* pointSet = new TEvePointSet;
 	pointSet->SetMarkerStyle( 24 );
-	setupAddElement( pointSet, compound );	
+	setupAddElement( pointSet, product );	
 	addMarkers( pointSet, matrix, localPos );
 
 	TEveBox* box = new TEveBox;
-	setupAddElement( box, compound );
+	setupAddElement( box, product );
 	addTube( box, matrix, localPos, pars );
       }
     }		

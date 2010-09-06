@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWDTSegmentProxyBuilder.cc,v 1.9 2010/07/28 13:12:19 yana Exp $
+// $Id: FWDTSegmentProxyBuilder.cc,v 1.10 2010/08/31 15:30:21 yana Exp $
 //
 
 #include "TEveGeoNode.h"
@@ -42,9 +42,9 @@ FWDTSegmentProxyBuilder::build( const DTRecSegment4D& iData,
 				unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* )
 {
   unsigned int rawid = iData.chamberId().rawId();
-  const TGeoMatrix* matrix = item()->getGeom()->getMatrix( rawid );
+  const DetIdToMatrix *geom = item()->getGeom();
 
-  if( ! matrix ) 
+  if( ! geom->contains( rawid ))
   {
     fwLog( fwlog::kError ) << "failed to get geometry of DT chamber with detid: " 
 			   << rawid << std::endl;
@@ -73,21 +73,20 @@ FWDTSegmentProxyBuilder::build( const DTRecSegment4D& iData,
       Double_t distOut = box->DistFromInside( localPosition, localDirectionOut );
       LocalVector vIn = unit * distIn;
       LocalVector vOut = -unit * distOut;
-      double localSegmentInnerPoint[3] = { localPosition[0] + vIn.x(),
-					   localPosition[1] + vIn.y(),
-					   localPosition[2] + vIn.z() 
+      float localSegmentInnerPoint[3] = { localPosition[0] + vIn.x(),
+					  localPosition[1] + vIn.y(),
+					  localPosition[2] + vIn.z() 
       };
       
-      double localSegmentOuterPoint[3] = { localPosition[0] + vOut.x(),
-					   localPosition[1] + vOut.y(),
-					   localPosition[2] + vOut.z() 
+      float localSegmentOuterPoint[3] = { localPosition[0] + vOut.x(),
+					  localPosition[1] + vOut.y(),
+					  localPosition[2] + vOut.z() 
       };
                                    
-      double globalSegmentInnerPoint[3];
-      double globalSegmentOuterPoint[3];
+      float globalSegmentInnerPoint[3];
+      float globalSegmentOuterPoint[3];
 
-      matrix->LocalToMaster( localSegmentInnerPoint,  globalSegmentInnerPoint );
-      matrix->LocalToMaster( localSegmentOuterPoint,  globalSegmentOuterPoint );
+      geom->localToGlobal( rawid, localSegmentInnerPoint,  globalSegmentInnerPoint, localSegmentOuterPoint,  globalSegmentOuterPoint );
 
       segmentSet->AddLine( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
 			   globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );

@@ -3,7 +3,7 @@
 // Package:     Muons
 // Class  :     FWDTRecHitProxyBuilder
 //
-// $Id: FWDTRecHitProxyBuilder.cc,v 1.9 2010/07/28 13:51:36 yana Exp $
+// $Id: FWDTRecHitProxyBuilder.cc,v 1.10 2010/08/31 15:30:21 yana Exp $
 //
 
 #include "TEvePointSet.h"
@@ -16,26 +16,6 @@
 
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
-
-namespace 
-{
-  void 
-  addLineWithMarkers( TEveStraightLineSet* recHitSet, TEvePointSet* pointSet, 
-		      const TGeoMatrix* matrix, double lLocalPos[3], double rLocalPos[3] ) 
-  {
-    double leftGlobalPoint[3];
-    double rightGlobalPoint[3];
-		
-    matrix->LocalToMaster( lLocalPos, leftGlobalPoint );
-    matrix->LocalToMaster( rLocalPos, rightGlobalPoint );
-		
-    pointSet->SetNextPoint( leftGlobalPoint[0],  leftGlobalPoint[1],  leftGlobalPoint[2] ); 
-    pointSet->SetNextPoint( rightGlobalPoint[0], rightGlobalPoint[1], rightGlobalPoint[2] );
-		
-    recHitSet->AddLine( leftGlobalPoint[0],  leftGlobalPoint[1],  leftGlobalPoint[2], 
-			rightGlobalPoint[0], rightGlobalPoint[1], rightGlobalPoint[2] );		
-  }
-}
 
 using namespace DTEnums;
 
@@ -64,11 +44,11 @@ FWDTRecHitProxyBuilder::buildViewType( const DTRecHit1DPair& iData, unsigned int
   const DTLayerId& layerId = iData.wireId().layerId();
   int superLayer = layerId.superlayerId().superLayer();
 
-  const TGeoMatrix* matrix = item()->getGeom()->getMatrix( layerId );
-    
-  if( ! matrix ) 
+  const DetIdToMatrix *geom = item()->getGeom();
+
+  if( ! geom->contains( layerId ))
   {
-    fwLog( fwlog::kError ) << " failed get geometry of DT layer with detid: " 
+    fwLog( fwlog::kError ) << "failed get geometry of DT layer with detid: " 
 			   << layerId << std::endl;
     return;
   }
@@ -81,15 +61,24 @@ FWDTRecHitProxyBuilder::buildViewType( const DTRecHit1DPair& iData, unsigned int
 	 
   const DTRecHit1D* leftRecHit = iData.componentRecHit( Left );
   const DTRecHit1D* rightRecHit = iData.componentRecHit( Right );
-  double lLocalPos[3] = { leftRecHit->localPosition().x(), 0.0, 0.0 };
-  double rLocalPos[3] = { rightRecHit->localPosition().x(), 0.0, 0.0 };
+  float lLocalPos[3] = { leftRecHit->localPosition().x(), 0.0, 0.0 };
+  float rLocalPos[3] = { rightRecHit->localPosition().x(), 0.0, 0.0 };
 
   if(( type == FWViewType::kRhoPhi && superLayer != 2 ) ||
     ( type == FWViewType::kRhoZ && superLayer == 2 ) ||
      type == FWViewType::k3D ||
      type == FWViewType::kISpy )
   {
-    addLineWithMarkers( recHitSet, pointSet, matrix, lLocalPos, rLocalPos );
+    float leftGlobalPoint[3];
+    float rightGlobalPoint[3];
+		
+    geom->localToGlobal( layerId, lLocalPos, leftGlobalPoint, rLocalPos, rightGlobalPoint );
+		
+    pointSet->SetNextPoint( leftGlobalPoint[0],  leftGlobalPoint[1],  leftGlobalPoint[2] ); 
+    pointSet->SetNextPoint( rightGlobalPoint[0], rightGlobalPoint[1], rightGlobalPoint[2] );
+		
+    recHitSet->AddLine( leftGlobalPoint[0],  leftGlobalPoint[1],  leftGlobalPoint[2], 
+			rightGlobalPoint[0], rightGlobalPoint[1], rightGlobalPoint[2] );		
   }
 }
 

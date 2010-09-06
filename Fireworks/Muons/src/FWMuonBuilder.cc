@@ -2,7 +2,7 @@
 //
 // Package:     Muons
 // Class  :     FWMuonBuilder
-// $Id: FWMuonBuilder.cc,v 1.32 2010/08/31 15:30:21 yana Exp $
+// $Id: FWMuonBuilder.cc,v 1.33 2010/09/06 13:59:04 amraktad Exp $
 //
 
 #include "TEveVSDStructs.h"
@@ -36,8 +36,8 @@ std::vector<TEveVector> getRecoTrajectoryPoints( const reco::Muon* muon,
    std::vector<TEveVector> points;
    const DetIdToMatrix* geom = iItem->getGeom();
    
-   Double_t localTrajectoryPoint[3];
-   Double_t globalTrajectoryPoint[3];
+   float localTrajectoryPoint[3];
+   float globalTrajectoryPoint[3];
    
    const std::vector<reco::MuonChamberMatch>& matches = muon->matches();
    for( std::vector<reco::MuonChamberMatch>::const_iterator chamber = matches.begin(),
@@ -49,11 +49,11 @@ std::vector<TEveVector> getRecoTrajectoryPoints( const reco::Muon* muon,
       localTrajectoryPoint[1] = chamber->y;
       localTrajectoryPoint[2] = 0;
 
-      const TGeoMatrix* matrix = geom->getMatrix( chamber->id.rawId());
-      if ( matrix )
+      unsigned int rawid = chamber->id.rawId();
+      if( geom->contains( rawid ))
       {
-         matrix->LocalToMaster( localTrajectoryPoint, globalTrajectoryPoint );
-         points.push_back( TEveVector(globalTrajectoryPoint[0],
+	 geom->localToGlobal( rawid, localTrajectoryPoint, globalTrajectoryPoint );
+	 points.push_back( TEveVector(globalTrajectoryPoint[0],
 				      globalTrajectoryPoint[1],
 				      globalTrajectoryPoint[2] ));
       }
@@ -83,80 +83,59 @@ void addMatchInformation( const reco::Muon* muon,
        chamber != chambersEnd; ++chamber )
   {
     unsigned int rawid = chamber->id.rawId();
-    double segmentLength = 0.0;
-    double segmentLimit  = 0.0;
+    float segmentLength = 0.0;
+    float segmentLimit  = 0.0;
 
-    TEveGeoShape* shape = new TEveGeoShape;
-    shape->SetElementName( "Chamber" );
-    shape->RefMainTrans().Scale( 0.999, 0.999, 0.999 );
-    TGeoShape* geoShape = geom->getShape( rawid );
-    const TGeoMatrix* matrix = geom->getMatrix( rawid );
-    if( ! matrix )
+    if( geom->contains( rawid ))
     {
-      fwLog( fwlog::kError )
-	<< "failed to get matrix for muon chamber with detid: "
-	<< rawid << std::endl;
-      return;
-    }
-    if( geoShape ) 
-    {
-      shape->SetShape( geoShape );
-      shape->SetTransMatrix( *matrix );
-      if( TGeoTrap* trap = dynamic_cast<TGeoTrap*>( geoShape ))
+      TEveGeoShape* shape = geom->getEveShape( rawid );
+      shape->SetElementName( "Chamber" );
+      shape->RefMainTrans().Scale( 0.999, 0.999, 0.999 );
+
+      DetIdToMatrix::IdToInfoItr det = geom->find( rawid );
+      if( det->shape[0] == 1 ) // TGeoTrap
       {
-        segmentLength = trap->GetDz();
-        segmentLimit  = trap->GetH1();
+        segmentLength = det->shape[3];
+        segmentLimit  = det->shape[4];
       }
-      else if( TGeoBBox* box = dynamic_cast<TGeoBBox*>( geoShape ))
+      else if( det->shape[0] == 0 ) // TGeoBBox
       {
-	segmentLength = box->GetDZ();
+	segmentLength = det->shape[3];
       }
-      else
-      {	
-	fwLog( fwlog::kWarning ) 
-	  << "failed to get segment limits for detid: "
-	  << rawid << std::endl;
-      }
-    }
-    else
-    {
-      fwLog( fwlog::kWarning ) 
-	<< "failed to get shape of muon chamber with detid: "
-	<< rawid << std::endl;
-    }
         
-    if( ids.insert( rawid ).second &&  // ensure that we add same chamber only once
-	( chamber->detector() != MuonSubdetId::CSC || showEndcap ))
-    {     
-      pb->setupAddElement( shape, parentList );
-    }
+      if( ids.insert( rawid ).second &&  // ensure that we add same chamber only once
+	  ( chamber->detector() != MuonSubdetId::CSC || showEndcap ))
+      {     
+	pb->setupAddElement( shape, parentList );
+      }
      
-    for( std::vector<reco::MuonSegmentMatch>::const_iterator segment = chamber->segmentMatches.begin(),
-							  segmentEnd = chamber->segmentMatches.end();
-	 segment != segmentEnd; ++segment )
-    {
-      double segmentPosition[3]  = {    segment->x,     segment->y, 0.0 };
-      double segmentDirection[3] = { segment->dXdZ,  segment->dYdZ, 0.0 };
+      for( std::vector<reco::MuonSegmentMatch>::const_iterator segment = chamber->segmentMatches.begin(),
+							    segmentEnd = chamber->segmentMatches.end();
+	   segment != segmentEnd; ++segment )
+      {
+	float segmentPosition[3]  = {    segment->x,     segment->y, 0.0 };
+	float segmentDirection[3] = { segment->dXdZ,  segment->dYdZ, 0.0 };
 
-      double localSegmentInnerPoint[3];
-      double localSegmentOuterPoint[3];
+	float localSegmentInnerPoint[3];
+	float localSegmentOuterPoint[3];
 
-      fireworks::createSegment( chamber->detector(), true, 
-				segmentLength, segmentLimit, 
-				segmentPosition, segmentDirection,
-				localSegmentInnerPoint, localSegmentOuterPoint );
+	fireworks::createSegment( chamber->detector(), true, 
+				  segmentLength, segmentLimit, 
+				  segmentPosition, segmentDirection,
+				  localSegmentInnerPoint, localSegmentOuterPoint );
       
-      double globalSegmentInnerPoint[3];
-      double globalSegmentOuterPoint[3];
+	float globalSegmentInnerPoint[3];
+	float globalSegmentOuterPoint[3];
 
-      matrix->LocalToMaster( localSegmentInnerPoint,  globalSegmentInnerPoint );
-      matrix->LocalToMaster( localSegmentOuterPoint,  globalSegmentOuterPoint );
+	geom->localToGlobal( *det, localSegmentInnerPoint,  globalSegmentInnerPoint );
+	geom->localToGlobal( *det, localSegmentOuterPoint,  globalSegmentOuterPoint );
 
-      segmentSet->AddLine( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
-			   globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
+	segmentSet->AddLine( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
+			     globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
+      }
     }
   }
-   
+  
   if( !matches.empty() ) 
     pb->setupAddElement( segmentSet.release(), parentList );
 }
@@ -171,8 +150,8 @@ buggyMuon( const reco::Muon* muon,
        !muon->standAloneMuon()->extra().isAvailable())
      return false;
    
-   Double_t localTrajectoryPoint[3];
-   Double_t globalTrajectoryPoint[3];
+   float localTrajectoryPoint[3];
+   float globalTrajectoryPoint[3];
    
    const std::vector<reco::MuonChamberMatch>& matches = muon->matches();
    for( std::vector<reco::MuonChamberMatch>::const_iterator chamber = matches.begin(),
@@ -184,10 +163,10 @@ buggyMuon( const reco::Muon* muon,
       localTrajectoryPoint[1] = chamber->y;
       localTrajectoryPoint[2] = 0;
 
-      const TGeoMatrix* matrix = geom->getMatrix( chamber->id.rawId());
-      if( matrix )
+      unsigned int rawid = chamber->id.rawId();
+      if( geom->contains( rawid ))
       {
-         matrix->LocalToMaster( localTrajectoryPoint, globalTrajectoryPoint );
+	 geom->localToGlobal( rawid, localTrajectoryPoint, globalTrajectoryPoint );
          double phi = atan2( globalTrajectoryPoint[1], globalTrajectoryPoint[0] );
          if( cos( phi - muon->standAloneMuon()->innerPosition().phi()) < 0 )
             return true;

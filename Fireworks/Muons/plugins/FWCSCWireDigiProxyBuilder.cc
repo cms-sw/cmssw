@@ -8,13 +8,11 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCWireDigiProxyBuilder.cc,v 1.14 2010/09/01 16:18:08 mccauley Exp $
+// $Id: FWCSCWireDigiProxyBuilder.cc,v 1.15 2010/09/02 10:07:56 mccauley Exp $
 //
 
 #include "TEveStraightLineSet.h"
-#include "TEveGeoNode.h"
 #include "TEveCompound.h"
-#include "TGeoArb8.h"
 
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -82,65 +80,42 @@ FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* prod
 
   if ( ! digis ) 
   {
-    fwLog(fwlog::kWarning)<<"Failed to get CSCWireDigis"<<std::endl;
+    fwLog( fwlog::kWarning ) << "Failed to get CSCWireDigis" << std::endl;
     return;
   }
+  const DetIdToMatrix *geom = iItem->getGeom();
 
   for ( CSCWireDigiCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end(); 
         dri != driEnd; ++dri )
-  { 
+  {
     const CSCDetId& cscDetId = (*dri).first;
+    unsigned int rawid = cscDetId.rawId();
     const CSCWireDigiCollection::Range& range = (*dri).second;
  
-    const TGeoMatrix* matrix = iItem->getGeom()->getMatrix(cscDetId.rawId());
+    if( ! geom->contains( rawid ))
+    {
+      fwLog( fwlog::kWarning ) << "Failed to get geometry of CSC chamber with detid: "
+			       << rawid << std::endl;
+      
+      TEveCompound* compound = createCompound();
+      setupAddElement( compound, product );
+
+      continue;
+    }
+
+    const float* shape = geom->getShapePars( rawid );
+
+    float length = shape[4];
+    float topWidth = shape[2];
+    float bottomWidth = shape[1];
     
-    if ( ! matrix )
-    {
-      fwLog(fwlog::kWarning)<<"Failed to get geometry of CSC chamber with detid: "
-                            << cscDetId.rawId() <<std::endl;
-      continue;
-    }
-
-    const float* shape = iItem->getGeom()->getShapePars( cscDetId.rawId());
-
-    if( shape == 0 )
-    {
-      fwLog(fwlog::kWarning)<<"Failed to get shape of CSC chamber with detid: "
-                            << cscDetId.rawId() <<std::endl;
-      continue;
-    }
-
-    double length;
-    double topWidth;
-    double bottomWidth;
-   
-    if( shape[0] == 1 )
-    {
-      topWidth = shape[2];
-      bottomWidth = shape[1];
-      length = shape[4]; 
-    }
-    else
-    {
-      fwLog(fwlog::kWarning)<<"Failed to get trapezoid from shape for CSC with detid: "
-                            << cscDetId.rawId() <<std::endl;
-      continue;
-    }
+    const float* parameters = iItem->getGeom()->getParameters( rawid );
     
-    const float* parameters = iItem->getGeom()->getParameters(cscDetId.rawId());
+    float wireSpacing  = parameters[6];
+    float wireAngle    = parameters[7];
+    float cosWireAngle = cos(wireAngle);
 
-    if ( parameters == 0 )
-    {
-      fwLog(fwlog::kWarning)<<"Parameters empty for CSC with detid: "
-                            << cscDetId.rawId() <<std::endl;
-      continue;
-    }
-    
-    double wireSpacing  = parameters[6];
-    float  wireAngle    = parameters[7];
-    float  cosWireAngle = cos(wireAngle);
-
-    double yOfFirstWire = getYOfFirstWire(cscDetId.station(), cscDetId.ring(), length); 
+    double yOfFirstWire = getYOfFirstWire( cscDetId.station(), cscDetId.ring(), length ); 
              
     for ( CSCWireDigiCollection::const_iterator dit = range.first;
           dit != range.second; ++dit )        
@@ -151,32 +126,31 @@ FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* prod
 
       int wireGroup = (*dit).getWireGroup();
 
-      double yOfWire = yOfFirstWire + ((wireGroup-1)*wireSpacing)/cosWireAngle;
+      float yOfWire = yOfFirstWire + ((wireGroup-1)*wireSpacing)/cosWireAngle;
       yOfWire += length;
 
-      double wireLength = yOfWire*(topWidth-bottomWidth) / length;
+      float wireLength = yOfWire*(topWidth-bottomWidth) / length;
       wireLength += bottomWidth*2.0;
      
-      double localPointLeft[3] = 
+      float localPointLeft[3] = 
       {
         -wireLength*0.5, yOfWire, 0.0
       };
 
       // NOTE: This is only an approximation for slanted wires.
       // Need to improve the determination of the x coordinate.
-      double localPointRight[3] = 
+      float localPointRight[3] = 
       {
         wireLength*0.5, yOfWire + wireLength*tan(wireAngle), 0.0
       };
 
-      double globalPointLeft[3];     
-      double globalPointRight[3];
+      float globalPointLeft[3];     
+      float globalPointRight[3];
 
-      matrix->LocalToMaster(localPointLeft, globalPointLeft); 
-      matrix->LocalToMaster(localPointRight, globalPointRight);
+      geom->localToGlobal( rawid, localPointLeft, globalPointLeft, localPointRight, globalPointRight ); 
       
-      wireDigiSet->AddLine(globalPointLeft[0],  globalPointLeft[1],  globalPointLeft[2],
-                           globalPointRight[0], globalPointRight[1], globalPointRight[2]);
+      wireDigiSet->AddLine( globalPointLeft[0],  globalPointLeft[1],  globalPointLeft[2],
+                            globalPointRight[0], globalPointRight[1], globalPointRight[2] );
     }
   }
 }

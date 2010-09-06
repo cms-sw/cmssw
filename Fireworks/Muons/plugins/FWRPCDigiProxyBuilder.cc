@@ -8,7 +8,7 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWRPCDigiProxyBuilder.cc,v 1.11 2010/08/23 15:26:37 yana Exp $
+// $Id: FWRPCDigiProxyBuilder.cc,v 1.12 2010/08/31 15:30:21 yana Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -48,75 +48,55 @@ FWRPCDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product,
     fwLog(fwlog::kWarning)<<"Failed to get RPCDigis"<<std::endl;
     return;
   }
+  const DetIdToMatrix *geom = iItem->getGeom();
 
   for ( RPCDigiCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end();
         dri != driEnd; ++dri )
   {
     unsigned int rawid = (*dri).first.rawId();
-    float nStrips = 0.;
-    float halfStripLength = 0.;
-    float pitch = 0.;
-
-    float offset = 0.;
-
-    const TGeoMatrix* matrix = iItem->getGeom()->getMatrix(rawid);
-    const float* parameters = iItem->getGeom()->getParameters(rawid);
- 
-    if( parameters == 0 )
-    {
-      fwLog(fwlog::kWarning)<<"Parameters empty for RPC with detid: "
-			      << rawid <<std::endl;
-    }    
-    else
-    {     
-      nStrips = parameters[0];
-      halfStripLength = parameters[1]*0.5;
-      pitch = parameters[2];
-
-      offset = -0.5*nStrips*pitch;
-    }
-    
     const RPCDigiCollection::Range& range = (*dri).second;
 
-    for ( RPCDigiCollection::const_iterator dit = range.first;
-          dit != range.second; ++dit )
+    if( ! geom->contains( rawid ))
     {
-      TEveStraightLineSet* stripDigiSet = new TEveStraightLineSet();
-      stripDigiSet->SetLineWidth(3);
-      setupAddElement(stripDigiSet, product);
-
-      if ( ! matrix ) 
-      {
-	fwLog(fwlog::kWarning)<<"Failed get matrix of RPC with detid: "
-			      << rawid << std::endl;
-	continue;
-      }     
-
-      if ( parameters == 0 )
-      {
-        fwLog(fwlog::kWarning)<<"Parameters empty for RPC with detid: "
-			      << rawid <<std::endl;
-        continue;
-      }
+      fwLog( fwlog::kWarning ) << "Failed to get geometry of RPC roll with detid: "
+			       << rawid << std::endl;
       
-      int strip = (*dit).strip();
-      double centreOfStrip = (strip-0.5)*pitch + offset;
+      TEveCompound* compound = createCompound();
+      setupAddElement( compound, product );
+      
+      continue;
+    }
+    
+    const float* parameters = geom->getParameters( rawid );
+    float nStrips = parameters[0];
+    float halfStripLength = parameters[1]*0.5;
+    float pitch = parameters[2];
+    float offset = -0.5*nStrips*pitch;
+    
+    for( RPCDigiCollection::const_iterator dit = range.first;
+	 dit != range.second; ++dit )
+    {
+      TEveStraightLineSet* stripDigiSet = new TEveStraightLineSet;
+      stripDigiSet->SetLineWidth(3);
+      setupAddElement( stripDigiSet, product );
 
-      double localPointTop[3] =
+      int strip = (*dit).strip();
+      float centreOfStrip = (strip-0.5)*pitch + offset;
+
+      float localPointTop[3] =
       {
         centreOfStrip, halfStripLength, 0.0
       };
 
-      double localPointBottom[3] = 
+      float localPointBottom[3] = 
       {
         centreOfStrip, -halfStripLength, 0.0
       };
 
-      double globalPointTop[3];
-      double globalPointBottom[3];
+      float globalPointTop[3];
+      float globalPointBottom[3];
 
-      matrix->LocalToMaster(localPointTop, globalPointTop);
-      matrix->LocalToMaster(localPointBottom, globalPointBottom);
+      geom->localToGlobal( rawid, localPointTop, globalPointTop, localPointBottom, globalPointBottom );
 
       stripDigiSet->AddLine(globalPointTop[0], globalPointTop[1], globalPointTop[2],
                             globalPointBottom[0], globalPointBottom[1], globalPointBottom[2]);

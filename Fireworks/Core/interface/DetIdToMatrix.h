@@ -100,14 +100,14 @@ public:
    }
 
    void clear( void ) { m_idToInfo.clear(); m_idToMatrix.clear(); }
-  
+   IdToInfoItr find( unsigned int ) const;
+   void localToGlobal( const RecoGeomInfo& info, const float* local, float* global ) const;
+ 
 private:
    mutable std::map<unsigned int, TGeoMatrix*> m_idToMatrix;
 
    IdToInfo m_idToInfo;
-  
-   IdToInfoItr find( unsigned int ) const;
-   void localToGlobal( const RecoGeomInfo& info, const float* local, float* global ) const;
+
    TGeoShape* getShape( const RecoGeomInfo& info ) const;
 };
 

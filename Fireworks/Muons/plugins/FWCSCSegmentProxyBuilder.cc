@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCSegmentProxyBuilder.cc,v 1.14 2010/07/28 13:31:35 yana Exp $
+// $Id: FWCSCSegmentProxyBuilder.cc,v 1.15 2010/08/31 15:30:20 yana Exp $
 //
 
 #include "TEveGeoNode.h"
@@ -41,10 +41,10 @@ void
 FWCSCSegmentProxyBuilder::build( const CSCSegment& iData,           
 				 unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* )
 {
+  const DetIdToMatrix *geom = item()->getGeom();
   unsigned int rawid = iData.cscDetId().rawId();
-  const TGeoMatrix* matrix = item()->getGeom()->getMatrix( rawid );
   
-  if( ! matrix ) 
+  if( ! geom->contains( rawid ))
   {
     fwLog(fwlog::kError) << "failed to get geometry of CSC chamber with rawid: " 
                          << rawid << std::endl;
@@ -56,8 +56,8 @@ FWCSCSegmentProxyBuilder::build( const CSCSegment& iData,
   segmentSet->SetLineWidth( 3 );
   setupAddElement( segmentSet, &oItemHolder );
 
-  double length    = 0.0;
-  double thickness = 0.0;
+  float length    = 0.0;
+  float thickness = 0.0;
 
   TEveGeoShape* shape = item()->getGeom()->getEveShape( rawid );
   if( TGeoTrap* trap = dynamic_cast<TGeoTrap*>( shape->GetShape())) // Trapezoidal
@@ -69,35 +69,34 @@ FWCSCSegmentProxyBuilder::build( const CSCSegment& iData,
      LocalVector dir = iData.localDirection();   
      LocalVector unit = dir.unit();
     
-     double localPosition[3]     = {  pos.x(),  pos.y(),  pos.z() };
-     double localDirectionIn[3]  = {  dir.x(),  dir.y(),  dir.z() };
-     double localDirectionOut[3] = { -dir.x(), -dir.y(), -dir.z() };
+     Double_t localPosition[3]     = {  pos.x(),  pos.y(),  pos.z() };
+     Double_t localDirectionIn[3]  = {  dir.x(),  dir.y(),  dir.z() };
+     Double_t localDirectionOut[3] = { -dir.x(), -dir.y(), -dir.z() };
   
-     Double_t distIn = trap->DistFromInside( localPosition, localDirectionIn );
-     Double_t distOut = trap->DistFromInside( localPosition, localDirectionOut );
+     float distIn = trap->DistFromInside( localPosition, localDirectionIn );
+     float distOut = trap->DistFromInside( localPosition, localDirectionOut );
      LocalVector vIn = unit * distIn;
      LocalVector vOut = -unit * distOut;
-     double localSegmentInnerPoint[3] = { localPosition[0] + vIn.x(),
-					  localPosition[1] + vIn.y(),
-					  localPosition[2] + vIn.z() 
+     float localSegmentInnerPoint[3] = { localPosition[0] + vIn.x(),
+					 localPosition[1] + vIn.y(),
+					 localPosition[2] + vIn.z() 
      };
       
-     double localSegmentOuterPoint[3] = { localPosition[0] + vOut.x(),
-					  localPosition[1] + vOut.y(),
-					  localPosition[2] + vOut.z() 
+     float localSegmentOuterPoint[3] = { localPosition[0] + vOut.x(),
+					 localPosition[1] + vOut.y(),
+					 localPosition[2] + vOut.z() 
      };
 
-     double globalSegmentInnerPoint[3];
-     double globalSegmentOuterPoint[3];
-
-     matrix->LocalToMaster( localSegmentInnerPoint,  globalSegmentInnerPoint );
-     matrix->LocalToMaster( localSegmentOuterPoint,  globalSegmentOuterPoint );
+     float globalSegmentInnerPoint[3];
+     float globalSegmentOuterPoint[3];
+     
+     geom->localToGlobal( rawid, localSegmentInnerPoint,  globalSegmentInnerPoint, localSegmentOuterPoint,  globalSegmentOuterPoint );
 
      segmentSet->AddLine( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
 			  globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );	
   }
 }
 
-REGISTER_FWPROXYBUILDER( FWCSCSegmentProxyBuilder, CSCSegment, "CSC-segments", FWViewType::kAll3DBits | FWViewType::kRhoPhiBit | FWViewType::kRhoZBit );
+REGISTER_FWPROXYBUILDER( FWCSCSegmentProxyBuilder, CSCSegment, "CSC-segments", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
 
 

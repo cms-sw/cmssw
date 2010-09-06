@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: FWRPCRecHitProxyBuilder.cc,v 1.12 2010/08/17 15:21:42 mccauley Exp $
+// $Id: FWRPCRecHitProxyBuilder.cc,v 1.13 2010/08/31 15:30:21 yana Exp $
 //
 
 #include "TEveGeoNode.h"
@@ -52,75 +52,74 @@ FWRPCRecHitProxyBuilder::buildViewType(const RPCRecHit& iData,
                                        const FWViewContext*)
 {
   RPCDetId rpcId = iData.rpcId();
-
-  const TGeoMatrix* matrix = item()->getGeom()->getMatrix(rpcId);
+  unsigned int rawid = rpcId.rawId();
   
-  if ( ! matrix ) 
+  const DetIdToMatrix *geom = item()->getGeom();
+
+  if( ! geom->contains( rawid ))
   {
-    fwLog(fwlog::kError) <<"failed to get geometry of RPC reference volume with detid: "
-                         << rpcId << std::endl;
+    fwLog( fwlog::kError ) << "failed to get geometry of RPC roll with detid: " 
+			   << rawid <<std::endl;
     return;
   }
- 
-  std::stringstream s;
-  s << "rec hit" << iIndex;
 
-  TEveStraightLineSet* recHitSet = new TEveStraightLineSet(s.str().c_str());
+  TEveStraightLineSet* recHitSet = new TEveStraightLineSet;
   recHitSet->SetLineWidth(3);
 
-  TEveGeoShape* shape = item()->getGeom()->getEveShape(rpcId);
-
-  if ( shape && ( type == FWViewType::k3D || type == FWViewType::kISpy ) ) 
+  if( type == FWViewType::k3D || type == FWViewType::kISpy ) 
   {
-    shape->SetMainTransparency(75);
-    shape->SetMainColor(item()->defaultDisplayProperties().color());
-    recHitSet->AddElement(shape);
+    TEveGeoShape* shape = geom->getEveShape( rawid );
+    shape->SetMainTransparency( 75 );
+    shape->SetMainColor( item()->defaultDisplayProperties().color());
+    recHitSet->AddElement( shape );
   }
 
-  double localX = iData.localPosition().x();
-  double localY = iData.localPosition().y();
-  double localZ = iData.localPosition().z();
+  float localX = iData.localPosition().x();
+  float localY = iData.localPosition().y();
+  float localZ = iData.localPosition().z();
   
-  double localXerr = sqrt(iData.localPositionError().xx());
-  double localYerr = sqrt(iData.localPositionError().yy());
+  float localXerr = sqrt(iData.localPositionError().xx());
+  float localYerr = sqrt(iData.localPositionError().yy());
 
-  double localU1[3] = 
+  float localU1[3] = 
     {
       localX - localXerr, localY, localZ 
     };
   
-  double localU2[3] = 
+  float localU2[3] = 
     {
       localX + localXerr, localY, localZ 
     };
   
-  double localV1[3] = 
+  float localV1[3] = 
     {
       localX, localY - localYerr, localZ
     };
   
-  double localV2[3] = 
+  float localV2[3] = 
     {
       localX, localY + localYerr, localZ
     };
 
-  double globalU1[3];
-  double globalU2[3];
-  double globalV1[3];
-  double globalV2[3];
- 
-  matrix->LocalToMaster(localU1, globalU1);
-  matrix->LocalToMaster(localU2, globalU2);
-  matrix->LocalToMaster(localV1, globalV1);
-  matrix->LocalToMaster(localV2, globalV2);
- 
-  recHitSet->AddLine(globalU1[0], globalU1[1], globalU1[2],
-                     globalU2[0], globalU2[1], globalU2[2]);
+  float globalU1[3];
+  float globalU2[3];
+  float globalV1[3];
+  float globalV2[3];
 
-  recHitSet->AddLine(globalV1[0], globalV1[1], globalV1[2],
-                     globalV2[0], globalV2[1], globalV2[2]);
+  DetIdToMatrix::IdToInfoItr det = geom->find( rawid );
+ 
+  geom->localToGlobal( *det, localU1, globalU1 );
+  geom->localToGlobal( *det, localU2, globalU2 );
+  geom->localToGlobal( *det, localV1, globalV1 );
+  geom->localToGlobal( *det, localV2, globalV2 );
+ 
+  recHitSet->AddLine( globalU1[0], globalU1[1], globalU1[2],
+                      globalU2[0], globalU2[1], globalU2[2] );
 
-  setupAddElement(recHitSet, &oItemHolder);
+  recHitSet->AddLine( globalV1[0], globalV1[1], globalV1[2],
+                      globalV2[0], globalV2[1], globalV2[2] );
+
+  setupAddElement( recHitSet, &oItemHolder );
 }
 
 REGISTER_FWPROXYBUILDER( FWRPCRecHitProxyBuilder, RPCRecHit, "RPC RecHits", 
