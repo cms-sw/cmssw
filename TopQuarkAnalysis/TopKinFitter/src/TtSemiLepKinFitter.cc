@@ -25,7 +25,7 @@ TtSemiLepKinFitter::TtSemiLepKinFitter(Param jetParam, Param lepParam, Param met
 				       std::vector<Constraint> constraints, double mW, double mTop):
   TopKinFitter(maxNrIter, maxDeltaS, maxF, mW, mTop),
   hadB_(0), hadP_(0), hadQ_(0), lepB_(0), lepton_(0), neutrino_(0),
-  jetParam_(jetParam), lepParam_(lepParam), metParam_(metParam)
+  jetParam_(jetParam), lepParam_(lepParam), metParam_(metParam), constrList_(constraints)
 {
   setupFitter();
 }
