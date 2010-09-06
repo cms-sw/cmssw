@@ -231,6 +231,14 @@ void ODDCCConfig::fetchData(ODDCCConfig * result)
 
 
     Clob clob = rset->getClob (7);
+    unsigned int clobLength = clob.length();
+    Stream *instream = clob.getStream (1,0);
+    char *cbuffer = new char[clobLength];
+    memset (cbuffer, 0, clobLength);
+    instream->readBuffer (cbuffer, clobLength);
+    string str(cbuffer,clobLength);
+    m_dcc_clob = str;
+    /*
     cout << "Opening the clob in Read only mode" << endl;
     clob.open (OCCI_LOB_READONLY);
     int clobLength=clob.length ();
@@ -245,7 +253,7 @@ void ODDCCConfig::fetchData(ODDCCConfig * result)
 
 
     result->setDCCClob(buffer );
-
+    */
   } catch (SQLException &e) {
     throw(runtime_error("ODDCCConfig::fetchData():  "+e.getMessage()));
   }
