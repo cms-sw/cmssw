@@ -45,3 +45,6 @@ rstracks = cms.Sequence(roadSearchSeeds*
 
 ckftracks_plus_pixelless = cms.Sequence(ckftracks*ctfTracksPixelLess)
 
+
+from RecoJets.JetAssociationProducers.trackExtrapolator_cfi import *
+trackingGlobalReco = cms.Sequence(ckftracks*trackExtrapolator)
