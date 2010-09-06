@@ -196,7 +196,7 @@ void CachingVertex<N>::computeNDF() const
 
 
 template <unsigned int N>
-typename CachingVertex<N>::AlgebraicSymMatrixMM
+typename CachingVertex<N>::AlgebraicMatrixMM
 CachingVertex<N>::tkToTkCovariance(const RefCountedVertexTrack t1, 
 				const RefCountedVertexTrack t2) const
 {
@@ -206,6 +206,7 @@ CachingVertex<N>::tkToTkCovariance(const RefCountedVertexTrack t1,
   else {
     RefCountedVertexTrack tr1;
     RefCountedVertexTrack tr2;
+    bool transp = false;
     if(t1 < t2) {
       tr1 = t1;    
       tr2 = t2;
@@ -213,13 +214,15 @@ CachingVertex<N>::tkToTkCovariance(const RefCountedVertexTrack t1,
     else {
       tr1 = t2;    
       tr2 = t1;
+      transp = true;
     }
     typename TrackToTrackMap::const_iterator it = theCovMap.find(tr1);
     if (it !=  theCovMap.end()) {
       const TrackMap & tm = it->second;
       typename TrackMap::const_iterator nit = tm.find(tr2);
       if (nit != tm.end()) {
-	return( nit->second);
+	if (transp) return( ROOT::Math::Transpose(nit->second) );
+	else return( nit->second);
       }
       else {
 	throw VertexException("CachingVertex::requested TkTkCovariance does not exist");
@@ -262,11 +265,7 @@ CachingVertex<N>::operator TransientVertex() const
       for (typename std::vector<RefCountedVertexTrack>::const_iterator j = (i+1);
 	   j != theTracks.end(); ++j) {
 	reco::TransientTrack t2((**j).linearizedTrack()->track());
-	if (t1 < t2) {
-	  ttCovMap[t1][t2] = tkToTkCovariance(*i, *j);
-	} else {
-	  ttCovMap[t2][t1] = tkToTkCovariance(*i, *j);
-	}
+	ttCovMap[t1][t2] = tkToTkCovariance(*i, *j);
       }
     }
     if ((**i).refittedStateAvailable()) {

@@ -29,8 +29,8 @@ public:
 
   typedef ReferenceCountingPointer<VertexTrack<N> > RefCountedVertexTrack;
   typedef ROOT::Math::SMatrix<double,N,N,ROOT::Math::MatRepSym<double,N> > AlgebraicSymMatrixNN;
-  typedef ROOT::Math::SMatrix<double,N-2,N-2,ROOT::Math::MatRepSym<double,N-2> > AlgebraicSymMatrixMM;
-  typedef std::map<RefCountedVertexTrack, AlgebraicSymMatrixMM > TrackMap;
+  typedef ROOT::Math::SMatrix<double,N-2,N-2,ROOT::Math::MatRepStd<double,N-2,N-2> > AlgebraicMatrixMM;
+  typedef std::map<RefCountedVertexTrack, AlgebraicMatrixMM > TrackMap;
   typedef std::map<RefCountedVertexTrack, TrackMap > TrackToTrackMap;
 
   /** Constructors
@@ -102,7 +102,7 @@ public:
 
   /** Track to track covariance
    */
-  AlgebraicSymMatrixMM tkToTkCovariance(const RefCountedVertexTrack t1, 
+  AlgebraicMatrixMM tkToTkCovariance(const RefCountedVertexTrack t1, 
 				   const RefCountedVertexTrack t2) const;
   bool tkToTkCovarianceIsAvailable() const { return theCovMapAvailable; }
 
