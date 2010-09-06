@@ -36,6 +36,7 @@ namespace {
       .def("plot",&Wrapper::plot)
       .def("summary",&Wrapper::summary) 
       .def("extract",&Wrapper::extract)
+      .def("trend_plot",&Wrapper::trend_plot)
       ; 
   }
 }

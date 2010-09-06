@@ -150,6 +150,7 @@ class PayLoad :
         self.__db = db
         self.__token = token
         exec('import '+db.moduleName(token)+' as Plug')
+
         self.__me = Plug.Object(db.payLoad(token))
 
     def __str__(self) :
@@ -172,6 +173,18 @@ class PayLoad :
         for i in fl:
             vf.append(float(i))
         return self.__me.plot(fname,s,vi,vf)
+
+    def trend_plot(self, fname, s, il, fl, sl) :
+        vi = CondDB.VInt()
+        vf = CondDB.VFloat()
+        vs = CondDB.VString()
+        for i in il:
+            vi.append(int(i))
+        for i in fl:
+            vf.append(float(i))
+        for i in sl:
+            vs.append(str(i))
+        return self.__me.trend_plot(fname,s,vi,vf,vs)
 
 
 

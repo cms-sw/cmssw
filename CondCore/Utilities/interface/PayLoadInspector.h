@@ -130,6 +130,12 @@ namespace cond {
     std::string plot(std::string const & /* filename */,
 		     std::string const &, 
 		     std::vector<int> const&, std::vector<float> const& ) const {return "";}
+
+
+    // return the real name of the file including extension...
+    std::string trend_plot(std::string const & /* filename */,//
+		     std::string const &, 
+			 std::vector<int> const&, std::vector<float> const&, std::vector<std::string> const&) const {return "";}
     
     void extract(Extractor & extractor) const {extractor.computeW(object()); }
 
