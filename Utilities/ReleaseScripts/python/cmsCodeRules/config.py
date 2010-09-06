@@ -13,7 +13,7 @@ htmlPath = os.getcwd()
 
 # exception for directories and files 
 
-exceptPathes = []
+exceptPaths = []
 
 # --------------------------------------------------------------------------------
 # configuration info for each rule ...
@@ -31,7 +31,7 @@ Configuration[ruleName] = {}
 
 Configuration[ruleName]['description'] = 'Search for "using" keyword in header files'
 Configuration[ruleName]['filesToMatch'] = ['*.h']
-Configuration[ruleName]['exceptPathes'] = []
+Configuration[ruleName]['exceptPaths'] = []
 Configuration[ruleName]['skipComments']  = True
 Configuration[ruleName]['filter'] = '\susing\s|\Ausing\s' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = []
@@ -46,7 +46,7 @@ Configuration[ruleName] = {}
 
 Configuration[ruleName]['description'] = 'Search for CXXFLAGS flags that are set to -g or -O0 in BuildFile'
 Configuration[ruleName]['filesToMatch'] = ['BuildFile', 'BuildFile.xml']
-Configuration[ruleName]['exceptPathes'] = []
+Configuration[ruleName]['exceptPaths'] = []
 Configuration[ruleName]['skipComments']  = True
 Configuration[ruleName]['filter'] = '\s(CXXFLAGS|CPPFLAGS)(\+|=|\w|\"|\'|-|\s)*(-g|-O0)(\s|\'|\")' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = []
@@ -61,7 +61,7 @@ Configuration[ruleName] = {}
 
 Configuration[ruleName]['description'] = 'Search for "catch(...)" statements in *.cc, *.cxx files'
 Configuration[ruleName]['filesToMatch'] = ['*.cc', '*.cxx']
-Configuration[ruleName]['exceptPathes'] = []
+Configuration[ruleName]['exceptPaths'] = []
 Configuration[ruleName]['skipComments']  = True
 Configuration[ruleName]['filter'] = 'catch\(\s*\.\.\.\s*\)' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = []
@@ -75,7 +75,7 @@ Configuration[ruleName] = {}
 
 Configuration[ruleName]['description'] = 'Search for "copyright" declaration in *.c, *.cc, *.cxx, *.h files'
 Configuration[ruleName]['filesToMatch'] = ['*.h', '*.c', '*.cc', '*.cxx']
-Configuration[ruleName]['exceptPathes'] = []#could be file name, dir, fileName:line. But path should be only from that directory in which we are searching
+Configuration[ruleName]['exceptPaths'] = []#could be file name, dir, fileName:line. But path should be only from that directory in which we are searching
 Configuration[ruleName]['skipComments']  = False
 Configuration[ruleName]['filter'] = '(\A|\W)(c|C)(o|O)(p|P)(y|Y)(r|R)(i|I)(g|G)(h|H)(t|T)\W(\+|=|\w|\"|\'|-|\s)*(\((c|C)\)|\d{4})' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = []
@@ -89,7 +89,7 @@ Configuration[ruleName] = {}
 
 Configuration[ruleName]['description'] = 'Search for "pragma" statement in *.c, *.cc, *.cxx, *.h files'
 Configuration[ruleName]['filesToMatch'] = ['*.h', '*.c', '*.cc', '*.cxx']
-Configuration[ruleName]['exceptPathes'] = []#could be file name, dir, fileName:line. Path should be only from that directory in which we are searching
+Configuration[ruleName]['exceptPaths'] = []#could be file name, dir, fileName:line. Path should be only from that directory in which we are searching
 Configuration[ruleName]['skipComments']  = True
 Configuration[ruleName]['filter'] = '#\s*pragma\s' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = []
@@ -102,7 +102,7 @@ for key, value in Configuration.items():
 
 # --------------------------------------------------------------------------------
 helpMsg  = "-----------------------------------------------------------HELP-----------------------------------------------------------\n"
-helpMsg += "cmsCodeRulesChecker.py [-h] [-html] [-s [DIRECTORY]] [-S [DIRECTORY]] [-p] [-r ruleNumber[,ruleNumber[, ...]]] [-d DIRECTORY]\n\n"
+helpMsg += "cmsCodeRulesChecker.py [-h] [-html] [-s [DIRECTORY]] [-S [DIRECTORY]] [-p] [-r ruleName[,ruleName[, ...]]] [-d DIRECTORY]\n\n"
 helpMsg += "-r     Specifies rule or rules to be checked. After this parameter should\n       be at least one rule given.\n"
 helpMsg += "-d     Specifies that rules should be checked in DIRECTORY. Default \n       directory - current directory\n"
 helpMsg += "-S     Specifies to save results in python pickle files. Directory specifies\n       where to store these files. Default directory - current directory\n"

@@ -3,7 +3,7 @@ __date__ ="$Jul 12, 2010 10:08:20 AM$"
 
 import re
 
-#fileList is list of files pathes or could be a tuple of (path, [fileLines])
+#fileList is list of files paths or could be a tuple of (path, [fileLines])
 def finds(fileList, regularExpression, exceptRegEx = []):
     info = []
     lines = []

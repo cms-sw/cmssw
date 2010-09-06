@@ -8,9 +8,9 @@ import os
 import re
 import sys
 from Utilities.ReleaseScripts.cmsCodeRules.keyFinder import finds
-from Utilities.ReleaseScripts.cmsCodeRules.filesFinder import getFilePathesFromWalk
+from Utilities.ReleaseScripts.cmsCodeRules.filesFinder import getFilePathsFromWalk
 from Utilities.ReleaseScripts.cmsCodeRules.pickleFileCreater import createPickleFile
-from Utilities.ReleaseScripts.cmsCodeRules.config import Configuration, rulesNames, rulesDescription, helpMsg, checkPath, picklePath, txtPath, exceptPathes
+from Utilities.ReleaseScripts.cmsCodeRules.config import Configuration, rulesNames, rulesDescription, helpMsg, checkPath, picklePath, txtPath, exceptPaths
 from Utilities.ReleaseScripts.cmsCodeRules.pathToRegEx import pathToRegEx
 from Utilities.ReleaseScripts.commentSkipper.commentSkipper import filter
 from Utilities.ReleaseScripts.cmsCodeRules.showPage import run
@@ -21,13 +21,13 @@ checkPath = checkPath
 picklePath = picklePath
 txtPath = txtPath
 
-def splitPathes(listRule, pathHead):
+def splitPaths(listRule, pathHead):
     try:
         for i in range(len(listRule)):
             path, linesNumbers = listRule[i]
             listRule[i] = (path.replace(pathHead, '', 1), linesNumbers)
     except TypeError:
-        print "Error: given wrong type of parameter in function splitPathes."
+        print "Error: given wrong type of parameter in function splitPaths."
     return listRule
 
 def runRules(ruleNumberList, directory):
@@ -43,9 +43,9 @@ def runRules(ruleNumberList, directory):
 
     osWalk.extend(os.walk(directory))
 
-    exceptPathesForEachRule = []
-    for path in exceptPathes:
-        exceptPathesForEachRule.append(join(checkPath, path))
+    exceptPathsForEachRule = []
+    for path in exceptPaths:
+        exceptPathsForEachRule.append(join(checkPath, path))
 
     for ruleNr in ruleNumberList:
         files = []
@@ -54,17 +54,17 @@ def runRules(ruleNumberList, directory):
 
         filesToMatch = rule['filesToMatch']
         exceptRuleLines = []
-        exceptRulePathes = []
-        for path in rule['exceptPathes']:
+        exceptRulePaths = []
+        for path in rule['exceptPaths']:
             try:
                 file, line = path.split(":")
                 exceptRuleLines.append((pathToRegEx(file), line))
             except ValueError:
-                exceptRulePathes.append(pathToRegEx(path))
+                exceptRulePaths.append(pathToRegEx(path))
         for fileType in filesToMatch:
-            fileList = getFilePathesFromWalk(osWalk, fileType, exceptPathesForEachRule)
+            fileList = getFilePathsFromWalk(osWalk, fileType, exceptPathsForEachRule)
 # ------------------------------------------------------------------------------
-            for path in exceptRulePathes:
+            for path in exceptRulePaths:
                 FileList = []
                 for file in fileList:
                     File = file.replace(join(checkPath, ""), "")
@@ -92,7 +92,7 @@ def runRules(ruleNumberList, directory):
             files.extend(filesLinesList)
 # ------------------------------------------------------------------------------
         listRule = finds(files, rule['filter'], rule['exceptFilter'])
-        result.append((ruleNr, splitPathes(listRule, checkPath)))
+        result.append((ruleNr, splitPaths(listRule, checkPath)))
     return result
 
 def omitLine(file, line):

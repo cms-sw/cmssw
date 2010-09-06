@@ -3,9 +3,9 @@ __date__ ="$2010-07-15 12.27.32$"
 
 import re
 from os.path import join
-from Utilities.ReleaseScripts.cmsCodeRules.pathToRegEx import pathesToRegEx, pathToRegEx
+from Utilities.ReleaseScripts.cmsCodeRules.pathToRegEx import pathsToRegEx, pathToRegEx
 
-def getFilePathesFromWalk(osWalkResult, file, exceptPathes = []):
+def getFilePathsFromWalk(osWalkResult, file, exceptPaths = []):
 
     listOfFiles = []
 
@@ -15,7 +15,7 @@ def getFilePathesFromWalk(osWalkResult, file, exceptPathes = []):
         for name in files:
             excepted = False
             fullPath = join(root,name)
-            for path in pathesToRegEx(exceptPathes):
+            for path in pathsToRegEx(exceptPaths):
                 if re.match(path, fullPath):
                     excepted = True
                     break
