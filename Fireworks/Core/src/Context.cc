@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:57:12 EDT 2008
-// $Id: Context.cc,v 1.25 2010/08/12 19:02:04 amraktad Exp $
+// $Id: Context.cc,v 1.26 2010/08/30 15:42:33 amraktad Exp $
 //
 
 // system include files
@@ -84,11 +84,14 @@ Context::initEveElements()
 {
    m_magField = new FWMagField();
 
+   float propagatorOffR = 5;
+   float propagatorOffZ = propagatorOffR*caloZ1(false)/caloR1(false);
+
    // common propagator, helix stepper
    m_propagator = new TEveTrackPropagator();
    m_propagator->SetMagFieldObj(m_magField, false);
-   m_propagator->SetMaxR(caloR2());
-   m_propagator->SetMaxZ(caloZ2());
+   m_propagator->SetMaxR(caloR2()-propagatorOffR);
+   m_propagator->SetMaxZ(caloZ2()-propagatorOffZ);
    m_propagator->SetDelta(0.01);
    m_propagator->SetProjTrackBreaking(TEveTrackPropagator::kPTB_UseLastPointPos);
    m_propagator->SetRnrPTBMarkers(kTRUE);
@@ -98,8 +101,8 @@ Context::initEveElements()
    m_trackerPropagator->SetStepper( TEveTrackPropagator::kRungeKutta );
    m_trackerPropagator->SetMagFieldObj(m_magField, false);
    m_trackerPropagator->SetDelta(0.01);
-   m_trackerPropagator->SetMaxR(caloR1());
-   m_trackerPropagator->SetMaxZ(caloZ2());
+   m_trackerPropagator->SetMaxR(caloR1()-propagatorOffR);
+   m_trackerPropagator->SetMaxZ(caloZ2()-propagatorOffZ);
    m_trackerPropagator->SetProjTrackBreaking(TEveTrackPropagator::kPTB_UseLastPointPos);
    m_trackerPropagator->SetRnrPTBMarkers(kTRUE);
    m_trackerPropagator->IncDenyDestroy();
