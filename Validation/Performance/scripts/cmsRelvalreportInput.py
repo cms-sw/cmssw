@@ -685,19 +685,12 @@ def writeCommands(simcandles,
                 outfile = stepToWrite + "_PILEUP"
             else:
                 outfile = stepToWrite
-<<<<<<< cmsRelvalreportInput.py
-
-            if "GEN,SIM-HLT" or "GEN,FASTSIM "in userSteps: # change it back
-                stepToWrite = stepToWrite.replace("_",":")
 
             #print stepToWrite
 
-=======
-
             if "GEN,SIM-HLT" or "GEN,FASTSIM "in userSteps: # change it back
                 stepToWrite = stepToWrite.replace("_",":")
 
->>>>>>> 1.64
             OutputFile = setOutputFileOption(acandle,outfile)
             if fstROOTfile:
                 fstROOTfileStr = OutputFile
