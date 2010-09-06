@@ -4,8 +4,8 @@ import os,sys
 import coral
 import json,csv
 #import optparse
-from RecoLuminosity.LumiDB import inputFilesetParser,selectionParser,argparse,CommonUtil,dbUtil,nameDealer
-import RecoLuminosity.LumiDB.lumiQueryAPI as LumiQueryAPI
+from RecoLuminosity.LumiDB import inputFilesetParser,selectionParser,argparse,CommonUtil,dbUtil,nameDealer,lumiQueryAPI 
+
 
 def insertupdateValidationData(dbsession,data):
     '''
@@ -18,7 +18,20 @@ def insertupdateValidationData(dbsession,data):
         dbsession.transaction().start(True)
         dbutil=dbUtil.dbUtil(dbsession.nominalSchema())
         for run,alllsdata in data.items():
-            for lsdata in alllsdata:
+            lsselection=[]
+            if len(alllsdata)==0:#cross query lumisummary to get all the cmslsnum for this run,then insert all to default
+                queryHandle=dbsession.nominalSchema().newQuery()
+                lumisummaryData=lumiQueryAPI.lumisummaryByrun(queryHandle,run,'0001')
+                del queryHandle
+                for lumisummary in lumisummaryData:
+                    if lumisummary[-1]==1:#cmsalive
+                        lsselection.append([lumisummary[0],'UNKNOWN','NA'])
+            else:
+                lsselection=alllsdata
+            if len(lsselection)==0:
+                print 'no LS found for run '+str(run)+' do nothing'
+                continue
+            for lsdata in lsselection:
                 condition='RUNNUM=:runnum AND CMSLSNUM=:cmslsnum'
                 conditionDefDict={}
                 conditionDefDict['runnum']='unsigned int'
