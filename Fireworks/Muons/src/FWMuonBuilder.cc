@@ -2,7 +2,7 @@
 //
 // Package:     Muons
 // Class  :     FWMuonBuilder
-// $Id: FWMuonBuilder.cc,v 1.31 2010/07/28 13:10:27 yana Exp $
+// $Id: FWMuonBuilder.cc,v 1.32 2010/08/31 15:30:21 yana Exp $
 //
 
 #include "TEveVSDStructs.h"
@@ -277,7 +277,7 @@ FWMuonBuilder::buildMuon( FWProxyBuilderBase* pb,
        muon->globalTrack().isAvailable())
    {
       std::vector<TEveVector> extraPoints;
-      if( muon->innerTrack().isAvailable())
+      if( muon->innerTrack().isAvailable() &&  muon->innerTrack()->extra().isAvailable())
       {
 	 extraPoints.push_back( TEveVector( muon->innerTrack()->innerPosition().x(),
 					    muon->innerTrack()->innerPosition().y(),
@@ -286,7 +286,7 @@ FWMuonBuilder::buildMuon( FWProxyBuilderBase* pb,
 					    muon->innerTrack()->outerPosition().y(),
 					    muon->innerTrack()->outerPosition().z()));
       }
-      if( muon->outerTrack().isAvailable())
+      if( muon->outerTrack().isAvailable() &&  muon->outerTrack()->extra().isAvailable())
       {
 	 extraPoints.push_back( TEveVector( muon->outerTrack()->innerPosition().x(),
 					    muon->outerTrack()->innerPosition().y(),
