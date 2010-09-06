@@ -8,6 +8,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <cstdio>
 
 // DO NOT MODIFY: Mapping between iphi (array index) and TTP input (value) for HF
 const int HcalTTPDigiProducer::inputs_[] = { 30,66,4,44,4,44,0,68,
