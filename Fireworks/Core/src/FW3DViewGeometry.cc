@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 22:06:57 CET 2010
-// $Id: FW3DViewGeometry.cc,v 1.5 2010/08/12 15:56:14 yana Exp $
+// $Id: FW3DViewGeometry.cc,v 1.6 2010/08/31 15:30:19 yana Exp $
 //
 
 // system include files
@@ -22,6 +22,8 @@
 #include "Fireworks/Core/interface/FW3DViewGeometry.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Core/interface/TEveElementIter.h"
+#include "Fireworks/Core/interface/Context.h"
+#include "Fireworks/Core/interface/FWColorManager.h"
 
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
@@ -37,9 +39,10 @@
 //
 // constructors and destructor
 //
-FW3DViewGeometry::FW3DViewGeometry(const DetIdToMatrix* m):
+FW3DViewGeometry::FW3DViewGeometry(const fireworks::Context& context):
    TEveElementList("3DViewGeo"),
-   m_detIdToMatrix(m),
+   m_context(context),
+   m_geom(0),
    m_muonBarrelElements(0),
    m_muonEndcapElements(0),
    m_pixelBarrelElements(0),
@@ -47,8 +50,9 @@ FW3DViewGeometry::FW3DViewGeometry(const DetIdToMatrix* m):
    m_trackerBarrelElements(0),
    m_trackerEndcapElements(0),
 
-   m_geomTransparency(95)
+   m_geomTransparency(80)
 {
+   m_geom = context.getGeom();
 }
 
 // FW3DViewGeometry::FW3DViewGeometry(const FW3DViewGeometry& rhs)
@@ -89,6 +93,8 @@ FW3DViewGeometry::showMuonBarrel( bool showMuonBarrel )
 {
    if( !m_muonBarrelElements && showMuonBarrel )
    {
+      Color_t color = m_context.colorManager()->geomColor( kFWMuonBarrelLineColorIndex );
+
       m_muonBarrelElements = new TEveElementList( "DT" );
       for( Int_t iWheel = -2; iWheel <= 2; ++iWheel )
       {
@@ -106,13 +112,9 @@ FW3DViewGeometry::showMuonBarrel( bool showMuonBarrel )
 	       {
 		  if( iStation < 4 && iSector > 12 ) continue;
 		  DTChamberId id( iWheel, iStation, iSector );
-		  TEveGeoShape* shape = new TEveGeoShape;
-		  TGeoShape* geoShape = m_detIdToMatrix->getShape( id.rawId() );
-		  const TGeoMatrix* matrix = m_detIdToMatrix->getMatrix( id.rawId() );
-		  if( !geoShape ) continue;
-		  shape->SetShape( geoShape );
-		  shape->SetTransMatrix( *matrix );
+		  TEveGeoShape* shape = m_geom->getEveShape( id.rawId() );
 		  shape->SetMainTransparency( m_geomTransparency );
+		  shape->SetMainColor( color );
 		  cStation->AddElement( shape );
 	       }
 	    }
@@ -134,6 +136,7 @@ FW3DViewGeometry::showMuonEndcap( bool showMuonEndcap )
 {
    if( showMuonEndcap && !m_muonEndcapElements )
    {
+      Color_t color = m_context.colorManager()->geomColor( kFWMuonEndCapLineColorIndex );
       m_muonEndcapElements = new TEveElementList( "CSC" );
       for( Int_t iEndcap = 1; iEndcap <= 2; ++iEndcap ) // 1=forward (+Z), 2=backward(-Z)
       { 
@@ -166,13 +169,9 @@ FW3DViewGeometry::showMuonEndcap( bool showMuonEndcap )
                {
                   Int_t iLayer = 0; // chamber
 		  CSCDetId id( iEndcap, iStation, iRing, iChamber, iLayer );
-		  TEveGeoShape* shape = new TEveGeoShape;
-		  TGeoShape* geoShape = m_detIdToMatrix->getShape( id.rawId() );
-		  const TGeoMatrix* matrix = m_detIdToMatrix->getMatrix( id.rawId() );
-		  if( !geoShape ) continue;
-		  shape->SetShape( geoShape );
+		  TEveGeoShape* shape = m_geom->getEveShape( id.rawId() );
 		  shape->SetMainTransparency( m_geomTransparency );
-		  shape->SetTransMatrix( *matrix );
+		  shape->SetMainColor( color );
 		  cRing->AddElement( shape );
                }
             }
@@ -194,19 +193,16 @@ FW3DViewGeometry::showPixelBarrel( bool showPixelBarrel )
 {
    if( showPixelBarrel && !m_pixelBarrelElements )
    {
+      Color_t color = m_context.colorManager()->geomColor( kFWTrackerColorIndex );
       m_pixelBarrelElements = new TEveElementList( "PixelBarrel" );
       m_pixelBarrelElements->SetRnrState( showPixelBarrel );
-      std::vector<unsigned int> ids = m_detIdToMatrix->getMatchedIds( DetIdToMatrix::Tracker, DetIdToMatrix::PixelBarrel );
+      std::vector<unsigned int> ids = m_geom->getMatchedIds( DetIdToMatrix::Tracker, DetIdToMatrix::PixelBarrel );
       for( std::vector<unsigned int>::const_iterator id = ids.begin();
 	   id != ids.end(); ++id )
       {
-	 TEveGeoShape* shape = new TEveGeoShape;
-         TGeoShape* geoShape = m_detIdToMatrix->getShape( *id );
-         const TGeoMatrix* matrix = m_detIdToMatrix->getMatrix( *id );
-         if ( !geoShape ) continue;
-	 shape->SetShape( geoShape );
-	 shape->SetTransMatrix( *matrix );
+	 TEveGeoShape* shape = m_geom->getEveShape( *id );
          shape->SetMainTransparency( m_geomTransparency );
+	 shape->SetMainColor( color );
          m_pixelBarrelElements->AddElement( shape );
       }
       AddElement( m_pixelBarrelElements );
@@ -225,18 +221,15 @@ FW3DViewGeometry::showPixelEndcap(bool  showPixelEndcap )
 {
    if( showPixelEndcap && ! m_pixelEndcapElements )
    {
+      Color_t color = m_context.colorManager()->geomColor( kFWTrackerColorIndex );
       m_pixelEndcapElements = new TEveElementList( "PixelEndcap" );
-      std::vector<unsigned int> ids = m_detIdToMatrix->getMatchedIds( DetIdToMatrix::Tracker, DetIdToMatrix::PixelEndcap );
+      std::vector<unsigned int> ids = m_geom->getMatchedIds( DetIdToMatrix::Tracker, DetIdToMatrix::PixelEndcap );
       for( std::vector<unsigned int>::const_iterator id = ids.begin();
 	   id != ids.end(); ++id )
       {
-	 TEveGeoShape* shape = new TEveGeoShape;
-         TGeoShape* geoShape = m_detIdToMatrix->getShape( *id );
-         const TGeoMatrix* matrix = m_detIdToMatrix->getMatrix( *id );
-         if ( !geoShape ) continue;
-	 shape->SetShape( geoShape );
-	 shape->SetTransMatrix( *matrix );
+	 TEveGeoShape* shape = m_geom->getEveShape( *id );
          shape->SetMainTransparency( m_geomTransparency );
+	 shape->SetMainColor( color );
          m_pixelEndcapElements->AddElement( shape );
       }
       AddElement( m_pixelEndcapElements );
@@ -255,32 +248,25 @@ FW3DViewGeometry::showTrackerBarrel( bool  showTrackerBarrel )
 {
    if( showTrackerBarrel && ! m_trackerBarrelElements )
    {
+      Color_t color = m_context.colorManager()->geomColor( kFWTrackerColorIndex );
       m_trackerBarrelElements = new TEveElementList( "TrackerBarrel" );
       m_trackerBarrelElements->SetRnrState( showTrackerBarrel );
-      std::vector<unsigned int> ids = m_detIdToMatrix->getMatchedIds( DetIdToMatrix::Tracker, DetIdToMatrix::TIB );
+      std::vector<unsigned int> ids = m_geom->getMatchedIds( DetIdToMatrix::Tracker, DetIdToMatrix::TIB );
       for( std::vector<unsigned int>::const_iterator id = ids.begin();
 	   id != ids.end(); ++id )
       {
-	 TEveGeoShape* shape = new TEveGeoShape;
-         TGeoShape* geoShape = m_detIdToMatrix->getShape( *id );
-         const TGeoMatrix* matrix = m_detIdToMatrix->getMatrix( *id );
-         if ( !geoShape ) continue;
-	 shape->SetShape( geoShape );
-	 shape->SetTransMatrix( *matrix );
+	 TEveGeoShape* shape = m_geom->getEveShape( *id );
          shape->SetMainTransparency( m_geomTransparency );
+	 shape->SetMainColor( color );
          m_trackerBarrelElements->AddElement( shape );
       }
-      ids = m_detIdToMatrix->getMatchedIds( DetIdToMatrix::Tracker, DetIdToMatrix::TOB );
+      ids = m_geom->getMatchedIds( DetIdToMatrix::Tracker, DetIdToMatrix::TOB );
       for( std::vector<unsigned int>::const_iterator id = ids.begin();
 	   id != ids.end(); ++id )
       {
-	 TEveGeoShape* shape = new TEveGeoShape;
-         TGeoShape* geoShape = m_detIdToMatrix->getShape( *id );
-         const TGeoMatrix* matrix = m_detIdToMatrix->getMatrix( *id );
-         if ( !geoShape ) continue;
-	 shape->SetShape( geoShape );
-	 shape->SetTransMatrix( *matrix );
+	 TEveGeoShape* shape = m_geom->getEveShape( *id );
          shape->SetMainTransparency( m_geomTransparency );
+	 shape->SetMainColor( color );
          m_trackerBarrelElements->AddElement( shape );
       }
       AddElement( m_trackerBarrelElements );
@@ -299,31 +285,24 @@ FW3DViewGeometry::showTrackerEndcap( bool showTrackerEndcap )
 {
    if( showTrackerEndcap && ! m_trackerEndcapElements )
    {
+      Color_t color = m_context.colorManager()->geomColor( kFWTrackerColorIndex );
       m_trackerEndcapElements = new TEveElementList( "TrackerEndcap" );
-      std::vector<unsigned int> ids = m_detIdToMatrix->getMatchedIds( DetIdToMatrix::Tracker, DetIdToMatrix::TID );
+      std::vector<unsigned int> ids = m_geom->getMatchedIds( DetIdToMatrix::Tracker, DetIdToMatrix::TID );
       for( std::vector<unsigned int>::const_iterator id = ids.begin();
             id != ids.end(); ++id )
       {
-	 TEveGeoShape* shape = new TEveGeoShape;
-         TGeoShape* geoShape = m_detIdToMatrix->getShape( *id );
-         const TGeoMatrix* matrix = m_detIdToMatrix->getMatrix( *id );
-         if ( !geoShape ) continue;
-	 shape->SetShape( geoShape );
-	 shape->SetTransMatrix( *matrix );
+	 TEveGeoShape* shape = m_geom->getEveShape( *id );
          shape->SetMainTransparency( m_geomTransparency );
+	 shape->SetMainColor( color );
          m_trackerEndcapElements->AddElement( shape );
       }
-      ids = m_detIdToMatrix->getMatchedIds( DetIdToMatrix::Tracker, DetIdToMatrix::TEC );
+      ids = m_geom->getMatchedIds( DetIdToMatrix::Tracker, DetIdToMatrix::TEC );
       for( std::vector<unsigned int>::const_iterator id = ids.begin();
 	   id != ids.end(); ++id )
       {
-	 TEveGeoShape* shape = new TEveGeoShape;
-         TGeoShape* geoShape = m_detIdToMatrix->getShape( *id );
-         const TGeoMatrix* matrix = m_detIdToMatrix->getMatrix( *id );
-         if ( !geoShape ) continue;
-	 shape->SetShape( geoShape );
-	 shape->SetTransMatrix( *matrix );
+	 TEveGeoShape* shape = m_geom->getEveShape( *id );
          shape->SetMainTransparency( m_geomTransparency );
+	 shape->SetMainColor( color );
          m_trackerEndcapElements->AddElement( shape );
       }
       AddElement( m_trackerEndcapElements );

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DViewBase.cc,v 1.7 2010/06/22 17:38:11 amraktad Exp $
+// $Id: FW3DViewBase.cc,v 1.8 2010/08/30 15:42:33 amraktad Exp $
 //
 #include <boost/bind.hpp>
 
@@ -63,7 +63,7 @@ void FW3DViewBase::setContext(const fireworks::Context& context)
 {
    FWEveView::setContext(context);
 
-   m_geometry = new FW3DViewGeometry(context.getGeom());
+   m_geometry = new FW3DViewGeometry(context);
    geoScene()->AddElement(m_geometry);
    
    m_showMuonBarrel.changed_.connect(boost::bind(&FW3DViewGeometry::showMuonBarrel,m_geometry,_1));

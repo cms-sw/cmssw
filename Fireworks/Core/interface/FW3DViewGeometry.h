@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 22:06:52 CET 2010
-// $Id$
+// $Id: FW3DViewGeometry.h,v 1.1 2010/04/06 20:00:34 amraktad Exp $
 //
 
 // system include files
@@ -29,12 +29,16 @@ class TEveScene;
 class TEveElementList;
 class DetIdToMatrix;
 
+namespace fireworks
+{
+   class Context;
+}
 
 class FW3DViewGeometry : public TEveElementList
 {
 
 public:
-   FW3DViewGeometry( const DetIdToMatrix*);
+   FW3DViewGeometry( const fireworks::Context& context );
    virtual ~FW3DViewGeometry();
 
    // ---------- const member functions ---------------------
@@ -43,7 +47,7 @@ public:
 
    // ---------- member functions ---------------------------
 
-   void showMuonBarrel(bool );
+   void showMuonBarrel( bool );
    void showMuonEndcap( bool );
    void showPixelBarrel( bool );
    void showPixelEndcap( bool );
@@ -57,7 +61,8 @@ private:
 
    // ---------- member data --------------------------------
 
-   const DetIdToMatrix*  m_detIdToMatrix;
+   const fireworks::Context& m_context;
+   const DetIdToMatrix*  m_geom;
 
    TEveElementList*   m_muonBarrelElements;
    TEveElementList*   m_muonEndcapElements;

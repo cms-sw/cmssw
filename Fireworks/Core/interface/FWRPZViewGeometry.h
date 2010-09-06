@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 21:01:12 CET 2010
-// $Id: FWRPZViewGeometry.h,v 1.3 2010/08/30 15:42:32 amraktad Exp $
+// $Id: FWRPZViewGeometry.h,v 1.4 2010/08/31 15:30:19 yana Exp $
 //
 
 // system include files
@@ -71,7 +71,7 @@ private:
    TEveGeoShape* makeShape( double, double, double, double, Color_t );
 
    const fireworks::Context&    m_context; // cached
-   const DetIdToMatrix*    m_detIdToMatrix; // cached
+   const DetIdToMatrix*    m_geom; // cached
 
    static TEveElementList*  s_rhoPhiGeo;
    static TEveElementList*  s_rhoZGeo;

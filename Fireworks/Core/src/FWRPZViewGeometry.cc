@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 20:33:06 CET 2010
-// $Id: FWRPZViewGeometry.cc,v 1.7 2010/08/30 15:42:33 amraktad Exp $
+// $Id: FWRPZViewGeometry.cc,v 1.8 2010/08/31 15:30:19 yana Exp $
 //
 
 // system include files
@@ -49,9 +49,9 @@ TEveElementList* FWRPZViewGeometry::s_rhoZGeo   = 0;
 //
 FWRPZViewGeometry::FWRPZViewGeometry(const fireworks::Context& context):
    m_context(context),
-   m_detIdToMatrix(0)
+   m_geom(0)
 {
-   m_detIdToMatrix = context.getGeom();
+   m_geom = context.getGeom();
 }
 
 // FWRPZViewGeometry::FWRPZViewGeometry(const FWRPZViewGeometry& rhs)
@@ -165,7 +165,7 @@ FWRPZViewGeometry::makeMuonGeometryRhoPhi( void )
       {
          if( iStation < 4 && iSector > 12 ) continue;
          DTChamberId id( iWheel, iStation, iSector );
-	 TEveGeoShape* shape = m_detIdToMatrix->getEveShape( id.rawId() );
+	 TEveGeoShape* shape = m_geom->getEveShape( id.rawId() );
 	 shape->SetMainTransparency( 50 );
 	 shape->SetMainColor( color );
          if( shape ) container->AddElement( shape );
@@ -181,7 +181,7 @@ TEveElement*
 FWRPZViewGeometry::makeMuonGeometryRhoZ( void )
 {
    // lets project everything by hand
-   if( !m_detIdToMatrix ) return 0;
+   if( !m_geom ) return 0;
 
    TEveElementList* container = new TEveElementList( "MuonRhoZ" );
 
@@ -201,9 +201,9 @@ FWRPZViewGeometry::makeMuonGeometryRhoZ( void )
 	 {
             DTChamberId id( iWheel, iStation, iSector );
 	    unsigned int rawid = id.rawId();
-            TGeoShape* geoShape = m_detIdToMatrix->getShape( rawid );
+            TGeoShape* geoShape = m_geom->getShape( rawid );
             if( !geoShape ) continue;
-            estimateProjectionSizeDT( m_detIdToMatrix->getMatrix( rawid ),
+            estimateProjectionSizeDT( m_geom->getMatrix( rawid ),
                                       geoShape, min_rho, max_rho, min_z, max_z );
          }
          if ( min_rho > max_rho || min_z > max_z ) continue;
@@ -241,17 +241,17 @@ FWRPZViewGeometry::makeMuonGeometryRhoZ( void )
             for( Int_t iChamber = step; iChamber <= maxChambers; iChamber += step )
 	    {
 	       CSCDetId id( iEndcap, iStation, iRing, iChamber, iLayer );
-	       TGeoShape* shape = m_detIdToMatrix->getShape( id.rawId() );
+	       TGeoShape* shape = m_geom->getShape( id.rawId() );
 	       if( !shape ) continue;
-	       estimateProjectionSizeCSC( m_detIdToMatrix->getMatrix( id.rawId()),
+	       estimateProjectionSizeCSC( m_geom->getMatrix( id.rawId()),
 					  shape, min_rho, max_rho, min_z, max_z );
 
 	       // and a chamber next to it
 	       ++iChamber;
 	       CSCDetId nextid( iEndcap, iStation, iRing, iChamber, iLayer );
-	       TGeoShape* nextshape = m_detIdToMatrix->getShape( nextid.rawId() );
+	       TGeoShape* nextshape = m_geom->getShape( nextid.rawId() );
 	       if( !nextshape ) continue;
-	       estimateProjectionSizeCSC( m_detIdToMatrix->getMatrix( nextid.rawId()),
+	       estimateProjectionSizeCSC( m_geom->getMatrix( nextid.rawId()),
 					  nextshape, min_rho, max_rho, min_z, max_z );
             }
             if ( min_rho > max_rho || min_z > max_z ) continue;
