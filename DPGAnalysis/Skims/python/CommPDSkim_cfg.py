@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
-    name = cms.untracked.string('$Source: /local/projects/CMSSW/rep/CMSSW/DPGAnalysis/Skims/python/CommPDSkim_cfg.py,v $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
+    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/CommPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined Commissioning skim')
 )
 
@@ -18,21 +18,14 @@ process.configurationMetadata = cms.untracked.PSet(
 #
 #
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring(
-# run 136066 lumi~500
-#'/store/data/Run2010A/Commissioning/RECO/v1/000/136/066/244E5A07-9466-DF11-9091-000423D95220.root'
-'/store/data/Run2010A/Commissioning/RAW/v1/000/144/112/FCD879E2-D4B3-DF11-BFE5-0030487C778E.root'
-),
-                           secondaryFileNames = cms.untracked.vstring(
-#'/store/data/Run2010A/Commissioning/RAW/v1/000/144/112/FCD879E2-D4B3-DF11-BFE5-0030487C778E.root'
-#'/store/data/Run2010A/Commissioning/RAW/v1/000/136/066/28D89EF5-3C66-DF11-9AAA-0019B9F705A3.root'
-)
+                            fileNames = cms.untracked.vstring('/store/data/Run2010A/Commissioning/RECO/v1/000/136/066/244E5A07-9466-DF11-9091-000423D95220.root'),
+                           secondaryFileNames = cms.untracked.vstring('/store/data/Run2010A/Commissioning/RAW/v1/000/136/066/28D89EF5-3C66-DF11-9AAA-0019B9F705A3.root')
 )
 
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(-1)
 )
 
 
@@ -176,7 +169,7 @@ process.muonTracksSkim = cms.Path(process.muonSkim)
 
 
 process.outputMuonDPGSkim = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('/tmp/COMM_MuonDPGSkim.root'),
+    fileName = cms.untracked.string('/tmp/azzi/COMM_MuonDPGSkim.root'),
     outputCommands = cms.untracked.vstring('keep *','drop *_MEtoEDMConverter_*_*'),
     dataset = cms.untracked.PSet(
     	      dataTier = cms.untracked.string('RAW-RECO'),
