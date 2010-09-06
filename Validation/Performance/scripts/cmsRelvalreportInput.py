@@ -685,10 +685,19 @@ def writeCommands(simcandles,
                 outfile = stepToWrite + "_PILEUP"
             else:
                 outfile = stepToWrite
+<<<<<<< cmsRelvalreportInput.py
 
             if "GEN,SIM-HLT" or "GEN,FASTSIM "in userSteps: # change it back
                 stepToWrite = stepToWrite.replace("_",":")
 
+            #print stepToWrite
+
+=======
+
+            if "GEN,SIM-HLT" or "GEN,FASTSIM "in userSteps: # change it back
+                stepToWrite = stepToWrite.replace("_",":")
+
+>>>>>>> 1.64
             OutputFile = setOutputFileOption(acandle,outfile)
             if fstROOTfile:
                 fstROOTfileStr = OutputFile
@@ -749,7 +758,8 @@ def writeCommands(simcandles,
                                CustomiseFragment['GEN,SIM'],#Done by hand to avoid silly use of MixinModule.py for pre-digi individual steps
                                cmsDriverOptions[:cmsDriverOptions.index('--pileup')]
                            ))
-                    elif '--pileup' in cmsDriverOptions and stepToWrite=='GEN,FASTSIM': #Adding GEN,FASTIM case exception and use the CustomiseFragment['DIGI']
+                    elif '--pileup' in cmsDriverOptions and (stepToWrite=='GEN,FASTSIM' or stepToWrite=='GEN,FASTSIM,HLT:GRun'): #Adding GEN,FASTIM case exception and use the CustomiseFragment['DIGI']
+                                                                                                                                #+exception to the HLT:GRun case
                         Command = ("%s %s -n %s --step=%s %s %s --customise=%s %s" % (
                                cmsDriver,
                                KeywordToCfi[acandle],
