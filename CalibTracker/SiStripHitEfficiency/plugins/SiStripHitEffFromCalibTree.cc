@@ -126,7 +126,7 @@ class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
 };
 
 SiStripHitEffFromCalibTree::SiStripHitEffFromCalibTree(const edm::ParameterSet& conf) :
-  ConditionDBWriter<SiStripBadStrip>::ConditionDBWriter<SiStripBadStrip>(conf),
+  ConditionDBWriter<SiStripBadStrip>(conf),
   FileInPath_("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat")
 {
   CalibTreeFilename = conf.getParameter<std::string>("CalibTreeFilename"); 
