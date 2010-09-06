@@ -75,7 +75,7 @@ AlgebraicMatrix VertexKinematicConstraint::parametersDerivative(const std::vecto
       double a_i = - ch * i->magneticField()->inInverseGeV(pos).z();
       double j = a_i*(d_x * mom.x() + d_y * mom.y())/(pt*pt);
       double r_x = d_x - 2* mom.x()*(d_x*mom.x()+d_y*mom.y())/(pt*pt);
-      double r_y = d_x - 2* mom.y()*(d_x*mom.x()+d_y*mom.y())/(pt*pt);
+      double r_y = d_y - 2* mom.y()*(d_x*mom.x()+d_y*mom.y())/(pt*pt);
       double s = 1/(pt*pt*sqrt(1 - j*j));
 
       if(std::fabs(j)>1.0){
