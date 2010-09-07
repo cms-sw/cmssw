@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:08 EDT 2008
-// $Id: CmsShowModelPopup.cc,v 1.28 2010/09/07 17:43:04 amraktad Exp $
+// $Id: CmsShowModelPopup.cc,v 1.29 2010/09/07 17:50:25 amraktad Exp $
 //
 
 // system include file
@@ -98,7 +98,7 @@ CmsShowModelPopup::CmsShowModelPopup(FWDetailViewManager* iManager,
    m_opacitySlider->Connect("PositionChanged(Int_t)", "CmsShowModelPopup",
                             this, "changeModelOpacity(Int_t)");
 
-   SetWindowName("Object Display Controller");
+   SetWindowName("Object Controller");
    MapSubwindows();
    Resize(GetDefaultSize());
    Layout();

@@ -32,7 +32,7 @@ const std::string cmsshow::sCopy                 = "Copy";
 const std::string cmsshow::sPaste                = "Paste";
 
 const std::string cmsshow::sShowBrightnessInsp   = "Show Brightness Controller";
-const std::string cmsshow::sShowObjInsp          = "Show Object Display Controller";
+const std::string cmsshow::sShowObjInsp          = "Show Object Controller";
 const std::string cmsshow::sShowEventDisplayInsp = "Show Collection Controller";
 const std::string cmsshow::sShowMainViewCtl      = "Show View Controller";
 const std::string cmsshow::sShowAddCollection    = "Show Add Collection";
