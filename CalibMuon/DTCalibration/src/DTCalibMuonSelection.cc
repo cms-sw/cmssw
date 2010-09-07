@@ -41,22 +41,14 @@ bool DTCalibMuonSelection::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
   for (MuonCollection::const_iterator nmuon = MuHandle->begin(); nmuon != MuHandle->end(); ++nmuon) {
 
-    double ptMuon(0);
+    double ptMuon(0.);
     double etaMuon(-999.);
 
     if(nmuon->isGlobalMuon()){
       ptMuon = nmuon->globalTrack()->pt();
       etaMuon = nmuon->globalTrack()->eta();
     }
-    else if(nmuon->isTrackerMuon()){
-      ptMuon = nmuon->innerTrack()->pt();
-      etaMuon = nmuon->innerTrack()->eta();
-    }
-    else{
-      ptMuon = nmuon->outerTrack()->pt();
-      etaMuon = nmuon->outerTrack()->eta();
-    }
-
+    else continue;
 
     if(ptMuon > ptMin &&etaMuon > etaMin && etaMuon < etaMax){
       result = true;
