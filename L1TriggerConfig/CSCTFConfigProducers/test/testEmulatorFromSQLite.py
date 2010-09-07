@@ -27,10 +27,44 @@ process.load('Configuration/EventContent/EventContent_cff')
 
 # load and configure modules via Global Tag
 # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
+#from CondTools.L1Trigger.L1CondDBSource_cff import initCondDBSource
+#initCondDBSource(
+#    process,
+#    inputDBConnect = 'sqlite_file:csctf.db',
+#    tagBase = 'IDEAL',
+#    includeAllTags = True
+#)
+
+ 
 process.GlobalTag.globaltag = 'GR10_H_V4::All'
 
 process.GlobalTag.connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_COND_31X_GLOBALTAG"
 
+## process.GlobalTag.toGet.append(cms.PSet(record  = cms.string( "L1MuCSCTFConfigurationRcd" ),
+##                                         tag     = cms.string("L1MuCSCTFConfiguration_IDEAL" ),
+##                                         connect = cms.untracked.string( "sqlite_file:csctf.db")
+##                                         )
+##                                )
+
+from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
+ 
+process.l1conddb = cms.ESSource("PoolDBESSource",
+                                CondDBSetup,
+                                connect = cms.string("sqlite_file:csctf.db"),
+                                toGet = cms.VPSet(cms.PSet(record = cms.string('L1MuCSCTFConfigurationRcd'),
+                                                           tag = cms.string('L1MuCSCTFConfiguration_IDEAL')
+                                                           )
+                                                  )
+                                                  ##,
+                                                  ##cms.PSet(record = cms.string('L1TriggerKeyRcd'),
+                                                  ##         tag = cms.string('L1TriggerKey_' + )
+                                                  ##         )
+                                                  ##)
+                                )
+
+
+process.es_prefer_l1conddb = cms.ESPrefer("PoolDBESSource","l1conddb")
+                                 
 # Message Logger
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = ['*']
