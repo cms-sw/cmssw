@@ -78,7 +78,7 @@ MatrixFillMap::fillEBMap (EBDetId EBmax,
       double dummy = 0;
       dummy = curr_recHit->energy () ;
       //checks if the reading of the xtal is in a sensible range
-      if (isnan(dummy)){
+      if (std::isnan(dummy)){
 	  dummy=0;
        }	
       if ( dummy < m_minEnergyPerCrystal) continue; 
@@ -113,7 +113,7 @@ void MatrixFillMap::fillEEMap (EEDetId EEmax,
    int ID=det.rawId();
    EcalRecHitCollection::const_iterator curr_recHit = endcapHitsCollection->find(det) ;
    double dummy = curr_recHit->energy () ;
-   if (isnan(dummy)) {
+   if (std::isnan(dummy)) {
      dummy=0;
    }
    if ( dummy < m_minEnergyPerCrystal ) continue; 

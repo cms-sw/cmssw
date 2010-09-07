@@ -1,8 +1,8 @@
 /**
-    $Date: 2008/11/14 11:57:40 $
-    $Revision: 1.8 $
-    $Id: IMACalibBlock.cc,v 1.8 2008/11/14 11:57:40 presotto Exp $ 
-    \author $Author: presotto $
+    $Date: 2009/02/23 14:18:15 $
+    $Revision: 1.9 $
+    $Id: IMACalibBlock.cc,v 1.9 2009/02/23 14:18:15 argiro Exp $ 
+    \author $Author: argiro $
 */
 
 #include "Calibration/EcalCalibAlgos/interface/IMACalibBlock.h"
@@ -165,7 +165,7 @@ IMACalibBlock::riempiMtr (const std::vector<double> & piena,
     assert (vuota.num_col () == int(max)) ;
     for (unsigned int i = 0 ; i < max ; ++i)
      for (unsigned int j = 0 ; j < max ; ++j)
-         if (isnan (piena[i*max + j])) vuota[i][j] = 0. ;
+       if (std::isnan (piena[i*max + j])) vuota[i][j] = 0. ;
          else vuota[i][j] = piena[i*max + j] ; 
 
     return ;
@@ -182,7 +182,7 @@ IMACalibBlock::riempiVtr (const std::vector<double> & pieno,
     int max = m_numberOfElements ;
     assert (vuoto.num_row () == max) ;
     for (int i = 0 ; i < max ; ++i)
-      if (isnan (pieno[i])) vuoto[i] = 0. ;
+      if (std::isnan (pieno[i])) vuoto[i] = 0. ;
       else vuoto[i] = pieno[i] ; 
 
     return ;

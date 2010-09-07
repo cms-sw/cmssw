@@ -48,7 +48,7 @@ ClusterFillMap::fillMap (const std::vector<std::pair<DetId,float> > & v1,
      dummy*= (*m_endcapMap)[idsIt->first];
    }
    int ID=idsIt->first.rawId();
-   if (isnan(dummy)) {
+   if (std::isnan(dummy)) {
      dummy=0;
    }
    if ( dummy < m_minEnergyPerCrystal ) continue; //return 1; 

@@ -512,7 +512,7 @@ for (std::vector<std::pair<DetId,float> >::const_iterator idsIt = sc.hitsAndFrac
 	       continue;
 	     }
 	   
-	   if (isnan(itrechit->energy())) return;	  
+	   if (std::isnan(itrechit->energy())) return;	  
 	   energy.push_back(itrechit->energy());
 	   energy5x5 += energy[icry];
 	   

@@ -583,7 +583,7 @@ for (std::vector<std::pair<DetId,float> >::const_iterator idsIt = sc.hitsAndFrac
 	continue;
       }
       
-      if (isnan(itrechit->energy())){std::cout<<" nan energy "<<std::endl; return;} 	  
+      if (std::isnan(itrechit->energy())){std::cout<<" nan energy "<<std::endl; return;} 	  
       energy.push_back(itrechit->energy());
       energy5x5 += itrechit->energy();
       
@@ -604,7 +604,7 @@ for (std::vector<std::pair<DetId,float> >::const_iterator idsIt = sc.hitsAndFrac
  	continue;
       }
       
-      if (isnan(itrechit->energy())){std::cout<<" nan energy "<<std::endl; return;}
+      if (std::isnan(itrechit->energy())){std::cout<<" nan energy "<<std::endl; return;}
       energy.push_back(itrechit->energy());
       energy5x5 += itrechit->energy();
       
