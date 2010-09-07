@@ -38,6 +38,8 @@ public:
    void scheduleReloadEvent();
    bool &hasChanges() { return m_hasChanges; };
    void setup(const edm::ScheduleInfo *info);
+   void rowClicked(Int_t iRow, Int_t iButton, Int_t iKeyMod, Int_t iGlobalX, Int_t iGlobalY);
+   void newIndexSelected(int);
    void updateFilterString(const char *str);
 
 private:
@@ -67,6 +69,7 @@ private:
    FWPSetTableManager       *m_psTable;
    FWTableWidget            *m_tableWidget;
    TGTextEntry              *m_search;
+
 
    // Filled from ScheduleInfo
    std::vector<std::string> m_availableModuleLabels;

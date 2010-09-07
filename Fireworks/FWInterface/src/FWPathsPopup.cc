@@ -19,6 +19,7 @@
 #include "TSystem.h"
 #include "TGHtml.h"
 #include "TGFont.h"
+#include "TGTextEntry.h"
 
 #include <iostream>
 #include <sstream>
@@ -56,21 +57,23 @@ private:
    int   m_indentation;
 };
 
+/** Custom structure for holding the table contents */
+struct PSetData
+{
+  std::string label;
+  std::string value;
+  int         level;
+  bool        tracked;
+  std::string type;
+  size_t      parent;
+};
+
+
 /** Attempt to create a table based editor for the PSET. */
 class FWPSetTableManager : public FWTableManagerBase 
 {
 public:
-   /** Custom structure for holding the table contents */
-   struct PSetData
-   {
-      std::string label;
-      std::string value;
-      int         level;
-      bool        tracked;
-      std::string type;
-      size_t      parent;
-   };
-
+ 
   /*
     From TGFont.h
 
@@ -303,7 +306,7 @@ public:
    virtual std::vector<std::string> getTitles() const 
    {
       std::vector<std::string> returnValue;
-      returnValue.reserve(2);
+      returnValue.reserve(numberOfColumns());
       returnValue.push_back("Label");
       returnValue.push_back("Value");
       return returnValue;
@@ -402,6 +405,7 @@ public:
       data.tracked = entry.isTracked();
       data.level = m_parentStack.size();
       data.parent = m_parentStack.back();
+      data.type = "PSet";
       m_parentStack.push_back(m_entries.size());
       m_entries.push_back(data);
 
@@ -417,6 +421,7 @@ public:
       data.tracked = entry.isTracked();
       data.level = m_parentStack.size();
       data.parent = m_parentStack.back();
+      data.type = "vPSet";
       m_parentStack.push_back(m_entries.size());
       m_entries.push_back(data);
 
@@ -505,75 +510,89 @@ public:
       {
       case 'b':
         {
+          data.type  = "Bool";
           data.value = entry.getBool() ? "True" : "False";
           m_entries.push_back(data);
           break;
         }
       case 'B':
         {
+          data.type  = "Bool";
           data.value = entry.getBool() ? "True" : "False";
           m_entries.push_back(data);
           break;
         }
       case 'i':
         {
+          data.type = "vint32";
           createVectorString(data, entry.getVInt32(), false);
           break;
         }
       case 'I':
          {
-            createScalarString(data, entry.getInt32());
-            break;
+           data.type = "int32";
+           createScalarString(data, entry.getInt32());
+           break;
          }
       case 'u':
          {
-            createVectorString(data, entry.getVUInt32(), false);
-            break;
+           data.type = "vuint32";
+           createVectorString(data, entry.getVUInt32(), false);
+           break;
          }
       case 'U':
          {
-            createScalarString(data, entry.getUInt32());
-            break;
+           data.type = "uint32";
+           createScalarString(data, entry.getUInt32());
+           break;
          }
       case 'l':
          {
-            createVectorString(data, entry.getVInt64(), false);
-            break;
+           data.type = "vint64";
+           createVectorString(data, entry.getVInt64(), false);
+           break;
          }
       case 'L':
          {
+           data.type = "int64";
             createScalarString(data, entry.getInt32());
             break;
          }
       case 'x':
          {
-            createVectorString(data, entry.getVUInt64(), false);
-            break;
+           data.type = "vuint64";
+           createVectorString(data, entry.getVUInt64(), false);
+           break;
          }
       case 'X':
          {
-            createScalarString(data, entry.getUInt64());
-            break;
+           data.type = "uint64";
+           createScalarString(data, entry.getUInt64());
+           break;
          }
       case 's':
          {
-            createVectorString(data, entry.getVString(), false);
-            break;
+           data.type = "vstring";
+           createVectorString(data, entry.getVString(), false);
+           break;
          }
       case 'S':
          {
-            createScalarString(data, entry.getString());
-            break;
+           data.type = "string";
+           createScalarString(data, entry.getString());
+           break;
          }
       case 'd':
          {
-            createVectorString(data, entry.getVDouble(), false);
-            break;
+           data.type = "vdouble";
+           createVectorString(data, entry.getVDouble(), false);
+           break;
          }
       case 'D':
-         {   
-            createScalarString(data, entry.getDouble());
-            break;
+         { 
+           data.type = "double";
+           createScalarString(data, entry.getDouble());
+           break;
          }
       case 'p':
         {
@@ -589,26 +608,30 @@ public:
         }
       case 't':
          {
-            data.value = entry.getInputTag().encode();
-            break;
+           data.type = "InputTag";
+           data.value = entry.getInputTag().encode();
+           break;
          } 
       case 'v':
          {
-            std::vector<std::string> tags;
-            tags.resize(entry.getVInputTag().size());
-            for (size_t iti = 0, ite = tags.size(); iti != ite; ++iti) 
-               tags[iti] = entry.getVInputTag()[iti].encode();
-            createVectorString(data, tags, true);
-            break;
+           data.type = "VInputTag";
+           std::vector<std::string> tags;
+           tags.resize(entry.getVInputTag().size());
+           for (size_t iti = 0, ite = tags.size(); iti != ite; ++iti) 
+             tags[iti] = entry.getVInputTag()[iti].encode();
+           createVectorString(data, tags, true);
+           break;
          }        
       case 'F':
         {
+          data.type = "FileInPath";
           entry.getFileInPath().write(ss);
           createVectorString(data, ss.str(), true);
           break;
         }
       case 'e':
         {
+          data.type = "VEventID";
           std::vector<edm::MinimalEventID> ids;
           ids.resize(entry.getVEventID().size());
           for ( size_t iri = 0, ire = ids.size(); iri != ire; ++iri )
@@ -618,11 +641,13 @@ public:
         }
       case 'E':
         {
+          data.type = "EventID";
           createScalarString(data, entry.getEventID());
           break;
         }
       case 'm':
         {
+          data.type = "VLuminosityBlockID";
           std::vector<edm::LuminosityBlockID> ids;
           ids.resize(entry.getVLuminosityBlockID().size());
           for ( size_t iri = 0, ire = ids.size(); iri != ire; ++iri )
@@ -632,11 +657,13 @@ public:
         }
       case 'M':
         {
+          data.type = "LuminosityBlockID";
           createScalarString(data, entry.getLuminosityBlockID());
           break;
         }
       case 'a':
         {
+          data.type = "VLuminosityBlockRange";
           std::vector<edm::LuminosityBlockRange> ranges;
           ranges.resize(entry.getVLuminosityBlockRange().size());
           for ( size_t iri = 0, ire = ranges.size(); iri != ire; ++iri )
@@ -646,11 +673,13 @@ public:
         }
       case 'A':
         {
+          data.type = "LuminosityBlockRange";
           createScalarString(data, entry.getLuminosityBlockRange());
           break;
         }
       case 'r':
         {
+          data.type = "VEventRange";
           std::vector<edm::EventRange> ranges;
           ranges.resize(entry.getVEventRange().size());
           for ( size_t iri = 0, ire = ranges.size(); iri != ire; ++iri )
@@ -660,6 +689,7 @@ public:
         }
       case 'R':
         {
+          data.type = "EventRange";
           createScalarString(data, entry.getEventRange());
           break;          
         }
@@ -670,9 +700,12 @@ public:
       }
    }
 
-   std::vector<PSetData> &data() { return m_entries; }
-    
+
+   std::vector<PSetData> &data()  { return m_entries; }
+   std::vector<int> &rowToIndex() { return m_row_to_index; }
+  
    sigc::signal<void,int> indexSelected_;
+
 private:
    void changeSelection(int iRow)
    {
@@ -712,6 +745,8 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
      m_apply(0),
      m_psTable(new FWPSetTableManager())
 {
+   m_psTable->indexSelected_.connect(boost::bind(&FWPathsPopup::newIndexSelected,this,_1));
+
    FWDialogBuilder builder(this);
    builder.indent(4)
           .addLabel("Available paths", 10)
@@ -733,9 +768,39 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
    m_tableWidget->SetBackgroundColor(0xffffff);
    m_tableWidget->SetLineSeparatorColor(0x000000);
    m_tableWidget->SetHeaderBackgroundColor(0xececec);
+   m_tableWidget->Connect("rowClicked(Int_t,Int_t,Int_t,Int_t,Int_t)",
+                          "FWPathsPopup",this,
+                          "rowClicked(Int_t,Int_t,Int_t,Int_t,Int_t)");
 
    MapSubwindows();
    Layout();
+}
+
+void 
+FWPathsPopup::rowClicked(Int_t iRow, Int_t iButton, Int_t iKeyMod, Int_t, Int_t)
+{
+  if ( iButton == kButton1 ) 
+  {
+    // Clear text on new row click
+    m_textEdit->Clear();
+    m_psTable->setSelection(iRow, iKeyMod);
+  }
+}
+
+void
+FWPathsPopup::newIndexSelected(int iSelectedIndex)
+{
+  if ( -1 != iSelectedIndex ) 
+  {
+    int index = m_psTable->rowToIndex()[iSelectedIndex];
+    const PSetData& data = m_psTable->data()[index];
+   
+    // This likely needs to be reformatted
+    std::stringstream ss;
+    ss << data.label <<"  "<< data.type <<"  "<< data.value;
+    TGText text(ss.str().c_str());
+    m_textEdit->AddText(&text);
+  }
 }
 
 void
@@ -743,6 +808,7 @@ FWPathsPopup::updateFilterString(const char *str)
 {
    m_psTable->sortWithFilter(str);
 }
+
 
 /** Finish the setup of the GUI */
 void
@@ -765,8 +831,8 @@ FWPathsPopup::typeCodeToChar(char typeCode)
 {
   switch(typeCode)
   {
-  case 'b':  return "Bool";
-  case 'B':  return "Bool";
+  case 'b' : return "Bool";
+  case 'B' : return "Bool";
   case 'i' : return "vint32";
   case 'I' : return "int32";
   case 'u' : return "vuint32";
@@ -793,7 +859,7 @@ FWPathsPopup::typeCodeToChar(char typeCode)
   case 'A' : return "LuminosityBlockRange";
   case 'r' : return "VEventRange";
   case 'R' : return "EventRange";
-  default:   return "Type not known";
+  default  : return "Type not known";
   }
 }
 
