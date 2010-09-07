@@ -34,7 +34,7 @@
 #include "Rtypes.h"
 #include "Fireworks/Core/interface/FWDetailViewCanvas.h"
 
-class DetIdToMatrix;
+class FWGeometry;
 class FWModelId;
 class TEveWindowSlot;
 class TEveWindow;
@@ -55,7 +55,7 @@ private:
    virtual void build (const FWModelId &id, const reco::Track*);
    virtual void setTextInfo(const FWModelId &id, const reco::Track*);
 
-   double getSignedResidual (const DetIdToMatrix *detIdToGeo, unsigned int id, double resX);
+   double getSignedResidual (const FWGeometry *geom, unsigned int id, double resX);
    void prepareData(const FWModelId &id, const reco::Track*);
    void printDebug();
 

@@ -16,12 +16,12 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.52 2010/08/10 12:38:41 eulisse Exp $
+// $Id: CmsShowMain.h,v 1.53 2010/08/23 14:45:36 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/CmsShowMainBase.h"
 // user include files
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/FWGeometry.h"
 
 // system include files
 #include <vector>

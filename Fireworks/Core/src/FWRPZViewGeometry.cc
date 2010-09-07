@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 20:33:06 CET 2010
-// $Id: FWRPZViewGeometry.cc,v 1.9 2010/09/06 13:37:14 yana Exp $
+// $Id: FWRPZViewGeometry.cc,v 1.10 2010/09/07 12:37:32 yana Exp $
 //
 
 // system include files
@@ -24,7 +24,7 @@
 #include "TEveGeoNode.h"
 
 #include "Fireworks/Core/interface/FWRPZViewGeometry.h"
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/fwLog.h"
@@ -202,7 +202,7 @@ FWRPZViewGeometry::makeMuonGeometryRhoZ( void )
             DTChamberId id( iWheel, iStation, iSector );
 	    unsigned int rawid = id.rawId();
 
-	    DetIdToMatrix::IdToInfoItr det = m_geom->find( rawid );
+	    FWGeometry::IdToInfoItr det = m_geom->find( rawid );
             estimateProjectionSizeDT( *det, min_rho, max_rho, min_z, max_z );
          }
          if ( min_rho > max_rho || min_z > max_z ) continue;
@@ -241,7 +241,7 @@ FWRPZViewGeometry::makeMuonGeometryRhoZ( void )
 	    {
 	       CSCDetId id( iEndcap, iStation, iRing, iChamber, iLayer );
 
-	       DetIdToMatrix::IdToInfoItr det = m_geom->find( id.rawId() );
+	       FWGeometry::IdToInfoItr det = m_geom->find( id.rawId() );
 	       estimateProjectionSizeCSC( *det, min_rho, max_rho, min_z, max_z );
 
 	       // and a chamber next to it
@@ -287,7 +287,7 @@ FWRPZViewGeometry::makeShape( double min_rho, double max_rho, double min_z, doub
 //______________________________________________________________________________
 
 void
-FWRPZViewGeometry::estimateProjectionSizeDT( const DetIdToMatrix::RecoGeomInfo& info,
+FWRPZViewGeometry::estimateProjectionSizeDT( const FWGeometry::GeomDetInfo& info,
 					     float& min_rho, float& max_rho, float& min_z, float& max_z )
 {
    // we will test 5 points on both sides ( +/- z)
@@ -339,7 +339,7 @@ FWRPZViewGeometry::estimateProjectionSizeDT( const DetIdToMatrix::RecoGeomInfo& 
 }
 
 void
-FWRPZViewGeometry::estimateProjectionSizeCSC( const DetIdToMatrix::RecoGeomInfo& info,
+FWRPZViewGeometry::estimateProjectionSizeCSC( const FWGeometry::GeomDetInfo& info,
 					      float& min_rho, float& max_rho, float& min_z, float& max_z )
 {
    float local[3], global[3];

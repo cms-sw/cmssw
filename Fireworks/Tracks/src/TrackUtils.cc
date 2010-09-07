@@ -2,7 +2,7 @@
 //
 // Package:     Tracks
 // Class  :     TrackUtils
-// $Id: TrackUtils.cc,v 1.40 2010/09/03 14:47:59 yana Exp $
+// $Id: TrackUtils.cc,v 1.41 2010/09/06 09:52:45 yana Exp $
 //
 
 // system include files
@@ -15,7 +15,7 @@
 // user include files
 #include "Fireworks/Tracks/interface/TrackUtils.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/TEveElementIter.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
@@ -404,7 +404,7 @@ void
 addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveElement *tList, bool addNearbyClusters, bool master ) 
 {
    // master is true if the product is for proxy builder
-   const DetIdToMatrix *geom = iItem->getGeom();
+   const FWGeometry *geom = iItem->getGeom();
 
    const edmNew::DetSetVector<SiStripCluster> * allClusters = 0;
    if( addNearbyClusters )
@@ -580,7 +580,7 @@ pushNearbyPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iIte
    }
    if( allClusters == 0 ) return;
 
-   const DetIdToMatrix *geom = iItem.getGeom();
+   const FWGeometry *geom = iItem.getGeom();
 
    for( trackingRecHit_iterator it = t.recHitsBegin(), itEnd = t.recHitsEnd(); it != itEnd; ++it )
    {
@@ -624,7 +624,7 @@ pushPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, con
    /*
     * -- return for each Pixel Hit a 3D point
     */
-   const DetIdToMatrix *geom = iItem.getGeom();
+   const FWGeometry *geom = iItem.getGeom();
    
    double dz = t.dz();
    double vz = t.vz();
@@ -666,7 +666,7 @@ pushPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, con
 }
   
 void
-pushPixelCluster( std::vector<TVector3> &pixelPoints, const DetIdToMatrix &geom, DetId id, const SiPixelCluster &c, const float* pars )
+pushPixelCluster( std::vector<TVector3> &pixelPoints, const FWGeometry &geom, DetId id, const SiPixelCluster &c, const float* pars )
 {
    double row = c.minPixelRow();
    double col = c.minPixelCol();

@@ -3,7 +3,7 @@
 // Package:     Muons
 // Class  :     FWCSCRecHitProxyBuilder
 //
-// $Id: FWCSCRecHitProxyBuilder.cc,v 1.11 2010/08/31 15:30:20 yana Exp $
+// $Id: FWCSCRecHitProxyBuilder.cc,v 1.12 2010/09/06 15:49:55 yana Exp $
 //
 
 #include "TEvePointSet.h"
@@ -11,7 +11,7 @@
 
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
@@ -36,7 +36,7 @@ FWCSCRecHitProxyBuilder::build( const CSCRecHit2D& iData,
 				unsigned int iIndex, TEveElement& oItemHolder, 
                                 const FWViewContext* )
 {       
-  const DetIdToMatrix *geom = item()->getGeom();
+  const FWGeometry *geom = item()->getGeom();
   unsigned int rawid = iData.cscDetId().rawId();
   
   if( ! geom->contains( rawid ))
@@ -45,7 +45,7 @@ FWCSCRecHitProxyBuilder::build( const CSCRecHit2D& iData,
 			   << rawid <<std::endl;
     return;
   }
-  DetIdToMatrix::IdToInfoItr det = geom->find( rawid );
+  FWGeometry::IdToInfoItr det = geom->find( rawid );
 
   TEveStraightLineSet* recHitSet = new TEveStraightLineSet;
   setupAddElement( recHitSet, &oItemHolder );

@@ -8,7 +8,7 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCStripDigiProxyBuilder.cc,v 1.12 2010/09/01 16:18:08 mccauley Exp $
+// $Id: FWCSCStripDigiProxyBuilder.cc,v 1.13 2010/09/06 15:49:55 yana Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -16,7 +16,7 @@
 
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
@@ -47,7 +47,7 @@ FWCSCStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
       fwLog( fwlog::kWarning ) << "failed to get CSCStripDigis"<<std::endl;
       return;
    }
-   const DetIdToMatrix *geom = iItem->getGeom();
+   const FWGeometry *geom = iItem->getGeom();
 
    int thresholdOffset = 9;       
 

@@ -3,7 +3,7 @@
 // Package:     Muons
 // Class  :     FWDTRecHitProxyBuilder
 //
-// $Id: FWDTRecHitProxyBuilder.cc,v 1.10 2010/08/31 15:30:21 yana Exp $
+// $Id: FWDTRecHitProxyBuilder.cc,v 1.11 2010/09/06 15:49:55 yana Exp $
 //
 
 #include "TEvePointSet.h"
@@ -11,7 +11,7 @@
 
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
@@ -44,7 +44,7 @@ FWDTRecHitProxyBuilder::buildViewType( const DTRecHit1DPair& iData, unsigned int
   const DTLayerId& layerId = iData.wireId().layerId();
   int superLayer = layerId.superlayerId().superLayer();
 
-  const DetIdToMatrix *geom = item()->getGeom();
+  const FWGeometry *geom = item()->getGeom();
 
   if( ! geom->contains( layerId ))
   {

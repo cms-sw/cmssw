@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Wed Jun  2 17:39:44 CEST 2010
-// $Id: FWHFTowerSliceSelector.cc,v 1.7 2010/08/18 14:12:18 yana Exp $
+// $Id: FWHFTowerSliceSelector.cc,v 1.8 2010/08/23 15:26:23 yana Exp $
 //
 
 // system include files
@@ -21,7 +21,7 @@
 #include "Fireworks/Calo/plugins/FWHFTowerSliceSelector.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/fwLog.h"
 #include "DataFormats/HcalRecHit/interface/HFRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"

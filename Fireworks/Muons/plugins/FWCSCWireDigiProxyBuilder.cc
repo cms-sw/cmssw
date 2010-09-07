@@ -8,7 +8,7 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCWireDigiProxyBuilder.cc,v 1.15 2010/09/02 10:07:56 mccauley Exp $
+// $Id: FWCSCWireDigiProxyBuilder.cc,v 1.16 2010/09/06 15:49:55 yana Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -16,7 +16,7 @@
 
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
@@ -83,7 +83,7 @@ FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* prod
     fwLog( fwlog::kWarning ) << "Failed to get CSCWireDigis" << std::endl;
     return;
   }
-  const DetIdToMatrix *geom = iItem->getGeom();
+  const FWGeometry *geom = iItem->getGeom();
 
   for ( CSCWireDigiCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end(); 
         dri != driEnd; ++dri )

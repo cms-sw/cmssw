@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 22:06:57 CET 2010
-// $Id: FW3DViewGeometry.cc,v 1.6 2010/08/31 15:30:19 yana Exp $
+// $Id: FW3DViewGeometry.cc,v 1.7 2010/09/06 13:37:14 yana Exp $
 //
 
 // system include files
@@ -20,7 +20,7 @@
 #include "TEveGeoNode.h"
 
 #include "Fireworks/Core/interface/FW3DViewGeometry.h"
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/TEveElementIter.h"
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
@@ -196,7 +196,7 @@ FW3DViewGeometry::showPixelBarrel( bool showPixelBarrel )
       Color_t color = m_context.colorManager()->geomColor( kFWTrackerColorIndex );
       m_pixelBarrelElements = new TEveElementList( "PixelBarrel" );
       m_pixelBarrelElements->SetRnrState( showPixelBarrel );
-      std::vector<unsigned int> ids = m_geom->getMatchedIds( DetIdToMatrix::Tracker, DetIdToMatrix::PixelBarrel );
+      std::vector<unsigned int> ids = m_geom->getMatchedIds( FWGeometry::Tracker, FWGeometry::PixelBarrel );
       for( std::vector<unsigned int>::const_iterator id = ids.begin();
 	   id != ids.end(); ++id )
       {
@@ -223,7 +223,7 @@ FW3DViewGeometry::showPixelEndcap(bool  showPixelEndcap )
    {
       Color_t color = m_context.colorManager()->geomColor( kFWTrackerColorIndex );
       m_pixelEndcapElements = new TEveElementList( "PixelEndcap" );
-      std::vector<unsigned int> ids = m_geom->getMatchedIds( DetIdToMatrix::Tracker, DetIdToMatrix::PixelEndcap );
+      std::vector<unsigned int> ids = m_geom->getMatchedIds( FWGeometry::Tracker, FWGeometry::PixelEndcap );
       for( std::vector<unsigned int>::const_iterator id = ids.begin();
 	   id != ids.end(); ++id )
       {
@@ -251,7 +251,7 @@ FW3DViewGeometry::showTrackerBarrel( bool  showTrackerBarrel )
       Color_t color = m_context.colorManager()->geomColor( kFWTrackerColorIndex );
       m_trackerBarrelElements = new TEveElementList( "TrackerBarrel" );
       m_trackerBarrelElements->SetRnrState( showTrackerBarrel );
-      std::vector<unsigned int> ids = m_geom->getMatchedIds( DetIdToMatrix::Tracker, DetIdToMatrix::TIB );
+      std::vector<unsigned int> ids = m_geom->getMatchedIds( FWGeometry::Tracker, FWGeometry::TIB );
       for( std::vector<unsigned int>::const_iterator id = ids.begin();
 	   id != ids.end(); ++id )
       {
@@ -260,7 +260,7 @@ FW3DViewGeometry::showTrackerBarrel( bool  showTrackerBarrel )
 	 shape->SetMainColor( color );
          m_trackerBarrelElements->AddElement( shape );
       }
-      ids = m_geom->getMatchedIds( DetIdToMatrix::Tracker, DetIdToMatrix::TOB );
+      ids = m_geom->getMatchedIds( FWGeometry::Tracker, FWGeometry::TOB );
       for( std::vector<unsigned int>::const_iterator id = ids.begin();
 	   id != ids.end(); ++id )
       {
@@ -287,7 +287,7 @@ FW3DViewGeometry::showTrackerEndcap( bool showTrackerEndcap )
    {
       Color_t color = m_context.colorManager()->geomColor( kFWTrackerColorIndex );
       m_trackerEndcapElements = new TEveElementList( "TrackerEndcap" );
-      std::vector<unsigned int> ids = m_geom->getMatchedIds( DetIdToMatrix::Tracker, DetIdToMatrix::TID );
+      std::vector<unsigned int> ids = m_geom->getMatchedIds( FWGeometry::Tracker, FWGeometry::TID );
       for( std::vector<unsigned int>::const_iterator id = ids.begin();
             id != ids.end(); ++id )
       {
@@ -296,7 +296,7 @@ FW3DViewGeometry::showTrackerEndcap( bool showTrackerEndcap )
 	 shape->SetMainColor( color );
          m_trackerEndcapElements->AddElement( shape );
       }
-      ids = m_geom->getMatchedIds( DetIdToMatrix::Tracker, DetIdToMatrix::TEC );
+      ids = m_geom->getMatchedIds( FWGeometry::Tracker, FWGeometry::TEC );
       for( std::vector<unsigned int>::const_iterator id = ids.begin();
 	   id != ids.end(); ++id )
       {

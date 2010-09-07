@@ -14,7 +14,6 @@ class TEveElement;
 class TEveElementList;
 class TEveStraightLineSet;
 class DetId;
-class DetIdToMatrix;
 class FWProxyBuilderBase;
 
 namespace edm {
@@ -52,15 +51,6 @@ public:
       return m_index;
    }
 };
-
-// TEveElementList *getEcalCrystals (const EcalRecHitCollection *,
-//                                   const DetIdToMatrix &,
-//                                   const std::vector<DetId> &);
-// TEveElementList *getEcalCrystals (const EcalRecHitCollection *,
-//                                   const DetIdToMatrix &,
-//                                   double eta, double phi,
-//                                   int n_eta = 5, int n_phi = 10);
-// //    TEveElementList *getMuonCalTowers (double eta, double phi);
 
 std::string getTimeGMT(const edm::EventBase& event);
 std::string getLocalTime(const edm::EventBase& event);

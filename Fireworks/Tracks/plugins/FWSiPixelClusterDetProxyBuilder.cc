@@ -6,14 +6,14 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiPixelClusterDetProxyBuilder.cc,v 1.3 2010/06/18 12:44:47 yana Exp $
+// $Id: FWSiPixelClusterDetProxyBuilder.cc,v 1.4 2010/08/31 15:30:21 yana Exp $
 //
 
 #include "TEveGeoNode.h"
 
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/FWGeometry.h"
 
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -40,21 +40,23 @@ void FWSiPixelClusterDetProxyBuilder::build( const FWEventItem* iItem, TEveEleme
   
   if( ! pixels ) 
     return;
-    
+  
+  const FWGeometry* geom = iItem->getGeom();
+  
   for( SiPixelClusterCollectionNew::const_iterator set = pixels->begin(), setEnd = pixels->end();
        set != setEnd; ++set) 
   {
     unsigned int id = set->detId();
     DetId detid(id);
       
-    if( iItem->getGeom() ) 
+    if( geom->contains( detid )) 
     {
       const edmNew::DetSet<SiPixelCluster> & clusters = *set;
       
       for( edmNew::DetSet<SiPixelCluster>::const_iterator itc = clusters.begin(), edc = clusters.end(); 
            itc != edc; ++itc ) 
       {
-        TEveGeoShape* shape = iItem->getGeom()->getEveShape(detid);
+        TEveGeoShape* shape = geom->getEveShape(detid);
        
         if ( shape )
         {

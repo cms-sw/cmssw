@@ -6,7 +6,7 @@
 #include "TEveGeoShape.h"
 
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"
 
@@ -37,6 +37,8 @@ FWTracksModulesProxyBuilder::build( const reco::Track& track, unsigned int iInde
 {
    if( track.extra().isAvailable() )
    {
+     const FWGeometry *geom = item()->getGeom();
+
       for( trackingRecHit_iterator recIt = track.recHitsBegin(), recItEnd = track.recHitsEnd();
            recIt != recItEnd; ++recIt )
       {
@@ -49,7 +51,7 @@ FWTracksModulesProxyBuilder::build( const reco::Track& track, unsigned int iInde
 		  detid = DetId( DTChamberId( detid )); // get rid of layer bits
             }
 
-            TEveGeoShape* shape = item()->getGeom()->getEveShape( detid );
+            TEveGeoShape* shape = geom->getEveShape( detid );
             if( shape )
             {
                setupAddElement( shape, &oItemHolder );

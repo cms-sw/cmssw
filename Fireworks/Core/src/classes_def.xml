@@ -2,8 +2,8 @@
   <class name="FWPhysicsObjectDesc"/>
   <class name="FWEventItem"/>
   <class name="FWDisplayProperties"/>
-  <class name="DetIdToMatrix"/>
-  <class name="DetIdToMatrix::Range"/>
+  <class name="FWGeometry"/>
+  <class name="FWGeometry::Range"/>
   <class name="TEveElementIter"/>
   <class name="FWGUIManager"/>
   <class name="FWDetailViewManager"/>

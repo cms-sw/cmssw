@@ -11,7 +11,7 @@
 
 #include "Fireworks/Core/interface/FWDetailViewBase.h"
 #include "Fireworks/Calo/interface/FWECALDetailViewBuilder.h"
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/fw3dlego_xbins.h"
 #include "Fireworks/Core/interface/fwLog.h"
 

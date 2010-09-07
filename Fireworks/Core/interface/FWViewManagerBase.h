@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 10:29:00 EST 2008
-// $Id: FWViewManagerBase.h,v 1.18 2010/04/08 19:45:25 amraktad Exp $
+// $Id: FWViewManagerBase.h,v 1.19 2010/08/30 15:42:32 amraktad Exp $
 //
 
 // system include files
@@ -33,7 +33,7 @@
 // forward declarations
 class FWEventItem;
 class TClass;
-class DetIdToMatrix;
+class FWGeometry;
 class FWModelId;
 class FWModelChangeManager;
 class FWColorManager;

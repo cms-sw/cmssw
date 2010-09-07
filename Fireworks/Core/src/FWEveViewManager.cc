@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.32 2010/07/23 11:05:35 amraktad Exp $
+// $Id: FWEveViewManager.cc,v 1.33 2010/07/26 15:13:59 matevz Exp $
 //
 
 // system include files
@@ -45,7 +45,6 @@
 
 #include <boost/bind.hpp>
 
-class DetIdToMatrix;
 class FWViewContext;
 
 // sentry class block TEveSelection signals when call TEveSelection::Remove/AddElement and

@@ -7,7 +7,7 @@
 #include "TEvePointSet.h"
 
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"
 

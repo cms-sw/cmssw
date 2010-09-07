@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 13:27:29 EST 2008
-// $Id: FWEventItemsManager.h,v 1.16 2010/04/08 19:45:25 amraktad Exp $
+// $Id: FWEventItemsManager.h,v 1.17 2010/07/21 17:03:25 matevz Exp $
 //
 
 // system include files
@@ -39,7 +39,6 @@ class FWEventItem;
 class FWPhysicsObjectDesc;
 class FWModelChangeManager;
 class FWSelectionManager;
-class DetIdToMatrix;
 class FWItemAccessorFactory;
 
 class FWEventItemsManager : public FWConfigurable

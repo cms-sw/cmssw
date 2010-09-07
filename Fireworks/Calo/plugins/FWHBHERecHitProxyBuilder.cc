@@ -1,6 +1,5 @@
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Calo/interface/CaloUtils.h"
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
@@ -41,16 +40,18 @@ FWHBHERecHitProxyBuilder::build( const FWEventItem* iItem, TEveElementList* prod
    }
    std::vector<HBHERecHit>::const_iterator it = collection->begin();
    std::vector<HBHERecHit>::const_iterator itEnd = collection->end();
+
+   const FWGeometry *geom = iItem->getGeom();
+
    for( ; it != itEnd; ++it )
    {
       if(( *it ).energy() > m_maxEnergy )
          m_maxEnergy = ( *it ).energy();
    }
    
-   unsigned int index = 0;
-   for( it = collection->begin(); it != itEnd; ++it, ++index )
+   for( it = collection->begin(); it != itEnd; ++it )
    {
-      const float* corners = iItem->getGeom()->getCorners(( *it ).detid());
+      const float* corners = geom->getCorners(( *it ).detid());
       if( corners == 0 )
       {
 	 TEveCompound* compound = createCompound();
@@ -59,8 +60,7 @@ FWHBHERecHitProxyBuilder::build( const FWEventItem* iItem, TEveElementList* prod
 	 continue;
       }
 
-      Float_t energy = (*it).energy();
-      fireworks::drawEnergyScaledBox3D( corners, energy / m_maxEnergy, product, this, true );
+      fireworks::drawEnergyScaledBox3D( corners, ( *it ).energy() / m_maxEnergy, product, this, true );
    }
 }
 

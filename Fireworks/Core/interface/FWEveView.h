@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.h,v 1.14 2010/08/30 15:32:23 matevz Exp $
+// $Id: FWEveView.h,v 1.15 2010/08/30 15:42:32 amraktad Exp $
 //
 
 
@@ -37,7 +37,6 @@ class TEveWindowSlot;
 class FWEventAnnotation;
 class CmsAnnotation;
 class FWViewContextMenuHandlerGL;
-class DetIdToMatrix;
 class FWColorManager;
 class FWViewContext;
 

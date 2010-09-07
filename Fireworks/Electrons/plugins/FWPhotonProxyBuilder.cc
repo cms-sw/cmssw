@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Nov 26 14:52:01 EST 2008
-// $Id: FWPhotonProxyBuilder.cc,v 1.16 2010/08/13 08:14:14 yana Exp $
+// $Id: FWPhotonProxyBuilder.cc,v 1.17 2010/08/23 15:26:31 yana Exp $
 //
 
 #include "TEveBox.h"
@@ -21,7 +21,7 @@
 
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/FWGeometry.h"
 
 class FWPhotonProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Photon> 
 {
@@ -44,7 +44,7 @@ private:
 void
 FWPhotonProxyBuilder::buildViewType( const reco::Photon& photon, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*)
 {  
-  const DetIdToMatrix *geom = item()->getGeom();
+  const FWGeometry *geom = item()->getGeom();
  
   if( type == FWViewType::kRhoPhi )
   {

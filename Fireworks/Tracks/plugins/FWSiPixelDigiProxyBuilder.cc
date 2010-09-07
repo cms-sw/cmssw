@@ -6,7 +6,7 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiPixelDigiProxyBuilder.cc,v 1.15 2010/08/31 15:30:21 yana Exp $
+// $Id: FWSiPixelDigiProxyBuilder.cc,v 1.16 2010/09/03 14:47:59 yana Exp $
 //
 
 #include "TEveCompound.h"
@@ -14,7 +14,7 @@
 
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"
 
@@ -47,7 +47,7 @@ void FWSiPixelDigiProxyBuilder::build( const FWEventItem* iItem, TEveElementList
   {
     return;
   }
-  const DetIdToMatrix *geom = iItem->getGeom();
+  const FWGeometry *geom = iItem->getGeom();
   
   for( edm::DetSetVector<PixelDigi>::const_iterator it = digis->begin(), end = digis->end();
         it != end; ++it )

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.43 2010/07/21 17:03:25 matevz Exp $
+// $Id: FWEventItem.h,v 1.44 2010/08/18 10:30:09 amraktad Exp $
 //
 
 // system include files
@@ -41,7 +41,7 @@
 class TClass;
 class FWModelChangeManager;
 class FWSelectionManager;
-class DetIdToMatrix;
+class FWGeometry;
 class TVirtualCollectionProxy;
 class FWItemAccessorBase;
 
@@ -161,7 +161,7 @@ public:
    // ---------- member functions ---------------------------
    void setEvent(const edm::EventBase* iEvent);
 
-   const DetIdToMatrix* getGeom() const;
+   const FWGeometry* getGeom() const;
 
    void setLabels(const std::string& iModule,
                   const std::string& iProductInstance,

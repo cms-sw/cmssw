@@ -15,7 +15,7 @@
 
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
@@ -23,7 +23,7 @@
 namespace 
 {
   void
-  addTube( TEveBox* shape, const DetIdToMatrix::RecoGeomInfo& info, float localPos[3],  const float* pars )
+  addTube( TEveBox* shape, const FWGeometry::GeomDetInfo& info, float localPos[3],  const float* pars )
   {
     const Float_t width = pars[0] / 2.;
     const Float_t thickness = pars[1] / 2.;
@@ -79,7 +79,7 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
   {
     return;
   }
-  const DetIdToMatrix *geom = iItem->getGeom();
+  const FWGeometry *geom = iItem->getGeom();
 	
   for( DTDigiCollection::DigiRangeIterator det = digis->begin(), detEnd = digis->end(); det != detEnd; ++det )
   {
@@ -99,7 +99,7 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
     }
 
     const float* pars = geom->getParameters( rawid );
-    DetIdToMatrix::IdToInfoItr det = geom->find( rawid );
+    FWGeometry::IdToInfoItr det = geom->find( rawid );
 
     int superLayer = layerId.superlayerId().superLayer();
 

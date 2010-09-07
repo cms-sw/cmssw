@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCSegmentProxyBuilder.cc,v 1.15 2010/08/31 15:30:20 yana Exp $
+// $Id: FWCSCSegmentProxyBuilder.cc,v 1.16 2010/09/06 15:49:55 yana Exp $
 //
 
 #include "TEveGeoNode.h"
@@ -17,7 +17,7 @@
 
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
@@ -41,7 +41,7 @@ void
 FWCSCSegmentProxyBuilder::build( const CSCSegment& iData,           
 				 unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* )
 {
-  const DetIdToMatrix *geom = item()->getGeom();
+  const FWGeometry *geom = item()->getGeom();
   unsigned int rawid = iData.cscDetId().rawId();
   
   if( ! geom->contains( rawid ))

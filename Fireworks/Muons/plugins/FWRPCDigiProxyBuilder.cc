@@ -8,7 +8,7 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWRPCDigiProxyBuilder.cc,v 1.12 2010/08/31 15:30:21 yana Exp $
+// $Id: FWRPCDigiProxyBuilder.cc,v 1.13 2010/09/06 15:49:55 yana Exp $
 //
 
 #include "TEveStraightLineSet.h"
@@ -17,7 +17,7 @@
 
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
@@ -48,7 +48,7 @@ FWRPCDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product,
     fwLog(fwlog::kWarning)<<"Failed to get RPCDigis"<<std::endl;
     return;
   }
-  const DetIdToMatrix *geom = iItem->getGeom();
+  const FWGeometry *geom = iItem->getGeom();
 
   for ( RPCDigiCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end();
         dri != driEnd; ++dri )

@@ -1,7 +1,7 @@
 #include "TEvePointSet.h"
 
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
@@ -28,7 +28,7 @@ private:
 void
 FWTrackTrackingRecHitProxyBuilder::build( const reco::Track& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) 
 {
-   const DetIdToMatrix *geom = item()->getGeom();
+   const FWGeometry *geom = item()->getGeom();
    
    for( trackingRecHit_iterator it = iData.recHitsBegin(), itEnd = iData.recHitsEnd(); it != itEnd; ++it )
    {

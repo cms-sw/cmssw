@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: FWDisplayEvent.h,v 1.30 2009/04/07 14:13:44 chrjones Exp $
+// $Id: FWDisplayEvent.h,v 1.31 2009/05/17 06:15:43 jmuelmen Exp $
 //
 
 // system include files
@@ -27,7 +27,7 @@
 #include "Rtypes.h"
 
 // user include files
-#include "DetIdToMatrix.h"
+//#include "FWGeometry.h"
 
 // forward declarations
 class TGPictureButton;
@@ -43,6 +43,7 @@ class FWEventItem;
 class FWPhysicsObjectDesc;
 class FWConfigurationManager;
 class FWColorManager;
+class FWGeometry;
 
 namespace fwlite {
    class Event;
@@ -59,8 +60,8 @@ public:
    // ---------- const member functions ---------------------
    int draw(const fwlite::Event& ) const;
 
-   const DetIdToMatrix& getIdToGeo() const {
-      return m_detIdToGeo;
+   const FWGeometry& getGeom() const {
+      return m_geom;
    }
 
    void writeConfigurationFile(const std::string& iFileName) const;
@@ -96,7 +97,7 @@ private:
    std::auto_ptr<FWViewManagerManager> m_viewManager;
    std::auto_ptr<FWGUIManager> m_guiManager;
 
-   DetIdToMatrix m_detIdToGeo;
+   FWGeometry m_geom;
    std::string m_configFileName;
    static double m_magneticField;
    static double m_caloScale;

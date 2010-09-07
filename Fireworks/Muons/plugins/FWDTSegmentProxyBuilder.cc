@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWDTSegmentProxyBuilder.cc,v 1.10 2010/08/31 15:30:21 yana Exp $
+// $Id: FWDTSegmentProxyBuilder.cc,v 1.11 2010/09/06 15:49:55 yana Exp $
 //
 
 #include "TEveGeoNode.h"
@@ -17,7 +17,7 @@
 
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
@@ -42,7 +42,7 @@ FWDTSegmentProxyBuilder::build( const DTRecSegment4D& iData,
 				unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* )
 {
   unsigned int rawid = iData.chamberId().rawId();
-  const DetIdToMatrix *geom = item()->getGeom();
+  const FWGeometry *geom = item()->getGeom();
 
   if( ! geom->contains( rawid ))
   {

@@ -12,7 +12,7 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 #include "Fireworks/Core/interface/FWDetailView.h"
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/fwLog.h"
@@ -49,8 +49,8 @@ FWTrackResidualDetailView::prepareData(const FWModelId &id, const reco::Track* t
    HitPattern hitpat = track->hitPattern();
    TrackResiduals residuals = track->residuals();
 
-   const DetIdToMatrix *detIdToGeo = id.item()->getGeom();
-   assert(detIdToGeo != 0);
+   const FWGeometry *geom = id.item()->getGeom();
+   assert(geom != 0);
    m_nhits=hitpat.numberOfHits();
    for (int i = 0; i < m_nhits; ++i) {
       //   	printf("there are %d hits in the pattern, %d in the vector, this is %u\n",
@@ -61,7 +61,7 @@ FWTrackResidualDetailView::prepareData(const FWModelId &id, const reco::Track* t
       substruct[i] = 0x7 & hitpat.getHitPattern(i) >> 7;
       m_detector[i] = 0x01 & hitpat.getHitPattern(i) >> 10;
       if ((*(track->recHitsBegin() + i))->isValid()) {
-         res[0][i] = getSignedResidual(detIdToGeo,
+         res[0][i] = getSignedResidual(geom,
                                        (*(track->recHitsBegin() + i))->geographicalId().rawId(),
                                        residuals.residualX(i, hitpat));
       } else {
@@ -220,12 +220,12 @@ FWTrackResidualDetailView::build (const FWModelId &id, const reco::Track* track)
 }
 
 double
-FWTrackResidualDetailView::getSignedResidual (const DetIdToMatrix *detIdToGeo, unsigned int id, double resX)
+FWTrackResidualDetailView::getSignedResidual (const FWGeometry *geom, unsigned int id, double resX)
 {
    double local1[3] = { 0, 0, 0 };
    double local2[3] = { resX, 0, 0 };
    double global1[3], global2[3];
-   const TGeoMatrix *m = detIdToGeo->getMatrix(id);
+   const TGeoMatrix *m = geom->getMatrix(id);
    assert(m != 0);
    m->LocalToMaster(local1, global1);
    m->LocalToMaster(local2, global2);

@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 22:06:52 CET 2010
-// $Id: FW3DViewGeometry.h,v 1.1 2010/04/06 20:00:34 amraktad Exp $
+// $Id: FW3DViewGeometry.h,v 1.2 2010/09/06 13:37:13 yana Exp $
 //
 
 // system include files
@@ -27,7 +27,7 @@
 // forward declarations
 class TEveScene;
 class TEveElementList;
-class DetIdToMatrix;
+class FWGeometry;
 
 namespace fireworks
 {
@@ -62,7 +62,7 @@ private:
    // ---------- member data --------------------------------
 
    const fireworks::Context& m_context;
-   const DetIdToMatrix*  m_geom;
+   const FWGeometry*  m_geom;
 
    TEveElementList*   m_muonBarrelElements;
    TEveElementList*   m_muonEndcapElements;

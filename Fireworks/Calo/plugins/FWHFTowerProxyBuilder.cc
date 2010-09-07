@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 16:41:27 CEST 2010
-// $Id: FWHFTowerProxyBuilder.cc,v 1.16 2010/08/18 14:12:18 yana Exp $
+// $Id: FWHFTowerProxyBuilder.cc,v 1.17 2010/08/23 15:26:22 yana Exp $
 //
 
 // system include files
@@ -22,7 +22,7 @@
 #include "Fireworks/Calo/plugins/FWHFTowerSliceSelector.h"
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/fwLog.h"
 

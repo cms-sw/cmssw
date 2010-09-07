@@ -16,12 +16,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:21:45 EDT 2008
-// $Id: Context.h,v 1.15 2010/07/23 08:35:03 eulisse Exp $
+// $Id: Context.h,v 1.16 2010/08/30 15:42:32 amraktad Exp $
 //
 
 // system include files
 
 // user include files
+#include "Fireworks/Core/interface/FWGeometry.h"
 
 // forward declarations
 class TEveTrackPropagator;
@@ -34,7 +35,6 @@ class FWEventItemsManager;
 class FWColorManager;
 class FWJobMetadataManager;
 class FWMagField;
-class DetIdToMatrix;
 
 namespace fireworks {
 class Context {
@@ -47,7 +47,7 @@ public:
            FWJobMetadataManager* iJMDM);
    virtual ~Context();
 
-   void  setGeom(const DetIdToMatrix* x) { m_geom = x; }
+   void  setGeom(const FWGeometry* x) { m_geom = x; }
  
    // ---------- const member functions ---------------------
    FWModelChangeManager* modelChangeManager() const {
@@ -78,7 +78,7 @@ public:
    TEveCaloDataHist*    getCaloData()   const { return m_caloData; }
    TEveCaloDataVec*     getCaloDataHF() const { return m_caloDataHF; }
 
-   const  DetIdToMatrix* getGeom()  const { return m_geom; }   
+   const  FWGeometry* getGeom()  const { return m_geom; }   
 
    // ---------- member functions ---------------------------
  
@@ -108,7 +108,7 @@ private:
    FWColorManager       *m_colorManager;
    FWJobMetadataManager *m_metadataManager;
 
-   const DetIdToMatrix  *m_geom;
+   const FWGeometry     *m_geom;
 
    TEveTrackPropagator  *m_propagator;
    TEveTrackPropagator  *m_trackerPropagator;

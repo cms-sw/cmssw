@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FW3DViewBase.h,v 1.5 2010/05/03 15:47:37 amraktad Exp $
+// $Id: FW3DViewBase.h,v 1.6 2010/08/30 15:42:32 amraktad Exp $
 //
 
 // system include files
@@ -32,7 +32,6 @@ class TEveElementList;
 class TEveGeoShape;
 class TEveWindowSlot;
 
-class DetIdToMatrix;
 class FW3DViewGeometry;
 class FWColorManager;
 

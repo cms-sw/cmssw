@@ -6,14 +6,14 @@
 //
 // Original Author:
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: FWSiStripDigiProxyBuilder.cc,v 1.16 2010/09/03 14:47:59 yana Exp $
+// $Id: FWSiStripDigiProxyBuilder.cc,v 1.17 2010/09/06 09:52:45 yana Exp $
 //
 
 #include "TEveStraightLineSet.h"
 
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"
 
@@ -46,7 +46,7 @@ FWSiStripDigiProxyBuilder::build( const FWEventItem* iItem, TEveElementList* pro
   {
     return;
   }
-  const DetIdToMatrix* geom = iItem->getGeom();
+  const FWGeometry* geom = iItem->getGeom();
    
   for( edm::DetSetVector<SiStripDigi>::const_iterator it = digis->begin(), end = digis->end();
        it != end; ++it )     

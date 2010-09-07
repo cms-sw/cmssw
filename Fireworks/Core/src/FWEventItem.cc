@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.51 2010/08/09 07:57:10 eulisse Exp $
+// $Id: FWEventItem.cc,v 1.52 2010/08/18 10:30:10 amraktad Exp $
 //
 
 // system include files
@@ -29,6 +29,7 @@
 #include "Fireworks/Core/interface/FWItemAccessorBase.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/src/FWGenericHandle.h"
+#include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
 //
@@ -683,7 +684,7 @@ FWEventItem::errorMessage() const
    return m_errorMessage;
 }
 
-const DetIdToMatrix* 
+const FWGeometry* 
 FWEventItem::getGeom() const {
    return m_context->getGeom();
 }

@@ -2,7 +2,7 @@
 //
 // Package:     Muons
 // Class  :     FWMuonBuilder
-// $Id: FWMuonBuilder.cc,v 1.33 2010/09/06 13:59:04 amraktad Exp $
+// $Id: FWMuonBuilder.cc,v 1.34 2010/09/06 15:49:55 yana Exp $
 //
 
 #include "TEveVSDStructs.h"
@@ -14,7 +14,7 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWMagField.h"
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
 #include "Fireworks/Candidates/interface/CandidateUtils.h"
@@ -34,7 +34,7 @@ std::vector<TEveVector> getRecoTrajectoryPoints( const reco::Muon* muon,
                                                  const FWEventItem* iItem )
 {
    std::vector<TEveVector> points;
-   const DetIdToMatrix* geom = iItem->getGeom();
+   const FWGeometry* geom = iItem->getGeom();
    
    float localTrajectoryPoint[3];
    float globalTrajectoryPoint[3];
@@ -69,7 +69,7 @@ void addMatchInformation( const reco::Muon* muon,
                           bool showEndcap )
 {
   std::set<unsigned int> ids;
-  const DetIdToMatrix* geom = pb->context().getGeom();
+  const FWGeometry* geom = pb->context().getGeom();
   
   const std::vector<reco::MuonChamberMatch>& matches = muon->matches();
    
@@ -92,7 +92,7 @@ void addMatchInformation( const reco::Muon* muon,
       shape->SetElementName( "Chamber" );
       shape->RefMainTrans().Scale( 0.999, 0.999, 0.999 );
 
-      DetIdToMatrix::IdToInfoItr det = geom->find( rawid );
+      FWGeometry::IdToInfoItr det = geom->find( rawid );
       if( det->shape[0] == 1 ) // TGeoTrap
       {
         segmentLength = det->shape[3];
@@ -144,7 +144,7 @@ void addMatchInformation( const reco::Muon* muon,
 
 bool
 buggyMuon( const reco::Muon* muon,
-           const DetIdToMatrix* geom )
+           const FWGeometry* geom )
 {
    if( !muon->standAloneMuon().isAvailable() ||
        !muon->standAloneMuon()->extra().isAvailable())

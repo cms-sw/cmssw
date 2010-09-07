@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.24 2010/09/01 16:16:07 mccauley Exp $
+// $Id: ValidateGeometry.cc,v 1.25 2010/09/02 10:01:00 mccauley Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -35,7 +35,7 @@
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -112,7 +112,7 @@ private:
   edm::ESHandle<CaloGeometry>    caloGeometry_;
   edm::ESHandle<TrackerGeometry> trackerGeometry_;
 
-  DetIdToMatrix detIdToMatrix_;
+  FWGeometry detIdToMatrix_;
 
   TFile* outFile_;
 

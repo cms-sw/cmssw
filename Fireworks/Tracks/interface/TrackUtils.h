@@ -4,7 +4,7 @@
 //
 // Package:     Tracks
 // Class  :     TrackUtils
-// $Id: TrackUtils.h,v 1.23 2010/08/31 15:30:21 yana Exp $
+// $Id: TrackUtils.h,v 1.24 2010/09/03 14:47:58 yana Exp $
 //
 
 // system include files
@@ -22,7 +22,7 @@ class TEveElement;
 class TEveTrack;
 class TEveTrackPropagator;
 class DetId;
-class DetIdToMatrix;
+class FWGeometry;
 class TEveStraightLineSet;
 
 class SiPixelCluster;
@@ -71,7 +71,7 @@ void localSiStrip( short strip, float* localTop, float* localBottom, const float
 
 void pushPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, const reco::Track &t );   
 void pushNearbyPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iItem, const reco::Track &t );   
-void pushPixelCluster( std::vector<TVector3> &pixelPoints, const DetIdToMatrix &geom, DetId id, const SiPixelCluster &c, const float* pars ); 
+void pushPixelCluster( std::vector<TVector3> &pixelPoints, const FWGeometry &geom, DetId id, const SiPixelCluster &c, const float* pars ); 
 
 void addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveElement *tList, bool addNearbyClusters, bool master );
 

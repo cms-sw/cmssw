@@ -432,8 +432,8 @@ CmsShowMainBase::loadGeometry()
    try 
    {
       guiManager()->updateStatus("Loading geometry...");
-      m_detIdToGeo.loadMap(m_geometryFilename.c_str());
-      m_context->setGeom(&m_detIdToGeo);
+      m_geom.loadMap(m_geometryFilename.c_str());
+      m_context->setGeom(&m_geom);
    }
    catch (const std::runtime_error& iException)
    {

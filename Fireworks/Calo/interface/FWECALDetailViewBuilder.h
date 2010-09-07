@@ -10,7 +10,7 @@ namespace edm {
    class EventBase;
 }
 
-class DetIdToMatrix;
+class FWGeometry;
 class TEveCaloDataVec;
 class TEveCaloLego;
 
@@ -34,7 +34,7 @@ public:
    // the eta and phi position to show,
    // the half width of the region (in indices, e.g. iEta) and
    // the default color for the hits.
-   FWECALDetailViewBuilder(const edm::EventBase *event, const DetIdToMatrix* geom,
+   FWECALDetailViewBuilder(const edm::EventBase *event, const FWGeometry* geom,
                            float eta, float phi, int size = 50,
                            Color_t defaultColor = kMagenta+1)
       : m_event(event), m_geom(geom),
@@ -67,7 +67,7 @@ private:
    void fillData(const EcalRecHitCollection *hits,
                  TEveCaloDataVec *data);
    const edm::EventBase *m_event;                               // the event
-   const DetIdToMatrix  *m_geom;                                // the geometry
+   const FWGeometry     *m_geom;                                // the geometry
    float m_eta;                                                 // eta position view centred on
    float m_phi;                                                 // phi position view centred on
    int m_size;                                                  // view half width in number of crystals

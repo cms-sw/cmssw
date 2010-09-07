@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWSiStripClusterProxyBuilder.cc,v 1.17 2010/09/03 14:47:59 yana Exp $
+// $Id: FWSiStripClusterProxyBuilder.cc,v 1.18 2010/09/06 09:52:45 yana Exp $
 //
 
 #include "TEveGeoNode.h"
@@ -8,7 +8,7 @@
 #include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Tracks/interface/TrackUtils.h"
 
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
@@ -37,7 +37,7 @@ FWSiStripClusterProxyBuilder::build( const SiStripCluster& iData,
 				     unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* )
 {
   unsigned int rawid = iData.geographicalId();
-  const DetIdToMatrix *geom = item()->getGeom();
+  const FWGeometry *geom = item()->getGeom();
  
   TEveGeoShape* shape = geom->getEveShape( rawid );
   

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Dec  5 15:32:33 EST 2008
-// $Id: makeSuperCluster.cc,v 1.10 2010/08/23 15:26:32 yana Exp $
+// $Id: makeSuperCluster.cc,v 1.11 2010/08/30 15:42:33 amraktad Exp $
 //
 
 // system include files
@@ -21,7 +21,7 @@
 
 #include "Fireworks/Core/interface/BuilderUtils.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h" 
 
