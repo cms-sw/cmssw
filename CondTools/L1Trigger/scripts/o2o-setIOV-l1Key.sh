@@ -29,6 +29,8 @@ version=007
 
 echo "`date` : o2o-setIOV-l1Key-slc5.sh $run $l1Key" | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
 
+ping -c 3 cmsnfshome0 | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
+
 if [ $# -lt 2 ]
     then
     echo "Wrong number of arguments.  Usage: $0 [-n] runnum L1_KEY" | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
@@ -58,7 +60,7 @@ trap "rm -f o2o-setIOV.lock; mv tmp.log tmp.log.save; exit" 1 2 3 4 5 6 7 8 9 10
 rm -f tmp.log
 echo "`date` : setting TSC IOVs" >& tmp.log
 tscKey=`$CMSSW_BASE/src/CondTools/L1Trigger/scripts/getKeys.sh -t ${l1Key}`
-echo "`date` : parsed tscKey = ${tscKey}" >& tmp.log
+echo "`date` : parsed tscKey = ${tscKey}" >> tmp.log 2>&1
 $CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-iov.sh -x ${run} ${tscKey} CRAFT09 >> tmp.log 2>&1
 o2ocode1=$?
 
@@ -76,6 +78,7 @@ if [ ${nflag} -eq 0 ]
     o2ocode2=$?
 fi
 
+tail -1 /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log >> /nfshome0/popcondev/L1Job/o2o.summary
 cat tmp.log | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
 
 # log TSC key and RS keys
