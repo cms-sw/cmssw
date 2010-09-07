@@ -244,6 +244,15 @@ namespace mathSSE {
   typedef Vec4<double> Vec3D;
   typedef Vec4<double> Vec4D;
 
+  template<typename T>
+  struct As3D {
+    Vec4<T> const & v;
+    as3D(Vec4<T> const &v ) : v(iv){}
+  };
+
+  template<typename T>
+  inline As3D<T> as3D(Vec4<T> const &v ) { return v;}
+
 }
 
 #ifdef CMS_USE_SSE
@@ -439,5 +448,9 @@ namespace mathSSE {
 std::ostream & operator<<(std::ostream & out, mathSSE::Vec2D const & v);
 std::ostream & operator<<(std::ostream & out, mathSSE::Vec4F const & v);
 std::ostream & operator<<(std::ostream & out, mathSSE::Vec4D const & v);
+
+std::ostream & operator<<(std::ostream & out, mathSSE::As3D<float> const & v);
+std::ostream & operator<<(std::ostream & out, mathSSE::As3D<double> const & v);
+
 
 #endif // DataFormat_Math_SSEVec_H
