@@ -82,13 +82,11 @@ void compChi2(V10 const & ampl, V10 const & err2, Scalar t, Scalar sumAA, Scalar
     sumff = _mm_add_ps(sumff, _mm_and_ps(mask.vec[it],_mm_mul_ps(f,fe)));
   }
   
-  sumAf = _mm_hadd_ps(sumAf,sumAf);
-  sumAf = _mm_hadd_ps(sumAf,sumAf);
-  sumff = _mm_hadd_ps(sumff,sumff);
-  sumff = _mm_hadd_ps(sumff,sumff);
+  sum = _mm_hadd_ps(sumAf,sumff);
+  sum = _mm_hadd_ps(sum,sum);
 
-  Scalar af; _mm_store_ss(&af,sumAf);
-  Scalar ff; _mm_store_ss(&ff,sumff);
+  Scalar af; _mm_store_ss(&af,sum);
+  Scalar ff; _mm_store_ss(&ff,_mm_shuffle_ps(sum, sum, _MM_SHUFFLE(1, 1, 1, 1)));
   
   chi2 = sumAA;
   amp = 0;
