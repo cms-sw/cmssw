@@ -1,7 +1,7 @@
 
 void align(string path)
 {
-  gSystem->Load("Align_C.so");
+  gSystem->Load("AlignLib_C.so");
 
 //   writeShifts(path);
 //   writePars(path);
@@ -31,7 +31,7 @@ void align(string path)
 
 void align(string path, unsigned int subdet, int minHit = 0)
 {
-  gSystem->Load("Align_C.so");
+  gSystem->Load("AlignLib_C.so");
 
 //   writeShifts(path);
 //   writePars(path);
@@ -126,7 +126,7 @@ void align(string file, int iter)
 
 void align(string file)
 {
-  gSystem->Load("Align_C.so");
+  gSystem->Load("AlignLib_C.so");
   gSystem->Load("NumbersAndNames_C.so");
 
   for (int l = 1; l <= 4; ++l)
