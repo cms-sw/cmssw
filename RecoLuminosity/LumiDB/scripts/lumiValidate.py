@@ -162,6 +162,8 @@ def main():
             raise
         csvReader=csv.reader(open(options.inputfile),delimiter=',')
         for row in csvReader:
+            if len(row)==0:
+                continue
             fieldrun=str(row[0]).strip()
             fieldls=str(row[1]).strip()
             fieldstatus=row[2]
