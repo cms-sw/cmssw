@@ -208,7 +208,7 @@ public:
   }
 
 public:
-  mathSSE::Vec3<T> v;
+  mathSSE::Vec4<T> v;
 }  __attribute__ ((aligned (16)));
 
 

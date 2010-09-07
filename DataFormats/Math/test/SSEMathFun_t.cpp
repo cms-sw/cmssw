@@ -45,7 +45,6 @@ void compChi2Scalar(V10 const & ampl, V10 const & err2, Scalar t, Scalar sumAA, 
 }
 
 void compChi2(V10 const & ampl, V10 const & err2, Scalar t, Scalar sumAA, Scalar& chi2, Scalar& amp) {
-  typedef Scalar Scalar;
   typedef  V10::Vec Vec;
   Scalar const denom =  Scalar(1)/Scalar(SIZE);
 

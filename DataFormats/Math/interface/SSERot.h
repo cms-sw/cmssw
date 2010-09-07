@@ -16,7 +16,7 @@ namespace mathSSE {
 
   template<typename T>
   struct Rot3 {
-    Vec3<T>  axis[3];
+    Vec4<T>  axis[3];
 
     Rot3() {
       axis[0].arr[0]=1;
@@ -24,7 +24,7 @@ namespace mathSSE {
       axis[2].arr[2]=1;
     }
     
-    Rot3( Vec3<T> x,  Vec3<T> y,  Vec3<T> z) {
+    Rot3( Vec4<T> x,  Vec4<T> y,  Vec4<T> z) {
       axis[0] =x;
       axis[1] =y;
       axis[2] =z;
@@ -44,13 +44,13 @@ namespace mathSSE {
     }
 
     // toLocal...
-    Vec3<T> rotate(Vec3<T> v) const {
+    Vec4<T> rotate(Vec4<T> v) const {
       return transpose().rotateBack(v);
     }
 
 
     // toGlobal...
-    Vec3<T> rotateBack(Vec3<T> v) const {
+    Vec4<T> rotateBack(Vec4<T> v) const {
       return v.get1(0)*axis[0] +  v.get1(1)*axis[1] + v.get1(2)*axis[2];
     }
 

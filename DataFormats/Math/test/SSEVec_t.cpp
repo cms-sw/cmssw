@@ -102,7 +102,7 @@ void testBa() {
 void go2d() {
 
   typedef Vec2<double> Vec2d;
-  typedef Vec3<double> Vec3d;
+  typedef Vec4<double> Vec3d;
 
   std::cout << std::endl;
   std::cout << sizeof(Vec2d) << std::endl;
@@ -136,7 +136,7 @@ void go2d() {
 template<typename T> 
 void go() {
 
-  typedef Vec3<T> Vec;
+  typedef Vec4<T> Vec;
 
   std::cout << std::endl;
   std::cout << sizeof(Vec) << std::endl;
