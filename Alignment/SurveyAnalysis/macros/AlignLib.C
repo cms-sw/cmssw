@@ -25,7 +25,8 @@
 #include "NumbersAndNames.C"
 
 #if !defined(__CINT__) && !defined(__MAKECINT__)
-#include "Alignment/CommonAlignment/src/AlignableObjectId.cc"
+//#include "Alignment/CommonAlignment/src/AlignableObjectId.cc"
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #endif
 
 const int nPar = 6;
