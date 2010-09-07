@@ -27,7 +27,10 @@ def usage():
     print '  --type             Set global options acording to a specific HLT luminosity and type (GRun, 8E29, 1E31, HIon)'
     print '                     The default is to use the "GRun" settings, for rerunning an online-like menu on data and MC'
     print
-    print '  --globaltag        Use a specific GlobalTag (the default comes from the Type and the current PyRelVal configuration)'
+    print '  --globaltag        Override the GlobalTag in the HLT menu:'
+    print '                     when running on data, the default behaviour is to not override the GobalTag in the HLT menu'
+    print '                     when running on MC, the default comes from the "type" and the current PyRelVal configuration'
+    print '                     To run on data with a different release than the menu was designed for, try "auto:hltonline"'
     print '  --unprescale       Remove any HLT prescales'
     print '  --l1               Override the L1 menu, using the payload "L1GtTriggerMenu_<L1_MENU_vX>_mc" from the database'
     print
@@ -401,11 +404,9 @@ if 'GlobalTag' in process.__dict__:
 
       if runOnData:
         # override the GlobalTag connection string and pfnPrefix
+        # do not override the GlobalTag unless one was specified on the command line 
         data = data + "    process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'\n"
         data = data + "    process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')\n"
-        # check if a specific GlobalTag was specified on the command line, or choose one for 'data'
-        if not menuGlobalTag:
-          menuGlobalTag = globalTag['data']
       else:
         # check if a specific GlobalTag was specified on the command line, or choose one from the processType
         if not menuGlobalTag:
@@ -415,7 +416,10 @@ if 'GlobalTag' in process.__dict__:
             menuGlobalTag = globalTag[None]
 
       # check if the GlobalTag is an autoCond or an explicit tag
-      if menuGlobalTag[0:5] == 'auto:':
+      if not menuGlobalTag:
+        # when running on data, do not override the GlobalTag unless one was specified on the command line
+        pass
+      elif menuGlobalTag[0:5] == 'auto:':
         data = data + "    from Configuration.PyReleaseValidation.autoCond import autoCond\n"
         data = data + "    process.GlobalTag.globaltag = autoCond['%s']\n" % menuGlobalTag[5:]
       else:
