@@ -209,7 +209,7 @@ TMatrixD CovarianceMatrix::setupMatrix(const pat::PATObject<ObjectType>& object,
 	  break;
 	case TopKinFitter::kEtEtaPhi : 
 	  if(resolutionProvider == "bjets") {
-	    if(!binsB_->size()){
+	    if(!binsB_.size()){
 	      CovM3(0,0) = pow(jetRes.et (pt, eta, res::HelperJet::kB  ), 2); 
 	      CovM3(1,1) = pow(jetRes.eta(pt, eta, res::HelperJet::kB  ), 2); 
 	      CovM3(2,2) = pow(jetRes.phi(pt, eta, res::HelperJet::kB  ), 2);
@@ -221,7 +221,7 @@ TMatrixD CovarianceMatrix::setupMatrix(const pat::PATObject<ObjectType>& object,
 	    }
 	  }
 	  else {
-	    if(!binsUdsc_->size()){
+	    if(!binsUdsc_.size()){
 	      CovM3(0,0) = pow(jetRes.et (pt, eta, res::HelperJet::kUds), 2);
 	      CovM3(1,1) = pow(jetRes.eta(pt, eta, res::HelperJet::kUds), 2);
 	      CovM3(2,2) = pow(jetRes.phi(pt, eta, res::HelperJet::kUds), 2);
@@ -260,7 +260,7 @@ TMatrixD CovarianceMatrix::setupMatrix(const pat::PATObject<ObjectType>& object,
 	  CovM = &CovM3;
 	  break;
 	case TopKinFitter::kEtEtaPhi :
-	  if(!binsLep_->size()){
+	  if(!binsLep_.size()){
 	    CovM3(0,0) = pow(elecRes.et (pt, eta), 2);
 	    CovM3(1,1) = pow(elecRes.eta(pt, eta), 2); 
 	    CovM3(2,2) = pow(elecRes.phi(pt, eta), 2);
@@ -291,7 +291,7 @@ TMatrixD CovarianceMatrix::setupMatrix(const pat::PATObject<ObjectType>& object,
 	  CovM = &CovM3;
 	  break;
 	case TopKinFitter::kEtEtaPhi :
-	  if(!binsLep_->size()){
+	  if(!binsLep_.size()){
 	    CovM3(0,0) = pow(muonRes.et (pt, eta), 2);
 	    CovM3(1,1) = pow(muonRes.eta(pt, eta), 2); 
 	    CovM3(2,2) = pow(muonRes.phi(pt, eta), 2);
@@ -322,7 +322,7 @@ TMatrixD CovarianceMatrix::setupMatrix(const pat::PATObject<ObjectType>& object,
 	  CovM = &CovM3;
 	  break;
 	case TopKinFitter::kEtEtaPhi :
-	  if(!binsMet_->size()){
+	  if(!binsMet_.size()){
 	    CovM3(0,0) = pow(metRes.et(pt) , 2);
 	    CovM3(1,1) = pow(        9999. , 2);
 	    CovM3(2,2) = pow(metRes.phi(pt), 2);
