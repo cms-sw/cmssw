@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTest.cc
  * 
- * $Date: 2010/06/21 14:55:01 $
- * $Revision: 1.35 $
+ * $Date: 2010/07/14 15:36:39 $
+ * $Revision: 1.36 $
  * \author S. Bolognesi - CERN
  *
  */
@@ -147,56 +147,60 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
     MonitorElement * hFEDFatal = dbe->get(fedIntegrityFolder+"FEDFatal");
     MonitorElement * hFEDNonFatal = dbe->get(fedIntegrityFolder+"FEDNonFatal");
 
-    if(FED_ROSSummary && FED_ROSStatus) {
-      TH2F * histoFEDSummary = FED_ROSSummary->getTH2F();
-      TH2F * histoROSStatus  = FED_ROSStatus->getTH2F();
-      // Check that the FED is in the ReadOut using the FEDIntegrity histos
-      bool fedNotReadout = (hFEDEntry->getBinContent(dduId-769) == 0 &&
-			    hFEDFatal->getBinContent(dduId-769) == 0 &&
-			    hFEDNonFatal->getBinContent(dduId-769) == 0); 
-      for(int rosNumber = 1; rosNumber <= 12; ++rosNumber) { // loop on the ROS
-	int wheelNumber, sectorNumber;
-	if (!readOutToGeometry(dduId,rosNumber,wheelNumber,sectorNumber)) {
-	  int result = -2;
-	  float nErrors  = histoFEDSummary->Integral(1,14,rosNumber,rosNumber);
-	  nErrors += histoROSStatus->Integral(2,8,rosNumber,rosNumber);
-	  //nErrors += histoROSStatus->Integral(10,12,rosNumber,rosNumber); Ev Id Mismatch triggers to many minor errors
-	  if(nErrors == 0) { // no errors
-	    result = 0;
-	  } else { // there are errors
-	    result = 2;
-	  }
-	  summaryHisto->setBinContent(sectorNumber,wheelNumber+3,result);
-	  int tdcResult = -2;
-	  float nTDCErrors = histoFEDSummary->Integral(15,15,rosNumber,rosNumber); 
-	   if(nTDCErrors == 0) { // no errors
-	     tdcResult = 0;
-	   } else { // there are errors
-	     tdcResult = 2;
-	   }
-	   summaryTDCHisto->setBinContent(sectorNumber,wheelNumber+3,tdcResult);
-	   // FIXME: different errors should have different weights
-	   float sectPerc = max((float)0., ((float)nevents-nErrors)/(float)nevents);
-	   glbSummaryHisto->setBinContent(sectorNumber,wheelNumber+3,sectPerc);
+    if(hFEDEntry && hFEDFatal && hFEDNonFatal) {
+
+      if(FED_ROSSummary && FED_ROSStatus) {
+	TH2F * histoFEDSummary = FED_ROSSummary->getTH2F();
+	TH2F * histoROSStatus  = FED_ROSStatus->getTH2F();
+	// Check that the FED is in the ReadOut using the FEDIntegrity histos
+	bool fedNotReadout = (hFEDEntry->getBinContent(dduId-769) == 0 &&
+			      hFEDFatal->getBinContent(dduId-769) == 0 &&
+			      hFEDNonFatal->getBinContent(dduId-769) == 0); 
+	for(int rosNumber = 1; rosNumber <= 12; ++rosNumber) { // loop on the ROS
+	  int wheelNumber, sectorNumber;
+	  if (!readOutToGeometry(dduId,rosNumber,wheelNumber,sectorNumber)) {
+	    int result = -2;
+	    float nErrors  = histoFEDSummary->Integral(1,14,rosNumber,rosNumber);
+	    nErrors += histoROSStatus->Integral(2,8,rosNumber,rosNumber);
+	    //nErrors += histoROSStatus->Integral(10,12,rosNumber,rosNumber); Ev Id Mismatch triggers to many minor errors
+	    if(nErrors == 0) { // no errors
+	      result = 0;
+	    } else { // there are errors
+	      result = 2;
+	    }
+	    summaryHisto->setBinContent(sectorNumber,wheelNumber+3,result);
+	    int tdcResult = -2;
+	    float nTDCErrors = histoFEDSummary->Integral(15,15,rosNumber,rosNumber); 
+	    if(nTDCErrors == 0) { // no errors
+	      tdcResult = 0;
+	    } else { // there are errors
+	      tdcResult = 2;
+	    }
+	    summaryTDCHisto->setBinContent(sectorNumber,wheelNumber+3,tdcResult);
+	    // FIXME: different errors should have different weights
+	    float sectPerc = max((float)0., ((float)nevents-nErrors)/(float)nevents);
+	    glbSummaryHisto->setBinContent(sectorNumber,wheelNumber+3,sectPerc);
 	   
-	   if(fedNotReadout) {
-	     // no data in this FED: it is off
-	     summaryHisto->setBinContent(sectorNumber,wheelNumber+3,1);
-	     summaryTDCHisto->setBinContent(sectorNumber,wheelNumber+3,1);
-	     glbSummaryHisto->setBinContent(sectorNumber,wheelNumber+3,0);
-	   }
+	    if(fedNotReadout) {
+	      // no data in this FED: it is off
+	      summaryHisto->setBinContent(sectorNumber,wheelNumber+3,1);
+	      summaryTDCHisto->setBinContent(sectorNumber,wheelNumber+3,1);
+	      glbSummaryHisto->setBinContent(sectorNumber,wheelNumber+3,0);
+	    }
+	  }
+	}
+      
+      } else { // no data in this FED: it is off
+	for(int rosNumber = 1; rosNumber <= 12; ++rosNumber) {
+	  int wheelNumber, sectorNumber;
+	  if (!readOutToGeometry(dduId,rosNumber,wheelNumber,sectorNumber)) {
+	    summaryHisto->setBinContent(sectorNumber,wheelNumber+3,1);
+	    summaryTDCHisto->setBinContent(sectorNumber,wheelNumber+3,1);
+	    glbSummaryHisto->setBinContent(sectorNumber,wheelNumber+3,0);
+	  } 
 	}
       }
-      
-    } else { // no data in this FED: it is off
-      for(int rosNumber = 1; rosNumber <= 12; ++rosNumber) {
-	int wheelNumber, sectorNumber;
-	if (!readOutToGeometry(dduId,rosNumber,wheelNumber,sectorNumber)) {
-	  summaryHisto->setBinContent(sectorNumber,wheelNumber+3,1);
-	  summaryTDCHisto->setBinContent(sectorNumber,wheelNumber+3,1);
-	  glbSummaryHisto->setBinContent(sectorNumber,wheelNumber+3,0);
-	} 
-      }
+
     }
     
   }
