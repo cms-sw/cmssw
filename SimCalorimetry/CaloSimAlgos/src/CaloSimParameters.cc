@@ -1,4 +1,5 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloSimParameters.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include<iostream>
   
 CaloSimParameters::CaloSimParameters(double simHitToPhotoelectrons, double photoelectronsToAnalog,
@@ -29,6 +30,11 @@ CaloSimParameters::CaloSimParameters(const edm::ParameterSet & p)
   // some subsystems may not want a single number for this
   if(p.existsAs<double>("photoelectronsToAnalog")) {
     photoelectronsToAnalog_ = p.getParameter<double>("photoelectronsToAnalog");
+  } else if(p.existsAs<std::vector<double> >("photoelectronsToAnalog")) {
+    // just take the first one
+    photoelectronsToAnalog_ = p.getParameter<std::vector<double> >("photoelectronsToAnalog").at(0);
+  } else {
+    throw cms::Exception("CaloSimParameters") << "Cannot find parameter photoelectronsToAnalog";
   }
 }
 
