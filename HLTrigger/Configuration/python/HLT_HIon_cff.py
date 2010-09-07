@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_8_1/HIon/V6 (CMSSW_3_8_1_HLT4)
+# /dev/CMSSW_3_8_1/HIon/V7 (CMSSW_3_8_1_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V6')
+  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V7')
 )
 
 streams = cms.PSet( 
@@ -12,27 +12,27 @@ streams = cms.PSet(
   OnlineErrors = cms.vstring( 'LogMonitor',
     'FEDMonitor' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
+  Calibration = cms.vstring( 'TestEnables' ),
+  HLTDQMResults = cms.vstring( 'OnlineHltResults' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
-  Calibration = cms.vstring( 'TestEnables' ),
-  HLTDQMResults = cms.vstring( 'OnlineHltResults' ),
   Express = cms.vstring( 'ExpressPhysics' ),
-  A = cms.vstring( 'MuOnia',
-    'MuMonitor',
-    'Mu',
-    'BTau',
+  A = cms.vstring( 'Photon',
     'Commissioning',
-    'EGMonitor',
-    'Photon',
     'Cosmics',
-    'Electron',
     'MinimumBias',
-    'HcalHPDNoise',
     'JetMETTauMonitor',
     'Jet',
     'METFwd',
-    'HcalNZS' ),
+    'HcalNZS',
+    'MuOnia',
+    'MuMonitor',
+    'Mu',
+    'BTau',
+    'EGMonitor',
+    'Electron',
+    'HcalHPDNoise' ),
   DQM = cms.vstring( 'OnlineMonitor' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
   HLTDQM = cms.vstring( 'OnlineHltMonitor' )
@@ -42,29 +42,29 @@ datasets = cms.PSet(
   LogMonitor = cms.vstring(  ),
   FEDMonitor = cms.vstring(  ),
   EcalLaser = cms.vstring(  ),
+  TestEnables = cms.vstring(  ),
+  OnlineHltResults = cms.vstring(  ),
   AlCaP0 = cms.vstring(  ),
   AlCaPhiSymEcal = cms.vstring(  ),
   RPCMonitor = cms.vstring(  ),
-  TestEnables = cms.vstring(  ),
-  OnlineHltResults = cms.vstring(  ),
   ExpressPhysics = cms.vstring(  ),
-  MuOnia = cms.vstring(  ),
-  MuMonitor = cms.vstring( 'HLT_L1DoubleMuOpen' ),
-  Mu = cms.vstring(  ),
-  BTau = cms.vstring(  ),
-  Commissioning = cms.vstring(  ),
-  EGMonitor = cms.vstring(  ),
   Photon = cms.vstring(  ),
+  Commissioning = cms.vstring(  ),
   Cosmics = cms.vstring(  ),
-  Electron = cms.vstring(  ),
   MinimumBias = cms.vstring( 'HLT_L1Tech_HCAL_HF',
     'HLT_ZeroBiasPixel_SingleTrack',
     'HLT_L1Tech_BSC_minBias' ),
-  HcalHPDNoise = cms.vstring(  ),
   JetMETTauMonitor = cms.vstring(  ),
   Jet = cms.vstring(  ),
   METFwd = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
+  MuOnia = cms.vstring(  ),
+  MuMonitor = cms.vstring( 'HLT_L1DoubleMuOpen' ),
+  Mu = cms.vstring(  ),
+  BTau = cms.vstring(  ),
+  EGMonitor = cms.vstring(  ),
+  Electron = cms.vstring(  ),
+  HcalHPDNoise = cms.vstring(  ),
   OnlineMonitor = cms.vstring( 'HLT_L1DoubleMuOpen',
     'HLT_L1Tech_BSC_minBias',
     'HLT_L1Tech_HCAL_HF',
@@ -126,54 +126,6 @@ essourceSev = cms.ESSource( "EmptyESSource",
   firstValid = cms.vuint32( 1 )
 )
 
-preshowerDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
-  ComponentName = cms.string( "PreshowerDetIdAssociator" ),
-  appendToDataLabel = cms.string( "" ),
-  etaBinSize = cms.double( 0.1 ),
-  nEta = cms.int32( 60 ),
-  nPhi = cms.int32( 30 ),
-  includeBadChambers = cms.bool( False )
-)
-muonDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
-  ComponentName = cms.string( "MuonDetIdAssociator" ),
-  appendToDataLabel = cms.string( "" ),
-  etaBinSize = cms.double( 0.125 ),
-  nEta = cms.int32( 48 ),
-  nPhi = cms.int32( 48 ),
-  includeBadChambers = cms.bool( False )
-)
-caloDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
-  ComponentName = cms.string( "CaloDetIdAssociator" ),
-  appendToDataLabel = cms.string( "" ),
-  etaBinSize = cms.double( 0.087 ),
-  nEta = cms.int32( 70 ),
-  nPhi = cms.int32( 72 ),
-  includeBadChambers = cms.bool( False )
-)
-hoDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
-  ComponentName = cms.string( "HODetIdAssociator" ),
-  appendToDataLabel = cms.string( "" ),
-  etaBinSize = cms.double( 0.087 ),
-  nEta = cms.int32( 30 ),
-  nPhi = cms.int32( 72 ),
-  includeBadChambers = cms.bool( False )
-)
-hcalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
-  ComponentName = cms.string( "HcalDetIdAssociator" ),
-  appendToDataLabel = cms.string( "" ),
-  etaBinSize = cms.double( 0.087 ),
-  nEta = cms.int32( 70 ),
-  nPhi = cms.int32( 72 ),
-  includeBadChambers = cms.bool( False )
-)
-ecalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
-  ComponentName = cms.string( "EcalDetIdAssociator" ),
-  appendToDataLabel = cms.string( "" ),
-  etaBinSize = cms.double( 0.02 ),
-  nEta = cms.int32( 300 ),
-  nPhi = cms.int32( 360 ),
-  includeBadChambers = cms.bool( False )
-)
 AnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   ComponentName = cms.string( "AnalyticalPropagator" ),
   PropagationDirection = cms.string( "alongMomentum" ),
@@ -542,9 +494,6 @@ RungeKuttaTrackerPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer"
   ptMin = cms.double( -1.0 ),
   appendToDataLabel = cms.string( "" )
 )
-SiPixelTemplateDBObjectESProducer = cms.ESProducer( "SiPixelTemplateDBObjectESProducer",
-  appendToDataLabel = cms.string( "" )
-)
 SiStripRegionConnectivity = cms.ESProducer( "SiStripRegionConnectivity",
   EtaDivisions = cms.untracked.uint32( 20 ),
   PhiDivisions = cms.untracked.uint32( 20 ),
@@ -675,14 +624,6 @@ TransientTrackBuilderESProducer = cms.ESProducer( "TransientTrackBuilderESProduc
   ComponentName = cms.string( "TransientTrackBuilder" ),
   appendToDataLabel = cms.string( "" )
 )
-WithTrackAngle = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProducer",
-  ComponentName = cms.string( "WithTrackAngle" ),
-  StripCPE = cms.string( "StripCPEfromTrackAngle" ),
-  PixelCPE = cms.string( "PixelCPEGeneric" ),
-  Matcher = cms.string( "StandardMatcher" ),
-  ComputeCoarseLocalPositionFromDisk = cms.bool( False ),
-  appendToDataLabel = cms.string( "" )
-)
 bJetRegionalTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
   ComponentName = cms.string( "bJetRegionalTrajectoryBuilder" ),
   updator = cms.string( "KFUpdator" ),
@@ -713,6 +654,14 @@ bJetRegionalTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
     minPt = cms.double( 1.0 )
   )
 )
+caloDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
+  ComponentName = cms.string( "CaloDetIdAssociator" ),
+  appendToDataLabel = cms.string( "" ),
+  etaBinSize = cms.double( 0.087 ),
+  nEta = cms.int32( 70 ),
+  nPhi = cms.int32( 72 ),
+  includeBadChambers = cms.bool( False )
+)
 ckfBaseTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
   ComponentName = cms.string( "ckfBaseTrajectoryFilter" ),
   appendToDataLabel = cms.string( "" ),
@@ -727,6 +676,22 @@ ckfBaseTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
     nSigmaMinPt = cms.double( 5.0 ),
     minPt = cms.double( 0.9 )
   )
+)
+ecalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
+  ComponentName = cms.string( "EcalDetIdAssociator" ),
+  appendToDataLabel = cms.string( "" ),
+  etaBinSize = cms.double( 0.02 ),
+  nEta = cms.int32( 300 ),
+  nPhi = cms.int32( 360 ),
+  includeBadChambers = cms.bool( False )
+)
+hcalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
+  ComponentName = cms.string( "HcalDetIdAssociator" ),
+  appendToDataLabel = cms.string( "" ),
+  etaBinSize = cms.double( 0.087 ),
+  nEta = cms.int32( 70 ),
+  nPhi = cms.int32( 72 ),
+  includeBadChambers = cms.bool( False )
 )
 hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
   SeverityLevels = cms.VPSet( 
@@ -800,39 +765,9 @@ hltKFSmoother = cms.ESProducer( "KFTrajectorySmootherESProducer",
   minHits = cms.int32( 3 ),
   appendToDataLabel = cms.string( "" )
 )
-hltMuTrackJpsiTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  ComponentName = cms.string( "hltMuTrackJpsiTrajectoryBuilder" ),
-  updator = cms.string( "KFUpdator" ),
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  estimator = cms.string( "Chi2" ),
-  TTRHBuilder = cms.string( "WithTrackAngle" ),
-  MeasurementTrackerName = cms.string( "" ),
-  trajectoryFilterName = cms.string( "hltMuTrackJpsiTrajectoryFilter" ),
-  maxCand = cms.int32( 1 ),
-  lostHitPenalty = cms.double( 30.0 ),
-  intermediateCleaning = cms.bool( True ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  appendToDataLabel = cms.string( "" )
-)
-hltMuTrackJpsiTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
-  ComponentName = cms.string( "hltMuTrackJpsiTrajectoryFilter" ),
+hltMixedLayerPairs = cms.ESProducer( "SeedingLayersESProducer",
   appendToDataLabel = cms.string( "" ),
-  filterPset = cms.PSet( 
-    minimumNumberOfHits = cms.int32( 5 ),
-    minHitsMinPt = cms.int32( 3 ),
-    ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
-    maxLostHits = cms.int32( 1 ),
-    maxNumberOfHits = cms.int32( 8 ),
-    maxConsecLostHits = cms.int32( 1 ),
-    chargeSignificance = cms.double( -1.0 ),
-    nSigmaMinPt = cms.double( 5.0 ),
-    minPt = cms.double( 1.0 )
-  )
-)
-mixedlayerpairs = cms.ESProducer( "SeedingLayersESProducer",
-  appendToDataLabel = cms.string( "" ),
-  ComponentName = cms.string( "MixedLayerPairs" ),
+  ComponentName = cms.string( "hltMixedLayerPairs" ),
   layerList = cms.vstring( 'BPix1+BPix2',
     'BPix1+BPix3',
     'BPix2+BPix3',
@@ -875,28 +810,39 @@ mixedlayerpairs = cms.ESProducer( "SeedingLayersESProducer",
     maxRing = cms.int32( 1 )
   )
 )
-muonCkfTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
-  ComponentName = cms.string( "muonCkfTrajectoryFilter" ),
+hltMuTrackJpsiTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
+  ComponentName = cms.string( "hltMuTrackJpsiTrajectoryBuilder" ),
+  updator = cms.string( "KFUpdator" ),
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  estimator = cms.string( "Chi2" ),
+  TTRHBuilder = cms.string( "WithTrackAngle" ),
+  MeasurementTrackerName = cms.string( "" ),
+  trajectoryFilterName = cms.string( "hltMuTrackJpsiTrajectoryFilter" ),
+  maxCand = cms.int32( 1 ),
+  lostHitPenalty = cms.double( 30.0 ),
+  intermediateCleaning = cms.bool( True ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
+)
+hltMuTrackJpsiTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
+  ComponentName = cms.string( "hltMuTrackJpsiTrajectoryFilter" ),
   appendToDataLabel = cms.string( "" ),
   filterPset = cms.PSet( 
-    chargeSignificance = cms.double( -1.0 ),
+    minimumNumberOfHits = cms.int32( 5 ),
     minHitsMinPt = cms.int32( 3 ),
     ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
     maxLostHits = cms.int32( 1 ),
-    maxNumberOfHits = cms.int32( -1 ),
+    maxNumberOfHits = cms.int32( 8 ),
     maxConsecLostHits = cms.int32( 1 ),
-    minimumNumberOfHits = cms.int32( 5 ),
+    chargeSignificance = cms.double( -1.0 ),
     nSigmaMinPt = cms.double( 5.0 ),
-    minPt = cms.double( 0.9 )
+    minPt = cms.double( 1.0 )
   )
 )
-navigationSchoolESProducer = cms.ESProducer( "NavigationSchoolESProducer",
-  ComponentName = cms.string( "SimpleNavigationSchool" ),
-  appendToDataLabel = cms.string( "" )
-)
-pixellayerpairs = cms.ESProducer( "SeedingLayersESProducer",
+hltPixelLayerPairs = cms.ESProducer( "SeedingLayersESProducer",
   appendToDataLabel = cms.string( "" ),
-  ComponentName = cms.string( "PixelLayerPairs" ),
+  ComponentName = cms.string( "hltPixelLayerPairs" ),
   layerList = cms.vstring( 'BPix1+BPix2',
     'BPix1+BPix3',
     'BPix2+BPix3',
@@ -926,9 +872,9 @@ pixellayerpairs = cms.ESProducer( "SeedingLayersESProducer",
   ),
   TEC = cms.PSet(  )
 )
-pixellayertriplets = cms.ESProducer( "SeedingLayersESProducer",
+hltPixelLayerTriplets = cms.ESProducer( "SeedingLayersESProducer",
   appendToDataLabel = cms.string( "" ),
-  ComponentName = cms.string( "PixelLayerTriplets" ),
+  ComponentName = cms.string( "hltPixelLayerTriplets" ),
   layerList = cms.vstring( 'BPix1+BPix2+BPix3',
     'BPix1+BPix2+FPix1_pos',
     'BPix1+BPix2+FPix1_neg',
@@ -949,6 +895,41 @@ pixellayertriplets = cms.ESProducer( "SeedingLayersESProducer",
     hitErrorRZ = cms.double( 0.0036 )
   ),
   TEC = cms.PSet(  )
+)
+hoDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
+  ComponentName = cms.string( "HODetIdAssociator" ),
+  appendToDataLabel = cms.string( "" ),
+  etaBinSize = cms.double( 0.087 ),
+  nEta = cms.int32( 30 ),
+  nPhi = cms.int32( 72 ),
+  includeBadChambers = cms.bool( False )
+)
+muonCkfTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
+  ComponentName = cms.string( "muonCkfTrajectoryFilter" ),
+  appendToDataLabel = cms.string( "" ),
+  filterPset = cms.PSet( 
+    chargeSignificance = cms.double( -1.0 ),
+    minHitsMinPt = cms.int32( 3 ),
+    ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+    maxLostHits = cms.int32( 1 ),
+    maxNumberOfHits = cms.int32( -1 ),
+    maxConsecLostHits = cms.int32( 1 ),
+    minimumNumberOfHits = cms.int32( 5 ),
+    nSigmaMinPt = cms.double( 5.0 ),
+    minPt = cms.double( 0.9 )
+  )
+)
+muonDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
+  ComponentName = cms.string( "MuonDetIdAssociator" ),
+  appendToDataLabel = cms.string( "" ),
+  etaBinSize = cms.double( 0.125 ),
+  nEta = cms.int32( 48 ),
+  nPhi = cms.int32( 48 ),
+  includeBadChambers = cms.bool( False )
+)
+navigationSchoolESProducer = cms.ESProducer( "NavigationSchoolESProducer",
+  ComponentName = cms.string( "SimpleNavigationSchool" ),
+  appendToDataLabel = cms.string( "" )
 )
 pixellayertripletsHITHB = cms.ESProducer( "SeedingLayersESProducer",
   appendToDataLabel = cms.string( "" ),
@@ -992,6 +973,17 @@ pixellayertripletsHITHE = cms.ESProducer( "SeedingLayersESProducer",
     hitErrorRZ = cms.double( 0.0036 )
   ),
   TEC = cms.PSet(  )
+)
+preshowerDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
+  ComponentName = cms.string( "PreshowerDetIdAssociator" ),
+  appendToDataLabel = cms.string( "" ),
+  etaBinSize = cms.double( 0.1 ),
+  nEta = cms.int32( 60 ),
+  nPhi = cms.int32( 30 ),
+  includeBadChambers = cms.bool( False )
+)
+siPixelTemplateDBObjectESProducer = cms.ESProducer( "SiPixelTemplateDBObjectESProducer",
+  appendToDataLabel = cms.string( "" )
 )
 softLeptonByDistance = cms.ESProducer( "LeptonTaggerByDistanceESProducer",
   appendToDataLabel = cms.string( "" ),
@@ -1045,6 +1037,14 @@ trajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
   appendToDataLabel = cms.string( "" ),
   fractionShared = cms.double( 0.5 ),
   allowSharedFirstHit = cms.bool( False )
+)
+ttrhbwr = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProducer",
+  ComponentName = cms.string( "WithTrackAngle" ),
+  StripCPE = cms.string( "StripCPEfromTrackAngle" ),
+  PixelCPE = cms.string( "PixelCPEGeneric" ),
+  Matcher = cms.string( "StandardMatcher" ),
+  ComputeCoarseLocalPositionFromDisk = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
 )
 
 DTDataIntegrityTask = cms.Service( "DTDataIntegrityTask",
@@ -1134,7 +1134,7 @@ hltBPTXCoincidence = cms.EDFilter( "HLTLevel1Activity",
     invert = cms.bool( False ),
     physicsLoBits = cms.uint64( 0x1 ),
     physicsHiBits = cms.uint64( 0x40000 ),
-    technicalBits = cms.uint64( 0x0 ),
+    technicalBits = cms.uint64( 0x1 ),
     bunchCrossings = cms.vint32( 0, -1, 1 )
 )
 hltL1sL1DoubleMuOpen = cms.EDFilter( "HLTLevel1GTSeed",
@@ -1215,7 +1215,7 @@ hltPixelTracksForMinBias = cms.EDProducer( "PixelTrackProducer",
     ),
     OrderedHitsFactoryPSet = cms.PSet( 
       ComponentName = cms.string( "StandardHitTripletGenerator" ),
-      SeedingLayers = cms.string( "PixelLayerTriplets" ),
+      SeedingLayers = cms.string( "hltPixelLayerTriplets" ),
       GeneratorPSet = cms.PSet( 
         useBending = cms.bool( True ),
         useFixedPreFiltering = cms.bool( False ),
