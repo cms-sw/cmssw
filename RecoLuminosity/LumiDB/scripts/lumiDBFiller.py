@@ -91,6 +91,12 @@ def main():
         statusAndOutput = commands.getstatusoutput(command)
         logFile.write(command+'\n')
         logFile.write(statusAndOutput[1])
+        # apply default validation
+        selectstring='"{'+run+':[]}"'
+        command = 'lumiValidate.py -c '+args.connect+' -P '+ lumiauthpath+' -runls '+selectstring+' update' 
+        statusAndOutput = commands.getstatusoutput(command)
+        logFile.write(command+'\n')
+        logFile.write(statusAndOutput[1])
         logFile.close()
         if not statusAndOutput[0] == 0:
             print 'ERROR while applying normalization to run '+ run
