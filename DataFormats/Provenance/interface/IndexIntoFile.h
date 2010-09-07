@@ -877,6 +877,7 @@ namespace edm {
         std::vector<RunOrLumiIndexes> runOrLumiIndexes_;
         std::vector<EventNumber_t> eventNumbers_;
         std::vector<EventEntry> eventEntries_;
+        std::vector<EventNumber_t> unsortedEventNumbers_;
       };
 
       //*****************************************************************************
@@ -955,8 +956,24 @@ namespace edm {
       /// input file.
       void fillEventEntries() const;
 
-      /// Clears the event entries vector and eventFinder when an input file is closed.
+      /// If needEventNumbers is true then this function does the same thing
+      /// as fillEventNumbers.  If NeedEventEntries is true, then this function
+      /// does the same thing as fillEventEntries.  If both are true, it fills
+      /// both within the same loop and it uses less CPU than calling those
+      /// two functions separately.
+      void fillEventNumbersOrEntries(bool needEventNumbers, bool needEventEntries) const;
+
+      /// If something external to IndexIntoFile is reading through the EventAuxiliary
+      /// then it could use this to fill in the event numbers so that IndexIntoFile
+      /// will not read through it again.
+      std::vector<EventNumber_t>& unsortedEventNumbers() const {return transients_.get().unsortedEventNumbers_;}
+
+      /// Clear some vectors and eventFinder when an input file is closed.
+      /// This reduces the memory used by IndexIntoFile
       void inputFileClosed() const;
+
+      /// Clears the temporary vector of event numbers to reduce memory usage
+      void doneFileInitialization() const;
 
       /// Used for backward compatibility and tests.
       /// RootFile::fillIndexIntoFile uses this to deal with input files created
@@ -980,6 +997,7 @@ namespace edm {
       /// It depends only on the fact that the persistent data has been filled already.
       void fillRunOrLumiIndexes() const;
 
+      void fillUnsortedEventNumbers() const;
       void resetEventFinder() const {transients_.get().eventFinder_.reset();}
       std::vector<EventEntry>& eventEntries() const {return transients_.get().eventEntries_;}
       std::vector<EventNumber_t>& eventNumbers() const {return transients_.get().eventNumbers_;}

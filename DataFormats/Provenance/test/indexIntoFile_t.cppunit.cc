@@ -510,6 +510,8 @@ void TestIndexIntoFile::testConstructor() {
 
 void TestIndexIntoFile::testAddEntryAndFixAndSort() {
   edm::IndexIntoFile indexIntoFile;
+  indexIntoFile.fillEventNumbersOrEntries(true, true); // Should do nothing, it is empty at this point
+
   indexIntoFile.addEntry(fakePHID1, 11, 12, 7, 0); // Event
   indexIntoFile.addEntry(fakePHID1, 11, 12, 6, 1); // Event
   indexIntoFile.addEntry(fakePHID1, 11, 12, 0, 0); // Lumi
@@ -717,6 +719,7 @@ void TestIndexIntoFile::testAddEntryAndFixAndSort() {
   }
 
   std::vector<EventNumber_t>& eventNumbers = indexIntoFile.eventNumbers();
+
   eventNumbers.push_back(10);
   eventNumbers.push_back(9);
   eventNumbers.push_back(8);
@@ -735,6 +738,7 @@ void TestIndexIntoFile::testAddEntryAndFixAndSort() {
   CPPUNIT_ASSERT(eventNumbers[6] == 7);
 
   std::vector<IndexIntoFile::EventEntry>&  eventEntries  = indexIntoFile.eventEntries();
+
   eventEntries.push_back(IndexIntoFile::EventEntry(10, 2));
   eventEntries.push_back(IndexIntoFile::EventEntry(9, 3));
   eventEntries.push_back(IndexIntoFile::EventEntry(8, 6));
@@ -744,9 +748,6 @@ void TestIndexIntoFile::testAddEntryAndFixAndSort() {
   eventEntries.push_back(IndexIntoFile::EventEntry(4, 5));
   indexIntoFile.sortEventEntries();
 
-  eventNumbers.clear();
-  eventEntries.clear();
-
   CPPUNIT_ASSERT(eventEntries[0].event() == 9);
   CPPUNIT_ASSERT(eventEntries[1].event() == 10);
   CPPUNIT_ASSERT(eventEntries[2].event() == 8);
@@ -754,6 +755,9 @@ void TestIndexIntoFile::testAddEntryAndFixAndSort() {
   CPPUNIT_ASSERT(eventEntries[4].event() == 5);
   CPPUNIT_ASSERT(eventEntries[5].event() == 6);
   CPPUNIT_ASSERT(eventEntries[6].event() == 7);
+
+  std::vector<EventNumber_t>().swap(eventNumbers);
+  std::vector<IndexIntoFile::EventEntry>().swap(eventEntries);
 
   CPPUNIT_ASSERT(indexIntoFile.numberOfEvents() == 7);
 
@@ -787,7 +791,86 @@ void TestIndexIntoFile::testAddEntryAndFixAndSort() {
   CPPUNIT_ASSERT(eventEntries[5].event() == 6);
   CPPUNIT_ASSERT(eventEntries[6].event() == 7);
 
+  std::vector<EventNumber_t>().swap(eventNumbers);
+  std::vector<IndexIntoFile::EventEntry>().swap(eventEntries);
+
+  indexIntoFile.fillEventEntries();
+  CPPUNIT_ASSERT(eventEntries[0].event() == 9);
+  CPPUNIT_ASSERT(eventEntries[1].event() == 10);
+  CPPUNIT_ASSERT(eventEntries[2].event() == 8);
+  CPPUNIT_ASSERT(eventEntries[3].event() == 4);
+  CPPUNIT_ASSERT(eventEntries[4].event() == 5);
+  CPPUNIT_ASSERT(eventEntries[5].event() == 6);
+  CPPUNIT_ASSERT(eventEntries[6].event() == 7);
+
+  indexIntoFile.fillEventNumbers();
+  CPPUNIT_ASSERT(eventNumbers[0] == 9);
+  CPPUNIT_ASSERT(eventNumbers[1] == 10);
+  CPPUNIT_ASSERT(eventNumbers[2] == 8);
+  CPPUNIT_ASSERT(eventNumbers[3] == 4);
+  CPPUNIT_ASSERT(eventNumbers[4] == 5);
+  CPPUNIT_ASSERT(eventNumbers[5] == 6);
+  CPPUNIT_ASSERT(eventNumbers[6] == 7);
+
+  std::vector<EventNumber_t>().swap(eventNumbers);
+  std::vector<IndexIntoFile::EventEntry>().swap(eventEntries);
+
+  indexIntoFile.fillEventNumbersOrEntries(true, true);
+  indexIntoFile.fillEventNumbersOrEntries(true, true);
+
+  CPPUNIT_ASSERT(eventNumbers[0] == 9);
+  CPPUNIT_ASSERT(eventNumbers[1] == 10);
+  CPPUNIT_ASSERT(eventNumbers[2] == 8);
+  CPPUNIT_ASSERT(eventNumbers[3] == 4);
+  CPPUNIT_ASSERT(eventNumbers[4] == 5);
+  CPPUNIT_ASSERT(eventNumbers[5] == 6);
+  CPPUNIT_ASSERT(eventNumbers[6] == 7);
+
+  CPPUNIT_ASSERT(eventEntries[0].event() == 9);
+  CPPUNIT_ASSERT(eventEntries[1].event() == 10);
+  CPPUNIT_ASSERT(eventEntries[2].event() == 8);
+  CPPUNIT_ASSERT(eventEntries[3].event() == 4);
+  CPPUNIT_ASSERT(eventEntries[4].event() == 5);
+  CPPUNIT_ASSERT(eventEntries[5].event() == 6);
+  CPPUNIT_ASSERT(eventEntries[6].event() == 7);
+
+  std::vector<EventNumber_t>().swap(eventNumbers);
+  std::vector<IndexIntoFile::EventEntry>().swap(eventEntries);
+
+  std::vector<EventNumber_t>& unsortedEventNumbers = indexIntoFile.unsortedEventNumbers();
+  CPPUNIT_ASSERT(!unsortedEventNumbers.empty());
+  indexIntoFile.doneFileInitialization();
+  CPPUNIT_ASSERT(unsortedEventNumbers.empty());
+  CPPUNIT_ASSERT(unsortedEventNumbers.capacity() == 0);
+  unsortedEventNumbers.push_back(7);
+  unsortedEventNumbers.push_back(6);
+  unsortedEventNumbers.push_back(10);
+  unsortedEventNumbers.push_back(9);
+  unsortedEventNumbers.push_back(5);
+  unsortedEventNumbers.push_back(4);
+  unsortedEventNumbers.push_back(8);
+
+  indexIntoFile.fillEventNumbersOrEntries(true, true);
+
+  CPPUNIT_ASSERT(eventNumbers[0] == 9);
+  CPPUNIT_ASSERT(eventNumbers[1] == 10);
+  CPPUNIT_ASSERT(eventNumbers[2] == 8);
+  CPPUNIT_ASSERT(eventNumbers[3] == 4);
+  CPPUNIT_ASSERT(eventNumbers[4] == 5);
+  CPPUNIT_ASSERT(eventNumbers[5] == 6);
+  CPPUNIT_ASSERT(eventNumbers[6] == 7);
+
+  CPPUNIT_ASSERT(eventEntries[0].event() == 9);
+  CPPUNIT_ASSERT(eventEntries[1].event() == 10);
+  CPPUNIT_ASSERT(eventEntries[2].event() == 8);
+  CPPUNIT_ASSERT(eventEntries[3].event() == 4);
+  CPPUNIT_ASSERT(eventEntries[4].event() == 5);
+  CPPUNIT_ASSERT(eventEntries[5].event() == 6);
+  CPPUNIT_ASSERT(eventEntries[6].event() == 7);
+
   indexIntoFile.inputFileClosed();
+  CPPUNIT_ASSERT(unsortedEventNumbers.empty());
+  CPPUNIT_ASSERT(unsortedEventNumbers.capacity() == 0);
   CPPUNIT_ASSERT(eventEntries.capacity() == 0);
   CPPUNIT_ASSERT(eventEntries.empty());
   CPPUNIT_ASSERT(indexIntoFile.runOrLumiIndexes().capacity() == 0);

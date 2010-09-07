@@ -388,6 +388,7 @@ namespace edm {
     setRefCoreStreamer(true);  // backward compatibility
 
     // We are done with our initial reading of EventAuxiliary.
+    indexIntoFile_.doneFileInitialization();
     eventTree_.resetTraining();
   }
 
@@ -738,12 +739,21 @@ namespace edm {
     LuminosityBlockNumber_t prevLumi = 0;
     ProcessHistoryID prevPhid;
 
+    indexIntoFile_.unsortedEventNumbers().clear(); // should already be empty, just being careful
+    indexIntoFile_.unsortedEventNumbers().reserve(eventTree_.entries());
+
     // First, loop through the event tree.
     while(eventTree_.next()) {
       bool newRun = false;
       bool newLumi = false;
       fillThisEventAuxiliary();
       fillHistory();
+
+      // Save the event numbers as we loop through the event auxiliary to avoid
+      // having to read through the event auxiliary again later. These event numbers
+      // are not actually used in this function, but could be needed elsewhere.
+      indexIntoFile_.unsortedEventNumbers().push_back(eventAux().event());
+
       if (prevPhid != eventAux().processHistoryID() || prevRun != eventAux().run()) {
         newRun = newLumi = true;
       } else if(prevLumi != eventAux().luminosityBlock()) {
@@ -940,14 +950,17 @@ namespace edm {
     indexIntoFile_.setEventFinder(boost::shared_ptr<IndexIntoFile::EventFinder>(new RootFileEventFinder(eventTree_)));
     // We fill the event numbers explicitly if we need to find events in closed files,
     // such as for secondary files (or secondary sources) or if duplicate checking across files.
+    bool needEventNumbers = false;
     bool needIndexesForDuplicateChecker = duplicateChecker_ && duplicateChecker_->checkingAllFiles() && !duplicateChecker_->checkDisabled();
     if (secondaryFile || needIndexesForDuplicateChecker || usingGoToEvent) {
-      indexIntoFile_.fillEventNumbers();
+      needEventNumbers = true;
     }
+    bool needEventEntries = false;
     if (secondaryFile || !noEventSort_) {
       // We need event entries for sorting or for secondary files or sources.
-      indexIntoFile_.fillEventEntries();
+      needEventEntries = true;
     }
+    indexIntoFile_.fillEventNumbersOrEntries(needEventNumbers, needEventEntries);
   }
 
   void

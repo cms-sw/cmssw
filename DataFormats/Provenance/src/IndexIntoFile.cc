@@ -164,45 +164,49 @@ namespace edm {
 
   void
   IndexIntoFile::fillEventNumbers() const {
-    if (numberOfEvents() == 0 || !eventNumbers().empty()) {
-      return;
-    }
-    eventNumbers().resize(numberOfEvents(), IndexIntoFile::invalidEvent);
-
-    long long offset = 0;
-    long long previousBeginEventNumbers = -1LL;
-
-    for (SortedRunOrLumiItr runOrLumi = beginRunOrLumi(), runOrLumiEnd = endRunOrLumi();
-         runOrLumi != runOrLumiEnd; ++runOrLumi) {
-
-      if (runOrLumi.isRun()) continue;
-
-      long long beginEventNumbers = 0;
-      long long endEventNumbers = 0;
-      EntryNumber_t beginEventEntry = -1LL;
-      EntryNumber_t endEventEntry = -1LL;
-      runOrLumi.getRange(beginEventNumbers, endEventNumbers, beginEventEntry, endEventEntry);
-
-      if (beginEventNumbers != previousBeginEventNumbers) offset = 0;
-
-      for (EntryNumber_t entry = beginEventEntry; entry != endEventEntry; ++entry) {
-        eventNumbers().at((entry - beginEventEntry) + offset + beginEventNumbers) = getEventNumberOfEntry(entry);
-      }
-
-      previousBeginEventNumbers = beginEventNumbers;
-      offset += endEventEntry - beginEventEntry;
-    }
-    sortEvents();
-    assert(numberOfEvents() == eventNumbers().size());
+    fillEventNumbersOrEntries(true, false);
   }
 
   void
   IndexIntoFile::fillEventEntries() const {
-    if (numberOfEvents() == 0 || !eventEntries().empty()) {
+    fillEventNumbersOrEntries(false, true);
+  }
+
+  void
+  IndexIntoFile::fillEventNumbersOrEntries(bool needEventNumbers, bool needEventEntries) const {
+    if (numberOfEvents() == 0) {
       return;
     }
 
-    eventEntries().resize(numberOfEvents());
+    if (needEventNumbers && !eventNumbers().empty()) {
+      needEventNumbers = false;
+    }
+
+    if (needEventEntries && !eventEntries().empty()) {
+      needEventEntries = false;
+    }
+
+    if (needEventNumbers && !eventEntries().empty()) {
+      assert(numberOfEvents() == eventEntries().size());
+      eventNumbers().resize(eventEntries().size());
+      for (std::vector<EventNumber_t>::size_type entry = 0U; entry < numberOfEvents(); ++entry) {
+        eventNumbers()[entry]  = eventEntries()[entry].event();
+      }
+      return;
+    }
+
+    if (!needEventNumbers && !needEventEntries) {
+      return;
+    }
+
+    fillUnsortedEventNumbers();
+
+    if (needEventNumbers) {
+      eventNumbers().resize(numberOfEvents(), IndexIntoFile::invalidEvent);
+    }
+    if (needEventEntries) {
+      eventEntries().resize(numberOfEvents());
+    }
 
     long long offset = 0;
     long long previousBeginEventNumbers = -1LL;
@@ -223,15 +227,44 @@ namespace edm {
       if (beginEventNumbers != previousBeginEventNumbers) offset = 0;
 
       for (EntryNumber_t entry = beginEventEntry; entry != endEventEntry; ++entry) {
-        eventEntries().at((entry - beginEventEntry) + offset + beginEventNumbers) =
-          EventEntry(getEventNumberOfEntry(entry), entry);
+        if (needEventNumbers) {
+          eventNumbers().at((entry - beginEventEntry) + offset + beginEventNumbers) = unsortedEventNumbers().at(entry);
+        }
+        if (needEventEntries) {
+          eventEntries().at((entry - beginEventEntry) + offset + beginEventNumbers) =
+            EventEntry(unsortedEventNumbers().at(entry), entry);
+        }
       }
 
       previousBeginEventNumbers = beginEventNumbers;
       offset += endEventEntry - beginEventEntry;
     }
-    sortEventEntries();
-    assert(numberOfEvents() == eventEntries().size());
+    if (needEventNumbers) {
+      sortEvents();
+      assert(numberOfEvents() == eventNumbers().size());
+    }
+    if (needEventEntries) {
+      sortEventEntries();
+      assert(numberOfEvents() == eventEntries().size());
+    }
+  }
+
+  void 
+  IndexIntoFile::fillUnsortedEventNumbers() const {
+    if (numberOfEvents() == 0 || !unsortedEventNumbers().empty()) {
+      return;
+    }
+    unsortedEventNumbers().reserve(numberOfEvents());
+
+    // The main purpose for the existence of the unsortedEventNumbers
+    // vector is that it can easily be filled by reading through
+    // the EventAuxiliary branch in the same order as the TTree
+    // entries. fillEventNumbersOrEntries can then use this information
+    // instead of using getEventNumberOfEntry directly and reading
+    // the branch in a different order.
+    for (std::vector<EventNumber_t>::size_type entry = 0U; entry < numberOfEvents(); ++entry) {
+      unsortedEventNumbers().push_back(getEventNumberOfEntry(entry));
+    }
   }
 
   // We are closing the input file, but we need to keep event numbers.
@@ -241,7 +274,13 @@ namespace edm {
   IndexIntoFile::inputFileClosed() const {
     std::vector<EventEntry>().swap(eventEntries());
     std::vector<RunOrLumiIndexes>().swap(runOrLumiIndexes());
+    std::vector<EventNumber_t>().swap(unsortedEventNumbers());
     resetEventFinder();
+  }
+
+  void
+  IndexIntoFile::doneFileInitialization() const {
+    std::vector<EventNumber_t>().swap(unsortedEventNumbers());
   }
 
   void
@@ -1646,9 +1685,9 @@ namespace edm {
                                             eventFinder_(),
                                             runOrLumiIndexes_(),
                                             eventNumbers_(),
-                                            eventEntries_() {
+                                            eventEntries_(),
+                                            unsortedEventNumbers_() {
   }
-
 
   bool Compare_Index_Run::operator()(IndexIntoFile::RunOrLumiIndexes const& lh, IndexIntoFile::RunOrLumiIndexes const& rh) {
     if (lh.processHistoryIDIndex() == rh.processHistoryIDIndex()) {
