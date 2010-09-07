@@ -16,11 +16,11 @@ from TauAnalysis.MCEmbeddingTools.MCParticleReplacer_cfi import *
 newSource.algorithm = "ZTauTau"
 newSource.ZTauTau.TauolaOptions.InputCards.mdtau = cms.int32(0)
 newSource.ZTauTau.minVisibleTransverseMomentum = cms.untracked.double(0)
-
+newSource.ZTauTau.transformationMode = cms.untracked.int32(3)
 
 source = cms.Source("PoolSource",
         skipEvents = cms.untracked.uint32(0),
-        fileNames = cms.untracked.vstring('file:/tmp/fruboes/Zmumu/patLayer1_fromAOD_PF2PAT_full.root')
+        fileNames = cms.untracked.vstring('file:patTuple_PF2PAT.root')
 )
 
 filterEmptyEv = cms.EDFilter("EmptyEventsFilter",

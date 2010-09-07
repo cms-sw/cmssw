@@ -7,6 +7,7 @@ CONDITIONS=FrontierConditions_GlobalTag,START36_V10::All
 cmsDriver.py TauAnalysis/MCEmbeddingTools/python/PFEmbeddingSource_Wemb_cff.py \
        -s GEN:ProductionFilterSequence,SIM,DIGI,L1,DIGI2RAW,HLT \
        --no_exec \
+       -n -1 \
        --conditions=${CONDITIONS} \
        --fileout=embedded_HLT.root  \
        --python_filename=embed_HLT.py \
@@ -16,6 +17,7 @@ cmsDriver.py TauAnalysis/MCEmbeddingTools/python/PFEmbeddingSource_Wemb_cff.py \
 cmsDriver.py \
        -s RAW2DIGI,RECO \
        --no_exec \
+       -n -1 \
        --conditions=${CONDITIONS} \
        --fileout=embedded_RECO.root \
        --python_filename=embed_RECO.py \
