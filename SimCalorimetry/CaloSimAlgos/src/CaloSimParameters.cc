@@ -19,13 +19,17 @@ CaloSimParameters::CaloSimParameters(double simHitToPhotoelectrons, double photo
 
 CaloSimParameters::CaloSimParameters(const edm::ParameterSet & p)
 : simHitToPhotoelectrons_( p.getParameter<double>("simHitToPhotoelectrons") ),
-  photoelectronsToAnalog_( p.getParameter<double>("photoelectronsToAnalog") ),
+  photoelectronsToAnalog_( 0. ),
   timePhase_( p.getParameter<double>("timePhase") ),
   readoutFrameSize_( p.getParameter<int>("readoutFrameSize") ),
   binOfMaximum_( p.getParameter<int>("binOfMaximum") ),
   doPhotostatistics_( p.getParameter<bool>("doPhotoStatistics") ),
   syncPhase_( p.getParameter<bool>("syncPhase") )
 {
+  // some subsystems may not want a single number for this
+  if(p.existsAs<double>("photoelectronsToAnalog")) {
+    photoelectronsToAnalog_ = p.getParameter<double>("photoelectronsToAnalog");
+  }
 }
 
 
