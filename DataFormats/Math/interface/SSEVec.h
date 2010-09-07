@@ -247,7 +247,7 @@ namespace mathSSE {
   template<typename T>
   struct As3D {
     Vec4<T> const & v;
-    as3D(Vec4<T> const &v ) : v(iv){}
+    As3D(Vec4<T> const &iv ) : v(iv){}
   };
 
   template<typename T>
