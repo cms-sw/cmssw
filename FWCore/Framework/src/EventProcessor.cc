@@ -12,7 +12,9 @@
 #include <sys/wait.h>
 
 //Used for CPU affinity
+#ifndef __APPLE__
 #include <sched.h>
+#endif
 
 #include "boost/bind.hpp"
 #include "boost/thread/xtime.hpp"
@@ -1081,6 +1083,15 @@ namespace edm {
         
         std::cout << "I am child " << childIndex << " with pgid " << getpgrp() << std::endl;
         if(setCpuAffinity_) {
+          // CPU affinity is handled differently on macosx.
+          // We disable it and print a message until someone reads:
+          //
+          // http://developer.apple.com/mac/library/releasenotes/Performance/RN-AffinityAPI/index.html
+          //
+          // and implements it.
+#ifdef __APPLE__
+          std::cout << "Architecture support for CPU affinity not implemented." << std::endl;
+#else
           std::cout << "Setting CPU affinity, setting this child to cpu " << childIndex << std::endl;
           cpu_set_t mask;
           CPU_ZERO(&mask);
@@ -1089,6 +1100,7 @@ namespace edm {
             std::cerr << "Failed to set the cpu affinity, errno " << errno << std::endl;
             exit(-1);
           }
+#endif
         }
         break;
       }
