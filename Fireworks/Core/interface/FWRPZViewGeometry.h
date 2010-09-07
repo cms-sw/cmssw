@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 21:01:12 CET 2010
-// $Id: FWRPZViewGeometry.h,v 1.4 2010/08/31 15:30:19 yana Exp $
+// $Id: FWRPZViewGeometry.h,v 1.5 2010/09/06 13:37:13 yana Exp $
 //
 
 // system include files
@@ -24,6 +24,7 @@
 // user include files
 #include "Rtypes.h"
 #include "Fireworks/Core/interface/FWViewType.h"
+#include "Fireworks/Core/interface/DetIdToMatrix.h"
 
 // forward declarations
 class TGeoMatrix;
@@ -33,7 +34,6 @@ class TEveElement;
 class TEveElementList;
 class TEveGeoShape;
 
-class DetIdToMatrix;
 class FWColorManager;
 
 namespace fireworks
@@ -64,9 +64,9 @@ private:
    TEveElement* makeMuonGeometryRhoZ();
    TEveElement* makeCaloOutlineRhoPhi();
    TEveElement* makeCaloOutlineRhoZ();
-   void estimateProjectionSizeDT( const TGeoMatrix*, const TGeoShape*, double&, double&, double&, double& );
-   void estimateProjectionSizeCSC( const TGeoMatrix*, const TGeoShape*, double&, double&, double&, double& );
-   void estimateProjectionSize( const Double_t*, double&, double&, double&, double& );
+   void estimateProjectionSizeDT( const DetIdToMatrix::RecoGeomInfo& info, float&, float&, float&, float& );
+   void estimateProjectionSizeCSC( const DetIdToMatrix::RecoGeomInfo& info, float&, float&, float&, float& );
+   void estimateProjectionSize( const float*, float&, float&, float&, float& );
 
    TEveGeoShape* makeShape( double, double, double, double, Color_t );
 

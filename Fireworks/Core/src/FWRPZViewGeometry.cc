@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 20:33:06 CET 2010
-// $Id: FWRPZViewGeometry.cc,v 1.8 2010/08/31 15:30:19 yana Exp $
+// $Id: FWRPZViewGeometry.cc,v 1.9 2010/09/06 13:37:14 yana Exp $
 //
 
 // system include files
@@ -193,7 +193,7 @@ FWRPZViewGeometry::makeMuonGeometryRhoZ( void )
    {
       for( Int_t iStation = 1; iStation <= 4; ++iStation )
       {
-	 double min_rho(1000), max_rho(0), min_z(2000), max_z(-2000);
+	 float min_rho(1000), max_rho(0), min_z(2000), max_z(-2000);
 
 	 // This will give us a quarter of DTs
 	 // which is enough for our projection
@@ -201,10 +201,9 @@ FWRPZViewGeometry::makeMuonGeometryRhoZ( void )
 	 {
             DTChamberId id( iWheel, iStation, iSector );
 	    unsigned int rawid = id.rawId();
-            TGeoShape* geoShape = m_geom->getShape( rawid );
-            if( !geoShape ) continue;
-            estimateProjectionSizeDT( m_geom->getMatrix( rawid ),
-                                      geoShape, min_rho, max_rho, min_z, max_z );
+
+	    DetIdToMatrix::IdToInfoItr det = m_geom->find( rawid );
+            estimateProjectionSizeDT( *det, min_rho, max_rho, min_z, max_z );
          }
          if ( min_rho > max_rho || min_z > max_z ) continue;
          dtContainer->AddElement( makeShape( min_rho, max_rho, min_z, max_z, color ) );
@@ -232,7 +231,7 @@ FWRPZViewGeometry::makeMuonGeometryRhoZ( void )
 	 {
             if( iStation > 1 && iRing > 2 ) continue;
 	    if( iStation > 3 && iRing > 1 ) continue;
-            double min_rho(1000), max_rho(0), min_z(2000), max_z(-2000);
+            float min_rho(1000), max_rho(0), min_z(2000), max_z(-2000);
 	    ( iRing == 1 && iStation > 1 ) ? ( maxChambers = 18 ) : ( maxChambers = 36 );
 	    ( iRing == 1 && iStation > 1 ) ? ( step = 5 ) : (  step = 18 );
 	    
@@ -241,18 +240,15 @@ FWRPZViewGeometry::makeMuonGeometryRhoZ( void )
             for( Int_t iChamber = step; iChamber <= maxChambers; iChamber += step )
 	    {
 	       CSCDetId id( iEndcap, iStation, iRing, iChamber, iLayer );
-	       TGeoShape* shape = m_geom->getShape( id.rawId() );
-	       if( !shape ) continue;
-	       estimateProjectionSizeCSC( m_geom->getMatrix( id.rawId()),
-					  shape, min_rho, max_rho, min_z, max_z );
+
+	       DetIdToMatrix::IdToInfoItr det = m_geom->find( id.rawId() );
+	       estimateProjectionSizeCSC( *det, min_rho, max_rho, min_z, max_z );
 
 	       // and a chamber next to it
 	       ++iChamber;
 	       CSCDetId nextid( iEndcap, iStation, iRing, iChamber, iLayer );
-	       TGeoShape* nextshape = m_geom->getShape( nextid.rawId() );
-	       if( !nextshape ) continue;
-	       estimateProjectionSizeCSC( m_geom->getMatrix( nextid.rawId()),
-					  nextshape, min_rho, max_rho, min_z, max_z );
+	       det = m_geom->find( nextid.rawId() );
+	       estimateProjectionSizeCSC( *det, min_rho, max_rho, min_z, max_z );
             }
             if ( min_rho > max_rho || min_z > max_z ) continue;
             cscContainer->AddElement( makeShape( min_rho, max_rho, min_z, max_z, color ) );
@@ -291,95 +287,88 @@ FWRPZViewGeometry::makeShape( double min_rho, double max_rho, double min_z, doub
 //______________________________________________________________________________
 
 void
-FWRPZViewGeometry::estimateProjectionSizeDT( const TGeoMatrix* matrix, const TGeoShape* shape,
-					     double& min_rho, double& max_rho, double& min_z, double& max_z )
+FWRPZViewGeometry::estimateProjectionSizeDT( const DetIdToMatrix::RecoGeomInfo& info,
+					     float& min_rho, float& max_rho, float& min_z, float& max_z )
 {
-   const TGeoBBox* box = dynamic_cast<const TGeoBBox*>( shape );
-   if ( !box ) return;
-
    // we will test 5 points on both sides ( +/- z)
-   Double_t local[3], global[3];
+   float local[3], global[3];
 
-   local[0]=0; local[1]=0; local[2]=box->GetDZ();
-   matrix->LocalToMaster(local,global);
+   float dX = info.shape[1];
+   float dY = info.shape[2];
+   float dZ = info.shape[3];
+
+   local[0] = 0; local[1] = 0; local[2] = dZ;
+   m_geom->localToGlobal( info, local, global );
    estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
 
-   local[0]=box->GetDX(); local[1]=box->GetDY(); local[2]=box->GetDZ();
-   matrix->LocalToMaster(local,global);
+   local[0] = dX; local[1] = dY; local[2] = dZ;
+   m_geom->localToGlobal( info, local, global );
    estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
 
-   local[0]=-box->GetDX(); local[1]=box->GetDY(); local[2]=box->GetDZ();
-   matrix->LocalToMaster(local,global);
+   local[0] = -dX; local[1] = dY; local[2] = dZ;
+   m_geom->localToGlobal( info, local, global );
    estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
 
-   local[0]=box->GetDX(); local[1]=-box->GetDY(); local[2]=box->GetDZ();
-   matrix->LocalToMaster(local,global);
+   local[0] = dX; local[1] = -dY; local[2] = dZ;
+   m_geom->localToGlobal( info, local, global );
    estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
 
-   local[0]=-box->GetDX(); local[1]=-box->GetDY(); local[2]=box->GetDZ();
-   matrix->LocalToMaster(local,global);
+   local[0] = -dX; local[1] = -dY; local[2] = dZ;
+   m_geom->localToGlobal( info, local, global );
    estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
 
-   local[0]=0; local[1]=0; local[2]=-box->GetDZ();
-   matrix->LocalToMaster(local,global);
+   local[0] = 0; local[1] = 0; local[2] = -dZ;
+   m_geom->localToGlobal( info, local, global );
    estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
 
-   local[0]=box->GetDX(); local[1]=box->GetDY(); local[2]=-box->GetDZ();
-   matrix->LocalToMaster(local,global);
+   local[0] = dX; local[1] = dY; local[2] = -dZ;
+   m_geom->localToGlobal( info, local, global );
    estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
 
-   local[0]=-box->GetDX(); local[1]=box->GetDY(); local[2]=-box->GetDZ();
-   matrix->LocalToMaster(local,global);
+   local[0] = -dX; local[1] = dY; local[2] = -dZ;
+   m_geom->localToGlobal( info, local, global );
    estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
 
-   local[0]=box->GetDX(); local[1]=-box->GetDY(); local[2]=-box->GetDZ();
-   matrix->LocalToMaster(local,global);
+   local[0] = dX; local[1] = -dY; local[2] = -dZ;
+   m_geom->localToGlobal( info, local, global );
    estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
 
-   local[0]=-box->GetDX(); local[1]=-box->GetDY(); local[2]=-box->GetDZ();
-   matrix->LocalToMaster(local,global);
+   local[0] = -dX; local[1] = -dY; local[2] = -dZ;
+   m_geom->localToGlobal( info, local, global );
    estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
 }
 
 void
-FWRPZViewGeometry::estimateProjectionSizeCSC( const TGeoMatrix* matrix, const TGeoShape* shape,
-					      double& min_rho, double& max_rho, double& min_z, double& max_z )
+FWRPZViewGeometry::estimateProjectionSizeCSC( const DetIdToMatrix::RecoGeomInfo& info,
+					      float& min_rho, float& max_rho, float& min_z, float& max_z )
 {
-   const TGeoBBox* bb = dynamic_cast<const TGeoBBox*>( shape );
-   if( !bb ) return;
+   float local[3], global[3];
 
-   // we will test 3 points on both sides ( +/- z)
-   // local z is along Rho
-   Double_t local[3], global[3];
-
-   local[0]=0; local[1]=bb->GetDY(); local[2]=-bb->GetDZ();
-   matrix->LocalToMaster(local,global);
+   float dX = info.shape[2] - info.shape[1];
+   float dY = info.shape[4];
+   float ddY = sqrt( 4 * dY * dY + dX * dX ) * 0.5;
+   float dZ = info.shape[3];
+   
+   local[0] = info.shape[2]; local[1] = ddY; local[2] = -dZ;
+   m_geom->localToGlobal( info, local, global );
    estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
 
-   local[0]=0; local[1]=-bb->GetDY(); local[2]=-bb->GetDZ();
-   matrix->LocalToMaster(local,global);
+   local[0] = info.shape[1]; local[1] = -ddY; local[2] = -dZ;
+   m_geom->localToGlobal( info, local, global );
    estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
 
-   local[0]=bb->GetDX(); local[1]=bb->GetDY(); local[2]=bb->GetDZ();
-   matrix->LocalToMaster(local,global);
+   local[0] = info.shape[1]; local[1] = -ddY; local[2] = dZ;
+   m_geom->localToGlobal( info, local, global );
    estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
 
-   local[0]=-bb->GetDX(); local[1]=bb->GetDY(); local[2]=bb->GetDZ();
-   matrix->LocalToMaster(local,global);
-   estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
-
-   local[0]=bb->GetDX(); local[1]=-bb->GetDY(); local[2]=bb->GetDZ();
-   matrix->LocalToMaster(local,global);
-   estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
-
-   local[0]=-bb->GetDX(); local[1]=-bb->GetDY(); local[2]=bb->GetDZ();
-   matrix->LocalToMaster(local,global);
+   local[0] = info.shape[2]; local[1] = ddY; local[2] = dZ;
+   m_geom->localToGlobal( info, local, global );
    estimateProjectionSize( global, min_rho, max_rho, min_z, max_z );
 }
 
 void
-FWRPZViewGeometry::estimateProjectionSize( const Double_t* global,
-					   double& min_rho, double& max_rho, double& min_z, double& max_z )
+FWRPZViewGeometry::estimateProjectionSize( const float* global,
+					   float& min_rho, float& max_rho, float& min_z, float& max_z )
 {
    double rho = sqrt(global[0] *global[0]+global[1] *global[1]);
    if ( min_rho > rho ) min_rho = rho;
@@ -387,7 +376,6 @@ FWRPZViewGeometry::estimateProjectionSize( const Double_t* global,
    if ( min_z > global[2] ) min_z = global[2];
    if ( max_z < global[2] ) max_z = global[2];
 }
-
 
 
 // ATODO:: check white vertex -> shouldn't be relative to background

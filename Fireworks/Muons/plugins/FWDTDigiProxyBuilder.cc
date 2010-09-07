@@ -22,16 +22,8 @@
 
 namespace 
 {
-  void 
-  addMarkers( TEvePointSet* pointSet, const TGeoMatrix* matrix, double localPos[3] ) 
-  {
-    double globalPos[3];			
-    matrix->LocalToMaster( localPos, globalPos );
-    pointSet->SetNextPoint( globalPos[0],  globalPos[1],  globalPos[2] );
-  }
-  
   void
-  addTube( TEveBox* shape, const TGeoMatrix* matrix, double localPos[3],  const float* pars )
+  addTube( TEveBox* shape, const DetIdToMatrix::RecoGeomInfo& info, float localPos[3],  const float* pars )
   {
     const Float_t width = pars[0] / 2.;
     const Float_t thickness = pars[1] / 2.;
@@ -46,8 +38,14 @@ namespace
 			      localPos[0] + width,  length,  thickness,
 			      localPos[0] + width, -length,  thickness };
     
+    double array[16] = { info.matrix[0], info.matrix[3], info.matrix[6], 0.,
+			 info.matrix[1], info.matrix[4], info.matrix[7], 0.,
+			 info.matrix[2], info.matrix[5], info.matrix[8], 0.,
+			 info.translation[0], info.translation[1], info.translation[2], 1.
+    };
+    
     shape->SetVertices( vtx );
-    shape->SetTransMatrix( *matrix );
+    shape->SetTransMatrix( array );
     shape->SetMainTransparency( 75 );
   }
 }
@@ -101,11 +99,11 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
     }
 
     const float* pars = geom->getParameters( rawid );
-    const TGeoMatrix* matrix = geom->getMatrix( rawid );
+    DetIdToMatrix::IdToInfoItr det = geom->find( rawid );
 
     int superLayer = layerId.superlayerId().superLayer();
 
-    double localPos[3] = { 0.0, 0.0, 0.0 };
+    float localPos[3] = { 0.0, 0.0, 0.0 };
 		
     // Loop over the digis of this DetUnit
     for( DTDigiCollection::const_iterator it = range.first;
@@ -120,7 +118,7 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
       {
 	TEveBox* box = new TEveBox;
 	setupAddElement( box, product );
-	addTube( box, matrix, localPos, pars );
+	addTube( box, *det, localPos, pars );
       }
       if(( type == FWViewType::kRhoPhi && superLayer != 2 ) ||
 	 ( type == FWViewType::kRhoZ && superLayer == 2 ))
@@ -128,11 +126,14 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
 	TEvePointSet* pointSet = new TEvePointSet;
 	pointSet->SetMarkerStyle( 24 );
 	setupAddElement( pointSet, product );	
-	addMarkers( pointSet, matrix, localPos );
+
+	float globalPos[3];			
+	geom->localToGlobal( *det, localPos, globalPos );
+	pointSet->SetNextPoint( globalPos[0],  globalPos[1],  globalPos[2] );
 
 	TEveBox* box = new TEveBox;
 	setupAddElement( box, product );
-	addTube( box, matrix, localPos, pars );
+	addTube( box, *det, localPos, pars );
       }
     }		
   }
