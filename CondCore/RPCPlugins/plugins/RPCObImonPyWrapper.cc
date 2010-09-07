@@ -32,11 +32,15 @@
 #include <iterator>
 #include <iostream>
 #include <fstream>
+#include <utility>
 #include <boost/ref.hpp>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/iterator/transform_iterator.hpp>
+
+using std::pair;
+using std::make_pair;
 
 #include "TROOT.h"
 #include "TCanvas.h"
@@ -171,47 +175,45 @@ namespace cond {
   template<>
   std::string PayLoadInspector<RPCObImon>::summary() const {
 
+    std::stringstream ss;
+   
     //hardcoded values
     std::string authPath="/afs/cern.ch/cms/DB/conddb";
     std::string conString="oracle://cms_orcoff_prod/CMS_COND_31X_RPC";
-
+    
     //frontend sends token instead of filename
     std::string token="[DB=00000000-0000-0000-0000-000000000000][CNT=RPCObPVSSmap][CLID=53B2D2D9-1F4E-9CA9-4D71-FFCCA123A454][TECH=00000B01][OID=0000000C-00000000]";
-
-    //make connection object
+    
+    //std::cout<<"make connection object"<<std::endl;
     DbConnection dbConn;
-
-    //set in configuration object authentication path
+    
+    //std::cout<<"set in configuration object authentication path"<<std::endl;
     dbConn.configuration().setAuthenticationPath(authPath);
     dbConn.configure();
-
-    //create session object from connection
+    
+    //std::cout<<"create session object from connection"<<std::endl;
     DbSession dbSes=dbConn.createSession();
-
-    //try to make connection
+    
+    //std::cout<<"try to make connection"<<std::endl;
     dbSes.open(conString,true);
     
-    //start a transaction (true=readOnly)
+    //std::cout<<"start a transaction (true=readOnly)"<<std::endl;
+    //cond::DbTransaction dbTr=
     dbSes.transaction().start(true);
-
-    //get the actual object
+    
+   //get the actual object
     boost::shared_ptr<RPCObPVSSmap> pvssPtr;
     pvssPtr=dbSes.getTypedObject<RPCObPVSSmap>(token);
 
     //we have the object...
     std::vector<RPCObPVSSmap::Item> pvssCont=pvssPtr->ObIDMap_rpc;
 
-    std::stringstream ss;
-
     std::vector<RPCObImon::I_Item> const & imon = object().ObImon_rpc;
     
     ss <<"DetID\t\t"<<"I(uA)\t"<<"Time\t"<<"Day\n";
     for(unsigned int i = 0; i < imon.size(); ++i ){
       for(unsigned int p = 0; p < pvssCont.size(); ++p){
-       	if(imon[i].dpid!=pvssCont[p].dpid ||
-	   pvssCont[p].ring==0 || pvssCont[p].station==0 ||
-	   pvssCont[p].sector==0 || pvssCont[p].layer==0 ||
-	   pvssCont[p].subsector==0)continue;
+       	if(imon[i].dpid!=pvssCont[p].dpid || pvssCont[p].suptype!=0 || pvssCont[p].region!=0)continue;
        	RPCDetId rpcId(pvssCont[p].region,pvssCont[p].ring,pvssCont[p].station,pvssCont[p].sector,pvssCont[p].layer,pvssCont[p].subsector,1);
        	RPCGeomServ rGS(rpcId);
        	std::string chName(rGS.name().substr(0,rGS.name().find("_Backward")));
@@ -239,28 +241,18 @@ namespace cond {
 
     std::vector<RPCObImon::I_Item> const & imon = object().ObImon_rpc;
 
-    int tempId(0),count(0);
-    double tempAve(0.);
+    std::map<int,std::pair<int,double> > dpidMap;
     for(unsigned int i = 0;i < imon.size(); ++i){
-      if(i==0){
-	count++;
-	tempAve+=imon[i].value;
-	tempId=imon[i].dpid;
-      }
+      if(dpidMap.find(imon[i].dpid)==dpidMap.end())
+	dpidMap[imon[i].dpid]=make_pair(1,(double)imon[i].value);
       else {
-	if(imon[i].dpid==tempId){
-	  count++;
-	  tempAve+=imon[i].value;	  
-	}
-	else{
-	  iDistr->Fill(tempAve/(double)count);
-	  count=1;
-	  tempAve=imon[i].value;
-	  tempId=imon[i].dpid;
-	}
+	dpidMap[imon[i].dpid].first++;
+	dpidMap[imon[i].dpid].second+=imon[i].value;
       }
     }
 
+    for(std::map<int,std::pair<int,double> >::const_iterator mIt=dpidMap.begin();mIt!=dpidMap.end();mIt++)
+      iDistr->Fill(mIt->second.second/(double)mIt->second.first);
 
     iDistr->Draw();
 
@@ -298,6 +290,3 @@ namespace condPython {
 }
 
 PYTHON_WRAPPER(RPCObImon,RPCObImon);
-
-
-

@@ -20,6 +20,8 @@
 #include "TStyle.h"
 #include "TColor.h"
 #include "TLine.h"
+#include "TH1D.h"
+#include "TH2D.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
@@ -37,13 +39,12 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/iterator/transform_iterator.hpp>
 
-#include "TROOT.h"
-#include "TCanvas.h"
-#include "TStyle.h"
-#include "TColor.h"
 #include "TH1D.h"
 #include "TH2D.h"
 
+#include <utility>
+using std::pair;
+using std::make_pair;
 
 namespace cond {
 
@@ -208,10 +209,7 @@ namespace cond {
     ss <<"DetID\t\t"<<"V(V)\t"<<"Time\t"<<"Day\n";
     for(unsigned int i = 0; i < vmon.size(); ++i ){
       for(unsigned int p = 0; p < pvssCont.size(); ++p){
-       	if(vmon[i].dpid!=pvssCont[p].dpid ||
-	   pvssCont[p].ring==0 || pvssCont[p].station==0 ||
-	   pvssCont[p].sector==0 || pvssCont[p].layer==0 ||
-	   pvssCont[p].subsector==0)continue;
+       	if(vmon[i].dpid!=pvssCont[p].dpid || pvssCont[p].suptype!=0 || pvssCont[p].region!=0)continue;
 	RPCDetId rpcId(pvssCont[p].region,pvssCont[p].ring,pvssCont[p].station,pvssCont[p].sector,pvssCont[p].layer,pvssCont[p].subsector,1);
 	RPCGeomServ rGS(rpcId);
 	std::string chName(rGS.name().substr(0,rGS.name().find("_Backward")));
@@ -232,34 +230,24 @@ namespace cond {
 						std::vector<int> const&,
 						std::vector<float> const& ) const {
 
-    TCanvas canvas("hV","hV",800,800);    
+    TCanvas canvas("hV","hV",800,800);
 
     TH1D *vDistr=new TH1D("vDistr","IOV-averaged Vmon Distribution;Average HV(V);Entries/50 V ",100,5000.,10000.);
 
     std::vector<RPCObVmon::V_Item> const & vmon = object().ObVmon_rpc;
 
-    int tempId(0),count(0);
-    double tempAve(0.);
+    std::map<int,std::pair<int,double> > dpidMap;
     for(unsigned int i = 0;i < vmon.size(); ++i){
-      if(i==0){
-	count++;
-	tempAve+=vmon[i].value;
-	tempId=vmon[i].dpid;
-      }
+      if(dpidMap.find(vmon[i].dpid)==dpidMap.end())
+	dpidMap[vmon[i].dpid]=make_pair(1,(double)vmon[i].value);
       else {
-	if(vmon[i].dpid==tempId){
-	  count++;
-	  tempAve+=vmon[i].value;	  
-	}
-	else{
-	  vDistr->Fill(tempAve/(double)count);
-	  count=1;
-	  tempAve=vmon[i].value;
-	  tempId=vmon[i].dpid;
-	}
+	dpidMap[vmon[i].dpid].first++;
+	dpidMap[vmon[i].dpid].second+=vmon[i].value;
       }
     }
 
+    for(std::map<int,std::pair<int,double> >::const_iterator mIt=dpidMap.begin();mIt!=dpidMap.end();mIt++)
+      vDistr->Fill(mIt->second.second/(double)mIt->second.first);
 
     vDistr->Draw();
 
