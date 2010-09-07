@@ -66,12 +66,13 @@ process.source = cms.Source("EmptyIOVSource",
 )
 
 process.outputDB = cms.ESSource("PoolDBESSource",
-    process.CondDBCommon,
-    toGet = cms.VPSet(cms.PSet(
-        record = cms.string('L1TriggerKeyListRcd'),
-        tag = cms.string('L1TriggerKeyList_' + options.tagBase)
-    ))
-)
+                                process.CondDBCommon,
+                                toGet = cms.VPSet(cms.PSet(
+    record = cms.string('L1TriggerKeyListRcd'),
+    tag = cms.string('L1TriggerKeyList_' + options.tagBase)
+    )),
+                                RefreshEachRun=cms.untracked.bool(True)
+                                )
 process.outputDB.connect = cms.string(options.outputDBConnect)
 process.outputDB.DBParameters.authenticationPath = options.outputDBAuth
 
