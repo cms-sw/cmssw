@@ -126,10 +126,11 @@ edm::ParameterSet L1MuCSCTFConfiguration::parameters(int sp) const {
 
   int eta_cnt=0;
 
-  unsigned int firmwareSP=0;
-  unsigned int firmwareFA=0;
-  unsigned int firmwareDD=0;
-  unsigned int firmwareVM=0;
+  // default firmware versions (the ones used from run 132440)
+  unsigned int firmwareSP=20100210;
+  unsigned int firmwareFA=20090521;
+  unsigned int firmwareDD=20090521;
+  unsigned int firmwareVM=20090521;
 
   // default printout
   LogDebug("L1MuCSCTFConfiguration") << "\nCORE CONFIGURATION  DEFAULT VALUES" 
