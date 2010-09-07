@@ -61,9 +61,10 @@ if [ ${xflag} -eq 0 ]
 	exit ${o2ocode}
     fi
 else
-    if cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/l1o2otestanalyzer_cfg.py tagBase=${tagbase}_hlt inputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T inputDBAuth=/nfshome0/popcondev/conddb printL1TriggerKeyList=1 | grep ${tsckey} ; then echo "TSC payloads present"
-    else
-        echo "TSC payloads absent; writing now"
+    echo "`date` : checking for TSC payloads"
+#    if cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/l1o2otestanalyzer_cfg.py tagBase=${tagbase}_hlt inputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T inputDBAuth=/nfshome0/popcondev/conddb printL1TriggerKeyList=1 | grep ${tsckey} ; then echo "`date` : TSC payloads present"
+#    else
+        echo "`date` : TSC payloads absent; writing now"
 	cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWritePayloadOnline_cfg.py tscKey=${tsckey} tagBase=${tagbase}_hlt outputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T outputDBAuth=/nfshome0/popcondev/conddb print
 	o2ocode=$?
 	if [ ${o2ocode} -ne 0 ]
@@ -71,8 +72,9 @@ else
 	    echo "L1-O2O-ERROR: could not write TSC payloads" >&2
 	    exit ${o2ocode}
 	fi
-    fi
+#    fi
 
+    echo "`date` : setting TSC IOVs"
     cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteIOVOnline_cfg.py tscKey=${tsckey} runNumber=${runnum} tagBase=${tagbase}_hlt outputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T outputDBAuth=/nfshome0/popcondev/conddb print
     o2ocode=$?
     if [ ${o2ocode} -eq 0 ]
