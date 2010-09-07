@@ -51,78 +51,71 @@ bool PythiaFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle<HepMCProduct> evt;
    iEvent.getByLabel(label_, evt);
 
-    HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evt->GetEvent()));
+   const HepMC::GenEvent * myGenEvent = evt->GetEvent();
     
-    if(processID == 0 || processID == myGenEvent->signal_process_id()) {
-    
-    for ( HepMC::GenEvent::particle_iterator p = myGenEvent->particles_begin();
-	  p != myGenEvent->particles_end(); ++p ) {
-      
-      rapidity = 0.5*log( ((*p)->momentum().e()+(*p)->momentum().pz()) / ((*p)->momentum().e()-(*p)->momentum().pz()) );
-
-	if ( abs((*p)->pdg_id()) == particleID 
-	     && (*p)->momentum().rho() > minpcut 
-	     && (*p)->momentum().rho() < maxpcut
-	     && (*p)->momentum().perp() > minptcut 
-	     && (*p)->momentum().perp() < maxptcut
-	     && (*p)->momentum().eta() > minetacut
-	     && (*p)->momentum().eta() < maxetacut 
-	     && rapidity > minrapcut
-	     && rapidity < maxrapcut 
-	     && (*p)->momentum().phi() > minphicut
-	     && (*p)->momentum().phi() < maxphicut ) {
-
-             
+   if(processID == 0 || processID == myGenEvent->signal_process_id()) {
+     
+     for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
+	   p != myGenEvent->particles_end(); ++p ) {
+       
+       rapidity = 0.5*log( ((*p)->momentum().e()+(*p)->momentum().pz()) / ((*p)->momentum().e()-(*p)->momentum().pz()) );
+       
+       if ( abs((*p)->pdg_id()) == particleID 
+	    && (*p)->momentum().rho() > minpcut 
+	    && (*p)->momentum().rho() < maxpcut
+	    && (*p)->momentum().perp() > minptcut 
+	    && (*p)->momentum().perp() < maxptcut
+	    && (*p)->momentum().eta() > minetacut
+	    && (*p)->momentum().eta() < maxetacut 
+	    && rapidity > minrapcut
+	    && rapidity < maxrapcut 
+	    && (*p)->momentum().phi() > minphicut
+	    && (*p)->momentum().phi() < maxphicut ) {
+	 
+         
+	 
+	 if (status == 0 && motherID == 0){
+	   accepted = true;
+	 }
+	 if (status != 0 && motherID == 0){
+	   if ((*p)->status() == status)   
+	     accepted = true;
+	 }
+	 
+	 HepMC::GenParticle* mother = (*((*p)->production_vertex()->particles_in_const_begin()));
+	 
+	 if (status == 0 && motherID != 0){    
+	   if (abs(mother->pdg_id()) == abs(motherID)) {
+	     accepted = true;
+	   }
+	 }
+	 if (status != 0 && motherID != 0){
+	   
+	   if ((*p)->status() == status && abs(mother->pdg_id()) == abs(motherID)){   
+	     accepted = true;
 	     
-	     if (status == 0 && motherID == 0){
-           	     accepted = true;
-	     }
-	     if (status != 0 && motherID == 0){
-	       if ((*p)->status() == status)   
-		 accepted = true;
-	     }
-	     
-	     HepMC::GenParticle* mother = (*((*p)->production_vertex()->particles_in_const_begin()));
-
-	       if (status == 0 && motherID != 0){    
-		 if (abs(mother->pdg_id()) == abs(motherID)) {
-		     accepted = true;
-	        }
-	     }
-	     if (status != 0 && motherID != 0){
-                
-	       if ((*p)->status() == status && abs(mother->pdg_id()) == abs(motherID)){   
-		 accepted = true;
-		 
-		     }
-	     }
-
-	       /*
-	     if (status == 0 && motherID != 0){    
-           	if (abs(((*p)->mother())->pdg_id()) == abs(motherID)) {
-		     accepted = true;
-	        }
-	     }
-	     if (status != 0 && motherID != 0){
-                
-           	if ((*p)->status() == status && abs(((*p)->mother())->pdg_id()) == abs(motherID)){   
-		accepted = true;
-		     
-		     }
-	     }
-	       */
-	     
-	 }    
-	     
-	    
-	  
-    }
-
-    } else { accepted = true; }
-
-
-    delete myGenEvent; 
-
+	   }
+	 }
+	 
+	 /*
+	   if (status == 0 && motherID != 0){    
+	   if (abs(((*p)->mother())->pdg_id()) == abs(motherID)) {
+	   accepted = true;
+	   }
+	   }
+	   if (status != 0 && motherID != 0){
+           
+	   if ((*p)->status() == status && abs(((*p)->mother())->pdg_id()) == abs(motherID)){   
+	   accepted = true;
+	   
+	   }
+	   }
+	 */
+	 
+       }    
+     }
+     
+   } else { accepted = true; }
 
    if (accepted){
    return true; } else {return false;}

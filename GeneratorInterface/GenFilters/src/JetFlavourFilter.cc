@@ -75,12 +75,12 @@ bool JetFlavourFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<HepMCProduct> evt;
   iEvent.getByLabel(label_, evt);
   
-  HepMC::GenEvent * generated_event = new HepMC::GenEvent(*(evt->GetEvent()));
+  const HepMC::GenEvent * generated_event = evt->GetEvent();
 
   bool event_passed = false;
 
   vector<int> foundQ;
-  HepMC::GenEvent::particle_iterator p;
+  HepMC::GenEvent::particle_const_iterator p;
   for (p = generated_event->particles_begin(); p != generated_event->particles_end(); p++) {
     if (((*p)->pdg_id() < 1) && ((*p)->pdg_id() > -10)) { // We have an anti-quark
 //       cout << "antiQ "<< (*p)->pdg_id();

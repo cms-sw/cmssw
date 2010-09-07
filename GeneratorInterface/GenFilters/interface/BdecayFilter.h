@@ -51,10 +51,10 @@ private:
   HepMC::GenParticle * findParticle(HepMC::GenVertex* , const int requested_id) ;
   //***
 
-  HepMC::GenEvent::particle_iterator getNextBs(const HepMC::GenEvent::particle_iterator start, 
-			       const HepMC::GenEvent::particle_iterator end);
-
-
+  HepMC::GenEvent::particle_const_iterator getNextBs(const HepMC::GenEvent::particle_const_iterator start, 
+						     const HepMC::GenEvent::particle_const_iterator end);
+  
+  
   bool cuts(const HepMC::GenParticle * jpsi, const CutStruct cut);
   bool etaInRange(float eta, float etamin, float etamax);
 

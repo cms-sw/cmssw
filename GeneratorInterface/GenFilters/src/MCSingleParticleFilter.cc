@@ -85,31 +85,28 @@ bool MCSingleParticleFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
    Handle<HepMCProduct> evt;
    iEvent.getByLabel(label_, evt);
 
-    HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evt->GetEvent()));
+   const HepMC::GenEvent * myGenEvent = evt->GetEvent();
      
    
-    for ( HepMC::GenEvent::particle_iterator p = myGenEvent->particles_begin();
-	  p != myGenEvent->particles_end(); ++p ) {
-
+   for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
+	 p != myGenEvent->particles_end(); ++p ) {
+     
     
-    for (unsigned int i = 0; i < particleID.size(); i++){
-    if (particleID[i] == (*p)->pdg_id() || particleID[i] == 0) {
+     for (unsigned int i = 0; i < particleID.size(); i++){
+       if (particleID[i] == (*p)->pdg_id() || particleID[i] == 0) {
     
-      if ( (*p)->momentum().perp() > ptMin[i] && (*p)->momentum().eta() > etaMin[i] 
-       && (*p)->momentum().eta() < etaMax[i] && ((*p)->status() == status[i] || status[i] == 0)) { 
+	 if ( (*p)->momentum().perp() > ptMin[i] && (*p)->momentum().eta() > etaMin[i] 
+	      && (*p)->momentum().eta() < etaMax[i] && ((*p)->status() == status[i] || status[i] == 0)) { 
           accepted = true; 
-      }  
+	 }  
+	 
+       } 
+     }
+     
 
-    } 
-    }
-
-
-    }
-
-    delete myGenEvent; 
-
-
+   }
+   
    if (accepted){ return true; } else {return false;}
-
+   
 }
 

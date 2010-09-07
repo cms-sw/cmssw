@@ -36,7 +36,7 @@ bool MCProcessRangeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
    Handle<HepMCProduct> evt;
    iEvent.getByLabel(label_, evt);
 
-    HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evt->GetEvent()));
+   const HepMC::GenEvent * myGenEvent = evt->GetEvent();
 
     
     // do the selection -- processID 0 is always accepted
@@ -49,10 +49,7 @@ bool MCProcessRangeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
     } 
     
-
-    delete myGenEvent; 
-
-
+    
    if (accepted){ return true; } else {return false;}
 
 }

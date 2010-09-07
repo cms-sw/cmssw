@@ -36,8 +36,8 @@ bool MCLongLivedParticles::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   
   bool pass = false;
   
-  HepMC::GenEvent * generated_event = new HepMC::GenEvent(*(evt->GetEvent()));
-  HepMC::GenEvent::particle_iterator p;
+  const HepMC::GenEvent * generated_event = evt->GetEvent();
+  HepMC::GenEvent::particle_const_iterator p;
   
   for (p = generated_event->particles_begin(); p != generated_event->particles_end(); p++)
     { 

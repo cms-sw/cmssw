@@ -13,7 +13,7 @@
 //
 // Original Author:  Aruna Nayak
 //         Created:  Thu Aug 23 11:37:45 CEST 2007
-// $Id: Zto2lFilter.cc,v 1.4 2009/02/17 13:57:46 saout Exp $
+// $Id: Zto2lFilter.cc,v 1.5 2009/12/15 10:29:32 fabiocos Exp $
 //
 //
 
@@ -72,10 +72,10 @@ Zto2lFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    Handle<HepMCProduct> EvtHandle ;
    iEvent.getByLabel( fLabel_, EvtHandle ) ;
-   HepMC::GenEvent* evt = new HepMC::GenEvent(*(EvtHandle->GetEvent())) ;
+   const HepMC::GenEvent* evt = EvtHandle->GetEvent();
    
    vector<TLorentzVector> Lepton; Lepton.clear();
-   for (HepMC::GenEvent::particle_iterator p = evt->particles_begin();
+   for (HepMC::GenEvent::particle_const_iterator p = evt->particles_begin();
 	p != evt->particles_end(); ++p) {
      if((*p)->status()==3){
        if ( abs((*p)->pdg_id()) == 11 || abs((*p)->pdg_id()) == 13 || abs((*p)->pdg_id()) == 15  ){

@@ -110,59 +110,59 @@ bool MCParticlePairFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
    vector<HepMC::GenParticle*> typeBpassed;
 
 
-    HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evt->GetEvent()));
+   const HepMC::GenEvent * myGenEvent = evt->GetEvent();
      
    
-    for ( HepMC::GenEvent::particle_iterator p = myGenEvent->particles_begin();
-	  p != myGenEvent->particles_end(); ++p ) {
-
-      // check for type A conditions
-      bool gottypeAID = false;
-      for(unsigned int j=0; j<particleID1.size(); ++j) {
-	if(abs((*p)->pdg_id()) == abs(particleID1[j]) || particleID1[j] == 0) {
-	  gottypeAID = true;
-	  break;
-	}
-      }
-      if(gottypeAID) {
-	if ( (*p)->momentum().perp() > ptMin[0] && (*p)->momentum().rho() > pMin[0] && (*p)->momentum().eta() > etaMin[0] 
-	     && (*p)->momentum().eta() < etaMax[0] && ((*p)->status() == status[0] || status[0] == 0)) { 
-	  // passed A type conditions ...
-	  // ... now check pair-conditions with B type passed particles
-	  unsigned int i=0;
-	  double deltaphi;
-	  double phi1 = (*p)->momentum().phi();
-	  double phi2;
-	  double deltaeta;
-	  double eta1 = (*p)->momentum().eta();
-	  double eta2;
-	  double deltaR;
-	  //HepLorentzVector momentum1 = (*p)->momentum();
-	  //HepLorentzVector totmomentum;
-	  double tot_x= 0.;
-	  double tot_y= 0.;
-	  double tot_z= 0.;
-	  double tot_e= 0.;
-	  double invmass =0.;
-	  int charge1 = 0;
-	  int combcharge = 0;
-	  while(!accepted && i<typeBpassed.size()) {
-	     tot_x=(*p)->momentum().px();
-	     tot_y=(*p)->momentum().py();
-	     tot_z=(*p)->momentum().pz();
-	     tot_e=(*p)->momentum().e();
-	     charge1 = charge((*p)->pdg_id());
-	    //totmomentum = momentum1 + typeBpassed[i]->momentum();
-	    //invmass = totmomentum.m();
-	    tot_x += typeBpassed[i]->momentum().px();
-	    tot_y += typeBpassed[i]->momentum().py();
-	    tot_z += typeBpassed[i]->momentum().pz();
-	    tot_e += typeBpassed[i]->momentum().e();
-	    invmass=sqrt(tot_e*tot_e-tot_x*tot_x-tot_y*tot_y-tot_z*tot_z);
-	    combcharge = charge1 * charge(typeBpassed[i]->pdg_id());
-	    if(invmass > minInvMass && invmass < maxInvMass) {
-	      phi2 = typeBpassed[i]->momentum().phi();
-	      deltaphi = fabs(phi1-phi2);
+   for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
+	 p != myGenEvent->particles_end(); ++p ) {
+     
+     // check for type A conditions
+     bool gottypeAID = false;
+     for(unsigned int j=0; j<particleID1.size(); ++j) {
+       if(abs((*p)->pdg_id()) == abs(particleID1[j]) || particleID1[j] == 0) {
+	 gottypeAID = true;
+	 break;
+       }
+     }
+     if(gottypeAID) {
+       if ( (*p)->momentum().perp() > ptMin[0] && (*p)->momentum().rho() > pMin[0] && (*p)->momentum().eta() > etaMin[0] 
+	    && (*p)->momentum().eta() < etaMax[0] && ((*p)->status() == status[0] || status[0] == 0)) { 
+	 // passed A type conditions ...
+	 // ... now check pair-conditions with B type passed particles
+	 unsigned int i=0;
+	 double deltaphi;
+	 double phi1 = (*p)->momentum().phi();
+	 double phi2;
+	 double deltaeta;
+	 double eta1 = (*p)->momentum().eta();
+	 double eta2;
+	 double deltaR;
+	 //HepLorentzVector momentum1 = (*p)->momentum();
+	 //HepLorentzVector totmomentum;
+	 double tot_x= 0.;
+	 double tot_y= 0.;
+	 double tot_z= 0.;
+	 double tot_e= 0.;
+	 double invmass =0.;
+	 int charge1 = 0;
+	 int combcharge = 0;
+	 while(!accepted && i<typeBpassed.size()) {
+	   tot_x=(*p)->momentum().px();
+	   tot_y=(*p)->momentum().py();
+	   tot_z=(*p)->momentum().pz();
+	   tot_e=(*p)->momentum().e();
+	   charge1 = charge((*p)->pdg_id());
+	   //totmomentum = momentum1 + typeBpassed[i]->momentum();
+	   //invmass = totmomentum.m();
+	   tot_x += typeBpassed[i]->momentum().px();
+	   tot_y += typeBpassed[i]->momentum().py();
+	   tot_z += typeBpassed[i]->momentum().pz();
+	   tot_e += typeBpassed[i]->momentum().e();
+	   invmass=sqrt(tot_e*tot_e-tot_x*tot_x-tot_y*tot_y-tot_z*tot_z);
+	   combcharge = charge1 * charge(typeBpassed[i]->pdg_id());
+	   if(invmass > minInvMass && invmass < maxInvMass) {
+	     phi2 = typeBpassed[i]->momentum().phi();
+	     deltaphi = fabs(phi1-phi2);
 	      if(deltaphi > pi) deltaphi = 2.*pi-deltaphi;
 	      if(deltaphi > minDeltaPhi && deltaphi < maxDeltaPhi) {
 		eta2 = typeBpassed[i]->momentum().eta();
@@ -174,93 +174,91 @@ bool MCParticlePairFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 		  }
 		}
 	      }
-	    }
-	    i++;
-	  }	  
-	  // if we found a matching pair quit the loop
-	  if(accepted) break;
-	  else{
-	    typeApassed.push_back(*p);   // else remember the particle to have passed type A conditions
-	  }
-	}
-      }
-      
-      // check for type B conditions
-      
-      bool gottypeBID = false;
-      for(unsigned int j=0; j<particleID2.size(); ++j) {
-	if(abs((*p)->pdg_id()) == abs(particleID2[j]) || particleID2[j] == 0) {
-	  gottypeBID = true;
-	  break;
-	}
-      }
-      if(gottypeBID) {
-	if ( (*p)->momentum().perp() > ptMin[1] && (*p)->momentum().rho() > pMin[1] && (*p)->momentum().eta() > etaMin[1] 
-	     && (*p)->momentum().eta() < etaMax[1] && ((*p)->status() == status[1] || status[1] == 0)) { 
-	  // passed B type conditions ...
-	  // ... now check pair-conditions with A type passed particles vector
-	  unsigned int i=0;
-	  double deltaphi;
-	  double phi1 = (*p)->momentum().phi();
-	  double phi2;
-	  double deltaeta;
-	  double eta1 = (*p)->momentum().eta();
-	  double eta2;
-	  double deltaR;
-	  //HepLorentzVector momentum1 = (*p)->momentum();
-	  //HepLorentzVector totmomentum;
-	  double tot_x= 0.;
-	  double tot_y= 0.;
-	  double tot_z= 0.;
-	  double tot_e= 0.;
-	  double invmass =0.;
-	  int charge1 = 0;
-	  int combcharge = 0;
-	  while(!accepted && i<typeApassed.size()) {
-	    if((*p) != typeApassed[i]) {
-	      tot_x=(*p)->momentum().px();
-	      tot_y=(*p)->momentum().py();
-	      tot_z=(*p)->momentum().pz();
-	      tot_e=(*p)->momentum().e();
-	      charge1 = charge((*p)->pdg_id());
-	      //totmomentum = momentum1 + typeApassed[i]->momentum();
-	      //invmass = totmomentum.m();
-	      tot_x += typeApassed[i]->momentum().px();
-	      tot_y += typeApassed[i]->momentum().py();
-	      tot_z += typeApassed[i]->momentum().pz();
-	      tot_e += typeApassed[i]->momentum().e();
-	      invmass=sqrt(tot_e*tot_e-tot_x*tot_x-tot_y*tot_y-tot_z*tot_z);
-	      combcharge = charge1 * charge(typeApassed[i]->pdg_id());
-	      if(invmass > minInvMass && invmass < maxInvMass) {
-		phi2 = typeApassed[i]->momentum().phi();
-		deltaphi = fabs(phi1-phi2);
-		if(deltaphi > pi) deltaphi = 2.*pi-deltaphi;
-		if(deltaphi > minDeltaPhi && deltaphi < maxDeltaPhi) {
-		  eta2 = typeApassed[i]->momentum().eta();
-		  deltaeta=fabs(eta1-eta2);
-		  deltaR = sqrt(deltaeta*deltaeta+deltaphi*deltaphi);
-		  if(deltaR > minDeltaR && deltaR < maxDeltaR) {
-		    if(combcharge*particleCharge>=0) {
-		      accepted = true;
-		    }
-		  }
-		}
-	      }
-	    }
-	    i++;
-	  }
-	  // if we found a matching pair quit the loop
-	  if(accepted) break;
-	  else {
-	    typeBpassed.push_back(*p);   // else remember the particle to have passed type B conditions
-	  }
-	}
-      }
-    }
-    
-    delete myGenEvent; 
-    
-    if (accepted){ return true; } else {return false;}
+	   }
+	   i++;
+	 }	  
+	 // if we found a matching pair quit the loop
+	 if(accepted) break;
+	 else{
+	   typeApassed.push_back(*p);   // else remember the particle to have passed type A conditions
+	 }
+       }
+     }
+     
+     // check for type B conditions
+     
+     bool gottypeBID = false;
+     for(unsigned int j=0; j<particleID2.size(); ++j) {
+       if(abs((*p)->pdg_id()) == abs(particleID2[j]) || particleID2[j] == 0) {
+	 gottypeBID = true;
+	 break;
+       }
+     }
+     if(gottypeBID) {
+       if ( (*p)->momentum().perp() > ptMin[1] && (*p)->momentum().rho() > pMin[1] && (*p)->momentum().eta() > etaMin[1] 
+	    && (*p)->momentum().eta() < etaMax[1] && ((*p)->status() == status[1] || status[1] == 0)) { 
+	 // passed B type conditions ...
+	 // ... now check pair-conditions with A type passed particles vector
+	 unsigned int i=0;
+	 double deltaphi;
+	 double phi1 = (*p)->momentum().phi();
+	 double phi2;
+	 double deltaeta;
+	 double eta1 = (*p)->momentum().eta();
+	 double eta2;
+	 double deltaR;
+	 //HepLorentzVector momentum1 = (*p)->momentum();
+	 //HepLorentzVector totmomentum;
+	 double tot_x= 0.;
+	 double tot_y= 0.;
+	 double tot_z= 0.;
+	 double tot_e= 0.;
+	 double invmass =0.;
+	 int charge1 = 0;
+	 int combcharge = 0;
+	 while(!accepted && i<typeApassed.size()) {
+	   if((*p) != typeApassed[i]) {
+	     tot_x=(*p)->momentum().px();
+	     tot_y=(*p)->momentum().py();
+	     tot_z=(*p)->momentum().pz();
+	     tot_e=(*p)->momentum().e();
+	     charge1 = charge((*p)->pdg_id());
+	     //totmomentum = momentum1 + typeApassed[i]->momentum();
+	     //invmass = totmomentum.m();
+	     tot_x += typeApassed[i]->momentum().px();
+	     tot_y += typeApassed[i]->momentum().py();
+	     tot_z += typeApassed[i]->momentum().pz();
+	     tot_e += typeApassed[i]->momentum().e();
+	     invmass=sqrt(tot_e*tot_e-tot_x*tot_x-tot_y*tot_y-tot_z*tot_z);
+	     combcharge = charge1 * charge(typeApassed[i]->pdg_id());
+	     if(invmass > minInvMass && invmass < maxInvMass) {
+	       phi2 = typeApassed[i]->momentum().phi();
+	       deltaphi = fabs(phi1-phi2);
+	       if(deltaphi > pi) deltaphi = 2.*pi-deltaphi;
+	       if(deltaphi > minDeltaPhi && deltaphi < maxDeltaPhi) {
+		 eta2 = typeApassed[i]->momentum().eta();
+		 deltaeta=fabs(eta1-eta2);
+		 deltaR = sqrt(deltaeta*deltaeta+deltaphi*deltaphi);
+		 if(deltaR > minDeltaR && deltaR < maxDeltaR) {
+		   if(combcharge*particleCharge>=0) {
+		     accepted = true;
+		   }
+		 }
+	       }
+	     }
+	   }
+	   i++;
+	 }
+	 // if we found a matching pair quit the loop
+	 if(accepted) break;
+	 else {
+	   typeBpassed.push_back(*p);   // else remember the particle to have passed type B conditions
+	 }
+       }
+     }
+   }
+   
+   if (accepted){ return true; } else {return false;}
     
 }
 

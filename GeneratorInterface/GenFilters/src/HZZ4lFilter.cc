@@ -13,7 +13,7 @@
 //
 // Original Author:  Puljak Ivica
 //         Created:  Wed Apr 18 12:52:31 CEST 2007
-// $Id: HZZ4lFilter.cc,v 1.4 2009/02/17 13:57:44 saout Exp $
+// $Id: HZZ4lFilter.cc,v 1.5 2009/12/15 10:29:32 fabiocos Exp $
 //
 //
 
@@ -69,7 +69,7 @@ HZZ4lFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle< HepMCProduct > evt;
    iEvent.getByLabel(label_, evt);
    
-   HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evt->GetEvent()));
+   const HepMC::GenEvent * myGenEvent = evt->GetEvent();
    
    for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();   p != myGenEvent->particles_end(); ++p ) {
     

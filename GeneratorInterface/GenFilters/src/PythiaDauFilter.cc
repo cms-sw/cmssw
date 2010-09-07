@@ -48,82 +48,78 @@ bool PythiaDauFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle<HepMCProduct> evt;
    iEvent.getByLabel(label_, evt);
 
-    HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evt->GetEvent()));
+   const HepMC::GenEvent * myGenEvent = evt->GetEvent();
     
-    
-    for ( HepMC::GenEvent::particle_iterator p = myGenEvent->particles_begin();
-	  p != myGenEvent->particles_end(); ++p ) {
-		  	  
-        if( (*p)->pdg_id() != particleID ) continue ;
-	int ndauac = 0;
-	int ndau = 0;     
-	if ( (*p)->end_vertex() ) {	
-	      for ( HepMC::GenVertex::particle_iterator 
+   
+   for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
+	 p != myGenEvent->particles_end(); ++p ) {
+     
+     if( (*p)->pdg_id() != particleID ) continue ;
+     int ndauac = 0;
+     int ndau = 0;     
+     if ( (*p)->end_vertex() ) {	
+       for ( HepMC::GenVertex::particle_iterator 
 	       des=(*p)->end_vertex()->particles_begin(HepMC::children);
-	       des != (*p)->end_vertex()->particles_end(HepMC::children);
-	       ++des ) {
-	       ++ndau;       
-	        for( unsigned int i=0; i<dauIDs.size(); ++i) {
-	         if( (*des)->pdg_id() != dauIDs[i] ) continue ;
-	          if(   (*des)->momentum().perp() >  minptcut  &&
-	                (*des)->momentum().perp() <  maxptcut  &&
-	                (*des)->momentum().eta()  >  minetacut && 
-		        (*des)->momentum().eta()  <  maxetacut ) {
-		         ++ndauac;
-			 break;
-		  } 
-	        }	       		     
-	      }
-	}  
-	if( ndau ==  ndaughters && ndauac == ndaughters ) {
-	 accepted = true;
-	 break;
-	}    
-
-    }
- 
+	     des != (*p)->end_vertex()->particles_end(HepMC::children);
+	     ++des ) {
+	 ++ndau;       
+	 for( unsigned int i=0; i<dauIDs.size(); ++i) {
+	   if( (*des)->pdg_id() != dauIDs[i] ) continue ;
+	   if(   (*des)->momentum().perp() >  minptcut  &&
+		 (*des)->momentum().perp() <  maxptcut  &&
+		 (*des)->momentum().eta()  >  minetacut && 
+		 (*des)->momentum().eta()  <  maxetacut ) {
+	     ++ndauac;
+	     break;
+	   } 
+	 }	       		     
+       }
+     }  
+     if( ndau ==  ndaughters && ndauac == ndaughters ) {
+       accepted = true;
+       break;
+     }    
+     
+   }
+   
+   
+   if( !accepted && chargeconju ) {
+     
+     for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
+	   p != myGenEvent->particles_end(); ++p ) {
        
-    if( !accepted && chargeconju ) {
-    
-     for ( HepMC::GenEvent::particle_iterator p = myGenEvent->particles_begin();
-	  p != myGenEvent->particles_end(); ++p ) {
-	  
-        if( (*p)->pdg_id() != -particleID ) continue ;
-	int ndauac = 0;
-	int ndau = 0;     
-	if ( (*p)->end_vertex() ) {
-	      for ( HepMC::GenVertex::particle_iterator 
-	       des=(*p)->end_vertex()->particles_begin(HepMC::children);
+       if( (*p)->pdg_id() != -particleID ) continue ;
+       int ndauac = 0;
+       int ndau = 0;     
+       if ( (*p)->end_vertex() ) {
+	 for ( HepMC::GenVertex::particle_iterator 
+		 des=(*p)->end_vertex()->particles_begin(HepMC::children);
 	       des != (*p)->end_vertex()->particles_end(HepMC::children);
 	       ++des ) {
-	       ++ndau;
-	        for( unsigned int i=0; i<dauIDs.size(); ++i) {
-		 int IDanti = -dauIDs[i];
-		 int pythiaCode = PYCOMP(dauIDs[i]);
-		 int has_antipart = pydat2.kchg[3-1][pythiaCode-1];
-		 if( has_antipart == 0 ) IDanti = dauIDs[i];
-	         if( (*des)->pdg_id() != IDanti ) continue ;
-	          if(   (*des)->momentum().perp() >  minptcut  &&
-	                (*des)->momentum().perp() <  maxptcut  &&
-	                (*des)->momentum().eta()  >  minetacut && 
-		        (*des)->momentum().eta()  <  maxetacut ) {
-		         ++ndauac;
-			 break;
-		  } 
-	        }	       		     
-	      }
-	}
-	if( ndau ==  ndaughters && ndauac == ndaughters ) {
+	   ++ndau;
+	   for( unsigned int i=0; i<dauIDs.size(); ++i) {
+	     int IDanti = -dauIDs[i];
+	     int pythiaCode = PYCOMP(dauIDs[i]);
+	     int has_antipart = pydat2.kchg[3-1][pythiaCode-1];
+	     if( has_antipart == 0 ) IDanti = dauIDs[i];
+	     if( (*des)->pdg_id() != IDanti ) continue ;
+	     if(   (*des)->momentum().perp() >  minptcut  &&
+		   (*des)->momentum().perp() <  maxptcut  &&
+		   (*des)->momentum().eta()  >  minetacut && 
+		   (*des)->momentum().eta()  <  maxetacut ) {
+	       ++ndauac;
+	       break;
+	     } 
+	   }	       		     
+	 }
+       }
+       if( ndau ==  ndaughters && ndauac == ndaughters ) {
 	 accepted = true;
 	 break;
-	}    
-      }
-                
-    }    
-
-
-    delete myGenEvent; 
-
+       }    
+     }
+     
+   }    
 
    if (accepted){
    return true; } else {return false;}

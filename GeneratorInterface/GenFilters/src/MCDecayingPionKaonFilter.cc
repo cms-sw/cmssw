@@ -118,10 +118,10 @@ bool MCDecayingPionKaonFilter::filter(edm::Event& iEvent, const edm::EventSetup&
    Handle<HepMCProduct> evt;
    iEvent.getByLabel(label_, evt);
 
-    HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evt->GetEvent()));
+   const HepMC::GenEvent * myGenEvent = evt->GetEvent();
      
    
-    for ( HepMC::GenEvent::particle_iterator p = myGenEvent->particles_begin();
+    for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
 	  p != myGenEvent->particles_end(); ++p ) {
 
     

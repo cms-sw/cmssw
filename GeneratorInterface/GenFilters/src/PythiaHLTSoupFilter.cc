@@ -44,43 +44,37 @@ bool PythiaHLTSoupFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
    Handle<HepMCProduct> evt;
    iEvent.getByLabel(label_, evt);
 
-    HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evt->GetEvent()));
+   const HepMC::GenEvent * myGenEvent = evt->GetEvent();
     
-    if(myGenEvent->signal_process_id() == 2) {
-    
-    for ( HepMC::GenEvent::particle_iterator p = myGenEvent->particles_begin();
-	  p != myGenEvent->particles_end(); ++p ) {
+   if(myGenEvent->signal_process_id() == 2) {
+     
+     for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
+	   p != myGenEvent->particles_end(); ++p ) {
 	  
- 
-	if ( abs((*p)->pdg_id()) == 11 
-	     && (*p)->momentum().perp() > minptelectron
-	     && abs((*p)->momentum().eta()) < maxetaelectron
-	     && (*p)->status() == 1 ) { accepted = true; }
-
-           
-	     
-	if ( abs((*p)->pdg_id()) == 13 
-	     && (*p)->momentum().perp() > minptmuon
-	     && abs((*p)->momentum().eta()) < maxetamuon
-	     && (*p)->status() == 1 ) { accepted = true; }
-	     
-	 
-	 if ( abs((*p)->pdg_id()) == 15 
-	     && (*p)->momentum().perp() > minpttau
-	     && abs((*p)->momentum().eta()) < maxetatau
-	     && (*p)->status() == 3 ) { accepted = true; }         
-	     
-	  
-      }
-
+       
+       if ( abs((*p)->pdg_id()) == 11 
+	    && (*p)->momentum().perp() > minptelectron
+	    && abs((*p)->momentum().eta()) < maxetaelectron
+	    && (*p)->status() == 1 ) { accepted = true; }
+       
+       
+       
+       if ( abs((*p)->pdg_id()) == 13 
+	    && (*p)->momentum().perp() > minptmuon
+	    && abs((*p)->momentum().eta()) < maxetamuon
+	    && (*p)->status() == 1 ) { accepted = true; }
+       
+       
+       if ( abs((*p)->pdg_id()) == 15 
+	    && (*p)->momentum().perp() > minpttau
+	    && abs((*p)->momentum().eta()) < maxetatau
+	    && (*p)->status() == 3 ) { accepted = true; }         
+     }
+     
     } else { accepted = true; }
-
-
-    delete myGenEvent; 
-
-
+   
    if (accepted){
-   return true; } else {return false;}
+     return true; } else {return false;}
 
 }
 

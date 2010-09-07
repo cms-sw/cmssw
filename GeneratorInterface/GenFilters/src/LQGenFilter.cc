@@ -41,9 +41,9 @@ LQGenFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<edm::HepMCProduct> evt;
   iEvent.getByLabel(src_, evt);
 
-  HepMC::GenEvent* myGenEvent = new  HepMC::GenEvent(*(evt->GetEvent()));
+  const HepMC::GenEvent* myGenEvent = evt->GetEvent();
        
-  for ( HepMC::GenEvent::particle_iterator p = myGenEvent->particles_begin();
+  for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
         p != myGenEvent->particles_end(); ++p ) {
                          
     if( abs((*p)->pdg_id()) != 42 ) continue; // skip if not a leptoquark
