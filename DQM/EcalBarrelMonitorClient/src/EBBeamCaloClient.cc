@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2010/08/08 08:46:02 $
- * $Revision: 1.96 $
+ * $Date: 2010/08/30 13:14:07 $
+ * $Revision: 1.97 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -12,6 +12,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <cmath>
 #include <math.h>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
