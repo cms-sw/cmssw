@@ -54,7 +54,7 @@ public:
 
 
   // constructor from Vec3
-  Basic3DVector(mathSSE::Vec3<T> const& iv) : v(iv){}
+  Basic3DVector(mathSSE::Vec4<T> const& iv) : v(iv){}
 
   /// construct from cartesian coordinates
   Basic3DVector( const T& x, const T& y, const T& z) : 
