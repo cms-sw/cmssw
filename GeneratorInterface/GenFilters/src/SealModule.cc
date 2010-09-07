@@ -36,6 +36,7 @@
 #include "GeneratorInterface/GenFilters/interface/LQGenFilter.h"
 #include "GeneratorInterface/GenFilters/interface/XtoFFbarFilter.h"
 #include "GeneratorInterface/GenFilters/interface/HerwigMaxPtPartonFilter.h"
+#include "GeneratorInterface/GenFilters/interface/TwoVBGenFilter.h"
 
 
   using cms::BHFilter;
@@ -75,3 +76,7 @@
   DEFINE_FWK_MODULE(PythiaFilterTTBar);
   DEFINE_FWK_MODULE(XtoFFbarFilter);
   DEFINE_FWK_MODULE(HerwigMaxPtPartonFilter);
+  DEFINE_FWK_MODULE(TwoVBGenFilter);
+
+
+
