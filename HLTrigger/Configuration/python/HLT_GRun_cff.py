@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_8_1/GRun/V4 (CMSSW_3_8_1_HLT4)
+# /dev/CMSSW_3_8_1/GRun/V5 (CMSSW_3_8_1_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/GRun/V4')
+  tableName = cms.string('/dev/CMSSW_3_8_1/GRun/V5')
 )
 
 streams = cms.PSet( 
@@ -27,11 +27,11 @@ streams = cms.PSet(
     'Mu',
     'Electron',
     'MinimumBias',
+    'HcalHPDNoise',
     'BTau',
     'JetMETTauMonitor',
     'Jet',
     'METFwd',
-    'HcalHPDNoise',
     'HcalNZS' ),
   DQM = cms.vstring( 'OnlineMonitor' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
@@ -151,6 +151,8 @@ datasets = cms.PSet(
     'HLT_L1Tech_BSC_minBias',
     'HLT_StoppedHSCP',
     'HLT_PixelTracks_Multiplicity100' ),
+  HcalHPDNoise = cms.vstring( 'HLT_TechTrigHCALNoise',
+    'HLT_GlobalRunHPDNoise' ),
   BTau = cms.vstring( 'HLT_BTagMu_Jet20U',
     'HLT_BTagMu_Jet10U',
     'HLT_DoubleIsoTau15_Trk5',
@@ -184,8 +186,6 @@ datasets = cms.PSet(
     'HLT_DoubleJet25U_ForwardBackward',
     'HLT_DoubleJet15U_ForwardBackward',
     'HLT_MET65' ),
-  HcalHPDNoise = cms.vstring( 'HLT_TechTrigHCALNoise',
-    'HLT_GlobalRunHPDNoise' ),
   HcalNZS = cms.vstring( 'HLT_HcalNZS',
     'HLT_HcalPhiSym' ),
   OnlineMonitor = cms.vstring( 'HLT_Activity_CSC',
@@ -10770,7 +10770,7 @@ hltL1sGlobalRunHPDNoise = cms.EDFilter( "HLTLevel1GTSeed",
     L1NrBxInEvent = cms.int32( 3 ),
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet10U_NotBptxC" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet10U_NotBptxOR" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),

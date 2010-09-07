@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_8_1/GRun/V4
+# /dev/CMSSW_3_8_1/GRun/V5
 
 import FWCore.ParameterSet.Config as cms
 
@@ -139,6 +139,13 @@ streamA_datasetMinimumBias_selector.triggerConditions = cms.vstring('HLT_L1_BPTX
     'HLT_StoppedHSCP', 
     'HLT_PixelTracks_Multiplicity100')
 
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHcalHPDNoise_selector
+streamA_datasetHcalHPDNoise_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetHcalHPDNoise_selector.l1tResults = cms.InputTag('')
+streamA_datasetHcalHPDNoise_selector.throw      = cms.bool(False)
+streamA_datasetHcalHPDNoise_selector.triggerConditions = cms.vstring('HLT_TechTrigHCALNoise', 
+    'HLT_GlobalRunHPDNoise')
+
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetBTau_selector
 streamA_datasetBTau_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetBTau_selector.l1tResults = cms.InputTag('')
@@ -191,13 +198,6 @@ streamA_datasetMETFwd_selector.triggerConditions = cms.vstring('HLT_MET100',
     'HLT_DoubleJet25U_ForwardBackward', 
     'HLT_DoubleJet15U_ForwardBackward', 
     'HLT_MET65')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHcalHPDNoise_selector
-streamA_datasetHcalHPDNoise_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetHcalHPDNoise_selector.l1tResults = cms.InputTag('')
-streamA_datasetHcalHPDNoise_selector.throw      = cms.bool(False)
-streamA_datasetHcalHPDNoise_selector.triggerConditions = cms.vstring('HLT_TechTrigHCALNoise', 
-    'HLT_GlobalRunHPDNoise')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHcalNZS_selector
 streamA_datasetHcalNZS_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
