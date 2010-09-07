@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.217 $"
+__version__ = "$Revision: 1.218 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -69,11 +69,14 @@ class ConfigBuilder(object):
 
         # what steps are provided by this class?
         stepList = [re.sub(r'^prepare_', '', methodName) for methodName in ConfigBuilder.__dict__ if methodName.startswith('prepare_')]
-
+	print "TEST",stepList
 	self.stepMap={}
+	print "TEST",self._options.step.split(",")
 	for step in self._options.step.split(","):
+		if step=='': continue
 		stepParts = step.split(":")
 		stepName = stepParts[0]
+		print "TEST",stepParts,stepName
 		if stepName not in stepList:
 			raise ValueError("Step "+stepName+" unknown")
 		if len(stepParts)==1:
@@ -1034,7 +1037,7 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.217 $"),
+              (version=cms.untracked.string("$Revision: 1.218 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
