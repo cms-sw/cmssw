@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DViewBase.cc,v 1.8 2010/08/30 15:42:33 amraktad Exp $
+// $Id: FW3DViewBase.cc,v 1.9 2010/09/06 13:37:14 yana Exp $
 //
 #include <boost/bind.hpp>
 
@@ -48,7 +48,7 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId):
    m_showTrackerBarrel(this, "Show Tracker Barrel", false ),
    m_showTrackerEndcap(this, "Show Tracker Endcap", false),
    m_showWireFrame(this, "Show Wire Frame", true),
-   m_geomTransparency(this,"Detector Transparency", 95l, 0l, 100l)
+   m_geomTransparency(this,"Detector Transparency", 85l, 0l, 100l)
 {
    viewerGL()->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
    FWViewEnergyScale* caloScale = new FWViewEnergyScale();

@@ -417,8 +417,26 @@
     <config name="Show Logo" version="0">
       <string>0</string>
     </config>
+    <config name="Smooth points" version="0">
+      <string>0</string>
+    </config>
+    <config name="Point size" version="0">
+      <string>1</string>
+    </config>
+    <config name="Smooth lines" version="0">
+      <string>0</string>
+    </config>
     <config name="Line width" version="0">
       <string>1</string>
+    </config>
+    <config name="Outline width scale" version="0">
+      <string>1</string>
+    </config>
+    <config name="Wireframe width scale" version="0">
+      <string>1</string>
+    </config>
+    <config name="Show Camera Guide" version="0">
+      <string>0</string>
     </config>
     <config name="Calo compression" version="0">
       <string>1</string>
@@ -514,35 +532,59 @@
       <string>1</string>
     </config>
    </config>
-   <config name="Lego" version="2">
+   <config name="Lego" version="4">
     <config name="Overlay Event Info" version="0">
       <string>0</string>
     </config>
     <config name="Show Logo" version="0">
       <string>0</string>
     </config>
+    <config name="Smooth points" version="0">
+      <string>0</string>
+    </config>
+    <config name="Point size" version="0">
+      <string>1</string>
+    </config>
+    <config name="Smooth lines" version="0">
+      <string>0</string>
+    </config>
     <config name="Line width" version="0">
       <string>1</string>
+    </config>
+    <config name="Outline width scale" version="0">
+      <string>1</string>
+    </config>
+    <config name="Wireframe width scale" version="0">
+      <string>1</string>
+    </config>
+    <config name="Show Camera Guide" version="0">
+      <string>0</string>
     </config>
     <config name="Plot Et" version="0">
       <string>1</string>
     </config>
-    <config name="Auto rebin on zoom" version="0">
+    <config name="Auto rebin on zoom-out" version="0">
       <string>1</string>
     </config>
     <config name="Pixels per bin" version="0">
       <string>10</string>
     </config>
-    <config name="pixel font size in 2D)" version="0">
-      <string>40</string>
+    <config name="Fix energy scale" version="0">
+      <string>0</string>
     </config>
-    <config name="Show scales" version="0">
-      <string>1</string>
-    </config>
-    <config name="Lego scale GeV)" version="0">
+    <config name="Fixed maximum energy (GeV)" version="0">
       <string>100</string>
     </config>
-    <config name="Lego auto scale" version="0">
+    <config name="ProjectionMode" version="0">
+      <string>0</string>
+    </config>
+    <config name="Cell2DMode" version="0">
+      <string>1</string>
+    </config>
+    <config name="Draw Cell2D threshold (pixels)" version="0">
+      <string>40</string>
+    </config>
+    <config name="Overlay in top view" version="0">
       <string>1</string>
     </config>
     <config name="EventInfoTextSize" version="0">
@@ -625,8 +667,26 @@
     <config name="Show Logo" version="0">
       <string>0</string>
     </config>
+    <config name="Smooth points" version="0">
+      <string>0</string>
+    </config>
+    <config name="Point size" version="0">
+      <string>1</string>
+    </config>
+    <config name="Smooth lines" version="0">
+      <string>0</string>
+    </config>
     <config name="Line width" version="0">
       <string>1</string>
+    </config>
+    <config name="Outline width scale" version="0">
+      <string>1</string>
+    </config>
+    <config name="Wireframe width scale" version="0">
+      <string>1</string>
+    </config>
+    <config name="Show Camera Guide" version="0">
+      <string>0</string>
     </config>
     <config name="Calo compression" version="0">
       <string>1</string>
@@ -723,8 +783,26 @@
     <config name="Show Logo" version="0">
       <string>0</string>
     </config>
+    <config name="Smooth points" version="0">
+      <string>0</string>
+    </config>
+    <config name="Point size" version="0">
+      <string>1</string>
+    </config>
+    <config name="Smooth lines" version="0">
+      <string>0</string>
+    </config>
     <config name="Line width" version="0">
       <string>1</string>
+    </config>
+    <config name="Outline width scale" version="0">
+      <string>1</string>
+    </config>
+    <config name="Wireframe width scale" version="0">
+      <string>1</string>
+    </config>
+    <config name="Show Camera Guide" version="0">
+      <string>0</string>
     </config>
     <config name="Show Muon Barrel" version="0">
       <string>0</string>
@@ -748,7 +826,7 @@
       <string>1</string>
     </config>
     <config name="Detector Transparency" version="0">
-      <string>95</string>
+      <string>85</string>
     </config>
     <config name="Calo scale (GeV/meter)" version="0">
       <string>2</string>
