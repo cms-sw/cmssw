@@ -49,6 +49,7 @@
 #include "TClass.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "TTreeCache.h"
 #include "Rtypes.h"
 #include <algorithm>
 #include <map>
@@ -206,14 +207,25 @@ namespace edm {
         throw Exception(errors::FileReadError) << "Could not find tree " << poolNames::parameterSetsTreeName()
         << " in the input file.\n";
       }
+      psetTree->SetCacheSize(input::defaultNonEventCacheSize);
+      std::auto_ptr<TTreeCache> treeCache(dynamic_cast<TTreeCache*>(filePtr_->GetCacheRead()));
       typedef std::pair<ParameterSetID, ParameterSetBlob> IdToBlobs;
       IdToBlobs idToBlob;
       IdToBlobs* pIdToBlob = &idToBlob;
       psetTree->SetBranchAddress(poolNames::idToParameterSetBlobsBranchName().c_str(), &pIdToBlob);
+      if (0 != treeCache.get()) {
+        treeCache->SetEntryRange(0, psetTree->GetEntries());
+        treeCache->AddBranch("*");
+        treeCache->StopLearningPhase();
+      }
       for(Long64_t i = 0; i != psetTree->GetEntries(); ++i) {
         psetTree->GetEntry(i);
         psetMap.insert(idToBlob);
       }
+      // We own the treeCache_.
+      // We make sure the treeCache_ is detatched from the file,
+      // so that ROOT does not also delete it.
+      filePtr->SetCacheRead(0);
     }
 
     // backward compatibility
