@@ -227,41 +227,41 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       
       // Loop over all oh jets, select events where both pT of a pair are above threshold and in HF+ and HF-
       for (int i=0;i<NrecoJetCal;i++) {
-				if(recoJetCalPt[i]/0.7 > 15.0 && recoJetCalEta[i] > 3.0 && recoJetCalEta[i] < 5.1) {  // Jet pT/eta cut
-					++rc1;
-				}
-				if(recoJetCalPt[i]/0.7 > 15.0 && recoJetCalEta[i] > -5.1 && recoJetCalEta[i] < -3.0) {  // Jet pT/eta cut
-					++rc2;
-				}
-			}
-			if (rc1!=0 && rc2!=0) rc=1;
-			if(rc > 0)
-				{
-					if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
-				}
-		}
+	if(recoJetCalPt[i]/0.7 > 15.0 && recoJetCalEta[i] > 3.0 && recoJetCalEta[i] < 5.1) {  // Jet pT/eta cut
+	  ++rc1;
+	}
+	if(recoJetCalPt[i]/0.7 > 15.0 && recoJetCalEta[i] > -5.1 && recoJetCalEta[i] < -3.0) {  // Jet pT/eta cut
+	  ++rc2;
+	}
+      }
+      if (rc1!=0 && rc2!=0) rc=1;
+      if(rc > 0)
+	{
+	  if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+	}
+    }
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleJet20U_ForwardBackward") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       int rc = 0;
       int rc1 = 0;
       int rc2 = 0;
-
+      
       // Loop over all oh jets, select events where both pT of a pair are above threshold and in HF+ and HF-
       for (int i=0;i<NrecoJetCal;i++) {
-				if(recoJetCalPt[i]/0.7 > 20.0 && recoJetCalEta[i] > 3.0 && recoJetCalEta[i] < 5.1) {  // Jet pT/eta cut
-					++rc1;
-				}
-				if(recoJetCalPt[i]/0.7 > 20.0 && recoJetCalEta[i] > -5.1 && recoJetCalEta[i] < -3.0) {  // Jet pT/eta cut
-					++rc2;
-				}
-			}
-			if (rc1!=0 && rc2!=0) rc=1;
-			if(rc > 0)
-				{
-					if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
-				}
-		}
+	if(recoJetCalPt[i]/0.7 > 20.0 && recoJetCalEta[i] > 3.0 && recoJetCalEta[i] < 5.1) {  // Jet pT/eta cut
+	  ++rc1;
+	}
+	if(recoJetCalPt[i]/0.7 > 20.0 && recoJetCalEta[i] > -5.1 && recoJetCalEta[i] < -3.0) {  // Jet pT/eta cut
+	  ++rc2;
+	}
+      }
+      if (rc1!=0 && rc2!=0) rc=1;
+      if(rc > 0)
+	{
+	  if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+	}
+    }
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleJet25U_ForwardBackward") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
@@ -271,44 +271,26 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
 
       // Loop over all oh jets, select events where both pT of a pair are above threshold and in HF+ and HF-
       for (int i=0;i<NrecoJetCal;i++) {
-				if(recoJetCalPt[i]/0.7 > 25.0 && recoJetCalEta[i] > 3.0 && recoJetCalEta[i] < 5.1) {  // Jet pT/eta cut
-					++rc1;
-				}
-				if(recoJetCalPt[i]/0.7 > 25.0 && recoJetCalEta[i] > -5.1 && recoJetCalEta[i] < -3.0) {  // Jet pT/eta cut
-					++rc2;
-				}
-			}
-			if (rc1!=0 && rc2!=0) rc=1;
-			if(rc > 0)
-				{
-					if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
-				}
-		}
+	if(recoJetCalPt[i]/0.7 > 25.0 && recoJetCalEta[i] > 3.0 && recoJetCalEta[i] < 5.1) {  // Jet pT/eta cut
+	  ++rc1;
+	}
+	if(recoJetCalPt[i]/0.7 > 25.0 && recoJetCalEta[i] > -5.1 && recoJetCalEta[i] < -3.0) {  // Jet pT/eta cut
+	  ++rc2;
+	}
+      }
+      if (rc1!=0 && rc2!=0) rc=1;
+      if(rc > 0)
+	{
+	  if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+	}
+    }
   }
-	//Corrected jets
+  //Corrected jets
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleJet15_ForwardBackward") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       int rc = 0;
-      int rc1 = 0;
-      int rc2 = 0;
       
       // Loop over all oh jets, select events where both pT of a pair are above threshold and in HF+ and HF-
-<<<<<<< OHltTreeOpen.cpp
-      for (int i=0;i<NrecoJetCorCal;i++) {
-				if(recoJetCorCalPt[i] > 15.0 && recoJetCorCalEta[i] > 3.0 && recoJetCorCalEta[i] < 5.1) {  // Jet pT/eta cut
-					++rc1;
-				}
-				if(recoJetCorCalPt[i] > 15.0 && recoJetCorCalEta[i] > -5.1 && recoJetCorCalEta[i] < -3.0) {  // Jet pT/eta cut
-					++rc2;
-				}
-			}
-			if (rc1!=0 && rc2!=0) rc=1;
-			if(rc > 0)
-				{
-					if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
-				}
-		}
-=======
       for (int i=0;i<NrecoJetCal;i++) {
 	if(((recoJetCalPt[i]/0.7) > 15.0) && (recoJetCalEta[i] > 3.0) && (recoJetCalEta[i] < 5.1)) {  // Jet pT/eta cut
 	  for (int j=0;j<NrecoJetCal && j!=i;j++) {
@@ -330,7 +312,6 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
 	  if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
 	}
     }
->>>>>>> 1.88
   }
 /* DiJetAve */
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve15") == 0) {   
@@ -384,7 +365,6 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }    
     }    
   }
-<<<<<<< OHltTreeOpen.cpp
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_QuadJet20U") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
       if(OpenHltQuadJetPassed(20.)>=1) {
@@ -399,7 +379,6 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }
     }
   }
-=======
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_QuadJet40U") == 0) { 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
       if(OpenHltQuadJetPassed(40.)>=1) {     
@@ -414,7 +393,6 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }     
     }     
   } 
->>>>>>> 1.88
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_FwdJet40") == 0) {       
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if(OpenHltFwdCorJetPassed(40.)>=1) {       
@@ -2289,7 +2267,27 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       } 
     }  
   }
-  
+
+  /* Templates for new cross-triggers, Sept. 2010 */
+
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_MET45") == 0){
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {
+      if(recoMetCal > 45.) {
+        if(OpenHlt1MuonPassed(3.,4.,5.,2.,0)>=1)
+          if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+      }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_Jet70") == 0){
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {
+      if(OpenHlt1JetPassed(70.)>=1) {
+        if(OpenHlt1MuonPassed(3.,4.,5.,2.,0)>=1)
+          if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+      }
+    }
+  }
+
+
   /* Cross Triggers (approved in Jan 2009) */
 
   // SGL - lepton+jet cross-triggers. These are for 1E31, so the *corrected* 
