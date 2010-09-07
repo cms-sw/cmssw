@@ -20,7 +20,9 @@ setenv outFileName  QCD_Pt_80_120
 endif
 
 setenv confName  PhotonValidator
-setenv MYWORKDIR /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_3_9_0_pre2/src/Validation/RecoEgamma/test
+#setenv confName  PhotonValidatorFastSim
+
+setenv MYWORKDIR /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_3_9_0_pre3/src/Validation/RecoEgamma/test
 
 echo ${MYWORKDIR}
 
@@ -29,6 +31,7 @@ setenv MYOUT ${MYWORKDIR}
 cd ${MYWORKDIR}
 eval `scramv1 runtime -csh`
 cp ${MYWORKDIR}/${confName}_${sample}.py    ${WORKDIR}/conf.py
+#cp ${MYWORKDIR}/${confName}.py    ${WORKDIR}/conf.py
 
 
 #
@@ -38,6 +41,7 @@ echo ${WORKDIR}
 cmsRun  conf.py > & ${outFileName}.log
 #---------------------------------------------------------------
  rfcp   ${outFileName}.log             ${MYOUT}/.
- rfcp   PhotonValidationRelVal390pre2_${outFileName}.root            ${MYOUT}/.
+ rfcp   PhotonValidationRelVal390pre3_${outFileName}.root            ${MYOUT}/.
+# rfcp   PhotonValidationRelVal390pre3_${outFileName}_FastSim.root            ${MYOUT}/.
 
 
