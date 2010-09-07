@@ -199,7 +199,18 @@ def main():
         insertupdateValidationData(session,result)
     if options.action=='dump':
         result=getValidationData(session,options.runnumber)
-        print result
+        runs=result.keys()
+        #runs.sort()
+        for run in runs:
+            perrunstr=str(run)+': '
+            for idx,perrundata in enumerate(result[run]):
+                if idx!=0:
+                    perrunstr+=','
+                if options.runnumber:
+                    perrunstr+=str(perrundata[0])+' '+perrundata[1]+' '+perrundata[2]
+                else:
+                    perrunstr+=str(perrundata[0])
+            print perrunstr
     del session
     del svc
 if __name__ == '__main__':
