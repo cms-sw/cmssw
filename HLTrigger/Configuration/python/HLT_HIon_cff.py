@@ -1,80 +1,82 @@
-# /dev/CMSSW_3_9_0/pre3/HIon/V1 (CMSSW_3_8_1_ZOLTAN1)
+# /dev/CMSSW_3_8_1/HIon/V2 (CMSSW_3_8_1_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_9_0/pre3/HIon/V1')
+  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V2')
 )
 
 streams = cms.PSet( 
-  Offline = cms.vstring(  ),
-  RPCMON = cms.vstring( 'RPCMonitor' ),
+  NanoDST = cms.vstring( 'L1Accept' ),
   OnlineErrors = cms.vstring( 'LogMonitor',
     'FEDMonitor' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
-  Calibration = cms.vstring( 'TestEnables' ),
-  HLTDQMResults = cms.vstring(  ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
-  DQM = cms.vstring( 'OnlineMonitor' ),
-  EventDisplay = cms.vstring( 'EventDisplay' ),
+  RPCMON = cms.vstring( 'RPCMonitor' ),
+  Calibration = cms.vstring( 'TestEnables' ),
+  HLTDQMResults = cms.vstring( 'OnlineHltResults' ),
   Express = cms.vstring( 'ExpressPhysics' ),
-  A = cms.vstring( 'EG',
-    'EGMonitor',
-    'MinimumBias',
-    'JetMET',
-    'JetMETTauMonitor',
-    'HcalHPDNoise',
-    'RandomTriggers',
-    'HcalNZS',
-    'Cosmics',
-    'Commissioning',
-    'Mu',
+  A = cms.vstring( 'Commissioning',
     'MuOnia',
     'MuMonitor',
-    'BTau' ),
+    'EGMonitor',
+    'Photon',
+    'Cosmics',
+    'Mu',
+    'Electron',
+    'MinimumBias',
+    'BTau',
+    'JetMETTauMonitor',
+    'Jet',
+    'METFwd',
+    'HcalHPDNoise',
+    'HcalNZS' ),
+  DQM = cms.vstring( 'OnlineMonitor' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
   HLTDQM = cms.vstring( 'OnlineHltMonitor' )
 )
 datasets = cms.PSet( 
-  RPCMonitor = cms.vstring(  ),
+  L1Accept = cms.vstring( 'HLTriggerFinalPath' ),
   LogMonitor = cms.vstring(  ),
   FEDMonitor = cms.vstring(  ),
   EcalLaser = cms.vstring(  ),
   AlCaP0 = cms.vstring(  ),
-  TestEnables = cms.vstring(  ),
   AlCaPhiSymEcal = cms.vstring(  ),
-  OnlineMonitor = cms.vstring( 'HLT_L1DoubleMuOpen',
-    'HLT_L1Tech_HCAL_HF',
-    'HLT_L1Tech_BSC_minBias',
-    'HLT_ZeroBiasPixel_SingleTrack' ),
-  EventDisplay = cms.vstring(  ),
+  RPCMonitor = cms.vstring(  ),
+  TestEnables = cms.vstring(  ),
+  OnlineHltResults = cms.vstring(  ),
   ExpressPhysics = cms.vstring(  ),
-  EG = cms.vstring(  ),
+  Commissioning = cms.vstring(  ),
+  MuOnia = cms.vstring(  ),
+  MuMonitor = cms.vstring( 'HLT_L1DoubleMuOpen' ),
   EGMonitor = cms.vstring(  ),
+  Photon = cms.vstring(  ),
+  Cosmics = cms.vstring(  ),
+  Mu = cms.vstring(  ),
+  Electron = cms.vstring(  ),
   MinimumBias = cms.vstring( 'HLT_L1Tech_HCAL_HF',
     'HLT_ZeroBiasPixel_SingleTrack',
     'HLT_L1Tech_BSC_minBias' ),
-  JetMET = cms.vstring(  ),
-  JetMETTauMonitor = cms.vstring(  ),
-  HcalHPDNoise = cms.vstring(  ),
-  RandomTriggers = cms.vstring(  ),
-  HcalNZS = cms.vstring(  ),
-  Cosmics = cms.vstring(  ),
-  Commissioning = cms.vstring(  ),
-  Mu = cms.vstring(  ),
-  MuOnia = cms.vstring(  ),
-  MuMonitor = cms.vstring( 'HLT_L1DoubleMuOpen' ),
   BTau = cms.vstring(  ),
+  JetMETTauMonitor = cms.vstring(  ),
+  Jet = cms.vstring(  ),
+  METFwd = cms.vstring(  ),
+  HcalHPDNoise = cms.vstring(  ),
+  HcalNZS = cms.vstring(  ),
+  OnlineMonitor = cms.vstring( 'HLT_L1DoubleMuOpen',
+    'HLT_L1Tech_BSC_minBias',
+    'HLT_L1Tech_HCAL_HF',
+    'HLT_ZeroBiasPixel_SingleTrack' ),
   OfflineMonitor = cms.vstring( 'HLT_L1DoubleMuOpen',
+    'HLT_L1Tech_BSC_minBias',
     'HLT_L1Tech_HCAL_HF',
-    'HLT_ZeroBiasPixel_SingleTrack',
-    'HLT_L1Tech_BSC_minBias' ),
-  OnlineHltMonitor = cms.vstring( 'HLT_ZeroBiasPixel_SingleTrack',
-    'HLT_L1DoubleMuOpen',
+    'HLT_ZeroBiasPixel_SingleTrack' ),
+  OnlineHltMonitor = cms.vstring( 'HLT_L1DoubleMuOpen',
+    'HLT_L1Tech_BSC_minBias',
     'HLT_L1Tech_HCAL_HF',
-    'HLT_L1Tech_BSC_minBias' )
+    'HLT_ZeroBiasPixel_SingleTrack' )
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
@@ -1108,16 +1110,6 @@ hltL1extraParticles = cms.EDProducer( "L1ExtraParticlesProd",
     centralBxOnly = cms.bool( True ),
     ignoreHtMiss = cms.bool( False )
 )
-hltBPTXCoincidence = cms.EDFilter( "HLTLevel1Activity",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    daqPartitions = cms.uint32( 1 ),
-    ignoreL1Mask = cms.bool( True ),
-    invert = cms.bool( False ),
-    physicsLoBits = cms.uint64( 0x1 ),
-    physicsHiBits = cms.uint64( 0x40000 ),
-    technicalBits = cms.uint64( 0x0 ),
-    bunchCrossings = cms.vint32( 0, -1, 1 )
-)
 hltScalersRawToDigi = cms.EDProducer( "ScalersRawToDigi",
     scalersInputTag = cms.InputTag( "rawDataCollector" )
 )
@@ -1134,6 +1126,16 @@ hltPreFirstPath = cms.EDFilter( "HLTPrescaler",
 )
 hltBoolFalse = cms.EDFilter( "HLTBool",
     result = cms.bool( False )
+)
+hltBPTXCoincidence = cms.EDFilter( "HLTLevel1Activity",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    daqPartitions = cms.uint32( 1 ),
+    ignoreL1Mask = cms.bool( True ),
+    invert = cms.bool( False ),
+    physicsLoBits = cms.uint64( 0x1 ),
+    physicsHiBits = cms.uint64( 0x40000 ),
+    technicalBits = cms.uint64( 0x0 ),
+    bunchCrossings = cms.vint32( 0, -1, 1 )
 )
 hltL1sL1DoubleMuOpen = cms.EDFilter( "HLTLevel1GTSeed",
     L1UseL1TriggerObjectMaps = cms.bool( True ),
@@ -1408,7 +1410,7 @@ hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     hfInput = cms.InputTag( "hltHfreco" ),
     AllowMissingInputs = cms.bool( False ),
     HcalAcceptSeverityLevel = cms.uint32( 999 ),
-    EcalAcceptSeverityLevel = cms.uint32( 1 ),
+    EcalAcceptSeverityLevel = cms.uint32( 3 ),
     UseHcalRecoveredHits = cms.bool( True ),
     UseEcalRecoveredHits = cms.bool( True ),
     EBGrid = cms.vdouble(  ),
@@ -1568,6 +1570,10 @@ hltHIPhoton15 = cms.EDFilter( "HLT1Photon",
     MaxEta = cms.double( 2.0 ),
     MinN = cms.int32( 1 )
 )
+hltFEDSelector = cms.EDProducer( "EvFFEDSelector",
+    inputTag = cms.InputTag( "rawDataCollector" ),
+    fedList = cms.vuint32( 1023 )
+)
 hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
     processName = cms.string( "@" )
 )
@@ -1576,6 +1582,9 @@ hltPreTriggerSummaryRAW = cms.EDFilter( "HLTPrescaler",
 )
 hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
     processName = cms.string( "@" )
+)
+hltBoolTrue = cms.EDFilter( "HLTBool",
+    result = cms.bool( True )
 )
 hltL1GtTrigReport = cms.EDAnalyzer( "L1GtTrigReport",
     UseL1GlobalTriggerRecord = cms.bool( False ),
@@ -1587,9 +1596,9 @@ hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
 
 HLTL1UnpackerSequence = cms.Sequence( hltGtDigis + hltGctDigis + hltL1GtObjectMap + hltL1extraParticles )
 HLTBeamSpot = cms.Sequence( hltScalersRawToDigi + hltOnlineBeamSpot + hltOfflineBeamSpot )
+HLTBeginSequence = cms.Sequence( hltTriggerType + HLTL1UnpackerSequence + HLTBeamSpot )
 HLTBeginSequenceBPTX = cms.Sequence( hltTriggerType + HLTL1UnpackerSequence + hltBPTXCoincidence + HLTBeamSpot )
 HLTEndSequence = cms.Sequence( hltBoolEnd )
-HLTBeginSequence = cms.Sequence( hltTriggerType + HLTL1UnpackerSequence + HLTBeamSpot )
 HLTDoLocalPixelSequence = cms.Sequence( hltSiPixelDigis + hltSiPixelClusters + hltSiPixelRecHits )
 HLTPixelTrackingForMinBiasSequence = cms.Sequence( hltPixelTracksForMinBias )
 HLTDoLocalHcalSequence = cms.Sequence( hltHcalDigis + hltHbhereco + hltHfreco + hltHoreco )
@@ -1597,7 +1606,7 @@ HLTDoCaloSequence = cms.Sequence( hltEcalRawToRecHitFacility + hltEcalRegionalRe
 HLTDoHIJetRecoSequence = cms.Sequence( HLTDoCaloSequence + hltIterativeCone5PileupSubtractionCaloJets )
 HLTDoHIEcalClusSequence = cms.Sequence( hltIslandBasicClustersHI + hltIslandSuperClustersHI + hltCorrectedIslandBarrelSuperClustersHI + hltCorrectedIslandEndcapSuperClustersHI + hltRecoHIEcalCandidate )
 
-HLTriggerFirstPath = cms.Path( hltGetRaw + HLTBeginSequenceBPTX + hltPreFirstPath + hltBoolFalse )
+HLTriggerFirstPath = cms.Path( hltGetRaw + HLTBeginSequence + hltPreFirstPath + hltBoolFalse )
 HLT_L1DoubleMuOpen = cms.Path( HLTBeginSequenceBPTX + hltL1sL1DoubleMuOpen + hltPreL1DoubleMuOpen + hltDoubleMuLevel1PathL1OpenFiltered + HLTEndSequence )
 HLT_ZeroBiasPixel_SingleTrack = cms.Path( HLTBeginSequence + hltL1sZeroBias + hltPreZeroBiasPixelSingleTrack + HLTDoLocalPixelSequence + HLTPixelTrackingForMinBiasSequence + hltPixelCandsForMinBias + hltMinBiasPixelFilter1 + HLTEndSequence )
 HLT_L1Tech_BSC_minBias = cms.Path( HLTBeginSequenceBPTX + hltL1sZeroBias + hltPreL1TechBSCminBias_BPTX + hltL1sL1TechBSCminBias + HLTEndSequence )
@@ -1605,7 +1614,7 @@ HLT_L1Tech_HCAL_HF = cms.Path( HLTBeginSequenceBPTX + hltL1sZeroBias + hltPreL1H
 HLT_HIMinBiasCalo = cms.Path( HLTBeginSequence + hltL1sHIMinBiasCalo + hltPreHIMinBiasCalo + HLTEndSequence )
 HLT_HIJet35U = cms.Path( HLTBeginSequence + hltHIL1sJet35U + hltHIPreJet35U + HLTDoHIJetRecoSequence + hltHI1jet35U + HLTEndSequence )
 HLT_HIPhoton15 = cms.Path( HLTBeginSequence + hltHIL1sPhoton15 + hltHIPrePhoton15 + HLTDoCaloSequence + HLTDoHIEcalClusSequence + hltHIPhoton15 + HLTEndSequence )
-HLTriggerFinalPath = cms.Path( hltTriggerSummaryAOD + hltGtDigis + hltPreTriggerSummaryRAW + hltTriggerSummaryRAW + hltBoolFalse )
+HLTriggerFinalPath = cms.Path( hltGtDigis + hltFEDSelector + hltTriggerSummaryAOD + hltPreTriggerSummaryRAW + hltTriggerSummaryRAW + hltBoolTrue )
 HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + hltTrigReport )
 
 
