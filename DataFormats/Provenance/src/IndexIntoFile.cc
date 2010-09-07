@@ -880,6 +880,8 @@ namespace edm {
     nEvents_(nEvents) {
   }
 
+   IndexIntoFile::IndexIntoFileItrImpl::~IndexIntoFileItrImpl() {}
+   
   void IndexIntoFile::IndexIntoFileItrImpl::next() {
 
     if (type_ == kEvent) {

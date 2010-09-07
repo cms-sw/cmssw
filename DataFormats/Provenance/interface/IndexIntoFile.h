@@ -482,6 +482,7 @@ namespace edm {
                              int indexToEventRange,
                              long long indexToEvent,
                              long long nEvents);
+         virtual ~IndexIntoFileItrImpl();
 
         virtual IndexIntoFileItrImpl* clone() const = 0;
 
