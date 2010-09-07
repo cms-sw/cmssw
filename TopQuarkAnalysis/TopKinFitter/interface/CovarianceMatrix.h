@@ -134,7 +134,6 @@ double CovarianceMatrix::getResolution(const pat::PATObject<ObjectType>& object,
 
   int selectedBin=-1;
   reco::LeafCandidate candidate;
-  if(!bins_->size()) throw cms::Exception("MissingResolutions") << "No resolutions given to be used for fitting!\n";
   for(unsigned int i=0; i<bins_->size(); ++i){
     StringCutObjectSelector<reco::LeafCandidate> select_(bins_->at(i));
     candidate = reco::LeafCandidate( 0, reco::LeafCandidate::LorentzVector(object.px(), object.py(), object.pz(), object.energy()) );
@@ -210,24 +209,28 @@ TMatrixD CovarianceMatrix::setupMatrix(const pat::PATObject<ObjectType>& object,
 	  break;
 	case TopKinFitter::kEtEtaPhi : 
 	  if(resolutionProvider == "bjets") {
-	    /*
-	    CovM3(0,0) = pow(jetRes.et (pt, eta, res::HelperJet::kB  ), 2); 
-	    CovM3(1,1) = pow(jetRes.eta(pt, eta, res::HelperJet::kB  ), 2); 
-	    CovM3(2,2) = pow(jetRes.phi(pt, eta, res::HelperJet::kB  ), 2);
-	    */
-	    CovM3(0,0) = pow(getResolution(object, "et" , true), 2); 
-	    CovM3(1,1) = pow(getResolution(object, "eta", true), 2); 
-	    CovM3(2,2) = pow(getResolution(object, "phi", true), 2);
+	    if(!binsB_->size()){
+	      CovM3(0,0) = pow(jetRes.et (pt, eta, res::HelperJet::kB  ), 2); 
+	      CovM3(1,1) = pow(jetRes.eta(pt, eta, res::HelperJet::kB  ), 2); 
+	      CovM3(2,2) = pow(jetRes.phi(pt, eta, res::HelperJet::kB  ), 2);
+	    }
+	    else{
+	      CovM3(0,0) = pow(getResolution(object, "et" , true), 2); 
+	      CovM3(1,1) = pow(getResolution(object, "eta", true), 2); 
+	      CovM3(2,2) = pow(getResolution(object, "phi", true), 2);
+	    }
 	  }
 	  else {
-	    /*
-	    CovM3(0,0) = pow(jetRes.et (pt, eta, res::HelperJet::kUds), 2);
-	    CovM3(1,1) = pow(jetRes.eta(pt, eta, res::HelperJet::kUds), 2);
-	    CovM3(2,2) = pow(jetRes.phi(pt, eta, res::HelperJet::kUds), 2);
-	    */
-	    CovM3(0,0) = pow(getResolution(object, "et") , 2); 
-	    CovM3(1,1) = pow(getResolution(object, "eta"), 2); 
-	    CovM3(2,2) = pow(getResolution(object, "phi"), 2);
+	    if(!binsUdsc_->size()){
+	      CovM3(0,0) = pow(jetRes.et (pt, eta, res::HelperJet::kUds), 2);
+	      CovM3(1,1) = pow(jetRes.eta(pt, eta, res::HelperJet::kUds), 2);
+	      CovM3(2,2) = pow(jetRes.phi(pt, eta, res::HelperJet::kUds), 2);
+	    }
+	    else{
+	      CovM3(0,0) = pow(getResolution(object, "et") , 2); 
+	      CovM3(1,1) = pow(getResolution(object, "eta"), 2); 
+	      CovM3(2,2) = pow(getResolution(object, "phi"), 2);
+	    }
 	  }	  
 	  CovM = &CovM3;
 	  break;
@@ -257,14 +260,16 @@ TMatrixD CovarianceMatrix::setupMatrix(const pat::PATObject<ObjectType>& object,
 	  CovM = &CovM3;
 	  break;
 	case TopKinFitter::kEtEtaPhi :
-	  /*
-	  CovM3(0,0) = pow(elecRes.et (pt, eta), 2);
-	  CovM3(1,1) = pow(elecRes.eta(pt, eta), 2); 
-	  CovM3(2,2) = pow(elecRes.phi(pt, eta), 2);
-	  */
-	  CovM3(0,0) = pow(getResolution(object, "et") , 2);
-	  CovM3(1,1) = pow(getResolution(object, "eta"), 2);
-	  CovM3(2,2) = pow(getResolution(object, "phi"), 2);
+	  if(!binsLep_->size()){
+	    CovM3(0,0) = pow(elecRes.et (pt, eta), 2);
+	    CovM3(1,1) = pow(elecRes.eta(pt, eta), 2); 
+	    CovM3(2,2) = pow(elecRes.phi(pt, eta), 2);
+	  }
+	  else{
+	    CovM3(0,0) = pow(getResolution(object, "et") , 2);
+	    CovM3(1,1) = pow(getResolution(object, "eta"), 2);
+	    CovM3(2,2) = pow(getResolution(object, "phi"), 2);
+	  }
  	  CovM = &CovM3;
 	  break;
 	case TopKinFitter::kEtThetaPhi :
@@ -286,14 +291,16 @@ TMatrixD CovarianceMatrix::setupMatrix(const pat::PATObject<ObjectType>& object,
 	  CovM = &CovM3;
 	  break;
 	case TopKinFitter::kEtEtaPhi :
-	  /*
-	  CovM3(0,0) = pow(muonRes.et (pt, eta), 2);
-	  CovM3(1,1) = pow(muonRes.eta(pt, eta), 2); 
-	  CovM3(2,2) = pow(muonRes.phi(pt, eta), 2);
-	  */
-	  CovM3(0,0) = pow(getResolution(object, "et") , 2);
-	  CovM3(1,1) = pow(getResolution(object, "eta"), 2);
-	  CovM3(2,2) = pow(getResolution(object, "phi"), 2);
+	  if(!binsLep_->size()){
+	    CovM3(0,0) = pow(muonRes.et (pt, eta), 2);
+	    CovM3(1,1) = pow(muonRes.eta(pt, eta), 2); 
+	    CovM3(2,2) = pow(muonRes.phi(pt, eta), 2);
+	  }
+	  else{
+	    CovM3(0,0) = pow(getResolution(object, "et") , 2);
+	    CovM3(1,1) = pow(getResolution(object, "eta"), 2);
+	    CovM3(2,2) = pow(getResolution(object, "phi"), 2);
+	  }
 	  CovM = &CovM3;
 	  break;
 	case TopKinFitter::kEtThetaPhi :
@@ -315,14 +322,16 @@ TMatrixD CovarianceMatrix::setupMatrix(const pat::PATObject<ObjectType>& object,
 	  CovM = &CovM3;
 	  break;
 	case TopKinFitter::kEtEtaPhi :
-	  /*
-	  CovM3(0,0) = pow(metRes.et(pt), 2);
-	  CovM3(1,1) = pow(          9999., 2);
-	  CovM3(2,2) = pow(metRes.phi(pt), 2);
-	  */
-	  CovM3(0,0) = pow(getResolution(object, "et") , 2);
-	  CovM3(1,1) = pow(getResolution(object, "eta"), 2);
-	  CovM3(2,2) = pow(getResolution(object, "phi"), 2);
+	  if(!binsMet_->size()){
+	    CovM3(0,0) = pow(metRes.et(pt) , 2);
+	    CovM3(1,1) = pow(        9999. , 2);
+	    CovM3(2,2) = pow(metRes.phi(pt), 2);
+	  }
+	  else{
+	    CovM3(0,0) = pow(getResolution(object, "et") , 2);
+	    CovM3(1,1) = pow(getResolution(object, "eta"), 2);
+	    CovM3(2,2) = pow(getResolution(object, "phi"), 2);
+	  }
 	  CovM = &CovM3;
 	  break;
 	case TopKinFitter::kEtThetaPhi :
