@@ -144,14 +144,18 @@ namespace edm {
   void
   RootTree::setEntryNumber(EntryNumber theEntryNumber) {
     filePtr_->SetCacheRead(treeCache_.get());
+    entryNumber_ = theEntryNumber;
+    tree_->LoadTree(theEntryNumber);
     if (treeCache_ && !trained_ && theEntryNumber >= 0) {
       assert(treeCache_->GetOwner() == tree_);
       treeCache_->SetLearnEntries(learningEntries_);
       treeCache_->SetEntryRange(theEntryNumber, tree_->GetEntries());
+      treeCache_->AddBranch(BranchTypeToAuxiliaryBranchName(branchType_).c_str());
+      if (branchType_ == edm::InEvent) {
+        treeCache_->AddBranch(poolNames::branchListIndexesBranchName().c_str());
+      }
       trained_ = kTRUE;
     }
-    entryNumber_ = theEntryNumber;
-    tree_->LoadTree(theEntryNumber);
     filePtr_->SetCacheRead(0);
   }
 
