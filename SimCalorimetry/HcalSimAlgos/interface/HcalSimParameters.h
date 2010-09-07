@@ -10,7 +10,7 @@ typedef std::vector<std::pair<double,double> > HcalTimeSmearSettings;
 class HcalSimParameters : public CaloSimParameters
 {
 public:
-  HcalSimParameters(double simHitToPhotoelectrons, double photoelectronsToAnalog,
+  HcalSimParameters(double simHitToPhotoelectrons, const std::vector<double> & photoelectronsToAnalog,
                  double samplingFactor, double timePhase,
                  int readoutFrameSize, int binOfMaximum,
                  bool doPhotostatistics, bool syncPhase,
@@ -22,9 +22,7 @@ public:
   void setDbService(const HcalDbService * service) {theDbService = service;}
 
   virtual double simHitToPhotoelectrons(const DetId & detId) const;
-  virtual double photoelectronsToAnalog(const DetId & detId) const {
-    return CaloSimParameters::photoelectronsToAnalog();
-  }
+  virtual double photoelectronsToAnalog(const DetId & detId) const;
 
   double fCtoGeV(const DetId & detId) const;
 
@@ -45,6 +43,7 @@ private:
   const HcalDbService * theDbService;
   int theFirstRing;
   std::vector<double> theSamplingFactors;
+  std::vector<double> thePE2fCByRing;
   int thePixels;
   bool doTimeSmear_;
   HcalTimeSmearSettings theSmearSettings;
