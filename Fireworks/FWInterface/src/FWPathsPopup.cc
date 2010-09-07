@@ -22,6 +22,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <cstring>
 
 class FWTextTreeCellRenderer : public FWTextTableCellRenderer
 {
@@ -34,6 +35,7 @@ public:
       {}
 
    virtual void setIndentation(int indentation = 0) { m_indentation = indentation; }
+   virtual UInt_t width() { return FWTextTableCellRenderer::width() + m_indentation * 2; }
    virtual void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight)
       {
          if (selected())
@@ -172,6 +174,7 @@ public:
       m_boldRenderer.setGraphicsContext(&boldGC());
       m_italicRenderer.setGraphicsContext(&italicGC());
       m_pathRenderer.setGraphicsContext(&pathGC());
+      m_pathRenderer.setHighlightContext(&pathBackgroundGC());
 
       std::cout << "Available fonts: " << std::endl;
       gClient->GetFontPool()->Print();
@@ -226,8 +229,62 @@ public:
    virtual void implSort(int, bool)
    {
       m_row_to_index.clear();
+      m_matches.resize(m_entries.size());
+
+      // First of all show all the elements that match,
+      // and all their children.
       for (size_t i = 0, e = m_entries.size(); i != e; ++i)
-         m_row_to_index.push_back(i);
+      {
+         PSetData &data = m_entries[i];
+         if (data.parent != ((size_t) -1) && m_matches[data.parent])
+         {
+            m_matches[i] = true;
+            continue;
+         } 
+
+         if (strstr(data.label.c_str(), m_filter.c_str()))
+            m_matches[i] = true;
+         else
+            m_matches[i] = false;
+      }
+
+      // Show also parents
+      std::vector<int> stack;
+      int previousLevel = 0;
+      for (size_t i = 0, e = m_entries.size(); i != e; ++i)
+      {
+         PSetData &data = m_entries[i];
+         // Top level.
+         if (data.parent == (size_t)-1)
+            continue;
+
+         // If the level is greater than the previous one,
+         // it means we are among the children of the 
+         // previous level, hence we push the parent to
+         // the stack.
+         // If the level is not greater than the previous
+         // one it means we have popped out n levels of
+         // parents, where N is the difference between the 
+         // new and the old level. In this case we
+         // pop up N parents from the stack.
+         if (data.level > previousLevel)
+            stack.push_back(data.parent);
+         else
+            for (size_t pi = 0, pe = previousLevel - data.level; pi != pe; ++pi)
+               stack.pop_back();
+         
+         if (m_matches[i])
+            for (size_t pi = 0, pe = stack.size(); pi != pe; ++pi)
+               m_matches[stack[pi]] = true;
+
+         previousLevel = data.level;
+      }  
+
+      for (size_t i = 0, e = m_entries.size(); i != e; ++i)
+      {
+         if (m_matches[i])
+            m_row_to_index.push_back(i);
+      }
    }
 
    virtual int unsortedRowNumber(int unsorted) const
@@ -236,7 +293,7 @@ public:
    }
 
    virtual int numberOfRows() const {
-      return m_entries.size();
+      return m_row_to_index.size();
    }
 
    virtual int numberOfColumns() const {
@@ -268,22 +325,37 @@ public:
       int unsortedRow =  m_row_to_index[iSortedRowNumber];
       const PSetData& data = m_entries[unsortedRow];
    
+      std::string value;
+      std::string label;
+
       if ( data.level == 0 )
+      {
+         label = data.label + "(" + data.value + ")";
+         value = "";
          renderer = &m_pathRenderer;
+      }
       else if (data.level == 1)
+      {
+         label = data.label + "(" + data.value + ")";
+         value = "";
          renderer = &m_italicRenderer;
+      }
       else 
+      {
+         value = data.value;
+         label = data.label;
          renderer = &m_renderer;
+      }
 
       renderer->setIndentation(0);
 
       if (iCol == 0)
       {
          renderer->setIndentation(data.level * 10);
-         renderer->setData(data.label, false);
+         renderer->setData(label, false);
       }
       else if (iCol == 1)
-         renderer->setData(data.value, false);
+         renderer->setData(value, false);
       else
          renderer->setData(std::string(), false);
 
@@ -410,6 +482,14 @@ public:
       data.value = ss.str();
       m_entries.push_back(data);
    }
+
+   virtual void sortWithFilter(const char *filter)
+      {
+         m_filter = filter;
+         sort(-1, true);
+         dataChanged();
+      }
+
 
    void handleEntry(const edm::Entry &entry,const std::string &key)
    {
@@ -589,10 +669,12 @@ public:
         }
       }
    }
+
+   std::vector<PSetData> &data() { return m_entries; }
     
    sigc::signal<void,int> indexSelected_;
 private:
-   void changeSelection(int iRow) 
+   void changeSelection(int iRow)
    {
       if(iRow != m_selectedRow) {
          m_selectedRow=iRow;
@@ -608,6 +690,7 @@ private:
    std::vector<PSetData>           m_entries;
    std::vector<size_t>             m_parentStack;
    std::vector<int>                m_row_to_index;
+   std::vector<bool>               m_matches;
    int                             m_selectedRow;
    std::string                     m_filter;
 
@@ -633,13 +716,19 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
    builder.indent(4)
           .addLabel("Available paths", 10)
           .spaceDown(10)
-          .addHtml(&m_modulePathsHtml)
-     .addTable(m_psTable, &m_tableWidget).expand(true, true)
+          .addLabel("Filter:").floatLeft(4).expand(false, false)
+          .addTextEntry("", &m_search).expand(true, false)
+          .spaceDown(10)
+          .addTable(m_psTable, &m_tableWidget).expand(true, true)
           .addTextEdit("", &m_textEdit)
           .addTextButton("Apply changes and reload", &m_apply);
 
    m_apply->Connect("Clicked()", "FWPathsPopup", this, "scheduleReloadEvent()");
    m_apply->SetEnabled(true);
+   m_search->SetEnabled(true);
+   m_search->Connect("TextChanged(const char *)", "FWPathsPopup",
+                     this, "updateFilterString(const char *)");
+
 
    m_tableWidget->SetBackgroundColor(0xffffff);
    m_tableWidget->SetLineSeparatorColor(0x000000);
@@ -647,6 +736,12 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
 
    MapSubwindows();
    Layout();
+}
+
+void
+FWPathsPopup::updateFilterString(const char *str)
+{
+   m_psTable->sortWithFilter(str);
 }
 
 /** Finish the setup of the GUI */
@@ -659,7 +754,7 @@ FWPathsPopup::setup(const edm::ScheduleInfo *info)
    m_info->availableModuleLabels(m_availableModuleLabels);
    m_info->availablePaths(m_availablePaths);
 
-   makePathsView();
+   // makePathsView();
 }
 
 // It would be nice if we could use some of the 

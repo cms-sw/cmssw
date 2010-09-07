@@ -26,6 +26,7 @@ class TGHtml;
 class TString;
 class FWPSetTableManager;
 class FWTableWidget;
+class TGTextEntry;
 
 class FWPathsPopup : public TGMainFrame
 {
@@ -37,6 +38,8 @@ public:
    void scheduleReloadEvent();
    bool &hasChanges() { return m_hasChanges; };
    void setup(const edm::ScheduleInfo *info);
+   void updateFilterString(const char *str);
+
 private:
    void makePathsView();
 
@@ -45,6 +48,7 @@ private:
    void handleEntry(const edm::Entry&, const std::string&, TString&);
    void handlePSetEntry(const edm::ParameterSetEntry&, const std::string&, TString&);
    void handleVPSetEntry(const edm::VParameterSetEntry&, const std::string&, TString&);
+
 
    const edm::ScheduleInfo  *m_info;
 
@@ -57,11 +61,12 @@ private:
    TGLabel                  *m_moduleName;
    
    TGHtml                   *m_modulePathsHtml;
-
+   
    TGTextEdit               *m_textEdit;
    TGTextButton             *m_apply;
    FWPSetTableManager       *m_psTable;
    FWTableWidget            *m_tableWidget;
+   TGTextEntry              *m_search;
 
    // Filled from ScheduleInfo
    std::vector<std::string> m_availableModuleLabels;
