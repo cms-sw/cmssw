@@ -1,21 +1,8 @@
-# /dev/CMSSW_3_8_1/GRun/V5
+# /dev/CMSSW_3_8_1/GRun/V6
 
 import FWCore.ParameterSet.Config as cms
 
 # dump of the Stream A Datasets defined in the HLT table
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetCommissioning_selector
-streamA_datasetCommissioning_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetCommissioning_selector.l1tResults = cms.InputTag('')
-streamA_datasetCommissioning_selector.throw      = cms.bool(False)
-streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_Activity_CSC', 
-    'HLT_L1_BptxXOR_BscMinBiasOR', 
-    'HLT_MultiVertex6', 
-    'HLT_MultiVertex8_L1ETT60', 
-    'HLT_Activity_DT', 
-    'HLT_IsoTrackHB', 
-    'HLT_IsoTrackHE', 
-    'HLT_Activity_DT_Tuned')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMuOnia_selector
 streamA_datasetMuOnia_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -46,6 +33,47 @@ streamA_datasetMuMonitor_selector.triggerConditions = cms.vstring('HLT_L1DoubleM
     'HLT_Mu0_Track0_Jpsi', 
     'HLT_Mu3_L1MuOpen', 
     'HLT_Mu5_L1MuOpen')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMu_selector
+streamA_datasetMu_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetMu_selector.l1tResults = cms.InputTag('')
+streamA_datasetMu_selector.throw      = cms.bool(False)
+streamA_datasetMu_selector.triggerConditions = cms.vstring('HLT_DoubleMu3', 
+    'HLT_Mu3', 
+    'HLT_Mu5', 
+    'HLT_Mu9', 
+    'HLT_L2Mu9', 
+    'HLT_Mu7', 
+    'HLT_L2Mu5_Photon9_L1R', 
+    'HLT_L2Mu25', 
+    'HLT_Mu11', 
+    'HLT_Mu20_NoVertex')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetBTau_selector
+streamA_datasetBTau_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetBTau_selector.l1tResults = cms.InputTag('')
+streamA_datasetBTau_selector.throw      = cms.bool(False)
+streamA_datasetBTau_selector.triggerConditions = cms.vstring('HLT_BTagMu_Jet20U', 
+    'HLT_BTagMu_Jet10U', 
+    'HLT_DoubleIsoTau15_Trk5', 
+    'HLT_SingleIsoTau20_Trk15_MET20', 
+    'HLT_SingleIsoTau20_Trk5_MET20', 
+    'HLT_SingleIsoTau30_Trk5_L120or30', 
+    'HLT_SingleIsoTau30_Trk5_MET20', 
+    'HLT_DoubleIsoTau15_OneLeg_Trk5')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetCommissioning_selector
+streamA_datasetCommissioning_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetCommissioning_selector.l1tResults = cms.InputTag('')
+streamA_datasetCommissioning_selector.throw      = cms.bool(False)
+streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_Activity_CSC', 
+    'HLT_L1_BptxXOR_BscMinBiasOR', 
+    'HLT_MultiVertex6', 
+    'HLT_MultiVertex8_L1ETT60', 
+    'HLT_Activity_DT', 
+    'HLT_IsoTrackHB', 
+    'HLT_IsoTrackHE', 
+    'HLT_Activity_DT_Tuned')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetEGMonitor_selector
 streamA_datasetEGMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -89,21 +117,6 @@ streamA_datasetCosmics_selector.triggerConditions = cms.vstring('HLT_L1MuOpen_An
     'HLT_RPCBarrelCosmics', 
     'HLT_L1Tech_BSC_halo')
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMu_selector
-streamA_datasetMu_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetMu_selector.l1tResults = cms.InputTag('')
-streamA_datasetMu_selector.throw      = cms.bool(False)
-streamA_datasetMu_selector.triggerConditions = cms.vstring('HLT_DoubleMu3', 
-    'HLT_Mu3', 
-    'HLT_Mu5', 
-    'HLT_Mu9', 
-    'HLT_L2Mu9', 
-    'HLT_Mu7', 
-    'HLT_L2Mu5_Photon9_L1R', 
-    'HLT_L2Mu25', 
-    'HLT_Mu11', 
-    'HLT_Mu20_NoVertex')
-
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetElectron_selector
 streamA_datasetElectron_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetElectron_selector.l1tResults = cms.InputTag('')
@@ -145,19 +158,6 @@ streamA_datasetHcalHPDNoise_selector.l1tResults = cms.InputTag('')
 streamA_datasetHcalHPDNoise_selector.throw      = cms.bool(False)
 streamA_datasetHcalHPDNoise_selector.triggerConditions = cms.vstring('HLT_TechTrigHCALNoise', 
     'HLT_GlobalRunHPDNoise')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetBTau_selector
-streamA_datasetBTau_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetBTau_selector.l1tResults = cms.InputTag('')
-streamA_datasetBTau_selector.throw      = cms.bool(False)
-streamA_datasetBTau_selector.triggerConditions = cms.vstring('HLT_BTagMu_Jet20U', 
-    'HLT_BTagMu_Jet10U', 
-    'HLT_DoubleIsoTau15_Trk5', 
-    'HLT_SingleIsoTau20_Trk15_MET20', 
-    'HLT_SingleIsoTau20_Trk5_MET20', 
-    'HLT_SingleIsoTau30_Trk5_L120or30', 
-    'HLT_SingleIsoTau30_Trk5_MET20', 
-    'HLT_DoubleIsoTau15_OneLeg_Trk5')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetJetMETTauMonitor_selector
 streamA_datasetJetMETTauMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')

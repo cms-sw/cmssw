@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_8_1/HIon/V5 (CMSSW_3_8_1_HLT4)
+# /dev/CMSSW_3_8_1/HIon/V6 (CMSSW_3_8_1_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V5')
+  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V6')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -22,17 +22,17 @@ process.streams = cms.PSet(
   Calibration = cms.vstring( 'TestEnables' ),
   HLTDQMResults = cms.vstring( 'OnlineHltResults' ),
   Express = cms.vstring( 'ExpressPhysics' ),
-  A = cms.vstring( 'Commissioning',
-    'MuOnia',
+  A = cms.vstring( 'MuOnia',
     'MuMonitor',
+    'Mu',
+    'BTau',
+    'Commissioning',
     'EGMonitor',
     'Photon',
     'Cosmics',
-    'Mu',
     'Electron',
     'MinimumBias',
     'HcalHPDNoise',
-    'BTau',
     'JetMETTauMonitor',
     'Jet',
     'METFwd',
@@ -52,19 +52,19 @@ process.datasets = cms.PSet(
   TestEnables = cms.vstring(  ),
   OnlineHltResults = cms.vstring(  ),
   ExpressPhysics = cms.vstring(  ),
-  Commissioning = cms.vstring(  ),
   MuOnia = cms.vstring(  ),
   MuMonitor = cms.vstring( 'HLT_L1DoubleMuOpen' ),
+  Mu = cms.vstring(  ),
+  BTau = cms.vstring(  ),
+  Commissioning = cms.vstring(  ),
   EGMonitor = cms.vstring(  ),
   Photon = cms.vstring(  ),
   Cosmics = cms.vstring(  ),
-  Mu = cms.vstring(  ),
   Electron = cms.vstring(  ),
   MinimumBias = cms.vstring( 'HLT_L1Tech_HCAL_HF',
     'HLT_ZeroBiasPixel_SingleTrack',
     'HLT_L1Tech_BSC_minBias' ),
   HcalHPDNoise = cms.vstring(  ),
-  BTau = cms.vstring(  ),
   JetMETTauMonitor = cms.vstring(  ),
   Jet = cms.vstring(  ),
   METFwd = cms.vstring(  ),
