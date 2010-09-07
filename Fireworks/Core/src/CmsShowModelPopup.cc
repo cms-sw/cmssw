@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:08 EDT 2008
-// $Id: CmsShowModelPopup.cc,v 1.27 2010/09/02 18:10:10 amraktad Exp $
+// $Id: CmsShowModelPopup.cc,v 1.28 2010/09/07 17:43:04 amraktad Exp $
 //
 
 // system include file
@@ -208,8 +208,9 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr)
             // printf("add new button %s \n ",  viewChoices[index].c_str());
             m_dialogBuilder->addTextButton("xx", &button);
             button->SetEnabled(true);
-            m_dialogBuilder->currentFrame()->MapWindow();
-            m_dialogBuilder->currentFrame()->MapSubwindows();
+            TGCompositeFrame* cf = (TGCompositeFrame*)button->GetParent();
+            cf->MapWindow();
+            cf->MapSubwindows();
             m_openDetailedViewButtons.push_back(button);
             m_adapters.push_back(new CmsShowModelPopupDetailViewButtonAdapter(this, index));
             button->Connect("Clicked()",
