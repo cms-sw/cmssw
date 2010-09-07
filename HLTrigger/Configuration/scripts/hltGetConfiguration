@@ -54,6 +54,7 @@ doCff           = False
 runOnData       = True
 runOnline       = False
 menuL1Override  = ''
+menuL1Connect   = ''
 menuGlobalTag   = ''
 menuConfigDB    = ''
 menuConfigName  = ''
@@ -97,6 +98,7 @@ def parse_options(args):
   global runOnData
   global runOnline
   global menuL1Override
+  global menuL1Connect
   global menuGlobalTag
   global menuConfigDB
   global menuConfigName
@@ -128,7 +130,11 @@ def parse_options(args):
       doCff = False
     # specify L1 menu and force L1 override
     elif opt == '--l1':
-      menuL1Override = "L1GtTriggerMenu_%s_mc" % value
+      if ':' in value:
+        menuL1Override = "L1GtTriggerMenu_%s_mc" % value.rsplit(':', 1)[1]
+        menuL1Connect  = '"%s"' % value.rsplit(':', 1)[0]
+      else:
+        menuL1Override = "L1GtTriggerMenu_%s_mc" % value
     # specify GlobalTag
     elif opt == '--globaltag':
       menuGlobalTag = value
@@ -299,6 +305,8 @@ if 'PrescaleService' in locals():
 
     # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
     if menuL1Override:
+      if not menuL1Connect:
+        menuL1Connect = "GlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T')"
       data = data + """
 # override the L1 menu (requires the GlobalTag to be defined)
 if 'GlobalTag' in locals():
@@ -306,10 +314,10 @@ if 'GlobalTag' in locals():
         cms.PSet(  
             record  = cms.string( "L1GtTriggerMenuRcd" ),
             tag     = cms.string( "%s" ),
-            connect = cms.untracked.string( GlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T') )
+            connect = cms.untracked.string( %s )
         )
     )
-""" % menuL1Override
+""" % (menuL1Override, menuL1Connect)
 
 else:
     if runOnline:
@@ -427,6 +435,8 @@ if 'GlobalTag' in process.__dict__:
 
     # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
     if menuL1Override:
+      if not menuL1Connect:
+        menuL1Connect = "process.GlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T')"
       data = data + """
 # override the L1 menu
 if 'GlobalTag' in process.__dict__:
@@ -434,10 +444,10 @@ if 'GlobalTag' in process.__dict__:
         cms.PSet(  
             record  = cms.string( "L1GtTriggerMenuRcd" ),
             tag     = cms.string( "%s" ),
-            connect = cms.untracked.string( process.GlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T') )
+            connect = cms.untracked.string( %s )
         )
     )
-""" % menuL1Override
+""" % (menuL1Override, menuL1Connect)
 
     # the following is stolen from HLTrigger.Configuration.customL1THLT_Options
     data = data + """
