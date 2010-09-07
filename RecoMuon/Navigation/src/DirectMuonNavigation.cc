@@ -2,8 +2,8 @@
 
 /** \file DirectMuonNavigation
  *
- *  $Date: 2008/10/13 23:45:29 $
- *  $Revision: 1.14 $
+ *  $Date: 2009/06/28 18:07:29 $
+ *  $Revision: 1.15 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -237,7 +237,7 @@ bool DirectMuonNavigation::checkCompatible(const FreeTrajectoryState& fts,const 
   float z = bd.position().z();
 
   float r1 = slope*(z - z0) + r0;
-  return (r1 >= inRadius-epsilon_ && r1 <= outRadius+epsilon_);
+  return (fabs(r1) >= inRadius-epsilon_ && fabs(r1) <= outRadius+epsilon_);
 
 }
 
