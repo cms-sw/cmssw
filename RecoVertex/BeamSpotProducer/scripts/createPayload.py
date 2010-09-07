@@ -221,9 +221,6 @@ if __name__ == '__main__':
                 #atime = time.strptime(line.split()[1] +  " " + line.split()[2] + " " + line.split()[3],"%Y.%m.%d %H:%M:%S %Z")
                 line = block[0]
                 atime = line.split()[1]
-                print line
-
-                print atime
                 sortedlist[atime] = block
             break
         
