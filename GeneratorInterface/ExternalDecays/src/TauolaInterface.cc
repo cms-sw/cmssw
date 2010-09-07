@@ -92,16 +92,16 @@ void TauolaInterface::init( const edm::EventSetup& es )
 
 // FIXME !!!
 // This is a temporary hack - we're re-using master generator's seed to init RANMAR
-/* FIXME !!!
-   This is now off because ranmar has been overriden (see code above) to use pyr_(...)
-   - this way we're using guaranteed initialized rndm generator... BUT !!! in the long
-   run we may want a separate random stream for tauola...
+// FIXME !!!
+//   This is now off because ranmar has been overriden (see code above) to use pyr_(...)
+//   - this way we're using guaranteed initialized rndm generator... BUT !!! in the long
+//   run we may want a separate random stream for tauola...
 
-   Service<RandomNumberGenerator> rng;
-   int seed = rng->mySeed() ;
-   int ntot=0, ntot2=0;
-   rmarin_( &seed, &ntot, &ntot2 );
-*/
+//   Service<RandomNumberGenerator> rng;
+//   int seed = rng->mySeed() ;
+//   int ntot=0, ntot2=0;
+//   rmarin_( &seed, &ntot, &ntot2 );
+
    int mode = -2;
    taurep_( &mode ) ;
    mode = -1;
@@ -259,6 +259,7 @@ void TauolaInterface::statistics()
    fPy6Service->call( tauola_srs_, &mode, &fPolarization );
    return;
 }
+
 
 /* this is the code for the new Tauola++ 
 
