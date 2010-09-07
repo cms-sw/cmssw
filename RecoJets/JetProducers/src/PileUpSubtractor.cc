@@ -210,6 +210,8 @@ void PileUpSubtractor::calculateOrphanInput(vector<fastjet::PseudoJet> & orphanI
 
   LogDebug("PileUpSubtractor")<<"The subtractor calculating orphan input...\n";
 
+  (*fjInputs_) = fjOriginalInputs_;
+
   vector<int> jettowers; // vector of towers indexed by "user_index"
   vector<pair<int,int> >  excludedTowers; // vector of excluded ieta, iphi values
 
