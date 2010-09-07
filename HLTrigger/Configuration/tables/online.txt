@@ -146,3 +146,4 @@ DQMOutput
 HLTDQMOutput
 HLTDQMResultsOutput
 HLTMONOutput
+NanoDSTOutput

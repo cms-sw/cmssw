@@ -146,5 +146,6 @@ DQMOutput
 HLTDQMOutput
 HLTDQMResultsOutput
 HLTMONOutput
+NanoDSTOutput
 HLTriggerFirstPath
 HLTAnalyzerEndpath

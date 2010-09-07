@@ -256,7 +256,9 @@ if doCff:
     menuConfigOptions['paths'].append( "-AlCaOutput" )
     menuConfigOptions['paths'].append( "-DQMOutput" )
     menuConfigOptions['paths'].append( "-HLTDQMOutput" )
+    menuConfigOptions['paths'].append( "-HLTDQMResultsOutput" )
     menuConfigOptions['paths'].append( "-HLTMONOutput" )
+    menuConfigOptions['paths'].append( "-NanoDSTOutput" )
     menuConfigOptions['paths'].append( "-OfflineOutput" )
 
     menuConfigOptions['psets'].append( "-maxEvents" )
