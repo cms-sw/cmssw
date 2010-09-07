@@ -892,6 +892,7 @@ def setupSession (connectString, siteconfpath, debug = False):
 
 
 ###==============real api=====###
+
 def allruns(schemaHandle,requireRunsummary=True,requireLumisummary=False,requireTrg=False,requireHlt=False):
     '''
     find all runs in the DB. By default requires cmsrunsummary table contain the run. The condition can be loosed in situation where db loading failed on certain data portions.
@@ -965,6 +966,40 @@ def allruns(schemaHandle,requireRunsummary=True,requireLumisummary=False,require
     runresult.sort()
     return runresult
 
+def validation(queryHandle,run=None):
+    '''retrieve validation data per run or all
+    input: runnum, if not runnum, retrive all
+    output: {run:[[cmslsnum,status,comment]]}
+    '''
+    result={}
+    queryHandle.addToTableList(nameDealer.lumivalidationTableName())
+    queryHandle.addToOutputList('RUNNUM','runnum')
+    queryHandle.addToOutputList('CMSLSNUM','cmslsnum')
+    queryHandle.addToOutputList('FLAG','flag')
+    queryHandle.addToOutputList('COMMENT','comment')
+    if run:
+        queryCondition='RUNNUM=:runnum'
+        queryBind=coral.AttributeList()
+        queryBind.extend('runnum','unsigned int')
+        queryBind['runnum'].setData(run)
+        queryHandle.setCondition(queryCondition,queryBind)
+    queryResult=coral.AttributeList()
+    queryResult.extend('runnum','unsigned int')
+    queryResult.extend('cmslsnum','unsigned int')
+    queryResult.extend('flag','string')
+    queryResult.extend('comment','string')
+    queryHandle.defineOutput(queryResult)
+    cursor=queryHandle.execute()
+    while cursor.next():
+        runnum=cursor.currentRow()['runnum'].data()
+        if not result.has_key(runnum):
+            result[runnum]=[]
+        cmslsnum=cursor.currentRow()['cmslsnum'].data()
+        flag=cursor.currentRow()['flag'].data()
+        comment=cursor.currentRow()['comment'].data()
+        result[runnum].append([cmslsnum,flag,comment])
+    return result
+    
 def allfills(queryHandle,filtercrazy=True):
     '''select distinct fillnum from cmsrunsummary
     there are crazy fill numbers. we assume they are not valid runs

@@ -6,6 +6,23 @@ import json,csv
 #import optparse
 from RecoLuminosity.LumiDB import inputFilesetParser,selectionParser,argparse,CommonUtil,dbUtil,nameDealer,lumiQueryAPI 
 
+def getValidationData(dbsession,runnum=None):
+    '''retrieve validation data per run or all
+    input: runnum, if not runnum, retrive all
+    output: {run:[[cmslsnum,flag,comment]]}
+    '''
+    try:
+        dbsession.transaction().start(True)
+        schema=dbsession.nominalSchema()
+        queryHandle=dbsession.nominalSchema().newQuery()
+        result=lumiQueryAPI.validation(queryHandle,runnum)
+        del queryHandle
+        dbsession.transaction().commit()
+    except Exception, e:
+        dbsession.transaction().rollback()
+        del dbsession
+        raise Exception, 'lumiValidate.getValidationData:'+str(e)
+    return result
 
 def insertupdateValidationData(dbsession,data):
     '''
@@ -104,7 +121,7 @@ def insertupdateValidationData(dbsession,data):
 
 def main():
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description = "Lumi Validation",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    allowedActions = ['batchupdate','update']
+    allowedActions = ['batchupdate','update','dump']
     allowedFlags = ['UNKNOWN','GOOD','BAD','SUSPECT']
     # parse arguments
     parser.add_argument('action',choices=allowedActions,help='command actions')
@@ -112,6 +129,7 @@ def main():
     parser.add_argument('-P',dest='authpath',action='store',required=True,help='path to authentication file')
     parser.add_argument('-i',dest='inputfile',action='store',help='lumi range selection file,required for batchupdate action')
     parser.add_argument('-o',dest='outputfile',action='store',help='output to csv file')
+    parser.add_argument('-r',dest='runnumber',action='store',type=int,help='run number,optional')
     parser.add_argument('-runls',dest='runls',action='store',help='selection string,optional. Example [1234:[],4569:[1,1],[2,100]]')
     parser.add_argument('-flag',dest='flag',action='store',default='UNKNOWN',help='flag string,optional')
     parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose mode for printing' )
@@ -151,6 +169,7 @@ def main():
             if not result.has_key(int(fieldrun)):
                 result[int(fieldrun)]=[]
             result[int(fieldrun)].append([int(fieldls),fieldstatus,fieldcomment])
+        insertupdateValidationData(session,result)
     if options.action=='update':
         #update flag interactively, require -runls argument
         #runls={run:[]} populate all CMSLSNUM found in LUMISUMMARY
@@ -175,7 +194,10 @@ def main():
                 result[run]=[]
             for ls in lslist:
                 result[run].append([ls,statusStr,commentStr])
-    insertupdateValidationData(session,result)
+        insertupdateValidationData(session,result)
+    if options.action=='dump':
+        result=getValidationData(session,options.runnumber)
+        print result
     del session
     del svc
 if __name__ == '__main__':
