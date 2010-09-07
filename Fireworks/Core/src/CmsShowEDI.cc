@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.38 2010/06/10 10:20:15 eulisse Exp $
+// $Id: CmsShowEDI.cc,v 1.39 2010/06/16 14:04:38 matevz Exp $
 //
 
 // system include files
@@ -71,9 +71,11 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
 
    m_selectionManager->itemSelectionChanged_.connect(boost::bind(&CmsShowEDI::fillEDIFrame,this));
 
-   FWDialogBuilder builder(this);
+   TGVerticalFrame* vf = new TGVerticalFrame(this);
+   AddFrame(vf, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY, 0, 0, 0, 0));
+   FWDialogBuilder builder(vf);
 
-   builder.indent(4)
+   builder.indent(0)
           .addLabel(" ", 14, 2, &m_objectLabel)
           .vSpacer()
           .tabs(&m_tabs)
@@ -155,8 +157,7 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
 
    SetWindowName("Collection Controller");
    MapSubwindows();
-   Resize(200, 300);
-   
+   Resize(GetDefaultSize());
    Layout();
    
    fillEDIFrame();
@@ -255,6 +256,7 @@ CmsShowEDI::fillEDIFrame() {
          m_objectLabel->SetText(s.str().c_str());
       }
    
+      Resize(GetDefaultSize());
       Layout();
    }
 }

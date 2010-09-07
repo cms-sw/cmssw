@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:08 EDT 2008
-// $Id: CmsShowModelPopup.cc,v 1.26 2010/06/16 14:04:39 matevz Exp $
+// $Id: CmsShowModelPopup.cc,v 1.27 2010/09/02 18:10:10 amraktad Exp $
 //
 
 // system include file
@@ -63,35 +63,33 @@ CmsShowModelPopup::CmsShowModelPopup(FWDetailViewManager* iManager,
                                      const TGWindow* p, UInt_t w, UInt_t h) :
    TGTransientFrame(gClient->GetDefaultRoot(),p,w,h),
    m_detailViewManager(iManager),
-   m_colorManager(iColorMgr)
+   m_colorManager(iColorMgr),
+   m_dialogBuilder(0)
 {
    m_changes = iSelMgr->selectionChanged_.connect(boost::bind(&CmsShowModelPopup::fillModelPopup, this, _1));
 
    SetCleanup(kDeepCleanup);
 
-   FWDialogBuilder builder(this);
+   TGVerticalFrame* vf = new TGVerticalFrame(this);
+   AddFrame(vf, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY, 2, 2, 2, 4));
+   m_dialogBuilder =  new FWDialogBuilder(vf);
+  
+   // Do the layouting of the various widgets.
+   m_dialogBuilder->indent(4)
+      .addLabel(" ", 14, 1, &m_modelLabel)
+      .addLabel("Color", 8)
+      .addColorPicker(iColorMgr, &m_colorSelectWidget).expand(false)
+      .addHSeparator()
+      .addLabel("Opacity", 8)
+      .addHSlider(150, &m_opacitySlider)
+      .addHSeparator(2)
+      .addCheckbox("Visible", &m_isVisibleButton)
+      .addHSeparator();
 
    // Dummy button for detail views. Can be overidden.
-   TGTextButton *detailedViewButton;
-   
-   // Do the layouting of the various widgets.
-   builder.indent(4)
-          .addLabel(" ", 14, 1, &m_modelLabel)
-          .indent(4)
-          .addLabel("Color", 8)
-          .addColorPicker(iColorMgr, &m_colorSelectWidget).expand(false)
-          .addHSeparator()
-          .addLabel("Opacity", 8)
-          .addHSlider(150, &m_opacitySlider)
-          .addHSeparator()
-          .addCheckbox("Visible", &m_isVisibleButton)
-          .addHSeparator()
-          .addTextButton("Open Detailed View", &detailedViewButton)
-          .vSpacer(15);
-
+   TGTextButton *detailedViewButton;  
+   m_dialogBuilder->addTextButton("Open Detailed View", &detailedViewButton);
    m_openDetailedViewButtons.push_back(detailedViewButton);
-   m_openDetailedViewButtons.back()->SetEnabled(kFALSE);
-
    m_adapters.push_back(new CmsShowModelPopupDetailViewButtonAdapter(this, 0));
    m_openDetailedViewButtons.back()->Connect("Clicked()","CmsShowModelPopupDetailViewButtonAdapter", m_adapters.back(), "wasClicked()");
 
@@ -101,8 +99,8 @@ CmsShowModelPopup::CmsShowModelPopup(FWDetailViewManager* iManager,
                             this, "changeModelOpacity(Int_t)");
 
    SetWindowName("Object Display Controller");
-   Resize(GetDefaultSize());
    MapSubwindows();
+   Resize(GetDefaultSize());
    Layout();
 
    fillModelPopup(*iSelMgr);
@@ -154,7 +152,7 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr)
    
    // Handle the case in which the selection is not empty.
    bool multipleNames = false, multipleColors = false, multipleVis = false,
-        multipleTransparecy = false;
+      multipleTransparecy = false;
 
    m_models = iSelMgr.selected();
    std::set<FWModelId>::const_iterator id = m_models.begin();
@@ -168,7 +166,7 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr)
    // models in [1, N] are different from the first, then we consider the
    // set with multipleXYZ.
    for (std::set<FWModelId>::const_iterator i = ++(m_models.begin()),
-                                            e = m_models.end(); i != e; ++i) 
+           e = m_models.end(); i != e; ++i) 
    {
       const FWEventItem::ModelInfo &nextInfo = i->item()->modelInfo(i->index());
       const FWDisplayProperties &nextProps = nextInfo.displayProperties();
@@ -177,7 +175,7 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr)
       multipleColors = multipleColors || (props.color() != nextProps.color());
       multipleVis = multipleVis || (props.isVisible() != nextProps.isVisible());
       multipleTransparecy = multipleTransparecy 
-                            || (props.transparency() != nextProps.transparency());
+         || (props.transparency() != nextProps.transparency());
    }
    
    // Handle the name.
@@ -194,17 +192,25 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr)
       std::vector<std::string> viewChoices = m_detailViewManager->detailViewsFor(*id);
       m_openDetailedViewButtons.front()->SetEnabled(viewChoices.size()>0);
       //be sure we show just the right number of buttons
-      if(m_openDetailedViewButtons.size()<=viewChoices.size()) 
+      if(viewChoices.size() > m_openDetailedViewButtons.size()) 
       {
-         for(size_t i = 1, e = m_openDetailedViewButtons.size(); i != e; ++i)
-            ShowFrame(m_openDetailedViewButtons[i]);
+         for(size_t i = 0, e = m_openDetailedViewButtons.size(); i != e; ++i)
+         {
+            // printf("show existing buttons\n");
+            TGCompositeFrame* cf = (TGCompositeFrame*)m_openDetailedViewButtons[i]->GetParent();
+            cf->ShowFrame(m_openDetailedViewButtons[i]);
+         }
 
-         //now we make additional buttons
+         //now we make additional buttons 
+         TGTextButton *button;
          for(size_t index = m_openDetailedViewButtons.size(); index < viewChoices.size(); ++index)
          { 
-            TGTextButton *button = new TGTextButton(this,"Open Detailed View");
+            // printf("add new button %s \n ",  viewChoices[index].c_str());
+            m_dialogBuilder->addTextButton("xx", &button);
+            button->SetEnabled(true);
+            m_dialogBuilder->currentFrame()->MapWindow();
+            m_dialogBuilder->currentFrame()->MapSubwindows();
             m_openDetailedViewButtons.push_back(button);
-            AddFrame(button);
             m_adapters.push_back(new CmsShowModelPopupDetailViewButtonAdapter(this, index));
             button->Connect("Clicked()",
                             "CmsShowModelPopupDetailViewButtonAdapter", 
@@ -213,13 +219,19 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr)
       }
       else if (!viewChoices.empty())
       {
-         for (size_t i = 1, e = viewChoices.size(); i != e; ++i)
-            ShowFrame(m_openDetailedViewButtons[i]);
+         //  printf("show button subset %d \n",  viewChoices.size());
+         for (size_t i = 0, e = viewChoices.size(); i != e; ++i)
+         {
+            TGCompositeFrame* cf = (TGCompositeFrame*)m_openDetailedViewButtons[i]->GetParent();
+            cf->ShowFrame(m_openDetailedViewButtons[i]);
+         }
       }
       
       //set the names
       for (size_t i = 0, e = viewChoices.size(); i != e; ++i)
+      {
          m_openDetailedViewButtons[i]->SetText(("Open " + viewChoices[i] + " Detail View ...").c_str());
+      }
    }
    
    // Set the various widgets.
@@ -233,6 +245,8 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr)
    
    m_modelChangedConn = item->changed_.connect(boost::bind(&CmsShowModelPopup::updateDisplay, this));
    m_destroyedConn = item->goingToBeDestroyed_.connect(boost::bind(&CmsShowModelPopup::disconnectAll, this));
+
+   Resize(GetDefaultSize());
    Layout();
 }
 
@@ -276,7 +290,12 @@ CmsShowModelPopup::disconnectAll() {
    m_openDetailedViewButtons.front()->SetText("Open Detail View ...");
    assert(!m_openDetailedViewButtons.empty());
    for(size_t i = 1, e = m_openDetailedViewButtons.size(); i != e; ++i)
-      HideFrame(m_openDetailedViewButtons[i]);
+   {
+      TGCompositeFrame* cf = (TGCompositeFrame*)m_openDetailedViewButtons[i]->GetParent();
+      cf->HideFrame(m_openDetailedViewButtons[i]);
+   }
+
+
 }
 
 /** Change the color of the selected objects.

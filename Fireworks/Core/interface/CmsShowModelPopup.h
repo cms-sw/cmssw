@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:31 EDT 2008
-// $Id: CmsShowModelPopup.h,v 1.14 2010/05/31 15:24:45 eulisse Exp $
+// $Id: CmsShowModelPopup.h,v 1.15 2010/05/31 15:44:01 eulisse Exp $
 //
 
 // system include files
@@ -41,6 +41,7 @@ class TGTextButton;
 class TGHSlider;
 class FWDetailViewManager;
 class FWSelectionManager;
+class FWDialogBuilder;
 
 class CmsShowModelPopup;
 
@@ -103,6 +104,7 @@ private:
    FWDetailViewManager* m_detailViewManager;
    const FWColorManager* m_colorManager;
    TGHSlider            *m_opacitySlider;
+   FWDialogBuilder*     m_dialogBuilder;
 };
 
 
