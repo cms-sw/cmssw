@@ -69,47 +69,11 @@ namespace statemachine {
       try {
         closeFiles();
       }
-      catch (cms::Exception& e) {
-        std::ostringstream message;
-        message << "------------------------------------------------------------\n"
-                << "Another exception was caught while trying to clean up files after\n" 
-                << "the primary exception.  We give up trying to clean up files at\n"
-                << "this point.  The description of this additional exception follows:\n" 
-                << "cms::Exception\n"
-                << e.explainSelf();
-        std::string msg(message.str());
-        ep_.setExceptionMessageFiles(msg);
-      }
-      catch (std::bad_alloc& e) {
-        std::ostringstream message;
-        message << "------------------------------------------------------------\n"
-                << "Another exception was caught while trying to clean up files\n" 
-                << "after the primary exception.  We give up trying to clean up files\n"
-                << "at this point.  This additional exception was a\n" 
-                << "std::bad_alloc exception thrown inside HandleFiles::closeFiles.\n"
-                << "The job has probably exhausted the virtual memory available\n"
-                << "to the process.\n";
-        std::string msg(message.str());
-        ep_.setExceptionMessageFiles(msg);
-      }
-      catch (std::exception& e) {
-        std::ostringstream message;
-        message << "------------------------------------------------------------\n"
-                << "Another exception was caught while trying to clean up files after\n" 
-                << "the primary exception.  We give up trying to clean up files at\n"
-                << "this point.  This additional exception was a\n" 
-                << "standard library exception thrown inside HandleFiles::closeFiles\n"
-                << e.what() << "\n";
-        std::string msg(message.str());
-        ep_.setExceptionMessageFiles(msg);
-      }
       catch (...) {
         std::ostringstream message;
         message << "------------------------------------------------------------\n"
-                << "Another exception was caught while trying to clean up files after\n" 
-                << "the primary exception.  We give up trying to clean up files at\n"
-                << "this point.  This additional exception was of unknown type and\n" 
-                << "thrown inside HandleFiles::closeFiles\n";
+                << "Another exception was caught while trying to clean up after the primary fatal exception.\n"
+                << " We give up trying to clean up at this point.\n";
         std::string msg(message.str());
         ep_.setExceptionMessageFiles(msg);
       }
