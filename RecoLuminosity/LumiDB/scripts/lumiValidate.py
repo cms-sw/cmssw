@@ -201,10 +201,14 @@ def main():
                 result[run].append([ls,statusStr,commentStr])
         insertupdateValidationData(session,result)
     if options.action=='dump':
-        if options.runls:
-            runlsjson=CommonUtil.tolegalJSON(options.runls)
-            sparser=selectionParser.selectionParser(runlsjson)
-            runsandls=sparser.runsandls()
+        if options.runls or options.inputfile:
+            if options.runls:
+                runlsjson=CommonUtil.tolegalJSON(options.runls)
+                sparser=selectionParser.selectionParser(runlsjson)
+                runsandls=sparser.runsandls()
+            if options.inputfile:
+                p=inputFilesetParser.inputFilesetParser(options.inputfile)
+                runsandls=p.runsandls()
             for runnum,lslist in runsandls.items():
                 dataperrun=getValidationData(session,run=runnum,cmsls=lslist)
                 result[runnum]=dataperrun[runnum]
