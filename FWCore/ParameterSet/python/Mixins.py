@@ -550,16 +550,10 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
         return (converter(x).value() for x in strings)
 
 def saveOrigin(obj, level):
-    frame = inspect.stack()[level+1]
-    filename = str(frame[1])
-    lineNumber = int(frame[2])
-    obj._lineNumber = lineNumber 
-    obj._filename = filename # the full name
-    try:
-        obj._shortFilename = filename.split('python/')[1] #only the part below
-    except:
-        obj._shortFilename = filename
-                                    
+    #frame = inspect.stack()[level+1]
+    frame = inspect.getframeinfo(inspect.currentframe(level+1))
+    obj._filename = frame.filename
+    obj._lineNumber = frame.lineno
 
 if __name__ == "__main__":
 
