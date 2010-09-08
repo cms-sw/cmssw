@@ -966,9 +966,9 @@ def allruns(schemaHandle,requireRunsummary=True,requireLumisummary=False,require
     runresult.sort()
     return runresult
 
-def validation(queryHandle,run=None):
+def validation(queryHandle,run=None,cmsls=None):
     '''retrieve validation data per run or all
-    input: runnum, if not runnum, retrive all
+    input: run. if not run, retrive all; if cmslsnum selection list pesent, filter out unselected result
     output: {run:[[cmslsnum,status,comment]]}
     '''
     result={}
@@ -998,7 +998,18 @@ def validation(queryHandle,run=None):
         flag=cursor.currentRow()['flag'].data()
         comment=cursor.currentRow()['comment'].data()
         result[runnum].append([cmslsnum,flag,comment])
-    return result
+    if run and cmsls and len(cmsls)!=0:
+        selectedresult={}
+        for runnum,perrundata in result.items():
+            for lsdata in perrundata:
+                if lsdata[0] not in cmsls:
+                    continue
+                if not selectedresult.has_key(runnum):
+                    selectedresult[runnum]=[]
+                selectedresult[runnum].append(lsdata)
+        return selectedresult
+    else:
+        return result
     
 def allfills(queryHandle,filtercrazy=True):
     '''select distinct fillnum from cmsrunsummary

@@ -6,7 +6,7 @@ import json,csv
 #import optparse
 from RecoLuminosity.LumiDB import inputFilesetParser,selectionParser,csvReporter,argparse,CommonUtil,dbUtil,nameDealer,lumiQueryAPI 
 
-def getValidationData(dbsession,runnum=None):
+def getValidationData(dbsession,run=None,cmsls=None):
     '''retrieve validation data per run or all
     input: runnum, if not runnum, retrive all
     output: {run:[[cmslsnum,flag,comment]]}
@@ -15,7 +15,7 @@ def getValidationData(dbsession,runnum=None):
         dbsession.transaction().start(True)
         schema=dbsession.nominalSchema()
         queryHandle=dbsession.nominalSchema().newQuery()
-        result=lumiQueryAPI.validation(queryHandle,runnum)
+        result=lumiQueryAPI.validation(queryHandle,run,cmsls)
         del queryHandle
         dbsession.transaction().commit()
     except Exception, e:
@@ -201,7 +201,15 @@ def main():
                 result[run].append([ls,statusStr,commentStr])
         insertupdateValidationData(session,result)
     if options.action=='dump':
-        result=getValidationData(session,options.runnumber)
+        if options.runls:
+            runlsjson=CommonUtil.tolegalJSON(options.runls)
+            sparser=selectionParser.selectionParser(runlsjson)
+            runsandls=sparser.runsandls()
+            for runnum,lslist in runsandls.items():
+                dataperrun=getValidationData(session,run=runnum,cmsls=lslist)
+                result[runnum]=dataperrun[runnum]
+        else:
+            result=getValidationData(session,run=options.runnumber)
         runs=result.keys()
         #runs.sort()
         if options.outputfile:
@@ -212,8 +220,9 @@ def main():
         else:
             for run in runs:
                 print '== ='
-                for perrundata in result[run]:
-                    print str(run)+','+str(perrundata[0])+','+perrundata[1]+','+perrundata[2]
+                print result[run]
+                for lsdata in result[run]:
+                    print str(run)+','+str(lsdata[0])+','+lsdata[1]+','+lsdata[2]
                 
     del session
     del svc
