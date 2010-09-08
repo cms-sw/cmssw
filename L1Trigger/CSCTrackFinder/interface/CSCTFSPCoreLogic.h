@@ -6,11 +6,7 @@
 #include <DataFormats/L1CSCTrackFinder/interface/TrackStub.h>
 #include <DataFormats/L1CSCTrackFinder/interface/L1Track.h>
 
-// different cores
-#include <L1Trigger/CSCTrackFinder/src/core_2010_01_22/vpp_generated.h>
-#include <L1Trigger/CSCTrackFinder/src/core_2010_07_28/vpp_generated.h>
-#include <L1Trigger/CSCTrackFinder/src/core_2010_09_01/vpp_generated.h>
-
+class vpp_generated;
 
 class CSCTFSPCoreLogic
 {
@@ -93,9 +89,7 @@ class CSCTFSPCoreLogic
   unsigned int GetFirmwareVersion() {return firmwareVersion; }
 
  private:
-  vpp_generated_2010_01_22 sp_2010_01_22_;
-  vpp_generated_2010_07_28 sp_2010_07_28_;
-  vpp_generated_2010_09_01 sp_2010_09_01_;
+  static vpp_generated sp_;
   std::vector<SPio> io_;
   bool runme;
   CSCTriggerContainer<csc::L1Track> mytracks;
