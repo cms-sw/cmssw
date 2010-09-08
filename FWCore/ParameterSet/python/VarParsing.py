@@ -11,8 +11,10 @@ class VarParsing (object):
 
 
     multiplicity = Enumerate ("singleton list", "multiplicity")
-    varType      = Enumerate ("int float string tagString")
+    varType      = Enumerate ("bool int float string tagString")
     commaRE      = re.compile (r',')
+    trueRE       = re.compile (r'^true$',  re.IGNORECASE)
+    falseRE      = re.compile (r'^false$', re.IGNORECASE)
 
 
     def __init__ (self, *args):
@@ -358,7 +360,7 @@ class VarParsing (object):
         if not VarParsing.varType.isValidValue (mytype):
             print "Error: VarParsing.register() must use ",\
                   "VarParsing.varType."
-            raise RuntimeError, "Improper 'type' value"
+            raise RuntimeError, "Improper 'type' value %s" % mytype
         if VarParsing.multiplicity.list == mult and \
            VarParsing.varType.tagString == mytype:
             print "Error: 'tagString' can only be used with 'singleton'"
@@ -475,6 +477,13 @@ class VarParsing (object):
     def _convert (self, name, inputVal):
         """Converts inputVal to the type required by name"""
         inputVal = str (inputVal)
+        if self._types[name] == VarParsing.varType.bool:
+            if VarParsing.trueRE.match (inputVal) or '1' == inputVal:
+                return True
+            elif VarParsing.falseRE.match (inputVal) or '0' == inputVal:
+                return False
+            # if we're still here, then we don't have 'true' or 'false'
+            raise RuntimeError, "Unknown bool value '%s'.  Must be 'true' or 'false'" % inputVal
         if self._types[name] == VarParsing.varType.string or \
            self._types[name] == VarParsing.varType.tagString:
             return inputVal
