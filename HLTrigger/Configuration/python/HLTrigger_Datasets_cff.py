@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_8_1/GRun/V7
+# /dev/CMSSW_3_8_1/GRun/V9
 
 import FWCore.ParameterSet.Config as cms
 
@@ -51,7 +51,7 @@ streamA_datasetEGMonitor_selector.triggerConditions = cms.vstring('HLT_L1SingleE
     'HLT_Activity_Ecal_SC7', 
     'HLT_DoublePhoton15_L1R', 
     'HLT_Activity_Ecal_SC17', 
-    'HLT_Photon50_L1R', 
+    'HLT_Photon50_NoHE_L1R', 
     'HLT_DoubleEle4_SW_eeRes_L1R', 
     'HLT_L1SingleEG2', 
     'HLT_DoublePhoton10_L1R', 
@@ -60,7 +60,7 @@ streamA_datasetEGMonitor_selector.triggerConditions = cms.vstring('HLT_L1SingleE
     'HLT_Ele10_SW_L1R', 
     'HLT_Ele12_SW_EleId_L1R', 
     'HLT_Ele17_SW_L1R', 
-    'HLT_Photon20_L1R')
+    'HLT_Photon20_NoHE_L1R')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetElectron_selector
 streamA_datasetElectron_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -164,7 +164,8 @@ streamA_datasetMu_selector.triggerConditions = cms.vstring('HLT_DoubleMu3',
     'HLT_L2Mu5_Photon9_L1R', 
     'HLT_L2Mu25', 
     'HLT_Mu11', 
-    'HLT_Mu20_NoVertex')
+    'HLT_Mu20_NoVertex', 
+    'HLT_IsoMu9')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMuMonitor_selector
 streamA_datasetMuMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
