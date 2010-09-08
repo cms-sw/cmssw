@@ -8,6 +8,12 @@
 
 namespace edm {
 
+  int const IndexIntoFile::invalidIndex;
+  RunNumber_t const IndexIntoFile::invalidRun;
+  LuminosityBlockNumber_t const IndexIntoFile::invalidLumi;
+  EventNumber_t const IndexIntoFile::invalidEvent;
+  IndexIntoFile::EntryNumber_t const IndexIntoFile::invalidEntry;
+
   IndexIntoFile::IndexIntoFile() : transients_(),
                                    processHistoryIDs_(),
                                    runOrLumiEntries_() {
@@ -188,9 +194,9 @@ namespace edm {
 
     if (needEventNumbers && !eventEntries().empty()) {
       assert(numberOfEvents() == eventEntries().size());
-      eventNumbers().resize(eventEntries().size());
+      eventNumbers().reserve(eventEntries().size());
       for (std::vector<EventNumber_t>::size_type entry = 0U; entry < numberOfEvents(); ++entry) {
-        eventNumbers()[entry]  = eventEntries()[entry].event();
+        eventNumbers().push_back(eventEntries()[entry].event());
       }
       return;
     }
