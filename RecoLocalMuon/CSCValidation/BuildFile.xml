@@ -14,6 +14,7 @@
 <use   name="root"/>
 <use   name="rootcore"/>
 <use   name="DataFormats/L1GlobalMuonTrigger"/>
+<use   name="EventFilter/CSCRawToDigi"/>
 <use   name="RecoMuon/TrackingTools"/>
 <flags   EDM_PLUGIN="1"/>
 <export>
