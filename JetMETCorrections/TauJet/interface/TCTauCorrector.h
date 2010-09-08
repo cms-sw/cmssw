@@ -12,10 +12,6 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 
-using namespace std;
-using namespace reco;
-using namespace edm;
-
 ///
 /// tau energy corrections from tracks and calo info
 ///
