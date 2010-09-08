@@ -10,10 +10,10 @@ import string
 
 
 ### Reference release
-RefRelease='CMSSW_3_5_4'
+RefRelease='CMSSW_3_9_0_pre2'
 
 ### Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_3_5_5'
+NewRelease='CMSSW_3_9_0_pre3'
 
 ### startup and ideal sample list
 
@@ -47,7 +47,7 @@ idealsamples= [
 ]
 
 ### the list can be empty if you want to skip the validation for all the samples
-idealsamples= []
+#idealsamples= []
 
 ### This is the list of IDEAL-conditions relvals (with PileUP
 # idealsamples= ['RelValZmumuJets_Pt_20_300_GEN']
@@ -60,11 +60,11 @@ Version='v1'
 #Version='BX2808-v1'
 
 ### Ideal and Statup tags
-IdealTag='MC_3XY_V25'
-StartupTag='START3X_V25'
+IdealTag='MC_38Y_V9'
+StartupTag='START38_V9'
 
-RefIdealTag='MC_3XY_V24'
-RefStartupTag='START3X_V24'
+RefIdealTag='MC_38Y_V9'
+RefStartupTag='START38_V9'
 ### PileUp: "PU" . No PileUp: "noPU"
 PileUp='noPU'
 #PileUp='PU'
@@ -102,12 +102,11 @@ NewSelectionLabel=''
 
 
 ### Reference and new repository
-RefRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance'
-#NewRepository = 'new' # copy output into a local folder
+RefRepository = '/afs/cern.ch/cms/Physics/tracking/validation/MC'
+NewRepository = 'new' # copy output into a local folder
 
 
 ### use the following repository only if you have AFS privileges and you know what you are doing
-NewRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance'
 
 ### for preproduction samples:
 ### RefRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance/preproduction'
@@ -116,7 +115,7 @@ NewRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/
 
 
 ### AFS location of central harvesting output. It can be used to avoid running the harvesting by yourself
-castorHarvestedFilesDirectory='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/RelVal/CMSSW_3_5_x'
+castorHarvestedFilesDirectory='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/RelVal/CMSSW_3_9_x'
 
 
 
