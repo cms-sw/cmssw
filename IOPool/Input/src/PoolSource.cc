@@ -11,6 +11,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "TTreeCache.h"
 
 #include <set>
 
@@ -53,7 +54,9 @@ namespace edm {
     rootServiceChecker_(),
     primaryFileSequence_(new RootInputFileSequence(pset, *this, catalog(), principalCache(), primary())),
     secondaryFileSequence_(catalog(1).empty() ? 0 :
-			   new RootInputFileSequence(pset, *this, catalog(1), principalCache(), false)),
+                           new RootInputFileSequence(pset, *this, catalog(1), principalCache(), false)),
+    secondaryRunPrincipal_(),
+    secondaryLumiPrincipal_(),
     secondaryEventPrincipal_(secondaryFileSequence_ ? new EventPrincipal(secondaryFileSequence_->fileProductRegistry(), processConfiguration()) : 0),
     branchIDsToReplace_(),
     numberOfEventsBeforeBigSkip_(0),
@@ -89,7 +92,7 @@ namespace edm {
         for (int i = InEvent; i < NumBranchTypes; ++i) {
           branchIDsToReplace_[i].reserve(idsToReplace[i].size());
           for (std::set<BranchID>::const_iterator it = idsToReplace[i].begin(), itEnd = idsToReplace[i].end();
-	       it != itEnd; ++it) {
+               it != itEnd; ++it) {
             branchIDsToReplace_[i].push_back(*it);
           }
         }
@@ -109,7 +112,7 @@ namespace edm {
   PoolSource::readFile_() {
     boost::shared_ptr<FileBlock> fb = primaryFileSequence_->readFile_(principalCache());
     if (secondaryFileSequence_) {
-	fb->setNotFastClonable(FileBlock::HasSecondaryFileSequence);
+      fb->setNotFastClonable(FileBlock::HasSecondaryFileSequence);
     }
     return fb;
   }
@@ -136,10 +139,10 @@ namespace edm {
       if (found) {
         boost::shared_ptr<RunAuxiliary> secondaryAuxiliary = secondaryFileSequence_->readRunAuxiliary_();
         checkConsistency(primaryPrincipal->aux(), *secondaryAuxiliary);
-	boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(secondaryAuxiliary, secondaryFileSequence_->fileProductRegistry(), processConfiguration()));
-        boost::shared_ptr<RunPrincipal> secondaryPrincipal = secondaryFileSequence_->readRun_(rp);
-        checkHistoryConsistency(*primaryPrincipal, *secondaryPrincipal);
-        primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InRun]);
+        boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(secondaryAuxiliary, secondaryFileSequence_->fileProductRegistry(), processConfiguration()));
+        secondaryRunPrincipal_ = secondaryFileSequence_->readRun_(rp);
+        checkHistoryConsistency(*primaryPrincipal, *secondaryRunPrincipal_);
+        primaryPrincipal->recombine(*secondaryRunPrincipal_, branchIDsToReplace_[InRun]);
       } else {
         throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::readRun_")
           << " Run " << primaryPrincipal->run()
@@ -158,10 +161,10 @@ namespace edm {
       if (found) {
         boost::shared_ptr<LuminosityBlockAuxiliary> secondaryAuxiliary = secondaryFileSequence_->readLuminosityBlockAuxiliary_();
         checkConsistency(primaryPrincipal->aux(), *secondaryAuxiliary);
-	boost::shared_ptr<LuminosityBlockPrincipal> lbp(new LuminosityBlockPrincipal(secondaryAuxiliary, secondaryFileSequence_->fileProductRegistry(), processConfiguration(), runPrincipal()));
-        boost::shared_ptr<LuminosityBlockPrincipal> secondaryPrincipal = secondaryFileSequence_->readLuminosityBlock_(lbp);
-        checkHistoryConsistency(*primaryPrincipal, *secondaryPrincipal);
-        primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InLumi]);
+        boost::shared_ptr<LuminosityBlockPrincipal> lbp(new LuminosityBlockPrincipal(secondaryAuxiliary, secondaryFileSequence_->fileProductRegistry(), processConfiguration(), secondaryRunPrincipal_));
+        secondaryLumiPrincipal_ = secondaryFileSequence_->readLuminosityBlock_(lbp);
+        checkHistoryConsistency(*primaryPrincipal, *secondaryLumiPrincipal_);
+        primaryPrincipal->recombine(*secondaryLumiPrincipal_, branchIDsToReplace_[InLumi]);
       } else {
         throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::readLuminosityBlock_")
           << " Run " << primaryPrincipal->run()
@@ -179,11 +182,12 @@ namespace edm {
     EventPrincipal* primaryPrincipal = primaryFileSequence_->readEvent(*eventPrincipalCache(), luminosityBlockPrincipal());
     if (secondaryFileSequence_ && !branchIDsToReplace_[InEvent].empty()) {
       bool found = secondaryFileSequence_->skipToItem(primaryPrincipal->run(),
-						      primaryPrincipal->luminosityBlock(),
-						      primaryPrincipal->id().event());
+                                                      primaryPrincipal->luminosityBlock(),
+                                                      primaryPrincipal->id().event());
       if (found) {
-        EventPrincipal* secondaryPrincipal = secondaryFileSequence_->readEvent(*secondaryEventPrincipal_, luminosityBlockPrincipal());
+        EventPrincipal* secondaryPrincipal = secondaryFileSequence_->readEvent(*secondaryEventPrincipal_, secondaryLumiPrincipal_);
         checkConsistency(*primaryPrincipal, *secondaryPrincipal);
+        checkHistoryConsistency(*primaryPrincipal, *secondaryPrincipal);
         primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InEvent]);
         secondaryEventPrincipal_->clearPrincipal();
       } else {

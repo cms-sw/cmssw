@@ -66,6 +66,8 @@ namespace edm {
     RootServiceChecker rootServiceChecker_;
     boost::scoped_ptr<RootInputFileSequence> primaryFileSequence_;
     boost::scoped_ptr<RootInputFileSequence> secondaryFileSequence_;
+    boost::shared_ptr<RunPrincipal> secondaryRunPrincipal_;
+    boost::shared_ptr<LuminosityBlockPrincipal> secondaryLumiPrincipal_;
     boost::scoped_ptr<EventPrincipal> secondaryEventPrincipal_;
     boost::array<std::vector<BranchID>, NumBranchTypes>  branchIDsToReplace_;
 
