@@ -364,7 +364,7 @@ def usePF2PAT(process, runPF2PAT=True, jetAlgo='IC5', runOnMC=True, postfix = ""
     switchToPFMET(process, cms.InputTag('pfMET'+postfix), postfix=postfix)
     
     # Unmasked PFCandidates
-    addPFCandidates(process,cms.InputTag('pfNoJet'+postfix),patLabel='PFParticles',cut="",postfix=postfix)
+    addPFCandidates(process,cms.InputTag('pfNoJet'+postfix),patLabel='PFParticles'+postfix,cut="",postfix=postfix)
 
     if runOnMC:
         process.load("PhysicsTools.PFCandProducer.genForPF2PAT_cff")
