@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2010/07/13 10:50:38 $
-//  $Revision: 1.91 $
+//  $Date: 2010/08/03 10:46:43 $
+//  $Revision: 1.92 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -157,7 +157,7 @@ MuScleFit::MuScleFit( const edm::ParameterSet& pset ) :
   edm::ParameterSet serviceParameters = pset.getParameter<edm::ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters);
 
-  if ((theMuonType_<-4 || theMuonType_>5) && theMuonType_!=10) {
+  if ((theMuonType_<-4 || theMuonType_>5) && theMuonType_<10) {
     std::cout << "[MuScleFit]: Unknown muon type! Aborting." << std::endl;
     abort();
   }
@@ -287,11 +287,11 @@ MuScleFit::MuScleFit( const edm::ParameterSet& pset ) :
   }
   MuScleFitUtils::goodmuon = 0;
 
-  if(theMuonType_ >0 &&  theMuonType_<4) {
+  if(theMuonType_ > 0 &&  theMuonType_ < 4) {
     MuScleFitUtils::MuonTypeForCheckMassWindow = theMuonType_-1;
     MuScleFitUtils::MuonType = theMuonType_-1;
   }
-  else if(theMuonType_ == 4 || theMuonType_ ==10 || theMuonType_==-1 || theMuonType_==-2 || theMuonType_==-3 || theMuonType_==-4) {
+  else if(theMuonType_ == 4 || theMuonType_ >= 10 || theMuonType_==-1 || theMuonType_==-2 || theMuonType_==-3 || theMuonType_==-4) {
     MuScleFitUtils::MuonTypeForCheckMassWindow = 2;
     MuScleFitUtils::MuonType = 2;
   }
@@ -464,11 +464,13 @@ edm::EDLooper::Status MuScleFit::endOfLoop( const edm::EventSetup& eventSetup, u
       // std::vector<std::pair<lorentzVector,lorentzVector> >::const_iterator it = MuScleFitUtils::SavedPair.begin();
       // for( ; it != SavedPair.end(); ++it ) {
       while( iev<totalEvents_ ) {
-        std::cout << "Fast looping on event number " << iev << std::endl;
-        // This reads muons from SavedPair using iev to keep track of the event
+	if( iev%1000 == 0 ) {
+	  std::cout << "Fast looping on event number " << iev << std::endl;
+	}
+	// This reads muons from SavedPair using iev to keep track of the event
         duringFastLoop();
       }
-      std::cout << "End of fast loop number " << iFastLoop << std::endl;
+      std::cout << "End of fast loop number " << iFastLoop << ". Ran on " << iev << " events" << std::endl;
       endOfFastLoop(iFastLoop);
     }
   }
@@ -682,7 +684,7 @@ void MuScleFit::selectMuons(const edm::Event & event)
     }
     muons = fillMuonCollection(tracks); 
   }
-  else if( (theMuonType_<4 && theMuonType_>0) || theMuonType_==10 ) { // Muons (glb,sta,trk)
+  else if( (theMuonType_<4 && theMuonType_>0) || theMuonType_>=10 ) { // Muons (glb,sta,trk)
     std::vector<reco::Track> tracks;
     if( PATmuons_ == true ) {
       if( theMuonType_ == 0 ) {

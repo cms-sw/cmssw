@@ -4,8 +4,8 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2010/07/13 10:50:38 $
- *  $Revision: 1.37 $
+ *  $Date: 2010/08/03 10:46:41 $
+ *  $Revision: 1.38 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -202,11 +202,16 @@ void MuScleFit::takeSelectedMuonType(const T & muon, std::vector<reco::Track> & 
   // to avoid double counting of the same muon
   if(muon->isGlobalMuon() && theMuonType_==1)
     tracks.push_back(*(muon->globalTrack()));
-  else if(muon->isGlobalMuon() && theMuonType_==10) //particular case!!
-    tracks.push_back(*(muon->innerTrack()));
   else if(muon->isStandAloneMuon() && theMuonType_==2)
     tracks.push_back(*(muon->outerTrack()));
   else if(muon->isTrackerMuon() && theMuonType_==3)
+    tracks.push_back(*(muon->innerTrack()));
+
+  else if( theMuonType_ == 10 && !(muon->isStandAloneMuon()) ) //particular case!!
+    tracks.push_back(*(muon->innerTrack()));
+  else if( theMuonType_ == 11 && muon->isGlobalMuon() )
+    tracks.push_back(*(muon->innerTrack()));
+  else if( theMuonType_ == 13 && muon->isTrackerMuon() )
     tracks.push_back(*(muon->innerTrack()));
 }
 
