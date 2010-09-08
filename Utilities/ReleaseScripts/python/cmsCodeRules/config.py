@@ -91,7 +91,7 @@ Configuration[ruleName]['description'] = 'Search for "pragma" statement in *.c, 
 Configuration[ruleName]['filesToMatch'] = ['*.h', '*.c', '*.cc', '*.cxx']
 Configuration[ruleName]['exceptPaths'] = []#could be file name, dir, fileName:line. Path should be only from that directory in which we are searching
 Configuration[ruleName]['skipComments']  = True
-Configuration[ruleName]['filter'] = '\s*pragma\s' #should be regular expression
+Configuration[ruleName]['filter'] = '#\s*pragma\s' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = []
 # --------------------------------------------------------------------------------
 # configuration for rule 5
