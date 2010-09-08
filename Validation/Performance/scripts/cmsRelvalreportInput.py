@@ -649,6 +649,8 @@ def writeCommands(simcandles,
 
             if "GEN,FASTSIM" in userSteps: # HLT/L1 menu workaround
                 stepToWrite = stepToWrite + ",HLT:GRun"
+            elif "HLT" in userSteps:
+                stepToWrite = stepToWrite.replace("HLT", "HLT:GRun")
             
             #Checking now if the current step matches the first of a composite step in userSteps
             hypMatch = filter(lambda x: "-" in x,filter(lambda x: step == x.split("-")[0],userSteps))
@@ -678,7 +680,7 @@ def writeCommands(simcandles,
             writeStepHead(simcandles,acandle,stepToWrite)
 
             #Set the output file name for Pile up and for regular case:
-            if "GEN,SIM-HLT" or "GEN,FASTSIM" in userSteps: # change to make root file output work (without colons)
+            if "GEN,SIM-HLT" or "GEN,FASTSIM" or "HLT" in userSteps: # change to make root file output work (without colons)
                 stepToWrite = stepToWrite.replace(":","_")
 
             if '--pileup' in cmsDriverOptions:
@@ -688,7 +690,7 @@ def writeCommands(simcandles,
 
             #print stepToWrite
 
-            if "GEN,SIM-HLT" or "GEN,FASTSIM "in userSteps: # change it back
+            if "GEN,SIM-HLT" or "GEN,FASTSIM" or "HLT" in userSteps: # change it back
                 stepToWrite = stepToWrite.replace("_",":")
 
             OutputFile = setOutputFileOption(acandle,outfile)
