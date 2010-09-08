@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Apr  7 14:40:47 CEST 2010
-// $Id: FW3DView.cc,v 1.44 2010/06/23 12:39:52 amraktad Exp $
+// $Id: FW3DView.cc,v 1.45 2010/08/30 15:42:33 amraktad Exp $
 //
 
 // system include files
@@ -23,6 +23,7 @@
 #include "Fireworks/Core/interface/FW3DView.h"
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWViewContext.h"
+#include "Fireworks/Core/interface/CmsShowViewPopup.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
 
 //
@@ -152,3 +153,13 @@ FW3DView::eventEnd()
 //
 // static member functions
 //
+void 
+FW3DView::populateController(ViewerParameterGUI& gui) const
+{
+
+   FW3DViewBase::populateController(gui);
+
+   gui.requestTab("Scale").
+      addParam(&m_caloFixedScale).
+      addParam(&m_caloAutoScale);
+}

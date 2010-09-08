@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.26 2010/08/30 15:32:23 matevz Exp $
+// $Id: FWEveView.cc,v 1.27 2010/08/30 15:42:33 amraktad Exp $
 //
 
 
@@ -35,6 +35,7 @@
 #include "TEveScene.h"
 
 #include "Fireworks/Core/interface/FWEveView.h"
+#include "Fireworks/Core/interface/CmsShowViewPopup.h"
 #include "Fireworks/Core/interface/FWEventAnnotation.h"
 #include "Fireworks/Core/interface/CmsAnnotation.h"
 #include "Fireworks/Core/interface/FWGLEventHandler.h"
@@ -44,6 +45,9 @@
 #include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWViewContext.h"
+#include "Fireworks/Core/src/FWDialogBuilder.h"
+
+
 
 namespace fireworks
 {
@@ -400,3 +404,19 @@ FWEveView::setFromPerspectiveCamera(TGLPerspectiveCamera* cam, const std::string
    }
 }
 
+
+void 
+FWEveView::populateController(ViewerParameterGUI& gui) const
+{
+   gui.requestTab("Style").
+         addParam(&m_eventInfoLevel).
+         addParam(&m_drawCMSLogo).
+         addParam(&m_showCameraGuide).
+         separator().
+         addParam(&m_pointSize).
+         addParam(&m_pointSmooth).
+         addParam(&m_lineSmooth).
+         addParam(&m_lineWidth).
+         addParam(&m_lineOutlineScale).
+         addParam(&m_lineWireframeScale);
+}

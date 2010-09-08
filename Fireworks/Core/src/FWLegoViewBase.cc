@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWLegoViewBase.cc,v 1.10 2010/07/26 17:59:29 amraktad Exp $
+// $Id: FWLegoViewBase.cc,v 1.11 2010/08/30 15:42:33 amraktad Exp $
 //
 
 // system include files
@@ -32,6 +32,7 @@
 #include "Fireworks/Core/interface/FWLegoViewBase.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
 #include "Fireworks/Core/interface/FWViewContext.h"
+#include "Fireworks/Core/interface/CmsShowViewPopup.h"
 
 
 //
@@ -54,10 +55,10 @@ FWLegoViewBase::FWLegoViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId
    m_pixelsPerBin(this, "Pixels per bin", 10., 1., 20.),
    m_legoAbsoluteScale (this,"Fix energy scale",false),
    m_legoMaxAbsoluteVal(this,"Fixed maximum energy (GeV)",100.,1.,1000.),
-   m_projectionMode(this, "ProjectionMode", 0l, 0l, 2l),
-   m_cell2DMode(this, "Cell2DMode", 1l, 1l, 2l),
+   m_projectionMode(this, "Projection", 0l, 0l, 2l),
+   m_cell2DMode(this, "Cell2D Style", 1l, 1l, 2l),
    m_drawValuesIn2D(this,"Draw Cell2D threshold (pixels)",40l,16l,200l),
-   m_showOverlay(this,"Overlay in top view", true)
+   m_showOverlay(this,"Draw scales", true)
 {
    FWViewEnergyScale* caloScale = new FWViewEnergyScale();
    viewContext()->addScale("Calo", caloScale);
@@ -307,5 +308,29 @@ FWLegoViewBase::eventEnd()
    FWEveView::eventEnd();
    viewContext()->getEnergyScale("Calo")->setVal(m_lego->GetValToHeight());
    viewContext()->scaleChanged();
+
+}
+
+void 
+FWLegoViewBase::populateController(ViewerParameterGUI& gui) const
+{
+   FWEveView::populateController(gui);
+
+   gui.requestTab("Style").
+      separator().
+      addParam(&m_projectionMode).
+      addParam(&m_cell2DMode).
+      addParam(&m_drawValuesIn2D);
+  
+   gui.requestTab("Scale").
+      addParam(&m_plotEt).
+      addParam(&m_showOverlay).
+      separator().
+      addParam(&m_legoAbsoluteScale).
+      addParam(&m_legoMaxAbsoluteVal);
+
+   gui.requestTab("Rebin").
+      addParam(&m_autoRebin).
+      addParam(&m_pixelsPerBin);
 
 }

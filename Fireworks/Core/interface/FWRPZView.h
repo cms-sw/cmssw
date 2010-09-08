@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRPZView.h,v 1.9 2010/05/10 19:36:46 amraktad Exp $
+// $Id: FWRPZView.h,v 1.10 2010/08/30 15:42:32 amraktad Exp $
 //
 
 // system include files
@@ -45,6 +45,7 @@ public:
    // ---------- const member functions ---------------------
 
    virtual void addTo(FWConfiguration&) const;
+   virtual void populateController(ViewerParameterGUI&) const;
 
    // ---------- member functions ---------------------------
    virtual void setContext(const fireworks::Context&);
@@ -74,8 +75,6 @@ private:
    TEveCalo2D*        m_caloEndCap2;
 
    // parameters
-   FWLongParameter    m_overlayEventInfoLevel;
-   FWBoolParameter    m_drawCMSLogo;
    FWDoubleParameter  m_caloDistortion;
    FWDoubleParameter  m_muonDistortion;
    FWBoolParameter    m_showProjectionAxes;

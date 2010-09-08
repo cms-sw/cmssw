@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWLegoViewBase.h,v 1.8 2010/06/25 15:02:47 amraktad Exp $
+// $Id: FWLegoViewBase.h,v 1.9 2010/08/30 15:42:32 amraktad Exp $
 //
 
 // system include files
@@ -52,6 +52,7 @@ public:
    // ---------- const member functions ---------------------
 
    virtual void addTo(FWConfiguration&) const;
+   virtual void populateController(ViewerParameterGUI&) const;
    virtual TEveCaloData* getCaloData(fireworks::Context&) const = 0;
 
    // ---------- member functions ---------------------------
@@ -87,7 +88,7 @@ private:
    FWDoubleParameter m_pixelsPerBin;
    FWBoolParameter   m_legoAbsoluteScale;
    FWDoubleParameter m_legoMaxAbsoluteVal;
-   FWEnumParameter   m_projectionMode;
+   FWEnumParameter   m_projectionMode; 
    FWEnumParameter   m_cell2DMode;
    FWLongParameter   m_drawValuesIn2D;
    FWBoolParameter   m_showOverlay;

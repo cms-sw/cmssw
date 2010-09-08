@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:04 EDT 2008
-// $Id: CmsShowViewPopup.cc,v 1.24 2010/06/18 10:17:14 yana Exp $
+// $Id: CmsShowViewPopup.cc,v 1.25 2010/08/09 08:04:48 eulisse Exp $
 //
 
 // system include files
@@ -17,13 +17,18 @@
 #include "TGLabel.h"
 #include "TGButton.h"
 #include "TG3DLine.h"
+#include "TGFrame.h"
+#include "TGTab.h"
+#include "TG3DLine.h"
 #include "TEveWindow.h"
 
 // user include files
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
 #include "Fireworks/Core/interface/FWViewBase.h"
 #include "Fireworks/Core/interface/FWParameterSetterBase.h"
+#include "Fireworks/Core/src/FWDialogBuilder.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
+
 
 //
 // constants, enums and typedefs
@@ -40,8 +45,7 @@ CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWColo
    TGTransientFrame(gClient->GetDefaultRoot(),p, w, h),
    m_mapped(kFALSE),
    m_viewLabel(0),
-   m_removeButton(0),
-   m_viewContentFrame(0),
+   m_paramGUI(0),
    m_saveImageButton(0),
    m_changeBackground(0),
    m_colorManager(iCMgr),
@@ -71,10 +75,9 @@ CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWColo
    viewFrame->AddFrame(m_viewLabel, new TGLayoutHints(kLHintsExpandX));
    AddFrame(viewFrame, new TGLayoutHints(kLHintsExpandX, 2, 2, 0, 0));
    // background
-   AddFrame(new TGHorizontal3DLine(this, 200, 5), new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
    m_changeBackground = new TGTextButton(this,"Change Background Color");
    backgroundColorWasChanged();
-   AddFrame(m_changeBackground);
+   AddFrame(m_changeBackground, new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
    m_changeBackground->Connect("Clicked()","CmsShowViewPopup",this,"changeBackground()");
    // save image
    m_saveImageButton= new TGTextButton(this,"Save Image ...");
@@ -82,9 +85,9 @@ CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWColo
    m_saveImageButton->Connect("Clicked()","CmsShowViewPopup",this,"saveImage()");
 
   // content frame
-   AddFrame(new TGHorizontal3DLine(this, 200, 5), new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
-   m_viewContentFrame = new TGCompositeFrame(this);
-   AddFrame(m_viewContentFrame,new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
+   AddFrame(new TGHorizontal3DLine(this), new TGLayoutHints(kLHintsExpandX, 0, 0, 5, 5));
+   m_paramGUI = new ViewerParameterGUI(this);
+   AddFrame(m_paramGUI,new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
 
    SetWindowName("View Controller");
 }
@@ -104,29 +107,14 @@ CmsShowViewPopup::reset(FWViewBase* vb, TEveWindow* ew)
    m_viewBase = vb;
    m_eveWindow = ew;
 
-   // clear content (can be better: delete subframes)
-   m_viewContentFrame->UnmapWindow();
-   RemoveFrame(m_viewContentFrame);
-   m_viewContentFrame->DestroyWindow();
-   delete m_viewContentFrame;
-   m_setters.clear();
+   m_paramGUI->reset();
 
-   m_viewContentFrame = new TGCompositeFrame(this);
-   AddFrame(m_viewContentFrame);
    // fill content
    if(m_viewBase) {
       m_saveImageButton->SetEnabled(kTRUE);
       m_viewLabel->SetText(m_viewBase->typeName().c_str());
-
-      for(FWParameterizable::const_iterator itP = m_viewBase->begin(), itPEnd = m_viewBase->end();
-          itP != itPEnd;
-          ++itP) {
-         boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor(*itP) );
-         ptr->attach(*itP, this);
-         TGFrame* pframe = ptr->build(m_viewContentFrame);
-         m_viewContentFrame->AddFrame(pframe,new TGLayoutHints(kLHintsTop));
-         m_setters.push_back(ptr);
-      }
+      m_viewBase->populateController(*m_paramGUI);
+      m_paramGUI->populateComplete();
       fMain = m_eveWindow->GetEveFrame();
    }
    else {
@@ -143,22 +131,6 @@ CmsShowViewPopup::reset(FWViewBase* vb, TEveWindow* ew)
       CenterOnParent(kTRUE, TGTransientFrame::kTopRight);
    }
 }
-
-//
-// assignment operators
-//
-// const CmsShowViewPopup& CmsShowViewPopup::operator=(const CmsShowViewPopup& rhs)
-// {
-//   //An exception safe implementation is
-//   CmsShowViewPopup temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
-
-//
-// member functions
-//
 
 void
 CmsShowViewPopup::CloseWindow()
@@ -181,10 +153,6 @@ CmsShowViewPopup::UnmapWindow()
    m_mapped = false;
 }
 
-
-//______________________________________________________________________________
-// callbacks
-//
 void
 CmsShowViewPopup::saveImage()
 {
@@ -210,10 +178,79 @@ CmsShowViewPopup::backgroundColorWasChanged()
    }
 }
 
+//==============================================================================
 
-// Const member functions
-//
+ViewerParameterGUI::ViewerParameterGUI(const TGFrame* p):
+   TGCompositeFrame(p),
+   m_tab(0)
+{
+   SetCleanup(kDeepCleanup);
+}
 
-//
-// static member functions
-//
+void
+ViewerParameterGUI::reset()
+{ 
+   m_setters.clear();
+   if (m_tab) RemoveFrame(m_tab);
+   m_tab = 0;
+}
+
+
+ViewerParameterGUI&
+ViewerParameterGUI::requestTab(const char* name)
+{
+   if (!m_tab)
+   {
+      m_tab = new TGTab(this);
+      AddFrame(m_tab,  new TGLayoutHints(kLHintsExpandX));
+   }
+
+   TGCompositeFrame* cont = 0;
+   cont = m_tab->GetTabContainer(name);
+   if (!cont)
+      cont = m_tab->AddTab(name);
+   m_tab->SetTab(name);
+   return *this;
+}
+
+/* Add parameter setter in the current tab.*/
+ViewerParameterGUI&
+ViewerParameterGUI::addParam( const FWParameterBase* param)
+{
+   boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor((FWParameterBase*)param) );
+   ptr->attach((FWParameterBase*)param, this);
+   TGCompositeFrame* parent = m_tab->GetCurrentContainer();
+
+   TGFrame* pframe = ptr->build(parent);
+   parent->AddFrame(pframe, new TGLayoutHints(kLHintsExpandX));
+   m_setters.push_back(ptr);
+
+   pframe->MapWindow();
+   pframe->MapSubwindows();
+   pframe->Layout();
+   parent->MapSubwindows();
+   parent->Layout();
+   m_tab->Layout();
+   parent->Resize(parent->GetDefaultSize());
+   return *this;
+}
+   
+
+
+/* Add separator in current tab. */
+ViewerParameterGUI&
+ViewerParameterGUI::separator()
+{
+   assert(m_tab);
+   TGHorizontal3DLine* s = new TGHorizontal3DLine(m_tab->GetCurrentContainer());
+   m_tab->GetCurrentContainer()->AddFrame(s, new TGLayoutHints(kLHintsExpandX,4 ,4, 2, 2));
+
+   return *this;
+}
+
+/* Setup after finish gui build. */
+void
+ViewerParameterGUI::populateComplete()
+{
+   if (m_tab) m_tab->SetTab(0);
+}

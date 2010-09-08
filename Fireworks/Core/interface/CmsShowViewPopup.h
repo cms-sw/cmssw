@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:12 EDT 2008
-// $Id: CmsShowViewPopup.h,v 1.15 2010/01/25 13:33:37 amraktad Exp $
+// $Id: CmsShowViewPopup.h,v 1.16 2010/03/14 18:22:59 amraktad Exp $
 //
 
 // system include files
@@ -34,15 +34,38 @@ class TGLabel;
 class TGTextButton;
 class TGButton;
 class TGFrame;
+class TGTab;
+class TGCompositeFrame;
 class TEveWindow;
 
+class FWParameterBase;
 class FWParameterSetterBase;
 class FWViewBase;
 class FWColorManager;
+class FWDialogBuilder;
 
-class CmsShowViewPopup : public TGTransientFrame, public FWParameterSetterEditorBase
+/* Helper class to organise parameters in view controller */
+class ViewerParameterGUI : public TGCompositeFrame, public FWParameterSetterEditorBase
 {
+public:
+   ViewerParameterGUI(const TGFrame*);
+   virtual ~ViewerParameterGUI(){}
 
+   ViewerParameterGUI& requestTab(const char*);
+   ViewerParameterGUI& addParam(const FWParameterBase*);
+   ViewerParameterGUI& separator();
+   void reset();
+   void populateComplete();
+
+private:
+   TGTab* m_tab;
+   std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
+}; 
+
+//==============================================================================
+
+class CmsShowViewPopup : public TGTransientFrame
+{
 public:
    CmsShowViewPopup(const TGWindow* p = 0, UInt_t w = 200, UInt_t h = 200, FWColorManager* cm=0, FWViewBase* wb=0, TEveWindow* ew = 0);
    virtual ~CmsShowViewPopup();
@@ -76,13 +99,10 @@ private:
    bool              m_mapped;
 
    TGLabel*          m_viewLabel;
-   TGTextButton*     m_removeButton;
-   TGCompositeFrame* m_viewContentFrame;
+   ViewerParameterGUI*     m_paramGUI;
    TGButton*         m_saveImageButton;
    TGTextButton*     m_changeBackground;
-   TGTextButton*    m_logo;
 
-   std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
    FWColorManager* m_colorManager;
    FWViewBase*     m_viewBase;
    TEveWindow*     m_eveWindow;

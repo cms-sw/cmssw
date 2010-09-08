@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FW3DViewBase.h,v 1.6 2010/08/30 15:42:32 amraktad Exp $
+// $Id: FW3DViewBase.h,v 1.7 2010/09/07 15:46:46 yana Exp $
 //
 
 // system include files
@@ -44,12 +44,13 @@ public:
    // ---------- const member functions ---------------------
 
    virtual void addTo(FWConfiguration&) const;
-   virtual void setFrom(const FWConfiguration&);
+   virtual void populateController(ViewerParameterGUI&) const;
 
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
    virtual void setContext(const fireworks::Context&);
+   virtual void setFrom(const FWConfiguration&);
 
    // To be fixed.
    void updateGlobalSceneScaleParameters();

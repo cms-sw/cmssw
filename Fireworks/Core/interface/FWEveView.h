@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.h,v 1.15 2010/08/30 15:42:32 amraktad Exp $
+// $Id: FWEveView.h,v 1.16 2010/09/07 15:46:46 yana Exp $
 //
 
 
@@ -39,6 +39,7 @@ class CmsAnnotation;
 class FWViewContextMenuHandlerGL;
 class FWColorManager;
 class FWViewContext;
+class ViewerParameterGUI;
 
 namespace fireworks
 {
@@ -52,11 +53,7 @@ public:
    FWEveView(TEveWindowSlot*, FWViewType::EType, unsigned int version = 2);
    virtual ~FWEveView();
 
-   virtual void addTo(FWConfiguration&) const;
    virtual void setFrom(const FWConfiguration&);
-   virtual FWViewContextMenuHandlerBase* contextMenuHandler() const;
-
-   virtual void saveImageTo(const std::string& iName) const;
    virtual void setBackgroundColor(Color_t);
    virtual void eventEnd();
    virtual void eventBegin();
@@ -66,14 +63,19 @@ public:
 
    // ---------- const member functions --------------------- 
 
-   // ---------- static member functions --------------------
+   virtual void addTo(FWConfiguration&) const;
+   virtual FWViewContextMenuHandlerBase* contextMenuHandler() const;
+   virtual void saveImageTo(const std::string& iName) const;
+   virtual void populateController(ViewerParameterGUI&) const;
    virtual const std::string& typeName() const;
-   FWViewType::EType typeId() const { return m_type.id(); }
+
+   TGLViewer*  viewerGL() const;
+   // ---------- static member functions --------------------
    
+   FWViewType::EType typeId() const { return m_type.id(); }
    TEveViewer* viewer()      { return m_viewer; }
    TEveScene*  eventScene()  { return m_eventScene;}
    TEveScene*  geoScene()    { return m_geoScene; }
-   TGLViewer*  viewerGL() const;
 
    TEveElement*   ownedProducts()  { return m_ownedProducts; }
    FWViewContext* viewContext() { return m_viewContext.get(); }

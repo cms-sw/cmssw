@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.17 2010/06/18 19:51:24 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.18 2010/08/30 15:42:33 amraktad Exp $
 //
 
 // system include files
@@ -33,6 +33,7 @@
 #include "Fireworks/Core/interface/FWViewContext.h"
 #include "Fireworks/Core/interface/FWViewContext.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
+#include "Fireworks/Core/interface/CmsShowViewPopup.h"
 
 //
 // constructors and destructor
@@ -79,9 +80,9 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
    eventScene()->AddElement(m_axes.get());
 
    if ( id == FWViewType::kRhoPhi ) {
-      m_showEndcaps = new FWBoolParameter(this,"Show calo endcaps", true);
+      m_showEndcaps = new FWBoolParameter(this,"Include EndCaps", true);
       m_showEndcaps->changed_.connect(  boost::bind(&FWRPZView::updateCaloParameters, this) );
-      m_showHF = new FWBoolParameter(this,"Show HF", true);
+      m_showHF = new FWBoolParameter(this,"Include HF", true);
       m_showHF->changed_.connect(  boost::bind(&FWRPZView::updateCaloParameters, this) );
    }
 
@@ -244,3 +245,25 @@ FWRPZView::eventEnd()
    }
 }
 
+void 
+FWRPZView::populateController(ViewerParameterGUI& gui) const
+{
+   FWEveView::populateController(gui);
+
+   gui.requestTab("Projection").
+      addParam(&m_compressMuon).
+      addParam(&m_muonDistortion).
+      addParam(&m_caloDistortion).
+      addParam(&m_showProjectionAxes);
+
+   gui.requestTab("Scale").
+      addParam(&m_caloFixedScale).
+      addParam(&m_caloAutoScale);
+
+   if (typeId() == FWViewType::kRhoPhi) 
+   {
+      gui.requestTab("Calo").
+         addParam(m_showHF).
+         addParam(m_showEndcaps);
+   }
+}

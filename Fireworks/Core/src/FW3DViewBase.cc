@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DViewBase.cc,v 1.9 2010/09/06 13:37:14 yana Exp $
+// $Id: FW3DViewBase.cc,v 1.10 2010/09/07 12:38:29 yana Exp $
 //
 #include <boost/bind.hpp>
 
@@ -25,6 +25,7 @@
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWViewContext.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
+#include "Fireworks/Core/interface/CmsShowViewPopup.h"
 
 //
 // constants, enums and typedefs
@@ -106,6 +107,21 @@ FW3DViewBase::setFrom(const FWConfiguration& iFrom)
 }
 
 
+void 
+FW3DViewBase::populateController(ViewerParameterGUI& gui) const
+{
+   FWEveView::populateController(gui);
+
+   gui.requestTab("Detector").
+      addParam(&m_showMuonBarrel).
+      addParam(&m_showMuonEndcap).
+      addParam(&m_showPixelBarrel).
+      addParam(&m_showPixelEndcap).
+      addParam(&m_showTrackerBarrel).
+      addParam(&m_showTrackerEndcap).
+      addParam(&m_showWireFrame).
+      addParam(&m_geomTransparency);
+}
 
 
 

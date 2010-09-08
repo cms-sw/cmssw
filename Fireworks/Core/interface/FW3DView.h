@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Wed Apr  7 14:41:26 CEST 2010
-// $Id: FW3DView.h,v 1.23 2010/05/03 15:47:37 amraktad Exp $
+// $Id: FW3DView.h,v 1.24 2010/08/30 15:42:32 amraktad Exp $
 //
 
 // system include files
@@ -40,6 +40,7 @@ public:
    
    // ---------- const member functions ---------------------
 
+   virtual void populateController(ViewerParameterGUI&) const;
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
