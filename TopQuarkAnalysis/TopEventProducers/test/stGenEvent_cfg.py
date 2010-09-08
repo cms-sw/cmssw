@@ -4,7 +4,7 @@ process = cms.Process("TEST")
 
 ## add message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.categories.append('TopDecaySubset')
+process.MessageLogger.categories.append('ParticleListDrawer')
 
 ## define input
 process.source = cms.Source("PoolSource",
@@ -27,9 +27,9 @@ process.options = cms.untracked.PSet(
 ## configure genEvent
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.stGenEvent_cff")
 
-## enable per-event printout of particle listings (for debugging)
-#process.decaySubset.printSource = True
-process.decaySubset.printTarget = True
+## produce printout of particle listings (for debugging)
+process.load("TopQuarkAnalysis.TopEventProducers.sequences.printGenParticles_cff")
 
 ## path1
-process.p1 = cms.Path(process.makeGenEvt)
+process.p1 = cms.Path(process.makeGenEvt *
+                      process.printDecaySubset)
