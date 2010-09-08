@@ -77,10 +77,10 @@ HLT_DoubleEle4_SW_eeRes_L1R
 HLT_DoubleEle10_SW_L1R
 HLT_Photon10_Cleaned_L1R
 HLT_Photon15_Cleaned_L1R
-HLT_Photon20_L1R
+HLT_Photon20_NoHE_L1R
 HLT_Photon20_Cleaned_L1R
 HLT_Photon30_Cleaned_L1R
-HLT_Photon50_L1R
+HLT_Photon50_NoHE_L1R
 HLT_Photon50_NoHE_Cleaned_L1R
 HLT_DoublePhoton5_L1R
 HLT_DoublePhoton5_CEP_L1R
