@@ -149,7 +149,7 @@ TopDecaySubset::checkWBosons(std::vector<const reco::GenParticle*>& tops) const
 			 " Did not find a W boson with appropriate status for any of the top   \n"
 			 " quarks in this event. This means that the hadronization of the W    \n"
 			 " boson might be screwed up or there is another problem with the      \n"
-			 " particle listing in this MC sample. Please contact an expert.         ");
+			 " particle listing in this MC sample. Please contact an expert.       \n");
 }
 
 /// fill output vector for full decay chain 
