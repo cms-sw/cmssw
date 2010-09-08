@@ -10,6 +10,7 @@ process.MessageLogger.categories.append('ParticleListDrawer')
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
     '/store/relval/CMSSW_3_8_2/RelValTTbar/GEN-SIM-RECO/MC_38Y_V9-v1/0018/E8B5D618-96AF-DF11-835A-003048679070.root'
+    #'/store/relval/CMSSW_3_8_2/RelValZEE/GEN-SIM-RECO/MC_38Y_V9-v1/0019/D85C639A-BEAF-DF11-8C04-0030486791C6.root'
     )
 )
 ## define maximal number of events to loop over
