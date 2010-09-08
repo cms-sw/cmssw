@@ -45,10 +45,8 @@ class TopDecaySubset : public edm::EDProducer {
   std::vector<const reco::GenParticle*> findTops(const reco::GenParticleCollection& parts);
   /// check the decay chain for the used shower model
   ShowerModel checkShowerModel(const std::vector<const reco::GenParticle*>& tops) const;
-  /// check the sanity of the input particle listing
-  void checkSanity(const std::vector<const reco::GenParticle*>& tops) const;
-  /// check whether the W boson is contained in the original gen particle listing
-  bool checkWBoson(const reco::GenParticle* top) const;
+  /// check whether W bosons are contained in the original gen particle listing
+  void checkWBosons(std::vector<const reco::GenParticle*>& tops) const;
   /// fill output vector for full decay chain 
   void fillListing(const std::vector<const reco::GenParticle*>& tops, reco::GenParticleCollection& target);
 

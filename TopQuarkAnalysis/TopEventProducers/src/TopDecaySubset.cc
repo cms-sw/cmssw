@@ -37,8 +37,12 @@ TopDecaySubset::produce(edm::Event& event, const edm::EventSetup& setup)
   // find top quarks in list of input particles
   std::vector<const reco::GenParticle*> tops = findTops(*src);
 
-  // determine shower model
-  if(showerModel_==kStart) showerModel_=checkShowerModel(tops);
+  // determine shower model (only in first event)
+  if(showerModel_==kStart)
+    showerModel_=checkShowerModel(tops);
+
+  // check sanity of W bosons
+  checkWBosons(tops);
 
   // create target vector
   std::auto_ptr<reco::GenParticleCollection> target( new reco::GenParticleCollection );
@@ -46,8 +50,6 @@ TopDecaySubset::produce(edm::Event& event, const edm::EventSetup& setup)
   const reco::GenParticleRefProd ref = event.getRefBeforePut<reco::GenParticleCollection>(); 
   // clear existing refs
   clearReferences();  
-  // check sanity
-  checkSanity(tops);
   // fill output
   fillListing(tops, *target);
   // fill references
@@ -95,48 +97,59 @@ TopDecaySubset::checkShowerModel(const std::vector<const reco::GenParticle*>& to
 	return kPythia;
     }
   }
-  edm::LogWarning( "decayChain" )
-    << " Can not find back any of the supported hadronization models. Models \n"
-    << " which are supported are:                                            \n"
-    << " Pythia  LO(+PS): Top(status 3) --> WBoson(status 3), Quark(status 3)\n"
-    << " Herwig NLO(+PS): Top(status 2) --> Top(status 3) --> Top(status 2)    ";
+  // if neither Herwig nor Pythia like
+  if(tops.size()==0)
+    edm::LogWarning("decayChain")
+      << " Failed to find top quarks in decay chain. Will assume that this a \n"
+      << " non-top sample and produce an empty decaySubset.\n";
+  else
+    throw edm::Exception(edm::errors::LogicError,
+			 " Can not find back any of the supported hadronization models. Models \n"
+			 " which are supported are:                                            \n"
+			 " Pythia  LO(+PS): Top(status 3) --> WBoson(status 3), Quark(status 3)\n"
+			 " Herwig NLO(+PS): Top(status 2) --> Top(status 3) --> Top(status 2)  \n");
   return kNone;
 }
 
-/// check the sanity of the input particle listing
-void
-TopDecaySubset::checkSanity(const std::vector<const reco::GenParticle*>& tops) const
-{
-  for(std::vector<const reco::GenParticle*>::const_iterator it=tops.begin(); it!=tops.end(); ++it){
-    if( !checkWBoson(*it) ){
-      throw edm::Exception( edm::errors::LogicError, "W boson is not contained in the original particle listing \n");
-    }
-  }
-  if( showerModel_==kNone && tops.size()>0 ){
-    throw edm::Exception( edm::errors::LogicError, "Particle listing does not correspond to any of the supported listings \n");
-  }
-}
-
 /// check whether the W boson is contained in the original gen particle listing
-bool 
-TopDecaySubset::checkWBoson(const reco::GenParticle* top) const
+void 
+TopDecaySubset::checkWBosons(std::vector<const reco::GenParticle*>& tops) const
 {
-  bool isContained=false;
-  for(reco::GenParticle::const_iterator td=((showerModel_==kPythia)?top->begin():top->begin()->begin());
-      td!=((showerModel_==kPythia)?top->end():top->begin()->end()); ++td){
-    if( (showerModel_==kPythia)?td->status()==TopDecayID::unfrag:td->status()==TopDecayID::stable && abs(td->pdgId())==TopDecayID::WID ){ 
-      isContained=true;
-      break;
+  unsigned nTops = tops.size();
+  for(std::vector<const reco::GenParticle*>::iterator it=tops.begin(); it!=tops.end();) {
+    const reco::GenParticle* top = *it;
+    bool isContained=false;
+    bool expectedStatus=false;
+    for(reco::GenParticle::const_iterator td=((showerModel_==kPythia) ? top->begin() : top->begin()->begin());
+	td!=((showerModel_==kPythia) ? top->end() : top->begin()->end());
+	++td){
+      if(abs(td->pdgId())==TopDecayID::WID) {
+	isContained=true;
+	if( ((showerModel_==kPythia) ? td->status()==TopDecayID::unfrag : td->status()==TopDecayID::stable) ) { 
+	  expectedStatus=true;
+	  break;
+	}
+      }
     }
+    if(!expectedStatus) {
+      it=tops.erase(it);
+      if(isContained)
+	edm::LogWarning("decayChain")
+	  << " W boson does not have the expected status. This happens, e.g.,      \n"
+	  << " with MC@NLO in the case of additional ttbar pairs from radiated     \n"
+	  << " gluons. We hope everything is fine, remove the correspdonding top   \n"
+	  << " quark from our list since it is not part of the primary ttbar pair  \n"
+	  << " and try to continue.                                                \n";      
+    }
+    else
+      it++;
   }
-  if( !isContained ){
-    edm::LogWarning( "decayChain" )
-      << " W boson is not contained in decay chain in the gen particle listing \n"
-      << " of the input collection. This means that the hadronization of the W \n"
-      << " boson might be screwed up. Contact an expert for the generator in   \n"
-      << " use to assure that what you are doing makes sense.";     
-  }
-  return isContained;
+  if(tops.size()==0 && nTops!=0)
+    throw edm::Exception(edm::errors::LogicError,
+			 " Did not find a W boson with appropriate status for any of the top   \n"
+			 " quarks in this event. This means that the hadronization of the W    \n"
+			 " boson might be screwed up or there is another problem with the      \n"
+			 " particle listing in this MC sample. Please contact an expert.         ");
 }
 
 /// fill output vector for full decay chain 
