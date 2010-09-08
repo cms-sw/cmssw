@@ -42,4 +42,5 @@ hltL3TrackCandidateFromL2OIHit = FastSimulation.Muons.TrackCandidateFromL2_cfi.h
 hltL3TrackCandidateFromL2OIHit.SeedProducer = "hltL3TrajSeedOIHit"    
 hltL3TrackCandidateFromL2IOHit = FastSimulation.Muons.TrackCandidateFromL2_cfi.hltL3TrackCandidateFromL2.clone()
 hltL3TrackCandidateFromL2IOHit.SeedProducer = "hltL3TrajSeedIOHit"
-
+hltL3TrackCandidateFromL2NoVtx = FastSimulation.Muons.TrackCandidateFromL2_cfi.hltL3TrackCandidateFromL2.clone()
+hltL3TrackCandidateFromL2NoVtx.SeedProducer = "hltL3TrajectorySeedNoVtx"
