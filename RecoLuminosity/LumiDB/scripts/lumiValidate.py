@@ -4,7 +4,7 @@ import os,sys
 import coral
 import json,csv
 #import optparse
-from RecoLuminosity.LumiDB import inputFilesetParser,selectionParser,argparse,CommonUtil,dbUtil,nameDealer,lumiQueryAPI 
+from RecoLuminosity.LumiDB import inputFilesetParser,selectionParser,csvReporter,argparse,CommonUtil,dbUtil,nameDealer,lumiQueryAPI 
 
 def getValidationData(dbsession,runnum=None):
     '''retrieve validation data per run or all
@@ -177,8 +177,8 @@ def main():
         #runls={run:[]} populate all CMSLSNUM found in LUMISUMMARY
         #runls={run:[[1,1],[2,5]],run:[[1,1],[2,5]]}
         #default value
-        if not options.runls:
-            print 'option -runls is required for update'
+        if not options.runls and not options.runnumber:
+            print 'option -runls or -r is required for update'
             raise
         if not options.flag:
             print 'option -flag is required for update'
@@ -186,7 +186,10 @@ def main():
         if options.flag.upper() not in allowedFlags:
             print 'unrecognised flag ',options.flag
             raise
-        runlsjson=CommonUtil.tolegalJSON(options.runls)
+        if options.runnumber:
+            runlsjson='{"'+str(options.runnumber)+'":[]}'
+        elif options.runls:
+            runlsjson=CommonUtil.tolegalJSON(options.runls)
         sparser=selectionParser.selectionParser(runlsjson)
         runsandls=sparser.runsandls()
         commentStr='NA'
@@ -201,16 +204,17 @@ def main():
         result=getValidationData(session,options.runnumber)
         runs=result.keys()
         #runs.sort()
-        for run in runs:
-            perrunstr=str(run)+': '
-            for idx,perrundata in enumerate(result[run]):
-                if idx!=0:
-                    perrunstr+=','
-                if options.runnumber:
-                    perrunstr+=str(perrundata[0])+' '+perrundata[1]+' '+perrundata[2]
-                else:
-                    perrunstr+=str(perrundata[0])
-            print perrunstr
+        if options.outputfile:
+            r=csvReporter.csvReporter(options.outputfile)
+            for run in runs:
+                for perrundata in result[run]:
+                    r.writeRow([str(run),str(perrundata[0]),perrundata[1],perrundata[2]])
+        else:
+            for run in runs:
+                print '== ='
+                for perrundata in result[run]:
+                    print str(run)+','+str(perrundata[0])+','+perrundata[1]+','+perrundata[2]
+                
     del session
     del svc
 if __name__ == '__main__':
