@@ -1622,7 +1622,7 @@ class resolutionFunctionType7 : public resolutionFunctionBase<T> {
                             1., 1., 1., 1. };
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
     } else {
-      double thisMaxi[] = { 0.1, 0.01, 0.01, 0.01,
+      double thisMaxi[] = { 0.1, 0.01, 0.01, 0.1,
                             0.01, 0.01, 0.1, 0.01,
                             0.01, 0.01, 0.01, 0.01 };
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
