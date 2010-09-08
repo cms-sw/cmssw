@@ -1,38 +1,29 @@
 #
-# This configuration is intended to be used to study errors spotted in the L1TEMU DQM output
-#
-# It can be run over streamer files or root files and outputs only events that fail the comparison.
+# This configuration is intended to be used to check pattern tests with the GCT emulator 
 #
 # Alex Tapper 8/9/10
 #
 
-process = cms.Process('GctErrorFilter')
+process = cms.Process('GctPatternTester')
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
-process.MessageLogger.cout.threshold = cms.untracked.string('WARNING')
+process.MessageLogger.cout.threshold = cms.untracked.string('DEBUG')
 process.MessageLogger.debugModules = cms.untracked.vstring('*')
 
-# For streamer files
-#process.source = cms.Source("NewEventStreamFileReader",
-#                                                        fileNames = cms.untracked.vstring(
-#    "/store/streamer/Data/A/000/142/414/Data.00142414.0044.A.storageManager.06.0000.dat"
-#    )
-#                            )
+process.source = cms.Source ( "EmptySource" )
 
-# For root files
-process.source = cms.Source ( "PoolSource",
-                              fileNames = cms.untracked.vstring(
-    "/store/data/Commissioning10/MinimumBias/RAW/v4/000/135/244/B080D685-8A5C-DF11-9C93-001D09F251B8.root"
-    )
-                              )
+# One orbit of data is default for capture 
+process.maxEvents = cms.untracked.PSet ( input = cms.untracked.int32 ( 3563 ) )
 
-# Number of events
-process.maxEvents = cms.untracked.PSet ( input = cms.untracked.int32 ( 10000 ) )
+# Input captured ascii file
+process.gctRaw = cms.OutputModule( "TextToRaw",
+                                   filename = cms.untracked.string ( "patternCapture_ts__2010_09_03__13h19m20s.txt" ),
+                                   GctFedId = cms.untracked.int32 ( 745 )
+                                   )
 
-# Global tag
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'GR10_P_V5::All'
+# Settings for pattern test (corresponds to V38_FS_Int11_Tau2_AllPipes_VME key)
+process.load('gctPatternTestConfig_cff')
 
 # GCT emulator
 import L1Trigger.GlobalCaloTrigger.gctDigis_cfi
@@ -45,6 +36,7 @@ process.valGctDigis.useImprovedTauAlgorithm = cms.bool(True)
 
 # GCT unpacker
 process.load('EventFilter.GctRawToDigi.l1GctHwDigis_cfi')
+process.l1GctHwDigis.inputLabel = cms.InputTag( "gctRaw" )
 
 # L1Comparator
 process.load('L1Trigger.HardwareValidation.L1Comparator_cfi')
@@ -54,15 +46,10 @@ process.l1compare.DumpMode = cms.untracked.int32(1)
 process.l1compare.DumpFile = cms.untracked.string('dump.txt')
 process.l1compare.VerboseFlag = cms.untracked.int32(0)
 
-# L1Comparator Filter    
-process.load('L1Trigger.HardwareValidation.L1DEFilter_cfi')
-process.l1defilter.DataEmulCompareSource = cms.InputTag("l1compare")
-process.l1defilter.FlagSystems = cms.untracked.vuint32(0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0)
-
 # Dump GCT digis
 process.load('L1Trigger.L1GctAnalyzer.dumpGctDigis_cfi')
 process.dumpGctDigis.doRctEm = cms.untracked.bool(False)
-process.dumpGctDigis.doEm = cms.untracked.bool(False)
+process.dumpGctDigis.doEm = cms.untracked.bool(True)
 process.dumpGctDigis.doJets = cms.untracked.bool(True)
 process.dumpGctDigis.doEmulated = cms.untracked.bool(True)
 process.dumpGctDigis.emuGctInput = cms.untracked.InputTag("valGctDigis")
@@ -80,10 +67,10 @@ process.TFileService = cms.Service("TFileService",
    fileName = cms.string( 'gctErrorAnalyzer.root' )
 )
 
-process.p = cms.Path(process.l1GctHwDigis*
+process.p = cms.Path(process.gctRaw*
+                     process.l1GctHwDigis*
                      process.valGctDigis*
                      process.l1compare*
-                     ~process.l1defilter*
                      process.dumpGctDigis*
                      process.gctErrorAnalyzer)
 
@@ -91,12 +78,9 @@ process.p = cms.Path(process.l1GctHwDigis*
 process.output = cms.OutputModule( "PoolOutputModule",
                                    outputCommands = cms.untracked.vstring (
     "drop *",
-    "keep *_*_*_GctErrorFilter",
+    "keep *_*_*_GctPatternTester",
     ),
-                                   fileName = cms.untracked.string( "gctErrorFilter.root" ),
-                                   SelectEvents = cms.untracked.PSet(
-    SelectEvents = cms.vstring("p")
-    )
+                                   fileName = cms.untracked.string( "gctPatternTester.root" ),
                                    )
 
 process.out = cms.EndPath( process.output )
