@@ -2,7 +2,7 @@ __author__="Aurelija"
 __date__ ="$2010-08-06 14.27.51$"
 
 import os
-ordering = ['1', '2', '3', '4', '5']
+ordering = ['1', '2', '3', '4', '5', '6']
 
 # default values for directories
 
@@ -78,7 +78,7 @@ Configuration[ruleName]['filesToMatch'] = ['*.h', '*.c', '*.cc', '*.cxx']
 Configuration[ruleName]['exceptPaths'] = []#could be file name, dir, fileName:line. But path should be only from that directory in which we are searching
 Configuration[ruleName]['skipComments']  = False
 Configuration[ruleName]['filter'] = '(\A|\W)(c|C)(o|O)(p|P)(y|Y)(r|R)(i|I)(g|G)(h|H)(t|T)\W(\+|=|\w|\"|\'|-|\s)*(\((c|C)\)|\d{4})' #should be regular expression
-Configuration[ruleName]['exceptFilter'] = []
+Configuration[ruleName]['exceptFilter'] = ["\sLineo,"]
 # --------------------------------------------------------------------------------
 
 # configuration for rule 5
@@ -91,8 +91,21 @@ Configuration[ruleName]['description'] = 'Search for "pragma" statement in *.c, 
 Configuration[ruleName]['filesToMatch'] = ['*.h', '*.c', '*.cc', '*.cxx']
 Configuration[ruleName]['exceptPaths'] = []#could be file name, dir, fileName:line. Path should be only from that directory in which we are searching
 Configuration[ruleName]['skipComments']  = True
-Configuration[ruleName]['filter'] = '#\s*pragma\s' #should be regular expression
+Configuration[ruleName]['filter'] = '\s*pragma\s' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = []
+# --------------------------------------------------------------------------------
+# configuration for rule 5
+
+ruleName = '6'
+rulesNames.append(ruleName)
+Configuration[ruleName] = {}
+
+Configuration[ruleName]['description'] = 'Search for "flags" statements in BuildFile'
+Configuration[ruleName]['filesToMatch'] = ['BuildFile', 'BuildFile.xml']
+Configuration[ruleName]['exceptPaths'] = []#could be file name, dir, fileName:line. Path should be only from that directory in which we are searching
+Configuration[ruleName]['skipComments']  = True
+Configuration[ruleName]['filter'] = '<\s*(f|F)(l|L)(a|A)(g|G)(s|S)\s+' #should be regular expression
+Configuration[ruleName]['exceptFilter'] = ['EDM_PLUGIN', 'GENREFLEX_ARGS', 'TEST_RUNNER_ARGS', 'INSTALL_SCRIPTS']
 # --------------------------------------------------------------------------------
 
 rulesDescription  = "Rule number    Description\n"
@@ -102,7 +115,7 @@ for key, value in Configuration.items():
 
 # --------------------------------------------------------------------------------
 helpMsg  = "-----------------------------------------------------------HELP-----------------------------------------------------------\n"
-helpMsg += "cmsCodeRulesChecker.py [-h] [-html] [-s [DIRECTORY]] [-S [DIRECTORY]] [-p] [-r ruleName[,ruleName[, ...]]] [-d DIRECTORY]\n\n"
+helpMsg += "cmsCodeRulesChecker.py [-h] [-html] [-s [DIRECTORY]] [-S [DIRECTORY]] [-p] [-r ruleNumber[,ruleNumber[, ...]]] [-d DIRECTORY]\n\n"
 helpMsg += "-r     Specifies rule or rules to be checked. After this parameter should\n       be at least one rule given.\n"
 helpMsg += "-d     Specifies that rules should be checked in DIRECTORY. Default \n       directory - current directory\n"
 helpMsg += "-S     Specifies to save results in python pickle files. Directory specifies\n       where to store these files. Default directory - current directory\n"
