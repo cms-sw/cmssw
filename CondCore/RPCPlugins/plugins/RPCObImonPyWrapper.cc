@@ -210,7 +210,8 @@ namespace cond {
 
     std::vector<RPCObImon::I_Item> const & imon = object().ObImon_rpc;
     
-    ss <<"DetID\t\t"<<"I(uA)\t"<<"Time\t"<<"Day\n";
+    //    ss <<"DetID\t\t"<<"I(uA)\t"<<"Time\t"<<"Day\n";
+    ss <<"DetID\t\tI(uA)\tTime\tDay\n";
     for(unsigned int i = 0; i < imon.size(); ++i ){
       for(unsigned int p = 0; p < pvssCont.size(); ++p){
        	if(imon[i].dpid!=pvssCont[p].dpid || pvssCont[p].suptype!=0 || pvssCont[p].region!=0)continue;
@@ -238,7 +239,7 @@ namespace cond {
     TCanvas canvas("iC","iC",800,800);    
 
     TH1D *iDistr=new TH1D("iDistr","IOV-averaged Imon Distribution;Average Current(uA);Entries/1uA",100,0.,100.);
-
+    //    TH1D *iDistr=new TH1D("iDistr","IOV-averaged Imon Distribution;Average Current(uA);Entries/1uA",100,0.,100.);
     std::vector<RPCObImon::I_Item> const & imon = object().ObImon_rpc;
 
     std::map<int,std::pair<int,double> > dpidMap;
