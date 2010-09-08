@@ -17,7 +17,7 @@ import FWCore.ParameterSet.Config as cms
 #    include reconstruction, simulation and analysis
 #  FEVTSIMDIGIHLTDEBUG FEVTSIMHLTDEBUG
 #
-#  $Id: EventContentCosmics_cff.py,v 1.20 2010/07/07 10:35:03 mussgill Exp $
+#  $Id: EventContentCosmics_cff.py,v 1.21 2010/08/16 16:39:01 vlimant Exp $
 #
 #
 #
@@ -163,6 +163,7 @@ ALCARECOEventContent = cms.PSet(
     splitLevel = cms.untracked.int32(0)
 )
 
+from Configuration.EventContent.EventContent_cff import DQMEventContent
 
 
 RAWEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
