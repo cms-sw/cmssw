@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.130 2010/05/03 13:51:09 mommsen Exp $
+// $Id: StorageManager.cc,v 1.131 2010/08/06 20:24:31 wmtan Exp $
 /// @file: StorageManager.cc
 
 #include "EventFilter/StorageManager/interface/DiskWriter.h"
@@ -39,7 +39,7 @@ using namespace stor;
 StorageManager::StorageManager(xdaq::ApplicationStub * s) :
   xdaq::Application(s),
   _webPageHelper( getApplicationDescriptor(),
-    "$Id: StorageManager.cc,v 1.130 2010/05/03 13:51:09 mommsen Exp $ $Name: V06-02-04 $")
+    "$Id: StorageManager.cc,v 1.131 2010/08/06 20:24:31 wmtan Exp $ $Name:  $")
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
@@ -324,7 +324,7 @@ void StorageManager::receiveEndOfLumiSectionMessage(toolbox::mem::Reference *ref
 
   RunMonitorCollection& runMonCollection =
     _sharedResources->_statisticsReporter->getRunMonitorCollection();
-  runMonCollection.getEoLSSeenMQ().addSampleIfLarger( i2oChain.lumiSection() );
+  runMonCollection.getEoLSSeenMQ().addSample( i2oChain.lumiSection() );
 
   _sharedResources->_streamQueue->enq_wait( i2oChain );
 }
