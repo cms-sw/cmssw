@@ -45,6 +45,7 @@ HLT_Mu7
 HLT_Mu9
 HLT_Mu11
 HLT_Mu20_NoVertex
+HLT_IsoMu9
 HLT_L1DoubleMuOpen
 HLT_DoubleMu0
 HLT_DoubleMu3
