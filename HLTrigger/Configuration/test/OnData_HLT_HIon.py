@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_8_1/HIon/V9 (CMSSW_3_8_1_HLT4)
+# /dev/CMSSW_3_8_1/HIon/V10 (CMSSW_3_8_1_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V9')
+  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V10')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -34,9 +34,9 @@ process.streams = cms.PSet(
     'MuMonitor',
     'BTau',
     'HcalHPDNoise',
+    'Mu',
     'EGMonitor',
-    'Electron',
-    'Mu' ),
+    'Electron' ),
   DQM = cms.vstring( 'OnlineMonitor' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
   HLTDQM = cms.vstring( 'OnlineHltMonitor' )
@@ -66,13 +66,13 @@ process.datasets = cms.PSet(
   MuMonitor = cms.vstring( 'HLT_L1DoubleMuOpen' ),
   BTau = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
+  Mu = cms.vstring(  ),
   EGMonitor = cms.vstring(  ),
   Electron = cms.vstring(  ),
-  Mu = cms.vstring(  ),
-  OnlineMonitor = cms.vstring( 'HLT_L1DoubleMuOpen',
+  OnlineMonitor = cms.vstring( 'HLT_ZeroBiasPixel_SingleTrack',
+    'HLT_L1DoubleMuOpen',
     'HLT_L1Tech_BSC_minBias',
-    'HLT_L1Tech_HCAL_HF',
-    'HLT_ZeroBiasPixel_SingleTrack' ),
+    'HLT_L1Tech_HCAL_HF' ),
   OfflineMonitor = cms.vstring( 'HLT_L1DoubleMuOpen',
     'HLT_L1Tech_BSC_minBias',
     'HLT_L1Tech_HCAL_HF',

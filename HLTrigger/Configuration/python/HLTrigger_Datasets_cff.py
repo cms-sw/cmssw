@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_8_1/GRun/V9
+# /dev/CMSSW_3_8_1/GRun/V10
 
 import FWCore.ParameterSet.Config as cms
 
@@ -58,7 +58,7 @@ streamA_datasetEGMonitor_selector.triggerConditions = cms.vstring('HLT_L1SingleE
     'HLT_Photon10_Cleaned_L1R', 
     'HLT_L1DoubleEG5', 
     'HLT_Ele10_SW_L1R', 
-    'HLT_Ele12_SW_EleId_L1R', 
+    'HLT_Ele12_SW_TightEleId_L1R', 
     'HLT_Ele17_SW_L1R', 
     'HLT_Photon20_NoHE_L1R')
 
@@ -67,8 +67,8 @@ streamA_datasetElectron_selector.hltResults = cms.InputTag('TriggerResults', '',
 streamA_datasetElectron_selector.l1tResults = cms.InputTag('')
 streamA_datasetElectron_selector.throw      = cms.bool(False)
 streamA_datasetElectron_selector.triggerConditions = cms.vstring('HLT_DoubleEle10_SW_L1R', 
-    'HLT_Ele12_SW_EleIdIsol_NoDEtaInEE_L1R', 
-    'HLT_Ele12_SW_EleIdIsol_L1R', 
+    'HLT_Ele12_SW_TightEleIdIsol_NoDEtaInEE_L1R', 
+    'HLT_Ele12_SW_TightEleIdIsol_L1R', 
     'HLT_Ele17_SW_CaloEleId_L1R', 
     'HLT_Ele17_SW_LooseEleId_L1R', 
     'HLT_Ele22_SW_CaloEleId_L1R', 
