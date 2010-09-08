@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/CommPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined Commissioning skim')
 )
@@ -25,7 +25,7 @@ process.source = cms.Source("PoolSource",
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(500)
 )
 
 
@@ -180,12 +180,37 @@ process.outputMuonDPGSkim = cms.OutputModule("PoolOutputModule",
 )
 ####################################################################################
 
+#################################logerrorharvester############################################
+process.load("FWCore.Modules.logErrorFilter_cfi")
+from Configuration.StandardSequences.RawToDigi_Data_cff import gtEvmDigis
+
+process.gtEvmDigis = gtEvmDigis.clone()
+process.stableBeam = cms.EDFilter("HLTBeamModeFilter",
+                                  L1GtEvmReadoutRecordTag = cms.InputTag("gtEvmDigis"),
+                                  AllowedBeamMode = cms.vuint32(11)
+                                  )
+
+process.logerrorpath=cms.Path(process.gtEvmDigis+process.stableBeam+process.logErrorFilter)
+
+process.outlogerr = cms.OutputModule("PoolOutputModule",
+                               outputCommands =  process.FEVTEventContent.outputCommands,
+                               fileName = cms.untracked.string('/tmp/azzi/logerror_filter.root'),
+                               dataset = cms.untracked.PSet(
+                                  dataTier = cms.untracked.string('RAW-RECO'),
+                                  filterName = cms.untracked.string('Skim_logerror')),
+                               
+                               SelectEvents = cms.untracked.PSet(
+    SelectEvents = cms.vstring("logerrorpath")
+    ))
+
+#===========================================================
+
 
 process.options = cms.untracked.PSet(
  wantSummary = cms.untracked.bool(True)
 )
 
-process.outpath = cms.EndPath(process.outputMuonDPGSkim)
+process.outpath = cms.EndPath(process.outputMuonDPGSkim+process.outlogerr)
 
 
 
