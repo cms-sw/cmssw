@@ -108,7 +108,6 @@ void
 TopDecaySubset::checkSanity(const std::vector<const reco::GenParticle*>& tops) const
 {
   for(std::vector<const reco::GenParticle*>::const_iterator it=tops.begin(); it!=tops.end(); ++it){
-    std::cout << "top->pt() = " << (*it)->pt() << std::endl;
     if( !checkWBoson(*it) ){
       throw edm::Exception( edm::errors::LogicError, "W boson is not contained in the original particle listing \n");
     }
