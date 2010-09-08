@@ -211,7 +211,7 @@ def main():
         else:
             result=getValidationData(session,run=options.runnumber)
         runs=result.keys()
-        #runs.sort()
+        runs.sort()
         if options.outputfile:
             r=csvReporter.csvReporter(options.outputfile)
             for run in runs:
@@ -220,7 +220,6 @@ def main():
         else:
             for run in runs:
                 print '== ='
-                print result[run]
                 for lsdata in result[run]:
                     print str(run)+','+str(lsdata[0])+','+lsdata[1]+','+lsdata[2]
                 
