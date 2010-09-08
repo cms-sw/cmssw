@@ -31,10 +31,6 @@
 #include "DataFormats/METReco/interface/BeamHaloSummary.h"
 
 #include <vector>
-using namespace edm;
-using namespace reco;
-using namespace std;
-
 namespace {
   struct dictionary {
     edm::Wrapper<reco::MET> dummy1;
@@ -42,36 +38,36 @@ namespace {
     edm::Wrapper< std::vector<reco::MET> > dummy3;
     std::vector<reco::MET> dummy4;
 
-    CaloMETRef r1;
-    CaloMETRefProd rp1;
-    CaloMETRefVector rv1;
+    reco::CaloMETRef r1;
+    reco::CaloMETRefProd rp1;
+    reco::CaloMETRefVector rv1;
     edm::Wrapper<reco::CaloMET> dummy5;
     edm::Wrapper<reco::CaloMETCollection> dummy7;
     edm::Wrapper< std::vector<reco::CaloMET> > dummy8;
     std::vector<reco::CaloMET> dummy9;
     edm::reftobase::Holder<reco::Candidate,reco::CaloMETRef> rtb1;
 
-    GenMETRef r2;
-    GenMETRefProd rp2;
-    GenMETRefVector rv2;
+    reco::GenMETRef r2;
+    reco::GenMETRefProd rp2;
+    reco::GenMETRefVector rv2;
     edm::Wrapper<reco::GenMET> dummy10;
     edm::Wrapper<reco::GenMETCollection> dummy11;
     edm::Wrapper< std::vector<reco::GenMET> > dummy12;
     std::vector<reco::GenMET> dummy13;
     edm::reftobase::Holder<reco::Candidate,reco::GenMETRef> rtb2;
 
-    METRef r3;
-    METRefProd rp3;
-    METRefVector rv3;
+    reco::METRef r3;
+    reco::METRefProd rp3;
+    reco::METRefVector rv3;
     edm::Wrapper<reco::MET> dummy14;
     edm::Wrapper<reco::METCollection> dummy15;
     edm::Wrapper< std::vector<reco::MET> > dummy16;
     std::vector<reco::MET> dummy17;
     edm::reftobase::Holder<reco::Candidate,reco::METRef> rtb3;
 
-    PFMETRef r4;
-    PFMETRefProd rp4;
-    PFMETRefVector rv4;
+    reco::PFMETRef r4;
+    reco::PFMETRefProd rp4;
+    reco::PFMETRefVector rv4;
     edm::Wrapper<reco::PFMET> dummy18;
     edm::Wrapper<reco::PFMETCollection> dummy19;
     edm::Wrapper< std::vector<reco::PFMET> > dummy20;
