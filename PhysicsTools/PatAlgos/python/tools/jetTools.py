@@ -194,11 +194,11 @@ class RunBTagging(ConfigToolBase):
         if (not label == 'AOD'):
             jtaLabel  += label
         ## define tag info labels (compare with jetProducer_cfi.py)        
-        ipTILabel = 'impactParameterTagInfos'     + label
-        svTILabel = 'secondaryVertexTagInfos'     + label
-        #nvTILabel = 'secondaryVertexNegativeTagInfos'     + label
-        #seTILabel = 'softElectronTagInfos'        + label
-        smTILabel = 'softMuonTagInfos'            + label
+        ipTILabel = 'impactParameterTagInfos'     + label + postfix
+        svTILabel = 'secondaryVertexTagInfos'     + label + postfix
+        #nvTILabel = 'secondaryVertexNegativeTagInfos'     + label + postfix
+        #seTILabel = 'softElectronTagInfos'        + label + postfix
+        smTILabel = 'softMuonTagInfos'            + label + postfix
     
         ## produce tag infos
         setattr( process, ipTILabel, btag.impactParameterTagInfos.clone(jetTracks = cms.InputTag(jtaLabel)) )
@@ -211,39 +211,39 @@ class RunBTagging(ConfigToolBase):
         def vit(*args) : return cms.VInputTag( *[ cms.InputTag(x) for x in args ] )
     
         ## produce btags
-        setattr( process, 'jetBProbabilityBJetTags'+label, btag.jetBProbabilityBJetTags.clone(tagInfos = vit(ipTILabel)) )
-        setattr( process, 'jetProbabilityBJetTags' +label, btag.jetProbabilityBJetTags.clone (tagInfos = vit(ipTILabel)) )
-        setattr( process, 'trackCountingHighPurBJetTags'+label, btag.trackCountingHighPurBJetTags.clone(tagInfos = vit(ipTILabel)) )
-        setattr( process, 'trackCountingHighEffBJetTags'+label, btag.trackCountingHighEffBJetTags.clone(tagInfos = vit(ipTILabel)) )
-        setattr( process, 'simpleSecondaryVertexHighEffBJetTags'+label, btag.simpleSecondaryVertexHighEffBJetTags.clone(tagInfos = vit(svTILabel)) )
-        setattr( process, 'simpleSecondaryVertexHighPurBJetTags'+label, btag.simpleSecondaryVertexHighPurBJetTags.clone(tagInfos = vit(svTILabel)) )
-        #setattr( process, 'simpleSecondaryVertexNegativeBJetTags'+label, nbtag.simpleSecondaryVertexNegativeBJetTags.clone(tagInfos = vit(nvTILabel)) )
-        setattr( process, 'combinedSecondaryVertexBJetTags'+label, btag.combinedSecondaryVertexBJetTags.clone(tagInfos = vit(ipTILabel, svTILabel)) )
-        setattr( process, 'combinedSecondaryVertexMVABJetTags'+label, btag.combinedSecondaryVertexMVABJetTags.clone(tagInfos = vit(ipTILabel, svTILabel)) )
-        #setattr( process, 'softElectronByPtBJetTags'+label, btag.softElectronByPtBJetTags.clone(tagInfos = vit(seTILabel)) )
-        #setattr( process, 'softElectronByIP3dBJetTags'+label, btag.softElectronByIP3dBJetTags.clone(tagInfos = vit(seTILabel)) )
-        setattr( process, 'softMuonBJetTags'+label, btag.softMuonBJetTags.clone(tagInfos = vit(smTILabel)) )
-        setattr( process, 'softMuonByPtBJetTags'+label, btag.softMuonByPtBJetTags.clone(tagInfos = vit(smTILabel)) )
-        setattr( process, 'softMuonByIP3dBJetTags'+label, btag.softMuonByIP3dBJetTags.clone(tagInfos = vit(smTILabel)) )
+        setattr( process, 'jetBProbabilityBJetTags'+label+postfix, btag.jetBProbabilityBJetTags.clone(tagInfos = vit(ipTILabel)) )
+        setattr( process, 'jetProbabilityBJetTags'+label+postfix, btag.jetProbabilityBJetTags.clone (tagInfos = vit(ipTILabel)) )
+        setattr( process, 'trackCountingHighPurBJetTags'+label+postfix, btag.trackCountingHighPurBJetTags.clone(tagInfos = vit(ipTILabel)) )
+        setattr( process, 'trackCountingHighEffBJetTags'+label+postfix, btag.trackCountingHighEffBJetTags.clone(tagInfos = vit(ipTILabel)) )
+        setattr( process, 'simpleSecondaryVertexHighEffBJetTags'+label+postfix, btag.simpleSecondaryVertexHighEffBJetTags.clone(tagInfos = vit(svTILabel)) )
+        setattr( process, 'simpleSecondaryVertexHighPurBJetTags'+label+postfix, btag.simpleSecondaryVertexHighPurBJetTags.clone(tagInfos = vit(svTILabel)) )
+        #setattr( process, 'simpleSecondaryVertexNegativeBJetTags'+label+postfix, nbtag.simpleSecondaryVertexNegativeBJetTags.clone(tagInfos = vit(nvTILabel)) )
+        setattr( process, 'combinedSecondaryVertexBJetTags'+label+postfix, btag.combinedSecondaryVertexBJetTags.clone(tagInfos = vit(ipTILabel, svTILabel)) )
+        setattr( process, 'combinedSecondaryVertexMVABJetTags'+label+postfix, btag.combinedSecondaryVertexMVABJetTags.clone(tagInfos = vit(ipTILabel, svTILabel)) )
+        #setattr( process, 'softElectronByPtBJetTags'+label+postfix, btag.softElectronByPtBJetTags.clone(tagInfos = vit(seTILabel)) )
+        #setattr( process, 'softElectronByIP3dBJetTags'+label+postfix, btag.softElectronByIP3dBJetTags.clone(tagInfos = vit(seTILabel)) )
+        setattr( process, 'softMuonBJetTags'+label+postfix, btag.softMuonBJetTags.clone(tagInfos = vit(smTILabel)) )
+        setattr( process, 'softMuonByPtBJetTags'+label+postfix, btag.softMuonByPtBJetTags.clone(tagInfos = vit(smTILabel)) )
+        setattr( process, 'softMuonByIP3dBJetTags'+label+postfix, btag.softMuonByIP3dBJetTags.clone(tagInfos = vit(smTILabel)) )
         
         ## define vector of (output) labels
         labels = { 'jta'      : jtaLabel, 
                    #'tagInfos' : (ipTILabel,svTILabel,seTILabel,smTILabel),
                    'tagInfos' : (ipTILabel,svTILabel,smTILabel), 
-                   'jetTags'  : [ (x + label) for x in ('jetBProbabilityBJetTags',
-                                                        'jetProbabilityBJetTags',
-                                                        'trackCountingHighPurBJetTags',
-                                                        'trackCountingHighEffBJetTags',
-                                                        #'simpleSecondaryVertexNegativeBJetTags',
-                                                        'simpleSecondaryVertexHighEffBJetTags',
-                                                        'simpleSecondaryVertexHighPurBJetTags',
-                                                        'combinedSecondaryVertexBJetTags',
-                                                        'combinedSecondaryVertexMVABJetTags',
-                                                        #'softElectronByPtBJetTags',
-                                                        #'softElectronByIP3dBJetTags',
-                                                        'softMuonBJetTags',
-                                                        'softMuonByPtBJetTags',
-                                                        'softMuonByIP3dBJetTags'
+                   'jetTags'  : [ (x + label+postfix) for x in ('jetBProbabilityBJetTags',
+                                                                'jetProbabilityBJetTags',
+                                                                'trackCountingHighPurBJetTags',
+                                                                'trackCountingHighEffBJetTags',
+                                                                #'simpleSecondaryVertexNegativeBJetTags',
+                                                                'simpleSecondaryVertexHighEffBJetTags',
+                                                                'simpleSecondaryVertexHighPurBJetTags',
+                                                                'combinedSecondaryVertexBJetTags',
+                                                                'combinedSecondaryVertexMVABJetTags',
+                                                                #'softElectronByPtBJetTags',
+                                                                #'softElectronByIP3dBJetTags',
+                                                                'softMuonBJetTags',
+                                                                'softMuonByPtBJetTags',
+                                                                'softMuonByIP3dBJetTags'
                                                         )
                                   ]
                    }
@@ -255,12 +255,12 @@ class RunBTagging(ConfigToolBase):
             return cms.Sequence(seq)
 
         ## add tag infos to the process
-        setattr( process, 'btaggingTagInfos'+label, mkseq(process, *(labels['tagInfos']) ) )
+        setattr( process, 'btaggingTagInfos'+label+postfix, mkseq(process, *(labels['tagInfos']) ) )
         ## add b tags to the process
-        setattr( process, 'btaggingJetTags'+label,  mkseq(process, *(labels['jetTags'])  ) )
+        setattr( process, 'btaggingJetTags'+label+postfix,  mkseq(process, *(labels['jetTags'])  ) )
         ## add a combined sequence to the process
-        seq = mkseq(process, 'btaggingTagInfos'+label, 'btaggingJetTags' + label) 
-        setattr( process, 'btagging'+label, seq )
+        seq = mkseq(process, 'btaggingTagInfos'+label+postfix, 'btaggingJetTags' + label + postfix) 
+        setattr( process, 'btagging'+label+postfix, seq )
         ## return the combined sequence and the labels defined above
 
         if hasattr(process, "addAction"):
