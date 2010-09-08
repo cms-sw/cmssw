@@ -89,8 +89,10 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
 	pythiaHepMCVerbosity(params.getUntrackedParameter<bool>("pythiaHepMCVerbosity", false)),
 	maxEventsToPrint(params.getUntrackedParameter<int>("maxEventsToPrint", 0)),
     LHEInputFileName(params.getUntrackedParameter<string>("LHEInputFileName","")),
-    useUserHook(params.getUntrackedParameter<bool>("useUserHook", false))
+    useUserHook(false)
 {
+    if( params.exists( "useUserHook" ) )
+      useUserHook = params.getParameter<bool>("useUserHook");
     randomEngine = &getEngineReference();
 }
 
