@@ -6,8 +6,6 @@
 #include "DataFormats/Common/interface/Holder.h"
 
 
-using namespace reco;
-
 namespace {
   struct dictionary {
     edm::RefToBaseVector<reco::CaloJet> jrtbv;
