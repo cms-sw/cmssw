@@ -38,9 +38,6 @@ def Era_1PDs():
 evt=options.output.split(',')
 tiers=[]
 for e in evt:
-    if e=='AOD':
-        tiers.append('RECO')
-    else:
         tiers.append(e)
 
 tiers=','.join(tiers)
