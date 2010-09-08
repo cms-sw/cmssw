@@ -656,7 +656,7 @@ bool FUShmBuffer::writeErrorEventData(unsigned int runNumber,
   //
   *pos++=(uint32_t)2;  // protocol version number
   *pos++=(uint32_t)runNumber;
-  *pos++=(uint32_t)evf::evtn::getlbn(raw->fedAddr(FEDNumbering::MINTriggerGTPFEDID));
+  *pos++=(uint32_t)evf::evtn::getlbn(raw->fedAddr(FEDNumbering::MINTriggerGTPFEDID)) + 1;
   *pos++=(uint32_t)raw->evtNumber();
   for (unsigned int i=0;i<1024;i++) *pos++ = (uint32_t)raw->fedSize(i);
   memcpy(pos,raw->payloadAddr(),raw->eventSize());
