@@ -5,16 +5,10 @@
 #include "AnalysisDataFormats/TopObjects/interface/TopGenEvent.h"
 #include "TopQuarkAnalysis/TopEventProducers/interface/TopDecaySubset.h"
 
-// maximal number of daughters 
-// to be printed for debugging
-static const unsigned int kMAX=5; 
-
 /// default constructor
 TopDecaySubset::TopDecaySubset(const edm::ParameterSet& cfg): 
   src_         (cfg.getParameter<edm::InputTag>("src")),
   addRadiation_(cfg.getParameter<bool>("addRadiation")),
-  printSource_ (cfg.getParameter<bool>("printSource" )),
-  printTarget_ (cfg.getParameter<bool>("printTarget" )),
   showerModel_ (kStart)
 {
   // mapping of the corresponding fillMode; see FillMode 
@@ -40,14 +34,11 @@ TopDecaySubset::produce(edm::Event& event, const edm::EventSetup& setup)
   edm::Handle<reco::GenParticleCollection> src;
   event.getByLabel(src_, src);
 
-  // print full listing of input particles
-  if(printSource_)
-    printSource(*src);
-
   // find top quarks in list of input particles
-  findTops(*src);
+  std::vector<const reco::GenParticle*> tops = findTops(*src);
+
   // determine shower model
-  if(showerModel_==kStart) showerModel_=checkShowerModel();
+  if(showerModel_==kStart) showerModel_=checkShowerModel(tops);
 
   // create target vector
   std::auto_ptr<reco::GenParticleCollection> target( new reco::GenParticleCollection );
@@ -56,37 +47,33 @@ TopDecaySubset::produce(edm::Event& event, const edm::EventSetup& setup)
   // clear existing refs
   clearReferences();  
   // check sanity
-  checkSanity(*src);
+  checkSanity(tops);
   // fill output
-  fillListing(*target);
+  fillListing(tops, *target);
   // fill references
   fillReferences(ref, *target);
-
-  // print final particle listing
-  if(printTarget_)
-    printTarget(*target);
 
   // write vectors to the event
   event.put(target);
 }
 
 /// find top quarks in list of input particles
-void
+std::vector<const reco::GenParticle*>
 TopDecaySubset::findTops(const reco::GenParticleCollection& parts)
 {
-  tops_.clear();
+  std::vector<const reco::GenParticle*> tops;
   for(reco::GenParticleCollection::const_iterator t=parts.begin(); t!=parts.end(); ++t){
-    if( abs(t->pdgId())==TopDecayID::tID && t->status()==TopDecayID::unfrag ){
-      tops_.push_back( &(*t) );
-    }
-  } 
+    if( abs(t->pdgId())==TopDecayID::tID && t->status()==TopDecayID::unfrag )
+      tops.push_back( &(*t) );
+  }
+  return tops;
 }
 
 /// check the decay chain for the exploited shower model
 TopDecaySubset::ShowerModel
-TopDecaySubset::checkShowerModel() const
+TopDecaySubset::checkShowerModel(const std::vector<const reco::GenParticle*>& tops) const
 {
-  for(std::vector<const reco::GenParticle*>::const_iterator it=tops_.begin(); it!=tops_.end(); ++it){
+  for(std::vector<const reco::GenParticle*>::const_iterator it=tops.begin(); it!=tops.end(); ++it){
     const reco::GenParticle* top = *it;
     // check for kHerwig type showers: here the status 3 top quark will 
     // have a single status 2 top quark as daughter, which has again 3 
@@ -118,14 +105,15 @@ TopDecaySubset::checkShowerModel() const
 
 /// check the sanity of the input particle listing
 void
-TopDecaySubset::checkSanity(const reco::GenParticleCollection& parts) const
+TopDecaySubset::checkSanity(const std::vector<const reco::GenParticle*>& tops) const
 {
-  for(std::vector<const reco::GenParticle*>::const_iterator it=tops_.begin(); it!=tops_.end(); ++it){
+  for(std::vector<const reco::GenParticle*>::const_iterator it=tops.begin(); it!=tops.end(); ++it){
+    std::cout << "top->pt() = " << (*it)->pt() << std::endl;
     if( !checkWBoson(*it) ){
       throw edm::Exception( edm::errors::LogicError, "W boson is not contained in the original particle listing \n");
     }
   }
-  if( showerModel_==kNone && tops_.size()>0 ){
+  if( showerModel_==kNone && tops.size()>0 ){
     throw edm::Exception( edm::errors::LogicError, "Particle listing does not correspond to any of the supported listings \n");
   }
 }
@@ -154,14 +142,14 @@ TopDecaySubset::checkWBoson(const reco::GenParticle* top) const
 
 /// fill output vector for full decay chain 
 void 
-TopDecaySubset::fillListing(reco::GenParticleCollection& target)
+TopDecaySubset::fillListing(const std::vector<const reco::GenParticle*>& tops, reco::GenParticleCollection& target)
 {
   unsigned int statusFlag;
   // determine status flag of the new 
   // particle depending on the FillMode
   fillMode_ == kME ? statusFlag=3 : statusFlag=2;
 
-  for(std::vector<const reco::GenParticle*>::const_iterator it=tops_.begin(); it!=tops_.end(); ++it){
+  for(std::vector<const reco::GenParticle*>::const_iterator it=tops.begin(); it!=tops.end(); ++it){
     const reco::GenParticle* t = *it;
     // if particle is top or anti-top 
     std::auto_ptr<reco::GenParticle> topPtr( new reco::GenParticle( t->threeCharge(), p4(it, statusFlag), t->vertex(), t->pdgId(), statusFlag, false ) );
@@ -397,115 +385,6 @@ TopDecaySubset::fillReferences(const reco::GenParticleRefProd& ref, reco::GenPar
 	}
 	part->addDaughter( reco::GenParticleRef(ref, *daughter) );
 	sel[*daughter].addMother( reco::GenParticleRef(ref, idx) );
-      }
-    }
-  }
-}
-
-/// print the whole listing if particle with pdgId is contained in the top decay chain
-void 
-TopDecaySubset::printSource(const reco::GenParticleCollection& src)
-{
-  edm::LogVerbatim log("TopDecaySubset");
-  log << "\n   idx   pdg   stat      px          py         pz             mass          daughter pdg's  "
-      << "\n===========================================================================================\n";
-
-  for(unsigned int t=0; t<src.size(); ++t){
-    if( abs(src[t].pdgId())==TopDecayID::tID ){
-      // restrict to the top in order 
-      // to have it shown only once 
-      int idx=0;
-      for(reco::GenParticleCollection::const_iterator p=src.begin(); p!=src.end(); ++p, ++idx){
-	// loop the top daughters
-	log << std::right << std::setw( 5) << idx
-	    << std::right << std::setw( 7) << src[idx].pdgId()
-	    << std::right << std::setw( 5) << src[idx].status() << "  "
-	    << std::right << std::setw(10) << std::setprecision( 6 ) << src[idx].p4().x() << "  "	
-	    << std::right << std::setw(10) << std::setprecision( 6 ) << src[idx].p4().y() << "  "	
-	    << std::right << std::setw(10) << std::setprecision( 6 ) << src[idx].p4().z() << "  "	
-	    << std::right << std::setw(15) << std::setprecision( 6 ) << src[idx].p4().mass() 
-	    << "   ";
-	// search for potential daughters; if they exits 
-	// print the daughter to the screen in the last 
-	// column of the table separated by ','
-	TString pdgIds;
-	unsigned int jdx=0;
-	for(reco::GenParticle::const_iterator d=p->begin(); d!=p->end(); ++d, ++jdx){
-	  if(jdx<kMAX){
-	    pdgIds+=d->pdgId();
-	    if(d+1 != p->end()){
-	      pdgIds+= ",";
-	    }
-	  }
-	  else{
-	    pdgIds+="...(";
-	    pdgIds+= p->numberOfDaughters();
-	    pdgIds+=")";
-	    break;
-	  }
- 	}
-	if(idx>0){
-	  log << std::setfill( ' ' ) << std::right << std::setw(15) << pdgIds; 
-	  log << "\n";
-	}
-	else{
-	  log << std::setfill( ' ' ) << std::right << std::setw(15) << "-\n";
- 	}
-      }
-    }
-  }
-}
-
-/// print the whole decay chain if particle with pdgId is contained in the top decay chain
-void 
-TopDecaySubset::printTarget(reco::GenParticleCollection& sel)
-{
-  edm::LogVerbatim log("TopDecaySubset");
-  log << "\n   idx   pdg   stat      px          py         pz             mass          daughter pdg's  "
-      << "\n===========================================================================================\n";
-
-  for(unsigned int t=0; t<sel.size(); ++t){
-    if( sel[t].pdgId()==TopDecayID::tID ){
-      // restrict to the top in order 
-      // to have it shown only once      
-      int idx=0;
-      for(reco::GenParticleCollection::iterator p=sel.begin(); p!=sel.end(); ++p, ++idx){
-	// loop the top daughters
-	log << std::right << std::setw( 5) << idx
-	    << std::right << std::setw( 7) << sel[idx].pdgId()
-	    << std::right << std::setw( 5) << sel[idx].status() << "  "
-	    << std::right << std::setw(10) << std::setprecision( 6 ) << sel[idx].p4().x() << "  "	
-	    << std::right << std::setw(10) << std::setprecision( 6 ) << sel[idx].p4().y() << "  "	
-	    << std::right << std::setw(10) << std::setprecision( 6 ) << sel[idx].p4().z() << "  "	
-	    << std::right << std::setw(15) << std::setprecision( 6 ) << sel[idx].p4().mass() 
-	    << "   ";
-	// search for potential daughters; if they exits 
-	// print the daughter to the screen in the last 
-	// column of the table separated by ','
-	TString pdgIds;
-	std::map<int, std::vector<int> >::const_iterator daughters=refs_.find( idx );
-	if( daughters!=refs_.end() ){
-	  unsigned int jdx=0;
-	  for(std::vector<int>::const_iterator d = daughters->second.begin(); d!=daughters->second.end(); ++d, ++jdx){
-	    if(jdx<kMAX){
-	      pdgIds+=sel[*d].pdgId();
-	      if(d+1 != daughters->second.end()){
-		pdgIds+= ",";
-	      }
-	    }
-	    else{
-	      pdgIds+="...(";
-	      pdgIds+= daughters->second.size();
-	      pdgIds+=")";
-	      break;
-	    }
-	  }
-	  log << std::setfill( ' ' ) << std::right << std::setw(15) << pdgIds; 
-	  log << "\n";
-	}
-	else{
-	  log << std::setfill( ' ' ) << std::right << std::setw(15) << "-\n";
-	}
       }
     }
   }

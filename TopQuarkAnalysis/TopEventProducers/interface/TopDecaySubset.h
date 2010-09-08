@@ -42,15 +42,15 @@ class TopDecaySubset : public edm::EDProducer {
 
  private:
   /// find top quarks in list of input particles
-  void findTops(const reco::GenParticleCollection& parts);
+  std::vector<const reco::GenParticle*> findTops(const reco::GenParticleCollection& parts);
   /// check the decay chain for the used shower model
-  ShowerModel checkShowerModel() const;
+  ShowerModel checkShowerModel(const std::vector<const reco::GenParticle*>& tops) const;
   /// check the sanity of the input particle listing
-  void checkSanity(const reco::GenParticleCollection& parts) const;
+  void checkSanity(const std::vector<const reco::GenParticle*>& tops) const;
   /// check whether the W boson is contained in the original gen particle listing
   bool checkWBoson(const reco::GenParticle* top) const;
   /// fill output vector for full decay chain 
-  void fillListing(reco::GenParticleCollection& target);
+  void fillListing(const std::vector<const reco::GenParticle*>& tops, reco::GenParticleCollection& target);
 
   /// clear references
   void clearReferences();
@@ -64,10 +64,6 @@ class TopDecaySubset : public edm::EDProducer {
   void addDaughters(int& idx, const reco::GenParticle::const_iterator part, reco::GenParticleCollection& target, bool recursive=true);
   /// fill vector including all radiations from quarks originating from W/top
   void addRadiation(int& idx, const reco::GenParticle::const_iterator part, reco::GenParticleCollection& target);
-  /// print the whole listing if particle with pdgId is contained in the top decay chain
-  void printSource(const reco::GenParticleCollection& src);
-  /// print the whole decay chain if particle with pdgId is contained in the top decay chain
-  void printTarget(reco::GenParticleCollection& target);
 
  private:
   /// input tag for the genParticle source
@@ -75,16 +71,10 @@ class TopDecaySubset : public edm::EDProducer {
   /// add radiation or not?
   bool addRadiation_;
   /// print the whole list of input particles or not?
-  bool printSource_;
-  /// print the final list of particles or not?
-  bool printTarget_;
   /// mode of decaySubset creation 
   FillMode fillMode_;
   /// parton shower mode (filled in checkShowerModel)
   ShowerModel showerModel_;
-
-  /// pointer to the top quarks in the list of input particles
-  std::vector<const reco::GenParticle*> tops_;
 
   /// index in new evt listing of parts with daughters; 
   /// has to be set to -1 in produce to deliver consistent 
