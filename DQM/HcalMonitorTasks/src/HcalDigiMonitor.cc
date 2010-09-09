@@ -420,7 +420,7 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
       for (HFRecHitCollection::const_iterator HF=hf_rechit->begin();HF!=hf_rechit->end();++HF)
 	{
 	  float en=HF->energy();
-	  double ieta=HF->id().ieta();
+	  int ieta=HF->id().ieta();
 	  double fEta=fabs(0.5*(theHFEtaBounds[abs(ieta)-1]+theHFEtaBounds[abs(ieta)]));
 	  ieta>0 ?  HT_HFP_+=en/cosh(fEta) : HT_HFM_+=en/cosh(fEta);
 	}
