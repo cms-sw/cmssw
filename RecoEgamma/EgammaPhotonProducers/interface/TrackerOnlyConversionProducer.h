@@ -4,8 +4,8 @@
  **
  **
  **  $Id:
- **  $Date: 2010/03/23 14:31:28 $
- **  $Revision: 1.12 $
+ **  $Date: 2010/06/03 14:35:05 $
+ **  $Revision: 1.13 $
  **  \author H. Liu, UC of Riverside US
  **
  ***/
@@ -59,9 +59,11 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-using namespace edm;
-using namespace reco;
+//using namespace edm;
+//using namespace reco;
 using namespace std;
+
+class ConversionVertexFinder;
 
 class TrackerOnlyConversionProducer : public edm::EDProducer {
     public:
@@ -86,12 +88,12 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
       inline bool trackD0Cut(const edm::Ref<reco::TrackCollection>&  ref, const reco::Vertex& the_pvtx);
 
       //track impact point at ECAL wall, returns validity to access position ew
-      bool getTrackImpactPosition(const TrackRef& tk_ref, 
+      bool getTrackImpactPosition(const reco::TrackRef& tk_ref, 
 	      const TrackerGeometry* trackerGeom, const MagneticField* magField, 
 	      math::XYZPoint& ew);
 
       //distance at min approaching point, returns distance
-      double getMinApproach(const TrackRef& ll, const TrackRef& rr, 
+      double getMinApproach(const reco::TrackRef& ll, const reco::TrackRef& rr, 
 	      const MagneticField* magField);
 
       //cut-based selection, TODO remove global cut variables
@@ -146,6 +148,7 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
 
       bool usePvtx_;//if use primary vertices
       std::string vertexProducer_;
+      ConversionVertexFinder*         theVertexFinder_;
 
       double halfWayEta_, halfWayPhi_;//halfway open angle to search in basic clusters
 
