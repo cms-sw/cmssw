@@ -1,8 +1,8 @@
 /** \file LaserBeamsTEC1.cc
  *  
  *
- *  $Date: 2007/12/04 23:53:07 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/05/26 07:12:23 $
+ *  $Revision: 1.6 $
  *  \author Maarten Thomas
  */
 
@@ -78,7 +78,7 @@ void LaserBeamsTEC1::GeneratePrimaries(G4Event* myEvent)
 
   // use the random number generator service of the framework
   edm::Service<edm::RandomNumberGenerator> rng;
-  uint seed = rng->mySeed();
+  unsigned int seed = rng->mySeed();
 
   // set the seed
   theDRand48Engine->setSeed(seed);
