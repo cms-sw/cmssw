@@ -1,4 +1,4 @@
-// $Id: FileHandler.cc,v 1.18 2010/03/31 12:33:53 mommsen Exp $
+// $Id: FileHandler.cc,v 1.19 2010/08/06 20:24:31 wmtan Exp $
 /// @file: FileHandler.cc
 
 #include <EventFilter/StorageManager/interface/Exception.h>
@@ -145,6 +145,35 @@ void FileHandler::insertFileInDatabase() const
       << "\n";
 
   _dbFileHandler->writeOld( _firstEntry, oss.str() );
+}
+
+
+bool FileHandler::tooOld(const utils::time_point_t currentTime)
+{
+  if (_diskWritingParams._lumiSectionTimeOut > 0 && 
+    (currentTime - _lastEntry) > _diskWritingParams._lumiSectionTimeOut)
+  {
+    closeFile(FilesMonitorCollection::FileRecord::timeout);
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+
+bool FileHandler::isFromLumiSection(const uint32_t lumiSection)
+{
+  if (lumiSection == _fileRecord->lumiSection)
+  {
+    closeFile(FilesMonitorCollection::FileRecord::LSended);
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
 
 

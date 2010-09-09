@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.20 2010/04/19 10:35:09 mommsen Exp $
+// $Id: Configuration.h,v 1.21 2010/05/11 17:58:01 mommsen Exp $
 /// @file: Configuration.h 
 
 
@@ -39,7 +39,6 @@ namespace stor
     double _highWaterMark;
     double _failHighWaterMark;
     utils::duration_t _lumiSectionTimeOut;
-    utils::duration_t _errorEventsTimeOut;
     utils::duration_t _fileClosingTestInterval;
     double _fileSizeTolerance;
     bool _useIndexFiles;  // not yet used
@@ -162,8 +161,8 @@ namespace stor
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.20 $
-   * $Date: 2010/04/19 10:35:09 $
+   * $Revision: 1.21 $
+   * $Date: 2010/05/11 17:58:01 $
    */
 
   class Configuration : public xdata::ActionListener
@@ -349,7 +348,6 @@ namespace stor
     xdata::Double _highWaterMark;
     xdata::Double _failHighWaterMark;
     xdata::Double _lumiSectionTimeOut;
-    xdata::Double _errorEventsTimeOut;
     xdata::Integer _fileClosingTestInterval;
     xdata::Double _fileSizeTolerance;
     xdata::Boolean _useIndexFiles;
