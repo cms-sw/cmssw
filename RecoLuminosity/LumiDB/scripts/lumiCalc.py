@@ -3,9 +3,27 @@ VERSION='2.00'
 import os,sys
 import coral
 #import optparse
-from RecoLuminosity.LumiDB import csvSelectionParser, selectionParser,argparse
-import RecoLuminosity.LumiDB.lumiQueryAPI as LumiQueryAPI
+from RecoLuminosity.LumiDB import inputFilesetParser,csvSelectionParser, selectionParser,csvReporter,argparse,CommonUtil,lumiQueryAPI
+#import RecoLuminosity.LumiDB.lumiQueryAPI as LumiQueryAPI
 #from pprint import pprint
+
+def getValidationData(dbsession,run=None,cmsls=None):
+    '''retrieve validation data per run or all
+    input: runnum, if not runnum, retrive all
+    output: {run:[[cmslsnum,flag,comment]]}
+    '''
+    try:
+        dbsession.transaction().start(True)
+        schema=dbsession.nominalSchema()
+        queryHandle=dbsession.nominalSchema().newQuery()
+        result=lumiQueryAPI.validation(queryHandle,run,cmsls)
+        del queryHandle
+        dbsession.transaction().commit()
+    except Exception, e:
+        dbsession.transaction().rollback()
+        del dbsession
+        raise Exception, 'lumiValidate.getValidationData:'+str(e)
+    return result
 
 ##############################
 ## ######################## ##
@@ -17,7 +35,7 @@ import RecoLuminosity.LumiDB.lumiQueryAPI as LumiQueryAPI
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description = "Lumi Calculations",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    allowedActions = ['overview', 'delivered', 'recorded', 'lumibyls', 'lumibylsXing']
+    allowedActions = ['overview', 'delivered', 'recorded', 'lumibyls', 'lumibylsXing','status']
     beamModeChoices = [ "stable", "quiet", "either"]
     # parse arguments
     parser.add_argument('action',choices=allowedActions,help='command actions')
@@ -43,12 +61,12 @@ if __name__ == '__main__':
         print "must specify either a run (-r) or an input run selection file (-i)"
         sys.exit()
         
-    session,svc =  LumiQueryAPI.setupSession (options.connect or \
+    session,svc =  lumiQueryAPI.setupSession (options.connect or \
                                               'frontier://LumiProd/CMS_LUMI_PROD',
                                                options.siteconfpath, options.debug)
 
     ## Save what we need in the parameters object
-    parameters = LumiQueryAPI.ParametersObject()
+    parameters = lumiQueryAPI.ParametersObject()
     parameters.verbose     = options.verbose
     parameters.noWarnings  = options.nowarning
     parameters.norm        = options.normfactor
@@ -58,75 +76,114 @@ if __name__ == '__main__':
     parameters.xingMinLum  = options.xingMinLum
     
     lumiXing = False
-    if options.action == 'lumibylsXing':
-        #action = 'lumibyls'
-        parameters.lumiXing = True
-        # we can't have lumiXing mode if we're not writing to a CSV
-        # file
-        #if not options.outputfile:
-        #    raise RuntimeError, "You must specify an outputt file in 'lumibylsXing' mode"
-    if options.runnumber:
-        inputRange = str(options.runnumber)
-    else:
-        basename, extension = os.path.splitext (options.inputfile)
-        if extension == '.csv': # if file ends with .csv, use csv parser, else parse as json file
-            fileparsingResult = csvSelectionParser.csvSelectionParser (options.inputfile)
+    if options.action in ['lumibylsXing','delivered','recorded','overview','lumibyls']:
+        if options.action == 'lumibylsXing':
+           #action = 'lumibyls'
+           parameters.lumiXing = True
+           # we can't have lumiXing mode if we're not writing to a CSV
+           # file
+           #if not options.outputfile:
+           #    raise RuntimeError, "You must specify an outputt file in 'lumibylsXing' mode"
+        if options.runnumber:
+            inputRange=str(options.runnumber)
         else:
-            f = open (options.inputfile, 'r')
-            inputfilecontent = f.read()
-            inputRange =  selectionParser.selectionParser (inputfilecontent)
+            inputRange=inputFilesetParser.inputFilesetParser(options.inputfile)
         if not inputRange:
             print 'failed to parse the input file', options.inputfile
             raise 
 
-    # Delivered
-    if options.action ==  'delivered':
-        lumidata =  LumiQueryAPI.deliveredLumiForRange (session, parameters, inputRange)    
-        if not options.outputfile:
-             LumiQueryAPI.printDeliveredLumi (lumidata, '')
-        else:
-            lumidata.insert (0, ['run', 'nls', 'delivered', 'beammode'])
-            LumiQueryAPI.dumpData (lumidata, options.outputfile)
+        # Delivered
+        if options.action ==  'delivered':
+            lumidata=lumiQueryAPI.deliveredLumiForRange(session, parameters, inputRange)    
+            if not options.outputfile:
+                lumiQueryAPI.printDeliveredLumi (lumidata, '')
+            else:
+                lumidata.insert (0, ['run', 'nls', 'delivered', 'beammode'])
+                lumiQueryAPI.dumpData (lumidata, options.outputfile)
 
-    # Recorded
-    if options.action ==  'recorded':
-        hltpath = ''
-        if options.hltpath:
-            hltpath = options.hltpath
-        lumidata =  LumiQueryAPI.recordedLumiForRange (session, parameters, inputRange)
-        if not options.outputfile:
-             LumiQueryAPI.printRecordedLumi (lumidata, parameters.verbose, hltpath)
-        else:
-            todump = dumpRecordedLumi (lumidata, hltpath)
-            todump.insert (0, ['run', 'hltpath', 'recorded'])
-            LumiQueryAPI.dumpData (todump, options.outputfile)
+        # Recorded
+        if options.action ==  'recorded':
+            hltpath = ''
+            if options.hltpath:
+                hltpath = options.hltpath
+                lumidata =  lumiQueryAPI.recordedLumiForRange (session, parameters, inputRange)
+            if not options.outputfile:
+                lumiQueryAPI.printRecordedLumi (lumidata, parameters.verbose, hltpath)
+            else:
+                todump = dumpRecordedLumi (lumidata, hltpath)
+                todump.insert (0, ['run', 'hltpath', 'recorded'])
+                lumiQueryAPI.dumpData (todump, options.outputfile)
+                
+                # Overview
+        if options.action ==  'overview':
+            hltpath=''
+            if options.hltpath:
+                hltpath=options.hltpath
+            delivereddata=lumiQueryAPI.deliveredLumiForRange(session, parameters, inputRange)
+            recordeddata=lumiQueryAPI.recordedLumiForRange(session, parameters, inputRange)
+            if not options.outputfile:
+                lumiQueryAPI.printOverviewData (delivereddata, recordeddata, hltpath)
+            else:
+                todump = lumiQueryAPI.dumpOverview (delivereddata, recordeddata, hltpath)
+                if not hltpath:
+                    hltpath = 'all'
+                todump.insert (0, ['run', 'delivered', 'recorded', 'hltpath:'+hltpath])
+                lumiQueryAPI.dumpData (todump, options.outputfile)
 
-    # Overview
-    if options.action ==  'overview':
-        hltpath = ''
-        if options.hltpath:
-            hltpath = options.hltpath
-        delivereddata = LumiQueryAPI.deliveredLumiForRange(session, parameters, inputRange)
-        recordeddata  = LumiQueryAPI.recordedLumiForRange(session, parameters, inputRange)
-        if not options.outputfile:
-            LumiQueryAPI.printOverviewData (delivereddata, recordeddata, hltpath)
+                # Lumi by lumisection
+        if options.action=='lumibyls' or options.action=='lumibylsXing':
+            recordeddata=lumiQueryAPI.recordedLumiForRange(session, parameters, inputRange)
+            # we got it, now we got to decide what to do with it
+            if not options.outputfile:
+                lumiQueryAPI.printPerLSLumi (recordeddata, parameters.verbose)
+            else:
+                todump = lumiQueryAPI.dumpPerLSLumi(recordeddata)
+                todump.insert (0, ['run', 'ls', 'delivered', 'recorded'])
+                lumiQueryAPI.dumpData (todump, options.outputfile)
+        if not options.nowarning:
+            result={}
+            if isinstance(inputRange,str):
+                result=getValidationData(session,run=int(inputRange))
+            else:
+                runsandls=inputRange.runsandls()
+                for runnum,lslist in runsandls.items():
+                    dataperrun=getValidationData(session,run=runnum,cmsls=lslist)
+                    result[runnum]=dataperrun[runnum]
+            for run,perrundata in result.items():
+                totalsuspect=0
+                totalbad=0
+                totalunknown=0
+                for lsdata in perrundata:
+                    if lsdata[1]=='UNKNOWN':
+                        totalunknown+=1
+                    if lsdata[1]=='SUSPECT':
+                        totalsuspect+=1
+                    if lsdata[1]=='BAD':
+                        totalbad+=1
+                if totalsuspect!=0 or totalbad!=0 or totalunknown!=0:
+                    print '[WARNING] : run '+str(run)+' : total non-GOOD LS: UNKNOWN '+str(totalunknown)+', BAD '+str(totalbad)+', SUSPECT '+str(totalsuspect)
+    # relate to validation status
+    elif options.action=='status':
+        result={}
+        if options.inputfile:
+            p=inputFilesetParser.inputFilesetParser(options.inputfile)
+            runsandls=p.runsandls()
+            for runnum,lslist in runsandls.items():
+                dataperrun=getValidationData(session,run=runnum,cmsls=lslist)
+                result[runnum]=dataperrun[runnum]
         else:
-            todump =  LumiQueryAPI.dumpOverview (delivereddata, recordeddata, hltpath)
-            if not hltpath:
-                hltpath = 'all'
-            todump.insert (0, ['run', 'delivered', 'recorded', 'hltpath:'+hltpath])
-            LumiQueryAPI.dumpData (todump, options.outputfile)
-
-    # Lumi by lumisection
-    if options.action ==  'lumibyls' or options.action == 'lumibylsXing':
-        recordeddata  = LumiQueryAPI.recordedLumiForRange  (session, parameters, inputRange)
-        # we got it, now we got to decide what to do with it
-        if not options.outputfile:
-            LumiQueryAPI.printPerLSLumi (recordeddata, parameters.verbose)
+            result=getValidationData(session,run=options.runnumber)
+        runs=result.keys()
+        runs.sort()
+        if options.outputfile:
+            r=csvReporter.csvReporter(options.outputfile)
+            for run in runs:
+                for perrundata in result[run]:
+                    r.writeRow([str(run),str(perrundata[0]),perrundata[1],perrundata[2]])
         else:
-            todump =  LumiQueryAPI.dumpPerLSLumi (recordeddata)
-            todump.insert (0, ['run', 'ls', 'delivered', 'recorded'])
-            LumiQueryAPI.dumpData (todump, options.outputfile)
-
-    
-     
+            for run in runs:
+                print '== ='
+                for lsdata in result[run]:
+                    print str(run)+','+str(lsdata[0])+','+lsdata[1]+','+lsdata[2]
+    del session
+    del svc 
