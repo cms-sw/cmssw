@@ -263,11 +263,11 @@ std::ostream& operator<<(std::ostream& os, const CSCRecHit2D& rh) {
     " y = " << rh.localPosition().y() << " +/- " << sqrt( rh.localPositionError().yy() ) <<
     " in strip X = " << rh.positionWithinStrip() << " +/-  = " << rh.errorWithinStrip()<<" quality = "<<rh.quality()<<"\n";
   os << "             strip # : ";
-  for(uint iS =0;iS< rh.channels().size();++iS){
+  for(size_t iS =0;iS< rh.channels().size();++iS){
     os <<rh.channels().at(iS)<<"  ";
   }
 os << "\n             wire # : ";
-  for(uint iW =0;iW< rh.wgroups().size();++iW){
+  for(size_t iW =0;iW< rh.wgroups().size();++iW){
     os <<rh.wgroups().at(iW)<<"  ";
   }
   return os;
