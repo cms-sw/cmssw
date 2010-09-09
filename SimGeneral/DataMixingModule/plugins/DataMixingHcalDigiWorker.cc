@@ -453,14 +453,14 @@ namespace edm
 
         //loop over digi samples in each CaloSample                                                  
 
-        uint sizenew = (iHB->second).size();
-        uint sizeold = HB_old.size();
+        unsigned int sizenew = (iHB->second).size();
+        unsigned int sizeold = HB_old.size();
 
 	bool usenew = false;
 
 	if(sizenew > sizeold) usenew = true;
 
-	uint max_samp = max(sizenew, sizeold);
+	unsigned int max_samp = max(sizenew, sizeold);
 
 	CaloSamples HB_bigger(currentID,max_samp);	
 
@@ -469,7 +469,7 @@ namespace edm
         // samples from different events can be of different lengths - sum all                      
 	// that overlap.                
 
-        for(uint isamp = 0; isamp<max_samp; isamp++) {
+        for(unsigned int isamp = 0; isamp<max_samp; isamp++) {
           if(isamp < sizenew) {
             fC_new = (iHB->second)[isamp]; // should return nominal_fC();
           }
@@ -505,8 +505,8 @@ namespace edm
 	  const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	  HcalCoderDb coder (*channelCoder, *shape);
 
-	  uint sizeold = HB_old.size();
-	  for(uint isamp = 0; isamp<sizeold; isamp++) {
+	  unsigned int sizeold = HB_old.size();
+	  for(unsigned int isamp = 0; isamp<sizeold; isamp++) {
 	    coder.fC2adc(HB_old,(HBHEdigis->back()), 0 );   // as per simulation, capid=0???
 	  }
 	}
@@ -528,8 +528,8 @@ namespace edm
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	HcalCoderDb coder (*channelCoder, *shape);
 
-        uint sizenew = (iHB->second).size();
-	for(uint isamp = 0; isamp<sizenew; isamp++) {
+        unsigned int sizenew = (iHB->second).size();
+	for(unsigned int isamp = 0; isamp<sizenew; isamp++) {
 	  coder.fC2adc(HB_old,(HBHEdigis->back()), 0 );  // as per simulation, capid=0???
   	}
       }
@@ -552,10 +552,10 @@ namespace edm
       if (currentID == formerID) { // we have to add these digis together
 
         //loop over digi samples in each CaloSample                                                           
-        uint sizenew = (iHO->second).size();
-        uint sizeold = HO_old.size();
+        unsigned int sizenew = (iHO->second).size();
+        unsigned int sizeold = HO_old.size();
 
-        uint max_samp = max(sizenew, sizeold);
+        unsigned int max_samp = max(sizenew, sizeold);
 
         CaloSamples HO_bigger(currentID,max_samp);
 
@@ -566,7 +566,7 @@ namespace edm
         // samples from different events can be of different lengths - sum all                               
         // that overlap.                                                                                     
 
-        for(uint isamp = 0; isamp<max_samp; isamp++) {
+        for(unsigned int isamp = 0; isamp<max_samp; isamp++) {
           if(isamp < sizenew) {
             fC_new = (iHO->second)[isamp];
           }
@@ -598,8 +598,8 @@ namespace edm
 	  const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	  HcalCoderDb coder (*channelCoder, *shape);
 
-	  uint sizeold = HO_old.size();
-	  for(uint isamp = 0; isamp<sizeold; isamp++) {
+	  unsigned int sizeold = HO_old.size();
+	  for(unsigned int isamp = 0; isamp<sizeold; isamp++) {
 	    coder.fC2adc(HO_old,(HOdigis->back()), 0 );   // as per simulation, capid=0???
 	  }
 	}
@@ -619,8 +619,8 @@ namespace edm
 	  const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	  HcalCoderDb coder (*channelCoder, *shape);
 
-	  uint sizeold = (iHO->second).size();
-	  for(uint isamp = 0; isamp<sizeold; isamp++) {
+	  unsigned int sizeold = (iHO->second).size();
+	  for(unsigned int isamp = 0; isamp<sizeold; isamp++) {
 	    coder.fC2adc(HO_old,(HOdigis->back()), 0 );   // as per simulation, capid=0???
 	  }
 
@@ -643,10 +643,10 @@ namespace edm
       if (currentID == formerID) { // we have to add these digis together
 
         //loop over digi samples in each CaloSample                                                           
-        uint sizenew = (iHF->second).size();
-        uint sizeold = HF_old.size();
+        unsigned int sizenew = (iHF->second).size();
+        unsigned int sizeold = HF_old.size();
 
-        uint max_samp = max(sizenew, sizeold);
+        unsigned int max_samp = max(sizenew, sizeold);
 
         CaloSamples HF_bigger(currentID,max_samp);
 
@@ -657,7 +657,7 @@ namespace edm
         // samples from different events can be of different lengths - sum all                               
         // that overlap.                                                                                     
 
-        for(uint isamp = 0; isamp<max_samp; isamp++) {
+        for(unsigned int isamp = 0; isamp<max_samp; isamp++) {
           if(isamp < sizenew) {
             fC_new = (iHF->second)[isamp];
           }
@@ -689,8 +689,8 @@ namespace edm
 	  const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	  HcalCoderDb coder (*channelCoder, *shape);
 
-	  uint sizeold = HF_old.size();
-	  for(uint isamp = 0; isamp<sizeold; isamp++) {
+	  unsigned int sizeold = HF_old.size();
+	  for(unsigned int isamp = 0; isamp<sizeold; isamp++) {
 	    coder.fC2adc(HF_old,(HFdigis->back()), 0 );   // as per simulation, capid=0???
 	  }
 	}
@@ -710,8 +710,8 @@ namespace edm
 	  const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	  HcalCoderDb coder (*channelCoder, *shape);
 
-	  uint sizeold = (iHF->second).size();
-	  for(uint isamp = 0; isamp<sizeold; isamp++) {
+	  unsigned int sizeold = (iHF->second).size();
+	  for(unsigned int isamp = 0; isamp<sizeold; isamp++) {
 	    coder.fC2adc(HF_old,(HFdigis->back()), 0 );   // as per simulation, capid=0???
 	  }
 
@@ -735,10 +735,10 @@ namespace edm
       if (currentID == formerID) { // we have to add these digis together
 
         //loop over digi samples in each CaloSample                                                           
-        uint sizenew = (iZDC->second).size();
-        uint sizeold = ZDC_old.size();
+        unsigned int sizenew = (iZDC->second).size();
+        unsigned int sizeold = ZDC_old.size();
 
-        uint max_samp = max(sizenew, sizeold);
+        unsigned int max_samp = max(sizenew, sizeold);
 
         CaloSamples ZDC_bigger(currentID,max_samp);
 
@@ -749,7 +749,7 @@ namespace edm
         // samples from different events can be of different lengths - sum all                               
         // that overlap.                                                                                     
 
-        for(uint isamp = 0; isamp<max_samp; isamp++) {
+        for(unsigned int isamp = 0; isamp<max_samp; isamp++) {
           if(isamp < sizenew) {
             fC_new = (iZDC->second)[isamp];
           }
@@ -781,8 +781,8 @@ namespace edm
 	  const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	  HcalCoderDb coder (*channelCoder, *shape);
 
-	  uint sizeold = ZDC_old.size();
-	  for(uint isamp = 0; isamp<sizeold; isamp++) {
+	  unsigned int sizeold = ZDC_old.size();
+	  for(unsigned int isamp = 0; isamp<sizeold; isamp++) {
 	    coder.fC2adc(ZDC_old,(ZDCdigis->back()), 0 );   // as per simulation, capid=0???
 	  }
 	}
@@ -802,8 +802,8 @@ namespace edm
 	  const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	  HcalCoderDb coder (*channelCoder, *shape);
 
-	  uint sizeold = (iZDC->second).size();
-	  for(uint isamp = 0; isamp<sizeold; isamp++) {
+	  unsigned int sizeold = (iZDC->second).size();
+	  for(unsigned int isamp = 0; isamp<sizeold; isamp++) {
 	    coder.fC2adc(ZDC_old,(ZDCdigis->back()), 0 );   // as per simulation, capid=0???
 	  }
 

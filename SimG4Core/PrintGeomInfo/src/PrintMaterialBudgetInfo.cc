@@ -57,7 +57,7 @@ void PrintMaterialBudgetInfo::update(const BeginOfRun* run) {
   theTopPV = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume();
   // Logical Volume
   G4LogicalVolume*  lv = theTopPV->GetLogicalVolume();
-  uint leafDepth = 0;
+  unsigned int leafDepth = 0;
   // the first time fill the vectors of elements
   if( elementNames.size()==0 && elementTotalWeight.size()==0 && elementWeightFraction.size()==0) {
     for(unsigned int iElement = 0;
@@ -130,7 +130,7 @@ void PrintMaterialBudgetInfo::dumpLaTeXFooter(std::ostream& out ) {
 }
 
 void PrintMaterialBudgetInfo::dumpHierarchyLeaf(G4VPhysicalVolume* pv, G4LogicalVolume* lv,
-						uint leafDepth,
+						unsigned int leafDepth,
 						std::ostream& weightOut,
 						std::ostream& texOut ) {
   
@@ -171,7 +171,7 @@ void PrintMaterialBudgetInfo::dumpHierarchyLeaf(G4VPhysicalVolume* pv, G4Logical
   
 }
 
-void PrintMaterialBudgetInfo::printInfo(G4VPhysicalVolume* pv, G4LogicalVolume* lv, uint leafDepth,
+void PrintMaterialBudgetInfo::printInfo(G4VPhysicalVolume* pv, G4LogicalVolume* lv, unsigned int leafDepth,
 					std::ostream& weightOut, std::ostream& texOut ) {
   
   double density = lv->GetMaterial()->GetDensity();

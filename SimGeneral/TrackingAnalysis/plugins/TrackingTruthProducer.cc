@@ -275,9 +275,9 @@ void TrackingTruthProducer::associator(
 
 void TrackingTruthProducer::mergeBremsstrahlung()
 {
-    uint index = 0;
+    unsigned int index = 0;
 
-    std::set<uint> excludedTV, excludedTP;
+    std::set<unsigned int> excludedTV, excludedTP;
 
     // Merge Bremsstrahlung vertexes
     for (TrackingVertexCollection::iterator iVC = trackingVertexes_->begin(); iVC != trackingVertexes_->end(); ++iVC, ++index)
@@ -372,7 +372,7 @@ void TrackingTruthProducer::mergeBremsstrahlung()
     mergedTrackingVertexes_->reserve(trackingVertexes_->size());
 
     index = 0;
-    std::map<uint, uint> vertexMap;
+    std::map<unsigned int, unsigned int> vertexMap;
 
     // Copy non-excluded vertices discarding parent & child tracks
     for (TrackingVertexCollection::const_iterator iVC = trackingVertexes_->begin(); iVC != trackingVertexes_->end(); ++iVC, ++index)
@@ -404,9 +404,9 @@ void TrackingTruthProducer::mergeBremsstrahlung()
         // Set vertex indices for new vertex product and track references in those vertices
 
         // Index of parent vertex in vertex container
-        uint parentIndex = vertexMap[sourceV.key()];
+        unsigned int parentIndex = vertexMap[sourceV.key()];
         // Index of this track in track container
-        uint tIndex = mergedTrackingParticles_->size();
+        unsigned int tIndex = mergedTrackingParticles_->size();
 
         // Add vertex to track
         newTrack.setParentVertex( TrackingVertexRef(refMergedTrackingVertexes_, parentIndex) );
@@ -416,7 +416,7 @@ void TrackingTruthProducer::mergeBremsstrahlung()
         for (TrackingVertexRefVector::const_iterator iDecayV = decayVs.begin(); iDecayV != decayVs.end(); ++iDecayV)
         {
             // Index of decay vertex in vertex container
-            uint daughterIndex = vertexMap[iDecayV->key()];
+            unsigned int daughterIndex = vertexMap[iDecayV->key()];
             // Add vertex to track
             newTrack.addDecayVertex( TrackingVertexRef(refMergedTrackingVertexes_, daughterIndex) );
             // Add track to vertex

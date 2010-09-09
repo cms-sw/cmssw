@@ -311,10 +311,10 @@ namespace edm
 	for (int i=0; i<10;++i)  std::cout << (iEB->second)[i].adc()<< "["<<(iEB->second)[i].gainId()<< "] " ; std::cout << std::endl;
 	*/
 	//loop over digi samples in each DataFrame
-	uint sizenew = (iEB->second).size();
-	uint sizeold = EB_old.size();
+	unsigned int sizenew = (iEB->second).size();
+	unsigned int sizeold = EB_old.size();
 
-	uint max_samp = max(sizenew, sizeold);
+	unsigned int max_samp = max(sizenew, sizeold);
 
 	// samples from different events can be of different lengths - sum all
 	// that overlap.
@@ -323,7 +323,7 @@ namespace edm
 	int sw_gain_consensus=0;
 
 
-	for(uint isamp = 0; isamp<max_samp; isamp++) {
+	for(unsigned int isamp = 0; isamp<max_samp; isamp++) {
 	  if(isamp < sizenew) {
 	    gain_new = (iEB->second)[isamp].gainId();
 	    adc_new = (iEB->second)[isamp].adc();
@@ -425,16 +425,16 @@ namespace edm
       if (currentID == formerID) { // we have to add these digis together
 
 	//loop over digi samples in each DataFrame
-	uint sizenew = (iEE->second).size();
-	uint sizeold = EE_old.size();
+	unsigned int sizenew = (iEE->second).size();
+	unsigned int sizeold = EE_old.size();
 
-	uint max_samp = max(sizenew, sizeold);
+	unsigned int max_samp = max(sizenew, sizeold);
 
 	// samples from different events can be of different lengths - sum all
 	// that overlap.
 	// check to see if gains match - if not, scale smaller cell down.
 
-	for(uint isamp = 0; isamp<max_samp; isamp++) {
+	for(unsigned int isamp = 0; isamp<max_samp; isamp++) {
 	  if(isamp < sizenew) {
 	    gain_new = (iEE->second)[isamp].gainId();
 	    adc_new = (iEE->second)[isamp].adc();
@@ -525,16 +525,16 @@ namespace edm
       if (currentID == formerID) { // we have to add these digis together
 
 	//loop over digi samples in each DataFrame
-	uint sizenew = (iES->second).size();
-	uint sizeold = ES_old.size();
+	unsigned int sizenew = (iES->second).size();
+	unsigned int sizeold = ES_old.size();
 	uint16_t rawdat = 0;
-	uint max_samp = max(sizenew, sizeold);
+	unsigned int max_samp = max(sizenew, sizeold);
 
 	// samples from different events can be of different lengths - sum all
 	// that overlap.
 	// check to see if gains match - if not, scale smaller cell down.
 
-	for(uint isamp = 0; isamp<max_samp; isamp++) {
+	for(unsigned int isamp = 0; isamp<max_samp; isamp++) {
 	  if(isamp < sizenew) {
 	    adc_new = (iES->second)[isamp].adc();
 	    rawdat = (iES->second)[isamp].raw();

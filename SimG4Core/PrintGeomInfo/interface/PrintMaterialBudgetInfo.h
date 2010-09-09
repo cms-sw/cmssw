@@ -23,8 +23,8 @@ typedef std::multimap< G4LogicalVolume*, G4VPhysicalVolume*, std::less<G4Logical
 
 class PrintMaterialBudgetInfo : public SimWatcher,
 				public Observer<const BeginOfJob*>,
-				public Observer<const BeginOfRun*>
-{
+				public Observer<const BeginOfRun*> {
+
 public:
   PrintMaterialBudgetInfo(edm::ParameterSet const & p);
   ~PrintMaterialBudgetInfo();
@@ -33,9 +33,9 @@ private:
   void update(const BeginOfRun* run);
   void dumpHeader(std::ostream& out = std::cout);
   void dumpLaTeXHeader(std::ostream& out = std::cout);
-  void dumpHierarchyLeaf(G4VPhysicalVolume* pv, G4LogicalVolume* lv, uint leafDepth,
+  void dumpHierarchyLeaf(G4VPhysicalVolume* pv, G4LogicalVolume* lv, unsigned int leafDepth,
 			 std::ostream& weightOut = std::cout, std::ostream& texOut = std::cout);
-  void printInfo(G4VPhysicalVolume* pv, G4LogicalVolume* lv, uint leafDepth,
+  void printInfo(G4VPhysicalVolume* pv, G4LogicalVolume* lv, unsigned int leafDepth,
 		 std::ostream& weightOut = std::cout, std::ostream& texOut = std::cout);
   void dumpElementMassFraction(std::ostream& elementOut = std::cout);
   void dumpLaTeXFooter(std::ostream& out = std::cout);

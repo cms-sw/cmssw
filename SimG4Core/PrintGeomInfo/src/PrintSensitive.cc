@@ -27,7 +27,7 @@ void PrintSensitive::update(const BeginOfRun * run) {
   dumpTouch(theTopPV, 0, false, std::cout);
 }
 
-void PrintSensitive::dumpTouch(G4VPhysicalVolume * pv, uint leafDepth, 
+void PrintSensitive::dumpTouch(G4VPhysicalVolume * pv, unsigned int leafDepth, 
 			       bool printIt, std::ostream & out) {
 
   if (leafDepth == 0) fHistory.SetFirstEntry(pv);
