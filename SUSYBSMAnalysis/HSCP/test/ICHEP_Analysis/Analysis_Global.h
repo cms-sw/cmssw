@@ -1,10 +1,15 @@
 
+#ifndef HSCP_ANALYSIS_GLOBAL
+#define HSCP_ANALYSIS_GLOBAL
+
 std::map<string,double>  CrossSections;
 
 
 
-const char*        EstimLeg        = "dE/dx estimator (MeV/cm)";
-const char*        DiscrLeg        = "dE/dx discriminator";
+//const char*        EstimLeg        = "dE/dx estimator (MeV/cm)";
+//const char*        DiscrLeg        = "dE/dx discriminator";
+const char*        EstimLeg        = "I_{h} (MeV/cm)";
+const char*        DiscrLeg        = "I_{as}";
 const unsigned int dEdxLabelSize   = 12;
 const char*        dEdxLabel    [] = {"dedxCNPHarm2", "dedxCNPTru40", "dedxCNPMed", "dedxSTCNPHarm2", "dedxSTCNPTru40", "dedxSTCNPMed", "dedxProd", "dedxSmi", "dedxASmi", "dedxSTProd", "dedxSTSmi", "dedxSTASmi"};
 const double       dEdxK_Data   [] = {2.5857        , 2.4496        , 2.8284      , 2.5857        , 2.4496        , 2.8284};
@@ -29,14 +34,15 @@ double             CutI [40*6];
 double             PtHistoUpperBound   = 1000;
 double             MassHistoUpperBound = 1000;
 
-float              GlobalMaxDZ   =  10.00;
-float              GlobalMaxDXY  =   1.00;
+float              GlobalMaxDZ   =   2.00;
+float              GlobalMaxDXY  =   0.25;
 float              GlobalMaxChi2 =  10.00;
 int                GlobalMinQual =   2;
 unsigned int       GlobalMinNOH  =   1;
 unsigned int       GlobalMinNOM  =   3;
 double             GlobalMaxPterr=   0.15;
-double             GlobalMinPt   =   5.00;
+//double             GlobalMinPt   =   7.50;
+double             GlobalMinPt   =   15.00;
 double             GlobalMinI    =   0.0;
 
 double		   MinCandidateMass = 75;
@@ -50,4 +56,4 @@ char		   TypeMode         = 0; //0 = All Candidates
 
 bool	           AbsolutePredictiction = true;//false;
 
-
+#endif

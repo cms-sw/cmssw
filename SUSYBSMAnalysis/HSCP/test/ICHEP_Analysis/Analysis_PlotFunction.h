@@ -1,3 +1,8 @@
+
+#ifndef PLOT_FUNCTION
+#define PLOT_FUNCTION
+
+
 int Color [] = {2,4,1,8,6,7,3,9,5};
 int Marker[] = {21,22,23,20,29,3,2};
 int Style [] = {1,2,5,7,9,10};
@@ -43,20 +48,24 @@ void SaveCanvas(TCanvas* c, string path, string name, bool OnlyPPNG=false){
 }
 
 //void DrawPreliminary(int Type, double X=0.28, double Y=0.98, double W=0.85, double H=0.95){
-void DrawPreliminary(double Lumi, double X=0.13, double Y=0.99, double W=0.82, double H=0.96){
+void DrawPreliminary(double Lumi, double X=0.12, double Y=1.00, double W=0.80, double H=0.945){
    TPaveText* T = new TPaveText(X,Y,W,H, "NDC");
    T->SetFillColor(0);
    T->SetTextAlign(22);
-   if(Lumi<0 )T->AddText("CMS Preliminary 2010 : #sqrt{s} = 7 TeV");
+   if(Lumi<0 )T->AddText("CMS Preliminary 2010 :  #sqrt{s} = 7 TeV");
    if(Lumi>0 ){
       char tmp[2048];
-      sprintf(tmp,"CMS Preliminary 2010 : L_{int}=%5.1f nb^{-1}  at  #sqrt{s} = 7 TeV",Lumi*1000.0);
+//      sprintf(tmp,"CMS Preliminary 2010 : L_{int} =%4.1f nb^{-1}  at  #sqrt{s} = 7 TeV",Lumi*1000.0);
+//      sprintf(tmp,"CMS Preliminary 2010 : %4.1f nb^{-1}    #sqrt{s} = 7 TeV",Lumi*1000.0);
+//      sprintf(tmp,"CMS Preliminary 2010   #sqrt{s} = 7TeV   %4.1f nb ^{-1}",Lumi*1000.0);
+//      sprintf(tmp,"CMS Preliminary 2010   #sqrt{s} = 7TeV   %3.0f nb ^{-1}",Lumi*1000.0);
+      sprintf(tmp,"CMS Preliminary 2010   #sqrt{s} = 7TeV   %4.2f pb ^{-1}",Lumi*1.0);
       T->AddText(tmp);
    }
    T->Draw("same");
 }
 
-void DrawLegend (TObject** Histos, std::vector<string> legend, string Title, string Style, double X=0.79, double Y=0.93, double W=0.20, double H=0.05)
+void DrawLegend (TObject** Histos, std::vector<string> legend, string Title, string Style, double X=0.79, double Y=0.92, double W=0.20, double H=0.05)
 {
    int    N             = legend.size();
    
@@ -227,7 +236,10 @@ void Smart_SetAxisRange(TH2D* histo){
       if(c<Min && c>0)Min=c;
       if(c>Max)Max=c;
    }}   
+   if(Max/Min<10 ){Max*= 5.0; Min/= 5.0;}
+   else if(Max/Min<100){Max*=10.0; Min/=10.0;}
    histo->SetAxisRange(Min,Max,"Z");
 }
 
 
+#endif

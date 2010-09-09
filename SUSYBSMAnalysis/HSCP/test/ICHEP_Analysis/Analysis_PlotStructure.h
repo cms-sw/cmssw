@@ -1,4 +1,7 @@
 
+#include "Analysis_Samples.h"
+
+
 /////////////////////////// STRUCTURES DECLARATION /////////////////////////////
 
 struct stPlots {
@@ -76,11 +79,11 @@ void stPlots_Init(stPlots& st, string BaseName)
 
 
    string Name;
-   Name = BaseName + "_BS_DZ"   ; st.BS_DZ    = new TH1D(Name.c_str(), Name.c_str(),  100, 0,  25);  st.BS_DZ->Sumw2();
-   Name = BaseName + "_AS_DZ"   ; st.AS_DZ    = new TH1D(Name.c_str(), Name.c_str(),  100, 0,  25);  st.AS_DZ->Sumw2();
+   Name = BaseName + "_BS_DZ"   ; st.BS_DZ    = new TH1D(Name.c_str(), Name.c_str(),  50, 0,  25);  st.BS_DZ->Sumw2();
+   Name = BaseName + "_AS_DZ"   ; st.AS_DZ    = new TH1D(Name.c_str(), Name.c_str(),  50, 0,  25);  st.AS_DZ->Sumw2();
 
-   Name = BaseName + "_BS_DXY"	; st.BS_DXY   = new TH1D(Name.c_str(), Name.c_str(),  100, 0,   5);  st.BS_DXY->Sumw2();        
-   Name = BaseName + "_AS_DXY"	; st.AS_DXY   = new TH1D(Name.c_str(), Name.c_str(),  100, 0,   5);  st.AS_DXY->Sumw2();
+   Name = BaseName + "_BS_DXY"	; st.BS_DXY   = new TH1D(Name.c_str(), Name.c_str(),  50, 0,   5);  st.BS_DXY->Sumw2();        
+   Name = BaseName + "_AS_DXY"	; st.AS_DXY   = new TH1D(Name.c_str(), Name.c_str(),  50, 0,   5);  st.AS_DXY->Sumw2();
 
    Name = BaseName + "_BS_Chi2"	; st.BS_Chi2  = new TH1D(Name.c_str(), Name.c_str(),   50, 0,  50);  st.BS_Chi2->Sumw2();
    Name = BaseName + "_AS_Chi2"	; st.AS_Chi2  = new TH1D(Name.c_str(), Name.c_str(),   50, 0,  50);  st.AS_Chi2->Sumw2();
@@ -103,28 +106,64 @@ void stPlots_Init(stPlots& st, string BaseName)
    Name = BaseName + "_BS_MIm"  ; st.BS_MIm   = new TH1D(Name.c_str(), Name.c_str(), 100, 0, dEdxUpLim[dEdxMassIndex]); st.BS_MIm->Sumw2();
    Name = BaseName + "_AS_MIm"  ; st.AS_MIm   = new TH1D(Name.c_str(), Name.c_str(), 100, 0, dEdxUpLim[dEdxMassIndex]); st.AS_MIm->Sumw2();
 
-   Name = BaseName + "_BS_Pt"   ; st.BS_Pt    = new TH1D(Name.c_str(), Name.c_str(), 100, 0, PtHistoUpperBound); st.BS_Pt->Sumw2();
-   Name = BaseName + "_AS_Pt"   ; st.AS_Pt    = new TH1D(Name.c_str(), Name.c_str(), 100, 0, PtHistoUpperBound); st.AS_Pt->Sumw2();
+   Name = BaseName + "_BS_Pt"   ; st.BS_Pt    = new TH1D(Name.c_str(), Name.c_str(), 10000, 0, PtHistoUpperBound); st.BS_Pt->Sumw2();
+   Name = BaseName + "_AS_Pt"   ; st.AS_Pt    = new TH1D(Name.c_str(), Name.c_str(), 10000, 0, PtHistoUpperBound); st.AS_Pt->Sumw2();
 
-   Name = BaseName + "_BS_Is"   ; st.BS_Is    = new TH1D(Name.c_str(), Name.c_str(), 100, 0, dEdxUpLim[dEdxSeleIndex]); st.BS_Is->Sumw2();
-   Name = BaseName + "_AS_Is"   ; st.AS_Is    = new TH1D(Name.c_str(), Name.c_str(), 100, 0, dEdxUpLim[dEdxSeleIndex]); st.AS_Is->Sumw2();
+   Name = BaseName + "_BS_Is"   ; st.BS_Is    = new TH1D(Name.c_str(), Name.c_str(), 10000, 0, dEdxUpLim[dEdxSeleIndex]); st.BS_Is->Sumw2();
+   Name = BaseName + "_AS_Is"   ; st.AS_Is    = new TH1D(Name.c_str(), Name.c_str(), 10000, 0, dEdxUpLim[dEdxSeleIndex]); st.AS_Is->Sumw2();
 
-   Name = BaseName + "_BS_Im"   ; st.BS_Im    = new TH1D(Name.c_str(), Name.c_str(), 100, 0, dEdxUpLim[dEdxMassIndex]); st.BS_Im->Sumw2();
-   Name = BaseName + "_AS_Im"   ; st.AS_Im    = new TH1D(Name.c_str(), Name.c_str(), 100, 0, dEdxUpLim[dEdxMassIndex]); st.AS_Im->Sumw2();
+   Name = BaseName + "_BS_Im"   ; st.BS_Im    = new TH1D(Name.c_str(), Name.c_str(), 10000, 0, dEdxUpLim[dEdxMassIndex]); st.BS_Im->Sumw2();
+   Name = BaseName + "_AS_Im"   ; st.AS_Im    = new TH1D(Name.c_str(), Name.c_str(), 10000, 0, dEdxUpLim[dEdxMassIndex]); st.AS_Im->Sumw2();
 
-   Name = BaseName + "_BS_EtaP" ; st.BS_EtaP  = new TH2D(Name.c_str(), Name.c_str(), 100,-3, 3, 100, 0, PtHistoUpperBound);
-   Name = BaseName + "_AS_EtaP" ; st.AS_EtaP  = new TH2D(Name.c_str(), Name.c_str(), 100,-3, 3, 100, 0, PtHistoUpperBound);
+   Name = BaseName + "_BS_EtaP" ; st.BS_EtaP  = new TH2D(Name.c_str(), Name.c_str(), 50,-3, 3, 100, 0, PtHistoUpperBound);
+   Name = BaseName + "_AS_EtaP" ; st.AS_EtaP  = new TH2D(Name.c_str(), Name.c_str(), 50,-3, 3, 100, 0, PtHistoUpperBound);
 
-   Name = BaseName + "_BS_EtaPt"; st.BS_EtaPt = new TH2D(Name.c_str(), Name.c_str(), 100,-3, 3, 100, 0, PtHistoUpperBound);
-   Name = BaseName + "_AS_EtaPt"; st.AS_EtaPt = new TH2D(Name.c_str(), Name.c_str(), 100,-3, 3, 100, 0, PtHistoUpperBound);
+   Name = BaseName + "_BS_EtaPt"; st.BS_EtaPt = new TH2D(Name.c_str(), Name.c_str(), 50,-3, 3, 100, 0, PtHistoUpperBound);
+   Name = BaseName + "_AS_EtaPt"; st.AS_EtaPt = new TH2D(Name.c_str(), Name.c_str(), 50,-3, 3, 100, 0, PtHistoUpperBound);
 
-   Name = BaseName + "_BS_PIs"  ; st.BS_PIs   = new TH2D(Name.c_str(), Name.c_str(), 500, 0, PtHistoUpperBound, 500, 0, dEdxUpLim[dEdxSeleIndex]);
-   Name = BaseName + "_AS_PIs"  ; st.AS_PIs   = new TH2D(Name.c_str(), Name.c_str(), 500, 0, PtHistoUpperBound, 500, 0, dEdxUpLim[dEdxSeleIndex]);
+   Name = BaseName + "_BS_PIs"  ; st.BS_PIs   = new TH2D(Name.c_str(), Name.c_str(), 250, 0, PtHistoUpperBound, 250, 0, dEdxUpLim[dEdxSeleIndex]);
+   Name = BaseName + "_AS_PIs"  ; st.AS_PIs   = new TH2D(Name.c_str(), Name.c_str(), 250, 0, PtHistoUpperBound, 250, 0, dEdxUpLim[dEdxSeleIndex]);
 
-   Name = BaseName + "_BS_PIm"  ; st.BS_PIm   = new TH2D(Name.c_str(), Name.c_str(), 500, 0, PtHistoUpperBound, 500, 0, dEdxUpLim[dEdxMassIndex]);
-   Name = BaseName + "_AS_PIm"  ; st.AS_PIm   = new TH2D(Name.c_str(), Name.c_str(), 500, 0, PtHistoUpperBound, 500, 0, dEdxUpLim[dEdxMassIndex]);
+   Name = BaseName + "_BS_PIm"  ; st.BS_PIm   = new TH2D(Name.c_str(), Name.c_str(), 250, 0, PtHistoUpperBound, 250, 0, dEdxUpLim[dEdxMassIndex]);
+   Name = BaseName + "_AS_PIm"  ; st.AS_PIm   = new TH2D(Name.c_str(), Name.c_str(), 250, 0, PtHistoUpperBound, 250, 0, dEdxUpLim[dEdxMassIndex]);
 }
 
+
+void stPlots_InitFromFile(stPlots& st, string BaseName, TFile* InputFile)
+{
+   st.BS_DZ     = (TH1D*)GetObjectFromPath(InputFile,  BaseName + "_BS_DZ");
+   st.AS_DZ     = (TH1D*)GetObjectFromPath(InputFile,  BaseName + "_AS_DZ");
+   st.BS_DXY    = (TH1D*)GetObjectFromPath(InputFile,  BaseName + "_BS_DXY");
+   st.AS_DXY    = (TH1D*)GetObjectFromPath(InputFile,  BaseName + "_AS_DXY");
+   st.BS_Chi2   = (TH1D*)GetObjectFromPath(InputFile,  BaseName + "_BS_Chi2");
+   st.AS_Chi2   = (TH1D*)GetObjectFromPath(InputFile,  BaseName + "_AS_Chi2");
+   st.BS_Qual   = (TH1D*)GetObjectFromPath(InputFile,  BaseName + "_BS_Qual");
+   st.AS_Qual   = (TH1D*)GetObjectFromPath(InputFile,  BaseName + "_AS_Qual");
+   st.BS_Hits   = (TH1D*)GetObjectFromPath(InputFile,  BaseName + "_BS_Hits");
+   st.AS_Hits   = (TH1D*)GetObjectFromPath(InputFile,  BaseName + "_AS_Hits");
+   st.BS_Pterr  = (TH1D*)GetObjectFromPath(InputFile,  BaseName + "_BS_PtErr");
+   st.AS_Pterr  = (TH1D*)GetObjectFromPath(InputFile,  BaseName + "_AS_PtErr");
+   st.BS_MPt    = (TH1D*)GetObjectFromPath(InputFile,  BaseName + "_BS_MPt");
+   st.AS_MPt    = (TH1D*)GetObjectFromPath(InputFile,  BaseName + "_AS_MPt");
+   st.BS_MIm    = (TH1D*)GetObjectFromPath(InputFile,  BaseName + "_BS_MIm");
+   st.AS_MIm    = (TH1D*)GetObjectFromPath(InputFile,  BaseName + "_AS_MIm");
+   st.BS_MIs    = (TH1D*)GetObjectFromPath(InputFile,  BaseName + "_BS_MIs");
+   st.AS_MIs    = (TH1D*)GetObjectFromPath(InputFile,  BaseName + "_AS_MIs");
+   st.BS_Pt     = (TH1D*)GetObjectFromPath(InputFile,  BaseName + "_BS_Pt");
+   st.AS_Pt     = (TH1D*)GetObjectFromPath(InputFile,  BaseName + "_AS_Pt");
+   st.BS_Im     = (TH1D*)GetObjectFromPath(InputFile,  BaseName + "_BS_Im");
+   st.AS_Im     = (TH1D*)GetObjectFromPath(InputFile,  BaseName + "_AS_Im");
+   st.BS_Is     = (TH1D*)GetObjectFromPath(InputFile,  BaseName + "_BS_Is");
+   st.AS_Is     = (TH1D*)GetObjectFromPath(InputFile,  BaseName + "_AS_Is");
+   st.BS_EtaP   = (TH2D*)GetObjectFromPath(InputFile,  BaseName + "_BS_EtaP");
+   st.AS_EtaP   = (TH2D*)GetObjectFromPath(InputFile,  BaseName + "_AS_EtaP");
+   st.BS_EtaPt  = (TH2D*)GetObjectFromPath(InputFile,  BaseName + "_BS_EtaPt");
+   st.AS_EtaPt  = (TH2D*)GetObjectFromPath(InputFile,  BaseName + "_AS_EtaPt");
+   st.BS_PIs    = (TH2D*)GetObjectFromPath(InputFile,  BaseName + "_BS_PIs");
+   st.AS_PIs    = (TH2D*)GetObjectFromPath(InputFile,  BaseName + "_AS_PIs");
+   st.BS_PIm    = (TH2D*)GetObjectFromPath(InputFile,  BaseName + "_BS_PIm");
+   st.AS_PIm    = (TH2D*)GetObjectFromPath(InputFile,  BaseName + "_AS_PIm");
+}
 
 void stPlots_Clear(stPlots& st)
 {
@@ -172,7 +211,7 @@ void stPlots_Dump(stPlots& st, FILE* pFile){
 }
 
 
-void stPlots_Draw(stPlots& st, string SavePath, double IntegratedLuminosity)
+void stPlots_Draw(stPlots& st, string SavePath, string LegendTitle)
 {
    TObject** Histos = new TObject*[10];
    std::vector<string> legend;
@@ -182,7 +221,7 @@ void stPlots_Draw(stPlots& st, string SavePath, double IntegratedLuminosity)
    Histos[0] = (TH1*)st.BS_DZ;                    legend.push_back("Before Cut");
    Histos[1] = (TH1*)st.AS_DZ;                    legend.push_back("After  Cut");
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "dz (cm)", "#Tracks", 0,0, 0,0, false);
-   DrawLegend(Histos,legend,"","P");
+   DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"dz", true);
@@ -192,7 +231,7 @@ void stPlots_Draw(stPlots& st, string SavePath, double IntegratedLuminosity)
    Histos[0] = (TH1*)st.BS_DXY;                   legend.push_back("Before Cut");
    Histos[1] = (TH1*)st.AS_DXY;                   legend.push_back("After  Cut");
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "dxy (cm)", "#Tracks", 0,0, 0,0, false);
-   DrawLegend(Histos,legend,"","P");
+   DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"dxy", true);
@@ -202,7 +241,7 @@ void stPlots_Draw(stPlots& st, string SavePath, double IntegratedLuminosity)
    Histos[0] = (TH1*)st.BS_Chi2;                  legend.push_back("Before Cut");
    Histos[1] = (TH1*)st.AS_Chi2;                  legend.push_back("After  Cut");
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#chi^{2}/ndof", "#Tracks", 0,0, 0,0, false);
-   DrawLegend(Histos,legend,"","P");
+   DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Chi2", true);
@@ -212,7 +251,7 @@ void stPlots_Draw(stPlots& st, string SavePath, double IntegratedLuminosity)
    Histos[0] = (TH1*)st.BS_Qual;                  legend.push_back("Before Cut");
    Histos[1] = (TH1*)st.AS_Qual;                  legend.push_back("After  Cut");
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Track quality", "#Tracks", 0,0, 0,0, false);
-   DrawLegend(Histos,legend,"","P");
+   DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Quality", true);
@@ -222,7 +261,7 @@ void stPlots_Draw(stPlots& st, string SavePath, double IntegratedLuminosity)
    Histos[0] = (TH1*)st.BS_Hits;                  legend.push_back("Before Cut");
    Histos[1] = (TH1*)st.AS_Hits;                  legend.push_back("After  Cut");
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Track #Hits", "#Tracks", 0,0, 0,0, false);
-   DrawLegend(Histos,legend,"","P");
+   DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Hits", true);
@@ -232,8 +271,8 @@ void stPlots_Draw(stPlots& st, string SavePath, double IntegratedLuminosity)
    Histos[0] = (TH1*)st.BS_Pterr;                 legend.push_back("Before Cut");
    Histos[1] = (TH1*)st.AS_Pterr;                 legend.push_back("After  Cut");
    st.AS_Pterr->SetMinimum(1);
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Track Pt Err / Track Pt", "#Tracks", 0,0, 0,0, false);
-   DrawLegend(Histos,legend,"","P");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Track p_{T} Err / p_{T}", "#Tracks", 0,0, 0,0, false);
+   DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Pterr", true);
@@ -242,8 +281,8 @@ void stPlots_Draw(stPlots& st, string SavePath, double IntegratedLuminosity)
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.BS_MPt;                   legend.push_back("Before Cut");
    Histos[1] = (TH1*)st.AS_MPt;                   legend.push_back("After  Cut");
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Track Pt (GeV/c)", "#Tracks", 0,0, 0,0, false);
-   DrawLegend(Histos,legend,"","P"); 
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Track p_{T} (GeV/c)", "#Tracks", 0,0, 0,0, false);
+   DrawLegend(Histos,legend,LegendTitle,"P"); 
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"MPt", true);
@@ -253,7 +292,7 @@ void stPlots_Draw(stPlots& st, string SavePath, double IntegratedLuminosity)
    Histos[0] = (TH1*)st.BS_MIs;                   legend.push_back("Before Cut");
    Histos[1] = (TH1*)st.AS_MIs;                   legend.push_back("After  Cut");
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxLegend[dEdxSeleIndex], "#Tracks", 0,0, 0,0, false);
-   DrawLegend(Histos,legend,"","P");
+   DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true); 
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"MIs", true);
@@ -263,51 +302,54 @@ void stPlots_Draw(stPlots& st, string SavePath, double IntegratedLuminosity)
    Histos[0] = (TH1*)st.BS_MIm;                   legend.push_back("Before Cut");
    Histos[1] = (TH1*)st.AS_MIm;                   legend.push_back("After  Cut");
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxLegend[dEdxMassIndex], "#Tracks", 0,0, 0,0, false);
-   DrawLegend(Histos,legend,"","P");
+   DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"MIm", true);
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st.BS_Pt;                    legend.push_back("Before Cut");
-   Histos[1] = (TH1*)st.AS_Pt;                    legend.push_back("After  Cut");
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Track Pt (GeV/c)", "#Tracks", 0,0, 0,0, false);
-   DrawLegend(Histos,legend,"","P");
+   Histos[0] = (TH1*)st.BS_Pt->Rebin(100,"TMPA"); legend.push_back("Before Cut");
+   Histos[1] = (TH1*)st.AS_Pt->Rebin(100,"TMPB"); legend.push_back("After  Cut");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Track p_{T} (GeV/c)", "#Tracks", 0,0, 0,0, false);
+   DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    TLine* l1 = new TLine(st.MeanPtCut, st.BS_Pt->GetMinimum(), st.MeanPtCut, st.BS_Pt->GetMaximum());
    l1->SetLineWidth(2); l1->SetLineStyle(2);
    l1->Draw();
    SaveCanvas(c1,SavePath,"Pt", true);
+   delete  Histos[0]; delete Histos[1];
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st.BS_Is;                    legend.push_back("Before Cut");
-   Histos[1] = (TH1*)st.AS_Is;                    legend.push_back("After  Cut");
+   Histos[0] = (TH1*)st.BS_Is->Rebin(100,"TMPA"); legend.push_back("Before Cut");
+   Histos[1] = (TH1*)st.AS_Is->Rebin(100,"TMPB"); legend.push_back("After  Cut");
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxLegend[dEdxSeleIndex], "#Tracks", 0,0, 0,0, false);
-   DrawLegend(Histos,legend,"","P");
+   DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    TLine* l2 = new TLine(st.MeanICut, st.BS_Is->GetMinimum(), st.MeanICut, st.BS_Is->GetMaximum());
    l2->SetLineWidth(2); l2->SetLineStyle(2);
    l2->Draw();
    SaveCanvas(c1,SavePath,"Is", true);
+   delete  Histos[0]; delete Histos[1];
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st.BS_Im;                    legend.push_back("Before Cut");
-   Histos[1] = (TH1*)st.AS_Im;                    legend.push_back("After  Cut");
+   Histos[0] = (TH1*)st.BS_Im->Rebin(100,"TMPA"); legend.push_back("Before Cut");
+   Histos[1] = (TH1*)st.AS_Im->Rebin(100,"TMPB"); legend.push_back("After  Cut");
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxLegend[dEdxMassIndex], "#Tracks", 0,0, 0,0, false);
-   DrawLegend(Histos,legend,"","P");
+   DrawLegend(Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Im", true);
+   delete  Histos[0]; delete Histos[1];
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.BS_EtaP;                  legend.push_back("Before Cut");
-   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "#eta", "P (GeV/c)", 0,0, 0,0, false);
+   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "#eta", "p (GeV/c)", 0,0, 0,0, false);
    c1->SetLogz(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"EtaP_BS", true);
@@ -315,7 +357,7 @@ void stPlots_Draw(stPlots& st, string SavePath, double IntegratedLuminosity)
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.AS_EtaP;                  legend.push_back("After Cut");
-   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "#eta", "P (GeV/c)", 0,0, 0,0, false);
+   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "#eta", "p (GeV/c)", 0,0, 0,0, false);
    c1->SetLogz(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"EtaP_AS", true);
@@ -323,7 +365,7 @@ void stPlots_Draw(stPlots& st, string SavePath, double IntegratedLuminosity)
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.BS_EtaPt;                 legend.push_back("Before Cut");
-   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "#eta", "Pt (GeV/c)", 0,0, 0,0, false);
+   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "#eta", "p_{T} (GeV/c)", 0,0, 0,0, false);
    c1->SetLogz(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"EtaPt_BS", true);
@@ -331,7 +373,7 @@ void stPlots_Draw(stPlots& st, string SavePath, double IntegratedLuminosity)
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.AS_EtaPt;                 legend.push_back("After Cut");
-   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "#eta", "Pt (GeV/c)", 0,0, 0,0, false);
+   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "#eta", "p_{T} (GeV/c)", 0,0, 0,0, false);
    c1->SetLogz(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"EtaPt_AS", true);
@@ -339,7 +381,7 @@ void stPlots_Draw(stPlots& st, string SavePath, double IntegratedLuminosity)
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.BS_PIs;                   legend.push_back("Before Cut");
-   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ", "P (GeV/c)", dEdxLegend[dEdxSeleIndex], 0,0, 0,0, false);
+   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ", "p (GeV/c)", dEdxLegend[dEdxSeleIndex], 0,0, 0,0, false);
    c1->SetLogz(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"PIs_BS", true);
@@ -347,7 +389,7 @@ void stPlots_Draw(stPlots& st, string SavePath, double IntegratedLuminosity)
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.BS_PIm;                   legend.push_back("Before Cut");
-   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ", "P (GeV/c)", dEdxLegend[dEdxMassIndex], 0,0, 0,0, false);
+   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ", "p (GeV/c)", dEdxLegend[dEdxMassIndex], 0,0, 0,0, false);
    c1->SetLogz(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"PIm_BS", true);
@@ -355,7 +397,7 @@ void stPlots_Draw(stPlots& st, string SavePath, double IntegratedLuminosity)
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.AS_PIs;                   legend.push_back("After Cut");
-   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ", "P (GeV/c)", dEdxLegend[dEdxSeleIndex], 0,0, 0,0, false);
+   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ", "p (GeV/c)", dEdxLegend[dEdxSeleIndex], 0,0, 0,0, false);
    c1->SetLogz(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"PIs_AS", true);
@@ -363,7 +405,7 @@ void stPlots_Draw(stPlots& st, string SavePath, double IntegratedLuminosity)
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.AS_PIm;                   legend.push_back("After Cut");
-   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ", "P (GeV/c)", dEdxLegend[dEdxMassIndex], 0,0, 0,0, false);
+   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ", "p (GeV/c)", dEdxLegend[dEdxMassIndex], 0,600, 0,25, false);
    c1->SetLogz(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"PIm_AS", true);
@@ -374,8 +416,10 @@ void stPlots_Draw(stPlots& st, string SavePath, double IntegratedLuminosity)
 
 
 
-void stPlots_DrawComparison(stPlots& st1, stPlots& st2, stPlots& st3, string SignalLeg, string SavePath, double IntegratedLuminosity)
+void stPlots_DrawComparison(stPlots& st1, stPlots& st2, stPlots& st3, stSignal signal, string SavePath, string LegendTitle)
 {  
+   string SignalLeg  = signal.Legend;
+
    TH1** Histos = new TH1*[10];
    std::vector<string> legend;
    TCanvas* c1;
@@ -385,7 +429,7 @@ void stPlots_DrawComparison(stPlots& st1, stPlots& st2, stPlots& st3, string Sig
    Histos[1] = (TH1*)st2.BS_DZ->Clone();          legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.BS_DZ->Clone();          legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "dz (cm)", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","P");
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"dz_BS", true);
@@ -397,7 +441,7 @@ void stPlots_DrawComparison(stPlots& st1, stPlots& st2, stPlots& st3, string Sig
    Histos[1] = (TH1*)st2.AS_DZ->Clone();          legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.AS_DZ->Clone();          legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "dz (cm)", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","P");
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"dz_AS", true);
@@ -409,7 +453,7 @@ void stPlots_DrawComparison(stPlots& st1, stPlots& st2, stPlots& st3, string Sig
    Histos[1] = (TH1*)st2.BS_DXY->Clone();         legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.BS_DXY->Clone();         legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "dxy (cm)", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","P");
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"dxy_BS", true);
@@ -421,7 +465,7 @@ void stPlots_DrawComparison(stPlots& st1, stPlots& st2, stPlots& st3, string Sig
    Histos[1] = (TH1*)st2.AS_DXY->Clone();         legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.AS_DXY->Clone();         legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "dxy (cm)", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","P");
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"dxy_AS", true);
@@ -434,7 +478,7 @@ void stPlots_DrawComparison(stPlots& st1, stPlots& st2, stPlots& st3, string Sig
    Histos[1] = (TH1*)st2.BS_Chi2->Clone();        legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.BS_Chi2->Clone();        legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#chi^{2}/ndof", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","P");
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Chi2_BS", true);
@@ -446,7 +490,7 @@ void stPlots_DrawComparison(stPlots& st1, stPlots& st2, stPlots& st3, string Sig
    Histos[1] = (TH1*)st2.AS_Chi2->Clone();        legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.AS_Chi2->Clone();        legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#chi^{2}/ndof", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","P");
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Chi2_AS", true);
@@ -458,7 +502,7 @@ void stPlots_DrawComparison(stPlots& st1, stPlots& st2, stPlots& st3, string Sig
    Histos[1] = (TH1*)st2.BS_Qual->Clone();        legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.BS_Qual->Clone();        legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "quality", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","P");
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Quality_BS", true);
@@ -470,7 +514,7 @@ void stPlots_DrawComparison(stPlots& st1, stPlots& st2, stPlots& st3, string Sig
    Histos[1] = (TH1*)st2.AS_Qual->Clone();        legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.AS_Qual->Clone();        legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Track quality", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","P");
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Quality_AS", true);
@@ -482,7 +526,7 @@ void stPlots_DrawComparison(stPlots& st1, stPlots& st2, stPlots& st3, string Sig
    Histos[1] = (TH1*)st2.BS_Hits->Clone();        legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.BS_Hits->Clone();        legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#Hits", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","P");
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Hits_BS", true);
@@ -494,7 +538,7 @@ void stPlots_DrawComparison(stPlots& st1, stPlots& st2, stPlots& st3, string Sig
    Histos[1] = (TH1*)st2.AS_Hits->Clone();        legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.AS_Hits->Clone();        legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#Hits", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","P");
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Hits_AS", true);
@@ -505,8 +549,8 @@ void stPlots_DrawComparison(stPlots& st1, stPlots& st2, stPlots& st3, string Sig
    Histos[0] = (TH1*)st1.BS_Pterr->Clone();       legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
    Histos[1] = (TH1*)st2.BS_Pterr->Clone();       legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.BS_Pterr->Clone();       legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Pt Err / Track Pt", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","P");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "p_{T} Err / p_{T}", "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Pterr_BS", true);
@@ -517,8 +561,8 @@ void stPlots_DrawComparison(stPlots& st1, stPlots& st2, stPlots& st3, string Sig
    Histos[0] = (TH1*)st1.AS_Pterr->Clone();       legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
    Histos[1] = (TH1*)st2.AS_Pterr->Clone();       legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.AS_Pterr->Clone();       legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Pt Err / Track Pt", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","P");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "p_{T} Err / p_{T}", "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Pterr_AS", true);
@@ -529,8 +573,8 @@ void stPlots_DrawComparison(stPlots& st1, stPlots& st2, stPlots& st3, string Sig
    Histos[0] = (TH1*)st1.BS_MPt->Clone();         legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
    Histos[1] = (TH1*)st2.BS_MPt->Clone();         legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.BS_MPt->Clone();         legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Pt (GeV/c)", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","P");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "p_{T} (GeV/c)", "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"MPt_BS", true);
@@ -541,8 +585,8 @@ void stPlots_DrawComparison(stPlots& st1, stPlots& st2, stPlots& st3, string Sig
    Histos[0] = (TH1*)st1.AS_MPt->Clone();         legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
    Histos[1] = (TH1*)st2.AS_MPt->Clone();         legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.AS_MPt->Clone();         legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Pt (GeV/c)", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","P");
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "p_{T} (GeV/c)", "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"MPt_AS", true);
@@ -554,7 +598,7 @@ void stPlots_DrawComparison(stPlots& st1, stPlots& st2, stPlots& st3, string Sig
    Histos[1] = (TH1*)st2.BS_MIs->Clone();         legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.BS_MIs->Clone();         legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxLegend[dEdxSeleIndex], "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","P");
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"MI_BSs", true);
@@ -566,7 +610,7 @@ void stPlots_DrawComparison(stPlots& st1, stPlots& st2, stPlots& st3, string Sig
    Histos[1] = (TH1*)st2.BS_MIm->Clone();         legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.BS_MIm->Clone();         legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxLegend[dEdxMassIndex], "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","P");
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"MIm_BS", true);
@@ -578,7 +622,7 @@ void stPlots_DrawComparison(stPlots& st1, stPlots& st2, stPlots& st3, string Sig
    Histos[1] = (TH1*)st2.AS_MIs->Clone();         legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.AS_MIs->Clone();         legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxLegend[dEdxSeleIndex], "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","P");
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"MIs_AS", true);
@@ -590,7 +634,7 @@ void stPlots_DrawComparison(stPlots& st1, stPlots& st2, stPlots& st3, string Sig
    Histos[1] = (TH1*)st2.AS_MIm->Clone();         legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
    Histos[2] = (TH1*)st3.AS_MIm->Clone();         legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxLegend[dEdxMassIndex], "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","P");
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"MIm_AS", true);
@@ -598,11 +642,11 @@ void stPlots_DrawComparison(stPlots& st1, stPlots& st2, stPlots& st3, string Sig
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st1.BS_Is->Clone();          legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
-   Histos[1] = (TH1*)st2.BS_Is->Clone();          legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
-   Histos[2] = (TH1*)st3.BS_Is->Clone();          legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
+   Histos[0] = (TH1*)st1.BS_Is->Rebin(100,"TMPA");legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
+   Histos[1] = (TH1*)st2.BS_Is->Rebin(100,"TMPB");legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
+   Histos[2] = (TH1*)st3.BS_Is->Rebin(100,"TMPC");legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxLegend[dEdxSeleIndex], "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","P");
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Is_BS");
@@ -610,11 +654,11 @@ void stPlots_DrawComparison(stPlots& st1, stPlots& st2, stPlots& st3, string Sig
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st1.BS_Im->Clone();          legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
-   Histos[1] = (TH1*)st2.BS_Im->Clone();          legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
-   Histos[2] = (TH1*)st3.BS_Im->Clone();          legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
+   Histos[0] = (TH1*)st1.BS_Im->Rebin(100,"TMPA");legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
+   Histos[1] = (TH1*)st2.BS_Im->Rebin(100,"TMPB");legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
+   Histos[2] = (TH1*)st3.BS_Im->Rebin(100,"TMPC");legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxLegend[dEdxMassIndex], "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","P");
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Im_BS");
@@ -622,11 +666,11 @@ void stPlots_DrawComparison(stPlots& st1, stPlots& st2, stPlots& st3, string Sig
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st1.AS_Is->Clone();          legend.push_back(SignalLeg);	if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
-   Histos[1] = (TH1*)st2.AS_Is->Clone();          legend.push_back("MC");	if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
-   Histos[2] = (TH1*)st3.AS_Is->Clone();          legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
+   Histos[0] = (TH1*)st1.AS_Is->Rebin(100,"TMPA");legend.push_back(SignalLeg);	if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
+   Histos[1] = (TH1*)st2.AS_Is->Rebin(100,"TMPB");legend.push_back("MC");	if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
+   Histos[2] = (TH1*)st3.AS_Is->Rebin(100,"TMPC");legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxLegend[dEdxSeleIndex], "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","P");
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Is_AS");
@@ -634,11 +678,11 @@ void stPlots_DrawComparison(stPlots& st1, stPlots& st2, stPlots& st3, string Sig
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st1.AS_Im->Clone();          legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
-   Histos[1] = (TH1*)st2.AS_Im->Clone();          legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
-   Histos[2] = (TH1*)st3.AS_Im->Clone();          legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
+   Histos[0] = (TH1*)st1.AS_Im->Rebin(100,"TMPA");legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
+   Histos[1] = (TH1*)st2.AS_Im->Rebin(100,"TMPB");legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
+   Histos[2] = (TH1*)st3.AS_Im->Rebin(100,"TMPC");legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxLegend[dEdxMassIndex], "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","P");
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Im_AS");
@@ -646,11 +690,11 @@ void stPlots_DrawComparison(stPlots& st1, stPlots& st2, stPlots& st3, string Sig
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st1.BS_Pt->Clone();          legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
-   Histos[1] = (TH1*)st2.BS_Pt->Clone();          legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
-   Histos[2] = (TH1*)st3.BS_Pt->Clone();          legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Pt (GeV/c)", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","P");
+   Histos[0] = (TH1*)st1.BS_Pt->Rebin(100,"TMPA");legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
+   Histos[1] = (TH1*)st2.BS_Pt->Rebin(100,"TMPB");legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
+   Histos[2] = (TH1*)st3.BS_Pt->Rebin(100,"TMPC");legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "p_{T} (GeV/c)", "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Pt_BS");
@@ -658,11 +702,11 @@ void stPlots_DrawComparison(stPlots& st1, stPlots& st2, stPlots& st3, string Sig
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = (TH1*)st1.AS_Pt->Clone();          legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
-   Histos[1] = (TH1*)st2.AS_Pt->Clone();          legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
-   Histos[2] = (TH1*)st3.AS_Pt->Clone();          legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Pt (GeV/c)", "arbitrary units", 0,0, 0,0);
-   DrawLegend((TObject**)Histos,legend,"","P");
+   Histos[0] = (TH1*)st1.AS_Pt->Rebin(100,"TMPA");legend.push_back(SignalLeg);  if(Histos[0]->Integral()>0) Histos[0]->Scale(1.0/Histos[0]->Integral());
+   Histos[1] = (TH1*)st2.AS_Pt->Rebin(100,"TMPB");legend.push_back("MC");       if(Histos[1]->Integral()>0) Histos[1]->Scale(1.0/Histos[1]->Integral());
+   Histos[2] = (TH1*)st3.AS_Pt->Rebin(100,"TMPC");legend.push_back("Data");     if(Histos[2]->Integral()>0) Histos[2]->Scale(1.0/Histos[2]->Integral());
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "p_{T} (GeV/c)", "arbitrary units", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Pt_AS");
