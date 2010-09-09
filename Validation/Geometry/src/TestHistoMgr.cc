@@ -80,8 +80,8 @@ void TestHistoMgr::openSecondFile( const std::string& name )
 
   /*  std::vector<std::string> objectNames = theStoreIn->listObjectNames();
   std::vector<std::string> objectTypes = theStoreIn->listObjectTypes(); 
-  uint siz = objectNames.size();
-  for( uint ii = 0; ii < siz; ii++ ) {
+  unsigned int siz = objectNames.size();
+  for( unsigned int ii = 0; ii < siz; ii++ ) {
     //    std::cout << " HISTOS IN FILE " << std::endl;
 
     //   std::cout << " HISTO: " << objectNames[ii] << " " << objectTypes[ii] << std::endl;

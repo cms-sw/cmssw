@@ -52,7 +52,7 @@ class MaterialBudgetAction : public SimProducer,
   void update(const EndOfEvent*);
   
   void initRun();
-  void processEvent( uint nEv );
+  void processEvent( unsigned int nEv );
   void endRun();
   
   bool CheckTouchableInSelectedVolumes( const G4VTouchable* touch );
