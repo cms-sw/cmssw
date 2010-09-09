@@ -2,7 +2,7 @@
 //
 // Package: DQM/TrackerCommon
 //
-// $Id: TrackerRunCertification.C,v 1.3 2010/07/21 19:52:09 vadler Exp $
+// $Id: TrackerRunCertification.C,v 1.4 2010/08/03 17:19:06 vadler Exp $
 //
 /**
   \brief    Performs DQM offline data certification for SiStrip, Pixel and Tracking
@@ -81,7 +81,7 @@
        display this help and exit
 
   \author   Volker Adler
-  \version  $Id: TrackerRunCertification.C,v 1.3 2010/07/21 19:52:09 vadler Exp $
+  \version  $Id: TrackerRunCertification.C,v 1.4 2010/08/03 17:19:06 vadler Exp $
 */
 
 #include <algorithm>
@@ -355,11 +355,21 @@ Bool_t createRRFile()
 
   ostringstream minRun; minRun << minRun_;
   ostringstream maxRun; maxRun << maxRun_;
-  cerr << "  Extracting RunRegistry output for runs " << minRun.str() << " - " << maxRun.str() << " ... ";
-  gSystem->Exec( TString( TString( gSystem->Getenv( "CMSSW_BASE" ) ).Append( "/src/DQM/TrackerCommon/bin/getRunRegistry.py" ).Append( " -s " ).Append( sArguments[ "-R" ] ).Append( "/xmlrpc" ).Append( " -f " ).Append( nameFileRunsRR_ ).Append( " ").Append( " -l " ).Append( minRun.str() ).Append( " -u " ).Append( maxRun.str() ).Append( " -T RUN -t xml_all" ) ) );
-  gSystem->Exec( TString( TString( gSystem->Getenv( "CMSSW_BASE" ) ).Append( "/src/DQM/TrackerCommon/bin/getRunRegistry.py" ).Append( " -s " ).Append( sArguments[ "-R" ] ).Append( "/xmlrpc" ).Append( " -f " ).Append( nameFileLumisRR_ ).Append( " ").Append( " -l " ).Append( minRun.str() ).Append( " -u " ).Append( maxRun.str() ).Append( " -T RUNLUMISECTION -t xml" ) ) );
-  gSystem->Exec( TString( TString( gSystem->Getenv( "CMSSW_BASE" ) ).Append( "/src/DQM/TrackerCommon/bin/getRunRegistry.py" ).Append( " -s " ).Append( sArguments[ "-R" ] ).Append( "/xmlrpc" ).Append( " -f " ).Append( nameFileTrackerRR_ ).Append( " ").Append( " -l " ).Append( minRun.str() ).Append( " -u " ).Append( maxRun.str() ).Append( " -T RUN -t xml_all -w TRACKER" ) ) );
-  cerr << "done" << endl
+  cerr << "  Extracting RunRegistry output for runs " << minRun.str() << " - " << maxRun.str() << " ...";
+  TString commandBase( TString( gSystem->Getenv( "CMSSW_BASE" ) ).Append( "/src/DQM/TrackerCommon/bin/getRunRegistry.py" ).Append( " -s " ).Append( sArguments[ "-R" ] ).Append( "/xmlrpc" ).Append( " ").Append( " -l " ).Append( minRun.str() ).Append( " -u " ).Append( maxRun.str() ) );
+  TString commandRuns( commandBase );
+  commandRuns.Append( " -f " ).Append( nameFileRunsRR_ ).Append( " -T RUN -t xml_all" );
+  if ( sOptions[ "-v" ] ) cerr << endl << endl << "    " << commandRuns.Data() << endl;
+  gSystem->Exec( commandRuns );
+  TString commandLumis( commandBase );
+  commandLumis.Append( " -f " ).Append( nameFileLumisRR_ ).Append( " -T RUNLUMISECTION -t xml" );
+  if ( sOptions[ "-v" ] ) cerr << "    " << commandLumis.Data() << endl;
+  gSystem->Exec( commandLumis );
+  TString commandTracker( commandBase );
+  commandTracker.Append( " -f " ).Append( nameFileTrackerRR_ ).Append( " -T RUN -t xml_all -w TRACKER" );
+  if ( sOptions[ "-v" ] ) cerr << "    " << commandTracker.Data() << endl << endl << "  ...";
+  gSystem->Exec( commandTracker );
+  cerr << " done!" << endl
        << endl;
 
   const UInt_t maxLength( 131071 ); // FIXME hard-coding for what?
@@ -961,6 +971,7 @@ void certifyRun()
     if ( ! flagCert )    comments.push_back( TString( "Tracker shifter: " + sRRTrackerCommentsSiStrip_[ sRunNumber_ ] ) );
     if ( iFlags[ sSubSys_[ SiStrip ] ] == BAD ) {
       ++nRunsBadSiStrip_;
+      if ( flagCert ) comments.push_back( TString( "Tracker shifter differs (GOOD): " + sRRTrackerCommentsSiStrip_[ sRunNumber_ ] ) );
       sRunCommentsSiStrip_[ sRunNumber_ ] = comments;
     }
   } else {
@@ -990,6 +1001,7 @@ void certifyRun()
     if ( ! flagCert )          comments.push_back( TString( "Tracker shifter: " + sRRTrackerCommentsPixel_[ sRunNumber_ ] ) );
     if ( iFlags[ sSubSys_[ Pixel ] ] == BAD ) {
       ++nRunsBadPixel_;
+      if ( flagCert ) comments.push_back( TString( "Tracker shifter differs (GOOD): " + sRRTrackerCommentsPixel_[ sRunNumber_ ] ) );
       sRunCommentsPixel_[ sRunNumber_ ] = comments;
     }
   } else {
@@ -1023,6 +1035,7 @@ void certifyRun()
     sTracking_[ sRunNumber_ ]    = FlagConvert( iFlags[ sSubSys_[ Tracking ] ] );
     if ( iFlags[ sSubSys_[ Tracking ] ] == BAD ) {
       ++nRunsBadTracking_;
+      if ( flagCert ) comments.push_back( TString( "Tracker shifter differs (GOOD): " + sRRTrackerCommentsTracking_[ sRunNumber_ ] ) );
       sRunCommentsTracking_[ sRunNumber_ ] = comments;
     }
   } else {
