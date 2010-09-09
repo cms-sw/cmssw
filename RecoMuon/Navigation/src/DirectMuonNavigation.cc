@@ -237,7 +237,7 @@ bool DirectMuonNavigation::checkCompatible(const FreeTrajectoryState& fts,const 
   float z = bd.position().z();
 
   float r1 = slope*(z - z0) + r0;
-  return (fabs(r1) >= inRadius-epsilon_ && fabs(r1) <= outRadius+epsilon_);
+  return (r1 >= inRadius-epsilon_ && r1 <= outRadius+epsilon_);
 
 }
 
