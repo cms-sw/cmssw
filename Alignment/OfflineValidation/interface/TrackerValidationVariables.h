@@ -1,23 +1,28 @@
-
 #ifndef TrackerTrackerValidationVariables_h
 #define TrackerTrackerValidationVariables_h
+
 // system include files
-#include <memory>
 #include <vector>
 
-
-// to be removed - but for now breaking plugins/TrackerOfflineValidation.cc
-// that has some interfering development:
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 class MagneticField;
 class TrackerGeometry;
+class Trajectory;
 
-class TrackerValidationVariables  {
+class TrackerValidationVariables
+{ 
  public:  
-  struct AVHitStruct{
-    AVHitStruct() : resX(-999.), resY(-999.), resErrX(-999.), resErrY(-999.), resXprime(-999.), resXprimeErr(-999.), 
-	 resYprime(-999.), resYprimeErr(-999.), phi(-999.), eta(-999.), rawDetId(0), overlapres(std::make_pair(0,-999.)) {}
+ 
+  struct AVHitStruct
+  {
+  AVHitStruct() : resX(-999.), resY(-999.), resErrX(-999.), resErrY(-999.), resXprime(-999.), resXprimeErr(-999.), 
+      resYprime(-999.), resYprimeErr(-999.), phi(-999.), eta(-999.),
+      localX(-999.), localY(-999.), localXnorm(-999.), localYnorm(-999.), localAlpha(-999.), localBeta(-999.),
+      rawDetId(0), overlapres(std::make_pair(0,-999.)) {}
     float resX;
     float resY;
     float resErrX;
@@ -28,12 +33,20 @@ class TrackerValidationVariables  {
     float resYprimeErr;
     float phi;
     float eta;
+    float localX;
+    float localY;
+    float localXnorm;
+    float localYnorm;
+    float localAlpha;    
+    float localBeta;
     uint32_t rawDetId;
     std::pair<unsigned int,float> overlapres;
   };
-  struct AVTrackStruct{
-  AVTrackStruct() : p(0.),pt(0.), ptError(0.), px(0.), py(0.), pz(0.), eta(0.), phi(0.), kappa(0.),
-		    chi2(0.), normchi2(0), d0(-999.), dz(-999.), charge(-999), numberOfValidHits(0),numberOfLostHits(0) {};
+  
+  struct AVTrackStruct
+  {
+  AVTrackStruct() : p(0.), pt(0.), ptError(0.), px(0.), py(0.), pz(0.), eta(0.), phi(0.), kappa(0.),
+      chi2(0.), normchi2(0), d0(-999.), dz(-999.), charge(-999), numberOfValidHits(0), numberOfLostHits(0) {};
     float p;
     float pt;
     float ptError;
@@ -51,18 +64,24 @@ class TrackerValidationVariables  {
     int charge;
     int numberOfValidHits;
     int numberOfLostHits;
-
+    std::vector<AVHitStruct> hits;
   };
+
   TrackerValidationVariables();
   TrackerValidationVariables(const edm::EventSetup&, const edm::ParameterSet&);
   ~TrackerValidationVariables();
-  void fillHitQuantities(const edm::Event&, std::vector<AVHitStruct> & v_avhitout );
-  void fillTrackQuantities(const edm::Event&, std::vector<AVTrackStruct> & v_avtrackout );
- private:  
+
+  void fillHitQuantities(const Trajectory* trajectory, std::vector<AVHitStruct> & v_avhitout);
+  void fillTrackQuantities(const edm::Event&, std::vector<AVTrackStruct> & v_avtrackout);
+
+  // need the following method for MonitorTrackResiduals in DQM/TrackerMonitorTrack
+  void fillHitQuantities(const edm::Event&, std::vector<AVHitStruct> & v_avhitout);
+
+ private:
+
   const edm::ParameterSet conf_;
   edm::ESHandle<TrackerGeometry> tkGeom_;
   edm::ESHandle<MagneticField> magneticField_;
-  //edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;
-
 };
+
 #endif
