@@ -52,10 +52,10 @@ bool  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair, reco:
 
   if ( pair.size() < 2) return found;
   
-  float sigma = 0.00000000001;
+  float sigma = 0.00000001;
   float chi = 0.;
   float ndf = 0.;
-  float mass = 0.000000511;
+  float mass = 0.000511;
   
   
   edm::ParameterSet pSet;
