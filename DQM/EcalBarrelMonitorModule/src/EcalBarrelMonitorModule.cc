@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2010/07/30 06:07:14 $
- * $Revision: 1.200 $
+ * $Date: 2010/08/08 08:46:04 $
+ * $Revision: 1.201 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -254,14 +254,14 @@ void EcalBarrelMonitorModule::setup(void){
       meEBDCC_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
 
-    meEBdigis_[0] = dqmStore_->book1D("EBMM digi number", "EBMM digi number", 100, 0., 61201.);
+    meEBdigis_[0] = dqmStore_->book1D("EBMM digi number", "EBMM digi number", 100, 0., 3000.);
 
     meEBdigis_[1] = dqmStore_->bookProfile("EBMM digi number profile", "EBMM digi number profile", 36, 1, 37., 1700, 0., 1701., "s");
     for (int i = 0; i < 36; i++) {
       meEBdigis_[1]->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
 
-    meEBhits_[0] = dqmStore_->book1D("EBMM hit number", "EBMM hit number", 100, 0., 61201.);
+    meEBhits_[0] = dqmStore_->book1D("EBMM hit number", "EBMM hit number", 100, 0., 3000.);
 
     meEBhits_[1] = dqmStore_->bookProfile("EBMM hit number profile", "EBMM hit number profile", 36, 1, 37., 1700, 0., 1701., "s");
     for (int i = 0; i < 36; i++) {
