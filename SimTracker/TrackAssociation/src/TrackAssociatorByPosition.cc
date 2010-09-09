@@ -24,7 +24,7 @@ TrajectoryStateOnSurface TrackAssociatorByPosition::getState(const TrackingParti
   std::vector<PSimHit> ::const_iterator end=pSimHit.end();
   LogDebug("TrackAssociatorByPosition")<<pSimHit.size()<<" PSimHits.";
 
-  uint count=0;
+  unsigned int count=0;
   for (std::vector<PSimHit> ::const_iterator psit=start;psit!=end;++psit){    
     //get the detid
     DetId dd(psit->detUnitId());
@@ -103,16 +103,16 @@ RecoToSimCollection TrackAssociatorByPosition::associateRecoToSim(const edm::Ref
                                                                   const edm::EventSetup *setup ) const{
   RecoToSimCollection  outputCollection;
   //for each reco track find a matching tracking particle
-  std::pair<uint,uint> minPair;
+  std::pair<unsigned int,unsigned int> minPair;
   const double dQmin_default=1542543;
   double dQmin=dQmin_default;
-  for (uint Ti=0; Ti!=tCH.size();++Ti){
+  for (unsigned int Ti=0; Ti!=tCH.size();++Ti){
     //initial state (initial OR inner OR outter)
     FreeTrajectoryState iState = getState(*(tCH)[Ti]);
 
     bool atLeastOne=false;
     //    for each tracking particle, find a state position and the plane to propagate the track to.
-    for (uint TPi=0;TPi!=tPCH.size();++TPi) {
+    for (unsigned int TPi=0;TPi!=tPCH.size();++TPi) {
       //get a state in the muon system 
       TrajectoryStateOnSurface simReferenceState = getState(*(tPCH)[TPi]);
       if (!simReferenceState.isValid()) continue;
@@ -151,10 +151,10 @@ SimToRecoCollection TrackAssociatorByPosition::associateSimToReco(const edm::Ref
   SimToRecoCollection  outputCollection;
   //for each tracking particle, find matching tracks.
 
-  std::pair<uint,uint> minPair;
+  std::pair<unsigned int,unsigned int> minPair;
   const double dQmin_default=1542543;
   double dQmin=dQmin_default;
-  for (uint TPi=0;TPi!=tPCH.size();++TPi){
+  for (unsigned int TPi=0;TPi!=tPCH.size();++TPi){
     //get a state in the muon system
     TrajectoryStateOnSurface simReferenceState= getState(*(tPCH)[TPi]);
       
@@ -162,7 +162,7 @@ SimToRecoCollection TrackAssociatorByPosition::associateSimToReco(const edm::Ref
     bool atLeastOne=false;
     //	propagate every track from any state (initial, inner, outter) to the surface 
     //	and make the position test
-    for (uint Ti=0; Ti!=tCH.size();++Ti){
+    for (unsigned int Ti=0; Ti!=tCH.size();++Ti){
       //initial state
       FreeTrajectoryState iState = getState(*(tCH)[Ti]);
 	

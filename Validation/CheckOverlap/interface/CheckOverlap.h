@@ -27,8 +27,8 @@ public:
 private:
 
   void update(const BeginOfRun * run);
-  void checkHierarchyLeafPVLV(G4LogicalVolume * lv, uint leafDepth);
-  void checkPV(G4VPhysicalVolume * pv, uint leafDepth);
+  void checkHierarchyLeafPVLV(G4LogicalVolume * lv, unsigned int leafDepth);
+  void checkPV(G4VPhysicalVolume * pv, unsigned int leafDepth);
   G4VPhysicalVolume * getTopPV();
   void dumpLV(G4LogicalVolume * lv, std::string str);
 

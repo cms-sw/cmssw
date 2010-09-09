@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Fri Mar 27 15:19:03 CET 2009
-// $Id$
+// $Id: TrackMCQuality.cc,v 1.1 2009/03/31 12:30:02 vlimant Exp $
 //
 //
 
@@ -112,7 +112,7 @@ TrackMCQuality::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //then loop the track collection
    std::auto_ptr<reco::TrackCollection> outTracks(new reco::TrackCollection(trackCollection->size()));
    
-   for (uint iT=0;iT!=trackCollection->size();++iT){
+   for (unsigned int iT=0;iT!=trackCollection->size();++iT){
      edm::RefToBase<reco::Track> track(trackCollection, iT);
      bool matched=false;
      //find it in the map

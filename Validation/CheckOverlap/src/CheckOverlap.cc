@@ -64,7 +64,7 @@ void CheckOverlap::update(const BeginOfRun * run) {
 }
 
 void CheckOverlap::checkHierarchyLeafPVLV(G4LogicalVolume * lv, 
-					  uint leafDepth) {
+					  unsigned int leafDepth) {
 
   //----- Get LV daughters from list of PV daughters
   mmlvpv lvpvDaughters;
@@ -90,7 +90,7 @@ void CheckOverlap::checkHierarchyLeafPVLV(G4LogicalVolume * lv,
   }
 }
 
-void CheckOverlap::checkPV(G4VPhysicalVolume * pv, uint leafDepth) {
+void CheckOverlap::checkPV(G4VPhysicalVolume * pv, unsigned int leafDepth) {
 
   //----- PV info
 #ifndef G4V7
