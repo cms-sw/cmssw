@@ -30,14 +30,14 @@ edmPickEvent.py dataset run1:lumi1:event1 run2:lumi2:event2
 edmPickEvent.py dataset listOfEvents.txt
 
 
-event_list is a text file
-'#' is valid comment character
-
+listOfEvents is a text file:
+# this line is ignored as a comment
+# since '#' is a valid comment character
 run1 lumi_section1 event1
 run2 lumi_section2 event2
-...
 
 For example:
+# run lum   event
 46968   2      4
 47011 105     23
 47011 140  12312
@@ -149,6 +149,10 @@ def fullCPMpath():
         return retval
     raise RuntimeError, "Could not find copyPickMerge_cfg.py"
 
+def guessEmail():
+    return '%s@%s' % (commands.getoutput ('whoami'),
+                      '.'.join(commands.getoutput('hostname').split('.')[-2:]))
+
 
 def setupCrabDict (options):
     crab = {}
@@ -159,8 +163,11 @@ def setupCrabDict (options):
     crab['crabcfg']       = '%s_crab.config' % base
     crab['json']          = '%s.json' % base
     crab['dataset']       = Event.dataset
-    crab['email']         = '%s@%s' % (commands.getoutput('whoami'),
-                                       commands.getoutput('hostname'))
+    crab['email']         = options.email
+    if options.crabCondor:
+        crab['scheduler'] = 'condor'
+    else:
+        crab['scheduler'] = 'glite'
     return crab
 
 
@@ -192,8 +199,9 @@ email                   = %(email)s
 
 
 [CRAB]
-                          # use "condor" if you run on CAF at FNAL or USG
-scheduler               = glite  
+# use "glite" in general; you can "condor" if you run on CAF at FNAL or USG
+# site AND you know the files are available locally
+scheduler               = %(scheduler)s  
 jobtype                 = cmssw
 use_server              = 1
 '''
@@ -206,22 +214,29 @@ use_server              = 1
 ########################
 
 if __name__ == "__main__":
-    
+    email = guessEmail()
     parser = optparse.OptionParser ("Usage: %prog [options] dataset events_or_events.txt", description='''This program facilitates picking specific events from a data set.  For full details, please visit https://twiki.cern.ch/twiki/bin/view/CMS/PickEvents ''')
-    parser.add_option ('--crab', dest='crab', action='store_true',
-                       help = 'force CRAB setup instead of interactive mode')
-    parser.add_option ('--base', dest='base', type='string',
+    parser.add_option ('--output', dest='base', type='string',
                        default='pickevents',
-                       help='Base of name to call output, JSON, etc. files')
-    parser.add_option ('--dataset', dest='dataset', type='string',
-                       default='', 
-                       help='dataset to check')
+                       help='Base name to use for output files (root, JSON, run and event list, etc.; default "%default")')
+    parser.add_option ('--runInteractive', dest='runInteractive', action='store_true',
+                       help = 'Call "cmsRun" command if possible.  Can take a long time.')
+    parser.add_option ('--crab', dest='crab', action='store_true',
+                       help = 'Force CRAB setup instead of interactive mode')
+    parser.add_option ('--crabCondor', dest='crabCondor', action='store_true',
+                       help = 'Tell CRAB to use Condor scheduler (FNAL or OSG sites).')
+    parser.add_option ('--email', dest='email', type='string',
+                       default='',
+                       help="Specify email for CRAB (default '%s')" % email )
     (options, args) = parser.parse_args()
 
     
     if len(args) < 2:
         parser.print_help()
         sys.exit(0)
+
+    if not options.email:
+        options.email = email
 
     Event.dataset = args.pop(0)
     commentRE = re.compile (r'#.+$')
@@ -256,6 +271,8 @@ if __name__ == "__main__":
         ##########
         ## CRAB ##
         ##########
+        if options.runInteractive:
+            raise RuntimeError, "This job is can not be run interactive, but rather by crab.  Please call without '--runInteractive' flag."
         runsAndLumis = [ (event.run, event.lumi) for event in eventList]
         json = LumiList (lumis = runsAndLumis)
         eventsToProcess = '\n'.join(\
@@ -268,7 +285,7 @@ if __name__ == "__main__":
         target = open (crabDict['crabcfg'], 'w')
         target.write (crabTemplate % crabDict)
         target.close
-        print "Edit %(crabcfg)s to make any desired changed.  The run:\ncrab -create -cfg %(crabcfg)s\ncrab -submit -cfg %(crabcfg)s\n" % crabDict
+        print "Edit %(crabcfg)s to make any desired changed.  The run:\ncrab -create -cfg %(crabcfg)s\ncrab -submit\n" % crabDict
 
     else:
 
@@ -289,3 +306,5 @@ if __name__ == "__main__":
         command = 'edmCopyPickMerge outputFile=%s.root \\\n  eventsToProcess=%s \\\n  inputFiles=%s' \
                   % (options.base, eventsToProcess, source)
         print "\n%s" % command
+        if options.runInteractive:
+            os.system (command)
