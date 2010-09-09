@@ -27,7 +27,7 @@ class relvalmcfs(Scenario):
     """
 
 
-    def promptReco(self, globalTag, writeTiers = ['RECO'], **options):
+    def promptReco(self, globalTag, writeTiers = ['RECO'], **args):
         """
         _promptReco_
 
@@ -61,7 +61,7 @@ class relvalmcfs(Scenario):
         return process
 
 
-    def alcaReco(self, skims, **options):
+    def alcaReco(self, skims, **args):
         """
         _alcaReco_
 
@@ -115,7 +115,7 @@ class relvalmcfs(Scenario):
         return process
 
 
-    def dqmHarvesting(self, datasetName, runNumber, globalTag, **options):
+    def dqmHarvesting(self, datasetName, runNumber, globalTag, **args):
         """
         _dqmHarvesting_
 
@@ -147,5 +147,8 @@ class relvalmcfs(Scenario):
         process.source.fileNames = cms.untracked(cms.vstring())
         process.maxEvents.input = -1
         process.dqmSaver.workflow = datasetName
+        if args.has_key('referenceFile') and args.get('referenceFile', ''):
+            process.DQMStore.referenceFileName = \
+                                cms.untracked.string(args['referenceFile'])
         
         return process

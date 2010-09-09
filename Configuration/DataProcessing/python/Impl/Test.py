@@ -48,11 +48,15 @@ class Test(Scenario):
         return cms.Process("ALCARECO")
         
         
-    def dqmHarvesting(datasetName, runNumber,  globalTag, **options):
+    def dqmHarvesting(self, datasetName, runNumber,  globalTag, **args):
         """
         _dqmHarvesting_
 
         build a DQM Harvesting configuration
+
+        this method can be used to test an extra scenario, all the 
+        ConfigBuilder options can be overwritten by using **args. This will be
+        useful for testing with real jobs.
 
         Arguments:
         
@@ -63,8 +67,41 @@ class Test(Scenario):
         inputFiles - The list of LFNs being harvested
 
         """
-        return cms.Process("DQM")
+        options = defaultOptions
+        options.scenario = "cosmics"
+        options.step = "HARVESTING:dqmHarvesting"
+        options.isMC = False
+        options.isData = True
+        options.beamspot = None
+        options.eventcontent = None
+        options.name = "EDMtoMEConvert"
+        options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
+        options.arguments = ""
+        options.evt_type = ""
+        options.filein = []
 
+        options.__dict__.update(args)
+ 
+        process = cms.Process("HARVESTING")
+        process.source = cms.Source("PoolSource")
+        configBuilder = ConfigBuilder(options, process = process)
+        configBuilder.prepare()
+
+        #
+        # customise process for particular job
+        #
+        process.source.processingMode = cms.untracked.string('RunsAndLumis')
+        process.source.fileNames = cms.untracked(cms.vstring())
+        process.maxEvents.input = -1
+        process.dqmSaver.workflow = datasetName
+        if args.has_key('saveByLumiSection') and \
+                args.get('saveByLumiSection', ''):
+            process.dqmSaver.saveByLumiSection = int(args['saveByLumiSection'])
+        if args.has_key('referenceFile') and args.get('referenceFile', ''):
+            process.DQMStore.referenceFileName = \
+                                cms.untracked.string(args['referenceFile'])
+
+        return process
 
 
     def expressProcessing(self, globalTag):

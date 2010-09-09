@@ -29,7 +29,7 @@ class cosmics(Scenario):
     """
 
 
-    def promptReco(self, globalTag, writeTiers = ['RECO'], **options):
+    def promptReco(self, globalTag, writeTiers = ['RECO'], **args):
         """
         _promptReco_
 
@@ -75,7 +75,7 @@ class cosmics(Scenario):
         return process
 
 
-    def expressProcessing(self, globalTag, writeTiers = [], **options):
+    def expressProcessing(self, globalTag, writeTiers = [], **args):
         """
         _expressProcessing_
 
@@ -116,7 +116,7 @@ class cosmics(Scenario):
         return process
 
 
-    def alcaSkim(self, skims, **options):
+    def alcaSkim(self, skims, **args):
         """
         _alcaSkim_
 
@@ -125,8 +125,8 @@ class cosmics(Scenario):
         """
     
         globalTag = None
-        if 'globaltag' in  options:
-            globalTag = options['globaltag']
+        if 'globaltag' in args:
+            globalTag = args['globaltag']
         
         step = "ALCAOUTPUT:"
         for skim in skims:
@@ -158,7 +158,7 @@ class cosmics(Scenario):
         return process
 
 
-    def dqmHarvesting(self, datasetName, runNumber, globalTag, **options):
+    def dqmHarvesting(self, datasetName, runNumber, globalTag, **args):
         """
         _dqmHarvesting_
 
@@ -191,5 +191,8 @@ class cosmics(Scenario):
         process.maxEvents.input = -1
         process.dqmSaver.workflow = datasetName
         process.dqmSaver.saveByLumiSection = 1
+        if args.has_key('referenceFile') and args.get('referenceFile', ''):
+            process.DQMStore.referenceFileName = \
+                                cms.untracked.string(args['referenceFile'])
 
         return process
