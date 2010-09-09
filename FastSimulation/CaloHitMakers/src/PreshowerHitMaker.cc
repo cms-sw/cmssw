@@ -106,7 +106,7 @@ PreshowerHitMaker::addHit(double r,double phi,unsigned layer)
 
   if(!strip.null())
     {
-      uint stripNumber=strip.rawId();
+      uint32_t stripNumber=strip.rawId();
       std::map<uint32_t,float>::iterator cellitr;
       cellitr = hitMap_.find(stripNumber);
       if( cellitr==hitMap_.end())

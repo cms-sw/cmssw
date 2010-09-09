@@ -387,7 +387,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     //from then on, only the simtrack IDs are usefull.
     //now loop over all possible trackid for this seed.
     //an actual seed can be shared by two tracks in dense envirronement, and also for hit-less seeds.
-    for (uint iToMake=0;iToMake!=simTrackIds.size();++iToMake){
+    for (unsigned int iToMake=0;iToMake!=simTrackIds.size();++iToMake){
       int simTrackId = simTrackIds[iToMake];
       
       // Don't consider seeds belonging to a track already considered 
