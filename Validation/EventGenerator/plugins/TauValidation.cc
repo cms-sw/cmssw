@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2010/05/26 12:58:31 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/07/02 13:34:23 $
+ *  $Revision: 1.3 $
  */
  
 #include "Validation/EventGenerator/interface/TauValidation.h"
@@ -145,7 +145,7 @@ int TauValidation::tauProngs(const HepMC::GenParticle* tau){
 			if((*des)->status() != 1) continue; // dont count unstable particles
 
 			const HepPDT::ParticleData*  pd = fPDGTable->particle((*des)->pdg_id ());
-			int charge = pd->charge();
+			int charge = (int) pd->charge();
 			if(charge == 0) continue;
 			//std::cout << "TauValidation::tauProngs barcode=" << (*des)->barcode() << " pid=" 
                         //          << pid << " mom=" << tauMother(*des) << " status=" 

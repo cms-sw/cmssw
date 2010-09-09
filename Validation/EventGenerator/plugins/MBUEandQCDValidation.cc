@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2010/05/25 16:50:50 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/07/02 12:32:05 $
+ *  $Revision: 1.2 $
  */
  
 #include "Validation/EventGenerator/interface/MBUEandQCDValidation.h"
@@ -809,7 +809,7 @@ bool MBUEandQCDValidation::isCharged(unsigned int i){
 bool MBUEandQCDValidation::isNeutral(unsigned int i){
   
   bool status = false;
-  int pdgId = std::fabs(hepmcGPCollection[i]->pdg_id());
+  int pdgId = std::abs(hepmcGPCollection[i]->pdg_id());
   if ( hepmcGPCollection.size() < i+1 ) { return status; }
   else { status = (hepmcCharge[i] == 0. && pdgId != 12 && pdgId != 14 && pdgId != 16) ; }
   return status;
@@ -819,7 +819,7 @@ bool MBUEandQCDValidation::isNeutral(unsigned int i){
 bool MBUEandQCDValidation::isNeutrino(unsigned int i){
   
   bool status = false;
-  int pdgId = std::fabs(hepmcGPCollection[i]->pdg_id());
+  int pdgId = std::abs(hepmcGPCollection[i]->pdg_id());
   if ( hepmcGPCollection.size() < i+1 ) { return status; }
   else { status = (pdgId == 12 || pdgId == 14 || pdgId == 16) ; }
   return status;
