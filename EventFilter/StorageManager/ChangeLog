@@ -1,3 +1,13 @@
+2010-09-09 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-03-00
+	* Handle error streamer files as other streamers, i.e. open a
+	  new file for each LS and close it when receiving the EoLS signal
+	  or passing the normal timeout. This requires that the actual LS
+	  is encoded also in error events, which is done from
+	  EventFilter/ShmBuffer V00-08-05 tag onwards.
+	* Fix monitoring of number of lumi sections and EoLS signals.
+
 2010-09-02 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V06-02-08
