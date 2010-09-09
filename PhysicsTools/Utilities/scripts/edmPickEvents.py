@@ -21,9 +21,13 @@ from pprint import pprint
 
 
 help = """
-How to use: 
+How to use:
 
-edmPickEvent.py event_list
+edmPickEvent.py dataset run1:lumi1:event1 run2:lumi2:event2
+
+- or - 
+
+edmPickEvent.py dataset listOfEvents.txt
 
 
 event_list is a text file
@@ -42,7 +46,7 @@ run, lumi_section, and event are integers that you can get from
 edm::Event(Auxiliary)
 
 dataset: it just a name of the physics dataset, if you don't know exact name
-    you can provide a mask, e.g.: *QCD*RAW (but it doesn't work at the moment)
+    you can provide a mask, e.g.: *QCD*RAW
 
 For updated information see Wiki:
 https://twiki.cern.ch/twiki/bin/view/CMS/PickEvents 
@@ -55,15 +59,15 @@ https://twiki.cern.ch/twiki/bin/view/CMS/PickEvents
 
 class Event (dict):
 
-    defaultDataset = None
-
+    dataset = None
+    splitRE = re.compile (r'[\s:,]+')
     def __init__ (self, line, **kwargs):
-        pieces = line.strip().split()
+        pieces = Event.splitRE.split (line.strip())
         try:
             self['run']     = int( pieces[0] )
             self['lumi']    = int( pieces[1] )
             self['event']   = int( pieces[2] )
-            self['dataset'] =  Event.defaultDataset
+            self['dataset'] =  Event.dataset
         except:
             raise RuntimeError, "Can not parse '%s' as Event object" \
                   % line.strip()
@@ -75,7 +79,30 @@ class Event (dict):
         return self[key]
 
     def __str__ (self):
-        return "run = %(run)i, event = %(event)i, lumi = %(lumi)i, dataset = %(dataset)s"  % self
+        return "run = %(run)i, lumi = %(lumi)i, event = %(event)i, dataset = %(dataset)s"  % self
+
+
+######################
+## XML parser class ##
+######################
+
+class Handler (xml.sax.handler.ContentHandler):
+
+    def __init__(self):
+        self.inFile = 0
+        self.files = []
+
+    def startElement(self, name, attrs):
+        if name == 'file':
+            self.inFile = 1
+
+    def endElement(self, name):
+        if name == 'file':
+            self.inFile = 0
+
+    def characters(self, data):
+        if self.inFile:
+            self.files.append(str(data))
     
 
 #################
@@ -97,28 +124,14 @@ def getFileNames (event, dbsOptions = {}):
     # Parse the resulting xml output.
     files = []
     try:
-        class Handler (xml.sax.handler.ContentHandler):
-            def __init__(self):
-                self.inFile = 0
-            def startElement(self, name, attrs):
-                if name == 'file':
-                    self.inFile = 1
-            def endElement(self, name):
-                if name == 'file':
-                    self.inFile = 0
-            def characters(self, data):
-                if self.inFile:
-                    files.append(str(data))
-
-        ##  # I want to see what this looks like
-        ##  print "xmldata", xmldata
-        xml.sax.parseString (xmldata, Handler ())
+        handler = Handler()
+        xml.sax.parseString (xmldata, handler)
     except SAXParseException, ex:
         msg = "Unable to parse XML response from DBS Server"
         msg += "\n  Server has not responded as desired, try setting level=DBSDEBUG"
         raise DbsBadXMLData(args=msg, code="5999")
 
-    return files
+    return handler.files
 
 
 def fullCPMpath():
@@ -145,7 +158,7 @@ def setupCrabDict (options):
     crab['output']        = '%s.root' % base
     crab['crabcfg']       = '%s_crab.config' % base
     crab['json']          = '%s.json' % base
-    crab['dataset']       = options.dataset
+    crab['dataset']       = Event.dataset
     crab['email']         = '%s@%s' % (commands.getoutput('whoami'),
                                        commands.getoutput('hostname'))
     return crab
@@ -194,7 +207,7 @@ use_server              = 1
 
 if __name__ == "__main__":
     
-    parser = optparse.OptionParser ("Usage: %prog [options] events.txt")
+    parser = optparse.OptionParser ("Usage: %prog [options] dataset events_or_events.txt", description='''This program facilitates picking specific events from a data set.  For full details, please visit https://twiki.cern.ch/twiki/bin/view/CMS/PickEvents ''')
     parser.add_option ('--crab', dest='crab', action='store_true',
                        help = 'force CRAB setup instead of interactive mode')
     parser.add_option ('--base', dest='base', type='string',
@@ -205,24 +218,35 @@ if __name__ == "__main__":
                        help='dataset to check')
     (options, args) = parser.parse_args()
 
-    Event.defaultDataset = options.dataset
     
-    if len(args) != 1:
+    if len(args) < 2:
         parser.print_help()
         sys.exit(0)
 
-    eventList = []
+    Event.dataset = args.pop(0)
     commentRE = re.compile (r'#.+$')
-    source = open(args[0], 'r')
-    for line in source:
-        line = commentRE.sub ('', line)
-        try:
-            event = Event (line)
-        except:
-            print "Skipping '%s'." % line.strip()
-            continue
-        eventList.append(event)
-    source.close()
+    colonRE   = re.compile (r':')
+    eventList = []
+    if len (args) > 1 or colonRE.search (args[0]):
+        # events are coming in from the command line
+        for piece in args:
+            try:
+                event = Event (piece)
+            except:
+                raise RuntimeError, "'%s' is not a proper event" % piece
+            eventList.append (event)
+    else:
+        # read events from file
+        source = open(args[0], 'r')
+        for line in source:
+            line = commentRE.sub ('', line)
+            try:
+                event = Event (line)
+            except:
+                print "Skipping '%s'." % line.strip()
+                continue
+            eventList.append(event)
+        source.close()
 
     if len (eventList) > 20:
         options.crab = True
