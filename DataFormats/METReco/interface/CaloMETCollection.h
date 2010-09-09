@@ -16,7 +16,7 @@
 #include <vector>
 #include "DataFormats/METReco/interface/CaloMETFwd.h" 
 
-using std::abs;
+using namespace std;
 namespace reco
 {
   typedef std::vector<reco::CaloMET> CaloMETCollection;

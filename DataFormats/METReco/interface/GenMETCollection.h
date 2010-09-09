@@ -16,7 +16,7 @@
 #include <vector>
 #include "DataFormats/METReco/interface/GenMETFwd.h" 
 
-using std::abs;
+using namespace std;
 namespace reco
 {
   typedef std::vector<reco::GenMET> GenMETCollection;
