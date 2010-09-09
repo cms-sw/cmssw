@@ -410,11 +410,12 @@ if 'GlobalTag' in process.__dict__:
 if 'GlobalTag' in process.__dict__:
 """
 
+      # override the GlobalTag connection string and pfnPrefix
+      data = data + "    process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'\n"
+      data = data + "    process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')\n"
       if runOnData:
-        # override the GlobalTag connection string and pfnPrefix
         # do not override the GlobalTag unless one was specified on the command line 
-        data = data + "    process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'\n"
-        data = data + "    process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')\n"
+        pass
       else:
         # check if a specific GlobalTag was specified on the command line, or choose one from the processType
         if not menuGlobalTag:

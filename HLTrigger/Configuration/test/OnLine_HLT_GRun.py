@@ -13883,6 +13883,8 @@ process.options = cms.untracked.PSet(
 
 # override the GlobalTag connection string and pfnPrefix
 if 'GlobalTag' in process.__dict__:
+    process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
+    process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
     from Configuration.PyReleaseValidation.autoCond import autoCond
     process.GlobalTag.globaltag = autoCond['startup']
 
