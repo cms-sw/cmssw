@@ -13,7 +13,7 @@
 //
 // Original Author:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: TrackerOnlyConversionProducer.cc,v 1.23 2010/09/01 10:59:42 nancy Exp $
+// $Id: TrackerOnlyConversionProducer.cc,v 1.24 2010/09/07 16:00:39 nancy Exp $
 //
 //
 
@@ -49,6 +49,7 @@
 
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionVertexFinder.h"
 
 //Kinematic constraint vertex fitter
 #include "RecoVertex/KinematicFitPrimitives/interface/ParticleMass.h"
@@ -61,12 +62,11 @@
 #include "RecoVertex/KinematicFit/interface/MassKinematicConstraint.h"
 #include "RecoVertex/KinematicFit/interface/ColinearityKinematicConstraint.h"
 
-using namespace edm;
-using namespace reco;
-using namespace std;
 
 
-TrackerOnlyConversionProducer::TrackerOnlyConversionProducer(const edm::ParameterSet& iConfig)
+TrackerOnlyConversionProducer::TrackerOnlyConversionProducer(const edm::ParameterSet& iConfig):
+ theVertexFinder_(0)
+
 {
     algoName_ = iConfig.getParameter<std::string>( "AlgorithmName" );
 
@@ -138,6 +138,9 @@ TrackerOnlyConversionProducer::TrackerOnlyConversionProducer(const edm::Paramete
     r_cut = iConfig.getParameter<double>("rCut");
     vtxChi2_ = iConfig.getParameter<double>("vtxChi2");
 
+
+    theVertexFinder_ = new ConversionVertexFinder ( iConfig );
+
     //output
     ConvertedPhotonCollection_     = iConfig.getParameter<std::string>("convertedPhotonCollection");
 
@@ -151,7 +154,7 @@ TrackerOnlyConversionProducer::~TrackerOnlyConversionProducer()
 
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-
+  delete theVertexFinder_;
 }
 
 
@@ -180,7 +183,7 @@ inline bool TrackerOnlyConversionProducer::trackD0Cut(const edm::Ref<reco::Track
     return ((!allowD0_) || !(-ref->dxy(the_pvtx.position())*ref->charge()/ref->dxyError()<d0Cut_));
 }
 
-double TrackerOnlyConversionProducer::getMinApproach(const TrackRef& ll, const TrackRef& rr, const MagneticField* magField){
+double TrackerOnlyConversionProducer::getMinApproach(const reco::TrackRef& ll, const reco::TrackRef& rr, const MagneticField* magField){
     double x_l, x_r, y_l, y_r;
 
     const double xx_l = ll->innerPosition().x(), yy_l = ll->innerPosition().y(), zz_l = ll->innerPosition().z();
@@ -193,7 +196,7 @@ double TrackerOnlyConversionProducer::getMinApproach(const TrackRef& ll, const T
     return sqrt((x_l-x_r)*(x_l-x_r)+(y_l-y_r)*(y_l-y_r)) - radius_l - radius_r;
 }
 
-bool TrackerOnlyConversionProducer::getTrackImpactPosition(const TrackRef& tk_ref,
+bool TrackerOnlyConversionProducer::getTrackImpactPosition(const reco::TrackRef& tk_ref,
 	const TrackerGeometry* trackerGeom, const MagneticField* magField,
 	math::XYZPoint& ew){
 
@@ -351,8 +354,8 @@ bool TrackerOnlyConversionProducer::checkTrackPair(const std::pair<reco::TrackRe
 
     const reco::TrackRef& tk_l = ll.first;
     const reco::TrackRef& tk_r = rr.first;
-    const TransientTrack ttk_l(tk_l, magField);
-    const TransientTrack ttk_r(tk_r, magField);
+    const reco::TransientTrack ttk_l(tk_l, magField);
+    const reco::TransientTrack ttk_r(tk_r, magField);
     const reco::CaloClusterPtr& bc_l = ll.second;//can be null, so check isNonnull()
     const reco::CaloClusterPtr& bc_r = rr.second;
     
@@ -426,50 +429,15 @@ bool TrackerOnlyConversionProducer::checkVertex(const reco::TrackRef& tk_l, cons
 	reco::Vertex& the_vertex){
     bool found = false;
 
-    TransientTrack ttk_l(tk_l, magField);
-    TransientTrack ttk_r(tk_r, magField);
-
-    float sigma = 0.00000000001;
-    float chi = 0.;
-    float ndf = 0.;
-    float mass = 0.000000511;
-
-    edm::ParameterSet pSet;
-    pSet.addParameter<double>("maxDistance", maxDistance_);//0.001
-    pSet.addParameter<double>("maxOfInitialValue",maxOfInitialValue_) ;//1.4
-    pSet.addParameter<int>("maxNbrOfIterations", maxNbrOfIterations_);//40
+    reco::TransientTrack ttk_l(tk_l, magField);
+    reco::TransientTrack ttk_r(tk_r, magField);
+    std::vector<reco::TransientTrack>  pair;
+    pair.push_back(ttk_l);
+    pair.push_back(ttk_r);
    
+    found = theVertexFinder_->run(pair, the_vertex);
 
-    KinematicParticleFactoryFromTransientTrack pFactory;
 
-    vector<RefCountedKinematicParticle> particles;
-
-    particles.push_back(pFactory.particle (ttk_l,mass,chi,ndf,sigma));
-    particles.push_back(pFactory.particle (ttk_r,mass,chi,ndf,sigma));
-
-    MultiTrackKinematicConstraint *  constr = new ColinearityKinematicConstraint(ColinearityKinematicConstraint::PhiTheta);
-
-    KinematicConstrainedVertexFitter kcvFitter;
-    kcvFitter.setParameters(pSet);
-    RefCountedKinematicTree myTree = kcvFitter.fit(particles, constr);
-    if( myTree->isValid() ) {
-	myTree->movePointerToTheTop();                                                                                
-	RefCountedKinematicParticle the_photon = myTree->currentParticle();                                           
-	if (the_photon->currentState().isValid()){                                                                    
-	    //const ParticleMass photon_mass = the_photon->currentState().mass();                                       
-	    RefCountedKinematicVertex gamma_dec_vertex;                                                               
-	    gamma_dec_vertex = myTree->currentDecayVertex();                                                          
-	    if( gamma_dec_vertex->vertexIsValid() ){                                                                  
-		const float chi2Prob = ChiSquaredProbability(gamma_dec_vertex->chiSquared(), gamma_dec_vertex->degreesOfFreedom());
-		if (chi2Prob>0.){// no longer cut here, only ask positive probability here 
-		    //const math::XYZPoint vtxPos(gamma_dec_vertex->position());                                           
-		  the_vertex = *gamma_dec_vertex;
-		  found = true;
-		}
-	    }
-	}
-    }
-    delete constr;                                                                                                    
 
     return found;
 }
@@ -547,7 +515,7 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
 
     //2 propagate all tracks into ECAL, record its eta and phi
     for (reco::TrackRefVector::const_iterator ref = allTracks.begin(); ref != allTracks.end(); ++ref){
-	const TrackRef& tk_ref = *ref;
+      const reco::TrackRef& tk_ref = *ref;
 
 	//if ( !(trackQualityFilter(tk_ref, true)) ) continue;
 
