@@ -166,8 +166,10 @@ def setupCrabDict (options):
     crab['email']         = options.email
     if options.crabCondor:
         crab['scheduler'] = 'condor'
+        crab['useServer'] = ''
     else:
         crab['scheduler'] = 'glite'
+        crab['useServer'] = 'use_server              = 1'
     return crab
 
 
@@ -203,7 +205,7 @@ email                   = %(email)s
 # site AND you know the files are available locally
 scheduler               = %(scheduler)s  
 jobtype                 = cmssw
-use_server              = 1
+%(useServer)s
 '''
 
 
@@ -285,7 +287,12 @@ if __name__ == "__main__":
         target = open (crabDict['crabcfg'], 'w')
         target.write (crabTemplate % crabDict)
         target.close
-        print "Edit %(crabcfg)s to make any desired changed.  The run:\ncrab -create -cfg %(crabcfg)s\ncrab -submit\n" % crabDict
+        print "Please visit https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCrab\n"
+        if options.crabCondor:
+            print "You are running on condor.  Please make sure you have read instructions on\nhttps://twiki.cern.ch/twiki/bin/view/CMS/CRABonLPCCAF"
+            if not os.path.exists ('%s/.profile' % os.environ.get('HOME')):
+                print "You are missing ~/.profile file.  Please see CRABonLPCCAF instructions above."
+        print "Setup your environment for CRAB.  Then edit %(crabcfg)s to make any desired changed.  The run:\ncrab -create -cfg %(crabcfg)s\ncrab -submit\n" % crabDict
 
     else:
 
