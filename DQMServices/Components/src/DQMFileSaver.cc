@@ -95,18 +95,18 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
 	   DQMStore::SaveWithoutReference,
 	   dqm::qstatus::STATUS_OK,
 	   fileUpdate_);
+	// from now on update newly created file
+	if (fileUpdate_=="RECREATE") fileUpdate_="UPDATE";
       }
     }
     std::cout << "\n";
   }
 
-  if (fileUpdate_=="RECREATE") 
+  if (pastSavedFiles_.size() == 0)
   {
-    // from now on update newly created file
-    fileUpdate_="UPDATE";
     // save JobReport upon creation of file (once per job)
-    // FIXME, check if jobreport should not be created at jobend
     saveJobReport(filename);
+    pastSavedFiles_.push_back(filename);
   }
   
 }
