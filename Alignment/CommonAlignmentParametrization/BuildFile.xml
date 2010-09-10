@@ -1,6 +1,4 @@
-<use   name="DataFormats/CLHEP"/>
 <use   name="Alignment/CommonAlignment"/>
-<use   name="CondFormats/Alignment"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Utilities"/>
 <export>
