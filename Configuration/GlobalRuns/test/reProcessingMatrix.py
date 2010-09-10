@@ -10,30 +10,30 @@ parser.add_option("--output",default="RECO,DQM")
 (options,args)=parser.parse_args()
 
 def Era_8PDs():
-    alcaMap={}
-    alcaMap['']=''
-    alcaMap['ZeroBias']='SiStripCalZeroBias'
-    alcaMap['MinimumBias']='SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+HcalCalIsoTrk'
-    alcaMap['EG']='EcalCalElectron'
-    alcaMap['Mu']='MuAlCalIsolatedMu+MuAlOverlaps+TkAlMuonIsolated+DtCalib'
-    alcaMap['JetMETTau']='HcalCalDijets'
-    #alcaMap['AlCaP0']='EcalCalPi0Calib+EcalCalEtaCalib'
-    #alcaMap['AlCaPhiSymEcal']='EcalCalPhiSym+DQM'
-    #alcaMap['HcalNZS']='HcalCalMinBias'
-    #alcaMap['Cosmics']='TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo+TkAlCosmics0T+MuAlStandAloneCosmics+MuAlGlobalCosmics+MuAlCalIsolatedMu+HcalCalHOCosmics'
-    return alcaMap
+    alcaAndSkimMap={}
+    alcaAndSkimMap['']=('','LogError')
+    alcaAndSkimMap['ZeroBias']=('SiStripCalZeroBias','')
+    alcaAndSkimMap['MinimumBias']=('SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+HcalCalIsoTrk','')
+    alcaAndSkimMap['EG']=('EcalCalElectron','')
+    alcaAndSkimMap['Mu']=('MuAlCalIsolatedMu+MuAlOverlaps+TkAlMuonIsolated+DtCalib','')
+    alcaAndSkimMap['JetMETTau']=('HcalCalDijets','')
+    #alcaAndSkimMap['AlCaP0']=('EcalCalPi0Calib+EcalCalEtaCalib','')
+    #alcaAndSkimMap['AlCaPhiSymEcal']=('EcalCalPhiSym+DQM','')
+    #alcaAndSkimMap['HcalNZS']=('HcalCalMinBias','')
+    #alcaAndSkimMap['Cosmics']=('TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo+TkAlCosmics0T+MuAlStandAloneCosmics+MuAlGlobalCosmics+MuAlCalIsolatedMu+HcalCalHOCosmics','')
+    return alcaAndSkimMap
 
 def Era_2PDs():
-    alcaMap={}
-    alcaMap['']=''
-    alcaMap['ZeroBias']='SiStripCalZeroBias'
-    alcaMap['MinimumBias']='SiStripCalMinBias+SiStripCalZeroBias+TkAlMinBias+TkAlMuonIsolated+MuAlCalIsolatedMu+MuAlOverlaps+HcalCalIsoTrk+HcalCalDijets+DtCalib+EcalCalElectron'
-    return alcaMap
+    alcaAndSkimMap={}
+    alcaAndSkimMap['']=('','LogError')
+    alcaAndSkimMap['ZeroBias']=('SiStripCalZeroBias','')
+    alcaAndSkimMap['MinimumBias']=('SiStripCalMinBias+SiStripCalZeroBias+TkAlMinBias+TkAlMuonIsolated+MuAlCalIsolatedMu+MuAlOverlaps+HcalCalIsoTrk+HcalCalDijets+DtCalib+EcalCalElectron','')
+    return alcaAndSkimMap
 
 def Era_1PDs():
-    alcaMap={}
-    alcaMap['MinimumBias']='SiStripCalMinBias+SiStripCalZeroBias+TkAlMinBias+TkAlMuonIsolated+MuAlCalIsolatedMu+MuAlOverlaps+HcalCalIsoTrk+HcalCalDijets+DtCalib+EcalCalElectron'
-    return alcaMap
+    alcaAndSkimMap={}
+    alcaAndSkimMap['MinimumBias']=('SiStripCalMinBias+SiStripCalZeroBias+TkAlMinBias+TkAlMuonIsolated+MuAlCalIsolatedMu+MuAlOverlaps+HcalCalIsoTrk+HcalCalDijets+DtCalib+EcalCalElectron','LogError')
+    return alcaAndSkimMap
 
 evt=options.output.split(',')
 tiers=[]
@@ -43,12 +43,16 @@ for e in evt:
 tiers=','.join(tiers)
 
 com='cmsDriver.py reco -s RAW2DIGI,L1Reco,RECO,DQM%s  --data --magField AutoFromDBCurrent --scenario pp --datatier '+tiers+' --eventcontent '+options.output+' --customise Configuration/GlobalRuns/reco_TLR_'+options.release+'.py --cust_function customisePPData --no_exec --python_filename=rereco_%sCollision_'+options.release+'.py --conditions %s '+options.options
+skim='cmsDriver.py skim -s SKIM:%s --data --magField AutoFromDBCurrent --scenario pp --datatier '+tiers+' --eventcontent '+options.output+' --no_exec --python_filename=skim_%s'+options.release+'.py --conditions %s '+options.options
 
 import os
 
-alcaMap=globals()["Era_%ss"%(options.era)]()
-for PD in alcaMap.keys():
+alcaAndSkimMap=globals()["Era_%ss"%(options.era)]()
+for PD in alcaAndSkimMap.keys():
+    alcaArg=alcaAndSkimMap[PD][0]
+    skimArg=alcaAndSkimMap[PD][1]
     c=com
+    s=skim
     spec=options.era+'_'
     if 'AOD' in options.output:
         spec+='AOD_'
@@ -56,10 +60,12 @@ for PD in alcaMap.keys():
         alca=''
         c=com+' --process reRECO'
     else:
-        alca=',ALCA:%s'%(alcaMap[PD],)
+        alca=',ALCA:%s'%(alcaArg,)
         spec+=PD+"_"
     if (options.options !=""):
         spec+="spec_"
     os.system(c%(alca,spec,options.GT))
 
+    if (skimArg!=""):
+        os.system(s%(skimArg,spec,options.GT))
 
