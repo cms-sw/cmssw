@@ -181,6 +181,9 @@ void popcon::EcalLaserHandler::getNewObjects()
     cerr << e.what() << endl;
     throw cms::Exception("OMDS not available");
   } 
+
+
+  /*
   
   // these are the online conditions DB classes 
   RunList my_runlist ;
@@ -276,34 +279,7 @@ void popcon::EcalLaserHandler::getNewObjects()
 									-1,1,-120,120,
 									-120,120,
 									"ECAL_LMR", 4 );
-    /*
-    std::map<int ,vector<EcalLogicID> > crystals_by_LMR;
-
-    for(int ilmr=0; ilmr<72; ilmr++){
-      vector<EcalLogicID> temp;
-      for (int ixt=0; ixt<61200; ixt++){
-	if(crystals_EB[ixt].getLogicID()%100 == ilmr+1){
-	  temp.push_back(crystals_EB[ixt]);
-	}
-      }
-      std::pair<int ,EcalLogicID> tp=make_pair(ilmr+1,temp) ;
-      crystals_by_LMR.insert(tp);
-    }
-    for(int ilmr=72; ilmr<92; ilmr++){
-      vector<EcalLogicID> temp;
-      for (int ixt=0; ixt<61200; ixt++){
-	if(crystals_EE[ixt].getLogicID()%100 == ilmr+1){
-	  temp.push_back(crystals_EE[ixt]);
-	}
-      }
-
-      std::pair<int ,EcalLogicID> tp=make_pair(ilmr+1,temp) ;
-      crystals_by_LMR.insert(tp);
-    }
-    // done with Ecal Logic Id and LMR
-
-    */
-
+ 
     for(int kt=0; kt<lmf_runs; kt++){
       last_lmr[kt]=0;
     }
@@ -629,7 +605,8 @@ void popcon::EcalLaserHandler::getNewObjects()
     }
     
   }  
-    
+   
+  */
     
   delete econn;
   delete apdpns_temp;  // this is the only one that popcon does not delete 
