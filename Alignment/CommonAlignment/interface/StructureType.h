@@ -7,8 +7,8 @@
  *
  *  Basically list the levels in the detector's hierarchy.
  *
- *  $Date: 2008/02/14 12:54:35 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/04/18 07:21:46 $
+ *  $Revision: 1.4 $
  *  \author Chung Khim Lae
  */
 
@@ -84,7 +84,10 @@ namespace align
     AlignableCSCLayer, // = 110
     AlignableMuon,
 
-    Detector // = 112 (what for?)
+    Detector, // = 112 (what for?)
+
+    Extras = 1000,
+    BeamSpot
   };
 }
 
