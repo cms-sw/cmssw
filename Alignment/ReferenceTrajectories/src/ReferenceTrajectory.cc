@@ -1,12 +1,15 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2010/01/14 16:14:04 $
+//  last update: $Date: 2010/03/08 16:13:38 $
 //  by         : $Author: flucke $
 
 #include <memory>
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
+
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
+#include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "DataFormats/GeometrySurface/interface/OpenBounds.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -31,10 +34,14 @@
 #include "TrackingTools/MaterialEffects/interface/EnergyLossUpdator.h"
 #include "TrackingTools/MaterialEffects/interface/CombinedMaterialEffectsUpdator.h"
 #include <TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h>
+#include <TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h>
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
-
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToBeamLine.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
+
+#include "BeamSpotTransientTrackingRecHit.h"
+#include "BeamSpotGeomDet.h"
 
 //__________________________________________________________________________________
 
@@ -45,17 +52,20 @@ ReferenceTrajectory::ReferenceTrajectory(const TrajectoryStateOnSurface &refTsos
 					 MaterialEffects materialEffects,
 					 PropagationDirection propDir,
 					 double mass,
-					 const reco::BeamSpot &beamSpot) 
+					 bool useBeamSpot, const reco::BeamSpot &beamSpot) 
  : ReferenceTrajectoryBase( 
    (materialEffects >= brokenLinesCoarse) ? 1 : refTsos.localParameters().mixedFormatVector().kSize, 
-   recHits.size(), 
-   (materialEffects >= brokenLinesCoarse) ? 2*recHits.size()+2 : ( (materialEffects == breakPoints) ? 2*recHits.size()-2 : 0) , 
-   (materialEffects >= brokenLinesCoarse) ? 2*recHits.size()-2 : ( (materialEffects == breakPoints) ? 2*recHits.size()-2 : 0) )	 
+   (useBeamSpot == true) ? recHits.size()+1 : recHits.size(),
+   (materialEffects >= brokenLinesCoarse) ? 
+       2*((useBeamSpot == true) ? recHits.size()+1 : recHits.size())+2 :
+   ( (materialEffects == breakPoints) ? 2*((useBeamSpot == true) ? recHits.size()+1 : recHits.size())-2 : 0) , 
+   (materialEffects >= brokenLinesCoarse) ? 
+       2*((useBeamSpot == true) ? recHits.size()+1 : recHits.size())-2 : 
+   ( (materialEffects == breakPoints) ? 2*((useBeamSpot == true) ? recHits.size()+1 : recHits.size())-2 : 0) )
 {
-
   // no check against magField == 0  
   theParameters = asHepVector<5>( refTsos.localParameters().mixedFormatVector() );
-    
+  
   if (hitsAreReverse) {
     TransientTrackingRecHit::ConstRecHitContainer fwdRecHits;
     fwdRecHits.reserve(recHits.size());
@@ -64,22 +74,25 @@ ReferenceTrajectory::ReferenceTrajectory(const TrajectoryStateOnSurface &refTsos
       fwdRecHits.push_back(*it);
     }
     theValidityFlag = this->construct(refTsos, fwdRecHits, mass, materialEffects,
-				      propDir, magField, beamSpot);
+				      propDir, magField,
+				      useBeamSpot, beamSpot);
   } else {
     theValidityFlag = this->construct(refTsos, recHits, mass, materialEffects,
-				      propDir, magField, beamSpot);
+				      propDir, magField,
+				      useBeamSpot, beamSpot);
   }
 }
 
 
 //__________________________________________________________________________________
 
-ReferenceTrajectory::ReferenceTrajectory( unsigned int nPar, unsigned int nHits, MaterialEffects materialEffects)
-  : ReferenceTrajectoryBase( 
+ReferenceTrajectory::ReferenceTrajectory( unsigned int nPar, unsigned int nHits,
+					  MaterialEffects materialEffects)
+ : ReferenceTrajectoryBase( 
    (materialEffects >= brokenLinesCoarse) ? 1 : nPar, 
    nHits, 
-   (materialEffects >= brokenLinesCoarse) ? 2*nHits+2 : ( (materialEffects == breakPoints) ? 2*nHits-2 : 0) , 
-   (materialEffects >= brokenLinesCoarse) ? 2*nHits-2 : ( (materialEffects == breakPoints) ? 2*nHits-2 : 0) )  
+   (materialEffects >= brokenLinesCoarse) ? 2*nHits+2 : ( (materialEffects == breakPoints) ? 2*nHits-2 : 0 ), 
+   (materialEffects >= brokenLinesCoarse) ? 2*nHits-2 : ( (materialEffects == breakPoints) ? 2*nHits-2 : 0 ) )
 {}
 
 
@@ -90,8 +103,11 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
 				    double mass, MaterialEffects materialEffects,
 				    const PropagationDirection propDir,
 				    const MagneticField *magField,
+				    bool useBeamSpot,
 				    const reco::BeamSpot &beamSpot)
 {   
+  TrajectoryStateOnSurface theRefTsos = refTsos;
+
   const SurfaceSide surfaceSide = this->surfaceSide(propDir);
   // auto_ptr to avoid memory leaks in case of not reaching delete at end of method:
   std::auto_ptr<MaterialEffectsUpdator> aMaterialEffectsUpdator
@@ -126,40 +142,69 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
   // CHK: add PCA for broken lines
   double firstStep = 0.;
   AlgebraicMatrix firstCurvlinJacobian(5, 5, 1);
-  if (materialEffects > brokenLinesFine) {
-    // FIXME: instead of (0,0,0), TSCPBuilderNoMaterial and TrajectoryStateClosestToPoint,
-    //        we should probably use beamSpot, TSCBLBuilderNoMaterial
-    //        (or TSCBLBuilderWithPropagator?) and TrajectoryStateClosestToBeamLine
-    GlobalPoint origin(0.,0.,0.);
-    TrajectoryStateClosestToPoint tsctp(TSCPBuilderNoMaterial()(refTsos, origin));
-    FreeTrajectoryState pcaFts = tsctp.theState();
+  
+  unsigned int iRow = 0;
+
+  // local storage vector of all rechits (including rechit for beam spot in case it is used)
+  TransientTrackingRecHit::ConstRecHitContainer allRecHits;
+
+  if (useBeamSpot && propDir==alongMomentum) {
+    
+    GlobalPoint bs(beamSpot.x0(), beamSpot.y0(), beamSpot.z0());
+    
+    TrajectoryStateClosestToBeamLine tsctbl(TSCBLBuilderNoMaterial()(*(refTsos.freeState()), beamSpot));
+    FreeTrajectoryState pcaFts = tsctbl.trackStateAtPCA();
+    GlobalVector bd(beamSpot.dxdz(), beamSpot.dydz(), 1.0);
+    
     //propagation FIXME: Should use same propagator everywhere...
     AnalyticalPropagator propagator(magField);
-    std::pair< TrajectoryStateOnSurface, double > tsosWithPath = propagator.propagateWithPath(pcaFts,refTsos.surface()); 
+    std::pair< TrajectoryStateOnSurface, double > tsosWithPath =
+      propagator.propagateWithPath(pcaFts, refTsos.surface());
+    
+    if (!tsosWithPath.first.isValid()) return false;
+    
+    GlobalVector momDir(pcaFts.momentum());
+    GlobalVector perpDir(bd.cross(momDir));
+    BoundPlane::RotationType rotation(perpDir, bd);
+    
+    BeamSpotGeomDet * bsGeom = new BeamSpotGeomDet(BoundPlane::build(bs, rotation, OpenBounds()));
 
-    if (!tsosWithPath.first.isValid())  return false; 
-    AnalyticalCurvilinearJacobian curvJac( pcaFts.parameters(),
-                                         tsosWithPath.first.globalPosition(),
-                                         tsosWithPath.first.globalMomentum(), 
-                                         tsosWithPath.second );
-    firstStep = tsosWithPath.second;
-    firstCurvlinJacobian = asHepMatrix<5,5>(curvJac.jacobian()); 
-  }  
-   
-  unsigned int iRow = 0;
+    // There is also a constructor taking the magentic field. Use this one instead?
+    theRefTsos = TrajectoryStateOnSurface(pcaFts, bsGeom->surface());
+    
+    TransientTrackingRecHit::ConstRecHitPointer bsRecHit = 
+      new BeamSpotTransientTrackingRecHit(beamSpot,
+					  bsGeom,
+					  theRefTsos.freeState()->momentum().phi());
+    allRecHits.push_back(bsRecHit);
+
+    AnalyticalCurvilinearJacobian curvJac(pcaFts.parameters(),
+					  theRefTsos.globalPosition(),
+					  theRefTsos.globalMomentum(), 
+					  tsosWithPath.second);
+    firstCurvlinJacobian = asHepMatrix<5,5>(curvJac.jacobian());
+  }
+  
+  // copy all rechits to the local storage vector
   TransientTrackingRecHit::ConstRecHitContainer::const_iterator itRecHit;
   for ( itRecHit = recHits.begin(); itRecHit != recHits.end(); ++itRecHit ) { 
+    const TransientTrackingRecHit::ConstRecHitPointer &hitPtr = *itRecHit;
+    allRecHits.push_back(hitPtr);
+  }
 
+  for ( itRecHit = allRecHits.begin(); itRecHit != allRecHits.end(); ++itRecHit ) { 
+    
     const TransientTrackingRecHit::ConstRecHitPointer &hitPtr = *itRecHit;
     theRecHits.push_back(hitPtr);
 
-    if (0 == iRow) { 
+    if (0 == iRow) {
+
       // compute the derivatives of the reference-track's parameters w.r.t. the initial ones
       // derivative of the initial reference-track parameters w.r.t. themselves is of course the identity 
       fullJacobian = AlgebraicMatrix(theParameters.num_row(), theParameters.num_row(), 1);
       allJacobians.push_back(fullJacobian);
-      theTsosVec.push_back(refTsos);
-      const JacobianLocalToCurvilinear startTrafo(hitPtr->det()->surface(), refTsos.localParameters(), *magField);
+      theTsosVec.push_back(theRefTsos);
+      const JacobianLocalToCurvilinear startTrafo(hitPtr->det()->surface(), theRefTsos.localParameters(), *magField);
       const AlgebraicMatrix localToCurvilinear =  asHepMatrix<5>(startTrafo.jacobian());
       if (materialEffects <= breakPoints) {
          theInnerTrajectoryToCurvilinear = asHepMatrix<5>(startTrafo.jacobian());
@@ -168,18 +213,20 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
       allLocalToCurv.push_back(localToCurvilinear);
       allSteps.push_back(firstStep);
       allCurvlinJacobians.push_back(firstCurvlinJacobian);
-               
+
     } else {
+
       AlgebraicMatrix nextJacobian;
       AlgebraicMatrix nextCurvlinJacobian;
       double nextStep = 0.;
       TrajectoryStateOnSurface nextTsos;
+
       if (!this->propagate(previousHitPtr->det()->surface(), previousTsos,
 			   hitPtr->det()->surface(), nextTsos,
 			   nextJacobian, nextCurvlinJacobian, nextStep, propDir, magField)) {
 	return false; // stop if problem...// no delete aMaterialEffectsUpdator needed
       }
-
+      
       allJacobians.push_back(nextJacobian);
       fullJacobian = nextJacobian * previousChangeInCurvature * fullJacobian;
       theTsosVec.push_back(nextTsos);
@@ -189,17 +236,19 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
       allLocalToCurv.push_back(localToCurvilinear);
       if (nextStep == 0.) { 
 	edm::LogError("Alignment") << "@SUB=ReferenceTrajectory::construct"
-				   << "step 0. from id " << previousHitPtr->det()->geographicalId()
+				   << "step 0. from id " << previousHitPtr->geographicalId()
 				   << " to " << hitPtr->det()->geographicalId() << ".";
 	// brokenLinesFine will not work, brokenLinesCoarse combines close by layers
-	if (materialEffects == brokenLinesFine || materialEffects == brokenLinesFinePca) {
+	if (materialEffects == brokenLinesFine) {
 	  edm::LogError("Alignment") << "@SUB=ReferenceTrajectory::construct" << "Skip track.";
 	  return false;
 	}
       }
       allSteps.push_back(nextStep);
       allCurvlinJacobians.push_back(nextCurvlinJacobian);
+
     }
+
     // take material effects into account. since trajectory-state is constructed with errors equal zero,
     // the updated state contains only the uncertainties due to interactions in the current layer.
     const TrajectoryStateOnSurface tmpTsos(theTsosVec.back().localParameters(), zeroErrors,
@@ -207,7 +256,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
     const TrajectoryStateOnSurface updatedTsos = aMaterialEffectsUpdator->updateState(tmpTsos, propDir);
 
     if ( !updatedTsos.isValid() ) return false;// no delete aMaterialEffectsUpdator needed
-
+    
     if ( theTsosVec.back().localParameters().charge() )
     {
       previousChangeInCurvature[0][0] = updatedTsos.localParameters().signedInverseMomentum() 
@@ -219,7 +268,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
     allCurvatureChanges.push_back(previousChangeInCurvature);
     
     // projection-matrix tsos-parameters -> measurement-coordinates
-    if ( useRecHit( hitPtr ) ) { allProjections.push_back(hitPtr->projectionMatrix()); }
+    if ( useRecHit( hitPtr ) ) { allProjections.push_back( hitPtr->projectionMatrix() ); }
     else                       { allProjections.push_back( AlgebraicMatrix( 2, 5, 0) ); } // get size from ???
     
     // set start-parameters for next propagation. trajectory-state without error
@@ -227,6 +276,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
     previousHitPtr = hitPtr;
     previousTsos   = TrajectoryStateOnSurface(updatedTsos.globalParameters(),
                                               updatedTsos.surface(), surfaceSide);
+    
     if (materialEffects < brokenLinesCoarse) {
       this->fillDerivatives(allProjections.back(), fullJacobian, iRow);
     }
@@ -253,12 +303,10 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
                                       allDeltaParameterCovs, allLocalToCurv);
     break;
   case brokenLinesCoarse:
-  case brokenLinesCoarsePca:
     msOK = this->addMaterialEffectsBrl(allProjections, allDeltaParameterCovs, allLocalToCurv,
                                        allSteps, refTsos.globalParameters());
     break;
   case brokenLinesFine:
-  case brokenLinesFinePca:
     msOK = this->addMaterialEffectsBrl(allCurvlinJacobians, allProjections, allCurvatureChanges,
                                        allDeltaParameterCovs, allLocalToCurv, allSteps,
                                        refTsos.globalParameters());
@@ -268,9 +316,11 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
   if (refTsos.hasError()) {
     AlgebraicSymMatrix parameterCov = asHepMatrix<5>(refTsos.localError().matrix());
     AlgebraicMatrix  parDeriv;
-    if (theNumberOfMsPars>0)
-    { parDeriv = theDerivatives.sub( 1, nMeasPerHit*allJacobians.size(), 1, theParameters.num_row() ); 
-    } else { parDeriv = theDerivatives; }
+    if (theNumberOfMsPars>0) { 
+      parDeriv = theDerivatives.sub( 1, nMeasPerHit*allJacobians.size(), 1, theParameters.num_row() ); 
+    } else {
+      parDeriv = theDerivatives; 
+    }
     theTrajectoryPositionCov = parameterCov.similarity(parDeriv);
   } else {
     theTrajectoryPositionCov = AlgebraicSymMatrix(theDerivatives.num_row(), 1);
@@ -298,8 +348,6 @@ ReferenceTrajectory::createUpdator(MaterialEffects materialEffects, double mass)
     return new CombinedMaterialEffectsUpdator(mass);
   case brokenLinesCoarse:
   case brokenLinesFine:
-  case brokenLinesCoarsePca:
-  case brokenLinesFinePca:       
     return new CombinedMaterialEffectsUpdator(mass);
 }
 
@@ -327,8 +375,8 @@ bool ReferenceTrajectory::propagate(const BoundPlane &previousSurface, const Tra
     aPropagator.propagateWithPath(previousTsos, newSurface);
 
   // stop if propagation wasn't successful
-  if (!tsosWithPath.first.isValid())  return false;
-
+  if (!tsosWithPath.first.isValid()) return false;
+  
   nextStep = tsosWithPath.second;
   // calculate derivative of reference-track parameters on the actual layer w.r.t. the ones
   // on the previous layer (both in global coordinates)
@@ -372,7 +420,7 @@ void ReferenceTrajectory::fillMeasurementAndError(const TransientTrackingRecHit:
 
   const LocalPoint localMeasurement    = newHitPtr->localPosition();
   const LocalError localMeasurementCov = newHitPtr->localPositionError();
-
+  
   theMeasurements[iRow]   = localMeasurement.x();
   theMeasurements[iRow+1] = localMeasurement.y();
   theMeasurementsCov[iRow][iRow]     = localMeasurementCov.xx();
@@ -386,7 +434,6 @@ void ReferenceTrajectory::fillMeasurementAndError(const TransientTrackingRecHit:
   //   }
   // }
 }
-  
 
 //__________________________________________________________________________________
 
