@@ -15,6 +15,7 @@ looper = cms.Looper("AlignmentProducer",
                     maxLoops = cms.untracked.uint32(1),
                     doTracker = cms.untracked.bool(True),
                     doMuon = cms.untracked.bool(False),
+                    useExtras = cms.untracked.bool(False),
                     # Read survey info from DB: true requires configuration of PoolDBESSource
                     # See Alignment/SurveyAnalysis/test/readDB.cfg for an example
                     useSurvey = cms.bool(False),
