@@ -211,7 +211,7 @@ HLTMuonTrackMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
       ++nQ;
 
       // if cutting on cowboys reject muons that bend towards each other
-      if(cutCowboys_ && (qMuon*deltaPhi(p4Muon.phi(), track.phi()) < 0.)) continue;
+      if(cutCowboys_ && (qMuon*deltaPhi(p4Muon.phi(), track.phi()) > 0.)) continue;
       ++nCowboy;
 
       if ( checkPrevTracks ) {
