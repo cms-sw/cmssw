@@ -217,6 +217,34 @@ void Pythia6Hadronizer::finalizeEvent()
       lheEvent()->fillEventInfo( event().get() );
       lheEvent()->fillPdfInfo( &pdf );
    }
+   else
+   {
+      // filling in factorization "Q scale" now! pthat moved to binningValues()
+      //
+            
+      if ( event()->signal_process_id() <= 0) event()->set_signal_process_id( pypars.msti[0] );
+      if ( event()->event_scale() <=0 )       event()->set_event_scale( pypars.pari[22] );
+      if ( event()->alphaQED() <= 0)          event()->set_alphaQED( pyint1.vint[56] );
+      if ( event()->alphaQCD() <= 0)          event()->set_alphaQCD( pyint1.vint[57] );
+   
+      // get pdf info directly from Pythia6 and set it up into HepMC::GenEvent
+      // S. Mrenna: Prefer vint block
+      //
+      if ( pdf.id1() <= 0)      pdf.set_id1( pyint1.mint[14] == 21 ? 0 : pyint1.mint[14] );
+      if ( pdf.id2() <= 0)      pdf.set_id2( pyint1.mint[15] == 21 ? 0 : pyint1.mint[15] );
+      if ( pdf.x1() <= 0)       pdf.set_x1( pyint1.vint[40] );
+      if ( pdf.x2() <= 0)       pdf.set_x2( pyint1.vint[41] );
+      if ( pdf.pdf1() <= 0)     pdf.set_pdf1( pyint1.vint[38] / pyint1.vint[40] );
+      if ( pdf.pdf2() <= 0)     pdf.set_pdf2( pyint1.vint[39] / pyint1.vint[41] );
+      if ( pdf.scalePDF() <= 0) pdf.set_scalePDF( pyint1.vint[50] );   
+   }
+
+/* 9/9/2010 - JVY: This is the old piece of code - I can't remember why we implemented it this way.
+                   However, it's causing problems with pdf1 & pdf2 when processing LHE samples,
+		   specifically, because both are set to -1, it tries to fill with Py6 numbers that
+		   are NOT valid/right at this point !
+		   In general, for LHE/ME event processing we should implement the correct calculation
+		   of the pdf's, rather than using py6 ones.
 
    // filling in factorization "Q scale" now! pthat moved to binningValues()
 
@@ -235,6 +263,7 @@ void Pythia6Hadronizer::finalizeEvent()
    if (!lhe || pdf.pdf1() < 0)     pdf.set_pdf1( pyint1.vint[38] / pyint1.vint[40] );
    if (!lhe || pdf.pdf2() < 0)     pdf.set_pdf2( pyint1.vint[39] / pyint1.vint[41] );
    if (!lhe || pdf.scalePDF() < 0) pdf.set_scalePDF( pyint1.vint[50] );
+*/
 
    event()->set_pdf_info( pdf ) ;
 
