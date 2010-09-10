@@ -169,10 +169,10 @@ namespace cond {
   
   
   boost::shared_ptr<coral::Blob> BlobStreamingService::compress(const void* addr, size_t isize) {
-    size_t usize = isize + m_offset;
-    boost::shared_ptr<coral::Blob> theBlob( new coral::Blob(usize));
     uLongf destLen = compressBound(isize);
-    void * startingAddress = (unsigned char*)(theBlob->startingAddress())+ m_offset;
+    size_t usize = destLen + m_offset;
+    boost::shared_ptr<coral::Blob> theBlob( new coral::Blob(usize));
+     void * startingAddress = (unsigned char*)(theBlob->startingAddress())+ m_offset;
     int zerr =  compress2( (unsigned char*)(startingAddress), &destLen,
 			   (unsigned char*)(addr), isize,
 			  9);
