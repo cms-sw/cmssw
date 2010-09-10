@@ -1,7 +1,7 @@
 /** \file AlignableParameterBuilder.cc
  *
- *  $Date: 2007/10/08 14:38:16 $
- *  $Revision: 1.16 $
+ *  $Date: 2008/09/02 15:31:23 $
+ *  $Revision: 1.17 $
 
 */
 
@@ -24,23 +24,35 @@
 using namespace AlignmentParametersFactory;
 
 //__________________________________________________________________________________________________
-AlignmentParameterBuilder::AlignmentParameterBuilder(AlignableTracker* alignableTracker) :
-  theAlignables(), theAlignableTracker(alignableTracker), theAlignableMuon(0)
+AlignmentParameterBuilder::AlignmentParameterBuilder(AlignableTracker* alignableTracker,
+						     AlignableExtras* alignableExtras) :
+  theAlignables(),
+  theAlignableTracker(alignableTracker),
+  theAlignableMuon(0),
+  theAlignableExtras(alignableExtras)
 {
 }
 
 //__________________________________________________________________________________________________
 AlignmentParameterBuilder::AlignmentParameterBuilder(AlignableTracker* alignableTracker, 
-                                                     AlignableMuon* alignableMuon) :
-  theAlignables(), theAlignableTracker(alignableTracker), theAlignableMuon(alignableMuon)
+                                                     AlignableMuon* alignableMuon,
+						     AlignableExtras* alignableExtras) :
+  theAlignables(), 
+  theAlignableTracker(alignableTracker),
+  theAlignableMuon(alignableMuon),
+  theAlignableExtras(alignableExtras)
 {
 }
 
 
 //__________________________________________________________________________________________________
 AlignmentParameterBuilder::AlignmentParameterBuilder(AlignableTracker* alignableTracker,
+						     AlignableExtras* alignableExtras,
                                                      const edm::ParameterSet &pSet) :
-  theAlignables(), theAlignableTracker(alignableTracker), theAlignableMuon(0)
+  theAlignables(), 
+  theAlignableTracker(alignableTracker),
+  theAlignableMuon(0),
+  theAlignableExtras(alignableExtras)
 {
   this->addAllSelections(pSet);
 }
@@ -48,8 +60,12 @@ AlignmentParameterBuilder::AlignmentParameterBuilder(AlignableTracker* alignable
 //__________________________________________________________________________________________________
 AlignmentParameterBuilder::AlignmentParameterBuilder(AlignableTracker* alignableTracker,
                                                      AlignableMuon* alignableMuon,
+						     AlignableExtras* alignableExtras,
                                                      const edm::ParameterSet &pSet) :
-  theAlignables(), theAlignableTracker(alignableTracker), theAlignableMuon(alignableMuon)
+  theAlignables(), 
+  theAlignableTracker(alignableTracker),
+  theAlignableMuon(alignableMuon),
+  theAlignableExtras(alignableExtras)
 {
   this->addAllSelections(pSet);
 }
@@ -79,7 +95,7 @@ unsigned int AlignmentParameterBuilder::addSelections(const edm::ParameterSet &p
 
   const unsigned int oldAliSize = theAlignables.size();
 
-  AlignmentParameterSelector selector( theAlignableTracker, theAlignableMuon );
+  AlignmentParameterSelector selector( theAlignableTracker, theAlignableMuon, theAlignableExtras );
   const unsigned int addedSets = selector.addSelections(pSet);
 
   const align::Alignables &alignables = selector.selectedAlignables();

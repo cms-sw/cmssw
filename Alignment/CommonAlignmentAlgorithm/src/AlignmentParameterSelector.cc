@@ -1,12 +1,13 @@
 /** \file AlignmentParameterSelector.cc
  *  \author Gero Flucke, Nov. 2006
  *
- *  $Date: 2008/09/02 15:26:07 $
- *  $Revision: 1.17 $
+ *  $Date: 2009/07/28 12:38:40 $
+ *  $Revision: 1.18 $
  *  (last update by $Author: flucke $)
  */
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
+#include "Alignment/CommonAlignment/interface/AlignableExtras.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
@@ -18,8 +19,9 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 //________________________________________________________________________________
-AlignmentParameterSelector::AlignmentParameterSelector(AlignableTracker *aliTracker, AlignableMuon* aliMuon) :
-  theTracker(aliTracker), theMuon(aliMuon), theSelectedAlignables(), 
+AlignmentParameterSelector::AlignmentParameterSelector(AlignableTracker *aliTracker, AlignableMuon* aliMuon,
+						       AlignableExtras *aliExtras) :
+  theTracker(aliTracker), theMuon(aliMuon), theExtras(aliExtras), theSelectedAlignables(), 
   theRangesEta(), theRangesPhi(), theRangesR(), theRangesX(), theRangesY(), theRangesZ()
 {
   this->setSpecials(""); // init theOnlyDS, theOnlySS, theSelLayers, theMinLayer, theMaxLayer, theRphiOrStereoDetUnit
@@ -54,7 +56,6 @@ unsigned int AlignmentParameterSelector::addSelections(const edm::ParameterSet &
   unsigned int addedSets = 0;
 
   for (unsigned int iSel = 0; iSel < selections.size(); ++iSel) {
-
     std::vector<std::string> decompSel(this->decompose(selections[iSel], ','));
     if (decompSel.empty()) continue; // edm::LogError or even cms::Exception??
 
@@ -261,7 +262,22 @@ unsigned int AlignmentParameterSelector::addSelection(const std::string &nameInp
       throw cms::Exception("BadConfig") <<"[AlignmentParameterSelector::addSelection]"
 					<< ": Selection '" << name << "' invalid!";
     }
-  } // end of "name.find("Muon") != std::string::npos"
+  }
+
+  ////////////////////////////////////
+  // Generic Extra Alignable Section
+  ////////////////////////////////////
+  else if (name.find("Extras") == 0) { // string starts with "Extras"
+    if (!theExtras) {
+      throw cms::Exception("BadConfig") << "[AlignmentParameterSelector::addSelection] "
+					<< "Configuration requires access to AlignableExtras"
+					<< " (for " << name << ") that is not initialized";
+    }
+    const std::string substructName(name, 6); // erase "Extras" at the beginning
+    numAli += this->add(theExtras->subStructures(substructName), paramSel);
+  }
+  // end of "name.find("Extras") != std::string::npos"
+
   else {
     throw cms::Exception("BadConfig") <<"[AlignmentParameterSelector::addSelection]"
 				      << ": Selection '" << name << "' invalid!";

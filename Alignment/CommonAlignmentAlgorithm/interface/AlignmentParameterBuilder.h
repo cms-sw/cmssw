@@ -5,9 +5,9 @@
  *
  *  Build Alignment Parameter Structure 
  *
- *  $Date: 2007/10/08 14:38:15 $
- *  $Revision: 1.8 $
- *  (last update by $Author: cklae $)
+ *  $Date: 2008/09/02 15:31:23 $
+ *  $Revision: 1.9 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "Alignment/CommonAlignment/interface/Utilities.h"
@@ -16,6 +16,7 @@
 namespace edm {
   class ParameterSet;
 }
+class AlignableExtras;
 class AlignableTracker;
 class AlignableMuon;
 class AlignmentParameters;
@@ -24,17 +25,22 @@ class AlignmentParameterBuilder
 {
 public:
   /// Constructor from tracker only
-  explicit AlignmentParameterBuilder( AlignableTracker *alignableTracker );
+  explicit AlignmentParameterBuilder( AlignableTracker *alignableTracker,
+				      AlignableExtras *alignableExtras );
 
   /// Constructor from tracker and muon
-  AlignmentParameterBuilder( AlignableTracker *alignableTracker, AlignableMuon *alignableMuon );
+  AlignmentParameterBuilder( AlignableTracker *alignableTracker, AlignableMuon *alignableMuon,
+			     AlignableExtras *alignableExtras );
 
   /// Constructor adding selections by passing the ParameterSet named 'AlignmentParameterSelector'
   /// (expected in pSet) to addSelections(..)
-  AlignmentParameterBuilder( AlignableTracker *alignableTracker, const edm::ParameterSet &pSet );
+  AlignmentParameterBuilder( AlignableTracker *alignableTracker,
+			     AlignableExtras *alignableExtras,
+			     const edm::ParameterSet &pSet );
 
   /// Constructor from tracker and muon, plus selection
-  AlignmentParameterBuilder( AlignableTracker *alignableTracker, AlignableMuon *alignableMuon, 
+  AlignmentParameterBuilder( AlignableTracker *alignableTracker, AlignableMuon *alignableMuon,
+			     AlignableExtras *alignableExtras,
                              const edm::ParameterSet &pSet);
 
 
@@ -84,7 +90,9 @@ private:
 
   /// Alignable muon
   AlignableMuon* theAlignableMuon;
-
+  
+  /// extra Alignables
+  AlignableExtras* theAlignableExtras;
 };
 
 #endif
