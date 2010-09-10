@@ -148,7 +148,8 @@ if __name__ == '__main__':
     parameters.noWarnings     = options.nowarning
     parameters.lumiXing       = True
     parameters.lumiversion    = options.lumiversion
-    parameters.beammode       = options.beammode
+    if options.beammode=='stable':
+        parameters.beammode    = 'STABLE BEAMS'
     parameters.xingMinLum     = options.xingMinLum
     parameters.minBiasXsec    = options.minBiasXsec
     parameters.pileupHistName = options.histName
