@@ -783,7 +783,7 @@ def xingLuminosityForRun (dbsession, runnum, parameters, lumiXingDict = {},
         detailCondition['runnum'].setData (runnum)
         detailCondition['algoname'].setData ('OCC1')
         query = schema.newQuery()
-        query.addToTableList(nameDealer.cmsrunsummaryTableName(), 's')
+        query.addToTableList(nameDealer.lumisummaryTableName(), 's')
         query.addToTableList(nameDealer.lumidetailTableName(),  'd')
         query.addToOutputList ('s.STARTORBIT',    'startorbit')
         query.addToOutputList ('s.CMSLSNUM',      'cmslsnum')
@@ -791,8 +791,7 @@ def xingLuminosityForRun (dbsession, runnum, parameters, lumiXingDict = {},
         query.addToOutputList ('d.BXLUMIERROR',   'bxlumierror')
         query.addToOutputList ('d.BXLUMIQUALITY', 'bxlumiquality')
         query.addToOutputList ('d.ALGONAME',      'algoname')
-        query.setCondition ('s.RUNNUM = :runnum and d.ALGONAME = :algoname and s.LUMISUMMARY_ID = d.LUMISUMMARY_ID',
-                            detailCondition)
+        query.setCondition ('s.RUNNUM =:runnum and d.ALGONAME =:algoname and s.LUMISUMMARY_ID=d.LUMISUMMARY_ID',detailCondition)
         query.addToOrderList ('s.CMSLSNUM')
         query.defineOutput (detailOutput)
         cursor = query.execute()
@@ -857,7 +856,7 @@ def mergeXingLumi (triplet, xingLumiDict):
             lumiList.append( flatten (xingLumiValues) )
 
 
-def setupSession (connectString, siteconfpath, debug = False):
+def setupSession (connectString, siteconfpath, parameters, debug = False):
     '''returns database session'''
     connectparser = connectstrParser.connectstrParser (connectString)
     connectparser.parse()

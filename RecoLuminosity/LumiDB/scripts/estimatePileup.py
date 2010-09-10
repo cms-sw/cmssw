@@ -142,10 +142,6 @@ if __name__ == '__main__':
     # get database session hooked up
     if options.authpath:
         os.environ['CORAL_AUTH_PATH'] = options.authpath
-    session, svc =  \
-             LumiQueryAPI.setupSession (options.connect or \
-                                        'frontier://LumiProd/CMS_LUMI_PROD',
-                                        options.siteconfpath, options.debug)
 
     ## Save what we need in the parameters object
     parameters.verbose        = True
@@ -157,6 +153,11 @@ if __name__ == '__main__':
     parameters.minBiasXsec    = options.minBiasXsec
     parameters.pileupHistName = options.histName
     parameters.maxPileupBin   = options.maxPileupBin
+
+    session, svc =  \
+             LumiQueryAPI.setupSession (options.connect or \
+                                        'frontier://LumiProd/CMS_LUMI_PROD',
+                                        options.siteconfpath, parameters,options.debug)
 
     ## Let's start the fun
     if not options.inputfile and not options.runnumber:

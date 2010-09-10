@@ -60,10 +60,6 @@ if __name__ == '__main__':
     if not options.inputfile and not options.runnumber:
         print "must specify either a run (-r) or an input run selection file (-i)"
         sys.exit()
-        
-    session,svc =  lumiQueryAPI.setupSession (options.connect or \
-                                              'frontier://LumiProd/CMS_LUMI_PROD',
-                                               options.siteconfpath, options.debug)
 
     ## Save what we need in the parameters object
     parameters = lumiQueryAPI.ParametersObject()
@@ -74,7 +70,9 @@ if __name__ == '__main__':
     if options.beammode=='stable':
         parameters.beammode    = 'STABLE BEAMS'
     parameters.xingMinLum  = options.xingMinLum
-    
+    session,svc =  lumiQueryAPI.setupSession (options.connect or \
+                                              'frontier://LumiProd/CMS_LUMI_PROD',
+                                               options.siteconfpath,parameters,options.debug)
     lumiXing = False
     if options.action in ['lumibylsXing','delivered','recorded','overview','lumibyls']:
         if options.action == 'lumibylsXing':
