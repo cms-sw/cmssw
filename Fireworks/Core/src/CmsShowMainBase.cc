@@ -45,9 +45,9 @@ CmsShowMainBase::CmsShowMainBase()
      m_startupTasks(new CmsShowTaskExecutor),
      m_viewManager(new FWViewManagerManager(m_changeManager.get(), m_colorManager.get())),
      m_autoLoadTimer(new SignalTimer()),
-     m_navigator(0),
-     m_metadataManager(0),
-     m_context(0),
+     m_navigatorPtr(0),
+     m_metadataManagerPtr(0),
+     m_contextPtr(0),
      m_autoLoadTimerRunning(kFALSE),
      m_forward(true),
      m_isPlaying(false),
@@ -68,7 +68,7 @@ CmsShowMainBase::setupActions()
    // init TGSlider state before signals are connected
    m_guiManager->setDelayBetweenEvents(m_playDelay);
 
-   m_navigator->newEvent_.connect(boost::bind(&FWGUIManager::loadEvent, guiManager()));
+   m_navigatorPtr->newEvent_.connect(boost::bind(&FWGUIManager::loadEvent, guiManager()));
    if (m_guiManager->getAction(cmsshow::sNextEvent) != 0)
       m_guiManager->getAction(cmsshow::sNextEvent)->activated.connect(sigc::mem_fun(*this, &CmsShowMainBase::doNextEvent));
    if (m_guiManager->getAction(cmsshow::sPreviousEvent) != 0)
@@ -98,7 +98,7 @@ CmsShowMainBase::setupViewManagers()
    guiManager()->updateStatus("Setting up view manager...");
 
    boost::shared_ptr<FWViewManagerBase> eveViewManager(new FWEveViewManager(guiManager()));
-   eveViewManager->setContext(m_context);
+   eveViewManager->setContext(m_contextPtr);
    viewManager()->add(eveViewManager);
 
    boost::shared_ptr<FWTableViewManager> tableViewManager(new FWTableViewManager(guiManager()));
@@ -120,13 +120,13 @@ CmsShowMainBase::setupViewManagers()
    // FIXME: should we have a signal for whenever the above mentioned map
    //        changes? Can that actually happer (maybe if we add support
    //        for loading plugins on the fly??).
-   m_metadataManager->initReps(viewManager()->supportedTypesAndRepresentations());
+   m_metadataManagerPtr->initReps(viewManager()->supportedTypesAndRepresentations());
 }
 
 void
 CmsShowMainBase::doFirstEvent()
 {
-   m_navigator->firstEvent();
+   m_navigatorPtr->firstEvent();
    checkPosition();
    draw();
 }
@@ -134,7 +134,7 @@ CmsShowMainBase::doFirstEvent()
 void
 CmsShowMainBase::doNextEvent()
 {
-   m_navigator->nextEvent();
+   m_navigatorPtr->nextEvent();
    checkPosition();
    draw();
 }
@@ -142,14 +142,14 @@ CmsShowMainBase::doNextEvent()
 void
 CmsShowMainBase::doPreviousEvent()
 {
-   m_navigator->previousEvent();
+   m_navigatorPtr->previousEvent();
    checkPosition();
    draw();
 }
 void
 CmsShowMainBase::doLastEvent()
 {
-   m_navigator->lastEvent();
+   m_navigatorPtr->lastEvent();
    checkPosition();
    draw();
 }
@@ -157,7 +157,7 @@ CmsShowMainBase::doLastEvent()
 void
 CmsShowMainBase::goToRunEvent(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event)
 {
-   m_navigator->goToRunEvent(run, lumi, event);
+   m_navigatorPtr->goToRunEvent(run, lumi, event);
    checkPosition();
    draw();
 }
@@ -168,11 +168,11 @@ CmsShowMainBase::draw()
 {
    m_guiManager->updateStatus("loading event ...");
 
-   if (m_context->getField()->getSource() != FWMagField::kUser)
-      m_context->getField()->checkFiledInfo(m_navigator->getCurrentEvent());
+   if (m_contextPtr->getField()->getSource() != FWMagField::kUser)
+      m_contextPtr->getField()->checkFiledInfo(m_navigatorPtr->getCurrentEvent());
 
    m_viewManager->eventBegin();
-   m_eiManager->newEvent(m_navigator->getCurrentEvent());
+   m_eiManager->newEvent(m_navigatorPtr->getCurrentEvent());
    m_viewManager->eventEnd();
 
    if (!m_autoSaveAllViewsFormat.empty())
@@ -189,20 +189,14 @@ CmsShowMainBase::setup(FWNavigatorBase *navigator,
                        fireworks::Context *context,
                        FWJobMetadataManager *metadataManager)
 {
-   m_navigator = navigator;
-   m_context = context;
-   m_metadataManager = metadataManager;
+   m_navigatorPtr = navigator;
+   m_contextPtr = context;
+   m_metadataManagerPtr = metadataManager;
    
    m_colorManager->initialize();
-   m_context->initEveElements();
-   m_guiManager.reset(new FWGUIManager(m_selectionManager.get(),
-                                       m_eiManager.get(),
-                                       m_changeManager.get(),
-                                       m_colorManager.get(),
-                                       m_viewManager.get(),
-                                       metadataManager,
-                                       m_navigator,
-                                       false));
+   m_contextPtr->initEveElements();
+   m_guiManager.reset(new FWGUIManager(m_contextPtr, m_viewManager.get(), m_navigatorPtr));
+
    m_eiManager->newItem_.connect(boost::bind(&FWModelChangeManager::newItemSlot,
                                              m_changeManager.get(), _1) );
    
@@ -210,7 +204,8 @@ CmsShowMainBase::setup(FWNavigatorBase *navigator,
                                              m_viewManager.get(), _1));
    m_configurationManager->add("EventItems",m_eiManager.get());
    m_configurationManager->add("GUI",m_guiManager.get());
-   m_configurationManager->add("EventNavigator", m_navigator);
+   m_configurationManager->add("EventNavigator", m_navigatorPtr);
+   m_configurationManager->add("CommonPreferences", m_contextPtr->commonPrefs());
    m_guiManager->writeToConfigurationFile_.connect(boost::bind(&FWConfigurationManager::writeToFile,
                                                                m_configurationManager.get(),_1));
    m_guiManager->loadFromConfigurationFile_.connect(boost::bind(&CmsShowMainBase::reloadConfiguration,
@@ -433,7 +428,7 @@ CmsShowMainBase::loadGeometry()
    {
       guiManager()->updateStatus("Loading geometry...");
       m_geom.loadMap(m_geometryFilename.c_str());
-      m_context->setGeom(&m_geom);
+      m_contextPtr->setGeom(&m_geom);
    }
    catch (const std::runtime_error& iException)
    {

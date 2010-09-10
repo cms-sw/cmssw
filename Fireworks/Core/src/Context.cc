@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:57:12 EDT 2008
-// $Id: Context.cc,v 1.26 2010/08/30 15:42:33 amraktad Exp $
+// $Id: Context.cc,v 1.27 2010/09/06 11:46:35 amraktad Exp $
 //
 
 // system include files
@@ -68,6 +68,7 @@ Context::Context(FWModelChangeManager* iCM,
    m_trackerPropagator(0),
    m_muonPropagator(0),
    m_magField(0),
+   m_commonPrefs(new CmsShowCommon(iColorM)),
    m_caloData(0),
    m_caloDataHF(0),
    m_caloSplit(false)
@@ -160,6 +161,11 @@ Context::deleteEveElements()
 }
 
 
+CmsShowCommon* 
+Context::commonPrefs() const
+{
+   return m_commonPrefs.get();
+}
 
 float Context::caloR1(bool offset)  const
 {

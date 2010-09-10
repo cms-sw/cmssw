@@ -16,12 +16,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:21:45 EDT 2008
-// $Id: Context.h,v 1.17 2010/09/07 15:46:46 yana Exp $
+// $Id: Context.h,v 1.18 2010/09/07 19:51:50 chrjones Exp $
 //
 
 // system include files
 
 // user include files
+#include "Fireworks/Core/interface/CmsShowCommon.h"
 
 // forward declarations
 class TEveTrackPropagator;
@@ -48,7 +49,7 @@ public:
    virtual ~Context();
 
    void  setGeom(const FWGeometry* x) { m_geom = x; }
- 
+
    // ---------- const member functions ---------------------
    FWModelChangeManager* modelChangeManager() const {
       return m_changeManager;
@@ -79,6 +80,8 @@ public:
    TEveCaloDataVec*     getCaloDataHF() const { return m_caloDataHF; }
 
    const  FWGeometry* getGeom()  const { return m_geom; }   
+
+   CmsShowCommon* commonPrefs() const;
 
    // ---------- member functions ---------------------------
  
@@ -115,6 +118,8 @@ private:
    TEveTrackPropagator  *m_muonPropagator;
 
    FWMagField           *m_magField;
+
+   std::auto_ptr<CmsShowCommon>   m_commonPrefs;
 
    TEveCaloDataHist     *m_caloData;
    TEveCaloDataVec      *m_caloDataHF;

@@ -13,14 +13,13 @@ namespace cmsshow {
    extern const std::string sSaveConfigAs;
    extern const std::string sExportImage;
    extern const std::string sExportAllImages;
+   extern const std::string sShowCommonInsp;
    extern const std::string sQuit;
    extern const std::string sUndo;
    extern const std::string sRedo;
    extern const std::string sCut;
    extern const std::string sCopy;
    extern const std::string sPaste;
-   extern const std::string sShowBrightnessInsp;
-   extern const std::string sDefaultBrightness;
    extern const std::string sNextEvent;
    extern const std::string sPreviousEvent;
    extern const std::string sPlayEvents;

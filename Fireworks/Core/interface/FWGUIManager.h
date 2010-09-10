@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.108 2010/09/02 19:54:03 matevz Exp $
+// $Id: FWGUIManager.h,v 1.109 2010/09/03 15:32:39 matevz Exp $
 //
 
 // system include files
@@ -57,16 +57,13 @@ class TEveCompositeFrame;
 class TEveWindow;
 
 class CmsShowMainFrame;
-class FWSelectionManager;
-class FWEventItemsManager;
 class FWEventItem;
 class FWViewBase;
 class FWGUISubviewArea;
 
+class FWSelectionManager;
 class FWSummaryManager;
 class FWDetailViewManager;
-class FWModelChangeManager;
-
 class CSGAction;
 class CSGContinuousAction;
 
@@ -88,10 +85,12 @@ class CmsShowEDI;
 class CmsShowModelPopup;
 class CmsShowViewPopup;
 class FWViewManagerManager;
-class FWColorManager;
-class CmsShowBrightnessPopup;
+class CmsShowCommonPopup;
 class CmsShowHelpPopup;
-class FWJobMetadataManager;
+
+namespace fireworks {
+   class Context;
+}
 
 class FWGUIManager : public FWConfigurable
 {
@@ -105,14 +104,10 @@ private:
    
    
 public:
-   FWGUIManager(FWSelectionManager*,
-                FWEventItemsManager*,
-                FWModelChangeManager*,
-                FWColorManager*,
-                const FWViewManagerManager*,
-                FWJobMetadataManager*,
-		          FWNavigatorBase *,
-                bool iDebugInterface = false);
+   FWGUIManager(fireworks::Context* ctx,
+                const FWViewManagerManager* iVMMgr,
+                FWNavigatorBase* navigator);
+
    virtual ~FWGUIManager();
    void     evePreTerminate();
    
@@ -131,7 +126,7 @@ public:
    ///Allowed values are -1 or ones from FWDataCategories enum
    void showEDIFrame(int iInfoToShow=-1);
    
-   void showBrightnessPopup();
+   void showCommonPopup();
    
    void createModelPopup();
    void showModelPopup();
@@ -242,19 +237,16 @@ private:
    static FWGUIManager*  m_guiManager;
    
    // ---------- member data --------------------------------   
-   FWSelectionManager*   m_selectionManager;
+   fireworks::Context*   m_context;
+
    FWSummaryManager*     m_summaryManager;
-   FWEventItemsManager*  m_eiManager;
-   FWModelChangeManager* m_changeManager;
-   FWColorManager*       m_colorManager;
    
    //views are owned by their individual view managers
    FWDetailViewManager*        m_detailViewManager;
    const FWViewManagerManager* m_viewManagerManager;
-   FWJobMetadataManager *      m_metadataManager;
    FWModelContextMenuHandler*  m_contextMenuHandler;
    FWNavigatorBase            *m_navigator;
-   CmsShowMainFrame*     m_cmsShowMainFrame;
+   CmsShowMainFrame*           m_cmsShowMainFrame;
    
    TGPopupMenu* m_fileMenu;
    FWGUIEventDataAdder* m_dataAdder;
@@ -263,7 +255,7 @@ private:
    CmsShowEDI*             m_ediFrame;
    CmsShowModelPopup*      m_modelPopup;
    CmsShowViewPopup*       m_viewPopup;
-   CmsShowBrightnessPopup* m_brightnessPopup;
+   CmsShowCommonPopup*     m_commonPopup;
    
    // help
    CmsShowHelpPopup *m_helpPopup;

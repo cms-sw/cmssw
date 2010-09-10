@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.99 2010/09/03 15:32:39 matevz Exp $
+// $Id: CmsShowMainFrame.cc,v 1.100 2010/09/03 17:58:54 matevz Exp $
 
 #include "FWCore/Common/interface/EventBase.h"
 
@@ -95,7 +95,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    CSGAction *goToFirst = new CSGAction(this, cmsshow::sGotoFirstEvent.c_str());
    CSGAction *goToLast = new CSGAction(this, cmsshow::sGotoLastEvent.c_str());
 
-   CSGAction *showBrightnessInsp = new CSGAction(this, cmsshow::sShowBrightnessInsp.c_str());
+   CSGAction *showCommonInsp = new CSGAction(this, cmsshow::sShowCommonInsp.c_str());
    CSGAction *nextEvent          = new CSGAction(this, cmsshow::sNextEvent.c_str());
    CSGAction *previousEvent      = new CSGAction(this, cmsshow::sPreviousEvent.c_str());
 
@@ -111,7 +111,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 
    CSGAction *keyboardShort      = new CSGAction(this, cmsshow::sKeyboardShort.c_str());
    CSGAction *helpGL             = new CSGAction(this, cmsshow::sHelpGL.c_str());
-   CSGAction *colorset           = new CSGAction(this, cmsshow::sBackgroundColor.c_str());
+   //   CSGAction *colorset           = new CSGAction(this, cmsshow::sBackgroundColor.c_str());
 
    m_nextEvent = nextEvent;
    m_previousEvent = previousEvent;
@@ -160,6 +160,9 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 
    TGPopupMenu *editMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("Edit", editMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));
+
+   showCommonInsp->createMenuEntry(editMenu);
+   showCommonInsp->createShortcut(kKey_A, "CTRL", GetId());
    undo->createMenuEntry(editMenu);
    undo->createShortcut(kKey_Z, "CTRL", GetId());
    redo->createMenuEntry(editMenu);
@@ -178,12 +181,11 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 
    m_newViewerMenu = new TGPopupMenu(gClient->GetRoot());
    viewMenu->AddPopup("New Viewer", m_newViewerMenu);
-   viewMenu->AddSeparator();
 
-   colorset->createMenuEntry(viewMenu);
-   colorset->createShortcut(kKey_B, "CTRL", GetId());
+   // viewMenu->AddSeparator();
+   // colorset->createMenuEntry(viewMenu);
+   // colorset->createShortcut(kKey_B, "CTRL", GetId());
  
-   showBrightnessInsp->createMenuEntry(viewMenu);
 
    viewMenu->AddSeparator();
 

@@ -10,7 +10,7 @@
   <class name="FWEveViewManager"/>
   <class name="CmsShowEDI"/>
   <class name="FWGUIValidatingTextEntry"/>
-  <class name="CmsShowBrightnessPopup"/>
+  <class name="CmsShowCommonPopup"/>
   <class name="CmsShowModelPopup"/>
   <class name="CmsShowViewPopup"/>
   <class name="FWGUISubviewArea"/>

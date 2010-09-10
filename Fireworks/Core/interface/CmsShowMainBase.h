@@ -145,9 +145,9 @@ private:
    
    // These are actually set by the concrete implementation via the setup 
    // method.
-   FWNavigatorBase                      *m_navigator;
-   FWJobMetadataManager                 *m_metadataManager;
-   fireworks::Context                   *m_context;
+   FWNavigatorBase                      *m_navigatorPtr;
+   FWJobMetadataManager                 *m_metadataManagerPtr;
+   fireworks::Context                   *m_contextPtr;
 
    void setPlayLoopImp();
    void unsetPlayLoopImp();

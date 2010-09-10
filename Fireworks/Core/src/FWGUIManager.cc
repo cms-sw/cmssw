@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.214 2010/09/03 15:32:39 matevz Exp $
+// $Id: FWGUIManager.cc,v 1.215 2010/09/03 17:58:54 matevz Exp $
 
 //
 
@@ -36,6 +36,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWGUIManager.h"
+#include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWGUISubviewArea.h"
 
 #include "Fireworks/Core/interface/FWSelectionManager.h"
@@ -61,7 +62,7 @@
 #include "Fireworks/Core/interface/ActionsList.h"
 
 #include "Fireworks/Core/interface/CmsShowEDI.h"
-#include "Fireworks/Core/interface/CmsShowColorPopup.h"
+#include "Fireworks/Core/interface/CmsShowCommonPopup.h"
 #include "Fireworks/Core/interface/CmsShowModelPopup.h"
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
 
@@ -95,29 +96,21 @@ FWGUIManager* FWGUIManager::m_guiManager = 0;
 //
 // constructors and destructor
 //
-FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
-                           FWEventItemsManager* iEIMgr,
-                           FWModelChangeManager* iCMgr,
-                           FWColorManager* iColorMgr,
+FWGUIManager::FWGUIManager(fireworks::Context* ctx,
                            const FWViewManagerManager* iVMMgr,
-                           FWJobMetadataManager *metadataManager,
-                           FWNavigatorBase* navigator,
-                           bool iDebugInterface
-                           ) :
-   m_selectionManager(iSelMgr),
-   m_eiManager(iEIMgr),
-   m_changeManager(iCMgr),
-   m_colorManager(iColorMgr),
+                           FWNavigatorBase* navigator):
+   m_context(ctx),
+   m_summaryManager(0),
    m_detailViewManager(0),
    m_viewManagerManager(iVMMgr),
-   m_metadataManager(metadataManager),
+   //   m_metadataManager(metadataManager),
    m_contextMenuHandler(0),
    m_navigator(navigator),
    m_dataAdder(0),
    m_ediFrame(0),
    m_modelPopup(0),
    m_viewPopup(0),
-   m_brightnessPopup(0),
+   m_commonPopup(0),
    m_helpPopup(0),
    m_shortcutPopup(0),
    m_helpGLPopup(0),
@@ -128,11 +121,11 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
 
    measureWMOffsets();
 
-   m_selectionManager->selectionChanged_.connect(boost::bind(&FWGUIManager::selectionChanged,this,_1));
-   m_eiManager->newItem_.connect(boost::bind(&FWGUIManager::newItem,
-                                             this, _1) );
+   m_context->selectionManager()->selectionChanged_.connect(boost::bind(&FWGUIManager::selectionChanged,this,_1));
+   FWEventItemsManager* im = (FWEventItemsManager*) m_context->eventItemsManager();
+  im->newItem_.connect(boost::bind(&FWGUIManager::newItem, this, _1) );
 
-   m_colorManager->colorsHaveChangedFinished_.connect(boost::bind(&FWGUIManager::finishUpColorChange,this));
+   m_context->colorManager()->colorsHaveChangedFinished_.connect(boost::bind(&FWGUIManager::finishUpColorChange,this));
 
   
    TEveCompositeFrame::IconBarCreator_foo foo =  &FWGUIManager::makeGUIsubview;
@@ -157,8 +150,8 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
       m_cmsShowMainFrame->SetWindowName("CmsShow");
       m_cmsShowMainFrame->SetCleanup(kDeepCleanup);
 
-      m_detailViewManager  = new FWDetailViewManager(m_colorManager);
-      m_contextMenuHandler = new FWModelContextMenuHandler(iSelMgr,m_detailViewManager,m_colorManager,this);
+      m_detailViewManager  = new FWDetailViewManager(m_context->colorManager());
+      m_contextMenuHandler = new FWModelContextMenuHandler(m_context->selectionManager(), m_detailViewManager, m_context->colorManager(), this);
 
       getAction(cmsshow::sExportImage)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImageOfMainView));
       getAction(cmsshow::sExportAllImages)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImagesOfAllViews));
@@ -168,8 +161,7 @@ FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
       getAction(cmsshow::sShowEventDisplayInsp)->activated.connect(boost::bind( &FWGUIManager::showEDIFrame,this,-1));
       getAction(cmsshow::sShowMainViewCtl)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showViewPopup));
       getAction(cmsshow::sShowObjInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showModelPopup));
-      getAction(cmsshow::sBackgroundColor)->activated.connect(sigc::mem_fun(*m_colorManager, &FWColorManager::switchBackground));
-      getAction(cmsshow::sShowBrightnessInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showBrightnessPopup));
+      getAction(cmsshow::sShowCommonInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showCommonPopup));
 
       getAction(cmsshow::sShowAddCollection)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::addData));
       assert(getAction(cmsshow::sHelp) != 0);
@@ -423,9 +415,9 @@ FWGUIManager::addData()
 {
    if (0==m_dataAdder) {
       m_dataAdder = new FWGUIEventDataAdder(100,100,
-                                            m_eiManager,
+                                            (FWEventItemsManager*) m_context->eventItemsManager(),
                                             m_cmsShowMainFrame,
-                                            m_metadataManager);
+                                            m_context->metadataManager());
    }
    m_dataAdder->show();
 }
@@ -598,11 +590,12 @@ FWGUIManager::createList(TGCompositeFrame *p)
    listFrame->AddFrame(addFrame, new TGLayoutHints(kLHintsExpandX | kLHintsTop));
 
    m_summaryManager = new FWSummaryManager(listFrame,
-                                           m_selectionManager,
-                                           m_eiManager,
+                                           m_context->selectionManager(),
+                                           (FWEventItemsManager*) m_context->eventItemsManager(),
                                            this,
-                                           m_changeManager,
-                                           m_colorManager);
+                                           m_context->modelChangeManager(),
+                                           m_context->colorManager());
+
    const unsigned int backgroundColor=0x2f2f2f;
    TGTextButton* addDataButton = new TGTextButton(m_summaryManager->widget(), "Add Collection");
    addDataButton->ChangeOptions(kRaisedFrame);
@@ -629,7 +622,7 @@ FWGUIManager::createViews(TEveWindowSlot *slot)
 void
 FWGUIManager::createEDIFrame() {
    if (m_ediFrame == 0) {
-      m_ediFrame = new CmsShowEDI(m_cmsShowMainFrame, 200, 200, m_selectionManager,m_colorManager);
+      m_ediFrame = new CmsShowEDI(m_cmsShowMainFrame, 200, 200, m_context->selectionManager(),m_context->colorManager());
       m_ediFrame->CenterOnParent(kTRUE,TGTransientFrame::kTopRight);
    }
 }
@@ -645,20 +638,18 @@ FWGUIManager::showEDIFrame(int iToShow)
 }
 
 void
-FWGUIManager::showBrightnessPopup()
+FWGUIManager::showCommonPopup()
 {
-  if (! m_brightnessPopup)
-  {
-      m_brightnessPopup = new CmsShowBrightnessPopup(m_cmsShowMainFrame, 200, 200);
-  }
-  m_brightnessPopup->MapRaised();
-  m_brightnessPopup->setModel(m_colorManager);
+  if (! m_commonPopup)
+     m_commonPopup = new CmsShowCommonPopup(m_context->commonPrefs(), m_cmsShowMainFrame, 200, 200);
+
+  m_commonPopup->MapRaised();
 }
 
 void
 FWGUIManager::createModelPopup()
 {
-   m_modelPopup = new CmsShowModelPopup(m_detailViewManager,m_selectionManager, m_colorManager, m_cmsShowMainFrame, 200, 200);
+   m_modelPopup = new CmsShowModelPopup(m_detailViewManager,m_context->selectionManager(), m_context->colorManager(), m_cmsShowMainFrame, 200, 200);
    m_modelPopup->CenterOnParent(kTRUE,TGTransientFrame::kRight);
 }
 
@@ -690,7 +681,7 @@ FWGUIManager::setViewPopup(TEveWindow* ew) {
    FWViewBase* vb = ew ? m_viewMap[ew] : 0;
    if (m_viewPopup == 0)
    {
-      m_viewPopup = new CmsShowViewPopup(0, 200, 200, m_colorManager, vb, ew);
+      m_viewPopup = new CmsShowViewPopup(0, 200, 200, m_context->colorManager(), vb, ew);
       m_viewPopup->closed_.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::popupViewClosed));
    }
    else
@@ -742,7 +733,7 @@ void FWGUIManager::createHelpGLPopup ()
 void 
 FWGUIManager::showSelectedModelContextMenu(Int_t iGlobalX, Int_t iGlobalY, FWViewContextMenuHandlerBase* iHandler)
 {
-   if(!m_selectionManager->selected().empty()) {
+   if(!m_context->selectionManager()->selected().empty()) {
       m_contextMenuHandler->showSelectedModelContext(iGlobalX,iGlobalY, iHandler);
    }
 }
@@ -925,9 +916,6 @@ static const std::string kControllers("controllers");
 static const std::string kCollectionController("collection");
 static const std::string kViewController("view");
 static const std::string kObjectController("object");
-static const std::string kBackgroundColor("background color");
-static const std::string kBrightness("brightness");
-static const std::string kColorControl("color control");
 
 static
 void
@@ -1131,24 +1119,6 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
       }
    }
    oTo.addKeyValue(kControllers,controllers,true);
-
-   FWConfiguration colorControl(1);
-   {
-      // background
-      FWConfiguration cbg(1);
-      if(FWColorManager::kBlackIndex==m_colorManager->backgroundColorIndex()) {
-         colorControl.addKeyValue(kBackgroundColor,FWConfiguration("black"));
-      } else {
-         colorControl.addKeyValue(kBackgroundColor,FWConfiguration("white"));
-      }
-
-      // brightness
-      FWConfiguration cbr(1);
-      std::stringstream s;
-      s << static_cast<int>(m_colorManager->brightness());
-      colorControl.addKeyValue(kBrightness,FWConfiguration(s.str()));
-   }
-   oTo.addKeyValue(kColorControl,colorControl,true);
 }
 
 //----------------------------------------------------------------
@@ -1267,29 +1237,9 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
          }
       }
    }
+
    // disable fist docked view
    checkSubviewAreaIconState(0);
-
-   // display colors
-   const FWConfiguration* colorControl = iFrom.valueForKey(kColorControl);
-   if( 0!=colorControl)
-   {
-      int brightness = 0;
-      const FWConfiguration* cbr = colorControl->valueForKey(kBrightness);
-      if (cbr)
-      {
-         std::stringstream sw(cbr->value());
-         sw >> brightness;
-         // printf("set brightness %d \n", brightness);
-         m_colorManager->setBrightness(brightness);
-      }
-
-      if("black" == colorControl->valueForKey(kBackgroundColor)->value()) {
-         m_colorManager->setBackgroundAndBrightness( FWColorManager::kBlackIndex, brightness);
-      } else {
-         m_colorManager->setBackgroundAndBrightness( FWColorManager::kWhiteIndex, brightness);
-      }
-   }
 }
 
 void

@@ -281,23 +281,23 @@ FWDialogBuilder::addColorPicker(const FWColorManager *manager,
 }
 
 FWDialogBuilder &
-FWDialogBuilder::addHSlider(size_t size, TGHSlider **out /*= 0*/)
+FWDialogBuilder::addHSlider(size_t size, TGHSlider **out /*= 0*/, bool enable)
 {
    TGHSlider *slider = new TGHSlider(nextFrame(), size, kSlider1);
    currentFrame()->AddFrame(slider, nextHints());
    slider->SetRange(0, 100);
    slider->SetPosition(100);
-   slider->SetEnabled(kFALSE);
+   slider->SetEnabled(enable);
    
    return extract(slider, out);
 }
 
 FWDialogBuilder &
-FWDialogBuilder::addTextButton(const char *text, TGTextButton **out /*= 0*/)
+FWDialogBuilder::addTextButton(const char *text, TGTextButton **out /*= 0*/, bool enable)
 {
    TGTextButton *button = new TGTextButton(nextFrame(), text);
    currentFrame()->AddFrame(button, nextHints());
-   button->SetEnabled(false);
+   button->SetEnabled(enable);
    
    return extract(button, out);
 }
@@ -345,8 +345,8 @@ FWDialogBuilder &
 FWDialogBuilder::addCheckbox(const char *text, TGCheckButton **out /*= 0*/)
 {
    TGCheckButton *button = new TGCheckButton(nextFrame(), text);
-   button->SetState(kButtonDown, kFALSE);
-   button->SetEnabled(kFALSE);
+   button->SetState(kButtonDown, false);
+   button->SetEnabled(false);
    currentFrame()->AddFrame(button, nextHints());
    
    return extract(button, out);
