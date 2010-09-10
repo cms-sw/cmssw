@@ -1,4 +1,4 @@
-// $Id: FaultyEventStreamHandler.cc,v 1.6 2010/03/19 13:24:05 mommsen Exp $
+// $Id: FaultyEventStreamHandler.cc,v 1.1 2010/05/11 18:02:30 mommsen Exp $
 /// @file: FaultyEventStreamHandler.cc
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -57,7 +57,13 @@ FaultyEventStreamHandler::newFileHandler(const I2OChain& event)
         _diskWritingParams, 0)
     );
   }
-  catch (stor::exception::IncompleteEventMessage& e)
+  catch (stor::exception::IncompleteEventMessage& e) //faulty data event
+  {
+    newFileHandler.reset(
+      new FRDFileHandler(fileRecord, _dbFileHandler, _diskWritingParams, 0)
+    );
+  }
+  catch (stor::exception::WrongI2OMessageType& e) //faulty error event
   {
     newFileHandler.reset(
       new FRDFileHandler(fileRecord, _dbFileHandler, _diskWritingParams, 0)
