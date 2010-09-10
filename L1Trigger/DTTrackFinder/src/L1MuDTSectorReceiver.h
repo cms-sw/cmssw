@@ -40,7 +40,6 @@
 class L1MuDTSectorProcessor;
 class L1MuDTTFParameters;
 class L1MuDTTFMasks;
-class CSCSectorReceiverLUT;
 
 //              ---------------------
 //              -- Class Interface --
@@ -83,7 +82,6 @@ class L1MuDTSectorReceiver {
     edm::ESHandle< L1MuDTTFParameters > pars;
     edm::ESHandle< L1MuDTTFMasks >      msks;
 
-    CSCSectorReceiverLUT* csclut_[2][2];
 };
   
 #endif

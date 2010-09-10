@@ -118,11 +118,11 @@ void L1MuDTAssignmentUnit::run(const edm::EventSetup& c) {
   QuaAU();
   
   // special hack for overlap region
-  for ( iter = m_TSphi.begin(); iter != m_TSphi.end(); iter++ ) {
-    int wheel = abs((*iter)->wheel());
-    if ( wheel == 3 && (*iter)->etaFlag() ) m_sp.track(m_id)->disable();
-    if ( wheel == 3 && (*iter)->etaFlag() ) m_sp.tracK(m_id)->disable();
-  }
+  //  for ( iter = m_TSphi.begin(); iter != m_TSphi.end(); iter++ ) {
+  //    int wheel = abs((*iter)->wheel());
+    //    if ( wheel == 3 && (*iter)->etaFlag() ) m_sp.track(m_id)->disable();
+    //    if ( wheel == 3 && (*iter)->etaFlag() ) m_sp.tracK(m_id)->disable();
+  //  }
 
 }
 
