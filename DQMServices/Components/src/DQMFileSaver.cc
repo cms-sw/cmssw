@@ -78,8 +78,6 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
 	     (DQMStore::SaveReferenceTag) saveReference_,
 	     saveReferenceQMin_,
 	     fileUpdate_);
-    // from now on update newly created file
-    if (fileUpdate_=="RECREATE") fileUpdate_="UPDATE";
   }
   else // save EventInfo folders for luminosity sections
   {
@@ -466,7 +464,7 @@ DQMFileSaver::endRun(const edm::Run &, const edm::EventSetup &)
       saveForOnline(suffix, rewrite);
     }
     else if (convention_ == Offline)
-      saveForOffline(workflow_, irun_,0);
+      saveForOffline(workflow_, irun_, 0);
     else
       throw cms::Exception("DQMFileSaver")
 	<< "Internal error.  Can only save files in endRun()"
@@ -482,7 +480,7 @@ DQMFileSaver::endJob(void)
   if (saveAtJobEnd_)
   {
     if (convention_ == Offline && forceRunNumber_ > 0)
-      saveForOffline(workflow_, forceRunNumber_);
+      saveForOffline(workflow_, forceRunNumber_, 0);
     else
       throw cms::Exception("DQMFileSaver")
 	<< "Internal error.  Can only save files at the end of the"
