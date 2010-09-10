@@ -39,16 +39,16 @@ function getConfigForCVS() {
   log "    dumping HLT cff for $NAME"
 
   # override L1 menus
-  #if [ "$NAME" == "8E29" ] || [ "$NAME" == "GRun" ]; then
-  #  hltGetConfiguration --cff --offline --mc $CONFIG --type $NAME --l1 sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/sqlFile/L1Menu_Commissioning2010_v4_mc.db:L1Menu_Commissioning2010_v4  > HLT_${NAME}_cff.py
-  #elif [ "$NAME" == "1E31" ] || [ "$NAME" == "HIon" ]; then
-  #  hltGetConfiguration --cff --offline --mc $CONFIG --type $NAME --l1 L1Menu_MC2010_v0  > HLT_${NAME}_cff.py
-  #else
-  #  hltGetConfiguration --cff --offline --mc $CONFIG --type $NAME                                   > HLT_${NAME}_cff.py
-  #fi
+  if [ "$NAME" == "8E29" ] || [ "$NAME" == "GRun" ]; then
+    hltGetConfiguration --cff --offline --mc $CONFIG --type $NAME --l1 L1Menu_Commissioning2010_v4 > HLT_${NAME}_cff.py
+  elif [ "$NAME" == "1E31" ] || [ "$NAME" == "HIon" ]; then
+    hltGetConfiguration --cff --offline --mc $CONFIG --type $NAME --l1 L1Menu_MC2010_v0            > HLT_${NAME}_cff.py
+  else
+    hltGetConfiguration --cff --offline --mc $CONFIG --type $NAME                                  > HLT_${NAME}_cff.py
+  fi
 
   # do not use any L1 override
-  hltGetConfiguration --cff --offline --mc $CONFIG --type $NAME > HLT_${NAME}_cff.py
+  #hltGetConfiguration --cff --offline --mc $CONFIG --type $NAME > HLT_${NAME}_cff.py
 }
 
 function getContentForCVS() {
@@ -74,14 +74,14 @@ function getConfigForOnline() {
   log "    dumping full HLT for $NAME"
   # override L1 menus
   if [ "$NAME" == "8E29" ] || [ "$NAME" == "GRun" ]; then
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/sqlFile/L1Menu_Commissioning2010_v4_mc.db:L1Menu_Commissioning2010_v4 --globaltag auto:hltonline > OnData_HLT_$NAME.py
-    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/sqlFile/L1Menu_Commissioning2010_v4_mc.db:L1Menu_Commissioning2010_v4                            > OnLine_HLT_$NAME.py 
+    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 L1Menu_Commissioning2010_v4 --globaltag auto:hltonline > OnData_HLT_$NAME.py
+    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 L1Menu_Commissioning2010_v4                            > OnLine_HLT_$NAME.py 
   elif [ "$NAME" == "1E31" ] || [ "$NAME" == "HIon" ]; then
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 L1Menu_MC2010_v0 --globaltag auto:hltonline > OnData_HLT_$NAME.py
-    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 L1Menu_MC2010_v0                            > OnLine_HLT_$NAME.py
+    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 L1Menu_MC2010_v0            --globaltag auto:hltonline > OnData_HLT_$NAME.py
+    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 L1Menu_MC2010_v0                                       > OnLine_HLT_$NAME.py
   else
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --globaltag auto:hltonline > OnData_HLT_$NAME.py
-    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME                            > OnLine_HLT_$NAME.py
+    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME                                  --globaltag auto:hltonline > OnData_HLT_$NAME.py
+    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME                                                             > OnLine_HLT_$NAME.py
   fi
 
   # do not use any L1 override

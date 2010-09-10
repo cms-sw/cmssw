@@ -1618,3 +1618,13 @@ HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_L1DoubleMuOpen, HLT_ZeroBi
 if 'ESUnpackerWorkerESProducer' in locals():
     ESUnpackerWorkerESProducer.RHAlgo.ESBaseline = 1000
 
+# override the L1 menu (requires the GlobalTag to be defined)
+if 'GlobalTag' in locals():
+    GlobalTag.toGet.append(
+        cms.PSet(  
+            record  = cms.string( "L1GtTriggerMenuRcd" ),
+            tag     = cms.string( "L1GtTriggerMenu_L1Menu_MC2010_v0_mc" ),
+            connect = cms.untracked.string( GlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T') )
+        )
+    )
+
