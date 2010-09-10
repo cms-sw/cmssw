@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.29 $
-///  $Date: 2010/02/22 16:34:35 $
+///  $Revision: 1.30 $
+///  $Date: 2010/02/25 18:44:13 $
 ///  (last update by $Author: frmeier $)
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
@@ -31,6 +31,7 @@
 class Alignable;
 class AlignableTracker;
 class AlignableMuon;
+class AlignableExtras;
 
 class AlignmentParameters;
 class AlignableNavigator;
@@ -59,8 +60,9 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   virtual ~MillePedeAlignmentAlgorithm();
 
   /// Call at beginning of job
-  virtual void initialize(const edm::EventSetup &setup, AlignableTracker *tracker,
-			  AlignableMuon *muon, AlignmentParameterStore *store);
+  virtual void initialize(const edm::EventSetup &setup,
+			  AlignableTracker *tracker, AlignableMuon *muon, AlignableExtras *extras,
+			  AlignmentParameterStore *store);
 
   /// Call at end of job
   virtual void terminate();
