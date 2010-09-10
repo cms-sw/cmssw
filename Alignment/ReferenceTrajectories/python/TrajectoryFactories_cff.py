@@ -22,7 +22,8 @@ TrajectoryFactoryBase = cms.PSet(
                                               ## (see others at 'BrokenLinesTrajectoryFactory')
     UseProjectedHits = cms.bool(True), ## if false, projected hits are skipped
     UseInvalidHits = cms.bool(False), ## if false, invalid hits are skipped
-    UseHitWithoutDet = cms.bool(True) ## if false, RecHits that are not attached to GeomDets are skipped
+    UseHitWithoutDet = cms.bool(True), ## if false, RecHits that are not attached to GeomDets are skipped
+    UseBeamSpot = cms.bool(False) ## if true, the beam spot is used as a constraint via a virtual TTRecHit
 )
 
 ###############################################################

@@ -62,7 +62,10 @@ private:
   bool theUseWithoutDet;
   bool theUseInvalidHits;
   bool theUseProjectedHits;
+  
+protected:
 
+  bool theUseBeamSpot;
 };
 
 
