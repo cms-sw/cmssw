@@ -259,7 +259,7 @@ public:
     int id1_(0);
     int id2_(0);
     int id3_(EcalLogicID::NULLID);
-    int n_(0);
+
     bool ok_(false);
     TString channelViewName_;
     
@@ -458,7 +458,7 @@ public:
 	  econn->insertLmfDat(&lmf_config);
 	}
 	
-         bool mtq_=true;
+  
 	 //
 	 // Laser MATACQ Primitives
 	 //
