@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.41 $
-///  last update: $Date: 2010/02/25 00:27:57 $
-///  by         : $Author: wmtan $
+///  Revision   : $Revision: 1.42 $
+///  last update: $Date: 2010/05/12 09:40:27 $
+///  by         : $Author: mussgill $
 
 #include "AlignmentProducer.h"
 #include "FWCore/Framework/interface/LooperFactory.h" 
@@ -71,7 +71,8 @@
 //_____________________________________________________________________________
 AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   theAlignmentAlgo(0), theAlignmentParameterStore(0),
-  theAlignableTracker(0), theAlignableMuon(0), globalPositions_(0),
+  theAlignableExtras(0), theAlignableTracker(0), theAlignableMuon(0), 
+  globalPositions_(0),
   nevent_(0), theParameterSet(iConfig),
   theMaxLoops( iConfig.getUntrackedParameter<unsigned int>("maxLoops") ),
   stNFixAlignables_(iConfig.getParameter<int>("nFixAlignables") ),
@@ -83,13 +84,13 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   saveApeToDB_(iConfig.getParameter<bool>("saveApeToDB")),
   doTracker_( iConfig.getUntrackedParameter<bool>("doTracker") ),
   doMuon_( iConfig.getUntrackedParameter<bool>("doMuon") ),
+  useExtras_( iConfig.getUntrackedParameter<bool>("useExtras") ),
   useSurvey_( iConfig.getParameter<bool>("useSurvey") ),
   tjTkAssociationMapTag_(iConfig.getParameter<edm::InputTag>("tjTkAssociationMapTag")),
   beamSpotTag_(iConfig.getParameter<edm::InputTag>("beamSpotTag")),
   tkLasBeamTag_(iConfig.getParameter<edm::InputTag>("tkLasBeamTag")),
   clusterValueMapTag_(iConfig.getParameter<edm::InputTag>("hitPrescaleMapTag"))
 {
-
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::AlignmentProducer";
 
   // Tell the framework what data is being produced
@@ -120,7 +121,6 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
 
     theMonitors.push_back(newMonitor);
   }
-
 }
 
 
@@ -128,8 +128,8 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
 // Delete new objects
 AlignmentProducer::~AlignmentProducer()
 {
-
   delete theAlignmentParameterStore;
+  delete theAlignableExtras;
   delete theAlignableTracker;
   delete theAlignableMuon;
 
@@ -209,6 +209,10 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
      theAlignableMuon = new AlignableMuon( &(*theMuonDT), &(*theMuonCSC) );
   }
 
+  if (useExtras_) {
+    theAlignableExtras = new AlignableExtras();
+  }
+
   // Create alignment parameter builder
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob" 
                             << "Creating AlignmentParameterBuilder";
@@ -216,7 +220,8 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
     theParameterSet.getParameter<edm::ParameterSet>("ParameterBuilder");
   AlignmentParameterBuilder alignmentParameterBuilder(theAlignableTracker,
                                                       theAlignableMuon,
-                                                      aliParamBuildCfg );
+                                                      theAlignableExtras,
+						      aliParamBuildCfg );
   // Fix alignables if requested
   if (stNFixAlignables_>0) alignmentParameterBuilder.fixAlignables(stNFixAlignables_);
 
@@ -259,8 +264,9 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
   this->simpleMisalignment_(theAlignables, sParSel, stRandomShift_, stRandomRotation_, true);
 
   // Initialize alignment algorithm
-  theAlignmentAlgo->initialize( iSetup, theAlignableTracker,
-                                theAlignableMuon, theAlignmentParameterStore );
+  theAlignmentAlgo->initialize( iSetup, 
+				theAlignableTracker, theAlignableMuon, theAlignableExtras,
+				theAlignmentParameterStore );
 
   for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = theMonitors.begin();
        monitor != theMonitors.end();  ++monitor) {
@@ -312,6 +318,8 @@ void AlignmentProducer::endOfJob()
 		    alignmentErrors, "CSCAlignmentErrorRcd", muonGlobal);
     }
   }
+
+  if (theAlignableExtras) theAlignableExtras->dump();
 }
 
 //_____________________________________________________________________________
@@ -400,6 +408,13 @@ AlignmentProducer::duringLoop( const edm::Event& event,
     }
     edm::Handle<reco::BeamSpot> beamSpot;
     event.getByLabel(beamSpotTag_, beamSpot);
+
+    if (nevent_==1 && theAlignableExtras) {
+      edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::duringLoop"
+				<< "initializing AlignableBeamSpot" << std::endl;
+      theAlignableExtras->initializeBeamSpot(beamSpot->x0(), beamSpot->y0(), beamSpot->z0(),
+					     beamSpot->dxdz(), beamSpot->dydz());
+    }
 
     // Run the alignment algorithm with its input
     const AliClusterValueMap *clusterValueMapPtr = 0;

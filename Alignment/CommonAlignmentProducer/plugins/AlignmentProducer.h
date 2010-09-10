@@ -7,8 +7,8 @@
 /// Description : calls alignment algorithms
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.16 $
-///  last update: $Date: 2009/10/02 12:46:53 $
+///  Revision   : $Revision: 1.17 $
+///  last update: $Date: 2009/10/10 14:17:44 $
 ///  by         : $Author: bonato $
 
 #include <vector>
@@ -28,9 +28,10 @@
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h" 
 #include <Geometry/Records/interface/MuonGeometryRecord.h> 
+#include "Alignment/CommonAlignment/interface/AlignableExtras.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
-#include <FWCore/Framework/interface/Frameworkfwd.h> 
+#include <FWCore/Framework/interface/Frameworkfwd.h>
 #include "CondFormats/Alignment/interface/Alignments.h"
 
 // for watcher
@@ -134,6 +135,7 @@ class AlignmentProducer : public edm::ESProducerLooper
   std::vector<AlignmentMonitorBase*> theMonitors;
   AlignmentParameterStore* theAlignmentParameterStore;
 
+  AlignableExtras* theAlignableExtras;
   AlignableTracker* theAlignableTracker;
   AlignableMuon* theAlignableMuon;
 
@@ -153,7 +155,7 @@ class AlignmentProducer : public edm::ESProducerLooper
   const int stNFixAlignables_;
   const double stRandomShift_,stRandomRotation_;
   const bool applyDbAlignment_,doMisalignmentScenario_,saveToDB_, saveApeToDB_;
-  const bool doTracker_,doMuon_;
+  const bool doTracker_,doMuon_,useExtras_;
   const bool useSurvey_; // true to read survey info from DB
 
   // event input tags
