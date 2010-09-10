@@ -149,7 +149,7 @@ std::vector<CSCSegment> CSCSegAlgoST::run(const CSCChamber* aChamber, ChamberHit
       segments_temp.clear(); // segments_temp needed?!?!
       segments_temp = prune_bad_hits( theChamber, segments );
       segments.clear(); // segments_temp needed?!?!
-      segments = segments_temp; // segments_temp needed?!?!
+      segments.swap(segments_temp); // segments_temp needed?!?!
     }
     if ("ME1/a" == aChamber->specs()->chamberTypeName()){
       findDuplicates(segments);
@@ -162,7 +162,7 @@ std::vector<CSCSegment> CSCSegAlgoST::run(const CSCChamber* aChamber, ChamberHit
       segments_temp.clear(); // segments_temp needed?!?!
       segments_temp = prune_bad_hits( theChamber, segments );
       segments.clear(); // segments_temp needed?!?!
-      segments = segments_temp; // segments_temp needed?!?!
+      segments.swap(segments_temp); // segments_temp needed?!?!
     }
     if ("ME1/a" == aChamber->specs()->chamberTypeName()){
       findDuplicates(segments);
@@ -177,7 +177,7 @@ std::vector<CSCSegment> CSCSegAlgoST::run(const CSCChamber* aChamber, ChamberHit
 // *** much information from the chamber as possible (e.g. charge,  ***;
 // *** hit position, timing, etc.)                                  ***;
 // ********************************************************************;
-std::vector<CSCSegment> CSCSegAlgoST::prune_bad_hits(const CSCChamber* aChamber, std::vector<CSCSegment> segments) {
+std::vector<CSCSegment> CSCSegAlgoST::prune_bad_hits(const CSCChamber* aChamber, std::vector<CSCSegment> & segments) {
   
   //   std::cout<<"*************************************************************"<<std::endl;
   //   std::cout<<"Called prune_bad_hits in Chamber "<< theChamber->specs()->chamberTypeName()<<std::endl;
@@ -388,7 +388,7 @@ std::vector<CSCSegment> CSCSegAlgoST::prune_bad_hits(const CSCChamber* aChamber,
 
 
 // ********************************************************************;
-std::vector< std::vector<const CSCRecHit2D*> > CSCSegAlgoST::clusterHits(const CSCChamber* aChamber, ChamberHitContainer rechits) {
+std::vector< std::vector<const CSCRecHit2D*> > CSCSegAlgoST::clusterHits(const CSCChamber* aChamber, ChamberHitContainer & rechits) {
   theChamber = aChamber; 
 
   std::vector<ChamberHitContainer> rechits_clusters; // this is a collection of groups of rechits
@@ -504,7 +504,7 @@ std::vector< std::vector<const CSCRecHit2D*> > CSCSegAlgoST::clusterHits(const C
 }
 
 
-std::vector< std::vector<const CSCRecHit2D*> > CSCSegAlgoST::chainHits(const CSCChamber* aChamber, ChamberHitContainer rechits) {
+std::vector< std::vector<const CSCRecHit2D*> > CSCSegAlgoST::chainHits(const CSCChamber* aChamber, ChamberHitContainer & rechits) {
 
   std::vector<ChamberHitContainer> rechits_chains; // this is a collection of groups of rechits
 
@@ -578,7 +578,7 @@ std::vector< std::vector<const CSCRecHit2D*> > CSCSegAlgoST::chainHits(const CSC
       return rechits_chains;
 }
 
-bool CSCSegAlgoST::isGoodToMerge(bool isME11a, ChamberHitContainer newChain, ChamberHitContainer oldChain) {
+bool CSCSegAlgoST::isGoodToMerge(bool isME11a, ChamberHitContainer & newChain, ChamberHitContainer & oldChain) {
   for(uint iRH_new = 0;iRH_new<newChain.size();++iRH_new){
     int layer_new = newChain[iRH_new]->cscDetId().layer()-1;     
     int middleStrip_new = newChain[iRH_new]->channels().size()/2;
@@ -1603,13 +1603,13 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
   return segmentInChamber;
 }
 
-void CSCSegAlgoST::ChooseSegments2a(std::vector< ChamberHitContainer > chosen_segments, int chosen_seg) {
+void CSCSegAlgoST::ChooseSegments2a(std::vector< ChamberHitContainer > & chosen_segments, int chosen_seg) {
   // just return best segment
   GoodSegments.clear();
   GoodSegments.push_back( chosen_segments[chosen_seg] );
 }
 
-void CSCSegAlgoST::ChooseSegments3(std::vector< ChamberHitContainer > chosen_segments, std::vector< float > chosen_weight, int chosen_seg) {
+void CSCSegAlgoST::ChooseSegments3(std::vector< ChamberHitContainer > & chosen_segments, std::vector< float > & chosen_weight, int chosen_seg) {
 
   int SumCommonHits = 0;
   GoodSegments.clear();
@@ -2099,6 +2099,7 @@ void CSCSegAlgoST::findDuplicates(std::vector<CSCSegment>  & segments ){
   // this function finds them (first the rechits by sharesInput() )
   // if a segment shares all the rechits with another segment it is a duplicate (even if
   // it has less rechits) 
+  
   for(std::vector<CSCSegment>::iterator it=segments.begin(); it != segments.end(); ++it) {
     std::vector<CSCSegment*> duplicateSegments;
     for(std::vector<CSCSegment>::iterator it2=segments.begin(); it2 != segments.end(); ++it2) {
@@ -2117,6 +2118,7 @@ void CSCSegAlgoST::findDuplicates(std::vector<CSCSegment>  & segments ){
     }
     it->setDuplicateSegments(duplicateSegments);
   }
+
 }
 //
 

@@ -66,19 +66,19 @@ public:
   /**
    * Build groups of rechits that are separated in x and y to save time on the segment finding
    */
-  std::vector< std::vector<const CSCRecHit2D*> > clusterHits(const CSCChamber* aChamber, ChamberHitContainer rechits);
+  std::vector< std::vector<const CSCRecHit2D*> > clusterHits(const CSCChamber* aChamber, ChamberHitContainer & rechits);
 
 
    /* Build groups of rechits that are separated in strip numbers and Z to save time on the segment finding
    */
-     std::vector< std::vector<const CSCRecHit2D*> > chainHits(const CSCChamber* aChamber, ChamberHitContainer rechits);
+     std::vector< std::vector<const CSCRecHit2D*> > chainHits(const CSCChamber* aChamber, ChamberHitContainer & rechits);
 
 
   /**
    * Remove bad hits from found segments based not only on chi2, but also on charge and 
    * further "low level" chamber information.
    */
-  std::vector< CSCSegment > prune_bad_hits(const CSCChamber* aChamber, std::vector< CSCSegment > segments);
+  std::vector< CSCSegment > prune_bad_hits(const CSCChamber* aChamber, std::vector< CSCSegment > & segments);
 
 private:
 
@@ -88,13 +88,13 @@ private:
   void ChooseSegments(void);
 
   // siplistic routine - just return the segment with the smallest weight
-  void ChooseSegments2a(std::vector< ChamberHitContainer > best_segments, int best_seg);
+  void ChooseSegments2a(std::vector< ChamberHitContainer > & best_segments, int best_seg);
   // copy of Stoyans ChooseSegments adjusted to the case without fake hits
   void ChooseSegments2(int best_seg);
 
   // Choose routine with reduce nr of loops
   void ChooseSegments3(int best_seg);
-  void ChooseSegments3(std::vector< ChamberHitContainer > best_segments, std::vector< float > best_weight, int best_seg);
+  void ChooseSegments3(std::vector< ChamberHitContainer > & best_segments, std::vector< float > & best_weight, int best_seg);
   //
   void fitSlopes(void);
   void fillChiSquared(void);
@@ -103,7 +103,7 @@ private:
   // Duplicates are found in ME1/1a only
   void findDuplicates(std::vector<CSCSegment>  & segments );
 
-  bool isGoodToMerge(bool isME11a, ChamberHitContainer newChain, ChamberHitContainer oldChain);
+  bool isGoodToMerge(bool isME11a, ChamberHitContainer & newChain, ChamberHitContainer & oldChain);
 
   CLHEP::HepMatrix derivativeMatrix(void) const;
   AlgebraicSymMatrix weightMatrix(void) const;
