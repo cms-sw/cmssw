@@ -6,10 +6,19 @@
  * GO: september 2010
  * This new procedure allows multiple IOVs with the same start date
  * IOVs have a mask based on which one can assign a given IOV to a given table
- *	
+ * To test the script you have to run generate_iovs.pl before and send its
+ * output to ttt.sql
+ * ./generate_iovs.sql > ttt.sql
+ * then run this script and check results using report.txt
+ * 
  */
 
 WHENEVER SQLERROR EXIT
+
+/* 
+   This first part of the script is intended to avoi running it on the
+   wrong database
+*/
 
 CREATE OR REPLACE PROCEDURE TESTDB IS
    gname VARCHAR2(64);
@@ -26,6 +35,8 @@ END;
 
 EXEC TESTDB;
 
+/* Ok: we are running on the right database */
+
 CREATE OR REPLACE PROCEDURE update_iov_dates_test
 ( my_table IN VARCHAR2,
   my_mask IN NUMBER,
@@ -37,32 +48,36 @@ CREATE OR REPLACE PROCEDURE update_iov_dates_test
   new_end IN OUT DATE,
   new_tag_id IN NUMBER ) IS
   
-  sql_str VARCHAR(1000);
-  future_start DATE;
-  dat_table_id NUMBER;
-  table_name VARCHAR(25);
-  tN VARCHAR(25);
+  sql_str    VARCHAR(1000);
+  tn         VARCHAR(25);
   last_start DATE;
-  last_end DATE;
-  last_iov NUMBER;
-  new_iov NUMBER;
-  last_mask NUMBER;
-  rows NUMBER;
-  I NUMBER;
+  last_iov   NUMBER;
+  new_iov    NUMBER;
+  last_mask  NUMBER;
+  rows       NUMBER;
+  i          NUMBER;
 
   BEGIN
     dbms_output.enable;
     -- Ensure IoV time has positive duration
     IF new_end <= new_start THEN
+       dbms_output.put_line(new_start || ' - ' || new_end);
        raise_application_error(-20000, 'IOV must have ' || start_col || ' < ' 
                                || end_col);
     END IF;
     -- Look for records containing this mask
-    sql_str := 'SELECT IOV_ID FROM ' || my_table || 
+    sql_str := 'SELECT COUNT(IOV_ID) FROM ' || my_table || 
       ' WHERE BITAND(MASK, ' ||
 	my_mask || ') > 0 AND TAG_ID = :t AND ' || end_col || 
 	' >= TO_DATE(''31-12-9999 23:59:59'', ''DD-MM-YYYY HH24:MI:SS'')';
-    EXECUTE IMMEDIATE sql_str INTO last_iov USING new_tag_id;
+    EXECUTE IMMEDIATE sql_str INTO rows USING new_tag_id;
+    dbms_output.put_line('Found ' || rows || ' rows with good mask');
+    FOR i IN 1..rows LOOP
+    sql_str := 'SELECT IOV_ID FROM ' || my_table || 
+      ' WHERE BITAND(MASK, ' ||
+	my_mask || ') > 0 AND TAG_ID = :t AND ' || end_col || 
+	' >= TO_DATE(''31-12-9999 23:59:59'', ''DD-MM-YYYY HH24:MI:SS'') AND ROWNUM = :i';
+    EXECUTE IMMEDIATE sql_str INTO last_iov USING new_tag_id, i;
     IF last_iov IS NOT NULL THEN 
        -- record found
        sql_str := 'SELECT MASK FROM ' || my_table || 
@@ -110,6 +125,7 @@ CREATE OR REPLACE PROCEDURE update_iov_dates_test
           END LOOP;	
        END IF;
     END IF;
+    END LOOP;
     EXCEPTION
     WHEN NO_DATA_FOUND THEN
        dbms_output.put_line('NO DATA FOUND');
@@ -179,43 +195,12 @@ alter session set NLS_DATE_FORMAT='DD-MM-YYYY HH24:MI:SS';
 set linesize 110
 SET SERVEROUTPUT ON
 
-/* simulate measurements
-   1 made on 1, 2, 3, 4, 6 feb
-   2 made on 4, 6, 7 feb
-   4 made on 5 feb
-*/
 
 CREATE SEQUENCE TEST_IOV_SQ START WITH 1 NOCACHE;
-insert into test_iov values(TEST_IOV_SQ.NextVal, 1, 1, 
-	to_date('01-01-2010 00:00:00', 'DD-MM-YYYY HH24:MI:SS'), 
-	to_date('31-12-9999 23:59:59', 'DD-MM-YYYY HH24:MI:SS'));
-INSERT INTO TEST_A VALUES (1, 1);
-insert into test_iov values(TEST_IOV_SQ.NextVal, 1, 1, 
-	to_date('02-01-2010 00:00:00', 'DD-MM-YYYY HH24:MI:SS'), 
-	to_date('31-12-9999 23:59:59', 'DD-MM-YYYY HH24:MI:SS'));
-INSERT INTO TEST_A VALUES (2, 2);
-insert into test_iov values(TEST_IOV_SQ.NextVal, 1, 1, 
-	to_date('03-01-2010 00:00:00', 'DD-MM-YYYY HH24:MI:SS'), 
-	to_date('31-12-9999 23:59:59', 'DD-MM-YYYY HH24:MI:SS'));
-INSERT INTO TEST_A VALUES (3, 3);
-insert into test_iov values(TEST_IOV_SQ.NextVal, 3, 1, 
-	to_date('04-01-2010 00:00:00', 'DD-MM-YYYY HH24:MI:SS'), 
-	to_date('31-12-9999 23:59:59', 'DD-MM-YYYY HH24:MI:SS'));
-INSERT INTO TEST_A VALUES (4, 4);
-INSERT INTO TEST_B VALUES (4, 1);
-insert into test_iov values(TEST_IOV_SQ.NextVal, 4, 1, 
-	to_date('05-01-2010 00:00:00', 'DD-MM-YYYY HH24:MI:SS'), 
-	to_date('31-12-9999 23:59:59', 'DD-MM-YYYY HH24:MI:SS'));
-INSERT INTO TEST_C VALUES (5, 1);
-insert into test_iov values(TEST_IOV_SQ.NextVal, 3, 1, 
-	to_date('06-01-2010 00:00:00', 'DD-MM-YYYY HH24:MI:SS'), 
-	to_date('31-12-9999 23:59:59', 'DD-MM-YYYY HH24:MI:SS'));
-INSERT INTO TEST_A VALUES (6, 5);
-INSERT INTO TEST_B VALUES (7, 2);
-insert into test_iov values(TEST_IOV_SQ.NextVal, 2, 1, 
-	to_date('07-01-2010 00:00:00', 'DD-MM-YYYY HH24:MI:SS'), 
-	to_date('31-12-9999 23:59:59', 'DD-MM-YYYY HH24:MI:SS'));
-INSERT INTO TEST_B VALUES (8, 3);
+
+/* simulate measurements */
+
+@ttt
 
 SELECT * FROM TEST_IOV;
 SELECT * FROM TEST_IOV JOIN TEST_A ON TEST_IOV.IOV_ID = TEST_A.IOV_ID 
