@@ -84,7 +84,7 @@ def fillPileupHistogram (deadTable, parameters,
 
 if __name__ == '__main__':
     parameters = LumiQueryAPI.ParametersObject()
-    beamModeChoices = [ "stable", "quiet", "either"]
+    beamModeChoices = ["","stable", "quiet", "either"]
     parser = optparse.OptionParser ("Usage: %prog [--options] output.root",
                                     description = "Script to estimate pileup distribution using xing instantaneous luminosity information and minimum bias cross section.  Output is TH1F stored in root file")
     dbGroup     = optparse.OptionGroup (parser, "Database Options")
@@ -103,7 +103,7 @@ if __name__ == '__main__':
                             help = 'run number')
     inputGroup.add_option  ('-i', dest = 'inputfile', action = 'store',
                             help = 'lumi range selection file')
-    inputGroup.add_option  ('-b', dest = 'beammode', default='stable', choices=beamModeChoices,
+    inputGroup.add_option  ('-b', dest = 'beammode', default='', choices=beamModeChoices,
                             help = "beam mode, optional for delivered action, default ('%%default' out of %s)" % beamModeChoices)
     inputGroup.add_option  ('--lumiversion', dest = 'lumiversion', type='string', default='0001',
                             help = 'lumi data version, optional for all, default %default')
