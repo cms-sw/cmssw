@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/10/17 15:58:25 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/01/09 10:23:16 $
+ *  $Revision: 1.3 $
  *  \author Jean-Roch Vlimant
  */
 
@@ -43,7 +43,7 @@ MultiParticleInConeGunSource::MultiParticleInConeGunSource(const ParameterSet& p
    fInConeMaxEta = pgun_params.getUntrackedParameter<double>("InConeMaxEta",5.5);
    fInConeMinPhi = pgun_params.getUntrackedParameter<double>("InConeMinPhi",-3.14159265358979323846);
    fInConeMaxPhi = pgun_params.getUntrackedParameter<double>("InConeMaxPhi",3.14159265358979323846);
-   fInConeMaxTry = pgun_params.getUntrackedParameter<uint>("InConeMaxTry",100);
+   fInConeMaxTry = pgun_params.getUntrackedParameter<unsigned int>("InConeMaxTry",100);
    
    produces<HepMCProduct>();
 }
@@ -108,7 +108,7 @@ bool MultiParticleInConeGunSource::produce(Event &e)
 
        // now add the particles in the cone
        for (unsigned iPic=0; iPic!=fInConeIds.size();iPic++){
-	 uint nTry=0;
+	 unsigned int nTry=0;
 	 while(true){
 	   //shoot flat Deltar
 	   double dR = fRandomGenerator->fire(fMinDeltaR, fMaxDeltaR);
