@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.4 $
- *  $Date: 2008/07/30 15:42:04 $
+ *  $Revision: 1.5 $
+ *  $Date: 2009/08/10 16:29:40 $
  *  (last update by $Author: flucke $)
  */
 
@@ -13,6 +13,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/AlignableExtras.h"
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 
 
@@ -21,18 +22,25 @@ const unsigned int PedeLabeler::theMaxNumParam = RigidBodyAlignmentParameters::N
 const unsigned int PedeLabeler::theMinLabel = 1; // must be > 0
 
 //___________________________________________________________________________
-PedeLabeler::PedeLabeler(Alignable *ali1, Alignable *ali2)
+PedeLabeler::PedeLabeler(const std::vector<Alignable*> &alis)
+{
+  this->buildMap(alis);
+}
+
+//___________________________________________________________________________
+PedeLabeler::PedeLabeler(Alignable *ali1, Alignable *ali2, AlignableExtras *extras)
 {
   std::vector<Alignable*> alis;
   alis.push_back(ali1);
   alis.push_back(ali2);
 
-  this->buildMap(alis);
-}
+  if (extras) {
+    align::Alignables allExtras = extras->components();
+    for ( std::vector<Alignable*>::iterator it = allExtras.begin(); it != allExtras.end(); ++it ) {
+      alis.push_back(*it);
+    }
+  }
 
-//___________________________________________________________________________
-PedeLabeler::PedeLabeler(const std::vector<Alignable*> &alis)
-{
   this->buildMap(alis);
 }
 

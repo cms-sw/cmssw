@@ -8,8 +8,8 @@
  *
  * \author    : Gero Flucke
  * date       : September 2007
- * $Date: 2007/08/31 17:24:28 $
- * $Revision: 1.1 $
+ * $Date: 2009/08/10 16:29:40 $
+ * $Revision: 1.2 $
  * (last update by $Author: flucke $)
  */
 
@@ -18,6 +18,7 @@
 
 
 class Alignable;
+class AlignableExtras;
 
 /***************************************
 ****************************************/
@@ -27,7 +28,7 @@ class PedeLabeler
   /// constructor from array of Alignables 
   PedeLabeler(const std::vector<Alignable*> &alis);
   /// constructor from two Alignables (null pointers allowed )
-  PedeLabeler(Alignable *ali1, Alignable *ali2);
+  PedeLabeler(Alignable *ali1, Alignable *ali2, AlignableExtras *extras);
   /** non-virtual destructor: do not inherit from this class **/
   ~PedeLabeler();
     

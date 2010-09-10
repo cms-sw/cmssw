@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.28 $
- *  $Date: 2009/06/24 12:59:18 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.29 $
+ *  $Date: 2010/03/11 13:07:38 $
+ *  (last update by $Author: frmeier $)
  */
 
 #include "PedeSteerer.h"
@@ -27,6 +27,7 @@
 // for 'type identification' as Alignable
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
+#include "Alignment/CommonAlignment/interface/AlignableExtras.h"
 // GF doubts the need of these includes from include checker campaign:
 #include <FWCore/Framework/interface/EventSetup.h> 
 #include <Geometry/CommonDetUnit/interface/GeomDetUnit.h> 
@@ -47,7 +48,7 @@
 
 #include <iostream>
 
-PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon,
+PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon, AlignableExtras *aliExtras,
 			 AlignmentParameterStore *store, const PedeLabeler *labels,
                          const edm::ParameterSet &config, const std::string &defaultDir,
 			 bool noSteerFiles) :
@@ -100,6 +101,12 @@ PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon,
 	<< "with neither tracker nor muon!";
     }
     if (aliMuon) theCoordMaster->addComponent(aliMuon); // tracker is already added if existing
+    if (aliExtras) { // tracker and/or muon are already added if existing
+      align::Alignables allExtras = aliExtras->components();
+      for ( std::vector<Alignable*>::iterator it = allExtras.begin(); it != allExtras.end(); ++it ) {
+	theCoordMaster->addComponent(*it);
+      }
+    }
 
     const Alignable::PositionType &tmpPos = theCoordMaster->globalPosition();
     AlignableSurface & masterSurf = const_cast<AlignableSurface&>(theCoordMaster->surface());
@@ -532,13 +539,13 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
 unsigned int PedeSteerer::presigmas(const std::vector<edm::ParameterSet> &cffPresi,
                                     const std::string &fileName,
                                     const std::vector<Alignable*> &alis,
-                                    AlignableTracker *aliTracker, AlignableMuon *aliMuon)
+                                    AlignableTracker *aliTracker, AlignableMuon *aliMuon, AlignableExtras *aliExtras)
 {
   // We loop on given PSet's, each containing a parameter selection and the presigma value
   // The resulting presigmas are stored in a map with Alignable* as key.
   // This map, 'fileName' and 'alis' are passed further to create the steering file.
 
-  AlignmentParameterSelector selector(aliTracker, aliMuon);  
+  AlignmentParameterSelector selector(aliTracker, aliMuon, aliExtras);
   AlignablePresigmasMap aliPresiMap; // map to store alis with presigmas of their parameters 
   for (std::vector<edm::ParameterSet>::const_iterator iSet = cffPresi.begin(), iE = cffPresi.end();
        iSet != iE; ++iSet) { // loop on individual PSets defining ali-params with their presigma
@@ -655,7 +662,7 @@ std::string PedeSteerer::fileName(const std::string &addendum) const
 }
 
 //___________________________________________________________________________
-void PedeSteerer::buildSubSteer(AlignableTracker *aliTracker, AlignableMuon *aliMuon)
+void PedeSteerer::buildSubSteer(AlignableTracker *aliTracker, AlignableMuon *aliMuon, AlignableExtras *aliExtras)
 {
   const std::vector<Alignable*> &alis = myParameterStore->alignables();
 
@@ -692,7 +699,7 @@ void PedeSteerer::buildSubSteer(AlignableTracker *aliTracker, AlignableMuon *ali
   const std::string namePresigmaFile(this->fileName("Presigma"));
   unsigned int nPresigma = 
     this->presigmas(myConfig.getParameter<std::vector<edm::ParameterSet> >("Presigmas"),
-                    namePresigmaFile, alis, aliTracker, aliMuon);
+                    namePresigmaFile, alis, aliTracker, aliMuon, aliExtras);
   if (nPresigma) {
     edm::LogInfo("Alignment") << "@SUB=PedeSteerer::buildSubSteer" 
                               << "Presigma values set for " << nPresigma << " parameters, "
