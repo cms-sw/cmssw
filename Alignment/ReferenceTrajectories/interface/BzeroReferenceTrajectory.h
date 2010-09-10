@@ -51,6 +51,7 @@ public:
 			   PropagationDirection propDir,
 			   double mass,
 			   double momentumEstimate,
+			   bool useBeamSpot,
 			   const reco::BeamSpot &beamSpot);
 
   virtual ~BzeroReferenceTrajectory() {}

@@ -46,6 +46,7 @@ public:
 			   MaterialEffects materialEffects,
 			   PropagationDirection propDir,
 			   double mass,
+			   bool useBeamSpot,
 			   const reco::BeamSpot &beamSpot);
 
   virtual ~DualReferenceTrajectory() {}
@@ -64,6 +65,7 @@ protected:
 			 double mass, MaterialEffects materialEffects,
 			 const PropagationDirection propDir,
 			 const MagneticField *magField,
+			 bool useBeamSpot,
 			 const reco::BeamSpot &beamSpot);
 
   virtual ReferenceTrajectory* construct(const TrajectoryStateOnSurface &referenceTsos, 
@@ -71,6 +73,7 @@ protected:
 					 double mass, MaterialEffects materialEffects,
 					 const PropagationDirection propDir,
 					 const MagneticField *magField,
+					 bool useBeamSpot,
 					 const reco::BeamSpot &beamSpot) const;
 
   virtual AlgebraicVector extractParameters(const TrajectoryStateOnSurface &referenceTsos) const;

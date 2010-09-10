@@ -14,13 +14,15 @@ DualReferenceTrajectory::DualReferenceTrajectory( const TrajectoryStateOnSurface
 						  const MagneticField *magField,
 						  MaterialEffects materialEffects,
 						  PropagationDirection propDir,
-						  double mass, const reco::BeamSpot &beamSpot)
+						  double mass, 
+						  bool useBeamSpot,
+						  const reco::BeamSpot &beamSpot)
   : ReferenceTrajectoryBase(referenceTsos.localParameters().mixedFormatVector().kSize,
 			    numberOfUsedRecHits(forwardRecHits) + numberOfUsedRecHits(backwardRecHits) - 1,
 			    0, 0)
 {
   theValidityFlag = this->construct( referenceTsos, forwardRecHits, backwardRecHits,
-				     mass, materialEffects, propDir, magField, beamSpot );
+				     mass, materialEffects, propDir, magField, useBeamSpot, beamSpot );
 }
 
 
@@ -36,6 +38,7 @@ bool DualReferenceTrajectory::construct( const TrajectoryStateOnSurface &refTsos
 					 double mass, MaterialEffects materialEffects,
 					 const PropagationDirection propDir,
 					 const MagneticField *magField,
+					 bool useBeamSpot,
 					 const reco::BeamSpot &beamSpot)
 {
   if (materialEffects >= breakPoints)  throw cms::Exception("BadConfig")
@@ -43,11 +46,11 @@ bool DualReferenceTrajectory::construct( const TrajectoryStateOnSurface &refTsos
     
   ReferenceTrajectoryBase* fwdTraj = construct(refTsos, forwardRecHits,
 					       mass, materialEffects,
-					       propDir, magField, beamSpot);
+					       propDir, magField, useBeamSpot, beamSpot);
 
   ReferenceTrajectoryBase* bwdTraj = construct(refTsos, backwardRecHits,
 					       mass, materialEffects,
-					       oppositeDirection(propDir), magField, beamSpot);
+					       oppositeDirection(propDir), magField, false, beamSpot);
 
   if ( !( fwdTraj->isValid() && bwdTraj->isValid() ) )
   {
@@ -124,13 +127,15 @@ DualReferenceTrajectory::construct(const TrajectoryStateOnSurface &referenceTsos
 				   double mass, MaterialEffects materialEffects,
 				   const PropagationDirection propDir,
 				   const MagneticField *magField,
+				   bool useBeamSpot,
 				   const reco::BeamSpot &beamSpot) const
 {
   if (materialEffects >= breakPoints)  throw cms::Exception("BadConfig")
     << "[DualReferenceTrajectory::construct] Wrong MaterialEffects: " << materialEffects;
   
   return new ReferenceTrajectory(referenceTsos, recHits, false,
-				 magField, materialEffects, propDir, mass, beamSpot);
+				 magField, materialEffects, propDir, mass,
+				 useBeamSpot, beamSpot);
 }
 
 

@@ -4,7 +4,7 @@
 /**
  * Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
  * date       : 2006/09/17
- * last update: $Date: 2010/01/14 16:14:03 $
+ * last update: $Date: 2010/03/08 16:13:38 $
  * by         : $Author: flucke $
  *
  *  Class implementing the reference trajectory of a single charged
@@ -38,6 +38,7 @@ class TrajectoryStateOnSurface;
 class MagneticField;
 class MaterialEffectsUpdator;
 class BoundPlane;
+class BeamSpotTransientTrackingRecHit;
 
 namespace reco { class BeamSpot; }
 
@@ -62,6 +63,7 @@ public:
 		      MaterialEffects materialEffects,
 		      PropagationDirection propDir,
 		      double mass,
+		      bool useBeamSpot,
 		      const reco::BeamSpot &beamSpot);
   virtual ~ReferenceTrajectory() {}
 
@@ -77,6 +79,7 @@ protected:
 			 const TransientTrackingRecHit::ConstRecHitContainer &recHits,
 			 double mass, MaterialEffects materialEffects,
 			 const PropagationDirection propDir, const MagneticField *magField,
+			 bool useBeamSpot,
 			 const reco::BeamSpot &beamSpot);
 
   /** internal method to get apropriate updator
@@ -148,7 +151,6 @@ protected:
       SurfaceSideDefinition::beforeSurface :
       SurfaceSideDefinition::afterSurface;
   }
-
 };
 
 #endif

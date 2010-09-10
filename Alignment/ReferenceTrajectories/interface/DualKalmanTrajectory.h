@@ -16,8 +16,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2008
-///  $Revision: 1.3 $
-///  $Date: 2009/03/27 14:33:54 $
+///  $Revision: 1.4 $
+///  $Date: 2010/01/14 16:14:03 $
 ///  (last update by $Author: flucke $)
 
 
@@ -44,6 +44,7 @@ public:
 		       MaterialEffects materialEffects,
 		       PropagationDirection propDir,
 		       double mass,
+		       bool useBeamSpot,
 		       const reco::BeamSpot &beamSpot,
 		       int residualMethod);
 
@@ -62,7 +63,8 @@ protected:
 			 const std::vector<unsigned int> &backwardRecHitNums,
 			 double mass, MaterialEffects materialEffects,
 			 const PropagationDirection propDir, const MagneticField *magField,
-			 const reco::BeamSpot &beamSpot, int residualMethod);
+			 bool useBeamSpot, const reco::BeamSpot &beamSpot,
+			 int residualMethod);
 
   /// Method to get a single ReferenceTrajectory for a half of the trajectory.
   virtual ReferenceTrajectory* construct(const Trajectory::DataContainer &trajMeasurements,
@@ -71,6 +73,7 @@ protected:
 					 double mass, MaterialEffects materialEffects,
 					 const PropagationDirection propDir,
 					 const MagneticField *magField,
+					 bool useBeamSpot,
 					 const reco::BeamSpot &beamSpot) const;
   /// Fill that part of data members that is different from DualReferenceTrajectory.
   bool fillKalmanPart(const Trajectory::DataContainer &trajMeasurements,
