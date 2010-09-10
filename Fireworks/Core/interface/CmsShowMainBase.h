@@ -13,17 +13,28 @@
 
 #include "TTimer.h"
 
+class FWEventItemsManager;
+class FWGUIManager;
+class FWJobMetadataManager;
+class FWNavigatorBase;
+
+// replace forfard declaration with include to avoid compilation warnigs
+/*
+class FWModelChangeManager;
+class FWSelectionManager;
+class FWViewManagerManager;
 class CmsShowTaskExecutor;
 class FWChangeManager;
 class FWColorManager;
 class FWConfigurationManager;
-class FWEventItemsManager;
-class FWGUIManager;
-class FWJobMetadataManager;
-class FWModelChangeManager;
-class FWNavigatorBase;
-class FWSelectionManager;
-class FWViewManagerManager;
+*/
+#include "Fireworks/Core/interface/FWColorManager.h"
+#include "Fireworks/Core/interface/FWModelChangeManager.h"
+#include "Fireworks/Core/interface/FWConfigurationManager.h"
+#include "Fireworks/Core/interface/FWEventItemsManager.h"
+#include "Fireworks/Core/interface/FWSelectionManager.h"
+#include "Fireworks/Core/interface/FWViewManagerManager.h"
+#include "Fireworks/Core/src/CmsShowTaskExecutor.h"
 
 namespace fireworks {
    class Context;
