@@ -9,8 +9,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2008
-///  $Revision: 1.1 $
-///  $Date: 2008/10/14 07:40:04 $
+///  $Revision: 1.2 $
+///  $Date: 2010/01/14 16:14:04 $
 ///  (last update by $Author: flucke $)
 
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
@@ -109,7 +109,7 @@ DualKalmanFactory::trajectories(const edm::EventSetup &setup,
 							  magneticField.product(),
 							  this->materialEffects(),
 							  this->propagationDirection(),
-							  theMass, beamSpot,
+							  theMass, theUseBeamSpot, beamSpot,
 							  theResidMethod));
       trajectories.push_back(ptr);
     }

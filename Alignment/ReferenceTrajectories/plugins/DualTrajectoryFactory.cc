@@ -87,7 +87,8 @@ DualTrajectoryFactory::trajectories(const edm::EventSetup &setup,
 							       magneticField.product(),
 							       materialEffects(),
 							       propagationDirection(),
-							       theMass, beamSpot ) );
+							       theMass,
+							       theUseBeamSpot, beamSpot ) );
       trajectories.push_back( ptr );
     }
 
@@ -140,7 +141,8 @@ DualTrajectoryFactory::trajectories(const edm::EventSetup &setup,
 								 magneticField.product(),
 								 materialEffects(),
 								 propagationDirection(),
-								 theMass, beamSpot ) );
+								 theMass, 
+								 theUseBeamSpot, beamSpot ) );
 
 	AlgebraicSymMatrix externalParamErrors( asHepMatrix<5>( propExternal.localError().matrix() ) );
 	ptr->setParameterErrors( externalParamErrors );
@@ -154,7 +156,8 @@ DualTrajectoryFactory::trajectories(const edm::EventSetup &setup,
 								 magneticField.product(),
 								 materialEffects(),
 								 propagationDirection(),
-								 theMass, beamSpot ) );
+								 theMass, 
+								 theUseBeamSpot, beamSpot ) );
 	trajectories.push_back( ptr );
       }
     }

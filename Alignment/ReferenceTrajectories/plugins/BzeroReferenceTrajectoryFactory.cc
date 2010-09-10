@@ -49,9 +49,10 @@ BzeroReferenceTrajectoryFactory::BzeroReferenceTrajectoryFactory( const edm::Par
 {
   theMass = config.getParameter< double >( "ParticleMass" );
   theMomentumEstimate = config.getParameter< double >( "MomentumEstimate" );
+  theUseBeamSpot = config.getParameter< bool >( "UseBeamSpot" );
 }
 
- 
+
 BzeroReferenceTrajectoryFactory::~BzeroReferenceTrajectoryFactory( void ) {}
 
 
@@ -79,7 +80,7 @@ BzeroReferenceTrajectoryFactory::trajectories(const edm::EventSetup &setup,
 										 materialEffects(),
 										 propagationDirection(),
 										 theMass, theMomentumEstimate,
-										 beamSpot)));
+										 theUseBeamSpot, beamSpot)));
     }
 
     ++itTracks;
@@ -124,7 +125,8 @@ BzeroReferenceTrajectoryFactory::trajectories(const edm::EventSetup &setup,
 	ReferenceTrajectoryPtr refTraj( new BzeroReferenceTrajectory( *itExternal, input.second, false,
 								      magneticField.product(), materialEffects(),
 								      propagationDirection(), theMass,
-								      theMomentumEstimate, beamSpot ) );
+								      theMomentumEstimate, 
+								      theUseBeamSpot, beamSpot ) );
 
 	AlgebraicSymMatrix externalParamErrors( asHepMatrix<5>( (*itExternal).localError().matrix() ) );
 	refTraj->setParameterErrors( externalParamErrors.sub( 2, 5 ) );
@@ -138,7 +140,7 @@ BzeroReferenceTrajectoryFactory::trajectories(const edm::EventSetup &setup,
 										   materialEffects(),
 										   propagationDirection(),
 										   theMass, theMomentumEstimate,
-										   beamSpot)));
+										   theUseBeamSpot, beamSpot)));
       }
     }
 

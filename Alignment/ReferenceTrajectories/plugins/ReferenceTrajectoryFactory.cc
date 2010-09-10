@@ -56,19 +56,21 @@ ReferenceTrajectoryFactory::trajectories(const edm::EventSetup &setup,
 
   edm::ESHandle< MagneticField > magneticField;
   setup.get< IdealMagneticFieldRecord >().get( magneticField );
-
+  
   ConstTrajTrackPairCollection::const_iterator itTracks = tracks.begin();
-
+  
   while ( itTracks != tracks.end() )
   { 
     TrajectoryInput input = this->innermostStateAndRecHits( *itTracks );
+    
     // Check input: If all hits were rejected, the TSOS is initialized as invalid.
     if ( input.first.isValid() )
     {
       // set the flag for reversing the RecHits to false, since they are already in the correct order.
       trajectories.push_back(ReferenceTrajectoryPtr(new ReferenceTrajectory(input.first, input.second, false,
 									    magneticField.product(), materialEffects(),
-									    propagationDirection(), theMass, beamSpot)));
+									    propagationDirection(), theMass, 
+									    theUseBeamSpot, beamSpot)));
     }
 
     ++itTracks;
@@ -113,7 +115,7 @@ ReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 	ReferenceTrajectoryPtr refTraj( new ReferenceTrajectory( *itExternal, input.second, false,
 								 magneticField.product(), materialEffects(),
 								 propagationDirection(), theMass,
-								 beamSpot) );
+								 theUseBeamSpot, beamSpot) );
 
 	AlgebraicSymMatrix externalParamErrors( asHepMatrix<5>( (*itExternal).localError().matrix() ) );
 	refTraj->setParameterErrors( externalParamErrors );
@@ -125,7 +127,7 @@ ReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 	trajectories.push_back(ReferenceTrajectoryPtr(new ReferenceTrajectory(input.first, input.second, false,
 									      magneticField.product(), materialEffects(),
 									      propagationDirection(), theMass,
-									      beamSpot)));
+									      theUseBeamSpot, beamSpot)));
       }
     }
 
@@ -135,6 +137,5 @@ ReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 
   return trajectories;
 }
-
 
 DEFINE_EDM_PLUGIN( TrajectoryFactoryPlugin, ReferenceTrajectoryFactory, "ReferenceTrajectoryFactory" );

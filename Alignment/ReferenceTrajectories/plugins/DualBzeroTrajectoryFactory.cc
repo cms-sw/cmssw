@@ -93,7 +93,7 @@ DualBzeroTrajectoryFactory::trajectories(const edm::EventSetup  &setup,
 								    propagationDirection(),
 								    theMass,
 								    theMomentumEstimate,
-								    beamSpot) );
+								    theUseBeamSpot, beamSpot) );
       trajectories.push_back( ptr );
     }
 
@@ -148,7 +148,7 @@ DualBzeroTrajectoryFactory::trajectories(const edm::EventSetup &setup,
 								      propagationDirection(),
 								      theMass,
 								      theMomentumEstimate,
-								      beamSpot ) );
+								      theUseBeamSpot, beamSpot ) );
 
 	AlgebraicSymMatrix externalParamErrors( asHepMatrix<5>( propExternal.localError().matrix() ) );
 	ptr->setParameterErrors( externalParamErrors.sub( 2, 5 ) );
@@ -175,7 +175,7 @@ DualBzeroTrajectoryFactory::trajectories(const edm::EventSetup &setup,
 					   propagationDirection(),
 					   theMass,
 					   theMomentumEstimate,
-					   beamSpot );
+					   theUseBeamSpot, beamSpot );
 
 	//trajectories.push_back( ptr );
       }
