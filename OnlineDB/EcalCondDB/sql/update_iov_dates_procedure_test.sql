@@ -61,7 +61,7 @@ CREATE OR REPLACE PROCEDURE update_iov_dates_test
     dbms_output.enable;
     -- Ensure IoV time has positive duration
     IF new_end <= new_start THEN
-       dbms_output.put_line(new_start || ' - ' || new_end);
+       dbms_output.put_line('WARNING: ' || new_start || ' >= ' || new_end);
        raise_application_error(-20000, 'IOV must have ' || start_col || ' < ' 
                                || end_col);
     END IF;
@@ -72,60 +72,27 @@ CREATE OR REPLACE PROCEDURE update_iov_dates_test
 	' >= TO_DATE(''31-12-9999 23:59:59'', ''DD-MM-YYYY HH24:MI:SS'')';
     EXECUTE IMMEDIATE sql_str INTO rows USING new_tag_id;
     dbms_output.put_line('Found ' || rows || ' rows with good mask');
-    FOR i IN 1..rows LOOP
-    sql_str := 'SELECT IOV_ID FROM ' || my_table || 
-      ' WHERE BITAND(MASK, ' ||
-	my_mask || ') > 0 AND TAG_ID = :t AND ' || end_col || 
-	' >= TO_DATE(''31-12-9999 23:59:59'', ''DD-MM-YYYY HH24:MI:SS'') AND ROWNUM = :i';
-    EXECUTE IMMEDIATE sql_str INTO last_iov USING new_tag_id, i;
-    IF last_iov IS NOT NULL THEN 
-       -- record found
-       sql_str := 'SELECT MASK FROM ' || my_table || 
-	  ' WHERE IOV_ID = :last_iov';
-       EXECUTE IMMEDIATE sql_str INTO last_mask USING last_iov;
-       dbms_output.put_line('LAST_IOV is ' || last_iov);
-       dbms_output.put_line('MASKS: ' || my_mask || ' - ' || last_mask);
-       IF my_mask >= last_mask THEN
-          -- mask found
+    -- Case select
+    IF rows = 0 THEN
+       -- do nothing, just insert the row
+       return;
+    ELSE
+       -- IOV_ID found with the same bits: update them
+       FOR i IN 1..rows LOOP
+          sql_str := 'SELECT IOV_ID, MASK FROM ' || my_table || 
+             ' WHERE BITAND(MASK, ' ||
+	     my_mask || ') > 0 AND TAG_ID = :t AND ' || end_col || 
+	     ' >= TO_DATE(''31-12-9999 23:59:59'', ''DD-MM-YYYY HH24:MI:SS'')' ||
+             ' AND ROWNUM = 1';
+	  dbms_output.put_line(sql_str);
+          EXECUTE IMMEDIATE sql_str INTO last_iov, last_mask USING new_tag_id;
+	  dbms_output.put_line('  IOV: ' || last_iov);
+	  dbms_output.put_line(' MASK: ' || last_mask);
           sql_str := 'UPDATE ' || my_table || ' SET ' || end_col || 
 	     ' = :new_start WHERE IOV_ID = :last_iov';
           EXECUTE IMMEDIATE sql_str USING new_start, last_iov;
-       ELSE
-          -- a new mask should be created: get the IOV_ID of the last
-          -- measurement
-          sql_str := 'SELECT ' || start_col || ' FROM ' || my_table || 
-	     ' WHERE IOV_ID = :last_iov';
-          EXECUTE IMMEDIATE sql_str INTO last_start USING last_iov;
-          dbms_output.put_line('SPECIAL: changing mask from ' || last_mask);
-          last_mask := last_mask - my_mask;
-          dbms_output.put_line('SPECIAL:                 to ' || last_mask);
-	  -- update the mask of the last measurement
-	  sql_str := 'UPDATE ' || my_table || ' SET MASK = :last_mask WHERE '
-	     || 'IOV_ID = :last_iov';
-          EXECUTE IMMEDIATE sql_str USING last_mask, last_iov;
-          -- insert a record with the given mask
-	  sql_str := 'SELECT ' || my_sequence || '.NextVal FROM DUAL';
-          EXECUTE IMMEDIATE sql_str INTO new_iov;
-	  sql_str := 'INSERT INTO ' || my_table || ' VALUES (:new_iov, ' ||
-	     ':my_mask, :new_tag_id, :last_start, :new_start)';
-	  EXECUTE IMMEDIATE sql_str USING new_iov, my_mask, new_tag_id,
-	      last_start, new_start;
-          -- get the affected tables
-	  sql_str := 'SELECT COUNT(*) FROM ' || my_dattable || ' WHERE ' ||
-	      'BITAND(ID, ' || my_mask || ') > 0';
-          EXECUTE IMMEDIATE sql_str INTO rows;
-	  dbms_output.put_line('Tables to update: ' || rows);
-          FOR i IN 1..rows LOOP
-  	     sql_str := 'SELECT TABLE_NAME FROM ' || my_dattable || 
-	       ' WHERE BITAND(ID, ' || my_mask || ') > 0 AND ROWNUM = :i';
-             EXECUTE IMMEDIATE sql_str INTO tn USING i;
-             sql_str := 'UPDATE ' || tn || 
-	        ' SET IOV_ID = :new_iov WHERE IOV_ID = :last_iov';
-	     EXECUTE IMMEDIATE sql_str USING new_iov, last_iov;
-          END LOOP;	
-       END IF;
+       END LOOP;
     END IF;
-    END LOOP;
     EXCEPTION
     WHEN NO_DATA_FOUND THEN
        dbms_output.put_line('NO DATA FOUND');
