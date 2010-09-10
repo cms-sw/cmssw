@@ -4,9 +4,9 @@
 /** \class EcalRecHitSimpleAlgo
   *  Simple algoritm to make rechits from uncalibrated rechits
   *
-  *  $Id: EcalRecHitSimpleAlgo.h,v 1.10 2010/04/13 14:39:14 rahatlou Exp $
-  *  $Date: 2010/04/13 14:39:14 $
-  *  $Revision: 1.10 $
+  *  $Id: EcalRecHitSimpleAlgo.h,v 1.11 2010/06/22 08:46:23 franzoni Exp $
+  *  $Date: 2010/06/22 08:46:23 $
+  *  $Revision: 1.11 $
   *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
   */
 
@@ -80,6 +80,10 @@ class EcalRecHitSimpleAlgo : public EcalRecHitAbsAlgo {
     } else if ( uncalibRH.recoFlag() == EcalUncalibratedRecHit::kFake ) {
             recoFlag =  EcalRecHit::kFake;
             flagbits |=  (0x1 << EcalRecHit::kFake); 
+    }
+    else if ( uncalibRH.recoFlag() == EcalUncalibratedRecHit::kPoorReco ) {
+            recoFlag =  EcalRecHit::kPoorReco;
+            flagbits |=  (0x1 << EcalRecHit::kPoorReco); 
     }
 
     // now set both the reco flag and the new flagBits_
