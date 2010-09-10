@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.219 $"
+__version__ = "$Revision: 1.220 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -568,13 +568,22 @@ class ConfigBuilder(object):
     def prepare_ALCAOUTPUT(self, sequence = None):
         self.prepare_ALCA(sequence, workflow = "output")
 
+    def loadDefaultOrSpecifiedCFF(self, sequence,defaultCFF):
+	    if ( len(sequence.split('.'))==1 ):
+		    l=self.loadAndRemember(defaultCFF)
+	    elif ( len(sequence.split('.'))==2 ):
+		    l=self.loadAndRemember(sequence.split('.')[0])
+		    sequence=sequence.split('.')[1]
+	    else:
+		    print "sub sequence configuration must be of the form dir/subdir/cff.a+b+c or cff.a"
+		    print sequence,"not recognized"
+		    raise 
+	    return l
+    
     def prepare_ALCA(self, sequence = None, workflow = 'full'):
         """ Enrich the process with alca streams """
-        if ( len(sequence.split(','))==1 ):
-            alcaConfig = self.loadAndRemember(self.ALCADefaultCFF)
-        else:
-            alcaConfig = self.loadAndRemember(sequence.split(',')[0])
-            sequence = sequence.split(',')[1]
+	alcaConfig=self.loadDefaultOrSpecifiedCFF(sequence,self.ALCADefaultCFF)
+        sequence = sequence.split('.')[-1]
         # decide which ALCA paths to use
         alcaList = sequence.split("+")
         for name in alcaConfig.__dict__:
@@ -736,41 +745,29 @@ class ConfigBuilder(object):
 
 
     def prepare_RAW2DIGI(self, sequence = "RawToDigi"):
-        if ( len(sequence.split(','))==1 ):
-            self.loadAndRemember(self.RAW2DIGIDefaultCFF)
-        else:
-            self.loadAndRemember(sequence.split(',')[0])
-        self.process.raw2digi_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
-        self.schedule.append(self.process.raw2digi_step)
-        return
+	    self.loadDefaultOrSpecifiedCFF(sequence,self.RAW2DIGIDefaultCFF)
+	    self.process.raw2digi_step = cms.Path( getattr(self.process, sequence.split('.')[-1]) )
+	    self.schedule.append(self.process.raw2digi_step)
+	    return
 
     def prepare_L1HwVal(self, sequence = 'L1HwVal'):
         ''' Enrich the schedule with L1 HW validation '''
-        if ( len(sequence.split(','))==1 ):
-            self.loadAndRemember(self.L1HwValDefaultCFF)
-        else:
-            self.loadAndRemember(sequence.split(',')[0])
-        self.process.l1hwval_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
+	self.loadDefaultOrSpecifiedCFF(sequence,self.L1HwValDefaultCFF)
+        self.process.l1hwval_step = cms.Path( getattr(self.process, sequence.split('.')[-1]) )
         self.schedule.append( self.process.l1hwval_step )
         return
 
     def prepare_L1Reco(self, sequence = "L1Reco"):
         ''' Enrich the schedule with L1 reconstruction '''
-        if ( len(sequence.split(','))==1 ):
-            self.loadAndRemember(self.L1RecoDefaultCFF)
-        else:
-            self.loadAndRemember(sequence.split(',')[0])
-        self.process.L1Reco_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
+	self.loadDefaultOrSpecifiedCFF(sequence,self.L1RecoDefaultCFF)
+        self.process.L1Reco_step = cms.Path( getattr(self.process, sequence.split('.')[-1]) )
         self.schedule.append(self.process.L1Reco_step)
         return
 
     def prepare_RECO(self, sequence = "reconstruction"):
         ''' Enrich the schedule with reconstruction '''
-        if ( len(sequence.split(','))==1 ):
-            self.loadAndRemember(self.RECODefaultCFF)
-        else:
-            self.loadAndRemember(sequence.split(',')[0])
-        self.process.reconstruction_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
+	self.loadDefaultOrSpecifiedCFF(sequence,self.RECODefaultCFF)
+        self.process.reconstruction_step = cms.Path( getattr(self.process, sequence.split('.')[-1]) )
         self.schedule.append(self.process.reconstruction_step)
         return
 
@@ -807,25 +804,23 @@ class ConfigBuilder(object):
 
 
     def prepare_VALIDATION(self, sequence = 'validation'):
-	if "FASTSIM" in self.stepMap.keys():
-            self.loadAndRemember("FastSimulation.Configuration.Validation_cff")
-            self.process.prevalidation_step = cms.Path( self.process.prevalidation )
-            self.schedule.append( self.process.prevalidation_step )
-            self.process.validation_step = cms.EndPath( getattr(self.process, sequence.split(',')[-1]) )
-            self.schedule.append(self.process.validation_step)
-            return
-        elif ( len(sequence.split(','))==1 ):
-            self.loadAndRemember(self.VALIDATIONDefaultCFF)
-        else:
-            self.loadAndRemember(sequence.split(',')[0])
-        self.process.validation_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
-        if 'genvalid' in sequence.split(',')[-1]:
-            self.loadAndRemember("IOMC.RandomEngine.IOMC_cff")
-        self.schedule.append(self.process.validation_step)
-        print self._options.step
-	if not 'DIGI'  in self.stepMap.keys():
-            self.executeAndRemember("process.mix.playback = True")
-        return
+	    if "FASTSIM" in self.stepMap.keys():
+		    self.loadAndRemember("FastSimulation.Configuration.Validation_cff")
+		    self.process.prevalidation_step = cms.Path( self.process.prevalidation )
+		    self.schedule.append( self.process.prevalidation_step )
+		    self.process.validation_step = cms.EndPath( getattr(self.process, sequence.split('.')[-1]) )
+		    self.schedule.append(self.process.validation_step)
+		    return
+	    else:
+		    self.loadDefaultOrSpecifiedCFF(sequence,self.VALIDATIONDefaultCFF)
+	    self.process.validation_step = cms.Path( getattr(self.process, sequence.split('.')[-1]) )
+	    if 'genvalid' in sequence.split('.')[-1]:
+		    self.loadAndRemember("IOMC.RandomEngine.IOMC_cff")
+	    self.schedule.append(self.process.validation_step)
+	    print self._options.step
+	    if not 'DIGI'  in self.stepMap.keys():
+		    self.executeAndRemember("process.mix.playback = True")
+	    return
 
     class MassSearchReplaceProcessNameVisitor(object):
             """Visitor that travels within a cms.Sequence, looks for a parameter and replace its value
@@ -894,25 +889,23 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
     def prepare_DQM(self, sequence = 'DQMOffline'):
         # this one needs replacement
 
-        if ( len(sequence.split(','))==1 ):
-            self.loadAndRemember(self.DQMOFFLINEDefaultCFF)
-        else:
-            self.loadAndRemember(sequence.split(',')[0])
+	self.loadDefaultOrSpecifiedCFF(sequence,self.DQMOFFLINEDefaultCFF)
+	sequence=sequence.split('.')[-1]
 
         if hasattr(self._options,"hltProcess") and self._options.hltProcess:
                 # if specified, change the process name used to acess the HLT results in the [HLT]DQM sequence
-                self.dqmMassaging = self.renameHLTforDQM(sequence.split(',')[-1], self._options.hltProcess)
+                self.dqmMassaging = self.renameHLTforDQM(sequence, self._options.hltProcess)
 	elif 'HLT' in self.stepMap.keys():
                 # otherwise, if both HLT and DQM are run in the same process, change the DQM process name to the current process name
-                self.dqmMassaging = self.renameHLTforDQM(sequence.split(',')[-1], self.process.name_())
+                self.dqmMassaging = self.renameHLTforDQM(sequence, self.process.name_())
 
         # if both HLT and DQM are run in the same process, schedule [HLT]DQM in an EndPath
 	if 'HLT' in self.stepMap.keys():
                 # need to put [HLT]DQM in an EndPath, to access the HLT trigger results
-                self.process.dqmoffline_step = cms.EndPath( getattr(self.process, sequence.split(',')[-1]) )
+                self.process.dqmoffline_step = cms.EndPath( getattr(self.process, sequence ) )
         else:
                 # schedule DQM as a standard Path
-                self.process.dqmoffline_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
+                self.process.dqmoffline_step = cms.Path( getattr(self.process, sequence) )
         self.schedule.append(self.process.dqmoffline_step)
 
     def prepare_HARVESTING(self, sequence = None):
@@ -922,11 +915,9 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
         self.process.edmtome_step = cms.Path(self.process.EDMtoME)
         self.schedule.append(self.process.edmtome_step)
 
-        if ( len(sequence.split(','))==1 ):
-            harvestingConfig = self.loadAndRemember(self.HARVESTINGDefaultCFF)
-        else:
-            harvestingConfig = self.loadAndRemember(sequence.split(',')[0])
-            sequence = sequence.split(',')[1]
+	harvestingConfig = self.loadDefaultOrSpecifiedCFF(sequence,self.HARVESTINGDefaultCFF)
+	sequence = sequence.split('.')[-1]
+	
         # decide which HARVESTING paths to use
         harvestingList = sequence.split("+")
         for name in harvestingConfig.__dict__:
@@ -954,6 +945,8 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
     def prepare_ALCAHARVEST(self, sequence = None):
         """ Enrich the process with AlCaHarvesting step """
         harvestingConfig = self.loadAndRemember(self.ALCAHARVESTDefaultCFF)
+	sequence=sequence.split(".")[-1]
+	
         # decide which AlcaHARVESTING paths to use
         harvestingList = sequence.split("+")
         for name in harvestingConfig.__dict__:
@@ -972,14 +965,13 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
     def prepare_ENDJOB(self, sequence = 'endOfProcess'):
         # this one needs replacement
 
-        if ( len(sequence.split(','))==1 ):
-            self.loadAndRemember(self.ENDJOBDefaultCFF)
-        else:
-            self.loadAndRemember(sequence.split(',')[0])
+	self.loadDefaultOrSpecifiedCFF(sequence,self.ENDJOBDefaultCFF)
+	sequence=sequence.split('.')[-1]
+	
 	if "FASTSIM" in self.stepMap.keys():
-            self.process.endjob_step = cms.EndPath( getattr(self.process, sequence.split(',')[-1]) )
+            self.process.endjob_step = cms.EndPath( getattr(self.process, sequence) )
         else:
-            self.process.endjob_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
+            self.process.endjob_step = cms.Path( getattr(self.process, sequence) )
 
         self.schedule.append(self.process.endjob_step)
 
@@ -1039,7 +1031,7 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.219 $"),
+              (version=cms.untracked.string("$Revision: 1.220 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
