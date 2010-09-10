@@ -16,12 +16,13 @@
  *
  *  Original author: Gero Flucke, April 2007
  *
- *  $Date: 2007/04/30 13:13:58 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/02/28 21:04:59 $
+ *  $Revision: 1.3 $
  *  (last update by $Author: flucke $)
  */
 
 class Alignable;
+class AlignableBeamSpot;
 class AlignableDet;
 class AlignableDetUnit;
 class AlignmentPositionError;
@@ -29,18 +30,27 @@ class AlignmentPositionError;
 class AlignableDetOrUnitPtr 
 {  
  public:
+
+  /// Constructor from AlignableBeamSpot* (non-explicit: for automatic conversions)
+  inline AlignableDetOrUnitPtr(AlignableBeamSpot *aliBeamSpot)
+    : theAliBeamSpot(aliBeamSpot), theAliDet(0), theAliDetUnit(0) {}
+
   /// Constructor from AlignableDet* (non-explicit: for automatic conversions)
-  inline AlignableDetOrUnitPtr(AlignableDet *aliDet) : theAliDet(aliDet), theAliDetUnit(0) {}
+  inline AlignableDetOrUnitPtr(AlignableDet *aliDet)
+    : theAliBeamSpot(0), theAliDet(aliDet), theAliDetUnit(0) {}
+
   /// Constructor from AlignableDetUnit* (non-explicit: for automatic conversions)
   inline AlignableDetOrUnitPtr(AlignableDetUnit *aliDetUnit) 
-    : theAliDet(0), theAliDetUnit(aliDetUnit) {}
+    : theAliBeamSpot(0), theAliDet(0), theAliDetUnit(aliDetUnit) {}
   /// Non-virtual destructor: do not use as base class
   inline ~AlignableDetOrUnitPtr() {}
 
+  inline AlignableDetOrUnitPtr& operator = (AlignableBeamSpot* aliBeamSpot) {
+    theAliBeamSpot = aliBeamSpot; theAliDet = 0; theAliDetUnit = 0; return *this;}
   inline AlignableDetOrUnitPtr& operator = (AlignableDet* aliDet) {
-    theAliDet = aliDet; theAliDetUnit = 0; return *this;}
+    theAliBeamSpot = 0; theAliDet = aliDet; theAliDetUnit = 0; return *this;}
   inline AlignableDetOrUnitPtr& operator = (AlignableDetUnit* aliDetUnit) {
-    theAliDet = 0; theAliDetUnit = aliDetUnit; return *this;}
+    theAliBeamSpot = 0; theAliDet = 0; theAliDetUnit = aliDetUnit; return *this;}
   // Default operator= and default copy constructor are fine, no need to code them here.
 
   // conversions to Alignable* etc.
@@ -53,13 +63,15 @@ class AlignableDetOrUnitPtr
   inline const Alignable* alignable() const { return this->operator const Alignable*();}
 
   // explicit access to specific types
+  inline AlignableBeamSpot* alignableBeamSpot() { return theAliBeamSpot;}
+  inline const AlignableBeamSpot* alignableBeamSpot() const { return theAliBeamSpot;}
   inline AlignableDet* alignableDet() { return theAliDet;}
   inline const AlignableDet* alignableDet() const { return theAliDet;}
   inline AlignableDetUnit* alignableDetUnit() { return theAliDetUnit;}
   inline const AlignableDetUnit* alignableDetUnit() const { return theAliDetUnit;}
 
   /// check for empty pointer
-  inline bool isNull() const { return (!theAliDet && !theAliDetUnit);}
+  inline bool isNull() const { return (!theAliBeamSpot && !theAliDet && !theAliDetUnit);}
 
   // interface to methods specific for AlignableDet(Unit),
   // slightly breaking idea of 'pointerness' of this class
@@ -67,8 +79,9 @@ class AlignableDetOrUnitPtr
   const AlignmentPositionError* alignmentPositionError() const;
 
 private:
-  AlignableDet     *theAliDet;      ///< Pointer to Alignable if it is a Det
-  AlignableDetUnit *theAliDetUnit;  ///< Pointer to Alignable if it is a DetUnit
+  AlignableBeamSpot *theAliBeamSpot; ///< Pointer to Alignable if it is the beam spot
+  AlignableDet      *theAliDet;      ///< Pointer to Alignable if it is a Det
+  AlignableDetUnit  *theAliDetUnit;  ///< Pointer to Alignable if it is a DetUnit
 };
 
 #endif
