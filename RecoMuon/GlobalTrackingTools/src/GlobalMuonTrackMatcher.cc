@@ -2,8 +2,8 @@
  *  Class: GlobalMuonTrackMatcher
  *
  * 
- *  $Date: 2010/03/08 15:53:55 $
- *  $Revision: 1.23 $
+ *  $Date: 2010/05/17 09:44:30 $
+ *  $Revision: 1.24 $
  *  
  *  \author Chang Liu - Purdue University
  *  \author Norbert Neumeister - Purdue University
@@ -327,7 +327,7 @@ GlobalMuonTrackMatcher::match(const TrackCand& sta,
     
     // compute quality as the relative ratio to the minimum found for each variable
     
-    int qual = chi2/min_chisq + distance/min_d + deltaR/min_r_pos;
+    int qual = (int)(chi2/min_chisq + distance/min_d + deltaR/min_r_pos);
     int n_min = ((chi2/min_chisq==1)?1:0) + ((distance/min_d==1)?1:0) + ((deltaR/min_r_pos==1)?1:0);
     
     if(n_min == 3){
