@@ -1,5 +1,5 @@
-//   $Revision: 1.14 $
-//   $Date: 2007/05/11 19:10:01 $
+//   $Revision: 1.15 $
+//   $Date: 2009/02/28 21:06:53 $
 //   (last update by $Author: flucke $)
 
 #ifndef Alignment_CommonAlignment_AlignableNavigator_h
@@ -14,6 +14,7 @@
 
 class Alignable;
 class AlignableDet;
+class AlignableExtras;
 class GeomDet;
 
 
@@ -28,6 +29,9 @@ public:
   
   /// Constructor from one or two Alignables
   explicit AlignableNavigator(Alignable* tracker, Alignable* muon = 0);
+  
+  /// Constructor from one or two Alignables
+  explicit AlignableNavigator(AlignableExtras* extras, Alignable* tracker, Alignable* muon = 0);
 
   /// Constructor from list of Alignbable
   explicit AlignableNavigator( std::vector<Alignable*> alignables );
@@ -41,19 +45,6 @@ public:
   /// Returns AlignableDetOrUnitPtr corresponding to given GeomDet
   AlignableDetOrUnitPtr alignableFromGeomDet( const GeomDet* geomDet );
 
-  /// Deprecated method for backward compatibility:
-  /// If geomDet is a GeomDetUnit, giving an error and returning the mother 
-  /// of the corresponding AlignableDetUnit which is an AlignableDet.
-  /// This could lead to inconsistencies. Use alignableFromGeomDet instead.
-  AlignableDet* alignableDetFromGeomDet( const GeomDet* geomDet );
-
-  /// Deprecated method for backward compatibility:
-  /// If DetId belongs to a GeomDetUnit/AlignableDetUnit, giving an error
-  /// and returning the mother of the AlignableDetUnit which is an
-  /// AlignableDet.
-  /// This could lead to inconsistencies. Use alignableFromGeomDet instead.
-  AlignableDet* alignableDetFromDetId( const DetId& detid );
-
   /// Returns vector AlignableDetOrUnitPtr for given vector of Hits.
   std::vector<AlignableDetOrUnitPtr> 
     alignablesFromHits(const std::vector<const TransientTrackingRecHit*>& hitvec);
@@ -61,12 +52,6 @@ public:
   /// Returns vector of AlignableDetOrUnitPtr for given vector of Hits.
   std::vector<AlignableDetOrUnitPtr> alignablesFromHits
     (const TransientTrackingRecHit::ConstRecHitContainer &hitVec);
-  /// For backward compatibility, use alignablesFromHits (cf. alignableDetFromDetId).
-  std::vector<AlignableDet*> alignableDetsFromHits
-    (const TransientTrackingRecHit::ConstRecHitContainer &hitVec);
-  /// For backward compatibility, use alignablesFromHits (cf. alignableDetFromDetId).
-  std::vector<AlignableDet*> 
-    alignableDetsFromHits(const std::vector<const TransientTrackingRecHit*>& hitvec);
 
   /// return all AlignableDetOrUnitPtrs
   std::vector<AlignableDetOrUnitPtr> alignableDetOrUnits();
