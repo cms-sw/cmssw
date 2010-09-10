@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.65 $
- *  $Date: 2010/02/25 18:44:13 $
+ *  $Revision: 1.66 $
+ *  $Date: 2010/02/26 12:14:59 $
  *  (last update by $Author: frmeier $)
  */
 
@@ -37,6 +37,7 @@
 // includes to make known that they inherit from Alignable:
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
+#include "Alignment/CommonAlignment/interface/AlignableExtras.h"
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -67,6 +68,8 @@ typedef TrajectoryFactoryBase::ReferenceTrajectoryCollection RefTrajColl;
 #include "Alignment/SurveyAnalysis/interface/SurveyPxbDicer.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+
+#include "Alignment/CommonAlignmentParametrization/interface/AlignmentParametersFactory.h"
 
 // Constructor ----------------------------------------------------------------
 //____________________________________________________
@@ -101,7 +104,7 @@ MillePedeAlignmentAlgorithm::~MillePedeAlignmentAlgorithm()
 // Call at beginning of job ---------------------------------------------------
 //____________________________________________________
 void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup, 
-                                             AlignableTracker *tracker, AlignableMuon *muon,
+                                             AlignableTracker *tracker, AlignableMuon *muon, AlignableExtras *extras,
                                              AlignmentParameterStore *store)
 {
   if (muon) {
@@ -109,14 +112,15 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
                                << "Running with AlignabeMuon not yet tested.";
   }
 
-  theAlignableNavigator = new AlignableNavigator(tracker, muon);
+  theAlignableNavigator = new AlignableNavigator(extras, tracker, muon);
   theAlignmentParameterStore = store;
   theAlignables = theAlignmentParameterStore->alignables();
-  thePedeLabels = new PedeLabeler(tracker, muon);
+  thePedeLabels = new PedeLabeler(tracker, muon, extras);
 
   // 1) Create PedeSteerer: correct alignable positions for coordinate system selection
   edm::ParameterSet pedeSteerCfg(theConfig.getParameter<edm::ParameterSet>("pedeSteerer"));
-  thePedeSteer = new PedeSteerer(tracker, muon, theAlignmentParameterStore, thePedeLabels,
+  thePedeSteer = new PedeSteerer(tracker, muon, extras,
+				 theAlignmentParameterStore, thePedeLabels,
 				 pedeSteerCfg, theDir, !this->isMode(myPedeSteerBit));
 
   // 2) If requested, directly read in and apply result of previous pede run,
@@ -134,7 +138,7 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
   }
 
   // 3) Now create steerings with 'final' start position:
-  thePedeSteer->buildSubSteer(tracker, muon);
+  thePedeSteer->buildSubSteer(tracker, muon, extras);
 
   // After (!) 1-3 of PedeSteerer which uses the SelectionUserVariables attached to the parameters:
   this->buildUserVariables(theAlignables); // for hit statistics and/or pede result
@@ -272,6 +276,7 @@ MillePedeAlignmentAlgorithm::addReferenceTrajectory(const RefTrajColl::value_typ
     // Use recHits from ReferenceTrajectory (since they have the right order!):
     for (unsigned int iHit = 0; iHit < refTrajPtr->recHits().size(); ++iHit) {
       const int flagXY = this->addMeasurementData(refTrajPtr, iHit, parVec[iHit]);
+
       if (flagXY < 0) { // problem
 	hitResultXy.first = 0;
 	break;
@@ -285,13 +290,6 @@ MillePedeAlignmentAlgorithm::addReferenceTrajectory(const RefTrajColl::value_typ
     for (unsigned int iMsMeas = 0; iMsMeas < refTrajPtr->numberOfMsMeas(); ++iMsMeas) {
       this->addMsMeas(refTrajPtr, iMsMeas);
     }
-    
-    /* FIXME sm/chk add the Spot constraint starting from inner TSOS: 
-    // needs steering: theBeamspot for beamspot constraint
-    //                 theAliBeamspot for determination of beamspot 
-    // beamspot position and size required, take from Event ?
-    if (theBeamspot) this->addBeamSpotConstraint(refTrajPtr, iEvent);
-    */ 
              
     // kill or end 'track' for mille, depends on #hits criterion
     if (hitResultXy.first == 0 || hitResultXy.first < theMinNumHits) {
@@ -341,7 +339,8 @@ int MillePedeAlignmentAlgorithm::addMeasurementData
   if (!recHitPtr->isValid()) return 0;
 
   // get AlignableDet/Unit for this hit
-  AlignableDetOrUnitPtr alidet(theAlignableNavigator->alignableFromGeomDet(recHitPtr->det()));
+  AlignableDetOrUnitPtr alidet(theAlignableNavigator->alignableFromDetId(recHitPtr->geographicalId()));
+  
   if (!this->globalDerivativesHierarchy(tsos, alidet, alidet, theFloatBufferX, // 2x alidet, sic!
 					theFloatBufferY, theIntBuffer, params)) {
     return -1; // problem
@@ -367,6 +366,7 @@ bool MillePedeAlignmentAlgorithm
   if (false && theMonitor && alidet != ali) theMonitor->fillFrameToFrame(alidet, ali);
 
   AlignmentParameters *params = ali->alignmentParameters();
+
   if (params) {
     if (!lowestParams) lowestParams = params; // set parameters of lowest level
 
@@ -379,6 +379,7 @@ bool MillePedeAlignmentAlgorithm
     
     const std::vector<bool> &selPars = params->selector();
     const AlgebraicMatrix derivs(params->derivatives(tsos, alidet));
+
     // cols: 2, i.e. x&y, rows: parameters, usually RigidBodyAlignmentParameters::N_PARAM
     for (unsigned int iSel = 0; iSel < selPars.size(); ++iSel) {
       if (selPars[iSel]) {
@@ -751,13 +752,12 @@ void MillePedeAlignmentAlgorithm
                     unsigned int iTrajHit, TMatrixDSym &aHitCovarianceM,
                     TMatrixF &aHitResidualsM, TMatrixF &aLocalDerivativesM)
 {
-
   // This Method is valid for 2D measurements only
   
   const unsigned int xIndex = iTrajHit*2;
   const unsigned int yIndex = iTrajHit*2+1;
   // Covariance into a TMatrixDSym
-  
+
   //aHitCovarianceM = new TMatrixDSym(2);
   aHitCovarianceM(0,0)=refTrajPtr->measurementErrors()[xIndex][xIndex];
   aHitCovarianceM(0,1)=refTrajPtr->measurementErrors()[xIndex][yIndex];
@@ -785,8 +785,9 @@ int MillePedeAlignmentAlgorithm
 	    unsigned int iTrajHit, const std::vector<int> &globalLabels,
 	    const std::vector<float> &globalDerivativesX,
 	    const std::vector<float> &globalDerivativesY)
-{
+{    
   const ConstRecHitPointer aRecHit(refTrajPtr->recHits()[iTrajHit]);
+
   if((aRecHit)->dimension() == 1) {
     return this->callMille1D(refTrajPtr, iTrajHit, globalLabels, globalDerivativesX);
   } else {
@@ -895,7 +896,7 @@ int MillePedeAlignmentAlgorithm
     std::swap(newLocalDerivsX, newLocalDerivsY);
     std::swap(newGlobDerivsX, newGlobDerivsY);
   }
-  
+
   // &(globalLabels[0]) is valid - as long as vector is not empty 
   // cf. http://www.parashift.com/c++-faq-lite/containers.html#faq-34.3
   theMille->mille(nLocal, newLocalDerivsX, nGlobal, newGlobDerivsX,
