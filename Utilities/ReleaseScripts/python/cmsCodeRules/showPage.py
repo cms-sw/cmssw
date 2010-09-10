@@ -29,14 +29,31 @@ class BuildViewer(object):
 
     def showResults(self):
 
+        rulesResults = readPicFiles(self.pickleDir)
+        createLogFiles(rulesResults, self.logsDir)
+
         self.formatter.writeAnchor(ref='top')
         self.formatter.writeH2("CMSSW code rules violation")
 
-        self.formatter.startTable([20,50], ['Rule','Description'], cls = 'descriptionTable')
+        self.formatter.startTable([20,20,20,20,50], 
+['Rule','Packages', 'Files','Sum of violations','Description'], cls = 
+'descriptionTable')
 
         for ruleName in rulesNames:
-            self.formatter.writeRow([ruleName, self.configuration[ruleName]['description']])
-
+            try:
+                ruleRes = rulesResults[ruleName]
+		totalViolations = 0
+                totalFiles = 0
+                for package, packageResult in ruleRes:
+                    totalFiles += len(packageResult)
+                    for file, lines in packageResult:
+                        totalViolations += len(lines)
+                self.formatter.writeRow([ruleName,str(len(ruleRes)), 
+str(totalFiles), str(totalViolations), 
+self.configuration[ruleName]['description']])
+            except KeyError:
+                self.formatter.writeRow([ruleName,'-', '-', '-',
+self.configuration[ruleName]['description']])
         self.formatter.endTable()
 
         msg = """
@@ -49,9 +66,6 @@ Click on the package links to get list of files
 
         colFmt = [   50    ]
         colLab = ['Package']
-
-        rulesResults = readPicFiles(self.pickleDir)
-        createLogFiles(rulesResults, self.logsDir)
 
         rules = ordering
         for rule in rules:
