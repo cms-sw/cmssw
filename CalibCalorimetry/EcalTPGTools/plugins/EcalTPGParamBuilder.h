@@ -81,14 +81,14 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   std::vector<unsigned int> computeWeights(EcalShape & shape, TH1F * histo) ;
 #endif
   void computeLUT(int * lut, std::string det="EB")  ;
-  void getCoeff(coeffStruc & coeff, const EcalIntercalibConstantMap & calibMap, uint rawId) ;
-  void getCoeff(coeffStruc & coeff, const EcalGainRatioMap & gainMap, uint rawId) ;
-  void getCoeff(coeffStruc & coeff, const EcalPedestalsMap & pedMap, uint rawId) ;
+  void getCoeff(coeffStruc & coeff, const EcalIntercalibConstantMap & calibMap, unsigned int rawId) ;
+  void getCoeff(coeffStruc & coeff, const EcalGainRatioMap & gainMap, unsigned int rawId) ;
+  void getCoeff(coeffStruc & coeff, const EcalPedestalsMap & pedMap, unsigned int rawId) ;
   void getCoeff(coeffStruc & coeff, const std::map<EcalLogicID, MonPedestalsDat> & pedMap, const EcalLogicID & logicId) ;
 
-  void computeFineGrainEBParameters(uint & lowRatio, uint & highRatio,
-				    uint & lowThreshold, uint & highThreshold, uint & lut) ;
-  void computeFineGrainEEParameters(uint & threshold, uint & lut_strip, uint & lut_tower) ;
+  void computeFineGrainEBParameters(unsigned int & lowRatio, unsigned int & highRatio,
+				    unsigned int & lowThreshold, unsigned int & highThreshold, unsigned int & lut) ;
+  void computeFineGrainEEParameters(unsigned int & threshold, unsigned int & lut_strip, unsigned int & lut_tower) ;
   int getEtaSlice(int tccId, int towerInTCC) ;
   bool realignBaseline(linStruc & lin, float forceBase12) ;
   int getGCTRegionPhi(int ttphi) ;
