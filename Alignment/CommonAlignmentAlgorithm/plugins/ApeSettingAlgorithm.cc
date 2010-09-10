@@ -2,8 +2,8 @@
  * \file MillePedeAlignmentAlgorithm.cc
  *
  *  \author    : Gero Flucke/Ivan Reid
- *  date       : February 2009 *  $Revision: 1.8 $
- *  $Date: 2009/04/17 12:55:40 $
+ *  date       : February 2009 *  $Revision: 1.9 $
+ *  $Date: 2009/09/14 16:07:58 $
  *  (last update by $Author: ireid $)
  */
 /*
@@ -49,6 +49,7 @@
 // includes to make known that they inherit from Alignable:
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
+#include "Alignment/CommonAlignment/interface/AlignableExtras.h"
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
@@ -62,8 +63,9 @@ class ApeSettingAlgorithm : public AlignmentAlgorithmBase
   virtual ~ApeSettingAlgorithm();
 
   /// Call at beginning of job
-  virtual void initialize(const edm::EventSetup &setup, AlignableTracker *tracker,
-			  AlignableMuon *muon, AlignmentParameterStore *store);
+  virtual void initialize(const edm::EventSetup &setup, 
+			  AlignableTracker *tracker, AlignableMuon *muon, AlignableExtras *extras,
+			  AlignmentParameterStore *store);
 
   /// Call at end of job
   virtual void terminate();
@@ -113,9 +115,10 @@ ApeSettingAlgorithm::~ApeSettingAlgorithm()
 // Call at beginning of job ---------------------------------------------------
 //____________________________________________________
 void ApeSettingAlgorithm::initialize(const edm::EventSetup &setup, 
-				     AlignableTracker *tracker, AlignableMuon *muon,
+				     AlignableTracker *tracker, AlignableMuon *muon, AlignableExtras *extras,
 				     AlignmentParameterStore *store)
-{ theAlignableNavigator = new AlignableNavigator(tracker, muon);
+{
+ theAlignableNavigator = new AlignableNavigator(tracker, muon);
  theTracker = tracker;
  
  if (readApeFromAscii_)
