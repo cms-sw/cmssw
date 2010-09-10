@@ -12,6 +12,7 @@
 
 class AlignableTracker;
 class AlignableMuon;
+class AlignableExtras;
 class AlignmentParameterStore;
 class Trajectory;
 // These data formats cannot be forward declared since they are typedef's,
@@ -69,6 +70,7 @@ public:
   virtual void initialize( const edm::EventSetup& setup, 
                            AlignableTracker* tracker,
                            AlignableMuon* muon,
+                           AlignableExtras* extras,
                            AlignmentParameterStore* store ) = 0;
    /// Call at start of loop
    /// Default implementation is dummy for non-iterative algorithms
