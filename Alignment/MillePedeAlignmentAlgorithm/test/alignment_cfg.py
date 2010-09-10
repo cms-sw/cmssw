@@ -1,4 +1,4 @@
-# last update on $Date: 2009/10/21 08:26:32 $ by $Author: flucke $
+# last update on $Date: 2010/01/13 15:59:49 $ by $Author: flucke $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -115,6 +115,17 @@ process.TrackRefitter.TrajectoryInEvent = True
 # Alignment producer
 process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
 
+process.AlignmentProducer.ParameterBuilder.parameterTypes = cms.vstring(
+    'BeamSpotSelector,BeamSpot',
+    'Selector,RigidBody'
+)
+
+process.AlignmentProducer.ParameterBuilder.BeamSpotSelector = cms.PSet(
+    alignParams = cms.vstring(
+         'ExtrasBeamSpot,ffff'
+    )
+)
+
 process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
     alignParams = cms.vstring(
 #        'TrackerTECPetalLayers11,fff00f', #
@@ -178,6 +189,8 @@ process.AlignmentProducer.algoConfig.treeFile = 'treeFileISN.root'
 #process.AlignmentProducer.algoConfig.TrajectoryFactory = process.TwoBodyDecayTrajectoryFactory # BzeroReferenceTrajectoryFactory
 #process.AlignmentProducer.algoConfig.TrajectoryFactory.PropagationDirection = 'oppositeToMomentum'
 process.AlignmentProducer.algoConfig.TrajectoryFactory.MaterialEffects = 'BrokenLinesCoarse' #'BreakPoints' #'Combined', ## or "MultipleScattering" or "EnergyLoss" or "None"
+process.AlignmentProducer.algoConfig.TrajectoryFactory.UseBeamSpot = False
+
 # ...OR TwoBodyDecayTrajectoryFactory OR ...
 #process.AlignmentProducer.algoConfig.max2Dcorrelation = 2. # to switch off
 ##default is sparsGMRES                                    <method>  n(iter)  Delta(F)
