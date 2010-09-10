@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski,,,
 //         Created:  Tue Oct  7 14:56:49 CDT 2008
-// $Id: CSCOverlapsAlignmentAlgorithm.h,v 1.4 2010/05/06 03:09:31 pivarski Exp $
+// $Id: CSCOverlapsAlignmentAlgorithm.h,v 1.5 2010/05/28 23:51:13 mussgill Exp $
 //
 //
 
@@ -63,7 +63,8 @@ public:
   CSCOverlapsAlignmentAlgorithm(const edm::ParameterSet& iConfig);
   ~CSCOverlapsAlignmentAlgorithm();
   
-  void initialize(const edm::EventSetup& iSetup, AlignableTracker* alignableTracker, AlignableMuon* alignableMuon, AlignmentParameterStore* alignmentParameterStore);
+  void initialize(const edm::EventSetup& iSetup, AlignableTracker* alignableTracker, AlignableMuon* alignableMuon,
+		  AlignableExtras* alignableExtras, AlignmentParameterStore* alignmentParameterStore);
   void run(const edm::EventSetup& iSetup, const EventInfo &eventInfo);
 
   void terminate();

@@ -21,6 +21,7 @@
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include <DataFormats/GeometrySurface/interface/LocalError.h> 
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+#include "Alignment/CommonAlignment/interface/AlignableExtras.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include "Alignment/HIPAlignmentAlgorithm/interface/HIPAlignmentAlgorithm.h"
@@ -93,7 +94,7 @@ HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(const edm::ParameterSet& cfg):
 
 void 
 HIPAlignmentAlgorithm::initialize( const edm::EventSetup& setup, 
-				   AlignableTracker* tracker, AlignableMuon* muon, 
+				   AlignableTracker* tracker, AlignableMuon* muon, AlignableExtras* extras,
 				   AlignmentParameterStore* store )
 {
   edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm] Initializing...";
@@ -104,8 +105,8 @@ HIPAlignmentAlgorithm::initialize( const edm::EventSetup& setup,
   else if ( !tracker )
     theAlignableDetAccessor = new AlignableNavigator(muon);
   else 
-    theAlignableDetAccessor = new AlignableNavigator(tracker,muon);
-	
+    theAlignableDetAccessor = new AlignableNavigator(tracker, muon);
+  
   // set alignmentParameterStore
   theAlignmentParameterStore=store;
 	
@@ -157,7 +158,7 @@ HIPAlignmentAlgorithm::initialize( const edm::EventSetup& setup,
       else {
 	throw cms::Exception("BadConfig") << "APE function must be \"linear\" or \"exponential\"." << std::endl;
       }
-			
+
       theAPEParameters.push_back(std::pair<std::vector<Alignable*>, std::vector<double> >(alignables, apeSPar));
     }
   }

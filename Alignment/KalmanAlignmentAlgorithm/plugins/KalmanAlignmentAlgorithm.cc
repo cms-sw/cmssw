@@ -55,6 +55,7 @@ KalmanAlignmentAlgorithm::~KalmanAlignmentAlgorithm( void ) {}
 void KalmanAlignmentAlgorithm::initialize( const edm::EventSetup& setup, 
 					   AlignableTracker* tracker, 
 					   AlignableMuon* muon,
+					   AlignableExtras* extras,
 					   AlignmentParameterStore* store )
 {
   theTracker = tracker;

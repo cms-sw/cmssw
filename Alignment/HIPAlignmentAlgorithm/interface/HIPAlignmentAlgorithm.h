@@ -34,7 +34,7 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
 
   /// Call at beginning of job
   void initialize( const edm::EventSetup& setup, 
-                   AlignableTracker* tracker, AlignableMuon* muon, 
+                   AlignableTracker* tracker, AlignableMuon* muon, AlignableExtras* extras, 
                    AlignmentParameterStore* store);
 
   /// Call at end of job

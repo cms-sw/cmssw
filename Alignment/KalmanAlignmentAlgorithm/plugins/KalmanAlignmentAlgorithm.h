@@ -47,6 +47,7 @@ public:
   virtual void initialize( const edm::EventSetup& setup, 
 			   AlignableTracker* tracker,
                            AlignableMuon* muon,
+			   AlignableExtras* extras,
 			   AlignmentParameterStore* store );
 
   virtual void terminate( void );

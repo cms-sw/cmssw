@@ -59,7 +59,10 @@ public:
   MuonAlignmentFromReference(const edm::ParameterSet& iConfig);
   ~MuonAlignmentFromReference();
   
-  void initialize(const edm::EventSetup& iSetup, AlignableTracker* alignableTracker, AlignableMuon* alignableMuon, AlignmentParameterStore* alignmentParameterStore);
+  void initialize(const edm::EventSetup& iSetup,
+		  AlignableTracker* alignableTracker, AlignableMuon* alignableMuon,
+		  AlignableExtras* extras,
+		  AlignmentParameterStore* alignmentParameterStore);
   void startNewLoop();
   void run(const edm::EventSetup& iSetup, const EventInfo &eventInfo);
 
@@ -197,7 +200,10 @@ int MuonAlignmentFromReference::number(std::string s) {
   else assert(false);
 }
 
-void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, AlignableTracker* alignableTracker, AlignableMuon* alignableMuon, AlignmentParameterStore* alignmentParameterStore) {
+void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup, 
+					    AlignableTracker* alignableTracker, AlignableMuon* alignableMuon,
+					    AlignableExtras* extras,
+					    AlignmentParameterStore* alignmentParameterStore) {
    if (alignableMuon == NULL) {
      throw cms::Exception("MuonAlignmentFromReference") << "doMuon must be set to True" << std::endl;
    }

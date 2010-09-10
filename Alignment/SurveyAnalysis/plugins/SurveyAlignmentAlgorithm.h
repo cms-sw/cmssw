@@ -2,8 +2,8 @@
  *
  *  Alignment of Silicon Pixel Detector with survey constraint.
  *
- *  $Date: 2007/05/03 20:58:59 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/04/04 00:59:08 $
+ *  $Revision: 1.3 $
  *  \author Chung Khim Lae
  */
 
@@ -17,6 +17,7 @@ namespace edm { class ParameterSet; class EventSetup; }
 class AlignmentParameterStore;
 class AlignableMuon;
 class AlignableTracker;
+class AlignableExtras;
 
 class SurveyAlignmentAlgorithm : public AlignmentAlgorithmBase
 {
@@ -31,6 +32,7 @@ class SurveyAlignmentAlgorithm : public AlignmentAlgorithmBase
 			  const edm::EventSetup&,
 			  AlignableTracker*,
 			  AlignableMuon*,
+			  AlignableExtras*,
 			  AlignmentParameterStore*
 			  );
 

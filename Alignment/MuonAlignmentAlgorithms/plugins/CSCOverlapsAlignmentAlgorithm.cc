@@ -183,7 +183,7 @@ CSCOverlapsAlignmentAlgorithm::CSCOverlapsAlignmentAlgorithm(const edm::Paramete
 
 CSCOverlapsAlignmentAlgorithm::~CSCOverlapsAlignmentAlgorithm() {}
 
-void CSCOverlapsAlignmentAlgorithm::initialize(const edm::EventSetup& iSetup, AlignableTracker* alignableTracker, AlignableMuon* alignableMuon, AlignmentParameterStore* alignmentParameterStore) {
+void CSCOverlapsAlignmentAlgorithm::initialize(const edm::EventSetup& iSetup, AlignableTracker* alignableTracker, AlignableMuon* alignableMuon, AlignableExtras* alignableExtras, AlignmentParameterStore* alignmentParameterStore) {
   m_alignmentParameterStore = alignmentParameterStore;
   m_alignables = m_alignmentParameterStore->alignables();
 

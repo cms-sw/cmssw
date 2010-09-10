@@ -63,8 +63,9 @@
 
 	void 
 	MuonMillepedeAlgorithm::initialize( const edm::EventSetup& setup, 
-					     AlignableTracker* tracker, AlignableMuon* muon, 
-					     AlignmentParameterStore* store )
+					    AlignableTracker* tracker, AlignableMuon* muon, 
+					    AlignableExtras* extras,
+					    AlignmentParameterStore* store )
 	{
 	  
 	  edm::LogWarning("Alignment") << "[MuonMillepedeAlgorithm] Initializing...";
