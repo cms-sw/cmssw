@@ -18,6 +18,7 @@ TrajectoryFactoryBase::TrajectoryFactoryBase( const edm::ParameterSet & config )
   theUseWithoutDet = config.getParameter< bool >( "UseHitWithoutDet" );
   theUseInvalidHits = config.getParameter< bool >( "UseInvalidHits" );
   theUseProjectedHits = config.getParameter< bool >( "UseProjectedHits" );
+  theUseBeamSpot = config.getParameter< bool >( "UseBeamSpot" );
 }
 
 
@@ -116,12 +117,8 @@ TrajectoryFactoryBase::materialEffects( const std::string & strME ) const
   if ( strME == "None" ) return ReferenceTrajectoryBase::none;
   if ( strME == "BreakPoints" ) return ReferenceTrajectoryBase::breakPoints;
   if ( strME == "BrokenLines" ) return ReferenceTrajectoryBase::brokenLinesCoarse;
-  if ( strME == "BrokenLinesPca" ) return ReferenceTrajectoryBase::brokenLinesCoarsePca;
   if ( strME == "BrokenLinesCoarse" ) return ReferenceTrajectoryBase::brokenLinesCoarse;
-  if ( strME == "BrokenLinesCoarsePca" ) return ReferenceTrajectoryBase::brokenLinesCoarsePca;
   if ( strME == "BrokenLinesFine" ) return ReferenceTrajectoryBase::brokenLinesFine;
-  if ( strME == "BrokenLinesFinePca" ) return ReferenceTrajectoryBase::brokenLinesFinePca;
-
           
   throw cms::Exception("BadConfig")
     << "[TrajectoryFactoryBase::materialEffects] Unknown parameter: " << strME;
