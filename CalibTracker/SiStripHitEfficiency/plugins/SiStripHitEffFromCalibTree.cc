@@ -114,7 +114,7 @@ class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
     TTree* CalibTree;
     TString CalibTreeFilename; 
     float threshold;
-    uint nModsMin;
+    unsigned int nModsMin;
     vector<hit> hits[23];
     vector<TH2F*> HotColdMaps;
     map< unsigned int, pair< unsigned int, unsigned int> > modCounter[23];
@@ -300,7 +300,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
   SiStripQuality::RegistryIterator rend   = quality_->getRegistryVectorEnd();
    
   for (SiStripBadStrip::RegistryIterator rp=rbegin; rp != rend; ++rp) {
-    uint32_t detid=rp->detid;
+    unsigned int detid=rp->detid;
  
     int subdet=-999; int component=-999;
     SiStripDetId a(detid);

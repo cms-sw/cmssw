@@ -21,7 +21,7 @@ using namespace std;
 TrajectoryAtInvalidHit::TrajectoryAtInvalidHit( const TrajectoryMeasurement& tm, 
 					    const TrackerGeometry* tracker,
 					    const Propagator& propagator,
-					    const uint mono)
+					    const unsigned int mono)
 {
   if ( tm.backwardPredictedState().isValid() ) 
     theCombinedPredictedState = TrajectoryStateCombiner().combine( tm.forwardPredictedState(),
@@ -51,7 +51,7 @@ TrajectoryAtInvalidHit::TrajectoryAtInvalidHit( const TrajectoryMeasurement& tm,
   // rphi surface (mono = 1) or the stereo surface (mono = 2)--not the matched hit surface
   if (( mono > 0 ) && isDoubleSided(iidd) ) {
     // find matched det id, that is the matched hit surface between the two sensors
-    uint matched_iidd = iidd-(iidd & 0x3);
+    unsigned int matched_iidd = iidd-(iidd & 0x3);
     DetId matched_id(matched_iidd);
     
     GluedGeomDet * gdet=(GluedGeomDet *)tracker->idToDet(matched_id);
@@ -176,7 +176,7 @@ double TrajectoryAtInvalidHit::globalZ() const
   return globZ;
 }
 
-uint TrajectoryAtInvalidHit::monodet_id() const
+unsigned int TrajectoryAtInvalidHit::monodet_id() const
 {
   return iidd;
 }
@@ -191,10 +191,10 @@ bool TrajectoryAtInvalidHit::validHit() const
   return hasValidHit;
 }
 
-bool TrajectoryAtInvalidHit::isDoubleSided(uint iidd) const {
+bool TrajectoryAtInvalidHit::isDoubleSided(unsigned int iidd) const {
   StripSubdetector strip=StripSubdetector(iidd);
   unsigned int subid=strip.subdetId();
-  uint layer = 0;
+  unsigned int layer = 0;
   if (subid ==  StripSubdetector::TIB) { 
     TIBDetId tibid(iidd);
     layer = tibid.layer();

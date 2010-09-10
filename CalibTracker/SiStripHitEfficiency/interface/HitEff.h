@@ -43,10 +43,10 @@ class HitEff : public edm::EDAnalyzer {
  public:  
   explicit HitEff(const edm::ParameterSet& conf);
   double checkConsistency(StripClusterParameterEstimator::LocalValues parameters, double xx, double xerr);
-  bool isDoubleSided(uint iidd) const;
-  bool check2DPartner(uint iidd, std::vector<TrajectoryMeasurement> traj);
+  bool isDoubleSided(unsigned int iidd) const;
+  bool check2DPartner(unsigned int iidd, std::vector<TrajectoryMeasurement> traj);
   virtual ~HitEff();
-  uint checkLayer(uint iidd);
+  unsigned int checkLayer(unsigned int iidd);
 
  private:
   virtual void beginJob();
@@ -60,9 +60,9 @@ class HitEff : public edm::EDAnalyzer {
   TTree* traj;
   int events,EventTrackCKF;
   
-  uint layers;
+  unsigned int layers;
   bool DEBUG;
-  uint whatlayer;
+  unsigned int whatlayer;
   
   // Tree declarations
   // Trajectory positions for modules included in the study
@@ -70,10 +70,10 @@ class HitEff : public edm::EDAnalyzer {
   float TrajLocX, TrajLocY, TrajLocErrX, TrajLocErrY, TrajLocAngleX, TrajLocAngleY;
   float ClusterLocX, ClusterLocY, ClusterLocErrX, ClusterLocErrY, ClusterStoN;
   float ResX, ResXSig;
-  uint ModIsBad; uint Id; uint SiStripQualBad; bool withinAcceptance;
+  unsigned int ModIsBad; unsigned int Id; unsigned int SiStripQualBad; bool withinAcceptance;
   int nHits, nLostHits; 
   float p, pT, chi2;
-  uint trajHitValid, run, event;
+  unsigned int trajHitValid, run, event;
   float timeDT, timeDTErr;
   int timeDTDOF;
   float timeECAL, dedx;

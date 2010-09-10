@@ -219,7 +219,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
       surface = &(tracker->idToDet(ClusterDetId)->surface());
       LocalPoint lp = parameters.first;
       GlobalPoint gp = surface->toGlobal(lp);
-      //uint layer = checkLayer(ClusterId);
+      //unsigned int layer = checkLayer(ClusterId);
       //      if(DEBUG) cout << "Found hit in cluster collection layer = " << layer << " with id = " << ClusterId << "   local X position = " << lp.x() << " +- " << sqrt(parameters.second.xx()) << "   matched/stereo/rphi = " << ((ClusterId & 0x3)==0) << "/" << ((ClusterId & 0x3)==1) << "/" << ((ClusterId & 0x3)==2) << endl;
     }
   }
@@ -301,10 +301,10 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 	
 	if(DEBUG) cout << "theInHit is valid = " << theInHit->isValid() << endl;
 	
-	uint iidd = theInHit->geographicalId().rawId();
+	unsigned int iidd = theInHit->geographicalId().rawId();
 	
 	StripSubdetector strip=StripSubdetector(iidd);
-	uint TKlayers = checkLayer(iidd);
+	unsigned int TKlayers = checkLayer(iidd);
 	if (DEBUG)	cout << "TKlayer from trajectory: " << TKlayers << "  from module = " << iidd <<  "   matched/stereo/rphi = " << ((iidd & 0x3)==0) << "/" << ((iidd & 0x3)==1) << "/" << ((iidd & 0x3)==2) << endl;
 
 	// If Trajectory measurement from TOB 6 or TEC 9, skip it because it's always valid they are filled later
@@ -420,7 +420,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 	    ConstReferenceCountingPointer<TransientTrackingRecHit> tec9Hit;
 	    tec9Hit = tec9TM.recHit();
 	    
-	    uint tec9id = tec9Hit->geographicalId().rawId();
+	    unsigned int tec9id = tec9Hit->geographicalId().rawId();
 	    if (DEBUG) cout << "tec9id = " << tec9id << " is Double sided = " <<  isDoubleSided(tec9id) << "  and 0x3 = " << (tec9id & 0x3) << endl;
 	    
 	    if (tec9Hit->geographicalId().rawId()!=0) {
@@ -532,7 +532,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 		  for (ires=VCluster_info.begin(); ires!=VCluster_info.end(); ires++){
 		    if ( abs((*ires)[1]) < abs(FinalResSig)) {
 		      FinalResSig = (*ires)[1];
-		      for (uint i = 0; i<ires->size(); i++) {
+		      for (unsigned int i = 0; i<ires->size(); i++) {
 			if (DEBUG) cout << "filling final cluster. i = " << i << " before fill FinalCluster[i]=" << FinalCluster[i] << " and (*ires)[i] =" << (*ires)[i] << endl;
 			FinalCluster[i] = (*ires)[i];
 			if (DEBUG) cout << "filling final cluster. i = " << i << " after fill FinalCluster[i]=" << FinalCluster[i] << " and (*ires)[i] =" << (*ires)[i] << endl;
@@ -543,7 +543,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 		}
 		else {
 		  FinalResSig = VCluster_info.at(0)[1];
-		  for (uint i = 0; i<VCluster_info.at(0).size(); i++) {
+		  for (unsigned int i = 0; i<VCluster_info.at(0).size(); i++) {
 		    FinalCluster[i] = VCluster_info.at(0)[i];
 		  }
 		}
@@ -676,10 +676,10 @@ double HitEff::checkConsistency(StripClusterParameterEstimator::LocalValues para
   return consistency;
 }
 
-bool HitEff::isDoubleSided(uint iidd) const {
+bool HitEff::isDoubleSided(unsigned int iidd) const {
   StripSubdetector strip=StripSubdetector(iidd);
   unsigned int subid=strip.subdetId();
-  uint layer = 0;
+  unsigned int layer = 0;
   if (subid ==  StripSubdetector::TIB) { 
     TIBDetId tibid(iidd);
     layer = tibid.layer();
@@ -708,8 +708,8 @@ bool HitEff::isDoubleSided(uint iidd) const {
     return false;
 }
 
-bool HitEff::check2DPartner(uint iidd, std::vector<TrajectoryMeasurement> traj) {
-  uint partner_iidd = 0;
+bool HitEff::check2DPartner(unsigned int iidd, std::vector<TrajectoryMeasurement> traj) {
+  unsigned int partner_iidd = 0;
   bool found2DPartner = false;
   // first get the id of the other detector
   if ((iidd & 0x3)==1) partner_iidd = iidd+1;
@@ -724,7 +724,7 @@ bool HitEff::check2DPartner(uint iidd, std::vector<TrajectoryMeasurement> traj) 
   return found2DPartner;
 }
 
-uint HitEff::checkLayer( uint iidd) {
+unsigned int HitEff::checkLayer( unsigned int iidd) {
   StripSubdetector strip=StripSubdetector(iidd);
   unsigned int subid=strip.subdetId();
   if (subid ==  StripSubdetector::TIB) { 

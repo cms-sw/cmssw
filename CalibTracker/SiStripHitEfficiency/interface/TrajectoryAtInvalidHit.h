@@ -22,7 +22,7 @@ public:
   TrajectoryAtInvalidHit( const TrajectoryMeasurement&, 
 			const TrackerGeometry * tracker, 
 			const Propagator& propagator,
-			const uint mono = 0);
+			const unsigned int mono = 0);
 
   double localX() const;
   double localY() const;
@@ -38,11 +38,11 @@ public:
   double globalY() const;
   double globalZ() const;
 
-  uint monodet_id() const;
+  unsigned int monodet_id() const;
   bool withinAcceptance() const;
   bool validHit() const;
 
-  bool isDoubleSided(uint iidd) const;
+  bool isDoubleSided(unsigned int iidd) const;
   TrajectoryStateOnSurface tsos() const;
 
 private:
@@ -52,7 +52,7 @@ private:
   float locXError, locYError;
   float locDxDz, locDyDz;
   float globX, globY, globZ;
-  uint iidd;
+  unsigned int iidd;
   bool acceptance;
   bool hasValidHit;
 
