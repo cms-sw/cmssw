@@ -78,6 +78,8 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
 	     (DQMStore::SaveReferenceTag) saveReference_,
 	     saveReferenceQMin_,
 	     fileUpdate_);
+    // from now on update newly created file
+    if (fileUpdate_=="RECREATE") fileUpdate_="UPDATE";
   }
   else // save EventInfo folders for luminosity sections
   {
