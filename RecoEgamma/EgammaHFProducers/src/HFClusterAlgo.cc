@@ -220,13 +220,13 @@ bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
 	}
 	
 	// cut on "PMT HIT" flag
-	if ((il->flagField(0,1))&&(m_usePMTFlag)&&(il!=hf.end())) {
+	if ((il!=hf.end())&&(il->flagField(0,1))&&(m_usePMTFlag)) {
 	  if (dp==0 && de==0) clusterOk=false; // somehow, the seed is hosed
 	  continue;
 	}
 
 	// cut on "Pulse shape HIT" flag
-	if ((il->flagField(1,1))&&(m_usePulseFlag)&&(il!=hf.end())) {
+	if ((il!=hf.end())&&(il->flagField(1,1))&&(m_usePulseFlag)) {
 	  if (dp==0 && de==0) clusterOk=false; // somehow, the seed is hosed
 	  continue;
 	}
