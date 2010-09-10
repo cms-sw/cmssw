@@ -93,11 +93,16 @@ class WorkFlowRunner(Thread):
                     lf = open(wfDir+'/step1_'+self.wf.nameId+'-dbsquery.log', 'r')
                     lines = lf.readlines()
                     lf.close()
-                    try:
-                        inFile = lines[0].strip()
-                    except Exception, e:
-                        print "ERROR determining file from DBS query: ", str(e)
-                        inFile = None
+                    if not lines:
+                        inFile = "NoFileFoundInDBS"
+                        retStep1 = -95
+                    else:
+                        try:
+                            inFile = lines[0].strip()
+                        except Exception, e:
+                            print "ERROR determining file from DBS query: ", str(e)
+                            inFile = "NoFileFoundInDBS"
+                            retStep1 = -90
             else:
                 print "ERROR: found REALDATA in '"+self.wf.cmdStep1+"' but not RE match !!??!"
                 retStep1 = -99
