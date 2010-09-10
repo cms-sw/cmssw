@@ -83,13 +83,13 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     yMin = cms.double(-80),                               
     yMax = cms.double(80),
                                 
-    rBin = cms.int32(170),
-    rMin = cms.double(-5),                               
+    rBin = cms.int32(400),
+    rMin = cms.double(0),                               
     rMax = cms.double(80),                                
 
     zBin = cms.int32(100),
     zMin = cms.double(0),                               
-    zMax = cms.double(280),
+    zMax = cms.double(180),
 
     dEtaTracksBin = cms.int32(100),
     dEtaTracksMin = cms.double(-0.2),
