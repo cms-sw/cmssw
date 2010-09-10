@@ -85,7 +85,7 @@ template <typename BT= reco::Candidate>
   
   void callWhatProduces();
   
-  uint initAssociation(edm::Event& event, CandMap& candMapT) const;
+  unsigned int initAssociation(edm::Event& event, CandMap& candMapT) const;
   
   void initVetos(std::vector<reco::IsoDeposit::Vetos*>& vetos, CandMap& candMap) const;
   
@@ -120,7 +120,7 @@ void MuIsolatorResultProducer<BT>::writeOutImpl(edm::Event& event, const CandMap
 						const Results& results) const {
   //! make an output vec of what's to be written with a concrete type
   std::vector<RT> resV(results.size());   
-  for (uint i = 0; i< resV.size(); ++i) resV[i] = results[i].val<RT>(); 
+  for (unsigned int i = 0; i< resV.size(); ++i) resV[i] = results[i].val<RT>(); 
   std::auto_ptr<edm::ValueMap<RT> > outMap(new edm::ValueMap<RT>()); 
   typename edm::ValueMap<RT>::Filler filler(*outMap); 
 
@@ -198,7 +198,7 @@ MuIsolatorResultProducer<BT>::MuIsolatorResultProducer(const edm::ParameterSet& 
   std::vector<double> dWeights( depositInputs.size());
   std::vector<double> dThresholds( depositInputs.size());
 
-  for (uint iDep = 0; iDep < depositInputs.size(); ++iDep){
+  for (unsigned int iDep = 0; iDep < depositInputs.size(); ++iDep){
     DepositConf dConf;
     dConf.tag = depositInputs[iDep].getParameter<edm::InputTag>("DepositTag");
     dConf.weight = depositInputs[iDep].getParameter<double>("DepositWeight");
@@ -310,7 +310,7 @@ void MuIsolatorResultProducer<BT>::produce(edm::Event& event, const edm::EventSe
   //! Access to the mapped values as reference type HAS TO BE AVAILABLE
   CandMap candMapT;
   
-  uint colSize = initAssociation(event, candMapT);
+  unsigned int colSize = initAssociation(event, candMapT);
 
   //! isolator results will be here
   Results results(colSize);
@@ -325,7 +325,7 @@ void MuIsolatorResultProducer<BT>::produce(edm::Event& event, const edm::EventSe
     }
 
     //! call the isolator result, passing {[deposit,vetos]_type} set and the candidate
-    for (uint muI=0; muI < colSize; ++muI){
+    for (unsigned int muI=0; muI < colSize; ++muI){
       results[muI] = theIsolator->result(candMapT.get()[muI].second, *(candMapT.get()[muI].first));
       
       if (results[muI].typeF()!= theIsolator->resultType()){
@@ -338,7 +338,7 @@ void MuIsolatorResultProducer<BT>::produce(edm::Event& event, const edm::EventSe
   LogDebug(metname)<<"Ready to write out results of size "<<results.size();
   writeOut(event, candMapT, results);
 
-  for(uint iDep = 0; iDep< vetoDeps.size(); ++iDep){
+  for(unsigned int iDep = 0; iDep< vetoDeps.size(); ++iDep){
     //! do cleanup
     if (vetoDeps[iDep]){
       delete vetoDeps[iDep];
@@ -354,7 +354,7 @@ MuIsolatorResultProducer<BT>::initAssociation(edm::Event& event, CandMap& candMa
   
   typedef reco::IsoDepositMap::container CT;
 
-  for (uint iMap = 0; iMap < theDepositConfs.size(); ++iMap){
+  for (unsigned int iMap = 0; iMap < theDepositConfs.size(); ++iMap){
     edm::Handle<reco::IsoDepositMap> depH;
     event.getByLabel(theDepositConfs[iMap].tag, depH);
     LogDebug(metname) <<"Got Deposits of size "<<depH->size();
@@ -367,7 +367,7 @@ MuIsolatorResultProducer<BT>::initAssociation(edm::Event& event, CandMap& candMa
     candMapT.setHandle(keyH);
     typename CT::const_iterator depHCI = depH->begin().begin();
     typename CT::const_iterator depEnd = depH->begin().end();
-    uint keyI=0;
+    unsigned int keyI=0;
     for (; depHCI != depEnd; ++depHCI, ++keyI){
 
       typename CandMap::key_type muPtr(keyH->refAt(keyI));
@@ -398,7 +398,7 @@ void MuIsolatorResultProducer<BT>::initVetos(std::vector<reco::IsoDeposit::Vetos
 		     <<" passed at "<<&vetos
 		     <<" and an input map.size of "<<candMapT.get().size();
 
-    uint muI = 0;
+    unsigned int muI = 0;
     for (; muI < candMapT.get().size(); ++muI) {
       typename CandMap::key_type mu = candMapT.get()[muI].first;
       double d0 = ( (mu->vx() - theBeam.x() )* mu->py() - (mu->vy() - theBeam.y())* mu->px() ) / mu->pt();
@@ -411,7 +411,7 @@ void MuIsolatorResultProducer<BT>::initVetos(std::vector<reco::IsoDeposit::Vetos
 	      )
 	  ){
 	LogDebug(metname)<<"muon passes the cuts";
-	for (uint iDep =0; iDep < candMapT.get()[muI].second.size(); ++iDep){
+	for (unsigned int iDep =0; iDep < candMapT.get()[muI].second.size(); ++iDep){
 	  if (vetos[iDep] == 0) vetos[iDep] = new reco::IsoDeposit::Vetos();
 
 	  vetos[iDep]->push_back(candMapT.get()[muI].second[iDep].dep->veto());
@@ -422,7 +422,7 @@ void MuIsolatorResultProducer<BT>::initVetos(std::vector<reco::IsoDeposit::Vetos
     LogDebug(metname)<<"Assigning vetos";
     muI = 0;
     for (; muI < candMapT.get().size(); ++muI) {
-      for(uint iDep =0; iDep < candMapT.get()[muI].second.size(); ++iDep){
+      for(unsigned int iDep =0; iDep < candMapT.get()[muI].second.size(); ++iDep){
 	candMapT.get()[muI].second[iDep].vetos = vetos[iDep];
       }
     }

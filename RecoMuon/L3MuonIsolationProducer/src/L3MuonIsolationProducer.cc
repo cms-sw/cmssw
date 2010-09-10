@@ -111,7 +111,7 @@ void L3MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
   //
   // get Vetos and deposits
   //
-  uint nMuons = muons->size();
+  unsigned int nMuons = muons->size();
 
   IsoDeposit::Vetos vetos(nMuons);
   
@@ -132,7 +132,7 @@ void L3MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
   //
   // actual cut step
   //
-  for(uint iMu=0; iMu < nMuons; ++iMu){
+  for(unsigned int iMu=0; iMu < nMuons; ++iMu){
     const reco::Track* mu = &(*muons)[iMu];
 
     const IsoDeposit & deposit = deps[iMu];

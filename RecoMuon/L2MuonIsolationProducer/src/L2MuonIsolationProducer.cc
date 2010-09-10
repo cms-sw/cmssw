@@ -86,7 +86,7 @@ void L2MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
 
   theExtractor->fillVetos(event,eventSetup,*tracks);
 
-  uint nTracks = tracks->size();
+  unsigned int nTracks = tracks->size();
   std::vector<IsoDeposit> deps(nTracks);
   std::vector<bool> isos(nTracks, false);
 

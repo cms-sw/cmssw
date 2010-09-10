@@ -16,7 +16,7 @@ TrackSelector::result_type TrackSelector::operator()(const TrackSelector::input_
 //     float tD0Cor = fabs(it->dxy(thePars.beamPoint));
 //     float tEta = it->eta();
 //     float tPhi = it->phi();
-//     uint tHits = it->numberOfValidHits();
+//     unsigned int tHits = it->numberOfValidHits();
 //     float tChi2Ndof = it->normalizedChi2();
 //     float tChi2Prob = ChiSquaredProbability(it->chi2(), it->ndof());
 //     float tPt = it->pt();
@@ -59,7 +59,7 @@ TrackSelector::result_type TrackSelector::operator()(const TrackSelector::input_
 
     //! skip if min Hits == 0; assumes any track has at least one valid hit
     if (thePars.nHitsMin > 0 ){
-      uint tHits = it->numberOfValidHits();
+      unsigned int tHits = it->numberOfValidHits();
       LogTrace(metname)<<", nHits: "<<tHits;
       if ( tHits < thePars.nHitsMin ) continue;
     }

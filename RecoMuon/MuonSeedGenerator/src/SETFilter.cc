@@ -173,11 +173,11 @@ bool SETFilter::transform(Trajectory::DataContainer &measurements_segments,
   for(int iMeas = measurements_segments.size() - 1; iMeas>-1;--iMeas){
     TransientTrackingRecHit ::ConstRecHitContainer sortedHits;
     // loop over the rechits contained in the segments
-    for(uint jMeas = 0; jMeas<measurements_segments[iMeas].recHit()->transientHits().size();++jMeas){
+    for(unsigned int jMeas = 0; jMeas<measurements_segments[iMeas].recHit()->transientHits().size();++jMeas){
       if(measurements_segments[iMeas].recHit()->transientHits().at(jMeas)->transientHits().size()>1){
 	// loop over the rechits contained in the rechits contained in the segments (OK, OK - this is for DT only;
 	// the convention there is a bit different from the CSCs)
-	for(uint kMeas = 0;kMeas<measurements_segments[iMeas].recHit()->transientHits().at(jMeas)->transientHits().size();
+	for(unsigned int kMeas = 0;kMeas<measurements_segments[iMeas].recHit()->transientHits().at(jMeas)->transientHits().size();
 	    ++kMeas){
 	  sortedHits.push_back( 
 			       measurements_segments[iMeas].recHit()->transientHits().at(jMeas)->transientHits().at(kMeas));
@@ -224,7 +224,7 @@ bool SETFilter::transformLight(Trajectory::DataContainer &measurements_segments,
   // loop over all segments in the trajectory
   if(useSegmentsInTrajectory){// if segments the "backword fit" (rechits)
                               // performed later is actually a forward one (?!) 
-    for(uint iMeas = 0; iMeas<measurements_segments.size();++iMeas){
+    for(unsigned int iMeas = 0; iMeas<measurements_segments.size();++iMeas){
       hitContainer.push_back(measurements_segments[iMeas].recHit());
     }
   }

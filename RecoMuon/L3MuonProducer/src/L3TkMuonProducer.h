@@ -43,7 +43,7 @@ class L3TkMuonProducer : public edm::EDProducer {
   edm::InputTag theL3CollectionLabel; 
 
   //psuedo ref is L2 or L1 ref.
-  typedef std::pair<uint,uint> pseudoRef;
+  typedef std::pair<unsigned int,unsigned int> pseudoRef;
   typedef std::map<pseudoRef, std::pair<reco::TrackRef,SeedRef> > LXtoL3sMap;
 
   pseudoRef makePseudoRef(const L3MuonTrajectorySeed& s){

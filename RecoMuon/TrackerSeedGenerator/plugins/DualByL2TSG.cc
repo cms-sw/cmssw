@@ -15,7 +15,7 @@ DualByL2TSG::DualByL2TSG(const edm::ParameterSet &pset) : SeparatingTSG(pset){  
     {edm::LogError(theCategory)<<"not two seed generators provided";}
 }
 
-uint DualByL2TSG::selectTSG(const TrackCand & muonTrackCand, const TrackingRegion& region)
+unsigned int DualByL2TSG::selectTSG(const TrackCand & muonTrackCand, const TrackingRegion& region)
 {
   LogDebug(theCategory)<<"|eta|=|"<<muonTrackCand.second->eta()<<"|";
 
@@ -28,12 +28,12 @@ uint DualByL2TSG::selectTSG(const TrackCand & muonTrackCand, const TrackingRegio
   getEvent()->getByLabel(theL3CollectionLabelA ,l3muonH);
   if(l3muonH.failedToGet()) return 0;
   
-  uint maxI = l3muonH->size();
+  unsigned int maxI = l3muonH->size();
   
   LogDebug(theCategory) << "TheCollectionA size " << maxI;
 
   // Loop through all tracks, if the track was seeded from this L2, then skip
-  for (uint i=0;i!=maxI;++i){
+  for (unsigned int i=0;i!=maxI;++i){
     reco::TrackRef tk(l3muonH,i);
     edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef = tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
     reco::TrackRef staTrack = l3seedRef->l2Track();

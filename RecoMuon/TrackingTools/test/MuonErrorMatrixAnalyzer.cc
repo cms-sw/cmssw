@@ -164,7 +164,7 @@ void
   
   TrajectoryStateTransform transformer;
   //loop over them
-  for (uint it=0;it!=tracks->size();++it){
+  for (unsigned int it=0;it!=tracks->size();++it){
 
      //   take their initial free state
     FreeTrajectoryState PCAstate = transformer.initialFreeState((*tracks)[it],theField.product());
@@ -306,19 +306,19 @@ MuonErrorMatrixAnalyzer::analyze_from_pull(const edm::Event& iEvent, const edm::
 	//once have the momentum,eta,phi choose what bin it should go in
 	//how do i get the correct bin
 	double diff_i=0,diff_j=0;
-	for (uint i=0;i!=5;++i){
+	for (unsigned int i=0;i!=5;++i){
 	      //do these if statements because if the parameter is phi it is not simply reco minus sim
 	  if(i!=2){ diff_i = sim_CTP_vector[i]-track_CTP_vector[i];}
 	  else { diff_i = deltaPhi(sim_CTP_vector[i],track_CTP_vector[i]); }
 	  
-	  for(uint j=i;j<5;++j){
+	  for(unsigned int j=i;j<5;++j){
 	    //do these if statements because if the parameter is phi it is not simply reco minus sim  
 	    if(j!=2){ diff_j = sim_CTP_vector[j]-track_CTP_vector[j];}
             else{ diff_j = deltaPhi(sim_CTP_vector[j],track_CTP_vector[j]);}
 	    
 	    //filling residual histograms   
 	    if (theErrorMatrixStore_Residual){
-	      uint iH=theErrorMatrixStore_Residual->index(i,j);
+	      unsigned int iH=theErrorMatrixStore_Residual->index(i,j);
 	      TProfile3D * ij = theErrorMatrixStore_Residual->get(i,j);
 	      if (!ij){edm::LogError(theCategory)<<i<<" "<<j<<" not vali indexes. TProfile3D not found."; continue;}
 
@@ -340,7 +340,7 @@ MuonErrorMatrixAnalyzer::analyze_from_pull(const edm::Event& iEvent, const edm::
 	    
 	    //filling pull histograms   
 	    if (theErrorMatrixStore_Pull){
-	      uint iH=theErrorMatrixStore_Pull->index(i,j);
+	      unsigned int iH=theErrorMatrixStore_Pull->index(i,j);
               TProfile3D* ij=theErrorMatrixStore_Pull->get(i,j);
               if (!ij){edm::LogError(theCategory)<<i<<" "<<j<<" not vali indexes. TProfile3D not found."; continue;}
 
@@ -418,21 +418,21 @@ MuonErrorMatrixAnalyzer::beginJob()
      
   //create the 15 histograms, 5 of them TH1F, 10 of them TH2F
   if (theErrorMatrixStore_Residual){
-  for (uint i=0;i!=5;++i){
-    for (uint j=i;j<5;++j){
-      uint iH=theErrorMatrixStore_Residual->index(i,j);
+  for (unsigned int i=0;i!=5;++i){
+    for (unsigned int j=i;j<5;++j){
+      unsigned int iH=theErrorMatrixStore_Residual->index(i,j);
       TProfile3D * ij = theErrorMatrixStore_Residual->get(i,j);
       if (!ij){edm::LogError(theCategory)<<i<<" "<<j<<" not valid indexes. TProfile3D not found."; continue;}
-      uint pTBin = (ij->GetNbinsX());
-      uint etaBin = (ij->GetNbinsY());
-      uint phiBin = (ij->GetNbinsZ());
+      unsigned int pTBin = (ij->GetNbinsX());
+      unsigned int etaBin = (ij->GetNbinsY());
+      unsigned int phiBin = (ij->GetNbinsZ());
       //allocate memory for all the histograms, for the given matrix term
       theHist_array_residual[iH]= new TH1ptr[maxIndex(ij)];
 	 
       //book the histograms now
-      for(uint iPt = 0;iPt<pTBin;++iPt){
-	for(uint iEta = 0;iEta<etaBin;iEta++){
-	  for(uint iPhi = 0;iPhi<phiBin;iPhi++){
+      for(unsigned int iPt = 0;iPt<pTBin;++iPt){
+	for(unsigned int iEta = 0;iEta<etaBin;iEta++){
+	  for(unsigned int iPhi = 0;iPhi<phiBin;iPhi++){
 	    TString hname=Form("%s_%i_%i_%i",
 			       ij->GetName(),
 			       iPt,iEta,iPhi);
@@ -485,21 +485,21 @@ MuonErrorMatrixAnalyzer::beginJob()
 
   //create the 15 histograms, 5 of them TH1F, 10 of them TH2F
   if (theErrorMatrixStore_Pull){
-  for (uint i=0;i!=5;++i){
-    for (uint j=i;j<5;++j){
-      uint iH=theErrorMatrixStore_Pull->index(i,j);
+  for (unsigned int i=0;i!=5;++i){
+    for (unsigned int j=i;j<5;++j){
+      unsigned int iH=theErrorMatrixStore_Pull->index(i,j);
       TProfile3D * ij = theErrorMatrixStore_Pull->get(i,j);
       if (!ij){edm::LogError(theCategory)<<i<<" "<<j<<" not valid indexes. TProfile3D not found."; continue;}
-      uint pTBin = (ij->GetNbinsX());
-      uint etaBin = (ij->GetNbinsY());
-      uint phiBin = (ij->GetNbinsZ());
+      unsigned int pTBin = (ij->GetNbinsX());
+      unsigned int etaBin = (ij->GetNbinsY());
+      unsigned int phiBin = (ij->GetNbinsZ());
       //allocate memory for all the histograms, for the given matrix term
       theHist_array_pull[iH]= new TH1ptr[maxIndex(ij)];
 
       //book the histograms now
-      for(uint iPt = 0;iPt<pTBin;++iPt){
-        for(uint iEta = 0;iEta<etaBin;iEta++){
-          for(uint iPhi = 0;iPhi<phiBin;iPhi++){
+      for(unsigned int iPt = 0;iPt<pTBin;++iPt){
+        for(unsigned int iEta = 0;iEta<etaBin;iEta++){
+          for(unsigned int iPhi = 0;iPhi<phiBin;iPhi++){
             TString hname=Form("%s_p_%i_%i_%i",
                                ij->GetName(),
                                iPt,iEta,iPhi);
@@ -648,9 +648,9 @@ MuonErrorMatrixAnalyzer::endJob() {
 
   if (theErrorMatrixStore_Residual){
     //extract the rms and correlation factor from the residual
-    for (uint i=0;i!=5;++i){
-      for (uint j=i;j<5;++j){
-	uint iH=theErrorMatrixStore_Residual->index(i,j);
+    for (unsigned int i=0;i!=5;++i){
+      for (unsigned int j=i;j<5;++j){
+	unsigned int iH=theErrorMatrixStore_Residual->index(i,j);
 	TProfile3D * ij = theErrorMatrixStore_Residual->get(i,j);
 	TProfile3D * ii = theErrorMatrixStore_Residual->get(i,i);
 	TProfile3D * jj = theErrorMatrixStore_Residual->get(j,j);
@@ -658,14 +658,14 @@ MuonErrorMatrixAnalyzer::endJob() {
 	if (!ii){edm::LogError(theCategory)<<i<<" "<<i<<" not valid indexes. TProfile3D not found."; continue;}
 	if (!jj){edm::LogError(theCategory)<<j<<" "<<j<<" not valid indexes. TProfile3D not found."; continue;}
       
-	uint pTBin = (ij->GetNbinsX());
-	uint etaBin = (ij->GetNbinsY());
-	uint phiBin = (ij->GetNbinsZ());
+	unsigned int pTBin = (ij->GetNbinsX());
+	unsigned int etaBin = (ij->GetNbinsY());
+	unsigned int phiBin = (ij->GetNbinsZ());
       
 	//analyze the histograms now
-	for(uint iPt = 0;iPt<pTBin;++iPt){
-	  for(uint iEta = 0;iEta<etaBin;iEta++){
-	    for(uint iPhi = 0;iPhi<phiBin;iPhi++){
+	for(unsigned int iPt = 0;iPt<pTBin;++iPt){
+	  for(unsigned int iEta = 0;iEta<etaBin;iEta++){
+	    for(unsigned int iPhi = 0;iPhi<phiBin;iPhi++){
 	    
 	      double pt = ij->GetXaxis()->GetBinCenter(iPt+1);
 	      double eta = ij->GetYaxis()->GetBinCenter(iEta+1);
@@ -704,9 +704,9 @@ MuonErrorMatrixAnalyzer::endJob() {
     // extract the scale factors from the pull distribution
     TF1 * f = new TF1("fit_for_theErrorMatrixStore_Pull","gaus",-theGaussianPullFitRange,theGaussianPullFitRange);
 
-    for (uint i=0;i!=5;++i){
-      for (uint j=i;j<5;++j){
-	uint iH=theErrorMatrixStore_Pull->index(i,j);
+    for (unsigned int i=0;i!=5;++i){
+      for (unsigned int j=i;j<5;++j){
+	unsigned int iH=theErrorMatrixStore_Pull->index(i,j);
 	TProfile3D * ij = theErrorMatrixStore_Pull->get(i,j);
 	TProfile3D * ii = theErrorMatrixStore_Pull->get(i,i);
 	TProfile3D * jj = theErrorMatrixStore_Pull->get(j,j);
@@ -714,14 +714,14 @@ MuonErrorMatrixAnalyzer::endJob() {
 	if (!ii){edm::LogError(theCategory)<<i<<" "<<i<<" not valid indexes. TProfile3D not found."; continue;}
 	if (!jj){edm::LogError(theCategory)<<j<<" "<<j<<" not valid indexes. TProfile3D not found."; continue;}
 
-	uint pTBin = (ij->GetNbinsX());
-	uint etaBin = (ij->GetNbinsY());
-	uint phiBin = (ij->GetNbinsZ());
+	unsigned int pTBin = (ij->GetNbinsX());
+	unsigned int etaBin = (ij->GetNbinsY());
+	unsigned int phiBin = (ij->GetNbinsZ());
 
 	//analyze the histograms now
-	for(uint iPt = 0;iPt<pTBin;++iPt){
-	  for(uint iEta = 0;iEta<etaBin;iEta++){
-	    for(uint iPhi = 0;iPhi<phiBin;iPhi++){
+	for(unsigned int iPt = 0;iPt<pTBin;++iPt){
+	  for(unsigned int iEta = 0;iEta<etaBin;iEta++){
+	    for(unsigned int iPhi = 0;iPhi<phiBin;iPhi++){
 
 	      double pt = ij->GetXaxis()->GetBinCenter(iPt+1);
 	      double eta = ij->GetYaxis()->GetBinCenter(iEta+1);

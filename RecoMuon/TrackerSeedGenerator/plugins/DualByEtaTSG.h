@@ -16,7 +16,7 @@ class DualByEtaTSG : public SeparatingTSG{
   DualByEtaTSG(const edm::ParameterSet &pset);
 
   /// decide the TSG depending on the absolute value of momentum eta of the track. Return value is 0 or 1.
-  uint selectTSG(const TrackCand&, const TrackingRegion&);
+  unsigned int selectTSG(const TrackCand&, const TrackingRegion&);
  private:
   std::string theCategory;
   double theEtaSeparation;

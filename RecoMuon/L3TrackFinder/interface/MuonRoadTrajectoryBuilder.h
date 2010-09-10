@@ -6,8 +6,8 @@
  *  inner layer of the tracker detector, no RecHit is required on the TrajectorySeed.
  *  Combinatorics between RecHits is made. RecHits are accessed via the MeasurementTracker
  *  
- *  $Date: 2007/09/27 00:48:35 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/03/20 09:52:16 $
+ *  $Revision: 1.3 $
  *  \author Adam Evertt, Jean-Roch Vlimant
  */
 
@@ -126,17 +126,17 @@ class MuonRoadTrajectoryBuilder :public TrajectoryBuilder {
    mutable bool theFirstlayer;
    //algorithm options
    //limit the total number of possible trajectories taken into account for a single seed
-   uint theMaxTrajectories;
+   unsigned int theMaxTrajectories;
 	      
    //limit the type of module considered to gather rechits
    ////theDynamicMaxNumberOfHitPerModule=false: theNumberOfHitPerModule is used always
    ////theDynamicMaxNumberOfHitPerModule=true: theNumberOfHitPerModule is used first, then theNumberOfHitPerModuleThreshold[0] after
    ////the number of trajectory is more than theMaxTrajectoriesThreshold[0]. and so on ...
    bool theDynamicMaxNumberOfHitPerModule;
-   uint theNumberOfHitPerModuleDefault;
-   mutable uint theNumberOfHitPerModule;
-   std::vector<uint> theMaxTrajectoriesThreshold;
-   std::vector<uint> theNumberOfHitPerModuleThreshold;
+   unsigned int theNumberOfHitPerModuleDefault;
+   mutable unsigned int theNumberOfHitPerModule;
+   std::vector<unsigned int> theMaxTrajectoriesThreshold;
+   std::vector<unsigned int> theNumberOfHitPerModuleThreshold;
   
    //fixed parameters
    bool theBranchonfirstlayer;

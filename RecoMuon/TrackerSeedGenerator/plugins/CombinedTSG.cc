@@ -17,7 +17,7 @@ CombinedTSG::~CombinedTSG(){
 void CombinedTSG::trackerSeeds(const TrackCand & muonTrackCand, const TrackingRegion& region, std::vector<TrajectorySeed> & result){
   //run all the seed generators registered
 
-  for (uint iTSG=0; iTSG!=theTSGs.size();iTSG++){
+  for (unsigned int iTSG=0; iTSG!=theTSGs.size();iTSG++){
     if(theTSGs[iTSG]) {
       std::vector<TrajectorySeed>  tmpResult;
       theTSGs[iTSG]->trackerSeeds(muonTrackCand,region,tmpResult);

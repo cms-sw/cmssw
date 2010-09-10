@@ -181,7 +181,7 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
       }
       //! and now pitch those in the crossed list
       if (! vetoHit){
-	for (uint iH = 0; iH< mInfo.crossedEcalIds.size() && ! vetoHit; ++iH){
+	for (unsigned int iH = 0; iH< mInfo.crossedEcalIds.size() && ! vetoHit; ++iH){
 	  if (mInfo.crossedEcalIds[iH].rawId() == eHitCPtr->detid().rawId()) vetoHit = true;
 	}
       }
@@ -217,7 +217,7 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
       }
       //! and now pitch those in the crossed list
       if (! vetoHit){
-	for (uint iH = 0; iH< mInfo.crossedHcalIds.size() && ! vetoHit; ++iH){
+	for (unsigned int iH = 0; iH< mInfo.crossedHcalIds.size() && ! vetoHit; ++iH){
 	  if (mInfo.crossedHcalIds[iH].rawId() == hHitCPtr->detid().rawId()) vetoHit = true;
 	}
       }
@@ -253,7 +253,7 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
       }
       //! and now pitch those in the crossed list
       if (! vetoHit){
-	for (uint iH = 0; iH< mInfo.crossedHOIds.size() && ! vetoHit; ++iH){
+	for (unsigned int iH = 0; iH< mInfo.crossedHOIds.size() && ! vetoHit; ++iH){
 	  if (mInfo.crossedHOIds[iH].rawId() == hoHitCPtr->detid().rawId()) vetoHit = true;
 	}
       }
@@ -319,7 +319,7 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
 
       //! and now pitch those in the crossed list
       if (! (vetoTowerHOCal && vetoTowerHcal &&  vetoTowerEcal )){
-	for (uint iH = 0; iH< mInfo.crossedTowerIds.size(); ++iH){
+	for (unsigned int iH = 0; iH< mInfo.crossedTowerIds.size(); ++iH){
 	  if (mInfo.crossedTowerIds[iH].rawId() == calCPtr->id().rawId()){
 	    vetoTowerEcal = true;
 	    vetoTowerHcal = true;

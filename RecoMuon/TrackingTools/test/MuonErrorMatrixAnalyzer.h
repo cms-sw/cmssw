@@ -7,7 +7,7 @@
  * to give an empirical parametrization of the track parameters errors.
  *
  * $Dates: 2007/09/04 13:28 $
- * $Revision: 1.5 $
+ * $Revision: 1.6 $
  *
  * \author Jean-Roch Vlimant  UCSB
  * \author Finn Rebassoo      UCSB
@@ -126,8 +126,8 @@ class MuonErrorMatrixAnalyzer : public edm::EDAnalyzer {
   TH1ptr* theHist_array_pull[15];
 
   /// index whithin the array of plots
-  inline uint index(TProfile3D * pf, uint i ,uint j,uint k)   {return (((i*pf->GetNbinsY())+j) * pf->GetNbinsZ())+k;}
-  uint maxIndex(TProfile3D * pf)  {return pf->GetNbinsX()*pf->GetNbinsY()*pf->GetNbinsZ();}
+  inline unsigned int index(TProfile3D * pf, unsigned int i ,unsigned int j,unsigned int k)   {return (((i*pf->GetNbinsY())+j) * pf->GetNbinsZ())+k;}
+  unsigned int maxIndex(TProfile3D * pf)  {return pf->GetNbinsX()*pf->GetNbinsY()*pf->GetNbinsZ();}
 
   struct extractRes{
     double corr;

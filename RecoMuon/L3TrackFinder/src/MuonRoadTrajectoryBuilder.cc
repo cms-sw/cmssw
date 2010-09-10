@@ -2,8 +2,8 @@
 
 /** \file RecoMuon/
  *
- *  $Date: 2007/08/21 18:10:21 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/03/20 09:52:16 $
+ *  $Revision: 1.2 $
  *  \author Adam Evertt, Jean-Roch Vlimant
  */
 
@@ -65,13 +65,13 @@ MuonRoadTrajectoryBuilder::MuonRoadTrajectoryBuilder(const edm::ParameterSet & i
   theUpdator= new KFUpdator();
 
   //limit the total number of possible trajectories taken into account for a single seed
-  theMaxTrajectories = iConfig.getParameter<uint>("maxTrajectories");
+  theMaxTrajectories = iConfig.getParameter<unsigned int>("maxTrajectories");
 
   //limit the type of module considered to gather rechits
   theDynamicMaxNumberOfHitPerModule = iConfig.getParameter<bool>("dynamicMaxNumberOfHitPerModule");
-  theNumberOfHitPerModuleDefault = iConfig.getParameter<uint>("numberOfHitPerModule");
-  theMaxTrajectoriesThreshold = iConfig.getParameter<std::vector<uint> >("maxTrajectoriesThreshold");
-  theNumberOfHitPerModuleThreshold = iConfig.getParameter<std::vector<uint> >("numberOfHitPerModuleThreshold");
+  theNumberOfHitPerModuleDefault = iConfig.getParameter<unsigned int>("numberOfHitPerModule");
+  theMaxTrajectoriesThreshold = iConfig.getParameter<std::vector<unsigned int> >("maxTrajectoriesThreshold");
+  theNumberOfHitPerModuleThreshold = iConfig.getParameter<std::vector<unsigned int> >("numberOfHitPerModuleThreshold");
 
   //could be configurable, but not
   theBranchonfirstlayer=true;
@@ -79,7 +79,7 @@ MuonRoadTrajectoryBuilder::MuonRoadTrajectoryBuilder(const edm::ParameterSet & i
   theCarriedIPatfirstlayerModule =true;
 
   //output track candidate selection
-  theMinNumberOfHitOnCandidate = iConfig.getParameter<uint>("minNumberOfHitOnCandidate");
+  theMinNumberOfHitOnCandidate = iConfig.getParameter<unsigned int>("minNumberOfHitOnCandidate");
   
   //single or multiple trajectories per muon
   theOutputAllTraj = iConfig.getParameter<bool>("outputAllTraj");
@@ -108,8 +108,8 @@ void MuonRoadTrajectoryBuilder::setEvent(const edm::Event & iEvent) const {
 bool trajectoryOrder(const MuonRoadTrajectoryBuilder::trajectory & traj1, const MuonRoadTrajectoryBuilder::trajectory & traj2)
 { //order so that first element of the list have
   //most hits, if equal smallest chi2
-  uint s1=traj1.measurements.size();
-  uint s2=traj2.measurements.size();
+  unsigned int s1=traj1.measurements.size();
+  unsigned int s2=traj2.measurements.size();
   if (s1>s2) return true; //decreasing order of measurements.size()
   else {
       if (s1==s2) return (traj1.chi2<traj2.chi2); //increase order of chi2
@@ -666,7 +666,7 @@ bool MuonRoadTrajectoryBuilder::checkStep(TrajectoryCollection & collection) con
 {
   //dynamic cut on the max number of rechit allowed on a single module
   if (theDynamicMaxNumberOfHitPerModule) {
-    for (uint vit = 0; vit!= theMaxTrajectoriesThreshold.size() ; vit++){
+    for (unsigned int vit = 0; vit!= theMaxTrajectoriesThreshold.size() ; vit++){
       if (collection.size() >theMaxTrajectoriesThreshold[vit]){
 	theNumberOfHitPerModule= theNumberOfHitPerModuleThreshold[vit];}
       else
@@ -676,7 +676,7 @@ bool MuonRoadTrajectoryBuilder::checkStep(TrajectoryCollection & collection) con
   if ( collection.size() > theMaxTrajectories) {
     //order with most hits or best chi2
     collection.sort(trajectoryOrder);
-    uint prevSize=collection.size();
+    unsigned int prevSize=collection.size();
     collection.resize(theMaxTrajectories);
     edm::LogInfo(theCategory)
       <<" too many possible trajectories ("<<prevSize

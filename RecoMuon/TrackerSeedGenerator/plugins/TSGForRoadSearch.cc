@@ -26,7 +26,7 @@
 
 TSGForRoadSearch::TSGForRoadSearch(const edm::ParameterSet & par){
 
-  theOption = par.getParameter<uint>("option");
+  theOption = par.getParameter<unsigned int>("option");
   theCopyMuonRecHit = par.getParameter<bool>("copyMuonRecHit");
 
   double Chi2 = par.getParameter<double>("maxChi2");
@@ -211,13 +211,13 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
 
   LogDebug(theCategory)<<"starting looking for a compatible layer from: "<<outer<<"\nz: "<<z<<"TEC1 z: "<<ptecc.front()->surface().position().z();
 
-  uint layerShift=0;
+  unsigned int layerShift=0;
   const DetLayer *inLayer = 0;
   if (fabs(z) < ptecc.front()->surface().position().z()  ){
     inLayer = *(blc.rbegin()+layerShift);
     LogTrace(theCategory)<<"choosing TOB layer with shift: "<<layerShift;
   } else {
-    uint tecIt=1;
+    unsigned int tecIt=1;
     for (; tecIt!=ptecc.size();tecIt++){
       LogTrace(theCategory)<<"checking surface with shift: "<<tecIt
 			   <<"z: "<<ptecc[tecIt]->surface().position().z();

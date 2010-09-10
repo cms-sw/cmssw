@@ -112,7 +112,7 @@ MuonErrorMatrix::MuonErrorMatrix(const edm::ParameterSet & iConfig):theD(0){
       theD = new TFile(fullpath.c_str());
       theD->SetWritable(false);
     }else{
-      static uint neverTheSame=0;
+      static unsigned int neverTheSame=0;
       std::stringstream dirName("MuonErrorMatrixDirectory");
       dirName<<neverTheSame++;
       edm::LogInfo(theCategory)<<"using an error matrix object from configuration file. putting memory histograms to: "<<dirName.str();
@@ -165,7 +165,7 @@ MuonErrorMatrix::MuonErrorMatrix(const edm::ParameterSet & iConfig):theD(0){
 	  unsigned int iX=pf->GetNbinsX();
 	  unsigned int iY=pf->GetNbinsY();
 	  unsigned int iZ=pf->GetNbinsZ();
-	  uint continuous_i=0;
+	  unsigned int continuous_i=0;
 	  for(unsigned int ix=1;ix<=iX;++ix){
 	    for(unsigned int iy=1;iy<=iY;++iy){
 	      for(unsigned int iz=1;iz<=iZ;++iz){

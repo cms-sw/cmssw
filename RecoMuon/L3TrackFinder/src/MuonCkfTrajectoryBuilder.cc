@@ -159,7 +159,7 @@ MuonCkfTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj
         }
 	
         //if fails: try to rescale locally the state to find measurements
-        if ((uint)invalidHits==result.size() && theRescaleErrorIfFail!=1.0 && result.size()!=0)
+        if ((unsigned int)invalidHits==result.size() && theRescaleErrorIfFail!=1.0 && result.size()!=0)
           {
 	    result.clear();
 	    LogDebug("CkfPattern")<<"using a rescale by "<< theRescaleErrorIfFail <<" to find measurements.";
@@ -171,7 +171,7 @@ MuonCkfTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj
       }
 
       //if fails: go to next layers
-      if (result.size()==0 || (uint)invalidHits==result.size())
+      if (result.size()==0 || (unsigned int)invalidHits==result.size())
         {
           result.clear();
 	  LogDebug("CkfPattern")<<"Need to go to next layer to get measurements";
@@ -188,7 +188,7 @@ MuonCkfTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj
         }
 
       //if fails: this is on the next layers already, try rescaling locally the state
-      if (result.size()!=0 && (uint)invalidHits==result.size() && theRescaleErrorIfFail!=1.0)
+      if (result.size()!=0 && (unsigned int)invalidHits==result.size() && theRescaleErrorIfFail!=1.0)
         {
           result.clear();
 	  LogDebug("CkfPattern")<<"using a rescale by "<< theRescaleErrorIfFail <<" to find measurements on next layers.";

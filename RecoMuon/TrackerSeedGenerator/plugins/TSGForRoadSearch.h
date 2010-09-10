@@ -89,7 +89,7 @@ private:
   TrajectoryStateUpdator * theUpdator;
   const MuonServiceProxy * theProxyService;
 
-  uint theOption;
+  unsigned int theOption;
   bool theCopyMuonRecHit;
   bool theManySeeds;
   std::string thePropagatorName;

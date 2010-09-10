@@ -139,7 +139,7 @@ bool MuonErrorMatrixAdjuster::attachRecHits(const reco::Track & recotrack_orig,
 				       TrackingRecHitCollection& RHcol){
   //loop over the hits of the original track
   trackingRecHit_iterator recHit = recotrack_orig.recHitsBegin();
-  uint irh=0;
+  unsigned int irh=0;
   for (; recHit!=recotrack_orig.recHitsEnd();++recHit){
     //clone it. this is meandatory
     TrackingRecHit * hit = (*recHit)->clone();
@@ -183,7 +183,7 @@ MuonErrorMatrixAdjuster::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   
   TrajectoryStateTransform transformer;
   
-  for(uint it=0;it!=tracks->size();it++)
+  for(unsigned int it=0;it!=tracks->size();it++)
     {
       const reco::Track & recotrack_orig = (*tracks)[it];
       FreeTrajectoryState PCAstate = transformer.initialFreeState(recotrack_orig, theField.product());

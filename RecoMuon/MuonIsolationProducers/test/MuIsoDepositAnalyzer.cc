@@ -51,19 +51,19 @@ void MuIsoDepositAnalyzer:: analyze(const edm::Event& ev, const edm::EventSetup&
   edm::Handle<reco::TrackCollection> trackCollection;
   ev.getByLabel(theMuonLabel, trackCollection);
 
-  uint nDeps = theIsoDepositInputTags.size();
+  unsigned int nDeps = theIsoDepositInputTags.size();
   std::vector<edm::Handle<reco::IsoDepositMap> > isoDeposits(nDeps);
-  for (uint iDep = 0; iDep < nDeps; ++iDep){
+  for (unsigned int iDep = 0; iDep < nDeps; ++iDep){
     ev.getByLabel(theIsoDepositInputTags[iDep], isoDeposits[iDep]);
   }
 
   const reco::TrackCollection&  muons = *(trackCollection.product());
   typedef reco::TrackCollection::const_iterator IT;
-  uint iMu = 0;
+  unsigned int iMu = 0;
   for (IT it=muons.begin(), itEnd = muons.end();  it < itEnd; ++it) {
     LogTrace("") <<"muon pt="<< (*it).pt();
     reco::TrackRef muRef(trackCollection, iMu); ++iMu;
-    for (uint iDep=0; iDep < isoDeposits.size();++iDep){
+    for (unsigned int iDep=0; iDep < isoDeposits.size();++iDep){
       const reco::IsoDeposit& dep = (*isoDeposits[iDep])[muRef];
       LogTrace("") <<theIsoDepositInputTags[iDep]
 		   <<dep.print();
@@ -71,7 +71,7 @@ void MuIsoDepositAnalyzer:: analyze(const edm::Event& ev, const edm::EventSetup&
     for( int i=0; i<10; ++i) {
       float coneSize = 0.1*i;
       LogTrace("") <<" dR cone: "<<coneSize<<" isolationvariables: ";
-      for (uint iDep=0; iDep < isoDeposits.size();++iDep){
+      for (unsigned int iDep=0; iDep < isoDeposits.size();++iDep){
 	const reco::IsoDeposit& dep = (*isoDeposits[iDep])[muRef];
 	      LogTrace("") <<theIsoDepositInputTags[iDep]
 			   <<" (eta, phi)= ("<<dep.eta()<<", "<<dep.phi()

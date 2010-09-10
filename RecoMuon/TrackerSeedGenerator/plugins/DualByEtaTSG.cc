@@ -8,7 +8,7 @@ DualByEtaTSG::DualByEtaTSG(const edm::ParameterSet &pset) : SeparatingTSG(pset){
     {edm::LogError(theCategory)<<"not two seed generators provided";}
 }
 
-uint DualByEtaTSG::selectTSG(const TrackCand & muonTrackCand, const TrackingRegion& region)
+unsigned int DualByEtaTSG::selectTSG(const TrackCand & muonTrackCand, const TrackingRegion& region)
 {
   LogDebug(theCategory)<<"|eta|=|"<<muonTrackCand.second->eta()<<"|"
 		       <<" compared to: "<<theEtaSeparation;

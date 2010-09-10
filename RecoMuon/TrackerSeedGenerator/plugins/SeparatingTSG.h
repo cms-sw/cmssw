@@ -18,7 +18,7 @@ class SeparatingTSG : public CompositeTSG {
 
   void trackerSeeds(const TrackCand&, const TrackingRegion&, BTSeedCollection &);
 
-  virtual uint selectTSG(const TrackCand&, const TrackingRegion&) =0;
+  virtual unsigned int selectTSG(const TrackCand&, const TrackingRegion&) =0;
  private:
   std::string theCategory;
 

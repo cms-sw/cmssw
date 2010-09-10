@@ -54,7 +54,7 @@ MuIsoDepositProducer::MuIsoDepositProducer(const ParameterSet& par) :
       .getParameter<std::vector<std::string> >("DepositInstanceLabels");
   }
   
-  for (uint i = 0; i < theDepositNames.size(); ++i){
+  for (unsigned int i = 0; i < theDepositNames.size(); ++i){
     std::string alias = theConfig.getParameter<std::string>("@module_label");
     if (theDepositNames[i] != "") alias += "_" + theDepositNames[i];
     produces<reco::IsoDepositMap>(theDepositNames[i]).setBranchAlias(alias);
@@ -82,7 +82,7 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
   }
 
 
-  uint nDeps = theMultipleDepositsFlag ? theDepositNames.size() : 1;
+  unsigned int nDeps = theMultipleDepositsFlag ? theDepositNames.size() : 1;
 
 
 
@@ -93,7 +93,7 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
   Handle<View<RecoCandidate> > muons;//! get rid of this at some point and use the cands
   Handle<View<Candidate> > cands;
 
-  uint nMuons = 0;
+  unsigned int nMuons = 0;
 
   bool readFromRecoTrack = theInputType == "TrackCollection";
   bool readFromRecoMuon = theInputType == "MuonCollection";
@@ -112,7 +112,7 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
   }
   if (readFromCandidateView || theExtractForCandidate){
     event.getByLabel(theMuonCollectionTag,cands);
-    uint nCands = cands->size();
+    unsigned int nCands = cands->size();
     if (readFromRecoMuon && theExtractForCandidate){
       //! expect nMuons set already
       if (nMuons != nCands) edm::LogError(metname)<<"Inconsistent configuration or failure to read Candidate-muon view";
@@ -121,11 +121,11 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
     LogDebug(metname)<< "Got candidate view with size "<<nMuons;
   }
 
-  static const uint MAX_DEPS=10;
+  static const unsigned int MAX_DEPS=10;
   std::auto_ptr<reco::IsoDepositMap> depMaps[MAX_DEPS];
 
   if (nDeps >10 ) LogError(metname)<<"Unable to handle more than 10 input deposits";
-  for (uint i =0;i<nDeps; ++i){
+  for (unsigned int i =0;i<nDeps; ++i){
     depMaps[i] =  std::auto_ptr<reco::IsoDepositMap>(new reco::IsoDepositMap());
   }
   
@@ -136,7 +136,7 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
     
     std::vector<std::vector<IsoDeposit> > deps2D(nDeps, std::vector<IsoDeposit>(nMuons));
     
-    for (uint i=0; i<  nMuons; ++i) {
+    for (unsigned int i=0; i<  nMuons; ++i) {
       TrackBaseRef muRef;
       if (readFromRecoMuon){
 	if (theMuonTrackRefType == "track"){
@@ -175,16 +175,16 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
 	std::vector<IsoDeposit> deps(nDeps);
                 if (readFromCandidateView || theExtractForCandidate) deps = theExtractor->deposits(event, eventSetup, (*cands)[i]);
 	else deps = theExtractor->deposits(event, eventSetup, muRef);
-	for (uint iDep =0; iDep<nDeps; ++iDep) {
+	for (unsigned int iDep =0; iDep<nDeps; ++iDep) {
 	  deps2D[iDep][i] = deps[iDep];
 	}
       }
     }//! end for (nMuons)
     
     //! now fill in selectively
-    for (uint iDep=0; iDep < nDeps; ++iDep){
+    for (unsigned int iDep=0; iDep < nDeps; ++iDep){
       //!some debugging stuff
-      for (uint iMu = 0; iMu< nMuons; ++iMu){
+      for (unsigned int iMu = 0; iMu< nMuons; ++iMu){
 	LogTrace(metname)<<"Contents of "<<theDepositNames[iDep]
 			 <<" for a muon at index "<<iMu;
 	LogTrace(metname)<<deps2D[iDep][iMu].print();
@@ -210,7 +210,7 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
   }//! end if (nMuons>0)
 
 
-  for (uint iMap = 0; iMap < nDeps; ++iMap){
+  for (unsigned int iMap = 0; iMap < nDeps; ++iMap){
     LogTrace(metname)<<"About to put a deposit named "<<theDepositNames[iMap]
 		     <<" of size "<<depMaps[iMap]->size()
 		     <<" into edm::Event";

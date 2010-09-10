@@ -49,7 +49,7 @@ CollectionCombiner<Collection>::~CollectionCombiner(){}
 template <typename Collection>
 void CollectionCombiner<Collection>::produce(edm::Event& iEvent, const edm::EventSetup& es)
 {
-  uint i=0,i_max=labels.size();
+  unsigned int i=0,i_max=labels.size();
   edm::Handle<Collection> handle;
   std::auto_ptr<Collection> merged(new Collection());
   for (;i!=i_max;++i){

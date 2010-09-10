@@ -143,13 +143,13 @@ void SETMuonSeedProducer::produce(edm::Event& event, const edm::EventSetup& even
 	//std::cout<<"  fwfit_SET failed!"<<std::endl;
 	continue;
       }  
-      for(uint iSet = 0; iSet<bestSets_inCluster.size();++iSet){
+      for(unsigned int iSet = 0; iSet<bestSets_inCluster.size();++iSet){
         seedCandidates_AllChosen.push_back(bestSets_inCluster[iSet]);
       }
     }
   }
   //---- loop over all the SETs candidates
-  for(uint iMuon = 0;iMuon<seedCandidates_AllChosen.size();++iMuon){
+  for(unsigned int iMuon = 0;iMuon<seedCandidates_AllChosen.size();++iMuon){
     //std::cout<<" chosen iMuon = "<<iMuon<<std::endl;
     Trajectory::DataContainer finalCandidate;
     SeedCandidate * aFinalSet = &(seedCandidates_AllChosen[iMuon]);
@@ -185,7 +185,7 @@ void SETMuonSeedProducer::produce(edm::Event& event, const edm::EventSetup& even
 	//output->push_back( theSeedFinder.makeSeed(firstTSOS, hitContainer) );
 	
 	edm::OwnVector<TrackingRecHit> recHitsContainer;
-	for(uint iHit = 0;iHit < hitContainer.size();++iHit){
+	for(unsigned int iHit = 0;iHit < hitContainer.size();++iHit){
 	  recHitsContainer.push_back(hitContainer.at(iHit)->hit()->clone());
 	}
 	PropagationDirection dir = oppositeToMomentum;

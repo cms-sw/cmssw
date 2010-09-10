@@ -76,8 +76,8 @@ void IsolationExample:: analyze(const edm::Event& ev, const edm::EventSetup& es)
   //! make a dummy veto list (used later)
   reco::IsoDeposit::Vetos dVetos;
 
-  uint nMuons = muons.size();
-  for(uint iMu=0; iMu < nMuons; ++iMu){
+  unsigned int nMuons = muons.size();
+  for(unsigned int iMu=0; iMu < nMuons; ++iMu){
     LogTrace(metname) <<"muon pt="<< muons[iMu].pt();
 
     //! let's look at sumPt in 5 different cones

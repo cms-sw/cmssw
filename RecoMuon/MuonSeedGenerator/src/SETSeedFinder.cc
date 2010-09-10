@@ -142,7 +142,7 @@ void SETSeedFinder::limitCombinatorics(std::vector< MuonRecHitContainer > & Muon
   std::vector <double> sizeOfLayer(nLayers);
   //std::cout<<" nLayers = "<<nLayers<<std::endl;
   double nAllCombinations = 1.;
-  for(uint i = 0;i<nLayers;++i ){
+  for(unsigned int i = 0;i<nLayers;++i ){
     //std::cout<<" i = "<<i<<" size = "<<MuonRecHitContainer_perLayer.at(i).size()<<std::endl;
     sizeOfLayer.at(i) = MuonRecHitContainer_perLayer.at(i).size();
     nAllCombinations*=MuonRecHitContainer_perLayer.at(i).size();
@@ -654,7 +654,7 @@ TrajectorySeed SETSeedFinder::makeSeed(const TrajectoryStateOnSurface & firstTSO
                                        const TransientTrackingRecHit::ConstRecHitContainer & hits) const
 {
   edm::OwnVector<TrackingRecHit> recHitsContainer;
-  for(uint iHit = 0;iHit < hits.size();++iHit){
+  for(unsigned int iHit = 0;iHit < hits.size();++iHit){
     recHitsContainer.push_back(hits.at(iHit)->hit()->clone());
   }
   PropagationDirection dir = oppositeToMomentum;

@@ -229,9 +229,9 @@ void SETPatternRecognition::produce(const edm::Event& event, const edm::EventSet
 
   // merge clusters that are too close
   // measure distance between final "running mean"
-  for(uint NNN = 0; NNN < seeds.size(); ++NNN) {
+  for(unsigned int NNN = 0; NNN < seeds.size(); ++NNN) {
 
-    for(uint MMM = NNN+1; MMM < seeds.size(); ++MMM) {
+    for(unsigned int MMM = NNN+1; MMM < seeds.size(); ++MMM) {
       if(running_meanX[MMM] == 999999. || running_meanX[NNN] == 999999. ) {
 	//        LogDebug("CSC") << "CSCSegmentST::clusterHits: Warning: Skipping used seeds, this should happen - inform developers!\n";
 	//std::cout<<"We should never see this line now!!!"<<std::endl;
@@ -314,7 +314,7 @@ void SETPatternRecognition::produce(const edm::Event& event, const edm::EventSet
   bool tooCloseClusters = false;
   if(seeds.size()>1){
     std::vector <double> seedTheta(seeds.size());
-    for(uint iSeed = 0;iSeed<seeds.size();++iSeed){
+    for(unsigned int iSeed = 0;iSeed<seeds.size();++iSeed){
       seedTheta[iSeed] = seeds[iSeed][0]->globalPosition().theta(); 
       if(iSeed){
 	double dTheta = fabs(seedTheta[iSeed] - seedTheta[iSeed-1]);
@@ -331,7 +331,7 @@ void SETPatternRecognition::produce(const edm::Event& event, const edm::EventSet
   // compatible clusters. For this we compare the mean cluster postition with the 
   // 2D segment position. We should use the valid coordinate only and use the bad coordinate 
   // as a cross check.
-  for(uint NNN = 0; NNN < seeds.size(); ++NNN) {
+  for(unsigned int NNN = 0; NNN < seeds.size(); ++NNN) {
     if(running_meanX[NNN] == 999999.) continue; //skip seeds that have been marked as used up in merging
 
     // We have a valid cluster - loop over all 2D segments.
@@ -396,7 +396,7 @@ void SETPatternRecognition::produce(const edm::Event& event, const edm::EventSet
     int secondCh = 0;
     DetId detId_prev;
     if(seeds[NNN].size()>1){// actually we should check how many chambers with measurements are present
-      for(uint iRH = 0 ;iRH<seeds[NNN].size() ;++iRH){
+      for(unsigned int iRH = 0 ;iRH<seeds[NNN].size() ;++iRH){
         if( iRH && detId_prev != seeds[NNN][iRH]->hit()->geographicalId()){
 	  ++secondCh;
 	  break;
@@ -434,7 +434,7 @@ void SETPatternRecognition::produce(const edm::Event& event, const edm::EventSet
   // hand over the final seeds to the output
   // would be more elegant if we could do the above step with 
   // erasing the merged ones, rather than the 
-  for(uint NNN = 0; NNN < seeds.size(); ++NNN) {
+  for(unsigned int NNN = 0; NNN < seeds.size(); ++NNN) {
     if(running_meanX[NNN] == 999999.) continue; //skip seeds that have been marked as used up in merging
     //std::cout<<"Next Cluster..."<<std::endl;
     segments_clusters.push_back(seeds[NNN]);

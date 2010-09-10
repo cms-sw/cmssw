@@ -31,14 +31,14 @@ CompositeTSG::~CompositeTSG(){
 
 void CompositeTSG::init(const MuonServiceProxy* service){
   theProxyService = service;
-  for (uint iTSG=0; iTSG!=theTSGs.size();iTSG++){
+  for (unsigned int iTSG=0; iTSG!=theTSGs.size();iTSG++){
     if(theTSGs[iTSG]) theTSGs[iTSG]->init(service);
   }
 }
 
 void CompositeTSG::setEvent(const edm::Event &event){
   theEvent = &event;
-  for (uint iTSG=0; iTSG!=theTSGs.size();iTSG++){
+  for (unsigned int iTSG=0; iTSG!=theTSGs.size();iTSG++){
     if(theTSGs[iTSG]) theTSGs[iTSG]->setEvent(event);
   }
 }

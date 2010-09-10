@@ -60,7 +60,7 @@ bool L3TkMuonProducer::sharedSeed(const L3MuonTrajectorySeed& s1,const L3MuonTra
 
 string printvector(const vector<TrackRef> & v){
   std::stringstream ss;
-  for (uint i=0;i!=v.size();++i) {
+  for (unsigned int i=0;i!=v.size();++i) {
     if (i!=0) ss<<"\n";
     ss<<"track with ref: "<<v[i].id().id()<<":"<<v[i].key()
       <<" and pT: "<<v[i]->pt()
@@ -71,7 +71,7 @@ string printvector(const vector<TrackRef> & v){
 
 string printvector(const vector<L3TkMuonProducer::SeedRef> & v){
   std::stringstream ss;
-  for (uint i=0;i!=v.size();++i){
+  for (unsigned int i=0;i!=v.size();++i){
     if (i!=0) ss<<"\n";
     ss<<"seed ref: "<<v[i].id().id()<<":"<<v[i].key();
     if (v[i]->l2Track().isNull())
@@ -104,19 +104,19 @@ void L3TkMuonProducer::produce(Event& event, const EventSetup& eventSetup){
   //make the LX->L3s pools
   LXtoL3sMap LXtoL3s;
 
-  uint maxI = tracks->size();
+  unsigned int maxI = tracks->size();
   bool gotL3seeds=false;
   edm::Handle<L3MuonTrajectorySeedCollection> l3seeds;
 
   //make a list of reference to tracker tracks
   vector<TrackRef> orderedTrackTracks(maxI);
-  for (uint i=0;i!=maxI;i++) orderedTrackTracks[i]=TrackRef(tracks,i);
+  for (unsigned int i=0;i!=maxI;i++) orderedTrackTracks[i]=TrackRef(tracks,i);
   LogDebug(metname)<<"vector of L3 tracks before ordering:\n"<<printvector(orderedTrackTracks);
   //order them in pT
   sort(orderedTrackTracks.begin(),orderedTrackTracks.end(),trackRefBypT);
   LogDebug(metname)<<"vector of L3 tracks after ordering:\n"<<printvector(orderedTrackTracks);
   //loop over then
-  for (uint i=0;i!=maxI;i++) {
+  for (unsigned int i=0;i!=maxI;i++) {
     TrackRef & tk=orderedTrackTracks[i];  
     SeedRef l3seedRef = tk->seedRef().castTo<SeedRef>();
 
@@ -136,7 +136,7 @@ void L3TkMuonProducer::produce(Event& event, const EventSetup& eventSetup){
       LogDebug(metname)<<"got seeds handle from: "<<l3seedsTag;
     }
     //loop the other seeds in the collection
-    for (uint iS=0;iS!=l3seeds->size();++iS){
+    for (unsigned int iS=0;iS!=l3seeds->size();++iS){
       const L3MuonTrajectorySeed & seed = (*l3seeds)[iS];
       const L3MuonTrajectorySeed & thisSeed = *l3seedRef;
       if (l3seedRef.key()==iS) continue; //not care about this one
@@ -156,7 +156,7 @@ void L3TkMuonProducer::produce(Event& event, const EventSetup& eventSetup){
     sort(allPossibleOrderedLx.begin(),allPossibleOrderedLx.end(),seedRefBypT);
     LogDebug(metname)<<"list of possible Lx objects for tracker track: "<<tk.id().id()<<":"<<tk.key()<<" after ordering\n"<<printvector(allPossibleOrderedLx);
     // assign this tracker track to the highest pT Lx.
-    for (uint iL=0;iL!=allPossibleOrderedLx.size();++iL){
+    for (unsigned int iL=0;iL!=allPossibleOrderedLx.size();++iL){
       SeedRef thisRef=allPossibleOrderedLx[iL];
       pseudoRef ref = makePseudoRef(*thisRef);
       LogDebug(metname)<<"seed ref: "<<thisRef.id().id()<<":"<<thisRef.key()<<" transcribe to pseudoref: "<<ref.first<<":"<<ref.second;
@@ -190,7 +190,7 @@ void L3TkMuonProducer::produce(Event& event, const EventSetup& eventSetup){
   LogDebug(metname)<<"reading the map to make "<< LXtoL3s.size()<<"products.";
   //fill the collection from the map
   LXtoL3sMap::iterator f=LXtoL3s.begin();
-  uint i=0;
+  unsigned int i=0;
   for (;f!=LXtoL3s.end();++f,++i){
 
     LogDebug(metname)<<"copy the track over, and make ref to extra";
@@ -210,7 +210,7 @@ void L3TkMuonProducer::produce(Event& event, const EventSetup& eventSetup){
 				      );
 
     LogDebug(metname)<<"copy the hits too";
-    uint iRH=0;
+    unsigned int iRH=0;
     for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit,++iRH ) {
       outRecHits->push_back((*hit)->clone());
       (*outTrackExtras)[i].add( TrackingRecHitRef( rHits, iRH));

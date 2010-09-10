@@ -19,7 +19,7 @@ class DualByL2TSG : public SeparatingTSG{
   DualByL2TSG(const edm::ParameterSet &pset);
 
   /// decide the TSG depending on the existence of a L3 track seeded from the L2. Return value is 0 or 1.
-  uint selectTSG(const TrackCand&, const TrackingRegion&);
+  unsigned int selectTSG(const TrackCand&, const TrackingRegion&);
 
  private:
   std::string theCategory;

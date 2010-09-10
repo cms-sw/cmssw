@@ -91,8 +91,8 @@ void TSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
   ev.getByLabel(theL2CollectionLabel ,l2muonH); 
 
   // produce trajectoryseed collection
-  uint imu=0;
-  uint imuMax=l2muonH->size();
+  unsigned int imu=0;
+  unsigned int imuMax=l2muonH->size();
   LogDebug("TSGFromL2Muon")<<imuMax<<" l2 tracks.";
 
   for (;imu!=imuMax;++imu){
@@ -125,8 +125,8 @@ void TSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
        LogDebug("TSGFromL2Muon") << tkSeeds.size() << " seeds for this L2 afther cleaning.";
     }
 
-    uint is=0;
-    uint isMax=tkSeeds.size();
+    unsigned int is=0;
+    unsigned int isMax=tkSeeds.size();
     LogDebug("TSGFromL2Muon")<<isMax<<" seeds for this L2.";
     for (;is!=isMax;++is){
       result->push_back( L3MuonTrajectorySeed(tkSeeds[is], muRef));

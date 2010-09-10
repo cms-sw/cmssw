@@ -1,8 +1,8 @@
 /** \class DirectMuonTrajectoryBuilder
  *  Class which takes a trajectory seed and fit its hits, returning a Trajectory container
  *
- *  $Date: 2009/02/05 07:39:51 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/07/03 09:12:54 $
+ *  $Revision: 1.3 $
  *  \author
  */
 
@@ -74,7 +74,7 @@ DirectMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 //       double previousWeight = 0.;
 //       std::vector <double> weights(trajRH.size());
 //       std::vector <double> weight_diff(trajRH.size());
-//       for(uint iRH = 0; iRH<trajRH.size();++iRH){
+//       for(unsigned int iRH = 0; iRH<trajRH.size();++iRH){
 // 	double weight = trajRH[iRH]->globalPosition().theta() - previousTheta;
 // 	weights.at(iRH)= weight;
 // 	double weightDiff = weight + previousWeight;
@@ -92,7 +92,7 @@ DirectMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 //       }
 //       std::vector <int> badHits;
 //       TransientTrackingRecHit::ConstRecHitContainer trajRH_pruned;
-//       for(uint iMeas = 0; iMeas<measurements_segments.size();++iMeas){
+//       for(unsigned int iMeas = 0; iMeas<measurements_segments.size();++iMeas){
 // 	// we have to apply pruning on the base of intermed. chi2 of measurements
 // 	// and then refit again!
 // 	std::cout<<" after refitter : iMeas = "<<iMeas<<"  estimate() = "<< measurements_segments[iMeas].estimate()<<

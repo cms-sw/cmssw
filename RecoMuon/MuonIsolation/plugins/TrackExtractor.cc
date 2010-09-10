@@ -25,7 +25,7 @@ TrackExtractor::TrackExtractor( const ParameterSet& par ) :
   theDR_Veto(par.getParameter<double>("DR_Veto")),
   theBeamlineOption(par.getParameter<string>("BeamlineOption")),
   theBeamSpotLabel(par.getParameter<edm::InputTag>("BeamSpotLabel")),
-  theNHits_Min(par.getParameter<uint>("NHits_Min")),
+  theNHits_Min(par.getParameter<unsigned int>("NHits_Min")),
   theChi2Ndof_Max(par.getParameter<double>("Chi2Ndof_Max")),
   theChi2Prob_Min(par.getParameter<double>("Chi2Prob_Min")),
   thePt_Min(par.getParameter<double>("Pt_Min"))
