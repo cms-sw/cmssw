@@ -1,10 +1,11 @@
-///  $Date: 2008/09/02 15:18:19 $
-///  $Revision: 1.1 $
-/// (last update by $Author: flucke $)
+///  $Date: 2008/12/12 15:58:07 $
+///  $Revision: 1.2 $
+/// (last update by $Author: pablom $)
 
 #include "Alignment/CommonAlignmentParametrization/interface/AlignmentParametersFactory.h"
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters4D.h"
+#include "Alignment/CommonAlignmentParametrization/interface/BeamSpotAlignmentParameters.h"
 //#include "Alignment/SurveyAnalysis/interface/SurveyParameters.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -22,6 +23,7 @@ namespace AlignmentParametersFactory {
     if (typeString == "RigidBody") return kRigidBody;
     else if (typeString == "Survey") return kSurvey; //GF: do not belong here, so remove in the long term...
     else if (typeString == "RigidBody4D") return kRigidBody4D;    
+    else if (typeString == "BeamSpot") return kBeamSpot;    
     throw cms::Exception("BadConfig") 
       << "AlignmentParametersFactory" << " No AlignmentParameters with name '" << typeString << "'.";
     
@@ -34,6 +36,7 @@ namespace AlignmentParametersFactory {
     if (typeInt == kRigidBody) return kRigidBody;
     if (typeInt == kSurvey) return kSurvey; //GF: do not belong here, so remove in the long term...
     if (typeInt == kRigidBody4D) return kRigidBody4D;    
+    if (typeInt == kBeamSpot) return kBeamSpot;    
     
     throw cms::Exception("BadConfig") 
       << "AlignmentParametersFactory" << " No AlignmentParameters with number " << typeInt << ".";
@@ -51,6 +54,8 @@ namespace AlignmentParametersFactory {
       return "Survey";
     case kRigidBody4D:
       return "RigiBody4D"; 
+    case kBeamSpot:
+      return "BeamSpot"; 
     }
 
     return "unknown_should_never_reach"; // to please the compiler
@@ -81,6 +86,13 @@ namespace AlignmentParametersFactory {
 	const AlgebraicVector par(RigidBodyAlignmentParameters4D::N_PARAM, 0);
 	const AlgebraicSymMatrix cov(RigidBodyAlignmentParameters4D::N_PARAM, 0);
 	return new RigidBodyAlignmentParameters4D(ali, par, cov, sel);
+      }
+      break;
+    case kBeamSpot:
+      {
+	const AlgebraicVector par(BeamSpotAlignmentParameters::N_PARAM, 0);
+	const AlgebraicSymMatrix cov(BeamSpotAlignmentParameters::N_PARAM, 0);
+	return new BeamSpotAlignmentParameters(ali, par, cov, sel);
       }
       break;
     }

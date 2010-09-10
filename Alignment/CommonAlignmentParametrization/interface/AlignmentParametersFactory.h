@@ -6,9 +6,9 @@
 /// Factory interface to create AlignmentParameters for the known types,
 /// defined by the enum AlignmentParametersFactory::ParametersType.
 ///
-///  $Date: 2008/09/03 12:07:16 $
-///  $Revision: 1.2 $
-/// (last update by $Author: flucke $)
+///  $Date: 2008/12/12 15:58:07 $
+///  $Revision: 1.3 $
+/// (last update by $Author: pablom $)
 
 #include <vector>
 #include <string>
@@ -21,7 +21,8 @@ namespace AlignmentParametersFactory {
   enum ParametersType {
     kRigidBody = 0, // RigidBodyAlignmentParameters
     kSurvey,  // SurveyParameters GF: do not belong here, so remove in the long term...
-    kRigidBody4D  
+    kRigidBody4D,
+    kBeamSpot
   };
 
   /// convert string to ParametersType - exception if not known
