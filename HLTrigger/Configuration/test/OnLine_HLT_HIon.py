@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_8_1/HIon/V10 (CMSSW_3_8_1_HLT4)
+# /dev/CMSSW_3_8_1/HIon/V11 (CMSSW_3_8_1_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V10')
+  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V11')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -286,21 +286,21 @@ process.ESUnpackerWorkerESProducer = cms.ESProducer( "ESUnpackerWorkerESProducer
 )
 process.EcalBarrelGeometryFromDBEP = cms.ESProducer( "EcalBarrelGeometryFromDBEP",
   appendToDataLabel = cms.string( "" ),
-  applyAlignment = cms.bool( False )
+  applyAlignment = cms.bool( True )
 )
 process.EcalElectronicsMappingBuilder = cms.ESProducer( "EcalElectronicsMappingBuilder",
   appendToDataLabel = cms.string( "" )
 )
 process.EcalEndcapGeometryFromDBEP = cms.ESProducer( "EcalEndcapGeometryFromDBEP",
   appendToDataLabel = cms.string( "" ),
-  applyAlignment = cms.bool( False )
+  applyAlignment = cms.bool( True )
 )
 process.EcalLaserCorrectionService = cms.ESProducer( "EcalLaserCorrectionService",
   appendToDataLabel = cms.string( "" )
 )
 process.EcalPreshowerGeometryFromDBEP = cms.ESProducer( "EcalPreshowerGeometryFromDBEP",
   appendToDataLabel = cms.string( "" ),
-  applyAlignment = cms.bool( False )
+  applyAlignment = cms.bool( True )
 )
 process.EcalRegionCablingESProducer = cms.ESProducer( "EcalRegionCablingESProducer",
   appendToDataLabel = cms.string( "" ),
@@ -1445,23 +1445,26 @@ process.ModuleWebRegistry = cms.Service( "ModuleWebRegistry",
 )
 process.PrescaleService = cms.Service( "PrescaleService",
     lvl1DefaultLabel = cms.untracked.string( "3.2E30" ),
-    lvl1Labels = cms.vstring( '2E31',
+    lvl1Labels = cms.vstring( '2.8E31',
+      '2E31',
+      '1.4E31',
+      '1E31',
       'Cosmics' ),
     prescaleTable = cms.VPSet( 
       cms.PSet(  pathName = cms.string( "HLT_L1DoubleMuOpen" ),
-        prescales = cms.vuint32( 20, 1 )
+        prescales = cms.vuint32( 28, 20, 14, 10, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_ZeroBiasPixel_SingleTrack" ),
-        prescales = cms.vuint32( 1, 0 )
+        prescales = cms.vuint32( 1, 1, 1, 1, 0 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_HIMinBiasCalo" ),
-        prescales = cms.vuint32( 0, 0 )
+        prescales = cms.vuint32( 0, 0, 0, 0, 0 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_HIJet35U" ),
-        prescales = cms.vuint32( 0, 0 )
+        prescales = cms.vuint32( 0, 0, 0, 0, 0 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_HIPhoton15" ),
-        prescales = cms.vuint32( 0, 0 )
+        prescales = cms.vuint32( 0, 0, 0, 0, 0 )
       )
     )
 )
