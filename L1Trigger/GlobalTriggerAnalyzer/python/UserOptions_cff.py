@@ -17,7 +17,8 @@ cmsRunRelease = 'CMSSW_3_7_X'
 #cmsRunRelease = 'CMSSW_3_5_X'
 
 # choose (pre)release used to produce the RelVal samples (data are independent)
-sampleFromRelease = 'CMSSW_3_5_6'
+sampleFromRelease = 'CMSSW_3_7_0'
+#sampleFromRelease = 'CMSSW_3_5_6'
 #sampleFromRelease = 'CMSSW_3_5_2'
 #sampleFromRelease = 'CMSSW_3_5_0'
 #sampleFromRelease = 'CMSSW_3_4_1'
@@ -44,14 +45,14 @@ if useRelValSample == True :
     # RelVals samples 
     # not all combinations (sampleFromRelease, useSample, dataType) are included
     #
-    useSample = 'MinBias'
-    #useSample = 'RelValTTbar'
+    #useSample = 'MinBias'
+    useSample = 'RelValTTbar'
     #useSample = 'RelValQCD_Pt_80_120'
     #useSample = 'Cosmics_CRAFT09_R_V10'
      
     # data type
-    dataType = 'RECO'
-    #dataType = 'RAW'
+    #dataType = 'RECO'
+    dataType = 'RAW'
    
 else :
 
@@ -68,7 +69,8 @@ else :
     #runNumber = '132440_132439_Cosmics'
     #runNumber = '132442_132440_MinimumBias_small'
     #runNumber = 'Commissioning10-Apr1Skim_Muon_skim-v1' 
-    runNumber = 'MinimumBias_Commissioning10-May13thReReco_preproduction-v1_RECO'
+    #runNumber = 'MinimumBias_Commissioning10-May13thReReco_preproduction-v1_RECO'
+    runNumber = '137028'
         
 # change to True to use local files
 #     the type of file must be matched by hand
@@ -82,7 +84,7 @@ if (useLocalFiles == True) :
     dataType = 'RECO'
     
 # number of events to be run (-1 for all)
-maxNumberEvents = 10
+maxNumberEvents = 100
 #maxNumberEvents = -1
 
 ###################### end user choices ###################
@@ -180,7 +182,36 @@ else :
 if (useRelValSample == True) and (useLocalFiles == False) :
     if useGlobalTag.count('IDEAL') or useGlobalTag.count('MC') :
 
-        if (sampleFromRelease == 'CMSSW_3_6_0_pre2') and (useSample == 'RelValTTbar') and (dataType == 'RAW') :
+        if (sampleFromRelease == 'CMSSW_3_7_0') and (useSample == 'RelValTTbar') and (dataType == 'RAW') :
+
+            dataset = '/RelValTTbar/CMSSW_3_7_0-MC_37Y_V4-v1/GEN-SIM-DIGI-RAW-HLTDEBUG'
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', useGlobalTag  
+ 
+            readFiles.extend( [
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_37Y_V4-v1/0024/F06AD39F-3C69-DF11-BDDF-0026189438C2.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_37Y_V4-v1/0024/F0067329-3B69-DF11-A543-0018F3D096BC.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_37Y_V4-v1/0024/F00014C0-4069-DF11-8045-003048678E92.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_37Y_V4-v1/0024/E61DF7FE-3869-DF11-AC16-00304867D446.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_37Y_V4-v1/0024/D4EBA424-3B69-DF11-A8FE-003048B95B30.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_37Y_V4-v1/0024/D0424F9F-3B69-DF11-A3CA-002618FDA277.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_37Y_V4-v1/0024/C800F5A9-4369-DF11-839E-003048678F1C.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_37Y_V4-v1/0024/BEC39F26-3B69-DF11-8D6E-002618943924.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_37Y_V4-v1/0024/B6FDFF16-3B69-DF11-B4F6-00304867BEDE.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_37Y_V4-v1/0024/B29ADB07-3A69-DF11-A379-0018F3D09696.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_37Y_V4-v1/0024/98656090-3A69-DF11-B17D-002618943963.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_37Y_V4-v1/0024/80412107-3A69-DF11-907D-0018F3D09696.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_37Y_V4-v1/0024/7EF1D293-3969-DF11-9121-003048D15DDA.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_37Y_V4-v1/0024/72F4FC4C-4169-DF11-95F1-0026189438F9.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_37Y_V4-v1/0024/1EB7CE2A-3C69-DF11-9B67-002618FDA248.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_37Y_V4-v1/0024/16173D1E-3C69-DF11-80C4-00304867D446.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_37Y_V4-v1/0024/14FDF29D-3B69-DF11-A3F6-0026189438CC.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_37Y_V4-v1/0024/0C27D0A6-3D69-DF11-99F5-003048678B88.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_37Y_V4-v1/0024/0692BD93-3A69-DF11-8400-0026189438D7.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_37Y_V4-v1/0024/04ECC126-3C69-DF11-AF07-002618943896.root' 
+                ] );
+
+
+        elif (sampleFromRelease == 'CMSSW_3_6_0_pre2') and (useSample == 'RelValTTbar') and (dataType == 'RAW') :
 
             dataset = '/RelValTTbar/CMSSW_3_6_0_pre2-MC_3XY_V24-v1/GEN-SIM-DIGI-RAW-HLTDEBUG'
             print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', useGlobalTag  
@@ -375,7 +406,35 @@ if (useRelValSample == True) and (useLocalFiles == False) :
 
     elif useGlobalTag.count('START') :
 
-        if (sampleFromRelease == 'CMSSW_3_6_0_pre2') and (useSample == 'RelValTTbar') and (dataType == 'RAW') :
+        if (sampleFromRelease == 'CMSSW_3_7_0') and (useSample == 'RelValTTbar') and (dataType == 'RAW') :
+
+            dataset = '/RelValTTbar/CMSSW_3_7_0-START37_V4-v1/GEN-SIM-DIGI-RAW-HLTDEBUG'
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', useGlobalTag  
+ 
+            readFiles.extend( [
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0025/DAA27EF5-5069-DF11-9B53-002618943982.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0025/D23295F2-5069-DF11-8EAD-002354EF3BDE.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0025/BEEC3A7D-5269-DF11-B4BD-003048678A88.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0025/BCBC54C8-6069-DF11-A680-003048678ADA.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0025/B28BFFF5-4F69-DF11-8BA5-002618943969.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0025/A2CF55FD-4F69-DF11-AD67-00261894395F.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0025/8AB3AA68-5069-DF11-9629-001A928116B8.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0025/8813F4FB-5169-DF11-A602-0026189438DB.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0025/72382A69-4F69-DF11-86D5-0018F3D096D2.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0025/3C83A8F2-5069-DF11-8691-002618943856.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0025/36D79AE9-5069-DF11-BEC3-00261894397D.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0025/101CA9FE-4F69-DF11-BA81-002618943979.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0025/0CB86B26-5A69-DF11-8D46-00261894380A.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0025/064A62C7-5E69-DF11-9C52-003048678F84.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0024/F6E38566-4E69-DF11-8E5E-0030486790BE.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0024/F4CBE7D7-4E69-DF11-92FB-0026189438E3.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0024/C2D99BDA-4D69-DF11-A886-002618943934.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0024/BCD64BD9-4D69-DF11-B135-00261894396B.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0024/5C5DF74D-4D69-DF11-B0BA-00261894387E.root',
+                '/store/relval/CMSSW_3_7_0/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V4-v1/0024/200B80D9-4E69-DF11-BBE9-00261894396B.root' 
+                ] );
+       
+        elif (sampleFromRelease == 'CMSSW_3_6_0_pre2') and (useSample == 'RelValTTbar') and (dataType == 'RAW') :
 
             dataset = '/RelValTTbar/CMSSW_3_6_0_pre2-START3X_V24-v1/GEN-SIM-DIGI-RAW-HLTDEBUG'
             print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', useGlobalTag  
@@ -629,7 +688,19 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
 
     if dataType == 'RAW' : 
 
-        if runNumber == '123596' :
+        if runNumber == '137028' :
+            dataset = '/Run2010A/ZeroBias/RAW'
+            print '   Running on dataset:', dataset, 'with global tag ', useGlobalTag 
+    
+            readFiles.extend( [
+                '/store/data/Run2010A/ZeroBias/RAW/v1/000/137/028/0C88B386-3971-DF11-A163-000423D99896.root' 
+                ] );
+
+            secFiles.extend([
+                ])
+
+    
+        elif runNumber == '123596' :
             dataset = '/Cosmics/BeamCommissioning09-v1/RAW'
             print '   Running on dataset:', dataset, 'with global tag ', useGlobalTag 
     
@@ -705,7 +776,15 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
 
     elif dataType == 'RECO' : 
         # data
-        if runNumber == '123596' :
+        if runNumber == '137028' :
+            dataset = '/Run2010A/ZeroBias/RECO-v2'
+            print '   Running on dataset:', dataset, 'run', runNumber, 'with global tag ', useGlobalTag 
+
+            readFiles.extend( [
+                '/store/data/Run2010A/ZeroBias/RECO/v2/000/137/028/08BF857D-2471-DF11-9CEB-003048D2BBF0.root'
+        
+                ] );
+        elif runNumber == '123596' :
             dataset = '/Cosmics/BeamCommissioning09-v2/RECO'
             print '   Running on dataset:', dataset, 'run', runNumber, 'with global tag ', useGlobalTag 
 
