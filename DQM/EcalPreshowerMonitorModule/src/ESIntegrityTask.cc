@@ -38,6 +38,8 @@ ESIntegrityTask::ESIntegrityTask(const ParameterSet& ps) {
    dccCollections_   = ps.getParameter<InputTag>("ESDCCCollections");
    kchipCollections_ = ps.getParameter<InputTag>("ESKChipCollections");
 
+   doLumiAnalysis_   = ps.getParameter<bool>("DoLumiAnalysis");
+
    // read in look-up table
    for (int i=0; i<2; ++i) 
      for (int j=0; j<2; ++j) 
@@ -86,12 +88,42 @@ void ESIntegrityTask::beginJob(void) {
 
 void ESIntegrityTask::beginRun(const Run& r, const EventSetup& c) {
 
-   if ( ! mergeRuns_ ) this->reset();
+  if ( ! init_ ) this->setup();
+  if ( ! mergeRuns_ ) this->reset();
 
 }
 
 void ESIntegrityTask::endRun(const Run& r, const EventSetup& c) {
+  // In case of Lumi based analysis Disable SoftReset from Integrity histogram to get full statistics 
+  if (doLumiAnalysis_) {
+    for (int i=0; i<2; ++i) {
+      for (int j=0; j<2; ++j) {
+	if (meDIErrors_[i][j]) {
+          dqmStore_->disableSoftReset(meDIErrors_[i][j]);
+        }
+      }
+    }
+  }
+}
 
+void ESIntegrityTask::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup & c) {
+
+  LogInfo("ESIntegrityTask") << "analyzed " << ievt_ << " events";
+  // In case of Lumi based analysis SoftReset the Integrity histogram
+  if (doLumiAnalysis_) {
+    for (int i=0; i<2; ++i) {
+      for (int j=0; j<2; ++j) {
+	if (meDIErrors_[i][j]) {
+          dqmStore_->softReset(meDIErrors_[i][j]);
+        }
+      }
+    }
+    ievt_ = 0;
+  }
+}
+
+void ESIntegrityTask::endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup & c){
+  if (doLumiAnalysis_) calculateDIFraction();
 }
 
 void ESIntegrityTask::reset(void) {
@@ -163,6 +195,7 @@ void ESIntegrityTask::setup(void){
       meFiberErrCode_->setAxisTitle("Fiber Error Code", 1);
 
       sprintf(histo, "ES Fiber Off");
+
       meFiberOff_ = dqmStore_->book2D(histo, histo, 56, 519.5, 575.5, 36, 0.5, 36.5);
       meFiberOff_->setAxisTitle("ES FED", 1);
       meFiberOff_->setAxisTitle("Fiber Number", 2);
@@ -200,7 +233,14 @@ void ESIntegrityTask::setup(void){
 	  meDIErrors_[i][j]->setAxisTitle("Si X", 1);
 	  meDIErrors_[i][j]->setAxisTitle("Si Y", 2);
 	}
+
+      if (doLumiAnalysis_) {
+	sprintf(histo, "ES Good Channel Fraction");
+	meDIFraction_ =  dqmStore_->book2D(histo, histo, 3, 1.0, 3.0, 3, 1.0, 3.0);
+	meDIFraction_->setLumiFlag();
+      }
    }
+   
 
 }
 
@@ -349,5 +389,36 @@ void ESIntegrityTask::analyze(const Event& e, const EventSetup& c){
 	 }
 
 }
+// 
+// -- Calculate Data Integrity Fraction
+//
+void ESIntegrityTask::calculateDIFraction(void){
 
+  float nValidChannels=0; 
+  float nGlobalErrors=0;
+
+  for (int i=0; i<2; ++i) {
+    for (int j=0; j<2; ++j) {
+      float nValidChannelsES=0; 
+      float nGlobalErrorsES = 0;
+      float reportSummaryES = -1;
+      if (!meDIErrors_[i][j]) continue;
+      for (int x=0; x<40; ++x) {
+	for (int y=0; y<40; ++y) {
+          float val = meDIErrors_[i][j]->getBinContent(x+1, y+1);
+          if (fed_[i][j][x][y] == -1) continue;
+	  nGlobalErrors += val/ievt_;
+	  nValidChannels++;
+	  nGlobalErrorsES += val/ievt_;
+	  nValidChannelsES++;
+	}
+      }
+      if (nValidChannelsES != 0) reportSummaryES = 1 - nGlobalErrorsES/nValidChannelsES;
+      meDIFraction_->setBinContent(i+1, j+1, reportSummaryES);
+    }
+  }
+  float reportSummary = -1.0;
+  if (nValidChannels != 0) reportSummary = 1.0 - nGlobalErrors/nValidChannels;
+  meDIFraction_->setBinContent(3,3, reportSummary);
+}
 DEFINE_FWK_MODULE(ESIntegrityTask);

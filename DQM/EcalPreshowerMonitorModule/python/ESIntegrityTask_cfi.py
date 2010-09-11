@@ -5,6 +5,7 @@ ecalPreshowerIntegrityTask = cms.EDAnalyzer('ESIntegrityTask',
                                             prefixME = cms.untracked.string('EcalPreshower'),
                                             ESDCCCollections = cms.InputTag("ecalPreshowerDigis"),
                                             ESKChipCollections = cms.InputTag("ecalPreshowerDigis"),
-                                            OutputFile = cms.untracked.string("")
+                                            OutputFile = cms.untracked.string(""),
+                                            DoLumiAnalysis = cms.bool(False)
                                             )
 

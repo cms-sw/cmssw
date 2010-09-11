@@ -32,6 +32,12 @@ class ESIntegrityTask : public edm::EDAnalyzer {
       /// EndRun
       void endRun(const edm::Run & r, const edm::EventSetup & c);
 
+      /// Begin Lumi
+      void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup & c);
+
+      /// End Lumi
+      void endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup & c);
+
       /// Reset
       void reset(void);
 
@@ -40,6 +46,9 @@ class ESIntegrityTask : public edm::EDAnalyzer {
 
       /// Cleanup
       void cleanup(void);
+
+      /// Calculate Data Integrity Fraction
+      void calculateDIFraction(void);
 
    private:
 
@@ -71,6 +80,8 @@ class ESIntegrityTask : public edm::EDAnalyzer {
       MonitorElement* meKBC_;
       MonitorElement* meKEC_;
       MonitorElement* meDIErrors_[2][2];
+      MonitorElement* meDIErrorsLS_[2][2];
+      MonitorElement* meDIFraction_;
 
       edm::FileInPath lookup_;
 
@@ -78,6 +89,7 @@ class ESIntegrityTask : public edm::EDAnalyzer {
       int runNum_, eCount_, runtype_, seqtype_, dac_, gain_, precision_;
       int firstDAC_, nDAC_, isPed_, vDAC_[5]; 
       int fed_[2][2][40][40], kchip_[2][2][40][4], fiber_[2][2][40][40];
+      bool doLumiAnalysis_;
 };
 
 #endif
