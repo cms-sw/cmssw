@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2010/07/12 08:29:00 $
- * $Revision: 1.68 $
+ * $Date: 2010/09/09 12:44:42 $
+ * $Revision: 1.69 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino), G. Cerminara (INFN Torino)
  *
  */
@@ -702,7 +702,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
     // ROB Trailer
     for (vector<DTROBTrailerWord>::const_iterator robt_it = data.getROBTrailers().begin();
 	 robt_it != data.getROBTrailers().end(); robt_it++) { // loop over ROB trailers 
-      int wCount = (*robt_it).wordCount()<100. ? (*robt_it).wordCount() : 99.9; 
+      float  wCount = (*robt_it).wordCount()<100. ? (*robt_it).wordCount() : 99.9; 
       rosHistos["ROB_mean"][code.getROSID()]->Fill((*robt_it).robID(),wCount);
     }
 
