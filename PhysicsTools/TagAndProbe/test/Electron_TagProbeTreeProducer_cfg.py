@@ -20,8 +20,10 @@ process.load("RecoEgamma.EgammaTools.correctedElectronsProducer_cfi")
 ########################
 MC_flag = False
 
-HLTPath = "HLT_Photon15_Cleaned_L1R"
-#HLTPath = "HLT_Photon15_L1R"
+HLTPath = "HLT_Ele15_SW_CaloEleId_L1R"
+#HLTPath = "HLT_Ele15_SW_L1R"
+#HLTPath = "HLT_Ele15_LW_L1R"
+#HLTPath = "HLT_Photon15_Cleaned_L1R"
 ########################
 
 
@@ -34,46 +36,11 @@ HLTPath = "HLT_Photon15_Cleaned_L1R"
 
 process.source = cms.Source("PoolSource", 
     fileNames = cms.untracked.vstring(
-'/store/mc/Spring10/ZeeJet_Pt80to120/GEN-SIM-RECO/START3X_V26_S09-v1/0013/F44C88D8-3A47-DF11-AA60-0030487F16BF.root',
-'/store/mc/Spring10/ZeeJet_Pt80to120/GEN-SIM-RECO/START3X_V26_S09-v1/0013/F07E1F27-3B47-DF11-9D50-0030487F9351.root',
-'/store/mc/Spring10/ZeeJet_Pt80to120/GEN-SIM-RECO/START3X_V26_S09-v1/0013/EE363770-4247-DF11-AD74-0030487F1A4F.root',
-'/store/mc/Spring10/ZeeJet_Pt80to120/GEN-SIM-RECO/START3X_V26_S09-v1/0013/E6335250-3947-DF11-A6B8-003048D3CD92.root',
-'/store/mc/Spring10/ZeeJet_Pt80to120/GEN-SIM-RECO/START3X_V26_S09-v1/0013/E2758F8E-3947-DF11-A621-0030487E52A3.root',
     )
 )
 
 
-myDir="NEW_PromptReco-v4_part3"
-fList = [
-'mySkim_10_1_Fwo.root',
-'mySkim_11_1_6C1.root',
-'mySkim_12_1_wyr.root',
-'mySkim_13_1_9XG.root',
-'mySkim_14_1_yZR.root',
-'mySkim_15_1_CaF.root',
-'mySkim_16_1_PbO.root',
-'mySkim_17_1_DC4.root',
-'mySkim_18_1_d1L.root',
-'mySkim_19_1_wml.root',
-'mySkim_1_1_ykj.root',
-'mySkim_20_1_GGC.root',
-'mySkim_21_1_Mdd.root',
-'mySkim_2_1_RYh.root',
-'mySkim_3_1_TeZ.root',
-'mySkim_4_1_fXq.root',
-'mySkim_5_1_h3B.root',
-'mySkim_6_1_sii.root',
-'mySkim_7_1_MJG.root',
-'mySkim_8_1_yF8.root',
-'mySkim_9_1_LqF.root',
-]
-readFiles=['dcap://cmsgridftp.fnal.gov:24125/pnfs/fnal.gov/usr/cms/WAX/resilient/makouski/%s/%s'%(myDir,i) for i in fList]
-process.source.fileNames = cms.untracked.vstring(readFiles)
-
-
-
-
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(4000) )    
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )    
 process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMConverter_*_*")
 
 
@@ -112,7 +79,7 @@ process.FilteredPhotons = cms.EDFilter("PhotonRefSelector",
 ##  
 
 #  SuperClusters  ################
-process.superClusters = cms.EDFilter("SuperClusterMerger",
+process.superClusters = cms.EDProducer("SuperClusterMerger",
    src = cms.VInputTag(cms.InputTag("hybridSuperClusters","", "RECO"),
                        cms.InputTag("multi5x5SuperClustersWithPreshower","", "RECO"))  
 )
@@ -139,7 +106,7 @@ process.JetsToRemoveFromSuperCluster = cms.EDFilter("CaloJetSelector",
 )
 
 
-process.goodSuperClustersClean = cms.EDFilter("CandViewCleaner",
+process.goodSuperClustersClean = cms.EDProducer("CandViewCleaner",
     srcCands = cms.InputTag("goodSuperClusters"),
     module_label = cms.string(''),
     srcObjects = cms.VInputTag(cms.InputTag("JetsToRemoveFromSuperCluster")),
@@ -230,7 +197,7 @@ process.PassingId = cms.EDFilter("GsfElectronRefSelector",
                                    ")"
                      " || (isEE"
                                    " && (sigmaIetaIeta<0.03)"
-                                   #" && ( -0.7<deltaPhiSuperClusterTrackAtVtx<0.7 )"
+                                   " && ( -0.7<deltaPhiSuperClusterTrackAtVtx<0.7 )"
                                    #" && ( -0.01<deltaEtaSuperClusterTrackAtVtx<0.01 )"
                                    " && (hadronicOverEm<0.07) "
                                    "))"
@@ -252,7 +219,7 @@ process.PassingId80 = cms.EDFilter("GsfElectronRefSelector",
                      " || (isEE"
                                    " && ( (dr03TkSumPt + dr03EcalRecHitSumEt + dr03HcalTowerSumEt)/(p4.Pt) < 0.06 )"
                                    " && (sigmaIetaIeta<0.03)"
-                                   #" && ( -0.03<deltaPhiSuperClusterTrackAtVtx<0.03 )"
+                                   " && ( -0.03<deltaPhiSuperClusterTrackAtVtx<0.03 )"
                                    #" && ( -0.007<deltaEtaSuperClusterTrackAtVtx<0.007 )"
                                    " && (hadronicOverEm<0.025) "
                                    "))"
@@ -278,7 +245,7 @@ process.PassingHLT = cms.EDProducer("trgMatchedGsfElectronProducer",
 )
 
 
-process.badSuperClustersClean = cms.EDFilter("CandViewCleaner",
+process.badSuperClustersClean = cms.EDProducer("CandViewCleaner",
     srcCands = cms.InputTag("goodSuperClustersClean"),
     module_label = cms.string(''),
     srcObjects = cms.VInputTag(cms.InputTag("PassingHLT")),
@@ -366,6 +333,14 @@ process.IdMatchedSuperClusterCandsClean.ReferenceElectronCollection = cms.untrac
 
 process.Id80MatchedSuperClusterCandsClean = process.TagMatchedSuperClusterCandsClean.clone()
 process.Id80MatchedSuperClusterCandsClean.ReferenceElectronCollection = cms.untracked.InputTag("PassingId80")
+process.IsoMatchedPhotonCands = process.GsfMatchedPhotonCands.clone()
+process.IsoMatchedPhotonCands.ReferenceElectronCollection = cms.untracked.InputTag("PassingIsolation")
+
+process.IdMatchedPhotonCands = process.GsfMatchedPhotonCands.clone()
+process.IdMatchedPhotonCands.ReferenceElectronCollection = cms.untracked.InputTag("PassingId")
+
+process.Id80MatchedPhotonCands = process.GsfMatchedPhotonCands.clone()
+process.Id80MatchedPhotonCands.ReferenceElectronCollection = cms.untracked.InputTag("PassingId80")
 
 
 
@@ -380,7 +355,10 @@ process.ele_sequence = cms.Sequence(
     process.TagMatchedPhotonCands *
     process.IsoMatchedSuperClusterCandsClean *
     process.IdMatchedSuperClusterCandsClean *
-    process.Id80MatchedSuperClusterCandsClean  
+    process.Id80MatchedSuperClusterCandsClean *
+    process.IsoMatchedPhotonCands *
+    process.IdMatchedPhotonCands *
+    process.Id80MatchedPhotonCands    
     )
 
 
@@ -880,7 +858,8 @@ process.SCToGsf = cms.EDAnalyzer("TagProbeFitTreeProducer",
         probe_passing = cms.InputTag("GsfMatchedSuperClusterCands"),
         probe_passingGsf = cms.InputTag("GsfMatchedSuperClusterCands"),        
         probe_passingIso = cms.InputTag("IsoMatchedSuperClusterCandsClean"),
-        probe_passingId = cms.InputTag("IdMatchedSuperClusterCandsClean"),        
+        probe_passingId = cms.InputTag("IdMatchedSuperClusterCandsClean"),
+        probe_passingId80 = cms.InputTag("Id80MatchedSuperClusterCandsClean"),
         probe_passingALL = cms.InputTag("TagMatchedSuperClusterCandsClean")
     ),
     probeMatches  = cms.InputTag("McMatchSC"),
@@ -921,7 +900,7 @@ process.SCSCtoTagSC = cms.EDAnalyzer("TagProbeFitTreeProducer",
 )
 
 
-## filtered photon --> gsf electron
+## good photon --> gsf electron
 process.PhotonToGsf = cms.EDAnalyzer("TagProbeFitTreeProducer",
     ## pick the defaults
     mcTruthCommonStuff,
@@ -931,7 +910,10 @@ process.PhotonToGsf = cms.EDAnalyzer("TagProbeFitTreeProducer",
     arbitration   = cms.string("Random2"),                      
     flags = cms.PSet(
         probe_passing = cms.InputTag("GsfMatchedPhotonCands"),
-        probe_passingALL = cms.InputTag("TagMatchedPhotonCands")
+        probe_passingALL = cms.InputTag("TagMatchedPhotonCands"),
+        probe_passingIso = cms.InputTag("IsoMatchedPhotonCands"),
+        probe_passingId = cms.InputTag("IdMatchedPhotonCands"),
+        probe_passingId80 = cms.InputTag("Id80MatchedPhotonCands")        
     ),
     probeMatches  = cms.InputTag("McMatchPhoton"),
     allProbes     = cms.InputTag("FilteredPhotons")
