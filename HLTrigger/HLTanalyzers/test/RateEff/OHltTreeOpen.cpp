@@ -2036,6 +2036,46 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       } 
     }
   }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_Jet10U") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      int rc = 0;
+      //      int max =  (NohBJetL2 > 2) ? 2 : NohBJetL2;
+      //      for(int i = 0; i < max; i++) {
+      for(int i = 0; i < NohBJetL2; i++) {
+        if(ohBJetL2Et[i] > 10.) { // ET cut
+          if(ohBJetMuL25Tag[i] > 0.5) { // Level 2.5 b tag
+	    //            if(ohBJetMuL3Tag[i] > 0.5) { // Level 3 b tag
+	    if(ohBJetMuL3Tag[i] > 0.1) { // Level 3 b tag
+              rc++;
+            }
+          }
+        }
+      }
+      if(rc >= 1) {
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+      }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_Jet20U") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      int rc = 0;
+      //      int max =  (NohBJetL2 > 2) ? 2 : NohBJetL2;
+      //      for(int i = 0; i < max; i++) {
+      for(int i = 0; i < NohBJetL2; i++) {
+        if(ohBJetL2Et[i] > 20.) { // ET cut
+          if(ohBJetMuL25Tag[i] > 0.5) { // Level 2.5 b tag
+            //            if(ohBJetMuL3Tag[i] > 0.5) { // Level 3 b tag
+            if(ohBJetMuL3Tag[i] > 0.1) { // Level 3 b tag
+              rc++;
+            }
+          }
+        }
+      }
+      if(rc >= 1) {
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+      }
+    }
+  }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagIP_Jet50") == 0) {  
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       int rc = 0;  
