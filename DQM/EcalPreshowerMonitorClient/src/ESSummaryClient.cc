@@ -225,4 +225,25 @@ void ESSummaryClient::analyze(void) {
 void ESSummaryClient::softReset(bool flag) {
 }
 
+void ESSummaryClient::endLumiAnalyze() {
 
+   char histo[200];
+   MonitorElement* me = 0;
+   MonitorElement* me_report = 0;
+   sprintf(histo, "ES Good Channel Fraction");
+   me = dqmStore_->get(prefixME_+"/ESIntegrityTask/"+histo);
+   if (!me) return;
+   for (int i=0; i<2; ++i) {
+     for (int j=0; j<2; ++j) {
+       int iz = (i==0)? 1:-1;
+       sprintf(histo, "EcalPreshower Z %d P %d", iz, j+1);
+       me_report = dqmStore_->get(prefixME_+"/EventInfo/reportSummaryContents/" + histo);
+       if (me_report) {
+	 me_report->Fill(me->getBinContent(i+1, j+1));  
+       }
+     }
+   }
+   me_report = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary");
+   if ( me_report ) me_report->Fill(me->getBinContent(3,3));
+    
+}

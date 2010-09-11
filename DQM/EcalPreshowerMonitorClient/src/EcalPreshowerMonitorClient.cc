@@ -215,8 +215,10 @@ void EcalPreshowerMonitorClient::beginLuminosityBlock(const edm::LuminosityBlock
 
 void EcalPreshowerMonitorClient::endLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup & c) {
 
-  this->analyze();
-
+  for ( unsigned int i=0; i<clients_.size(); i++ ) {
+    clients_[i]->endLumiAnalyze();
+  }
+   
 }
 
 void EcalPreshowerMonitorClient::htmlOutput(int run) {
