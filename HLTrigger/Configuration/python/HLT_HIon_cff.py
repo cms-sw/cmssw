@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_8_1/HIon/V11 (CMSSW_3_8_1_HLT4)
+# /dev/CMSSW_3_8_1/HIon/V12 (CMSSW_3_8_1_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V11')
+  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V12')
 )
 
 streams = cms.PSet( 
@@ -18,19 +18,19 @@ streams = cms.PSet(
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
   Express = cms.vstring( 'ExpressPhysics' ),
-  A = cms.vstring( 'Photon',
+  A = cms.vstring( 'Cosmics',
+    'MuOnia',
+    'MuMonitor',
+    'BTau',
+    'Mu',
+    'Photon',
     'Commissioning',
-    'Cosmics',
     'MinimumBias',
     'JetMETTauMonitor',
     'Jet',
     'METFwd',
     'HcalNZS',
-    'MuOnia',
-    'MuMonitor',
-    'BTau',
     'HcalHPDNoise',
-    'Mu',
     'EGMonitor',
     'Electron' ),
   DQM = cms.vstring( 'OnlineMonitor' ),
@@ -48,9 +48,13 @@ datasets = cms.PSet(
   AlCaPhiSymEcal = cms.vstring(  ),
   RPCMonitor = cms.vstring(  ),
   ExpressPhysics = cms.vstring(  ),
+  Cosmics = cms.vstring(  ),
+  MuOnia = cms.vstring(  ),
+  MuMonitor = cms.vstring( 'HLT_L1DoubleMuOpen' ),
+  BTau = cms.vstring(  ),
+  Mu = cms.vstring(  ),
   Photon = cms.vstring(  ),
   Commissioning = cms.vstring(  ),
-  Cosmics = cms.vstring(  ),
   MinimumBias = cms.vstring( 'HLT_L1Tech_HCAL_HF',
     'HLT_ZeroBiasPixel_SingleTrack',
     'HLT_L1Tech_BSC_minBias' ),
@@ -58,11 +62,7 @@ datasets = cms.PSet(
   Jet = cms.vstring(  ),
   METFwd = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
-  MuOnia = cms.vstring(  ),
-  MuMonitor = cms.vstring( 'HLT_L1DoubleMuOpen' ),
-  BTau = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
-  Mu = cms.vstring(  ),
   EGMonitor = cms.vstring(  ),
   Electron = cms.vstring(  ),
   OnlineMonitor = cms.vstring( 'HLT_ZeroBiasPixel_SingleTrack',

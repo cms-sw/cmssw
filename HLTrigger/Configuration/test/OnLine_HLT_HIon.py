@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_8_1/HIon/V11 (CMSSW_3_8_1_HLT4)
+# /dev/CMSSW_3_8_1/HIon/V12 (CMSSW_3_8_1_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V11')
+  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V12')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -22,19 +22,19 @@ process.streams = cms.PSet(
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
   Express = cms.vstring( 'ExpressPhysics' ),
-  A = cms.vstring( 'Photon',
+  A = cms.vstring( 'Cosmics',
+    'MuOnia',
+    'MuMonitor',
+    'BTau',
+    'Mu',
+    'Photon',
     'Commissioning',
-    'Cosmics',
     'MinimumBias',
     'JetMETTauMonitor',
     'Jet',
     'METFwd',
     'HcalNZS',
-    'MuOnia',
-    'MuMonitor',
-    'BTau',
     'HcalHPDNoise',
-    'Mu',
     'EGMonitor',
     'Electron' ),
   DQM = cms.vstring( 'OnlineMonitor' ),
@@ -52,9 +52,13 @@ process.datasets = cms.PSet(
   AlCaPhiSymEcal = cms.vstring(  ),
   RPCMonitor = cms.vstring(  ),
   ExpressPhysics = cms.vstring(  ),
+  Cosmics = cms.vstring(  ),
+  MuOnia = cms.vstring(  ),
+  MuMonitor = cms.vstring( 'HLT_L1DoubleMuOpen' ),
+  BTau = cms.vstring(  ),
+  Mu = cms.vstring(  ),
   Photon = cms.vstring(  ),
   Commissioning = cms.vstring(  ),
-  Cosmics = cms.vstring(  ),
   MinimumBias = cms.vstring( 'HLT_L1Tech_HCAL_HF',
     'HLT_ZeroBiasPixel_SingleTrack',
     'HLT_L1Tech_BSC_minBias' ),
@@ -62,11 +66,7 @@ process.datasets = cms.PSet(
   Jet = cms.vstring(  ),
   METFwd = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
-  MuOnia = cms.vstring(  ),
-  MuMonitor = cms.vstring( 'HLT_L1DoubleMuOpen' ),
-  BTau = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
-  Mu = cms.vstring(  ),
   EGMonitor = cms.vstring(  ),
   Electron = cms.vstring(  ),
   OnlineMonitor = cms.vstring( 'HLT_ZeroBiasPixel_SingleTrack',
@@ -99,7 +99,7 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
     connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG" ),
     DumpStat = cms.untracked.bool( False ),
     BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" ),
-    globaltag = cms.string( "GR10_H_V8::All" ),
+    globaltag = cms.string( "GR10_H_V8_T2::All" ),
     DBParameters = cms.PSet( 
       authenticationPath = cms.untracked.string( "." ),
       connectionRetrialPeriod = cms.untracked.int32( 10 ),
