@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_8_1/GRun/V12 (CMSSW_3_8_1_HLT4)
+# /dev/CMSSW_3_8_1/GRun/V13 (CMSSW_3_8_1_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/GRun/V12')
+  tableName = cms.string('/dev/CMSSW_3_8_1/GRun/V13')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -5942,6 +5942,7 @@ process.hltMu0TrackJpsiPixelMassFiltered = cms.EDFilter( "HLTMuonTrackMassFilter
     MinTrackHits = cms.int32( 3 ),
     MaxTrackNormChi2 = cms.double( 1.0E10 ),
     MaxDzMuonTrack = cms.double( 999.0 ),
+    CutCowboys = cms.bool( False ),
     MinMasses = cms.vdouble( 2.0 ),
     MaxMasses = cms.vdouble( 4.6 )
 )
@@ -5998,6 +5999,7 @@ process.hltMu0TrackJpsiTrackMassFiltered = cms.EDFilter( "HLTMuonTrackMassFilter
     MinTrackHits = cms.int32( 5 ),
     MaxTrackNormChi2 = cms.double( 1.0E10 ),
     MaxDzMuonTrack = cms.double( 0.5 ),
+    CutCowboys = cms.bool( False ),
     MinMasses = cms.vdouble( 2.5 ),
     MaxMasses = cms.vdouble( 3.6 )
 )
@@ -6019,6 +6021,7 @@ process.hltMu0TkMuJpsiTrackMassFiltered = cms.EDFilter( "HLTMuonTrackMassFilter"
     MinTrackHits = cms.int32( 5 ),
     MaxTrackNormChi2 = cms.double( 1.0E10 ),
     MaxDzMuonTrack = cms.double( 0.5 ),
+    CutCowboys = cms.bool( False ),
     MinMasses = cms.vdouble( 2.5 ),
     MaxMasses = cms.vdouble( 4.1 )
 )
@@ -6163,6 +6166,7 @@ process.hltMu0TkMuJpsiTkMuMassFiltered = cms.EDFilter( "HLTMuonTrackMassFilter",
     MinTrackHits = cms.int32( 5 ),
     MaxTrackNormChi2 = cms.double( 1.0E10 ),
     MaxDzMuonTrack = cms.double( 0.5 ),
+    CutCowboys = cms.bool( False ),
     MinMasses = cms.vdouble( 2.5 ),
     MaxMasses = cms.vdouble( 4.1 )
 )
@@ -6220,6 +6224,7 @@ process.hltMu3TrackJpsiPixelMassFiltered = cms.EDFilter( "HLTMuonTrackMassFilter
     MinTrackHits = cms.int32( 3 ),
     MaxTrackNormChi2 = cms.double( 1.0E10 ),
     MaxDzMuonTrack = cms.double( 999.0 ),
+    CutCowboys = cms.bool( False ),
     MinMasses = cms.vdouble( 2.0 ),
     MaxMasses = cms.vdouble( 4.6 )
 )
@@ -6238,6 +6243,7 @@ process.hltMu3Track3JpsiTrackMassFiltered = cms.EDFilter( "HLTMuonTrackMassFilte
     MinTrackHits = cms.int32( 5 ),
     MaxTrackNormChi2 = cms.double( 1.0E10 ),
     MaxDzMuonTrack = cms.double( 0.5 ),
+    CutCowboys = cms.bool( False ),
     MinMasses = cms.vdouble( 2.5 ),
     MaxMasses = cms.vdouble( 3.6 )
 )
@@ -6259,6 +6265,7 @@ process.hltMu3TkMuJpsiTrackMassFiltered = cms.EDFilter( "HLTMuonTrackMassFilter"
     MinTrackHits = cms.int32( 5 ),
     MaxTrackNormChi2 = cms.double( 1.0E10 ),
     MaxDzMuonTrack = cms.double( 0.5 ),
+    CutCowboys = cms.bool( False ),
     MinMasses = cms.vdouble( 2.5 ),
     MaxMasses = cms.vdouble( 4.1 )
 )
@@ -6277,6 +6284,7 @@ process.hltMu3TkMuJpsiTkMuMassFiltered = cms.EDFilter( "HLTMuonTrackMassFilter",
     MinTrackHits = cms.int32( 5 ),
     MaxTrackNormChi2 = cms.double( 1.0E10 ),
     MaxDzMuonTrack = cms.double( 0.5 ),
+    CutCowboys = cms.bool( False ),
     MinMasses = cms.vdouble( 2.5 ),
     MaxMasses = cms.vdouble( 4.1 )
 )
@@ -6334,6 +6342,7 @@ process.hltMu5TrackJpsiPixelMassFiltered = cms.EDFilter( "HLTMuonTrackMassFilter
     MinTrackHits = cms.int32( 3 ),
     MaxTrackNormChi2 = cms.double( 1.0E10 ),
     MaxDzMuonTrack = cms.double( 999.0 ),
+    CutCowboys = cms.bool( False ),
     MinMasses = cms.vdouble( 2.0 ),
     MaxMasses = cms.vdouble( 4.6 )
 )
@@ -6352,6 +6361,7 @@ process.hltMu5TrackJpsiTrackMassFiltered = cms.EDFilter( "HLTMuonTrackMassFilter
     MinTrackHits = cms.int32( 5 ),
     MaxTrackNormChi2 = cms.double( 1.0E10 ),
     MaxDzMuonTrack = cms.double( 0.5 ),
+    CutCowboys = cms.bool( False ),
     MinMasses = cms.vdouble( 2.5 ),
     MaxMasses = cms.vdouble( 3.6 )
 )
@@ -6373,6 +6383,7 @@ process.hltMu5TkMuJpsiTrackMassFiltered = cms.EDFilter( "HLTMuonTrackMassFilter"
     MinTrackHits = cms.int32( 5 ),
     MaxTrackNormChi2 = cms.double( 1.0E10 ),
     MaxDzMuonTrack = cms.double( 0.5 ),
+    CutCowboys = cms.bool( False ),
     MinMasses = cms.vdouble( 2.5 ),
     MaxMasses = cms.vdouble( 4.1 )
 )
@@ -6391,6 +6402,7 @@ process.hltMu5TkMuJpsiTkMuMassFiltered = cms.EDFilter( "HLTMuonTrackMassFilter",
     MinTrackHits = cms.int32( 5 ),
     MaxTrackNormChi2 = cms.double( 1.0E10 ),
     MaxDzMuonTrack = cms.double( 0.5 ),
+    CutCowboys = cms.bool( False ),
     MinMasses = cms.vdouble( 2.5 ),
     MaxMasses = cms.vdouble( 4.1 )
 )
