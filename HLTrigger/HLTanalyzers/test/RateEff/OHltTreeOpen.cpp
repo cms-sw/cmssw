@@ -24,7 +24,12 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }   
     }   
   } 
-
+  else if (menu->GetTriggerName(it).CompareTo("OpenL1_Mu3EG5") == 0) {
+    if(map_BitOfStandardHLTPath.find("OpenL1_Mu3EG5")->second == 1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+    }
+  }
+  
   //////////////////////////////////////////////////////////////////
   // Example for pass through triggers, e.g. to be used for L1 seed rates ...
 
