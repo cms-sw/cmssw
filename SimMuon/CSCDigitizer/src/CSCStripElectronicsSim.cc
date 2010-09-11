@@ -338,9 +338,12 @@ void CSCStripElectronicsSim::fillDigis(CSCStripDigiCollection & digis,
   std::vector<CSCComparatorDigi> comparatorOutputs;
   runComparator(comparatorOutputs);
   // copy these to the result
-  CSCComparatorDigiCollection::Range range(comparatorOutputs.begin(), 
-                                           comparatorOutputs.end());
-  comparators.put(range, layerId());
+  if(!comparatorOutputs.empty())
+  {
+    CSCComparatorDigiCollection::Range range(comparatorOutputs.begin(), 
+                                             comparatorOutputs.end());
+    comparators.put(range, layerId());
+  }
 
   //std::list<int> keyStrips = getKeyStrips(comparatorOutputs);
   std::list<int> keyStrips = getKeyStripsFromMC();
