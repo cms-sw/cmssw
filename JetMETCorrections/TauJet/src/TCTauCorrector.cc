@@ -45,6 +45,7 @@ double TCTauCorrector::correction(const reco::Jet& fJet) const {
         return corrected.Et()/fJet.et();
 }
 */
+/*
 double TCTauCorrector::correction(const reco::CaloJet& fJet) const {
 
         if(fJet.et() == 0) return 0;
@@ -52,7 +53,7 @@ double TCTauCorrector::correction(const reco::CaloJet& fJet) const {
         math::XYZTLorentzVector corrected = tcTauAlgorithm->recalculateEnergy(fJet);
         return corrected.Et()/fJet.et();
 }
-
+*/
 double TCTauCorrector::correction(const reco::CaloTau& fJet) const {
 
         if(fJet.et() == 0) return 0;

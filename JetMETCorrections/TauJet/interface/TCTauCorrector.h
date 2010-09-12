@@ -8,7 +8,7 @@
 
 #include "TLorentzVector.h"
 #include "DataFormats/TauReco/interface/CaloTau.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
+//#include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 
@@ -30,7 +30,7 @@ class TCTauCorrector :  public JetCorrector {
 //	virtual double correction(const reco::Jet&,const edm::Event&,const edm::EventSetup&) const;
 	virtual double correction(const math::XYZTLorentzVector&) const;
 //	virtual double correction(const reco::Jet&) const;
-        double correction(const reco::CaloJet&) const;
+//        double correction(const reco::CaloJet&) const;
         double correction(const reco::CaloTau&) const;
 
 	void inputConfig(const edm::ParameterSet&) const;
