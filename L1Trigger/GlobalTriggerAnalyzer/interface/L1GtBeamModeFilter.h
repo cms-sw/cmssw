@@ -30,6 +30,7 @@
 //   base class
 #include "FWCore/Framework/interface/EDFilter.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 // forward declarations
