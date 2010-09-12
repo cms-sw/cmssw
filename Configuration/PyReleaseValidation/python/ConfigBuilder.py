@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.220 $"
+__version__ = "$Revision: 1.221 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -208,7 +208,11 @@ class ConfigBuilder(object):
 	tiers=self._options.datatier.split(',')
 	if len(streamTypes)!=len(tiers):
 		raise Exception("number of event content arguments does not match number of datatier arguments")
-	
+
+        # if the only step is alca we don't need to put in an output
+        if self._options.step.split(',')[0].split(':')[0] == 'ALCA':
+            return "\n"
+
 	for i,(streamType,tier) in enumerate(zip(streamTypes,tiers)):
 		theEventContent = getattr(self.process, streamType+"EventContent")
 		if i==0:
@@ -243,10 +247,6 @@ class ConfigBuilder(object):
 		outputModule.outputCommands.__dict__["dumpPython"] = doNotInlineEventContent
 		result+="\nprocess."+outputModuleName+" = "+outputModule.dumpPython()
 		
-	# if the only step is alca we don't need to put in an output
-	if self._options.step.split(',')[0].split(':')[0] == 'ALCA':
-		result="\n"
-
 	return result
 
     def addStandardSequences(self):
@@ -1031,7 +1031,7 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.220 $"),
+              (version=cms.untracked.string("$Revision: 1.221 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
