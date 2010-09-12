@@ -307,7 +307,7 @@ std::vector<CSCSegment> CSCSegAlgoST::prune_bad_hits(const CSCChamber* aChamber,
       // Dirty switch: here one can select to refit all possible subsets or just the one without the 
       // tagged worst hit:
       if( use_brute_force ) { // Brute force method: loop over all possible segments:
-	for(uint bi = 0; bi < buffer.size(); ++bi) {
+	for(size_t bi = 0; bi < buffer.size(); ++bi) {
 	  reduced_segments.push_back(buffer);
 	  reduced_segments[bi].erase(reduced_segments[bi].begin()+(bi),reduced_segments[bi].begin()+(bi+1));
 	}
@@ -327,10 +327,10 @@ std::vector<CSCSegment> CSCSegAlgoST::prune_bad_hits(const CSCChamber* aChamber,
     }
       
     // Loop over the subsegments and fit (only one segment if "use_brute_force" is false):
-    for(uint iSegment=0; iSegment<reduced_segments.size(); ++iSegment) {
+    for(size_t iSegment=0; iSegment<reduced_segments.size(); ++iSegment) {
       // loop over hits on given segment and push pointers to hits into protosegment
       protoSegment.clear();
-      for(uint m = 0; m<reduced_segments[iSegment].size(); ++m ) {
+      for(size_t m = 0; m<reduced_segments[iSegment].size(); ++m ) {
 	protoSegment.push_back(&reduced_segments[iSegment][m]);
       }
       passCondNumber=false;
@@ -442,9 +442,9 @@ std::vector< std::vector<const CSCRecHit2D*> > CSCSegAlgoST::clusterHits(const C
     
   // merge clusters that are too close
   // measure distance between final "running mean"
-  for(uint NNN = 0; NNN < seeds.size(); ++NNN) {
+  for(size_t NNN = 0; NNN < seeds.size(); ++NNN) {
 	
-    for(uint MMM = NNN+1; MMM < seeds.size(); ++MMM) {
+    for(size_t MMM = NNN+1; MMM < seeds.size(); ++MMM) {
       if(running_meanX[MMM] == 999999. || running_meanX[NNN] == 999999. ) {
 	LogDebug("CSCSegment|CSC") << "CSCSegmentST::clusterHits: Warning: Skipping used seeds, this should happen - inform developers!";
 	//	std::cout<<"We should never see this line now!!!"<<std::endl;
@@ -493,7 +493,7 @@ std::vector< std::vector<const CSCRecHit2D*> > CSCSegAlgoST::clusterHits(const C
   // hand over the final seeds to the output
   // would be more elegant if we could do the above step with 
   // erasing the merged ones, rather than the 
-  for(uint NNN = 0; NNN < seeds.size(); ++NNN) {
+  for(size_t NNN = 0; NNN < seeds.size(); ++NNN) {
     if(running_meanX[NNN] == 999999.) continue; //skip seeds that have been marked as used up in merging
     rechits_clusters.push_back(seeds[NNN]);
   }
@@ -530,8 +530,8 @@ std::vector< std::vector<const CSCRecHit2D*> > CSCSegAlgoST::chainHits(const CSC
     isME11a = true;
   }
   // merge chains that are too close ("touch" each other)
-  for(uint NNN = 0; NNN < seeds.size(); ++NNN) {
-    for(uint MMM = NNN+1; MMM < seeds.size(); ++MMM) {
+  for(size_t NNN = 0; NNN < seeds.size(); ++NNN) {
+    for(size_t MMM = NNN+1; MMM < seeds.size(); ++MMM) {
       if(usedCluster[MMM] || usedCluster[NNN]){
         continue;
       }
@@ -568,7 +568,7 @@ std::vector< std::vector<const CSCRecHit2D*> > CSCSegAlgoST::chainHits(const CSC
   // would be more elegant if we could do the above step with
   // erasing the merged ones, rather than the
 
-  for(uint NNN = 0; NNN < seeds.size(); ++NNN) {
+  for(size_t NNN = 0; NNN < seeds.size(); ++NNN) {
     if(usedCluster[NNN]) continue; //skip seeds that have been marked as used up in merging
     rechits_chains.push_back(seeds[NNN]);
   }
@@ -579,7 +579,7 @@ std::vector< std::vector<const CSCRecHit2D*> > CSCSegAlgoST::chainHits(const CSC
 }
 
 bool CSCSegAlgoST::isGoodToMerge(bool isME11a, ChamberHitContainer & newChain, ChamberHitContainer & oldChain) {
-  for(uint iRH_new = 0;iRH_new<newChain.size();++iRH_new){
+  for(size_t iRH_new = 0;iRH_new<newChain.size();++iRH_new){
     int layer_new = newChain[iRH_new]->cscDetId().layer()-1;     
     int middleStrip_new = newChain[iRH_new]->channels().size()/2;
     int centralStrip_new = newChain[iRH_new]->channels()[middleStrip_new];
@@ -589,7 +589,7 @@ bool CSCSegAlgoST::isGoodToMerge(bool isME11a, ChamberHitContainer & newChain, C
     bool stripRequirementOK = false;
     bool wireRequirementOK = false;
     bool goodToMerge = false;
-    for(uint iRH_old = 0;iRH_old<oldChain.size();++iRH_old){      
+    for(size_t iRH_old = 0;iRH_old<oldChain.size();++iRH_old){      
       int layer_old = oldChain[iRH_old]->cscDetId().layer()-1;
       int middleStrip_old = oldChain[iRH_old]->channels().size()/2;
       int centralStrip_old = oldChain[iRH_old]->channels()[middleStrip_old];
@@ -749,7 +749,7 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
   // The other the corresponding hits. 
   
   // Loop all available hits, count hits per layer and fill the hits into array by layer
-  for(uint M = 0; M < rechits.size(); ++M) {
+  for(size_t M = 0; M < rechits.size(); ++M) {
     // add hits to array per layer and count hits per layer:
     hits_onLayerNumber[ rechits[M]->cscDetId().layer()-1 ] += 1;
     if(hits_onLayerNumber[ rechits[M]->cscDetId().layer()-1 ] == 1 ) n_layers_occupied_tot += 1;
@@ -765,7 +765,7 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
   int maxlayer = -1;
   int nextlayer = -1;
 
-  for(uint i = 0; i< hits_onLayerNumber.size(); ++i){
+  for(size_t i = 0; i< hits_onLayerNumber.size(); ++i){
     //std::cout<<"We have "<<hits_onLayerNumber[i]<<" hits on layer "<<i+1<<std::endl;
     tothits += hits_onLayerNumber[i];
     if (hits_onLayerNumber[i] > maxhits) {
@@ -1614,7 +1614,7 @@ void CSCSegAlgoST::ChooseSegments3(std::vector< ChamberHitContainer > & chosen_s
   int SumCommonHits = 0;
   GoodSegments.clear();
   int nr_remaining_candidates;
-  uint nr_of_segment_candidates;
+  unsigned int nr_of_segment_candidates;
   
   nr_remaining_candidates = nr_of_segment_candidates = chosen_segments.size();
 

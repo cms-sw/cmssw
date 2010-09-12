@@ -96,9 +96,9 @@ CSCSegAlgoPreClustering::clusterHits( const CSCChamber* aChamber, ChamberHitCont
     
     // merge clusters that are too close
     // measure distance between final "running mean"
-      for(uint NNN = 0; NNN < seeds.size(); ++NNN) {
+      for(size_t NNN = 0; NNN < seeds.size(); ++NNN) {
 	
-	for(uint MMM = NNN+1; MMM < seeds.size(); ++MMM) {
+	for(size_t MMM = NNN+1; MMM < seeds.size(); ++MMM) {
 	  if(running_meanX[MMM] == 999999. || running_meanX[NNN] == 999999. ) {
 	    std::cout<<"We should never see this line now!!!"<<std::endl;
 	    continue; //skip seeds that have been used 
@@ -146,7 +146,7 @@ CSCSegAlgoPreClustering::clusterHits( const CSCChamber* aChamber, ChamberHitCont
       // hand over the final seeds to the output
       // would be more elegant if we could do the above step with 
       // erasing the merged ones, rather than the 
-      for(uint NNN = 0; NNN < seeds.size(); ++NNN) {
+      for(size_t NNN = 0; NNN < seeds.size(); ++NNN) {
 	if (running_meanX[NNN] == 999999.) continue; //skip seeds that have been marked as used up in merging
 	rechits_clusters.push_back(seeds[NNN]);
         mean_x = running_meanX[NNN];

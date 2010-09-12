@@ -164,7 +164,7 @@ std::vector<CSCSegment> CSCSegAlgoHitPruning::pruneBadHits(const CSCChamber* aCh
         // Dirty switch: here one can select to refit all possible subsets or just the one without the 
         // tagged worst hit:
         if( use_brute_force ) { // Brute force method: loop over all possible segments:
-          for(uint bi = 0; bi < buffer.size(); bi++) {
+          for(size_t bi = 0; bi < buffer.size(); bi++) {
             reduced_segments.push_back(buffer);
             reduced_segments[bi].erase(reduced_segments[bi].begin()+(bi),reduced_segments[bi].begin()+(bi+1));
           }
@@ -184,10 +184,10 @@ std::vector<CSCSegment> CSCSegAlgoHitPruning::pruneBadHits(const CSCChamber* aCh
       }
       
       // Loop over the subsegments and fit (only one segment if "use_brute_force" is false):
-      for (uint iSegment=0; iSegment<reduced_segments.size(); iSegment++ ) {
+      for (size_t iSegment=0; iSegment<reduced_segments.size(); iSegment++ ) {
         // loop over hits on given segment and push pointers to hits into protosegment
         protoSegment.clear();
-        for (uint m = 0; m<reduced_segments[iSegment].size(); ++m ) {
+        for (size_t m = 0; m<reduced_segments[iSegment].size(); ++m ) {
           protoSegment.push_back(&reduced_segments[iSegment][m]);
         }
         fitSlopes(); 

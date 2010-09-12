@@ -1379,8 +1379,8 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires, edm
 
   }
 
-  std::vector <uint> seg_ME2(2,0) ;
-  std::vector <uint> seg_ME3(2,0) ;
+  std::vector <unsigned int> seg_ME2(2,0) ;
+  std::vector <unsigned int> seg_ME3(2,0) ;
   std::vector < std::pair <CSCDetId, CSCSegment> > theSegments(4);
   // Segments
   for(CSCSegmentCollection::const_iterator segEffIt=cscSegments->begin(); segEffIt != cscSegments->end(); segEffIt++) {
@@ -1393,7 +1393,7 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires, edm
     // station 2 "good" segment will be used for testing efficiencies in ME1 and ME3
     // station 3 "good" segment will be used for testing efficiencies in ME2 and ME4
     if(2==idseg.station() || 3==idseg.station()){
-      uint seg_tmp ; 
+      unsigned int seg_tmp ; 
       if(2==idseg.station()){
 	++seg_ME2[idseg.endcap() -1];
 	seg_tmp = seg_ME2[idseg.endcap() -1];
@@ -1489,10 +1489,10 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires, edm
     std::map <int , GlobalPoint>::iterator it;
     const std::vector<CSCChamber*> ChamberContainer = cscGeom->chambers();
     // Pick which chamber with which segment to test
-    for(unsigned int nCh=0;nCh<ChamberContainer.size();nCh++){
+    for(size_t nCh=0;nCh<ChamberContainer.size();nCh++){
       const CSCChamber *cscchamber = ChamberContainer[nCh];
       std::pair <CSCDetId, CSCSegment> * thisSegment = 0;
-      for(uint iSeg =0;iSeg<theSeg.size();++iSeg ){
+      for(size_t iSeg =0;iSeg<theSeg.size();++iSeg ){
         if(cscchamber->id().endcap() == theSeg[iSeg]->first.endcap()){ 
           if(1==cscchamber->id().station() || 3==cscchamber->id().station() ){
 	    if(2==theSeg[iSeg]->first.station()){
