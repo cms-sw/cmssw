@@ -5,13 +5,22 @@ process = cms.Process("FWLitePlots")
 
 process.load('PhysicsTools.SelectorUtils.wplusjetsAnalysis_cfi')
 
+process.wplusjetsAnalysis.muPlusJets = False
+process.wplusjetsAnalysis.ePlusJets = True
+
+process.wplusjetsAnalysis.muonSrc = cms.InputTag('cleanPatMuons')
+process.wplusjetsAnalysis.electronSrc = cms.InputTag('cleanPatElectrons')
+process.wplusjetsAnalysis.jetSrc = cms.InputTag('cleanPatJets')
+
+#process.wplusjetsAnalysis.cutsToIgnore = cms.vstring( ['== 1 Tight Lepton, Mu Veto'] )
+
 process.inputs = cms.PSet (
     fileNames = cms.vstring(
         # Your data goes here:
-        '/Volumes/MyBook/Data/TTbar/shyft_35x_v3/ljmet_1.root'
+        'patTuple.root'
         )
 )
 
 process.outputs = cms.PSet (
-    outputName = cms.string('wplusjetsPlots.root')
+    outputName = cms.string('wplusjetsPlots_mu.root')
 )

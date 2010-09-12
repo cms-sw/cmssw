@@ -62,6 +62,8 @@
 
 #include <math.h>
 
+using namespace reco;
+
 ////////////////////////////////////////////////////////////////////////////////////////////
 static const float adc2fC[128]={-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5, 10.5,11.5,12.5,
                    13.5,15.,17.,19.,21.,23.,25.,27.,29.5,32.5,35.5,38.5,42.,46.,50.,54.5,59.5,
@@ -190,22 +192,22 @@ HcalDetDiagNoiseMonitor::HcalDetDiagNoiseMonitor(const edm::ParameterSet& ps)
   mergeRuns_             = ps.getUntrackedParameter<bool>("mergeRuns",false);
   enableCleanup_         = ps.getUntrackedParameter<bool>("enableCleanup",false);
   debug_                 = ps.getUntrackedParameter<int>("debug",0);
-  prefixME_              = ps.getUntrackedParameter<string>("subSystemFolder","Hcal/");
+  prefixME_              = ps.getUntrackedParameter<std::string>("subSystemFolder","Hcal/");
   if (prefixME_.substr(prefixME_.size()-1,prefixME_.size())!="/")
     prefixME_.append("/");
-  subdir_                = ps.getUntrackedParameter<string>("TaskFolder","DetDiagNoiseMonitor_Hcal"); 
+  subdir_                = ps.getUntrackedParameter<std::string>("TaskFolder","DetDiagNoiseMonitor_Hcal"); 
   if (subdir_.size()>0 && subdir_.substr(subdir_.size()-1,subdir_.size())!="/")
     subdir_.append("/");
   subdir_=prefixME_+subdir_;
-  AllowedCalibTypes_     = ps.getUntrackedParameter<vector<int> > ("AllowedCalibTypes");
+  AllowedCalibTypes_     = ps.getUntrackedParameter<std::vector<int> > ("AllowedCalibTypes");
   skipOutOfOrderLS_      = ps.getUntrackedParameter<bool>("skipOutOfOrderLS","false");
   NLumiBlocks_           = ps.getUntrackedParameter<int>("NLumiBlocks",4000);
   makeDiagnostics_       = ps.getUntrackedParameter<bool>("makeDiagnostics",false);
 
 
   UseDB            = ps.getUntrackedParameter<bool>  ("UseDB"  , false);
-  ReferenceData    = ps.getUntrackedParameter<string>("NoiseReferenceData" ,"");
-  OutputFilePath   = ps.getUntrackedParameter<string>("OutputFilePath", "");
+  ReferenceData    = ps.getUntrackedParameter<std::string>("NoiseReferenceData" ,"");
+  OutputFilePath   = ps.getUntrackedParameter<std::string>("OutputFilePath", "");
   HPDthresholdHi   = ps.getUntrackedParameter<double>("NoiseThresholdHPDhi",30.0);
   HPDthresholdLo   = ps.getUntrackedParameter<double>("NoiseThresholdHPDlo",12.0);
   SiPMthreshold    = ps.getUntrackedParameter<double>("NoiseThresholdSiPM",150.0);
@@ -222,8 +224,8 @@ HcalDetDiagNoiseMonitor::HcalDetDiagNoiseMonitor(const edm::ParameterSet& ps)
   VertexSource_          			= ps.getUntrackedParameter<edm::InputTag>("VertexSource",edm::InputTag("offlinePrimaryVertices"));
   UseVertexCuts_         			= ps.getUntrackedParameter<bool>("UseVertexCuts",true);
   rbxCollName_    				= ps.getUntrackedParameter<std::string>("rbxCollName","hcalnoise");
-  PhysDeclaredRequirement_ 			= ps.getUntrackedParameter<string>("PhysDeclaredRequirement","HLT_PhysicsDeclared");
-  MonitoringTriggerRequirement_			= ps.getUntrackedParameter<string>("MonitoringTriggerRequirement","HLT_MET100");
+  PhysDeclaredRequirement_ 			= ps.getUntrackedParameter<std::string>("PhysDeclaredRequirement","HLT_PhysicsDeclared");
+  MonitoringTriggerRequirement_			= ps.getUntrackedParameter<std::string>("MonitoringTriggerRequirement","HLT_MET100");
   UseMonitoringTrigger_				= ps.getUntrackedParameter<bool>("UseMonitoringTrigger",false);
   JetMinEt_ 					= ps.getUntrackedParameter<double>("JetMinEt",10.0);
   JetMaxEta_ 					= ps.getUntrackedParameter<double>("JetMaxEta",2.0);
@@ -597,11 +599,12 @@ void HcalDetDiagNoiseMonitor::analyze(const edm::Event& iEvent, const edm::Event
 
        const edm::TriggerNames & triggerNames = iEvent.triggerNames(*hltTriggerResultHandle);
 
-//       triggerNames_.init(* hltTriggerResultHandle);
+       //       triggerNames_.init(* hltTriggerResultHandle);
        for (int itrig = 0; itrig != ntrigs; ++itrig){
          // obtain the trigger name
 //         string trigName = triggerNames_.triggerName(itrig);
-         string trigName = triggerNames.triggerName(itrig);
+         std::string trigName = triggerNames.triggerName(itrig);
+
          // did the trigger fire?
          bool accept = hltTriggerResultHandle->accept(itrig);
          if(UseMonitoringTrigger_) {
@@ -1171,7 +1174,7 @@ double VAL;
       if(!f->IsOpen()){ return ;}
       TObjString *STR=(TObjString *)f->Get("run number");
       
-      if(STR){ string Ref(STR->String()); ReferenceRun=Ref;}
+      if(STR){ std::string Ref(STR->String()); ReferenceRun=Ref;}
       
       TTree*  t=(TTree*)f->Get("HCAL Noise data");
       if(!t) return;

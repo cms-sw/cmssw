@@ -8,7 +8,7 @@ ColinearityKinematicConstraint::ColinearityKinematicConstraint(ConstraintDim dim
   else size = 2;
 }
 
-AlgebraicVector  ColinearityKinematicConstraint::value(const vector<KinematicState> states,
+AlgebraicVector  ColinearityKinematicConstraint::value(const std::vector<KinematicState> states,
                         const GlobalPoint& point) const
 {
   if(states.size()<2) throw VertexException("ColinearityKinematicConstraint::<2 states passed");
@@ -39,7 +39,7 @@ AlgebraicVector  ColinearityKinematicConstraint::value(const vector<KinematicSta
   return res;
 }
 
-AlgebraicMatrix ColinearityKinematicConstraint::parametersDerivative(const vector<KinematicState> states,
+AlgebraicMatrix ColinearityKinematicConstraint::parametersDerivative(const std::vector<KinematicState> states,
                                       const GlobalPoint& point) const
 {
   int n_st = states.size();
@@ -118,7 +118,7 @@ AlgebraicMatrix ColinearityKinematicConstraint::parametersDerivative(const vecto
   return res;
 }
 
-AlgebraicMatrix ColinearityKinematicConstraint::positionDerivative(const vector<KinematicState> states,
+AlgebraicMatrix ColinearityKinematicConstraint::positionDerivative(const std::vector<KinematicState> states,
                                     const GlobalPoint& point) const
 {
   AlgebraicMatrix res(size,3,0);

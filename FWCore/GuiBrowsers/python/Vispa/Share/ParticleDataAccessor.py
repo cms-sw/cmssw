@@ -6,6 +6,7 @@ class ParticleDataAccessor(object):
     LINE_STYLE_DASH = 1
     LINE_STYLE_WAVE = 2
     LINE_STYLE_SPIRAL = 3
+    LINE_VERTEX = 4
     
     def id(self, object):
         """ Returns an id to identify given object. 

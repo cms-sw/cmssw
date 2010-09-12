@@ -60,9 +60,11 @@ def removeTtSemiLepHypGenMatch(process):
 ## -> this works for "jets", "leps", "mets", "maxNJets"
 def setForAllTtSemiLepHypotheses(process, attribute, value):
     modules = ["findTtSemiLepJetCombGeom",
+               "findTtSemiLepJetCombGeom",
                "ttSemiLepHypGeom",
                "ttSemiLepHypMaxSumPtWMass",
                "ttSemiLepHypWMassMaxSumPt",
+               "ttSemiLepHypWMassDeltaTopMass",
                "ttSemiLepJetPartonMatch",
                "ttSemiLepHypGenMatch",
                "findTtSemiLepJetCombMVA",

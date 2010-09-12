@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2008/10/17 22:14:55 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/06/11 18:26:43 $
+ *  $Revision: 1.2 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -42,6 +42,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
 
 // C++
 #include <vector>
@@ -77,8 +79,24 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
   
   edm::ESHandle<MagneticField> field;
   eSetup.get<IdealMagneticFieldRecord>().get(field);
-  
   theSeedFinder->setBField(&*field);
+
+  reco::BeamSpot beamSpot;
+  edm::Handle<reco::BeamSpot> beamSpotHandle;
+  event.getByLabel("offlineBeamSpot", beamSpotHandle);
+  if ( beamSpotHandle.isValid() )
+  {
+    beamSpot = *beamSpotHandle;
+
+  } else
+  {
+    edm::LogInfo("MuonSeedGenerator")
+      << "No beam spot available from EventSetup \n";
+  }
+
+  // make it a vector so we can subtract it from position vectors
+  GlobalVector gv(beamSpot.x0(), beamSpot.y0(), beamSpot.z0());
+  theSeedFinder->setBeamSpot(gv);
 
   std::vector<MuonRecHitContainer> patterns;
   thePatternRecognition->produce(event, eSetup, patterns);

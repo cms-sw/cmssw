@@ -3,13 +3,14 @@
  * \file DQMDcsInfoClient.cc
  * \author Andreas Meyer
  * Last Update:
- * $Date: 2010/03/29 19:21:21 $
- * $Revision: 1.3 $
- * $Author: ameyer $
+ * $Date: 2010/05/04 19:03:42 $
+ * $Revision: 1.4 $
+ * $Author: dellaric $
  *
 */
 
 #include "DQMServices/Components/src/DQMDcsInfoClient.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 // -----------------------------
 //  constructors and destructor

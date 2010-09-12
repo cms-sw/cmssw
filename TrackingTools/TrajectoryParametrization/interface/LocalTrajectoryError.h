@@ -21,16 +21,15 @@
 class LocalTrajectoryError {
 public:
   // construct
-  LocalTrajectoryError(){}
+  LocalTrajectoryError();
   // destruct
-  ~LocalTrajectoryError(){}
+  ~LocalTrajectoryError();
 
   /** Constructing class from a full covariance matrix. The sequence of the parameters is
    *  the same as the one described above.
    */
 
-  LocalTrajectoryError(const AlgebraicSymMatrix55& aCovarianceMatrix):
-    theCovarianceMatrix(aCovarianceMatrix), theWeightMatrixPtr() { }
+  LocalTrajectoryError(const AlgebraicSymMatrix55& aCovarianceMatrix);
 
   LocalTrajectoryError(const AlgebraicSymMatrix& aCovarianceMatrix);
 

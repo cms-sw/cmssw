@@ -22,7 +22,8 @@ class ConfigBrowserTestCase(unittest.TestCase):
         self.app=Application(sys.argv)
         self.app.mainWindow().setWindowTitle("test ConfigBrowser")
         self.app.openFile(os.path.join(examplesDirectory,"patLayer1_fromAOD_full_cfg.py"))
-        self.app.run()
+        if not hasattr(unittest,"NO_GUI_TEST"):
+            self.app.run()
 
 if __name__ == "__main__":
     Profiling.analyze("unittest.main()",__file__)

@@ -9,7 +9,7 @@
    to access the underlying bits by a string name instead of via an index.
 
   \author Salvatore Rappoccio
-  \version  $Id: strbitset.h,v 1.5 2010/04/25 17:14:02 hegner Exp $
+  \version  $Id: strbitset.h,v 1.6 2010/05/05 17:24:55 srappocc Exp $
 */
 
 
@@ -24,13 +24,50 @@ namespace pat {
 class strbitset {
  public:
 
+
+  class index_type {
+  public:
+    typedef unsigned int   size_t;
+    
+    friend class strbitset;
+
+  index_type() :bitset_(0), i_(0) {}
+    
+  index_type( strbitset const * b, std::string const & s) :
+    bitset_(b) 
+    {
+      if ( bitset_ ) {
+	i_ = bitset_->index(s);
+      } else {
+	i_ = 0;
+      }
+    }
+
+    std::string const & str() const { return bitset_->index(i_);}
+
+    bool operator< ( index_type const & r) const { return i_ < r.i_;}
+    bool operator> ( index_type const & r) const { return i_ > r.i_;}
+    bool operator<=( index_type const & r) const { return i_ <= r.i_;}
+    bool operator>=( index_type const & r) const { return i_ >= r.i_;}
+    bool operator==( index_type const & r) const { return i_ == r.i_;}    
+
+    friend std::ostream & operator<<(std::ostream & out, const index_type & r);
+      
+  protected:
+    strbitset const *   bitset_;
+    size_t              i_;
+  };
+
+
+  friend class index_type;
+
   // Add typedefs
   typedef unsigned int                    size_t;
   typedef std::map<std::string, size_t>   str_index_map;
   typedef std::vector<bool>               bit_vector;
 
   //! constructor: just clears the bitset and map
-  strbitset() {
+ strbitset() {
     clear();
   }
 
@@ -70,7 +107,6 @@ class strbitset {
   }
 
 
-
   //! print method
   void print(std::ostream & out) const {
     for( str_index_map::const_iterator mbegin = map_.begin(),
@@ -89,10 +125,18 @@ class strbitset {
     return bits_.operator[](index);
   }
 
+  bit_vector::const_reference operator[] ( index_type const & i) const {
+    return bits_.operator[](i.i_);
+  }
+
   //! access method non-const
   bit_vector::reference operator[] ( const std::string s) {
     size_t index = this->index(s);
     return bits_.operator[](index);
+  }
+
+  bit_vector::reference operator[] ( index_type const & i ) {
+    return bits_.operator[](i.i_);
   }
 
 
@@ -122,6 +166,11 @@ class strbitset {
     return *this;
   }
 
+  strbitset & set( index_type const & i, bool val = true) {
+    (*this)[i] = val;
+    return *this;
+  }
+
 
   //! flip method of one bit
   strbitset & flip( std::string s) {
@@ -129,6 +178,10 @@ class strbitset {
     return *this;
   }
 
+  strbitset & flip( index_type const & i ) {
+    (*this)[i] = !( (*this)[i] );
+    return *this;
+  }
 
   //! logical negation
   strbitset operator~() {
@@ -279,6 +332,10 @@ class strbitset {
     return (*this)[s] == true;
   }
 
+  bool test(index_type const &i) const {
+    return (*this)[i] == true;
+  }
+
   //! give access to the ordered bits
   const bit_vector& bits() const {
     return bits_;
@@ -301,7 +358,7 @@ class strbitset {
   friend strbitset operator&(const strbitset& l, const strbitset& r);
   friend strbitset operator|(const strbitset& l, const strbitset& r);
   friend strbitset operator^(const strbitset& l, const strbitset& r);
-  
+
 
  private:
 
@@ -317,8 +374,19 @@ class strbitset {
       return f->second;
     }
   }
-
   
+  std::string const & index( size_t i ) const {
+    for ( str_index_map::const_iterator f = map_.begin(),
+	    fBegin = map_.begin(), fEnd = map_.end();
+	  f != fEnd; ++f ) {
+      if ( f->second == i ) return f->first;
+    }
+    std::cout << "Cannot find " << i << ", returning dummy" << std::endl;
+    return dummy_;
+
+  }
+
+  static const std::string       dummy_;
   str_index_map     map_;   //!< map that holds the string-->index map 
   bit_vector        bits_;  //!< the actual bits, indexed by the index in "map_"
 };

@@ -26,19 +26,19 @@ public:
  * full covariance matrix.
  */
 
- RefCountedKinematicTree buildTree(const vector<RefCountedKinematicParticle> & initialParticles, 
-                         const vector<KinematicState> & finalStates,
+ RefCountedKinematicTree buildTree(const std::vector<RefCountedKinematicParticle> & initialParticles, 
+                         const std::vector<KinematicState> & finalStates,
 			 const RefCountedKinematicVertex vtx, const AlgebraicMatrix& fCov) const;
 
 private:
 
   RefCountedKinematicTree buildTree(const RefCountedKinematicParticle virtualParticle, 
-	const RefCountedKinematicVertex vtx, const vector<RefCountedKinematicParticle> & particles) const;
+	const RefCountedKinematicVertex vtx, const std::vector<RefCountedKinematicParticle> & particles) const;
 
   /**
    * Metod to reconstructing the full covariance matrix of the resulting particle.					      
    */
- AlgebraicMatrix covarianceMatrix(vector<RefCountedKinematicParticle> rPart, 
+ AlgebraicMatrix covarianceMatrix(std::vector<RefCountedKinematicParticle> rPart, 
                                        const AlgebraicVector7& newPar,
 				       const AlgebraicMatrix& fitCov)const;
 				       

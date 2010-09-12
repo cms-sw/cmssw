@@ -1,6 +1,15 @@
 #ifndef EEDaqInfoTask_h
 #define EEDaqInfoTask_h
 
+/*
+ * \file EEDaqInfoTask.h
+ *
+ * $Date: 2010/08/08 08:46:05 $
+ * $Revision: 1.132 $
+ * \author E. Di Marco
+ *
+*/
+
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

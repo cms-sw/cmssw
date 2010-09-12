@@ -1,15 +1,13 @@
-// $Id: UtilFunctions.h,v 1.00 2009/12/10 13:49:00 dwjang Exp $
+#ifndef UtilFunctions_H
+#define UtilFunctions_H
 
 /*!
   \file UtilFunctions.h
   \brief Ecal Monitor Utility functions
   \author Dongwook Jang
-  \version $Revision: 1.0 $
-  \date $Date: 2009/12/10 13:49:00 $
+  \version $Revision: 1.1 $
+  \date $Date: 2010/02/08 21:33:31 $
 */
-
-#ifndef UtilFunctions_H
-#define UtilFunctions_H
 
 #include <cmath>
 #include <iostream>

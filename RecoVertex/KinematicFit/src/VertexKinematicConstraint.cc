@@ -8,7 +8,7 @@ VertexKinematicConstraint::VertexKinematicConstraint()
 VertexKinematicConstraint::~VertexKinematicConstraint()
 {}
 
-AlgebraicVector VertexKinematicConstraint::value(const vector<KinematicState> states,
+AlgebraicVector VertexKinematicConstraint::value(const std::vector<KinematicState> states,
                         const GlobalPoint& point) const
 {
  int num = states.size();
@@ -17,7 +17,7 @@ AlgebraicVector VertexKinematicConstraint::value(const vector<KinematicState> st
 //it is 2 equations per track
  AlgebraicVector  vl(2*num,0);
  int num_r = 0;
- for(vector<KinematicState>::const_iterator i = states.begin(); i != states.end(); i++)
+ for(std::vector<KinematicState>::const_iterator i = states.begin(); i != states.end(); i++)
  {
   TrackCharge ch = i->particleCharge();
   GlobalVector mom = i->globalMomentum();
@@ -32,7 +32,7 @@ AlgebraicVector VertexKinematicConstraint::value(const vector<KinematicState> st
 //charged particle
    double a_i = - ch * i->magneticField()->inInverseGeV(pos).z();
    double j = a_i*(d_x * mom.x() + d_y * mom.y())/(pt*pt);
-   if(fabs(j)>1.0){
+   if(std::fabs(j)>1.0){
 	   LogDebug("VertexKinematicConstraint")
        << "Warning! asin("<<j<<")="<<asin(j)<<". Fit will be aborted.\n";
    }
@@ -52,14 +52,14 @@ AlgebraicVector VertexKinematicConstraint::value(const vector<KinematicState> st
  return vl;
 }
 
-AlgebraicMatrix VertexKinematicConstraint::parametersDerivative(const vector<KinematicState> states,
+AlgebraicMatrix VertexKinematicConstraint::parametersDerivative(const std::vector<KinematicState> states,
                         const GlobalPoint& point) const
 {
   int num = states.size();
   if(num<2) throw VertexException("VertexKinematicConstraint::<2 states passed");
   AlgebraicMatrix jac_d(2*num,7*num);
   int num_r = 0;
-  for(vector<KinematicState>::const_iterator i = states.begin(); i != states.end(); i++)
+  for(std::vector<KinematicState>::const_iterator i = states.begin(); i != states.end(); i++)
   {
     AlgebraicMatrix el_part_d(2,7,0);
     TrackCharge ch = i->particleCharge();
@@ -75,10 +75,10 @@ AlgebraicMatrix VertexKinematicConstraint::parametersDerivative(const vector<Kin
       double a_i = - ch * i->magneticField()->inInverseGeV(pos).z();
       double j = a_i*(d_x * mom.x() + d_y * mom.y())/(pt*pt);
       double r_x = d_x - 2* mom.x()*(d_x*mom.x()+d_y*mom.y())/(pt*pt);
-      double r_y = d_x - 2* mom.y()*(d_x*mom.x()+d_y*mom.y())/(pt*pt);
+      double r_y = d_y - 2* mom.y()*(d_x*mom.x()+d_y*mom.y())/(pt*pt);
       double s = 1/(pt*pt*sqrt(1 - j*j));
 
-      if(fabs(j)>1.0){
+      if(std::fabs(j)>1.0){
 	      LogDebug("VertexKinematicConstraint")
 	      << "Warning! asin("<<j<<")="<<asin(j)<<". Fit will be aborted.\n";
       }
@@ -114,14 +114,14 @@ AlgebraicMatrix VertexKinematicConstraint::parametersDerivative(const vector<Kin
   return jac_d;
 }
 
-AlgebraicMatrix VertexKinematicConstraint::positionDerivative(const vector<KinematicState> states,
+AlgebraicMatrix VertexKinematicConstraint::positionDerivative(const std::vector<KinematicState> states,
                                     const GlobalPoint& point) const
 {
  int num = states.size();
  if(num<2) throw VertexException("VertexKinematicConstraint::<2 states passed");
  AlgebraicMatrix jac_e(2*num,3);
  int num_r = 0;
- for(vector<KinematicState>::const_iterator i = states.begin(); i != states.end(); i++)
+ for(std::vector<KinematicState>::const_iterator i = states.begin(); i != states.end(); i++)
  {
   AlgebraicMatrix el_part_e(2,3,0);
   TrackCharge ch = i->particleCharge();

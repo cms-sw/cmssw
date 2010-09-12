@@ -4,7 +4,7 @@
 //
 // Package:    EgammaElectronAlgos
 // Class:      BarrelMeasurementEstimator
-// 
+//
 /**\class ElectronSeedProducer EgammaElectronAlgos/BarrelMeasurementEstimator
 
  Description: MeasurementEstimator for Pixel Barrel, ported from ORCA
@@ -15,7 +15,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: BarrelMeasurementEstimator.h,v 1.10 2008/04/12 22:33:57 charlot Exp $
+// $Id: BarrelMeasurementEstimator.h,v 1.12 2010/07/28 09:09:35 amartell Exp $
 //
 //
 
@@ -29,50 +29,40 @@
 #include <utility>
 
 
-class BarrelMeasurementEstimator : public MeasurementEstimator {
-public:
-  BarrelMeasurementEstimator() {};
-  BarrelMeasurementEstimator(float phiMin, float phiMax, float zMin, float zMax ) : 
-    thePhiMin(phiMin), thePhiMax(phiMax), theZMin(zMin), theZMax(zMax) { }
+class BarrelMeasurementEstimator : public MeasurementEstimator
+ {
+  public:
 
-  void setPhiRange (float dummyphiMin , float dummyphiMax) 
-  { 
-    thePhiMin = dummyphiMin ; 
-    thePhiMax = dummyphiMax ; 
-  }
-  
-  void setZRange (float zmin , float zmax) 
-  { 
-    theZMin=zmin;
-    theZMax=zmax;
-  }
+    BarrelMeasurementEstimator()
+     {}
+    BarrelMeasurementEstimator(float phiMin, float phiMax, float zMin, float zMax )
+     : thePhiMin(phiMin), thePhiMax(phiMax), theZMin(zMin), theZMax(zMax)
+     {}
 
-  // zero value indicates incompatible ts - hit pair
-  virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface& ts, 
-			   const TransientTrackingRecHit& hit) const;
+    void setPhiRange( float dummyphiMin , float dummyphiMax )
+     { thePhiMin = dummyphiMin ; thePhiMax = dummyphiMax ; }
+    void setZRange( float zmin, float zmax )
+     { theZMin=zmin ; theZMax=zmax ; }
 
-  virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface& ts, 
-	                   GlobalPoint &gp) const;
+    // zero value indicates incompatible ts - hit pair
+    virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface & ts, const TransientTrackingRecHit & hit ) const ;
+    virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface & ts, GlobalPoint & gp ) const ;
+    virtual std::pair<bool,double> estimate( const GlobalPoint & vprim, const TrajectoryStateOnSurface & ts, GlobalPoint & gp ) const ;
+    virtual bool estimate( const TrajectoryStateOnSurface & ts, const BoundPlane & plane) const ;
 
-  virtual bool estimate( const TrajectoryStateOnSurface& ts, 
-			 const BoundPlane& plane) const;
+    virtual BarrelMeasurementEstimator* clone() const
+     { return new BarrelMeasurementEstimator(*this) ; }
 
-  virtual BarrelMeasurementEstimator* clone() const
-    {
-      return new BarrelMeasurementEstimator(*this);
-    }
-    
-  MeasurementEstimator::Local2DVector 
-  maximalLocalDisplacement( const TrajectoryStateOnSurface& ts,
-			  const BoundPlane& plane) const;
+    MeasurementEstimator::Local2DVector
+    maximalLocalDisplacement( const TrajectoryStateOnSurface & ts, const BoundPlane & plane) const ;
 
-private:
+  private:
 
-  float thePhiMin;
-  float thePhiMax;
-  float theZMin;
-  float theZMax;
+    float thePhiMin ;
+    float thePhiMax ;
+    float theZMin ;
+    float theZMax ;
 
-};
+ } ;
 
 #endif // BarrelMeasurementEstimator_H

@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from TopQuarkAnalysis.TopObjectResolutions.stringResolutions_etEtaPhi_cff import *
+
 kinFitTtFullHadEvent = cms.EDProducer("TtFullHadKinFitProducer",
     jets = cms.InputTag("selectedPatJets"),
 
@@ -73,7 +75,13 @@ kinFitTtFullHadEvent = cms.EDProducer("TtFullHadKinFitProducer",
     # set mass values used in the constraints
     # ------------------------------------------------    
     mW   = cms.double(80.4),
-    mTop = cms.double(173.)
+    mTop = cms.double(173.),
+
+    # ------------------------------------------------
+    # resolutions used for the kinematic fit
+    # ------------------------------------------------
+    udscResolutions = udscResolution.functions,
+    bResolutions    = bjetResolution.functions
 )
 
 

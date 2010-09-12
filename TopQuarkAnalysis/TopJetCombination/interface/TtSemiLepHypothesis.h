@@ -49,6 +49,8 @@ class TtSemiLepHypothesis : public edm::EDProducer {
   void setCandidate(const edm::Handle<C>& handle, const int& idx, reco::ShallowClonePtrCandidate*& clone);
   /// use one object in a jet collection to set a ShallowClonePtrCandidate with proper jet corrections
   void setCandidate(const edm::Handle<std::vector<pat::Jet> >& handle, const int& idx, reco::ShallowClonePtrCandidate*& clone, const std::string& correctionLevel);
+  /// set neutrino, using mW = 80.4 to calculate the neutrino pz
+  void setNeutrino(const edm::Handle<std::vector<pat::MET> >& met, const edm::Handle<edm::View<reco::RecoCandidate> >& leps, const int& idx, const int& type);
   /// return key
   int key() const { return key_; };
   /// return event hypothesis
@@ -87,6 +89,9 @@ class TtSemiLepHypothesis : public edm::EDProducer {
   std::string jetCorrectionLevel_;
   /// hypothesis key (to be set by the buildKey function)
   int key_;
+  /// number of real neutrino solutions:
+  /// -1 if not determined, 0 if only complex, 2 if two real solutions
+  int numberOfRealNeutrinoSolutions_;
   /// candidates for internal use for the creation of the hypothesis 
   /// candidate
   reco::ShallowClonePtrCandidate *lightQ_;

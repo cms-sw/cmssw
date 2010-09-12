@@ -54,15 +54,15 @@ edm::ParameterSet KinematicParticleVertexFitter::defaultParameters() const
   return pSet;
 }
  
-RefCountedKinematicTree KinematicParticleVertexFitter::fit(vector<RefCountedKinematicParticle> particles) const
+RefCountedKinematicTree KinematicParticleVertexFitter::fit(std::vector<RefCountedKinematicParticle> particles) const
 {
  typedef ReferenceCountingPointer<VertexTrack<6> > RefCountedVertexTrack;
 //sorting the input 
  if(particles.size()<2) throw VertexException("KinematicParticleVertexFitter::input states are less than 2"); 
  InputSort iSort;
- pair<vector<RefCountedKinematicParticle>, vector<FreeTrajectoryState> > input = iSort.sort(particles);
- vector<RefCountedKinematicParticle> & newPart = input.first;
- vector<FreeTrajectoryState> & freeStates = input.second;
+ std::pair<std::vector<RefCountedKinematicParticle>, std::vector<FreeTrajectoryState> > input = iSort.sort(particles);
+ std::vector<RefCountedKinematicParticle> & newPart = input.first;
+ std::vector<FreeTrajectoryState> & freeStates = input.second;
 
  GlobalPoint linPoint = pointFinder->getLinearizationPoint(freeStates);
   
@@ -75,12 +75,12 @@ RefCountedKinematicTree KinematicParticleVertexFitter::fit(vector<RefCountedKine
  VertexState state(linPoint, error);
  
 //vector of Vertex Tracks to fit
- vector<RefCountedVertexTrack> ttf; 
- for(vector<RefCountedKinematicParticle>::const_iterator i = newPart.begin();i != newPart.end();i++)
+ std::vector<RefCountedVertexTrack> ttf; 
+ for(std::vector<RefCountedKinematicParticle>::const_iterator i = newPart.begin();i != newPart.end();i++)
  {ttf.push_back(vFactory->vertexTrack((*i)->particleLinearizedTrackState(linPoint),state,1.));}
 
 // //debugging code to check neutrals: 
-//  for(vector<RefCountedVertexTrack>::const_iterator i = ttf.begin(); i!=ttf.end(); i++)
+//  for(std::vector<RefCountedVertexTrack>::const_iterator i = ttf.begin(); i!=ttf.end(); i++)
 //  {
 // //   cout<<"predicted state momentum error"<<(*i)->linearizedTrack()->predictedStateMomentumError()<<endl;
 // //  cout<<"Momentum jacobian"<<(*i)->linearizedTrack()->momentumJacobian() <<endl;

@@ -49,26 +49,29 @@ DTGeometryBuilderFromCondDB::build(boost::shared_ptr<DTGeometry> theGeometry,
   DTChamber* chamber(0);
   DTSuperLayer* sl(0);
   while(idt < detids.size()) {
+    vector<double> par=rig.shapePars(idt);
+    vector<double> gtran=rig.translation(idt);
+    vector<double> grmat=rig.rotation(idt);
     //copy(par.begin(), par.end(), ostream_iterator<double>(std::cout," "));
-    if (int(*(rig.shapeStart(idt)))==0){ // a Chamber
+    if (int(par[0])==0){ // a Chamber
       // add the provious chamber which by now has been updated with SL and
       // layers
       if (chamber) theGeometry->add(chamber);
       // go for the actual one
       DTChamberId chid(detids[idt]);
       //cout << "CH: " <<  chid << endl;
-      chamber = buildChamber(chid, rig, idt); 
+      chamber = buildChamber(chid, par, gtran, grmat);
     }
-    else if (int(*(rig.shapeStart(idt)))==1){ // a SL
+    else if (int(par[0])==1){ // a SL
       DTSuperLayerId slid(detids[idt]);
       //cout << "  SL: " <<  slid << endl;
-      sl = buildSuperLayer(chamber, slid, rig, idt);
+      sl = buildSuperLayer(chamber, slid, par, gtran, grmat);
       theGeometry->add(sl);
     }
-    else if (int(*(rig.shapeStart(idt)))==2){ // a Layer
+    else if (int(par[0])==2){ // a Layer
       DTLayerId lid(detids[idt]);
       //cout << "    LAY: " <<  lid << endl;
-      DTLayer* lay = buildLayer(sl, lid, rig, idt);
+      DTLayer* lay = buildLayer(sl, lid, par, gtran, grmat);
       theGeometry->add(lay);
     } else { //what the fuck!!!
       cout << "What the Fuck is this!" << endl;
@@ -79,23 +82,23 @@ DTGeometryBuilderFromCondDB::build(boost::shared_ptr<DTGeometry> theGeometry,
 }
 
 DTChamber* DTGeometryBuilderFromCondDB::buildChamber(const DetId& id,
-                                                     const RecoIdealGeometry& rig,
-						     size_t idt ) const {
+                                                     const vector<double>& par,
+                                                     const vector<double>& tran,
+                                                     const vector<double>& rot) const {
   DTChamberId detId(id);  
 
 
-  float width = (*(rig.shapeStart(idt) + 1))/cm;     // r-phi  dimension - different in different chambers
-  float length = (*(rig.shapeStart(idt) + 2))/cm;    // z      dimension - constant 125.55 cm
-  float thickness = (*(rig.shapeStart(idt) + 3))/cm; // radial thickness - almost constant about 18 cm
+  float width = par[1]/cm;     // r-phi  dimension - different in different chambers
+  float length = par[2]/cm;    // z      dimension - constant 125.55 cm
+  float thickness = par[3]/cm; // radial thickness - almost constant about 18 cm
 
   ///SL the definition of length, width, thickness depends on the local reference frame of the Det
   // width is along local X
   // length is along local Y
   // thickness is long local Z
   RectangularPlaneBounds bound(width, length, thickness);
-  //  std::vector<double> tran(rig.tranStart(idt), rig.tranEnd(idt));
-  //  std::vector<double> rot(rig.rotStart(idt), rig.rotEnd(idt));
-  RCPPlane surf(plane(rig.tranStart(idt), rig.rotStart(idt), bound));
+
+  RCPPlane surf(plane(tran, rot, bound));
 
   DTChamber* chamber = new DTChamber(detId, surf);
 
@@ -105,19 +108,20 @@ DTChamber* DTGeometryBuilderFromCondDB::buildChamber(const DetId& id,
 DTSuperLayer*
 DTGeometryBuilderFromCondDB::buildSuperLayer(DTChamber* chamber,
                                              const DetId& id,
-                                             const RecoIdealGeometry& rig,
-					     size_t idt) const {
+                                             const vector<double>& par,
+                                             const vector<double>& tran,
+                                             const vector<double>& rot) const {
 
   DTSuperLayerId slId(id);
 
-  float width = (*(rig.shapeStart(idt) + 1))/cm;     // r-phi  dimension - different in different chambers
-  float length = (*(rig.shapeStart(idt) + 2))/cm;    // z      dimension - constant 126.8 cm
-  float thickness = (*(rig.shapeStart(idt) + 3))/cm; // radial thickness - almost constant about 5 cm
+  float width = par[1]/cm;     // r-phi  dimension - changes in different chambers
+  float length = par[2]/cm;    // z      dimension - constant 126.8 cm
+  float thickness = par[3]/cm; // radial thickness - almost constant about 5 cm
 
   RectangularPlaneBounds bound(width, length, thickness);
 
   // Ok this is the slayer position...
-  RCPPlane surf(plane(rig.tranStart(idt), rig.rotStart(idt), bound));
+  RCPPlane surf(plane(tran, rot ,bound));
 
   DTSuperLayer* slayer = new DTSuperLayer(slId, surf, chamber);
 
@@ -129,25 +133,26 @@ DTGeometryBuilderFromCondDB::buildSuperLayer(DTChamber* chamber,
 DTLayer*
 DTGeometryBuilderFromCondDB::buildLayer(DTSuperLayer* sl,
                                         const DetId& id,
-                                        const RecoIdealGeometry& rig,
-					size_t idt) const {
+                                        const vector<double>& par,
+                                        const vector<double>& tran,
+                                        const vector<double>& rot) const {
 
   DTLayerId layId(id);
 
   // Layer specific parameter (size)
-  float width = (*(rig.shapeStart(idt) + 1))/cm;     // r-phi  dimension - changes in different chambers
-  float length = (*(rig.shapeStart(idt) + 2))/cm;    // z      dimension - constant 126.8 cm
-  float thickness = (*(rig.shapeStart(idt) + 3))/cm; // radial thickness - almost constant about 20 cm
+  float width = par[1]/cm;     // r-phi  dimension - changes in different chambers
+  float length = par[2]/cm;    // z      dimension - constant 126.8 cm
+  float thickness = par[3]/cm; // radial thickness - almost constant about 20 cm
 
   // define Bounds
   RectangularPlaneBounds bound(width, length, thickness);
 
-  RCPPlane surf(plane(rig.tranStart(idt), rig.rotStart(idt), bound));//tran, rot, bound));
+  RCPPlane surf(plane(tran, rot, bound));
 
   // Loop on wires
-  int firstWire=int(*(rig.shapeStart(idt) +4 ));//par[4]);
-  int WCounter=int(*(rig.shapeStart(idt) + 5));//par[5]);
-  double sensibleLenght=*(rig.shapeStart(idt))/cm;//par[6]/cm;
+  int firstWire=int(par[4]);
+  int WCounter=int(par[5]);
+  double sensibleLenght=par[6]/cm;
   DTTopology topology(firstWire, WCounter, sensibleLenght);
 
   DTLayerType layerType;
@@ -160,15 +165,15 @@ DTGeometryBuilderFromCondDB::buildLayer(DTSuperLayer* sl,
 }
 
 DTGeometryBuilderFromCondDB::RCPPlane 
-DTGeometryBuilderFromCondDB::plane(const vector<double>::const_iterator tranStart,
-                                   const vector<double>::const_iterator rotStart,
+DTGeometryBuilderFromCondDB::plane(const vector<double>& tran,
+                                   const vector<double>& rot,
                                    const Bounds& bounds) const {
   // extract the position
-  const Surface::PositionType posResult(*(tranStart), *(tranStart+1), *(tranStart+2));
+  const Surface::PositionType posResult(tran[0], tran[1], tran[2]);
   // now the rotation
-  Surface::RotationType rotResult( *(rotStart+0), *(rotStart+1), *(rotStart+2), 
-                                   *(rotStart+3), *(rotStart+4), *(rotStart+5),
-                                   *(rotStart+6), *(rotStart+7), *(rotStart+8) );
+  Surface::RotationType rotResult( rot[0], rot[1], rot[2], 
+                                   rot[3], rot[4], rot[5],
+                                   rot[6], rot[7], rot[8] );
 
   return RCPPlane( new BoundPlane( posResult, rotResult, bounds));
 }

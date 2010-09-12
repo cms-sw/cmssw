@@ -1,4 +1,4 @@
-// $Id: TestHelper.h,v 1.5 2010/04/30 14:27:22 mommsen Exp $
+// $Id: TestHelper.h,v 1.6 2010/05/17 15:59:10 mommsen Exp $
 
 #ifndef StorageManager_TestHelper_h
 #define StorageManager_TestHelper_h
@@ -34,11 +34,6 @@
 
 #include "zlib.h"
 
-using toolbox::mem::Pool;
-using toolbox::mem::MemoryPoolFactory;
-using toolbox::mem::getMemoryPoolFactory;
-using toolbox::mem::HeapAllocator;
-using toolbox::mem::Reference;
 
 // There seems to be no sane way to create and destroy some of these
 // toolbox entities, so we use globals. valgrind complains about
@@ -46,6 +41,10 @@ using toolbox::mem::Reference;
 // use global resources) does not remove the leaks.
 namespace
 {
+  using toolbox::mem::Pool;
+  using toolbox::mem::MemoryPoolFactory;
+  using toolbox::mem::getMemoryPoolFactory;
+  using toolbox::mem::HeapAllocator;
   MemoryPoolFactory*  g_factory(getMemoryPoolFactory());
   toolbox::net::URN   g_urn("toolbox-mem-pool","myPool");
   HeapAllocator* g_alloc(new HeapAllocator);
@@ -57,6 +56,7 @@ namespace stor
 {
   namespace testhelper
   {
+    using toolbox::mem::Reference;
 
     // Allocate a new frame from the (global) Pool.
     Reference*

@@ -28,6 +28,7 @@
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 // DataFormats
@@ -118,7 +119,7 @@ void SiPixelHLTSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   edm::DetSet<SiPixelRawDataError>::const_iterator  di;
 
   for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
-    if(dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
+    if( ((*it)->subDetector()==GeomDetEnumerators::PixelBarrel) || ((*it)->subDetector()==GeomDetEnumerators::PixelEndcap) ){
       uint32_t detId = (*it)->geographicalId();
       edm::DetSetVector<SiPixelRawDataError>::const_iterator isearch = errorinput->find(detId);
       if( isearch != errorinput->end() ) {
@@ -134,7 +135,7 @@ void SiPixelHLTSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  }; // end switch
 	} // end for(di
       } // end if( isearch
-    } // end if(dynamic_cast
+    } // end if( ((*it)->subDetector()
   } // for(TrackerGeometry
 
   edm::DetSetVector<SiPixelRawDataError>::const_iterator isearch = errorinput->find(0xffffffff);

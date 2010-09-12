@@ -2,7 +2,7 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 
 
-pair<AlgebraicVector, AlgebraicVector> SimplePointingConstraint::value(const AlgebraicVector& exPoint) const
+std::pair<AlgebraicVector, AlgebraicVector> SimplePointingConstraint::value(const AlgebraicVector& exPoint) const
 {
  if(exPoint.num_row() ==0 ) throw VertexException("PointingKinematicConstraint::value requested for zero Linearization point");
 
@@ -19,10 +19,10 @@ pair<AlgebraicVector, AlgebraicVector> SimplePointingConstraint::value(const Alg
  AlgebraicVector lValue = makeValue(lPar).first;
  vl(1) =lValue(1);
  vl(2) =lValue(2);
- return pair<AlgebraicVector,AlgebraicVector>(vl,lPar); 
+ return std::pair<AlgebraicVector,AlgebraicVector>(vl,lPar); 
 }
 
-pair<AlgebraicMatrix, AlgebraicVector> SimplePointingConstraint::derivative(const AlgebraicVector& exPoint) const
+std::pair<AlgebraicMatrix, AlgebraicVector> SimplePointingConstraint::derivative(const AlgebraicVector& exPoint) const
 {
  if(exPoint.num_row() ==0 ) throw VertexException("PointingKinematicConstraint::value requested for zero Linearization point");
 
@@ -37,10 +37,10 @@ pair<AlgebraicMatrix, AlgebraicVector> SimplePointingConstraint::derivative(cons
  AlgebraicMatrix lDeriv = makeDerivative(lPar).first;
  AlgebraicMatrix dr(2,7,0);
  dr.sub(1,1,lDeriv);
- return pair<AlgebraicMatrix,AlgebraicVector>(dr,lPar);
+ return std::pair<AlgebraicMatrix,AlgebraicVector>(dr,lPar);
 }
 
-pair<AlgebraicMatrix, AlgebraicVector> SimplePointingConstraint::derivative(const vector<RefCountedKinematicParticle> par) const
+std::pair<AlgebraicMatrix, AlgebraicVector> SimplePointingConstraint::derivative(const std::vector<RefCountedKinematicParticle> par) const
 {
  int nStates = par.size();
  if(nStates == 0) throw VertexException("PointingKinematicConstraint::Empty vector of particles passed");
@@ -54,10 +54,10 @@ pair<AlgebraicMatrix, AlgebraicVector> SimplePointingConstraint::derivative(cons
  dr.sub(1,1,lDeriv);
 // cout<<"Derivative returned: "<<dr<<endl;
 // cout<<"For the value: "<<lPoint<<endl;
- return pair<AlgebraicMatrix,AlgebraicVector>(dr,lPoint);
+ return std::pair<AlgebraicMatrix,AlgebraicVector>(dr,lPoint);
 }
 
-pair<AlgebraicVector, AlgebraicVector> SimplePointingConstraint::value(const vector<RefCountedKinematicParticle> par) const
+std::pair<AlgebraicVector, AlgebraicVector> SimplePointingConstraint::value(const std::vector<RefCountedKinematicParticle> par) const
 { 
  int nStates = par.size();
  if(nStates == 0) throw VertexException("PointingKinematicConstraint::Empty vector of particles passed");
@@ -69,7 +69,7 @@ pair<AlgebraicVector, AlgebraicVector> SimplePointingConstraint::value(const vec
 // cout<<"Value returned: "<<vl<<endl;
 // cout<<"For the point: "<<lPoint<<endl;
  
- return pair<AlgebraicVector,AlgebraicVector>(vl,lPoint);
+ return std::pair<AlgebraicVector,AlgebraicVector>(vl,lPoint);
 }
  
 AlgebraicVector SimplePointingConstraint::deviations(int nStates) const
@@ -78,7 +78,7 @@ AlgebraicVector SimplePointingConstraint::deviations(int nStates) const
 int SimplePointingConstraint::numberOfEquations() const
 {return 2;}
  
-pair<AlgebraicVector,AlgebraicVector> SimplePointingConstraint::makeValue(const AlgebraicVector& exPoint)const 
+std::pair<AlgebraicVector,AlgebraicVector> SimplePointingConstraint::makeValue(const AlgebraicVector& exPoint)const 
 { 
 // cout<<"Make value called"<<endl;
  AlgebraicVector vl(2,0);
@@ -114,10 +114,10 @@ pair<AlgebraicVector,AlgebraicVector> SimplePointingConstraint::makeValue(const 
 //half angle corrected
 // vl(1) = (sin_x/(1+cos_x)) - (sin_p/(1+cos_p));
 // vl(2) = (sin_xt/(1+cos_xt)) - (sin_pt/(1+cos_pt));
- return pair<AlgebraicVector,AlgebraicVector>(vl,point);
+ return std::pair<AlgebraicVector,AlgebraicVector>(vl,point);
 }
 
-pair<AlgebraicMatrix, AlgebraicVector> SimplePointingConstraint::makeDerivative(const AlgebraicVector& exPoint) const
+std::pair<AlgebraicMatrix, AlgebraicVector> SimplePointingConstraint::makeDerivative(const AlgebraicVector& exPoint) const
 { 
  AlgebraicMatrix dr(2,7,0);
  AlgebraicVector point = exPoint;
@@ -248,5 +248,5 @@ pair<AlgebraicMatrix, AlgebraicVector> SimplePointingConstraint::makeDerivative(
  dr(2,7) = 0;
  
 // cout<<"derivative matrix "<<dr<<endl;
- return pair<AlgebraicMatrix,AlgebraicVector>(dr,point); 
+ return std::pair<AlgebraicMatrix,AlgebraicVector>(dr,point); 
 }

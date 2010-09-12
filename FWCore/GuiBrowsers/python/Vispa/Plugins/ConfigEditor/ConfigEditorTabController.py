@@ -133,11 +133,11 @@ class ConfigEditorTabController(BrowserTabController):
             self.updateConfigHighlight()
         self.plugin().application().stopWorking(statusMessage)
         
-    def selected(self):
+    def activated(self):
         """ Shows plugin menus when user selects tab.
         """
-        logging.debug(__name__ + ": selected()")
-        BrowserTabController.selected(self)
+        logging.debug(__name__ + ": activated()")
+        BrowserTabController.activated(self)
         self.plugin().application().showPluginMenu(self._configMenu)
         self.plugin().application().showPluginToolBar(self._configToolBar)
         self._editorAction.setVisible(not self.tab().editorSplitter())
@@ -363,7 +363,7 @@ class ConfigEditorTabController(BrowserTabController):
         self._applyPatToolAction = self.plugin().application().createAction('&Apply tool...', self.applyButtonClicked, "F3")
         self._configMenu.addAction(self._applyPatToolAction)
         self._configToolBar.addAction(self._applyPatToolAction)
-        self.selected()
+        self.activated()
 
         self._toolDataAccessor=ToolDataAccessor()
         self._toolDataAccessor.setConfigDataAccessor(self.dataAccessor())

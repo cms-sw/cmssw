@@ -32,6 +32,27 @@ class PortWidget(VispaWidget):
         self._startDragPosition = None
         self.setDragable(True)
         self._aimConnection = None
+        self._attachedConnections = []
+        
+    def attachConnection(self, connection):
+        self._attachedConnections.append(connection)
+        
+    def detachConnection(self, connection):
+        if connection in self._attachedConnections:
+            self._attachedConnections.remove(connection)
+        else:
+            logging.error("%s: detachConnection(): Tried to detach a connection that was not attached ot this port. Aborting..." % self.__class__.__name__)
+        
+    def updateAttachedConnections(self):
+        for connection in self._attachedConnections:
+            connection.updateConnection()
+            
+    def deleteAttachedConnections(self):
+        for connection in self._attachedConnections:
+            connection.delete()
+            
+    def attachedConnections(self):
+        return self._attachedConnections
         
     def setDragable(self,dragable, recursive=False):
         """ Set whether user can grab the port and connect it to others.

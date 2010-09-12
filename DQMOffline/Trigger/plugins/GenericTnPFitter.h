@@ -18,8 +18,6 @@
 #include "TCanvas.h"
 #include "RooPlot.h"
 
-using namespace RooFit;
-
 namespace dqmTnP{
 
 class AbstractFitter{
@@ -77,6 +75,7 @@ class AbstractFitter{
   double getEfficiencyError(){ return efficiency.getError(); }
   double getChi2(){ return chi2; }
   void savePlot(TString name){
+    using namespace RooFit;
     RooPlot* frame = mass.frame(Name(name), Title("Failing and Passing Probe Distributions"));
     data->plotOn(frame,Cut("category==category::pass"),LineColor(kGreen),MarkerColor(kGreen));
     data->plotOn(frame,Cut("category==category::fail"),LineColor(kRed),MarkerColor(kRed));
@@ -263,6 +262,7 @@ class GaussianPlusLinearFitter: public AbstractFitter{
   };
   ~GaussianPlusLinearFitter(){};
   void fit(TH1* pass, TH1* all){
+    using namespace RooFit;
     all->Add(pass,-1);
     TH1* &fail = all;
     if(!data) delete data;
@@ -333,6 +333,7 @@ class VoigtianPlusExponentialFitter: public AbstractFitter{
     width.setVal(width_);
   }
   void fit(TH1* pass, TH1* all){
+    using namespace RooFit;
     all->Add(pass,-1);
     TH1* &fail = all;
     if(!data) delete data;

@@ -13,7 +13,7 @@ process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 process.load("Validation.RecoEgamma.photonValidationSequence_cff")
 process.load("Validation.RecoEgamma.photonPostprocessing_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'START37_V5::All'
+process.GlobalTag.globaltag = 'START38_V6::All'
 
 process.DQMStore = cms.Service("DQMStore");
 process.load("DQMServices.Components.DQMStoreStats_cfi")
@@ -32,7 +32,7 @@ from Validation.RecoEgamma.photonValidationSequence_cff import *
 from Validation.RecoEgamma.photonPostprocessing_cfi import *
 
 photonValidation.OutputMEsInRootFile = True
-photonValidation.OutputFileName = 'PhotonValidationRelVal380pre1_H130GGgluonfusion.root'
+photonValidation.OutputFileName = 'PhotonValidationRelVal380pre8_H130GGgluonfusion.root'
 
 
 photonPostprocessing.batch = cms.bool(True)
@@ -43,33 +43,32 @@ noEventSort = cms.untracked.bool(True),
 duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
                             
     fileNames = cms.untracked.vstring(
-# official RelVal 380pre1 RelValH130GGgluonfusion
-        '/store/relval/CMSSW_3_8_0_pre1/RelValH130GGgluonfusion/GEN-SIM-RECO/START37_V5-v1/0001/98F28128-266E-DF11-8A75-003048678A88.root',
-        '/store/relval/CMSSW_3_8_0_pre1/RelValH130GGgluonfusion/GEN-SIM-RECO/START37_V5-v1/0000/FAE92E8F-EB6D-DF11-B921-003048679000.root',
-        '/store/relval/CMSSW_3_8_0_pre1/RelValH130GGgluonfusion/GEN-SIM-RECO/START37_V5-v1/0000/CC6646BD-ED6D-DF11-927E-003048679228.root',
-        '/store/relval/CMSSW_3_8_0_pre1/RelValH130GGgluonfusion/GEN-SIM-RECO/START37_V5-v1/0000/846DA811-EC6D-DF11-9A3A-003048678BE6.root',
-        '/store/relval/CMSSW_3_8_0_pre1/RelValH130GGgluonfusion/GEN-SIM-RECO/START37_V5-v1/0000/721431A7-F26D-DF11-BCD1-002618943974.root',
-        '/store/relval/CMSSW_3_8_0_pre1/RelValH130GGgluonfusion/GEN-SIM-RECO/START37_V5-v1/0000/6C3BEAAF-EC6D-DF11-8EC8-002618943821.root'
-        
+# official RelVal 380pre8 RelValH130GGgluonfusion
+        '/store/relval/CMSSW_3_8_0_pre8/RelValH130GGgluonfusion/GEN-SIM-RECO/START38_V6-v1/0001/BC19475B-758B-DF11-BA90-00304867C04E.root',
+        '/store/relval/CMSSW_3_8_0_pre8/RelValH130GGgluonfusion/GEN-SIM-RECO/START38_V6-v1/0001/9EB6758A-7A8B-DF11-B995-0018F3D095FC.root',
+        '/store/relval/CMSSW_3_8_0_pre8/RelValH130GGgluonfusion/GEN-SIM-RECO/START38_V6-v1/0001/644AA05A-768B-DF11-A97A-0018F3D0967E.root',
+        '/store/relval/CMSSW_3_8_0_pre8/RelValH130GGgluonfusion/GEN-SIM-RECO/START38_V6-v1/0001/46181018-A88B-DF11-99B9-003048678B14.root',
+        '/store/relval/CMSSW_3_8_0_pre8/RelValH130GGgluonfusion/GEN-SIM-RECO/START38_V6-v1/0001/127EFB17-7C8B-DF11-9A9B-00248C0BE014.root',
+        '/store/relval/CMSSW_3_8_0_pre8/RelValH130GGgluonfusion/GEN-SIM-RECO/START38_V6-v1/0001/10A060FE-748B-DF11-93D4-0018F3D096C6.root'
 
+ 
     ),
     secondaryFileNames = cms.untracked.vstring(
-# official RelVal 380pre1 RelValH130GGgluonfusion
-
-        '/store/relval/CMSSW_3_8_0_pre1/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V5-v1/0001/BE1ADF40-266E-DF11-B3A7-001A92810AD6.root',
-        '/store/relval/CMSSW_3_8_0_pre1/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V5-v1/0000/FC909697-EB6D-DF11-9F63-00261894398D.root',
-        '/store/relval/CMSSW_3_8_0_pre1/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V5-v1/0000/E4FBC384-EC6D-DF11-832B-00261894383B.root',
-        '/store/relval/CMSSW_3_8_0_pre1/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V5-v1/0000/E0AE131D-EC6D-DF11-AF12-002618943868.root',
-        '/store/relval/CMSSW_3_8_0_pre1/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V5-v1/0000/D8DFD11C-EC6D-DF11-8D8D-002618943868.root',
-        '/store/relval/CMSSW_3_8_0_pre1/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V5-v1/0000/C448F49B-EB6D-DF11-936F-002618943811.root',
-        '/store/relval/CMSSW_3_8_0_pre1/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V5-v1/0000/A4BA99BB-ED6D-DF11-8C65-0018F3D096CA.root',
-        '/store/relval/CMSSW_3_8_0_pre1/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V5-v1/0000/A4348912-EC6D-DF11-83E7-0026189437FE.root',
-        '/store/relval/CMSSW_3_8_0_pre1/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V5-v1/0000/781209AD-F26D-DF11-9104-001731EF61B4.root',
-        '/store/relval/CMSSW_3_8_0_pre1/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V5-v1/0000/7244CB97-EC6D-DF11-9CE0-002618943868.root',
-        '/store/relval/CMSSW_3_8_0_pre1/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V5-v1/0000/64A08106-ED6D-DF11-9A7E-003048678FEA.root',
-        '/store/relval/CMSSW_3_8_0_pre1/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V5-v1/0000/2A04E583-F16D-DF11-97B5-003048679070.root',
-        '/store/relval/CMSSW_3_8_0_pre1/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/START37_V5-v1/0000/1AB527A0-EC6D-DF11-BE89-0018F3D096E4.root'
-
+# official RelVal 380pre8 RelValH130GGgluonfusion
+'/store/relval/CMSSW_3_8_0_pre8/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/START38_V6-v1/0001/F8E3E10A-758B-DF11-8C9D-003048679164.root',
+        '/store/relval/CMSSW_3_8_0_pre8/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/START38_V6-v1/0001/F84F6F9E-748B-DF11-BBE0-0018F3D0967E.root',
+        '/store/relval/CMSSW_3_8_0_pre8/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/START38_V6-v1/0001/CAA794B3-748B-DF11-9A6A-002354EF3BDE.root',
+        '/store/relval/CMSSW_3_8_0_pre8/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/START38_V6-v1/0001/CA72152A-768B-DF11-87C0-001A92971B06.root',
+        '/store/relval/CMSSW_3_8_0_pre8/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/START38_V6-v1/0001/BAD606FA-748B-DF11-9EEA-002354EF3BE6.root',
+        '/store/relval/CMSSW_3_8_0_pre8/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/START38_V6-v1/0001/AACA9CB2-748B-DF11-A824-0018F3D096CE.root',
+        '/store/relval/CMSSW_3_8_0_pre8/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/START38_V6-v1/0001/82FA7CFA-7B8B-DF11-ACC6-002618943836.root',
+        '/store/relval/CMSSW_3_8_0_pre8/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/START38_V6-v1/0001/72B54D66-7B8B-DF11-9564-0026189437ED.root',
+        '/store/relval/CMSSW_3_8_0_pre8/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/START38_V6-v1/0001/14C1DC14-778B-DF11-B35A-001A92971B06.root',
+        '/store/relval/CMSSW_3_8_0_pre8/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/START38_V6-v1/0001/0EB50979-7A8B-DF11-87D3-0018F3D09690.root',
+        '/store/relval/CMSSW_3_8_0_pre8/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/START38_V6-v1/0001/0A9F3543-A38B-DF11-A078-0026189438D2.root',
+        '/store/relval/CMSSW_3_8_0_pre8/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/START38_V6-v1/0001/08F91200-758B-DF11-BCA8-00304867BECC.root',
+        '/store/relval/CMSSW_3_8_0_pre8/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/START38_V6-v1/0001/06FC58B4-748B-DF11-A91A-00304867BEDE.root'
+ 
 
     )
  )

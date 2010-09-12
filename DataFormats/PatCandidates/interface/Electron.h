@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.27.10.1 2010/04/20 14:43:50 srappocc Exp $
+// $Id: Electron.h,v 1.28 2010/04/20 16:07:14 srappocc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Electron.h,v 1.27.10.1 2010/04/20 14:43:50 srappocc Exp $
+  \version  $Id: Electron.h,v 1.28 2010/04/20 16:07:14 srappocc Exp $
 */
 
 
@@ -78,7 +78,18 @@ namespace pat {
 
       // ---- methods for electron ID ----
       /// Returns a specific electron ID associated to the pat::Electron given its name
-      /// For cut-based IDs, the value is 1.0 for good, 0.0 for bad.
+      /// For cut-based IDs, the value map has the following meaning:
+      /// 0: fails
+      /// 1: passes electron ID only
+      /// 2: passes electron Isolation only
+      /// 3: passes electron ID and Isolation only
+      /// 4: passes conversion rejection
+      /// 5: passes conversion rejection and ID
+      /// 6: passes conversion rejection and Isolation
+      /// 7: passes the whole selection 
+      /// For more details have a look at:
+      /// https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
+      /// https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideCategoryBasedElectronID 
       /// Note: an exception is thrown if the specified ID is not available
       float electronID(const std::string & name) const;
       /// Returns true if a specific ID is available in this pat::Electron

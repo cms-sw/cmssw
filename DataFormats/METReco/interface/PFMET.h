@@ -26,36 +26,47 @@ namespace reco
     virtual ~PFMET() {}
     
     //getters
-    double NeutralEMEtFraction() const { return pf_data.NeutralEMFraction; }
-    double NeutralEMEt() const { return pf_data.NeutralEMFraction * sumEt(); }
+    double photonEtFraction() const { return pf_data.NeutralEMFraction; }
+    double photonEt() const { return pf_data.NeutralEMFraction * sumEt(); }
 
-    double NeutralHadEtFraction() const { return pf_data.NeutralHadFraction; }
-    double NeutralHadEt() const { return pf_data.NeutralHadFraction * sumEt(); }
+    double neutralHadronEtFraction() const { return pf_data.NeutralHadFraction; }
+    double neutralHadronEt() const { return pf_data.NeutralHadFraction * sumEt(); }
 
-    double ChargedEMEtFraction() const { return pf_data.ChargedEMFraction; }
-    double ChargedEMEt() const { return pf_data.ChargedEMFraction * sumEt(); }
+    double electronEtFraction() const { return pf_data.ChargedEMFraction; }
+    double electronEt() const { return pf_data.ChargedEMFraction * sumEt(); }
 
-    double ChargedHadEtFraction() const { return pf_data.ChargedHadFraction; }
-    double ChargedHadEt() const { return pf_data.ChargedHadFraction * sumEt(); }
+    double chargedHadronEtFraction() const { return pf_data.ChargedHadFraction; }
+    double chargedHadronEt() const { return pf_data.ChargedHadFraction * sumEt(); }
 
-    double MuonEtFraction() const { return pf_data.MuonFraction; }
-    double MuonEt() const { return pf_data.MuonFraction * sumEt(); }
+    double muonEtFraction() const { return pf_data.MuonFraction; }
+    double muonEt() const { return pf_data.MuonFraction * sumEt(); }
     
-    double Type6EtFraction() const { return pf_data.Type6Fraction; }
-    double Type6Et() const { return pf_data.Type6Fraction * sumEt(); }
+    double HFHadronEtFraction() const { return pf_data.Type6Fraction; }
+    double HFHadronEt() const { return pf_data.Type6Fraction * sumEt(); }
 
-    double Type7EtFraction() const { return pf_data.Type7Fraction; }
-    double Type7Et() const { return pf_data.Type7Fraction * sumEt(); }
-
+    double HFEMEtFraction() const { return pf_data.Type7Fraction; }
+    double HFEMEt() const { return pf_data.Type7Fraction * sumEt(); }
 
     // Old accessors (should be removed in future)
+    double NeutralEMEtFraction() const { return pf_data.NeutralEMFraction; }
+    double NeutralEMEt() const { return pf_data.NeutralEMFraction * sumEt(); }
+    double NeutralHadEtFraction() const { return pf_data.NeutralHadFraction; }
+    double NeutralHadEt() const { return pf_data.NeutralHadFraction * sumEt(); }
+    double ChargedEMEtFraction() const { return pf_data.ChargedEMFraction; }
+    double ChargedEMEt() const { return pf_data.ChargedEMFraction * sumEt(); }
+    double ChargedHadEtFraction() const { return pf_data.ChargedHadFraction; }
+    double ChargedHadEt() const { return pf_data.ChargedHadFraction * sumEt(); }
+    double MuonEtFraction() const { return pf_data.MuonFraction; }
+    double MuonEt() const { return pf_data.MuonFraction * sumEt(); }
+    double Type6EtFraction() const { return pf_data.Type6Fraction; }
+    double Type6Et() const { return pf_data.Type6Fraction * sumEt(); }
+    double Type7EtFraction() const { return pf_data.Type7Fraction; }
+    double Type7Et() const { return pf_data.Type7Fraction * sumEt(); }
     double NeutralEMFraction() const { return pf_data.NeutralEMFraction; }
     double NeutralHadFraction() const { return pf_data.NeutralHadFraction; }
     double ChargedEMFraction() const { return pf_data.ChargedEMFraction; }
     double ChargedHadFraction() const { return pf_data.ChargedHadFraction; }
     double MuonFraction() const { return pf_data.MuonFraction; }
-    
-
 
     // block accessors
     SpecificPFMETData getSpecific() const {return pf_data;}

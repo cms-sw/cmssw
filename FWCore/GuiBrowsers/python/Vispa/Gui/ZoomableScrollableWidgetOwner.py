@@ -31,8 +31,8 @@ class ZoomableScrollableWidgetOwner(ConnectableWidgetOwner, ZoomableWidget):
             # parent().parent() is eventually the QScrollArea
             self.parent().parent().autosizeScrollWidget()
     
-    def widgetMoved(self, widget):
+    def widgetDragged(self, widget):
         """ Calls autosizeScrollArea().
         """
-        ConnectableWidgetOwner.widgetMoved(self, widget)
+        ConnectableWidgetOwner.widgetDragged(self, widget)
         self.autosizeScrollArea()

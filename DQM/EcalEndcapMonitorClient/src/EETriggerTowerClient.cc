@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2010/03/27 20:08:00 $
- * $Revision: 1.94 $
+ * $Date: 2010/08/08 08:46:07 $
+ * $Revision: 1.96 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -20,7 +20,7 @@
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EETriggerTowerClient.h>
+#include "DQM/EcalEndcapMonitorClient/interface/EETriggerTowerClient.h"
 
 EETriggerTowerClient::EETriggerTowerClient(const edm::ParameterSet& ps) {
 
@@ -121,14 +121,16 @@ void EETriggerTowerClient::setup(void) {
     if ( me_o01_[ism-1] ) dqmStore_->removeElement( me_o01_[ism-1]->getName() );
     sprintf(histo, "EETTT Trigger Primitives Timing %s", Numbers::sEE(ism).c_str());
     me_o01_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-    me_o01_[ism-1]->setAxisTitle("jx", 1);
-    me_o01_[ism-1]->setAxisTitle("jy", 2);
+    me_o01_[ism-1]->setAxisTitle("ix", 1);
+    if ( ism >= 1 && ism <= 9 ) me_o01_[ism-1]->setAxisTitle("101-ix", 1);
+    me_o01_[ism-1]->setAxisTitle("iy", 2);
 
     if ( me_o02_[ism-1] ) dqmStore_->removeElement( me_o02_[ism-1]->getName() );
     sprintf(histo, "EETTT Non Single Timing %s", Numbers::sEE(ism).c_str());
     me_o02_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-    me_o02_[ism-1]->setAxisTitle("jx", 1);
-    me_o02_[ism-1]->setAxisTitle("jy", 2);
+    me_o02_[ism-1]->setAxisTitle("ix", 1);
+    if ( ism >= 1 && ism <= 9 ) me_o02_[ism-1]->setAxisTitle("101-ix", 1);
+    me_o02_[ism-1]->setAxisTitle("iy", 2);
     me_o02_[ism-1]->setAxisTitle("fraction", 3);
 
   }
@@ -238,9 +240,6 @@ void EETriggerTowerClient::analyze(void) {
 
     for (int ix = 1; ix <= 50; ix++) {
       for (int iy = 1; iy <= 50; iy++) {
-
-//         int jx = ix + Numbers::ix0EE(ism);
-//         int jy = iy + Numbers::iy0EE(ism);
 
         if ( o01_[ism-1] ) {
           // find the most frequent TP timing that matches the emulator

@@ -39,7 +39,8 @@ class LineDecayViewTestCase(unittest.TestCase):
         self.lineDecayView.setDataAccessor(accessor)
         self.lineDecayView.setDataObjects(accessor.topLevelObjects())
         self.lineDecayView.updateContent()
-        self.app.exec_()
+        if not hasattr(unittest,"NO_GUI_TEST"):
+            self.app.exec_()
 
 if __name__ == "__main__":
     Profiling.analyze("unittest.main()",__file__,"LineDecayView")

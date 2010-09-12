@@ -39,59 +39,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
     }    
   }    
 
-  // Activity
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Activity_Ecal_SC7") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-      float Et=7.0;
-      int nsc=0;
-      for (int i=0;i<NohEle;i++) {   
-        if ( ohEleEt[i] > Et) {
-	  nsc++;
-	}
-      }
-      if (nsc>0)
-	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
-    }
-  }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Activity_Phot_SC7") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-      float Et=7.0;
-      int nsc=0;
-      for (int i=0;i<NohPhot;i++) {   
-        if ( ohPhotEt[i] > Et) {
-	  nsc++;
-	}
-      }
-      if (nsc>0)
-	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
-    }
-  }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Activity_Ecal_SC0") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-      float Et=0.01;
-      int nsc=0;
-      for (int i=0;i<NohEle;i++) {   
-        if ( ohEleEt[i] > Et) {
-	  nsc++;
-	}
-      }
-      if (nsc>0)
-	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
-    }
-  }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Activity_Ecal_SC15") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-      float Et=15.0;
-      int nsc=0;
-      for (int i=0;i<NohEle;i++) {   
-        if ( ohEleEt[i] > Et) {
-	  nsc++;
-	}
-      }
-      if (nsc>0)
-	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
-    }
-  }
+
   //////////////////////////////////////////////////////////////////
   // Check OpenHLT trigger
 
@@ -593,8 +541,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       if((OpenHlt1MuonPassed(0.,3.,3.,2.,0)>=1) && //check the L3 muon
          OpenHltMuPixelPassed(ptPix, pPix, etaPix, DxyPix, DzPix, NHitsPix, normChi2Pix, massMinPix, massMaxPix, DzMuonPix, checkChargePix) && //check the L3Mu + pixel
          OpenHltMuTrackPassed(ptTrack, pTrack, etaTrack, DxyTrack, DzTrack, NHitsTrack, normChi2Track, massMinTrack, massMaxTrack, DzMuonTrack, checkChargeTrack)) { //check the L3Mu + tracker track
-        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }      
-	//        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
       }
     }
   }
@@ -629,8 +576,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
          OpenHltMuPixelPassed_Ups(ptPix, pPix, etaPix, DxyPix, DzPix, NHitsPix, normChi2Pix, massMinPix, massMaxPix, DzMuonPix, checkChargePix, 7) && //check the L3Mu + pixel
          OpenHltMuTrackPassed_Ups(ptTrack, pTrack, etaTrack, DxyTrack, DzTrack, NHitsTrack, normChi2Track, massMinTrack, massMaxTrack, DzMuonTrack, checkChargeTrack, 7)) {
         //check the L3Mu + tracker track
-	//        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
-        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }      
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
       }
     }
   }
@@ -665,8 +611,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
          OpenHltMuPixelPassed_Ups(ptPix, pPix, etaPix, DxyPix, DzPix, NHitsPix, normChi2Pix, massMinPix, massMaxPix, DzMuonPix, checkChargePix, 8) && //check the L3Mu + pixel
          OpenHltMuTrackPassed_Ups(ptTrack, pTrack, etaTrack, DxyTrack, DzTrack, NHitsTrack, normChi2Track, massMinTrack, massMaxTrack, DzMuonTrack, checkChargeTrack, 8)) {
         //check the L3Mu + tracker track
-	//        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
-        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }      
+        if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
       }
     }
   }
@@ -701,8 +646,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
          OpenHltMuPixelPassed_Ups(ptPix, pPix, etaPix, DxyPix, DzPix, NHitsPix, normChi2Pix, massMinPix, massMaxPix, DzMuonPix, checkChargePix, 9) && //check the L3Mu + pixel
          OpenHltMuTrackPassed_Ups(ptTrack, pTrack, etaTrack, DxyTrack, DzTrack, NHitsTrack, normChi2Track, massMinTrack, massMaxTrack, DzMuonTrack, checkChargeTrack, 9)) { 
 	//check the L3Mu + tracker track
-	//	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
-        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }      
+	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
       }
     }
   }
@@ -737,8 +681,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
          OpenHltMuPixelPassed_JPsi(ptPix, pPix, etaPix, DxyPix, DzPix, NHitsPix, normChi2Pix, massMinPix, massMaxPix, DzMuonPix, checkChargePix, 0) && //check the L3Mu + pixel
          OpenHltMuTrackPassed_JPsi(ptTrack, pTrack, etaTrack, DxyTrack, DzTrack, NHitsTrack, normChi2Track, massMinTrack, massMaxTrack, DzMuonTrack, checkChargeTrack, 0)) { 
 	//check the L3Mu + tracker track
-	//	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
-        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }      
+	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
       }
     }
   }
@@ -773,8 +716,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
          OpenHltMuPixelPassed_JPsi(ptPix, pPix, etaPix, DxyPix, DzPix, NHitsPix, normChi2Pix, massMinPix, massMaxPix, DzMuonPix, checkChargePix, 5) && //check the L3Mu + pixel
          OpenHltMuTrackPassed_JPsi(ptTrack, pTrack, etaTrack, DxyTrack, DzTrack, NHitsTrack, normChi2Track, massMinTrack, massMaxTrack, DzMuonTrack, checkChargeTrack,5)) { 
 	//check the L3Mu + tracker track
-	//	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
-        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }      
+	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
       }
     }
   }
@@ -809,8 +751,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
          OpenHltMuPixelPassed_JPsi(ptPix, pPix, etaPix, DxyPix, DzPix, NHitsPix, normChi2Pix, massMinPix, massMaxPix, DzMuonPix, checkChargePix, 6) && //check the L3Mu + pixel
          OpenHltMuTrackPassed_JPsi(ptTrack, pTrack, etaTrack, DxyTrack, DzTrack, NHitsTrack, normChi2Track, massMinTrack, massMaxTrack, DzMuonTrack, checkChargeTrack, 6)) { 
 	//check the L3Mu + tracker track
-	//	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
-        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }      
+	if (GetIntRandom() % menu->GetPrescale(it) == 0) { triggerBit[it] = true; }
       }
     }
   }
@@ -1551,20 +1492,6 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
 	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }      
       }        
     }        
-  }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_SingleLooseIsoTau25") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-      if(OpenHltTauL2SCPassed(25.,0.,0,0.,0, 20.,50.)>=1) {
-    if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
-      }
-    }
-  }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_SingleLooseIsoTau20_Trk5") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-      if(OpenHltTauL2SCPassed(20.,5.,0,0.,0, 20.,50.)>=1) {
-    if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
-      }
-    }
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleLooseIsoTau15") == 0) { 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 

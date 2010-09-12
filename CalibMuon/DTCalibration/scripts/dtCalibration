@@ -7,270 +7,149 @@ from CalibMuon.DTCalibration.Workflow.DTTTrigResidualCorr import DTTTrigResidual
 from CalibMuon.DTCalibration.Workflow.DTValidSummary import DTValidSummary
 from CalibMuon.DTCalibration.Workflow.DTDqm import DTDqm
 from CalibMuon.DTCalibration.Workflow.CrabWatch import CrabWatch
-from CalibMuon.DTCalibration.Workflow.tools import listFilesInCastor,haddInCastor,listFilesLocal,haddLocal,parseInput
-import sys,os,time,optparse
+from CalibMuon.DTCalibration.Workflow.tools import listFilesInCastor,haddInCastor,parseInput
+import sys,os,time
 
-def getDatasetStr(datasetpath):
-    datasetstr = datasetpath
-    datasetstr.strip()
-    if datasetstr[0] == '/': datasetstr = datasetstr[1:]
-    datasetstr = datasetstr.replace('/','_')
+def runTtrigProd(run,runselection,trial,config):
 
-    return datasetstr
+    crab_opts = {'RUNSELECTION':runselection,
+                 'USERDIRCAF':'TTRIGCalibration/Production/Run' + str(run) + '/v' + str(trial)}
+    crab_opts.update(config.crab_opts)
 
-def runTtrigProd(run,runselection,trial,config,runStep=True):
+    pset_opts = {'MUDIGILABEL':'muonDTDigis'}
+    pset_opts.update(config.pset_opts)
 
-    print "Processing tTrig production"
-    config.runselection = runselection
-    #config.userdircaf = 'TTRIGCalibration/Production/Run' + str(run) + '/v' + str(trial)
-    datasetstr = getDatasetStr(config.datasetpath)
-    config.userdircaf = 'TTRIGCalibration/' + datasetstr + '/Run' + str(run) + '/Production/' + 'v' + str(trial)
-    config.digilabel = 'muonDTDigis'
-   
-    dtTtrigProd = DTTTrigProd(run,config.prod_dir,config) 
-    dtTtrigProd.writeCfg()
-    
-    if runStep:
-        project_prod = dtTtrigProd.run()
+    dtTtrigProd = DTTTrigProd(run,crab_opts,pset_opts,config.template_path) 
+    project_prod = dtTtrigProd.run()
 
-        print "Sent production jobs with project",project_prod
+    print "Sent production jobs with project",project_prod
 
-        crabProd = CrabWatch(project_prod)
-        crabProd.start()
-        crabProd.join()
+    crabProd = CrabWatch(project_prod)
+    crabProd.start()
+    crabProd.join()
 
-        result_file = config.result_dir + '/DTTimeBoxes_%s.root'%run
-        if config.stageOutLocal:
-            output_dir = project_prod + "/res"
-            haddLocal(output_dir,result_file) 
-        elif config.stageOutCAF:
-            castor_dir = config.castorpath + "/" + config.userdircaf
-            haddInCastor(castor_dir,result_file,'DTTimeBoxes','rfio://castorcms/')
+    castor_dir = config.castor_prefix + dtTtrigProd.crab_opts['USERDIRCAF']
 
-        return project_prod
+    result_file = config.result_dir + '/DTTimeBoxes_%s.root'%run
+    haddInCastor(castor_dir,result_file)
 
-    return None
+def runTtrigCorrFirst(run,config):
+    dtTtrigCorrFirst = DTTTrigCorrFirst(run,config.pset_opts,config.result_dir,config.template_path)  
+    dtTtrigCorrFirst.run()
 
-def runTtrigCorrFirst(run,config,runStep=True):
+    print "Finished processing:"
+    for pset in dtTtrigCorrFirst.configs: print "--->",pset
 
-    print "Processing tTrig correction"
-    dtTtrigCorrFirst = DTTTrigCorrFirst(run,config.run_dir,config.result_dir,config)
-    dtTtrigCorrFirst.writeCfg()
+def runTtrigValid(run,runselection,trial,input_file,config):
+    #ttrig_second_db = os.path.abspath(result_dir + '/' + 'ttrig_second_' + run + '.db')
+
+    crab_opts = {'RUNSELECTION':runselection,
+                 'USERDIRCAF':'TTRIGCalibration/Validation/First/Run' + str(run) + '/v' + str(trial),
+                 'INPUTFILE':input_file}
+
+    crab_opts.update(config.crab_opts)
  
-    if runStep:  
-        dtTtrigCorrFirst.run()
+    pset_opts = {'INPUTFILE':input_file.split('/')[-1]}
+    pset_opts.update(config.pset_opts)
 
-        print "Finished processing:"
-        for pset in dtTtrigCorrFirst.configs: print "--->",pset
+    dtTtrigValid = DTTTrigValid(run,crab_opts,pset_opts,config.template_path) 
+    project_valid_first = dtTtrigValid.run()
 
-def runTtrigValid(run,runselection,trial,input_file,config,runStep=True):
+    print "Sent validation jobs with project",project_valid_first
 
-    print "Processing tTrig validation"
-    config.runselection = runselection
-    #config.userdircaf = 'TTRIGCalibration/Validation/First/Run' + str(run) + '/v' + str(trial)
-    datasetstr = getDatasetStr(config.datasetpath)
-    config.userdircaf = 'TTRIGCalibration/' + datasetstr + '/Run' + str(run) + '/Validation/First/' + 'v' + str(trial)
-    
-    dtTtrigValid = DTTTrigValid(run,config.valid_dir,input_file,config) 
-    dtTtrigValid.writeCfg()
+    crabValidFirst = CrabWatch(project_valid_first)
+    crabValidFirst.start()
+    crabValidFirst.join()
 
-    if runStep:
-        project_valid_first = dtTtrigValid.run()
+    result_file = config.result_dir + '/DTkFactValidation_%s.root'%run
+    castor_dir = config.castor_prefix + dtTtrigValid.crab_opts['USERDIRCAF']
+    haddInCastor(castor_dir,result_file,'residuals')
 
-        print "Sent validation jobs with project",project_valid_first
+def runTtrigResidualCorr(run,config):
+    dtTtrigResidualCorr = DTTTrigResidualCorr(run,config.pset_opts,config.result_dir,config.template_path)  
+    dtTtrigResidualCorr.run()
 
-        crabValidFirst = CrabWatch(project_valid_first)
-        crabValidFirst.start()
-        crabValidFirst.join()
+    print "Finished processing:"
+    for pset in dtTtrigResidualCorr.configs: print "--->",pset
 
-        result_file = config.result_dir + '/DTkFactValidation_%s.root'%run
-        if config.stageOutLocal:
-            output_dir = project_valid_first + "/res"
-            haddLocal(output_dir,result_file,'residuals')
-        elif config.stageOutCAF:
-            castor_dir = config.castorpath + "/" + config.userdircaf
-            haddInCastor(castor_dir,result_file,'residuals','rfio://castorcms/')
+def runTtrigValidResidCorr(run,runselection,trial,input_file,config):
+    #ttrig_ResidCorr_db = os.path.abspath(result_dir + '/' + 'ttrig_ResidCorr_' + run + '.db')
 
-        return project_valid_first
+    crab_opts = {'RUNSELECTION':runselection,
+                 'USERDIRCAF':'TTRIGCalibration/Validation/ResidCorr/Run' + str(run) + '/v' + str(trial),
+                 'INPUTFILE':input_file}
 
-    return None
+    crab_opts.update(config.crab_opts)
 
-def runTtrigResidualCorr(run,config,runStep=True):
+    pset_opts = {'INPUTFILE':input_file.split('/')[-1]}
+    pset_opts.update(config.pset_opts)
 
-    print "Processing tTrig residual correction"
-    dtTtrigResidualCorr = DTTTrigResidualCorr(run,config.run_dir,config.result_dir,config)
-    dtTtrigResidualCorr.writeCfg()
+    dtTtrigValid_ResidCorr = DTTTrigValid(run,crab_opts,pset_opts,config.template_path) 
+    project_valid_ResidCorr = dtTtrigValid_ResidCorr.run()
 
-    if runStep:  
-        dtTtrigResidualCorr.run()
+    print "Sent validation jobs with project",project_valid_ResidCorr
 
-        print "Finished processing:"
-        for pset in dtTtrigResidualCorr.configs: print "--->",pset
+    crabValidResidCorr = CrabWatch(project_valid_ResidCorr)
+    crabValidResidCorr.start()
+    crabValidResidCorr.join()
 
-def runTtrigValidResidCorr(run,runselection,trial,input_file,config,runStep=True):
+    result_file = config.result_dir + '/DTkFactValidation_ResidCorr_%s.root'%run
+    castor_dir = config.castor_prefix + dtTtrigValid_ResidCorr.crab_opts['USERDIRCAF']
+    haddInCastor(castor_dir,result_file,'residuals')
 
-    print "Processing tTrig final validation"
-    config.runselection = runselection
-    #config.userdircaf = 'TTRIGCalibration/Validation/ResidCorr/Run' + str(run) + '/v' + str(trial)
-    datasetstr = getDatasetStr(config.datasetpath)
-    config.userdircaf = 'TTRIGCalibration/' + datasetstr + '/Run' + str(run) + '/Validation/ResidCorr/' + 'v' + str(trial)
-
-    dtTtrigValid_ResidCorr = DTTTrigValid(run,config.valid_dir,input_file,config)
-    dtTtrigValid_ResidCorr.writeCfg()
-
-    if runStep:
-        project_valid_ResidCorr = dtTtrigValid_ResidCorr.run()
-
-        print "Sent validation jobs with project",project_valid_ResidCorr
-
-        crabValidResidCorr = CrabWatch(project_valid_ResidCorr)
-        crabValidResidCorr.start()
-        crabValidResidCorr.join()
-
-        result_file = config.result_dir + '/DTkFactValidation_ResidCorr_%s.root'%run
-        if config.stageOutLocal:
-            output_dir = project_valid_ResidCorr + "/res"
-            haddLocal(output_dir,result_file,'residuals')
-        elif config.stageOutCAF: 
-            castor_dir = config.castorpath + "/" + config.userdircaf
-            haddInCastor(castor_dir,result_file,'residuals','rfio://castorcms/')
-
-        return project_valid_ResidCorr
-
-    return None
-
-def runTtrigValidSummary(run,input_file,output_file,config,runStep=True):
+def runTtrigValidSummary(input_file,output_file,config):
 
     print "Processing Validation Summary"
-    dtTtrigValidSummary = DTValidSummary(run,config.run_dir,input_file,output_file,config)
+    dtTtrigValidSummary = DTValidSummary(config.run_dir,input_file,output_file,config.template_path)
     dtTtrigValidSummary.writeCfg()
-
-    if runStep:
-        dtTtrigValidSummary.run()
+    dtTtrigValidSummary.run()
  
-        print "...Validation Summary finished"
-
-def runDQMMerge(run,output_dir,config,runStep=True):
+    print "...Validation Summary finished"
+def runDQMMerge(castor_dir,config):
 
     print "Processing DQM Merge"
+    dqm_files = listFilesInCastor(castor_dir,'DQM')
+    dtDqmFinal = DTDqm(config.run_dir,dqm_files,config.result_dir,config.template_path)
+    dtDqmFinal.writeCfg()
+    dtDqmFinal.run()
 
-    if runStep:
-
-        dqm_files = [] 
-        if config.stageOutLocal:
-            dqm_files = listFilesLocal(output_dir,'DQM')
-            dqm_files = ['file:%s' % item for item in dqm_files]
-            dtDqmFinal = DTDqm(run,config.run_dir,dqm_files,config.result_dir,config)
-            dtDqmFinal.writeCfg()
-            dtDqmFinal.run()
-        elif config.stageOutCAF:
-            dqm_files = listFilesInCastor(output_dir,'DQM')
-            dtDqmFinal = DTDqm(run,config.run_dir,dqm_files,config.result_dir,config)
-            dtDqmFinal.writeCfg()
-            dtDqmFinal.run()
-
-        print "...DQM Merge finished"
-    else:
-        dqm_files = [] 
-        dtDqmFinal = DTDqm(run,config.run_dir,dqm_files,config.result_dir,config)
-        dtDqmFinal.writeCfg()
- 
+    print "...DQM Merge finished" 
 
 if __name__ == '__main__':
     start = time.time()
-
-    """
+    
     inputFields = ('run','runselection','trial','castorpath','datasetpath','globaltag','email','templatepath')
     requiredFields = ('run','castorpath','datasetpath','globaltag','email','templatepath')
 
     input = parseInput(inputFields,requiredFields)
-    """
-    
-    parser = optparse.OptionParser(usage="usage: %prog [options]")
-    parser.add_option("-r","--run", dest="run", help="set reference run number (typically first run in list)")
-    parser.add_option("--runselection", dest="runselection", help="run list or range")
-    parser.add_option("--trial", dest="trial", help="trial number used to in the naming of output directories")
-    parser.add_option("--castorpath", dest="castorpath", help="path to user area at CAF")
-    parser.add_option("--datasetpath", dest="datasetpath", help="dataset name to process")
-    parser.add_option("--globaltag", dest="globaltag", help="global tag identifier (without the '::All' string)")
-    parser.add_option("--preselection", dest="preselection", help="configuration fragment and sequence name, separated by a ':', defining a pre-selection filter")
-    parser.add_option("--email", dest="email", help="user email")
-    parser.add_option("--templatepath", dest="templatepath", help="path to dir with template cfg files")
-    parser.add_option("--runOnGrid", action="store_true", dest="runOnGrid", default=False, help="workflow will be run on the Grid (instead of the CAF)")
-    parser.add_option("--stageOutLocal", action="store_true", dest="stageOutLocal", default=False, help="output will be copied locally (if running on the Grid this will be the default)")
-    parser.add_option("--totalnumberlumis", dest="totalnumberlumis", type="int", default=-1, help="total number of lumis to be analyzed")
-    parser.add_option("--lumisperjob", dest="lumisperjob", type="int", default=150, help="number of lumis per job")
-    parser.add_option("--lumimask", dest="lumimask", help="lumi mask JSON file")
-    parser.add_option("--useCRABServer", action="store_true", dest="useserver", default=False, help="will use CRAB server to submit jobs (default = False)")
-    parser.add_option("--no_exec", action="store_true", dest="no_exec", default=False, help="script will not execute")
- 
-    (input, args) = parser.parse_args()
-
-    requiredFields = ('run','datasetpath','globaltag','templatepath')
-    for item in requiredFields:
-        if not getattr(input,item):
-            parser.error('field "%s" needs to be set' % item) 
-            #raise RuntimeError,'Need to set "%s"' % item
 
     run = input.run
     runselection = None
-    if hasattr(input,'runselection') and input.runselection: runselection = input.runselection
+    if hasattr(input,'runselection'): runselection = input.runselection
     else: runselection = run
 
     trial = None
-    if hasattr(input,'trial') and input.trial: trial = input.trial
+    if hasattr(input,'trial'): trial = input.trial
     else: trial = 1 
 
-    if hasattr(input,'lumimask') and input.lumimask:
-        if not os.path.exists(input.lumimask): parser.error('File "%s" does not exist' % input.lumimask)
-  
     class config: pass
 
-    if not input.runOnGrid:
-        config.scheduler = 'CAF'
-        if input.stageOutLocal:
-            config.stageOutCAF = False
-            config.stageOutLocal = True
-        else:
-            config.stageOutCAF = True
-            config.stageOutLocal = False
-    else:
-        config.runOnGrid = True
-        config.scheduler = 'glite'
-        config.stageOutCAF = False
-        config.stageOutLocal = True
+    config.castor_prefix = input.castorpath
 
-    config.useserver = input.useserver
-    config.datasetpath = input.datasetpath
-    config.runselection = runselection
-    config.preselection = input.preselection
-    #config.totalnumberevents = 1000000
-    #config.eventsperjob = 50000
-    config.totalnumberlumis = input.totalnumberlumis
-    config.lumisperjob = input.lumisperjob
-    if hasattr(input,'lumimask') and input.lumimask: config.lumimask = os.path.abspath(input.lumimask)
-    if hasattr(input,'email') and input.email: config.email = input.email    
+    config.crab_opts = {}
+    config.crab_opts['DATASETPATH'] = input.datasetpath
+    config.crab_opts['EMAIL'] = input.email
 
-    config.globaltag = input.globaltag + '::All'
-
-    if config.stageOutCAF:
-        config.castor_prefix = input.castorpath
-        config.castorpath = input.castorpath
-
+    config.pset_opts = {}
+    config.pset_opts['GLOBALTAG'] = input.globaltag + '::All'
+ 
     config.template_path = input.templatepath
-    config.templatepath =  input.templatepath
+
+    #print run,runselection,trial,config.castor_prefix,config.crab_opts,config.pset_opts,config.template_path
 
     run_dir = 'Run%s/Ttrig/Exec' % run
     if not os.path.exists(run_dir): os.makedirs(run_dir)
     config.run_dir = run_dir
-
-    prod_dir = 'Run%s/Ttrig/Production' % run
-    if not os.path.exists(prod_dir): os.makedirs(prod_dir)
-    config.prod_dir = prod_dir
-
-    valid_dir = 'Run%s/Ttrig/Validation' % run
-    if not os.path.exists(valid_dir): os.makedirs(valid_dir)
-    config.valid_dir = valid_dir
 
     result_dir = 'Run%s/Ttrig/Results' % run
     if not os.path.exists(result_dir): os.makedirs(result_dir)
@@ -292,69 +171,44 @@ if __name__ == '__main__':
     #stdout_original = sys.stdout
     #sys.stdout = logOut
 
-    from CalibMuon.DTCalibration.Workflow.crabWrap import initCrabEnvironment
-    initCrabEnvironment()
-
     timeBoxes = os.path.abspath(result_dir + '/' + 'DTTimeBoxes_' + run + '.root')
-    ttrig_second_db = os.path.abspath(result_dir + '/' + 'ttrig_second_' + run + '.db')
-    residualsFirst = os.path.abspath(result_dir + '/' + 'DTkFactValidation_' + run + '.root')
-    ttrig_ResidCorr_db = os.path.abspath(result_dir + '/' + 'ttrig_ResidCorr_' + run + '.db')
-    residualsResidCorr = os.path.abspath(result_dir + '/' + 'DTkFactValidation_ResidCorr_' + run + '.root')
-    summaryResiduals = os.path.abspath(result_dir + '/' + 'SummaryResiduals_' + run + '.root')
-    #castorDirResidCorr = config.castor_prefix + 'TTRIGCalibration/Validation/ResidCorr/Run' + str(run) + '/v' + str(trial)
-    dqm_output_dir = ''
-
-    if input.no_exec:
-        print "Only cfg files will be written"
-        runTtrigProd(run,runselection,trial,config,False)
-        runTtrigCorrFirst(run,config,False)
-        runTtrigValid(run,runselection,trial,ttrig_second_db,config,False)        
-        runTtrigResidualCorr(run,config,False)
-        runTtrigValidResidCorr(run,runselection,trial,ttrig_ResidCorr_db,config,False)
-        runTtrigValidSummary(run,residualsResidCorr,summaryResiduals,config,False)
-        runDQMMerge(run,dqm_output_dir,config,False)
-
-        sys.exit(0)
 
     if not os.path.exists(timeBoxes): runTtrigProd(run,runselection,trial,config)
    
     if not os.path.exists(timeBoxes): raise RuntimeError,'Could not produce %s'%timeBoxes
 
+    ttrig_second_db = os.path.abspath(result_dir + '/' + 'ttrig_second_' + run + '.db')
+
     if not os.path.exists(ttrig_second_db): runTtrigCorrFirst(run,config)
 
     if not os.path.exists(ttrig_second_db): raise RuntimeError,'Could not produce %s'%ttrig_second_db
+
+    residualsFirst = os.path.abspath(result_dir + '/' + 'DTkFactValidation_' + run + '.root')
 
     if not os.path.exists(residualsFirst): runTtrigValid(run,runselection,trial,ttrig_second_db,config)
 
     if not os.path.exists(residualsFirst): raise RuntimeError,'Could not produce %s'%residualsFirst
 
+    ttrig_ResidCorr_db = os.path.abspath(result_dir + '/' + 'ttrig_ResidCorr_' + run + '.db')
+
     if not os.path.exists(ttrig_ResidCorr_db): runTtrigResidualCorr(run,config)
 
     if not os.path.exists(ttrig_ResidCorr_db): raise RuntimeError,'Could not produce %s'%ttrig_ResidCorr_db      
 
-    project_valid_ResidCorr = None
-    if not os.path.exists(residualsResidCorr):
-        project_valid_ResidCorr = runTtrigValidResidCorr(run,runselection,trial,ttrig_ResidCorr_db,config)
+    residualsResidCorr = os.path.abspath(result_dir + '/' + 'DTkFactValidation_ResidCorr_' + run + '.root')
+    
+    if not os.path.exists(residualsResidCorr): runTtrigValidResidCorr(run,runselection,trial,ttrig_ResidCorr_db,config)
 
     if not os.path.exists(residualsResidCorr): raise RuntimeError,'Could not produce %s'%residualsResidCorr
 
-    if not os.path.exists(summaryResiduals): runTtrigValidSummary(run,residualsResidCorr,summaryResiduals,config)
+    summaryResiduals = os.path.abspath(result_dir + '/' + 'SummaryResiduals_' + run + '.root')
+
+    if not os.path.exists(summaryResiduals): runTtrigValidSummary(residualsResidCorr,summaryResiduals,config)
 
     if not os.path.exists(summaryResiduals): raise RuntimeError,'Could not produce %s'%summaryResiduals
 
-    if config.stageOutLocal:
-        from crab_util import findLastWorkDir
-        cwd = os.getcwd() 
-        os.chdir(config.valid_dir)
-        crabdir = findLastWorkDir('crab_0_')
-        if not crabdir: raise RuntimeError,'Could not find CRAB dir in %s' % config.valid_dir
-        os.chdir(cwd)
-        dqm_output_dir = crabdir + "/res"
-    elif config.stageOutCAF:
-        datasetstr = getDatasetStr(config.datasetpath)
-        dqm_output_dir = config.castorpath + '/TTRIGCalibration/' + datasetstr + '/Run' + str(run) + '/Validation/ResidCorr/' + 'v' + str(trial)
-
-    runDQMMerge(run,dqm_output_dir,config)
+    castorDirResidCorr = config.castor_prefix + 'TTRIGCalibration/Validation/ResidCorr/Run' + str(run) + '/v' + str(trial)
+    runDQMMerge(castorDirResidCorr,config)
 
     #sys.stdout = stdout_original
  

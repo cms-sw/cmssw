@@ -28,18 +28,8 @@
 	    var tabs = "";
 	    var version = "";
 	    var menu = document.getElementsByTagName("div");
-	    var IE = false;	/*fix 04/06/08: IE */
 
-
-		if((ind = navigator.appVersion.indexOf("MSIE")) > -1 && navigator.userAgent.indexOf("Opera") == -1) /*fix 04/06/08: IE */
-		{ 
-			//alert(navigator.appVersion);
-			IE = true;
-			//return;
-		}
-
-
-    		for (var m = 0; m < menu.length; m++)
+    	for (var m = 0; m < menu.length; m++)
 		{
     		var tabs = document.getElementsByTagName("div")[m];
 			
@@ -68,21 +58,14 @@
 							j++;
 						}
 						ahref = "http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/?pathrev="+version;
-						aText = "CVS Directory";
+						aText = "<span>CVS Directory</span>";
 					}
 					re = new RegExp("Classes");
 					if(re.test(aText))
 					{
 						ahref = "classes.html";	/*fix 13/05/08: annotated */
 						// FIX
-						var path = location.href.split(/\//g);
-						if(IE) { /*fix 04/06/08: IE */
-							if(path[path.length - 2] == "doc") {
-								fullpath = location.href+"index.html";
-								path = fullpath.split(/\//g); 
-								//alert(path[path.length - 2]);
-								}
-							} 
+						var path = location.href.split(/\//g); 
 						var j = path.length - 2;
 						if (path[j] != "html") ahref = "../../classes.html";		/*fix 13/05/08: annotated */
 						// FIX_END
@@ -95,12 +78,7 @@
 					
 					if (alpha) alpha = false;
 					
-					if(IE) {	/*fix 05/06/08: IE */
-		    				if (aText.search(/<span>/gi) > -1) aText = aText.replace(/<\/?span>/gi,"");
-		    				//alert(aText);
-						}
-
-					if ((li[i].getAttribute("class") && li[i].getAttribute("class") == "current") || (li[i].className && li[i].className == "current") ) /*fix 13/05/08: annotated */
+					if (li[i].getAttribute("class") && li[i].getAttribute("class") == "current")
 					{
 						out = out+"<a href=\""+ahref+"\" class=\"qindexHL\">"+aText+"</a>";
 						re = new RegExp("Main.*Page");
@@ -112,13 +90,10 @@
 				//alert(out);
 				if (m == 0)
 				{
-					out = out + " | <a class=\"qindex\" href=\"https://twiki.cern.ch/twiki/bin/view/CMS/WorkBook\">WorkBook</a>";
-					out = out + " | <a class=\"qindex\" href=\"https://twiki.cern.ch/twiki/bin/view/CMS/SWGuide\">Offline&nbsp;Guide</a>";
+					out = out + " | <a class=\"qindex\" href=\"https://twiki.cern.ch/twiki/bin/view/CMS/WorkBook\"><span>WorkBook</span></a>";
+					out = out + " | <a class=\"qindex\" href=\"https://twiki.cern.ch/twiki/bin/view/CMS/SWGuide\"><span>Offline&nbsp;Guide</span></a>";
 				}
 		    	tabs.setAttribute("class","qindex");
-		    	if(IE) {	/*fix 05/06/08: IE */
-		    		tabs.className = "qindex";
-		    		}
 		    	tabs.innerHTML = out;
 		    	out = "";
 			}
@@ -174,14 +149,7 @@
 						var namespacehref = " href=\"namespaces.html\">Namespaces</a>";
 						var clashref = " href=\"classes.html\">Classes</a>";	/*fix 13/05/08: annotated */
 						// FIX
-						var path = location.href.split(/\//g);
-						if(IE) { /*fix 04/06/08: IE */
-							if(path[path.length - 2] == "doc") {
-								fullpath = location.href+"index.html";
-								path = fullpath.split(/\//g); 
-								//alert(path[path.length - 2]);
-								}
-							} 
+						var path = location.href.split(/\//g); 
 						var j = path.length - 2;
 						if (path[j] != "html")
 						{
@@ -232,15 +200,14 @@
 				}
 				//alert(out);
 					
-				out = out + " | <a class=\"qindex\" href=\"https://twiki.cern.ch/twiki/bin/view/CMS/WorkBook\">WorkBook</a>";
-				out = out + " | <a class=\"qindex\" href=\"https://twiki.cern.ch/twiki/bin/view/CMS/SWGuide\">Offline&nbsp;Guide</a>";
+				out = out + " | <a class=\"qindex\" href=\"https://twiki.cern.ch/twiki/bin/view/CMS/WorkBook\"><span>WorkBook</span></a>";
+				out = out + " | <a class=\"qindex\" href=\"https://twiki.cern.ch/twiki/bin/view/CMS/SWGuide\"><span>Offline&nbsp;Guide</span></a>";
 					
 				tabs.innerHTML = out;
 				if (namespaceHL)
 				{
 					var newDiv1 = document.createElement("div");
 					newDiv1.setAttribute("class", "qindex");
-					if(IE) newDiv1.className = "qindex";	/*fix 05/06/08: IE */					
 					newDiv1.innerHTML = namespace;
 					insertAfter(tabs.parentNode,newDiv1,tabs)
 					//alert(newDiv1.innerHTML);
@@ -249,7 +216,6 @@
 				{
 					var newDiv2 = document.createElement("div");
 					newDiv2.setAttribute("class", "qindex");
-					if(IE) newDiv2.className = "qindex";	/*fix 05/06/08: IE */
 					newDiv2.innerHTML = clas;
 					insertAfter(tabs.parentNode,newDiv2,tabs)
 					//alert(newDiv2.innerHTML);				

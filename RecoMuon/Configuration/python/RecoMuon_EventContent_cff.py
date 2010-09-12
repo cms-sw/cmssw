@@ -65,6 +65,7 @@ RecoMuonRECO = cms.PSet(
                                            'keep TrackingRecHitsOwned_cosmicMuons1Leg_*_*',
                                            'keep recoTrackExtras_globalCosmicMuons1Leg_*_*', 
                                            'keep TrackingRecHitsOwned_globalCosmicMuons1Leg_*_*',
+                                           'keep recoTracks_cosmicsVetoTracks_*_*',
                                            # SET muons
                                            'keep *_SETMuonSeed_*_*',
                                            'keep recoTracks_standAloneSETMuons_*_*',

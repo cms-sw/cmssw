@@ -37,8 +37,9 @@ create_SubtractorCMN(const edm::ParameterSet& conf) {
     return std::auto_ptr<SiStripCommonModeNoiseSubtractor>( new TT6CMNSubtractor(cutToAvoidSignal) );
   }
   
-  throw cms::Exception("Unregistered Algorithm") 
-    << "SiStripCommonModeNoiseSubtractor possibilities: (Median, FastLinear, TT6)";
+  edm::LogError("SiStripRawProcessingFactory::create_SubtractorCMN")
+    << "Unregistered Algorithm: "<<mode<<". Use one of {Median, FastLinear, TT6}";
+  return std::auto_ptr<SiStripCommonModeNoiseSubtractor>( new MedianCMNSubtractor() );
 }
 
 std::auto_ptr<SiStripFedZeroSuppression> SiStripRawProcessingFactory::
@@ -48,7 +49,9 @@ create_Suppressor(const edm::ParameterSet& conf) {
   case 1: case 2: case 3:  case 4:
     return std::auto_ptr<SiStripFedZeroSuppression>( new SiStripFedZeroSuppression(mode));
   default:
-    throw cms::Exception("Unregistered mode") << "SiStripFedZeroSuppression has modes 1,2,3,4.";
+    edm::LogError("SiStripRawProcessingFactory::createSuppressor")
+      << "Unregistered mode: "<<mode<<". Use one of {1,2,3,4}.";
+    return std::auto_ptr<SiStripFedZeroSuppression>( new SiStripFedZeroSuppression(4));
   }
 }
 
