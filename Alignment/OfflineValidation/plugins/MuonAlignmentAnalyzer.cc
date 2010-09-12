@@ -3,8 +3,8 @@
  *  Makes histograms of high level Muon objects/quantities
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2010/01/04 18:24:37 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/03/29 13:18:43 $
+ *  $Revision: 1.10 $
  *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
 
@@ -1364,7 +1364,7 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event & event, const edm::EventSe
                 simPhi=(*simTrack).momentum().phi();
                 numberOfSimTracks++;
                 hSimPT->Fill(simPt);
-                if(abs(simEta)<1.04) {hSimPT_Barrel->Fill(simPt);ib++;}
+                if(fabs(simEta)<1.04) {hSimPT_Barrel->Fill(simPt);ib++;}
                 else {hSimPT_Endcap->Fill(simPt);ie++;}
                 hSimPTvsEta->Fill(simEta,simPt);
                 hSimPTvsPhi->Fill(simPhi,simPt);
@@ -1390,8 +1390,8 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event & event, const edm::EventSe
             TLorentzVector pair = mu1 + mu2;
             double Minv = pair.M();
             hSimInvM->Fill(Minv);
-            if(abs(p1.eta())<1.04 && abs(p2.eta())<1.04) hSimInvM_Barrel->Fill(Minv);
-            else if(abs(p1.eta())>=1.04 && abs(p2.eta())>=1.04) hSimInvM_Endcap->Fill(Minv);
+            if(fabs(p1.eta())<1.04 && fabs(p2.eta())<1.04) hSimInvM_Barrel->Fill(Minv);
+            else if(fabs(p1.eta())>=1.04 && fabs(p2.eta())>=1.04) hSimInvM_Endcap->Fill(Minv);
             else  hSimInvM_Overlap->Fill(Minv);  
         }
 
@@ -1426,7 +1426,7 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event & event, const edm::EventSe
             hSAPhivsEta->Fill(SAeta,SAphi);
             hSAChi2->Fill((*staTrack).chi2());
             hSANhits->Fill((*staTrack).numberOfValidHits());
-            if(abs(SAeta)<1.04) {hSAPTRec_Barrel->Fill(SArecPt); hSAChi2_Barrel->Fill((*staTrack).chi2()); hSANhits_Barrel->Fill((*staTrack).numberOfValidHits()); ib++;}
+            if(fabs(SAeta)<1.04) {hSAPTRec_Barrel->Fill(SArecPt); hSAChi2_Barrel->Fill((*staTrack).chi2()); hSANhits_Barrel->Fill((*staTrack).numberOfValidHits()); ib++;}
             else {hSAPTRec_Endcap->Fill(SArecPt); hSAChi2_Endcap->Fill((*staTrack).chi2()); hSANhits_Endcap->Fill((*staTrack).numberOfValidHits()); ie++;}
 
 // save the muon pair
@@ -1449,7 +1449,7 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event & event, const edm::EventSe
 	
                 double simPt=simPar[0][iCand];
                 hSAPTres->Fill( (SArecPt-simPt)/simPt);
-                if(abs(SAeta)<1.04) hSAPTres_Barrel->Fill((SArecPt-simPt)/simPt);
+                if(fabs(SAeta)<1.04) hSAPTres_Barrel->Fill((SArecPt-simPt)/simPt);
                 else hSAPTres_Endcap->Fill((SArecPt-simPt)/simPt);
 
                 hSAPTDiff->Fill(SArecPt-simPt);
@@ -1478,8 +1478,8 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event & event, const edm::EventSe
             TLorentzVector pair = mu1 + mu2;
             double Minv = pair.M();
             hSAInvM->Fill(Minv);
-            if(abs(p1.eta())<1.04 && abs(p2.eta())<1.04) hSAInvM_Barrel->Fill(Minv);
-            else if(abs(p1.eta())>=1.04 && abs(p2.eta())>=1.04) hSAInvM_Endcap->Fill(Minv);
+            if(fabs(p1.eta())<1.04 && fabs(p2.eta())<1.04) hSAInvM_Barrel->Fill(Minv);
+            else if(fabs(p1.eta())>=1.04 && fabs(p2.eta())>=1.04) hSAInvM_Endcap->Fill(Minv);
             else hSAInvM_Overlap->Fill(Minv);
         } // 2 first muons
 
@@ -1515,7 +1515,7 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event & event, const edm::EventSe
             hGBPhivsEta->Fill(GBeta,GBphi);
             hGBChi2->Fill((*glbTrack).chi2());
             hGBNhits->Fill((*glbTrack).numberOfValidHits());
-            if(abs(GBeta)<1.04) {hGBPTRec_Barrel->Fill(GBrecPt); hGBChi2_Barrel->Fill((*glbTrack).chi2()); hGBNhits_Barrel->Fill((*glbTrack).numberOfValidHits()); ib++;}
+            if(fabs(GBeta)<1.04) {hGBPTRec_Barrel->Fill(GBrecPt); hGBChi2_Barrel->Fill((*glbTrack).chi2()); hGBNhits_Barrel->Fill((*glbTrack).numberOfValidHits()); ib++;}
             else {hGBPTRec_Endcap->Fill(GBrecPt); hGBChi2_Endcap->Fill((*glbTrack).chi2()); hGBNhits_Endcap->Fill((*glbTrack).numberOfValidHits()); ie++;}
   
 // save the muon pair
@@ -1569,8 +1569,8 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event & event, const edm::EventSe
             TLorentzVector pair = mu1 + mu2;
             double Minv = pair.M();
             hGBInvM->Fill(Minv);
-            if(abs(p1.eta())<1.04 && abs(p2.eta())<1.04)   hGBInvM_Barrel->Fill(Minv);
-            else if(abs(p1.eta())>=1.04 && abs(p2.eta())>=1.04) hGBInvM_Endcap->Fill(Minv);
+            if(fabs(p1.eta())<1.04 && fabs(p2.eta())<1.04)   hGBInvM_Barrel->Fill(Minv);
+            else if(fabs(p1.eta())>=1.04 && fabs(p2.eta())>=1.04) hGBInvM_Endcap->Fill(Minv);
             else hGBInvM_Overlap->Fill(Minv);
         }
 
