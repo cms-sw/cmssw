@@ -234,13 +234,11 @@ void ODSRPConfig::fetchData(ODSRPConfig * result)
     result->setConfigFile(rset->getString(8));
 
     Clob clob = rset->getClob(9);
-    unsigned int clobLength = clob.length();
+    m_size = clob.length();
     Stream *instream = clob.getStream (1,0);
-    char *cbuffer = new char[clobLength];
-    memset (cbuffer, 0, clobLength);
-    instream->readBuffer (cbuffer, clobLength);
-    string str(cbuffer,clobLength);
-    m_srp_clob = str;
+    unsigned char *buffer = new unsigned char[m_size];
+    memset (buffer, 0, m_size);
+    instream->readBuffer ((char*)buffer, m_size);
     /*
     cout << "Opening the clob in Read only mode" << endl;
     clob.open (OCCI_LOB_READONLY);
@@ -254,9 +252,10 @@ void ODSRPConfig::fetchData(ODSRPConfig * result)
     cout << endl;
 
 
-    result->setSRPClob(buffer );
-
     */
+    result->setSRPClob(buffer );
+    result->setAutomaticSrpSelect(rset->getInt(10));
+
   } catch (SQLException &e) {
     throw(runtime_error("ODSRPConfig::fetchData():  "+e.getMessage()));
   }
