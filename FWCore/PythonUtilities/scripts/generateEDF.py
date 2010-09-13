@@ -22,6 +22,7 @@ class LumiInfo (object):
     lumiSectionLength = 23.310779
     minRun            = 0
     maxRun            = 0
+    offset            = 0.
 
     def __init__ (self, line):
         self.totInstLum  = 0.
@@ -46,6 +47,10 @@ class LumiInfo (object):
             raise RuntimeError, "Pieces not right format"
         if LumiInfo.minRun and self.run < LumiInfo.minRun or \
            LumiInfo.maxRun and self.run > LumiInfo.maxRun:
+            # we don't want to keep this
+            # but if it's failing the lower boundry, we want to know about it
+            if self.run < LumiInfo.minRun:
+                LumiInfo.offset += self.recorded
             raise RuntimeError, "Run %d out of requested range" % self.run
         if size > 4:
             try:
@@ -99,6 +104,10 @@ class LumiInfo (object):
                 self.numXings)
 
 
+    def totalRecordedWithOffset (self):
+        return self.totalRecorded + LumiInfo.offset
+
+
 ##############################
 ## ######################## ##
 ## ## LumiInfoCont Class ## ##
@@ -118,6 +127,7 @@ class LumiInfoCont (dict):
         self.xingInfo = False
         self.allowNoXing = kwargs.get ('ignore')
         self.noWarnings  = kwargs.get ('noWarnings')
+        
         for key in self.minMaxKeys:
             self._min[key] = -1
             self._max[key] =  0
@@ -141,6 +151,8 @@ class LumiInfoCont (dict):
                 if val > self._max[key] or not self._max[key]:
                     self._max[key] = val
         source.close()
+        self.recLumOffset = LumiInfo.offset
+        #self.recLumOffset = 0 #LumiInfo.offset
         ######################################################
         ## Now that everything is setup, switch integrated  ##
         ## luminosity to more reasonable units.             ##
@@ -148,12 +160,13 @@ class LumiInfoCont (dict):
         # the default is '1/mb', but that's just silly.
         self.invunits = 'nb'
         lumFactor = 1e3        
-        if   self.totalRecLum > 1e9:
+        if   self.totalRecLum + self.recLumOffset > 1e9:
             lumFactor = 1e9
             self.invunits = 'fb'
-        elif self.totalRecLum > 1e6:
+        elif self.totalRecLum + self.recLumOffset > 1e6:
             lumFactor = 1e6
             self.invunits = 'pb'
+        self.recLumOffset /= lumFactor
         # use lumFactor to make everything consistent
         #print "units", self.invunits, "factor", lumFactor
         self.totalRecLum /= lumFactor
@@ -290,6 +303,8 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
     predVals   = [0]
     weight = 0
     if 'time' == options.edfMode:
+        # put on first point
+        xVals[0] = lumiCont.recLumOffset
         for key, eventList in sorted( eventsDict.iteritems() ):
             for event in eventList:
                 weight += event[1]
@@ -300,10 +315,16 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
                     raise RuntimeError, "key %s not found in lumi information" \
                           % key.__str__()
                 lumFrac = intLum / lumiCont.totalRecLum
-                xVals.append (intLum)
+                #xVals.append( lumiCont[key].totalRecordedWithOffset() )
+                xVals.append( lumiCont[key].totalRecorded + lumiCont.recLumOffset)
                 yVals.append (factor)
                 theoryVals.append (lumFrac)
                 predVals.append   (lumFrac * options.pred)
+        # put on the last point
+        xVals.append (lumiCont.totalRecLum + lumiCont.recLumOffset)
+        yVals.append (1)
+        theoryVals.append (1)
+        predVals.append (options.pred)
     elif 'instLum' == options.edfMode or 'instIntLum' == options.edfMode:
         eventTupList = []
         if not lumiCont.xingInfo:
@@ -383,7 +404,9 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
         else:
             graph.GetXaxis().SetTitle ("Integrated Luminosity (1/%s)" \
                                        % lumiCont.invunits)
-        graph.GetXaxis().SetRangeUser (0., lumiCont.totalRecLum)
+        print "setting range now", lumiCont.recLumOffset
+        graph.GetXaxis().SetRangeUser (0. + lumiCont.recLumOffset,
+                                       lumiCont.totalRecLum + lumiCont.recLumOffset)
     graph.GetYaxis().SetTitle ("Fraction of Events Seen")
     if options.pred > 1:
         graph.GetYaxis().SetRangeUser (0., options.pred)
