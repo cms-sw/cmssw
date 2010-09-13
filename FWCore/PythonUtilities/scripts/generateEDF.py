@@ -143,10 +143,10 @@ class LumiInfoCont (dict):
         # the default is '1/mb', but that's just silly.
         self.invunits = 'nb'
         lumFactor = 1e3        
-        if   self.totalRecLum > 1e6:
+        if   self.totalRecLum > 1e9:
             lumFactor = 1e9
             self.invunits = 'fb'
-        elif self.totalRecLum > 1e3:
+        elif self.totalRecLum > 1e6:
             lumFactor = 1e6
             self.invunits = 'pb'
         # use lumFactor to make everything consistent
@@ -453,7 +453,7 @@ if __name__ == '__main__':
               % (options.edfMode, allowedEDF)
 
     if len (args) != 3 and not (options.runsWithLumis and len(args) >= 1):
-        raise RuntimeError, "Must provide events.txt, lumi.csv, and output.png"
+        raise RuntimeError, "Must provide lumi.csv, events.txt, and output.png"
 
     ##########################
     ## load Luminosity info ##
