@@ -1094,7 +1094,7 @@ def lumisummaryByrun(queryHandle,runnum,lumiversion,beamstatus=None,beamenergy=N
     queryHandle.addToOutputList('CMSALIVE','cmsalive')
     queryHandle.setCondition(conditionstring,queryCondition)
     queryHandle.addToOrderList('startorbit')
-    if beamstatus:
+    if beamstatus and len(beamstatus)!=0:
         conditionstring=conditionstring+' and BEAMSTATUS=:beamstatus'
         queryCondition.extend('beamstatus','string')
         queryCondition['beamstatus'].setData(beamstatus)
@@ -1145,11 +1145,11 @@ def lumisumByrun(queryHandle,runnum,lumiversion,beamstatus=None,beamenergy=None,
     queryCondition['lumiversion'].setData(lumiversion)
     queryHandle.addToOutputList('sum(INSTLUMI)','lumitotal')
     conditionstring='RUNNUM=:runnum and LUMIVERSION=:lumiversion'
-    if beamstatus:
+    if beamstatus and len(beamstatus)!=0:
         conditionstring=conditionstring+' and BEAMSTATUS=:beamstatus'
         queryCondition.extend('beamstatus','string')
         queryCondition['beamstatus'].setData(beamstatus)
-    if beamenergy:
+    if beamenergy and beamenergy!=0.0:
         minBeamenergy=float(beamenergy*(1.0-beamenergyfluctuation))
         maxBeamenergy=float(beamenergy*(1.0+beamenergyfluctuation))
         conditionstring=conditionstring+' and BEAMENERGY>:minBeamenergy and BEAMENERGY<:maxBeamenergy'
@@ -1231,11 +1231,11 @@ def lumisummarytrgbitzeroByrun(queryHandle,runnum,lumiversion,beamstatus=None,be
     queryHandle.addToOutputList('t.BITNAME','bitname')
     queryHandle.addToOutputList('t.PRESCALE','prescale')
     conditionstring='t.BITNUM=:bitnum and l.RUNNUM=:runnum and l.LUMIVERSION=:lumiversion and l.RUNNUM=t.RUNNUM and t.CMSLSNUM=l.CMSLSNUM'
-    if beamstatus:
+    if beamstatus and len(beamstatus)!=0:
         conditionstring=conditionstring+' and l.BEAMSTATUS=:beamstatus'
         queryCondition.extend('beamstatus','string')
         queryCondition['beamstatus'].setData(beamstatus)
-    if beamenergy:
+    if beamenergy and beamenergy!=0.0:
         minBeamenergy=float(beamenergy*(1-beamenergyfluctuation))
         maxBeamenergy=float(beamenergy*(1+beamenergyfluctuation))
         conditionstring=conditionstring+' and l.BEAMENERGY>:minBeamenergy and l.BEAMENERGY<:maxBeamenergy'
