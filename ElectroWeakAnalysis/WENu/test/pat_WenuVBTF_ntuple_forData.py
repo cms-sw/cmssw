@@ -176,16 +176,7 @@ HLT_path_name     = "HLT_Photon10_L1R" #= "HLT_Ele15_LW_L1R" #
 # trigger filter name
 HLT_filter_name  =  "hltL1NonIsoHLTNonIsoSinglePhotonEt10HcalIsolFilter"
 #
-HLT_path_name_extra0   = "HLT_Photon15_L1R"
-HLT_filter_name_extra0 = cms.untracked.InputTag("hltL1NonIsoHLTNonIsoSinglePhotonEt15HcalIsolFilter","",HLT_process_name)
-HLT_path_name_extra1   = "HLT_Photon15_Cleaned_L1R"
-HLT_filter_name_extra1 = cms.untracked.InputTag("hltL1NonIsoHLTNonIsoSinglePhotonEt15CleanedHcalIsolFilter","",HLT_process_name)
 
-#HLT_path_name_extra2   = "HLT_Ele15_LW_L1R"
-#HLT_filter_name_extra2 = cms.untracked.InputTag("hltL1NonIsoHLTNonIsoSingleElectronLWEt15PixelMatchFilter","",HLT_process_name)
-
-HLT_path_name_extra2   = "HLT_Ele15_SW_L1R"
-HLT_filter_name_extra2 = cms.untracked.InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15PixelMatchFilter","",HLT_process_name)
 
 process.wenuFilter = cms.EDFilter('WenuCandidateFilter',
                                   ### the input collections needed:
@@ -216,9 +207,7 @@ process.wenuFilter = cms.EDFilter('WenuCandidateFilter',
                                   electronMatched2HLT_DR = cms.untracked.double(0.1),
                                   useHLTObjectETCut = cms.untracked.bool(True),
                                   hltObjectETCut = cms.untracked.double(15.),
-                                  useExtraTrigger = cms.untracked.bool(True),
-                                  vHltpathExtra = cms.untracked.vstring(HLT_path_name_extra0,HLT_path_name_extra1,HLT_path_name_extra2),
-                                  vHltpathFilterExtra = cms.untracked.VInputTag(HLT_filter_name_extra0, HLT_filter_name_extra1, HLT_filter_name_extra2),
+                                  useExtraTrigger = cms.untracked.bool(False),
                                   # ET Cut in the SC
                                   ETCut = cms.untracked.double(20.),                                  
                                   METCut = cms.untracked.double(0.),
