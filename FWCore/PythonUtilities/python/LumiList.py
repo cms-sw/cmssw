@@ -9,8 +9,8 @@ or could be subclassed renaming a function or two.
 This code began life in COMP/CRAB/python/LumiList.py
 """
 
-__revision__ = "$Id: LumiList.py,v 1.7 2010/07/20 16:46:49 cplager Exp $"
-__version__ = "$Revision: 1.7 $"
+__revision__ = "$Id: LumiList.py,v 1.8 2010/08/29 20:29:04 cplager Exp $"
+__version__ = "$Revision: 1.8 $"
 
 import json
 import re
@@ -262,8 +262,6 @@ class LumiList(object):
             run = str(run)
             if self.compactList.has_key (run):
                 del self.compactList[run]
-            else:
-                print "LumiList.removeRuns() Warning: run %s not found. Action skpped." % run
             
 
 '''
