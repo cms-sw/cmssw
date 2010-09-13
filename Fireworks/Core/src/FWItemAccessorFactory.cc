@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 14:48:14 EDT 2008
-// $Id: FWItemAccessorFactory.cc,v 1.9 2010/06/03 19:26:59 chrjones Exp $
+// $Id: FWItemAccessorFactory.cc,v 1.10 2010/06/03 19:38:31 chrjones Exp $
 //
 
 // system include files
@@ -94,23 +94,27 @@ FWItemAccessorFactory::~FWItemAccessorFactory()
 boost::shared_ptr<FWItemAccessorBase>
 FWItemAccessorFactory::accessorFor(const TClass* iClass) const
 {
+   static const bool debug = false;
+
    TClass *member = 0;
    size_t offset=0;
 
    if(hasTVirtualCollectionProxy(iClass)) 
    {
-      fwLog(fwlog::kDebug) << "class " << iClass->GetName()
-         << " uses FWItemTVirtualCollectionProxyAccessor." << std::endl;
+      if (debug)
+         fwLog(fwlog::kDebug) << "class " << iClass->GetName()
+                              << " uses FWItemTVirtualCollectionProxyAccessor." << std::endl;
       return boost::shared_ptr<FWItemAccessorBase>(
          new FWItemTVirtualCollectionProxyAccessor(iClass,
             boost::shared_ptr<TVirtualCollectionProxy>(iClass->GetCollectionProxy()->Generate())));
    } 
    else if (hasMemberTVirtualCollectionProxy(iClass, member,offset)) 
    {
-      fwLog(fwlog::kDebug) << "class "<< iClass->GetName()
-                           << " only contains data member " << member->GetName()
-                           << " which uses FWItemTVirtualCollectionProxyAccessor."
-                           << std::endl;
+      if (debug)
+         fwLog(fwlog::kDebug) << "class "<< iClass->GetName()
+                              << " only contains data member " << member->GetName()
+                              << " which uses FWItemTVirtualCollectionProxyAccessor."
+                              << std::endl;
    	   
       return boost::shared_ptr<FWItemAccessorBase>(
          new FWItemTVirtualCollectionProxyAccessor(iClass,
@@ -128,8 +132,9 @@ FWItemAccessorFactory::accessorFor(const TClass* iClass) const
    std::string accessorName;
    if (hasAccessor(iClass, accessorName))
    {
-      fwLog(fwlog::kDebug) << "class " << iClass->GetName() << " uses " 
-                           << accessorName << "." << std::endl;
+      if (debug)
+         fwLog(fwlog::kDebug) << "class " << iClass->GetName() << " uses " 
+                              << accessorName << "." << std::endl;
       return boost::shared_ptr<FWItemAccessorBase>(FWItemAccessorRegistry::get()->create(accessorName, iClass));
    }
    
