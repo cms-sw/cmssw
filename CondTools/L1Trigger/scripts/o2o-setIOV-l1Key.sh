@@ -24,8 +24,8 @@ shift $(($OPTIND - 1))
 run=$1
 l1Key=$2
 
-release=CMSSW_3_5_0
-version=007
+release=CMSSW_3_8_2
+version=008
 
 echo "`date` : o2o-setIOV-l1Key-slc5.sh $run $l1Key" | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
 

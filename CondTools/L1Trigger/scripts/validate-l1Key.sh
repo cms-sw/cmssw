@@ -6,9 +6,9 @@
 # Environment
 #==============================================================================
 
-release=CMSSW_3_5_0
-emulatorRelease=CMSSW_3_5_7
-version=007
+release=CMSSW_3_8_2
+emulatorRelease=CMSSW_3_8_2
+version=008
 
 #==============================================================================
 # Last file contains last time stamp, its key, and its validation status
