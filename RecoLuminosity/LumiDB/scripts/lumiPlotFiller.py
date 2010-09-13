@@ -344,7 +344,7 @@ def main():
             print 'file: '+args.ifile+' does not exist'
             return 4
         truefilename=findFileTrueName(args.ifile)
-        print 'truefilename ',truefilename
+        #print 'truefilename ',truefilename
         #
         #if truefilename modification time is more recent than the output plot, replot it
         #
