@@ -30,6 +30,7 @@ class ParametrizedSubtractor : public PileUpSubtractor {
 
     bool sumRecHits_;
     bool interpolate_;
+    bool dropZeroTowers_;
     int bin_;
     double centrality_;
     const CentralityBins * cbins_;

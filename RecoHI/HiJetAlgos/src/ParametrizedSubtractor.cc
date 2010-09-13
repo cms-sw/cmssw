@@ -21,7 +21,8 @@ void ParametrizedSubtractor::rescaleRMS(double s){
 
 ParametrizedSubtractor::ParametrizedSubtractor(const edm::ParameterSet& iConfig) : 
    PileUpSubtractor(iConfig),
-   cbins_(0)
+   cbins_(0),
+   dropZeroTowers_(iConfig.getUntrackedParameter<bool>("dropZeroTowers",true))
 {
    centTag_ = iConfig.getUntrackedParameter<edm::InputTag>("centTag",edm::InputTag("hiCentrality","","RECO"));
 
@@ -107,6 +108,7 @@ void ParametrizedSubtractor::subtractPedestal(vector<fastjet::PseudoJet> & coll)
 
    int it = -100;
    int ip = -100;
+   vector<fastjet::PseudoJet> newcoll;
         
    for (vector<fastjet::PseudoJet>::iterator input_object = coll.begin (),
 	   fjInputsEnd = coll.end(); 
@@ -135,8 +137,11 @@ void ParametrizedSubtractor::subtractPedestal(vector<fastjet::PseudoJet> & coll)
 			    towP4.pz(),
 			    towP4.energy() );
       input_object->set_user_index(index);
+      if(etnew > 0. && dropZeroTowers_) newcoll.push_back(*input_object);
    }
    }
+
+   if(dropZeroTowers_) coll = newcoll;
 }
 
 
