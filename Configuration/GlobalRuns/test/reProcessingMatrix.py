@@ -12,15 +12,18 @@ parser.add_option("--output",default="RECO,DQM")
 def Era_8PDs():
     alcaAndSkimMap={}
     alcaAndSkimMap['']=('','LogError')
-    alcaAndSkimMap['ZeroBias']=('SiStripCalZeroBias','')
-    alcaAndSkimMap['MinimumBias']=('SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+HcalCalIsoTrk','')
-    alcaAndSkimMap['EG']=('EcalCalElectron','')
-    alcaAndSkimMap['Mu']=('MuAlCalIsolatedMu+MuAlOverlaps+TkAlMuonIsolated+DtCalib','')
-    alcaAndSkimMap['JetMETTau']=('HcalCalDijets','')
+    alcaAndSkimMap['ZeroBias']=('SiStripCalZeroBias','GoodVtx+LogError')
+    alcaAndSkimMap['Commissioning']=('','DT+L1MuBit+RPC+CSCHLT+CSCAlone+MuonTrack+LogError')
+    alcaAndSkimMap['MinimumBias']=('SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+HcalCalIsoTrk','CSC+MuonTrack+HSCP+BeamBkg+ValSkim+TPG+LogError')
+    alcaAndSkimMap['EG']=('EcalCalElectron','LogError')
+    alcaAndSkimMap['Mu']=('MuAlCalIsolatedMu+MuAlOverlaps+TkAlMuonIsolated+DtCalib','LogError')
+    alcaAndSkimMap['JetMETTau']=('HcalCalDijets','LogError')
     #alcaAndSkimMap['AlCaP0']=('EcalCalPi0Calib+EcalCalEtaCalib','')
     #alcaAndSkimMap['AlCaPhiSymEcal']=('EcalCalPhiSym+DQM','')
     #alcaAndSkimMap['HcalNZS']=('HcalCalMinBias','')
     #alcaAndSkimMap['Cosmics']=('TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo+TkAlCosmics0T+MuAlStandAloneCosmics+MuAlGlobalCosmics+MuAlCalIsolatedMu+HcalCalHOCosmics','')
+    alcaAndSkimMap['Cosmics']=('','CosmicSP+CSC+LogError')
+    alcaAndSkimMap['EGMonitor']=('','EcalRH+TPG+LogError')
     return alcaAndSkimMap
 
 def Era_2PDs():
