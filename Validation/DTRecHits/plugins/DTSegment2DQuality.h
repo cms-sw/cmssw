@@ -5,8 +5,8 @@
  *  Basic analyzer class which accesses 2D DTSegments
  *  and plot resolution comparing reconstructed and simulated quantities
  *
- *  $Date: 2007/10/25 11:58:37 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/06/19 12:03:10 $
+ *  $Revision: 1.3 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -15,6 +15,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <vector>
 #include <map>
