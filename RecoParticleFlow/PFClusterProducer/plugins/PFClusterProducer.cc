@@ -54,6 +54,14 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   std::vector<double> minS4S1CleanEndcap = 
     iConfig.getParameter< std::vector<double> >("minS4S1_Clean_Endcap");
 
+  double threshDoubleSpikeBarrel = 
+    iConfig.getParameter<double>("thresh_DoubleSpike_Barrel");
+  double minS6S2DoubleSpikeBarrel = 
+    iConfig.getParameter<double>("minS6S2_DoubleSpike_Barrel");
+  double threshDoubleSpikeEndcap = 
+    iConfig.getParameter<double>("thresh_DoubleSpike_Endcap");
+  double minS6S2DoubleSpikeEndcap = 
+    iConfig.getParameter<double>("minS6S2_DoubleSpike_Endcap");
 
   int nNeighbours = 
     iConfig.getParameter<int>("nNeighbours");
@@ -83,6 +91,9 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   clusterAlgo_.setThreshCleanBarrel(threshCleanBarrel);
   clusterAlgo_.setS4S1CleanBarrel(minS4S1CleanBarrel);
 
+  clusterAlgo_.setThreshDoubleSpikeBarrel( threshDoubleSpikeBarrel );
+  clusterAlgo_.setS6S2DoubleSpikeBarrel( minS6S2DoubleSpikeBarrel );
+
   clusterAlgo_.setThreshEndcap( threshEndcap );
   clusterAlgo_.setThreshSeedEndcap( threshSeedEndcap );
 
@@ -91,6 +102,9 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
 
   clusterAlgo_.setThreshCleanEndcap(threshCleanEndcap);
   clusterAlgo_.setS4S1CleanEndcap(minS4S1CleanEndcap);
+
+  clusterAlgo_.setThreshDoubleSpikeEndcap( threshDoubleSpikeEndcap );
+  clusterAlgo_.setS6S2DoubleSpikeEndcap( minS6S2DoubleSpikeEndcap );
 
   clusterAlgo_.setNNeighbours( nNeighbours );
 

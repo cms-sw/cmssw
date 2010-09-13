@@ -67,6 +67,10 @@ class PFClusterAlgo {
   void setThreshCleanBarrel(double thresh) {threshCleanBarrel_ = thresh;}
   void setS4S1CleanBarrel(const std::vector<double>& coeffs) {minS4S1Barrel_ = coeffs;}
 
+  /// set endcap thresholds for double spike cleaning
+  void setThreshDoubleSpikeBarrel( double thresh ) { threshDoubleSpikeBarrel_ = thresh;}
+  void setS6S2DoubleSpikeBarrel( double cut ) { minS6S2DoubleSpikeBarrel_ = cut;}
+
   /// set  endcap threshold
   void setThreshEndcap(double thresh) {threshEndcap_ = thresh;}
   void setThreshPtEndcap(double thresh) {threshPtEndcap_ = thresh;}
@@ -78,6 +82,10 @@ class PFClusterAlgo {
   /// set endcap clean threshold
   void setThreshCleanEndcap(double thresh) {threshCleanEndcap_ = thresh;}
   void setS4S1CleanEndcap(const std::vector<double>& coeffs) {minS4S1Endcap_ = coeffs;}
+
+  /// set endcap thresholds for double spike cleaning
+  void setThreshDoubleSpikeEndcap( double thresh ) { threshDoubleSpikeEndcap_ = thresh;}
+  void setS6S2DoubleSpikeEndcap( double cut ) { minS6S2DoubleSpikeEndcap_ = cut;}
 
   /// set endcap clean threshold
   void setHistos(TFile* file, TH2F* hB, TH2F* hE) {file_=file; hBNeighbour = hB; hENeighbour = hE;}
@@ -172,7 +180,10 @@ class PFClusterAlgo {
 		   PT_THRESH,
 		   SEED_PT_THRESH,
                    CLEAN_THRESH,
-                   CLEAN_S4S1};
+                   CLEAN_S4S1,
+                   DOUBLESPIKE_THRESH,
+                   DOUBLESPIKE_S6S2
+  };
   
 
   /// \return the value of a parameter of a given type, see enum Parameter,
@@ -287,9 +298,17 @@ class PFClusterAlgo {
   double threshCleanBarrel_;
   std::vector<double> minS4S1Barrel_;
 
+  /// Barrel double-spike cleaning
+  double threshDoubleSpikeBarrel_;
+  double minS6S2DoubleSpikeBarrel_;
+
   /// Endcap cleaning threshold and S4/S1 smallest fractiom
   double threshCleanEndcap_;
   std::vector<double> minS4S1Endcap_;
+
+  /// Endcap double-spike cleaning
+  double threshDoubleSpikeEndcap_;
+  double minS6S2DoubleSpikeEndcap_;
 
   ///  number of neighbours
   int    nNeighbours_;

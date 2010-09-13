@@ -845,6 +845,9 @@ class PFRootEventManager {
   /// Use Conv Brem KF Tracks
   bool useConvBremPFRecTracks_;
 
+  /// Use HLT tracking
+  bool useAtHLT;
+
   // MC Truth tools              ---------------------------------------
 
   /// particle data table.

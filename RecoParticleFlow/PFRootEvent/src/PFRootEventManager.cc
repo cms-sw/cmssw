@@ -405,6 +405,14 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("clustering", "minS4S1_Clean_Ecal_Barrel", 
                    minS4S1CleanEcalBarrel);
 
+  double threshDoubleSpikeEcalBarrel = 10.;
+  options_->GetOpt("clustering", "thresh_DoubleSpike_Ecal_Barrel", 
+                   threshDoubleSpikeEcalBarrel);
+
+  double minS6S2DoubleSpikeEcalBarrel = 0.04;
+  options_->GetOpt("clustering", "minS6S2_DoubleSpike_Ecal_Barrel", 
+                   minS6S2DoubleSpikeEcalBarrel);
+
   double threshEcalEndcap = 0.2;
   options_->GetOpt("clustering", "thresh_Ecal_Endcap", threshEcalEndcap);
 
@@ -426,6 +434,14 @@ void PFRootEventManager::readOptions(const char* file,
   std::vector<double> minS4S1CleanEcalEndcap;
   options_->GetOpt("clustering", "minS4S1_Clean_Ecal_Endcap", 
                    minS4S1CleanEcalEndcap);
+
+  double threshDoubleSpikeEcalEndcap = 1E9;
+  options_->GetOpt("clustering", "thresh_DoubleSpike_Ecal_Endcap", 
+                   threshDoubleSpikeEcalEndcap);
+
+  double minS6S2DoubleSpikeEcalEndcap = -1.;
+  options_->GetOpt("clustering", "minS6S2_DoubleSpike_Ecal_Endcap", 
+                   minS6S2DoubleSpikeEcalEndcap);
 
   double showerSigmaEcal = 3;  
   options_->GetOpt("clustering", "shower_Sigma_Ecal",
@@ -458,6 +474,9 @@ void PFRootEventManager::readOptions(const char* file,
   clusterAlgoECAL_.setThreshCleanBarrel(threshCleanEcalBarrel);
   clusterAlgoECAL_.setS4S1CleanBarrel(minS4S1CleanEcalBarrel);
 
+  clusterAlgoECAL_.setThreshDoubleSpikeBarrel( threshDoubleSpikeEcalBarrel );
+  clusterAlgoECAL_.setS6S2DoubleSpikeBarrel( minS6S2DoubleSpikeEcalBarrel );
+
   clusterAlgoECAL_.setThreshEndcap( threshEcalEndcap );
   clusterAlgoECAL_.setThreshSeedEndcap( threshSeedEcalEndcap );
 
@@ -466,6 +485,9 @@ void PFRootEventManager::readOptions(const char* file,
 
   clusterAlgoECAL_.setThreshCleanEndcap(threshCleanEcalEndcap);
   clusterAlgoECAL_.setS4S1CleanEndcap(minS4S1CleanEcalEndcap);
+
+  clusterAlgoECAL_.setThreshDoubleSpikeEndcap( threshDoubleSpikeEcalEndcap );
+  clusterAlgoECAL_.setS6S2DoubleSpikeEndcap( minS6S2DoubleSpikeEcalEndcap );
 
   clusterAlgoECAL_.setNNeighbours( nNeighboursEcal );
   clusterAlgoECAL_.setShowerSigma( showerSigmaEcal );
@@ -1094,7 +1116,9 @@ void PFRootEventManager::readOptions(const char* file,
     exit(1);
   }
   
-
+  useAtHLT = false;
+  options_->GetOpt("particle_flow", "useAtHLT", useAtHLT);
+  cout<<"use HLT tracking "<<useAtHLT<<endl;
 
 
   bool usePFElectrons = false;   // set true to use PFElectrons
@@ -1899,10 +1923,20 @@ bool PFRootEventManager::processEntry(int entry) {
      (entry < 1000 && entry%100 == 0) || 
      entry%1000 == 0 ) 
     cout<<"process entry "<< entry 
+	<<", run "<<eventAuxiliary_->run()
+	<<", lumi "<<eventAuxiliary_->luminosityBlock()	
 	<<", event:"<<eventAuxiliary_->event()
-	<<", run "<<eventAuxiliary_->run()<< endl;
+	<< endl;
 
   bool goodevent =  readFromSimulation(entry);
+
+  /*
+  std::cout << "Rechits cleaned : " << std::endl;
+  for(unsigned i=0; i<rechitsCLEANED_.size(); i++) {
+    string seedstatus = "    ";
+    printRecHit(rechitsCLEANED_[i], i, seedstatus.c_str());
+  }
+  */
 
   if(verbosity_ == VERBOSE ) {
     cout<<"number of vertices             : "<<primaryVertices_.size()<<endl;
@@ -2816,11 +2850,16 @@ void PFRootEventManager::particleFlow() {
   vector<bool> psMask;
   fillClusterMask( psMask, *clustersPS_ );
   
-  pfBlockAlgo_.setInput( trackh, gsftrackh, convBremGsftrackh,
-			 muonh, displacedh, convh, v0,
-			 ecalh, hcalh, hfemh, hfhadh, psh,
-			 trackMask,gsftrackMask,
-			 ecalMask, hcalMask, hfemMask, hfhadMask, psMask );
+  
+  if ( !useAtHLT )
+    pfBlockAlgo_.setInput( trackh, gsftrackh, convBremGsftrackh,
+			   muonh, displacedh, convh, v0,
+			   ecalh, hcalh, hfemh, hfhadh, psh,
+			   trackMask,gsftrackMask,
+			   ecalMask, hcalMask, hfemMask, hfhadMask, psMask );
+  else    
+    pfBlockAlgo_.setInput( trackh, ecalh, hcalh, hfemh, hfhadh, psh,
+			   trackMask, ecalMask, hcalMask, psMask );
 
   pfBlockAlgo_.findBlocks();
   

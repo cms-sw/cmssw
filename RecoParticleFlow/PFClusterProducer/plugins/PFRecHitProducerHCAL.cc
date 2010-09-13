@@ -70,6 +70,8 @@ PFRecHitProducerHCAL::PFRecHitProducerHCAL(const edm::ParameterSet& iConfig)
     iConfig.getParameter<bool>("HCAL_Calib");
   HF_Calib_ =
     iConfig.getParameter<bool>("HF_Calib");
+  max_Calib_ = 
+    iConfig.getParameter<double>("Max_Calib");
 
   shortFibre_Cut = iConfig.getParameter<double>("ShortFibre_Cut");
   longFibre_Fraction = iConfig.getParameter<double>("LongFibre_Fraction");
@@ -334,7 +336,7 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		*/
 
 
-		if ( HCAL_Calib_ ) energy   *= myPFCorr->getValues(detid)->getValue();
+		if ( HCAL_Calib_ ) energy   *= std::min(max_Calib_,myPFCorr->getValues(detid)->getValue());
 		//if ( rescaleFactor > 1. ) 
 		// std::cout << "Barrel HCAL energy rescaled from = " << energy << " to " << energy*rescaleFactor << std::endl;
 		if ( rescaleFactor > 1. ) { 
@@ -348,7 +350,7 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		}
 		pfrh = createHcalRecHit( detid, 
 					 energy, 
-					 PFLayer::HCAL_BARREL1, 
+				 PFLayer::HCAL_BARREL1, 
 					 hcalBarrelGeometry,
 					 ct.id().rawId() );
 		pfrh->setRescale(rescaleFactor);
@@ -374,14 +376,14 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		}
 		*/
 
-		if ( HCAL_Calib_ ) energy   *= myPFCorr->getValues(detid)->getValue();
+		if ( HCAL_Calib_ ) energy   *= std::min(max_Calib_,myPFCorr->getValues(detid)->getValue());
 		//if ( rescaleFactor > 1. ) 
 		// std::cout << "End-cap HCAL energy rescaled from = " << energy << " to " << energy*rescaleFactor << std::endl;
 		if ( rescaleFactor > 1. ) { 
 		  pfrhCleaned = createHcalRecHit( detid, 
 						  energy, 
-						  PFLayer::HCAL_BARREL1, 
-						  hcalBarrelGeometry,
+						  PFLayer::HCAL_ENDCAP, 
+						  hcalEndcapGeometry,
 						  ct.id().rawId() );
 		  pfrhCleaned->setRescale(rescaleFactor);
 		  energy *= rescaleFactor;

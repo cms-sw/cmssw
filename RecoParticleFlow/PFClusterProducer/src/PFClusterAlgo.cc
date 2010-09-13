@@ -32,8 +32,12 @@ PFClusterAlgo::PFClusterAlgo() :
   threshPtSeedEndcap_(0.),
   threshCleanBarrel_(1E5),
   minS4S1Barrel_(0.),
+  threshDoubleSpikeBarrel_(1E9),
+  minS6S2DoubleSpikeBarrel_(-1.),
   threshCleanEndcap_(1E5),
   minS4S1Endcap_(0.),
+  threshDoubleSpikeEndcap_(1E9),
+  minS6S2DoubleSpikeEndcap_(-1.),
   nNeighbours_(4),
   posCalcNCrystal_(-1),
   posCalcP1_(-1),
@@ -159,6 +163,12 @@ double PFClusterAlgo::parameter( Parameter paramtype,
     case CLEAN_S4S1:
       value = minS4S1Barrel_[iCoeff];
       break;
+    case DOUBLESPIKE_THRESH:
+      value = threshDoubleSpikeBarrel_;
+      break;
+    case DOUBLESPIKE_S6S2:
+      value = minS6S2DoubleSpikeBarrel_;
+      break;
     default:
       cerr<<"PFClusterAlgo::parameter : unknown parameter type "
 	  <<paramtype<<endl;
@@ -190,6 +200,12 @@ double PFClusterAlgo::parameter( Parameter paramtype,
       break;
     case CLEAN_S4S1:
       value = minS4S1Endcap_[iCoeff];
+      break;
+    case DOUBLESPIKE_THRESH:
+      value = threshDoubleSpikeEndcap_;
+      break;
+    case DOUBLESPIKE_S6S2:
+      value = minS6S2DoubleSpikeEndcap_;
       break;
     default:
       cerr<<"PFClusterAlgo::parameter : unknown parameter type "
@@ -358,13 +374,13 @@ PFClusterAlgo::cleanRBXAndHPD(  const reco::PFRecHitCollection& rechits ) {
 	    } else { 
 	      if ( itEn->first < threshold ) mask_[itEn->second] = false;
 	    }
-	    if ( !mask_[itEn->second] ) { 
+	    if ( !masked(itEn->second) ) { 
 	      reco::PFRecHit theCleanedHit(rechit(itEn->second, rechits));
-	      theCleanedHit.setRescale(0.);
+	      //theCleanedHit.setRescale(0.);
 	      pfRecHitsCleaned_->push_back(theCleanedHit);
 	    }
 	    /*
-	    if ( !mask_[itEn->second] ) 
+	    if ( !masked(itEn->second) ) 
 	      std::cout << "Hit Energies = " << itEn->first 
 			<< " " << ntEn->first/itEn->first << " masked " << std::endl;
 	    else 
@@ -468,13 +484,13 @@ PFClusterAlgo::cleanRBXAndHPD(  const reco::PFRecHitCollection& rechits ) {
 	  } else { 
 	    if ( itEn->first < threshold ) mask_[itEn->second] = false;
 	  }
-	  if ( !mask_[itEn->second] ) { 
+	  if ( !masked(itEn->second) ) { 
 	    reco::PFRecHit theCleanedHit(rechit(itEn->second, rechits));
-	    theCleanedHit.setRescale(0.);
+	    //theCleanedHit.setRescale(0.);
 	    pfRecHitsCleaned_->push_back(theCleanedHit);
 	  }
 	  /*
-	  if ( !mask_[itEn->second] ) 
+	  if ( !masked(itEn->second) ) 
 	    std::cout << "Hit Energies = " << itEn->first 
 		      << " " << ntEn->first/itEn->first << " masked " << std::endl;
 	  else 
@@ -528,6 +544,10 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
 				  static_cast<PFLayer::Layer>(layer), 0 );
     double minS4S1_b = parameter( CLEAN_S4S1, 
 				  static_cast<PFLayer::Layer>(layer), 1 );
+    double doubleSpikeThresh = parameter( DOUBLESPIKE_THRESH, 
+					  static_cast<PFLayer::Layer>(layer) );
+    double doubleSpikeS6S2 = parameter( DOUBLESPIKE_S6S2, 
+					static_cast<PFLayer::Layer>(layer) );
 
 
 #ifdef PFLOW_DEBUG
@@ -592,8 +612,10 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
     seedStates_[rhi] = YES;
     for(unsigned in=0; in<neighbours.size(); in++) {
 	
-      const reco::PFRecHit& neighbour = rechit( neighbours[in], 
-						rechits ); 
+      unsigned rhj =  neighbours[in];
+      // Ignore neighbours already masked
+      if ( !masked(rhj) ) continue;
+      const reco::PFRecHit& neighbour = rechit( rhj, rechits ); 
 	
       // one neighbour has a higher energy -> the tested rechit is not a seed
       if( neighbour.energy() > wannaBeSeed.energy() ) {
@@ -612,7 +634,10 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
       double neighbourEnergy = 0.;
       double layerEnergy = 0.;
       for(unsigned in4=0; in4<neighbours4.size(); in4++) {
-	const reco::PFRecHit& neighbour = rechit( neighbours4[in4], rechits ); 
+	unsigned rhj =  neighbours4[in4];
+	// Ignore neighbours already masked
+	if ( !masked(rhj) ) continue;
+	const reco::PFRecHit& neighbour = rechit( rhj, rechits ); 
 	surroundingEnergy += neighbour.energy() + neighbour.energyUp();
 	neighbourEnergy += neighbour.energy() + neighbour.energyUp();
 	layerEnergy += neighbour.energy();
@@ -670,7 +695,7 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
 	    seedStates_[rhi] = CLEAN;
 	    mask_[rhi] = false;
 	    reco::PFRecHit theCleanedHit(wannaBeSeed);
-	    theCleanedHit.setRescale(0.);
+	    //theCleanedHit.setRescale(0.);
 	    pfRecHitsCleaned_->push_back(theCleanedHit);
 	    /*
 	    std::cout << "A seed with E/pT/eta/phi = " << wannaBeSeed.energy() << " " << wannaBeSeed.energyUp() 
@@ -684,6 +709,76 @@ void PFClusterAlgo::findSeeds( const reco::PFRecHitCollection& rechits ) {
 	    */
 	  }
 	}
+      }
+    }
+
+    // Clean double spikes
+    if ( mask_[rhi] && wannaBeSeed.energy() > doubleSpikeThresh ) {
+      // Determine energy surrounding the seed and the most energetic neighbour
+      double surroundingEnergyi = 0.;
+      double enmax = -999.;
+      unsigned mostEnergeticNeighbour = 0;
+      const vector<unsigned>& neighbours4i = *(& wannaBeSeed.neighbours4());
+      for(unsigned in4=0; in4<neighbours4i.size(); in4++) {
+	unsigned rhj =  neighbours4i[in4];
+	if ( !masked(rhj) ) continue;
+	const reco::PFRecHit& neighbouri = rechit( rhj, rechits );
+	surroundingEnergyi += neighbouri.energy();
+	if ( neighbouri.energy() > enmax ) { 
+	  enmax = neighbouri.energy();
+	  mostEnergeticNeighbour = rhj;
+	}
+      }
+      // Is there an energetic neighbour ?
+      if ( enmax > 0. ) { 
+	unsigned rhj = mostEnergeticNeighbour;
+	const reco::PFRecHit& neighbouri = rechit( rhj, rechits );
+	double surroundingEnergyj = 0.;
+	//if ( mask_[rhj] && neighbouri.energy() > doubleSpikeThresh ) {
+	// Determine energy surrounding the energetic neighbour
+	const vector<unsigned>& neighbours4j = *(& neighbouri.neighbours4());
+	for(unsigned jn4=0; jn4<neighbours4j.size(); jn4++) {
+	  unsigned rhk =  neighbours4j[jn4];
+	  const reco::PFRecHit& neighbourj = rechit( rhk, rechits ); 
+	  surroundingEnergyj += neighbourj.energy();
+	}
+	// The energy surrounding the double spike candidate 
+	double surroundingEnergyFraction = 
+	  (surroundingEnergyi+surroundingEnergyj) / (wannaBeSeed.energy()+neighbouri.energy()) - 1.;
+	if ( surroundingEnergyFraction < doubleSpikeS6S2 ) { 
+	  double eta = wannaBeSeed.position().eta();
+	  double phi = wannaBeSeed.position().phi();
+	  std::pair<double,double> dcr = dCrack(phi,eta);
+	  double dcrmin = std::min(dcr.first, dcr.second);
+	  eta = fabs(eta);
+	  if (  ( eta < 5.0 && dcrmin > 1. ) ||
+		( wannaBeSeed.energy() > tighterE*doubleSpikeThresh &&
+		  surroundingEnergyFraction < doubleSpikeS6S2/tighterF ) ) {
+	    /*
+	    std::cout << "Double spike cleaned : Energies = " << wannaBeSeed.energy()
+		      << " " << neighbouri.energy() 
+		      << " surrounded by only " << surroundingEnergyFraction*100.
+		      << "% of the two spike energies at eta/phi/distance to closest crack = "  
+		      << 	eta << " " << phi << " " << dcrmin
+		      << std::endl;
+	    */
+	    // mask the seed
+	    seedStates_[rhi] = CLEAN;
+	    mask_[rhi] = false;
+	    reco::PFRecHit theCleanedSeed(wannaBeSeed);
+	    pfRecHitsCleaned_->push_back(theCleanedSeed);
+	    // mask the neighbour
+	    seedStates_[rhj] = CLEAN;
+	    mask_[rhj] = false;
+	    reco::PFRecHit theCleanedNeighbour(wannaBeSeed);
+	    pfRecHitsCleaned_->push_back(theCleanedNeighbour);
+	  }
+	}
+      } else { 
+	/*
+	std::cout << "PFClusterAlgo : Double spike search : An isolated cell should have been killed " << std::endl 
+		  << "but is going through the double spike search!" << std::endl;
+	*/
       }
     }
 

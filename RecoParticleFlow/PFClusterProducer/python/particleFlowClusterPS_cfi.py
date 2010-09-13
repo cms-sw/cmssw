@@ -17,6 +17,9 @@ particleFlowClusterPS = cms.EDProducer("PFClusterProducer",
     # cleaning threshold and minimum S4/S1 fraction in preshower 
     thresh_Clean_Barrel = cms.double(1E5),
     minS4S1_Clean_Barrel = cms.vdouble(0.0, 0.0),
+    # double spike cleaning (barrel)
+    thresh_DoubleSpike_Barrel = cms.double(1E9),
+    minS6S2_DoubleSpike_Barrel = cms.double(-1.),
     # for the preshower, endcap values are not used
     thresh_Seed_Endcap = cms.double(1.2e-4),
     thresh_Pt_Seed_Endcap = cms.double(0.0),
@@ -26,6 +29,9 @@ particleFlowClusterPS = cms.EDProducer("PFClusterProducer",
     # for the preshower, endcap values are not used 
     thresh_Clean_Endcap = cms.double(1E5),
     minS4S1_Clean_Endcap = cms.vdouble(0.0, 0.0),
+    # double spike cleaning (endcap)
+    thresh_DoubleSpike_Endcap = cms.double(1E9),
+    minS6S2_DoubleSpike_Endcap = cms.double(-1.),
     # n neighbours in PS 
     nNeighbours = cms.int32(8),                                       
     # sigma of the shower in preshower     

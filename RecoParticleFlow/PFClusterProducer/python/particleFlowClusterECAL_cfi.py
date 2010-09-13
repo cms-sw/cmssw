@@ -17,6 +17,9 @@ particleFlowClusterECAL = cms.EDProducer("PFClusterProducer",
     # cleaning threshold and minimum S4/S1 fraction in ECAL barrel
     thresh_Clean_Barrel = cms.double(4.0),
     minS4S1_Clean_Barrel = cms.vdouble(0.04, -0.024),
+    # double spike cleaning (barrel)
+    thresh_DoubleSpike_Barrel = cms.double(10.),
+    minS6S2_DoubleSpike_Barrel = cms.double(0.04),
     # seed threshold in ECAL endcap 
     thresh_Seed_Endcap = cms.double(0.6),
     thresh_Pt_Seed_Endcap = cms.double(0.15),
@@ -26,6 +29,9 @@ particleFlowClusterECAL = cms.EDProducer("PFClusterProducer",
     # cleaning threshold and minimum S4/S1 fraction in ECAL endcap
     thresh_Clean_Endcap = cms.double(15.0),
     minS4S1_Clean_Endcap = cms.vdouble(0.02, -0.0125),
+    # double spike cleaning (endcap)
+    thresh_DoubleSpike_Endcap = cms.double(1E9),
+    minS6S2_DoubleSpike_Endcap = cms.double(-1.),
     # thresh_Clean_Endcap = cms.double(1E5),
     #minS4S1_Clean_Endcap = cms.vdouble(0.04, -0.025),
     # n neighbours in ECAL 

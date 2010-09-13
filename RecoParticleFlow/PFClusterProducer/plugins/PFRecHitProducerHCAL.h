@@ -95,6 +95,7 @@ class PFRecHitProducerHCAL : public PFRecHitProducer {
   // Apply HCAL DPG rechit calibration
   bool HCAL_Calib_;
   bool HF_Calib_;
+  float max_Calib_;
 
   // Don't allow large energy in short fibres if there is no energy in long fibres
   double shortFibre_Cut;  
