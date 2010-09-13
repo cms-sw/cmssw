@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.27 2010/08/30 15:42:33 amraktad Exp $
+// $Id: FWEveView.cc,v 1.28 2010/09/08 19:18:55 amraktad Exp $
 //
 
 
@@ -413,6 +413,9 @@ FWEveView::populateController(ViewerParameterGUI& gui) const
          addParam(&m_drawCMSLogo).
          addParam(&m_showCameraGuide).
          separator().
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
+         addParam(&m_imageScale).
+#endif
          addParam(&m_pointSize).
          addParam(&m_pointSmooth).
          addParam(&m_lineSmooth).
