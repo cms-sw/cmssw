@@ -89,7 +89,7 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
 				      const edm::EventSetup& es)
 {
   if (debugL <= HybridClusterAlgo::pINFO)
-  std::cout << ">>>>> Entering UnifiedSCCollectionProducer <<<<<" << std::endl;
+    edm::LogInfo("UnifiedSC")<< ">>>>> Entering UnifiedSCCollectionProducer <<<<<";
   // get the input collections
   // __________________________________________________________________________
   //
@@ -104,7 +104,7 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
   if (!(pCleanBC.isValid())) 
     {
       if (debugL <= HybridClusterAlgo::pINFO)
-	std::cout << "could not handle clean basic clusters" << std::endl;
+	edm::LogInfo("UnifiedSC") << "could not handle clean basic clusters";
       return;
     }
   const  reco::BasicClusterCollection cleanBS = *(pCleanBC.product());
@@ -123,7 +123,7 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
   if (!(pUncleanBC.isValid())) 
     {
       if (debugL <= HybridClusterAlgo::pINFO)
-	std::cout << "could not handle unclean Basic Clusters!" << std::endl;
+	edm::LogInfo("UnifiedSC")<<"could not handle unclean Basic Clusters!";
       return;
     }
   const  reco::BasicClusterCollection uncleanBC = *(pUncleanBC.product());
@@ -132,7 +132,7 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
   if (!(pUncleanSC.isValid())) 
     {
       if (debugL <= HybridClusterAlgo::pINFO)
-	std::cout << "could not handle unclean super clusters!" << std::endl;
+	edm::LogInfo("UnifiedSC")<< "could not handle unclean super clusters!" ;
       return;
     }
   const  reco::SuperClusterCollection uncleanSC = *(pUncleanSC.product());
@@ -156,8 +156,8 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
   int uncleanSize = (int) uncleanSC.size();
   int cleanSize = (int) cleanSC.size();
   if (debugL <= HybridClusterAlgo::pDEBUG)
-    std::cout << "Size of Clean Collection: " << cleanSize 
-	      << ", uncleanSize: " << uncleanSize  << std::endl;
+    LogDebug("UnifiedSC") << "Size of Clean Collection: " << cleanSize 
+			  << ", uncleanSize: " << uncleanSize;
 
 
   // keep the indices
@@ -263,8 +263,8 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
   int bcSize = (int) basicClusters.size();
   int bcSizeUncleanOnly = (int) basicClustersUncleanOnly.size();
   if (debugL == HybridClusterAlgo::pDEBUG)
-    std::cout << "Found cleaned SC: " << cleanSize <<  " uncleaned SC: " 
-	      << uncleanSize << std::endl;
+    LogDebug("UnifiedSC") << "Found cleaned SC: " << cleanSize 
+			  <<  " uncleaned SC: "   << uncleanSize ;
   //
   // export the clusters to the event from the clean clusters
   std::auto_ptr< reco::BasicClusterCollection> 
@@ -274,12 +274,12 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
     evt.put(basicClusters_p, bcCollection_);
   if (!(bccHandle.isValid())) {
     if (debugL <= HybridClusterAlgo::pINFO)
-      std::cout << "could not handle the new BasicClusters!" << std::endl;
+      edm::LogInfo("UnifiedSC")<< "could not handle the new BasicClusters!";
     return;
   }
   reco::BasicClusterCollection basicClustersProd = *bccHandle;
   if (debugL == HybridClusterAlgo::pDEBUG)
-    std::cout << "Got the BasicClusters from the event again" << std::endl;
+    edm::LogInfo("UnifiedSC")<< "Got the BasicClusters from the event again" << std::endl;
   //
   // export the clusters to the event: from the unclean only clusters
   std::auto_ptr< reco::BasicClusterCollection> 
@@ -290,12 +290,12 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
     evt.put(basicClustersUncleanOnly_p, bcCollectionUncleanOnly_);
   if (!(bccHandleUncleanOnly.isValid())) {
     if (debugL <= HybridClusterAlgo::pINFO)
-      std::cout << "could not handle the new BasicClusters (Unclean Only)!" << std::endl;
+      edm::LogInfo("UnifiedSC")<< "could not handle the new BasicClusters (Unclean Only)!" << std::endl;
     return;
   }
   reco::BasicClusterCollection basicClustersUncleanOnlyProd = *bccHandleUncleanOnly;
   if (debugL == HybridClusterAlgo::pDEBUG)
-    std::cout << "Got the BasicClusters from the event again  (Unclean Only)" << std::endl;
+    edm::LogInfo("UnifiedSC")<< "Got the BasicClusters from the event again  (Unclean Only)" << std::endl;
   //
 
   // now we can build the SC collection
@@ -386,7 +386,7 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
   } // end loop over clean SC _________________________________________________
 
   if (debugL == HybridClusterAlgo::pDEBUG)
-    std::cout << "New SC collection was created" << std::endl;
+    LogDebug("UnifiedSC")<< "New SC collection was created";
 
   std::auto_ptr< reco::SuperClusterCollection> 
     superClusters_p(new reco::SuperClusterCollection);
@@ -394,7 +394,7 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
 
   evt.put(superClusters_p, scCollection_);
   if (debugL == HybridClusterAlgo::pDEBUG)
-    std::cout << "Clusters (Basic/Super) added to the Event! :-)" << std::endl;
+    LogDebug("UnifiedSC") << "Clusters (Basic/Super) added to the Event! :-)";
 
   std::auto_ptr< reco::SuperClusterCollection> 
     superClustersUncleanOnly_p(new reco::SuperClusterCollection);
@@ -407,7 +407,7 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
   // print the new collection SC quantities
   if (debugL == HybridClusterAlgo::pDEBUG) {
     // print out the clean collection SC
-    std::cout << "Clean Collection SC " << std::endl;
+    LogDebug("UnifiedSC") << "Clean Collection SC ";
     for (int i=0; i < cleanSize; ++i) {
       const reco::SuperCluster csc = cleanSC[i];
       std::cout << " >>> clean    #" << i << "; Energy: " << csc.energy()
@@ -416,50 +416,46 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
 		<< std::endl;
     }
     // the unclean SC
-    std::cout << "Unclean Collection SC " << std::endl;
+    LogDebug("UnifiedSC") << "Unclean Collection SC ";
     for (int i=0; i < uncleanSize; ++i) {
       const reco::SuperCluster usc = uncleanSC[i];
-      std::cout << " >>> unclean  #" << i << "; Energy: " << usc.energy()
-		<< " eta: " << usc.eta() 
-		<< " sc seed detid: " << usc.seed()->seed().rawId()
-		<< std::endl;
+      LogDebug("UnifiedSC") << " >>> unclean  #" << i << "; Energy: " << usc.energy()
+			    << " eta: " << usc.eta() 
+			    << " sc seed detid: " << usc.seed()->seed().rawId();
     }
     // the new collection
-    std::cout << "The new SC clean collection with size "<< superClusters.size()  << std::endl;
-
+    LogDebug("UnifiedSC")<< "The new SC clean collection with size "<< superClusters.size()  << std::endl;
+    
     int new_unclean = 0, new_clean=0;
     for (int i=0; i < (int) superClusters.size(); ++i) {
       const reco::SuperCluster nsc = superClusters[i];
-      std::cout << "SC was got" << std::endl;
-      std::cout << " ---> energy: " << nsc.energy() << std::endl;
-      std::cout << " ---> eta: " << nsc.eta() << std::endl;
-      std::cout << " ---> inClean: " << nsc.isInClean() << std::endl;
-      std::cout << " ---> id: " << nsc.seed()->seed().rawId() << std::endl;
+      LogDebug("UnifiedSC") << "SC was got" << std::endl
+       << " ---> energy: " << nsc.energy() << std::endl
+       << " ---> eta: " << nsc.eta() << std::endl
+       << " ---> inClean: " << nsc.isInClean() << std::endl
+       << " ---> id: " << nsc.seed()->seed().rawId() << std::endl
+       << " >>> newSC    #" << i << "; Energy: " << nsc.energy()
+       << " eta: " << nsc.eta()  << " isClean=" 
+       << nsc.isInClean() << " isUnclean=" << nsc.isInUnclean()
+       << " sc seed detid: " << nsc.seed()->seed().rawId();
 
-      std::cout << " >>> newSC    #" << i << "; Energy: " << nsc.energy()
-		<< " eta: " << nsc.eta()  << " isClean=" 
-		<< nsc.isInClean() << " isUnclean=" << nsc.isInUnclean()
-		<< " sc seed detid: " << nsc.seed()->seed().rawId()
-		<< std::endl;
       if (nsc.isInUnclean()) ++new_unclean;
       if (nsc.isInClean()) ++new_clean;
     }
-    std::cout << "The new SC unclean only collection with size "<< superClustersUncleanOnly.size()  << std::endl;
+    LogDebug("UnifiedSC")<< "The new SC unclean only collection with size "<< superClustersUncleanOnly.size();
     for (int i=0; i < (int) superClustersUncleanOnly.size(); ++i) {
       const reco::SuperCluster nsc = superClustersUncleanOnly[i];
-      std::cout << " >>> newSC    #" << i << "; Energy: " << nsc.energy()
+      LogDebug ("UnifiedSC") << " >>> newSC    #" << i << "; Energy: " << nsc.energy()
 		<< " eta: " << nsc.eta()  << " isClean=" 
 		<< nsc.isInClean() << " isUnclean=" << nsc.isInUnclean()
-		<< " sc seed detid: " << nsc.seed()->seed().rawId()
-		<< std::endl;
+		<< " sc seed detid: " << nsc.seed()->seed().rawId();
       if (nsc.isInUnclean()) ++new_unclean;
       if (nsc.isInClean()) ++new_clean;      
     }
     if ( (new_unclean != uncleanSize) || (new_clean != cleanSize) ) {
-      std::cout << ">>>>!!!!!! MISMATCH: new unclean/ old unclean= " 
+      LogDebug("UnifiedSC") << ">>>>!!!!!! MISMATCH: new unclean/ old unclean= " 
 		<< new_unclean << " / " << uncleanSize 
-	        << ", new clean/ old clean" << new_clean << " / " << cleanSize
-		<< std::endl;
+	        << ", new clean/ old clean" << new_clean << " / " << cleanSize;
     }
   }
 }
