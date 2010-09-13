@@ -373,8 +373,11 @@ EMShower::compute() {
 	       / tgamma(aSpot[i]))* theHCAL->spotFraction();
 	double nSo = nS ;
 	
-	nS = random->poissonShoot(nS);
-	dE *= nS/nSo;
+ 	nS = random->poissonShoot(nS);
+
+	// Remove this line (fix from Salavat):
+	//	dE *= nS/nSo;
+	//
 //	if(true)
 //	  {
 //	    std::cout << " theHCAL->spotFraction = " <<theHCAL->spotFraction() <<std::endl;
