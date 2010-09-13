@@ -378,14 +378,11 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
     const reco::SuperCluster csc = cleanSC[jsc]; 
     reco::SuperCluster newSC(csc.energy(), csc.position(),
 			     seed, clusterPtrVector );
-    const uint32_t myFlags = csc.flags();
-    if (myFlags < reco::CaloCluster::common) {
-      newSC.setFlags(myFlags);
-    } else {
-      newSC.setFlags(reco::CaloCluster::cleanOnly);
-    }
+    newSC.setFlags(reco::CaloCluster::cleanOnly);
+
     // add it to the collection:
     superClusters.push_back(newSC);
+
   } // end loop over clean SC _________________________________________________
 
   if (debugL == HybridClusterAlgo::pDEBUG)
