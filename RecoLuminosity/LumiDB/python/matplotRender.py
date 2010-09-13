@@ -64,6 +64,9 @@ class matplotRender():
             xpoints.append(x)
             xidx.append(rawxdata.index(x)) #get the index of the sample points
             #print 'xidx : ',rawxdata.index(x)
+        if len(xpoints)==0:
+            print '[WARNING]: no data, do nothing'
+            return
         t=sum(rawydata['Delivered'])
         denomitor=1.0
         unitstring='$\mu$b$^{-1}$'
@@ -120,6 +123,9 @@ class matplotRender():
         ytotal={}
         ypoints={}
         xpoints=rawfillDict.keys()
+        if len(xpoints)==0:
+            print '[WARNING]: no data, do nothing'
+            return
         xpoints.sort()
         beginfo=''
         endinfo=''
@@ -194,7 +200,9 @@ class matplotRender():
         for idx,run in enumerate(runs):
             xpoints.append(matplotlib.dates.date2num(rawxdata[run][0]))
             xidx.append(idx)
-            
+        if len(xpoints)==0:
+            print '[WARNING]: no data, do nothing'
+            return
         t=sum(rawydata['Delivered'])
         denomitor=1.0
         unitstring='$\mu$b$^{-1}$'
