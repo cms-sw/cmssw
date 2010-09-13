@@ -78,6 +78,8 @@ public:
    void setConfigFilename(const std::string &f) { m_configFileName = f; };
    const char *configFilename() const { return m_configFileName.c_str(); };
 
+   void writeToConfigFile(const std::string &config);
+   void writeToCurrentConfigFile();
    void reloadConfiguration(const std::string &config);
    void setupConfiguration();
    

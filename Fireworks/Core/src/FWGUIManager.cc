@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.215 2010/09/03 17:58:54 matevz Exp $
+// $Id: FWGUIManager.cc,v 1.216 2010/09/10 20:34:05 amraktad Exp $
 
 //
 
@@ -83,11 +83,6 @@
 
 // constants, enums and typedefs
 //
-enum {kSaveConfiguration,
-      kSaveConfigurationAs,
-      kExportImage,
-      kQuit};
-
 //
 // static data member definitions
 //
@@ -103,7 +98,6 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
    m_summaryManager(0),
    m_detailViewManager(0),
    m_viewManagerManager(iVMMgr),
-   //   m_metadataManager(metadataManager),
    m_contextMenuHandler(0),
    m_navigator(navigator),
    m_dataAdder(0),
@@ -123,7 +117,7 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
 
    m_context->selectionManager()->selectionChanged_.connect(boost::bind(&FWGUIManager::selectionChanged,this,_1));
    FWEventItemsManager* im = (FWEventItemsManager*) m_context->eventItemsManager();
-  im->newItem_.connect(boost::bind(&FWGUIManager::newItem, this, _1) );
+   im->newItem_.connect(boost::bind(&FWGUIManager::newItem, this, _1) );
 
    m_context->colorManager()->colorsHaveChangedFinished_.connect(boost::bind(&FWGUIManager::finishUpColorChange,this));
 
@@ -156,7 +150,7 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
       getAction(cmsshow::sExportImage)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImageOfMainView));
       getAction(cmsshow::sExportAllImages)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImagesOfAllViews));
       getAction(cmsshow::sLoadConfig)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::promptForLoadConfigurationFile));
-      getAction(cmsshow::sSaveConfig)->activated.connect(writeToPresentConfigurationFile_);
+
       getAction(cmsshow::sSaveConfigAs)->activated.connect(sigc::mem_fun(*this,&FWGUIManager::promptForSaveConfigurationFile));
       getAction(cmsshow::sShowEventDisplayInsp)->activated.connect(boost::bind( &FWGUIManager::showEDIFrame,this,-1));
       getAction(cmsshow::sShowMainViewCtl)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showViewPopup));
@@ -797,6 +791,8 @@ FWGUIManager::promptForLoadConfigurationFile()
    std::string name;
    if (!promptForConfigurationFile(name, kFDOpen))
       return;
+  
+   
    loadFromConfigurationFile_(name);
 }
 
@@ -806,6 +802,7 @@ FWGUIManager::promptForLoadConfigurationFile()
 void
 FWGUIManager::promptForSaveConfigurationFile()
 {
+   printf("FWGUIManager::promptForSaveConfigurationFil \n");
    std::string name;
    if (!promptForConfigurationFile(name, kFDSave))
       return;

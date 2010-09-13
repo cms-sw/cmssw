@@ -65,6 +65,8 @@ CmsShowMainBase::~CmsShowMainBase()
 void
 CmsShowMainBase::setupActions()
 { 
+   m_guiManager->writeToPresentConfigurationFile_.connect(sigc::mem_fun(*this, &CmsShowMainBase::writeToCurrentConfigFile));
+
    // init TGSlider state before signals are connected
    m_guiManager->setDelayBetweenEvents(m_playDelay);
 
@@ -81,7 +83,6 @@ CmsShowMainBase::setupActions()
       m_guiManager->getAction(cmsshow::sQuit)->activated.connect(sigc::mem_fun(*this, &CmsShowMainBase::quit));
  
    m_guiManager->changedEventId_.connect(boost::bind(&CmsShowMainBase::goToRunEvent,this,_1,_2,_3));
-   
    m_guiManager->playEventsAction()->started_.connect(sigc::mem_fun(*this, &CmsShowMainBase::playForward));
    m_guiManager->playEventsBackwardsAction()->started_.connect(sigc::mem_fun(*this,&CmsShowMainBase::playBackward));
    m_guiManager->loopAction()->started_.connect(sigc::mem_fun(*this,&CmsShowMainBase::setPlayLoopImp));
@@ -89,6 +90,7 @@ CmsShowMainBase::setupActions()
    m_guiManager->changedDelayBetweenEvents_.connect(boost::bind(&CmsShowMainBase::setPlayDelay,this,_1));
    m_guiManager->playEventsAction()->stopped_.connect(sigc::mem_fun(*this,&CmsShowMainBase::stopPlaying));
    m_guiManager->playEventsBackwardsAction()->stopped_.connect(sigc::mem_fun(*this,&CmsShowMainBase::stopPlaying));
+ 
    m_autoLoadTimer->timeout_.connect(boost::bind(&CmsShowMainBase::autoLoadNewEvent, this));
 }
 
@@ -206,8 +208,10 @@ CmsShowMainBase::setup(FWNavigatorBase *navigator,
    m_configurationManager->add("GUI",m_guiManager.get());
    m_configurationManager->add("EventNavigator", m_navigatorPtr);
    m_configurationManager->add("Preferences", m_contextPtr->commonPrefs()); // must be after GUIManager in alphabetical order
-   m_guiManager->writeToConfigurationFile_.connect(boost::bind(&FWConfigurationManager::writeToFile,
-                                                               m_configurationManager.get(),_1));
+
+   m_guiManager->writeToConfigurationFile_.connect(boost::bind(&CmsShowMainBase::writeToConfigFile,
+                                                                this,_1));
+
    m_guiManager->loadFromConfigurationFile_.connect(boost::bind(&CmsShowMainBase::reloadConfiguration,
                                                                 this, _1));
    std::string macPath(gSystem->Getenv("CMSSW_BASE"));
@@ -222,6 +226,19 @@ CmsShowMainBase::setup(FWNavigatorBase *navigator,
    
    m_startupTasks->tasksCompleted_.connect(boost::bind(&FWGUIManager::clearStatus,
                                                        m_guiManager.get()) );
+}
+
+void
+CmsShowMainBase::writeToConfigFile(const std::string &name)
+{
+   m_configFileName = name;
+   m_configurationManager->writeToFile(m_configFileName);
+}
+
+void
+CmsShowMainBase::writeToCurrentConfigFile()
+{
+   m_configurationManager->writeToFile(m_configFileName);
 }
 
 void
@@ -337,19 +354,15 @@ CmsShowMainBase::setupConfiguration()
          exit(1);
       }
    }
-
-   if(not m_configFileName.empty() ) {
-      /* //when the program quits we will want to save the configuration automatically
-         m_guiManager->goingToQuit_.connect(
-         boost::bind(&FWConfigurationManager::writeToFile,
-         m_configurationManager.get(),
-         m_configFileName));
-      */
-      m_guiManager->writeToPresentConfigurationFile_.connect(
-                                                             boost::bind(&FWConfigurationManager::writeToFile,
-                                                                         m_configurationManager.get(),
-                                                                         m_configFileName));
-   }
+   /* 
+      if(not m_configFileName.empty() ) {
+      //when the program quits we will want to save the configuration automatically
+      m_guiManager->goingToQuit_.connect(
+      boost::bind(&FWConfigurationManager::writeToFile,
+      m_configurationManager.get(),
+      m_configFileName));
+      }
+   */
 }
 
 
