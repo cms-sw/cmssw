@@ -79,7 +79,7 @@ void UncleanSCRecoveryProducer::produce(edm::Event& evt,
   if (!(pCleanBC.isValid())) 
     {
       if (debugL <= HybridClusterAlgo::pINFO)
-	std::cout << "could not handle clean basic clusters" << std::endl;
+	edm::LogInfo("UncleanSCRecovery") << "could not handle clean basic clusters";
       return;
     }
   const  reco::BasicClusterCollection cleanBS = *(pCleanBC.product());
@@ -88,7 +88,7 @@ void UncleanSCRecoveryProducer::produce(edm::Event& evt,
   if (!(pCleanSC.isValid())) 
     {
       if (debugL <= HybridClusterAlgo::pINFO)
-	std::cout << "could not handle clean super clusters" << std::endl;
+	edm::LogInfo("UncleanSCRecovery") << "could not handle clean super clusters";
       return;
     }
   const  reco::SuperClusterCollection cleanSC = *(pCleanSC.product());
@@ -98,7 +98,7 @@ void UncleanSCRecoveryProducer::produce(edm::Event& evt,
   if (!(pUncleanBC.isValid())) 
     {
       if (debugL <= HybridClusterAlgo::pINFO)
-	std::cout << "could not handle unclean Basic Clusters!" << std::endl;
+	edm::LogInfo("UncleanSCRecovery") << "could not handle unclean Basic Clusters!";
       return;
     }
   const  reco::BasicClusterCollection uncleanBC = *(pUncleanBC.product());
@@ -107,15 +107,15 @@ void UncleanSCRecoveryProducer::produce(edm::Event& evt,
   if (!(pUncleanSC.isValid())) 
     {
       if (debugL <= HybridClusterAlgo::pINFO)
-	std::cout << "could not handle unclean super clusters!" << std::endl;
+	edm::LogInfo("UncleanSCRecovery") << "could not handle unclean super clusters!";
       return;
     }
   const  reco::SuperClusterCollection uncleanSC = *(pUncleanSC.product());
   int uncleanSize = (int) uncleanSC.size();
   int cleanSize = (int) cleanSC.size();
   if (debugL <= HybridClusterAlgo::pDEBUG)
-    std::cout << "Size of Clean Collection: " << cleanSize 
-	      << ", uncleanSize: " << uncleanSize  << std::endl;
+    LogDebug("UncleanSCRecovery")  << "Size of Clean Collection: " << cleanSize 
+				   << ", uncleanSize: " << uncleanSize;
 
   // collections are all taken now ____________________________________________
   //
@@ -179,7 +179,7 @@ void UncleanSCRecoveryProducer::produce(edm::Event& evt,
   }
   reco::BasicClusterCollection basicClustersProd = *bccHandle;
   if (debugL == HybridClusterAlgo::pDEBUG)
-    std::cout << "Got the BasicClusters from the event again" << std::endl;
+    LogDebug("UncleanSCRecovery")  << "Got the BasicClusters from the event again";
   int bcSize = (int) basicClustersProd.size();
   //
   // now we can create the SC collection
@@ -235,38 +235,35 @@ void UncleanSCRecoveryProducer::produce(edm::Event& evt,
 
   evt.put(superClusters_p, scCollection_);
   if (debugL == HybridClusterAlgo::pDEBUG)
-    std::cout << "Clusters (Basic/Super) added to the Event! :-)" << std::endl;
+    LogDebug("UncleanSCRecovery") << "Clusters (Basic/Super) added to the Event! :-)";
 
   // ----- debugging ----------
   // print the new collection SC quantities
   if (debugL == HybridClusterAlgo::pDEBUG) {
     // print out the clean collection SC
-    std::cout << "Clean Collection SC " << std::endl;
+    LogDebug("UncleanSCRecovery") << "Clean Collection SC ";
     for (int i=0; i < cleanSize; ++i) {
       const reco::SuperCluster csc = cleanSC[i];
-      std::cout << " >>> clean    #" << i << "; Energy: " << csc.energy()
-		<< " eta: " << csc.eta() 
-		<< " sc seed detid: " << csc.seed()->seed().rawId()
-		<< std::endl;
+      LogDebug("UncleanSCRecovery") << " >>> clean    #" << i << "; Energy: " << csc.energy()
+				    << " eta: " << csc.eta() 
+				    << " sc seed detid: " << csc.seed()->seed().rawId();
     }
     // the unclean SC
-    std::cout << "Unclean Collection SC " << std::endl;
+    LogDebug("UncleanSCRecovery") << "Unclean Collection SC ";
     for (int i=0; i < uncleanSize; ++i) {
       const reco::SuperCluster usc = uncleanSC[i];
-      std::cout << " >>> unclean  #" << i << "; Energy: " << usc.energy()
+      LogDebug("UncleanSCRecovery") << " >>> unclean  #" << i << "; Energy: " << usc.energy()
 		<< " eta: " << usc.eta() 
-		<< " sc seed detid: " << usc.seed()->seed().rawId()
-		<< std::endl;
+		<< " sc seed detid: " << usc.seed()->seed().rawId();
     }
     // the new collection
-    std::cout << "The new SC clean collection with size "<< superClusters.size()  << std::endl;
+    LogDebug("UncleanSCRecovery")<<"The new SC clean collection with size "<< superClusters.size();
     for (int i=0; i < (int) superClusters.size(); ++i) {
       const reco::SuperCluster nsc = superClusters[i];
-      std::cout << " >>> newSC    #" << i << "; Energy: " << nsc.energy()
-		<< " eta: " << nsc.eta()  << " isClean=" 
-		<< nsc.isInClean() << " isUnclean=" << nsc.isInUnclean()
-		<< " sc seed detid: " << nsc.seed()->seed().rawId()
-		<< std::endl;
+      LogDebug("UncleanSCRecovery")<< " >>> newSC    #" << i << "; Energy: " << nsc.energy()
+				   << " eta: " << nsc.eta()  << " isClean=" 
+				   << nsc.isInClean() << " isUnclean=" << nsc.isInUnclean()
+				   << " sc seed detid: " << nsc.seed()->seed().rawId();
     }
   }
 

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 nonDuplicatedHybridSuperClusters = cms.EDProducer("UnifiedSCCollectionProducer",
-            debugLevel = cms.string('DEBUG'),
+            debugLevel = cms.string('NONE'),
             # input collections:
             cleanBcCollection = cms.InputTag('hybridSuperClusters','hybridBarrelBasicClusters'),
             cleanScCollection = cms.InputTag('hybridSuperClusters',''),
