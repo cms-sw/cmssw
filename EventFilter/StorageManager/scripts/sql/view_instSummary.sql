@@ -326,7 +326,7 @@ BEGIN
                         if ( tdeletable < 0 ) THEN
 				tdeletable := 0;
 			END IF;
-                        trunning   := time_diff( maxLastClosedTime, StartRunTime);  
+                        trunning   := time_diff( maxLastClosedTime, StartRunTime)+23;  
 
 
 --DBMS_OUTPUT.PUT_LINE ( 'tLastDelete= ' || tLastDelete || ' tdeletable= ' || tdeletable|| '  trunning= ' ||  trunning  ||  '   << ' );
