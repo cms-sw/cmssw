@@ -20,6 +20,8 @@ class LumiInfo (object):
 
     lastSingleXingRun = 136175
     lumiSectionLength = 23.310779
+    minRun            = 0
+    maxRun            = 0
 
     def __init__ (self, line):
         self.totInstLum  = 0.
@@ -42,6 +44,9 @@ class LumiInfo (object):
             self.recorded  = float (pieces[3])
         except:
             raise RuntimeError, "Pieces not right format"
+        if LumiInfo.minRun and self.run < LumiInfo.minRun or \
+           LumiInfo.maxRun and self.run > LumiInfo.maxRun:
+            raise RuntimeError, "Run %d out of requested range" % self.run
         if size > 4:
             try:
                 for xing, lum in zip (pieces[4::2],pieces[5::2]):
@@ -247,6 +252,9 @@ def loadEvents (filename, cont, options):
                                int( pieces[eventIndex] )
         except:
             continue
+        if LumiInfo.minRun and run < LumiInfo.minRun or \
+           LumiInfo.maxRun and run > LumiInfo.maxRun:
+            continue
         key = (run, lumi)
         if not cont.has_key (key):
             if options.ignore:
@@ -430,6 +438,10 @@ if __name__ == '__main__':
     parser.add_option ('--predLabel', dest='predLabel', type='string',
                        default = 'Predicted',
                        help = 'label of predicted in legend')
+    parser.add_option ('--minRun', dest='minRun', type='int', default=0,
+                       help='Minimum run number to consider')
+    parser.add_option ('--maxRun', dest='maxRun', type='int', default=0,
+                       help='Maximum run number to consider')
     parser.add_option ('--weights', dest='weights', action='store_true',
                        help = 'Read fourth column as a weight')
     parser.add_option ('--print', dest='printValues', action='store_true',
@@ -454,6 +466,9 @@ if __name__ == '__main__':
 
     if len (args) != 3 and not (options.runsWithLumis and len(args) >= 1):
         raise RuntimeError, "Must provide lumi.csv, events.txt, and output.png"
+
+    LumiInfo.minRun = options.minRun
+    LumiInfo.maxRun = options.maxRun
 
     ##########################
     ## load Luminosity info ##
