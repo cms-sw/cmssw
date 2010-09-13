@@ -12,7 +12,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 #process.GlobalTag.globaltag = 'GR09_R_V5::All'
 #process.GlobalTag.globaltag = 'GR09_R_V6::All'
 # Global tag for 341
-process.GlobalTag.globaltag = 'GR_R_36X_V6::All'
+process.GlobalTag.globaltag = 'GR_R_38X_V9::All'
 
 
 # Add PF vertices from Maxime
@@ -25,21 +25,20 @@ process.GlobalTag.globaltag = 'GR_R_36X_V6::All'
 
 # Other statements
 
-    #####################################################################################################
-    ####
-    ####  Top level replaces for handling strange scenarios of early collisions
-    ####
+#####################################################################################################
+####
+####  Top level replaces for handling strange scenarios of early collisions
+####
 
 ## TRACKING:
 ## Skip events with HV off
 process.newSeedFromTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=2000
-process.newSeedFromPairs.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
+process.newSeedFromPairs.ClusterCheckPSet.MaxNumberOfCosmicClusters=20000
 process.secTriplets.ClusterCheckPSet.MaxNumberOfPixelClusters=2000
-process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 10000
-process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=10000
+process.fifthSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 20000
+process.fourthPLSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters=20000
 process.thTripletsA.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000
 process.thTripletsB.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000
-    
 
 ###### FIXES TRIPLETS FOR LARGE BS DISPLACEMENT ######
 
@@ -48,17 +47,17 @@ process.pixelVertices.useBeamConstraint = False
 
 ### pixelTracks
 #---- new parameters ----
-process.pixelTracks.RegionFactoryPSet.RegionPSet.nSigmaZ  = cms.double(4.06)
+process.pixelTracks.RegionFactoryPSet.RegionPSet.nSigmaZ  = 4.06
 process.pixelTracks.RegionFactoryPSet.RegionPSet.originHalfLength = cms.double(40.6)
 
 ### 0th step of iterative tracking
 #---- new parameters ----
-process.newSeedFromTriplets.RegionFactoryPSet.RegionPSet.nSigmaZ   = cms.double(4.06)
+process.newSeedFromTriplets.RegionFactoryPSet.RegionPSet.nSigmaZ   = cms.double(4.06)  
 process.newSeedFromTriplets.RegionFactoryPSet.RegionPSet.originHalfLength = 40.6
 
 ### 2nd step of iterative tracking
 #---- new parameters ----
-process.secTriplets.RegionFactoryPSet.RegionPSet.nSigmaZ  = cms.double(4.47)
+process.secTriplets.RegionFactoryPSet.RegionPSet.nSigmaZ  = cms.double(4.47)  
 process.secTriplets.RegionFactoryPSet.RegionPSet.originHalfLength = 44.7
 
 ## Primary Vertex
@@ -78,17 +77,10 @@ process.offlinePrimaryVertices.TkClusParameters.TkGapClusParameters.zSeparation 
 ## ECAL 
 process.ecalRecHit.ChannelStatusToBeExcluded = [ 1, 2, 3, 4, 8, 9, 10, 11, 12, 13, 14, 78, 142 ]
 
-##Preshower
-#process.ecalPreshowerRecHit.ESBaseline = 0
-
-##Preshower algo for data is different than for MC
-process.ecalPreshowerRecHit.ESRecoAlgo = cms.untracked.int32(1)
 
 ## HCAL temporary fixes
-process.hfreco.firstSample  = 3
 process.hfreco.samplesToAdd = 4
-process.hfreco.PETstat.short_R = cms.vdouble([0.8])
-
+    
 ## EGAMMA
 process.photons.minSCEtBarrel = 5.
 process.photons.minSCEtEndcap =5.
@@ -98,152 +90,48 @@ process.conversions.minSCEt =5.
 process.trackerOnlyConversions.rCut = 2.
 process.trackerOnlyConversions.vtxChi2 = 0.0005
 
+process.hfreco.firstSample=3
+
+## local tracker strip reconstruction
+#process.OutOfTime.TOBlateBP=0.071
+#process.OutOfTime.TIBlateBP=0.036
+
+## particle flow HF cleaning
+process.particleFlowRecHitHCAL.LongShortFibre_Cut = 30.
+process.particleFlowRecHitHCAL.ApplyTimeDPG = False
+process.particleFlowRecHitHCAL.ApplyPulseDPG = True
+process.particleFlowRecHitECAL.timing_Cleaning = True
+
+## HF cleaning for data only
+process.hcalRecAlgos.SeverityLevels[3].RecHitFlags.remove("HFDigiTime")
+process.hcalRecAlgos.SeverityLevels[4].RecHitFlags.append("HFDigiTime")
+    
 ###
 ###  end of top level replacements
 ###
 ###############################################################################################
-###############################################################################################
-# Get the run number from the RUN_NUMBER environment variable 
-#runNumber = os.environ['RUN_NUMBER']
-# or set it by hand
-#configFile = "PFAnalyses.PFCandidate.Sources.RD.source_MinimumBias_Mar30th_Run"+runNumber+"_cff"
-#process.load(configFile)
 
+# All events with PFMET > 30 GeV in JSON'ed runs (before or after cleaning)
+#process.load("PFAnalyses.PFCandidate.METSkim30_ReReco370_JSON_cff")
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-      #'file:highMET.root'
-      'rfio:/castor/cern.ch/user/p/pjanot/CMSSW356/METSkim_1.root',
-      'rfio:/castor/cern.ch/user/p/pjanot/CMSSW356/METSkim_2.root',
-      'rfio:/castor/cern.ch/user/p/pjanot/CMSSW356/METSkim_3.root',
-      'rfio:/castor/cern.ch/user/p/pjanot/CMSSW356/METSkim_4.root',
-      'rfio:/castor/cern.ch/user/p/pjanot/CMSSW356/METSkim_5.root',
-      'rfio:/castor/cern.ch/user/p/pjanot/CMSSW356/METSkim_6.root',
-      'rfio:/castor/cern.ch/user/p/pjanot/CMSSW356/METSkim_7.root',
-      'rfio:/castor/cern.ch/user/p/pjanot/CMSSW356/METSkim_8.root',
-      'rfio:/castor/cern.ch/user/p/pjanot/CMSSW356/METSkim_9.root',
-      'rfio:/castor/cern.ch/user/p/pjanot/CMSSW356/METSkim_10.root'
-      ),
-    #eventsToProcess = cms.untracked.VEventRange('1:195-1:200'),
-    secondaryFileNames = cms.untracked.vstring(),
-    noEventSort = cms.untracked.bool(True),
-    duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
-)
-
-
-process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange(
-	'132440:157-132440:378',
-	'132596:382-132596:382',
-	'132596:447-132596:447',
-	'132598:174-132598:176',
-	'132599:1-132599:379',
-	'132599:381-132599:437',
-	'132601:1-132601:207',
-	'132601:209-132601:259',
-	'132601:261-132601:1107',
-	'132602:1-132602:70',
-	'132605:1-132605:444',
-	'132605:446-132605:522',
-	'132605:526-132605:622',
-	'132605:624-132605:814',
-	'132605:816-132605:829',
-	'132605:831-132605:867',
-	'132605:896-132605:942',
-	'132606:1-132606:26',
-	'132656:1-132656:111',
-	'132658:1-132658:51',
-	'132658:56-132658:120',
-	'132658:127-132658:148',
-	'132659:1-132659:76',
-	'132661:1-132661:116',
-	'132662:1-132662:9',
-	'132662:25-132662:74',
-	'132716:220-132716:436',
-	'132716:440-132716:487',
-	'132716:491-132716:586',
-	'132959:326-132959:334',
-	'132960:1-132960:124',
-	'132961:1-132961:222',
-	'132961:226-132961:230',
-	'132961:237-132961:381',
-	'132965:1-132965:68',
-	'132968:1-132968:67',
-	'132968:75-132968:169',
-	'133029:101-133029:115',
-	'133029:129-133029:332',
-	'133031:1-133031:18',
-	'133034:132-133034:287',
-	'133035:1-133035:63',
-	'133035:67-133035:302',
-	'133036:1-133036:222',
-	'133046:1-133046:43',
-	'133046:45-133046:210',
-	'133046:213-133046:227',
-	'133046:229-133046:323',
-	'133158:65-133158:786',
-	#'133321:1-133321:383', !Bad run
-	#'133446:105-133446:266', !Bad Run
-	'133448:1-133448:484',
-	'133450:1-133450:329',
-	'133450:332-133450:658',
-	'133474:1-133474:95',
-	'133483:94-133483:159',
-	'133483:161-133483:591',
-	'133874:166-133874:297',
-	'133874:299-133874:721',
-	'133874:724-133874:814',
-	'133874:817-133874:864',
-	'133875:1-133875:20',
-	'133875:22-133875:37',
-	'133876:1-133876:315',
-	'133877:1-133877:77',
-	'133877:82-133877:104',
-	'133877:113-133877:231',
-	'133877:236-133877:294',
-	'133877:297-133877:437',
-	'133877:439-133877:622',
-	'133877:624-133877:853',
-	'133877:857-133877:1472',
-	'133877:1474-133877:1640',
-	'133877:1643-133877:1931',
-	'133881:1-133881:71',
-	'133881:74-133881:223',
-	'133881:225-133881:551',
-	'133885:1-133885:132',
-	'133885:134-133885:728',
-	'133927:1-133927:44',
-	'133928:1-133928:645'
-        )
-
-# Input : Run 123596
-#process.load("PFAnalyses.PFCandidate.Sources.RD.source_MinimumBias_ReReco_Feb9th_336p3_Run123596_cff")
-
-# The proper luminosity sections
-#process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange(
-#    '123596:2-123596:9999',   # OK 
-#    '123615:70-123615:9999',  # OK 
-#    '123732:62-123732:9999',  # 62 -9999 (Pixel off in 56-61)
-#    '123815:8-123815:9999',   # 8 - 9999 ( why not 7 ?)
-#    '123818:2-123818:42',     # OK 
-#    '123908:2-123908:12',     # 2 - 12 (why not 13 ?)
-#    '124008:1-124008:1',      # OK 
-#    '124009:1-124009:68',     # OK 
-#    '124020:12-124020:94',    # OK 
-#    '124022:66-124022:179',   # OK 
-#    '124023:38-124023:9999',  # OK 
-#    '124024:2-124024:83',     # OK
-#    '124025:5-124025:13',     # 5 - 13 (why not 3 & 4 ?)
-#    '124027:24-124027:9999',  # OK 
-#    '124030:2-124030:9999',   # 2 - 9999 ( why not 1 ?)
-#    '124120:1-124120:9999',   # OK 
-#    '124275:3-124275:30'
-#    )
-
-#process.source.inputCommands = cms.untracked.vstring(
-#    "keep *",
-#    "drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap__HLT", 
-#    "drop edmErrorSummaryEntrys_logErrorHarvester__RECO"
-#)
+      #'file:Holger_EM_1.root',
+      #'file:Holger_EM_2.root',
+      #'file:Holger_JM_1.root',
+      #'file:Holger_MM_1.root',
+      'file:Holger_GM_1.root',
+      'file:Holger_GM_2.root',
+      'file:Holger_GM_3.root',
+      'file:Holger_GM_4.root'
+      #'file:roecker_1.root',
+      #'file:roecker_2.root',
+      #'file:roecker_3.root',
+      )
+    )
+process.source.secondaryFileNames = cms.untracked.vstring()
+process.source.noEventSort = cms.untracked.bool(True)
+process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 
 # Number of events
 process.maxEvents = cms.untracked.PSet(
@@ -263,6 +151,9 @@ process.scrapping = cms.EDFilter("FilterOutScraping",
                                 thresh = cms.untracked.double(0.25)
                                 )
 
+process.load('CommonTools/RecoAlgos/HBHENoiseFilter_cfi')
+#process.HBHENoiseFilter.maxRBXEMF = cms.double(0.01)
+
 #process.tkHVON = cms.EDFilter("PhysDecl",
 #                              applyFilter=cms.untracked.bool(True)
 #                              )
@@ -274,16 +165,25 @@ process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 process.load("RecoParticleFlow.Configuration.ReDisplay_EventContent_cff")
 process.display = cms.OutputModule("PoolOutputModule",
     process.DisplayEventContent,
-    fileName = cms.untracked.string('display_METSkim.root')
+    fileName = cms.untracked.string('display_Holger_GM_2.root'),
+    #fileName = cms.untracked.string('display_roecker.root'),
+    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('p'))
 )
 
-
+process.load("Configuration.EventContent.EventContent_cff")
+process.rereco = cms.OutputModule("PoolOutputModule",
+    process.RECOSIMEventContent,
+    #fileName = cms.untracked.string('NoFilter_METSkimPFClean30.root')
+    fileName = cms.untracked.string('reco.root'),
+    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('p'))
+)
 
 # Maxime !!!@$#^%$^%#@
 #process.particleFlowDisplacedVertexCandidate.verbose = False
 #process.particleFlowDisplacedVertex.verbose = False
 
 # Local re-reco: Produce tracker rechits, pf rechits and pf clusters
+process.towerMakerPF.HcalAcceptSeverityLevel = 9
 process.localReReco = cms.Sequence(process.siPixelRecHits+
                                    process.siStripMatchedRecHits+
                                    process.particleFlowCluster)
@@ -340,6 +240,7 @@ process.genReReco = cms.Sequence(process.generator+
 process.p = cms.Path(#process.hltLevel1GTSeed+
                      #process.bxSelect+
                      process.scrapping+
+                     process.HBHENoiseFilter+
                      #process.tkHVON+
                      process.localReReco+
                      process.globalReReco+
@@ -350,6 +251,8 @@ process.p = cms.Path(#process.hltLevel1GTSeed+
 # And the output.
 # Write out only filtered events
 process.display.SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('p') )
+process.rereco.SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('p') )
+#process.outpath = cms.EndPath(process.rereco+process.display)
 process.outpath = cms.EndPath(process.display)
 
 
@@ -362,7 +265,7 @@ process.schedule = cms.Schedule(
 # And the logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.options = cms.untracked.PSet(
-    fileMode = cms.untracked.string('NOMERGE'),
+    #fileMode = cms.untracked.string('NOMERGE'),
     makeTriggerResults = cms.untracked.bool(True),
     wantSummary = cms.untracked.bool(True),
     Rethrow = cms.untracked.vstring('Unknown', 
@@ -385,5 +288,5 @@ process.options = cms.untracked.PSet(
         'NotFound')
 )
 
-process.MessageLogger.cerr.FwkReport.reportEvery = 100
+process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
