@@ -4,8 +4,8 @@
 /*
  * \file DQMEventInfo.h
  *
- * $Date: 2010/07/01 22:02:12 $
- * $Revision: 1.15 $
+ * $Date: 2010/07/02 13:10:07 $
+ * $Revision: 1.16 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -54,7 +54,6 @@ private:
   DQMStore *dbe_;
 
   edm::ParameterSet parameters_;
-  std::string nameProcess_;
   std::string eventInfoFolder_;
   
 //  timeval currentTime_, lastUpdateTime_, lastAvgTime_;
