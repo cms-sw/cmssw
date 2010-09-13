@@ -371,7 +371,7 @@ EMShower::compute() {
 	nS = ( theNumberOfSpots[i] * gam(bSpot[i]*tt,aSpot[i]) 
 	       * bSpot[i] * dt 
 	       / tgamma(aSpot[i]))* theHCAL->spotFraction();
-	double nSo = nS ;
+	//	double nSo = nS ;
 	
  	nS = random->poissonShoot(nS);
 
