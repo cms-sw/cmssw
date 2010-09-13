@@ -139,9 +139,9 @@ void ParametrizedSubtractor::subtractPedestal(vector<fastjet::PseudoJet> & coll)
       input_object->set_user_index(index);
       if(etnew > 0. && dropZeroTowers_) newcoll.push_back(*input_object);
    }
-   }
-
    if(dropZeroTowers_) coll = newcoll;
+
+   }
 }
 
 
