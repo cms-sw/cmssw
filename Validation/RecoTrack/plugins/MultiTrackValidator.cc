@@ -325,7 +325,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       edm::Handle<edm::ValueMap<reco::DeDxData> > dEdx2Handle;
       std::vector<edm::ValueMap<reco::DeDxData> > v_dEdx;
       v_dEdx.clear();
-      std::cout << "PIPPO: label is " << label[www] << std::endl;
+      //std::cout << "PIPPO: label is " << label[www] << std::endl;
       if (label[www].label()=="generalTracks") {
 	try {
 	  event.getByLabel(m_dEdx1Tag, dEdx1Handle);
