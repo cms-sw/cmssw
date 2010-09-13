@@ -81,8 +81,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2010/08/31 13:03:02 $ 
- **  $Revision: 1.58 $
+ **  $Date: 2010/08/31 13:07:39 $ 
+ **  $Revision: 1.59 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -2072,15 +2072,10 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	  }
 	  
 	  
-	  float totP = sqrt(px*px +py*py + pz*pz);
-	  float invM=  (e + totP) * (e-totP) ;
-	  if ( invM> 0.) {
-	    invM= sqrt( invM);
-	  } else {
-	    invM=-1;
-	  }
 	  
 	  type=0;
+	  float totP = sqrt(px*px +py*py + pz*pz);
+          float invM = aConv->pairInvariantMass();
 	  h_invMass_[type][0] ->Fill( invM);
 	  if ( phoIsInBarrel ) h_invMass_[type][1] ->Fill(invM);
 	  if ( phoIsInEndcap ) h_invMass_[type][2] ->Fill(invM);
