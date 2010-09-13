@@ -833,46 +833,37 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      
      const  std::string process = triggerCollectionTag_.process();
      //
-     std::string  HLTPath[18];
-     HLTPath[0 ] = "HLT_Photon10_L1R"      ;
-     HLTPath[1 ] = "HLT_Photon15_L1R"      ;
-     HLTPath[2 ] = "HLT_Photon20_L1R"      ;
-     HLTPath[3 ] = "HLT_Photon15_TrackIso_L1R";
-     HLTPath[4 ] = "HLT_Photon15_LooseEcalIso_L1R";
-     HLTPath[5 ] = "HLT_Photon30_L1R_8E29" ;
-     HLTPath[6 ] = "HLT_Photon30_L1R_8E29" ;
-     HLTPath[7 ] = "HLT_Ele10_LW_L1R"      ;
-     HLTPath[8 ] = "HLT_Ele15_LW_L1R"      ;
-     HLTPath[9 ] = "HLT_Ele20_LW_L1R"      ;
-     HLTPath[10] = "HLT_Ele10_LW_EleId_L1R";
-     HLTPath[11] = "HLT_Ele15_SiStrip_L1R" ;
-     HLTPath[12] = "HLT_IsoTrackHB_8E29"   ;
-     HLTPath[13] = "HLT_IsoTrackHE_8E29"   ;
-     HLTPath[14] = "HLT_DiJetAve15U_8E29"  ;
-     HLTPath[15] = "HLT_MET45"             ;
-     HLTPath[16] = "HLT_L1MET20"           ;
-     HLTPath[17] = "HLT_MET100"            ;
-     //	      
-     edm::InputTag HLTFilterType[15];
-     HLTFilterType[0 ]= edm::InputTag("hltL1NonIsoHLTNonIsoSinglePhotonEt10HcalIsolFilter","",process);    // HLT_Photon10_L1R
-     HLTFilterType[1 ]= edm::InputTag("hltL1NonIsoHLTNonIsoSinglePhotonEt15HcalIsolFilter" ,"",process);   // HLT_Photon15_L1R
-     HLTFilterType[2 ]= edm::InputTag("hltL1NonIsoHLTNonIsoSinglePhotonEt20HcalIsolFilter" ,"",process);   // HLT_Photon20_L1R
-     HLTFilterType[3 ]= edm::InputTag("hltL1NonIsoSinglePhotonEt15HTITrackIsolFilter","",process);         // HLT_Photon15_TrackIso_L1R
-     HLTFilterType[4 ]= edm::InputTag("hltL1NonIsoSinglePhotonEt15LEIHcalIsolFilter","",process);          // HLT_Photon15_LooseEcalIso_L1R
-     HLTFilterType[5 ]= edm::InputTag("hltL1NonIsoHLTNonIsoSinglePhotonEt15EtFilterESet308E29","",process);// HLT_Photon30_L1R_8E29
-     HLTFilterType[6 ]= edm::InputTag("hltL1NonIsoHLTNonIsoSinglePhotonEt15HcalIsolFilter","",process);    // HLT_Photon30_L1R_8E29
-     HLTFilterType[7 ]= edm::InputTag("hltL1NonIsoHLTNonIsoSingleElectronLWEt10PixelMatchFilter","",process); 
-     HLTFilterType[8 ]= edm::InputTag("hltL1NonIsoHLTNonIsoSingleElectronLWEt15PixelMatchFilter","",process);
-     HLTFilterType[9 ]= edm::InputTag("hltL1NonIsoHLTNonIsoSingleElectronLWEt15EtFilterESet20","",process);
-     HLTFilterType[10]= edm::InputTag("hltL1NonIsoHLTNonIsoSingleElectronLWEt10EleIdDphiFilter","",process);
-     HLTFilterType[11]= edm::InputTag("hltL1NonIsoHLTNonIsoSingleElectronSiStripEt15PixelMatchFilter","",process);
-     HLTFilterType[12]= edm::InputTag("hltIsolPixelTrackL3FilterHB8E29","",process);
-     HLTFilterType[13]= edm::InputTag("hltIsolPixelTrackL2FilterHE8E29","",process);
-     HLTFilterType[14]= edm::InputTag("hltL1sDiJetAve15U8E29","",process);
+     std::string  HLTPath[12];
+     HLTPath[0] = "HLT_Photon10_L1R"           ;
+     HLTPath[1] = "HLT_Photon15_L1R"           ;
+     HLTPath[2] = "HLT_Photon20_L1R"           ;
+     HLTPath[3] = "HLT_Ele10_LW_L1R"           ;
+     HLTPath[4] = "HLT_Ele15_LW_L1R"           ;
+     HLTPath[5] = "HLT_Ele20_LW_L1R"           ;
+     HLTPath[6] = "HLT_Photon15_Cleaned_L1R"   ;
+     HLTPath[7] = "HLT_Ele15_SW_L1R"           ;
+     HLTPath[8] = "HLT_Ele15_SW_CaloEleId_L1R" ;
+     HLTPath[9] = "HLT_Ele15_SW_EleId_L1R"     ;
+     HLTPath[10]= "HLT_Ele17_SW_CaloEleId_L1R" ; 
+     HLTPath[11]= "HLT_Ele17_SW_LooseEleId_L1R"; 
+     //	      HLT_Ele17_SW_CaloEleId_L1R   HLT_Ele17_SW_LooseEleId_L1R
+     edm::InputTag HLTFilterType[12];
+     HLTFilterType[0]= edm::InputTag("hltL1NonIsoHLTNonIsoSinglePhotonEt10HcalIsolFilter","",process);    // HLT_Photon10_L1R
+     HLTFilterType[1]= edm::InputTag("hltL1NonIsoHLTNonIsoSinglePhotonEt15HcalIsolFilter" ,"",process);   // HLT_Photon15_L1R
+     HLTFilterType[2]= edm::InputTag("hltL1NonIsoHLTNonIsoSinglePhotonEt20HcalIsolFilter" ,"",process);   // HLT_Photon20_L1R
+     HLTFilterType[3]= edm::InputTag("hltL1NonIsoHLTNonIsoSingleElectronLWEt10PixelMatchFilter","",process); 
+     HLTFilterType[4]= edm::InputTag("hltL1NonIsoHLTNonIsoSingleElectronLWEt15PixelMatchFilter","",process);
+     HLTFilterType[5]= edm::InputTag("hltL1NonIsoHLTNonIsoSingleElectronLWEt15EtFilterESet20","",process);
+     HLTFilterType[6]= edm::InputTag("hltL1NonIsoHLTNonIsoSinglePhotonEt15CleanedHcalIsolFilter","",process);
+     HLTFilterType[7]= edm::InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15PixelMatchFilter","",process); // HLT_Ele15_SW_L1R
+     HLTFilterType[8]= edm::InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15CaloEleIdPixelMatchFilter","",process);
+     HLTFilterType[9]= edm::InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt15EleIdDphiFilter","",process);
+     HLTFilterType[10]=edm::InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt17CaloEleIdPixelMatchFilter","",process);
+     HLTFilterType[11]=edm::InputTag("hltL1NonIsoHLTNonIsoSingleElectronEt17LEleIdDphiFilter","",process);
      //		      
      Int_t triggerDecision =0;
      UInt_t trigger_size = HLTResults->size();
-     for (Int_t i=0; i<18; ++i) {
+     for (Int_t i=0; i<12; ++i) {
        const edm::TriggerNames & triggerNames = iEvent.triggerNames(*HLTResults);
        UInt_t trigger_position = triggerNames.triggerIndex(HLTPath[i]);
        Int_t  passTrigger = 0;
@@ -880,12 +871,9 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 passTrigger = (Int_t) HLTResults->accept(trigger_position);
        }
        if (passTrigger >0) {
-	 if (i>=15) {triggerDecision += Int_t(TMath::Power(2,i));}
-	 else {
-	   const Int_t myfilterInd = pHLT->filterIndex(HLTFilterType[i]);
-	   if (myfilterInd != nF) {
-	     triggerDecision +=  Int_t(TMath::Power(2,i));
-	   }
+	 const Int_t myfilterInd = pHLT->filterIndex(HLTFilterType[i]);
+	 if (myfilterInd != nF) {
+	   triggerDecision +=  Int_t(TMath::Power(2,i));
 	 }
        }
      }
