@@ -205,7 +205,7 @@ CmsShowMainBase::setup(FWNavigatorBase *navigator,
    m_configurationManager->add("EventItems",m_eiManager.get());
    m_configurationManager->add("GUI",m_guiManager.get());
    m_configurationManager->add("EventNavigator", m_navigatorPtr);
-   m_configurationManager->add("CommonPreferences", m_contextPtr->commonPrefs());
+   m_configurationManager->add("Preferences", m_contextPtr->commonPrefs()); // must be after GUIManager in alphabetical order
    m_guiManager->writeToConfigurationFile_.connect(boost::bind(&FWConfigurationManager::writeToFile,
                                                                m_configurationManager.get(),_1));
    m_guiManager->loadFromConfigurationFile_.connect(boost::bind(&CmsShowMainBase::reloadConfiguration,
