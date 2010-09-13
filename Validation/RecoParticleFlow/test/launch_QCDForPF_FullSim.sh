@@ -1,10 +1,10 @@
 
 #!/bin/sh
 
-castorDir=/castor/cern.ch/user/p/pjanot/CMSSW370pre4/
+castorDir=/castor/cern.ch/user/p/pjanot/CMSSW380/
 cmsswDir=$CMSSW_BASE/src
 
-for ((job=0;job<90;job++));
+for ((job=0;job<150;job++));
   do
   echo "JOB "$job
   name="QCDForPF_Full_"${job}

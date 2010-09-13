@@ -1,9 +1,9 @@
 #!/bin/sh
 
-castorDir=/castor/cern.ch/user/p/pjanot/CMSSW370pre4/
-cmsswDir=/afs/cern.ch/user/p/pjanot/scratch0/CMSSW_3_7_0_pre4/src
+castorDir=/castor/cern.ch/user/p/pjanot/CMSSW380/
+cmsswDir=/afs/cern.ch/user/p/pjanot/scratch0/CMSSW_3_8_0/src
 
-for ((job=0;job<=10;job++));
+for ((job=0;job<=15;job++));
   do
   echo "JOB "$job
   name="QCDForPF_Fast_"${job}
