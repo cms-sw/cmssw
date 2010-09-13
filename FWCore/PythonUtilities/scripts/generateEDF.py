@@ -303,8 +303,9 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
     predVals   = [0]
     weight = 0
     if 'time' == options.edfMode:
-        # put on first point
+        # fix first point
         xVals[0] = lumiCont.recLumOffset
+        # loop over events
         for key, eventList in sorted( eventsDict.iteritems() ):
             for event in eventList:
                 weight += event[1]
@@ -315,8 +316,8 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
                     raise RuntimeError, "key %s not found in lumi information" \
                           % key.__str__()
                 lumFrac = intLum / lumiCont.totalRecLum
-                #xVals.append( lumiCont[key].totalRecordedWithOffset() )
-                xVals.append( lumiCont[key].totalRecorded + lumiCont.recLumOffset)
+                xVals.append( lumiCont[key].totalRecorded +
+                              lumiCont.recLumOffset)
                 yVals.append (factor)
                 theoryVals.append (lumFrac)
                 predVals.append   (lumFrac * options.pred)
