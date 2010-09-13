@@ -11,6 +11,8 @@ def findFileTrueName(filename):
     truename=filename
     if os.path.islink(filename):
         truename=os.path.realpath(filename)
+    else:
+        print '[WARNING] ',filename,' is not a link'
     return truename
 def createRunList(c,p='.',o='.',dryrun=False):
     '''
@@ -342,6 +344,7 @@ def main():
             print 'file: '+args.ifile+' does not exist'
             return 4
         truefilename=findFileTrueName(args.ifile)
+        print 'truefilename ',truefilename
         #
         #if truefilename modification time is more recent than the output plot, replot it
         #
