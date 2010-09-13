@@ -62,6 +62,15 @@ fi
 # validated yet.
 #==============================================================================
 
+#==============================================================================
+# Set up environment
+#==============================================================================
+
+#cd ~zrwan/CMSSW_3_5_0/cronjob
+cd /nfshome0/popcondev/L1Job/${release}/validate-l1Key
+source /nfshome0/cmssw2/scripts/setup.sh
+eval `scramv1 run -sh`
+
 #next=`~zrwan/CMSSW_3_5_0/cronjob/getNext.sh ${lastCreationDate}`
 next=`$CMSSW_BASE/src/CondTools/L1Trigger/scripts/getNextTscKeyByTimestamp.sh ${lastCreationDate}`
 
@@ -83,15 +92,6 @@ fi
 echo "`date` : validate-l1Key.sh" >> ${logFile}
 echo "creation_date = ${creation_date}" >> ${logFile}
 echo "tsc_key = ${tsc_key}" >> ${logFile}
-
-#==============================================================================
-# Set up environment
-#==============================================================================
-
-#cd ~zrwan/CMSSW_3_5_0/cronjob
-cd /nfshome0/popcondev/L1Job/${release}/validate-l1Key
-source /nfshome0/cmssw2/scripts/setup.sh
-eval `scramv1 run -sh`
 
 #==============================================================================
 # 1. Copy conditions for a given TSC key from online database to a sqlite file
