@@ -29,7 +29,7 @@ version=007
 
 echo "`date` : o2o-setIOV-l1Key-slc5.sh $run $l1Key" | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
 
-ping -c 3 cmsnfshome0 | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
+#ping -c 3 cmsnfshome0 | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
 
 if [ $# -lt 2 ]
     then
@@ -46,7 +46,8 @@ eval `scramv1 run -sh`
 # Check for semaphore file
 if [ -f o2o-setIOV.lock ]
     then
-    echo "$0 already running.  Aborting process."
+    echo "$0 already running.  Aborting process."  | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
+    tail -2 /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log >> /nfshome0/popcondev/L1Job/o2o.summary
     exit 50
 else
     touch o2o-setIOV.lock
@@ -79,6 +80,7 @@ if [ ${nflag} -eq 0 ]
 fi
 
 tail -1 /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log >> /nfshome0/popcondev/L1Job/o2o.summary
+#tail -9 /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log >> /nfshome0/popcondev/L1Job/o2o.summary
 cat tmp.log | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
 
 # log TSC key and RS keys
