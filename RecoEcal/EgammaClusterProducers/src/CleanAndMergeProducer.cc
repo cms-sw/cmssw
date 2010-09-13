@@ -118,7 +118,7 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
   if (!(rhcHandle.isValid())) 
     {
       if (debugL <= HybridClusterAlgo::pINFO)
-	std::cout << "could not get a handle on the EcalRecHitCollection!" << std::endl;
+	edm::LogInfo("Product not Found") << "could not get a handle on the EcalRecHitCollection!" ;
       return;
     }
   const EcalRecHitCollection *hit_collection = rhcHandle.product();
@@ -156,7 +156,7 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
   if (!(pCleanBC.isValid())) 
     {
       if (debugL <= HybridClusterAlgo::pINFO)
-	std::cout << "could not get a handle on the clean Basic Clusters!" << std::endl;
+	edm::LogInfo("Product Not Found") << "could not get a handle on the clean Basic Clusters!";
       return;
     }
   const  reco::BasicClusterCollection cleanBS = *(pCleanBC.product());
@@ -165,7 +165,7 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
   if (!(pCleanSC.isValid())) 
     {
       if (debugL <= HybridClusterAlgo::pINFO)
-	std::cout << "could not get a handle on the clean Super Clusters!" << std::endl;
+	edm::LogInfo("Product Not Found")<< "could not get a handle on the clean Super Clusters!";
       return;
     }
   const  reco::SuperClusterCollection cleanSC = *(pCleanSC.product());
@@ -176,7 +176,7 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
   if (!(pUncleanBC.isValid())) 
     {
       if (debugL <= HybridClusterAlgo::pINFO)
-	std::cout << "could not get a handle on the unclean Basic Clusters!" << std::endl;
+	edm::LogInfo("Product Not Found")<< "could not get a handle on the unclean Basic Clusters!";
       return;
     }
   const  reco::BasicClusterCollection uncleanBC = *(pUncleanBC.product());
@@ -185,7 +185,7 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
   if (!(pUncleanSC.isValid())) 
     {
       if (debugL <= HybridClusterAlgo::pINFO)
-	std::cout << "could not get a handle on the unclean Super Clusters!" << std::endl;
+	edm::LogInfo("Product Not Found")<< "could not get a handle on the unclean Super Clusters!";
       return;
     }
   const  reco::SuperClusterCollection uncleanSC = *(pUncleanSC.product());
@@ -289,8 +289,9 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
   }
   int bcSize = (int) basicClusters.size();
   if (debugL == HybridClusterAlgo::pDEBUG)
-    std::cout << "Found cleaned SC: " << cleanSize <<  " uncleaned SC: " << uncleanSize << " from which "
-	      << scRefs->size() << " will become refs to the cleaned collection" << std::endl;
+    LogDebug("Cleaning") << "Found cleaned SC: " << cleanSize <<  " uncleaned SC: " 
+			 << uncleanSize << " from which " << scRefs->size() 
+			 << " will become refs to the cleaned collection" ;
   // the cluster shapes
   //
 
@@ -316,12 +317,12 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
     evt.put(basicClusters_p, bcCollection_);
   if (!(bccHandle.isValid())) {
     if (debugL <= HybridClusterAlgo::pINFO)
-      std::cout << "could not get a handle on the BasicClusterCollection!" << std::endl;
+      edm::LogInfo("Product not Found")<<"could not get a handle on the BasicClusterCollection!" << std::endl;
     return;
   }
   reco::BasicClusterCollection basicClustersProd = *bccHandle;
   if (debugL == HybridClusterAlgo::pDEBUG)
-    std::cout << "Got the BasicClusters from the event again" << std::endl;
+    LogDebug("Cleaning")<< "Got the BasicClusters from the event again";
   // now you have to create again your superclusters
   // you run over the uncleaned SC, but now you know which of them are
   // the ones that are needed and which are their basic clusters
@@ -370,7 +371,7 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
   evt.put(clShapeAssoc_p, clShapeAssoc_);
 
   if (debugL == HybridClusterAlgo::pDEBUG)
-    std::cout << "Hybrid Clusters (Basic/Super) added to the Event! :-)" << std::endl;
+    LogDebug("Cleaning")<< "Hybrid Clusters (Basic/Super) added to the Event! :-)";
 
 
 }
