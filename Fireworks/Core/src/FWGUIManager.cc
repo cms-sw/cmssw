@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.216 2010/09/10 20:34:05 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.217 2010/09/13 13:10:45 amraktad Exp $
 
 //
 
@@ -1324,8 +1324,7 @@ FWGUIManager::updateEventFilterEnable(bool btnEnabled)
 void
 FWGUIManager::measureWMOffsets()
 {
-  Int_t x = 100, y = 100;
-  
+  const Int_t x = 100, y = 100;
 
   TGMainFrame *mf1 = new TGMainFrame(0, 0, 0);
   mf1->MapWindow();
@@ -1352,4 +1351,10 @@ FWGUIManager::measureWMOffsets()
                                  x, y, xm, ym, m_WMOffsetX, m_WMOffsetY, m_WMDecorH);
   }
   delete mf1;
+}
+
+void
+FWGUIManager::resetWMOffsets()
+{
+   m_WMOffsetX = m_WMOffsetY = m_WMDecorH = 0;
 }

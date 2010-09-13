@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.180 2010/09/02 18:10:10 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.181 2010/09/03 15:21:59 amraktad Exp $
 //
 
 // system include files
@@ -99,6 +99,7 @@ static const char* const kFieldCommandOpt = "field";
 static const char* const kFreePaletteCommandOpt = "free-palette";
 static const char* const kAutoSaveAllViews = "auto-save-all-views";
 static const char* const kEnableFPE        = "enable-fpe";
+static const char* const kZeroWinOffsets   = "zero-window-offsets";
 
 
 //
@@ -164,6 +165,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
          (kFieldCommandOpt, po::value<double>(),             "Set magnetic field value explicitly. Default is auto-field estimation")
          (kFreePaletteCommandOpt,                            "Allow free color selection (requires special configuration!)")
          (kAutoSaveAllViews, po::value<std::string>(),       "Auto-save all views with given prefix (run_event_lumi_view.png is appended)")
+         (kZeroWinOffsets,                                   "Disable auto-detection of window position offsets.")
          (kHelpCommandOpt,                                   "Display help message");
       po::positional_options_description p;
       p.add(kInputFilesOpt, -1);
@@ -248,6 +250,12 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       TEveManager::Create(kFALSE, "FIV");
 
       setup(m_navigator.get(), m_context.get(), m_metadataManager.get());
+
+      if (vm.count(kZeroWinOffsets))
+      {
+         guiManager()->resetWMOffsets();
+         fwLog(fwlog::kInfo) << "Window offsets reset on user request!\n";
+      }
 
       if ( vm.count(kAdvancedRenderOpt) ) 
       {

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.109 2010/09/03 15:32:39 matevz Exp $
+// $Id: FWGUIManager.h,v 1.110 2010/09/10 20:34:04 amraktad Exp $
 //
 
 // system include files
@@ -196,7 +196,9 @@ public:
    
    CmsShowMainFrame* getMainFrame() const { return m_cmsShowMainFrame; }
    const edm::EventBase* getCurrentEvent() const;
-   
+
+   void resetWMOffsets();
+
    // signals
    sigc::signal<void> filterButtonClicked_;
    sigc::signal<void, const TGWindow*> showEventFilterGUI_;
