@@ -45,6 +45,9 @@ multiTrackValidator = cms.EDAnalyzer(
     label = cms.VInputTag(cms.InputTag("generalTracks")),
     beamSpot = cms.InputTag("offlineBeamSpot"),
 
+    ### dE/dx configuration ###
+    dEdx1Tag = cms.InputTag("dedxHarmonic2"),
+    dEdx2Tag = cms.InputTag("dedxTruncated40"),
     
     ### output configuration
     dirName = cms.string('Tracking/Track/'),

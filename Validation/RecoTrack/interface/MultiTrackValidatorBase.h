@@ -4,8 +4,8 @@
 /** \class MultiTrackValidatorBase
  *  Base class for analyzers that produces histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2010/02/01 10:33:41 $
- *  $Revision: 1.26 $
+ *  $Date: 2010/03/23 16:33:29 $
+ *  $Revision: 1.27 $
  *  \author cerati
  */
 
@@ -61,6 +61,8 @@ class MultiTrackValidatorBase {
 
   std::string out;
 
+  edm::InputTag m_dEdx1Tag;
+  edm::InputTag m_dEdx2Tag;
 
   edm::ESHandle<MagneticField> theMF;
   std::vector<const TrackAssociatorBase*> associator;

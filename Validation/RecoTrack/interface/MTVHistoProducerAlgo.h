@@ -16,6 +16,9 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
+#include "DataFormats/TrackReco/interface/DeDxData.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+
 #include <TH1F.h>
 #include <TH2F.h>
 
@@ -44,6 +47,9 @@ class MTVHistoProducerAlgo{
 					     const reco::Track& track,
 					     math::XYZPoint bsPosition,
 					     bool isMatched)=0;
+
+  virtual void fill_dedx_recoTrack_histos(int count, edm::RefToBase<reco::Track>& trackref, std::vector< edm::ValueMap<reco::DeDxData> > v_dEdx)=0;
+  //  virtual void fill_dedx_recoTrack_histos(reco::TrackRef trackref, std::vector< edm::ValueMap<reco::DeDxData> > v_dEdx)=0;
 
   virtual void fill_simAssociated_recoTrack_histos(int count,
 						   const reco::Track& track)=0;

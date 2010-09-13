@@ -47,6 +47,8 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 				     math::XYZPoint bsPosition,
 				     bool isMatched);
 
+  void fill_dedx_recoTrack_histos(int count, edm::RefToBase<reco::Track>& trackref, std::vector< edm::ValueMap<reco::DeDxData> > v_dEdx);
+  //  void fill_dedx_recoTrack_histos(reco::TrackRef trackref, std::vector< edm::ValueMap<reco::DeDxData> > v_dEdx);
 
   void fill_simAssociated_recoTrack_histos(int count,
 					   const reco::Track& track);
@@ -101,6 +103,7 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   double minDz, maxDz;  int nintDz;
   double minVertpos, maxVertpos;  int nintVertpos;
   double minZpos, maxZpos;  int nintZpos;
+  double minDeDx, maxDeDx;  int nintDeDx;
 
   //
   double ptRes_rangeMin,ptRes_rangeMax; int ptRes_nbin;
@@ -123,6 +126,15 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   std::vector<MonitorElement*> h_effic_vs_dz, h_fake_vs_dz, h_recodz, h_assocdz, h_assoc2dz, h_simuldz;
   std::vector<MonitorElement*> h_effic_vs_vertpos, h_effic_vs_zpos, h_assocvertpos, h_simulvertpos, h_assoczpos, h_simulzpos;
   std::vector<MonitorElement*> h_pt, h_eta, h_pullTheta,h_pullPhi,h_pullDxy,h_pullDz,h_pullQoverp;
+
+  // dE/dx
+  // in the future these might become an array
+  std::vector<MonitorElement*> h_dedx_estim1;
+  std::vector<MonitorElement*> h_dedx_estim2;
+  std::vector<MonitorElement*> h_dedx_nom1;
+  std::vector<MonitorElement*> h_dedx_nom2;
+  std::vector<MonitorElement*> h_dedx_sat1;
+  std::vector<MonitorElement*> h_dedx_sat2;
   
   //2D  
   std::vector<MonitorElement*> nrec_vs_nsim;

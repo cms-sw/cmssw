@@ -715,6 +715,48 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    l->Draw();
    canvas->Print("building3.pdf");   
    delete l;
+
+   //===== dE/dx
+   rdir->GetObject(collname1+"/h_dedx_estim1",rh1);
+   sdir->GetObject(collname2+"/h_dedx_estim1",sh1);
+   rdir->GetObject(collname1+"/h_dedx_estim2",rh2);
+   sdir->GetObject(collname2+"/h_dedx_estim2",sh2);
+   rdir->GetObject(collname1+"/h_dedx_nom1",rh3);
+   sdir->GetObject(collname2+"/h_dedx_nom1",sh3);
+   rdir->GetObject(collname1+"/h_dedx_sat1",rh4);
+   sdir->GetObject(collname2+"/h_dedx_sat1",sh4);
+   // comment: for NOM and SAT, in principle there should be no difference between algorithms (although...)
+
+   canvas = new TCanvas("Tracks10","Tracks: dE/dx",1000,1400);
+
+   NormalizeHistograms(rh1,sh1);
+   NormalizeHistograms(rh2,sh2);
+   fixRangeY(rh1,sh1);
+   fixRangeY(rh2,sh2);
+   rh1->GetXaxis()->SetTitle("dE/dx, harm2");
+   rh2->GetXaxis()->SetTitle("dE/dx, trunc40");
+   
+   plot4histos(canvas,
+	       sh1,rh1,sh2,rh2,
+	       sh3,rh3,sh4,rh4,    
+	       te,"UU",-1);
+
+   canvas->cd();
+   l = new TLegend(0.10,0.14,0.90,0.19);
+   l->SetTextSize(0.016);
+   l->SetLineColor(1);
+   l->SetLineWidth(1);
+   l->SetLineStyle(1);
+   l->SetFillColor(0);
+   l->SetBorderSize(3);
+   l->AddEntry(rh1,refLabel,"LPF");
+   l->AddEntry(sh1,newLabel,"LPF");
+   l->Draw();
+   canvas->Print("dedx.pdf");   
+   delete l;
+
+   
+
  }
 }
 
