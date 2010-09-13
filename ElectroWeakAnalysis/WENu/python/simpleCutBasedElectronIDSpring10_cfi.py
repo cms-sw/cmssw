@@ -56,7 +56,7 @@ simpleCutBasedElectronID = cms.EDProducer("EleIdCutBasedExtProducer",
 ####
 #### Selections with Relative Isolation                                          
     robust95relIsoEleIDCutsV04 = cms.PSet(
-           barrel =  cms.vdouble(5.0e-01, 1.0e-02, 8.0e-01, 7.0e-03, -1, -1, 9999., 9999., 9999., 9999., 9999., 1.5e-01, 
+           barrel =  cms.vdouble(1.5e-01, 1.0e-02, 8.0e-01, 7.0e-03, -1, -1, 9999., 9999., 9999., 9999., 9999., 1.5e-01, 
                                  2.0e+00, 1.2e-01, 9999., 9999., 9999., 9999., 0.0, -9999., 9999., 9999., 1, -1, 0.0, 0.0, ),
            endcap =  cms.vdouble(7.0e-02, 3.0e-02, 7.0e-01, 9999., -1, -1, 9999., 9999., 9999., 9999., 9999., 8.0e-02, 
                                  6.0e-02, 5.0e-02, 9999., 9999., 9999., 9999., 0.0, -9999., 9999., 9999., 1, -1, 0.0, 0.0, ),
@@ -110,7 +110,7 @@ simpleCutBasedElectronID = cms.EDProducer("EleIdCutBasedExtProducer",
 #### Selections with Combined Isolation
 
     robust95cIsoEleIDCutsV04 = cms.PSet(
-           barrel =  cms.vdouble(5.0e-01, 1.0e-02, 8.0e-01, 7.0e-03, -1, -1, 9999., 9999., 9999., 9999., 9999., 9999., 
+           barrel =  cms.vdouble(1.5e-01, 1.0e-02, 8.0e-01, 7.0e-03, -1, -1, 9999., 9999., 9999., 9999., 9999., 9999., 
                                  9999., 9999., 9999., 9999., 9999., 1.5e-01, 0.0, -9999., 9999., 9999., 1, -1, 0.0, 0.0, ),
            endcap =  cms.vdouble(7.0e-02, 3.0e-02, 7.0e-01, 9999., -1, -1, 9999., 9999., 9999., 9999., 9999., 9999., 
                                  9999., 9999., 9999., 9999., 9999., 1.0e-01, 0.0, -9999., 9999., 9999., 1, -1, 0.0, 0.0, ),           
