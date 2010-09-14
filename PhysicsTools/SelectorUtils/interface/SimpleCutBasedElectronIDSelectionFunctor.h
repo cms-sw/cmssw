@@ -158,7 +158,7 @@ class SimpleCutBasedElectronIDSelectionFunctor : public Selector<pat::Electron> 
       set("sihih_EB",    1.0e-02);
       set("dphi_EB",     8.0e-01);
       set("deta_EB",     7.0e-03);
-      set("hoe_EB",      5.0e-01);
+      set("hoe_EB",      1.5e-01);
       set("cIso_EB",     10000. );
       
       set("trackIso_EE", 8.0e-02);
@@ -181,7 +181,7 @@ class SimpleCutBasedElectronIDSelectionFunctor : public Selector<pat::Electron> 
       set("sihih_EB",    1.0e-02);
       set("dphi_EB",     8.0e-01);
       set("deta_EB",     7.0e-03);
-      set("hoe_EB",      5.0e-01);
+      set("hoe_EB",      1.5e-01);
       set("cIso_EB",     1.5e-01);
       			       					      
       set("trackIso_EE", 100000.);
