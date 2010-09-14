@@ -100,14 +100,14 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
   edm::Handle<reco::BasicClusterCollection> pUncleanBC;
   edm::Handle<reco::SuperClusterCollection> pUncleanSC;
   // clean collections ________________________________________________________
-  evt.getByLabel(cleanBcCollection_, pCleanBC);
-  if (!(pCleanBC.isValid())) 
-    {
-      if (debugL <= HybridClusterAlgo::pINFO)
-	edm::LogInfo("UnifiedSC") << "could not handle clean basic clusters";
-      return;
-    }
-  const  reco::BasicClusterCollection cleanBS = *(pCleanBC.product());
+  //evt.getByLabel(cleanBcCollection_, pCleanBC);
+  //if (!(pCleanBC.isValid())) 
+  //  {
+  //    if (debugL <= HybridClusterAlgo::pINFO)
+  //      edm::LogInfo("UnifiedSC") << "could not handle clean basic clusters";
+  //    return;
+  //  }
+  //const  reco::BasicClusterCollection cleanBS = *(pCleanBC.product());
   //
   evt.getByLabel(cleanScCollection_, pCleanSC);
   if (!(pCleanSC.isValid())) 
@@ -116,17 +116,17 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
 	std::cout << "could not handle clean super clusters" << std::endl;
       return;
     }
-  const  reco::SuperClusterCollection cleanSC = *(pCleanSC.product());
+  //const  reco::SuperClusterCollection cleanSC = *(pCleanSC.product());
 
   // unclean collections ______________________________________________________
-  evt.getByLabel(uncleanBcCollection_, pUncleanBC);
-  if (!(pUncleanBC.isValid())) 
-    {
-      if (debugL <= HybridClusterAlgo::pINFO)
-	edm::LogInfo("UnifiedSC")<<"could not handle unclean Basic Clusters!";
-      return;
-    }
-  const  reco::BasicClusterCollection uncleanBC = *(pUncleanBC.product());
+  //evt.getByLabel(uncleanBcCollection_, pUncleanBC);
+  //if (!(pUncleanBC.isValid())) 
+  //  {
+  //    if (debugL <= HybridClusterAlgo::pINFO)
+  //      edm::LogInfo("UnifiedSC")<<"could not handle unclean Basic Clusters!";
+  //    return;
+  //  }
+  //const  reco::BasicClusterCollection uncleanBC = *(pUncleanBC.product());
   //
   evt.getByLabel(uncleanScCollection_, pUncleanSC);
   if (!(pUncleanSC.isValid())) 
@@ -135,7 +135,7 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
 	edm::LogInfo("UnifiedSC")<< "could not handle unclean super clusters!" ;
       return;
     }
-  const  reco::SuperClusterCollection uncleanSC = *(pUncleanSC.product());
+  //const  reco::SuperClusterCollection uncleanSC = *(pUncleanSC.product());
   // collections are all taken now ____________________________________________
   //
   //
@@ -153,8 +153,8 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
   // if you find an unmatched one, keep the info and store its basic clusters
   //
   // 
-  int uncleanSize = (int) uncleanSC.size();
-  int cleanSize = (int) cleanSC.size();
+  int uncleanSize = (int) pUncleanSC->size();
+  int cleanSize = (int) pCleanSC->size();
   if (debugL <= HybridClusterAlgo::pDEBUG)
     LogDebug("UnifiedSC") << "Size of Clean Collection: " << cleanSize 
 			  << ", uncleanSize: " << uncleanSize;
@@ -175,17 +175,16 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
 
   // loop over unclean SC _____________________________________________________
   for (int isc =0; isc< uncleanSize; ++isc) {
-    const reco::SuperCluster unsc = uncleanSC[isc];    
-    const std::vector< std::pair<DetId, float> >   
-      uhits = unsc.hitsAndFractions();
+    reco::SuperClusterRef unscRef( pUncleanSC, isc);    
+    const std::vector< std::pair<DetId, float> > & uhits = unscRef->hitsAndFractions();
     int uhitsSize = (int) uhits.size();
     bool foundTheSame = false;
     for (int jsc=0; jsc < cleanSize; ++jsc) { // loop over the cleaned SC
-      const reco::SuperCluster csc = cleanSC[jsc];
-      const std::vector<std::pair<DetId,float> > chits=csc.hitsAndFractions();
+      reco::SuperClusterRef cscRef( pCleanSC, jsc );
+      const std::vector<std::pair<DetId,float> > & chits = cscRef->hitsAndFractions();
       int chitsSize = (int) chits.size();
       foundTheSame = false;
-      if (unsc.seed()->seed()==csc.seed()->seed() && chitsSize == uhitsSize) { 
+      if (unscRef->seed()->seed()==cscRef->seed()->seed() && chitsSize == uhitsSize) { 
 	// if the clusters are exactly the same then because the clustering
 	// algorithm works in a deterministic way, the order of the rechits
 	// will be the same
@@ -198,15 +197,14 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
 	// this supercluster belongs to both collections
 	inUncleanOnlyInd.push_back(0);
 	inCleanInd.push_back(jsc); // keeps the index of the clean SC
-	scUncleanSeedDetId.push_back(unsc.seed()->seed());
+	scUncleanSeedDetId.push_back(unscRef->seed()->seed());
 	//
 	// keep its basic clusters:
-	reco::CaloCluster_iterator bciter = unsc.clustersBegin();
-	for (; bciter != unsc.clustersEnd(); ++bciter) {
+	for (reco::CaloCluster_iterator bciter = unscRef->clustersBegin(); bciter != unscRef->clustersEnd(); ++bciter) {
 	  // the basic clusters
-	  reco::CaloClusterPtr myclusterptr = *bciter;
-	  reco::CaloCluster mycluster = *myclusterptr;
-	  basicClusters.push_back(mycluster);
+	  //reco::CaloClusterPtr myclusterptr = *bciter;
+	  //reco::CaloCluster mycluster = *myclusterptr;
+	  basicClusters.push_back(**bciter);
 	  // index of the unclean SC
 	  basicClusterOwner.push_back( std::make_pair(isc,0) ); 
 	} 
@@ -216,14 +214,13 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
     if (not foundTheSame) { // this SC is only in the unclean collection
       // mark it as unique in the uncleaned
       inUncleanOnlyInd.push_back(1);
-      scUncleanSeedDetId.push_back(unsc.seed()->seed());
+      scUncleanSeedDetId.push_back(unscRef->seed()->seed());
       // keep all its basic clusters
-      reco::CaloCluster_iterator bciter = unsc.clustersBegin();
-      for (; bciter != unsc.clustersEnd(); ++bciter) {
+      for (reco::CaloCluster_iterator bciter = unscRef->clustersBegin(); bciter != unscRef->clustersEnd(); ++bciter) {
 	// the basic clusters
-	reco::CaloClusterPtr myclusterptr = *bciter;
-	reco::CaloCluster mycluster = *myclusterptr;
-	basicClustersUncleanOnly.push_back(mycluster);
+	//reco::CaloClusterPtr myclusterptr = *bciter;
+	//reco::CaloCluster mycluster = *myclusterptr;
+	basicClustersUncleanOnly.push_back(**bciter);
 	basicClusterOwnerUncleanOnly.push_back( std::make_pair(isc,0) );
       }
     }
@@ -245,14 +242,13 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
       continue;
     }
     inCleanOnlyInd.push_back(1);
-    const reco::SuperCluster csc = cleanSC[jsc];
-    scCleanSeedDetId.push_back(csc.seed()->seed());
-    reco::CaloCluster_iterator bciter = csc.clustersBegin();
-    for (; bciter != csc.clustersEnd(); ++bciter) {
+    reco::SuperClusterRef cscRef( pCleanSC, jsc );
+    scCleanSeedDetId.push_back(cscRef->seed()->seed());
+    for (reco::CaloCluster_iterator bciter = cscRef->clustersBegin(); bciter != cscRef->clustersEnd(); ++bciter) {
       // the basic clusters
-      reco::CaloClusterPtr myclusterptr = *bciter;
-      reco::CaloCluster mycluster = *myclusterptr;
-      basicClusters.push_back(mycluster);
+      //reco::CaloClusterPtr myclusterptr = *bciter;
+      //reco::CaloCluster mycluster = *myclusterptr;
+      basicClusters.push_back(**bciter);
       basicClusterOwner.push_back( std::make_pair(jsc,1) );
     }
   } // end loop over clean SC _________________________________________________
@@ -334,8 +330,8 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
       }
     }
     //std::cout << "before getting the uncl" << std::endl;
-    const reco::SuperCluster unsc = uncleanSC[isc]; 
-    reco::SuperCluster newSC(unsc.energy(), unsc.position(), 
+    reco::SuperClusterRef unscRef( pUncleanSC, isc ); 
+    reco::SuperCluster newSC(unscRef->energy(), unscRef->position(), 
 			     seed, clusterPtrVector );
     // now set the algoID for this SC again
     if (inUncleanOnlyInd[isc] == 1) {
@@ -375,8 +371,8 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
 	}
       }
     }
-    const reco::SuperCluster csc = cleanSC[jsc]; 
-    reco::SuperCluster newSC(csc.energy(), csc.position(),
+    reco::SuperClusterRef cscRef( pCleanSC, jsc ); 
+    reco::SuperCluster newSC(cscRef->energy(), cscRef->position(),
 			     seed, clusterPtrVector );
     newSC.setFlags(reco::CaloCluster::cleanOnly);
 
@@ -409,26 +405,26 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
     // print out the clean collection SC
     LogDebug("UnifiedSC") << "Clean Collection SC ";
     for (int i=0; i < cleanSize; ++i) {
-      const reco::SuperCluster csc = cleanSC[i];
-      std::cout << " >>> clean    #" << i << "; Energy: " << csc.energy()
-		<< " eta: " << csc.eta() 
-		<< " sc seed detid: " << csc.seed()->seed().rawId()
+      reco::SuperClusterRef cscRef( pCleanSC, i );
+      std::cout << " >>> clean    #" << i << "; Energy: " << cscRef->energy()
+		<< " eta: " << cscRef->eta() 
+		<< " sc seed detid: " << cscRef->seed()->seed().rawId()
 		<< std::endl;
     }
     // the unclean SC
     LogDebug("UnifiedSC") << "Unclean Collection SC ";
     for (int i=0; i < uncleanSize; ++i) {
-      const reco::SuperCluster usc = uncleanSC[i];
-      LogDebug("UnifiedSC") << " >>> unclean  #" << i << "; Energy: " << usc.energy()
-			    << " eta: " << usc.eta() 
-			    << " sc seed detid: " << usc.seed()->seed().rawId();
+      reco::SuperClusterRef uscRef( pUncleanSC, i );
+      LogDebug("UnifiedSC") << " >>> unclean  #" << i << "; Energy: " << uscRef->energy()
+			    << " eta: " << uscRef->eta() 
+			    << " sc seed detid: " << uscRef->seed()->seed().rawId();
     }
     // the new collection
     LogDebug("UnifiedSC")<< "The new SC clean collection with size "<< superClusters.size()  << std::endl;
     
     int new_unclean = 0, new_clean=0;
     for (int i=0; i < (int) superClusters.size(); ++i) {
-      const reco::SuperCluster nsc = superClusters[i];
+      const reco::SuperCluster & nsc = superClusters[i];
       LogDebug("UnifiedSC") << "SC was got" << std::endl
        << " ---> energy: " << nsc.energy() << std::endl
        << " ---> eta: " << nsc.eta() << std::endl

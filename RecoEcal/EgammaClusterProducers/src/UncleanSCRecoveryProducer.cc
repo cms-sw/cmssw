@@ -69,14 +69,14 @@ void UncleanSCRecoveryProducer::produce(edm::Event& evt,
   edm::Handle<reco::BasicClusterCollection> pUncleanBC;
   edm::Handle<reco::SuperClusterCollection> pUncleanSC;
   // clean collections ________________________________________________________
-  evt.getByLabel(cleanBcCollection_, pCleanBC);
-  if (!(pCleanBC.isValid())) 
-    {
+  ///////evt.getByLabel(cleanBcCollection_, pCleanBC);
+  ///////if (!(pCleanBC.isValid())) 
+  ///////  {
 
-      edm::LogWarning("MissingInput") << "could not handle clean basic clusters";
-      return;
-    }
-  const  reco::BasicClusterCollection cleanBS = *(pCleanBC.product());
+  ///////    edm::LogWarning("MissingInput") << "could not handle clean basic clusters";
+  ///////    return;
+  ///////  }
+  ///////const  reco::BasicClusterCollection cleanBS = *(pCleanBC.product());
   //
   evt.getByLabel(cleanScCollection_, pCleanSC);
   if (!(pCleanSC.isValid())) 
@@ -103,8 +103,8 @@ void UncleanSCRecoveryProducer::produce(edm::Event& evt,
       return;
     }
   const  reco::SuperClusterCollection uncleanSC = *(pUncleanSC.product());
-  int uncleanSize = (int) uncleanSC.size();
-  int cleanSize = (int) cleanSC.size();
+  int uncleanSize = (int) pUncleanSC->size();
+  int cleanSize = (int) pCleanSC->size();
   
   LogDebug("EcalCleaning")  << "Size of Clean Collection: " << cleanSize 
 				 << ", uncleanSize: " << uncleanSize;
@@ -143,18 +143,17 @@ void UncleanSCRecoveryProducer::produce(edm::Event& evt,
   std::vector<DetId> scCleanSeedDetId;  // counting the clean
   std::vector<int> isToBeKept;
   for (int isc =0; isc< cleanSize; ++isc) {
-    const reco::SuperCluster csc = cleanSC[isc];    
-    scCleanSeedDetId.push_back(csc.seed()->seed());
-    reco::CaloCluster_iterator bciter = csc.clustersBegin();
-    for (; bciter != csc.clustersEnd(); ++bciter) {
+    reco::SuperClusterRef cscRef( pCleanSC, isc );    
+    scCleanSeedDetId.push_back(cscRef->seed()->seed());
+    for (reco::CaloCluster_iterator bciter = cscRef->clustersBegin(); bciter != cscRef->clustersEnd(); ++bciter) {
       // the basic clusters
-      reco::CaloClusterPtr myclusterptr = *bciter;
-      reco::CaloCluster mycluster = *myclusterptr;
-      basicClusters.push_back(mycluster);
+      //reco::CaloClusterPtr myclusterptr = *bciter;
+      //reco::CaloCluster mycluster = *myclusterptr;
+      basicClusters.push_back(**bciter);
       // index of the clean SC
       basicClusterOwner.push_back( std::make_pair(isc,1) ); 
     }
-    if (csc.isInUnclean()) isToBeKept.push_back(1);
+    if (cscRef->isInUnclean()) isToBeKept.push_back(1);
     else isToBeKept.push_back(0);
   }
   //
@@ -172,7 +171,7 @@ void UncleanSCRecoveryProducer::produce(edm::Event& evt,
   reco::BasicClusterCollection basicClustersProd = *bccHandle;
   
   LogDebug("EcalCleaning") <<"Got the BasicClusters from the event again";
-  int bcSize = (int) basicClustersProd.size();
+  int bcSize = (int) bccHandle->size();
   //
   // now we can create the SC collection
   //
@@ -200,8 +199,8 @@ void UncleanSCRecoveryProducer::produce(edm::Event& evt,
   // run over the clean SC: only those who are in common between the
   // clean and unclean collection are kept
   for (int isc=0; isc< cleanSize; ++isc) {
-    const reco::SuperCluster csc = cleanSC[isc]; 
-    if (not csc.isInUnclean()) continue;
+    reco::SuperClusterRef cscRef( pCleanSC, isc); 
+    if (not cscRef->isInUnclean()) continue;
     reco::CaloClusterPtrVector clusterPtrVector;
     // the seed is the basic cluster with the highest energy
     reco::CaloClusterPtr seed; 
@@ -215,7 +214,7 @@ void UncleanSCRecoveryProducer::produce(edm::Event& evt,
 	}
       }
     }
-    reco::SuperCluster newSC(csc.energy(), csc.position(), 
+    reco::SuperCluster newSC(cscRef->energy(), cscRef->position(), 
 			     seed, clusterPtrVector );
     newSC.setFlags(reco::CaloCluster::common);
     superClusters.push_back(newSC);

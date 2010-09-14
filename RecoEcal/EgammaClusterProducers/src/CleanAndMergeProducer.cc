@@ -115,7 +115,7 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
       edm::LogWarning("MissingInput") << "could not get a handle on the EcalRecHitCollection!" ;
       return;
     }
-  const EcalRecHitCollection *hit_collection = rhcHandle.product();
+  //const EcalRecHitCollection *hit_collection = rhcHandle.product();
 
   // get the collection geometry:
   edm::ESHandle<CaloGeometry> geoHandle;
@@ -146,13 +146,13 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
   //edm::Handle<reco::BasicClusterShapeAssociationCollection> pUncleanClShapeAssoc;
   //
   // clean collections ________________________________________________________________
-  evt.getByLabel(cleanBcProducer_, cleanBcCollection_, pCleanBC);
-  if (!(pCleanBC.isValid())) 
-    {
-      edm::LogWarning("MissingInput") << "could not get a handle on the clean Basic Clusters!";
-      return;
-    }
-  const  reco::BasicClusterCollection cleanBS = *(pCleanBC.product());
+  ////evt.getByLabel(cleanBcProducer_, cleanBcCollection_, pCleanBC);
+  ////if (!(pCleanBC.isValid())) 
+  ////  {
+  ////    edm::LogWarning("MissingInput") << "could not get a handle on the clean Basic Clusters!";
+  ////    return;
+  ////  }
+  ////const  reco::BasicClusterCollection cleanBS = *(pCleanBC.product());
   //
   evt.getByLabel(cleanScProducer_, cleanScCollection_, pCleanSC);
   if (!(pCleanSC.isValid())) 
@@ -160,17 +160,17 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
             edm::LogWarning("MissingInput")<< "could not get a handle on the clean Super Clusters!";
       return;
     }
-  const  reco::SuperClusterCollection cleanSC = *(pCleanSC.product());
+  //const  reco::SuperClusterCollection * cleanSC = pCleanSC.product();
 
   //
   // unclean collections _______________________________________________________________
-  evt.getByLabel(uncleanBcProducer_, uncleanBcCollection_, pUncleanBC);
-  if (!(pUncleanBC.isValid())) 
-    {
-      edm::LogWarning("MissingInput")<< "could not get a handle on the unclean Basic Clusters!";
-      return;
-    }
-  const  reco::BasicClusterCollection uncleanBC = *(pUncleanBC.product());
+  ////evt.getByLabel(uncleanBcProducer_, uncleanBcCollection_, pUncleanBC);
+  ////if (!(pUncleanBC.isValid())) 
+  ////  {
+  ////    edm::LogWarning("MissingInput")<< "could not get a handle on the unclean Basic Clusters!";
+  ////    return;
+  ////  }
+  ////const  reco::BasicClusterCollection uncleanBC = *(pUncleanBC.product());
   //
   evt.getByLabel(uncleanScProducer_, uncleanScCollection_, pUncleanSC);
   if (!(pUncleanSC.isValid())) 
@@ -179,7 +179,7 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
       edm::LogWarning("MissingInput")<< "could not get a handle on the unclean Super Clusters!";
       return;
     }
-  const  reco::SuperClusterCollection uncleanSC = *(pUncleanSC.product());
+  //const  reco::SuperClusterCollection * uncleanSC = pUncleanSC.product();
   // for the unlcean collection we need the cluster shape association map
   //evt.getByLabel(uncleanClShapeAssoc_, pUncleanClShapeAssoc);
   //if (!(pUncleanClShapeAssoc.isValid())) 
@@ -206,8 +206,8 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
   // if you find a matched one, create a reference to the cleaned collection and store it
   // if you find an unmatched one, then keep all its basic clusters in the basic Clusters 
   // vector
-  int uncleanSize = (int) uncleanSC.size();
-  int cleanSize = (int) cleanSC.size();
+  int uncleanSize = (int) pUncleanSC->size();
+  int cleanSize = (int) pCleanSC->size();
 
   LogDebug("EcalCleaning") << "Size of Clean Collection: " << cleanSize 
 	   << ", uncleanSize: " << uncleanSize  << std::endl;
@@ -217,16 +217,16 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
   std::vector<int> basicClusterOwner; // contains the index of the SC that owns that BS
   std::vector<int> isSeed; // if this basic cluster is a seed it is 1
   for (int isc =0; isc< uncleanSize; ++isc) {
-    const reco::SuperCluster unsc = uncleanSC[isc];    
-    const std::vector< std::pair<DetId, float> >   uhits = unsc.hitsAndFractions();
+    reco::SuperClusterRef unscRef( pUncleanSC, isc );    
+    const std::vector< std::pair<DetId, float> > & uhits = unscRef->hitsAndFractions();
     int uhitsSize = (int) uhits.size();
     bool foundTheSame = false;
     for (int jsc=0; jsc < cleanSize; ++jsc) { // loop over the cleaned SC
-      const reco::SuperCluster csc = cleanSC[jsc];
-      const std::vector< std::pair<DetId, float> >   chits = csc.hitsAndFractions();
+      reco::SuperClusterRef cscRef( pCleanSC, jsc );
+      const std::vector< std::pair<DetId, float> > & chits = cscRef->hitsAndFractions();
       int chitsSize = (int) chits.size();
       foundTheSame = true;
-      if (unsc.seed()->seed() == csc.seed()->seed() && chitsSize == uhitsSize) { 
+      if (unscRef->seed()->seed() == cscRef->seed()->seed() && chitsSize == uhitsSize) { 
 	// if the clusters are exactly the same then because the clustering
 	// algorithm works in a deterministic way, the order of the rechits
 	// will be the same
@@ -235,7 +235,8 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
 	}
 	if (foundTheSame) { // ok you have found it!
 	  // make the reference
-	  scRefs->push_back( edm::Ref<reco::SuperClusterCollection>(pCleanSC, jsc) );
+	  //scRefs->push_back( edm::Ref<reco::SuperClusterCollection>(pCleanSC, jsc) );
+	  scRefs->push_back( cscRef );
 	  isUncleanOnly.push_back(0);
 	  break;
 	}
@@ -245,12 +246,11 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
       // mark it as unique in the uncleaned
       isUncleanOnly.push_back(1);
       // keep all its basic clusters
-      reco::CaloCluster_iterator bciter = unsc.clustersBegin();
-      for (; bciter != unsc.clustersEnd(); ++bciter) {
+      for (reco::CaloCluster_iterator bciter = unscRef->clustersBegin(); bciter != unscRef->clustersEnd(); ++bciter) {
 	// the basic clusters
-	reco::CaloClusterPtr myclusterptr = *bciter;
-	reco::CaloCluster mycluster = *myclusterptr;
-	basicClusters.push_back(mycluster);
+	//reco::CaloClusterPtr myclusterptr = *bciter;
+	//reco::CaloCluster mycluster = *myclusterptr;
+	basicClusters.push_back(**bciter);
 	basicClusterOwner.push_back(isc);
 	/*	
 	// the cluster shapes
@@ -287,17 +287,17 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
   //
 
 
-  // the following is how to calculate the cluster shape yourself
-  for (int erg=0;erg<int(basicClusters.size());++erg){
-    reco::ClusterShape TestShape = 
-      shapeAlgo_.Calculate(basicClusters[erg],hit_collection,geometry_p,topology.get());
-    ClusVec.push_back(TestShape);
-  }
+  ////// the following is how to calculate the cluster shape yourself
+  ////for (int erg=0;erg<int(basicClusters.size());++erg){
+  ////  reco::ClusterShape TestShape = 
+  ////    shapeAlgo_.Calculate(basicClusters[erg],hit_collection,geometry_p,topology.get());
+  ////  ClusVec.push_back(TestShape);
+  ////}
 
-  std::auto_ptr< reco::ClusterShapeCollection> cShapeCollection_p(new reco::ClusterShapeCollection);
-  cShapeCollection_p->assign(ClusVec.begin(), ClusVec.end());
-  edm::OrphanHandle<reco::ClusterShapeCollection> clusHandle 
-    = evt.put(cShapeCollection_p, cShapeCollection_);
+  ////std::auto_ptr< reco::ClusterShapeCollection> cShapeCollection_p(new reco::ClusterShapeCollection);
+  ////cShapeCollection_p->assign(ClusVec.begin(), ClusVec.end());
+  ////edm::OrphanHandle<reco::ClusterShapeCollection> clusHandle 
+  ////  = evt.put(cShapeCollection_p, cShapeCollection_);
   //
   // now you have the collection of basic clusters of the SC to be remain in the
   // in the clean collection, export them to the event
@@ -311,7 +311,7 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
     edm::LogWarning("MissingInput")<<"could not get a handle on the BasicClusterCollection!" << std::endl;
     return;
   }
-  reco::BasicClusterCollection basicClustersProd = *bccHandle;
+  //const reco::BasicClusterCollection * basicClustersProd = bccHandle.product();
 
   LogDebug("EcalCleaning")<< "Got the BasicClusters from the event again";
   // now you have to create again your superclusters
@@ -332,8 +332,8 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
 	  }
 	}
       }
-      const reco::SuperCluster unsc = uncleanSC[isc]; 
-      reco::SuperCluster newSC(unsc.energy(), unsc.position(), seed, clusterPtrVector );
+      reco::SuperClusterRef unscRef( pUncleanSC, isc ); 
+      reco::SuperCluster newSC(unscRef->energy(), unscRef->position(), seed, clusterPtrVector );
       superClusters.push_back(newSC);
     }
 
@@ -351,15 +351,15 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
   evt.put(superClusters_p, scCollection_);
   // the cluster shape association
   
-    // BasicClusterShapeAssociationMap
-  std::auto_ptr<reco::BasicClusterShapeAssociationCollection> 
-    clShapeAssoc_p(new reco::BasicClusterShapeAssociationCollection);
-  for (unsigned int i = 0; i < basicClustersProd.size(); i++){
-    clShapeAssoc_p->insert(edm::Ref<reco::BasicClusterCollection>(bccHandle,i),
-			  edm::Ref<reco::ClusterShapeCollection>(clusHandle,i));
-  }  
-  
-  evt.put(clShapeAssoc_p, clShapeAssoc_);
+  /////  // BasicClusterShapeAssociationMap
+  /////std::auto_ptr<reco::BasicClusterShapeAssociationCollection> 
+  /////  clShapeAssoc_p(new reco::BasicClusterShapeAssociationCollection);
+  /////for (unsigned int i = 0; i < basicClustersProd.size(); i++){
+  /////  clShapeAssoc_p->insert(edm::Ref<reco::BasicClusterCollection>(bccHandle,i),
+  /////      		  edm::Ref<reco::ClusterShapeCollection>(clusHandle,i));
+  /////}  
+  /////
+  /////evt.put(clShapeAssoc_p, clShapeAssoc_);
   LogDebug("EcalCleaning")<< "Hybrid Clusters (Basic/Super) added to the Event! :-)";
 
 
