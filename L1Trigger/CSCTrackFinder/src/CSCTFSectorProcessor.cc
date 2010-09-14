@@ -544,13 +544,17 @@ bool CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stub
           }
 
           itr->setEtaPacked(gblEta.global_eta);
-          itr->setPhiPacked(gblPhi.global_phi);
 
           if(itr->station() == 1 ) {
             //&& itr->cscId() > 6) { //only ring 3 
             itr->setPhiPacked(gblPhiDT.global_phi);// convert the DT to convert
             dt_stubs.push_back(*itr); // send stubs to DT
           }
+
+          //reconvert the ME1 LCT to the CSCTF units.
+          //the same iterator is used to fill two containers, 
+          //the CSCTF one (stub_vec_filtered) and LCTs sent to DTTF (dt_stubs)
+          itr->setPhiPacked(gblPhi.global_phi);
 
           LogDebug("CSCTFSectorProcessor:run()") << "LCT found, processed by FPGA: " << FPGAs[fpga] << std::endl
                                                  << " LCT now has (eta, phi) of: (" << itr->etaValue() << "," << itr->phiValue() <<")\n";
