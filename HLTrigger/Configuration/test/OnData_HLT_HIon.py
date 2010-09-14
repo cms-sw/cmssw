@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_8_1/HIon/V14 (CMSSW_3_8_1_HLT5)
+# /dev/CMSSW_3_8_1/HIon/V15 (CMSSW_3_8_1_HLT6)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V14')
+  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V15')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -30,13 +30,13 @@ process.streams = cms.PSet(
     'METFwd',
     'HcalNZS',
     'HcalHPDNoise',
-    'MuOnia',
     'MuMonitor',
     'BTau',
     'Mu',
     'Commissioning',
     'EGMonitor',
-    'Electron' ),
+    'Electron',
+    'MuOnia' ),
   DQM = cms.vstring( 'OnlineMonitor' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
   HLTDQM = cms.vstring( 'OnlineHltMonitor' )
@@ -62,13 +62,13 @@ process.datasets = cms.PSet(
   METFwd = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
-  MuOnia = cms.vstring(  ),
   MuMonitor = cms.vstring( 'HLT_L1DoubleMuOpen' ),
   BTau = cms.vstring(  ),
   Mu = cms.vstring(  ),
   Commissioning = cms.vstring(  ),
   EGMonitor = cms.vstring(  ),
   Electron = cms.vstring(  ),
+  MuOnia = cms.vstring(  ),
   OnlineMonitor = cms.vstring( 'HLT_ZeroBiasPixel_SingleTrack',
     'HLT_L1DoubleMuOpen',
     'HLT_L1Tech_BSC_minBias',
@@ -1548,7 +1548,8 @@ process.hltOnlineBeamSpot = cms.EDProducer( "BeamSpotOnlineProducer",
     changeToCMSCoordinates = cms.bool( False ),
     maxRadius = cms.double( 2.0 ),
     maxZ = cms.double( 40.0 ),
-    setSigmaZ = cms.double( 10.0 )
+    setSigmaZ = cms.double( 10.0 ),
+    gtEvmLabel = cms.InputTag( "" )
 )
 process.hltOfflineBeamSpot = cms.EDProducer( "BeamSpotProducer" )
 process.hltL1sL1DoubleMuOpen = cms.EDFilter( "HLTLevel1GTSeed",
