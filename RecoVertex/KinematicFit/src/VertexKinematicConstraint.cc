@@ -26,21 +26,22 @@ AlgebraicVector VertexKinematicConstraint::value(const std::vector<KinematicStat
   double d_y = point.y() - pos.y();
   double d_z = point.z() - pos.z();
   double pt = mom.transverse();
+  
   if(ch !=0)
   {
 
 //charged particle
    double a_i = - ch * i->magneticField()->inInverseGeV(pos).z();
-   double j = a_i*(d_x * mom.x() + d_y * mom.y())/(pt*pt);
-   if(std::fabs(j)>1.0){
-	   LogDebug("VertexKinematicConstraint")
-       << "Warning! asin("<<j<<")="<<asin(j)<<". Fit will be aborted.\n";
-   }
 
+   double pvx = mom.x() - a_i*d_y;
+   double pvy = mom.y() + a_i*d_x;
+   double n = a_i*(d_x * mom.x() + d_y * mom.y());
+   double m = (pvx*mom.x() + pvy*mom.y());
+   double delta = atan2(n,m);
 
 //vector of values
    vl(num_r*2 +1) = d_y*mom.x() - d_x*mom.y() -a_i*(d_x*d_x + d_y*d_y)/2;
-   vl(num_r*2 +2) = d_z - mom.z()*asin(j)/a_i;
+   vl(num_r*2 +2) = d_z - mom.z()*delta/a_i;
   }else{
 
 //neutral particle
@@ -68,32 +69,32 @@ AlgebraicMatrix VertexKinematicConstraint::parametersDerivative(const std::vecto
     double d_x = point.x() - pos.x();
     double d_y = point.y() - pos.y();
     double pt = mom.transverse();
-
+    
     if(ch !=0){
 
   //charged particle
-      double a_i = - ch * i->magneticField()->inInverseGeV(pos).z();
-      double j = a_i*(d_x * mom.x() + d_y * mom.y())/(pt*pt);
-      double r_x = d_x - 2* mom.x()*(d_x*mom.x()+d_y*mom.y())/(pt*pt);
-      double r_y = d_y - 2* mom.y()*(d_x*mom.x()+d_y*mom.y())/(pt*pt);
-      double s = 1/(pt*pt*sqrt(1 - j*j));
-
-      if(std::fabs(j)>1.0){
-	      LogDebug("VertexKinematicConstraint")
-	      << "Warning! asin("<<j<<")="<<asin(j)<<". Fit will be aborted.\n";
-      }
+   double a_i = - ch * i->magneticField()->inInverseGeV(pos).z();
+   
+   double pvx = mom.x() - a_i*d_y;
+   double pvy = mom.y() + a_i*d_x;
+   double pvt = sqrt(pvx*pvx+pvy*pvy);
+   double novera = (d_x * mom.x() + d_y * mom.y());
+   double n = a_i*novera;
+   double m = (pvx*mom.x() + pvy*mom.y());
+   double k = -mom.z()/(pvt*pvt*pt*pt);
+   double delta = atan2(n,m);
 
   //D Jacobian matrix
      el_part_d(1,1) =  mom.y() + a_i*d_x;
      el_part_d(1,2) = -mom.x() + a_i*d_y;
-     el_part_d(2,1) =  mom.x() * mom.z() * s;
-     el_part_d(2,2) =  mom.y() * mom.z() * s;
+     el_part_d(2,1) =  -k*(m*mom.x() - n*mom.y());
+     el_part_d(2,2) =  -k*(m*mom.y() + n*mom.x());
      el_part_d(2,3) = -1.;
      el_part_d(1,4) = d_y;
      el_part_d(1,5) = -d_x;
-     el_part_d(2,4) = -mom.z()*s*r_x;
-     el_part_d(2,5) = -mom.z()*s*r_y;
-     el_part_d(2,6) = -asin(j) /a_i;
+     el_part_d(2,4) = k*(m*d_x - novera*(2*mom.x() - a_i*d_y));
+     el_part_d(2,5) = k*(m*d_y - novera*(2*mom.y() + a_i*d_x));
+     el_part_d(2,6) = -delta /a_i;
      jac_d.sub(num_r*2+1, num_r*7+1, el_part_d);
     }else{
   //neutral particle
@@ -130,20 +131,25 @@ AlgebraicMatrix VertexKinematicConstraint::positionDerivative(const std::vector<
   double d_x = point.x() - pos.x();
   double d_y = point.y() - pos.y();
   double pt = mom.transverse();
-
+  
   if(ch !=0 )
   {
 
 //charged particle
    double a_i = - ch * i->magneticField()->inInverseGeV(pos).z();
-   double j = a_i*(d_x * mom.x() + d_y * mom.y())/(pt*pt);
-   double s = 1/(pt*pt*sqrt(1 - j*j));
+
+   double pvx = mom.x() - a_i*d_y;
+   double pvy = mom.y() + a_i*d_x;
+   double pvt = sqrt(pvx*pvx+pvy*pvy);
+   double n = a_i*(d_x * mom.x() + d_y * mom.y());
+   double m = (pvx*mom.x() + pvy*mom.y());
+   double k = -mom.z()/(pvt*pvt*pt*pt);
 
 //E jacobian matrix
    el_part_e(1,1) = -(mom.y() + a_i*d_x);
    el_part_e(1,2) = mom.x() - a_i*d_y;
-   el_part_e(2,1) = -mom.x()*mom.z()*s;
-   el_part_e(2,2) = -mom.y()*mom.z()*s;
+   el_part_e(2,1) = k*(m*mom.x() - n*mom.y());
+   el_part_e(2,2) = k*(m*mom.y() + n*mom.x());
    el_part_e(2,3) = 1;
    jac_e.sub(2*num_r+1,1,el_part_e);
   }else{
