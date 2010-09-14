@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.h,v 1.25 2010/04/20 16:09:29 srappocc Exp $
+// $Id: PATMuonProducer.h,v 1.26 2010/05/12 12:34:43 rwolf Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMuonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of reco::Muon.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATMuonProducer.h,v 1.25 2010/04/20 16:09:29 srappocc Exp $
+  \version  $Id: PATMuonProducer.h,v 1.26 2010/05/12 12:34:43 rwolf Exp $
 */
 
 #include <string>
@@ -31,6 +31,7 @@
 
 #include "DataFormats/PatCandidates/interface/UserData.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
 
 namespace pat {
@@ -66,6 +67,18 @@ namespace pat {
     /// fill label vector from the contents of the parameter set, 
     /// for the embedding of isoDeposits or userIsolation values
     void readIsolationLabels( const edm::ParameterSet & iConfig, const char* psetName, IsolationLabels& labels); 
+
+
+    // embed various impact parameters with errors
+    // embed high level selection
+    void embedHighLevel( pat::Muon & aMuon,
+			 reco::TrackRef innerTrack,
+			 reco::TransientTrack & tt,
+			 reco::Vertex & primaryVertex,
+			 bool primaryVertexIsValid,
+			 reco::BeamSpot & beamspot,
+			 bool beamspotIsValid );
+
     
   private:
     /// input source
