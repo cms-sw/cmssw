@@ -578,6 +578,17 @@ void plot1DResiduals(HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeI
   else c1 = newCanvas(N3+"_hRes",form);
   drawGFit(h3->hRes, -0.2,0.2,-0.1,0.1);
 
+  newCanvas(N1+"_hResSt1",form);
+  drawGFit(h1->hResSt[0], -0.2,0.2,-0.1,0.1);
+
+  newCanvas(N1+"_hResSt2",form);
+  drawGFit(h1->hResSt[1], -0.2,0.2,-0.1,0.1);
+
+  newCanvas(N1+"_hResSt3",form);
+  drawGFit(h1->hResSt[2], -0.2,0.2,-0.1,0.1);
+
+  newCanvas(N1+"_hResSt4",form);
+  drawGFit(h1->hResSt[3], -0.2,0.2,-0.1,0.1);
 }
 
 void plot2DResiduals(HRes2DHit * h1) {

@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for DT RecHit and Segment test.
  *
- *  $Date: 2009/07/22 10:51:50 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/09/14 15:03:39 $
+ *  $Revision: 1.3 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -27,10 +27,15 @@ class HRes1DHit{
     HRes1DHit(std::string name_){
       TString N = name_.c_str();
       name=N;
-
+      cout << "constructor Histo"<<endl;
       // Position, sigma, residual, pull
       hDist       = new TH1F ("1D_"+N+"_hDist", "1D RHit distance from wire", 100, 0,2.5);
       hRes        = new TH1F ("1D_"+N+"_hRes", "1D RHit residual", 300, -1.5,1.5);
+      hResSt[0] = new TH1F("1D_"+N + "_hResMB1","1D RHit residual", 300, -0.5,0.5);
+      hResSt[1] = new TH1F("1D_"+N + "_hResMB2","1D RHit residual", 300, -0.5,0.5);
+      hResSt[2] = new TH1F("1D_"+N + "_hResMB3","1D RHit residual", 300, -0.5,0.5);
+      hResSt[3] = new TH1F("1D_"+N + "_hResMB4","1D RHit residual", 300, -0.5,0.5);
+
       hResVsEta   = new TH2F("1D_"+N+"_hResVsEta", "1D RHit residual vs eta",
                              50, -1.25,1.25, 150, -1.5,1.5);
       hResVsPhi   = new TH2F("1D_"+N+"_hResVsPhi", "1D RHit residual vs phi",
@@ -50,9 +55,14 @@ class HRes1DHit{
     }
 
     HRes1DHit(TString name_, TFile* file){
+	cout<<"HISTOS"<<endl;
       name=name_;
       hDist          = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hDist");
       hRes           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hRes");
+      hResSt[0]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hResMB1");
+      hResSt[1]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hResMB2");
+      hResSt[2]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hResMB3");
+      hResSt[3]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hResMB4");
       hResVsEta      = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hResVsEta");
       hResVsPhi      = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hResVsPhi");
       hResVsPos      = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hResVsPos");
@@ -103,6 +113,10 @@ class HRes1DHit{
     void Write() {
       hDist->Write();     
       hRes->Write();      
+      hResSt[0]->Write();      
+      hResSt[1]->Write();      
+      hResSt[2]->Write();      
+      hResSt[3]->Write();      
       hResVsEta->Write();   
       hResVsPhi->Write(); 
       hResVsPos->Write(); 
@@ -118,6 +132,7 @@ class HRes1DHit{
   public:
     TH1F* hDist;
     TH1F* hRes;
+    TH1F* hResSt[4];
     TH2F* hResVsEta;
     TH2F* hResVsPhi;
     TH2F* hResVsPos;

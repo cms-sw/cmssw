@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/04 13:54:36 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/11/04 17:22:30 $
+ *  $Revision: 1.13 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -544,10 +544,10 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
       }
       // Fill
       hRes->Fill(simHitWireDist, simHitTheta, simHitFEDist, recHitWireDist, simHitGlobalPos.eta(),
-                 simHitGlobalPos.phi(),recHitErr);
+                 simHitGlobalPos.phi(),recHitErr,wireId.station());
       if(hResTot != 0)
         hResTot->Fill(simHitWireDist, simHitTheta, simHitFEDist, recHitWireDist, simHitGlobalPos.eta(),
-                      simHitGlobalPos.phi(),recHitErr);
+                      simHitGlobalPos.phi(),recHitErr,wireId.station());
     }
 
     // Fill Efficiencies

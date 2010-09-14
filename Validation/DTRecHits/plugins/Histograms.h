@@ -5,8 +5,8 @@
 /** \class Histograms
  *  Collection of histograms for DT RecHit and Segment test.
  *
- *  $Date: 2009/11/04 17:22:09 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/11/12 14:41:06 $
+ *  $Revision: 1.10 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -50,6 +50,11 @@ class HRes1DHit{
       }
       if(!local) dbe_->setCurrentFolder("DT/1DRecHits/Res/");
       hRes=0; hRes = dbe_->book1D(pre + "_hRes","1D RHit residual", 300, -0.5,0.5);
+      hResSt[0] = 0; hResSt[0] = dbe_->book1D(pre + "_hResMB1","1D RHit residual", 300, -0.5,0.5);
+      hResSt[1] = 0; hResSt[1] = dbe_->book1D(pre + "_hResMB2","1D RHit residual", 300, -0.5,0.5);
+      hResSt[2] = 0; hResSt[2] = dbe_->book1D(pre + "_hResMB3","1D RHit residual", 300, -0.5,0.5);
+      hResSt[3] = 0; hResSt[3] = dbe_->book1D(pre + "_hResMB4","1D RHit residual", 300, -0.5,0.5);
+
       //hRes        = new TH1F ("1D_"+N+"_hRes", "1D RHit residual", 300, -1.5,1.5);
       hResVsEta=0; hResVsEta = dbe_->book2D(pre +"_hResVsEta" , "1D RHit residual vs eta", 50, -1.25,1.25,150,-0.5,0.5);
       //hResVsEta   = new TH2F("1D_"+N+"_hResVsEta", "1D RHit residual vs eta",50, -1.25,1.25, 150, -1.5,1.5);
@@ -92,7 +97,8 @@ class HRes1DHit{
               float distRecHit,
               float etaSimHit,
               float phiSimHit,
-              float errRecHit) {
+              float errRecHit,
+	      int station) {
       // Reso, pull
       float res = distRecHit-distSimHit;
       if(_doall){
@@ -100,7 +106,7 @@ class HRes1DHit{
 	hResVsAngle->Fill(thetaSimHit,res);
 	hResVsDistFE->Fill(distFESimHit,res);
       }
-      hRes->Fill(res);
+      hRes->Fill(res); hResSt[station-1]->Fill(res);
       hResVsEta->Fill(etaSimHit,res);
       hResVsPhi->Fill(phiSimHit,res);
       hResVsPos->Fill(distSimHit,res);
@@ -134,6 +140,7 @@ class HRes1DHit{
   public:
     MonitorElement* hDist;
     MonitorElement* hRes;
+    MonitorElement* hResSt[4];
     MonitorElement* hResVsEta;
     MonitorElement* hResVsPhi;
     MonitorElement* hResVsPos;
@@ -344,7 +351,7 @@ class HRes2DHit{
 	
       }
       
-      hResAngle=0; hResAngle   = dbe_->book1D (pre+"_hResAngle", "Residual on 2D segment angle;angle_{rec}-angle_{sim} (rad)", 150, -0.05, 0.05);
+      hResAngle=0; hResAngle   = dbe_->book1D (pre+"_hResAngle", "Residual on 2D segment angle;angle_{rec}-angle_{sim} (rad)", 50, -0.01, 0.01);
       
       hResPos=0;hResPos   = dbe_->book1D (pre+"_hResPos", "Residual on 2D segment position (x at SL center);x_{rec}-x_{sim} (cm)",
 					  150, -0.2, 0.2);
