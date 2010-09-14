@@ -260,10 +260,8 @@ FWFFService::postBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
          guiManager()->updateStatus("Loading geometry...");
          edm::ESTransientHandle<FWRecoGeometry> geoh;
          iSetup.get<FWRecoGeometryRecord>().get(geoh);
-//          TGeoManager *geom = const_cast<TGeoManager*>(geoh.product()->manager());
-//          getIdToGeo().manager(geom);
-         getIdToGeo().initMap(geoh.product()->idToName);
-         m_context->setGeom(&(getIdToGeo()));
+         getGeom().initMap(geoh.product()->idToName);
+         m_context->setGeom(&(getGeom()));
       }
 
       setupViewManagers();
