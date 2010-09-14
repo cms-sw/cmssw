@@ -115,6 +115,8 @@ class LumiInfoCont (dict):
         self.noWarnings  = kwargs.get ('noWarnings')
         self.minRun      = 0
         self.maxRun      = 0
+        self.minIntLum   = 0
+        self.maxIntLum   = 0
         
         for key in self.minMaxKeys:
             self._min[key] = -1
@@ -286,7 +288,7 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
     weight = 0
     if 'time' == options.edfMode:
         # if we have a minimum run number, clear the lists
-        if lumiCont.minRun:
+        if lumiCont.minRun or lumiCont.minIntLum:
             xVals      = []
             yVals      = []
             theoryVals = []
@@ -308,6 +310,9 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
                 except:
                     raise RuntimeError, "key %s not found in lumi information" \
                           % key.__str__()
+                if lumiCont.minIntLum and lumiCont.minIntLum > intLum or \
+                   lumiCont.maxIntLum and lumiCont.maxIntLum < intLum:
+                    continue
                 lumFrac = intLum / lumiCont.totalRecLum
                 xVals.append( lumiCont[key].totalRecorded)
                 yVals.append (factor)
@@ -458,6 +463,10 @@ if __name__ == '__main__':
                        help='Minimum run number to consider')
     parser.add_option ('--maxRun', dest='maxRun', type='int', default=0,
                        help='Maximum run number to consider')
+    parser.add_option ('--minIntLum', dest='minIntLum', type='float', default=0,
+                       help='Minimum run number to consider')
+    parser.add_option ('--maxIntLum', dest='maxIntLum', type='float', default=0,
+                       help='Maximum run number to consider')
     parser.add_option ('--weights', dest='weights', action='store_true',
                        help = 'Read fourth column as a weight')
     parser.add_option ('--print', dest='printValues', action='store_true',
@@ -488,8 +497,10 @@ if __name__ == '__main__':
     ## load Luminosity info ##
     ##########################
     cont = LumiInfoCont (args[0], **options.__dict__)
-    cont.minRun = options.minRun
-    cont.maxRun = options.maxRun
+    cont.minRun    = options.minRun
+    cont.maxRun    = options.maxRun
+    cont.minIntLum = options.minIntLum
+    cont.maxIntLum = options.maxIntLum
 
     ##################################################
     ## look for which runs correspond to what total ##
