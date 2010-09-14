@@ -68,8 +68,8 @@ bool  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair, reco:
   
   std::vector<RefCountedKinematicParticle> particles;
   
-  particles.push_back(pFactory.particle (pair[0],mass,chi,ndf,sigma));
-  particles.push_back(pFactory.particle (pair[1],mass,chi,ndf,sigma));
+  particles.push_back(pFactory.particle (pair[0],mass,chi,ndf,sigma,*pair[0].innermostMeasurementState().freeState()));
+  particles.push_back(pFactory.particle (pair[1],mass,chi,ndf,sigma,*pair[1].innermostMeasurementState().freeState()));
   
   MultiTrackKinematicConstraint *  constr = new ColinearityKinematicConstraint(ColinearityKinematicConstraint::PhiTheta);
   
