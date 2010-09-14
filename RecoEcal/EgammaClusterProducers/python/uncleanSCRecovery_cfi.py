@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 uncleanSCRecovered = cms.EDProducer("UncleanSCRecoveryProducer",
-            debugLevel = cms.string('NONE'),
+
             # input collections:
             cleanBcCollection = cms.InputTag('nonDuplicatedHybridSuperClusters','hybridBarrelBasicClusters'),
             cleanScCollection = cms.InputTag('nonDuplicatedHybridSuperClusters','hybridSuperClusters'),

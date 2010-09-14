@@ -48,9 +48,6 @@ class CleanAndMergeProducer : public edm::EDProducer
       std::string hitproducer_;
       std::string hitcollection_;
 
-
-      HybridClusterAlgo::DebugLevel debugL;
-
       ClusterShapeAlgo shapeAlgo_; // cluster shape algorithm
 
 

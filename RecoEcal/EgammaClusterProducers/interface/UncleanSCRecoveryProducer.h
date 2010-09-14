@@ -35,7 +35,6 @@ class UncleanSCRecoveryProducer : public edm::EDProducer
       std::string  bcCollection_;     
       std::string  scCollection_;     
 
-      HybridClusterAlgo::DebugLevel debugL;
 
 };
 
