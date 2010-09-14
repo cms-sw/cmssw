@@ -122,7 +122,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
    if(npv >= 3) {
      ievtype = PYTHIA;
    } else if(npv == 1) {
-     if( abs(partType1) == 11 ) {
+     if( std::abs(partType1) == 11 ) {
        ievtype = SINGLE; ievflav = ELECTRON_FLAV;
      } else if(partType1 == 111) {
        ievtype = SINGLE; ievflav = PIZERO_FLAV;
@@ -130,7 +130,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
        ievtype = SINGLE; ievflav = PHOTON_FLAV;
      }
    } else if(npv == 2) {
-     if (  abs(partType1) == 11 && abs(partType2) == 11 ) {
+     if (  std::abs(partType1) == 11 && std::abs(partType2) == 11 ) {
        ievtype = DOUBLE; ievflav = ELECTRON_FLAV;
      } else if(partType1 == 111 && partType2 == 111)   {
        ievtype = DOUBLE; ievflav = PIZERO_FLAV;
@@ -189,7 +189,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
        for (std::vector<SimTrack>::iterator iEleTk = theSimTracks.begin(); iEleTk != theSimTracks.end(); ++iEleTk){
 	 if (  (*iEleTk).noVertex() )                    continue;
 	 if ( (*iEleTk).vertIndex() == iPV )             continue; 
-         if ( abs((*iEleTk).type()) != 11  )             continue;
+         if ( std::abs((*iEleTk).type()) != 11  )             continue;
 
 	 int vertexId = (*iEleTk).vertIndex();
 	 SimVertex vertex = theSimVertices[vertexId];

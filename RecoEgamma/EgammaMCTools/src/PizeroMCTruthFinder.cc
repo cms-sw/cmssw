@@ -95,7 +95,7 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(std::vector<SimTrack> theSi
 
     if ( (*iSimTk).vertIndex() == iPV ) {
       npv++;
-      if ( fabs((*iSimTk).type() ) == 111) {
+      if ( std::abs((*iSimTk).type() ) == 111) {
 
 	std::cout << " Found a primary pizero with ID  " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  std::endl;
 	
@@ -118,7 +118,7 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(std::vector<SimTrack> theSi
   if(npv > 4) {
     ievtype = PYTHIA;
   } else if(npv == 1) {
-    if( abs(partType1) == 11 ) {
+    if( std::abs(partType1) == 11 ) {
       ievtype = SINGLE; ievflav = ELECTRON_FLAV;
     } else if(partType1 == 111) {
       ievtype = SINGLE; ievflav = PIZERO_FLAV;
@@ -126,7 +126,7 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(std::vector<SimTrack> theSi
       ievtype = SINGLE; ievflav = PHOTON_FLAV;
     }
   } else if(npv == 2) {
-    if (  abs(partType1) == 11 && abs(partType2) == 11 ) {
+    if (  std::abs(partType1) == 11 && std::abs(partType2) == 11 ) {
       ievtype = DOUBLE; ievflav = ELECTRON_FLAV;
     } else if(partType1 == 111 && partType2 == 111)   {
       ievtype = DOUBLE; ievflav = PIZERO_FLAV;
