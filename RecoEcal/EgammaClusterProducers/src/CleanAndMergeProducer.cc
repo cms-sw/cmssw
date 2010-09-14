@@ -15,6 +15,7 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
@@ -141,8 +142,8 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
         // if you find a matched one, create a reference to the cleaned collection and store it
         // if you find an unmatched one, then keep all its basic clusters in the basic Clusters 
         // vector
-        int uncleanSize = (int) pUncleanSC->size();
-        int cleanSize = (int) pCleanSC->size();
+        int uncleanSize =  pUncleanSC->size();
+        int cleanSize =    pCleanSC->size();
 
         LogDebug("EcalCleaning") << "Size of Clean Collection: " << cleanSize 
                 << ", uncleanSize: " << uncleanSize  << std::endl;
@@ -154,12 +155,12 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
         for (int isc =0; isc< uncleanSize; ++isc) {
                 reco::SuperClusterRef unscRef( pUncleanSC, isc );    
                 const std::vector< std::pair<DetId, float> > & uhits = unscRef->hitsAndFractions();
-                int uhitsSize = (int) uhits.size();
+                int uhitsSize = uhits.size();
                 bool foundTheSame = false;
                 for (int jsc=0; jsc < cleanSize; ++jsc) { // loop over the cleaned SC
                         reco::SuperClusterRef cscRef( pCleanSC, jsc );
                         const std::vector< std::pair<DetId, float> > & chits = cscRef->hitsAndFractions();
-                        int chitsSize = (int) chits.size();
+                        int chitsSize =  chits.size();
                         foundTheSame = true;
                         if (unscRef->seed()->seed() == cscRef->seed()->seed() && chitsSize == uhitsSize) { 
                                 // if the clusters are exactly the same then because the clustering
@@ -188,7 +189,7 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
                         }
                 }
         }
-        int bcSize = (int) basicClusters.size();
+        int bcSize =  basicClusters.size();
 
         LogDebug("EcalCleaning") << "Found cleaned SC: " << cleanSize <<  " uncleaned SC: " 
                 << uncleanSize << " from which " << scRefs->size() 

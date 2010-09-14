@@ -10,7 +10,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoEcal/EgammaClusterAlgos/interface/HybridClusterAlgo.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 class UnifiedSCCollectionProducer : public edm::EDProducer 
@@ -37,7 +36,7 @@ class UnifiedSCCollectionProducer : public edm::EDProducer
       std::string  bcCollectionUncleanOnly_;
       std::string  scCollectionUncleanOnly_;
 
-      HybridClusterAlgo::DebugLevel debugL;
+
 
 };
 

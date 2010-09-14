@@ -15,6 +15,7 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 // Class header file
 #include "RecoEcal/EgammaClusterProducers/interface/UncleanSCRecoveryProducer.h"
@@ -94,8 +95,8 @@ void UncleanSCRecoveryProducer::produce(edm::Event& evt,
                 return;
         }
         const  reco::SuperClusterCollection uncleanSC = *(pUncleanSC.product());
-        int uncleanSize = (int) pUncleanSC->size();
-        int cleanSize = (int) pCleanSC->size();
+        int uncleanSize = pUncleanSC->size();
+        int cleanSize =   pCleanSC->size();
 
         LogDebug("EcalCleaning")  << "Size of Clean Collection: " << cleanSize 
                 << ", uncleanSize: " << uncleanSize;
@@ -157,7 +158,7 @@ void UncleanSCRecoveryProducer::produce(edm::Event& evt,
         reco::BasicClusterCollection basicClustersProd = *bccHandle;
 
         LogDebug("EcalCleaning") <<"Got the BasicClusters from the event again";
-        int bcSize = (int) bccHandle->size();
+        int bcSize = bccHandle->size();
         //
         // now we can create the SC collection
         //
@@ -233,7 +234,7 @@ void UncleanSCRecoveryProducer::produce(edm::Event& evt,
         }
         // the new collection
         LogDebug("EcalCleaning")<<"The new SC clean collection with size "<< superClusters.size();
-        for (int i=0; i < (int) superClusters.size(); ++i) {
+        for (unsigned int i=0; i <  superClusters.size(); ++i) {
                 const reco::SuperCluster nsc = superClusters[i];
                 LogDebug("EcalCleaning")<< " >>> newSC    #" << i << "; Energy: " << nsc.energy()
                         << " eta: " << nsc.eta()  << " isClean=" 

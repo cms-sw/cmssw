@@ -10,7 +10,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoEcal/EgammaClusterAlgos/interface/HybridClusterAlgo.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 class UncleanSCRecoveryProducer : public edm::EDProducer 
