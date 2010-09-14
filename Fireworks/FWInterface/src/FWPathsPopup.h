@@ -22,7 +22,6 @@ class FWFFLooper;
 class TGLabel;
 class TGTextEdit;
 class TGTextButton;
-class TGHtml;
 class TString;
 class FWPSetTableManager;
 class FWTableWidget;
@@ -38,13 +37,11 @@ public:
    void scheduleReloadEvent();
    bool &hasChanges() { return m_hasChanges; };
    void setup(const edm::ScheduleInfo *info);
-   void rowClicked(Int_t iRow, Int_t iButton, Int_t iKeyMod, Int_t iGlobalX, Int_t iGlobalY);
+   void cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t iKeyMod, Int_t iGlobalX, Int_t iGlobalY);
    void newIndexSelected(int);
    void updateFilterString(const char *str);
 
 private:
-   void makePathsView();
-
    const char* typeCodeToChar(char);
    void handlePSet(const edm::ParameterSet* ps, TString&);
    void handleEntry(const edm::Entry&, const std::string&, TString&);
@@ -61,8 +58,6 @@ private:
 
    TGLabel                  *m_moduleLabel;   
    TGLabel                  *m_moduleName;
-   
-   TGHtml                   *m_modulePathsHtml;
    
    TGTextEdit               *m_textEdit;
    TGTextButton             *m_apply;

@@ -17,7 +17,6 @@
 #include "TGTextEdit.h"
 #include "TGText.h"
 #include "TSystem.h"
-#include "TGHtml.h"
 #include "TGFont.h"
 #include "TGTextEntry.h"
 
@@ -60,12 +59,21 @@ private:
 /** Custom structure for holding the table contents */
 struct PSetData
 {
-  std::string label;
-  std::string value;
-  int         level;
-  bool        tracked;
-  std::string type;
-  size_t      parent;
+   std::string label;
+   std::string value;
+   int         level;
+   bool        tracked;
+   std::string type;
+   size_t      parent;
+   // Whether or not it matches the filter.
+   bool        matches;
+   // Whether or not it is expanded.
+   bool        expanded;
+   // Whether or not it is visibile.  Being visible is given by either matching
+   // a non-null filter, or  or the parent being visibible and expanded.
+   bool        visible;
+   // Whether or not any of the children matches the filter.
+   bool        childMatches;
 };
 
 
@@ -226,32 +234,36 @@ public:
          }
          m_parentStack.pop_back();
       }
-      reset();
+      
+      // Nothing is expanded by default.
+      for (size_t i = 0, e = m_entries.size(); i != e; ++i)
+         m_entries[i].expanded = false;
+      m_filter = "";
+      implSort(-1, true);
    }
 
    virtual void implSort(int, bool)
    {
-      m_row_to_index.clear();
-      m_matches.resize(m_entries.size());
-
-      // First of all show all the elements that match,
-      // and all their children.
+      // Decide whether or not items match the filter.
       for (size_t i = 0, e = m_entries.size(); i != e; ++i)
       {
          PSetData &data = m_entries[i];
-         if (data.parent != ((size_t) -1) && m_matches[data.parent])
-         {
-            m_matches[i] = true;
-            continue;
-         } 
-
-         if (strstr(data.label.c_str(), m_filter.c_str()))
-            m_matches[i] = true;
+         // First of all decide whether or not we match
+         // the filter.
+         if (m_filter.empty())
+            data.matches = false;
+         else if (strstr(data.label.c_str(), m_filter.c_str()))
+            data.matches = true;
          else
-            m_matches[i] = false;
+            data.matches = false;
       }
 
-      // Show also parents
+      // We reset whether or not a given parent has children that match the
+      // filter, and we recompute the whole information by checking all the
+      // children.
+      for (size_t i = 0, e = m_entries.size(); i != e; ++i)
+         m_entries[i].childMatches = false;
+
       std::vector<int> stack;
       int previousLevel = 0;
       for (size_t i = 0, e = m_entries.size(); i != e; ++i)
@@ -259,8 +271,10 @@ public:
          PSetData &data = m_entries[i];
          // Top level.
          if (data.parent == (size_t)-1)
+         {
+            previousLevel = 0;
             continue;
-
+         }
          // If the level is greater than the previous one,
          // it means we are among the children of the 
          // previous level, hence we push the parent to
@@ -275,20 +289,41 @@ public:
          else
             for (size_t pi = 0, pe = previousLevel - data.level; pi != pe; ++pi)
                stack.pop_back();
-         
-         if (m_matches[i])
+ 
+         if (data.matches)
             for (size_t pi = 0, pe = stack.size(); pi != pe; ++pi)
-               m_matches[stack[pi]] = true;
+               m_entries[stack[pi]].childMatches = true;
 
          previousLevel = data.level;
-      }  
-
-      for (size_t i = 0, e = m_entries.size(); i != e; ++i)
-      {
-         if (m_matches[i])
-            m_row_to_index.push_back(i);
       }
-   }
+       
+      recalculateVisibility();
+    }
+
+   void recalculateVisibility()
+      {
+         m_row_to_index.clear();
+
+         // Decide about visibility.
+         // * If the items are toplevel and they match the filter, they get shown
+         //   in any case.
+         // * If the item or any of its children match the filter, the item
+         //   is visible.
+         // * If the filter is empty and the parent is expanded.
+         for (size_t i = 0, e = m_entries.size(); i != e; ++i)
+         {
+            PSetData &data = m_entries[i];
+            if (data.parent == ((size_t) -1))
+               data.visible = data.childMatches || data.matches || m_filter.empty();
+            else
+            data.visible = data.matches || data.childMatches || (m_filter.empty() && m_entries[data.parent].expanded);
+         }
+
+         // Put in the index only the entries which are visible.
+         for (size_t i = 0, e = m_entries.size(); i != e; ++i)
+            if (m_entries[i].visible)
+               m_row_to_index.push_back(i);
+      }
 
    virtual int unsortedRowNumber(int unsorted) const
    {
@@ -333,20 +368,23 @@ public:
 
       if ( data.level == 0 )
       {
-         label = data.label + "(" + data.value + ")";
+         label = data.label + " (" + data.value + ")";
          value = "";
          renderer = &m_pathRenderer;
       }
       else if (data.level == 1)
       {
-         label = data.label + "(" + data.value + ")";
+         label = data.label + " (" + data.value + ")";
          value = "";
          renderer = &m_italicRenderer;
       }
       else 
       {
+         if (!data.type.empty())
+            label = data.label + " (" + data.type + ")";
+         else
+            label = data.label;
          value = data.value;
-         label = data.label;
          renderer = &m_renderer;
       }
 
@@ -364,6 +402,23 @@ public:
 
       return renderer;
    }
+
+   void setExpanded(int row)
+      {
+         if (row == -1)
+            return;
+         // We do not want to handle expansion
+         // events while in filtering mode.
+         if (!m_filter.empty())
+            return;
+         int index = rowToIndex()[row];
+         PSetData& data = m_entries[index];
+
+         data.expanded = !data.expanded;
+         recalculateVisibility();
+         dataChanged();
+         visualPropertiesChanged();
+      }
 
    void setSelection (int row, int mask) {
       if(mask == 4) {
@@ -390,12 +445,9 @@ public:
    void reset() 
    {
       changeSelection(-1);
-      m_row_to_index.clear();
-      m_row_to_index.reserve(m_entries.size());
-      for(size_t i = 0, e = m_entries.size(); i != e; ++i)
-         m_row_to_index.push_back(i);
-      
+      recalculateVisibility();
       dataChanged();
+      visualPropertiesChanged();
    }
 
    void handlePSetEntry(const edm::ParameterSetEntry& entry, const std::string& key)
@@ -626,7 +678,7 @@ public:
         {
           data.type = "FileInPath";
           entry.getFileInPath().write(ss);
-          createVectorString(data, ss.str(), true);
+          createScalarString(data, ss.str());
           break;
         }
       case 'e':
@@ -723,7 +775,6 @@ private:
    std::vector<PSetData>           m_entries;
    std::vector<size_t>             m_parentStack;
    std::vector<int>                m_row_to_index;
-   std::vector<bool>               m_matches;
    int                             m_selectedRow;
    std::string                     m_filter;
 
@@ -740,7 +791,6 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
      m_hasChanges(false),
      m_moduleLabel(0),
      m_moduleName(0),
-     m_modulePathsHtml(0),
      m_textEdit(0),
      m_apply(0),
      m_psTable(new FWPSetTableManager())
@@ -749,7 +799,6 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
 
    FWDialogBuilder builder(this);
    builder.indent(4)
-          .addLabel("Available paths", 10)
           .spaceDown(10)
           .addLabel("Filter:").floatLeft(4).expand(false, false)
           .addTextEntry("", &m_search).expand(true, false)
@@ -763,44 +812,51 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
    m_search->SetEnabled(true);
    m_search->Connect("TextChanged(const char *)", "FWPathsPopup",
                      this, "updateFilterString(const char *)");
-
-
    m_tableWidget->SetBackgroundColor(0xffffff);
    m_tableWidget->SetLineSeparatorColor(0x000000);
    m_tableWidget->SetHeaderBackgroundColor(0xececec);
-   m_tableWidget->Connect("rowClicked(Int_t,Int_t,Int_t,Int_t,Int_t)",
+   m_tableWidget->Connect("cellClicked(Int_t,Int_t,Int_t,Int_t,Int_t,Int_t)",
                           "FWPathsPopup",this,
-                          "rowClicked(Int_t,Int_t,Int_t,Int_t,Int_t)");
+                          "cellClicked(Int_t,Int_t,Int_t,Int_t,Int_t,Int_t)");
 
    MapSubwindows();
    Layout();
 }
 
 void 
-FWPathsPopup::rowClicked(Int_t iRow, Int_t iButton, Int_t iKeyMod, Int_t, Int_t)
+FWPathsPopup::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t iKeyMod, Int_t, Int_t)
 {
-  if ( iButton == kButton1 ) 
-  {
-    // Clear text on new row click
-    m_textEdit->Clear();
-    m_psTable->setSelection(iRow, iKeyMod);
-  }
+   
+   if (iColumn == 0 && iButton == kButton1)
+   {
+      m_psTable->setExpanded(iRow);
+   }
+   else if ( iButton == kButton1 ) 
+   {
+      // Clear text on new row click
+      m_textEdit->Clear();
+      m_psTable->setSelection(iRow, iKeyMod);
+   }
 }
 
 void
 FWPathsPopup::newIndexSelected(int iSelectedIndex)
 {
-  if ( -1 != iSelectedIndex ) 
-  {
-    int index = m_psTable->rowToIndex()[iSelectedIndex];
-    const PSetData& data = m_psTable->data()[index];
+   if (iSelectedIndex == -1)
+      return;
+
+   int index = m_psTable->rowToIndex()[iSelectedIndex];
+   PSetData& data = m_psTable->data()[index];
    
-    // This likely needs to be reformatted
-    std::stringstream ss;
-    ss << data.label <<"  "<< data.type <<"  "<< data.value;
-    TGText text(ss.str().c_str());
-    m_textEdit->AddText(&text);
-  }
+   data.expanded = !data.expanded;
+   // This likely needs to be reformatted
+   std::stringstream ss;
+   ss << data.label <<"  "<< data.type <<"  "<< data.value;
+   TGText text(ss.str().c_str());
+   m_textEdit->AddText(&text);
+   std::cerr << data.label << "clicked" << std::endl;
+   m_psTable->sortWithFilter(m_search->GetText());
+   m_psTable->dataChanged();
 }
 
 void
@@ -808,7 +864,6 @@ FWPathsPopup::updateFilterString(const char *str)
 {
    m_psTable->sortWithFilter(str);
 }
-
 
 /** Finish the setup of the GUI */
 void
@@ -819,8 +874,6 @@ FWPathsPopup::setup(const edm::ScheduleInfo *info)
 
    m_info->availableModuleLabels(m_availableModuleLabels);
    m_info->availablePaths(m_availablePaths);
-
-   // makePathsView();
 }
 
 // It would be nice if we could use some of the 
@@ -1165,47 +1218,6 @@ FWPathsPopup::handlePSet(const edm::ParameterSet* ps, TString& html)
 
 //#include <fstream>
 //std::ofstream fout("path-view.html");
-
-void
-FWPathsPopup::makePathsView()
-{
-  m_modulePathsHtml->Clear();
-
-  TString html;
-
-  html = "<html><head><title>Available paths</title></head><body>";
-
-  for ( std::vector<std::string>::iterator pi = m_availablePaths.begin(),
-                                        piEnd = m_availablePaths.end();
-        pi != piEnd; ++pi )
-  {
-    html += "<h1>"+ *pi + "</h1>";
-
-    std::vector<std::string> modulesInPath;
-    m_info->modulesInPath(*pi, modulesInPath);
-
-    for ( std::vector<std::string>::iterator mi = modulesInPath.begin(),
-                                          miEnd = modulesInPath.end();
-          mi != miEnd; ++mi )
-    {
-      const edm::ParameterSet* ps = m_info->parametersForModule(*mi);
-
-      // Need to get the module type from the parameter set before we handle the set itself
-      const edm::ParameterSet::table& pst = ps->tbl();    
-      const edm::ParameterSet::table::const_iterator ti = pst.find("@module_edm_type");
-      if (ti == pst.end())
-         html += "<h2>Unknown module type: " + *mi + "</h2>";
-      else
-         html += "<h2>" + ti->second.getString() + "  " + *mi  + "</h2>";
-      handlePSet(ps, html); 
-    }
-  } 
-
-  html += "</body></html>";
-  //fout<< html <<std::endl;
-
-  m_modulePathsHtml->ParseText((char*)html.Data());
-}
 
 /** Gets called by CMSSW as we process events. **/
 void
