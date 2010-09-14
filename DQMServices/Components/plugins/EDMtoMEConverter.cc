@@ -2,8 +2,8 @@
  *
  *  See header file for description of class
  *
- *  $Date: 2010/05/18 09:03:02 $
- *  $Revision: 1.33 $
+ *  $Date: 2010/09/12 07:24:46 $
+ *  $Revision: 1.34 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -25,9 +25,6 @@ EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet & iPSet) :
 
   convertOnEndLumi = iPSet.getUntrackedParameter<bool>("convertOnEndLumi",true);
   convertOnEndRun = iPSet.getUntrackedParameter<bool>("convertOnEndRun",true);
-
-  // reset the release tag
-  releaseTag = false;
 
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
@@ -169,18 +166,6 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
         std::string pathname = metoedmobject[i].name;
         if (verbosity > 0) std::cout << pathname << std::endl;
 
-        // set the release tag if it has not be yet done
-        if (!releaseTag)
-        {
-          dbe->cd();
-          dbe->bookString(
-            "ReleaseTag",
-            metoedmobject[i].
-            release.substr(1,metoedmobject[i].release.size()-2)
-          );
-          releaseTag = true;
-        }
-
         std::string dir;
 
         // deconstruct path from fullpath
@@ -239,18 +224,6 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
         // get full path of monitor element
         std::string pathname = metoedmobject[i].name;
         if (verbosity > 0) std::cout << pathname << std::endl;
-
-        // set the release tag if it has not be yet done
-        if (!releaseTag)
-        {
-          dbe->cd();
-          dbe->bookString(
-            "ReleaseTag",
-            metoedmobject[i].
-            release.substr(1,metoedmobject[i].release.size()-2)
-          );
-          releaseTag = true;
-        }
 
         std::string dir;
 
@@ -311,18 +284,6 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
         std::string pathname = metoedmobject[i].name;
         if (verbosity > 0) std::cout << pathname << std::endl;
 
-        // set the release tag if it has not be yet done
-        if (!releaseTag)
-        {
-          dbe->cd();
-          dbe->bookString(
-            "ReleaseTag",
-            metoedmobject[i].
-            release.substr(1,metoedmobject[i].release.size()-2)
-          );
-          releaseTag = true;
-        }
-
         std::string dir;
 
         // deconstruct path from fullpath
@@ -381,18 +342,6 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
         // get full path of monitor element
         std::string pathname = metoedmobject[i].name;
         if (verbosity > 0) std::cout << pathname << std::endl;
-
-        // set the release tag if it has not be yet done
-        if (!releaseTag)
-        {
-          dbe->cd();
-          dbe->bookString(
-            "ReleaseTag",
-            metoedmobject[i].
-            release.substr(1,metoedmobject[i].release.size()-2)
-          );
-          releaseTag = true;
-        }
 
         std::string dir;
 
@@ -453,18 +402,6 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
         std::string pathname = metoedmobject[i].name;
         if (verbosity > 0) std::cout << pathname << std::endl;
 
-        // set the release tag if it has not be yet done
-        if (!releaseTag)
-        {
-          dbe->cd();
-          dbe->bookString(
-            "ReleaseTag",
-            metoedmobject[i].
-            release.substr(1,metoedmobject[i].release.size()-2)
-          );
-          releaseTag = true;
-        }
-
         std::string dir;
 
         // deconstruct path from fullpath
@@ -523,18 +460,6 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
         // get full path of monitor element
         std::string pathname = metoedmobject[i].name;
         if (verbosity > 0) std::cout << pathname << std::endl;
-
-        // set the release tag if it has not be yet done
-        if (!releaseTag)
-        {
-          dbe->cd();
-          dbe->bookString(
-            "ReleaseTag",
-            metoedmobject[i].
-            release.substr(1,metoedmobject[i].release.size()-2)
-          );
-          releaseTag = true;
-        }
 
         std::string dir;
 
@@ -595,18 +520,6 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
         std::string pathname = metoedmobject[i].name;
         if (verbosity > 0) std::cout << pathname << std::endl;
 
-        // set the release tag if it has not be yet done
-        if (!releaseTag)
-        {
-          dbe->cd();
-          dbe->bookString(
-            "ReleaseTag",
-            metoedmobject[i].
-            release.substr(1,metoedmobject[i].release.size()-2)
-          );
-          releaseTag = true;
-        }
-
         std::string dir;
 
         // deconstruct path from fullpath
@@ -665,18 +578,6 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
         // get full path of monitor element
         std::string pathname = metoedmobject[i].name;
         if (verbosity > 0) std::cout << pathname << std::endl;
-
-        // set the release tag if it has not be yet done
-        if (!releaseTag)
-        {
-          dbe->cd();
-          dbe->bookString(
-            "ReleaseTag",
-            metoedmobject[i].
-            release.substr(1,metoedmobject[i].release.size()-2)
-          );
-          releaseTag = true;
-        }
 
         std::string dir;
 
@@ -738,18 +639,6 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
         std::string pathname = metoedmobject[i].name;
         if (verbosity > 0) std::cout << pathname << std::endl;
 
-        // set the release tag if it has not be yet done
-        if (!releaseTag)
-        {
-          dbe->cd();
-          dbe->bookString(
-            "ReleaseTag",
-            metoedmobject[i].
-            release.substr(1,metoedmobject[i].release.size()-2)
-          );
-          releaseTag = true;
-        }
-
         std::string dir;
 
         // deconstruct path from fullpath
@@ -809,18 +698,6 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
         std::string pathname = metoedmobject[i].name;
         if (verbosity > 0) std::cout << pathname << std::endl;
 
-        // set the release tag if it has not be yet done
-        if (!releaseTag)
-        {
-          dbe->cd();
-          dbe->bookString(
-            "ReleaseTag",
-            metoedmobject[i].
-            release.substr(1,metoedmobject[i].release.size()-2)
-          );
-          releaseTag = true;
-        }
-
         std::string dir;
         std::string name;
 
@@ -873,18 +750,6 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
         // get full path of monitor element
         std::string pathname = metoedmobject[i].name;
         if (verbosity > 0) std::cout << pathname << std::endl;
-
-        // set the release tag if it has not be yet done
-        if (!releaseTag)
-        {
-          dbe->cd();
-          dbe->bookString(
-            "ReleaseTag",
-            metoedmobject[i].
-            release.substr(1,metoedmobject[i].release.size()-2)
-          );
-          releaseTag = true;
-        }
 
         std::string dir;
         std::string name;
@@ -946,18 +811,6 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
         std::string pathname = metoedmobject[i].name;
         if (verbosity > 0) std::cout << pathname << std::endl;
 
-        // set the release tag if it has not be yet done
-        if (!releaseTag)
-        {
-          dbe->cd();
-          dbe->bookString(
-            "ReleaseTag",
-            metoedmobject[i].
-            release.substr(1,metoedmobject[i].release.size()-2)
-          );
-          releaseTag = true;
-        }
-
         std::string dir;
         std::string name;
 
@@ -1017,18 +870,6 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
         // get full path of monitor element
         std::string pathname = metoedmobject[i].name;
         if (verbosity > 0) std::cout << pathname << std::endl;
-
-        // set the release tag if it has not be yet done
-        if (!releaseTag)
-        {
-          dbe->cd();
-          dbe->bookString(
-            "ReleaseTag",
-            metoedmobject[i].
-            release.substr(1,metoedmobject[i].release.size()-2)
-          );
-          releaseTag = true;
-        }
 
         std::string dir;
         std::string name;

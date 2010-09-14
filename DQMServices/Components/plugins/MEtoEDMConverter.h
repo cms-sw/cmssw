@@ -6,8 +6,8 @@
  *  Class to take dqm monitor elements and convert into a
  *  ROOT dataformat stored in Run tree of edm file
  *
- *  $Date: 2009/10/29 11:42:24 $
- *  $Revision: 1.16.4.2 $
+ *  $Date: 2009/11/04 09:04:44 $
+ *  $Revision: 1.17 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -24,7 +24,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Version/interface/GetReleaseVersion.h"
 
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -70,7 +69,7 @@ public:
   virtual void endLuminosityBlock(edm::LuminosityBlock&, const edm::EventSetup&);
 
   template <class T>
-  void putData(T& iPutTo, bool iLumiOnly, int iRun, int iLumi);
+  void putData(T& iPutTo, bool iLumiOnly);
 
   typedef std::vector<uint32_t> TagList;
 

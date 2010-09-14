@@ -6,8 +6,8 @@
  *  Class to take dqm monitor elements and convert into a
  *  ROOT dataformat stored in Run tree of edm file
  *
- *  $Date: 2010/03/25 08:10:12 $
- *  $Revision: 1.16 $
+ *  $Date: 2010/05/15 14:46:56 $
+ *  $Revision: 1.17 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -80,9 +80,6 @@ class EDMtoMEConverter : public edm::EDAnalyzer
   DQMStore *dbe;
   std::vector<MonitorElement*> me1, me2, me3, me4, me5, me6, me7, me8;
 
-  // release tag
-  bool releaseTag;
-  
   // private statistics information
   unsigned int iCountf;
   std::map<int,int> iCount;

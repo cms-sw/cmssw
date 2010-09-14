@@ -3,8 +3,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2009/11/04 09:04:44 $
- *  $Revision: 1.29 $
+ *  $Date: 2010/09/12 07:34:15 $
+ *  $Revision: 1.30 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -339,9 +339,7 @@ MEtoEDMConverter::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 void
 MEtoEDMConverter::endRun(edm::Run& iRun, const edm::EventSetup& iSetup)
 {
-  int run = iRun.run();
-  int lumi = 0;
-  putData(iRun, false, run, lumi);
+  putData(iRun, false);
 }
 
 void
@@ -352,17 +350,13 @@ MEtoEDMConverter::beginLuminosityBlock(edm::LuminosityBlock& iLumi, const edm::E
 void
 MEtoEDMConverter::endLuminosityBlock(edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup)
 {
-  int run = iLumi.id().run();
-  int lumi = iLumi.luminosityBlock();
-  putData(iLumi, true, run, lumi);
+  putData(iLumi, true);
 }
 
 template <class T>
 void
-MEtoEDMConverter::putData(T& iPutTo, bool iLumiOnly, int iRun, int iLumi)
+MEtoEDMConverter::putData(T& iPutTo, bool iLumiOnly)
 {
-  std::string iRelease = edm::getReleaseVersion();
-
   std::string MsgLoggerCat = "MEtoEDMConverter_putData";
   
   if (verbosity > 0)
@@ -475,63 +469,51 @@ MEtoEDMConverter::putData(T& iPutTo, bool iLumiOnly, int iRun, int iLumi)
     switch (me->kind())
     {
     case MonitorElement::DQM_KIND_INT:
-      pOutInt->putMEtoEdmObject(me->getFullname(),me->getTags(),me->getIntValue(),
-				iRelease,iRun,iLumi,iDataTier);
+      pOutInt->putMEtoEdmObject(me->getFullname(),me->getTags(),me->getIntValue());
       break;
 
     case MonitorElement::DQM_KIND_REAL:
-      pOutDouble->putMEtoEdmObject(me->getFullname(),me->getTags(),me->getFloatValue(),
-				   iRelease,iRun,iLumi,iDataTier);
+      pOutDouble->putMEtoEdmObject(me->getFullname(),me->getTags(),me->getFloatValue());
       break;
 
     case MonitorElement::DQM_KIND_STRING:
-      pOutString->putMEtoEdmObject(me->getFullname(),me->getTags(),me->getStringValue(),
-				   iRelease,iRun,iLumi,iDataTier);
+      pOutString->putMEtoEdmObject(me->getFullname(),me->getTags(),me->getStringValue());
       break;
 
     case MonitorElement::DQM_KIND_TH1F:
-      pOut1->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH1F(),
-			      iRelease,iRun,iLumi,iDataTier);
+      pOut1->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH1F());
       break;
 
     case MonitorElement::DQM_KIND_TH1S:
-      pOut1s->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH1S(),
-			       iRelease,iRun,iLumi,iDataTier);
+      pOut1s->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH1S());
       break;
 
     case MonitorElement::DQM_KIND_TH1D:
-      pOut1d->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH1D(),
-			       iRelease,iRun,iLumi,iDataTier);
+      pOut1d->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH1D());
       break;
 
     case MonitorElement::DQM_KIND_TH2F:
-      pOut2->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH2F(),
-			      iRelease,iRun,iLumi,iDataTier);
+      pOut2->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH2F());
       break;
 
     case MonitorElement::DQM_KIND_TH2S:
-      pOut2s->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH2S(),
-			       iRelease,iRun,iLumi,iDataTier);
+      pOut2s->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH2S());
       break;
 
     case MonitorElement::DQM_KIND_TH2D:
-      pOut2d->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH2D(),
-			       iRelease,iRun,iLumi,iDataTier);
+      pOut2d->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH2D());
       break;
 
     case MonitorElement::DQM_KIND_TH3F:
-      pOut3->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH3F(),
-			      iRelease,iRun,iLumi,iDataTier);
+      pOut3->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTH3F());
       break;
 
     case MonitorElement::DQM_KIND_TPROFILE:
-      pOutProf->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTProfile(),
-			         iRelease,iRun,iLumi,iDataTier);
+      pOutProf->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTProfile());
       break;
 
     case MonitorElement::DQM_KIND_TPROFILE2D:
-      pOutProf2->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTProfile2D(),
-				  iRelease,iRun,iLumi,iDataTier);
+      pOutProf2->putMEtoEdmObject(me->getFullname(),me->getTags(),*me->getTProfile2D());
       break;
 
     default:
