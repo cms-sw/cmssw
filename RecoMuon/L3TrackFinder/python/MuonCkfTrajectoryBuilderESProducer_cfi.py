@@ -3,14 +3,13 @@ import FWCore.ParameterSet.Config as cms
 MuonCkfTrajectoryBuilder = cms.ESProducer("MuonCkfTrajectoryBuilderESProducer",
     propagatorAlong = cms.string('PropagatorWithMaterial'),
     trajectoryFilterName = cms.string('muonCkfTrajectoryFilter'),
-    # updated name for HLR+RECO compatibility
-    MeasurementTrackerName = cms.string('hltMeasurementTracker'),
     maxCand = cms.int32(5),
     ComponentName = cms.string('muonCkfTrajectoryBuilder'),
     intermediateCleaning = cms.bool(False),
     #would skip the first layer to search for measurement if bare TrajectorySeed
     useSeedLayer = cms.bool(False),
-    MeasurementTrackerName = cms.string(''),
+    # updated name for HLR+RECO compatibility
+    MeasurementTrackerName = cms.string('hltMeasurementTracker'),
     estimator = cms.string('Chi2'),
     TTRHBuilder = cms.string('WithTrackAngle'),
     #propagator used only if useSeedLayer=true
