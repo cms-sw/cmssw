@@ -85,7 +85,18 @@ KinematicConstrainedVertexUpdator::update(const AlgebraicVector& inPar,
    {val(i) = c_val(i);}
    for(int i = 1; i<(2*vSize+1); i++)
    {val(i+n_eq) = val_s(i);} 
-  } 
+  }
+
+  //check for NaN
+  for(int i = 1; i<=val.num_row();++i) {
+    if (isnan(val(i))) {
+      LogDebug("KinematicConstrainedVertexUpdator")
+      << "catched NaN.\n";
+      return std::pair<std::pair<std::vector<KinematicState>, AlgebraicMatrix>, RefCountedKinematicVertex >(
+        std::pair<std::vector<KinematicState>, AlgebraicMatrix>(std::vector<KinematicState>(), AlgebraicMatrix(1,0)),
+        RefCountedKinematicVertex());   
+    }
+  }
 
 //debug feature  
   AlgebraicSymMatrix in_cov_sym(7*vSize + 3,0);

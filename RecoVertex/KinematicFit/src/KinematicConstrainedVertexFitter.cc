@@ -38,16 +38,18 @@ KinematicConstrainedVertexFitter::~KinematicConstrainedVertexFitter()
 
 void KinematicConstrainedVertexFitter::setParameters(const edm::ParameterSet& pSet)
 {
-  theMaxDiff = pSet.getParameter<double>("maxDistance");
+  theMaxDelta = pSet.getParameter<double>("maxDelta");
   theMaxStep = pSet.getParameter<int>("maxNbrOfIterations");
-  theMaxInitial = pSet.getParameter<double>("maxOfInitialValue");
+  theMaxReducedChiSq = pSet.getParameter<double>("maxReducedChiSq");
+  theMinChiSqImprovement = pSet.getParameter<double>("minChiSqImprovement");
 }
 
 void KinematicConstrainedVertexFitter::defaultParameters()
 {
-  theMaxDiff = 0.0001;
+  theMaxDelta = 0.01;
   theMaxStep = 1000;
-  theMaxInitial = 9999.; //dummy value
+  theMaxReducedChiSq = 225.;
+  theMinChiSqImprovement = 50.;
 }
 
 RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(std::vector<RefCountedKinematicParticle> part,
@@ -117,44 +119,67 @@ RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(std::vector<RefCou
  RefCountedKinematicVertex rVtx;
  AlgebraicMatrix refCCov;
 
+ double chisq = 1e6;
+ bool convergence = false;
 //iterarions over the updator: each time updated parameters
 //are taken as new linearization point
  do{
   eq = 0.;
   std::pair< std::pair< std::vector<KinematicState>, AlgebraicMatrix >,RefCountedKinematicVertex> lRes =
                                       updator->update(inPar,inCov,lStates,lPoint,cs);
-  lStates = lRes.first.first;
-  if (particles.size() != lStates.size()) {
+ 
+  const std::vector<KinematicState> &newStates = lRes.first.first;
+
+  if (particles.size() != newStates.size()) {
     LogDebug("KinematicConstrainedVertexFitter")
-	<< "updator failure\n";
+        << "updator failure\n";
     return ReferenceCountingPointer<KinematicTree>(new KinematicTree());
   }
-  rVtx = lRes.second;
-  lPoint = rVtx->position();
 
-  AlgebraicVector vValue = vCons->value(lStates, lPoint);
-  for(int i = 1; i<=vValue.num_row();++i)
-  {eq += std::abs(vValue(i));}
-  if(cs !=0)
-  {
-   AlgebraicVector cVal = cs->value(lStates, lPoint);
-   for(int i = 1; i<=cVal.num_row();++i)
-   {eq += std::abs(cVal(i));}
+                                      
+  rVtx = lRes.second;                                      
+                    
+  double newchisq = rVtx->chiSquared();
+  if ( nit>2 && newchisq > theMaxReducedChiSq*rVtx->degreesOfFreedom() && (newchisq-chisq) > (-theMinChiSqImprovement) ) {
+    LogDebug("KinematicConstrainedVertexFitter")
+           << "bad chisq and insufficient improvement, bailing\n";
+    return ReferenceCountingPointer<KinematicTree>(new KinematicTree());
   }
-  if (nit == 0) {
-    if (eq>theMaxInitial) return ReferenceCountingPointer<KinematicTree>(new KinematicTree());
+  chisq = newchisq;
+  
+
+  const GlobalPoint &newPoint = rVtx->position();
+  
+  double maxDelta = 0.0;
+  
+  double deltapos[3];
+  deltapos[0] = newPoint.x() - lPoint.x();
+  deltapos[1] = newPoint.y() - lPoint.y();
+  deltapos[2] = newPoint.z() - lPoint.z();
+  for (int i=0; i<3; ++i) {
+    double delta = deltapos[i]*deltapos[i]/rVtx->error().matrix_new()(i,i);
+    if (delta>maxDelta) maxDelta = delta;
   }
-  if( isnan(eq) ){
-	  LogDebug("KinematicConstrainedVertexFitter")
-	  << "catched NaN.\n";
-	  return ReferenceCountingPointer<KinematicTree>(new KinematicTree());
+  
+  for (std::vector<KinematicState>::const_iterator itold = lStates.begin(), itnew = newStates.begin();
+       itnew!=newStates.end(); ++itold,++itnew) {
+    for (int i=0; i<7; ++i) {
+      double deltapar = itnew->kinematicParameters()(i) - itold->kinematicParameters()(i);
+      double delta = deltapar*deltapar/itnew->kinematicParametersError().matrix()(i,i);
+      if (delta>maxDelta) maxDelta = delta;
+    }
   }
+  
+  lStates = newStates;
+  lPoint = newPoint;
 
   refCCov = lRes.first.second;
   nit++;
- }while(nit<theMaxStep && eq>theMaxDiff);
+  convergence = maxDelta<theMaxDelta || (nit==theMaxStep && maxDelta<4.0*theMaxDelta);
 
- if (eq>theMaxDiff) {
+ }while(nit<theMaxStep && !convergence);
+
+ if (!convergence) {
    return ReferenceCountingPointer<KinematicTree>(new KinematicTree());
  } 
 

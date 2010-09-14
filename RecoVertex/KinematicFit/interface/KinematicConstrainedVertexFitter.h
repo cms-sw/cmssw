@@ -73,9 +73,10 @@ private:
 
  void defaultParameters();
 
- float theMaxDiff;
+ float theMaxDelta; //maximum (delta parameter)^2/(sigma parameter)^2 per iteration for convergence
  int theMaxStep; 				       
- float theMaxInitial;//max of initial value
+ float theMaxReducedChiSq; //max of initial (after 2 iterations) chisq/dof value
+ float theMinChiSqImprovement; //minimum required improvement in chisq to avoid fit termination for cases exceeding theMaxReducedChiSq
  LinearizationPointFinder * finder;				       
  KinematicConstrainedVertexUpdator * updator;
  VertexKinematicConstraint * vCons;
