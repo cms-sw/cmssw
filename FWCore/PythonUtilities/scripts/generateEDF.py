@@ -8,7 +8,8 @@ import array
 import ROOT
 import math
 
-sepRE = re.compile (r'[\s,;:]+')
+sepRE      = re.compile (r'[\s,;:]+')
+nonSpaceRE = re.compile (r'\S')
 
 ##########################
 ## #################### ##
@@ -244,7 +245,8 @@ def loadEvents (filename, cont, options):
     for line in events:
         pieces = sepRE.split (line.strip())
         if len (pieces) < minPieces:
-            print "skipping", line
+            if nonSpaceRE.search (line):
+                print "skipping", line
             continue
         try:
             run, lumi, event = int( pieces[runIndex]   ), \
@@ -259,7 +261,7 @@ def loadEvents (filename, cont, options):
                       % key.__str__()
                 continue
             else:
-                raise RuntimeError, "%s is not found in lumi information" \
+                raise RuntimeError, "%s is not found in lumi information.  Use '--ignoreNoLumiEvents' option to ignore these events and continue." \
                       % key.__str__()
         if options.edfMode != 'time' and not cont[key].xingInfo:
             if options.ignore:
@@ -267,7 +269,7 @@ def loadEvents (filename, cont, options):
                       % key.__str__()
                 continue
             else:
-                raise RuntimeError, "%s  does not have Xing information" \
+                raise RuntimeError, "%s  does not have Xing information.  Use '--ignoreNoLumiEvents' option to ignore these events and continue." \
                       % key.__str__()            
         if options.weights:
             weight = float (pieces[weightIndex])
@@ -283,15 +285,18 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
     # make TGraph
     xVals      = [0]
     yVals      = [0]
-    theoryVals = [0]
+    expectedVals = [0]
     predVals   = [0]
     weight = 0
+    ########################
+    ## Time Ordering Mode ##
+    ########################
     if 'time' == options.edfMode:
         # if we have a minimum run number, clear the lists
         if lumiCont.minRun or lumiCont.minIntLum:
             xVals      = []
             yVals      = []
-            theoryVals = []
+            expectedVals = []
             predVals   = []
         # loop over events
         for key, eventList in sorted( eventsDict.iteritems() ):
@@ -316,14 +321,84 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
                 lumFrac = intLum / lumiCont.totalRecLum
                 xVals.append( lumiCont[key].totalRecorded)
                 yVals.append (factor)
-                theoryVals.append (lumFrac)
+                expectedVals.append (lumFrac)
                 predVals.append   (lumFrac * options.pred)
         # put on the last point if we aren't giving a maximum run
-        if not lumiCont.maxRun:
+        if not lumiCont.maxRun and not lumiCont.maxIntLum:
             xVals.append (lumiCont.totalRecLum)
             yVals.append (1)
-            theoryVals.append (1)
+            expectedVals.append (1)
             predVals.append (options.pred)
+        ####################
+        ## Reset Expected ##
+        ####################
+        if options.resetExpected:
+            slope = (yVals[-1] - yVals[0]) / (xVals[-1] - xVals[0])
+            print "slope", slope
+            for index, old in enumerate (expectedVals):
+                expectedVals[index] = yVals[0] + \
+                                    slope * (xVals[index] - xVals[0])
+        #############################################
+        ## Break Expected by Integrated Luminosity ##
+        #############################################
+        expectedChunks = []
+        if options.breakExpectedIntLum:
+            breakExpectedIntLum = []
+            for chunk in options.breakExpectedIntLum:
+                pieces = sepRE.split (chunk)
+                try:
+                    for piece in pieces:
+                        breakExpectedIntLum.append( float(piece) )
+                except:
+                    raise RuntimeError, "'%s' from '%s' is not a valid float" \
+                          % (piece, chunk)
+            breakExpectedIntLum.sort()
+            boundaries = []
+            breakIndex = 0
+            done = False
+            for index, xPos in enumerate (xVals):
+                if xPos > breakExpectedIntLum[breakIndex]:
+                    boundaries.append (index)
+                    while breakIndex < len (breakExpectedIntLum):
+                        breakIndex += 1
+                        if breakIndex >= len (breakExpectedIntLum):
+                            done = True
+                            break
+                        # If this next position is different, than
+                        # we're golden.  Otherwise, let it go through
+                        # the loop again.
+                        if xPos <= breakExpectedIntLum[breakIndex]:
+                            break
+                    if done:
+                        break
+            # do we have any boundaries?
+            if not boundaries:
+                raise RuntimeError, "No values of 'breakExpectedIntLum' are in current range."
+            # is the first boundary at 0?  If not, add 0
+            if boundaries[0]:
+                boundaries.insert (0, 0)
+            # is the last boundary at the end?  If not, make the end a
+            # boundary
+            if boundaries[-1] != len (xVals) - 1:
+                boundaries.append( len (xVals) - 1 )
+            rangeList = zip (boundaries, boundaries[1:])
+            for thisRange in rangeList:
+                upper = thisRange[1]
+                lower = thisRange[0]
+                slope = (yVals[upper] - yVals[lower]) / \
+                        (xVals[upper] - xVals[lower])
+                print "slope", slope
+                # now go over the range inclusively
+                pairList = []
+                for index in range (lower, upper + 1):
+                    newExpected = yVals[lower] + \
+                                slope * (xVals[index] - xVals[lower])
+                    pairList.append( (xVals[index], newExpected) )
+                    expectedVals[index] = newExpected
+                expectedChunks.append (pairList)
+    ###########################################
+    ## Instantanous Luminosity Ordering Mode ##
+    ###########################################
     elif 'instLum' == options.edfMode or 'instIntLum' == options.edfMode:
         eventTupList = []
         if not lumiCont.xingInfo:
@@ -349,7 +424,7 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
             else:
                 xVals.append (eventTup[2])
             yVals.append (factor)
-            theoryVals.append (eventTup[1])
+            expectedVals.append (eventTup[1])
             predVals.append   (eventTup[1] * options.pred)
     else:
         raise RuntimeError, "It looks like Charles screwed up if you are seeing this."
@@ -358,7 +433,7 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
     step = int (math.sqrt(size) / 2 + 1)
     if options.printValues:
         for index in range (size):
-            print "%8f %8f %8f" % (xVals[index], yVals[index], theoryVals[index]),
+            print "%8f %8f %8f" % (xVals[index], yVals[index], expectedVals[index]),
             if index > step:
                 denom = xVals[index] - xVals[index - step]
                 numer = yVals[index] - yVals[index - step]
@@ -372,19 +447,19 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
 
     xArray = array.array ('d', xVals)
     yArray = array.array ('d', yVals)
-    theory = array.array ('d', theoryVals)
+    expected = array.array ('d', expectedVals)
     graph = ROOT.TGraph( size, xArray, yArray)
     graph.SetTitle (options.title)
     graph.SetMarkerStyle (20)
-    theoryGraph = ROOT.TGraph( size, xArray, theory)
-    theoryGraph.SetLineColor (ROOT.kRed)
-    theoryGraph.SetLineWidth (2)
+    expectedGraph = ROOT.TGraph( size, xArray, expected)
+    expectedGraph.SetLineColor (ROOT.kRed)
+    expectedGraph.SetLineWidth (2)
 
     # run statistical tests
     if options.weights:
         print "average weight per event:", weight / ( size - 1)
     maxDistance = ROOT.TMath.KolmogorovTest (size, yArray,
-                                             size, theory,
+                                             size, expected,
                                              "M")
     prob = ROOT.TMath.KolmogorovProb( maxDistance * math.sqrt( size ) )
 
@@ -393,11 +468,11 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
     ROOT.gROOT.SetBatch()
     c1 = ROOT.TCanvas()
     graph.GetXaxis().SetRangeUser (min (xVals), max (xVals))
-    minValue = min (min(yVals), min(theory))
+    minValue = min (min(yVals), min(expected))
     if options.pred:
-        minValue = min (minValue, min (pretVals))
+        minValue = min (minValue, min (predVals))
     graph.GetYaxis().SetRangeUser (minValue,
-                                   max (max(yVals), max(theory), max(predVals)))
+                                   max (max(yVals), max(expected), max(predVals)))
     graph.Draw ("ALP")
     if 'instLum' == options.edfMode:
         graph.GetXaxis().SetTitle ("Average Xing Inst. Luminosity (1/ub/s)")
@@ -410,7 +485,24 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
             graph.GetXaxis().SetTitle ("Integrated Luminosity (1/%s)" \
                                        % lumiCont.invunits)
     graph.GetYaxis().SetTitle ("Fraction of Events Seen")
-    theoryGraph.Draw ("L")
+    expectedGraphs = []
+    if expectedChunks:
+        for index, chunk in enumerate (expectedChunks):
+            expectedXarray = array.array ('d', [item[0] for item in chunk])
+            expectedYarray = array.array ('d', [item[1] for item in chunk])
+            expectedGraph = ROOT.TGraph( len(chunk),
+                                         expectedXarray,
+                                         expectedYarray )
+            expectedGraph.SetLineWidth (2)
+            if index % 2:
+                expectedGraph.SetLineColor (ROOT.kBlue)
+            else:
+                expectedGraph.SetLineColor (ROOT.kRed)
+            expectedGraph.Draw("L")
+            expectedGraphs.append (expectedGraph)
+        exptectedGraph = expectedGraphs[0]
+    else:
+        expectedGraph.Draw ("L")
     green = 0
     if options.pred:
         predArray = array.array ('d', predVals)
@@ -425,7 +517,10 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
     if options.weights:
         observed += ' (weighted)'
     legend.AddEntry(graph, observed,"PL")
-    legend.AddEntry(theoryGraph,  "Expected from total yield","L")
+    if options.resetExpected:
+        legend.AddEntry(expectedGraph,  "Expected from partial yield","L")
+    else:
+        legend.AddEntry(expectedGraph,  "Expected from total yield","L")
     if options.pred:
         legend.AddEntry(green, options.predLabel,"L")
     legend.AddEntry("","D_{stat}=%.3f, N=%d" % (maxDistance, size),"")
@@ -450,39 +545,56 @@ if __name__ == '__main__':
     ##########################
     allowedEDF = ['time', 'instLum', 'instIntLum']
     parser = optparse.OptionParser ("Usage: %prog [options] lumi.csv events.txt output.png")
-    parser.add_option ('--title', dest='title', type='string',
-                       default = 'Empirical Distribution Function',
-                       help = 'title of plot (default %default)')
-    parser.add_option ('--predicted', dest='pred', type='float',
-                       default = 0,
-                       help = 'factor by which predicted curve is greater than observed')
-    parser.add_option ('--predLabel', dest='predLabel', type='string',
-                       default = 'Predicted',
-                       help = 'label of predicted in legend')
-    parser.add_option ('--minRun', dest='minRun', type='int', default=0,
-                       help='Minimum run number to consider')
-    parser.add_option ('--maxRun', dest='maxRun', type='int', default=0,
-                       help='Maximum run number to consider')
-    parser.add_option ('--minIntLum', dest='minIntLum', type='float', default=0,
-                       help='Minimum run number to consider')
-    parser.add_option ('--maxIntLum', dest='maxIntLum', type='float', default=0,
-                       help='Maximum run number to consider')
-    parser.add_option ('--weights', dest='weights', action='store_true',
-                       help = 'Read fourth column as a weight')
-    parser.add_option ('--print', dest='printValues', action='store_true',
-                       help = 'Print X and Y values')
-    parser.add_option ('--ignoreNoLumiEvents', dest='ignore', action='store_true',
-                       help = 'Ignore (with a warning) events that do not have a lumi section')
-    parser.add_option ('--noWarnings', dest='noWarnings', action='store_true',
-                       help = 'No warnings')
-    parser.add_option ('--runEventLumi', dest='relOrder', action='store_true',
-                       help = 'Parse event list assuming Run, Event #, Lumi# order')
-    parser.add_option ('--runsWithLumis', dest='runsWithLumis', type='string',
-                       action='append', default=[],
-                       help='Print out run and lumi sections corresponding to integrated luminosities provided and then exits')
-    parser.add_option ('--edfMode', dest='edfMode', type='string',
-                       default='time',
-                       help="EDF Mode %s (default '%%default')" % allowedEDF)
+    plotGroup  = optparse.OptionGroup (parser, "Plot Options")
+    rangeGroup = optparse.OptionGroup (parser, "Range Options")
+    inputGroup = optparse.OptionGroup (parser, "Input Options")
+    modeGroup  = optparse.OptionGroup (parser, "Mode Options")
+    plotGroup.add_option ('--title', dest='title', type='string',
+                          default = 'Empirical Distribution Function',
+                          help = 'title of plot (default %default)')
+    plotGroup.add_option ('--predicted', dest='pred', type='float',
+                          default = 0,
+                          help = 'factor by which predicted curve is greater than observed')
+    plotGroup.add_option ('--predLabel', dest='predLabel', type='string',
+                          default = 'Predicted',
+                          help = 'label of predicted in legend')
+    rangeGroup.add_option ('--minRun', dest='minRun', type='int', default=0,
+                           help='Minimum run number to consider')
+    rangeGroup.add_option ('--maxRun', dest='maxRun', type='int', default=0,
+                           help='Maximum run number to consider')
+    rangeGroup.add_option ('--minIntLum', dest='minIntLum', type='float', default=0,
+                           help='Minimum integrated luminosity to consider')
+    rangeGroup.add_option ('--maxIntLum', dest='maxIntLum', type='float', default=0,
+                           help='Maximum integrated luminosity to consider')
+    rangeGroup.add_option ('--resetExpected', dest='resetExpected',
+                           action='store_true',
+                           help='Reset expected from total yield to highest point considered')
+    rangeGroup.add_option ('--breakExpectedIntLum', dest='breakExpectedIntLum',
+                           type='string', action='append', default=[],
+                           help='Break expected curve into pieces at integrated luminosity boundaries')
+    inputGroup.add_option ('--ignoreNoLumiEvents', dest='ignore',
+                           action='store_true',
+                           help = 'Ignore (with a warning) events that do not have a lumi section')
+    inputGroup.add_option ('--noWarnings', dest='noWarnings',
+                           action='store_true',
+                           help = 'Do not print warnings about missing luminosity information')
+    inputGroup.add_option ('--runEventLumi', dest='relOrder',
+                           action='store_true',
+                           help = 'Parse event list assuming Run, Event #, Lumi# order')
+    inputGroup.add_option ('--weights', dest='weights', action='store_true',
+                           help = 'Read fourth column as a weight')
+    modeGroup.add_option ('--print', dest='printValues', action='store_true',
+                          help = 'Print X and Y values of EDF plot')
+    modeGroup.add_option ('--runsWithLumis', dest='runsWithLumis',
+                          type='string',action='append', default=[],
+                          help='Print out run and lumi sections corresponding to integrated luminosities provided and then exits')
+    modeGroup.add_option ('--edfMode', dest='edfMode', type='string',
+                          default='time',
+                          help="EDF Mode %s (default '%%default')" % allowedEDF)
+    parser.add_option_group (plotGroup)
+    parser.add_option_group (rangeGroup)
+    parser.add_option_group (inputGroup)
+    parser.add_option_group (modeGroup)
     (options, args) = parser.parse_args()
 
     if options.edfMode not in allowedEDF:
