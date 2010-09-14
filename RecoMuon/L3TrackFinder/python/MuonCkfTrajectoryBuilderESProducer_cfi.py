@@ -8,8 +8,7 @@ MuonCkfTrajectoryBuilder = cms.ESProducer("MuonCkfTrajectoryBuilderESProducer",
     intermediateCleaning = cms.bool(False),
     #would skip the first layer to search for measurement if bare TrajectorySeed
     useSeedLayer = cms.bool(False),
-    # updated name for HLR+RECO compatibility
-    MeasurementTrackerName = cms.string('hltMeasurementTracker'),
+    MeasurementTrackerName = cms.string(''),
     estimator = cms.string('Chi2'),
     TTRHBuilder = cms.string('WithTrackAngle'),
     #propagator used only if useSeedLayer=true
