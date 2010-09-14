@@ -1,5 +1,5 @@
 //
-// $Id: Muon.cc,v 1.25 2010/05/12 12:31:38 rwolf Exp $
+// $Id: Muon.cc,v 1.26 2010/05/13 15:52:13 rwolf Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -33,6 +33,7 @@ Muon::Muon() :
     edB_(0.0),
     numberOfValidHits_(0)
 {
+  initImpactParameters();
 }
 
 
@@ -58,6 +59,7 @@ Muon::Muon(const reco::Muon & aMuon) :
     edB_(0.0),
     numberOfValidHits_(0)
 {
+  initImpactParameters();
 }
 
 
@@ -83,6 +85,7 @@ Muon::Muon(const edm::RefToBase<reco::Muon> & aMuonRef) :
     edB_(0.0),
     numberOfValidHits_(0)
 {
+  initImpactParameters();
 }
 
 
@@ -108,11 +111,22 @@ Muon::Muon(const edm::Ptr<reco::Muon> & aMuonRef) :
     edB_(0.0),
     numberOfValidHits_(0)
 {
+  initImpactParameters();
 }
 
 
 /// destructor
 Muon::~Muon() {
+}
+
+
+// initialize impact parameter container vars
+void Muon::initImpactParameters() {
+  for (int i_ = 0; i_<5; ++i_){
+    ip_.push_back(0.0);
+    eip_.push_back(0.0);
+    cachedIP_.push_back(false);
+  }
 }
 
 
@@ -275,24 +289,50 @@ unsigned int Muon::numberOfValidHits() const {
   }
 }
 
-/// dB gives the impact parameter wrt the beamline.
-/// If this is not cached it is not meaningful, since
-/// it relies on the distance to the beamline. 
-double Muon::dB() const {
-  if ( cachedDB_ ) {
-    return dB_;
+// embed various impact parameters with errors
+// IpType defines the type of the impact parameter
+// None is default and reverts to old behavior controlled by 
+// patMuons.usePV = True/False
+double Muon::dB(IpType type_) const {
+  
+  // preserve old functionality exactly
+  if (type_ == None){
+    if ( cachedDB_ ) {
+      return dB_;
+    }
+    else {
+      return std::numeric_limits<double>::max();
+    }
+  }
+  
+  // more IP types (new)
+  else if ( cachedIP_[type_] ) {
+    return ip_[type_];
   } else {
     return std::numeric_limits<double>::max();
   }
 }
 
 
-/// edB gives the uncertainty on the impact parameter wrt the beamline.
-/// If this is not cached it is not meaningful, since
-/// it relies on the distance to the beamline. 
-double Muon::edB() const {
-  if ( cachedDB_ ) {
-    return edB_;
+// embed various impact parameters with errors
+// IpType defines the type of the impact parameter
+// None is default and reverts to old behavior controlled by 
+// patMuons.usePV = True/False
+double Muon::edB(IpType type_) const {
+
+  // preserve old functionality exactly
+  if (type_ == None){
+    if ( cachedDB_ ) {
+      return edB_;
+    }
+    else {
+      return std::numeric_limits<double>::max();
+    }
+  }
+
+  // more IP types (new)
+  else if ( cachedIP_[type_] ) {
+    return eip_[type_];
   } else {
     return std::numeric_limits<double>::max();
   }
