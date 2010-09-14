@@ -14,13 +14,8 @@
 
 namespace triggerExpression {
 
-namespace qi { 
-  // Boost 1.41 has Spirit 2.1, with all the parser components available in the spirit::qi namespace
-  using namespace boost::spirit::qi;
-}
-namespace ascii { 
-  using namespace boost::spirit::ascii; 
-}
+namespace qi = boost::spirit::qi;
+namespace ascii = boost::spirit::ascii;
 
 using boost::phoenix::new_;
 using boost::spirit::unused_type;
