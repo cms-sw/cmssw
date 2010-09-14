@@ -57,17 +57,25 @@ for PD in alcaAndSkimMap.keys():
     c=com
     s=skim
     spec=options.era+'_'
+    doCFG=True
     if 'AOD' in options.output:
         spec+='AOD_'
     if (PD==''):
         alca=''
         c=com+' --process reRECO'
     else:
-        alca=',ALCA:%s'%(alcaArg,)
         spec+=PD+"_"
+        if alcaArg=='':
+            doCFG=False
+            alca=''
+        else:
+            alca=',ALCA:%s'%(alcaArg,)
+
     if (options.options !=""):
         spec+="spec_"
-    os.system(c%(alca,spec,options.GT))
+
+    if doCFG:
+        os.system(c%(alca,spec,options.GT))
 
     if (skimArg!=""):
         os.system(s%(skimArg,spec,options.GT))
