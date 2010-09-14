@@ -11,7 +11,7 @@ class mappingGenerator:
         -c, --classname : the class to generate mapping(required)
         -d, --dictionary : dictionary ( default to classes_def.xml dir SubsystemnamePackagename )
         -P, --path : path to classes_def.xml (default to current Subsystem/Package/src)
-        -m, --mappingversion : mapping version (default to basic)
+        -m, --mappingversion : mapping version (default to automatic_default)
                 
         -v, --verbose: verbose mode
         -h, --help: print usage
@@ -23,8 +23,9 @@ class mappingGenerator:
         if cmsswbase == None :
             raise ValueError, "cmssw environment variables not set"
         self.__classversion=""
-        self.__mappingversion="basic"
         self.__classname=""
+        self.__mappinglabel="automatic_default"
+        self.__mappingversion="_".join([self.__classname, self.__mappinglabel])
         self.__dictionary=""
         self.__poolcontainer=""
         self.__defaultXMLheader="\n".join([
@@ -50,7 +51,7 @@ class mappingGenerator:
         self.__poolcontainer
         self.__dictionary 
         """
-        self.__poolcontainer="_".join([self.__classname,self.__mappingversion])
+        self.__poolcontainer=self.__classname
         print "poolcontainer ",self.__poolcontainer
         f=open(os.path.join(self.__path,"classes_def.xml"),'r')
         searchfor="class name=\""+classname+"\""
@@ -77,7 +78,7 @@ class mappingGenerator:
         parser.add_option("-P","--Path",action="store",dest="path",
                           help="path to file classes_def.xml( required )")
         parser.add_option("-m","--mappingversion",action="store",dest="mappingversion",
-                          help="mappingversion associated with this class version(default to basic)")        
+                          help="mappingversion associated with this class version(default to automatic_default)")        
         parser.add_option("-d","--dictionary",action="store",dest="dictionary",
                           help="dictionary(default is deduced from class_def.xml directory SubsystemNamePackageName)")
         parser.add_option("-v","--verbose",action="store_true",dest="verbose",
@@ -87,7 +88,8 @@ class mappingGenerator:
         self.__classname=options.classname
         self.__path=os.path.abspath(options.path)
         if options.mappingversion:
-            self.__mappingversion=options.mappingversion
+            self.__mappinglabel=options.mappingversion
+        self.__mappingversion="_".join([self.__classname, self.__mappinglabel])
         self.parseclassdefxml(self.__classname)
         if options.dictionary:
             self.__dictionary=options.dictionary
@@ -104,11 +106,12 @@ class mappingGenerator:
             print "classname : %s " % self.__classname
             print "classversion : %s " % self.__classversion
             print "poolcontainer : %s " % self.__poolcontainer
+            print "mappingversion : %s " % self.__mappingversion
             
     def generate(self):
         '''create xml catalog with given input
         '''        
-        outfilename=self.__poolcontainer+"_"+self.__classversion+".xml"
+        outfilename=self.__mappingversion+"_"+self.__classversion+".xml"
         f = open('temp.xml','w')
         f.write(self.__defaultXMLheader)
         f.close()
