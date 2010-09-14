@@ -30,10 +30,10 @@
 
 /*****************************************************************************/
 HIPixelClusterVtxProducer::HIPixelClusterVtxProducer(const edm::ParameterSet& ps)
-  : srcPixels_(ps.getUntrackedParameter<std::string>("pixelRecHits","siPixelRecHits")),
-    minZ_(ps.getUntrackedParameter<double>("minZ",-15.9)),
-    maxZ_(ps.getUntrackedParameter<double>("maxZ",15.95)),
-    zStep_(ps.getUntrackedParameter<double>("zStep",0.1))
+  : srcPixels_(ps.getParameter<std::string>("pixelRecHits")),
+    minZ_(ps.getParameter<double>("minZ")),
+    maxZ_(ps.getParameter<double>("maxZ")),
+    zStep_(ps.getParameter<double>("zStep"))
 
 {
   // Constructor
