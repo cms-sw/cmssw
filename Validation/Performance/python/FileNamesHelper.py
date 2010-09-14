@@ -251,7 +251,7 @@ def getJobID_fromIgProfLogName(logfile_name):
 	pileup_type = params[2]
 	if pileup_type == "NOPILEUP":
 		pileup_type = ""
-	conditions = params[3] + "::All"
+	conditions = params[3]
 	event_content = params[4]
 	
 	#get (at least) the conditions from the SimulationCandles!!

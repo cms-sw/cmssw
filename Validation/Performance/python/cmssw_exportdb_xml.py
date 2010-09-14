@@ -258,9 +258,9 @@ def exportRunInfo(xml_doc, run_info, release = None, print_out = False):
 	if len(run_info['unrecognized_jobs']):
 		unrecognizedJobsNode = createNode(node_name="Unrecognized_JOBS", xml_doc=xml_doc, parent=runInfoNode, values={}) 
 
-
 		for job in run_info['unrecognized_jobs']:
 			 #print job
+			 testName = job["metadata"]["testName"]
 			 if testName == "TimeSize":
 				 export_xml(xml_doc = xml_doc, parentNode = unrecognizedJobsNode, **job)
 			 elif testName == "IgProf_Mem":

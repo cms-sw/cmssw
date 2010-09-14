@@ -294,8 +294,14 @@ def process_memcheck_dir(path, runinfo):
             jobID = getJobID_fromMemcheckLogName(os.path.join(path, memcheck_files[0]))
 
             (candle, step, pileup_type, conditions, event_content) = jobID
+
             print "jobID: %s" % str(jobID)
             jobID = dict(zip(("candle", "step", "pileup_type", "conditions", "event_content"), jobID))
+
+            if "HLT:GRun" in step:
+                jobID["step"]=jobID["step"].replace("HLT:GRun","HLT")
+                step.replace("HLT:GRun","HLT")
+
             print "Dictionary based jobID %s: " % str(jobID)
             
             #if any of jobID fields except (isPILEUP) is empty we discard the job as all those are the jobID keys and we must have them
@@ -361,45 +367,54 @@ def process_igprof_dir(path, runinfo):
 				 if test_igprof_report_log.search(f) 
 					and os.path.isfile(os.path.join(path, f)) ]
 
-        jobID = getJobID_fromIgProfLogName(igprof_files[0])
-
-        (candle, step, pileup_type, conditions, event_content) = jobID
-	#print "jobID: %s" % str(jobID)
-        jobID = dict(zip(("candle", "step", "pileup_type", "conditions", "event_content"), jobID))
-        print "Dictionary based jobID %s: " % str(jobID)
-
-        igProfType = path.split("/")[-1].replace(jobID["candle"] + "_", "").replace("PU_", "")
-
-	#if any of jobID fields except (isPILEUP) is empty we discard the job as all those are the jobID keys and we must have them
-        discard = len([key for key, value in jobID.items() if key != "pileup_type" and not value])
-        if discard:
-            print " ====================== The job HAS BEEN DISCARDED =============== "
-            print " NOT ALL DATA WAS AVAILABLE "
-            print " JOB ID = %s " % str(jobID)
-            print " ======================= end ===================================== "
-            return 
-        
-        # add to the list to generate the readable filename :)
-        steps[step] = 1
-        candles[candle.upper()] = 1
-        if pileup_type=="":
-            pileups["NoPileUp"]=1
+        if len(igprof_files) == 0: # No files...
+            print "No igprof files found!"
         else:
-            pileups[pileup_type] = 1
+            jobID = getJobID_fromIgProfLogName(igprof_files[0])
+
+            (candle, step, pileup_type, conditions, event_content) = jobID
+
+	    print "jobID: %s" % str(jobID)
+            jobID = dict(zip(("candle", "step", "pileup_type", "conditions", "event_content"), jobID))
+
+            if "HLT:GRun" in step:
+                jobID["step"]=jobID["step"].replace("HLT:GRun","HLT")
+                step.replace("HLT:GRun","HLT")
+
+            print "Dictionary based jobID %s: " % str(jobID)
+
+            igProfType = path.split("/")[-1].replace(jobID["candle"] + "_", "").replace("PU_", "")
+
+	    #if any of jobID fields except (isPILEUP) is empty we discard the job as all those are the jobID keys and we must have them
+            discard = len([key for key, value in jobID.items() if key != "pileup_type" and not value])
+            if discard:
+                print " ====================== The job HAS BEEN DISCARDED =============== "
+                print " NOT ALL DATA WAS AVAILABLE "
+                print " JOB ID = %s " % str(jobID)
+                print " ======================= end ===================================== "
+                return 
+        
+            # add to the list to generate the readable filename :)
+            steps[step] = 1
+            candles[candle.upper()] = 1
+            if pileup_type=="":
+                pileups["NoPileUp"]=1
+            else:
+                pileups[pileup_type] = 1
             
-        igs = getIgSummary(path)
-        #print igs
+            igs = getIgSummary(path)
+            #print igs
 
-        igProfReport = {
-            "jobID": jobID,
-            "release": release, 
-            "igprof_result": igs,
-            "metadata": {"testName": igProfType},
-            }
+            igProfReport = {
+                "jobID": jobID,
+                "release": release, 
+                "igprof_result": igs,
+                "metadata": {"testName": igProfType},
+                }
 
-        # print igProfReport
-        # export to xml: actualy exporting gets suspended and put into runinfo
-        exportIgProfReport(path, igProfReport, igProfType, runinfo)      
+            # print igProfReport
+            # export to xml: actualy exporting gets suspended and put into runinfo
+            exportIgProfReport(path, igProfReport, igProfType, runinfo)      
 
 #get IgProf summary information from the sql3 files
 def getIgSummary(path):
