@@ -256,7 +256,7 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
 	  return;
         }
         reco::BasicClusterCollection basicClustersUncleanOnlyProd = *bccHandleUncleanOnly;
-	edm::LogWarning("MissingInput")<< "Got the BasicClusters from the event again  (Unclean Only)" ;
+	LogDebug("UnifiedSC")<< "Got the BasicClusters from the event again  (Unclean Only)" ;
         //
 
         // now we can build the SC collection
