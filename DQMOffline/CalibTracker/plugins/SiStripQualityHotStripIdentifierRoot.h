@@ -42,6 +42,7 @@
 
 class SiStripHotStripAlgorithmFromClusterOccupancy;
 class SiStripBadAPVAlgorithmFromClusterOccupancy;
+class SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy;
 
 class SiStripQualityHotStripIdentifierRoot : public ConditionDBWriter<SiStripBadStrip> {
 
@@ -86,8 +87,9 @@ private:
   unsigned short MinClusterWidth_, MaxClusterWidth_;
 
   SiStrip::QualityHistosMap ClusterPositionHistoMap;
-  SiStripHotStripAlgorithmFromClusterOccupancy* theIdentifier;
-  SiStripBadAPVAlgorithmFromClusterOccupancy* theIdentifier2;
+  SiStripHotStripAlgorithmFromClusterOccupancy*          theIdentifier;
+  SiStripBadAPVAlgorithmFromClusterOccupancy*            theIdentifier2;
+  SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy* theIdentifier3;
 
 };
 #endif

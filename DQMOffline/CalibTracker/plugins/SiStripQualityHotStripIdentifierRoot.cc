@@ -16,6 +16,7 @@
 //Insert here the include to the algos
 #include "CalibTracker/SiStripQuality/interface/SiStripHotStripAlgorithmFromClusterOccupancy.h"
 #include "CalibTracker/SiStripQuality/interface/SiStripBadAPVAlgorithmFromClusterOccupancy.h"
+#include "CalibTracker/SiStripQuality/interface/SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy.h"
 
 
 SiStripQualityHotStripIdentifierRoot::SiStripQualityHotStripIdentifierRoot(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiStripBadStrip>(iConfig),
@@ -52,77 +53,119 @@ SiStripBadStrip* SiStripQualityHotStripIdentifierRoot::getNewObject(){
   edm::ParameterSet parameters=conf_.getParameter<edm::ParameterSet>("AlgoParameters");
   std::string AlgoName = parameters.getParameter<std::string>("AlgoName");
 
-  if (AlgoName=="SiStripHotStripAlgorithmFromClusterOccupancy"){
+  if (AlgoName=="SiStripHotStripAlgorithmFromClusterOccupancy")
+    {
     
-    edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::getNewObject] call to SiStripHotStripAlgorithmFromClusterOccupancy"<<std::endl;
+      edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::getNewObject] call to SiStripHotStripAlgorithmFromClusterOccupancy"<<std::endl;
 
-    theIdentifier= new SiStripHotStripAlgorithmFromClusterOccupancy(conf_);
-    theIdentifier->setProbabilityThreshold(parameters.getUntrackedParameter<double>("ProbabilityThreshold",1.E-7));
-    theIdentifier->setMinNumEntries(parameters.getUntrackedParameter<uint32_t>("MinNumEntries",100));
-    theIdentifier->setMinNumEntriesPerStrip(parameters.getUntrackedParameter<uint32_t>("MinNumEntriesPerStrip",5));
-    theIdentifier->setOccupancyThreshold(parameters.getUntrackedParameter<double>("OccupancyThreshold",1.E-5));
-    theIdentifier->setNumberOfEvents(parameters.getUntrackedParameter<uint32_t>("NumberOfEvents",0));
-    theIdentifier->setOutputFileName(conf_.getUntrackedParameter<std::string>("OccupancyRootFile","Occupancy.root"),conf_.getUntrackedParameter<bool>("WriteOccupancyRootFile",false));
-    theIdentifier->setTrackerGeometry(_tracker);
+      theIdentifier= new SiStripHotStripAlgorithmFromClusterOccupancy(conf_);
+      theIdentifier->setProbabilityThreshold(parameters.getUntrackedParameter<double>("ProbabilityThreshold",1.E-7));
+      theIdentifier->setMinNumEntries(parameters.getUntrackedParameter<uint32_t>("MinNumEntries",100));
+      theIdentifier->setMinNumEntriesPerStrip(parameters.getUntrackedParameter<uint32_t>("MinNumEntriesPerStrip",5));
+      theIdentifier->setOccupancyThreshold(parameters.getUntrackedParameter<double>("OccupancyThreshold",1.E-5));
+      theIdentifier->setNumberOfEvents(parameters.getUntrackedParameter<uint32_t>("NumberOfEvents",0));
+      theIdentifier->setOutputFileName(conf_.getUntrackedParameter<std::string>("OccupancyRootFile","Occupancy.root"),conf_.getUntrackedParameter<bool>("WriteOccupancyRootFile",false));
+      theIdentifier->setTrackerGeometry(_tracker);
 
-    bookHistos();
+      bookHistos();
   
-    SiStripQuality* qobj = new SiStripQuality();
-    theIdentifier->extractBadStrips(qobj,ClusterPositionHistoMap,SiStripQuality_);//here I insert SiStripQuality as input and get qobj as output
+      SiStripQuality* qobj = new SiStripQuality();
+      theIdentifier->extractBadStrips(qobj,ClusterPositionHistoMap,SiStripQuality_);//here I insert SiStripQuality as input and get qobj as output
     
-    //----------
+      //----------
 
-    edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::getNewObject] copy SiStripObject in SiStripBadStrip"<<std::endl;
+      edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::getNewObject] copy SiStripObject in SiStripBadStrip"<<std::endl;
 
-    std::stringstream ss;  
+      std::stringstream ss;  
   
-    SiStripBadStrip::RegistryIterator rIter=qobj->getRegistryVectorBegin();
-    SiStripBadStrip::RegistryIterator rIterEnd=qobj->getRegistryVectorEnd();
-    for(;rIter!=rIterEnd;++rIter){
-      SiStripBadStrip::Range range(qobj->getDataVectorBegin()+rIter->ibegin,qobj->getDataVectorBegin()+rIter->iend);
-      if ( ! obj->put(rIter->detid,range) )
-	edm::LogError("SiStripQualityHotStripIdentifierRoot")<<"[SiStripQualityHotStripIdentifierRoot::getNewObject] detid already exists"<<std::endl;
+      SiStripBadStrip::RegistryIterator rIter=qobj->getRegistryVectorBegin();
+      SiStripBadStrip::RegistryIterator rIterEnd=qobj->getRegistryVectorEnd();
+      for(;rIter!=rIterEnd;++rIter){
+	SiStripBadStrip::Range range(qobj->getDataVectorBegin()+rIter->ibegin,qobj->getDataVectorBegin()+rIter->iend);
+	if ( ! obj->put(rIter->detid,range) )
+	  edm::LogError("SiStripQualityHotStripIdentifierRoot")<<"[SiStripQualityHotStripIdentifierRoot::getNewObject] detid already exists"<<std::endl;
+      }
+      edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::getNewObject] " << ss.str() << std::endl;
     }
-    edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::getNewObject] " << ss.str() << std::endl;
-  }
   else if (AlgoName=="SiStripBadAPVAlgorithmFromClusterOccupancy")
     {
 
-    edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::getNewObject] call to SiStripBadAPVAlgorithmFromClusterOccupancy"<<std::endl;
+      edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::getNewObject] call to SiStripBadAPVAlgorithmFromClusterOccupancy"<<std::endl;
 
-    theIdentifier2 = new SiStripBadAPVAlgorithmFromClusterOccupancy(conf_);
-    theIdentifier2->setLowOccupancyThreshold(parameters.getUntrackedParameter<double>("LowOccupancyThreshold",5));
-    theIdentifier2->setHighOccupancyThreshold(parameters.getUntrackedParameter<double>("HighOccupancyThreshold",10));
-    theIdentifier2->setAbsoluteLowThreshold(parameters.getUntrackedParameter<double>("AbsoluteLowThreshold",0));
-    theIdentifier2->setNumberIterations(parameters.getUntrackedParameter<uint32_t>("NumberIterations",2));
-    theIdentifier2->setAbsoluteOccupancyThreshold(parameters.getUntrackedParameter<double>("OccupancyThreshold",1.E-5));
-    theIdentifier2->setNumberOfEvents(parameters.getUntrackedParameter<uint32_t>("NumberOfEvents",0));
-    theIdentifier2->setMinNumOfEvents();
-    theIdentifier2->setOutputFileName(conf_.getUntrackedParameter<std::string>("OccupancyRootFile","Occupancy.root"),conf_.getUntrackedParameter<bool>("WriteOccupancyRootFile",false));
-    theIdentifier2->setTrackerGeometry(_tracker);
+      theIdentifier2 = new SiStripBadAPVAlgorithmFromClusterOccupancy(conf_);
+      theIdentifier2->setLowOccupancyThreshold(parameters.getUntrackedParameter<double>("LowOccupancyThreshold",5));
+      theIdentifier2->setHighOccupancyThreshold(parameters.getUntrackedParameter<double>("HighOccupancyThreshold",10));
+      theIdentifier2->setAbsoluteLowThreshold(parameters.getUntrackedParameter<double>("AbsoluteLowThreshold",0));
+      theIdentifier2->setNumberIterations(parameters.getUntrackedParameter<uint32_t>("NumberIterations",2));
+      theIdentifier2->setAbsoluteOccupancyThreshold(parameters.getUntrackedParameter<double>("OccupancyThreshold",1.E-5));
+      theIdentifier2->setNumberOfEvents(parameters.getUntrackedParameter<uint32_t>("NumberOfEvents",0));
+      theIdentifier2->setMinNumOfEvents();
+      theIdentifier2->setOutputFileName(conf_.getUntrackedParameter<std::string>("OccupancyRootFile","Occupancy.root"),conf_.getUntrackedParameter<bool>("WriteOccupancyRootFile",false));
+      theIdentifier2->setTrackerGeometry(_tracker);
 
-    bookHistos();
+      bookHistos();
   
-    SiStripQuality* qobj = new SiStripQuality();
-    theIdentifier2->extractBadAPVs(qobj,ClusterPositionHistoMap,SiStripQuality_);
+      SiStripQuality* qobj = new SiStripQuality();
+      theIdentifier2->extractBadAPVs(qobj,ClusterPositionHistoMap,SiStripQuality_);
     
-    //----------
+      //----------
 
-    edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::getNewObject] copy SiStripObject in SiStripBadStrip"<<std::endl;
+      edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::getNewObject] copy SiStripObject in SiStripBadStrip"<<std::endl;
 
-    std::stringstream ss;  
+      std::stringstream ss;  
   
-    SiStripBadStrip::RegistryIterator rIter=qobj->getRegistryVectorBegin();
-    SiStripBadStrip::RegistryIterator rIterEnd=qobj->getRegistryVectorEnd();
-    for(;rIter!=rIterEnd;++rIter){
-      SiStripBadStrip::Range range(qobj->getDataVectorBegin()+rIter->ibegin,qobj->getDataVectorBegin()+rIter->iend);
-      if ( ! obj->put(rIter->detid,range) )
-	edm::LogError("SiStripQualityHotStripIdentifierRoot")<<"[SiStripQualityHotStripIdentifierRoot::getNewObject] detid already exists"<<std::endl;
+      SiStripBadStrip::RegistryIterator rIter=qobj->getRegistryVectorBegin();
+      SiStripBadStrip::RegistryIterator rIterEnd=qobj->getRegistryVectorEnd();
+      for(;rIter!=rIterEnd;++rIter){
+	SiStripBadStrip::Range range(qobj->getDataVectorBegin()+rIter->ibegin,qobj->getDataVectorBegin()+rIter->iend);
+	if ( ! obj->put(rIter->detid,range) )
+	  edm::LogError("SiStripQualityHotStripIdentifierRoot")<<"[SiStripQualityHotStripIdentifierRoot::getNewObject] detid already exists"<<std::endl;
+      }
+      edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::getNewObject] " << ss.str() << std::endl;
+
+    
     }
-    edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::getNewObject] " << ss.str() << std::endl;
-
+  else if (AlgoName=="SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy")
+    {
     
-    } else {
+      edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::getNewObject] call to SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy"<<std::endl;
+
+      theIdentifier3= new SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy(conf_);
+      theIdentifier3->setProbabilityThreshold(parameters.getUntrackedParameter<double>("ProbabilityThreshold",1.E-7));
+      theIdentifier3->setMinNumEntries(parameters.getUntrackedParameter<uint32_t>("MinNumEntries",100));
+      theIdentifier3->setMinNumEntriesPerStrip(parameters.getUntrackedParameter<uint32_t>("MinNumEntriesPerStrip",5));
+      theIdentifier3->setNumberOfEvents(parameters.getUntrackedParameter<uint32_t>("NumberOfEvents",0));
+      theIdentifier3->setOutputFileName(conf_.getUntrackedParameter<std::string>("OccupancyRootFile","Occupancy.root"),conf_.getUntrackedParameter<bool>("WriteOccupancyRootFile",false));
+      theIdentifier3->setTrackerGeometry(_tracker);
+      theIdentifier3->setLowOccupancyThreshold(parameters.getUntrackedParameter<double>("LowOccupancyThreshold",5));
+      theIdentifier3->setHighOccupancyThreshold(parameters.getUntrackedParameter<double>("HighOccupancyThreshold",10));
+      theIdentifier3->setAbsoluteLowThreshold(parameters.getUntrackedParameter<double>("AbsoluteLowThreshold",0));
+      theIdentifier3->setNumberIterations(parameters.getUntrackedParameter<uint32_t>("NumberIterations",2));
+      theIdentifier3->setAbsoluteOccupancyThreshold(parameters.getUntrackedParameter<double>("OccupancyThreshold",1.E-5));
+      theIdentifier3->setMinNumOfEvents();
+
+      bookHistos();
+  
+      SiStripQuality* qobj = new SiStripQuality();
+      theIdentifier3->extractBadAPVSandStrips(qobj,ClusterPositionHistoMap,SiStripQuality_);//here I insert SiStripQuality as input and get qobj as output
+    
+      //----------
+
+      edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::getNewObject] copy SiStripObject in SiStripBadStrip"<<std::endl;
+
+      std::stringstream ss;  
+  
+      SiStripBadStrip::RegistryIterator rIter=qobj->getRegistryVectorBegin();
+      SiStripBadStrip::RegistryIterator rIterEnd=qobj->getRegistryVectorEnd();
+      for(;rIter!=rIterEnd;++rIter){
+	SiStripBadStrip::Range range(qobj->getDataVectorBegin()+rIter->ibegin,qobj->getDataVectorBegin()+rIter->iend);
+	if ( ! obj->put(rIter->detid,range) )
+	  edm::LogError("SiStripQualityHotStripIdentifierRoot")<<"[SiStripQualityHotStripIdentifierRoot::getNewObject] detid already exists"<<std::endl;
+      }
+      edm::LogInfo("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::getNewObject] " << ss.str() << std::endl;
+    }
+  else
+    {
       edm::LogError("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::getNewObject] call for a unknow HotStrip identification algoritm"<<std::endl;
       
       std::vector<uint32_t> a;
@@ -184,8 +227,9 @@ void SiStripQualityHotStripIdentifierRoot::bookHistos(){
       TotNumberOfEvents = ((TH1F*)(*iter)->getTH1F())->GetEntries();
       edm::LogInfo("SiStripQualityHotStripIdentifierRoot")<< "Total Number of Events: " << TotNumberOfEvents << std::endl;
 
-      if (parameters.getParameter<std::string>("AlgoName")=="SiStripHotStripAlgorithmFromClusterOccupancy") {theIdentifier->setNumberOfEvents(TotNumberOfEvents);}
-      if (parameters.getParameter<std::string>("AlgoName")=="SiStripBadAPVAlgorithmFromClusterOccupancy")   {theIdentifier2->setNumberOfEvents(TotNumberOfEvents); theIdentifier2->setMinNumOfEvents();}
+      if (parameters.getParameter<std::string>("AlgoName")=="SiStripHotStripAlgorithmFromClusterOccupancy")            {theIdentifier->setNumberOfEvents(TotNumberOfEvents);}
+      if (parameters.getParameter<std::string>("AlgoName")=="SiStripBadAPVAlgorithmFromClusterOccupancy")              {theIdentifier2->setNumberOfEvents(TotNumberOfEvents); theIdentifier2->setMinNumOfEvents();}
+      if (parameters.getParameter<std::string>("AlgoName")=="SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy")   {theIdentifier3->setNumberOfEvents(TotNumberOfEvents); theIdentifier3->setMinNumOfEvents();}
 
       gotNentries=true;
       edm::LogInfo("SiStripQualityHotStripIdentifierRoot")<< "[SiStripQualityHotStripIdentifierRoot::bookHistos]  gotNentries flag " << gotNentries << std::endl;
