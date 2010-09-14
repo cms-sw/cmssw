@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_8_1/GRun/V10 (CMSSW_3_8_1_HLT4)
+# /dev/CMSSW_3_8_1/GRun/V15 (CMSSW_3_8_1_HLT6)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
@@ -30,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/GRun/V10')
+  tableName = cms.string('/dev/CMSSW_3_8_1/GRun/V15')
 )
 
 
@@ -110,15 +110,15 @@ ESUnpackerWorkerESProducer = cms.ESProducer( "ESUnpackerWorkerESProducer",
 )
 EcalBarrelGeometryFromDBEP = cms.ESProducer( "EcalBarrelGeometryFromDBEP",
   appendToDataLabel = cms.string( "" ),
-  applyAlignment = cms.bool( False )
+  applyAlignment = cms.bool( True )
 )
 EcalEndcapGeometryFromDBEP = cms.ESProducer( "EcalEndcapGeometryFromDBEP",
   appendToDataLabel = cms.string( "" ),
-  applyAlignment = cms.bool( False )
+  applyAlignment = cms.bool( True )
 )
 EcalPreshowerGeometryFromDBEP = cms.ESProducer( "EcalPreshowerGeometryFromDBEP",
   appendToDataLabel = cms.string( "" ),
-  applyAlignment = cms.bool( False )
+  applyAlignment = cms.bool( True )
 )
 EcalRegionCablingESProducer = cms.ESProducer( "EcalRegionCablingESProducer",
   appendToDataLabel = cms.string( "" ),
@@ -376,7 +376,7 @@ hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
   RecoveredRecHitBits = cms.vstring(  )
 )
 hltCkfTrajectoryBuilderMumu = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  ComponentName = cms.string( "hltCkfTrajectoryBuilderMumu" ),
+  ComponentName = cms.string( "CkfTrajectoryBuilderMumu" ),
   updator = cms.string( "KFUpdator" ),
   propagatorAlong = cms.string( "PropagatorWithMaterial" ),
   propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
@@ -1587,8 +1587,8 @@ hltDt1DRecHits = cms.EDProducer( "DTRecHitProducer",
       tTrigModeConfig = cms.PSet( 
         vPropWire = cms.double( 24.4 ),
         doTOFCorrection = cms.bool( True ),
-        tofCorrType = cms.int32( 1 ),
-        wirePropCorrType = cms.int32( 1 ),
+        tofCorrType = cms.int32( 0 ),
+        wirePropCorrType = cms.int32( 0 ),
         doWirePropCorrection = cms.bool( True ),
         doT0Correction = cms.bool( True ),
         debug = cms.untracked.bool( False ),
@@ -1625,8 +1625,8 @@ hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
           tTrigModeConfig = cms.PSet( 
             vPropWire = cms.double( 24.4 ),
             doTOFCorrection = cms.bool( True ),
-            tofCorrType = cms.int32( 1 ),
-            wirePropCorrType = cms.int32( 1 ),
+            tofCorrType = cms.int32( 0 ),
+            wirePropCorrType = cms.int32( 0 ),
             doWirePropCorrection = cms.bool( True ),
             doT0Correction = cms.bool( True ),
             debug = cms.untracked.bool( False ),
@@ -1646,8 +1646,8 @@ hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
         tTrigModeConfig = cms.PSet( 
           vPropWire = cms.double( 24.4 ),
           doTOFCorrection = cms.bool( True ),
-          tofCorrType = cms.int32( 1 ),
-          wirePropCorrType = cms.int32( 1 ),
+          tofCorrType = cms.int32( 0 ),
+          wirePropCorrType = cms.int32( 0 ),
           doWirePropCorrection = cms.bool( True ),
           doT0Correction = cms.bool( True ),
           debug = cms.untracked.bool( False ),
@@ -1663,7 +1663,7 @@ hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
 hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
     CSCUseCalibrations = cms.bool( True ),
     CSCUseStaticPedestals = cms.bool( False ),
-    CSCUseTimingCorrections = cms.bool( False ),
+    CSCUseTimingCorrections = cms.bool( True ),
     stripDigiTag = cms.InputTag( 'simMuonCSCDigis','MuonCSCStripDigi' ),
     wireDigiTag = cms.InputTag( 'simMuonCSCDigis','MuonCSCWireDigi' ),
     CSCstripWireDeltaTime = cms.int32( 8 ),
