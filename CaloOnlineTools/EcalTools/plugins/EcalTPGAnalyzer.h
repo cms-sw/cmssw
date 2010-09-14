@@ -47,15 +47,15 @@ private:
   struct EcalTPGVariables
   {
     // event variables
-    uint runNb ;
-    uint evtNb ;
-    uint bxNb ;
-    uint orbitNb ;
-    uint nbOfActiveTriggers ;
+    unsigned int runNb ;
+    unsigned int evtNb ;
+    unsigned int bxNb ;
+    unsigned int orbitNb ;
+    unsigned int nbOfActiveTriggers ;
     int activeTriggers[128] ;
 
     // tower variables
-    uint nbOfTowers ; //max 4032 EB+EE
+    unsigned int nbOfTowers ; //max 4032 EB+EE
     int ieta[4032] ;
     int iphi[4032] ;
     int nbOfXtals[4032] ;

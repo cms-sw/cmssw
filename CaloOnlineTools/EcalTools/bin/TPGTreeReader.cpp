@@ -17,15 +17,15 @@
 struct EcalTPGVariables
 {
   // event variables
-  uint runNb ;
-  uint evtNb ;
-  uint bxNb ;
-  uint orbitNb ;
-  uint nbOfActiveTriggers ;
+  unsigned int runNb ;
+  unsigned int evtNb ;
+  unsigned int bxNb ;
+  unsigned int orbitNb ;
+  unsigned int nbOfActiveTriggers ;
   int activeTriggers[128] ;
   
   // tower variables
-  uint nbOfTowers ; //max 4032 EB+EE
+  unsigned int nbOfTowers ; //max 4032 EB+EE
   int ieta[4032] ;
   int iphi[4032] ;
   int nbOfXtals[4032] ;
@@ -87,11 +87,11 @@ void printHelp()
 
 }
 
-uint getEt(uint val) {return (val&0xff) ;}
+unsigned int getEt(unsigned int val) {return (val&0xff) ;}
 
-uint getFg(uint val) {return ((val&0x100)!=0) ;}
+unsigned int getFg(unsigned int val) {return ((val&0x100)!=0) ;}
 
-uint getTtf(uint val) {return ((val>>9)&0x7) ;}
+unsigned int getTtf(unsigned int val) {return ((val>>9)&0x7) ;}
 
 std::vector<std::string> split(std::string msg, std::string separator)
 {
@@ -152,10 +152,10 @@ int main (int argc, char** argv)
   
   std::vector<int> algobits ;
   std::vector<std::string> algos = split(l1algo,",") ;
-  for (uint i=0 ; i<algos.size() ; i++) algobits.push_back(atoi(algos[i].c_str())) ;
+  for (unsigned int i=0 ; i<algos.size() ; i++) algobits.push_back(atoi(algos[i].c_str())) ;
 
 
-  uint ref = 2 ;
+  unsigned int ref = 2 ;
 
 
 
@@ -209,7 +209,7 @@ int main (int argc, char** argv)
       }
     }
   }
-  for (uint i=0 ; i<files.size() ; i++) {
+  for (unsigned int i=0 ; i<files.size() ; i++) {
     files[i] = inputdir+"/"+files[i] ;
     std::cout<<"Input file: "<<files[i]<<std::endl ;
     chain->Add (files[i].c_str()) ;
@@ -235,14 +235,14 @@ int main (int argc, char** argv)
     // trigger selection if any
     bool keep(false) ;
     if (!algobits.size()) keep = true ; // keep all events when no trigger selection
-    for (uint algo = 0 ; algo<algobits.size() ; algo++)
-      for (uint ntrig = 0 ; ntrig < treeVars.nbOfActiveTriggers ; ntrig++)
+    for (unsigned int algo = 0 ; algo<algobits.size() ; algo++)
+      for (unsigned int ntrig = 0 ; ntrig < treeVars.nbOfActiveTriggers ; ntrig++)
 	if (algobits[algo] == treeVars.activeTriggers[ntrig]) keep = true ;
     if (!keep) continue ;
     
              
     // loop on towers
-    for (uint tower = 0 ; tower < treeVars.nbOfTowers ; tower++) {
+    for (unsigned int tower = 0 ; tower < treeVars.nbOfTowers ; tower++) {
 
       int tp = getEt(treeVars.rawTPData[tower]) ;
       int emul[5] = {getEt(treeVars.rawTPEmul1[tower]),  
