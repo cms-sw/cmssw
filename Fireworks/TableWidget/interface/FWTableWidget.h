@@ -18,7 +18,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:47 EST 2009
-// $Id: FWTableWidget.h,v 1.9 2009/09/23 20:24:19 chrjones Exp $
+// $Id: FWTableWidget.h,v 1.10 2010/03/28 21:37:45 matevz Exp $
 //
 
 // system include files
@@ -74,6 +74,7 @@ class FWTableWidget : public TGCompositeFrame
       iGlobalY: the Y coordinate of the click in global coordinates
       */
       void rowClicked(Int_t iRow, Int_t iButton, Int_t iKeyMod, Int_t iGlobalX, Int_t iGlobalY); //*SIGNAL*
+      void cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t iKeyMod, Int_t iGlobalX, Int_t iGlobalY);
       void columnClicked(Int_t iColumn, Int_t iButton, Int_t iKeyMod); //*SIGNAL*
 
       ClassDef(FWTableWidget,0);
