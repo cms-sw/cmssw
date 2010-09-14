@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 MuonCkfTrajectoryBuilder = cms.ESProducer("MuonCkfTrajectoryBuilderESProducer",
     propagatorAlong = cms.string('PropagatorWithMaterial'),
     trajectoryFilterName = cms.string('muonCkfTrajectoryFilter'),
+    # updated name for HLR+RECO compatibility
+    MeasurementTrackerName = cms.string('hltMeasurementTracker'),
     maxCand = cms.int32(5),
     ComponentName = cms.string('muonCkfTrajectoryBuilder'),
     intermediateCleaning = cms.bool(False),
