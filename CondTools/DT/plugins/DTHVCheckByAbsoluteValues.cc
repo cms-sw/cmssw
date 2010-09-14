@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/04/02 14:10:27 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/04/15 20:38:42 $
+ *  $Revision: 1.4 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -67,16 +67,29 @@ DTHVCheckByAbsoluteValues::~DTHVCheckByAbsoluteValues() {
 //--------------
 // Operations --
 //--------------
-int DTHVCheckByAbsoluteValues::checkCurrentStatus(
-              int dpId, int rawId, int type, float value,
-              const std::map<int,timedMeasurement>& snapshotValues,
-              const std::map<int,int>& aliasMap,
-              const std::map<int,int>& layerMap  ) {
+DTHVAbstractCheck::flag DTHVCheckByAbsoluteValues::checkCurrentStatus(
+                        int rawId, int type,
+                        float valueA, float valueC, float valueS,
+                        const std::map<int,timedMeasurement>& snapshotValues,
+                        const std::map<int,int>& aliasMap,
+                        const std::map<int,int>& layerMap ) {
 
-  DTWireId chlId( rawId );
-  int part = chlId.wire() - 10;
-  if ( part < 0 ) return 0;
-  if ( part > 3 ) return 0;
+// find all values for this channel
+//  ind dpid = 0;
+//  std::map<int,int>::const_iterator lpartIter;
+//  std::map<int,int>::const_iterator lpartIend = layerMap.end();
+//  if ( ( layerIter = layerMap.find( chp0 ) ) != layerIend ) 
+//      dpid = layerIter.second;
+//  std::map<int,timedMeasurement>::const_iterator snapIter;
+//  std::map<int,timedMeasurement>::const_iterator snapIend =
+//                                                 snapshotValues.end();
+//  float val1 = -999999.0;
+//  float val2 = -999999.0;
+//  int chan = dpId * 10;
+//  if ( ( snapIter = snapshotValues.find( chan + 1 ) ) != snapIend )
+//      val1 = snapIter->second.second;
+//  if ( ( snapIter = snapshotValues.find( chan + 2 ) ) != snapIend )
+//      val2 = snapIter->second.second;
 
 // find dp identifier for all channels in this layer
 //  DTLayerId lay = chlId.layerId();
@@ -99,39 +112,60 @@ int DTHVCheckByAbsoluteValues::checkCurrentStatus(
 //  if ( ( layerIter = layerMap.find( chp3 ) ) != layerIend ) 
 //      dpi3 = layerIter.second;
 
-// find all values for this channel
-  std::map<int,timedMeasurement>::const_iterator snapIter;
-  std::map<int,timedMeasurement>::const_iterator snapIend =
-                                                 snapshotValues.end();
-  float val1 = -999999.0;
-  float val2 = -999999.0;
-  int chan = dpId * 10;
-  if ( ( snapIter = snapshotValues.find( chan + 1 ) ) != snapIend )
-      val1 = snapIter->second.second;
-  if ( ( snapIter = snapshotValues.find( chan + 2 ) ) != snapIend )
-      val2 = snapIter->second.second;
-
+  DTWireId chlId( rawId );
+  int part = chlId.wire() - 10;
+  DTHVAbstractCheck::flag flag;
+  flag.a = flag.c = flag.s = 0;
   if ( type == 1 ) {
-    if ( value < minHV[part] ) return 1;
-    if ( value > maxHV[part] ) return 2;
+    if ( valueA < minHV[part] ) flag.a = 1;
+    if ( valueA > maxHV[part] ) flag.a = 2;
+    if ( valueS < minHV[   2] ) flag.s = 1;
+    if ( valueS > maxHV[   2] ) flag.s = 2;
+    if ( valueC < minHV[   3] ) flag.c = 1;
+    if ( valueC > maxHV[   3] ) flag.c = 2;
   }
   if ( type == 2 ) {
-    if ( ( value > maxCurrent  ) &&
-         ( val1 >= minHV[part] ) ) return 4;
+    float voltA = 0.0;
+    float voltS = 0.0;
+    float voltC = 0.0;
+    DTLayerId lay = chlId.layerId();
+    int l_p = chlId.wire();
+    DTWireId chA( lay, l_p );
+    DTWireId chS( lay, 12 );
+    DTWireId chC( lay, 13 );
+    std::map<int,int>::const_iterator layerIter;
+    std::map<int,int>::const_iterator layerIend = layerMap.end();
+    std::map<int,timedMeasurement>::const_iterator snapIter;
+    std::map<int,timedMeasurement>::const_iterator snapIend =
+                                                   snapshotValues.end();
+    int chan;
+    if ( ( layerIter = layerMap.find( chA.rawId() ) ) != layerIend ) {
+      chan = ( layerIter->second * 10 ) + l_p;
+      if ( ( snapIter = snapshotValues.find( chan ) ) != snapIend ) {
+        voltA = snapIter->second.second;
+      }
+    }
+    if ( ( layerIter = layerMap.find( chS.rawId() ) ) != layerIend ) {
+      chan = ( layerIter->second * 10 ) + 2;
+      if ( ( snapIter = snapshotValues.find( chan ) ) != snapIend ) {
+        voltS = snapIter->second.second;
+      }
+    }
+    if ( ( layerIter = layerMap.find( chC.rawId() ) ) != layerIend ) {
+      chan = ( layerIter->second * 10 ) + 3;
+      if ( ( snapIter = snapshotValues.find( chan ) ) != snapIend ) {
+        voltC = snapIter->second.second;
+      }
+    }
+    if ( ( valueA > maxCurrent  ) &&
+         ( voltA >= minHV[part] ) ) flag.a = 4;
+    if ( ( valueS > maxCurrent  ) &&
+         ( voltS >= minHV[   2] ) ) flag.s = 4;
+    if ( ( valueC > maxCurrent  ) &&
+         ( voltC >= minHV[   3] ) ) flag.c = 4;
   }
-  return 0;
+  return flag;
 
-/*
-  int status = 0;
-  if ( type == 1 ) {
-    if ( value < minHV[part] ) status += 1;
-    if ( value > maxHV[part] ) status += 2;
-  }
-  if ( type == 2 ) {
-    if ( value > maxCurrent ) status += 4;
-  }
-  return status;
-*/
 }
 
 

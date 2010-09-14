@@ -5,8 +5,8 @@
  *  Description: 
  *
  *
- *  $Date: 2010/01/18 18:59:47 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/04/02 10:30:58 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -48,14 +48,29 @@ class DTHVAbstractCheck {
   static DTHVAbstractCheck* getInstance();
 
   /// check HV status
-//  virtual int checkCurrentStatus( int part, int type, float value ) = 0;
   typedef std::pair<long long int,float> timedMeasurement;
-  virtual int checkCurrentStatus( 
-//              const std::pair<int,timedMeasurement>& entry,
-              int dpId, int rawId, int type, float value,
-              const std::map<int,timedMeasurement>& snapshotValues,
-              const std::map<int,int>& aliasMap,
-              const std::map<int,int>& layerMap ) = 0;
+  struct flag { int a; int c; int s; };
+  static bool chkFlag( const DTHVAbstractCheck::flag& f );
+  static bool compare( const DTHVAbstractCheck::flag& fl,
+                       const DTHVAbstractCheck::flag& fr );
+  virtual DTHVAbstractCheck::flag checkCurrentStatus( 
+               int rawId, int type,
+               float valueA, float valueC, float valueS,
+               const std::map<int,timedMeasurement>& snapshotValues,
+               const std::map<int,int>& aliasMap,
+               const std::map<int,int>& layerMap ) = 0;
+  virtual void setValue(
+               int rawId, int type,
+               float valueA, float valueC, float valueS,
+               const std::map<int,timedMeasurement>& snapshotValues,
+               const std::map<int,int>& aliasMap,
+               const std::map<int,int>& layerMap );
+  virtual void setStatus(
+               int rawId,
+               int flagA, int flagC, int flagS,
+               const std::map<int,timedMeasurement>& snapshotValues,
+               const std::map<int,int>& aliasMap,
+               const std::map<int,int>& layerMap );
 
  protected:
 

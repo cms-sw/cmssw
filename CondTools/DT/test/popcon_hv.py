@@ -6,7 +6,8 @@ process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.CondDBCommon.connect = 'sqlite_file:testhv.db'
 process.CondDBCommon.DBParameters.authenticationPath = '.'
 
-process.DTHVCheckByAbsoluteValues = cms.Service("DTHVCheckByAbsoluteValues")
+#process.DTHVCheckByAbsoluteValues = cms.Service("DTHVCheckByAbsoluteValues")
+process.DTHVCheckWithHysteresis = cms.Service("DTHVCheckWithHysteresis")
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBCommon,
@@ -34,6 +35,7 @@ process.hv_o2o = cms.EDAnalyzer("DTHVStatusPopConAnalyzer",
             authenticationPath = cms.untracked.string('.')
         ),
         onlineDB = cms.string('sqlite_file:dummy_online.db'),
+        utilDB   = cms.string('sqlite_file:dummy_online.db'),
         bufferDB = cms.string('sqlite_file:bufferHV.db'),
         tag = cms.string('hv_test'),
         onlineAuthentication = cms.string('.'),
@@ -49,6 +51,8 @@ process.hv_o2o = cms.EDAnalyzer("DTHVStatusPopConAnalyzer",
         untilHour   = cms.int32(  17),
         untilMinute = cms.int32(   1),
         untilSecond = cms.int32(   0),
+        dumpAtStart = cms.bool(True),
+        dumpAtEnd   = cms.bool(False),
         bwdTime      = cms.int64(3600),
         fwdTime      = cms.int64(3600),
         minTime      = cms.int64(   1),

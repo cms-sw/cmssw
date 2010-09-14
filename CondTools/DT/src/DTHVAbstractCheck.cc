@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009-12-10 17:57:08 $
+ *  $Date: 2010/01/18 18:59:54 $
  *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
@@ -46,4 +46,36 @@ DTHVAbstractCheck* DTHVAbstractCheck::getInstance() {
   return instance;
 }
 
+
+bool DTHVAbstractCheck::chkFlag( const DTHVAbstractCheck::flag& f ) {
+  return ( f.a || f.c || f.s );
+}
+
+
+bool DTHVAbstractCheck::compare( const DTHVAbstractCheck::flag& fl,
+                                 const DTHVAbstractCheck::flag& fr ) {
+  return ( ( fl.a == fr.a ) &&
+           ( fl.c == fr.c ) &&
+           ( fl.s == fr.s ) );
+}
+
+
+void DTHVAbstractCheck::setValue(
+                        int rawId, int type,
+                        float valueA, float valueC, float valueS,
+                        const std::map<int,timedMeasurement>& snapshotValues,
+                        const std::map<int,int>& aliasMap,
+                        const std::map<int,int>& layerMap ) {
+  return;
+}
+
+
+void DTHVAbstractCheck::setStatus(
+                        int rawId,
+                        int flagA, int flagC, int flagS,
+                        const std::map<int,timedMeasurement>& snapshotValues,
+                        const std::map<int,int>& aliasMap,
+                        const std::map<int,int>& layerMap ) {
+  return;
+}
 

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/06/04 09:14:23 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/07/21 16:06:53 $
+ *  $Revision: 1.4 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -47,7 +47,8 @@ DTLVStatusHandler::DTLVStatusHandler( const edm::ParameterSet& ps ):
  onlineAuthentication(  ps.getParameter<std::string> ( 
                         "onlineAuthentication" ) ),
  bufferConnect(         ps.getParameter<std::string> ( "bufferDB" ) ),
- connection(),
+ omds_conn(),
+ buff_conn(),
  omds_session(),
  buff_session() {
   std::cout << " PopCon application for DT DCS data (CCB status) export "
@@ -68,10 +69,10 @@ void DTLVStatusHandler::getNewObjects() {
   // online DB connection
   std::cout << "configure omds DbConnection" << std::endl;
   //  conn->configure( cond::CmsDefaults );
-  connection.configuration().setAuthenticationPath( onlineAuthentication );
-  connection.configure();
+  omds_conn.configuration().setAuthenticationPath( onlineAuthentication );
+  omds_conn.configure();
   std::cout << "create omds DbSession" << std::endl;
-  cond::DbSession omds_session = connection.createSession();
+  omds_session = omds_conn.createSession();
   std::cout << "open omds session" << std::endl;
   omds_session.open( onlineConnect );
   std::cout << "start omds transaction" << std::endl;
@@ -79,8 +80,11 @@ void DTLVStatusHandler::getNewObjects() {
   std::cout << "" << std::endl;
 
   // buffer DB connection
+  std::cout << "configure buffer DbConnection" << std::endl;
+  buff_conn.configuration().setAuthenticationPath( onlineAuthentication );
+  buff_conn.configure();
   std::cout << "create buffer DbSession" << std::endl;
-  cond::DbSession buff_session = connection.createSession();
+  cond::DbSession buff_session = buff_conn.createSession();
   std::cout << "open buffer session" << std::endl;
   buff_session.open( bufferConnect );
   std::cout << "start buffer transaction" << std::endl;

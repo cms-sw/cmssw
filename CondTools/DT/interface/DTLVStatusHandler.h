@@ -5,8 +5,8 @@
  *  Description: Class to copy CCB DCS-status via PopCon
  *
  *
- *  $Date: 2009/03/26 14:11:03 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/07/21 16:06:53 $
+ *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -60,7 +60,8 @@ class DTLVStatusHandler: public popcon::PopConSourceHandler<DTLVStatus> {
   std::string bufferConnect;
   DTLVStatus* ccbStatus;
 
-  cond::DbConnection connection;
+  cond::DbConnection omds_conn;
+  cond::DbConnection buff_conn;
   cond::DbSession omds_session;
   cond::DbSession buff_session;
 
