@@ -23,7 +23,6 @@
 
 
 {
-	cout<<"HOLA"<<endl;
   TString dirBase = "/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/DT/DTLocalRecoQualityTest/";
   // Ask for the directory name (only the last part, es: CMSSW_1_2_0)
   TString nameDir;

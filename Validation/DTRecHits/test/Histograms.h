@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for DT RecHit and Segment test.
  *
- *  $Date: 2009/09/14 15:03:39 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/09/14 15:21:15 $
+ *  $Revision: 1.4 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -55,7 +55,6 @@ class HRes1DHit{
     }
 
     HRes1DHit(TString name_, TFile* file){
-	cout<<"HISTOS"<<endl;
       name=name_;
       hDist          = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hDist");
       hRes           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hRes");
