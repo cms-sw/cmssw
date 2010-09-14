@@ -56,8 +56,10 @@ runOnline       = False
 menuL1Override  = ''
 menuL1Connect   = ''
 menuGlobalTag   = ''
+menuConfig      = ''
 menuConfigDB    = ''
 menuConfigName  = ''
+menuConfigRun   = ''
 menuDataset     = ''
 menuUnprescale  = False
 
@@ -71,6 +73,12 @@ def pipe(cmdline, input = None):
   return out
 
 
+def build_query(db, menu, run):
+  if run:
+    return '--runNumber %s' % run
+  else:
+    return '--%s --configName %s' % (db, menu)
+
 def build_source(src):
   if src is None:
     return '--noedsources'
@@ -80,14 +88,11 @@ def build_source(src):
 def build_options(opts):
   return ' '.join(['--%s %s' % (key, ','.join(vals)) for key, vals in opts.iteritems() if vals])
 
-def build_cmdline(db, menu, src, opts, full = True):
+def build_cmdline(db, menu, run, src, opts, full = True):
   if full:
-    return 'edmConfigFromDB --%s --configName %s %s %s' % (db, menu, build_source(src), build_options(opts))
+    return 'edmConfigFromDB %s %s %s'       % (build_query(db, menu, run), build_source(src), build_options(opts))
   else:
-    return 'edmConfigFromDB --cff --%s --configName %s %s %s' % (db, menu, build_source(src), build_options(opts))
-
-
-
+    return 'edmConfigFromDB --cff %s %s %s' % (build_query(db, menu, run), build_source(src), build_options(opts))
 
 
 def parse_options(args):
@@ -100,8 +105,10 @@ def parse_options(args):
   global menuL1Override
   global menuL1Connect
   global menuGlobalTag
+  global menuConfig
   global menuConfigDB
   global menuConfigName
+  global menuConfigRun
   global menuDataset
   global menuUnprescale
 
@@ -162,19 +169,29 @@ def parse_options(args):
 
   # look for the required arguments
   try:
-      configName  = args[0]
+      menuConfig  = args[0]
   except:
       usage()
       sys.exit(1)
 
   # extract the database and configuration name
-  if ':' in configName:
-    (menuConfigDB, menuConfigName) = configName.split(':')
-    if menuConfigDB not in ('hltdev', 'orcoff'):
+  if ':' in menuConfig:
+    (db, name) = menuConfig.split(':')
+    if db == 'run':
+      menuConfigDB   = ''
+      menuConfigName = ''
+      menuConfigRun  = name
+    elif db in ('hltdev', 'orcoff'):
+      menuConfigDB   = db
+      menuConfigName = name
+      menuConfigRun  = ''
+    else:
       print 'Unknown ConfDB database "%s", valid values are "hltdev" (default) and "orcoff")' % menuConfigDB
       sys.exit(1)
   else:
-    (menuConfigDB, menuConfigName) = ('hltdev', configName)
+    menuConfigDB   = 'hltdev'
+    menuConfigName = menuConfig
+    menuConfigRun  = ''
 
 # parse command line arguments and options
 parse_options(sys.argv[1:])
@@ -273,8 +290,11 @@ if doCff:
     menuConfigOptions['psets'].append( "-maxEvents" )
     menuConfigOptions['psets'].append( "-options" )
 
-    cmdline = build_cmdline(menuConfigDB, menuConfigName, menuConfigSource, menuConfigOptions, False)
+    cmdline = build_cmdline(menuConfigDB, menuConfigName, menuConfigRun, menuConfigSource, menuConfigOptions, False)
     data = pipe(cmdline)
+
+    if 'Exhausted Resultset' in data or 'CONFIG_NOT_FOUND' in data:
+      raise ImportError('%s is not a valid HLT menu' % menuConfig)
 
     if not runOnData:
       # FIXME - this should be done looking into the python objects, not working on the text representation
@@ -343,8 +363,11 @@ else:
     menuConfigOptions['services'].append( "-FUShmDQMOutputService" )
     menuConfigOptions['paths'].append( "-OfflineOutput" )
 
-    cmdline = build_cmdline(menuConfigDB, menuConfigName, menuConfigSource, menuConfigOptions)
+    cmdline = build_cmdline(menuConfigDB, menuConfigName, menuConfigRun, menuConfigSource, menuConfigOptions)
     data = pipe(cmdline)
+
+    if 'Exhausted Resultset' in data or 'CONFIG_NOT_FOUND' in data:
+      raise ImportError('%s is not a valid HLT menu' % menuConfig)
 
     if not runOnData:
       # FIXME - this should be done looking into the python objects, not working on the text representation
