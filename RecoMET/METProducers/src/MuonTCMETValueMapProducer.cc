@@ -1,3 +1,6 @@
+
+
+
 // -*- C++ -*-
 //
 // Package:    MuonTCMETValueMapProducer
@@ -13,7 +16,7 @@ Implementation:
 //
 // Original Author:  Frank Golf
 //         Created:  Sun Mar 15 11:33:20 CDT 2009
-// $Id: MuonTCMETValueMapProducer.cc,v 1.2 2010/06/23 21:25:56 benhoob Exp $
+// $Id: MuonTCMETValueMapProducer.cc,v 1.3 2010/08/17 09:38:36 benhoob Exp $
 //
 //
 
@@ -94,6 +97,7 @@ namespace cms {
     d0cuta_          = iConfig.getParameter<double>("d0cuta");
     d0cutb_          = iConfig.getParameter<double>("d0cutb");
 
+    muon_dptrel_  = iConfig.getParameter<double>("muon_dptrel");
     muond0_     = iConfig.getParameter<double>("d0_muon"    );
     muonpt_     = iConfig.getParameter<double>("pt_muon"    );
     muoneta_    = iConfig.getParameter<double>("eta_muon"   );
@@ -259,6 +263,10 @@ namespace cms {
     if( nhits < muonhits_ )                             return false;
     if( chi2 > muonchi2_ )                              return false;
     if( globalTrack->hitPattern().numberOfValidMuonHits() < muonMinValidStaHits_ ) return false;
+
+    //reject muons with tracker dpt/pt > X
+    if( !siTrack.isNonnull() )                                return false;
+    if( siTrack->ptError() / siTrack->pt() > muon_dptrel_ )   return false;
 
     else return true;
   }

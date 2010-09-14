@@ -98,6 +98,7 @@ class MuonTCMETValueMapProducer : public edm::EDProducer {
       double  muonhits_;
       double  muond0_;
       double  muonDeltaR_;
+      double  muon_dptrel_;
 
       //functions
       bool isGoodMuon( const reco::Muon* );
