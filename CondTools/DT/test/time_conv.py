@@ -15,7 +15,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.hv = cms.EDFilter("DTTimeUtility",
+process.hv = cms.EDAnalyzer("DTTimeUtility",
 
         year   = cms.int32(2009),
         month  = cms.int32(  12),
@@ -26,7 +26,7 @@ process.hv = cms.EDFilter("DTTimeUtility",
 
         condTime = cms.int64(5445216652344191208),
 
-        coralTime = cms.int64(1267685508000000000) )
+        coralTime = cms.int64(1278584868675000000) )
 
 process.p = cms.Path(process.hv)
 
