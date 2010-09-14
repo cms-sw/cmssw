@@ -13,7 +13,7 @@
 //
 // Original Author:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: TrackerOnlyConversionProducer.cc,v 1.24 2010/09/07 16:00:39 nancy Exp $
+// $Id: TrackerOnlyConversionProducer.cc,v 1.25 2010/09/09 13:52:23 nancy Exp $
 //
 //
 
@@ -140,6 +140,8 @@ TrackerOnlyConversionProducer::TrackerOnlyConversionProducer(const edm::Paramete
 
 
     theVertexFinder_ = new ConversionVertexFinder ( iConfig );
+
+    thettbuilder_ = 0;
 
     //output
     ConvertedPhotonCollection_     = iConfig.getParameter<std::string>("convertedPhotonCollection");
@@ -354,8 +356,8 @@ bool TrackerOnlyConversionProducer::checkTrackPair(const std::pair<reco::TrackRe
 
     const reco::TrackRef& tk_l = ll.first;
     const reco::TrackRef& tk_r = rr.first;
-    const reco::TransientTrack ttk_l(tk_l, magField);
-    const reco::TransientTrack ttk_r(tk_r, magField);
+    const reco::TransientTrack ttk_l(thettbuilder_->build(tk_l));
+    const reco::TransientTrack ttk_r(thettbuilder_->build(tk_r));
     const reco::CaloClusterPtr& bc_l = ll.second;//can be null, so check isNonnull()
     const reco::CaloClusterPtr& bc_r = rr.second;
     
@@ -429,8 +431,8 @@ bool TrackerOnlyConversionProducer::checkVertex(const reco::TrackRef& tk_l, cons
 	reco::Vertex& the_vertex){
     bool found = false;
 
-    reco::TransientTrack ttk_l(tk_l, magField);
-    reco::TransientTrack ttk_r(tk_r, magField);
+    const reco::TransientTrack ttk_l(thettbuilder_->build(tk_l));
+    const reco::TransientTrack ttk_r(thettbuilder_->build(tk_r));
     std::vector<reco::TransientTrack>  pair;
     pair.push_back(ttk_l);
     pair.push_back(ttk_r);
@@ -745,6 +747,10 @@ TrackerOnlyConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup
 	if (usePvtx_)
 	    vertexCollection = *(vertexHandle.product());
     }
+
+    edm::ESHandle<TransientTrackBuilder> hTransientTrackBuilder;
+    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",hTransientTrackBuilder);
+    thettbuilder_ = hTransientTrackBuilder.product();
 
     reco::Vertex the_pvtx;
     //because the priamry vertex is sorted by quality, the first one is the best

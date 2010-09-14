@@ -4,8 +4,8 @@
  **
  **
  **  $Id:
- **  $Date: 2010/06/03 14:35:05 $
- **  $Revision: 1.13 $
+ **  $Date: 2010/09/09 13:52:01 $
+ **  $Revision: 1.14 $
  **  \author H. Liu, UC of Riverside US
  **
  ***/
@@ -63,6 +63,7 @@
 //using namespace reco;
 using namespace std;
 
+class TransientTrackBuilder;
 class ConversionVertexFinder;
 
 class TrackerOnlyConversionProducer : public edm::EDProducer {
@@ -149,6 +150,8 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
       bool usePvtx_;//if use primary vertices
       std::string vertexProducer_;
       ConversionVertexFinder*         theVertexFinder_;
+
+      const TransientTrackBuilder *thettbuilder_;
 
       double halfWayEta_, halfWayPhi_;//halfway open angle to search in basic clusters
 
