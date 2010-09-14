@@ -80,6 +80,9 @@ PatTopSelectionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   edm::Handle<edm::View<pat::MET> > met;
   iEvent.getByLabel(met_,met);
 
+  // fill yield
+  fill("yield", 0.5);
+
   // fill quantities for leading elec and elec multiplicity
   fill("elecMult", elecs->size());
   if(elecs->begin()!=elecs->end()){
@@ -113,18 +116,19 @@ PatTopSelectionAnalyzer::beginJob()
   edm::Service<TFileService> fs;
   
   // book histograms:
-  hists_["elecMult"]=fs->make<TH1F>("elecMult","electron multiplicity",  10, 0.,  10.);
-  hists_["elecIso" ]=fs->make<TH1F>("elecIso", "electron isolation"   ,  50, 0.,   1.);
-  hists_["elecPt"  ]=fs->make<TH1F>("elecPt",  "electron pt"          ,  75, 0., 150.);
-  hists_["muonMult"]=fs->make<TH1F>("muonMult","muon multiplicity"    ,  10, 0.,  10.);
-  hists_["muonIso" ]=fs->make<TH1F>("muonIso", "muon isolation"       ,  50, 0.,   1.);
-  hists_["muonPt"  ]=fs->make<TH1F>("muonPt",  "muon pt"              ,  75, 0., 150.);
-  hists_["jetMult" ]=fs->make<TH1F>("jetMult", "jet multiplicity"     ,  15, 0.,  15.);
-  hists_["jet0Pt"  ]=fs->make<TH1F>("jet0Pt",  "1. leading jet pt"    ,  50, 0., 200.);
-  hists_["jet1Pt"  ]=fs->make<TH1F>("jet1Pt",  "1. leading jet pt"    ,  50, 0., 200.);
-  hists_["jet2Pt"  ]=fs->make<TH1F>("jet2Pt",  "1. leading jet pt"    ,  50, 0., 200.);
-  hists_["jet3Pt"  ]=fs->make<TH1F>("jet3Pt",  "1. leading jet pt"    ,  50, 0., 200.);
-  hists_["met"     ]=fs->make<TH1F>("met",     "missing E_{T}"        ,  25, 0., 100.);
+  hists_["yield"   ]=fs->make<TH1F>("yield"   , "electron multiplicity",   1, 0.,   1.);
+  hists_["elecMult"]=fs->make<TH1F>("elecMult", "electron multiplicity",  10, 0.,  10.);
+  hists_["elecIso" ]=fs->make<TH1F>("elecIso" , "electron isolation"   ,  20, 0.,   1.);
+  hists_["elecPt"  ]=fs->make<TH1F>("elecPt"  , "electron pt"          ,  30, 0., 150.);
+  hists_["muonMult"]=fs->make<TH1F>("muonMult", "muon multiplicity"    ,  10, 0.,  10.);
+  hists_["muonIso" ]=fs->make<TH1F>("muonIso" , "muon isolation"       ,  20, 0.,   1.);
+  hists_["muonPt"  ]=fs->make<TH1F>("muonPt"  , "muon pt"              ,  30, 0., 150.);
+  hists_["jetMult" ]=fs->make<TH1F>("jetMult" , "jet multiplicity"     ,  15, 0.,  15.);
+  hists_["jet0Pt"  ]=fs->make<TH1F>("jet0Pt"  , "1. leading jet pt"    ,  50, 0., 250.);
+  hists_["jet1Pt"  ]=fs->make<TH1F>("jet1Pt"  , "1. leading jet pt"    ,  50, 0., 250.);
+  hists_["jet2Pt"  ]=fs->make<TH1F>("jet2Pt"  , "1. leading jet pt"    ,  50, 0., 200.);
+  hists_["jet3Pt"  ]=fs->make<TH1F>("jet3Pt"  , "1. leading jet pt"    ,  50, 0., 200.);
+  hists_["met"     ]=fs->make<TH1F>("met"     , "missing E_{T}"        ,  25, 0., 200.);
 }
 
 void 
