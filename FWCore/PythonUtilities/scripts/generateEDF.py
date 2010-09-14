@@ -20,9 +20,6 @@ class LumiInfo (object):
 
     lastSingleXingRun = 136175
     lumiSectionLength = 23.310779
-    minRun            = 0
-    maxRun            = 0
-    offset            = 0.
 
     def __init__ (self, line):
         self.totInstLum  = 0.
@@ -45,13 +42,6 @@ class LumiInfo (object):
             self.recorded  = float (pieces[3])
         except:
             raise RuntimeError, "Pieces not right format"
-        if LumiInfo.minRun and self.run < LumiInfo.minRun or \
-           LumiInfo.maxRun and self.run > LumiInfo.maxRun:
-            # we don't want to keep this
-            # but if it's failing the lower boundry, we want to know about it
-            if self.run < LumiInfo.minRun:
-                LumiInfo.offset += self.recorded
-            raise RuntimeError, "Run %d out of requested range" % self.run
         if size > 4:
             try:
                 for xing, lum in zip (pieces[4::2],pieces[5::2]):
@@ -104,10 +94,6 @@ class LumiInfo (object):
                 self.numXings)
 
 
-    def totalRecordedWithOffset (self):
-        return self.totalRecorded + LumiInfo.offset
-
-
 ##############################
 ## ######################## ##
 ## ## LumiInfoCont Class ## ##
@@ -124,9 +110,11 @@ class LumiInfoCont (dict):
         self._min = {}
         self._max = {}
         self.totalRecLum = 0.
-        self.xingInfo = False
+        self.xingInfo    = False
         self.allowNoXing = kwargs.get ('ignore')
         self.noWarnings  = kwargs.get ('noWarnings')
+        self.minRun      = 0
+        self.maxRun      = 0
         
         for key in self.minMaxKeys:
             self._min[key] = -1
@@ -151,8 +139,6 @@ class LumiInfoCont (dict):
                 if val > self._max[key] or not self._max[key]:
                     self._max[key] = val
         source.close()
-        self.recLumOffset = LumiInfo.offset
-        #self.recLumOffset = 0 #LumiInfo.offset
         ######################################################
         ## Now that everything is setup, switch integrated  ##
         ## luminosity to more reasonable units.             ##
@@ -160,13 +146,12 @@ class LumiInfoCont (dict):
         # the default is '1/mb', but that's just silly.
         self.invunits = 'nb'
         lumFactor = 1e3        
-        if   self.totalRecLum + self.recLumOffset > 1e9:
+        if   self.totalRecLum > 1e9:
             lumFactor = 1e9
             self.invunits = 'fb'
-        elif self.totalRecLum + self.recLumOffset > 1e6:
+        elif self.totalRecLum > 1e6:
             lumFactor = 1e6
             self.invunits = 'pb'
-        self.recLumOffset /= lumFactor
         # use lumFactor to make everything consistent
         #print "units", self.invunits, "factor", lumFactor
         self.totalRecLum /= lumFactor
@@ -265,9 +250,6 @@ def loadEvents (filename, cont, options):
                                int( pieces[eventIndex] )
         except:
             continue
-        if LumiInfo.minRun and run < LumiInfo.minRun or \
-           LumiInfo.maxRun and run > LumiInfo.maxRun:
-            continue
         key = (run, lumi)
         if not cont.has_key (key):
             if options.ignore:
@@ -303,12 +285,23 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
     predVals   = [0]
     weight = 0
     if 'time' == options.edfMode:
-        # fix first point
-        xVals[0] = lumiCont.recLumOffset
+        # if we have a minimum run number, clear the lists
+        if lumiCont.minRun:
+            xVals      = []
+            yVals      = []
+            theoryVals = []
+            predVals   = []
         # loop over events
         for key, eventList in sorted( eventsDict.iteritems() ):
+            usePoints = True
+            # should we add this point?
+            if lumiCont.minRun and lumiCont.minRun > key[0] or \
+               lumiCont.maxRun and lumiCont.maxRun < key[0]:
+                usePoints = False
             for event in eventList:
                 weight += event[1]
+                if not usePoints:
+                    continue
                 factor = weight / totalWeight
                 try:
                     intLum = lumiCont[key].totalRecorded
@@ -316,16 +309,16 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
                     raise RuntimeError, "key %s not found in lumi information" \
                           % key.__str__()
                 lumFrac = intLum / lumiCont.totalRecLum
-                xVals.append( lumiCont[key].totalRecorded +
-                              lumiCont.recLumOffset)
+                xVals.append( lumiCont[key].totalRecorded)
                 yVals.append (factor)
                 theoryVals.append (lumFrac)
                 predVals.append   (lumFrac * options.pred)
-        # put on the last point
-        xVals.append (lumiCont.totalRecLum + lumiCont.recLumOffset)
-        yVals.append (1)
-        theoryVals.append (1)
-        predVals.append (options.pred)
+        # put on the last point if we aren't giving a maximum run
+        if not lumiCont.maxRun:
+            xVals.append (lumiCont.totalRecLum)
+            yVals.append (1)
+            theoryVals.append (1)
+            predVals.append (options.pred)
     elif 'instLum' == options.edfMode or 'instIntLum' == options.edfMode:
         eventTupList = []
         if not lumiCont.xingInfo:
@@ -394,6 +387,12 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
     ROOT.gROOT.SetStyle('Plain')
     ROOT.gROOT.SetBatch()
     c1 = ROOT.TCanvas()
+    graph.GetXaxis().SetRangeUser (min (xVals), max (xVals))
+    minValue = min (min(yVals), min(theory))
+    if options.pred:
+        minValue = min (minValue, min (pretVals))
+    graph.GetYaxis().SetRangeUser (minValue,
+                                   max (max(yVals), max(theory), max(predVals)))
     graph.Draw ("ALP")
     if 'instLum' == options.edfMode:
         graph.GetXaxis().SetTitle ("Average Xing Inst. Luminosity (1/ub/s)")
@@ -405,14 +404,7 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
         else:
             graph.GetXaxis().SetTitle ("Integrated Luminosity (1/%s)" \
                                        % lumiCont.invunits)
-        print "setting range now", lumiCont.recLumOffset
-        graph.GetXaxis().SetRangeUser (0. + lumiCont.recLumOffset,
-                                       lumiCont.totalRecLum + lumiCont.recLumOffset)
     graph.GetYaxis().SetTitle ("Fraction of Events Seen")
-    if options.pred > 1:
-        graph.GetYaxis().SetRangeUser (0., options.pred)
-    else:
-        graph.GetYaxis().SetRangeUser (0., 1.)
     theoryGraph.Draw ("L")
     green = 0
     if options.pred:
@@ -491,13 +483,13 @@ if __name__ == '__main__':
     if len (args) != 3 and not (options.runsWithLumis and len(args) >= 1):
         raise RuntimeError, "Must provide lumi.csv, events.txt, and output.png"
 
-    LumiInfo.minRun = options.minRun
-    LumiInfo.maxRun = options.maxRun
 
     ##########################
     ## load Luminosity info ##
     ##########################
     cont = LumiInfoCont (args[0], **options.__dict__)
+    cont.minRun = options.minRun
+    cont.maxRun = options.maxRun
 
     ##################################################
     ## look for which runs correspond to what total ##
