@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_8_1/GRun/V14
+# /dev/CMSSW_3_8_1/GRun/V15
 
 import FWCore.ParameterSet.Config as cms
 
@@ -191,9 +191,9 @@ streamA_datasetMuOnia_selector.l1tResults = cms.InputTag('')
 streamA_datasetMuOnia_selector.throw      = cms.bool(False)
 streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_Mu5_L2Mu0', 
     'HLT_DoubleMu0', 
-    'HLT_Mu0_TkMu0_Jpsi', 
-    'HLT_Mu3_TkMu0_Jpsi', 
-    'HLT_Mu5_TkMu0_Jpsi', 
+    'HLT_Mu0_TkMu0_OST_Jpsi', 
+    'HLT_Mu3_TkMu0_OST_Jpsi', 
+    'HLT_Mu5_TkMu0_OST_Jpsi', 
     'HLT_Mu3_Track3_Jpsi', 
     'HLT_Mu5_Track0_Jpsi')
 
