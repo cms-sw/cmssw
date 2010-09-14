@@ -26,6 +26,13 @@ KinematicState TransientTrackKinematicStateBuilder::operator()(const TransientTr
 } 
 
 KinematicState TransientTrackKinematicStateBuilder::operator()(const FreeTrajectoryState& state,
+                        const ParticleMass& mass,float m_sigma) const
+{
+//building initial kinematic state 
+ return buildState(state,mass,m_sigma); 
+}
+
+KinematicState TransientTrackKinematicStateBuilder::operator()(const FreeTrajectoryState& state,
                         const ParticleMass& mass,float m_sigma, const GlobalPoint& point) const
 {
 //building initial kinematic state 

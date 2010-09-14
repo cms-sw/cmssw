@@ -44,7 +44,15 @@ public:
  */ 
  KinematicState operator()(const reco::TransientTrack& track, const GlobalPoint& point, const ParticleMass& m,
                                                                              float m_sigma) const; 
-									     
+
+/**
+ * Operator to create a particle state at point
+ * using the FreeTrajectoryState, charge and mass guess for the particle. The state will be
+ * created with the reference point taken from the FTS
+ */ 
+ KinematicState operator()(const FreeTrajectoryState& state, const ParticleMass& mass,
+                           float m_sigma) const;                                                                             
+                                                                             
 /**
  * Operator to create a particle state at point
  * using the FreeTrajectoryState, charge and mass guess for the particle. The state will be
