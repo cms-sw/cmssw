@@ -11,15 +11,15 @@ DCCSRPBlock::DCCSRPBlock(
   // Todo : include data integrity collections
   blockLength_    = SRP_BLOCKLENGTH;
   // Set SR flags to zero
-  for(uint i=0; i<SRP_NUMBFLAGS; i++){ srFlags_[i]=0; }
+  for(unsigned int i=0; i<SRP_NUMBFLAGS; i++){ srFlags_[i]=0; }
 
 }
 
 
-int DCCSRPBlock::unpack(uint64_t ** data, uint * dwToEnd, uint numbFlags ){    
+int DCCSRPBlock::unpack(uint64_t ** data, unsigned int * dwToEnd, unsigned int numbFlags ){    
 
   // Set SR flags to zero
-  for(uint i=0; i<SRP_NUMBFLAGS; i++){ srFlags_[i]=0; }
+  for(unsigned int i=0; i<SRP_NUMBFLAGS; i++){ srFlags_[i]=0; }
   
 
   expNumbSrFlags_ = numbFlags;
@@ -62,8 +62,8 @@ int DCCSRPBlock::unpack(uint64_t ** data, uint * dwToEnd, uint numbFlags ){
 	 
   // Check synchronization
   if(sync_){
-    uint dccL1 = ( event_->l1A() ) & SRP_BX_MASK;
-    uint dccBx = ( event_->bx()  ) & SRP_L1_MASK;
+    unsigned int dccL1 = ( event_->l1A() ) & SRP_BX_MASK;
+    unsigned int dccBx = ( event_->bx()  ) & SRP_L1_MASK;
     if( dccBx != bx_ || dccL1 != l1_ ){
       if( ! DCCDataUnpacker::silentMode_ ){
         edm::LogWarning("IncorrectEvent")
@@ -100,7 +100,7 @@ void DCCSRPBlock::display(std::ostream& o){
   <<"\n Bx "<<bx_
   <<"\n L1 "<<l1_;
  
-  for(uint i=0; i<SRP_NUMBFLAGS; i++){ 
+  for(unsigned int i=0; i<SRP_NUMBFLAGS; i++){ 
     o<<"\n SR flag "<<(i+1)<<" = "<<(srFlags_[i]); 
   } 
 } 

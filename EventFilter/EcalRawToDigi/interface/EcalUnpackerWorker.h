@@ -44,7 +44,7 @@ class EcalUnpackerWorker : public EcalUnpackerWorkerBase {
   void setHandles(const EcalUnpackerWorkerRecord & iRecord);
   void set(const edm::EventSetup & es) const;
 
-  uint maxElementIndex() const { return EcalRegionCabling::maxElementIndex();}
+  unsigned int maxElementIndex() const { return EcalRegionCabling::maxElementIndex();}
   
  private:
 

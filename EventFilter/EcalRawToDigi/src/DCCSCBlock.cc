@@ -26,7 +26,7 @@ void DCCSCBlock::updateCollectors(){
 
 
 
-int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
+int DCCSCBlock::unpackXtalData(unsigned int expStripID, unsigned int expXtalID){
   
   bool errorOnXtal(false);
  
@@ -34,8 +34,8 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
 
  
   // Get xtal data ids
-  uint stripId = (*xData_) & TOWER_STRIPID_MASK;
-  uint xtalId  =((*xData_)>>TOWER_XTALID_B ) & TOWER_XTALID_MASK;
+  unsigned int stripId = (*xData_) & TOWER_STRIPID_MASK;
+  unsigned int xtalId  =((*xData_)>>TOWER_XTALID_B ) & TOWER_XTALID_MASK;
   
   // std::cout<<"\n DEBUG : unpacked xtal data for strip id "<<stripId<<" and xtal id "<<xtalId<<std::endl;
   // std::cout<<"\n DEBUG : expected strip id "<<expStripID<<" expected xtal id "<<expXtalID<<std::endl;
@@ -151,10 +151,10 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
     bool wrongGain(false);
     
     //set samples in the frame
-    for(uint i =0; i< nTSamples_ ;i++){ 
+    for(unsigned int i =0; i< nTSamples_ ;i++){ 
       xData_++;
-      uint data =  (*xData_) & TOWER_DIGI_MASK;
-      uint gain =  data>>12;
+      unsigned int data =  (*xData_) & TOWER_DIGI_MASK;
+      unsigned int gain =  data>>12;
       xtalGains_[i]=gain;
       if(gain == 0){          wrongGain = true; }      // although gain==0 found, produce the dataFrame in order to have it, for saturation case
       df.setSample(i,data);
@@ -169,7 +169,7 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
       
       // determine where gainId==0 starts
       short firstGainZeroSampID(-1);    short firstGainZeroSampADC(-1);
-      for (uint s=0; s<nTSamples_; s++ ) {
+      for (unsigned int s=0; s<nTSamples_; s++ ) {
         if(df.sample(s).gainId()==0 && firstGainZeroSampID==-1)
           {
           firstGainZeroSampID  = s;
@@ -179,8 +179,8 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
       }
       
     // check whether gain==0 and adc() stays constant for (at least) 5 consecutive samples
-    uint plateauEnd = std::min(nTSamples_,(uint)(firstGainZeroSampID+5));
-    for (uint s=firstGainZeroSampID; s<plateauEnd; s++) 
+    unsigned int plateauEnd = std::min(nTSamples_,(unsigned int)(firstGainZeroSampID+5));
+    for (unsigned int s=firstGainZeroSampID; s<plateauEnd; s++) 
       {
         if( df.sample(s).gainId()==0 && df.sample(s).adc()==firstGainZeroSampADC ) {;}
         else
@@ -221,7 +221,7 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
     short firstGainWrong=-1;
     short numGainWrong=0;
     
-    for (uint i=1; i<nTSamples_; i++ ) {
+    for (unsigned int i=1; i<nTSamples_; i++ ) {
       if (xtalGains_[i-1]>xtalGains_[i]) {
         numGainWrong++;
         

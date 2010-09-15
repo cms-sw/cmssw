@@ -14,17 +14,17 @@ bool EcalDCCHeaderRuntypeDecoder::Decode( ulong TrigType,            // global h
 					  EcalDCCHeaderBlock* EcalDCCHeaderInfos)
 {
   
-  //  uint DCCNumberMask   = 63;//2^6-1
+  //  unsigned int DCCNumberMask   = 63;//2^6-1
 
-  uint WhichHalfOffSet= 64;//2^6 
-  uint TypeOffSet     = 256;//2^8
-  uint SubTypeOffSet  = 2048;//2^11
-  uint SettingOffSet  = 131072;//2^17;
-  uint GainModeOffSet = 16384;//2^14
+  unsigned int WhichHalfOffSet= 64;//2^6 
+  unsigned int TypeOffSet     = 256;//2^8
+  unsigned int SubTypeOffSet  = 2048;//2^11
+  unsigned int SettingOffSet  = 131072;//2^17;
+  unsigned int GainModeOffSet = 16384;//2^14
   
-  uint TwoBitsMask    = 3;
-  uint ThreeBitsMask  = 7;
-  uint ThirdBitMask   = 4;
+  unsigned int TwoBitsMask    = 3;
+  unsigned int ThreeBitsMask  = 7;
+  unsigned int ThirdBitMask   = 4;
   
   EcalDCCHeaderInfos-> setRtHalf( int ((runType / WhichHalfOffSet) & TwoBitsMask) );
   int type      = int ((runType / TypeOffSet)      & ThreeBitsMask);

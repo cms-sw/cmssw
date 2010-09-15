@@ -145,7 +145,7 @@ EcalRawToRecHitRoI::~EcalRawToRecHitRoI() {
 std::string EcalRawToRecHitRoI::dumpFEDs(const std::vector<int> & FEDs){
   std::stringstream ss;
   ss<<"unpack FED: ";
-  for (uint i=0; i < FEDs.size(); i++) {
+  for (unsigned int i=0; i < FEDs.size(); i++) {
     ss<< FEDs[i] << ((i!= FEDs.size()-1)? ", ":"\n");
   }
   ss<< "Number of FEDS is " << FEDs.size();
@@ -178,8 +178,8 @@ void EcalRawToRecHitRoI::produce(edm::Event & e, const edm::EventSetup& iSetup){
 
  if (All_)  {   for (int i=1; i <= 54; feds.push_back(i++)){} }
  
- uint nf = feds.size();
- for (uint i=0; i <nf; feds[i++]+=FEDNumbering::MINECALFEDID) {}
+ unsigned int nf = feds.size();
+ for (unsigned int i=0; i <nf; feds[i++]+=FEDNumbering::MINECALFEDID) {}
  
  LogDebug(category)<< "Will unpack Ecal FED\n" <<dumpFEDs(feds)
 		   <<watcher.lap();
@@ -213,7 +213,7 @@ void EcalRawToRecHitRoI::produce(edm::Event & e, const edm::EventSetup& iSetup){
  LogDebug(category)<<"ECal ref getter ready to be updated."
 		   <<watcher.lap();
 
- for (uint i=0;i!=nf;i++){
+ for (unsigned int i=0;i!=nf;i++){
    cabling->updateEcalRefGetterWithFedIndex(*rgetter, lgetter, feds[i]);
    //cabling->updateEcalRefGetterWithElementIndex(*rgetter, lgetter, cabling->elementIndex(feds[i]));
  }
@@ -258,8 +258,8 @@ void EcalRawToRecHitRoI::produce(edm::Event & e, const edm::EventSetup& iSetup){
    LogDebug(category)<<"ES ref getter ready to be updated."
 		     <<watcher.lap();
    
-   uint nf_es=es_feds.size();
-   for (uint i=0;i!=nf_es;i++){
+   unsigned int nf_es=es_feds.size();
+   for (unsigned int i=0;i!=nf_es;i++){
      cabling->updateEcalRefGetterWithElementIndex(*rgetter_es, lgetter_es, cabling->esElementIndex(es_feds[i]));
    }
    
@@ -275,8 +275,8 @@ void EcalRawToRecHitRoI::produce(edm::Event & e, const edm::EventSetup& iSetup){
 void EcalRawToRecHitRoI::Cand(edm::Event& e, const edm::EventSetup& es , std::vector<int> & FEDs) {
   const std::string category ="EcalRawToRecHit|Cand";
   
-  uint nc=CandSource_.size();
-  for (uint ic=0;ic!=nc;++ic){
+  unsigned int nc=CandSource_.size();
+  for (unsigned int ic=0;ic!=nc;++ic){
     switch (CandSource_[ic].cType){
     case CandJobPSet::view :
       OneCandCollection< edm::View<reco::Candidate> >(e, es, CandSource_[ic], FEDs);
@@ -340,8 +340,8 @@ void EcalRawToRecHitRoI::Egamma(edm::Event& e, const edm::EventSetup& es , std::
   es.get<L1CaloGeometryRecord>().get(l1CaloGeom) ;
 
   edm::Handle< l1extra::L1EmParticleCollection > emColl;
-  uint ne=EmSource_.size();
-  for (uint ie=0;ie!=ne;++ie){
+  unsigned int ne=EmSource_.size();
+  for (unsigned int ie=0;ie!=ne;++ie){
     e.getByLabel(EmSource_[ie].Source,emColl);
     if (!emColl.isValid()){edm::LogError("IncorrectConfiguration")<<"L1Em Collection: "<<EmSource_[ie].Source<<" is not valid.";continue;}
 
@@ -409,8 +409,8 @@ void EcalRawToRecHitRoI::Jet(edm::Event& e, const edm::EventSetup& es, std::vect
   const std::string category = "EcalRawToRecHit|Jet";
 
   edm::Handle<L1JetParticleCollection> jetColl;
-  uint nj=JetSource_.size();
-  for (uint ij=0;ij!=nj;++ij){
+  unsigned int nj=JetSource_.size();
+  for (unsigned int ij=0;ij!=nj;++ij){
     e.getByLabel(JetSource_[ij].Source,jetColl);
     if (!jetColl.isValid()) {
       edm::LogError("IncorrectConfiguration") << "L1Jet collection: " << JetSource_[ij].Source << " is not valid.";

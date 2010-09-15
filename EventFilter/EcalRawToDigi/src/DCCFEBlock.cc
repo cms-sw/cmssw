@@ -26,14 +26,14 @@ void DCCFEBlock::updateCollectors(){
 
 
 
-int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedTowerID){
+int DCCFEBlock::unpack(uint64_t ** data, unsigned int * dwToEnd, bool zs, unsigned int expectedTowerID){
   
   zs_      = zs;  
   datap_   = data;
   data_    = *data;
   dwToEnd_ = dwToEnd;
   
-  const uint activeDCC = mapper_->getActiveSM();
+  const unsigned int activeDCC = mapper_->getActiveSM();
 
   if( (*dwToEnd_)<1){
     if( ! DCCDataUnpacker::silentMode_ ){
@@ -102,8 +102,8 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
   
   // Check synchronization
   if (sync_) {
-    const uint dccBx = (event_->bx()) & TCC_BX_MASK;
-    const uint dccL1 = (event_->l1A()) & TCC_L1_MASK;
+    const unsigned int dccBx = (event_->bx()) & TCC_BX_MASK;
+    const unsigned int dccL1 = (event_->l1A()) & TCC_L1_MASK;
     
     // accounting for counters starting from 0 in ECAL FE, while from 1 in CSM
     if (dccBx != bx_ || dccL1 != (l1_+1) ) {
@@ -214,16 +214,16 @@ int DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedT
 
 
 
-  uint numbOfXtalBlocks = (blockLength_-1)/numbDWInXtalBlock_; 
+  unsigned int numbOfXtalBlocks = (blockLength_-1)/numbDWInXtalBlock_; 
 
   // get XTAL Data
-  uint expStripID(0), expXtalID(0);
+  unsigned int expStripID(0), expXtalID(0);
   //point to xtal data
   data_++;
   
   int statusUnpackXtal =0;
 
-  for(uint numbXtal=1; numbXtal <= numbOfXtalBlocks && statusUnpackXtal!= SKIP_BLOCK_UNPACKING; numbXtal++){
+  for(unsigned int numbXtal=1; numbXtal <= numbOfXtalBlocks && statusUnpackXtal!= SKIP_BLOCK_UNPACKING; numbXtal++){
 
     
     if(!zs_ && ! forceToKeepFRdata_){

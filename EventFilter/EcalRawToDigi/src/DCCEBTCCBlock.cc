@@ -50,24 +50,24 @@ void DCCEBTCCBlock::addTriggerPrimitivesToCollection(){
   //point to trigger data
   data_++;
 
-  uint towersInPhi = EcalElectronicsMapper::kTowersInPhi;
+  unsigned int towersInPhi = EcalElectronicsMapper::kTowersInPhi;
   
   uint16_t * tccP_= reinterpret_cast< uint16_t * >(data_);
  
 
-  for( uint i = 1; i <= expNumbTTs_; i++){
+  for( unsigned int i = 1; i <= expNumbTTs_; i++){
 
-    uint theTT = i;
+    unsigned int theTT = i;
 
     if(NUMB_SM_EB_PLU_MIN<= mapper_->getActiveSM() && mapper_->getActiveSM()<=NUMB_SM_EB_PLU_MAX)
     {
-        uint u = (i-1)%towersInPhi;
+        unsigned int u = (i-1)%towersInPhi;
         u      = towersInPhi-u;
         theTT  = ( (i-1)/towersInPhi )*towersInPhi + u;
     }
    
     pTP_ =  mapper_->getTPPointer(tccId_,theTT);
-    for(uint ns = 0; ns<nTSamples_;ns++,tccP_++){
+    for(unsigned int ns = 0; ns<nTSamples_;ns++,tccP_++){
       
       pTP_->setSampleValue(ns, (*tccP_));
       (*tps_)->push_back(*pTP_);

@@ -8,8 +8,8 @@
  *
  * \file DCCTCCBlock.h
  *
- * $Date: 2008/11/18 12:36:00 $
- * $Revision: 1.8 $
+ * $Date: 2008/12/11 18:05:57 $
+ * $Revision: 1.1 $
  *
  * \author N. Almeida
  * 
@@ -46,7 +46,7 @@ class DCCTCCBlock : public DCCDataBlockPrototype {
     /**
       Unpacks TCC data 
      */
-    int unpack(uint64_t ** data, uint * dwToEnd, short tccChId=0);
+    int unpack(uint64_t ** data, unsigned int * dwToEnd, short tccChId=0);
 	 
     void display(std::ostream & o); 
 	 
@@ -55,14 +55,14 @@ class DCCTCCBlock : public DCCDataBlockPrototype {
 
     virtual bool checkTccIdAndNumbTTs(){return true;};
 	  
-    uint tccId_;
-    uint bx_;
-    uint l1_;
-    uint nTTs_;
-    uint nTSamples_;
-    uint expNumbTTs_;
-    uint expTccId_;
-    uint ps_;
+    unsigned int tccId_;
+    unsigned int bx_;
+    unsigned int l1_;
+    unsigned int nTTs_;
+    unsigned int nTSamples_;
+    unsigned int expNumbTTs_;
+    unsigned int expTccId_;
+    unsigned int ps_;
     
     EcalTrigTowerDetId * pTTDetId_;   
     EcalTriggerPrimitiveDigi * pTP_;

@@ -32,7 +32,7 @@ class DCCSCBlock : public DCCFEBlock {
 	 
   protected :
 
-   int unpackXtalData(uint stripID, uint xtalID);
+   int unpackXtalData(unsigned int stripID, unsigned int xtalID);
    void fillEcalElectronicsError( std::auto_ptr<EcalElectronicsIdCollection> * );
 	 
    EEDetId                                * pDetId_;

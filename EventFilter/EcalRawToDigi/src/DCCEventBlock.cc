@@ -112,8 +112,8 @@ void DCCEventBlock::addHeaderToCollection(){
   
 
   EcalDCCHeaderRuntypeDecoder theRuntypeDecoder;
-  uint DCCruntype              = runType_;
-  uint DCCdetTriggerType = detailedTriggerType_;
+  unsigned int DCCruntype              = runType_;
+  unsigned int DCCdetTriggerType = detailedTriggerType_;
   theRuntypeDecoder.Decode(triggerType_, DCCdetTriggerType , DCCruntype, &theDCCheader);
 
   // Add Header to collection 

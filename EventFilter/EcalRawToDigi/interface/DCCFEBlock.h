@@ -35,33 +35,33 @@ class DCCFEBlock : public DCCDataBlockPrototype {
     
     void display(std::ostream & o); 
     
-    int unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedTowerID);
+    int unpack(uint64_t ** data, unsigned int * dwToEnd, bool zs, unsigned int expectedTowerID);
 
-    uint getLength(){return blockLength_; }
+    unsigned int getLength(){return blockLength_; }
     			
   protected :
 	 
-    virtual int unpackXtalData(uint stripID, uint xtalID){      return BLOCK_UNPACKED;};
+    virtual int unpackXtalData(unsigned int stripID, unsigned int xtalID){      return BLOCK_UNPACKED;};
     virtual void fillEcalElectronicsError( std::auto_ptr<EcalElectronicsIdCollection> * ){};
     
     
     bool zs_;
     bool checkFeId_;
-    uint expTowerID_;
+    unsigned int expTowerID_;
     bool forceToKeepFRdata_;
-    uint expXtalTSamples_;
-    uint unfilteredDataBlockLength_;
-    uint lastStripId_;
-    uint lastXtalId_;
+    unsigned int expXtalTSamples_;
+    unsigned int unfilteredDataBlockLength_;
+    unsigned int lastStripId_;
+    unsigned int lastXtalId_;
  
-    uint towerId_;	
-    uint numbDWInXtalBlock_;
-    uint xtalBlockSize_;
-    uint nTSamples_; 
+    unsigned int towerId_;	
+    unsigned int numbDWInXtalBlock_;
+    unsigned int xtalBlockSize_;
+    unsigned int nTSamples_; 
     
-    uint blockSize_;
-    uint bx_;
-    uint l1_;
+    unsigned int blockSize_;
+    unsigned int bx_;
+    unsigned int l1_;
     
     short * xtalGains_;
     std::auto_ptr<EcalElectronicsIdCollection> * invalidTTIds_;

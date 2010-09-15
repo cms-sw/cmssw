@@ -10,8 +10,8 @@
  *
  * \file DCCEventBlock.h
  *
- * $Date: 2009/03/12 10:06:15 $
- * $Revision: 1.2 $
+ * $Date: 2009/07/27 20:32:22 $
+ * $Revision: 1.3 $
  *
  * \author N. Almeida
  * \author G. Franzoni
@@ -38,7 +38,7 @@ class DCCEventBlock {
 	
    virtual ~DCCEventBlock();  
  
-   virtual void unpack( uint64_t * buffer, uint bufferSize, uint expFedId){};
+   virtual void unpack( uint64_t * buffer, unsigned int bufferSize, unsigned int expFedId){};
    
    void reset();
 	
@@ -50,11 +50,11 @@ class DCCEventBlock {
 	
    void display(std::ostream & o);
 		
-   uint smId()                  { return smId_;     }
-   uint fov()                   { return fov_;      }
-   uint mem()                   { return mem_;      }
-   uint l1A()                   { return l1_;       }
-   uint bx()                    { return bx_;       }
+   unsigned int smId()                  { return smId_;     }
+   unsigned int fov()                   { return fov_;      }
+   unsigned int mem()                   { return mem_;      }
+   unsigned int l1A()                   { return l1_;       }
+   unsigned int bx()                    { return bx_;       }
    DCCDataUnpacker  * unpacker(){ return unpacker_; }
    
    void setSRPSyncNumbers(short l1, short bx){ srpLv1_=l1; srpBx_=bx; }
@@ -72,8 +72,8 @@ class DCCEventBlock {
  
     DCCDataUnpacker  *  unpacker_;
     uint64_t         *  data_; 
-    uint eventSize_;
-    uint dwToEnd_;
+    unsigned int eventSize_;
+    unsigned int dwToEnd_;
    
     std::vector<short> feChStatus_;
     std::vector<short> tccChStatus_;
@@ -84,25 +84,25 @@ class DCCEventBlock {
     short srpLv1_; short srpBx_; 
 
     
-    uint srChStatus_;
+    unsigned int srChStatus_;
 
-    uint fov_;
-    uint fedId_;
-    uint bx_;
-    uint l1_;
-    uint triggerType_;
-    uint smId_;
-    uint blockLength_;  
-    uint dccErrors_;
-    uint runNumber_;
-    uint runType_;
-    uint detailedTriggerType_;
+    unsigned int fov_;
+    unsigned int fedId_;
+    unsigned int bx_;
+    unsigned int l1_;
+    unsigned int triggerType_;
+    unsigned int smId_;
+    unsigned int blockLength_;  
+    unsigned int dccErrors_;
+    unsigned int runNumber_;
+    unsigned int runType_;
+    unsigned int detailedTriggerType_;
     
-    uint orbitCounter_;
-    uint mem_;
-    uint sr_;
-    uint zs_;
-    uint tzs_;
+    unsigned int orbitCounter_;
+    unsigned int mem_;
+    unsigned int sr_;
+    unsigned int zs_;
+    unsigned int tzs_;
     
     DCCFEBlock             * towerBlock_;
     DCCTCCBlock            * tccBlock_;

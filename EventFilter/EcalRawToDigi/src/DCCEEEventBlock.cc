@@ -33,7 +33,7 @@ DCCEEEventBlock::DCCEEEventBlock( DCCDataUnpacker * u,EcalElectronicsMapper * m,
 
 
 
-void DCCEEEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
+void DCCEEEventBlock::unpack( uint64_t * buffer, unsigned int numbBytes, unsigned int expFedId){
   
   reset();
   
@@ -145,7 +145,7 @@ void DCCEEEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   for( int dw = 0; dw<5; dw++ ){
     data_++;
     for( int i = 0; i<14; i++, channel++){
-      uint shift = i*4; //each channel has 4 bits
+      unsigned int shift = i*4; //each channel has 4 bits
       feChStatus_[channel] = ( (*data_)>>shift ) &  H_CHSTATUS_MASK ;
     }
   }
@@ -176,7 +176,7 @@ void DCCEEEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
 
   // See number of FE channels that we need according to the trigger type //
   // TODO : WHEN IN LOCAL MODE WE SHOULD CHECK RUN TYPE                        
-  uint numbChannels(0);
+  unsigned int numbChannels(0);
   
   if(       triggerType_ == PHYSICTRIGGER      ){ numbChannels = 68; }
   else if ( triggerType_ == CALIBRATIONTRIGGER ){ numbChannels = 70; }
@@ -199,8 +199,8 @@ void DCCEEEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
     it = feChStatus_.begin();
     
     // looping over FE channels, i.e. tower blocks
-    for( uint chNumber=1; chNumber<= numbChannels && STATUS!=STOP_EVENT_UNPACKING; chNumber++, it++ ){                        
-      //for( uint i=1; chNumber<= numbChannels; chNumber++, it++ ){                        
+    for( unsigned int chNumber=1; chNumber<= numbChannels && STATUS!=STOP_EVENT_UNPACKING; chNumber++, it++ ){                        
+      //for( unsigned int i=1; chNumber<= numbChannels; chNumber++, it++ ){                        
       
       const short chStatus(*it);
       
@@ -292,7 +292,7 @@ int DCCEEEventBlock::unpackTCCBlocks(){
 
   int STATUS(BLOCK_UNPACKED);
   std::vector<short>::iterator it;
-  uint tccChId(0);
+  unsigned int tccChId(0);
   for(it=tccChStatus_.begin();it!=tccChStatus_.end();it++, tccChId++){
     if( (*it) != CH_TIMEOUT &&  (*it) != CH_DISABLED){
       STATUS = tccBlock_->unpack(&data_,&dwToEnd_,tccChId);

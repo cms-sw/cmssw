@@ -98,7 +98,7 @@ EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
   //print the FEDs to unpack to the logger
   std::ostringstream loggerOutput_;
   if(fedUnpackList_.size()!=0){
-    for (uint i=0; i<fedUnpackList_.size(); i++) 
+    for (unsigned int i=0; i<fedUnpackList_.size(); i++) 
       loggerOutput_ << fedUnpackList_[i] << " ";
     edm::LogInfo("EcalRawToDigi") << "EcalRawToDigi will unpack FEDs ( " << loggerOutput_.str() << ")";
   }
@@ -403,7 +403,7 @@ void EcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
         LogDebug("EcalRawToDigi") << "Getting FED = " << *i <<"(SM = "<<smId<<")"<<" data size is: " << length;
 
         uint64_t * pData = (uint64_t *)(fedData.data());
-        theUnpacker_->unpack( pData, static_cast<uint>(length),smId,*i);
+        theUnpacker_->unpack( pData, static_cast<unsigned int>(length),smId,*i);
       }
     }
     

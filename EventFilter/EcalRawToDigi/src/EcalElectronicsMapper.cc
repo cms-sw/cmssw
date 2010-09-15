@@ -5,7 +5,7 @@
 #include <DataFormats/EcalDigi/interface/EESrFlag.h>
 #include <EventFilter/EcalRawToDigi/interface/DCCDataUnpacker.h>
 
-EcalElectronicsMapper::EcalElectronicsMapper( uint numbXtalTSamples, uint numbTriggerTSamples)
+EcalElectronicsMapper::EcalElectronicsMapper( unsigned int numbXtalTSamples, unsigned int numbTriggerTSamples)
 : pathToMapFile_(""),
 numbXtalTSamples_(numbXtalTSamples),
 numbTriggerTSamples_(numbTriggerTSamples),
@@ -17,11 +17,11 @@ mappingBuilder_(0)
 void EcalElectronicsMapper::resetPointers(){
   
   // Reset Arrays
-  for(uint sm=0; sm < NUMB_SM; sm++){
-    for(uint fe=0; fe< NUMB_FE; fe++){
+  for(unsigned int sm=0; sm < NUMB_SM; sm++){
+    for(unsigned int fe=0; fe< NUMB_FE; fe++){
           
-      for(uint strip=0; strip<NUMB_STRIP;strip++){
-        for(uint xtal=0; xtal<NUMB_XTAL;xtal++){
+      for(unsigned int strip=0; strip<NUMB_STRIP;strip++){
+        for(unsigned int xtal=0; xtal<NUMB_XTAL;xtal++){
                     
              //Reset DFrames and xtalDetIds
           xtalDetIds_[sm][fe][strip][xtal]=0;
@@ -37,8 +37,8 @@ void EcalElectronicsMapper::resetPointers(){
   
   
   //Reset TT det Ids
-  for( uint tccid=0; tccid < NUMB_TCC; tccid++){
-    for(uint tpg =0; tpg<NUMB_FE;tpg++){
+  for( unsigned int tccid=0; tccid < NUMB_TCC; tccid++){
+    for(unsigned int tpg =0; tpg<NUMB_FE;tpg++){
       ttDetIds_[tccid][tpg]=0;
       ttTPIds_[tccid][tpg]=0;
       ttEleIds_[tccid][tpg]=0;
@@ -62,76 +62,76 @@ void EcalElectronicsMapper::resetPointers(){
   
 
   //Fill map sm id to tcc ids
-  std::vector<uint> * ids;
-  ids = new std::vector<uint>;
+  std::vector<unsigned int> * ids;
+  ids = new std::vector<unsigned int>;
   ids->push_back(1); ids->push_back(18);ids->push_back(19);ids->push_back(36);
   mapSmIdToTccIds_[1]= ids;
                 
-  ids = new std::vector<uint>;
+  ids = new std::vector<unsigned int>;
   ids->push_back(2); ids->push_back(3);ids->push_back(20);ids->push_back(21);
   mapSmIdToTccIds_[2]= ids;
                 
-  ids = new std::vector<uint>;
+  ids = new std::vector<unsigned int>;
   ids->push_back(4); ids->push_back(5);ids->push_back(22);ids->push_back(23);
   mapSmIdToTccIds_[3]= ids;
                 
-  ids = new std::vector<uint>;
+  ids = new std::vector<unsigned int>;
   ids->push_back(6); ids->push_back(7);ids->push_back(24);ids->push_back(25);
   mapSmIdToTccIds_[4]= ids;
                 
-  ids = new std::vector<uint>;
+  ids = new std::vector<unsigned int>;
   ids->push_back(8); ids->push_back(9);ids->push_back(26);ids->push_back(27);
   mapSmIdToTccIds_[5]= ids;
                 
-  ids = new std::vector<uint>;
+  ids = new std::vector<unsigned int>;
   ids->push_back(10); ids->push_back(11);ids->push_back(28);ids->push_back(29);
   mapSmIdToTccIds_[6]= ids;
                 
-  ids = new std::vector<uint>;
+  ids = new std::vector<unsigned int>;
   ids->push_back(12); ids->push_back(13);ids->push_back(30);ids->push_back(31);
   mapSmIdToTccIds_[7]= ids;
                 
-  ids = new std::vector<uint>;
+  ids = new std::vector<unsigned int>;
   ids->push_back(14); ids->push_back(15);ids->push_back(32);ids->push_back(33);
   mapSmIdToTccIds_[8]= ids;
                 
-  ids = new std::vector<uint>;
+  ids = new std::vector<unsigned int>;
   ids->push_back(16); ids->push_back(17);ids->push_back(34);ids->push_back(35);
   mapSmIdToTccIds_[9]= ids;
                 
-  ids = new std::vector<uint>;
+  ids = new std::vector<unsigned int>;
   ids->push_back(73); ids->push_back(90);ids->push_back(91);ids->push_back(108);
   mapSmIdToTccIds_[46]= ids;
                 
-  ids = new std::vector<uint>;
+  ids = new std::vector<unsigned int>;
   ids->push_back(74); ids->push_back(75);ids->push_back(92);ids->push_back(93);
   mapSmIdToTccIds_[47]= ids;
                 
-  ids = new std::vector<uint>;
+  ids = new std::vector<unsigned int>;
   ids->push_back(76); ids->push_back(77);ids->push_back(94);ids->push_back(95);
   mapSmIdToTccIds_[48]= ids;
                 
-  ids = new std::vector<uint>;
+  ids = new std::vector<unsigned int>;
   ids->push_back(78); ids->push_back(79);ids->push_back(96);ids->push_back(97);
   mapSmIdToTccIds_[49]= ids;
                 
-  ids = new std::vector<uint>;
+  ids = new std::vector<unsigned int>;
   ids->push_back(80); ids->push_back(81);ids->push_back(98);ids->push_back(99);  
   mapSmIdToTccIds_[50]= ids;
                  
-  ids = new std::vector<uint>;
+  ids = new std::vector<unsigned int>;
   ids->push_back(82); ids->push_back(83);ids->push_back(100);ids->push_back(101);
   mapSmIdToTccIds_[51]= ids;
                 
-  ids = new std::vector<uint>;
+  ids = new std::vector<unsigned int>;
   ids->push_back(84); ids->push_back(85);ids->push_back(102);ids->push_back(103);
   mapSmIdToTccIds_[52]= ids;
                 
-  ids = new std::vector<uint>;
+  ids = new std::vector<unsigned int>;
   ids->push_back(86); ids->push_back(87);ids->push_back(104);ids->push_back(105);
   mapSmIdToTccIds_[53]= ids;
                 
-  ids = new std::vector<uint>;
+  ids = new std::vector<unsigned int>;
   ids->push_back(88); ids->push_back(89);ids->push_back(106);ids->push_back(107);
   mapSmIdToTccIds_[54]= ids;
         
@@ -152,10 +152,10 @@ EcalElectronicsMapper::~EcalElectronicsMapper(){
 void EcalElectronicsMapper::deletePointers(){
 
   //DETETE ARRAYS
-  for(uint sm=0; sm < NUMB_SM; sm++){
-    for(uint fe=0; fe< NUMB_FE; fe++){
-      for(uint strip=0; strip<NUMB_STRIP;strip++){
-        for(uint xtal=0; xtal<NUMB_XTAL;xtal++) delete xtalDetIds_[sm][fe][strip][xtal];         
+  for(unsigned int sm=0; sm < NUMB_SM; sm++){
+    for(unsigned int fe=0; fe< NUMB_FE; fe++){
+      for(unsigned int strip=0; strip<NUMB_STRIP;strip++){
+        for(unsigned int xtal=0; xtal<NUMB_XTAL;xtal++) delete xtalDetIds_[sm][fe][strip][xtal];         
       }
 
       // if(scDetIds_[sm][fe]){ 
@@ -181,8 +181,8 @@ void EcalElectronicsMapper::deletePointers(){
 
 
   
-  for( uint tccid=0; tccid < NUMB_TCC; tccid++){
-    for(uint tpg =0; tpg<NUMB_FE;tpg++){
+  for( unsigned int tccid=0; tccid < NUMB_TCC; tccid++){
+    for(unsigned int tpg =0; tpg<NUMB_FE;tpg++){
       if(ttDetIds_[tccid][tpg]){ 
         delete ttDetIds_[tccid][tpg];
         delete ttTPIds_[tccid][tpg];
@@ -195,7 +195,7 @@ void EcalElectronicsMapper::deletePointers(){
   pathToMapFile_.clear();
   
   
-  std::map<uint, std::vector<uint> *>::iterator it;
+  std::map<unsigned int, std::vector<unsigned int> *>::iterator it;
   for(it = mapSmIdToTccIds_.begin(); it != mapSmIdToTccIds_.end(); it++ ){ delete (*it).second; }
   
   mapSmIdToTccIds_.clear();
@@ -207,7 +207,7 @@ void EcalElectronicsMapper::setEcalElectronicsMapping(const EcalElectronicsMappi
   fillMaps();
 }
 
-bool EcalElectronicsMapper::setActiveDCC(uint dccId){
+bool EcalElectronicsMapper::setActiveDCC(unsigned int dccId){
    
   bool ret(true);
         
@@ -249,7 +249,7 @@ bool EcalElectronicsMapper::setDCCMapFilePath(std::string aPath_){
 //   if(!dccMapFile_.is_open()) return false;
   
 //   char lineBuf_[100];
-//   uint SMId_,DCCId_;
+//   unsigned int SMId_,DCCId_;
 //   // loop while extraction from file is possible
 //   dccMapFile_.getline(lineBuf_,10);       //read line from file
 //   while (dccMapFile_.good()) {
@@ -305,7 +305,7 @@ bool EcalElectronicsMapper::makeMapFromVectors( std::vector<int>& orderedFedUnpa
                                             << " Loading default association DCCIdList:FedUnpackList,"
                                             << "i.e.  1:601 ... 53:653,  54:654.";
       
-      for (uint v=1; v<=54; v++)        {
+      for (unsigned int v=1; v<=54; v++)        {
         myDCCMap_[ v ] = (v+600) ;   }
     }
 
@@ -324,9 +324,9 @@ std::ostream &operator<< (std::ostream& o, const EcalElectronicsMapper &aMapper_
     o << "DCC Map (Map file: " << aMapper_.pathToMapFile_ << " )" << "SM id\t\tDCCid ";
 
     //get DCC map and iterator
-    std::map<uint ,uint > aMap;
+    std::map<unsigned int ,unsigned int > aMap;
     aMap=aMapper_.myDCCMap_;
-    std::map<uint ,uint >::iterator iter;
+    std::map<unsigned int ,unsigned int >::iterator iter;
 
     //print info contained in map
     for(iter = aMap.begin(); iter != aMap.end(); iter++)
@@ -339,17 +339,17 @@ std::ostream &operator<< (std::ostream& o, const EcalElectronicsMapper &aMapper_
 
   
 
-uint EcalElectronicsMapper::computeUnfilteredFEBlockLength(){
+unsigned int EcalElectronicsMapper::computeUnfilteredFEBlockLength(){
 
   return ((numbXtalTSamples_-2)/4+1)*25+1; 
 
 }
 
 
-uint EcalElectronicsMapper::computeEBTCCBlockLength(){
+unsigned int EcalElectronicsMapper::computeEBTCCBlockLength(){
 
-  uint nTT=68;
-  uint tf;
+  unsigned int nTT=68;
+  unsigned int tf;
           
   //TCC block size: header (8 bytes) + 17 words with 4 trigger primitives (17*8bytes)
   if( (nTT*numbTriggerTSamples_)<4 || (nTT*numbTriggerTSamples_)%4 ) tf=1;  
@@ -359,13 +359,13 @@ uint EcalElectronicsMapper::computeEBTCCBlockLength(){
 
 }
 
-uint EcalElectronicsMapper::computeEETCCBlockLength(){
+unsigned int EcalElectronicsMapper::computeEETCCBlockLength(){
   //Todo : implement multiple tt samples for the endcap
   return 9;  
 
 }
 
-bool EcalElectronicsMapper::isTCCExternal(uint TCCId){
+bool EcalElectronicsMapper::isTCCExternal(unsigned int TCCId){
   if(
      (NUMB_TCC_EE_MIN_EXT_MIN <= TCCId && TCCId<=NUMB_TCC_EE_MIN_EXT_MAX) ||
      (NUMB_TCC_EE_PLU_EXT_MIN <= TCCId && TCCId<=NUMB_TCC_EE_PLU_EXT_MAX)
@@ -373,9 +373,9 @@ bool EcalElectronicsMapper::isTCCExternal(uint TCCId){
   else return false;
 }
 
-uint EcalElectronicsMapper::getDCCId(uint aSMId_) const{
+unsigned int EcalElectronicsMapper::getDCCId(unsigned int aSMId_) const{
   //get iterator for SM id
-  std::map<uint ,uint>::const_iterator it = myDCCMap_.find(aSMId_);
+  std::map<unsigned int ,unsigned int>::const_iterator it = myDCCMap_.find(aSMId_);
 
   //check if SMid exists and return DCC id
   if(it!= myDCCMap_.end()) return it->second;
@@ -388,9 +388,9 @@ uint EcalElectronicsMapper::getDCCId(uint aSMId_) const{
 }
 
 
-uint EcalElectronicsMapper::getSMId(uint aDCCId_) const {
+unsigned int EcalElectronicsMapper::getSMId(unsigned int aDCCId_) const {
   //get iterator map
-  std::map<uint ,uint>::const_iterator it;
+  std::map<unsigned int ,unsigned int>::const_iterator it;
 
   //try to find SM id for given DCC id
   for(it = myDCCMap_.begin(); it != myDCCMap_.end(); it++)
@@ -417,18 +417,18 @@ void EcalElectronicsMapper::fillMaps(){
          
       for(int feChannel =1; feChannel<=68; feChannel++){
                    
-        uint tccId = smId + TCCID_SMID_SHIFT_EB;
+        unsigned int tccId = smId + TCCID_SMID_SHIFT_EB;
                   
         // Builds Ecal Trigger Tower Det Id 
 
-        uint rawid = (mappingBuilder_->getTrigTowerDetId(tccId, feChannel)).rawId();
+        unsigned int rawid = (mappingBuilder_->getTrigTowerDetId(tccId, feChannel)).rawId();
         EcalTrigTowerDetId * ttDetId = new EcalTrigTowerDetId(rawid);
         ttDetIds_[tccId-1][feChannel-1] = ttDetId;
         EcalElectronicsId * ttEleId = new EcalElectronicsId(smId, feChannel, 1, 1);
         ttEleIds_[tccId-1][feChannel-1] = ttEleId;
         EcalTriggerPrimitiveDigi * tp     = new EcalTriggerPrimitiveDigi(*ttDetId);
         tp->setSize(numbTriggerTSamples_);
-        for(uint i=0;i<numbTriggerTSamples_;i++){
+        for(unsigned int i=0;i<numbTriggerTSamples_;i++){
           tp->setSample( i, EcalTriggerPrimitiveSample(0) );
         }
         ttTPIds_[tccId-1][feChannel-1]  = tp;
@@ -447,9 +447,9 @@ void EcalElectronicsMapper::fillMaps(){
         //DCC channels and EB trigger tower:
         assert(srFlags_[smId-1][feChannel-1].size()==1);
  
-        for(uint stripId =1; stripId<=5; stripId++){
+        for(unsigned int stripId =1; stripId<=5; stripId++){
                     
-          for(uint xtalId =1;xtalId<=5;xtalId++){
+          for(unsigned int xtalId =1;xtalId<=5;xtalId++){
                    
               EcalElectronicsId eid(smId,feChannel,stripId,xtalId);
               EBDetId * detId = new EBDetId( (mappingBuilder_->getDetId(eid)).rawId());
@@ -465,15 +465,15 @@ void EcalElectronicsMapper::fillMaps(){
     
     else{
          
-        std::vector<uint> * pTCCIds = mapSmIdToTccIds_[smId];
-        std::vector<uint>::iterator it;
+        std::vector<unsigned int> * pTCCIds = mapSmIdToTccIds_[smId];
+        std::vector<unsigned int>::iterator it;
                 
         for(it= pTCCIds->begin(); it!= pTCCIds->end(); it++){
                         
-          uint tccId = *it;
+          unsigned int tccId = *it;
           
           // creating arrays of pointers for trigger objects
-          for(uint towerInTCC =1; towerInTCC <= numChannelsInDcc_[smId-1]; towerInTCC++){
+          for(unsigned int towerInTCC =1; towerInTCC <= numChannelsInDcc_[smId-1]; towerInTCC++){
               
               // Builds Ecal Trigger Tower Det Id 
               EcalTrigTowerDetId ttDetId = mappingBuilder_->getTrigTowerDetId(tccId, towerInTCC);
@@ -481,7 +481,7 @@ void EcalElectronicsMapper::fillMaps(){
               ttDetIds_[tccId-1][towerInTCC-1] = new EcalTrigTowerDetId(ttDetId.rawId());
               EcalTriggerPrimitiveDigi * tp   = new EcalTriggerPrimitiveDigi(ttDetId);
               tp->setSize(numbTriggerTSamples_);
-              for(uint i=0;i<numbTriggerTSamples_;i++){
+              for(unsigned int i=0;i<numbTriggerTSamples_;i++){
                   tp->setSample( i, EcalTriggerPrimitiveSample(0) );
               }
               
@@ -498,7 +498,7 @@ void EcalElectronicsMapper::fillMaps(){
         }
         
         // creating arrays of pointers for digi objects
-        for(uint feChannel = 1; feChannel <= numChannelsInDcc_[smId-1]; feChannel++){
+        for(unsigned int feChannel = 1; feChannel <= numChannelsInDcc_[smId-1]; feChannel++){
           
           // to avoid gap in CCU_id's
           if((smId==SECTOR_EEM_CCU_JUMP   || smId== SECTOR_EEP_CCU_JUMP) &&
@@ -668,9 +668,9 @@ void EcalElectronicsMapper::fillMaps(){
 }
 
 // number of readout channels (TT in EB, SC in EE) in a DCC
-const uint  EcalElectronicsMapper::numChannelsInDcc_[NUMB_SM] = {34,32,33,33,32,34,33,41,33,    // EE -
-                                                                 68,68,68,68,68,68,68,68,68,68, // EB-
-                                                                 68,68,68,68,68,68,68,68,
-                                                                 68,68,68,68,68,68,68,68,68,68, // EB+
-                                                                 68,68,68,68,68,68,68,68,
-                                                                 34,32,33,33,32,34,33,41,33};   // EE+
+const unsigned int  EcalElectronicsMapper::numChannelsInDcc_[NUMB_SM] = {34,32,33,33,32,34,33,41,33,    // EE -
+                                                                          68,68,68,68,68,68,68,68,68,68, // EB-
+                                                                          68,68,68,68,68,68,68,68,
+                                                                          68,68,68,68,68,68,68,68,68,68, // EB+
+                                                                          68,68,68,68,68,68,68,68,
+                                                                          34,32,33,33,32,34,33,41,33};   // EE+

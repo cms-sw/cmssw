@@ -17,12 +17,12 @@ DCCMemBlock::DCCMemBlock( DCCDataUnpacker * u,EcalElectronicsMapper * m, DCCEven
   xtalBlockSize_               = numbDWInXtalBlock_*8;
   kSamplesPerPn_               = expXtalTSamples_*5;  
   
-  uint numbOfXtalBlocks        = (unfilteredTowerBlockLength_-1)/numbDWInXtalBlock_; 
-  uint numbOfPnBlocks          = numbOfXtalBlocks/5; //change 5 by a variable
-  uint vectorSize              = numbOfPnBlocks*10*expXtalTSamples_;
+  unsigned int numbOfXtalBlocks        = (unfilteredTowerBlockLength_-1)/numbDWInXtalBlock_; 
+  unsigned int numbOfPnBlocks          = numbOfXtalBlocks/5; //change 5 by a variable
+  unsigned int vectorSize              = numbOfPnBlocks*10*expXtalTSamples_;
 
   //Build pnDiodevector
-  for(uint i =0; i< vectorSize; i++){ pn_.push_back(-1);}
+  for(unsigned int i =0; i< vectorSize; i++){ pn_.push_back(-1);}
 
 }
 
@@ -38,7 +38,7 @@ void DCCMemBlock::updateCollectors(){
 
 
 
-int DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID){
+int DCCMemBlock::unpack(uint64_t ** data, unsigned int * dwToEnd, unsigned int expectedTowerID){
   
   error_   = false;  
   datap_   = data;
@@ -105,8 +105,8 @@ int DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID){
   
   // Synchronization Check 
   if(sync_){
-    uint dccBx = ( event_->l1A())&TOWER_BX_MASK;
-    uint dccL1 = ( event_->bx() )&TOWER_L1_MASK;
+    unsigned int dccBx = ( event_->l1A())&TOWER_BX_MASK;
+    unsigned int dccL1 = ( event_->bx() )&TOWER_L1_MASK;
     // accounting for counters starting from 0 in ECAL FE, while from 1 in CSM
     if( dccBx != bx_ || dccL1 != (l1_+1) ){
       if( ! DCCDataUnpacker::silentMode_ ){
@@ -184,15 +184,15 @@ void DCCMemBlock::unpackMemTowerData(){
     lastTowerBeforeMem_ = 69; } 
   
 
-  for(uint expStripId = 1; expStripId<= 5; expStripId++){
+  for(unsigned int expStripId = 1; expStripId<= 5; expStripId++){
 
-    for(uint expXtalId = 1; expXtalId <= 5; expXtalId++){
+    for(unsigned int expXtalId = 1; expXtalId <= 5; expXtalId++){
 	 
       uint16_t * xData_= reinterpret_cast<uint16_t *>(data_);
  
       // Get xtal data ids
-      uint stripId = (*xData_) & TOWER_STRIPID_MASK;
-      uint xtalId  =((*xData_)>>TOWER_XTALID_B ) & TOWER_XTALID_MASK;
+      unsigned int stripId = (*xData_) & TOWER_STRIPID_MASK;
+      unsigned int xtalId  =((*xData_)>>TOWER_XTALID_B ) & TOWER_XTALID_MASK;
    
       bool errorOnDecoding(false);
 	  
@@ -220,14 +220,14 @@ void DCCMemBlock::unpackMemTowerData(){
 		 
      }
 	 
-     uint ipn, index;
+     unsigned int ipn, index;
 		
      if((stripId-1)%2==0){ ipn = (towerId_-lastTowerBeforeMem_)*5 + xtalId - 1; }
      else                { ipn = (towerId_-lastTowerBeforeMem_)*5 + 5 - xtalId; }
 	 
 	  	
       //Cooking samples
-      for(uint i =0; i< nTSamples_ ;i++){ 
+      for(unsigned int i =0; i< nTSamples_ ;i++){ 
       
         xData_++;
 		  
@@ -236,7 +236,7 @@ void DCCMemBlock::unpackMemTowerData(){
 	    //edm::LogDebug("EcalRawToDigiMemChId")<<"\n Strip id "<<std::dec<<stripId<<" Xtal id "<<xtalId
 	    //  <<" tsamp = "<<i<<" 16b = 0x "<<std::hex<<(*xData_)<<dec;
 	   
-        uint temp = (*xData_)&TOWER_DIGI_MASK;
+        unsigned int temp = (*xData_)&TOWER_DIGI_MASK;
 		
   	     short sample(0);
 		
@@ -253,7 +253,7 @@ void DCCMemBlock::unpackMemTowerData(){
         } else { sample=temp;}
 	
 	     sample   ^=  0x800;
-        uint gain =  sample>>12;
+        unsigned int gain =  sample>>12;
 			
         if( gain >= 2 ){
 
@@ -285,7 +285,7 @@ void DCCMemBlock::fillPnDiodeDigisCollection(){
   //todo change pnId max
   for (int pnId=1; pnId<=5; pnId++){
     bool errorOnPn(false);
-    uint realPnId = pnId;
+    unsigned int realPnId = pnId;
     
     if(towerId_==70){ realPnId += 5;}
 	 
@@ -322,7 +322,7 @@ void DCCMemBlock::fillPnDiodeDigisCollection(){
     thePnDigi.setSize(kSamplesPerPn_);
     
     
-    for (uint ts =0; ts <kSamplesPerPn_; ts++){
+    for (unsigned int ts =0; ts <kSamplesPerPn_; ts++){
       
       short pnDiodeData = pn_[(towerId_-lastTowerBeforeMem_)*250 + (pnId-1)*kSamplesPerPn_ + ts];
       if( pnDiodeData == -1){

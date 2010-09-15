@@ -8,7 +8,7 @@ DCCTCCBlock::DCCTCCBlock ( DCCDataUnpacker  * u, EcalElectronicsMapper * m, DCCE
 DCCDataBlockPrototype(u,m,e,unpack){}
 
  
-int DCCTCCBlock::unpack(uint64_t ** data, uint * dwToEnd, short tccChId){ 
+int DCCTCCBlock::unpack(uint64_t ** data, unsigned int * dwToEnd, short tccChId){ 
  
   dwToEnd_    = dwToEnd;  
   datap_      = data;
@@ -69,8 +69,8 @@ int DCCTCCBlock::unpack(uint64_t ** data, uint * dwToEnd, short tccChId){
   
     // Check synchronization
     if(sync_){
-      uint dccBx = (event_->bx())  & TCC_BX_MASK;
-      uint dccL1 = (event_->l1A()) & TCC_L1_MASK;    
+      unsigned int dccBx = (event_->bx())  & TCC_BX_MASK;
+      unsigned int dccL1 = (event_->l1A()) & TCC_L1_MASK;    
       if( dccBx != bx_ || dccL1 != l1_ ){
         if( ! DCCDataUnpacker::silentMode_ ){
           edm::LogWarning("IncorrectBlock")
@@ -89,7 +89,7 @@ int DCCTCCBlock::unpack(uint64_t ** data, uint * dwToEnd, short tccChId){
     
     //check numb of samples
    /*  
-    uint expTriggerTSamples(mapper_->numbTriggerTSamples());
+    unsigned int expTriggerTSamples(mapper_->numbTriggerTSamples());
     
     if( nTSamples_ != expTriggerTSamples ){
       edm::LogWarning("IncorrectBlock")

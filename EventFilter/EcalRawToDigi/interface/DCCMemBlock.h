@@ -8,8 +8,8 @@
  *
  * \file DCCTCCBlock.h
  *
- * $Date: 2007/10/23 14:17:53 $
- * $Revision: 1.8 $
+ * $Date: 2008/12/11 18:05:56 $
+ * $Revision: 1.1 $
  *
  * \author N. Almeida
  * \author G. Franzoni
@@ -45,7 +45,7 @@ class DCCMemBlock : public DCCDataBlockPrototype {
     
     void display(std::ostream & o); 
     
-    int unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID);   
+    int unpack(uint64_t ** data, unsigned int * dwToEnd, unsigned int expectedTowerID);   
     			
   protected :
 	 
@@ -54,22 +54,22 @@ class DCCMemBlock : public DCCDataBlockPrototype {
 
     std::vector<short> pn_;
 
-    uint expTowerID_;
-    uint expXtalTSamples_;
-    uint kSamplesPerPn_;
+    unsigned int expTowerID_;
+    unsigned int expXtalTSamples_;
+    unsigned int kSamplesPerPn_;
 	 
-    uint lastStripId_;
-    uint lastXtalId_;
-    uint lastTowerBeforeMem_;
+    unsigned int lastStripId_;
+    unsigned int lastXtalId_;
+    unsigned int lastTowerBeforeMem_;
 
-    uint towerId_;	
-    uint numbDWInXtalBlock_;
-    uint xtalBlockSize_;
-    uint nTSamples_; 
-    uint unfilteredTowerBlockLength_; 
+    unsigned int towerId_;	
+    unsigned int numbDWInXtalBlock_;
+    unsigned int xtalBlockSize_;
+    unsigned int nTSamples_; 
+    unsigned int unfilteredTowerBlockLength_; 
    
-    uint bx_;
-    uint l1_;
+    unsigned int bx_;
+    unsigned int l1_;
 	 
     std::auto_ptr<EcalElectronicsIdCollection>   * invalidMemChIds_;  
     std::auto_ptr<EcalElectronicsIdCollection>   * invalidMemBlockSizes_; 

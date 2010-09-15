@@ -33,7 +33,7 @@ class  EcalUnpackerWorkerBase {
   virtual void setHandles(const EcalUnpackerWorkerRecord & iRecord) {};
   virtual void set(const edm::EventSetup & es) const {};
 
-  virtual uint maxElementIndex() const {return 0;};
+  virtual unsigned int maxElementIndex() const {return 0;};
   
  protected:
 

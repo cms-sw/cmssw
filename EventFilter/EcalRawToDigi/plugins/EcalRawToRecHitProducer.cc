@@ -63,7 +63,7 @@ EcalRawToRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     std::auto_ptr<EBRecHitCollection> EBrechits( new EBRecHitCollection );
     std::auto_ptr<EERecHitCollection> EErechits( new EERecHitCollection );
     //loop the refgetter
-    uint iR=0;
+    unsigned int iR=0;
     EcalRecHitRefGetter::const_iterator iRegion=rgetter->begin();
     EcalRecHitRefGetter::const_iterator iRegionEnd=rgetter->end();
     for (;iRegion!=iRegionEnd;++iRegion){
@@ -98,7 +98,7 @@ EcalRawToRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     //prepare the output collection
     std::auto_ptr< EcalRecHitCollection > rechits( new EcalRecHitCollection);
     //loop the refgetter
-    uint iR=0;
+    unsigned int iR=0;
     EcalRecHitRefGetter::const_iterator iRegion=rgetter->begin();
     EcalRecHitRefGetter::const_iterator iRegionEnd=rgetter->end();
     for (;iRegion!=iRegionEnd;++iRegion){

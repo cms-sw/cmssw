@@ -8,8 +8,8 @@
  *
  * \file DCCEETCCBlock.h
  *
- * $Date: 2008/12/11 18:05:56 $
- * $Revision: 1.1 $
+ * $Date: 2009/01/08 12:05:56 $
+ * $Revision: 1.3 $
  *
  * \author N. Almeida
  *
@@ -41,7 +41,7 @@ class DCCEETCCBlock : public DCCTCCBlock{
 	 
     void addTriggerPrimitivesToCollection();
 	
-	uint getLength();
+	unsigned int getLength();
   
   protected :
   

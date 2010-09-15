@@ -9,8 +9,8 @@
  
  * \file EcalElectronicsMapper.h
  *
- * $Date: 2009/09/11 17:41:04 $
- * $Revision: 1.3 $
+ * $Date: 2009/10/19 17:27:48 $
+ * $Revision: 1.4 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -46,7 +46,7 @@ public:
   /**
    * Constructor
    */
-  EcalElectronicsMapper(uint numbOfXtalTSamples, uint numbOfTriggerTSamples);
+  EcalElectronicsMapper(unsigned int numbOfXtalTSamples, unsigned int numbOfTriggerTSamples);
 
 
   /**
@@ -63,7 +63,7 @@ public:
   /**
   * Set DCC id that is going to be unpacked for the event
   */
-  bool setActiveDCC(uint dccId); 
+  bool setActiveDCC(unsigned int dccId); 
 
 
   /**
@@ -94,23 +94,23 @@ public:
   /**
    * Get methods for DCCId/SMId and map
    */
-  const std::map<uint ,uint>& getDCCMap() const { return myDCCMap_; }
+  const std::map<unsigned int ,unsigned int>& getDCCMap() const { return myDCCMap_; }
   
-  DetId  * getDetIdPointer(uint feChannel, uint strip, uint xtal){  return  xtalDetIds_[smId_-1][feChannel-1][strip-1][xtal-1];}
+  DetId  * getDetIdPointer(unsigned int feChannel, unsigned int strip, unsigned int xtal){  return  xtalDetIds_[smId_-1][feChannel-1][strip-1][xtal-1];}
 	 
-  EcalTrigTowerDetId * getTTDetIdPointer(uint tccId, uint tower){ return ttDetIds_[tccId-1][tower-1];}
+  EcalTrigTowerDetId * getTTDetIdPointer(unsigned int tccId, unsigned int tower){ return ttDetIds_[tccId-1][tower-1];}
 	 
-  EcalElectronicsId  * getTTEleIdPointer(uint tccId, uint tower){ return ttEleIds_[tccId-1][tower-1];}
+  EcalElectronicsId  * getTTEleIdPointer(unsigned int tccId, unsigned int tower){ return ttEleIds_[tccId-1][tower-1];}
 
-  EcalTriggerPrimitiveDigi * getTPPointer(uint tccId, uint tower){ return ttTPIds_[tccId-1][tower-1];}
+  EcalTriggerPrimitiveDigi * getTPPointer(unsigned int tccId, unsigned int tower){ return ttTPIds_[tccId-1][tower-1];}
 
-  EcalScDetId  * getSCDetIdPointer(uint smId, uint feChannel){ return  scDetIds_[smId-1][feChannel-1];}
+  EcalScDetId  * getSCDetIdPointer(unsigned int smId, unsigned int feChannel){ return  scDetIds_[smId-1][feChannel-1];}
 
-  EcalElectronicsId  * getSCElectronicsPointer(uint smId, uint feChannel){ return  scEleIds_[smId-1][feChannel-1];}
+  EcalElectronicsId  * getSCElectronicsPointer(unsigned int smId, unsigned int feChannel){ return  scEleIds_[smId-1][feChannel-1];}
 
-  EcalPseudoStripInputDigi  * getPSInputDigiPointer(uint tccId, uint towerId, uint psId){ return psInput_[tccId-1][towerId-1][psId-1];}
+  EcalPseudoStripInputDigi  * getPSInputDigiPointer(unsigned int tccId, unsigned int towerId, unsigned int psId){ return psInput_[tccId-1][towerId-1][psId-1];}
     
-  EcalPseudoStripInputDigi  * getPSInputDigiPointer(uint tccId, uint psCounter){
+  EcalPseudoStripInputDigi  * getPSInputDigiPointer(unsigned int tccId, unsigned int psCounter){
       return getPSInputDigiPointer(tccId, tTandPs_[tccId-1][psCounter-1][0],tTandPs_[tccId-1][psCounter-1][1]);}
 
     
@@ -118,35 +118,35 @@ public:
   // Changed by Ph.G. on July 1, 09: return a vector instead of a single
   // element. One SRF can be associated to two  supercrystals, because of
   // channel grouping.
-  std::vector<EcalSrFlag*> getSrFlagPointer(uint feChannel){ return srFlags_[smId_-1][feChannel-1]; }
+  std::vector<EcalSrFlag*> getSrFlagPointer(unsigned int feChannel){ return srFlags_[smId_-1][feChannel-1]; }
   
-  std::vector<uint> * getTccs(uint smId){ return mapSmIdToTccIds_[smId];}
+  std::vector<unsigned int> * getTccs(unsigned int smId){ return mapSmIdToTccIds_[smId];}
 	
-  uint getActiveDCC()                 { return dccId_;                      }
+  unsigned int getActiveDCC()                 { return dccId_;                      }
  
-  uint getActiveSM()                  { return smId_;                       }
+  unsigned int getActiveSM()                  { return smId_;                       }
 
-  uint numbXtalTSamples()             { return numbXtalTSamples_;           }
+  unsigned int numbXtalTSamples()             { return numbXtalTSamples_;           }
 
-  uint numbTriggerTSamples()          { return numbTriggerTSamples_;        }
+  unsigned int numbTriggerTSamples()          { return numbTriggerTSamples_;        }
   
-  uint getUnfilteredTowerBlockLength(){ return unfilteredFEBlockLength_;    }
+  unsigned int getUnfilteredTowerBlockLength(){ return unfilteredFEBlockLength_;    }
 
-  uint getEBTCCBlockLength()          { return ebTccBlockLength_;           }
+  unsigned int getEBTCCBlockLength()          { return ebTccBlockLength_;           }
   
-  uint getEETCCBlockLength()          { return eeTccBlockLength_;           }
+  unsigned int getEETCCBlockLength()          { return eeTccBlockLength_;           }
   
-  uint getSRPBlockLength()            { return srpBlockLength_;             }
+  unsigned int getSRPBlockLength()            { return srpBlockLength_;             }
     
-  uint getDCCId(uint aSMId) const;
+  unsigned int getDCCId(unsigned int aSMId) const;
 
-  uint getSMId(uint aDCCId) const;
+  unsigned int getSMId(unsigned int aDCCId) const;
   
-  uint getNumChannelsInDcc(uint aDCCId){return numChannelsInDcc_[aDCCId-1];}
+  unsigned int getNumChannelsInDcc(unsigned int aDCCId){return numChannelsInDcc_[aDCCId-1];}
 
   const EcalElectronicsMapping * mapping(){return mappingBuilder_;} 
 
-  bool isTCCExternal(uint TCCId);
+  bool isTCCExternal(unsigned int TCCId);
   
   /**
    * Print current map
@@ -174,31 +174,31 @@ public:
 private:
 
   void fillMaps();
-  uint computeUnfilteredFEBlockLength();
-  uint computeEBTCCBlockLength();
-  uint computeEETCCBlockLength();
+  unsigned int computeUnfilteredFEBlockLength();
+  unsigned int computeEBTCCBlockLength();
+  unsigned int computeEETCCBlockLength();
 
   std::string pathToMapFile_;
   
-  uint numbXtalTSamples_;
+  unsigned int numbXtalTSamples_;
   
-  uint numbTriggerTSamples_;
+  unsigned int numbTriggerTSamples_;
 
-  std::map<uint,uint> myDCCMap_;
+  std::map<unsigned int,unsigned int> myDCCMap_;
   
-  std::map< uint, std::vector<uint> * > mapSmIdToTccIds_;
+  std::map< unsigned int, std::vector<unsigned int> * > mapSmIdToTccIds_;
   
-  uint dccId_;
+  unsigned int dccId_;
   
-  uint smId_;
+  unsigned int smId_;
   
-  uint unfilteredFEBlockLength_;
+  unsigned int unfilteredFEBlockLength_;
   
-  uint srpBlockLength_;
+  unsigned int srpBlockLength_;
   
-  uint ebTccBlockLength_, eeTccBlockLength_;
+  unsigned int ebTccBlockLength_, eeTccBlockLength_;
 
-  static const uint numChannelsInDcc_[NUMB_SM];
+  static const unsigned int numChannelsInDcc_[NUMB_SM];
 
     
   // ARRAYS OF DetId  

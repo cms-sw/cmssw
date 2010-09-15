@@ -9,8 +9,8 @@
  *
  * \file EcalRawToDigi.h
  *
- * $Date: 2010/06/02 23:46:11 $
- * $Revision: 1.5 $
+ * $Date: 2010/08/03 11:31:25 $
+ * $Revision: 1.6 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -72,8 +72,8 @@ class EcalRawToDigi : public edm::EDProducer{
   std::vector<int> orderedFedUnpackList_;
   std::vector<int> orderedDCCIdList_;
   
-  uint numbXtalTSamples_;
-  uint numbTriggerTSamples_;
+  unsigned int numbXtalTSamples_;
+  unsigned int numbTriggerTSamples_;
   
   bool headerUnpacking_;
   bool srpUnpacking_;
@@ -100,7 +100,7 @@ class EcalRawToDigi : public edm::EDProducer{
   //Ecal unpacker
   DCCDataUnpacker * theUnpacker_;
   
-  uint nevts_; // NA: for testing
+  unsigned int nevts_; // NA: for testing
   double  RUNNING_TIME_, SETUP_TIME_;
 };
 
