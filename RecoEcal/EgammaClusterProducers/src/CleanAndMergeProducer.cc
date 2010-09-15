@@ -60,17 +60,9 @@ CleanAndMergeProducer::CleanAndMergeProducer(const edm::ParameterSet& ps)
 
         // get the parameters
         // the cleaned collection:
-        cleanBcCollection_ = ps.getParameter<std::string>("cleanBcCollection");
-        cleanBcProducer_ = ps.getParameter<std::string>("cleanBcProducer");
-        cleanScCollection_ = ps.getParameter<std::string>("cleanScCollection");
-        cleanScProducer_ = ps.getParameter<std::string>("cleanScProducer");
-        //cleanClShapeAssoc_ = ps.getParameter<std::string>("cleanClShapeAssoc");
-        // the uncleaned collection
-        uncleanBcCollection_ = ps.getParameter<std::string>("uncleanBcCollection");
-        uncleanBcProducer_   = ps.getParameter<std::string>("uncleanBcProducer");
-        uncleanScCollection_ = ps.getParameter<std::string>("uncleanScCollection");
-        uncleanScProducer_   = ps.getParameter<std::string>("uncleanScProducer");
-        //uncleanClShapeAssoc_ = ps.getParameter<std::string>("uncleanClShapeAssoc");
+        cleanScInputTag_   = ps.getParameter<edm::InputTag>("cleanScInputTag");
+	uncleanScInputTag_ = ps.getParameter<edm::InputTag>("uncleanScInputTag");          
+
         // the names of the products to be produced:
         bcCollection_ = ps.getParameter<std::string>("bcCollection");
         scCollection_ = ps.getParameter<std::string>("scCollection");
@@ -106,25 +98,23 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
         // ______________________________________________________________________________________
         //
         // cluster collections:
-        edm::Handle<reco::BasicClusterCollection> pCleanBC;
-        edm::Handle<reco::SuperClusterCollection> pCleanSC;
 
-        edm::Handle<reco::BasicClusterCollection> pUncleanBC;
+        edm::Handle<reco::SuperClusterCollection> pCleanSC;
         edm::Handle<reco::SuperClusterCollection> pUncleanSC;
 
-        evt.getByLabel(cleanScProducer_, cleanScCollection_, pCleanSC);
+        evt.getByLabel(cleanScInputTag_, pCleanSC);
         if (!(pCleanSC.isValid())) 
         {
-                edm::LogWarning("MissingInput")<< "could not get a handle on the clean Super Clusters!";
-                return;
+	  edm::LogWarning("MissingInput")<< "could not get a handle on the clean Super Clusters!";
+	  return;
         }
 
-        evt.getByLabel(uncleanScProducer_, uncleanScCollection_, pUncleanSC);
+        evt.getByLabel(uncleanScInputTag_, pUncleanSC);
         if (!(pUncleanSC.isValid())) 
         {
-
-                edm::LogWarning("MissingInput")<< "could not get a handle on the unclean Super Clusters!";
-                return;
+	  
+	  edm::LogWarning("MissingInput")<< "could not get a handle on the unclean Super Clusters!";
+	  return;
         }
 
         //
@@ -153,44 +143,44 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
         std::vector<int> basicClusterOwner; // contains the index of the SC that owns that BS
         std::vector<int> isSeed; // if this basic cluster is a seed it is 1
         for (int isc =0; isc< uncleanSize; ++isc) {
-                reco::SuperClusterRef unscRef( pUncleanSC, isc );    
-                const std::vector< std::pair<DetId, float> > & uhits = unscRef->hitsAndFractions();
-                int uhitsSize = uhits.size();
-                bool foundTheSame = false;
-                for (int jsc=0; jsc < cleanSize; ++jsc) { // loop over the cleaned SC
-                        reco::SuperClusterRef cscRef( pCleanSC, jsc );
-                        const std::vector< std::pair<DetId, float> > & chits = cscRef->hitsAndFractions();
-                        int chitsSize =  chits.size();
-                        foundTheSame = true;
-                        if (unscRef->seed()->seed() == cscRef->seed()->seed() && chitsSize == uhitsSize) { 
-                                // if the clusters are exactly the same then because the clustering
-                                // algorithm works in a deterministic way, the order of the rechits
-                                // will be the same
-                                for (int i=0; i< chitsSize; ++i) {
-                                        if (uhits[i].first != chits[i].first ) { foundTheSame=false;  break;}
-                                }
-                                if (foundTheSame) { // ok you have found it!
-                                        // make the reference
-                                        //scRefs->push_back( edm::Ref<reco::SuperClusterCollection>(pCleanSC, jsc) );
-                                        scRefs->push_back( cscRef );
-                                        isUncleanOnly.push_back(0);
-                                        break;
-                                }
-                        }
-                }
-                if (not foundTheSame) {
-                        // mark it as unique in the uncleaned
-                        isUncleanOnly.push_back(1);
-                        // keep all its basic clusters
-                        for (reco::CaloCluster_iterator bciter = unscRef->clustersBegin(); bciter != unscRef->clustersEnd(); ++bciter) {
-                                // the basic clusters
-                                basicClusters.push_back(**bciter);
-                                basicClusterOwner.push_back(isc);
-                        }
-                }
+	  reco::SuperClusterRef unscRef( pUncleanSC, isc );    
+	  const std::vector< std::pair<DetId, float> > & uhits = unscRef->hitsAndFractions();
+	  int uhitsSize = uhits.size();
+	  bool foundTheSame = false;
+	  for (int jsc=0; jsc < cleanSize; ++jsc) { // loop over the cleaned SC
+	    reco::SuperClusterRef cscRef( pCleanSC, jsc );
+	    const std::vector< std::pair<DetId, float> > & chits = cscRef->hitsAndFractions();
+	    int chitsSize =  chits.size();
+	    foundTheSame = true;
+	    if (unscRef->seed()->seed() == cscRef->seed()->seed() && chitsSize == uhitsSize) { 
+	      // if the clusters are exactly the same then because the clustering
+	      // algorithm works in a deterministic way, the order of the rechits
+	      // will be the same
+	      for (int i=0; i< chitsSize; ++i) {
+		if (uhits[i].first != chits[i].first ) { foundTheSame=false;  break;}
+	      }
+	      if (foundTheSame) { // ok you have found it!
+		// make the reference
+		//scRefs->push_back( edm::Ref<reco::SuperClusterCollection>(pCleanSC, jsc) );
+		scRefs->push_back( cscRef );
+		isUncleanOnly.push_back(0);
+		break;
+	      }
+	    }
+	  }
+	  if (not foundTheSame) {
+	    // mark it as unique in the uncleaned
+	    isUncleanOnly.push_back(1);
+	    // keep all its basic clusters
+	    for (reco::CaloCluster_iterator bciter = unscRef->clustersBegin(); bciter != unscRef->clustersEnd(); ++bciter) {
+	      // the basic clusters
+	      basicClusters.push_back(**bciter);
+	      basicClusterOwner.push_back(isc);
+	    }
+	  }
         }
         int bcSize =  basicClusters.size();
-
+	
         LogDebug("EcalCleaning") << "Found cleaned SC: " << cleanSize <<  " uncleaned SC: " 
                 << uncleanSize << " from which " << scRefs->size() 
                 << " will become refs to the cleaned collection" ;
@@ -206,9 +196,8 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
         edm::OrphanHandle<reco::BasicClusterCollection> bccHandle =  
                 evt.put(basicClusters_p, bcCollection_);
         if (!(bccHandle.isValid())) {
-
-                edm::LogWarning("MissingInput")<<"could not get a handle on the BasicClusterCollection!" << std::endl;
-                return;
+	  edm::LogWarning("MissingInput")<<"could not get a handle on the BasicClusterCollection!" << std::endl;
+	  return;
         }
 
         LogDebug("EcalCleaning")<< "Got the BasicClusters from the event again";
@@ -216,25 +205,25 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
         // you run over the uncleaned SC, but now you know which of them are
         // the ones that are needed and which are their basic clusters
         for (int isc=0; isc< uncleanSize; ++isc) {
-                if (isUncleanOnly[isc]==1) { // look for sc that are unique in the unclean collection
-                        // make the basic cluster collection
-                        reco::CaloClusterPtrVector clusterPtrVector;
-                        reco::CaloClusterPtr seed; // the seed is the basic cluster with the highest energy
-                        double energy = -1;
-                        for (int jbc=0; jbc< bcSize; ++jbc) {
-                                if (basicClusterOwner[jbc]==isc) {
-                                        reco::CaloClusterPtr currentClu = reco::CaloClusterPtr(bccHandle, jbc);
-                                        clusterPtrVector.push_back(currentClu);
-                                        if (energy< currentClu->energy()) {
-                                                energy = currentClu->energy(); seed = currentClu;
-                                        }
-                                }
-                        }
-                        reco::SuperClusterRef unscRef( pUncleanSC, isc ); 
-                        reco::SuperCluster newSC(unscRef->energy(), unscRef->position(), seed, clusterPtrVector );
-                        superClusters.push_back(newSC);
-                }
-
+	  if (isUncleanOnly[isc]==1) { // look for sc that are unique in the unclean collection
+	    // make the basic cluster collection
+	    reco::CaloClusterPtrVector clusterPtrVector;
+	    reco::CaloClusterPtr seed; // the seed is the basic cluster with the highest energy
+	    double energy = -1;
+	    for (int jbc=0; jbc< bcSize; ++jbc) {
+	      if (basicClusterOwner[jbc]==isc) {
+		reco::CaloClusterPtr currentClu = reco::CaloClusterPtr(bccHandle, jbc);
+		clusterPtrVector.push_back(currentClu);
+		if (energy< currentClu->energy()) {
+		  energy = currentClu->energy(); seed = currentClu;
+		}
+	      }
+	    }
+	    reco::SuperClusterRef unscRef( pUncleanSC, isc ); 
+	    reco::SuperCluster newSC(unscRef->energy(), unscRef->position(), seed, clusterPtrVector );
+	    superClusters.push_back(newSC);
+	  }
+	  
         }
         // export the collection of references to the clean collection
         std::auto_ptr< reco::SuperClusterRefVector >  scRefs_p( scRefs );
