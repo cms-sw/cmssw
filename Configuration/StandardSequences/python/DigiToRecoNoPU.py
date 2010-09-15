@@ -28,7 +28,8 @@ def customise(process):
         outputCommands=cms.untracked.vstring('drop RandomEngineStates_*_*_*',
                                              'keep RandomEngineStates_*_*_'+process.name_())
         )
-    process.output.outputCommands.extend(RNGStateCleaning.outputCommands)
+    process.outputModules_().iteritems().next().outputCommands.extend(RNGStateCleaning.outputCommands)
+    #process.output.outputCommands.extend(RNGStateCleaning.outputCommands)
 
     # REDO the GenJets etc. in case labels have been changed
     process.load('Configuration/StandardSequences/Generator_cff')
