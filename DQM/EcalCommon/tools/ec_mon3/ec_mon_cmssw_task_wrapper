@@ -409,7 +409,7 @@ if (globalDAQ == 1) :
   process.GlobalTag.globaltag = "GR10_H_V6A::All"
 
 if (liveECAL == 1) :
-  process.GlobalTag.globaltag = "GR10_H_V8::All"
+  process.GlobalTag.globaltag = "GR10_H_V9::All"
 
 if (liveCMS == 1) | (playCMS == 1) :
   process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
