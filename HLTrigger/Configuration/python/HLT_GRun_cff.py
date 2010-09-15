@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_8_1/GRun/V15 (CMSSW_3_8_1_HLT6)
+# /dev/CMSSW_3_8_1/GRun/V16 (CMSSW_3_8_1_HLT7)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/GRun/V15')
+  tableName = cms.string('/dev/CMSSW_3_8_1/GRun/V16')
 )
 
 streams = cms.PSet( 
@@ -11785,14 +11785,4 @@ HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_Activity_CSC, HLT_Activity
 # override the preshower baseline setting for MC
 if 'ESUnpackerWorkerESProducer' in locals():
     ESUnpackerWorkerESProducer.RHAlgo.ESBaseline = 1000
-
-# override the L1 menu (requires the GlobalTag to be defined)
-if 'GlobalTag' in locals():
-    GlobalTag.toGet.append(
-        cms.PSet(  
-            record  = cms.string( "L1GtTriggerMenuRcd" ),
-            tag     = cms.string( "L1GtTriggerMenu_L1Menu_Commissioning2010_v4_mc" ),
-            connect = cms.untracked.string( GlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T') )
-        )
-    )
 

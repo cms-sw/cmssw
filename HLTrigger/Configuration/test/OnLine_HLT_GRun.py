@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_8_1/GRun/V15 (CMSSW_3_8_1_HLT6)
+# /dev/CMSSW_3_8_1/GRun/V16 (CMSSW_3_8_1_HLT7)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/GRun/V15')
+  tableName = cms.string('/dev/CMSSW_3_8_1/GRun/V16')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -2231,6 +2231,9 @@ process.PrescaleService = cms.Service( "PrescaleService",
       ),
       cms.PSet(  pathName = cms.string( "HLT_BTagMu_Jet20U" ),
         prescales = cms.vuint32( 1, 1, 1, 1, 0 )
+      ),
+      cms.PSet(  pathName = cms.string( "HLT_L2Mu5_Photon9_L1R" ),
+        prescales = cms.vuint32( 14, 10, 7, 5, 0 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_ZeroBiasPixel_SingleTrack" ),
         prescales = cms.vuint32( 1, 1, 1, 1, 0 )
@@ -13342,7 +13345,11 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
       'keep *_hltFilterL2EtCutDoubleIsoTau15Trk5_*_*',
       'keep *_hltFilterL2EcalIsolationDoubleIsoTau15Trk5_*_*',
       'keep *_hltFilterL25LeadingTrackPtCutDoubleIsoTau15Trk5_*_*',
-      'keep *_hltFilterL3TrackIsolationDoubleIsoTau15Trk5_*_*' )
+      'keep *_hltFilterL3TrackIsolationDoubleIsoTau15Trk5_*_*',
+      'keep *_hltL25TauJetTracksAssociator_*_*',
+      'keep *_hltL25TauCtfWithMaterialTracks_*_*',
+      'keep *_hltL3TauJetTracksAssociator_*_*',
+      'keep *_hltL3TauCtfWithMaterialTracks_*_*' )
 )
 process.hltOutputHLTDQMResults = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputHLTDQMResults.root" ),
@@ -13612,7 +13619,11 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
       'keep *_hltFilterL2EtCutDoubleIsoTau15Trk5_*_*',
       'keep *_hltFilterL2EcalIsolationDoubleIsoTau15Trk5_*_*',
       'keep *_hltFilterL25LeadingTrackPtCutDoubleIsoTau15Trk5_*_*',
-      'keep *_hltFilterL3TrackIsolationDoubleIsoTau15Trk5_*_*' )
+      'keep *_hltFilterL3TrackIsolationDoubleIsoTau15Trk5_*_*',
+      'keep *_hltL25TauJetTracksAssociator_*_*',
+      'keep *_hltL25TauCtfWithMaterialTracks_*_*',
+      'keep *_hltL3TauJetTracksAssociator_*_*',
+      'keep *_hltL3TauCtfWithMaterialTracks_*_*' )
 )
 process.hltOutputNanoDST = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputNanoDST.root" ),
@@ -13903,16 +13914,6 @@ if 'GlobalTag' in process.__dict__:
     process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
     from Configuration.PyReleaseValidation.autoCond import autoCond
     process.GlobalTag.globaltag = autoCond['startup']
-
-# override the L1 menu
-if 'GlobalTag' in process.__dict__:
-    process.GlobalTag.toGet.append(
-        cms.PSet(  
-            record  = cms.string( "L1GtTriggerMenuRcd" ),
-            tag     = cms.string( "L1GtTriggerMenu_L1Menu_Commissioning2010_v4_mc" ),
-            connect = cms.untracked.string( process.GlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T') )
-        )
-    )
 
 # adapt HLT modules to the correct process name
 if 'hltTrigReport' in process.__dict__:
