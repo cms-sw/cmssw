@@ -16,25 +16,19 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 22:06:52 CET 2010
-// $Id: FW3DViewGeometry.h,v 1.2 2010/09/06 13:37:13 yana Exp $
+// $Id: FW3DViewGeometry.h,v 1.3 2010/09/07 15:46:46 yana Exp $
 //
 
-// system include files
-
-// user include files
-#include "TEveElement.h"
+#include "Fireworks/Core/interface/FWViewGeometryList.h"
 
 // forward declarations
-class TEveScene;
-class TEveElementList;
-class FWGeometry;
 
 namespace fireworks
 {
    class Context;
 }
 
-class FW3DViewGeometry : public TEveElementList
+class FW3DViewGeometry : public FWViewGeometryList
 {
 
 public:
@@ -53,7 +47,6 @@ public:
    void showPixelEndcap( bool );
    void showTrackerBarrel( bool );
    void showTrackerEndcap( bool );
-   void setTransparency( int );
 private:
    FW3DViewGeometry(const FW3DViewGeometry&); // stop default
 
@@ -61,17 +54,12 @@ private:
 
    // ---------- member data --------------------------------
 
-   const fireworks::Context& m_context;
-   const FWGeometry*  m_geom;
-
    TEveElementList*   m_muonBarrelElements;
    TEveElementList*   m_muonEndcapElements;
    TEveElementList*   m_pixelBarrelElements;
    TEveElementList*   m_pixelEndcapElements;
    TEveElementList*   m_trackerBarrelElements;
    TEveElementList*   m_trackerEndcapElements;
-
-   int                m_geomTransparency;
 };
 
 

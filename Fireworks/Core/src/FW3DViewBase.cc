@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DViewBase.cc,v 1.10 2010/09/07 12:38:29 yana Exp $
+// $Id: FW3DViewBase.cc,v 1.11 2010/09/08 19:18:55 amraktad Exp $
 //
 #include <boost/bind.hpp>
 
@@ -48,8 +48,7 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId):
    m_showPixelEndcap(this, "Show Pixel Endcap", false),
    m_showTrackerBarrel(this, "Show Tracker Barrel", false ),
    m_showTrackerEndcap(this, "Show Tracker Endcap", false),
-   m_showWireFrame(this, "Show Wire Frame", true),
-   m_geomTransparency(this,"Detector Transparency", 85l, 0l, 100l)
+   m_showWireFrame(this, "Show Wire Frame", true)
 {
    viewerGL()->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
    FWViewEnergyScale* caloScale = new FWViewEnergyScale();
@@ -73,7 +72,6 @@ void FW3DViewBase::setContext(const fireworks::Context& context)
    m_showPixelEndcap.changed_.connect(boost::bind(&FW3DViewGeometry::showPixelEndcap,m_geometry,_1));
    m_showTrackerBarrel.changed_.connect(boost::bind(&FW3DViewGeometry::showTrackerBarrel,m_geometry,_1));
    m_showTrackerEndcap.changed_.connect(boost::bind(&FW3DViewGeometry::showTrackerEndcap,m_geometry,_1));
-   m_geomTransparency.changed_.connect(boost::bind(&FW3DViewGeometry::setTransparency,m_geometry, _1));
    m_showWireFrame.changed_.connect(boost::bind(&FW3DViewBase::showWireFrame,this, _1));
 
 }
@@ -104,6 +102,15 @@ FW3DViewBase::setFrom(const FWConfiguration& iFrom)
    TGLPerspectiveCamera* camera = dynamic_cast<TGLPerspectiveCamera*>(&(viewerGL()->CurrentCamera()));
    setFromPerspectiveCamera(camera, "Plain3D", iFrom);
 
+   // version < 5
+   std::string tName("Detector Transparency");
+   if (iFrom.valueForKey(tName))
+   {
+      std::istringstream s(iFrom.valueForKey(tName)->value());
+      int transp;
+      s>> transp;
+      context().colorManager()->setGeomTransparency(transp);
+   }
 }
 
 
@@ -119,8 +126,7 @@ FW3DViewBase::populateController(ViewerParameterGUI& gui) const
       addParam(&m_showPixelEndcap).
       addParam(&m_showTrackerBarrel).
       addParam(&m_showTrackerEndcap).
-      addParam(&m_showWireFrame).
-      addParam(&m_geomTransparency);
+      addParam(&m_showWireFrame);
 }
 
 

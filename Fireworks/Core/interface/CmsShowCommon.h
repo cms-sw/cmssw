@@ -16,12 +16,13 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Sep 10 14:51:07 CEST 2010
-// $Id$
+// $Id: CmsShowCommon.h,v 1.1 2010/09/10 20:34:04 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWConfigurableParameterizable.h"
 #include "Fireworks/Core/interface/FWBoolParameter.h"
 #include "Fireworks/Core/interface/FWLongParameter.h"
+#include "Fireworks/Core/interface/FWColorManager.h"
 
 class CmsShowCommonPopup;
 class FWColorManager;
@@ -46,7 +47,11 @@ public:
    void setGamma(int);
    void switchBackground();
 
+   void setGeomColor(FWGeomColorIndex, Color_t);
+   void setGeomTransparency(int);
+
 protected:
+   FWColorManager*     colorManager() const { return m_colorManager;}
 
 private:
    CmsShowCommon(const CmsShowCommon&); // stop default
@@ -54,12 +59,17 @@ private:
    const CmsShowCommon& operator=(const CmsShowCommon&); // stop default
 
    // ---------- member data --------------------------------
+
    FWColorManager*     m_colorManager;
 
-   // colors
-   FWBoolParameter     m_blackBackground;
+   // general colors
+   mutable FWLongParameter     m_backgroundColor; // can be set via Ctr+b key binding
    FWLongParameter     m_gamma;
-   
+
+   // geom colors
+   FWLongParameter     m_geomTransparency;
+   FWLongParameter*    m_geomColors[kFWGeomColorSize];
+
    // scales
 };
 

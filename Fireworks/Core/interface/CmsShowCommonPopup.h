@@ -3,6 +3,7 @@
 
 #include "GuiTypes.h"
 #include "TGFrame.h"
+#include "Fireworks/Core/interface/FWColorManager.h"
 
 class TGSlider;
 class TGLabel;
@@ -10,6 +11,7 @@ class TGTextButton;
 class TGCheckButton;
 class CmsShowCommon;
 class FWColorManager;
+class FWColorSelect;
 
 class CmsShowCommonPopup : public TGTransientFrame
 {
@@ -19,11 +21,13 @@ public:
 
    // ---------- member functions ---------------------------
 
-  virtual void CloseWindow() { UnmapWindow(); }
+   virtual void CloseWindow() { UnmapWindow(); }
 
-  void switchBackground();
-  void setGamma(int);
-  void resetGamma();
+   void switchBackground();
+   void setGamma(int);
+   void resetGamma();
+   void changeGeomColor(Color_t);
+   void changeGeomTransparency(int);
    
 private:
    CmsShowCommonPopup(const CmsShowCommonPopup&);
@@ -36,6 +40,10 @@ private:
    TGTextButton   *m_backgroundButton;
    TGHSlider      *m_gammaSlider;
    TGTextButton   *m_gammaButton;
+
+   FWColorSelect* m_colorSelectWidget[kFWGeomColorSize];
+ 
+  
 };
 
 

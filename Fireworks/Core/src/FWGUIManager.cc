@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.217 2010/09/13 13:10:45 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.218 2010/09/13 14:36:47 matevz Exp $
 
 //
 
@@ -150,11 +150,13 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
       getAction(cmsshow::sExportImage)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImageOfMainView));
       getAction(cmsshow::sExportAllImages)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImagesOfAllViews));
       getAction(cmsshow::sLoadConfig)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::promptForLoadConfigurationFile));
-
+      getAction(cmsshow::sSaveConfig)->activated.connect(writeToPresentConfigurationFile_);
       getAction(cmsshow::sSaveConfigAs)->activated.connect(sigc::mem_fun(*this,&FWGUIManager::promptForSaveConfigurationFile));
       getAction(cmsshow::sShowEventDisplayInsp)->activated.connect(boost::bind( &FWGUIManager::showEDIFrame,this,-1));
       getAction(cmsshow::sShowMainViewCtl)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showViewPopup));
       getAction(cmsshow::sShowObjInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showModelPopup));
+
+      getAction(cmsshow::sBackgroundColor)->activated.connect(sigc::mem_fun(m_context->colorManager(), &FWColorManager::switchBackground));
       getAction(cmsshow::sShowCommonInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showCommonPopup));
 
       getAction(cmsshow::sShowAddCollection)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::addData));
@@ -802,7 +804,6 @@ FWGUIManager::promptForLoadConfigurationFile()
 void
 FWGUIManager::promptForSaveConfigurationFile()
 {
-   printf("FWGUIManager::promptForSaveConfigurationFil \n");
    std::string name;
    if (!promptForConfigurationFile(name, kFDSave))
       return;

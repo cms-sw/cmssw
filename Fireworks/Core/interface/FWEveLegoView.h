@@ -16,15 +16,12 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Mon May 31 13:09:38 CEST 2010
-// $Id: FWEveLegoView.h,v 1.27 2010/05/31 13:01:24 amraktad Exp $
+// $Id: FWEveLegoView.h,v 1.28 2010/06/07 17:54:01 amraktad Exp $
 //
 
-// system include files
-
-// user include files
 #include "Fireworks/Core/interface/FWLegoViewBase.h"
 
-// forward declarations
+class TEveStraightLineSet;
 
 class FWEveLegoView: public FWLegoViewBase
 {
@@ -32,7 +29,8 @@ public:
    FWEveLegoView(TEveWindowSlot*, FWViewType::EType);
    virtual ~FWEveLegoView();
 
-   virtual void setContext(fireworks::Context&);
+   virtual void setContext(const fireworks::Context&);
+   virtual void setBackgroundColor(Color_t);
 
    // ---------- const member functions ---------------------
 
@@ -48,6 +46,7 @@ private:
    const FWEveLegoView& operator=(const FWEveLegoView&); // stop default
 
    // ---------- member data --------------------------------
+   TEveStraightLineSet* m_boundaries;
 };
 
 

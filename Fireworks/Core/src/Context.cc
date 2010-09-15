@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:57:12 EDT 2008
-// $Id: Context.cc,v 1.27 2010/09/06 11:46:35 amraktad Exp $
+// $Id: Context.cc,v 1.28 2010/09/10 20:34:05 amraktad Exp $
 //
 
 // system include files
@@ -22,6 +22,7 @@
 
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWMagField.h"
+#include "Fireworks/Core/interface/CmsShowCommon.h"
 
 using namespace fireworks;
 //
@@ -78,6 +79,7 @@ Context::Context(FWModelChangeManager* iCM,
 Context::~Context()
 {
    delete m_magField;
+   delete m_commonPrefs;
 }
 
 void
@@ -164,7 +166,7 @@ Context::deleteEveElements()
 CmsShowCommon* 
 Context::commonPrefs() const
 {
-   return m_commonPrefs.get();
+   return m_commonPrefs;
 }
 
 float Context::caloR1(bool offset)  const

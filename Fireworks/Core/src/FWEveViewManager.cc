@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.33 2010/07/26 15:13:59 matevz Exp $
+// $Id: FWEveViewManager.cc,v 1.34 2010/09/07 15:46:46 yana Exp $
 //
 
 // system include files
@@ -323,6 +323,8 @@ FWEveViewManager::finishViewCreate(boost::shared_ptr<FWEveView> view)
 
    // set geometry and calo data
    view->setContext(context()); 
+
+   FWColorManager::setColorSetViewer(view->viewerGL(),  context().colorManager()->background());
 
    // set proxies have a window falg
    int viewerBit = 1 << view->typeId();   

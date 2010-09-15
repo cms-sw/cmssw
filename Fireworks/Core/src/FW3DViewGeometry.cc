@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 22:06:57 CET 2010
-// $Id: FW3DViewGeometry.cc,v 1.7 2010/09/06 13:37:14 yana Exp $
+// $Id: FW3DViewGeometry.cc,v 1.8 2010/09/07 15:46:46 yana Exp $
 //
 
 // system include files
@@ -40,19 +40,15 @@
 // constructors and destructor
 //
 FW3DViewGeometry::FW3DViewGeometry(const fireworks::Context& context):
-   TEveElementList("3DViewGeo"),
-   m_context(context),
-   m_geom(0),
+   FWViewGeometryList(context),
    m_muonBarrelElements(0),
    m_muonEndcapElements(0),
    m_pixelBarrelElements(0),
    m_pixelEndcapElements(0),
    m_trackerBarrelElements(0),
-   m_trackerEndcapElements(0),
+   m_trackerEndcapElements(0)
+{  
 
-   m_geomTransparency(80)
-{
-   m_geom = context.getGeom();
 }
 
 // FW3DViewGeometry::FW3DViewGeometry(const FW3DViewGeometry& rhs)
@@ -64,17 +60,6 @@ FW3DViewGeometry::~FW3DViewGeometry()
 {
 }
 
-//
-// assignment operators
-//
-// const FW3DViewGeometry& FW3DViewGeometry::operator=(const FW3DViewGeometry& rhs)
-// {
-//   //An exception safe implementation is
-//   FW3DViewGeometry temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
 
 //
 // member functions
@@ -93,8 +78,6 @@ FW3DViewGeometry::showMuonBarrel( bool showMuonBarrel )
 {
    if( !m_muonBarrelElements && showMuonBarrel )
    {
-      Color_t color = m_context.colorManager()->geomColor( kFWMuonBarrelLineColorIndex );
-
       m_muonBarrelElements = new TEveElementList( "DT" );
       for( Int_t iWheel = -2; iWheel <= 2; ++iWheel )
       {
@@ -113,8 +96,7 @@ FW3DViewGeometry::showMuonBarrel( bool showMuonBarrel )
 		  if( iStation < 4 && iSector > 12 ) continue;
 		  DTChamberId id( iWheel, iStation, iSector );
 		  TEveGeoShape* shape = m_geom->getEveShape( id.rawId() );
-		  shape->SetMainTransparency( m_geomTransparency );
-		  shape->SetMainColor( color );
+                  addToCompound(shape, kFWMuonBarrelLineColorIndex);
 		  cStation->AddElement( shape );
 	       }
 	    }
@@ -136,7 +118,6 @@ FW3DViewGeometry::showMuonEndcap( bool showMuonEndcap )
 {
    if( showMuonEndcap && !m_muonEndcapElements )
    {
-      Color_t color = m_context.colorManager()->geomColor( kFWMuonEndCapLineColorIndex );
       m_muonEndcapElements = new TEveElementList( "CSC" );
       for( Int_t iEndcap = 1; iEndcap <= 2; ++iEndcap ) // 1=forward (+Z), 2=backward(-Z)
       { 
@@ -170,8 +151,7 @@ FW3DViewGeometry::showMuonEndcap( bool showMuonEndcap )
                   Int_t iLayer = 0; // chamber
 		  CSCDetId id( iEndcap, iStation, iRing, iChamber, iLayer );
 		  TEveGeoShape* shape = m_geom->getEveShape( id.rawId() );
-		  shape->SetMainTransparency( m_geomTransparency );
-		  shape->SetMainColor( color );
+                  addToCompound(shape, kFWMuonEndcapLineColorIndex);
 		  cRing->AddElement( shape );
                }
             }
@@ -193,7 +173,6 @@ FW3DViewGeometry::showPixelBarrel( bool showPixelBarrel )
 {
    if( showPixelBarrel && !m_pixelBarrelElements )
    {
-      Color_t color = m_context.colorManager()->geomColor( kFWTrackerColorIndex );
       m_pixelBarrelElements = new TEveElementList( "PixelBarrel" );
       m_pixelBarrelElements->SetRnrState( showPixelBarrel );
       std::vector<unsigned int> ids = m_geom->getMatchedIds( FWGeometry::Tracker, FWGeometry::PixelBarrel );
@@ -201,8 +180,7 @@ FW3DViewGeometry::showPixelBarrel( bool showPixelBarrel )
 	   id != ids.end(); ++id )
       {
 	 TEveGeoShape* shape = m_geom->getEveShape( *id );
-         shape->SetMainTransparency( m_geomTransparency );
-	 shape->SetMainColor( color );
+         addToCompound(shape, kFWTrackerColorIndex);
          m_pixelBarrelElements->AddElement( shape );
       }
       AddElement( m_pixelBarrelElements );
@@ -221,15 +199,13 @@ FW3DViewGeometry::showPixelEndcap(bool  showPixelEndcap )
 {
    if( showPixelEndcap && ! m_pixelEndcapElements )
    {
-      Color_t color = m_context.colorManager()->geomColor( kFWTrackerColorIndex );
       m_pixelEndcapElements = new TEveElementList( "PixelEndcap" );
       std::vector<unsigned int> ids = m_geom->getMatchedIds( FWGeometry::Tracker, FWGeometry::PixelEndcap );
       for( std::vector<unsigned int>::const_iterator id = ids.begin();
 	   id != ids.end(); ++id )
       {
 	 TEveGeoShape* shape = m_geom->getEveShape( *id );
-         shape->SetMainTransparency( m_geomTransparency );
-	 shape->SetMainColor( color );
+         addToCompound(shape, kFWTrackerColorIndex);
          m_pixelEndcapElements->AddElement( shape );
       }
       AddElement( m_pixelEndcapElements );
@@ -248,16 +224,14 @@ FW3DViewGeometry::showTrackerBarrel( bool  showTrackerBarrel )
 {
    if( showTrackerBarrel && ! m_trackerBarrelElements )
    {
-      Color_t color = m_context.colorManager()->geomColor( kFWTrackerColorIndex );
       m_trackerBarrelElements = new TEveElementList( "TrackerBarrel" );
       m_trackerBarrelElements->SetRnrState( showTrackerBarrel );
       std::vector<unsigned int> ids = m_geom->getMatchedIds( FWGeometry::Tracker, FWGeometry::TIB );
       for( std::vector<unsigned int>::const_iterator id = ids.begin();
 	   id != ids.end(); ++id )
       {
-	 TEveGeoShape* shape = m_geom->getEveShape( *id );
-         shape->SetMainTransparency( m_geomTransparency );
-	 shape->SetMainColor( color );
+	 TEveGeoShape* shape = m_geom->getEveShape( *id ); 
+         addToCompound(shape, kFWTrackerColorIndex);
          m_trackerBarrelElements->AddElement( shape );
       }
       ids = m_geom->getMatchedIds( FWGeometry::Tracker, FWGeometry::TOB );
@@ -265,8 +239,7 @@ FW3DViewGeometry::showTrackerBarrel( bool  showTrackerBarrel )
 	   id != ids.end(); ++id )
       {
 	 TEveGeoShape* shape = m_geom->getEveShape( *id );
-         shape->SetMainTransparency( m_geomTransparency );
-	 shape->SetMainColor( color );
+         addToCompound(shape, kFWTrackerColorIndex);
          m_trackerBarrelElements->AddElement( shape );
       }
       AddElement( m_trackerBarrelElements );
@@ -285,15 +258,13 @@ FW3DViewGeometry::showTrackerEndcap( bool showTrackerEndcap )
 {
    if( showTrackerEndcap && ! m_trackerEndcapElements )
    {
-      Color_t color = m_context.colorManager()->geomColor( kFWTrackerColorIndex );
       m_trackerEndcapElements = new TEveElementList( "TrackerEndcap" );
       std::vector<unsigned int> ids = m_geom->getMatchedIds( FWGeometry::Tracker, FWGeometry::TID );
       for( std::vector<unsigned int>::const_iterator id = ids.begin();
-            id != ids.end(); ++id )
+           id != ids.end(); ++id )
       {
 	 TEveGeoShape* shape = m_geom->getEveShape( *id );
-         shape->SetMainTransparency( m_geomTransparency );
-	 shape->SetMainColor( color );
+         addToCompound(shape, kFWTrackerColorIndex);
          m_trackerEndcapElements->AddElement( shape );
       }
       ids = m_geom->getMatchedIds( FWGeometry::Tracker, FWGeometry::TEC );
@@ -301,8 +272,7 @@ FW3DViewGeometry::showTrackerEndcap( bool showTrackerEndcap )
 	   id != ids.end(); ++id )
       {
 	 TEveGeoShape* shape = m_geom->getEveShape( *id );
-         shape->SetMainTransparency( m_geomTransparency );
-	 shape->SetMainColor( color );
+         addToCompound(shape, kFWTrackerColorIndex);
          m_trackerEndcapElements->AddElement( shape );
       }
       AddElement( m_trackerEndcapElements );
@@ -315,51 +285,4 @@ FW3DViewGeometry::showTrackerEndcap( bool showTrackerEndcap )
    }
 }
 
-void
-FW3DViewGeometry::setTransparency( int transp )
-{
-   m_geomTransparency = transp;
-   if( m_muonBarrelElements )
-   {
-      TEveElementIter iter(m_muonBarrelElements);
-      while ( TEveElement* element = iter.current() ) {
-         element->SetMainTransparency(transp);
-         iter.next();
-      }
-   }
-   if ( m_muonEndcapElements ) {
-      TEveElementIter iter(m_muonEndcapElements);
-      while ( TEveElement* element = iter.current() ) {
-         element->SetMainTransparency(transp);
-         iter.next();
-      }
-   }
-   if ( m_pixelBarrelElements ) {
-      TEveElementIter iter(m_pixelBarrelElements);
-      while ( TEveElement* element = iter.current() ) {
-         element->SetMainTransparency(transp);
-         iter.next();
-      }
-   }
-   if ( m_pixelEndcapElements ) {
-      TEveElementIter iter(m_pixelEndcapElements);
-      while ( TEveElement* element = iter.current() ) {
-         element->SetMainTransparency(transp);
-         iter.next();
-      }
-   }
-   if ( m_trackerBarrelElements ) {
-      TEveElementIter iter(m_trackerBarrelElements);
-      while ( TEveElement* element = iter.current() ) {
-         element->SetMainTransparency(transp);
-         iter.next();
-      }
-   }
-   if ( m_trackerEndcapElements ) {
-      TEveElementIter iter(m_trackerEndcapElements);
-      while ( TEveElement* element = iter.current() ) {
-         element->SetMainTransparency(transp);
-         iter.next();
-      }
-   }
-}
+ 

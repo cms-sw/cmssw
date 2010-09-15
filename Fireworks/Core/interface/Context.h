@@ -16,13 +16,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:21:45 EDT 2008
-// $Id: Context.h,v 1.18 2010/09/07 19:51:50 chrjones Exp $
+// $Id: Context.h,v 1.19 2010/09/10 20:34:04 amraktad Exp $
 //
 
 // system include files
 
 // user include files
-#include "Fireworks/Core/interface/CmsShowCommon.h"
 
 // forward declarations
 class TEveTrackPropagator;
@@ -36,6 +35,7 @@ class FWColorManager;
 class FWJobMetadataManager;
 class FWMagField;
 class FWGeometry;
+class CmsShowCommon;
 
 namespace fireworks {
 class Context {
@@ -119,7 +119,7 @@ private:
 
    FWMagField           *m_magField;
 
-   std::auto_ptr<CmsShowCommon>   m_commonPrefs;
+   CmsShowCommon         *m_commonPrefs;
 
    TEveCaloDataHist     *m_caloData;
    TEveCaloDataVec      *m_caloDataHF;

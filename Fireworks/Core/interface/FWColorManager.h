@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:07:58 CET 2009
-// $Id: FWColorManager.h,v 1.19 2010/06/16 14:04:37 matevz Exp $
+// $Id: FWColorManager.h,v 1.20 2010/06/17 14:02:37 matevz Exp $
 //
 
 // system include files
@@ -32,15 +32,10 @@ class TGLViewer;
 
 enum FWGeomColorIndex
 {
-   kFWMuonBarrelMainColorIndex,
    kFWMuonBarrelLineColorIndex,
-   kFWMuonEndCapMainColorIndex,
-   kFWMuonEndCapLineColorIndex,
+   kFWMuonEndcapLineColorIndex,
    kFWTrackerColorIndex,
-   kFWCalo3DFrameColorIndex,
-   kFWLegoFrameColorIndex,
-   kFWLegoBoundraryColorIndex,
-   kFWLegoFontColorIndex
+   kFWGeomColorSize
 };
 
 
@@ -91,7 +86,12 @@ public:
    void setBackgroundAndBrightness(BackgroundColorIndex, int);
    void switchBackground();
 
+   void setGeomColor(FWGeomColorIndex, Color_t) const;
+   void setGeomTransparency(Color_t);
+   Color_t geomTransparency() const { return m_geomTransparency; } 
+
    mutable sigc::signal<void> colorsHaveChanged_;
+   mutable sigc::signal<void> geomColorsHaveChanged_;
    //called after all the slots attached to colorsHaveChanged_ are done
    mutable sigc::signal<void> colorsHaveChangedFinished_;
 
@@ -112,6 +112,9 @@ private:
    Color_t m_startColorIndex;
    Color_t m_numColorIndices;
    Color_t m_startGeomColorIndex;
+
+   mutable Color_t m_geomColor[kFWGeomColorSize];
+   mutable Char_t  m_geomTransparency;
 
    static const Color_t s_defaultStartColorIndex;
    static const Color_t s_defaultStartGeometryIndex;

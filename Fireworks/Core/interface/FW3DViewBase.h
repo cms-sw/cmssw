@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FW3DViewBase.h,v 1.7 2010/09/07 15:46:46 yana Exp $
+// $Id: FW3DViewBase.h,v 1.8 2010/09/08 19:18:55 amraktad Exp $
 //
 
 // system include files
@@ -71,7 +71,6 @@ private:
    FWBoolParameter m_showTrackerBarrel;
    FWBoolParameter m_showTrackerEndcap;
    FWBoolParameter m_showWireFrame;
-   FWLongParameter m_geomTransparency;
    
    void showWireFrame( bool );
 };

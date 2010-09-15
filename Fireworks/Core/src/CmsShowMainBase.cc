@@ -23,6 +23,7 @@
 #include "Fireworks/Core/src/CmsShowTaskExecutor.h"
 #include "Fireworks/Core/src/FWColorSelect.h"
 #include "Fireworks/Core/src/SimpleSAXParser.h"
+#include "Fireworks/Core/interface/CmsShowCommon.h"
 
 #include "Fireworks/Core/interface/fwLog.h"
 
@@ -31,6 +32,7 @@
 #include "TROOT.h"
 #include "TSystem.h"
 #include "TTimer.h"
+#include "TEveManager.h"
 
 #include <boost/bind.hpp>
 
@@ -207,7 +209,7 @@ CmsShowMainBase::setup(FWNavigatorBase *navigator,
    m_configurationManager->add("EventItems",m_eiManager.get());
    m_configurationManager->add("GUI",m_guiManager.get());
    m_configurationManager->add("EventNavigator", m_navigatorPtr);
-   m_configurationManager->add("Preferences", m_contextPtr->commonPrefs()); // must be after GUIManager in alphabetical order
+   m_configurationManager->add("CommonPreferences", m_contextPtr->commonPrefs()); // must be after GUIManager in alphabetical order
 
    m_guiManager->writeToConfigurationFile_.connect(boost::bind(&CmsShowMainBase::writeToConfigFile,
                                                                 this,_1));
@@ -247,6 +249,8 @@ CmsShowMainBase::reloadConfiguration(const std::string &config)
    if (config.empty())
       return;
 
+   m_configFileName = config;
+
    std::string msg = "Reloading configuration "
                                + config + "...";
    fwLog(fwlog::kDebug) << msg << std::endl;
@@ -256,7 +260,9 @@ CmsShowMainBase::reloadConfiguration(const std::string &config)
    m_configFileName = config;
    try
    {
+      gEve->DisableRedraw();
       m_configurationManager->readFromFile(config);
+      gEve->EnableRedraw();
    }
    catch (std::runtime_error &e)
    {
@@ -335,7 +341,9 @@ CmsShowMainBase::setupConfiguration()
       delete [] whereConfig;
       try
       {
+         gEve->DisableRedraw();
          m_configurationManager->readFromFile(m_configFileName);
+         gEve->EnableRedraw();
       }
       catch (std::runtime_error &e)
       {

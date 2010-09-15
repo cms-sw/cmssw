@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.100 2010/09/03 17:58:54 matevz Exp $
+// $Id: CmsShowMainFrame.cc,v 1.101 2010/09/10 20:34:05 amraktad Exp $
 
 #include "FWCore/Common/interface/EventBase.h"
 
@@ -111,7 +111,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 
    CSGAction *keyboardShort      = new CSGAction(this, cmsshow::sKeyboardShort.c_str());
    CSGAction *helpGL             = new CSGAction(this, cmsshow::sHelpGL.c_str());
-   //   CSGAction *colorset           = new CSGAction(this, cmsshow::sBackgroundColor.c_str());
+   CSGAction *colorset           = new CSGAction(this, cmsshow::sBackgroundColor.c_str());
 
    m_nextEvent = nextEvent;
    m_previousEvent = previousEvent;
@@ -184,7 +184,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
 
    // viewMenu->AddSeparator();
    // colorset->createMenuEntry(viewMenu);
-   // colorset->createShortcut(kKey_B, "CTRL", GetId());
+   colorset->createShortcut(kKey_B, "CTRL", GetId());
  
 
    viewMenu->AddSeparator();

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.28 2010/06/18 10:17:15 yana Exp $
+// $Id: FWColorManager.cc,v 1.29 2010/09/01 18:49:00 amraktad Exp $
 //
 
 // system include files
@@ -19,6 +19,7 @@
 #include "TROOT.h"
 #include "TMath.h"
 #include "TEveUtil.h"
+#include "TEveManager.h"
 #include "TGLViewer.h"
 
 // user include files
@@ -126,33 +127,7 @@ static const float s_forBlack[][3] ={
  */
 };
 
-static const unsigned int s_size = sizeof(s_forBlack)/sizeof(s_forBlack[0]);
-
-static const float s_geomForWhite[][3] ={
-{ 1.00, 0.44, 0.44 },
-{ 1.00, 0.44, 0.44 },
-{ 0.38, 0.63, 1.00 },
-{ 0.14, 0.33, 1.00 },
-{ 0.51, 1.00, 0.20 },
-{ 0.77, 0.77, 0.77 }, // calo3d grid
-{ 0.77, 0.77, 0.77 }, // lego grid
-{ 0.54, 0.54, 0.54 }, // lego boundrary
-{ 0.33, 0.33, 0.33 }  // lego font
-};
-
-static const float s_geomForBlack[][3] ={
-{0x3f/256.,0.,0.},
-{0x7f/256.,0.,0.},
-{0.,0.,0x3f/256.},
-{0.,0.,0x7f/256.},
-{0.,0x7f/256.,0.},
-{0.34, 0.34, 0.34}, // calo3d grid
-{0.17, 0.17, 0.17},  // lego grid
-{0.3, 0.3, 0.3}, // lego boundrary
-{0.7, 0.7, 0.7}   // lego font
-};
-
-static const unsigned int s_geomSize = sizeof(s_geomForBlack)/sizeof(s_geomForBlack[0]);
+static unsigned int s_size = sizeof(s_forBlack)/sizeof(s_forBlack[0]);
 
 //==============================================================================
 
@@ -192,12 +167,17 @@ void resetColors(const float(* iColors)[3], unsigned int iSize, unsigned int iSt
 // constructors and destructor
 //
 FWColorManager::FWColorManager(FWModelChangeManager* iManager):
-m_gammaOff(0),
-m_background(kBlack),
-m_foreground(kWhite),
-m_changeManager(iManager),
-m_numColorIndices(0)
+   m_gammaOff(0),
+   m_background(kBlack),
+   m_foreground(kWhite),
+   m_changeManager(iManager),
+   m_numColorIndices(0),
+   m_geomTransparency(70)
 {
+   // in config version > 5 restored from CmsShowCommon
+   m_geomColor[kFWMuonBarrelLineColorIndex] = 1020;
+   m_geomColor[kFWMuonEndcapLineColorIndex] = 1017;
+   m_geomColor[kFWTrackerColorIndex]        = 1021 ;
 }
 
 // FWColorManager::FWColorManager(const FWColorManager& rhs)
@@ -244,6 +224,7 @@ void FWColorManager::initialize()
     new TColor(index++,(*it)[0],(*it)[1],(*it)[2]);
   }
 
+  /*
   m_startGeomColorIndex = index = s_defaultStartGeometryIndex;
   itEnd = s_geomForBlack+s_geomSize;
   for(const float(* it)[3] = s_geomForBlack;
@@ -251,7 +232,8 @@ void FWColorManager::initialize()
       ++it) {
     //NOTE: this constructor automatically places this color into the gROOT color list
     new TColor(index++,(*it)[0],(*it)[1],(*it)[2]);
-  }   
+  } 
+  */  
 }
 
 void FWColorManager::updateColors()
@@ -259,13 +241,13 @@ void FWColorManager::updateColors()
    if (backgroundColorIndex() == kBlackIndex)
    {
       resetColors(s_forBlack,s_size,m_startColorIndex,  m_gammaOff);
-      resetColors(s_geomForBlack, s_geomSize, m_startGeomColorIndex,  m_gammaOff);
+      // resetColors(s_geomForBlack, s_geomSize, m_startGeomColorIndex,  m_gammaOff);
       TEveUtil::SetColorBrightness(1.666*m_gammaOff);
    }
    else
    {
       resetColors(s_forWhite,s_size,m_startColorIndex,  m_gammaOff);
-      resetColors(s_geomForWhite, s_geomSize, m_startGeomColorIndex,  m_gammaOff);
+      // resetColors(s_geomForWhite, s_geomSize, m_startGeomColorIndex,  m_gammaOff);
       TEveUtil::SetColorBrightness(1.666*m_gammaOff - 2.5);
    }
    FWChangeSentry sentry(*m_changeManager);
@@ -373,7 +355,7 @@ FWColorManager::colorHasIndex(Color_t iColor) const
 Color_t 
 FWColorManager::geomColor(FWGeomColorIndex iIndex) const
 {
-   return m_startGeomColorIndex + iIndex;
+   return m_geomColor[iIndex];
 }
 
 
@@ -398,6 +380,23 @@ FWColorManager::oldColorToIndex(Color_t iColor) const
       
    }
    return (*m_oldColorToIndexMap)[iColor];
+}
+
+void
+FWColorManager::setGeomColor(FWGeomColorIndex idx, Color_t iColor) const
+{
+   m_geomColor[idx] = iColor;
+   geomColorsHaveChanged_();
+   gEve->Redraw3D();
+}
+
+void
+FWColorManager::setGeomTransparency(Color_t iTransp)
+{
+   m_geomTransparency = iTransp;
+   geomColorsHaveChanged_();
+
+   gEve->Redraw3D();
 }
 
 //

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 13:09:53 CEST 2010
-// $Id: FWEveLegoView.cc,v 1.81 2010/05/31 13:01:25 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.82 2010/06/07 17:54:01 amraktad Exp $
 //
 
 // system include files
@@ -77,19 +77,26 @@ FWEveLegoView::getCaloData(fireworks::Context& c) const
 }
 
 void
-FWEveLegoView::setContext(fireworks::Context& context)
+FWEveLegoView::setContext(const fireworks::Context& ctx)
 {  
-   FWLegoViewBase::setContext(context); 
+   FWLegoViewBase::setContext(ctx); 
 
    // add calorimeter boundaries
-   TEveStraightLineSet* boundaries = new TEveStraightLineSet("boundaries");
-   boundaries->SetPickable(kFALSE);
-   boundaries->SetLineWidth(2);
-   boundaries->SetLineStyle(7);
-   boundaries->AddLine(-1.479,-3.1416,0.001,-1.479,3.1416,0.001);
-   boundaries->AddLine(1.479,-3.1416,0.001,1.479,3.1416,0.001);
-   boundaries->AddLine(-2.964,-3.1416,0.001,-2.964,3.1416,0.001);
-   boundaries->AddLine(2.964,-3.1416,0.001,2.964,3.1416,0.001);
-   boundaries->SetLineColor(context.colorManager()->geomColor(kFWLegoBoundraryColorIndex));
-   m_lego->AddElement(boundaries);
+   m_boundaries = new TEveStraightLineSet("m_boundaries");
+   m_boundaries->SetPickable(kFALSE);
+   m_boundaries->SetLineWidth(2);
+   m_boundaries->SetLineStyle(7);
+   m_boundaries->AddLine(-1.479,-3.1416,0.001,-1.479,3.1416,0.001);
+   m_boundaries->AddLine(1.479,-3.1416,0.001,1.479,3.1416,0.001);
+   m_boundaries->AddLine(-2.964,-3.1416,0.001,-2.964,3.1416,0.001);
+   m_boundaries->AddLine(2.964,-3.1416,0.001,2.964,3.1416,0.001);
+   m_boundaries->SetLineColor(ctx.colorManager()->isColorSetDark() ? kGray+2 : kGray+1);
+   m_lego->AddElement(m_boundaries);
+}
+
+void 
+FWEveLegoView::setBackgroundColor(Color_t c)
+{
+   m_boundaries->SetLineColor(context().colorManager()->isColorSetDark() ? kGray+2 : kGray+1);
+   FWEveView::setBackgroundColor(c);
 }
