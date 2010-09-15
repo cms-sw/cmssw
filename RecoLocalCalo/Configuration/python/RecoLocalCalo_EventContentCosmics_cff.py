@@ -6,10 +6,12 @@ from RecoLocalCalo.Configuration.ecalLocalReco_EventContentCosmics_cff import *
 #
 #FEVT
 RecoLocalCaloFEVT = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_hbhereco_*_*', 
+    outputCommands = cms.untracked.vstring('keep *_hbhereco_*_*',
+        'keep *_hbheprereco_*_*', 
         'keep *_hfreco_*_*', 
         'keep *_horeco_*_*',
         'keep HBHERecHitsSorted_hbherecoMB_*_*',
+        'keep HBHERecHitsSorted_hbheprerecoMB_*_*',
         'keep HORecHitsSorted_horecoMB_*_*',
         'keep HFRecHitsSorted_hfrecoMB_*_*',
         'keep ZDCDataFramesSorted_*Digis_*_*',

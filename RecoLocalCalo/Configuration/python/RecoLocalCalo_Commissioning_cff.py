@@ -21,9 +21,10 @@ hfreco.firstSample = 3
 hfreco.samplesToAdd = 4
 
 #
-# sequence CaloLocalReco
+# sequence CaloLocalReco and CaloGlobalReco
 #
 calolocalreco = cms.Sequence(ecalLocalRecoSequence+hcalLocalRecoSequence)
+caloglobalreco = cms.Sequence(hcalGlobalRecoSequence)
 
 #
 # R.Ofierzynski (29.Oct.2009): add NZS sequence

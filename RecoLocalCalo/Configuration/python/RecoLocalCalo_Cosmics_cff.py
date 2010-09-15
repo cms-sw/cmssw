@@ -17,14 +17,14 @@ from RecoLocalCalo.Configuration.ecalLocalRecoSequenceCosmics_cff import *
 #HCAL reconstruction
 from RecoLocalCalo.Configuration.hcalLocalReco_cff import *
 #
-# sequence CaloLocalReco
+# sequence CaloLocalReco and CaloGlobalReco
 #
 calolocalreco = cms.Sequence(ecalLocalRecoSequence+hcalLocalRecoSequence)
-hbhereco.firstSample = 1
-hbhereco.samplesToAdd = 8
-hbhereco.correctForTimeslew = True
-hbhereco.correctForPhaseContainment = True
-hbhereco.correctionPhaseNS = 10.0
+hbheprereco.firstSample = 1
+hbheprereco.samplesToAdd = 8
+hbheprereco.correctForTimeslew = True
+hbheprereco.correctForPhaseContainment = True
+hbheprereco.correctionPhaseNS = 10.0
 horeco.firstSample = 1
 horeco.samplesToAdd = 8
 horeco.correctForTimeslew = True
@@ -40,6 +40,7 @@ zdcreco.samplesToAdd = 8
 zdcreco.correctForTimeslew = True
 zdcreco.correctForPhaseContainment = True
 zdcreco.correctionPhaseNS = 10.
+caloglobalreco = cms.Sequence(hcalGlobalRecoSequence)
 
 #
 # R.Ofierzynski (29.Oct.2009): add NZS sequence
