@@ -32,7 +32,6 @@
 
 // Class header file
 #include "RecoEcal/EgammaClusterProducers/interface/CleanAndMergeProducer.h"
-#include "RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
@@ -79,7 +78,6 @@ CleanAndMergeProducer::CleanAndMergeProducer(const edm::ParameterSet& ps)
         hitproducer_ = ps.getParameter<std::string>("ecalhitproducer");
         hitcollection_ =ps.getParameter<std::string>("ecalhitcollection");
 
-        shapeAlgo_ = ClusterShapeAlgo(providedParameters);
         // the products:
         produces< reco::ClusterShapeCollection>(cShapeCollection_);
         produces< reco::BasicClusterCollection >(bcCollection_);
