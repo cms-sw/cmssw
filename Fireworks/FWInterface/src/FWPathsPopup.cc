@@ -9,9 +9,15 @@
 #include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 #include "DataFormats/Provenance/interface/EventRange.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 
 #include "TGLabel.h"
 #include "TGTextEdit.h"
@@ -23,6 +29,7 @@
 #include <iostream>
 #include <sstream>
 #include <cstring>
+#include <map>
 
 class FWTextTreeCellRenderer : public FWTextTableCellRenderer
 {
@@ -74,8 +81,16 @@ struct PSetData
    bool        visible;
    // Whether or not any of the children matches the filter.
    bool        childMatches;
+   // For paths (i.e. level == 0), whether or not it "passed"
+   // For modules, whether or not it made the "decision" 
+   bool        passed;
+   // For modules, if the parent (i.e. the path) passed
+   bool        parentPassed;
 };
 
+/** string is whether or not a path passed and 
+    int is index of module that made decision **/
+typedef std::pair<bool, int> PathData;
 
 /** Attempt to create a table based editor for the PSET. */
 class FWPSetTableManager : public FWTableManagerBase 
@@ -152,7 +167,7 @@ public:
       s_pathGC.SetForeground(gVirtualX->GetPixel(kRed-5));
       return s_pathGC;
    }
-   
+  
    const TGGC &
    pathBackgroundGC()
    {
@@ -193,8 +208,11 @@ public:
       reset();
    }
    
-   void update(const edm::ScheduleInfo *info)
+  void update(const edm::ScheduleInfo *info, std::map<std::string, PathData> &pathStatus)
    {
+      std::map<std::string, PathData>::const_iterator pi;
+      std::map<std::string, PathData>::const_iterator pe = pathStatus.end();
+
       m_entries.clear();
       std::vector<std::string> availablePaths;
       info->availablePaths(availablePaths);
@@ -202,6 +220,23 @@ public:
       {
          PSetData pathEntry;
          pathEntry.label = availablePaths[i];
+
+         pi = pathStatus.find(availablePaths[i]);
+
+         pathEntry.parentPassed = false; // Always for a path
+         size_t mindex;
+   
+         if ( pi == pe )
+         {
+           pathEntry.passed = false; // What is sensible to do here?
+           mindex = -1;
+         }
+         else
+         {
+           pathEntry.passed = (pi->second).first;
+           mindex = (pi->second).second;
+         }
+
          pathEntry.value = "Path";
          pathEntry.level= 0;
          pathEntry.parent = -1;
@@ -210,10 +245,18 @@ public:
 
          std::vector<std::string> pathModules;
          info->modulesInPath(availablePaths[i], pathModules);
+
          for (size_t mi = 0, me = pathModules.size(); mi != me; ++mi)
          {
             PSetData moduleEntry;
-           
+         
+            if ( mi == mindex )
+              moduleEntry.passed = true;
+            else
+              moduleEntry.passed = false;
+  
+            moduleEntry.parentPassed = pathEntry.passed;
+
             const edm::ParameterSet* ps = info->parametersForModule(pathModules[mi]);
 
             const edm::ParameterSet::table& pst = ps->tbl();
@@ -369,6 +412,7 @@ public:
       if ( data.level == 0 )
       {
          label = data.label + " (" + data.value + ")";
+       
          value = "";
          renderer = &m_pathRenderer;
       }
@@ -871,353 +915,7 @@ FWPathsPopup::setup(const edm::ScheduleInfo *info)
 {
    assert(info);
    m_info = info;
-
-   m_info->availableModuleLabels(m_availableModuleLabels);
-   m_info->availablePaths(m_availablePaths);
 }
-
-// It would be nice if we could use some of the 
-// utilities from Entry. 
-// Why couldn't the type just be the type?
-const char*
-FWPathsPopup::typeCodeToChar(char typeCode)
-{
-  switch(typeCode)
-  {
-  case 'b' : return "Bool";
-  case 'B' : return "Bool";
-  case 'i' : return "vint32";
-  case 'I' : return "int32";
-  case 'u' : return "vuint32";
-  case 'U' : return "uint32";
-  case 'l' : return "vint64";
-  case 'L' : return "int64";
-  case 'x' : return "vuint64";
-  case 'X' : return "uint64";
-  case 's' : return "vstring";
-  case 'S' : return "string";
-  case 'd' : return "vdouble";
-  case 'D' : return "double";
-  case 'p' : return "vPSet";
-  case 'P' : return "PSet";
-  case 'T' : return "path";
-  case 'F' : return "FileInPath";
-  case 't' : return "InputTag";
-  case 'v' : return "VInputTag";
-  case 'e' : return "VEventID";
-  case 'E' : return "EventID";
-  case 'm' : return "VLuminosityBlockID";
-  case 'M' : return "LuminosityBlockID";
-  case 'a' : return "VLuminosityBlockRange";    
-  case 'A' : return "LuminosityBlockRange";
-  case 'r' : return "VEventRange";
-  case 'R' : return "EventRange";
-  default  : return "Type not known";
-  }
-}
-
-// Crikey! I'm ending up writing a ParameterSet parser here!
-// I probably could use the results from the << operator
-// in Entry but it's not quite what I want for format.
-// Also, it's not clear to me how to break it up into html
-// elements.
-void
-FWPathsPopup::handleEntry(const edm::Entry& entry, 
-                          const std::string& key, TString& html)
-{
-  html += "<li>" + key + "    " 
-          + (entry.isTracked() ? "tracked    " : "untracked    ")
-          + typeCodeToChar(entry.typeCode());
-
-  std::stringstream ss;
-  switch(entry.typeCode())
-  {
-  case 'b':
-    {
-      ss << entry.getBool();
-      html += "    " + ss.str();
-      break;
-    }
-  case 'B':
-    { 
-      ss << entry.getBool();
-      html += "    " + ss.str();
-      break;
-    }
-  case 'i':
-    {
-      html += "    ";
-      std::vector<int> ints = entry.getVInt32();
-      for ( std::vector<int>::const_iterator ii = ints.begin(), iiEnd = ints.end();
-            ii != iiEnd; ++ii )
-      {
-        ss << *ii <<"  ";
-        html += ss.str();
-      }
-      break;
-    }
-  case 'I':
-    {
-      ss << entry.getInt32();
-      html += "   " + ss.str();
-      break;
-    }
-  case 'u':
-    {
-      html += "    ";
-      std::vector<unsigned> us = entry.getVUInt32();
-      for ( std::vector<unsigned>::const_iterator ui = us.begin(), uiEnd = us.end();
-            ui != uiEnd; ++ui )
-      {
-        ss << *ui <<" ";
-        html += ss.str();
-      } 
-      break;
-    }
-  case 'U':
-    {
-      ss << entry.getUInt32();
-      html += "   " + ss.str();
-      break;
-    }
-  case 'l':
-    {
-      html += "    ";
-      std::vector<long long> ints = entry.getVInt64();
-      for ( std::vector<long long>::const_iterator ii = ints.begin(), iiEnd = ints.end();
-            ii != iiEnd; ++ii )
-      {
-        ss << *ii << " ";
-        html += ss.str();
-      }
-      break;
-    }
-  case 'L':
-    {
-      ss << entry.getInt64();
-      html += "   " + ss.str();
-      break;
-    }
-  case 'x':
-    {
-      html += "    ";
-      // This the 1st time in my life I have written "unsigned long long"! Exciting.
-      std::vector<unsigned long long> us = entry.getVUInt64();
-      for ( std::vector<unsigned long long>::const_iterator ui = us.begin(), uiEnd = us.end();
-            ui != uiEnd; ++ui )
-      {
-        ss << *ui <<" ";
-        html += ss.str();
-      }
-      break;
-    }
-  case 'X':
-    {
-      ss << entry.getUInt64();
-      html += "    " + ss.str();
-      break;
-    }
-  case 's':
-    {
-      std::vector<std::string> strs = entry.getVString();
-      html += "    ";
-      for ( std::vector<std::string>::const_iterator si = strs.begin(), siEnd = strs.end();
-            si != siEnd; ++si )
-      {
-        html += *si + " ";
-      }
-      break;
-    }
-  case 'S':
-    {
-      html += "    " + entry.getString();
-      break;
-    }
-  case 'd':
-    {
-      html += "    ";
-      std::vector<double> ds = entry.getVDouble();
-      for ( std::vector<double>::const_iterator di = ds.begin(), diEnd = ds.end();
-            di != diEnd; ++di )
-      {
-        ss << *di <<" ";
-        html += ss.str();
-      }
-      break;
-    }
-  case 'D':
-    {   
-      ss << entry.getDouble();
-      html += "    " + ss.str();
-      break;
-    }
-  case 'p':
-    {
-      std::vector<edm::ParameterSet> psets = entry.getVPSet();
-      html += "    ";
-      for ( std::vector<edm::ParameterSet>::const_iterator psi = psets.begin(), psiEnd = psets.end();
-            psi != psiEnd; ++psi )
-        handlePSet(&(*psi), html);
-      break;
-    }
-  case 'P':
-    {    
-      edm::ParameterSet psets = entry.getPSet();
-      handlePSet(&psets, html);
-      break;
-    }
-  case 'v':
-    {
-      html += "    ";
-      std::vector<edm::InputTag> tags = entry.getVInputTag();
-      for ( std::vector<edm::InputTag>::const_iterator ti = tags.begin(), tiEnd = tags.end();
-            ti != tiEnd; ++ti )
-      {
-        ss << ti->encode() <<" ";
-        html += ss.str();
-      }
-      break;
-    }
-  case 't':
-    {
-      ss << entry.getInputTag();
-      html += "    " + ss.str();
-      break;
-    }
-  case 'e':
-    {
-      html += "    ";
-      std::vector<edm::MinimalEventID> ids = entry.getVEventID();
-      for ( size_t iri = 0, ire = ids.size(); iri != ire; ++iri )
-      {
-        ss << ids[iri];
-        html += " " + ss.str();
-      }
-      break;
-    }
-  case 'E':
-    {
-      ss << entry.getEventID();
-      html += "   " + ss.str();
-      break;
-    }
-  case 'm':
-    {
-      html += "    ";
-      std::vector<edm::LuminosityBlockID> ids = entry.getVLuminosityBlockID();
-      for ( size_t iri = 0, ire = ids.size(); iri != ire; ++iri )
-      {
-        ss << ids[iri];
-        html += " " + ss.str();
-      }
-      break;
-    }      
-  case 'M':
-    {
-      ss << entry.getLuminosityBlockID();
-      html += "   " + ss.str();
-      break;
-    }      
-  case 'a':
-    {
-      html += "   ";
-      std::vector<edm::LuminosityBlockRange> ranges = entry.getVLuminosityBlockRange();
-      for ( size_t iri = 0, ire = ranges.size(); iri != ire; ++iri )
-      {
-        ss << ranges[iri];
-        html += " " + ss.str();
-      }
-      break;
-    }    
-  case 'A':
-    {
-      ss << entry.getLuminosityBlockRange();
-      html += "   " + ss.str();
-      break;
-    }    
-  case 'r':
-    {
-      html += "   ";
-      std::vector<edm::EventRange> ranges = entry.getVEventRange();
-      for ( size_t iri = 0, ire = ranges.size(); iri != ire; ++iri )
-      {
-        ss << ranges[iri];
-        html += " " + ss.str();
-      }
-      break;
-    }
-  case 'R':
-    {
-      ss << entry.getEventRange();
-      html += "   " + ss.str();
-      break;          
-    }
-  case 'F':
-    {
-      entry.getFileInPath().write(ss);
-      html += "   " + ss.str();
-      break;
-    }
-  default:
-    {
-      html += "   [Not supported yet. Are you sure you want this?]";
-      break;
-    }
-  }
-}
-
-void 
-FWPathsPopup::handlePSetEntry(const edm::ParameterSetEntry& entry, 
-                              const std::string& key, TString& html)
-{
-  html += "<li>" + key + "    " 
-          + (entry.isTracked() ? "tracked    " : "untracked    ")
-          + "PSet";
-
-  handlePSet(&(entry.pset()), html);
-}
-
-void 
-FWPathsPopup::handleVPSetEntry(const edm::VParameterSetEntry& entry, 
-                               const std::string& key, TString& html)
-{
-  html += "<li>" + key + "    " 
-          + (entry.isTracked() ? "tracked    " : "untracked    ")
-          + "vPSet";
-
-  for ( std::vector<edm::ParameterSet>::const_iterator psi = entry.vpset().begin(),
-                                                    psiEnd = entry.vpset().end();
-        psi != psiEnd; ++psi )
-  {
-    handlePSet(&(*psi), html);
-  }
-}       
-
-void 
-FWPathsPopup::handlePSet(const edm::ParameterSet* ps, TString& html)
-{
-  html += "<ul>";
-
-  for ( edm::ParameterSet::table::const_iterator ti = 
-          ps->tbl().begin(), tiEnd = ps->tbl().end();
-        ti != tiEnd; ++ti )
-    handleEntry(ti->second, ti->first, html);
-    
-  for ( edm::ParameterSet::psettable::const_iterator pi = 
-          ps->psetTable().begin(), piEnd = ps->psetTable().end();
-        pi != piEnd; ++pi )
-    handlePSetEntry(pi->second, pi->first, html);
-
-  for ( edm::ParameterSet::vpsettable::const_iterator vpi = 
-          ps->vpsetTable().begin(), vpiEnd = ps->vpsetTable().end();
-        vpi != vpiEnd; ++vpi )
-    handleVPSetEntry(vpi->second, vpi->first, html);
-
-  html += "</ul>";
-}
-
-//#include <fstream>
-//std::ofstream fout("path-view.html");
 
 /** Gets called by CMSSW as we process events. **/
 void
@@ -1230,7 +928,36 @@ void
 FWPathsPopup::postProcessEvent(edm::Event const& event, edm::EventSetup const& eventSetup)
 {
    gSystem->ProcessEvents();
-   m_psTable->update(m_info);
+
+   // Get the last process name from the process history:
+   // this should be the one specified in the cfg file
+   edm::ProcessHistory::const_iterator pi = event.processHistory().end() - 1;
+   std::string processName = pi->processName();
+   
+   // It's called TriggerResults but actually contains info on all paths
+   edm::InputTag tag("TriggerResults", "", processName);
+   edm::Handle<edm::TriggerResults> triggerResults;
+   event.getByLabel(tag, triggerResults);
+
+   // The string is the path name, the bool is whether it passed,
+   // and the int is the index of the module that made the decision
+   std::map<std::string, PathData> pathStatus;
+
+   if ( triggerResults.isValid() )
+   {
+     edm::TriggerNames triggerNames = event.triggerNames(*triggerResults);
+     
+     for ( size_t i = 0, ie = triggerResults->size(); i != ie; ++i )
+     {
+       PathData pd(triggerResults->accept(i), triggerResults->index(i));
+       pathStatus.insert(std::pair<std::string, PathData>(triggerNames.triggerName(i), pd));
+
+       std::vector<std::string> pathModules;
+       m_info->modulesInPath(triggerNames.triggerName(i), pathModules);
+     }
+   }
+
+   m_psTable->update(m_info, pathStatus);
 }
 
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"

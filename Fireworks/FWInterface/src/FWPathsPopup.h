@@ -42,13 +42,6 @@ public:
    void updateFilterString(const char *str);
 
 private:
-   const char* typeCodeToChar(char);
-   void handlePSet(const edm::ParameterSet* ps, TString&);
-   void handleEntry(const edm::Entry&, const std::string&, TString&);
-   void handlePSetEntry(const edm::ParameterSetEntry&, const std::string&, TString&);
-   void handleVPSetEntry(const edm::VParameterSetEntry&, const std::string&, TString&);
-
-
    const edm::ScheduleInfo  *m_info;
 
 #ifndef __CINT__
@@ -65,10 +58,6 @@ private:
    FWTableWidget            *m_tableWidget;
    TGTextEntry              *m_search;
 
-
-   // Filled from ScheduleInfo
-   std::vector<std::string> m_availableModuleLabels;
-   std::vector<std::string> m_availablePaths;
    ClassDef(FWPathsPopup, 0);
 };
 
