@@ -49,6 +49,9 @@ pushd ${LOCAL_TMP_DIR}
   echo ${test}MERGE3------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}MERGE3_cfg.py || die "cmsRun ${test}MERGE3_cfg.py" $?
 
+  echo ${test}MERGE3x------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/${test}MERGE3x_cfg.py || die "cmsRun ${test}MERGE3x_cfg.py" $?
+
   echo ${test}MERGE4------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}MERGE4_cfg.py || die "cmsRun ${test}MERGE4_cfg.py" $?
 
@@ -78,6 +81,9 @@ pushd ${LOCAL_TMP_DIR}
 
   echo ${test}PickEvents------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}PickEvents_cfg.py || die "cmsRun ${test}PickEvents_cfg.py" $?
+
+  echo ${test}PickEventsx------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/${test}PickEventsx_cfg.py || die "cmsRun ${test}PickEventsx_cfg.py" $?
 
   echo ${test}FastCloning------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}FastCloning_cfg.py 2> testFastCloning.txt

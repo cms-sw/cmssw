@@ -15,7 +15,7 @@
 
 namespace edm {
 
-  class MinimalEventID;
+  class EventID;
   class LuminosityBlockID;
   class LuminosityBlockRange;
   class EventRange;
@@ -35,22 +35,22 @@ namespace edm {
   TYPE_TO_ENUM(bool,k_bool)
   TYPE_TO_ENUM(std::string,k_string)
   TYPE_TO_ENUM(std::vector<std::string>,k_vstring)
-  TYPE_TO_ENUM(edm::MinimalEventID,k_EventID)
-  TYPE_TO_ENUM(std::vector<edm::MinimalEventID>,k_VEventID)
-  TYPE_TO_ENUM(edm::LuminosityBlockID,k_LuminosityBlockID)
-  TYPE_TO_ENUM(std::vector<edm::LuminosityBlockID>,k_VLuminosityBlockID)
-  TYPE_TO_ENUM(edm::InputTag,k_InputTag)
-  TYPE_TO_ENUM(std::vector<edm::InputTag>,k_VInputTag)
-  TYPE_TO_ENUM(edm::FileInPath,k_FileInPath)
-  TYPE_TO_ENUM(edm::LuminosityBlockRange,k_LuminosityBlockRange)
-  TYPE_TO_ENUM(std::vector<edm::LuminosityBlockRange>,k_VLuminosityBlockRange)
-  TYPE_TO_ENUM(edm::EventRange,k_EventRange)
-  TYPE_TO_ENUM(std::vector<edm::EventRange>,k_VEventRange)
+  TYPE_TO_ENUM(EventID,k_EventID)
+  TYPE_TO_ENUM(std::vector<EventID>,k_VEventID)
+  TYPE_TO_ENUM(LuminosityBlockID,k_LuminosityBlockID)
+  TYPE_TO_ENUM(std::vector<LuminosityBlockID>,k_VLuminosityBlockID)
+  TYPE_TO_ENUM(InputTag,k_InputTag)
+  TYPE_TO_ENUM(std::vector<InputTag>,k_VInputTag)
+  TYPE_TO_ENUM(FileInPath,k_FileInPath)
+  TYPE_TO_ENUM(LuminosityBlockRange,k_LuminosityBlockRange)
+  TYPE_TO_ENUM(std::vector<LuminosityBlockRange>,k_VLuminosityBlockRange)
+  TYPE_TO_ENUM(EventRange,k_EventRange)
+  TYPE_TO_ENUM(std::vector<EventRange>,k_VEventRange)
   // These are intentionally not implemented to prevent one
   // from calling add<ParameterSet>.  One should call
   // add<ParameterSetDescription> instead.
-  // TYPE_TO_ENUM(edm::ParameterSet,k_PSet)
-  // TYPE_TO_ENUM(std::vector<edm::ParameterSet>,k_VPSet)
+  // TYPE_TO_ENUM(ParameterSet,k_PSet)
+  // TYPE_TO_ENUM(std::vector<ParameterSet>,k_VPSet)
 
   std::string parameterTypeEnumToString(ParameterTypes iType) {
     switch(iType) {
@@ -90,18 +90,20 @@ namespace edm {
   }
 
   void
-  ParameterDescriptionNode::setComment(std::string const & value)
-  { comment_ = value; }
+  ParameterDescriptionNode::setComment(std::string const& value) {
+    comment_ = value;
+  }
 
   void
-  ParameterDescriptionNode::setComment(char const* value)
-  { comment_ = value; }
+  ParameterDescriptionNode::setComment(char const* value) {
+    comment_ = value;
+  }
 
   void
-  ParameterDescriptionNode::print(std::ostream & os,
+  ParameterDescriptionNode::print(std::ostream& os,
                                   bool optional,
                                   bool writeToCfi,
-                                  DocFormatHelper & dfh) {
+                                  DocFormatHelper& dfh) {
     if (hasNestedContent()) {
       dfh.incrementCounter();
     }
@@ -109,9 +111,9 @@ namespace edm {
   }
 
   void
-  ParameterDescriptionNode::printNestedContent(std::ostream & os,
+  ParameterDescriptionNode::printNestedContent(std::ostream& os,
                                                bool optional,
-                                               DocFormatHelper & dfh) {
+                                               DocFormatHelper& dfh) {
     if (hasNestedContent()) {
       dfh.incrementCounter();
       printNestedContent_(os, optional, dfh);
@@ -119,7 +121,7 @@ namespace edm {
   }
 
   void
-  ParameterDescriptionNode::printSpaces(std::ostream & os, int n) {
+  ParameterDescriptionNode::printSpaces(std::ostream& os, int n) {
     char oldFill = os.fill(' ');
     os.width(n);
     os << "";

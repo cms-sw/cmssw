@@ -9,7 +9,7 @@
 #include "DataFormats/Provenance/interface/EventRange.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
-#include "DataFormats/Provenance/interface/MinimalEventID.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/PythonParameterSet/interface/BoostPython.h"
 
 #include <string>
@@ -18,7 +18,7 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
 {
   boost::python::class_<edm::InputTag>("InputTag", boost::python::init<std::string>())
       .def(boost::python::init<std::string, std::string, std::string>())
-     .def(boost::python::init<std::string, std::string>())
+      .def(boost::python::init<std::string, std::string>())
       .def("label",    &edm::InputTag::label, boost::python::return_value_policy<boost::python::copy_const_reference>())
       .def("instance", &edm::InputTag::instance, boost::python::return_value_policy<boost::python::copy_const_reference>())
       .def("process",  &edm::InputTag::process, boost::python::return_value_policy<boost::python::copy_const_reference>())
@@ -29,10 +29,11 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
    .def("module",    &edm::ESInputTag::module, boost::python::return_value_policy<boost::python::copy_const_reference>())
    .def("data",  &edm::ESInputTag::data, boost::python::return_value_policy<boost::python::copy_const_reference>())
    ;
-   
-   boost::python::class_<edm::MinimalEventID>("EventID", boost::python::init<unsigned int, unsigned int>())
-      .def("run",   &edm::MinimalEventID::run)
-      .def("event", &edm::MinimalEventID::event)
+
+   boost::python::class_<edm::EventID>("EventID", boost::python::init<unsigned int, unsigned int, unsigned int>())
+      .def("run",   &edm::EventID::run)
+      .def("luminosityBlock", &edm::EventID::luminosityBlock)
+      .def("event", &edm::EventID::event)
   ;
 
   boost::python::class_<edm::LuminosityBlockID>("LuminosityBlockID", boost::python::init<unsigned int, unsigned int>())
@@ -53,11 +54,13 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
       .def("endSub",   &edm::LuminosityBlockRange::endLumi)
   ;
 
-  boost::python::class_<edm::EventRange>("EventRange", boost::python::init<unsigned int, unsigned int, unsigned int, unsigned int>())
-      .def("start",    &edm::EventRange::startRun)
-      .def("startSub", &edm::EventRange::startEvent)
-      .def("end",      &edm::EventRange::endRun)
-      .def("endSub",   &edm::EventRange::endEvent)
+  boost::python::class_<edm::EventRange>("EventRange", boost::python::init<unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int>())
+      .def("start",     &edm::EventRange::startRun)
+      .def("startLumi", &edm::EventRange::startLumi)
+      .def("startSub",  &edm::EventRange::startEvent)
+      .def("end",       &edm::EventRange::endRun)
+      .def("endLumi",   &edm::EventRange::endLumi)
+      .def("endSub",    &edm::EventRange::endEvent)
   ;
 
 
@@ -97,10 +100,10 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
     .def("getESInputTag", &PythonParameterSet::getParameter<edm::ESInputTag>)
     .def("addVESInputTag", &PythonParameterSet::addParameters<edm::ESInputTag>)
     .def("getVESInputTag", &PythonParameterSet::getParameters<edm::ESInputTag>)
-    .def("addEventID", &PythonParameterSet::addParameter<edm::MinimalEventID>)
-    .def("getEventID", &PythonParameterSet::getParameter<edm::MinimalEventID>)
-    .def("addVEventID", &PythonParameterSet::addParameters<edm::MinimalEventID>)
-    .def("getVEventID", &PythonParameterSet::getParameters<edm::MinimalEventID>)
+    .def("addEventID", &PythonParameterSet::addParameter<edm::EventID>)
+    .def("getEventID", &PythonParameterSet::getParameter<edm::EventID>)
+    .def("addVEventID", &PythonParameterSet::addParameters<edm::EventID>)
+    .def("getVEventID", &PythonParameterSet::getParameters<edm::EventID>)
     .def("addLuminosityBlockID", &PythonParameterSet::addParameter<edm::LuminosityBlockID>)
     .def("getLuminosityBlockID", &PythonParameterSet::getParameter<edm::LuminosityBlockID>)
     .def("addVLuminosityBlockID", &PythonParameterSet::addParameters<edm::LuminosityBlockID>)

@@ -163,16 +163,26 @@ class string(_SimpleParameterTypeBase):
 
 
 class EventID(_ParameterTypeBase):
-    def __init__(self, run, ev):
+    def __init__(self, run, *args):
         super(EventID,self).__init__()
         if isinstance(run, basestring):
             self.__run = self._valueFromString(run).__run
+            self.__luminosityBlock = self._valueFromString(run).__luminosityBlock
             self.__event = self._valueFromString(run).__event
         else:
             self.__run = run
-            self.__event = ev
+            if len(args) == 1:
+                self.__luminosityBlock = 0
+                self.__event = args[0]
+            elif len(args) == 2:
+                self.__luminosityBlock = args[0]
+                self.__event = args[1]
+            else:
+                raise RuntimeError('EventID ctor must have 2 or 3 arguments')
     def run(self):
         return self.__run
+    def luminosityBlock(self):
+        return self.__luminosityBlock
     def event(self):
         return self.__event
     @staticmethod
@@ -181,11 +191,18 @@ class EventID(_ParameterTypeBase):
     @staticmethod
     def _valueFromString(value):
         parts = value.split(":")
-        return EventID(int(parts[0]), int(parts[1]))
+	run = parts[0]
+        try:
+            lumi = parts[1]
+            event = parts[2]
+        except IndexError:
+            lumi = 0
+            event = parts[1]             
+        return EventID(int(run), int(lumi), int(event))
     def pythonValue(self, options=PrintOptions()):
-        return str(self.__run)+ ', '+str(self.__event)
+        return str(self.__run)+ ', '+str(self.__luminosityBlock)+ ', '+str(self.__event)
     def cppID(self, parameterSet):
-        return parameterSet.newEventID(self.run(), self.event())
+        return parameterSet.newEventID(self.run(), self.luminosityBlock(), self.event())
     def insertInto(self, parameterSet, myname):
         parameterSet.addEventID(self.isTracked(), myname, self.cppID(parameterSet))
 
@@ -273,24 +290,41 @@ class LuminosityBlockRange(_ParameterTypeBase):
         parameterSet.addLuminosityBlockRange(self.isTracked(), myname, self.cppID(parameterSet))
 
 class EventRange(_ParameterTypeBase):
-    def __init__(self, start, startSub=None, end=None, endSub=None):
+    def __init__(self, start, *args):
         super(EventRange,self).__init__()
         if isinstance(start, basestring):
-            self.__start    = self._valueFromString(start).__start
-            self.__startSub = self._valueFromString(start).__startSub
-            self.__end      = self._valueFromString(start).__end
-            self.__endSub   = self._valueFromString(start).__endSub
+            self.__start     = self._valueFromString(start).__start
+            self.__startLumi = self._valueFromString(start).__startLumi
+            self.__startSub  = self._valueFromString(start).__startSub
+            self.__end       = self._valueFromString(start).__end
+            self.__endLumi   = self._valueFromString(start).__endLumi
+            self.__endSub    = self._valueFromString(start).__endSub
         else:
-            self.__start    = start
-            self.__startSub = startSub
-            self.__end      = end
-            self.__endSub   = endSub
+            self.__start     = start
+            if len(args) == 3:
+                self.__startLumi = 0
+                self.__startSub  = args[0]
+                self.__end       = args[1]
+                self.__endLumi   = 0
+                self.__endSub    = args[2]
+            elif len(args) == 5:
+                self.__startLumi = args[0]
+                self.__startSub  = args[1]
+                self.__end       = args[2]
+                self.__endLumi   = args[3]
+                self.__endSub    = args[4]
+            else:
+                raise RuntimeError('EventRange ctor must have 4 or 6 arguments')
     def start(self):
         return self.__start
+    def startLumi(self):
+        return self.__startLumi
     def startSub(self):
         return self.__startSub
     def end(self):
         return self.__end
+    def endLumi(self):
+        return self.__endLumi
     def endSub(self):
         return self.__endSub
     @staticmethod
@@ -315,13 +349,32 @@ class EventRange(_ParameterTypeBase):
             endParts[1] = "0"
         if endParts[1].lower() == "min":
             endParts[1] = "1"
-        return EventRange(int(startParts[0]), int(startParts[1]),
-                          int(endParts[0]),   int(endParts[1]))
+	brun = startParts[0]
+	erun = endParts[0]
+        s = len(startParts)
+	e = len(endParts)
+	if s != e:
+            raise RuntimeError('EventRange ctor must have 4 or 6 arguments')
+        elif s == 3:
+            blumi = startParts[1]
+            elumi = endParts[1]
+            bevent = startParts[2]
+            eevent = endParts[2]
+        elif s == 2:
+            blumi = 0
+            elumi = 0
+            bevent = startParts[1]
+            eevent = endParts[1]             
+        else:
+            raise RuntimeError('EventRange ctor must have 4 or 6 arguments')
+        return EventRange(int(brun), int(blumi), int(bevent),
+                          int(erun), int(elumi), int(eevent))
+
     def pythonValue(self, options=PrintOptions()):
-          return str(self.__start) + ', ' + str(self.__startSub) + ', ' \
-               + str(self.__end)   + ', ' + str(self.__endSub)
+        return str(self.__start) + ', ' + str(self.__startLumi) + ', ' + str(self.__startSub) + ', ' \
+               + str(self.__end)  + ', ' + str(self.__endLumi) + ', ' + str(self.__endSub)
     def cppID(self, parameterSet):
-        return parameterSet.newEventRange(self.start(), self.startSub(),self.end(), self.endSub())
+        return parameterSet.newEventRange(self.start(), self.startLumi(), self.startSub(), self.end(), self.endLumi(), self.endSub())
     def insertInto(self, parameterSet, myname):
         parameterSet.addEventRange(self.isTracked(), myname, self.cppID(parameterSet))
 
@@ -1068,16 +1121,16 @@ if __name__ == "__main__":
             s1=SecSource("PoolSource",type=int32(1))
             self.assertEqual(s1.type.value(),1)
         def testEventID(self):
-            eid = EventID(2, 3)
-            self.assertEqual( repr(eid), "cms.EventID(2, 3)" )
+            eid = EventID(2, 0, 3)
+            self.assertEqual( repr(eid), "cms.EventID(2, 0, 3)" )
             pset = PSetTester()
             eid.insertInto(pset,'foo')
             eid2 = EventID._valueFromString('3:4')
             eid2.insertInto(pset,'foo2')
         def testVEventID(self):
-            veid = VEventID(EventID(2, 3))
+            veid = VEventID(EventID(2, 0, 3))
             veid2 = VEventID("1:2", "3:4")
-            self.assertEqual( repr(veid[0]), "cms.EventID(2, 3)" )
+            self.assertEqual( repr(veid[0]), "cms.EventID(2, 0, 3)" )
             self.assertEqual( repr(veid2[0]), "'1:2'" )
             self.assertEqual( veid2.dumpPython(), 'cms.VEventID("1:2", "3:4")')
             pset = PSetTester()
@@ -1100,18 +1153,18 @@ if __name__ == "__main__":
             vlid.insertInto(pset,'foo')
 
         def testEventRange(self):
-            range1 = EventRange(1, 2, 3, 4)
+            range1 = EventRange(1, 0, 2, 3, 0, 4)
             range2 = EventRange._valueFromString("1:2 - 3:4")
             range3 = EventRange._valueFromString("1:MIN - 3:MAX")
             self.assertEqual(repr(range1), repr(range1))
-            self.assertEqual(repr(range3), "cms.EventRange(1, 1, 3, 0)")
+            self.assertEqual(repr(range3), "cms.EventRange(1, 0, 1, 3, 0, 0)")
             pset = PSetTester()
             range1.insertInto(pset,'foo')
             range2.insertInto(pset,'bar')
         def testVEventRange(self):
-            v1 = VEventRange(EventRange(1, 2, 3, 4))
+            v1 = VEventRange(EventRange(1, 0, 2, 3, 0, 4))
             v2 = VEventRange("1:2-3:4", "5:MIN-7:MAX")
-            self.assertEqual( repr(v1[0]), "cms.EventRange(1, 2, 3, 4)" )
+            self.assertEqual( repr(v1[0]), "cms.EventRange(1, 0, 2, 3, 0, 4)" )
             pset = PSetTester()
             v2.insertInto(pset,'foo')
 

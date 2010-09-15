@@ -10,66 +10,55 @@
 #include "DataFormats/Provenance/interface/EventRange.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
-#include "DataFormats/Provenance/interface/MinimalEventID.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 
 #include <string>
 #include <vector>
 
-class PythonParameterSet
-{
+class PythonParameterSet {
 public:
   PythonParameterSet();
 
   PythonParameterSet(edm::ParameterSet const& p)
   : theParameterSet(p) {}
 
-  template <class T>
+  template<typename T>
   T
-  getParameter(bool tracked, std::string const& name) const
-  {
+  getParameter(bool tracked, std::string const& name) const {
     T result;
-    if(tracked)
-    {
+    if(tracked) {
       result = theParameterSet.template getParameter<T>(name);
-    }
-    else
-    {
+    } else {
       result = theParameterSet.template getUntrackedParameter<T>(name);
     }
     return result;
   }
 
 
-  template <class T>
+  template<typename T>
   void
-  addParameter(bool tracked, std::string const& name, T const& value)
-  {
-   if(tracked)
-   {
+  addParameter(bool tracked, std::string const& name, T const& value) {
+   if(tracked) {
      theParameterSet.template addParameter<T>(name, value);
-   }
-   else
-   {
+   } else {
      theParameterSet.template addUntrackedParameter<T>(name, value);
    }
   }
 
 
   /// templated on the type of the contained object
-  template <class T>
+  template<typename T>
   boost::python::list
-  getParameters(bool tracked, std::string const& name) const
-  {
+  getParameters(bool tracked, std::string const& name) const {
     std::vector<T> v = getParameter<std::vector<T> >(tracked, name);
     return edm::toPythonList(v);
   }
 
   /// unfortunate side effect: destroys the original list!
-  template <class T>
+  template<typename T>
   void
   addParameters(bool tracked, std::string const& name,
-                boost::python::list  value)
-  {
+                boost::python::list  value) {
     std::vector<T> v = edm::toVector<T>(value);
     addParameter(tracked, name, v);
   }
@@ -79,14 +68,12 @@ public:
   /// to wrap, compared to, say, InputTag
   /// maybe we will need to template these someday
   void addPSet(bool tracked, std::string const& name,
-               PythonParameterSet const& ppset)
-  {
+               PythonParameterSet const& ppset) {
     addParameter(tracked, name, ppset.theParameterSet);
   }
 
 
-  PythonParameterSet getPSet(bool tracked, std::string const& name) const
-  {
+  PythonParameterSet getPSet(bool tracked, std::string const& name) const {
     return PythonParameterSet(getParameter<edm::ParameterSet>(tracked, name));
   }
 
@@ -99,40 +86,34 @@ public:
   // no way to interface straight into the other python InputTag
   edm::InputTag newInputTag(std::string const& label,
                             std::string const& instance,
-                            std::string const& process)
-  {
+                            std::string const& process) {
     return edm::InputTag(label, instance, process);
   }
 
    edm::ESInputTag newESInputTag(std::string const& module,
-                             std::string const& data)
-   {
+                             std::string const& data) {
       return edm::ESInputTag(module, data);
    }
-   
-   edm::MinimalEventID newEventID(unsigned int run, unsigned int event)
-  {
-    return edm::MinimalEventID(run, event);
+
+   edm::EventID newEventID(unsigned int run, unsigned int lumi, unsigned int event) {
+    return edm::EventID(run, lumi, event);
   }
 
-  edm::LuminosityBlockID newLuminosityBlockID(unsigned int run, unsigned int lumi)
-  {
+  edm::LuminosityBlockID newLuminosityBlockID(unsigned int run, unsigned int lumi) {
     return edm::LuminosityBlockID(run, lumi);
   }
 
   edm::LuminosityBlockRange newLuminosityBlockRange(unsigned int start, unsigned int startSub,
-                                                    unsigned int end,   unsigned int endSub)
-  {
+                                                    unsigned int end,   unsigned int endSub) {
     return edm::LuminosityBlockRange(start, startSub, end, endSub);
   }
 
-  edm::EventRange newEventRange(unsigned int start, unsigned int startSub,
-                                unsigned int end,   unsigned int endSub)
-  {
-    return edm::EventRange(start, startSub, end, endSub);
+  edm::EventRange newEventRange(unsigned int start, unsigned int startLumi, unsigned int startSub,
+                                unsigned int end,   unsigned int endLumi, unsigned int endSub) {
+    return edm::EventRange(start, startLumi, startSub, end, endLumi, endSub);
   }
 
-  void addNewFileInPath(bool tracked, std::string const & name, std::string const & value);
+  void addNewFileInPath(bool tracked, std::string const& name, std::string const& value);
 
   PythonParameterSet newPSet() const {return PythonParameterSet();}
 

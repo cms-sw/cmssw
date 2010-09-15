@@ -9,7 +9,7 @@
 #include "FWCore/ParameterSet/interface/AllowedLabelsDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
-#include "DataFormats/Provenance/interface/MinimalEventID.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -23,7 +23,7 @@ namespace testParameterSetDescription {
 
   void testDesc(edm::ParameterDescriptionNode const& node,
                 edm::ParameterSetDescription const& psetDesc,
-                edm::ParameterSet & pset,
+                edm::ParameterSet& pset,
                 bool exists,
                 bool validates) {
     assert(node.exists(pset) == exists);
@@ -305,7 +305,7 @@ namespace testParameterSetDescription {
     // Duplicate case values not allowed
     edm::ParameterSetDescription psetDesc;
     try {
-      psetDesc.ifValue( edm::ParameterDescription<int>("oiswitch", 1, true),
+      psetDesc.ifValue(edm::ParameterDescription<int>("oiswitch", 1, true),
                         0 >> edm::ParameterDescription<int>("oivalue", 100, true) or
                         1 >> (edm::ParameterDescription<double>("oivalue1", 101.0, true) and
                               edm::ParameterDescription<double>("oivalue2", 101.0, true)) or
@@ -320,7 +320,7 @@ namespace testParameterSetDescription {
     psetDesc1.addNode(w);
 
     try {
-      psetDesc1.ifValue( edm::ParameterDescription<int>("oiswitch", 1, true),
+      psetDesc1.ifValue(edm::ParameterDescription<int>("oiswitch", 1, true),
                          0 >> edm::ParameterDescription<int>("oivalue", 100, true) or
                          1 >> (edm::ParameterDescription<double>("oivalue1", 101.0, true) and
                                edm::ParameterDescription<double>("oivalue2", 101.0, true)) or
@@ -335,7 +335,7 @@ namespace testParameterSetDescription {
     psetDesc2.addNode(w1);
 
     try {
-      psetDesc2.ifValue( edm::ParameterDescription<int>("aswitch", 1, true),
+      psetDesc2.ifValue(edm::ParameterDescription<int>("aswitch", 1, true),
                         1 >> (edm::ParameterDescription<unsigned>("avalue1", 101, true) and
                               edm::ParameterDescription<unsigned>("avalue2", 101, true)) or
                         2 >> edm::ParameterDescription<std::string>("avalue", "102", true));
@@ -346,10 +346,10 @@ namespace testParameterSetDescription {
     // Type used in the switch parameter cannot duplicate type in a case wildcard
     edm::ParameterSetDescription psetDesc3;
     try {
-      psetDesc3.ifValue( edm::ParameterDescription<int>("xswitch", 1, true),
+      psetDesc3.ifValue(edm::ParameterDescription<int>("xswitch", 1, true),
                          0 >> edm::ParameterWildcard<int>("*", edm::RequireAtLeastOne, true) or
                          1 >> (edm::ParameterDescription<double>("xvalue1", 101.0, true) and
-                               edm::ParameterDescription<double>("xvalue2", 101.0, true)) );
+                               edm::ParameterDescription<double>("xvalue2", 101.0, true)));
       assert(0);
     }
     catch(edm::Exception) { /* There should be an exception */ }
@@ -358,29 +358,29 @@ namespace testParameterSetDescription {
     edm::ParameterSetDescription psetDesc4;
     psetDesc4.add<unsigned>("testunsigned", 1U);
     try {
-      psetDesc4.ifValue( edm::ParameterDescription<int>("xswitch", 1, true),
+      psetDesc4.ifValue(edm::ParameterDescription<int>("xswitch", 1, true),
                          0 >> edm::ParameterWildcard<unsigned>("*", edm::RequireAtLeastOne, true) or
                          1 >> (edm::ParameterDescription<double>("xvalue1", 101.0, true) and
-                               edm::ParameterDescription<double>("xvalue2", 101.0, true)) );
+                               edm::ParameterDescription<double>("xvalue2", 101.0, true)));
       assert(0);
     }
     catch(edm::Exception) { /* There should be an exception */ }
 
     // No problem is wildcard type and parameter type are the same for different cases.
     edm::ParameterSetDescription psetDesc5;
-    psetDesc5.ifValue( edm::ParameterDescription<int>("uswitch", 1, true),
+    psetDesc5.ifValue(edm::ParameterDescription<int>("uswitch", 1, true),
                        0 >> edm::ParameterWildcard<unsigned>("*", edm::RequireAtLeastOne, true) or
                        1 >> (edm::ParameterDescription<unsigned>("uvalue1", 101, true) and
-                             edm::ParameterDescription<unsigned>("uvalue2", 101, true)) );
+                             edm::ParameterDescription<unsigned>("uvalue2", 101, true)));
 
     // The switch parameter label cannot be the same as a label that already exists
     edm::ParameterSetDescription psetDesc6;
     psetDesc6.add<unsigned>("xswitch", 1U);
     try {
-      psetDesc6.ifValue( edm::ParameterDescription<int>("xswitch", 1, true),
+      psetDesc6.ifValue(edm::ParameterDescription<int>("xswitch", 1, true),
                          0 >> edm::ParameterWildcard<double>("*", edm::RequireAtLeastOne, true) or
                          1 >> (edm::ParameterDescription<double>("xvalue1", 101.0, true) and
-                               edm::ParameterDescription<double>("xvalue2", 101.0, true)) );
+                               edm::ParameterDescription<double>("xvalue2", 101.0, true)));
       assert(0);
     }
     catch(edm::Exception) { /* There should be an exception */ }
@@ -389,10 +389,10 @@ namespace testParameterSetDescription {
     edm::ParameterSetDescription psetDesc7;
     psetDesc7.add<unsigned>("xvalue1", 1U);
     try {
-      psetDesc7.ifValue( edm::ParameterDescription<int>("xswitch", 1, true),
+      psetDesc7.ifValue(edm::ParameterDescription<int>("xswitch", 1, true),
                          0 >> edm::ParameterWildcard<double>("*", edm::RequireAtLeastOne, true) or
                          1 >> (edm::ParameterDescription<double>("xvalue1", 101.0, true) and
-                               edm::ParameterDescription<double>("xvalue2", 101.0, true)) );
+                               edm::ParameterDescription<double>("xvalue2", 101.0, true)));
       assert(0);
     }
     catch(edm::Exception) { /* There should be an exception */ }
@@ -400,10 +400,10 @@ namespace testParameterSetDescription {
     // Case labels cannot be the same as a switch label
     edm::ParameterSetDescription psetDesc8;
     try {
-      psetDesc8.ifValue( edm::ParameterDescription<int>("xswitch", 1, true),
+      psetDesc8.ifValue(edm::ParameterDescription<int>("xswitch", 1, true),
                          0 >> edm::ParameterWildcard<double>("*", edm::RequireAtLeastOne, true) or
                          1 >> (edm::ParameterDescription<double>("xswitch", 101.0, true) and
-                               edm::ParameterDescription<double>("xvalue2", 101.0, true)) );
+                               edm::ParameterDescription<double>("xvalue2", 101.0, true)));
       assert(0);
     }
     catch(edm::Exception) { /* There should be an exception */ }
@@ -411,21 +411,21 @@ namespace testParameterSetDescription {
     // Parameter set switch value must be one of the defined cases
     edm::ParameterSetDescription psetDesc9;
     try {
-      psetDesc9.ifValue( edm::ParameterDescription<int>("xswitch", 1, true),
+      psetDesc9.ifValue(edm::ParameterDescription<int>("xswitch", 1, true),
                          0 >> edm::ParameterWildcard<double>("*", edm::RequireAtLeastOne, true) or
                          1 >> (edm::ParameterDescription<double>("xvalue1", 101.0, true) and
-                               edm::ParameterDescription<double>("xvalue2", 101.0, true)) );
+                               edm::ParameterDescription<double>("xvalue2", 101.0, true)));
       edm::ParameterSet pset;
       pset.addParameter<int>("xswitch", 5);
-      psetDesc9.validate(pset);  
+      psetDesc9.validate(pset);
       assert(0);
     }
     catch(edm::Exception) { /* There should be an exception */ }
 
-    edm::ParameterSwitch<int> pswitch( edm::ParameterDescription<int>("xswitch", 1, true),
+    edm::ParameterSwitch<int> pswitch(edm::ParameterDescription<int>("xswitch", 1, true),
                          0 >> edm::ParameterWildcard<double>("*", edm::RequireAtLeastOne, true) or
                          1 >> (edm::ParameterDescription<double>("xvalue1", 101.0, true) and
-                               edm::ParameterDescription<double>("xvalue2", 101.0, true)) );
+                               edm::ParameterDescription<double>("xvalue2", 101.0, true)));
     edm::ParameterSetDescription psetDesc10;
     psetDesc10.addNode(pswitch);
     edm::ParameterSet pset10;
@@ -444,8 +444,7 @@ namespace testParameterSetDescription {
                edm::ParameterDescription<double>("x2", 101.0, true)) xor
               edm::ParameterDescription<double>("x1", 101.0, true) xor
               (edm::ParameterDescription<double>("x1", 101.0, true) or
-               edm::ParameterDescription<double>("x2", 101.0, true))
-             );
+               edm::ParameterDescription<double>("x2", 101.0, true)));
 
     edm::ParameterSet pset1;
 
@@ -485,8 +484,7 @@ namespace testParameterSetDescription {
                edm::ParameterDescription<double>("x2", 101.0, true)) xor
               edm::ParameterDescription<double>("x1", 101.0, true) xor
               (edm::ParameterDescription<double>("xvalue1", 101.0, true) or
-               edm::ParameterDescription<double>("x2", 101.0, true))
-             );
+               edm::ParameterDescription<double>("x2", 101.0, true)));
     try {
       psetDesc2.addNode(node2);
       assert(0);
@@ -501,8 +499,7 @@ namespace testParameterSetDescription {
                edm::ParameterDescription<double>("x2", 101.0, true)) xor
               edm::ParameterDescription<double>("x1", 101.0, true) xor
               (edm::ParameterDescription<double>("xvalue1", 101.0, true) or
-               edm::ParameterDescription<double>("x2", 101.0, true))
-             );
+               edm::ParameterDescription<double>("x2", 101.0, true)));
     psetDesc3.addNode(node3);
     try {
       psetDesc3.add<unsigned>("xvalue1", 1U);
@@ -518,8 +515,7 @@ namespace testParameterSetDescription {
                edm::ParameterDescription<unsigned>("x2", 101, true)) xor
               edm::ParameterDescription<double>("x1", 101.0, true) xor
               (edm::ParameterDescription<double>("x1", 101.0, true) or
-               edm::ParameterDescription<double>("x2", 101.0, true))
-             );
+               edm::ParameterDescription<double>("x2", 101.0, true)));
     psetDesc4.addNode(node4);
 
     edm::ParameterWildcard<unsigned> w4("*", edm::RequireAtLeastOne, true);
@@ -537,8 +533,7 @@ namespace testParameterSetDescription {
                edm::ParameterWildcard<unsigned>("*", edm::RequireAtLeastOne, true)) xor
               edm::ParameterDescription<double>("x1", 101.0, true) xor
               (edm::ParameterDescription<double>("x1", 101.0, true) or
-               edm::ParameterWildcard<unsigned>("*", edm::RequireAtLeastOne, true))
-             );
+               edm::ParameterWildcard<unsigned>("*", edm::RequireAtLeastOne, true)));
     psetDesc5.addNode(node5);
 
     edm::ParameterDescription<unsigned> n5("z5", edm::RequireAtLeastOne, true);
@@ -560,8 +555,7 @@ namespace testParameterSetDescription {
                edm::ParameterDescription<double>("x3", 101.0, true)) or
               edm::ParameterDescription<double>("x4", 101.0, true) or
               (edm::ParameterDescription<double>("x5", 101.0, true) xor
-               edm::ParameterDescription<double>("x6", 101.0, true))
-             );
+               edm::ParameterDescription<double>("x6", 101.0, true)));
 
     edm::ParameterSet pset1;
 
@@ -594,7 +588,7 @@ namespace testParameterSetDescription {
               edm::ParameterDescription<double>("x1", 101.0, true) or
               (edm::ParameterDescription<double>("x2", 101.0, true) and
                edm::ParameterDescription<double>("x3", 101.0, true)) or
-              edm::ParameterDescription<double>("x4", 101.0, true) );
+              edm::ParameterDescription<double>("x4", 101.0, true));
     try {
       psetDesc2.addNode(node2);
       assert(0);
@@ -607,7 +601,7 @@ namespace testParameterSetDescription {
               edm::ParameterDescription<double>("x1", 101.0, true) or
               (edm::ParameterDescription<double>("x2", 101.0, true) and
                edm::ParameterDescription<double>("x3", 101.0, true)) or
-              edm::ParameterDescription<double>("x4", 101.0, true) );
+              edm::ParameterDescription<double>("x4", 101.0, true));
     psetDesc3.addNode(node3);
 
     try {
@@ -615,14 +609,14 @@ namespace testParameterSetDescription {
       assert(0);
     }
     catch(edm::Exception) { /* There should be an exception */ }
-    
+
     // Put the duplicate labels in different nodes of the "or" expression
     edm::ParameterSetDescription psetDesc4;
     std::auto_ptr<edm::ParameterDescriptionNode> node4(
               edm::ParameterDescription<double>("x1", 101.0, true) or
               (edm::ParameterDescription<double>("x2", 101.0, true) and
                edm::ParameterDescription<double>("x3", 101.0, true)) or
-              edm::ParameterDescription<double>("x1", 101.0, true) );
+              edm::ParameterDescription<double>("x1", 101.0, true));
     try {
       psetDesc4.addNode(node4);
       assert(0);
@@ -633,10 +627,10 @@ namespace testParameterSetDescription {
     // used for another parameter
     edm::ParameterSetDescription psetDesc5;
     std::auto_ptr<edm::ParameterDescriptionNode> node5(
-	      edm::ParameterWildcard<double>("*", edm::RequireAtLeastOne, true) or
+              edm::ParameterWildcard<double>("*", edm::RequireAtLeastOne, true) or
               (edm::ParameterDescription<double>("x2", 101.0, true) and
                edm::ParameterDescription<unsigned>("x3", 101U, true)) or
-              edm::ParameterDescription<unsigned>("x1", 101U, true) );
+              edm::ParameterDescription<unsigned>("x1", 101U, true));
     try {
       psetDesc5.addNode(node5);
       assert(0);
@@ -648,10 +642,10 @@ namespace testParameterSetDescription {
     edm::ParameterSetDescription psetDesc6;
     psetDesc6.add<double>("x0", 1.0);
     std::auto_ptr<edm::ParameterDescriptionNode> node6(
-	      edm::ParameterWildcard<double>("*", edm::RequireAtLeastOne, true) or
+              edm::ParameterWildcard<double>("*", edm::RequireAtLeastOne, true) or
               (edm::ParameterDescription<unsigned>("x2", 101U, true) and
                edm::ParameterDescription<unsigned>("x3", 101U, true)) or
-              edm::ParameterDescription<unsigned>("x1", 101U, true) );
+              edm::ParameterDescription<unsigned>("x1", 101U, true));
     try {
       psetDesc6.addNode(node6);
       assert(0);
@@ -663,10 +657,10 @@ namespace testParameterSetDescription {
     edm::ParameterSetDescription psetDesc7;
     psetDesc7.addWildcard<double>("*");
     std::auto_ptr<edm::ParameterDescriptionNode> node7(
-	      edm::ParameterDescription<double>("x0", 1.0, true) or
+              edm::ParameterDescription<double>("x0", 1.0, true) or
               (edm::ParameterDescription<unsigned>("x2", 101U, true) and
                edm::ParameterDescription<unsigned>("x3", 101U, true)) or
-              edm::ParameterDescription<unsigned>("x1", 101U, true) );
+              edm::ParameterDescription<unsigned>("x1", 101U, true));
     try {
       psetDesc7.addNode(node7);
       assert(0);
@@ -685,8 +679,7 @@ namespace testParameterSetDescription {
                edm::ParameterDescription<double>("x3", 101.0, true)) and
               edm::ParameterDescription<double>("x4", 101.0, true) and
               (edm::ParameterDescription<double>("x5", 101.0, true) xor
-               edm::ParameterDescription<double>("x6", 101.0, true))
-             );
+               edm::ParameterDescription<double>("x6", 101.0, true)));
 
     edm::ParameterSet pset1;
 
@@ -724,7 +717,7 @@ namespace testParameterSetDescription {
               edm::ParameterDescription<double>("x1", 101.0, true) and
               (edm::ParameterDescription<double>("x2", 101.0, true) or
                edm::ParameterDescription<double>("x3", 101.0, true)) and
-              edm::ParameterDescription<double>("x4", 101.0, true) );
+              edm::ParameterDescription<double>("x4", 101.0, true));
     try {
       psetDesc2.addNode(node2);
       assert(0);
@@ -737,7 +730,7 @@ namespace testParameterSetDescription {
               edm::ParameterDescription<double>("x1", 101.0, true) and
               (edm::ParameterDescription<double>("x2", 101.0, true) or
                edm::ParameterDescription<double>("x3", 101.0, true)) and
-              edm::ParameterDescription<double>("x4", 101.0, true) );
+              edm::ParameterDescription<double>("x4", 101.0, true));
     psetDesc3.addNode(node3);
 
     try {
@@ -745,14 +738,14 @@ namespace testParameterSetDescription {
       assert(0);
     }
     catch(edm::Exception) { /* There should be an exception */ }
-    
+
     // Put the duplicate labels in different nodes of the "and" expression
     edm::ParameterSetDescription psetDesc4;
     std::auto_ptr<edm::ParameterDescriptionNode> node4(
               edm::ParameterDescription<double>("x1", 101.0, true) and
               (edm::ParameterDescription<double>("x2", 101.0, true) or
                edm::ParameterDescription<double>("x3", 101.0, true)) and
-              edm::ParameterDescription<double>("x1", 101.0, true) );
+              edm::ParameterDescription<double>("x1", 101.0, true));
     try {
       psetDesc4.addNode(node4);
       assert(0);
@@ -763,10 +756,10 @@ namespace testParameterSetDescription {
     // used for another parameter
     edm::ParameterSetDescription psetDesc5;
     std::auto_ptr<edm::ParameterDescriptionNode> node5(
-	      edm::ParameterWildcard<double>("*", edm::RequireAtLeastOne, true) and
+              edm::ParameterWildcard<double>("*", edm::RequireAtLeastOne, true) and
               (edm::ParameterDescription<double>("x2", 101.0, true) or
                edm::ParameterDescription<unsigned>("x3", 101U, true)) and
-              edm::ParameterDescription<unsigned>("x1", 101U, true) );
+              edm::ParameterDescription<unsigned>("x1", 101U, true));
     try {
       psetDesc5.addNode(node5);
       assert(0);
@@ -778,10 +771,10 @@ namespace testParameterSetDescription {
     edm::ParameterSetDescription psetDesc6;
     psetDesc6.add<double>("x0", 1.0);
     std::auto_ptr<edm::ParameterDescriptionNode> node6(
-	      edm::ParameterWildcard<double>("*", edm::RequireAtLeastOne, true) and
+              edm::ParameterWildcard<double>("*", edm::RequireAtLeastOne, true) and
               (edm::ParameterDescription<unsigned>("x2", 101U, true) or
                edm::ParameterDescription<unsigned>("x3", 101U, true)) and
-              edm::ParameterDescription<unsigned>("x1", 101U, true) );
+              edm::ParameterDescription<unsigned>("x1", 101U, true));
     try {
       psetDesc6.addNode(node6);
       assert(0);
@@ -793,10 +786,10 @@ namespace testParameterSetDescription {
     edm::ParameterSetDescription psetDesc7;
     psetDesc7.addWildcard<double>("*");
     std::auto_ptr<edm::ParameterDescriptionNode> node7(
-	      edm::ParameterDescription<double>("x0", 1.0, true) and
+              edm::ParameterDescription<double>("x0", 1.0, true) and
               (edm::ParameterDescription<unsigned>("x2", 101U, true) or
                edm::ParameterDescription<unsigned>("x3", 101U, true)) and
-              edm::ParameterDescription<unsigned>("x1", 101U, true) );
+              edm::ParameterDescription<unsigned>("x1", 101U, true));
     try {
       psetDesc7.addNode(node7);
       assert(0);
@@ -811,22 +804,22 @@ namespace testParameterSetDescription {
     edm::ParameterSetDescription psetDesc1;
     std::auto_ptr<edm::ParameterDescriptionNode> node1(
       new edm::IfExistsDescription(
-	edm::ParameterDescription<double>("x1", 101.0, true),
+        edm::ParameterDescription<double>("x1", 101.0, true),
         (edm::ParameterDescription<double>("x2", 101.0, true) and
-         edm::ParameterDescription<double>("x3", 101.0, true)) ) );
+         edm::ParameterDescription<double>("x3", 101.0, true))));
 
     std::auto_ptr<edm::ParameterDescriptionNode> node1a(
       new edm::IfExistsDescription(
-	(edm::ParameterDescription<double>("x2", 101.0, true) and
+        (edm::ParameterDescription<double>("x2", 101.0, true) and
          edm::ParameterDescription<double>("x3", 101.0, true)),
-        edm::ParameterDescription<double>("x1", 101.0, true)) );
+        edm::ParameterDescription<double>("x1", 101.0, true)));
 
     std::auto_ptr<edm::ParameterDescriptionNode> node1b(
       new edm::IfExistsDescription(
-	(edm::ParameterDescription<double>("x1", 101.0, true) xor
-         edm::ParameterDescription<int>("x1", 101, true) ),
+        (edm::ParameterDescription<double>("x1", 101.0, true) xor
+         edm::ParameterDescription<int>("x1", 101, true)),
         (edm::ParameterDescription<double>("x2", 101.0, true) and
-         edm::ParameterDescription<double>("x3", 101.0, true)) ) );
+         edm::ParameterDescription<double>("x3", 101.0, true))));
 
     edm::ParameterSet pset1;
 
@@ -877,9 +870,9 @@ namespace testParameterSetDescription {
     psetDesc2.add<unsigned>("x1", 1U);
     std::auto_ptr<edm::ParameterDescriptionNode> node2(
       new edm::IfExistsDescription(
-	edm::ParameterDescription<double>("x1", 101.0, true),
+        edm::ParameterDescription<double>("x1", 101.0, true),
         (edm::ParameterDescription<double>("x2", 101.0, true) and
-         edm::ParameterDescription<double>("x3", 101.0, true)) ) );
+         edm::ParameterDescription<double>("x3", 101.0, true))));
 
     try {
       psetDesc2.addNode(node2);
@@ -891,9 +884,9 @@ namespace testParameterSetDescription {
     edm::ParameterSetDescription psetDesc3;
     std::auto_ptr<edm::ParameterDescriptionNode> node3(
       new edm::IfExistsDescription(
-	edm::ParameterDescription<double>("x1", 101.0, true),
+        edm::ParameterDescription<double>("x1", 101.0, true),
         (edm::ParameterDescription<double>("x2", 101.0, true) and
-         edm::ParameterDescription<double>("x3", 101.0, true)) ) );
+         edm::ParameterDescription<double>("x3", 101.0, true))));
     psetDesc3.addNode(node3);
 
     try {
@@ -901,14 +894,14 @@ namespace testParameterSetDescription {
       assert(0);
     }
     catch(edm::Exception) { /* There should be an exception */ }
-    
+
     // Put the duplicate labels in different nodes of the "and" expression
     edm::ParameterSetDescription psetDesc4;
     std::auto_ptr<edm::ParameterDescriptionNode> node4(
       new edm::IfExistsDescription(
-	edm::ParameterDescription<double>("x1", 101.0, true),
+        edm::ParameterDescription<double>("x1", 101.0, true),
         (edm::ParameterDescription<double>("x2", 101.0, true) and
-         edm::ParameterDescription<double>("x1", 101.0, true)) ) );
+         edm::ParameterDescription<double>("x1", 101.0, true))));
     try {
       psetDesc4.addNode(node4);
       assert(0);
@@ -920,9 +913,9 @@ namespace testParameterSetDescription {
     edm::ParameterSetDescription psetDesc5;
     std::auto_ptr<edm::ParameterDescriptionNode> node5(
       new edm::IfExistsDescription(
-	edm::ParameterDescription<double>("x1", 101.0, true),
+        edm::ParameterDescription<double>("x1", 101.0, true),
         (edm::ParameterDescription<unsigned>("x2", 101U, true) and
-         edm::ParameterWildcard<double>("*", edm::RequireAtLeastOne, true)) ) );
+         edm::ParameterWildcard<double>("*", edm::RequireAtLeastOne, true))));
     try {
       psetDesc5.addNode(node5);
       assert(0);
@@ -935,9 +928,9 @@ namespace testParameterSetDescription {
     psetDesc6.add<double>("x0", 1.0);
     std::auto_ptr<edm::ParameterDescriptionNode> node6(
       new edm::IfExistsDescription(
-	edm::ParameterWildcard<double>("*", edm::RequireAtLeastOne, true),
+        edm::ParameterWildcard<double>("*", edm::RequireAtLeastOne, true),
         (edm::ParameterDescription<unsigned>("x2", 101U, true) and
-         edm::ParameterDescription<unsigned>("x3", 102U, true)) ) );
+         edm::ParameterDescription<unsigned>("x3", 102U, true))));
     try {
       psetDesc6.addNode(node6);
       assert(0);
@@ -950,9 +943,9 @@ namespace testParameterSetDescription {
     psetDesc7.addWildcard<double>("*");
     std::auto_ptr<edm::ParameterDescriptionNode> node7(
       new edm::IfExistsDescription(
-	edm::ParameterDescription<double>("x1", 11.0, true),
+        edm::ParameterDescription<double>("x1", 11.0, true),
         (edm::ParameterDescription<unsigned>("x2", 101U, true) and
-         edm::ParameterDescription<unsigned>("x3", 102U, true)) ) );
+         edm::ParameterDescription<unsigned>("x3", 102U, true))));
     try {
       psetDesc7.addNode(node7);
       assert(0);
@@ -1026,7 +1019,7 @@ namespace testParameterSetDescription {
     labels1.push_back(std::string("setB"));
     psetA.addParameter<std::vector<std::string> >("allowedLabelsA", labels1);
 
-    // Now setB should be an allowed parameter 
+    // Now setB should be an allowed parameter
     psetDesc4.validate(psetA);
 
     // Above it did not validate the contents of the nested ParameterSet
@@ -1091,7 +1084,7 @@ namespace testParameterSetDescription {
       labels1.push_back(std::string("vSetD"));
       psetC.addParameter<std::vector<std::string> >("allowedLabelsC", labels1);
 
-      // Now vSetB should be an allowed parameter 
+      // Now vSetB should be an allowed parameter
       psetDesc14.validate(psetC);
 
       // Above it did not validate the contents of the nested ParameterSet
@@ -1300,7 +1293,7 @@ int main(int argc, char* argv[]) {
   assert(par->partiallyExists(pset) == false);
   assert(par->howManyXORSubNodesExist(pset) == 0);
   pset.addParameter<int>("ivalue", a);
-  assert(par != 0); 
+  assert(par != 0);
   assert(par->label() == std::string("ivalue"));
   assert(par->type() == edm::k_int32);
   assert(par->isTracked() == true);
@@ -1391,9 +1384,9 @@ int main(int argc, char* argv[]) {
   assert(par->isTracked() == false);
   assert(edm::parameterTypeEnumToString(par->type()) == std::string("string"));
 
-  edm::MinimalEventID h;
-  par = psetDesc.addOptionalUntracked<edm::MinimalEventID>("evalue", h);
-  pset.addUntrackedParameter<edm::MinimalEventID>("evalue", h);
+  edm::EventID h;
+  par = psetDesc.addOptionalUntracked<edm::EventID>("evalue", h);
+  pset.addUntrackedParameter<edm::EventID>("evalue", h);
   assert(par != 0);
   assert(par->label() == std::string("evalue"));
   assert(par->type() == edm::k_EventID);
@@ -1448,9 +1441,9 @@ int main(int argc, char* argv[]) {
   assert(par->type() == edm::k_vstring);
   assert(edm::parameterTypeEnumToString(par->type()) == std::string("vstring"));
 
-  std::vector<edm::MinimalEventID> v7;
-  par = psetDesc.add<std::vector<edm::MinimalEventID> >("v7", v7);
-  pset.addParameter<std::vector<edm::MinimalEventID> >("v7", v7);
+  std::vector<edm::EventID> v7;
+  par = psetDesc.add<std::vector<edm::EventID> >("v7", v7);
+  pset.addParameter<std::vector<edm::EventID> >("v7", v7);
   assert(par->type() == edm::k_VEventID);
   assert(edm::parameterTypeEnumToString(par->type()) == std::string("VEventID"));
 
@@ -1563,7 +1556,7 @@ int main(int argc, char* argv[]) {
   // the missing parameter into the ParameterSet
   testDescriptions[2].validate(pset);
 
-  std::vector<edm::ParameterSet> vpset = 
+  std::vector<edm::ParameterSet> vpset =
     pset.getUntrackedParameter<std::vector<edm::ParameterSet> >("nestLevel0");
   edm::ParameterSet psetInPset = vpset[1].getParameter<edm::ParameterSet>("nestLevel1b");
   assert(psetInPset.getParameter<int>("intLevel2extra") ==  11);
@@ -1616,6 +1609,6 @@ int main(int argc, char* argv[]) {
   testParameterSetDescription::testNoDefault();
   testParameterSetDescription::testWrongTrackiness();
   testParameterSetDescription::testWrongType();
-  
+
   return 0;
 }

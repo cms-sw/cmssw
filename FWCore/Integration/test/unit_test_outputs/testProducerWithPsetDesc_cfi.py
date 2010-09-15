@@ -100,8 +100,8 @@ testProducerWithPsetDesc = cms.EDProducer('ProducerWithPSetDesc',
     'World',
     ''
   ),
-  eventIDv1 = cms.EventID(11, 12),
-  eventIDv2 = cms.EventID(101, 102),
+  eventIDv1 = cms.EventID(11, 0, 12),
+  eventIDv2 = cms.EventID(101, 0, 102),
   vEventIDv1 = cms.VEventID(),
   vEventIDv2 = cms.VEventID('1000:1100'),
   vEventIDv3 = cms.VEventID(

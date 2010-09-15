@@ -10,7 +10,7 @@
 #include <vector>
 
 namespace edm {
-  class MinimalEventID;
+  class EventID;
   class LuminosityBlockID;
   class LuminosityBlockRange;
   class EventRange;
@@ -18,17 +18,17 @@ namespace edm {
   class FileInPath;
 }
 
-typedef void (*FillDescriptionFromParameter)(edm::ParameterSet const&, std::string const&, bool, edm::ParameterSetDescription &);
+typedef void (*FillDescriptionFromParameter)(edm::ParameterSet const&, std::string const&, bool, edm::ParameterSetDescription&);
 
 static std::map<edm::ParameterTypes, FillDescriptionFromParameter> s_findTheRightFunction;
 
 namespace {
 
-  template <typename T>
+  template<typename T>
   void fillDescriptionFromParameter(edm::ParameterSet const& pset,
                                     std::string const& name,
                                     bool isTracked,
-                                    edm::ParameterSetDescription & desc) {
+                                    edm::ParameterSetDescription& desc) {
     if (isTracked) {
       desc.add<T>(name, pset.getParameter<T>(name));
     }
@@ -51,8 +51,8 @@ namespace {
     s_findTheRightFunction[static_cast<edm::ParameterTypes>('B')] = &fillDescriptionFromParameter<bool>;
     s_findTheRightFunction[static_cast<edm::ParameterTypes>('S')] = &fillDescriptionFromParameter<std::string>;
     s_findTheRightFunction[static_cast<edm::ParameterTypes>('s')] = &fillDescriptionFromParameter<std::vector<std::string> >;
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('E')] = &fillDescriptionFromParameter<edm::MinimalEventID>;
-    s_findTheRightFunction[static_cast<edm::ParameterTypes>('e')] = &fillDescriptionFromParameter<std::vector<edm::MinimalEventID> >;
+    s_findTheRightFunction[static_cast<edm::ParameterTypes>('E')] = &fillDescriptionFromParameter<edm::EventID>;
+    s_findTheRightFunction[static_cast<edm::ParameterTypes>('e')] = &fillDescriptionFromParameter<std::vector<edm::EventID> >;
     s_findTheRightFunction[static_cast<edm::ParameterTypes>('M')] = &fillDescriptionFromParameter<edm::LuminosityBlockID>;
     s_findTheRightFunction[static_cast<edm::ParameterTypes>('m')] = &fillDescriptionFromParameter<std::vector<edm::LuminosityBlockID> >;
     s_findTheRightFunction[static_cast<edm::ParameterTypes>('t')] = &fillDescriptionFromParameter<edm::InputTag>;
@@ -86,10 +86,10 @@ namespace edm {
   // express those concepts.
 
   void fillDescriptionFromPSet(ParameterSet const& pset,
-                               ParameterSetDescription & desc) {
+                               ParameterSetDescription& desc) {
     ParameterSet::table const& entries = pset.tbl();
     for (ParameterSet::table::const_iterator entry = entries.begin(),
-	   endEntries = entries.end();
+           endEntries = entries.end();
          entry != endEntries;
          ++entry) {
       std::map<edm::ParameterTypes, FillDescriptionFromParameter>::iterator iter =
@@ -101,7 +101,7 @@ namespace edm {
 
     ParameterSet::psettable const& pset_entries = pset.psetTable();
     for (ParameterSet::psettable::const_iterator pset_entry = pset_entries.begin(),
-	   endEntries = pset_entries.end();
+           endEntries = pset_entries.end();
          pset_entry != endEntries;
          ++pset_entry) {
       edm::ParameterSet nestedPset;
@@ -123,7 +123,7 @@ namespace edm {
 
     ParameterSet::vpsettable const& vpset_entries = pset.vpsetTable();
     for (ParameterSet::vpsettable::const_iterator vpset_entry = vpset_entries.begin(),
-	   endEntries = vpset_entries.end();
+           endEntries = vpset_entries.end();
          vpset_entry != endEntries;
          ++vpset_entry) {
       std::vector<edm::ParameterSet> nestedVPset;

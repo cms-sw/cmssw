@@ -28,12 +28,12 @@ namespace edm {
 
     struct TypeTrans {
       TypeTrans();
-      
+
       typedef std::vector<std::string> CodeMap;
       CodeMap table_;
-      std::map< std::string, char> type2Code_; 
+      std::map<std::string, char> type2Code_;
     };
-      
+
     TypeTrans::TypeTrans():table_(255) {
       table_['b'] = "vBool";
       table_['B'] = "bool";
@@ -66,7 +66,6 @@ namespace edm {
       table_['r'] = "VEventRange";
       table_['R'] = "EventRange";
 
-      
       for(CodeMap::const_iterator itCode = table_.begin(), itCodeEnd = table_.end();
            itCode != itCodeEnd;
            ++itCode) {
@@ -75,7 +74,7 @@ namespace edm {
     }
   }
 
-  static edm::pset::TypeTrans const sTypeTranslations;
+  static pset::TypeTrans const sTypeTranslations;
   typedef std::map<std::string, char> Type2Code;
 
   Entry::~Entry() {}
@@ -87,10 +86,10 @@ namespace edm {
   void
   Entry::validate() const {
     // tracked
-    assert ( tracked == '+' || tracked == '-' );
+    assert (tracked == '+' || tracked == '-');
 //     if(tracked != '+' && tracked != '-')
 //       throw EntryError(std::string("invalid tracked code ") + tracked);
-  
+
     // type and rep
     switch(type)  {
       case 'B':  {  // Bool
@@ -154,47 +153,47 @@ namespace edm {
         break;
       }
       case 'F':  {  // FileInPath
-	edm::FileInPath val;
+        FileInPath val;
         if(!decode(val, rep)) throwEntryError("FileInPath", rep);
         break;
       }
       case 't':  {  // InputTag
-        edm::InputTag val;
+        InputTag val;
         if(!decode(val, rep)) throwEntryError("InputTag", rep);
         break;
       }
       case 'v':  {  // VInputTag
-        std::vector<edm::InputTag> val;
+        std::vector<InputTag> val;
         if(!decode(val, rep)) throwEntryError("VInputTag", rep);
         break;
       }
       case kTESInputTag: { //ESInputTag
-         edm::ESInputTag val;
+         ESInputTag val;
          if(!decode(val,rep)) throwEntryError("ESInputTag", rep);
          break;
       }
       case kTVESInputTag: { //ESInputTag
-         std::vector<edm::ESInputTag> val;
+         std::vector<ESInputTag> val;
          if(!decode(val,rep)) throwEntryError("VESInputTag", rep);
          break;
       }
       case 'E':  {  // EventID
-        edm::MinimalEventID val; 
+        EventID val;
         if(!decode(val, rep)) throwEntryError("EventID", rep);
         break;
       }
       case 'e':  {  // VEventID
-        std::vector<edm::MinimalEventID> val;
+        std::vector<EventID> val;
         if(!decode(val, rep)) throwEntryError("VEventID", rep);
         break;
       }
       case 'M':  {  // LuminosityBlockID
-        edm::LuminosityBlockID val; 
+        LuminosityBlockID val;
         if(!decode(val, rep)) throwEntryError("LuminosityBlockID", rep);
         break;
       }
       case 'm':  {  // VLuminosityBlockID
-        std::vector<edm::LuminosityBlockID> val;
+        std::vector<LuminosityBlockID> val;
         if(!decode(val, rep)) throwEntryError("VLuminosityBlockID", rep);
         break;
       }
@@ -219,28 +218,28 @@ namespace edm {
         break;
       }
       case 'A':  {  // LuminosityBlockRange
-        edm::LuminosityBlockRange val;
+        LuminosityBlockRange val;
         if(!decode(val, rep)) throwEntryError("LuminosityBlockRange", rep);
         break;
       }
       case 'a':  {  // VLuminosityBlockRange
-        std::vector<edm::LuminosityBlockRange> val;
+        std::vector<LuminosityBlockRange> val;
         if(!decode(val, rep)) throwEntryError("VLuminosityBlockRange", rep);
         break;
       }
       case 'R':  {  // EventRange
-        edm::EventRange val;
+        EventRange val;
         if(!decode(val, rep)) throwEntryError("EventRange", rep);
         break;
       }
       case 'r':  {  // VEventRange
-        std::vector<edm::EventRange> val;
+        std::vector<EventRange> val;
         if(!decode(val, rep)) throwEntryError("VEventRange", rep);
         break;
       }
       default:  {
-	// We should never get here.
-	assert ("Invalid type code" == 0);
+        // We should never get here.
+        assert ("Invalid type code" == 0);
         //throw EntryError(std::string("invalid type code ") + type);
         break;
       }
@@ -254,9 +253,8 @@ namespace edm {
 // ----------------------------------------------------------------------
 // Bool
 
-  Entry::Entry(std::string const& name, bool val, bool is_tracked) : 
-    name_(name), rep(), type('B'), tracked(is_tracked ? '+' : '-') 
-  {
+  Entry::Entry(std::string const& name, bool val, bool is_tracked) :
+    name_(name), rep(), type('B'), tracked(is_tracked ? '+' : '-') {
     if(!encode(rep, val)) throwEncodeError("bool");
     validate();
   }
@@ -264,9 +262,8 @@ namespace edm {
 // ----------------------------------------------------------------------
 // Int32
 
-  Entry::Entry(std::string const& name, int  val, bool is_tracked) : 
-    name_(name), rep(), type('I'), tracked(is_tracked ? '+' : '-') 
-  {
+  Entry::Entry(std::string const& name, int  val, bool is_tracked) :
+    name_(name), rep(), type('I'), tracked(is_tracked ? '+' : '-') {
     if(!encode(rep, val)) throwEncodeError("int");
     validate();
   }
@@ -274,9 +271,8 @@ namespace edm {
 // ----------------------------------------------------------------------
 // vInt32
 
-  Entry::Entry(std::string const& name, std::vector<int> const& val, bool is_tracked) : 
-    name_(name), rep(), type('i'), tracked(is_tracked ? '+' : '-') 
-  {
+  Entry::Entry(std::string const& name, std::vector<int> const& val, bool is_tracked) :
+    name_(name), rep(), type('i'), tracked(is_tracked ? '+' : '-') {
     if(!encode(rep, val)) throwEncodeError("vector<int>");
     validate();
   }
@@ -285,8 +281,7 @@ namespace edm {
 // Uint32
 
   Entry::Entry(std::string const& name, unsigned val, bool is_tracked) :
-    name_(name), rep(), type('U'), tracked(is_tracked ? '+' : '-')
-  {
+    name_(name), rep(), type('U'), tracked(is_tracked ? '+' : '-') {
     if(!encode(rep, val)) throwEncodeError("unsigned int");
     validate();
   }
@@ -295,8 +290,7 @@ namespace edm {
 // vUint32
 
  Entry::Entry(std::string const& name, std::vector<unsigned> const& val, bool is_tracked) :
-   name_(name), rep(), type('u'), tracked(is_tracked ? '+' : '-') 
- {
+   name_(name), rep(), type('u'), tracked(is_tracked ? '+' : '-') {
    if(!encode(rep, val)) throwEncodeError("vector<unsigned int>");
     validate();
   }
@@ -305,8 +299,7 @@ namespace edm {
 // Int64
 
   Entry::Entry(std::string const& name, long long val, bool is_tracked) :
-    name_(name), rep(), type('L'), tracked(is_tracked ? '+' : '-')
-  {
+    name_(name), rep(), type('L'), tracked(is_tracked ? '+' : '-') {
     if(!encode(rep, val)) throwEncodeError("int64");
     validate();
   }
@@ -315,8 +308,7 @@ namespace edm {
 // vInt64
 
   Entry::Entry(std::string const& name, std::vector<long long> const& val, bool is_tracked) :
-    name_(name), rep(), type('l'), tracked(is_tracked ? '+' : '-')
-  {
+    name_(name), rep(), type('l'), tracked(is_tracked ? '+' : '-') {
     if(!encode(rep, val)) throwEncodeError("vector<int64>");
     validate();
   }
@@ -325,8 +317,7 @@ namespace edm {
 // Uint64
 
   Entry::Entry(std::string const& name, unsigned long long val, bool is_tracked) :
-    name_(name), rep(), type('X'), tracked(is_tracked ? '+' : '-')
-  {
+    name_(name), rep(), type('X'), tracked(is_tracked ? '+' : '-') {
     if(!encode(rep, val)) throwEncodeError("unsigned int64");
     validate();
   }
@@ -335,8 +326,7 @@ namespace edm {
 // vUint64
 
  Entry::Entry(std::string const& name, std::vector<unsigned long long> const& val, bool is_tracked) :
-   name_(name), rep(), type('x'), tracked(is_tracked ? '+' : '-')
- {
+   name_(name), rep(), type('x'), tracked(is_tracked ? '+' : '-') {
    if(!encode(rep, val)) throwEncodeError("vector<unsigned int64>");
     validate();
   }
@@ -344,9 +334,8 @@ namespace edm {
 // ----------------------------------------------------------------------
 // Double
 
- Entry::Entry(std::string const& name, double val, bool is_tracked) : 
-   name_(name), rep(), type('D'), tracked(is_tracked ? '+' : '-') 
- {
+ Entry::Entry(std::string const& name, double val, bool is_tracked) :
+   name_(name), rep(), type('D'), tracked(is_tracked ? '+' : '-') {
    if(!encode(rep, val)) throwEncodeError("double");
     validate();
   }
@@ -354,9 +343,8 @@ namespace edm {
 // ----------------------------------------------------------------------
 // vDouble
 
-  Entry::Entry(std::string const& name, std::vector<double> const& val, bool is_tracked) : 
-    name_(name), rep(), type('d'), tracked(is_tracked ? '+' : '-') 
-  {
+  Entry::Entry(std::string const& name, std::vector<double> const& val, bool is_tracked) :
+    name_(name), rep(), type('d'), tracked(is_tracked ? '+' : '-') {
     if(!encode(rep, val)) throwEncodeError("vector<double>");
     validate();
   }
@@ -365,8 +353,7 @@ namespace edm {
 // String
 
   Entry::Entry(std::string const& name, std::string const& val, bool is_tracked) :
-    name_(name), rep(), type('S'), tracked(is_tracked ? '+' : '-') 
-  {
+    name_(name), rep(), type('S'), tracked(is_tracked ? '+' : '-') {
     if(!encode(rep, val)) throwEncodeError("string");
     validate();
   }
@@ -375,8 +362,7 @@ namespace edm {
 // vString
 
   Entry::Entry(std::string const& name, std::vector<std::string> const& val, bool is_tracked) :
-       name_(name), rep(), type('s'), tracked(is_tracked ? '+' : '-') 
-  {
+       name_(name), rep(), type('s'), tracked(is_tracked ? '+' : '-') {
     if(!encode(rep, val)) throwEncodeError("vector<string>");
     validate();
   }
@@ -384,20 +370,17 @@ namespace edm {
 // ----------------------------------------------------------------------
 // FileInPath
 
-  Entry::Entry(std::string const& name, edm::FileInPath const& val, bool is_tracked) : 
-    name_(name), rep(), type('F'), tracked(is_tracked ? '+' : '-') 
-  {
+  Entry::Entry(std::string const& name, FileInPath const& val, bool is_tracked) :
+    name_(name), rep(), type('F'), tracked(is_tracked ? '+' : '-') {
     if (!encode(rep, val)) throwEncodeError("FileInPath");
     validate();
   }
-							      
 
 // ----------------------------------------------------------------------
 // InputTag
 
-  Entry::Entry(std::string const& name, edm::InputTag const& val, bool is_tracked) :
-    name_(name), rep(), type('t'), tracked(is_tracked ? '+' : '-')
-  {
+  Entry::Entry(std::string const& name, InputTag const& val, bool is_tracked) :
+    name_(name), rep(), type('t'), tracked(is_tracked ? '+' : '-') {
     if (!encode(rep, val)) throwEncodeError("InputTag");
     validate();
   }
@@ -406,9 +389,8 @@ namespace edm {
 // ----------------------------------------------------------------------
 // VInputTag
 
-  Entry::Entry(std::string const& name, std::vector<edm::InputTag> const& val, bool is_tracked) :
-    name_(name), rep(), type('v'), tracked(is_tracked ? '+' : '-')
-  {
+  Entry::Entry(std::string const& name, std::vector<InputTag> const& val, bool is_tracked) :
+    name_(name), rep(), type('v'), tracked(is_tracked ? '+' : '-') {
     if (!encode(rep, val)) throwEncodeError("VInputTag");
     validate();
   }
@@ -416,31 +398,28 @@ namespace edm {
 
 // ----------------------------------------------------------------------
 // ESInputTag
-   
-   Entry::Entry(std::string const& name, edm::ESInputTag const& val, bool is_tracked) :
-   name_(name), rep(), type(kTESInputTag), tracked(is_tracked ? '+' : '-')
-   {
+
+   Entry::Entry(std::string const& name, ESInputTag const& val, bool is_tracked) :
+   name_(name), rep(), type(kTESInputTag), tracked(is_tracked ? '+' : '-') {
       if (!encode(rep, val)) throwEncodeError("InputTag");
       validate();
    }
 
 // ----------------------------------------------------------------------
 // VESInputTag
-   
-   Entry::Entry(std::string const& name, std::vector<edm::ESInputTag> const& val, bool is_tracked) :
-   name_(name), rep(), type(kTVESInputTag), tracked(is_tracked ? '+' : '-')
-   {
+
+   Entry::Entry(std::string const& name, std::vector<ESInputTag> const& val, bool is_tracked) :
+   name_(name), rep(), type(kTVESInputTag), tracked(is_tracked ? '+' : '-') {
       if (!encode(rep, val)) throwEncodeError("VESInputTag");
       validate();
    }
-   
-   
+
+
 // ----------------------------------------------------------------------
 //  EventID
 
-  Entry::Entry(std::string const& name, edm::MinimalEventID const& val, bool is_tracked) :
-    name_(name), rep(), type('E'), tracked(is_tracked ? '+' : '-')
-  {
+  Entry::Entry(std::string const& name, EventID const& val, bool is_tracked) :
+    name_(name), rep(), type('E'), tracked(is_tracked ? '+' : '-') {
     if (!encode(rep, val)) throwEncodeError("EventID");
     validate();
   }
@@ -449,9 +428,8 @@ namespace edm {
 // ----------------------------------------------------------------------
 // VEventID
 
-  Entry::Entry(std::string const& name, std::vector<edm::MinimalEventID> const& val, bool is_tracked) :
-    name_(name), rep(), type('e'), tracked(is_tracked ? '+' : '-')
-  {
+  Entry::Entry(std::string const& name, std::vector<EventID> const& val, bool is_tracked) :
+    name_(name), rep(), type('e'), tracked(is_tracked ? '+' : '-') {
     if (!encode(rep, val)) throwEncodeError("VEventID");
     validate();
   }
@@ -461,9 +439,8 @@ namespace edm {
 // ----------------------------------------------------------------------
 //  LuminosityBlockID
 
-  Entry::Entry(std::string const& name, edm::LuminosityBlockID const& val, bool is_tracked) :
-    name_(name), rep(), type('M'), tracked(is_tracked ? '+' : '-')
-  {
+  Entry::Entry(std::string const& name, LuminosityBlockID const& val, bool is_tracked) :
+    name_(name), rep(), type('M'), tracked(is_tracked ? '+' : '-') {
     if (!encode(rep, val)) throwEncodeError("LuminosityBlockID");
     validate();
   }
@@ -472,9 +449,8 @@ namespace edm {
 // ----------------------------------------------------------------------
 // VLuminosityBlockID
 
-  Entry::Entry(std::string const& name, std::vector<edm::LuminosityBlockID> const& val, bool is_tracked) :
-    name_(name), rep(), type('m'), tracked(is_tracked ? '+' : '-')
-  {
+  Entry::Entry(std::string const& name, std::vector<LuminosityBlockID> const& val, bool is_tracked) :
+    name_(name), rep(), type('m'), tracked(is_tracked ? '+' : '-') {
     if (!encode(rep, val)) throwEncodeError("VLuminosityBlockID");
     validate();
   }
@@ -482,9 +458,8 @@ namespace edm {
 // ----------------------------------------------------------------------
 //  LuminosityBlockRange
 
-  Entry::Entry(std::string const& name, edm::LuminosityBlockRange const& val, bool is_tracked) :
-    name_(name), rep(), type('A'), tracked(is_tracked ? '+' : '-')
-  {
+  Entry::Entry(std::string const& name, LuminosityBlockRange const& val, bool is_tracked) :
+    name_(name), rep(), type('A'), tracked(is_tracked ? '+' : '-') {
     if (!encode(rep, val)) throwEncodeError("LuminosityBlockRange");
     validate();
   }
@@ -493,9 +468,8 @@ namespace edm {
 // ----------------------------------------------------------------------
 // VLuminosityBlockRange
 
-  Entry::Entry(std::string const& name, std::vector<edm::LuminosityBlockRange> const& val, bool is_tracked) :
-    name_(name), rep(), type('a'), tracked(is_tracked ? '+' : '-')
-  {
+  Entry::Entry(std::string const& name, std::vector<LuminosityBlockRange> const& val, bool is_tracked) :
+    name_(name), rep(), type('a'), tracked(is_tracked ? '+' : '-') {
     if (!encode(rep, val)) throwEncodeError("VLuminosityBlockRange");
     validate();
   }
@@ -503,9 +477,8 @@ namespace edm {
 // ----------------------------------------------------------------------
 //  EventRange
 
-  Entry::Entry(std::string const& name, edm::EventRange const& val, bool is_tracked) :
-    name_(name), rep(), type('R'), tracked(is_tracked ? '+' : '-')
-  {
+  Entry::Entry(std::string const& name, EventRange const& val, bool is_tracked) :
+    name_(name), rep(), type('R'), tracked(is_tracked ? '+' : '-') {
     if (!encode(rep, val)) throwEncodeError("EventRange");
     validate();
   }
@@ -513,9 +486,8 @@ namespace edm {
 // ----------------------------------------------------------------------
 // VEventRange
 
-  Entry::Entry(std::string const& name, std::vector<edm::EventRange> const& val, bool is_tracked) :
-    name_(name), rep(), type('r'), tracked(is_tracked ? '+' : '-')
-  {
+  Entry::Entry(std::string const& name, std::vector<EventRange> const& val, bool is_tracked) :
+    name_(name), rep(), type('r'), tracked(is_tracked ? '+' : '-') {
     if (!encode(rep, val)) throwEncodeError("VEventRange");
     validate();
   }
@@ -524,9 +496,8 @@ namespace edm {
 // ----------------------------------------------------------------------
 // ParameterSet
 
-  Entry::Entry(std::string const& name, ParameterSet const& val, bool is_tracked) : 
-    name_(name), rep(), type('P'), tracked(is_tracked ? '+' : '-') 
-  {
+  Entry::Entry(std::string const& name, ParameterSet const& val, bool is_tracked) :
+    name_(name), rep(), type('P'), tracked(is_tracked ? '+' : '-') {
     if(!encode(rep, val)) throwEncodeError("ParameterSet");
     validate();
   }
@@ -535,8 +506,7 @@ namespace edm {
 // vPSet
 
   Entry::Entry(std::string const& name, std::vector<ParameterSet> const& val, bool is_tracked) :
-      name_(name), rep(), type('p'), tracked(is_tracked ? '+' : '-') 
-  {
+      name_(name), rep(), type('p'), tracked(is_tracked ? '+' : '-') {
     if(!encode(rep, val)) throwEncodeError("vector<ParameterSet>");
     validate();
   }
@@ -544,56 +514,50 @@ namespace edm {
 // ----------------------------------------------------------------------
 // coded string
 
-  Entry::Entry(std::string const& name, std::string const& code) : 
-    name_(name), rep(), type('?'), tracked('?') 
-  {
-    if(!fromString(code.begin(), code.end())) 
+  Entry::Entry(std::string const& name, std::string const& code) :
+    name_(name), rep(), type('?'), tracked('?') {
+    if(!fromString(code.begin(), code.end()))
       throwEncodeError("coded string");
     validate();
   }
 
 
-  Entry::Entry(std::string const& name, std::string const& type, std::string const& value, 
-	       bool is_tracked) :
-    name_(name), rep(), type('?'), tracked('?') 
-  {
+  Entry::Entry(std::string const& name, std::string const& type, std::string const& value,
+               bool is_tracked) :
+    name_(name), rep(), type('?'), tracked('?') {
     std::string codedString(is_tracked ?"-":"+");
-   
+
     Type2Code::const_iterator itFound = sTypeTranslations.type2Code_.find(type);
-    if(itFound == sTypeTranslations.type2Code_.end()) 
-      {
-	throw edm::Exception(errors::Configuration)
-	  << "bad type name used for Entry : " << type;
-      }
-   
+    if(itFound == sTypeTranslations.type2Code_.end()) {
+        throw Exception(errors::Configuration)
+          << "bad type name used for Entry : " << type;
+    }
+
     codedString += itFound->second;
     codedString +='(';
     codedString += value;
     codedString +=')';
-   
-    if(!fromString(codedString.begin(), codedString.end()))
-      {
-	throw edm::Exception(errors::Configuration)
-	  <<  "bad encoded Entry string " <<  codedString;
-      }
-    validate();   
+
+    if(!fromString(codedString.begin(), codedString.end())) {
+        throw Exception(errors::Configuration)
+          <<  "bad encoded Entry string " <<  codedString;
+    }
+    validate();
   }
 
-  Entry::Entry(std::string const& name, std::string const& type, 
-	       std::vector<std::string> const& value, 
-	       bool is_tracked) :
-    name_(name), rep() , type('?'), tracked('?') 
-  {
+  Entry::Entry(std::string const& name, std::string const& type,
+               std::vector<std::string> const& value,
+               bool is_tracked) :
+    name_(name), rep() , type('?'), tracked('?') {
     std::string codedString(is_tracked ?"-":"+");
-   
-    Type2Code::const_iterator itFound = 
+
+    Type2Code::const_iterator itFound =
       sTypeTranslations.type2Code_.find(type);
-    if(itFound == sTypeTranslations.type2Code_.end()) 
-      {
-	throw edm::Exception(errors::Configuration)
-	  << "bad type name used for Entry : " << type;
-      }
-   
+    if(itFound == sTypeTranslations.type2Code_.end()) {
+        throw Exception(errors::Configuration)
+          << "bad type name used for Entry : " << type;
+    }
+
     codedString += itFound->second;
     codedString += '(';
     codedString += '{';
@@ -609,11 +573,10 @@ namespace edm {
     codedString += '}';
     codedString += ')';
 
-    if(!fromString(codedString.begin(), codedString.end()))
-      {
-	throw edm::Exception(errors::Configuration)
-	  << "bad encoded Entry string " << codedString;
-      }
+    if(!fromString(codedString.begin(), codedString.end())) {
+        throw Exception(errors::Configuration)
+          << "bad encoded Entry string " << codedString;
+    }
     validate();
   }
 
@@ -642,7 +605,7 @@ namespace edm {
 
   bool
   Entry::fromString(std::string::const_iterator const b, std::string::const_iterator const e) {
-    if(static_cast<unsigned int>(e - b) < 4u || b[ 2] != '(' || e[-1] != ')')
+    if(static_cast<unsigned int>(e - b) < 4u || b[2] != '(' || e[-1] != ')')
 
       return false;
 
@@ -674,8 +637,7 @@ namespace edm {
 // Int32
 
   int
-  Entry::getInt32() const 
-  {
+  Entry::getInt32() const {
     if(type != 'I') throwValueError("int");
     int  val;
     if(!decode(val, rep)) throwEntryError("int", rep);
@@ -686,8 +648,7 @@ namespace edm {
 // vInt32
 
   std::vector<int>
-  Entry::getVInt32() const 
-  {
+  Entry::getVInt32() const {
     if(type != 'i') throwValueError("vector<int>");
     std::vector<int>  val;
     if(!decode(val, rep)) throwEntryError("vector<int>", rep);
@@ -699,8 +660,7 @@ namespace edm {
 // Int32
 
   long long
-  Entry::getInt64() const
-  {
+  Entry::getInt64() const {
     if(type != 'L') throwValueError("int64");
     long long  val;
     if(!decode(val, rep)) throwEntryError("int64", rep);
@@ -711,8 +671,7 @@ namespace edm {
 // vInt32
 
   std::vector<long long>
-  Entry::getVInt64() const
-  {
+  Entry::getVInt64() const {
     if(type != 'l') throwValueError("vector<int64>");
     std::vector<long long>  val;
     if(!decode(val, rep)) throwEntryError("vector<int64>", rep);
@@ -725,8 +684,7 @@ namespace edm {
 // Uint32
 
   unsigned
-  Entry::getUInt32() const 
-  {
+  Entry::getUInt32() const {
     if(type != 'U') throwValueError("unsigned int");
     unsigned  val;
     if(!decode(val, rep)) throwEntryError("unsigned int", rep);
@@ -737,8 +695,7 @@ namespace edm {
 // vUint32
 
   std::vector<unsigned>
-  Entry::getVUInt32() const 
-  {
+  Entry::getVUInt32() const {
     if(type != 'u') throwValueError("vector<unsigned int>");
     std::vector<unsigned>  val;
     if(!decode(val, rep)) throwEntryError("vector<unsigned int>", rep);
@@ -750,8 +707,7 @@ namespace edm {
 // Uint64
 
   unsigned long long
-  Entry::getUInt64() const
-  {
+  Entry::getUInt64() const {
     if(type != 'X') throwValueError("uint64");
     unsigned long long val;
     if(!decode(val, rep)) throwEntryError("uint64", rep);
@@ -762,8 +718,7 @@ namespace edm {
 // vUint64
 
   std::vector<unsigned long long>
-  Entry::getVUInt64() const
-  {
+  Entry::getVUInt64() const {
     if(type != 'x') throwValueError("vector<uint64>");
     std::vector<unsigned long long>  val;
     if(!decode(val, rep)) throwEntryError("vector<uint64>", rep);
@@ -774,8 +729,7 @@ namespace edm {
 // Double
 
   double
-  Entry::getDouble() const 
-  {
+  Entry::getDouble() const {
     if(type != 'D') throwValueError("double");
     double  val;
     if(!decode(val, rep)) throwEntryError("double", rep);
@@ -786,8 +740,7 @@ namespace edm {
 // vDouble
 
   std::vector<double>
-  Entry::getVDouble() const 
-  {
+  Entry::getVDouble() const {
     if(type != 'd') throwValueError("vector<double>");
     std::vector<double>  val;
     if(!decode(val, rep)) throwEntryError("vector<double>", rep);
@@ -798,8 +751,7 @@ namespace edm {
 // String
 
   std::string
-  Entry::getString() const 
-  {
+  Entry::getString() const {
     if(type != 'S') throwValueError("string");
     std::string  val;
     if(!decode(val, rep)) throwEntryError("string", rep);
@@ -810,8 +762,7 @@ namespace edm {
 // vString
 
   std::vector<std::string>
-  Entry::getVString() const 
-  {
+  Entry::getVString() const {
     if(type != 's') throwValueError("vector<string>");
     std::vector<std::string>  val;
     if(!decode(val, rep)) throwEntryError("vector<string>", rep);
@@ -822,11 +773,10 @@ namespace edm {
 // ----------------------------------------------------------------------
 // FileInPath
 
-  edm::FileInPath
-  Entry::getFileInPath() const 
-  {
+  FileInPath
+  Entry::getFileInPath() const {
     if(type != 'F') throwValueError("FileInPath");
-    edm::FileInPath val;
+    FileInPath val;
     if(!decode(val, rep)) throwEntryError("FileInPath", rep);
     return val;
   }
@@ -834,11 +784,10 @@ namespace edm {
 // ----------------------------------------------------------------------
 // InputTag
 
-  edm::InputTag
-  Entry::getInputTag() const
-  {
+  InputTag
+  Entry::getInputTag() const {
     if(type != 't') throwValueError("InputTag");
-    edm::InputTag val;
+    InputTag val;
     if(!decode(val, rep)) throwEntryError("InputTag", rep);
     return val;
   }
@@ -847,11 +796,10 @@ namespace edm {
 // ----------------------------------------------------------------------
 // VInputTag
 
-  std::vector<edm::InputTag>
-  Entry::getVInputTag() const
-  {
+  std::vector<InputTag>
+  Entry::getVInputTag() const {
     if(type != 'v') throwValueError("VInputTag");
-    std::vector<edm::InputTag> val;
+    std::vector<InputTag> val;
     if(!decode(val, rep)) throwEntryError("VInputTag", rep);
     return val;
   }
@@ -859,38 +807,34 @@ namespace edm {
 
 // ----------------------------------------------------------------------
 // ESInputTag
-   
-   edm::ESInputTag
-   Entry::getESInputTag() const
-   {
+
+   ESInputTag
+   Entry::getESInputTag() const {
       if(type != kTESInputTag) throwValueError("ESInputTag");
-      edm::ESInputTag val;
+      ESInputTag val;
       if(!decode(val, rep)) throwEntryError("ESInputTag", rep);
       return val;
    }
-   
+
 
 // ----------------------------------------------------------------------
 // VESInputTag
-   
-   std::vector<edm::ESInputTag>
-   Entry::getVESInputTag() const
-   {
+
+   std::vector<ESInputTag>
+   Entry::getVESInputTag() const {
       if(type != kTVESInputTag) throwValueError("VESInputTag");
-      std::vector<edm::ESInputTag> val;
+      std::vector<ESInputTag> val;
       if(!decode(val, rep)) throwEntryError("VESInputTag", rep);
       return val;
    }
-   
-      
+
 // ----------------------------------------------------------------------
 // EventID
 
-  edm::MinimalEventID
-  Entry::getEventID() const
-  {
+  EventID
+  Entry::getEventID() const {
     if(type != 'E') throwValueError("EventID");
-    edm::MinimalEventID val;
+    EventID val;
     if(!decode(val, rep)) throwEntryError("EventID", rep);
     return val;
   }
@@ -898,11 +842,10 @@ namespace edm {
 // ----------------------------------------------------------------------
 // VEventID
 
-  std::vector<edm::MinimalEventID>
-  Entry::getVEventID() const
-  {
+  std::vector<EventID>
+  Entry::getVEventID() const {
     if(type != 'e') throwValueError("VEventID");
-    std::vector<edm::MinimalEventID> val;
+    std::vector<EventID> val;
     if(!decode(val, rep)) throwEntryError("EventID", rep);
     return val;
   }
@@ -911,11 +854,10 @@ namespace edm {
 // ----------------------------------------------------------------------
 // LuminosityBlockID
 
-  edm::LuminosityBlockID
-  Entry::getLuminosityBlockID() const
-  {
+  LuminosityBlockID
+  Entry::getLuminosityBlockID() const {
     if(type != 'M') throwValueError("LuminosityBlockID");
-    edm::LuminosityBlockID val;
+    LuminosityBlockID val;
     if(!decode(val, rep)) throwEntryError("LuminosityBlockID", rep);
     return val;
   }
@@ -923,22 +865,20 @@ namespace edm {
 // ----------------------------------------------------------------------
 // VLuminosityBlockID
 
-  std::vector<edm::LuminosityBlockID>
-  Entry::getVLuminosityBlockID() const
-  {
+  std::vector<LuminosityBlockID>
+  Entry::getVLuminosityBlockID() const {
     if(type != 'm') throwValueError("VLuminosityBlockID");
-    std::vector<edm::LuminosityBlockID> val;
+    std::vector<LuminosityBlockID> val;
     if(!decode(val, rep)) throwEntryError("LuminosityBlockID", rep);
     return val;
   }
 
 // LuminosityBlockRange
 
-  edm::LuminosityBlockRange
-  Entry::getLuminosityBlockRange() const
-  {
+  LuminosityBlockRange
+  Entry::getLuminosityBlockRange() const {
     if(type != 'A') throwValueError("LuminosityBlockRange");
-    edm::LuminosityBlockRange val;
+    LuminosityBlockRange val;
     if(!decode(val, rep)) throwEntryError("LuminosityBlockRange", rep);
     return val;
   }
@@ -946,11 +886,10 @@ namespace edm {
 // ----------------------------------------------------------------------
 // VLuminosityBlockRange
 
-  std::vector<edm::LuminosityBlockRange>
-  Entry::getVLuminosityBlockRange() const
-  {
+  std::vector<LuminosityBlockRange>
+  Entry::getVLuminosityBlockRange() const {
     if(type != 'a') throwValueError("VLuminosityBlockRange");
-    std::vector<edm::LuminosityBlockRange> val;
+    std::vector<LuminosityBlockRange> val;
     if(!decode(val, rep)) throwEntryError("LuminosityBlockRange", rep);
     return val;
   }
@@ -958,11 +897,10 @@ namespace edm {
 // ----------------------------------------------------------------------
 // EventRange
 
-  edm::EventRange
-  Entry::getEventRange() const
-  {
+  EventRange
+  Entry::getEventRange() const {
     if(type != 'R') throwValueError("EventRange");
-    edm::EventRange val;
+    EventRange val;
     if(!decode(val, rep)) throwEntryError("EventRange", rep);
     return val;
   }
@@ -970,11 +908,10 @@ namespace edm {
 // ----------------------------------------------------------------------
 // VEventRange
 
-  std::vector<edm::EventRange>
-  Entry::getVEventRange() const
-  {
+  std::vector<EventRange>
+  Entry::getVEventRange() const {
     if(type != 'r') throwValueError("VEventRange");
-    std::vector<edm::EventRange> val;
+    std::vector<EventRange> val;
     if(!decode(val, rep)) throwEntryError("EventRange", rep);
     return val;
   }
@@ -984,8 +921,7 @@ namespace edm {
 // ParameterSet
 
   ParameterSet
-  Entry::getPSet() const 
-  {
+  Entry::getPSet() const {
     if(type != 'P') throwValueError("ParameterSet");
     ParameterSet val;
     if(!decode(val, rep)) throwEntryError("ParameterSet", rep);
@@ -996,8 +932,7 @@ namespace edm {
 // vPSet
 
   std::vector<ParameterSet>
-  Entry::getVPSet() const 
-  {
+  Entry::getVPSet() const {
     if(type != 'p') throwValueError("vector<ParameterSet>");
     std::vector<ParameterSet>  val;
     if(!decode(val, rep)) throwEntryError("vector<ParameterSet>", rep);
@@ -1006,14 +941,12 @@ namespace edm {
 
 
   std::ostream&
-  operator<< (std::ostream& os, Entry const& entry)
-  {
-    os << sTypeTranslations.table_[entry.typeCode()] << " " 
-       << (entry.isTracked() ? "tracked " : "untracked ") <<" = "; 
+  operator<< (std::ostream& os, Entry const& entry) {
+    os << sTypeTranslations.table_[entry.typeCode()] << " "
+       << (entry.isTracked() ? "tracked " : "untracked ") <<" = ";
 
     // now handle the difficult cases
-    switch(entry.typeCode())
-    {
+    switch(entry.typeCode()) {
       case 'P': // ParameterSet
       {
         os << entry.getPSet();
@@ -1029,8 +962,7 @@ namespace edm {
         std::string start ="";
         std::string const between(",\n");
         os << "{"<<std::endl;
-         for ( ; i != e; ++i )
-         {
+         for (; i != e; ++i) {
            os <<  start<< *i;
            start = between;
          }
@@ -1039,7 +971,7 @@ namespace edm {
          }
          os << "}";
          break;
-      } 
+      }
       case 'S':
       {
         os << "'" << entry.getString() << "'";
@@ -1047,7 +979,7 @@ namespace edm {
       }
       case 's':
       {
-        
+
         os << "{";
         std::string start ="'";
         std::string const between(",'");
@@ -1117,25 +1049,22 @@ namespace edm {
 
     // Helper functions for throwing exceptions
 
-    void Entry::throwValueError(char const* expectedType) const
-    {
-      throw edm::Exception(errors::Configuration, "ValueError")
+    void Entry::throwValueError(char const* expectedType) const {
+      throw Exception(errors::Configuration, "ValueError")
         << "type of " << name_ << " is expected to be " << expectedType
         << " but declared as " << sTypeTranslations.table_[type];
     }
 
     void Entry::throwEntryError(char const* expectedType,
-                         std::string const& badRep) const
-    {
-      throw edm::Exception(errors::Configuration, "EntryError")
+                         std::string const& badRep) const {
+      throw Exception(errors::Configuration, "EntryError")
         << "can not convert representation of " << name_ << ": "
         << badRep
         << " to value of type " << expectedType << " ";
     }
 
-    void Entry::throwEncodeError(char const* type) const
-    {
-      throw edm::Exception(errors::Configuration, "EncodingError")
+    void Entry::throwEncodeError(char const* type) const {
+      throw Exception(errors::Configuration, "EncodingError")
         << "can not encode " << name_ << " as type: " << type;
     }
 

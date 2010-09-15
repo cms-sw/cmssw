@@ -4,10 +4,10 @@
 //
 // Package:     DataFormats/Provenance
 // Class  :     EventID
-// 
+//
 /**\class EventID EventID.h DataFormats/Provenance/interface/EventID.h
 
- Description: Holds run and event number.
+ Description: Holds run, lumi, and event numbers.
 
  Usage:
     <usage>
@@ -30,20 +30,19 @@ namespace edm {
    typedef unsigned int EventNumber_t;
    typedef unsigned int LuminosityBlockNumber_t;
 
-   
+
 class EventID {
 
    public:
       EventID() : run_(0), luminosityBlock_(0), event_(0) {}
       EventID(RunNumber_t iRun, LuminosityBlockNumber_t iLumi, EventNumber_t iEvent) :
-	run_(iRun), luminosityBlock_(iLumi), event_(iEvent) {}
-      
+        run_(iRun), luminosityBlock_(iLumi), event_(iEvent) {}
+
       // ---------- const member functions ---------------------
       RunNumber_t run() const { return run_; }
-      LuminosityBlockNumber_t const& luminosityBlock() const { return luminosityBlock_; }
-      LuminosityBlockNumber_t& luminosityBlock() { return luminosityBlock_; }
+      LuminosityBlockNumber_t luminosityBlock() const { return luminosityBlock_; }
       EventNumber_t event() const { return event_; }
-   
+
       //moving from one EventID to another one
       EventID next(LuminosityBlockNumber_t const& lumi) const {
          if(event_ != maxEventNumber()) {
@@ -63,7 +62,7 @@ class EventID {
          }
          return EventID();
       }
-   
+
       EventID previous(LuminosityBlockNumber_t const& lumi) const {
          if(event_ > 1) {
             return EventID(run_, lumi, event_-1);
@@ -73,10 +72,10 @@ class EventID {
          }
          return EventID();
       }
-      
+
       bool operator<(EventID const& iRHS) const {
-	if (run_ < iRHS.run_) return true;
-	if (run_ > iRHS.run_) return false;
+        if (run_ < iRHS.run_) return true;
+        if (run_ > iRHS.run_) return false;
         if (luminosityBlock_ < iRHS.luminosityBlock_) return true;
         if (luminosityBlock_ > iRHS.luminosityBlock_) return false;
         return (event_ < iRHS.event_);
@@ -107,12 +106,12 @@ class EventID {
       static EventNumber_t maxEventNumber() {
          return 0xFFFFFFFFU;
       }
-   
+
       static EventID firstValidEvent() {
          return EventID(1, 1, 1);
       }
       // ---------- member functions ---------------------------
-   
+
       void setLuminosityBlockNumber(LuminosityBlockNumber_t const& lb) {
         luminosityBlock_ = lb;
       }
