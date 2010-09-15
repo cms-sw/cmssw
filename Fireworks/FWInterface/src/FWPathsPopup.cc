@@ -38,13 +38,25 @@ public:
                           const TGGC* iHighlightContext = &(getHighlightGC()),
                           Justify iJustify = kJustifyLeft)
       : FWTextTableCellRenderer(iContext, iHighlightContext, iJustify),
-        m_indentation(0)
+        m_indentation(0),
+        m_editor(0),
+        m_showEditor(false)
       {}
 
    virtual void setIndentation(int indentation = 0) { m_indentation = indentation; }
+   virtual void setCellEditor(TGTextEntry *editor) { m_editor = editor; }
+   virtual void showEditor(bool value) { m_showEditor = value; }
    virtual UInt_t width() { return FWTextTableCellRenderer::width() + m_indentation * 2; }
    virtual void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight)
       {
+         if (m_showEditor && m_editor)
+         {
+            m_editor->MoveResize(iX-3, iY+iHeight+3, iWidth + 6 , iHeight + 6);
+            m_editor->MapWindow();
+            m_editor->SetText(data().c_str());
+            return;
+         }
+
          if (selected())
          {
             GContext_t c = highlightContext()->GetGC();
@@ -57,10 +69,14 @@ public:
          }
          FontMetrics_t metrics;
          font()->GetFontMetrics(&metrics);
-         gVirtualX->DrawString(iID, graphicsContext()->GetGC(), iX+m_indentation, iY+metrics.fAscent, data().c_str(),data().size());
+         gVirtualX->DrawString(iID, graphicsContext()->GetGC(),
+                               iX+m_indentation, iY+metrics.fAscent, 
+                               data().c_str(),data().size());
       }
 private:
-   int   m_indentation;
+   int            m_indentation;
+   TGTextEntry    *m_editor;
+   bool           m_showEditor;
 };
 
 /** Custom structure for holding the table contents */
@@ -204,7 +220,7 @@ public:
 
       std::cout << "Available fonts: " << std::endl;
       gClient->GetFontPool()->Print();
-        
+       
       reset();
    }
    
@@ -409,7 +425,7 @@ public:
       std::string value;
       std::string label;
 
-      if ( data.level == 0 )
+      if (data.level == 0)
       {
          label = data.label + " (" + data.value + ")";
        
@@ -422,7 +438,7 @@ public:
          value = "";
          renderer = &m_italicRenderer;
       }
-      else 
+      else
       {
          if (!data.type.empty())
             label = data.label + " (" + data.type + ")";
@@ -444,6 +460,13 @@ public:
       else
          renderer->setData(std::string(), false);
 
+      // If we are rendering the selected cell,
+      // we show the editor.
+      if (iCol == 1 && iSortedRowNumber == m_selectedRow && iCol == m_selectedColumn)
+         renderer->showEditor(true);
+      else
+         renderer->showEditor(false);
+
       return renderer;
    }
 
@@ -464,13 +487,22 @@ public:
          visualPropertiesChanged();
       }
 
-   void setSelection (int row, int mask) {
+   /** This is invoked every single time the
+       editor contents must */
+   void applyEditor()
+      {
+         if (!m_editor)
+            return;
+         m_editor->UnmapWindow();
+      }
+
+   void setSelection (int row, int column, int mask) {
       if(mask == 4) {
          if( row == m_selectedRow) {
             row = -1;
          }
       }
-      changeSelection(row);
+      changeSelection(row, column);
    }
 
    virtual const std::string title() const {
@@ -488,7 +520,7 @@ public:
 
    void reset() 
    {
-      changeSelection(-1);
+      changeSelection(-1, -1);
       recalculateVisibility();
       dataChanged();
       visualPropertiesChanged();
@@ -591,6 +623,11 @@ public:
          dataChanged();
       }
 
+   void setCellValueEditor(TGTextEntry *editor)
+      {
+         m_editor = editor;
+         m_renderer.setCellEditor(editor);
+      }
 
    void handleEntry(const edm::Entry &entry,const std::string &key)
    {
@@ -796,31 +833,35 @@ public:
       }
    }
 
-
    std::vector<PSetData> &data()  { return m_entries; }
    std::vector<int> &rowToIndex() { return m_row_to_index; }
   
-   sigc::signal<void,int> indexSelected_;
+   sigc::signal<void,int,int> indexSelected_;
 
 private:
-   void changeSelection(int iRow)
+   void changeSelection(int iRow, int iColumn)
    {
-      if(iRow != m_selectedRow) {
-         m_selectedRow=iRow;
-         if(-1 == iRow) {
-            indexSelected_(-1);
-         } else {
-            indexSelected_(iRow);
-         }
-         visualPropertiesChanged();
-      }
+      // Nothing changes if we clicked selected
+      // twice the same cell.
+      if (iRow == m_selectedRow && iColumn == m_selectedColumn)
+         return;
+
+      // Otherwise update the selection information
+      // and notify observers.
+      m_selectedRow = iRow;
+      m_selectedColumn = iColumn;
+
+      indexSelected_(iRow, iColumn);
+      visualPropertiesChanged();
    }
 
    std::vector<PSetData>           m_entries;
    std::vector<size_t>             m_parentStack;
    std::vector<int>                m_row_to_index;
    int                             m_selectedRow;
+   int                             m_selectedColumn;
    std::string                     m_filter;
+   TGTextEntry                    *m_editor;
 
    mutable FWTextTreeCellRenderer m_renderer;  
    mutable FWTextTreeCellRenderer m_pathRenderer;
@@ -835,11 +876,10 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
      m_hasChanges(false),
      m_moduleLabel(0),
      m_moduleName(0),
-     m_textEdit(0),
      m_apply(0),
      m_psTable(new FWPSetTableManager())
 {
-   m_psTable->indexSelected_.connect(boost::bind(&FWPathsPopup::newIndexSelected,this,_1));
+   m_psTable->indexSelected_.connect(boost::bind(&FWPathsPopup::newIndexSelected,this,_1,_2));
 
    FWDialogBuilder builder(this);
    builder.indent(4)
@@ -848,8 +888,10 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
           .addTextEntry("", &m_search).expand(true, false)
           .spaceDown(10)
           .addTable(m_psTable, &m_tableWidget).expand(true, true)
-          .addTextEdit("", &m_textEdit)
           .addTextButton("Apply changes and reload", &m_apply);
+
+   TGTextEntry *editor = new TGTextEntry(m_tableWidget, "");
+   m_psTable->setCellValueEditor(editor);
 
    m_apply->Connect("Clicked()", "FWPathsPopup", this, "scheduleReloadEvent()");
    m_apply->SetEnabled(true);
@@ -862,43 +904,45 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
    m_tableWidget->Connect("cellClicked(Int_t,Int_t,Int_t,Int_t,Int_t,Int_t)",
                           "FWPathsPopup",this,
                           "cellClicked(Int_t,Int_t,Int_t,Int_t,Int_t,Int_t)");
-
    MapSubwindows();
+   editor->UnmapWindow();
    Layout();
 }
 
+/** Handles clicking on the table cells.
+    
+    * Clicking on a cell in the first column opens / closes a given node. 
+    * Clicking on a cell in the second column moves the editor to that cell. 
+ 
+  */
 void 
 FWPathsPopup::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t iKeyMod, Int_t, Int_t)
 {
+   if (iButton != kButton1)
+      return;
    
-   if (iColumn == 0 && iButton == kButton1)
+   if (iColumn == 0)
    {
       m_psTable->setExpanded(iRow);
-   }
-   else if ( iButton == kButton1 ) 
+      m_psTable->applyEditor();
+      m_psTable->setSelection(iRow, iColumn, iKeyMod);
+   }   
+   else if (iColumn == 1)
    {
       // Clear text on new row click
-      m_textEdit->Clear();
-      m_psTable->setSelection(iRow, iKeyMod);
+      int index = m_psTable->rowToIndex()[iRow];
+      PSetData& data = m_psTable->data()[index];
+      std::cerr << data.label << "clicked" << std::endl;
+      m_psTable->setSelection(iRow, iColumn, iKeyMod);
    }
 }
 
 void
-FWPathsPopup::newIndexSelected(int iSelectedIndex)
+FWPathsPopup::newIndexSelected(int iSelectedRow, int iSelectedColumn)
 {
-   if (iSelectedIndex == -1)
+   if (iSelectedRow == -1)
       return;
 
-   int index = m_psTable->rowToIndex()[iSelectedIndex];
-   PSetData& data = m_psTable->data()[index];
-   
-   data.expanded = !data.expanded;
-   // This likely needs to be reformatted
-   std::stringstream ss;
-   ss << data.label <<"  "<< data.type <<"  "<< data.value;
-   TGText text(ss.str().c_str());
-   m_textEdit->AddText(&text);
-   std::cerr << data.label << "clicked" << std::endl;
    m_psTable->sortWithFilter(m_search->GetText());
    m_psTable->dataChanged();
 }
@@ -906,6 +950,8 @@ FWPathsPopup::newIndexSelected(int iSelectedIndex)
 void
 FWPathsPopup::updateFilterString(const char *str)
 {
+   m_psTable->applyEditor();
+   m_psTable->setSelection(-1, -1, 0);
    m_psTable->sortWithFilter(str);
 }
 
@@ -978,10 +1024,10 @@ using namespace boost::python;
 void
 FWPathsPopup::scheduleReloadEvent()
 {
+   /*
    PythonProcessDesc desc;
    std::string pythonSnippet("import FWCore.ParameterSet.Config as cms\n"
                              "process=cms.Process('Dummy')\n");
-   TGText *text = m_textEdit->GetText();
    for (size_t li = 0, le = text->RowCount(); li != le; ++li)
    {
       char *buf = text->GetLine(TGLongPosition(0, li), text->GetLineLength(li));
@@ -1027,4 +1073,5 @@ FWPathsPopup::scheduleReloadEvent()
       std::cout << exception.what() << std::endl;
    }
    // Return control to the FWFFLooper so that it can decide what to do next.
+   */
 }

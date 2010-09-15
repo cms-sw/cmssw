@@ -38,7 +38,7 @@ public:
    bool &hasChanges() { return m_hasChanges; };
    void setup(const edm::ScheduleInfo *info);
    void cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t iKeyMod, Int_t iGlobalX, Int_t iGlobalY);
-   void newIndexSelected(int);
+   void newIndexSelected(int,int);
    void updateFilterString(const char *str);
 
 private:
@@ -52,7 +52,6 @@ private:
    TGLabel                  *m_moduleLabel;   
    TGLabel                  *m_moduleName;
    
-   TGTextEdit               *m_textEdit;
    TGTextButton             *m_apply;
    FWPSetTableManager       *m_psTable;
    FWTableWidget            *m_tableWidget;
