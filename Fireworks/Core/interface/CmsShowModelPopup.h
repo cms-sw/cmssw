@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:31 EDT 2008
-// $Id: CmsShowModelPopup.h,v 1.15 2010/05/31 15:44:01 eulisse Exp $
+// $Id: CmsShowModelPopup.h,v 1.16 2010/09/07 17:43:04 amraktad Exp $
 //
 
 // system include files
@@ -77,6 +77,7 @@ public:
    // ---------- member functions ---------------------------
    void fillModelPopup(const FWSelectionManager& iSelMgr);
    void updateDisplay();
+   void colorSetChanged();
    void disconnectAll();
    void changeModelColor(Color_t iColor);
    void changeModelOpacity(Int_t opacity = 100);

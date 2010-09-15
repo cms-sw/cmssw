@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.101 2010/09/10 20:34:05 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.102 2010/09/15 11:48:42 amraktad Exp $
 
 #include "FWCore/Common/interface/EventBase.h"
 
@@ -204,11 +204,14 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    TGPopupMenu* windowMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("Window", windowMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));
 
+   showCommonInsp->createShortcut(kKey_A, "CTRL", GetId());
+   showCommonInsp->createMenuEntry(windowMenu);
    showObjInsp->createMenuEntry(windowMenu);
-   showObjInsp->createShortcut(kKey_I, "CTRL", GetId());
+   showEventDisplayInsp->createShortcut(kKey_I, "CTRL", GetId());
    showEventDisplayInsp->createMenuEntry(windowMenu);
    showAddCollection->createMenuEntry(windowMenu);
    showMainViewCtl->createMenuEntry(windowMenu);
+
 
    TGPopupMenu *helpMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("Help", helpMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));

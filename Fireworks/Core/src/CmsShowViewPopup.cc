@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:04 EDT 2008
-// $Id: CmsShowViewPopup.cc,v 1.25 2010/08/09 08:04:48 eulisse Exp $
+// $Id: CmsShowViewPopup.cc,v 1.26 2010/09/08 19:18:55 amraktad Exp $
 //
 
 // system include files
@@ -115,6 +115,7 @@ CmsShowViewPopup::reset(FWViewBase* vb, TEveWindow* ew)
       m_viewLabel->SetText(m_viewBase->typeName().c_str());
       m_viewBase->populateController(*m_paramGUI);
       m_paramGUI->populateComplete();
+
       fMain = m_eveWindow->GetEveFrame();
    }
    else {
@@ -182,14 +183,21 @@ CmsShowViewPopup::backgroundColorWasChanged()
 
 ViewerParameterGUI::ViewerParameterGUI(const TGFrame* p):
    TGCompositeFrame(p),
-   m_tab(0)
+   m_tab(0),
+   m_selectedTabName("Style")
 {
    SetCleanup(kDeepCleanup);
 }
 
 void
 ViewerParameterGUI::reset()
-{ 
+{  
+   // remember selected tab
+   if (m_tab) 
+      m_selectedTabName =  m_tab->GetCurrentTab()->GetString();
+   else
+      m_selectedTabName = "Style";
+
    m_setters.clear();
    if (m_tab) RemoveFrame(m_tab);
    m_tab = 0;
@@ -252,5 +260,9 @@ ViewerParameterGUI::separator()
 void
 ViewerParameterGUI::populateComplete()
 {
-   if (m_tab) m_tab->SetTab(0);
+   if (m_tab) 
+   {
+      bool x = m_tab->SetTab(m_selectedTabName.c_str(), false);
+      if (!x) m_tab->SetTab("Style");
+   }
 }

@@ -24,36 +24,38 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
    AddFrame(vf, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY, 2, 2, 2, 4));
    TGHSlider* m_transpWidget;
 
-   FWDialogBuilder builder(vf);
-   builder.indent(4)
-      .expand(false)
-      .addLabel("Colors", 14)
-      .spaceDown(4)
-      .addLabel("Background:", 10)
-      .addTextButton("Change Background", &m_backgroundButton, true)
-      .spaceDown(4)     
-      .addLabel("Brightness:", 10)
-      .addHSlider(150, &m_gammaSlider, true)
-      .addTextButton("ResetBrightness", &m_gammaButton, true)
-      .spaceDown(4)
-      .addHSeparator(0)
-      .addLabel("Scales ... TODO", 14)
-      .spaceDown(20)
-      .addHSeparator(0)
-      .addLabel("Detector Colors ... (tracker, muon ...) ", 14)
-      .spaceDown(20)
-      .indent(3)
-      .addLabel("Transparency", 8)
-      .addHSlider(100, &m_transpWidget, true)
-      .spaceDown(5);
+   TGLabel* smallLabel;
 
+   FWDialogBuilder builder(vf);
+   builder.indent(3)
+      .spaceDown(3)  
+      .addLabel("General Colors:", 14)
+      .spaceDown(4)  
+      .addTextButton("Black/White Background", &m_backgroundButton)
+      .spaceDown(4)  
+      .addLabel("Brightness:", 8, 0, &smallLabel)
+      .addHSlider(150, &m_gammaSlider)
+      .addTextButton("Reset Brightness", &m_gammaButton)
+      .spaceDown(4)
+      .addHSeparator(0)
+      .addLabel("Detector Colors: ", 14)
+      .spaceDown(2)
+      .indent(0)
+      .spaceDown(1)  
+      .addLabel("Transparency:", 8)
+      .addHSlider(100, &m_transpWidget)
+      .spaceDown(2);
+     
+   m_backgroundButton->SetEnabled(true);
+   m_gammaButton->SetEnabled(true);
+   m_transpWidget->SetEnabled(true);
 
    TGCompositeFrame* tp  = (TGCompositeFrame*)m_gammaButton->GetParent()->GetParent();
    TGHorizontalFrame* parent[3];
    for (int i = 0; i < kFWGeomColorSize; ++i)
    {
       parent[i] = new TGHorizontalFrame(tp);
-      tp->AddFrame(parent[i]);
+      tp->AddFrame(parent[i], new TGLayoutHints(kLHintsExpandX| kLHintsTop));
    }
 
    m_colorSelectWidget[kFWMuonBarrelLineColorIndex] = new FWColorSelect(parent[kFWMuonBarrelLineColorIndex], "Muon Barrel" , 0, m_common->colorManager(), kFWMuonBarrelLineColorIndex);
@@ -67,7 +69,9 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
       parent[i]->AddFrame(m_colorSelectWidget[i]); 
       m_colorSelectWidget[i]->SetColorByIndex(m_common->colorManager()->geomColor(FWGeomColorIndex(i)) ,kFALSE);
       m_colorSelectWidget[i]->Connect("ColorChosen(Color_t)", "CmsShowCommonPopup", this, "changeGeomColor(Color_t)");
-      parent[i]->AddFrame(new TGLabel(parent[i], m_colorSelectWidget[i]->label().c_str())); 
+      TGLabel* label = new TGLabel(parent[i], m_colorSelectWidget[i]->label().c_str());
+      label->SetTextFont(smallLabel->GetFont());
+      parent[i]->AddFrame(label); 
    }
 
    m_backgroundButton->Connect("Clicked()", "CmsShowCommonPopup", this, "switchBackground()");
@@ -84,6 +88,7 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
    MapSubwindows();
    Resize(GetDefaultSize());
    Layout();
+   CenterOnParent(kTRUE, TGTransientFrame::kTopRight);
 }
 
 CmsShowCommonPopup::~CmsShowCommonPopup()
@@ -121,4 +126,13 @@ void
 CmsShowCommonPopup::changeGeomTransparency(int iTransp)
 {
    m_common->setGeomTransparency(iTransp);
+}
+
+/* Called by FWGUIManager when change background. */
+void 
+CmsShowCommonPopup::colorSetChanged()
+{
+   for (int i = 0 ; i < kFWGeomColorSize; ++i)
+      m_colorSelectWidget[i]->SetColorByIndex(m_common->colorManager()->geomColor(FWGeomColorIndex(i)), kFALSE);
+   
 }

@@ -109,9 +109,9 @@ public:
    FWDialogBuilder &addColorPicker(const FWColorManager *manager,
                                    FWColorSelect **out = 0);
    
-   FWDialogBuilder &addHSlider(size_t size, TGHSlider **out = 0, bool enable = false);
+   FWDialogBuilder &addHSlider(size_t size, TGHSlider **out = 0);
    
-   FWDialogBuilder &addTextButton(const char *text, TGTextButton **out = 0, bool enable = false);
+   FWDialogBuilder &addTextButton(const char *text, TGTextButton **out = 0);
    FWDialogBuilder &addValidatingTextEntry(const char *defaultText, 
                                            FWGUIValidatingTextEntry **out);
    FWDialogBuilder &addTextEntry(const char *defaultText, TGTextEntry **out);

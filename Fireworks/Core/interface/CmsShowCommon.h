@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Sep 10 14:51:07 CEST 2010
-// $Id: CmsShowCommon.h,v 1.1 2010/09/10 20:34:04 amraktad Exp $
+// $Id: CmsShowCommon.h,v 1.2 2010/09/15 11:48:41 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWConfigurableParameterizable.h"
@@ -51,7 +51,7 @@ public:
    void setGeomTransparency(int);
 
 protected:
-   FWColorManager*     colorManager() const { return m_colorManager;}
+   const FWColorManager*     colorManager() const { return m_colorManager;}
 
 private:
    CmsShowCommon(const CmsShowCommon&); // stop default

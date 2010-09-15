@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Sep 10 14:50:32 CEST 2010
-// $Id: CmsShowCommon.cc,v 1.1 2010/09/10 20:34:05 amraktad Exp $
+// $Id: CmsShowCommon.cc,v 1.2 2010/09/15 11:48:42 amraktad Exp $
 //
 
 // system include files
@@ -55,7 +55,6 @@ CmsShowCommon::switchBackground()
 void
 CmsShowCommon::setGeomColor(FWGeomColorIndex cidx, Color_t iColor)
 {
-   printf("set geom color %d \n", iColor);
    m_geomColors[cidx]->set(iColor);
    m_colorManager->setGeomColor(cidx, iColor);
 }

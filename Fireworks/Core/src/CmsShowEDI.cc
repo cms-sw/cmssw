@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.39 2010/06/16 14:04:38 matevz Exp $
+// $Id: CmsShowEDI.cc,v 1.40 2010/09/07 17:43:04 amraktad Exp $
 //
 
 // system include files
@@ -447,17 +447,19 @@ CmsShowEDI::selectAll() {
       m_item->select(i);
    }
 }
-
 void 
 CmsShowEDI::show(FWDataCategories iToView)
 {
    m_tabs->SetTab(iToView);
 }
 
-//
-// const member functions
-//
-
-//
-// static member functions
-//
+/* Called by FWGUIManager when change background/colorset. */
+void 
+CmsShowEDI::colorSetChanged()
+{
+   if (m_item)
+   {
+      const FWDisplayProperties &p = m_item->defaultDisplayProperties();
+      m_colorSelectWidget->SetColorByIndex(p.color(),kFALSE);
+   }
+}

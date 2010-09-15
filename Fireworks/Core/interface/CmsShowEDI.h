@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:42 EDT 2008
-// $Id: CmsShowEDI.h,v 1.15 2010/05/31 15:44:01 eulisse Exp $
+// $Id: CmsShowEDI.h,v 1.16 2010/06/03 13:38:31 eulisse Exp $
 //
 
 // system include files
@@ -66,6 +66,7 @@ public:
    //      void emptyEDIFrame();
    void updateDisplay();
    void updateFilter();
+   void colorSetChanged();
    void disconnectAll();
    void changeItemColor(Color_t color );
    void toggleItemVisible(Bool_t on = kTRUE);

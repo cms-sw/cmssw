@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:07:58 CET 2009
-// $Id: FWColorManager.h,v 1.20 2010/06/17 14:02:37 matevz Exp $
+// $Id: FWColorManager.h,v 1.21 2010/09/15 11:48:42 amraktad Exp $
 //
 
 // system include files
@@ -75,7 +75,6 @@ public:
    static Bool_t setColorSetViewer(TGLViewer*, Color_t);
 
    static Color_t getDefaultStartColorIndex();
-   static Color_t getDefaultStartGeometryIndex();
 
    // ---------- member functions ---------------------------
 
@@ -86,7 +85,7 @@ public:
    void setBackgroundAndBrightness(BackgroundColorIndex, int);
    void switchBackground();
 
-   void setGeomColor(FWGeomColorIndex, Color_t) const;
+   void setGeomColor(FWGeomColorIndex, Color_t);
    void setGeomTransparency(Color_t);
    Color_t geomTransparency() const { return m_geomTransparency; } 
 
@@ -111,13 +110,11 @@ private:
    
    Color_t m_startColorIndex;
    Color_t m_numColorIndices;
-   Color_t m_startGeomColorIndex;
 
-   mutable Color_t m_geomColor[kFWGeomColorSize];
-   mutable Char_t  m_geomTransparency;
+   Color_t m_geomColor[kFWGeomColorSize];
+   Char_t  m_geomTransparency;
 
    static const Color_t s_defaultStartColorIndex;
-   static const Color_t s_defaultStartGeometryIndex;
 };
 
 

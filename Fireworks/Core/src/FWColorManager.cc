@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.29 2010/09/01 18:49:00 amraktad Exp $
+// $Id: FWColorManager.cc,v 1.30 2010/09/15 11:48:42 amraktad Exp $
 //
 
 // system include files
@@ -37,10 +37,7 @@
 //static std::vector<Color_t>* s_forBlack=0;
 
 const Color_t FWColorManager::s_defaultStartColorIndex    = 1000;
-const Color_t FWColorManager::s_defaultStartGeometryIndex = 1100;
-
 Color_t FWColorManager::getDefaultStartColorIndex()    { return s_defaultStartColorIndex; }
-Color_t FWColorManager::getDefaultStartGeometryIndex() { return s_defaultStartGeometryIndex; }
 
 enum {
    kFWRed     = 1008,
@@ -180,27 +177,11 @@ FWColorManager::FWColorManager(FWModelChangeManager* iManager):
    m_geomColor[kFWTrackerColorIndex]        = 1021 ;
 }
 
-// FWColorManager::FWColorManager(const FWColorManager& rhs)
-// {
-//    // do actual copying here;
-// }
-
 FWColorManager::~FWColorManager()
 {
 }
 
 //
-// assignment operators
-//
-// const FWColorManager& FWColorManager::operator=(const FWColorManager& rhs)
-// {
-//   //An exception safe implementation is
-//   FWColorManager temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
-
 //
 // member functions
 
@@ -223,17 +204,6 @@ void FWColorManager::initialize()
     //std::cout <<" color "<< index <<" "<<(*it)[0]<<" "<<(*it)[1]<<" "<<(*it)[2]<<std::endl;
     new TColor(index++,(*it)[0],(*it)[1],(*it)[2]);
   }
-
-  /*
-  m_startGeomColorIndex = index = s_defaultStartGeometryIndex;
-  itEnd = s_geomForBlack+s_geomSize;
-  for(const float(* it)[3] = s_geomForBlack;
-      it != itEnd;
-      ++it) {
-    //NOTE: this constructor automatically places this color into the gROOT color list
-    new TColor(index++,(*it)[0],(*it)[1],(*it)[2]);
-  } 
-  */  
 }
 
 void FWColorManager::updateColors()
@@ -241,13 +211,11 @@ void FWColorManager::updateColors()
    if (backgroundColorIndex() == kBlackIndex)
    {
       resetColors(s_forBlack,s_size,m_startColorIndex,  m_gammaOff);
-      // resetColors(s_geomForBlack, s_geomSize, m_startGeomColorIndex,  m_gammaOff);
       TEveUtil::SetColorBrightness(1.666*m_gammaOff);
    }
    else
    {
       resetColors(s_forWhite,s_size,m_startColorIndex,  m_gammaOff);
-      // resetColors(s_geomForWhite, s_geomSize, m_startGeomColorIndex,  m_gammaOff);
       TEveUtil::SetColorBrightness(1.666*m_gammaOff - 2.5);
    }
    FWChangeSentry sentry(*m_changeManager);
@@ -320,6 +288,23 @@ FWColorManager::setColorSetViewer(TGLViewer* v, Color_t iColor)
    return kFALSE;
 }
 
+void
+FWColorManager::setGeomColor(FWGeomColorIndex idx, Color_t iColor)
+{
+   m_geomColor[idx] = iColor;
+   geomColorsHaveChanged_();
+   gEve->Redraw3D();
+}
+
+void
+FWColorManager::setGeomTransparency(Color_t iTransp)
+{
+   m_geomTransparency = iTransp;
+   geomColorsHaveChanged_();
+
+   gEve->Redraw3D();
+}
+
 //
 // const member functions
 //
@@ -334,7 +319,6 @@ FWColorManager::fillLimitedColors(std::vector<Color_t>& cv) const
       cv.push_back(i);
    }
 }
-
 
 FWColorManager::BackgroundColorIndex 
 FWColorManager::backgroundColorIndex() const
@@ -375,30 +359,8 @@ FWColorManager::oldColorToIndex(Color_t iColor) const
       (*m_oldColorToIndexMap)[kMagenta]=kFWMagenta;
       (*m_oldColorToIndexMap)[kViolet]=kFWMagenta;
       (*m_oldColorToIndexMap)[kOrange]=kFWOrange;
-      //(*m_oldColorToIndexMap)[kGray]=kFWGray;
       (*m_oldColorToIndexMap)[3]=kFWGreen;
       
    }
    return (*m_oldColorToIndexMap)[iColor];
 }
-
-void
-FWColorManager::setGeomColor(FWGeomColorIndex idx, Color_t iColor) const
-{
-   m_geomColor[idx] = iColor;
-   geomColorsHaveChanged_();
-   gEve->Redraw3D();
-}
-
-void
-FWColorManager::setGeomTransparency(Color_t iTransp)
-{
-   m_geomTransparency = iTransp;
-   geomColorsHaveChanged_();
-
-   gEve->Redraw3D();
-}
-
-//
-// static member functions
-//

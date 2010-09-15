@@ -28,7 +28,8 @@ public:
    void resetGamma();
    void changeGeomColor(Color_t);
    void changeGeomTransparency(int);
-   
+   void colorSetChanged();
+
 private:
    CmsShowCommonPopup(const CmsShowCommonPopup&);
    const CmsShowCommonPopup& operator=(const CmsShowCommonPopup&);

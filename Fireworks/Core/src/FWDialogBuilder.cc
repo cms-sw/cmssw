@@ -281,23 +281,23 @@ FWDialogBuilder::addColorPicker(const FWColorManager *manager,
 }
 
 FWDialogBuilder &
-FWDialogBuilder::addHSlider(size_t size, TGHSlider **out /*= 0*/, bool enable)
+FWDialogBuilder::addHSlider(size_t size, TGHSlider **out /*= 0*/)
 {
    TGHSlider *slider = new TGHSlider(nextFrame(), size, kSlider1);
    currentFrame()->AddFrame(slider, nextHints());
    slider->SetRange(0, 100);
    slider->SetPosition(100);
-   slider->SetEnabled(enable);
+   slider->SetEnabled(false);
    
    return extract(slider, out);
 }
 
 FWDialogBuilder &
-FWDialogBuilder::addTextButton(const char *text, TGTextButton **out /*= 0*/, bool enable)
+FWDialogBuilder::addTextButton(const char *text, TGTextButton **out /*= 0*/)
 {
    TGTextButton *button = new TGTextButton(nextFrame(), text);
    currentFrame()->AddFrame(button, nextHints());
-   button->SetEnabled(enable);
+   button->SetEnabled(false);
    
    return extract(button, out);
 }

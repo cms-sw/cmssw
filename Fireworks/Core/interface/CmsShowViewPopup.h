@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:12 EDT 2008
-// $Id: CmsShowViewPopup.h,v 1.16 2010/03/14 18:22:59 amraktad Exp $
+// $Id: CmsShowViewPopup.h,v 1.17 2010/09/08 19:18:55 amraktad Exp $
 //
 
 // system include files
@@ -59,6 +59,7 @@ public:
 
 private:
    TGTab* m_tab;
+   std::string m_selectedTabName;
    std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
 }; 
 

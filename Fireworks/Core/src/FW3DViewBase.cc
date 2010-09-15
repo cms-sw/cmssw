@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DViewBase.cc,v 1.11 2010/09/08 19:18:55 amraktad Exp $
+// $Id: FW3DViewBase.cc,v 1.12 2010/09/15 11:48:42 amraktad Exp $
 //
 #include <boost/bind.hpp>
 
@@ -102,10 +102,10 @@ FW3DViewBase::setFrom(const FWConfiguration& iFrom)
    TGLPerspectiveCamera* camera = dynamic_cast<TGLPerspectiveCamera*>(&(viewerGL()->CurrentCamera()));
    setFromPerspectiveCamera(camera, "Plain3D", iFrom);
 
-   // version < 5
-   std::string tName("Detector Transparency");
-   if (iFrom.valueForKey(tName))
+   if (iFrom.version() < 5)
    {
+      // transparency moved to common preferences in FWEveView version 5
+      std::string tName("Detector Transparency");
       std::istringstream s(iFrom.valueForKey(tName)->value());
       int transp;
       s>> transp;

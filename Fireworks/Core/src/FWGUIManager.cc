@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.218 2010/09/13 14:36:47 matevz Exp $
+// $Id: FWGUIManager.cc,v 1.219 2010/09/15 11:48:42 amraktad Exp $
 
 //
 
@@ -914,6 +914,7 @@ static const std::string kControllers("controllers");
 static const std::string kCollectionController("collection");
 static const std::string kViewController("view");
 static const std::string kObjectController("object");
+static const std::string kCommonController("common");
 
 static
 void
@@ -1115,6 +1116,11 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
          addWindowInfoTo(m_modelPopup, temp);
          controllers.addKeyValue(kObjectController,temp,true);
       }
+      if(0!=m_commonPopup && m_commonPopup->IsMapped()) {
+         FWConfiguration temp(1);
+         addWindowInfoTo(m_commonPopup, temp);
+         controllers.addKeyValue(kCommonController,temp,true);
+      }
    }
    oTo.addKeyValue(kControllers,controllers,true);
 }
@@ -1231,6 +1237,9 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
             } else if (controllerName == kObjectController) {
                showModelPopup();
                setWindowInfoFrom(it->second, m_modelPopup);
+            } else if (controllerName == kCommonController) {
+               showCommonPopup();
+               setWindowInfoFrom(it->second, m_commonPopup);
             }
          }
       }
@@ -1285,6 +1294,10 @@ void FWGUIManager::eventIdChanged()
 void
 FWGUIManager::finishUpColorChange()
 {
+   if (m_commonPopup) m_commonPopup->colorSetChanged();
+   if (m_modelPopup)  m_modelPopup->colorSetChanged();
+   if (m_ediFrame)    m_ediFrame->colorSetChanged();
+
    gEve->FullRedraw3D();
 }
 //______________________________________________________________________________

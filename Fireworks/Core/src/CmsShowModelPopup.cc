@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:08 EDT 2008
-// $Id: CmsShowModelPopup.cc,v 1.29 2010/09/07 17:50:25 amraktad Exp $
+// $Id: CmsShowModelPopup.cc,v 1.30 2010/09/07 18:05:39 amraktad Exp $
 //
 
 // system include file
@@ -272,6 +272,19 @@ CmsShowModelPopup::updateDisplay()
    }
 }
 
+/* Called by FWGUIManager when change background/colorset. */
+void 
+CmsShowModelPopup::colorSetChanged()
+{ 
+   for (std::set<FWModelId>::iterator i = m_models.begin(), e = m_models.end(); 
+        i != e; ++i)
+   {
+      const FWEventItem::ModelInfo &info = i->item()->modelInfo(i->index());
+      const FWDisplayProperties &p = info.displayProperties();
+      m_colorSelectWidget->SetColorByIndex(p.color(), kFALSE);
+   } 
+}
+ 
 /** This is invoked to when no object is selected and sets the dialog in
     a disabled look.
   */
