@@ -98,7 +98,7 @@ namespace edm {
       // The entry is a lumi entry that was not skipped above.  Keep it.
       return false;
     }
-    event_ = MinimalEventID(run, event);
+    event_ = EventID(run, lumi, event);
     if(search_if_in_all(whichEventsToSkip_, *this)) {
       // The event is specified in whichEventsToSkip.  Skip it.
       return true;

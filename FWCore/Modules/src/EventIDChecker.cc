@@ -2,7 +2,7 @@
 //
 // Package:    Modules
 // Class:      EventIDChecker
-// 
+//
 /**\class EventIDChecker EventIDChecker.cc FWCore/Modules/src/EventIDChecker.cc
 
  Description: Checks that the events passed to it come in the order specified in its configuration
@@ -30,7 +30,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "DataFormats/Provenance/interface/MinimalEventID.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 
 //
 // class decleration
@@ -41,18 +41,18 @@ public:
    explicit EventIDChecker(edm::ParameterSet const&);
    ~EventIDChecker();
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-   
-   
+
+
 private:
-   virtual void beginJob() ;
+   virtual void beginJob();
    virtual void analyze(edm::Event const&, edm::EventSetup const&);
-   virtual void endJob() ;
+   virtual void endJob();
    virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
 
    // ----------member data ---------------------------
-   std::vector<edm::MinimalEventID> ids_;
+   std::vector<edm::EventID> ids_;
    unsigned int index_;
-   
+
    unsigned int multiProcessSequentialEvents_;
    unsigned int numberOfEventsToSkip_;
    unsigned int numberOfEventsLeftBeforeSkip_;
@@ -70,7 +70,7 @@ private:
 // constructors and destructor
 //
 EventIDChecker::EventIDChecker(edm::ParameterSet const& iConfig) :
-  ids_(iConfig.getUntrackedParameter<std::vector<edm::MinimalEventID> >("eventSequence")),
+  ids_(iConfig.getUntrackedParameter<std::vector<edm::EventID> >("eventSequence")),
   index_(0),
   multiProcessSequentialEvents_(iConfig.getUntrackedParameter<unsigned int>("multiProcessSequentialEvents")),
   numberOfEventsToSkip_(0),
@@ -81,7 +81,7 @@ EventIDChecker::EventIDChecker(edm::ParameterSet const& iConfig) :
 
 
 EventIDChecker::~EventIDChecker() {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -102,24 +102,24 @@ EventIDChecker::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
          index_ += numberOfEventsToSkip_;
       }
    }
-         
+
    if(index_ >= ids_.size()) {
       throw cms::Exception("TooManyEvents")<<"Was passes "<<ids_.size()<<" EventIDs but have processed more events than that\n";
    }
    if(iEvent.id().run() != ids_[index_].run() || iEvent.id().event() != ids_[index_].event()) {
-      throw cms::Exception("WrongEvent")<<"Was expecting event "<<ids_[index_]<<" but was given "<<iEvent.id()<<"\n";
+      throw cms::Exception("WrongEvent") << "Was expecting event " << ids_[index_] << " but was given " << iEvent.id() << "\n";
    }
    ++index_;
 }
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 EventIDChecker::beginJob() {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 EventIDChecker::endJob() {
 }
 
@@ -127,15 +127,15 @@ EventIDChecker::endJob() {
 void
 EventIDChecker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.addUntracked<std::vector<edm::MinimalEventID> >("eventSequence");
+  desc.addUntracked<std::vector<edm::EventID> >("eventSequence");
   desc.addUntracked<unsigned int>("multiProcessSequentialEvents", 0U);
   descriptions.add("eventIDChecker", desc);
 }
 
-void 
+void
 EventIDChecker::postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-   numberOfEventsToSkip_ = (iNumberOfChildren-1)*multiProcessSequentialEvents_;
-   index_ = iChildIndex*multiProcessSequentialEvents_;
+   numberOfEventsToSkip_ = (iNumberOfChildren - 1) * multiProcessSequentialEvents_;
+   index_ = iChildIndex * multiProcessSequentialEvents_;
 }
 
 //define this as a plug-in

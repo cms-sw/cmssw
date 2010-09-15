@@ -4,6 +4,7 @@
 #include "DataFormats/Provenance/interface/EventRange.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 #include "boost/shared_ptr.hpp"
 #include <memory>
 #include <vector>
@@ -35,7 +36,7 @@ namespace edm {
     std::vector<EventRange> whichEventsToSkip_;
     std::vector<EventRange> whichEventsToProcess_;
     mutable LuminosityBlockID lumi_;
-    mutable MinimalEventID event_;
+    mutable EventID event_;
   };
 }
 
