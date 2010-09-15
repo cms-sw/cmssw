@@ -3,8 +3,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2010/09/12 07:34:15 $
- *  $Revision: 1.30 $
+ *  $Date: 2010/09/14 09:12:54 $
+ *  $Revision: 1.31 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -79,8 +79,6 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet & iPSet) :
   produces<MEtoEDM<double>, edm::InLumi>(sName);
   produces<MEtoEDM<long long>, edm::InLumi>(sName);
   produces<MEtoEDM<TString>, edm::InLumi>(sName);
-
-  iFirstEvent = true;
 
   iCount.clear();
 
@@ -559,12 +557,5 @@ MEtoEDMConverter::putData(T& iPutTo, bool iLumiOnly)
 void
 MEtoEDMConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  if (iFirstEvent) {
-    if (iEvent.isRealData()) {
-      iDataTier = "DATA";
-    } else {
-      iDataTier = "MC";
-    }
-  }
 
 }
