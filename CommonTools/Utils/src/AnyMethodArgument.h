@@ -4,48 +4,22 @@
 #include "Reflex/Object.h"
 #include "Reflex/Member.h"
 #include "CommonTools/Utils/interface/Exception.h"
-
 #include <algorithm>
-#include <string>
-#include <stdint.h>
 
+#include <string>
 #include <boost/variant.hpp>
-#include <boost/type_traits/is_same.hpp>
-#include <boost/type_traits/is_integral.hpp>
-#include <boost/type_traits/is_floating_point.hpp>
-#include <boost/utility/enable_if.hpp>
-#include <boost/mpl/if.hpp>
+#include <stdint.h>
 
 namespace reco {
   namespace parser {
 
-    // true if T matches one of the integral types in the default
-    // AnyMethodArgument variant
-    template <typename T>
-    struct matches_another_integral_type {
-        static bool const value = 
-            boost::is_same<T, int8_t>::value  || boost::is_same<T, uint8_t>::value  ||
-            boost::is_same<T, int16_t>::value || boost::is_same<T, uint16_t>::value ||
-            boost::is_same<T, int32_t>::value || boost::is_same<T, uint32_t>::value ||
-            boost::is_same<T, int64_t>::value || boost::is_same<T, uint64_t>::value;
-    };
-
-    // size_t on 32-bit Os X is type unsigned long, which doesn't match uint32_t,
-    // so add size_t if it doesn't match any of the other integral types
-    typedef boost::mpl::if_<matches_another_integral_type<size_t>,
-        boost::variant<int8_t, uint8_t,
-                       int16_t, uint16_t,
-                       int32_t, uint32_t,
-                       int64_t, uint64_t,
-                       double,float,
-                       std::string>,
-        boost::variant<int8_t, uint8_t,
-                       int16_t, uint16_t,
-                       int32_t, uint32_t,
-                       int64_t, uint64_t,
-                       size_t,
-                       double,float,
-                       std::string> >::type AnyMethodArgument;
+    typedef boost::variant<
+                int8_t, uint8_t,
+                int16_t, uint16_t,
+                int32_t, uint32_t,
+                int64_t, uint64_t,
+                double,float,
+                std::string> AnyMethodArgument;
 
     class AnyMethodArgumentFixup : public boost::static_visitor<std::pair<AnyMethodArgument, int> > {
         private:
@@ -66,7 +40,6 @@ namespace reco {
                 if (type_ == typeid(uint32_t)) { return retOk_<int,uint32_t>(t,0); }
                 if (type_ == typeid(int64_t))  { return retOk_<int,int64_t> (t,0); }
                 if (type_ == typeid(uint64_t)) { return retOk_<int,uint64_t>(t,0); }
-                if (type_ == typeid(size_t))   { return retOk_<int,size_t>  (t,0); } // harmless if size_t matches another type
                 if (type_ == typeid(double))   { return retOk_<int,double>  (t,1); }
                 if (type_ == typeid(float))    { return retOk_<int,float>   (t,1); }
                 return std::pair<AnyMethodArgument,int>(t,-1);
@@ -89,24 +62,28 @@ namespace reco {
             }
 
             // we handle all integer types through 'int', as that's the way they are parsed by boost::spirit
-            template<typename I>
-            typename boost::enable_if<boost::is_integral<I>, std::pair<AnyMethodArgument,int> >::type
-            operator()(const I &t) const { return doInt(t); }
+            std::pair<AnyMethodArgument,int> operator()(const   int8_t &t) const { return doInt(t); }
+            std::pair<AnyMethodArgument,int> operator()(const  uint8_t &t) const { return doInt(t); }
+            std::pair<AnyMethodArgument,int> operator()(const  int16_t &t) const { return doInt(t); }
+            std::pair<AnyMethodArgument,int> operator()(const uint16_t &t) const { return doInt(t); }
+            std::pair<AnyMethodArgument,int> operator()(const  int32_t &t) const { return doInt(t); }
+            std::pair<AnyMethodArgument,int> operator()(const uint32_t &t) const { return doInt(t); }
+            std::pair<AnyMethodArgument,int> operator()(const  int64_t &t) const { return doInt(t); }
+            std::pair<AnyMethodArgument,int> operator()(const uint64_t &t) const { return doInt(t); }
 
-            template<typename F>
-            typename boost::enable_if<boost::is_floating_point<F>, std::pair<AnyMethodArgument,int> >::type
-            operator()(const F &t) const { 
-                if (type_ == typeid(double)) { return retOk_<F,double>(t,0); }
-                if (type_ == typeid(float))  { return retOk_<F,float> (t,0); }
+            std::pair<AnyMethodArgument,int> operator()(const float &t) const { 
+                if (type_ == typeid(double)) { return retOk_<float,double>(t,0); }
+                if (type_ == typeid(float))  { return retOk_<float,float> (t,0); }
                 return std::pair<AnyMethodArgument,int>(t,-1);
             }
-
+            std::pair<AnyMethodArgument,int> operator()(const double &t) const { 
+                if (type_ == typeid(double)) { return retOk_<double,double>(t,0); }
+                if (type_ == typeid(float))  { return retOk_<double,float> (t,0); }
+                return std::pair<AnyMethodArgument,int>(t,-1);
+            }
             std::pair<AnyMethodArgument,int> operator()(const std::string &t) const { 
                 if (type_ == typeid(std::string)) { return std::pair<AnyMethodArgument,int>(t,0); }
                 if (rflxType_.IsEnum()) {
-                    if (rflxType_.MemberSize() == 0) {
-                        throw parser::Exception(t.c_str()) << "Enumerator '" << rflxType_.Name() << "' has no keys.\nPerhaps the reflex dictionary is missing?\n";
-                    }
                     Reflex::Member value = rflxType_.MemberByName(t);
                     //std::cerr << "Trying to convert '" << t << "'  to a value for enumerator '" << rflxType_.Name() << "'" << std::endl;
                     if (!value) // check for existing value

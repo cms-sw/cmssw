@@ -32,9 +32,9 @@ TFileDirectory::getHist (const string &histname, const string &subdir) const
 }
 
 bool
-TFileDirectory::cd (const string &subdir) const
+TFileDirectory::cd () const
 {
-   _cd (subdir, false);
+   _cd ("", false);
    return true;
 }
 

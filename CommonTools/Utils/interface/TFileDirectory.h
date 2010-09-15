@@ -28,7 +28,7 @@ class TFileDirectory {
 
       // cd()s to requested directory and returns true (if it is not
       // able to cd, it throws exception).
-      bool cd (const std::string &subdir = "") const;
+      bool cd () const;
 
       // returns a TDirectory pointer
       TDirectory *getBareDirectory (const std::string &subdir = "") const;
