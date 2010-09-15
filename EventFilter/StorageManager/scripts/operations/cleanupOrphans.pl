@@ -1,14 +1,36 @@
 #!/usr/bin/env perl
 
+# Script to make REPORTS and/or DELETE "global" area files abandoned on SM disk
+# Script looks at disks, finds files, and if '--clean' option specified it will:
+# 1) delete the file
+# 2) enter file in the FILES_DELETED table if not *already* there
+#    [Note: this *breaks* the continuity sequence of FILES_xxxx tables]
+# 3) enter file in the FILES_ORPHANS table with:
+#          COMMENT_STR = "deleted"     IF the file was     NOW inserted into the DELETED table
+#                      = "redeleted"   IF the file was NOT NOW inserted into the DELETED table
+#                                           because it was already(!) in the DELETED table
+#                      = "faildelete"  IF the file was NOT inserted into the DELETED table
+#                                         because the attempt failed for some reason!
+#                      = ""            IF the file was inserted into the ORPHANS table
+#                                         *before* the the above features were implemented!
+#
+
+#Example Call:
+#./cleanupOrphans.pl --max=10 --closedfiles --clean --age=30 --FILES_ALL --contains=Transfer --host=srv-C2C07-15
+
+
+
+
 use warnings;
 use DBI;
 use Getopt::Long;
 use File::Basename;
 
-use constant MIN_CLEAN_AGE => 7; #won't delete anything under X days
+#use constant MIN_CLEAN_AGE => 7; #won't delete anything under X days
+use constant MIN_CLEAN_AGE =>  2; #won't delete anything under X days
 
-#Example Call:
-#./cleanupOrphans.pl --max=10 --closedfiles --clean --age=30 --FILES_ALL --contains=Transfer --host=srv-C2C07-15
+
+
 
 #get host running from
 my $runHost = `hostname`;
@@ -78,6 +100,7 @@ else{
     die("Error: Unable to access database user information");
 }
 
+
 #Connect to the database
 my $dbi = "DBI:Oracle:cms_rcms";
 my $dbh = DBI->connect($dbi,$reader,$phrase) or die("Error: Connection to Oracle DB failed");
@@ -107,9 +130,21 @@ my $SQLcheck = "select" .
         "where CMS_STOMGR.FILES_CREATED.FILENAME=?";
 my $checkHan = $dbh->prepare($SQLcheck) or die("Error: DB query prepare failed - $dbh->errstr \n");
 
-#Skeleton query to make entry into orphans table
-my $SQLEntry = "insert into CMS_STOMGR.FILES_ORPHANS(FILENAME,DTIME,HOST,STATUS,COMMENT_STR) VALUES (?,sysdate,?,?,?)";
-my $entryHan = $dbh->prepare($SQLEntry) or die("Error: DB query prepare failed - $dbh->errstr\n");
+
+#Skeleton query to verify absence/presence in DELETED table:
+my $SQLQueryDeleted = "select CMS_STOMGR.FILES_DELETED.DTIME from CMS_STOMGR.FILES_DELETED where CMS_STOMGR.FILES_DELETED.FILENAME=?";
+my $QueryHanDeleted = $dbh->prepare($SQLQueryDeleted) or die("Error: DB query prepare failed - $dbh->errstr\n");
+
+
+
+#Skeleton insert to make entry into DELETED:
+my $SQLEntryDeleted = "insert into CMS_STOMGR.FILES_DELETED(FILENAME,DTIME) VALUES (?,sysdate)";
+my $entryHanDeleted = $dbh->prepare($SQLEntryDeleted) or die("Error: DB query prepare failed - $dbh->errstr\n");
+
+
+#Skeleton insert to make simulataneou entry into orphans table
+my $SQLEntryOrphan = "insert into CMS_STOMGR.FILES_ORPHANS(FILENAME,DTIME,HOST,STATUS,COMMENT_STR) VALUES (?,sysdate,?,?,?)";
+my $entryHanOrphan = $dbh->prepare($SQLEntryOrphan) or die("Error: DB query prepare failed - $dbh->errstr\n");
 
 #Routine to get the status of a give file (based on previously existing separate script
 sub getStatus($)
@@ -123,7 +158,7 @@ sub getStatus($)
     unless($result[2]) {return 1;}
     unless($result[3]) {return 10;}
     unless($result[4]) {return 20;}
-    unless($result[5]) {return 30;}
+    unless($result[5]) {return 30 unless($result[6])}  #extra unless($result[6]): want to be sure to skip over gap where DELETED is still filled!
     unless($result[6]) {return 40;}
     return 99;
 }   
@@ -151,7 +186,7 @@ sub report($)
     my $CONTAINS_QUERY = "";
     if ($DO_FILE_CONTAINS){ $CONTAINS_QUERY = "-name '*$DO_FILE_CONTAINS*'";}
     
-    my @hosts = `cat $Con{"HOSTLIST"}`;
+    my @hosts = `cat $Con{"HOSTLIST"} | grep -i c2`;
     if ($DO_HOST){ @hosts = $DO_HOST; }
     foreach $host (@hosts ){
 	my $FILES_DONE = 0;
@@ -180,6 +215,30 @@ sub report($)
 		    if ($host eq $runHost) {$filedata = `find $file -printf '%TD, %kK'`;}
 		    else {$filedata = `ssh $host "find $file -printf '%TD, %kK' "`;}
 		    print "$host, $filedata, $status, $file\n";
+
+
+#             my $filename1=`echo  $file | cut -d'/' -f6`;
+# 		    chomp $filename1;
+# 	    print "FILE: ||$filename1|| \n";
+# 	     
+#             my $entrycheckDeleted   = $QueryHanDeleted->execute($filename1);
+#             @entryresultDELETED     = $QueryHanDeleted->fetchrow_array;
+#             my $origentryErrDeleted = $QueryHanDeleted->errstr;
+# 	    print "DELETED Query:  $entryresultDELETED[0]; ";
+# 	    print "  $entrycheckDeleted; $origentryErrDeleted \n";
+#                 if (defined($origentryErrDeleted)){ #failed to find in DB
+#                     print "DELETED entry not found: error: $origentryErrDeleted \n";
+#                 }
+# 
+#                 if (!defined($entryresultDELETED[0])){ #failed to find in DB
+#                     print "DELETED entry $entryresultDELETED[0] not defined: $entryresultDELETED[0]|| \n";
+#                 }
+# 
+# 
+# 	    print " \n";
+
+
+
 		}
 		if ($status == 0) {$FILES_CREATED = $FILES_CREATED + 1;}
 		elsif ($status == 1) {$FILES_INJECTED = $FILES_INJECTED + 1;}
@@ -231,6 +290,7 @@ sub clean($)
 {
     my $path = shift;
     
+    my $TOTAL_FILES_ELSE = 0;
     my $TOTAL_FILES_DONE = 0;
     my $TOTAL_FILES_CREATED = 0;
     my $TOTAL_FILES_INJECTED = 0;
@@ -259,9 +319,10 @@ sub clean($)
     my $CONTAINS_QUERY = "";
     if ($DO_FILE_CONTAINS){ $CONTAINS_QUERY = "-name '*$DO_FILE_CONTAINS*'";}
     
-    my @hosts = `cat $Con{"HOSTLIST"}`;
+    my @hosts = `cat $Con{"HOSTLIST"} | grep -i c2`;
     if ($DO_HOST){ @hosts = $DO_HOST; }
     foreach $host (@hosts ){
+	my $FILES_ELSE = 0;
 	my $FILES_DONE = 0;
 	my $FILES_CREATED = 0;
 	my $FILES_INJECTED = 0;
@@ -283,7 +344,7 @@ sub clean($)
 	else {@files = `ssh $host "find $path $AGE_QUERY $CONTAINS_QUERY -name '*.dat'"`;}
 	foreach $file (@files){
 	    chomp $file;
-	    if ($FILES_DONE < $DO_FILE_MAX){
+	    if ($FILES_DONE+$FILES_ELSE < $DO_FILE_MAX){
 		my $basename = `basename $file`;
 		chomp $basename;
 		my $status = &getStatus($basename);
@@ -351,11 +412,15 @@ sub clean($)
 			$COMPLETED_DELETES = $COMPLETED_DELETES + 1;
 			$FILES_DONE = $FILES_DONE + 1;
 		    }
+		    else{
+#comment this out so "other" files (eg not in db) are not counted against the delete!			$FILES_ELSE = $FILES_ELSE + 1;
+		    }
 		}	      
 	    } 
 	}
 	$COMPLETED_DELETES = $COMPLETED_DELETES - $FAILED_DELETES;
 
+	$TOTAL_FILES_ELSE = $TOTAL_FILES_ELSE + $FILES_ELSE;
 	$TOTAL_FILES_DONE = $TOTAL_FILES_DONE + $FILES_DONE;
         $TOTAL_FILES_CREATED = $TOTAL_FILES_CREATED + $FILES_CREATED;
         $TOTAL_FILES_INJECTED = $TOTAL_FILES_INJECTED + $FILES_INJECTED;
@@ -378,7 +443,7 @@ sub clean($)
 	    print "\t FILES_NO_STATUS_IN_DB $FILES_NO_STATUS\n"; 
 	}
 	else {
-	    print "\t FILES_NO_STATUS_IN_DB(NOT DELETED) $FILES_NO_STATUS\n";
+	    print "\t FILES_NO_STATUS_IN_DB(NOT DELETED) $FILES_ELSE\n";
 	}
 	print "SUCCESSFUL DELETES: $COMPLETED_DELETES\n";
 	print "FAILED DELETES: $FAILED_DELETES\n";
@@ -412,6 +477,8 @@ sub delete_file($)
     my $chmodexitcode = 0;
     my $rmexitcode = 0;
     my $numberFailed = 0;
+
+
     if ($DO_FILES_EMU){ #Right now this does this same thing but lists diagnostics
 	if ($targetHost eq $runHost) {
 	    $chmodexitcode = system("sudo chmod 666 $targetFile");
@@ -423,6 +490,7 @@ sub delete_file($)
 	}
 	if ($rmexitcode != 0){
 	    print "Failed: $filename\n";
+	    print APPLOG "Failed: $filename\n";
 	    $numberFailed = $numberFailed + 1;
 	}
 	else{
@@ -440,21 +508,64 @@ sub delete_file($)
 	}
 	if ($rmexitcode != 0){
 	    $numberFailed = $numberFailed + 1;
+	    print APPLOG "Failed: $filename\n";
 	}
     }
 
+
+
+
+
     if ($rmexitcode == 0){ #successful delete, so enter in DB
 	if ($targetStatus > -1){ #Can't enter in table if not already in DB
-	    $entryHan->bind_param(1,$filename);
-	    $entryHan->bind_param(2,$host);
-	    $entryHan->bind_param(3,$targetStatus);
-	    $entryHan->bind_param(4,'');
-	    $entryHan->execute();
-	    my $entryErr = $entryHan->errstr;
+            my $orphanscomment="redeleted";
+
+#           Check if files ALREADY in DELETED (not supposed to be, but has happened)
+            my $entrycheckDeleted   = $QueryHanDeleted->execute($filename);
+            @entryresultDELETED     = $QueryHanDeleted->fetchrow_array;
+            if (!defined($entryresultDELETED[0])){ #file NOT in DELETED so go ahead and enter it 
+####
+####		print "try to enter file $filename into DELETED table \n";
+
+#               Enter in DELETED Table:
+		$entryHanDeleted->execute($filename);
+		$entryErrDeleted = $entryHanDeleted->errstr;
+		if (defined($entryErrDeleted)){ #failed to enter in DB
+		    #Maybe exit, maybe log entry???
+		    print "DELETED DB insert produced error: $entryErrDeleted \n";
+	            print APPLOG "DELETED DB insert produced error: $entryErrDeleted FOR:\n";
+                    $fday=`date +%c`;
+                    $ftimes=`date +%s`;
+	            print APPLOG "$filename  $fday  $ftimes"; 
+		    $orphanscomment="faildelete";
+		}
+		else {
+		    $orphanscomment="deleted";
+####
+####		    print "file was NOT in DELETED DB, re-set   orphanscomment=$orphanscomment \n";
+		}
+	    }else{
+####
+####		print "file $filename was already in DELETED table \n";
+	    }
+####
+####		print "try to enter file $filename into ORPHANS table \n";
+#           Enter in ORPHANS Table:
+	    $entryHanOrphan->bind_param(1,$filename);
+	    $entryHanOrphan->bind_param(2,$host);
+	    $entryHanOrphan->bind_param(3,$targetStatus);
+	    $entryHanOrphan->bind_param(4,$orphanscomment);
+	    $entryHanOrphan->execute();
+	    my $entryErr = $entryHanOrphan->errstr;
 	    if (defined($entryErr)){ #failed to enter in DB
 		#Maybe exit, maybe log entry???
-		print "Orphan DB insert produced error: $entryErr \n";
+		print "Orphan DB insert produced error: $entryErr  \n";
+		print  APPLOG "Orphan DB insert produced error: $entryErr FOR: \n";
+		$fday=`date +%c`;
+		$ftimes=`date +%s`;
+		print APPLOG "$filename || $host || $targetStatus || $orphanscomment || $fday  $ftimes"; 
 	    }
+	    
 	}
     }
     return $numberFailed;
@@ -610,6 +721,7 @@ if ($DO_CLEAN){
 
 #Close DB
 $checkHan->finish();
-$entryHan->finish();
+$entryHanOrphan->finish();
+$QueryHanDeleted->finish();
 $dbh->disconnect;
 
