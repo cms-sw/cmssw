@@ -34,54 +34,56 @@ FWEcalRecHitLegoProxyBuilder::calculateET( const std::vector<TEveVector> &vertic
 void
 FWEcalRecHitLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext* )
 {
-	size_t size = iItem->size();
-	int iSize = static_cast<int>(size);
-	float max = 0;
-	float etData[iSize];
-	std::vector< std::vector<TEveVector> > recHitData(0);
-	std::vector<TEveVector> null(8);
+   size_t size = iItem->size();
+   int iSize = static_cast<int>(size);
+   float max = 0;
+   float etData[iSize];
+   std::vector< std::vector<TEveVector> > recHitData(0);
+   std::vector<TEveVector> null(8);
 
 
-	for( int index = 0; index < iSize; index++ )
-	{
-		const EcalRecHit &iData = modelData(index);
-		std::vector<TEveVector> corners = item()->getGeom()->getPoints( iData.detid() );
-		std::vector<TEveVector> etaphiCorners(8);
-		float e_t = 0;
+   for( int index = 0; index < iSize; index++ )
+   {
+      const EcalRecHit &iData = modelData(index);
+      const float* corners = item()->getGeom()->getCorners( iData.detid() );
+      std::vector<TEveVector> etaphiCorners(8);
+      float e_t = 0;
 
-		if( corners.empty() )
-		{
-			recHitData.push_back( null );
-			etData[index] = 0;
-			continue;
-		}
+      if(corners == 0 )
+      {
+         recHitData.push_back( null );
+         etData[index] = 0;
+         continue;
+      }
 
-		for( int i = 4; i < 8; i++ )
-		{
-			etaphiCorners[i].fX = corners[i-4].Eta();	// Conversion of rechit X/Y values for plotting in Eta/Phi
-			etaphiCorners[i].fY = corners[i-4].Phi();
-			etaphiCorners[i].fZ = 0.1;					// Small z offset so that the tower is slightly above the 'ground'
+      for( int i = 4; i < 8; i++ )
+      {
+         int j = (i-4)*3;
+         TEveVector cv = TEveVector(corners[j], corners[j+1], corners[j+2]);
+         etaphiCorners[i].fX = cv.Eta();	// Conversion of rechit X/Y values for plotting in Eta/Phi
+         etaphiCorners[i].fY = cv.Phi();
+         etaphiCorners[i].fZ = 0.1;					// Small z offset so that the tower is slightly above the 'ground'
 
-			etaphiCorners[i-4] = etaphiCorners[i];		// Front face can simply be plotted exactly over the top of the back face
-			etaphiCorners[i-4].fZ = 0.0;				// There needs to be a difference in facet Z values for normalization
-		}
+         etaphiCorners[i-4] = etaphiCorners[i];		// Front face can simply be plotted exactly over the top of the back face
+         etaphiCorners[i-4].fZ = 0.0;				// There needs to be a difference in facet Z values for normalization
+      }
 
-		e_t = calculateET( etaphiCorners, iData.energy() );
-		if( e_t > max ) { max = e_t; }
-		recHitData.push_back( etaphiCorners );			// Store the newly calculated data to remove the need for re-processing
-		etData[index] = e_t;
-	}
+      e_t = calculateET( etaphiCorners, iData.energy() );
+      if( e_t > max ) { max = e_t; }
+      recHitData.push_back( etaphiCorners );			// Store the newly calculated data to remove the need for re-processing
+      etData[index] = e_t;
+   }
 
-	for( int i = 0; i < iSize; i++ )
-	{
-		if( recHitData[i] == null ) { continue; }		// Don't do anything if the current index is NULL data
+   for( int i = 0; i < iSize; i++ )
+   {
+      if( recHitData[i] == null ) { continue; }		// Don't do anything if the current index is NULL data
 
-		TEveCompound *itemHolder = createCompound();
-		product->AddElement( itemHolder );
+      TEveCompound *itemHolder = createCompound();
+      product->AddElement( itemHolder );
 
-		LegoRecHit *recHit = new LegoRecHit( recHitData[i].size(), recHitData[i], itemHolder, this, etData[i], max );
-		recHit->setSquareColor( kBlack );
-	}
+      LegoRecHit *recHit = new LegoRecHit( recHitData[i].size(), recHitData[i], itemHolder, this, etData[i], max );
+      recHit->setSquareColor( kBlack );
+   }
 }
 
 REGISTER_FWPROXYBUILDER( FWEcalRecHitLegoProxyBuilder, EcalRecHit, "Ecal RecHit", FWViewType::kLegoBit );

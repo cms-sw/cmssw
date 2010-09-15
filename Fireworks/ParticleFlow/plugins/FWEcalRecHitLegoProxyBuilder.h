@@ -5,12 +5,12 @@
 // Package:     		Particle Flow
 // Class:     			FWEcalRecHitLegoProxyBuilder
 // Original Author:		Simon Harris
-// $Id: 				FWEcalRecHitLegoProxyBuilder.h, 2010/09/02 10:42:03 Simon Exp $
+// $Id: FWEcalRecHitLegoProxyBuilder.h,v 1.1 2010/09/14 14:36:57 sharris Exp $
 //
 
 #include "Fireworks/Core/interface/FWProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/DetIdToMatrix.h"
+#include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/Context.h"
 #include "TEveCompound.h"
 
