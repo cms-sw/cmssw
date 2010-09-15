@@ -6,15 +6,17 @@ def customise(process):
         outputCommands=cms.untracked.vstring('drop RandomEngineStates_*_*_*',
                                              'keep RandomEngineStates_*_*_'+process.name_())
         )
-    process.outputModules_().iteritems().next().outputCommands.extend(RNGStateCleaning.outputCommands)
-    #process.output.outputCommands.extend(RNGStateCleaning.outputCommands)
+
+    for item in process.outputModules_().values():
+        item.outputCommands.extend(RNGStateCleaning.outputCommands)
 
     TRGResultCleaning= cms.PSet(
         outputCommands=cms.untracked.vstring('drop edmTriggerResults_*_*_*',
                                              'keep edmTriggerResults_*_*_'+process.name_())
         )
-    process.outputModules_().iteritems().next().outputCommands.extend(TRGResultCleaning.outputCommands)
-    #process.output.outputCommands.extend(TRGResultCleaning.outputCommands)
+
+    for item in process.outputModules_().values():
+        item.outputCommands.extend(TRGResultCleaning.outputCommands)
 
 
     return(process)
