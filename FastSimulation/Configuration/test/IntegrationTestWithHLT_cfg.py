@@ -69,13 +69,6 @@ process.famosPileUp.PileUpSimulator.averageNumber = 0.0
 # Get frontier conditions   - not applied in the HCAL, see below
 from Configuration.PyReleaseValidation.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['startup']
-process.GlobalTag.toGet = cms.VPSet(
-    cms.PSet(
-        record  = cms.string( "L1GtTriggerMenuRcd" ),
-        tag     = cms.string( "L1GtTriggerMenu_L1Menu_Commissioning2010_v4_mc" ),
-        connect = cms.untracked.string( "frontier://FrontierProd/CMS_COND_31X_L1T" )
-    )
-)
 
 # Apply ECAL and HCAL miscalibration 
 process.ecalRecHit.doMiscalib = True
