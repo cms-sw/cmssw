@@ -288,6 +288,7 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
     expectedVals = [0]
     predVals   = [0]
     weight = 0
+    expectedChunks = []
     ########################
     ## Time Ordering Mode ##
     ########################
@@ -341,7 +342,6 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
         #############################################
         ## Break Expected by Integrated Luminosity ##
         #############################################
-        expectedChunks = []
         if options.breakExpectedIntLum:
             breakExpectedIntLum = []
             for chunk in options.breakExpectedIntLum:
@@ -453,7 +453,9 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
     graph.SetMarkerStyle (20)
     expectedGraph = ROOT.TGraph( size, xArray, expected)
     expectedGraph.SetLineColor (ROOT.kRed)
-    expectedGraph.SetLineWidth (2)
+    expectedGraph.SetLineWidth (3)
+    if options.noDataPoints:
+        expectedGraph.SetLineStyle (2)
 
     # run statistical tests
     if options.weights:
@@ -473,7 +475,11 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
         minValue = min (minValue, min (predVals))
     graph.GetYaxis().SetRangeUser (minValue,
                                    max (max(yVals), max(expected), max(predVals)))
-    graph.Draw ("ALP")
+    graph.SetLineWidth (3)
+    if options.noDataPoints:
+        graph.Draw ("AL")
+    else:
+        graph.Draw ("ALP")
     if 'instLum' == options.edfMode:
         graph.GetXaxis().SetTitle ("Average Xing Inst. Luminosity (1/ub/s)")
         graph.GetXaxis().SetRangeUser (0., lumiCont.max('aveInstLum'))
@@ -493,7 +499,9 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
             expectedGraph = ROOT.TGraph( len(chunk),
                                          expectedXarray,
                                          expectedYarray )
-            expectedGraph.SetLineWidth (2)
+            expectedGraph.SetLineWidth (3)
+            if options.noDataPoints:
+                expectedGraph.SetLineStyle (2)
             if index % 2:
                 expectedGraph.SetLineColor (ROOT.kBlue)
             else:
@@ -507,7 +515,7 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
     if options.pred:
         predArray = array.array ('d', predVals)
         green = ROOT.TGraph (size, xArray, predArray)
-        green.SetLineWidth (2)
+        green.SetLineWidth (3)
         green.SetLineColor (8)
         green.Draw ('l')
     legend = ROOT.TLegend(0.15, 0.65, 0.50, 0.85)
@@ -544,7 +552,7 @@ if __name__ == '__main__':
     ## command line options ##
     ##########################
     allowedEDF = ['time', 'instLum', 'instIntLum']
-    parser = optparse.OptionParser ("Usage: %prog [options] lumi.csv events.txt output.png")
+    parser = optparse.OptionParser ("Usage: %prog [options] lumi.csv events.txt output.png", description='Script for generating EDF curves. See https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideGenerateEDF for more details.')
     plotGroup  = optparse.OptionGroup (parser, "Plot Options")
     rangeGroup = optparse.OptionGroup (parser, "Range Options")
     inputGroup = optparse.OptionGroup (parser, "Input Options")
@@ -558,6 +566,9 @@ if __name__ == '__main__':
     plotGroup.add_option ('--predLabel', dest='predLabel', type='string',
                           default = 'Predicted',
                           help = 'label of predicted in legend')
+    plotGroup.add_option ('--noDataPoints', dest='noDataPoints',
+                          action='store_true',
+                          help="Draw lines but no points for data")
     rangeGroup.add_option ('--minRun', dest='minRun', type='int', default=0,
                            help='Minimum run number to consider')
     rangeGroup.add_option ('--maxRun', dest='maxRun', type='int', default=0,
