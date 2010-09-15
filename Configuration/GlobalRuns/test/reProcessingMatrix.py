@@ -26,7 +26,7 @@ def Era_10PDs():
         alcaAndSkimMap=Era_8PDs()
         alcaAndSkimMap.pop('JetMETTau')
     alcaAndSkimMap['JetMET']=('HcalCalDijets','LogError','DiJet')
-    alcaAndSkimMap['BTau']=('HcalCalDijets','LogError','Tau')
+    alcaAndSkimMap['BTau']=('','LogError','Tau')
     alcaAndSkimMap['MuOnia']=('TkAlJpsiMuMu+TkAlUpsilonMuMu','')
     return alcaAndSkimMap
 
@@ -37,11 +37,11 @@ def Era_8PDs():
     alcaAndSkimMap['Commissioning']=('','DT+L1MuBit+RPC+CSCHLT+CSCAlone+MuonTrack+LogError')
     alcaAndSkimMap['MinimumBias']=('SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+HcalCalIsoTrk','CSC+MuonTrack+HSCP+BeamBkg+ValSkim+TPG+LogError')
     alcaAndSkimMap['EG']=('EcalCalElectron','LogError')
-    alcaAndSkimMap['Mu']=('MuAlCalIsolatedMu+MuAlOverlaps+TkAlMuonIsolated+DtCalib+TkAlZMuMu','LogError')
+    alcaAndSkimMap['Mu']=('MuAlCalIsolatedMu+MuAlOverlaps+TkAlMuonIsolated+DtCalib+TkAlZMuMu+TkAlJpsiMuMu+TkAlUpsilonMuMu','LogError')
     alcaAndSkimMap['JetMETTau']=('HcalCalDijets','LogError','DiJet','Tau')
     #alcaAndSkimMap['AlCaP0']=('EcalCalPi0Calib+EcalCalEtaCalib','')
     #alcaAndSkimMap['AlCaPhiSymEcal']=('EcalCalPhiSym+DQM','')
-    #alcaAndSkimMap['HcalNZS']=('HcalCalMinBias','')
+    alcaAndSkimMap['HcalNZS']=('HcalCalMinBias','')
     #alcaAndSkimMap['Cosmics']=('TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo+TkAlCosmics0T+MuAlStandAloneCosmics+MuAlGlobalCosmics+MuAlCalIsolatedMu+HcalCalHOCosmics','')
     alcaAndSkimMap['Cosmics']=('','CosmicSP+CSC+LogError')
     alcaAndSkimMap['EGMonitor']=('','EcalRH+TPG+LogError')
@@ -52,6 +52,8 @@ def Era_2PDs():
     alcaAndSkimMap['']=('','LogError')
     alcaAndSkimMap['ZeroBias']=('SiStripCalZeroBias','')
     alcaAndSkimMap['MinimumBias']=('SiStripCalMinBias+SiStripCalZeroBias+TkAlMinBias+TkAlMuonIsolated+MuAlCalIsolatedMu+MuAlOverlaps+HcalCalIsoTrk+HcalCalDijets+DtCalib+EcalCalElectron','')
+    alcaAndSkimMap['HcalNZS']=('HcalCalMinBias','')
+    alcaAndSkimMap['Cosmics']=('','CosmicSP+CSC+LogError')
     return alcaAndSkimMap
 
 def Era_1PDs():
@@ -68,6 +70,7 @@ tiers=','.join(tiers)
 
 com='cmsDriver.py reco -s RAW2DIGI,L1Reco,RECO,DQM%s  --data --magField AutoFromDBCurrent --scenario pp --datatier '+tiers+' --eventcontent '+options.output+' --customise Configuration/GlobalRuns/reco_TLR_'+options.release+'.py --cust_function customisePPData --no_exec --python_filename=rereco_%sCollision_'+options.release+'.py --conditions %s '+options.options
 skim='cmsDriver.py skim -s SKIM:%s --data --magField AutoFromDBCurrent --scenario pp --datatier '+tiers+' --eventcontent '+options.output+' --no_exec --python_filename=skim_%s'+options.release+'.py --conditions %s '+options.options
+comCos='cmsDriver.py reco -s RAW2DIGI,L1Reco,RECO,DQM%s  --data --magField AutoFromDBCurrent --scenario cosmics --datatier '+tiers+' --eventcontent '+options.output+' --customise Configuration/GlobalRuns/reco_TLR_'+options.release+'.py --cust_function customiseCosmicData --no_exec --python_filename=rereco_%sCosmic_'+options.release+'.py --conditions %s '+options.options
 
 import os
 
@@ -79,6 +82,7 @@ for PD in alcaAndSkimMap.keys():
     print "PD:",PD,"alca=",alcaArg,"skim=",skimArg
     
     c=com
+    cc=comCos
     s=skim
     spec=options.era+'_'
     doCFG=True
@@ -87,6 +91,7 @@ for PD in alcaAndSkimMap.keys():
     if (PD==''):
         alca=''
         c=com+' --process reRECO'
+        cc=comCos+' --process reRECO'
     else:
         spec+=PD+"_"
         if alcaArg=='':
@@ -100,7 +105,10 @@ for PD in alcaAndSkimMap.keys():
 
     if doCFG:
         os.system(c%(alca,spec,options.GT))
+        if PD=='':
+            os.system(cc%(',ALCA:HcalCalHOCosmics+MuAlBeamHalo+MuAlBeamHaloOverlaps+MuAlCalIsolatedMu+MuAlGlobalCosmics+MuAlStandAloneCosmics+TkAlBeamHalo+TkAlCosmics0T',spec,options.GT))
 
+            
     if (skimArg!=""):
         os.system(s%(skimArg,spec,options.GT))
 
