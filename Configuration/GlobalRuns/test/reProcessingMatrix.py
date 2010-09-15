@@ -82,6 +82,10 @@ for PD in alcaAndSkimMap.keys():
     print "PD:",PD,"alca=",alcaArg,"skim=",skimArg
     
     c=com
+    if PD == 'HcalNZS':
+        c=c.replace(',RECO,',',RECO:reconstruction_HcalNZS,')
+        print c
+        
     cc=comCos
     s=skim
     spec=options.era+'_'
@@ -90,8 +94,8 @@ for PD in alcaAndSkimMap.keys():
         spec+='AOD_'
     if (PD==''):
         alca=''
-        c=com+' --process reRECO'
-        cc=comCos+' --process reRECO'
+        c+=' --process reRECO'
+        cc+=' --process reRECO'
     else:
         spec+=PD+"_"
         if alcaArg=='':
