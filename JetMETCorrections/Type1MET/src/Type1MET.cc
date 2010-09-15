@@ -13,7 +13,7 @@
 //
 // Original Author:  Oct 12 08:23
 //         Created:  Wed Oct 12 12:16:04 CDT 2005
-// $Id: Type1MET.cc,v 1.19 2010/08/06 20:24:38 wmtan Exp $
+// $Id: Type1MET.cc,v 1.20 2010/08/19 18:18:47 lacroix Exp $
 //
 //
 
@@ -31,6 +31,7 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
 
 #include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
 
@@ -90,9 +91,24 @@ namespace cms
 		  &*output );                                         //Invoke the algorithm
 	iEvent.put( output );                                        //Put output into Event
       }
-    else
+    else if (metType == "PFMET")
       {
       Handle<PFJetCollection> inputUncorJets;
+      iEvent.getByLabel( inputUncorJetsLabel, inputUncorJets );
+      const JetCorrector* corrector = JetCorrector::getJetCorrector (correctorLabel, iSetup);
+
+	Handle<PFMETCollection> inputUncorMet;                     //Define Inputs
+	iEvent.getByLabel( inputUncorMetLabel,  inputUncorMet );     //Get Inputs
+	std::auto_ptr<METCollection> output( new METCollection() );  //Create empty output
+	alg_.run( *(inputUncorMet.product()), *corrector, *(inputUncorJets.product()), 
+		  jetPTthreshold, jetEMfracLimit, UscaleA, UscaleB, UscaleC, useTypeII, hasMuonsCorr,
+                  *(inputMuons.product()), *(vm_muCorrData_h.product()),
+		  &*output );                                         //Invoke the algorithm
+	iEvent.put( output );                                        //Put output into Event
+      }
+    else
+      {
+	Handle<pat::JetCollection> inputUncorJets;
       iEvent.getByLabel( inputUncorJetsLabel, inputUncorJets );
       const JetCorrector* corrector = JetCorrector::getJetCorrector (correctorLabel, iSetup);
 
