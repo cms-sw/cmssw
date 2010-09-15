@@ -52,10 +52,17 @@ seclayertriplets.FPix.HitProducer = 'secPixelRecHits'
 
 # SEEDS
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
-secTriplets = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone()
-secTriplets.RegionFactoryPSet.RegionPSet.originHalfLength = 17.5
+from RecoTracker.TkTrackingRegions.GlobalTrackingRegionFromBeamSpot_cfi import RegionPsetFomBeamSpotBlock
+secTriplets = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone(
+    RegionFactoryPSet = RegionPsetFomBeamSpotBlock.clone(
+    ComponentName = cms.string('GlobalRegionProducerFromBeamSpot'),
+    RegionPSet = RegionPsetFomBeamSpotBlock.RegionPSet.clone(
+    ptMin = 0.075,
+    nSigmaZ = 3.3
+    )
+    )
+    )
 secTriplets.OrderedHitsFactoryPSet.SeedingLayers = 'SecLayerTriplets'
-secTriplets.RegionFactoryPSet.RegionPSet.ptMin = 0.075
 secTriplets.ClusterCheckPSet.PixelClusterCollectionLabel = 'secClusters'
 secTriplets.ClusterCheckPSet.ClusterCollectionLabel = 'secClusters'
       

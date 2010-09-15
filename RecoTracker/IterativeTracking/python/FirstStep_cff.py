@@ -17,9 +17,11 @@ from RecoTracker.TkSeedGenerator.GlobalPixelSeeds_cff import *
 
 # seeding
 from RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff import *
+from RecoTracker.TkTrackingRegions.GlobalTrackingRegionFromBeamSpot_cfi import RegionPsetFomBeamSpotBlock
 newSeedFromTriplets = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone(
-    RegionFactoryPSet = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.RegionFactoryPSet.clone(
-    RegionPSet = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.RegionFactoryPSet.RegionPSet.clone(
+    RegionFactoryPSet = RegionPsetFomBeamSpotBlock.clone(
+    ComponentName = cms.string('GlobalRegionProducerFromBeamSpot'),
+    RegionPSet = RegionPsetFomBeamSpotBlock.RegionPSet.clone(
     ptMin = 0.8
     )
     )
