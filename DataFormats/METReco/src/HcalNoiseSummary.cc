@@ -20,7 +20,8 @@ HcalNoiseSummary::HcalNoiseSummary()
     maxzeros_(0),
     maxhpdhits_(0), maxhpdhitsnoother_(0), maxrbxhits_(0),
     minhpdemf_(999999.), minrbxemf_(999999.),
-    nproblemRBXs_(0)
+    nproblemRBXs_(0),
+    nisolnoise_(0), isolnoisee_(0), isolnoiseet_(0)
 {
 }
 
@@ -187,6 +188,21 @@ float HcalNoiseSummary::minRBXEMF(void) const
 int HcalNoiseSummary::numProblematicRBXs(void) const
 {
   return nproblemRBXs_;
+}
+
+int HcalNoiseSummary::numIsolatedNoiseChannels(void) const
+{
+  return nisolnoise_;
+}
+
+float HcalNoiseSummary::isolatedNoiseSumE(void) const
+{
+  return isolnoisee_;
+}
+
+float HcalNoiseSummary::isolatedNoiseSumEt(void) const
+{
+  return isolnoiseet_;
 }
 
 edm::RefVector<reco::CaloJetCollection> HcalNoiseSummary::problematicJets(void) const

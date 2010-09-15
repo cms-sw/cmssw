@@ -40,6 +40,8 @@ class HcalNoiseSummary {
   virtual ~HcalNoiseSummary();
 
   // whether or not the event passed the event filter
+  // note that these methods are deprecated
+  // please see the instructions here: https://twiki.cern.ch/twiki/bin/view/CMS/HcalNoiseInfoLibrary
   bool passLooseNoiseFilter(void) const;
   bool passTightNoiseFilter(void) const;
   bool passHighLevelNoiseFilter(void) const;
@@ -102,6 +104,10 @@ class HcalNoiseSummary {
   // number of "problematic" RBXs
   int numProblematicRBXs(void) const;
 
+  int numIsolatedNoiseChannels(void) const;
+  float isolatedNoiseSumE(void) const;
+  float isolatedNoiseSumEt(void) const;
+
   // reference to problematic jets
   edm::RefVector<reco::CaloJetCollection> problematicJets(void) const;
 
@@ -124,6 +130,8 @@ class HcalNoiseSummary {
   int maxhpdhits_, maxhpdhitsnoother_, maxrbxhits_;
   float minhpdemf_, minrbxemf_;
   int nproblemRBXs_;
+  int nisolnoise_;
+  float isolnoisee_, isolnoiseet_;
 
   edm::RefVector<reco::CaloJetCollection> problemjets_;
 
