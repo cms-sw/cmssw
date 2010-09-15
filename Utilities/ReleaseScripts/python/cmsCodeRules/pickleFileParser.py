@@ -13,7 +13,7 @@ if sys.platform[:3] == 'win':
 else:
     slash = "/"
 
-def readPicFiles(directory):
+def readPicFiles(directory, toSplit = False):
 
     ruleResult = {}
     rulesResults = {}
@@ -27,7 +27,8 @@ def readPicFiles(directory):
 
         file = open(file)
         ruleResult = pickle.load(file)
-        ruleResult = splitToPackages(ruleResult)
+        if toSplit:
+            ruleResult = splitToPackages(ruleResult)
 
         rulesResults[ruleName] = ruleResult
 

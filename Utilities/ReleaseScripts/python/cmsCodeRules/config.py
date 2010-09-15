@@ -33,7 +33,7 @@ Configuration[ruleName]['description'] = 'Search for "using" keyword in header f
 Configuration[ruleName]['filesToMatch'] = ['*.h']
 Configuration[ruleName]['exceptPaths'] = []
 Configuration[ruleName]['skipComments']  = True
-Configuration[ruleName]['filter'] = '\susing\s|\Ausing\s' #should be regular expression
+Configuration[ruleName]['filter'] = '(\susing|\Ausing)\s+(namespace|std::)' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = []
 
 # --------------------------------------------------------------------------------

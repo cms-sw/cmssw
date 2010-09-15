@@ -29,7 +29,7 @@ class BuildViewer(object):
 
     def showResults(self):
 
-        rulesResults = readPicFiles(self.pickleDir)
+        rulesResults = readPicFiles(self.pickleDir, True)
         createLogFiles(rulesResults, self.logsDir)
 
         self.formatter.writeAnchor(ref='top')
@@ -75,21 +75,21 @@ Click on the package links to get list of files
         self.formatter.startTable(colFmt, colLab, cls='mainTable')
 
         packages = []
-        table = []#
-        tableRow = len(colLab)*tuple('')#
+        table = []
+        tableRow = len(colLab)*tuple('')
         ruleNr = 0
-        for ruleName in rules:#
+        for ruleName in rules:
             try:
                 ruleResult = rulesResults[ruleName]
                 for package, packageResult in ruleResult:
                     try:
-                        index = packages.index(package)#
-                        tableRow = table[index] +(str(len(packageResult)),)#
+                        index = packages.index(package)
+                        tableRow = table[index] +(str(len(packageResult)),)
                         table[index] = tableRow
                     except ValueError:
-                        packages.append(package) #
+                        packages.append(package) 
                         tableRow = ('<a href="logs/'+package+'/log.html"/>'+package,) + tuple('-' for i in range(ruleNr)) + (str(len(packageResult)),) #
-                        table.append(tableRow)#
+                        table.append(tableRow)
                 addDash(table, ruleNr)
             except KeyError:
                 addDash(table, ruleNr)
