@@ -59,7 +59,7 @@ namespace reco {
     // fills an HcalNoiseRBXArray with various data
     // filldigis() depends on fillrechits() being called first
     //
-    void fillrechits(edm::Event&, const edm::EventSetup&, HcalNoiseRBXArray&) const;
+    void fillrechits(edm::Event&, const edm::EventSetup&, HcalNoiseRBXArray&, HcalNoiseSummary&) const;
     void filldigis(edm::Event&, const edm::EventSetup&, HcalNoiseRBXArray&) const;
     void fillcalotwrs(edm::Event&, const edm::EventSetup&, HcalNoiseRBXArray&, HcalNoiseSummary&) const;
     void filltracks(edm::Event&, const edm::EventSetup&, HcalNoiseSummary&) const;
@@ -92,6 +92,8 @@ namespace reco {
 
     double minRecHitE_, minLowHitE_, minHighHitE_; // parameters used to determine noise status
     HcalNoiseAlgo algo_; // algorithms to determine if an RBX is noisy
+
+    uint32_t HcalAcceptSeverityLevel_;
     
   };
   

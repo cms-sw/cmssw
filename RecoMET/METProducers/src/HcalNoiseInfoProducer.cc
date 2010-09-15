@@ -20,7 +20,9 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
-
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 using namespace reco;
 
@@ -50,6 +52,8 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig) :
   minRecHitE_        = iConfig.getParameter<double>("minRecHitE");
   minLowHitE_        = iConfig.getParameter<double>("minLowHitE");
   minHighHitE_       = iConfig.getParameter<double>("minHighHitE");
+
+  HcalAcceptSeverityLevel_ = iConfig.getParameter<uint32_t>("HcalAcceptSeverityLevel");
 
   // if digis are filled, then rechits must also be filled
   if(fillDigis_ && !fillRecHits_) {
@@ -87,7 +91,7 @@ HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   // fill them with the various components
   // digi assumes that rechit information is available
-  if(fillRecHits_)    fillrechits(iEvent, iSetup, rbxarray);
+  if(fillRecHits_)    fillrechits(iEvent, iSetup, rbxarray, summary);
   if(fillDigis_)      filldigis(iEvent, iSetup, rbxarray);
   if(fillCaloTowers_) fillcalotwrs(iEvent, iSetup, rbxarray, summary);
   if(fillTracks_)     filltracks(iEvent, iSetup, summary);
@@ -345,8 +349,23 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
 
 // ------------ fill the array with rec hit information
 void
-HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iSetup, HcalNoiseRBXArray& array) const
+HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iSetup, HcalNoiseRBXArray& array, HcalNoiseSummary& summary) const
 {
+  // get the HCAL channel status map
+  edm::ESHandle<HcalChannelQuality> hcalChStatus;    
+  iSetup.get<HcalChannelQualityRcd>().get( hcalChStatus );
+  const HcalChannelQuality* dbHcalChStatus = hcalChStatus.product();
+
+  // get the severity level computer
+  edm::ESHandle<HcalSeverityLevelComputer> hcalSevLvlComputerHndl;
+  iSetup.get<HcalSeverityLevelComputerRcd>().get(hcalSevLvlComputerHndl);
+  const HcalSeverityLevelComputer* hcalSevLvlComputer = hcalSevLvlComputerHndl.product();
+
+  // get the calo geometry
+  edm::ESHandle<CaloGeometry> pG;
+  iSetup.get<CaloGeometryRecord>().get(pG);
+  const CaloGeometry* geo = pG.product();
+
   // get the rechits
   edm::Handle<HBHERecHitCollection> handle;
   iEvent.getByLabel(recHitCollName_, handle);
@@ -359,6 +378,25 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
   // loop over all of the rechit information
   for(HBHERecHitCollection::const_iterator it=handle->begin(); it!=handle->end(); ++it) {
     const HBHERecHit &rechit=(*it);
+
+    // skip bad rechits (other than those flagged by the isolated noise algorithm)
+    const DetId id = rechit.detid();
+    uint32_t recHitFlag = rechit.flags();    
+    uint32_t noisebitset = (1 << HcalCaloFlagLabels::HBHEIsolatedNoise);
+    recHitFlag = (recHitFlag & noisebitset) ? recHitFlag-noisebitset : recHitFlag;
+    const uint32_t dbStatusFlag = dbHcalChStatus->getValues(id)->getValue();
+    int severityLevel = hcalSevLvlComputer->getSeverityLevel(id, recHitFlag, dbStatusFlag);
+    bool isRecovered  = hcalSevLvlComputer->recoveredRecHit(id, recHitFlag);
+    if(severityLevel!=0 && !isRecovered && severityLevel>static_cast<int>(HcalAcceptSeverityLevel_)) continue;
+
+    // if it was ID'd as isolated noise, update the summary object
+    if(rechit.flags() & noisebitset) {
+      ++summary.nisolnoise_;
+      summary.isolnoisee_ += rechit.energy();
+      GlobalPoint gp = geo->getPosition(rechit.id());
+      double et = rechit.energy()*gp.perp()/gp.mag();
+      summary.isolnoiseet_ += et;
+    }
 
     // find the hpd that the rechit is in
     HcalNoiseHPD& hpd=(*array.findHPD(rechit));

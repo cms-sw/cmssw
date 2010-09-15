@@ -87,5 +87,8 @@ hcalnoise = cms.EDProducer(
     digiCollName = cms.string('hcalDigis'),
     recHitCollName = cms.string('hbhereco'),
     caloTowerCollName = cms.string('towerMaker'),
-    trackCollName = cms.string('generalTracks')
+    trackCollName = cms.string('generalTracks'),
+
+    # severity level
+    HcalAcceptSeverityLevel = cms.uint32(9),
 )
