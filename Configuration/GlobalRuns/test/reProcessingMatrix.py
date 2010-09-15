@@ -16,7 +16,7 @@ def Era_12PDs():
     if options.fullPDs:
         alcaAndSkimMap=Era_10PDs()
         alcaAndSkimMap.pop('JetMET')
-    alcaAndSkimMap['Jet']=('HcalCalDijets','LogError','DiJet')
+    alcaAndSkimMap['Jet']=('','LogError','DiJet')
     alcaAndSkimMap['METFwd']=('','LogError')
     return alcaAndSkimMap
     
@@ -25,7 +25,7 @@ def Era_10PDs():
     if options.fullPDs:
         alcaAndSkimMap=Era_8PDs()
         alcaAndSkimMap.pop('JetMETTau')
-    alcaAndSkimMap['JetMET']=('HcalCalDijets','LogError','DiJet')
+    alcaAndSkimMap['JetMET']=('','LogError','DiJet')
     alcaAndSkimMap['BTau']=('','LogError','Tau')
     alcaAndSkimMap['MuOnia']=('TkAlJpsiMuMu+TkAlUpsilonMuMu','')
     return alcaAndSkimMap
@@ -37,13 +37,13 @@ def Era_8PDs():
     alcaAndSkimMap['Commissioning']=('','DT+L1MuBit+RPC+CSCHLT+CSCAlone+MuonTrack+LogError')
     alcaAndSkimMap['MinimumBias']=('SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+HcalCalIsoTrk','CSC+MuonTrack+HSCP+BeamBkg+ValSkim+TPG+LogError')
     alcaAndSkimMap['EG']=('EcalCalElectron','LogError')
-    alcaAndSkimMap['Mu']=('MuAlCalIsolatedMu+MuAlOverlaps+TkAlMuonIsolated+DtCalib+TkAlZMuMu+TkAlJpsiMuMu+TkAlUpsilonMuMu','LogError')
-    alcaAndSkimMap['JetMETTau']=('HcalCalDijets','LogError','DiJet','Tau')
+    alcaAndSkimMap['Mu']=('MuAlCalIsolatedMu+MuAlOverlaps+TkAlMuonIsolated+DtCalib+TkAlZMuMu','LogError')
+    alcaAndSkimMap['JetMETTau']=('','LogError','DiJet','Tau')
     #alcaAndSkimMap['AlCaP0']=('EcalCalPi0Calib+EcalCalEtaCalib','')
     #alcaAndSkimMap['AlCaPhiSymEcal']=('EcalCalPhiSym+DQM','')
     alcaAndSkimMap['HcalNZS']=('HcalCalMinBias','')
     #alcaAndSkimMap['Cosmics']=('TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo+TkAlCosmics0T+MuAlStandAloneCosmics+MuAlGlobalCosmics+MuAlCalIsolatedMu+HcalCalHOCosmics','')
-    alcaAndSkimMap['Cosmics']=('','CosmicSP+CSC+LogError')
+    alcaAndSkimMap['Cosmics']=('TkAlBeamHalo+TkAlCosmics0T+MuAlGlobalCosmics+MuAlCalIsolatedMu+HcalCalHOCosmics+DtCalib','CosmicSP+CSC+LogError')
     alcaAndSkimMap['EGMonitor']=('','EcalRH+TPG+LogError')
     return alcaAndSkimMap
 
@@ -51,14 +51,14 @@ def Era_2PDs():
     alcaAndSkimMap={}
     alcaAndSkimMap['']=('','LogError')
     alcaAndSkimMap['ZeroBias']=('SiStripCalZeroBias','')
-    alcaAndSkimMap['MinimumBias']=('SiStripCalMinBias+SiStripCalZeroBias+TkAlMinBias+TkAlMuonIsolated+MuAlCalIsolatedMu+MuAlOverlaps+HcalCalIsoTrk+HcalCalDijets+DtCalib+EcalCalElectron','')
+    alcaAndSkimMap['MinimumBias']=('SiStripCalMinBias+SiStripCalZeroBias+TkAlMinBias+TkAlMuonIsolated+MuAlCalIsolatedMu+MuAlOverlaps+HcalCalIsoTrk','')
     alcaAndSkimMap['HcalNZS']=('HcalCalMinBias','')
-    alcaAndSkimMap['Cosmics']=('','CosmicSP+CSC+LogError')
+    alcaAndSkimMap['Cosmics']=('TkAlBeamHalo+TkAlCosmics0T+MuAlGlobalCosmics+MuAlCalIsolatedMu+HcalCalHOCosmics+DtCalib','CosmicSP+CSC+LogError')
     return alcaAndSkimMap
 
 def Era_1PDs():
     alcaAndSkimMap={}
-    alcaAndSkimMap['MinimumBias']=('SiStripCalMinBias+SiStripCalZeroBias+TkAlMinBias+TkAlMuonIsolated+MuAlCalIsolatedMu+MuAlOverlaps+HcalCalIsoTrk+HcalCalDijets+DtCalib+EcalCalElectron','LogError')
+    alcaAndSkimMap['MinimumBias']=('SiStripCalMinBias+SiStripCalZeroBias+TkAlMinBias+TkAlMuonIsolated+MuAlCalIsolatedMu+MuAlOverlaps+HcalCalIsoTrk','LogError')
     return alcaAndSkimMap
 
 evt=options.output.split(',')
