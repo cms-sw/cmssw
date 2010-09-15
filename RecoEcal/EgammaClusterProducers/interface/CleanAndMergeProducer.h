@@ -26,28 +26,17 @@ class CleanAndMergeProducer : public edm::EDProducer
       
   private:
       
-      std::string  cleanBcCollection_; 
-      std::string  cleanBcProducer_; 
-      std::string  cleanScCollection_; 
-      std::string  cleanScProducer_; 
-      //std::string  cleanClShapeAssoc_; 
-      // the uncleaned collection
-      std::string  uncleanBcCollection_;
-      std::string  uncleanBcProducer_;
-      std::string  uncleanScCollection_;
-      std::string  uncleanScProducer_;
-      //std::string  uncleanClShapeAssoc_; 
+
+      edm::InputTag cleanScInputTag_;
+      edm::InputTag uncleanScInputTag_;
+     
       // the names of the products to be produced:
       std::string  bcCollection_;     
       std::string  scCollection_;     
-      std::string  cShapeCollection_; 
-      std::string  clShapeAssoc_;     
       std::string  refScCollection_;  
       // other collections
       std::string hitproducer_;
       std::string hitcollection_;
-
-      ClusterShapeAlgo shapeAlgo_; // cluster shape algorithm
 
 
 };

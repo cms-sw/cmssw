@@ -17,7 +17,6 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 
@@ -32,8 +31,6 @@
 
 // Class header file
 #include "RecoEcal/EgammaClusterProducers/interface/CleanAndMergeProducer.h"
-#include "DataFormats/EgammaReco/interface/ClusterShape.h"
-#include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 
@@ -65,10 +62,8 @@ CleanAndMergeProducer::CleanAndMergeProducer(const edm::ParameterSet& ps)
         // the names of the products to be produced:
         bcCollection_ = ps.getParameter<std::string>("bcCollection");
         scCollection_ = ps.getParameter<std::string>("scCollection");
-        cShapeCollection_ = ps.getParameter<std::string>("cShapeCollection");
-        clShapeAssoc_ = ps.getParameter<std::string>("clShapeAssoc");
         refScCollection_ = ps.getParameter<std::string>("refScCollection");
-        // to produce the cluster shape collection:
+
         std::map<std::string,double> providedParameters;  
         providedParameters.insert(std::make_pair("LogWeighted",ps.getParameter<bool>("posCalc_logweight")));
         providedParameters.insert(std::make_pair("T0_barl",ps.getParameter<double>("posCalc_t0")));
@@ -79,10 +74,8 @@ CleanAndMergeProducer::CleanAndMergeProducer(const edm::ParameterSet& ps)
         hitcollection_ =ps.getParameter<std::string>("ecalhitcollection");
 
         // the products:
-        produces< reco::ClusterShapeCollection>(cShapeCollection_);
         produces< reco::BasicClusterCollection >(bcCollection_);
         produces< reco::SuperClusterCollection >(scCollection_);
-        produces< reco::BasicClusterShapeAssociationCollection >(clShapeAssoc_);
         produces< reco::SuperClusterRefVector >(refScCollection_);
 
 }
@@ -122,9 +115,8 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
         // the collections to be produced:
         reco::BasicClusterCollection basicClusters;
         reco::SuperClusterCollection superClusters;
-        reco::BasicClusterShapeAssociationCollection shapeAssocs;
         reco::SuperClusterRefVector * scRefs = new reco::SuperClusterRefVector;
-        std::vector <reco::ClusterShape> ClusVec;
+
         //
         // run over the uncleaned SC and check how many of them are matched to the cleaned ones
         // if you find a matched one, create a reference to the cleaned collection and store it
@@ -182,9 +174,7 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
         LogDebug("EcalCleaning") << "Found cleaned SC: " << cleanSize <<  " uncleaned SC: " 
                 << uncleanSize << " from which " << scRefs->size() 
                 << " will become refs to the cleaned collection" ;
-        // the cluster shapes
-        //
-
+     
 
         // now you have the collection of basic clusters of the SC to be remain in the
         // in the clean collection, export them to the event
@@ -228,7 +218,6 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
         evt.put(scRefs_p, refScCollection_);
 
         // the collection of basic clusters is already in the event
-        // the collection of cluster shape is already in the event
         // the collection of uncleaned SC
         std::auto_ptr< reco::SuperClusterCollection > superClusters_p(new reco::SuperClusterCollection);
         superClusters_p->assign(superClusters.begin(), superClusters.end());
