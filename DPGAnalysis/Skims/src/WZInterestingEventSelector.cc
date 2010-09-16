@@ -23,6 +23,7 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
@@ -38,6 +39,8 @@
 //
 // class declaration
 //
+
+using namespace reco;
 
 class WZInterestingEventSelector : public edm::EDFilter {
 public:
@@ -64,7 +67,7 @@ private:
   bool electronSelection( const GsfElectron* eleRef , math::XYZPoint bspotPosition);  
   // ----------member data ---------------------------
 
-  std::vector<event> interestingEvents_;  
+  //std::vector<event> interestingEvents_;  
 
   //Pt cut
   float ptCut_;
@@ -287,14 +290,14 @@ WZInterestingEventSelector::filter(edm::Event& iEvent, const edm::EventSetup& iS
   //Z filt: Retain event if more then 1 good ele and invMass above threshold (zee)
   if (goodElectrons.size()>1 && maxInv > invMassCut_)
     {
-      interestingEvents_.push_back(thisEvent);
+      //interestingEvents_.push_back(thisEvent);
       return true;
     }
 
   //W filt: Retain event also event with at least 1 good ele and some met
   if (goodElectrons.size()>=1 &&  (pfMET->begin()->et()>metCut_))
     {
-      interestingEvents_.push_back(thisEvent);
+      //interestingEvents_.push_back(thisEvent);
       return true;
     }
   

@@ -17,6 +17,6 @@ hltFilter = cms.EDFilter("HLTHighLevel",
                          throw = cms.bool(False)
                          )
 
-from DPGAnalysis/Skims/WZinterestingEventFilter_cfi import *
+from DPGAnalysis.Skims.WZinterestingEventFilter_cfi import *
 
 WZfilterSkim = cms.Sequence(hltFilter*WZInterestingEventSelector)
