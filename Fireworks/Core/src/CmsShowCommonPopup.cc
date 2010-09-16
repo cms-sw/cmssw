@@ -49,6 +49,7 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
    m_backgroundButton->SetEnabled(true);
    m_gammaButton->SetEnabled(true);
    m_transpWidget->SetEnabled(true);
+   m_gammaSlider->SetEnabled(true);
 
    TGCompositeFrame* tp  = (TGCompositeFrame*)m_gammaButton->GetParent()->GetParent();
    TGHorizontalFrame* parent[3];
@@ -111,7 +112,7 @@ CmsShowCommonPopup::resetGamma()
 void
 CmsShowCommonPopup::setGamma(Int_t x)
 {
-   m_common->setGamma(x);
+  m_common->setGamma(x);
 }
 
 void
