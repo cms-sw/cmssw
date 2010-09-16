@@ -125,7 +125,7 @@ public:
   const ALIdouble* value() const {
     return theValue;
   } 
-  const ALIdouble value( uint ii ) const {
+  const ALIdouble value( ALIuint ii ) const {
     return theValue[ii];
   } 
 
@@ -133,11 +133,11 @@ public:
     return theSigma;
   } 
 
-  const ALIdouble sigma( uint ii) const {
+  const ALIdouble sigma( ALIuint ii) const {
     return theSigma[ii];
   } 
 
-  const ALIstring valueType( uint ii) const {
+  const ALIstring valueType( ALIuint ii) const {
     return theValueType[ii];
   } 
 
@@ -196,7 +196,7 @@ public:
   void setValueSimulated( ALIint coor, ALIdouble value) {
       theValueSimulated[coor] = value;
   }
-  virtual int xlaserLine( uint ii) { std::cerr << "!!!! Measurement::xlaserLine is not returning anything " << std::endl; abort(); };
+  virtual int xlaserLine( ALIuint ii) { std::cerr << "!!!! Measurement::xlaserLine is not returning anything " << std::endl; abort(); };
  
   //----- Set name as type plus name of last OptO 
   void setName();
@@ -206,7 +206,7 @@ public:
       return theValueIsSimulated[coor];
   }
 
-  virtual void setXlaserLine( uint ii, int val ) { };
+  virtual void setXlaserLine( ALIuint ii, int val ) { };
 
  static ALIdouble cameraScaleFactor;
 

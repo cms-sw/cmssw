@@ -322,7 +322,7 @@ void NtupleManager::FillMeasurements()
       Sensor2DMeasA = new( (*CloneSensor2DMeas)[ss] ) Sensor2DMeas();
       Sensor2DMeasA->Name = (*vmcite)->name();
       Sensor2DMeasA->OptObjectIndex = optoind;
-      for (uint i = 0; i<(*vmcite)->dim(); i++) {
+      for (ALIuint i = 0; i<(*vmcite)->dim(); i++) {
 	Sensor2DMeasA->Position[i] = 1000.*(*vmcite)->value()[i];
 	Sensor2DMeasA->PosError[i] = 1000.*(*vmcite)->sigma()[i];
 	Sensor2DMeasA->SimulatedPosition[i] = 1000.*(*vmcite)->valueSimulated(i);
@@ -361,7 +361,7 @@ void NtupleManager::FillMeasurements()
       CopsMeasA = new( (*CloneCopsMeas)[cc] ) CopsMeas();
       CopsMeasA->Name = (*vmcite)->name();
       CopsMeasA->OptObjectIndex = optoind;
-      for (uint i = 0; i<(*vmcite)->dim(); i++) {
+      for (ALIuint i = 0; i<(*vmcite)->dim(); i++) {
 	CopsMeasA->Position[i] = 1000.*(*vmcite)->value()[i];
 	CopsMeasA->PosError[i] = 1000.*(*vmcite)->sigma()[i];
 	CopsMeasA->SimulatedPosition[i] = 1000.*(*vmcite)->valueSimulated(i);

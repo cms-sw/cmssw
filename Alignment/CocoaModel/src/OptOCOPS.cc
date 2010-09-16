@@ -238,7 +238,7 @@ ALILine rightCCD( dowel2 + posxy, -line_dowel21_perp ); //samir changed sign to 
   
 
   ALIbool measInCCD[2];
-  uint ii,jj;
+  ALIuint ii,jj;
   for( ii = 0; ii < 4; ii++ ) {
     for( jj = 0; jj < 2; jj++ ) {
       measInCCD[jj] =  fabs( measv[ii][jj] ) < CCDlength/2;

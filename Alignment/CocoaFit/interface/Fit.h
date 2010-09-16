@@ -149,7 +149,7 @@ public:
  private:
 
   static void CheckIfFitPossible();
-  static int CheckIfMeasIsProportionalToAnother( uint measNo );
+  static int CheckIfMeasIsProportionalToAnother( ALIuint measNo );
   static std::string GetMeasurementName( int meas );
 
 // private DATA MEMBERS 

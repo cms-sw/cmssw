@@ -647,7 +647,7 @@ void CocoaToDDLMgr::specPar(OpticalObject * opto)
   }
   
   const std::vector< Entry* > extraEnt = opto->ExtraEntryList();
-  for( uint ii=0; ii<extraEnt.size(); ii++ ){
+  for( ALIuint ii=0; ii<extraEnt.size(); ii++ ){
     Entry* ent = extraEnt[ii]; 
     file_ << "   <Parameter name=\"extra_entry\" value=\"" << ent->name() << "\"  eval=\"false\" /> " << std::endl;
     file_ << "   <Parameter name=\"dimType\" value=\"" << ent->type() << "\"  eval=\"false\" /> " << std::endl;
@@ -715,7 +715,7 @@ void CocoaToDDLMgr::measurementsAsSpecPars()
       for( site = namelist.begin(); site != namelist.end(); site++ ){     
 	file_ << "   <Parameter name=\"" << std::string("meas_object_name_")+meas->name() << "\" value=\"" << (*site) << "\"  eval=\"false\" /> " << std::endl;
       }
-      for( uint ii = 0; ii < meas->dim(); ii++ ){
+      for( ALIuint ii = 0; ii < meas->dim(); ii++ ){
 	file_ << "   <Parameter name=\"" << std::string("meas_value_name_")+meas->name() << "\" value=\"" << meas->valueType(ii) << "\"  eval=\"false\" /> " << std::endl;
 	file_ << "   <Parameter name=\"" << std::string("meas_value_")+meas->name() << "\" value=\"" << meas->value(ii) << "\"  eval=\"true\" /> " << std::endl;
 	file_ << "   <Parameter name=\"" << std::string("meas_sigma_")+meas->name() << "\" value=\"" << meas->sigma(ii) << "\"  eval=\"true\" /> " << std::endl;

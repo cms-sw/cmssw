@@ -2205,7 +2205,7 @@ void OpticalObject::createComponentOptOsFromOptAlignInfo()
       std::vector<OpticalAlignParam> exent =  Model::getOpticalAlignments()[ii].extraEntries_;
       //    std::vector<OpticalAlignParam> exent = (*ite).extraEntries_;
       //-      std::cout << "createComponentOptOsFromOptAlignInfo: 2 to push_back " << std::endl;
-      /*      for( uint ij = 0; ij < exent.size(); ij++ ){
+      /*      for( ALIuint ij = 0; ij < exent.size(); ij++ ){
 	std::cout << " extra entry " << exent[ij].name_;
 	std::cout << " extra entry " << exent[ij].dimType();
 	std::cout << " extra entry " << exent[ij].value_;

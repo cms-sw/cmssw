@@ -1263,7 +1263,7 @@ void Fit::printCentreInOptOFrame( const OpticalObject* opto, const OpticalObject
     ALIUtils::dumprm( optoAncestor->rmGlob(), " parent rm " );
   }
   std::vector< Entry* > entries = opto->CoordinateEntryList();  
-  for( uint ii = 0; ii < 3; ii++ ){
+  for( ALIuint ii = 0; ii < 3; ii++ ){
     /* double entryvalue = getEntryValue( entries[ii] );
        ALIdouble entryvalue;
        if( ii == 0 ) {
@@ -1285,7 +1285,7 @@ void Fit::printRotationAnglesInOptOFrame( const OpticalObject* opto, const Optic
   std::vector< Entry* > entries = opto->CoordinateEntryList();  
   std::vector<double> entryvalues = opto->getRotationAnglesInOptOFrame( optoAncestor, entries );
   //-    std::cout << " after return entryvalues[0] " << entryvalues[0] << " entryvalues[1] " << entryvalues[1] << " entryvalues[2] " << entryvalues[2] << std::endl;
-  for( uint ii = 3; ii < entries.size(); ii++ ){
+  for( ALIuint ii = 3; ii < entries.size(); ii++ ){
     dumpEntryAfterFit( fileout, entries[ii], entryvalues[ii-3]/entries[ii]->OutputValueDimensionFactor(), printErrors, printOrig );
   }
 
@@ -1611,13 +1611,13 @@ void Fit::CheckIfFitPossible()
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-int Fit::CheckIfMeasIsProportionalToAnother( uint measNo )
+int Fit::CheckIfMeasIsProportionalToAnother( ALIuint measNo )
 {
   int measProp = -1;
 
-  std::set<uint> columnsEqual;
-  std::set<uint> columnsEqualSave;
-  uint biggestColumn = 0;
+  std::set<ALIuint> columnsEqual;
+  std::set<ALIuint> columnsEqualSave;
+  ALIuint biggestColumn = 0;
   ALIdouble biggest = 0.;
   for (int ii = 0; ii < AMatrix->NoColumns(); ii++ ){
     if( fabs((*AMatrix)(measNo,ii)) > biggest ) {
@@ -1640,7 +1640,7 @@ int Fit::CheckIfMeasIsProportionalToAnother( uint measNo )
       } else {
 	if( ALIUtils::debug >= 3 ) std::cout << "CheckIfMeasIsProportionalToAnother 2 columns != " << ii << " in " << measNo << " & " << jj << std::endl;
 	// if it is not equal delete this column 
-	std::set<uint>::iterator ite = columnsEqual.find( ii );
+	std::set<ALIuint>::iterator ite = columnsEqual.find( ii );
         if( ite != columnsEqual.end() ){
 	  columnsEqual.erase(ite);
 	}

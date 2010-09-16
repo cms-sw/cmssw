@@ -118,10 +118,10 @@ class OpticalObject
   const double getEntryRMangle( const XYZcoor coor ) const;
   const double getEntryRMangle( const ALIstring& coor ) const;
 
-  const uint32_t ID() const { return theCmsswID; }
-  const uint32_t getCmsswID() const { return theCmsswID; }
-  void setCmsswID( uint32_t id ){ theCmsswID = id; }
-  void setID( uint32_t id ) { theCmsswID = id; }
+  const ALIuint ID() const { return theCmsswID; }
+  const ALIuint getCmsswID() const { return theCmsswID; }
+  void setCmsswID( ALIuint id ){ theCmsswID = id; }
+  void setID( ALIuint id ) { theCmsswID = id; }
 
   // SET DATA METHODS
   void setRmGlobalOriginal( const CLHEP::HepRotation& rm ){
@@ -352,7 +352,7 @@ private:
   CLHEP::Hep3Vector axisYLocalInGlobal;
   CLHEP::Hep3Vector axisZLocalInGlobal;
 
-  uint32_t theCmsswID;
+  ALIuint theCmsswID;
 
  protected:
   CocoaMaterialElementary* theMaterial;

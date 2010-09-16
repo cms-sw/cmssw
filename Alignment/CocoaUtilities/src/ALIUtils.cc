@@ -35,7 +35,7 @@ int ALIUtils::IsNumber( const ALIstring& str)
 {
   int isnum = 1;
   int numE = 0;
-  for(uint ii=0; ii<str.length(); ii++){
+  for(ALIuint ii=0; ii<str.length(); ii++){
     if(!isdigit(str[ii]) && str[ii]!='.' && str[ii]!='-' && str[ii]!='+') {
       //--- check for E(xponential)
       if(str[ii] == 'E' || str[ii] == 'e' ) {
@@ -425,7 +425,7 @@ int ALIUtils::getInt( const ALIstring& str )
     //----- Check that it is not a float, no decimal or E-n
     bool isFloat = 0;
     int ch = str.find('.');
-    uint ii = 0;
+    ALIuint ii = 0;
     if(ch != -1 ) {
       for( ii = ch+1; ii < str.size(); ii++) {
 	if( str[ii] != '0' ) isFloat = 1;
@@ -501,8 +501,8 @@ ALIstring ALIUtils::subQuotes( const ALIstring& str )
 void ALIUtils::dumpVS( const std::vector<ALIstring>& wl , const std::string& msg, std::ostream& outs ) 
 {
   outs << msg << std::endl;
-  uint siz = wl.size();
-  for( uint ii=0; ii< siz; ii++ ){
+  ALIuint siz = wl.size();
+  for( ALIuint ii=0; ii< siz; ii++ ){
     outs << wl[ii] << " ";
     /*  ostream_iterator<ALIstring> os(outs," ");
 	copy(wl.begin(), wl.end(), os);*/

@@ -1410,7 +1410,7 @@ ALIbool Model::readMeasurementsFromFile(ALIstring only1Date, ALIstring only1Time
 	  GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
 	  ALIbool sigmaFF = gomgr->GlobalOptions()["measurementErrorFromFile"];
 	  //---------- Read the data 
-	  for ( uint ii=0; ii < meastemp->dim(); ii++){
+	  for ( ALIuint ii=0; ii < meastemp->dim(); ii++){
 	    filein.getWordsInLine( wordlist );
             ALIdouble sigma = 0.;
             if( !sigmaFF ) { 

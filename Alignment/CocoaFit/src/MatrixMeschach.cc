@@ -124,8 +124,8 @@ void MatrixMeschach::operator+=( const MatrixMeschach& mat )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void MatrixMeschach::operator*=( const ALIdouble num )
 {
-  for (uint ii=0; ii<_Mat->m; ii++) {
-      for (uint jj=0; jj<_Mat->n; jj++) {
+  for (ALIuint ii=0; ii<_Mat->m; ii++) {
+      for (ALIuint jj=0; jj<_Mat->n; jj++) {
 	  _Mat->me[ii][jj] *= num;
       }
   }
@@ -367,8 +367,8 @@ void MatrixMeschach::ostrDump( std::ostream& fout, const ALIstring& mtext )
   fout << "DUMPM@@@@@    " << mtext << "    @@@@@" << std::endl;
   fout << "Matrix is (_Mat)" << _Mat->m << "x" << _Mat->n << std::endl;
   fout << "Matrix is " << _NoLines << "x" << _NoColumns << std::endl;
-  for (uint ii=0; ii<_Mat->m; ii++) {
-    for (uint jj=0; jj<_Mat->n; jj++) {
+  for (ALIuint ii=0; ii<_Mat->m; ii++) {
+    for (ALIuint jj=0; jj<_Mat->n; jj++) {
       fout << std::setw(8) << _Mat->me[ii][jj] << " ";
     }
     fout << std::endl;

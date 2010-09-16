@@ -82,7 +82,7 @@ void OpticalObjectMgr::dumpOptOs( std::ostream& out ) const
 
 
 //-----------------------------------------------------------------------
-uint32_t OpticalObjectMgr::buildCmsSwID()
+ALIuint OpticalObjectMgr::buildCmsSwID()
 {
   return theLastCmsSwID++;
 }
