@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DViewBase.cc,v 1.12 2010/09/15 11:48:42 amraktad Exp $
+// $Id: FW3DViewBase.cc,v 1.13 2010/09/15 18:14:22 amraktad Exp $
 //
 #include <boost/bind.hpp>
 
@@ -109,7 +109,7 @@ FW3DViewBase::setFrom(const FWConfiguration& iFrom)
       std::istringstream s(iFrom.valueForKey(tName)->value());
       int transp;
       s>> transp;
-      context().colorManager()->setGeomTransparency(transp);
+      context().colorManager()->setGeomTransparency(transp, false);
    }
 }
 

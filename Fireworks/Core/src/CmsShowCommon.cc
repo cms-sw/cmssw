@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Sep 10 14:50:32 CEST 2010
-// $Id: CmsShowCommon.cc,v 1.2 2010/09/15 11:48:42 amraktad Exp $
+// $Id: CmsShowCommon.cc,v 1.3 2010/09/15 18:14:22 amraktad Exp $
 //
 
 // system include files
@@ -23,7 +23,8 @@ CmsShowCommon::CmsShowCommon(FWColorManager* c):
    m_colorManager(c),
    m_backgroundColor(this, "backgroundColIdx", 1l, 0l, 1000l),
    m_gamma(this, "brightness", 0l, -15l, 15l),
-   m_geomTransparency(this, "geomTransparency", 70l, 0l, 100l)
+   m_geomTransparency2D(this, "geomTransparency2D", 50l, 0l, 100l),
+   m_geomTransparency3D(this, "geomTransparency3D", 70l, 0l, 100l)
 {
    m_geomColors[kFWMuonBarrelLineColorIndex] = new FWLongParameter(this, "muonBarrelColor", 1020l, 1000l, 1100l);
    m_geomColors[kFWMuonEndcapLineColorIndex] = new FWLongParameter(this, "muonEndcapColor", 1017l, 1000l, 1100l);
@@ -60,10 +61,14 @@ CmsShowCommon::setGeomColor(FWGeomColorIndex cidx, Color_t iColor)
 }
 
 void
-CmsShowCommon::setGeomTransparency(int iTransp)
+CmsShowCommon::setGeomTransparency(int iTransp, bool projected)
 {
-   m_geomTransparency.set(iTransp);
-   m_colorManager->setGeomTransparency(iTransp);
+   if (projected)
+      m_geomTransparency2D.set(iTransp);
+   else
+      m_geomTransparency3D.set(iTransp);
+
+   m_colorManager->setGeomTransparency(iTransp, projected);
 }
 
 
@@ -86,7 +91,8 @@ CmsShowCommon::setFrom(const FWConfiguration& iFrom)
    m_colorManager->setBackgroundAndBrightness( FWColorManager::BackgroundColorIndex(m_backgroundColor.value()), m_gamma.value());
 
    // geom colors
-   m_colorManager->setGeomTransparency( m_geomTransparency.value());
+   m_colorManager->setGeomTransparency( m_geomTransparency2D.value(), true);
+   m_colorManager->setGeomTransparency( m_geomTransparency3D.value(), false);
    for (int i = 0; i < kFWGeomColorSize; ++i)
       m_colorManager->setGeomColor(FWGeomColorIndex(i), m_geomColors[i]->value());
 

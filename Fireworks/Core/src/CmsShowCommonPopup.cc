@@ -22,9 +22,10 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
 
    TGVerticalFrame* vf = new TGVerticalFrame(this);
    AddFrame(vf, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY, 2, 2, 2, 4));
-   TGHSlider* m_transpWidget;
 
-   TGLabel* smallLabel;
+   TGHSlider* transpWidget2D = 0;
+   TGHSlider* transpWidget3D = 0;
+   TGLabel*   smallLabel = 0;
 
    FWDialogBuilder builder(vf);
    builder.indent(3)
@@ -42,13 +43,18 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
       .spaceDown(2)
       .indent(0)
       .spaceDown(1)  
-      .addLabel("Transparency:", 8)
-      .addHSlider(100, &m_transpWidget)
+      .addLabel("Transparency 2D:", 8)
+      .spaceDown(2)
+      .addHSlider(100, &transpWidget2D)
+      .spaceDown(1)  
+      .addLabel("Transparency 3D:", 8)
+      .addHSlider(100, &transpWidget3D)
       .spaceDown(2);
      
    m_backgroundButton->SetEnabled(true);
    m_gammaButton->SetEnabled(true);
-   m_transpWidget->SetEnabled(true);
+   transpWidget2D->SetEnabled(true);
+   transpWidget3D->SetEnabled(true);
    m_gammaSlider->SetEnabled(true);
 
    TGCompositeFrame* tp  = (TGCompositeFrame*)m_gammaButton->GetParent()->GetParent();
@@ -81,9 +87,13 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
    m_gammaSlider->SetPosition(m_common->gamma());
    m_gammaButton->Connect("Clicked()", "CmsShowCommonPopup", this, "resetGamma()");
 
-   m_transpWidget->SetRange(0, 100);
-   m_transpWidget->SetPosition(m_common->colorManager()->geomTransparency());
-   m_transpWidget->Connect("PositionChanged(Int_t)", "CmsShowCommonPopup", this, "changeGeomTransparency(Int_t)");
+   transpWidget2D->SetRange(0, 100);
+   transpWidget2D->SetPosition(m_common->colorManager()->geomTransparency(true));
+   transpWidget2D->Connect("PositionChanged(Int_t)", "CmsShowCommonPopup", this, "changeGeomTransparency2D(Int_t)");
+
+   transpWidget3D->SetRange(0, 100);
+   transpWidget3D->SetPosition(m_common->colorManager()->geomTransparency(false));
+   transpWidget3D->Connect("PositionChanged(Int_t)", "CmsShowCommonPopup", this, "changeGeomTransparency3D(Int_t)");
 
    SetWindowName("Common Preferences ...");
    MapSubwindows();
@@ -124,10 +134,17 @@ CmsShowCommonPopup::changeGeomColor(Color_t iColor)
 }
 
 void
-CmsShowCommonPopup::changeGeomTransparency(int iTransp)
+CmsShowCommonPopup::changeGeomTransparency2D(int iTransp)
 {
-   m_common->setGeomTransparency(iTransp);
+   m_common->setGeomTransparency(iTransp, true);
 }
+
+void
+CmsShowCommonPopup::changeGeomTransparency3D(int iTransp)
+{
+   m_common->setGeomTransparency(iTransp, false);
+}
+
 
 /* Called by FWGUIManager when change background. */
 void 

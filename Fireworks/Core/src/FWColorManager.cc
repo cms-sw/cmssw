@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.30 2010/09/15 11:48:42 amraktad Exp $
+// $Id: FWColorManager.cc,v 1.31 2010/09/15 18:14:22 amraktad Exp $
 //
 
 // system include files
@@ -169,7 +169,8 @@ FWColorManager::FWColorManager(FWModelChangeManager* iManager):
    m_foreground(kWhite),
    m_changeManager(iManager),
    m_numColorIndices(0),
-   m_geomTransparency(70)
+   m_geomTransparency2D(50),
+   m_geomTransparency3D(70)
 {
    // in config version > 5 restored from CmsShowCommon
    m_geomColor[kFWMuonBarrelLineColorIndex] = 1020;
@@ -295,12 +296,15 @@ FWColorManager::setGeomColor(FWGeomColorIndex idx, Color_t iColor)
    geomColorsHaveChanged_();
    gEve->Redraw3D();
 }
-
 void
-FWColorManager::setGeomTransparency(Color_t iTransp)
+FWColorManager::setGeomTransparency(Color_t iTransp, bool projectedType)
 {
-   m_geomTransparency = iTransp;
-   geomColorsHaveChanged_();
+   if (projectedType)
+      m_geomTransparency2D = iTransp;
+   else
+      m_geomTransparency3D = iTransp;
+
+   geomTransparencyHaveChanged_.emit(projectedType);
 
    gEve->Redraw3D();
 }
