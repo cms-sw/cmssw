@@ -13,10 +13,7 @@ class csvSelectionParser(object):
         csvReader=csv.reader(open(filename),delimiter=',')
         for row in csvReader:
             field0=str(row[0]).strip()
-            try:
-                field1=str(row[1]).strip()
-            except Exception,e:
-                field1='1' # for list with run number only, fake lsnum
+            field1=str(row[1]).strip()
             if not is_intstr(field0) or not  is_intstr(field1):
                 continue
             runnumber=int(field0)
@@ -45,12 +42,11 @@ class csvSelectionParser(object):
     
 if __name__ == '__main__':
     result={}
-    #filename='../test/lumi_by_LS_all.csv'
-    filename='../test/newruns.csv'
+    filename='../test/lumi_by_LS_all.csv'
     s=csvSelectionParser(filename)
     print 'runs : ',s.runs()
     print 'full result : ',s.runsandls()
     print 'str result : ',s.runsandlsStr()
     print 'num runs : ',s.numruns()
-    #print 'numls in run : ',s.numls(135175)
+    print 'numls in run : ',s.numls(135175)
 

@@ -7,7 +7,7 @@
 
 
   \author Salvatore Rappoccio
-  \version  $Id: FWLiteAnalyzerWrapper.h,v 1.7 2010/04/13 14:38:33 srappocc Exp $
+  \version  $Id: FWLiteAnalyzerWrapper.h,v 1.1 2010/05/02 04:53:06 srappocc Exp $
 */
 
 
@@ -28,9 +28,8 @@ class FWLiteAnalyzerWrapper : public EDAnalyzer {
  FWLiteAnalyzerWrapper(const edm::ParameterSet& pset)
   {
     edm::Service<TFileService> fileService;
-    TFileDirectory theDir = fileService->mkdir( "histos" ); 
 
-    analyzer_  = boost::shared_ptr<T>( new T( pset, theDir) );
+    analyzer_  = boost::shared_ptr<T>( new T( pset, *fileService) );
 
   }
 

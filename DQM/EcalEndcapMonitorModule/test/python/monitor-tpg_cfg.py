@@ -266,7 +266,6 @@ process.ecalEndcapMonitorModule.EcalTrigPrimDigiCollection = 'simEcalTriggerPrim
 
 process.ecalEndcapOccupancyTask.EcalTrigPrimDigiCollection = 'simEcalTriggerPrimitiveDigis'
 
-process.ecalEndcapMonitorClient.maskFile = ''
 process.ecalEndcapMonitorClient.location = 'H4B'
 process.ecalEndcapMonitorClient.enabledClients = ['Integrity', 'Occupancy', 'StatusFlags', 'PedestalOnline', 'Timing', 'TriggerTower', 'Summary']
 process.ecalEndcapMonitorClient.superModules = [10]

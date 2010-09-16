@@ -5,6 +5,7 @@ siStripSeeds = cms.EDProducer("SiStripElectronSeedProducer",
     barrelSuperClusters = cms.InputTag("correctedHybridSuperClusters"),
     SeedConfiguration = cms.PSet(
         beamSpot = cms.InputTag("offlineBeamSpot"),
+        measurementTrackerName = cms.string(""),
         tibOriginZCut = cms.double(20.),
         tidOriginZCut = cms.double(20.),
         tecOriginZCut = cms.double(20.),

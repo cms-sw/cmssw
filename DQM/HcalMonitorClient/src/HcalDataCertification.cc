@@ -13,7 +13,7 @@
 //
 // Original Author:  "Igor Vodopiyanov"
 //         Created:  Nov-21 2008
-// $Id: HcalDataCertification.cc,v 1.11 2010/03/25 11:02:25 temple Exp $
+// $Id: HcalDataCertification.cc,v 1.12 2010/03/25 16:55:40 temple Exp $
 //
 //
 
@@ -254,76 +254,76 @@ void HcalDataCertification::CertifyHcal()
 
   // DAQ
 
-  if (dbe_->get(rootFolder_+"/EventInfo/DAQSummaryContents/Hcal_HB")) {
-    fracHCAL[0][1] = (dbe_->get(rootFolder_+"/EventInfo/DAQSummaryContents/Hcal_HB"))->getFloatValue();
+  if (dbe_->get(rootFolder_+"/EventInfo/DAQContents/Hcal_HB")) {
+    fracHCAL[0][1] = (dbe_->get(rootFolder_+"/EventInfo/DAQContents/Hcal_HB"))->getFloatValue();
   }
   else fracHCAL[0][1] = -1;
 
-  if (dbe_->get(rootFolder_+"/EventInfo/DAQSummaryContents/Hcal_HE")) {
-    fracHCAL[1][1] = (dbe_->get(rootFolder_+"/EventInfo/DAQSummaryContents/Hcal_HE"))->getFloatValue();
+  if (dbe_->get(rootFolder_+"/EventInfo/DAQContents/Hcal_HE")) {
+    fracHCAL[1][1] = (dbe_->get(rootFolder_+"/EventInfo/DAQContents/Hcal_HE"))->getFloatValue();
   }
   else fracHCAL[1][1] = -1;
 
-  if (dbe_->get(rootFolder_+"/EventInfo/DAQSummaryContents/Hcal_HO")) {
-    fracHCAL[2][1] = (dbe_->get(rootFolder_+"/EventInfo/DAQSummaryContents/Hcal_HO"))->getFloatValue();
+  if (dbe_->get(rootFolder_+"/EventInfo/DAQContents/Hcal_HO")) {
+    fracHCAL[2][1] = (dbe_->get(rootFolder_+"/EventInfo/DAQContents/Hcal_HO"))->getFloatValue();
   }
   else fracHCAL[2][1] = -1;
 
-  if (dbe_->get(rootFolder_+"/EventInfo/DAQSummaryContents/Hcal_HF")) {
-    fracHCAL[3][1] = (dbe_->get(rootFolder_+"/EventInfo/DAQSummaryContents/Hcal_HF"))->getFloatValue();
+  if (dbe_->get(rootFolder_+"/EventInfo/DAQContents/Hcal_HF")) {
+    fracHCAL[3][1] = (dbe_->get(rootFolder_+"/EventInfo/DAQContents/Hcal_HF"))->getFloatValue();
   }
   else fracHCAL[3][1] = -1;
 
-  if (dbe_->get(rootFolder_+"/EventInfo/DAQSummaryContents/Hcal_HO0")) {
-    fracHCAL[4][1] = (dbe_->get(rootFolder_+"/EventInfo/DAQSummaryContents/Hcal_HO0"))->getFloatValue();
+  if (dbe_->get(rootFolder_+"/EventInfo/DAQContents/Hcal_HO0")) {
+    fracHCAL[4][1] = (dbe_->get(rootFolder_+"/EventInfo/DAQContents/Hcal_HO0"))->getFloatValue();
   }
   else fracHCAL[4][1] = -1;
 
-  if (dbe_->get(rootFolder_+"/EventInfo/DAQSummaryContents/Hcal_HO12")) {
-    fracHCAL[5][1] = (dbe_->get(rootFolder_+"/EventInfo/DAQSummaryContents/Hcal_HO12"))->getFloatValue();
+  if (dbe_->get(rootFolder_+"/EventInfo/DAQContents/Hcal_HO12")) {
+    fracHCAL[5][1] = (dbe_->get(rootFolder_+"/EventInfo/DAQContents/Hcal_HO12"))->getFloatValue();
   }
   else fracHCAL[5][1] = -1;
 
-  if (dbe_->get(rootFolder_+"/EventInfo/DAQSummaryContents/Hcal_HFlumi")) {
-    fracHCAL[6][1] = (dbe_->get(rootFolder_+"/EventInfo/DAQSummaryContents/Hcal_HFlumi"))->getFloatValue();
+  if (dbe_->get(rootFolder_+"/EventInfo/DAQContents/Hcal_HFlumi")) {
+    fracHCAL[6][1] = (dbe_->get(rootFolder_+"/EventInfo/DAQContents/Hcal_HFlumi"))->getFloatValue();
   }
   else fracHCAL[6][1] = -1;
 
   // DCS
 
-  if (dbe_->get(rootFolder_+"/EventInfo/DCSSummaryContents/Hcal_HB")) {
-    fracHCAL[0][2] = (dbe_->get(rootFolder_+"/EventInfo/DCSSummaryContents/Hcal_HB"))->getFloatValue();
+  if (dbe_->get(rootFolder_+"/EventInfo/DCSContents/Hcal_HB")) {
+    fracHCAL[0][2] = (dbe_->get(rootFolder_+"/EventInfo/DCSContents/Hcal_HB"))->getFloatValue();
   }
   else fracHCAL[0][2] = -1;
 
-  if (dbe_->get(rootFolder_+"/EventInfo/DCSSummaryContents/Hcal_HE")) {
-    fracHCAL[1][2] = (dbe_->get(rootFolder_+"/EventInfo/DCSSummaryContents/Hcal_HE"))->getFloatValue();
+  if (dbe_->get(rootFolder_+"/EventInfo/DCSContents/Hcal_HE")) {
+    fracHCAL[1][2] = (dbe_->get(rootFolder_+"/EventInfo/DCSContents/Hcal_HE"))->getFloatValue();
   }
   else fracHCAL[1][2] = -1;
 
-  if (dbe_->get(rootFolder_+"/EventInfo/DCSSummaryContents/Hcal_HO")) {
-    fracHCAL[2][2] = (dbe_->get(rootFolder_+"/EventInfo/DCSSummaryContents/Hcal_HO"))->getFloatValue();
+  if (dbe_->get(rootFolder_+"/EventInfo/DCSContents/Hcal_HO")) {
+    fracHCAL[2][2] = (dbe_->get(rootFolder_+"/EventInfo/DCSContents/Hcal_HO"))->getFloatValue();
   }
   else fracHCAL[2][2] = -1;
 
-  if (dbe_->get(rootFolder_+"/EventInfo/DCSSummaryContents/Hcal_HF")) {
-    fracHCAL[3][2] = (dbe_->get(rootFolder_+"/EventInfo/DCSSummaryContents/Hcal_HF"))->getFloatValue();
+  if (dbe_->get(rootFolder_+"/EventInfo/DCSContents/Hcal_HF")) {
+    fracHCAL[3][2] = (dbe_->get(rootFolder_+"/EventInfo/DCSContents/Hcal_HF"))->getFloatValue();
   }
   else fracHCAL[3][2] = -1;
 
-  if (dbe_->get(rootFolder_+"/EventInfo/DCSSummaryContents/Hcal_HO0")) {
-    fracHCAL[4][2] = (dbe_->get(rootFolder_+"/EventInfo/DCSSummaryContents/Hcal_HO0"))->getFloatValue();
+  if (dbe_->get(rootFolder_+"/EventInfo/DCSContents/Hcal_HO0")) {
+    fracHCAL[4][2] = (dbe_->get(rootFolder_+"/EventInfo/DCSContents/Hcal_HO0"))->getFloatValue();
   }
   else fracHCAL[4][2] = -1;
 
-  if (dbe_->get(rootFolder_+"/EventInfo/DCSSummaryContents/Hcal_HO12")) {
-    fracHCAL[5][2] = (dbe_->get(rootFolder_+"/EventInfo/DCSSummaryContents/Hcal_HO12"))->getFloatValue();
+  if (dbe_->get(rootFolder_+"/EventInfo/DCSContents/Hcal_HO12")) {
+    fracHCAL[5][2] = (dbe_->get(rootFolder_+"/EventInfo/DCSContents/Hcal_HO12"))->getFloatValue();
   }
   else fracHCAL[5][2] = -1;
 
 
-  if (dbe_->get(rootFolder_+"/EventInfo/DCSSummaryContents/Hcal_HFlumi")) {
-    fracHCAL[6][2] = (dbe_->get(rootFolder_+"/EventInfo/DCSSummaryContents/Hcal_HFlumi"))->getFloatValue();
+  if (dbe_->get(rootFolder_+"/EventInfo/DCSContents/Hcal_HFlumi")) {
+    fracHCAL[6][2] = (dbe_->get(rootFolder_+"/EventInfo/DCSContents/Hcal_HFlumi"))->getFloatValue();
   }
   else fracHCAL[6][2] = -1;
 

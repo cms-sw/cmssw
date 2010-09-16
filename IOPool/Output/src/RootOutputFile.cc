@@ -642,7 +642,6 @@ namespace edm {
 	provenanceToKeep.insert(*oh.productProvenance());
 	assert(principal.branchMapperPtr());
 	insertAncestors(*oh.productProvenance(), principal, produced, provenanceToKeep);
-	parentageIDs_.insert(oh.productProvenance()->parentageID());
       }
       product = oh.wrapper();
       if(getProd) {
@@ -657,7 +656,12 @@ namespace edm {
 	i->product_ = product;
       }
     }
-     
+
+    for(std::set<ProductProvenance>::const_iterator it = provenanceToKeep.begin(), itEnd=provenanceToKeep.end();
+        it != itEnd; ++it) {
+      parentageIDs_.insert(it->parentageID());
+    }
+
     productProvenanceVecPtr->assign(provenanceToKeep.begin(), provenanceToKeep.end());
     treePointers_[branchType]->fillTree();
     productProvenanceVecPtr->clear();

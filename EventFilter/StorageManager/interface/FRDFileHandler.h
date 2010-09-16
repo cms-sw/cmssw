@@ -1,4 +1,4 @@
-// $Id: FRDFileHandler.h,v 1.9 2010/02/01 14:08:49 mommsen Exp $
+// $Id: FRDFileHandler.h,v 1.10 2010/03/19 13:24:30 mommsen Exp $
 /// @file: FRDFileHandler.h 
 
 #ifndef StorageManager_FRDFileHandler_h
@@ -12,14 +12,17 @@
 
 
 namespace stor {
+
+  class I2OChain;
+
   
   /**
    * Represents a file holding HLT error events in the
    * FED Raw Data (FRD) format.
    *
    * $Author: mommsen $
-   * $Revision: 1.9 $
-   * $Date: 2010/02/01 14:08:49 $
+   * $Revision: 1.10 $
+   * $Date: 2010/03/19 13:24:30 $
    */
   
   class FRDFileHandler : public FileHandler
@@ -34,28 +37,18 @@ namespace stor {
     );
 
     /**
-     * Returns true if the file has not seen any recent events
-     */
-    virtual bool tooOld(utils::time_point_t currentTime = utils::getCurrentTime());
-
-    /**
-     * Error events do not belong to a lumi section
-     */
-    virtual bool isFromLumiSection(const uint32_t lumiSection)
-    { return false; }
-
-    /**
      * Close the file
      */
     virtual void closeFile(const FilesMonitorCollection::FileRecord::ClosingReason&);
-    
+
+
   private:
     
     /**
      * Write the I2OChain to the file
      */
     virtual void do_writeEvent(const I2OChain&);
-    
+
     boost::scoped_ptr<FRDEventFileWriter> _writer; // writes FED Raw Data file
   };
   

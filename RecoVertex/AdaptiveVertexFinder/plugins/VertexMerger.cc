@@ -26,14 +26,12 @@ class VertexMerger : public edm::EDProducer {
 //	edm::InputTag				primaryVertexCollection;
 	edm::InputTag				secondaryVertexCollection;
 	double					maxFraction;
-	double					minSignificance;
 };
 
 VertexMerger::VertexMerger(const edm::ParameterSet &params) :
 //	primaryVertexCollection(params.getParameter<edm::InputTag>("primaryVertices")),
 	secondaryVertexCollection(params.getParameter<edm::InputTag>("secondaryVertices")),
-	maxFraction(params.getParameter<double>("maxFraction")),
-	minSignificance(params.getParameter<double>("minSignificance"))
+	maxFraction(params.getParameter<double>("maxFraction"))
 {
 	produces<reco::VertexCollection>();
 }
@@ -79,27 +77,24 @@ void VertexMerger::produce(edm::Event &event, const edm::EventSetup &es)
         bool shared=false;
        for(std::vector<reco::Vertex>::iterator sv2 = recoVertices->begin();
 	    sv2 != recoVertices->end(); ++sv2) {
-                  double fr=computeSharedTracks(*sv2, *sv);
-        //        std::cout << sv2-recoVertices->begin() << " vs " << sv-recoVertices->begin() << " : " << fr << " "  <<  computeSharedTracks(*sv, *sv2) << " sig " << dist.distance(*sv,*sv2).significance() << std::endl;
-          //      std::cout << (fr > maxFraction) << " && " << (dist.distance(*sv,*sv2).significance() < 2)  <<  " && " <<  (sv-sv2!=0)  << " && " <<  (fr >= computeSharedTracks(*sv2, *sv))  << std::endl;
-		if (fr > maxFraction && dist.distance(*sv,*sv2).significance() < minSignificance && sv-sv2!=0 
-                    && fr >= computeSharedTracks(*sv, *sv2) )
+                  double fr=computeSharedTracks(*sv, *sv2);
+//                std::cout << sv2-recoVertices->begin() << " vs " << sv-recoVertices->begin() << " : " << fr << " "  <<  computeSharedTracks(*sv2, *sv) << " sig " << dist.distance(*sv,*sv2).significance() << std::endl;
+  //              std::cout << (fr > maxFraction) << " && " << (dist.distance(*sv,*sv2).significance() < 2)  <<  " && " <<  (sv-sv2!=0)  << " && " <<  (fr >= computeSharedTracks(*sv2, *sv))  << std::endl;
+		if (fr > maxFraction && dist.distance(*sv,*sv2).significance() < 2 && sv-sv2!=0 
+                    && fr >= computeSharedTracks(*sv2, *sv) )
 		  {
                       shared=true; 
-                     // std::cout << "shared " << sv-recoVertices->begin() << " and "  << sv2-recoVertices->begin() << " fractions: " << fr << " , "  << computeSharedTracks(*sv2, *sv) << " sig: " <<  dist.distance(*sv,*sv2).significance() <<  std::endl;
+                //      std::cout << "shared " << sv-recoVertices->begin() << " and "  << sv2-recoVertices->begin() << " fractions: " << fr << " , "  << computeSharedTracks(*sv2, *sv) << " sig: " <<  dist.distance(*sv,*sv2).significance() <<  std::endl;
          
                   }
                  
 
 	}
         if(shared) { sv=recoVertices->erase(sv)-1; }
-     //    std::cout << "it = " <<  sv-recoVertices->begin() << " new size is: " << recoVertices->size() <<   std::endl;
+//         std::cout << "it = " <<  sv-recoVertices->begin() << " new size is: " << recoVertices->size() <<   std::endl;
        }
 
 	event.put(recoVertices);
-
-
-
 }
 
 DEFINE_FWK_MODULE(VertexMerger);

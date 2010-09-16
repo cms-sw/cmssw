@@ -18,6 +18,7 @@
 
 class WPlusJetsEventSelector : public EventSelector {
  public:
+  WPlusJetsEventSelector() {}
   WPlusJetsEventSelector( edm::ParameterSet const & params );
 
   virtual void scaleJets(double scale) {jetScale_ = scale;}
@@ -31,7 +32,7 @@ class WPlusJetsEventSelector : public EventSelector {
   std::vector<reco::ShallowClonePtrCandidate> const & selectedMuons    () const { return selectedMuons_;    }
   reco::ShallowClonePtrCandidate const &              selectedMET      () const { return met_; }
 
-  void printSelectors(std::ostream & out) {
+  void printSelectors(std::ostream & out) const {
     out << "PV Selector: " << std::endl;
     pvSelector_.print(out);
     out << "Muon ID Tight Selector: " << std::endl;
@@ -53,6 +54,7 @@ class WPlusJetsEventSelector : public EventSelector {
   edm::InputTag               muonTag_;
   edm::InputTag               electronTag_;
   edm::InputTag               jetTag_;
+  edm::InputTag               jetClonesTag_;
   edm::InputTag               metTag_;
   edm::InputTag               trigTag_;
 
@@ -102,7 +104,28 @@ class WPlusJetsEventSelector : public EventSelector {
 
   double metMin_;
 
+  bool useJetClones_;
+
   
+
+
+  index_type   inclusiveIndex_; 
+  index_type   triggerIndex_;   
+  index_type   pvIndex_;        
+  index_type   lep1Index_;      
+  index_type   lep2Index_;      
+  index_type   lep3Index_;      
+  index_type   lep4Index_;      
+  index_type   metIndex_;       
+  index_type   zvetoIndex_;     
+  index_type   conversionIndex_;
+  index_type   cosmicIndex_;    
+  index_type   jet1Index_;      
+  index_type   jet2Index_;      
+  index_type   jet3Index_;      
+  index_type   jet4Index_;      
+  index_type   jet5Index_;      
+
 };
 
 

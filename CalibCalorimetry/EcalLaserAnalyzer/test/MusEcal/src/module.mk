@@ -7,8 +7,6 @@ FILES += MEEBDisplay MEEEDisplay
 FILES += MusEcalGUI 
 FILES += MEClickableCanvas MEPlotWindow 
 FILES += MERunPanel MEChanPanel MELeafPanel MEMultiVarPanel 
-FILES += METimeInterval MEIntervals
-FILES += MECorrector2Var METwoVarPanel
 
 # Header files to use for dictionary generation
 DICTFILES := $(FILES) LinkDef
@@ -16,10 +14,8 @@ DICTFILES := $(FILES) LinkDef
 # Executable files
 PROGRAMS := createEBHist
 PROGRAMS += getChannel
-#PROGRAMS += runStab
 PROGRAMS += runTest
-PROGRAMS += runExample
-
 PROGRAMS += runGUI
-#PROGRAMS += runGeom
+PROGRAMS += runGeom
 PROGRAMS += writePrim
+

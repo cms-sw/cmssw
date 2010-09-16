@@ -4,6 +4,7 @@
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class CaloTopology;
 class InterestingEcalDetIdProducer : public edm::EDProducer {

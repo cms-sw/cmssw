@@ -67,7 +67,7 @@ int main(int argc, char *argv[]){
   // Count rates
   vector<OHltRateCounter*> rcs; rcs.clear();
   for (unsigned int i=0;i<procs.size();i++) {
-    rcs.push_back(new OHltRateCounter(omenu->GetTriggerSize()));
+    rcs.push_back(new OHltRateCounter(omenu->GetTriggerSize(), omenu->GetL1TriggerSize()));
   }
   OHltRatePrinter* rprint = new OHltRatePrinter();
   calcRates(ocfg,omenu,procs,rcs,rprint,hltDatasets);
@@ -90,7 +90,6 @@ int main(int argc, char *argv[]){
     TString hltTableFileName= TString("hlt_DS_Table_") +
 							  sEnergy + "TeV_" +
 							  sLumi + TString("_") +
-							  ocfg->alcaCondition + TString("_") +
 							  ocfg->versionTag;
 // 		printf("About to call printHLTDatasets\n"); //RR
     rprint->printHLTDatasets(ocfg,omenu,hltDatasets,hltTableFileName,3);
@@ -99,7 +98,7 @@ int main(int argc, char *argv[]){
   // Calculate Efficiencies
   vector<OHltRateCounter*> ecs; ecs.clear();
   for (unsigned int i=0;i<procs.size();i++) {
-    ecs.push_back(new OHltRateCounter(omenu->GetTriggerSize()));
+    ecs.push_back(new OHltRateCounter(omenu->GetTriggerSize(), omenu->GetL1TriggerSize()));
   }
 	//RR debugging couts
 // 	printf("About to call calcEff\n");
@@ -126,7 +125,7 @@ void fillProcesses(OHltConfig *cfg,vector<OHltTree*> &procs,vector<TChain*> &cha
     //chains[i]->Print();
     procs.push_back(new OHltTree((TTree*)chains[i],menu));
     hltDatasets.addSample(cfg->pnames[i], 
-													(cfg->pisPhysicsSample[i]==0 ? RATE_SAMPLE : PHYSICS_SAMPLE));   //SAK
+			  (cfg->pisPhysicsSample[i]==0 ? RATE_SAMPLE : PHYSICS_SAMPLE));   //SAK
   }
 }
 
@@ -137,28 +136,39 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
 	       vector<OHltRateCounter*> &rcs,OHltRatePrinter* rprint, HLTDatasets &hltDatasets) {
 
   const int ntrig = (int)menu->GetTriggerSize();
+  const int nL1trig = (int)menu->GetL1TriggerSize();
   vector< vector< float > > RatePerLS;
+  vector< vector< int > > RefPrescalePerLS;
+  vector< vector< int > > RefL1PrescalePerLS; 
   vector<float> totalRatePerLS;
   vector<float> Rate,pureRate,spureRate;
   vector<float> RateErr,pureRateErr,spureRateErr;
   vector< vector<float> >coMa;
   vector<float> coDen;
+  vector<int> RefPrescale,RefL1Prescale;
+  vector<float> weightedPrescaleRefHLT; 
+  vector<float> weightedPrescaleRefL1; 
   float DenEff=0.;
-  Int_t nbinpt = 50; Float_t ptmin = 0.0; Float_t ptmax = 10.0;
+  Int_t nbinpt = 50; Float_t ptmin = 0.0; Float_t ptmax = 2.0;
   Int_t nbineta = 30; Float_t etamin = -3.0; Float_t etamax = 3.0;
   TH1F *h1 = new TH1F("h1","pTnum",nbinpt,ptmin,ptmax);
   TH1F *h2 = new TH1F("h2","pTden",nbinpt,ptmin,ptmax);
   TH1F *h3 = new TH1F("h3","etanum",nbineta,etamin,etamax);
   TH1F *h4 = new TH1F("h4","etaden",nbineta,etamin,etamax);
 
-	float fTwo=2.;
+  float fTwo=2.;
   
   vector<float> ftmp;
   for (int i=0;i<ntrig;i++) { // Init
     // per lumisection
     Rate.push_back(0.);pureRate.push_back(0.);spureRate.push_back(0.);ftmp.push_back(0.);
-    RateErr.push_back(0.);pureRateErr.push_back(0.);spureRateErr.push_back(0.);
+    RateErr.push_back(0.);pureRateErr.push_back(0.);spureRateErr.push_back(0.);RefPrescale.push_back(1);
+    weightedPrescaleRefHLT.push_back(0.);  
     coDen.push_back(0.);
+  }
+  for(int i=0;i<nL1trig;i++) { // Init
+    RefL1Prescale.push_back(1);
+    weightedPrescaleRefL1.push_back(0.);  
   }
   for (int j=0;j<ntrig;j++) { coMa.push_back(ftmp); }
 
@@ -168,12 +178,15 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
     for (unsigned int iLS=0;iLS<rcs[0]->perLumiSectionCount.size();iLS++) {
       RatePerLS.push_back(Rate);
       totalRatePerLS.push_back(0.);
+      RefPrescalePerLS.push_back(RefPrescale);
+      RefL1PrescalePerLS.push_back(RefL1Prescale);
     }
     
     float deno = (float)cfg->nEntries;
 
     float scaleddeno = -1;
     float scaleddenoPerLS = -1;
+    float prescaleSum = 0.0;  
 
     float chainEntries = (float)procs[i]->fChain->GetEntries(); 
     if (deno <= 0. || deno > chainEntries) {
@@ -190,10 +203,6 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
 	cout << "N(Lumi Sections) = " << (procs[i]->GetNLumiSections()) << endl;
 	hltDatasets[i].computeRate(scaleddeno);          //SAK -- convert event counts into rates. FOR DATA ONLY
       }
-    else if(cfg->isRealData == 1 && cfg->nL1AcceptsRun > 0) 
-      { 
-        scaleddeno = ((float)deno/(float)cfg->nL1AcceptsRun) * (float)cfg->liveTimeRun;
-      } 
     
     float mu =
       cfg->bunchCrossingTime*cfg->psigmas[i]*cfg->iLumi*(float)cfg->maxFilledBunches
@@ -209,25 +218,37 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
       totalRatePerLS[iLS] += OHltRateCounter::eff((float)rcs[i]->perLumiSectionTotCount[iLS],scaleddenoPerLS);
     }
     
+
+
+    for (int j=0;j<nL1trig;j++) {
+      // per lumisection
+      prescaleSum = 0.0;
+      for (unsigned int iLS=0;iLS<rcs[i]->perLumiSectionCount.size();iLS++) {
+        RefL1PrescalePerLS[iLS][j] = (float)rcs[i]->perLumiSectionRefL1Prescale[iLS][j];
+	prescaleSum += RefL1PrescalePerLS[iLS][j];  
+      }
+      weightedPrescaleRefL1[j] = prescaleSum/(rcs[i]->perLumiSectionCount.size());  
+    }
+
     for (int j=0;j<ntrig;j++) {
 
       // per lumisection
+      prescaleSum = 0.0;
       for (unsigned int iLS=0;iLS<rcs[i]->perLumiSectionCount.size();iLS++) {
 	RatePerLS[iLS][j] += OHltRateCounter::eff((float)rcs[i]->perLumiSectionCount[iLS][j],scaleddenoPerLS);
+	RefPrescalePerLS[iLS][j] = (float)rcs[i]->perLumiSectionRefPrescale[iLS][j];
+	prescaleSum += RefPrescalePerLS[iLS][j];  
       }
-      
+      weightedPrescaleRefHLT[j] = prescaleSum/(rcs[i]->perLumiSectionCount.size()); 
+
       if(cfg->isRealData == 1) {
 	Rate[j]    += OHltRateCounter::eff((float)rcs[i]->iCount[j],scaleddeno);   
-	//RateErr[j] += OHltRateCounter::effErr((float)rcs[i]->iCount[j],scaleddeno); 
 	RateErr[j] += OHltRateCounter::errRate2((float)rcs[i]->iCount[j],scaleddeno); 
 	spureRate[j]    += OHltRateCounter::eff((float)rcs[i]->sPureCount[j],scaleddeno);   
-	//spureRateErr[j] += OHltRateCounter::effErr((float)rcs[i]->sPureCount[j],scaleddeno); 
 	spureRateErr[j] += OHltRateCounter::errRate2((float)rcs[i]->sPureCount[j],scaleddeno); 
 	pureRate[j]    += OHltRateCounter::eff((float)rcs[i]->pureCount[j],scaleddeno);   
-	//pureRateErr[j] += OHltRateCounter::effErr((float)rcs[i]->pureCount[j],scaleddeno); 
 	pureRateErr[j] += OHltRateCounter::errRate2((float)rcs[i]->pureCount[j],scaleddeno); 
 	cout << "N(passing " << menu->GetTriggerName(j) << ") = " << (float)rcs[i]->iCount[j] << endl;
-	//cout << "\t RATE: " << Rate[j] << " +- " <<  RateErr[j] << "  scaleddeno: " << scaleddeno << endl;
 
         for (int k=0;k<ntrig;k++){ 
           coMa[j][k] += ((float)rcs[i]->overlapCount[j][k]);
@@ -238,7 +259,6 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
       else{
 	Rate[j]    += collisionRate*(1. - exp(- mu * OHltRateCounter::eff((float)rcs[i]->iCount[j],deno)));  
 	RateErr[j] += pow(collisionRate*mu * OHltRateCounter::effErr((float)rcs[i]->iCount[j],deno),fTwo);
-	//cout<<j<<" Counts: "<<rcs[i]->iCount[j]<<endl;
 	spureRate[j]    += collisionRate*(1. - exp(- mu * OHltRateCounter::eff((float)rcs[i]->sPureCount[j],deno)));  
 	spureRateErr[j] += pow(collisionRate*mu * OHltRateCounter::effErr((float)rcs[i]->sPureCount[j],deno),fTwo);
 	pureRate[j]    += collisionRate*(1. - exp(- mu * OHltRateCounter::eff((float)rcs[i]->pureCount[j],deno)));  
@@ -263,9 +283,10 @@ void calcRates(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
       coMa[i][j] = coMa[i][j]/coDen[i]; 
     }
   }
-  
+
   rprint->SetupAll(Rate,RateErr,spureRate,spureRateErr,pureRate,pureRateErr,coMa,
-		   RatePerLS,rcs[0]->runID,rcs[0]->lumiSection,totalRatePerLS);
+		   RatePerLS,rcs[0]->runID,rcs[0]->lumiSection,totalRatePerLS,RefPrescalePerLS,RefL1PrescalePerLS,
+		   weightedPrescaleRefHLT,weightedPrescaleRefL1);
   
 }
 void calcEff(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
@@ -279,7 +300,7 @@ void calcEff(OHltConfig *cfg,OHltMenu *menu,vector<OHltTree*> &procs,
   vector< vector<float> >coMa;
   vector<float> coDen;
   //  float DenEff=0.;
-  Int_t nbinpt = 50; Float_t ptmin = 0.0; Float_t ptmax = 15.0;
+  Int_t nbinpt = 50; Float_t ptmin = 0.0; Float_t ptmax = 2.0;
   Int_t nbineta = 30; Float_t etamin = -3.0; Float_t etamax = 3.0;
 
   vector<float> ftmp;

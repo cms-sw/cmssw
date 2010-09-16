@@ -52,7 +52,7 @@ bool FilterOutScraping::filter( edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByLabel("generalTracks",tkRef);    
   const reco::TrackCollection* tkColl = tkRef.product();
 
-  //std::cout << "Total Number of Tracks " << tkColl->size() << endl;
+  //std::cout << "Total Number of Tracks " << tkColl->size() << std::endl;
   
   int numhighpurity=0;
   _trackQuality = reco::TrackBase::qualityByName("highPurity");
@@ -78,7 +78,7 @@ bool FilterOutScraping::filter( edm::Event& iEvent, const edm::EventSetup& iSetu
     int ils = iEvent.luminosityBlock();
     int bx = iEvent.bunchCrossing();
     
-    cout << "FilterOutScraping_debug: Run " << irun << " Event " << ievt << " Lumi Block " << ils << " Bunch Crossing " << bx << " Fraction " << fraction << " NTracks " << tkColl->size() << " Accepted " << accepted << endl;
+    std::cout << "FilterOutScraping_debug: Run " << irun << " Event " << ievt << " Lumi Block " << ils << " Bunch Crossing " << bx << " Fraction " << fraction << " NTracks " << tkColl->size() << " Accepted " << accepted << std::endl;
   }
  
   if (applyfilter)

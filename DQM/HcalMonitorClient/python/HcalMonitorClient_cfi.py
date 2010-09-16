@@ -29,14 +29,14 @@ hcalClient = cms.EDAnalyzer("HcalMonitorClient",
                             # if the following are uncommented, they override the defaults on any
                             # clients that are not specified explicitly with their own prefixes
                             # online running -- require only 1 event (offline will require more)
-                            minevents            = cms.untracked.int32(25),
+                            minevents            = cms.untracked.int32(250),
                             # minerrorrate         = cms.untracked.double(0.05),
                             # BadChannelStatusMask = cms.untracked.int32(0),
 
                             # dead cell min events controlled by task in online running
                             DeadCell_minerrorrate = cms.untracked.double(0.05),
                             #DeadCell_minevents    = cms.untracked.int32(10),
-                            HotCell_minerrrorate  = cms.untracked.double(0.25),
+                            HotCell_minerrorrate  = cms.untracked.double(0.10),
                             
                             # Specify all clients to be run (name = prefix+"Monitor")
 
@@ -53,6 +53,7 @@ hcalClient = cms.EDAnalyzer("HcalMonitorClient",
                                                                     "DetDiagLEDMonitor",
                                                                     "DetDiagNoiseMonitor",
                                                                     "DetDiagTimingMonitor",
+                                                                    "CoarsePedestalMonitor",
                                                                     "Summary"
                                                                     ]
                                                                    ),

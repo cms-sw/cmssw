@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2010/07/01 09:59:35 $
- * $Revision: 1.214 $
+ * $Date: 2010/08/08 08:46:02 $
+ * $Revision: 1.218 $
  * \author G. Della Ricca
  *
 */
@@ -21,22 +21,22 @@
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #endif
 
-#include <DQM/EcalCommon/interface/UtilsClient.h>
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/UtilsClient.h"
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalBarrelMonitorClient/interface/EBStatusFlagsClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBBeamCaloClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBBeamHodoClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBClusterClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBTimingClient.h>
+#include "DQM/EcalBarrelMonitorClient/interface/EBStatusFlagsClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBBeamCaloClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBBeamHodoClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBClusterClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBTimingClient.h"
 
-#include <DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h>
+#include "DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h"
 
 EBSummaryClient::EBSummaryClient(const edm::ParameterSet& ps) {
 
@@ -158,7 +158,7 @@ EBSummaryClient::EBSummaryClient(const edm::ParameterSet& ps) {
 
   }
 
-  synchErrorThreshold_ = 0.05;
+  synchErrorThreshold_ = 0.0;
 
 }
 
@@ -1365,10 +1365,10 @@ void EBSummaryClient::analyze(void) {
           if ( hot01_[ism-1] ) {
 
             float xval = hot01_[ism-1]->GetBinContent( ie, ip );
-            
+
             int iex;
             int ipx;
-            
+
             if ( ism <= 18 ) {
               iex = 1+(85-ie);
               ipx = ip+20*(ism-1);
@@ -1376,7 +1376,7 @@ void EBSummaryClient::analyze(void) {
               iex = 85+ie;
               ipx = 1+(20-ip)+20*(ism-19);
             }
-            
+
             meRecHitEnergy_->setBinContent( ipx, iex, xval );
 
           }
@@ -1404,24 +1404,24 @@ void EBSummaryClient::analyze(void) {
 
             }
 
-            
+
             float num02, mean02, rms02;
             bool update02 = UtilsClient::getBinStatistics(htmt01_[ism-1], ie, ip, num02, mean02, rms02);
             // Task timing map is shifted of +50 ns for graphical reasons. Shift back it.
             mean02 -= 50.;
 
             if ( update02 ) {
-              
+
               meTimingMean1D_->Fill(mean02);
-              
+
               meTimingRMS1D_->Fill(rms02);
-              
+
               meTimingMean_->Fill( ism, mean02 );
-              
+
               meTimingRMS_->Fill( ism, rms02 );
-              
+
             }
-            
+
           }
 
         }
@@ -1522,7 +1522,7 @@ void EBSummaryClient::analyze(void) {
                 float emulErrorVal = h2->GetBinContent( ie, ip );
 
                 if( emulErrorVal!=0 && hadNonZeroInterest ) xval = 0;
-                
+
               }
 
               if ( xval!=0 && hadNonZeroInterest ) xval = 1;
@@ -1932,8 +1932,10 @@ void EBSummaryClient::analyze(void) {
         float iEntries=0;
 
         if(norm01_ && synch01_) {
-          float frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm01_->GetBinContent(ism));
-          float val_sy = (frac_synch_errors < synchErrorThreshold_);
+          float frac_synch_errors = 0.;
+          float norm = norm01_->GetBinContent(ism);
+          if(norm > 0) frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm);
+          float val_sy = (frac_synch_errors <= synchErrorThreshold_);
           if(val_sy==0) xval=0;
         }
 

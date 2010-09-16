@@ -8,27 +8,34 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWTableViewManager.cc,v 1.18 2010/05/27 08:45:00 eulisse Exp $
+// $Id: FWTableViewManager.cc,v 1.14 2010/03/04 18:06:18 eulisse Exp $
 //
 
 // system include files
 #include <iostream>
 #include <boost/bind.hpp>
 #include <algorithm>
-
+#include "TView.h"
+#include "TList.h"
 #include "TEveManager.h"
 #include "TClass.h"
 #include "Reflex/Base.h"
+#include "Reflex/Type.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/FWTableViewManager.h"
+#include "Fireworks/Core/interface/FWTableView.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
 
+#include "TEveSelection.h"
+#include "Fireworks/Core/interface/FWSelectionManager.h"
+
+#include "Fireworks/Core/interface/FWEDProductRepresentationChecker.h"
+#include "Fireworks/Core/interface/FWSimpleRepresentationChecker.h"
 #include "Fireworks/Core/interface/FWTypeToRepresentations.h"
-#include "Fireworks/Core/interface/fwLog.h"
 
 
 //
@@ -142,12 +149,6 @@ FWTableViewManager::FWTableViewManager(FWGUIManager* iGUIMgr)
    column("et", 1, "Et").
    column("eta", 3).
    column("phi", 3);
-   
-   table("CaloRecHit").
-   column("id", TableEntry::INT,"detid.rawId").
-   column("energy",3).
-   column("time",3).
-   column("flags",TableEntry::INT,"flags");
 }
 
 FWTableViewManager::~FWTableViewManager()
@@ -348,17 +349,6 @@ FWTableViewManager::destroyItem(const FWEventItem *iItem)
    notifyViews();
 }
 
-/** Remove all items present in the view.
-    
-    This should watch the FWEventItemsManager::goingToClearItems_ signal.
-  */
-void
-FWTableViewManager::removeAllItems(void)
-{
-   m_items.clear();
-   notifyViews();
-}
-
 void
 FWTableViewManager::modelChangesComing()
 {
@@ -448,7 +438,7 @@ FWTableViewManager::setFrom(const FWConfiguration &iFrom)
       const FWConfiguration *typeNames = iFrom.valueForKey(kConfigTypeNames);
       if (typeNames == 0)
       {
-         fwLog(fwlog::kWarning) << "no table column configuration stored, using defaults\n";
+         std::cout << "no table column configuration stored, using defaults\n";
          return;
       }
             

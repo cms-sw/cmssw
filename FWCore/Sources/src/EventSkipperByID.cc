@@ -39,6 +39,11 @@ namespace edm {
   }
 
   bool
+  EventSkipperByID::skippingLumis() const {
+    return !(whichLumisToSkip_.empty() && whichLumisToProcess_.empty());
+  }
+
+  bool
   EventSkipperByID::operator()(LuminosityBlockRange const& lumiRange) const {
     return contains(lumiRange, lumi_);
   }

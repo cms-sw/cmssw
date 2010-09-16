@@ -126,9 +126,9 @@ class WidgetView(AbstractView, ZoomableScrollableWidgetOwner):
         self.clear()
 
     def mousePressEvent(self,event):
-        ZoomableScrollableWidgetOwner.mousePressEvent(self,event)
         if event.button()==Qt.RightButton:
             self.emit(SIGNAL("mouseRightPressed"), event.globalPos())
+        ZoomableScrollableWidgetOwner.mousePressEvent(self,event)
 
     def isBusy(self):
         return self._updatingFlag>0

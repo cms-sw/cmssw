@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2010/04/14 16:13:40 $
- * $Revision: 1.99 $
+ * $Date: 2010/08/09 13:22:18 $
+ * $Revision: 1.104 $
  * \author G. Della Ricca
  *
 */
@@ -22,18 +22,17 @@
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+#include "DQM/EcalCommon/interface/LogicID.h"
 #endif
 
-#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
+#include "DQM/EcalCommon/interface/Masks.h"
 
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/UtilsClient.h"
-#include "DQM/EcalCommon/interface/LogicID.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EETimingClient.h>
+#include "DQM/EcalEndcapMonitorClient/interface/EETimingClient.h"
 
 EETimingClient::EETimingClient(const edm::ParameterSet& ps) {
 
@@ -143,8 +142,9 @@ void EETimingClient::setup(void) {
     if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EETMT timing quality %s", Numbers::sEE(ism).c_str());
     meg01_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-    meg01_[ism-1]->setAxisTitle("jx", 1);
-    meg01_[ism-1]->setAxisTitle("jy", 2);
+    meg01_[ism-1]->setAxisTitle("ix", 1);
+    if ( ism >= 1 && ism <= 9 ) meg01_[ism-1]->setAxisTitle("101-ix", 1);
+    meg01_[ism-1]->setAxisTitle("iy", 2);
 
     if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getName() );
     sprintf(histo, "EETMT timing %s", Numbers::sEE(ism).c_str());
@@ -340,9 +340,8 @@ void EETimingClient::analyze(void) {
     if ( debug_ ) std::cout << "EETimingClient: ievt/jevt = " << ievt_ << "/" << jevt_ <<  std::endl;
   }
 
-  uint64_t bits01 = 0;
-  bits01 |= EcalErrorDictionary::getMask("PHYSICS_MEAN_TIMING_WARNING");
-  bits01 |= EcalErrorDictionary::getMask("PHYSICS_RMS_TIMING_WARNING");
+  uint32_t bits01 = 0;
+  bits01 |= 1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_WARNING;
 
   char histo[200];
 
@@ -416,89 +415,12 @@ void EETimingClient::analyze(void) {
 
         }
 
+        if ( Masks::maskChannel(ism, ix, iy, bits01, EcalEndcap) ) UtilsClient::maskBinContent( meg01_[ism-1], ix, iy );
+
       }
     }
 
   }
-
-#ifdef WITH_ECAL_COND_DB
-  if ( EcalErrorMask::mapCrystalErrors_.size() != 0 ) {
-    map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
-    for (m = EcalErrorMask::mapCrystalErrors_.begin(); m != EcalErrorMask::mapCrystalErrors_.end(); m++) {
-
-      if ( (m->second).getErrorBits() & bits01 ) {
-        EcalLogicID ecid = m->first;
-
-        if ( strcmp(ecid.getMapsTo().c_str(), "EE_crystal_number") != 0 ) continue;
-
-        int iz = ecid.getID1();
-        int ix = ecid.getID2();
-        int iy = ecid.getID3();
-
-        for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-          int ism = superModules_[i];
-          std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
-          if (iter == superModules_.end()) continue;
-          if ( iz == -1 && ( ism >=  1 && ism <=  9 ) ) {
-            int jx = 101 - ix - Numbers::ix0EE(ism);
-            int jy = iy - Numbers::iy0EE(ism);
-            if ( Numbers::validEE(ism, ix, iy) ) UtilsClient::maskBinContent( meg01_[ism-1], jx, jy );
-          }
-          if ( iz == +1 && ( ism >= 10 && ism <= 18 ) ) {
-            int jx = ix - Numbers::ix0EE(ism);
-            int jy = iy - Numbers::iy0EE(ism);
-            if ( Numbers::validEE(ism, ix, iy) ) UtilsClient::maskBinContent( meg01_[ism-1], jx, jy );
-          }
-        }
-
-      }
-
-    }
-  }
-
-  if ( EcalErrorMask::mapTTErrors_.size() != 0 ) {
-    map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
-    for (m = EcalErrorMask::mapTTErrors_.begin(); m != EcalErrorMask::mapTTErrors_.end(); m++) {
-
-      if ( (m->second).getErrorBits() & bits01 ) {
-        EcalLogicID ecid = m->first;
-
-        if ( strcmp(ecid.getMapsTo().c_str(), "EE_readout_tower") != 0 ) continue;
-
-        int idcc = ecid.getID1() - 600;
-
-        int ism = -1;
-        if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
-        if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
-        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
-        if (iter == superModules_.end()) continue;
-
-        int itt = ecid.getID2();
-
-        if ( itt > 70 ) continue;
-
-        if ( itt >= 42 && itt <= 68 ) continue;
-
-        if ( ( ism == 8 || ism == 17 ) && ( itt >= 18 && itt <= 24 ) ) continue;
-
-        if ( itt >= 1 && itt <= 68 ) {
-          std::vector<DetId>* crystals = Numbers::crystals( idcc, itt );
-          for ( unsigned int i=0; i<crystals->size(); i++ ) {
-            EEDetId id = (*crystals)[i];
-            int ix = id.ix();
-            int iy = id.iy();
-            if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
-            int jx = ix - Numbers::ix0EE(ism);
-            int jy = iy - Numbers::iy0EE(ism);
-            UtilsClient::maskBinContent( meg01_[ism-1], jx, jy );
-          }
-        }
-
-      }
-
-    }
-  }
-#endif
 
 }
 

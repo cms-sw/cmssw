@@ -4,8 +4,8 @@
 /// constructor
 MEzCalculator::MEzCalculator() 
 {
-	isComplex_ = false;
-	isMuon_ = true;
+  isComplex_ = false;
+  isMuon_ = true;
 }
 
 /// destructor
@@ -16,7 +16,10 @@ MEzCalculator::~MEzCalculator()
 /// member functions
 double
 MEzCalculator::Calculate(int type) 
-{  
+{
+  if(type<0 || type>3)
+    throw cms::Exception("UnimplementedFeature") << "Type " << type << " not supported in MEzCalculator.\n";
+
   double M_W  = 80.4;
   double M_mu =  0.10566;
   double M_e = 0.511e-3;
@@ -30,8 +33,10 @@ MEzCalculator::Calculate(int type)
   double pxnu = MET_.px();
   double pynu = MET_.py();
   double pznu = 0.;
+
+  // use pznu = - B/2*A +/- sqrt(B*B-4*A*C)/(2*A)
   
-  double a = M_W*M_W - M_lepton*M_lepton + 2.0*pxmu*pxnu + 2.0*pymu*pynu;
+  double a = M_W*M_W - M_lepton*M_lepton + 2.0*(pxmu*pxnu + pymu*pynu);
   double A = 4.0*(emu*emu - pzmu*pzmu);
   double B = -4.0*a*pzmu;
   double C = 4.0*emu*emu*(pxnu*pxnu + pynu*pynu) - a*a;
@@ -67,23 +72,22 @@ MEzCalculator::Calculate(int type)
       if (TMath::Abs(tmpsol1)<TMath::Abs(tmpsol2) ) pznu = tmpsol1;
       else pznu = tmpsol2;
     }
-	if (type == 3 ) {
-		// pick the largest value of the cosine
-		TVector3 p3w, p3mu;
-		p3w.SetXYZ(pxmu+pxnu, pymu+pynu, pzmu+ tmpsol1);
-		p3mu.SetXYZ(pxmu, pymu, pzmu );
-		
-		double sinthcm1 = 2.*(p3mu.Perp(p3w))/M_W;
-		p3w.SetXYZ(pxmu+pxnu, pymu+pynu, pzmu+ tmpsol2);
-		double sinthcm2 = 2.*(p3mu.Perp(p3w))/M_W;
-		
-		double costhcm1 = TMath::Sqrt(1. - sinthcm1*sinthcm1);
-		double costhcm2 = TMath::Sqrt(1. - sinthcm2*sinthcm2);
-		
-		if ( costhcm1 > costhcm2 ) pznu = tmpsol1;
-		else pznu = tmpsol2;
-	}
-		
+    if (type == 3 ) {
+      // pick the largest value of the cosine
+      TVector3 p3w, p3mu;
+      p3w.SetXYZ(pxmu+pxnu, pymu+pynu, pzmu+ tmpsol1);
+      p3mu.SetXYZ(pxmu, pymu, pzmu );
+      
+      double sinthcm1 = 2.*(p3mu.Perp(p3w))/M_W;
+      p3w.SetXYZ(pxmu+pxnu, pymu+pynu, pzmu+ tmpsol2);
+      double sinthcm2 = 2.*(p3mu.Perp(p3w))/M_W;
+      
+      double costhcm1 = TMath::Sqrt(1. - sinthcm1*sinthcm1);
+      double costhcm2 = TMath::Sqrt(1. - sinthcm2*sinthcm2);
+      
+      if ( costhcm1 > costhcm2 ) pznu = tmpsol1;
+      else pznu = tmpsol2;
+    }	
 
   }
   

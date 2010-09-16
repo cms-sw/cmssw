@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 rpcPointProducer = cms.EDProducer("RPCPointProducer",
   incldt = cms.untracked.bool(True),
   inclcsc = cms.untracked.bool(True),
-  incltrack =  cms.untracked.bool(False),
 
   debug = cms.untracked.bool(False),
 
@@ -16,17 +15,7 @@ rpcPointProducer = cms.EDProducer("RPCPointProducer",
 
   cscSegments = cms.InputTag('hltCscSegments'),
   dt4DSegments = cms.InputTag('hltDt4DSegments'),
-  tracks = cms.InputTag("standAloneMuons"),
-  TrackTransformer = cms.PSet(
-      DoPredictionsOnly = cms.bool(False),
-      Fitter = cms.string('KFFitterForRefitInsideOut'),
-      TrackerRecHitBuilder = cms.string('WithTrackAngle'),
-      Smoother = cms.string('KFSmootherForRefitInsideOut'),
-      MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
-      RefitDirection = cms.string('alongMomentum'),
-      RefitRPCHits = cms.bool(False),
-      Propagator = cms.string('SmartPropagatorAnyRKOpposite')
-  )
+
 #  cscSegments = cms.tracked.InputTag('cscSegments'),
 #  dt4DSegments = cms.tracked.InputTag('dt4DSegments'),
 

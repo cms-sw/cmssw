@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2010/03/12 19:03:09 $
- *  $Revision: 1.34.2.1 $
+ *  $Date: 2010/08/09 19:05:57 $
+ *  $Revision: 1.36 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -29,12 +29,14 @@
 TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig) :theTkLayerMeasurements (0), theTracker(0), theMeasTracker(0), theNavigation(0), theService(0), theEstimator(0), theTSTransformer(0), theSigmaZ(0), theConfig (iConfig)
 {
   theCategory = "Muon|RecoMuon|TSGFromPropagation";
+  theMeasTrackerName = iConfig.getParameter<std::string>("MeasurementTrackerName");
 
 }
 
 TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig, const MuonServiceProxy* service) : theTkLayerMeasurements (0), theTracker(0), theMeasTracker(0), theNavigation(0), theService(service),theUpdator(0), theEstimator(0), theTSTransformer(0), theSigmaZ(0), theConfig (iConfig)
 {
   theCategory = "Muon|RecoMuon|TSGFromPropagation";
+  theMeasTrackerName = iConfig.getParameter<std::string>("MeasurementTrackerName");
 }
 
 TSGFromPropagation::~TSGFromPropagation()
@@ -175,6 +177,8 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
 
   theSigmaZ = theConfig.getParameter<double>("SigmaZ");
 
+  theBeamSpotInputTag = theConfig.getParameter<edm::InputTag>("beamSpot");
+
   edm::ParameterSet errorMatrixPset = theConfig.getParameter<edm::ParameterSet>("errorMatrixPset");
   if ( theResetMethod == "matrix" && !errorMatrixPset.empty()){
     theAdjustAtIp = errorMatrixPset.getParameter<bool>("atIP");
@@ -193,14 +197,15 @@ void TSGFromPropagation::setEvent(const edm::Event& iEvent) {
 
   bool measTrackerChanged = false;
 
-  iEvent.getByType(theBeamSpot);
+  //edm::Handle<reco::BeamSpot> beamSpot;
+  iEvent.getByLabel(theBeamSpotInputTag, beamSpot);
 
   unsigned long long newCacheId_MT = theService->eventSetup().get<CkfComponentsRecord>().cacheIdentifier();
 
   if ( theUpdateStateFlag && newCacheId_MT != theCacheId_MT ) {
     LogTrace(theCategory) << "Measurment Tracker Geometry changed!";
     theCacheId_MT = newCacheId_MT;
-    theService->eventSetup().get<CkfComponentsRecord>().get(theMeasTracker);
+    theService->eventSetup().get<CkfComponentsRecord>().get(theMeasTrackerName,theMeasTracker);
     measTrackerChanged = true;
   }
 
@@ -326,8 +331,8 @@ std::vector<TrajectoryMeasurement> TSGFromPropagation::findMeasurements(const De
 bool TSGFromPropagation::passSelection(const TrajectoryStateOnSurface& tsos) const {
   if ( !theSelectStateFlag ) return true;
   else {
-     if ( theBeamSpot.isValid() ) {
-       return ( ( fabs(zDis(tsos) - theBeamSpot->z0() ) < theSigmaZ) );
+     if ( beamSpot.isValid() ) {
+       return ( ( fabs(zDis(tsos) - beamSpot->z0() ) < theSigmaZ) );
 
      } else {
        return ( ( fabs(zDis(tsos)) < theSigmaZ) ); 

@@ -18,7 +18,7 @@
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <FWCore/ParameterSet/interface/InputTag.h>
+#include <FWCore/Utilities/interface/InputTag.h>
 
 #include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
 
@@ -54,16 +54,10 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   /// Write to ROOT file, make plots, etc.
   void endJob();
 
-  int chamberSerial( CSCDetId id );
-  int chamberIX( CSCDetId id );
-  int chamberIXi( CSCDetId id );
-  void HotWires(const edm::Event& iEvent);
-
  private:
   int eventsAnalyzed;       // event number
   bool debug;               // on/off switch
-  std::string rootFileName; // root file name
-  //  TFile *theFile;
+  //std::string rootFileName; // root file name
 
   // Cache geometry for current event
   const CSCGeometry* geom_;
@@ -117,7 +111,6 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   static int numLCTTMB;
   static int numLCTMPC;
 
-  static bool bookedHotWireHistos;
   static bool bookedALCTHistos;
   static bool bookedCLCTHistos;
   static bool bookedLCTTMBHistos;
@@ -128,11 +121,8 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   static bool bookedResolHistos;
   static bool bookedEfficHistos;
 
-  static bool printps;
-
   void setRootStyle();
 
-  void bookHotWireHistos();
   void bookALCTHistos();
   void bookCLCTHistos();
   void bookLCTTMBHistos();
@@ -189,11 +179,7 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
 		      const CSCCLCTDigiCollection* clcts,
 		      const edm::PSimHitContainer* allSimHits);
 
-
-
   // Histograms
-  //Hot wires
-  TH1F *hHotWire1, *hHotCham1;
   // ALCTs
   TH1F *hAlctPerEvent, *hAlctPerChamber, *hAlctPerCSC;
   TH1F *hAlctCsc[MAX_ENDCAPS][CSC_TYPES];
@@ -221,68 +207,6 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   TH1F *hLctMPCValid, *hLctMPCQuality, *hLctMPCKeyGroup;
   TH1F *hLctMPCKeyStrip, *hLctMPCStripType;
   TH1F *hLctMPCPattern, *hLctMPCBend, *hLctMPCBXN;
-
-  //Chad's hists
-
-  TH1F *hAlctCompFound;
-  TH2F *hAlctCompFound2;
-  TH2F *hAlctCompFound2x;
-  TH2F *hAlctCompFound2i;
-
-  TH1F *hAlctCompSameN;
-  TH2F *hAlctCompSameN2;
-  TH2F *hAlctCompSameN2x;
-  TH2F *hAlctCompSameN2i;
-
-  TH1F *hAlctCompMatch;
-  TH2F *hAlctCompMatch2;
-  TH2F *hAlctCompMatch2x;
-  TH2F *hAlctCompMatch2i;
-
-  TH1F *hAlctCompTotal;
-  TH2F *hAlctCompTotal2;
-  TH2F *hAlctCompTotal2x;
-  TH2F *hAlctCompTotal2i;
-
-  TH1F *hClctCompFound;
-  TH2F *hClctCompFound2;
-  TH2F *hClctCompFound2x;
-  TH2F *hClctCompFound2i
-;
-  TH1F *hClctCompSameN;
-  TH2F *hClctCompSameN2;
-  TH2F *hClctCompSameN2x;
-  TH2F *hClctCompSameN2i;
-
-  TH1F *hClctCompMatch;
-  TH2F *hClctCompMatch2;
-  TH2F *hClctCompMatch2x;
-  TH2F *hClctCompMatch2i;
-
-  TH1F *hClctCompTotal;
-  TH2F *hClctCompTotal2;
-  TH2F *hClctCompTotal2x;
-  TH2F *hClctCompTotal2i;
-
-  TH1F *hLCTCompFound;
-  TH2F *hLCTCompFound2;
-  TH2F *hLCTCompFound2x;
-  TH2F *hLCTCompFound2i;
-
-  TH1F *hLCTCompSameN;
-  TH2F *hLCTCompSameN2;
-  TH2F *hLCTCompSameN2x;
-  TH2F *hLCTCompSameN2i;
-
-  TH1F *hLCTCompMatch;
-  TH2F *hLCTCompMatch2;
-  TH2F *hLCTCompMatch2x;
-  TH2F *hLCTCompMatch2i;
-
-  TH1F *hLCTCompTotal;
-  TH2F *hLCTCompTotal2;
-  TH2F *hLCTCompTotal2x;
-  TH2F *hLCTCompTotal2i;
 
   // Histograms for firmware-emulator comparisons
   // ALCTs

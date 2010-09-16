@@ -4,8 +4,8 @@
 /*
  * \file EESelectiveReadoutTask.h
  *
- * $Date: 2009/08/21 15:10:32 $
- * $Revision: 1.16 $
+ * $Date: 2010/08/08 08:46:08 $
+ * $Revision: 1.18 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -15,7 +15,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
-#include <DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h>
+#include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 
 class MonitorElement;
 class DQMStore;
@@ -84,6 +84,9 @@ static const int nEEDcc = 18;
 static const int nEBDcc = 36;
 static const int kByte = 1024;
 
+///maximum number of RUs read by a DCC
+static const int nDccChs = 68;
+
 ///number of RUs for EE
 static const int nEeRus = 2*(34+32+33+33+32+34+33+34+33);
 
@@ -121,17 +124,33 @@ int nEvtFullReadout[20][20][2];
 ///To store the events with RU forced
 int nEvtRUForced[20][20][2];
 
+///To store the events with ZS1 readout
+int nEvtZS1Readout[20][20][2];
+
+///To store the events with ZS1 or ZS2 readout
+int nEvtZSReadout[20][20][2];
+
+///To store the events with complete readout when ZS is requested
+int nEvtCompleteReadoutIfZS[20][20][2];
+
+///To store the events with 0 channels readout when FR is requested
+int nEvtDroppedReadoutIfFR[20][20][2];
+
 ///To store the events with any readout
 int nEvtAnyReadout[20][20][2];
 
 ///To store the events with high interest TT
 int nEvtHighInterest[100][100][2];
 
+///To store the events with medium interest TT
+int nEvtMediumInterest[100][100][2];
+
 ///To store the events with low interest TT
 int nEvtLowInterest[100][100][2];
 
 ///To store the events with any interest
 int nEvtAnyInterest[100][100][2];
+
 
 private:
 
@@ -153,6 +172,12 @@ void anaDigiInit();
  * @return the DCC logical number starting from 1.
  */
 unsigned dccNum(const DetId& xtalId) const;
+
+/** Retrieve the logical number of the DCC reading a given SC channel.
+ * @param scId SC channel identifier
+ * @return the DCC logical number starting from 1.
+ */
+unsigned dccNumOfRU(const EcalScDetId& scId) const;
 
 /** Retrives the readout unit, a trigger tower in the barrel case,
  * and a supercrystal in the endcap case, a given crystal belongs to.
@@ -256,6 +281,14 @@ static int dccZsFIR(const EcalDataFrame& frame,
 static std::vector<int> getFIRWeights(const std::vector<double>&
                                       normalizedWeights);
 
+
+/** Retrieves number of crystal channel read out by a DCC channel
+ * @param iDcc DCC ID starting from 1
+ * @param iDccCh DCC channel starting from 1
+ * @return crystal count
+ */
+int getCrystalCount(int iDcc, int iDccCh);
+
 /** ECAL endcap read channel count
  */
 int nEe_[2];
@@ -271,6 +304,10 @@ int nEeHI_[2];
 /** ECAL read channel count for each DCC:
  */
 int nPerDcc_[nECALDcc];
+
+/** Number of crystal read for each DCC channel (aka readout unit).
+ */
+int nPerRu_[nECALDcc][nDccChs];   
 
 /** Count for each DCC of RUs with at leat one channel read out:
  */
@@ -313,11 +350,18 @@ MonitorElement* EEDccEventSize_;
 MonitorElement* EEDccEventSizeMap_;
 MonitorElement* EETowerSize_[2];
 MonitorElement* EETTFMismatch_[2];
-MonitorElement* EETowerFullReadoutFrequency_[2];
 MonitorElement* EEReadoutUnitForcedBitMap_[2];
 MonitorElement* EEFullReadoutSRFlagMap_[2];
+MonitorElement* EEFullReadoutSRFlagCount_[2];
+MonitorElement* EEZeroSuppression1SRFlagMap_[2];
 MonitorElement* EEHighInterestTriggerTowerFlagMap_[2];
+MonitorElement* EEMediumInterestTriggerTowerFlagMap_[2];
 MonitorElement* EELowInterestTriggerTowerFlagMap_[2];
+MonitorElement* EETTFlags_[2];
+MonitorElement* EECompleteZSMap_[2];
+MonitorElement* EECompleteZSCount_[2];
+MonitorElement* EEDroppedFRMap_[2];
+MonitorElement* EEDroppedFRCount_[2];
 MonitorElement* EEEventSize_[2];
 MonitorElement* EEHighInterestPayload_[2];
 MonitorElement* EELowInterestPayload_[2];

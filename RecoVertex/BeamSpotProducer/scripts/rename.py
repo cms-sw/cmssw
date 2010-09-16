@@ -2,12 +2,10 @@
 import sys,os,commands,re
 from CommonMethods import *
 def main():
-    sourcePath = "/castor/cern.ch/cms/store/caf/user/uplegger/Workflows/andersJetTau/"
-#    sourcePath = "/uscms/home/uplegger/resilient/BeamSpot/"
-#    sourcePath = "Files/"
-    sourceDirList = [sourcePath]
-    destDirList   = ["Original"]
-    path = "Anders/"
+    castor = "/castor/cern.ch/cms/store/caf/user/uplegger/Workflows/Repro_2010June08/"
+    sourceDirList = [castor+"v1",castor+"v2",castor+"v7",castor+"v8",castor+"v9"]
+    destDirList   = ["v1","v2","v7","v8","v9"]
+    path = "Repro_2010June08/"
     finalDir = path + "Results/"
 
     if not os.path.isdir(path):
@@ -25,22 +23,21 @@ def main():
         sourceDir = sourceDirList[n] + '/'
         destDir   = path + destDirList[n] + '/'
         if not dirExists(sourceDir):
-	    print sourceDir + " doesn't exist!"
             continue
-        fileList = ls(sourceDir,".root")
+        fileList = ls(sourceDir)
         if not os.path.isdir(destDir):
             error = "WARNING: destination directory doesn't exist! Creating it..."
             print error
             os.mkdir(destDir)
-        copiedFiles = cp(sourceDir,destDir,fileList,False,False)
+        copiedFiles = cp(sourceDir,destDir,fileList,False,True)
 
         #if len(copiedFiles) != len(fileList):
         #    error = "ERROR: I couldn't copy all files"
         #    exit(error)
-        exit("ok")
+
         for fileName in copiedFiles:
             #regExp = re.search('(\D+)(\d+)_(\d+)_(\d+).txt',fileName)
-            regExp = re.search('(\D+)(\d+)_(\d+)_[a-zA-Z0-9]+.txt',fileName)
+            regExp = re.search('(\D+)(\d+)_(\d+)_.txt',fileName)
             #if regExp:
                 #print regExp.group(1) + regExp.group(2) + "_" + str(1) + "_" + regExp.group(3) + ".txt" 
                 

@@ -98,8 +98,8 @@ FastTSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
   }
 
   // Loop on L2 muons
-  uint imu=0;
-  uint imuMax=l2muonH->size();
+  unsigned int imu=0;
+  unsigned int imuMax=l2muonH->size();
   // std::cout << "Found " << imuMax << " L2 muons" << std::endl;
   for (;imu!=imuMax;++imu){
 
@@ -158,8 +158,8 @@ FastTSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
     
 
     // Now create the Muon Trajectory Seed
-    uint is=0;
-    uint isMax=tkSeeds.size();
+    unsigned int is=0;
+    unsigned int isMax=tkSeeds.size();
     for (;is!=isMax;++is){
       result->push_back( L3MuonTrajectorySeed(tkSeeds[is], muRef));
     } // End of tk seed loop

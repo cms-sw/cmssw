@@ -9,8 +9,7 @@ process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
 process.load("Configuration.StandardSequences.GeometryHCAL_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-from Configuration.PyReleaseValidation.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['mc']
+process.GlobalTag.globaltag = 'MC_31X_V1::All'
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -25,14 +24,13 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.hcalDigiAnalyzer = cms.EDAnalyzer("HcalDigiTester",
+process.hcalDigiAnalyzer = cms.EDFilter("HcalDigiTester",
     digiLabel = cms.InputTag("simHcalUnsuppressedDigis"),
     outputFile = cms.untracked.string('HcalDigisValidation.root'),
     hcalselector = cms.untracked.string('noise'),
     zside = cms.untracked.string('*')
 )
 
-process.g4SimHits.Generator.HepMCProductLabel = 'generator'
 process.p = cms.Path(
 process.VtxSmeared * 
 process.g4SimHits * 

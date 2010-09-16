@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2010/03/27 20:07:57 $
- * $Revision: 1.155 $
+ * $Date: 2010/08/04 19:10:23 $
+ * $Revision: 1.158 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -23,16 +23,15 @@
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+#include "DQM/EcalCommon/interface/LogicID.h"
 #endif
 
-#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
+#include "DQM/EcalCommon/interface/Masks.h"
 
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/UtilsClient.h"
-#include "DQM/EcalCommon/interface/LogicID.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h>
+#include "DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h"
 
 EBPedestalOnlineClient::EBPedestalOnlineClient(const edm::ParameterSet& ps) {
 
@@ -298,11 +297,9 @@ void EBPedestalOnlineClient::analyze(void) {
     if ( debug_ ) std::cout << "EBPedestalOnlineClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
-  uint64_t bits03 = 0;
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_MEAN_WARNING");
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_RMS_WARNING");
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR");
-  bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR");
+  uint32_t bits03 = 0;
+  bits03 |= 1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR;
+  bits03 |= 1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR;
 
   char histo[200];
 
@@ -348,64 +345,12 @@ void EBPedestalOnlineClient::analyze(void) {
 
         }
 
+        if ( Masks::maskChannel(ism, ie, ip, bits03, EcalBarrel) ) UtilsClient::maskBinContent( meg03_[ism-1], ie, ip );
+
       }
     }
 
   }
-
-#ifdef WITH_ECAL_COND_DB
-  if ( EcalErrorMask::mapCrystalErrors_.size() != 0 ) {
-    map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
-    for (m = EcalErrorMask::mapCrystalErrors_.begin(); m != EcalErrorMask::mapCrystalErrors_.end(); m++) {
-
-      if ( (m->second).getErrorBits() & bits03 ) {
-        EcalLogicID ecid = m->first;
-
-        if ( strcmp(ecid.getMapsTo().c_str(), "EB_crystal_number") != 0 ) continue;
-
-        int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
-        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
-        if (iter == superModules_.end()) continue;
-
-        int ic = ecid.getID2();
-        int ie = (ic-1)/20 + 1;
-        int ip = (ic-1)%20 + 1;
-
-        UtilsClient::maskBinContent( meg03_[ism-1], ie, ip );
-
-      }
-
-    }
-  }
-
-  if ( EcalErrorMask::mapTTErrors_.size() != 0 ) {
-    map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
-    for (m = EcalErrorMask::mapTTErrors_.begin(); m != EcalErrorMask::mapTTErrors_.end(); m++) {
-
-      if ( (m->second).getErrorBits() & bits03 ) {
-        EcalLogicID ecid = m->first;
-
-        if ( strcmp(ecid.getMapsTo().c_str(), "EB_trigger_tower") != 0 ) continue;
-
-        int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
-        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
-        if (iter == superModules_.end()) continue;
-
-        int itt = ecid.getID2();
-        int iet = (itt-1)/4 + 1;
-        int ipt = (itt-1)%4 + 1;
-
-        for ( int ie = 5*(iet-1)+1; ie <= 5*iet; ie++ ) {
-          for ( int ip = 5*(ipt-1)+1; ip <= 5*ipt; ip++ ) {
-            UtilsClient::maskBinContent( meg03_[ism-1], ie, ip );
-          }
-        }
-
-      }
-
-    }
-  }
-#endif
 
 }
 

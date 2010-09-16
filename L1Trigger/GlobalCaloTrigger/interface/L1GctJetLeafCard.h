@@ -43,11 +43,6 @@ public:
 
   typedef L1GctJetFinderBase::hfTowerSumsType hfTowerSumsType;
 
-  enum maxValues {
-    etTotalMaxValue = L1GctInternEtSum::kTotEtOrHtMaxValue,
-    htTotalMaxValue = L1GctInternEtSum::kTotEtOrHtMaxValue
-  };
-
   //Construtors/destructor
   L1GctJetLeafCard(int id, int iphi, jetFinderType jfType = tdrJetFinder);
                    

@@ -78,6 +78,8 @@ class TtFullHadKinFitProducer : public edm::EDProducer {
   double mW_;
   /// top mass value used for constraints
   double mTop_;
+  /// store the resolutions for the jets
+  std::vector<edm::ParameterSet> udscResolutions_, bResolutions_;
 
   /// kinematic fit interface
   TtFullHadKinFitter* fitter;

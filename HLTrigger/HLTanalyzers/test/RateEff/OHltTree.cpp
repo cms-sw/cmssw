@@ -83,6 +83,8 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
 //   TFile*   theHistFile = new TFile("Histograms_Quarkonia.root", "RECREATE");
 //   cout<< "Histogram root file created: Histograms_Quarkonia.root"  << endl;
   
+  nEventsProcessed = 0;
+
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
@@ -92,8 +94,8 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
       cout<<"Processing entry "<<jentry<<"/"<<nentries<<"\r"<<flush<<endl;
 
     // When running on real data, keep track of how many LumiSections have been 
-    // used. Note: this assumes LumiSections are contiguous, and that the user 
-    // uses complete LumiSections
+    // used. Note: this does not require LumiSections be contiguous, but does assume
+    // that the user uses complete LumiSections
     if(menu->IsRealData())
       {
 
@@ -108,6 +110,14 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
 	  if (rc->isNewRunLS(Run,LumiBlock)) { // check against double counting
 	    rc->addRunLS(Run,LumiBlock);
 	    nLumiSections++;
+
+	    // JH - Track per-LS changes in prescales
+	    for (int it = 0; it < nTrig; it++){ 
+	      rc->updateRunLSRefPrescale(Run,LumiBlock,it,readRefPrescaleFromFile(menu->GetTriggerName(it)));
+	    }
+	    for (int it = 0; it < nL1Trig; it++){
+	      rc->updateRunLSRefL1Prescale(Run,LumiBlock,it,readRefPrescaleFromFile(menu->GetL1TriggerName(it))); 
+	    }
 	  }
 	}
 
@@ -149,8 +159,10 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     SetMapL1BitOfStandardHLTPathUsingLogicParser(menu,nEventsProcessed);
 
     // Apply prefilter based on bits
-    if (!passPreFilterLogicParser(cfg->preFilterLogicString,nEventsProcessed)) {
+    bool passesPreFilter = passPreFilterLogicParser(cfg->preFilterLogicString,nEventsProcessed);
+    if(!passesPreFilter) {
       //cout<<"Event rejected due to prefilter!!!"<<endl;
+      nEventsProcessed++; 
       continue;
     }
 
@@ -166,15 +178,17 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     if(cfg->pisPhysicsSample[procID]!=0) {
       int accMCMu=0;
       int accMCEle=0;
+      int accMCPi=0;
       if(cfg->selectBranchMC){
 	for(int iMCpart = 0; iMCpart < NMCpart; iMCpart ++){
 	  if((MCpid[iMCpart]==13||MCpid[iMCpart]==-13) && MCstatus[iMCpart]==1 && (MCeta[iMCpart] < 2.1 && MCeta[iMCpart] > -2.1) && (MCpt[iMCpart]>3))accMCMu=accMCMu+1;
 	  if((MCpid[iMCpart]==11||MCpid[iMCpart]==-11 )&& MCstatus[iMCpart]==1 && (MCeta[iMCpart] < 2.5 && MCeta[iMCpart] > -2.5) && (MCpt[iMCpart]>5))accMCEle=accMCEle+1;
+          if((MCpid[iMCpart]==211||MCpid[iMCpart]==-211 )&& MCstatus[iMCpart]==1 && (MCeta[iMCpart] < 2.5 && MCeta[iMCpart] > -2.5) && (MCpt[iMCpart]>0))accMCPi=accMCPi+1; 
 	}
 	if     ((cfg->pisPhysicsSample[procID]==1 && accMCEle>=1               )){ Den=Den+1;}
 	else if((cfg->pisPhysicsSample[procID]==2 &&                accMCMu >=1)){ Den=Den+1;}
 	else if((cfg->pisPhysicsSample[procID]==3 && accMCEle>=1 && accMCMu >=1)){ Den=Den+1;}
-
+        else if((cfg->pisPhysicsSample[procID]==5 && accMCPi>=1                )){ Den=Den+1;} 
 	else {continue;}
       }
     }
@@ -192,7 +206,8 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
     if (cfg->pisPhysicsSample[procID]==1)ohltobject="electron";
     if (cfg->pisPhysicsSample[procID]==2)ohltobject="muon";
     if (cfg->pisPhysicsSample[procID]==3)ohltobject="ele_mu";
-    if (cfg->pisPhysicsSample[procID]==4)ohltobject=="photon";
+    if (cfg->pisPhysicsSample[procID]==4)ohltobject="photon";
+    if (cfg->pisPhysicsSample[procID]==5)ohltobject="pion"; 
     PlotOHltEffCurves(cfg,hlteffmode,ohltobject,h1,h2,h3,h4);
 
 
@@ -288,7 +303,7 @@ void OHltTree::Loop(OHltRateCounter *rc,OHltConfig *cfg,OHltMenu *menu,int procI
 //       }
 //   }
 //   theHistFile->Close();
-
+  
 }
 
 void OHltTree::SetLogicParser(std::string l1SeedsLogicalExpression) {
@@ -303,28 +318,55 @@ void OHltTree::SetLogicParser(std::string l1SeedsLogicalExpression) {
 };
 
 
-
+int OHltTree::readRefPrescaleFromFile(TString st)
+{
+  return map_RefPrescaleOfStandardHLTPath.find(st)->second;
+}
 
 bool OHltTree::prescaleResponse(OHltMenu *menu,OHltConfig *cfg,OHltRateCounter *rc,int i) {
   if (cfg->doDeterministicPrescale) {
     (rc->prescaleCount[i])++;
-    return ((rc->prescaleCount[i]) % menu->GetPrescale(i) == 0); //
+    if(cfg->useNonIntegerPrescales) {
+      float prescalemod = 1.0 - fmod((float)(menu->GetPrescale(i)),1);
+      if(prescalemod == 1.0) prescalemod = 0.5; 
+      return (fmod((float)(rc->prescaleCount[i]),(float)(menu->GetPrescale(i))) <= prescalemod);
+    }
+    else
+      return (fmod((float)(rc->prescaleCount[i]),(float)(menu->GetPrescale(i))) == 0);
   } else {
-    return (GetIntRandom() % menu->GetPrescale(i) == 0);
+    float therandom = (float)(GetFloatRandom());
+    if(cfg->useNonIntegerPrescales) { 
+      float prescalemod = 1.0 - fmod((float)(menu->GetPrescale(i)),1); 
+      if(prescalemod == 1.0) prescalemod = 0.5; 
+      return (fmod(therandom,(float)(menu->GetPrescale(i))) <= prescalemod);
+    }
+    else
+      return (fmod((float)(GetIntRandom()),(float)(menu->GetPrescale(i))) == 0);
   }
 };
 
 bool OHltTree::prescaleResponseL1(OHltMenu *menu,OHltConfig *cfg,OHltRateCounter *rc,int i) {
   if (cfg->doDeterministicPrescale) {
     (rc->prescaleCountL1[i])++;
-    return ((rc->prescaleCountL1[i]) % menu->GetL1Prescale(i) == 0); //
+    if(cfg->useNonIntegerPrescales) {  
+      float prescalemod = 1.0 - fmod((float)(menu->GetL1Prescale(i)),1);  
+      if(prescalemod == 1.0) prescalemod = 0.5; 
+      return (fmod((float)(rc->prescaleCountL1[i]),(float)(menu->GetL1Prescale(i))) <= prescalemod); 
+    }
+    else
+      return (fmod((float)(rc->prescaleCountL1[i]),(float)(menu->GetL1Prescale(i))) == 0);  
   } else {
-    return (GetIntRandom() % menu->GetL1Prescale(i) == 0);
+    if(cfg->useNonIntegerPrescales) {   
+      float prescalemod = 1.0 - fmod((float)(menu->GetL1Prescale(i)),1);   
+      if(prescalemod == 1.0) prescalemod = 0.5;
+      return (fmod((float)(GetFloatRandom()),(float)(menu->GetL1Prescale(i))) <= prescalemod); 
+    }
+    else
+      return (fmod((float)(GetIntRandom()),(float)(menu->GetL1Prescale(i))) == 0);  
   }
 };
 
 bool OHltTree::isInRunLumiblockList(int run, int lumiBlock,vector < vector <int> > list) {
-
   unsigned int nrunLumiList = list.size();
   if (nrunLumiList>0) {
     for (unsigned int i=0;i<nrunLumiList;i++) {

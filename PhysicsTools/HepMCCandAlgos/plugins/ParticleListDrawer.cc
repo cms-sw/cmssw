@@ -1,16 +1,8 @@
-// 
-// PYLIST(1) equivalent to be used with GenParticleCandidate
-// Caveats: 
-// Status 3 particles can have daughter both with status 2 and 3
-// In Pythia this is not the same
-// mother-daughter relations are corrects but special care
-// have to be taken when looking at mother-daughter relation which
-// involve status 2 and 3 particles
-//
-// Author: Attilio  
-// Date: 13.06.2007
-//
-// user include files
+#include <memory>
+#include <string>
+#include <iostream>
+#include <sstream>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -24,12 +16,23 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Common/interface/Ref.h"
 
-// system include files
-#include <memory>
-#include <string>
-#include <iostream>
-#include <sstream>
-//#include <vector>
+/**
+   \class   ParticleListDrawer ParticleListDrawer.h "PhysicsTools/HepMCCandAlgos/plugins/ParticleListDrawer.h"
+
+   \brief   Module to analyze the particle listing as provided by common event generators 
+
+   Module to analyze the particle listing as provided by common event generators equivalent 
+   to PYLIST(1) (from pythia). It is expected to run on vectors of  reo::GenParticles. For 
+   an example of use have a look to: 
+
+   PhysicsTools/HepMCCandAlgos/test/testParticleTreeDrawer.py
+
+   Caveats: 
+   Status 3 particles can have daughters both with status 2 and 3. In pythia this is not 
+   the same mother-daughter. The relations are correct but special care has to be taken 
+   when looking at mother-daughter relation which involve status 2 and 3 particles.
+*/
+
 
 using namespace std;
 using namespace reco;
@@ -82,12 +85,8 @@ void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup
     ostringstream out;
     char buf[256];
 
-    out << "[ParticleListDrawer] analysing event " << iEvent.id() << endl;
-
-    out << endl;
-    out << "**********************" << endl;
-    out << "* GenEvent           *" << endl;
-    out << "**********************" << endl;
+    out << endl
+	<< "[ParticleListDrawer] analysing particle collection " << src_.label() << endl;
 
     snprintf(buf, 256, " idx  |    ID -       Name |Stat|  Mo1  Mo2  Da1  Da2 |nMo nDa|    pt       eta     phi   |     px         py         pz        m     |"); 
     out << buf;

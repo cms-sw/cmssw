@@ -246,7 +246,9 @@ void SiStripDaqInfo::readSubdetFedFractions(std::vector<int>& fed_ids) {
 void SiStripDaqInfo::findExcludedModule(unsigned short fed_id) {
   dqmStore_->cd();
   std::string mdir = "MechanicalView";
-  if (!SiStripUtility::goToDir(dqmStore_, mdir)) return;
+  if (!SiStripUtility::goToDir(dqmStore_, mdir)) {
+    dqmStore_->setCurrentFolder("SiStrip/"+mdir);
+  }
   std::string mechanical_dir = dqmStore_->pwd();
   const std::vector<FedChannelConnection> fedChannels = fedCabling_->connections(fed_id);
   int ichannel = 0;
@@ -264,8 +266,7 @@ void SiStripDaqInfo::findExcludedModule(unsigned short fed_id) {
       SiStripFolderOrganizer folder_organizer;
       folder_organizer.getSubDetFolder(detId,subdet_folder);
       if (!dqmStore_->dirExists(subdet_folder)) {
-	subdet_folder = mechanical_dir + subdet_folder.substr(subdet_folder.find("MechanicalView")+14);
-	if (!dqmStore_->dirExists(subdet_folder)) continue;
+	subdet_folder = mechanical_dir + subdet_folder.substr(subdet_folder.find(mdir)+mdir.size());
       }
       bad_module_folder = subdet_folder + "/" + "BadModuleList";
       dqmStore_->setCurrentFolder(bad_module_folder);    

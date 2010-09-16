@@ -3,11 +3,10 @@
 
 #include "GeneratorInterface/PyquenInterface/interface/PyquenHadronizer.h"
 #include "GeneratorInterface/Core/interface/GeneratorFilter.h"
-#include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
 namespace gen
 {
-   typedef edm::GeneratorFilter<gen::PyquenHadronizer, gen::ExternalDecayDriver> PyquenGeneratorFilter;
+   typedef edm::GeneratorFilter<gen::PyquenHadronizer> PyquenGeneratorFilter;
 }
 
 #endif

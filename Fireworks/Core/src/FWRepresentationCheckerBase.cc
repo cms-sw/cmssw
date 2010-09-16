@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 11 14:08:50 EST 2008
-// $Id: FWRepresentationCheckerBase.cc,v 1.2 2009/01/23 21:35:43 amraktad Exp $
+// $Id: FWRepresentationCheckerBase.cc,v 1.1 2008/11/14 16:29:31 chrjones Exp $
 //
 
 // system include files
@@ -28,10 +28,8 @@
 //
 // constructors and destructor
 //
-FWRepresentationCheckerBase::FWRepresentationCheckerBase(const std::string& iPurpose, 
-                                                         unsigned int iBitPackedViews,
-                                                         bool iRepresentsSubPart) :
-   m_purpose(iPurpose), m_bitPackedViews(iBitPackedViews), m_representsSubPart(iRepresentsSubPart)
+FWRepresentationCheckerBase::FWRepresentationCheckerBase(const std::string& iPurpose) :
+   m_purpose(iPurpose)
 {
 }
 
@@ -69,16 +67,6 @@ FWRepresentationCheckerBase::purpose() const
    return m_purpose;
 }
 
-unsigned int 
-FWRepresentationCheckerBase::bitPackedViews() const
-{
-   return m_bitPackedViews;
-}
-
-bool FWRepresentationCheckerBase::representsSubPart() const
-{
-   return m_representsSubPart;
-}
 //
 // static member functions
 //

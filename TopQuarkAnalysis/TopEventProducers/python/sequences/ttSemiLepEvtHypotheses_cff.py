@@ -7,7 +7,10 @@ import FWCore.ParameterSet.Config as cms
 ## geom hypothesis
 from TopQuarkAnalysis.TopJetCombination.TtSemiLepHypGeom_cff import *
 
-## wMassmaxSumPt hypothesis
+## wMassDeltaTopMass hypothesis
+from TopQuarkAnalysis.TopJetCombination.TtSemiLepHypWMassDeltaTopMass_cff import *
+
+## wMassMaxSumPt hypothesis
 from TopQuarkAnalysis.TopJetCombination.TtSemiLepHypWMassMaxSumPt_cff import *
 
 ## maxSumPtWMass hypothesis
@@ -24,6 +27,7 @@ from TopQuarkAnalysis.TopJetCombination.TtSemiLepHypKinFit_cff import *
 
 ## make all considered event hypotheses
 makeTtSemiLepHypotheses  = cms.Sequence(makeHypothesis_genMatch)  # makeHypothesis_geom
+                                                                  # makeHypothesis_wMassDeltaTopMass
                                                                   # makeHypothesis_wMassMaxSumPt
                                                                   # makeHypothesis_maxSumPtWMass
                                                                   # makeHypothesis_mvaDisc

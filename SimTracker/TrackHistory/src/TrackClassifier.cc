@@ -9,30 +9,27 @@
 
 #define update(a, b) do { (a) = (a) | (b); } while(0)
 
-TrackClassifier::TrackClassifier(edm::ParameterSet const & config) : TrackCategories(),
-        hepMCLabel_( config.getUntrackedParameter<edm::InputTag>("hepMC") ),
-        beamSpotLabel_( config.getUntrackedParameter<edm::InputTag>("beamSpot") ),
-        tracer_(config),
-        quality_(config)
+TrackClassifier::TrackClassifier(edm::ParameterSet const & pset) : TrackCategories(),
+        hepMCLabel_( pset.getUntrackedParameter<edm::InputTag>("hepMC") ),
+        beamSpotLabel_( pset.getUntrackedParameter<edm::InputTag>("beamSpot") ),
+        tracer_(pset),
+        quality_(pset)
 {
     // Set the history depth after hadronization
     tracer_.depth(-2);
 
     // Set the maximum d0pull for the bad category
-    badPull_ = config.getUntrackedParameter<double>("badPull");
+    badPull_ = pset.getUntrackedParameter<double>("badPull");
 
     // Set the minimum decay length for detecting long decays
-    longLivedDecayLength_ = config.getUntrackedParameter<double>("longLivedDecayLength");
+    longLivedDecayLength_ = pset.getUntrackedParameter<double>("longLivedDecayLength");
 
     // Set the distance for clustering vertices
-    float vertexClusteringDistance = config.getUntrackedParameter<double>("vertexClusteringDistance");
+    float vertexClusteringDistance = pset.getUntrackedParameter<double>("vertexClusteringDistance");
     vertexClusteringSqDistance_ = vertexClusteringDistance * vertexClusteringDistance;
 
     // Set the number of innermost layers to check for bad hits
-    numberOfInnerLayers_ = config.getUntrackedParameter<unsigned int>("numberOfInnerLayers");
-
-    // Set the minimum number of simhits in the tracker
-    minTrackerSimHits_ = config.getUntrackedParameter<unsigned int>("minTrackerSimHits");
+    numberOfInnerLayers_ = pset.getUntrackedParameter<unsigned int>("numberOfInnerLayers");
 }
 
 
@@ -153,7 +150,7 @@ void TrackClassifier::reconstructionInformation(reco::TrackBaseRef const & track
     TrackingParticleRef tpr = tracer_.simParticle();
 
     // Compute tracking particle parameters at point of closest approach to the beamline
-
+    
     const SimTrack * assocTrack = &(*tpr->g4Track_begin());
 
     FreeTrajectoryState ftsAtProduction(
@@ -171,42 +168,35 @@ void TrackClassifier::reconstructionInformation(reco::TrackBaseRef const & track
         magneticField_.product()
     );
 
-    try
-    {
-        TSCPBuilderNoMaterial tscpBuilder;
-        TrajectoryStateClosestToPoint tsAtClosestApproach = tscpBuilder(
-                    ftsAtProduction,
-                    GlobalPoint(beamSpot_->x0(), beamSpot_->y0(), beamSpot_->z0())
-                );
+    TSCPBuilderNoMaterial tscpBuilder;
 
-        GlobalVector v = tsAtClosestApproach.theState().position()
-                         - GlobalPoint(beamSpot_->x0(), beamSpot_->y0(), beamSpot_->z0());
-        GlobalVector p = tsAtClosestApproach.theState().momentum();
+    TrajectoryStateClosestToPoint tsAtClosestApproach = tscpBuilder(
+        ftsAtProduction,
+        GlobalPoint(beamSpot_->x0(), beamSpot_->y0(), beamSpot_->z0())
+    );
 
-        // Simulated dxy
-        double dxySim = -v.x()*sin(p.phi()) + v.y()*cos(p.phi());
+    GlobalVector v = tsAtClosestApproach.theState().position() 
+                   - GlobalPoint(beamSpot_->x0(), beamSpot_->y0(), beamSpot_->z0());
+    GlobalVector p = tsAtClosestApproach.theState().momentum();
+   
+    // Simulated dxy
+    double dxySim = -v.x()*sin(p.phi()) + v.y()*cos(p.phi());
 
-        // Simulated dz
-        double dzSim = v.z() - (v.x()*p.x() + v.y()*p.y())*p.z()/p.perp2();
+    // Simulated dz
+    double dzSim = v.z() - (v.x()*p.x() + v.y()*p.y())*p.z()/p.perp2();   
 
-        // Calculate the dxy pull
-        double dxyPull = std::abs(
-                             track->dxy( reco::TrackBase::Point(beamSpot_->x0(), beamSpot_->y0(), beamSpot_->z0()) ) - dxySim
-                         ) / track->dxyError();
+    // Calculate the dxy pull
+    double dxyPull = std::abs(
+        track->dxy( reco::TrackBase::Point(beamSpot_->x0(), beamSpot_->y0(), beamSpot_->z0()) ) - dxySim
+    ) / track->dxyError();
 
-        // Calculate the dx pull
-        double dzPull = std::abs(
-                            track->dz( reco::TrackBase::Point(beamSpot_->x0(), beamSpot_->y0(), beamSpot_->z0()) ) - dzSim
-                        ) / track->dzError();
+    // Calculate the dx pull
+    double dzPull = std::abs(
+        track->dz( reco::TrackBase::Point(beamSpot_->x0(), beamSpot_->y0(), beamSpot_->z0()) ) - dzSim
+    ) / track->dzError();
 
-        // Return true if d0Pull > badD0Pull sigmas
-        flags_[Bad] = (dxyPull > badPull_ || dzPull > badPull_);
-
-    }
-    catch (cms::Exception exception)
-    {
-        flags_[Bad] = true;
-    }
+    // Return true if d0Pull > badD0Pull sigmas
+    flags_[Bad] = (dxyPull > badPull_ || dzPull > badPull_);
 }
 
 
@@ -216,10 +206,6 @@ void TrackClassifier::simulationInformation()
     EncodedEventId eventId = tracer_.simParticle()->eventId();
     // Check for signal events
     flags_[SignalEvent] = !eventId.bunchCrossing() && !eventId.event();
-    // Check for muons
-    flags_[Muon] = (abs(tracer_.simParticle()->pdgId()) == 13);
-    // Check for the number of psimhit in tracker
-    flags_[TrackerSimHits] = tracer_.simParticle()->matchedHit() >= (int)minTrackerSimHits_;
 }
 
 
@@ -269,54 +255,44 @@ void TrackClassifier::hadronFlavor()
 
 void TrackClassifier::processesAtGenerator()
 {
-    // pdgid of the "in" particle to the production vertex
-    int pdgid = 0;
+    // Get the generated vetices from track history
+    TrackHistory::GenVertexTrail const & genVertexTrail = tracer_.genVertexTrail();
 
-    // Get the generated particles from track history
-    TrackHistory::GenParticleTrail const & genParticleTrail = tracer_.genParticleTrail();
-
-    // Loop over the generated particles
-    for (TrackHistory::GenParticleTrail::const_iterator iparticle = genParticleTrail.begin(); iparticle != genParticleTrail.end(); ++iparticle)
+    // Loop over the generated vertices
+    for (TrackHistory::GenVertexTrail::const_iterator ivertex = genVertexTrail.begin(); ivertex != genVertexTrail.end(); ++ivertex)
     {
-        // Get the source vertex for the particle
-        HepMC::GenVertex * productionVertex = (*iparticle)->production_vertex();
-
         // Get the pointer to the vertex by removing the const-ness (no const methos in HepMC::GenVertex)
-        // HepMC::GenVertex * vertex = const_cast<HepMC::GenVertex *>(*ivertex);
+        HepMC::GenVertex * vertex = const_cast<HepMC::GenVertex *>(*ivertex);
 
-        // Check for a non-null pointer to the production vertex
-        if (productionVertex)
+        // Loop over the sources looking for specific decays
+        for (
+            HepMC::GenVertex::particle_iterator iparent = vertex->particles_begin(HepMC::parents);
+            iparent != vertex->particles_end(HepMC::parents);
+            ++iparent
+        )
         {
-            // Only case track history will navegate (one in or source particle per vertex)
-            if ( productionVertex->particles_in_size() == 1 )
-            {
-                // Look at the pdgid of the first "in" particle to the vertex
-                pdgid = std::abs((*productionVertex->particles_in_const_begin())->pdg_id());
-                // Get particle type
-                HepPDT::ParticleID particleID(pdgid);
+            // Collect the pdgid of the parent
+            int pdgid = std::abs((*iparent)->pdg_id());
+            // Get particle type
+            HepPDT::ParticleID particleID(pdgid);
 
-                // Check if the particle type is valid one
-                if (particleID.isValid())
+            // Check if the particle type is valid one
+            if (particleID.isValid())
+            {
+                // Get particle data
+                ParticleData const * particleData = particleDataTable_->particle(particleID);
+                // Check if the particle exist in the table
+                if (particleData)
                 {
-                    // Get particle data
-                    ParticleData const * particleData = particleDataTable_->particle(particleID);
-                    // Check if the particle exist in the table
-                    if (particleData)
+                    // Check if their life time is bigger than longLivedDecayLength_
+                    if ( particleData->lifetime() > longLivedDecayLength_ )
                     {
-                        // Check if their life time is bigger than longLivedDecayLength_
-                        if ( particleData->lifetime() > longLivedDecayLength_ )
-                            update(flags_[LongLivedDecay], true);
-                        // Check for B and C weak decays
+                        // Check for B, C weak decays and long lived decays
                         update(flags_[BWeakDecay], particleID.hasBottom());
                         update(flags_[CWeakDecay], particleID.hasCharm());
-                        // Check for B and C pure leptonic decay
-                        int daughterId = abs((*iparticle)->pdg_id());
-                        update(flags_[FromBWeakDecayMuon], particleID.hasBottom() && daughterId == 13);
-                        update(flags_[FromCWeakDecayMuon], particleID.hasCharm() && daughterId == 13);
+                        update(flags_[LongLivedDecay], true);
                     }
                     // Check Tau, Ks and Lambda decay
-                    update(flags_[ChargePionDecay], pdgid == 211);
-                    update(flags_[ChargeKaonDecay], pdgid == 321);
                     update(flags_[TauDecay], pdgid == 15);
                     update(flags_[KsDecay], pdgid == 310);
                     update(flags_[LambdaDecay], pdgid == 3122);
@@ -328,10 +304,6 @@ void TrackClassifier::processesAtGenerator()
             }
         }
     }
-    // Decays in flight
-    update(flags_[FromChargePionMuon], flags_[Muon] && flags_[ChargePionDecay]);
-    update(flags_[FromChargeKaonMuon], flags_[Muon] && flags_[ChargeKaonDecay]);
-    update(flags_[DecayOnFlightMuon], (flags_[FromChargePionMuon] || flags_[FromChargeKaonMuon]));
 }
 
 
@@ -346,116 +318,105 @@ void TrackClassifier::processesAtSimulation()
         ++iparticle
     )
     {
-        // pdgid of the real source parent vertex
-        int pdgid = 0;
-
-        // Get a reference to the TP's parent vertex
-        TrackingVertexRef const & parentVertex = (*iparticle)->parentVertex();
-
-        // Look for the original source track
-        if ( parentVertex.isNonnull() )
+        if ( (*iparticle)->matchedHit() )
         {
-            // select the original source in case of combined vertices
-            bool flag = false;
-            TrackingVertex::tp_iterator itd, its;
+            // pdgid of the real source parent vertex
+            int pdgid = 0;
 
-            for (its = parentVertex->sourceTracks_begin(); its != parentVertex->sourceTracks_end(); ++its)
+            // Get a reference to the TP's parent vertex
+            TrackingVertexRef const & parentVertex = (*iparticle)->parentVertex();
+
+            // Look for the original source track
+            if ( parentVertex.isNonnull() )
             {
-                for (itd = parentVertex->daughterTracks_begin(); itd != parentVertex->daughterTracks_end(); ++itd)
-                    if (itd != its)
-                    {
-                        flag = true;
+                // select the original source in case of combined vertices
+                bool flag = false;
+                TrackingVertex::tp_iterator itd, its;
+
+                for (its = parentVertex->sourceTracks_begin(); its != parentVertex->sourceTracks_end(); ++its)
+                {
+                    for (itd = parentVertex->daughterTracks_begin(); itd != parentVertex->daughterTracks_end(); ++itd)
+                        if (itd != its)
+                        {
+                            flag = true;
+                            break;
+                        }
+                    if (flag)
                         break;
-                    }
-                if (flag)
-                    break;
+                }
+                // Collect the pdgid of the original source track
+                if ( its != parentVertex->sourceTracks_end() )
+                    pdgid = std::abs((*its)->pdgId());
+                else
+                    pdgid = 0;
             }
 
-            // Collect the pdgid of the original source track
-            if ( its != parentVertex->sourceTracks_end() )
-                pdgid = std::abs((*its)->pdgId());
-            else
-                pdgid = 0;
-        }
+            // Collect the G4 process of the first psimhit (it should be the same for all of them)
+            unsigned short process = (*iparticle)->pSimHit_begin()->processType();
 
-        // Check for the number of psimhit if different from zero
-        if ((*iparticle)->trackPSimHit().empty()) continue;
+            // Flagging all the different processes
 
-        // Collect the G4 process of the first psimhit (it should be the same for all of them)
-        unsigned short process = (*iparticle)->pSimHit_begin()->processType();
+            update(
+                flags_[KnownProcess],
+                process != G4::Undefined &&
+                process != G4::Unknown &&
+                process != G4::Primary
+            );
 
-        // Flagging all the different processes
+            update(flags_[UndefinedProcess], process == G4::Undefined);
+            update(flags_[UnknownProcess], process == G4::Unknown);
+            update(flags_[PrimaryProcess], process == G4::Primary);
+            update(flags_[HadronicProcess], process == G4::Hadronic);
+            update(flags_[DecayProcess], process == G4::Decay);
+            update(flags_[ComptonProcess], process == G4::Compton);
+            update(flags_[AnnihilationProcess], process == G4::Annihilation);
+            update(flags_[EIoniProcess], process == G4::EIoni);
+            update(flags_[HIoniProcess], process == G4::HIoni);
+            update(flags_[MuIoniProcess], process == G4::MuIoni);
+            update(flags_[PhotonProcess], process == G4::Photon);
+            update(flags_[MuPairProdProcess], process == G4::MuPairProd);
+            update(flags_[ConversionsProcess], process == G4::Conversions);
+            update(flags_[EBremProcess], process == G4::EBrem);
+            update(flags_[SynchrotronRadiationProcess], process == G4::SynchrotronRadiation);
+            update(flags_[MuBremProcess], process == G4::MuBrem);
+            update(flags_[MuNuclProcess], process == G4::MuNucl);
 
-        update(
-            flags_[KnownProcess],
-            process != G4::Undefined &&
-            process != G4::Unknown &&
-            process != G4::Primary
-        );
-
-        update(flags_[UndefinedProcess], process == G4::Undefined);
-        update(flags_[UnknownProcess], process == G4::Unknown);
-        update(flags_[PrimaryProcess], process == G4::Primary);
-        update(flags_[HadronicProcess], process == G4::Hadronic);
-        update(flags_[DecayProcess], process == G4::Decay);
-        update(flags_[ComptonProcess], process == G4::Compton);
-        update(flags_[AnnihilationProcess], process == G4::Annihilation);
-        update(flags_[EIoniProcess], process == G4::EIoni);
-        update(flags_[HIoniProcess], process == G4::HIoni);
-        update(flags_[MuIoniProcess], process == G4::MuIoni);
-        update(flags_[PhotonProcess], process == G4::Photon);
-        update(flags_[MuPairProdProcess], process == G4::MuPairProd);
-        update(flags_[ConversionsProcess], process == G4::Conversions);
-        update(flags_[EBremProcess], process == G4::EBrem);
-        update(flags_[SynchrotronRadiationProcess], process == G4::SynchrotronRadiation);
-        update(flags_[MuBremProcess], process == G4::MuBrem);
-        update(flags_[MuNuclProcess], process == G4::MuNucl);
-
-        // Get particle type
-        HepPDT::ParticleID particleID(pdgid);
-
-        // Check if the particle type is valid one
-        if (particleID.isValid())
-        {
-            // Get particle data
-            ParticleData const * particleData = particleDataTable_->particle(particleID);
             // Special treatment for decays
             if (process == G4::Decay)
             {
-                // Check if the particle exist in the table
-                if (particleData)
+                // Get particle type
+                HepPDT::ParticleID particleID(pdgid);
+                // Check if the particle type is valid one
+                if (particleID.isValid())
                 {
-                    // Check if their life time is bigger than 1e-14
-                    if ( particleDataTable_->particle(particleID)->lifetime() > longLivedDecayLength_ )
-                        update(flags_[LongLivedDecay], true);
+                    // Get particle data
+                    ParticleData const * particleData = particleDataTable_->particle(particleID);
+                    // Check if the particle exist in the table
+                    if (particleData)
+                    {
+                        // Check if their life time is bigger than 1e-14
+                        if ( particleDataTable_->particle(particleID)->lifetime() > longLivedDecayLength_ )
+                        {
+                            // Check for B, C weak decays and long lived decays
+                            update(flags_[BWeakDecay], particleID.hasBottom());
+                            update(flags_[CWeakDecay], particleID.hasCharm());
+                            update(flags_[LongLivedDecay], true);
+                        }
 
-                    // Check for B and C weak decays
-                    update(flags_[BWeakDecay], particleID.hasBottom());
-                    update(flags_[CWeakDecay], particleID.hasCharm());
-
-                    // Check for B or C pure leptonic decays
-                    int daughtId = abs((*iparticle)->pdgId());
-                    update(flags_[FromBWeakDecayMuon], particleID.hasBottom() && daughtId == 13);
-                    update(flags_[FromCWeakDecayMuon], particleID.hasCharm() && daughtId == 13);
+                        // Check Tau, Ks and Lambda decay
+                        update(flags_[TauDecay], pdgid == 15);
+                        update(flags_[KsDecay], pdgid == 310);
+                        update(flags_[LambdaDecay], pdgid == 3122);
+                        update(flags_[JpsiDecay], pdgid == 443);
+                        update(flags_[XiDecay], pdgid == 3312);
+                        update(flags_[OmegaDecay], pdgid == 3334);
+                        update(flags_[SigmaPlusDecay], pdgid == 3222);
+                        update(flags_[SigmaMinusDecay], pdgid == 3112);
+                    }
                 }
-                // Check decays
-                update(flags_[ChargePionDecay], pdgid == 211);
-                update(flags_[ChargeKaonDecay], pdgid == 321);
-                update(flags_[TauDecay], pdgid == 15);
-                update(flags_[KsDecay], pdgid == 310);
-                update(flags_[LambdaDecay], pdgid == 3122);
-                update(flags_[JpsiDecay], pdgid == 443);
-                update(flags_[XiDecay], pdgid == 3312);
-                update(flags_[OmegaDecay], pdgid == 3334);
-                update(flags_[SigmaPlusDecay], pdgid == 3222);
-                update(flags_[SigmaMinusDecay], pdgid == 3112);
             }
         }
     }
-    // Decays in flight
-    update(flags_[FromChargePionMuon], flags_[Muon] && flags_[ChargePionDecay]);
-    update(flags_[FromChargeKaonMuon], flags_[Muon] && flags_[ChargeKaonDecay]);
-    update(flags_[DecayOnFlightMuon], flags_[FromChargePionMuon] || flags_[FromChargeKaonMuon]);
 }
 
 

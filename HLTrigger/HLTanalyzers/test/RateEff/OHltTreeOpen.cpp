@@ -152,6 +152,29 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }    
     }
   }
+  ////////////////ADDED THIS //////////////// //////////////// ////////////////
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet60U") == 0) {    
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if(OpenHlt1JetPassed(60.)>=1) {
+	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }   
+      }    
+    }
+  }
+ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet70U") == 0) {    
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if(OpenHlt1JetPassed(70.)>=1) {
+	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }   
+      }    
+    }
+  }
+ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet80U") == 0) {    
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if(OpenHlt1JetPassed(80.)>=1) {
+	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }   
+      }    
+    }
+  }
+ //////////////// //////////////// //////////////// //////////////// ////////////////
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet30") == 0) {    
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if(OpenHlt1CorJetPassed(30)>=1) { 
@@ -528,6 +551,21 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }          
     }          
   }
+  //////////////////ADDED THIS////////////////////////////////////
+ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu15") == 0) {          
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      int rc = 0;
+      for(int i = 0; i < NohMuL2; i++) {
+	if(ohMuL2Pt[i] > 15.) {
+	  rc++;
+	}
+      }
+      if(rc>0) {
+	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }         
+      }          
+    }          
+  }
+////////////////////////////////////////////////////////////////////////
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu3") == 0) {  
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if(OpenHlt1MuonPassed(3.,3.,3.,2.,0)>=1) {  
@@ -944,6 +982,13 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_SW_EleId_L1R") == 0) {   
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {   
       if(OpenHlt1ElectronEleIDPassed(15.,0,9999.,9999.)>=1) {   
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }        
+      }        
+    } 
+  } 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_SW_EleId_L1R") == 0) {   
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {   
+      if(OpenHlt1ElectronEleIDPassed(10.,0,9999.,9999.)>=1) {   
         if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }        
       }        
     } 
@@ -1566,6 +1611,20 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }
     }
   }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_SingleLooseIsoTau25_Trk5") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if(OpenHltTauL2SCPassed(25.,5.,0,0.,0, 20.,50.)>=1) { //Thresholds are for UNcorrected L1 jets in 8E29
+	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+      }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_SingleIsoTau20_Trk5") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if(OpenHltTauL2SCPassed(20.,5.,0,0.,1, 20.,50.)>=1) { //Thresholds are for UNcorrected L1 jets in 8E29
+	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+      }
+    }
+  } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleLooseIsoTau15") == 0) { 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if(OpenHltTauL2SCPassed(15.,0.,0,0.,0,14.,30.)>=2) { //Thresholds are for UNcorrected L1 jets in 8E29

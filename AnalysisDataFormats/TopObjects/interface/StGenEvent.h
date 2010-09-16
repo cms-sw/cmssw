@@ -3,17 +3,16 @@
 
 #include "AnalysisDataFormats/TopObjects/interface/TopGenEvent.h"
 
+/**
+   \class   StGenEvent StGenEvent.h "AnalysisDataFormats/TopObjects/interface/StGenEvent.h"
 
-// ----------------------------------------------------------------------
-// derived class for: 
-//
-//  * StGenEvent
-//
-//  the structure holds reference information to the generator particles 
-//  of the decay chains for each top quark and of the initial partons 
-//  and provides access and administration;  the derived class contains 
-//  a few additional getters with respect to its base class
-// ----------------------------------------------------------------------
+   \brief   Class derived from the TopGenEvent for single-top events
+
+   The structure holds reference information to the generator particles 
+   of the decay chains for each top quark and of the initial partons 
+   and provides access and administration. The derived class contains 
+   a few additional getters with respect to its base class.
+*/
 
 class StGenEvent: public TopGenEvent {
 

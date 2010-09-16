@@ -19,7 +19,7 @@ void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6"
    char *labelp[Nprof];
 
    //1D Histos
-   const int Nhist1  = 7;
+   const int Nhist1  = 3;
 
    TH1F* f1_hist1[Nhist1];
    TH1F* f2_hist1[Nhist1];
@@ -45,11 +45,6 @@ void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6"
    label1[1] = &"N_calotowers_HE.gif";
    label1[2] = &"N_calotowers_HF.gif";
    
-   label1[3] = &"RecHits_energy_HB.gif";
-   label1[4] = &"RecHits_energy_HE.gif";
-   label1[5] = &"RecHits_energy_HO.gif";
-   label1[6] = &"RecHits_energy_HF.gif";
-
 
    f1.cd("DQMData/CaloTowersV/CaloTowersTask");
    gDirectory->pwd();
@@ -60,17 +55,11 @@ void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6"
    f1_hist1[0] = CaloTowersTask_number_of_fired_towers_HB;
    f1_hist1[1] = CaloTowersTask_number_of_fired_towers_HE;
    f1_hist1[2] = CaloTowersTask_number_of_fired_towers_HF;
-
+   
    f1.cd("DQMData/HcalRecHitsV/HcalRecHitTask");
    f1_prof[3] = HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_E;
    f1_prof[4] = HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths;
    f1_prof[5] = HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_EH;
-
-   f1_hist1[3] = HcalRecHitTask_energy_of_rechits_HB;
-   f1_hist1[4] = HcalRecHitTask_energy_of_rechits_HE;
-   f1_hist1[5] = HcalRecHitTask_energy_of_rechits_HO;
-   f1_hist1[6] = HcalRecHitTask_energy_of_rechits_HF;   
-
 
    f1.cd("DQMData/HcalSimHitsV/HcalSimHitTask");
    f1_prof[6] = HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths_E;
@@ -92,11 +81,6 @@ void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6"
    f2_prof[4] = HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths;
    f2_prof[5] = HcalRecHitTask_En_rechits_cone_profile_vs_ieta_all_depths_EH;
 
-   f2_hist1[3] = HcalRecHitTask_energy_of_rechits_HB;
-   f2_hist1[4] = HcalRecHitTask_energy_of_rechits_HE;
-   f2_hist1[5] = HcalRecHitTask_energy_of_rechits_HO;
-   f2_hist1[6] = HcalRecHitTask_energy_of_rechits_HF;
-
    f2.cd("DQMData/HcalSimHitsV/HcalSimHitTask");
    f2_prof[6] = HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths_E;
    f2_prof[7] = HcalSimHitTask_En_simhits_cone_profile_vs_ieta_all_depths;
@@ -117,11 +101,6 @@ void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6"
    f1_hist1[0]->GetXaxis()->SetTitle("Number of HB CaloTowers");
    f1_hist1[1]->GetXaxis()->SetTitle("Number of HE CaloTowers");
    f1_hist1[2]->GetXaxis()->SetTitle("Number of HF CaloTowers");
-
-   f1_hist1[3]->GetXaxis()->SetTitle("HB RecHits energy (GeV)");
-   f1_hist1[4]->GetXaxis()->SetTitle("HE RecHits energy (GeV)");
-   f1_hist1[5]->GetXaxis()->SetTitle("HO RecHits energy (GeV)");
-   f1_hist1[6]->GetXaxis()->SetTitle("HF RecHits energy (GeV)");
 
    //
    f1_prof[0]->SetMaximum(20.);
@@ -151,27 +130,8 @@ void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6"
    f1_hist1[1]->GetXaxis()->SetRangeUser(0.,150.);
    f2_hist1[1]->GetXaxis()->SetRangeUser(0.,150.);
 
-   f1_hist1[2]->GetXaxis()->SetRangeUser(0.,100.);
-   f2_hist1[2]->GetXaxis()->SetRangeUser(0.,100.);
-
-   f1_hist1[3]->GetXaxis()->SetRangeUser(0.,100.);
-   f2_hist1[3]->GetXaxis()->SetRangeUser(0.,100.);
-
-   f1_hist1[4]->GetXaxis()->SetRangeUser(0.,100.);
-   f2_hist1[4]->GetXaxis()->SetRangeUser(0.,100.);
-
-   f1_hist1[5]->GetXaxis()->SetRangeUser(0.,100.);
-   f2_hist1[5]->GetXaxis()->SetRangeUser(0.,100.);
-
-   f1_hist1[6]->GetXaxis()->SetRangeUser(0.,100.);
-   f2_hist1[6]->GetXaxis()->SetRangeUser(0.,100.);
-
-   f1_hist1[3]->SetMaximum(1.e8);
-   f1_hist1[4]->SetMaximum(1.e8);
-   f1_hist1[5]->SetMaximum(1.e8);
-   f1_hist1[6]->SetMaximum(1.e8);
-
-
+   f1_hist1[2]->GetXaxis()->SetRangeUser(0.,20.);
+   f2_hist1[2]->GetXaxis()->SetRangeUser(0.,20.);
 
    //  1D-histo
 
@@ -179,8 +139,6 @@ void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6"
 
      TCanvas *myc = new TCanvas("myc","",800,600);
      gStyle->SetOptStat(1111);
-
-     if(i > 2) myc->SetLogy();
      
      f1_hist1[i]->SetStats(kTRUE);   // stat box  
      f2_hist1[i]->SetStats(kTRUE);  

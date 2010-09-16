@@ -25,7 +25,7 @@ typedef std::vector<L1GctJet::lutPtr> lutPtrVector;
 
 using namespace std;
 
-int main(int argc, char **argv)
+int main()
 {
   try {
 
@@ -39,14 +39,9 @@ int main(int argc, char **argv)
     delete lutProducer;
 
     // print it out
-    if (argc > 1) {
-      std::string opt=std::string(argv[1]);
-      if (opt == "print") {
-	for (lutPtrVector::const_iterator lut = lutVector.begin(); lut != lutVector.end(); lut++) {
-	  cout << "\n===Lookup table for eta=" << (*lut)->etaBin() << "===" << endl;
-	  cout << (**lut) << endl;
-	}
-      }
+    for (lutPtrVector::const_iterator lut = lutVector.begin(); lut != lutVector.end(); lut++) {
+      cout << "\n===Lookup table for eta=" << (*lut)->etaBin() << "===" << endl;
+      cout << (**lut) << endl;
     }
   }
   catch (cms::Exception& e)

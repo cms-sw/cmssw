@@ -12,6 +12,9 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerLayerIdAccessor.h" 	 
 #include "DataFormats/Common/interface/DetSetAlgorithm.h"
 
@@ -39,6 +42,13 @@ class HITrackingRegionForPrimaryVtxProducer : public TrackingRegionProducer {
     double yDir         = regionPSet.getParameter<double>("directionYCoord");
     double zDir         = regionPSet.getParameter<double>("directionZCoord");
     theDirection = GlobalVector(xDir, yDir, zDir);
+
+    // for using vertex instead of beamspot
+    theSigmaZVertex     = regionPSet.getParameter<double>("sigmaZVertex");
+    theFixedError       = regionPSet.getParameter<double>("fixedError");
+    theUseFoundVertices = regionPSet.getParameter<bool>("useFoundVertices");
+    theUseFixedError    = regionPSet.getParameter<bool>("useFixedError");
+    vertexCollName      = regionPSet.getParameter<edm::InputTag>("VertexCollection");
   }   
   
   virtual ~HITrackingRegionForPrimaryVtxProducer(){}
@@ -95,20 +105,36 @@ class HITrackingRegionForPrimaryVtxProducer : public TrackingRegionProducer {
     
     // tracking region selection
     std::vector<TrackingRegion* > result;
+    double halflength;
+    GlobalPoint origin;
     edm::Handle<reco::BeamSpot> bsHandle;
     ev.getByLabel( theBeamSpotTag, bsHandle);
     if(bsHandle.isValid()) {
       const reco::BeamSpot & bs = *bsHandle; 
-      GlobalPoint origin(bs.x0(), bs.y0(), bs.z0()); 
+      origin=GlobalPoint(bs.x0(), bs.y0(), bs.z0()); 
+      halflength=theNSigmaZ*bs.sigmaZ();
       
+    if(theUseFoundVertices)
+    {
+      edm::Handle<reco::VertexCollection> vertexCollection;
+      ev.getByLabel(vertexCollName,vertexCollection);
+
+      for(reco::VertexCollection::const_iterator iV=vertexCollection->begin(); 
+	  iV != vertexCollection->end() ; iV++) {
+          if (iV->isFake() || !iV->isValid()) continue;
+	  origin     = GlobalPoint(bs.x0(),bs.y0(),iV->z());
+	  halflength = (theUseFixedError ? theFixedError : (iV->zError())*theSigmaZVertex); 
+      }
+    }
+
       if(estTracks>regTracking) {  // regional tracking
         result.push_back( 
-	  new RectangularEtaPhiTrackingRegion(theDirection, origin, thePtMin, theOriginRadius, theNSigmaZ*bs.sigmaZ(), etaB, phiB, 0, thePrecise) );
+	  new RectangularEtaPhiTrackingRegion(theDirection, origin, thePtMin, theOriginRadius, halflength, etaB, phiB, 0, thePrecise) );
       }
       else {                       // global tracking
         LogTrace("heavyIonHLTVertexing")<<" [HIVertexing: Global Tracking]";
         result.push_back( 
-	  new GlobalTrackingRegion(minpt, origin, theOriginRadius, theNSigmaZ*bs.sigmaZ(), thePrecise) );
+	  new GlobalTrackingRegion(minpt, origin, theOriginRadius, halflength, thePrecise) );
       }
     } 
     return result;
@@ -123,6 +149,14 @@ class HITrackingRegionForPrimaryVtxProducer : public TrackingRegionProducer {
   GlobalVector theDirection;
   edm::InputTag theSiPixelRecHits;
   bool doVariablePtMin;
+
+  double theSigmaZVertex;
+  double theFixedError;  
+  bool theUseFoundVertices;
+  bool theUseFixedError;
+  edm::InputTag vertexCollName;
+
+
 };
 
 #endif 

@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/12/16 11:03:37 $
- *  $Revision: 1.10 $
+ *  $Date: 2010/02/19 14:26:53 $
+ *  $Revision: 1.11 $
  *
  *  \author Martin Grunewald
  *
@@ -114,17 +114,17 @@ HLTEventAnalyzerRAW::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if (triggerName_=="@") {
     const unsigned int n(hltConfig_.size());
     for (unsigned int i=0; i!=n; ++i) {
-      analyzeTrigger(iEvent,hltConfig_.triggerName(i));
+      analyzeTrigger(iEvent,iSetup,hltConfig_.triggerName(i));
     }
   } else {
-    analyzeTrigger(iEvent,triggerName_);
+    analyzeTrigger(iEvent,iSetup,triggerName_);
   }
 
   return;
 
 }
 
-void HLTEventAnalyzerRAW::analyzeTrigger(const edm::Event& iEvent, const std::string& triggerName) {
+void HLTEventAnalyzerRAW::analyzeTrigger(const edm::Event& iEvent, const edm::EventSetup& iSetup, const std::string& triggerName) {
   
   using namespace std;
   using namespace edm;

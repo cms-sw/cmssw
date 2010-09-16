@@ -23,7 +23,7 @@ SiStripElectronSeedProducer::SiStripElectronSeedProducer(const edm::ParameterSet
   if(iConfig.exists("SeedConfiguration")){
     conf_ = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration") ;
   }else{
-    conf_.addParameter("beamSpot","offlineBeamSpot");
+    conf_.addParameter("beamSpot",edm::InputTag("offlineBeamSpot"));
     conf_.addParameter("tibOriginZCut",20.);
     conf_.addParameter("tidOriginZCut",20.);
     conf_.addParameter("tecOriginZCut",20.);

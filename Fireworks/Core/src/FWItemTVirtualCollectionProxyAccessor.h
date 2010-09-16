@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 18 08:43:45 EDT 2008
-// $Id: FWItemTVirtualCollectionProxyAccessor.h,v 1.3 2009/01/23 21:35:43 amraktad Exp $
+// $Id: FWItemTVirtualCollectionProxyAccessor.h,v 1.2 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
@@ -32,8 +32,7 @@ class FWItemTVirtualCollectionProxyAccessor : public FWItemAccessorBase {
 
 public:
    FWItemTVirtualCollectionProxyAccessor(const TClass* iType,
-                                         boost::shared_ptr<TVirtualCollectionProxy> iProxy,
-                                         size_t iOffset=0);
+                                         boost::shared_ptr<TVirtualCollectionProxy> iProxy);
    virtual ~FWItemTVirtualCollectionProxyAccessor();
 
    // ---------- const member functions ---------------------
@@ -60,7 +59,6 @@ private:
    const TClass* m_type;
    boost::shared_ptr<TVirtualCollectionProxy> m_colProxy; //should be something other than shared_ptr
    mutable const void * m_data;
-   size_t m_offset;
 };
 
 

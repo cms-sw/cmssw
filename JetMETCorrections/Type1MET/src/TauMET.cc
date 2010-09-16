@@ -16,20 +16,21 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
+using namespace reco;
 using namespace std;
 namespace cms 
 {
 
   TauMET::TauMET(const edm::ParameterSet& iConfig) : _algo() {
 
-    _InputTausLabel    = iConfig.getParameter<string>("InputTausLabel");
-    _tauType    = iConfig.getParameter<string>("tauType");
-    _InputCaloJetsLabel    = iConfig.getParameter<string>("InputCaloJetsLabel");
+    _InputTausLabel    = iConfig.getParameter<std::string>("InputTausLabel");
+    _tauType    = iConfig.getParameter<std::string>("tauType");
+    _InputCaloJetsLabel    = iConfig.getParameter<std::string>("InputCaloJetsLabel");
     _jetPTthreshold      = iConfig.getParameter<double>("jetPTthreshold");
     _jetEMfracLimit      = iConfig.getParameter<double>("jetEMfracLimit");
-    _correctorLabel      = iConfig.getParameter<string>("correctorLabel");
-    _InputMETLabel    = iConfig.getParameter<string>("InputMETLabel");
-    _metType    = iConfig.getParameter<string>("metType");
+    _correctorLabel      = iConfig.getParameter<std::string>("correctorLabel");
+    _InputMETLabel    = iConfig.getParameter<std::string>("InputMETLabel");
+    _metType    = iConfig.getParameter<std::string>("metType");
     _JetMatchDeltaR      = iConfig.getParameter<double>("JetMatchDeltaR");
     _TauMinEt      = iConfig.getParameter<double>("TauMinEt");
     _TauEtaMax      = iConfig.getParameter<double>("TauEtaMax");

@@ -4,8 +4,8 @@
 /*
  * \file EBRawDataTask.h
  *
- * $Date: 2009/04/29 07:46:17 $
- * $Revision: 1.6 $
+ * $Date: 2009/10/26 17:33:47 $
+ * $Revision: 1.7 $
  * \author E. Di Marco
  *
 */
@@ -37,6 +37,12 @@ void beginJob(void);
 
 /// EndJob
 void endJob(void);
+
+/// BeginLuminosityBlock
+void beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup);
+
+/// EndLuminosityBlock
+void endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup);
 
 /// BeginRun
 void beginRun(const edm::Run & r, const edm::EventSetup & c);
@@ -84,6 +90,8 @@ MonitorElement* meEBL1ATCCErrors_;
 MonitorElement* meEBBunchCrossingTCCErrors_;
 MonitorElement* meEBL1ASRPErrors_;
 MonitorElement* meEBBunchCrossingSRPErrors_;
+
+MonitorElement* meEBSynchronizationErrorsByLumi_;
 
 bool init_;
 

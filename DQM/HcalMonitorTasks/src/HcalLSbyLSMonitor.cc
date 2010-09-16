@@ -1,4 +1,5 @@
 #include "DQM/HcalMonitorTasks/interface/HcalLSbyLSMonitor.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 /*
   This task looks at the output from all other tasks (as stored in their 

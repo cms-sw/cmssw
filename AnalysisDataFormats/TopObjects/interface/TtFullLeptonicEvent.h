@@ -91,9 +91,27 @@ class TtFullLeptonicEvent: public TtEvent {
   /// get anti-neutrino of the TtGenEvent
   const reco::GenParticle* genNeutrinoBar() const { return (!genEvt_ ? 0 : this->genEvent()->neutrinoBar()); };
 
+  /// return the weight of the kinematic solution of hypothesis 'cmb' if available; -1 else
+  double solWeight(const unsigned& cmb=0) const { return (cmb<solWeight_.size() ? solWeight_[cmb] : -1.); }    
+  /// return if the kinematic solution of hypothesis 'cmb' is right or wrong charge if available; -1 else
+  bool isWrongCharge() const { return wrongCharge_; }
+
+  /// set weight of kKinSolution hypothesis
+  void setSolWeight(const std::vector<double>& val) { solWeight_=val; }; 
+  /// set right or wrong charge combination of kKinSolution hypothesis
+  void setWrongCharge(const bool& val) { wrongCharge_=val; }; 
+
   /// print full content of the structure as formated 
   /// LogInfo to the MessageLogger output for debugging  
-  void print(const int verbosity=1);
+  void print(const int verbosity=1) const;
+
+ protected:
+
+  /// result of kinematic solution
+  std::vector<double> solWeight_; 
+  /// right/wrong charge booleans
+  bool wrongCharge_;
+
 };
 
 #endif

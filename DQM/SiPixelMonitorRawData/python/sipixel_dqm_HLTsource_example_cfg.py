@@ -1,20 +1,26 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("SiPixelMonitorHLTProcess")
+process = cms.Process("Demo")
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-process.load("Geometry.TrackerSimData.trackerSimGeometryXML_cfi")
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-process.load("Configuration.StandardSequences.MagneticField_cff")
+# DQM services
+process.load("DQMServices.Core.DQM_cfg")
 
+# Database configuration
+process.load("CondCore.DBCommon.CondDBCommon_cfi")
+process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
-  # Pixel RawToDigi conversion
+# conditions
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = "GR10_P_V4::All"
+process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
+
+# Pixel RawToDigi conversion
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
 process.siPixelDigis.InputLabel = "source"
-#  process.siPixelDigis.InputLabel = "siPixelRawData"
 process.siPixelDigis.Timing = False
 process.siPixelDigis.IncludeErrors = True
-#  process.siPixelDigis.CheckPixelOrder = True
 
 process.load("DQM.SiPixelMonitorRawData.SiPixelMonitorHLT_cfi")
 process.SiPixelHLTSource.saveFile = True
@@ -22,40 +28,22 @@ process.SiPixelHLTSource.saveFile = True
 process.SiPixelHLTSource.slowDown = False
 #process.SiPixelHLTSource.reducedSet = False
 
-process.load("DQMServices.Core.DQM_cfg")
-process.DQM.collectorHost = ''
-
-process.load("DQMServices.Components.DQMEnvironment_cfi")
-
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.connect ="sqlite_file:/afs/cern.ch/user/m/malgeri/public/globtag/CRZT210_V1.db"
-process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "CRUZET4_V6P::All"
-process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
-
-
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(6000)
-)
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/data/BeamCommissioning08/Cosmics/RAW/v1/000/062/853/62246045-E983-DD11-8742-000423D9863C.root',
-        '/store/data/BeamCommissioning08/Cosmics/RAW/v1/000/062/853/C8BD99F1-EA83-DD11-949C-000423D6B48C.root'
-
-    ),
-    debugVerbosity = cms.untracked.uint32(10),
-    debugFlag = cms.untracked.bool(True),
+  '/store/data/Commissioning10/MinimumBias/RAW/v4/000/133/877/FAC1761E-A64F-DF11-BD37-003048D2BDD8.root'
+#  '/store/data/Commissioning10/MinimumBias/RAW/v4/000/133/877/FADF1B51-BF4F-DF11-9CE2-001D09F24353.root'
+    )
 )
 
-process.LockService = cms.Service("LockService",
-    labels = cms.untracked.vstring('source')
-)
 
-process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('debugmessages.txt')
-)
+##
+## number of events
+##
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(-1) )
 
 process.p1 = cms.Path(process.siPixelDigis*process.SiPixelHLTSource)
 
-
+process.MessageLogger.cerr.FwkReport.reportEvery = 10
+process.MessageLogger.cerr.threshold = 'INFO'

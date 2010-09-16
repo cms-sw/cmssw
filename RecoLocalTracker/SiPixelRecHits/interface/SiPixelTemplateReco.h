@@ -37,7 +37,6 @@
 //        - include minimum value for prob2D (1.e-30)
 //  V8.07 - Tune 2-d probability: consider only pixels above threshold and use threshold value for zero signal pixels (non-zero template)
 //  V8.10 - Remove 2-d probability for ineffectiveness and replace with simple cluster charge probability
-//  V8.11 - Change probQ to upper tail probability always (rather than two-sided tail probability)
 //
 //
 //

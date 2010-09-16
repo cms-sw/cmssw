@@ -34,8 +34,8 @@ MuonTrackingRegionCommon = cms.PSet(
         EtaR_UpperLimit_Par2 = cms.double(0.15),
         Phi_min = cms.double(0.1), ## Lower limit to the region phi
 
-        UseVertex = cms.bool(False) ## use reconstructed vertex instead of beamspot
-
+        UseVertex = cms.bool(False), ## use reconstructed vertex instead of beamspot
+        MeasurementTrackerName = cms.string("")
     )
 )
 
