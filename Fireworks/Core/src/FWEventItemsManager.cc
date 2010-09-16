@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.37 2010/07/21 17:03:26 matevz Exp $
+// $Id: FWEventItemsManager.cc,v 1.38 2010/09/01 18:49:00 amraktad Exp $
 //
 
 // system include files
@@ -158,7 +158,7 @@ FWEventItemsManager::addTo(FWConfiguration& iTo) const
        ++it)
    {
       if(!*it) continue;
-      FWConfiguration conf(4);
+      FWConfiguration conf(5);
       ROOT::Reflex::Type dataType( ROOT::Reflex::Type::ByTypeInfo(*((*it)->type()->GetTypeInfo())));
       assert(dataType != ROOT::Reflex::Type() );
 
@@ -193,6 +193,7 @@ FWEventItemsManager::addTo(FWConfiguration& iTo) const
 void
 FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
 {
+ 
    FWColorManager* cm = m_context->colorManager();
    assert(0!=cm);
 
@@ -216,18 +217,12 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
       const bool isVisible = (*keyValues)[6].second.value() == kTrue;
 
       unsigned int colorIndex;
-      if(conf.version() < 3)
+      if(conf.version() < 5)
       {
          std::istringstream is(sColor);
          Color_t color;
          is >> color;
-         colorIndex = cm->oldColorToIndex(color);
-      }
-      else if (conf.version() < 4)
-      {
-         std::istringstream is(sColor);
-         is >> colorIndex;
-         colorIndex += 1000;
+         colorIndex = cm->oldColorToIndex(color, conf.version());
       }
       else
       {

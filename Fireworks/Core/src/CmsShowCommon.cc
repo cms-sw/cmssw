@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Sep 10 14:50:32 CEST 2010
-// $Id: CmsShowCommon.cc,v 1.3 2010/09/15 18:14:22 amraktad Exp $
+// $Id: CmsShowCommon.cc,v 1.4 2010/09/16 17:31:53 amraktad Exp $
 //
 
 // system include files
@@ -23,12 +23,13 @@ CmsShowCommon::CmsShowCommon(FWColorManager* c):
    m_colorManager(c),
    m_backgroundColor(this, "backgroundColIdx", 1l, 0l, 1000l),
    m_gamma(this, "brightness", 0l, -15l, 15l),
-   m_geomTransparency2D(this, "geomTransparency2D", 50l, 0l, 100l),
-   m_geomTransparency3D(this, "geomTransparency3D", 70l, 0l, 100l)
+   m_geomTransparency2D(this, "geomTransparency2D", long(c->geomTransparency(true)), 0l, 100l),
+   m_geomTransparency3D(this, "geomTransparency3D", long(c->geomTransparency(true)), 0l, 100l)
 {
-   m_geomColors[kFWMuonBarrelLineColorIndex] = new FWLongParameter(this, "muonBarrelColor", 1020l, 1000l, 1100l);
-   m_geomColors[kFWMuonEndcapLineColorIndex] = new FWLongParameter(this, "muonEndcapColor", 1017l, 1000l, 1100l);
-   m_geomColors[kFWTrackerColorIndex]        = new FWLongParameter(this, "trackerColor"   , 1009l, 1000l, 1100l);
+  
+   m_geomColors[kFWMuonBarrelLineColorIndex] = new FWLongParameter(this, "muonBarrelColor", long(c->geomColor(kFWMuonBarrelLineColorIndex)), 1000l, 1100l);
+   m_geomColors[kFWMuonEndcapLineColorIndex] = new FWLongParameter(this, "muonEndcapColor", long(c->geomColor(kFWMuonEndcapLineColorIndex)), 1000l, 1100l);
+   m_geomColors[kFWTrackerColorIndex]        = new FWLongParameter(this, "trackerColor"   , long(c->geomColor(kFWTrackerColorIndex       )), 1000l, 1100l);
 }
 
 CmsShowCommon::~CmsShowCommon()
@@ -77,10 +78,10 @@ CmsShowCommon::setGeomTransparency(int iTransp, bool projected)
 void
 CmsShowCommon::addTo(FWConfiguration& oTo) const
 {
-   // TODO connected to signals
    m_backgroundColor.set(int(m_colorManager->background()));
 
    FWConfigurableParameterizable::addTo(oTo);
+   //  printf("add %d %d %d \n", m_geomColors[0]->value(),m_geomColors[1]->value(),m_geomColors[2]->value() );
 }
 
 void
@@ -93,6 +94,7 @@ CmsShowCommon::setFrom(const FWConfiguration& iFrom)
    // geom colors
    m_colorManager->setGeomTransparency( m_geomTransparency2D.value(), true);
    m_colorManager->setGeomTransparency( m_geomTransparency3D.value(), false);
+
    for (int i = 0; i < kFWGeomColorSize; ++i)
       m_colorManager->setGeomColor(FWGeomColorIndex(i), m_geomColors[i]->value());
 

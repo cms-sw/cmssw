@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.31 2010/09/15 18:14:22 amraktad Exp $
+// $Id: FWColorManager.cc,v 1.32 2010/09/16 17:31:53 amraktad Exp $
 //
 
 // system include files
@@ -55,41 +55,57 @@ static const float s_forWhite[][3] ={
 { 0.98, 0.70, 0.00 }, //yellowish-orange
 { 0.18, 0.00, 0.59 }, //purplish-blue
 { 0.98, 0.54, 0.00 }, //orange
-{ 0.00, 0.22, 1.00 }, //blue
+{ 0.00, 0.11, 1.00 }, //blue
 { 0.99, 0.26, 0.01 }, //dark orange
 { 0.00, 0.80, 0.78 }, //cyan
 { 1.00, 0.06, 0.00 }, //red
 { 0.33, 0.64, 0.14 }, //green
 { 0.60, 0.06, 0.23 }, //burgundy
-{0.65, 0.92, 0.17}, //lime{ 0.99, 1.00, 0.39 },
+{ 0.65, 0.92, 0.17 }, //lime{ 0.99, 1.00, 0.39 },
+{ 0.00, 0.46, 1.00 }, //azure+9
+{ 1.00, 0.00, 0.40 }, //pink-3
+{ 0.02, 1.00, 0.40 }, //teal+8
+{ 0.40, 0.40, 0.40 }, //gray
+{ 0.00, 0.00, 0.00 }, //black
 
 { 0.85, 0.85, 0.58 },
 { 0.87, 0.72, 0.92 },
 { 0.99, 0.88, 0.59 },
 { 0.79, 0.72, 0.90 },
 { 1.00, 0.82, 0.59 },
-{ 0.71, 0.79, 0.99 },
+{ 0.71, 0.75, 0.99 },
 { 1.00, 0.80, 0.72 },
 { 0.71, 0.98, 0.95 },
 { 0.99, 0.74, 0.70 },
 { 0.77, 0.86, 0.65 },
 { 0.90, 0.74, 0.79 },
-{ 0.67, 0.95, 0.52 }
+{ 0.67, 0.95, 0.52 },
+{ 0.57, 0.78, 1.00 }, //azure+9
+{ 1.00, 0.57, 0.74 }, //pink-5
+{ 0.73, 1.00, 0.83 }, //teal+9
+{ 0.80, 0.80, 0.80 }, //gray
+{ 0.60, 0.60, 0.60 }  //blackish gray
 };
 
 static const float s_forBlack[][3] ={
-{1.00, 1.00, 0.20}, //yellow
-{0.53, 0.00, 0.69}, //purple
-{0.98, 0.74, 0.01}, //yellowish-orange
-{0.24, 0.00, 0.64}, //purplish-blue
-{0.98, 0.60, 0.01}, //orange
-{0.01, 0.28, 1.00}, //blue
-{0.99, 0.33, 0.03}, //dark orange
-{0.01, 0.83, 0.81}, //cyan
-{1.00, 0.09, 0.00}, //red
-{0.40, 0.69, 0.20}, //green
-{0.65, 0.10, 0.29}, //burgundy
-{0.65, 0.92, 0.17}, //lime
+{ 1.00, 1.00, 0.20 }, //yellow
+{ 0.53, 0.00, 0.69 }, //purple
+{ 0.98, 0.74, 0.01 }, //yellowish-orange
+{ 0.24, 0.00, 0.64 }, //purplish-blue
+{ 0.98, 0.60, 0.01 }, //orange
+{ 0.01, 0.14, 1.00 }, //blue
+{ 0.99, 0.33, 0.03 }, //dark orange
+{ 0.01, 0.83, 0.81 }, //cyan
+{ 1.00, 0.09, 0.00 }, //red
+{ 0.40, 0.69, 0.20 }, //green
+{ 0.65, 0.10, 0.29 }, //burgundy
+{ 0.65, 0.92, 0.17 }, //lime
+{ 0.00, 0.39, 0.79 }, //azure+9
+{ 1.00, 0.00, 0.40 }, //pink-3
+{ 0.02, 1.00, 0.40 }, //teal+8
+{ 0.70, 0.70, 0.70 }, //gray
+{ 1.00, 1.00, 1.00 }, //white
+
 /*
 {1.,0.,0.}, //red
 {0.,0.,1.}, //blue
@@ -100,18 +116,23 @@ static const float s_forBlack[][3] ={
 {1.,1.,0.}, //yellow
 {0.5,0.5,0.5}, //gray
 */
-{0.27, 0.27, 0.04},
-{0.19, 0.00, 0.24},
-{0.19, 0.15, 0.00},
-{0.14, 0.00, 0.38},
-{0.19, 0.11, 0.00},
-{0.01, 0.10, 0.33},
-{0.17, 0.05, 0.02},
-{0.00, 0.33, 0.29},
-{0.34, 0.03, 0.01},
-{0.15, 0.24, 0.06},
-{0.24, 0.02, 0.11},
-{0.22, 0.30, 0.07}
+{ 0.27, 0.27, 0.04 },
+{ 0.19, 0.00, 0.24 },
+{ 0.19, 0.15, 0.00 },
+{ 0.14, 0.00, 0.38 },
+{ 0.19, 0.11, 0.00 },
+{ 0.01, 0.05, 0.33 },
+{ 0.17, 0.05, 0.02 },
+{ 0.00, 0.33, 0.29 },
+{ 0.34, 0.03, 0.01 },
+{ 0.15, 0.24, 0.06 },
+{ 0.24, 0.02, 0.11 },
+{ 0.22, 0.30, 0.07 },
+{ 0.00, 0.20, 0.26 }, //azure+8
+{ 0.35, 0.00, 0.14 }, //pink-2
+{ 0.00, 0.35, 0.12 }, //teal+9
+{ 0.22, 0.22, 0.22 }, //gray
+{ 0.36, 0.36, 0.36 }  //whitish gray
 /*
 {0.7,0.0,0.0},
 {0.0,0.0,0.7},
@@ -125,7 +146,6 @@ static const float s_forBlack[][3] ={
 };
 
 static unsigned int s_size = sizeof(s_forBlack)/sizeof(s_forBlack[0]);
-
 //==============================================================================
 
 static
@@ -172,10 +192,9 @@ FWColorManager::FWColorManager(FWModelChangeManager* iManager):
    m_geomTransparency2D(50),
    m_geomTransparency3D(70)
 {
-   // in config version > 5 restored from CmsShowCommon
-   m_geomColor[kFWMuonBarrelLineColorIndex] = 1020;
-   m_geomColor[kFWMuonEndcapLineColorIndex] = 1017;
-   m_geomColor[kFWTrackerColorIndex]        = 1021 ;
+   m_geomColor[kFWMuonBarrelLineColorIndex] = 1025;
+   m_geomColor[kFWMuonEndcapLineColorIndex] = 1022;
+   m_geomColor[kFWTrackerColorIndex       ] = 1026;
 }
 
 FWColorManager::~FWColorManager()
@@ -292,6 +311,7 @@ FWColorManager::setColorSetViewer(TGLViewer* v, Color_t iColor)
 void
 FWColorManager::setGeomColor(FWGeomColorIndex idx, Color_t iColor)
 {
+   // printf("set geom color %d \n", iColor);
    m_geomColor[idx] = iColor;
    geomColorsHaveChanged_();
    gEve->Redraw3D();
@@ -350,21 +370,33 @@ FWColorManager::geomColor(FWGeomColorIndex iIndex) const
 static boost::shared_ptr<std::map<Color_t,Color_t> > m_oldColorToIndexMap;
 
 Color_t
-FWColorManager::oldColorToIndex(Color_t iColor) const
+FWColorManager::oldColorToIndex(Color_t iColor, int version) const
 {
-   if(0==m_oldColorToIndexMap.get()) {
-      m_oldColorToIndexMap = boost::shared_ptr<std::map<Color_t,Color_t> >(new std::map<Color_t,Color_t>());
-      (*m_oldColorToIndexMap)[kRed]=kFWRed;
-      (*m_oldColorToIndexMap)[kBlue]=kFWBlue;
-      (*m_oldColorToIndexMap)[kYellow]=kFWYellow;
-      (*m_oldColorToIndexMap)[kGreen]=kFWGreen;
-      (*m_oldColorToIndexMap)[kCyan]=kFWCyan;
-      (*m_oldColorToIndexMap)[kTeal]=kFWCyan;
-      (*m_oldColorToIndexMap)[kMagenta]=kFWMagenta;
-      (*m_oldColorToIndexMap)[kViolet]=kFWMagenta;
-      (*m_oldColorToIndexMap)[kOrange]=kFWOrange;
-      (*m_oldColorToIndexMap)[3]=kFWGreen;
+   if (version < 3)
+   {
+      if(0==m_oldColorToIndexMap.get()) {
+         m_oldColorToIndexMap = boost::shared_ptr<std::map<Color_t,Color_t> >(new std::map<Color_t,Color_t>());
+         (*m_oldColorToIndexMap)[kRed]=kFWRed;
+         (*m_oldColorToIndexMap)[kBlue]=kFWBlue;
+         (*m_oldColorToIndexMap)[kYellow]=kFWYellow;
+         (*m_oldColorToIndexMap)[kGreen]=kFWGreen;
+         (*m_oldColorToIndexMap)[kCyan]=kFWCyan;
+         (*m_oldColorToIndexMap)[kTeal]=kFWCyan;
+         (*m_oldColorToIndexMap)[kMagenta]=kFWMagenta;
+         (*m_oldColorToIndexMap)[kViolet]=kFWMagenta;
+         (*m_oldColorToIndexMap)[kOrange]=kFWOrange;
+         (*m_oldColorToIndexMap)[3]=kFWGreen;
       
+      }
+      return (*m_oldColorToIndexMap)[iColor];
    }
-   return (*m_oldColorToIndexMap)[iColor];
+   else if (version == 3)
+   {
+      return iColor+ 1000;
+   }
+   else
+   {
+      static unsigned int s_version45offset = 5;
+      return iColor < 1011 ? iColor : iColor + s_version45offset ;
+   }
 }
