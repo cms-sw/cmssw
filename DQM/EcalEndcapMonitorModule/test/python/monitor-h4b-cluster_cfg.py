@@ -234,7 +234,6 @@ process.ecalUncalibHit.EEdigiCollection = 'ecalEBunpacker:eeDigis'
 process.ecalRecHit.EBuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEB'
 process.ecalRecHit.EEuncalibRecHitCollection = 'ecalUncalibHit:EcalUncalibRecHitsEE'
 
-process.ecalEndcapMonitorClient.maskFile = ''
 process.ecalEndcapMonitorClient.location = 'H4B'
 process.ecalEndcapMonitorClient.enabledClients = ['Integrity', 'Occupancy', 'StatusFlags', 'PedestalOnline', 'Pedestal', 'TestPulse', 'Laser', 'Timing', 'Led', 'BeamCalo', 'BeamHodo', 'Cluster', 'Summary']
 #process.ecalEndcapMonitorClient.superModules = [10]

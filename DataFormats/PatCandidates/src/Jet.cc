@@ -1,10 +1,11 @@
 //
-// $Id: Jet.cc,v 1.38 2010/05/14 19:13:43 srappocc Exp $
+// $Id: Jet.cc,v 1.39 2010/06/15 19:18:55 srappocc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace pat;
 
@@ -66,7 +67,19 @@ void Jet::tryImportSpecific(const reco::Jet& source)
   if( type == typeid(reco::CaloJet) ){
     specificCalo_.push_back( (static_cast<const reco::CaloJet&>(source)).getSpecific() );
   } else if( type == typeid(reco::JPTJet) ){
-    specificJPT_.push_back( (static_cast<const reco::JPTJet&>(source)).getSpecific() );
+    reco::JPTJet const & jptJet = static_cast<reco::JPTJet const &>(source);
+    specificJPT_.push_back( jptJet.getSpecific() );
+    reco::CaloJet const * caloJet = 0;
+    if ( jptJet.getCaloJetRef().isNonnull() && jptJet.getCaloJetRef().isAvailable() ) {
+      caloJet = dynamic_cast<reco::CaloJet const *>( jptJet.getCaloJetRef().get() );
+    } 
+    if ( caloJet != 0 ) {
+      specificCalo_.push_back( caloJet->getSpecific() );
+    } 
+    else {
+      edm::LogWarning("OptionalProductNotFound") << " in pat::Jet, Attempted to add Calo Specifics to JPT Jets, but failed."
+						 << " Jet ID for JPT Jets will not be available for you." << std::endl;
+    }
   } else if( type == typeid(reco::PFJet) ){
     specificPF_.push_back( (static_cast<const reco::PFJet&>(source)).getSpecific() );
   } 

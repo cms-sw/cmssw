@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2010/02/14 11:23:22 $
- * $Revision: 1.113 $
+ * $Date: 2010/07/30 05:40:22 $
+ * $Revision: 1.115 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -26,9 +26,9 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBTestPulseTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBTestPulseTask.h"
 
 EBTestPulseTask::EBTestPulseTask(const edm::ParameterSet& ps){
 
@@ -49,11 +49,11 @@ EBTestPulseTask::EBTestPulseTask(const edm::ParameterSet& ps){
 
   MGPAGains_.reserve(3);
   for ( unsigned int i = 1; i <= 3; i++ ) MGPAGains_.push_back(i);
-  MGPAGains_ = ps.getUntrackedParameter<vector<int> >("MGPAGains", MGPAGains_);
+  MGPAGains_ = ps.getUntrackedParameter<std::vector<int> >("MGPAGains", MGPAGains_);
 
   MGPAGainsPN_.reserve(2);
   for ( unsigned int i = 1; i <= 3; i++ ) MGPAGainsPN_.push_back(i);
-  MGPAGainsPN_ = ps.getUntrackedParameter<vector<int> >("MGPAGainsPN", MGPAGainsPN_);
+  MGPAGainsPN_ = ps.getUntrackedParameter<std::vector<int> >("MGPAGainsPN", MGPAGainsPN_);
 
   for (int i = 0; i < 36; i++) {
     meShapeMapG01_[i] = 0;

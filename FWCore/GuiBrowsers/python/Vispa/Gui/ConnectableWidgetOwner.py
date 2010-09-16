@@ -6,6 +6,7 @@ import logging
 from Vispa.Gui.VispaWidgetOwner import VispaWidgetOwner
 from Vispa.Gui.PortConnection import PortConnection
 from Vispa.Gui.ConnectableWidget import ConnectableWidget
+from Vispa.Gui.MenuWidget import MenuWidget
 
 class ConnectableWidgetOwner(VispaWidgetOwner):
     """ Interface for classes containing ConnectableWidgets
@@ -13,31 +14,6 @@ class ConnectableWidgetOwner(VispaWidgetOwner):
     Only makes sense if implementing class also inherits QWidget or class inheriting QWidget.
     """
     
-    def widgetMoved(self, widget):
-        """ Updates connections attached to one of the widget's ports.
-        """
-        VispaWidgetOwner.widgetMoved(self, widget)
-        if not isinstance(widget, ConnectableWidget):
-            return
-        
-        self.updateAttachedConnection(widget)
-        if self.multiSelectEnabled():
-            for child in self.children():
-                if child != widget and not isinstance(child, PortConnection) and hasattr(child, "isSelected") and child.isSelected():
-                    self.updateAttachedConnection(child)
-    
-    def updateAttachedConnection(self, widget):
-        # update attached connections
-        for connection in [child for child in self.children() if isinstance(child, PortConnection)]:
-            if connection.sourcePort() in widget.ports() or connection.sinkPort() in widget.ports():
-                connection.updateConnection()
-
-    def widgetAboutToDelete(self, widget):
-        """ Calls deleteWidgetConnections().
-        """
-        self.deleteWidgetConnections(widget)
-        VispaWidgetOwner.widgetAboutToDelete(self, widget)
-  
     def getWidgetByName(self, name):
         """ Returns module with given name or None if there is no such one.
         """
@@ -45,12 +21,6 @@ class ConnectableWidgetOwner(VispaWidgetOwner):
             if widget.title() == name:
                 return widget
         return None
-  
-    def connectionAboutToDelete(self, connection):
-        """ Passes information on to parent.
-        """
-        if isinstance(self.parent(), ConnectableWidgetOwner):
-            self.parent().connectionAboutToDelete(connection)
     
     def updateConnections(self):
         """ Updates all connection.
@@ -69,36 +39,13 @@ class ConnectableWidgetOwner(VispaWidgetOwner):
             if connection.isSelected():
                 connection.delete()
     
-    def deleteWidgetConnections(self, widget):
-        """ Deletes connection which are attached to one of the widget's ports. 
-        """
-        deletedConnection = False
-        ports = widget.ports()
-        for connection in [child for child in self.children() if isinstance(child, PortConnection)]:
-            for port in ports:
-                if connection.attachedToPort(port):
-                    deletedConnection = True
-                    connection.delete()
-        return deletedConnection
-    
-    def deleteConnectionsAttachedToPort(self, port):
-        """ Deletes connections which are attached to given PortWidget (source or sink port).
-        """
-        deletedConnection = False
-        for connection in [child for child in self.children() if isinstance(child, PortConnection)]:
-            if connection.attachedToPort(port):
-                deletedConnection = True
-                connection.delete()
-                
-        return deletedConnection
-    
-    def portConnection(self, port):
+    def portConnection(self, port1, port2=None):
         """ Returns the PortConnection if there is a connection in this ConnectableWidgetOwner that is attached to the given port.
         
         Otherwise None will be returned.
         """
         for connection in [child for child in self.children() if isinstance(child, PortConnection)]:
-            if connection.attachedToPort(port):
+            if connection.attachedToPort(port1) and (not port2 or connection.attachedToPort(port2)):
                 return connection
         return None
 
@@ -114,7 +61,7 @@ class ConnectableWidgetOwner(VispaWidgetOwner):
         Currently supported events: QEvent.MouseButtonPress, QEvent.MouseButtonDblClick.
         """
         logging.debug("%s: propagateEventUnderConnectionWidget() - %s" % (self.__class__.__name__, str(event.type())))
-        # Currently supported events: QEvent.MouseButtonDblClick, QEvent.MouseButtonPress, QEvent.MouseButtonRelease, QEvent.MouseMove.
+
         workspacePos = connection.mapToParent(event.pos())
         for child in reversed(self.children()):
             if not child==connection and isinstance(child,QWidget) and child.geometry().contains(workspacePos):
@@ -136,10 +83,12 @@ class ConnectableWidgetOwner(VispaWidgetOwner):
                 if event.type() == QEvent.MouseButtonPress:
                     child.grabMouse(QCursor(Qt.ClosedHandCursor))
                     child.setFocus()
-#                    print "    MouseButtonPress", child
-#                if event.type() == QEvent.MouseMove:
-#                    print "    mouseMoveEvent", child
                 newEvent = QMouseEvent(event.type(), childPos, event.button(), event.buttons(), event.modifiers())
                 QCoreApplication.instance().sendEvent(child, newEvent)
                 return True
         return False
+    
+    def hideMenuWidgets(self):
+        for child in self.children():
+            if isinstance(child, MenuWidget):
+                child.hide()

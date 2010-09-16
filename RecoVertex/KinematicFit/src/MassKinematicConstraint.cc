@@ -9,7 +9,7 @@ MassKinematicConstraint::MassKinematicConstraint(const ParticleMass& m, const fl
  dd = deviation_l;
 }
 
-pair<AlgebraicVector, AlgebraicVector> MassKinematicConstraint::value(const AlgebraicVector& exPoint) const
+std::pair<AlgebraicVector, AlgebraicVector> MassKinematicConstraint::value(const AlgebraicVector& exPoint) const
 {
 
 //we have only one equation and only one track, means the constraint value 
@@ -24,10 +24,10 @@ pair<AlgebraicVector, AlgebraicVector> MassKinematicConstraint::value(const Alge
  AlgebraicVector vl(1,0);
  AlgebraicVector point = exPoint;
  vl(1) = point(7) - mass; 
- return pair<AlgebraicVector,AlgebraicVector>(vl,point);
+ return std::pair<AlgebraicVector,AlgebraicVector>(vl,point);
 }
 
-pair<AlgebraicMatrix, AlgebraicVector> MassKinematicConstraint::derivative(const AlgebraicVector& exPoint) const
+std::pair<AlgebraicMatrix, AlgebraicVector> MassKinematicConstraint::derivative(const AlgebraicVector& exPoint) const
 {
  if(exPoint.num_row() == 0) throw VertexException("MomentumKinematicConstraint::deriavtive requested for zero Linearization point");
 
@@ -39,10 +39,10 @@ pair<AlgebraicMatrix, AlgebraicVector> MassKinematicConstraint::derivative(const
  AlgebraicMatrix dr(1,7,0);
  dr(1,7) = 1; 
  AlgebraicVector point = exPoint;
- return pair<AlgebraicMatrix,AlgebraicVector>(dr,point); 
+ return std::pair<AlgebraicMatrix,AlgebraicVector>(dr,point); 
 }
 
-pair<AlgebraicVector, AlgebraicVector> MassKinematicConstraint::value(const vector<RefCountedKinematicParticle> par) const
+std::pair<AlgebraicVector, AlgebraicVector> MassKinematicConstraint::value(const std::vector<RefCountedKinematicParticle> par) const
 {
  int nStates = par.size();
  if(nStates == 0) throw VertexException("MassKinematicConstraint::empty vector of particles passed");
@@ -51,10 +51,10 @@ pair<AlgebraicVector, AlgebraicVector> MassKinematicConstraint::value(const vect
  AlgebraicVector point = asHepVector<7>(par.front()->currentState().kinematicParameters().vector());
  AlgebraicVector vl(1,0);
  vl(1) = point(7) - mass;
- return pair<AlgebraicVector,AlgebraicVector>(vl,point);
+ return std::pair<AlgebraicVector,AlgebraicVector>(vl,point);
 } 
 
-pair<AlgebraicMatrix, AlgebraicVector> MassKinematicConstraint::derivative(const vector<RefCountedKinematicParticle> par) const
+std::pair<AlgebraicMatrix, AlgebraicVector> MassKinematicConstraint::derivative(const std::vector<RefCountedKinematicParticle> par) const
 {
  int nStates = par.size();
  if(nStates == 0) throw VertexException("MassKinematicConstraint::empty vector of particles passed");
@@ -63,7 +63,7 @@ pair<AlgebraicMatrix, AlgebraicVector> MassKinematicConstraint::derivative(const
  AlgebraicVector point = asHepVector<7>(par.front()->currentState().kinematicParameters().vector());
  AlgebraicMatrix dr(1,7,0);
  dr(1,7) = 1;
- return pair<AlgebraicMatrix,AlgebraicVector>(dr,point);
+ return std::pair<AlgebraicMatrix,AlgebraicVector>(dr,point);
 }
 
 AlgebraicVector MassKinematicConstraint::deviations(int nStates) const

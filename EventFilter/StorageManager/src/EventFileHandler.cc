@@ -1,4 +1,4 @@
-// $Id: EventFileHandler.cc,v 1.11 2010/02/01 14:08:30 mommsen Exp $
+// $Id: EventFileHandler.cc,v 1.12 2010/03/19 13:24:05 mommsen Exp $
 /// @file: EventFileHandler.cc
 
 #include <EventFilter/StorageManager/interface/EventFileHandler.h>
@@ -57,35 +57,6 @@ void EventFileHandler::do_writeEvent(const I2OChain& event)
 
       _writer->doOutputEventFragment(evtParams);
     }
-}
-
-
-bool EventFileHandler::tooOld(const utils::time_point_t currentTime)
-{
-  if (_diskWritingParams._lumiSectionTimeOut > 0 && 
-    (currentTime - _lastEntry) > _diskWritingParams._lumiSectionTimeOut)
-  {
-    closeFile(FilesMonitorCollection::FileRecord::timeout);
-    return true;
-  }
-  else
-  {
-    return false;
-  }
-}
-
-
-bool EventFileHandler::isFromLumiSection(const uint32_t lumiSection)
-{
-  if (lumiSection == _fileRecord->lumiSection)
-  {
-    closeFile(FilesMonitorCollection::FileRecord::LSended);
-    return true;
-  }
-  else
-  {
-    return false;
-  }
 }
 
 

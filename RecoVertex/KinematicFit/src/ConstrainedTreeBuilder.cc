@@ -15,8 +15,8 @@ ConstrainedTreeBuilder::~ConstrainedTreeBuilder()
 }
 
 
-RefCountedKinematicTree ConstrainedTreeBuilder::buildTree(const vector<RefCountedKinematicParticle> & initialParticles,
-                         const vector<KinematicState> & finalStates,
+RefCountedKinematicTree ConstrainedTreeBuilder::buildTree(const std::vector<RefCountedKinematicParticle> & initialParticles,
+                         const std::vector<KinematicState> & finalStates,
 			 const RefCountedKinematicVertex vertex, const AlgebraicMatrix& fullCov) const
 {
   if (!vertex->vertexIsValid()) {
@@ -56,9 +56,9 @@ RefCountedKinematicTree ConstrainedTreeBuilder::buildTree(const vector<RefCounte
   ROOT::Math::SMatrix<double,3,7,ROOT::Math::MatRepStd<double,3,7> > vtxTrackCov;
   AlgebraicMatrix77 nCovariance;
 
-  vector<RefCountedKinematicParticle>::const_iterator i = initialParticles.begin();
-  vector<KinematicState>::const_iterator iStates = finalStates.begin();
-  vector<RefCountedKinematicParticle> rParticles;
+  std::vector<RefCountedKinematicParticle>::const_iterator i = initialParticles.begin();
+  std::vector<KinematicState>::const_iterator iStates = finalStates.begin();
+  std::vector<RefCountedKinematicParticle> rParticles;
   int n=0;
   for( ; i != initialParticles.end(), iStates != finalStates.end(); ++i,++iStates)
   {
@@ -124,7 +124,7 @@ RefCountedKinematicTree ConstrainedTreeBuilder::buildTree(const vector<RefCounte
 
 
 RefCountedKinematicTree ConstrainedTreeBuilder::buildTree(const RefCountedKinematicParticle virtualParticle,
-	const RefCountedKinematicVertex vtx, const vector<RefCountedKinematicParticle> & particles) const
+	const RefCountedKinematicVertex vtx, const std::vector<RefCountedKinematicParticle> & particles) const
 {
 
 //making a resulting tree:
@@ -135,7 +135,7 @@ RefCountedKinematicTree ConstrainedTreeBuilder::buildTree(const RefCountedKinema
  resTree->addParticle(fVertex, vtx, virtualParticle);
 
 //adding final state
- for(vector<RefCountedKinematicParticle>::const_iterator il = particles.begin(); il != particles.end(); il++)
+ for(std::vector<RefCountedKinematicParticle>::const_iterator il = particles.begin(); il != particles.end(); il++)
  {
   if((*il)->previousParticle()->correspondingTree() != 0)
   {
@@ -152,7 +152,7 @@ RefCountedKinematicTree ConstrainedTreeBuilder::buildTree(const RefCountedKinema
  return resTree;
 }
 
-AlgebraicMatrix ConstrainedTreeBuilder::covarianceMatrix(vector<RefCountedKinematicParticle> rPart,
+AlgebraicMatrix ConstrainedTreeBuilder::covarianceMatrix(std::vector<RefCountedKinematicParticle> rPart,
                              const AlgebraicVector7& newPar, const AlgebraicMatrix& fitCov)const
 {
 //constructing the full matrix using the simple fact
@@ -167,12 +167,12 @@ AlgebraicMatrix ConstrainedTreeBuilder::covarianceMatrix(vector<RefCountedKinema
  jac(2,2) = 1;
  jac(3,3) = 1;
  int i_int=0;
- for(vector<RefCountedKinematicParticle>::iterator i = rPart.begin(); i != rPart.end(); i++)
+ for(std::vector<RefCountedKinematicParticle>::iterator i = rPart.begin(); i != rPart.end(); i++)
  {
 
 //vertex position related components of the matrix
-  double a_i = -0.29979246*(*i)->currentState().particleCharge() *
-	(*i)->magneticField()->inInverseGeV((*i)->currentState().globalPosition()).z();
+  double a_i = - (*i)->currentState().particleCharge() * (*i)->magneticField()->inInverseGeV((*i)->currentState().globalPosition()).z();
+
   AlgebraicMatrix upper(3,7,0);
   AlgebraicMatrix diagonal(7,7,0);
   upper(1,1) = 1;
@@ -237,7 +237,7 @@ AlgebraicMatrix ConstrainedTreeBuilder::covarianceMatrix(vector<RefCountedKinema
 // cout<<"reduced matrix"<<reduced<<endl;
  int il_int = 0;
   double energy_global = sqrt(newPar(3)*newPar(3)+newPar(4)*newPar(4) + newPar(5)*newPar(5)+newPar(6)*newPar(6));
- for(vector<RefCountedKinematicParticle>::const_iterator rs = rPart.begin();
+ for(std::vector<RefCountedKinematicParticle>::const_iterator rs = rPart.begin();
                                                        rs!=rPart.end();rs++)
  {
 //jacobian components:

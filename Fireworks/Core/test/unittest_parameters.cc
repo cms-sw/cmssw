@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 10:19:07 EST 2008
-// $Id: unittest_parameters.cc,v 1.2 2010/04/26 09:06:57 eulisse Exp $
+// $Id: unittest_parameters.cc,v 1.2 2008/03/11 14:04:26 chrjones Exp $
 //
 
 // system include files
@@ -20,6 +20,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWConfiguration.h"
+#include "Fireworks/Core/interface/FWDoubleParameter.h"
 #include "Fireworks/Core/interface/FWLongParameter.h"
 #include "Fireworks/Core/interface/FWCompositeParameter.h"
 #include "Fireworks/Core/interface/FWParameterizable.h"
@@ -133,7 +134,7 @@ BOOST_AUTO_TEST_CASE( parameters )
    FWConfiguration ctConf;
    ct.m_comp.addTo(ctConf);
 
-   streamTo(std::cout, ctConf, "top");
+   std::cout << ctConf<<std::endl;
    
    ct.m_d1.set(0);
    ct.m_d2.set(1);

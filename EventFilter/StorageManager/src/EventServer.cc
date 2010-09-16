@@ -2,7 +2,7 @@
  * This class manages the distribution of events to consumers from within
  * the storage manager.
  *
- * $Id: EventServer.cc,v 1.13 2009/06/10 08:15:26 dshpakov Exp $
+ * $Id: EventServer.cc,v 1.14 2010/05/17 15:59:10 mommsen Exp $
  */
 
 #include "EventFilter/StorageManager/interface/EventServer.h"
@@ -219,7 +219,7 @@ void EventServer::processEvent(const EventMsgView &eventView)
 
   // determine which consumers are interested in the event
   std::vector<uint32_t> candidateList;
-  boost::shared_ptr< vector<char> > bufPtr;
+  boost::shared_ptr< std::vector<char> > bufPtr;
   std::map< uint32_t, boost::shared_ptr<ConsumerPipe> >::const_iterator consIter;
   for (consIter = consumerTable_.begin();
        consIter != consumerTable_.end();
@@ -278,8 +278,8 @@ void EventServer::processEvent(const EventMsgView &eventView)
         eventView.event() << std::endl;
 
       // create a local buffer of the appropriate size
-      boost::shared_ptr< vector<char> >
-        tmpBufPtr(new vector<char>(eventView.size()));
+      boost::shared_ptr< std::vector<char> >
+        tmpBufPtr(new std::vector<char>(eventView.size()));
 
       // copy the data to the local buffer
       unsigned char *target = (unsigned char *) &(*tmpBufPtr)[0];
@@ -400,7 +400,7 @@ void EventServer::processEvent(const EventMsgView &eventView)
 boost::shared_ptr< std::vector<char> > EventServer::getEvent(uint32_t consumerId)
 {
   // initial empty buffer
-  boost::shared_ptr< vector<char> > bufPtr;
+  boost::shared_ptr< std::vector<char> > bufPtr;
 
   // lookup the consumer
   std::map< uint32_t, boost::shared_ptr<ConsumerPipe> >::const_iterator consIter;

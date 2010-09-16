@@ -21,27 +21,23 @@ JacobianCurvilinearToLocal(const Surface& surface,
   // GlobalVector dk = surface.toGlobal(LocalVector(0., 1., 0.));
   //  GlobalVector di = surface.toGlobal(LocalVector(0., 0., 1.));
   Surface::RotationType const & rot = surface.rotation();
-  GlobalVector dj(rot.x());
-  GlobalVector dk(rot.y());
-  GlobalVector di(rot.z());
+  GlobalVector dj(rot.xx(),rot.xy(),rot.xz());
+  GlobalVector dk(rot.yx(),rot.yy(),rot.yz());
+  GlobalVector di(rot.zx(),rot.zy(),rot.zz());
 
   // rotate coordinates because of wrong coordinate system in orca
-  // LocalVector tvw(tnl.z(), tnl.x(), tnl.y());
+  LocalVector tvw(tnl.z(), tnl.x(), tnl.y());
   double cosl = tn.perp(); if (cosl < 1.e-30) cosl = 1.e-30;
   double cosl1 = 1./cosl;
   GlobalVector un(-tn.y()*cosl1, tn.x()*cosl1, 0.);
   GlobalVector vn(-tn.z()*un.y(), tn.z()*un.x(), cosl);
-
   double uj = un.dot(dj);
   double uk = un.dot(dk);
   double vj = vn.dot(dj);
   double vk = vn.dot(dk);
-
-  //  double t1r = 1./tvw.x();
-  double t1r = 1./tnl.z();
+  double t1r = 1./tvw.x();
   double t2r = t1r*t1r;
   double t3r = t1r*t2r;
-
   theJacobian(0,0) = 1.;
   theJacobian(1,1) = -uk*t2r;
   theJacobian(1,2) = vk*(cosl*t2r);

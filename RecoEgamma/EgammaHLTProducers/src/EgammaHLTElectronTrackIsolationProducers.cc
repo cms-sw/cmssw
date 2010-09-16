@@ -2,7 +2,7 @@
  *
  *  \author Monica Vazquez Acosta (CERN)
  * 
- * $Id: EgammaHLTElectronTrackIsolationProducers.cc,v 1.6 2009/10/14 14:32:24 covarell Exp $
+ * $Id: EgammaHLTElectronTrackIsolationProducers.cc,v 1.7 2009/10/14 14:33:58 covarell Exp $
  *
  */
 
@@ -42,10 +42,11 @@ EgammaHLTElectronTrackIsolationProducers::EgammaHLTElectronTrackIsolationProduce
   egTrkIsoRSpan_                = conf_.getParameter<double>("egTrkIsoRSpan");
   egTrkIsoVetoConeSize_         = conf_.getParameter<double>("egTrkIsoVetoConeSize");
   egCheckForOtherEleInCone_     = conf_.getUntrackedParameter<bool>("egCheckForOtherEleInCone",false);
-
+  double egTrkIsoStripBarrel    = conf_.getParameter<double>("egTrkIsoStripBarrel");
+  double egTrkIsoStripEndcap    = conf_.getParameter<double>("egTrkIsoStripEndcap");
 
   test_ = new EgammaHLTTrackIsolation(egTrkIsoPtMin_,egTrkIsoConeSize_,
-				      egTrkIsoZSpan_,egTrkIsoRSpan_,egTrkIsoVetoConeSize_);
+				      egTrkIsoZSpan_,egTrkIsoRSpan_,egTrkIsoVetoConeSize_,egTrkIsoStripBarrel,egTrkIsoStripEndcap);
 
 
   //register your products
@@ -89,7 +90,7 @@ EgammaHLTElectronTrackIsolationProducers::produce(edm::Event& iEvent, const edm:
     } else {
       isol = test_->electronPtSum(&(*electrontrackref),electronHandle.product(),trackCollection);
     }
-    if(electronref->pt() != 0. ) isol = isol/electronref->pt();
+    //if(electronref->pt() != 0. ) isol = isol/electronref->pt();
     
     isoMap.insert(electronref, isol);
       

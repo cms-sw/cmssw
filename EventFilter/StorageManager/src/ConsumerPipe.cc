@@ -4,7 +4,7 @@
  * event server part of the storage manager.
  *
  * 16-Aug-2006 - KAB  - Initial Implementation
- * $Id: ConsumerPipe.cc,v 1.23 2009/12/01 13:58:08 mommsen Exp $
+ * $Id: ConsumerPipe.cc,v 1.24 2010/05/17 15:59:09 mommsen Exp $
  */
 
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
@@ -423,7 +423,7 @@ bool ConsumerPipe::pushEvent()
 
   if(messageStatus!=0)
   {
-    cerr << "curl perform failed for pushEvent" << endl;
+    std::cerr << "curl perform failed for pushEvent" << std::endl;
     edm::LogError("pushEvent") << "curl perform failed for pushEvent. "
         << "Could not register: probably XDAQ not running on Storage Manager"
         << " at " << consumerName_;

@@ -62,8 +62,8 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
       algorithms->suppressor->suppress( processedRawDigis, suppressedDigis );
     } else 
 
-    throw cms::Exception("Unknown input type") 
-      << inputTag.instance() << " unknown.  SiStripZeroZuppression can only process types \"VirginRaw\" and \"ProcessedRaw\" ";
+      edm::LogError("SiStripZeroSuppression")
+	<< inputTag.instance() << " unknown.  SiStripZeroZuppression can only process types \"VirginRaw\" and \"ProcessedRaw\" ";
     
 
     if (suppressedDigis.size()) 

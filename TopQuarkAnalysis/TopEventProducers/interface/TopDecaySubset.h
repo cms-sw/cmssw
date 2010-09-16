@@ -14,9 +14,9 @@
 /**
    \class   TopDecaySubset TopDecaySubset.h "TopQuarkAnalysis/TopEventProducers/interface/TopDecaySubset.h"
 
-   \brief   Module to produce the subset of generator particles directly contained in the ttbar decay chains
+   \brief   Module to produce the subset of generator particles directly contained in top decay chains
 
-   The module produces the subset of generator particles directly contained in the ttbar decay chains. The 
+   The module produces the subset of generator particles directly contained in top decay chains. The 
    particles are saved as a collection of reco::GenParticles. Depending on the configuration of the module
    the 4-vector kinematics can be taken from the status 3 particles (ME before parton showering) of from 
    the status 2 particles (after parton showering), additioanlly radiated gluons may be considered during
@@ -41,39 +41,36 @@ class TopDecaySubset : public edm::EDProducer {
   virtual void produce(edm::Event& event, const edm::EventSetup& setup);
 
  private:
-  /// check the sanity of the input particle listing
-  void checkSanity(const reco::GenParticleCollection& parts) const;
+  /// find top quarks in list of input particles
+  std::vector<const reco::GenParticle*> findTops(const reco::GenParticleCollection& parts);
   /// check the decay chain for the used shower model
-  ShowerModel checkShowerModel(const reco::GenParticleCollection& parts) const;
-  /// check whether the W boson is contained in the original gen particle listing
-  bool checkWBoson(const reco::GenParticleCollection& parts, const int& partId) const;
+  ShowerModel checkShowerModel(const std::vector<const reco::GenParticle*>& tops) const;
+  /// check whether W bosons are contained in the original gen particle listing
+  void checkWBosons(std::vector<const reco::GenParticle*>& tops) const;
   /// fill output vector for full decay chain 
-  void fillListing(const reco::GenParticleCollection& src, reco::GenParticleCollection& target, const int& partId);
+  void fillListing(const std::vector<const reco::GenParticle*>& tops, reco::GenParticleCollection& target);
 
   /// clear references
   void clearReferences();
   /// fill references for output vector
   void fillReferences(const reco::GenParticleRefProd& refProd, reco::GenParticleCollection& target);
   /// calculate lorentz vector from input (dedicated to top reconstruction)
-  reco::Particle::LorentzVector p4(const std::vector<reco::GenParticle>::const_iterator top, int statusFlag);
+  reco::Particle::LorentzVector p4(const std::vector<const reco::GenParticle*>::const_iterator top, int statusFlag);
   /// calculate lorentz vector from input
   reco::Particle::LorentzVector p4(const reco::GenParticle::const_iterator part, int statusFlag);
   /// recursively fill vector for all further decay particles of a given particle
   void addDaughters(int& idx, const reco::GenParticle::const_iterator part, reco::GenParticleCollection& target, bool recursive=true);
   /// fill vector including all radiations from quarks originating from W/top
   void addRadiation(int& idx, const reco::GenParticle::const_iterator part, reco::GenParticleCollection& target);
-  /// print the whole decay chain if particle with pdgId is contained in the top decay chain
-  void printTarget(reco::GenParticleCollection& target);
-  /// print the whole listing if particle with pdgId is contained in the top decay chain
-  void printSource(const reco::GenParticleCollection& src);
 
  private:
-  /// mode of decaySubset creation 
-  FillMode fillMode_;
+  /// input tag for the genParticle source
+  edm::InputTag src_;
   /// add radiation or not?
   bool addRadiation_;
-  /// input tag for the genParticle source
-  edm::InputTag src_;                    
+  /// print the whole list of input particles or not?
+  /// mode of decaySubset creation 
+  FillMode fillMode_;
   /// parton shower mode (filled in checkShowerModel)
   ShowerModel showerModel_;
 

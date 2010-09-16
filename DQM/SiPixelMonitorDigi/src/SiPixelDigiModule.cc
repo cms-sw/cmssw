@@ -59,7 +59,7 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
 
   // Get DQM interface
   DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
-  
+
   int nbinx=ncols_/2, nbiny=nrows_/2;
   std::string twodtitle = "Number of Digis (1bin=four pixels)"; 
   std::string pxtitle = "Number of Digis (1bin=two columns)";
@@ -71,15 +71,6 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
     pxtitle = "Number of Digis (1bin=one column)";
     pytitle = "Number of Digis (1bin=one row)";
   }
-  
-  std::string currDir = theDMBE->pwd();
-  theDMBE->cd("Pixel/Barrel");
-  meNDigisCOMBBarrel_ = theDMBE->book1D("ALLMODS_ndigisCOMB_Barrel","Number of Digis",500,0.,1000.);
-  meNDigisCOMBBarrel_->setAxisTitle("Number of digis per module per event",1);
-  theDMBE->cd("Pixel/Endcap");
-  meNDigisCOMBEndcap_ = theDMBE->book1D("ALLMODS_ndigisCOMB_Endcap","Number of Digis",500,0.,1000.);
-  meNDigisCOMBEndcap_->setAxisTitle("Number of digis per module per event",1);
-  theDMBE->cd(currDir);
   
   if(type==0){
     SiPixelHistogramId* theHistogramId = new SiPixelHistogramId( src.label() );

@@ -2,7 +2,6 @@
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/TauReco>
-<use name=DataFormats/JetReco>
 <use name=DQMServices/Core>
 <flags EDM_PLUGIN=1>
 <export>
@@ -11,6 +10,5 @@
    <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/TauReco>
-   <use name=DataFormats/JetReco>
    <use name=DQMServices/Core>
 </export>

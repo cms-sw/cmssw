@@ -6,8 +6,8 @@
  *  DataFormat class to hold the information from a ME tranformed into
  *  ROOT objects as appropriate
  *
- *  $Date: 2009/10/28 12:44:14 $
- *  $Revision: 1.24.2.1 $
+ *  $Date: 2010/09/12 11:51:32 $
+ *  $Revision: 1.26 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -67,14 +67,14 @@ class MEtoEDM
 			const std::string &datatier)
     {
       typename MEtoEdmObjectVector::value_type temp;
-      temp.name = name;
-      temp.tags = tags;
-      temp.object = object;
-      temp.release = release;
-      temp.run = run;
-      temp.lumi = lumi;
-      temp.datatier = datatier;
       MEtoEdmObject.push_back(temp);
+      MEtoEdmObject.back().name = name;
+      MEtoEdmObject.back().tags = tags;
+      MEtoEdmObject.back().object = object;
+      MEtoEdmObject.back().release = release;
+      MEtoEdmObject.back().run = run;
+      MEtoEdmObject.back().lumi = lumi;
+      MEtoEdmObject.back().datatier = datatier;
     }
 
   const MEtoEdmObjectVector & getMEtoEdmObject() const

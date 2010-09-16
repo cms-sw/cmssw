@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 14:43:25 EST 2008
-// $Id: FWViewBase.h,v 1.11 2010/03/16 11:51:53 amraktad Exp $
+// $Id: FWViewBase.h,v 1.10 2009/11/03 00:05:07 chrjones Exp $
 //
 
 // system include files
@@ -34,10 +34,12 @@ class FWViewBase : public FWConfigurableParameterizable
 {
 
 public:
-   FWViewBase(unsigned int iVersion = 1);
+   FWViewBase(unsigned int iVersion=1);
 
    // ---------- const member functions ---------------------
    virtual const std::string& typeName() const = 0;
+
+   //   virtual TGFrame* frame() const = 0;
 
    virtual void saveImageTo(const std::string& iName) const = 0;
    void promptForSaveImageTo(TGFrame*) const;

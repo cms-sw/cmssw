@@ -31,12 +31,10 @@ ee_dqm_client_offline = cms.Sequence(ecalEndcapMonitorClient*dqmQTestEE)
 
 ecal_dqm_client_offline = cms.Sequence(eb_dqm_client_offline*ee_dqm_client_offline)
 
-ecalBarrelMonitorClient.maskFile = ''
 ecalBarrelMonitorClient.location = 'P5'
 ecalBarrelMonitorClient.verbose = False
 ecalBarrelMonitorClient.enabledClients = ['Integrity', 'StatusFlags', 'Occupancy', 'PedestalOnline', 'Cosmic', 'Cluster', 'TriggerTower', 'Summary']
 
-ecalEndcapMonitorClient.maskFile = ''
 ecalEndcapMonitorClient.location = 'P5'
 ecalEndcapMonitorClient.verbose = False
 ecalEndcapMonitorClient.enabledClients = ['Integrity', 'StatusFlags', 'Occupancy', 'PedestalOnline', 'Cosmic', 'Cluster', 'TriggerTower', 'Summary']

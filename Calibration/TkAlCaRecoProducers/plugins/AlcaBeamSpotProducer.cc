@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
    Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
-   version $Id: AlcaBeamSpotProducer.cc,v 1.6 2010/06/09 19:19:24 yumiceva Exp $
+   version $Id: AlcaBeamSpotProducer.cc,v 1.1 2010/06/21 18:02:20 yumiceva Exp $
 
    ________________________________________________________________**/
 
@@ -24,6 +24,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 

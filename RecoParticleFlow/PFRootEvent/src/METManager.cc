@@ -12,7 +12,7 @@
 METManager::METManager(std::string Filename)
 {
   outmetfilename_=Filename;
-  std::cout << "Info: DQM is not yet used in METManager."<<endl;
+  std::cout << "Info: DQM is not yet used in METManager."<<std::endl;
   std::cout << "pfMET validation histograms will be saved to '" << outmetfilename_ << "'" << std::endl;
   outfile_ = new TFile(outmetfilename_.c_str(), "RECREATE");
   //void setup(DQMStore *, bool PlotAgainstReco, minDeltaEt,
@@ -145,7 +145,7 @@ reco::MET METManager::computeGenMET(const reco::GenParticleCollection *genPartic
 void METManager::addGenBenchmark(std::string GenBenchmarkName)
 {
   GenericBenchmark GenBenchmark;
-  string path = outmetfilename_+":/PFTask";
+  std::string path = outmetfilename_+":/PFTask";
   if (GenBenchmarkMap_.size()==0)
   {
     //gDirectory->pwd();
@@ -167,7 +167,7 @@ void METManager::addGenBenchmark(std::string GenBenchmarkName)
   //std::cout << "FL : path.c_str() = " << path.c_str() << std::endl;
   gDirectory->cd(path.c_str());
   //gDirectory->pwd();
-  //const string path = outmetfilename_+":/PFTask/Benchmarks/"+GenBenchmarkName; //+ "/";
+  //const std::string path = outmetfilename_+":/PFTask/Benchmarks/"+GenBenchmarkName; //+ "/";
   //std::cout << "path.c_str() = " << path.c_str() << std::endl;
   //void setup(DQMStore *, bool PlotAgainstReco, minDeltaEt,
   //           float maxDeltaEt, float minDeltaPhi, float maxDeltaPhi);

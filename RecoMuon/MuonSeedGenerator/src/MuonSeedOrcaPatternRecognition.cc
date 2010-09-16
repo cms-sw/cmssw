@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2010/05/28 01:42:22 $
- *  $Revision: 1.20 $
+ *  $Date: 2010/06/11 18:27:06 $
+ *  $Revision: 1.21 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -520,20 +520,28 @@ double MuonSeedOrcaPatternRecognition::discriminator(const ConstMuonRecHitPointe
     return fabs(deltaPhi(gd1.phi(), gd2.phi()));
   }
 
-  float dphig = deltaPhi(gp1.phi(), gp2.phi());
-  float dthetag = gp1.theta()-gp2.theta();
-  float dphid2 = deltaPhi(gd2.phi(), gp2.phi());
-  float dthetad2 = gp2.theta()-gd2.theta();
-  // for CSC, make a big chi-squared of relevant variables
-  float chisq =  ((dphig/0.02)*(dphig/0.02) 
-                + (dthetag/0.003)*(dthetag/0.003)
-                + (dphid2/0.06)*(dphid2/0.06) 
-                + (dthetad2/0.08)*(dthetad2/0.08)
-                );
   // penalize those 3-hit segments
   int nhits = other->recHits().size();
-  // better never be zero
-  return chisq / std::max(nhits-2, 1);
+  int penalty = std::max(nhits-2, 1);
+  float dphig = deltaPhi(gp1.phi(), gp2.phi());
+  // ME1A has slanted wires, so matching theta position doesn't work well.
+  if(isME1A(first) || isME1A(other)) {
+    return fabs(dphig/penalty);
+  }
+
+  float dthetag = gp1.theta()-gp2.theta();
+  float dphid2 = fabs(deltaPhi(gd2.phi(), gp2.phi()));
+  if (dphid2 > M_PI*.5) dphid2 = M_PI - dphid2;  //+v
+  float dthetad2 = gp2.theta()-gd2.theta();
+  // for CSC, make a big chi-squared of relevant variables
+  // FIXME for 100 GeV mnd above muons, this doesn't perform as well as
+  // previous methods.  needs investigation.
+  float chisq =  ((dphig/0.02)*(dphig/0.02)
+                + (dthetag/0.003)*(dthetag/0.003)
+                + (dphid2/0.06)*(dphid2/0.06)
+                + (dthetad2/0.08)*(dthetad2/0.08)
+                );
+  return chisq / penalty;
 }
 
 

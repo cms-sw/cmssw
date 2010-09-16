@@ -6,8 +6,8 @@
  *  Build a TrackingRegion around a standalone muon
  *
  *
- *  $Date: 2009/04/20 17:07:10 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/02/20 21:01:06 $
+ *  $Revision: 1.10 $
  *
  *  \author A. Everett - Purdue University
  *  \author A. Grelli -  Purdue University, Pavia University 
@@ -77,5 +77,6 @@ class MuonTrackingRegionBuilder {
     GlobalPoint theVertexPos;
 
     double theOnDemand;
+    std::string theMeasurementTrackerName;
 };
 #endif

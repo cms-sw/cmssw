@@ -19,7 +19,7 @@ FinalTreeBuilder::~FinalTreeBuilder()
 }
 
 RefCountedKinematicTree FinalTreeBuilder::buildTree(const CachingVertex<6>& vtx,
-                             vector<RefCountedKinematicParticle> input) const
+                             std::vector<RefCountedKinematicParticle> input) const
 {
 //creating resulting kinematic particle
  AlgebraicVector7 par;
@@ -31,9 +31,9 @@ RefCountedKinematicTree FinalTreeBuilder::buildTree(const CachingVertex<6>& vtx,
  int ch = 0;
 
 //new particle momentum calculation and refitted kinematic states
- vector<KinematicRefittedTrackState *> rStates;
- vector<RefCountedVertexTrack> refTracks = vtx.tracks();
- for(vector<RefCountedVertexTrack>::const_iterator i = refTracks.begin();i !=refTracks.end();++i)
+ std::vector<KinematicRefittedTrackState *> rStates;
+ std::vector<RefCountedVertexTrack> refTracks = vtx.tracks();
+ for(std::vector<RefCountedVertexTrack>::const_iterator i = refTracks.begin();i !=refTracks.end();++i)
  {
   KinematicRefittedTrackState * rs = dynamic_cast<KinematicRefittedTrackState *>(&(*((*i)->refittedState())));
   AlgebraicVector4 f_mom = rs->kinematicMomentumVector();
@@ -101,10 +101,10 @@ RefCountedKinematicTree FinalTreeBuilder::buildTree(const CachingVertex<6>& vtx,
  resTree->addParticle(pVrt,dVrt,nPart);
 
 //making refitted kinematic particles and putting them to the tree
- vector<RefCountedKinematicParticle> rrP;
+ std::vector<RefCountedKinematicParticle> rrP;
 
- vector<RefCountedKinematicParticle>::const_iterator j;
- vector<RefCountedVertexTrack>::const_iterator i;
+ std::vector<RefCountedKinematicParticle>::const_iterator j;
+ std::vector<RefCountedVertexTrack>::const_iterator i;
  for(j=input.begin(), i=refTracks.begin(); j !=input.end(), i !=refTracks.end();++j, ++i)
  {
   RefCountedLinearizedTrackState lT = (*i)->linearizedTrack();
@@ -143,7 +143,7 @@ RefCountedKinematicTree FinalTreeBuilder::buildTree(const CachingVertex<6>& vtx,
 AlgebraicMatrix FinalTreeBuilder::momentumPart(const CachingVertex<6>& vtx,
 	const AlgebraicVector7& par) const
 {
- vector<RefCountedVertexTrack> refTracks  = vtx.tracks();
+ std::vector<RefCountedVertexTrack> refTracks  = vtx.tracks();
  int size = refTracks.size();
  AlgebraicMatrix cov(7+4*(size-1),7+4*(size-1));
  AlgebraicMatrix jac(7,7+4*(size-1));
@@ -153,8 +153,8 @@ AlgebraicMatrix FinalTreeBuilder::momentumPart(const CachingVertex<6>& vtx,
 
  double energy_total = sqrt(par(3)*par(3)+par(6)*par(6) + par(5)*par(5)+par(4)*par(4));
 
- vector<KinematicRefittedTrackState *>::const_iterator rs;
- vector<RefCountedVertexTrack>::const_iterator rt_i;
+ std::vector<KinematicRefittedTrackState *>::const_iterator rs;
+ std::vector<RefCountedVertexTrack>::const_iterator rt_i;
  int i_int = 0;
  for(rt_i = refTracks.begin(); rt_i != refTracks.end(); rt_i++)
  {
@@ -226,7 +226,7 @@ AlgebraicMatrix FinalTreeBuilder::momentumPart(const CachingVertex<6>& vtx,
 // track momentum - track momentum
   }
    int j_int = 0;
-   for(vector<RefCountedVertexTrack>::const_iterator rt_j = refTracks.begin(); rt_j != refTracks.end(); rt_j++)
+   for(std::vector<RefCountedVertexTrack>::const_iterator rt_j = refTracks.begin(); rt_j != refTracks.end(); rt_j++)
    {
     if(i_int < j_int)
     {

@@ -6,8 +6,8 @@
  *  
  *  This class is an EDAnalyzer analyzing the combined HLT information for RAW
  *
- *  $Date: 2009/04/17 17:12:52 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/02/19 14:26:53 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -31,7 +31,7 @@ class HLTEventAnalyzerRAW : public edm::EDAnalyzer {
 
   virtual void beginRun(edm::Run const &, edm::EventSetup const&);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void analyzeTrigger(const edm::Event&, const std::string& triggerName);
+  virtual void analyzeTrigger(const edm::Event&, const edm::EventSetup&, const std::string& triggerName);
 
  private:
 

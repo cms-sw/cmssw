@@ -14,20 +14,18 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
   nPrintStatusEvery = 10000;
   isRealData= false;
   menuTag = "";
-  alcaCondition = "";
   preFilterLogicString = "";
   versionTag = "";
   doPrintAll = true;
   doDeterministicPrescale = false;
+  useNonIntegerPrescales = false;
+  readRefPrescalesFromNtuple = false;
   dsList = "";
   iLumi = 1.E31;
   bunchCrossingTime = 25.0E-09;
   maxFilledBunches = 3564;
   nFilledBunches = 156;
   cmsEnergy = 10.;
-  liveTimeRun = 100.;
-  nL1AcceptsRun = 100;
-  // lumiSectionLength = 93.;
   lumiSectionLength = 23.3;
   lumiScaleFactor = 1.0;
   prescaleNormalization = 1;
@@ -58,10 +56,11 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
     omenu->SetIsRealData(isRealData);     
     cfg.lookupValue("run.menuTag",stmp); menuTag = TString(stmp);
     cfg.lookupValue("run.versionTag",stmp); versionTag = TString(stmp);
-    cfg.lookupValue("run.alcaCondition",stmp); alcaCondition = TString(stmp);
     cfg.lookupValue("run.doPrintAll",doPrintAll);
     cfg.lookupValue("run.dsList",stmp); dsList= TString(stmp);
     cfg.lookupValue("run.doDeterministicPrescale",doDeterministicPrescale);
+    cfg.lookupValue("run.useNonIntegerPrescales",useNonIntegerPrescales);
+    cfg.lookupValue("run.readRefPrescalesFromNtuple",readRefPrescalesFromNtuple);
     cout << "General Menu & Run conditions...ok"<< endl;
     /**********************************/
   
@@ -75,8 +74,6 @@ OHltConfig::OHltConfig(TString cfgfile,OHltMenu *omenu)
     /**********************************/
 
     /**** Real data conditions ****/   
-    cfg.lookupValue("data.liveTimeRun",liveTimeRun);
-    cfg.lookupValue("data.nL1AcceptsRun",nL1AcceptsRun); 
     cfg.lookupValue("data.lumiSectionLength",lumiSectionLength);
     cfg.lookupValue("data.lumiScaleFactor",lumiScaleFactor);
     cfg.lookupValue("data.prescaleNormalization",prescaleNormalization);
@@ -212,7 +209,7 @@ void OHltConfig::fillRunBlockList()
 void OHltConfig::fillMenu(OHltMenu *omenu)
 {
   // temporary vars
-  const char* stmp; float ftmp; int itmp; int refprescaletmp; //bool btmp; 
+  const char* stmp; float ftmp; float itmpfloat; int itmp; int refprescaletmp; //bool btmp; 
   const char* seedstmp;
   /**** Menu ****/ 
   cfg.lookupValue("menu.isL1Menu",isL1Menu); 
@@ -231,14 +228,21 @@ void OHltConfig::fillMenu(OHltMenu *omenu)
     if (isL1Menu){
       TString ss1 = "menu.triggers.["; ss1 +=i; ss1=ss1+"].[1]";
       Setting &tt1 = cfg.lookup(ss1.Data());
-      itmp = tt1;
+      if(useNonIntegerPrescales == true)
+	itmpfloat = tt1;
+      else
+	itmp = tt1;
       //cout << itmp << endl;
       TString ss2 = "menu.triggers.["; ss2 +=i; ss2=ss2+"].[2]";
       Setting &tt2 = cfg.lookup(ss2.Data());
       ftmp = tt2;
       //cout << ftmp << endl;
 
-      omenu->AddTrigger(stmp,itmp,ftmp);
+      if(useNonIntegerPrescales == true) 
+	omenu->AddTrigger(stmp,itmpfloat,ftmp); 
+      else
+	omenu->AddTrigger(stmp,itmp,ftmp);
+
       omenu->AddL1forPreLoop(stmp,itmp);
     } else {
 
@@ -249,7 +253,11 @@ void OHltConfig::fillMenu(OHltMenu *omenu)
 
       TString ss1 = "menu.triggers.["; ss1 +=i; ss1=ss1+"].[2]";
       Setting &tt1 = cfg.lookup(ss1.Data());
-      itmp = tt1;
+      if(useNonIntegerPrescales == true)  
+	itmpfloat = tt1;
+      else
+	itmp = tt1;
+
       //cout << "Prescale: "<< itmp << endl;
       TString ss2 = "menu.triggers.["; ss2 +=i; ss2=ss2+"].[3]";
       Setting &tt2 = cfg.lookup(ss2.Data());
@@ -269,7 +277,10 @@ void OHltConfig::fillMenu(OHltMenu *omenu)
           refprescaletmp = 1; 
         } 
 
-      omenu->AddTrigger(stmp,seedstmp,itmp,ftmp,refprescaletmp);
+      if(useNonIntegerPrescales == true)  
+	omenu->AddTrigger(stmp,seedstmp,itmpfloat,ftmp,refprescaletmp); 
+      else
+	omenu->AddTrigger(stmp,seedstmp,itmp,ftmp,refprescaletmp);
     }
   }
 
@@ -285,11 +296,17 @@ void OHltConfig::fillMenu(OHltMenu *omenu)
       if (doL1preloop) {
 	TString ss1 = "menu.L1triggers.["; ss1 +=i; ss1=ss1+"].[1]";
 	Setting &tt1 = cfg.lookup(ss1.Data());
-	itmp = tt1;
+	if(useNonIntegerPrescales == true)   
+	  itmpfloat = tt1;
+	else
+	  itmp = tt1;
       } else {
 	itmp = 1;
       }
-      omenu->AddL1forPreLoop(stmp,itmp);
+      if(useNonIntegerPrescales == true)   
+	omenu->AddL1forPreLoop(stmp,itmpfloat); 
+      else
+	omenu->AddL1forPreLoop(stmp,itmp);
     }
   }
   /**********************************/
@@ -307,16 +324,15 @@ void OHltConfig::print()
   cout << "isRealData: " << isRealData << endl;
   if(isRealData == true)
     {
-      cout << "nL1AcceptsRun: " << nL1AcceptsRun << endl;
-      cout << "liveTimeRun: " << liveTimeRun << endl;
       cout << "Time of one LumiSection: " << lumiSectionLength << endl;
       if (fabs(lumiScaleFactor-1.) > 0.001)
 	cout << "Luminosity scaled by: " << lumiScaleFactor << endl;
       cout << "PD prescale factor: " << prescaleNormalization << endl;
     }
-  cout << "alcaCondition: " << alcaCondition << endl;
   cout << "doPrintAll: " << doPrintAll << endl;
   cout << "doDeterministicPrescale: " << doDeterministicPrescale << endl;
+  cout << "useNonIntegerPrescales: " << useNonIntegerPrescales << endl;
+  cout << "readRefPrescalesFromNtuple: " << readRefPrescalesFromNtuple << endl;
   cout << "preFilterLogicString: " << preFilterLogicString << endl;
   cout << "---------------------------------------------" <<  endl;
   cout << "iLumi: " << iLumi << endl;

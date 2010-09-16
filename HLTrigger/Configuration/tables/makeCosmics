@@ -4,7 +4,7 @@
 #
 
 MASTER="/dev/CMSSW_3_6_2/HLT"                       # no version, take the latest one
-TARGET="/online/cosmics/2010/week28/HLT"            # where to store the online-compliant menu
+TARGET="/online/cosmics/2010/week30/HLT"            # where to store the online-compliant menu
 
 # hltdev
 DBHOST="cmsr1-v.cern.ch"

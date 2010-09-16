@@ -17,13 +17,13 @@ process.MessageLogger.cerr.KinFitter = cms.untracked.PSet(
 ## define input
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_3_6_0/RelValTTbar/GEN-SIM-RECO/START36_V4-v1/0014/EEA7EEC1-FC49-DF11-9E91-003048678D9A.root'
+    '/store/relval/CMSSW_3_8_2/RelValTTbar/GEN-SIM-RECO/MC_38Y_V9-v1/0018/E8B5D618-96AF-DF11-835A-003048679070.root'
     ),
      skipEvents = cms.untracked.uint32(0)                            
 )
 ## define maximal number of events to loop over
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(50)
 )
 ## configure process options
 process.options = cms.untracked.PSet(
@@ -34,22 +34,10 @@ process.options = cms.untracked.PSet(
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('START36_V4::All')
+process.GlobalTag.globaltag = cms.string('START38_V7::All')
 
 ## std sequence for pat
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
-
-#from PhysicsTools.PatAlgos.tools.cmsswVersionTools import *
-
-# run the 3.3.x software on Summer 09 MC from 3.1.x:
-#   - change the name from "ak" (3.3.x) to "antikt) (3.1.x)
-#   - run jet ID (not run in 3.1.x)
-#run33xOn31xMC( process,
-#               jetSrc = cms.InputTag("antikt5CaloJets"),
-#               jetIdTag = "antikt5"
-#               )
-
-#restrictInputToAOD31X( process )
 
 ## do event filtering on generator level
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")

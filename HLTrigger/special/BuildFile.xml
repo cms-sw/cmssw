@@ -31,7 +31,9 @@
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/CaloTopology"/>
 <use   name="Geometry/EcalMapping"/>
+<use   name="Geometry/DTGeometry"/>
 <use   name="Geometry/Records"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="HLTrigger/HLTcore"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="RecoEcal/EgammaClusterAlgos"/>

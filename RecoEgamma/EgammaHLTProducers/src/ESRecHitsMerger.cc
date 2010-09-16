@@ -49,7 +49,7 @@ void ESRecHitsMerger::endJob(){
 
 void ESRecHitsMerger::produce(edm::Event & e, const edm::EventSetup& iSetup){
 
- if (debug_) cout << " ESRecHitMerger : Run " << e.id().run() << " Event " << e.id().event() << endl;
+ if (debug_) std::cout << " ESRecHitMerger : Run " << e.id().run() << " Event " << e.id().event() << std::endl;
 
 
  std::vector< edm::Handle<ESRecHitCollection> > EcalRecHits_done;
@@ -90,7 +90,7 @@ void ESRecHitsMerger::produce(edm::Event & e, const edm::EventSetup& iSetup){
  
  ESMergedRecHits -> reserve(nES);
  
- if (debug_) cout << " Number of ES Rechits to merge  = " << nES << endl;
+ if (debug_) std::cout << " Number of ES Rechits to merge  = " << nES << std::endl;
  
  for (unsigned int i=0; i < nColl; i++) {
    std::string instance = EcalRecHits_done[i].provenance()->productInstanceName(); 
@@ -113,9 +113,9 @@ void ESRecHitsMerger::produce(edm::Event & e, const edm::EventSetup& iSetup){
  }
  
  
- // cout << " avant le put " << endl;
+ // std::cout << " avant le put " << std::endl;
  e.put(ESMergedRecHits,OutputLabelES_);
- // cout << " apres le put " << endl;
+ // std::cout << " apres le put " << std::endl;
 
 }
 

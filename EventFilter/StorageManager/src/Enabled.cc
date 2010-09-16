@@ -1,4 +1,4 @@
-// $Id: Enabled.cc,v 1.8 2009/08/28 16:41:26 mommsen Exp $
+// $Id: Enabled.cc,v 1.9 2009/09/29 07:57:56 mommsen Exp $
 /// @file: Enabled.cc
 
 #include "EventFilter/StorageManager/interface/EventDistributor.h"
@@ -55,7 +55,7 @@ void Enabled::do_exitActionWork()
 
 string Enabled::do_stateName() const
 {
-  return string( "Enabled" );
+  return std::string( "Enabled" );
 }
 
 void Enabled::do_moveToFailedState( xcept::Exception& exception ) const

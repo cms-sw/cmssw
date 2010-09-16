@@ -93,7 +93,16 @@ class WorkFlowRunner(Thread):
                     lf = open(wfDir+'/step1_'+self.wf.nameId+'-dbsquery.log', 'r')
                     lines = lf.readlines()
                     lf.close()
-                    inFile = lines[0].strip()
+                    if not lines:
+                        inFile = "NoFileFoundInDBS"
+                        retStep1 = -95
+                    else:
+                        try:
+                            inFile = lines[0].strip()
+                        except Exception, e:
+                            print "ERROR determining file from DBS query: ", str(e)
+                            inFile = "NoFileFoundInDBS"
+                            retStep1 = -90
             else:
                 print "ERROR: found REALDATA in '"+self.wf.cmdStep1+"' but not RE match !!??!"
                 retStep1 = -99
@@ -572,18 +581,27 @@ class MatrixRunner(object):
         npass4 = 0
     	for pingle in self.threadList:
     	    pingle.join()
-            nfail1 += pingle.nfail[0]
-            nfail2 += pingle.nfail[1]
-            nfail3 += pingle.nfail[2]
-            nfail4 += pingle.nfail[3]
-    	    npass1 += pingle.npass[0]
-    	    npass2 += pingle.npass[1]
-    	    npass3 += pingle.npass[2]
-    	    npass4 += pingle.npass[3]
-    	    npass  += npass1+npass2+npass3+npass4
-    	    report += pingle.report
-    	    # print pingle.report
-    	    
+            try:
+                nfail1 += pingle.nfail[0]
+                nfail2 += pingle.nfail[1]
+                nfail3 += pingle.nfail[2]
+                nfail4 += pingle.nfail[3]
+                npass1 += pingle.npass[0]
+                npass2 += pingle.npass[1]
+                npass3 += pingle.npass[2]
+                npass4 += pingle.npass[3]
+                npass  += npass1+npass2+npass3+npass4
+                report += pingle.report
+                # print pingle.report
+            except Exception, e:
+                msg = "ERROR retrieving info from thread: " + str(e)
+                nfail1 += 1
+                nfail2 += 1
+                nfail3 += 1
+                nfail4 += 1
+                report += msg
+                print msg
+                
     	report+='\n %s %s %s %s tests passed, %s %s %s %s failed\n' %(npass1, npass2, npass3, npass4, nfail1, nfail2, nfail3, nfail4)
     	print report
     	

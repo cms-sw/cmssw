@@ -13,7 +13,7 @@
 //
 // Original Author:  Benedikt Hegner 
 //         Created:  Tue Mar 09 01:32:51 CET 2010
-// $Id: JetCorrectorDBReader.cc,v 1.1 2010/03/15 08:28:21 kkousour Exp $
+// $Id: JetCorrectorDBReader.cc,v 1.3 2010/03/17 15:19:21 kkousour Exp $
 //
 //
 
@@ -66,15 +66,23 @@ JetCorrectorDBReader::~JetCorrectorDBReader()
 
 void JetCorrectorDBReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  edm::ESHandle<JetCorrectorParameters> JetCorParams;
+  edm::ESHandle<JetCorrectorParametersCollection> JetCorParamsColl;
   std::cout <<"Inspecting jet correction parameters with label: "<< mLabel <<std::endl;
-  iSetup.get<JetCorrectionsRecord>().get(mLabel,JetCorParams);
-  if (mCreateTextFile)
-    {
-      std::cout<<"Creating txt file: "<<mLabel+".txt"<<std::endl;
-      JetCorParams->printFile(mLabel+".txt");
-    }
-  JetCorParams->printScreen();
+  iSetup.get<JetCorrectionsRecord>().get(mLabel,JetCorParamsColl);
+
+  std::vector<JetCorrectorParametersCollection::key_type> keys;
+  JetCorParamsColl->validKeys( keys );
+  for ( std::vector<JetCorrectorParametersCollection::key_type>::const_iterator ibegin = keys.begin(),
+	  iend = keys.end(), ikey = ibegin; ikey != iend; ++ikey ) {
+    JetCorrectorParameters const & JetCorParams = 
+      (*JetCorParamsColl)[*ikey];
+    if (mCreateTextFile)
+      {
+	std::cout<<"Creating txt file: "<<mLabel+".txt"<<std::endl;
+	JetCorParams.printFile(mLabel+".txt");
+      }
+    JetCorParams.printScreen();
+  }
 }
 
 void 

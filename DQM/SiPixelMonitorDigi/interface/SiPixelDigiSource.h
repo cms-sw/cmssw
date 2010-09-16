@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.h,v 1.16 2010/01/11 16:17:02 merkelp Exp $
+// $Id: SiPixelDigiSource.h,v 1.20 2010/08/05 11:43:41 duggan Exp $
 //
 
 #include <memory>
@@ -84,13 +84,25 @@
        std::map<uint32_t,SiPixelDigiModule*> thePixelStructure;
 
        int nBigEvents;
+       int nBPIXDigis;
+       int nFPIXDigis;
        MonitorElement* bigEventRate;
        MonitorElement* pixEvtsPerBX;
        MonitorElement* pixEventRate;
+       MonitorElement* averageDigiOccupancy;
+       MonitorElement* avgfedDigiOccvsLumi;
+       MonitorElement* meNDigisCOMBBarrel_;
+       MonitorElement* meNDigisCOMBEndcap_;
+       
        int bigEventSize;
        
        bool firstRun;
-    
+       
+       std::string I_name[1440];
+       unsigned int I_detId[1440];
+       int I_fedId[1440];
+       int I_linkId[1440];
+       int nDigisPerFed[40];
  };
 
 #endif

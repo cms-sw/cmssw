@@ -37,7 +37,7 @@
 
 #include "RecoVertex/ConfigurableVertexReco/interface/ConfigurableVertexReconstructor.h"
 
-//#define VTXDEBUG
+
 
 class TrackVertexArbitrator : public edm::EDProducer {
     public:
@@ -77,8 +77,6 @@ bool TrackVertexArbitrator::trackFilter(const reco::TrackRef &track) const
         if (track->hitPattern().trackerLayersWithMeasurement() < 4)
                 return false;
         if (track->pt() < 0.4 )
-                return false;
-        if (track->hitPattern().numberOfValidPixelHits() < 1)
                 return false;
 
         return true;
@@ -151,62 +149,30 @@ for(std::vector<reco::Vertex>::const_iterator sv = secondaryVertices->begin();
                 tt.setBeamSpot(*beamSpot);
 	        float w = sv->trackWeight(ref);
                 std::pair<bool,Measurement1D> ipv = IPTools::absoluteImpactParameter3D(tt,pv);
-                std::pair<bool,Measurement1D> itpv = IPTools::absoluteTransverseImpactParameter(tt,pv);
                 std::pair<bool,Measurement1D> isv = IPTools::absoluteImpactParameter3D(tt,*sv);
-		  float dR = deltaR(flightDir.eta(), flightDir.phi(), tt.track().eta(), tt.track().phi());
-
                 if( w > 0 || ( isv.second.significance() < sigCut && isv.second.value() < distCut && isv.second.value() < dlen.value()*dLenFraction ) )
                 {
+		  float dR = deltaR(flightDir.eta(), flightDir.phi(), tt.track().eta(), tt.track().phi());
 
-                  if(( isv.second.value() < ipv.second.value()  ) && isv.second.value() < distCut && isv.second.value() < dlen.value()*dLenFraction 
-                  && dR < dRCut  ) 
+                  if(isv.second.value() < ipv.second.value() && isv.second.value() < distCut && isv.second.value() < dlen.value()*dLenFraction 
+                  && dR < dRCut ) 
                   {
-#ifdef VTXDEBUG
-                     if(w > 0.5) std::cout << " = ";
-                    else std::cout << " + ";
-#endif 
+//                     if(w > 0.5) std::cout << " = ";
+  //                   else std::cout << " + ";
                      selTracks.push_back(tt);
                   } else
                   {
-#ifdef VTXDEBUG
-                     if(w > 0.5 && isv.second.value() > ipv.second.value() ) std::cout << " - ";
-                  else std::cout << "   ";
-#endif
+//                     if(w > 0.5 && isv.second.value() > ipv.second.value() ) std::cout << " - ";
+  //                   else std::cout << "   ";
                      //add also the tracks used in previous fitting that are still closer to Sv than Pv 
-                     if(w > 0.5 && isv.second.value() <= ipv.second.value() && dR < dRCut) {  
-                       selTracks.push_back(tt);
-#ifdef VTXDEBUG
-                       std::cout << " = ";
-#endif
-                     }
-                     if(w > 0.5 && isv.second.value() <= ipv.second.value() && dR >= dRCut) {
-#ifdef VTXDEBUG
-                       std::cout << " - ";
-#endif
-
-                     }
-
-                    
+                     if(w > 0.5 && isv.second.value() < ipv.second.value() && dR < dRCut) selTracks.push_back(tt);
                   }
-#ifdef VTXDEBUG
 
-                  std::cout << "t : " << track-tracks->begin() <<  " w: " << w 
-                  << " svip: " << isv.second.significance() << " " << isv.second.value()  
-                  << " pvip: " << ipv.second.significance() << " " << ipv.second.value()  << " res " << track->residualX(0)   << "," << track->residualY(0) 
-                  << " tpvip: " << itpv.second.significance() << " " << itpv.second.value()  << " dr: "   << dR << std::endl;
-#endif
+    //              std::cout << "t : " << track-tracks->begin() <<  " w: " << w 
+      //            << " svip: " << isv.second.significance() << " " << isv.second.value()  
+        //          << " pvip: " << ipv.second.significance() << " " << ipv.second.value()  << " dr: "   << dR << std::endl;
  
                 }
-               else
-                 {
-#ifdef VTXDEBUG
-
-                  std::cout << " . t : " << track-tracks->begin() <<  " w: " << w 
-                  << " svip: " << isv.second.significance() << " " << isv.second.value()  
-                  << " pvip: " << ipv.second.significance() << " " << ipv.second.value()  << " dr: "   << dR << std::endl;
-#endif
-
-                 }
            }      
 
            if(selTracks.size() >= 2)

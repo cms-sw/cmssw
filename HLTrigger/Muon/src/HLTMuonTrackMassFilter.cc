@@ -42,7 +42,8 @@ HLTMuonTrackMassFilter::HLTMuonTrackMassFilter(const edm::ParameterSet& iConfig)
   maxTrackDz_(iConfig.getParameter<double>("MaxTrackDz")),
   minTrackHits_(iConfig.getParameter<int>("MinTrackHits")),
   maxTrackNormChi2_(iConfig.getParameter<double>("MaxTrackNormChi2")),
-  maxDzMuonTrack_(iConfig.getParameter<double>("MaxDzMuonTrack"))
+  maxDzMuonTrack_(iConfig.getParameter<double>("MaxDzMuonTrack")),
+  cutCowboys_(iConfig.getParameter<bool>("CutCowboys"))
 {
   //register your products
   produces<trigger::TriggerFilterObjectWithRefs>();
@@ -188,6 +189,7 @@ HLTMuonTrackMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   //
   unsigned int nDz(0);
   unsigned int nQ(0);
+  unsigned int nCowboy(0);
   unsigned int nComb(0);
   reco::Particle::LorentzVector p4Muon;
   reco::Particle::LorentzVector p4JPsi;
@@ -207,6 +209,11 @@ HLTMuonTrackMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
       ++nDz;
       if ( checkCharge_ && track.charge()!=-qMuon )  continue;
       ++nQ;
+
+      // if cutting on cowboys reject muons that bend towards each other
+      if(cutCowboys_ && (qMuon*deltaPhi(p4Muon.phi(), track.phi()) > 0.)) continue;
+      ++nCowboy;
+
       if ( checkPrevTracks ) {
 	if ( !pairMatched(prevMuonRefs,prevTrackRefs,
 			  selectedMuonRefs[im],
@@ -231,7 +238,7 @@ HLTMuonTrackMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
     std::ostringstream stream;
     stream << "Total number of combinations = " 
 	   << selectedMuonRefs.size()*selectedTrackRefs.size() << " , after dz " << nDz
-	   << " , after charge " << nQ << " , after mass " << nComb << std::endl;
+	   << " , after charge " << nQ << " , after cutCowboy " << nCowboy << " , after mass " << nComb << std::endl;
     stream << "Found " << nComb << " jpsi candidates with # / mass / q / pt / eta" << std::endl;
     std::vector<reco::RecoChargedCandidateRef> muRefs;
     std::vector<reco::RecoChargedCandidateRef> tkRefs;

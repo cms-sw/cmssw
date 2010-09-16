@@ -3,13 +3,14 @@
 
 #include <vector>
 
-#include "TMath.h"
-#include "TMatrixD.h"
 #include "TLorentzVector.h"
 
-#include "PhysicsTools/KinFitter/interface/TKinFitter.h"
-
 #include "AnalysisDataFormats/TopObjects/interface/TtHadEvtSolution.h"
+
+#include "TopQuarkAnalysis/TopKinFitter/interface/CovarianceMatrix.h"
+#include "TopQuarkAnalysis/TopKinFitter/interface/TopKinFitter.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class TAbsFitParticle;
 class TFitConstraintM;
@@ -23,13 +24,11 @@ class TFitConstraintM;
   
 **/
 
-class TtFullHadKinFitter {
+class TtFullHadKinFitter : public TopKinFitter {
 
  public:
   /// supported constraints
   enum Constraint{ kWPlusMass=1, kWMinusMass, kTopMass, kTopBarMass, kEqualTopMasses };
-  /// supported parameterizations
-  enum Param{ kEMom, kEtEtaPhi, kEtThetaPhi };
   
  public:
   /// default constructor
@@ -47,6 +46,7 @@ class TtFullHadKinFitter {
 
   /// kinematic fit interface
   int fit(const std::vector<pat::Jet>& jets);
+  int fit(const std::vector<pat::Jet>& jets, const std::vector<edm::ParameterSet> udscResolutions, const std::vector<edm::ParameterSet> bResolutions);
   /// return fitted b quark candidate
   const pat::Particle fittedB() const { return (fitter_->getStatus()==0 ? fittedB_ : pat::Particle()); };
   /// return fitted b quark candidate
@@ -59,12 +59,6 @@ class TtFullHadKinFitter {
   const pat::Particle fittedLightP() const { return (fitter_->getStatus()==0 ? fittedLightP_ : pat::Particle()); };
   /// return fitted light quark candidate
   const pat::Particle fittedLightPBar() const { return (fitter_->getStatus()==0 ? fittedLightPBar_ : pat::Particle()); };
-  /// return chi2 of fit (not normalized to degrees of freedom)
-  double fitS()  const { return fitter_->getS(); };
-  /// return number of used iterations
-  int fitNrIter() const { return fitter_->getNbIter(); };
-  /// return fit probability
-  double fitProb() const { return TMath::Prob(fitter_->getS(), fitter_->getNDF()); };
   /// add kin fit information to the old event solution (in for legacy reasons)
   TtHadEvtSolution addKinFitInfo(TtHadEvtSolution * asol);
   
@@ -77,12 +71,8 @@ class TtFullHadKinFitter {
   void setupJets();
   /// initialize constraints
   void setupConstraints();
-  /// convert Param to human readable form
-  std::string param(const Param& param) const;
 
  private:
-  /// the kinematic fitter
-  TKinFitter* fitter_;
   /// input particles
   TAbsFitParticle* b_;
   TAbsFitParticle* bBar_;
@@ -101,32 +91,11 @@ class TtFullHadKinFitter {
   pat::Particle fittedLightPBar_;
   /// jet parametrization
   Param jetParam_;
-  /// maximal allowed number of iterations to be used for the fit
-  int maxNrIter_;
-  /// maximal allowed chi2 (not normalized to degrees of freedom)
-  double maxDeltaS_;
-  /// maximal allowed distance from constraints
-  double maxF_;
   /// vector of constraints to be used
   std::vector<Constraint> constraints_;
-  /// W mass value used for constraints
-  double mW_;
-  /// top mass value used for constraints
-  double mTop_;
+
+  /// get object resolutions and put them into a matrix
+  CovarianceMatrix * covM;
 };
 
-/// convert Param to human readable form
-inline std::string 
-TtFullHadKinFitter::param(const Param& param) const
-{
-  std::string parName;
-  switch(param){
-  case kEMom       : parName="EMom";       break;
-  case kEtEtaPhi   : parName="EtEtaPhi";   break;
-  case kEtThetaPhi : parName="EtThetaPhi"; break;    
-  }
-  return parName;
-}  
-
 #endif
-

@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2010/04/14 15:13:26 $
- * $Revision: 1.37 $
+ * $Date: 2010/08/08 08:46:02 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  *
 */
@@ -18,16 +18,15 @@
 
 #ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
+#include "DQM/EcalCommon/interface/LogicID.h"
 #endif
 
-#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
+#include "DQM/EcalCommon/interface/Masks.h"
 
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
-#include "DQM/EcalCommon/interface/LogicID.h"
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalBarrelMonitorClient/interface/EBStatusFlagsClient.h>
+#include "DQM/EcalBarrelMonitorClient/interface/EBStatusFlagsClient.h"
 
 EBStatusFlagsClient::EBStatusFlagsClient(const edm::ParameterSet& ps) {
 
@@ -180,8 +179,8 @@ void EBStatusFlagsClient::analyze(void) {
     if ( debug_ ) std::cout << "EBStatusFlagsClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
-  uint64_t bits01 = 0;
-  bits01 |= EcalErrorDictionary::getMask("STATUS_FLAG_ERROR");
+  uint32_t bits01 = 0;
+  bits01 |= 1 << EcalDQMStatusHelper::STATUS_FLAG_ERROR;
 
   char histo[200];
 
@@ -204,41 +203,26 @@ void EBStatusFlagsClient::analyze(void) {
     sprintf(histo, (prefixME_ + "/EBStatusFlagsTask/FEStatus/EBSFT MEM front-end status %s").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
-    meh03_[ism-1] = me;    
+    meh03_[ism-1] = me;
 
-  }
-
-#ifdef WITH_ECAL_COND_DB
-  if ( EcalErrorMask::mapTTErrors_.size() != 0 ) {
-    map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
-    for (m = EcalErrorMask::mapTTErrors_.begin(); m != EcalErrorMask::mapTTErrors_.end(); m++) {
-
-      if ( (m->second).getErrorBits() & bits01 ) {
-        EcalLogicID ecid = m->first;
-
-        if ( strcmp(ecid.getMapsTo().c_str(), "EB_trigger_tower") != 0 ) continue;
-
-        int ism = Numbers::iSM(ecid.getID1(), EcalBarrel);
-        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
-        if (iter == superModules_.end()) continue;
-
-        int itt = ecid.getID2();
-        int iet = (itt-1)/4 + 1;
-        int ipt = (itt-1)%4 + 1;
-
-        if ( itt > 70 ) continue;
-
-        if ( itt >= 1 && itt <= 68 ) {
+    for ( int ie = 1; ie <= 85; ie++ ) {
+      for ( int ip = 1; ip <= 20; ip++ ) {
+        if ( Masks::maskChannel(ism, ie, ip, bits01, EcalBarrel) ) {
+          int iet = (ie-1)/5 + 1;
+          int ipt = (ip-1)/5 + 1;
           if ( meh01_[ism-1] ) meh01_[ism-1]->setBinError( iet, ipt, 0.01 );
-        } else if ( itt == 69 || itt == 70 ) {
-          if ( meh03_[ism-1] ) meh03_[ism-1]->setBinError( itt-68, 1, 0.01 );
         }
-
       }
-
     }
+
+    for ( int i = 1; i <= 10; i++ ) {
+      if ( Masks::maskPn(ism, i, bits01, EcalBarrel) ) {
+        int it = (i-1)/5 + 1;
+        if ( meh03_[ism-1] ) meh03_[ism-1]->setBinError( it, 1, 0.01 );
+      }
+    }
+
   }
-#endif
 
 }
 

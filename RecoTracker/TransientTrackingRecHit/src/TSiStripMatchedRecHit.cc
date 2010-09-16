@@ -55,7 +55,7 @@ TSiStripMatchedRecHit::clone( const TrajectoryStateOnSurface& ts) const
 	const SiStripCluster& stereoclust = *orig->stereoHit()->cluster();
 
 	StripClusterParameterEstimator::LocalValues lvMono = 
-	  theCPE->localParameters( monoclust, *gdet->monoDet(), ts);
+	  theCPE->localParameters( monoclust, *gdet->monoDet(), ts.localParameters());
 	StripClusterParameterEstimator::LocalValues lvStereo = 
 	  theCPE->localParameters( stereoclust, *gdet->stereoDet(), gluedToStereo(ts, gdet));
 	
@@ -71,7 +71,7 @@ TSiStripMatchedRecHit::clone( const TrajectoryStateOnSurface& ts) const
       	const SiStripCluster& monoclust   = *orig->monoHit()->cluster_regional();  
 	const SiStripCluster& stereoclust = *orig->stereoHit()->cluster_regional();
 	StripClusterParameterEstimator::LocalValues lvMono = 
-	  theCPE->localParameters( monoclust, *gdet->monoDet(), ts);
+	  theCPE->localParameters( monoclust, *gdet->monoDet(), ts.localParameters());
 	StripClusterParameterEstimator::LocalValues lvStereo = 
 	  theCPE->localParameters( stereoclust, *gdet->stereoDet(), gluedToStereo(ts, gdet));
 	

@@ -10,14 +10,14 @@ RefCountedKinematicTree  LagrangeChildUpdator::update(RefCountedKinematicTree tr
  RefCountedKinematicTree nTree = tree;
  return nTree;
 }
-vector<RefCountedKinematicTree>  LagrangeChildUpdator::update(vector<RefCountedKinematicTree> trees) const
+std::vector<RefCountedKinematicTree>  LagrangeChildUpdator::update(std::vector<RefCountedKinematicTree> trees) const
 {
 //space for down update method
 //now does nothing, supposed to
 //update the states of daughter
 //particles down the kinematic decay chain
 
- vector<RefCountedKinematicTree> nTree = trees;
+ std::vector<RefCountedKinematicTree> nTree = trees;
  
  return nTree;
 }

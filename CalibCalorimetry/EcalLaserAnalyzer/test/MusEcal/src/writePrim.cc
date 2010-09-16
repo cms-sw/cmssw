@@ -27,8 +27,7 @@ int main(int argc, char **argv)
   if( type==ME::iLaser ) cout << " Color=" << ME::color[color];
   cout << endl;
 
-  // Barrel: Laser monitoring regions between 1 and 72
-  // Endcap: 73 to 92
+  // Barrel: Laser monitoring regions between 1 and 92
   for( unsigned int lmr=1; lmr<=92; lmr++ )
     {
       cout << "LMR=" << lmr << endl;

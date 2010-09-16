@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     FWHLTValidator
-// $Id: FWHLTValidator.cc,v 1.5 2010/05/06 18:03:08 amraktad Exp $
+// $Id: FWHLTValidator.cc,v 1.3 2009/11/14 17:45:33 chrjones Exp $
 //
 
 // system include files
@@ -13,7 +13,7 @@
 // user include files
 #include "Fireworks/Core/interface/FWHLTValidator.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
-#include "Fireworks/Core/interface/fwLog.h"
+#include "CommonTools/Utils/src/returnType.h"
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -34,7 +34,7 @@ FWHLTValidator::fillOptions(const char* iBegin, const char* iEnd,
        hTriggerResults.getByLabel(event,"TriggerResults","","HLT");
        triggerNames = &event.triggerNames(*hTriggerResults);
      } catch (...){
-       fwLog(fwlog::kWarning) << " no trigger results with process name HLT is available" << std::endl;
+       std::cout << "Warning: no trigger results with process name HLT is available" << std::endl;
        return;
      }
      for(unsigned int i=0; i<triggerNames->size(); ++i)

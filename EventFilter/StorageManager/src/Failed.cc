@@ -1,4 +1,4 @@
-// $Id: Failed.cc,v 1.13 2009/09/29 07:57:56 mommsen Exp $
+// $Id: Failed.cc,v 1.14 2010/01/28 13:40:47 mommsen Exp $
 /// @file: Failed.cc
 
 #include "EventFilter/StorageManager/interface/Exception.h"
@@ -49,7 +49,7 @@ Failed::~Failed()
 
 string Failed::do_stateName() const
 {
-  return string( "Failed" );
+  return std::string( "Failed" );
 }
 
 void Failed::do_moveToFailedState( xcept::Exception& exception ) const

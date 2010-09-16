@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2010/01/25 21:12:24 $
- * $Revision: 1.93 $
+ * $Date: 2010/08/04 08:20:12 $
+ * $Revision: 1.95 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -21,13 +21,13 @@
 #ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+#include "DQM/EcalCommon/interface/LogicID.h"
 #endif
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
-#include "DQM/EcalCommon/interface/LogicID.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalBarrelMonitorClient/interface/EBBeamCaloClient.h>
+#include "DQM/EcalBarrelMonitorClient/interface/EBBeamCaloClient.h"
 
 EBBeamCaloClient::EBBeamCaloClient(const edm::ParameterSet& ps) {
 

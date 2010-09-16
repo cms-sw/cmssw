@@ -14,5 +14,6 @@ secondaryVertexTagInfos = cms.EDProducer("SecondaryVertexProducer",
 	trackIPTagInfos = cms.InputTag("impactParameterTagInfos"),
 	minimumTrackWeight = cms.double(0.5),
 	usePVError = cms.bool(True),
-	trackSort = cms.string('sip3dSig')
+	trackSort = cms.string('sip3dSig'),
+        beamSpotTag = cms.InputTag('offlineBeamSpot')                                        
 )

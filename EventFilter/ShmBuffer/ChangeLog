@@ -1,3 +1,11 @@
+2010-09-08  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-08-05 fix from Remi (add 1 to GT LS number)
+
+2010-09-08  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-08-04 Remi's patch to add LS to error event 
+
 2010-05-17  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V00-08-03 change EMPTY to STOP event type for stopping

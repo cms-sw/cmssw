@@ -11,15 +11,14 @@
 
 #include "DQMOffline/RecoB/interface/HistoProviderDQM.h"
 
-#include <algorithm>
+
 #include <iostream>
-#include <sstream>
 using namespace std ;
 
 
 
-BTagDifferentialPlot::BTagDifferentialPlot (const double& bEff, const ConstVarType& constVariable,
-	const std::string & tagName) :
+BTagDifferentialPlot::BTagDifferentialPlot (double bEff, ConstVarType constVariable,
+	const TString & tagName) :
 	fixedBEfficiency     ( bEff )  ,
 	noProcessing         ( false ) , processed(false), constVar(constVariable),
 	constVariableName    ( "" )    , diffVariableName     ( "" )    ,
@@ -153,22 +152,22 @@ void BTagDifferentialPlot::plot (TCanvas & thePlotCanvas ) {
   }
 }
 
-void BTagDifferentialPlot::epsPlot(const std::string & name)
+void BTagDifferentialPlot::epsPlot(const TString & name)
 {
   plot(name, ".eps");
 }
 
-void BTagDifferentialPlot::psPlot(const std::string & name)
+void BTagDifferentialPlot::psPlot(const TString & name)
 {
   plot(name, ".ps");
 }
 
-void BTagDifferentialPlot::plot(const std::string & name, const std::string & ext)
+void BTagDifferentialPlot::plot(const TString & name, const TString & ext)
 {
   if (!processed) return;
-   TCanvas tc(commonName.c_str(), commonName.c_str());
+   TCanvas tc(commonName, commonName);
    plot(tc);
-   tc.Print((name + commonName + ext).c_str());
+   tc.Print(TString(name + commonName + ext));
 }
 
 
@@ -207,17 +206,16 @@ void BTagDifferentialPlot::setVariableName ()
 void BTagDifferentialPlot::bookHisto () {
 
   // vector with ranges
-  vector<float> variableRanges ;
+  vector<double> variableRanges ;
 
-  for ( vector<JetTagPlotter *>::const_iterator iP = theBinPlotters.begin() ; 
-        iP != theBinPlotters.end() ; ++iP ) {
-    const EtaPtBin & currentBin = (*iP)->etaPtBin()  ;
+  for ( unsigned int iP = 0 ; iP < theBinPlotters.size() ; iP++ ) {
+    const EtaPtBin & currentBin = theBinPlotters[iP]->etaPtBin()  ;
     if ( diffVariableName == "eta" ) {
       // only active bins in the variable on x-axis
       if ( currentBin.getEtaActive() ) {
 	variableRanges.push_back ( currentBin.getEtaMin() ) ;
 	// also max if last one
-	if ( iP == --theBinPlotters.end() ) variableRanges.push_back ( currentBin.getEtaMax() ) ;
+	if ( iP == theBinPlotters.size()-1 ) variableRanges.push_back ( currentBin.getEtaMax() ) ;
       }
     }
     if ( diffVariableName == "pt" ) {
@@ -225,30 +223,35 @@ void BTagDifferentialPlot::bookHisto () {
       if ( currentBin.getPtActive() ) {
 	variableRanges.push_back ( currentBin.getPtMin() ) ;
 	// also max if last one
-	if ( iP == --theBinPlotters.end() ) variableRanges.push_back ( currentBin.getPtMax() ) ;
+	if ( iP == theBinPlotters.size()-1 ) variableRanges.push_back ( currentBin.getPtMax() ) ;
       }
     }
   }
 
   // to book histo with variable binning -> put into array
   int      nBins    = variableRanges.size() - 1 ;
-  float * binArray = &variableRanges[0];
-  //float * binArray = new float [nBins+1] ;
+  float * binArray = new float [nBins+1] ;
 
-  //for ( int i = 0 ; i < nBins + 1 ; i++ ) {
-  //  binArray[i] = variableRanges[i] ;
-  //}
+  for ( int i = 0 ; i < nBins + 1 ; i++ ) {
+    binArray[i] = variableRanges[i] ;
+  }
 
 
   // part of the name common to all flavours
-  std::stringstream stream("");
-  stream << fixedBEfficiency << "_Const_" << constVariableName << "_" << constVariableValue.first << "-" ;
-  stream << constVariableValue.second << "_" << "_Vs_" << diffVariableName ;
-  commonName += stream.str();
-  std::remove(commonName.begin(), commonName.end(), ' ') ;
-  std::replace(commonName.begin(), commonName.end(), '.' , 'v' ) ;
+  commonName += fixedBEfficiency ;
+  commonName += "_Const_" ;
+  commonName += constVariableName ;
+  commonName += "_" ;
+  commonName += constVariableValue.first ;
+  commonName += "-" ;
+  commonName += constVariableValue.second ;
+  commonName += "_" ;
+  commonName += "_Vs_" ;
+  commonName += diffVariableName ;
+  commonName.ReplaceAll ( " " , "" ) ;
+  commonName.ReplaceAll ( "." , "v" ) ;
 
-  std::string label(commonName);
+  std::string label = std::string((const char *)(commonName));
   HistoProviderDQM prov ("Btag",label);
 
   theDifferentialHistoB_d    = (prov.book1D ( "D_"    + commonName , "D_"    + commonName , nBins , binArray )) ;
@@ -265,10 +268,9 @@ void BTagDifferentialPlot::bookHisto () {
 
 void BTagDifferentialPlot::fillHisto () {
   // loop over bins and find corresponding misid. in the MisIdVs..... histo
-  for ( vector<JetTagPlotter *>::const_iterator iP = theBinPlotters.begin() ;
-        iP != theBinPlotters.end() ; ++iP ) {
-    const EtaPtBin   & currentBin              = (*iP)->etaPtBin() ;
-    EffPurFromHistos * currentEffPurFromHistos = (*iP)->getEffPurFromHistos() ;
+  for ( unsigned int iP = 0 ; iP < theBinPlotters.size() ; iP++ ) {
+    const EtaPtBin   & currentBin              = theBinPlotters[iP]->etaPtBin() ;
+    EffPurFromHistos * currentEffPurFromHistos = theBinPlotters[iP]->getEffPurFromHistos() ;
     //
     bool   isActive   = true ;
     double valueXAxis = -999.99 ;
@@ -307,7 +309,7 @@ void BTagDifferentialPlot::fillHisto () {
     effPurDifferentialPairs.push_back ( make_pair ( currentEffPurFromHistos->getEffFlavVsBEff_dusg() , theDifferentialHistoB_dusg->getTH1F() ) ) ;
 
     for ( vector< pair<TH1F*,TH1F*> >::const_iterator itP  = effPurDifferentialPairs.begin() ;
-	                                              itP != effPurDifferentialPairs.end()   ; ++itP ) {
+	                                              itP != effPurDifferentialPairs.end()   ; itP++ ) {
       TH1F * effPurHist = itP->first  ;
       TH1F * diffHist   = itP->second ;
       pair<double, double> mistag = getMistag(fixedBEfficiency, effPurHist);
@@ -320,7 +322,7 @@ void BTagDifferentialPlot::fillHisto () {
 }
 
 pair<double, double>
-BTagDifferentialPlot::getMistag(const double& fixedBEfficiency, TH1F * effPurHist)
+BTagDifferentialPlot::getMistag(double fixedBEfficiency, TH1F * effPurHist)
 {
   int iBinGet = effPurHist->FindBin ( fixedBEfficiency ) ;
   double effForBEff    = effPurHist->GetBinContent ( iBinGet ) ;

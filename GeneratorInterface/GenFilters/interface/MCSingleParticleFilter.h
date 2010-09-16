@@ -15,7 +15,7 @@
 //
 // Original Author:  Filip Moortgat
 //         Created:  Mon Sept 11 10:57:54 CET 2006
-// $Id: MCSingleParticleFilter.h,v 1.1 2006/09/19 08:07:02 fmoortga Exp $
+// $Id: MCSingleParticleFilter.h,v 1.1 2007/03/28 14:04:44 fabstoec Exp $
 //
 //
 
@@ -33,9 +33,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-using namespace edm;
-using namespace std;
-
 //
 // class decleration
 //
@@ -46,7 +43,7 @@ class MCSingleParticleFilter : public edm::EDFilter {
       ~MCSingleParticleFilter();
 
 
-      virtual bool filter(Event&, const EventSetup&);
+      virtual bool filter(edm::Event&, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
       

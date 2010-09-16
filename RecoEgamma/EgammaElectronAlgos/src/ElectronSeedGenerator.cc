@@ -17,6 +17,7 @@
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronSeedGenerator.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
@@ -52,26 +53,28 @@
 #include <utility>
 
 ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset)
-  :   dynamicphiroad_(pset.getParameter<bool>("dynamicPhiRoad")),
-      fromTrackerSeeds_(pset.getParameter<bool>("fromTrackerSeeds")),
-      useRecoVertex_(false),
-      verticesTag_("offlinePrimaryVerticesWithBS"),
-      beamSpotTag_("offlineBeamSpot"),
-      lowPtThreshold_(pset.getParameter<double>("LowPtThreshold")),
-      highPtThreshold_(pset.getParameter<double>("HighPtThreshold")),
-      nSigmasDeltaZ1_(pset.getParameter<double>("nSigmasDeltaZ1")),
-      deltaZ1WithVertex_(0.5),
-      sizeWindowENeg_(pset.getParameter<double>("SizeWindowENeg")),
-      phimin2_(pset.getParameter<double>("PhiMin2")),
-      phimax2_(pset.getParameter<double>("PhiMax2")),
-      deltaPhi1Low_(pset.getParameter<double>("DeltaPhi1Low")),
-      deltaPhi1High_(pset.getParameter<double>("DeltaPhi1High")),
-      deltaPhi2_(pset.getParameter<double>("DeltaPhi2")),
-      myMatchEle(0), myMatchPos(0),
-      thePropagator(0), theMeasurementTracker(0),
-      theSetup(0), pts_(0),
-      cacheIDMagField_(0),/*cacheIDGeom_(0),*/cacheIDNavSchool_(0),cacheIDCkfComp_(0),cacheIDTrkGeom_(0)
+ : dynamicphiroad_(pset.getParameter<bool>("dynamicPhiRoad")),
+   fromTrackerSeeds_(pset.getParameter<bool>("fromTrackerSeeds")),
+   useRecoVertex_(false),
+   verticesTag_("offlinePrimaryVerticesWithBS"),
+   beamSpotTag_("offlineBeamSpot"),
+   lowPtThreshold_(pset.getParameter<double>("LowPtThreshold")),
+   highPtThreshold_(pset.getParameter<double>("HighPtThreshold")),
+   nSigmasDeltaZ1_(pset.getParameter<double>("nSigmasDeltaZ1")),
+   deltaZ1WithVertex_(0.5),
+   sizeWindowENeg_(pset.getParameter<double>("SizeWindowENeg")),
+   deltaPhi1Low_(pset.getParameter<double>("DeltaPhi1Low")),
+   deltaPhi1High_(pset.getParameter<double>("DeltaPhi1High")),
+   myMatchEle(0), myMatchPos(0),
+   thePropagator(0),
+   theMeasurementTracker(0),
+   theSetup(0), pts_(0),
+   cacheIDMagField_(0),/*cacheIDGeom_(0),*/cacheIDNavSchool_(0),cacheIDCkfComp_(0),cacheIDTrkGeom_(0)
  {
+  // use of a theMeasurementTrackerName
+  if (pset.exists("measurementTrackerName"))
+   { theMeasurementTrackerName = pset.getParameter<std::string>("measurementTrackerName") ; }
+
   // use of reco vertex
   if (pset.exists("useRecoVertex"))
    { useRecoVertex_ = pset.getParameter<bool>("useRecoVertex") ; }
@@ -84,41 +87,64 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset)
   if (pset.exists("beamSpot"))
    { beamSpotTag_ = pset.getParameter<edm::InputTag>("beamSpot") ; }
 
+  // new B/F configurables
+  if (pset.exists("DeltaPhi2"))
+   { deltaPhi2B_ = deltaPhi2F_ = pset.getParameter<double>("DeltaPhi2") ; }
+  else
+   {
+    deltaPhi2B_ = pset.getParameter<double>("DeltaPhi2B") ;
+    deltaPhi2F_ = pset.getParameter<double>("DeltaPhi2F") ;
+   }
+  if (pset.exists("PhiMin2"))
+   { phiMin2B_ = phiMin2F_ = pset.getParameter<double>("PhiMin2") ; }
+  else
+   {
+    phiMin2B_ = pset.getParameter<double>("PhiMin2B") ;
+    phiMin2F_ = pset.getParameter<double>("PhiMin2F") ;
+   }
+  if (pset.exists("PhiMax2"))
+   { phiMax2B_ = phiMax2F_ = pset.getParameter<double>("PhiMax2") ; }
+  else
+   {
+    phiMax2B_ = pset.getParameter<double>("PhiMax2B") ;
+    phiMax2F_ = pset.getParameter<double>("PhiMax2F") ;
+   }
+
   // Instantiate the pixel hit matchers
-  myMatchEle = new PixelHitMatcher( pset.getParameter<double>("ePhiMin1"),
-				    pset.getParameter<double>("ePhiMax1"),
-				    pset.getParameter<double>("PhiMin2"),
-				    pset.getParameter<double>("PhiMax2"),
-				    pset.getParameter<double>("z2MinB"),
-				    pset.getParameter<double>("z2MaxB"),
-				    pset.getParameter<double>("r2MinF"),
-				    pset.getParameter<double>("r2MaxF"),
-				    pset.getParameter<double>("rMinI"),
-				    pset.getParameter<double>("rMaxI"),
-				    pset.getParameter<bool>("searchInTIDTEC"));
+  myMatchEle = new PixelHitMatcher
+   ( pset.getParameter<double>("ePhiMin1"),
+		 pset.getParameter<double>("ePhiMax1"),
+		 phiMin2B_, phiMax2B_, phiMin2F_, phiMax2F_,
+     pset.getParameter<double>("z2MinB"),
+     pset.getParameter<double>("z2MaxB"),
+     pset.getParameter<double>("r2MinF"),
+     pset.getParameter<double>("r2MaxF"),
+     pset.getParameter<double>("rMinI"),
+     pset.getParameter<double>("rMaxI"),
+     pset.getParameter<bool>("searchInTIDTEC") ) ;
 
-  myMatchPos = new PixelHitMatcher( pset.getParameter<double>("pPhiMin1"),
-				    pset.getParameter<double>("pPhiMax1"),
-				    pset.getParameter<double>("PhiMin2"),
-				    pset.getParameter<double>("PhiMax2"),
-				    pset.getParameter<double>("z2MinB"),
-				    pset.getParameter<double>("z2MaxB"),
-				    pset.getParameter<double>("r2MinF"),
-				    pset.getParameter<double>("r2MaxF"),
-				    pset.getParameter<double>("rMinI"),
-				    pset.getParameter<double>("rMaxI"),
-				    pset.getParameter<bool>("searchInTIDTEC"));
+  myMatchPos = new PixelHitMatcher
+   ( pset.getParameter<double>("pPhiMin1"),
+		 pset.getParameter<double>("pPhiMax1"),
+		 phiMin2B_, phiMax2B_, phiMin2F_, phiMax2F_,
+     pset.getParameter<double>("z2MinB"),
+     pset.getParameter<double>("z2MaxB"),
+     pset.getParameter<double>("r2MinF"),
+     pset.getParameter<double>("r2MaxF"),
+     pset.getParameter<double>("rMinI"),
+     pset.getParameter<double>("rMaxI"),
+     pset.getParameter<bool>("searchInTIDTEC") ) ;
 
-  theUpdator = new KFUpdator();
-}
+  theUpdator = new KFUpdator() ;
+ }
 
-ElectronSeedGenerator::~ElectronSeedGenerator() {
-
-  delete myMatchEle;
-  delete myMatchPos;
-  delete thePropagator;
-  delete theUpdator;
-}
+ElectronSeedGenerator::~ElectronSeedGenerator()
+ {
+  delete myMatchEle ;
+  delete myMatchPos ;
+  delete thePropagator ;
+  delete theUpdator ;
+ }
 
 void ElectronSeedGenerator::setupES(const edm::EventSetup& setup) {
 
@@ -134,8 +160,8 @@ void ElectronSeedGenerator::setupES(const edm::EventSetup& setup) {
   }
 
   if (!fromTrackerSeeds_ && cacheIDCkfComp_!=setup.get<CkfComponentsRecord>().cacheIdentifier()) {
-    edm::ESHandle<MeasurementTracker>    measurementTrackerHandle;
-    setup.get<CkfComponentsRecord>().get(measurementTrackerHandle);
+    edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
+    setup.get<CkfComponentsRecord>().get(theMeasurementTrackerName,measurementTrackerHandle);
     cacheIDCkfComp_=setup.get<CkfComponentsRecord>().cacheIdentifier();
     theMeasurementTracker = measurementTrackerHandle.product();
     tochange=true;
@@ -204,21 +230,21 @@ void  ElectronSeedGenerator::run
 }
 
 void ElectronSeedGenerator::seedsFromThisCluster
- ( edm::Ref<reco::SuperClusterCollection> seedCluster,
-   float hoe1, float hoe2,
-   reco::ElectronSeedCollection & result )
- {
+( edm::Ref<reco::SuperClusterCollection> seedCluster,
+  float hoe1, float hoe2,
+  reco::ElectronSeedCollection & result )
+{
   float clusterEnergy = seedCluster->energy() ;
   GlobalPoint clusterPos
-   ( seedCluster->position().x(),
-		 seedCluster->position().y(),
-	   seedCluster->position().z() ) ;
+    ( seedCluster->position().x(),
+      seedCluster->position().y(),
+      seedCluster->position().z() ) ;
   LogDebug("") << "[ElectronSeedGenerator::seedsFromThisCluster] new supercluster with energy: " << clusterEnergy ;
   LogDebug("") << "[ElectronSeedGenerator::seedsFromThisCluster] and position: " << clusterPos ;
 
   if (dynamicphiroad_)
    {
-    float clusterEnergyT = clusterEnergy*sin(seedCluster->position().theta()) ;
+    float clusterEnergyT = clusterEnergy / cosh( EleRelPoint(clusterPos,theBeamSpot->position()).eta() ) ;
 
     float deltaPhi1 = 0.875/clusterEnergyT + 0.055;
     if (clusterEnergyT < lowPtThreshold_) deltaPhi1= deltaPhi1Low_;
@@ -229,13 +255,16 @@ void ElectronSeedGenerator::seedsFromThisCluster
     float pphimin1 = -deltaPhi1*(1.-sizeWindowENeg_);
     float pphimax1 =  deltaPhi1*sizeWindowENeg_;
 
-    float phimin2  = -deltaPhi2_/2. ;
-    float phimax2  =  deltaPhi2_/2. ;
+    float phimin2B  = -deltaPhi2B_/2. ;
+    float phimax2B  =  deltaPhi2B_/2. ;
+    float phimin2F  = -deltaPhi2F_/2. ;
+    float phimax2F  =  deltaPhi2F_/2. ;
+
 
     myMatchEle->set1stLayer(ephimin1,ephimax1);
     myMatchPos->set1stLayer(pphimin1,pphimax1);
-    myMatchEle->set2ndLayer(phimin2,phimax2);
-    myMatchPos->set2ndLayer(phimin2,phimax2);
+    myMatchEle->set2ndLayer(phimin2B,phimax2B, phimin2F,phimax2F);
+    myMatchPos->set2ndLayer(phimin2B,phimax2B, phimin2F,phimax2F);
    }
 
   PropagationDirection dir = alongMomentum;
@@ -248,7 +277,8 @@ void ElectronSeedGenerator::seedsFromThisCluster
     zmin1_=theBeamSpot->position().z()-nSigmasDeltaZ1_*sq;
     zmax1_=theBeamSpot->position().z()+nSigmasDeltaZ1_*sq;
 
-    GlobalPoint vertexPos(theBeamSpot->position().x(),theBeamSpot->position().y(),theBeamSpot->position().z());
+    GlobalPoint vertexPos ;
+    ele_convert(theBeamSpot->position(),vertexPos) ;
 
     myMatchEle->set1stLayerZRange(zmin1_,zmax1_);
     myMatchPos->set1stLayerZRange(zmin1_,zmax1_);

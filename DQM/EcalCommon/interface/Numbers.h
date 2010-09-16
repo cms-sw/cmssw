@@ -1,15 +1,13 @@
-// $Id: Numbers.h,v 1.29 2010/02/16 10:53:17 dellaric Exp $
+#ifndef NUMBERS_H
+#define NUMBERS_H
 
 /*!
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.29 $
-  \date $Date: 2010/02/16 10:53:17 $
+  \version $Revision: 1.33 $
+  \date $Date: 2010/08/09 09:00:10 $
 */
-
-#ifndef Numbers_H
-#define Numbers_H
 
 #include <string>
 #include <stdexcept>
@@ -74,7 +72,11 @@ class Numbers {
 
   static int iSM( const EcalPnDiodeDetId& id ) throw( std::runtime_error );
 
+  static int iSM( const EcalScDetId& id ) throw( std::runtime_error );
+
   static int iSM( const EcalDCCHeaderBlock& id, const EcalSubdetector subdet ) throw( std::runtime_error );
+
+  static int iSC( const EcalScDetId& id ) throw( std::runtime_error );
 
   static int iSC( const int ism, const EcalSubdetector subdet, const int i1, const int i2 ) throw( std::runtime_error );
 
@@ -98,7 +100,7 @@ class Numbers {
 
   static std::vector<DetId>* crystals( const EcalElectronicsId& id ) throw( std::runtime_error );
 
-  static std::vector<DetId>* crystals( int idcc, int itt ) throw( std::runtime_error );
+  static std::vector<DetId>* crystals( int idcc, int isc ) throw( std::runtime_error );
 
   static int RtHalf(const EBDetId& id);
 
@@ -122,4 +124,4 @@ private:
 
 };
 
-#endif // Numbers_H
+#endif // NUMBERS_H

@@ -1,8 +1,8 @@
 /*
  * \file EEHltTask.cc
  *
- * $Date: 2010/03/26 11:24:50 $
- * $Revision: 1.13 $
+ * $Date: 2010/08/08 08:46:09 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */
@@ -27,7 +27,7 @@
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 
-#include <DQM/EcalEndcapMonitorTasks/interface/EEHltTask.h>
+#include "DQM/EcalEndcapMonitorTasks/interface/EEHltTask.h"
 
 EEHltTask::EEHltTask(const edm::ParameterSet& ps){
 
@@ -62,7 +62,7 @@ EEHltTask::EEHltTask(const edm::ParameterSet& ps){
   meEEFedsIntegrityErrors_ = 0;
 
   map = 0;
-  
+
 }
 
 EEHltTask::~EEHltTask(){
@@ -189,29 +189,29 @@ void EEHltTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   if ( e.getByLabel(FEDRawDataCollection_, allFedRawData) ) {
 
     for(int zside=0; zside<2; zside++) {
-      
+
       int firstFedOnSide=EEFirstFED[zside];
-      
+
       for ( int ism=1; ism<=9; ism++ ) {
-	
+
 	const FEDRawData& fedData = allFedRawData->FEDData( firstFedOnSide + ism - 1 );
-	
+
 	int length = fedData.size()/sizeof(uint64_t);
-	
+
 	if ( length > 0 ) {
-	  
+
 	  if ( meEEFedsOccupancy_ ) meEEFedsOccupancy_->Fill( firstFedOnSide + ism - 1 );
-	  
+
 	  uint64_t * pData = (uint64_t *)(fedData.data());
 	  uint64_t * fedTrailer = pData + (length - 1);
 	  bool crcError = (*fedTrailer >> 2 ) & 0x1;
-	  
+
 	  if (crcError) FedsSizeErrors[ism-1]++;
-	  
+
 	}
-	
+
       }
-      
+
     }
 
   } else {
@@ -241,7 +241,7 @@ void EEHltTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       int ism = iSM( *idItr );
       int fednumber = ( ism < 10 ) ? 600 + ism : 636 + ism;
-      
+
       if ( ism > -1 ) meEEFedsIntegrityErrors_->Fill( fednumber, 1./850.);
 
     }

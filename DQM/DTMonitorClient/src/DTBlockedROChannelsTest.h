@@ -5,8 +5,8 @@
  * *
  *  DQM Client to Summarize LS by LS the status of the Read-Out channels.
  *
- *  $Date: 2010/01/26 17:46:03 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/01/05 10:15:45 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - University and INFN Torino
  *   
  */
@@ -112,19 +112,12 @@ private:
     
   private:
     int getValueRobBin(int robBin) const;
-    int getValueRos() const;
-
-    int rosBin;
 
     std::map<int, int> robsAndValues;
-    int rosValue;
 
     const MonitorElement* meROS;
-    const MonitorElement* meDDU;
 
-    std::string rosHName;
-    std::string dduHName;
-
+    std::string hName;
     const DQMStore* theDbe;
   };
 

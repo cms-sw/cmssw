@@ -4,57 +4,41 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('JetMETCorrections.Configuration.jecHLTFilters_cfi')
 #############   Set the number of events #############
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(100)
 )
 #############   Define the source file ###############
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-'/store/relval/CMSSW_3_5_5/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/MC_3XY_V25-v1/0007/E0707AC5-0F38-DF11-B1FD-0026189437E8.root'
-)
+'/store/mc/Summer09/QCDDiJet_Pt15to20/AODSIM/MC_31X_V3_AODSIM-v1/0046/CEDF080D-CC8F-DE11-A831-001E682F84DE.root')
 )
 
 #############   Path       ###########################
-process.skimPath = cms.Path(process.HLTDiJetAve15U1E31)
+process.skimPath = cms.Path(process.HLTDiJetAve15U8E29)
 
 #############   output module ########################
 process.compress = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring(
         'drop *',
-        #------- CaloJet collections ------
-        'keep recoCaloJets_kt4CaloJets_*_*',
-        'keep recoCaloJets_kt6CaloJets_*_*',
-        'keep recoCaloJets_ak5CaloJets_*_*',
-        'keep recoCaloJets_ak7CaloJets_*_*',
-        'keep recoCaloJets_iterativeCone5CaloJets_*_*',
-        #------- CaloJet ID ---------------
-        'keep *_kt4JetID_*_*',
-        'keep *_kt6JetID_*_*',
-        'keep *_ak5JetID_*_*',
-        'keep *_ak7JetID_*_*',
-        'keep *_ic5JetID_*_*', 
-        #------- PFJet collections ------  
-        'keep recoPFJets_kt4PFJets_*_*',
-        'keep recoPFJets_kt6PFJets_*_*',
-        'keep recoPFJets_ak5PFJets_*_*',
-        'keep recoPFJets_ak7PFJets_*_*',
-        'keep recoPFJets_iterativeCone5PFJets_*_*',
-        #------- JPTJet collections ------
-        #'keep *_ak5JPTJets_*_*',
-        #'keep *_iterativeCone5JPTJets_*_*',
-        #------- Trigger collections ------
-        'keep edmTriggerResults_TriggerResults_*_*',
-        'keep *_hltTriggerSummaryAOD_*_*',
-        'keep L1GlobalTriggerObjectMapRecord_*_*_*',
-        'keep L1GlobalTriggerReadoutRecord_*_*_*',
-        #------- Tracks collection --------
-        'keep recoTracks_generalTracks_*_*',
-        #------- CaloTower collection -----
+        'keep *_sisCone5CaloJets_*_*',
+        'keep *_sisCone7CaloJets_*_*',
+        'keep *_kt4CaloJets_*_*',
+        'keep *_kt6CaloJets_*_*',
+        'keep *_antikt5CaloJets_*_*',
+        'keep *_iterativeCone5CaloJets_*_*',  
+        'keep *_sisCone5PFJets_*_*',
+        'keep *_sisCone7PFJets_*_*',
+        'keep *_kt4PFJets_*_*',
+        'keep *_kt6PFJets_*_*',
+        'keep *_antikt5PFJets_*_*',
+        'keep *_iterativeCone5CaloJets_*_*',
+        'keep *_iterativeCone5JetExtender_*_*',
+        'keep *_sisCone5JetExtender_*_*',
+        'keep *_kt4JetExtender_*_*',
+        'keep *_TriggerResults_*_*',
+        'keep *_hltTriggerSummaryAOD_*_*', 
         'keep *_towerMaker_*_*',
-        #------- Various collections ------
         'keep *_EventAuxilary_*_*',
-        'keep *_offlinePrimaryVertices_*_*',
-        'keep *_hcalnoise_*_*',
-        #------- MET collections ----------
+        'keep *_pixelVertices_*_*',
         'keep *_metHO_*_*',
         'keep *_metNoHF_*_*',
         'keep *_metNoHFHO_*_*', 
