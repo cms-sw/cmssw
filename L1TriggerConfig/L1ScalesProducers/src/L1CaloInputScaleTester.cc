@@ -106,7 +106,7 @@ L1CaloInputScaleTester::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	 {
 
 	   // positive eta
-	   ecal1 = ecalTPGScale->getTPGInGeV( (uint) input, 
+	   ecal1 = ecalTPGScale->getTPGInGeV( (unsigned int) input, 
 					      EcalTrigTowerDetId(1, EcalBarrel,
 								 absIeta, 1));
 	   ecal2 = caloEcalScale->et(input, absIeta, 1);
@@ -123,7 +123,7 @@ L1CaloInputScaleTester::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 	   // negative eta
 	   ecal1 = ecalTPGScale->
-	     getTPGInGeV( (uint) input, EcalTrigTowerDetId(-1, EcalBarrel,
+	     getTPGInGeV( (unsigned int) input, EcalTrigTowerDetId(-1, EcalBarrel,
 							   absIeta, 2));
 	   ecal2 = caloEcalScale->et(input, absIeta, -1);
 
@@ -143,7 +143,7 @@ L1CaloInputScaleTester::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 	   // positive eta
 	   ecal1 = ecalTPGScale->
-	     getTPGInGeV( (uint) input, EcalTrigTowerDetId(1, EcalEndcap,
+	     getTPGInGeV( (unsigned int) input, EcalTrigTowerDetId(1, EcalEndcap,
 							   absIeta, 1));
 	   ecal2 = caloEcalScale->et(input, absIeta, 1);
 
@@ -159,7 +159,7 @@ L1CaloInputScaleTester::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	   
 	   // negative eta
 	   ecal1 = ecalTPGScale->
-	     getTPGInGeV( (uint) input, EcalTrigTowerDetId(-1, EcalEndcap,
+	     getTPGInGeV( (unsigned int) input, EcalTrigTowerDetId(-1, EcalEndcap,
 							   absIeta, 2));
 	   ecal2 = caloEcalScale->et(input, absIeta, -1);
 

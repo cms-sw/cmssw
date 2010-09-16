@@ -95,7 +95,7 @@ L1CaloInputScalesGenerator::analyze(const edm::Event& iEvent, const edm::EventSe
        // 8 bits of input energy
        for (unsigned short input = 0; input <= 0xFF; input++)
 	 {
-	   output = ecalTPGScale->getTPGInGeV( (uint) input, 
+	   output = ecalTPGScale->getTPGInGeV( (unsigned int) input, 
 					      EcalTrigTowerDetId(1, subdet,
 								 absIeta, 1));
 	   scalesFile << setprecision (8) << output;
@@ -132,7 +132,7 @@ L1CaloInputScalesGenerator::analyze(const edm::Event& iEvent, const edm::EventSe
 	 {
 	   // negative eta
 	   output = ecalTPGScale->
-	     getTPGInGeV( (uint) input, EcalTrigTowerDetId(-1, subdet,
+	     getTPGInGeV( (unsigned int) input, EcalTrigTowerDetId(-1, subdet,
 							   absIeta, 2));
 	   scalesFile << setprecision (8) << output;
 	   nEntries++;
