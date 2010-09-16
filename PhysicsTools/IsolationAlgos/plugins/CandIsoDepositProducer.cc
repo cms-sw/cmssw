@@ -47,7 +47,7 @@ CandIsoDepositProducer::CandIsoDepositProducer(const ParameterSet& par) :
   else {
     theDepositNames = extractorPSet.getParameter<std::vector<std::string> >("DepositInstanceLabels");
     if (theDepositNames.size() > 10) throw cms::Exception("Configuration Error") << "This module supports only up to 10 deposits"; 
-    for (uint iDep=0; iDep<theDepositNames.size(); ++iDep){
+    for (unsigned int iDep=0; iDep<theDepositNames.size(); ++iDep){
       produces<reco::IsoDepositMap>(theDepositNames[iDep]);
     }
   }
@@ -99,13 +99,13 @@ void CandIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup)
   edm::Handle< edm::View<reco::Candidate> > hCands;
   event.getByLabel(theCandCollectionTag, hCands);
     
-  uint nDeps = theMultipleDepositsFlag ? theDepositNames.size() : 1;
+  unsigned int nDeps = theMultipleDepositsFlag ? theDepositNames.size() : 1;
 
-  static const uint MAX_DEPS=10; 
+  static const unsigned int MAX_DEPS=10; 
   std::auto_ptr<reco::IsoDepositMap> depMaps[MAX_DEPS];
   
   if (nDeps >10 ) LogError(metname)<<"Unable to handle more than 10 input deposits"; 
-  for (uint i =0;i<nDeps; ++i){ // check if nDeps > 10??
+  for (unsigned int i =0;i<nDeps; ++i){ // check if nDeps > 10??
     depMaps[i] =  std::auto_ptr<reco::IsoDepositMap>(new reco::IsoDepositMap()); 
   } 
    
@@ -138,15 +138,15 @@ void CandIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup)
 	std::vector<IsoDeposit> deps = ( ( theTrackType == CandidateT )
 					   ? theExtractor->deposits(event, eventSetup, c)
 					   : theExtractor->deposits(event, eventSetup, *track) );
-	for (uint iDep=0; iDep < nDeps; ++iDep){ 	deps2D[iDep][i] =  deps[iDep];  }
+	for (unsigned int iDep=0; iDep < nDeps; ++iDep){ 	deps2D[iDep][i] =  deps[iDep];  }
       }
     }//! for(i<nMuons)
     
 
     //! now fill in selectively 
-    for (uint iDep=0; iDep < nDeps; ++iDep){ 
+    for (unsigned int iDep=0; iDep < nDeps; ++iDep){ 
       //!some debugging stuff 
-      for (uint iMu = 0; iMu< nMuons; ++iMu){ 
+      for (unsigned int iMu = 0; iMu< nMuons; ++iMu){ 
         LogTrace(metname)<<"Contents of "<<theDepositNames[iDep] 
                          <<" for a muon at index "<<iMu; 
         LogTrace(metname)<<deps2D[iDep][iMu].print(); 
@@ -159,7 +159,7 @@ void CandIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup)
     }//! for(iDep<nDeps)
   }//! if (nMuons>0)
 
-  for (uint iMap = 0; iMap < nDeps; ++iMap) event.put(depMaps[iMap], theDepositNames[iMap]);
+  for (unsigned int iMap = 0; iMap < nDeps; ++iMap) event.put(depMaps[iMap], theDepositNames[iMap]);
 }
 
 DEFINE_FWK_MODULE( CandIsoDepositProducer );

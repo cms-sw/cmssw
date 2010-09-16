@@ -35,7 +35,7 @@ namespace egammaisolation {
       reco::isodeposit::Direction       dir;  //! direction of the selection cone
       double        drMax;      //! cone size
       BeamPoint beamPoint;      //! beam spot position
-      uint       nHitsMin;      //! nValidHits >= nHitsMin
+      unsigned int  nHitsMin;      //! nValidHits >= nHitsMin
       double  chi2NdofMax;      //! max value of normalized chi2
       double  chi2ProbMin;      //! ChiSquaredProbability( chi2, ndf ) > chi2ProbMin
       double        ptMin;      //! tk.pt>ptMin

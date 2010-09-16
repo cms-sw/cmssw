@@ -40,7 +40,7 @@ EgammaTrackSelector::result_type EgammaTrackSelector::operator()(const EgammaTra
 
     //! skip if min Hits == 0; assumes any track has at least one valid hit
     if (thePars.nHitsMin > 0 ){
-      uint tHits = it->numberOfValidHits();
+      unsigned int tHits = it->numberOfValidHits();
       if ( tHits < thePars.nHitsMin ) continue;
     }
 

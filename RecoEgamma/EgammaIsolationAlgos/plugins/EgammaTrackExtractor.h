@@ -54,7 +54,7 @@ private:
   edm::InputTag barrelEcalHitsTag_;
   edm::InputTag endcapEcalHitsTag_;
   edm::InputTag theBeamSpotLabel;           //! BeamSpot name
-  uint theNHits_Min;                        //! trk.numberOfValidHits >= theNHits_Min
+  unsigned int theNHits_Min;                        //! trk.numberOfValidHits >= theNHits_Min
   double theChi2Ndof_Max;                   //! trk.normalizedChi2 < theChi2Ndof_Max
   double theChi2Prob_Min;                   //! ChiSquaredProbability(trk.chi2,trk.ndof) > theChi2Prob_Min
   double thePt_Min;                         //! min track pt to include into iso deposit
