@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.102 2010/09/15 11:48:42 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.103 2010/09/15 18:14:22 amraktad Exp $
 
 #include "FWCore/Common/interface/EventBase.h"
 
@@ -737,3 +737,12 @@ CmsShowMainFrame::showFWorksInfo()
 }
 
 
+void
+CmsShowMainFrame::bindCSGActionKeys(const TGMainFrame* f) const
+{
+   for (std::vector<CSGAction*>::const_iterator i = m_actionList.begin(); i != m_actionList.end(); ++i)
+   {
+      if ((*i)-> getKeycode())
+         f->BindKey(this, (*i)->getKeycode(), (*i)->getModcode()); 
+   }
+}

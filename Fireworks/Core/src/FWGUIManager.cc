@@ -9,7 +9,7 @@
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
-// $Id: FWGUIManager.cc,v 1.219 2010/09/15 11:48:42 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.220 2010/09/15 18:14:22 amraktad Exp $
 
 //
 
@@ -620,6 +620,7 @@ FWGUIManager::createEDIFrame() {
    if (m_ediFrame == 0) {
       m_ediFrame = new CmsShowEDI(m_cmsShowMainFrame, 200, 200, m_context->selectionManager(),m_context->colorManager());
       m_ediFrame->CenterOnParent(kTRUE,TGTransientFrame::kTopRight);
+      m_cmsShowMainFrame->bindCSGActionKeys(m_ediFrame);
    }
 }
 
@@ -636,10 +637,12 @@ FWGUIManager::showEDIFrame(int iToShow)
 void
 FWGUIManager::showCommonPopup()
 {
-  if (! m_commonPopup)
-     m_commonPopup = new CmsShowCommonPopup(m_context->commonPrefs(), m_cmsShowMainFrame, 200, 200);
-
-  m_commonPopup->MapRaised();
+   if (! m_commonPopup)
+   {
+      m_commonPopup = new CmsShowCommonPopup(m_context->commonPrefs(), m_cmsShowMainFrame, 200, 200);
+      m_cmsShowMainFrame->bindCSGActionKeys(m_commonPopup);
+   }
+   m_commonPopup->MapRaised();
 }
 
 void
@@ -647,6 +650,7 @@ FWGUIManager::createModelPopup()
 {
    m_modelPopup = new CmsShowModelPopup(m_detailViewManager,m_context->selectionManager(), m_context->colorManager(), m_cmsShowMainFrame, 200, 200);
    m_modelPopup->CenterOnParent(kTRUE,TGTransientFrame::kRight);
+   m_cmsShowMainFrame->bindCSGActionKeys(m_modelPopup);
 }
 
 void
@@ -1194,6 +1198,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
             lastWindow->UndockWindow();
             TEveCompositeFrameInMainFrame* emf = dynamic_cast<TEveCompositeFrameInMainFrame*>(lastWindow->GetEveFrame());
             const TGMainFrame* mf =  dynamic_cast<const TGMainFrame*>(emf->GetParent());
+            m_cmsShowMainFrame->bindCSGActionKeys(mf);
             TGMainFrame* mfp = (TGMainFrame*)mf;
             const FWConfiguration* mwc = (areaIt->second).valueForKey("UndockedWindowPos");
             setWindowInfoFrom(*mwc, mfp);

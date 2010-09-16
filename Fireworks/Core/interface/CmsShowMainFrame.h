@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.38 2010/09/02 19:54:03 matevz Exp $
+// $Id: CmsShowMainFrame.h,v 1.39 2010/09/03 17:58:54 matevz Exp $
 //
 
 // system include files
@@ -63,7 +63,7 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-  virtual void CloseWindow();
+   virtual void CloseWindow();
 
    void loadEvent(const edm::EventBase& event);
    void enableNavigatorControls();
@@ -92,6 +92,8 @@ public:
    CSGAction* createNewViewerAction(const std::string& iActionName);
 
    void showFWorksInfo();
+
+   void bindCSGActionKeys(const TGMainFrame* f) const;
 
 protected:
    FWCustomIconsButton* m_filterEnableBtn;
@@ -134,6 +136,7 @@ private:
    TGStatusBar* m_statBar;
 
    TGPopupMenu *m_newViewerMenu;
+
 };
 
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.35 2010/03/26 20:20:21 matevz Exp $
+// $Id: FWGUISubviewArea.cc,v 1.36 2010/06/18 10:17:15 yana Exp $
 //
 
 // system include files
@@ -22,6 +22,7 @@
 
 #include "Fireworks/Core/interface/FWGUISubviewArea.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
+#include "Fireworks/Core/interface/CmsShowMainFrame.h"
 #include "Fireworks/Core/src/FWCheckBoxIcon.h"
 
 
@@ -166,7 +167,12 @@ FWGUISubviewArea::destroy()
 void
 FWGUISubviewArea::undock()
 {
-    TTimer::SingleShot(50, m_frame->GetEveWindow()->ClassName(), m_frame->GetEveWindow(), "UndockWindow()");
+   TEveWindow* ew = m_frame->GetEveWindow();
+   ew->UndockWindow();
+   TEveCompositeFrameInMainFrame* emf = dynamic_cast<TEveCompositeFrameInMainFrame*>(ew->GetEveFrame());
+   const TGMainFrame* mf =  dynamic_cast<const TGMainFrame*>(emf->GetParent());
+   if (mf)
+      FWGUIManager::getGUIManager()->getMainFrame()->bindCSGActionKeys(mf);
 }
 
 void

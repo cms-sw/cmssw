@@ -46,13 +46,15 @@ public:
 
    Long_t getToolTipDelay() const;
 
+protected:
+   std::vector<CSGAction*> m_actionList;
+
 private:
    CSGActionSupervisor(const CSGActionSupervisor&); // stop default
    const CSGActionSupervisor& operator=(const CSGActionSupervisor&); // stop default
 
    // ---------- member data --------------------------------
 
-   std::vector<CSGAction*> m_actionList;
    Long_t m_tooltipDelay;
 
 };
