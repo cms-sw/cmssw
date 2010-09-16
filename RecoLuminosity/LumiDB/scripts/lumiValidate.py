@@ -11,6 +11,7 @@ def getValidationData(dbsession,run=None,cmsls=None):
     input: runnum, if not runnum, retrive all
     output: {run:[[cmslsnum,flag,comment]]}
     '''
+    result={}
     try:
         dbsession.transaction().start(True)
         schema=dbsession.nominalSchema()
@@ -211,7 +212,10 @@ def main():
                 runsandls=p.runsandls()
             for runnum,lslist in runsandls.items():
                 dataperrun=getValidationData(session,run=runnum,cmsls=lslist)
-                result[runnum]=dataperrun[runnum]
+                if dataperrun.has_key(runnum):
+                    result[runnum]=dataperrun[runnum]
+                else:
+                    result[runnum]=[]
         else:
             result=getValidationData(session,run=options.runnumber)
         runs=result.keys()
@@ -224,6 +228,9 @@ def main():
         else:
             for run in runs:
                 print '== ='
+                if len(result[run])==0:
+                    print str(run),'no validation data'
+                    continue
                 for lsdata in result[run]:
                     print str(run)+','+str(lsdata[0])+','+lsdata[1]+','+lsdata[2]
                 
