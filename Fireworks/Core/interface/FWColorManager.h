@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:07:58 CET 2009
-// $Id: FWColorManager.h,v 1.21 2010/09/15 11:48:42 amraktad Exp $
+// $Id: FWColorManager.h,v 1.22 2010/09/15 18:14:22 amraktad Exp $
 //
 
 // system include files
@@ -86,11 +86,13 @@ public:
    void switchBackground();
 
    void setGeomColor(FWGeomColorIndex, Color_t);
-   void setGeomTransparency(Color_t);
-   Color_t geomTransparency() const { return m_geomTransparency; } 
+   void setGeomTransparency(Color_t idx, bool projectedType);
+   Color_t geomTransparency(bool projected) const { return projected ? m_geomTransparency2D : m_geomTransparency3D; } 
 
    mutable sigc::signal<void> colorsHaveChanged_;
    mutable sigc::signal<void> geomColorsHaveChanged_;
+   mutable sigc::signal<void, bool> geomTransparencyHaveChanged_;
+
    //called after all the slots attached to colorsHaveChanged_ are done
    mutable sigc::signal<void> colorsHaveChangedFinished_;
 
@@ -112,7 +114,8 @@ private:
    Color_t m_numColorIndices;
 
    Color_t m_geomColor[kFWGeomColorSize];
-   Char_t  m_geomTransparency;
+   Char_t  m_geomTransparency2D;
+   Char_t  m_geomTransparency3D;
 
    static const Color_t s_defaultStartColorIndex;
 };

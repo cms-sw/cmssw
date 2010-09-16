@@ -27,7 +27,8 @@ public:
    void setGamma(int);
    void resetGamma();
    void changeGeomColor(Color_t);
-   void changeGeomTransparency(int);
+   void changeGeomTransparency2D(int);
+   void changeGeomTransparency3D(int);
    void colorSetChanged();
 
 private:

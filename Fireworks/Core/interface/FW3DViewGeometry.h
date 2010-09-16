@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 22:06:52 CET 2010
-// $Id: FW3DViewGeometry.h,v 1.3 2010/09/07 15:46:46 yana Exp $
+// $Id: FW3DViewGeometry.h,v 1.4 2010/09/15 11:48:41 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWViewGeometryList.h"
@@ -40,6 +40,8 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
+
+   virtual bool projected() const { return false; }
 
    void showMuonBarrel( bool );
    void showMuonEndcap( bool );

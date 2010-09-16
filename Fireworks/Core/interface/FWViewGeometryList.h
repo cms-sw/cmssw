@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel 
 //         Created:  Tue Sep 14 13:28:39 CEST 2010
-// $Id$
+// $Id: FWViewGeometryList.h,v 1.1 2010/09/15 11:48:42 amraktad Exp $
 //
 
 #include "TEveElement.h"
@@ -37,6 +37,9 @@ public:
    virtual ~FWViewGeometryList();
 
    void updateColors();
+   void updateTransparency(bool projectedType);
+
+   virtual bool projected() const { return true; }
 
 protected:
    const fireworks::Context&    m_context;  
