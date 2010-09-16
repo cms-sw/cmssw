@@ -32,7 +32,8 @@ from Validation.RecoEgamma.photonValidationSequence_cff import *
 from Validation.RecoEgamma.photonPostprocessing_cfi import *
 
 photonValidation.OutputMEsInRootFile = True
-photonValidation.OutputFileName = 'PhotonValidationRelVal390pre3_SingleGammaPt10.root'
+photonValidation.OutputFileName = 'PhotonValidationRelVal383_SingleGammaPt10.root'
+
 
 photonPostprocessing.batch = cms.bool(True)
 photonPostprocessing.InputFileName = photonValidation.OutputFileName
@@ -42,17 +43,18 @@ noEventSort = cms.untracked.bool(True),
 duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
                             
     fileNames = cms.untracked.vstring(
-# official RelVal 390pre3 single Photons pt=10GeV
-        '/store/relval/CMSSW_3_9_0_pre3/RelValSingleGammaPt10/GEN-SIM-RECO/MC_38Y_V9-v1/0021/A2C09CBC-74B6-DF11-9329-0026189438EB.root',
-        '/store/relval/CMSSW_3_9_0_pre3/RelValSingleGammaPt10/GEN-SIM-RECO/MC_38Y_V9-v1/0019/E872DF51-09B6-DF11-9F69-0018F3D0969A.root'
+# official RelVal 383 single Photons pt=10GeV
+        '/store/relval/CMSSW_3_8_3/RelValSingleGammaPt10/GEN-SIM-RECO/MC_38Y_V9-v1/0022/E697FF38-EEBF-DF11-9210-0026189437F9.root',
+        '/store/relval/CMSSW_3_8_3/RelValSingleGammaPt10/GEN-SIM-RECO/MC_38Y_V9-v1/0022/A271D36C-E7BF-DF11-9733-00248C0BE012.root',
+        '/store/relval/CMSSW_3_8_3/RelValSingleGammaPt10/GEN-SIM-RECO/MC_38Y_V9-v1/0022/9C991A71-E8BF-DF11-AA6E-0018F3D095FA.root'
     ),
                             
     secondaryFileNames = cms.untracked.vstring(
-        # official RelVal 390pre3 single Photons pt=10GeV
-        '/store/relval/CMSSW_3_9_0_pre3/RelValSingleGammaPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V9-v1/0021/1C6125B5-74B6-DF11-B3E1-0030486792A8.root',
-        '/store/relval/CMSSW_3_9_0_pre3/RelValSingleGammaPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V9-v1/0020/E0AD0239-12B6-DF11-AC5A-0026189438D4.root',
-        '/store/relval/CMSSW_3_9_0_pre3/RelValSingleGammaPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V9-v1/0020/7AEC711E-26B6-DF11-8F6B-0018F3D09614.root',
-        '/store/relval/CMSSW_3_9_0_pre3/RelValSingleGammaPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V9-v1/0019/840173C6-08B6-DF11-B783-003048679182.root'
+# official RelVal 383 single Photons pt=10GeV
+        '/store/relval/CMSSW_3_8_3/RelValSingleGammaPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V9-v1/0022/EA8512EF-E7BF-DF11-8818-001A92810ADC.root',
+        '/store/relval/CMSSW_3_8_3/RelValSingleGammaPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V9-v1/0022/62F71637-EEBF-DF11-8752-003048678E6E.root',
+        '/store/relval/CMSSW_3_8_3/RelValSingleGammaPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V9-v1/0022/3E3D026D-E7BF-DF11-8DE1-0018F3D096CA.root',
+        '/store/relval/CMSSW_3_8_3/RelValSingleGammaPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_38Y_V9-v1/0022/0ABB5470-E8BF-DF11-AD92-001A92811702.root'
 
     )
  )
