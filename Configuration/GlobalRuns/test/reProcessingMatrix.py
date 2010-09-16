@@ -6,6 +6,7 @@ parser.add_option("--GT")
 parser.add_option("--era")
 parser.add_option("--release")
 parser.add_option("--options",default="")
+parser.add_option("--optionsSkim",default="")
 parser.add_option("--output",default="RECO,DQM")
 parser.add_option("--fullPDs",default=False,action="store_true")
 (options,args)=parser.parse_args()
@@ -69,7 +70,7 @@ for e in evt:
 tiers=','.join(tiers)
 
 com='cmsDriver.py reco -s RAW2DIGI,L1Reco,RECO,DQM%s  --data --magField AutoFromDBCurrent --scenario pp --datatier '+tiers+' --eventcontent '+options.output+' --customise Configuration/GlobalRuns/reco_TLR_'+options.release+'.py --cust_function customisePPData --no_exec --python_filename=rereco_%sCollision_'+options.release+'.py --conditions %s '+options.options
-skim='cmsDriver.py skim -s SKIM:%s --data --magField AutoFromDBCurrent --scenario pp --datatier '+tiers+' --eventcontent '+options.output+' --no_exec --python_filename=skim_%s'+options.release+'.py --conditions %s '+options.options
+skim='cmsDriver.py skim -s SKIM:%s --data --magField AutoFromDBCurrent --scenario pp --datatier '+tiers+' --eventcontent '+options.output+' --no_exec --python_filename=skim_%s'+options.release+'.py --conditions %s '+options.optionsSkim
 comCos='cmsDriver.py reco -s RAW2DIGI,L1Reco,RECO,DQM%s  --data --magField AutoFromDBCurrent --scenario cosmics --datatier '+tiers+' --eventcontent '+options.output+' --customise Configuration/GlobalRuns/reco_TLR_'+options.release+'.py --cust_function customiseCosmicData --no_exec --python_filename=rereco_%sCosmic_'+options.release+'.py --conditions %s '+options.options
 
 import os
