@@ -9,8 +9,8 @@ process.common_maximum_timex = cms.PSet(
 )
 
 process.common_pgun_particleID = cms.PSet(
-        #PartID = cms.vint32(11,211)
-        PartID = cms.vint32(211)
+        PartID = cms.vint32(11,211)
+        #PartID = cms.vint32(211)
 )
 
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
@@ -105,7 +105,7 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
         MaxPhi = cms.double(0.7854), # PI/4 = 0.7854
         MinE = cms.double(12.00),
         #MeanE = cms.double(12.00),
-        MaxE = cms.double(12.00)
+        MaxE = cms.double(14.00)
         #Energybins = cms.vdouble(1.,2.,3.,5.,7.,10.,20.,30.,45.,60.,75.,100.,140.,200.,300.,600.,1000.,1500.)
     ),
     AddAntiParticle = cms.bool(False),
@@ -115,9 +115,9 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
 process.g4SimHits.CastorSD.useShowerLibrary = False
 
 process.source = cms.Source("EmptySource")
-process.o1 = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('sim_pion_1events-ppON.root')
-)
+#process.o1 = cms.OutputModule("PoolOutputModule",
+#    fileName = cms.untracked.string('sim_pion_1events-ppON.root')
+#)
 
 
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
@@ -131,18 +131,20 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
         StepNtupleFlag = cms.int32(0),
         EventNtupleFlag = cms.int32(0),
         # for shower library
-        nemEvents       = cms.int32(0),
+        nemEvents       = cms.int32(5),
         SLemEnergyBins  = cms.vdouble(10.),
         SLemEtaBins     = cms.vdouble(-6.6,-6.4,-6.2,-6.0,-5.8,-5.6,-5.4),
         SLemPhiBins     = cms.vdouble(0.,0.07854,0.15708,0.23562,0.31416,0.3927,0.47124,0.54978,0.62832,0.70686),
-        nhadEvents       = cms.int32(2),
+        nhadEvents       = cms.int32(5),
         SLhadEnergyBins  = cms.vdouble(10.),
         #SLhadEnergyBins  = cms.vdouble(1.,2.,3.,5.,7.,10.,20.,30.,45.,60.,75.,100.,140.,200.),
         SLhadEtaBins     = cms.vdouble(-6.6,-6.4,-6.2,-6.0,-5.8,-5.6,-5.4),
-        SLhadPhiBins     = cms.vdouble(0.,0.07854,0.15708,0.23562,0.31416,0.3927,0.47124,0.54978,0.62832,0.70686)
+        SLhadPhiBins     = cms.vdouble(0.,0.07854,0.15708,0.23562,0.31416,0.3927,0.47124,0.54978,0.62832,0.70686),
+        SLMaxPhi         = cms.double(0.7854),
+        SLMaxEta         = cms.double(-5.2)
     )
 ))
 
 
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
-process.outpath = cms.EndPath(process.o1)
+#process.outpath = cms.EndPath(process.o1)

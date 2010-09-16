@@ -148,6 +148,9 @@ private:
                                                  // the PDG code of the primary
 
   std::map<int,G4ThreeVector> PrimaryMomentum;
+  std::map<int,G4ThreeVector> PrimaryPosition;
+  double                MaxEta; // limits the eta region, the lower limit is given by the SL bins
+  double                MaxPhi; // limits the phi region, the lower limit is given by the SL bins
 // private methods
   int FindEnergyBin(double e);
   int FindEtaBin(double eta);

@@ -52,8 +52,10 @@ CastorShowerLibraryMaker::CastorShowerLibraryMaker(const edm::ParameterSet &p) :
   emSLHolder.SLPhiBins      = p_SLM.getParameter<std::vector<double> >("SLemPhiBins");
   PGParticleIDs             = p_SLM.getParameter<std::vector<int> >("PartID");
   DeActivatePhysicsProcess  = p_SLM.getParameter<bool>("DeActivatePhysicsProcess");
-  NPGParticle               = PGParticleIDs.size(); 
+  MaxPhi                    = p_SLM.getParameter<double>("SLMaxPhi");
+  MaxEta                    = p_SLM.getParameter<double>("SLMaxEta");
 //
+  NPGParticle               = PGParticleIDs.size(); 
   for(unsigned int i=0;i<PGParticleIDs.size();i++) {
      switch (int(fabs(PGParticleIDs.at(i)))) {
         case 11:
@@ -226,6 +228,7 @@ void CastorShowerLibraryMaker::update(const BeginOfEvent * evt) {
   stepIndex = 0;
   InsideCastor = false;
   PrimaryMomentum.clear();
+  PrimaryPosition.clear();
   int NAccepted =0;
 // reset the pointers to the shower objects
   SLShowerptr = NULL;
@@ -265,16 +268,34 @@ void CastorShowerLibraryMaker::update(const BeginOfEvent * evt) {
                   << "\n========================================================================"
                   << std::endl;
 
+     if (ebin<0||etabin<0||phibin<0) continue;
+     bool accept=false;
      if (!(SLacceptEvent(ebin,etabin,phibin))) {
-     //for(int i=0;i<=ebin;i++) {
-     //   if (SLacceptEvent(i,etabin,phibin)) {
-     //      break;
-     //   }
-        edm::LogInfo("CastorShowerLibraryMaker") << "Event not accepted for ebin="
+/*
+// To increase the chance of a particle arriving at CASTOR inside a not full bin,
+// check if there is available phase space in the neighboring bins
+        unsigned int ebin_min = std::max(0,ebin-3);
+        unsigned int eta_bin_min = std::max(0,etabin-2);
+        unsigned int eta_bin_max = std::min(etabin,etabin+2);
+        unsigned int phi_bin_min = std::max(0,phibin-2);
+        unsigned int phi_bin_max = std::min(phibin,phibin+2);
+        for(unsigned int i_ebin=ebin_min;i_ebin<=(unsigned int)ebin;i_ebin++) {
+           for (unsigned int i_etabin=eta_bin_min;i_etabin<=eta_bin_max;i_etabin++) {
+               for (unsigned int i_phibin=phi_bin_min;i_phibin<=phi_bin_max;i_phibin++) {
+                   if (SLacceptEvent((int)i_ebin,(int)i_etabin,(int)i_phibin)) {accept=true;break;}
+               }
+               if (accept) break;
+           }
+           if (accept) break;
+        }
+*/
+        if (!accept) edm::LogInfo("CastorShowerLibraryMaker") << "Event not accepted for ebin="
              << ebin<<",etabin="<<etabin<<",phibin="<<phibin<<std::endl;
-        continue;
      }
-     NAccepted++;
+     else {
+        accept=true;
+     }
+     if (accept) NAccepted++;
   }
   
   if (NAccepted==0) {
@@ -310,9 +331,19 @@ void CastorShowerLibraryMaker::update(const G4Step * aStep) {
                 }
             } 
          }
+// move track to z of CASTOR
+         G4ThreeVector pos;
+         pos.setZ(-14390);
+         double t = abs((pos.z()-trk->GetPosition().z()))/trk->GetVelocity();
+         double r = (pos.z()-trk->GetPosition().z())/trk->GetMomentum().cosTheta();
+         pos.setX(r*sin(trk->GetMomentum().theta())*cos(trk->GetMomentum().phi())+trk->GetPosition().x());
+         pos.setY(r*sin(trk->GetMomentum().theta())*sin(trk->GetMomentum().phi())+trk->GetPosition().y());
+         trk->SetPosition(pos);
+         trk->SetGlobalTime(trk->GetGlobalTime()+t);
+         trk->AddTrackLength(r);
       }
       else if (!InsideCastor) {
-         std::cout<<"CastorShowerLibraryMaker::update(G4Step) -> Killing expurious track" << std::endl;
+         std::cout<<"CastorShowerLibraryMaker::update(G4Step) -> Killing spurious track" << std::endl;
          trk->SetTrackStatus(fKillTrackAndSecondaries);
          return;
       }
@@ -341,7 +372,14 @@ void CastorShowerLibraryMaker::update(const G4Step * aStep) {
           }
        }
        //PrimaryMomentum[CurrentPrimary]=aStep->GetPreStepPoint()->GetMomentum();
+// check fiducial eta and phi
+       if (trk->GetMomentum().phi()>MaxPhi||trk->GetMomentum().eta()>MaxEta) {
+          trk->SetTrackStatus(fKillTrackAndSecondaries);
+          InsideCastor=false;
+          return;
+       }
        PrimaryMomentum[CurrentPrimary]=trk->GetMomentum();
+       PrimaryPosition[CurrentPrimary]=trk->GetPosition();
        KillSecondaries(aStep);
        return;
    } 
@@ -435,8 +473,6 @@ void CastorShowerLibraryMaker::update(const EndOfEvent * evt) {
 
 // Obtain primary particle's initial momentum (pInit)
      double px=0., py=0., pz=0., pInit = 0., eta = 0., phi = 0.;
-     //GetKinematics(thePrim,px,py,pz,pInit,eta,phi);
-     //px=py=pz=pInit=eta=phi=0;
      GetKinematics(particleType,px,py,pz,pInit,eta,phi);
 // Check if current event falls into any bin
 // first: energy
@@ -476,15 +512,17 @@ void CastorShowerLibraryMaker::update(const EndOfEvent * evt) {
 // Get Hit information
      if (FillShowerEvent(theCAFI,shower,particleType)) { 
 //  Primary particle information
+/*
         edm::LogInfo("CastorShowerLibraryMaker") << "New SL event: Primary = " << particleType
              << "; Energy = " << pInit << "; Eta = " << eta << "; Phi = " << phi
              << "; Nhits = " << shower->getNhit() << std::endl;
+*/
         shower->setPrimE(pInit);
         shower->setPrimEta(eta);
         shower->setPrimPhi(phi);
-        //shower->setPrimX(entry.x());
-        //shower->setPrimY(entry.y());
-        //shower->setPrimZ(entry.z());
+        shower->setPrimX(PrimaryPosition[particleType].x());
+        shower->setPrimY(PrimaryPosition[particleType].y());
+        shower->setPrimZ(PrimaryPosition[particleType].z());
         SLnEvtInBinE(ebin)++;
         SLnEvtInBinEta(ebin,etabin)++;
         SLnEvtInBinPhi(ebin,etabin,phibin)++;
@@ -870,23 +908,8 @@ bool CastorShowerLibraryMaker::FillShowerEvent(CaloG4HitCollection* theCAFI, Cas
             << "\n packIndex " << theCastorNumScheme->packIndex(zside,sector,zmodule)
             << "\n X,Y,Z = " << entry.x() << ","<< entry.y() << "," << entry.z();
        }
-       if(nHits==0) {
-/*
-         edm::LogInfo("CastorShowerLibraryMaker")
-            << "\n    entry(x,y,z) = (" << entry.x() << "," 
-            << entry.y() << "," << entry.z() << ") \n" 
-            << "\n    entry(eta,phi,z) = (" << entry.eta() << "," 
-            << entry.phi() << "," << entry.z() << ") \n" 
-            << "\n    eta , phi = "  
-            << eta << " , " << phi << " \n" ;
-*/
-          shower->setPrimX(entry.x());
-          shower->setPrimY(entry.y());
-          shower->setPrimZ(entry.z());
-       }
        if (verbosity) edm::LogInfo("CastorShowerLibraryMaker") << "\n    Incident Energy = "  
                                                 << aHit->getIncidentEnergy() << " \n" ;
-
 
 //  CaloG4Hit information 
        shower->setDetID(volumeID);
@@ -894,14 +917,6 @@ bool CastorShowerLibraryMaker::FillShowerEvent(CaloG4HitCollection* theCAFI, Cas
        shower->setNphotons(hitEnergy);
        shower->setTime(time);
        nHits++;
-/*
-       std::cout << "Hit energy: " << aHit->getEnergyDeposit() <<" Sector: " << sector
-                 << " Module: " << zmodule << " Time: " << time 
-                 << " Primary: " << ipart << " E: " << PrimaryMomentum[ipart].mag()/GeV 
-                 << " Eta: " << PrimaryMomentum[ipart].eta()
-                 << " Phi: " << PrimaryMomentum[ipart].phi()
-                 << std::endl;
-*/
      }
 // Write number of hits to CastorShowerEvent instance
      if (nHits==0) {
