@@ -128,6 +128,7 @@ public:
   */
 
 
+   // All this GC stuff is getting very clunky
    const TGGC&
    boldGC()
    {
@@ -137,7 +138,8 @@ public:
       TGFont *font = pool->FindFontByHandle(s_boldGC.GetFont());
       FontAttributes_t attributes = font->GetFontAttributes();
 
-      attributes.fWeight = 1; // This doesn't seem to work
+      // This doesn't seem to work:
+      //attributes.fWeight = 1; 
       //TGFont *newFont = pool->GetFont(attributes.fFamily, 9,
       //                                attributes.fWeight, attributes.fSlant);
 
@@ -147,8 +149,8 @@ public:
       if ( ! newFont )
         return s_boldGC;
 
-      std::cout<<"boldGC: "<< std::endl;
-      newFont->Print();
+      //std::cout<<"boldGC: "<< std::endl;
+      //newFont->Print();
 
       s_boldGC.SetFont(newFont->GetFontHandle());
 
@@ -168,22 +170,14 @@ public:
       TGFont *newFont = pool->GetFont(attributes.fFamily, 9,
                                       attributes.fWeight, attributes.fSlant);
 
-      std::cout<<"italicGC: "<< std::endl;
-      newFont->Print();
+      //std::cout<<"italicGC: "<< std::endl;
+      //newFont->Print();
 
       s_italicGC.SetFont(newFont->GetFontHandle());
 
       return s_italicGC;
    }
 
-   const TGGC &
-   pathGC()
-   {
-      static TGGC s_pathGC(boldGC());
-      s_pathGC.SetForeground(gVirtualX->GetPixel(kRed-5));
-      return s_pathGC;
-   }
-  
    const TGGC &
    pathBackgroundGC()
    {
@@ -192,31 +186,73 @@ public:
       return s_pathBackgroundGC;
    }
 
-  const TGGC&
-  redGC()
-    {
+
+   // Is there a simpler way to handle colors?   
+   const TGGC &
+   boldRedGC()
+   {
+      static TGGC s_boldRedGC(boldGC());
+      s_boldRedGC.SetForeground(gVirtualX->GetPixel(kRed-5));
+      return s_boldRedGC;
+   }
+
+   const TGGC &
+   italicRedGC()
+   {
+      static TGGC s_italicRedGC(italicGC());
+      s_italicRedGC.SetForeground(gVirtualX->GetPixel(kRed-5));
+      return s_italicRedGC;
+   }
+  
+   const TGGC&
+   redGC()
+   {
       static TGGC s_redGC(*gClient->GetResourcePool()->GetFrameGC());
-      s_redGC.SetForeground(gVirtualX->GetPixel(kRed));
+      s_redGC.SetForeground(gVirtualX->GetPixel(kRed-5));
       return s_redGC;
-    }
+   }
  
+   const TGGC&
+   boldGreenGC()
+   {
+      static TGGC s_boldGreenGC(boldGC());
+      s_boldGreenGC.SetForeground(gVirtualX->GetPixel(kGreen-5));
+      return s_boldGreenGC;
+   }
  
-  const TGGC&
-  greenGC()
-    {
+   const TGGC &
+   italicGreenGC()
+   {
+      static TGGC s_italicGreenGC(italicGC());
+      s_italicGreenGC.SetForeground(gVirtualX->GetPixel(kGreen-5));
+      return s_italicGreenGC;
+   }
+
+   const TGGC&
+   greenGC()
+   {
       static TGGC s_greenGC(*gClient->GetResourcePool()->GetFrameGC());
-      s_greenGC.SetForeground(gVirtualX->GetPixel(kGreen));
+      s_greenGC.SetForeground(gVirtualX->GetPixel(kGreen-5));
       return s_greenGC;
-    }
+   }
   
 
    FWPSetTableManager()
       : m_selectedRow(-1)
-   {
-      m_boldRenderer.setGraphicsContext(&boldGC());
+   {  
       m_italicRenderer.setGraphicsContext(&italicGC());
-      m_pathRenderer.setGraphicsContext(&pathGC());
-      m_pathRenderer.setHighlightContext(&pathBackgroundGC());
+      m_boldRenderer.setGraphicsContext(&boldGC());
+
+      m_pathPassedRenderer.setGraphicsContext(&boldGreenGC());
+      m_pathPassedRenderer.setHighlightContext(&pathBackgroundGC());
+
+      m_pathFailedRenderer.setGraphicsContext(&boldRedGC());
+      m_pathFailedRenderer.setHighlightContext(&pathBackgroundGC());
+
+      // Italic color doesn't seem to show up well event though
+      // modules are displayed in italic
+      m_modulePassedRenderer.setGraphicsContext(&boldGreenGC());
+      m_moduleFailedRenderer.setGraphicsContext(&boldRedGC());
 
       std::cout << "Available fonts: " << std::endl;
       gClient->GetFontPool()->Print();
@@ -430,13 +466,28 @@ public:
          label = data.label + " (" + data.value + ")";
        
          value = "";
-         renderer = &m_pathRenderer;
+
+         if ( data.passed )
+           renderer = &m_pathPassedRenderer;
+         else 
+           renderer = &m_pathFailedRenderer;
       }
       else if (data.level == 1)
       {
          label = data.label + " (" + data.value + ")";
          value = "";
-         renderer = &m_italicRenderer;
+
+         // "passed" means if module made decision on path 
+         // passing or failing
+         if ( data.passed )
+         {
+            if ( data.parentPassed )
+              renderer = &m_modulePassedRenderer;
+            else
+              renderer = &m_moduleFailedRenderer;
+         }
+         else 
+            renderer = &m_italicRenderer;
       }
       else
       {
@@ -864,9 +915,14 @@ private:
    TGTextEntry                    *m_editor;
 
    mutable FWTextTreeCellRenderer m_renderer;  
-   mutable FWTextTreeCellRenderer m_pathRenderer;
-   mutable FWTextTreeCellRenderer m_boldRenderer;
    mutable FWTextTreeCellRenderer m_italicRenderer;
+   mutable FWTextTreeCellRenderer m_boldRenderer;
+
+   mutable FWTextTreeCellRenderer m_pathPassedRenderer;
+   mutable FWTextTreeCellRenderer m_pathFailedRenderer;
+
+   mutable FWTextTreeCellRenderer m_modulePassedRenderer;
+   mutable FWTextTreeCellRenderer m_moduleFailedRenderer;
 };
 
 FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
