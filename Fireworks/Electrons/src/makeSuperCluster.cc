@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Dec  5 15:32:33 EST 2008
-// $Id: makeSuperCluster.cc,v 1.11 2010/08/30 15:42:33 amraktad Exp $
+// $Id: makeSuperCluster.cc,v 1.12 2010/09/07 15:46:47 yana Exp $
 //
 
 // system include files
@@ -53,12 +53,12 @@ bool makeRhoPhiSuperCluster( FWProxyBuilderBase* pb,
          phis.push_back( TEveVector( centre[0], centre[1], centre[2] ).Phi());
       }
    }
-   std::pair<double,double> phiRange = fw::getPhiRange( phis, iPhi );
+   std::pair<double,double> phiRange = fireworks::getPhiRange( phis, iPhi );
    const double r = pb->context().caloR1();
    TGeoBBox *sc_box = new TGeoTubeSeg( r - 2, r , 1,
                                        phiRange.first * 180 / M_PI - 0.5,
                                        phiRange.second * 180 / M_PI + 0.5 ); // 0.5 is roughly half size of a crystal
-   TEveGeoShape *sc = fw::getShape( "supercluster", sc_box, pb->item()->defaultDisplayProperties().color());
+   TEveGeoShape *sc = fireworks::getShape( "supercluster", sc_box, pb->item()->defaultDisplayProperties().color());
    sc->SetPickable( kTRUE );
    pb->setupAddElement( sc, &oItemHolder );
    return true;
@@ -104,9 +104,9 @@ bool makeRhoZSuperCluster( FWProxyBuilderBase* pb,
    double z_ecal = barrel ? pb->context().caloZ1() : pb->context().caloZ2();
    double r_ecal = barrel ? pb->context().caloR1() : pb->context().caloR2();
 
-   fw::addRhoZEnergyProjection( pb, &oItemHolder, r_ecal-1, z_ecal-1,
-				theta_min - 0.003, theta_max + 0.003,
-                                iPhi );
+   fireworks::addRhoZEnergyProjection( pb, &oItemHolder, r_ecal-1, z_ecal-1,
+				       theta_min - 0.003, theta_max + 0.003,
+				       iPhi );
 
    return true;
 }

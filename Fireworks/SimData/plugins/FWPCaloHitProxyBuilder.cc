@@ -10,7 +10,7 @@
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Calo/interface/CaloUtils.h"
+#include "Fireworks/Core/interface/BuilderUtils.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 

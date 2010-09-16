@@ -46,7 +46,7 @@ FWEventAnnotation::updateOverlayText()
    if (event && m_level)
    {
       fText += "\nData recorded: ";
-      fText += fw::getLocalTime( *event );
+      fText += fireworks::getLocalTime( *event );
       fText += "\nRun/Event: ";
       fText += event->id().run();
       fText += " / ";

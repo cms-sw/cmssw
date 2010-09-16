@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.39 2010/04/16 13:44:07 amraktad Exp $
+// $Id: FWGlimpseView.cc,v 1.40 2010/06/18 10:17:15 yana Exp $
 //
 
 #include <boost/bind.hpp>
@@ -65,7 +65,7 @@ FWGlimpseView::FWGlimpseView(TEveWindowSlot* iParent, FWViewType::EType typeId) 
 
    TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
    TGeoTube* tube = new TGeoTube(129,130,310);
-   m_cylinder = fw::getShape("Detector outline", tube, kWhite);
+   m_cylinder = fireworks::getShape("Detector outline", tube, kWhite);
    m_cylinder->SetPickable(kFALSE);
    m_cylinder->SetMainColor(kGray+3);
    wns->AddElement(m_cylinder);

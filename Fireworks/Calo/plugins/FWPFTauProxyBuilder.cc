@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWPFTauProxyBuilder.cc,v 1.12 2010/09/02 18:10:09 amraktad Exp $
+// $Id: FWPFTauProxyBuilder.cc,v 1.13 2010/09/02 19:28:40 amraktad Exp $
 //
 
 // system include files
@@ -113,7 +113,7 @@ FWPFTauProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* p
       }
       else if( type == FWViewType::kRhoPhi ) 
       {	 
-	 std::pair<double,double> phiRange = fw::getPhiRange( phis, phi );
+	 std::pair<double,double> phiRange = fireworks::getPhiRange( phis, phi );
 	 double min_phi = phiRange.first-M_PI/36/2;
 	 double max_phi = phiRange.second+M_PI/36/2;
 	 if( fabs(phiRange.first-phiRange.first)<1e-3 ) {
@@ -122,7 +122,7 @@ FWPFTauProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* p
 	 }
 	 TEveGeoManagerHolder gmgr( TEveGeoShape::GetGeoMangeur() );
 	 TGeoBBox *sc_box = new TGeoTubeSeg( r_ecal - 1, r_ecal + 1, 1, min_phi * 180 / M_PI, max_phi * 180 / M_PI );
-	 TEveGeoShape *element = fw::getShape( "spread", sc_box, iItem->defaultDisplayProperties().color() );
+	 TEveGeoShape *element = fireworks::getShape( "spread", sc_box, iItem->defaultDisplayProperties().color() );
 	 element->SetPickable( kTRUE );
 	 setupAddElement( element, comp );
 
@@ -148,8 +148,8 @@ FWPFTauProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* p
 	 const std::vector<std::pair<double, double> > thetaBins = fireworks::thetaBins();
 	 double max_theta = thetaBins[min].first;
 	 double min_theta = thetaBins[max].second;
-	 fw::addRhoZEnergyProjection( this, comp, r_ecal, z_ecal, min_theta-0.003, max_theta+0.003,
-				      phi);
+	 fireworks::addRhoZEnergyProjection( this, comp, r_ecal, z_ecal, min_theta-0.003, max_theta+0.003,
+					     phi);
       }            
       setupAddElement( comp, product );
    }

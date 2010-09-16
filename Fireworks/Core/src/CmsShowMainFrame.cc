@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.103 2010/09/15 18:14:22 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.104 2010/09/16 15:36:55 amraktad Exp $
 
 #include "FWCore/Common/interface/EventBase.h"
 
@@ -522,15 +522,13 @@ CmsShowMainFrame::createNewViewerAction(const std::string& iActionName)
    return action;
 }
 
-
-
 void CmsShowMainFrame::loadEvent(const edm::EventBase& event)
 {
    m_runEntry  ->SetUIntNumber(event.id().run());
    m_lumiEntry ->SetUIntNumber(event.id().luminosityBlock());
    m_eventEntry->SetUIntNumber(event.id().event());
 
-   m_timeText->SetText( fw::getLocalTime( event ).c_str() );
+   m_timeText->SetText( fireworks::getLocalTime( event ).c_str() );
 }
 
 void CmsShowMainFrame::enableNavigatorControls()

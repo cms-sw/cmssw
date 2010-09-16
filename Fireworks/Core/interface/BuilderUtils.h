@@ -4,56 +4,42 @@
 #include <vector>
 #include <string>
 #include "Rtypes.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-
-class TEveTrack;
 class TEveGeoShape;
-class TGeoBBox;
 class TEveElement;
-class TEveElementList;
-class TEveStraightLineSet;
-class DetId;
+class TGeoBBox;
 class FWProxyBuilderBase;
 
 namespace edm {
    class EventBase;
 }
 
-namespace reco {
-   class Candidate;
-}
-
-namespace fw {
-std::pair<double,double> getPhiRange( const std::vector<double>& phis,
-                                      double phi );
-TEveGeoShape* getShape( const char* name,
-                        TGeoBBox* shape,
-                        Color_t color );
-
-void addRhoZEnergyProjection( FWProxyBuilderBase*, TEveElement*,
-                              double r_ecal, double z_ecal,
-                              double theta_min, double theta_max,
-                              double phi);
-class NamedCounter
+namespace fireworks
 {
-   std::string m_name;
-   unsigned int m_index;
-public:
-   NamedCounter( std::string name ) :
-      m_name( name ), m_index(0){
-   }
-   void operator++() {
-      ++m_index;
-   }
-   std::string str() const;
-   unsigned int index() const {
-      return m_index;
-   }
-};
+   std::pair<double,double> getPhiRange( const std::vector<double>& phis,
+					 double phi );
+   TEveGeoShape* getShape( const char* name,
+			   TGeoBBox* shape,
+			   Color_t color );
 
-std::string getTimeGMT(const edm::EventBase& event);
-std::string getLocalTime(const edm::EventBase& event);
+   void addRhoZEnergyProjection( FWProxyBuilderBase*, TEveElement*,
+				 double r_ecal, double z_ecal,
+				 double theta_min, double theta_max,
+				 double phi );
+
+   std::string getTimeGMT( const edm::EventBase& event );
+   std::string getLocalTime( const edm::EventBase& event );
+
+   void invertBox( std::vector<float> &corners );
+   void addBox( const std::vector<float> &corners, TEveElement*,  FWProxyBuilderBase*);
+   void addCircle( double eta, double phi, double radius, const unsigned int nLineSegments, TEveElement* comp, FWProxyBuilderBase* pb );
+   void addDashedArrow( double phi, double size, TEveElement* comp, FWProxyBuilderBase* pb );
+   void addDashedLine( double phi, double theta, double size, TEveElement* comp, FWProxyBuilderBase* pb );
+   void addDoubleLines( double phi, TEveElement* comp, FWProxyBuilderBase* pb );
+   void drawEnergyScaledBox3D( const float* corners, float scale, TEveElement*,  FWProxyBuilderBase*, bool invert = false );
+   void drawEtScaledBox3D( const float* corners, float energy, float maxEnergy, TEveElement*,  FWProxyBuilderBase*, bool invert = false );
+   void drawEnergyTower3D( const float* corners, float scale, TEveElement*, FWProxyBuilderBase*, bool reflect = false );
+   void drawEtTower3D( const float* corners, float scale, TEveElement*, FWProxyBuilderBase*, bool reflect = false );
 }
 
-#endif
+#endif // Fireworks_Core_BuilderUtils_h

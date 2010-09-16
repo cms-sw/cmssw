@@ -14,7 +14,6 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
 #include "TEveTrack.h"
-#include "TParticle.h"
 
 class FWTrackingParticleProxyBuilder : public FWSimpleProxyBuilderTemplate<TrackingParticle>
 {
@@ -36,30 +35,35 @@ private:
 void
 FWTrackingParticleProxyBuilder::build( const TrackingParticle& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* )
 {
-   TParticle* particle = new TParticle;
-   particle->SetPdgCode( iData.pdgId());
-   particle->SetMomentum( iData.px(), iData.py(), iData.pz(), iData.p());
-   // particle->SetProductionVertex( iData.vx(), iData.vy(), iData.vz(), 0.0 );
-   particle->SetProductionVertex( iData.parentVertex()->position().x() / 100.0,
-				  iData.parentVertex()->position().y() / 100.0,
-				  iData.parentVertex()->position().z() / 100.0, 0.0 );
-   TEveTrackPropagator* propagator = context().getTrackPropagator();
+   TEveRecTrack t;
+   t.fBeta = 1.0;
+   t.fP = TEveVector( iData.px(), iData.py(), iData.pz() );
+   t.fV = TEveVector( iData.vx() * 0.01, iData.vy() * 0.01, iData.vz() * 0.01 );
+   t.fSign = iData.charge();
   
-   TEveTrack* track = new TEveTrack( particle, iIndex, propagator );
-   setupAddElement( track, &oItemHolder );
-
+   TEveTrack* track = new TEveTrack(&t, context().getTrackPropagator());
+   if( t.fSign == 0 )
+      track->SetLineStyle( 7 );
+   
    TEvePointSet* pointSet = new TEvePointSet;
-   setupAddElement( pointSet, &oItemHolder );
+   setupAddElement( pointSet, track );
    const FWGeometry *geom = item()->getGeom();
    const std::vector<PSimHit>& hits = iData.trackPSimHit();
+
+   float local[3];
+   float global[3];
    for( std::vector<PSimHit>::const_iterator it = hits.begin(), end = hits.end(); it != end; ++it )
    {
      const PSimHit& phit = (*it);
-     float local[3] = { phit.localPosition().x(), phit.localPosition().y(), phit.localPosition().z() };
-     float global[3];
+     local[0] = phit.localPosition().x();
+     local[1] = phit.localPosition().y();
+     local[2] = phit.localPosition().z();
      geom->localToGlobal( phit.detUnitId(), local, global );
      pointSet->SetNextPoint( global[0], global[1], global[2] );
+     track->AddPathMark( TEvePathMark( TEvePathMark::kDaughter, TEveVector( global[0], global[1], global[2] )));
    }
+   track->MakeTrack();
+   setupAddElement( track, &oItemHolder );
 }
 
 REGISTER_FWPROXYBUILDER( FWTrackingParticleProxyBuilder, TrackingParticle, "TrackingParticles", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );

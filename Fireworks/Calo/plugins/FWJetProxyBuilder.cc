@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWJetProxyBuilder.cc,v 1.19 2010/09/03 10:20:04 yana Exp $
+// $Id: FWJetProxyBuilder.cc,v 1.20 2010/09/03 10:22:20 yana Exp $
 //
 #include "TGeoArb8.h"
 #include "TEveGeoNode.h"
@@ -25,7 +25,7 @@
 
 #include "Fireworks/Calo/interface/FW3DEveJet.h"
 #include "Fireworks/Calo/interface/FWGlimpseEveJet.h"
-#include "Fireworks/Calo/interface/CaloUtils.h"
+#include "Fireworks/Core/interface/BuilderUtils.h"
 #include "Fireworks/Calo/interface/thetaBins.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
@@ -136,7 +136,7 @@ FWJetRhoPhiProxyBuilder::build(const reco::Jet& iData, unsigned int iIndex, TEve
    double phiSize = sqrt(iData.phiphiMoment() );
    phis.push_back(phi + phiSize);
    phis.push_back(phi - phiSize);
-   std::pair<double, double> phiRange = fw::getPhiRange(phis, iData.phi());
+   std::pair<double, double> phiRange = fireworks::getPhiRange(phis, iData.phi());
 
    double min_phi = phiRange.first  - M_PI / 72;
    double max_phi = phiRange.second + M_PI / 72;
@@ -163,8 +163,8 @@ FWJetRhoPhiProxyBuilder::build(const reco::Jet& iData, unsigned int iIndex, TEve
 
    TEveGeoManagerHolder gmgr( TEveGeoShape::GetGeoMangeur() );
    const FWDisplayProperties &dp = item()->defaultDisplayProperties();
-   TEveGeoShape *element = fw::getShape("cone", new TGeoArb8(0, points),
-                                        dp.color());
+   TEveGeoShape *element = fireworks::getShape("cone", new TGeoArb8(0, points),
+					       dp.color());
    setupAddElement(element, &oItemHolder);
 
    element->SetMainTransparency(TMath::Min(100, 90 + dp.transparency() / 10));
@@ -314,8 +314,8 @@ FWJetRhoZProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveE
    }
    TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
    const FWDisplayProperties &p = item()->defaultDisplayProperties();
-   TEveGeoShape *element = fw::getShape("cone", new TGeoArb8( 0, points ),
-                                        p.color());
+   TEveGeoShape *element = fireworks::getShape("cone", new TGeoArb8( 0, points ),
+					       p.color());
    element->RefMainTrans().RotateLF( 1, 3, M_PI/2 );
    setupAddElement(element, &oItemHolder);
 

@@ -1,7 +1,7 @@
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
-#include "Fireworks/Calo/interface/CaloUtils.h"
+#include "Fireworks/Core/interface/BuilderUtils.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 
 class FWPRCaloTowerProxyBuilder : public FWSimpleProxyBuilderTemplate<CaloTower>

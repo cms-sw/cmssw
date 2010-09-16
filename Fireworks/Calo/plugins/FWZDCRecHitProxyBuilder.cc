@@ -9,7 +9,7 @@
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
-#include "Fireworks/Calo/interface/CaloUtils.h"
+#include "Fireworks/Core/interface/BuilderUtils.h"
 #include "DataFormats/HcalRecHit/interface/ZDCRecHit.h"
 
 class FWZDCRecHitProxyBuilder : public FWSimpleProxyBuilderTemplate<ZDCRecHit>

@@ -8,7 +8,7 @@
  */
 
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
-#include "Fireworks/Calo/interface/CaloUtils.h"
+#include "Fireworks/Core/interface/BuilderUtils.h"
 
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
 
