@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2010/08/08 08:46:02 $
- * $Revision: 1.277 $
+ * $Date: 2010/08/30 13:14:07 $
+ * $Revision: 1.278 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1890,6 +1890,14 @@ void EBLaserClient::analyze(void) {
           xmean02 = xmean02 * 1.5;
           xmean03 = xmean03 * 1.5;
           xmean04 = xmean04 * 1.5;
+        }
+
+        // special correction for EB+18
+        if ( ism == 36 && ie > 5 && ip <= 10 ) {
+          xmean01 = xmean01 * 1.0;
+          xmean02 = xmean02 * 1.0;
+          xmean03 = xmean03 * 1.0;
+          xmean04 = xmean04 * 2.0;
         }
 
         if ( update01 ) {
