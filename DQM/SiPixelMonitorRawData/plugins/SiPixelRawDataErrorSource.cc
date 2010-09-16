@@ -150,7 +150,7 @@ void SiPixelRawDataErrorSource::analyze(const edm::Event& iEvent, const edm::Eve
   // Rate of errors per lumi section:
   MonitorElement* me1 = theDMBE->get("Pixel/AdditionalPixelErrors/errorRate");
   if(me1){
-    int nLumiErrors = me1->getBinContent(lumiSection+1) + nErrors;
+    int nLumiErrors = int(me1->getBinContent(lumiSection+1)) + nErrors;
     me1->Fill(lumiSection, nLumiErrors);
   }
   
