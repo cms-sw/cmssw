@@ -13,7 +13,7 @@
 //
 // Original Author:  Marco De Mattia,40 3-B32,+41227671551,
 //         Created:  Tue Jun 22 13:50:22 CEST 2010
-// $Id$
+// $Id: MuScleFitMuonProducer.cc,v 1.1 2010/06/22 17:25:39 demattia Exp $
 //
 //
 
@@ -52,7 +52,8 @@ class MuScleFitMuonProducer : public edm::EDProducer {
       virtual void endJob() ;
 
   edm::InputTag theMuonLabel_;
-  smearFunctionType7 smearFunction;
+  // Contains the numbers taken from the J/Psi
+  // smearFunctionType7 smearFunction;
 };
 
 MuScleFitMuonProducer::MuScleFitMuonProducer(const edm::ParameterSet& iConfig) :
@@ -79,22 +80,32 @@ void MuScleFitMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
     double pt = muon->pt();
 
-    // Bias
-    double a_0 = 1.0019;
-    double a_1 = -0.0004;
-    // The miscalibration can be applied only for pt < 626 GeV/c
-    if( pt < -a_0*a_0/(4*a_1) ) {
-      pt = (-a_0 + sqrt(a_0*a_0 + 4*a_1*pt))/(2*a_1);
-    }
+    // Biasing the MC such that it reproduces the data + the residual error
+    double a_0 = 1.0039;
+    // double a_1 = 0.;
+    // // The miscalibration can be applied only for pt < 626 GeV/c
+    // if( pt < -a_0*a_0/(4*a_1) ) {
+    // pt = (-a_0 + sqrt(a_0*a_0 + 4*a_1*pt))/(2*a_1);
+    // }
+    pt = a_0*pt;
 
     // Smearing
     // std::cout << "smearing muon" << std::endl;
-    std::vector<double> par;
-    double * y = 0;
-    // double y[7];
+    // std::vector<double> par;
+    // double * y = 0;
+    TF1 G("G", "[0]*exp(-0.5*pow(x,2)/[1])", -5., 5.);
+    double sigma = 0.00014; // converted from TeV^-1 to GeV^-1
+    double norm = 1/(sqrt(2*TMath::Pi()));
+    G.SetParameter(0,norm);
+    G.SetParameter(1,1);
+    // std::cout << "old pt = " << pt;
+    pt = 1/(1/pt + sigma*G.GetRandom());
+    // pt' = pt + sigma pt^2
+    // pt = pt*(1-G.GetRandom());
     double eta = muon->eta();
     double phi = muon->phi();
-    smearFunction.smear(pt, eta, phi, y, par);
+    // smearFunction.smear(pt, eta, phi, y, par);
+    // std::cout << " new pt = " << pt << std::endl;
 
     reco::Muon * newMuon = muon->clone();
     newMuon->setP4( reco::Particle::PolarLorentzVector( pt, eta, phi, muon->mass() ) );
