@@ -241,6 +241,19 @@ SKIMStreamValSkim = cms.FilteredStream(
 
 #####################
 
+from DPGAnalysis.Skims.WZEGSkim_cff import *
+WZEGSkimPath = cms.Path ( WZfilterSkim )
+SKIMStreamWZ = cms.FilteredStream(
+    responsible = 'ECAL DPG',
+    name = 'WZ',
+    paths = ( WZEGSkimPath ),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+    )
+
+#####################
+
 from Configuration.Skimming.PDWG_DiJetAODSkim_cff import *
 diJetAveSkimPath = cms.Path(DiJetAveSkim_Trigger)
 SKIMStreamDiJet = cms.FilteredStream(
