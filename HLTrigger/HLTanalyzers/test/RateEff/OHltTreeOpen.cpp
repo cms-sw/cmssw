@@ -757,72 +757,42 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }   
     }   
   }   
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu9") == 0) {          
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      int rc = 0;
-      for(int i = 0; i < NohMuL2; i++) {
-	if(ohMuL2Pt[i] > 9.) {
-	  rc++;
-	}
-      }
-      if(rc>0) {
-	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }         
-      }          
-    }          
-  }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu11") == 0) {          
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      int rc = 0;
-      for(int i = 0; i < NohMuL2; i++) {
-	if(ohMuL2Pt[i] > 11.) {
-	  rc++;
-	}
-      }
-      if(rc>0) {
-	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }         
-      }          
-    }          
-  }
-  //////////////////ADDED THIS////////////////////////////////////
- else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu15") == 0) {          
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      int rc = 0;
-      for(int i = 0; i < NohMuL2; i++) {
-	if(ohMuL2Pt[i] > 15.) {
-	  rc++;
-	}
-      }
-      if(rc>0) {
-	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }         
-      }          
-    }          
-  }
- else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu25") == 0) {          
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      int rc = 0;
-      for(int i = 0; i < NohMuL2; i++) {
-	if(ohMuL2Pt[i] > 25.) {
-	  rc++;
-	}
-      }
-      if(rc>0) {
-	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }         
-      }          
-    }          
-  }
- else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu30") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-      int rc = 0;
-      for(int i = 0; i < NohMuL2; i++) {
-	if(ohMuL2Pt[i] > 30.) {
-	  rc++;
-	}
-      }
-      if(rc>0) {
-	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
-      }
-    }
-  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu9") == 0) {           
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
+      if(OpenHlt1L2MuonPassed(7.,9.,9999.)>=1) {    
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }    
+      }    
+    }           
+  } 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu11") == 0) {            
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {   
+      if(OpenHlt1L2MuonPassed(7.,11.,9999.)>=1) {     
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }     
+      }     
+    }            
+  }  
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu15") == 0) {             
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {    
+      if(OpenHlt1L2MuonPassed(7.,15.,9999.)>=1) {      
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }      
+      }      
+    }             
+  }   
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu25") == 0) {              
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {     
+      if(OpenHlt1L2MuonPassed(7.,25.,9999.)>=1) {       
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }       
+      }       
+    }              
+  }    
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu30") == 0) {               
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {      
+      if(OpenHlt1L2MuonPassed(7.,30.,9999.)>=1) {        
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }        
+      }        
+    }               
+  }     
+
 ////////////////////////////////////////////////////////////////////////
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu3") == 0) {  
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
@@ -2360,18 +2330,12 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   // jets are used at HLT. 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu9_1JetU15") == 0){ 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      int rc = 0; 
       if(OpenHlt1CorJetPassed(30)>=1){ // Require 1 corrected jet above threshold
-	for(int i = 0; i < NohMuL2; i++) { 
-	  if(ohMuL2Pt[i] > 9.) { // Count L2 muons above threshold
-	    rc++; 
-	  } 
-	} 
+	if(OpenHlt1L2MuonPassed(7.,9.,9999.)>=1) {
+	  if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }     
+	}           
       } 
-      if(rc>0) { 
-        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }     
-      }           
-    } 
+    }
   }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_SW_L1R_3Jet30_3JetL1") == 0){
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
@@ -2503,7 +2467,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu8_HT50") == 0){   
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {      
       if(OpenHltSumHTPassed(50., 30.) == 1) {   
-        if(ohMuL2Pt[0] > 8.0) { 
+        if(OpenHlt1L2MuonPassed(7.,8.,9999.)>=1) { 
           if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }           
         }   
       }   
@@ -2512,7 +2476,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu10_HT50") == 0){
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {
       if(OpenHltSumHTPassed(50., 30.) == 1) {
-        if(ohMuL2Pt[0] > 10.0) {
+	if(OpenHlt1L2MuonPassed(7.,10.,9999.)>=1) { 
           if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
         }
       }
