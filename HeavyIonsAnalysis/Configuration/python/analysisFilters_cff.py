@@ -32,13 +32,11 @@ bscOrBptxOr = l1Filter.clone(
 
 
 ##### HLT selections #####
-import HLTrigger.HLTfilters.hltHighLevelDev_cfi
+import HLTrigger.HLTfilters.hltHighLevel_cfi
 
 # jet trigger
-hltJetHI = HLTrigger.HLTfilters.hltHighLevelDev_cfi.hltHighLevelDev.clone()
+hltJetHI = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
 hltJetHI.HLTPaths = ["HLT_HIJet35U"]
-hltJetHI.HLTPathsPrescales  = cms.vuint32(1)
-hltJetHI.HLTOverallPrescale = cms.uint32(1)
 hltJetHI.throw = False
 hltJetHI.andOr = True
 
