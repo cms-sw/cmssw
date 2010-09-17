@@ -106,7 +106,7 @@ void HcalLSbyLSMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 	  break;
 	}
 
-      Nevents=me->getBinContent(-1);
+      Nevents=(int)me->getBinContent(-1);
       if (Nevents<minEvents_)
 	{
 	  if (debug_>0) 
@@ -117,13 +117,13 @@ void HcalLSbyLSMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       // Total events is the number of events processed in this LS
       TotalEvents=std::max(TotalEvents,Nevents);
       // errors are sum over all tests.  This WILL lead to double counting in some subdetectors!
-      badHB+=me->getBinContent(1,1);
-      badHE+=me->getBinContent(2,1);
-      badHO+=me->getBinContent(3,1);
-      badHF+=me->getBinContent(4,1);
-      badHO0+=me->getBinContent(5,1);
-      badHO12+=me->getBinContent(6,1);
-      badHFLUMI+=me->getBinContent(7,1);
+      badHB+=(int)me->getBinContent(1,1);
+      badHE+=(int)me->getBinContent(2,1);
+      badHO+=(int)me->getBinContent(3,1);
+      badHF+=(int)me->getBinContent(4,1);
+      badHO0+=(int)me->getBinContent(5,1);
+      badHO12+=(int)me->getBinContent(6,1);
+      badHFLUMI+=(int)me->getBinContent(7,1);
     }
   if (enoughEvents==false)  // not enough events to make a decision
     {

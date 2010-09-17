@@ -1239,7 +1239,7 @@ void HcalRawDataMonitor::HTRPrint(const HcalHTRData& htr,int prtlvl){
 
 void HcalRawDataMonitor::UpdateMEs (void ) {
   tevt_=0;
-  if (meTevtHist_) tevt_= meTevtHist_->getBinContent(1);
+  if (meTevtHist_) tevt_= (int)meTevtHist_->getBinContent(1);
   NumBadHB=0;
   NumBadHE=0;
   NumBadHO=0;

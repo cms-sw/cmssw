@@ -15,8 +15,8 @@
 /*
  * \file HcalSummaryClient.cc
  * 
- * $Date: 2010/08/09 18:59:26 $
- * $Revision: 1.101 $
+ * $Date: 2010/08/10 21:20:49 $
+ * $Revision: 1.102 $
  * \author J. Temple
  * \brief Summary Client class
  */
@@ -543,7 +543,7 @@ void HcalSummaryClient::fillReportSummaryLSbyLS(int LS)
   if (me!=0)
     {
       //check to see if enough events were processed to make tests
-      int events=me->getBinContent(-1);
+      int events=(int)me->getBinContent(-1);
       if (events>0)
 	{
 	  std::map<std::string, int>::const_iterator it;

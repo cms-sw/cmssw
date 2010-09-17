@@ -13,8 +13,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2010/03/26 09:58:32 $
-  * $Revision: 1.60 $
+  * $Date: 2010/03/31 14:22:49 $
+  * $Revision: 1.61 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -37,7 +37,7 @@ struct DigiHists
   std::vector<MonitorElement*> TS_sum_plus, TS_sum_minus;
 
   int count_shape[10];
-  int count_shapeThresh[10];
+  double count_shapeThresh[10];
   int count_presample[50];
   int count_bad;
   int count_good;

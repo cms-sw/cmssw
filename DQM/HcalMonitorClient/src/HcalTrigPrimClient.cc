@@ -11,8 +11,8 @@
 /*
  * \file HcalTrigPrimClient.cc
  * 
- * $Date: 2010/03/25 21:30:18 $
- * $Revision: 1.18 $
+ * $Date: 2010/05/11 18:06:59 $
+ * $Revision: 1.19 $
  * \author J. Temple
  * \brief Hcal Trigger Primitive Client class
  */
@@ -169,11 +169,11 @@ void HcalTrigPrimClient::calculateProblems()
 	  badvalZS=0, goodvalZS=0;
 	  badvalNZS=0, goodvalNZS=0;
 	  iphi=phi;
-	  if (badZS!=0) badvalZS=badZS->GetBinContent(eta,phi);
-	  if (badNZS!=0) badvalNZS=badNZS->GetBinContent(eta,phi);
+	  if (badZS!=0) badvalZS=(int)badZS->GetBinContent(eta,phi);
+	  if (badNZS!=0) badvalNZS=(int)badNZS->GetBinContent(eta,phi);
 	  if (badvalZS+badvalNZS==0) continue;
-	  if (goodZS!=0) goodvalZS=goodZS->GetBinContent(eta,phi);
-	  if (goodNZS!=0) goodvalNZS=goodNZS->GetBinContent(eta,phi);
+	  if (goodZS!=0) goodvalZS=(int)goodZS->GetBinContent(eta,phi);
+	  if (goodNZS!=0) goodvalNZS=(int)goodNZS->GetBinContent(eta,phi);
 
 	  if (badvalNZS>0)
 	    {

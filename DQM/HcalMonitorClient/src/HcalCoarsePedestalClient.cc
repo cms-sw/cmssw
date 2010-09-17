@@ -11,8 +11,8 @@
 /*
  * \file HcalCoarsePedestalClient.cc
  * 
- * $Date: 2010/08/09 18:59:26 $
- * $Revision: 1.3 $
+ * $Date: 2010/09/01 12:35:38 $
+ * $Revision: 1.4 $
  * \author J. Temple
  * \brief CoarsePedestalClient class
  */
@@ -149,7 +149,7 @@ void HcalCoarsePedestalClient::calculateProblems()
 		continue;
 	      if (abs(ieta)>39 && (phi+1)%4!=3)
 		continue;
-	      numevents=CoarsePedestalsOccByDepth[d]->GetBinContent(eta+1,phi+1);
+	      numevents=(int)CoarsePedestalsOccByDepth[d]->GetBinContent(eta+1,phi+1);
 	      if (numevents==0 || numevents<minevents_)
 		{
 		  if (debug_>1)

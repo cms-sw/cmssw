@@ -841,11 +841,11 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
       else ++h.adc[199];
 
       if (i>=pedSubADCsize) continue; // don't exceed maximum array length when checking digis
-
+      
       if (foundID!=PedestalsByCapId_.end())
 	{
 	  pedSubtractedADC_[i]=digi.sample(i).adc()-(foundID->second)[thisCapid];
-	  ADCcount+=digi.sample(i).adc()-(foundID->second)[thisCapid];
+	  ADCcount+=(int)(digi.sample(i).adc()-(foundID->second)[thisCapid]);
 	}
       else
 	{
