@@ -94,7 +94,7 @@ process.es_pool = cms.ESSource(
 process.load("EventFilter.CastorRawToDigi.CastorRawToDigi_cfi")
 process.load("RecoLocalCalo.CastorReco.CastorSimpleReconstructor_cfi")
 
-process.castorDigis = cms.EDFilter("CastorRawToDigi",
+process.castorDigis = cms.EDProducer("CastorRawToDigi",
    CastorFirstFED = cms.untracked.int32(690),
    FilterDataQuality = cms.bool(True),
    ExceptionEmptyData = cms.untracked.bool(True),
@@ -105,7 +105,7 @@ process.castorDigis = cms.EDFilter("CastorRawToDigi",
    firstSample = cms.int32(0)
 ) 
 
-process.castorMonitor = cms.EDFilter("CastorMonitorModule",
+process.castorMonitor = cms.EDAnalyzer("CastorMonitorModule",
                            ### GLOBAL VARIABLES
                            debug = cms.untracked.int32(0), # make debug an int so that different
                                                            # values can trigger different levels of messaging
