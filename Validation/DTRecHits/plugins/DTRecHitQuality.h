@@ -5,8 +5,8 @@
  *  Basic analyzer class which accesses 1D DTRecHits
  *  and plot resolution comparing reconstructed and simulated quantities
  *
- *  $Date: 2009/11/04 17:25:17 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/09/13 09:49:18 $
+ *  $Revision: 1.9 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -160,6 +160,17 @@ private:
   HRes1DHit *hRes_S2RZ_W2;   // RecHits, 2. step, RZ, wheel +-2
   HRes1DHit *hRes_S3RZ_W2;   // RecHits, 3. step, RZ, wheel +-2
 
+  HRes1DHit *hRes_S1RPhi_W0;   // RecHits, 1. step, RPhi, wheel 0
+  HRes1DHit *hRes_S2RPhi_W0;   // RecHits, 2. step, RPhi, wheel 0
+  HRes1DHit *hRes_S3RPhi_W0;   // RecHits, 3. step, RPhi, wheel 0
+
+  HRes1DHit *hRes_S1RPhi_W1;   // RecHits, 1. step, RPhi, wheel +-1
+  HRes1DHit *hRes_S2RPhi_W1;   // RecHits, 2. step, RPhi, wheel +-1
+  HRes1DHit *hRes_S3RPhi_W1;   // RecHits, 3. step, RPhi, wheel +-1
+
+  HRes1DHit *hRes_S1RPhi_W2;   // RecHits, 1. step, RPhi, wheel +-2
+  HRes1DHit *hRes_S2RPhi_W2;   // RecHits, 2. step, RPhi, wheel +-2
+  HRes1DHit *hRes_S3RPhi_W2;   // RecHits, 3. step, RPhi, wheel +-2
 
   HEff1DHit *hEff_S1RPhi;     // RecHits, 1. step, RPhi
   HEff1DHit *hEff_S2RPhi;     // RecHits, 2. step, RPhi

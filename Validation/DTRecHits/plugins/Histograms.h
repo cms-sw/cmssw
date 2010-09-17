@@ -5,8 +5,8 @@
 /** \class Histograms
  *  Collection of histograms for DT RecHit and Segment test.
  *
- *  $Date: 2009/11/12 14:41:06 $
- *  $Revision: 1.10 $
+ *  $Date: 2010/09/14 15:19:28 $
+ *  $Revision: 1.11 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -64,6 +64,10 @@ class HRes1DHit{
       //hResVsPos   = new TH2F("1D_"+N+"_hResVsPos", "1D RHit residual vs position",100, 0, 2.5, 150, -1.5,1.5);    
       if (!local) dbe_->setCurrentFolder("DT/1DRecHits/Pull/");
       hPull =0; hPull       = dbe_->book1D (pre+"_hPull", "1D RHit pull", 100, -5,5);
+      hPullSt[0] = 0; hPullSt[0] = dbe_->book1D(pre + "_hPullMB1","1D RHit residual", 100, -5,5);
+      hPullSt[1] = 0; hPullSt[1] = dbe_->book1D(pre + "_hPullMB2","1D RHit residual", 100, -5,5);
+      hPullSt[2] = 0; hPullSt[2] = dbe_->book1D(pre + "_hPullMB3","1D RHit residual", 100, -5,5);
+      hPullSt[3] = 0; hPullSt[3] = dbe_->book1D(pre + "_hPullMB4","1D RHit residual", 100, -5,5);
     }
     /*
     HRes1DHit(TString name_, TFile* file){
@@ -112,7 +116,7 @@ class HRes1DHit{
       hResVsPos->Fill(distSimHit,res);
       if(errRecHit!=0) {
         float pull=res/errRecHit;
-        hPull->Fill(pull);
+        hPull->Fill(pull);hPullSt[station-1]->Fill(pull);
 	if(_doall){
 	  hPullVsPos->Fill(distSimHit,pull);
 	  hPullVsAngle->Fill(thetaSimHit,pull);
@@ -148,6 +152,7 @@ class HRes1DHit{
     MonitorElement* hResVsDistFE;
 
     MonitorElement* hPull;
+    MonitorElement* hPullSt[4];
     MonitorElement* hPullVsPos;
     MonitorElement* hPullVsAngle;
     MonitorElement* hPullVsDistFE;

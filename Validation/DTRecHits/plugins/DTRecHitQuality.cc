@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/04 17:22:30 $
- *  $Revision: 1.13 $
+ *  $Date: 2010/09/14 15:19:28 $
+ *  $Revision: 1.14 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -77,6 +77,9 @@ DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset){
     }*/
   if(doall && doStep1){
     hRes_S1RPhi= new HRes1DHit("S1RPhi",dbe_,true,local);    // RecHits, 1. step, RPhi
+    hRes_S1RPhi_W0= new HRes1DHit("S1RPhi_W0",dbe_,true,local);   // RecHits, 1. step, RZ, wheel 0
+    hRes_S1RPhi_W1= new HRes1DHit("S1RPhi_W1",dbe_,true,local);   // RecHits, 1. step, RZ, wheel +-1
+    hRes_S1RPhi_W2= new HRes1DHit("S1RPhi_W2",dbe_,true,local);   // RecHits, 1. step, RZ, wheel +-2
     hRes_S1RZ= new HRes1DHit("S1RZ",dbe_,true,local);         // RecHits, 1. step, RZ
     hRes_S1RZ_W0= new HRes1DHit("S1RZ_W0",dbe_,true,local);   // RecHits, 1. step, RZ, wheel 0
     hRes_S1RZ_W1= new HRes1DHit("S1RZ_W1",dbe_,true,local);   // RecHits, 1. step, RZ, wheel +-1
@@ -89,6 +92,9 @@ DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset){
   }
   if(doall && doStep2){
     hRes_S2RPhi= new HRes1DHit("S2RPhi",dbe_,true,local);     // RecHits, 2. step, RPhi
+    hRes_S2RPhi_W0= new HRes1DHit("S2RPhi_W0",dbe_,true,local);   // RecHits, 2. step, RPhi, wheel 0
+    hRes_S2RPhi_W1= new HRes1DHit("S2RPhi_W1",dbe_,true,local);   // RecHits, 2. step, RPhi, wheel +-1
+    hRes_S2RPhi_W2= new HRes1DHit("S2RPhi_W2",dbe_,true,local);   // RecHits, 2. step, RPhi, wheel +-2
     hRes_S2RZ= new HRes1DHit("S2RZ",dbe_,true,local);	    // RecHits, 2. step, RZ
     hRes_S2RZ_W0= new HRes1DHit("S2RZ_W0",dbe_,true,local);   // RecHits, 2. step, RZ, wheel 0
     hRes_S2RZ_W1= new HRes1DHit("S2RZ_W1",dbe_,true,local);   // RecHits, 2. step, RZ, wheel +-1
@@ -101,6 +107,9 @@ DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset){
   }
   if(doStep3){
     hRes_S3RPhi= new HRes1DHit("S3RPhi",dbe_,doall,local);     // RecHits, 3. step, RPhi
+    hRes_S3RPhi_W0= new HRes1DHit("S3RPhi_W0",dbe_,doall,local);   // RecHits, 3. step, RPhi, wheel 0
+    hRes_S3RPhi_W1= new HRes1DHit("S3RPhi_W1",dbe_,doall,local);   // RecHits, 3. step, RPhi, wheel +-1
+    hRes_S3RPhi_W2= new HRes1DHit("S3RPhi_W2",dbe_,doall,local);   // RecHits, 3. step, RPhi, wheel +-2
     hRes_S3RZ= new HRes1DHit("S3RZ",dbe_,doall,local);	    // RecHits, 3. step, RZ
     hRes_S3RZ_W0= new HRes1DHit("S3RZ_W0",dbe_,doall,local);   // RecHits, 3. step, RZ, wheel 0
     hRes_S3RZ_W1= new HRes1DHit("S3RZ_W1",dbe_,doall,local);   // RecHits, 3. step, RZ, wheel +-1
@@ -502,7 +511,13 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
       if(step == 1) {
         // Step 1
         if(wireId.superLayer() != 2) {
-          hRes = hRes_S1RPhi;
+          hResTot = hRes_S1RPhi;
+          if(wireId.wheel() == 0)
+            hRes = hRes_S1RPhi_W0;
+          if(abs(wireId.wheel()) == 1)
+            hRes = hRes_S1RPhi_W1;
+          if(abs(wireId.wheel()) == 2)
+            hRes = hRes_S1RPhi_W2;
         } else {
           hResTot = hRes_S1RZ;
           if(wireId.wheel() == 0)
@@ -517,6 +532,12 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
         // Step 2
         if(wireId.superlayer() != 2) {
           hRes = hRes_S2RPhi;
+          if(wireId.wheel() == 0)
+            hRes = hRes_S2RPhi_W0;
+          if(abs(wireId.wheel()) == 1)
+            hRes = hRes_S2RPhi_W1;
+          if(abs(wireId.wheel()) == 2)
+            hRes = hRes_S2RPhi_W2;
         } else {
           hResTot = hRes_S2RZ;
           if(wireId.wheel() == 0)
@@ -531,6 +552,12 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
         // Step 3
         if(wireId.superlayer() != 2) {
           hRes = hRes_S3RPhi;
+          if(wireId.wheel() == 0)
+            hRes = hRes_S3RPhi_W0;
+          if(abs(wireId.wheel()) == 1)
+            hRes = hRes_S3RPhi_W1;
+          if(abs(wireId.wheel()) == 2)
+            hRes = hRes_S3RPhi_W2;
         } else {
           hResTot = hRes_S3RZ;
           if(wireId.wheel() == 0)
