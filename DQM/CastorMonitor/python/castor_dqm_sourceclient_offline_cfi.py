@@ -32,7 +32,7 @@ castorOfflineMonitor = cms.EDAnalyzer("CastorMonitorModule",
                            PSMonitor= cms.untracked.bool(True),
                            numberSigma = cms.untracked.double(1.5),
                            thirdRegionThreshold =  cms.untracked.double(100),            
-                           EDMonitor= cms.untracked.bool(True),
+                           EDMonitor= cms.untracked.bool(False),
                                      
                            diagnosticPrescaleTime = cms.untracked.int32(-1),
                            diagnosticPrescaleUpdate = cms.untracked.int32(-1),

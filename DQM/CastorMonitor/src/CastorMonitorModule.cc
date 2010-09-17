@@ -520,7 +520,7 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
   edm::ESHandle<CaloGeometry> caloGeometry;
   eventSetup.get<CaloGeometryRecord>().get(caloGeometry);
   
- if(rechitOK_) EDMon_->processEvent(*CastorHits, *caloGeometry);
+ if(rechitOK_ && ps.getUntrackedParameter<bool>("EDMonitor", false) ) EDMon_->processEvent(*CastorHits, *caloGeometry);
  if (showTiming_){
       cpu_timer.stop();
       if (EDMon_!=NULL) std::cout <<"TIMER:: EVENTDISPLAY MONITOR ->"<<cpu_timer.cpuTime()<<std::endl;
