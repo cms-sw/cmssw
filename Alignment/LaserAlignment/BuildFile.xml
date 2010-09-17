@@ -4,12 +4,9 @@
 
 <use   name="DataFormats/GeometrySurface"/>
 
-<<<<<<< BuildFile.xml
 <use   name="clhep"/>
 <use   name="root"/>
-=======
 <use   name="clhepheader"/>
->>>>>>> 1.2
 <use   name="rootcore"/>
 <use   name="rootminuit"/>
 
