@@ -20,8 +20,6 @@ using namespace std;
 
 // fixme
 #include "OnlineDB/EcalCondDB/interface/LMFSeqDat.h"
-#include "OnlineDB/EcalCondDB/interface/LMFLaserPrimDat.h"
-#include "OnlineDB/EcalCondDB/interface/LMFLaserPNPrimDat.h"
 #include "OnlineDB/EcalCondDB/interface/LMFLaserPulseDat.h"
 #include "OnlineDB/EcalCondDB/interface/LMFPrimDat.h"
 #include "OnlineDB/EcalCondDB/interface/LMFPnPrimDat.h"
