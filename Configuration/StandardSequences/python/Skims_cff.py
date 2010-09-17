@@ -243,14 +243,32 @@ SKIMStreamValSkim = cms.FilteredStream(
 
 from DPGAnalysis.Skims.WZEGSkim_cff import *
 WZEGSkimPath = cms.Path ( WZfilterSkim )
-SKIMStreamWZ = cms.FilteredStream(
+SKIMStreamWZEG = cms.FilteredStream(
     responsible = 'ECAL DPG',
-    name = 'WZ',
+    name = 'WZEG',
     paths = ( WZEGSkimPath ),
     content = skimContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW-RECO')
     )
+
+
+
+#####################
+
+from DPGAnalysis.Skims.WZMuSkim_cff import *
+ZMuSkimPath      = cms.Path(diMuonSelSeq)
+WtcMetSkimPath   = cms.Path(tcMetWMuNuSeq)
+WpfMetSkimPath   = cms.Path(pfMetWMuNuSeq)
+SKIMStreamWZMu   = cms.FilteredStream(
+    responsible = 'Muon DPG-POG-MuEW',
+    name = 'WZMu',
+    paths = (ZMuSkimPath, WtcMetSkimPath, WpfMetSkimPath),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+    )
+
 
 #####################
 
