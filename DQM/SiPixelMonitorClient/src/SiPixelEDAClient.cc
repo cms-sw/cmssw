@@ -196,7 +196,7 @@ void SiPixelEDAClient::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
 
   MonitorElement * me = bei_->get("Pixel/AdditionalPixelErrors/byLumiErrors");
   if(me){
-    nEvents_lastLS_ = me->getBinContent(0);
+    nEvents_lastLS_ = int(me->getBinContent(0));
     me->Reset();
   }
 //  cout<<"...leaving SiPixelEDAClient::beginLuminosityBlock. "<<endl;
