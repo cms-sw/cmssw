@@ -10,7 +10,7 @@ from optparse import OptionParser
 import castortools
 
 parser = OptionParser()
-parser.usage = "importNewSource.py <sampleName>"
+parser.usage = "importNewSource.py <sampleName>\nCreate the source file corresponding to a given sample on castor. Run it from the package where you want to put the source cff."
 parser.add_option("-n", "--negate", action="store_true",
                   dest="negate",
                   help="do not proceed",

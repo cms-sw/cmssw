@@ -17,6 +17,11 @@ parser.add_option("-c", "--castorBaseDir",
                   dest="castorBaseDir",
                   help="Base castor directory. Subdirectories will be created automatically for each prod",
                   default="/castor/cern.ch/user/c/cbern/cmst3/SusyJetMET")
+parser.add_option("-t", "--tier", 
+                  dest="tier",
+                  help="Tier: extension you can give to specify you are doing a new production",
+                  default="")
+
 
 (options,args) = parser.parse_args()
 
@@ -28,10 +33,15 @@ sampleName = args[0]
 
 print 'starting prod for sample:', sampleName
 
+sampleNameDir = sampleName
+if options.tier != "":
+    sampleNameDir += "/" + options.tier
+    
+
 # preparing castor dir -----------------
 
 cdir = options.castorBaseDir 
-cdir += sampleName
+cdir += sampleNameDir
 rfmkdir = 'rfmkdir -p ' + cdir
 print rfmkdir
 os.system( rfmkdir )
@@ -40,7 +50,7 @@ print rfchmod
 os.system( rfchmod )
 
 # making local crab directory ---------
-ldir = '.' + sampleName
+ldir = '.' + sampleNameDir
 
 mkdir = 'mkdir -p ' + ldir
 print mkdir
