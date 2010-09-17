@@ -79,7 +79,6 @@ void BTagPerformanceAnalyzerOnData::bookHistos(const edm::ParameterSet& pSet)
     if (dataFormatType == "JetTag") {
       const InputTag& moduleLabel = iModule->getParameter<InputTag>("label");
       const string& folderName    = iModule->getParameter<string>("folder");
-      std::cout << " JetTag::ModuleLabel ===> " << moduleLabel.label() << " FolderName ===> " << folderName << std::endl; 
       jetTagInputTags.push_back(moduleLabel);
       binJetTagPlotters.push_back(vector<JetTagPlotter*>()) ;
       // Contains plots for each bin of rapidity and pt.
@@ -163,7 +162,6 @@ void BTagPerformanceAnalyzerOnData::bookHistos(const edm::ParameterSet& pSet)
       // tag info retrievel is deferred (needs availability of EventSetup)
       const InputTag& moduleLabel = iModule->getParameter<InputTag>("label");
       const string& folderName    = iModule->getParameter<string>("folder");
-      std::cout << " TagInfo::ModuleLabel ===> " << moduleLabel.label() << " FolderName ===> " << folderName << std::endl; 
 
       tagInfoInputTags.push_back(vector<edm::InputTag>());
       tiDataFormatType.push_back(dataFormatType);
