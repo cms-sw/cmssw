@@ -4,8 +4,8 @@
 /*
  * \file DQMProvInfo.h
  *
- * $Date: 2010/06/26 13:15:30 $
- * $Revision: 1.10 $
+ * $Date: 2010/07/02 13:10:07 $
+ * $Revision: 1.11 $
  * \author A.Meyer - DESY
  *
 */
@@ -66,7 +66,7 @@ private:
   int intensity1_;
   int intensity2_;
   
-  
+  std::string globalTag_;
   std::string nameProcess_;
   
    // histograms
@@ -75,7 +75,7 @@ private:
   MonitorElement * versTaglist_ ;
   MonitorElement * versGlobaltag_ ;
   MonitorElement * hostName_;          ///Hostname of the local machine
-  MonitorElement * processName_;       ///DQM "name" of the job (eg, Hcal or DT)
+
   MonitorElement * workingDir_;        ///Current working directory of the job
   MonitorElement * processId_;         ///The PID associated with this job
   MonitorElement * isComplete_;

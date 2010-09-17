@@ -2,9 +2,9 @@
  * \file DQMProvInfo.cc
  * \author A.Raval / A.Meyer - DESY
  * Last Update:
- * $Date: 2010/07/20 19:39:14 $
- * $Revision: 1.26 $
- * $Author: wmtan $
+ * $Date: 2010/09/03 10:20:29 $
+ * $Revision: 1.27 $
+ * $Author: lilopera $
  *
  */
 
@@ -26,7 +26,7 @@ DQMProvInfo::DQMProvInfo(const edm::ParameterSet& ps){
   parameters_ = ps;
 
   dbe_ = edm::Service<DQMStore>().operator->();
-
+  globalTag_ = parameters_.getParameter<std::string>("globaltag") ;
   provinfofolder_ = parameters_.getUntrackedParameter<std::string>("provInfoFolder", "ProvInfo") ;
   subsystemname_ = parameters_.getUntrackedParameter<std::string>("subSystemFolder", "Info") ;
   nameProcess_ = parameters_.getUntrackedParameter<std::string>( "processName", "HLT" );
@@ -159,7 +159,7 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventS
 
   int nlumi = l.id().luminosityBlock();
   
-  std::cout << "nlumi: " <<  nlumi << " / number of bins: " << hBeamMode_->getTH1F()->GetNbinsX() << std::endl;
+  edm::LogInfo("DQMProvInfo") << "nlumi: " <<  nlumi << " / number of bins: " << hBeamMode_->getTH1F()->GetNbinsX() << std::endl;
 
   if (nlumi <= lastlumi_ ) return;
 
@@ -329,7 +329,7 @@ DQMProvInfo::makeProvInfo()
     processId_     = dbe_->bookInt("processID"); processId_->Fill(gSystem->GetPid());
 
     //versDataset_   = dbe_->bookString("Dataset",workflow_);
-    versGlobaltag_ = dbe_->bookString("Globaltag","global tag"); // FIXME
+    versGlobaltag_ = dbe_->bookString("Globaltag",globalTag_); // FIXME
     versTaglist_   = dbe_->bookString("Taglist",getShowTags()); 
 
     isComplete_ = dbe_->bookInt("runIsComplete"); 
@@ -348,7 +348,7 @@ DQMProvInfo::makeDcsInfo(const edm::Event& e)
   for (DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin(); 
                             dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) 
   {
-      // std::cout << "DCS status: 0x" << std::hex << dcsStatusItr->ready() << std::dec << std::endl;
+      // edm::LogInfo("DQMProvInfo") << "DCS status: 0x" << std::hex << dcsStatusItr->ready() << std::dec << std::endl;
       if (!dcsStatusItr->ready(DcsStatus::CSCp))   dcs25[0]=false;
       if (!dcsStatusItr->ready(DcsStatus::CSCm))   dcs25[1]=false;   
       if (!dcsStatusItr->ready(DcsStatus::DT0))    dcs25[2]=false;
@@ -387,17 +387,17 @@ DQMProvInfo::makeHLTKeyInfo(const edm::Run& r, const edm::EventSetup &c )
   bool changed( true );
   if ( ! hltConfig.init( r, c, nameProcess_, changed) ) 
   {
-    // std::cout << "errorHltConfigExtraction" << std::endl;
+    // edm::LogInfo("DQMProvInfo") << "errorHltConfigExtraction" << std::endl;
     hltKey = "error extraction" ;
   } 
   else if ( hltConfig.size() <= 0 ) 
   {
-   // std::cout << "hltConfig" << std::endl;
+   // edm::LogInfo("DQMProvInfo") << "hltConfig" << std::endl;
     hltKey = "error key of length 0" ;
   } 
   else 
   {
-    std::cout << "HLT key (run)  : " << hltConfig.tableName() << std::endl;
+    edm::LogInfo("DQMProvInfo") << "HLT key (run)  : " << hltConfig.tableName() << std::endl;
     hltKey =  hltConfig.tableName() ;
   }
 
@@ -441,7 +441,7 @@ DQMProvInfo::makeGtInfo(const edm::Event& e)
      gtfeEvmExtWord = gtevm->gtfeWord();
   }
   else
-    std::cout << " gtfeEvmWord inaccessible" ;
+    edm::LogInfo("DQMProvInfo") << " gtfeEvmWord inaccessible" ;
    
   lhcFill_ = gtfeEvmExtWord.lhcFillNumber();
   beamMode_ = gtfeEvmExtWord.beamMode();
@@ -449,7 +449,7 @@ DQMProvInfo::makeGtInfo(const edm::Event& e)
   intensity1_ = gtfeEvmExtWord.totalIntensityBeam1();
   intensity2_ = gtfeEvmExtWord.totalIntensityBeam2();
   
-  std::cout << lhcFill_ << " " << beamMode_ << " " 
+  edm::LogInfo("DQMProvInfo") << lhcFill_ << " " << beamMode_ << " " 
             << momentum_ << " " 
 	    << intensity1_ << " " << intensity2_ 
 	    << std::endl;
