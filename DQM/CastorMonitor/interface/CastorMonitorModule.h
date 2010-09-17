@@ -219,7 +219,9 @@ public:
   ////----- in the run (using FED info)  
   ////----- 1 is present , 0 - no Digis , -1 no within FED 
   MonitorElement* meCASTOR_;
-
+   
+  ////---- to remove the EventDisplay Monitor in the Offline case
+  bool EDMonOn_;
 
   /////---- myquality_ will store status values for each det ID I find
   bool dump2database_;
