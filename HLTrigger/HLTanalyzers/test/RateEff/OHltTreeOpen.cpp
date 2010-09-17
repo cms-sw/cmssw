@@ -750,6 +750,13 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }  
     }  
   }  
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2DoubleMu20") == 0) {   
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
+      if(OpenHlt1L2MuonPassed(0.,20.,9999.)>=2) {   
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }   
+      }   
+    }   
+  }   
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu9") == 0) {          
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       int rc = 0;
@@ -2410,7 +2417,12 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
 	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }        
     } 
   }
-    
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_Photon9_L1R") == 0){ 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
+      if(OpenHlt1MuonPassed(3.,4.,5.,2.,0)>=1 && OpenHlt1PhotonPassed(9.,0,9999.,9999.,9999.,9999.)>=1) 
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }         
+    }  
+  } 
 
   // Exotica mu + e/gamma, mu + jet, and mu + MET L1-passthrough cross-triggers
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu14_L1SingleEG10") == 0){
