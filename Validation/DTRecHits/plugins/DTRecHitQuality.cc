@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/09/14 15:19:28 $
- *  $Revision: 1.14 $
+ *  $Date: 2010/09/17 07:48:11 $
+ *  $Revision: 1.15 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -551,7 +551,7 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
       } else if(step == 3) {
         // Step 3
         if(wireId.superlayer() != 2) {
-          hRes = hRes_S3RPhi;
+          hResTot = hRes_S3RPhi;
           if(wireId.wheel() == 0)
             hRes = hRes_S3RPhi_W0;
           if(abs(wireId.wheel()) == 1)

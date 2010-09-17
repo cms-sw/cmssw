@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for DT RecHit and Segment test.
  *
- *  $Date: 2010/09/14 15:30:12 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/09/17 07:47:43 $
+ *  $Revision: 1.6 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -54,8 +54,12 @@ class HRes1DHit{
       hPullVsPos  = new TH2F ("1D_"+N+"_hPullVsPos", "1D RHit pull vs position", 100, 0,2.5, 100, -5,5);
       hPullVsAngle  = new TH2F ("1D_"+N+"_hPullVsAngle", "1D RHit pull vs impact angle",
                                 100, 0.,+1.2, 100, -5,5);
-      hPullVsDistFE  = new TH2F ("1D_"+N+"_hPullVsDistFE", "1D RHit pull vs FE distance",
-                                 100, 0., 400., 100, -5,5);
+      hPullVsDistFE  = new TH2F ("1D_"+N+"_hPullVsDistFE", "1D RHit pull vs FE distance",100, 0., 400., 100, -5,5);
+       hPullVsEta   = new TH2F("1D_"+N+"_hPullVsEta", "1D RHit residual vs eta",
+                             50, -1.25,1.25, 150, -5,5);
+      hPullVsPhi   = new TH2F("1D_"+N+"_hResVsPhi", "1D RHit residual vs phi",
+                             100, -3.2, 3.2, 150, -5,5);
+                                
     }
 
     HRes1DHit(TString name_, TFile* file){
@@ -135,6 +139,8 @@ class HRes1DHit{
       hPullSt[2]->Write();      
       hPullSt[3]->Write();      
       hPullVsPos->Write();
+      hPullVsPhi->Write(); 
+      hPullVsPos->Write(); 
       hPullVsAngle->Write();
       hPullVsDistFE->Write();
     }
