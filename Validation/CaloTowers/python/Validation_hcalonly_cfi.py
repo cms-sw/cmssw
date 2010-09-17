@@ -47,6 +47,6 @@ VtxSmeared.SigmaX = 0.00001
 VtxSmeared.SigmaY = 0.00001
 VtxSmeared.SigmaZ = 0.00001
 
-hbhereco.digiLabel = 'simHcalDigis'
+hbheprereco.digiLabel = 'simHcalDigis'
 horeco.digiLabel = 'simHcalDigis'
 hfreco.digiLabel = 'simHcalDigis'
