@@ -195,6 +195,19 @@ void drawPull(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DR
   HRes1DHit *h1RZ_W2= 0;
   HRes1DHit *h2RZ_W2= 0;
   HRes1DHit *h3RZ_W2= 0;
+
+  HRes1DHit *h1Rphi_W0= 0;
+  HRes1DHit *h2Rphi_W0= 0;
+  HRes1DHit *h3Rphi_W0= 0;
+                      
+  HRes1DHit *h1Rphi_W1= 0;
+  HRes1DHit *h2Rphi_W1= 0;
+  HRes1DHit *h3Rphi_W1= 0;
+                      
+  HRes1DHit *h1Rphi_W2= 0;
+  HRes1DHit *h2Rphi_W2= 0;
+  HRes1DHit *h3Rphi_W2= 0;
+
   if(do1DRecHit) {
     h1RPhi = new HRes1DHit("S1RPhi",f);     // RecHits, 1. step, RPhi
     h2RPhi = new HRes1DHit("S2RPhi",f);     // RecHits, 2. step, RPhi
@@ -215,6 +228,18 @@ void drawPull(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DR
     h1RZ_W2 = new HRes1DHit("S1RZ_W2",f);   // RecHits, 1. step, RZ, wheel +-2
     h2RZ_W2 = new HRes1DHit("S2RZ_W2",f);   // RecHits, 2. step, RZ, wheel +-2
     h3RZ_W2 = new HRes1DHit("S3RZ_W2",f);   // RecHits, 3. step, RZ, wheel +-2
+
+    h1RPhi_W0 = new HRes1DHit("S1RPhi_W0",f);   // RecHits, 1. step, RPhi, wheel 0
+    h2RPhi_W0 = new HRes1DHit("S2RPhi_W0",f);   // RecHits, 2. step, RPhi, wheel 0
+    h3RPhi_W0 = new HRes1DHit("S3RPhi_W0",f);   // RecHits, 3. step, RPhi, wheel 0
+
+    h1RPhi_W1 = new HRes1DHit("S1RPhi_W1",f);   // RecHits, 1. step, RPhi, wheel +-1
+    h2RPhi_W1 = new HRes1DHit("S2RPhi_W1",f);   // RecHits, 2. step, RPhi, wheel +-1
+    h3RPhi_W1 = new HRes1DHit("S3RPhi_W1",f);   // RecHits, 3. step, RPhi, wheel +-1
+
+    h1RPhi_W2 = new HRes1DHit("S1RPhi_W2",f);   // RecHits, 1. step, RPhi, wheel +-2
+    h2RPhi_W2 = new HRes1DHit("S2RPhi_W2",f);   // RecHits, 2. step, RPhi, wheel +-2
+    h3RPhi_W2 = new HRes1DHit("S3RPhi_W2",f);   // RecHits, 3. step, RPhi, wheel +-2
 
   }
 
@@ -262,6 +287,10 @@ void drawPull(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DR
     // Residual, RZ 
     plot1DPulls(h1RZ,h2RZ,h3RZ,ThreeIn1);
 
+    // Residual, RPhi, per wheel
+    plot1DPulls(h1RPhi_W0,h2RPhi_W0,h3RPhi_W0,ThreeIn1);
+    plot1DPulls(h1RPhi_W1,h2RPhi_W1,h3RPhi_W1,ThreeIn1);
+    plot1DPulls(h1RPhi_W2,h2RPhi_W2,h3RPhi_W2,ThreeIn1);
     // Residual, RZ, per wheel
     plot1DPulls(h1RZ_W0,h2RZ_W0,h3RZ_W0,ThreeIn1);
     plot1DPulls(h1RZ_W1,h2RZ_W1,h3RZ_W1,ThreeIn1);
@@ -443,6 +472,11 @@ void drawPull(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DR
   if(do1DRecHit) {
     plot1DPullsVsPos("Rphi", h1RPhi, h2RPhi, h3RPhi, ThreeIn1) ;
     plot1DPullsVsPos("RZ", h1RZ, h2RZ, h3RZ, ThreeIn1) ;
+
+    plot1DPullsVsPos("RPhi_W0", h1RPhi_W0, h2RPhi_W0, h3RPhi_W0, ThreeIn1) ;
+    plot1DPullsVsPos("RPhi_W1", h1RPhi_W1, h2RPhi_W1, h3RPhi_W1, ThreeIn1) ;
+    plot1DPullsVsPos("RPhi_W2", h1RPhi_W2, h2RPhi_W2, h3RPhi_W2, ThreeIn1) ;
+
     plot1DPullsVsPos("RZ_W0", h1RZ_W0, h2RZ_W0, h3RZ_W0, ThreeIn1) ;
     plot1DPullsVsPos("RZ_W1", h1RZ_W1, h2RZ_W1, h3RZ_W1, ThreeIn1) ;
     plot1DPullsVsPos("RZ_W2", h1RZ_W2, h2RZ_W2, h3RZ_W2, ThreeIn1) ;
@@ -453,6 +487,10 @@ void drawPull(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DR
   if(do1DRecHit) {
     plot1DPullsVsAngle("Rphi", h1RPhi, h2RPhi, h3RPhi, ThreeIn1) ;
     plot1DPullsVsAngle("RZ", h1RZ, h2RZ, h3RZ, ThreeIn1) ;
+    plot1DPullsVsAngle("RPhi_W0", h1RPhi_W0, h2RPhi_W0, h3RPhi_W0, ThreeIn1) ;
+    plot1DPullsVsAngle("RPhi_W1", h1RPhi_W1, h2RPhi_W1, h3RPhi_W1, ThreeIn1) ;
+    plot1DPullsVsAngle("RPhi_W2", h1RPhi_W2, h2RPhi_W2, h3RPhi_W2, ThreeIn1) ;
+
     plot1DPullsVsAngle("RZ_W0", h1RZ_W0, h2RZ_W0, h3RZ_W0, ThreeIn1) ;
     plot1DPullsVsAngle("RZ_W1", h1RZ_W1, h2RZ_W1, h3RZ_W1, ThreeIn1) ;
     plot1DPullsVsAngle("RZ_W2", h1RZ_W2, h2RZ_W2, h3RZ_W2, ThreeIn1) ;
@@ -509,6 +547,17 @@ void plot1DPulls(HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeIn1) 
   else c1 = newCanvas(N3+"_hPull",form);
   drawGFit(h3->hPull, -5,5,-5,5);
 
+  newCanvas(N1+"_hPullSt1",form);
+  drawGFit(h1->hPullSt[0], -5,5,-5,5);
+
+  newCanvas(N1+"_hPullSt2",form);
+  drawGFit(h1->hPullSt[1], -5,5,-5,5);
+
+  newCanvas(N1+"_hPullSt3",form);
+  drawGFit(h1->hPullSt[2], -5,5,-5,5);
+
+  newCanvas(N1+"_hPullSt4",form);
+  drawGFit(h1->hPullSt[3], -5,5,-5,5);
 }
 
 void plot1DPullsVsPos(TString name, HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeIn1) {

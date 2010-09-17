@@ -181,6 +181,20 @@ void drawReso(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DR
   HRes1DHit *h1RZ_W2= 0;
   HRes1DHit *h2RZ_W2= 0;
   HRes1DHit *h3RZ_W2= 0;
+
+  HRes1DHit *h1RPhi_W0= 0;
+  HRes1DHit *h2RPhi_W0= 0;
+  HRes1DHit *h3RPhi_W0= 0;
+                  
+  HRes1DHit *h1RPhi_W1= 0;
+  HRes1DHit *h2RPhi_W1= 0;
+  HRes1DHit *h3RPhi_W1= 0;
+                  
+  HRes1DHit *h1RPhi_W2= 0;
+  HRes1DHit *h2RPhi_W2= 0;
+  HRes1DHit *h3RPhi_W2= 0;
+
+
   if(do1DRecHit) {
     h1RPhi = new HRes1DHit("S1RPhi",f);     // RecHits, 1. step, RPhi
     h2RPhi = new HRes1DHit("S2RPhi",f);     // RecHits, 2. step, RPhi
@@ -201,6 +215,18 @@ void drawReso(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DR
     h1RZ_W2 = new HRes1DHit("S1RZ_W2",f);   // RecHits, 1. step, RZ, wheel +-2
     h2RZ_W2 = new HRes1DHit("S2RZ_W2",f);   // RecHits, 2. step, RZ, wheel +-2
     h3RZ_W2 = new HRes1DHit("S3RZ_W2",f);   // RecHits, 3. step, RZ, wheel +-2
+
+    h1RPhi_W0 = new HRes1DHit("S1RPhi_W0",f);   // RecHits, 1. step, RPhi, wheel 0
+    h2RPhi_W0 = new HRes1DHit("S2RPhi_W0",f);   // RecHits, 2. step, RPhi, wheel 0
+    h3RPhi_W0 = new HRes1DHit("S3RPhi_W0",f);   // RecHits, 3. step, RPhi, wheel 0
+
+    h1RPhi_W1 = new HRes1DHit("S1RPhi_W1",f);   // RecHits, 1. step, RPhi, wheel +-1
+    h2RPhi_W1 = new HRes1DHit("S2RPhi_W1",f);   // RecHits, 2. step, RPhi, wheel +-1
+    h3RPhi_W1 = new HRes1DHit("S3RPhi_W1",f);   // RecHits, 3. step, RPhi, wheel +-1
+
+    h1RPhi_W2 = new HRes1DHit("S1RPhi_W2",f);   // RecHits, 1. step, RPhi, wheel +-2
+    h2RPhi_W2 = new HRes1DHit("S2RPhi_W2",f);   // RecHits, 2. step, RPhi, wheel +-2
+    h3RPhi_W2 = new HRes1DHit("S3RPhi_W2",f);   // RecHits, 3. step, RPhi, wheel +-2
   }
 
   HRes2DHit *h2DHitRPhi= 0;
@@ -249,6 +275,11 @@ void drawReso(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DR
     plot1DResiduals(h1RZ_W0,h2RZ_W0,h3RZ_W0,ThreeIn1);
     plot1DResiduals(h1RZ_W1,h2RZ_W1,h3RZ_W1,ThreeIn1);
     plot1DResiduals(h1RZ_W2,h2RZ_W2,h3RZ_W2,ThreeIn1);
+
+    // Residual, RPhi, per wheel
+    plot1DResiduals(h1RPhi_W0,h2RPhi_W0,h3RPhi_W0,ThreeIn1);
+    plot1DResiduals(h1RPhi_W1,h2RPhi_W1,h3RPhi_W1,ThreeIn1);
+    plot1DResiduals(h1RPhi_W2,h2RPhi_W2,h3RPhi_W2,ThreeIn1);
   }
 
   if(do2DRecHit) {
@@ -449,6 +480,16 @@ void drawReso(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DR
     c1 = newCanvas("c_1D_S1RZ_W2_hResVsPos",form);
     plotAndProfileX(h1RZ_W2->hResVsPos, min, max, profile);
 
+
+    c1 = newCanvas("c_1D_S1RPhi_W0_hResVsPos",form);
+    plotAndProfileX(h1RPhi_W0->hResVsPos, min, max, profile);
+
+    c1 = newCanvas("c_1D_S1RPhi_W1_hResVsPos",form);
+    plotAndProfileX(h1RPhi_W1->hResVsPos, min, max, profile);
+
+    c1 = newCanvas("c_1D_S1RPhi_W2_hResVsPos",form);
+    plotAndProfileX(h1RPhi_W2->hResVsPos, min, max, profile);
+
     c1 = newCanvas("c_1D_S2RZ_hResVsPos",form);
     //plotAndProfileX(h2RZ->hResVsPos, min, max, profile);
 
@@ -501,6 +542,15 @@ void drawReso(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DR
 
     c1 = newCanvas("c_1D_S1RZ_W2_hResVsAngle",form);
     plotAndProfileX(h1RZ_W2->hResVsAngle, min, max, profile);
+
+    c1 = newCanvas("c_1D_S1RPhi_W0_hResVsAngle",form);
+    plotAndProfileX(h1RPhi_W0->hResVsAngle, min, max, profile);
+
+    c1 = newCanvas("c_1D_S1RPhi_W1_hResVsAngle",form);
+    plotAndProfileX(h1RPhi_W1->hResVsAngle, min, max, profile);
+
+    c1 = newCanvas("c_1D_S1RPhi_W2_hResVsAngle",form);
+    plotAndProfileX(h1RPhi_W2->hResVsAngle, min, max, profile);
 
     c1 = newCanvas("c_1D_S2RZ_hResVsAngle",form);
     //plotAndProfileX(h2RZ->hResVsAngle, min, max, profile);

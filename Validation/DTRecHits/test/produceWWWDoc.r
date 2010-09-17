@@ -36,6 +36,7 @@
   
   if(file->IsOpen()) {
     // plot residuals
+	cout << "Estoy en produce, entro en HitReso"<<endl;
     plotWWWHitReso(dirBase, 1, nameDir);
     // Close all open canvases  
     TIter iter(gROOT->GetListOfCanvases());
@@ -46,6 +47,7 @@
     }
 
     // plot pulls
+	cout<<"entro en pull"<<endl;
     plotWWWHitPull(dirBase, 1, nameDir);
     // Close all open canvases  
     TIter iter(gROOT->GetListOfCanvases());

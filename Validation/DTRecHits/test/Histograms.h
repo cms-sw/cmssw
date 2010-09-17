@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for DT RecHit and Segment test.
  *
- *  $Date: 2010/09/14 15:21:15 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/09/14 15:30:12 $
+ *  $Revision: 1.5 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -47,6 +47,10 @@ class HRes1DHit{
       hResVsDistFE = new TH2F("1D_"+N+"_hResVsDistFE", "1D RHit residual vs FE distance",
                               100, 0.,400., 150, -1.5,1.5);    
       hPull       = new TH1F ("1D_"+N+"_hPull", "1D RHit pull", 100, -5,5);
+      hPullSt[0] = new TH1F("1D_"+N + "_hPullMB1","1D RHit residual", 300, -5,5);
+      hPullSt[1] = new TH1F("1D_"+N + "_hPullMB2","1D RHit residual", 300, -5,5);
+      hPullSt[2] = new TH1F("1D_"+N + "_hPullMB3","1D RHit residual", 300, -5,5);
+      hPullSt[3] = new TH1F("1D_"+N + "_hPullMB4","1D RHit residual", 300, -5,5);
       hPullVsPos  = new TH2F ("1D_"+N+"_hPullVsPos", "1D RHit pull vs position", 100, 0,2.5, 100, -5,5);
       hPullVsAngle  = new TH2F ("1D_"+N+"_hPullVsAngle", "1D RHit pull vs impact angle",
                                 100, 0.,+1.2, 100, -5,5);
@@ -68,6 +72,10 @@ class HRes1DHit{
       hResVsAngle    = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hResVsAngle");
       hResVsDistFE   = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hResVsDistFE");
       hPull          = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hPull");
+      hPullSt[0]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hPullMB1");
+      hPullSt[1]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hPullMB2");
+      hPullSt[2]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hPullMB3");
+      hPullSt[3]           = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hPullMB4");
       hPullVsPos     = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hPullVsPos");
       hPullVsAngle   = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hPullVsAngle");
       hPullVsDistFE  = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/1D_"+name+"_hPullVsDistFE");
@@ -122,6 +130,10 @@ class HRes1DHit{
       hResVsAngle->Write(); 
       hResVsDistFE->Write(); 
       hPull->Write();
+      hPullSt[0]->Write();      
+      hPullSt[1]->Write();      
+      hPullSt[2]->Write();      
+      hPullSt[3]->Write();      
       hPullVsPos->Write();
       hPullVsAngle->Write();
       hPullVsDistFE->Write();
@@ -139,6 +151,7 @@ class HRes1DHit{
     TH2F* hResVsDistFE;
 
     TH1F* hPull;
+    TH1F* hPullSt[4];
     TH2F* hPullVsPos;
     TH2F* hPullVsAngle;
     TH2F* hPullVsDistFE;
