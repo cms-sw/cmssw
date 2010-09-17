@@ -27,6 +27,7 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps){
   fVerbosity = ps.getUntrackedParameter<int>("debug", 0);                        //-- show debug 
   showTiming_ = ps.getUntrackedParameter<bool>("showTiming", false);         //-- show CPU time 
   dump2database_   = ps.getUntrackedParameter<bool>("dump2database",false);  //-- dumps output to database file
+  EDMonOn_=  ps.getUntrackedParameter<bool>("EDMonitor", false);
 
  if(fVerbosity>0) std::cout << "CastorMonitorModule Constructor (start)" << std::endl;
 
@@ -520,7 +521,7 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
   edm::ESHandle<CaloGeometry> caloGeometry;
   eventSetup.get<CaloGeometryRecord>().get(caloGeometry);
   
- if(rechitOK_ && ps.getUntrackedParameter<bool>("EDMonitor", false) ) EDMon_->processEvent(*CastorHits, *caloGeometry);
+ if(rechitOK_ && EDMonOn_) EDMon_->processEvent(*CastorHits, *caloGeometry);
  if (showTiming_){
       cpu_timer.stop();
       if (EDMon_!=NULL) std::cout <<"TIMER:: EVENTDISPLAY MONITOR ->"<<cpu_timer.cpuTime()<<std::endl;
