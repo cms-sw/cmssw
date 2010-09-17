@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_8_1/GRun/V18 (CMSSW_3_8_1_HLT9)
+# /dev/CMSSW_3_8_1/GRun/V19 (CMSSW_3_8_1_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/GRun/V18')
+  tableName = cms.string('/dev/CMSSW_3_8_1/GRun/V19')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -14,13 +14,13 @@ process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'Product
 process.streams = cms.PSet( 
   OnlineErrors = cms.vstring( 'LogMonitor',
     'FEDMonitor' ),
-  EcalCalibration = cms.vstring( 'EcalLaser' ),
   Calibration = cms.vstring( 'TestEnables' ),
   HLTDQMResults = cms.vstring( 'OnlineHltResults' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   NanoDST = cms.vstring( 'L1Accept' ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
+  Express = cms.vstring( 'ExpressPhysics' ),
   A = cms.vstring( 'Cosmics',
     'Photon',
     'MinimumBias',
@@ -36,15 +36,14 @@ process.streams = cms.PSet(
     'Electron',
     'MuOnia',
     'Jet' ),
-  Express = cms.vstring( 'ExpressPhysics' ),
   DQM = cms.vstring( 'OnlineMonitor' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
-  HLTDQM = cms.vstring( 'OnlineHltMonitor' )
+  HLTDQM = cms.vstring( 'OnlineHltMonitor' ),
+  EcalCalibration = cms.vstring( 'EcalLaser' )
 )
 process.datasets = cms.PSet( 
   LogMonitor = cms.vstring( 'HLT_LogMonitor' ),
   FEDMonitor = cms.vstring( 'HLT_DTErrors' ),
-  EcalLaser = cms.vstring( 'HLT_EcalCalibration' ),
   TestEnables = cms.vstring( 'HLT_Calibration',
     'HLT_HcalCalibration' ),
   OnlineHltResults = cms.vstring( 'DQM_TriggerResults' ),
@@ -55,6 +54,16 @@ process.datasets = cms.PSet(
     'AlCa_RPCMuonNoTriggers' ),
   AlCaP0 = cms.vstring( 'AlCa_EcalEta',
     'AlCa_EcalPi0' ),
+  ExpressPhysics = cms.vstring( 'HLT_MET100',
+    'HLT_ZeroBias',
+    'HLT_L1Tech_BSC_minBias_OR',
+    'HLT_TrackerCosmics',
+    'HLT_Ele40_SW_L1R',
+    'HLT_DoubleMu3',
+    'HLT_Jet100U',
+    'HLT_Mu11',
+    'HLT_Mu5',
+    'HLT_Photon50_NoHE_Cleaned_L1R' ),
   Cosmics = cms.vstring( 'HLT_L1MuOpen_AntiBPTX',
     'HLT_L2Mu0_NoVertex',
     'HLT_TrackerCosmics',
@@ -184,16 +193,6 @@ process.datasets = cms.PSet(
     'HLT_DiJetAve50U',
     'HLT_HT100U',
     'HLT_HT120U' ),
-  ExpressPhysics = cms.vstring( 'HLT_MET100',
-    'HLT_ZeroBias',
-    'HLT_L1Tech_BSC_minBias_OR',
-    'HLT_TrackerCosmics',
-    'HLT_Ele40_SW_L1R',
-    'HLT_DoubleMu3',
-    'HLT_Jet100U',
-    'HLT_Mu11',
-    'HLT_Mu5',
-    'HLT_Photon50_NoHE_Cleaned_L1R' ),
   OnlineMonitor = cms.vstring( 'HLT_ZeroBiasPixel_SingleTrack',
     'DQM_FEDIntegrity',
     'HLT_DTErrors',
@@ -583,7 +582,8 @@ process.datasets = cms.PSet(
     'HLT_DoubleMu3',
     'HLT_DoublePhoton10_L1R',
     'HLT_DoublePhoton15_L1R',
-    'HLT_HT120U' )
+    'HLT_HT120U' ),
+  EcalLaser = cms.vstring( 'HLT_EcalCalibration' )
 )
 
 process.source = cms.Source( "PoolSource",
@@ -11884,14 +11884,9 @@ process.hltPreCalibration = cms.EDFilter( "HLTPrescaler",
 process.hltPreEcalCalibration = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
 )
-process.hltEcalCalibrationRaw = cms.EDProducer( "SubdetFEDSelector",
-    getECAL = cms.bool( True ),
-    getSiStrip = cms.bool( False ),
-    getSiPixel = cms.bool( False ),
-    getHCAL = cms.bool( False ),
-    getMuon = cms.bool( False ),
-    getTrigger = cms.bool( False ),
-    rawInputLabel = cms.InputTag( "source" )
+process.hltEcalCalibrationRaw = cms.EDProducer( "EvFFEDSelector",
+    inputTag = cms.InputTag( "source" ),
+    fedList = cms.vuint32( 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654 )
 )
 process.hltPreHcalCalibration = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )

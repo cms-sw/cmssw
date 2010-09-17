@@ -1,22 +1,22 @@
-# /dev/CMSSW_3_8_1/HIon/V18 (CMSSW_3_8_1_HLT9)
+# /dev/CMSSW_3_8_1/HIon/V19 (CMSSW_3_8_1_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V18')
+  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V19')
 )
 
 streams = cms.PSet( 
   NanoDST = cms.vstring( 'L1Accept' ),
   OnlineErrors = cms.vstring( 'LogMonitor',
     'FEDMonitor' ),
-  EcalCalibration = cms.vstring( 'EcalLaser' ),
   Calibration = cms.vstring( 'TestEnables' ),
   HLTDQMResults = cms.vstring( 'OnlineHltResults' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
+  Express = cms.vstring( 'ExpressPhysics' ),
   A = cms.vstring( 'Cosmics',
     'Photon',
     'MinimumBias',
@@ -32,21 +32,21 @@ streams = cms.PSet(
     'Electron',
     'MuOnia',
     'Jet' ),
-  Express = cms.vstring( 'ExpressPhysics' ),
   DQM = cms.vstring( 'OnlineMonitor' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
-  HLTDQM = cms.vstring( 'OnlineHltMonitor' )
+  HLTDQM = cms.vstring( 'OnlineHltMonitor' ),
+  EcalCalibration = cms.vstring( 'EcalLaser' )
 )
 datasets = cms.PSet( 
   L1Accept = cms.vstring( 'HLTriggerFinalPath' ),
   LogMonitor = cms.vstring(  ),
   FEDMonitor = cms.vstring(  ),
-  EcalLaser = cms.vstring(  ),
   TestEnables = cms.vstring(  ),
   OnlineHltResults = cms.vstring(  ),
   AlCaPhiSymEcal = cms.vstring(  ),
   RPCMonitor = cms.vstring(  ),
   AlCaP0 = cms.vstring(  ),
+  ExpressPhysics = cms.vstring(  ),
   Cosmics = cms.vstring(  ),
   Photon = cms.vstring(  ),
   MinimumBias = cms.vstring( 'HLT_L1Tech_HCAL_HF',
@@ -64,7 +64,6 @@ datasets = cms.PSet(
   Electron = cms.vstring(  ),
   MuOnia = cms.vstring(  ),
   Jet = cms.vstring(  ),
-  ExpressPhysics = cms.vstring(  ),
   OnlineMonitor = cms.vstring( 'HLT_ZeroBiasPixel_SingleTrack',
     'HLT_L1DoubleMuOpen',
     'HLT_L1Tech_BSC_minBias',
@@ -76,7 +75,8 @@ datasets = cms.PSet(
   OnlineHltMonitor = cms.vstring( 'HLT_L1DoubleMuOpen',
     'HLT_L1Tech_BSC_minBias',
     'HLT_L1Tech_HCAL_HF',
-    'HLT_ZeroBiasPixel_SingleTrack' )
+    'HLT_ZeroBiasPixel_SingleTrack' ),
+  EcalLaser = cms.vstring(  )
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
