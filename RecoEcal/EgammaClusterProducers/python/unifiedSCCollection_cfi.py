@@ -1,16 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
+# This will take cleaned and uncleaned collections and save only cleaned
+# and the differences between cleaned and uncleaned
+#
 
-nonDuplicatedHybridSuperClusters = cms.EDProducer("UnifiedSCCollectionProducer",
-            debugLevel = cms.string('NONE'),
+hybridSuperClusters = cms.EDProducer("UnifiedSCCollectionProducer",
             # input collections:
-            cleanBcCollection = cms.InputTag('hybridSuperClusters','hybridBarrelBasicClusters'),
-            cleanScCollection = cms.InputTag('hybridSuperClusters',''),
-            uncleanBcCollection = cms.InputTag('uncleanedHybridSuperClusters','hybridBarrelBasicClusters'),
+            cleanBcCollection   = cms.InputTag('cleanedHybridSuperClusters',
+                                               'hybridBarrelBasicClusters'),
+            cleanScCollection   = cms.InputTag('cleanedHybridSuperClusters',''),
+            uncleanBcCollection = cms.InputTag('uncleanedHybridSuperClusters',
+                                               'hybridBarrelBasicClusters'),
             uncleanScCollection = cms.InputTag('uncleanedHybridSuperClusters',''),
             # names of collections to be produced:
             bcCollection = cms.string('hybridBarrelBasicClusters'),
-            scCollection = cms.string('hybridSuperClusters'),
+            scCollection = cms.string(''),
             bcCollectionUncleanOnly = cms.string('uncleanOnlyHybridBarrelBasicClusters'),
             scCollectionUncleanOnly = cms.string('uncleanOnlyHybridSuperClusters'),
 

@@ -4,7 +4,7 @@ from RecoEcal.EgammaClusterProducers.ecalRecHitFlags_cfi import *
 
 import RecoEcal.EgammaClusterProducers.hybridSuperClusters_cfi
 
-dynamicHybridSuperClusters = RecoEcal.EgammaClusterProducers.hybridSuperClusters_cfi.hybridSuperClusters.clone(
+dynamicHybridSuperClusters = RecoEcal.EgammaClusterProducers.hybridSuperClusters_cfi.cleanedHybridSuperClusters.clone(
     shapeAssociation = cms.string('dynamicHybridShapeAssoc'),
     dynamicPhiRoad = cms.bool(True),
     basicclusterCollection = cms.string(''),

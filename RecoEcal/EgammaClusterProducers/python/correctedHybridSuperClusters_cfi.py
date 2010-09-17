@@ -6,7 +6,7 @@ correctedHybridSuperClusters = cms.EDProducer("EgammaSCCorrectionMaker",
     sigmaElectronicNoise = cms.double(0.03),
     superClusterAlgo = cms.string('Hybrid'),
     etThresh = cms.double(0.0),
-    rawSuperClusterProducer = cms.InputTag("hybridSuperClusters"),
+    rawSuperClusterProducer = cms.InputTag("cleanedHybridSuperClusters"),
     applyEnergyCorrection = cms.bool(True),
     VerbosityLevel = cms.string('ERROR'),
     # energy correction

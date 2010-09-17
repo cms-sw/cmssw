@@ -5,7 +5,7 @@ from RecoEcal.EgammaClusterProducers.ecalSeverityLevelAlgos_cfi import *
 from RecoEcal.EgammaClusterProducers.ecalSeverityLevelFlags_cfi import *
 
 # Producer for Hybrid BasicClusters and SuperClusters
-hybridSuperClusters = cms.EDProducer("HybridClusterProducer",
+cleanedHybridSuperClusters = cms.EDProducer("HybridClusterProducer",
     eThreshA = cms.double(0.003),
     # seed thresold for dominos
     eseed = cms.double(0.35),

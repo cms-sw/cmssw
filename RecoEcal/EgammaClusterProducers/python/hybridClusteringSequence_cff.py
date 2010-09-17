@@ -9,15 +9,14 @@ from RecoEcal.EgammaClusterProducers.hybridSuperClusters_cfi import *
 from RecoEcal.EgammaClusterProducers.correctedHybridSuperClusters_cfi import *
 # hybrid clustering sequence
 #uncleanedHybridSuperClusters = RecoEcal.EgammaClusterProducers.hybridSuperClusters_cfi.hybridSuperClusters.clone()
-uncleanedHybridSuperClusters = hybridSuperClusters.clone()
+uncleanedHybridSuperClusters = cleanedHybridSuperClusters.clone()
 uncleanedHybridSuperClusters.RecHitSeverityToBeExcluded = cms.vint32(999)
 uncleanedHybridSuperClusters.excludeFlagged = False
 
 from RecoEcal.EgammaClusterProducers.unifiedSCCollection_cfi import *
-from RecoEcal.EgammaClusterProducers.uncleanSCRecovery_cfi import *
 
 hybridClusteringSequence = cms.Sequence(
-                hybridSuperClusters * correctedHybridSuperClusters
+                cleanedHybridSuperClusters * correctedHybridSuperClusters
                 * uncleanedHybridSuperClusters
-                * nonDuplicatedHybridSuperClusters
-                * uncleanSCRecovered)
+                * hybridSuperClusters)
+

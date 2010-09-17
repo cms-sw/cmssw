@@ -12,7 +12,6 @@ RecoEcalFEVT = cms.PSet(
         'keep *_ecalPreshowerRecHit_*_*', 
 	# Barrel clusters
         'keep *_hybridSuperClusters_*_*',
-        'keep *_uncleanedHybridSuperClusters_*_*',
         'keep *_correctedHybridSuperClusters_*_*',
 	# Endcap clusters
         'keep *_multi5x5*_*_*',
@@ -33,7 +32,6 @@ RecoEcalRECO = cms.PSet(
 	'keep EcalRecHitsSorted_reducedEcalRecHits*_*_*',
 	# Barrel clusters
         'keep *_hybridSuperClusters_*_*',
-        'keep *_uncleanedHybridSuperClusters_*_*',
         'keep recoSuperClusters_correctedHybridSuperClusters_*_*',
 	# Endcap clusters
         'keep *_multi5x5BasicClusters_*_*',
