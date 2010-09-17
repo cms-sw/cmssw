@@ -699,40 +699,6 @@ namespace edm {
   }
 
   void
-  JobReport::reportTimingInfo(std::map<std::string, double> const& timingData) {
-    if(impl_->ost_) {
-      std::ostream& msg = *(impl_->ost_);
-      msg << "<TimingService>\n";
-      typedef std::map<std::string, double>::const_iterator const_iterator;
-      for (const_iterator pos = timingData.begin(), posEnd = timingData.end(); pos != posEnd; ++pos) {
-        msg <<  "  <" << pos->first
-        <<  "  Value=\"" << pos->second  << "\" />"
-        <<  "\n";
-      }
-      msg << "</TimingService>\n";
-      //LogInfo("FwkJob") << msg.str();
-      msg << std::flush;
-    }
-  }
-
-  void
-  JobReport::reportMemoryInfo(std::map<std::string, double> const& memoryData, std::map<std::string, double> const& memoryProperties) {
-    if(impl_->ost_) {
-      std::ostream& msg = *(impl_->ost_);
-      msg << "<MemoryService>\n";
-      typedef std::map<std::string, double>::const_iterator const_iterator;
-      for (const_iterator pos = memoryData.begin(), posEnd = memoryData.end(); pos != posEnd; ++pos) {
-        msg <<  "  <" << pos->first
-        <<  "  Value=\"" << pos->second  << "\" />"
-        <<  "\n";
-      }
-      reportMachineMemoryProperties(memoryProperties);
-      msg << "</MemoryService>\n";
-      msg << std::flush;
-    }
-  }
-
-  void
   JobReport::reportMemoryInfo(std::vector<std::string> const& memoryData) {
     if(impl_->ost_) {
       std::ostream& msg = *(impl_->ost_);
@@ -743,42 +709,6 @@ namespace edm {
         msg << *pos << "\n";
       }
       msg << "</MemoryService>\n";
-      msg << std::flush;
-    }
-  }
-
-  void JobReport::reportCPUInfo(std::map<std::string, std::map<std::string, std::string> > const& CPUData) {
-
-    if(impl_->ost_) {
-      std::ostream& msg = *(impl_->ost_);
-      msg << "<CPUService>\n";
-
-      typedef std::map<std::string, std::map<std::string, std::string> >::const_iterator core_iter;
-
-      for (core_iter core_pos = CPUData.begin(), core_posEnd = CPUData.end(); core_pos != core_posEnd; ++core_pos) {
-	msg << "  <CPUCore Core=\"" << core_pos->first << "\">\n";
-        typedef std::map<std::string, std::string>::const_iterator property_iter;
-      	for (property_iter property_pos = core_pos->second.begin(), property_posEnd = core_pos->second.end();
-	  property_pos != property_posEnd; ++property_pos) {
-       	    msg <<  "    <Property Name=\"" << property_pos->first << "\">" << property_pos->second << "</Property>\n";
-        }
-	msg << "  </CPUCore>\n";
-      }
-      msg << "</CPUService>\n";
-      msg << std::flush;
-    }
-  }
-
-  void
-  JobReport::reportMachineMemoryProperties(std::map<std::string, double> const& memoryProperties) {
-    if(impl_->ost_) {
-      std::ostream& msg = *(impl_->ost_);
-      msg << "  <Memory>\n";
-      typedef std::map<std::string, double>::const_iterator const_iterator;
-      for (const_iterator pos = memoryProperties.begin(), posEnd = memoryProperties.end(); pos != posEnd; ++pos) {
-       msg <<  "    <Property Name=\"" << pos->first << "\">" << pos->second << "</Property>\n";
-      }
-      msg << "  </Memory>\n";
       msg << std::flush;
     }
   }
@@ -804,12 +734,13 @@ namespace edm {
     if(impl_->ost_) {
       std::ostream& msg = *(impl_->ost_);
       msg << "<StorageStatistics>\n"
-	<< data << "\n"
-	<<  "</StorageStatistics>\n";
+      << data << "\n"
+      <<  "</StorageStatistics>\n";
       //LogInfo("FwkJob") << msg.str();
       msg << std::flush;
     }
   }
+
   void
   JobReport::reportGeneratorInfo(std::string const& name, std::string const& value) {
     impl_->addGeneratorInfo(name, value);

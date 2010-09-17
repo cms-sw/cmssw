@@ -355,19 +355,6 @@ namespace edm {
 
       void reportAnalysisFile(std::string const& fileName,
 			      std::map<std::string, std::string> const& fileData) ;
-      ///
-      /// Report Timing statistics
-      /// Invoked by the Timing service to send an end of job
-      /// summary about time taken for inclusion in the job report
-      ///
-      void reportTimingInfo(std::map<std::string, double> const& timingData);
-
-      ///
-      /// Report Memory statistics
-      /// Invoked by the Memory service to send an end of job
-      /// summary about memory usage for inclusion in the job report
-      ///
-      void reportMemoryInfo(std::map<std::string, double> const& memoryData, std::map<std::string, double> const& memoryProperties);
 
       ///
       /// Report Memory statistics
@@ -376,20 +363,6 @@ namespace edm {
       /// summary about memory usage for inclusion in the job report
       ///
       void reportMemoryInfo(std::vector<std::string> const& memoryData);
-
-      ///
-      /// Report CPU information from /proc/cpuinfo file in the system
-      /// Invoked by the CPU service to send an end of job
-      /// summary about cpu information for inclusion in the job report
-      ///
-      void reportCPUInfo(std::map<std::string, std::map<std::string, std::string> > const& CPUData);
-      ///
-      /// Report Memory statistics
-      /// Invoked by the Memory service to send at the end of the job
-      /// summary about the machine's memory propertiese for inclusion in the job report
-      /// in Memory Statistics section
-      ///
-      void reportMachineMemoryProperties(std::map<std::string, double> const& memoryProperties);
 
       ///
       /// Report Message statistics
