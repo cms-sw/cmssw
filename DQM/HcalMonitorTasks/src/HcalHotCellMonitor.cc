@@ -666,7 +666,7 @@ void HcalHotCellMonitor::processHit_rechitNeighbors( RECHIT& rechit,
   // Case 2b: (avg. neighbor energy)/energy too large for cell to be considered hot
   if (makeDiagnostics_)
     {
-      int myval=(int)enNeighbor/en*50;
+      int myval=(int)(enNeighbor/en*50);
       if (myval<0) myval=0;
       if (myval>499) myval=499;
       if (enNeighbor/en<0 || enNeighbor/en>=10) return;
