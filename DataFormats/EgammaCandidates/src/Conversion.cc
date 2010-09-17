@@ -131,7 +131,7 @@ double  Conversion::zOfPrimaryVertexFromTracks()  const  {
 
   float pTrkMag=this->pairMomentum().mag();
   
-  if ( pTrkMag>0 && sqrt(this->conversionVertex().position().perp2()) !=0 ) {
+  if ( pTrkMag>0 && this->conversionVertex().isValid() && sqrt(this->conversionVertex().position().perp2()) !=0 ) {
     float theta=acos(this->pairMomentum().z() /pTrkMag);
     theZOfPrimaryVertexFromTracks = this->conversionVertex().position().z()  - sqrt(this->conversionVertex().position().perp2())*(1./tan(theta));
     
@@ -149,13 +149,8 @@ double Conversion::pairInvariantMass() const{
     double px= tracksPin()[0].x() +  tracksPin()[1].x();
     double py= tracksPin()[0].y() +  tracksPin()[1].y();
     double pz= tracksPin()[0].z() +  tracksPin()[1].z();
-    //   double px= tracks()[0]->innerMomentum().x() + tracks()[1]->innerMomentum().x();
-    // double py= tracks()[0]->innerMomentum().y() + tracks()[1]->innerMomentum().y();
-    // double pz= tracks()[0]->innerMomentum().z() + tracks()[1]->innerMomentum().z();
-    //    double mom1=tracks()[0]->innerMomentum().Mag2() ;
     double mom1= tracksPin()[0].Mag2();
     double mom2= tracksPin()[1].Mag2();
-    // double mom2=tracks()[1]->innerMomentum().Mag2() ;
     double e = sqrt( mom1+ mElec*mElec ) + sqrt( mom2 + mElec*mElec );
     invMass= ( e*e - px*px -py*py - pz*pz);
     if ( invMass>0) invMass = sqrt(invMass);
@@ -178,6 +173,7 @@ double  Conversion::pairCotThetaSeparation() const  {
   return dCotTheta;
 
 }
+
 
 GlobalVector  Conversion::pairMomentum() const  {
 
@@ -203,6 +199,37 @@ GlobalVector  Conversion::pairMomentum() const  {
 }
 
 
+math::XYZTLorentzVectorD Conversion::refittedPair4Momentum() const  {
+
+  math::XYZTLorentzVectorD p4;
+  if ( this->conversionVertex().isValid() ) 
+    p4 = this->conversionVertex().p4( 0.000511, 0.5);
+
+  return p4;
+
+
+}
+
+
+GlobalVector  Conversion::refittedPairMomentum() const  {
+
+  double px=0.;
+  double py=0.;
+  double pz=0.;
+  
+  if (  this->conversionVertex().isValid() ) {
+    px= this->refittedPair4Momentum().px();
+    py= this->refittedPair4Momentum().py();
+    pz= this->refittedPair4Momentum().pz();
+  
+  }
+
+  GlobalVector momTracks(px,py,pz);
+  return momTracks;
+
+
+}
+
 
 
 double  Conversion::EoverP() const  {
@@ -217,6 +244,28 @@ double  Conversion::EoverP() const  {
       etot+= caloCluster()[i]->energy();
     }
     if (this->pairMomentum().mag() !=0) ep= etot/this->pairMomentum().mag();
+  }
+
+
+
+  return ep;  
+
+}
+
+
+
+double  Conversion::EoverPrefittedTracks() const  {
+
+
+  double ep=-99.;
+ 
+  if ( nTracks() > 0  ) {
+    unsigned int size= this->caloCluster().size();
+    float etot=0.;
+    for ( unsigned int i=0; i<size; i++) {
+      etot+= caloCluster()[i]->energy();
+    }
+    if (this->refittedPairMomentum().mag() !=0) ep= etot/this->refittedPairMomentum().mag();
   }
 
 

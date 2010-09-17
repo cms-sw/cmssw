@@ -6,7 +6,7 @@
  *
  * \author N.Marinelli  University of Notre Dame, US
  *
- * \version $Id: Conversion.h,v 1.9 2010/01/07 17:39:15 nancy Exp $
+ * \version $Id: Conversion.h,v 1.10 2010/01/14 14:51:21 nancy Exp $
  *
  */
 
@@ -70,16 +70,25 @@ namespace reco {
       void setMVAout(const float& mva) { theMVAout_=mva;}
       /// get the value  of the TMVA output
       double MVAout() const { return theMVAout_;}
-      /// if nTracks=2 returns the pair invariant mass
+      /// if nTracks=2 returns the pair invariant mass. Original tracks are used here
       double pairInvariantMass() const;
-      /// Delta cot(Theta) where Theta is the angle in the (y,z) plane between the two tracks 
+      /// Delta cot(Theta) where Theta is the angle in the (y,z) plane between the two tracks. Original tracks are used
       double pairCotThetaSeparation() const;
-      /// Conversion tracks momentum 
+      /// Conversion tracks momentum from the tracks inner momentum
       GlobalVector  pairMomentum() const;
-      /// Super Cluster energy divided by track pair momentum if Standard seeing method. If a pointer to two (or more clusters)
-      /// is stored in the conversion, this method returns the energy sum of clusters divided by the  track pair momentum
+      /// Conversion track pair 4-momentum from the tracks refitted with vertex constraint
+      math::XYZTLorentzVectorD   refittedPair4Momentum() const;
+      /// Conversion tracks momentum from the tracks refitted with vertex constraint
+      GlobalVector  refittedPairMomentum() const;
+      /// Super Cluster energy divided by track pair momentum if Standard seeding method. If a pointer to two (or more clusters)
+      /// is stored in the conversion, this method returns the energy sum of clusters divided by the track pair momentum
+      /// Track innermost momentum is used here
       double EoverP() const;
-      /// z coordinate of the photon origin calculated from the track-pair direction
+      /// Super Cluster energy divided by track pair momentum if Standard seeing method. If a pointer to two (or more clusters)
+      /// is stored in the conversion, this method returns the energy sum of clusters divided by the track pair momentum
+      ///  Track momentum refitted with vertex constraint is used
+      double EoverPrefittedTracks() const;
+      /// z coordinate of the photon origin calculated from the track-pair direction and the position of the vertex
       double zOfPrimaryVertexFromTracks() const;
       // Dist of minimum approach between tracks
       double distOfMinimumApproach() const {return  theMinDistOfApproach_;}
