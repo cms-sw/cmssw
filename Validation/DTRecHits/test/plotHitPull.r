@@ -310,7 +310,7 @@ void drawPull(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DR
     plot2DPulls(h2DSLPhiHit);
   }
 
-  if(false && do4DRecHit) {
+  if(do4DRecHit) {
     plot4DPulls(h4DHit);
     plot4DPullsRZ(h4DHit);
     // plot4DPulls(h4DHit_W0);
@@ -384,7 +384,7 @@ void drawPull(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DR
   }
 
   if(do4DRecHit) {
-    //// plot4DPullVsEta(h4DHit);
+    plot4DPullVsEta(h4DHit);
     plot4DPullVsEtaRZ(h4DHit);
     // plot4DPullVsEta(h4DHit_W0);
     // plot4DPullVsEta(h4DHit_W1);
@@ -457,7 +457,7 @@ void drawPull(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DR
     plotAndProfileXSpread(h2DSLPhiHit->hPullAngleVsPhi,-5,5);
   }
 
-  if(false && do4DRecHit) {
+  if(do4DRecHit) {
     plot4DPullVsPhi(h4DHit);
     plot4DPullVsPhiRZ(h4DHit);
     // plot4DPullVsPhi(h4DHit_W0);
@@ -510,12 +510,12 @@ void drawPull(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DR
   //   plot2DPullAngles(h2DSLPhiHit, ThreeIn1);
   // }
 
-  // if(do4DRecHit) {
-  //   plot4DPullAngles(h4DHit, ThreeIn1);
-  //   plot4DPullAngles(h4DHit_W0, ThreeIn1);
-  //   plot4DPullAngles(h4DHit_W1, ThreeIn1);
-  //   plot4DPullAngles(h4DHit_W2, ThreeIn1);
-  // }
+   //if(do4DRecHit) {
+   //  plot4DPullAngles(h4DHit, ThreeIn1);
+   //  plot4DPullAngles(h4DHit_W0, ThreeIn1);
+   //  plot4DPullAngles(h4DHit_W1, ThreeIn1);
+   //  plot4DPullAngles(h4DHit_W2, ThreeIn1);
+   //}
 
   return;
 
