@@ -587,7 +587,7 @@ process.datasets = cms.PSet(
 )
 
 process.source = cms.Source( "PoolSource",
-    fileNames = cms.untracked.vstring( '/store/express/Run2010A/ExpressPhysics/FEVT/v4/000/144/011/4C376C4B-A0B1-DF11-AF2C-003048F118D4.root' )
+    fileNames = cms.untracked.vstring( '/store/data/Run2010A/MinimumBias/RAW/v1/000/144/011/140DA3FD-AAB1-DF11-8932-001617E30E28.root' )
 )
 
 process.BTagRecord = cms.ESSource( "EmptyESSource",
