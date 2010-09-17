@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.28 2010/09/08 19:18:55 amraktad Exp $
+// $Id: FWEveView.cc,v 1.29 2010/09/13 11:10:17 amraktad Exp $
 //
 
 
@@ -145,6 +145,7 @@ FWEveView::~FWEveView()
 {
    m_geoScene->RemoveElements();
    m_ownedProducts->Destroy();
+   viewerGL()->DeleteOverlayElements(TGLOverlayElement::kAll);
    m_viewer->DestroyWindowAndSlot();
 }
 

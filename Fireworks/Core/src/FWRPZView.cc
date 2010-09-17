@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.18 2010/08/30 15:42:33 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.19 2010/09/08 19:18:56 amraktad Exp $
 //
 
 // system include files
@@ -34,6 +34,8 @@
 #include "Fireworks/Core/interface/FWViewContext.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
+
+FWRPZViewGeometry* FWRPZView::s_geometryList = 0;
 
 //
 // constructors and destructor
@@ -106,9 +108,12 @@ void
 FWRPZView::setContext(const fireworks::Context& ctx)
 {
    FWEveView::setContext(ctx);
-   float_t eps = 0.005;
-   FWRPZViewGeometry* geo = new FWRPZViewGeometry(ctx);
-   m_projMgr->ImportElements(geo->getGeoElements(typeId()), geoScene());
+
+   if (!s_geometryList)
+   {
+      s_geometryList = new  FWRPZViewGeometry(ctx);
+   }
+   m_projMgr->ImportElements(s_geometryList->getGeoElements(typeId()), geoScene());
 
    TEveCaloData* data = context().getCaloData();
 
@@ -123,6 +128,8 @@ FWRPZView::setContext(const fireworks::Context& ctx)
 
    if (typeId() == FWViewType::kRhoZ && context().caloSplit())
    {
+
+      float_t eps = 0.005;
       m_calo->SetAutoRange(false);
       m_calo->SetEta(-context().caloTransEta() -eps, context().caloTransEta() + eps);
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel 
 //         Created:  Tue Sep 14 13:28:13 CEST 2010
-// $Id: FWViewGeometryList.cc,v 1.1 2010/09/15 11:48:42 amraktad Exp $
+// $Id: FWViewGeometryList.cc,v 1.2 2010/09/16 17:31:53 amraktad Exp $
 //
 
 #include <boost/bind.hpp>
@@ -37,11 +37,17 @@ FWViewGeometryList::FWViewGeometryList(const fireworks::Context& context):
    }
 
    context.colorManager()->geomColorsHaveChanged_.connect(boost::bind(&FWViewGeometryList::updateColors, this));
-   context.colorManager()->geomTransparencyHaveChanged_.connect(boost::bind(&FWViewGeometryList::updateTransparency,this,  _1));
+   m_transpConnection =  context.colorManager()->geomTransparencyHaveChanged_.connect(boost::bind(&FWViewGeometryList::updateTransparency,this,  _1));
 }
 
 FWViewGeometryList::~FWViewGeometryList()
 {
+   m_transpConnection.disconnect();
+   m_colorConnection.disconnect();
+   for (int i = 0; i < kFWGeomColorSize; ++i)
+   {
+      if (m_colorComp[i]) m_colorComp[i]->Destroy();
+   }
 }
 
 void

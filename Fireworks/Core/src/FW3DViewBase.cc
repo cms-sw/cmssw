@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DViewBase.cc,v 1.13 2010/09/15 18:14:22 amraktad Exp $
+// $Id: FW3DViewBase.cc,v 1.14 2010/09/16 17:31:53 amraktad Exp $
 //
 #include <boost/bind.hpp>
 
@@ -57,6 +57,7 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId):
 
 FW3DViewBase::~FW3DViewBase()
 {
+  delete m_geometry;
 }
 
 void FW3DViewBase::setContext(const fireworks::Context& context)

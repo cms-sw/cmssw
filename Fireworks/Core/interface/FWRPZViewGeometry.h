@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 21:01:12 CET 2010
-// $Id: FWRPZViewGeometry.h,v 1.7 2010/09/07 15:46:46 yana Exp $
+// $Id: FWRPZViewGeometry.h,v 1.8 2010/09/15 11:48:42 amraktad Exp $
 //
 
 // system include files
@@ -59,8 +59,8 @@ private:
 
    TEveGeoShape* makeShape( double, double, double, double );
 
-   static TEveElementList*  s_rhoPhiGeo;
-   static TEveElementList*  s_rhoZGeo;
+   TEveElementList*  m_rhoPhiGeo;
+   TEveElementList*  m_rhoZGeo;
 };
 
 

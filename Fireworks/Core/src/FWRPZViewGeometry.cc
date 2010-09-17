@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 20:33:06 CET 2010
-// $Id: FWRPZViewGeometry.cc,v 1.11 2010/09/07 15:46:47 yana Exp $
+// $Id: FWRPZViewGeometry.cc,v 1.12 2010/09/15 11:48:42 amraktad Exp $
 //
 
 // system include files
@@ -44,8 +44,6 @@
 //
 // static data member definitions
 //
-TEveElementList* FWRPZViewGeometry::s_rhoPhiGeo = 0;
-TEveElementList* FWRPZViewGeometry::s_rhoZGeo   = 0;
 
 //
 // constructors and destructor
@@ -62,8 +60,8 @@ FWRPZViewGeometry::FWRPZViewGeometry(const fireworks::Context& context):
 
 FWRPZViewGeometry::~FWRPZViewGeometry()
 {
-   s_rhoPhiGeo->DecDenyDestroy();
-   s_rhoZGeo->DecDenyDestroy();
+   m_rhoPhiGeo->DecDenyDestroy();
+   m_rhoZGeo->DecDenyDestroy();
 }
 
 //______________________________________________________________________________
@@ -74,27 +72,27 @@ FWRPZViewGeometry::getGeoElements(const FWViewType::EType type)
 {
    if (type == FWViewType::kRhoPhi)
    {
-      if ( !s_rhoPhiGeo)
+      if ( !m_rhoPhiGeo)
       {
-         s_rhoPhiGeo = new TEveElementList("Geomtery RhoPhi");
-         s_rhoPhiGeo->IncDenyDestroy();
-         s_rhoPhiGeo->AddElement(makeMuonGeometryRhoPhi());
-         s_rhoPhiGeo->AddElement(makeCaloOutlineRhoPhi());
+         m_rhoPhiGeo = new TEveElementList("Geomtery RhoPhi");
+         m_rhoPhiGeo->IncDenyDestroy();
+         m_rhoPhiGeo->AddElement(makeMuonGeometryRhoPhi());
+         m_rhoPhiGeo->AddElement(makeCaloOutlineRhoPhi());
 
       }
-      return s_rhoPhiGeo;
+      return m_rhoPhiGeo;
    }
    else 
    {
-      if ( !s_rhoZGeo)
+      if ( !m_rhoZGeo)
       {
-         s_rhoZGeo = new TEveElementList("Geomtery RhoZ");
+         m_rhoZGeo = new TEveElementList("Geomtery RhoZ");
          
-         s_rhoZGeo->IncDenyDestroy();
-         s_rhoZGeo->AddElement(makeMuonGeometryRhoZ());
-         s_rhoZGeo->AddElement(makeCaloOutlineRhoZ());
+         m_rhoZGeo->IncDenyDestroy();
+         m_rhoZGeo->AddElement(makeMuonGeometryRhoZ());
+         m_rhoZGeo->AddElement(makeCaloOutlineRhoZ());
       }
-      return s_rhoZGeo;
+      return m_rhoZGeo;
    }
    return 0;
 }

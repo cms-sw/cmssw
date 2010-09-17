@@ -16,8 +16,10 @@
 //
 // Original Author:  Alja Mrak-Tadel 
 //         Created:  Tue Sep 14 13:28:39 CEST 2010
-// $Id: FWViewGeometryList.h,v 1.1 2010/09/15 11:48:42 amraktad Exp $
+// $Id: FWViewGeometryList.h,v 1.2 2010/09/16 17:37:48 amraktad Exp $
 //
+
+#include "sigc++/connection.h"
 
 #include "TEveElement.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
@@ -55,7 +57,8 @@ private:
    const FWViewGeometryList& operator=(const FWViewGeometryList&); // stop default
 
    // ---------- member data --------------------------------
-
+   sigc::connection  m_transpConnection;
+   sigc::connection  m_colorConnection;
 };
 
 

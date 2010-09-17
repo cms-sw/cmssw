@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRPZView.h,v 1.10 2010/08/30 15:42:32 amraktad Exp $
+// $Id: FWRPZView.h,v 1.11 2010/09/08 19:18:55 amraktad Exp $
 //
 
 // system include files
@@ -35,6 +35,7 @@ class TEveCalo2D;
 class TEveProjectionAxes;
 class TEveWindowSlot;
 class FWColorManager;
+class FWRPZViewGeometry;
 
 class FWRPZView : public FWEveView
 {
@@ -68,6 +69,8 @@ private:
 
    void showProjectionAxes( );
    // ---------- member data --------------------------------
+  static FWRPZViewGeometry* s_geometryList;
+
    FWEvePtr<TEveProjectionManager> m_projMgr;
    FWEvePtr<TEveProjectionAxes>    m_axes;
    TEveCalo2D*                     m_calo;
