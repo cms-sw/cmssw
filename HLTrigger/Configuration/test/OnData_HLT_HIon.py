@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_8_1/HIon/V17 (CMSSW_3_8_1_HLT8)
+# /dev/CMSSW_3_8_1/HIon/V18 (CMSSW_3_8_1_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V17')
+  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V18')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -18,15 +18,13 @@ process.streams = cms.PSet(
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   Calibration = cms.vstring( 'TestEnables' ),
   HLTDQMResults = cms.vstring( 'OnlineHltResults' ),
-  ALCAP0 = cms.vstring( 'AlCaP0' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
-  Express = cms.vstring( 'ExpressPhysics' ),
+  ALCAP0 = cms.vstring( 'AlCaP0' ),
   A = cms.vstring( 'Cosmics',
     'Photon',
     'MinimumBias',
     'JetMETTauMonitor',
-    'Jet',
     'METFwd',
     'HcalNZS',
     'HcalHPDNoise',
@@ -36,7 +34,9 @@ process.streams = cms.PSet(
     'Commissioning',
     'EGMonitor',
     'Electron',
-    'MuOnia' ),
+    'MuOnia',
+    'Jet' ),
+  Express = cms.vstring( 'ExpressPhysics' ),
   DQM = cms.vstring( 'OnlineMonitor' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
   HLTDQM = cms.vstring( 'OnlineHltMonitor' )
@@ -48,17 +48,15 @@ process.datasets = cms.PSet(
   EcalLaser = cms.vstring(  ),
   TestEnables = cms.vstring(  ),
   OnlineHltResults = cms.vstring(  ),
-  AlCaP0 = cms.vstring(  ),
   AlCaPhiSymEcal = cms.vstring(  ),
   RPCMonitor = cms.vstring(  ),
-  ExpressPhysics = cms.vstring(  ),
+  AlCaP0 = cms.vstring(  ),
   Cosmics = cms.vstring(  ),
   Photon = cms.vstring(  ),
   MinimumBias = cms.vstring( 'HLT_L1Tech_HCAL_HF',
     'HLT_ZeroBiasPixel_SingleTrack',
     'HLT_L1Tech_BSC_minBias' ),
   JetMETTauMonitor = cms.vstring(  ),
-  Jet = cms.vstring(  ),
   METFwd = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
   HcalHPDNoise = cms.vstring(  ),
@@ -69,6 +67,8 @@ process.datasets = cms.PSet(
   EGMonitor = cms.vstring(  ),
   Electron = cms.vstring(  ),
   MuOnia = cms.vstring(  ),
+  Jet = cms.vstring(  ),
+  ExpressPhysics = cms.vstring(  ),
   OnlineMonitor = cms.vstring( 'HLT_ZeroBiasPixel_SingleTrack',
     'HLT_L1DoubleMuOpen',
     'HLT_L1Tech_BSC_minBias',
@@ -1535,10 +1535,10 @@ process.hltBPTXCoincidence = cms.EDFilter( "HLTLevel1Activity",
     daqPartitions = cms.uint32( 1 ),
     ignoreL1Mask = cms.bool( True ),
     invert = cms.bool( False ),
+    bunchCrossings = cms.vint32( 0, -1, 1 ),
     physicsLoBits = cms.uint64( 0x1 ),
     physicsHiBits = cms.uint64( 0x40000 ),
-    technicalBits = cms.uint64( 0x1 ),
-    bunchCrossings = cms.vint32( 0, -1, 1 )
+    technicalBits = cms.uint64( 0x1 )
 )
 process.hltScalersRawToDigi = cms.EDProducer( "ScalersRawToDigi",
     scalersInputTag = cms.InputTag( "source" )

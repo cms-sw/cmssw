@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_8_1/GRun/V17
+# /dev/CMSSW_3_8_1/GRun/V18
 
 import FWCore.ParameterSet.Config as cms
 
@@ -107,7 +107,8 @@ streamA_datasetJet_selector.triggerConditions = cms.vstring('HLT_HT140U',
     'HLT_QuadJet20U', 
     'HLT_QuadJet25U', 
     'HLT_DiJetAve50U', 
-    'HLT_HT100U')
+    'HLT_HT100U', 
+    'HLT_HT120U')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetJetMETTauMonitor_selector
 streamA_datasetJetMETTauMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
