@@ -155,6 +155,7 @@ class StandardTester(object):
                       'ln -s RelVal_DigiL1Raw_1E31.root RelVal_DigiL1Raw_HIon.root',
                       'cmsRun ../HLTrigger/Configuration/test/OnLine_HLT_HIon.py'],
                      'hlt3' : ['cmsRun ../HLTrigger/Configuration/test/OnData_HLT_GRun.py']
+                     'hlt4' : ['cmsRun ../HLTrigger/Configuration/test/OnData_HLT_HIon.py']
                      }
 
     	commands={}
