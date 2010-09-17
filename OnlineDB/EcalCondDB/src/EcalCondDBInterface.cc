@@ -1,4 +1,4 @@
-// $Id: EcalCondDBInterface.cc,v 1.22 2010/06/04 14:04:03 fra Exp $
+// $Id: EcalCondDBInterface.cc,v 1.23 2010/06/16 13:54:57 organtin Exp $
 
 #include <iostream>
 #include <string>
@@ -22,7 +22,6 @@
 #include "OnlineDB/EcalCondDB/interface/MonRunList.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunTag.h"
 #include "OnlineDB/EcalCondDB/interface/LMFRunTag.h"
-#include "OnlineDB/EcalCondDB/interface/LMFMatacqBlueDat.h"
 
 using namespace std;
 using namespace oracle::occi;
