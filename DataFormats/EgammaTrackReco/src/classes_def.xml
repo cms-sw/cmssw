@@ -7,6 +7,9 @@
    <class name="edm::ValueMap<reco::CaloClusterPtrVector>" />
    <class name="edm::Wrapper<edm::ValueMap<reco::CaloClusterPtr> >" />
    <class name="edm::Wrapper<edm::ValueMap<reco::CaloClusterPtrVector> >" />
+   <class name="reco::ConversionTrack" />
+   <class name="reco::ConversionTrackCollection" />
+   <class name="edm::Wrapper<reco::ConversionTrackCollection>" />   
 
 
 </lcgdict>                                                                                                                                                        
