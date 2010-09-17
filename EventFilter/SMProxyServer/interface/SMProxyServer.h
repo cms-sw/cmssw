@@ -12,7 +12,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: SMProxyServer.h,v 1.19 2010/02/18 15:07:30 smorovic Exp $
+   $Id: SMProxyServer.h,v 1.20 2010/02/23 21:25:54 smorovic Exp $
 */
 
 #include <string>
@@ -170,6 +170,7 @@ namespace stor {
     xdata::Boolean selectionFromClient_;
     xdata::Boolean allowMissingSM_;
     xdata::Boolean dropOldLumisectionEvents_;
+    xdata::Boolean enableDQMSM_;
 
     bool queueCreated_;
     bool queueInactive_;

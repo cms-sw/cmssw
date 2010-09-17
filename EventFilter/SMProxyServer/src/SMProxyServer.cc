@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.41 2010/03/17 16:47:02 smorovic Exp $
+// $Id: SMProxyServer.cc,v 1.42 2010/04/13 15:44:48 elmer Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -157,6 +157,8 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("allowMissingSM",&allowMissingSM_);
   dropOldLumisectionEvents_ = false;
   ispace->fireItemAvailable("dropOldLumisectionEvents",&dropOldLumisectionEvents_);
+  enableDQMSM_ = true;
+  ispace->fireItemAvailable("enableDQMSM",&enableDQMSM_);
 
   //those are relevant only when consumer defines a SM connection
 
@@ -701,6 +703,14 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
 void SMProxyServer::smsenderWebPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
+  if (dpm_.get() != NULL ){
+    if (dpm_->isFullyRegistered()){
+      std::vector<std::string> smList = dpm_->getSmList();
+      for (unsigned int i=0;i<smList.size();i++){
+        smsenders_[smList[i]]=true;  
+      }
+    }
+  }
   *out << "<html>"                                                   << endl;
   *out << "<head>"                                                   << endl;
   *out << "<link type=\"text/css\" rel=\"stylesheet\"";
@@ -3065,6 +3075,7 @@ void SMProxyServer::setupFlashList()
   is->fireItemAvailable("selectionFromClient",&selectionFromClient_);
   is->fireItemAvailable("allowMissingSM",       &allowMissingSM_);
   is->fireItemAvailable("dropOldLumisectionEvents",       &dropOldLumisectionEvents_);
+  is->fireItemAvailable("enableDQMSM",       &enableDQMSM_);
   //is->fireItemAvailable("fairShareES",          &fairShareES_);
 
   //----------------------------------------------------------------------------
@@ -3116,6 +3127,7 @@ void SMProxyServer::setupFlashList()
   is->addItemRetrieveListener("selectionFromClient",this);
   is->addItemRetrieveListener("allowMissingSM",       this);
   is->addItemRetrieveListener("dropOldLumisectionEvents",       this);
+  is->addItemRetrieveListener("enableDQMSM",       this);
   //is->addItemRetrieveListener("fairShareES",          this);
   //----------------------------------------------------------------------------
 }
@@ -3268,6 +3280,7 @@ bool SMProxyServer::createQueue() {
       std::cout << "add to register list num = " << i << " url = "
 	<< smRegList_.elementAt(i)->toString() << std::endl;
       dpm_->addSM2Register(smRegList_.elementAt(i)->toString());
+      if ( enableDQMSM_ )
       dpm_->addDQMSM2Register(smRegList_.elementAt(i)->toString());
       smsenders_.insert(std::make_pair(smRegList_.elementAt(i)->toString(), false));
     }

@@ -1,4 +1,4 @@
-// $Id: DataProcessManager.cc,v 1.22 2009/12/01 14:25:25 mommsen Exp $
+// $Id: DataProcessManager.cc,v 1.23 2010/03/08 17:09:46 mommsen Exp $
 
 #include "EventFilter/SMProxyServer/interface/DataProcessManager.h"
 #include "EventFilter/StorageManager/interface/SMCurlInterface.h"
@@ -51,6 +51,7 @@ namespace stor
     buf_(2000),
     headerRetryInterval_(5),
     allowMissingSM_(false),
+    maxConnectionRetries_(5),
     dqmServiceManager_(new stor::DQMServiceManager()),
     receivedEvents_(0),
     receivedDQMEvents_(0),
@@ -224,8 +225,8 @@ namespace stor
 
   void DataProcessManager::processCommands()
   {
-    double lastRegAttempt = 0.0;
-    double lastDQMRegAttempt = 0.0;
+    //double lastRegAttempt = 0.0;
+    //double lastDQMRegAttempt = 0.0;
     double lastFullHeaderAttempt = 0.0;
 
     // called with this data process manager's own thread.
@@ -233,7 +234,6 @@ namespace stor
     bool doneWithRegistration = false;
     // TODO fixme: improve method of hardcored fixed retries
     unsigned int count = 0; // keep of count of tries and quit after 255
-    unsigned int maxcount = 255;
     bool doneWithDQMRegistration = false;
     unsigned int countDQM = 0; // keep of count of tries and quit after 255
     bool alreadysaid = false;
@@ -257,46 +257,87 @@ namespace stor
         countINIT = 0;
       }
 
-      // 12-May-2009, KAB - for the moment, let's treat the case in which
-      // we're allowed to miss one or more storage managers totally separately
-      // from the case in which we're not allowed to miss any.
-      if (! allowMissingSM_) {
+      // 16-Sep-2010 LIL : Rewriting everything to be more consice and fix issues with the logic of
+      // independent functions
         // register as event consumer to all SM senders
         if(!fullyRegistered_) {
           if(!doneWithRegistration)
           {
             waitBetweenRegTrys();
-            bool success = registerWithAllSM();
-            if(success) doneWithRegistration = true;
+          //After maxtries remove unresponsive SMs from the registration list
+          bool success = false;
+          if (count == maxConnectionRetries_ - 1) 
+            success=registerWithAllSM(true); 
+          else 
+            success=registerWithAllSM();
+          if(success) 
+            doneWithRegistration = true;
+          else {
+            if (allowMissingSM_) 
+              if (registerWithAnySM()){ 
+                partiallyRegistered_ = true;
+                if (count == maxConnectionRetries_) doneWithRegistration=true;
+              }
+          }
             ++count;
           }
-          // TODO fixme: decide what to do after max tries
-          if(count >= maxcount) edm::LogInfo("processCommands") << "Could not register with all SM Servers"
-                                                                << " after " << maxcount << " tries";
+        
+        if(count > maxConnectionRetries_ && !allowMissingSM_) 
+          edm::LogInfo("processCommands") << "Could not register with all SM Servers"
+                                          << " after " << count << " tries";
+        else if (allowMissingSM_ && count < maxConnectionRetries_) 
+          edm::LogInfo("processCommands") << "Was Unable to register to all SM trying again (this is attempt:" << count << ")"; 
+        else if (allowMissingSM_ && count == maxConnectionRetries_)
+          edm::LogInfo("processCommands") << "Was Unable to register to all SM trying on last time before giving up un the unresponsive servers";
+          
           if(doneWithRegistration && !alreadysaid) {
             edm::LogInfo("processCommands") << "Registered with all SM Event Servers";
             alreadysaid = true;
           }
           if(doneWithRegistration) fullyRegistered_ = true;
+        // or ether no SM where configured or on last attempt of registration none where able to connect so we bail out
+        if(smList_.size()==0) break;
         }
         // now register as DQM consumers
         if(!fullyRegisteredDQM_) {
           if(!doneWithDQMRegistration)
           {
             waitBetweenRegTrys();
-            bool success = registerWithAllDQMSM();
-            if(success) doneWithDQMRegistration = true;
+          bool success = false;
+          if (countDQM == maxConnectionRetries_ - 1) 
+            success = registerWithAllDQMSM(true);
+          else
+            success = registerWithAllDQMSM();
+          if(success) 
+            doneWithDQMRegistration = true;
+          else{
+            if (allowMissingSM_) 
+              if (registerWithAnyDQMSM()){ 
+                partiallyRegisteredDQM_ = true;
+                if (countDQM == maxConnectionRetries_) doneWithDQMRegistration=true;
+              }
+          }
             ++countDQM;
           }
-          // TODO fixme: decide what to do after max tries
-          if(count >= maxcount) edm::LogInfo("processCommands") << "Could not register with all SM DQMEvent Servers"
-                                                                << " after " << maxcount << " tries";
           if(doneWithDQMRegistration && !alreadysaidDQM) {
             edm::LogInfo("processCommands") << "Registered with all SM DQMEvent Servers";
             alreadysaidDQM = true;
           }
+        if(countDQM > maxConnectionRetries_ && !allowMissingSM_)
+          edm::LogInfo("processCommands") << "Could not register with all DQMSM Servers"
+                                          << " after " << countDQM << " tries";
+        else if (allowMissingSM_ && countDQM < maxConnectionRetries_) 
+          edm::LogInfo("processCommands") << "Was Unable to register to all DQMSM trying again (this is attempt:" << count << ")"; 
+        else if (allowMissingSM_ && countDQM == maxConnectionRetries_)
+          edm::LogInfo("processCommands") << "Was Unable to register to all DQMSM trying on last time before giving up on the unresponsive servers";
+          
+        if(doneWithDQMRegistration && !alreadysaid) {
+          edm::LogInfo("processCommands") << "Registered with all DQMSM Event Servers";
+          alreadysaid = true;
+        }
           if(doneWithDQMRegistration) fullyRegisteredDQM_ = true;
         }
+      
         // now get one INIT header (product registry) and save it
         // as long as at least one SMsender registered with
         // TODO fixme: use the data member for got header to go across runs
@@ -304,7 +345,9 @@ namespace stor
         // is counted as not initialized
         // TODO how to we get all INIT messages from each SM (and know it!)
         //if(!gotOneHeader)
-        if(!gotOneHeaderFromAll)
+      double now = getCurrentTime();
+      if(!gotOneHeaderFromAll &&
+           (now - lastFullHeaderAttempt) > headerRetryInterval_)
         {
           waitBetweenRegTrys();
           //bool success = getAnyHeaderFromSM();
@@ -313,98 +356,21 @@ namespace stor
           if(success) gotOneHeaderFromAll = true;
           ++countINIT;
         }
-        if(countINIT >= maxcount) edm::LogInfo("processCommands") << "Could not get product registry!"
-                                                                  << " after " << maxcount << " tries";
+      if(countINIT > maxConnectionRetries_) edm::LogInfo("processCommands") << "Could not get product registry!"
+                                                                << " after " << maxConnectionRetries_ << " tries";
         //if(gotOneHeader && !alreadysaidINIT) {
         if(gotOneHeaderFromAll && !alreadysaidINIT) {
           edm::LogInfo("processCommands") << "Got the product registry";
           alreadysaidINIT = true;
         }
-        //if(fullyRegistered_ && gotOneHeader && haveHeader()) {
-        if(fullyRegistered_ && gotOneHeaderFromAll && haveHeader()) {
-          getEventFromAllSM();
-        }
-        if(fullyRegisteredDQM_) {
-          getDQMEventFromAllSM();
-        }
-      }
 
-      else { // allowMissingSM_
-        // register as event consumer to all SM senders
-        if(!fullyRegistered_) {
-          if(!doneWithRegistration)
-          {
-            if (!partiallyRegistered_) waitBetweenRegTrys();
-            double now = getCurrentTime();
-            if ((now - lastRegAttempt) > headerRetryInterval_)
-            {
-              lastRegAttempt = now;
-              bool success = registerWithAnySM();
-              if (success) {
-                partiallyRegistered_ = true;
-                //waitBetweenRegTrys();
-                success = registerWithAllSM();
-                if(success) doneWithRegistration = true;
-              }
-            }
-          }
-          if(doneWithRegistration && !alreadysaid) {
-            edm::LogInfo("processCommands") << "Registered with all SM Event Servers";
-            alreadysaid = true;
-          }
-          if(doneWithRegistration) fullyRegistered_ = true;
-        }
-        // now register as DQM consumers
-        if(!fullyRegisteredDQM_) {
-          if(!doneWithDQMRegistration)
-          {
-            if (!partiallyRegisteredDQM_) waitBetweenRegTrys();
-            double now = getCurrentTime();
-            if ((now - lastDQMRegAttempt) > headerRetryInterval_)
-            {
-              lastDQMRegAttempt = now;
-              bool success = registerWithAnyDQMSM();
-              if (success) {
-                partiallyRegisteredDQM_ = true;
-                //waitBetweenRegTrys();
-                success = registerWithAllDQMSM();
-                if(success) doneWithDQMRegistration = true;
-              }
-            }
-          }
-          if(doneWithDQMRegistration && !alreadysaidDQM) {
-            edm::LogInfo("processCommands") << "Registered with all SM DQMEvent Servers";
-            alreadysaidDQM = true;
-          }
-          if(doneWithDQMRegistration) fullyRegisteredDQM_ = true;
-        }
-        // now get one INIT header (product registry) and save it
-        // as long as at least one SMsender registered with
-        if(!gotOneHeader)
-        {
-          waitBetweenRegTrys();
-          bool success = getAnyHeaderFromSM();
-          if(success) gotOneHeader = true;
-        }
-        double now = getCurrentTime();
-        if(!gotOneHeaderFromAll &&
-           (now - lastFullHeaderAttempt) > headerRetryInterval_)
-        {
-          lastFullHeaderAttempt = now;
-          bool success = getHeaderFromAllSM();
-          if(success) gotOneHeaderFromAll = true;
-        }
-        if(gotOneHeaderFromAll && !alreadysaidINIT) {
-          edm::LogInfo("processCommands") << "Got the product registry from all SMs";
-          alreadysaidINIT = true;
-        }
-        if(partiallyRegistered_ && gotOneHeader && haveHeader()) {
+      //if(fullyRegistered_ && gotOneHeader && haveHeader()) {
+      if((fullyRegistered_ || (allowMissingSM_ && partiallyRegistered_)) && gotOneHeaderFromAll && haveHeader() ) {
           getEventFromAllSM();
         }
-        if(partiallyRegisteredDQM_) {
+      if(fullyRegisteredDQM_ || (allowMissingSM_ && partiallyRegisteredDQM_)) {
           getDQMEventFromAllSM();
         }
-      }
 
       // check for any commands - empty() does not block
       if(!cmd_q_->empty())
@@ -467,8 +433,43 @@ namespace stor
     lastDQMReqMap_.insert(std::make_pair(DQMsmURL,lastRequestTime));
   }
 
-  bool DataProcessManager::registerWithAllSM()
+  void DataProcessManager::removeSMFromRegister(std::string smURL)
   {
+    for(unsigned int i = 0; i < smList_.size(); ++i) {
+      if(smURL.compare(smList_[i]) == 0){
+         smList_.erase(smList_.begin()+i);
+         break;
+      }
+    }
+    smRegMap_.erase(smURL);
+    smHeaderMap_.erase(smURL);
+    lastReqMap_.erase(smURL);
+    updateMinEventRequestInterval();   
+    headerRefetchRequested_ = true; 
+    std::cout << "Removed StorageManager: '" << smURL << "' from register " << std::endl;
+  }
+  void DataProcessManager::removeDQMSMFromRegister(std::string DQMsmURL)
+  {
+    for(unsigned int i = 0; i < DQMsmList_.size(); ++i) {
+      if(DQMsmURL.compare(DQMsmList_[i]) == 0) {
+        DQMsmList_.erase(DQMsmList_.begin()+i);
+        break;
+      }
+    }
+    DQMsmRegMap_.erase(DQMsmURL);
+    lastDQMReqMap_.erase(DQMsmURL);
+    headerRefetchRequested_ = true; 
+    std::cout << "Removed StorageManager: '" << DQMsmURL << "' from DQM register " << std::endl;
+  }
+  
+  std::vector<std::string> DataProcessManager::getSmList(){ 
+    std::vector<std::string> tmp;
+    tmp = smList_;
+  return tmp; 
+  }
+  bool DataProcessManager::registerWithAllSM(bool removeSM)
+  {
+    std::vector<std::string> eraseSMList;
     // One try at registering with the SM on each subfarm
     // return true if registered with all SM 
     // Only make one attempt and return so we can make this thread stop
@@ -480,35 +481,46 @@ namespace stor
       if(consumerid > 0) {
         smRegMap_[smList_[i] ] = consumerid;
       }
-      else allRegistered = false;
+      else {
+        // if we remove the entry is like if we succedded on its registration
+        if (removeSM) 
+          eraseSMList.push_back(smList_[i]);
+        else
+          allRegistered = false;
     }
+    }
+    if (removeSM)
+      for (unsigned int i = 0; i < eraseSMList.size(); ++i ) 
+        removeSMFromRegister(eraseSMList[i]);
     return allRegistered;
   }
 
   bool DataProcessManager::registerWithAnySM()
   {
-    // One try at registering with the SM on each subfarm
-    // return true if registered with any additional SM 
+    // One try at registering with one of the SM on each subfarm
+    // return true if registered with any SM 
     // Only make one attempt and return so we can make this thread stop
     if(smList_.size() == 0) return false;
-    bool anyRegistered = false;
     for(unsigned int i = 0; i < smList_.size(); ++i) {
       if(smRegMap_[smList_[i] ] > 0) continue; // already registered
       int consumerid = registerWithSM(smList_[i]);
       if(consumerid > 0) {
         smRegMap_[smList_[i] ] = consumerid;
-        anyRegistered = true;
+        return true;
       }
     }
-    return anyRegistered;
+    for(unsigned int i = 0; i < smList_.size(); ++i)
+      if(smRegMap_[smList_[i] ] > 0) return true;
+    return false;
   }
 
-  bool DataProcessManager::registerWithAllDQMSM()
+  bool DataProcessManager::registerWithAllDQMSM(bool removeDQMSM)
   {
+    std::vector<std::string> eraseSMList;
     // One try at registering with the SM on each subfarm
     // return true if registered with all SM 
     // Only make one attempt and return so we can make this thread stop
-    if(DQMsmList_.size() == 0) return false;
+    if(DQMsmList_.size() == 0) return true;
     bool allRegistered = true;
     for(unsigned int i = 0; i < DQMsmList_.size(); ++i) {
       if(DQMsmRegMap_[DQMsmList_[i] ] > 0) continue; // already registered
@@ -516,8 +528,14 @@ namespace stor
       if(consumerid > 0) {
         DQMsmRegMap_[DQMsmList_[i] ] = consumerid;
       }
+      else {
+        if (removeDQMSM) eraseSMList.push_back(DQMsmList_[i]);
       else allRegistered = false;
     }
+    }
+    if (removeDQMSM)
+      for (unsigned int i = 0; i < eraseSMList.size(); ++i ) 
+        removeDQMSMFromRegister(eraseSMList[i]);
     setExpectedUpdatesDQM( DQMsmRegMap_.size() );
     return allRegistered;
   }
@@ -527,18 +545,20 @@ namespace stor
     // One try at registering with the SM on each subfarm
     // return true if registered with any additional SM 
     // Only make one attempt and return so we can make this thread stop
-    if(DQMsmList_.size() == 0) return false;
-    bool anyRegistered = false;
+    if(DQMsmList_.size() == 0) return true;
     for(unsigned int i = 0; i < DQMsmList_.size(); ++i) {
       if(DQMsmRegMap_[DQMsmList_[i] ] > 0) continue; // already registered
       int consumerid = registerWithDQMSM(DQMsmList_[i]);
       if(consumerid > 0) {
         DQMsmRegMap_[DQMsmList_[i] ] = consumerid;
-        anyRegistered = true;
+        setExpectedUpdatesDQM( DQMsmRegMap_.size() );
+        return true;
       }
     }
-    setExpectedUpdatesDQM( DQMsmRegMap_.size() );
-    return anyRegistered;
+   
+    for(unsigned int i = 0; i < DQMsmList_.size(); ++i)
+      if(DQMsmRegMap_[DQMsmList_[i] ] > 0) return true;
+    return false;
   }
 
   int DataProcessManager::registerWithSM(std::string smURL)
@@ -934,10 +954,10 @@ namespace stor
     // registered with any of the SM DQM servers
     if(DQMsmList_.size() > 0) {
       for(unsigned int i = 0; i < DQMsmList_.size(); ++i) {
-        if(DQMsmRegMap_[DQMsmList_[i] ] > 0) return true;
+        if(DQMsmRegMap_[DQMsmList_[i] ] == 0) return false;
       }
     }
-    return false;
+    return true;
   }
 
   bool DataProcessManager::haveHeader()
@@ -1153,16 +1173,16 @@ namespace stor
 
   void DataProcessManager::getDQMEventFromAllSM()
   {
-    // Try the list of SM in order of registration to get one event
+    // Try the list of DQMSM in order of registration to get one event
     // so long as we have the header from SM already
-    if(smList_.size() > 0) {
+    if(DQMsmList_.size() > 0) {
       double time2wait = 0.0;
       double sleepTime = 300.0;
       bool gotOneEvent = false;
       bool gotOne = false;
-      for(unsigned int i = 0; i < smList_.size(); ++i) {
-        if(DQMsmRegMap_[smList_[i] ] > 0) {   // is registered
-          gotOne = getOneDQMEventFromSM(smList_[i], time2wait);
+      for(unsigned int i = 0; i < DQMsmList_.size(); ++i) {
+        if(DQMsmRegMap_[DQMsmList_[i] ] > 0) {   // is registered
+          gotOne = getOneDQMEventFromSM(DQMsmList_[i], time2wait);
           if(gotOne) {
             gotOneEvent = true;
           } else {

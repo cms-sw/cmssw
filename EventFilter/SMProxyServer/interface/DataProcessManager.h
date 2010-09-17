@@ -1,6 +1,6 @@
 #ifndef SMPS_DATA_PROCESS_MANAGER_HPP
 #define SMPS_DATA_PROCESS_MANAGER_HPP
-// $Id: DataProcessManager.h,v 1.14 2009/12/01 14:25:25 mommsen Exp $
+// $Id: DataProcessManager.h,v 1.15 2010/03/08 17:09:53 mommsen Exp $
 
 #include "EventFilter/StorageManager/interface/EventServer.h"
 #include "EventFilter/StorageManager/interface/DQMEventServer.h"
@@ -64,6 +64,9 @@ namespace stor
     void setAllowMissingSM(bool allowMissingSM)
     { allowMissingSM_ = allowMissingSM; }
 
+    void setMaxConnectionRetries(unsigned int maxConnectionRetries)
+    { maxConnectionRetries_ = maxConnectionRetries; }
+
     void setCollateDQM(bool collateDQM)
     { dqmServiceManager_->setCollateDQM(collateDQM); }
 
@@ -110,6 +113,14 @@ namespace stor
 
     void addSM2Register(std::string smURL);
     void addDQMSM2Register(std::string DQMsmURL);
+    // LIL: BEGIN
+    // Functions to remove unresponsive SM and DQMSM from their respective lists
+    void removeSMFromRegister(std::string smURL);
+    void removeDQMSMFromRegister(std::string DQMsmURL);
+    std::vector<std::string> getSmList();
+    bool isFullyRegistered(){ return fullyRegistered_; }
+    // LIL: END
+    
     bool haveRegWithDQMServer();
     bool haveRegWithEventServer();
     bool haveHeader();
@@ -148,9 +159,9 @@ namespace stor
     void setDQMTime2Now(std::string smURL);
     bool getOneDQMEventFromSM(std::string smURL, double& time2wait);
 
-    bool registerWithAllSM();
+    bool registerWithAllSM(bool removeSM=false);
     bool registerWithAnySM();
-    bool registerWithAllDQMSM();
+    bool registerWithAllDQMSM(bool removeDQMSM=false);
     bool registerWithAnyDQMSM();
     int registerWithSM(std::string smURL);
     int registerWithDQMSM(std::string smURL);
@@ -198,6 +209,7 @@ namespace stor
     Strings eventSelection_;
     std::string eventSelectionNew_;
     bool allowMissingSM_;
+    unsigned int maxConnectionRetries_;
 
     //std::auto_ptr<stor::DQMServiceManager> dqmServiceManager_;
     boost::shared_ptr<stor::DQMServiceManager> dqmServiceManager_;

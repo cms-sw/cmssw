@@ -1,3 +1,13 @@
+2010-09-17 Luis I. Lopera <lilopera@cern.ch>
+	* tag V01-10-00
+	* Allow to disable DQM Queues where they are not needed. Thus reducing network traffic.
+	* Eliminates unresponsive SM servers from the list. This fixes the delays observed when
+	  trying high frequency consumers and improves overall performance as the SMPS. This
+	  procedure only occurs at the registration point, and it guaranties that after n retries
+	  the server will go in to status fully registered.
+	* The SMSenders webpage now reflects which SM where registered and which where not.
+	* Configurable number of retries.
+
 2010-03-17 Srecko Morovic <Srecko.Morovic@cern.ch>
 	* tag V01-09-05
 	* fix null pointer problem with new parameter
@@ -16,15 +26,15 @@
 	* tag V01-09-02
 	* Restarting of queues (always or after timeout),
 	  Use alwaysRestartQueue and queueTimeout (unsignedInt).
-	* New locking between consumer callbacks, fsm functions 
+	* New locking between consumer callbacks, fsm functions
 	  and timer workloop.
 
 2010-02-16 Srecko Morovic <Srecko.Morovic@cern.ch>
 
 	* tag V01-09-01
 	* Added support for client-side queue definition (enabled by
-	  selectionFromClient Xdaq parameter). Rate, output module 
-	  and trigger selection are taken from the client, ignoring 
+	  selectionFromClient Xdaq parameter). Rate, output module
+	  and trigger selection are taken from the client, ignoring
 	  SMProxy parameters. Any subsequent client connection will
 	  be attached to the same stream.
 	* Moved dpm intialization into separate function
@@ -130,7 +140,7 @@
 
 	* tag V01-08-03
 	* Modification of the EventServer to match what was run in
-	  Cruzet2 (fair-share off, rates limited at the EventServer input, and 
+	  Cruzet2 (fair-share off, rates limited at the EventServer input, and
 	  events for consumers restricted to a single HLT output module).
 
 2008-05-14  Harry Cheung <cheung@fnal.gov>
