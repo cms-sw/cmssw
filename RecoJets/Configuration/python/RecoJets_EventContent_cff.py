@@ -75,7 +75,7 @@ RecoJetsRECO = cms.PSet(
                                            'keep recoRecoChargedRefCandidates_trackRefsForJets_*_*',         
                                            'keep *_caloTowers_*_*', 
                                            'keep *_towerMaker_*_*',
-                                           'keep *_CastorTowerReco_*_*'                                           
+                                           'keep *_CastorTowerReco_*_*',                                           
                                            'keep *_ic5JetTracksAssociatorAtVertex_*_*', 
                                            'keep *_iterativeCone5JetTracksAssociatorAtVertex_*_*', 
                                            'keep *_iterativeCone5JetTracksAssociatorAtCaloFace_*_*', 
@@ -124,7 +124,7 @@ RecoJetsAOD = cms.PSet(
                                            'keep recoRecoChargedRefCandidates_trackRefsForJets_*_*',                                             
                                            'keep *_caloTowers_*_*', 
                                            'keep *_towerMaker_*_*',
-                                           'keep *_CastorTowerReco_*_*'                                           
+                                           'keep *_CastorTowerReco_*_*',                                           
                                            #        'keep *_ic5JetTracksAssociatorAtVertex_*_*',
                                            'keep *_ak5JetTracksAssociatorAtVertex_*_*', 
                                            'keep *_ak7JetTracksAssociatorAtVertex_*_*', 
