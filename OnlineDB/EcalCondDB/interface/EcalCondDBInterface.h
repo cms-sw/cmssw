@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.26 2010/06/04 14:04:03 fra Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.27 2010/06/16 13:54:57 organtin Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -24,12 +24,10 @@
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/DCUIOV.h"
-#include "OnlineDB/EcalCondDB/interface/LMFRunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/CaliIOV.h"
 #include "OnlineDB/EcalCondDB/interface/RunList.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunList.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunTag.h"
-#include "OnlineDB/EcalCondDB/interface/LMFRunList.h"
 #include "OnlineDB/EcalCondDB/interface/LMFRunTag.h"
 #include "OnlineDB/EcalCondDB/interface/DCSPTMTempList.h"
 #include "OnlineDB/EcalCondDB/interface/all_fe_config_types.h"
@@ -260,44 +258,6 @@ class EcalCondDBInterface : public EcalDBConnection {
 
   DCSPTMTempList fetchDCSPTMTempList(EcalLogicID ecid)  throw(runtime_error);
   DCSPTMTempList fetchDCSPTMTempList(EcalLogicID ecid, Tm start, Tm end) throw(runtime_error);
- /**template<class DATT, class IOVT>
-  void insertDataSet(const std::map< EcalLogicID, DATT >* data, IOVT* iov)
-    throw(std::runtime_error)
-  {
-    try {
-      iov->setConnection(env, conn);
-      iov->writeDB();
-      
-      DATT dataIface;
-      dataIface.setConnection(env, conn);
-      dataIface.prepareWrite();
-      
-      const EcalLogicID* channel;
-      const DATT* dataitem;
-      typedef typename std::map< EcalLogicID, DATT >::const_iterator CI;
-      for (CI p = data->begin(); p != data->end(); ++p) {
-	channel = &(p->first);
-	dataitem = &(p->second);
-	dataIface.writeDB( channel, dataitem, iov);
-      }
-      conn->commit();
-      dataIface.terminateWriteStatement();
-    } catch (std::runtime_error &e) {
-      conn->rollback();
-      throw(e);
-    } catch (...) {
-      conn->rollback();
-      throw(std::runtime_error("EcalCondDBInterface::insertDataSet:  Unknown exception caught"));
-    }
-  }
-   *   Return a LMFRun List
-   */
-  LMFRunList fetchLMFRunList(RunTag tag, LMFRunTag lmfruntag) throw(std::runtime_error);
-  LMFRunList fetchLMFRunList(RunTag tag, LMFRunTag lmfruntag,int min_run, int max_run) throw(std::runtime_error);
-
-  LMFRunList fetchLMFRunList(RunTag tag, LMFRunTag lmfruntag,uint64_t min_time, int min_run,int end_run) throw(std::runtime_error);
-  LMFRunList fetchLMFRunListLastNRuns(RunTag tag, LMFRunTag lmfruntag, int max_run, int n_runs) throw(std::runtime_error);
-  LMFRunList fetchLMFRunListLastNRunsBefore(RunTag tag, LMFRunTag lmfruntag, uint64_t min_time, int n_runs) throw(std::runtime_error);
 
   MonRunList fetchMonRunList(RunTag tag, MonRunTag monruntag) throw(std::runtime_error);
   MonRunList fetchMonRunList(RunTag tag, MonRunTag monruntag,int min_run, int max_run) throw(std::runtime_error);
