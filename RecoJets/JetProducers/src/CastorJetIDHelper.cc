@@ -64,6 +64,7 @@ void reco::helper::CastorJetIDHelper::calculate( const edm::Event& event, const 
 		depth_ = depth_/jet.energy();
 		width_ = sqrt(width_/jet.energy());
 		fhot_ = fhot_/jet.energy();
+		fem_ = emEnergy_/jet.energy();
 		
 		zmean = zmean/jet.energy();
     		z2mean = z2mean/jet.energy();
