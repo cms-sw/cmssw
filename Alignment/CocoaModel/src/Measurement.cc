@@ -508,11 +508,10 @@ void Measurement::DumpBadOrderOptOs()
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@ 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-ALIdouble* Measurement::DerivativeRespectEntry( Entry* entry )
+std::vector<ALIdouble> Measurement::DerivativeRespectEntry( Entry* entry )
 {
   //---------- std::vector of derivatives to return
-  ALIdouble* deriv; 
-  deriv = new ALIdouble[theDim];
+  std::vector<ALIdouble> deriv;
   ALIdouble sumderiv;
   
   //---------- displacement to start with 
@@ -558,7 +557,7 @@ ALIdouble* Measurement::DerivativeRespectEntry( Entry* entry )
   
   //---------- Enough precision reached: pass result
   for ( ALIuint ii = 0; ii < theDim; ii++) {
-    deriv[ii] = ( theValueSimulated[ii] - theValueSimulated_orig[ii] ) / displacement;
+    deriv.push_back( ( theValueSimulated[ii] - theValueSimulated_orig[ii] ) / displacement );
     //----- change it to entry sigma dimensions
     //     deriv[ii] /= entry->SigmaDimensionFactor();
     if( ALIUtils::debug >= 1) std::cout << name() << ": " <<  entry->OptOCurrent()->name() << " " <<  entry->name() << " " << ii << "### DERIVATIVE: " << deriv[ii] <<  std::endl;

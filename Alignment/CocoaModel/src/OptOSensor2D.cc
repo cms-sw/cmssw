@@ -108,6 +108,8 @@ void OptOSensor2D::makeMeasurement( LightRay& lightray, Measurement& meas )
   // store the lightray position and direction
   meas.setLightRayPosition( lightray.point() );
   meas.setLightRayDirection( lightray.direction() );
+
+  delete[] interslc;
 }
 
 
