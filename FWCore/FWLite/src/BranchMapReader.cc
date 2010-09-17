@@ -303,7 +303,7 @@ namespace fwlite {
     };
 
     BranchMapReaderStrategyV11::BranchMapReaderStrategyV11(TFile* file, int fileVersion)
-    : Strategy(file, fileVersion), eventHistoryTree_(0), pHistory_(0) {
+    : Strategy(file, fileVersion), eventHistoryTree_(0), pHistory_(&history_) {
       updateFile(file);
     }
 
