@@ -1,5 +1,6 @@
 <use   name="clhep"/>
 <use   name="rootmath"/>
+<use   name="boost"/>
 <export>
   <lib   name="1"/>
 </export>
