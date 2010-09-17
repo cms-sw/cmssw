@@ -32,7 +32,6 @@ RecoJetsFEVT = cms.PSet(
                                            'keep *_gk5JetID_*_*','keep *_gk7JetID_*_*',
                                            'keep *_kt4JetID_*_*','keep *_kt6JetID_*_*',
                                            'keep *_ca4JetID_*_*','keep *_ca6JetID_*_*',
-                                           'keep *_trackExtrapolator_*_*',
                                            #keep jet area variables for jet colls in RECO 
                                            'keep *_kt4CaloJets_*_*', 
                                            'keep *_kt6CaloJets_*_*',
@@ -92,7 +91,6 @@ RecoJetsRECO = cms.PSet(
                                            'keep *_ak5JetID_*_*','keep *_ak7JetID_*_*',
                                            'keep *_ic5JetID_*_*',
                                            'keep *_kt4JetID_*_*','keep *_kt6JetID_*_*',
-                                           'keep *_trackExtrapolator_*_*',
                                            'keep *_ak7BasicJets_*_*',
                                            'keep *_ak7CastorJetID_*_*'
                                            )
@@ -135,7 +133,6 @@ RecoJetsAOD = cms.PSet(
                                            'keep *_ak5JetID_*_*','keep *_ak7JetID_*_*',
                                            #        'keep *_ic5JetID_*_*',
                                            'keep *_kt4JetID_*_*','keep *_kt6JetID_*_*',
-                                           'keep *_trackExtrapolator_*_*',
                                            'keep *_ak7BasicJets_*_*',
                                            'keep *_ak7CastorJetID_*_*'
                                            )

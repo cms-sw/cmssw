@@ -20,6 +20,7 @@ RecoTrackerFEVT = cms.PSet(
         'keep *_dedxTruncated40_*_*',
         'keep *_dedxMedian_*_*',
         'keep *_dedxHarmonic2_*_*',
+        'keep *_trackExtrapolator_*_*',                                           
     )
 )
 #RECO content
@@ -40,6 +41,7 @@ RecoTrackerRECO = cms.PSet(
         'keep *_dedxTruncated40_*_*',
         'keep *_dedxMedian_*_*',
         'keep *_dedxHarmonic2_*_*',
+        'keep *_trackExtrapolator_*_*'                                           
     )
 )
 #AOD content
@@ -50,6 +52,7 @@ RecoTrackerAOD = cms.PSet(
         'keep recoTracks_regionalCosmicTracks_*_*',
         'keep recoTracks_ctfPixelLess_*_*', 
         'keep *_dedxHarmonic2_*_*',
+        'keep *_trackExtrapolator_*_*'                                           
     )
 )
 
