@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 import EventFilter.HcalRawToDigi.HcalRawToDigi_cfi
 hcalDigiAlCaMB = EventFilter.HcalRawToDigi.HcalRawToDigi_cfi.hcalDigis.clone()
 import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hbhe_cfi
-hbherecoNoise = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hbhe_cfi.hbhereco.clone()
+hbherecoNoise = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hbhe_cfi.hbheprereco.clone()
 import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi
 hfrecoNoise = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi.hfreco.clone()
 import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi
