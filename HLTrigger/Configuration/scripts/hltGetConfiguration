@@ -351,7 +351,7 @@ else:
         files = [ f for f in files.split('\n') if 'store' in f ][0:10]
         menuConfigSource = ','.join(files)
       elif runOnData:
-        menuConfigSource = "/store/express/Run2010A/ExpressPhysics/FEVT/v4/000/144/011/4C376C4B-A0B1-DF11-AF2C-003048F118D4.root"
+        menuConfigSource = "/store/data/Run2010A/MinimumBias/RAW/v1/000/144/011/140DA3FD-AAB1-DF11-8932-001617E30E28.root"
       else:
         menuConfigSource =  "file:RelVal_DigiL1Raw_%s.root" % processType
 
