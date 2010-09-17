@@ -12,6 +12,7 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
+#include "RecoVertex/KinematicFit/interface/KinematicConstrainedVertexFitter.h"
 //
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
@@ -44,7 +45,7 @@ public:
   edm::ParameterSet conf_;
   double maxDistance_, maxOfInitialValue_;
   int maxNbrOfIterations_;//0.001, 1.4, 40 parameter for vertex
-
+  KinematicConstrainedVertexFitter* kcvFitter_;
 
 };
 

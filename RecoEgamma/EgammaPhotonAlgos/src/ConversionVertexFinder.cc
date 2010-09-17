@@ -38,11 +38,8 @@ ConversionVertexFinder::ConversionVertexFinder(const edm::ParameterSet& config )
   maxDistance_ = conf_.getParameter<double>("maxDistance");
   maxOfInitialValue_ = conf_.getParameter<double>("maxOfInitialValue");
   maxNbrOfIterations_ = conf_.getParameter<int>("maxNbrOfIterations");
-
-  conf_.addParameter<double>("maxDistance", maxDistance_);//0.001
-  conf_.addParameter<double>("maxOfInitialValue",maxOfInitialValue_) ;//1.4
-  conf_.addParameter<int>("maxNbrOfIterations", maxNbrOfIterations_);//40
- 
+  kcvFitter_ = new KinematicConstrainedVertexFitter();
+  kcvFitter_->setParameters(conf_);
 
   
 }
@@ -73,9 +70,8 @@ bool  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair, reco:
   
   MultiTrackKinematicConstraint *  constr = new ColinearityKinematicConstraint(ColinearityKinematicConstraint::PhiTheta);
   
-  KinematicConstrainedVertexFitter kcvFitter;
-  kcvFitter.setParameters(conf_);
-  RefCountedKinematicTree myTree = kcvFitter.fit(particles, constr);
+
+  RefCountedKinematicTree myTree = kcvFitter_->fit(particles, constr);
   if( myTree->isValid() ) {
     myTree->movePointerToTheTop();                                                                                
     RefCountedKinematicParticle the_photon = myTree->currentParticle();                                           
