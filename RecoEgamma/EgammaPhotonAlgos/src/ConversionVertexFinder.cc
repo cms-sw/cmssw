@@ -15,7 +15,7 @@
 #include "RecoVertex/KinematicFitPrimitives/interface/ParticleMass.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/MultiTrackKinematicConstraint.h"
 #include <RecoVertex/KinematicFitPrimitives/interface/KinematicParticleFactoryFromTransientTrack.h>
-#include "RecoVertex/KinematicFit/interface/KinematicConstrainedVertexFitter.h"
+
 #include "RecoVertex/KinematicFit/interface/TwoTrackMassKinematicConstraint.h"
 #include "RecoVertex/KinematicFit/interface/KinematicParticleVertexFitter.h"
 #include "RecoVertex/KinematicFit/interface/KinematicParticleFitter.h"
@@ -35,19 +35,20 @@ ConversionVertexFinder::ConversionVertexFinder(const edm::ParameterSet& config )
   conf_(config)
 { 
   LogDebug("ConversionVertexFinder") << "ConversionVertexFinder CTOR  " <<  "\n";  
-  maxDistance_ = conf_.getParameter<double>("maxDistance");
-  maxOfInitialValue_ = conf_.getParameter<double>("maxOfInitialValue");
+  maxDelta_ = conf_.getParameter<double>("maxDelta");
+  maxReducedChiSq_ = conf_.getParameter<double>("maxReducedChiSq");
+  minChiSqImprovement_  = conf_.getParameter<double>("minChiSqImprovement");
   maxNbrOfIterations_ = conf_.getParameter<int>("maxNbrOfIterations");
   kcvFitter_ = new KinematicConstrainedVertexFitter();
   kcvFitter_->setParameters(conf_);
 
-  
 }
 
 ConversionVertexFinder::~ConversionVertexFinder() {
 
   LogDebug("ConversionVertexFinder") << "ConversionVertexFinder DTOR " <<  "\n";  
-    
+  delete   kcvFitter_;
+ 
 }
 
 bool  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair, reco::Vertex& the_vertex) {
@@ -70,7 +71,6 @@ bool  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair, reco:
   
   MultiTrackKinematicConstraint *  constr = new ColinearityKinematicConstraint(ColinearityKinematicConstraint::PhiTheta);
   
-
   RefCountedKinematicTree myTree = kcvFitter_->fit(particles, constr);
   if( myTree->isValid() ) {
     myTree->movePointerToTheTop();                                                                                

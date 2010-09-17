@@ -25,7 +25,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include <vector>
 
-
+class KinematicConstrainedVertexFitter;
 class ConversionVertexFinder {
 
 public:
@@ -43,9 +43,12 @@ public:
 
  private:
   edm::ParameterSet conf_;
-  double maxDistance_, maxOfInitialValue_;
-  int maxNbrOfIterations_;//0.001, 1.4, 40 parameter for vertex
+  double maxDelta_; 
+  double maxReducedChiSq_;
+  double minChiSqImprovement_;
+  int maxNbrOfIterations_;
   KinematicConstrainedVertexFitter* kcvFitter_;
+
 
 };
 
