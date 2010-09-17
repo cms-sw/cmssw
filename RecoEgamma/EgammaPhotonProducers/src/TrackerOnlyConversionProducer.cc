@@ -13,7 +13,7 @@
 //
 // Original Author:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: TrackerOnlyConversionProducer.cc,v 1.25 2010/09/09 13:52:23 nancy Exp $
+// $Id: TrackerOnlyConversionProducer.cc,v 1.26 2010/09/14 16:53:06 bendavid Exp $
 //
 //
 
@@ -105,11 +105,6 @@ TrackerOnlyConversionProducer::TrackerOnlyConversionProducer(const edm::Paramete
 
     }
 
-    if (allowVertex_){
-	maxDistance_ = iConfig.getParameter<double>("maxDistance");
-	maxOfInitialValue_ = iConfig.getParameter<double>("maxOfInitialValue");
-	maxNbrOfIterations_ = iConfig.getParameter<int>("maxNbrOfIterations");
-    }
     //Track cuts on left right track: at least one leg reaches ECAL
     //Left track: must exist, must reach Ecal and match BC, so loose cut on Chi2 and tight on hits
     //Right track: not necessary to exist (if allowSingleLeg_), not necessary to reach ECAL or match BC, so tight cut on Chi2 and loose on hits

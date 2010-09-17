@@ -4,8 +4,8 @@
  **
  **
  **  $Id:
- **  $Date: 2010/09/09 13:52:01 $
- **  $Revision: 1.14 $
+ **  $Date: 2010/09/14 16:53:06 $
+ **  $Revision: 1.15 $
  **  \author H. Liu, UC of Riverside US
  **
  ***/
@@ -166,8 +166,7 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
 
       double deltaCotTheta_, deltaPhi_, minApproachLow_, minApproachHigh_;//0.02 0.2 for track pair open angle and > -0.1 cm
 
-      double maxDistance_, maxOfInitialValue_;
-      int maxNbrOfIterations_;//0.001, 1.4, 40 parameter for vertex
+
       double r_cut;//cross_r cut
       double vtxChi2_;//vertex chi2 probablity cut
 
