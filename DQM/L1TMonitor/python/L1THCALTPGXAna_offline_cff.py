@@ -52,5 +52,6 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         'channelQuality')
 )
 
+hbhereco = hbheprereco.clone()
 p = cms.Path(hcalDigis*horeco*hfreco*hbhereco*l1thcaltpg*l1thcaltpgxana)
 
