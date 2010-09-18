@@ -29,7 +29,7 @@ ruleName = '1'
 rulesNames.append(ruleName)
 Configuration[ruleName] = {}
 
-Configuration[ruleName]['description'] = 'Search for "using" keyword in header files'
+Configuration[ruleName]['description'] = 'Search for "using namespace" or "using std::" in header files'
 Configuration[ruleName]['filesToMatch'] = ['*.h']
 Configuration[ruleName]['exceptPaths'] = []
 Configuration[ruleName]['skipComments']  = True
