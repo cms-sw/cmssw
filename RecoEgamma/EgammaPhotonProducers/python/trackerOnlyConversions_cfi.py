@@ -42,9 +42,10 @@ trackerOnlyConversions = cms.EDProducer('TrackerOnlyConversionProducer',
     vtxChi2 = cms.double(0.0005),
     MinApproachLow = cms.double(-.25), #Track pair min distance at approaching point on X-Y
     MinApproachHigh = cms.double(1.), #Track pair min distance at approaching point on X-Y
-    maxDistance = cms.double(0.001),#vertex fitting quality
-    maxOfInitialValue = cms.double(9999.),#fitting initial value
-    maxNbrOfIterations = cms.int32(40),#fitting steps
+    maxDelta = cms.double(0.01),#delta of parameters
+    maxReducedChiSq = cms.double(225.),#maximum chi^2 per degree of freedom before fit is terminated
+    minChiSqImprovement = cms.double(50.),#threshold for "significant improvement" in the fit termination logic
+    maxNbrOfIterations = cms.int32(40),#maximum number of convergence iterations
     rCut = cms.double(2),#analytical track cross point
     dz = cms.double(5.0),#track pair inner position difference
 

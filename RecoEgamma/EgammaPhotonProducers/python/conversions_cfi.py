@@ -29,9 +29,11 @@ conversions = cms.EDProducer("ConvertedPhotonProducer",
     minApproachDisCut  = cms.double(0.),
     maxNumOfCandidates = cms.int32(3),
     risolveConversionAmbiguity = cms.bool(True),
-    maxDistance = cms.double(0.001),#vertex fitting quality
-    maxOfInitialValue = cms.double(9999.),#fitting initial value
-    maxNbrOfIterations = cms.int32(40),#fitting steps
+    maxDelta = cms.double(0.01),#delta of parameters
+    maxReducedChiSq = cms.double(225.),#maximum chi^2 per degree of freedom before fit is terminated
+    minChiSqImprovement = cms.double(50.),#threshold for "significant improvement" in the fit termination logic
+    maxNbrOfIterations = cms.int32(40) #maximum number of convergence iterations
+
 
  )
 
