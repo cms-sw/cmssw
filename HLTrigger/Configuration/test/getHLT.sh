@@ -42,7 +42,7 @@ function getConfigForCVS() {
   if [ "$NAME" == "8E29" ] || [ "$NAME" == "GRun" ]; then
     hltGetConfiguration --cff --offline --mc $CONFIG --type $NAME                                  > HLT_${NAME}_cff.py
   elif [ "$NAME" == "1E31" ] || [ "$NAME" == "HIon" ]; then
-    hltGetConfiguration --cff --offline --mc $CONFIG --type $NAME --l1 L1Menu_MC2010_v0            > HLT_${NAME}_cff.py
+    hltGetConfiguration --cff --offline --mc $CONFIG --type $NAME                                  > HLT_${NAME}_cff.py
   else
     hltGetConfiguration --cff --offline --mc $CONFIG --type $NAME                                  > HLT_${NAME}_cff.py
   fi
@@ -77,8 +77,8 @@ function getConfigForOnline() {
     hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 L1Menu_Commissioning2010_v4 --globaltag auto:hltonline > OnData_HLT_$NAME.py
     hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME                                                             > OnLine_HLT_$NAME.py 
   elif [ "$NAME" == "1E31" ] || [ "$NAME" == "HIon" ]; then
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 L1Menu_MC2010_v0            --globaltag auto:hltonline > OnData_HLT_$NAME.py
-    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 L1Menu_MC2010_v0                                       > OnLine_HLT_$NAME.py
+    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 L1Menu_Commissioning2010_v4 --globaltag auto:hltonline > OnData_HLT_$NAME.py
+    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME                                                             > OnLine_HLT_$NAME.py
   else
     hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME                                  --globaltag auto:hltonline > OnData_HLT_$NAME.py
     hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME                                                             > OnLine_HLT_$NAME.py

@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_8_1/HIon/V21 (CMSSW_3_8_1_HLT9)
+# /dev/CMSSW_3_8_1/HIon/V22 (CMSSW_3_8_1_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V21')
+  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V22')
 )
 
 streams = cms.PSet( 
@@ -1296,7 +1296,7 @@ hltHIL1sJet35U = cms.EDFilter( "HLTLevel1GTSeed",
     L1NrBxInEvent = cms.int32( 3 ),
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet30" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet30U" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
@@ -1618,14 +1618,4 @@ HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_L1DoubleMuOpen, HLT_ZeroBi
 # override the preshower baseline setting for MC
 if 'ESUnpackerWorkerESProducer' in locals():
     ESUnpackerWorkerESProducer.RHAlgo.ESBaseline = 1000
-
-# override the L1 menu (requires the GlobalTag to be defined)
-if 'GlobalTag' in locals():
-    GlobalTag.toGet.append(
-        cms.PSet(  
-            record  = cms.string( "L1GtTriggerMenuRcd" ),
-            tag     = cms.string( "L1GtTriggerMenu_L1Menu_MC2010_v0_mc" ),
-            connect = cms.untracked.string( GlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T') )
-        )
-    )
 
