@@ -10,8 +10,8 @@ globalTag = {
   '8E29': 'auto:startup',
   'GRun': 'auto:startup',
   'data': 'auto:hltonline',
-  '1E31': 'auto:mc',
-  'HIon': 'auto:mc',
+  '1E31': 'auto:startup',
+  'HIon': 'auto:startup',
   None:   'auto:startup',      # use as default
 }
 
