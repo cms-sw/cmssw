@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_8_1/GRun/V20
+# /dev/CMSSW_3_8_1/GRun/V21
 
 import FWCore.ParameterSet.Config as cms
 
@@ -34,8 +34,8 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetCosmics_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetCosmics_selector.l1tResults = cms.InputTag('')
 streamA_datasetCosmics_selector.throw      = cms.bool(False)
-streamA_datasetCosmics_selector.triggerConditions = cms.vstring('HLT_L1MuOpen_AntiBPTX', 
-    'HLT_L2Mu0_NoVertex', 
+streamA_datasetCosmics_selector.triggerConditions = cms.vstring('HLT_L2Mu0_NoVertex', 
+    'HLT_L1MuOpen_AntiBPTX', 
     'HLT_TrackerCosmics', 
     'HLT_RPCBarrelCosmics', 
     'HLT_L1Tech_BSC_halo')
@@ -134,10 +134,10 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetMinimumBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMinimumBias_selector.l1tResults = cms.InputTag('')
 streamA_datasetMinimumBias_selector.throw      = cms.bool(False)
-streamA_datasetMinimumBias_selector.triggerConditions = cms.vstring('HLT_L1_BPTX_PlusOnly', 
+streamA_datasetMinimumBias_selector.triggerConditions = cms.vstring('HLT_ZeroBias', 
+    'HLT_L1_BPTX_PlusOnly', 
     'HLT_L1_BPTX_MinusOnly', 
     'HLT_L1_BPTX', 
-    'HLT_ZeroBias', 
     'HLT_L1Tech_BSC_halo_forPhysicsBackground', 
     'HLT_PixelTracks_Multiplicity85', 
     'HLT_PixelTracks_Multiplicity70', 
@@ -166,7 +166,8 @@ streamA_datasetMu_selector.triggerConditions = cms.vstring('HLT_DoubleMu3',
     'HLT_L2Mu25', 
     'HLT_Mu11', 
     'HLT_Mu20_NoVertex', 
-    'HLT_IsoMu9')
+    'HLT_IsoMu9', 
+    'HLT_Mu5_Photon9_Cleaned_L1R')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMuMonitor_selector
 streamA_datasetMuMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -190,8 +191,8 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetMuOnia_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMuOnia_selector.l1tResults = cms.InputTag('')
 streamA_datasetMuOnia_selector.throw      = cms.bool(False)
-streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_Mu5_L2Mu0', 
-    'HLT_DoubleMu0', 
+streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_DoubleMu0', 
+    'HLT_Mu5_L2Mu0', 
     'HLT_Mu0_TkMu0_OST_Jpsi', 
     'HLT_Mu3_TkMu0_OST_Jpsi', 
     'HLT_Mu5_TkMu0_OST_Jpsi', 

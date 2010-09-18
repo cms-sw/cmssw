@@ -39,6 +39,7 @@ HLT_L2Mu3
 HLT_L2Mu9
 HLT_L2Mu25
 HLT_L2Mu5_Photon9_L1R
+HLT_Mu5_Photon9_Cleaned_L1R
 HLT_L2DoubleMu0
 HLT_Mu3
 HLT_Mu5
