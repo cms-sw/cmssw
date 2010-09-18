@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_8_1/HIon/V19 (CMSSW_3_8_1_HLT9)
+# /dev/CMSSW_3_8_1/HIon/V20 (CMSSW_3_8_1_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V19')
+  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V20')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -20,6 +20,7 @@ process.streams = cms.PSet(
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
+  EcalCalibration = cms.vstring( 'EcalLaser' ),
   Express = cms.vstring( 'ExpressPhysics' ),
   A = cms.vstring( 'Cosmics',
     'Photon',
@@ -32,14 +33,13 @@ process.streams = cms.PSet(
     'BTau',
     'Mu',
     'Commissioning',
-    'EGMonitor',
-    'Electron',
     'MuOnia',
-    'Jet' ),
+    'Jet',
+    'Electron',
+    'EGMonitor' ),
   DQM = cms.vstring( 'OnlineMonitor' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
-  HLTDQM = cms.vstring( 'OnlineHltMonitor' ),
-  EcalCalibration = cms.vstring( 'EcalLaser' )
+  HLTDQM = cms.vstring( 'OnlineHltMonitor' )
 )
 process.datasets = cms.PSet( 
   L1Accept = cms.vstring( 'HLTriggerFinalPath' ),
@@ -50,6 +50,7 @@ process.datasets = cms.PSet(
   AlCaPhiSymEcal = cms.vstring(  ),
   RPCMonitor = cms.vstring(  ),
   AlCaP0 = cms.vstring(  ),
+  EcalLaser = cms.vstring(  ),
   ExpressPhysics = cms.vstring(  ),
   Cosmics = cms.vstring(  ),
   Photon = cms.vstring(  ),
@@ -64,10 +65,10 @@ process.datasets = cms.PSet(
   BTau = cms.vstring(  ),
   Mu = cms.vstring(  ),
   Commissioning = cms.vstring(  ),
-  EGMonitor = cms.vstring(  ),
-  Electron = cms.vstring(  ),
   MuOnia = cms.vstring(  ),
   Jet = cms.vstring(  ),
+  Electron = cms.vstring(  ),
+  EGMonitor = cms.vstring(  ),
   OnlineMonitor = cms.vstring( 'HLT_ZeroBiasPixel_SingleTrack',
     'HLT_L1DoubleMuOpen',
     'HLT_L1Tech_BSC_minBias',
@@ -79,8 +80,7 @@ process.datasets = cms.PSet(
   OnlineHltMonitor = cms.vstring( 'HLT_L1DoubleMuOpen',
     'HLT_L1Tech_BSC_minBias',
     'HLT_L1Tech_HCAL_HF',
-    'HLT_ZeroBiasPixel_SingleTrack' ),
-  EcalLaser = cms.vstring(  )
+    'HLT_ZeroBiasPixel_SingleTrack' )
 )
 
 process.source = cms.Source( "PoolSource",
