@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_8_1/HLT/V153 (CMSSW_3_8_1_HLT9)
+# /dev/CMSSW_3_8_1/HLT/V154 (CMSSW_3_8_1_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/HLT/V153')
+  tableName = cms.string('/dev/CMSSW_3_8_1/HLT/V154')
 )
 
 streams = cms.PSet( 
@@ -13975,7 +13975,10 @@ hltPreRPCMuonNoHits = cms.EDFilter( "HLTPrescaler",
 )
 hltRPCPointProducer = cms.EDProducer( "RPCPointProducer",
     cscSegments = cms.InputTag( "hltCscSegments" ),
-    dt4DSegments = cms.InputTag( "hltDt4DSegments" )
+    dt4DSegments = cms.InputTag( "hltDt4DSegments" ),
+    tracks = cms.InputTag( "" ),
+    incltrack = cms.untracked.bool( False ),
+    TrackTransformer = cms.PSet(  )
 )
 hltRPCFilter = cms.EDFilter( "HLTRPCFilter",
     rpcRecHits = cms.InputTag( "hltRpcRecHits" ),

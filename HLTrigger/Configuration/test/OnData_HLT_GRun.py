@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_8_1/GRun/V22 (CMSSW_3_8_1_HLT9)
+# /dev/CMSSW_3_8_1/GRun/V23 (CMSSW_3_8_1_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/GRun/V22')
+  tableName = cms.string('/dev/CMSSW_3_8_1/GRun/V23')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -12226,7 +12226,10 @@ process.hltPreRPCMuonNoHits = cms.EDFilter( "HLTPrescaler",
 )
 process.hltRPCPointProducer = cms.EDProducer( "RPCPointProducer",
     cscSegments = cms.InputTag( "hltCscSegments" ),
-    dt4DSegments = cms.InputTag( "hltDt4DSegments" )
+    dt4DSegments = cms.InputTag( "hltDt4DSegments" ),
+    tracks = cms.InputTag( "" ),
+    incltrack = cms.untracked.bool( False ),
+    TrackTransformer = cms.PSet(  )
 )
 process.hltRPCFilter = cms.EDFilter( "HLTRPCFilter",
     rpcRecHits = cms.InputTag( "hltRpcRecHits" ),
