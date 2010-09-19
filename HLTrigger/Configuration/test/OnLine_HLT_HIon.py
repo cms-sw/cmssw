@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_8_1/HIon/V24 (CMSSW_3_8_1_HLT11)
+# /dev/CMSSW_3_8_1/HIon/V25 (CMSSW_3_8_1_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V24')
+  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V25')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -21,7 +21,6 @@ process.streams = cms.PSet(
   RPCMON = cms.vstring( 'RPCMonitor' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
-  Express = cms.vstring( 'ExpressPhysics' ),
   A = cms.vstring( 'Cosmics',
     'Photon',
     'MinimumBias',
@@ -35,8 +34,9 @@ process.streams = cms.PSet(
     'MuOnia',
     'Electron',
     'EGMonitor',
-    'Mu',
-    'Jet' ),
+    'Jet',
+    'Mu' ),
+  Express = cms.vstring( 'ExpressPhysics' ),
   DQM = cms.vstring( 'OnlineMonitor' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
   HLTDQM = cms.vstring( 'OnlineHltMonitor' )
@@ -51,7 +51,6 @@ process.datasets = cms.PSet(
   RPCMonitor = cms.vstring(  ),
   AlCaP0 = cms.vstring(  ),
   EcalLaser = cms.vstring(  ),
-  ExpressPhysics = cms.vstring(  ),
   Cosmics = cms.vstring(  ),
   Photon = cms.vstring(  ),
   MinimumBias = cms.vstring( 'HLT_L1Tech_HCAL_HF',
@@ -67,8 +66,9 @@ process.datasets = cms.PSet(
   MuOnia = cms.vstring(  ),
   Electron = cms.vstring(  ),
   EGMonitor = cms.vstring(  ),
-  Mu = cms.vstring(  ),
   Jet = cms.vstring(  ),
+  Mu = cms.vstring(  ),
+  ExpressPhysics = cms.vstring(  ),
   OnlineMonitor = cms.vstring( 'HLT_ZeroBiasPixel_SingleTrack',
     'HLT_L1DoubleMuOpen',
     'HLT_L1Tech_BSC_minBias',
