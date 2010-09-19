@@ -17,6 +17,7 @@ HLT_DiJetAve50U
 HLT_DiJetAve70U
 HLT_DoubleJet15U_ForwardBackward
 HLT_DoubleJet25U_ForwardBackward
+HLT_ExclDiJet30U
 HLT_QuadJet15U
 HLT_QuadJet20U
 HLT_QuadJet25U

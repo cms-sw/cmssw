@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_8_1/HIon/V23 (CMSSW_3_8_1_HLT11)
+# /dev/CMSSW_3_8_1/HIon/V24 (CMSSW_3_8_1_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V23')
+  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V24')
 )
 
 streams = cms.PSet( 
@@ -29,10 +29,10 @@ streams = cms.PSet(
     'BTau',
     'Commissioning',
     'MuOnia',
-    'Jet',
     'Electron',
     'EGMonitor',
-    'Mu' ),
+    'Mu',
+    'Jet' ),
   DQM = cms.vstring( 'OnlineMonitor' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
   HLTDQM = cms.vstring( 'OnlineHltMonitor' )
@@ -61,10 +61,10 @@ datasets = cms.PSet(
   BTau = cms.vstring(  ),
   Commissioning = cms.vstring(  ),
   MuOnia = cms.vstring(  ),
-  Jet = cms.vstring(  ),
   Electron = cms.vstring(  ),
   EGMonitor = cms.vstring(  ),
   Mu = cms.vstring(  ),
+  Jet = cms.vstring(  ),
   OnlineMonitor = cms.vstring( 'HLT_ZeroBiasPixel_SingleTrack',
     'HLT_L1DoubleMuOpen',
     'HLT_L1Tech_BSC_minBias',
