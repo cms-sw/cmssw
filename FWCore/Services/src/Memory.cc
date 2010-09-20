@@ -34,7 +34,9 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
+#ifdef __linux__
 #include <malloc.h>
+#endif
 #include <sstream>
 #include <iostream>
 #include <string>
@@ -422,6 +424,7 @@ namespace edm {
       if (eventDeltaRssT1_.deltaRss > 0)
         eventStatOutput("LargestIncreaseRssEvent", eventDeltaRssT1_, reportData);
      
+#ifdef __linux__
       struct mallinfo minfo = mallinfo();
       reportData.insert(
         std::make_pair("HEAP_ARENA_SIZE_BYTES", i2str(minfo.arena)));  
@@ -437,6 +440,7 @@ namespace edm {
         std::make_pair("HEAP_USED_BYTES", i2str(minfo.uordblks)));  
       reportData.insert(
         std::make_pair("HEAP_UNUSED_BYTES", i2str(minfo.fordblks)));  
+#endif
 
       // Report Growth rates for VSize and Rss
       reportData.insert(
@@ -704,12 +708,15 @@ namespace edm {
               << " RSS " << current_->rss << " " << deltaRSS
               << "\n";
             } else {
+#ifdef __linux__
               struct mallinfo minfo = mallinfo();
+#endif
               LogWarning("MemoryCheck")
               << "MemoryCheck: " << type << " "
               << mdname << ":" << mdlabel 
               << " VSIZE " << current_->vsize << " " << deltaVSIZE
               << " RSS " << current_->rss << " " << deltaRSS
+#ifdef __linux__
               << " HEAP-ARENA [ SIZE-BYTES " << minfo.arena
               << " N-UNUSED-CHUNKS " << minfo.ordblks
               << " TOP-FREE-BYTES " << minfo.keepcost << " ]"
@@ -717,6 +724,7 @@ namespace edm {
               << " N-CHUNKS " << minfo.hblks << " ]"
               << " HEAP-USED-BYTES " << minfo.uordblks
               << " HEAP-UNUSED-BYTES " << minfo.fordblks
+#endif
               << "\n";
             }
           }

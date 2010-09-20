@@ -8,7 +8,11 @@
 # include <ucontext.h>
 # include <sys/syscall.h>
 #endif
-
+#if __APPLE__
+#include <signal.h>
+//the following is needed to use the deprecated ucontext method on OS X
+#define _XOPEN_SOURCE
+#endif
 
 
 #include <pthread.h>
@@ -32,8 +36,10 @@
 #include "SimpleProfiler.h"
 #include "ProfParse.h"
 
+#ifdef __linux
 #ifndef __USE_POSIX199309
 #error "SimpleProfile requires the definition of __USE_POSIX199309"
+#endif
 #endif
 
 
@@ -459,7 +465,8 @@ namespace
     MUST_BE_ZERO(sigfillset(&myset));
     MUST_BE_ZERO(pthread_sigmask(SIG_SETMASK,&myset,&oldset));
 
-#if defined(__x86_64__) || defined(__LP64__) || defined(_LP64)
+#if defined(__x86_64__) || defined(__LP64__) || defined(_LP64) 
+#if __linux
     // ignore all the RT signals
     struct sigaction tmpact;
     memset(&tmpact,0,sizeof(tmpact));
@@ -470,6 +477,7 @@ namespace
 	MUST_BE_ZERO(sigaddset(&oldset,num));
 	MUST_BE_ZERO(sigaction(num,&tmpact,NULL));
       }
+#endif
 #endif
 
 #if USE_SIGALTSTACK
@@ -548,12 +556,14 @@ namespace
       memset(&tmpact,0,sizeof(tmpact));
       tmpact.sa_handler = SIG_IGN;
     
-#if defined(__x86_64__) || defined(__LP64__) || defined(_LP64)
+#if defined(__x86_64__) || defined(__LP64__) || defined(_LP64) 
+#if __linux
       for(int num=SIGRTMIN;num<SIGRTMAX;++num)
 	{
 	  MUST_BE_ZERO(sigaddset(&oldset,num));
 	  MUST_BE_ZERO(sigaction(num,&tmpact,NULL));
 	}
+#endif
 #endif
     
       MUST_BE_ZERO(sigaddset(&oldset,SIGPROF));
