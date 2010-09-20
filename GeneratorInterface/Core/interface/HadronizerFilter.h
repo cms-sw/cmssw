@@ -136,7 +136,7 @@ namespace edm
     //
     if ( decayer_ ) 
     {
-      event.reset( decayer_->decay( event.release() ) );
+      event.reset( decayer_->decay( event.get() ) );
     }
 
     if ( !event.get() ) return false;
