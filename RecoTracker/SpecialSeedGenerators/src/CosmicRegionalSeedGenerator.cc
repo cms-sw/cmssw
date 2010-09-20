@@ -37,11 +37,11 @@ CosmicRegionalSeedGenerator::CosmicRegionalSeedGenerator(edm::ParameterSet const
   regionBase_                  = toolsPSet.getParameter<std::string>("regionBase");
 
   edm::ParameterSet collectionsPSet = conf_.getParameter<edm::ParameterSet>("CollectionsPSet");
-  muonsCollection_          = collectionsPSet.getParameter<edm::InputTag>("muonsCollection");
-  cosmicMuonsCollection_       = collectionsPSet.getParameter<edm::InputTag>("cosmicMuonsCollection");
+  recoMuonsCollection_          = collectionsPSet.getParameter<edm::InputTag>("recoMuonsCollection");
+  recoTrackMuonsCollection_       = collectionsPSet.getParameter<edm::InputTag>("recoTrackMuonsCollection");
 
-  edm::LogInfo ("CosmicRegionalSeedGenerator") << "Stand alone muons collection : " << muonsCollection_ << "\n"
-					       << "Cosmic muon collection: " << cosmicMuonsCollection_;
+  edm::LogInfo ("CosmicRegionalSeedGenerator") << "Reco muons collection : "       << recoMuonsCollection_ << "\n"
+					       << "Reco tracks muons collection: " << recoTrackMuonsCollection_;
 
 }
    
@@ -67,10 +67,10 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
 
     //get the muon collection
     edm::Handle<reco::MuonCollection> muonsHandle;
-    event.getByLabel(muonsCollection_,muonsHandle);
+    event.getByLabel(recoMuonsCollection_,muonsHandle);
     if (!muonsHandle.isValid())
       {
-	edm::LogError("CosmicRegionalSeedGenerator") << "Error::No muons collection in the event";
+	edm::LogError("CosmicRegionalSeedGenerator") << "Error::No muons collection in the event - Please verify the name of the muon collection";
 	return result;
       }
 
@@ -200,14 +200,14 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
 
     //get the muon collection
     edm::Handle<reco::TrackCollection> cosmicMuonsHandle;
-    event.getByLabel(cosmicMuonsCollection_,cosmicMuonsHandle);
+    event.getByLabel(recoTrackMuonsCollection_,cosmicMuonsHandle);
     if (!cosmicMuonsHandle.isValid())
       {
-	edm::LogError("CosmicRegionalSeedGenerator") << "Error::No muons collection in the event";
+	edm::LogError("CosmicRegionalSeedGenerator") << "Error::No muons collection in the event - Please verify the name of the muon reco track collection";
 	return result;
       }
 
-    LogDebug("CosmicRegionalSeedGenerator") << "Cosmic Muons collection size = " << cosmicMuonsHandle->size();
+    LogDebug("CosmicRegionalSeedGenerator") << "Cosmic muons tracks collection size = " << cosmicMuonsHandle->size();
 
     //get the propagator 
     edm::ESHandle<Propagator> thePropagator;
@@ -234,7 +234,11 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
       GlobalVector initialRegionMomentum(cosmicMuon->momentum().x(), cosmicMuon->momentum().y(), cosmicMuon->momentum().z());
       int charge = (int) cosmicMuon->charge();
    
-      LogDebug("CosmicRegionalSeedGenerator") << "Initial region - Reference point of the sta muon: \n " 
+      LogDebug("CosmicRegionalSeedGenerator") << "Position and momentum of the muon track in the muon chambers: \n "
+					      << "x = " << cosmicMuon->outerPosition().x() << "\n "
+					      << "y = " << cosmicMuon->outerPosition().y() << "\n "
+					      << "y = " << cosmicMuon->pt() << "\n "
+					      << "Initial region - Reference point of the cosmic muon track: \n " 
 					      << "Position = " << initialRegionPosition << "\n "
 					      << "Momentum = " << initialRegionMomentum << "\n "
 					      << "Eta = " << initialRegionPosition.eta() << "\n "
@@ -242,7 +246,7 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
 					      << "Charge = " << charge;
    
       //propagation on the last layers of TOB
-      if ( cosmicMuon->outerPosition().y()>0 ) initialRegionMomentum *=-1;
+      if ( cosmicMuon->outerPosition().y()>0 && cosmicMuon->momentum().y()<0 ) initialRegionMomentum *=-1;
       GlobalTrajectoryParameters glb_parameters(initialRegionPosition,
 						initialRegionMomentum,
 						charge,

@@ -64,8 +64,8 @@ class CosmicRegionalSeedGenerator : public TrackingRegionProducer {
   float m_deltaEta;
   float m_deltaPhi;
 
-  edm::InputTag muonsCollection_;
-  edm::InputTag cosmicMuonsCollection_;
+  edm::InputTag recoMuonsCollection_;
+  edm::InputTag recoTrackMuonsCollection_;
 
   std::string thePropagatorName_;
   std::string regionBase_;
