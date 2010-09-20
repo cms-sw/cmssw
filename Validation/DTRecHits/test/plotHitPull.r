@@ -558,6 +558,18 @@ void plot1DPulls(HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeIn1) 
 
   newCanvas(N1+"_hPullSt4",form);
   drawGFit(h1->hPullSt[3], -5,5,-5,5);
+
+  newCanvas(N3+"_hPullSt1",form);
+  drawGFit(h3->hPullSt[0], -5,5,-5,5);
+
+  newCanvas(N3+"_hPullSt2",form);
+  drawGFit(h3->hPullSt[1], -5,5,-5,5);
+
+  newCanvas(N3+"_hPullSt3",form);
+  drawGFit(h3->hPullSt[2], -5,5,-5,5);
+
+  newCanvas(N3+"_hPullSt4",form);
+  drawGFit(h3->hPullSt[3], -5,5,-5,5);
 }
 
 void plot1DPullsVsPos(TString name, HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeIn1) {
