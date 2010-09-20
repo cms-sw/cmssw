@@ -49,7 +49,7 @@ namespace stor
     partiallyRegisteredDQM_(false),
     headerRefetchRequested_(false),
     buf_(2000),
-    headerRetryInterval_(5),
+    headerRetryInterval_(10),
     allowMissingSM_(false),
     maxConnectionRetries_(5),
     dqmServiceManager_(new stor::DQMServiceManager()),
@@ -225,8 +225,8 @@ namespace stor
 
   void DataProcessManager::processCommands()
   {
-    //double lastRegAttempt = 0.0;
-    //double lastDQMRegAttempt = 0.0;
+    double lastRegAttempt = 0.0;
+    double lastDQMRegAttempt = 0.0;
     double lastFullHeaderAttempt = 0.0;
 
     // called with this data process manager's own thread.
@@ -260,10 +260,13 @@ namespace stor
       // 16-Sep-2010 LIL : Rewriting everything to be more consice and fix issues with the logic of
       // independent functions
         // register as event consumer to all SM senders
+      double now = getCurrentTime();
         if(!fullyRegistered_) {
-          if(!doneWithRegistration)
+        if(!doneWithRegistration && 
+                  (now - lastRegAttempt) > headerRetryInterval_ )
           {
-            waitBetweenRegTrys();
+          lastRegAttempt = now;
+          //waitBetweenRegTrys();
           //After maxtries remove unresponsive SMs from the registration list
           bool success = false;
           if (count == maxConnectionRetries_ - 1) 
@@ -280,15 +283,17 @@ namespace stor
               }
           }
             ++count;
-          }
-        
-        if(count > maxConnectionRetries_ && !allowMissingSM_) 
+          if(count >= maxConnectionRetries_ && !allowMissingSM_) 
           edm::LogInfo("processCommands") << "Could not register with all SM Servers"
                                           << " after " << count << " tries";
-        else if (allowMissingSM_ && count < maxConnectionRetries_) 
+          else if (allowMissingSM_ && count < maxConnectionRetries_ - 1) 
           edm::LogInfo("processCommands") << "Was Unable to register to all SM trying again (this is attempt:" << count << ")"; 
-        else if (allowMissingSM_ && count == maxConnectionRetries_)
+          else if (allowMissingSM_ && count == maxConnectionRetries_ - 1 )
           edm::LogInfo("processCommands") << "Was Unable to register to all SM trying on last time before giving up un the unresponsive servers";
+          
+        }
+        
+        
           
           if(doneWithRegistration && !alreadysaid) {
             edm::LogInfo("processCommands") << "Registered with all SM Event Servers";
@@ -300,9 +305,11 @@ namespace stor
         }
         // now register as DQM consumers
         if(!fullyRegisteredDQM_) {
-          if(!doneWithDQMRegistration)
+        if(!doneWithDQMRegistration&& 
+                  (now - lastDQMRegAttempt) > headerRetryInterval_ )
           {
-            waitBetweenRegTrys();
+          lastDQMRegAttempt = now;
+          //waitBetweenRegTrys();
           bool success = false;
           if (countDQM == maxConnectionRetries_ - 1) 
             success = registerWithAllDQMSM(true);
@@ -318,23 +325,19 @@ namespace stor
               }
           }
             ++countDQM;
+          if(countDQM >= maxConnectionRetries_ && !allowMissingSM_)
+            edm::LogInfo("processCommands") << "Could not register with all DQMSM Servers"
+                                            << " after " << countDQM << " tries";
+          else if (allowMissingSM_ && countDQM < maxConnectionRetries_ - 1) 
+            edm::LogInfo("processCommands") << "Was Unable to register to all DQMSM trying again (this is attempt:" << count << ")"; 
+          else if (allowMissingSM_ && countDQM == maxConnectionRetries_ - 1)
+            edm::LogInfo("processCommands") << "Was Unable to register to all DQMSM trying on last time before giving up on the unresponsive servers";
           }
           if(doneWithDQMRegistration && !alreadysaidDQM) {
             edm::LogInfo("processCommands") << "Registered with all SM DQMEvent Servers";
             alreadysaidDQM = true;
           }
-        if(countDQM > maxConnectionRetries_ && !allowMissingSM_)
-          edm::LogInfo("processCommands") << "Could not register with all DQMSM Servers"
-                                          << " after " << countDQM << " tries";
-        else if (allowMissingSM_ && countDQM < maxConnectionRetries_) 
-          edm::LogInfo("processCommands") << "Was Unable to register to all DQMSM trying again (this is attempt:" << count << ")"; 
-        else if (allowMissingSM_ && countDQM == maxConnectionRetries_)
-          edm::LogInfo("processCommands") << "Was Unable to register to all DQMSM trying on last time before giving up on the unresponsive servers";
           
-        if(doneWithDQMRegistration && !alreadysaid) {
-          edm::LogInfo("processCommands") << "Registered with all DQMSM Event Servers";
-          alreadysaid = true;
-        }
           if(doneWithDQMRegistration) fullyRegisteredDQM_ = true;
         }
       
@@ -345,19 +348,20 @@ namespace stor
         // is counted as not initialized
         // TODO how to we get all INIT messages from each SM (and know it!)
         //if(!gotOneHeader)
-      double now = getCurrentTime();
       if(!gotOneHeaderFromAll &&
            (now - lastFullHeaderAttempt) > headerRetryInterval_)
         {
-          waitBetweenRegTrys();
+        lastFullHeaderAttempt = now;
+        //waitBetweenRegTrys();
           //bool success = getAnyHeaderFromSM();
           bool success = getHeaderFromAllSM();
           //if(success) gotOneHeader = true;
           if(success) gotOneHeaderFromAll = true;
           ++countINIT;
-        }
       if(countINIT > maxConnectionRetries_) edm::LogInfo("processCommands") << "Could not get product registry!"
                                                                 << " after " << maxConnectionRetries_ << " tries";
+      }
+      
         //if(gotOneHeader && !alreadysaidINIT) {
         if(gotOneHeaderFromAll && !alreadysaidINIT) {
           edm::LogInfo("processCommands") << "Got the product registry";
@@ -365,7 +369,8 @@ namespace stor
         }
 
       //if(fullyRegistered_ && gotOneHeader && haveHeader()) {
-      if((fullyRegistered_ || (allowMissingSM_ && partiallyRegistered_)) && gotOneHeaderFromAll && haveHeader() ) {
+      //if((allowMissingSM_ && partiallyRegistered_) || (fullyRegistered_ && gotOneHeaderFromAll && haveHeader())) {
+      if((allowMissingSM_ && partiallyRegistered_) || (fullyRegistered_ && gotOneHeaderFromAll)) {
           getEventFromAllSM();
         }
       if(fullyRegisteredDQM_ || (allowMissingSM_ && partiallyRegisteredDQM_)) {
@@ -445,7 +450,6 @@ namespace stor
     smHeaderMap_.erase(smURL);
     lastReqMap_.erase(smURL);
     updateMinEventRequestInterval();   
-    headerRefetchRequested_ = true; 
     std::cout << "Removed StorageManager: '" << smURL << "' from register " << std::endl;
   }
   void DataProcessManager::removeDQMSMFromRegister(std::string DQMsmURL)
@@ -458,7 +462,6 @@ namespace stor
     }
     DQMsmRegMap_.erase(DQMsmURL);
     lastDQMReqMap_.erase(DQMsmURL);
-    headerRefetchRequested_ = true; 
     std::cout << "Removed StorageManager: '" << DQMsmURL << "' from DQM register " << std::endl;
   }
   

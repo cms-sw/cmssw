@@ -171,6 +171,7 @@ namespace stor {
     xdata::Boolean allowMissingSM_;
     xdata::Boolean dropOldLumisectionEvents_;
     xdata::Boolean enableDQMSM_;
+    xdata::Integer maxConnectionRetries_;
 
     bool queueCreated_;
     bool queueInactive_;

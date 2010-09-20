@@ -1,3 +1,7 @@
+2010-09-20 Luis I. Lopera <lilopera@cern.ch>
+	* tag V01-10-01
+	* Fix for connection retries.
+
 2010-09-17 Luis I. Lopera <lilopera@cern.ch>
 	* tag V01-10-00
 	* Allow to disable DQM Queues where they are not needed. Thus reducing network traffic.

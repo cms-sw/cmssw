@@ -159,6 +159,8 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("dropOldLumisectionEvents",&dropOldLumisectionEvents_);
   enableDQMSM_ = true;
   ispace->fireItemAvailable("enableDQMSM",&enableDQMSM_);
+  maxConnectionRetries_ = 5;
+  ispace->fireItemAvailable("maxConnectionRetries",&maxConnectionRetries_);
 
   //those are relevant only when consumer defines a SM connection
 
@@ -703,12 +705,14 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
 void SMProxyServer::smsenderWebPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
+  bool senderReady = false;
   if (dpm_.get() != NULL ){
     if (dpm_->isFullyRegistered()){
       std::vector<std::string> smList = dpm_->getSmList();
       for (unsigned int i=0;i<smList.size();i++){
         smsenders_[smList[i]]=true;  
       }
+      senderReady = true;
     }
   }
   *out << "<html>"                                                   << endl;
@@ -822,10 +826,12 @@ void SMProxyServer::smsenderWebPage(xgi::Input *in, xgi::Output *out)
           *out << si->first << endl;
           *out << "</td>" << endl;
           *out << "<td>" << endl;
-          if(si->second) 
+          if(si->second && senderReady) 
             *out << "Yes" << endl;
-          else
+          else if (senderReady)
             *out << "No" << endl;
+          else
+            *out << "Waiting for all SMs to be ready" << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
     }
@@ -3076,6 +3082,7 @@ void SMProxyServer::setupFlashList()
   is->fireItemAvailable("allowMissingSM",       &allowMissingSM_);
   is->fireItemAvailable("dropOldLumisectionEvents",       &dropOldLumisectionEvents_);
   is->fireItemAvailable("enableDQMSM",       &enableDQMSM_);
+  is->fireItemAvailable("maxConnectionRetries",       &maxConnectionRetries_);
   //is->fireItemAvailable("fairShareES",          &fairShareES_);
 
   //----------------------------------------------------------------------------
@@ -3128,6 +3135,8 @@ void SMProxyServer::setupFlashList()
   is->addItemRetrieveListener("allowMissingSM",       this);
   is->addItemRetrieveListener("dropOldLumisectionEvents",       this);
   is->addItemRetrieveListener("enableDQMSM",       this);
+  is->addItemRetrieveListener("maxConnectionRetries",       this);
+  
   //is->addItemRetrieveListener("fairShareES",          this);
   //----------------------------------------------------------------------------
 }
@@ -3243,6 +3252,7 @@ bool SMProxyServer::createQueue() {
     dpm_->setEventSelection(tmpVector);
     dpm_->setEventSelection(TriggerSelector_.toString());
     dpm_->setAllowMissingSM(allowMissingSM_);
+    dpm_->setMaxConnectionRetries(maxConnectionRetries_);
 
     boost::shared_ptr<EventServer>
       eventServer(new EventServer(maxESEventRate_, maxESDataRate_,
