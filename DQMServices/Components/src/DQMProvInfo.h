@@ -4,8 +4,8 @@
 /*
  * \file DQMProvInfo.h
  *
- * $Date: 2010/07/02 13:10:07 $
- * $Revision: 1.11 $
+ * $Date: 2010/09/17 16:16:05 $
+ * $Revision: 1.12 $
  * \author A.Meyer - DESY
  *
 */
@@ -55,19 +55,21 @@ private:
   
   std::string provinfofolder_;
   std::string subsystemname_;
-  int lastlumi_;
-  
+  std::string globalTag_;
+  std::string nameProcess_;
+   
   bool physDecl_;
   bool dcs25[25];
+  bool gotProcessParameterSet_;
   
+  int lastlumi_;
   int lhcFill_;
   int beamMode_;
   int momentum_;
   int intensity1_;
   int intensity2_;
   
-  std::string globalTag_;
-  std::string nameProcess_;
+
   
    // histograms
   MonitorElement * versCMSSW_ ;

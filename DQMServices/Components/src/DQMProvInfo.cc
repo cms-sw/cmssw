@@ -2,8 +2,8 @@
  * \file DQMProvInfo.cc
  * \author A.Raval / A.Meyer - DESY
  * Last Update:
- * $Date: 2010/09/03 10:20:29 $
- * $Revision: 1.27 $
+ * $Date: 2010/09/17 16:16:05 $
+ * $Revision: 1.28 $
  * $Author: lilopera $
  *
  */
@@ -24,14 +24,15 @@ const static int YBINS=28;
 DQMProvInfo::DQMProvInfo(const edm::ParameterSet& ps){
   
   parameters_ = ps;
-
+  
   dbe_ = edm::Service<DQMStore>().operator->();
-  globalTag_ = parameters_.getParameter<std::string>("globaltag") ;
+  globalTag_ = "MODULE::DEFAULT"; 
   provinfofolder_ = parameters_.getUntrackedParameter<std::string>("provInfoFolder", "ProvInfo") ;
   subsystemname_ = parameters_.getUntrackedParameter<std::string>("subSystemFolder", "Info") ;
-  nameProcess_ = parameters_.getUntrackedParameter<std::string>( "processName", "HLT" );
   
   // initialize
+  nameProcess_ = "HLT"; // the process name is not contained in this ps
+  gotProcessParameterSet_=false;
   physDecl_=true; // set true and switch off in case a single event in a given LS does not have it set.
   for (int i=0;i<25;i++) dcs25[i]=true;
   lastlumi_=0;
@@ -44,7 +45,6 @@ void
 DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
 
   makeProvInfo();
-
   makeHLTKeyInfo(r,c);
 
   dbe_->cd(); 
@@ -146,7 +146,16 @@ DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
 } 
 
 void DQMProvInfo::analyze(const edm::Event& e, const edm::EventSetup& c){
- 
+  if(!gotProcessParameterSet_){
+    gotProcessParameterSet_=true;
+    edm::ParameterSet ps;
+    //fetch the real process name
+    nameProcess_ = e.processHistory()[e.processHistory().size()-1].processName();
+    e.getProcessParameterSet(nameProcess_,ps);
+    globalTag_ = ps.getParameterSet("PoolDBESSource@GlobalTag").getParameter<std::string>("globaltag");
+    versGlobaltag_->Fill(globalTag_);
+  }
+  
   makeDcsInfo(e);
   makeGtInfo(e);
 
@@ -329,7 +338,7 @@ DQMProvInfo::makeProvInfo()
     processId_     = dbe_->bookInt("processID"); processId_->Fill(gSystem->GetPid());
 
     //versDataset_   = dbe_->bookString("Dataset",workflow_);
-    versGlobaltag_ = dbe_->bookString("Globaltag",globalTag_); // FIXME
+    versGlobaltag_ = dbe_->bookString("Globaltag",globalTag_);
     versTaglist_   = dbe_->bookString("Taglist",getShowTags()); 
 
     isComplete_ = dbe_->bookInt("runIsComplete"); 
