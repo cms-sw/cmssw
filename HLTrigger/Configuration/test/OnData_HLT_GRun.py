@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_8_1/GRun/V25 (CMSSW_3_8_1_HLT11)
+# /dev/CMSSW_3_8_1/GRun/V26 (CMSSW_3_8_1_HLT13)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/GRun/V25')
+  tableName = cms.string('/dev/CMSSW_3_8_1/GRun/V26')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -21,6 +21,7 @@ process.streams = cms.PSet(
   RPCMON = cms.vstring( 'RPCMonitor' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
+  Express = cms.vstring( 'ExpressPhysics' ),
   A = cms.vstring( 'Cosmics',
     'Photon',
     'MinimumBias',
@@ -36,7 +37,6 @@ process.streams = cms.PSet(
     'EGMonitor',
     'Jet',
     'Mu' ),
-  Express = cms.vstring( 'ExpressPhysics' ),
   DQM = cms.vstring( 'OnlineMonitor' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
   HLTDQM = cms.vstring( 'OnlineHltMonitor' )
@@ -55,6 +55,16 @@ process.datasets = cms.PSet(
   AlCaP0 = cms.vstring( 'AlCa_EcalEta',
     'AlCa_EcalPi0' ),
   EcalLaser = cms.vstring( 'HLT_EcalCalibration' ),
+  ExpressPhysics = cms.vstring( 'HLT_MET100',
+    'HLT_ZeroBias',
+    'HLT_L1Tech_BSC_minBias_OR',
+    'HLT_TrackerCosmics',
+    'HLT_Ele40_SW_L1R',
+    'HLT_DoubleMu3',
+    'HLT_Jet100U',
+    'HLT_Mu11',
+    'HLT_Mu5',
+    'HLT_Photon50_NoHE_Cleaned_L1R' ),
   Cosmics = cms.vstring( 'HLT_L2Mu0_NoVertex',
     'HLT_L1MuOpen_AntiBPTX',
     'HLT_TrackerCosmics',
@@ -186,16 +196,6 @@ process.datasets = cms.PSet(
     'HLT_Mu20_NoVertex',
     'HLT_IsoMu9',
     'HLT_Mu5_Photon9_Cleaned_L1R' ),
-  ExpressPhysics = cms.vstring( 'HLT_MET100',
-    'HLT_ZeroBias',
-    'HLT_L1Tech_BSC_minBias_OR',
-    'HLT_TrackerCosmics',
-    'HLT_Ele40_SW_L1R',
-    'HLT_DoubleMu3',
-    'HLT_Jet100U',
-    'HLT_Mu11',
-    'HLT_Mu5',
-    'HLT_Photon50_NoHE_Cleaned_L1R' ),
   OnlineMonitor = cms.vstring( 'HLT_ZeroBiasPixel_SingleTrack',
     'DQM_FEDIntegrity',
     'HLT_DTErrors',
@@ -3024,7 +3024,8 @@ process.hltHcalNoiseInfoProducer = cms.EDProducer( "HcalNoiseInfoProducer",
     trackCollName = cms.string( "generalTracks" ),
     minRecHitE = cms.double( 1.5 ),
     minLowHitE = cms.double( 10.0 ),
-    minHighHitE = cms.double( 25.0 )
+    minHighHitE = cms.double( 25.0 ),
+    HcalAcceptSeverityLevel = cms.uint32( 999 )
 )
 process.hltHcalMETNoiseFilter = cms.EDFilter( "HLTHcalMETNoiseFilter",
     HcalNoiseRBXCollection = cms.InputTag( "hltHcalNoiseInfoProducer" ),

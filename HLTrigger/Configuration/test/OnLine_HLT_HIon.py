@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_8_1/HIon/V25 (CMSSW_3_8_1_HLT11)
+# /dev/CMSSW_3_8_1/HIon/V26 (CMSSW_3_8_1_HLT13)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V25')
+  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V26')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -13,14 +13,6 @@ process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'Product
   'TooFewProducts' ) )
 process.streams = cms.PSet( 
   NanoDST = cms.vstring( 'L1Accept' ),
-  OnlineErrors = cms.vstring( 'LogMonitor',
-    'FEDMonitor' ),
-  Calibration = cms.vstring( 'TestEnables' ),
-  HLTDQMResults = cms.vstring( 'OnlineHltResults' ),
-  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
-  RPCMON = cms.vstring( 'RPCMonitor' ),
-  ALCAP0 = cms.vstring( 'AlCaP0' ),
-  EcalCalibration = cms.vstring( 'EcalLaser' ),
   A = cms.vstring( 'Cosmics',
     'Photon',
     'MinimumBias',
@@ -37,25 +29,25 @@ process.streams = cms.PSet(
     'Jet',
     'Mu' ),
   Express = cms.vstring( 'ExpressPhysics' ),
+  ALCAP0 = cms.vstring( 'AlCaP0' ),
+  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
+  Calibration = cms.vstring( 'TestEnables' ),
   DQM = cms.vstring( 'OnlineMonitor' ),
+  EcalCalibration = cms.vstring( 'EcalLaser' ),
+  HLTDQM = cms.vstring( 'OnlineHltMonitor' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
-  HLTDQM = cms.vstring( 'OnlineHltMonitor' )
+  OnlineErrors = cms.vstring( 'LogMonitor',
+    'FEDMonitor' ),
+  RPCMON = cms.vstring( 'RPCMonitor' ),
+  HLTDQMResults = cms.vstring( 'OnlineHltResults' )
 )
 process.datasets = cms.PSet( 
   L1Accept = cms.vstring( 'HLTriggerFinalPath' ),
-  LogMonitor = cms.vstring(  ),
-  FEDMonitor = cms.vstring(  ),
-  TestEnables = cms.vstring(  ),
-  OnlineHltResults = cms.vstring(  ),
-  AlCaPhiSymEcal = cms.vstring(  ),
-  RPCMonitor = cms.vstring(  ),
-  AlCaP0 = cms.vstring(  ),
-  EcalLaser = cms.vstring(  ),
   Cosmics = cms.vstring(  ),
   Photon = cms.vstring(  ),
-  MinimumBias = cms.vstring( 'HLT_L1Tech_HCAL_HF',
-    'HLT_ZeroBiasPixel_SingleTrack',
-    'HLT_L1Tech_BSC_minBias' ),
+  MinimumBias = cms.vstring( 'HLT_L1Tech_BSC_minBias',
+    'HLT_L1Tech_HCAL_HF',
+    'HLT_ZeroBiasPixel_SingleTrack' ),
   JetMETTauMonitor = cms.vstring(  ),
   METFwd = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
@@ -69,18 +61,26 @@ process.datasets = cms.PSet(
   Jet = cms.vstring(  ),
   Mu = cms.vstring(  ),
   ExpressPhysics = cms.vstring(  ),
-  OnlineMonitor = cms.vstring( 'HLT_ZeroBiasPixel_SingleTrack',
-    'HLT_L1DoubleMuOpen',
+  AlCaP0 = cms.vstring(  ),
+  AlCaPhiSymEcal = cms.vstring(  ),
+  TestEnables = cms.vstring(  ),
+  OnlineMonitor = cms.vstring( 'HLT_L1DoubleMuOpen',
     'HLT_L1Tech_BSC_minBias',
-    'HLT_L1Tech_HCAL_HF' ),
+    'HLT_L1Tech_HCAL_HF',
+    'HLT_ZeroBiasPixel_SingleTrack' ),
+  EcalLaser = cms.vstring(  ),
+  OnlineHltMonitor = cms.vstring( 'HLT_L1DoubleMuOpen',
+    'HLT_L1Tech_BSC_minBias',
+    'HLT_L1Tech_HCAL_HF',
+    'HLT_ZeroBiasPixel_SingleTrack' ),
   OfflineMonitor = cms.vstring( 'HLT_L1DoubleMuOpen',
     'HLT_L1Tech_BSC_minBias',
     'HLT_L1Tech_HCAL_HF',
     'HLT_ZeroBiasPixel_SingleTrack' ),
-  OnlineHltMonitor = cms.vstring( 'HLT_L1DoubleMuOpen',
-    'HLT_L1Tech_BSC_minBias',
-    'HLT_L1Tech_HCAL_HF',
-    'HLT_ZeroBiasPixel_SingleTrack' )
+  LogMonitor = cms.vstring(  ),
+  FEDMonitor = cms.vstring(  ),
+  RPCMonitor = cms.vstring(  ),
+  OnlineHltResults = cms.vstring(  )
 )
 
 process.source = cms.Source( "PoolSource",
@@ -2009,22 +2009,22 @@ process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
 process.hltOutputA = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputA.root" ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_L1DoubleMuOpen',
+  'HLT_L1Tech_BSC_minBias',
   'HLT_L1Tech_HCAL_HF',
-  'HLT_ZeroBiasPixel_SingleTrack',
-  'HLT_L1Tech_BSC_minBias' ) ),
+  'HLT_ZeroBiasPixel_SingleTrack' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
-      'keep FEDRawDataCollection_source_*_*',
+      'keep *_hltL1GtObjectMap_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
+      'keep FEDRawDataCollection_source_*_*',
       'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*',
-      'keep *_hltL1GtObjectMap_*_*' )
+      'keep triggerTriggerEvent_*_*_*' )
 )
 process.hltOutputCalibration = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputCalibration.root" ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring(  ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
-      'keep FEDRawDataCollection_source_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
+      'keep FEDRawDataCollection_source_*_*',
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
@@ -2032,48 +2032,48 @@ process.hltOutputEcalCalibration = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputEcalCalibration.root" ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring(  ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
+      'keep *_hltEcalCalibrationRaw_*_*',
       'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*',
-      'keep *_hltEcalCalibrationRaw_*_*' )
+      'keep triggerTriggerEvent_*_*_*' )
 )
 process.hltOutputALCAP0 = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputALCAP0.root" ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring(  ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*',
-      'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
       'keep *_hltAlCaEtaRecHitsFilter_*_*',
-      'keep *_hltAlCaPi0RecHitsFilter_*_*' )
+      'keep *_hltAlCaPi0RecHitsFilter_*_*',
+      'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
 )
 process.hltOutputALCAPHISYM = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputALCAPHISYM.root" ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring(  ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*',
+      'keep *_hltAlCaPhiSymStream_*_*',
       'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
-      'keep *_hltAlCaPhiSymStream_*_*' )
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
 )
 process.hltOutputRPCMON = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputRPCMON.root" ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring(  ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
-      'keep edmTriggerResults_*_*_*',
-      'keep *_hltRpcRecHits_*_*',
-      'keep *_hltMuonDTDigis_*_*',
+      'keep *_hltCscSegments_*_*',
       'keep *_hltDt4DSegments_*_*',
+      'keep *_hltMuonDTDigis_*_*',
       'keep *_hltMuonRPCDigis_*_*',
+      'keep *_hltRpcRecHits_*_*',
       'keep L1MuGMTCands_hltGtDigis_*_*',
       'keep L1MuGMTReadoutCollection_hltGtDigis_*_*',
-      'keep *_hltCscSegments_*_*' )
+      'keep edmTriggerResults_*_*_*' )
 )
 process.hltOutputOnlineErrors = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputOnlineErrors.root" ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring(  ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
-      'keep FEDRawDataCollection_source_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
+      'keep FEDRawDataCollection_source_*_*',
       'keep edmTriggerResults_*_*_*' )
 )
 

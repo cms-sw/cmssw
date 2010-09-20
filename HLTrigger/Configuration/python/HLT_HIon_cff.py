@@ -1,22 +1,14 @@
-# /dev/CMSSW_3_8_1/HIon/V25 (CMSSW_3_8_1_HLT11)
+# /dev/CMSSW_3_8_1/HIon/V26 (CMSSW_3_8_1_HLT13)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V25')
+  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V26')
 )
 
 streams = cms.PSet( 
   NanoDST = cms.vstring( 'L1Accept' ),
-  OnlineErrors = cms.vstring( 'LogMonitor',
-    'FEDMonitor' ),
-  Calibration = cms.vstring( 'TestEnables' ),
-  HLTDQMResults = cms.vstring( 'OnlineHltResults' ),
-  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
-  RPCMON = cms.vstring( 'RPCMonitor' ),
-  ALCAP0 = cms.vstring( 'AlCaP0' ),
-  EcalCalibration = cms.vstring( 'EcalLaser' ),
   A = cms.vstring( 'Cosmics',
     'Photon',
     'MinimumBias',
@@ -33,25 +25,25 @@ streams = cms.PSet(
     'Jet',
     'Mu' ),
   Express = cms.vstring( 'ExpressPhysics' ),
+  ALCAP0 = cms.vstring( 'AlCaP0' ),
+  ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
+  Calibration = cms.vstring( 'TestEnables' ),
   DQM = cms.vstring( 'OnlineMonitor' ),
+  EcalCalibration = cms.vstring( 'EcalLaser' ),
+  HLTDQM = cms.vstring( 'OnlineHltMonitor' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
-  HLTDQM = cms.vstring( 'OnlineHltMonitor' )
+  OnlineErrors = cms.vstring( 'LogMonitor',
+    'FEDMonitor' ),
+  RPCMON = cms.vstring( 'RPCMonitor' ),
+  HLTDQMResults = cms.vstring( 'OnlineHltResults' )
 )
 datasets = cms.PSet( 
   L1Accept = cms.vstring( 'HLTriggerFinalPath' ),
-  LogMonitor = cms.vstring(  ),
-  FEDMonitor = cms.vstring(  ),
-  TestEnables = cms.vstring(  ),
-  OnlineHltResults = cms.vstring(  ),
-  AlCaPhiSymEcal = cms.vstring(  ),
-  RPCMonitor = cms.vstring(  ),
-  AlCaP0 = cms.vstring(  ),
-  EcalLaser = cms.vstring(  ),
   Cosmics = cms.vstring(  ),
   Photon = cms.vstring(  ),
-  MinimumBias = cms.vstring( 'HLT_L1Tech_HCAL_HF',
-    'HLT_ZeroBiasPixel_SingleTrack',
-    'HLT_L1Tech_BSC_minBias' ),
+  MinimumBias = cms.vstring( 'HLT_L1Tech_BSC_minBias',
+    'HLT_L1Tech_HCAL_HF',
+    'HLT_ZeroBiasPixel_SingleTrack' ),
   JetMETTauMonitor = cms.vstring(  ),
   METFwd = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
@@ -65,18 +57,26 @@ datasets = cms.PSet(
   Jet = cms.vstring(  ),
   Mu = cms.vstring(  ),
   ExpressPhysics = cms.vstring(  ),
-  OnlineMonitor = cms.vstring( 'HLT_ZeroBiasPixel_SingleTrack',
-    'HLT_L1DoubleMuOpen',
+  AlCaP0 = cms.vstring(  ),
+  AlCaPhiSymEcal = cms.vstring(  ),
+  TestEnables = cms.vstring(  ),
+  OnlineMonitor = cms.vstring( 'HLT_L1DoubleMuOpen',
     'HLT_L1Tech_BSC_minBias',
-    'HLT_L1Tech_HCAL_HF' ),
+    'HLT_L1Tech_HCAL_HF',
+    'HLT_ZeroBiasPixel_SingleTrack' ),
+  EcalLaser = cms.vstring(  ),
+  OnlineHltMonitor = cms.vstring( 'HLT_L1DoubleMuOpen',
+    'HLT_L1Tech_BSC_minBias',
+    'HLT_L1Tech_HCAL_HF',
+    'HLT_ZeroBiasPixel_SingleTrack' ),
   OfflineMonitor = cms.vstring( 'HLT_L1DoubleMuOpen',
     'HLT_L1Tech_BSC_minBias',
     'HLT_L1Tech_HCAL_HF',
     'HLT_ZeroBiasPixel_SingleTrack' ),
-  OnlineHltMonitor = cms.vstring( 'HLT_L1DoubleMuOpen',
-    'HLT_L1Tech_BSC_minBias',
-    'HLT_L1Tech_HCAL_HF',
-    'HLT_ZeroBiasPixel_SingleTrack' )
+  LogMonitor = cms.vstring(  ),
+  FEDMonitor = cms.vstring(  ),
+  RPCMonitor = cms.vstring(  ),
+  OnlineHltResults = cms.vstring(  )
 )
 
 BTagRecord = cms.ESSource( "EmptyESSource",
