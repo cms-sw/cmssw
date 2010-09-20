@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: StablePart.h,v 1.8 2009/03/20 17:13:33 loizides Exp $
+// $Id: ConversionTrack.h,v 1.1 2010/09/17 19:41:45 bendavid Exp $
 //
 // ConversionTrack
 //
@@ -31,6 +31,11 @@ namespace reco
       void                    setIsTrackerOnly(bool b)                { isTrackerOnly_ = b;          }
       void                    setIsArbitratedEcalSeeded(bool b)       { isArbitratedEcalSeeded_ = b; }      
       void                    setIsArbitratedMerged(bool b)           { isArbitratedMerged_ = b;     }      
+      bool                    IsTrackerOnly() const                       { isTrackerOnly_;}
+      bool                    IsIsArbitratedEcalSeeded() const            { isArbitratedEcalSeeded_;}
+      bool                    IsIsArbitratedMerged() const            { isArbitratedMerged_;}
+
+
 
     private:
       TrackBaseRef        track_; //ptr to track
