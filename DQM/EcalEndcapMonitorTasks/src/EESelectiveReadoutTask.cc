@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2010/08/12 09:05:51 $
- * $Revision: 1.50 $
+ * $Date: 2010/08/30 13:14:09 $
+ * $Revision: 1.51 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -1222,37 +1222,46 @@ EESelectiveReadoutTask::configFirWeights(std::vector<double> weightsForZsFIR){
 }
 
 int EESelectiveReadoutTask::getCrystalCount(int iDcc, int iDccCh) {
-  if(iDcc<1 || iDcc>54) return 0;
-  else {
+  if(iDcc<1 || iDcc>54) {
+    // invalid DCC
+    return 0;
+  } else if (10 <= iDcc && iDcc <= 45) {
+    // EB
+    return 25;
+  } else {
+    // EE
     int iDccPhi;
-    if(iDcc < 10) iDccPhi = iDcc;
-    else iDccPhi = iDcc - 45;
+    if(iDcc < 10) {
+      iDccPhi = iDcc;
+    } else {
+      iDccPhi = iDcc - 45;
+    }
     switch(iDccPhi*100+iDccCh){
-    case 110:
-    case 232:
-    case 312:
-    case 412:
-    case 532:
-    case 610:
-    case 830:
-    case 806:
-      //inner partials at 12, 3, and 9 o'clock
-      return 20;
-    case 134:
-    case 634:
-    case 827:
-    case 803:
+      case 110:
+      case 232:
+      case 312:
+      case 412:
+      case 532:
+      case 610:
+      case 830:
+      case 806:
+        //inner partials at 12, 3, and 9 o'clock
+        return 20;
+      case 134:
+      case 634:
+      case 827:
+      case 803:
       return 10;
-    case 330:
-    case 430:
-      return 20;
-    case 203:
-    case 503:
-    case 721:
-    case 921:
-      return 21;
-    default:
-      return 25;
+      case 330:
+      case 430:
+        return 20;
+      case 203:
+      case 503:
+      case 721:
+      case 921:
+        return 21;
+      default:
+        return 25;
     }
   }
 }
