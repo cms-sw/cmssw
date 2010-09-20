@@ -1,0 +1,435 @@
+		Suppression of Messages in MessageLogger
+		----------------------------------------
+
+Basics of message suppression
+-----------------------------
+
+By definition, suppression of messages means that some subset of
+messages issued by <LogWhatever> will never (in the case of multithread
+operation) even be put on the queue for the MessageLoggerScribe thread
+to look at.  (In single-thread mode, no calls to any messafge service logging
+functions are made.)  
+
+To suppress a message, the software must know, "at the top", that no message 
+of this ilk can possibly be reacted to. 
+
+For practical purposes, this has several consequences:
+
+1. Savings of activity:  
+   a. Overhead of adding to the queue, waking the scribe thread, consuming
+      the message is eliminated.
+   b. Preparation of the header and the extended message id never happens.
+   c. Message is not "shopped" to the various destinations, saving 
+      various map lookups.  This includes the statistics destinations.
+   d. Of course no actual I/O or  is done. 
+
+2. Granularity of choice:
+   a. Suppression cannot distinguish between one destination and another.
+   b. Suppression knows nothing about the category of the message.
+   c. Suppression does know about the severity level of the message.
+   c. Suppression CAN depend on which module is running.
+
+3. Effect:
+   a. A suppressed message cannot contribute to any statistics destination.
+   b. There cannot be a way to over-ride suppression at the destination level.
+
+Other configuration-specified preferences can cause various messages to be 
+ignored by various destinations, but that is moot to the issue of suppresssion
+because to decide to ignore a message, the destination has to see the message,
+thus the message must have made it to the MessageLoggerScribe.
+
+Suppression can be controlled by compile-time defines, by thresholds and
+module specifications set up in the configuration file, or by a combination 
+of both.  
+
+Although by definition the activities above are elided, there is potential for
+avoiding (or incurring) various other burdens.  In particular, the message
+content itself might take non-trivial time to build up.  It is desirable that
+in the case of a suppressed message, this work be avoided:
+
+4. Further savings of activity:
+   a. The various operator<<'s appearing in the message-issuing statement  
+      are not executed.
+   b. Any functions called to prepare for those operator<<'s are not called.
+   
+If suppression is dictated by a compile-time define, then a fifth savings can 
+be imagined:
+
+5. Savings of space:  
+   a. The code for the various operator<<'s and or functions appearing in the 
+      statement issuing the message does not even apear in the executable.  
+
+The non-execution of functions appearing in a statement involving a 
+suppressed LogDebug, while quite desirable to our community, violates C++
+semantics about expression evaluation.  The user "has a right to expect"
+that in A(b) << foo(), the function foo() is called and any side effects
+will happen.  Creating a situation in which these semantics are violated 
+can be accomplished via a pre-preocessor macro or define (and I suspect 
+ONLY that way).  The reason we are somewhat comfortable with this violation 
+of C++ expression evaluation semantics is that this is the identical situation
+occuring in the context of the assert macro.  Users are familiar with the fact
+that using a function with side effects inside an assert is poison, and 
+nobody takes arms against the writer of assert on that issue.
+
+Status before Sep 2010
+----------------------
+
+In the original idea for LogDebug, a compile-time define would cause LogDebug 
+to become a complete no-op, resulting in code that was identical to the code 
+with the LogDebug statement commented out.  This turned out not to be as easy 
+as originally anticipated, and indeed the original code missed the mark in
+(at least) two ways:
+
+1. When the suppression was specified at compile time, the code for 
+   functions needed to prepare the data composing the message was still
+   being generated, and the code implementing the functions to prepare 
+   the message was still being executed, because the Suppress_LogDebug_ class 
+   was still doing operator<<, treated in this way:
+   
+    Suppress_LogDebug_ &operator<< (T const & t) { return *this; }	
+    
+   That implies that if the rhs of the operator<< is foo(), then foo() must
+   be called since from the compiler's perspective foo() might have side 
+   effects. 
+
+2. When the suppression was specified dynamically, the compiler inherently 
+   could not avoid generating the code for foo(), but it also would be 
+   executing foo(), and that (wee shall see) could have been avoided.
+
+Although some care was taken to expose, by inlining, as much of the mechanism 
+as possible so that a good compiler could know to throw everything away, the 
+compiler does not know (and cannot be told) that the individual streaming 
+operators and/or the functions called to compute the data being streamed are 
+"pure."   Empirically, therefore, LogDebug occupied non-negligible time (in 
+some cases) even when suppressed.
+
+The solution to this dilemma, at least for the compile-time case, lies in
+a lexical technique suggested by C. Jones.  This forces the pre-preocessor to
+generate a statement such that the possibly-expensive function and operator<< 
+calls are REQUIRED (by the C++ standard) to be elided by the compiler.
+
+In the dynamic case, the solution is to not to leave the realm of the
+macros until after the decision-point about suppression.  This complicates
+matters due to the two-levels of macro, but is not conceptually any different.
+
+Given that LogDebug() behaves logically like a ctor, it is less than 
+trivial to implement these techniques; more about that below in the Coding 
+Details section.
+
+
+Details of how suppression booleans are maintained
+--------------------------------------------------
+
+I will use edm::LogInfo as an example; the WARNING level loggers behave
+similarly, ERROR level messages cannot be suppressed, and LogDebug has a 
+special macro structure discussed below for placing the line number into 
+the message.
+
+Let's start from the business end (how the suppression boolean is used)
+and trace back to see how it is modified and finally how it is set up
+and how modification policy is established.
+
+The variable obtained by edm::MessageDrop::instance()->infoEnabled 
+is the relevant suppression boolean.  It is used in the ctor of LogInfo
+to decide whether to initialize an auto_ptr to a MessageSender with
+an actual MessageSender, or with 0.  
+
+In MessageLogger/interface/MessageLogger.h:
+class LogInfo				
+{
+public:
+  explicit LogInfo( std::string const & id ) 
+    : ap ( edm::MessageDrop::instance()->infoEnabled ? 
+      new MessageSender(ELinfo,id) : 0 )
+  { }
+// ...
+}
+
+The act of destroying the MessageSender, which occurs when in the dtor of
+LogInfo this auto_ptr is destructed, is what triggers preparation of the
+ErrorObject and placing that ErrorObject onto the MessageLoggerQueue.  
+That is, if the MessageSender is constructed, then INEVITABLY the message 
+will appear on the queue, and such a message by definition was not suppressed.
+
+How does edm::MessageDrop::instance()->infoEnabled evolve?
+
+If we look in MessageService/src/MessageLogger.cc (note that the other header
+we looked at was in MessageLogger, not MessageService), we see that various
+calls to the following helper functions are set up as callbacks:
+
+establishModuleCtor  is called by
+  preModuleConstruction
+  preSourceConstruction
+  
+unEstablishModule is called by 
+  preModuleConstruction
+  preSourceConstruction
+  
+establishModule is called by
+  preModuleEndJob
+  preModuleEndRun
+  preModuleEndLumi
+  preModule
+  preModuleEndLumi
+  preModuleEndRun  
+  preModuleEndJob
+      
+unEstablishModule is called by
+  preModuleEndJob
+  preModuleEndRun  
+  preModuleEndLumi
+  preModule
+  preModuleEndLumi
+  preModuleEndRun  
+  preModuleEndJob
+  
+So we see that whenever code for some module is running, establishModule
+with that module descriptor will have been called.
+
+In establishModuleCtor and establishModule, values are set up for 
+messageDrop->debugEnabled, messageDrop->infoEnabled, and warningEnabled.
+
+The code first searches for this moduleLable() (label, not name) in the map 
+suppression_levels.  If it fines a suppression level for this module,
+then it sets each of enabling variables (for example infoEnabled) true if 
+the indicated supression level is less than the corresponding severity level.
+For example, if suppression_levels["thisModule"] = ELsev_info (or higher),
+then infoEnabled is set false; if it is ELsev_debug then infoEnabled is
+set true.  If the module label is not found in the list, then  infoEnabled
+and warningEnabled are true.
+
+Current code (as of 9/17/10) treats debugEnabled differently:  First,
+it sets up debugEnabled according to two booleans anyDebugEnabledand
+everyDebugEnabled (the usage is the obvious) and the map
+debugEnabledModules_ (if the bools don't settle the issue and the map 
+contains the module lable, then debugEnabled is set true).  Then if 
+the suppression_levels map dose not contain this module label, that 
+value of debugEnabled is left holding.
+
+When the module is unEstablished, the value goes back to the original
+infoEnabled, as stored in nonModule_infoEnabled (similarly for the others.
+nonModule_debugEnabled, nonModule_infoEnabled, and nonModule_warningEnabled 
+are given initial values (false, true, true) as a matter of good C++ practice, 
+but these initial values are not used.  On the other hand, initial values of
+messageDrop->debugEnabled, infoEnabled, and warningEnabled  (which are relevant
+for messages issued outside of all modules) are set true in MessageDrop.cc.
+
+So far, we see that infoEnabled is used to decide whether to create a 
+MessageSender, and that infoEnabled is established each time a module is 
+entered, based on suppression_levels.  All that remains is to see how
+suppression_levels (and, for logDebug, anyDebugEnabled, everyDebugEnabled, 
+and debugEnabledModules_) get set up.
+
+In MessageLogger.cc, the ctor of MessageLogger sets suppression_levels
+based on the three vectors suppressDebug, suppressInfo and suppressWarning.
+Each of those, in turn, were obtained as a vstring from the configuration
+(parameters "suppressDebug", "suppressInfo", and "suppressWarning").
+Similarly, debugEnabledModules_ is obtained from debugModules, which is
+obtained from the vstring parameter "debugModules".  anyDebugEnabled is
+set based on debugModules being empty, and if this is the case, 
+MessageDrop::debugEnabled  is also set false (which will be relevant 
+when outside of all modules). Finally, if any of the values in debugModules
+is "*", then everyDebugEnabled_ is set true.
+   
+Current (until Sep 2010) LogDebug Suppression
+--------------------------------------------
+
+The code defining the (macro) LogDebug looked like this:
+
+#ifdef EDM_MESSAGELOGGER_SUPPRESS_LOGDEBUG 
+#define LogDebug(id) edm::Suppress_LogDebug_()
+#define LogTrace(id) edm::Suppress_LogDebug_()
+#else
+#define LogDebug(id)                                 \
+  ( !edm::MessageDrop::debugEnabled )                \
+    ?  edm::LogDebug_()                              \
+    :  edm::LogDebug_(id, __FILE__, __LINE__)
+// ...
+
+class Suppress_LogDebug_ 
+{ 
+public:
+  template< class T >
+    Suppress_LogDebug_ &operator<< (T const & t) { return *this; }	
+};  // Suppress_LogDebug_
+
+This implies that **even if debugEnabled is false** a line like
+
+LogDebug ("cat") << foo(objectA) << objectB;
+
+will force the compiler, to properly execute any side effects of operator<<
+and of foo(objectA), to do the operator<<'s and to call foo(), even though 
+the user's intent was surely to skip them.  While operator<<, taken from
+SuppressLogDebug_, is trivial, foo() probably is not.
+
+Similarly, if debugEnabled is false when LogDebug is not suppressed by the 
+define, then even though no MessageSender will be created, the operator<<
+and foo() calls to construct the message still will be executed.  
+
+Placing line numbers into a message
+-----------------------------------
+
+In order to place line number and source file name into a message, 
+the LogDebug token **must** be a macro -- nobody is interested in
+the line and file of the place in MessageLogger.h or .cc that the
+ctor of some LogDebug class appears.
+
+In retrospect, it was this forcing of the usse of a macro that enticed 
+us to provide assert-like behavior in terms of eliding LogDebug in the
+debug-disabled case.  For code in the MessageFacility package, where users
+have requested forms of LogInfo etc. having line numbers and file names,
+this same issue will arise again, and we should carefully think out what
+we and theusers want to do. 
+
+Coding details in moving to optimal suppression
+-----------------------------------------------
+
+For LogDebug (and LogTrace) ONLY we wish to have a general suppression 
+variable which does not do anything with the messageDrop singleton and 
+is controlled solely by a define.  
+
+The goal is to prevent the execution of operator<< and foo(), and ideally to 
+prevent even the inclusion of non-executed code for the operator<< and foo(), 
+when the user does something like
+
+  LogDebug ("cat") << foo(objectA )<< objectB;
+
+and the LogDebug is suppressed.  Part one of this goal is to achieve that
+optimization when the information indicating suppression is via a macro.
+Part two is to (if we can) achieve the optimization under control of a 
+run-time variable.
+
+The trick for part one (suggested by C. Jones) exploits the lexical 
+properties of the preprocssor, to constuct a statement that contains
+a ?: conditional, with the predicate being compile-time true, and the
+operator<< constructs coming out as the tail end of the (unexecuted)
+if-false statement. Thus:
+
+  #define LogDebug(id) true ? edm::SuppressLogDebug() :edm::SuppressLogDebug() 
+
+such that the user statement becomes 
+
+  true ? edm::SuppressLogDebug() :edm::SuppressLogDebug() 
+				  		<< foo(objectA) << objectB;
+
+and this is equivalent (known at compile time) to
+
+  edm::SuppressLogDebug();
+
+which, we notice does not even contain the code for foo(objectA) or any
+operator<<.
+
+Part two can also be accomplished, although in that case the code for the
+operator<<'s and foo() obviously will be generated.  Consider the 
+following two-tier construct.
+  
+  #define MIGHTSUPPRESSLOGDEBUG(id) disabling_variable ? \\
+          SuppressLogDebug_() ? LogDebug_(id)
+
+  #ifdef DISABLING_SYMBOL 
+  #define LogDebug(id) true ? SuppressLogDebug_() : SuppressLogDebug_() 
+  #else
+  #define LogDebug(id) MIGHTSUPPRESSLOGDEBUG(id)
+  #endif
+					  
+Then if DISABLING_SYMBOL is true, the user statement becomes					  
+
+  true ? edm::SuppressLogDebug() :edm::SuppressLogDebug() 
+  						<<foo(objectA) << objectB;
+
+which we already saw satisfies the part 1 goal.  If DISABLING_SYMBOL is false,
+the user statement becomes
+
+  disabling_variable ? edm::SuppressLogDebug_() 
+  : LogDebug_(id) << foo(objectA) << objectB;
+  
+Clearly, if disabling_variable is false, you get the proper LogDebug_ call with
+the associated streaming.  If disabling_variable is true, you get a ctor of
+SuppressLogDebug_() as the entire statement; the anonymous object immediately
+goes out of scpe when tthe statement ends, and thus nothing is done.  So this
+satisfies part two.  
+
+We should choose symbol names that are appropriate for the CMS EDM, of course.
+It has already been specified that the define the user sees to enable 
+LogDebug should be EDM_ML_DEBUG.  Since this is now to be disconnected from
+NDEBUG and other such symbols, we can use it directly.  The  
+MIGHTSUPPRESSLOGDEBUG is an internal to the MessageLogger, but those too
+should start with EDM_ML_; a good name is EDM_ML_ENABLED_LOGDEBUG.  But we
+don't even need that extra level of "indirection" since we are already 
+going to a #define for LogDebug(id).  So the code will look like:
+
+  #ifndef EDM_ML_DEBUG 
+  #define LogDebug(id) true ? edm::SuppressLogDebug_():edm::SuppressLogDebug_() 
+  #else
+  #define LogDebug(id) \\
+  	!debugEnabled ? edm::SuppressLogDebug_() : \\
+	 edm::LogDebug_(id, __FILE__, __LINE__) 
+  #endif
+
+Effect on "message blocks"
+--------------------------
+
+A technique recommended if the user needs to prepare a message in a loop
+or with conditional code looks like:
+
+  if (isInfoEnabled()) { 
+    edm::LogInfo m("cat");
+    for (i=0; i<imax; ++i) m << foo(i);
+  } // m goes out of scope, causing the message to be sent.
+  
+Let's see what happens when we use that with LogDebug instead, in light of 
+these macros.     
+
+  if (isDebugEnabled()) { 
+    LogDebug m("cat");
+    for (i=0; i<imax; ++i) m << foo(i);
+  } // m goes out of scope, causing the message to be sent.
+  
+becomes  a pre-processing error whether or not EDM_ML_DEBUG is defined 
+(since LogDebug is a macro requiring an argument, but LogDebu m("cat")
+breaks that up at the m).
+
+We will need to recommend a different mantra for LogDebug.  The following
+will probably work:
+
+  #ifdef EDM_ML_DEBUG
+  if (isDebugEnabled()) { 
+    edm::LogDebug_ m (LogDebug ("cat"));
+    for (i=0; i<imax; ++i) m << foo(i);
+  } // m goes out of scope, causing the message to be sent.
+  #endif
+  
+If EDM_ML_DEBUG is defined that becomes 
+
+  if (isDebugEnabled()) { 
+    edm::LogDebug_ m (edm::LogDebug_("cat", __FILE__, __LINE__));
+    for (i=0; i<imax; ++i) m << foo(i);
+  } // m goes out of scope, causing the message to be sent.
+  
+while if EDM_ML_DEBUG is not defined that becomes nothing at all.
+
+We will need to document this technique difference for LogDebug.
+
+By the way, it may be right to inline the functions isDebugEnabled(), 
+isInfoEnabled() and isWarningEnabled(), to make this quicker, but that
+is a separate issue.
+
+
+Possible further improvement opportunities
+------------------------------------------
+
+The initial value of MessageDrop->debugEnabled (in MessageDrop.cc) is
+true.  This is perhaps relevant in cases where debug is overall enabled,
+and one is not in any module.  So you run with debug on, and if the 
+framework itself has :ogDebugs in it, you can't suppress them without
+suppressing all debug messages.  It might be better to make this false.
+(Trivial change to make.)  It might also be desirable to have some way
+to turn on/off non-module LogDebugs.  However, this issue is very likely 
+moot since users don't write non-module code, and probably framework 
+people are not leving LogDebugs around.
+
+There is presently no mechanism to disable LogInfo if all thresholds are 
+higher than logInfo, and similarly for logWarning (not sure if the issue
+is relevant for logDebug).  This could be a huge savings.  Not easy to do,
+but should not be too tricky.
+
