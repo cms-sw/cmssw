@@ -1807,6 +1807,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
   for (int irack=1; irack < (npsuracks+1); irack++){
     if(filetype=="xml"){
       saveAsSingleLayer=true;
+      std::ostringstream outs;
     outs << outputfilename<<"psurack" <<irack<< ".xml";
     savefile = new std::ofstream(outs.str().c_str(),std::ios::out);
     *savefile << "<?xml version=\"1.0\" standalone=\"no\"?>"<<std::endl;
