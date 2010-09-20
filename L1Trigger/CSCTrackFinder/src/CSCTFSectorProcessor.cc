@@ -339,12 +339,6 @@ void CSCTFSectorProcessor::initialize(const edm::EventSetup& c){
 						<< " firmwareDD (=" << m_firmDD << "), " 
 						<< " firmwareVM (=" << m_firmVM << ") are NOT identical: it shoultd NOT happen!";
 
-  if (m_firmSP>20100210 && m_firmSP != 20100629)
-    throw cms::Exception("CSCTFSectorProcessor")<< " firmwareSP (=" << m_firmSP << ") is NOT VALID: I am crashing... "; 
-
-  if (m_firmFA>20090521)
-    throw cms::Exception("CSCTFSectorProcessor")<< " firmwareFA (=" << m_firmFA << ") is NOT VALID: I am crashing... "; 
-
 }
 
 void CSCTFSectorProcessor::readParameters(const edm::ParameterSet& pset){
