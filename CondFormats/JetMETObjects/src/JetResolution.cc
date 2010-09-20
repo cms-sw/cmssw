@@ -79,8 +79,8 @@ void JetResolution::initialize(const string& fileName,bool doGaussian)
   string formula = resolutionPars.definitions().formula();
   if      (doGaussian)                   resolutionFnc_=new TF1(fncname.c_str(),"gaus",0.,5.);
   else if (formula=="DSCB")              resolutionFnc_=new TF1(fncname.c_str(),fnc_dscb,0.,5.,7);
-  else if (formula=="GaussAlpha1Alpha2") resolutionFnc_=new TF1(fncname.c_str(),fnc_gaussalpha1alpha2,0.,5.,5);
-  else if (formula=="GaussAlpha")        resolutionFnc_=new TF1(fncname.c_str(),fnc_gaussalpha,0.,5.,4);
+  else if (formula=="GaussAlpha1Alpha2") resolutionFnc_=new TF1(fncname.c_str(),fnc_gaussalpha1alpha2,-5.,5.,5);
+  else if (formula=="GaussAlpha")        resolutionFnc_=new TF1(fncname.c_str(),fnc_gaussalpha,-5.,5.,4);
   else                                   resolutionFnc_=new TF1(fncname.c_str(),formula.c_str(),0.,5.);
   
   resolutionFnc_->SetNpx(200);
