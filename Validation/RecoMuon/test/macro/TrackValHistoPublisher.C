@@ -135,7 +135,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
  TIter iter_r( rl );
  TIter iter_s( sl );
- TKey * myKey1, *myKey2;
+ TKey * myKey1, *myKey2, *myNext2=0;
  while ( (myKey1 = (TKey*)iter_r()) ) {
    TString myName = myKey1->GetName();
    if (!(myName.Contains("tpToTkmu")) && considerOnlyMuonAssociator && hasOnlyTrackAssociatorInRef) {
@@ -147,9 +147,24 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
      myName = myKey1->GetName();
    }
    collname1 = myName;
-   myKey2 = (TKey*)iter_s();
+   // ==> extractedGlobalMuons are in a different position wrt globalMuons:
+   if (myNext2) {
+     myKey2 = myNext2;
+     myNext2 = 0;
+   }
+   else {
+     myKey2 = (TKey*)iter_s();
+   }
    if (!myKey2) continue;
    TString myName2 = myKey2->GetName();
+   if (myName2.Contains("extractedGlobalMuons") && !myName.Contains("lobalMuons")) {
+     myNext2 =  (TKey*)iter_s();
+     TKey* myTemp = myKey2; 
+     myKey2 = myNext2;
+     myName2 = myKey2->GetName();
+     myNext2 = myTemp;
+   }
+   // ==> end(extractedGlobalMuons) -> Only consider them in the "signal" samples
    if (!(myName2.Contains("tpToTkmu")) && considerOnlyMuonAssociator && hasOnlyTrackAssociatorInSig) {
      if (myName2.Contains("TrackAssociation")) myName2.ReplaceAll("TrackAssociation","MuonAssociation");
      else myName2.ReplaceAll("Association","MuonAssociation");
@@ -162,7 +177,11 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    collname2 = myName2;
 
    cout << " Comparing " << collname1 << " and " << collname2 << endl;
-   if ( (myName == myName2) || (myName+"FS" == myName2) || (myName == myName2+"FS") ) {
+   if ( 
+       (myName == myName2) || (myName+"FS" == myName2) || (myName == myName2+"FS" )
+       || (myName.Contains("extractedGlobalMuons") && myName2.Contains("globalMuons") )
+       || (myName.Contains("globalMuons") && myName2.Contains("extractedGlobalMuons") )
+       ) {
      collname1 = myKey1->GetName();
      collname2 = myKey2->GetName();
    }

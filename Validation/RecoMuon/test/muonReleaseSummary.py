@@ -5,8 +5,8 @@ import sys
 import fileinput
 import string
 
-NewVersion='3_9_0_pre1'
-RefVersion='3_8_0'
+NewVersion='3_9_0_pre4'
+RefVersion='3_9_0_pre3'
 NewRelease='CMSSW_'+NewVersion
 RefRelease='CMSSW_'+RefVersion
 #NewRelease='Summer09'
@@ -44,7 +44,7 @@ GetFilesFrom='GUI'       # --> Copy root files from the DQM GUI server
 GetRefsFrom='GUI'
 
 DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_3_9_x/'
-DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_3_8_x/'
+DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_3_9_x/'
 CastorRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'
 if ((GetFilesFrom=='GUI')|(GetRefsFrom=='GUI')):
     print "*** Did you remind doing:"
@@ -57,12 +57,12 @@ if ((GetFilesFrom=='GUI')|(GetRefsFrom=='GUI')):
 
 
 # These are only needed if you copy any root file from the DQM GUI:
-NewLabel='MC_38Y_V8'
+NewLabel='MC_38Y_V11'
 if (NewCondition=='STARTUP'):
-    NewLabel='START38_V8'
-RefLabel='MC_38Y_V7'
+    NewLabel='START38_V11'
+RefLabel='MC_38Y_V9'
 if (RefCondition=='STARTUP'):
-    RefLabel='START38_V7'
+    RefLabel='START38_V9'
 
 
 ValidateHLT=True
