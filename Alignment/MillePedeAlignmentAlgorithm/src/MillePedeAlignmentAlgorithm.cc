@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.66 $
- *  $Date: 2010/02/26 12:14:59 $
- *  (last update by $Author: frmeier $)
+ *  $Revision: 1.67 $
+ *  $Date: 2010/09/10 13:29:39 $
+ *  (last update by $Author: mussgill $)
  */
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeAlignmentAlgorithm.h"
@@ -127,14 +127,21 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
   //    assuming that correction from 1) was also applied to create the result:
   const std::vector<edm::ParameterSet> mprespset
     (theConfig.getParameter<std::vector<edm::ParameterSet> >("pedeReaderInputs"));
+  if (!mprespset.empty()) {
+    edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
+			      << "Apply " << mprespset.end() - mprespset.begin()
+			      << " previous MillePede constants from 'pedeReaderInputs'.";
+  }
   for (std::vector<edm::ParameterSet>::const_iterator iSet = mprespset.begin(), iE = mprespset.end();
        iSet != iE; ++iSet) {
-    edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
-                              << "Apply MillePede constants defined by VPSet 'pedeReaderInputs'.";
-    this->readFromPede((*iSet), false); // false: do not erase SelectionUserVariables
+    if (!this->readFromPede((*iSet), false)) { // false: do not erase SelectionUserVariables
+      throw cms::Exception("BadConfig")
+	<< "MillePedeAlignmentAlgorithm::initialize: Problems reading input constants of "
+	<< "pedeReaderInputs entry " << iSet - mprespset.begin() << '.';
+    }
     theAlignmentParameterStore->applyParameters();
-    // Following needed to shut up later warning from checkAliParams? Test!
-    // theAlignmentParameterStore->resetParameters();  FIXME
+    // Needed to shut up later warning from checkAliParams:
+    theAlignmentParameterStore->resetParameters();
   }
 
   // 3) Now create steerings with 'final' start position:
@@ -150,7 +157,7 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
         << "'vstring mergeTreeFiles' and 'vstring mergeBinaryFiles' must be empty for "
         << "modes running mille.";
     }
-    theMille = new Mille((theDir + theConfig.getParameter<std::string>("binaryFile")).c_str());
+    theMille = new Mille((theDir + theConfig.getParameter<std::string>("binaryFile")).c_str());// add ', false);' for text output);
     const std::string moniFile(theConfig.getUntrackedParameter<std::string>("monitorFile"));
     if (moniFile.size()) theMonitor = new MillePedeMonitor((theDir + moniFile).c_str());
 
@@ -200,7 +207,6 @@ void MillePedeAlignmentAlgorithm::terminate()
       edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::terminate"
                                  << "Problems reading pede result, but applying!";
     }
-    // FIXME: problem if what is read in does not correspond to store
     theAlignmentParameterStore->applyParameters();
   }
 
@@ -726,7 +732,6 @@ void MillePedeAlignmentAlgorithm
 {
 
   // This Method is valid for 1D measurements only
-  
   const unsigned int xIndex = iMsMeas + refTrajPtr->numberOfHitMeas();
   // Covariance into a TMatrixDSym
   
@@ -941,7 +946,7 @@ void MillePedeAlignmentAlgorithm
   float *newGlobDerivsX  = aGlobalDerivativesM[0].GetPtr();
   const int nLocal  = aLocalDerivativesM.GetNcols();
   const int nGlobal = 0;
-              
+  
   theMille->mille(nLocal, newLocalDerivsX, nGlobal, newGlobDerivsX,
 		  &nGlobal, newResidX, newHitErrX);  
 }
