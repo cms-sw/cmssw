@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.10 $
- *  $Date: 2008/10/14 07:19:32 $
+ *  $Revision: 1.11 $
+ *  $Date: 2009/08/10 16:29:40 $
  *  (last update by $Author: flucke $)
  */
 
@@ -157,6 +157,7 @@ Alignable* PedeReader::setParameter(unsigned int paramLabel,
       if (userParams) userParams->diffBefore()[paramNum] = buf[2] / cmsToPede;
       // no break
     case 2: 
+      params->setValid(true);
       parVec[paramNum] = buf[0] / cmsToPede * mySteerer.parameterSign(); // parameter
       if (userParams) {
 	userParams->parameter()[paramNum] = parVec[paramNum]; // duplicate in millepede parameters
@@ -164,10 +165,11 @@ Alignable* PedeReader::setParameter(unsigned int paramLabel,
 	if (!userParams->isFixed(paramNum)) {
 	  userParams->preSigma()[paramNum] /= cmsToPede;
 	  if (bufLength == 2) {
-	    edm::LogError("Alignment") << "@SUB=PedeReader::setParameter"
-				       << "Param " << paramLabel << " (from "
-				       << typeid(*alignable).name() << ") without result!";
+	    edm::LogWarning("Alignment") << "@SUB=PedeReader::setParameter"
+					 << "Param " << paramLabel << " (from "
+					 << typeid(*alignable).name() << ") without result!";
 	    userParams->isValid()[paramNum] = false;
+	    params->setValid(false);
 	  }
 	}
       }
@@ -200,13 +202,9 @@ AlignmentParameters* PedeReader::checkAliParams(Alignable *alignable, bool creat
   // first check that we have parameters
   AlignmentParameters *params = alignable->alignmentParameters();
   if (!params) {
-    // How to check in future what kind of parameters are needed?
-    params = new RigidBodyAlignmentParameters(alignable, false);
+    throw cms::Exception("BadConfig") << "PedeReader::checkAliParams"
+				      << "Alignable without parameters.";
 
-    edm::LogInfo("Alignment") << "@SUB=PedeReader::checkAliParams"
-                              << "Build RigidBodyAlignmentParameters for alignable with label "
-                              << myLabels.alignableLabel(alignable);
-    alignable->setAlignmentParameters(params); // transferred memory responsibility
   }
   
   // now check that we have user parameters of correct type if requested:
