@@ -103,7 +103,8 @@ void RootErrorHandler(int level, bool die, char const* location, char const* mes
         (el_message.find("matrix not positive definite") != std::string::npos) ||
         (el_location.find("Fit") != std::string::npos) ||
         (el_location.find("TDecompChol::Solve") != std::string::npos) ||
-        (el_location.find("THistPainter::PaintInit") != std::string::npos)) {
+        (el_location.find("THistPainter::PaintInit") != std::string::npos) ||
+        (el_location.find("TGClient::GetFontByName") != std::string::npos) ) {
       el_severity = edm::ELseverityLevel::ELsev_info;
     }
 
