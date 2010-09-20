@@ -11,23 +11,8 @@ process.options.FailPath = cms.untracked.vstring('ProductNotFound')
 # source
 process.source = cms.Source("PoolSource", 
      fileNames = cms.untracked.vstring(
-      'rfio:/castor/cern.ch/user/j/jalcaraz/Data2010/GoldenWmunus_132440-140182.root',
-      'rfio:/castor/cern.ch/user/j/jalcaraz/Data2010/GoldenWmunus_140183-142557.root',
-      'rfio:/castor/cern.ch/user/j/jalcaraz/Data2010/GoldenWmunus_142558-143179.root',
-      'rfio:/castor/cern.ch/user/j/jalcaraz/Data2010/GoldenWmunus_143180-143336.root',
-      'rfio:/castor/cern.ch/user/j/jalcaraz/Data2010/GoldenWmunus_143337-144114.root',
-      'rfio:/castor/cern.ch/user/j/jalcaraz/Data2010/GoldenZmumus_132440-144114.root'
-    ),
-    #inputCommands = cms.untracked.vstring(
-    #  'keep *',
-    #  'drop *_MEtoEDMConverter_*_*',
-    #  'drop *_lumiProducer_*_*',
-    #  'drop *_*_*_HLT8E29',
-    #  'drop edmTriggerResults_TriggerResults__*',
-    #  'keep edmTriggerResults_TriggerResults__HLT',
-    #  'keep edmTriggerResults_TriggerResults__REDIGI',
-    #  'keep edmTriggerResults_TriggerResults__REDIGI36X'
-    #)
+      'rfio:/castor/cern.ch/user/j/jalcaraz/Data2010/GoldenWmunus_132440-140182.root'
+    )
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
@@ -145,5 +130,3 @@ process.EWK_WZSkimOutputModule = cms.OutputModule("PoolOutputModule",
 )
 
 process.outpath = cms.EndPath(process.EWK_WZSkimOutputModule)
-
-
