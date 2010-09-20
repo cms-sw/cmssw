@@ -67,7 +67,7 @@ private:
   double ntrig, npresel;
   double nsel;
   double ncharge;
-  double nPt,nkin, nid,nacop,niso,nmass;
+  double neta,nkin, nid,nacop,niso,nmass;
   double ncands,nZ;
 
 
@@ -114,7 +114,7 @@ WMuNuSelector::WMuNuSelector( const ParameterSet & cfg ) :
       // Input collections
       trigTag_(cfg.getUntrackedParameter<edm::InputTag> ("TrigTag", edm::InputTag("TriggerResults::HLT"))),
       muonTag_(cfg.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"))),
-      jetTag_(cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag(""))),
+      jetTag_(cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("sisCone5CaloJets"))),
       WMuNuCollectionTag_(cfg.getUntrackedParameter<edm::InputTag> ("WMuNuCollectionTag", edm::InputTag("WMuNus"))),
 
 
@@ -165,7 +165,7 @@ void WMuNuSelector::beginJob() {
       nsel = 0;
       ncands =0; 
       nZ=0;
-      nPt=0;
+      neta=0;
 
    if(plotHistograms_){
      edm::Service<TFileService> fs;
@@ -181,8 +181,8 @@ void WMuNuSelector::beginJob() {
      h1_["hTracker"]                 =fs->make<TH1D>("isTrackerMuon","is Tracker Muon?",2,0.,2.);
      h1_["hNMatches"]                =fs->make<TH1D>("NumberOfMatches","Number of Chambers with matched Segments",10,0,10);*/
      h1_["hMuonIDCuts"]              =fs->make<TH1D>("MuonIDQuality","Muon Passes all the VBTF Quality Criteria",2,-0.5,1.5);
-     h1_["hMET"]                     =fs->make<TH1D>("MET","Missing Transverse Energy (GeV)", 200,0,200);
-     h1_["hTMass"]                   =fs->make<TH1D>("TMass","Rec. Transverse Mass (GeV)",200,0,200);
+     h1_["hMET"]                     =fs->make<TH1D>("MET","Missing Transverse Energy (GeV)", 300,0,300);
+     h1_["hTMass"]                   =fs->make<TH1D>("TMass","Rec. Transverse Mass (GeV)",300,0,300);
      h1_["hAcop"]                    =fs->make<TH1D>("Acop","Mu-MET acoplanarity",50,0.,M_PI);
      h1_["hPtSum"]                   =fs->make<TH1D>("ptSum","Track Isolation, Sum pT (GeV)",200,0.,100.);
      h1_["hPtSumN"]                  =fs->make<TH1D>("ptSumN","Track Isolation, Sum pT/pT",1000,0.,10.);
@@ -190,22 +190,27 @@ void WMuNuSelector::beginJob() {
      h1_["hIsoTotN"]                 =fs->make<TH1D>("isoTotN","(Sum pT + Cal)/pT",1000,0.,10.);
      h1_["hIsoTot"]                  =fs->make<TH1D>("isoTot","(Sum pT + Cal)",200,0.,100.);
   
-     h2_["hTMass_PtSum"]       =fs->make<TH2D>("TMass_PtSum","Rec. Transverse Mass (GeV) vs Sum pT (GeV)",200,0.,100.,200,0,200);
-     h2_["hTMass_PtSumNorm"]   =fs->make<TH2D>("TMass_PtSumNorm","Rec. Transverse Mass (GeV) vs Sum Pt / Pt", 1000,0,10,200,0,200);
-     h2_["hTMass_TotIsoNorm"]=fs->make<TH2D>("TMass_TotIsoNorm","Rec. Transverse Mass (GeV) vs (Sum Pt + Cal)/Pt", 1000,0,10,200,0,200);
-     
-     h2_["hMET_PtSum"]         =fs->make<TH2D>("MET_PtSum","Missing Transverse Energy (GeV) vs Sum Pt (GeV)",200,0.,100.,200,0,200);
-     h2_["hMET_PtSumNorm"]     =fs->make<TH2D>("MET_PtSumNorm","Missing Transverse Energy (GeV) vs Sum Pt/Pt",1000,0,10,200,0,200);
-     h2_["hMET_TotIsoNorm"] =fs->make<TH2D>("MET_TotIsoNorm","Missing Transverse Energy (GeV) vs (SumPt + Cal)/Pt",1000,0,10,200,0,200);
+     h2_["hTMass_PtSum"]       =fs->make<TH2D>("TMass_PtSum","Rec. Transverse Mass (GeV) vs Sum pT (GeV)",200,0.,100.,300,0,300);
+     h2_["hTMass_PtSumNorm"]   =fs->make<TH2D>("TMass_PtSumNorm","Rec. Transverse Mass (GeV) vs Sum Pt / Pt", 1000,0,10,300,0,300);
+     h2_["hTMass_TotIsoNorm"]=fs->make<TH2D>("TMass_TotIsoNorm","Rec. Transverse Mass (GeV) vs (Sum Pt + Cal)/Pt", 1000,0,10,300,0,300);
+
+     h2_["hMET_PtSum"]         =fs->make<TH2D>("MET_PtSum","Missing Transverse Energy (GeV) vs Sum Pt (GeV)",200,0.,100.,300,0,300);
+     h2_["hMET_PtSumNorm"]     =fs->make<TH2D>("MET_PtSumNorm","Missing Transverse Energy (GeV) vs Sum Pt/Pt",1000,0,10,300,0,300);
+     h2_["hMET_TotIsoNorm"] =fs->make<TH2D>("MET_TotIsoNorm","Missing Transverse Energy (GeV) vs (SumPt + Cal)/Pt",1000,0,10,300,0,300);
 
      h2_["hEta_Pt"]     =fs->make<TH2D>("Eta_Pt","Eta vs Pt",100,0,100, 50,-2.1,2.1);
 
-     h2_["hPt_PtSumNorm"]   =fs->make<TH2D>("Pt_PtSumNorm","Pt( GeV) vs Sum Pt / Pt", 1000,0,10,100,0,100);
-     h2_["hPt_TotIsoNorm"]=fs->make<TH2D>("Pt_TotIsoNorm","Pt (GeV) vs (Sum Pt + Cal)/Pt", 1000,0,10,100,0,100);
+     h2_["hTMass_Acop_iso"]=fs->make<TH2D>("TMass_Acop_iso", " ",50,0.,M_PI,300,0,300);
+     h2_["hMET_Acop_iso"] =fs->make<TH2D>("MET_Acop_iso", " ",50,0.,M_PI,300,0,300);
+     h2_["hTMass_Acop_notiso"]=fs->make<TH2D>("TMass_Acop_notiso", " ",50,0.,M_PI,300,0,300);
+     h2_["hMET_Acop_notiso"] =fs->make<TH2D>("MET_Acop_notiso", " ",50,0.,M_PI,300,0,300);
 
-     h2_["hTMass_Pt"]   =fs->make<TH2D>("TMass_Pt","Rec. Transverse Mass (GeV) vs Pt (GeV)", 100,0,100,200,0,200);
 
-     h2_["hMET_Pt"]   =fs->make<TH2D>("MET_Pt","MET (GeV) vs  Pt (GeV)   ", 100,0,100,200,0,200);
+     h2_["hTMass_Pt"]   =fs->make<TH2D>("TMass_Pt","Rec. Transverse Mass (GeV) vs Pt (GeV)", 100,0,100,300,0,300);
+
+     h2_["hTMass_Sig"]   =fs->make<TH2D>("TMass_Sig","Rec. Transverse Mass (GeV) vs Met Significance", 200,0,20,300,0,300);
+
+     h2_["hMET_Pt"]   =fs->make<TH2D>("MET_Pt","MET (GeV) vs  Pt (GeV)   ", 100,0,100,300,0,300);
 
      h1_["hCutFlowSummary"]             = fs->make<TH1D>("CutFlowSummary", "Cut-flow Summary(number of events AFTER each cut)", 11, 0.5, 11.5);
      h1_["hCutFlowSummary"] ->GetXaxis()->SetBinLabel(1, "Total");
@@ -213,9 +218,9 @@ void WMuNuSelector::beginJob() {
      h1_["hCutFlowSummary"]->GetXaxis()->SetBinLabel(3, "HLT");
      h1_["hCutFlowSummary"]->GetXaxis()->SetBinLabel(4, "Z Rejection");
      h1_["hCutFlowSummary"]->GetXaxis()->SetBinLabel(5, "Jet Rejection.");
-     h1_["hCutFlowSummary"]->GetXaxis()->SetBinLabel(6, "Pt Cut");
+     h1_["hCutFlowSummary"]->GetXaxis()->SetBinLabel(6, "Muon ID Cuts");
      h1_["hCutFlowSummary"]->GetXaxis()->SetBinLabel(7, "Eta Cut");
-     h1_["hCutFlowSummary"]->GetXaxis()->SetBinLabel(8, "Muon ID Cuts");
+     h1_["hCutFlowSummary"]->GetXaxis()->SetBinLabel(8, "Pt Cut");
      h1_["hCutFlowSummary"]->GetXaxis()->SetBinLabel(9, "Acop Cut");
      h1_["hCutFlowSummary"]->GetXaxis()->SetBinLabel(10, "Isolation Cut");
      h1_["hCutFlowSummary"]->GetXaxis()->SetBinLabel(11, "MET/MT Cut");
@@ -240,8 +245,8 @@ void WMuNuSelector::endJob() {
       LogVerbatim("") << "Total number of events with WMuNuCandidates              : " << ncands << " [events]";
       LogVerbatim("") << "Total number of events triggered                         : " << ntrig << " [events]";
       LogVerbatim("") << "Total number of events pre-selected (jets/Z rejection)   : " << npresel << " [events]";
-      LogVerbatim("") << "Total number of events after kinematic cuts (pt,eta)     : " << nkin << " [events]";
       LogVerbatim("") << "Total number of events after Muon ID cuts                : " << nid << " [events]";
+      LogVerbatim("") << "Total number of events after kinematic cuts (pt,eta)     : " << nkin << " [events]";
       LogVerbatim("") << "Total number of events after Acop cut                    : " << nacop << " [events]";
       LogVerbatim("") << "Total number of events after iso cut                     : " << niso << " [events]";
       LogVerbatim("") << "Total number of events after MET/MT cut                  : " << nsel << " [events]";
@@ -249,8 +254,8 @@ void WMuNuSelector::endJob() {
       LogVerbatim("") << "Candidate Building:                         " << "(" << setprecision(4) << ecand*100. <<" +/- "<< setprecision(2) << sqrt(ecand*(1-ecand)/all)*100. << ")%";
       LogVerbatim("") << "Trigger Efficiency:                         " << "(" << setprecision(4) << etrig*100. <<" +/- "<< setprecision(2) << sqrt(etrig*(1-etrig)/all)*100. << ")%";
       LogVerbatim("") << "Pre-Selection Efficiency:                   " << "(" << setprecision(4) << epresel*100. <<" +/- "<< setprecision(2) << sqrt(epresel*(1-epresel)/all)*100. << ")%";
-      LogVerbatim("") << "Pt, Eta Selection Efficiency:               " << "(" << setprecision(4) << ekin*100. <<" +/- "<< setprecision(2) << sqrt(ekin*(1-ekin)/all)*100. << ")%";
       LogVerbatim("") << "MuonID Efficiency:                          " << "(" << setprecision(4) << eid*100. <<" +/- "<< setprecision(2) << sqrt(eid*(1-eid)/all)*100. << ")%";
+      LogVerbatim("") << "Pt, Eta Selection Efficiency:               " << "(" << setprecision(4) << ekin*100. <<" +/- "<< setprecision(2) << sqrt(ekin*(1-ekin)/all)*100. << ")%";
       LogVerbatim("") << "Acop Efficiency:                            " << "(" << setprecision(4) << eacop*100. <<" +/- "<< setprecision(2) << sqrt(eacop*(1-eacop)/all)*100. << ")%";
       LogVerbatim("") << "Iso Efficiency:                             " << "(" << setprecision(4) << eiso*100. <<" +/- "<< setprecision(2) << sqrt(eiso*(1-eiso)/all)*100. << ")%";
       LogVerbatim("") << "Final Selection Efficiency (after MET/MT):  " << "(" << setprecision(4) << esel*100. <<" +/- "<< setprecision(2) << sqrt(esel*(1-esel)/nall)*100. << ")%";
@@ -372,6 +377,15 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
       const reco::Muon & mu = WMuNu.getMuon();
       const reco::MET  & met =WMuNu.getNeutrino();
 
+
+      // Select Ws by charge:
+
+      if (selectByCharge_*WMuNu.charge()!=-1){ ncharge++;}
+      else{return 0;}
+
+
+
+
       // Preselection cuts:
 
       if (!trigger_fired) {LogTrace("")<<"Event did not fire the Trigger"; return 0;}
@@ -391,74 +405,65 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
              h1_["hNWCandPreSel"]->Fill(WMuNuCollection->size());
       }
 
-      // Select Ws by charge:
-
-
-      if (selectByCharge_*WMuNu.charge()!=-1){ ncharge++;}
-      else{return 0;}
-
-
-
       // W->mu nu selection criteria
 
             if (!mu.isGlobalMuon()) return 0; 
 
             reco::TrackRef gm = mu.globalTrack();
-            reco::TrackRef tk = mu.innerTrack();
+
+            // Quality cuts
+            double dxy = gm->dxy(beamSpotHandle->position());
+            double normalizedChi2 = gm->normalizedChi2();
+            int trackerHits = gm->hitPattern().numberOfValidTrackerHits();
+            int pixelHits = gm->hitPattern().numberOfValidPixelHits();
+            int muonHits = gm->hitPattern().numberOfValidMuonHits();
+            int nMatches = mu.numberOfMatches();
+
+
+            bool quality = (dxy>dxyCut_)*(normalizedChi2>normalizedChi2Cut_)*(trackerHits<trackerHitsCut_)*(pixelHits<pixelHitsCut_)*(muonHits<muonHitsCut_)*(!mu.isTrackerMuon())*(nMatches<nMatchesCut_);
+
+                 if(plotHistograms_){ h1_["hMuonIDCuts"]->Fill(quality);}
+
+            LogTrace("") << "\t... dxy, normalizedChi2, muonhits, trackerHits, pixelHits, isTrackerMuon?, nMatches: " << dxy << " [cm], " << normalizedChi2 << ", " <<muonHits<<" , "<< trackerHits <<" , "<< pixelHits <<  ", " << mu.isTrackerMuon()<<", "<<nMatches;
+            LogTrace("") << "\t... muon passes the quality cuts? "<<quality<<endl;
+
+                  if(plotHistograms_){ h1_["hd0"]->Fill(dxy);}
+            if (fabs(dxy)>dxyCut_) return 0;
+            //               if(plotHistograms_){ h1_["hNormChi2"]->Fill(normalizedChi2);}
+            if (normalizedChi2>normalizedChi2Cut_) return 0;
+            //               if(plotHistograms_){ h1_["hNHits"]->Fill(trackerHits);}
+            if (trackerHits<trackerHitsCut_) return 0;
+            //               if(plotHistograms_){ h1_["hNMuonHits"]->Fill(muonHits);}
+            if (pixelHits<pixelHitsCut_) return 0;
+            //               if(plotHistograms_){ h1_["hNPixelHits"]->Fill(pixelHits);}
+            if (muonHits<muonHitsCut_) return 0;
+            //               if(plotHistograms_){ h1_["hTracker"]->Fill(mu.isTrackerMuon());}
+            if (!mu.isTrackerMuon()) return 0;
+            //               if(plotHistograms_){ h1_["hNMatches"]->Fill(nMatches);}
+            if (nMatches<nMatchesCut_) return 0;
+
+            nid++;
+
+                   if(plotHistograms_)    h1_["hCutFlowSummary"]->Fill(6.);
 
 
             // Pt,eta cuts
             double pt = mu.pt();
             double eta = mu.eta();
             LogTrace("") << "\t... Muon pt, eta: " << pt << " [GeV], " << eta;
+
+                    if(plotHistograms_){ h2_["hEta_Pt"]->Fill(pt,eta);        
+                              if (pt>=20.) h1_["hEtaMu"]->Fill(eta);
+                        }
+//                   if(plotHistograms_){ h1_["hEtaMu"]->Fill(eta); h2_["hEta_Pt"]->Fill(pt,eta);}
+            if (fabs(eta)>etaCut_) return 0;
+                   if(plotHistograms_) h1_["hCutFlowSummary"]->Fill(7.);
+            neta++;
+
                   if(plotHistograms_){ h1_["hPtMu"]->Fill(pt);}
             if (pt<ptCut_) return 0;
-                   if(plotHistograms_){ h1_["hEtaMu"]->Fill(eta); h2_["hEta_Pt"]->Fill(pt,eta);}
-
-            nPt++;
-                   if(plotHistograms_) h1_["hCutFlowSummary"]->Fill(6.);
-
- 
-            if (fabs(eta)>etaCut_) return 0;
-
             nkin++;
-                   if(plotHistograms_) h1_["hCutFlowSummary"]->Fill(7.);
-
-            // Quality cuts
-            double dxy = gm->dxy(beamSpotHandle->position());
-            double normalizedChi2 = gm->normalizedChi2(); 
-            int trackerHits = tk->hitPattern().numberOfValidTrackerHits();
-            int pixelHits = tk->hitPattern().numberOfValidPixelHits();
-            int muonHits = gm->hitPattern().numberOfValidMuonHits();
-            int nMatches = mu.numberOfMatches(); 
-       
-
-            bool quality = 1; 
-
-            LogTrace("") << "\t... dxy, normalizedChi2, muonhits, trackerHits, pixelHits, isTrackerMuon?, nMatches: " << dxy << " [cm], " << normalizedChi2 << ", " <<muonHits<<" , "<< trackerHits <<" , "<< pixelHits <<  ", " << mu.isTrackerMuon()<<", "<<nMatches;
-            LogTrace("") << "\t... muon passes the quality cuts? "<<quality<<endl;
-
-                  if(plotHistograms_){ h1_["hd0"]->Fill(dxy);}
-            if (fabs(dxy)>dxyCut_) {return 0; quality=0;}
-            //               if(plotHistograms_){ h1_["hNormChi2"]->Fill(normalizedChi2);}
-            if (normalizedChi2>normalizedChi2Cut_) {return 0;quality=0;}
-            //               if(plotHistograms_){ h1_["hNHits"]->Fill(trackerHits);}
-            if (trackerHits<trackerHitsCut_) {return 0;quality=0;}
-            //               if(plotHistograms_){ h1_["hNMuonHits"]->Fill(muonHits);}
-            if (pixelHits<pixelHitsCut_) {return 0;quality=0;}
-            //               if(plotHistograms_){ h1_["hNPixelHits"]->Fill(pixelHits);}
-            if (muonHits<muonHitsCut_) {return 0;quality=0;}
-            //               if(plotHistograms_){ h1_["hTracker"]->Fill(mu.isTrackerMuon());}
-            if (!mu.isTrackerMuon()) {return 0;quality=0;}
-            //               if(plotHistograms_){ h1_["hNMatches"]->Fill(nMatches);}
-            if (nMatches<nMatchesCut_) {return 0;quality=0;}
-
-                 if(plotHistograms_){ h1_["hMuonIDCuts"]->Fill(quality);}
-
-
-            nid++;
-
-                   if(plotHistograms_)    h1_["hCutFlowSummary"]->Fill(8.);
+                   if(plotHistograms_) h1_["hCutFlowSummary"]->Fill(8.);
 
             // Acoplanarity cuts
             double acop = WMuNu.acop();
@@ -480,6 +485,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             LogTrace("") << "\t... isolation value" << isovar <<", isolated? " <<iso ;
 
             double met_et = met.pt();
+            double sig = met.mEtSig();     
             LogTrace("") << "\t... Met  pt: "<<WMuNu.getNeutrino().pt()<<"[GeV]";
 
 
@@ -489,20 +495,22 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             LogTrace("") << "\t... W mass, W_et, W_px, W_py: " << massT << ", " << w_et << ", " << WMuNu.px() << ", " << WMuNu.py() << " [GeV]";
 
 
+
+
+
             // Plot 2D Histograms before final cuts
-                  if(plotHistograms_ && acop<acopCut_){
+                 if(plotHistograms_){
+      	          if(acop<acopCut_){
                   h2_["hTMass_PtSum"]->Fill(SumPt,massT);
                   h2_["hTMass_PtSumNorm"]->Fill(SumPt/pt,massT);
                   h2_["hTMass_TotIsoNorm"]->Fill((SumPt+Cal)/pt,massT);
                   h2_["hMET_PtSum"]->Fill(SumPt,met_et);
                   h2_["hMET_PtSumNorm"]->Fill(SumPt/pt,met_et);
                   h2_["hMET_TotIsoNorm"]->Fill((SumPt+Cal)/pt,met_et);
-
-                  h2_["hPt_PtSumNorm"]->Fill(SumPt/pt,pt);
-                  h2_["hPt_TotIsoNorm"]->Fill((SumPt+Cal)/pt,pt);
                   }
+                  h1_["hAcop"]->Fill(acop);
+                }
 
-            if(plotHistograms_){ h1_["hAcop"]->Fill(acop);}
             if (acop>=acopCut_) return 0;
 
             nacop++;
@@ -511,18 +519,15 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
 
             if (!iso) return 0;
-
             niso++;
-                  if(plotHistograms_)  h1_["hCutFlowSummary"]->Fill(10.);
 
-
-            if(plotHistograms_){
+                  if(plotHistograms_){
+                  h1_["hCutFlowSummary"]->Fill(10.);
                   h1_["hMET"]->Fill(met_et);
                   h1_["hTMass"]->Fill(massT);
                   h2_["hTMass_Pt"]->Fill(pt,massT),
-                  h2_["hMET_Pt"]->Fill(pt,met_et);
-            }
-
+                  h2_["hTMass_Sig"]->Fill(sig,massT);
+                  }
 
             if (massT<=mtMin_ || massT>=mtMax_)  return 0;
             if (met_et<=metMin_ || met_et>=metMax_) return 0;

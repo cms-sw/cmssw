@@ -11,7 +11,7 @@ process.load("ElectroWeakAnalysis.WMuNu.wmunusValidation_cfi")
 
 process.source = cms.Source("PoolSource",
       fileNames = cms.untracked.vstring(
-        'file:/ciet3b/data4/Spring10_10invpb_AODRED/Wmunu_Wminus-powheg_1.root'
+        'file:/ciet3b/data3/GoldenWmunus/GoldenWmunus_ICHEP10.root'
       ),
       inputCommands = cms.untracked.vstring(
       'keep *', 'drop *_lumiProducer_*_*', 'drop *_MEtoEDMConverter_*_*', 'drop *_l1GtTriggerMenuLite_*_*' 
@@ -20,7 +20,7 @@ process.source = cms.Source("PoolSource",
 
 # Debug/info printouts
 process.MessageLogger = cms.Service("MessageLogger",
-      debugModules = cms.untracked.vstring('correlcorMet'),
+      debugModules = cms.untracked.vstring('selcorMet'),
       cout = cms.untracked.PSet(
              default = cms.untracked.PSet( limit = cms.untracked.int32(20) ),
              threshold = cms.untracked.string('ERROR')
@@ -31,6 +31,9 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.TFileService = cms.Service("TFileService", fileName = cms.string('WMuNu.root') )
 
+process.selcorMet.plotHistograms = cms.untracked.bool(True)
+process.selpfMet.plotHistograms = cms.untracked.bool(True)
+process.seltcMet.plotHistograms = cms.untracked.bool(True)
 
 # Steering the process
 process.path1 = cms.Path(process.wmnVal_corMet)
