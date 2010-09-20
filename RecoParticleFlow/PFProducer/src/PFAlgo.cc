@@ -2585,11 +2585,11 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
       // take the global fit instead under special circumstances
       bool useGlobalFit = false;
       
-      if(thisIsAnIsolatedMuon && !muonRef->isTrackerMuon()) useGlobalFit = true;
+      if(thisIsAnIsolatedMuon && (!muonRef->isTrackerMuon() || (muonRef->pt() > combinedMu->pt() && track.ptError() > 5.0*combinedMu->ptError()))) useGlobalFit = true;
       else if(!trackRef->quality(trackQualityHighPurity)) useGlobalFit = true;
       else if(muonRef->pt() > combinedMu->pt() &&
 	      track.hitPattern().numberOfValidTrackerHits() < 8 &&
-	      track.ptError() > 5.0*  combinedMu->ptError()) useGlobalFit = true;
+	      track.ptError() > 5.0*combinedMu->ptError()) useGlobalFit = true;
 
       if(useGlobalFit){
 	px = combinedMu->px();
