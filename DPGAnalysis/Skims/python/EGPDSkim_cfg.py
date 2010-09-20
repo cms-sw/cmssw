@@ -13,14 +13,14 @@ process.configurationMetadata = cms.untracked.PSet(
 # This is for testing purposes.
 #
 #
+##run143960
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring(
-    ###CHANGE TO EGAMMA 
+                           fileNames = cms.untracked.vstring(
     '/store/data/Run2010A/EG/RECO/v4/000/143/960/84DEE17A-44B1-DF11-B844-001D09F29849.root'
-    ),
-                            secondaryFileNames = cms.untracked.vstring(
-    #'/store/data/Run2010A/MinimumBias/RAW/v1/000/136/066/38D48BED-3C66-DF11-88A5-001D09F27003.root')
-    ))
+   ),
+                           secondaryFileNames = cms.untracked.vstring(
+'/store/data/Run2010A/EG/RAW/v1/000/143/960/C40C9318-0FB1-DF11-A974-0030487CBD0A.root')
+   )
 
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
 
