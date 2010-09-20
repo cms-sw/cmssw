@@ -15,6 +15,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <iomanip>
+#include <fstream>
 
 static const std::string kTableView = "L1TriggerTableView";
 static const std::string kColumns = "columns";
@@ -27,10 +28,10 @@ FWL1TriggerTableView::FWL1TriggerTableView( TEveWindowSlot* parent, FWL1TriggerT
      m_tableWidget( 0 ),
      m_currentColumn( -1 )
 {
-	m_columns.push_back( Column( "Algorithm Name" ));
-	m_columns.push_back( Column( "Result" ) );
-	m_columns.push_back( Column( "Bit Number" ) );
-	m_columns.push_back( Column( "Prescale" ) );
+   m_columns.push_back( Column( "Algorithm Name" ));
+   m_columns.push_back( Column( "Result" ) );
+   m_columns.push_back( Column( "Bit Number" ) );
+   m_columns.push_back( Column( "Prescale" ) );
    m_eveWindow = parent->MakeFrame( 0 );
    TGCompositeFrame *frame = m_eveWindow->GetGUICompositeFrame();
 
@@ -41,7 +42,7 @@ FWL1TriggerTableView::FWL1TriggerTableView( TEveWindowSlot* parent, FWL1TriggerT
    resetColors( m_manager->colorManager() );
    m_tableWidget->SetHeaderBackgroundColor( gVirtualX->GetPixel( kWhite ));
    m_tableWidget->Connect( "columnClicked(Int_t,Int_t,Int_t)", "FWL1TriggerTableView",
-								  this, "columnSelected(Int_t,Int_t,Int_t)");
+			   this, "columnSelected(Int_t,Int_t,Int_t)");
    m_vert->AddFrame( m_tableWidget, new TGLayoutHints( kLHintsExpandX | kLHintsExpandY ));
    dataChanged();
    frame->MapSubwindows();
@@ -63,7 +64,7 @@ FWL1TriggerTableView::~FWL1TriggerTableView( void )
 void
 FWL1TriggerTableView::setBackgroundColor( Color_t iColor )
 {
-	m_tableWidget->SetBackgroundColor( gVirtualX->GetPixel( iColor ));
+   m_tableWidget->SetBackgroundColor( gVirtualX->GetPixel( iColor ));
 }
 
 void FWL1TriggerTableView::resetColors( const FWColorManager &manager )
@@ -87,30 +88,37 @@ FWL1TriggerTableView::typeName( void ) const
 void
 FWL1TriggerTableView::addTo( FWConfiguration& iTo ) const
 {
-	// are we the first FWL1TriggerTableView to go into the configuration?  If
-	// we are, then we are responsible for writing out the list of
-	// types (which we do by letting FWL1TriggerTableViewManager::addToImpl
-	// write into our configuration)
-	if( this == m_manager->m_views.front().get())
-		m_manager->addToImpl( iTo );
+   // are we the first FWL1TriggerTableView to go into the configuration?  If
+   // we are, then we are responsible for writing out the list of
+   // types (which we do by letting FWL1TriggerTableViewManager::addToImpl
+   // write into our configuration)
+   if( this == m_manager->m_views.front().get())
+      m_manager->addToImpl( iTo );
 	
-	// then there is the stuff we have to do anyway: remember which is
-	// a sorted column
-	FWConfiguration main( 1 );
-	FWConfiguration sortColumn( m_tableWidget->sortedColumn());
-	main.addKeyValue( kSortColumn, sortColumn );
-	FWConfiguration descendingSort( m_tableWidget->descendingSort());
-	main.addKeyValue( kDescendingSort, descendingSort );
-	iTo.addKeyValue( kTableView, main );
+   // then there is the stuff we have to do anyway: remember which is
+   // a sorted column
+   FWConfiguration main( 1 );
+   FWConfiguration sortColumn( m_tableWidget->sortedColumn());
+   main.addKeyValue( kSortColumn, sortColumn );
+   FWConfiguration descendingSort( m_tableWidget->descendingSort());
+   main.addKeyValue( kDescendingSort, descendingSort );
+   iTo.addKeyValue( kTableView, main );
 	
-	// take care of parameters
-	FWConfigurableParameterizable::addTo( iTo );
+   // take care of parameters
+   FWConfigurableParameterizable::addTo( iTo );
 }
 
 void
 FWL1TriggerTableView::saveImageTo( const std::string& iName ) const
 {
-	fwLog( fwlog::kWarning ) << "FWL1TriggerTableView::saveImageTo is not implemented." << std::endl;
+   std::string fileName = iName + ".txt";
+   std::ofstream triggers( fileName.c_str() );
+
+   triggers << m_columns[2].title << " " << m_columns[0].title << "\n";
+   for( unsigned int i = 0, vend = m_columns[0].values.size(); i != vend; ++i )
+      if( m_columns[1].values[i] == "1" )
+         triggers << m_columns[2].values[i] << "\t" << m_columns[0].values[i] << "\n";
+   triggers.close();
 }
 
 void FWL1TriggerTableView::dataChanged( void )
@@ -124,73 +132,73 @@ void FWL1TriggerTableView::dataChanged( void )
       edm::EventBase *base = const_cast<edm::EventBase*>(m_manager->items().front()->getEvent());
       if (fwlite::Event* event = dynamic_cast<fwlite::Event*>(base))
       {
-			fwlite::Handle<L1GtTriggerMenuLite> triggerMenuLite;
-			fwlite::Handle<L1GlobalTriggerReadoutRecord> triggerRecord;
+	 fwlite::Handle<L1GtTriggerMenuLite> triggerMenuLite;
+	 fwlite::Handle<L1GlobalTriggerReadoutRecord> triggerRecord;
 
-			try
-			{
-				// FIXME: Replace magic strings with configurable ones
-				triggerMenuLite.getByLabel( event->getRun(), "l1GtTriggerMenuLite", "", "" );
-				triggerRecord.getByLabel( *event, "gtDigis", "", "" );
-			}
-			catch( cms::Exception& )
-			{
-				fwLog( fwlog::kWarning ) << "FWL1TriggerTableView: no L1Trigger menu is available." << std::endl;
-				m_tableManager->dataChanged();
-				return;
-			}
+	 try
+	 {
+	    // FIXME: Replace magic strings with configurable ones
+	    triggerMenuLite.getByLabel( event->getRun(), "l1GtTriggerMenuLite", "", "" );
+	    triggerRecord.getByLabel( *event, "gtDigis", "", "" );
+	 }
+	 catch( cms::Exception& )
+	 {
+	    fwLog( fwlog::kWarning ) << "FWL1TriggerTableView: no L1Trigger menu is available." << std::endl;
+	    m_tableManager->dataChanged();
+	    return;
+	 }
 	  
-			if( triggerMenuLite.isValid() && triggerRecord.isValid() )
-			{
-				const L1GtTriggerMenuLite::L1TriggerMap& algorithmMap = triggerMenuLite->gtAlgorithmMap();
+	 if( triggerMenuLite.isValid() && triggerRecord.isValid() )
+	 {
+	    const L1GtTriggerMenuLite::L1TriggerMap& algorithmMap = triggerMenuLite->gtAlgorithmMap();
 				
-				int pfIndexTechTrig = -1;
-				int pfIndexAlgoTrig = -1;
+	    int pfIndexTechTrig = -1;
+	    int pfIndexAlgoTrig = -1;
 
-				/// prescale factors
-				std::vector<std::vector<int> > prescaleFactorsAlgoTrig = triggerMenuLite->gtPrescaleFactorsAlgoTrig();
-				std::vector<std::vector<int> > prescaleFactorsTechTrig = triggerMenuLite->gtPrescaleFactorsTechTrig();
-				pfIndexAlgoTrig = ( triggerRecord->gtFdlWord()).gtPrescaleFactorIndexAlgo();
-				pfIndexTechTrig = ( triggerRecord->gtFdlWord()).gtPrescaleFactorIndexTech();
+	    /// prescale factors
+	    std::vector<std::vector<int> > prescaleFactorsAlgoTrig = triggerMenuLite->gtPrescaleFactorsAlgoTrig();
+	    std::vector<std::vector<int> > prescaleFactorsTechTrig = triggerMenuLite->gtPrescaleFactorsTechTrig();
+	    pfIndexAlgoTrig = ( triggerRecord->gtFdlWord()).gtPrescaleFactorIndexAlgo();
+	    pfIndexTechTrig = ( triggerRecord->gtFdlWord()).gtPrescaleFactorIndexTech();
 
-				const DecisionWord dWord = triggerRecord->decisionWord();
-				for( L1GtTriggerMenuLite::CItL1Trig itTrig = algorithmMap.begin(), itTrigEnd = algorithmMap.end();
-					 itTrig != itTrigEnd; ++itTrig )
-				{
-					const unsigned int bitNumber = itTrig->first;
-					const std::string& aName = itTrig->second;
-					int errorCode = 0;
-					const bool result = triggerMenuLite->gtTriggerResult( aName, dWord, errorCode );
+	    const DecisionWord dWord = triggerRecord->decisionWord();
+	    for( L1GtTriggerMenuLite::CItL1Trig itTrig = algorithmMap.begin(), itTrigEnd = algorithmMap.end();
+		 itTrig != itTrigEnd; ++itTrig )
+	    {
+	       const unsigned int bitNumber = itTrig->first;
+	       const std::string& aName = itTrig->second;
+	       int errorCode = 0;
+	       const bool result = triggerMenuLite->gtTriggerResult( aName, dWord, errorCode );
 
-					m_columns.at(0).values.push_back( aName );
-					m_columns.at(1).values.push_back( Form( "%d", result ));
-					m_columns.at(2).values.push_back( Form( "%d", bitNumber ));
-					m_columns.at(3).values.push_back( Form( "%d", prescaleFactorsAlgoTrig.at( pfIndexAlgoTrig ).at( bitNumber )));
-				}
-				const TechnicalTriggerWord ttWord = triggerRecord->technicalTriggerWord();
+	       m_columns.at(0).values.push_back( aName );
+	       m_columns.at(1).values.push_back( Form( "%d", result ));
+	       m_columns.at(2).values.push_back( Form( "%d", bitNumber ));
+	       m_columns.at(3).values.push_back( Form( "%d", prescaleFactorsAlgoTrig.at( pfIndexAlgoTrig ).at( bitNumber )));
+	    }
+	    const TechnicalTriggerWord ttWord = triggerRecord->technicalTriggerWord();
 				
-				int tBitNumber = 0;
-				int tBitResult = 0;
-				for( TechnicalTriggerWord::const_iterator tBitIt = ttWord.begin(), tBitEnd = ttWord.end(); 
-					 tBitIt != tBitEnd; ++tBitIt, ++tBitNumber )
-				{
-					if( *tBitIt )
-						tBitResult = 1;
-					else
-						tBitResult = 0;
+	    int tBitNumber = 0;
+	    int tBitResult = 0;
+	    for( TechnicalTriggerWord::const_iterator tBitIt = ttWord.begin(), tBitEnd = ttWord.end(); 
+		 tBitIt != tBitEnd; ++tBitIt, ++tBitNumber )
+	    {
+	       if( *tBitIt )
+		  tBitResult = 1;
+	       else
+		  tBitResult = 0;
 
-					m_columns.at(0).values.push_back( "TechTrigger" );
-					m_columns.at(1).values.push_back( Form( "%d", tBitResult ));
-					m_columns.at(2).values.push_back( Form( "%d", tBitNumber ));
-					m_columns.at(3).values.push_back( Form( "%d", prescaleFactorsTechTrig.at( pfIndexTechTrig ).at( tBitNumber )));
-				}
-			}
-         else
-         {
-				fwLog( fwlog::kWarning ) << "FWL1TriggerTableView: " <<
-				"L1GtTriggerMenuLite.isValid()=" << triggerMenuLite.isValid() << ", " <<
-				"L1GlobalTriggerReadoutRecord.isValid()=" << triggerRecord.isValid() << "." << std::endl;
-         }
+	       m_columns.at(0).values.push_back( "TechTrigger" );
+	       m_columns.at(1).values.push_back( Form( "%d", tBitResult ));
+	       m_columns.at(2).values.push_back( Form( "%d", tBitNumber ));
+	       m_columns.at(3).values.push_back( Form( "%d", prescaleFactorsTechTrig.at( pfIndexTechTrig ).at( tBitNumber )));
+	    }
+	 }
+	 else
+	 {
+	    fwLog( fwlog::kWarning ) << "FWL1TriggerTableView: " <<
+	       "L1GtTriggerMenuLite.isValid()=" << triggerMenuLite.isValid() << ", " <<
+	       "L1GlobalTriggerReadoutRecord.isValid()=" << triggerRecord.isValid() << "." << std::endl;
+	 }
       }
    }
    
@@ -223,31 +231,31 @@ FWL1TriggerTableView::staticTypeName( void )
 void
 FWL1TriggerTableView::setFrom( const FWConfiguration& iFrom )
 {
-	if( this == m_manager->m_views.front().get())
-		m_manager->setFrom( iFrom );
+   if( this == m_manager->m_views.front().get())
+      m_manager->setFrom( iFrom );
 			
-	const FWConfiguration *main = iFrom.valueForKey( kTableView );
-	if( main != 0 )
-	{
-		const FWConfiguration *sortColumn = main->valueForKey( kSortColumn );
-		const FWConfiguration *descendingSort = main->valueForKey( kDescendingSort );
-		if( sortColumn != 0 && descendingSort != 0 ) 
-		{
-			unsigned int sort = sortColumn->version();
-			bool descending = descendingSort->version();
-			if( sort < (( unsigned int ) m_tableManager->numberOfColumns()))
-				m_tableWidget->sort( sort, descending );
-		}
-	} 
-	else
-	{
-		// configuration doesn't contain info for the table.  Be forgiving.
-		fwLog( fwlog::kError ) 
-			<< "This configuration file contains L1 trigger tables, but no column information.  "
-			<< "(It is probably old.)  Using defaults." << std::endl;
-	}
+   const FWConfiguration *main = iFrom.valueForKey( kTableView );
+   if( main != 0 )
+   {
+      const FWConfiguration *sortColumn = main->valueForKey( kSortColumn );
+      const FWConfiguration *descendingSort = main->valueForKey( kDescendingSort );
+      if( sortColumn != 0 && descendingSort != 0 ) 
+      {
+	 unsigned int sort = sortColumn->version();
+	 bool descending = descendingSort->version();
+	 if( sort < (( unsigned int ) m_tableManager->numberOfColumns()))
+	    m_tableWidget->sort( sort, descending );
+      }
+   } 
+   else
+   {
+      // configuration doesn't contain info for the table.  Be forgiving.
+      fwLog( fwlog::kError ) 
+	<< "This configuration file contains L1 trigger tables, but no column information.  "
+	<< "(It is probably old.)  Using defaults." << std::endl;
+   }
 		
-	// take care of parameters
-	FWConfigurableParameterizable::setFrom( iFrom );
+   // take care of parameters
+   FWConfigurableParameterizable::setFrom( iFrom );
 }
 

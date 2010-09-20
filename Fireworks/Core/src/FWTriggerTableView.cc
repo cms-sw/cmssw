@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     FWTriggerTableView
-// $Id: FWTriggerTableView.cc,v 1.10 2010/06/17 16:31:24 amraktad Exp $
+// $Id: FWTriggerTableView.cc,v 1.11 2010/07/21 17:03:26 matevz Exp $
 //
 
 // system include files
@@ -25,6 +25,7 @@
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include <fstream>
 
 //
 // constants, enums and typedefs
@@ -110,28 +111,37 @@ FWTriggerTableView::typeName() const
 void
 FWTriggerTableView::addTo( FWConfiguration& iTo ) const
 {
-	// are we the first FWTriggerTableView to go into the configuration?  If
-	// we are, then we are responsible for writing out the list of
-	// types (which we do by letting FWTriggerTableViewManager::addToImpl
-	// write into our configuration)
-	if( this == m_manager->m_views.front().get())
-		m_manager->addToImpl( iTo );
+   // are we the first FWTriggerTableView to go into the configuration?  If
+   // we are, then we are responsible for writing out the list of
+   // types (which we do by letting FWTriggerTableViewManager::addToImpl
+   // write into our configuration)
+   if( this == m_manager->m_views.front().get())
+      m_manager->addToImpl( iTo );
 	
-	// then there is the stuff we have to do anyway: remember which is
-	// a sorted column
-	FWConfiguration main( 1 );
-	FWConfiguration sortColumn( m_tableWidget->sortedColumn());
-	main.addKeyValue( kSortColumn, sortColumn );
-	FWConfiguration descendingSort( m_tableWidget->descendingSort());
-	main.addKeyValue( kDescendingSort, descendingSort );
-	iTo.addKeyValue( kTableView, main );
+   // then there is the stuff we have to do anyway: remember which is
+   // a sorted column
+   FWConfiguration main( 1 );
+   FWConfiguration sortColumn( m_tableWidget->sortedColumn());
+   main.addKeyValue( kSortColumn, sortColumn );
+   FWConfiguration descendingSort( m_tableWidget->descendingSort());
+   main.addKeyValue( kDescendingSort, descendingSort );
+   iTo.addKeyValue( kTableView, main );
 	
-	// take care of parameters
-	FWConfigurableParameterizable::addTo( iTo );
+   // take care of parameters
+   FWConfigurableParameterizable::addTo( iTo );
 }
 
 void
-FWTriggerTableView::saveImageTo(const std::string& iName) const {
+FWTriggerTableView::saveImageTo( const std::string& iName ) const
+{
+   std::string fileName = iName + ".txt";
+   std::ofstream triggers( fileName.c_str() );
+
+   triggers << m_columns[2].title << " " << m_columns[0].title << "\n";
+   for( unsigned int i = 0, vend = m_columns[0].values.size(); i != vend; ++i )
+      if( m_columns[1].values[i] == "1" )
+         triggers << m_columns[2].values[i] << "\t" << m_columns[0].values[i] << "\n";
+   triggers.close();
 }
 
 
@@ -215,7 +225,7 @@ FWTriggerTableView::fillAverageAcceptFractions()
 void 
 FWTriggerTableView::updateFilter( void )
 {
-	dataChanged();
+   dataChanged();
 }
 
 //
@@ -231,31 +241,31 @@ FWTriggerTableView::staticTypeName( void )
 void
 FWTriggerTableView::setFrom( const FWConfiguration& iFrom )
 {
-	if( this == m_manager->m_views.front().get())
-		m_manager->setFrom( iFrom );
+   if( this == m_manager->m_views.front().get())
+      m_manager->setFrom( iFrom );
 
-	const FWConfiguration *main = iFrom.valueForKey( kTableView );
-	if( main != 0 )
-	{
-		const FWConfiguration *sortColumn = main->valueForKey( kSortColumn );
-		const FWConfiguration *descendingSort = main->valueForKey( kDescendingSort );
-		if( sortColumn != 0 && descendingSort != 0 ) 
-		{
-			unsigned int sort = sortColumn->version();
-			bool descending = descendingSort->version();
-			if( sort < (( unsigned int ) m_tableManager->numberOfColumns()))
-				m_tableWidget->sort( sort, descending );
-		}
-	} 
-	else
-	{
-		// configuration doesn't contain info for the table.  Be forgiving.
-		fwLog( fwlog::kError ) 
-		<< "This configuration file contains trigger tables, but no column information.  "
-		<< "(It is probably old.)  Using defaults." << std::endl;
-	}
+   const FWConfiguration *main = iFrom.valueForKey( kTableView );
+   if( main != 0 )
+   {
+      const FWConfiguration *sortColumn = main->valueForKey( kSortColumn );
+      const FWConfiguration *descendingSort = main->valueForKey( kDescendingSort );
+      if( sortColumn != 0 && descendingSort != 0 ) 
+      {
+	 unsigned int sort = sortColumn->version();
+	 bool descending = descendingSort->version();
+	 if( sort < (( unsigned int ) m_tableManager->numberOfColumns()))
+	    m_tableWidget->sort( sort, descending );
+      }
+   } 
+   else
+   {
+      // configuration doesn't contain info for the table.  Be forgiving.
+     fwLog( fwlog::kError ) 
+        << "This configuration file contains trigger tables, but no column information.  "
+	<< "(It is probably old.)  Using defaults." << std::endl;
+   }
 	
-	// take care of parameters
-	FWConfigurableParameterizable::setFrom( iFrom );
+   // take care of parameters
+   FWConfigurableParameterizable::setFrom( iFrom );
 }
 
