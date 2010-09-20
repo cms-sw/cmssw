@@ -85,6 +85,10 @@ process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi")
 process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi")
 process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_zdc_cfi")
 
+# This line is necessary for releases > 3_9_0_pre4
+# Earlier CMSSW versions should comment out this line 
+process.hbhereco = process.hbheprereco.clone()
+
 # hcalMonitor configurable values -----------------------
 process.hcalMonitor.debug = 0
 #process.hcalMonitor.DigiOccThresh = -999999999 ##Temporary measure while DigiOcc is reworked.

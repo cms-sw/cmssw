@@ -196,6 +196,11 @@ process.load("RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_ho_cfi")
 process.load("RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_hf_cfi")
 process.load("RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_zdc_cfi")
 
+# This line is necessary for releases > 3_9_0_pre4
+# Earlier CMSSW versions should comment out this line
+process.hbhereco = process.hbheprereco.clone()
+
+
 # Timing correction to HF reconstruction
 process.hfreco.firstSample = 3
 process.hfreco.samplesToAdd = 4
