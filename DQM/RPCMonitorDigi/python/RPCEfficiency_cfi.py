@@ -22,7 +22,8 @@ rpcEfficiency = cms.EDAnalyzer("RPCEfficiency",
 
     EffSaveRootFile = cms.untracked.bool(False),
     EffRootFileName = cms.untracked.string('/tmp/carrillo/RPCEfficiencyFIRST.root'),
-    EffSaveRootFileEventsInterval = cms.untracked.int32(100)
+    EffSaveRootFileEventsInterval = cms.untracked.int32(100),
+    RecHitLabel = cms.InputTag("rpcRecHits")                           
 )
 
 rpcefficiency = cms.Sequence(rpcEfficiency)

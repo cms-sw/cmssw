@@ -2,8 +2,8 @@
  *
  * Class for RPC Monitoring using RPCDigi and DT and CSC Segments.
  *
- *  $Date: 2009/11/19 09:17:17 $
- *  $Revision: 1.13 $
+ *  $Date: 2010/01/13 11:25:57 $
+ *  $Revision: 1.2 $
  *
  * \author Camilo Carrillo (Uniandes)
  *
@@ -118,7 +118,7 @@ class RPCEfficiency : public edm::EDAnalyzer {
       edm::ESHandle<CSCGeometry> cscGeo;
 
       MonitorElement * statistics;
-
+      edm::InputTag RPCRecHitLabel_;
       //Distance Strip
       MonitorElement * DistBorderClu1La1;
       MonitorElement * DistBorderClu1La2;

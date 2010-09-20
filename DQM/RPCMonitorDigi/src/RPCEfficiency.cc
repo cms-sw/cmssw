@@ -59,6 +59,7 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
   MaxD=iConfig.getUntrackedParameter<double>("MaxD",80.);
   MaxDrb4=iConfig.getUntrackedParameter<double>("MaxDrb4",150.);
   muonRPCDigis=iConfig.getUntrackedParameter<std::string>("muonRPCDigis","muonRPCDigis");
+  RPCRecHitLabel_ = iConfig.getParameter<edm::InputTag>("RecHitLabel");
   cscSegments=iConfig.getUntrackedParameter<std::string>("cscSegments","cscSegments");
   dt4DSegments=iConfig.getUntrackedParameter<std::string>("dt4DSegments","dt4DSegments");
 
@@ -272,16 +273,16 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 {
 
   statistics->Fill(1);
-  using namespace edm;
+  //using namespace edm;
   
   char meIdRPC [128];
   char meIdDT [128];
   char meIdCSC [128];
 
   if(debug) std::cout <<"\t Getting the RPC RecHits"<<std::endl;
-  Handle<RPCRecHitCollection> rpcHits;
-  
-  iEvent.getByType(rpcHits);
+  edm::Handle<RPCRecHitCollection> rpcHits;
+  iEvent.getByLabel(RPCRecHitLabel_,rpcHits);  
+
   
   if(rpcHits.isValid()){
   if(incldt){

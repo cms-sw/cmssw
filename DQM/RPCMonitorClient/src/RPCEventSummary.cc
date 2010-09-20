@@ -184,14 +184,14 @@ void RPCEventSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
 void RPCEventSummary::endRun(const Run& r, const EventSetup& c){
 
 
-  float  rpcevents = minimumEvents_;
+  float  rpcevents = 0;
    MonitorElement * RPCEvents = dbe_->get(globalFolder_ +"/RPCEvents");  
 
   if(RPCEvents) {
     rpcevents = RPCEvents -> getEntries();
    }
 
-
+  if(rpcevents < minimumEvents_) return;
 
    stringstream meName;
    MonitorElement * myMe;
@@ -203,8 +203,8 @@ void RPCEventSummary::endRun(const Run& r, const EventSetup& c){
    MonitorElement * globalMe;
    
    //BARREL
-   float barrelFactor = 1;
-   if(rpcevents >= minimumEvents_) {
+   float barrelFactor = 0;
+   
      for(int w = -2 ; w<3; w++){
      
        meName.str("");
@@ -247,74 +247,75 @@ void RPCEventSummary::endRun(const Run& r, const EventSetup& c){
 	 barrelFactor += wheelFactor;
        }//
      }//end loop on wheel
-   }
+  
+     barrelFactor = barrelFactor/5;
+  
 
-   float endcapFactor = 1;
-
-   if(doEndcapCertification_){
-     if(rpcevents >= minimumEvents_) {   
+     float endcapFactor = 0;
+     
+     if(doEndcapCertification_){
+       
        //Endcap
        for(int d = -numberDisk_ ; d<= numberDisk_; d++){
 	 if (d==0) continue;
 	 
 	 meName.str("");
-       meName<<globalFolder_<<"/RPCChamberQuality_Ring_vs_Segment_Disk"<<d;
-       myMe = dbe_->get(meName.str());
-       
-       if(myMe){      
-	 float diskFactor = 0;
+	 meName<<globalFolder_<<"/RPCChamberQuality_Ring_vs_Segment_Disk"<<d;
+	 myMe = dbe_->get(meName.str());
 	 
-	 float sectorFactor[6]= {0,0,0,0,0,0};
-	 
-	 for (int i = 0 ;i <6;i++){
-	   int firstSeg = (i *6 )+1;
-	   int lastSeg = firstSeg +6;
-	   int rollInSector = 0; 
-	   for(int seg = firstSeg; seg< lastSeg ; seg++){
-	     
-	     for(int y = 1;y<=myMe->getNbinsY(); y++){
-	       rollInSector++;
-	       if(myMe->getBinContent(seg,y) == PARTIALLY_DEAD) sectorFactor[i]+=0.8;
-	       else if(myMe->getBinContent(seg,y) == DEAD )sectorFactor[i]+=0;
-	       else sectorFactor[i]+=1;	
+	 if(myMe){      
+	   float diskFactor = 0;
+	   
+	   float sectorFactor[6]= {0,0,0,0,0,0};
+	   
+	   for (int i = 0 ;i <6;i++){
+	     int firstSeg = (i *6 )+1;
+	     int lastSeg = firstSeg +6;
+	     int rollInSector = 0; 
+	     for(int seg = firstSeg; seg< lastSeg ; seg++){
 	       
+	       for(int y = 1;y<=myMe->getNbinsY(); y++){
+		 rollInSector++;
+		 if(myMe->getBinContent(seg,y) == PARTIALLY_DEAD) sectorFactor[i]+=0.8;
+		 else if(myMe->getBinContent(seg,y) == DEAD )sectorFactor[i]+=0;
+		 else sectorFactor[i]+=1;	
+		 
+	       }
 	     }
+	     sectorFactor[i] = sectorFactor[i]/rollInSector;
+	   }//end loop on Sectors
+	   
+	   
+	   for (int sec = 0 ; sec<6; sec++){
+	     diskFactor += sectorFactor[sec];	
+	     if(reportMe)	{
+	       if (d<0) reportMe->setBinContent(d+5, sec , sectorFactor[sec]);
+	       else  reportMe->setBinContent(d+11, sec , sectorFactor[sec]);
+	     } 	 
 	   }
-	   sectorFactor[i] = sectorFactor[i]/rollInSector;
-	 }//end loop on Sectors
+	   
+	   diskFactor = diskFactor/6;
+	   
+	   meName.str("");
+	   meName<<eventInfoPath_ + "/reportSummaryContents/RPC_Disk"<<d; 
+	   globalMe=dbe_->get(meName.str());
+	   if(globalMe) globalMe->Fill(diskFactor);
+	   
+	   endcapFactor += diskFactor;
+	 }//end loop on disks
 	 
-	 
-	 for (int sec = 0 ; sec<6; sec++){
-	   diskFactor += sectorFactor[sec];	
-	   if(reportMe)	{
-	     if (d<0) reportMe->setBinContent(d+5, sec , sectorFactor[sec]);
-	     else  reportMe->setBinContent(d+11, sec , sectorFactor[sec]);
-	   } 	 
-	 }
-	 
-	 diskFactor = diskFactor/6;
-	 
-	 meName.str("");
-	 meName<<eventInfoPath_ + "/reportSummaryContents/RPC_Disk"<<d; 
-	 globalMe=dbe_->get(meName.str());
-	 if(globalMe) globalMe->Fill(diskFactor);
-	 
-	 endcapFactor += diskFactor;
-       }//end loop on disks
-       
-       
        }
        
        endcapFactor=endcapFactor/ (numberDisk_ * 2);
-     }
-   } 
-   
-   //Fill repor summary
-   float rpcFactor = barrelFactor;
-   if(doEndcapCertification_) rpcFactor += (endcapFactor/2);
-   
-   globalMe = dbe_->get(eventInfoPath_ +"/reportSummary"); 
-   if(globalMe) globalMe->Fill(rpcFactor);
-   
-   
+       
+     } 
+     
+     //Fill repor summary
+     float rpcFactor = barrelFactor;
+     if(doEndcapCertification_) rpcFactor += (endcapFactor/2);
+     
+     globalMe = dbe_->get(eventInfoPath_ +"/reportSummary"); 
+     if(globalMe) globalMe->Fill(rpcFactor);
+     
+     
 }
