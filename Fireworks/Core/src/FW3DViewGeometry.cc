@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 22:06:57 CET 2010
-// $Id: FW3DViewGeometry.cc,v 1.8 2010/09/07 15:46:46 yana Exp $
+// $Id: FW3DViewGeometry.cc,v 1.9 2010/09/15 11:48:42 amraktad Exp $
 //
 
 // system include files
@@ -49,6 +49,7 @@ FW3DViewGeometry::FW3DViewGeometry(const fireworks::Context& context):
    m_trackerEndcapElements(0)
 {  
 
+   SetElementName("3D Geometry");
 }
 
 // FW3DViewGeometry::FW3DViewGeometry(const FW3DViewGeometry& rhs)

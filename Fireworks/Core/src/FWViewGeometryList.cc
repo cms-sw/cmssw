@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel 
 //         Created:  Tue Sep 14 13:28:13 CEST 2010
-// $Id: FWViewGeometryList.cc,v 1.2 2010/09/16 17:31:53 amraktad Exp $
+// $Id: FWViewGeometryList.cc,v 1.3 2010/09/17 16:18:55 amraktad Exp $
 //
 
 #include <boost/bind.hpp>
@@ -33,10 +33,8 @@ FWViewGeometryList::FWViewGeometryList(const fireworks::Context& context):
       m_colorComp[i]->SetMainTransparency(m_context.colorManager()->geomTransparency(projected()));
       m_colorComp[i]->CSCApplyMainColorToAllChildren();
       m_colorComp[i]->CSCApplyMainTransparencyToMatchingChildren();
-      gEve->GetGlobalScene()->AddElement(m_colorComp[i]);
    }
-
-   context.colorManager()->geomColorsHaveChanged_.connect(boost::bind(&FWViewGeometryList::updateColors, this));
+   m_colorConnection = context.colorManager()->geomColorsHaveChanged_.connect(boost::bind(&FWViewGeometryList::updateColors, this));
    m_transpConnection =  context.colorManager()->geomTransparencyHaveChanged_.connect(boost::bind(&FWViewGeometryList::updateTransparency,this,  _1));
 }
 
@@ -64,6 +62,7 @@ FWViewGeometryList::addToCompound(TEveElement* el, FWGeomColorIndex colIdx ,  bo
 void
 FWViewGeometryList::updateColors()
 { 
+   //  printf("%p FWViewGeometryList::updateColors projected %d %s \n", this, projected(), GetElementName());
    for (int i = 0; i < kFWGeomColorSize; ++i)
    {
       m_colorComp[i]->SetMainColor(m_context.colorManager()->geomColor(FWGeomColorIndex(i)));
@@ -76,6 +75,7 @@ void
 FWViewGeometryList::updateTransparency(bool projectedType)
 {
    //  printf("%p transp [%d]\n", this, iTransp);
+
    if (projectedType == projected())
    { 
       for (int i = 0; i < kFWGeomColorSize; ++i)

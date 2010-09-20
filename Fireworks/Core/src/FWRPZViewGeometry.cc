@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 20:33:06 CET 2010
-// $Id: FWRPZViewGeometry.cc,v 1.12 2010/09/15 11:48:42 amraktad Exp $
+// $Id: FWRPZViewGeometry.cc,v 1.13 2010/09/17 16:18:55 amraktad Exp $
 //
 
 // system include files
@@ -49,8 +49,11 @@
 // constructors and destructor
 //
 FWRPZViewGeometry::FWRPZViewGeometry(const fireworks::Context& context):
-   FWViewGeometryList(context)
+   FWViewGeometryList(context),
+   m_rhoPhiGeo(0),
+   m_rhoZGeo(0)
 {
+   SetElementName("RPZGeomShared");
 }
 
 // FWRPZViewGeometry::FWRPZViewGeometry(const FWRPZViewGeometry& rhs)
