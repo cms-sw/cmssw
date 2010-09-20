@@ -2,6 +2,7 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
+#include "Fireworks/Core/interface/fwLog.h"
 #include "DataFormats/HcalRecHit/interface/HFRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "TEveCompound.h"
@@ -52,15 +53,18 @@ FWHFRecHitProxyBuilder::build( const FWEventItem* iItem, TEveElementList* produc
    
    for( it = collection->begin(); it != itEnd; ++it )
    {
-      const float* corners = geom->getCorners(( *it ).detid().rawId());
-      if( corners == 0 )
+      unsigned int rawid = ( *it ).detid().rawId();
+      if( ! geom->contains( rawid ))
       {
+	 fwLog( fwlog::kInfo ) << "FWHFRecHitProxyBuilder cannot get geometry for DetId: "
+			       << rawid << ". Ignored.\n";
 	 TEveCompound* compound = createCompound();
-	 setupAddElement( compound, product );
+ 	 setupAddElement( compound, product );
 
-	 continue;
+ 	 continue;
       }
       
+      const float* corners = geom->getCorners( rawid );
       fireworks::drawEnergyScaledBox3D( corners, ( *it ).energy() / m_maxEnergy, product, this, true );
    }
 }

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 16:41:27 CEST 2010
-// $Id: FWHFTowerProxyBuilder.cc,v 1.17 2010/08/23 15:26:22 yana Exp $
+// $Id: FWHFTowerProxyBuilder.cc,v 1.18 2010/09/07 15:46:45 yana Exp $
 //
 
 // system include files
@@ -129,8 +129,8 @@ FWHFTowerProxyBuilderBase::fillCaloData()
             const FWEventItem::ModelInfo& info = item()->modelInfo(index);
             if(info.displayProperties().isVisible())
             {
-               HcalDetId detId = (*it).detid().rawId();
-               int tower = fillTowerForDetId(detId, (*it).energy());
+               unsigned int rawid = (*it).detid().rawId();
+               int tower = fillTowerForDetId(rawid, (*it).energy());
                 
                if(info.isSelected())
                {
@@ -143,18 +143,20 @@ FWHFTowerProxyBuilderBase::fillCaloData()
 }
 
 int
-FWHFTowerProxyBuilderBase::fillTowerForDetId( HcalDetId& detId, float val )
+FWHFTowerProxyBuilderBase::fillTowerForDetId( unsigned int rawid, float val )
 {
    using namespace TMath;
    const static float upPhiLimit = Pi() -10*DegToRad() -1e-5;
 
    TEveCaloData::vCellId_t cellIds;
-   const float* corners = item()->getGeom()->getCorners( detId.rawId());
-   if( corners != 0 )
+   const FWGeometry *geom = item()->getGeom();
+   if( ! geom->contains( rawid ))
    {
-     fwLog( fwlog::kInfo ) << "FWHFTowerProxyBuilderBase cannot get geometry for DetId: "<< detId.rawId() << ". Ignored.\n";
-     return -1;
+      fwLog( fwlog::kInfo ) << "FWHFTowerProxyBuilderBase cannot get geometry for DetId: "<< rawid << ". Ignored.\n";
+      return -1;
    }
+     
+   const float* corners = geom->getCorners( rawid );
    
    std::vector<TEveVector> front( 4 );
    float eta[4], phi[4];
