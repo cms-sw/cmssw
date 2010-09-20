@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2010/08/30 13:14:09 $
- * $Revision: 1.51 $
+ * $Date: 2010/09/20 16:38:52 $
+ * $Revision: 1.52 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -942,7 +942,6 @@ void EESelectiveReadoutTask::anaDigi(const EEDataFrame& frame, const EESrFlagCol
       ++nRuPerDcc_[dccNum(id)];
       eeRuActive_[iZ0][iX0/scEdge][iY0/scEdge] = true;
     }
-
 
     EESrFlagCollection::const_iterator srf = srFlagColl.find(readOutUnitOf(id));
 
