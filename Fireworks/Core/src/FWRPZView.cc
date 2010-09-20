@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.20 2010/09/17 16:18:55 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.21 2010/09/20 14:42:46 amraktad Exp $
 //
 
 // system include files
@@ -112,7 +112,7 @@ FWRPZView::setContext(const fireworks::Context& ctx)
    if (!s_geometryList)
    {
       s_geometryList = new  FWRPZViewGeometry(ctx);
-      gEve->GetGlobalScene()->AddElement(s_geometryList);
+      s_geometryList->IncDenyDestroy();
    }
    m_projMgr->ImportElements(s_geometryList->getGeoElements(typeId()), geoScene());
 
