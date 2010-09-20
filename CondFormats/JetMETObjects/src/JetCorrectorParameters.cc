@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: JetCorrectorParameters.cc,v 1.8.2.1 2010/06/29 19:18:41 srappocc Exp $
+// $Id: JetCorrectorParameters.cc,v 1.10 2010/09/14 14:09:39 srappocc Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -56,6 +56,10 @@ JetCorrectorParameters::Definitions::Definitions(const std::string& fLine)
         mIsResponse = true;
       else if (ss == "Correction")
         mIsResponse = false;
+      else if (ss == "Resolution")
+	mIsResponse = false;
+      else if (ss.find("PAR")==0)
+	mIsResponse = false;
       else
         {
           std::stringstream sserr;
