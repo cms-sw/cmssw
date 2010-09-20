@@ -16,6 +16,7 @@ from RecoLocalCalo.Configuration.ecalLocalRecoSequence_cff import *
 #include "CalibCalorimetry/HcalPlugins/data/hardwired_conditions.cfi"
 #HCAL reconstruction
 from RecoLocalCalo.Configuration.hcalLocalReco_cff import *
+from RecoLocalCalo.Configuration.hcalGlobalReco_cff import *
 #
 # sequence CaloLocalReco and CaloGlobalReco
 #

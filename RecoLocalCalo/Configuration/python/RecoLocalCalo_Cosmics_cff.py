@@ -40,7 +40,7 @@ zdcreco.samplesToAdd = 8
 zdcreco.correctForTimeslew = True
 zdcreco.correctForPhaseContainment = True
 zdcreco.correctionPhaseNS = 10.
-caloglobalreco = cms.Sequence(hcalGlobalRecoSequence)
+#caloglobalreco = cms.Sequence(hcalGlobalRecoSequence)
 
 #
 # R.Ofierzynski (29.Oct.2009): add NZS sequence

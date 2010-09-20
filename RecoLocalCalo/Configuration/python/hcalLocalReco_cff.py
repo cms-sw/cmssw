@@ -8,5 +8,5 @@ from RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_hf_cfi import *
 from RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_zdc_cfi import *
 hcalLocalRecoSequence = cms.Sequence(hbheprereco+hfreco+horeco+zdcreco)
 
-from RecoLocalCalo.HcalRecProducers.HBHEIsolatedNoiseReflagger_cfi import *
-hcalGlobalRecoSequence = cms.Sequence(hbhereco)
+#from RecoLocalCalo.HcalRecProducers.HBHEIsolatedNoiseReflagger_cfi import *
+#hcalGlobalRecoSequence = cms.Sequence(hbhereco)

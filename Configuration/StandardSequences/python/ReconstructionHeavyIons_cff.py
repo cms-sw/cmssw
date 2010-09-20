@@ -25,8 +25,8 @@ from RecoHI.Configuration.Reconstruction_HI_cff import *
 #--------------------------------------------------------------------------
 
 caloReco = cms.Sequence(ecalLocalRecoSequence*hcalLocalRecoSequence)
-hbherereco = hbheprereco.clone()
-caloReco.replace(hbheprereco,hbherereco)
+hbhereco = hbheprereco.clone()
+hcalLocalRecoSequence.replace(hbheprereco,hbhereco)
 muonReco = cms.Sequence(trackerlocalreco+muonlocalreco+lumiProducer)
 localReco = cms.Sequence(offlineBeamSpot*muonReco*caloReco)
 
