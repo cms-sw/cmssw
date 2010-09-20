@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     09-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
-#     $Revision: 1.22 $ by $Author: parenti $
-#     $Date: 2009/11/26 11:45:23 $
+#     $Revision: 1.23 $ by $Author: parenti $
+#     $Date: 2010/01/21 17:49:25 $
 #
 #  Check output from jobs that have FETCH status
 #  
@@ -60,7 +60,7 @@ for ($i=0; $i<@JOBID; ++$i) {
       if (($line =~ m/Job finished/) eq 1)  { $finished = 1; }
       if (($line =~ m/connection timed out/) eq 1)  { $timeout = 1; }
       if ($line =~ m/This job used .+?(\d+) NCU seconds/ eq 1) {
-	$ncuFactor = 3;
+	$ncuFactor = 3; # this factor is most probably out-of-date...
 	$cputime = $1 / $ncuFactor;
 	# print "Set cpu to $cputime\n";
       }
@@ -72,9 +72,12 @@ for ($i=0; $i<@JOBID; ++$i) {
 
     }
     close STDFILE;
-
+    # gzip it afterwards:
+    print "gzip $stdOut\n";
+    system "gzip $stdOut";
+    
+    # GF: This file is not produced (anymore...)
     $eazeLog = "jobData/@JOBDIR[$i]/cmsRun.out";
-
     # open the input file
     open INFILE,"$eazeLog";
     # scan records in input file
