@@ -34,7 +34,7 @@ MillePedeAlignmentAlgorithm = cms.PSet(
 
         parameterSign = cms.untracked.int32(1), ## old pede versions (before May '07) need a sign flip
         pedeDump = cms.untracked.string('pede.dump'),
-        method = cms.string('sparseGMRES 6  0.8'), ## "inversion  6  0.8" 
+        method = cms.string('sparseMINRES 6  0.8'), ## "inversion  6  0.8" 
         options = cms.vstring('entries 50', # min. number of measurements (parameters with less will be skipped)
             # 'regularisation 1.0 0.01', # regularisation with default pre-sigma 0.01
             # "chisqcut  20.0  4.5", # simple chi^2 cut for outliers AND/OR ...
