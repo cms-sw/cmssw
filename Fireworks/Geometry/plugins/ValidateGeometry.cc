@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.25 2010/09/02 10:01:00 mccauley Exp $
+// $Id: ValidateGeometry.cc,v 1.26 2010/09/07 15:46:47 yana Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -96,6 +96,7 @@ private:
                              const char* detname);
         
   void compareTransform(const GlobalPoint& point, const TGeoMatrix* matrix);
+
   void compareShape(const GeomDet* det, const float* shape);
   
   double getDistance(const GlobalPoint& point1, const GlobalPoint& point2);
@@ -112,7 +113,7 @@ private:
   edm::ESHandle<CaloGeometry>    caloGeometry_;
   edm::ESHandle<TrackerGeometry> trackerGeometry_;
 
-  FWGeometry detIdToMatrix_;
+  FWGeometry fwGeometry_;
 
   TFile* outFile_;
 
@@ -146,7 +147,7 @@ ValidateGeometry::ValidateGeometry(const edm::ParameterSet& iConfig)
   : infileName_(iConfig.getUntrackedParameter<std::string>("infileName")),
     outfileName_(iConfig.getUntrackedParameter<std::string>("outfileName"))
 {
-  detIdToMatrix_.loadMap(infileName_.c_str());
+  fwGeometry_.loadMap(infileName_.c_str());
 
   outFile_ = new TFile(outfileName_.c_str(), "RECREATE");
 }
@@ -303,7 +304,7 @@ ValidateGeometry::validateRPCGeometry(const int regionNumber, const char* region
         const GeomDetUnit* det = rpcGeometry_->idToDetUnit(rpcDetId);
         GlobalPoint gp = det->surface().toGlobal(LocalPoint(0.0, 0.0, 0.0)); 
       
-        const TGeoMatrix* matrix = detIdToMatrix_.getMatrix(rpcDetId.rawId());
+        const TGeoMatrix* matrix = fwGeometry_.getMatrix(rpcDetId.rawId());
 
         if ( ! matrix )
         {
@@ -314,7 +315,7 @@ ValidateGeometry::validateRPCGeometry(const int regionNumber, const char* region
 
         compareTransform(gp, matrix);
 
-        const float* shape = detIdToMatrix_.getShapePars(rpcDetId.rawId());
+        const float* shape = fwGeometry_.getShapePars(rpcDetId.rawId());
 
         if ( ! shape )
         {
@@ -325,7 +326,7 @@ ValidateGeometry::validateRPCGeometry(const int regionNumber, const char* region
       
         compareShape(det, shape);
 
-        const float* parameters = detIdToMatrix_.getParameters(rpcDetId.rawId());
+        const float* parameters = fwGeometry_.getParameters(rpcDetId.rawId());
 
         if ( parameters == 0 )
         {
@@ -385,7 +386,7 @@ ValidateGeometry::validateDTChamberGeometry()
       DTChamberId chId = chamber->id();
       GlobalPoint gp = chamber->surface().toGlobal(LocalPoint(0.0, 0.0, 0.0)); 
      
-      const TGeoMatrix* matrix = detIdToMatrix_.getMatrix(chId.rawId());
+      const TGeoMatrix* matrix = fwGeometry_.getMatrix(chId.rawId());
  
       if ( ! matrix )   
       {     
@@ -396,7 +397,7 @@ ValidateGeometry::validateDTChamberGeometry()
 
       compareTransform(gp, matrix);
 
-      const float* shape = detIdToMatrix_.getShapePars(chId.rawId());
+      const float* shape = fwGeometry_.getShapePars(chId.rawId());
 
       if ( ! shape )
       {
@@ -433,7 +434,7 @@ ValidateGeometry::validateDTLayerGeometry()
       DTLayerId layerId = layer->id();
       GlobalPoint gp = layer->surface().toGlobal(LocalPoint(0.0, 0.0, 0.0)); 
      
-      const TGeoMatrix* matrix = detIdToMatrix_.getMatrix(layerId.rawId());
+      const TGeoMatrix* matrix = fwGeometry_.getMatrix(layerId.rawId());
  
       if ( ! matrix )   
       {     
@@ -444,7 +445,7 @@ ValidateGeometry::validateDTLayerGeometry()
 
       compareTransform(gp, matrix);
 
-      const float* shape = detIdToMatrix_.getShapePars(layerId.rawId());
+      const float* shape = fwGeometry_.getShapePars(layerId.rawId());
 
       if ( ! shape )
       {
@@ -456,7 +457,7 @@ ValidateGeometry::validateDTLayerGeometry()
       compareShape(layer, shape);
 
         
-      const float* parameters = detIdToMatrix_.getParameters(layerId.rawId());
+      const float* parameters = fwGeometry_.getParameters(layerId.rawId());
       
       if ( parameters == 0 )
       {
@@ -518,7 +519,7 @@ ValidateGeometry::validateCSChamberGeometry(const int endcap, const char* detnam
       DetId detId = chamber->geographicalId();
       GlobalPoint gp = chamber->surface().toGlobal(LocalPoint(0.0,0.0,0.0));
 
-      const TGeoMatrix* matrix = detIdToMatrix_.getMatrix(detId.rawId());
+      const TGeoMatrix* matrix = fwGeometry_.getMatrix(detId.rawId());
   
       if ( ! matrix ) 
       {     
@@ -529,7 +530,7 @@ ValidateGeometry::validateCSChamberGeometry(const int endcap, const char* detnam
 
       compareTransform(gp, matrix);
 
-      const float* shape = detIdToMatrix_.getShapePars(detId.rawId());
+      const float* shape = fwGeometry_.getShapePars(detId.rawId());
 
       if ( ! shape )
       {
@@ -545,12 +546,17 @@ ValidateGeometry::validateCSChamberGeometry(const int endcap, const char* detnam
   makeHistograms(detname);
 }
 
+//#include <fstream>
+//std::ofstream fout("test.txt");
+
 void 
 ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname)
 {
   clearData();
   std::vector<double> strip_positions;
   std::vector<double> wire_positions;
+
+  std::vector<double> wire_transforms;
 
   std::vector<CSCLayer*> layers = cscGeometry_->layers();
      
@@ -564,8 +570,8 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
     {
       DetId detId = layer->geographicalId();
       GlobalPoint gp = layer->surface().toGlobal(LocalPoint(0.0,0.0,0.0));
-
-      const TGeoMatrix* matrix = detIdToMatrix_.getMatrix(detId.rawId());
+      
+      const TGeoMatrix* matrix = fwGeometry_.getMatrix(detId.rawId());
   
       if ( ! matrix ) 
       {     
@@ -575,8 +581,8 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
       }
 
       compareTransform(gp, matrix);
-
-      const float* shape = detIdToMatrix_.getShapePars(detId.rawId());
+      
+      const float* shape = fwGeometry_.getShapePars(detId.rawId());
 
       if ( ! shape )
       {
@@ -601,7 +607,7 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
         continue;
       }
 
-      const float* parameters = detIdToMatrix_.getParameters(detId.rawId());
+      const float* parameters = fwGeometry_.getParameters(detId.rawId());
 
       if ( parameters == 0 )
       {
@@ -670,19 +676,17 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
         else // ME12, ME 13 
           alignmentPinToFirstWire = 2.85;
       }
-      
+
+      // Perhaps there is a wrong value in the xml file or the file is out-of-date?
       else if ( station == 4 && ring == 1 )
-        alignmentPinToFirstWire = 3.04;
+        alignmentPinToFirstWire = 3.04 + 1.; // This correction is needed for some reason. 
       
+
       else if ( station == 3 && ring == 1 )
         alignmentPinToFirstWire =  2.84;
       
       else  // ME21, ME22, ME32, ME42 
         alignmentPinToFirstWire = 2.87;
-     
-      
-      std::cout<<"ME"<< station <<" "<< ring <<":  "<< alignmentPinToFirstWire <<" "<< yAlignmentFrame <<std::endl;
-
 
       double yOfFirstWire = (yAlignmentFrame-length) + alignmentPinToFirstWire;
               
@@ -694,7 +698,23 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
         double yOfWire2 = yOfFirstWire*cosWireAngle + (nWireGroup-1)*wireSpacing;
         yOfWire2 /= cosWireAngle;
 
+        //fout<< station <<" "<< ring <<" "<< wireSpacing <<std::endl;
+
         wire_positions.push_back(yOfWire1-yOfWire2);
+
+        GlobalPoint globalPoint = layer->surface().toGlobal(LocalPoint(0.0,yOfWire1,0.0));
+        
+        float fwLocalPoint[3] = 
+        {
+          0.0, yOfWire2, 0.0
+        };
+
+        float fwGlobalPoint[3]; 
+
+        fwGeometry_.localToGlobal(detId.rawId(), fwLocalPoint, fwGlobalPoint);
+        
+        wire_transforms.push_back(globalPoint.y() - fwGlobalPoint[1]); 
+
       } 
     }
   }
@@ -702,7 +722,9 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
   std::string hn(detname);
   makeHistogram(hn+": xOfStrip", strip_positions);
 
-  makeHistogram(hn+": yOfWire", wire_positions);
+  makeHistogram(hn+": local yOfWire", wire_positions);
+
+  makeHistogram(hn+": global yOfWire", wire_transforms);
 
   makeHistograms(detname);
 }
@@ -725,7 +747,7 @@ ValidateGeometry::validateCaloGeometry(DetId::Detector detector,
   {
     unsigned int rawId = (*it).rawId();
 
-    const float* points = detIdToMatrix_.getCorners(rawId);
+    const float* points = fwGeometry_.getCorners(rawId);
 
     if ( points == 0 )
     { 
@@ -767,7 +789,7 @@ ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetContainer& d
     GlobalPoint gp = (trackerGeometry_->idToDet((*it)->geographicalId()))->surface().toGlobal(LocalPoint(0.0,0.0,0.0));
     unsigned int rawId = (*it)->geographicalId().rawId();
 
-    const TGeoMatrix* matrix = detIdToMatrix_.getMatrix(rawId);
+    const TGeoMatrix* matrix = fwGeometry_.getMatrix(rawId);
 
     if ( ! matrix )
     {
@@ -778,7 +800,7 @@ ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetContainer& d
 
     compareTransform(gp, matrix);
 
-    const float* shape = detIdToMatrix_.getShapePars(rawId);
+    const float* shape = fwGeometry_.getShapePars(rawId);
 
     if ( ! shape )
     {
@@ -807,7 +829,7 @@ ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetUnitContaine
     GlobalPoint gp = (trackerGeometry_->idToDet((*it)->geographicalId()))->surface().toGlobal(LocalPoint(0.0,0.0,0.0));
     unsigned int rawId = (*it)->geographicalId().rawId();
 
-    const TGeoMatrix* matrix = detIdToMatrix_.getMatrix(rawId);
+    const TGeoMatrix* matrix = fwGeometry_.getMatrix(rawId);
 
     if ( ! matrix )
     {
@@ -819,7 +841,7 @@ ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetUnitContaine
     compareTransform(gp, matrix);
 
 
-    const float* shape = detIdToMatrix_.getShapePars(rawId);
+    const float* shape = fwGeometry_.getShapePars(rawId);
 
     if ( ! shape )
     {
@@ -844,7 +866,7 @@ ValidateGeometry::validatePixelTopology(const TrackerGeometry::DetContainer& det
   {
     unsigned int rawId = (*it)->geographicalId().rawId();
 
-    const float* parameters = detIdToMatrix_.getParameters(rawId);
+    const float* parameters = fwGeometry_.getParameters(rawId);
 
     if ( parameters == 0 )
     {
@@ -880,7 +902,7 @@ ValidateGeometry::validateStripTopology(const TrackerGeometry::DetContainer& det
   {
     unsigned int rawId = (*it)->geographicalId().rawId();
     
-    const float* parameters = detIdToMatrix_.getParameters(rawId);
+    const float* parameters = fwGeometry_.getParameters(rawId);
 
     if ( parameters == 0 )
     {    
@@ -935,6 +957,7 @@ ValidateGeometry::validateStripTopology(const TrackerGeometry::DetContainer& det
     //  std::cout<<"Failed cast to StripGeomDetUnit for "<< detname <<" "<< rawId <<std::endl;
   }
 }
+
 
 void    
 ValidateGeometry::compareTransform(const GlobalPoint& gp,
