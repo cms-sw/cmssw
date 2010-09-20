@@ -196,6 +196,54 @@ ALCARECOTkAlMinBiasHLTDQM = hltMonBitSummary.clone(
 
 ALCARECOTkAlMinBiasDQM = cms.Sequence( ALCARECOTkAlMinBiasTrackingDQM + ALCARECOTkAlMinBiasTkAlDQM+ALCARECOTkAlMinBiasHLTDQM+ALCARECOTkAlMinBiasNOTHLTDQM)
 
+########################################################
+#############---  TkAlMinBiasHI ---#####################
+########################################################
+__selectionName = 'TkAlMinBiasHI'
+ALCARECOTkAlMinBiasHITrackingDQM = ALCARECOTkAlMinBiasTrackingDQM.clone(
+#names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName,
+    FolderName = "AlCaReco/"+__selectionName,
+    BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
+# margins and settings
+    TkSizeBin = 71,
+    TkSizeMin = -0.5,
+    TkSizeMax = 70.5,
+    TrackPtMax = 30
+)
+
+ALCARECOTkAlMinBiasHITkAlDQM = ALCARECOTkAlMinBiasTkAlDQM.clone(
+#names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName,
+    FolderName = "AlCaReco/"+__selectionName,
+# margins and settings
+    fillInvariantMass = False,
+    TrackPtMax = 30,
+    SumChargeBin = 101,
+    SumChargeMin = -50.5,
+    SumChargeMax = 50.5
+)
+
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBiasHI_cff import ALCARECOTkAlMinBiasHINOTHLT
+ALCARECOTkAlMinBiasHINOTHLTDQM = hltMonBitSummary.clone(
+    directory = "AlCaReco/"+__selectionName+"/HLTSummaryNOT",
+    histLabel = __selectionName,
+    HLTPaths = ["HLT_.*L1.*"],
+    eventSetupPathsKey =  ALCARECOTkAlMinBiasHINOTHLT.eventSetupPathsKey.value()
+)
+
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBiasHI_cff import ALCARECOTkAlMinBiasHIHLT
+ALCARECOTkAlMinBiasHIHLTDQM = hltMonBitSummary.clone(
+    directory = "AlCaReco/"+__selectionName+"/HLTSummary",
+    histLabel = __selectionName,
+    HLTPaths = [],
+    eventSetupPathsKey =  ALCARECOTkAlMinBiasHIHLT.eventSetupPathsKey.value()
+)
+
+ALCARECOTkAlMinBiasHIDQM = cms.Sequence( ALCARECOTkAlMinBiasHITrackingDQM + ALCARECOTkAlMinBiasHITkAlDQM+ALCARECOTkAlMinBiasHIHLTDQM+ALCARECOTkAlMinBiasHINOTHLTDQM)
+
 #############################################################
 #############---  TkAlMuonIsolated ---#######################
 #############################################################
