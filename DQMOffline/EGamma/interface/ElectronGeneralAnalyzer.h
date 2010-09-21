@@ -38,6 +38,7 @@ class ElectronGeneralAnalyzer : public ElectronDqmAnalyzerBase
     edm::InputTag gsftrackCollection_;
     edm::InputTag trackCollection_;
     edm::InputTag vertexCollection_;
+    edm::InputTag beamSpotTag_;
 
     // for trigger
     edm::InputTag triggerResults_;

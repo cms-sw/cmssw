@@ -46,6 +46,7 @@ ElectronMcFakeValidator::ElectronMcFakeValidator( const edm::ParameterSet & conf
   outputFile_ = conf.getParameter<std::string>("outputFile");
   electronCollection_ = conf.getParameter<edm::InputTag>("electronCollection");
   matchingObjectCollection_ = conf.getParameter<edm::InputTag>("matchingObjectCollection");
+  beamSpotTag_ = conf.getParameter<edm::InputTag>("beamSpot");
   readAOD_ = conf.getParameter<bool>("readAOD");
   maxPt_ = conf.getParameter<double>("MaxPt");
   maxAbsEta_ = conf.getParameter<double>("MaxAbsEta");
@@ -454,7 +455,7 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
 
   // get the beamspot from the Event:
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  iEvent.getByType(recoBeamSpotHandle);
+  iEvent.getByLabel(beamSpotTag_,recoBeamSpotHandle);
   const BeamSpot bs = *recoBeamSpotHandle;
 
   h1_recEleNum_->Fill((*gsfElectrons).size());

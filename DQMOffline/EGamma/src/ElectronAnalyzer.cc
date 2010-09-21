@@ -34,11 +34,12 @@ ElectronAnalyzer::ElectronAnalyzer( const edm::ParameterSet & conf )
  {
   // general, collections
   Selection_ = conf.getParameter<int>("Selection");
-  electronCollection_=conf.getParameter<edm::InputTag>("ElectronCollection");
+  electronCollection_ = conf.getParameter<edm::InputTag>("ElectronCollection");
   matchingObjectCollection_ = conf.getParameter<edm::InputTag>("MatchingObjectCollection");
-  trackCollection_=conf.getParameter<edm::InputTag>("TrackCollection");
-  vertexCollection_=conf.getParameter<edm::InputTag>("VertexCollection");
-  gsftrackCollection_=conf.getParameter<edm::InputTag>("GsfTrackCollection");
+  trackCollection_ = conf.getParameter<edm::InputTag>("TrackCollection");
+  vertexCollection_ = conf.getParameter<edm::InputTag>("VertexCollection");
+  gsftrackCollection_ = conf.getParameter<edm::InputTag>("GsfTrackCollection");
+  beamSpotTag_ = conf.getParameter<edm::InputTag>("BeamSpot");
   readAOD_ = conf.getParameter<bool>("ReadAOD");
 
   // matching
@@ -341,7 +342,7 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
   edm::Handle<reco::VertexCollection> vertices;
   iEvent.getByLabel(vertexCollection_,vertices);
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle ;
-  iEvent.getByType(recoBeamSpotHandle) ;
+  iEvent.getByLabel(beamSpotTag_,recoBeamSpotHandle) ;
   const BeamSpot bs = *recoBeamSpotHandle ;
 
   int ievt = iEvent.id().event();

@@ -19,6 +19,7 @@ dqmElectronTagProbeAnalysis = cms.EDAnalyzer("ElectronTagProbeAnalyzer",
     TrackCollection = cms.InputTag("generalTracks"),
     GsfTrackCollection = cms.InputTag("electronGsfTracks"),
     VertexCollection = cms.InputTag(""),
+    BeamSpot = cms.InputTag("offlineBeamSpot"),
     ReadAOD = cms.bool(False),
     
     #MatchingCondition = cms.string("Cone"),

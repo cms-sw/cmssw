@@ -36,6 +36,7 @@ ElectronGeneralAnalyzer::ElectronGeneralAnalyzer( const edm::ParameterSet & conf
   trackCollection_ = conf.getParameter<edm::InputTag>("TrackCollection");
   vertexCollection_ = conf.getParameter<edm::InputTag>("VertexCollection");
   gsftrackCollection_ = conf.getParameter<edm::InputTag>("GsfTrackCollection");
+  beamSpotTag_ = conf.getParameter<edm::InputTag>("BeamSpot");
   triggerResults_ = conf.getParameter<edm::InputTag>("TriggerResults");
 
 //  // for trigger
@@ -70,7 +71,7 @@ void ElectronGeneralAnalyzer::analyze( const edm::Event& iEvent, const edm::Even
   edm::Handle<reco::VertexCollection> vertices;
   iEvent.getByLabel(vertexCollection_,vertices);
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle ;
-  iEvent.getByType(recoBeamSpotHandle) ;
+  iEvent.getByLabel(beamSpotTag_,recoBeamSpotHandle) ;
   const BeamSpot bs = *recoBeamSpotHandle ;
 
   int ievt = iEvent.id().event();

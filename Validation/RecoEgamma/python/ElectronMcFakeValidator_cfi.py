@@ -22,6 +22,7 @@ electronMcFakeHistosCfg = cms.PSet(
 electronMcFakeValidator = cms.EDAnalyzer("ElectronMcFakeValidator",
   electronCollection = cms.InputTag("gsfElectrons"),
   matchingObjectCollection = cms.InputTag("iterativeCone5GenJets"),
+  beamSpot = cms.InputTag("offlineBeamSpot"),
   readAOD = cms.bool(False),
   outputFile = cms.string(""),
   MaxPt = cms.double(100.0),

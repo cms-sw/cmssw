@@ -40,6 +40,7 @@ class ElectronTagProbeAnalyzer : public ElectronDqmAnalyzerBase
     edm::InputTag gsftrackCollection_;
     edm::InputTag trackCollection_;
     edm::InputTag vertexCollection_;
+    edm::InputTag beamSpotTag_;
     bool readAOD_; //NEW
 
 //    // matching
