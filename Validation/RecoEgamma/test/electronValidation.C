@@ -422,7 +422,7 @@ int electronValidation()
       // catch n_ele_charge
       if (histo_name=="h_ele_charge")
        { n_ele_charge = histo_new->GetEntries() ; }
-     
+
       // draw histo_new
       TString newDrawOptions(err==1?"E1 P":"hist") ;
       gErrorIgnoreLevel = kWarning ;
@@ -464,10 +464,10 @@ int electronValidation()
         canvas->Update() ;
         st_ref = (TPaveStats*)histo_ref->FindObject("stats");
         st_ref->SetTextColor(kBlue) ;
-//        Double_t y1 = st_ref->GetY1NDC() ;
-//        Double_t y2 = st_ref->GetY2NDC() ;
-//        st_ref->SetY1NDC(2*y1-y2) ;
-//        st_ref->SetY2NDC(y1) ;
+        Double_t y1 = st_ref->GetY1NDC() ;
+        Double_t y2 = st_ref->GetY2NDC() ;
+        st_ref->SetY1NDC(2*y1-y2) ;
+        st_ref->SetY2NDC(y1) ;
        }
 
       // Redraws
