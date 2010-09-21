@@ -24,6 +24,9 @@ class testps: public CppUnit::TestFixture
   CPPUNIT_TEST(uintTest);
   CPPUNIT_TEST(doubleTest);
   CPPUNIT_TEST(stringTest);
+  CPPUNIT_TEST(eventIDTest);
+  CPPUNIT_TEST(eventRangeTest);
+  CPPUNIT_TEST(vEventRangeTest);
   CPPUNIT_TEST(doubleEqualityTest);
   CPPUNIT_TEST(negativeZeroTest);
   CPPUNIT_TEST(idTest);
@@ -46,6 +49,9 @@ public:
   void uintTest();
   void doubleTest();
   void stringTest();
+  void eventIDTest();
+  void eventRangeTest();
+  void vEventRangeTest();
   void doubleEqualityTest();
   void negativeZeroTest();
   void idTest();
@@ -71,18 +77,50 @@ void testps::emptyTest()
   CPPUNIT_ASSERT (p1 == p2);
 }
 
+namespace {
+  bool do_compare(const edm::EventRange& iLHS,
+                  const edm::EventRange& iRHS) {
+    return iLHS.startEventID() == iRHS.startEventID() &&
+    iLHS.endEventID() == iRHS.endEventID();
+  }
+  
+  template<class T>
+  bool do_compare(const T& iLHS, const T& iRHS){
+    return iLHS == iRHS;
+  }
+  
+  template<class T, class A>
+  bool do_compare(const std::vector<T,A>& iLHS,
+                  const std::vector<T,A>& iRHS) {
+    if(iLHS.size() != iRHS.size()) {
+      return false;
+    }
+    typename std::vector<T,A>::const_iterator itL = iLHS.begin();
+    typename std::vector<T,A>::const_iterator itR = iRHS.begin();
+    typename std::vector<T,A>::const_iterator itLEnd = iLHS.end();
+    for(; itL != itLEnd; ++itL,++itR) {
+      if(!do_compare(*itL,*itR)) {
+        return false;
+      }
+    }
+    return true;
+  }
+  
+}
+
+
 template <class T>
-void trackedTestbody(T value)
+void trackedTestbody(const T& value)
 {
   try {
     edm::ParameterSet p1;
     p1.template addParameter<T>("x", value);
     p1.registerIt();
-    CPPUNIT_ASSERT(p1.template getParameter<T>("x") == value);
+    CPPUNIT_ASSERT(do_compare(p1.template getParameter<T>("x") ,value) );
     std::string p1_encoded = p1.toString();
     edm::ParameterSet p2(p1_encoded);
     CPPUNIT_ASSERT(p1 == p2);
-    CPPUNIT_ASSERT(p2.template getParameter<T>("x") == value);
+    CPPUNIT_ASSERT(do_compare(p2.template getParameter<T>("x") , value) );
   }
   catch (cms::Exception& x)
     {
@@ -106,43 +144,14 @@ void trackedTestbody(T value)
 
 template <class T>
 void
-untrackedTestbody(T value)
+untrackedTestbody(const T& value)
 {
   edm::ParameterSet p;
   p.template addUntrackedParameter<T>("x", value);
-  CPPUNIT_ASSERT(p.template getUntrackedParameter<T>("x") == value);
+  CPPUNIT_ASSERT(do_compare(p.template getUntrackedParameter<T>("x") , value));
 
-  // TODO: When CPPUNIT 1.10.2 arrives, uncomment the following code block.
-
-  //-------------------------------------------------------------------------
-  // CPPUNIT_ASSERT_THROW(p.template getUntrackedParameter<T>("does not exist"), 
-  // 		       cms::Exception);
-  //-------------------------------------------------------------------------
-
-  //-------------------------------------------------------------------------
-  // TODO: When CPPUNIT 1.10.2 arrvies, remove this code block.
-  try
-    {
-      // The next line should throw edm::Exception
-      p.template getUntrackedParameter<T>("does not exist");
-      // We can't use CPPUNIT_ASSERT, because it throws, and that
-      // makes it impossible to check for the right exception below.
-      assert (0 == "failed to throw a required exception");
-     }
-   catch (cms::Exception& x)
-     {
-       // ok, this is expected
-     }
-   catch (...)
-     {
-       // Failure!
-
-      // Don't want to use CPPUNIT_ASSERT here, because it throws, and
-      // that makes understanding the handling of this catch block too
-      // hard for passers-by.
-       assert (0 == "threw the wrong kind of exception");
-     }
-  //-------------------------------------------------------------------------
+  CPPUNIT_ASSERT_THROW(p.template getUntrackedParameter<T>("does not exist"), 
+   		       cms::Exception);
 }
 
 template <class T>
@@ -174,6 +183,11 @@ void testps::uintTest()
   testbody<unsigned int>(0);
   testbody<unsigned int>(35621);
   testbody<unsigned int>(std::numeric_limits<unsigned int>::max());
+  
+  testbody<std::vector<unsigned int> >(std::vector<unsigned int>());
+  testbody<std::vector<unsigned int> >(std::vector<unsigned int>(1, 35621));
+  testbody<std::vector<unsigned int> >(std::vector<unsigned int>(1, std::numeric_limits<unsigned int>::max()));
+
 }
 
 void testps::doubleTest()
@@ -203,11 +217,57 @@ void testps::stringTest()
   vs.push_back("1");
   vs.push_back("");
   vs.push_back("three");
+  testbody<std::vector<std::string> >(vs);
   edm::ParameterSet p1;
   p1.addParameter<std::vector<std::string> >("vs",vs);
   p1.registerIt();
   std::vector<std::string> vs2 = p1.getParameter<std::vector<std::string> >("vs");
   //FIXME doesn't count spaces
+}
+
+void testps::eventIDTest()
+{
+  testbody<edm::EventID>(edm::EventID());
+  testbody<edm::EventID>(edm::EventID::firstValidEvent());
+  testbody<edm::EventID>(edm::EventID(2,3,4));
+  testbody<edm::EventID>(edm::EventID(2,3,edm::EventID::maxEventNumber()));
+  testbody<edm::EventID>(edm::EventID(edm::EventID::maxEventNumber(),edm::EventID::maxEventNumber(),edm::EventID::maxEventNumber()));
+}
+
+void testps::eventRangeTest()
+{
+  testbody<edm::EventRange>(edm::EventRange());
+  testbody<edm::EventRange>(edm::EventRange(1,1,1,
+                                            edm::EventID::maxEventNumber(),edm::EventID::maxEventNumber(),edm::EventID::maxEventNumber()));
+  testbody<edm::EventRange>(edm::EventRange(2,3,4,2,3,10));
+
+
+  testbody<edm::EventRange>(edm::EventRange(1,0,1,
+                                            edm::EventID::maxEventNumber(),0,edm::EventID::maxEventNumber()));
+  testbody<edm::EventRange>(edm::EventRange(2,0,4,2,0,10));
+}
+
+void testps::vEventRangeTest()
+{
+  testbody<std::vector<edm::EventRange> >(std::vector<edm::EventRange>());
+  testbody<std::vector<edm::EventRange> >(std::vector<edm::EventRange>(1, 
+                                                                       edm::EventRange(1,1,1,
+                                                                                       edm::EventID::maxEventNumber(),
+                                                                                       edm::EventID::maxEventNumber(),
+                                                                                       edm::EventID::maxEventNumber())));
+
+  testbody<std::vector<edm::EventRange> >(std::vector<edm::EventRange>(1, 
+                                                                       edm::EventRange(1,0,1,
+                                                                                       edm::EventID::maxEventNumber(),
+                                                                                       0,
+                                                                                       edm::EventID::maxEventNumber())));
+
+  std::vector<edm::EventRange> er;
+  er.reserve(2);
+  er.push_back(edm::EventRange(2,3,4,2,3,10));
+  er.push_back(edm::EventRange(5,1,1,10,3,10));
+  
+  testbody<std::vector<edm::EventRange> >(er);
 }
 
 
