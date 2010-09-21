@@ -1,3 +1,6 @@
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/PluginManager/interface/SharedLibrary.h"
 #include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/DbTransaction.h"
@@ -5,8 +8,12 @@
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "testPayloadObj.h"
 int main(){
+  edmplugin::PluginManager::Config config;
+  edmplugin::PluginManager::configure(edmplugin::standard::config());
   try{
     cond::DbConnection connection;
+    connection.configuration().setMessageLevel( coral::Debug );
+    connection.configure();
     cond::DbSession pooldb = connection.createSession();
     pooldb.open("sqlite_file:mytest.db"); 
     testPayloadObj* myobj=new testPayloadObj;
@@ -18,9 +25,12 @@ int main(){
     std::cout<<"payload token "<<token<<std::endl;
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
-    editor->create(cond::timestamp,0);
+    std::cout << "creating\n";
+    editor->create(cond::timestamp, 2);
+    std::cout << "appending";
     editor->append(1,token);
     std::string iovtok=editor->token();
+    std::cout<<"iov token "<<iovtok<<std::endl;
     std::string cname=iovmanager.payloadContainerName(iovtok);
     pooldb.transaction().commit();
     std::cout<<"Payload Container Name: "<<cname<<std::endl;

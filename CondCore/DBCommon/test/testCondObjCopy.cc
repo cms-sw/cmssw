@@ -37,13 +37,16 @@ int main(){
     destSession.open("sqlite_file:dest.db");
     sourceSession.transaction().start(true);
     destSession.transaction().start(false);
-    std::string t=destSession.importObject( destSession, token );
+    std::cout << "importing\n";
+    std::string t=destSession.importObject( sourceSession, token );
     destSession.transaction().commit();
     sourceSession.transaction().commit();
+    std::cout<<"committed"<<std::endl;
     std::cout<<"reading back with generic ref token "<<t<<'\n';
     destSession.transaction().start(true);
     boost::shared_ptr<testCondObj> newRef = destSession.getTypedObject<testCondObj>( t );  
     destSession.transaction().commit();
+    std::cout<<"committed"<<std::endl;
   }catch(cond::Exception& er){
     std::cout<<er.what()<<std::endl;
   }catch(std::exception& er){

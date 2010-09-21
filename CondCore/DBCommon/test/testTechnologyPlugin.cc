@@ -9,6 +9,10 @@
 #include "CondCore/DBCommon/interface/DbConnection.h"
 #include <iostream>
 
+struct Connections {
+  const char * conStr;
+  bool readOnly;
+};
 
 int main(){
   edmplugin::PluginManager::Config config;
@@ -24,17 +28,21 @@ int main(){
   
   cond::DbConnection conn;
   conn.configure( cond::CmsDefaults );
+  conn.configuration().setAuthenticationPath("/afs/cern.ch/cms/DB/conddb");
+  conn.configure();
   cond::DbSession session = conn.createSession();
-  const char * connects[] = {
-    "sqlite_file:mydata.db",
-    //"sqlite_fip:CondCore/SQLiteData/data/mydata.db",
-    "frontier://FrontierDev/CMS_COND_UNIT_TESTS",
-    "frontier://cmsfrontier.cern.ch:8000/FrontierDev/CMS_COND_UNIT_TESTS"
+  
+  const Connections connects[] = {
+    {"sqlite_file:mydata.db", false},
+    {"oracle://cms_orcoff_prep/CMS_COND_UNIT_TESTS", true},
+    //{"sqlite_fip:CondCore/SQLiteData/data/mydata.db", true},
+    {"frontier://FrontierDev/CMS_COND_UNIT_TESTS", true}, 
+    {"frontier://cmsfrontier.cern.ch:8000/FrontierDev/CMS_COND_UNIT_TESTS", true}
   };
-  for (int i=0; i<3; ++i) {
+  for (int i=0; i<4; ++i) {
     try {
-      session.open(connects[i]);
-      std::cout << connects[i] << " " <<  session.connectionString() << std::endl;
+      session.open(connects[i].conStr,connects[i].readOnly);
+      std::cout << connects[i].conStr << " " <<  session.connectionString() << (connects[i].readOnly ? " in read mode": " in read-write mode") << std::endl;
     } catch ( const cond::Exception & er) {
       std::cout << "error " << er.what();
     } catch ( const edm::Exception & er) {
