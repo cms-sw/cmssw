@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.37 2009/03/29 02:25:24 ymaravin Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.38 2009/05/15 20:49:03 ymaravin Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -141,9 +141,11 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
     math::XYZPoint(cl.position().X(), cl.position().Y(), cl.position().Z()),
     cl.seed(), clusters_v, cl.preshowerEnergy());
 
-
+  //set the flags, although we should implement a ctor in SuperCluster
+  corrCl.setFlags(cl.flags());
   corrCl.setPhiWidth(phiWidth);
   corrCl.setEtaWidth(etaWidth);
+
   // Return the corrected cluster
   recHits_m->clear();
  
