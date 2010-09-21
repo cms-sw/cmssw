@@ -37,9 +37,6 @@ def customiseCommon(process):
     process.secTriplets.RegionFactoryPSet.RegionPSet.nSigmaZ  = cms.double(4.47)  
     process.secTriplets.RegionFactoryPSet.RegionPSet.originHalfLength = 44.7
 
-    ## ECAL 
-    process.ecalRecHit.ChannelStatusToBeExcluded = [ 1, 2, 3, 4, 8, 9, 10, 11, 12, 13, 14, 78, 142 ]
-
     ###
     ###  end of top level replacements
     ###
