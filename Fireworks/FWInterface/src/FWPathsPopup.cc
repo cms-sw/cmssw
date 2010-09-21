@@ -2,6 +2,7 @@
 #include "Fireworks/FWInterface/interface/FWFFLooper.h"
 #include "Fireworks/TableWidget/interface/FWTableManagerBase.h"
 #include "Fireworks/TableWidget/interface/FWTableWidget.h"
+#include "Fireworks/TableWidget/src/FWTabularWidget.h"
 #include "Fireworks/TableWidget/interface/FWTextTableCellRenderer.h"
 #include "Fireworks/Core/src/FWDialogBuilder.h"
 
@@ -31,6 +32,58 @@
 #include <cstring>
 #include <map>
 
+
+// FIXME: copied from Entry.cc should find a way to use the original
+//        table.
+struct TypeTrans {
+  TypeTrans();
+
+  typedef std::vector<std::string> CodeMap;
+  CodeMap table_;
+  std::map<std::string, char> type2Code_;
+};
+
+TypeTrans::TypeTrans():table_(255) {
+  table_['b'] = "vBool";
+  table_['B'] = "bool";
+  table_['i'] = "vint32";
+  table_['I'] = "int32";
+  table_['u'] = "vuint32";
+  table_['U'] = "uint32";
+  table_['l'] = "vint64";
+  table_['L'] = "int64";
+  table_['x'] = "vuint64";
+  table_['X'] = "uint64";
+  table_['s'] = "vstring";
+  table_['S'] = "string";
+  table_['d'] = "vdouble";
+  table_['D'] = "double";
+  table_['p'] = "vPSet";
+  table_['P'] = "PSet";
+  table_['T'] = "path";
+  table_['F'] = "FileInPath";
+  table_['t'] = "InputTag";
+  table_['v'] = "VInputTag";
+  table_['g'] = "ESInputTag";
+  table_['G'] = "VESInputTag";
+  table_['e'] = "VEventID";
+  table_['E'] = "EventID";
+  table_['m'] = "VLuminosityBlockID";
+  table_['M'] = "LuminosityBlockID";
+  table_['a'] = "VLuminosityBlockRange";
+  table_['A'] = "LuminosityBlockRange";
+  table_['r'] = "VEventRange";
+  table_['R'] = "EventRange";
+
+  for(CodeMap::const_iterator itCode = table_.begin(), itCodeEnd = table_.end();
+       itCode != itCodeEnd;
+       ++itCode) {
+     type2Code_[*itCode] = (itCode - table_.begin());
+  }
+}
+
+static TypeTrans const sTypeTranslations;
+
 class FWTextTreeCellRenderer : public FWTextTableCellRenderer
 {
 public:
@@ -51,7 +104,7 @@ public:
       {
          if (m_showEditor && m_editor)
          {
-            m_editor->MoveResize(iX-3, iY+iHeight+3, iWidth + 6 , iHeight + 6);
+            m_editor->MoveResize(iX-3, iY-3, iWidth + 6 , iHeight + 6);
             m_editor->MapWindow();
             m_editor->SetText(data().c_str());
             return;
@@ -86,8 +139,10 @@ struct PSetData
    std::string value;
    int         level;
    bool        tracked;
-   std::string type;
+   char        type;
    size_t      parent;
+   
+   size_t      module;
    // Whether or not it matches the filter.
    bool        matches;
    // Whether or not it is expanded.
@@ -102,11 +157,46 @@ struct PSetData
    bool        passed;
    // For modules, if the parent (i.e. the path) passed
    bool        parentPassed;
+   // Copy of the parameter set associated with this item.
+   // We need to keep a copy, because updating a parameter
+   // in a parameter set means actually creating a new one,
+   // because the checksum changes.
+   edm::ParameterSet pset;
 };
 
-/** string is whether or not a path passed and 
-    int is index of module that made decision **/
-typedef std::pair<bool, int> PathData;
+struct ModuleInfo
+{
+   /** The path this info is associated to, as ordered in
+       availablePath(); 
+     */
+   size_t            pathIndex;
+   /** Whether or not the pset was modified since last time the 
+       looper reloaded. 
+     */
+   size_t            path;
+   size_t            entry;
+   bool              passed;
+   bool              dirty;
+};
+
+/** Model for additional path information */
+struct PathInfo
+{
+   std::string pathName;
+   size_t      entryId;
+   int         modulePassed;
+   size_t      moduleStart;
+   size_t      moduleEnd;
+   bool        passed;
+};
+
+/** Datum for updating the path status information */
+struct PathUpdate
+{
+   std::string pathName;
+   bool passed;
+   bool choiceMaker;
+};
 
 /** Attempt to create a table based editor for the PSET. */
 class FWPSetTableManager : public FWTableManagerBase 
@@ -259,83 +349,121 @@ public:
        
       reset();
    }
-   
-  void update(const edm::ScheduleInfo *info, std::map<std::string, PathData> &pathStatus)
-   {
-      std::map<std::string, PathData>::const_iterator pi;
-      std::map<std::string, PathData>::const_iterator pe = pathStatus.end();
 
-      m_entries.clear();
-      std::vector<std::string> availablePaths;
-      info->availablePaths(availablePaths);
-      for (size_t i = 0, e = availablePaths.size(); i != e; ++i)
+   /** Update the internal model for the schedule. Notice that
+       the actual structure of the model will not change, only
+       its contents, because of the way CMSSW is designed,
+       hence this method only needs to be called once.
+      */
+   void updateSchedule(const edm::ScheduleInfo *info)
       {
-         PSetData pathEntry;
-         pathEntry.label = availablePaths[i];
-
-         pi = pathStatus.find(availablePaths[i]);
-
-         pathEntry.parentPassed = false; // Always for a path
-         size_t mindex;
-   
-         if ( pi == pe )
-         {
-           pathEntry.passed = false; // What is sensible to do here?
-           mindex = -1;
-         }
-         else
-         {
-           pathEntry.passed = (pi->second).first;
-           mindex = (pi->second).second;
-         }
-
-         pathEntry.value = "Path";
-         pathEntry.level= 0;
-         pathEntry.parent = -1;
-         m_parentStack.push_back(m_entries.size());
-         m_entries.push_back(pathEntry);
-
-         std::vector<std::string> pathModules;
-         info->modulesInPath(availablePaths[i], pathModules);
-
-         for (size_t mi = 0, me = pathModules.size(); mi != me; ++mi)
-         {
-            PSetData moduleEntry;
+         if (!m_entries.empty())
+            return;
+         // Execute only once since the schedule itself
+         // cannot be altered.
+         assert(m_availablePaths.empty());
+         info->availablePaths(m_availablePaths);
          
-            if ( mi == mindex )
-              moduleEntry.passed = true;
-            else
-              moduleEntry.passed = false;
-  
-            moduleEntry.parentPassed = pathEntry.passed;
+         for (size_t i = 0, e = m_availablePaths.size(); i != e; ++i)
+         {
+            PSetData pathEntry;
+            const std::string &pathName = m_availablePaths[i];
+            pathEntry.label = pathName;
+            m_pathIndex.insert(std::make_pair(pathName, m_paths.size()));
 
-            const edm::ParameterSet* ps = info->parametersForModule(pathModules[mi]);
+            pathEntry.value = "Path";
+            pathEntry.level= 0;
+            pathEntry.parent = -1;
 
-            const edm::ParameterSet::table& pst = ps->tbl();
-            const edm::ParameterSet::table::const_iterator ti = pst.find("@module_edm_type");
-      
-            if (ti == pst.end())
-              moduleEntry.value = "Unknown module name";
-            else
-              moduleEntry.value = ti->second.getString();
+            PathInfo pathInfo;
+            pathInfo.entryId = m_entries.size();
+            pathInfo.passed = false;
+            pathInfo.moduleStart = m_modules.size();
+            m_paths.push_back(pathInfo);
 
-            moduleEntry.label = pathModules[mi];
-            moduleEntry.parent = m_parentStack.back();
-            moduleEntry.level = m_parentStack.size();
             m_parentStack.push_back(m_entries.size());
-            m_entries.push_back(moduleEntry);
-            handlePSet(*ps);
+            m_entries.push_back(pathEntry);
+
+            std::vector<std::string> pathModules;
+            info->modulesInPath(pathName, pathModules);
+
+            for (size_t mi = 0, me = pathModules.size(); mi != me; ++mi)
+            {
+               PSetData moduleEntry;
+
+               const edm::ParameterSet* ps = info->parametersForModule(pathModules[mi]);
+               const edm::ParameterSet::table& pst = ps->tbl();
+               const edm::ParameterSet::table::const_iterator ti = pst.find("@module_edm_type");
+
+               if (ti == pst.end())
+                 moduleEntry.value = "Unknown module name";
+               else
+                 moduleEntry.value = ti->second.getString();
+
+               moduleEntry.label = pathModules[mi];
+               moduleEntry.parent = m_parentStack.back();
+               moduleEntry.level = m_parentStack.size();
+               moduleEntry.module = -1;
+               moduleEntry.pset = *ps;
+               ModuleInfo moduleInfo;
+               moduleInfo.path = m_paths.size() - 1;
+               moduleInfo.entry = m_entries.size();
+               moduleInfo.passed = false;
+               moduleInfo.dirty = false;
+               m_modules.push_back(moduleInfo);
+               m_parentStack.push_back(m_entries.size());
+               m_entries.push_back(moduleEntry);
+               handlePSet(moduleEntry.pset);
+               m_parentStack.pop_back();
+            }
+            m_paths.back().moduleEnd = m_modules.size();
             m_parentStack.pop_back();
          }
-         m_parentStack.pop_back();
+
+         // Nothing is expanded by default.
+         for (size_t i = 0, e = m_entries.size(); i != e; ++i)
+            m_entries[i].expanded = false;
+         m_filter = "";
       }
-      
-      // Nothing is expanded by default.
-      for (size_t i = 0, e = m_entries.size(); i != e; ++i)
-         m_entries[i].expanded = false;
-      m_filter = "";
-      implSort(-1, true);
-   }
+
+
+   /** Update the status of a given path. This is the information 
+       that changes on event by event basis.
+     */
+   void update(std::vector<PathUpdate> &pathUpdates)
+      {
+         // Reset all the path / module status information, so that
+         // by default paths and modules are considered "not passed".
+         for (size_t pi = 0, pe = m_paths.size(); pi != pe; ++pi)
+            m_paths[pi].passed = false;
+         for (size_t mi = 0, me = m_modules.size(); mi != me; ++mi)
+            m_modules[mi].passed = false; 
+         
+         // Update whether or not a given path / module passed selection.
+         for (size_t pui = 0, pue = pathUpdates.size(); pui != pue; ++pui)
+         {
+            PathUpdate &update = pathUpdates[pui];
+            std::map<std::string, size_t>::const_iterator index = m_pathIndex.find(update.pathName);
+            if (index == m_pathIndex.end())
+            {
+               std::cerr << "Path " << update.pathName << "cannot be found!" << std::endl;
+               continue;
+            }
+            PathInfo &pathInfo = m_paths[index->second];
+            pathInfo.passed = update.passed;
+            
+            for (size_t mi = pathInfo.moduleStart, me = pathInfo.moduleEnd; mi != me; ++mi)
+            {
+               ModuleInfo &moduleInfo = m_modules[mi];
+               moduleInfo.passed = update.passed || ((mi-pathInfo.moduleStart) < update.choiceMaker);
+            }
+         }
+
+         implSort(-1, true);
+      }
+
+   std::vector<ModuleInfo> &modules() {return m_modules; }
+   std::vector<PSetData> &entries() {return m_entries; }
 
    virtual void implSort(int, bool)
    {
@@ -443,7 +571,7 @@ public:
    }
   
    virtual FWTableCellRendererBase* cellRenderer(int iSortedRowNumber, int iCol) const
-   {  
+   {
       // If the index is outside the table, we simply return an empty cell.
       // FIXME: how is this actually possible???
       if (static_cast<int>(m_row_to_index.size()) <= iSortedRowNumber)
@@ -491,8 +619,8 @@ public:
       }
       else
       {
-         if (!data.type.empty())
-            label = data.label + " (" + data.type + ")";
+         if (data.type)
+            label = data.label + " (" + sTypeTranslations.table_[data.type] + ")";
          else
             label = data.label;
          value = data.value;
@@ -538,13 +666,77 @@ public:
          visualPropertiesChanged();
       }
 
+   template <class T>
+   bool editNumericParameter(edm::ParameterSet &ps, bool tracked, 
+                             const std::string &label, 
+                             const std::string &value) 
+      {
+         std::stringstream  str(value);
+         T v;
+         str >> v;
+         bool fail = str.fail();
+         std::cerr << label << v << " " << fail << std::endl;
+         if (tracked)
+            ps.addParameter(label, v);
+         else
+            ps.addUntrackedParameter(label, v);
+         
+         return fail;
+      }
+
    /** This is invoked every single time the
        editor contents must */
    void applyEditor()
       {
          if (!m_editor)
             return;
-         m_editor->UnmapWindow();
+         
+         std::cerr << m_selectedRow << m_selectedColumn << std::endl; 
+         if (m_selectedRow == -1)
+            return;
+         if (m_selectedColumn != 1)
+         {
+            m_editor->UnmapWindow();
+            return;
+         }
+         
+         PSetData &data = m_entries[m_row_to_index[m_selectedRow]];
+         std::cerr << data.label << std::endl;
+         PSetData &parent = m_entries[data.parent];
+         std::cerr << parent.label << " " << parent.pset << std::endl;
+         try
+         {
+            switch (data.type)
+            {
+               case 'I':
+                  editNumericParameter<int32_t>(parent.pset, data.tracked, data.label, m_editor->GetText());
+                  break;
+               case 'U':
+                  editNumericParameter<uint32_t>(parent.pset, data.tracked, data.label, m_editor->GetText());
+                  break;
+               case 'D':
+                  editNumericParameter<double>(parent.pset, data.tracked, data.label, m_editor->GetText());
+                  break;
+               case 'L':
+                  editNumericParameter<int64_t>(parent.pset, data.tracked, data.label, m_editor->GetText());
+                  break;
+               case 'X':
+                  editNumericParameter<int64_t>(parent.pset, data.tracked, data.label, m_editor->GetText());
+                  break;
+               default:
+                  std::cerr << "unsupported parameter" << std::endl;
+            }
+            data.value = m_editor->GetText();
+            m_modules[data.module].dirty = true;
+            std::cerr << "Modified module:" << data.module << std::endl;
+            m_editor->UnmapWindow();
+         }
+         catch(cms::Exception &e)
+         {
+            std::cerr << e << std::endl;
+            m_editor->SetForegroundColor(gVirtualX->GetPixel(kRed));
+         }
+         std::cerr << parent.label << " " << parent.pset << std::endl;
       }
 
    void setSelection (int row, int column, int mask) {
@@ -584,7 +776,9 @@ public:
       data.tracked = entry.isTracked();
       data.level = m_parentStack.size();
       data.parent = m_parentStack.back();
-      data.type = "PSet";
+      data.type = 'P';
+      data.module = m_modules.size() - 1;
+      data.pset = entry.pset();
       m_parentStack.push_back(m_entries.size());
       m_entries.push_back(data);
 
@@ -600,7 +794,8 @@ public:
       data.tracked = entry.isTracked();
       data.level = m_parentStack.size();
       data.parent = m_parentStack.back();
-      data.type = "vPSet";
+      data.type = 'p';
+      data.module = m_modules.size() - 1;
       m_parentStack.push_back(m_entries.size());
       m_entries.push_back(data);
 
@@ -615,6 +810,7 @@ public:
           vdata.tracked = entry.isTracked();
           vdata.level = m_parentStack.size();
           vdata.parent = m_parentStack.back();
+          vdata.module = m_modules.size() - 1;
           m_parentStack.push_back(m_entries.size());
           m_entries.push_back(vdata);
           handlePSet(entry.vpset()[i]);
@@ -689,92 +885,80 @@ public:
       data.type = entry.typeCode();
       data.level = m_parentStack.size();
       data.parent = m_parentStack.back();
+      data.module = m_modules.size() - 1;
+      data.type = entry.typeCode();
 
       switch(entry.typeCode())
       {
       case 'b':
         {
-          data.type  = "Bool";
           data.value = entry.getBool() ? "True" : "False";
           m_entries.push_back(data);
           break;
         }
       case 'B':
         {
-          data.type  = "Bool";
           data.value = entry.getBool() ? "True" : "False";
           m_entries.push_back(data);
           break;
         }
       case 'i':
         {
-          data.type = "vint32";
           createVectorString(data, entry.getVInt32(), false);
           break;
         }
       case 'I':
          {
-           data.type = "int32";
            createScalarString(data, entry.getInt32());
            break;
          }
       case 'u':
          {
-           data.type = "vuint32";
            createVectorString(data, entry.getVUInt32(), false);
            break;
          }
       case 'U':
          {
-           data.type = "uint32";
            createScalarString(data, entry.getUInt32());
            break;
          }
       case 'l':
          {
-           data.type = "vint64";
            createVectorString(data, entry.getVInt64(), false);
            break;
          }
       case 'L':
          {
-           data.type = "int64";
             createScalarString(data, entry.getInt32());
             break;
          }
       case 'x':
          {
-           data.type = "vuint64";
            createVectorString(data, entry.getVUInt64(), false);
            break;
          }
       case 'X':
          {
-           data.type = "uint64";
            createScalarString(data, entry.getUInt64());
            break;
          }
       case 's':
          {
-           data.type = "vstring";
            createVectorString(data, entry.getVString(), false);
            break;
          }
       case 'S':
          {
-           data.type = "string";
            createScalarString(data, entry.getString());
            break;
          }
       case 'd':
          {
-           data.type = "vdouble";
            createVectorString(data, entry.getVDouble(), false);
            break;
          }
       case 'D':
          { 
-           data.type = "double";
            createScalarString(data, entry.getDouble());
            break;
          }
@@ -792,13 +976,11 @@ public:
         }
       case 't':
          {
-           data.type = "InputTag";
            data.value = entry.getInputTag().encode();
            break;
          } 
       case 'v':
          {
-           data.type = "VInputTag";
            std::vector<std::string> tags;
            tags.resize(entry.getVInputTag().size());
            for (size_t iti = 0, ite = tags.size(); iti != ite; ++iti) 
@@ -808,14 +990,12 @@ public:
          }        
       case 'F':
         {
-          data.type = "FileInPath";
           entry.getFileInPath().write(ss);
           createScalarString(data, ss.str());
           break;
         }
       case 'e':
         {
-          data.type = "VEventID";
           std::vector<edm::MinimalEventID> ids;
           ids.resize(entry.getVEventID().size());
           for ( size_t iri = 0, ire = ids.size(); iri != ire; ++iri )
@@ -825,13 +1005,11 @@ public:
         }
       case 'E':
         {
-          data.type = "EventID";
           createScalarString(data, entry.getEventID());
           break;
         }
       case 'm':
         {
-          data.type = "VLuminosityBlockID";
           std::vector<edm::LuminosityBlockID> ids;
           ids.resize(entry.getVLuminosityBlockID().size());
           for ( size_t iri = 0, ire = ids.size(); iri != ire; ++iri )
@@ -841,13 +1019,11 @@ public:
         }
       case 'M':
         {
-          data.type = "LuminosityBlockID";
           createScalarString(data, entry.getLuminosityBlockID());
           break;
         }
       case 'a':
         {
-          data.type = "VLuminosityBlockRange";
           std::vector<edm::LuminosityBlockRange> ranges;
           ranges.resize(entry.getVLuminosityBlockRange().size());
           for ( size_t iri = 0, ire = ranges.size(); iri != ire; ++iri )
@@ -857,13 +1033,11 @@ public:
         }
       case 'A':
         {
-          data.type = "LuminosityBlockRange";
           createScalarString(data, entry.getLuminosityBlockRange());
           break;
         }
       case 'r':
         {
-          data.type = "VEventRange";
           std::vector<edm::EventRange> ranges;
           ranges.resize(entry.getVEventRange().size());
           for ( size_t iri = 0, ire = ranges.size(); iri != ire; ++iri )
@@ -873,7 +1047,6 @@ public:
         }
       case 'R':
         {
-          data.type = "EventRange";
           createScalarString(data, entry.getEventRange());
           break;          
         }
@@ -907,12 +1080,17 @@ private:
    }
 
    std::vector<PSetData>           m_entries;
+   /** Index in m_entries where to find paths */
+   std::vector<PathInfo>           m_paths;
+   std::vector<ModuleInfo>         m_modules;
+   std::map<std::string, size_t>   m_pathIndex;
    std::vector<size_t>             m_parentStack;
    std::vector<int>                m_row_to_index;
    int                             m_selectedRow;
    int                             m_selectedColumn;
    std::string                     m_filter;
    TGTextEntry                    *m_editor;
+   std::vector<std::string>        m_availablePaths;
 
    mutable FWTextTreeCellRenderer m_renderer;  
    mutable FWTextTreeCellRenderer m_italicRenderer;
@@ -946,8 +1124,9 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
           .addTable(m_psTable, &m_tableWidget).expand(true, true)
           .addTextButton("Apply changes and reload", &m_apply);
 
-   TGTextEntry *editor = new TGTextEntry(m_tableWidget, "");
+   TGTextEntry *editor = new TGTextEntry(m_tableWidget->body(), "");
    m_psTable->setCellValueEditor(editor);
+   editor->Connect("ReturnPressed()", "FWPathsPopup", this, "applyEditor()");
 
    m_apply->Connect("Clicked()", "FWPathsPopup", this, "scheduleReloadEvent()");
    m_apply->SetEnabled(true);
@@ -960,9 +1139,19 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
    m_tableWidget->Connect("cellClicked(Int_t,Int_t,Int_t,Int_t,Int_t,Int_t)",
                           "FWPathsPopup",this,
                           "cellClicked(Int_t,Int_t,Int_t,Int_t,Int_t,Int_t)");
+   m_tableWidget->Connect("Clicked()", "FWPathsPopup", this, "applyEditor()");
    MapSubwindows();
    editor->UnmapWindow();
    Layout();
+}
+
+/** Proxies the applyEditor() method in the model so that it can be connected to GUI, signals.
+  */
+void
+FWPathsPopup::applyEditor()
+{
+   m_psTable->applyEditor();
+   m_psTable->setSelection(-1, -1, 0);
 }
 
 /** Handles clicking on the table cells.
@@ -988,7 +1177,7 @@ FWPathsPopup::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t iKeyMo
       // Clear text on new row click
       int index = m_psTable->rowToIndex()[iRow];
       PSetData& data = m_psTable->data()[index];
-      std::cerr << data.label << "clicked" << std::endl;
+      std::cerr << data.label << " clicked" << std::endl;
       m_psTable->setSelection(iRow, iColumn, iKeyMod);
    }
 }
@@ -1041,25 +1230,23 @@ FWPathsPopup::postProcessEvent(edm::Event const& event, edm::EventSetup const& e
    edm::Handle<edm::TriggerResults> triggerResults;
    event.getByLabel(tag, triggerResults);
 
-   // The string is the path name, the bool is whether it passed,
-   // and the int is the index of the module that made the decision
-   std::map<std::string, PathData> pathStatus;
+   std::vector<PathUpdate> pathUpdates;
 
-   if ( triggerResults.isValid() )
+   if (triggerResults.isValid())
    {
-     edm::TriggerNames triggerNames = event.triggerNames(*triggerResults);
+      edm::TriggerNames triggerNames = event.triggerNames(*triggerResults);
      
-     for ( size_t i = 0, ie = triggerResults->size(); i != ie; ++i )
-     {
-       PathData pd(triggerResults->accept(i), triggerResults->index(i));
-       pathStatus.insert(std::pair<std::string, PathData>(triggerNames.triggerName(i), pd));
-
-       std::vector<std::string> pathModules;
-       m_info->modulesInPath(triggerNames.triggerName(i), pathModules);
-     }
+      for (size_t i = 0, ie = triggerResults->size(); i != ie; ++i)
+      {
+         PathUpdate update;
+         update.pathName = triggerNames.triggerName(i);
+         update.passed = triggerResults->accept(i);
+         update.choiceMaker = triggerResults->index(i);
+         pathUpdates.push_back(update);
+      }
    }
-
-   m_psTable->update(m_info, pathStatus);
+   m_psTable->updateSchedule(m_info);
+   m_psTable->update(pathUpdates);
 }
 
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
@@ -1080,41 +1267,17 @@ using namespace boost::python;
 void
 FWPathsPopup::scheduleReloadEvent()
 {
-   /*
-   PythonProcessDesc desc;
-   std::string pythonSnippet("import FWCore.ParameterSet.Config as cms\n"
-                             "process=cms.Process('Dummy')\n");
-   for (size_t li = 0, le = text->RowCount(); li != le; ++li)
-   {
-      char *buf = text->GetLine(TGLongPosition(0, li), text->GetLineLength(li));
-      if (!buf)
-         continue;
-      pythonSnippet += buf;
-      free(buf);
-   }
-
+   applyEditor();
    try
    {
-      PythonProcessDesc pydesc(pythonSnippet);
-      boost::shared_ptr<edm::ProcessDesc> desc = pydesc.processDesc();
-      boost::shared_ptr<edm::ParameterSet> ps = desc->getProcessPSet();
-      const edm::ParameterSet::table &pst = ps->tbl();
-      const edm::ParameterSet::table::const_iterator &mi= pst.find("@all_modules");
-      if (mi == pst.end())
-         throw cms::Exception("cmsShow") << "@all_modules not found";
-      // FIXME: we are actually interested in "@all_modules" entry.
-      std::vector<std::string> modulesInConfig(mi->second.getVString());
-      std::vector<std::string> parameterNames;
-
-      for (size_t mni = 0, mne = modulesInConfig.size(); mni != mne; ++mni)
+      for (size_t mni = 0, mne = m_psTable->modules().size(); mni != mne; ++mni)
       {
-         const std::string &moduleName = modulesInConfig[mni];
-         std::cout << moduleName << std::endl;
-         const edm::ParameterSet *modulePSet(ps->getPSetForUpdate(moduleName));
-         parameterNames = modulePSet->getParameterNames();
-         for (size_t pi = 0, pe = parameterNames.size(); pi != pe; ++pi)
-            std::cout << "  " << parameterNames[pi] << std::endl;
-         m_looper->requestChanges(moduleName, *modulePSet);
+         ModuleInfo &module = m_psTable->modules()[mni];
+         if (module.dirty == false)
+            continue;
+         PSetData &data = m_psTable->entries()[module.entry];
+         std::cerr << "Reloading " << data.label << " " << data.pset << std::endl;
+         m_looper->requestChanges(data.label, data.pset);
       }
       m_hasChanges = true;
       gSystem->ExitLoop();
@@ -1129,5 +1292,4 @@ FWPathsPopup::scheduleReloadEvent()
       std::cout << exception.what() << std::endl;
    }
    // Return control to the FWFFLooper so that it can decide what to do next.
-   */
 }
