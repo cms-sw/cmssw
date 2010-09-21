@@ -215,7 +215,7 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
      CSCRecHit2D rechit( id, lp0, localerr, L1A_and_strips,                  /// L1A;
                       //adcMap, wgroups, tpeak, positionWithinTheStrip,
 		      adcMap, BX_and_wgroups, tpeak, positionWithinTheStrip,        /// BX
-			 sigmaWithinTheStrip/stripWidth, quality, twiceWireBx);
+			 sigmaWithinTheStrip/stripWidth, quality, 0, 0, twiceWireBx);
 
   /// To see RecHit content (L1A feature included) (to be commented out)
   // rechit.print();
