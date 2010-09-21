@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:10:01 CET 2009
-// $Id: FWColorManager.cc,v 1.32 2010/09/16 17:31:53 amraktad Exp $
+// $Id: FWColorManager.cc,v 1.33 2010/09/16 20:30:51 amraktad Exp $
 //
 
 // system include files
@@ -192,9 +192,14 @@ FWColorManager::FWColorManager(FWModelChangeManager* iManager):
    m_geomTransparency2D(50),
    m_geomTransparency3D(70)
 {
+   m_geomColor[kFWPixelBarrelColorIndex   ] = 1032;
+   m_geomColor[kFWPixelEndcapColorIndex   ] = 1033;
+
+   m_geomColor[kFWTrackerBarrelColorIndex  ] = 1026;
+   m_geomColor[kFWTrackerEndcapColorIndex  ] = 1017;
+
    m_geomColor[kFWMuonBarrelLineColorIndex] = 1025;
    m_geomColor[kFWMuonEndcapLineColorIndex] = 1022;
-   m_geomColor[kFWTrackerColorIndex       ] = 1026;
 }
 
 FWColorManager::~FWColorManager()

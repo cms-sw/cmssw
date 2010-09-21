@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 22:06:57 CET 2010
-// $Id: FW3DViewGeometry.cc,v 1.9 2010/09/15 11:48:42 amraktad Exp $
+// $Id: FW3DViewGeometry.cc,v 1.10 2010/09/20 14:42:38 amraktad Exp $
 //
 
 // system include files
@@ -181,7 +181,7 @@ FW3DViewGeometry::showPixelBarrel( bool showPixelBarrel )
 	   id != ids.end(); ++id )
       {
 	 TEveGeoShape* shape = m_geom->getEveShape( *id );
-         addToCompound(shape, kFWTrackerColorIndex);
+         addToCompound(shape, kFWPixelBarrelColorIndex);
          m_pixelBarrelElements->AddElement( shape );
       }
       AddElement( m_pixelBarrelElements );
@@ -206,7 +206,7 @@ FW3DViewGeometry::showPixelEndcap(bool  showPixelEndcap )
 	   id != ids.end(); ++id )
       {
 	 TEveGeoShape* shape = m_geom->getEveShape( *id );
-         addToCompound(shape, kFWTrackerColorIndex);
+         addToCompound(shape, kFWPixelEndcapColorIndex);
          m_pixelEndcapElements->AddElement( shape );
       }
       AddElement( m_pixelEndcapElements );
@@ -232,7 +232,7 @@ FW3DViewGeometry::showTrackerBarrel( bool  showTrackerBarrel )
 	   id != ids.end(); ++id )
       {
 	 TEveGeoShape* shape = m_geom->getEveShape( *id ); 
-         addToCompound(shape, kFWTrackerColorIndex);
+         addToCompound(shape, kFWTrackerBarrelColorIndex);
          m_trackerBarrelElements->AddElement( shape );
       }
       ids = m_geom->getMatchedIds( FWGeometry::Tracker, FWGeometry::TOB );
@@ -240,7 +240,7 @@ FW3DViewGeometry::showTrackerBarrel( bool  showTrackerBarrel )
 	   id != ids.end(); ++id )
       {
 	 TEveGeoShape* shape = m_geom->getEveShape( *id );
-         addToCompound(shape, kFWTrackerColorIndex);
+         addToCompound(shape, kFWTrackerBarrelColorIndex);
          m_trackerBarrelElements->AddElement( shape );
       }
       AddElement( m_trackerBarrelElements );
@@ -265,7 +265,7 @@ FW3DViewGeometry::showTrackerEndcap( bool showTrackerEndcap )
            id != ids.end(); ++id )
       {
 	 TEveGeoShape* shape = m_geom->getEveShape( *id );
-         addToCompound(shape, kFWTrackerColorIndex);
+         addToCompound(shape, kFWTrackerEndcapColorIndex);
          m_trackerEndcapElements->AddElement( shape );
       }
       ids = m_geom->getMatchedIds( FWGeometry::Tracker, FWGeometry::TEC );
@@ -273,7 +273,7 @@ FW3DViewGeometry::showTrackerEndcap( bool showTrackerEndcap )
 	   id != ids.end(); ++id )
       {
 	 TEveGeoShape* shape = m_geom->getEveShape( *id );
-         addToCompound(shape, kFWTrackerColorIndex);
+         addToCompound(shape, kFWTrackerEndcapColorIndex);
          m_trackerEndcapElements->AddElement( shape );
       }
       AddElement( m_trackerEndcapElements );

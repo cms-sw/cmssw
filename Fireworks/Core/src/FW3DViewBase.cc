@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DViewBase.cc,v 1.14 2010/09/16 17:31:53 amraktad Exp $
+// $Id: FW3DViewBase.cc,v 1.15 2010/09/17 16:18:55 amraktad Exp $
 //
 #include <boost/bind.hpp>
 
@@ -121,12 +121,12 @@ FW3DViewBase::populateController(ViewerParameterGUI& gui) const
    FWEveView::populateController(gui);
 
    gui.requestTab("Detector").
-      addParam(&m_showMuonBarrel).
-      addParam(&m_showMuonEndcap).
       addParam(&m_showPixelBarrel).
       addParam(&m_showPixelEndcap).
       addParam(&m_showTrackerBarrel).
       addParam(&m_showTrackerEndcap).
+      addParam(&m_showMuonBarrel).
+      addParam(&m_showMuonEndcap).
       addParam(&m_showWireFrame);
 }
 

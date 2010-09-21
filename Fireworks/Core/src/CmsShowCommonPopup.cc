@@ -58,16 +58,21 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
    m_gammaSlider->SetEnabled(true);
 
    TGCompositeFrame* tp  = (TGCompositeFrame*)m_gammaButton->GetParent()->GetParent();
-   TGHorizontalFrame* parent[3];
+   TGHorizontalFrame* parent[kFWGeomColorSize];
    for (int i = 0; i < kFWGeomColorSize; ++i)
    {
       parent[i] = new TGHorizontalFrame(tp);
       tp->AddFrame(parent[i], new TGLayoutHints(kLHintsExpandX| kLHintsTop));
    }
 
-   m_colorSelectWidget[kFWMuonBarrelLineColorIndex] = new FWColorSelect(parent[kFWMuonBarrelLineColorIndex], "Muon Barrel" , 0, m_common->colorManager(), kFWMuonBarrelLineColorIndex);
-   m_colorSelectWidget[kFWMuonEndcapLineColorIndex] = new FWColorSelect(parent[kFWMuonEndcapLineColorIndex], "Muon Endcap" , 0, m_common->colorManager(), kFWMuonEndcapLineColorIndex);
-   m_colorSelectWidget[kFWTrackerColorIndex       ] = new FWColorSelect(parent[kFWTrackerColorIndex],        "Tracker"     , 0, m_common->colorManager(), kFWTrackerColorIndex);
+   // !! the color widgt label has to be hardcoded, rendred in editor as label
+
+   m_colorSelectWidget[kFWPixelBarrelColorIndex   ] = new FWColorSelect(parent[kFWPixelBarrelColorIndex   ], "Pixel Barrel"  , 0, m_common->colorManager(), kFWPixelBarrelColorIndex);
+   m_colorSelectWidget[kFWPixelEndcapColorIndex   ] = new FWColorSelect(parent[kFWPixelEndcapColorIndex   ], "Pixel Endcap"  , 0, m_common->colorManager(), kFWPixelEndcapColorIndex);
+   m_colorSelectWidget[kFWTrackerBarrelColorIndex ] = new FWColorSelect(parent[kFWTrackerBarrelColorIndex ], "Tracker Barrel", 0, m_common->colorManager(), kFWTrackerBarrelColorIndex);
+   m_colorSelectWidget[kFWTrackerEndcapColorIndex ] = new FWColorSelect(parent[kFWTrackerEndcapColorIndex ], "Tracker Endcap", 0, m_common->colorManager(), kFWTrackerEndcapColorIndex);
+   m_colorSelectWidget[kFWMuonBarrelLineColorIndex] = new FWColorSelect(parent[kFWMuonBarrelLineColorIndex], "Muon Barrel"   , 0, m_common->colorManager(), kFWMuonBarrelLineColorIndex);
+   m_colorSelectWidget[kFWMuonEndcapLineColorIndex] = new FWColorSelect(parent[kFWMuonEndcapLineColorIndex], "Muon Endcap"   , 0, m_common->colorManager(), kFWMuonEndcapLineColorIndex);
 
 
    for (int i = 0 ; i < kFWGeomColorSize; ++i)

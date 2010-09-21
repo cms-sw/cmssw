@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar 24 10:07:58 CET 2009
-// $Id: FWColorManager.h,v 1.23 2010/09/16 17:37:48 amraktad Exp $
+// $Id: FWColorManager.h,v 1.24 2010/09/16 20:30:51 amraktad Exp $
 //
 
 // system include files
@@ -32,9 +32,12 @@ class TGLViewer;
 
 enum FWGeomColorIndex
 {
+   kFWPixelBarrelColorIndex,
+   kFWPixelEndcapColorIndex,
+   kFWTrackerBarrelColorIndex,
+   kFWTrackerEndcapColorIndex,
    kFWMuonBarrelLineColorIndex,
    kFWMuonEndcapLineColorIndex,
-   kFWTrackerColorIndex,
    kFWGeomColorSize
 };
 

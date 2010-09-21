@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 20:33:06 CET 2010
-// $Id: FWRPZViewGeometry.cc,v 1.13 2010/09/17 16:18:55 amraktad Exp $
+// $Id: FWRPZViewGeometry.cc,v 1.14 2010/09/20 14:42:47 amraktad Exp $
 //
 
 // system include files
@@ -112,7 +112,7 @@ FWRPZViewGeometry::makeCaloOutlineRhoZ()
 
    TEveStraightLineSet* el = new TEveStraightLineSet( "TrackerRhoZoutline" );
    el->SetPickable(kFALSE);
-   addToCompound(el, kFWTrackerColorIndex, false);
+   addToCompound(el, kFWTrackerBarrelColorIndex, false);
 
    el->AddLine(0,  m_context.caloR1(), -m_context.caloZ1(), 0,  m_context.caloR1(),  m_context.caloZ1());
    el->AddLine(0, -m_context.caloR1(),  m_context.caloZ1(), 0, -m_context.caloR1(), -m_context.caloZ1());
@@ -130,9 +130,9 @@ TEveElement*
 FWRPZViewGeometry::makeCaloOutlineRhoPhi()
 { 
    TEveStraightLineSet* el = new TEveStraightLineSet( "TrackerRhoPhi" );
-   addToCompound(el, kFWTrackerColorIndex, false);
+   addToCompound(el, kFWTrackerBarrelColorIndex, false);
 
-   el->SetLineColor(m_context.colorManager()->geomColor(kFWTrackerColorIndex));
+   el->SetLineColor(m_context.colorManager()->geomColor(kFWTrackerBarrelColorIndex));
    const unsigned int nSegments = 100;
    const double r =  m_context.caloR1();
    for ( unsigned int i = 1; i <= nSegments; ++i )

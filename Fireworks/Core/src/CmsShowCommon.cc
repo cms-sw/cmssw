@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Sep 10 14:50:32 CEST 2010
-// $Id: CmsShowCommon.cc,v 1.4 2010/09/16 17:31:53 amraktad Exp $
+// $Id: CmsShowCommon.cc,v 1.5 2010/09/16 20:30:51 amraktad Exp $
 //
 
 // system include files
@@ -23,13 +23,16 @@ CmsShowCommon::CmsShowCommon(FWColorManager* c):
    m_colorManager(c),
    m_backgroundColor(this, "backgroundColIdx", 1l, 0l, 1000l),
    m_gamma(this, "brightness", 0l, -15l, 15l),
-   m_geomTransparency2D(this, "geomTransparency2D", long(c->geomTransparency(true)), 0l, 100l),
-   m_geomTransparency3D(this, "geomTransparency3D", long(c->geomTransparency(true)), 0l, 100l)
+   m_geomTransparency2D(this, "Transparency 2D", long(c->geomTransparency(true)), 0l, 100l),
+   m_geomTransparency3D(this, "Transparency 3D", long(c->geomTransparency(true)), 0l, 100l)
 {
-  
-   m_geomColors[kFWMuonBarrelLineColorIndex] = new FWLongParameter(this, "muonBarrelColor", long(c->geomColor(kFWMuonBarrelLineColorIndex)), 1000l, 1100l);
-   m_geomColors[kFWMuonEndcapLineColorIndex] = new FWLongParameter(this, "muonEndcapColor", long(c->geomColor(kFWMuonEndcapLineColorIndex)), 1000l, 1100l);
-   m_geomColors[kFWTrackerColorIndex]        = new FWLongParameter(this, "trackerColor"   , long(c->geomColor(kFWTrackerColorIndex       )), 1000l, 1100l);
+   char name[32];
+   for (int i = 0; i < kFWGeomColorSize; ++i)
+   {
+      snprintf(name, 31, "GeometryColor %d ", i);
+      m_geomColors[i] = new FWLongParameter(this, name   , long(c->geomColor(FWGeomColorIndex(i))), 1000l, 1100l);
+
+   }
 }
 
 CmsShowCommon::~CmsShowCommon()
