@@ -58,7 +58,7 @@ def lslengthsec (numorbit, numbx):
 
 def lsBylsLumi (deadtable):
     """
-    input: {lsnum:[deadtime, instlumi, bit_0, norbits...]}
+    input: {lsnum:[deadtime, instlumi, bit_0, norbits,prescale...]}
     output: {lsnum:[instlumi, recordedlumi...]}
     """
     result = {}
@@ -68,12 +68,12 @@ def lsBylsLumi (deadtable):
         if float( deadArray[2] ) ==  0.0:
             deadfrac = 1.0
         else:
-            deadfrac = float (deadArray[0]) / float (deadArray[2])
+            deadfrac = float (deadArray[0]) / (float (deadArray[2])*float(deadArray[-1]))
         recordedLumi = instlumi * (1.0 - deadfrac)
         myLsList = [instlumi, recordedLumi]
         #print myls,instlumi,recordedLumi,lstime,deadfrac
-        if len (deadArray) > 4:
-            myLsList.extend (deadArray[4:])
+        if len (deadArray) > 5:
+            myLsList.extend (deadArray[5:])
         result[myls] = myLsList
     return result
 
@@ -454,7 +454,7 @@ def getDeadfractions (deadtable):
 def printPerLSLumi (lumidata, isVerbose = False):
     '''
     input lumidata  [['runnumber', 'trgtable{}', 'deadtable{}']]
-    deadtable {lsnum:[deadtime, instlumi, bit_0, norbits]}
+    deadtable {lsnum:[deadtime, instlumi, bit_0, norbits,prescale]}
     '''
     datatoprint = []
     totalrow = []
