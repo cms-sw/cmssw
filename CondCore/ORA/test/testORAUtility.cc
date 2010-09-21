@@ -3,6 +3,7 @@
 #include "CondCore/ORA/interface/ScopedTransaction.h"
 #include "CondCore/ORA/interface/Transaction.h"
 #include "CondCore/ORA/interface/Exception.h"
+#include "CondCore/ORA/test/Serializer.h"
 #include <iostream>
 #include <cstdlib>
 #include "classes.h"
@@ -14,9 +15,11 @@ int main(){
     std::string pathenv(std::string("CORAL_AUTH_PATH=")+authpath);
     ::putenv(const_cast<char*>(pathenv.c_str()));
     // writing...
-    std::string connStr0( "oracle://cms_orcoff_prep/CMS_COND_WEB" );
+    std::string connStr0( "oracle://cms_orcoff_prep/CMS_COND_UNIT_TESTS" );
     std::string connStr1( "sqlite_file:test1.db" );
     std::string connStr2( "sqlite_file:test2.db" );
+    ora::Serializer serializer( "ORA_TEST" );
+    serializer.lock( connStr0 );
     db.configuration().setMessageVerbosity( coral::Debug );
     db.connect( connStr0 );
     ora::ScopedTransaction trans( db.transaction() );

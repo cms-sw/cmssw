@@ -2,6 +2,7 @@
 #include "CondCore/ORA/interface/Container.h"
 #include "CondCore/ORA/interface/Transaction.h"
 #include "CondCore/ORA/interface/Exception.h"
+#include "CondCore/ORA/test/Serializer.h"
 #include <cstdlib>
 #include <iostream>
 #include <stdexcept>
@@ -11,9 +12,11 @@ int main(){
   std::string pathenv(std::string("CORAL_AUTH_PATH=")+authpath);
   ::putenv(const_cast<char*>(pathenv.c_str()));
   
-  std::string connStr( "oracle://cms_orcoff_prep/CMS_COND_WEB" );
+  std::string connStr( "oracle://cms_orcoff_prep/CMS_COND_UNIT_TESTS" );
   try {
     ora::Database db;
+    ora::Serializer serializer( "ORA_TEST" );
+    serializer.lock( connStr );
     //std::string connStr( "sqlite_file:test.db" );
     db.connect( connStr );
     db.transaction().start( false );

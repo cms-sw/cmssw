@@ -2,6 +2,7 @@
 #include "CondCore/ORA/interface/Container.h"
 #include "CondCore/ORA/interface/Transaction.h"
 #include "CondCore/ORA/interface/Exception.h"
+#include "CondCore/ORA/test/Serializer.h"
 #include <cstdlib>
 #include <iostream>
 #include <stdexcept>
@@ -170,10 +171,12 @@ int main(){
   std::string authpath("/afs/cern.ch/cms/DB/conddb");
   std::string pathenv(std::string("CORAL_AUTH_PATH=")+authpath);
   ::putenv(const_cast<char*>(pathenv.c_str()));
+    //std::string connStr( "sqlite_file:test.db" );
+    std::string connStr( "oracle://cms_orcoff_prep/CMS_COND_UNIT_TESTS" );
+    ora::Serializer serializer( "ORA_TEST" );
+    serializer.lock( connStr );
   ora::Database db;
   try {
-    //std::string connStr( "sqlite_file:test.db" );
-    std::string connStr( "oracle://cms_orcoff_prep/CMS_COND_WEB" );
     // NOT CONNECTED
     bool connected = db.isConnected();
     std::string okConn("");
