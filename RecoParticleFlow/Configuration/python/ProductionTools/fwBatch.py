@@ -17,10 +17,6 @@ parser.add_option("-c", "--castorBaseDir",
                   dest="castorBaseDir",
                   help="Base castor directory. Subdirectories will be created automatically for each prod",
                   default="/castor/cern.ch/user/c/cbern/cmst3/SusyJetMET")
-parser.add_option("-p", "--pattern", 
-                  dest="pattern",
-                  help="pattern for root files in castor dir",
-                  default=".*root")
 
 (options,args) = parser.parse_args()
 
@@ -42,6 +38,6 @@ cdir += sampleName
 outFile = cdir
 outFile += '/PFAnalysis_%s.root' % ext
 
-cmsBatch = 'cmsBatch.py 4 jetMET_cfg.py -p jetMETAnalysis -r %s -b "bsub -q cmst3 <  batchScript.sh"' % outFile
+cmsBatch = 'cmsBatch.py 4 jetMET_cfg.py -p jetMETAnalysis -r %s -b "bsub -q cmst3 <  batchScript.sh" -o Out%s' % (outFile,ext)
 
 print cmsBatch
