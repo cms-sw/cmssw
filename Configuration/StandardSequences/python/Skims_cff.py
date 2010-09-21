@@ -244,7 +244,7 @@ SKIMStreamValSkim = cms.FilteredStream(
 from DPGAnalysis.Skims.WZEGSkim_cff import *
 WZEGSkimPath = cms.Path ( WZfilterSkim )
 SKIMStreamWZEG = cms.FilteredStream(
-    responsible = 'ECAL DPG',
+    responsible = 'ECAL DPG & EGM POG',
     name = 'WZEG',
     paths = ( WZEGSkimPath ),
     content = skimContent.outputCommands,
