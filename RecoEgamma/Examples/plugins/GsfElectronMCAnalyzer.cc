@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.cc,v 1.47 2009/12/14 23:22:32 chamont Exp $
+// $Id: GsfElectronMCAnalyzer.cc,v 1.48 2010/01/06 16:37:32 charlot Exp $
 //
 //
 
@@ -1758,7 +1758,7 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   for (reco::GsfElectronCollection::const_iterator gsfIter=gsfElectrons->begin();
    gsfIter!=gsfElectrons->end(); gsfIter++){
     // preselect electrons
-    if (gsfIter->pt()>maxPt_ || fabs(gsfIter->eta())>maxAbsEta_) continue;
+    if (gsfIter->pt()>maxPt_ || std::abs(gsfIter->eta())>maxAbsEta_) continue;
     h_ele_EoverP_all     -> Fill( gsfIter->eSuperClusterOverP() );
     h_ele_EseedOP_all     -> Fill( gsfIter->eSeedClusterOverP() );
     h_ele_EoPout_all     -> Fill( gsfIter->eSeedClusterOverPout() );
@@ -1832,12 +1832,12 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
       if (matchingMotherID) {
 
-      if (mcIter->pt()> maxPt_ || fabs(mcIter->eta())> maxAbsEta_) continue;
+      if (mcIter->pt()> maxPt_ || std::abs(mcIter->eta())> maxAbsEta_) continue;
 
       // suppress the endcaps
-      //if (fabs(mcIter->eta()) > 1.5) continue;
+      //if (std::abs(mcIter->eta()) > 1.5) continue;
       // select central z
-      //if ( fabs(mcIter->production_vertex()->position().z())>50.) continue;
+      //if ( std::abs(mcIter->production_vertex()->position().z())>50.) continue;
 
       // looking for the best matching gsf electron
       bool okGsfFound = false;
@@ -1849,18 +1849,18 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
        gsfIter!=gsfElectrons->end(); gsfIter++){
 
         double dphi = gsfIter->phi()-mcIter->phi();
-        if (fabs(dphi)>CLHEP::pi)
+        if (std::abs(dphi)>CLHEP::pi)
          dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
     	double deltaR = sqrt(pow((gsfIter->eta()-mcIter->eta()),2) + pow(dphi,2));
 	if ( deltaR < deltaR_ ){
 	  double mc_charge = mcIter->pdgId() == 11 ? -1. : 1. ;
-	  h_ele_ChargeMnChargeTrue  -> Fill( fabs(gsfIter->charge()-mc_charge));
+	  h_ele_ChargeMnChargeTrue  -> Fill( std::abs(gsfIter->charge()-mc_charge));
 	  // require here a charge mismatch
 	  if ( ( (mcIter->pdgId() == 11) && (gsfIter->charge() > 0.) ) ||
 	       ( (mcIter->pdgId() == -11) && (gsfIter->charge() < 0.) ) )
 	   {
 	    double tmpGsfRatio = gsfIter->p()/mcIter->p();
-	    if ( fabs(tmpGsfRatio-1) < fabs(gsfOkRatio-1) ) {
+	    if ( std::abs(tmpGsfRatio-1) < std::abs(gsfOkRatio-1) ) {
 	      gsfOkRatio = tmpGsfRatio;
 	      bestGsfElectron=*gsfIter;
 	      okGsfFound = true;
@@ -1876,7 +1876,7 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	// generated distributions for matched electrons
 	h_ele_simPt_matched_qmisid      -> Fill( mcIter->pt() );
         h_ele_simPhi_matched_qmisid   -> Fill( mcIter->phi() );
-	h_ele_simAbsEta_matched_qmisid     -> Fill( fabs(mcIter->eta()) );
+	h_ele_simAbsEta_matched_qmisid     -> Fill( std::abs(mcIter->eta()) );
 	h_ele_simEta_matched_qmisid     -> Fill( mcIter->eta() );
 	h_ele_simZ_matched_qmisid     -> Fill( mcIter->vz() );
 
@@ -1911,16 +1911,16 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
       if (matchingMotherID) {
 
-      if (mcIter->pt()> maxPt_ || fabs(mcIter->eta())> maxAbsEta_) continue;
+      if (mcIter->pt()> maxPt_ || std::abs(mcIter->eta())> maxAbsEta_) continue;
 
       // suppress the endcaps
-      //if (fabs(mcIter->eta()) > 1.5) continue;
+      //if (std::abs(mcIter->eta()) > 1.5) continue;
       // select central z
-      //if ( fabs(mcIter->production_vertex()->position().z())>50.) continue;
+      //if ( std::abs(mcIter->production_vertex()->position().z())>50.) continue;
 
       eleNum++;
       h_simEta -> Fill( mcIter->eta() );
-      h_simAbsEta -> Fill( fabs(mcIter->eta()) );
+      h_simAbsEta -> Fill( std::abs(mcIter->eta()) );
       h_simP   -> Fill( mcIter->p() );
       h_simPt   -> Fill( mcIter->pt() );
       h_simPhi   -> Fill( mcIter->phi() );
@@ -1937,7 +1937,7 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
        gsfIter!=gsfElectrons->end(); gsfIter++){
 
         double dphi = gsfIter->phi()-mcIter->phi();
-        if (fabs(dphi)>CLHEP::pi)
+        if (std::abs(dphi)>CLHEP::pi)
          dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
     	double deltaR = sqrt(pow((gsfIter->eta()-mcIter->eta()),2) + pow(dphi,2));
 	if ( deltaR < deltaR_ ){
@@ -1945,7 +1945,7 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	       ( (mcIter->pdgId() == -11) && (gsfIter->charge() > 0.) ) )
 	   {
 	    double tmpGsfRatio = gsfIter->p()/mcIter->p();
-	    if ( fabs(tmpGsfRatio-1) < fabs(gsfOkRatio-1) ) {
+	    if ( std::abs(tmpGsfRatio-1) < std::abs(gsfOkRatio-1) ) {
 	      gsfOkRatio = tmpGsfRatio;
 	      bestGsfElectron=*gsfIter;
 	      okGsfFound = true;
@@ -1971,7 +1971,7 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	// generated distributions for matched electrons
 	h_ele_simPt_matched      -> Fill( mcIter->pt() );
         h_ele_simPhi_matched   -> Fill( mcIter->phi() );
-	h_ele_simAbsEta_matched     -> Fill( fabs(mcIter->eta()) );
+	h_ele_simAbsEta_matched     -> Fill( std::abs(mcIter->eta()) );
 	h_ele_simEta_matched     -> Fill( mcIter->eta() );
 	h_ele_simPtEta_matched      -> Fill(  mcIter->eta(),mcIter->pt() );
 	h_ele_vertexEtaVsPhi     -> Fill(  bestGsfElectron.phi(),bestGsfElectron.eta() );
@@ -2251,11 +2251,11 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         if (bestGsfElectron.classification() == GsfElectron::SHOWERING && bestGsfElectron.isEE())  histSclEoEtrueShowering_endcaps->Fill(sclRef->energy()/mcIter->p());
 
 	//eleClass = eleClass%100; // get rid of barrel/endcap distinction
-  h_ele_eta->Fill(fabs(bestGsfElectron.eta()));
-  if (bestGsfElectron.classification() == GsfElectron::GOLDEN) h_ele_eta_golden ->Fill(fabs(bestGsfElectron.eta()));
-  if (bestGsfElectron.classification() == GsfElectron::BIGBREM) h_ele_eta_bbrem ->Fill(fabs(bestGsfElectron.eta()));
-  //if (bestGsfElectron.classification() == GsfElectron::NARROW) h_ele_eta_narrow ->Fill(fabs(bestGsfElectron.eta()));
-  if (bestGsfElectron.classification() == GsfElectron::SHOWERING) h_ele_eta_shower ->Fill(fabs(bestGsfElectron.eta()));
+  h_ele_eta->Fill(std::abs(bestGsfElectron.eta()));
+  if (bestGsfElectron.classification() == GsfElectron::GOLDEN) h_ele_eta_golden ->Fill(std::abs(bestGsfElectron.eta()));
+  if (bestGsfElectron.classification() == GsfElectron::BIGBREM) h_ele_eta_bbrem ->Fill(std::abs(bestGsfElectron.eta()));
+  //if (bestGsfElectron.classification() == GsfElectron::NARROW) h_ele_eta_narrow ->Fill(std::abs(bestGsfElectron.eta()));
+  if (bestGsfElectron.classification() == GsfElectron::SHOWERING) h_ele_eta_shower ->Fill(std::abs(bestGsfElectron.eta()));
 
 	//fbrem
 	double fbrem_mean=0.;

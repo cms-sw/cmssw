@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:49:38 EDT 2006
-// $Id: SiStripElectronAnalyzer.cc,v 1.10 2009/03/06 12:42:16 chamont Exp $
+// $Id: SiStripElectronAnalyzer.cc,v 1.11 2009/03/26 11:02:31 charlot Exp $
 //
 
 // system include files
@@ -627,8 +627,8 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
       if (hitInCommon) {  //this Electron belongs to this SiStripElectron.
 	hasElectron_[icount] = true ;
 	Electron_to_strippy[ecount]= icount ;
-	ptDiff->Fill( fabs(electronIter->track()->pt()) - fabs(strippyiter->pt()) );
-	pDiff->Fill( fabs(electronIter->track()->p()) - fabs(strippyiter->p()) );
+	ptDiff->Fill( std::abs(electronIter->track()->pt()) - std::abs(strippyiter->pt()) );
+	pDiff->Fill( std::abs(electronIter->track()->p()) - std::abs(strippyiter->p()) );
 
       }
       icount++ ;
@@ -652,8 +652,8 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	" pt " << strippyIter->pt() << " \n " <<
 	" SuperClust size " << strippyIter->superCluster()->clustersSize() ;
 
-      pElectronFailed->Fill( fabs(strippyIter->p()) );
-      ptElectronFailed->Fill( fabs(strippyIter->pt()) );
+      pElectronFailed->Fill( std::abs(strippyIter->p()) );
+      ptElectronFailed->Fill( std::abs(strippyIter->pt()) );
       sizeSuperClustersFailed->Fill(strippyIter->superCluster()->clustersSize());
       LogDebug("") << " done filling Failed histos " ;
       //      energySuperClustersFailed->Fill(strippyIter->superCluster()->energy());
@@ -668,8 +668,8 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	" p " << strippyIter->p() << " \n " <<
 	" pt " << strippyIter->pt() << " \n " <<
 	" SuperClust size " << strippyIter->superCluster()->clustersSize() ;
-      pElectronPassed->Fill( fabs(strippyIter->p()) );
-      ptElectronPassed->Fill( fabs(strippyIter->pt()) );
+      pElectronPassed->Fill( std::abs(strippyIter->p()) );
+      ptElectronPassed->Fill( std::abs(strippyIter->pt()) );
       sizeSuperClustersPassed->Fill(strippyIter->superCluster()->clustersSize());
       LogDebug("") << " done filling passed histos " ;
       //      energySuperClustersPassed->Fill(strippyIter->superCluster()->energy());
@@ -815,7 +815,7 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	double Zpx = tr1->px()+tr2->px() ;
 	double Zpy = tr1->py()+tr2->py() ;
 	double Zpz = tr1->pz()+tr2->pz() ;
-	double Ze = fabs(tr1->p())+fabs(tr2->p()) ;
+	double Ze = std::abs(tr1->p())+std::abs(tr2->p()) ;
 	edm::LogInfo("") << " Z mass " <<
 	  sqrt(Ze*Ze-Zpx*Zpx-Zpy*Zpy-Zpz*Zpz) << std::endl ;
 

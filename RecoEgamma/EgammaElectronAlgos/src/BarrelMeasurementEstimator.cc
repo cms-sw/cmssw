@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: BarrelMeasurementEstimator.cc,v 1.18 2010/07/28 10:52:46 chamont Exp $
+// $Id: BarrelMeasurementEstimator.cc,v 1.19 2010/07/29 15:19:45 chamont Exp $
 //
 //
 
@@ -43,7 +43,7 @@ std::pair<bool,double> BarrelMeasurementEstimator::estimate( const TrajectorySta
   float myZmax =  theZMax;
   float myZmin =  theZMin;
 
-  if(fabs(myZ)<30. && myR>8.)
+  if(std::abs(myZ)<30. && myR>8.)
     {
       myZmax = 0.09;
       myZmin = -0.09;
@@ -85,7 +85,7 @@ std::pair<bool,double> BarrelMeasurementEstimator::estimate
   float myZmax =  theZMax;
   float myZmin =  theZMin;
 
-  if(fabs(myZ)<30. && myR>8.)
+  if(std::abs(myZ)<30. && myR>8.)
     {
       myZmax = 0.09;
       myZmin = -0.09;
@@ -111,8 +111,8 @@ bool BarrelMeasurementEstimator::estimate
   GlobalPoint trajPos(ts.globalParameters().position());
   GlobalDetRangeZPhi detRange(plane);
 
-  Range trajZRange(trajPos.z() - fabs(theZMin), trajPos.z() + fabs(theZMax));
-  Range trajPhiRange(trajPos.phi() - fabs(thePhiMin), trajPos.phi() + fabs(thePhiMax));
+  Range trajZRange(trajPos.z() - std::abs(theZMin), trajPos.z() + std::abs(theZMax));
+  Range trajPhiRange(trajPos.phi() - std::abs(thePhiMin), trajPos.phi() + std::abs(thePhiMax));
 
   if(rangesIntersect(trajZRange, detRange.zRange()) &&
      rangesIntersect(trajPhiRange, detRange.phiRange(), PhiLess()))

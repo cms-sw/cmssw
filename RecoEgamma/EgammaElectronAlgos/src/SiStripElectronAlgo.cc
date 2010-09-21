@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:12:04 EDT 2006
-// $Id: SiStripElectronAlgo.cc,v 1.29 2008/04/10 15:33:28 uberthon Exp $
+// $Id: SiStripElectronAlgo.cc,v 1.30 2008/10/31 15:54:10 nancy Exp $
 //
 
 // system include files
@@ -744,9 +744,9 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
 	  // Cut on the Z of the strip
 	  // TIB strips are 11 cm long, TOB strips are 19 cm long (can I get these from a function?)
 	  if ((tracker_p_->idToDetUnit((*hit)->geographicalId())->type().subDetector() == GeomDetEnumerators::TIB  && 
-	       fabs(z - zFit) < 12.)  ||
+	       std::abs(z - zFit) < 12.)  ||
 	      (tracker_p_->idToDetUnit((*hit)->geographicalId())->type().subDetector() == GeomDetEnumerators::TOB  && 
-	       fabs(z - zFit) < 20.)    ) {
+	       std::abs(z - zFit) < 20.)    ) {
           
 	    // Cut a narrow band around the supercluster's projection in phi
 	    if (unwrapPhi((r-scr)*phiVsRSlope - phiBandWidth_) < phi  &&  phi < unwrapPhi((r-scr)*phiVsRSlope + phiBandWidth_)) {

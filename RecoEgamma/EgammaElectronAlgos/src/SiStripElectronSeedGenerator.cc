@@ -286,7 +286,7 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster( edm::Ref<reco::SuperClu
   }
 
   if(!(hasLay1Hit && hasLay2Hit)) useTID = true;
-  if(fabs(scEta) > tidEtaUsage_) useTID = true;
+  if(std::abs(scEta) > tidEtaUsage_) useTID = true;
   std::vector<TrajectoryMeasurement> tid1measurements;
   if(useDL.at(2) && useTID) tid1measurements = layerMeasurements.measurements(*tid1,initialTSOS,*thePropagator,*theEstimator);
   std::vector<TrajectoryMeasurement> tid2measurements;
@@ -531,7 +531,7 @@ bool SiStripElectronSeedGenerator::checkHitsAndTSOS(std::vector<const SiStripMat
   double phi2 = hit2Pos.phi();
   double z2 = hit2Pos.z();
 
-  if(r2 > r1 && (fabs(z2) > fabs(z1) || fabs(scEta) < 0.25)) {
+  if(r2 > r1 && (std::abs(z2) > std::abs(z1) || std::abs(scEta) < 0.25)) {
 
     //Consider the circle made of IP and Hit 1; Calculate it's radius using pT
 
@@ -542,8 +542,8 @@ bool SiStripElectronSeedGenerator::checkHitsAndTSOS(std::vector<const SiStripMat
     double b = phiDiff(phi2,phi1);
     //UB added '=0' to avoid compiler warning
     double phiMissHit2=0;
-    if(fabs(b - a)<fabs(b + a)) phiMissHit2 = b - a;
-    if(fabs(b - a)>fabs(b + a)) phiMissHit2 = b + a;
+    if(std::abs(b - a)<std::abs(b + a)) phiMissHit2 = b - a;
+    if(std::abs(b - a)>std::abs(b + a)) phiMissHit2 = b + a;
 
     double zMissHit2 = z2 - (r2*(zc-z1)-r1*zc+rc*z1)/(rc-r1);
 
@@ -553,8 +553,8 @@ bool SiStripElectronSeedGenerator::checkHitsAndTSOS(std::vector<const SiStripMat
     int subdetector = whichSubdetector(hit2);
 
     bool zDiff = true;
-    double zVar1 = fabs(z1);
-    double zVar2 = fabs(z2 - z1);
+    double zVar1 = std::abs(z1);
+    double zVar2 = std::abs(z2 - z1);
     if(zVar1 > 75 && zVar1 < 95 && (zVar2 > 18 || zVar2 < 5)) zDiff = false;
     if(zVar1 > 100 && zVar1 < 110 && (zVar2 > 35 || zVar2 < 5)) zDiff = false;
     if(zVar1 > 125 && zVar1 < 150 && (zVar2 > 18 || zVar2 < 5)) zDiff = false;
@@ -562,15 +562,15 @@ bool SiStripElectronSeedGenerator::checkHitsAndTSOS(std::vector<const SiStripMat
     if(subdetector == 1){
       int tibExtraCut = 0;
       if(r1 > 23 && r1 < 28 && r2 > 31 && r2 < 37) tibExtraCut = 1;
-      if(fabs(phiMissHit2) < tibPhiMissHit2Cut_ && fabs(zMissHit2) < tibZMissHit2Cut_ && tibExtraCut == 1) seedCutsSatisfied = true;
+      if(std::abs(phiMissHit2) < tibPhiMissHit2Cut_ && std::abs(zMissHit2) < tibZMissHit2Cut_ && tibExtraCut == 1) seedCutsSatisfied = true;
     }else if(subdetector == 2){
       int tidExtraCut = 0;
       if(r1 > 23 && r1 < 34 && r2 > 26 && r2 < 42) tidExtraCut = 1;
-      if(fabs(phiMissHit2) < tidPhiMissHit2Cut_ && fabs(rMissHit2) < tidRMissHit2Cut_ && tidExtraCut == 1 && zDiff) seedCutsSatisfied = true;
+      if(std::abs(phiMissHit2) < tidPhiMissHit2Cut_ && std::abs(rMissHit2) < tidRMissHit2Cut_ && tidExtraCut == 1 && zDiff) seedCutsSatisfied = true;
     }else if(subdetector == 3){
       int tecExtraCut = 0;
       if(r1 > 23 && r1 < 32 && r2 > 26 && r2 < 42) tecExtraCut = 1;
-      if(fabs(phiMissHit2) < tecPhiMissHit2Cut_ && fabs(rMissHit2) < tecRMissHit2Cut_ && tecExtraCut == 1 && zDiff) seedCutsSatisfied = true;
+      if(std::abs(phiMissHit2) < tecPhiMissHit2Cut_ && std::abs(rMissHit2) < tecRMissHit2Cut_ && tecExtraCut == 1 && zDiff) seedCutsSatisfied = true;
     }
 
   }
@@ -634,7 +634,7 @@ bool SiStripElectronSeedGenerator::altCheckHitsAndTSOS(std::vector<const SiStrip
   double phi2 = hit2Pos.phi();
   double z2 = hit2Pos.z();
 
-  if(r2 > r1 && fabs(z2) > fabs(z1)) {
+  if(r2 > r1 && std::abs(z2) > std::abs(z1)) {
 
     //Consider the circle made of IP and Hit 1; Calculate it's radius using pT
 
@@ -644,10 +644,10 @@ bool SiStripElectronSeedGenerator::altCheckHitsAndTSOS(std::vector<const SiStrip
     double a = (r2-r1)/(2*curv);
     double b = phiDiff(phi2,phi1);
     double phiMissHit2 = 0;
-    if(fabs(b - a)<fabs(b + a)) phiMissHit2 = b - a;
-    if(fabs(b - a)>fabs(b + a)) phiMissHit2 = b + a;
+    if(std::abs(b - a)<std::abs(b + a)) phiMissHit2 = b - a;
+    if(std::abs(b - a)>std::abs(b + a)) phiMissHit2 = b + a;
 
-    if(fabs(phiMissHit2) < monoPhiMissHit2Cut_) seedCutSatisfied = true;
+    if(std::abs(phiMissHit2) < monoPhiMissHit2Cut_) seedCutSatisfied = true;
 
   }
 
@@ -704,7 +704,7 @@ bool SiStripElectronSeedGenerator::preselection(GlobalPoint position,GlobalPoint
   double deltaPsi = psi - (scr-r)*phiVsRSlope;
   double antiDeltaPsi = psi - (r-scr)*phiVsRSlope;
   double dP;
-  if (fabs(deltaPsi)<fabs(antiDeltaPsi)){
+  if (std::abs(deltaPsi)<std::abs(antiDeltaPsi)){
     dP = deltaPsi;
   }else{
     dP = antiDeltaPsi;
@@ -714,13 +714,13 @@ bool SiStripElectronSeedGenerator::preselection(GlobalPoint position,GlobalPoint
   bool result = false;
 
   if(hitLayer == 1){
-    if(fabs(originZ) < tibOriginZCut_ && fabs(dP) < tibDeltaPsiCut_) result = true;
+    if(std::abs(originZ) < tibOriginZCut_ && std::abs(dP) < tibDeltaPsiCut_) result = true;
   }else if(hitLayer == 2){
-    if(fabs(originZ) < tidOriginZCut_ && fabs(dP) < tidDeltaPsiCut_) result = true;
+    if(std::abs(originZ) < tidOriginZCut_ && std::abs(dP) < tidDeltaPsiCut_) result = true;
   }else if(hitLayer == 3){
-    if(fabs(originZ) < tecOriginZCut_ && fabs(dP) < tecDeltaPsiCut_) result = true;
+    if(std::abs(originZ) < tecOriginZCut_ && std::abs(dP) < tecDeltaPsiCut_) result = true;
   }else if(hitLayer == 4){
-    if(fabs(originZ) < monoOriginZCut_ && fabs(dP) < monoDeltaPsiCut_) result = true;
+    if(std::abs(originZ) < monoOriginZCut_ && std::abs(dP) < monoDeltaPsiCut_) result = true;
   }
 
   return result;
@@ -754,7 +754,7 @@ const SiStripRecHit2D* SiStripElectronSeedGenerator::backupHitConverter(ConstRec
 
 std::vector<bool> SiStripElectronSeedGenerator::useDetLayer(double scEta){
   std::vector<bool> useDetLayer;
-  double variable = fabs(scEta);
+  double variable = std::abs(scEta);
   if(variable > 0 && variable < 1.8){
     useDetLayer.push_back(true);
   }else{

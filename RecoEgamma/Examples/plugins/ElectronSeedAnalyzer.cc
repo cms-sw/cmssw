@@ -297,7 +297,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
       float localDphi = SCl_phi-hitPos.phi();
       if(localDphi>CLHEP::pi)localDphi-=(2*CLHEP::pi);
       if(localDphi<-CLHEP::pi)localDphi+=(2*CLHEP::pi);
-      if(fabs(localDphi)>2.5)continue;
+      if(std::abs(localDphi)>2.5)continue;
 
       phi1 = hitPos.phi();
       dphi1 = hitPos.phi() - tsos1.globalPosition().phi();
@@ -513,16 +513,16 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
       }
       if ( ((mother == 0) || ((mother != 0) && (mother->pdg_id() == 23))
 	                  || ((mother != 0) && (mother->pdg_id() == 32))
-	                  || ((mother != 0) && (fabs(mother->pdg_id()) == 24)))) {
+	                  || ((mother != 0) && (std::abs(mother->pdg_id()) == 24)))) {
       genPc=(*partIter);
       pAssSim = genPc->momentum();
 
       // EWK fiducial
-      //if (pAssSim.perp()> 100. || fabs(pAssSim.eta())> 2.5) continue;     
-      //if (pAssSim.perp()< 20. || (fabs(pAssSim.eta())> 1.4442 && fabs(pAssSim.eta())< 1.56) || fabs(pAssSim.eta())> 2.5) continue;
+      //if (pAssSim.perp()> 100. || std::abs(pAssSim.eta())> 2.5) continue;     
+      //if (pAssSim.perp()< 20. || (std::abs(pAssSim.eta())> 1.4442 && std::abs(pAssSim.eta())< 1.56) || std::abs(pAssSim.eta())> 2.5) continue;
       // reconstruction fiducial
-      //if (pAssSim.perp()< 5. || fabs(pAssSim.eta())> 2.5) continue;
-      if (fabs(pAssSim.eta())> 2.5) continue;
+      //if (pAssSim.perp()< 5. || std::abs(pAssSim.eta())> 2.5) continue;
+      if (std::abs(pAssSim.eta())> 2.5) continue;
 
       histptMC_->Fill(pAssSim.perp());
       histetaMC_->Fill(pAssSim.eta());
@@ -545,7 +545,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
 	float phi = t.globalMomentum().phi();
 	float p = t.globalMomentum().mag();
         double dphi = phi-pAssSim.phi();
-        if (fabs(dphi)>CLHEP::pi)
+        if (std::abs(dphi)>CLHEP::pi)
          dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
 	double deltaR = sqrt(pow((eta-pAssSim.eta()),2) + pow(dphi,2));
 	if ( deltaR < 0.15 ){
@@ -553,7 +553,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
 	//if ( (genPc->pdg_id() == 11) && (gsfIter->charge() < 0.) || (genPc->pdg_id() == -11) &&
 	//(gsfIter->charge() > 0.) ){
 	  double tmpSeedRatio = p/pAssSim.t();
-	  if ( fabs(tmpSeedRatio-1) < fabs(seedOkRatio-1) ) {
+	  if ( std::abs(tmpSeedRatio-1) < std::abs(seedOkRatio-1) ) {
 	    seedOkRatio = tmpSeedRatio;
 	    bestElectronSeed=*gsfIter;
 	    okSeedFound = true;
@@ -593,7 +593,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
 	float phi = t.globalMomentum().phi();
 	float p = t.globalMomentum().mag();
         double dphi = phi-pAssSim.phi();
-        if (fabs(dphi)>CLHEP::pi)
+        if (std::abs(dphi)>CLHEP::pi)
          dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
 	double deltaR = sqrt(pow((eta-pAssSim.eta()),2) + pow(dphi,2));
 	if (gsfIter->isEcalDriven()) {
@@ -602,7 +602,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
 	//if ( (genPc->pdg_id() == 11) && (gsfIter->charge() < 0.) || (genPc->pdg_id() == -11) &&
 	//(gsfIter->charge() > 0.) ){
 	  double tmpSeedRatio = p/pAssSim.t();
-	  if ( fabs(tmpSeedRatio-1) < fabs(seedOkRatio-1) ) {
+	  if ( std::abs(tmpSeedRatio-1) < std::abs(seedOkRatio-1) ) {
 	    seedOkRatio = tmpSeedRatio;
 	    bestElectronSeed=*gsfIter;
 	    okSeedFound = true;
@@ -636,7 +636,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
 	float phi = t.globalMomentum().phi();
 	float p = t.globalMomentum().mag();
         double dphi = phi-pAssSim.phi();
-        if (fabs(dphi)>CLHEP::pi)
+        if (std::abs(dphi)>CLHEP::pi)
          dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
 	double deltaR = sqrt(pow((eta-pAssSim.eta()),2) + pow(dphi,2));
 	if (gsfIter->isTrackerDriven()) {
@@ -645,7 +645,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
 	//if ( (genPc->pdg_id() == 11) && (gsfIter->charge() < 0.) || (genPc->pdg_id() == -11) &&
 	//(gsfIter->charge() > 0.) ){
 	  double tmpSeedRatio = p/pAssSim.t();
-	  if ( fabs(tmpSeedRatio-1) < fabs(seedOkRatio-1) ) {
+	  if ( std::abs(tmpSeedRatio-1) < std::abs(seedOkRatio-1) ) {
 	    seedOkRatio = tmpSeedRatio;
 	    bestElectronSeed=*gsfIter;
 	    okSeedFound = true;

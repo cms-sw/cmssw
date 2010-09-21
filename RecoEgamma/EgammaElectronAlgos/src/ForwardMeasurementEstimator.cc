@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ForwardMeasurementEstimator.cc,v 1.19 2010/07/28 10:52:46 chamont Exp $
+// $Id: ForwardMeasurementEstimator.cc,v 1.20 2010/07/29 15:19:45 chamont Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/ForwardMeasurementEstimator.h"
@@ -46,7 +46,7 @@ std::pair<bool,double> ForwardMeasurementEstimator::estimate( const TrajectorySt
   float myPhimin = thePhiMin;
   float myPhimax = thePhiMax;
 
-  if(fabs(myZ)> 70. &&  fabs(myZ)<170.)
+  if(std::abs(myZ)> 70. &&  std::abs(myZ)<170.)
     {
       rMin = theRMinI;
       rMax = theRMaxI;
@@ -87,7 +87,7 @@ std::pair<bool,double> ForwardMeasurementEstimator::estimate
   float myPhimin = thePhiMin;
   float myPhimax = thePhiMax;
 
-  if(fabs(myZ)> 70. &&  fabs(myZ)<170.)
+  if(std::abs(myZ)> 70. &&  std::abs(myZ)<170.)
     {
       rMin = theRMinI;
       rMax = theRMaxI;
@@ -115,7 +115,7 @@ bool ForwardMeasurementEstimator::estimate
   float r2 = 40.;
 
   Range trajRRange(trajPos.perp() - r1, trajPos.perp() + r2);
-  Range trajPhiRange(trajPos.phi() - fabs(thePhiMin), trajPos.phi() + fabs(thePhiMax));
+  Range trajPhiRange(trajPos.phi() - std::abs(thePhiMin), trajPos.phi() + std::abs(thePhiMax));
 
   if(rangesIntersect(trajRRange, detRange.rRange()) &&
      rangesIntersect(trajPhiRange, detRange.phiRange(), PhiLess()))

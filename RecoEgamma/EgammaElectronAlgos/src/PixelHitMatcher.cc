@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.41 2010/07/28 10:52:46 chamont Exp $
+// $Id: PixelHitMatcher.cc,v 1.42 2010/07/29 15:19:45 chamont Exp $
 //
 //
 
@@ -176,7 +176,7 @@ PixelHitMatcher::compatibleSeeds
           else est=meas1stFLayer.estimate(vprim, tsos1,hitPos);
           if (!est.first) continue ;
 
-          if (fabs(normalized_phi(hitPos.phi()-xmeas.phi()))>2.5) continue ;
+          if (std::abs(normalized_phi(hitPos.phi()-xmeas.phi()))>2.5) continue ;
           EleRelPointPair pp1(hitPos,tsos1.globalParameters().position(),vprim) ;
           int subDet1 = id.subdetId() ;
           float dRz1 = (subDet1%2==1)?pp1.dZ():pp1.dPerp() ;
@@ -297,7 +297,7 @@ PixelHitMatcher::compatibleHits
     for (aMeas m=pixelMeasurements.begin(); m!=pixelMeasurements.end(); m++){
      if (m->recHit()->isValid()) {
        float localDphi = normalized_phi(SCl_phi-m->forwardPredictedState().globalPosition().phi()) ;
-       if(fabs(localDphi)>2.5)continue;
+       if(std::abs(localDphi)>2.5)continue;
 	CLHEP::Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
 			      m->forwardPredictedState().globalPosition().y(),
 			      m->forwardPredictedState().globalPosition().z());
@@ -327,7 +327,7 @@ PixelHitMatcher::compatibleHits
     for (aMeas m=pixel2Measurements.begin(); m!=pixel2Measurements.end(); m++){
       if (m->recHit()->isValid()) {
 	float localDphi = normalized_phi(SCl_phi-m->forwardPredictedState().globalPosition().phi()) ;
-	if(fabs(localDphi)>2.5)continue;
+	if(std::abs(localDphi)>2.5)continue;
         CLHEP::Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
 			      m->forwardPredictedState().globalPosition().y(),
 			      m->forwardPredictedState().globalPosition().z());
@@ -368,7 +368,7 @@ PixelHitMatcher::compatibleHits
       for (aMeas m=pixelMeasurements.begin(); m!=pixelMeasurements.end(); m++){
 	if (m->recHit()->isValid()) {
 	  float localDphi = normalized_phi(SCl_phi-m->forwardPredictedState().globalPosition().phi());
-	  if(fabs(localDphi)>2.5)continue;
+	  if(std::abs(localDphi)>2.5)continue;
 	  CLHEP::Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
 				m->forwardPredictedState().globalPosition().y(),
 				m->forwardPredictedState().globalPosition().z());
@@ -389,7 +389,7 @@ PixelHitMatcher::compatibleHits
 	for (aMeas m=pixel2Measurements.begin(); m!=pixel2Measurements.end(); m++){
 	  if (m->recHit()->isValid()) {
 	    float localDphi = normalized_phi(SCl_phi-m->forwardPredictedState().globalPosition().phi()) ;
-	    if(fabs(localDphi)>2.5)continue;
+	    if(std::abs(localDphi)>2.5)continue;
 	    CLHEP::Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
 				  m->forwardPredictedState().globalPosition().y(),
 				  m->forwardPredictedState().globalPosition().z());
@@ -453,7 +453,7 @@ PixelHitMatcher::compatibleHits
       for(unsigned int shit=0; shit<secondHit.measurementsInNextLayers().size(); shit++)
       	{
 	  float dphi = normalized_phi(pred1Meas[i].phi()-validMeasurements[i].recHit()->globalPosition().phi()) ;
-	  if (fabs(dphi)<2.5)
+	  if (std::abs(dphi)<2.5)
 	    {
 	      ConstRecHitPointer pxrh = validMeasurements[i].recHit();
 	      RecHitWithDist rh(pxrh,dphi);

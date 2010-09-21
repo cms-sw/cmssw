@@ -66,7 +66,7 @@ namespace EgAmbiguityTools
  {
 
 bool isBetter( const reco::GsfElectron * e1, const reco::GsfElectron * e2 )
- { return (fabs(e1->eSuperClusterOverP()-1)<fabs(e2->eSuperClusterOverP()-1)) ; }
+ { return (std::abs(e1->eSuperClusterOverP()-1)<std::abs(e2->eSuperClusterOverP()-1)) ; }
 
 bool isInnerMost::operator()
  ( const reco::GsfElectron * e1, const reco::GsfElectron * e2 )

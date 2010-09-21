@@ -107,7 +107,7 @@ float MCElectronAnalyzer::etaTransformation(  float EtaParticle , float Zvertex)
 	if(Theta<0.0) Theta = Theta+PI ;
 	float ETA = - log(tan(0.5*Theta));
 
-	if( fabs(ETA) > etaBarrelEndcap )
+	if( std::abs(ETA) > etaBarrelEndcap )
 	  {
 	   float Zend = Z_Endcap ;
 	   if(EtaParticle<0.0 )  Zend = -Zend ;

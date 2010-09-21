@@ -99,7 +99,7 @@ std::pair<TrackRef,float> GsfElectronCoreProducer::getCtfTrackRef
     double dEta = gsfTrackRef->eta() - ctfTkIter->eta();
     double dPhi = gsfTrackRef->phi() - ctfTkIter->phi();
     double pi = acos(-1.);
-    if(fabs(dPhi) > pi) dPhi = 2*pi - fabs(dPhi);
+    if(std::abs(dPhi) > pi) dPhi = 2*pi - std::abs(dPhi);
 
     // dont want to look at every single track in the event!
     if(sqrt(dEta*dEta + dPhi*dPhi) > 0.3) continue;

@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.98 2010/07/29 12:05:31 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.99 2010/07/29 15:19:45 chamont Exp $
 //
 //
 
@@ -581,19 +581,19 @@ bool GsfElectronAlgo::preselectCutBasedFlag( GsfElectron * ele, const reco::Beam
   // delta eta criteria
   double deta = ele->deltaEtaSuperClusterTrackAtVtx();
   LogTrace("GsfElectronAlgo") << "delta eta : " << deta;
-  if (eg && ele->isEB() && (fabs(deta) > maxDeltaEtaBarrel_)) return false ;
-  if (eg && ele->isEE() && (fabs(deta) > maxDeltaEtaEndcaps_)) return false ;
-  if (pf && ele->isEB() && (fabs(deta) > maxDeltaEtaBarrelPflow_)) return false ;
-  if (pf && ele->isEE() && (fabs(deta) > maxDeltaEtaEndcapsPflow_)) return false ;
+  if (eg && ele->isEB() && (std::abs(deta) > maxDeltaEtaBarrel_)) return false ;
+  if (eg && ele->isEE() && (std::abs(deta) > maxDeltaEtaEndcaps_)) return false ;
+  if (pf && ele->isEB() && (std::abs(deta) > maxDeltaEtaBarrelPflow_)) return false ;
+  if (pf && ele->isEE() && (std::abs(deta) > maxDeltaEtaEndcapsPflow_)) return false ;
   LogTrace("GsfElectronAlgo") << "Delta eta criteria are satisfied";
 
   // delta phi criteria
   double dphi = ele->deltaPhiSuperClusterTrackAtVtx();
   LogTrace("GsfElectronAlgo") << "delta phi : " << dphi;
-  if (eg && ele->isEB() && (fabs(dphi) > maxDeltaPhiBarrel_)) return false ;
-  if (eg && ele->isEE() && (fabs(dphi) > maxDeltaPhiEndcaps_)) return false ;
-  if (pf && ele->isEB() && (fabs(dphi) > maxDeltaPhiBarrelPflow_)) return false ;
-  if (pf && ele->isEE() && (fabs(dphi) > maxDeltaPhiEndcapsPflow_)) return false ;
+  if (eg && ele->isEB() && (std::abs(dphi) > maxDeltaPhiBarrel_)) return false ;
+  if (eg && ele->isEE() && (std::abs(dphi) > maxDeltaPhiEndcaps_)) return false ;
+  if (pf && ele->isEB() && (std::abs(dphi) > maxDeltaPhiBarrelPflow_)) return false ;
+  if (pf && ele->isEE() && (std::abs(dphi) > maxDeltaPhiEndcapsPflow_)) return false ;
   LogTrace("GsfElectronAlgo") << "Delta phi criteria are satisfied";
 
   // sigma ieta ieta
@@ -625,8 +625,8 @@ bool GsfElectronAlgo::preselectCutBasedFlag( GsfElectron * ele, const reco::Beam
    }
 
   // transverse impact parameter
-  if (eg && fabs(ele->gsfTrack()->dxy(bs.position()))>maxTIP_) return false ;
-  if (pf && fabs(ele->gsfTrack()->dxy(bs.position()))>maxTIPPflow_) return false ;
+  if (eg && std::abs(ele->gsfTrack()->dxy(bs.position()))>maxTIP_) return false ;
+  if (pf && std::abs(ele->gsfTrack()->dxy(bs.position()))>maxTIPPflow_) return false ;
   LogTrace("GsfElectronAlgo") << "TIP criterion is satisfied" ;
 
   LogTrace("GsfElectronAlgo") << "All cut based criteria are satisfied" ;
@@ -758,7 +758,7 @@ void GsfElectronAlgo::createElectron
 
   reco::GsfElectron::FiducialFlags fiducialFlags ;
   int detector = seedXtalId.subdetId() ;
-  double feta=fabs(scRef->position().eta()) ;
+  double feta=std::abs(scRef->position().eta()) ;
   if (detector==EcalBarrel)
    {
     fiducialFlags.isEB = true ;
@@ -779,7 +779,7 @@ void GsfElectronAlgo::createElectron
     EEDetId eedetid(seedXtalId);
     if (EEDetId::isNextToRingBoundary(eedetid))
      {
-      if (fabs(feta)<2.)
+      if (std::abs(feta)<2.)
        { fiducialFlags.isEBEEGap = true ; }
       else
        { fiducialFlags.isEERingGap = true ; }
@@ -876,9 +876,9 @@ const CaloClusterPtr GsfElectronAlgo::getEleBasicCluster
     if (!tempTSOS.isValid()) tempTSOS=outTSOS ;
     GlobalPoint extrap = tempTSOS.globalPosition() ;
     float dphi = EleRelPointPair(posclu,extrap,bs.position()).dPhi() ;
-    if (fabs(dphi)<dphimin)
+    if (std::abs(dphi)<dphimin)
      {
-      dphimin = fabs(dphi) ;
+      dphimin = std::abs(dphi) ;
       eleRef = (*bc);
       eleTSOS_ = tempTSOS ;
      }
@@ -926,7 +926,7 @@ bool  GsfElectronAlgo::calculateTSOS(const GsfTrack &t,const SuperCluster & theC
 //=======================================================================================
 
 bool better_electron( const reco::GsfElectron * e1, const reco::GsfElectron * e2 )
- { return (fabs(e1->eSuperClusterOverP()-1)<fabs(e2->eSuperClusterOverP()-1)) ; }
+ { return (std::abs(e1->eSuperClusterOverP()-1)<std::abs(e2->eSuperClusterOverP()-1)) ; }
 
 //void GsfElectronAlgo::resolveElectrons( GsfElectronPtrCollection & inEle, reco::GsfElectronCollection & outEle)
 void GsfElectronAlgo::resolveElectrons
@@ -1022,7 +1022,7 @@ pair<TrackRef,float> GsfElectronAlgo::getCtfTrackRef(const GsfTrackRef& gsfTrack
     double dEta = gsfTrackRef->eta() - ctfTkIter->eta();
     double dPhi = gsfTrackRef->phi() - ctfTkIter->phi();
     double pi = acos(-1.);
-    if(fabs(dPhi) > pi) dPhi = 2*pi - fabs(dPhi);
+    if(std::abs(dPhi) > pi) dPhi = 2*pi - std::abs(dPhi);
 
     // dont want to look at every single track in the event!
     if(sqrt(dEta*dEta + dPhi*dPhi) > 0.3) continue;

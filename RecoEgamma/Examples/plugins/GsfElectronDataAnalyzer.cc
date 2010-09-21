@@ -14,7 +14,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronDataAnalyzer.cc,v 1.35 2010/02/26 18:47:24 wdd Exp $
+// $Id: GsfElectronDataAnalyzer.cc,v 1.37 2010/02/26 19:15:16 wdd Exp $
 //
 //
 
@@ -1085,7 +1085,7 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 	// select electrons
 	if (gsfIter->superCluster()->energy()/cosh(gsfIter->superCluster()->eta())<minEt_) continue;
-	if (fabs(gsfIter->eta())>maxAbsEta_) continue;
+	if (std::abs(gsfIter->eta())>maxAbsEta_) continue;
 	if (gsfIter->pt()<minPt_) continue;
 
 	if (gsfIter->isEB() && isEE_) continue;
@@ -1099,14 +1099,14 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	if (gsfIter->isEB() && gsfIter->eSuperClusterOverP() > eOverPMaxBarrel_) continue;
 	if (gsfIter->isEE() && gsfIter->eSuperClusterOverP() < eOverPMinEndcaps_) continue;
 	if (gsfIter->isEE() && gsfIter->eSuperClusterOverP() > eOverPMaxEndcaps_) continue;
-	if (gsfIter->isEB() && fabs(gsfIter->deltaEtaSuperClusterTrackAtVtx()) < dEtaMinBarrel_) continue;
-	if (gsfIter->isEB() && fabs(gsfIter->deltaEtaSuperClusterTrackAtVtx()) > dEtaMaxBarrel_) continue;
-	if (gsfIter->isEE() && fabs(gsfIter->deltaEtaSuperClusterTrackAtVtx()) < dEtaMinEndcaps_) continue;
-	if (gsfIter->isEE() && fabs(gsfIter->deltaEtaSuperClusterTrackAtVtx()) > dEtaMaxEndcaps_) continue;
-	if (gsfIter->isEB() && fabs(gsfIter->deltaPhiSuperClusterTrackAtVtx()) < dPhiMinBarrel_) continue;
-	if (gsfIter->isEB() && fabs(gsfIter->deltaPhiSuperClusterTrackAtVtx()) > dPhiMaxBarrel_) continue;
-	if (gsfIter->isEE() && fabs(gsfIter->deltaPhiSuperClusterTrackAtVtx()) < dPhiMinEndcaps_) continue;
-	if (gsfIter->isEE() && fabs(gsfIter->deltaPhiSuperClusterTrackAtVtx()) > dPhiMaxEndcaps_) continue;
+	if (gsfIter->isEB() && std::abs(gsfIter->deltaEtaSuperClusterTrackAtVtx()) < dEtaMinBarrel_) continue;
+	if (gsfIter->isEB() && std::abs(gsfIter->deltaEtaSuperClusterTrackAtVtx()) > dEtaMaxBarrel_) continue;
+	if (gsfIter->isEE() && std::abs(gsfIter->deltaEtaSuperClusterTrackAtVtx()) < dEtaMinEndcaps_) continue;
+	if (gsfIter->isEE() && std::abs(gsfIter->deltaEtaSuperClusterTrackAtVtx()) > dEtaMaxEndcaps_) continue;
+	if (gsfIter->isEB() && std::abs(gsfIter->deltaPhiSuperClusterTrackAtVtx()) < dPhiMinBarrel_) continue;
+	if (gsfIter->isEB() && std::abs(gsfIter->deltaPhiSuperClusterTrackAtVtx()) > dPhiMaxBarrel_) continue;
+	if (gsfIter->isEE() && std::abs(gsfIter->deltaPhiSuperClusterTrackAtVtx()) < dPhiMinEndcaps_) continue;
+	if (gsfIter->isEE() && std::abs(gsfIter->deltaPhiSuperClusterTrackAtVtx()) > dPhiMaxEndcaps_) continue;
 	if (gsfIter->isEB() && gsfIter->scSigmaIEtaIEta() < sigIetaIetaMinBarrel_) continue;
 	if (gsfIter->isEB() && gsfIter->scSigmaIEtaIEta() > sigIetaIetaMaxBarrel_) continue;
 	if (gsfIter->isEE() && gsfIter->scSigmaIEtaIEta() < sigIetaIetaMinEndcaps_) continue;
@@ -1281,11 +1281,11 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	if (gsfIter->isEE()) eleClass+=10;
 	h_ele_classes ->Fill(eleClass);
 
-  h_ele_eta->Fill(fabs(gsfIter->eta()));
-  if (gsfIter->classification() == GsfElectron::GOLDEN) h_ele_eta_golden ->Fill(fabs(gsfIter->eta()));
-  if (gsfIter->classification() == GsfElectron::BIGBREM) h_ele_eta_bbrem ->Fill(fabs(gsfIter->eta()));
-  if (gsfIter->classification() == GsfElectron::OLDNARROW) h_ele_eta_narrow ->Fill(fabs(gsfIter->eta()));
-  if (gsfIter->classification() == GsfElectron::SHOWERING) h_ele_eta_shower ->Fill(fabs(gsfIter->eta()));
+  h_ele_eta->Fill(std::abs(gsfIter->eta()));
+  if (gsfIter->classification() == GsfElectron::GOLDEN) h_ele_eta_golden ->Fill(std::abs(gsfIter->eta()));
+  if (gsfIter->classification() == GsfElectron::BIGBREM) h_ele_eta_bbrem ->Fill(std::abs(gsfIter->eta()));
+  if (gsfIter->classification() == GsfElectron::OLDNARROW) h_ele_eta_narrow ->Fill(std::abs(gsfIter->eta()));
+  if (gsfIter->classification() == GsfElectron::SHOWERING) h_ele_eta_shower ->Fill(std::abs(gsfIter->eta()));
 
 	//fbrem
 	double fbrem_mean=0.;
@@ -1379,15 +1379,15 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     // number of matching objects
     matchingObjectNum++;
 
-      if (moIter->energy()/cosh(moIter->eta())> maxPtMatchingObject_ || fabs(moIter->eta())> maxAbsEtaMatchingObject_) continue;
+      if (moIter->energy()/cosh(moIter->eta())> maxPtMatchingObject_ || std::abs(moIter->eta())> maxAbsEtaMatchingObject_) continue;
 
       // suppress the endcaps
-      //if (fabs(moIter->eta()) > 1.5) continue;
+      //if (std::abs(moIter->eta()) > 1.5) continue;
       // select central z
-      //if ( fabs((*mcIter)->production_vertex()->position().z())>50.) continue;
+      //if ( std::abs((*mcIter)->production_vertex()->position().z())>50.) continue;
 
       h_matchingObjectEta -> Fill( moIter->eta() );
-      h_matchingObjectAbsEta -> Fill( fabs(moIter->eta()) );
+      h_matchingObjectAbsEta -> Fill( std::abs(moIter->eta()) );
       h_matchingObjectP   -> Fill( moIter->energy() );
       h_matchingObjectPt   -> Fill( moIter->energy()/cosh(moIter->eta()) );
       h_matchingObjectPhi   -> Fill( moIter->phi() );
@@ -1405,14 +1405,14 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
         // matching with a cone in eta phi
 	if (matchingCondition_ == "Cone") {
 	double dphi = gsfIter->phi()-moIter->phi();
-        if (fabs(dphi)>CLHEP::pi)
+        if (std::abs(dphi)>CLHEP::pi)
          dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
     	double deltaR = sqrt(pow((moIter->eta()-gsfIter->eta()),2) + pow(dphi,2));
 	if ( deltaR < deltaR_ ){
 	//if ( (genPc->pdg_id() == 11) && (gsfIter->charge() < 0.) || (genPc->pdg_id() == -11) &&
 	//(gsfIter->charge() > 0.) ){
 	  double tmpGsfRatio = gsfIter->p()/moIter->energy();
-	  if ( fabs(tmpGsfRatio-1) < fabs(gsfOkRatio-1) ) {
+	  if ( std::abs(tmpGsfRatio-1) < std::abs(gsfOkRatio-1) ) {
 	    gsfOkRatio = tmpGsfRatio;
 	    bestGsfElectron=*gsfIter;
 	    okGsfFound = true;
@@ -1428,7 +1428,7 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	// generated distributions for matched electrons
 	h_ele_matchingObjectPt_matched      -> Fill( moIter->energy()/cosh(moIter->eta()) );
         h_ele_matchingObjectPhi_matched   -> Fill( moIter->phi() );
-	h_ele_matchingObjectAbsEta_matched     -> Fill( fabs(moIter->eta()) );
+	h_ele_matchingObjectAbsEta_matched     -> Fill( std::abs(moIter->eta()) );
 	h_ele_matchingObjectEta_matched     -> Fill( moIter->eta() );
         h_ele_matchingObjectZ_matched   -> Fill( moIter->z() );
 

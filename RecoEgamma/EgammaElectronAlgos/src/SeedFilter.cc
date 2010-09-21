@@ -153,8 +153,8 @@ void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::
                                                     deltaZVertex,
 						    //                                                    deltaEta_,
 						    //                                                    deltaPhi_,-1);
-						    RectangularEtaPhiTrackingRegion::Margin(fabs(deltaEta_),fabs(deltaEta_)),
-						    RectangularEtaPhiTrackingRegion::Margin(fabs(deltaPhi_),fabs(deltaPhi_))
+						    RectangularEtaPhiTrackingRegion::Margin(std::abs(deltaEta_),std::abs(deltaEta_)),
+						    RectangularEtaPhiTrackingRegion::Margin(std::abs(deltaPhi_),std::abs(deltaPhi_))
 						    ,hitsfactoryMode_,
 						    true, /*default in header*/
 						    measurementTrackerName_
@@ -180,8 +180,8 @@ void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::
                                                    deltaZVertex,
 						   //                                                   deltaEta_,
 						   //                                                   deltaPhi_,-1);
-						    RectangularEtaPhiTrackingRegion::Margin(fabs(deltaEta_),fabs(deltaEta_)),
-						    RectangularEtaPhiTrackingRegion::Margin(fabs(deltaPhi_),fabs(deltaPhi_))
+						    RectangularEtaPhiTrackingRegion::Margin(std::abs(deltaEta_),std::abs(deltaEta_)),
+						    RectangularEtaPhiTrackingRegion::Margin(std::abs(deltaPhi_),std::abs(deltaPhi_))
 						    ,hitsfactoryMode_
 						   ,true, /*default in header*/
 						   measurementTrackerName_

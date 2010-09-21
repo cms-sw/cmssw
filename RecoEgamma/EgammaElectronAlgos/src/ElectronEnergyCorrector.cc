@@ -11,7 +11,7 @@
  * \author Ivica Puljak - FESB, Split
  * \author Stephanie Baffioni - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: ElectronEnergyCorrector.cc,v 1.9 2009/11/14 14:37:55 charlot Exp $
+ * \version $Id: ElectronEnergyCorrector.cc,v 1.10 2010/07/29 12:05:31 chamont Exp $
  *
  ****************************************************************************/
 
@@ -133,7 +133,7 @@ double ElectronEnergyCorrector::fEtaBarrelGood( double scEta ) const
   float p2 = -1.08793e-02 ;
   float p3 =  1.54392e-02 ;
   float p4 = -1.02056e-02 ;
-  double x  = (double) fabs(scEta) ;
+  double x  = (double) std::abs(scEta) ;
   return p0 + p1*x + p2*x*x + p3*x*x*x + p4*x*x*x*x ;
  }
 
@@ -146,7 +146,7 @@ double ElectronEnergyCorrector::fEtaBarrelBad(double scEta) const
   float p2 =  5.16054e-02;
   float p3 = -4.95976e-02;
   float p4 =  3.62304e-03;
-  double x  = (double) fabs(scEta) ;
+  double x  = (double) std::abs(scEta) ;
   return p0 + p1*x + p2*x*x + p3*x*x*x + p4*x*x*x*x ;
  }
 
@@ -159,7 +159,7 @@ double ElectronEnergyCorrector::fEtaEndcapGood( double scEta ) const
   float p2 = -2.59288e+00 ;
   float p3 = 8.58945e-01 ;
   float p4 = -1.07844e-01 ;
-  double x  = (double) fabs(scEta) ;
+  double x  = (double) std::abs(scEta) ;
   return p0 + p1*x + p2*x*x + p3*x*x*x + p4*x*x*x*x ;
  }
 
@@ -172,7 +172,7 @@ double ElectronEnergyCorrector::fEtaEndcapBad( double scEta ) const
   float p2 =        -7.48247e+00 ;
   float p3 =         2.45520e+00 ;
   float p4 =        -3.02872e-01 ;
-  double x  = (double) fabs(scEta);
+  double x  = (double) std::abs(scEta);
   return p0 + p1*x + p2*x*x + p3*x*x*x + p4*x*x*x*x ;
  }
 
