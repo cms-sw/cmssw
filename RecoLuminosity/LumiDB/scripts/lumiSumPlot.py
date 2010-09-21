@@ -58,6 +58,7 @@ def getLumiOrderByLS(dbsession,c,runList,selectionDict,hltpath='',beamstatus=Non
                 startorbit=valuelist[2]
                 bitzero=valuelist[5]
                 deadcount=valuelist[6]
+                prescale=valuelist[-1]
                 lsstarttime=t.OrbitToTime(runstarttimeStr,startorbit)        
                 if len(selectionDict)!=0 and not (cmslsnum in selectionDict[runnum]):
                    #if there's a selection list but cmslsnum is not selected,skip                  
@@ -67,7 +68,7 @@ def getLumiOrderByLS(dbsession,c,runList,selectionDict,hltpath='',beamstatus=Non
                     recorded=0.0
                 else:
                     delivered=instlumi*lslength
-                    deadfrac=float(deadcount)/float(bitzero)
+                    deadfrac=float(deadcount)/float(float(bitzero)*float(prescale))
                     recorded=delivered*(1.0-deadfrac)
                 result.append([runnum,runstarttimeStr,cmslsnum,lsstarttime,delivered,recorded])
                 #print 'result : ',result
@@ -141,8 +142,9 @@ def getLumiInfoForRuns(dbsession,c,runList,selectionDict,hltpath='',beamstatus=N
                 continue
             if valuelist[5]==0:#bitzero==0 means no beam,do nothing
                 continue
-            deadfrac=float(valuelist[6])/float(valuelist[5])
-            trgprescale=valuelist[8]
+            trgprescale=valuelist[8]            
+            deadfrac=float(valuelist[6])/float(float(valuelist[5])*float(trgprescale))
+
             recorded=recorded+valuelist[0]*(1.0-deadfrac)*lslength
             if c.VERBOSE: print runnum,cmslsnum,valuelist[0]*lslength,valuelist[0]*(1.0-deadfrac)*lslength,lslength,deadfrac
             if hlttrgmap.has_key(hltpath) and hltinfo.has_key(cmslsnum):

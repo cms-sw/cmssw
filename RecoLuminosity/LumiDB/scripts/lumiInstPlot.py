@@ -87,8 +87,9 @@ def getLumiPerRun(dbsession,c,run,beamstatus=None,beamenergy=None,beamenergyfluc
         if trgperrun.has_key(cmslsnum):
             bitzero=trgperrun[cmslsnum][0]
             deadcount=trgperrun[cmslsnum][1]
+            bitzeroprescale=trgperrun[cmslsnum][-1]
             try:
-                recordedlumi=instlumi*(1.0-float(deadcount)/float(bitzero))
+                recordedlumi=instlumi*(1.0-float(deadcount)/(float(bitzero)*float(bitzeroprescale)))
             except ZeroDivisionError:
                 recordedlumi=-0.1 #           
         result.append([cmslsnum,instlumi,recordedlumi,numorbit,startorbit,fillnum,runstarttime,runstoptime])
