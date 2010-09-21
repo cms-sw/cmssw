@@ -142,7 +142,9 @@ def main():
             print 'ls deadfraction'
             for cmsls,deadcount in deadresult.items():
                 bitzero_count=bitzeroresult[cmsls]
-                bitzero_prescale=17.0
+                bitzero_prescale=1.0
+                if int(runnumber)>=146315:
+                    bitzero_prescale=17.0
                 if bitzero_count==0:
                     print cmsls,'no beam'
                 else:

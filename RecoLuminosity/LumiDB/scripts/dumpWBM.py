@@ -143,10 +143,13 @@ def main():
             #print 'ls deadfraction'
             for cmsls,deadcount in deadresult.items():
                 bitzero=bitzeroresult[cmsls]
+                bitzero_prescale=1.0
+                if int(runnumber)>=146315:
+                    bitzero_prescale=17.0
                 if bitzero==0:
                     print cmsls,'no beam'
                 else:
-                    print cmsls,'%.5f'%float(float(deadcount)/float(bitzero))
+                    print cmsls,'%.5f'%float(float(deadcount)/(float(bitzero)*bitzero_prescale))
         else:
             print 'no deadtime found for run ',runnumber
     del session
