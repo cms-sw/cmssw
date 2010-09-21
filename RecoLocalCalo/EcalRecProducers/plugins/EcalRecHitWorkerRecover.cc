@@ -188,7 +188,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                                         }
                                 }
                         }
-                        /*
+                        
                         edm::Handle<EcalTrigPrimDigiCollection> pTPDigis;
                         evt.getByLabel(tpDigiCollection_, pTPDigis);
                         const EcalTrigPrimDigiCollection * tpDigis = 0;
@@ -238,14 +238,14 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                                         totE -= (*jt).energy() / sin(theta);
                                 }
                         }
-                        */
+                        
                         // assign the energy to the SC crystals
                         for ( size_t i = 0; i < eeC.size(); ++i ) {
                                 EcalRecHit hit( eeC[i], 0., 0., EcalRecHit::kDead );
                                 hit.setFlagBits( (0x1 << EcalRecHit::kDead) ) ;
                                 if ( !killDeadChannels_ ) {
-                                        // not yet validated
-                                        // hit = EcalRecHit( eeC[i], totE / (float)eeC.size(), 0., EcalRecHit::kTowerRecovered );
+                                        
+                                        hit = EcalRecHit( eeC[i], totE / (float)eeC.size(), 0., EcalRecHit::kTowerRecovered );
                                 }
                                 insertRecHit( hit, result );
                         }
