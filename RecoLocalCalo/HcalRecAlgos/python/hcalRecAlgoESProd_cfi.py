@@ -16,6 +16,8 @@ import FWCore.ParameterSet.Config as cms
 #                    during reconstruction because of the channelstatus of its cell
 #                    empty mask means that no digi should be/is dropped
 #
+# Modified 21.09.2010: a level consisting only of invalid definitions will be ignored
+# Any errors in definition of severity levels come through LogWarning
 
 essourceSev =  cms.ESSource("EmptyESSource",
                    recordName = cms.string("HcalSeverityLevelComputerRcd"),
@@ -26,6 +28,7 @@ essourceSev =  cms.ESSource("EmptyESSource",
 
 hcalRecAlgos = cms.ESProducer("HcalRecAlgoESProducer",
     SeverityLevels = cms.VPSet(
+        # the following is the default level, please do not modify its definition:
         cms.PSet( Level = cms.int32(0),
                   RecHitFlags = cms.vstring(''),
                   ChannelStatus = cms.vstring('')

@@ -6,7 +6,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
-void HcalSeverityLevelComputer::getChStBit(HcalSeverityDefinition& mydef, 
+bool HcalSeverityLevelComputer::getChStBit(HcalSeverityDefinition& mydef, 
 					   const std::string& mybit)
 {
   if (mybit == "HcalCellOff") setBit(HcalChannelStatus::HcalCellOff, mydef.chStatusMask);
@@ -23,10 +23,12 @@ void HcalSeverityLevelComputer::getChStBit(HcalSeverityDefinition& mydef,
       edm::LogWarning  ("HcalSeverityLevelComputer") 
 	<< "HcalSeverityLevelComputer: Error: ChannelStatusFlag >>" << mybit 
 	<< "<< unknown. Ignoring.";
+      return false;
     }
+  return true;
 }
 
-void HcalSeverityLevelComputer::getRecHitFlag(HcalSeverityDefinition& mydef, 
+bool HcalSeverityLevelComputer::getRecHitFlag(HcalSeverityDefinition& mydef, 
 					      const std::string& mybit)
 {
   // HB, HE ++++++++++++++++++++
@@ -72,7 +74,9 @@ void HcalSeverityLevelComputer::getRecHitFlag(HcalSeverityDefinition& mydef,
       edm::LogWarning  ("HcalSeverityLevelComputer") 
 	<< "HcalSeverityLevelComputer: Error: RecHitFlag >>" << mybit 
 	<< "<< unknown. Ignoring.";
+      return false;
     }
+  return true;
 }
 
 HcalSeverityLevelComputer::HcalSeverityLevelComputer( const edm::ParameterSet& iConfig)
@@ -99,22 +103,38 @@ HcalSeverityLevelComputer::HcalSeverityLevelComputer( const edm::ParameterSet& i
 	itLevels->getParameter<std::vector <std::string> > ("ChannelStatus");
 
       // now translate the RecHitFlags and the ChannelStatuses into a mask each:
+      // create counters for invalid flags to be able to catch cases where a definition consists only of invalid bit names:
+      unsigned int bvalid = 0;
+      unsigned int bnonempty = 0;      
       // channel status:
       for (unsigned k=0; k < myChStatuses.size(); k++)
 	{
-	  if (myChStatuses[k].empty()) break;
-	  getChStBit(mydef, myChStatuses[k]);
+	  if (myChStatuses[k].empty()) break; // empty string
+	  bnonempty++;
+	  bvalid+=getChStBit(mydef, myChStatuses[k]);
 	}
       // RecHitFlag:
       //      HBHEStatusFlag, HOStatusFlag, HFStatusFlag, ZDCStatusFlag, CalibrationFlag
       for (unsigned k=0; k < myRecHitFlags.size(); k++)
 	{
-	  if (myRecHitFlags[k].empty()) break;
-	  getRecHitFlag(mydef, myRecHitFlags[k]);
+	  if (myRecHitFlags[k].empty()) break; // empty string
+	  bnonempty++;
+	  bvalid+=getRecHitFlag(mydef, myRecHitFlags[k]);
 	}
 
       //      std::cout << "Made Severity Level:" << std::endl;
       //      std::cout << mydef << std::endl;
+
+      // case where definition is made entirely out of invalid flags but not empty strings
+      if ((!bvalid) && (bnonempty)) 
+	{
+	  edm::LogWarning ("HcalSeverityLevelComputer") 
+	    << "Warning: level " << mydef.sevLevel
+	    << " consists of invalid definitions only: "
+	    //	    << myRecHitFlags << "; " << myChStatuses
+	    << " Ignoring definition.";
+	  continue;
+	}
 
       // finally, append the masks to the mask vectors, sorting them according to level   
       std::vector<HcalSeverityDefinition>::iterator it = SevDef.begin();
@@ -126,7 +146,7 @@ HcalSeverityLevelComputer::HcalSeverityLevelComputer( const edm::ParameterSet& i
 	  if (it->sevLevel == mydef.sevLevel)
 	    {
 	      edm::LogWarning  ("HcalSeverityLevelComputer") 
-		<< "HcalSeverityLevelComputer: Error: level " << mydef.sevLevel 
+		<< "HcalSeverityLevelComputer: Warning: level " << mydef.sevLevel 
 		<< " already defined. Ignoring new definition.";
 	      break;
 	    }
@@ -225,16 +245,19 @@ int HcalSeverityLevelComputer::getSeverityLevel(const DetId& myid, const uint32_
 
 
       //      if ( ( ( (!myRecHitMask) || (myRecHitMask & myflag) ) &&
-      if ( ( ( ( !SevDef[i].HBHEFlagMask && !SevDef[i].HOFlagMask && !SevDef[i].HFFlagMask && !SevDef[i].ZDCFlagMask 
+      if ( ( ( ( !SevDef[i].HBHEFlagMask 
+		 && !SevDef[i].HOFlagMask 
+		 && !SevDef[i].HFFlagMask 
+		 && !SevDef[i].ZDCFlagMask 
 		 && !SevDef[i].CalibFlagMask ) 
-	       || (myRecHitMask & myflag) ) &&
-	   ( (!SevDef[i].chStatusMask) || (SevDef[i].chStatusMask & mystatus) ) )
+	       || (myRecHitMask & myflag) ) 
+	     && ( (!SevDef[i].chStatusMask) || (SevDef[i].chStatusMask & mystatus) ) )
 	   || ( (myRecHitMask & myflag) || (SevDef[i].chStatusMask & mystatus) ) )
 	return SevDef[i].sevLevel;
 
     }
 
-  return -1;  
+  return -100;  // default value, if no definition applies
 }
   
 bool HcalSeverityLevelComputer::recoveredRecHit(const DetId& myid, const uint32_t& myflag) const
