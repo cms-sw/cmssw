@@ -19,14 +19,14 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
    m_gammaButton(0)
 {
    SetCleanup(kDeepCleanup);
+   
 
-   TGVerticalFrame* vf = new TGVerticalFrame(this);
-   AddFrame(vf, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY, 2, 2, 2, 4));
+   TGCompositeFrame* vf = new TGVerticalFrame(this);
+   AddFrame(vf, new TGLayoutHints(kLHintsNormal, 2, 2, 2, 4));
 
    TGHSlider* transpWidget2D = 0;
    TGHSlider* transpWidget3D = 0;
    TGLabel*   smallLabel = 0;
-
    FWDialogBuilder builder(vf);
    builder.indent(3)
       .spaceDown(3)  
@@ -41,49 +41,56 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
       .addHSeparator(0)
       .addLabel("Detector Colors: ", 14)
       .spaceDown(2)
-      .indent(0)
-      .spaceDown(1)  
-      .addLabel("Transparency 2D:", 8)
-      .spaceDown(2)
-      .addHSlider(100, &transpWidget2D)
-      .spaceDown(1)  
-      .addLabel("Transparency 3D:", 8)
-      .addHSlider(100, &transpWidget3D)
-      .spaceDown(2);
-     
+      .indent(0);
+
    m_backgroundButton->SetEnabled(true);
    m_gammaButton->SetEnabled(true);
-   transpWidget2D->SetEnabled(true);
-   transpWidget3D->SetEnabled(true);
    m_gammaSlider->SetEnabled(true);
 
-   TGCompositeFrame* tp  = (TGCompositeFrame*)m_gammaButton->GetParent()->GetParent();
-   TGHorizontalFrame* parent[kFWGeomColorSize];
-   for (int i = 0; i < kFWGeomColorSize; ++i)
+   TGCompositeFrame* top  = vf;
    {
-      parent[i] = new TGHorizontalFrame(tp);
-      tp->AddFrame(parent[i], new TGLayoutHints(kLHintsExpandX| kLHintsTop));
+      TGHorizontalFrame* hf = new TGHorizontalFrame(top); 
+      hf->AddFrame(new TGLabel(hf, "Tansparency 2D:"), new TGLayoutHints(kLHintsNormal, 2,  2, 3, 3));
+      transpWidget2D = new TGHSlider(hf, 100, kSlider1);
+      hf->AddFrame( transpWidget2D);
+      top->AddFrame(hf);
+   }
+   {
+      TGHorizontalFrame* hf = new TGHorizontalFrame(top); 
+      hf->AddFrame(new TGLabel(hf, "Tansparency 3D:") , new TGLayoutHints(kLHintsNormal,2, 2, 3, 3));
+      transpWidget3D = new TGHSlider(hf, 100, kSlider1);
+      hf->AddFrame( transpWidget3D);
+      top->AddFrame(hf, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 10));
    }
 
-   // !! the color widgt label has to be hardcoded, rendred in editor as label
 
-   m_colorSelectWidget[kFWPixelBarrelColorIndex   ] = new FWColorSelect(parent[kFWPixelBarrelColorIndex   ], "Pixel Barrel"  , 0, m_common->colorManager(), kFWPixelBarrelColorIndex);
-   m_colorSelectWidget[kFWPixelEndcapColorIndex   ] = new FWColorSelect(parent[kFWPixelEndcapColorIndex   ], "Pixel Endcap"  , 0, m_common->colorManager(), kFWPixelEndcapColorIndex);
-   m_colorSelectWidget[kFWTrackerBarrelColorIndex ] = new FWColorSelect(parent[kFWTrackerBarrelColorIndex ], "Tracker Barrel", 0, m_common->colorManager(), kFWTrackerBarrelColorIndex);
-   m_colorSelectWidget[kFWTrackerEndcapColorIndex ] = new FWColorSelect(parent[kFWTrackerEndcapColorIndex ], "Tracker Endcap", 0, m_common->colorManager(), kFWTrackerEndcapColorIndex);
-   m_colorSelectWidget[kFWMuonBarrelLineColorIndex] = new FWColorSelect(parent[kFWMuonBarrelLineColorIndex], "Muon Barrel"   , 0, m_common->colorManager(), kFWMuonBarrelLineColorIndex);
-   m_colorSelectWidget[kFWMuonEndcapLineColorIndex] = new FWColorSelect(parent[kFWMuonEndcapLineColorIndex], "Muon Endcap"   , 0, m_common->colorManager(), kFWMuonEndcapLineColorIndex);
-
-
-   for (int i = 0 ; i < kFWGeomColorSize; ++i)
+   std::string names[kFWGeomColorSize];
+   names[kFWPixelBarrelColorIndex   ] = "Pixel Barrel";
+   names[kFWPixelEndcapColorIndex   ] = "Pixel Endcap" ;
+   names[kFWTrackerBarrelColorIndex ] = "Tracker Barrel";
+   names[kFWTrackerEndcapColorIndex ] = "Tracker Endcap";
+   names[kFWMuonBarrelLineColorIndex] = "Muon Barrel";
+   names[kFWMuonEndcapLineColorIndex] = "Muon Endcap";
+   int i = 0;
+   for (int k = 0; k < 3; ++k)
    {
+      TGHorizontalFrame* hf = new TGHorizontalFrame(top); 
+      top->AddFrame(hf);
 
-      parent[i]->AddFrame(m_colorSelectWidget[i]); 
-      m_colorSelectWidget[i]->SetColorByIndex(m_common->colorManager()->geomColor(FWGeomColorIndex(i)) ,kFALSE);
-      m_colorSelectWidget[i]->Connect("ColorChosen(Color_t)", "CmsShowCommonPopup", this, "changeGeomColor(Color_t)");
-      TGLabel* label = new TGLabel(parent[i], m_colorSelectWidget[i]->label().c_str());
-      label->SetTextFont(smallLabel->GetFont());
-      parent[i]->AddFrame(label); 
+      for (int j = 0 ; j < 2; ++j)
+      {
+         m_colorSelectWidget[i] = new FWColorSelect(hf, names[i].c_str(), 0, m_common->colorManager(), i);
+         hf->AddFrame(m_colorSelectWidget[i]); 
+         m_colorSelectWidget[i]->SetColorByIndex(m_common->colorManager()->geomColor(FWGeomColorIndex(i)) ,kFALSE);
+         m_colorSelectWidget[i]->Connect("ColorChosen(Color_t)", "CmsShowCommonPopup", this, "changeGeomColor(Color_t)");
+
+         TGFrame* lf = new TGHorizontalFrame(hf, 100, 16, kFixedSize);
+         TGLabel* label = new TGLabel(lf, m_colorSelectWidget[i]->label().c_str());
+         label->SetTextFont(smallLabel->GetFont());
+         hf->AddFrame(lf); 
+
+         ++i;
+      }
    }
 
    m_backgroundButton->Connect("Clicked()", "CmsShowCommonPopup", this, "switchBackground()");
