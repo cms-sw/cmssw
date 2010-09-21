@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWLegoViewBase.cc,v 1.11 2010/08/30 15:42:33 amraktad Exp $
+// $Id: FWLegoViewBase.cc,v 1.12 2010/09/08 19:18:56 amraktad Exp $
 //
 
 // system include files
@@ -93,7 +93,14 @@ void FWLegoViewBase::setContext(const fireworks::Context& ctx)
 {
    FWEveView::setContext(ctx);
   
-   TEveCaloData* data = ctx.getCaloData();
+   TEveCaloData* data;
+   if (typeId() == FWViewType::kLegoHF)  {
+      data = static_cast<TEveCaloData*>(ctx.getCaloDataHF());
+   }
+   else {
+      data = static_cast<TEveCaloData*>(ctx.getCaloData());
+   } 
+
    data->GetEtaBins()->SetTitleFont(120);
    data->GetEtaBins()->SetTitle("h");
    data->GetPhiBins()->SetTitleFont(120);

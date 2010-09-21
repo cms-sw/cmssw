@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Mon May 31 13:09:38 CEST 2010
-// $Id: FWEveLegoView.h,v 1.28 2010/06/07 17:54:01 amraktad Exp $
+// $Id: FWEveLegoView.h,v 1.29 2010/09/15 11:48:42 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWLegoViewBase.h"
@@ -33,8 +33,6 @@ public:
    virtual void setBackgroundColor(Color_t);
 
    // ---------- const member functions ---------------------
-
-   virtual TEveCaloData* getCaloData(fireworks::Context&) const;
 
    // ---------- static member functions --------------------
 

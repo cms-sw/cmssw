@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 13:09:53 CEST 2010
-// $Id: FWEveLegoView.cc,v 1.82 2010/06/07 17:54:01 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.83 2010/09/15 11:48:42 amraktad Exp $
 //
 
 // system include files
@@ -69,12 +69,6 @@ FWEveLegoView::~FWEveLegoView()
 //
 // static member functions
 //
-
-TEveCaloData*
-FWEveLegoView::getCaloData(fireworks::Context& c) const
-{
-   return (TEveCaloData*)c.getCaloData();
-}
 
 void
 FWEveLegoView::setContext(const fireworks::Context& ctx)

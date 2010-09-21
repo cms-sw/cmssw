@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 13:42:13 CEST 2010
-// $Id: FWHFView.cc,v 1.8 2010/06/22 17:09:11 amraktad Exp $
+// $Id: FWHFView.cc,v 1.9 2010/06/25 14:46:16 amraktad Exp $
 //
 
 // system include files
@@ -65,11 +65,6 @@ FWHFView::~FWHFView()
 // member functions
 //
 
-TEveCaloData*
-FWHFView::getCaloData(fireworks::Context& c) const
-{
-   return c.getCaloDataHF();
-}
 //
 // const member functions
 //
