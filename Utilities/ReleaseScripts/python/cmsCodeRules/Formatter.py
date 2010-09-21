@@ -133,9 +133,11 @@ class SimpleHTMLFormatter :
         self.outFile.write( '<a name="' + ref + '">&nbsp;</a>')
         return
     
-    def startTable(self, colSizes, colLabels, id=None, cls=None) :
+    def startTable(self, colSizes, colLabels, id=None, cls=None, tableAttr=None) :
         # we assume that html headers are done by now !!
-        tableString = '<table border="1"  '
+        tableString = '<table '
+        if tableAttr:
+            tableString += tableAttr
         if id:
             tableString += ' id="'+id+'" '
         if cls:

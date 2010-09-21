@@ -36,8 +36,8 @@ class BuildViewer(object):
         self.formatter.writeH2("CMSSW code rules violation")
 
         self.formatter.startTable([20,20,20,20,50], 
-['Rule','Packages', 'Files','Sum of violations','Description'], cls = 
-'descriptionTable')
+['Rule','Packages', 'Files','Sum of violations','Description'], id =
+'descriptionTable', tableAttr='border="0" cellspacing="5" cellpadding="5"')
 
         for ruleName in rulesNames:
             try:
@@ -72,7 +72,7 @@ Click on the package links to get list of files
             colFmt.append(20)
             colLab.append('Rule %s' %rule)
 
-        self.formatter.startTable(colFmt, colLab, cls='mainTable')
+        self.formatter.startTable(colFmt, colLab, id = 'mainTable', cls='display', tableAttr='border="0" cellspacing="5" cellpadding="5"')
 
         packages = []
         table = []
@@ -138,21 +138,42 @@ def createLogFiles(rulesResult, logsDir):
             pass
 
 def run(pickleDir, logsDir, htmlDir):
-    style = """
-    <link rel="stylesheet" type="text/css" href="%s/intbld.css">
+    aoSorting = ""
+    for i in range(len(ordering)):
+        aoSorting += "["+ str(i+1) +",'desc'],"
+    aoSorting += "[0, 'asc']"
 
-    <style type="text/css">
-    .info { display: none; }
+    style = """
+    <style type="text/css" title="currentStyle">
+        @import "js/dataTables-1.4/media/css/demos.css";
     </style>
 
-    <script>
-    function showHide(obj){
-        myname = obj.name;
-        $(".detail[name='"+myname+"']").toggle();  // .toggle('slow');
-        $(".info[name='"+myname+"']").toggle();
-    }
+    <script type="text/javascript" src="js/dataTables-1.4/media/js/jquery.js"></script>
+    <script type="text/javascript" src="js/dataTables-1.4/media/js/jquery.dataTables.js"></script>
+
+    <script type="text/javascript" charset="utf-8">
+	/* Initialise the table with the required column sorting data types */
+	$(document).ready(function() {
+		$('#mainTable').dataTable( {
+                        "oLanguage": {
+				"sLengthMenu": "Display _MENU_ records per page",
+				"sInfoEmpty": "Showing 0 to 0 of 0 records"
+				},
+                        "aaSorting": [%s]
+			} );
+                $('#descriptionTable').dataTable( {
+                        "aaSorting": [[0, 'asc']],
+                        "bPaginate": false,
+			"bLengthChange": false,
+			"bFilter": false,
+			"bSort": false,
+			"bInfo": false,
+			"bAutoWidth": false
+                        });
+                $('#descriptionTable thead th').css({'border-bottom': '1px solid black'});
+	} );
     </script>
-    """%htmlPath
+    """%(aoSorting)
 
     fmtr = SimpleHTMLFormatter(title="CMSSW integration builds", style=style, outFile = open(join(htmlDir,"cmsCRPage.html"), "w"))
 
