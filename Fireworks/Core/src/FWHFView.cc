@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 13:42:13 CEST 2010
-// $Id: FWHFView.cc,v 1.9 2010/06/25 14:46:16 amraktad Exp $
+// $Id: FWHFView.cc,v 1.10 2010/09/21 15:25:15 amraktad Exp $
 //
 
 // system include files
@@ -83,26 +83,5 @@ FWHFView::setContext(fireworks::Context& context)
    m_lego->RefMainTrans().SetPos(0, -TMath::DegToRad()*10, 0);
 }
 
-void
-FWHFView::setFrom(const FWConfiguration& iFrom)
-{
-   FWLegoViewBase::setFrom(iFrom);
-
-   if (iFrom.version() < 3)
-   {
-      for(const_iterator it =begin(), itEnd = end();
-          it != itEnd;
-          ++it) {
-         if ((*it)->name() == "Cell2DMode")
-         {
-            const FWParameterBase* pb = (*it);
-            FWEnumParameter* cm;
-            cm =(FWEnumParameter*) (pb);
-            cm->set(2);
-         }
-      }
-
-   }
-}
 
 

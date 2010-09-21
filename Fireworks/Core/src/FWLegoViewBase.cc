@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWLegoViewBase.cc,v 1.12 2010/09/08 19:18:56 amraktad Exp $
+// $Id: FWLegoViewBase.cc,v 1.13 2010/09/21 15:25:15 amraktad Exp $
 //
 
 // system include files
@@ -56,7 +56,7 @@ FWLegoViewBase::FWLegoViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId
    m_legoAbsoluteScale (this,"Fix energy scale",false),
    m_legoMaxAbsoluteVal(this,"Fixed maximum energy (GeV)",100.,1.,1000.),
    m_projectionMode(this, "Projection", 0l, 0l, 2l),
-   m_cell2DMode(this, "Cell2D Style", 1l, 1l, 2l),
+   m_cell2DMode(this, "Cell2DMode", 1l, 1l, 2l),
    m_drawValuesIn2D(this,"Draw Cell2D threshold (pixels)",40l,16l,200l),
    m_showOverlay(this,"Draw scales", true)
 {
@@ -72,6 +72,7 @@ FWLegoViewBase::FWLegoViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId
 
    m_cell2DMode.addEntry(1, "Plain");
    m_cell2DMode.addEntry(2, "Outline");
+   if (typeId == FWViewType::kLegoHF) m_cell2DMode.set(2); // different default for HF view
 
    m_autoRebin.changed_.connect(boost::bind(&FWLegoViewBase::setAutoRebin,this));
    m_pixelsPerBin.changed_.connect(boost::bind(&FWLegoViewBase::setPixelsPerBin,this));
@@ -197,6 +198,20 @@ void
 FWLegoViewBase::setFrom(const FWConfiguration& iFrom)
 {
    FWEveView::setFrom(iFrom);
+
+   // cell 2D style
+   if (iFrom.version() < 5)
+   {
+      const FWConfiguration* value = iFrom.valueForKey( "Cell2DMode" );
+      if ( value !=  0 )
+      {
+         int mode;
+         std::istringstream s(value->value());
+         s>> mode;
+         m_cell2DMode.set(mode);
+      }
+  
+   }
 
    // view controller parameters, changed name in version 4
    if (iFrom.version() < 4)
