@@ -203,7 +203,7 @@ def recordedLumiForRun (dbsession, parameters, runnum, lslist = None):
     recorded = 0.0
     lumidata = [] #[runnumber, trgtable, deadtable]
     trgtable = {} #{hltpath:[l1seed, hltprescale, l1prescale]}
-    deadtable = {} #{lsnum:[deadtime, instlumi, bit_0, norbits]}
+    deadtable = {} #{lsnum:[deadtime, instlumi, bit_0, norbits,bitzero_prescale]}
     lumidata.append (runnum)
     lumidata.append (trgtable)
     lumidata.append (deadtable)
@@ -292,7 +292,7 @@ def recordedLumiForRun (dbsession, parameters, runnum, lslist = None):
         query.addToOutputList ("trg.DEADTIME",         "trgdeadtime")
         query.addToOutputList ("trg.PRESCALE",         "trgprescale")
         query.addToOutputList ("trg.BITNUM",           "trgbitnum")
-
+        
         result = coral.AttributeList()
         result.extend ("cmsls",       "unsigned int")
         result.extend ("instlumi",    "float")
@@ -324,6 +324,7 @@ def recordedLumiForRun (dbsession, parameters, runnum, lslist = None):
                     deadtable[cmsls].append (instlumi)
                     deadtable[cmsls].append (trgcount)
                     deadtable[cmsls].append (norbits)
+                    deadtable[cmsls].append (trgprescale)
         cursor.close()
         del query
         dbsession.transaction().commit()
@@ -398,7 +399,7 @@ def calculateTotalRecorded (deadtable):
         if float (d[2]) == 0.0:
             deadfrac = 1.0
         else:
-            deadfrac = float (d[0])/float (d[2])
+            deadfrac = float (d[0])/(float (d[2])*float (d[-1]))
         lstime = lslengthsec (d[3], 3564)
         recordedLumi += instLumi* (1.0-deadfrac)*lstime
     return recordedLumi
@@ -437,7 +438,7 @@ def calculateEffective (trgtable, totalrecorded):
 
 def getDeadfractions (deadtable):
     """
-    inputtable: {lsnum:[deadtime, instlumi, bit_0, norbits]}
+    inputtable: {lsnum:[deadtime, instlumi, bit_0, norbits,bit_0_prescale]}
     output: {lsnum:deadfraction}
     """
     result = {}
@@ -446,7 +447,7 @@ def getDeadfractions (deadtable):
         if float (d[2]) == 0.0: ##no beam
             deadfrac = -1.0
         else:
-            deadfrac = float (d[0])/ (float (d[2]))
+            deadfrac = float (d[0])/ (float (d[2])*float(d[-1]))
         result[myls] = deadfrac
     return result
 
