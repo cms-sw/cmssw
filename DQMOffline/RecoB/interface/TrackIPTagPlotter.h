@@ -37,6 +37,7 @@ class TrackIPTagPlotter : public BaseTagInfoPlotter {
   double endEffPur_ ; 
   bool mcPlots_;
   bool willFinalize_;
+  bool makeQualityPlots_;
 
   TrackIPHistograms<double> * tkcntHistosSig3D[5];
   TrackIPHistograms<double> * tkcntHistosSig2D[5];
