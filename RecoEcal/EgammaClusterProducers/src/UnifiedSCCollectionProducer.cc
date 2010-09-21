@@ -99,7 +99,7 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
   if (!(pCleanSC.isValid())) 
     {
   
-      edm::LogWarning("MissingInput") << "could not handle clean super clusters";
+      edm::LogError("MissingInput") << "could not handle clean super clusters";
       return;
     }
   
@@ -107,7 +107,7 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
         if (!(pUncleanSC.isValid())) 
         {
 
-	  edm::LogWarning("MissingInput")<< "could not handle unclean super clusters!" ;
+	  edm::LogError("MissingInput")<< "could not handle unclean super clusters!" ;
 	  return;
         }
 
