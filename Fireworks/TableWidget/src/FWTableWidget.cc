@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:42 EST 2009
-// $Id: FWTableWidget.cc,v 1.15 2010/06/04 11:22:11 matevz Exp $
+// $Id: FWTableWidget.cc,v 1.16 2010/09/14 09:41:23 eulisse Exp $
 //
 
 // system include files
@@ -95,9 +95,11 @@ TGCompositeFrame(p),
 
    m_hSlider = new TGHScrollBar(this);
    AddFrame(m_hSlider, new TGTableLayoutHints(1,2,2,3,kRowOptions));
+   m_hSlider->Connect("ProcessedEvent(Event_t*)", "FWTableWidget", this, "childrenEvent(Event_t *)");
    m_vSlider = new TGVScrollBar(this);
    m_vSlider->SetSmallIncrement(12);
    AddFrame(m_vSlider, new TGTableLayoutHints(2,3,1,2,kColOptions));
+   m_vSlider->Connect("ProcessedEvent(Event_t*)", "FWTableWidget", this, "childrenEvent(Event_t *)");
    MapSubwindows();
    Layout();
    //HideFrame(m_hSlider);
@@ -399,6 +401,18 @@ FWTableWidget::cellClicked(Int_t row, Int_t column, Int_t btn, Int_t keyMod, Int
    args[4]=(Long_t)iGlobalX;
    args[5]=(Long_t)iGlobalY;
    Emit("cellClicked(Int_t,Int_t,Int_t,Int_t,Int_t,Int_t)",args);
+}
+
+void
+FWTableWidget::childrenEvent(Event_t *)
+{
+   Clicked();
+}
+
+void
+FWTableWidget::Clicked()
+{
+   Emit("Clicked()");
 }
 
 void 

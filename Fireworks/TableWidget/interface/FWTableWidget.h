@@ -18,7 +18,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:47 EST 2009
-// $Id: FWTableWidget.h,v 1.10 2010/03/28 21:37:45 matevz Exp $
+// $Id: FWTableWidget.h,v 1.11 2010/09/14 09:41:23 eulisse Exp $
 //
 
 // system include files
@@ -76,6 +76,8 @@ class FWTableWidget : public TGCompositeFrame
       void rowClicked(Int_t iRow, Int_t iButton, Int_t iKeyMod, Int_t iGlobalX, Int_t iGlobalY); //*SIGNAL*
       void cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t iKeyMod, Int_t iGlobalX, Int_t iGlobalY);
       void columnClicked(Int_t iColumn, Int_t iButton, Int_t iKeyMod); //*SIGNAL*
+      void childrenEvent(Event_t *);
+      void Clicked();
 
       ClassDef(FWTableWidget,0);
    
@@ -87,6 +89,7 @@ class FWTableWidget : public TGCompositeFrame
      int sortedColumn () const { return m_sortedColumn; }
      bool descendingSort () const { return m_descendingSort; }
 
+     FWTabularWidget* body() { return m_body; }
    private:
       //FWTableWidget(const FWTableWidget&); // stop default
 
