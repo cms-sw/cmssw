@@ -95,5 +95,6 @@ std::vector<RecoTauPiZero> RecoTauPiZeroCombinatoricPlugin::operator()(
 }} // end namespace reco::tau
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_EDM_PLUGIN(RecoTauPiZeroBuilderPluginFactory, reco::tau::RecoTauPiZeroCombinatoricPlugin, "RecoTauPiZeroCombinatoricPlugin");
-
+DEFINE_EDM_PLUGIN(RecoTauPiZeroBuilderPluginFactory, 
+    reco::tau::RecoTauPiZeroCombinatoricPlugin, 
+    "RecoTauPiZeroCombinatoricPlugin");
