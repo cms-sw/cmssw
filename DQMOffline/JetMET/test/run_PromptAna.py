@@ -66,8 +66,6 @@ print inputfiles
 process = cms.Process("test")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
-process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 #
@@ -81,10 +79,12 @@ process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 # BeamHaloData producer
 #
 process.load("Configuration/StandardSequences/Geometry_cff")
+process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration/StandardSequences/MagneticField_cff")
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
 process.load("RecoMET/Configuration/RecoMET_BeamHaloId_cff")
-process.GlobalTag.globaltag ='GR09_R_34X_V2::All'
+#process.GlobalTag.globaltag ='GR_R_38X_V13A::All'
+process.GlobalTag.globaltag ='GR10_P_V7::All'
 
 # the task - JetMET objects
 if iscosmics =="True":

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/05/14 21:57:34 $
- *  $Revision: 1.32 $
+ *  $Date: 2010/07/05 15:22:24 $
+ *  $Revision: 1.33 $
  *  \author A.Apresyan - Caltech
  *          K.Hatakeyama - Baylor
  */
@@ -36,10 +36,37 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
 
   parameters = pSet;
 
+  edm::ParameterSet highptjetparms = parameters.getParameter<edm::ParameterSet>("highPtJetTrigger");
+  edm::ParameterSet lowptjetparms  = parameters.getParameter<edm::ParameterSet>("lowPtJetTrigger" );
+  edm::ParameterSet minbiasparms   = parameters.getParameter<edm::ParameterSet>("minBiasTrigger"  );
+  edm::ParameterSet highmetparms   = parameters.getParameter<edm::ParameterSet>("highMETTrigger"  );
+  edm::ParameterSet lowmetparms    = parameters.getParameter<edm::ParameterSet>("lowMETTrigger"   );
+  edm::ParameterSet eleparms       = parameters.getParameter<edm::ParameterSet>("eleTrigger"      );
+  edm::ParameterSet muonparms      = parameters.getParameter<edm::ParameterSet>("muonTrigger"     );
+
+  //genericTriggerEventFlag_( new GenericTriggerEventFlag( conf_ ) );
+  _HighPtJetEventFlag = new GenericTriggerEventFlag( highptjetparms );
+  _LowPtJetEventFlag  = new GenericTriggerEventFlag( lowptjetparms  );
+  _MinBiasEventFlag   = new GenericTriggerEventFlag( minbiasparms   );
+  _HighMETEventFlag   = new GenericTriggerEventFlag( highmetparms   );
+  _LowMETEventFlag    = new GenericTriggerEventFlag( lowmetparms    );
+  _EleEventFlag       = new GenericTriggerEventFlag( eleparms       );
+  _MuonEventFlag      = new GenericTriggerEventFlag( muonparms      );
+
 }
 
 // ***********************************************************
-METAnalyzer::~METAnalyzer() { }
+METAnalyzer::~METAnalyzer() { 
+
+  delete _HighPtJetEventFlag;
+  delete _LowPtJetEventFlag;
+  delete _MinBiasEventFlag;
+  delete _HighMETEventFlag;
+  delete _LowMETEventFlag;
+  delete _EleEventFlag;
+  delete _MuonEventFlag;
+
+}
 
 void METAnalyzer::beginJob(DQMStore * dbe) {
 
@@ -716,21 +743,35 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   if (gtReadoutRecord.isValid()) {
     const TechnicalTriggerWord&  technicalTriggerWordBeforeMask = gtReadoutRecord->technicalTriggerWord();
     
-    for (unsigned ttr = 0; ttr != _techTrigsAND.size(); ttr++) {
-      bTechTriggersAND = bTechTriggersAND && technicalTriggerWordBeforeMask.at(_techTrigsAND.at(ttr));
-    }
+    if (_techTrigsAND.size() == 0)
+      bTechTriggersAND = true;
+    else
+      for (unsigned ttr = 0; ttr != _techTrigsAND.size(); ttr++) {
+	bTechTriggersAND = bTechTriggersAND && technicalTriggerWordBeforeMask.at(_techTrigsAND.at(ttr));
+      }
     
-    for (unsigned ttr = 0; ttr != _techTrigsOR.size(); ttr++) {
-      bTechTriggersOR = bTechTriggersOR || technicalTriggerWordBeforeMask.at(_techTrigsOR.at(ttr));
-    }
-    
-    for (unsigned ttr = 0; ttr != _techTrigsNOT.size(); ttr++) {
-      bTechTriggersNOT = bTechTriggersNOT || technicalTriggerWordBeforeMask.at(_techTrigsNOT.at(ttr));
-    }
+    if (_techTrigsAND.size() == 0)
+      bTechTriggersOR = true;
+    else
+      for (unsigned ttr = 0; ttr != _techTrigsOR.size(); ttr++) {
+	bTechTriggersOR = bTechTriggersOR || technicalTriggerWordBeforeMask.at(_techTrigsOR.at(ttr));
+      }
+    if (_techTrigsNOT.size() == 0)
+      bTechTriggersNOT = false;
+    else
+      for (unsigned ttr = 0; ttr != _techTrigsNOT.size(); ttr++) {
+	bTechTriggersNOT = bTechTriggersNOT || technicalTriggerWordBeforeMask.at(_techTrigsNOT.at(ttr));
+      }
   }
-    
-    bTechTriggers = bTechTriggersAND && bTechTriggersOR && !bTechTriggersNOT;
-
+  else
+    {
+      bTechTriggersAND = true;
+      bTechTriggersOR  = true;
+      bTechTriggersNOT = false;
+    }
+  
+  bTechTriggers = bTechTriggersAND && bTechTriggersOR && !bTechTriggersNOT;
+  
   // ==========================================================
   // Reconstructed MET Information - fill MonitorElements
   

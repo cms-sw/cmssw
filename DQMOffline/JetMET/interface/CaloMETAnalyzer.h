@@ -5,8 +5,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2010/07/05 15:26:06 $
- *  $Revision: 1.24 $
+ *  $Date: 2010/08/06 14:08:49 $
+ *  $Revision: 1.26 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -21,6 +21,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+//
+#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 //
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -115,6 +117,14 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
 
   // list of Jet or MB HLT triggers
   std::vector<std::string > HLTPathsJetMBByName_;
+
+  GenericTriggerEventFlag * _HighPtJetEventFlag;
+  GenericTriggerEventFlag * _LowPtJetEventFlag;
+  GenericTriggerEventFlag * _MinBiasEventFlag;
+  GenericTriggerEventFlag * _HighMETEventFlag;
+  GenericTriggerEventFlag * _LowMETEventFlag;
+  GenericTriggerEventFlag * _EleEventFlag;
+  GenericTriggerEventFlag * _MuonEventFlag;
 
   std::string _hlt_HighPtJet;
   std::string _hlt_LowPtJet;

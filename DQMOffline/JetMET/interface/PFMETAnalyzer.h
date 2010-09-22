@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for PFMET
  *
- *  $Date: 2010/07/05 15:26:06 $
- *  $Revision: 1.17 $
+ *  $Date: 2010/08/06 14:08:49 $
+ *  $Revision: 1.19 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech 
  */
@@ -24,6 +24,9 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+//
+#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
+//
 //#include "DataFormats/METReco/interface/PFMETCollection.h"
 //#include "DataFormats/METReco/interface/PFMET.h"
 #include <DataFormats/ParticleFlowCandidate/interface/PFCandidate.h>
@@ -114,6 +117,14 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
 
   // list of Jet or MB HLT triggers
   std::vector<std::string > HLTPathsJetMBByName_;
+
+  GenericTriggerEventFlag * _HighPtJetEventFlag;
+  GenericTriggerEventFlag * _LowPtJetEventFlag;
+  GenericTriggerEventFlag * _MinBiasEventFlag;
+  GenericTriggerEventFlag * _HighMETEventFlag;
+  GenericTriggerEventFlag * _LowMETEventFlag;
+  GenericTriggerEventFlag * _EleEventFlag;
+  GenericTriggerEventFlag * _MuonEventFlag;
 
   std::string _hlt_HighPtJet;
   std::string _hlt_LowPtJet;

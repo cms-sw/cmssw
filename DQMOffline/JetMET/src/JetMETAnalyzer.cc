@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/05/14 18:11:18 $
- *  $Revision: 1.63 $
+ *  $Date: 2010/08/06 13:39:39 $
+ *  $Revision: 1.64 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -526,20 +526,34 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   if (gtReadoutRecord.isValid()) {
     const TechnicalTriggerWord&  technicalTriggerWordBeforeMask = gtReadoutRecord->technicalTriggerWord();
+
+    if (_techTrigsAND.size() == 0)
+      bTechTriggersAND = true;
+    else
+      for (unsigned ttr = 0; ttr != _techTrigsAND.size(); ttr++) {
+	bTechTriggersAND = bTechTriggersAND && technicalTriggerWordBeforeMask.at(_techTrigsAND.at(ttr));
+      }
     
-    for (unsigned ttr = 0; ttr != _techTrigsAND.size(); ttr++) {
-      bTechTriggersAND = bTechTriggersAND && technicalTriggerWordBeforeMask.at(_techTrigsAND.at(ttr));
-    }
-    
-    for (unsigned ttr = 0; ttr != _techTrigsOR.size(); ttr++) {
-      bTechTriggersOR = bTechTriggersOR || technicalTriggerWordBeforeMask.at(_techTrigsOR.at(ttr));
-    }
-    
-    for (unsigned ttr = 0; ttr != _techTrigsNOT.size(); ttr++) {
-      bTechTriggersNOT = bTechTriggersNOT || technicalTriggerWordBeforeMask.at(_techTrigsNOT.at(ttr));
-    }
+    if (_techTrigsAND.size() == 0)
+      bTechTriggersOR = true;
+    else
+      for (unsigned ttr = 0; ttr != _techTrigsOR.size(); ttr++) {
+	bTechTriggersOR = bTechTriggersOR || technicalTriggerWordBeforeMask.at(_techTrigsOR.at(ttr));
+      }
+    if (_techTrigsNOT.size() == 0)
+      bTechTriggersNOT = false;
+    else
+      for (unsigned ttr = 0; ttr != _techTrigsNOT.size(); ttr++) {
+	bTechTriggersNOT = bTechTriggersNOT || technicalTriggerWordBeforeMask.at(_techTrigsNOT.at(ttr));
+      }
   }
-    
+  else
+    {
+      bTechTriggersAND = true;
+      bTechTriggersOR  = true;
+      bTechTriggersNOT = false;
+    }
+  
   bTechTriggers = bTechTriggersAND && bTechTriggersOR && !bTechTriggersNOT;
     
   bool bJetCleanup = bTechTriggers && bPrimaryVertex && bPhysicsDeclared;

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/07/05 15:22:24 $
- *  $Revision: 1.48 $
+ *  $Date: 2010/08/06 14:08:49 $
+ *  $Revision: 1.50 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -34,10 +34,49 @@ CaloMETAnalyzer::CaloMETAnalyzer(const edm::ParameterSet& pSet) {
 
   parameters = pSet;
 
+  edm::ParameterSet highptjetparms = parameters.getParameter<edm::ParameterSet>("highPtJetTrigger");
+  edm::ParameterSet lowptjetparms  = parameters.getParameter<edm::ParameterSet>("lowPtJetTrigger" );
+  edm::ParameterSet minbiasparms   = parameters.getParameter<edm::ParameterSet>("minBiasTrigger"  );
+  edm::ParameterSet highmetparms   = parameters.getParameter<edm::ParameterSet>("highMETTrigger"  );
+  edm::ParameterSet lowmetparms    = parameters.getParameter<edm::ParameterSet>("lowMETTrigger"   );
+  edm::ParameterSet eleparms       = parameters.getParameter<edm::ParameterSet>("eleTrigger"      );
+  edm::ParameterSet muonparms      = parameters.getParameter<edm::ParameterSet>("muonTrigger"     );
+
+  _hlt_HighPtJet = highptjetparms.getParameter<std::string>("hltDBKey");
+  _hlt_LowPtJet  = lowptjetparms .getParameter<std::string>("hltDBKey");
+  _hlt_MinBias   = minbiasparms  .getParameter<std::string>("hltDBKey");
+  _hlt_HighMET   = highmetparms  .getParameter<std::string>("hltDBKey");
+  _hlt_LowMET    = lowmetparms   .getParameter<std::string>("hltDBKey");
+  _hlt_Ele       = eleparms      .getParameter<std::string>("hltDBKey");
+  _hlt_Muon      = muonparms     .getParameter<std::string>("hltDBKey");
+
+
+
+
+
+  //genericTriggerEventFlag_( new GenericTriggerEventFlag( conf_ ) );
+  _HighPtJetEventFlag = new GenericTriggerEventFlag( highptjetparms );
+  _LowPtJetEventFlag  = new GenericTriggerEventFlag( lowptjetparms  );
+  _MinBiasEventFlag   = new GenericTriggerEventFlag( minbiasparms   );
+  _HighMETEventFlag   = new GenericTriggerEventFlag( highmetparms   );
+  _LowMETEventFlag    = new GenericTriggerEventFlag( lowmetparms    );
+  _EleEventFlag       = new GenericTriggerEventFlag( eleparms       );
+  _MuonEventFlag      = new GenericTriggerEventFlag( muonparms      );
+
 }
 
 // ***********************************************************
-CaloMETAnalyzer::~CaloMETAnalyzer() { }
+CaloMETAnalyzer::~CaloMETAnalyzer() { 
+
+  delete _HighPtJetEventFlag;
+  delete _LowPtJetEventFlag;
+  delete _MinBiasEventFlag;
+  delete _HighMETEventFlag;
+  delete _LowMETEventFlag;
+  delete _EleEventFlag;
+  delete _MuonEventFlag;
+
+}
 
 // ***********************************************************
 void CaloMETAnalyzer::beginJob(DQMStore * dbe) {
@@ -48,13 +87,13 @@ void CaloMETAnalyzer::beginJob(DQMStore * dbe) {
   // trigger information
   HLTPathsJetMBByName_ = parameters.getParameter<std::vector<std::string > >("HLTPathsJetMB");
 
-  _hlt_HighPtJet = parameters.getParameter<std::string>("HLT_HighPtJet");
-  _hlt_LowPtJet  = parameters.getParameter<std::string>("HLT_LowPtJet");
-  _hlt_MinBias   = parameters.getParameter<std::string>("HLT_MinBias");
-  _hlt_HighMET   = parameters.getParameter<std::string>("HLT_HighMET");
-  _hlt_LowMET    = parameters.getParameter<std::string>("HLT_LowMET");
-  _hlt_Ele       = parameters.getParameter<std::string>("HLT_Ele");
-  _hlt_Muon      = parameters.getParameter<std::string>("HLT_Muon");
+  //_hlt_HighPtJet = parameters.getParameter<std::string>("HLT_HighPtJet");
+  //_hlt_LowPtJet  = parameters.getParameter<std::string>("HLT_LowPtJet");
+  //_hlt_MinBias   = parameters.getParameter<std::string>("HLT_MinBias");
+  //_hlt_HighMET   = parameters.getParameter<std::string>("HLT_HighMET");
+  //_hlt_LowMET    = parameters.getParameter<std::string>("HLT_LowMET");
+  //_hlt_Ele       = parameters.getParameter<std::string>("HLT_Ele");
+  //_hlt_Muon      = parameters.getParameter<std::string>("HLT_Muon");
 
   theCleaningParameters = parameters.getParameter<ParameterSet>("CleaningParameters"),
 
@@ -182,37 +221,44 @@ void CaloMETAnalyzer::bookMESet(std::string DirName)
 
   bookMonitorElement(DirName,bLumiSecPlot);
 
-  if (_hlt_HighPtJet.size()){
+  //if (_hlt_HighPtJet.size()){
+  if ( _HighPtJetEventFlag->on() ) {
     bookMonitorElement(DirName+"/"+"HighPtJet",false);
     hTriggerName_HighPtJet = _dbe->bookString("triggerName_HighPtJet", _hlt_HighPtJet);
   }  
 
-  if (_hlt_LowPtJet.size()){
+  //if (_hlt_LowPtJet.size()){
+  if ( _LowPtJetEventFlag->on() ) {
     bookMonitorElement(DirName+"/"+"LowPtJet",false);
     hTriggerName_LowPtJet = _dbe->bookString("triggerName_LowPtJet", _hlt_LowPtJet);
   }
 
-  if (_hlt_MinBias.size()){
+  //if (_hlt_MinBias.size()){
+  if ( _MinBiasEventFlag->on() ) {
     bookMonitorElement(DirName+"/"+"MinBias",false);
     hTriggerName_MinBias = _dbe->bookString("triggerName_MinBias", _hlt_MinBias);
   }
 
-  if (_hlt_HighMET.size()){
+  //if (_hlt_HighMET.size()){
+  if ( _HighMETEventFlag->on() ) {
     bookMonitorElement(DirName+"/"+"HighMET",false);
     hTriggerName_HighMET = _dbe->bookString("triggerName_HighMET", _hlt_HighMET);
   }
 
-  if (_hlt_LowMET.size()){
+  //if (_hlt_LowMET.size()){
+  if ( _LowMETEventFlag->on() ) {
     bookMonitorElement(DirName+"/"+"LowMET",false);
     hTriggerName_LowMET = _dbe->bookString("triggerName_LowMET", _hlt_LowMET);
   }
 
-  if (_hlt_Ele.size()){
+  //if (_hlt_Ele.size()){
+  if ( _EleEventFlag->on() ) {
     bookMonitorElement(DirName+"/"+"Ele",false);
     hTriggerName_Ele = _dbe->bookString("triggerName_Ele", _hlt_Ele);
   }
 
-  if (_hlt_Muon.size()){
+  //if (_hlt_Muon.size()){
+  if ( _MuonEventFlag->on() ) {
     bookMonitorElement(DirName+"/"+"Muon",false);
     hTriggerName_Muon = _dbe->bookString("triggerName_Muon", _hlt_Muon);
   }
@@ -346,7 +392,13 @@ void CaloMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=
 // ***********************************************************
 void CaloMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
-
+  if ( _HighPtJetEventFlag->on() ) _HighPtJetEventFlag->initRun( iRun, iSetup );
+  if ( _LowPtJetEventFlag ->on() ) _LowPtJetEventFlag ->initRun( iRun, iSetup );
+  if ( _MinBiasEventFlag  ->on() ) _MinBiasEventFlag  ->initRun( iRun, iSetup );
+  if ( _HighMETEventFlag  ->on() ) _HighMETEventFlag  ->initRun( iRun, iSetup );
+  if ( _LowMETEventFlag   ->on() ) _LowMETEventFlag   ->initRun( iRun, iSetup );
+  if ( _EleEventFlag      ->on() ) _EleEventFlag      ->initRun( iRun, iSetup );
+  if ( _MuonEventFlag     ->on() ) _MuonEventFlag     ->initRun( iRun, iSetup );
 }
 
 // ***********************************************************
@@ -386,13 +438,27 @@ void CaloMETAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup
       DirName = dirName+*ic;
 
       makeRatePlot(DirName,totltime);
-      if (_hlt_HighPtJet.size()) makeRatePlot(DirName+"/"+_hlt_HighPtJet,totltime);
-      if (_hlt_LowPtJet.size())  makeRatePlot(DirName+"/"+_hlt_LowPtJet,totltime);
-      if (_hlt_MinBias.size())   makeRatePlot(DirName+"/"+_hlt_MinBias,totltime);
-      if (_hlt_HighMET.size())   makeRatePlot(DirName+"/"+_hlt_HighMET,totltime);
-      if (_hlt_LowMET.size())    makeRatePlot(DirName+"/"+_hlt_LowMET,totltime);
-      if (_hlt_Ele.size())       makeRatePlot(DirName+"/"+_hlt_Ele,totltime);
-      if (_hlt_Muon.size())      makeRatePlot(DirName+"/"+_hlt_Muon,totltime);
+      if ( _HighPtJetEventFlag->on() ) 
+	//if (_hlt_HighPtJet.size()) 
+	makeRatePlot(DirName+"/"+"triggerName_HighJetPt",totltime);
+      if ( _LowPtJetEventFlag->on() ) 
+	//if (_hlt_LowPtJet.size())  
+	makeRatePlot(DirName+"/"+"triggerName_LowJetPt",totltime);
+      if ( _MinBiasEventFlag->on() ) 
+	//if (_hlt_MinBias.size())   
+	makeRatePlot(DirName+"/"+"triggerName_MinBias",totltime);
+      if ( _HighMETEventFlag->on() ) 
+	//if (_hlt_HighMET.size())   
+	makeRatePlot(DirName+"/"+"triggerName_HighMET",totltime);
+      if ( _LowMETEventFlag->on() ) 
+	//if (_hlt_LowMET.size())    
+	makeRatePlot(DirName+"/"+"triggerName_LowMET",totltime);
+      if ( _EleEventFlag->on() ) 
+	//if (_hlt_Ele.size())       
+	makeRatePlot(DirName+"/"+"triggerName_Ele",totltime);
+      if ( _MuonEventFlag->on() ) 
+	//if (_hlt_Muon.size())      
+	makeRatePlot(DirName+"/"+"triggerName_Muon",totltime);
     }
 
 }
@@ -484,40 +550,56 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     if (HLTPathsJetMBByName_.size()==0) _trig_JetMB=triggerResults.size()-1;
 
     //
-    if (_verbose) std::cout << "triggerNames size" << " " << triggerNames.size() << std::endl;
-    if (_verbose) std::cout << _hlt_HighPtJet << " " << triggerNames.triggerIndex(_hlt_HighPtJet) << std::endl;
-    if (_verbose) std::cout << _hlt_LowPtJet  << " " << triggerNames.triggerIndex(_hlt_LowPtJet)  << std::endl;
-    if (_verbose) std::cout << _hlt_MinBias   << " " << triggerNames.triggerIndex(_hlt_MinBias)   << std::endl;
-    if (_verbose) std::cout << _hlt_HighMET   << " " << triggerNames.triggerIndex(_hlt_HighMET)   << std::endl;
-    if (_verbose) std::cout << _hlt_LowMET    << " " << triggerNames.triggerIndex(_hlt_LowMET)    << std::endl;
-    if (_verbose) std::cout << _hlt_Ele       << " " << triggerNames.triggerIndex(_hlt_Ele)       << std::endl;
-    if (_verbose) std::cout << _hlt_Muon      << " " << triggerNames.triggerIndex(_hlt_Muon)      << std::endl;
-    if (_verbose) std::cout << _hlt_PhysDec   << " " << triggerNames.triggerIndex(_hlt_PhysDec)   << std::endl;
+    //if (_verbose) std::cout << "triggerNames size" << " " << triggerNames.size() << std::endl;
+    //if (_verbose) std::cout << _hlt_HighPtJet << " " << triggerNames.triggerIndex(_hlt_HighPtJet) << std::endl;
+    //if (_verbose) std::cout << _hlt_LowPtJet  << " " << triggerNames.triggerIndex(_hlt_LowPtJet)  << std::endl;
+    //if (_verbose) std::cout << _hlt_MinBias   << " " << triggerNames.triggerIndex(_hlt_MinBias)   << std::endl;
+    //if (_verbose) std::cout << _hlt_HighMET   << " " << triggerNames.triggerIndex(_hlt_HighMET)   << std::endl;
+    //if (_verbose) std::cout << _hlt_LowMET    << " " << triggerNames.triggerIndex(_hlt_LowMET)    << std::endl;
+    //if (_verbose) std::cout << _hlt_Ele       << " " << triggerNames.triggerIndex(_hlt_Ele)       << std::endl;
+    //if (_verbose) std::cout << _hlt_Muon      << " " << triggerNames.triggerIndex(_hlt_Muon)      << std::endl;
+    //if (_verbose) std::cout << _hlt_PhysDec   << " " << triggerNames.triggerIndex(_hlt_PhysDec)   << std::endl;
 
-    if (triggerNames.triggerIndex(_hlt_HighPtJet) != triggerNames.size() &&
-	triggerResults.accept(triggerNames.triggerIndex(_hlt_HighPtJet))) _trig_HighPtJet=1;
+    if ( _HighPtJetEventFlag->on() && ! _HighPtJetEventFlag->accept( iEvent, iSetup ) ) 
+      //if (triggerNames.triggerIndex(_hlt_HighPtJet) != triggerNames.size() &&
+      //triggerResults.accept(triggerNames.triggerIndex(_hlt_HighPtJet))) 
+      _trig_HighPtJet=1;
 
-    if (triggerNames.triggerIndex(_hlt_LowPtJet)  != triggerNames.size() &&
-	triggerResults.accept(triggerNames.triggerIndex(_hlt_LowPtJet)))  _trig_LowPtJet=1;
-
-    if (triggerNames.triggerIndex(_hlt_MinBias)  != triggerNames.size() &&
-	triggerResults.accept(triggerNames.triggerIndex(_hlt_MinBias)))  _trig_MinBias=1;
-
-    if (triggerNames.triggerIndex(_hlt_HighMET)   != triggerNames.size() &&
-        triggerResults.accept(triggerNames.triggerIndex(_hlt_HighMET)))   _trig_HighMET=1;
-
-    if (triggerNames.triggerIndex(_hlt_LowMET)    != triggerNames.size() &&
-        triggerResults.accept(triggerNames.triggerIndex(_hlt_LowMET)))    _trig_LowMET=1;
-
-    if (triggerNames.triggerIndex(_hlt_Ele)       != triggerNames.size() &&
-        triggerResults.accept(triggerNames.triggerIndex(_hlt_Ele)))       _trig_Ele=1;
-
-    if (triggerNames.triggerIndex(_hlt_Muon)      != triggerNames.size() &&
-        triggerResults.accept(triggerNames.triggerIndex(_hlt_Muon)))      _trig_Muon=1;
-
-    if (triggerNames.triggerIndex(_hlt_PhysDec)   != triggerNames.size() &&
-        triggerResults.accept(triggerNames.triggerIndex(_hlt_PhysDec)))   _trig_PhysDec=1;
-
+    if ( _HighPtJetEventFlag->on() && ! _HighPtJetEventFlag->accept( iEvent, iSetup ) ) 
+      //if (triggerNames.triggerIndex(_hlt_LowPtJet)  != triggerNames.size() &&
+      //triggerResults.accept(triggerNames.triggerIndex(_hlt_LowPtJet)))  
+      _trig_LowPtJet=1;
+    
+    if ( _HighPtJetEventFlag->on() && ! _HighPtJetEventFlag->accept( iEvent, iSetup ) ) 
+      //if (triggerNames.triggerIndex(_hlt_MinBias)  != triggerNames.size() &&
+      //triggerResults.accept(triggerNames.triggerIndex(_hlt_MinBias)))  
+      _trig_MinBias=1;
+    
+    if ( _HighPtJetEventFlag->on() && ! _HighPtJetEventFlag->accept( iEvent, iSetup ) ) 
+      //if (triggerNames.triggerIndex(_hlt_HighMET)   != triggerNames.size() &&
+      //triggerResults.accept(triggerNames.triggerIndex(_hlt_HighMET)))   
+      _trig_HighMET=1;
+    
+    if ( _HighPtJetEventFlag->on() && ! _HighPtJetEventFlag->accept( iEvent, iSetup ) ) 
+      //if (triggerNames.triggerIndex(_hlt_LowMET)    != triggerNames.size() &&
+      //triggerResults.accept(triggerNames.triggerIndex(_hlt_LowMET)))    
+      _trig_LowMET=1;
+    
+    if ( _HighPtJetEventFlag->on() && ! _HighPtJetEventFlag->accept( iEvent, iSetup ) ) 
+      //if (triggerNames.triggerIndex(_hlt_Ele)       != triggerNames.size() &&
+      //triggerResults.accept(triggerNames.triggerIndex(_hlt_Ele)))       
+      _trig_Ele=1;
+    
+    if ( _HighPtJetEventFlag->on() && ! _HighPtJetEventFlag->accept( iEvent, iSetup ) ) 
+      //if (triggerNames.triggerIndex(_hlt_Muon)      != triggerNames.size() &&
+      //triggerResults.accept(triggerNames.triggerIndex(_hlt_Muon)))      
+      _trig_Muon=1;
+    
+    if ( _HighPtJetEventFlag->on() && ! _HighPtJetEventFlag->accept( iEvent, iSetup ) ) 
+      ////if (triggerNames.triggerIndex(_hlt_PhysDec)   != triggerNames.size() &&
+      //triggerResults.accept(triggerNames.triggerIndex(_hlt_PhysDec)))   
+      _trig_PhysDec=1;
+    
   } else {
 
     edm::LogInfo("CaloMetAnalyzer") << "TriggerResults::HLT not found, "
@@ -771,7 +853,8 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	    //&& vertex_numTrks>_nvtxtrks_min
 	    && vertex_ndof   >_vtxndof_min
 	    && vertex_chi2   <_vtxchi2_max
-	    && fabs(vertex_Z)<_vtxz_max ) bPrimaryVertex = true;
+	    && fabs(vertex_Z)<_vtxz_max ) 
+	bPrimaryVertex = true;
     }
   }
   // ==========================================================
@@ -791,19 +874,33 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   if (gtReadoutRecord.isValid()) {
     const TechnicalTriggerWord&  technicalTriggerWordBeforeMask = gtReadoutRecord->technicalTriggerWord();
+
+    if (_techTrigsAND.size() == 0)
+      bTechTriggersAND = true;
+    else
+      for (unsigned ttr = 0; ttr != _techTrigsAND.size(); ttr++) {
+	bTechTriggersAND = bTechTriggersAND && technicalTriggerWordBeforeMask.at(_techTrigsAND.at(ttr));
+      }
     
-    for (unsigned ttr = 0; ttr != _techTrigsAND.size(); ttr++) {
-      bTechTriggersAND = bTechTriggersAND && technicalTriggerWordBeforeMask.at(_techTrigsAND.at(ttr));
-    }
-    
-    for (unsigned ttr = 0; ttr != _techTrigsOR.size(); ttr++) {
-      bTechTriggersOR = bTechTriggersOR || technicalTriggerWordBeforeMask.at(_techTrigsOR.at(ttr));
-    }
-    
-    for (unsigned ttr = 0; ttr != _techTrigsNOT.size(); ttr++) {
-      bTechTriggersNOT = bTechTriggersNOT || technicalTriggerWordBeforeMask.at(_techTrigsNOT.at(ttr));
-    }
+    if (_techTrigsAND.size() == 0)
+      bTechTriggersOR = true;
+    else
+      for (unsigned ttr = 0; ttr != _techTrigsOR.size(); ttr++) {
+	bTechTriggersOR = bTechTriggersOR || technicalTriggerWordBeforeMask.at(_techTrigsOR.at(ttr));
+      }
+    if (_techTrigsNOT.size() == 0)
+      bTechTriggersNOT = false;
+    else
+      for (unsigned ttr = 0; ttr != _techTrigsNOT.size(); ttr++) {
+	bTechTriggersNOT = bTechTriggersNOT || technicalTriggerWordBeforeMask.at(_techTrigsNOT.at(ttr));
+      }
   }
+  else
+    {
+      bTechTriggersAND = true;
+      bTechTriggersOR  = true;
+      bTechTriggersNOT = false;
+    }
     
   bTechTriggers = bTechTriggersAND && bTechTriggersOR && !bTechTriggersNOT;
     
@@ -991,13 +1088,27 @@ void CaloMETAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
   if (DirName.find("All")) bLumiSecPlot=true;
 
   if (_trig_JetMB) fillMonitorElement(iEvent,DirName,"",calomet, bLumiSecPlot);
-  if (_hlt_HighPtJet.size() && _trig_HighPtJet) fillMonitorElement(iEvent,DirName,"HighPtJet",calomet,false);
-  if (_hlt_LowPtJet.size() && _trig_LowPtJet) fillMonitorElement(iEvent,DirName,"LowPtJet",calomet,false);
-  if (_hlt_MinBias.size() && _trig_MinBias) fillMonitorElement(iEvent,DirName,"MinBias",calomet,false);
-  if (_hlt_HighMET.size() && _trig_HighMET) fillMonitorElement(iEvent,DirName,"HighMET",calomet,false);
-  if (_hlt_LowMET.size() && _trig_LowMET) fillMonitorElement(iEvent,DirName,"LowMET",calomet,false);
-  if (_hlt_Ele.size() && _trig_Ele) fillMonitorElement(iEvent,DirName,"Ele",calomet,false);
-  if (_hlt_Muon.size() && _trig_Muon) fillMonitorElement(iEvent,DirName,"Muon",calomet,false);
+  //if (_hlt_HighPtJet.size() && _trig_HighPtJet) 
+  if (_trig_HighPtJet)
+    fillMonitorElement(iEvent,DirName,"HighPtJet",calomet,false);
+  //if (_hlt_LowPtJet.size() && _trig_LowPtJet) 
+  if (_trig_LowPtJet)
+    fillMonitorElement(iEvent,DirName,"LowPtJet",calomet,false);
+  //if (_hlt_MinBias.size() && _trig_MinBias) 
+  if (_trig_MinBias)
+    fillMonitorElement(iEvent,DirName,"MinBias",calomet,false);
+  //if (_hlt_HighMET.size() && _trig_HighMET) 
+  if (_trig_HighMET)
+    fillMonitorElement(iEvent,DirName,"HighMET",calomet,false);
+  //if (_hlt_LowMET.size() && _trig_LowMET) 
+  if (_trig_LowMET)
+    fillMonitorElement(iEvent,DirName,"LowMET",calomet,false);
+  //if (_hlt_Ele.size() && _trig_Ele) 
+  if (_trig_Ele)
+    fillMonitorElement(iEvent,DirName,"Ele",calomet,false);
+  //if (_hlt_Muon.size() && _trig_Muon) 
+  if (_trig_Muon)
+    fillMonitorElement(iEvent,DirName,"Muon",calomet,false);
 
 }
 
