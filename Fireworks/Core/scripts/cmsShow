@@ -51,7 +51,7 @@ fi
 if [ "X$debugflag" = Xon ] ; then
    tmpfile=`mktemp /tmp/cmsshow-gdb-XXXXXXXX`
    if [ -w . ]; then
-      creport=./crash.report
+      creport=./cmsShow-crash-report.txt
    else
       creport=`mktemp /tmp/cmsshow-crash-report-XXXXXXXX`
    fi
