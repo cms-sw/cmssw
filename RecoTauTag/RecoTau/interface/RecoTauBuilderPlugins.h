@@ -42,63 +42,61 @@
 
 #include <vector>
 
-namespace reco {
-  namespace tau {
+namespace reco { namespace tau {
 
-    /* Class that constructs PFTau(s) from a PFJet and its associated PiZeros */
-    class RecoTauBuilderPlugin : public RecoTauEventHolderPlugin
-    {
-      public:
-        explicit RecoTauBuilderPlugin(const edm::ParameterSet& pset):
-          RecoTauEventHolderPlugin(pset){
-            pfCandSrc_ = pset.getParameter<edm::InputTag>("pfCandSrc");
-          };
+/* Class that constructs PFTau(s) from a PFJet and its associated PiZeros */
+class RecoTauBuilderPlugin : public RecoTauEventHolderPlugin
+{
+  public:
+    explicit RecoTauBuilderPlugin(const edm::ParameterSet& pset):
+      RecoTauEventHolderPlugin(pset){
+        pfCandSrc_ = pset.getParameter<edm::InputTag>("pfCandSrc");
+      };
 
-        virtual ~RecoTauBuilderPlugin() {}
+    virtual ~RecoTauBuilderPlugin() {}
 
-        // Construct one or more PFTaus from the a PFJet and its asscociated reconstructed PiZeros
-        virtual std::vector<reco::PFTau> operator()(const reco::PFJetRef& jet, 
-            const std::vector<reco::RecoTauPiZero>& piZeros) const = 0;
+    // Construct one or more PFTaus from the a PFJet and its asscociated reconstructed PiZeros
+    virtual std::vector<reco::PFTau> operator()(const reco::PFJetRef& jet, 
+        const std::vector<reco::RecoTauPiZero>& piZeros) const = 0;
 
-        // Hack to be able to convert Ptrs to Refs
-        const edm::Handle<PFCandidateCollection>& getPFCands() const { return pfCands_; };
+    // Hack to be able to convert Ptrs to Refs
+    const edm::Handle<PFCandidateCollection>& getPFCands() const { return pfCands_; };
 
-        // Hook called by base class at the beginning of each event. Used to update
-        // handle to PFCandidates
-        virtual void beginEvent();
+    // Hook called by base class at the beginning of each event. Used to update
+    // handle to PFCandidates
+    virtual void beginEvent();
 
-      private:
-        edm::InputTag pfCandSrc_;
-        // Handle to PFCandidates needed to build Refs
-        edm::Handle<PFCandidateCollection> pfCands_;
+  private:
+    edm::InputTag pfCandSrc_;
+    // Handle to PFCandidates needed to build Refs
+    edm::Handle<PFCandidateCollection> pfCands_;
 
-    };
+};
 
-    /* Class that updates a PFTau's members (i.e. electron variables) */
-    class RecoTauModifierPlugin : public RecoTauEventHolderPlugin
-    {
-      public:
-        explicit RecoTauModifierPlugin(const edm::ParameterSet& pset):
-          RecoTauEventHolderPlugin(pset){};
-        virtual ~RecoTauModifierPlugin() {}
-        // Modify an existing PFTau (i.e. add electron rejection, etc)
-        virtual void operator()(PFTau&) const = 0;
-        virtual void beginEvent() {}
-    };
+/* Class that updates a PFTau's members (i.e. electron variables) */
+class RecoTauModifierPlugin : public RecoTauEventHolderPlugin
+{
+  public:
+    explicit RecoTauModifierPlugin(const edm::ParameterSet& pset):
+      RecoTauEventHolderPlugin(pset){};
+    virtual ~RecoTauModifierPlugin() {}
+    // Modify an existing PFTau (i.e. add electron rejection, etc)
+    virtual void operator()(PFTau&) const = 0;
+    virtual void beginEvent() {}
+};
 
-    /* Class that returns a double value indicating the quality of a given tau */
-    class RecoTauCleanerPlugin : public RecoTauEventHolderPlugin
-    {
-      public:
-        explicit RecoTauCleanerPlugin(const edm::ParameterSet& pset):
-          RecoTauEventHolderPlugin(pset){};
-        virtual ~RecoTauCleanerPlugin() {}
-        // Modify an existing PFTau (i.e. add electron rejection, etc)
-        virtual double operator()(const PFTauRef&) const = 0;
-        virtual void beginEvent() {}
-    };
-  }
-}
+/* Class that returns a double value indicating the quality of a given tau */
+class RecoTauCleanerPlugin : public RecoTauEventHolderPlugin
+{
+  public:
+    explicit RecoTauCleanerPlugin(const edm::ParameterSet& pset):
+      RecoTauEventHolderPlugin(pset){};
+    virtual ~RecoTauCleanerPlugin() {}
+    // Modify an existing PFTau (i.e. add electron rejection, etc)
+    virtual double operator()(const PFTauRef&) const = 0;
+    virtual void beginEvent() {}
+};
+} } // end namespace reco::tau
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 typedef edmplugin::PluginFactory<reco::tau::RecoTauBuilderPlugin* (const edm::ParameterSet&)> RecoTauBuilderPluginFactory;
