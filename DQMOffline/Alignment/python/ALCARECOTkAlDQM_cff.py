@@ -226,14 +226,6 @@ ALCARECOTkAlMinBiasHITkAlDQM = ALCARECOTkAlMinBiasTkAlDQM.clone(
     SumChargeMax = 50.5
 )
 
-from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBiasHI_cff import ALCARECOTkAlMinBiasHINOTHLT
-ALCARECOTkAlMinBiasHINOTHLTDQM = hltMonBitSummary.clone(
-    directory = "AlCaReco/"+__selectionName+"/HLTSummaryNOT",
-    histLabel = __selectionName,
-    HLTPaths = ["HLT_.*L1.*"],
-    eventSetupPathsKey =  ALCARECOTkAlMinBiasHINOTHLT.eventSetupPathsKey.value()
-)
-
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBiasHI_cff import ALCARECOTkAlMinBiasHIHLT
 ALCARECOTkAlMinBiasHIHLTDQM = hltMonBitSummary.clone(
     directory = "AlCaReco/"+__selectionName+"/HLTSummary",
@@ -242,7 +234,7 @@ ALCARECOTkAlMinBiasHIHLTDQM = hltMonBitSummary.clone(
     eventSetupPathsKey =  ALCARECOTkAlMinBiasHIHLT.eventSetupPathsKey.value()
 )
 
-ALCARECOTkAlMinBiasHIDQM = cms.Sequence( ALCARECOTkAlMinBiasHITrackingDQM + ALCARECOTkAlMinBiasHITkAlDQM+ALCARECOTkAlMinBiasHIHLTDQM+ALCARECOTkAlMinBiasHINOTHLTDQM)
+ALCARECOTkAlMinBiasHIDQM = cms.Sequence( ALCARECOTkAlMinBiasHITrackingDQM + ALCARECOTkAlMinBiasHITkAlDQM+ALCARECOTkAlMinBiasHIHLTDQM)
 
 #############################################################
 #############---  TkAlMuonIsolated ---#######################
