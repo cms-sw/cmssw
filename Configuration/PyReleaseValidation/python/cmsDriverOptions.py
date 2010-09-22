@@ -63,11 +63,23 @@ parser.add_option("--mc",
                   action="store_true",
                   default=False,
                   dest="isMC")
+
 parser.add_option("--data",
                   help="Specify that data is to be processed (default = guess based on options",
                   action="store_true",
                   default=False,
                   dest="isData")
+
+parser.add_option("--cust_function",
+                  help="Specify the customise function to be called from the customise fragment.",
+                  default='customise',
+                  dest='cust_function')
+
+parser.add_option("--no_exec",
+                  help="Do not exec cmsRun. Just prepare the python config file.",
+                  action="store_true",
+                  default=False,
+                  dest="no_exec_flag")   
 
 # expert settings
 expertSettings.add_option("--beamspot",
@@ -223,16 +235,13 @@ expertSettings.add_option("--dbsquery",
                           default='',
                           dest="dbsquery")
 
-parser.add_option("--cust_function",
-                  help="Specify the customise function to be called from the customise fragment.",
-                  default='customise',
-                  dest='cust_function')
-
-parser.add_option("--no_exec",
-                  help="Do not exec cmsRun. Just prepare the python config file.",
+expertSettings.add_option("--lazy_download",
+                  help="Enable lazy downloading of input files",
                   action="store_true",
                   default=False,
-                  dest="no_exec_flag")   
+                  dest="lazy_download")   
+
+
                   
 (options,args) = parser.parse_args() # by default the arg is sys.argv[1:]
 

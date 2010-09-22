@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.221 $"
+__version__ = "$Revision: 1.222 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -42,12 +42,13 @@ pileupMap = {'156BxLumiPileUp': 2.0,
 
 # some helper routines
 def dumpPython(process,name):
-    theObject = getattr(process,name)
-    if isinstance(theObject,cms.Path) or isinstance(theObject,cms.EndPath) or isinstance(theObject,cms.Sequence):
-        return "process."+name+" = " + theObject.dumpPython("process")
-    elif isinstance(theObject,_Module) or isinstance(theObject,cms.ESProducer):
-        return "process."+name+" = " + theObject.dumpPython()
-
+	theObject = getattr(process,name)
+	if isinstance(theObject,cms.Path) or isinstance(theObject,cms.EndPath) or isinstance(theObject,cms.Sequence):
+		return "process."+name+" = " + theObject.dumpPython("process")+"\n"
+	elif isinstance(theObject,_Module) or isinstance(theObject,cms.ESProducer):
+		return "process."+name+" = " + theObject.dumpPython()+"\n"
+	else:
+		return "process."+name+" = " + theObject.dumpPython()+"\n"
 
 def findName(object,dictionary):
     for name, item in dictionary.iteritems():
@@ -105,7 +106,8 @@ class ConfigBuilder(object):
         self.additionalCommands = []
         # TODO: maybe a list of to be dumped objects would help as well
         self.blacklist_paths = []
-        self.additionalObjects = []
+        self.addedObjects = []
+	self.additionalObjects = []
         self.additionalOutputs = {}
         self.productionFilterSequence = None
 
@@ -128,17 +130,29 @@ class ConfigBuilder(object):
             exec(command.replace("process.","self.process."))
 
     def addCommon(self):
-	if 'HARVESTING' in self.stepMap.keys() or 'ALCAHARVEST' in self.stepMap.keys():
-            self.process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNotFound'),fileMode = cms.untracked.string('FULLMERGE'))
-        else:
-            self.process.options = cms.untracked.PSet( )
+	    if 'HARVESTING' in self.stepMap.keys() or 'ALCAHARVEST' in self.stepMap.keys():
+		    self.process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNotFound'),fileMode = cms.untracked.string('FULLMERGE'))
+	    else:
+		    self.process.options = cms.untracked.PSet( )
+	    self.addedObjects.append(("","options"))
+	    
+	    if hasattr(self._options,"lazy_download") and self._options.lazy_download:
+		    self.process.AdaptorConfig = cms.Service("AdaptorConfig",
+							     stats = cms.untracked.bool(True),
+							     enable = cms.untracked.bool(True),
+							     cacheHint = cms.untracked.string("lazy-download"),
+							     readHint = cms.untracked.string("read-ahead-buffered")
+							     )
+		    self.addedObjects.append(("Setup lazy download","AdaptorConfig"))
 
     def addMaxEvents(self):
         """Here we decide how many evts will be processed"""
         self.process.maxEvents=cms.untracked.PSet(input=cms.untracked.int32(int(self._options.number)))
+	self.addedObjects.append(("","maxEvents"))
 
     def addSource(self):
         """Here the source is built. Priority: file, generator"""
+	self.addedObjects.append(("Input source","source"))
         if self._options.filein:
            if self._options.filetype == "EDM":
                self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring(self._options.filein))
@@ -1031,7 +1045,7 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.221 $"),
+              (version=cms.untracked.string("$Revision: 1.222 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -1065,21 +1079,16 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
         for module in self.imports:
             self.pythonCfgCode += ("process.load('"+module+"')\n")
 
-        # dump production info
+        # production info
         if not hasattr(self.process,"configurationMetadata"):
             self.process.configurationMetadata=self.build_production_info(self._options.evt_type, self._options.number)
-        self.pythonCfgCode += "\nprocess.configurationMetadata = "+self.process.configurationMetadata.dumpPython()
 
-        # dump max events block
-        self.pythonCfgCode += "\nprocess.maxEvents = "+self.process.maxEvents.dumpPython()
-
-        # dump the job options
-        self.pythonCfgCode += "\nprocess.options = "+self.process.options.dumpPython()
-
-        # dump the input definition
-        self.pythonCfgCode += "\n# Input source\n"
-        self.pythonCfgCode += "process.source = "+self.process.source.dumpPython()
-
+	self.pythonCfgCode +="\n"
+	for comment,object in self.addedObjects:
+		if comment!="":
+			self.pythonCfgCode += "\n# "+comment+"\n"
+		self.pythonCfgCode += dumpPython(self.process,object)
+		
         # dump the output definition
 	self.pythonCfgCode += "\n# Output definition\n"
 	self.pythonCfgCode += outputModuleCfgCode
