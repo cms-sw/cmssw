@@ -188,5 +188,5 @@ VDouble InvariantMassOfSignalWithFiltered(Tau tau) { return VDouble(); }
 VDouble InvariantMass(Tau tau) { return VDouble(); }
 VDouble OutlierMass(Tau tau) { return VDouble(); }
 
-} } } // end reco::tau::disc namespace
+}}} // end reco::tau::disc namespace
 
