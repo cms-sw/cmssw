@@ -1,7 +1,7 @@
-#ifndef DQM_BeamMonitor_AlcaBeamMonitor_h
-#define DQM_BeamMonitor_AlcaBeamMonitor_h
+#ifndef DQM_BeamMonitor_AlcaBeamMonitorClient_h
+#define DQM_BeamMonitor_AlcaBeamMonitorClient_h
 
-/** \class AlcaBeamMonitor
+/** \class AlcaBeamMonitorClient
  * *
  *  $Date: 2010/08/20 21:07:26 $
  *  $Revision: 1.3 $
@@ -27,10 +27,10 @@
 class BeamFitter;
 class PVFitter;
 
-class AlcaBeamMonitor : public edm::EDAnalyzer {
+class AlcaBeamMonitorClient : public edm::EDAnalyzer {
  public:
-  AlcaBeamMonitor( const edm::ParameterSet& );
-  ~AlcaBeamMonitor();
+  AlcaBeamMonitorClient( const edm::ParameterSet& );
+  ~AlcaBeamMonitorClient();
 
  protected:
 
@@ -44,11 +44,12 @@ class AlcaBeamMonitor : public edm::EDAnalyzer {
   
  private:
   //Typedefs
-  //                BF,BS...         
-  typedef std::map<std::string,reco::BeamSpot>  BeamSpotContainer;
+  //                x,y,z,sigmax(y,z)...       lumi      
+  typedef std::map<std::string,std::map<edm::LuminosityBlockNumber_t,reco::BeamSpot> >  BeamSpotContainer;
   
   //                x,y,z,sigmax(y,z)... [run,lumi]          Histo name      
   typedef std::map<std::string,std::map<std::string,std::map<std::string,MonitorElement*> > > HistosContainer;
+
   //                x,y,z,sigmax(y,z)... [run,lumi]          Histo name      
   typedef std::map<std::string,std::map<std::string,std::map<std::string,int> > > PositionContainer;
 
@@ -71,15 +72,14 @@ class AlcaBeamMonitor : public edm::EDAnalyzer {
   // MonitorElements:
   MonitorElement* hD0Phi0_;
   MonitorElement* hDxyBS_;
-  MonitorElement* theValuesContainer_;
 
   //Containers
-  BeamSpotContainer  			 beamSpotsMap_;
-  HistosContainer    			 histosMap_;
+  BeamSpotContainer  					      beamSpotsMap_;
+  HistosContainer    					      histosMap_;
+  std::vector<std::string>                                    varNamesV_; //x,y,z,sigmax(y,z)
+  std::multimap<std::string,std::string>                      histoByCategoryNames_; //run, lumi
+  std::map<edm::LuminosityBlockNumber_t,std::vector<double> > valuesMap_;
   PositionContainer    			 positionsMap_;
-  std::vector<std::string>               varNamesV_; //x,y,z,sigmax(y,z)
-  std::multimap<std::string,std::string> histoByCategoryNames_; //run, lumi
-  std::vector<reco::VertexCollection>    vertices_;
   
 };
 

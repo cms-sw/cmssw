@@ -11,6 +11,9 @@
 <library   file="BeamMonitor.cc" name="BeamMonitor">
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="AlcaBeamMonitorClient.cc" name="AlcaBeamMonitorClient">
+  <flags   EDM_PLUGIN="1"/>
+</library>
 <library   file="AlcaBeamMonitor.cc" name="AlcaBeamMonitor">
   <flags   EDM_PLUGIN="1"/>
 </library>
