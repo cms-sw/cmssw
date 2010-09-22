@@ -23,6 +23,7 @@
 #include <vector>
 
 namespace reco {
+// Forward declarations
 class PFJet;
 class RecoTauPiZero;
 namespace tau {
