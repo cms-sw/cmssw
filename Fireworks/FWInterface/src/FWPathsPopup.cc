@@ -684,6 +684,16 @@ public:
          return fail;
       }
 
+   void editStringParameter(edm::ParameterSet &ps, bool tracked,
+                            const std::string &label,
+                            const std::string &value)
+      {
+         if (tracked)
+            ps.addParameter(label, value);
+         else
+            ps.addParameter(label, value);
+      }
+
    /** This is invoked every single time the
        editor contents must */
    void applyEditor()
@@ -722,6 +732,9 @@ public:
                   break;
                case 'X':
                   editNumericParameter<int64_t>(parent.pset, data.tracked, data.label, m_editor->GetText());
+                  break;
+               case 'S':
+                  editStringParameter(parent.pset, data.tracked, data.label, m_editor->GetText());
                   break;
                default:
                   std::cerr << "unsupported parameter" << std::endl;
