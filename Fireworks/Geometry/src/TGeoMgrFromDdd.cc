@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jul  2 16:11:42 CEST 2010
-// $Id: TGeoMgrFromDdd.cc,v 1.2 2010/07/05 18:06:49 matevz Exp $
+// $Id: TGeoMgrFromDdd.cc,v 1.1 2010/07/06 18:42:14 matevz Exp $
 //
 
 // system include files
@@ -368,6 +368,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 							   openingAngle) );
 	    TGeoSubtraction* sub = new TGeoSubtraction(trap.release(),
 						       tubs.release(),
+						       gGeoIdentity,
 						       createPlacement(s_rot,
 								       DDTranslation(0.,
 										     0.,
