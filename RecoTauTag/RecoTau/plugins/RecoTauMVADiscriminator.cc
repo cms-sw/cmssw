@@ -45,8 +45,11 @@ class RecoTauMVADiscriminator : public PFTauDiscriminationProducerBase
         }
 
         // Get the discriminant value(s) for this tau
-        std::vector<double> operator()(const reco::PFTauRef& tau) const {
-          return (*plugin_)(tau);
+        //std::vector<double> operator()(const reco::PFTauRef& tau) const {
+        //  return (*plugin_)(tau);
+        //  workaround until changes checked in PhysicsTools
+        double operator()(const reco::PFTauRef& tau) const {
+          return 0.0;
         }
 
       private:
