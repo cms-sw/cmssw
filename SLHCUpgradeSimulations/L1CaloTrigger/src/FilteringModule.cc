@@ -274,7 +274,7 @@ FilteringModule::calculateClusterPosition(l1slhc::L1CaloCluster& cluster)
 
   pos=cluster.hasConstituent(1,1);
   if(pos!=-1) 
-    phi+=cluster.getConstituent(pos)->E()+cluster.getConstituent(pos)->H();
+    phiW+=cluster.getConstituent(pos)->E()+cluster.getConstituent(pos)->H();
     
   phiW= (phiW/cluster.E())+1;
   
