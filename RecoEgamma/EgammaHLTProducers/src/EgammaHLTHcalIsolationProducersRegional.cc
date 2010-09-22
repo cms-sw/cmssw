@@ -7,6 +7,7 @@
  */
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTHcalIsolationProducersRegional.h"
+#include "RecoEgamma/EgammaHLTAlgos/interface/EgammaHLTHcalIsolation.h"
 
 // Framework
 #include "FWCore/Framework/interface/Event.h"
@@ -18,39 +19,54 @@
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
-
-
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
-
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+
+
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
+#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
+
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
-EgammaHLTHcalIsolationProducersRegional::EgammaHLTHcalIsolationProducersRegional(const edm::ParameterSet& config) : conf_(config)
+EgammaHLTHcalIsolationProducersRegional::EgammaHLTHcalIsolationProducersRegional(const edm::ParameterSet& config)
 {
  // use configuration file to setup input/output collection names
-  recoEcalCandidateProducer_               = conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer");
+  recoEcalCandidateProducer_               = config.getParameter<edm::InputTag>("recoEcalCandidateProducer");
 
-  hbRecHitProducer_           = conf_.getParameter<edm::InputTag>("hbRecHitProducer");
-  hfRecHitProducer_           = conf_.getParameter<edm::InputTag>("hfRecHitProducer");
+  hbheRecHitProducer_           = config.getParameter<edm::InputTag>("hbheRecHitProducer");
+  //hfRecHitProducer_           = conf_.getParameter<edm::InputTag>("hfRecHitProducer"); 
 
-  egHcalIsoPtMin_               = conf_.getParameter<double>("egHcalIsoPtMin");
-  egHcalIsoConeSize_            = conf_.getParameter<double>("egHcalIsoConeSize");
+  
+  double eMinHB               = config.getParameter<double>("eMinHB");
+  double eMinHE               = config.getParameter<double>("eMinHE");
+  double etMinHB              = config.getParameter<double>("etMinHB");  
+  double etMinHE             = config.getParameter<double>("etMinHE");
 
-  test_ = new EgammaHLTHcalIsolation(egHcalIsoPtMin_,egHcalIsoConeSize_);
+  double innerCone            = config.getParameter<double>("innerCone");
+  double outerCone            = config.getParameter<double>("outerCone");
+  int depth = config.getParameter<int>("depth");
 
-
+  doEtSum_ = config.getParameter<bool>("doEtSum");
+  isolAlgo_ = new EgammaHLTHcalIsolation(eMinHB,eMinHE,etMinHB,etMinHE,innerCone,outerCone,depth);
+ 
+  
   //register your products
   produces < reco::RecoEcalCandidateIsolationMap >();
 }
 
+EgammaHLTHcalIsolationProducersRegional::~EgammaHLTHcalIsolationProducersRegional()
+{
+  delete isolAlgo_;
+}
 
-EgammaHLTHcalIsolationProducersRegional::~EgammaHLTHcalIsolationProducersRegional(){delete test_;}
 
 
 //
@@ -63,33 +79,47 @@ EgammaHLTHcalIsolationProducersRegional::produce(edm::Event& iEvent, const edm::
 {
   
   // Get the HLT filtered objects
-  edm::Handle<reco::RecoEcalCandidateCollection> recoecalcandHandle;
-  iEvent.getByLabel(recoEcalCandidateProducer_,recoecalcandHandle);
+  edm::Handle<reco::RecoEcalCandidateCollection> recoEcalCandHandle;
+  iEvent.getByLabel(recoEcalCandidateProducer_,recoEcalCandHandle);
   // Get the barrel hcal hits
-  edm::Handle<HBHERecHitCollection> hhitBarrelHandle;
-  iEvent.getByLabel(hbRecHitProducer_, hhitBarrelHandle);
-  const HBHERecHitCollection* hcalhitBarrelCollection = hhitBarrelHandle.product();
+  edm::Handle<HBHERecHitCollection>  hbheRecHitHandle;
+  iEvent.getByLabel(hbheRecHitProducer_, hbheRecHitHandle);
+  const HBHERecHitCollection* hbheRecHitCollection = hbheRecHitHandle.product();
+  
+  edm::ESHandle<HcalChannelQuality> hcalChStatus;
+  iSetup.get<HcalChannelQualityRcd>().get(hcalChStatus);
+  
+  edm::ESHandle<HcalSeverityLevelComputer> hcalSevLvlComp;
+  iSetup.get<HcalSeverityLevelComputerRcd>().get(hcalSevLvlComp);
+
+  
+
   // Get the forward hcal hits
-  edm::Handle<HFRecHitCollection> hhitEndcapHandle;
-  iEvent.getByLabel(hfRecHitProducer_, hhitEndcapHandle);
-  const HFRecHitCollection* hcalhitEndcapCollection = hhitEndcapHandle.product();
+  //edm::Handle<HFRecHitCollection> hhitEndcapHandle;
+  //iEvent.getByLabel(hfRecHitProducer_, hhitEndcapHandle);
+  //const HFRecHitCollection* hcalhitEndcapCollection = hhitEndcapHandle.product();
   //Get Calo Geometry
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
-  const CaloGeometry* caloGeom = pG.product();
+  
+  edm::ESHandle<CaloGeometry> caloGeomHandle;
+  iSetup.get<CaloGeometryRecord>().get(caloGeomHandle);
+  const CaloGeometry* caloGeom = caloGeomHandle.product();
   
   reco::RecoEcalCandidateIsolationMap isoMap;
   
    
-  for(reco::RecoEcalCandidateCollection::const_iterator iRecoEcalCand = recoecalcandHandle->begin(); iRecoEcalCand != recoecalcandHandle->end(); iRecoEcalCand++){
+  for(reco::RecoEcalCandidateCollection::const_iterator iRecoEcalCand = recoEcalCandHandle->begin(); iRecoEcalCand != recoEcalCandHandle->end(); iRecoEcalCand++){
     
-    reco::RecoEcalCandidateRef recoecalcandref(recoecalcandHandle,iRecoEcalCand -recoecalcandHandle ->begin());
+    reco::RecoEcalCandidateRef recoEcalCandRef(recoEcalCandHandle,iRecoEcalCand -recoEcalCandHandle ->begin());
     
+    float isol = 0;
+    if(doEtSum_) isol = isolAlgo_->getEtSum(recoEcalCandRef->superCluster()->eta(),
+					    recoEcalCandRef->superCluster()->phi(),hbheRecHitCollection,caloGeom,
+					    hcalSevLvlComp.product(),hcalChStatus.product());
+    else isol = isolAlgo_->getESum(recoEcalCandRef->superCluster()->eta(),recoEcalCandRef->superCluster()->phi(),
+				   hbheRecHitCollection,caloGeom,
+				   hcalSevLvlComp.product(),hcalChStatus.product());
     
-    const reco::RecoCandidate *tempiRecoEcalCand = &(*recoecalcandref);
-    float isol =  test_->isolPtSum(tempiRecoEcalCand,hcalhitBarrelCollection,hcalhitEndcapCollection,caloGeom);
-    
-    isoMap.insert(recoecalcandref, isol);
+    isoMap.insert(recoEcalCandRef, isol);
     
   }
 

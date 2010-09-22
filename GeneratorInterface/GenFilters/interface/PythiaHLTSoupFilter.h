@@ -15,7 +15,7 @@
 //
 // Original Author:  Filip Moortgat
 //         Created:  Mon Jan 23 14:57:54 CET 2006
-// $Id: PythiaHLTSoupFilter.h,v 1.1 2006/08/15 07:30:39 fmoortga Exp $
+// $Id: PythiaHLTSoupFilter.h,v 1.1 2007/03/20 11:07:13 fmoortga Exp $
 //
 //
 
@@ -33,9 +33,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-using namespace edm;
-using namespace std;
-
 //
 // class decleration
 //
@@ -46,7 +43,7 @@ class PythiaHLTSoupFilter : public edm::EDFilter {
       ~PythiaHLTSoupFilter();
 
 
-      virtual bool filter(Event&, const EventSetup&);
+      virtual bool filter(edm::Event&, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
       

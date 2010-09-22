@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     fw3dlego_xbins
-// $Id: fw3dlego_xbins.cc,v 1.3 2009/09/05 10:51:35 dmytro Exp $
+// $Id: fw3dlego_xbins.cc,v 1.2 2009/01/23 21:35:44 amraktad Exp $
 #include "Fireworks/Core/interface/fw3dlego_xbins.h"
 
 // Information is extracted from:
@@ -14,8 +14,7 @@
 
 namespace fw3dlego
 {
-   const int    xbins_n = 83;
-   const double xbins[xbins_n] = {
+   const double xbins[83] = {
       -5.191, -4.889,
       -4.716, -4.538, -4.363, -4.191, -4.013, -3.839, -3.664, -3.489, -3.314,
       -3.139, -2.964, -2.853, -2.650, -2.500, -2.322, -2.172, -2.043, -1.930, -1.830,
@@ -29,12 +28,5 @@ namespace fw3dlego
       4.889,  5.191
    };
 
-   const int    xbins_hf_n = 28;
-   const double xbins_hf[xbins_hf_n] = {
-      -5.205, -4.903, -4.730, -4.552, -4.377, -4.204, -4.027,
-      -3.853, -3.677, -3.503, -3.327, -3.152, -2.976, -2.866,
-       2.866,  2.976,  3.152,  3.327,  3.503,  3.677,  3.853,
-       4.027,  4.204,  4.377,  4.552,  4.730,  4.903,  5.205
-   };
 }
 

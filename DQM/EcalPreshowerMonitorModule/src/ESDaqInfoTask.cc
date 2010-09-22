@@ -105,7 +105,7 @@ void ESDaqInfoTask::beginJob(void) {
 	 }
       }
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
+      dqmStore_->setCurrentFolder(prefixME_ + "/ESIntegrityTask");
       sprintf(histo, "DAQError");
       meESDaqError_ = dqmStore_->book1D(histo, histo, 56, ESFedRangeMin_-0.5, ESFedRangeMax_+0.5);
       meESDaqError_->setAxisTitle("FedID", 1);

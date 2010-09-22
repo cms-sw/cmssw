@@ -1,10 +1,9 @@
 #include "GeneratorInterface/Core/interface/GeneratorFilter.h"
 #include "GeneratorInterface/PomwigInterface/interface/PomwigHadronizer.h"
-#include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
 namespace gen
 {
-  typedef edm::GeneratorFilter<gen::PomwigHadronizer, gen::ExternalDecayDriver> PomwigGeneratorFilter;
+  typedef edm::GeneratorFilter<gen::PomwigHadronizer> PomwigGeneratorFilter;
 }
 
 using gen::PomwigGeneratorFilter;

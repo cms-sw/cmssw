@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-### Scaling factors obtained using CRAFT08 data on top of version 090601.
+### Set scaling factors
 
 fieldScaling = cms.PSet(
   scalingVolumes = cms.vint32(

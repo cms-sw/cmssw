@@ -1,12 +1,10 @@
-
 *----------------------------------------------------------------------
 *
-*  Filename               : PYQUEN.F
+*  Filename             : PYQUEN.F
 *
-*  Author                 : Igor Lokhtin  (Igor.Lokhtin@cern.ch)
-*  Version                : PYQUEN1_5.f, v.1.5.1 
-*  Last revision v.5.1    : 19-DEC-2007 
-*  Last revision v.5.1.1  : 06-MAY-2010
+*  Author               : Igor Lokhtin  (Igor.Lokhtin@cern.ch)
+*  Version              : PYQUEN1_5.f 
+*  Last revision        : 19-DEC-2007 
 *
 *======================================================================
 *
@@ -100,16 +98,16 @@ c      INTEGER PYK,PYCHGE,PYCOMP
        end if 
        b1=bfix  
       else      
- 112     call bipsear(fmax1,xmin1) 
+ 112   call bipsear(fmax1,xmin1) 
        fmax=fmax1 
        xmin=xmin1    
  11    bb1=xmin*pyr(0) 
        ff1=fmax*pyr(0) 
        fb=funbip(bb1) 
        if(ff1.gt.fb) goto 11    
-       b1=bb1  
        if(bb1.gt.bmax) goto 112
        if(bb1.lt.bmin) goto 112
+       b1=bb1  
       end if  
       bgen=b1 
       
@@ -138,10 +136,9 @@ c      INTEGER PYK,PYCHGE,PYCOMP
       ip002=0  
       if(mstj(41).ne.0) goto 5
       mstj(41)=1  
-      nn=n 
+      nn=n
       kfh1=0 
       kfh2=0 
-
       do i=9,nn 
        if(k(i,3).eq.7) then  
         ip1=i                    ! first hard parton (line ip1) 
@@ -533,9 +530,9 @@ c      INTEGER PYK,PYCHGE,PYCOMP
       common /plevol/ taup(5000),temp(5000),denp(5000),enep(5000)  
       save /plevol/,/plpar1/,/plpar2/  
 *
-      et=et
       pi=3.14159d0 
       pi2=pi*pi  
+      et=et
 
 * set number degrees of freedom in QGP                
       hgd=3.d0
@@ -611,6 +608,7 @@ c      INTEGER PYK,PYCHGE,PYCOMP
 *
       pi=3.14159d0              
       et=et
+
 * find minimum of nuclear thikness function with subroutine plsear      
       psib1=pi*(2.d0*pyr(0)-1.d0) 
       call plsear (fmax1,xmin1)
@@ -666,7 +664,7 @@ c      INTEGER PYK,PYCHGE,PYCOMP
        if(ka.eq.21.or.ka.eq.1.or.ka.eq.2.or.ka.eq.3.
      >  or.ka.eq.4.or.ka.eq.5.or.ka.eq.6.or.ka.eq.7.  
      >  or.ka.eq.8) then    
-       if(ks.eq.2.or.ks.eq.1) then  
+       if(ks.eq.2.or.ks.eq.1.or.ks.eq.21) then  
         phir=pyp(ip,15)                 ! parton azimuthal angle  
         tetr=pyp(ip,13)                 ! parton polar angle         
         yrr=pyp(ip,17)                  ! parton rapidity 
@@ -743,7 +741,6 @@ c      INTEGER PYK,PYCHGE,PYCOMP
         if(irasf.gt.100000) goto 100 
         if(ran.lt.prob) goto 3  
         pltp=plt(tau,rj1,rj2,yrr) 
-        if(pltp.le.TC) goto 100     ! escape if temperature drops below TC
         pltp3=3.d0*pltp 
         pass=50.6d0/(pln(tau,rj1,rj2,yrr)*sigtr)    
         elr=0.d0 
@@ -880,6 +877,7 @@ c      INTEGER PYK,PYCHGE,PYCOMP
       epart=epart
       tau=tau
 
+
 * boost to system of comoving plasma constituent  
       phir=pyp(i,15)                    ! parton phi  
       tetr=pyp(i,13)                    ! parton theta   
@@ -905,8 +903,8 @@ c      INTEGER PYK,PYCHGE,PYCOMP
        qm2=(scm-((um+ep0)**2))*(scm-((um-ep0)**2))/scm  
        bub=4.d0*tauu/TC   
        alf=6.d0*pi/((33.d0-2.d0*nf)*dlog(max(bub,1.d-10)))
-       z=abs(pi*4.d0*tauu*tauu*alf*(1.+nf/6.d0))  
-       bubs=dsqrt(z)/TC 
+       z=pi*4.d0*tauu*tauu*alf*(1.+nf/6.d0)  
+       bubs=dsqrt(abs(z))/TC 
        alfs=6.d0*pi/((33.d0-2.d0*nf)*dlog(max(bubs,1.d-10))) 
        phmin2=z 
        phmax2=max(phmin2,qm2)  
@@ -925,7 +923,7 @@ c      INTEGER PYK,PYCHGE,PYCOMP
        elp=ygl*z                       ! mimimum radiated energy in LPM regime
        ej=ppl                           
        bb=ej                           ! maximum radiated energy 
-       bbi=max(dsqrt(z),1.000001d0*elp)  
+       bbi=max(dsqrt(abs(z)),1.000001d0*elp)  
        aa=min(bb,bbi)                  ! minimum radiated energy 
        hh=0.00001d0*(bb-aa)    
        REPS=0.01d0 

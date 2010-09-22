@@ -13,7 +13,7 @@
 //
 // Original Author:  Nadia Adam
 //         Created:  Wed Apr 16 09:46:30 CDT 2008
-// $Id: TagProbeMassProducer.cc,v 1.3 2010/04/23 23:21:14 tdaniels Exp $
+// $Id: TagProbeMassProducer.cc,v 1.1 2010/05/04 09:42:40 azzi Exp $
 //
 //
 
@@ -104,7 +104,7 @@ TagProbeMassProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    if( invMass > massMaxCut_ ) continue;
 
 	    // Tag-Probe deltaR cut
-	    double delR = deltaR<double>((*tag)->eta(),(*tag)->phi(),(*probe)->eta(),(*probe)->phi());
+	    double delR = reco::deltaR<double>((*tag)->eta(),(*tag)->phi(),(*probe)->eta(),(*probe)->phi());
 	    if( delR < delRMinCut_ ) continue;
 	    if( delR > delRMaxCut_ ) continue;
 

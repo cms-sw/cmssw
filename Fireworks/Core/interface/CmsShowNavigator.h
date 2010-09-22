@@ -4,7 +4,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.h,v 1.49 2010/03/26 20:20:20 matevz Exp $
+// $Id: CmsShowNavigator.h,v 1.48 2009/12/17 19:31:10 amraktad Exp $
 //
 
 // system include files
@@ -144,6 +144,9 @@ private:
    void editFiltersExternally();
    void newFile(FileQueue_i);
 
+   void setupMemoryInfo(int numEvents);
+   void writeMemoryInfo();
+
    // ---------- member data --------------------------------
    
    std::list<FWEventSelector*>  m_selectors;
@@ -162,6 +165,11 @@ private:
    // events or not
    const CmsShowMain &m_main;
    FWGUIEventFilter*  m_guiFilter;
+
+   // write per event memory usage
+   int                  m_memoryInfoSamples;
+   std::vector<Float_t> m_memoryResidentVec;
+   std::vector<Float_t> m_memoryVirtualVec;
 };
 
 #endif

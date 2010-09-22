@@ -259,7 +259,7 @@ def dumpStream(stream):
         if path in unassigned:
           unassigned.remove( path )
         else:
-          missing.insert( path )
+          missing.append( path )
     else:
       print '        *** not found ***'
   if unassigned:

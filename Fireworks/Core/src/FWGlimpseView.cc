@@ -8,13 +8,18 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.39 2010/04/16 13:44:07 amraktad Exp $
+// $Id: FWGlimpseView.cc,v 1.36 2009/12/14 16:10:28 amraktad Exp $
 //
 
 #include <boost/bind.hpp>
 
-
+// FIXME
+// need camera parameters
+#define private public
 #include "TGLPerspectiveCamera.h"
+#undef private
+
+
 #include "TGLViewer.h"
 #include "TGLScenePad.h"
 #include "TEveScene.h"
@@ -33,7 +38,10 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWGlimpseView.h"
+#include "Fireworks/Core/interface/FWEveValueScaler.h"
+#include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
+
 
 //
 // constants, enums and typedefs
@@ -45,18 +53,83 @@
 //double FWGlimpseView::m_scale = 1;
 
 //
-// constructors and destructorquery
+// constructors and destructor
 //
-FWGlimpseView::FWGlimpseView(TEveWindowSlot* iParent, FWViewType::EType typeId) :
-   FWEveView(iParent, typeId),
+FWGlimpseView::FWGlimpseView(TEveWindowSlot* iParent, TEveElementList* list,
+                             FWEveValueScaler* iScaler) :
+   FWEveView(iParent),
    m_cylinder(0),
+   m_cameraMatrix(0),
+   m_cameraMatrixBase(0),
+   m_cameraFOV(0),
    m_showAxes(this, "Show Axes", true ),
-   m_showCylinder(this, "Show Cylinder", true)
+   m_showCylinder(this, "Show Cylinder", true),
+   m_scaler(iScaler)
 {
-   createAxis();
+   scene()->SetElementName(staticTypeName().c_str());
+   scene()->AddElement(list);
+   viewer()->SetElementName(staticTypeName().c_str());
 
-   // made new wireframe scene
-   TEveScene* wns = gEve->SpawnNewScene(Form("Wireframe Scene %s", typeName().c_str()));
+   TGLViewer* ev = viewerGL();
+   ev->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
+   m_cameraMatrix = const_cast<TGLMatrix*>(&(ev->CurrentCamera().GetCamTrans()));
+   m_cameraMatrixBase = const_cast<TGLMatrix*>(&(ev->CurrentCamera().GetCamBase()));
+   if ( TGLPerspectiveCamera* camera =
+        dynamic_cast<TGLPerspectiveCamera*>(&(ev->CurrentCamera())) )
+      m_cameraFOV = &(camera->fFOV);
+
+
+   // create 3D axes
+   TGLFont::EMode fontMode = TGLFont::kPixmap;
+   Int_t fs = 14;
+   Color_t fcol = kGray+1;
+
+   // X axis
+   TEveStraightLineSet* xAxis = new TEveStraightLineSet( "GlimpseXAxis" );
+   xAxis->SetPickable(kTRUE);
+   xAxis->SetTitle("Energy Scale, 100 GeV, X-axis (LHC center)");
+   xAxis->SetLineStyle(3);
+   xAxis->SetLineColor(fcol);
+   xAxis->AddLine(-100,0,0,100,0,0);
+   scene()->AddElement(xAxis);
+
+   TEveText* xTxt = new TEveText( "X+" );
+   xTxt->PtrMainTrans()->SetPos(100-fs, -fs, 0);
+   xTxt->SetFontMode(fontMode);
+   xTxt->SetMainColor(fcol);
+   scene()->AddElement(xTxt);
+
+   // Y axis
+   TEveStraightLineSet* yAxis = new TEveStraightLineSet( "GlimpseYAxis" );
+   yAxis->SetPickable(kTRUE);
+   yAxis->SetTitle("Energy Scale, 100 GeV, Y-axis (upward)");
+   yAxis->SetLineColor(fcol);
+   yAxis->SetLineStyle(3);
+   yAxis->AddLine(0,-100,0,0,100,0);
+   scene()->AddElement(yAxis);
+
+   TEveText* yTxt = new TEveText( "Y+" );
+   yTxt->PtrMainTrans()->SetPos(0, 100-fs, 0);
+   yTxt->SetFontMode(fontMode);
+   yTxt->SetMainColor(fcol);
+   scene()->AddElement(yTxt);
+
+   // Z axis
+   TEveStraightLineSet* zAxis = new TEveStraightLineSet( "GlimpseZAxis" );
+   zAxis->SetPickable(kTRUE);
+   zAxis->SetTitle("Energy Scale, 100 GeV, Z-axis (west, along beam)");
+   zAxis->SetLineColor(fcol);
+   zAxis->AddLine(0,0,-100,0,0,100);
+   scene()->AddElement(zAxis);
+
+   TEveText* zTxt = new TEveText( "Z+" );
+   zTxt->PtrMainTrans()->SetPos(0, -fs,  100 - zTxt->GetExtrude()*2);
+   zTxt->SetFontMode(fontMode);
+   zTxt->SetMainColor(fcol);
+   scene()->AddElement(zTxt);
+
+   // made detector outline in wireframe scene
+   TEveScene* wns = gEve->SpawnNewScene(Form("Wireframe %s", staticTypeName().c_str()));
    viewer()->AddScene(wns);
    TGLScene* gls  = wns->GetGLScene();
    gls->SetStyle(TGLRnrCtx::kWireFrame);
@@ -70,8 +143,6 @@ FWGlimpseView::FWGlimpseView(TEveWindowSlot* iParent, FWViewType::EType typeId) 
    m_cylinder->SetMainColor(kGray+3);
    wns->AddElement(m_cylinder);
 
-   TGLViewer* ev = viewerGL();
-   ev->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
    m_showAxes.changed_.connect(boost::bind(&FWGlimpseView::showAxes,this));
    m_showCylinder.changed_.connect(boost::bind(&FWGlimpseView::showCylinder,this));
 }
@@ -80,68 +151,92 @@ FWGlimpseView::~FWGlimpseView()
 {
 }
 
-
-//
-// member functions
-//
-
 void
-FWGlimpseView::createAxis()
+FWGlimpseView::setFrom(const FWConfiguration& iFrom)
 {
-   // create 3D axes
-   TEveElementList* axisHolder = new TEveElementList("GlimpseAxisHolder");
+   // take care of parameters
+   FWEveView::setFrom(iFrom);
 
-   TGLFont::EMode fontMode = TGLFont::kPixmap;
-   Int_t fs = 14;
-   Color_t fcol = kGray+1;
+   // transformation matrix
+   assert(m_cameraMatrix);
+   std::string matrixName("cameraMatrix");
+   for ( unsigned int i = 0; i < 16; ++i ){
+      std::ostringstream os;
+      os << i;
+      const FWConfiguration* value = iFrom.valueForKey( matrixName + os.str() + "Glimpse" );
+      if (!value ) continue;
+      std::istringstream s(value->value());
+      s>>((*m_cameraMatrix)[i]);
+   }
 
-   // X axis
-   TEveStraightLineSet* xAxis = new TEveStraightLineSet( "GlimpseXAxis" );
-   xAxis->SetPickable(kTRUE);
-   xAxis->SetTitle("Energy Scale, 100 GeV, X-axis (LHC center)");
-   xAxis->SetLineStyle(3);
-   xAxis->SetLineColor(fcol);
-   xAxis->AddLine(-100,0,0,100,0,0);
-   axisHolder->AddElement(xAxis);
+   // transformation matrix base
+   assert(m_cameraMatrixBase);
+   matrixName = "cameraMatrixBase";
+   for ( unsigned int i = 0; i < 16; ++i ){
+      std::ostringstream os;
+      os << i;
+      const FWConfiguration* value = iFrom.valueForKey( matrixName + os.str() + "Glimpse" );
+      if (!value ) continue;
+      std::istringstream s(value->value());
+      s>>((*m_cameraMatrixBase)[i]);
+   }
 
-   TEveText* xTxt = new TEveText( "X+" );
-   xTxt->PtrMainTrans()->SetPos(100-fs, -fs, 0);
-   xTxt->SetFontMode(fontMode);
-   xTxt->SetMainColor(fcol);
-   axisHolder->AddElement(xTxt);
-
-   // Y axis
-   TEveStraightLineSet* yAxis = new TEveStraightLineSet( "GlimpseYAxis" );
-   yAxis->SetPickable(kTRUE);
-   yAxis->SetTitle("Energy Scale, 100 GeV, Y-axis (upward)");
-   yAxis->SetLineColor(fcol);
-   yAxis->SetLineStyle(3);
-   yAxis->AddLine(0,-100,0,0,100,0);
-   axisHolder->AddElement(yAxis);
-
-   TEveText* yTxt = new TEveText( "Y+" );
-   yTxt->PtrMainTrans()->SetPos(0, 100-fs, 0);
-   yTxt->SetFontMode(fontMode);
-   yTxt->SetMainColor(fcol);
-   axisHolder->AddElement(yTxt);
-
-   // Z axis
-   TEveStraightLineSet* zAxis = new TEveStraightLineSet( "GlimpseZAxis" );
-   zAxis->SetPickable(kTRUE);
-   zAxis->SetTitle("Energy Scale, 100 GeV, Z-axis (west, along beam)");
-   zAxis->SetLineColor(fcol);
-   zAxis->AddLine(0,0,-100,0,0,100);
-   axisHolder->AddElement(zAxis);
-
-   TEveText* zTxt = new TEveText( "Z+" );
-   zTxt->PtrMainTrans()->SetPos(0, -fs,  100 - zTxt->GetExtrude()*2);
-   zTxt->SetFontMode(fontMode);
-   zTxt->SetMainColor(fcol);
-   axisHolder->AddElement(zTxt);
-
-   geoScene()->AddElement(axisHolder);
+   {
+      assert ( m_cameraFOV );
+      const FWConfiguration* value = iFrom.valueForKey( "Glimpse FOV" );
+      if ( value ) {
+         std::istringstream s(value->value());
+         s>>*m_cameraFOV;
+      }
+   }
+   viewerGL()->RequestDraw();
 }
 
+const std::string&
+FWGlimpseView::typeName() const
+{
+   return staticTypeName();
+}
+
+void
+FWGlimpseView::addTo(FWConfiguration& iTo) const
+{
+   FWEveView::addTo(iTo);
+
+   // transformation matrix
+   assert(m_cameraMatrix);
+   std::string matrixName("cameraMatrix");
+   for ( unsigned int i = 0; i < 16; ++i ){
+      std::ostringstream osIndex;
+      osIndex << i;
+      std::ostringstream osValue;
+      osValue << (*m_cameraMatrix)[i];
+      iTo.addKeyValue(matrixName+osIndex.str()+"Glimpse",FWConfiguration(osValue.str()));
+   }
+
+   // transformation matrix base
+   assert(m_cameraMatrixBase);
+   matrixName = "cameraMatrixBase";
+   for ( unsigned int i = 0; i < 16; ++i ){
+      std::ostringstream osIndex;
+      osIndex << i;
+      std::ostringstream osValue;
+      osValue << (*m_cameraMatrixBase)[i];
+      iTo.addKeyValue(matrixName+osIndex.str()+"Glimpse",FWConfiguration(osValue.str()));
+   }
+   {
+      assert ( m_cameraFOV );
+      std::ostringstream osValue;
+      osValue << *m_cameraFOV;
+      iTo.addKeyValue("Glimpse FOV",FWConfiguration(osValue.str()));
+   }
+}
+
+void
+FWGlimpseView::updateScale( double scale )
+{
+   m_scaler->setScale(scale);
+}
 
 void
 FWGlimpseView::showAxes( )
@@ -164,20 +259,13 @@ FWGlimpseView::showCylinder( )
    gEve->Redraw3D();
 }
 
-
-void
-FWGlimpseView::addTo(FWConfiguration& iTo) const
+//
+// static member functions
+//
+const std::string&
+FWGlimpseView::staticTypeName()
 {
-   FWEveView::addTo(iTo);   
-   TGLPerspectiveCamera* camera = dynamic_cast<TGLPerspectiveCamera*>(&(viewerGL()->CurrentCamera()));
-   addToPerspectiveCamera(camera, typeName(), iTo);
-}
-
-void
-FWGlimpseView::setFrom(const FWConfiguration& iFrom)
-{
-   FWEveView::setFrom(iFrom);
-   TGLPerspectiveCamera* camera = dynamic_cast<TGLPerspectiveCamera*>(&(viewerGL()->CurrentCamera()));
-   setFromPerspectiveCamera(camera, typeName(), iFrom);
+   static std::string s_name("Glimpse");
+   return s_name;
 }
 

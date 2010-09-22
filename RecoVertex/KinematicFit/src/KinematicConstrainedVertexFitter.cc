@@ -50,7 +50,7 @@ void KinematicConstrainedVertexFitter::defaultParameters()
   theMaxInitial = 9999.; //dummy value
 }
 
-RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(vector<RefCountedKinematicParticle> part,
+RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(std::vector<RefCountedKinematicParticle> part,
                                                              MultiTrackKinematicConstraint * cs,
                                                              GlobalPoint * pt)
 {
@@ -58,9 +58,9 @@ RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(vector<RefCountedK
 
 //sorting out the input particles
  InputSort iSort;
- pair<vector<RefCountedKinematicParticle>, vector<FreeTrajectoryState> > input = iSort.sort(part);
- const vector<RefCountedKinematicParticle> & particles  = input.first;
- const vector<FreeTrajectoryState> & fStates = input.second;
+ std::pair<std::vector<RefCountedKinematicParticle>, std::vector<FreeTrajectoryState> > input = iSort.sort(part);
+ const std::vector<RefCountedKinematicParticle> & particles  = input.first;
+ const std::vector<FreeTrajectoryState> & fStates = input.second;
 
 // linearization point:
  GlobalPoint linPoint  = finder->getLinearizationPoint(fStates);
@@ -78,13 +78,13 @@ RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(vector<RefCountedK
 
 //making initial vector of parameters and initial particle-related covariance
  int nSt = 0;
- vector<KinematicState> inStates;
- for(vector<RefCountedKinematicParticle>::const_iterator i = particles.begin(); i!=particles.end(); i++)
+ std::vector<KinematicState> inStates;
+ for(std::vector<RefCountedKinematicParticle>::const_iterator i = particles.begin(); i!=particles.end(); i++)
  {
   KinematicState state = (*i)->stateAtPoint(linPoint);
   if (!state.isValid()) {
       LogDebug("KinematicConstrainedVertexFitter")
-       << "State is invalid at point: "<<linPoint<<endl;
+       << "State is invalid at point: "<<linPoint<<std::endl;
       return ReferenceCountingPointer<KinematicTree>(new KinematicTree());
   }
   AlgebraicVector prPar = asHepVector<7>(state.kinematicParameters().vector());
@@ -112,7 +112,7 @@ RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(vector<RefCountedK
  iterations = 0;
  csum = 0.0;
 
- vector<KinematicState> lStates = inStates;
+ std::vector<KinematicState> lStates = inStates;
  GlobalPoint lPoint  = linPoint;
  RefCountedKinematicVertex rVtx;
  AlgebraicMatrix refCCov;
@@ -121,7 +121,7 @@ RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(vector<RefCountedK
 //are taken as new linearization point
  do{
   eq = 0.;
-  pair< pair< vector<KinematicState>, AlgebraicMatrix >,RefCountedKinematicVertex> lRes =
+  std::pair< std::pair< std::vector<KinematicState>, AlgebraicMatrix >,RefCountedKinematicVertex> lRes =
                                       updator->update(inPar,inCov,lStates,lPoint,cs);
   lStates = lRes.first.first;
   if (particles.size() != lStates.size()) {
@@ -134,12 +134,12 @@ RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(vector<RefCountedK
 
   AlgebraicVector vValue = vCons->value(lStates, lPoint);
   for(int i = 1; i<=vValue.num_row();++i)
-  {eq += abs(vValue(i));}
+  {eq += std::abs(vValue(i));}
   if(cs !=0)
   {
    AlgebraicVector cVal = cs->value(lStates, lPoint);
    for(int i = 1; i<=cVal.num_row();++i)
-   {eq += abs(cVal(i));}
+   {eq += std::abs(cVal(i));}
   }
   if (nit == 0) {
     if (eq>theMaxInitial) return ReferenceCountingPointer<KinematicTree>(new KinematicTree());
@@ -153,6 +153,10 @@ RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(vector<RefCountedK
   refCCov = lRes.first.second;
   nit++;
  }while(nit<theMaxStep && eq>theMaxDiff);
+
+ if (eq>theMaxDiff) {
+   return ReferenceCountingPointer<KinematicTree>(new KinematicTree());
+ } 
 
 // cout<<"number of relinearizations "<<nit<<endl;
 // cout<<"value obtained: "<<eq<<endl;

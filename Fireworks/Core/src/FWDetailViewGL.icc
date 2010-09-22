@@ -1,16 +1,13 @@
 #include "TCanvas.h"
 #include "RVersion.h"
 #include "TRootEmbeddedCanvas.h"
-#include "TGLViewer.h"
 
 #include "TEveWindow.h"
 #include "TEveViewer.h"
 #include "TEveScene.h"
 #include "TEveManager.h"
-#include "TSystem.h"
 
 #include "Fireworks/Core/interface/FWColorManager.h"
-#include "Fireworks/Core/interface/FWGLEventHandler.h"
 
 template <typename T>
 FWDetailViewGL<T>::FWDetailViewGL () :
@@ -24,59 +21,50 @@ m_eveScene(0)
 template <typename T>
 FWDetailViewGL<T>::~FWDetailViewGL ()
 {
-  m_eveScene->Destroy();
 }
 
 template <typename T>
 void  FWDetailViewGL<T>::init(TEveWindowSlot* slot)
 {
-   TEveWindowPack* pack = slot->MakePack();
-   pack->SetHorizontal();
-   pack->SetShowTitleBar(kFALSE);
-   pack->SetElementNameTitle("DetalView pack","DetailViewPack" );
-
-   // canvas & widgets
-   TEveWindowFrame* frame = pack->NewSlotWithWeight(1)->MakeFrame();
-   frame->SetShowTitleBar(kFALSE);
-   TGCompositeFrame* cf = frame->GetGUICompositeFrame();
-
-   TGCompositeFrame* hf = new TGVerticalFrame(cf);
-   hf->SetCleanup(kLocalCleanup);
-   cf->AddFrame(hf, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
-   {
-      m_guiFrame = new TGVerticalFrame(hf);
-      hf->AddFrame(m_guiFrame, new TGLayoutHints(kLHintsExpandX));
-      m_guiFrame->SetCleanup(kDeepCleanup);
-
-      // legend
-      TRootEmbeddedCanvas* ec = new TRootEmbeddedCanvas("Embeddedcanvas", hf, 100, 100, 0);
-      hf->AddFrame(ec, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
-      m_infoCanvas = ec->GetCanvas();
-      m_infoCanvas->SetHighLightColor(-1);
-   }
+  TEveWindowPack* wp = slot->MakePack();
+  wp->SetHorizontal();
+  wp->SetShowTitleBar(kFALSE);
   
-   cf->MapSubwindows();
-   cf->Layout();
-   cf->MapWindow();
-
-   // viewer GL 
-   m_eveViewer = new TEveViewer("DetailView");
+  // canvas & widgets
+  slot = wp->NewSlotWithWeight(1);
+  TEveWindowFrame* wf = slot->MakeFrame();
+  wf->SetShowTitleBar(kFALSE);
+  TGCompositeFrame* eveFrame = wf->GetGUICompositeFrame();
+  m_guiFrame = new TGVerticalFrame(eveFrame, 10, 10, kSunkenFrame|kDoubleBorder);
+  eveFrame->AddFrame(m_guiFrame, new TGLayoutHints(kLHintsNormal| kLHintsExpandX));
+  
+  
+  TGCompositeFrame* cf = new TGCompositeFrame(eveFrame);
+  eveFrame->AddFrame(cf, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
+  cf->SetCleanup(kLocalCleanup);
+  
+  TRootEmbeddedCanvas* ec = new TRootEmbeddedCanvas("Embeddedcanvas", cf, 100, 100, 0);
+  cf->AddFrame(ec, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
+  m_infoCanvas = ec->GetCanvas();
+  m_infoCanvas->SetHighLightColor(-1);
+  cf->Layout();
+  
+  eveFrame->MapSubwindows();
+  eveFrame->Layout();
+  
+  // viewer GL 
+  slot = wp->NewSlotWithWeight(3);
+  m_eveViewer = new TEveViewer("Detail view");
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,25,4)
-   m_eveViewer->SpawnGLEmbeddedViewer(0);
+  m_eveViewer->SpawnGLEmbeddedViewer(0);
 #else
-   m_eveViewer->SpawnGLEmbeddedViewer();
+  m_eveViewer->SpawnGLEmbeddedViewer();
 #endif
-   pack->NewSlotWithWeight(3)->ReplaceWindow(m_eveViewer);
-   m_eveViewer->SetShowTitleBar(kFALSE);
-   gEve->GetViewers()->AddElement(m_eveViewer);
-
-   m_eveScene = gEve->SpawnNewScene("Detailed view");
-   m_eveViewer->AddScene(m_eveScene);
-
-   // override event handling
-   TGLViewer* glv = m_eveViewer->GetGLViewer();
-   FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)glv->GetGLWidget(), (TObject*)glv);
-   glv->SetEventHandler(eh);
+  gEve->GetViewers()->AddElement(m_eveViewer);
+  slot->ReplaceWindow(m_eveViewer);
+  slot->SetShowTitleBar(kFALSE);
+  m_eveScene = gEve->SpawnNewScene("Detailed view");
+  m_eveViewer->AddScene(m_eveScene);
 }
 
 

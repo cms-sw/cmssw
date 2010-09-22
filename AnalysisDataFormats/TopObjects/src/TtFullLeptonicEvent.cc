@@ -4,7 +4,7 @@
 
 // print info via MessageLogger
 void
-TtFullLeptonicEvent::print(const int verbosity)
+TtFullLeptonicEvent::print(const int verbosity) const
 {
   if(verbosity%10 <= 0)
     return;

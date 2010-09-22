@@ -31,6 +31,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Run.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -75,8 +76,10 @@ class EventTimeDistribution : public edm::EDAnalyzer {
   TH1F** _dbx;
   TH1F** _bx;
   TH1F** _bxincycle;
+  TH2F** _dbxvsbxincycle;
   TH2F** _dbxvsbx;
-  TH2F** _orbitvsbx;
+  TH2F** _bxincyclevsbx;
+  TH2F** _orbitvsbxincycle;
 
 };
 
@@ -104,8 +107,12 @@ EventTimeDistribution::EventTimeDistribution(const edm::ParameterSet& iConfig):
   _dbx = _rhm.makeTH1F("dbx","dbx",1000,-0.5,999.5);
   _bx = _rhm.makeTH1F("bx","BX number",3564,-0.5,3563.5);
   _bxincycle = _rhm.makeTH1F("bxcycle","bxcycle",70,-0.5,69.5);
-  _dbxvsbx = _rhm.makeTH2F("dbxvsbx","dbxvsbx",70,-0.5,69.5,1000,-0.5,999.5);
-  _orbitvsbx = _rhm.makeTH2F("orbitvsbx","orbitvsbx",70,-0.5,69.5,3600,0,11223*_binsize*3600);
+  _dbxvsbxincycle = _rhm.makeTH2F("dbxvsbxincycle","dbxvsbxincycle",70,-0.5,69.5,1000,-0.5,999.5);
+  _dbxvsbx = _rhm.makeTH2F("dbxvsbx","dbxvsbx",3564,-0.5,3563.5,1000,-0.5,999.5);
+  _bxincyclevsbx = _rhm.makeTH2F("bxincyclevsbx","bxincyclevsbx",3564,-0.5,3563.5,70,-0.5,69.5);
+  _orbitvsbxincycle = _rhm.makeTH2F("orbitvsbxincycle","orbitvsbxincycle",70,-0.5,69.5,3600,0,11223*_binsize*3600);
+
+  edm::LogInfo("UsedAPVCyclePhaseCollection") << " APVCyclePhaseCollection " << _apvphasecoll << " used";
 
 }
 
@@ -153,8 +160,10 @@ EventTimeDistribution::analyze(const edm::Event& iEvent, const edm::EventSetup& 
    (*_dbx)->Fill(he->deltaBX());
    (*_bx)->Fill(iEvent.bunchCrossing());
    (*_bxincycle)->Fill(tbx%70);
-   (*_dbxvsbx)->Fill(tbx%70,he->deltaBX());
-   (*_orbitvsbx)->Fill(tbx%70,iEvent.orbitNumber());
+   (*_dbxvsbxincycle)->Fill(tbx%70,he->deltaBX());
+   (*_dbxvsbx)->Fill(iEvent.bunchCrossing(),he->deltaBX());
+   (*_bxincyclevsbx)->Fill(iEvent.bunchCrossing(),tbx%70);
+   (*_orbitvsbxincycle)->Fill(tbx%70,iEvent.orbitNumber());
 
 
 }
@@ -163,28 +172,49 @@ void
 EventTimeDistribution::beginRun(const edm::Run& iRun, const edm::EventSetup&)
 {
 
-  /*  
-  edm::Service<TFileService> tfserv;
-
-  char dirname[300];
-  sprintf(dirname,"run_%d",iRun.run());
-  TFileDirectory subrun = tfserv->mkdir(dirname);
-  */
-
-  /*
-  _dbx = subrun.make<TH1F>("dbx","dbx",1000,-0.5,999.5);
-  _bx = subrun.make<TH1F>("bx","BX number",3564,-0.5,3563.5);
-  _bxincycle = subrun.make<TH1F>("bxcycle","bxcycle",70,-0.5,69.5);
-  _dbxvsbx = subrun.make<TH2F>("dbxvsbx","dbxvsbx",70,-0.5,69.5,1000,-0.5,999.5);
-  _orbitvsbx = subrun.make<TH2F>("orbitvsbx","orbitvsbx",70,-0.5,69.5,3600,0,11223*_binsize*3600);
-  */
-
   _rhm.beginRun(iRun);
-  if(*_orbitvsbx) {
-    (*_orbitvsbx)->SetBit(TH1::kCanRebin);
+  if(*_dbx) {
+    (*_dbx)->GetXaxis()->SetTitle("#DeltaBX"); 
   }
   else {
-    edm::LogWarning("NullPointer") << "The orbitvsbx pointer is null !!";
+    edm::LogWarning("NullPointer") << "The dbx pointer is null !!";
+  }
+  if(*_bx) {
+    (*_bx)->GetXaxis()->SetTitle("BX"); 
+  }
+  else {
+    edm::LogWarning("NullPointer") << "The bx pointer is null !!";
+  }
+  if(*_bxincycle) {
+    (*_bxincycle)->GetXaxis()->SetTitle("Event BX mod(70)"); 
+  }
+  else {
+    edm::LogWarning("NullPointer") << "The bxincycle pointer is null !!";
+  }
+  if(*_dbxvsbxincycle) {
+    (*_dbxvsbxincycle)->GetXaxis()->SetTitle("Event BX mod(70)"); (*_dbxvsbxincycle)->GetYaxis()->SetTitle("#DeltaBX"); 
+  }
+  else {
+    edm::LogWarning("NullPointer") << "The dbxvsbxincycle pointer is null !!";
+  }
+  if(*_dbxvsbx) {
+    (*_dbxvsbx)->GetXaxis()->SetTitle("BX"); (*_dbxvsbx)->GetYaxis()->SetTitle("#DeltaBX"); 
+  }
+  else {
+    edm::LogWarning("NullPointer") << "The dbxvsbx pointer is null !!";
+  }
+  if(*_bxincyclevsbx) {
+    (*_bxincyclevsbx)->GetXaxis()->SetTitle("BX"); (*_bxincyclevsbx)->GetYaxis()->SetTitle("Event BX mod(70)"); 
+  }
+  else {
+    edm::LogWarning("NullPointer") << "The bxincyclevsbx pointer is null !!";
+  }
+  if(*_orbitvsbxincycle) {
+    (*_orbitvsbxincycle)->SetBit(TH1::kCanRebin);
+    (*_orbitvsbxincycle)->GetXaxis()->SetTitle("Event BX mod(70)"); (*_orbitvsbxincycle)->GetYaxis()->SetTitle("time [Orb#]"); 
+  }
+  else {
+    edm::LogWarning("NullPointer") << "The orbitvsbxincycle pointer is null !!";
   }
 }
 

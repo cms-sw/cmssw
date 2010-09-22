@@ -33,7 +33,6 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.p = cms.Path(process.ecalEndcapMonitorClient)
 
-process.ecalEndcapMonitorClient.maskFile = 'maskfile-EE.dat'
 process.ecalEndcapMonitorClient.location = 'H4'
 
 process.DQM.collectorHost = ''

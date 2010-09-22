@@ -1,4 +1,4 @@
-// $Id: DrainingQueues.cc,v 1.9 2009/09/29 07:57:56 mommsen Exp $
+// $Id: DrainingQueues.cc,v 1.10 2010/03/08 11:55:21 mommsen Exp $
 /// @file: DrainingQueues.cc
 
 #include "EventFilter/StorageManager/interface/CommandQueue.h"
@@ -43,7 +43,7 @@ void DrainingQueues::do_exitActionWork()
 
 string DrainingQueues::do_stateName() const
 {
-  return string( "DrainingQueues" );
+  return std::string( "DrainingQueues" );
 }
 
 void DrainingQueues::do_moveToFailedState( xcept::Exception& exception ) const

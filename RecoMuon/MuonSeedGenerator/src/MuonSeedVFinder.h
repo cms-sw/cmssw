@@ -7,8 +7,8 @@
  *
  *  \author R. Wilkinson
  *
- *  $Date: 2008/09/12 23:05:47 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/10/17 23:17:08 $
+ *  $Revision: 1.2 $
  *  
  */
 
@@ -27,5 +27,9 @@ public:
   virtual void seeds(const MuonTransientTrackingRecHit::MuonRecHitContainer & hits, 
                      std::vector<TrajectorySeed> & result) = 0;
   
+  void setBeamSpot(const GlobalVector & gv) {thePtExtractor->setBeamSpot(gv);}
+protected:
+  MuonSeedPtExtractor * thePtExtractor;
+
 };
 #endif

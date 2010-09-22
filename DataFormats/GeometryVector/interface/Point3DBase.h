@@ -60,11 +60,6 @@ public:
   template <class U>
   explicit Point3DBase( const Basic3DVector<U>& v) : BaseClass(v) {}
 
-  // equality
-  bool operator==(const Point3DBase & rh) const {
-    return this->basicVector()==rh.basicVector();
-  }
-
   /** A Point can be shifted by a Vector of possibly different precision,
    *  defined in the same coordinate frame
    */

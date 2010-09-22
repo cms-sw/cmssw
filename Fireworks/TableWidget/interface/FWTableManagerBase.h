@@ -13,13 +13,13 @@
     Classes which inherit from FWTableManagerBase are used as adapters to allow external data to be shown in tabular form
     via the FWTableWidget.  The table is made of three parts
     1) The column headers: Each column is described by a 'title' and the title is drawn in the column header
-    2) The body: the actual data of the table laid out in rows and columns
-    3) the row headers: optional identifier for a row. If given, the row header will always be visible on the screen if any part
+    2) The body: the actual data of the table layed out in rows and columns
+    3) the row headers: optional identifier for a row. If given the row header will always be visible on the screen if any part
         of the row is visible
         
     The FWTableWidget actually draws the cells in the table by asking the FWTableManagerBase for a FWTableCellRendererBase for
-    a particular cell.  The renderer will then be asked to draw the cell into the appropriate part of the graphics window.  Therfore
-    it is the FWTableManagerBase's responsibility to create FWTableCellRendererBases which are appropriate for the data to be
+    a paritcular cell.  The render will then be asked to draw the cell into the appropriate part of the graphics window.  Therfore
+    it is the FWTableManagerBase's responsibility to create FWTableCellRendererBase which are appropriate for the data to be
     shown in each cell of the table.  See the documentation of FWTableCellRendererBase for further information.
     
     FWTableManagerBase must also be able to sort the rows of data based on the values in a specified column.
@@ -28,7 +28,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:40:52 EST 2009
-// $Id: FWTableManagerBase.h,v 1.3 2010/04/16 19:47:35 chrjones Exp $
+// $Id: FWTableManagerBase.h,v 1.1 2009/02/03 20:33:03 chrjones Exp $
 //
 
 // system include files
@@ -96,12 +96,7 @@ class FWTableManagerBase : public TQObject
       void visualPropertiesChanged(); //*SIGNAL*
       
       ClassDef(FWTableManagerBase,0);
-
-      /// The current sort order for the table.
-      bool sortOrder(void) { return m_sortOrder; }
       
-      /// The current sort column
-      int sortColumn(void) { return m_sortColumn; }
 
    protected:
       ///Called by 'sort' method to actually handle the sorting of the rows. Arguments are the same as 'sort'

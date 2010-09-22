@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2010/06/02 06:50:30 $
- * $Revision: 1.247 $
+ * $Date: 2010/08/10 07:23:43 $
+ * $Revision: 1.255 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -34,29 +34,30 @@
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunDat.h"
+#include "DQM/EcalCommon/interface/LogicID.h"
 #endif
 
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
-#include <DQM/EcalCommon/interface/UtilsClient.h>
-#include <DQM/EcalCommon/interface/Numbers.h>
-#include <DQM/EcalCommon/interface/LogicID.h>
+#include "DQM/EcalCommon/interface/Masks.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EcalEndcapMonitorClient.h>
+#include "DQM/EcalCommon/interface/UtilsClient.h"
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EEIntegrityClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEStatusFlagsClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEOccupancyClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EECosmicClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EELaserClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEPedestalClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEPedestalOnlineClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EETestPulseClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEBeamCaloClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEBeamHodoClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EETriggerTowerClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEClusterClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EETimingClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EELedClient.h>
+#include "DQM/EcalEndcapMonitorClient/interface/EcalEndcapMonitorClient.h"
+
+#include "DQM/EcalEndcapMonitorClient/interface/EEIntegrityClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EEStatusFlagsClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EEOccupancyClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EECosmicClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EELaserClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EEPedestalClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EEPedestalOnlineClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EETestPulseClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EEBeamCaloClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EEBeamHodoClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EETriggerTowerClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EEClusterClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EETimingClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EELedClient.h"
 
 EcalEndcapMonitorClient::EcalEndcapMonitorClient(const edm::ParameterSet& ps) {
 
@@ -107,17 +108,6 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const edm::ParameterSet& ps) {
 #endif
     } else {
       std::cout << " Ecal Cond DB is OFF" << std::endl;
-    }
-  }
-
-  // Mask file
-
-  maskFile_ = ps.getUntrackedParameter<std::string>("maskFile", "");
-
-  if ( verbose_ ) {
-    if ( maskFile_.size() != 0 ) {
-      maskFile_ = edm::FileInPath(maskFile_).fullPath();
-      std::cout << " maskFile is '" << maskFile_ << "'" << std::endl;
     }
   }
 
@@ -708,8 +698,8 @@ void EcalEndcapMonitorClient::beginJob(void) {
       me->setBinContent( jx, jy, -1.0 );
     }
   }
-  me->setAxisTitle("jx", 1);
-  me->setAxisTitle("jy", 2);
+  me->setAxisTitle("ix / ix+100", 1);
+  me->setAxisTitle("iy", 2);
 
 }
 
@@ -750,6 +740,10 @@ void EcalEndcapMonitorClient::beginRun(void) {
 void EcalEndcapMonitorClient::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   Numbers::initGeometry(c, verbose_);
+
+  if ( verbose_ ) std::cout << std::endl;
+
+  Masks::initMasking(c, verbose_);
 
   if ( verbose_ ) {
     std::cout << std::endl;
@@ -922,7 +916,7 @@ void EcalEndcapMonitorClient::endRun(const edm::Run& r, const edm::EventSetup& c
 
 }
 
-void EcalEndcapMonitorClient::beginLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &c) {
+void EcalEndcapMonitorClient::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) {
 
   if ( verbose_ ) {
     std::cout << std::endl;
@@ -932,7 +926,7 @@ void EcalEndcapMonitorClient::beginLuminosityBlock(const edm::LuminosityBlock &l
 
 }
 
-void EcalEndcapMonitorClient::endLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &c) {
+void EcalEndcapMonitorClient::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) {
 
   current_time_ = time(NULL);
 
@@ -1113,26 +1107,6 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
     }
   }
 
-  if ( maskFile_.size() != 0 ) {
-    try {
-      if ( verbose_ ) std::cout << "Fetching masked channels from file ..." << std::endl;
-      EcalErrorMask::readFile(maskFile_, debug_);
-      if ( verbose_ ) std::cout << "done." << std::endl;
-    } catch (runtime_error &e) {
-      cerr << e.what() << std::endl;
-    }
-  } else {
-    if ( econn ) {
-      try {
-        if ( verbose_ ) std::cout << "Fetching masked channels from DB ..." << std::endl;
-        EcalErrorMask::readDB(econn, &runiov_);
-        if ( verbose_ ) std::cout << "done." << std::endl;
-      } catch (runtime_error &e) {
-        cerr << e.what() << std::endl;
-      }
-    }
-  }
-
   if ( verbose_ ) std::cout << std::endl;
 
   if ( econn ) {
@@ -1151,7 +1125,7 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
 
 }
 
-void EcalEndcapMonitorClient::writeDb() {
+void EcalEndcapMonitorClient::writeDb(void) {
 
   subrun_++;
 
@@ -1750,7 +1724,7 @@ void EcalEndcapMonitorClient::analyze(void) {
 
 }
 
-void EcalEndcapMonitorClient::analyze(const edm::Event &e, const edm::EventSetup &c) {
+void EcalEndcapMonitorClient::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   run_ = e.id().run();
   evt_ = e.id().event();
@@ -1766,8 +1740,8 @@ void EcalEndcapMonitorClient::softReset(bool flag) {
   std::vector<MonitorElement*> mes = dqmStore_->getAllContents(prefixME_);
   std::vector<MonitorElement*>::const_iterator meitr;
   for ( meitr=mes.begin(); meitr!=mes.end(); meitr++ ) {
-    if ( !strncmp((*meitr)->getName().c_str(), "EE", 2) 
-         && strncmp((*meitr)->getName().c_str(), "EETrend", 7) 
+    if ( !strncmp((*meitr)->getName().c_str(), "EE", 2)
+         && strncmp((*meitr)->getName().c_str(), "EETrend", 7)
          && strncmp((*meitr)->getName().c_str(), "by lumi", 7) ) {
       if ( flag ) {
         dqmStore_->softReset(*meitr);

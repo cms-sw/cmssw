@@ -17,9 +17,9 @@ typedef math::XYZPoint Point;
   void TauMETAlgo::run(edm::Event& iEvent,const edm::EventSetup& iSetup,
                        edm::Handle<PFTauCollection> tauHandle,edm::Handle<CaloJetCollection> calojetHandle,
                        double jetPTthreshold,double jetEMfracLimit,
-                       const JetCorrector& correctedjets,const vector<CaloMET>& uncorMET,double jetMatchDeltaR,
+                       const JetCorrector& correctedjets,const std::vector<CaloMET>& uncorMET,double jetMatchDeltaR,
                        double tauMinEt,double tauEtaMax,bool useSeedTrack,double seedTrackPt,bool useTrackIsolation,double trackIsolationMinPt,
-                       bool useECALIsolation,double gammaIsolationMinPt,bool useProngStructure,vector<CaloMET>* corrMET) {
+                       bool useECALIsolation,double gammaIsolationMinPt,bool useProngStructure,std::vector<CaloMET>* corrMET) {
 
     //    std::cerr << "TauMETAlgo::run -> Test.. " << std::endl;
 
@@ -93,9 +93,9 @@ typedef math::XYZPoint Point;
   void TauMETAlgo::run(edm::Event& iEvent,const edm::EventSetup& iSetup,
                        edm::Handle<PFTauCollection> tauHandle,edm::Handle<CaloJetCollection> calojetHandle,
                        double jetPTthreshold,double jetEMfracLimit,
-                       const JetCorrector& correctedjets,const vector<MET>& uncorMET,double jetMatchDeltaR,
+                       const JetCorrector& correctedjets,const std::vector<MET>& uncorMET,double jetMatchDeltaR,
                        double tauMinEt,double tauEtaMax,bool useSeedTrack,double seedTrackPt,bool useTrackIsolation,double trackIsolationMinPt,
-                       bool useECALIsolation,double gammaIsolationMinPt,bool useProngStructure,vector<MET>* corrMET) {
+                       bool useECALIsolation,double gammaIsolationMinPt,bool useProngStructure,std::vector<MET>* corrMET) {
 
     std::cerr << "TauMETAlgo::run -> Test.. " << std::endl;
 

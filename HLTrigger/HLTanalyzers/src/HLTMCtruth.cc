@@ -23,9 +23,9 @@ HLTMCtruth::HLTMCtruth() {
 void HLTMCtruth::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 
   edm::ParameterSet myMCParams = pSet.getParameter<edm::ParameterSet>("RunParameters") ;
-  vector<std::string> parameterNames = myMCParams.getParameterNames() ;
+  std::vector<std::string> parameterNames = myMCParams.getParameterNames() ;
   
-  for ( vector<std::string>::iterator iParam = parameterNames.begin();
+  for ( std::vector<std::string>::iterator iParam = parameterNames.begin();
 	iParam != parameterNames.end(); iParam++ ){
     if  ( (*iParam) == "Monte" ) _Monte =  myMCParams.getParameter<bool>( *iParam );
     else if ( (*iParam) == "Debug" ) _Debug =  myMCParams.getParameter<bool>( *iParam );
@@ -66,7 +66,7 @@ void HLTMCtruth::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 }
 
 /* **Analyze the event** */
-void HLTMCtruth::analyze(const edm::Handle<CandidateView> & mctruth,
+void HLTMCtruth::analyze(const edm::Handle<reco::CandidateView> & mctruth,
 			 const double        & pthat,
 			 const edm::Handle<std::vector<SimTrack> > & simTracks,
 			 const edm::Handle<std::vector<SimVertex> > & simVertices,
@@ -113,7 +113,7 @@ void HLTMCtruth::analyze(const edm::Handle<CandidateView> & mctruth,
     if (mctruth.isValid()){
 
       for (size_t i = 0; i < mctruth->size(); ++ i) {
-	const Candidate & p = (*mctruth)[i];
+	const reco::Candidate & p = (*mctruth)[i];
 
 	mcpid[nmc] = p.pdgId();
 	mcstatus[nmc] = p.status();
@@ -127,17 +127,17 @@ void HLTMCtruth::analyze(const edm::Handle<CandidateView> & mctruth,
 	if ((mcpid[nmc]==24)||(mcpid[nmc]==-24)) { // Checking W -> e/mu nu
 	  size_t idg = p.numberOfDaughters();
 	  for (size_t j=0; j != idg; ++j){
-	    const Candidate & d = *p.daughter(j);
+	    const reco::Candidate & d = *p.daughter(j);
 	    if ((d.pdgId()==11)||(d.pdgId()==-11)){wel += 1;}
 	    if ((d.pdgId()==13)||(d.pdgId()==-13)){wmu += 1;}
 // 	    if ( (abs(d.pdgId())!=24) && ((mcpid[nmc])*(d.pdgId())>0) ) 
-// 	      {cout << "Wrong sign between mother-W and daughter !" << endl;}
+// 	      {std::cout << "Wrong sign between mother-W and daughter !" << std::endl;}
 	  }
 	}
 	if (mcpid[nmc]==23) { // Checking Z -> 2 e/mu
 	  size_t idg = p.numberOfDaughters();
 	  for (size_t j=0; j != idg; ++j){
-	    const Candidate & d = *p.daughter(j);
+	    const reco::Candidate & d = *p.daughter(j);
 	    if (d.pdgId()==11){zee += 1;}
 	    if (d.pdgId()==-11){zee += 2;}
 	    if (d.pdgId()==13){zmumu += 1;}
@@ -172,9 +172,9 @@ void HLTMCtruth::analyze(const edm::Handle<CandidateView> & mctruth,
     nwenu = wel;
     nwmunu = wmu;
     if((zee%3)==0){nzee = zee/3;}
-//     else {cout << "Z does not decay in e+ e- !" << endl;}
+//     else {std::cout << "Z does not decay in e+ e- !" << std::endl;}
     if ((zmumu%3)==0){nzmumu = zmumu/3;}
-//     else {cout << "Z does not decay in mu+ mu- !" << endl;}
+//     else {std::cout << "Z does not decay in mu+ mu- !" << std::endl;}
 
   }
 

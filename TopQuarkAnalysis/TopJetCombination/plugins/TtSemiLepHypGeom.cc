@@ -2,7 +2,9 @@
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepHypGeom.h"
 
 TtSemiLepHypGeom::TtSemiLepHypGeom(const edm::ParameterSet& cfg):
-  TtSemiLepHypothesis( cfg ) { }
+  TtSemiLepHypothesis( cfg ),
+  neutrinoSolutionType_(cfg.getParameter<int>("neutrinoSolutionType"))
+{ }
 
 TtSemiLepHypGeom::~TtSemiLepHypGeom() { }
 
@@ -34,13 +36,18 @@ TtSemiLepHypGeom::buildHypo(edm::Event& evt,
   // -----------------------------------------------------
   // add lepton
   // -----------------------------------------------------
-  if( !leps->empty() )
-    setCandidate(leps, 0, lepton_);
+  if( leps->empty() )
+    return;
+  setCandidate(leps, 0, lepton_);
   match.push_back( 0 );
   
   // -----------------------------------------------------
   // add neutrino
   // -----------------------------------------------------
-  if( !mets->empty() )
+  if( mets->empty() )
+    return;
+  if(neutrinoSolutionType_ == -1)
     setCandidate(mets, 0, neutrino_);
+  else
+    setNeutrino(mets, leps, 0, neutrinoSolutionType_);
 }

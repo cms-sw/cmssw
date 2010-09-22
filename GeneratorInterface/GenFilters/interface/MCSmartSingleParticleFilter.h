@@ -29,9 +29,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-using namespace edm;
-using namespace std;
-
 //
 // class declaration
 //
@@ -42,7 +39,7 @@ class MCSmartSingleParticleFilter : public edm::EDFilter {
       ~MCSmartSingleParticleFilter();
 
 
-      virtual bool filter(Event&, const EventSetup&);
+      virtual bool filter(edm::Event&, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
       

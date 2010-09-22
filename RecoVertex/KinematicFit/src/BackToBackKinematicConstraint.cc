@@ -2,7 +2,7 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 #include "DataFormats/CLHEP/interface/Migration.h"
 
-pair<AlgebraicVector, AlgebraicVector> BackToBackKinematicConstraint::value(const AlgebraicVector& exPoint) const
+std::pair<AlgebraicVector, AlgebraicVector> BackToBackKinematicConstraint::value(const AlgebraicVector& exPoint) const
 {
 //security check for extended cartesian parametrization 
  int inSize = exPoint.num_row(); 
@@ -14,10 +14,10 @@ pair<AlgebraicVector, AlgebraicVector> BackToBackKinematicConstraint::value(cons
  vl(1) = pr(4)+pr(11);
  vl(2) = pr(5)+pr(12);
  vl(3) = pr(6)+pr(13);
- return pair<AlgebraicVector, AlgebraicVector>(vl,pr); 
+ return std::pair<AlgebraicVector, AlgebraicVector>(vl,pr); 
 }
 
-pair<AlgebraicMatrix, AlgebraicVector> BackToBackKinematicConstraint::derivative(const AlgebraicVector& exPoint) const
+std::pair<AlgebraicMatrix, AlgebraicVector> BackToBackKinematicConstraint::derivative(const AlgebraicVector& exPoint) const
 {
 //security check for extended cartesian parametrization 
  int inSize = exPoint.num_row(); 
@@ -32,16 +32,16 @@ pair<AlgebraicMatrix, AlgebraicVector> BackToBackKinematicConstraint::derivative
  dr(2,12) = 1;
  dr(3,6) = 1;
  dr(3,13) = 1;
- return pair<AlgebraicMatrix, AlgebraicVector>(dr,pr); 
+ return std::pair<AlgebraicMatrix, AlgebraicVector>(dr,pr); 
 }
 
-pair<AlgebraicVector, AlgebraicVector> BackToBackKinematicConstraint::value(const vector<RefCountedKinematicParticle> par) const
+std::pair<AlgebraicVector, AlgebraicVector> BackToBackKinematicConstraint::value(const std::vector<RefCountedKinematicParticle> par) const
 {
  int nStates = par.size();
  if(nStates != 2) throw VertexException("BackToBackKinematicConstraint::number of tracks is not equal to 2");
  AlgebraicVector point(14,0);
  int co = 0;
- for(vector<RefCountedKinematicParticle>::const_iterator i = par.begin(); i!=par.end(); i++)
+ for(std::vector<RefCountedKinematicParticle>::const_iterator i = par.begin(); i!=par.end(); i++)
  {
   AlgebraicVector7 cPar = (*i)->currentState().kinematicParameters().vector();
   for(int j = 1; j<8; j++){point((co-1)*7+j) = cPar(j-1);}
@@ -54,16 +54,16 @@ pair<AlgebraicVector, AlgebraicVector> BackToBackKinematicConstraint::value(cons
  vl(2) = st1(5)+st2(5);
  vl(3) = st1(6)+st2(6);
  
- return pair<AlgebraicVector, AlgebraicVector>(vl,point); 
+ return std::pair<AlgebraicVector, AlgebraicVector>(vl,point); 
 }
 
-pair<AlgebraicMatrix, AlgebraicVector> BackToBackKinematicConstraint::derivative(const vector<RefCountedKinematicParticle> par) const
+std::pair<AlgebraicMatrix, AlgebraicVector> BackToBackKinematicConstraint::derivative(const std::vector<RefCountedKinematicParticle> par) const
 {
  int nStates = par.size();
  if(nStates != 2) throw VertexException("BackToBackKinematicConstraint::number of tracks is not equal to 2"); 
  AlgebraicVector point(14,0);
  int co = 0;
- for(vector<RefCountedKinematicParticle>::const_iterator i = par.begin(); i!=par.end(); i++)
+ for(std::vector<RefCountedKinematicParticle>::const_iterator i = par.begin(); i!=par.end(); i++)
  {
   AlgebraicVector7 cPar = (*i)->currentState().kinematicParameters().vector();
   for(int j = 1; j<8; j++){point((co-1)*7+j) = cPar(j-1);}
@@ -71,7 +71,7 @@ pair<AlgebraicMatrix, AlgebraicVector> BackToBackKinematicConstraint::derivative
  }
  AlgebraicMatrix dr(3,14,0);
 
- return pair<AlgebraicMatrix, AlgebraicVector>(dr,point);
+ return std::pair<AlgebraicMatrix, AlgebraicVector>(dr,point);
 }
 
 AlgebraicVector BackToBackKinematicConstraint::deviations(int nStates) const

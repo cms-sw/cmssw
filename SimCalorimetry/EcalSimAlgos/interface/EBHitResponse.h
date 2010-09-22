@@ -20,6 +20,10 @@ class EBHitResponse : public CaloHitRespoNew
 
       typedef CaloHitRespoNew CaloHitResponse ;
 
+      typedef std::vector<double> VecD ;
+
+      enum { kNOffsets = 2000 } ;
+
       EBHitResponse( const CaloVSimParameterMap* parameterMap , 
 		     const CaloVShape*           shape        ,
 		     bool                        apdOnly      ,
@@ -31,6 +35,8 @@ class EBHitResponse : public CaloHitRespoNew
       virtual bool keepBlank() const { return false ; }
 
       void setIntercal( const EcalIntercalibConstantsMC* ical ) ;
+
+      const VecD& offsets() const { return m_timeOffVec ; }
 
    protected:
 
@@ -50,6 +56,8 @@ class EBHitResponse : public CaloHitRespoNew
       const APDSimParameters*          m_apdPars  ;
       const CaloVShape*                m_apdShape ;
       const EcalIntercalibConstantsMC* m_intercal ;
+
+      std::vector<double> m_timeOffVec ;
 };
 #endif
 

@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2009/11/09 14:10:04 $
- * $Revision: 1.56 $
+ * $Date: 2010/08/04 20:11:34 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -20,9 +20,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EEClient.h>
+#include "DQM/EcalEndcapMonitorClient/interface/EEClient.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EESummaryClient.h>
+#include "DQM/EcalEndcapMonitorClient/interface/EESummaryClient.h"
 
 #include "TROOT.h"
 #include "TH1.h"
@@ -85,7 +85,7 @@ void softReset(bool flag);
 void beginRunDb(void);
 
 /// WriteDB
-void writeDb();
+void writeDb(void);
 
 /// EndRunDB
 void endRunDb(void);
@@ -118,8 +118,6 @@ std::string dbUserName_;
 std::string dbPassword_;
 
 std::string dbTagName_;
-
-std::string maskFile_;
 
 bool mergeRuns_;
 

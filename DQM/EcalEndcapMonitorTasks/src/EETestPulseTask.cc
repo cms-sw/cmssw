@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseTask.cc
  *
- * $Date: 2010/03/27 20:08:01 $
- * $Revision: 1.56 $
+ * $Date: 2010/06/14 15:00:40 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  *
 */
@@ -25,9 +25,9 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalEndcapMonitorTasks/interface/EETestPulseTask.h>
+#include "DQM/EcalEndcapMonitorTasks/interface/EETestPulseTask.h"
 
 EETestPulseTask::EETestPulseTask(const edm::ParameterSet& ps){
 

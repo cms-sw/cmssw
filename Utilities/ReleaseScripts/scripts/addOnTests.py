@@ -142,22 +142,20 @@ class StandardTester(object):
         lines = { 'read312RV' : ['cmsRun ../read312RV_cfg.py'], 
                   'fastsim1' : ['cmsRun ../FastSimulation/Configuration/test/IntegrationTestFake_cfg.py'],
                   'fastsim2' : ['cmsRun ../FastSimulation/Configuration/test/IntegrationTest_cfg.py'],
-                  'fastsim3' : ['cmsRun ../FastSimulation/Configuration/test/ExampleWithHLT_1E31_cfg.py'],
+                  #'fastsim3' : ['cmsRun ../FastSimulation/Configuration/test/ExampleWithHLT_1E31_cfg.py'],
                   'fastsim4' : ['cmsRun ../FastSimulation/Configuration/test/IntegrationTestWithHLT_cfg.py'],
                   'pat1'     : ['cmsRun ../PhysicsTools/PatAlgos/test/IntegrationTest_cfg.py'],
                 }
 
         hltTests = { 'hlt1' : ['cmsDriver.py TTbar_Tauola.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW -n 10 --conditions auto:startup --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAW --fileout file:RelVal_DigiL1Raw_8E29.root',
-                      'cmsRun ../HLTrigger/Configuration/test/OnLine_HLT_8E29.py',
                       'ln -s RelVal_DigiL1Raw_8E29.root RelVal_DigiL1Raw_GRun.root',
                       'cmsRun ../HLTrigger/Configuration/test/OnLine_HLT_GRun.py' ], 
 
                      'hlt2' : ['cmsDriver.py TTbar_Tauola.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW -n 10 --conditions auto:mc --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAW --fileout file:RelVal_DigiL1Raw_1E31.root',
-                      'cmsRun ../HLTrigger/Configuration/test/OnLine_HLT_1E31.py',
                       'ln -s RelVal_DigiL1Raw_1E31.root RelVal_DigiL1Raw_HIon.root',
                       'cmsRun ../HLTrigger/Configuration/test/OnLine_HLT_HIon.py'],
-                     'hlt3' : ['cmsRun ../HLTrigger/Configuration/test/OnData_HLT_8E29.py'],
-                     'hlt4' : ['cmsRun ../HLTrigger/Configuration/test/OnData_HLT_GRun.py']
+                     'hlt3' : ['cmsRun ../HLTrigger/Configuration/test/OnData_HLT_GRun.py'],
+                     'hlt4' : ['cmsRun ../HLTrigger/Configuration/test/OnData_HLT_HIon.py'],
                      }
 
     	commands={}

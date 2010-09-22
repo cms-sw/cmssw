@@ -10,8 +10,8 @@
  *  It has been written as an extension of the HLTHighLevel and HLTHighLevelDev 
  *  filters.
  *
- *  $Date: 2010/02/18 14:45:06 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/07/06 13:40:41 $
+ *  $Revision: 1.9 $
  *
  *  Authors: Martin Grunewald, Andrea Bocci
  *
@@ -41,6 +41,7 @@ public:
 private:
   /// parse the logical expression into functionals
   void parse(const std::string & expression);
+  void parse(const std::vector<std::string> & expressions);
 
   /// evaluator for the trigger condition
   triggerExpression::Evaluator * m_expression;

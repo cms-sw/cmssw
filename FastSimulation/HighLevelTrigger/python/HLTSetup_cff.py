@@ -37,6 +37,7 @@ hltL3SingleTauPixelSeeds = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummy
 hltL3SingleTauPixelSeedsRelaxed = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltL3SingleTauMETPixelSeeds = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltL3SingleTauMETPixelSeedsRelaxed = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltL3TauHighPtPixelSeeds = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltBLifetimeRegionalPixelSeedGeneratorStartupU = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltBLifetimeRegionalPixelSeedGeneratorStartup = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltBLifetimeRegionalPixelSeedGenerator = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
@@ -47,6 +48,7 @@ hltEcalRegionalPi0FEDs = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyMo
 hltEcalRegionalPi0Digis = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltEcalRegionalPi0WeightUncalibRecHit = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltEcalRegionalPi0RecHitTmp = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltFEDSelector = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 #hltEcalRegionalPi0RecHit = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 #
 # Tracker = Pixel and Strip

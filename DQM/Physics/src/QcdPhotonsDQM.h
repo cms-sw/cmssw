@@ -6,8 +6,8 @@
  *
  *  DQM offline for QCD-Photons
  *
- *  $Date: 2010/06/15 15:32:47 $
- *  $Revision: 1.14 $
+ *  $Date: 2010/01/04 14:46:10 $
+ *  $Revision: 1.9 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -42,11 +42,11 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&);
 
-  // Divide histograms
-  void endRun(const edm::Run&, const edm::EventSetup&);
-
   /// Save the histos
   void endJob(void);
+
+  float calcDeltaR(float eta1, float phi1, float eta2, float phi2);
+  float calcDeltaPhi(float phi1, float phi2);
 
  private:
 
@@ -67,11 +67,10 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
   std::string   theTriggerResultsCollection;
   edm::InputTag thePhotonCollectionLabel;
   edm::InputTag theCaloJetCollectionLabel;
-  edm::InputTag theVertexCollectionLabel;
-  double theMinCaloJetPt;
-  double theMinPhotonEt;
+  int    theMinCaloJetEt;
+  int    theMinPhotonEt;
   bool   theRequirePhotonFound;
-  double thePlotPhotonMaxEt;
+  double thePlotMaxEt;
   double thePlotPhotonMaxEta;
   double thePlotJetMaxEta;
 
@@ -79,32 +78,19 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
   MonitorElement* h_triggers_passed;
   MonitorElement* h_photon_et;
   MonitorElement* h_photon_eta;
-  MonitorElement* h_photon_count_bar;
-  MonitorElement* h_photon_count_end;
-  MonitorElement* h_jet_pt;
+  MonitorElement* h_photon_phiMod;
+  MonitorElement* h_photon_count;
+  MonitorElement* h_jet_et;
   MonitorElement* h_jet_eta;
   MonitorElement* h_jet_count;
   MonitorElement* h_deltaPhi_photon_jet;
   MonitorElement* h_deltaPhi_jet_jet2;
   MonitorElement* h_deltaEt_photon_jet;
-  MonitorElement* h_jet2_ptOverPhotonEt;
-  MonitorElement* h_jet2_pt;
+  MonitorElement* h_jet2_etOverPhotonEt;
+  MonitorElement* h_jet2_et;
   MonitorElement* h_jet2_eta;
   MonitorElement* h_deltaPhi_photon_jet2;
   MonitorElement* h_deltaR_jet_jet2;
   MonitorElement* h_deltaR_photon_jet2;
-
-  MonitorElement* h_photon_fisher_vs_et;
-  MonitorElement* h_photon_et_jetcs;
-  MonitorElement* h_photon_et_jetco;
-  MonitorElement* h_photon_et_jetfs;
-  MonitorElement* h_photon_et_jetfo;
-
-  MonitorElement* h_photon_et_ratio_co_cs;
-  MonitorElement* h_photon_et_ratio_fo_fs;
-  MonitorElement* h_photon_et_ratio_cs_fs;
-  MonitorElement* h_photon_et_ratio_co_fs;
-  MonitorElement* h_photon_et_ratio_cs_fo;
-  MonitorElement* h_photon_et_ratio_co_fo;
 };
 #endif

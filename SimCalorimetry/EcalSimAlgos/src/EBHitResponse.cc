@@ -3,9 +3,8 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVSimParameterMap.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloSimParameters.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVShape.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandPoissonQ.h"
+#include "CLHEP/Random/RandGaussQ.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 
@@ -20,8 +19,14 @@ EBHitResponse::EBHitResponse( const CaloVSimParameterMap* parameterMap ,
 
    m_apdOnly  ( apdOnly  ) ,
    m_apdPars  ( apdPars  ) ,
-   m_apdShape ( apdShape ) 
+   m_apdShape ( apdShape ) ,
+   m_timeOffVec ( kNOffsets, apdParameters()->timeOffset() )
 {
+   for( unsigned int i ( 0 ) ; i != kNOffsets ; ++i )
+   {
+      m_timeOffVec[ i ] +=
+	 ranGauss()->fire( 0 , apdParameters()->timeOffWidth() ) ;
+   }
 }
 
 EBHitResponse::~EBHitResponse()
@@ -71,11 +76,11 @@ EBHitResponse::putAnalogSignal( const PCaloHit& hit )
 	    
 	 const CaloSimParameters& parameters ( *params( detId ) ) ;
 
-	 double jitter = hit.time() - timeOfFlight( detId ) ;
+	 const double jitter ( hit.time() - timeOfFlight( detId ) ) ;
 
 	 const double tzero ( apdShape()->timeToRise()
 			      - jitter
-			      - apdParameters()->timeOffset() 
+			      - offsets()[ EBDetId( detId ).denseIndex()%kNOffsets ]
 			      - BUNCHSPACE*( parameters.binOfMaximum()
 					     - phaseShift()            ) ) ;
 	 double binTime ( tzero ) ;
@@ -89,21 +94,9 @@ EBHitResponse::putAnalogSignal( const PCaloHit& hit )
    } 
 }
 
-
 double 
 EBHitResponse::apdSignalAmplitude( const PCaloHit& hit ) const 
 {
-   if( 0 == ranPois() )
-   {
-      edm::Service<edm::RandomNumberGenerator> rng;
-      if ( ! rng.isAvailable()) {
-	 throw cms::Exception("Configuration")
-	    << "EBHitResponse requires the RandomNumberGeneratorService\n"
-	    "which is not present in the configuration file.  You must add the service\n"
-	    "in the configuration file or remove the modules that require it.";
-      }
-   }
-
    assert( 1 == hit.depth() ||
 	   2 == hit.depth()    ) ;
 

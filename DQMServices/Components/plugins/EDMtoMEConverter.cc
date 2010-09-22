@@ -2,8 +2,8 @@
  *
  *  See header file for description of class
  *
- *  $Date: 2010/05/15 14:46:56 $
- *  $Revision: 1.32 $
+ *  $Date: 2010/05/18 09:03:02 $
+ *  $Revision: 1.33 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -101,7 +101,7 @@ void EDMtoMEConverter::beginRun(const edm::Run& iRun, const edm::EventSetup& iSe
   // keep track of number of unique runs processed
   ++iCount[nrun];
 
-  if (verbosity) {
+  if (verbosity > 0) {
     edm::LogInfo(MsgLoggerCat)
       << "Processing run " << nrun << " (" << iCount.size() << " runs total)";
   } else if (verbosity == 0) {
@@ -167,7 +167,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
         // get full path of monitor element
         std::string pathname = metoedmobject[i].name;
-        if (verbosity) std::cout << pathname << std::endl;
+        if (verbosity > 0) std::cout << pathname << std::endl;
 
         // set the release tag if it has not be yet done
         if (!releaseTag)
@@ -238,7 +238,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
         // get full path of monitor element
         std::string pathname = metoedmobject[i].name;
-        if (verbosity) std::cout << pathname << std::endl;
+        if (verbosity > 0) std::cout << pathname << std::endl;
 
         // set the release tag if it has not be yet done
         if (!releaseTag)
@@ -309,7 +309,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
         // get full path of monitor element
         std::string pathname = metoedmobject[i].name;
-        if (verbosity) std::cout << pathname << std::endl;
+        if (verbosity > 0) std::cout << pathname << std::endl;
 
         // set the release tag if it has not be yet done
         if (!releaseTag)
@@ -380,7 +380,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
         // get full path of monitor element
         std::string pathname = metoedmobject[i].name;
-        if (verbosity) std::cout << pathname << std::endl;
+        if (verbosity > 0) std::cout << pathname << std::endl;
 
         // set the release tag if it has not be yet done
         if (!releaseTag)
@@ -451,7 +451,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
         // get full path of monitor element
         std::string pathname = metoedmobject[i].name;
-        if (verbosity) std::cout << pathname << std::endl;
+        if (verbosity > 0) std::cout << pathname << std::endl;
 
         // set the release tag if it has not be yet done
         if (!releaseTag)
@@ -522,7 +522,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
         // get full path of monitor element
         std::string pathname = metoedmobject[i].name;
-        if (verbosity) std::cout << pathname << std::endl;
+        if (verbosity > 0) std::cout << pathname << std::endl;
 
         // set the release tag if it has not be yet done
         if (!releaseTag)
@@ -593,7 +593,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
         // get full path of monitor element
         std::string pathname = metoedmobject[i].name;
-        if (verbosity) std::cout << pathname << std::endl;
+        if (verbosity > 0) std::cout << pathname << std::endl;
 
         // set the release tag if it has not be yet done
         if (!releaseTag)
@@ -664,7 +664,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
         // get full path of monitor element
         std::string pathname = metoedmobject[i].name;
-        if (verbosity) std::cout << pathname << std::endl;
+        if (verbosity > 0) std::cout << pathname << std::endl;
 
         // set the release tag if it has not be yet done
         if (!releaseTag)
@@ -688,7 +688,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
           if (j != fulldir.size() - 2) dir += "/";
         }
 
-std::string name = metoedmobject[i].object.GetName();
+	std::string name = metoedmobject[i].object.GetName();
         // define new monitor element
         if (dbe) {
           me4[i] = dbe->get(dir+"/"+metoedmobject[i].object.GetName());
@@ -736,7 +736,7 @@ std::string name = metoedmobject[i].object.GetName();
 
         // get full path of monitor element
         std::string pathname = metoedmobject[i].name;
-        if (verbosity) std::cout << pathname << std::endl;
+        if (verbosity > 0) std::cout << pathname << std::endl;
 
         // set the release tag if it has not be yet done
         if (!releaseTag)
@@ -807,7 +807,7 @@ std::string name = metoedmobject[i].object.GetName();
 
         // get full path of monitor element
         std::string pathname = metoedmobject[i].name;
-        if (verbosity) std::cout << pathname << std::endl;
+        if (verbosity > 0) std::cout << pathname << std::endl;
 
         // set the release tag if it has not be yet done
         if (!releaseTag)
@@ -872,7 +872,7 @@ std::string name = metoedmobject[i].object.GetName();
 
         // get full path of monitor element
         std::string pathname = metoedmobject[i].name;
-        if (verbosity) std::cout << pathname << std::endl;
+        if (verbosity > 0) std::cout << pathname << std::endl;
 
         // set the release tag if it has not be yet done
         if (!releaseTag)
@@ -944,7 +944,7 @@ std::string name = metoedmobject[i].object.GetName();
 
         // get full path of monitor element
         std::string pathname = metoedmobject[i].name;
-        if (verbosity) std::cout << pathname << std::endl;
+        if (verbosity > 0) std::cout << pathname << std::endl;
 
         // set the release tag if it has not be yet done
         if (!releaseTag)
@@ -1016,7 +1016,7 @@ std::string name = metoedmobject[i].object.GetName();
 
         // get full path of monitor element
         std::string pathname = metoedmobject[i].name;
-        if (verbosity) std::cout << pathname << std::endl;
+        if (verbosity > 0) std::cout << pathname << std::endl;
 
         // set the release tag if it has not be yet done
         if (!releaseTag)
@@ -1061,7 +1061,7 @@ std::string name = metoedmobject[i].object.GetName();
   }
 
   // verify tags stored properly
-  if (verbosity) {
+  if (verbosity > 0) {
     std::vector<std::string> stags;
     dbe->getAllTags(stags);
     for (unsigned int i = 0; i < stags.size(); ++i) {

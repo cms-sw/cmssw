@@ -12,6 +12,7 @@
 ***********************************************************/
 
 #include "GeneratorInterface/GenFilters/interface/GenLeadTrackFilter.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 using namespace edm;
 using namespace reco;

@@ -21,6 +21,7 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // Regional eta scales...
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"

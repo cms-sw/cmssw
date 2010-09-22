@@ -2,14 +2,13 @@
 UTILITIES in ElectroWeakAnalysis/Utilities:
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-IMPORTANT BEFORE COMPILATION/LINK: From the 330 series on, full LHAPDF libraries are 
+IMPORTANT BEFORE COMPLIATION/LINK: From the 330 series on, full LHAPDF libraries are 
 shipped with CMSSW. However, the default libraries used in the release are always
 the "light" ones, which are very slow for PDF reweighting. In order to run fast, 
 you should execute:
       1) scram setup lhapdffull
       2) touch $CMSSW_BASE/src/ElectroWeakAnalysis/Utilities/BuildFile.xml
-      3) cmsenv
-      4) scram b
+      3) scram b
 
 If you prefer to use your own LHAPDF library and files, assumed to be installed 
 under /usr/local, then do:
@@ -17,8 +16,7 @@ under /usr/local, then do:
       2) In that file, change the default for LHAPDF_BASE to "/usr/local"
       3) scram setup lhapdf (and check that environment variables point to /usr/local/...)
       4) touch $CMSSW_BASE/src/ElectroWeakAnalysis/Utilities/BuildFile.xml
-      5) cmsenv
-      6) scram b
+      5) scram b
 
 src/PdfWeightProducer.cc
 ===========================
@@ -30,10 +28,6 @@ src/PdfWeightProducer.cc
 
       # Produce PDF weights (maximum is 3)
       process.pdfWeights = cms.EDProducer("PdfWeightProducer",
-            # Fix POWHEG if buggy (this PDF set will also appear on output, 
-            # so only two more PDF sets can be added in PdfSetNames if not "")
-            #FixPOWHEG = cms.untracked.string("cteq66.LHgrid"),
-            GenTag = cms.untracked.InputTag("genParticles"),
             PdfInfoTag = cms.untracked.InputTag("generator"),
             PdfSetNames = cms.untracked.vstring(
                     "cteq65.LHgrid"
@@ -52,7 +46,7 @@ src/PdfWeightProducer.cc
       process.pdfSystematics = cms.EDFilter("PdfSystematicsAnalyzer",
             SelectorPath = cms.untracked.string('pdfana'), # put here the selection path
             PdfWeightTags = cms.untracked.VInputTag(
-                    "pdfWeights:cteq66"
+                    "pdfWeights:cteq65"
                   , "pdfWeights:MRST2006nnlo"
                   , "pdfWeights:MRST2007lomod"
             )
@@ -76,7 +70,7 @@ src/ISRWeightProducer.cc (IN PROGRESS)
       # Example corresponds to approximate weights to study
       # systematic effects due to ISR uncertainties (Z boson)
       process.isrWeight = cms.EDProducer("ISRWeightProducer",
-            GenTag = cms.untracked.InputTag("genParticles"),
+            GenTag = cms.untracked.InputTag("generator"),
             ISRBinEdges = cms.untracked.vdouble(
                   0.,  1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9.
                   , 10., 11., 12., 13., 14., 15., 16., 17., 18., 19.
@@ -115,6 +109,10 @@ relevant at very high invariant mass.
             RhoParameter = cms.untracked.double(1.004)
       )
 
+- This weight information can be processed via the Analyzer
+  "src/SimpleMassShift.cc". A test example is 
+  "test/SimpleMassShift.py".
+
 src/FSRWeightProducer.cc (IN PROGRESS)
 ======================================
 - Writes into the data structure a product containing the event weight ("double")
@@ -127,7 +125,7 @@ src/FSRWeightProducer.cc (IN PROGRESS)
   Example of usage:
 
       process.fsrWeight = cms.EDProducer("FSRWeightProducer",
-            GenTag = cms.untracked.InputTag("genParticles"),
+            GenTag = cms.untracked.InputTag("generator"),
       )
 
 - This weight information can be processed via the Analyzer
@@ -146,7 +144,7 @@ src/ISRGammaWeightProducer.cc (IN PROGRESS)
   Example of usage:
 
       process.isrGammaWeight = cms.EDProducer("ISRGammaWeightProducer",
-            GenTag = cms.untracked.InputTag("genParticles"),
+            GenTag = cms.untracked.InputTag("generator"),
       )
 
 - This weight information can be processed via the Analyzer
@@ -178,8 +176,7 @@ src/DistortedMuonProducer.cc
         MuonTag = cms.untracked.InputTag("muons"),
         GenMatchTag = cms.untracked.InputTag("genMatchMap"),
         EtaBinEdges = cms.untracked.vdouble(-2.1,2.1), # one more entry than next vectors
-        ShiftOnOneOverPt = cms.untracked.vdouble(1.e-4), #in [1/GeV]
-        RelativeShiftOnPt = cms.untracked.vdouble(0.),
+        MomentumScaleShift = cms.untracked.vdouble(1.e-3),
         UncertaintyOnOneOverPt = cms.untracked.vdouble(2.e-4), #in [1/GeV]
         RelativeUncertaintyOnPt = cms.untracked.vdouble(1.e-3),
         EfficiencyRatioOverMC = cms.untracked.vdouble(0.99)

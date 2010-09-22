@@ -63,7 +63,7 @@ private:
   int errCnt;
   const int errMax(){return 100;}
 
-  string _HistName; // Name of histogram file
+  std::string _HistName; // Name of histogram file
   double _EtaMin,_EtaMax;
   TFile* m_file; // pointer to Histogram file
 

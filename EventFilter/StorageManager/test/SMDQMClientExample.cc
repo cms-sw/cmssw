@@ -7,7 +7,7 @@
 
   Description: Example DQM Client 
 
-  $Id: SMDQMClientExample.cc,v 1.8 2008/07/15 20:15:27 biery Exp $
+  $Id: SMDQMClientExample.cc,v 1.9 2010/03/16 17:57:45 mommsen Exp $
 
 */
 
@@ -117,18 +117,18 @@ void SMDQMClientExample::analyze(const edm::Event& iEvent,
   switch(status)
   {
     case dqm::qstatus::ERROR:
-      cout << " Error(s)";
+      std::cout << " Error(s)";
       break;
     case dqm::qstatus::WARNING:
-      cout << " Warning(s)";
+      std::cout << " Warning(s)";
       break;
     case dqm::qstatus::OTHER:
-      cout << " Some tests did not run;";
+      std::cout << " Some tests did not run;";
       break; 
     default:
-      cout << " No problems";
+      std::cout << " No problems";
   }
-  cout << " after getSystemStatus" << endl;
+  std::cout << " after getSystemStatus" << std::endl;
 
   h7 = dbe->get("C1/C3/histo7");
   if(h7) {
@@ -161,21 +161,21 @@ void SMDQMClientExample::analyze(const edm::Event& iEvent,
 
   i1 = dbe->get("C1/C3/int1");
   if(i1) {
-    std::cout << "int1 value string: \"" << i1->valueString() << "\"" << std::endl;
+    std::cout << "int1 value std::string: \"" << i1->valueString() << "\"" << std::endl;
   } else {
     std::cout << "did not find int1" << std::endl;
   }
 
   f1 = dbe->get("C1/C3/float1");
   if(f1) {
-    std::cout << "float1 value string: \"" << f1->valueString() << "\"" << std::endl;
+    std::cout << "float1 value std::string: \"" << f1->valueString() << "\"" << std::endl;
   } else {
     std::cout << "did not find float1" << std::endl;
   }
 
   s1 = dbe->get("C1/C3/s1");
   if(s1) {
-    std::cout << "s1 value string: \"" << s1->valueString() << "\"" << std::endl;
+    std::cout << "s1 value std::string: \"" << s1->valueString() << "\"" << std::endl;
   } else {
     std::cout << "did not find s1" << std::endl;
   }

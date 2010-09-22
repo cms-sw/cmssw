@@ -1,4 +1,6 @@
 <use   name="DataFormats/PatCandidates"/>
+<use   name="FWCore/PythonParameterSet"/>
+<use   name="DataFormats/Luminosity"/>
 <use   name="DataFormats/FWLite"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/FWLite"/>
@@ -13,8 +15,12 @@
 <use   name="PhysicsTools/SelectorUtils"/>
 <environment>
   <bin   file="PatBasicFWLiteAnalyzer.cc"></bin>
+  <bin   file="PatBasicFWLiteJetAnalyzer.cc"></bin>
   <bin   file="PatBasicFWLiteAnalyzer_PyConfig.cc"></bin>
   <bin   file="PatBasicFWLiteAnalyzer_Selector.cc"></bin>
+  <bin   file="PatBasicFWLiteAnalyzer_Selector_Fast.cc"></bin>
   <bin   file="PatBasicFWLiteJetAnalyzer_Selector.cc"></bin>
+  <bin   file="PatBasicFWLiteJetUnitTest.cc"></bin>
   <bin   file="PatCleaningExercise.cc"></bin>
+  <bin   file="FWLiteLumiAccess.cc"></bin>
 </environment>

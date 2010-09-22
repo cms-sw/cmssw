@@ -28,7 +28,8 @@ class PropertyViewTestCase(unittest.TestCase):
         self.propertyView.setDataAccessor(TestDataAccessor())
         self.propertyView.setDataObject("particle1")
         self.propertyView.updateContent()
-        self.app.exec_()
+        if not hasattr(unittest,"NO_GUI_TEST"):
+            self.app.exec_()
 
 if __name__ == "__main__":
     Profiling.analyze("unittest.main()",__file__,"PropertyView")

@@ -57,7 +57,7 @@ void EcalRecHitsMerger::endJob(){
 
 void EcalRecHitsMerger::produce(edm::Event & e, const edm::EventSetup& iSetup){
 
- if (debug_) cout << " EcalRecHitMerger : Run " << e.id().run() << " Event " << e.id().event() << endl;
+ if (debug_) std::cout << " EcalRecHitMerger : Run " << e.id().run() << " Event " << e.id().event() << std::endl;
 
  std::vector< edm::Handle<EcalRecHitCollection> > EcalRecHits_done;
  e.getManyByType(EcalRecHits_done);
@@ -94,8 +94,8 @@ void EcalRecHitsMerger::produce(edm::Event & e, const edm::EventSetup& iSetup){
 
  EBMergedRecHits -> reserve(nEB);
  EEMergedRecHits -> reserve(nEE);
- if (debug_) cout << " Number of EB Rechits to merge  = " << nEB << endl;
- if (debug_) cout << " Number of EE Rechits to merge  = " << nEE << endl;
+ if (debug_) std::cout << " Number of EB Rechits to merge  = " << nEB << std::endl;
+ if (debug_) std::cout << " Number of EE Rechits to merge  = " << nEE << std::endl;
 
  for (unsigned int i=0; i < nColl; i++) {
    std::string instance = EcalRecHits_done[i].provenance()->productInstanceName(); 
@@ -122,10 +122,10 @@ void EcalRecHitsMerger::produce(edm::Event & e, const edm::EventSetup& iSetup){
  }
 
 
- // cout << " avant le put " << endl;
+ // std::cout << " avant le put " << std::endl;
  e.put(EBMergedRecHits,OutputLabelEB_);
  e.put(EEMergedRecHits,OutputLabelEE_);
- // cout << " apres le put " << endl;
+ // std::cout << " apres le put " << std::endl;
 
 }
 

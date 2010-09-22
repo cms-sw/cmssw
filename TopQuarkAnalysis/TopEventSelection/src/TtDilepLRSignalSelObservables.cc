@@ -5,16 +5,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 
-// // ROOT classes
-// #include "TLorentzVector.h"
-// #include "TVector.h"
-// #include "TVectorD.h"
-// 
-// #include "TMatrix.h"
-// #include "TMatrixDSymEigen.h"
-// #include "TMatrixDSym.h"
-// #include "TMatrixTSym.h"
-
 /************** Definition of the functions of the class ***************/
 
 //Constructor
@@ -22,10 +12,9 @@ TtDilepLRSignalSelObservables::TtDilepLRSignalSelObservables(){
 count1=0; count2=0; count3=0;
 count4=0; count5=0; count3=0;
 }
+
 // Destructor
 TtDilepLRSignalSelObservables::~TtDilepLRSignalSelObservables(){
-// std::cout << "Jet flavour match: " <<   count1<<" "<<  count2<<" "<< count3
-// <<" "<<  count4<<" "<< count5<<std::endl; 
 }
 
 std::vector< TtDilepLRSignalSelObservables::IntBoolPair >
@@ -51,26 +40,22 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
     iEvent.getByLabel ("genEvt",genEvent);
 
     if (genEvent->isFullLeptonic()) {
-      //std::cout << "Dilepton:\n";
       // Match the leptons, by type and deltaR
       dr = DeltaR<reco::Particle, reco::GenParticle>()(solution.getLeptPos(), *(solution.getGenLepp()));
       matchLeptPos = (
 	( ((solution.getWpDecay()=="electron")&&(abs(solution.getGenLepp()->pdgId())==11))
        || ((solution.getWpDecay()=="muon")&&(abs(solution.getGenLepp()->pdgId())==13)) )
        && (dr < 0.1) );
-      // std::cout << solution.getWpDecay() << solution.getGenLepp()->pdgId()<<" "<<dr<<std::endl;
 
       dr = DeltaR<reco::Particle, reco::GenParticle>()(solution.getLeptNeg(), *(solution.getGenLepm()));
       matchLeptNeg = (
 	( ((solution.getWmDecay()=="electron")&&(abs(solution.getGenLepm()->pdgId())==11))
            || ((solution.getWmDecay()=="muon")&&(abs(solution.getGenLepm()->pdgId())==13)) )
 	&& (dr < 0.1) );
-      // std::cout << solution.getWmDecay() << solution.getGenLepm()->pdgId()<<" "<<dr<<std::endl;
     }
 
     if (genEvent->isSemiLeptonic()) {
       int id = genEvent->singleLepton()->pdgId();
-      //std::cout << "Semi-Leptonic: ";
 
       if (id>0) {
 	dr = DeltaR<reco::Particle, reco::GenParticle>()(solution.getLeptNeg(), *(genEvent->singleLepton()));
@@ -78,19 +63,13 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
 	  ( ((solution.getWmDecay()=="electron") && (id==11))
              || ((solution.getWmDecay()=="muon") && (id==13)) )
 	  && (dr < 0.1) );
-	// std::cout << solution.getWmDecay() << id<<" "<<dr<<std::endl;
       } else {
 	dr = DeltaR<reco::Particle, reco::GenParticle>()(solution.getLeptPos(), *(genEvent->singleLepton()));
 	matchLeptPos = (
 	  ( ((solution.getWpDecay()=="electron")&& (id==-11))
 	 || ((solution.getWpDecay()=="muon")    && (id==-13)) )
 	 && (dr < 0.1) );
-	// std::cout << solution.getWpDecay() << id<<" "<<dr<<std::endl;
       }
-    }
-
-    if (genEvent->isFullHadronic()) {
-      // std::cout << "Hadronic\n";
     }
     
     if (genEvent->isTtBar() && genEvent->numberOfBQuarks()>1) {
@@ -107,7 +86,6 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
       if (dr1<0.5) ++count2;
       if (dr1<0.4) ++count4;
       if (dr1<0.3) ++count5;
-      //std::cout << solution.getJetB().partonFlavour() << " "<<dr<<std::endl;
 
       dr1 = DeltaR<pat::Jet, reco::GenParticle>()(solution.getCalJetBbar(), *(genEvent->b()));
       dr2 = DeltaR<pat::Jet, reco::GenParticle>()(solution.getCalJetBbar(), *(genEvent->bBar()));
@@ -119,11 +97,7 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
       if (dr2<0.5) ++count2;
       if (dr2<0.4) ++count4;
       if (dr2<0.3) ++count5;
-      //std::cout << solution.getJetBbar().partonFlavour() << " "<<dr<<std::endl;
     }
-
-    //Look at the b-jets:
-    //std::cout << "Final Match: "<<   matchB<<matchBbar <<matchLeptPos <<matchLeptNeg<<std::endl;
     
   } catch (...){std::cout << "Exception\n";}
   
@@ -132,8 +106,8 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
   
   //  Lower / Higher of both jet angles
   
-  double v1 = abs( solution.getJetB().p4().theta() - M_PI/2 );
-  double v2 = abs( solution.getJetBbar().p4().theta() - M_PI/2 ) ;
+  double v1 = std::abs( solution.getJetB().p4().theta() - M_PI/2 );
+  double v2 = std::abs( solution.getJetBbar().p4().theta() - M_PI/2 ) ;
   fillMinMax(v1, v2, 1, evtselectVarVal, matchB1, matchB2, evtselectVarMatch);
 
   //  Lower / Higher of both jet pT
@@ -150,61 +124,36 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
 
   // delta theta btw the b-jets
 
-  double deltaPhi = abs ( delta(solution.getJetB().p4().phi(), 
-			solution.getJetBbar().p4().phi()) );
-//   double deltaPhi = abs( solution.getJetB().p4().DeltaPhi(
-//  		solution.getJetBbar().p4() ) );
-
+  double deltaPhi = std::abs( delta(solution.getJetB().p4().phi(), 
+				    solution.getJetBbar().p4().phi()) );
 
   evtselectVarVal.push_back(IntDblPair(7, deltaPhi));
   evtselectVarMatch.push_back(IntBoolPair(7, matchB1&&matchB2));
 
   // delta phi btw the b-jets
 
-//   double deltaTheta = DeltaPhi<pat::Particle>()(solution.getJetB(), 
-// 			solution.getJetBbar());
-  
-//   double deltaPhi = delta( solution.getJetB().p4().phi(),
-// 		solution.getJetBbar().p4().phi() );
-  double deltaTheta = abs( delta (solution.getJetBbar().p4().theta(),
-		solution.getJetB().p4().theta() ) );
+  double deltaTheta = std::abs( delta (solution.getJetBbar().p4().theta(),
+				       solution.getJetB().p4().theta() ) );
 
   evtselectVarVal.push_back(IntDblPair(8, deltaTheta));
   evtselectVarMatch.push_back(IntBoolPair(8, matchB1&&matchB2));
 
   //  Lower / Higher of phi difference between the b and associated lepton
 
-  double deltaPhi1 = abs ( delta( solution.getJetB().p4().phi(),
-		solution.getLeptPos().p4().phi() ) );
-  double deltaPhi2 = abs ( delta( solution.getJetBbar().p4().phi(),
-		solution.getLeptNeg().p4().phi() ) );
-// if (deltaPhi1<0.05) {
-// std::cout << deltaPhi1<<" "
-// <<solution.getJetB().p4().phi()<<" "
-// <<solution.getLeptPos().p4().phi()<<" "
-// <<solution.getJetB().p4().eta()<<" "
-// <<solution.getLeptPos().p4().eta()<<" "
-// << solution.getJetB().p4().phi() - solution.getLeptPos().p4().phi()<<"\n";
-// double d1 = solution.getJetB().p4().phi();
-// double d2 = solution.getLeptPos().p4().phi();
-// std::cout << deltaPhi1<<" "
-// <<d1<<" "
-// <<d2<<" "
-// <<d1-d2<<" "
-// <<delta(d1,d2)<<" "
-// << solution.getJetB().p4().phi() - solution.getLeptPos().p4().phi()<<"\n";
-// 
-// }
+  double deltaPhi1 = std::abs ( delta( solution.getJetB().p4().phi(),
+				       solution.getLeptPos().p4().phi() ) );
+  double deltaPhi2 = std::abs ( delta( solution.getJetBbar().p4().phi(),
+				       solution.getLeptNeg().p4().phi() ) );
 
   fillMinMax(deltaPhi1, deltaPhi2, 9, evtselectVarVal, 
 	matchB&&matchLeptPos, matchBbar&&matchLeptNeg, evtselectVarMatch);
 
   //  Lower / Higher of theta difference between the b and associated lepton
 
-  double deltaTheta1 = abs( solution.getJetB().p4().theta() -
-		solution.getLeptPos().p4().theta() );
-  double deltaTheta2 = abs( solution.getJetBbar().p4().theta() -
-		solution.getLeptNeg().p4().theta() );
+  double deltaTheta1 = std::abs( solution.getJetB().p4().theta() -
+				 solution.getLeptPos().p4().theta() );
+  double deltaTheta2 = std::abs( solution.getJetBbar().p4().theta() -
+				 solution.getLeptNeg().p4().theta() );
   fillMinMax(deltaTheta1, deltaTheta2, 11, evtselectVarVal, 
 	matchB&&matchLeptPos, matchBbar&&matchLeptNeg, evtselectVarMatch);
 
@@ -221,14 +170,11 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
   std::vector <pat::Jet> jet3;
   for (int i=0;i<(int)jets->size();++i) {
 if  ( ((*jets)[i].et()<solution.getJetB().et()) && ((*jets)[i].et()<solution.getJetBbar().et())) {jet3.push_back((*jets)[i]);
-// std::cout << "jet " << i << " " << jet3.back().partonFlavour()<< " " << jet3.back().pt() << " " << jet3.back().eta()<<std::endl;
 }}
   double jet1Ratio = 0., jet2Ratio = 0.;  
   if (jet3.size()>0) { 
     jet1Ratio = jet3[0].et()/solution.getJetB().et();
     jet2Ratio = jet3[0].et()/solution.getJetBbar().et();
-  //std::cout << solution.getJetB().et() << " "<<solution.getJetBbar().et()<<std::endl;
-  //std::cout << (*jets)[0].et() << " "<<(*jets)[1].et() << " "<<(*jets)[2].et() << jet1Ratio<< " "<<jet2Ratio<<std::endl<<std::endl;
   }
   fillMinMax(jet1Ratio, jet2Ratio, 14, evtselectVarVal, 
 	matchB1, matchB2, evtselectVarMatch);

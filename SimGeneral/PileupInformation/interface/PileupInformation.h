@@ -39,6 +39,16 @@ private:
 
     edm::ParameterSet conf_;
 
+    typedef std::map< int, int > myindex;
+    myindex event_index_;
+
+    std::vector<float> zpositions;
+    std::vector<float> sumpT_lowpT;
+    std::vector<float> sumpT_highpT;
+    std::vector<int> ntrks_lowpT;
+    std::vector<int> ntrks_highpT;
+
+
     double                   distanceCut_;
     double                   volumeRadius_;
     double                   volumeZ_;
@@ -49,9 +59,6 @@ private:
 
     std::string MessageCategory_;
 
-    // Related to production
-
-    std::auto_ptr<PileupSummaryInfo> PileupSummary_;
 
 
 };

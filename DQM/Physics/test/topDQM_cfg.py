@@ -31,8 +31,8 @@ process.source = cms.Source(
 )
 
 ## load jet corrections
-process.load("JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff")
-process.prefer("ak5CaloL2L3")
+#process.load("JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff")
+#process.prefer("ak5CaloL2L3")
 
 ## configure message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -45,17 +45,8 @@ process.MessageLogger.cerr.TopDiLeptonOfflineDQM = cms.untracked.PSet(limit = cm
 #process.content = cms.EDAnalyzer("EventContentAnalyzer")
 
 process.p = cms.Path(#process.content *
-                     ## common dilepton monitoring
                      process.topDiLeptonOfflineDQM +
-                     ## common lepton plus jets monitoring
                      process.topSingleLeptonDQM +
-                     ## muon plus jets monitoring
-                     process.topSingleMuonLooseDQM +    
-                     process.topSingleMuonMediumDQM +
-                     ## electron plus jets monitoring
-                     process.topSingleElectronLooseDQM +    
-                     process.topSingleElectronMediumDQM +
-                     ## save histograms
                      process.dqmSaver
                      )
 

@@ -13,13 +13,6 @@ double deltaPhi(double phi1, double phi2){
     return dphi;
 }
 
-enum  {TCAlgoUndetermined,
-       TCAlgoMomentum,
-       TCAlgoTrackProblem,
-       TCAlgoMomentumECAL,
-       TCAlgoCaloJet,
-       TCAlgoHadronicJet};
-
 void tcTauAnalysis(){
 
 	float tau_pt_cut = 10;
@@ -35,7 +28,6 @@ void tcTauAnalysis(){
         float MCTau_pt,MCTau_eta,MCTau_phi;
         float PFTau_pt,PFTau_eta,PFTau_phi,PFTau_nProngs,PFTau_ltrackPt,PFTau_d_isol,PFTau_d_1,PFTau_d_2;
         float CaloTau_pt,CaloTau_eta,CaloTau_phi,CaloTau_nProngs,CaloTau_ltrackPt,CaloTau_d_isol,CaloTau_d_1,CaloTau_d_2;
-	float JPTTau_pt,JPTTau_eta,JPTTau_phi;
         float TCTau_pt,TCTau_eta,TCTau_phi,TCTau_nProngs,TCTau_ltrackPt,TCTau_d_1,TCTau_d_2,TCTau_algo;
 	float TCTau_pt_raw,TCTau_eta_raw,TCTau_phi_raw;
 
@@ -48,9 +40,6 @@ void tcTauAnalysis(){
         tauTree->SetBranchAddress("CaloTau_nProngs",&CaloTau_nProngs);
         tauTree->SetBranchAddress("CaloTau_ltrackPt",&CaloTau_ltrackPt);
         tauTree->SetBranchAddress("CaloTau_d_isol",&CaloTau_d_isol);
-	tauTree->SetBranchAddress("JPTTau_pt",&JPTTau_pt);
-	tauTree->SetBranchAddress("JPTTau_eta",&JPTTau_eta);
-	tauTree->SetBranchAddress("JPTTau_phi",&JPTTau_phi);
         tauTree->SetBranchAddress("TCTau_pt",&TCTau_pt);
         tauTree->SetBranchAddress("TCTau_eta",&TCTau_eta);
         tauTree->SetBranchAddress("TCTau_phi",&TCTau_phi);
@@ -77,9 +66,8 @@ void tcTauAnalysis(){
 	    nPFTausIn01Counter   = 0;
 
 	TH1F* h_CaloTau_dEt = new TH1F("h_CaloTau_dEt","",100,-50,50);
-	TH1F* h_jptTau_dEt  = (TH1F*)h_CaloTau_dEt->Clone("h_JPTTau_dEt");
-	TH1F* h_TCTau_dEt   = (TH1F*)h_CaloTau_dEt->Clone("h_TCTau_dEt");
-	TH1F* h_PFTau_dEt   = (TH1F*)h_CaloTau_dEt->Clone("h_PFTau_dEt");
+	TH1F* h_TCTau_dEt = (TH1F*)h_CaloTau_dEt->Clone("h_TCTau_dEt");
+	TH1F* h_PFTau_dEt = (TH1F*)h_CaloTau_dEt->Clone("h_PFTau_dEt");
 
         TH1F* h_TCTau_dEtRaw = (TH1F*)h_CaloTau_dEt->Clone("h_TCTau_dEtRaw");
 
@@ -95,16 +83,8 @@ void tcTauAnalysis(){
 
         TH1F* h_CaloTau_dEtRatio = new TH1F("h_CaloTau_dEtRatio","",100,0,2);
 	TH1F* h_TCTau_dEtRatio = (TH1F*)h_CaloTau_dEtRatio->Clone("h_TCTau_dEtRatio");
-	TH1F* h_JPTTau_dEtRatio = (TH1F*)h_CaloTau_dEtRatio->Clone("h_JPTTau_dEtRatio");
 	TH1F* h_PFTau_dEtRatio = (TH1F*)h_CaloTau_dEtRatio->Clone("h_PFTau_dEtRatio");
         TH1F* h_TCTau_dEtRawRatio = (TH1F*)h_CaloTau_dEtRatio->Clone("h_TCTau_dEtRawRatio");
-
-        TH1F* h_TCTau_dEt_TCAlgoUndetermined = (TH1F*)h_CaloTau_dEtRatio->Clone("h_TCTau_dEt_TCAlgoUndetermined");
-        TH1F* h_TCTau_dEt_TCAlgoMomentum     = (TH1F*)h_CaloTau_dEtRatio->Clone("h_TCTau_dEt_TCAlgoMomentum");
-        TH1F* h_TCTau_dEt_TCAlgoTrackProblem = (TH1F*)h_CaloTau_dEtRatio->Clone("h_TCTau_dEt_TCAlgoTrackProblem");
-        TH1F* h_TCTau_dEt_TCAlgoMomentumECAL = (TH1F*)h_CaloTau_dEtRatio->Clone("h_TCTau_dEt_TCAlgoMomentumECAL");
-        TH1F* h_TCTau_dEt_TCAlgoCaloJet      = (TH1F*)h_CaloTau_dEtRatio->Clone("h_TCTau_dEt_TCAlgoCaloJet");
-        TH1F* h_TCTau_dEt_TCAlgoHadronicJet  = (TH1F*)h_CaloTau_dEtRatio->Clone("h_TCTau_dEt_TCAlgoHadronicJet");
 
 	for(int i = 0; i < tauTree->GetEntries(); ++i){
 		tauTree->GetEntry(i);
@@ -136,16 +116,6 @@ void tcTauAnalysis(){
 			h_TCTau_dEtRatio->Fill(TCTau_pt/MCTau_pt);
 
 			h_TCTau_dEtRawRatio->Fill(TCTau_pt_raw/MCTau_pt);
-
-			h_JPTTau_dEtRatio->Fill(JPTTau_pt/MCTau_pt);
-
-                        if(TCTau_algo == TCAlgoUndetermined) h_TCTau_dEt_TCAlgoUndetermined->Fill(TCTau_pt/MCTau_pt);
-                        if(TCTau_algo == TCAlgoMomentum)     h_TCTau_dEt_TCAlgoMomentum->Fill(TCTau_pt/MCTau_pt);
-                        if(TCTau_algo == TCAlgoTrackProblem) h_TCTau_dEt_TCAlgoTrackProblem->Fill(TCTau_pt/MCTau_pt);
-                        if(TCTau_algo == TCAlgoMomentumECAL) h_TCTau_dEt_TCAlgoMomentumECAL->Fill(TCTau_pt/MCTau_pt);
-                        if(TCTau_algo == TCAlgoCaloJet)      h_TCTau_dEt_TCAlgoCaloJet->Fill(TCTau_pt/MCTau_pt);
-			if(TCTau_algo == TCAlgoHadronicJet)  h_TCTau_dEt_TCAlgoHadronicJet->Fill(TCTau_pt/MCTau_pt);
-
 		}
 		if(PFTau_pt > tau_pt_cut && fabs(PFTau_eta) < tau_eta_cut && PFTau_d_isol != 0) {
 			nPFTaus++;
@@ -157,9 +127,9 @@ void tcTauAnalysis(){
 			h_PFTau_dPhi->Fill(deltaPhi(PFTau_phi,MCTau_phi));
 			h_PFTau_dEtRatio->Fill(PFTau_pt/MCTau_pt);
 		}
-//		if(PFTau_pt > tau_pt_cut && fabs(PFTau_eta) < tau_eta_cut && PFTau_d_isol != 0) {
-//			h_PFTauRef_dEt->Fill(PFTau_pt - MCTau_pt);
-//		}
+		if(PFTau_pt > tau_pt_cut && fabs(PFTau_eta) < tau_eta_cut && PFTau_d_isol != 0) {
+			h_PFTauRef_dEt->Fill(PFTau_pt - MCTau_pt);
+		}
 	}
 
 	cout << " MC taus           " << nMCTaus << endl;
@@ -167,14 +137,14 @@ void tcTauAnalysis(){
 	cout << " Isolated TCTaus   " << nTCTaus << endl;
 	cout << " Isolated PFTaus   " << nPFTaus << endl;
 	cout << endl;
-/*
+
         enum  {TCAlgoUndetermined,
                TCAlgoMomentum,
                TCAlgoTrackProblem,
                TCAlgoMomentumECAL,
                TCAlgoCaloJet,
                TCAlgoHadronicJet};
-*/
+
 	cout << "TCAlgoUndetermined " << algoCounter[TCAlgoUndetermined] << endl;
 	cout << "TCAlgoMomentum     " << algoCounter[TCAlgoMomentum] << endl;
 	cout << "TCAlgoTrackProblem " << algoCounter[TCAlgoTrackProblem] << endl;
@@ -222,7 +192,6 @@ void tcTauAnalysis(){
 
 //
 
-
         TCanvas* tctau_dEtRatio = new TCanvas("tctau_dEtRatio","",500,500);
         tctau_dEtRatio->SetFillColor(0);
         tctau_dEtRatio->SetFrameFillColor(0);
@@ -243,10 +212,6 @@ void tcTauAnalysis(){
 
         h_CaloTau_dEtRatio->SetLineWidth(3);
         h_CaloTau_dEtRatio->DrawClone("same");
-
-        h_JPTTau_dEtRatio->SetLineWidth(3);
-	h_JPTTau_dEtRatio->SetLineColor(2);
-        h_JPTTau_dEtRatio->DrawClone("same");
 
         h_PFTau_dEtRatio->SetLineWidth(4);
         h_PFTau_dEtRatio->SetLineColor(4);
@@ -375,14 +340,12 @@ void tcTauAnalysis(){
         tctau_dEtRatioNormalized->SetFrameFillColor(0);
         tctau_dEtRatioNormalized->cd();
 
-	double TCTau_dEtRatioScale = 1/h_TCTau_dEtRatio->Integral();
-
         h_TCTau_dEtRatio->SetLineWidth(3);
         h_TCTau_dEtRatio->SetLineColor(2);
         h_TCTau_dEtRatio->SetLineStyle(2);
         h_TCTau_dEtRatio->SetStats(0);
         h_TCTau_dEtRatio->GetXaxis()->SetTitle("pt(RECO)/pt(MC)");
-        h_TCTau_dEtRatio->Scale(TCTau_dEtRatioScale);
+        h_TCTau_dEtRatio->Scale(1/h_TCTau_dEtRatio->Integral());
         h_TCTau_dEtRatio->DrawClone();
 
         h_CaloTau_dEtRatio->SetLineWidth(3);
@@ -396,69 +359,4 @@ void tcTauAnalysis(){
         h_PFTau_dEtRatio->DrawClone("same");
 
         tctau_dEtRatioNormalized->Print("tctau_dEtRatioNormalized.C");
-
-	//
-
-	TCanvas* tctau_dEtRatioAlgosNormalized = new TCanvas("tctau_dEtRatioAlgosNormalized","",500,500);
-        tctau_dEtRatioAlgosNormalized->SetFillColor(0);
-        tctau_dEtRatioAlgosNormalized->SetFrameFillColor(0);
-        tctau_dEtRatioAlgosNormalized->cd();
-	tctau_dEtRatioAlgosNormalized->SetLogy();
-
-        h_TCTau_dEtRatio->SetLineWidth(3);
-        h_TCTau_dEtRatio->SetLineColor(1);
-        h_TCTau_dEtRatio->SetLineStyle(1);
-        h_TCTau_dEtRatio->SetStats(0);
-        h_TCTau_dEtRatio->GetXaxis()->SetTitle("pt(RECO)/pt(MC)");
-//        h_TCTau_dEtRatio->Scale(1/h_TCTau_dEtRatio->Integral());
-        h_TCTau_dEtRatio->DrawClone();	
-
-	h_TCTau_dEt_TCAlgoUndetermined->SetLineWidth(1);
-	h_TCTau_dEt_TCAlgoUndetermined->SetLineColor(2);
-	//h_TCTau_dEt_TCAlgoUndetermined->SetLineStyle(2);
-	h_TCTau_dEt_TCAlgoUndetermined->Scale(TCTau_dEtRatioScale);
-	h_TCTau_dEt_TCAlgoUndetermined->DrawClone("same");
-
-        h_TCTau_dEt_TCAlgoMomentum->SetLineWidth(1);
-        h_TCTau_dEt_TCAlgoMomentum->SetLineColor(3);
-        //h_TCTau_dEt_TCAlgoMomentum->SetLineStyle(2);
-        h_TCTau_dEt_TCAlgoMomentum->Scale(TCTau_dEtRatioScale);
-        h_TCTau_dEt_TCAlgoMomentum->DrawClone("same");
-
-        h_TCTau_dEt_TCAlgoTrackProblem->SetLineWidth(1);
-        h_TCTau_dEt_TCAlgoTrackProblem->SetLineColor(4);
-        //h_TCTau_dEt_TCAlgoTrackProblem->SetLineStyle(2);
-        h_TCTau_dEt_TCAlgoTrackProblem->Scale(TCTau_dEtRatioScale);
-        h_TCTau_dEt_TCAlgoTrackProblem->DrawClone("same");
-
-        h_TCTau_dEt_TCAlgoMomentumECAL->SetLineWidth(1);
-        h_TCTau_dEt_TCAlgoMomentumECAL->SetLineColor(6);
-        //h_TCTau_dEt_TCAlgoMomentumECAL->SetLineStyle(2);
-        h_TCTau_dEt_TCAlgoMomentumECAL->Scale(TCTau_dEtRatioScale);
-        h_TCTau_dEt_TCAlgoMomentumECAL->DrawClone("same");
-
-        h_TCTau_dEt_TCAlgoCaloJet->SetLineWidth(1);
-        h_TCTau_dEt_TCAlgoCaloJet->SetLineColor(7);
-        //h_TCTau_dEt_TCAlgoCaloJet->SetLineStyle(2);
-        h_TCTau_dEt_TCAlgoCaloJet->Scale(TCTau_dEtRatioScale);
-        h_TCTau_dEt_TCAlgoCaloJet->DrawClone("same");
-
-        h_TCTau_dEt_TCAlgoHadronicJet->SetLineWidth(1);
-        h_TCTau_dEt_TCAlgoHadronicJet->SetLineColor(8);
-        //h_TCTau_dEt_TCAlgoHadronicJet->SetLineStyle(2);
-        h_TCTau_dEt_TCAlgoHadronicJet->Scale(TCTau_dEtRatioScale);
-        h_TCTau_dEt_TCAlgoHadronicJet->DrawClone("same");
-
-	leg = new TLegend(0.55,0.72,0.94,0.92);
-   	leg->SetHeader("TCTau algo components");
-	leg->AddEntry(h_TCTau_dEtRatio,"Sum of all components","f");
-   	leg->AddEntry(h_TCTau_dEt_TCAlgoUndetermined,"TCAlgoUndetermined","f");
-	leg->AddEntry(h_TCTau_dEt_TCAlgoMomentum,"TCAlgoMomentum","f");
-        leg->AddEntry(h_TCTau_dEt_TCAlgoTrackProblem,"TCAlgoTrackProblem","f");
-        leg->AddEntry(h_TCTau_dEt_TCAlgoMomentumECAL,"TCAlgoMomentumECAL","f");
-        leg->AddEntry(h_TCTau_dEt_TCAlgoCaloJet,"TCAlgoCaloJet","f");
-        leg->AddEntry(h_TCTau_dEt_TCAlgoHadronicJet,"TCAlgoHadronicJet","f");
-   	leg->Draw();
-
-	tctau_dEtRatioAlgosNormalized->Print("tctau_dEtRatioAlgosNormalized.C");
 }

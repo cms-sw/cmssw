@@ -101,8 +101,8 @@ HLTMuonDimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel (candTag_,mucands);
    // sort them by L2Track
    std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > L2toL3s;
-   uint maxI = mucands->size();
-   for (uint i=0;i!=maxI;i++){
+   unsigned int maxI = mucands->size();
+   for (unsigned int i=0;i!=maxI;i++){
      TrackRef tk = (*mucands)[i].track();
      edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef = tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
      TrackRef staTrack = l3seedRef->l2Track();
@@ -133,8 +133,8 @@ HLTMuonDimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (!triggeredByLevel2(L2toL3s_it1->first,vl2cands)) continue;
      
      //loop over the L3Tk reconstructed for this L2.
-     uint iTk1=0;
-     uint maxItk1=L2toL3s_it1->second.size();
+     unsigned int iTk1=0;
+     unsigned int maxItk1=L2toL3s_it1->second.size();
      for (; iTk1!=maxItk1; iTk1++){
        bool thisL3Index1isDone=false;
        RecoChargedCandidateRef & cand1=L2toL3s_it1->second[iTk1];
@@ -170,8 +170,8 @@ HLTMuonDimuonL3Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 if (!triggeredByLevel2(L2toL3s_it2->first,vl2cands)) continue;
 	 
 	    //loop over the L3Tk reconstructed for this L2.
-	    uint iTk2=0;
-	    uint maxItk2=L2toL3s_it2->second.size();
+	    unsigned int iTk2=0;
+	    unsigned int maxItk2=L2toL3s_it2->second.size();
 	    for (; iTk2!=maxItk2; iTk2++){
 	      RecoChargedCandidateRef & cand2=L2toL3s_it2->second[iTk2];
 	      TrackRef tk2 = cand2->get<TrackRef>();

@@ -22,6 +22,9 @@ class TtSemiLepHypGeom : public TtSemiLepHypothesis  {
 			 const edm::Handle<std::vector<pat::Jet> >&,
 			 std::vector<int>&, const unsigned int iComb);
 
+ private:
+
+  int neutrinoSolutionType_;
 };
 
 #endif

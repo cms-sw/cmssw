@@ -106,9 +106,6 @@ public:
   void fillmeAll10slices(double v1, double v2)
   {fillElements(meAll10slices, v1, v2);}
 
-  void fillmeAll10slices1D(double v1, double v2)
-  {fillElements(meAll10slices1D, v1, v2);}
-
   void fillmeBin5Frac(double v1)
   {fillElement(meBin5Frac, v1);}
   void fillmeBin67Frac(double v1)
@@ -386,7 +383,6 @@ private:
 
   MonitorElement* meSignalTimeSlice;
   MonitorElement* meAll10slices;
-  MonitorElement* meAll10slices1D;
   MonitorElement* meBin5Frac;
   MonitorElement* meBin67Frac;
 

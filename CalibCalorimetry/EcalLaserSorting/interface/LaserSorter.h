@@ -1,5 +1,5 @@
 /*
- * $Id: LaserSorter.h,v 1.4 2010/01/27 18:17:59 pgras Exp $
+ * $Id: LaserSorter.h,v 1.3 2009/08/04 15:16:04 pgras Exp $
  */
 
 #ifndef EVENT_SELECT_H
@@ -414,22 +414,11 @@ private:
    */
   int maxNoEcalDataMess_;
 
-  /** Tolerance on lumi block spanning of a FED sequence. Subsequent events
-   * of a same FED must span at most on 2*lumiBlockSpan_+1 luminosity blocks.
-   *
-   * <ul><li>It is important that the laser sequence scane does not pass twice on the same FED
-   * within the 2*lumiBlockSpan_+1. Failing this requirement will result mixing event of
-   * different passes in the same output file.
-   *    <li>The number of input files opened simultinuously is proportional to 2*lumiBlockSpan_+1.
-   * So increasing lumiBlockSpan_ will also increase the number of opened files and may have
-   * some impact of sorting time performances.
-   * </ul>
-   */
-  int lumiBlockSpan_;
   
   /** FED ID associated to Matacq data
    */
   static const int matacqFedId_ = 655;
+
 
   /**
    */

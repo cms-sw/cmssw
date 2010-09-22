@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2010/04/14 16:13:39 $
- * $Revision: 1.105 $
+ * $Date: 2010/08/09 13:22:18 $
+ * $Revision: 1.110 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -31,18 +31,17 @@
 #include "OnlineDB/EcalCondDB/interface/RunMemChErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunMemTTErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
+#include "DQM/EcalCommon/interface/LogicID.h"
 #endif
 
-#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
+#include "DQM/EcalCommon/interface/Masks.h"
 
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/UtilsClient.h"
-#include "DQM/EcalCommon/interface/LogicID.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EEIntegrityClient.h>
+#include "DQM/EcalEndcapMonitorClient/interface/EEIntegrityClient.h"
 
 EEIntegrityClient::EEIntegrityClient(const edm::ParameterSet& ps) {
 
@@ -155,8 +154,9 @@ void EEIntegrityClient::setup(void) {
     if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EEIT data integrity quality %s", Numbers::sEE(ism).c_str());
     meg01_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-    meg01_[ism-1]->setAxisTitle("jx", 1);
-    meg01_[ism-1]->setAxisTitle("jy", 2);
+    meg01_[ism-1]->setAxisTitle("ix", 1);
+    if ( ism >= 1 && ism <= 9 ) meg01_[ism-1]->setAxisTitle("101-ix", 1);
+    meg01_[ism-1]->setAxisTitle("iy", 2);
 
     if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
     sprintf(histo, "EEIT data integrity quality MEM %s", Numbers::sEE(ism).c_str());
@@ -695,23 +695,12 @@ void EEIntegrityClient::analyze(void) {
     if ( debug_ ) std::cout << "EEIntegrityClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
-  uint64_t bits01 = 0;
-  bits01 |= EcalErrorDictionary::getMask("CH_ID_WARNING");
-  bits01 |= EcalErrorDictionary::getMask("CH_GAIN_ZERO_WARNING");
-  bits01 |= EcalErrorDictionary::getMask("CH_GAIN_SWITCH_WARNING");
-  bits01 |= EcalErrorDictionary::getMask("CH_ID_ERROR");
-  bits01 |= EcalErrorDictionary::getMask("CH_GAIN_ZERO_ERROR");
-  bits01 |= EcalErrorDictionary::getMask("CH_GAIN_SWITCH_ERROR");
-
-  uint64_t bits02 = 0;
-  bits02 |= EcalErrorDictionary::getMask("TT_ID_WARNING");
-  bits02 |= EcalErrorDictionary::getMask("TT_SIZE_WARNING");
-  bits02 |= EcalErrorDictionary::getMask("TT_LV1_WARNING");
-  bits02 |= EcalErrorDictionary::getMask("TT_BUNCH_X_WARNING");
-  bits02 |= EcalErrorDictionary::getMask("TT_ID_ERROR");
-  bits02 |= EcalErrorDictionary::getMask("TT_SIZE_ERROR");
-  bits02 |= EcalErrorDictionary::getMask("TT_LV1_ERROR");
-  bits02 |= EcalErrorDictionary::getMask("TT_BUNCH_X_ERROR");
+  uint32_t bits01 = 0;
+  bits01 |= 1 << EcalDQMStatusHelper::CH_ID_ERROR;
+  bits01 |= 1 << EcalDQMStatusHelper::CH_GAIN_ZERO_ERROR;
+  bits01 |= 1 << EcalDQMStatusHelper::CH_GAIN_SWITCH_ERROR;
+  bits01 |= 1 << EcalDQMStatusHelper::TT_ID_ERROR;
+  bits01 |= 1 << EcalDQMStatusHelper::TT_SIZE_ERROR;
 
   char histo[200];
 
@@ -864,6 +853,8 @@ void EEIntegrityClient::analyze(void) {
 
         }
 
+        if ( Masks::maskChannel(ism, ix, iy, bits01, EcalEndcap) ) UtilsClient::maskBinContent( meg01_[ism-1], ix, iy );
+
       }
     } // end of loop on crystals to fill summary plot
 
@@ -940,147 +931,12 @@ void EEIntegrityClient::analyze(void) {
 
         }
 
+        if ( Masks::maskPn(ism, ie, bits01, EcalEndcap) ) UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
+
       }
     }  // end loop on mem channels
 
   } // end loop on supermodules
-
-#ifdef WITH_ECAL_COND_DB
-  if ( EcalErrorMask::mapCrystalErrors_.size() != 0 ) {
-    map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
-    for (m = EcalErrorMask::mapCrystalErrors_.begin(); m != EcalErrorMask::mapCrystalErrors_.end(); m++) {
-
-      if ( (m->second).getErrorBits() & bits01 ) {
-        EcalLogicID ecid = m->first;
-
-        if ( strcmp(ecid.getMapsTo().c_str(), "EE_crystal_number") != 0 ) continue;
-
-        int iz = ecid.getID1();
-        int ix = ecid.getID2();
-        int iy = ecid.getID3();
-
-        for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-          int ism = superModules_[i];
-          std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
-          if (iter == superModules_.end()) continue;
-          if ( iz == -1 && ( ism >=  1 && ism <=  9 ) ) {
-            int jx = 101 - ix - Numbers::ix0EE(ism);
-            int jy = iy - Numbers::iy0EE(ism);
-            if ( Numbers::validEE(ism, ix, iy) ) UtilsClient::maskBinContent( meg01_[ism-1], jx, jy );
-          }
-          if ( iz == +1 && ( ism >= 10 && ism <= 18 ) ) {
-            int jx = ix - Numbers::ix0EE(ism);
-            int jy = iy - Numbers::iy0EE(ism);
-            if ( Numbers::validEE(ism, ix, iy) ) UtilsClient::maskBinContent( meg01_[ism-1], jx, jy );
-          }
-        }
-
-      }
-
-    }
-  }
-
-  if ( EcalErrorMask::mapTTErrors_.size() != 0 ) {
-    map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
-    for (m = EcalErrorMask::mapTTErrors_.begin(); m != EcalErrorMask::mapTTErrors_.end(); m++) {
-
-      if ( (m->second).getErrorBits() & bits02 ) {
-        EcalLogicID ecid = m->first;
-
-        if ( strcmp(ecid.getMapsTo().c_str(), "EE_readout_tower") != 0 ) continue;
-
-        int idcc = ecid.getID1() - 600;
-
-        int ism = -1;
-        if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
-        if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
-        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
-        if (iter == superModules_.end()) continue;
-
-        int itt = ecid.getID2();
-
-        if ( itt > 70 ) continue;
-
-        if ( itt >= 42 && itt <= 68 ) continue;
-
-        if ( ( ism == 8 || ism == 17 ) && ( itt >= 18 && itt <= 24 ) ) continue;
-
-        if ( itt >= 1 && itt <= 68 ) {
-          vector<DetId>* crystals = Numbers::crystals( idcc, itt );
-          for ( unsigned int i=0; i<crystals->size(); i++ ) {
-            EEDetId id = (*crystals)[i];
-            int ix = id.ix();
-            int iy = id.iy();
-            if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
-            int jx = ix - Numbers::ix0EE(ism);
-            int jy = iy - Numbers::iy0EE(ism);
-            UtilsClient::maskBinContent( meg01_[ism-1], jx, jy );
-          }
-        }
-
-      }
-
-    }
-  }
-
-  if ( EcalErrorMask::mapMemChErrors_.size() != 0 ) {
-    map<EcalLogicID, RunMemChErrorsDat>::const_iterator m;
-    for (m = EcalErrorMask::mapMemChErrors_.begin(); m != EcalErrorMask::mapMemChErrors_.end(); m++) {
-
-      if ( (m->second).getErrorBits() & bits01 ) {
-        EcalLogicID ecid = m->first;
-
-        if ( strcmp(ecid.getMapsTo().c_str(), "EE_mem_channel") != 0 ) continue;
-
-        int idcc = ecid.getID1() - 600;
-
-        int ism = -1;
-        if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
-        if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
-        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
-        if (iter == superModules_.end()) continue;
-
-        int ic = ecid.getID2();
-        int ie = (ic-1)/5+1;
-        int ip = (ic-1)%5+1;
-
-        UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
-
-      }
-
-    }
-  }
-
-  if ( EcalErrorMask::mapMemTTErrors_.size() != 0 ) {
-    map<EcalLogicID, RunMemTTErrorsDat>::const_iterator m;
-    for (m = EcalErrorMask::mapMemTTErrors_.begin(); m != EcalErrorMask::mapMemTTErrors_.end(); m++) {
-
-      if ( (m->second).getErrorBits() & bits02 ) {
-        EcalLogicID ecid = m->first;
-
-        if ( strcmp(ecid.getMapsTo().c_str(), "EE_mem_TT") != 0 ) continue;
-
-        int idcc = ecid.getID1() - 600;
-
-        int ism = -1;
-        if ( idcc >=   1 && idcc <=   9 ) ism = idcc;
-        if ( idcc >=  46 && idcc <=  54 ) ism = idcc - 45 + 9;
-        std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
-        if (iter == superModules_.end()) continue;
-
-        int itt = ecid.getID2();
-
-        for ( int ie = 5*(itt-68-1)+1; ie <= 5*(itt-68); ie++ ) {
-          for ( int ip = 1; ip <= 5; ip++ ) {
-            UtilsClient::maskBinContent( meg02_[ism-1], ie, ip );
-          }
-        }
-
-      }
-
-    }
-  }
-#endif
 
 }
 
