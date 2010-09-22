@@ -26,12 +26,14 @@
 #include "TSystem.h"
 #include "TGFont.h"
 #include "TGTextEntry.h"
+#include "KeySymbols.h"
 
 #include <iostream>
 #include <sstream>
 #include <cstring>
 #include <map>
 
+#include "GuiTypes.h"
 
 // FIXME: copied from Entry.cc should find a way to use the original
 //        table.
@@ -694,14 +696,24 @@ public:
             ps.addParameter(label, value);
       }
 
+   /** Does not apply changes and closes window. */
+   void cancelEditor()
+      {
+         if (!m_editor)
+            return;
+         
+         std::cerr << "Editing cancelled" << std::endl;
+         m_editor->UnmapWindow(); 
+         
+      }
+
    /** This is invoked every single time the
-       editor contents must */
+       editor contents must be applied to the selected entry in the pset. */
    void applyEditor()
       {
          if (!m_editor)
             return;
          
-         std::cerr << m_selectedRow << m_selectedColumn << std::endl; 
          if (m_selectedRow == -1)
             return;
          if (m_selectedColumn != 1)
@@ -711,9 +723,7 @@ public:
          }
          
          PSetData &data = m_entries[m_row_to_index[m_selectedRow]];
-         std::cerr << data.label << std::endl;
          PSetData &parent = m_entries[data.parent];
-         std::cerr << parent.label << " " << parent.pset << std::endl;
          try
          {
             switch (data.type)
@@ -741,15 +751,12 @@ public:
             }
             data.value = m_editor->GetText();
             m_modules[data.module].dirty = true;
-            std::cerr << "Modified module:" << data.module << std::endl;
             m_editor->UnmapWindow();
          }
          catch(cms::Exception &e)
          {
-            std::cerr << e << std::endl;
             m_editor->SetForegroundColor(gVirtualX->GetPixel(kRed));
          }
-         std::cerr << parent.label << " " << parent.pset << std::endl;
       }
 
    void setSelection (int row, int column, int mask) {
@@ -1126,6 +1133,7 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
      m_apply(0),
      m_psTable(new FWPSetTableManager())
 {
+   gVirtualX->SelectInput(GetId(), kKeyPressMask);
    m_psTable->indexSelected_.connect(boost::bind(&FWPathsPopup::newIndexSelected,this,_1,_2));
 
    FWDialogBuilder builder(this);
@@ -1156,6 +1164,25 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
    MapSubwindows();
    editor->UnmapWindow();
    Layout();
+}
+
+/** Handle pressing of esc.
+    FIXME: this still does not work if the cursor is on the editor widget.
+ */
+Bool_t
+FWPathsPopup::HandleEvent(Event_t*event)
+{
+   if (event->fType != (int) kGKeyPress)
+      return TGMainFrame::HandleEvent(event);
+
+   UInt_t keysym = event->fCode;
+
+   if (keysym == (UInt_t) gVirtualX->KeysymToKeycode(kKey_Escape))
+   {
+      m_psTable->cancelEditor();
+      m_psTable->setSelection(-1, -1, 0);
+   }
+   return TGMainFrame::HandleEvent(event);
 }
 
 /** Proxies the applyEditor() method in the model so that it can be connected to GUI, signals.

@@ -42,6 +42,8 @@ public:
    void newIndexSelected(int,int);
    void updateFilterString(const char *str);
 
+   virtual Bool_t HandleEvent(Event_t* event);
+
 private:
    const edm::ScheduleInfo  *m_info;
 
