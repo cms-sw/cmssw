@@ -9,8 +9,6 @@ include project.mk
 INCLUDE := -I./ -Isrc -I$(FWROOTSYS)/include -Icms $(addprefix -I,$(CoreIncludes)) $(addprefix -I,$(ProjectIncludes))
 ifeq ($(shell uname), Darwin)
 	INCLUDE += -I/usr/X11/include/
-else
-	COMPILERFLAGS += -g
 endif
 
 CFLAGS := $(COMPILERFLAGS) $(INCLUDE)  $(EXTRACFLAGS)
@@ -57,7 +55,7 @@ macDebugLink: lib$(LibProject).$(SO_EXT)
 	$(QUIET) echo "Add debug info for lib$(LibProject).$(SO_EXT)"; \
    if [ $(shell uname) == "Darwin" ]; then /usr/bin/dsymutil lib$(LibProject).$(SO_EXT); fi;
 
-cmsShow.exe: lib$(LibProject).$(SO_EXT) lib$(LibCore).$(SO_EXT)  src/Fireworks/Core/bin/cmsShow.cc
+cmsShow.exe: lib$(LibProject).$(SO_EXT) lib$(LibCore).$(SO_EXT) macDebugLink src/Fireworks/Core/bin/cmsShow.cc
 	$(QUIET) echo "linking cmsShow.exe"; \
 	$(CC) $(CFLAGS) -lstdc++ -Wl,-rpath -Wl,./ -L$(FWROOTSYS)/lib $(addprefix $(LinkerOptions),$(LDLIBRARYPATH)) \
 	$(ExecLibs) -o cmsShow.exe src/Fireworks/Core/bin/cmsShow.cc

@@ -40,7 +40,9 @@ export LinkerOptions := -Wl,-rpath -Wl,
 # linux specific, tarball ships compiler
 ifeq ($(shell uname), Linux)
 	export LD_LIBRARY_PATH := ${DIR}/external/gcc/lib:/usr/lib:$(FWROOTSYS)/lib
-	export PATH :=	${DIR}/external/gcc/bin:/usr/bin:$(PATH)
+	export PATH :=	${DIR}/external/gcc/bin:/Usr/bin:$(PATH)
+else
+	export PATH :=	${DIR}/external/gcc/bin:$(PATH)
 endif
 ##############################################################################
 
