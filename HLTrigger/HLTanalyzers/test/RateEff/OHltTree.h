@@ -698,6 +698,7 @@ public :
   Int_t           OpenL1_SingleTauJet2; 
   Int_t           OpenL1_SingleTauJet4; 
   Int_t           OpenL1_DoubleForJet10_EtaOpp; 
+  Int_t           OpenL1_QuadJet8U;
 
 
   // 8E29 and 1E31 MC menus
@@ -5243,6 +5244,22 @@ void OHltTree::SetOpenL1Bits()
   map_BitOfStandardHLTPath["OpenL1_SingleForJet4"] = OpenL1_SingleForJet4; 
   map_BitOfStandardHLTPath["OpenL1_SingleTauJet2"] = OpenL1_SingleTauJet2; 
   map_BitOfStandardHLTPath["OpenL1_SingleTauJet4"] = OpenL1_SingleTauJet4; 
+
+  OpenL1_QuadJet8U = 0;
+  Int_t njetsforquad = 0;
+  for(Int_t j = 0; j < NL1ForJet;j++) 
+    { 
+      if(L1ForJetEt[j] > 8.0)
+        njetsforquad++; 
+    }
+  for(Int_t k = 0;k < NL1CenJet;k++) 
+    {
+      if(L1CenJetEt[k] > 8.0) 
+	njetsforquad++;  
+    }
+  if(njetsforquad >= 4)
+    OpenL1_QuadJet8U = 1;
+  map_BitOfStandardHLTPath["OpenL1_QuadJet8U"] = OpenL1_QuadJet8U;  
 
 
   OpenL1_DoubleForJet10_EtaOpp = 0;
