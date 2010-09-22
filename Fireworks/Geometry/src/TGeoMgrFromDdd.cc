@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jul  2 16:11:42 CEST 2010
-// $Id: TGeoMgrFromDdd.cc,v 1.1 2010/07/06 18:42:14 matevz Exp $
+// $Id: TGeoMgrFromDdd.cc,v 1.2 2010/09/22 17:24:19 matevz Exp $
 //
 
 // system include files
@@ -368,7 +368,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 							   openingAngle) );
 	    TGeoSubtraction* sub = new TGeoSubtraction(trap.release(),
 						       tubs.release(),
-						       gGeoIdentity,
+						       0,
 						       createPlacement(s_rot,
 								       DDTranslation(0.,
 										     0.,
@@ -393,7 +393,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	    if( 0 != left.get() &&
 		0 != right.get() ) {
 	       TGeoSubtraction* sub = new TGeoSubtraction(left.release(),right.release(),
-							  gGeoIdentity,
+							  0,
 							  createPlacement(
                                                                           *(boolSolid.rotation().matrix()),
                                                                           boolSolid.translation()));
@@ -418,7 +418,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	    if( 0 != left.get() &&
 		0 != right.get() ) {
 	       TGeoUnion* boolS = new TGeoUnion(left.release(),right.release(),
-						gGeoIdentity,
+						0,
 						createPlacement(
                                                                 *(boolSolid.rotation().matrix()),
                                                                 boolSolid.translation()));
@@ -442,7 +442,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 		0 != right.get() ) {
 	       TGeoIntersection* boolS = new TGeoIntersection(left.release(),
 							      right.release(),
-							      gGeoIdentity,
+							      0,
 							      createPlacement(
                                                                               *(boolSolid.rotation().matrix()),
                                                                               boolSolid.translation()));
