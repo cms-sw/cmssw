@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2010/07/19 11:15:14 $ by $Author: mussgill $
+# last update: $Date: 2010/09/10 13:48:01 $ by $Author: argiro $
 
 # AlCaReco sequence definitions:
 
@@ -30,9 +30,9 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBias_cff import *
 # AlCaReco for pixel calibration using muons 
 from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelLorentzAngle_cff import *
 # AlCaReco for tracker calibration using MinBias events
-from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBias_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBiasHI_cff import *
 # AlCaReco for tracker calibration using ZeroBias events (noise)
-from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalZeroBias_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalZeroBiasHI_cff import *
 
 ###############################################################
 # ECAL Calibration
@@ -96,7 +96,7 @@ from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProd_cff import *
 # NOTE: the ALCARECO DQM modules can not be placed together in a single path 
 # because the non-DQM sequences act as filters.
 # They are therefore inserted per ALCARECO path.
-from DQMOffline.Configuration.AlCaRecoDQM_cff import *
+from DQMOffline.Configuration.AlCaRecoDQMHI_cff import *
 
 # AlCaReco path definitions:
 
