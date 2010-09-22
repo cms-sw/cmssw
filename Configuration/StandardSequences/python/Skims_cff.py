@@ -212,6 +212,21 @@ SKIMStreamGoodVtx = cms.FilteredStream(
     dataTier = cms.untracked.string('RAW-RECO')
     )
 
+#############
+
+from DPGAnalysis.Skims.goodcollSkim_cff import *
+pathgoodcoll1 = cms.Path(goodcollL1requirement)
+pathgoodcolhf = cms.Path(goodcollHFrequirement)
+
+SKIMStreamGoodCol = cms.FilteredStream(
+    responsible = 'PVT',
+    name = 'GoodCol',
+    paths = (goodvertexSkimPath,pathgoodcoll1,pathgoodcolhf),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+    )
+
 #####################
 
 from DPGAnalysis.Skims.muonTracksSkim_cff import *
