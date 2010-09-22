@@ -1,4 +1,5 @@
-/* RecoTauPiZeroStripPlugin
+/*
+ * RecoTauPiZeroStripPlugin
  *
  * Merges PFGammas in a PFJet into Candidate piZeros defined as 
  * strips in eta-phi.
