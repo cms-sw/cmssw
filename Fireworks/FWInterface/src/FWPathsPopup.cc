@@ -99,7 +99,7 @@ public:
    virtual void setIndentation(int indentation = 0) { m_indentation = indentation; }
    virtual void setCellEditor(TGTextEntry *editor) { m_editor = editor; }
    virtual void showEditor(bool value) { m_showEditor = value; }
-   virtual UInt_t width() { return FWTextTableCellRenderer::width() + m_indentation * 2; }
+   virtual UInt_t width() const { return FWTextTableCellRenderer::width() + 15 + m_indentation; }
    virtual void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight)
       {
          if (m_showEditor && m_editor)
