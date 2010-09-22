@@ -1,0 +1,162 @@
+%MSG-w cat_BJ:  UTC_Vd1:ssm_1a@beginJob pre-events
+T1 beginJob warning with identifier 11 event 0
+%MSG
+%MSG-w cat_BJ:  UTC_Vd1:ssm_1b@beginJob pre-events
+T1 beginJob warning with identifier 12 event 0
+%MSG
+%MSG-d cat_BJ:  UTC_Vd1:ssm_1b@beginJob pre-events UnitTestClient_Vd.cc:34
+T1 beginJob debug with identifier 12 event 0
+%MSG
+%MSG-i cat_BR:  UTC_Vd1:ssm_1a@beginRun Run: 1
+T1 beginRun info with identifier 11 event 0
+%MSG
+%MSG-i cat_BR:  UTC_Vd1:ssm_1b@beginRun Run: 1
+T1 beginRun info with identifier 12 event 0
+%MSG
+%MSG-d cat_BJ:  UTC_Vd1:ssm_1b@beginRun Run: 1 UnitTestClient_Vd.cc:43
+T1 beginRun debug with identifier 12 event 0
+%MSG
+%MSG-w cat_BL:  UTC_Vd1:ssm_1a@beginLumi Run: 1 Lumi: 1
+T1 beginLumi warning with identifier 11 event 0
+%MSG
+%MSG-w cat_BL:  UTC_Vd1:ssm_1b@beginLumi Run: 1 Lumi: 1
+T1 beginLumi warning with identifier 12 event 0
+%MSG
+%MSG-d cat_BL:  UTC_Vd1:ssm_1b@beginLumi Run: 1 Lumi: 1 UnitTestClient_Vd.cc:53
+T1 beginLumi debug with identifier 12 event 0
+%MSG
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at {Timestamp} 
+%MSG-e cat_A:  UTC_Vd1:ssm_1a Run: 1 Event: 1
+T1 analyze error with identifier 11 event 0
+%MSG
+%MSG-w cat_A:  UTC_Vd1:ssm_1a Run: 1 Event: 1
+T1 analyze warning with identifier 11 event 0
+%MSG
+%MSG-i cat_A:  UTC_Vd1:ssm_1a Run: 1 Event: 1
+T1 analyze info with identifier 11 event 0
+%MSG
+%MSG-e cat_A:  UTC_Vd2:ssm_2a Run: 1 Event: 1
+T1 analyze error with identifier 21 event 0
+%MSG
+%MSG-w cat_A:  UTC_Vd2:ssm_2a Run: 1 Event: 1
+T1 analyze warning with identifier 21 event 0
+%MSG
+%MSG-e cat_A:  UTC_Vd1:ssm_1b Run: 1 Event: 1
+T1 analyze error with identifier 12 event 0
+%MSG
+%MSG-w cat_A:  UTC_Vd1:ssm_1b Run: 1 Event: 1
+T1 analyze warning with identifier 12 event 0
+%MSG
+%MSG-i cat_A:  UTC_Vd1:ssm_1b Run: 1 Event: 1
+T1 analyze info with identifier 12 event 0
+%MSG
+%MSG-d cat_A:  UTC_Vd1:ssm_1b Run: 1 Event: 1 UnitTestClient_Vd.cc:24
+T1 analyze debug with identifier 12 event 0
+%MSG
+%MSG-e cat_A:  UTC_Vd2:ssm_2b Run: 1 Event: 1
+T1 analyze error with identifier 22 event 0
+%MSG
+%MSG-w cat_A:  UTC_Vd2:ssm_2b Run: 1 Event: 1
+T1 analyze warning with identifier 22 event 0
+%MSG
+%MSG-i cat_A:  UTC_Vd2:ssm_2b Run: 1 Event: 1
+T1 analyze info with identifier 22 event 0
+%MSG
+Begin processing the 2nd record. Run 1, Event 2, LumiSection 1 at {Timestamp} 
+%MSG-e cat_A:  UTC_Vd1:ssm_1a Run: 1 Event: 2
+T1 analyze error with identifier 11 event 1
+%MSG
+%MSG-w cat_A:  UTC_Vd1:ssm_1a Run: 1 Event: 2
+T1 analyze warning with identifier 11 event 1
+%MSG
+%MSG-i cat_A:  UTC_Vd1:ssm_1a Run: 1 Event: 2
+T1 analyze info with identifier 11 event 1
+%MSG
+%MSG-e cat_A:  UTC_Vd2:ssm_2a Run: 1 Event: 2
+T1 analyze error with identifier 21 event 1
+%MSG
+%MSG-w cat_A:  UTC_Vd2:ssm_2a Run: 1 Event: 2
+T1 analyze warning with identifier 21 event 1
+%MSG
+%MSG-e cat_A:  UTC_Vd1:ssm_1b Run: 1 Event: 2
+T1 analyze error with identifier 12 event 1
+%MSG
+%MSG-w cat_A:  UTC_Vd1:ssm_1b Run: 1 Event: 2
+T1 analyze warning with identifier 12 event 1
+%MSG
+%MSG-i cat_A:  UTC_Vd1:ssm_1b Run: 1 Event: 2
+T1 analyze info with identifier 12 event 1
+%MSG
+%MSG-d cat_A:  UTC_Vd1:ssm_1b Run: 1 Event: 2 UnitTestClient_Vd.cc:24
+T1 analyze debug with identifier 12 event 1
+%MSG
+%MSG-e cat_A:  UTC_Vd2:ssm_2b Run: 1 Event: 2
+T1 analyze error with identifier 22 event 1
+%MSG
+%MSG-w cat_A:  UTC_Vd2:ssm_2b Run: 1 Event: 2
+T1 analyze warning with identifier 22 event 1
+%MSG
+%MSG-i cat_A:  UTC_Vd2:ssm_2b Run: 1 Event: 2
+T1 analyze info with identifier 22 event 1
+%MSG
+
+=============================================
+
+MessageLogger Summary
+
+ type     category        sev    module        subroutine        count    total
+ ---- -------------------- -- ---------------- ----------------  -----    -----
+    1 cat_A                -d UTC_Vd1:ssm_1b                         2        2
+    2 cat_BJ               -d UTC_Vd1:ssm_1b@b                       1        1
+    3 cat_BJ               -d UTC_Vd1:ssm_1b@b                       1        1
+    4 cat_BL               -d UTC_Vd1:ssm_1b@b                       1        1
+    5 FwkReport            -i AfterSource                            2        2
+    6 cat_A                -i UTC_Vd1:ssm_1a                         2        2
+    7 cat_A                -i UTC_Vd1:ssm_1b                         2        2
+    8 cat_A                -i UTC_Vd2:ssm_2b                         2        2
+    9 cat_BR               -i UTC_Vd1:ssm_1a@b                       1        1
+   10 cat_BR               -i UTC_Vd1:ssm_1b@b                       1        1
+   11 cat_A                -w UTC_Vd1:ssm_1a                         2        2
+   12 cat_A                -w UTC_Vd1:ssm_1b                         2        2
+   13 cat_A                -w UTC_Vd2:ssm_2a                         2        2
+   14 cat_A                -w UTC_Vd2:ssm_2b                         2        2
+   15 cat_BJ               -w UTC_Vd1:ssm_1a@b                       1        1
+   16 cat_BJ               -w UTC_Vd1:ssm_1b@b                       1        1
+   17 cat_BL               -w UTC_Vd1:ssm_1a@b                       1        1
+   18 cat_BL               -w UTC_Vd1:ssm_1b@b                       1        1
+   19 cat_A                -e UTC_Vd1:ssm_1a                         2        2
+   20 cat_A                -e UTC_Vd1:ssm_1b                         2        2
+   21 cat_A                -e UTC_Vd2:ssm_2a                         2        2
+   22 cat_A                -e UTC_Vd2:ssm_2b                         2        2
+
+ type    category    Examples: run/evt        run/evt          run/evt
+ ---- -------------------- ---------------- ---------------- ----------------
+    1 cat_A                1/1              1/2              
+    2 cat_BJ               pre-events                        
+    3 cat_BJ               Run: 1                            
+    4 cat_BL               Run: 1 Lumi: 1                    
+    5 FwkReport            PostBeginLumi    PostProcessEvent 
+    6 cat_A                1/1              1/2              
+    7 cat_A                1/1              1/2              
+    8 cat_A                1/1              1/2              
+    9 cat_BR               Run: 1                            
+   10 cat_BR               Run: 1                            
+   11 cat_A                1/1              1/2              
+   12 cat_A                1/1              1/2              
+   13 cat_A                1/1              1/2              
+   14 cat_A                1/1              1/2              
+   15 cat_BJ               pre-events                        
+   16 cat_BJ               pre-events                        
+   17 cat_BL               Run: 1 Lumi: 1                    
+   18 cat_BL               Run: 1 Lumi: 1                    
+   19 cat_A                1/1              1/2              
+   20 cat_A                1/1              1/2              
+   21 cat_A                1/1              1/2              
+   22 cat_A                1/1              1/2              
+
+Severity    # Occurrences   Total Occurrences
+--------    -------------   -----------------
+Debug                   5                   5
+Info                   10                  10
+Warning                12                  12
+Error                   8                   8

@@ -6,6 +6,11 @@
     <use   name="FWCore/MessageLogger"/>
     <use   name="FWCore/Framework"/>
   </library>
+  <library   file="UnitTestClient_Ad.cc" name="UnitTestClient_Ad">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
   <library   file="UnitTestClient_B.cc" name="UnitTestClient_B">
     <flags   EDM_PLUGIN="1"/>
     <use   name="FWCore/MessageLogger"/>
@@ -41,6 +46,11 @@
     <use   name="FWCore/MessageLogger"/>
     <use   name="FWCore/Framework"/>
   </library>
+  <library   file="UnitTestClient_Hd.cc" name="UnitTestClient_Hd">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
   <library   file="UnitTestClient_I.cc" name="UnitTestClient_I">
     <flags   EDM_PLUGIN="1"/>
     <use   name="FWCore/MessageLogger"/>
@@ -62,6 +72,11 @@
     <use   name="FWCore/Framework"/>
   </library>
   <library   file="UnitTestClient_N.cc" name="UnitTestClient_N">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="UnitTestClient_Nd.cc" name="UnitTestClient_Nd">
     <flags   EDM_PLUGIN="1"/>
     <use   name="FWCore/MessageLogger"/>
     <use   name="FWCore/Framework"/>
@@ -97,6 +112,11 @@
     <use   name="FWCore/Framework"/>
   </library>
   <library   file="UnitTestClient_V.cc" name="UnitTestClient_V">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="UnitTestClient_Vd.cc" name="UnitTestClient_Vd">
     <flags   EDM_PLUGIN="1"/>
     <use   name="FWCore/MessageLogger"/>
     <use   name="FWCore/Framework"/>
@@ -148,6 +168,9 @@
 <bin   file="testLoggerInCmsRun.cpp">
   <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test testLoggerInCmsRun.sh"/>
 </bin>
+<bin   file="unitTestsGroup_d.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test u1d.sh u13d.sh u16.sh u19d.sh u33d.sh u33td.sh"/>
+</bin>
 <bin   file="unitTestsGroup_1.cpp">
   <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test u1.sh u2.sh u6.sh u21.sh"/>
 </bin>
@@ -161,7 +184,7 @@
   <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test u9.sh u12.sh u13.sh u14.sh u15.sh"/>
 </bin>
 <bin   file="unitTestsGroup_3.cpp">
-  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test u10.sh u16.sh u17.sh"/>
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test u10.sh u17.sh"/>
 </bin>
 <bin   file="unitTestsGroup_4.cpp">
   <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test u18.sh u19.sh u20.sh"/>

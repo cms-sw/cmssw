@@ -1,12 +1,14 @@
 Atlas of MessageLogger tests
 
-Tests marked $ are tested in both single thread and multithread running
+Tests marked $ are tested in both single thread and multithread running.
+Tests marked % are tested with both the default and EDM_ML_DEBUG defined.
 
-u1 $	Gives different thresholds to multiple destinations, and assigns
+u1 $%	Gives different thresholds to multiple destinations, and assigns
 	limit=0 to annoying message categories preEventProcessing and FwkJob.
 	Incidnetally tests noTimeStamps.  Also generates a job report file
 	(u1_job_report.mxml).   
 	---------- UnitTestClient_A
+	---------- UnitTestClient_Ad
 
 u2 $	Tests handling of a message generated pre-configuration, by using the
 	special generate_preconfiguration_message parameter in the cfg file.
@@ -77,8 +79,8 @@ u15	LogVerbatim and LogTrace; also whether isInfoEnalbled() works
 	---------- UnitTestClient_H
 	
 u16 $	Explicit specification of filenames and of extensions in destinations,
-	statistics, and jobReports.
-	---------- UnitTestClient_A
+	statistics, and jobReports.  Debug is enabled.
+	---------- UnitTestClient_Ad
 	
 u17	Threshold levels for destinations, limit=0 for a category,
 	enabling all (*) LogDebug, with one destination responding.
@@ -90,7 +92,7 @@ u17	Threshold levels for destinations, limit=0 for a category,
 u18	LogSystem, LogAbsolute, LogProblem, LogPrint, and LogVerbatim.
 	---------- UnitTestClient_M
 	
-u19	Long header lines, to test the non-breaking behavior.
+u19 %	Long header lines, to test the non-breaking behavior.
 	---------- UnitTestClient_N
 	
 u20 $	Test default configuration file for MessageLogger service
@@ -142,11 +144,12 @@ u30 $	Tests LoggedErrorsSummary, using modues that have normal categories
 u31 $	Tests LoggerErrorsSummary() and  LoggerErrorsOnlySummary()
 	---------- UnitTestClient_T
 
-u33 $	Tests behavior when modules log outside the per-event analyze
+u33 $%	Tests behavior when modules log outside the per-event analyze
 	Tests that each type of activity gets right module label
 	Checks suppression and enabling of severities and LogDebug
+	These tests are done in two versions - t (threads on) and not t
 	---------- UnitTestClient_V
-
+	---------- UnitTestClient_Vd
 
 Non-regression-suite tests (not run via scramv1 b runtests):
 

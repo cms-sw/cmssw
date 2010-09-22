@@ -207,6 +207,36 @@ true.  Also, in the ctor for MessageLogger (in MessageLogger.cc) if
 debugModules is empty, we change debugEnabled MessageDrop's debugEnabled
 to false.
 
+- - - - - - - - - - - - - - -
+Class Statics in MessageDrop
+- - - - - - - - - - - - - - -
+
+In February 2010, Chris Jones found that calls to MessageDrop::instance()
+were profiling as a major hot-spot in the particular context of LogDebug.
+In response, debugEnabled, infoEnabled, warningEnabled  were made into
+statics rather than instance variables, and used directly as in 
+MessageDrop::debugEnabled.
+
+This has the distinctly undesirable effect of randomizing the enabling
+in the case where multiple threads are running different modules concurrently.
+However, as pointed out (9/21/10), CMS is not running in that mode, because
+studies made showed there was nothing to be gained.  In fact, CMS is running
+almost exclusively in the single-thread mode of the message logger in the first
+place.
+
+Currently (9/21/10) the code still incurs the cost of the thread-specific 
+singleton get() (which was the part of instance() causing the hot-spot in 
+the context of LogDebug calls) in several places:
+
+ * LogInfo, LogVerbatim, LogWarning, and LogPrint are still using 
+   MessageDrop::instance() once per constructor, that is, once per message.
+ * establishModule and unEstablishModule are still using 
+   MessageDrop::instance() once per module entry and once per exit.
+
+This issue should be revisited to decide whether to remove those uses
+of instance() (and perhaps change the nature of MessageDrop) or leave them
+alone.
+
 ------------------------
 Configuring Destinations
 ------------------------

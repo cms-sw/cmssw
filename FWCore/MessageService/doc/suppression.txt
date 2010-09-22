@@ -71,6 +71,34 @@ occuring in the context of the assert macro.  Users are familiar with the fact
 that using a function with side effects inside an assert is poison, and 
 nobody takes arms against the writer of assert on that issue.
 
+Enabling LogDebug by compile-time define
+----------------------------------------
+
+In the new code, LogDebug and LogTrace are by default always suppressed.
+To enable them, one must define EDM_ML_DEBUG.  
+
+To do this on the build command, one does
+
+scram b clean; scram b USER_CXXFLAGS="-DEDM_ML_DEBUG"
+
+There is a bit of a subtlety.  Scram does check for changes in these user flags 
+when deciding what does and does not require recompilation.  But this implies
+that everything will be recompiled.  In principle you would rather recompile
+only files that included MessageLogger.h (however, we notice that is **is**
+pretty much everything).  It would be even better to recompile only files that
+use LogDebug or LogTrace.  This we cannot force the build system to do.  Thus
+we either need to do scram v clean first (as in the above mantra) or touch
+MessageLogger.h.
+
+A consequence is that if some irrelevant file has advanced to a new version,
+then without using the versioning capabilities of cvs, there is no way USING
+THE SCRAM COMMAND LINE ALONE to just enable LogDebug for your files without
+moving to the new version of the irrelevant files.  
+
+Of course, one can place a 
+  #define EDM_ML_DEBUG
+into one's own code, and that will enable LogDebug for just that file.
+
 Status before Sep 2010
 ----------------------
 
@@ -356,15 +384,54 @@ NDEBUG and other such symbols, we can use it directly.  The
 MIGHTSUPPRESSLOGDEBUG is an internal to the MessageLogger, but those too
 should start with EDM_ML_; a good name is EDM_ML_ENABLED_LOGDEBUG.  But we
 don't even need that extra level of "indirection" since we are already 
-going to a #define for LogDebug(id).  So the code will look like:
+going to a #define for LogDebug(id).  So the code would look like:
 
   #ifndef EDM_ML_DEBUG 
-  #define LogDebug(id) true ? edm::SuppressLogDebug_():edm::SuppressLogDebug_() 
+  #define LogDebug(id) true ? edm::Suppress_LogDebug_() : edm::Suppress_LogDebug_() 
   #else
   #define LogDebug(id) \\
-  	!debugEnabled ? edm::SuppressLogDebug_() : \\
+  	isDebugEnabled() ? edm::Suppress_LogDebug_() : \\
 	 edm::LogDebug_(id, __FILE__, __LINE__) 
   #endif
+
+However, the dynamic case of this (if EDM_ML_DEBUG is defined) is not quite
+correct C++, since the two possible values for the ?: operator have different
+types which cannot be converted to one another.  
+
+
+Here is the "Aha!" moment:  Since in each of the cases where debug is disabled,
+there is nothing in the expression after Suppress_LogDebug_(), there would
+be no harm in using LogDebug() -- the default ctor -- instead.   The insight 
+is that even though nothing was done to make the operator<< be effortless,
+that is fine because the operator<< won't appear in executed code!
+
+  #ifndef EDM_ML_DEBUG 
+  #define LogDebug(id) true ? edm::Suppress_LogDebug_() : edm::Suppress_LogDebug_() 
+  #else
+  #define LogDebug(id) \\
+  	isDebugEnabled() ? edm::LogDebug() : \\
+	 edm::LogDebug_(id, __FILE__, __LINE__) 
+  #endif
+
+Finally, because these techniques use preprocessor macros, we need to 
+look at what happens if the user statement is broken into multiple lines.
+As our example:
+
+  LogDebug ("cat") << foo(objectA )
+                   << objectB;
+
+In the absense of EDM_ML_DEBUG this would become
+
+  true ?edm::SuppressLogDebug_() : edm::SuppressLogDebug_() << foo(objectA)
+                    << objectB;
+
+which is fine.  If EDM_ML_DEBUG is defined it becomes
+
+  !debugEnabled ? edm::SuppressLogDebug_() : \\
+  edm::LogDebug_(id, __FILE__, __LINE__) << foo(objectA) 
+	             << objectB;
+
+which is also fine.
 
 Effect on "message blocks"
 --------------------------
@@ -386,11 +453,13 @@ these macros.
   } // m goes out of scope, causing the message to be sent.
   
 becomes  a pre-processing error whether or not EDM_ML_DEBUG is defined 
-(since LogDebug is a macro requiring an argument, but LogDebu m("cat")
-breaks that up at the m).
+(since LogDebug is a macro requiring an argument, but LogDebug m("cat")
+breaks that up at the m).  Pre-processor changes in the next version of C++
+might allow us to do something more robust, but we need to provide a mantra
+that works now.
 
 We will need to recommend a different mantra for LogDebug.  The following
-will probably work:
+will work:
 
   #ifdef EDM_ML_DEBUG
   if (isDebugEnabled()) { 
@@ -410,9 +479,76 @@ while if EDM_ML_DEBUG is not defined that becomes nothing at all.
 
 We will need to document this technique difference for LogDebug.
 
-By the way, it may be right to inline the functions isDebugEnabled(), 
-isInfoEnabled() and isWarningEnabled(), to make this quicker, but that
-is a separate issue.
+By the way, is right to inline the functions isDebugEnabled(), 
+isInfoEnabled() and isWarningEnabled(), to make this quicker.
+In particular, isDebugEnabled() is important since it will be in the 
+path of dynamically suppressed LogDebug's.
+
+Strategy for testing EDM_ML_DEBUG
+---------------------------------
+
+Existing tests (as of Sep 2010) assumed LogDebug would be enabled buy default.
+This was about to change, so naively the tests would need to be modified to 
+reflect the change.  
+
+A first step was to temporarily define EDM_ML_DEBUG in MessageLogger.h
+just to see that existing unit tests wre not directly broken by the changes
+made, in circumstances where the behavior should not have changed.  That worked
+fine.  
+
+Next we want to see whether our mantra for users to enable LogDebug will work.
+So we do a build with the right define on the build line and see if the unit
+tests still pass.  
+  scram b clean; scram b USER_CXXFLAGS="-DEDM_ML_DEBUG"
+worked.  Without the clean, scram does not 
+
+Next, we eliminated that temporary define and had to look at the outputs of all
+unit tests that broke.  For the ones breaking in the now-proper way, we
+moved the new correct outputs into the output area.  But this is not sufficient:
+it would leave us with unit tests that completely skip testiong LogDebug.
+
+The last step is to create tests that work with LogDebug enabled, and there
+are two sorts of these tests:  a) Those where LogDebugs are still suppressed
+by configuration; b) those where LogDebugs should cause output.  Fortunately,
+once we enable LogDebug, both sorts are tested by our suite, because typical
+unit tests produce both a file with LogDebug, and file(s) with higher
+thresholds.  But how to force the define of DEDM_ML_DEBUG in some parts
+of the build but not others?  That can be done in the buildfile, via 
+flags lines.  We choose some of the unit tests to do those on.  
+
+Where is it determined that u1, for instance, works with UnitTestClient_A?
+Certainly not in u1.cpp or u1.sh, which are trivial.  It is in u1_cfg.py,
+where we have 
+  process.sendSomeMessages = cms.EDAnalyzer("UnitTestClient_A")
+So if we wish to create a debug-enabled test corresponding to u1, we should
+be able to copy u1_cfg.py to u1d_cfg.py, change the UnitTestClient_A to
+UnitTestClient_Ad, and in the Buildfile.xml, have something like the lines
+  <library   file="UnitTestClient_A.cc" name="UnitTestClient_A">
+    <flags   EDM_PLUGIN="1" -DEDM_ML_DEBUG/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+Unfortunately that does not work (parse error on -DEDM_ML_DEBUG) and after a few
+more tries, it seemed wrong to continue wandering around without documentation.
+Instead of changing the build file, we can make a new client source  
+UnitTestClient_Ad.cc, identical to UnitTestClient_A.cc but with 
+#define EDM_ML_DEBUG at the top.
+
+
+Optimization when no threshold is low enough
+--------------------------------------------
+
+There was as of 9/21/110 no mechanism to disable LogInfo if all thresholds are 
+higher than logInfo, and similarly for logWarning (not sure if the issue
+is relevant for logDebug).  This could be a huge savings.  Not easy to do,
+but should not be too tricky.  
+
+The tough part is that while looking for suppressInfo in the configuration 
+is easy enough, seeing whether any destination has a high enough threshold
+is involved, so that it needs to be donein the configuration code that is
+down in the scribe.  So the strategy will have to be setting up a vairiable
+that is used in the scribe thread to set the field in the MessageDrop, just
+as when a suppressed module is entered.  
 
 
 Possible further improvement opportunities
@@ -421,15 +557,26 @@ Possible further improvement opportunities
 The initial value of MessageDrop->debugEnabled (in MessageDrop.cc) is
 true.  This is perhaps relevant in cases where debug is overall enabled,
 and one is not in any module.  So you run with debug on, and if the 
-framework itself has :ogDebugs in it, you can't suppress them without
+framework itself has LogDebugs in it, you can't suppress them without
 suppressing all debug messages.  It might be better to make this false.
 (Trivial change to make.)  It might also be desirable to have some way
 to turn on/off non-module LogDebugs.  However, this issue is very likely 
 moot since users don't write non-module code, and probably framework 
-people are not leving LogDebugs around.
+people are not leaving many LogDebugs around.
 
-There is presently no mechanism to disable LogInfo if all thresholds are 
-higher than logInfo, and similarly for logWarning (not sure if the issue
-is relevant for logDebug).  This could be a huge savings.  Not easy to do,
-but should not be too tricky.
+Currently, LogDebug depends on the define EDM_ML_DEBUG at header time.
+So the user who wants to define this symbol must do so before the header,
+and has control only on a per-file basis.  It might be better to give users
+finer control by putting the #ifdef inside the definition of LogDebug, as in
+  #define LogDebug(id) \\
+  #ifndef EDM_ML_DEBUG \\
+    true ? edm::Suppress_LogDebug_() : edm::Suppress_LogDebug_() \\
+  #else \\
+  #define LogDebug(id) \\
+  	isDebugEnabled() ? edm::LogDebug() : \\
+	 edm::LogDebug_(id, __FILE__, __LINE__) \\
+  #endif
+This of course is not quite right, and the business of line ends and
+continuations might be a severe pain in the neck, which is why we have not 
+made this improvement.
 
