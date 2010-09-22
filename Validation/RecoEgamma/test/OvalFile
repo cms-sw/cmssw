@@ -279,7 +279,6 @@ This set of targets is made for the full/fast comparison.
 
   This set of targets is made for the full/fast comparison.
 
-  <var name="VAL_REF_RELEASE" value="FastSim">
   <var name="DBS_COND" value="${TEST_GLOBAL_TAG}*FastSim*-${TEST_GLOBAL_VERSION}">
   <!--var name="DBS_RELEASE" value="LOCAL"-->
   <!--var name="DBS_COND" value=""-->
@@ -289,9 +288,15 @@ This set of targets is made for the full/fast comparison.
     <var name="VAL_HISTOS" value="ElectronMcSignalHistos.txt">
     <executable name="dbs_discovery.py">
     <executable name="cmsRun" args="ElectronMcSignalValidation_cfg.py">
-    <var name="VAL_NEW_FILE" value="cmsRun.FullTTbar.olog.${TEST_OUTPUT_FILE}">
-    <var name="VAL_REF_FILE" value="cmsRun.FastTTbar.olog.${TEST_OUTPUT_FILE}">
-    <executable name="electronValidation.csh" args="FastTTbar">
+    <environment name="FastVsFastTTbar">
+      <executable name="electronValidation.csh" args="FastTTbar">
+    </environment>
+    <environment name="FullVsFastTTbar">
+      <var name="VAL_REF_RELEASE" value="FastSim">
+      <var name="VAL_NEW_FILE" value="cmsRun.FullTTbar.olog.${TEST_OUTPUT_FILE}">
+      <var name="VAL_REF_FILE" value="cmsRun.FastTTbar.olog.${TEST_OUTPUT_FILE}">
+      <executable name="electronValidation.csh" args="FastTTbar">
+    </environment>
   </environment>
   
   <environment name="FastZEEIdeal">
@@ -299,9 +304,15 @@ This set of targets is made for the full/fast comparison.
     <var name="VAL_HISTOS" value="ElectronMcSignalHistos.txt">
     <executable name="dbs_discovery.py">
     <executable name="cmsRun" args="ElectronMcSignalValidation_cfg.py">
-    <var name="VAL_NEW_FILE" value="cmsRun.FullZEEIdeal.olog.${TEST_OUTPUT_FILE}">
-    <var name="VAL_REF_FILE" value="cmsRun.FastZEEIdeal.olog.${TEST_OUTPUT_FILE}">
-    <executable name="electronValidation.csh" args="FastZEEIdeal">
+    <environment name="FastVsFastZEEIdeal">
+      <executable name="electronValidation.csh" args="FastZEEIdeal">
+    </environment>
+    <environment name="FullVsFastZEEIdeal">
+      <var name="VAL_REF_RELEASE" value="FastSim">
+      <var name="VAL_NEW_FILE" value="cmsRun.FullZEEIdeal.olog.${TEST_OUTPUT_FILE}">
+      <var name="VAL_REF_FILE" value="cmsRun.FastZEEIdeal.olog.${TEST_OUTPUT_FILE}">
+      <executable name="electronValidation.csh" args="FastZEEIdeal">
+    </environment>
   </environment>
   
   <environment name="FastZEEStartup">
@@ -310,9 +321,15 @@ This set of targets is made for the full/fast comparison.
     <var name="VAL_HISTOS" value="ElectronMcSignalHistos.txt">
     <executable name="dbs_discovery.py">
     <executable name="cmsRun" args="ElectronMcSignalValidation_cfg.py">
-    <var name="VAL_NEW_FILE" value="cmsRun.FullZEEStartup.olog.${TEST_OUTPUT_FILE}">
-    <var name="VAL_REF_FILE" value="cmsRun.FastZEEStartup.olog.${TEST_OUTPUT_FILE}">
-    <executable name="electronValidation.csh" args="FastZEEStartup">
+    <environment name="FastVsFastZEEStartup">
+      <executable name="electronValidation.csh" args="FastZEEStartup">
+    </environment>
+    <environment name="FullVsFastZEEStartup">
+      <var name="VAL_REF_RELEASE" value="FastSim">
+      <var name="VAL_NEW_FILE" value="cmsRun.FullZEEStartup.olog.${TEST_OUTPUT_FILE}">
+      <var name="VAL_REF_FILE" value="cmsRun.FastZEEStartup.olog.${TEST_OUTPUT_FILE}">
+      <executable name="electronValidation.csh" args="FastZEEStartup">
+    </environment>
   </environment>
   
 </environment>

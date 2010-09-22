@@ -41,7 +41,7 @@
 # DBS_SAMPLE : short chosen name for the current dataset ; used in web pages
 #   and used to build the subdirectory where the web pages will be
 #   stored ($VAL_WEB_SUB_DIR) unless it was given as the 3rd command line argument.
-# DBS_COND : expresion for the current cpnditions tag ; used to build the subdirectory
+# DBS_COND : expression for the current conditions tag ; used to build the subdirectory
 #   where the web pages will be stored ($VAL_WEB_SUB_DIR) unless it was given as the
 #   3rd command line argument.
 #=========================================================================================
@@ -54,7 +54,6 @@ setenv VAL_OUTPUT_FILE $2
 setenv VAL_WEB_SUB_DIR $3
 setenv VAL_ORIGINAL_DIR $cwd
 setenv VAL_WEB "/afs/cern.ch/cms/Physics/egamma/www/validation"
-#setenv VAL_WEB "/home/llr/cms/charlot/cmssw/CMSSW_3_1_2/src/RecoEgamma/Examples/test/validation"
 setenv VAL_WEB_URL "http://cmsdoc.cern.ch/Physics/egamma/www/validation"
 
 # those must have a value
@@ -105,17 +104,19 @@ echo "VAL_NEW_FILE = ${VAL_NEW_FILE}"
 if ( "${VAL_NEW_FILE}" != "" ) then
   if ( -r "$VAL_NEW_FILE" ) then
     cp -f $VAL_NEW_FILE $VAL_WEB/$VAL_NEW_RELEASE/Electrons/data
-	setenv VAL_NEW_FILE "$VAL_WEB/$VAL_NEW_RELEASE/Electrons/data/${VAL_NEW_FILE:t}"
-	echo "VAL_NEW_FILE = ${VAL_NEW_FILE}"
+	  setenv VAL_NEW_FILE "$VAL_WEB/$VAL_NEW_RELEASE/Electrons/data/${VAL_NEW_FILE:t}"
+	  echo "VAL_NEW_FILE = ${VAL_NEW_FILE}"
   endif
 endif
 
 if ( -e "${VAL_ORIGINAL_DIR}/cmsRun.${VAL_ENV}.olog" ) then
   cp -f ${VAL_ORIGINAL_DIR}/cmsRun.${VAL_ENV}.olog $VAL_WEB/$VAL_NEW_RELEASE/Electrons/data
+  gzip $VAL_WEB/$VAL_NEW_RELEASE/Electrons/data/cmsRun.${VAL_ENV}.olog
 endif
 
 if ( -e "${VAL_ORIGINAL_DIR}/dbs_discovery.py.${VAL_ENV}.olog" ) then
   cp -f ${VAL_ORIGINAL_DIR}/dbs_discovery.py.${VAL_ENV}.olog $VAL_WEB/$VAL_NEW_RELEASE/Electrons/data
+  gzip $VAL_WEB/$VAL_NEW_RELEASE/Electrons/data/dbs_discovery.py.${VAL_ENV}.olog
 endif
 
 #============== Find reference data file (eventually the freshly copied new data) ==================
@@ -191,6 +192,10 @@ if ( ${VAL_WEB_SUB_DIR} == "" ) then
   else
     setenv VAL_WEB_SUB_DIR ${DBS_SAMPLE}
   endif
+endif
+
+if ( "${DBS_COND}" =~ *FastSim* ) then
+      setenv VAL_WEB_SUB_DIR FastSim_${VAL_WEB_SUB_DIR}
 endif
 
 echo "VAL_WEB_SUB_DIR = ${VAL_WEB_SUB_DIR}"
