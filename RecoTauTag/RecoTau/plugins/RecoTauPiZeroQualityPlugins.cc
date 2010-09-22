@@ -19,8 +19,7 @@
 
 namespace reco { namespace tau {
 
-class RecoTauPiZeroStringQuality : public RecoTauPiZeroQualityPlugin
-{
+class RecoTauPiZeroStringQuality : public RecoTauPiZeroQualityPlugin {
   public:
     explicit RecoTauPiZeroStringQuality(const edm::ParameterSet&);
     ~RecoTauPiZeroStringQuality() {}
