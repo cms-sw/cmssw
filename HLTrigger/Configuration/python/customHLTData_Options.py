@@ -22,7 +22,19 @@ def customise(process):
         'drop *_hltTriggerSummaryAOD_*_*',
     )
 
+    # override the L1 menu
+    if 'toGet' not in process.GlobalTag.__dict__:
+        process.GlobalTag.toGet = cms.VPSet()
+    process.GlobalTag.toGet.append(
+        cms.PSet(  
+            record  = cms.string( "L1GtTriggerMenuRcd" ),
+            tag     = cms.string( "L1GtTriggerMenu_L1Menu_Commissioning2010_v4_mc" ),
+            connect = cms.untracked.string( process.GlobalTag.connect.value().replace('CMS_COND_31X_GLOBALTAG', 'CMS_COND_31X_L1T') )
+        )
+    )
+
     # override RAW data name to rn on data
+    process.hltFEDSelector.inputTag                      = "source"
     process.hltGetRaw.RawDataCollection                  = "source"
     process.hltGtDigis.DaqGtInputTag                     = "source"
     process.hltGctDigis.inputLabel                       = "source"
@@ -36,10 +48,9 @@ def customise(process):
     process.hltHcalDigis.InputLabel                      = "source"
     process.hltMuonRPCDigis.InputLabel                   = "source"
     process.hltSiStripRawToClustersFacility.ProductLabel = "source"
-    process.hltCscTfDigis.producer                       = "source"
     process.hltL1EventNumberNZS.rawInput                 = "source"
     process.hltDTROMonitorFilter.inputLabel              = "source"
-    process.hltEcalCalibrationRaw.rawInputLabel          = "source"
+    process.hltEcalCalibrationRaw.inputTag               = "source"
     process.hltHcalCalibTypeFilter.InputTag              = "source"
     process.hltDTDQMEvF.inputLabel                       = "source"
     process.hltEcalDigis.InputLabel                      = "source"
