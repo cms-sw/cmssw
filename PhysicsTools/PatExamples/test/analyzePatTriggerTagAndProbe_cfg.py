@@ -17,7 +17,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.TFileService = cms.Service( "TFileService",
-    fileName = cms.string( 'analyzePatTrigger.root' )
+    fileName = cms.string( 'analyzePatTriggerTagAndProbe.root' )
 )
 
 process.tagAndProbeAnalysis = cms.EDAnalyzer( "PatTriggerTagAndProbe",

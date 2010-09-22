@@ -57,7 +57,7 @@ void PatTriggerTagAndProbe::analyze( const edm::Event & iEvent, const edm::Event
   edm::Handle< pat::MuonCollection > muons;
   iEvent.getByLabel( muons_, muons );
 
-  // pat trigger helper to recieve for trigger 
+  // pat trigger helper to recieve for trigger
   // matching information
   const pat::helper::TriggerMatchHelper matchHelper;
 
@@ -66,24 +66,20 @@ void PatTriggerTagAndProbe::analyze( const edm::Event & iEvent, const edm::Event
     return;
   }
 
-  // recieve the TriggerObjectMatch from the triggerEvent
-  const pat::TriggerObjectMatch* triggerMatch( triggerEvent->triggerObjectMatchResult( muonMatch_ ) );
   // loop over muon references for the tag muon
-  for( size_t idxTag=0; idxTag<muons->size(); ++idxTag){ 
-    const reco::CandidateBaseRef candBaseRefTag( pat::MuonRef( muons, idxTag ) );
-    const pat::TriggerObjectRef trigRefTag( matchHelper.triggerMatchObject( candBaseRefTag, triggerMatch, iEvent, *triggerEvent ) );
+  for( size_t idxTag=0; idxTag<muons->size(); ++idxTag){
+    const pat::TriggerObjectRef trigRefTag( matchHelper.triggerMatchObject( muons, idxTag, muonMatch_, iEvent, *triggerEvent ) );
     if( trigRefTag.isAvailable() ){
       // loop over muon references for the probe/test muon
-      for( size_t idxProbe=0; idxProbe<muons->size() && idxProbe!=idxTag; ++idxProbe){ 
-	const reco::CandidateBaseRef candBaseRefProbe( pat::MuonRef( muons, idxProbe ) );
-	histos1D_[ "mass" ]->Fill( (candBaseRefTag->p4()+candBaseRefProbe->p4()).mass() );
-	if(((candBaseRefTag->p4()+candBaseRefProbe->p4()).mass()-90)<5){
-	  const pat::TriggerObjectRef trigRefProbe( matchHelper.triggerMatchObject( candBaseRefProbe, triggerMatch, iEvent, *triggerEvent ) );
-	  histos1D_[ "probePt"  ]->Fill( candBaseRefProbe->pt () );
-	  histos1D_[ "probeEta" ]->Fill( candBaseRefProbe->eta() );
+      for( size_t idxProbe=0; idxProbe<muons->size() && idxProbe!=idxTag; ++idxProbe){
+	histos1D_[ "mass" ]->Fill( (muons->at(idxTag).p4()+muons->at(idxProbe).p4()).mass() );
+	if(((muons->at(idxTag).p4()+muons->at(idxProbe).p4()).mass()-90)<5){
+	  const pat::TriggerObjectRef trigRefProbe( matchHelper.triggerMatchObject( muons, idxProbe, muonMatch_, iEvent, *triggerEvent ) );
+	  histos1D_[ "probePt"  ]->Fill( muons->at(idxProbe).pt () );
+	  histos1D_[ "probeEta" ]->Fill( muons->at(idxProbe).eta() );
 	  if( trigRefProbe.isAvailable() ){
-	    histos1D_[ "testPt" ]->Fill( candBaseRefProbe->pt () );
-	    histos1D_[ "testEta"]->Fill( candBaseRefProbe->eta() );
+	    histos1D_[ "testPt" ]->Fill( muons->at(idxProbe).pt () );
+	    histos1D_[ "testEta"]->Fill( muons->at(idxProbe).eta() );
 	  }
 	}
       }
