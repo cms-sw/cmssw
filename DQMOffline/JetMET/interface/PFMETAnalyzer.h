@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for PFMET
  *
- *  $Date: 2010/08/06 14:08:49 $
- *  $Revision: 1.19 $
+ *  $Date: 2010/09/22 19:40:31 $
+ *  $Revision: 1.20 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech 
  */
@@ -198,7 +198,7 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
 
   MonitorElement* meTriggerName_HighPtJet;
   MonitorElement* meTriggerName_LowPtJet;
-  MonitorElement* hTriggerName_MinBias;
+  MonitorElement* meTriggerName_MinBias;
   MonitorElement* meTriggerName_HighMET;
   MonitorElement* meTriggerName_LowMET;
   MonitorElement* meTriggerName_Ele;
