@@ -13,8 +13,8 @@
 
 /** \class CaloTower
     
-$Date: 2009/04/09 05:03:00 $
-$Revision: 1.15 $
+$Date: 2010/01/12 20:26:52 $
+$Revision: 1.16 $
 \author J. Mans - Minnesota
 */
 
@@ -61,6 +61,11 @@ public:
 			  unsigned int numProbHcalChan,unsigned int numProbEcalChan);
 
   void setCaloTowerStatus(uint32_t s) { twrStatusWord_ = s; }
+
+  // set the hottest cell energy in the tower
+  void setHottestCellE(double e) { hottestCellE_ = e; }
+
+
 
 
   // getters
@@ -109,6 +114,8 @@ public:
   double hadEt(Point v) const { return  hadE_ * sin(p4(v).theta()); }
   double outerEt(Point v) const { return (id_.ietaAbs()<16)? outerE_ * sin(p4(v).theta()) : 0.0; }
 
+  double hottestCellE() const { return hottestCellE_; }
+
   // Access to p4 comming from HO alone: requested by JetMET to add/subtract HO contributions
   // to the tower for cases when the tower collection was created without/with HO   
 
@@ -128,6 +135,16 @@ public:
   // energy contained in depths>1 in the HE for 18<|iEta|<29
   double hadEnergyHeOuterLayer() const { return (id_.ietaAbs()<18 || id_.ietaAbs()>29)? 0 : outerE_; }
   double hadEnergyHeInnerLayer() const { return (id_.ietaAbs()<18 || id_.ietaAbs()>29)? 0 : hadE_ - outerE_; }
+
+  // energy in the tower by HCAL subdetector
+  // This is trivial except for tower 16
+  // needed by JetMET cleanup in AOD.
+  double energyInHB() const; // { return (id_.ietaAbs()<16)? outerE_ : 0.0; }
+  double energyInHE() const;
+  double energyInHF() const;
+  double energyInHO() const;
+
+
 
   // time (ns) in ECAL/HCAL components of the tower based on weigted sum of the times in the contributing RecHits
   float ecalTime() const { return float(ecalTime_) * 0.01; }
@@ -171,6 +188,8 @@ private:
    int hcalTime_;
 
   Double32_t emE_, hadE_, outerE_;
+  // for Jet ID use: hottest cell (ECAl or HCAL)
+  Double32_t hottestCellE_;
 
   int emLvl1_,hadLvl1_;
   std::vector<DetId> constituents_;

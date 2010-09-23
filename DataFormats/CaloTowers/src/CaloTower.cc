@@ -223,6 +223,42 @@ void CaloTower::setCaloTowerStatus(unsigned int numBadHcalChan,unsigned int numB
 
 
 
+
+// energy in the tower by HCAL subdetector
+// This is trivia except for tower 16
+// needed by JetMET cleanup in AOD.
+
+double CaloTower::energyInHB() const  { 
+  if (id_.ietaAbs()<16) return hadE_;
+  else if (id_.ietaAbs()==16) return hadE_-outerE_;
+  else return 0.0;
+}
+
+double CaloTower::energyInHE() const { 
+  if (id_.ietaAbs()>16 && id_.ietaAbs()<30) return hadE_;
+  else if (id_.ietaAbs()==16) return outerE_;
+  else return 0.0;
+}
+ 
+double CaloTower::energyInHF() const {
+  if (id_.ietaAbs()>29) return energy();
+  else return 0.0;
+}
+
+// this is actual energy contributed to the tower
+// (outerEnergy() returns HO energy regardless if it is used or not)
+// Note: rounding error may lead to values not identically equal to zero
+// when HO was not used 
+
+double CaloTower::energyInHO() const {
+  if (id_.ietaAbs()>15) return 0.0;
+  else return (energy() - hadE_ -emE_);
+}
+
+
+
+
+
 std::ostream& operator<<(std::ostream& s, const CaloTower& ct) {
   return s << ct.id() << ":"  << ct.et()
 	   << " GeV ET (EM=" << ct.emEt() <<
