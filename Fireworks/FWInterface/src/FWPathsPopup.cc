@@ -541,7 +541,7 @@ public:
             if (data.parent == ((size_t) -1))
                data.visible = data.childMatches || data.matches || m_filter.empty();
             else
-            data.visible = data.matches || data.childMatches || (m_filter.empty() && m_entries[data.parent].expanded);
+               data.visible = data.matches || data.childMatches || (m_filter.empty() && m_entries[data.parent].expanded && m_entries[data.parent].visible);
          }
 
          // Put in the index only the entries which are visible.
