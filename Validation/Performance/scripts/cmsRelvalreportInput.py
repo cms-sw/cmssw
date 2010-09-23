@@ -848,6 +848,7 @@ def writeCommands(simcandles,
                                 PileUp=keywords[1]
                             elif "eventcontent" in keywords[0]:
                                 EventContent=keywords[1]
+
                         #so here's our new MetaName:
                         MetaName=acandle+"___"+stepToWrite+"___"+PileUp+"___"+Conditions+"___"+EventContent+"___"+IgProfProfile
                         
@@ -859,12 +860,19 @@ def writeCommands(simcandles,
                                                                            #FileName[acandle],
                                                                            #stepLabel,
                                                                            #prof))
-                            simcandles.write("%s @@@ %s @@@ %s\n" % (Command,
+                            analyse_command = ("%s @@@ %s @@@ %s\n" % (Command,
                                                                            Profiler[prof].split(".")[0]+'.ANALYSE.'+Profiler[prof].split(".")[1], #Add the IgProf counter in here (e.g. IgProfMem.ANALYSE.MEM_TOTAL)
                                                                            MetaName))
                                                                            #FileName[acandle],
                                                                            #stepLabel,
                                                                            #prof))
+
+                            #for the relval case, GEN-SIM,HLT get rid of the last " @@@ reuse":
+                            if Profiler[prof] == 'IgProf_mem.MEM_MAX' or Profiler[prof] == 'IgProf_perf.PERF_TICKS':
+                                analyse_command = analyse_command.replace("@@@ reuse", "")
+
+                            simcandles.write(analyse_command)
+
                         elif 'Analyse' in prof:
                             pass
                     else:    
