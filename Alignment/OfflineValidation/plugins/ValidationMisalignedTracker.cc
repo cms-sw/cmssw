@@ -13,7 +13,7 @@
 //
 // Original Author:  Nicola De Filippis
 //         Created:  Thu Dec 14 13:13:32 CET 2006
-// $Id: ValidationMisalignedTracker.cc,v 1.3 2010/01/05 11:53:37 mussgill Exp $
+// $Id: ValidationMisalignedTracker.cc,v 1.4 2010/03/29 13:18:44 mussgill Exp $
 //
 //
 
@@ -477,7 +477,7 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
 
 		bool flagptused=false;
 		for (unsigned int j=0;j<ptused.size();j++){
-		  if (abs(t->pt()-ptused[j])<0.001) {
+		  if (fabs(t->pt()-ptused[j])<0.001) {
 		    flagptused=true;
 		  }
 		}

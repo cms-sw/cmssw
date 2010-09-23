@@ -3,8 +3,8 @@
  *  Makes histograms of high level Muon objects/quantities
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2010/03/29 13:18:43 $
- *  $Revision: 1.10 $
+ *  $Date: 2010/09/12 08:51:11 $
+ *  $Revision: 1.11 $
  *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
 
@@ -1537,7 +1537,7 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event & event, const edm::EventSe
                 double simPt=simPar[0][iCand];
 	
                 hGBPTres->Fill( (GBrecPt-simPt)/simPt);
-                if(abs(GBeta)<1.04) hGBPTres_Barrel->Fill((GBrecPt-simPt)/simPt);
+                if(fabs(GBeta)<1.04) hGBPTres_Barrel->Fill((GBrecPt-simPt)/simPt);
                 else hGBPTres_Endcap->Fill((GBrecPt-simPt)/simPt);
 
                 hGBPTDiff->Fill(GBrecPt-simPt);
