@@ -35,4 +35,5 @@
 <use   name="CondFormats/SiStripObjects"/>
 <use   name="CalibTracker/Records"/>
 <use   name="CondFormats/DataRecord"/>
+<use   name="CommonTools/TriggerUtils"/>
 <flags   EDM_PLUGIN="1"/>
