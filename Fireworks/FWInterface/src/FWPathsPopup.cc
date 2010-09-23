@@ -1123,6 +1123,13 @@ private:
    mutable FWTextTreeCellRenderer m_moduleFailedRenderer;
 };
 
+void
+FWPathsPopup::windowIsClosing()
+{
+   UnmapWindow();
+   DontCallClose();
+}
+
 FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
    : TGMainFrame(gClient->GetRoot(), 400, 600),
      m_info(0),
@@ -1135,6 +1142,7 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
 {
    gVirtualX->SelectInput(GetId(), kKeyPressMask);
    m_psTable->indexSelected_.connect(boost::bind(&FWPathsPopup::newIndexSelected,this,_1,_2));
+   this->Connect("CloseWindow()","FWPathsPopup",this,"windowIsClosing()");
 
    FWDialogBuilder builder(this);
    builder.indent(4)
