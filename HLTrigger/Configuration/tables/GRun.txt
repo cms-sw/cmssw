@@ -141,7 +141,6 @@ HLT_L1Tech_BSC_halo_forPhysicsBackground
 HLT_L2Mu0_NoVertex
 HLT_LogMonitor
 DQM_FEDIntegrity
-DQM_TriggerResults
 HLTriggerFinalPath
 HLTOutput
 ExpressOutput
