@@ -21,8 +21,8 @@ void ParametrizedSubtractor::rescaleRMS(double s){
 
 ParametrizedSubtractor::ParametrizedSubtractor(const edm::ParameterSet& iConfig) : 
    PileUpSubtractor(iConfig),
-   cbins_(0),
-   dropZeroTowers_(iConfig.getUntrackedParameter<bool>("dropZeroTowers",true))
+   dropZeroTowers_(iConfig.getUntrackedParameter<bool>("dropZeroTowers",true)),
+   cbins_(0)
 {
    centTag_ = iConfig.getUntrackedParameter<edm::InputTag>("centTag",edm::InputTag("hiCentrality","","RECO"));
 
