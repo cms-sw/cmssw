@@ -1,8 +1,10 @@
 #!/usr/bin/python
 
 from optparse import OptionParser
-import sys,os, pprint
+import sys,os, pprint, re
 import castortools
+
+
 
 def sourceFileList( files ):
     print '''

@@ -17,6 +17,11 @@ parser.add_option("-c", "--castorBaseDir",
                   dest="castorBaseDir",
                   help="Base castor directory. Subdirectories will be created automatically for each prod",
                   default="/castor/cern.ch/user/c/cbern/cmst3/SusyJetMET")
+parser.add_option("-t", "--tier", 
+                  dest="tier",
+                  help="Tier: extension you can give to specify you are doing a new production",
+                  default="")
+
 
 (options,args) = parser.parse_args()
 
@@ -36,6 +41,10 @@ cdir = options.castorBaseDir
 cdir += sampleName
 
 outFile = cdir
+if options.tier!="":
+    outFile += '/' + options.tier
+    # creating castor dir
+    os.system( 'rfmkdir ' + outFile )
 outFile += '/PFAnalysis_%s.root' % ext
 
 cmsBatch = 'cmsBatch.py 4 jetMET_cfg.py -p jetMETAnalysis -r %s -b "bsub -q cmst3 <  batchScript.sh" -o Out%s' % (outFile,ext)

@@ -72,6 +72,8 @@ module = re.sub( '/', '.', module)
 # remove trailing .py
 module = re.sub( '\.py$', '', module)
 
+os.system( 'cat %s' % sourceFile )
+
 print 'new source file ready to be used:'
 print sourceFile
 print 'process.load("%s")' % module
