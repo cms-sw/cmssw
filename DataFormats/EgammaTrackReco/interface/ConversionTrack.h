@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: ConversionTrack.h,v 1.2 2010/09/20 19:03:18 nancy Exp $
+// $Id: ConversionTrack.h,v 1.3 2010/09/20 19:05:50 nancy Exp $
 //
 // ConversionTrack
 //
@@ -31,9 +31,9 @@ namespace reco
       void                    setIsTrackerOnly(bool b)                { isTrackerOnly_ = b;          }
       void                    setIsArbitratedEcalSeeded(bool b)       { isArbitratedEcalSeeded_ = b; }      
       void                    setIsArbitratedMerged(bool b)           { isArbitratedMerged_ = b;     }      
-      bool                    IsTrackerOnly() const                   { isTrackerOnly_;}
-      bool                    IsArbitratedEcalSeeded() const          { isArbitratedEcalSeeded_;}
-      bool                    IsArbitratedMerged() const              { isArbitratedMerged_;}
+      bool                    IsTrackerOnly() const                   { return isTrackerOnly_;}
+      bool                    IsArbitratedEcalSeeded() const          { return isArbitratedEcalSeeded_;}
+      bool                    IsArbitratedMerged() const              { return isArbitratedMerged_;}
 
 
 
