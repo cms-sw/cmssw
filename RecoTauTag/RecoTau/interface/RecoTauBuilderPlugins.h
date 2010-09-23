@@ -6,23 +6,24 @@
  *
  * Author: Evan K. Friis (UC Davis)
  *
- * Classes for building new and modifying existing PFTaus from
- * PFJets and reconstructed PiZeros.
+ * Classes for building new and modifying existing PFTaus from PFJets and
+ * reconstructed PiZeros.
  *
- * RecoTauBuilderPlugin is the base class for any algorithm that
- * constructs taus.  Algorithms should override the abstract function
+ * RecoTauBuilderPlugin is the base class for any algorithm that constructs
+ * taus.  Algorithms should override the abstract function
  *
- * std::vector<PFTau> operator()(const PFJet&, const std::vector<RecoTauPiZero>&) const;
+ * std::vector<PFTau> operator()(const PFJet&, const
+ * std::vector<RecoTauPiZero>&) const;
  *
- * implementing it such that a list of taus a produced for a given jet and its associated
- * collection of PiZeros.
+ * implementing it such that a list of taus a produced for a given jet and its
+ * associated collection of PiZeros.
  *
  * RecoTauModifierPlugin takes an input tau and modifies it.
  *
- * Both plugins inherit from RecoTauEventHolderPlugin, which provides the methods
+ * Both plugins inherit from RecoTauEventHolderPlugin, which provides the
+ * methods
  *
- *          const edm::Event* evt() const;
- *          const edm::EventSetup* evtSetup() const;
+ *    const edm::Event* evt() const; const edm::EventSetup* evtSetup()
  *
  * to retrieve the current event if necessary.
  *
@@ -55,12 +56,14 @@ class RecoTauBuilderPlugin : public RecoTauEventHolderPlugin
 
     virtual ~RecoTauBuilderPlugin() {}
 
-    // Construct one or more PFTaus from the a PFJet and its asscociated reconstructed PiZeros
+    // Construct one or more PFTaus from the a PFJet and its asscociated
+    // reconstructed PiZeros
     virtual std::vector<reco::PFTau> operator()(const reco::PFJetRef& jet, 
         const std::vector<reco::RecoTauPiZero>& piZeros) const = 0;
 
     // Hack to be able to convert Ptrs to Refs
-    const edm::Handle<PFCandidateCollection>& getPFCands() const { return pfCands_; };
+    const edm::Handle<PFCandidateCollection>& getPFCands() const 
+    { return pfCands_; };
 
     // Hook called by base class at the beginning of each event. Used to update
     // handle to PFCandidates
@@ -99,8 +102,11 @@ class RecoTauCleanerPlugin : public RecoTauEventHolderPlugin
 } } // end namespace reco::tau
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory<reco::tau::RecoTauBuilderPlugin* (const edm::ParameterSet&)> RecoTauBuilderPluginFactory;
-typedef edmplugin::PluginFactory<reco::tau::RecoTauModifierPlugin* (const edm::ParameterSet&)> RecoTauModifierPluginFactory;
-typedef edmplugin::PluginFactory<reco::tau::RecoTauCleanerPlugin* (const edm::ParameterSet&)> RecoTauCleanerPluginFactory;
+typedef edmplugin::PluginFactory<reco::tau::RecoTauBuilderPlugin* 
+(const edm::ParameterSet&)> RecoTauBuilderPluginFactory;
+typedef edmplugin::PluginFactory<reco::tau::RecoTauModifierPlugin* 
+(const edm::ParameterSet&)> RecoTauModifierPluginFactory;
+typedef edmplugin::PluginFactory<reco::tau::RecoTauCleanerPlugin* 
+(const edm::ParameterSet&)> RecoTauCleanerPluginFactory;
 
 #endif
