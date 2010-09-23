@@ -1,6 +1,6 @@
 
 
-<<<<<<< autoCond.py
+
 autoCond = { 'mc'      : 'MC_39Y_V0::All',
              'startup' : 'START39_V0::All',
              'craft08' : 'CRFT8_37R_V0::All',
