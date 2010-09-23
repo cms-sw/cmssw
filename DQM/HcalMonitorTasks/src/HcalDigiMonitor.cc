@@ -545,6 +545,10 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	}
       else if (id.subdet()==HcalOuter) 
 	{
+	  // Mark HORing+2 channels as present, HO/YB+2 has HV off (at 100V), it is practically decommissioned.
+	  if(rDepth>3)
+	    if(rEta>=11 && rEta<=15) continue;
+
 	  ++hoHists.count_bad;
 	  if (abs(rEta)<5) ++HO0bad;
 	  else ++HO12bad;
@@ -1221,7 +1225,7 @@ void HcalDigiMonitor::fill_Nevents()
 							badunpackerreport[calcEta][phi][d]);
 
 		      
-		      // Mark HORing2 channels as present
+		      // Mark HORing+2 channels as present, HO/YB+2 has HV off (at 100V), it is practically decommissioned.
 		      if (excludeHORing2_==true && iDepth>3)
 			{
 			  if(iEta>=11 && iEta<=15)
