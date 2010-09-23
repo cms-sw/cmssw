@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.223 $"
+__version__ = "$Revision: 1.224 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -372,23 +372,54 @@ class ConfigBuilder(object):
     def addCustomise(self):
         """Include the customise code """
 
-        # let python search for that package and do syntax checking at the same time
-        packageName = self._options.customisation_file.replace(".py","").replace("/",".")
-        __import__(packageName)
-        package = sys.modules[packageName]
+	custFiles=self._options.customisation_file.split(",")
+	for i in range(len(custFiles)):
+		custFiles[i]=custFiles[i].replace('.py','')
+	custFcn=self._options.cust_function.split(",")
 
-        # now ask the package for its definition and pick .py instead of .pyc
-        customiseFile = re.sub(r'\.pyc$', '.py', package.__file__)
+	#do a check
+	if len(custFiles)!=len(custFcn):
+		custFcn=[]
+		custFilesNew=[]
+		#try to do something smart
+		for spec in custFiles:
+			spl=spec.split(".")
+			if len(spl)==2:
+				custFilesNew.append(spl[0])
+				custFcn.append(spl[1])
+			else:
+				custFilesNew.append(spl[0])
+				custFcn.append("customise")
+		custFiles=custFilesNew
+		
+	if custFcn.count("customise")>=2:
+		print 'more than one customise function specified with name customise'
+		raise
 
-        final_snippet='\n\n# Automatic addition of the customisation function\n'
-        for line in file(customiseFile,'r'):
-            if "import FWCore.ParameterSet.Config" in line:
-                continue
-            final_snippet += line
+	if len(custFiles)==0:
+		final_snippet='\n'
+	else:
+		final_snippet='\n# customisation of the process\n'
+	for i,(f,fcn) in enumerate(zip(custFiles,custFcn)):
+		print "customising the process with",fcn,"from",f
+		# let python search for that package and do syntax checking at the same time
+		packageName = f.replace(".py","").replace("/",".")
+		__import__(packageName)
+		package = sys.modules[packageName]
 
-        final_snippet += '\n\n# End of customisation function definition'
+		# now ask the package for its definition and pick .py instead of .pyc
+		customiseFile = re.sub(r'\.pyc$', '.py', package.__file__)
 
-        return final_snippet + "\n\nprocess = %s(process)\n"%(self._options.cust_function,)
+		final_snippet+='\n\n# Automatic addition of the customisation function from '+packageName+'\n'
+		for line in file(customiseFile,'r'):
+			if "import FWCore.ParameterSet.Config" in line:
+				continue
+			final_snippet += line
+		final_snippet += "\n\nprocess = %s(process)\n"%(fcn,)
+		
+        final_snippet += '\n\n# End of customisation functions\n'
+
+        return final_snippet
 
     #----------------------------------------------------------------------------
     # here the methods to define the python includes for each step or
@@ -1045,7 +1076,7 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.223 $"),
+              (version=cms.untracked.string("$Revision: 1.224 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
