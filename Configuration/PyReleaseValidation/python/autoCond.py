@@ -1,9 +1,10 @@
 
 
-autoCond = { 'mc'      : 'MC_38Y_V12::All',
-             'startup' : 'START38_V12::All',
+<<<<<<< autoCond.py
+autoCond = { 'mc'      : 'MC_39Y_V0::All',
+             'startup' : 'START39_V0::All',
              'craft08' : 'CRFT8_37R_V0::All',
-             'craft09' : 'CRFT9_38R_V9::All',
-             'com10'   : 'GR_R_38X_V13::All',
-             'hltonline' : 'GR10_H_V9::All' # same as com10 until H tag available
+             'craft09' : 'CRFT9_39R_V0::All',
+             'com10'   : 'GR_R_39X_V0::All',
+             'hltonline' : 'GR_R_39X_V0::All' # same as com10 until H tag available
              }
