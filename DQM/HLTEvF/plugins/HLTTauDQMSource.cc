@@ -167,9 +167,6 @@ HLTTauDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       for(unsigned int i=0;i<trackPlotters.size();++i)
 	trackPlotters[i].analyze(iEvent,iSetup,refC[0]);
 
-      //Summary Plotters
-      for(unsigned int i=0;i<summaryPlotters.size();++i)
-	summaryPlotters[i].plot();
     }
   else
       counterEvt_++;
@@ -182,6 +179,10 @@ HLTTauDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 //--------------------------------------------------------
 void HLTTauDQMSource::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
 					 const edm::EventSetup& context) {
+					 
+	//Summary Plotters
+     for(unsigned int i=0;i<summaryPlotters.size();++i) summaryPlotters[i].plot();
+     
 }
 //--------------------------------------------------------
 void HLTTauDQMSource::endRun(const edm::Run& r, const edm::EventSetup& context){
@@ -196,11 +197,11 @@ LVColl
 HLTTauDQMSource::getFilterCollection(size_t index,int id,const trigger::TriggerEvent& trigEv,double ptCut)
 {
   using namespace trigger;
-
   //Create output Collection
   LVColl out;
       //get All the final trigger objects
       const TriggerObjectCollection& TOC(trigEv.getObjects());
+
      
       //filter index
       if(index!=trigEv.sizeFilters())
@@ -210,12 +211,11 @@ HLTTauDQMSource::getFilterCollection(size_t index,int id,const trigger::TriggerE
 	    {
 	      const TriggerObject& TO(TOC[KEYS[i]]);
 	      LV a(TO.px(),TO.py(),TO.pz(),sqrt(TO.px()*TO.px()+TO.py()*TO.py()+TO.pz()*TO.pz()));
-	      if(abs(TO.id()) == id)
+	    if(abs(TO.id()) == id)
 		if(a.pt()>ptCut)
 		  out.push_back(a);
 	    }
 	}
-
   return out;
 }
 
