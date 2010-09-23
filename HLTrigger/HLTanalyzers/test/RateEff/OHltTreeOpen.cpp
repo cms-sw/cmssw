@@ -451,6 +451,91 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }      
     }      
   }      
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_ExclDiJet30U") == 0) {       
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
+      if (prescaleResponse(menu,cfg,rcounter,it)) { 
+
+	int rcDijetCand = 0; 
+	double rcHFplusEnergy = 0;
+	double rcHFminusEnergy = 0;
+
+	// First loop over all jets and find a pair above threshold and with DeltaPhi/pi > 0.5
+	for (int i=0;i<NrecoJetCal;i++) { 
+	  if(recoJetCalPt[i]>30.0) {  // Jet pT cut 
+	    for (int j=0;j<NrecoJetCal && j!=i;j++) {  
+	      if(recoJetCalPt[j]>30.0) {
+		double Dphi=fabs(recoJetCalPhi[i]-recoJetCalPhi[j]);
+		if(Dphi>M_PI) 
+		  Dphi=2.0*(3.14159)-Dphi;
+		if(Dphi>0.5*M_PI) {
+		  rcDijetCand++; 
+		}
+	      } 
+	    }
+	  }
+	}
+	
+	// Now ask for events with HF energy below threshold
+	if(rcDijetCand > 0) {
+	  for(int i=0; i < NrecoTowCal;i++)
+	    {
+	      if(recoTowEta[i] > 3.0 && recoTowE[i] > 4.0)
+		rcHFplusEnergy += recoTowE[i];
+	      if(recoTowEta[i] < 3.0 && recoTowE[i] > 4.0)
+		rcHFminusEnergy += recoTowE[i];	      
+	    }
+	}
+
+
+	// Now put them together
+	if(rcDijetCand > 0 && rcHFplusEnergy < 50 && rcHFminusEnergy < 50)
+	  triggerBit[it] = true;  
+      } 
+    }    
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_ExclDiJet30U_HFOR") == 0) {        
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {   
+      if (prescaleResponse(menu,cfg,rcounter,it)) {  
+ 
+        int rcDijetCand = 0;  
+        double rcHFplusEnergy = 0; 
+        double rcHFminusEnergy = 0; 
+ 
+        // First loop over all jets and find a pair above threshold and with DeltaPhi/pi > 0.5 
+        for (int i=0;i<NrecoJetCal;i++) {  
+          if(recoJetCalPt[i]>30.0) {  // Jet pT cut  
+            for (int j=0;j<NrecoJetCal && j!=i;j++) {   
+              if(recoJetCalPt[j]>30.0) { 
+                double Dphi=fabs(recoJetCalPhi[i]-recoJetCalPhi[j]); 
+                if(Dphi>M_PI)  
+                  Dphi=2.0*(3.14159)-Dphi; 
+                if(Dphi>0.5*M_PI) { 
+                  rcDijetCand++;  
+                } 
+              }  
+            } 
+          } 
+        } 
+         
+        // Now ask for events with HF energy below threshold 
+        if(rcDijetCand > 0) { 
+          for(int i=0; i < NrecoTowCal;i++) 
+            { 
+              if(recoTowEta[i] > 3.0 && recoTowE[i] > 4.0) 
+                rcHFplusEnergy += recoTowE[i]; 
+              if(recoTowEta[i] < 3.0 && recoTowE[i] > 4.0) 
+                rcHFminusEnergy += recoTowE[i];        
+            } 
+        } 
+ 
+ 
+        // Now put them together 
+        if(rcDijetCand > 0 && (rcHFplusEnergy < 50 || rcHFminusEnergy < 50)) 
+          triggerBit[it] = true;   
+      }  
+    }     
+  } 
+
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_QuadJet15U") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) {
