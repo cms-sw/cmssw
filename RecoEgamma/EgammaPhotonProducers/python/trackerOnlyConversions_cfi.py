@@ -3,7 +3,9 @@ import FWCore.ParameterSet.Config as cms
 trackerOnlyConversions = cms.EDProducer('TrackerOnlyConversionProducer',
     AlgorithmName = cms.string('trackerOnly'),
     #src = cms.VInputTag(cms.InputTag("generalTracks"), cms.InputTag("secStep"), cms.InputTag("thStep")),
-    src = cms.VInputTag(cms.InputTag("generalTracks")),
+    #src = cms.VInputTag(cms.InputTag("generalTracks")),
+    src = cms.VInputTag(cms.InputTag("generalConversionTrackProducer")),
+    #src = cms.VInputTag(cms.InputTag("generalInOutOutInConversionTrackMerger")),
     convertedPhotonCollection = cms.string(''), ## or empty
 
     bcEndcapCollection = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
