@@ -228,7 +228,7 @@ def exportRunInfo(xml_doc, run_info, release = None, print_out = False):
 		#either we have one node or multiple ones (if list)
 		if type(result) == types.ListType:
 			for result_item in result:
-				result_item.update({"testName": testName})
+				result_item.update({"testname": testName})
 
 				#We have JOBS so FAR only for TimeSize which we represent as a list
 				jobs = []
@@ -251,7 +251,7 @@ def exportRunInfo(xml_doc, run_info, release = None, print_out = False):
 					 elif testName == "Memcheck":
 						 export_xml_memcheck(xml_doc = xml_doc, parentNode = testNode, **job)
 		else:
-			result.update({"testName": testName})
+			result.update({"testname": testName})
 			createNode(node_name="testResult", xml_doc=xml_doc, parent=runInfoNode, values=result)
 
 	#DO we have some unrecognized JOBS?
@@ -260,7 +260,7 @@ def exportRunInfo(xml_doc, run_info, release = None, print_out = False):
 
 		for job in run_info['unrecognized_jobs']:
 			 #print job
-			 testName = job["metadata"]["testName"]
+			 testName = job["metadata"]["testname"]
 			 if testName == "TimeSize":
 				 export_xml(xml_doc = xml_doc, parentNode = unrecognizedJobsNode, **job)
 			 elif testName == "IgProf_Mem":

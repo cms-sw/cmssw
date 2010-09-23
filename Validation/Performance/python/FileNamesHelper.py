@@ -246,29 +246,25 @@ def getJobID_fromIgProfLogName(logfile_name):
 	(path, filename) = os.path.split(logfile_name)
 
 	params = filename.split("___")
-	candle = params[0]
+	candle = params[0].upper()
 	step = params[1]
 	pileup_type = params[2]
 	if pileup_type == "NOPILEUP":
 		pileup_type = ""
-	conditions = params[3]
-	event_content = params[4]
+	elif pileup_type == "LowLumiPileUp":
+		pileup_type = "PILEUP"
+	#conditions = params[3] + "::All"
+	#event_content = params[4]
 	
-	#get (at least) the conditions from the SimulationCandles!!
-	#doesn't work in all cases!!! (GEN,SIM,DIGI for example...)
-	#try:
-	#	print pileup_type
-	#	print step
-	#	print path
-	#	conf = read_ConfigurationFromSimulationCandles(path = path, step = step, is_pileup= pileup_type)
-	#	if conf:
-	#		is_pileup = conf["pileup_type"]
-	#		conditions = conf["conditions"]
-	#		event_content = conf["event_content"]
-	#except OSError, e:
-	#	pass
-			
-	return (candle, step, pileup_type, conditions, event_content)
+	#get the conditions from the SimulationCandles!!
+	conf = read_ConfigurationFromSimulationCandles(path = path, step = step, is_pileup= pileup_type)
+	if conf:
+		is_pileup = conf["pileup_type"]
+		conditions = conf["conditions"]
+		event_content = conf["event_content"]
+		return (candle, step, is_pileup, conditions, event_content)
+	else:
+		return (None, None, None, None, None)			
 
 """ Get the root file size for the candle, step in current dir """
 def getRootFileSize(path, candle, step):

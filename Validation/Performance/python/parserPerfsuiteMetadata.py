@@ -358,14 +358,7 @@ class parserPerfsuiteMetadata:
 
 	
 	def parseAllOtherTests(self):
-		#Quite nasty....
-
-		threads = {}
-		#tests = {
-		#	"IgProf_Perf": {}, "IgProf_Mem": {}, "Memcheck": {}, "Callgrind": {},
-		#}
-
-		#make it general, whatever test comes...
+		#make it general, for whatever test comes...
 		test = {}
 
 		parsing_rules = (
@@ -462,7 +455,7 @@ class parserPerfsuiteMetadata:
 
 			start_id_index = self.findLineAfter(0, job_lines, test_condition = reStart.match, return_index = True)
 			pileUp, testName, testCore, testEventsNum = reStart.match(job_lines[start_id_index]).groups()			
-			info["testName"] = testName
+			info["testname"] = testName
 
 			thread_id_index = self.findLineAfter(0, job_lines, test_condition = reAddThread.match, return_index = True)
 			info["start"] = self.firstTimeStampAfter(thread_id_index, job_lines)
