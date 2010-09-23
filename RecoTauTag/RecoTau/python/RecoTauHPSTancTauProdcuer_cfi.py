@@ -6,8 +6,11 @@ import RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingPionPtCut_cfi as leadP
 
 '''
 
-Configuration for TaNC taus
+Configuration for HPSTaNC taus
 
+Authors: Michailis Bachtis (UW Madison), Evan Friis (UC Davis)
+
+Tau is reconstructed from all combinatoric pairs, using Pair/Strip PiZeros.
 Decay mode is selected by the TaNC discriminator
 
 '''
@@ -75,7 +78,7 @@ combinatoricRecoTausDiscriminationByTaNC = cms.EDProducer(
     dbLabel = cms.string(''),
 )
 
-tancRecoTausSequence = cms.Sequence(
+hpsTancRecoTausSequence = cms.Sequence(
     combinatoricRecoTausDiscriminationByLeadPionPtCut +
     combinatoricRecoTausDiscriminationByTaNC +
     hpsTancRecoTaus 
