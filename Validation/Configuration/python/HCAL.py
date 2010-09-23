@@ -25,7 +25,7 @@ def customise(process):
     process.schedule.append(process.generation_step)
     process.schedule.append(process.simulation_step)
 
-    process.hbhereco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
+    process.hbheprereco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
     process.horeco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
     process.hfreco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
 

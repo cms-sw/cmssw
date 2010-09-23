@@ -42,7 +42,7 @@ def customise(process):
     process.ecalGlobalUncalibRecHit.EEdigiCollection = cms.InputTag("simEcalDigis","eeDigis")
     process.ecalPreshowerRecHit.ESdigiCollection = cms.InputTag("simEcalPreshowerDigis") 
 
-    process.hbhereco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
+    process.hbheprereco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
     process.horeco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
     process.hfreco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
     process.ecalRecHit.recoverEBIsolatedChannels = cms.bool(False)
