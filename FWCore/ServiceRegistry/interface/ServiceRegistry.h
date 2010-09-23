@@ -19,8 +19,10 @@
 //
 
 // system include files
+#include <vector>
 
 // user include files
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
 #include "FWCore/ServiceRegistry/interface/ServicesManager.h"
