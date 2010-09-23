@@ -100,6 +100,11 @@ def loadPAT(process,JetMetCorrections,extMatch):
         process.electronMatch.matched = "mergedTruth"
         process.muonMatch.mcStatus = cms.vint32(1,5)
         process.muonMatch.matched = "mergedTruth"
+        process.patJetPartonMatch.matched = "mergedTruth"
+        process.patJetPartons.src = "mergedTruth"
+        process.photonMatch.matched = "mergedTruth"
+        process.tauGenJets.GenParticles = "mergedTruth"
+        process.tauMatch.matched = "mergedTruth"
 
     #-- Jet corrections -----------------------------------------------------------
     process.patJetCorrFactors.corrSample = JetMetCorrections 
@@ -114,17 +119,26 @@ def loadPF2PAT(process,mcInfo,JetMetCorrections,extMatch,doSusyTopProjection,pos
     usePF2PAT(process,runPF2PAT=True, jetAlgo='AK5',runOnMC=mcInfo,postfix=postfix)
     process.patJetsPF.embedGenJetMatch = False
     process.patJetsPF.embedPFCandidates = False
+    process.electronMatchPF.maxDeltaR   = cms.double(0.2)
+    process.electronMatchPF.maxDPtRel   = cms.double(999999.)
     process.electronMatchPF.checkCharge = False
+    process.muonMatchPF.maxDeltaR   = cms.double(0.2)
+    process.muonMatchPF.maxDPtRel   = cms.double(999999.)
     process.muonMatchPF.checkCharge = False
     if extMatch:
-        process.electronMatchPF.maxDeltaR   = cms.double(0.2)
-        process.electronMatchPF.maxDPtRel   = cms.double(999999.)
         process.electronMatchPF.mcStatus = cms.vint32(1,5)
         process.electronMatchPF.matched = "mergedTruth"
-        process.muonMatchPF.maxDeltaR   = cms.double(0.2)
-        process.muonMatchPF.maxDPtRel   = cms.double(999999.)
         process.muonMatchPF.mcStatus = cms.vint32(1,5)
         process.muonMatchPF.matched = "mergedTruth"
+        process.genParticlesForJets.src = "mergedTruth"
+        process.genParticlesForJetsNoMuNoNu.src = "mergedTruth"
+        process.genParticlesForJetsNoNu.src = "mergedTruth"
+        process.patJetPartonMatchPF.matched = "mergedTruth"
+        process.patJetPartonsPF.src = "mergedTruth"
+        process.photonMatchPF.matched = "mergedTruth"
+        process.tauGenJetsPF.GenParticles = "mergedTruth"
+        process.tauMatchPF.matched = "mergedTruth"
+        
     #Remove jet pt cut
     process.pfJetsPF.ptMin = 0.
     #include tau decay mode in pat::Taus (elese it will just be uninitialized)
