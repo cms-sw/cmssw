@@ -33,10 +33,11 @@ muonsFromCosmics.TimingFillerParameters.CSCTimingParameters.MatchParameters.DTse
 muonsFromCosmics.fillIsolation = False
 muonsFromCosmics.fillGlobalTrackQuality = False
 
-from RecoTracker.Configuration.RecoTrackerNotStandard_cff import *
+#from RecoTracker.Configuration.RecoTrackerNotStandard_cff import *
 #add regional cosmic tracks here
-muoncosmicreco2legs = cms.Sequence(cosmicMuons*regionalCosmicTracksSeq*globalCosmicMuons*muonsFromCosmics)
-
+#muoncosmicreco2legs = cms.Sequence(cosmicMuons*regionalCosmicTracksSeq*globalCosmicMuons*muonsFromCosmics)
+muoncosmicreco2legsSTA = cms.Sequence(CosmicMuonSeed*cosmicMuons)
+muoncosmicreco2legsHighLevel = cms.Sequence(globalCosmicMuons*muonsFromCosmics)
 
 # 1 Leg type
 
@@ -64,6 +65,10 @@ muonsFromCosmics1Leg.TimingFillerParameters.CSCTimingParameters.MatchParameters.
 muonsFromCosmics1Leg.fillIsolation = False
 muonsFromCosmics1Leg.fillGlobalTrackQuality = False
 
-muoncosmicreco1leg = cms.Sequence(cosmicMuons1Leg*globalCosmicMuons1Leg*muonsFromCosmics1Leg)
+#muoncosmicreco1leg = cms.Sequence(cosmicMuons1Leg*globalCosmicMuons1Leg*muonsFromCosmics1Leg)
+muoncosmicreco1legSTA = cms.Sequence(CosmicMuonSeed*cosmicMuons1Leg)
+muoncosmicreco1legHighLevel = cms.Sequence(globalCosmicMuons1Leg*muonsFromCosmics1Leg)
 
-muoncosmicreco = cms.Sequence(CosmicMuonSeed*(muoncosmicreco2legs+muoncosmicreco1leg)*cosmicsMuonIdSequence)
+#muoncosmicreco = cms.Sequence(CosmicMuonSeed*(muoncosmicreco2legs+muoncosmicreco1leg)*cosmicsMuonIdSequence)
+muoncosmicreco = cms.Sequence(muoncosmicreco2legsSTA+muoncosmicreco1legSTA)
+muoncosmichighlevelreco = cms.Sequence((muoncosmicreco2legsHighLevel+muoncosmicreco1legHighLevel)*cosmicsMuonIdSequence)
