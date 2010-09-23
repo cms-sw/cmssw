@@ -74,6 +74,26 @@
 //
 // 18 wmtan 07/08/10 Remove unnecessary includes
 //
+// 19 mf  09/21/10 !!! BEHAVIOR CHANGE: LogDebug suppression.
+//                 The sole preprocessor symbol controlling suppression of 
+//                 LogDebug is EDM_ML_DEBUG.  If EDM_ML_DEBUG is not defined
+//                 then LogDebug is suppressed.  Thus by default LogDebug is 
+//                 suppressed.
+//
+// 20 mf  09/21/10 The mechanism of LogDebug is modified such that if LogDebug
+//                 is suppressed, whether via lack of the EDM_ML_DEBUG symbol 
+//                 or dynabically via !debgEnabled, all code past the 
+//                 LogDebug(...), including operator<< and functions to 
+//                 prepare the output strings, is squelched.  This was the
+//                 original intended behavior.  
+//
+//  ************   Note that in this regard, LogDebug behaves like assert:
+//                 The use of functions having side effects, on a LogDebug
+//                 statement (just as within an assert()), is unwise as it
+//                 makes turning on the debugging aid alter the program
+//                 behavior.
+
+
 // =================================================
 
 // system include files
@@ -432,35 +452,22 @@ public:
 }  // namespace edm
 
 
-// If ML_DEBUG is defined, LogDebug is active.  
-// Otherwise, LogDebug is suppressed if either ML_NDEBUG or NDEBUG is defined.
-#undef EDM_MESSAGELOGGER_SUPPRESS_LOGDEBUG
-#ifdef NDEBUG
-#define EDM_MESSAGELOGGER_SUPPRESS_LOGDEBUG
-#endif
-#ifdef ML_NDEBUG
-#define EDM_MESSAGELOGGER_SUPPRESS_LOGDEBUG
-#endif
-#ifdef ML_DEBUG
-#undef EDM_MESSAGELOGGER_SUPPRESS_LOGDEBUG
+// change log 19 and change log 20
+// The preprocessor symbol controlling suppression of LogDebug is EDM_ML_DEBUG.  Thus by default (BEHAVIOR CHANGE) LogDebug is 
+// If LogDebug is suppressed, all code past the LogDebug(...) is squelched.
+// See doc/suppression.txt.
+
+// TEMPORARY - TO SEE IF I HAVE BROKEN ANYTHING VIA THIS CHANGE
+// #define EDM_ML_DEBUG
+
+
+#ifndef EDM_ML_DEBUG 
+#define LogDebug(id) true ? edm::Suppress_LogDebug_() : edm::Suppress_LogDebug_() 
+#define LogTrace(id) true ? edm::Suppress_LogDebug_() : edm::Suppress_LogDebug_() 
+#else
+#define LogDebug(id) !edm::MessageDrop::debugEnabled ? edm::LogDebug_() : edm::LogDebug_(id, __FILE__, __LINE__) 
+#define LogTrace(id) !edm::MessageDrop::debugEnabled ? edm::LogTrace_() : edm::LogTrace_(id) 
 #endif
 
-#ifdef EDM_MESSAGELOGGER_SUPPRESS_LOGDEBUG 
-#define LogDebug(id) edm::Suppress_LogDebug_()
-#define LogTrace(id) edm::Suppress_LogDebug_()
-#else
-#define LogDebug(id)                                 \
-  ( !edm::MessageDrop::debugEnabled )                \
-    ?  edm::LogDebug_()                              \
-    :  edm::LogDebug_(id, __FILE__, __LINE__)
-#define LogTrace(id)                                 \
-  ( !edm::MessageDrop::debugEnabled )                \
-    ?  edm::LogTrace_()                              \
-    :  edm::LogTrace_(id)
-#endif
-#undef EDM_MESSAGELOGGER_SUPPRESS_LOGDEBUG
-							// change log 1, 2
-							// change log 8 using
-							// default ctors
 #endif  // MessageLogger_MessageLogger_h
 

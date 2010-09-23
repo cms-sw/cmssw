@@ -5,6 +5,8 @@ simplestMLexample:
   Sets up logging to a file, delivering all messages created by anything
   from LogIfo up to LogSystem, but not messages created by LogDebug or LogTrace.
 
+enablingLogDebugMessages:
+
 timingFilteredMLexample:
   Illustrates how to limit the output of a category of message to one
   destination but not to another.
