@@ -640,10 +640,12 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
             tower.hadSumTimeTimesE += ( e * recHit->time() );
             tower.hadSumEForTime   += e;
           }
-          // store energy in highest depth for towers 18-27
+          // store energy in highest depth for towers 18-27 (for electron,photon ID in endcap)
+	  // also, store energy in HE part of tower 16 (for JetMET cleanup)
           if (HcalDetId(detId).subdet()==HcalEndcap) {
             if ( (HcalDetId(detId).depth()==2 && HcalDetId(detId).ietaAbs()>=18 && HcalDetId(detId).ietaAbs()<27) ||
-		 (HcalDetId(detId).depth()==3 && HcalDetId(detId).ietaAbs()==27) ) {
+		 (HcalDetId(detId).depth()==3 && HcalDetId(detId).ietaAbs()==27) ||
+		 (HcalDetId(detId).depth()==3 && HcalDetId(detId).ietaAbs()==16) ) {
               tower.E_outer += e;
 	    }
           }
@@ -725,8 +727,11 @@ CaloTowersCreationAlgo::MetaTower & CaloTowersCreationAlgo::find(const CaloTower
     MetaTower t;
 
     // store it in the map
-    theTowerMap.insert(std::pair<CaloTowerDetId, CaloTowersCreationAlgo::MetaTower>(detId, t));
-    itr = theTowerMap.find(detId);
+    //    theTowerMap.insert(std::pair<CaloTowerDetId, CaloTowersCreationAlgo::MetaTower>(detId, t));
+    //    itr = theTowerMap.find(detId);
+    //                                        092010 (AA)
+    itr = (theTowerMap.insert(std::pair<CaloTowerDetId, CaloTowersCreationAlgo::MetaTower>(detId, t))).first;
+
   }
   return itr->second;
 }
@@ -923,12 +928,28 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
 			      numRecHcalChan, numRecEcalChan,	 
 			      numProbHcalChan, numProbEcalChan);
   
+    double maxCellE = -999.0; // for storing the hottest cell E in the calotower
 
     std::vector<DetId> contains;
-    for (std::vector<std::pair<DetId,double> >::iterator i=metaContains.begin(); i!=metaContains.end(); ++i) 
-        contains.push_back(i->first);
+    for (std::vector<std::pair<DetId,double> >::iterator i=metaContains.begin(); i!=metaContains.end(); ++i) {
+
+      contains.push_back(i->first);
+
+      if (maxCellE < i->second) {
+	// need an extra check because of the funny towers that are empty except for the presence of an HO
+	// hit in the constituents (JetMET wanted them saved)
+	// This constituent is only used for storing the tower, but should not be concidered as a hot cell canditate for
+	// configurations with useHO = false
+	
+	if (HcalDetId(i->first).subdet() != HcalOuter) 
+	  maxCellE = i->second;
+	else if (theHOIsUsed) maxCellE = i->second;
+      }
+    } // loop over matacontains
 
     retval.addConstituents(contains);
+    retval.setHottestCellE(maxCellE);
+
     return retval;
 } 
 
