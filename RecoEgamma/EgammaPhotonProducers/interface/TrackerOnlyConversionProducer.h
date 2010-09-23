@@ -4,8 +4,8 @@
  **
  **
  **  $Id:
- **  $Date: 2010/09/14 16:53:06 $
- **  $Revision: 1.15 $
+ **  $Date: 2010/09/17 20:04:38 $
+ **  $Revision: 1.16 $
  **  \author H. Liu, UC of Riverside US
  **
  ***/
@@ -72,7 +72,8 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
       ~TrackerOnlyConversionProducer();
 
       void buildCollection( edm::Event& iEvent, const edm::EventSetup& iSetup,
-	      const reco::TrackRefVector& allTracks,
+			    //const reco::TrackRefVector& allTracks,
+			    const std::vector<reco::TrackBaseRef>& allTracks,
 	      const std::multimap<double, reco::CaloClusterPtr>& basicClusterPtrs,
 	      const reco::Vertex& the_pvtx,
 	      reco::ConversionCollection & outputConvPhotonCollection);
@@ -84,30 +85,30 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
 	      reco::ConversionCollection & outputConvPhotonCollection);
 
       //track quality cut, returns pass or no
-      inline bool trackQualityFilter(const edm::Ref<reco::TrackCollection>&  ref, bool isLeft);
-      inline bool trackD0Cut(const edm::Ref<reco::TrackCollection>&  ref);
-      inline bool trackD0Cut(const edm::Ref<reco::TrackCollection>&  ref, const reco::Vertex& the_pvtx);
+      inline bool trackQualityFilter(const  edm::RefToBase<reco::Track>&  ref, bool isLeft);
+      inline bool trackD0Cut(const edm::RefToBase<reco::Track>& ref);
+      inline bool trackD0Cut(const edm::RefToBase<reco::Track>& ref, const reco::Vertex& the_pvtx);
 
       //track impact point at ECAL wall, returns validity to access position ew
-      bool getTrackImpactPosition(const reco::TrackRef& tk_ref, 
+      bool getTrackImpactPosition(const reco::Track* tk_ref, 
 	      const TrackerGeometry* trackerGeom, const MagneticField* magField, 
 	      math::XYZPoint& ew);
 
       //distance at min approaching point, returns distance
-      double getMinApproach(const reco::TrackRef& ll, const reco::TrackRef& rr, 
+      double getMinApproach(const edm::RefToBase<reco::Track>& ll, const edm::RefToBase<reco::Track>& rr, 
 	      const MagneticField* magField);
 
       //cut-based selection, TODO remove global cut variables
-      bool checkTrackPair(const std::pair<reco::TrackRef, reco::CaloClusterPtr>& ll,
-	      const std::pair<reco::TrackRef, reco::CaloClusterPtr>& rr,
+      bool checkTrackPair(const std::pair<edm::RefToBase<reco::Track>, reco::CaloClusterPtr>& ll,
+	      const std::pair<edm::RefToBase<reco::Track>, reco::CaloClusterPtr>& rr,
 	      const MagneticField* magField,
 	      double& appDist);
 
       //kinematic vertex fitting, return true for valid vertex
-      bool checkVertex(const reco::TrackRef& tk_l, const reco::TrackRef& tk_r,
+      bool checkVertex(const edm::RefToBase<reco::Track>& tk_l, const edm::RefToBase<reco::Track>& tk_r,
 	      const MagneticField* magField,
 	      reco::Vertex& the_vertex);
-      bool checkPhi(const reco::TrackRef& tk_l, const reco::TrackRef& tk_r,
+      bool checkPhi(const edm::RefToBase<reco::Track>& tk_l, const edm::RefToBase<reco::Track>& tk_r,
 	      const TrackerGeometry* trackerGeom, const MagneticField* magField,
 	      const reco::Vertex& the_vertex);
 
