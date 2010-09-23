@@ -6,7 +6,7 @@
  *
  * \author N.Marinelli  University of Notre Dame, US
  *
- * \version $Id: Conversion.h,v 1.12 2010/09/23 12:31:42 bendavid Exp $
+ * \version $Id: Conversion.h,v 1.13 2010/09/23 16:59:09 nancy Exp $
  *
  */
 
@@ -30,12 +30,12 @@ namespace reco {
 				algoSize=4}; 
 
       enum ConversionQuality {generalTracksOnly=0, 
-                                arbitratedEcalSeeded_=1, 
-                                arbitratedMerged_=2, 
-                                highPurity=8, 
-                                highEfficiency=9,
-                                ecalMatched1Track=10,
-                                ecalMatched2Track=11};
+			      arbitratedEcalSeeded=1, 
+			      arbitratedMerged=2, 
+			      highPurity=8, 
+			      highEfficiency=9,
+			      ecalMatched1Track=10,
+			      ecalMatched2Track=11};
 
       static const std::string algoNames[];      
 
