@@ -141,6 +141,8 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
       
       float length = 0;
       float width = 0;
+      float widthAtHalfLength = 0;
+
       LocalPoint lPModule(0.,0.,0.), lUDirection(1.,0.,0.), lVDirection(0.,1.,0.);
       GlobalPoint gPModule    = surface.toGlobal(lPModule),
 	          gUDirection = surface.toGlobal(lUDirection),
@@ -158,6 +160,7 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
 	resYprimeErr = resYErr;
 
 	const RectangularPlaneBounds *rectangularBound = dynamic_cast<const RectangularPlaneBounds*>(&bound);
+	hitStruct.inside = rectangularBound->inside(lPTrk);
 	length = rectangularBound->length();
 	width = rectangularBound->width();
 	hitStruct.localXnorm = 2*hitStruct.localX/width;
@@ -173,6 +176,7 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
 	resYprimeErr = resYErr;
 	
 	const RectangularPlaneBounds *rectangularBound = dynamic_cast<const RectangularPlaneBounds*>(&bound);
+	hitStruct.inside = rectangularBound->inside(lPTrk);
 	length = rectangularBound->length();
 	width = rectangularBound->width();
 	hitStruct.localXnorm = 2*hitStruct.localX/width;
@@ -227,10 +231,17 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
 	resYprimeErr = std::sqrt(measHitErr.vv()*localStripLengthHit*localStripLengthHit
 				 + measTrkErr.vv()*localStripLengthTrk*localStripLengthTrk + helpSummand );  
 
-	const TrapezoidalPlaneBounds *trapezoidalBound = dynamic_cast<const TrapezoidalPlaneBounds*>(&bound);
+
+	const TrapezoidalPlaneBounds *trapezoidalBound = dynamic_cast < const TrapezoidalPlaneBounds * >(& bound);
+	hitStruct.inside = trapezoidalBound->inside(lPTrk);
 	length = trapezoidalBound->length();
-	width = trapezoidalBound->widthAtHalfLength();
-	hitStruct.localXnorm = 2*hitStruct.localX/width;
+	width  = trapezoidalBound->width();
+	widthAtHalfLength = trapezoidalBound->widthAtHalfLength();
+
+	int yAxisOrientation=trapezoidalBound->yAxisOrientation(); 
+// for trapezoidal shape modules, scale with as function of local y coordinate 
+	float widthAtlocalY=width-(1-yAxisOrientation*2*lPTrk.y()/length)*(width-widthAtHalfLength); 
+	hitStruct.localXnorm = 2*hitStruct.localX/widthAtlocalY;  
 	hitStruct.localYnorm = 2*hitStruct.localY/length;
 
       } else {

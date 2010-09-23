@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.40 2010/08/27 06:29:59 mussgill Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.41 2010/09/03 06:59:37 mussgill Exp $
 //
 //
 
@@ -1088,9 +1088,9 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
         }
 	/******************************************/
 
-	if ( moduleLevelProfiles_ ) {
+	if ( moduleLevelProfiles_ && itH->inside ) {
 	  float tgalpha = tan(itH->localAlpha);
-	  if ( fabs(tgalpha)>0.0001 ){
+	  if ( fabs(tgalpha)!=0 ){
 	    histStruct.LocalX->Fill(itH->localXnorm, tgalpha*tgalpha); 
 	    histStruct.LocalY->Fill(itH->localYnorm, tgalpha*tgalpha); 
 	    histStruct.ResXvsXProfile->Fill(itH->localXnorm, itH->resX/tgalpha, tgalpha*tgalpha); 
@@ -1118,7 +1118,7 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 	  }
 	  /******************************************/
 
-	  if ( moduleLevelProfiles_ ) {
+	  if ( moduleLevelProfiles_ && itH->inside ) {
 	    float tgbeta = tan(itH->localBeta);
 	    if ( fabs(tgbeta)!=0 ){
 	      histStruct.ResYvsXProfile->Fill(itH->localXnorm, itH->resY/tgbeta, tgbeta*tgbeta); 
