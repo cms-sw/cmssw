@@ -231,7 +231,8 @@ reco::ConversionRef  PhotonCoreProducer::solveAmbiguity(const edm::Handle<reco::
     
     for (iMap=convMap.begin();  iMap!=convMap.end(); iMap++) {
       reco::ConversionRef convRef=iMap->first;
-      std::vector<reco::TrackRef> tracks = convRef->tracks();	
+      // std::vector<reco::TrackRef> tracks = convRef->tracks();	
+      const std::vector<edm::RefToBase<reco::Track> > tracks = convRef->tracks();	
 	    float px=tracks[0]->innerMomentum().x();
 	    float py=tracks[0]->innerMomentum().y();
 	    float pz=tracks[0]->innerMomentum().z();
