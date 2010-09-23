@@ -6,7 +6,7 @@
  *
  * \author N.Marinelli  University of Notre Dame, US
  *
- * \version $Id: Conversion.h,v 1.11 2010/09/17 15:31:44 nancy Exp $
+ * \version $Id: Conversion.h,v 1.12 2010/09/23 12:31:42 bendavid Exp $
  *
  */
 
@@ -43,6 +43,19 @@ namespace reco {
       Conversion();
       
       Conversion( const reco::CaloClusterPtrVector clu, 
+		  const std::vector<edm::RefToBase<reco::Track> > tr,
+		  const std::vector<math::XYZPoint> trackPositionAtEcal , 
+		  const reco::Vertex  &  convVtx,
+		  const std::vector<reco::CaloClusterPtr> & matchingBC,
+		  const float DCA,        
+		  const std::vector<math::XYZPoint> & innPoint,
+		  const std::vector<math::XYZVector> & trackPin ,
+		  const std::vector<math::XYZVector> & trackPout,
+                  const float mva,
+		  ConversionAlgorithm=undefined);
+
+
+      Conversion( const reco::CaloClusterPtrVector clu, 
 		  const std::vector<reco::TrackRef> tr,
 		  const std::vector<math::XYZPoint> trackPositionAtEcal , 
 		  const reco::Vertex  &  convVtx,
@@ -54,9 +67,16 @@ namespace reco {
                   const float mva,
 		  ConversionAlgorithm=undefined);
       
+
+
       
       Conversion( const reco::CaloClusterPtrVector clu, 
 		  const std::vector<reco::TrackRef> tr,
+		  const reco::Vertex  &  convVtx,
+		  ConversionAlgorithm=undefined);
+      
+      Conversion( const reco::CaloClusterPtrVector clu, 
+		  const std::vector<edm::RefToBase<reco::Track> > tr,
 		  const reco::Vertex  &  convVtx,
 		  ConversionAlgorithm=undefined);
       
@@ -68,8 +88,8 @@ namespace reco {
       Conversion * clone() const;
       /// Pointer to CaloCluster (foe Egamma Conversions it points to  a SuperCluster)
       reco::CaloClusterPtrVector caloCluster() const ;
-      /// vector of references to  tracks
-      std::vector<reco::TrackRef> tracks() const ; 
+      /// vector of track to base references 
+      std::vector<edm::RefToBase<reco::Track> > tracks() const ; 
       /// returns  the reco conversion vertex
       const reco::Vertex & conversionVertex() const  { return theConversionVertex_ ; }
       /// Bool flagging objects having track size >0
@@ -139,8 +159,10 @@ namespace reco {
       
       /// vector pointer to a/multiple seed CaloCluster(s)
       reco::CaloClusterPtrVector caloCluster_;
-      /// reference to a vector Track references
+      ///  vector of Track references
       std::vector<reco::TrackRef>  tracks_;
+      /// vector Track RefToBase
+      mutable std::vector<edm::RefToBase<reco::Track> >  trackToBaseRefs_;
       /// position at the ECAl surface of the track extrapolation
       std::vector<math::XYZPoint>  thePositionAtEcal_;
       /// Fitted Kalman conversion vertex

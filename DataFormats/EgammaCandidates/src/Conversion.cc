@@ -46,6 +46,37 @@ Conversion::Conversion(  const reco::CaloClusterPtrVector sc,
 
 
 
+
+Conversion::Conversion(  const reco::CaloClusterPtrVector sc, 
+			 const std::vector<edm::RefToBase<reco::Track> > tr, 
+			 const std::vector<math::XYZPoint> trackPositionAtEcal, 
+			 const reco::Vertex  & convVtx,
+			 const std::vector<reco::CaloClusterPtr> & matchingBC,
+                         const float DCA,
+			 const std::vector<math::XYZPoint> & innPoint,
+			 const std::vector<math::XYZVector> & trackPin,
+			 const std::vector<math::XYZVector> & trackPout,
+                         const float mva,
+			 ConversionAlgorithm algo):  
+			 
+
+  caloCluster_(sc), trackToBaseRefs_(tr), 
+  thePositionAtEcal_(trackPositionAtEcal), 
+  theConversionVertex_(convVtx), 
+  theMatchingBCs_(matchingBC), 
+  theMinDistOfApproach_(DCA),
+  theTrackInnerPosition_(innPoint),
+  theTrackPin_(trackPin),
+  theTrackPout_(trackPout),
+  theMVAout_(mva),
+  algorithm_(algo) 
+ { 
+   
+ }
+
+
+
+
 Conversion::Conversion(  const reco::CaloClusterPtrVector sc, 
 			 const std::vector<reco::TrackRef> tr, 
 			 const reco::Vertex  & convVtx,
@@ -54,6 +85,31 @@ Conversion::Conversion(  const reco::CaloClusterPtrVector sc,
   theConversionVertex_(convVtx), 
   algorithm_(algo),
   qualityMask_(0)
+ { 
+
+
+  theMinDistOfApproach_ = 9999.;
+  theMVAout_ = 9999.;
+  thePositionAtEcal_.push_back(math::XYZPoint(0.,0.,0.));
+  thePositionAtEcal_.push_back(math::XYZPoint(0.,0.,0.));
+  theTrackInnerPosition_.push_back(math::XYZPoint(0.,0.,0.));
+  theTrackInnerPosition_.push_back(math::XYZPoint(0.,0.,0.));
+  theTrackPin_.push_back(math::XYZVector(0.,0.,0.));
+  theTrackPin_.push_back(math::XYZVector(0.,0.,0.));
+  theTrackPout_.push_back(math::XYZVector(0.,0.,0.));
+  theTrackPout_.push_back(math::XYZVector(0.,0.,0.));
+
+   
+ }
+
+
+Conversion::Conversion(  const reco::CaloClusterPtrVector sc, 
+			 const std::vector<edm::RefToBase<reco::Track> >  tr, 
+			 const reco::Vertex  & convVtx,
+			 ConversionAlgorithm algo):  
+  caloCluster_(sc), trackToBaseRefs_(tr), 
+  theConversionVertex_(convVtx), 
+  algorithm_(algo) 
  { 
 
 
@@ -114,8 +170,18 @@ reco::CaloClusterPtrVector Conversion::caloCluster() const {
 
 
 
-std::vector<reco::TrackRef>  Conversion::tracks() const { 
-   return tracks_;
+std::vector<edm::RefToBase<reco::Track> >  Conversion::tracks() const { 
+  if (trackToBaseRefs_.size() ==0 ) {
+ 
+    for (std::vector<reco::TrackRef>::const_iterator ref=tracks_.begin(); ref!=tracks_.end(); ref++ ) 
+      {
+	edm::RefToBase<reco::Track> tt(*ref);
+	trackToBaseRefs_.push_back(tt);
+	
+      }  
+  }
+
+  return trackToBaseRefs_;
 }
 
 
