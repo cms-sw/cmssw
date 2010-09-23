@@ -21,7 +21,8 @@ hpsTancRecoTaus = cms.EDProducer(
     cleaners = cms.VPSet(
         cleaners.unitCharge,
         cleaners.leadPionFinding.clone(
-            src = cms.InputTag("combinatoricRecoTausDiscriminationByLeadPionPtCut"),
+            src = cms.InputTag(
+                "combinatoricRecoTausDiscriminationByLeadPionPtCut"),
         ),
         cleaners.tanc.clone(
             src = cms.InputTag("combinatoricRecoTausDiscriminationByTaNC"),
@@ -71,7 +72,8 @@ combinatoricRecoTausDiscriminationByTaNC = cms.EDProducer(
         BooleanOperator = cms.string("and"),
         leadPion = cms.PSet(
             cut = cms.double(0.5),
-            Producer = cms.InputTag("combinatoricRecoTausDiscriminationByLeadPionPtCut")
+            Producer = cms.InputTag(
+                "combinatoricRecoTausDiscriminationByLeadPionPtCut")
         )
     ),
     prefailValue = cms.double(-2.0),
