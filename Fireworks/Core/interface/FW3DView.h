@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Wed Apr  7 14:41:26 CEST 2010
-// $Id: FW3DView.h,v 1.24 2010/08/30 15:42:32 amraktad Exp $
+// $Id: FW3DView.h,v 1.25 2010/09/08 19:18:55 amraktad Exp $
 //
 
 // system include files
@@ -34,13 +34,12 @@ public:
    virtual ~FW3DView();
 
    virtual void setContext(const fireworks::Context&);
-   virtual void eventEnd();
-   
+   virtual TEveCaloViz* getEveCalo() const;
    
    
    // ---------- const member functions ---------------------
 
-   virtual void populateController(ViewerParameterGUI&) const;
+   //   virtual void populateController(ViewerParameterGUI&) const;
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
@@ -49,13 +48,8 @@ private:
    FW3DView(const FW3DView&); // stop default
 
    const FW3DView& operator=(const FW3DView&); // stop default
-
-   void updateScaleParameters();
-   void updateCaloParameters();
    
    // ---------- member data --------------------------------
-   FWDoubleParameter  m_caloFixedScale;
-   FWBoolParameter    m_caloAutoScale;
    TEveCalo3D*        m_calo;
    TEveCalo3D*        m_caloEndCap1;
    TEveCalo3D*        m_caloEndCap2;

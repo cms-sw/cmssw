@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.h,v 1.17 2010/09/08 19:18:55 amraktad Exp $
+// $Id: FWEveView.h,v 1.18 2010/09/15 18:14:22 amraktad Exp $
 //
 
 
@@ -29,10 +29,12 @@ class TGLViewer;
 class TGLOrthoCamera;
 class TGLPerspectiveCamera;
 class TGLCameraGuide;
+class TGLAnnotation;
 class TEveViewer;
 class TEveElementList;
 class TEveScene;
 class TEveWindowSlot;
+class TEveCaloViz;
 
 class FWEventAnnotation;
 class CmsAnnotation;
@@ -50,6 +52,8 @@ namespace fireworks
 class FWEveView : public FWViewBase
 {
 public:
+   enum EScaleMode { kFixedScale, kAutoScale, kCombinedScale, kNone };
+
    FWEveView(TEveWindowSlot*, FWViewType::EType, unsigned int version = 5);
    virtual ~FWEveView();
 
@@ -84,10 +88,18 @@ protected:
    virtual void resetCamera();
    virtual void pointLineScalesChanged();
 
+   // scales
+   virtual TEveCaloViz* getEveCalo() const { return 0;}
+   virtual void updateEnergyScales();
+   virtual void energyScalesChanged();
+   virtual void setMaxTowerHeight();
+
+   // config
    void addToOrthoCamera(TGLOrthoCamera*, FWConfiguration&) const;
    void setFromOrthoCamera(TGLOrthoCamera*, const FWConfiguration&);
    void addToPerspectiveCamera(TGLPerspectiveCamera*, const std::string&, FWConfiguration&) const;
    void setFromPerspectiveCamera(TGLPerspectiveCamera*,  const std::string&, const FWConfiguration&);
+
 
 private:
    FWEveView(const FWEveView&);    // stop default
@@ -104,11 +116,12 @@ private:
 
    FWEventAnnotation*   m_overlayEventInfo;  
    CmsAnnotation*       m_overlayLogo;
+   TGLAnnotation*       m_energyMaxValAnnotation;
    TGLCameraGuide*      m_cameraGuide;
 
    const fireworks::Context*  m_context;
 
-   // parameters
+   // style parameters
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
    FWDoubleParameter   m_imageScale;
 #endif
@@ -117,13 +130,21 @@ private:
 
    FWBoolParameter   m_pointSmooth;
    FWDoubleParameter m_pointSize;
-   FWBoolParameter   m_lineSmooth;
+   FWBoolParameter   m_lineSmooth; 
    FWDoubleParameter m_lineWidth;
    FWDoubleParameter m_lineOutlineScale;
    FWDoubleParameter m_lineWireframeScale;
 
    FWBoolParameter   m_showCameraGuide;
 
+protected:
+   // scale parameters are  protected for use in configuration backward copatibility
+   // later when is more material,  members will be moved new FWEveCaloView class or oder helper strucutre
+   FWEnumParameter    m_energyScaleMode;
+   FWDoubleParameter  m_energyMaxAbsVal;
+   FWDoubleParameter  m_energyMaxTowerHeight;
+
+private:
    boost::shared_ptr<FWViewContextMenuHandlerGL>   m_viewContextMenu;
    std::auto_ptr<FWViewContext> m_viewContext;
 };

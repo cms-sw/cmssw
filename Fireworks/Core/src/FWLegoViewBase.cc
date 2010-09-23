@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWLegoViewBase.cc,v 1.13 2010/09/21 15:25:15 amraktad Exp $
+// $Id: FWLegoViewBase.cc,v 1.14 2010/09/21 17:20:55 amraktad Exp $
 //
 
 // system include files
@@ -53,8 +53,6 @@ FWLegoViewBase::FWLegoViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId
    m_plotEt(this,"Plot Et",true),  
    m_autoRebin(this,"Auto rebin on zoom-out",false),
    m_pixelsPerBin(this, "Pixels per bin", 10., 1., 20.),
-   m_legoAbsoluteScale (this,"Fix energy scale",false),
-   m_legoMaxAbsoluteVal(this,"Fixed maximum energy (GeV)",100.,1.,1000.),
    m_projectionMode(this, "Projection", 0l, 0l, 2l),
    m_cell2DMode(this, "Cell2DMode", 1l, 1l, 2l),
    m_drawValuesIn2D(this,"Draw Cell2D threshold (pixels)",40l,16l,200l),
@@ -79,8 +77,6 @@ FWLegoViewBase::FWLegoViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId
    m_drawValuesIn2D.changed_.connect(boost::bind(&FWLegoViewBase::setFontSizein2D,this));
    m_plotEt.changed_.connect(boost::bind(&FWLegoViewBase::plotEt,this));
    m_showOverlay.changed_.connect(boost::bind(&FWLegoViewBase::showOverlay,this));
-   m_legoMaxAbsoluteVal.changed_.connect(boost::bind(&FWLegoViewBase::autoScale, this));
-   m_legoAbsoluteScale.changed_.connect(boost::bind(&FWLegoViewBase::autoScale, this));
    m_projectionMode.changed_.connect(boost::bind(&FWLegoViewBase::setProjectionMode, this));
    m_cell2DMode.changed_.connect(boost::bind(&FWLegoViewBase::setCell2DMode, this));
 }
@@ -90,7 +86,15 @@ FWLegoViewBase::~FWLegoViewBase()
    m_lego->Destroy();
 }
 
-void FWLegoViewBase::setContext(const fireworks::Context& ctx)
+
+TEveCaloViz*
+FWLegoViewBase::getEveCalo() const
+{
+   return static_cast<TEveCaloViz*>(m_lego);
+}
+
+void 
+FWLegoViewBase::setContext(const fireworks::Context& ctx)
 {
    FWEveView::setContext(ctx);
   
@@ -119,21 +123,18 @@ void FWLegoViewBase::setContext(const fireworks::Context& ctx)
    m_lego->SetAutoRebin(m_autoRebin.value());
    m_lego->SetPixelsPerBin(m_pixelsPerBin.value());
 
-   // set falt in 2D
+   // note, do not restore max tower height, since it has not value
+   m_lego->SetScaleAbs(m_energyScaleMode.value() == FWEveView::kFixedScale);
+   m_lego->SetMaxValAbs(m_energyMaxAbsVal.value());
+
+   // set flat in 2D
    m_lego->SetHasFixedHeightIn2DMode(true);
    m_lego->SetFixedHeightValIn2DMode(0.001);
    eventScene()->AddElement(m_lego);
 
    // possiblity for outline
    m_lego->SetPlotEt(m_plotEt.value());
-   m_lego->SetMaxValAbs( m_legoMaxAbsoluteVal.value() );
-   m_lego->SetScaleAbs ( ! m_legoAbsoluteScale.value() );
- 
    viewContext()->setPlotEt(m_plotEt.value());
-   viewContext()->setAutoScale(!m_legoAbsoluteScale.value());
-   viewContext()->setPlotEt(m_plotEt.value());
-   viewContext()->getEnergyScale("Calo")->setVal(m_lego->GetValToHeight());
-
 
    TEveLegoEventHandler* eh = dynamic_cast<TEveLegoEventHandler*>( viewerGL()->GetEventHandler());
    eh->SetLego(m_lego);
@@ -165,25 +166,7 @@ FWLegoViewBase::plotEt()
 {
    m_lego->SetPlotEt(m_plotEt.value());
    viewContext()->setPlotEt(m_plotEt.value());
-   updateLegoScale();
-}
-
-void
-FWLegoViewBase::autoScale()
-{
-   m_lego->SetMaxValAbs( m_legoMaxAbsoluteVal.value() );
-   m_lego->SetScaleAbs ( m_legoAbsoluteScale.value() );
-   viewContext()->setAutoScale(!m_legoAbsoluteScale.value());
-   updateLegoScale();
-}
-
-void
-FWLegoViewBase::updateLegoScale()
-{
-   m_lego->ElementChanged(kTRUE,kTRUE);
-   viewContext()->getEnergyScale("Calo")->setVal(m_lego->GetValToHeight());
-   viewContext()->scaleChanged();
-   viewerGL()->RequestDraw();
+   updateEnergyScales();
 }
 
 void
@@ -192,6 +175,7 @@ FWLegoViewBase::showOverlay()
    if (m_overlay) m_overlay->SetShowScales(m_showOverlay.value());
    viewerGL()->RequestDraw();
 }
+
 //_______________________________________________________________________________
 
 void
@@ -219,11 +203,11 @@ FWLegoViewBase::setFrom(const FWConfiguration& iFrom)
       bool xb; double xd;
       {
          std::istringstream s(iFrom.valueForKey("Lego auto scale")->value());
-         s >> xb; m_legoAbsoluteScale.set(!xb);
+         s >> xb; m_energyScaleMode.set(xb ? FWEveView::kAutoScale : FWEveView::kFixedScale);
       }
       {
          std::istringstream s(iFrom.valueForKey("Lego scale GeV)")->value());
-         s >> xd; m_legoMaxAbsoluteVal.set(xd);
+         s >> xd; m_energyMaxAbsVal.set(xd);
       }
       {
          std::istringstream s(iFrom.valueForKey("Show scales")->value());
@@ -318,21 +302,6 @@ FWLegoViewBase::setCell2DMode()
    viewerGL()->RequestDraw();
 }
 
-void
-FWLegoViewBase::eventBegin()
-{
-   viewContext()->resetScale();
-}
-
-void
-FWLegoViewBase::eventEnd()
-{
-   FWEveView::eventEnd();
-   viewContext()->getEnergyScale("Calo")->setVal(m_lego->GetValToHeight());
-   viewContext()->scaleChanged();
-
-}
-
 void 
 FWLegoViewBase::populateController(ViewerParameterGUI& gui) const
 {
@@ -344,15 +313,12 @@ FWLegoViewBase::populateController(ViewerParameterGUI& gui) const
       addParam(&m_cell2DMode).
       addParam(&m_drawValuesIn2D);
   
-   gui.requestTab("Scale").
+   gui.requestTab("Scales").
       addParam(&m_plotEt).
-      addParam(&m_showOverlay).
-      separator().
-      addParam(&m_legoAbsoluteScale).
-      addParam(&m_legoMaxAbsoluteVal);
+      addParam(&m_showOverlay);
 
    gui.requestTab("Rebin").
       addParam(&m_autoRebin).
       addParam(&m_pixelsPerBin);
-
 }
+

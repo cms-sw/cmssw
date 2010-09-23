@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRPZView.h,v 1.11 2010/09/08 19:18:55 amraktad Exp $
+// $Id: FWRPZView.h,v 1.12 2010/09/17 16:18:55 amraktad Exp $
 //
 
 // system include files
@@ -47,14 +47,13 @@ public:
 
    virtual void addTo(FWConfiguration&) const;
    virtual void populateController(ViewerParameterGUI&) const;
+   virtual TEveCaloViz* getEveCalo() const;
 
    // ---------- member functions ---------------------------
    virtual void setContext(const fireworks::Context&);
    virtual void setFrom(const FWConfiguration&);
 
    //returns the new element created from this import
-   
-   void eventEnd();
    void importElements(TEveElement* iProjectableChild, float layer, TEveElement* iProjectedParent=0);
 
 private:
@@ -64,10 +63,10 @@ private:
    void doDistortion();
    void doCompression(bool);
    
-   void updateCaloParameters();
-   void updateScaleParameters();
+   void setEtaRng();
 
    void showProjectionAxes( );
+
    // ---------- member data --------------------------------
   static FWRPZViewGeometry* s_geometryList;
 
@@ -82,8 +81,6 @@ private:
    FWDoubleParameter  m_muonDistortion;
    FWBoolParameter    m_showProjectionAxes;
    FWBoolParameter    m_compressMuon;
-   FWDoubleParameter  m_caloFixedScale;
-   FWBoolParameter    m_caloAutoScale;
    FWBoolParameter*   m_showHF;
    FWBoolParameter*   m_showEndcaps;
 

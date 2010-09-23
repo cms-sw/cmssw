@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DViewBase.cc,v 1.15 2010/09/17 16:18:55 amraktad Exp $
+// $Id: FW3DViewBase.cc,v 1.16 2010/09/21 11:39:03 amraktad Exp $
 //
 #include <boost/bind.hpp>
 
@@ -51,8 +51,6 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId):
    m_showWireFrame(this, "Show Wire Frame", true)
 {
    viewerGL()->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
-   FWViewEnergyScale* caloScale = new FWViewEnergyScale();
-   viewContext()->addScale("Calo", caloScale);
 }
 
 FW3DViewBase::~FW3DViewBase()
@@ -74,7 +72,6 @@ void FW3DViewBase::setContext(const fireworks::Context& context)
    m_showTrackerBarrel.changed_.connect(boost::bind(&FW3DViewGeometry::showTrackerBarrel,m_geometry,_1));
    m_showTrackerEndcap.changed_.connect(boost::bind(&FW3DViewGeometry::showTrackerEndcap,m_geometry,_1));
    m_showWireFrame.changed_.connect(boost::bind(&FW3DViewBase::showWireFrame,this, _1));
-
 }
 
 void

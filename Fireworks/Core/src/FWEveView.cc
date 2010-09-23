@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.29 2010/09/13 11:10:17 amraktad Exp $
+// $Id: FWEveView.cc,v 1.30 2010/09/17 16:18:55 amraktad Exp $
 //
 
 
@@ -33,6 +33,7 @@
 #include "TEveElement.h"
 #include "TEveWindow.h"
 #include "TEveScene.h"
+#include "TEveCalo.h"
 
 #include "Fireworks/Core/interface/FWEveView.h"
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
@@ -45,7 +46,8 @@
 #include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWViewContext.h"
-#include "Fireworks/Core/src/FWDialogBuilder.h"
+#include "Fireworks/Core/interface/FWViewEnergyScale.h"
+//#include "Fireworks/Core/src/FWDialogBuilder.h"
 
 
 
@@ -67,8 +69,10 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type, unsigned i
    m_geoScene(0),
    m_overlayEventInfo(0),
    m_overlayLogo(0),
+   m_energyMaxValAnnotation(0),
    m_cameraGuide(0),
    m_context(0),
+   // style
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
    m_imageScale(this, "Image Scale", 1.0, 1.0, 6.0),
 #endif
@@ -80,8 +84,12 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type, unsigned i
    m_lineWidth(this,"Line width",1.0,1.0,10.0),
    m_lineOutlineScale(this, "Outline width scale", 1.0, 0.01, 10.0),
    m_lineWireframeScale(this, "Wireframe width scale", 1.0, 0.01, 10.0),
-
    m_showCameraGuide(this,"Show Camera Guide",false),
+   // scales
+   m_energyScaleMode(this, "ScaleMode", 1l, 1l, 2l),
+   m_energyMaxAbsVal(this, "MaxAbsVal", 150.0, 0.01, 1000.0 ),
+   m_energyMaxTowerHeight(this, "MaxTowerH", 100.0, 1.0, 300.0),
+
    m_viewContext(new FWViewContext())
 {
    m_viewer = new TEveViewer(typeName().c_str());
@@ -115,6 +123,8 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type, unsigned i
    ctxHand->setPickCameraCenter(true);
    m_viewContextMenu.reset(ctxHand);
    
+   // style params
+
    m_overlayEventInfo = new FWEventAnnotation(embeddedViewer);
    m_overlayEventInfo->setLevel(0);
 
@@ -139,6 +149,17 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type, unsigned i
    m_lineWidth.changed_.connect(boost::bind(&FWEveView::pointLineScalesChanged,this));
    m_lineOutlineScale.changed_.connect(boost::bind(&FWEveView::pointLineScalesChanged,this));
    m_lineWireframeScale.changed_.connect(boost::bind(&FWEveView::pointLineScalesChanged,this));
+
+
+   // scale params
+
+   m_energyScaleMode.addEntry(kFixedScale,   "FixedScale");
+   m_energyScaleMode.addEntry(kAutoScale,    "AutoScale");
+   m_energyScaleMode.addEntry(kCombinedScale,"CombinedScale");
+   m_energyScaleMode.changed_.connect(boost::bind(&FWEveView::updateEnergyScales,this));
+
+   m_energyMaxAbsVal.changed_.connect(boost::bind(&FWEveView::updateEnergyScales,this));
+   m_energyMaxTowerHeight.changed_.connect(boost::bind(&FWEveView::setMaxTowerHeight,this));
 }
 
 FWEveView::~FWEveView()
@@ -207,6 +228,7 @@ void
 FWEveView::eventEnd()
 {
    m_overlayEventInfo->setEvent();
+   updateEnergyScales();
 }
 
 void
@@ -219,6 +241,83 @@ void
 FWEveView::resetCamera()
 {
    viewerGL()->ResetCurrentCamera();
+}
+
+void
+FWEveView::updateEnergyScales()
+{
+   // TODO check here GLOBAL ...
+
+   TEveCaloViz* calo = getEveCalo();
+   if (calo)
+   {
+      calo->SetMaxValAbs(m_energyMaxAbsVal.value());
+      if (m_energyScaleMode.value() == kFixedScale)
+      {
+         if (calo->GetScaleAbs() == false)
+         {
+            calo->SetScaleAbs(true);
+         }
+      }
+      else if (m_energyScaleMode.value() == kAutoScale)
+      {
+         if (calo->GetScaleAbs()) 
+         {
+            calo->SetScaleAbs(false);
+         }
+      }
+      else if (m_energyScaleMode.value() == kCombinedScale)
+      {
+         float dataMax = calo->GetData()->GetMaxVal(calo->GetPlotEt());
+         bool abs = (m_energyMaxAbsVal.value() >= dataMax);
+
+         if (abs != calo->GetScaleAbs())
+         {
+            calo->SetScaleAbs(abs);
+
+            // draw annotation
+            if (abs)
+            {
+               if (m_energyMaxValAnnotation) viewerGL()->RemoveOverlayElement(m_energyMaxValAnnotation);
+            }
+            else
+            {
+               m_energyMaxValAnnotation = new TGLAnnotation(viewerGL(), Form("Et %f", dataMax), 0.1, 0.9);
+               m_energyMaxValAnnotation->SetRole(TGLOverlayElement::kViewer);
+               m_energyMaxValAnnotation->SetUseColorSet(false);
+               m_energyMaxValAnnotation->SetTextSize(0.05);
+               m_energyMaxValAnnotation->SetTextColor(kMagenta);
+            }
+            fwLog(fwlog::kInfo) << typeName() << Form("Scale mode has changed %s  AbsVal[%f] < CaloMaxVal[%f]", abs ? "Fixed" :"Automatic",
+                                                      m_energyMaxAbsVal.value(), dataMax) << std::endl;
+         }
+      }
+
+      energyScalesChanged();
+   }
+}
+
+/* Emit signal to proxy builders when scale have changes */
+void
+FWEveView::energyScalesChanged()
+{
+   if (getEveCalo()) 
+   {
+      viewContext()->getEnergyScale("Calo")->setVal(getEveCalo()->GetValToHeight());
+      viewContext()->scaleChanged();
+      getEveCalo()->ElementChanged();
+      gEve->Redraw3D();
+   }
+}
+void
+FWEveView::setMaxTowerHeight()
+{
+   TEveCaloViz* calo = getEveCalo();
+   if (calo && (typeId() != FWViewType::kLego && typeId() != FWViewType::kLegoHF))
+   {
+      calo->SetMaxTowerH(m_energyMaxTowerHeight.value());
+      energyScalesChanged();
+   }
 }
 
 //-------------------------------------------------------------------------------
@@ -266,6 +365,8 @@ FWEveView::setFrom(const FWConfiguration& iFrom)
       m_overlayLogo->setFrom(iFrom);
    }
 }
+
+//______________________________________________________________________________
 
 
 void
@@ -410,17 +511,28 @@ void
 FWEveView::populateController(ViewerParameterGUI& gui) const
 {
    gui.requestTab("Style").
-         addParam(&m_eventInfoLevel).
-         addParam(&m_drawCMSLogo).
-         addParam(&m_showCameraGuide).
-         separator().
+      addParam(&m_eventInfoLevel).
+      addParam(&m_drawCMSLogo).
+      addParam(&m_showCameraGuide).
+      separator().
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
-         addParam(&m_imageScale).
+      addParam(&m_imageScale).
 #endif
-         addParam(&m_pointSize).
-         addParam(&m_pointSmooth).
-         addParam(&m_lineSmooth).
-         addParam(&m_lineWidth).
-         addParam(&m_lineOutlineScale).
-         addParam(&m_lineWireframeScale);
+      addParam(&m_pointSize).
+      addParam(&m_pointSmooth).
+      addParam(&m_lineSmooth).
+      addParam(&m_lineWidth).
+      addParam(&m_lineOutlineScale).
+      addParam(&m_lineWireframeScale);
+
+   if (getEveCalo())
+   {
+      gui.requestTab("Scales").
+         addParam(&m_energyScaleMode).
+         addParam(&m_energyMaxAbsVal);
+
+      if (typeId() != FWViewType::kLego && typeId() != FWViewType::kLegoHF )
+         gui.requestTab("Scales").
+            addParam(&m_energyMaxTowerHeight);
+   }
 }
