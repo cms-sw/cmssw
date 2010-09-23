@@ -38,7 +38,8 @@ Conversion::Conversion(  const reco::CaloClusterPtrVector sc,
   theTrackPin_(trackPin),
   theTrackPout_(trackPout),
   theMVAout_(mva),
-  algorithm_(algo) 
+  algorithm_(algo),
+  qualityMask_(0)
  { 
    
  }
@@ -51,7 +52,8 @@ Conversion::Conversion(  const reco::CaloClusterPtrVector sc,
 			 ConversionAlgorithm algo):  
   caloCluster_(sc), tracks_(tr), 
   theConversionVertex_(convVtx), 
-  algorithm_(algo) 
+  algorithm_(algo),
+  qualityMask_(0)
  { 
 
 
@@ -74,6 +76,7 @@ Conversion::Conversion(  const reco::CaloClusterPtrVector sc,
 Conversion::Conversion() { 
 
   algorithm_=0;
+  qualityMask_=0;
   theMinDistOfApproach_ = 9999.;
   theMVAout_ = 9999.;
   thePositionAtEcal_.push_back(math::XYZPoint(0.,0.,0.));

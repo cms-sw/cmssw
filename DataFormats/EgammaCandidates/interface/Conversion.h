@@ -6,10 +6,11 @@
  *
  * \author N.Marinelli  University of Notre Dame, US
  *
- * \version $Id: Conversion.h,v 1.10 2010/01/14 14:51:21 nancy Exp $
+ * \version $Id: Conversion.h,v 1.11 2010/09/17 15:31:44 nancy Exp $
  *
  */
 
+#include <bitset>
 #include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -22,11 +23,20 @@ namespace reco {
     class Conversion  {
   public:
 
-     enum ConversionAlgorithm {undefined=0, 
+      enum ConversionAlgorithm {undefined=0, 
 				ecalSeeded=1, 
 				trackerOnly=2, 
 				mixed=3, 
 				algoSize=4}; 
+
+      enum ConversionQuality {generalTracksOnly=0, 
+                                arbitratedEcalSeeded_=1, 
+                                arbitratedMerged_=2, 
+                                highPurity=8, 
+                                highEfficiency=9,
+                                ecalMatched1Track=10,
+                                ecalMatched2Track=11};
+
       static const std::string algoNames[];      
 
       // Default constructor
@@ -120,6 +130,8 @@ namespace reco {
       static std::string algoName(ConversionAlgorithm );
       static ConversionAlgorithm  algoByName(const std::string &name);      
 
+      bool quality(ConversionQuality q) const { return  (qualityMask_ & (1<<q))>>q; }
+      void setQuality(ConversionQuality q, bool b);
 
 
       
@@ -147,6 +159,7 @@ namespace reco {
       float theMVAout_;
       /// conversion algorithm/provenance
       uint8_t algorithm_;
+      uint16_t qualityMask_;
 
 
   };
@@ -174,7 +187,13 @@ namespace reco {
       return "undefined";
     }
 
+    inline void Conversion::setQuality(ConversionQuality q, bool b){
+      if (b)//regular OR if setting value to true
+        qualityMask_ |= (1<<q) ;
+      else // doing "half-XOR" if unsetting value
+        qualityMask_ &= (~(1<<q));
 
+    }
   
 }
 
