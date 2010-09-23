@@ -1,8 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
 import RecoEgamma.EgammaPhotonProducers.conversionTrackProducer_cfi
-
 import RecoEgamma.EgammaPhotonProducers.conversionTrackMerger_cfi
+
+# Conversion Track candidate producer 
+from RecoEgamma.EgammaPhotonProducers.conversionTrackCandidates_cfi import *
+# Conversion Track producer  ( final fit )
+from RecoEgamma.EgammaPhotonProducers.ckfOutInTracksFromConversions_cfi import *
+from RecoEgamma.EgammaPhotonProducers.ckfInOutTracksFromConversions_cfi import *
+ckfTracksFromConversions = cms.Sequence(conversionTrackCandidates*ckfOutInTracksFromConversions*ckfInOutTracksFromConversions)
+
+
 
 #producer from general tracks collection, set tracker only and merged arbitrated flag
 generalConversionTrackProducer = RecoEgamma.EgammaPhotonProducers.conversionTrackProducer_cfi.conversionTrackProducer.clone(
@@ -69,4 +77,4 @@ gsfGeneralInOutOutInConversionTrackMerger = RecoEgamma.EgammaPhotonProducers.con
 
 conversionTrackMergers = cms.Sequence(inOutOutInConversionTrackMerger*generalInOutOutInConversionTrackMerger*gsfGeneralInOutOutInConversionTrackMerger)
 
-conversionTrackSequence = cms.Sequence(conversionTrackProducers*conversionTrackMergers)
+conversionTrackSequence = cms.Sequence(ckfTracksFromConversions*conversionTrackProducers*conversionTrackMergers)
