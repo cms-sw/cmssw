@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltTauDQMProcess = "HLT2"
+hltTauDQMProcess = "HLT"
 
 hltTauMonitor = cms.EDAnalyzer("HLTTauDQMSource",
     MonitorSetup = cms.VPSet(
