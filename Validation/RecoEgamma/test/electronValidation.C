@@ -90,6 +90,7 @@ void RenderHisto( TObject * obj )
 int electronValidation()
  {
   TString DBS_SAMPLE = gSystem->Getenv("DBS_SAMPLE") ;
+  TString DBS_COND = gSystem->Getenv("DBS_COND") ;
 
   TString val_ref_file_name = gSystem->Getenv("VAL_REF_FILE") ;
   TString val_new_file_name = gSystem->Getenv("VAL_NEW_FILE") ;
@@ -223,9 +224,9 @@ int electronValidation()
     <<"<html>\n"
     <<"<head>\n"
     <<"<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\" />\n"
-    <<"<title>"<<val_new_release<<" vs "<<val_ref_release<<" / "<<DBS_SAMPLE<<"</title>\n"
+    <<"<title>"<<val_new_release<<" vs "<<val_ref_release<<" / "<<DBS_SAMPLE<<" / "<<DBS_COND<<"</title>\n"
     <<"</head>\n"
-    <<"<h1><a href=\"../\"><img border=0 width=\"22\" height=\"22\" src=\"../../../../img/up.gif\" alt=\"Up\"/></a>&nbsp;"<<val_new_release<<" vs "<<val_ref_release<<" / "<<DBS_SAMPLE<<"</h1>\n" ;
+    <<"<h1><a href=\"../\"><img border=0 width=\"22\" height=\"22\" src=\"../../../../img/up.gif\" alt=\"Up\"/></a>&nbsp;"<<val_new_release<<" vs "<<val_ref_release<<" / "<<DBS_SAMPLE<<" / "<<DBS_COND<<"</h1>\n" ;
 
   web_page<<"<p>"<<val_comment ;
   if (file_ref==0)
