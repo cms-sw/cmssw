@@ -6,6 +6,4 @@
 <use   name="DQMServices/Core"/>
 <library   file="PreIdAnalyzer.cc" name="PreIdAnalyzer">
   <flags   EDM_PLUGIN="1"/>
-  <flags CXXFLAGS="-g -O0"/> 
-
 </library>
