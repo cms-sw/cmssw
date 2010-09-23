@@ -41,6 +41,12 @@ SiStripMonitorTrack_gentk = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiSt
 SiStripMonitorTrack_gentk.TrackProducer    = 'generalTracks'
 SiStripMonitorTrack_gentk.Mod_On           = True
 
+# Clone for Heavy Ion Tracks (for HI Collisions)
+import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
+SiStripMonitorTrack_hi = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
+SiStripMonitorTrack_hi.TrackProducer    = 'hiGlobalPrimTracks'
+SiStripMonitorTrack_hi.Mod_On           = True
+
 # TrackerMonitorTrack ####
 # Clone for Cosmic Track Finder
 import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
@@ -74,6 +80,14 @@ MonitorTrackResiduals_gentk.trajectoryInput        = 'generalTracks'
 MonitorTrackResiduals_gentk.OutputMEsInRootFile    = False
 MonitorTrackResiduals_gentk.Mod_On                 = False
 
+# Clone for Heavy Ion Tracks (for HI Collisions)
+import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
+MonitorTrackResiduals_hi = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
+MonitorTrackResiduals_hi.Tracks                 = 'hiGlobalPrimTracks'
+MonitorTrackResiduals_hi.trajectoryInput        = 'hiGlobalPrimTracks'
+MonitorTrackResiduals_hi.OutputMEsInRootFile    = False
+MonitorTrackResiduals_hi.Mod_On                 = False
+
 # TrackingMonitor ####
 # Clone for Cosmic Track Finder
 import DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi
@@ -100,13 +114,18 @@ TrackMon_rs.FolderName          = 'Tracking/TrackParameters'
 TrackMon_rs.doSeedParameterHistos = True
 
 # Clone for General Track (for Collision data)
-
 import DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi
 TrackMon_gentk = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone()
 TrackMon_gentk.FolderName          = 'Tracking/TrackParameters'
 TrackMon_gentk.BSFolderName        = 'Tracking/TrackParameters/BeamSpotParameters'
 
-# Tracking Efficiency
+# Clone for Heavy Ion Tracks (for HI Collisions)
+import DQM.TrackingMonitor.TrackerHeavyIonTrackingMonitor_cfi
+TrackMon_hi = DQM.TrackingMonitor.TrackerHeavyIonTrackingMonitor_cfi.TrackerHeavyIonTrackMon.clone()
+TrackMon_hi.FolderName          = 'Tracking/TrackParameters'
+TrackMon_hi.BSFolderName        = 'Tracking/TrackParameters/BeamSpotParameters'
+
+# Tracking Efficiency ####
 # Clone for Cosmic Tracks
 import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
 TrackEffMon_cosmicTk = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.clone()
@@ -134,6 +153,13 @@ TrackEffMon_bhmuon = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.
 TrackEffMon_bhmuon.TKTrackCollection               = 'ctfWithMaterialTracksBeamHaloMuon'
 TrackEffMon_bhmuon.AlgoName                        = 'BHMuonTk'
 TrackEffMon_bhmuon.FolderName                      = 'Tracking/TrackParameters/TrackEfficiency'
+
+# Clone for Heavy Ion Tracks (for HI Collisions)
+import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
+TrackEffMon_hi = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.clone()
+TrackEffMon_hi.TKTrackCollection                   = 'hiGlobalPrimTracks'
+TrackEffMon_hi.AlgoName                            = 'HeavyIonTk'
+TrackEffMon_hi.FolderName                          = 'Tracking/TrackParameters/TrackEfficiency'
 
 # Services needed for TkHistoMap
 TkDetMap = cms.Service("TkDetMap")
