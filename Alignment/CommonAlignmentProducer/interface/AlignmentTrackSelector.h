@@ -76,8 +76,9 @@ class AlignmentTrackSelector
   const int minHitsinBPIX_, minHitsinFPIX_, minHitsinPIX_;
   const int minHitsinTIDplus_, minHitsinTIDminus_, minHitsinTECplus_, minHitsinTECminus_;
   const int minHitsinFPIXplus_, minHitsinFPIXminus_;
-  const int minHitsinENDCAP_, minHitsinENDCAPplus_, minHitsinENDCAPminus_, maxHitDiffEndcaps_;
-  const int nLostHitMax_;
+  const int minHitsinENDCAP_, minHitsinENDCAPplus_, minHitsinENDCAPminus_;
+  const double maxHitDiffEndcaps_;
+  const double nLostHitMax_;
 
   const edm::InputTag clusterValueMapTag_;  // ValueMap containing association cluster - flag
   const int minPrescaledHits_;
