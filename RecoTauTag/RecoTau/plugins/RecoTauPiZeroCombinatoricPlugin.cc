@@ -10,6 +10,8 @@
  * $Id $
  */
 
+#include <algorithm>
+
 #include "RecoTauTag/RecoTau/interface/RecoTauPiZeroPlugins.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
@@ -20,8 +22,6 @@
 #include "RecoTauTag/RecoTau/interface/CombinatoricGenerator.h"
 
 #include "CommonTools/CandUtils/interface/AddFourMomenta.h"
-
-#include <algorithm>
 
 namespace reco { namespace tau {
 
@@ -50,13 +50,13 @@ RecoTauPiZeroCombinatoricPlugin::RecoTauPiZeroCombinatoricPlugin(
 std::vector<RecoTauPiZero> RecoTauPiZeroCombinatoricPlugin::operator()(
     const reco::PFJet& jet) const {
   // Get list of gamma candidates
-  typedef std::vector<reco::PFCandidatePtr> PFCandPtrs; 
+  typedef std::vector<reco::PFCandidatePtr> PFCandPtrs;
   typedef PFCandPtrs::const_iterator PFCandIter;
   std::vector<RecoTauPiZero> output;
 
   PFCandPtrs pfGammaCands = pfGammas(jet);
   // Check if we have anything to do...
-  if(pfGammaCands.size() < choose_)
+  if (pfGammaCands.size() < choose_)
     return output;
 
   // Define the valid range of gammas to use
@@ -71,13 +71,13 @@ std::vector<RecoTauPiZero> RecoTauPiZeroCombinatoricPlugin::operator()(
   ComboGenerator generator(start_iter, end_iter, choose_);
 
   // Find all possible combinations
-  for(ComboGenerator::iterator combo = generator.begin(); 
+  for (ComboGenerator::iterator combo = generator.begin();
       combo != generator.end(); ++combo) {
     const Candidate::LorentzVector totalP4;
-    RecoTauPiZero piZero(0, totalP4, Candidate::Point(0,0,0), 
+    RecoTauPiZero piZero(0, totalP4, Candidate::Point(0, 0, 0),
         111, 10001, true, name());
     // Add our daughters from this combination
-    for(ComboGenerator::combo_iterator candidate = combo->combo_begin(); 
+    for (ComboGenerator::combo_iterator candidate = combo->combo_begin();
         candidate != combo->combo_end();  ++candidate) {
       piZero.addDaughter(*candidate);
     }
@@ -92,9 +92,9 @@ std::vector<RecoTauPiZero> RecoTauPiZeroCombinatoricPlugin::operator()(
   return output;
 }
 
-}} // end namespace reco::tau
+}}  // end namespace reco::tau
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_EDM_PLUGIN(RecoTauPiZeroBuilderPluginFactory, 
-    reco::tau::RecoTauPiZeroCombinatoricPlugin, 
+DEFINE_EDM_PLUGIN(RecoTauPiZeroBuilderPluginFactory,
+    reco::tau::RecoTauPiZeroCombinatoricPlugin,
     "RecoTauPiZeroCombinatoricPlugin");
