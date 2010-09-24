@@ -7,6 +7,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "DataFormats/Common/interface/RefToBase.h"
+
 using namespace std;
 using namespace edm;
 PFConversionProducer::PFConversionProducer(const ParameterSet& iConfig):
@@ -53,15 +55,15 @@ PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   // loop on all NuclearInteraction 
   for( uint icoll=0; icoll < convColl.size(); icoll++) {
-
+    if ( !convColl[icoll].quality(reco::Conversion::generalTracksOnly) ) continue;
     std::vector<reco::PFRecTrackRef> pfRecTkcoll;
 
-    std::vector<reco::TrackRef> tracksRefColl = convColl[icoll].tracks();
+    std::vector<edm::RefToBase<reco::Track> > tracksRefColl = convColl[icoll].tracks();
 
     // convert the secondary tracks
     for(unsigned it = 0; it < tracksRefColl.size(); it++){
 
-      reco::TrackRef trackRef = tracksRefColl[it];
+      reco::TrackRef trackRef = (tracksRefColl[it]).castTo<reco::TrackRef>();
 
       reco::PFRecTrack pfRecTrack( trackRef->charge(), 
 				   reco::PFRecTrack::KF, 
