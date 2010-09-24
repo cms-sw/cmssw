@@ -29,34 +29,34 @@ template<typename RankingList, typename Type>
   };
 
 template<typename Container, class OverlapFunction>
-  Container cleanOverlaps(const Container& dirty) {
-    typedef typename Container::const_iterator Iterator;
-    // Output container of clean objects
-    Container clean;
-    OverlapFunction overlapChecker;
-    for (Iterator candidate = dirty.begin(); candidate != dirty.end();
-        ++candidate) {
-      // Check if this overlaps with a pizero already in the clean list
-      bool overlaps = false;
-      for (Iterator cleaned = clean.begin();
-          cleaned != clean.end() && !overlaps; ++cleaned) {
-        overlaps = overlapChecker(*candidate, *cleaned);
-      }
-      // If it didn't overlap with anything clean, add it to the clean list
-      if (!overlaps)
-        clean.insert(clean.end(), *candidate);
+Container cleanOverlaps(const Container& dirty) {
+  typedef typename Container::const_iterator Iterator;
+  // Output container of clean objects
+  Container clean;
+  OverlapFunction overlapChecker;
+  for (Iterator candidate = dirty.begin(); candidate != dirty.end();
+       ++candidate) {
+    // Check if this overlaps with a pizero already in the clean list
+    bool overlaps = false;
+    for (Iterator cleaned = clean.begin();
+         cleaned != clean.end() && !overlaps; ++cleaned) {
+      overlaps = overlapChecker(*candidate, *cleaned);
     }
-    return clean;
+    // If it didn't overlap with anything clean, add it to the clean list
+    if (!overlaps)
+      clean.insert(clean.end(), *candidate);
   }
+  return clean;
+}
 
-template<typename T> 
-  class SortByDescendingPt {
-    public:
-      bool operator()(const T& a, const T& b) const {
-        return a.pt() > b.pt();
-      }
-  };
+template<typename T>
+class SortByDescendingPt {
+  public:
+    bool operator()(const T& a, const T& b) const {
+      return a.pt() > b.pt();
+    }
+};
 
-} } // end reco::tau::
+}} // end reco::tau::
 
 #endif
