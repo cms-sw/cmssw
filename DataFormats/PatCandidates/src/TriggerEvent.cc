@@ -1,5 +1,5 @@
 //
-// $Id: TriggerEvent.cc,v 1.9 2010/04/20 21:39:46 vadler Exp $
+// $Id: TriggerEvent.cc,v 1.10 2010/04/21 10:04:14 vadler Exp $
 //
 
 
@@ -72,7 +72,7 @@ TriggerAlgorithmRefVector TriggerEvent::techAlgorithms() const
 {
   TriggerAlgorithmRefVector theTechAlgorithms;
   for ( TriggerAlgorithmCollection::const_iterator iAlgorithm = algorithms()->begin(); iAlgorithm != algorithms()->end(); ++iAlgorithm ) {
-    if ( iAlgorithm->decision() ) {
+    if ( iAlgorithm->techTrigger() ) {
       const std::string nameAlgorithm( iAlgorithm->name() );
       const TriggerAlgorithmRef algorithmRef( algorithms(), indexAlgorithm( nameAlgorithm ) );
       theTechAlgorithms.push_back( algorithmRef );
