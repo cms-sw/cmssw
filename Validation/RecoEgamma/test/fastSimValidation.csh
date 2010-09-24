@@ -19,7 +19,7 @@
 setenv TYPE Photons
 setenv CMSSWver1 3_9_0
 setenv RELEASE 390
-setenv PRERELEASE pre3
+setenv PRERELEASE pre4
 
 
 setenv RELEASE ${RELEASE}${PRERELEASE}
