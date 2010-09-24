@@ -126,9 +126,10 @@ void TCCBlockFormatter::DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim,
 	int irow = jTT/4 + (itcc_block-1)*(Nrows_TCC+1);  // you fit 4 TP's per row; move forward if you're not in the first block;
 	int ival = jTT % 4;                               // for each block you have to skip, move of (Nrows_TCC +1) - 1 is for the TCC header
 
-	//FIXME: I believe something like this must be done (copied from TCC block formater). Ph Gras:
-	//if(NUMB_SM_EB_PLU_MIN <= iDCC && iDCC <= NUMB_SM_EB_PLU_MAX)
-	//  {ival = 3-ival;}
+	// RTC required TP's tp follow global phi also in EB+, thus swap them inside the single TCC 
+	// here you could swap ival -> 3-ival to swap phi insied EB+ supermodules  
+	if(NUMB_SM_EB_PLU_MIN <= iDCC && iDCC <= NUMB_SM_EB_PLU_MAX)
+	  {ival = 3-ival;}
 
 	FE_index += irow;                                 // ival is location inside a TP row; varies between 0-3
 
