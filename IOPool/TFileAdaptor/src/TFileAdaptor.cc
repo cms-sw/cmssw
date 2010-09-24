@@ -19,8 +19,8 @@
 #include <string>
 
 // Driver for configuring ROOT plug-in manager to use TStorageFactoryFile.
-class TFileAdaptor
-{
+class TFileAdaptor {
+private:
   bool enabled_;
   bool doStats_;
   std::string cacheHint_;
@@ -29,23 +29,21 @@ class TFileAdaptor
   double minFree_;
   std::vector<std::string> native_;
 
-  static void addType(TPluginManager *mgr, const char *type)
-  {
-    mgr->AddHandler("TFile", 
-		    type, 
-		    "TStorageFactoryFile", 
-		    "IOPoolTFileAdaptor",
-		    "TStorageFactoryFile(const char*,Option_t*,const char*,Int_t)"); 
+  static void addType(TPluginManager *mgr, char const *type) {
+    mgr->AddHandler("TFile",
+                    type,
+                    "TStorageFactoryFile",
+                    "IOPoolTFileAdaptor",
+                    "TStorageFactoryFile(char const*,Option_t*,char const*,Int_t)");
 
-    mgr->AddHandler("TSystem", 
-		    type, 
-		    "TStorageFactorySystem", 
-		    "IOPoolTFileAdaptor",
-		    "TStorageFactorySystem()"); 
+    mgr->AddHandler("TSystem",
+                    type,
+                    "TStorageFactorySystem",
+                    "IOPoolTFileAdaptor",
+                    "TStorageFactorySystem()");
   }
 
-  bool native(const char *proto) const
-  {
+  bool native(char const *proto) const {
     return std::find(native_.begin(), native_.end(), "all") != native_.end()
       || std::find(native_.begin(), native_.end(), proto) != native_.end();
   }
@@ -57,9 +55,8 @@ public:
       cacheHint_("application-only"),
       readHint_("auto-detect"),
       tempDir_(),
-      minFree_(0)
-  {
-    if (! (enabled_ = p.getUntrackedParameter<bool> ("enable", enabled_)))
+      minFree_(0) {
+    if (!(enabled_ = p.getUntrackedParameter<bool> ("enable", enabled_)))
       return;
 
     StorageFactory *f = StorageFactory::get();
@@ -70,18 +67,17 @@ public:
     minFree_ = p.getUntrackedParameter<double> ("tempMinFree", f->tempMinFree());
     native_ = p.getUntrackedParameter<std::vector<std::string> >("native", native_);
     ar.watchPostEndJob(this, &TFileAdaptor::termination);
-     
+
     //values set in the site local config or in SiteLocalConfigService override
     // any values set for this service.  This is to allow backwards compatibility
     // for WMDM tools until we switch to only using the site local config for this info
     edm::Service<edm::SiteLocalConfig> pSLC;
-    if (pSLC.isAvailable())
-    {
+    if (pSLC.isAvailable()) {
       if (const std::string *p = pSLC->sourceCacheTempDir())
         tempDir_ = *p;
 
       if (const double *p = pSLC->sourceCacheMinFree())
-	minFree_ = *p;
+        minFree_ = *p;
 
       if (const std::string *p = pSLC->sourceCacheHint())
         cacheHint_ = *p;
@@ -157,62 +153,53 @@ public:
   }
 
   // Write current Storage statistics on a ostream
-  void termination(void) const
-  {
-    std::ostringstream os;
-    statsXML(os);
-    if (! os.str().empty())
-    {
-      edm::Service<edm::JobReport> jr;
-      jr->reportStorageStats(os.str());
+  void termination(void) const {
+    std::map<std::string, std::string> data;
+    statsXML(data);
+    if (!data.empty()) {
+      edm::Service<edm::JobReport> reportSvc;
+      reportSvc->reportPerformanceSummary("StorageStatistics", data);
     }
   }
 
-  void stats(std::ostream &o) const
-  {
-    if (! doStats_)
+  void stats(std::ostream &o) const {
+    if (!doStats_) {
       return;
-
+    }
+    float const oneMeg = 1048576.0;
     o << "Storage parameters: adaptor: true"
       << " Stats:" << (doStats_ ? "true" : "false") << '\n'
       << " Cache hint:" << cacheHint_ << '\n'
       << " Read hint:" << readHint_ << '\n'
       << "Storage statistics: "
       << StorageAccount::summaryText()
-      << "; tfile/read=?/?/" << (TFile::GetFileBytesRead() / 1048576.0) << "MB/?ms/?ms/?ms"
-      << "; tfile/write=?/?/" << (TFile::GetFileBytesWritten() / 1048576.0) << "MB/?ms/?ms/?ms";
+      << "; tfile/read=?/?/" << (TFile::GetFileBytesRead() / oneMeg) << "MB/?ms/?ms/?ms"
+      << "; tfile/write=?/?/" << (TFile::GetFileBytesWritten() / oneMeg) << "MB/?ms/?ms/?ms";
   }
 
-  void statsXML(std::ostream &o) const
-  {
-    if (! doStats_)
+  void statsXML(std::map<std::string, std::string> &data) const {
+    if (!doStats_) {
       return;
-
-    o << "<storage-factory-summary>\n"
-      << " <storage-factory-params>\n"
-      << "  <param name='enabled' value='true' unit='boolean'/>\n"
-      << "  <param name='cache-hint' value='" << cacheHint_ << "' unit='string'/>\n"
-      << "  <param name='read-hint' value='" << readHint_ << "' unit='string'/>\n"
-      << "  <param name='stats' value='" << (doStats_ ? "true" : "false") << "' unit='boolean'/>\n"
-      << " </storage-factory-params>\n"
-
-      << " <storage-factory-stats>\n"
-      << StorageAccount::summaryXML() << std::endl
-      << "  <storage-root-summary>\n"
-      << "   <counter-value subsystem='tfile' counter-name='read' total-megabytes='"
-      << (TFile::GetFileBytesRead() / 1048576.0) << "'/>\n"
-      << "   <counter-value subsystem='tfile' counter-name='write' total-megabytes='"
-      << (TFile::GetFileBytesWritten() / 1048576.0) << "'/>\n"
-      << "  </storage-root-summary>\n"
-      << " </storage-factory-stats>\n"
-      << "</storage-factory-summary>";
+    }
+    float const oneMeg = 1048576.0;
+    data.insert(std::make_pair("Parameter-untracked-bool-enabled", "true"));
+    data.insert(std::make_pair("Parameter-untracked-bool-stats", (doStats_ ? "true" : "false")));
+    data.insert(std::make_pair("Parameter-untracked-string-cacheHint", cacheHint_));
+    data.insert(std::make_pair("Parameter-untracked-string-readHint", readHint_));
+    StorageAccount::fillSummary(data);
+    std::ostringstream r;
+    std::ostringstream w;
+    r << (TFile::GetFileBytesRead() / oneMeg);
+    w << (TFile::GetFileBytesWritten() / oneMeg);
+    data.insert(std::make_pair("ROOT-tfile-read-totalMegabytes", r.str()));
+    data.insert(std::make_pair("ROOT-tfile-write-totalMegabytes", w.str()));
   }
 };
 
 
 #include <iostream>
 
-/* 
+/*
  * wrapper to bind TFileAdaptor to root, python etc
  * loading IOPoolTFileAdaptor library and instantiating
  * TFileAdaptorUI will make root to use StorageAdaptor for I/O instead
@@ -220,13 +207,13 @@ public:
  */
 class TFileAdaptorUI {
 public:
-  
+
   TFileAdaptorUI();
   ~TFileAdaptorUI();
 
   // print current Storage statistics on cout
   void stats() const;
-  
+
 private:
   boost::shared_ptr<TFileAdaptor> me;
 };
@@ -242,7 +229,6 @@ TFileAdaptorUI::~TFileAdaptorUI() {}
 void TFileAdaptorUI::stats() const {
   me->stats(std::cout); std::cout << std::endl;
 }
-
 
 typedef TFileAdaptor AdaptorConfig;
 DEFINE_FWK_SERVICE(AdaptorConfig);

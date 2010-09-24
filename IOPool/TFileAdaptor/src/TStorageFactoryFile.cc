@@ -204,8 +204,8 @@ TStorageFactoryFile::ReadBuffer(char *buf, Int_t len)
     Bool_t   async = c->IsAsyncReading();
 
     StorageAccount::Stamp cstats(async
-				 ? storageCounter(s_statsCPrefetch, "read-prefetch-to-cache")
-				 : storageCounter(s_statsCRead, "read-via-cache"));
+				 ? storageCounter(s_statsCPrefetch, "readPrefetchToCache")
+				 : storageCounter(s_statsCRead, "readViaCache"));
 
     Int_t st = ReadBufferViaCache(async ? 0 : buf, len);
 
@@ -229,7 +229,7 @@ TStorageFactoryFile::ReadBuffer(char *buf, Int_t len)
   // if (! st) storage_->caching(true, -1, s_readahead);
 
   // A real read
-  StorageAccount::Stamp xstats(storageCounter(s_statsXRead, "read-actual"));
+  StorageAccount::Stamp xstats(storageCounter(s_statsXRead, "readActual"));
   IOSize n = storage_->xread(buf, len);
   xstats.tick(n);
   stats.tick(n);
@@ -252,7 +252,7 @@ TStorageFactoryFile::ReadBufferAsync(Long64_t off, Int_t len)
     return kTRUE;
   }
 
-  StorageAccount::Stamp stats(storageCounter(s_statsARead, "read-async"));
+  StorageAccount::Stamp stats(storageCounter(s_statsARead, "readAsync"));
 
   // If asynchronous reading is disabled, bail out now, regardless
   // whether the underlying storage supports prefetching.  If it is
@@ -360,7 +360,7 @@ TStorageFactoryFile::ReadBuffers(char *buf, Long64_t *pos, Int_t *len, Int_t nbu
           //we read the block directly
           Seek(pos[i]);
 
-          StorageAccount::Stamp xstats(storageCounter(s_statsXRead, "read-actual"));
+          StorageAccount::Stamp xstats(storageCounter(s_statsXRead, "readActual"));
           // if xread returns short, then we have an error.  Break from the loop
           // and return kTRUE - signaling an error.
           result = ((IOSize)len[i] == storage_->xread(&buf[k], len[i])) ? kFALSE : kTRUE;
@@ -385,7 +385,7 @@ TStorageFactoryFile::ReadBuffers(char *buf, Long64_t *pos, Int_t *len, Int_t nbu
           assert(pos[i-1]-curbegin+len[i-1] <= READ_COALESCE_SIZE);
           IOSize nahead = IOSized(pos[i-1]-curbegin+len[i-1]);
 
-          StorageAccount::Stamp xstats(storageCounter(s_statsXRead, "read-actual"));
+          StorageAccount::Stamp xstats(storageCounter(s_statsXRead, "readActual"));
           result = ( nahead == storage_->xread(&buf2[0], nahead)) ? kFALSE : kTRUE;
           xstats.tick(nahead);
 
@@ -419,7 +419,7 @@ TStorageFactoryFile::ReadBuffers(char *buf, Long64_t *pos, Int_t *len, Int_t nbu
 
   // Null buffer means asynchronous reads into I/O system's cache.
   bool success;
-  StorageAccount::Stamp astats(storageCounter(s_statsARead, "read-async"));
+  StorageAccount::Stamp astats(storageCounter(s_statsARead, "readAsync"));
   // Synchronise low-level cache with the supposed cache in TFile.
   // storage_->caching(true, -1, 0);
   success = storage_->prefetch(&iov[0], nbuf);
@@ -452,7 +452,7 @@ TStorageFactoryFile::WriteBuffer(const char *buf, Int_t len)
   }
 
   StorageAccount::Stamp stats(storageCounter(s_statsWrite, "write"));
-  StorageAccount::Stamp cstats(storageCounter(s_statsCWrite, "write-via-cache"));
+  StorageAccount::Stamp cstats(storageCounter(s_statsCWrite, "writeViaCache"));
 
   // Try first writing via a cache, and if that's not possible, directly.
   Int_t st;
@@ -461,7 +461,7 @@ TStorageFactoryFile::WriteBuffer(const char *buf, Int_t len)
   case 0:
     // Actual write.
     {
-      StorageAccount::Stamp xstats(storageCounter(s_statsXWrite, "write-actual"));
+      StorageAccount::Stamp xstats(storageCounter(s_statsXWrite, "writeActual"));
       IOSize n = storage_->xwrite(buf, len);
       xstats.tick(n);
       stats.tick(n);

@@ -3,42 +3,51 @@
 #include <sstream>
 #include <unistd.h>
 
-boost::mutex			s_mutex;
-StorageAccount::StorageStats	s_stats;
+boost::mutex                 s_mutex;
+StorageAccount::StorageStats s_stats;
 
-static double timeRealNanoSecs (void)
-{
+static double timeRealNanoSecs (void) {
   struct timespec tm;
   if (clock_gettime(CLOCK_REALTIME, &tm) == 0)
     return tm.tv_sec * 1e9 + tm.tv_nsec;
   return 0;
 }
 
+static std::string i2str(int i) {
+  std::ostringstream t;
+  t << i;
+  return t.str();
+}
+
+static std::string d2str(double d) {
+  std::ostringstream t;
+  t << d;
+  return t.str();
+}
+
 std::string
-StorageAccount::summaryText (bool banner /*=false*/)
-{
+StorageAccount::summaryText (bool banner /*=false*/) {
   bool first = true;
   std::ostringstream os;
-  if (banner) 
+  if (banner)
     os << "stats: class/operation/attempts/successes/amount/time-total/time-min/time-max\n";
   for (StorageStats::iterator i = s_stats.begin (); i != s_stats.end(); ++i)
     for (OperationStats::iterator j = i->second->begin (); j != i->second->end (); ++j, first = false)
       os << (first ? "" : "; ")
-	 << i->first << '/'
-	 << j->first << '='
-	 << j->second.attempts << '/'
-	 << j->second.successes << '/'
-	 << (j->second.amount / 1024 / 1024) << "MB/"
-	 << (j->second.timeTotal / 1000 / 1000) << "ms/" 
-         << (j->second.timeMin / 1000 / 1000) << "ms/" 
+         << i->first << '/'
+         << j->first << '='
+         << j->second.attempts << '/'
+         << j->second.successes << '/'
+         << (j->second.amount / 1024 / 1024) << "MB/"
+         << (j->second.timeTotal / 1000 / 1000) << "ms/"
+         << (j->second.timeMin / 1000 / 1000) << "ms/"
          << (j->second.timeMax / 1000 / 1000) << "ms";
-  
+ 
   return os.str ();
 }
 
 std::string
-StorageAccount::summaryXML (void)
-{
+StorageAccount::summaryXML (void) {
   bool first = true;
   std::ostringstream os;
   os << "<storage-timing-summary>\n";
@@ -56,24 +65,40 @@ StorageAccount::summaryXML (void)
   return os.str ();
 }
 
-const StorageAccount::StorageStats &
+void
+StorageAccount::fillSummary(std::map<std::string, std::string>& summary) {
+  int const oneM = 1000 * 1000;
+  int const oneMeg = 1024 * 1024;
+  for (StorageStats::iterator i = s_stats.begin (); i != s_stats.end(); ++i) {
+    for (OperationStats::iterator j = i->second->begin(); j != i->second->end(); ++j) {
+      std::ostringstream os;
+      os << "Timing-" << i->first << "-" << j->first << "-";
+      summary.insert(std::make_pair(os.str() + "numOperations", i2str(j->second.attempts)));
+      summary.insert(std::make_pair(os.str() + "numSuccessfulOperations", i2str(j->second.successes)));
+      summary.insert(std::make_pair(os.str() + "totalMegabytes", d2str(j->second.amount / oneMeg)));
+      summary.insert(std::make_pair(os.str() + "totalMsecs", d2str(j->second.timeTotal / oneM)));
+      summary.insert(std::make_pair(os.str() + "minMsecs", d2str(j->second.timeMin / oneM)));
+      summary.insert(std::make_pair(os.str() + "maxMsecs", d2str(j->second.timeMax / oneM)));
+    }
+  }
+}
+
+const StorageAccount::StorageStats&
 StorageAccount::summary (void)
 { return s_stats; }
 
-StorageAccount::Counter &
-StorageAccount::counter (const std::string &storageClass, const std::string &operation)
-{
-  boost::mutex::scoped_lock	    lock (s_mutex);
+StorageAccount::Counter&
+StorageAccount::counter (const std::string &storageClass, const std::string &operation) {
+  boost::mutex::scoped_lock lock (s_mutex);
   boost::shared_ptr<OperationStats> &opstats = s_stats [storageClass];
-  if (! opstats) opstats.reset(new OperationStats);
-  
+  if (!opstats) opstats.reset(new OperationStats);
+
   OperationStats::iterator pos = opstats->find (operation);
-  if (pos == opstats->end ())
-  {
+  if (pos == opstats->end ()) {
     Counter x = { 0, 0, 0, 0, 0 };
     pos = opstats->insert (OperationStats::value_type (operation, x)).first;
   }
-  
+
   return pos->second;
 }
 
