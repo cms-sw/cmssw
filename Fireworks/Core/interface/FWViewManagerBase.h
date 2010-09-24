@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 10:29:00 EST 2008
-// $Id: FWViewManagerBase.h,v 1.19 2010/08/30 15:42:32 amraktad Exp $
+// $Id: FWViewManagerBase.h,v 1.20 2010/09/07 15:46:46 yana Exp $
 //
 
 // system include files
@@ -57,7 +57,7 @@ public:
    // ---------- member functions ---------------------------
    virtual void newItem(const FWEventItem*) = 0;
 
-   void setContext(const fireworks::Context* x) { m_context = x; }
+   virtual void setContext(const fireworks::Context* x) { m_context = x; }
    
    void setChangeManager(FWModelChangeManager* iCM);
    void setColorManager(FWColorManager* iCM);

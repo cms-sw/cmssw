@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWLegoViewBase.cc,v 1.14 2010/09/21 17:20:55 amraktad Exp $
+// $Id: FWLegoViewBase.cc,v 1.15 2010/09/23 18:30:00 amraktad Exp $
 //
 
 // system include files
@@ -124,8 +124,8 @@ FWLegoViewBase::setContext(const fireworks::Context& ctx)
    m_lego->SetPixelsPerBin(m_pixelsPerBin.value());
 
    // note, do not restore max tower height, since it has not value
-   m_lego->SetScaleAbs(m_energyScaleMode.value() == FWEveView::kFixedScale);
-   m_lego->SetMaxValAbs(m_energyMaxAbsVal.value());
+   m_lego->SetScaleAbs(energyScaleMode() == FWEveView::kFixedScale);
+   m_lego->SetMaxValAbs(energyMaxAbsVal());
 
    // set flat in 2D
    m_lego->SetHasFixedHeightIn2DMode(true);
@@ -200,7 +200,7 @@ FWLegoViewBase::setFrom(const FWConfiguration& iFrom)
    // view controller parameters, changed name in version 4
    if (iFrom.version() < 4)
    {
-      bool xb; double xd;
+      bool xb;/* double xd;
       {
          std::istringstream s(iFrom.valueForKey("Lego auto scale")->value());
          s >> xb; m_energyScaleMode.set(xb ? FWEveView::kAutoScale : FWEveView::kFixedScale);
@@ -208,7 +208,7 @@ FWLegoViewBase::setFrom(const FWConfiguration& iFrom)
       {
          std::istringstream s(iFrom.valueForKey("Lego scale GeV)")->value());
          s >> xd; m_energyMaxAbsVal.set(xd);
-      }
+         }*/
       {
          std::istringstream s(iFrom.valueForKey("Show scales")->value());
          s >> xb; m_showOverlay.set(xb);

@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.30 2010/09/17 16:18:55 amraktad Exp $
+// $Id: FWEveView.cc,v 1.31 2010/09/23 18:30:00 amraktad Exp $
 //
 
 
@@ -47,6 +47,7 @@
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWViewContext.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
+#include "Fireworks/Core/interface/CmsShowCommon.h"
 //#include "Fireworks/Core/src/FWDialogBuilder.h"
 
 
@@ -86,6 +87,7 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type, unsigned i
    m_lineWireframeScale(this, "Wireframe width scale", 1.0, 0.01, 10.0),
    m_showCameraGuide(this,"Show Camera Guide",false),
    // scales
+   m_useGlobalScales(this, "UseGlobalScales", true),
    m_energyScaleMode(this, "ScaleMode", 1l, 1l, 2l),
    m_energyMaxAbsVal(this, "MaxAbsVal", 150.0, 0.01, 1000.0 ),
    m_energyMaxTowerHeight(this, "MaxTowerH", 100.0, 1.0, 300.0),
@@ -152,7 +154,7 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type, unsigned i
 
 
    // scale params
-
+   m_useGlobalScales.changed_.connect(boost::bind(&FWEveView::updateEnergyScales, this));
    m_energyScaleMode.addEntry(kFixedScale,   "FixedScale");
    m_energyScaleMode.addEntry(kAutoScale,    "AutoScale");
    m_energyScaleMode.addEntry(kCombinedScale,"CombinedScale");
@@ -243,33 +245,73 @@ FWEveView::resetCamera()
    viewerGL()->ResetCurrentCamera();
 }
 
+//______________________________________________________________________________
+
+long
+FWEveView::energyScaleMode()
+{
+   if (m_useGlobalScales.value())
+      return context().commonPrefs()->getEnergyScaleMode();
+   else
+      return m_energyScaleMode.value();
+}
+
+double 
+FWEveView::energyMaxAbsVal()
+{
+   if (m_useGlobalScales.value())
+      return context().commonPrefs()->getEnergyMaxAbsVal();
+   else
+      return m_energyMaxAbsVal.value();
+}
+
+double 
+FWEveView::energyMaxTowerHeight()
+{   if (m_useGlobalScales.value())
+      return context().commonPrefs()->getEnergyMaxTowerHeight();
+   else
+      return m_energyMaxTowerHeight.value();
+}
+
+void
+FWEveView::setMaxTowerHeight()
+{
+   TEveCaloViz* calo = getEveCalo();
+   if (calo && (typeId() != FWViewType::kLego && typeId() != FWViewType::kLegoHF))
+   {
+      calo->SetMaxTowerH(energyMaxTowerHeight());
+      energyScalesChanged();
+   }
+}
+
 void
 FWEveView::updateEnergyScales()
 {
-   // TODO check here GLOBAL ...
-
    TEveCaloViz* calo = getEveCalo();
    if (calo)
    {
-      calo->SetMaxValAbs(m_energyMaxAbsVal.value());
-      if (m_energyScaleMode.value() == kFixedScale)
+      calo->SetMaxValAbs(energyMaxAbsVal());
+      if (calo && (typeId() != FWViewType::kLego && typeId() != FWViewType::kLegoHF))
+         calo->SetMaxTowerH(energyMaxTowerHeight());
+   
+      if (energyScaleMode() == kFixedScale)
       {
          if (calo->GetScaleAbs() == false)
          {
             calo->SetScaleAbs(true);
          }
       }
-      else if (m_energyScaleMode.value() == kAutoScale)
+      else if (energyScaleMode() == kAutoScale)
       {
          if (calo->GetScaleAbs()) 
          {
             calo->SetScaleAbs(false);
          }
       }
-      else if (m_energyScaleMode.value() == kCombinedScale)
+      else if (energyScaleMode() == kCombinedScale)
       {
          float dataMax = calo->GetData()->GetMaxVal(calo->GetPlotEt());
-         bool abs = (m_energyMaxAbsVal.value() >= dataMax);
+         bool abs = (energyMaxAbsVal() >= dataMax);
 
          if (abs != calo->GetScaleAbs())
          {
@@ -288,8 +330,8 @@ FWEveView::updateEnergyScales()
                m_energyMaxValAnnotation->SetTextSize(0.05);
                m_energyMaxValAnnotation->SetTextColor(kMagenta);
             }
-            fwLog(fwlog::kInfo) << typeName() << Form("Scale mode has changed %s  AbsVal[%f] < CaloMaxVal[%f]", abs ? "Fixed" :"Automatic",
-                                                      m_energyMaxAbsVal.value(), dataMax) << std::endl;
+            fwLog(fwlog::kInfo) << typeName() << Form("Scale mode has changed %s  AbsVal[%f] < CaloMaxVal[%.1f]", abs ? "Fixed" :"Automatic",
+                                                      energyMaxAbsVal(), dataMax) << std::endl;
          }
       }
 
@@ -303,20 +345,11 @@ FWEveView::energyScalesChanged()
 {
    if (getEveCalo()) 
    {
+      // printf("scale changed %f \n",getEveCalo()->GetValToHeight());
       viewContext()->getEnergyScale("Calo")->setVal(getEveCalo()->GetValToHeight());
       viewContext()->scaleChanged();
       getEveCalo()->ElementChanged();
       gEve->Redraw3D();
-   }
-}
-void
-FWEveView::setMaxTowerHeight()
-{
-   TEveCaloViz* calo = getEveCalo();
-   if (calo && (typeId() != FWViewType::kLego && typeId() != FWViewType::kLegoHF))
-   {
-      calo->SetMaxTowerH(m_energyMaxTowerHeight.value());
-      energyScalesChanged();
    }
 }
 
@@ -528,11 +561,15 @@ FWEveView::populateController(ViewerParameterGUI& gui) const
    if (getEveCalo())
    {
       gui.requestTab("Scales").
+         addParam(&m_useGlobalScales).
          addParam(&m_energyScaleMode).
          addParam(&m_energyMaxAbsVal);
 
       if (typeId() != FWViewType::kLego && typeId() != FWViewType::kLegoHF )
+      {
          gui.requestTab("Scales").
             addParam(&m_energyMaxTowerHeight);
+
+      }
    }
 }

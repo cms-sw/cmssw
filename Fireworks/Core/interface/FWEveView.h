@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.h,v 1.18 2010/09/15 18:14:22 amraktad Exp $
+// $Id: FWEveView.h,v 1.19 2010/09/23 18:30:00 amraktad Exp $
 //
 
 
@@ -73,16 +73,21 @@ public:
    virtual void populateController(ViewerParameterGUI&) const;
    virtual const std::string& typeName() const;
 
+   bool  useGlobalScales() const { return m_useGlobalScales.value(); }
+
    TGLViewer*  viewerGL() const;
-   // ---------- static member functions --------------------
-   
-   FWViewType::EType typeId() const { return m_type.id(); }
    TEveViewer* viewer()      { return m_viewer; }
    TEveScene*  eventScene()  { return m_eventScene;}
    TEveScene*  geoScene()    { return m_geoScene; }
 
    TEveElement*   ownedProducts()  { return m_ownedProducts; }
    FWViewContext* viewContext() { return m_viewContext.get(); }
+   
+
+   // ---------- static member functions --------------------
+   
+   FWViewType::EType typeId() const { return m_type.id(); }
+   virtual void updateEnergyScales();
 
 protected:
    virtual void resetCamera();
@@ -90,7 +95,11 @@ protected:
 
    // scales
    virtual TEveCaloViz* getEveCalo() const { return 0;}
-   virtual void updateEnergyScales();
+
+   long   energyScaleMode();
+   double energyMaxAbsVal();
+   double energyMaxTowerHeight();
+
    virtual void energyScalesChanged();
    virtual void setMaxTowerHeight();
 
@@ -137,9 +146,10 @@ private:
 
    FWBoolParameter   m_showCameraGuide;
 
-protected:
+   //protected:
    // scale parameters are  protected for use in configuration backward copatibility
    // later when is more material,  members will be moved new FWEveCaloView class or oder helper strucutre
+   FWBoolParameter    m_useGlobalScales;
    FWEnumParameter    m_energyScaleMode;
    FWDoubleParameter  m_energyMaxAbsVal;
    FWDoubleParameter  m_energyMaxTowerHeight;

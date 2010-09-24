@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.22 2010/09/20 15:52:53 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.23 2010/09/23 18:30:00 amraktad Exp $
 //
 
 // system include files
@@ -125,10 +125,11 @@ FWRPZView::setContext(const fireworks::Context& ctx)
    m_calo = static_cast<TEveCalo2D*> (m_projMgr->ImportElements(calo3d, eventScene()));
    m_calo->SetBarrelRadius(context().caloR1(false));
    m_calo->SetEndCapPos(context().caloZ1(false));
-   m_calo->SetMaxTowerH(m_energyMaxTowerHeight.value());
-   m_calo->SetAutoRange(m_energyScaleMode.value() == FWEveView::kFixedScale);
-   m_calo->SetMaxValAbs(m_energyMaxAbsVal.value());
+   m_calo->SetMaxTowerH(energyMaxTowerHeight());
+   m_calo->SetAutoRange(energyScaleMode() == FWEveView::kFixedScale);
+   m_calo->SetMaxValAbs(energyMaxAbsVal());
 
+   /*
    if (typeId() == FWViewType::kRhoZ && context().caloSplit())
    {
       float_t eps = 0.005;
@@ -151,6 +152,7 @@ FWRPZView::setContext(const fireworks::Context& ctx)
       m_caloEndCap2->SetAutoRange(m_energyScaleMode.value() == FWEveView::kFixedScale);
       m_caloEndCap2->SetMaxValAbs(m_energyMaxAbsVal.value());
    }
+   */
 
 }
 

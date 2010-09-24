@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:45 CET 2010
-// $Id: FWEveViewManager.h,v 1.8 2010/05/11 10:52:27 amraktad Exp $
+// $Id: FWEveViewManager.h,v 1.9 2010/05/31 13:01:24 amraktad Exp $
 //
 
 // system include files
@@ -65,6 +65,7 @@ public:
    virtual void removeItem(const FWEventItem*);
    virtual void eventBegin();
    virtual void eventEnd();
+   virtual void setContext(const fireworks::Context*);
 
    void selectionAdded(TEveElement*);
    void selectionRemoved(TEveElement*);
@@ -94,6 +95,7 @@ private:
    void modelChanges(const FWModelIds& iIds);
    void itemChanged(const FWEventItem*);
    bool haveViewForBit (int) const;
+   void globalScalesChanged();
 
    // ---------- member data --------------------------------
    

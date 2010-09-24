@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:11:32 CET 2010
-// $Id: FWEveViewManager.cc,v 1.34 2010/09/07 15:46:46 yana Exp $
+// $Id: FWEveViewManager.cc,v 1.35 2010/09/15 11:48:42 amraktad Exp $
 //
 
 // system include files
@@ -20,12 +20,12 @@
 #include "TEveCalo.h"
 #include "TGLViewer.h"
 
-// common
 #include "Fireworks/Core/interface/FWEveViewManager.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWInteractionList.h"
+#include "Fireworks/Core/interface/CmsShowCommon.h"
 
 // PB
 #include "Fireworks/Core/interface/FWEDProductRepresentationChecker.h"
@@ -123,7 +123,6 @@ FWEveViewManager::FWEveViewManager(FWGUIManager* iGUIMgr) :
 
    for (int i = 0; i < FWViewType::kSize; i++)
       iGUIMgr->registerViewBuilder(FWViewType::idToName(i), f[i]);
-
 
    // signal
    gEve->GetHighlight()->SetPickToSelect(TEveSelection::kPS_Master);
@@ -567,6 +566,30 @@ FWEveViewManager::removeItem(const FWEventItem* item)
 }
 
 void
+FWEveViewManager::setContext(const fireworks::Context* x)
+{
+   FWViewManagerBase::setContext(x);
+   x->commonPrefs()->scaleChanged_.connect(boost::bind(&FWEveViewManager::globalScalesChanged,this));
+
+}
+
+void
+FWEveViewManager::globalScalesChanged()
+{
+   for (int t = 0 ; t < FWViewType::kSize; ++t)
+   {
+      for(EveViewVec_it i = m_views[t].begin(); i != m_views[t].end(); ++i) 
+      {
+         if ((*i)->useGlobalScales())
+         {
+            (*i)->updateEnergyScales();
+         }
+      }
+
+   }
+}
+
+void
 FWEveViewManager::colorsChanged()
 {
    for (int t = 0 ; t < FWViewType::kSize; ++t)
@@ -577,7 +600,6 @@ FWEveViewManager::colorsChanged()
 }
 
 //______________________________________________________________________________
-
 void
 FWEveViewManager::eventBegin()
 {

@@ -16,12 +16,18 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Sep 10 14:51:07 CEST 2010
-// $Id: CmsShowCommon.h,v 1.3 2010/09/15 18:14:22 amraktad Exp $
+// $Id: CmsShowCommon.h,v 1.4 2010/09/16 17:37:48 amraktad Exp $
 //
+
+#include <sigc++/signal.h>
+#include <sigc++/sigc++.h>
+
+#include "Rtypes.h"
 
 #include "Fireworks/Core/interface/FWConfigurableParameterizable.h"
 #include "Fireworks/Core/interface/FWBoolParameter.h"
 #include "Fireworks/Core/interface/FWLongParameter.h"
+#include "Fireworks/Core/interface/FWEnumParameter.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
 
 class CmsShowCommonPopup;
@@ -38,6 +44,10 @@ public:
    // ---------- const member functions ---------------------
    virtual void addTo(FWConfiguration&) const;
 
+   long   getEnergyScaleMode()            const { return m_energyScaleMode.value();       }
+   double getEnergyMaxAbsVal()      const { return  m_energyMaxAbsVal.value();      }
+   double getEnergyMaxTowerHeight() const { return  m_energyMaxTowerHeight.value(); }
+
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
@@ -50,13 +60,11 @@ public:
    void setGeomColor(FWGeomColorIndex, Color_t);
    void setGeomTransparency(int val, bool projected);
 
+   sigc::signal<void> scaleChanged_;
+
 protected:
-   const FWColorManager*     colorManager() const { return m_colorManager;}
-
-private:
-   CmsShowCommon(const CmsShowCommon&); // stop default
-
-   const CmsShowCommon& operator=(const CmsShowCommon&); // stop default
+   const FWColorManager*   colorManager() const { return m_colorManager;}
+   virtual void updateScales();
 
    // ---------- member data --------------------------------
 
@@ -71,7 +79,14 @@ private:
    FWLongParameter     m_geomTransparency3D;
    FWLongParameter*    m_geomColors[kFWGeomColorSize];
 
-   // scales
+   // scales 
+   FWEnumParameter    m_energyScaleMode;
+   FWDoubleParameter  m_energyMaxAbsVal;
+   FWDoubleParameter  m_energyMaxTowerHeight;
+
+private:
+   CmsShowCommon(const CmsShowCommon&); // stop default
+   const CmsShowCommon& operator=(const CmsShowCommon&); // stop default
 };
 
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Apr  7 14:40:47 CEST 2010
-// $Id: FW3DView.cc,v 1.46 2010/09/08 19:18:55 amraktad Exp $
+// $Id: FW3DView.cc,v 1.47 2010/09/23 18:30:00 amraktad Exp $
 //
 
 // system include files
@@ -69,9 +69,9 @@ void FW3DView::setContext(const fireworks::Context& ctx)
    m_calo = new TEveCalo3D(data);
    m_calo->SetElementName("calo barrel");
 
-   m_calo->SetMaxTowerH(m_energyMaxTowerHeight.value());
-   m_calo->SetScaleAbs(m_energyScaleMode.value() == FWEveView::kFixedScale);
-   m_calo->SetMaxValAbs(m_energyMaxAbsVal.value());
+   m_calo->SetMaxTowerH(energyMaxTowerHeight());
+   m_calo->SetScaleAbs(energyScaleMode() == FWEveView::kFixedScale);
+   m_calo->SetMaxValAbs(energyMaxAbsVal());
 
    m_calo->SetBarrelRadius(context().caloR1(false));
    m_calo->SetEndCapPos(context().caloZ1(false));
@@ -85,7 +85,7 @@ void FW3DView::setContext(const fireworks::Context& ctx)
       m_calo->SetAutoRange(false);
 
       // back
-
+      /*
       m_caloEndCap1 = new TEveCalo3D(data);
       m_caloEndCap1->SetElementName("endcap backwad");
 
@@ -114,7 +114,7 @@ void FW3DView::setContext(const fireworks::Context& ctx)
       m_caloEndCap2->SetFrameTransparency(80);
       m_caloEndCap2->SetEta(context().caloTransEta() -eps, context().caloMaxEta());
       m_caloEndCap2->SetAutoRange(false);
-      eventScene()->AddElement(m_caloEndCap2);
+      eventScene()->AddElement(m_caloEndCap2);*/
    }
 
 }

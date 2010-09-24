@@ -4,6 +4,7 @@
 #include "GuiTypes.h"
 #include "TGFrame.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
+#include "Fireworks/Core/interface/FWParameterSetterEditorBase.h"
 
 class TGSlider;
 class TGLabel;
@@ -12,8 +13,9 @@ class TGCheckButton;
 class CmsShowCommon;
 class FWColorManager;
 class FWColorSelect;
+class FWParameterBase;
 
-class CmsShowCommonPopup : public TGTransientFrame
+class CmsShowCommonPopup : public TGTransientFrame, public FWParameterSetterEditorBase
 {
 public:
    CmsShowCommonPopup( CmsShowCommon*, const TGWindow* p = 0, UInt_t w = 1, UInt_t h = 1);
@@ -34,6 +36,7 @@ public:
 private:
    CmsShowCommonPopup(const CmsShowCommonPopup&);
    const CmsShowCommonPopup& operator=(const CmsShowCommonPopup&);
+   void addParamSetter(FWParameterBase* param, TGCompositeFrame* vf);
 
    // ---------- member data --------------------------------
 
