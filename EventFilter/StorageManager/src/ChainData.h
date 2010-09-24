@@ -1,4 +1,4 @@
-// $Id: ChainData.h,v 1.12 2010/05/11 19:10:41 mommsen Exp $
+// $Id: ChainData.h,v 1.13 2010/05/17 15:59:09 mommsen Exp $
 /// @file: ChainData.h
 
 #ifndef CHAINDATA_H
@@ -164,26 +164,38 @@ namespace stor
       unsigned int _fuProcessId;
       unsigned int _fuGuid;
 
-      bool validateDataLocation(toolbox::mem::Reference* ref,
-                                BitMasksForFaulty maskToUse);
-      bool validateMessageSize(toolbox::mem::Reference* ref,
-                               BitMasksForFaulty maskToUse);
-      bool validateFragmentIndexAndCount(toolbox::mem::Reference* ref,
-                                         BitMasksForFaulty maskToUse);
-      bool validateExpectedFragmentCount(toolbox::mem::Reference* ref,
-                                         BitMasksForFaulty maskToUse);
-      bool validateFragmentOrder(toolbox::mem::Reference* ref,
-                                 int& indexValue);
-      bool validateMessageCode(toolbox::mem::Reference* ref,
-                               unsigned short expectedI2OMessageCode);
+      inline bool validateDataLocation(
+        toolbox::mem::Reference* ref,
+        BitMasksForFaulty maskToUse
+      );
+      inline bool validateMessageSize(
+        toolbox::mem::Reference* ref,
+        BitMasksForFaulty maskToUse
+      );
+      inline bool validateFragmentIndexAndCount(
+        toolbox::mem::Reference* ref,
+        BitMasksForFaulty maskToUse
+      );
+      inline bool validateExpectedFragmentCount(
+        toolbox::mem::Reference* ref,
+        BitMasksForFaulty maskToUse
+      );
+      inline bool validateFragmentOrder(
+        toolbox::mem::Reference* ref,
+        int& indexValue
+      );
+      inline bool validateMessageCode(
+        toolbox::mem::Reference* ref,
+        unsigned short expectedI2OMessageCode
+      );
 
-      virtual size_t do_i2oFrameSize() const;
-      virtual unsigned long do_headerSize() const;
-      virtual unsigned char* do_headerLocation() const;
+      virtual inline size_t do_i2oFrameSize() const { return 0; }
+      virtual inline unsigned long do_headerSize() const { return 0; }
+      virtual inline unsigned char* do_headerLocation() const { return 0; }
+      virtual inline unsigned char* do_fragmentLocation(unsigned char* dataLoc) const { return dataLoc; }
+      virtual inline uint32_t do_adler32Checksum() const { return 0; }
 
-      virtual unsigned char* do_fragmentLocation(unsigned char* dataLoc) const;
       virtual uint32_t do_outputModuleId() const;
-
       virtual std::string do_outputModuleLabel() const;
       virtual void do_hltTriggerNames(Strings& nameList) const;
       virtual void do_hltTriggerSelections(Strings& nameList) const;
@@ -195,12 +207,11 @@ namespace stor
       virtual uint32_t do_hltTriggerCount() const;
       virtual void do_hltTriggerBits(std::vector<unsigned char>& bitList) const;
 
-      virtual void do_assertRunNumber(uint32_t runNumber);
+      virtual inline void do_assertRunNumber(uint32_t runNumber) {};
 
       virtual uint32_t do_runNumber() const;
       virtual uint32_t do_lumiSection() const;
       virtual uint32_t do_eventNumber() const;
-      virtual uint32_t do_adler32Checksum() const;
 
     }; // class ChainData
 
@@ -219,11 +230,12 @@ namespace stor
 
     protected:
 
-      size_t do_i2oFrameSize() const;
-      unsigned long do_headerSize() const;
-      unsigned char* do_headerLocation() const;
-      unsigned char* do_fragmentLocation(unsigned char* dataLoc) const;
-      uint32_t do_adler32Checksum() const;
+      inline size_t do_i2oFrameSize() const;
+      inline unsigned long do_headerSize() const;
+      inline unsigned char* do_headerLocation() const;
+      inline unsigned char* do_fragmentLocation(unsigned char* dataLoc) const;
+      inline uint32_t do_adler32Checksum() const;
+
       uint32_t do_outputModuleId() const;
       std::string do_outputModuleLabel() const;
       void do_hltTriggerNames(Strings& nameList) const;
@@ -263,10 +275,12 @@ namespace stor
 
     protected:
 
-      size_t do_i2oFrameSize() const;
-      unsigned long do_headerSize() const;
-      unsigned char* do_headerLocation() const;
-      unsigned char* do_fragmentLocation(unsigned char* dataLoc) const;
+      inline size_t do_i2oFrameSize() const;
+      inline unsigned long do_headerSize() const;
+      inline unsigned char* do_headerLocation() const;
+      inline unsigned char* do_fragmentLocation(unsigned char* dataLoc) const;
+      inline uint32_t do_adler32Checksum() const;
+
       uint32_t do_outputModuleId() const;
       uint32_t do_hltTriggerCount() const;
       void do_hltTriggerBits(std::vector<unsigned char>& bitList) const;
@@ -274,7 +288,6 @@ namespace stor
       uint32_t do_runNumber() const;
       uint32_t do_lumiSection() const;
       uint32_t do_eventNumber() const;
-      uint32_t do_adler32Checksum() const;
 
     private:
 
@@ -310,14 +323,15 @@ namespace stor
 
     protected:
 
-      size_t do_i2oFrameSize() const;
-      unsigned long do_headerSize() const;
-      unsigned char* do_headerLocation() const;
-      unsigned char* do_fragmentLocation(unsigned char* dataLoc) const;
-      uint32_t do_adler32Checksum() const;
+      inline size_t do_i2oFrameSize() const;
+      inline unsigned long do_headerSize() const;
+      inline unsigned char* do_headerLocation() const;
+      inline unsigned char* do_fragmentLocation(unsigned char* dataLoc) const;
+      inline uint32_t do_adler32Checksum() const;
+
       std::string do_topFolderName() const;
       DQMKey do_dqmKey() const;
-      void do_assertRunNumber(uint32_t runNumber);
+      inline void do_assertRunNumber(uint32_t runNumber);
       uint32_t do_runNumber() const;
       uint32_t do_lumiSection() const;
 
@@ -351,11 +365,11 @@ namespace stor
 
     protected:
 
-      size_t do_i2oFrameSize() const;
-      unsigned long do_headerSize() const;
-      unsigned char* do_headerLocation() const;
-      unsigned char* do_fragmentLocation(unsigned char* dataLoc) const;
-      void do_assertRunNumber(uint32_t runNumber);
+      inline size_t do_i2oFrameSize() const;
+      inline unsigned long do_headerSize() const;
+      inline unsigned char* do_headerLocation() const;
+      inline unsigned char* do_fragmentLocation(unsigned char* dataLoc) const;
+      inline void do_assertRunNumber(uint32_t runNumber);
       uint32_t do_runNumber() const;
       uint32_t do_lumiSection() const;
       uint32_t do_eventNumber() const;
@@ -390,8 +404,8 @@ namespace stor
 
     protected:
 
-      uint32_t do_runNumber() const;
-      uint32_t do_lumiSection() const;
+      inline uint32_t do_runNumber() const { return _runNumber; }
+      inline uint32_t do_lumiSection() const { return _lumiSection; }
 
     private:
 
