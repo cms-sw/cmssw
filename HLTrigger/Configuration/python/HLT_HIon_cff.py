@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_8_1/HIon/V29 (CMSSW_3_8_1_HLT13)
+# /dev/CMSSW_3_8_1/HIon/V30 (CMSSW_3_8_1_HLT13)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V29')
+  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V30')
 )
 
 streams = cms.PSet( 
@@ -1249,15 +1249,15 @@ hltPixelTracksForHITrackTrigger = cms.EDProducer( "PixelTrackProducer",
         directionXCoord = cms.double( 1.0 ),
         directionZCoord = cms.double( 0.0 ),
         directionYCoord = cms.double( 1.0 ),
-        VertexCollection = cms.string( "hltHIPixelClusterVertices" ),
         useFoundVertices = cms.bool( True ),
-        siPixelRecHits = cms.string( "hltHISiPixelRecHits" ),
         doVariablePtMin = cms.bool( True ),
         nSigmaZ = cms.double( 3.0 ),
         beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
         useFixedError = cms.bool( True ),
         fixedError = cms.double( 2.0 ),
-        sigmaZVertex = cms.double( 3.0 )
+        sigmaZVertex = cms.double( 3.0 ),
+        siPixelRecHits = cms.InputTag( "hltHISiPixelRecHits" ),
+        VertexCollection = cms.InputTag( "hltHIPixelClusterVertices" )
       )
     ),
     OrderedHitsFactoryPSet = cms.PSet( 
