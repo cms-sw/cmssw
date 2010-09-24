@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedProducer.cc,v 1.17 2010/07/29 12:05:31 chamont Exp $
+// $Id: ElectronSeedProducer.cc,v 1.18 2010/09/24 09:16:20 chamont Exp $
 //
 //
 
@@ -56,70 +56,68 @@ void ElectronSeedProducer::fillDescriptions( edm::ConfigurationDescriptions & de
   desc.add<edm::InputTag>("barrelSuperClusters",edm::InputTag("correctedHybridSuperClusters")) ;
   desc.add<edm::InputTag>("endcapSuperClusters",edm::InputTag("correctedMulti5x5SuperClustersWithPreshower")) ;
   edm::ParameterSetDescription descSeedConfiguration ;
-  edm::ParameterSetDescription descEcalDrivenParameters ;
 
   // steering
-  descEcalDrivenParameters.add<bool>("fromTrackerSeeds",true) ;
-  descEcalDrivenParameters.add<edm::InputTag>("initialSeeds",edm::InputTag("newCombinedSeeds")) ;
-  descEcalDrivenParameters.add<bool>("preFilteredSeeds",false) ;
-  descEcalDrivenParameters.add<bool>("useRecoVertex",false) ;
-  descEcalDrivenParameters.add<edm::InputTag>("vertices",edm::InputTag("offlinePrimaryVerticesWithBS")) ;
-  descEcalDrivenParameters.add<edm::InputTag>("beamSpot",edm::InputTag("offlineBeamSpot")) ;
-  descEcalDrivenParameters.add<bool>("dynamicPhiRoad",true) ;
-  descEcalDrivenParameters.add<bool>("searchInTIDTEC",true) ; //  possibility to inhibit extended forward coverage
+  descSeedConfiguration.add<bool>("fromTrackerSeeds",true) ;
+  descSeedConfiguration.add<edm::InputTag>("initialSeeds",edm::InputTag("newCombinedSeeds")) ;
+  descSeedConfiguration.add<bool>("preFilteredSeeds",false) ;
+  descSeedConfiguration.add<bool>("useRecoVertex",false) ;
+  descSeedConfiguration.add<edm::InputTag>("vertices",edm::InputTag("offlinePrimaryVerticesWithBS")) ;
+  descSeedConfiguration.add<edm::InputTag>("beamSpot",edm::InputTag("offlineBeamSpot")) ;
+  descSeedConfiguration.add<bool>("dynamicPhiRoad",true) ;
+  descSeedConfiguration.add<bool>("searchInTIDTEC",true) ; //  possibility to inhibit extended forward coverage
 
   // specify where to get the hits from
-  descEcalDrivenParameters.add<std::string>("measurementTrackerName","") ;
+  descSeedConfiguration.add<std::string>("measurementTrackerName","") ;
 
   // SC filtering
-  descEcalDrivenParameters.add<double>("SCEtCut",4.0) ;
+  descSeedConfiguration.add<double>("SCEtCut",4.0) ;
 
   // H/E
-  descEcalDrivenParameters.add<bool>("applyHOverECut",true) ;
-  descEcalDrivenParameters.add<double>("hOverEConeSize",0.15) ;
-  //descEcalDrivenParameters.add<double>("maxHOverE",0.1) ;
-  descEcalDrivenParameters.add<double>("maxHOverEBarrel",0.15) ;
-  descEcalDrivenParameters.add<double>("maxHOverEEndcaps",0.15) ;
-  descEcalDrivenParameters.add<double>("maxHBarrel",0.0) ;
-  descEcalDrivenParameters.add<double>("maxHEndcaps",0.0) ;
+  descSeedConfiguration.add<bool>("applyHOverECut",true) ;
+  descSeedConfiguration.add<double>("hOverEConeSize",0.15) ;
+  //descSeedConfiguration.add<double>("maxHOverE",0.1) ;
+  descSeedConfiguration.add<double>("maxHOverEBarrel",0.15) ;
+  descSeedConfiguration.add<double>("maxHOverEEndcaps",0.15) ;
+  descSeedConfiguration.add<double>("maxHBarrel",0.0) ;
+  descSeedConfiguration.add<double>("maxHEndcaps",0.0) ;
   // H/E rechits
-  descEcalDrivenParameters.add<edm::InputTag>("hcalRecHits",edm::InputTag("hbhereco")) ; // OBSOLETE
-  descEcalDrivenParameters.add<double>("hOverEHBMinE",0.7) ;         // OBSOLETE
-  descEcalDrivenParameters.add<double>("hOverEHFMinE",0.8) ;         // OBSOLETE
+  descSeedConfiguration.add<edm::InputTag>("hcalRecHits",edm::InputTag("hbhereco")) ; // OBSOLETE
+  descSeedConfiguration.add<double>("hOverEHBMinE",0.7) ;         // OBSOLETE
+  descSeedConfiguration.add<double>("hOverEHFMinE",0.8) ;         // OBSOLETE
   // H/E towers
-  descEcalDrivenParameters.add<edm::InputTag>("hcalTowers",edm::InputTag("towerMaker")) ;
-  descEcalDrivenParameters.add<double>("hOverEPtMin",0.) ;
+  descSeedConfiguration.add<edm::InputTag>("hcalTowers",edm::InputTag("towerMaker")) ;
+  descSeedConfiguration.add<double>("hOverEPtMin",0.) ;
 
   // r/z windows
-  descEcalDrivenParameters.add<double>("nSigmasDeltaZ1",5.) ; // in case beam spot is used for the matching
-  descEcalDrivenParameters.add<double>("deltaZ1WithVertex",25.) ; // in case reco vertex is used for the matching
-  descEcalDrivenParameters.add<double>("z2MinB",-0.09) ; // barrel
-  descEcalDrivenParameters.add<double>("z2MaxB",0.09) ; // barrel
-  descEcalDrivenParameters.add<double>("r2MinF",-0.15) ; // forward
-  descEcalDrivenParameters.add<double>("r2MaxF",0.15) ; // forward
-  descEcalDrivenParameters.add<double>("rMinI",-0.2) ; // intermediate region SC in EB and 2nd hits in PXF
-  descEcalDrivenParameters.add<double>("rMaxI",0.2) ; // intermediate region SC in EB and 2nd hits in PXF
+  descSeedConfiguration.add<double>("nSigmasDeltaZ1",5.) ; // in case beam spot is used for the matching
+  descSeedConfiguration.add<double>("deltaZ1WithVertex",25.) ; // in case reco vertex is used for the matching
+  descSeedConfiguration.add<double>("z2MinB",-0.09) ; // barrel
+  descSeedConfiguration.add<double>("z2MaxB",0.09) ; // barrel
+  descSeedConfiguration.add<double>("r2MinF",-0.15) ; // forward
+  descSeedConfiguration.add<double>("r2MaxF",0.15) ; // forward
+  descSeedConfiguration.add<double>("rMinI",-0.2) ; // intermediate region SC in EB and 2nd hits in PXF
+  descSeedConfiguration.add<double>("rMaxI",0.2) ; // intermediate region SC in EB and 2nd hits in PXF
 
   // phi windows (dynamic)
-  descEcalDrivenParameters.add<double>("LowPtThreshold",5.0) ;
-  descEcalDrivenParameters.add<double>("HighPtThreshold",35.0) ;
-  descEcalDrivenParameters.add<double>("SizeWindowENeg",0.675) ;
-  descEcalDrivenParameters.add<double>("DeltaPhi1Low",0.23) ;
-  descEcalDrivenParameters.add<double>("DeltaPhi1High",0.08) ;
-  descEcalDrivenParameters.add<double>("DeltaPhi2B",0.008) ; // barrel
-  descEcalDrivenParameters.add<double>("DeltaPhi2F",0.012) ; // forward
+  descSeedConfiguration.add<double>("LowPtThreshold",5.0) ;
+  descSeedConfiguration.add<double>("HighPtThreshold",35.0) ;
+  descSeedConfiguration.add<double>("SizeWindowENeg",0.675) ;
+  descSeedConfiguration.add<double>("DeltaPhi1Low",0.23) ;
+  descSeedConfiguration.add<double>("DeltaPhi1High",0.08) ;
+  descSeedConfiguration.add<double>("DeltaPhi2B",0.008) ; // barrel
+  descSeedConfiguration.add<double>("DeltaPhi2F",0.012) ; // forward
 
   // phi windows (non dynamic, overwritten in case dynamic is selected)
-  descEcalDrivenParameters.add<double>("ePhiMin1",-0.125) ;
-  descEcalDrivenParameters.add<double>("ePhiMax1",0.075) ;
-  descEcalDrivenParameters.add<double>("pPhiMin1",-0.075) ;
-  descEcalDrivenParameters.add<double>("pPhiMax1",0.125) ;
-  descEcalDrivenParameters.add<double>("PhiMin2B",-0.002) ; // barrel
-  descEcalDrivenParameters.add<double>("PhiMax2B",0.002) ; // barrel
-  descEcalDrivenParameters.add<double>("PhiMin2F",-0.003) ; // forward
-  descEcalDrivenParameters.add<double>("PhiMax2F",0.003) ; // forward
+  descSeedConfiguration.add<double>("ePhiMin1",-0.125) ;
+  descSeedConfiguration.add<double>("ePhiMax1",0.075) ;
+  descSeedConfiguration.add<double>("pPhiMin1",-0.075) ;
+  descSeedConfiguration.add<double>("pPhiMax1",0.125) ;
+  descSeedConfiguration.add<double>("PhiMin2B",-0.002) ; // barrel
+  descSeedConfiguration.add<double>("PhiMax2B",0.002) ; // barrel
+  descSeedConfiguration.add<double>("PhiMin2F",-0.003) ; // forward
+  descSeedConfiguration.add<double>("PhiMax2F",0.003) ; // forward
 
-  descSeedConfiguration.add<edm::ParameterSetDescription>("ecalDrivenElectronSeedsParameters",descEcalDrivenParameters) ;
   edm::ParameterSetDescription descOrderedHitsFactoryPSet ;
   descOrderedHitsFactoryPSet.add<std::string>("ComponentName","StandardHitPairGenerator") ;
   descOrderedHitsFactoryPSet.add<std::string>("SeedingLayers","MixedLayerPairs") ;
