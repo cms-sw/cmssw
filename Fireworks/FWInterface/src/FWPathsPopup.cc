@@ -798,6 +798,7 @@ public:
                   break;
                case 's':
                   editVectorParameter<std::string>(parent.pset, data.tracked, data.label, m_editor->GetText());
+                  break;
                default:
                   std::cerr << "unsupported parameter" << std::endl;
             }
