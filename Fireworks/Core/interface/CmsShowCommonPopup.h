@@ -1,6 +1,7 @@
 #ifndef Fireworks_Core_CmsShowCommonPopup_h
 #define Fireworks_Core_CmsShowCommonPopup_h
 
+#include <boost/shared_ptr.hpp>
 #include "GuiTypes.h"
 #include "TGFrame.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
@@ -14,6 +15,7 @@ class CmsShowCommon;
 class FWColorManager;
 class FWColorSelect;
 class FWParameterBase;
+class FWParameterSetterBase;
 
 class CmsShowCommonPopup : public TGTransientFrame, public FWParameterSetterEditorBase
 {
@@ -48,7 +50,7 @@ private:
 
    FWColorSelect* m_colorSelectWidget[kFWGeomColorSize];
  
-  
+   std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
 };
 
 

@@ -14,9 +14,6 @@
 #include "Fireworks/Core/interface/FWParameterSetterEditorBase.h"
 
 #include "Fireworks/Core/interface/FWParameterSetterBase.h"
-#include <boost/shared_ptr.hpp>
-
-
 
 CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, UInt_t w, UInt_t h) :
    TGTransientFrame(gClient->GetDefaultRoot(),p,w,h),
@@ -36,7 +33,6 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
    FWDialogBuilder bS(vf2);
    bS.addLabel("GlobalScales", 14).vSpacer(5);
  
-   FWParameterBase* ps[3]; 
    addParamSetter( &m_common->m_energyScaleMode, vf2);
    addParamSetter( &m_common->m_energyMaxAbsVal, vf2);
    addParamSetter( &m_common->m_energyMaxTowerHeight, vf2);
@@ -160,7 +156,6 @@ CmsShowCommonPopup::~CmsShowCommonPopup()
 {
 }
 
-//   std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
 
 void
 CmsShowCommonPopup::addParamSetter(FWParameterBase* param, TGCompositeFrame* vf)
@@ -179,7 +174,7 @@ CmsShowCommonPopup::addParamSetter(FWParameterBase* param, TGCompositeFrame* vf)
    {
       boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor(param) );
       ptr->attach((FWParameterBase*)param, this);
-      //  m_setters.push_back(ptr);
+      m_setters.push_back(ptr);
 
       TGCompositeFrame* cframe = static_cast<TGCompositeFrame*>(ptr->build(hf));
       {
