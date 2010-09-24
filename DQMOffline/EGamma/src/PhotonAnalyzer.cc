@@ -9,7 +9,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2010/05/13 22:59:51 $ 
+ **  $Date: 2010/06/03 15:51:37 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -832,8 +832,8 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	    fill2DHistoVector(h_convVtxYvsX_,aConv->conversionVertex().position().x(),aConv->conversionVertex().position().y(),cut,type);
 	  }
 	  
+	  const std::vector<edm::RefToBase<reco::Track> > tracks = aConv->tracks();
 	  
-	  vector<reco::TrackRef> tracks = aConv->tracks();
 	  
 	  for (unsigned int i=0; i<tracks.size(); i++) {
 	    fill2DHistoVector(h_tkChi2_,tracks[i]->normalizedChi2(),cut,type);

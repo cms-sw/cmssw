@@ -81,8 +81,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2010/09/13 14:10:42 $ 
- **  $Revision: 1.60 $
+ **  $Date: 2010/09/14 18:07:25 $ 
+ **  $Revision: 1.61 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -1979,7 +1979,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	  p_EoverEtrueVsEta_[1]->Fill (mcEta_,matchingPho.superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
 	  
 	  
-	  std::vector<reco::TrackRef> tracks = aConv->tracks();
+	  //std::vector<reco::TrackRef> tracks = aConv->tracks();
+	  const std::vector<edm::RefToBase<reco::Track> > tracks = aConv->tracks();
 	  if (tracks.size() < 1 ) continue;
 	  
 	  
@@ -2036,6 +2037,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	  // std::cout << " Before loop on tracks  tracks size " << tracks.size() << " or " << aConv->tracks().size() <<  " nAssT2 " << nAssT2 << std::endl;
 	  math::XYZVector refPvec;
 	  for (unsigned int i=0; i<tracks.size(); i++) {
+	    reco::TrackRef track = tracks[i].castTo<reco::TrackRef>();
 	    
 	    type =0;
 	    nHitsVsEta_[type] ->Fill (mcEta_,   float(tracks[i]->numberOfValidHits())-0.0001 );
@@ -2056,14 +2058,14 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	    for (size_t j = 0; j < RtoSCollPtrs.size(); j++) {          
 	      reco::RecoToSimCollection q = *(RtoSCollPtrs[j]);
 	      
-	      RefToBase<reco::Track> myTk( aConv->tracks()[i] );
+	      RefToBase<reco::Track> myTk( track );
 	      
 	      if( q.find(myTk ) != q.end() ) {
 		std::vector<std::pair<TrackingParticleRef, double> > tp = q[myTk];
 		for (unsigned int itp=0; itp<tp.size(); itp++) {
 		  myTP=tp[itp].first;
 		  //      std::cout << " associated with TP " << myTP->pdgId() << " pt " << sqrt(myTP->momentum().perp2()) << std::endl;
-		  myAss.insert( std::make_pair ( aConv->tracks()[i]  , myTP) );
+		  myAss.insert( std::make_pair ( track  , myTP) );
 		  nAssT2++;
 		}
 	      }
@@ -2195,8 +2197,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	      h2_etaVsRsim_[0]->Fill (mcEta_,mcConvR_);         
 	      
 	      
-	      reco::TrackRef track1 = tracks[0];
-	      reco::TrackRef track2 = tracks[1];
+	      reco::TrackRef track1 = tracks[0].castTo<reco::TrackRef>();
+	      reco::TrackRef track2 = tracks[1].castTo<reco::TrackRef>();
 	      reco::TransientTrack tt1 = (*theTTB).build( &track1);
 	      reco::TransientTrack tt2 = (*theTTB).build( &track2);
 	      TwoTrackMinimumDistance md;
@@ -2376,7 +2378,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	      
 	      ///////////  Quantities per track
 	      for (unsigned int i=0; i<tracks.size(); i++) {
-		itAss= myAss.find(  aConv->tracks()[i] );
+		reco::TrackRef track = tracks[i].castTo<reco::TrackRef>();
+		itAss= myAss.find(  track );
 		if ( itAss == myAss.end()  ) continue;
 		
 		float trkProvenance=3;
@@ -2468,8 +2471,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	reco::ConversionRef aConv=conversions[iConv];
 	double like = aConv->MVAout();   
 	if ( like < likelihoodCut_ ) continue;      
-	std::vector<reco::TrackRef> tracks = aConv->tracks();
-      
+	//std::vector<reco::TrackRef> tracks = aConv->tracks();
+	const std::vector<edm::RefToBase<reco::Track> > tracks = aConv->tracks();
 	if (tracks.size() < 2 ) continue;
 
 	bool  phoIsInBarrel=false;
@@ -2500,19 +2503,20 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 	std::map<reco::TrackRef,TrackingParticleRef> myAss;
 	for (unsigned int i=0; i<tracks.size(); i++) {
+	  reco::TrackRef track = tracks[i].castTo<reco::TrackRef>();
 	
 	  TrackingParticleRef myTP;
 	  for (size_t j = 0; j < RtoSCollPtrs.size(); j++) {          
 	    reco::RecoToSimCollection q = *(RtoSCollPtrs[j]);
 	  
-	    RefToBase<reco::Track> myTk( aConv->tracks()[i] );
+	    RefToBase<reco::Track> myTk( track );
 	  
 	    if( q.find(myTk ) != q.end() ) {
 	      std::vector<std::pair<TrackingParticleRef, double> > tp = q[myTk];
 	      for (unsigned int itp=0; itp<tp.size(); itp++) {
 		myTP=tp[itp].first;
 		//	      std::cout << " associated with TP " << myTP->pdgId() << " pt " << sqrt(myTP->momentum().perp2()) << std::endl;
-		myAss.insert( std::make_pair ( aConv->tracks()[i]  , myTP) );
+		myAss.insert( std::make_pair ( track  , myTP) );
 		nAssT2++;
 	      }
 	    }
@@ -2828,7 +2832,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	reco::ConversionRefVector conversions = matchingPho.conversions();
 	for (unsigned int iConv=0; iConv<conversions.size(); iConv++) {
 	  reco::ConversionRef aConv=conversions[iConv];
-	  std::vector<reco::TrackRef> tracks = aConv->tracks();
+	  //std::vector<reco::TrackRef> tracks = aConv->tracks();
+	  const std::vector<edm::RefToBase<reco::Track> > tracks = aConv->tracks();
 	  double like = aConv->MVAout();
 	  if ( like < likelihoodCut_ ) continue;      
 	  if ( tracks.size() < 2 ) continue; 	
