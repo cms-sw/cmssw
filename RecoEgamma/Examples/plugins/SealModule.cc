@@ -11,7 +11,6 @@
 #include "SimpleConvertedPhotonAnalyzer.h"
 #include "SimplePhotonAnalyzer.h"
 #include "SiStripElectronAnalyzer.h"
-#include "PhotonsWithConversionsAnalyzer.h"
 #include "GsfElectronMCAnalyzer.h"
 #include "GsfElectronDataAnalyzer.h"
 #include "GsfElectronFakeAnalyzer.h"
@@ -37,5 +36,4 @@ DEFINE_FWK_MODULE(GsfElectronMCFakeAnalyzer);
 DEFINE_FWK_MODULE(SimpleConvertedPhotonAnalyzer);
 DEFINE_FWK_MODULE(SimplePhotonAnalyzer);
 DEFINE_FWK_MODULE(SiStripElectronAnalyzer);
-DEFINE_FWK_MODULE(PhotonsWithConversionsAnalyzer);
 DEFINE_FWK_MODULE(PatPhotonSimpleAnalyzer);
