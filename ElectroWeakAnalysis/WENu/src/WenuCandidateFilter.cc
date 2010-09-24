@@ -390,9 +390,9 @@ WenuCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (useExtraTrigger_ && passTrigger==0) {
        for (int itrig=0; itrig < (int) vHltpathExtra_.size(); ++itrig) {
 	 trigger_position_extra = triggerNames.triggerIndex(vHltpathExtra_[itrig]);
-	 if (trigger_position_extra > 0) {
-	   passTrigger = 1;
-	   break;
+	 if (trigger_position_extra < trigger_size) {
+	   passTrigger = (int) HLTResults->accept(trigger_position_extra);
+	   if (passTrigger>0)  break;
 	 }
        }
      }
