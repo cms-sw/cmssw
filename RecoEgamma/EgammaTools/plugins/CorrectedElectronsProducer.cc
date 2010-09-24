@@ -26,9 +26,9 @@ public:
 private:
   virtual void beginJob() ;
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ; 
+  virtual void endJob() ;
   float correct_phi(float dphi);
-  
+
   edm::InputTag electronCollection_;
   double energyScale_;
   std::vector<double> scPositionCorrectionEBP_;
@@ -39,7 +39,7 @@ private:
 
 
 CorrectedElectronsProducer::CorrectedElectronsProducer(const edm::ParameterSet& iConfig) {
-  
+
   electronCollection_ = iConfig.getParameter<edm::InputTag>("electronCollection");
   scPositionCorrectionEBP_ = iConfig.getParameter<std::vector<double> >("scPositionCorrectionEBPlus");
   scPositionCorrectionEBM_ = iConfig.getParameter<std::vector<double> >("scPositionCorrectionEBMinus");
@@ -58,14 +58,14 @@ float CorrectedElectronsProducer::correct_phi(float dphi) {
     if (dphi < 0)
       dphi = CLHEP::twopi+dphi;
     else
-      dphi = dphi-CLHEP::twopi; 
+      dphi = dphi-CLHEP::twopi;
   }
 
   return dphi;
 }
 
 void CorrectedElectronsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  
+
   using namespace edm;
   using namespace reco;
 
@@ -75,7 +75,7 @@ void CorrectedElectronsProducer::produce(edm::Event& iEvent, const edm::EventSet
   iEvent.getByLabel(electronCollection_, elH);
 
   for(reco::GsfElectronCollection::const_iterator igsf = elH->begin(); igsf != elH->end(); igsf++) {
-    
+
     reco::GsfElectron* uncorEl = new reco::GsfElectron(*igsf);
 
     Candidate::LorentzVector momentum = Candidate::LorentzVector(uncorEl->px(),
@@ -86,10 +86,10 @@ void CorrectedElectronsProducer::produce(edm::Event& iEvent, const edm::EventSet
     GsfElectron::ChargeInfo chargeInfo = uncorEl->chargeInfo();
     GsfElectronCoreRef coreRef = uncorEl->core();
 
-    GsfElectron::TrackExtrapolations tkExtra =  uncorEl->trackExtrapolations();    
+    GsfElectron::TrackExtrapolations tkExtra =  uncorEl->trackExtrapolations();
 
     GsfElectron::TrackClusterMatching tcMatching = uncorEl->trackClusterMatching();
-    
+
     math::XYZVector scNewPos(0,0,0);
     if(uncorEl->isEB() and uncorEl->eta() > 0) {
       scNewPos = math::XYZVector(uncorEl->superCluster()->x()+scPositionCorrectionEBP_[0],
@@ -99,7 +99,7 @@ void CorrectedElectronsProducer::produce(edm::Event& iEvent, const edm::EventSet
       scNewPos = math::XYZVector(uncorEl->superCluster()->x()+scPositionCorrectionEBM_[0],
                                  uncorEl->superCluster()->y()+scPositionCorrectionEBM_[1],
                                  uncorEl->superCluster()->z()+scPositionCorrectionEBM_[2]);
-    } else if(uncorEl->isEE() and uncorEl->eta() > 0) { 
+    } else if(uncorEl->isEE() and uncorEl->eta() > 0) {
       scNewPos = math::XYZVector(uncorEl->superCluster()->x()+scPositionCorrectionEEP_[0],
                                  uncorEl->superCluster()->y()+scPositionCorrectionEEP_[1],
                                  uncorEl->superCluster()->z()+scPositionCorrectionEEP_[2]);
@@ -111,7 +111,7 @@ void CorrectedElectronsProducer::produce(edm::Event& iEvent, const edm::EventSet
 
     float deta_sc = scNewPos.eta() - uncorEl->superCluster()->eta();
     float dphi_sc = correct_phi(scNewPos.phi() - uncorEl->superCluster()->phi());
-    
+
     tcMatching.deltaEtaSuperClusterAtVtx = deta_sc + uncorEl->deltaEtaSuperClusterTrackAtVtx();
     tcMatching.deltaEtaEleClusterAtCalo = deta_sc + uncorEl->deltaEtaEleClusterTrackAtCalo();
     tcMatching.deltaEtaSeedClusterAtCalo =  deta_sc + uncorEl->deltaEtaSeedClusterTrackAtCalo();
@@ -122,24 +122,25 @@ void CorrectedElectronsProducer::produce(edm::Event& iEvent, const edm::EventSet
 
 
     GsfElectron::ClosestCtfTrack ctfInfo = uncorEl->closestCtfTrack();
-    
     GsfElectron::FiducialFlags fiducialFlags = uncorEl-> fiducialFlags();
     GsfElectron::ShowerShape showerShape = uncorEl->showerShape();
+    GsfElectron::ConversionRejection conversionVars = uncorEl->conversionRejectionVariables();
     float fbrem = uncorEl->fbrem();
     float mva = uncorEl->mva();
-    
-    GsfElectron * corEl = new GsfElectron(momentum,charge,
-                                          chargeInfo,coreRef,
-                                          tcMatching, tkExtra, ctfInfo,
-                                          fiducialFlags,showerShape, fbrem, mva);
+
+    GsfElectron * corEl = new GsfElectron
+     ( momentum, charge, chargeInfo, coreRef,
+       tcMatching, tkExtra,
+       ctfInfo, fiducialFlags, showerShape, conversionVars,
+       fbrem, mva );
 
     reco::GsfElectron::IsolationVariables dr03, dr04;
     corEl->setIsolation03(uncorEl->isolationVariables03());
     corEl->setIsolation04(uncorEl->isolationVariables04());
-    
+
     pOutEle->push_back(*corEl) ;
   }
-  
+
   // put result into the Event
   iEvent.put(pOutEle);
 }

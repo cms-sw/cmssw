@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.100 2010/09/21 17:06:14 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.101 2010/09/24 09:16:10 chamont Exp $
 //
 //
 
@@ -814,6 +814,13 @@ void GsfElectronAlgo::createElectron
 
 
   //====================================================
+  // ConversionRejection
+  //====================================================
+
+  reco::GsfElectron::ConversionRejection conversionVars ;
+
+
+  //====================================================
   // brems fraction
   //====================================================
 
@@ -829,6 +836,7 @@ void GsfElectronAlgo::createElectron
      ( momentum,charge,chargeInfo,coreRef,
        tcMatching, tkExtra, ctfInfo,
        fiducialFlags,showerShape,
+       conversionVars,
        fbrem,mva) ;
 
   // set corrections + classification
