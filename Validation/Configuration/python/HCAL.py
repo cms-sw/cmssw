@@ -25,11 +25,14 @@ def customise(process):
     process.schedule.append(process.generation_step)
     process.schedule.append(process.simulation_step)
 
-    process.hbheprereco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
+    delattr(process,"hbhereco")
+    process.hbhereco = process.hbheprereco.clone()
+    process.hcalLocalRecoSequence.replace(process.hbheprereco,process.hbhereco)
+    process.hbhereco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
     process.horeco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
     process.hfreco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
 
-    process.local_digireco = cms.Path(process.mix * process.hcalDigiSequence * process.hbheprereco * process.hfreco * process.horeco )
+    process.local_digireco = cms.Path(process.mix * process.hcalDigiSequence * process.hbhereco * process.hfreco * process.horeco )
 
     process.schedule.append(process.local_digireco)
 
