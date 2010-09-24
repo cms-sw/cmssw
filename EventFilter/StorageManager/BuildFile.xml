@@ -2,6 +2,7 @@
 <use   name="mimetic"/>
 <use   name="xerces-c"/>
 <use   name="boost"/>
+<use   name="zlib"/>
 <use   name="DQMServices/Core"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
