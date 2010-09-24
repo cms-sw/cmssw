@@ -38,6 +38,9 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load("DQM.BeamMonitor.AlcaBeamMonitor_cff")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
+process.AlcaBeamMonitor.TrackLabel = 'ALCARECOTkAlMinBias'
+process.AlcaBeamMonitor.BeamFitter.TrackCollection = 'ALCARECOTkAlMinBias'
+
 process.BeamSpotDBSource = cms.ESSource("PoolDBESSource",
                                         process.CondDBSetup,
                                         toGet = cms.VPSet(cms.PSet(
