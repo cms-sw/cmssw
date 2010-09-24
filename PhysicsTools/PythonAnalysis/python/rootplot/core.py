@@ -1,5 +1,5 @@
 """
-An API and a CLI for quickly building complex canvases.
+An API and a CLI for quickly building complex figures.
 """
 
 __license__ = '''\
@@ -24,13 +24,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 '''
 
-usage=r"""
-Usage: %prog [options] [style_config.py] file1.root file2.root ...
-Usage: %prog [options] [style_config.py] file1.root hist1 hist2 ...
-Usage: %prog [options] [style_config.py] file1.root folder1 folder2 ...
+usage="""\
+Usage: %prog [config.py] targets [options]
 
-Documentation: http://packages.python.org/rootplot/"""
-usage = usage[1:]  # remove first (empty) line
+Targets may be either multiple root files to compare or a single root file 
+followed by multiple histograms or folders to compare.  For example:
+    %prog fileA.root fileB.root fileC.root
+    %prog file.root dirA dirB dirC
+    %prog file.root dirA/hist1 dirA/hist2
+
+Full documentation is available at: 
+    http://packages.python.org/rootplot/"""
 
 ##############################################################################
 ######## Import python libraries #############################################
@@ -43,18 +47,31 @@ import os
 import re
 import tempfile
 import copy
-from version import __version__
 from utilities import RootFile, Hist, Hist2D, HistStack, find_num_processors
 from os.path import join as joined
 
+
+##############################################################################
+######## Define globals ######################################################
+
+from version import __version__          # version number
+prog = os.path.basename(sys.argv[0])     # rootplot or rootplotmpl
+use_mpl = False                          # set in plotmpl or rootplotmpl
+global_opts = ['filenames', 'targets', 'debug', 'path', 'processors', 
+               'merge', 'noclean', 'output', 'numbering', 'html_template',
+               'ncolumns_html']
 try:
-    import multiprocessing as multi
+    import multiprocessing
     use_multiprocessing = True
 except ImportError:
     use_multiprocessing = False
 
-## Import ROOT, but we need to temporarily change sys.argv so that ROOT
-## doesn't intercept command-line options
+
+##############################################################################
+######## Import ROOT #########################################################
+
+## We need to temporarily change sys.argv so that ROOT doesn't intercept 
+## options from the command-line
 saved_argv = sys.argv[:]
 argstring = ' '.join(sys.argv)
 sys.argv = [sys.argv[0]]
@@ -81,19 +98,22 @@ elif os.path.exists(os.path.expanduser('~/.rootlogon.C')):
     ROOT.gROOT.Macro(os.path.expanduser('~/.rootlogon.C'))
 sys.argv = saved_argv[:]
 
-## Global constants
-prog = os.path.basename(sys.argv[0])
 
 ##############################################################################
 ######## Classes #############################################################
 
 class Options(dict):
-    def __init__(self, options):
+    def __init__(self, options, arguments, scope='global'):
         for opt in dir(options):
             value = getattr(options, opt)
             if (not opt.startswith('__') and
                 type(value) in [int, float, str, bool, type(None)]):
                 self[opt] = value
+        self.filenames = [x for x in arguments if x.endswith('.root')]
+        self.configs   = [x for x in arguments if x.endswith('.py')]
+        self.targets   = [x for x in arguments if not (x.endswith('.py') or
+                                                       x.endswith('.root'))]
+        self.process_configs(scope)
     def __setattr__(self, key, value):
         self[key] = value
     def __getattr__(self, key):
@@ -102,27 +122,31 @@ class Options(dict):
         return self.filenames + self.targets + self.configs
     def kwarg_list(self):
         diffs = {}
-        defaults = parse_arguments([], self.mpl)
+        defaults = parse_arguments([])
         for key, value in self.items():
             if (key not in ['filenames', 'targets', 'configs'] and
                 defaults[key] != value):
                 diffs[key] = value
         return diffs
-    def append_from_package(self, package):
+    def append_from_package(self, package, scope):
         for attribute in dir(package):
             if '__' not in attribute:
-                value = getattr(package, attribute)
-                self[attribute] = value
-    def process_configs(self):
-        myfilenames = self.filenames
-        mytargets = self.targets
+                if ((scope == 'global' and attribute in global_opts) or 
+                    (scope == 'plot' and attribute not in global_opts)):
+                    value = getattr(package, attribute)
+                    self[attribute] = value
+    def process_configs(self, scope):
+        #### Load variables from configs; scope is 'global' or 'plot'
         configdir = tempfile.mkdtemp()
         sys.path.insert(0, '')
         sys.path.insert(0, configdir)
-        write_to_file(config_string(self.mpl), 
+        write_to_file(config_string(), 
                       joined(configdir, 'default_config.py'))
-        configs = ['default_config.py'] + self.configs
-        rc_name = self.mpl and 'rootplotmplrc' or 'rootplotrc'
+        configs = ['default_config.py']
+        for i, c in enumerate(self.configs):
+            shutil.copy(c, joined(configdir, 'rpconfig%i.py' % i))
+            configs.append('rpconfig%i.py' % i)
+        rc_name = use_mpl and 'rootplotmplrc' or 'rootplotrc'
         rc_path = os.path.expanduser('~/.%s' % rc_name)
         if os.path.exists(rc_path):
             print "Using styles and options from ~/.%s" % rc_name
@@ -130,12 +154,7 @@ class Options(dict):
             configs.insert(1, '%s.py' % rc_name)
         for f in configs:
             myconfig = __import__(f[:-3])
-            self.append_from_package(myconfig)
-        if (self.filenames and myfilenames) or (self.targets and mytargets):
-            raise TypeError("files and targets cannot be specified both on "
-                            "the command line and in a configuration file")
-        if not self.filenames: self.filenames = myfilenames
-        if not self.targets: self.targets = mytargets
+            self.append_from_package(myconfig, scope)
         shutil.rmtree(configdir)
 
 
@@ -178,11 +197,10 @@ mpl:::##    http://matplotlib.sourceforge.net/users/customizing.html
 ## You can specify the files to run on through the 'filenames' variable rather
 ## than entering them at the command-line, for example:
 ## filenames = ['histTTbar.root', 'histZmumu.root']
-filenames = []
 
 ## Likewise, you can specify target histograms or directories here rather than 
-## on the command-line.  If empty, the files will be used as targets.
-targets = []
+## on the command-line, for example:
+## targets = ['barrel/15to20', 'barrel/20to30']
 
 ## You might also want to specify fancy labels for the legend here rather 
 ## than on the command-line:
@@ -195,9 +213,10 @@ mpl:::## legend_entries = [r'$\bar{t}t$', r'$Z\rightarrow\mu\mu$']
 ## Leave these lists empty to have them automatically filled according to the
 ## command-line options.  Any list that is filled must be at least as long
 ## as the number of targets or it will throw an error.
-line_colors = []          # normally filled by options.colors
-fill_colors = []          # normally filled by options.colors
-marker_colors = []        # normally filled by options.colors
+
+line_colors = []                # normally filled by options.colors
+fill_colors = []                # normally filled by options.colors
+marker_colors = []              # normally filled by options.colors
 mpl:::errorbar_colors = []      # color for bars around the central value
 root::marker_sizes = []         # in pixels
 mpl:::marker_sizes = []         # in points
@@ -424,18 +443,31 @@ html_template=r'''
     </html>
 '''
 """
-config_template = config_template[1:]
 
-multi_call_template = '''calls.append("""
+multi_call_template = '''
+calls.append("""
 %s
 %s
 """)
 '''
 
-allplots_template = '''try:
+allplots_template = '''
+## This file contains all the necessary calls to the rootplot API to produce
+## the same set of plots that were created from the command-line.
+
+## You can use this file to intercept the objects and manipulate them before
+## the figure is saved, making any custom changes that are not possible from
+## the command-line.
+
+## 'objects' is a python dictionary containing all the elements used in the
+## plot, including 'hists', 'legend', etc.
+##   ex: objects['hists'] returns a list of histograms
+
+try:
+  ## the normal way to import rootplot
   from rootplot import plot, plotmpl
 except ImportError:
-  ## check for a CMSSW installation of rootplot
+  ## special import for CMSSW installations of rootplot
   from PhysicsTools.PythonAnalysis.rootplot import plot, plotmpl
 
 import os
@@ -444,13 +476,19 @@ os.chdir('..')  # return to the directory with the ROOT files
 %(call_statements)s
 '''
 
-allplots_multi_template = '''try:
+allplots_multi_template = '''
+## This file is the same as allplots.py, except that it uses multiprocessing
+## to make better use of machines with multiple cores
+
+try:
+  ## the normal way to import rootplot
   from rootplot import plot, plotmpl
   from rootplot.core import report_progress
 except ImportError:
-  ## check for a CMSSW installation of rootplot
+  ## special import for CMSSW installations of rootplot
   from PhysicsTools.PythonAnalysis.rootplot import plot, plotmpl
   from PhysicsTools.PythonAnalysis.rootplot.core import report_progress
+import ROOT
 import multiprocessing as multi
 from Queue import Empty
 
@@ -488,6 +526,11 @@ report_progress(len(calls), len(calls), '%(output)s', '%(ext)s')
 print ''
 '''
 
+## remove leading blank lines from the templates
+for key, value in globals().items():
+    if 'template' in key:
+        globals()[key] = value[1:]
+
 ##############################################################################
 ######## The Command-Line Interface ##########################################
 
@@ -497,17 +540,18 @@ def cli_rootplotmpl():
 
     It is invoked from the command-line as ``rootplotmpl``.
     """
-    cli_rootplot(use_mpl=True)
+    global use_mpl
+    use_mpl = True
+    cli_rootplot()
     
-def cli_rootplot(use_mpl=False):
+def cli_rootplot():
     """
     An application for plotting histograms from a ROOT file.
 
     It is invoked from the command-line as ``rootplot``.
     """
-    options = parse_arguments(sys.argv[1:], use_mpl)
+    options = parse_arguments(sys.argv[1:])
     optdiff = options.kwarg_list()
-    optdiff['mpl'] = use_mpl
     if options.debug:
         rootplot(*options.arguments(), **optdiff)
     else:
@@ -542,7 +586,8 @@ def plotmpl(*args, **kwargs):
 
     Returns the tuple (*figure*, *axeses*, *stack*, *hists*, *plotpath*).
     """
-    kwargs['mpl'] = True
+    global use_mpl
+    use_mpl = True
     return plot(*args, **kwargs)
 
 def plot(*args, **kwargs):
@@ -567,7 +612,7 @@ def plot(*args, **kwargs):
     Returns the tuple (*canvas*, *pads*, *stack*, *hists*, *plotpath*).
     """
     hists, options = initialize_hists(args, kwargs)
-    if options.mpl:
+    if use_mpl:
         return plot_hists_mpl(hists, options)
     else:
         return plot_hists_root(hists, options)
@@ -599,7 +644,8 @@ def rootplotmpl(*args, **kwargs):
     *kwargs*, which can accept any of the options available to
     :mod:`rootplotmpl` at the command-line.
     """
-    kwargs['mpl'] = True
+    global use_mpl
+    use_mpl = True
     rootplot(args, kwargs)
 
 def rootplot(*args, **kwargs):
@@ -629,20 +675,18 @@ def rootplot(*args, **kwargs):
     *kwargs*, which can accept any of the options available to
     :mod:`rootplot` at the command-line.
     """
-    use_mpl = kwargs.pop('mpl', False)
-    funcname = use_mpl and 'rootplotmpl' or 'rootplot'
     if 'config' in kwargs:
-        write_config(use_mpl)
-    options = fill_options(args, kwargs, use_mpl)
+        write_config()
+    options = fill_options(args, kwargs, scope='global')
     nfiles = len(options.filenames)
     ntargets = len(options.targets)
     if nfiles < 1:
         raise TypeError("%s takes at least 1 filename argument (0 given)" %
-                        funcname)
+                        prog)
     elif ntargets > 0 and nfiles > 1:
         raise TypeError("%s cannot accept targets (%i given) when "
                         "multiple files are specified (%i given)" %
-                        (funcname, ntargets, nfiles))
+                        (prog, ntargets, nfiles))
     rootfiles = [RootFile(filename) for filename in options.filenames]
     #### Create the output directory structure
     if not options.noclean and os.path.exists(options.output):
@@ -651,8 +695,6 @@ def rootplot(*args, **kwargs):
         if not os.path.exists(joined(options.output, path)):
             os.makedirs(joined(options.output, path))
     #### Loop over plots to make, building the necessary calls
-    if nfiles > 1 or ntargets > 1:
-        options.draw2D = None
     plotargs = get_plot_inputs(rootfiles, options)
     call_lists = []
     for i, (filenames, targets) in enumerate(plotargs):
@@ -660,12 +702,11 @@ def rootplot(*args, **kwargs):
                                                     options.configs)])
         reduced_kwargs = dict(kwargs)
         for key, value in reduced_kwargs.items():
-            if key in ['debug', 'path', 'processors', 'merge',
-                       'noclean', 'nopy']:
+            if key in global_opts:
                 del reduced_kwargs[key]
             elif type(value) is str:
                 reduced_kwargs[key] = "'%s'" % value
-        if reduced_kwargs.has_key('numbering'):
+        if kwargs.has_key('numbering'):
             reduced_kwargs['numbering'] = i + 1
         optstring = ', '.join(['%s=%s' % (key, value)
                                for key, value in reduced_kwargs.items()])
@@ -692,8 +733,8 @@ def rootplot(*args, **kwargs):
     ext = options.ext
     output = options.output
     processors = options.processors
-    call_statements = '\n\n' + '\n'.join([plotcall + '\n' + savecall 
-                                          for plotcall, savecall in call_lists])
+    call_statements = '\n\n'.join([plotcall + '\n' + savecall 
+                                   for plotcall, savecall in call_lists])
     allplots_script = allplots_template % locals()
     call_statements = "".join([multi_call_template % (plotcall, savecall) 
                                for plotcall, savecall in call_lists])
@@ -722,7 +763,7 @@ def rootplot(*args, **kwargs):
     if options.ext in ['png', 'gif', 'svg']:
         print "Writing html index files..."
         width, height = options.size
-        if options.mpl:
+        if use_mpl:
             width, height = [x * options.dpi for x in options.size]
         if (os.path.exists(joined(options.output, 'plot.' + options.ext))
             and len(plotargs) == 1):
@@ -776,7 +817,7 @@ def option_diff(default, modified):
             diff[key] = modified_val
     return diff
 
-def config_string(use_mpl):
+def config_string():
     s = config_template
     if use_mpl:
         s = re.sub('root::.*\n', '', s)
@@ -788,18 +829,18 @@ def config_string(use_mpl):
         s = s.replace('%prog', 'rootplot')
     return s
 
-def write_config(use_mpl):
+def write_config():
     if use_mpl:
         filename = 'rootplotmpl_config.py'
     else:
         filename = 'rootplot_config.py'
     f = open(filename, 'w')
-    f.write(config_string(use_mpl))
+    f.write(config_string())
     f.close()
     print "Wrote %s to the current directory" % filename
     sys.exit(0)
 
-def add_from_config_files(options, configs, use_mpl):
+def add_from_config_files(options, configs):
     def append_to_options(config, options):
         for attribute in dir(config):
             if '__' not in attribute:
@@ -809,7 +850,7 @@ def add_from_config_files(options, configs, use_mpl):
     sys.path.insert(0, '')
     sys.path.insert(0, configdir)
     f = open(joined(configdir, 'default_config.py'), 'w')
-    f.write(config_string(use_mpl))
+    f.write(config_string())
     f.close()
     import default_config
     append_to_options(default_config, options)
@@ -877,11 +918,11 @@ def get_plot_inputs(files, options):
     else:
         return [(options.filenames, list(t)) for t in target_lists]
 
-def fill_options(args, kwargs, use_mpl):
-    options = parse_arguments(args, use_mpl)
+def fill_options(args, kwargs, scope):
+    options = parse_arguments(args, scope=scope)
     for key, value in kwargs.items():
         options[key] = value
-    options.process_configs()
+    options.process_configs(scope=scope)
     options.size = parse_size(options.size)
     options.split = options.ratio_split or options.efficiency_split
     options.ratio = (options.ratio or options.efficiency or
@@ -1096,7 +1137,7 @@ def plot_hists_mpl(hists, options):
                     label_rotation=options.xlabel_rotation,
                     label_alignment=options.xlabel_alignment)
         if 'barh' not in options.plot_styles:
-            axes.set_xlim(hist.xedges[0], hist.xedges[-1])
+            axes.set_xlim(refhist.xedges[0], refhist.xedges[-1])
         if options.logy:
             my_min = fullstack.min(threshold=1.1e-10)
             rounded_min = 1e100
@@ -1178,9 +1219,7 @@ def plot_hists_mpl(hists, options):
     return fig, objects
 
 def initialize_hists(args, kwargs):
-    use_mpl = kwargs.get('mpl', False)
-    funcname = use_mpl and 'plotmpl' or 'plot'
-    options = fill_options(args, kwargs, use_mpl)
+    options = fill_options(args, kwargs, scope='plot')
     if use_mpl:
         load_matplotlib(options.ext)
     nfiles = len(options.filenames)
@@ -1642,29 +1681,29 @@ def process_options(options):
         except TypeError:
             return [eval(objtype)(obj) for i in range(nhists)]
     nhists = options.nhists
-    plotpath, title, legentries = get_plotpath(options.filenames,
-                                               options.targets)
-    options.plotpath = plotpath
-    if not options.title:
-        options.title = title
-    if not options.legend_entries:
-        options.legend_entries = legentries
-    options.legend_entries = comma_separator(options.legend_entries,
-                                             str, nhists)
+    if options.targets:
+        plotpath, title, legentries = get_plotpath(options.filenames,
+                                                   options.targets)
+        options.plotpath = plotpath
+        if not options.title:
+            options.title = title
+        if not options.legend_entries:
+            options.legend_entries = legentries
+        options.legend_entries = comma_separator(options.legend_entries,
+                                                 str, nhists)
     options.scale = comma_separator(options.scale, float, nhists)
     if options.efficiency_split: options.ratio_max = 1.
     if nhists > 1: options.draw2D = None
-    if options.mpl:
-        if options.bar: options.mpl = 'bar'
-        elif options.barh: options.mpl = 'barh'
-        elif options.barcluster: options.mpl = 'barcluster'
-        elif options.errorbar: options.mpl = 'errorbar'
-        elif options.hist: options.mpl = 'hist'
-        elif options.histfill: options.mpl = 'histfill'
-        if options.stack: options.mpl = 'stack'
-        if type(options.mpl) is not str:
-            options.mpl = 'histfill'
-    if not options.markers and options.mpl:
+    if use_mpl:
+        plot_style = 'histfill'
+        if options.bar: plot_style = 'bar'
+        elif options.barh: plot_style = 'barh'
+        elif options.barcluster: plot_style = 'barcluster'
+        elif options.errorbar: plot_style = 'errorbar'
+        elif options.hist: plot_style = 'hist'
+        elif options.histfill: plot_style = 'histfill'
+        if options.stack: plot_style = 'stack'
+    if not options.markers and use_mpl:
         options.marker_styles = ['o' for i in xrange(nhists)]
     if not options.line_colors:
         options.line_colors = options.colors
@@ -1672,11 +1711,11 @@ def process_options(options):
         options.fill_colors = options.colors
     if not options.marker_colors:
         options.marker_colors = options.colors
-    if options.mpl:
+    if use_mpl:
         if not options.line_styles:
             options.line_styles = ['solid' for i in xrange(nhists)]
         if not options.plot_styles:
-            options.plot_styles = [options.mpl for i in xrange(nhists)]
+            options.plot_styles = [plot_style for i in xrange(nhists)]
         if not options.errorbar_colors:
             options.errorbar_colors = [None for i in xrange(nhists)]
         if not options.alphas:
@@ -1698,7 +1737,7 @@ def process_options(options):
                                          for i in xrange(nhists)]
     if not options.marker_sizes:
         if options.markers:
-            if options.mpl: size = mpl.rcParams['lines.markersize']
+            if use_mpl: size = mpl.rcParams['lines.markersize']
             else: size = ROOT.gStyle.GetMarkerSize()
         else:
             size = 0
@@ -1707,14 +1746,14 @@ def process_options(options):
         i = options.data - 1
         options.line_colors[i] = options.data_color
         options.fill_colors[i] = options.data_color
-        if options.mpl:
+        if use_mpl:
             options.plot_styles[i] = 'errorbar'
         else:
             options.fill_styles[i] = 0
             options.draw_commands[i] = 'e'
         options.marker_styles[i] = options.data_marker
         if not options.marker_sizes[i]:
-            if options.mpl:
+            if use_mpl:
                 options.marker_sizes[i] = mpl.rcParams['lines.markersize']
             else:
                 options.marker_sizes[i] = ROOT.gStyle.GetMarkerSize()
@@ -1723,20 +1762,21 @@ def process_options(options):
     for opt in [x for x in options.keys() if 'colors' in x]:
         try:
             colors = options[opt]
-            options[opt] = [parse_color(x, not options.mpl) for x in colors]
+            options[opt] = [parse_color(x, not use_mpl) for x in colors]
         except AttributeError:
             pass
-    #### Apply extra options based on hist name
-    plotname = os.path.basename(options.plotpath)
-    for option, value, regexes in options.options_by_histname:
-        for regex in regexes:
-            if re.match(regex, plotname):
-                setattr(options, option, value)
-    #### Final setup
-    if options.logy:
-        if options.ymin <= 0:
-            options.ymin = None
-        options.top_padding_factor = options.top_padding_factor_log
+    if options.targets:
+        #### Apply extra options based on hist name
+        plotname = os.path.basename(options.plotpath)
+        for option, value, regexes in options.options_by_histname:
+            for regex in regexes:
+                if re.match(regex, plotname):
+                    setattr(options, option, value)
+        #### Final setup
+        if options.logy:
+            if options.ymin <= 0:
+                options.ymin = None
+            options.top_padding_factor = options.top_padding_factor_log
 
 def cartesian_product(*args, **kwds):
     # product('ABCD', 'xy') --> Ax Ay Bx By Cx Cy Dx Dy
@@ -1748,7 +1788,7 @@ def cartesian_product(*args, **kwds):
     for prod in result:
         yield tuple(prod)
 
-def parse_arguments(argv, use_mpl=False):
+def parse_arguments(argv, scope='global'):
     if use_mpl:
         import matplotlib as mpl
         figsize = 'x'.join([str(x) for x in mpl.rcParams['figure.figsize']])
@@ -1936,13 +1976,8 @@ def parse_arguments(argv, use_mpl=False):
            help="display underflow content in the lowest bin")
     #### Do immediate processing of arguments
     options, arguments = parser.parse_args(list(argv))
-    options = Options(options)
-    options.filenames = [x for x in arguments if x.endswith('.root')]
-    options.configs   = [x for x in arguments if x.endswith('.py')  ]
-    options.targets   = [x for x in arguments if not (x.endswith('.root') or
-                                                      x.endswith('.py'))]
-    options.mpl = use_mpl
-    options.replace = []
+    options = Options(options, arguments, scope=scope)
+    options.replace = [] # must have default in case not using mpl
     if options.processors == 1 or options.ext == 'C':
         global use_multiprocessing
         use_multiprocessing = False

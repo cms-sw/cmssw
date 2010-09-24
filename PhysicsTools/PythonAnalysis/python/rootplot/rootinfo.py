@@ -3,7 +3,7 @@
 Get information about contents of a ROOT file.
 '''
 
-__version__ = '1.0'
+from rootplot.version import __version__
 
 import optparse
 import sys
