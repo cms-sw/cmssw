@@ -22,6 +22,4 @@ HLT_HICentralityVeto
 HLT_HIClusterVertexCompatibility
 HLTriggerFinalPath
 HLTAnalyzerEndpath
-HLTOutput
-AlCaOutput
-ExpressOutput
+HLTHIOutput

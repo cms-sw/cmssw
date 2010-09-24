@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_8_1/GRun/V27 (CMSSW_3_8_1_HLT13)
+# /dev/CMSSW_3_8_1/GRun/V29 (CMSSW_3_8_1_HLT13)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/GRun/V27')
+  tableName = cms.string('/dev/CMSSW_3_8_1/GRun/V29')
 )
 
 streams = cms.PSet( 
@@ -29,6 +29,7 @@ streams = cms.PSet(
   DQM = cms.vstring( 'OnlineMonitor' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   Express = cms.vstring( 'ExpressPhysics' ),
+  HIon = cms.vstring( 'HIon' ),
   HLTDQM = cms.vstring( 'OnlineHltMonitor' ),
   HLTDQMResults = cms.vstring( 'OnlineHltResults' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
@@ -99,6 +100,7 @@ datasets = cms.PSet(
     'HLT_TrackerCosmics',
     'HLT_ZeroBias' ),
   FEDMonitor = cms.vstring( 'HLT_DTErrors' ),
+  HIon = cms.vstring(  ),
   HcalHPDNoise = cms.vstring( 'HLT_GlobalRunHPDNoise',
     'HLT_TechTrigHCALNoise' ),
   HcalNZS = cms.vstring( 'HLT_HcalNZS',

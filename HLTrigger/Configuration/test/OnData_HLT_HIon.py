@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_8_1/HIon/V27 (CMSSW_3_8_1_HLT13)
+# /dev/CMSSW_3_8_1/HIon/V29 (CMSSW_3_8_1_HLT13)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V27')
+  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V29')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -33,6 +33,7 @@ process.streams = cms.PSet(
   DQM = cms.vstring( 'OnlineMonitor' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   Express = cms.vstring( 'ExpressPhysics' ),
+  HIon = cms.vstring( 'HIon' ),
   HLTDQM = cms.vstring( 'OnlineHltMonitor' ),
   HLTDQMResults = cms.vstring( 'OnlineHltResults' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
@@ -52,6 +53,27 @@ process.datasets = cms.PSet(
   Electron = cms.vstring(  ),
   ExpressPhysics = cms.vstring(  ),
   FEDMonitor = cms.vstring(  ),
+  HIon = cms.vstring( 'HLT_HIActivityHF_Coincidence3',
+    'HLT_HIActivityHF_Single3',
+    'HLT_HIActivityPixel_SingleTrack',
+    'HLT_HIActivityPixels',
+    'HLT_HICentralityVeto',
+    'HLT_HIClusterVertexCompatibility',
+    'HLT_HIJet35U',
+    'HLT_HIL1DoubleMuOpen',
+    'HLT_HIL1ETT60',
+    'HLT_HIL1Tech_BSC_HighMultiplicity',
+    'HLT_HIL1Tech_BSC_minBias',
+    'HLT_HIL1Tech_BSC_minBias_OR',
+    'HLT_HIL1Tech_HCAL_HF',
+    'HLT_HIMinBiasBSC',
+    'HLT_HIMinBiasCalo',
+    'HLT_HIMinBiasPixel_SingleTrack',
+    'HLT_HIPhoton15',
+    'HLT_HIUpcEcal',
+    'HLT_HIUpcMu',
+    'HLT_HIZeroBias',
+    'HLT_HIZeroBiasPixel_SingleTrack' ),
   HcalHPDNoise = cms.vstring(  ),
   HcalNZS = cms.vstring(  ),
   Jet = cms.vstring(  ),
@@ -2198,104 +2220,36 @@ process.hltL1GtTrigReport = cms.EDAnalyzer( "L1GtTrigReport",
 process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
     HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
 )
-process.hltPreExpress = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
-)
-process.hltPreExpressSmart = cms.EDFilter( "TriggerResultsFilter",
-    triggerConditions = cms.vstring( 'HLT_DoubleMu3',
-      'HLT_Ele40_SW_L1R',
-      'HLT_Jet100U',
-      'HLT_L1Tech_BSC_minBias_OR / 2',
-      'HLT_MET100',
-      'HLT_Mu11',
-      'HLT_Mu5',
-      'HLT_Photon50_NoHE_Cleaned_L1R',
-      'HLT_TrackerCosmics / 30',
-      'HLT_ZeroBias / 10' ),
-    hltResults = cms.InputTag( "TriggerResults" ),
-    l1tResults = cms.InputTag( "" ),
-    l1tIgnoreMask = cms.bool( False ),
-    daqPartitions = cms.uint32( 1 ),
-    throw = cms.bool( True ),
-    l1techIgnorePrescales = cms.bool( False )
-)
 
-process.hltOutputA = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputA.root" ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring(  ) ),
+process.hltOutputHIon = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputHIon.root" ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_HIActivityHF_Coincidence3',
+  'HLT_HIActivityHF_Single3',
+  'HLT_HIActivityPixel_SingleTrack',
+  'HLT_HIActivityPixels',
+  'HLT_HICentralityVeto',
+  'HLT_HIClusterVertexCompatibility',
+  'HLT_HIJet35U',
+  'HLT_HIL1DoubleMuOpen',
+  'HLT_HIL1ETT60',
+  'HLT_HIL1Tech_BSC_HighMultiplicity',
+  'HLT_HIL1Tech_BSC_minBias',
+  'HLT_HIL1Tech_BSC_minBias_OR',
+  'HLT_HIL1Tech_HCAL_HF',
+  'HLT_HIMinBiasBSC',
+  'HLT_HIMinBiasCalo',
+  'HLT_HIMinBiasPixel_SingleTrack',
+  'HLT_HIPhoton15',
+  'HLT_HIUpcEcal',
+  'HLT_HIUpcMu',
+  'HLT_HIZeroBias',
+  'HLT_HIZeroBiasPixel_SingleTrack' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep *_hltL1GtObjectMap_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
       'keep FEDRawDataCollection_source_*_*',
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputExpress = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputExpress.root" ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring(  ) ),
-    outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
-      'keep *_hltL1GtObjectMap_*_*',
-      'keep FEDRawDataCollection_rawDataCollector_*_*',
-      'keep FEDRawDataCollection_source_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputCalibration = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputCalibration.root" ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring(  ) ),
-    outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
-      'keep FEDRawDataCollection_rawDataCollector_*_*',
-      'keep FEDRawDataCollection_source_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputEcalCalibration = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputEcalCalibration.root" ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring(  ) ),
-    outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
-      'keep *_hltEcalCalibrationRaw_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputALCAP0 = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputALCAP0.root" ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring(  ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltAlCaEtaRecHitsFilter_*_*',
-      'keep *_hltAlCaPi0RecHitsFilter_*_*',
-      'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputALCAPHISYM = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputALCAPHISYM.root" ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring(  ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltAlCaPhiSymStream_*_*',
-      'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputRPCMON = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputRPCMON.root" ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring(  ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltCscSegments_*_*',
-      'keep *_hltDt4DSegments_*_*',
-      'keep *_hltMuonDTDigis_*_*',
-      'keep *_hltMuonRPCDigis_*_*',
-      'keep *_hltRpcRecHits_*_*',
-      'keep L1MuGMTCands_hltGtDigis_*_*',
-      'keep L1MuGMTReadoutCollection_hltGtDigis_*_*',
-      'keep edmTriggerResults_*_*_*' )
-)
-process.hltOutputOnlineErrors = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputOnlineErrors.root" ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring(  ) ),
-    outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
-      'keep FEDRawDataCollection_rawDataCollector_*_*',
-      'keep FEDRawDataCollection_source_*_*',
-      'keep edmTriggerResults_*_*_*' )
 )
 
 process.HLTL1UnpackerSequence = cms.Sequence( process.hltGtDigis + process.hltGctDigis + process.hltL1GtObjectMap + process.hltL1extraParticles )
@@ -2334,9 +2288,7 @@ process.HLT_HIClusterVertexCompatibility = cms.Path( process.HLTBeginSequence + 
 process.HLT_HICentralityVeto = cms.Path( process.HLTBeginSequenceBPTX + process.HLTDoHILocalPixelSequence + process.HLTPixelActivityFilterCentralityVeto + process.HLTEndSequence )
 process.HLTriggerFinalPath = cms.Path( process.hltGtDigis + process.hltFEDSelector + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW + process.hltBoolTrue )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltL1GtTrigReport + process.hltTrigReport )
-process.HLTOutput = cms.EndPath( process.hltOutputA )
-process.ExpressOutput = cms.EndPath( process.hltPreExpress + process.hltPreExpressSmart + process.hltOutputExpress )
-process.AlCaOutput = cms.EndPath( process.hltOutputCalibration + process.hltOutputEcalCalibration + process.hltOutputALCAP0 + process.hltOutputALCAPHISYM + process.hltOutputRPCMON + process.hltOutputOnlineErrors )
+process.HLTHIOutput = cms.EndPath( process.hltOutputHIon )
 
 
 # remove HLT prescales
