@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.31 2010/09/23 18:30:00 amraktad Exp $
+// $Id: FWEveView.cc,v 1.32 2010/09/24 16:22:26 amraktad Exp $
 //
 
 
@@ -48,7 +48,8 @@
 #include "Fireworks/Core/interface/FWViewContext.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
 #include "Fireworks/Core/interface/CmsShowCommon.h"
-//#include "Fireworks/Core/src/FWDialogBuilder.h"
+#include "Fireworks/Core/interface/FWEveViewScaleEditor.h"
+
 
 
 
@@ -282,6 +283,12 @@ FWEveView::setMaxTowerHeight()
       calo->SetMaxTowerH(energyMaxTowerHeight());
       energyScalesChanged();
    }
+}
+void
+FWEveView::setUseGlobalEnergyScales(bool x)
+{
+   m_useGlobalScales.set(x);
+   updateEnergyScales();
 }
 
 void
@@ -558,17 +565,20 @@ FWEveView::populateController(ViewerParameterGUI& gui) const
       addParam(&m_lineOutlineScale).
       addParam(&m_lineWireframeScale);
 
-   if (getEveCalo())
+   if (1 && getEveCalo())
    {
-      gui.requestTab("Scales").
-         addParam(&m_useGlobalScales).
-         addParam(&m_energyScaleMode).
-         addParam(&m_energyMaxAbsVal);
+      gui.requestTab("Scales");
+
+      FWEveViewScaleEditor* editor = new FWEveViewScaleEditor(gui.getTabContainer(), (FWEveView*)this);
+      gui.addFrameToContainer(editor);
+     
+      //    editor->addParam(&m_useGlobalScales);
+      editor->addParam(&m_energyScaleMode);
+      editor->addParam(&m_energyMaxAbsVal);
 
       if (typeId() != FWViewType::kLego && typeId() != FWViewType::kLegoHF )
       {
-         gui.requestTab("Scales").
-            addParam(&m_energyMaxTowerHeight);
+         editor->addParam(&m_energyMaxTowerHeight);
 
       }
    }

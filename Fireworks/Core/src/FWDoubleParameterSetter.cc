@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 11:22:32 CDT 2008
-// $Id: FWDoubleParameterSetter.cc,v 1.4 2009/01/23 21:35:42 amraktad Exp $
+// $Id: FWDoubleParameterSetter.cc,v 1.5 2010/02/12 15:36:46 eulisse Exp $
 //
 
 // system include files
@@ -113,6 +113,12 @@ FWDoubleParameterSetter::doUpdate(Long_t)
    //std::cout <<m_widget->GetNumberEntry()->GetNumber()<<std::endl;
    m_param->set(m_widget->GetNumberEntry()->GetNumber());
    update();
+}
+
+void
+FWDoubleParameterSetter::setEnabled(bool x)
+{
+   m_widget->SetState(x);
 }
 //
 // const member functions

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:16:20 EST 2008
-// $Id: FWParameterSetterBase.cc,v 1.11 2010/05/06 18:03:08 amraktad Exp $
+// $Id: FWParameterSetterBase.cc,v 1.12 2010/06/18 10:17:16 yana Exp $
 //
 
 // system include files
@@ -145,4 +145,10 @@ FWParameterSetterBase::makeSetterFor(FWParameterBase* iParam)
    boost::shared_ptr<FWParameterSetterBase> ptr(reinterpret_cast<FWParameterSetterBase*>( castSetterObj.Address() ),
                                                 boost::bind(&ROOT::Reflex::Type::Destruct,itFind->second,setterObj.Address(),true));
    return ptr;
+}
+
+/* Virtual function which sets widgets enabled state.*/
+void
+FWParameterSetterBase::setEnabled(bool)
+{
 }

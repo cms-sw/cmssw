@@ -13,6 +13,7 @@
   <class name="CmsShowCommonPopup"/>
   <class name="CmsShowModelPopup"/>
   <class name="CmsShowViewPopup"/>
+  <class name="FWEveViewScaleEditor"/>
   <class name="FWGUISubviewArea"/>
   <class name="FWConfiguration"/>
   <class name="FWParameterSetterBase"/>

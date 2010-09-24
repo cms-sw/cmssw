@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:16:14 EST 2008
-// $Id: FWParameterSetterBase.h,v 1.4 2008/11/06 22:05:23 amraktad Exp $
+// $Id: FWParameterSetterBase.h,v 1.5 2009/01/23 21:35:41 amraktad Exp $
 //
 
 // system include files
@@ -45,6 +45,9 @@ public:
    // ---------- member functions ---------------------------
    void attach(FWParameterBase*, FWParameterSetterEditorBase*);
    virtual TGFrame* build(TGFrame* iParent) = 0;
+
+   virtual void setEnabled(bool);
+
 protected:
    void update() const;
    FWParameterSetterEditorBase* frame() const {

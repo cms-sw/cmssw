@@ -11,6 +11,7 @@
 #include "Fireworks/Core/interface/CmsShowEDI.h"
 #include "Fireworks/Core/interface/CmsShowCommonPopup.h"
 #include "Fireworks/Core/interface/CmsShowModelPopup.h"
+#include "Fireworks/Core/interface/FWEveViewScaleEditor.h"
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
 #include "Fireworks/Core/interface/FWGUISubviewArea.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:04 EDT 2008
-// $Id: CmsShowViewPopup.cc,v 1.26 2010/09/08 19:18:55 amraktad Exp $
+// $Id: CmsShowViewPopup.cc,v 1.27 2010/09/15 18:14:22 amraktad Exp $
 //
 
 // system include files
@@ -256,6 +256,26 @@ ViewerParameterGUI::separator()
    return *this;
 }
 
+TGCompositeFrame* 
+ViewerParameterGUI::getTabContainer()
+{
+   assert (m_tab);
+   return m_tab->GetCurrentContainer();
+}
+
+void 
+ViewerParameterGUI::addFrameToContainer(TGCompositeFrame* x)
+{
+   assert (m_tab);
+   TGCompositeFrame* parent =  m_tab->GetCurrentContainer();
+   parent->AddFrame(x,new TGLayoutHints(kLHintsExpandX,4 ,4, 2, 2) );
+
+   parent->MapSubwindows();
+   parent->Layout();
+   m_tab->Layout();
+   parent->Resize(parent->GetDefaultSize());
+}
+
 /* Setup after finish gui build. */
 void
 ViewerParameterGUI::populateComplete()
@@ -266,3 +286,4 @@ ViewerParameterGUI::populateComplete()
       if (!x) m_tab->SetTab("Style");
    }
 }
+

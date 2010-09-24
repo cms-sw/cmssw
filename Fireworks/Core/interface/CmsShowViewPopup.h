@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:12 EDT 2008
-// $Id: CmsShowViewPopup.h,v 1.17 2010/09/08 19:18:55 amraktad Exp $
+// $Id: CmsShowViewPopup.h,v 1.18 2010/09/15 18:14:22 amraktad Exp $
 //
 
 // system include files
@@ -56,6 +56,10 @@ public:
    ViewerParameterGUI& separator();
    void reset();
    void populateComplete();
+
+   TGCompositeFrame* getTabContainer();
+   void addFrameToContainer(TGCompositeFrame*);
+   
 
 private:
    TGTab* m_tab;

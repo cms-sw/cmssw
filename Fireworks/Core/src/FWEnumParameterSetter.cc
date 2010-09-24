@@ -8,7 +8,7 @@
 //
 // Original Author:  matevz
 //         Created:  Fri Apr 30 15:17:33 CEST 2010
-// $Id: FWEnumParameterSetter.cc,v 1.2 2010/05/03 14:08:12 matevz Exp $
+// $Id: FWEnumParameterSetter.cc,v 1.3 2010/05/09 10:02:35 amraktad Exp $
 //
 
 // system include files
@@ -98,6 +98,12 @@ FWEnumParameterSetter::doUpdate(Int_t id)
    assert(0!=m_widget);
    m_param->set((Long_t) id);
    update();
+}
+
+void
+FWEnumParameterSetter::setEnabled(bool x)
+{
+   m_widget->SetEnabled(x);
 }
 
 //

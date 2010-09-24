@@ -16,7 +16,7 @@
 //
 // Original Author:  matevz
 //         Created:  Fri Apr 30 15:17:29 CEST 2010
-// $Id$
+// $Id: FWEnumParameterSetter.h,v 1.1 2010/04/30 15:29:44 matevz Exp $
 //
 
 // system include files
@@ -44,7 +44,10 @@ public:
 
    virtual TGFrame* build(TGFrame* iParent);
 
+   virtual void setEnabled(bool);
+
    void doUpdate(Int_t id);
+
 
 private:
    FWEnumParameterSetter(const FWEnumParameterSetter&);                  // stop default

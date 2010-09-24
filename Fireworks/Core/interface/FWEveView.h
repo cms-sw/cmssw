@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.h,v 1.19 2010/09/23 18:30:00 amraktad Exp $
+// $Id: FWEveView.h,v 1.20 2010/09/24 16:22:26 amraktad Exp $
 //
 
 
@@ -88,7 +88,7 @@ public:
    
    FWViewType::EType typeId() const { return m_type.id(); }
    virtual void updateEnergyScales();
-
+   virtual void setUseGlobalEnergyScales(bool);
 protected:
    virtual void resetCamera();
    virtual void pointLineScalesChanged();
