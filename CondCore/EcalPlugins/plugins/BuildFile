@@ -139,3 +139,116 @@
 <use name=boost_python>
 <flags EDM_PLUGIN=1>
 </library>
+
+
+<library file="EcalTPGLinearizationConstPyWrapper.cc" name=EcalTPGLinearizationConstPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondFormats/EcalObjects>
+<use name=CondTools/Ecal>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>
+
+
+<library file="EcalTPGPedestalsPyWrapper.cc" name=EcalTPGPedestalsPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondFormats/EcalObjects>
+<use name=CondTools/Ecal>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>
+
+<library file="EcalDQMTowerStatusPyWrapper.cc" name=EcalDQMTowerStatusPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondFormats/EcalObjects>
+<use name=CondTools/Ecal>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>
+
+<library file="EcalDQMChannelStatusPyWrapper.cc" name=EcalDQMChannelStatusPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondFormats/EcalObjects>
+<use name=CondTools/Ecal>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>
+
+
+<library file="EcalTPGCrystalStatusPyWrapper.cc" name=EcalTPGCrystalStatusPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondFormats/EcalObjects>
+<use name=CondTools/Ecal>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>
+
+<library file="EcalTPGPhysicsConstPyWrapper.cc" name=EcalTPGPhysicsConstPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondFormats/EcalObjects>
+<use name=CondTools/Ecal>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>
+
+<library file="EcalTPGFineGrainEBIdMapPyWrapper.cc" name=EcalTPGFineGrainEBIdMapPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondFormats/EcalObjects>
+<use name=CondTools/Ecal>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>
+
+<library file="EcalTPGWeightIdMapPyWrapper.cc" name=EcalTPGWeightIdMapPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondFormats/EcalObjects>
+<use name=CondTools/Ecal>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>
+
+<library file="EcalTPGLutIdMapPyWrapper.cc" name=EcalTPGLutIdMapPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondFormats/EcalObjects>
+<use name=CondTools/Ecal>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>
+
+<library file="EcalTPGTowerStatusPyWrapper.cc" name=EcalTPGTowerStatusPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondFormats/EcalObjects>
+<use name=CondTools/Ecal>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>

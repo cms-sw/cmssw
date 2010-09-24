@@ -1,10 +1,11 @@
-#include "CondFormats/EcalObjects/interface/EcalDAQTowerStatus.h"
-#include "CondTools/Ecal/interface/EcalDAQTowerStatusXMLTranslator.h"
+#include "CondFormats/EcalObjects/interface/EcalDQMTowerStatus.h"
+//#include "CondTools/Ecal/interface/EcalDQMTowerStatusXMLTranslator.h"
 #include "CondTools/Ecal/interface/EcalCondHeader.h"
 #include "TROOT.h"
 #include "TH2F.h"
 #include "TCanvas.h"
 #include "TStyle.h"
+#include "TColor.h"
 #include "TLine.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
@@ -30,8 +31,8 @@ namespace cond {
 
   namespace ecalcond {
 
-    typedef EcalDAQTowerStatus::Items  Items;
-    typedef EcalDAQTowerStatus::value_type  value_type;
+    typedef EcalDQMTowerStatus::Items  Items;
+    typedef EcalDQMTowerStatus::value_type  value_type;
 
     enum How { singleChannel, bySuperModule, all};
 
@@ -42,36 +43,36 @@ namespace cond {
 			    );
     }
 
-    void extractBarrel(EcalDAQTowerStatus const & cont, std::vector<int> const &,  std::vector<float> & result) {
+    void extractBarrel(EcalDQMTowerStatus const & cont, std::vector<int> const &,  std::vector<float> & result) {
       result.resize(1);
       result[0] =  bad(cont.barrelItems());
     }
     
-    void extractEndcap(EcalDAQTowerStatus const & cont, std::vector<int> const &,  std::vector<float> & result) {
+    void extractEndcap(EcalDQMTowerStatus const & cont, std::vector<int> const &,  std::vector<float> & result) {
       result.resize(1);
       result[0] = bad(cont.endcapItems());
     }
-    void extractAll(EcalDAQTowerStatus const & cont, std::vector<int> const &,  std::vector<float> & result) {
+    void extractAll(EcalDQMTowerStatus const & cont, std::vector<int> const &,  std::vector<float> & result) {
       result.resize(1);
       result[0] = bad(cont.barrelItems())+bad(cont.endcapItems());
     }
 
-    void extractSuperModules(EcalDAQTowerStatus const & cont, std::vector<int> const & which,  std::vector<float> & result) {
+    void extractSuperModules(EcalDQMTowerStatus const & cont, std::vector<int> const & which,  std::vector<float> & result) {
       // bho...
     }
 
-    void extractSingleChannel(EcalDAQTowerStatus const & cont, std::vector<int> const & which,  std::vector<float> & result) {
+    void extractSingleChannel(EcalDQMTowerStatus const & cont, std::vector<int> const & which,  std::vector<float> & result) {
       result.reserve(which.size());
       for (unsigned int i=0; i<which.size();i++) {
 	result.push_back(cont[which[i]].getStatusCode());
       }
     }
 
-	typedef boost::function<void(EcalDAQTowerStatus const & cont, std::vector<int> const & which,  std::vector<float> & result)> CondExtractor;
+	typedef boost::function<void(EcalDQMTowerStatus const & cont, std::vector<int> const & which,  std::vector<float> & result)> CondExtractor;
   }  // namespace ecalcond
 
   template<>
-  struct ExtractWhat<EcalDAQTowerStatus> {
+  struct ExtractWhat<EcalDQMTowerStatus> {
 
     ecalcond::How m_how;
     std::vector<int> m_which;
@@ -85,7 +86,7 @@ namespace cond {
 
 
   template<>
-  class ValueExtractor<EcalDAQTowerStatus>: public  BaseValueExtractor<EcalDAQTowerStatus> {
+  class ValueExtractor<EcalDQMTowerStatus>: public  BaseValueExtractor<EcalDQMTowerStatus> {
   public:
 
     static ecalcond::CondExtractor & extractor(ecalcond::How how) {
@@ -97,7 +98,7 @@ namespace cond {
       return fun[how];
     }
 
-    typedef EcalDAQTowerStatus Class;
+    typedef EcalDQMTowerStatus Class;
     typedef ExtractWhat<Class> What;
     static What what() { return What();}
 
@@ -105,7 +106,7 @@ namespace cond {
     ValueExtractor(What const & what)
       : m_what(what)
     {
-      // here one can make stuff really complicated...
+      // here one can make stuff really complicated... 
     }
 
     void compute(Class const & it){
@@ -119,53 +120,99 @@ namespace cond {
   };
 
 
-  template<>
-  std::string PayLoadInspector<EcalDAQTowerStatus>::dump() const {
-    std::stringstream ss;
-    EcalCondHeader h;
-    ss << EcalDAQTowerStatusXMLTranslator::dumpXML(h,object());
-    return ss.str();
-  }
+  //template<>
+  //std::string PayLoadInspector<EcalDQMTowerStatus>::dump() const {
+  //  std::stringstream ss;
+  //  EcalCondHeader h;
+  //  ss << EcalDQMTowerStatusXMLTranslator::dumpXML(h,object());
+  //  return ss.str();
+  //}
 
-  	class EcalDAQTowerStatusHelper: public EcalPyWrapperHelper<EcalDAQStatusCode>{
+ 	class EcalDQMTowerStatusHelper: public EcalPyWrapperHelper<EcalDQMStatusCode>{
 	public:
 		//change me
-		EcalDAQTowerStatusHelper():EcalPyWrapperHelper<EcalObject>(1, STATUS){}
+		EcalDQMTowerStatusHelper():EcalPyWrapperHelper<EcalObject>(30, STATUS, "-Errors total: "){}
 	protected:
 
 		//change me
-		typedef EcalDAQStatusCode EcalObject;
+		typedef EcalDQMStatusCode EcalObject;
 
 		type_vValues getValues( const std::vector<EcalObject> & vItems)
 		{
+			//change me
+			//unsigned int totalValues = 2; 
+
 			type_vValues vValues(total_values);
-			
-			//change us
-			vValues[0].first = "bit 0 -> towers excluded from the DAQ";
-			
-			vValues[0].second = .0;
+
+			std::stringstream ss;
+
+			std::string valueNames[] = {
+				"CH_ID_ERROR                          ",
+				"CH_GAIN_ZERO_ERROR                   ",
+				"CH_GAIN_SWITCH_ERROR                 ",
+				"TT_ID_ERROR                          ",
+				"TT_SIZE_ERROR                        ",
+				"PEDESTAL_LOW_GAIN_MEAN_ERROR         ",
+				"PEDESTAL_MIDDLE_GAIN_MEAN_ERROR      ",
+				"PEDESTAL_HIGH_GAIN_MEAN_ERROR        ",
+				"PEDESTAL_LOW_GAIN_RMS_ERROR          ",
+				"PEDESTAL_MIDDLE_GAIN_RMS_ERROR       ",
+				"PEDESTAL_HIGH_GAIN_RMS_ERROR         ",
+				"PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR ",
+				"PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR  ",
+				"TESTPULSE_LOW_GAIN_MEAN_ERROR        ",
+				"TESTPULSE_MIDDLE_GAIN_MEAN_ERROR     ",
+				"TESTPULSE_HIGH_GAIN_MEAN_ERROR       ",
+				"TESTPULSE_LOW_GAIN_RMS_ERROR         ",
+				"TESTPULSE_MIDDLE_GAIN_RMS_ERROR      ",
+				"TESTPULSE_HIGH_GAIN_RMS_ERROR        ",
+				"LASER_MEAN_ERROR                     ",
+				"LASER_RMS_ERROR                      ",
+				"LASER_TIMING_MEAN_ERROR              ",
+				"LASER_TIMING_RMS_ERROR               ",
+				"LED_MEAN_ERROR                       ",
+				"LED_RMS_ERROR                        ",
+				"LED_TIMING_MEAN_ERROR                ",
+				"LED_TIMING_RMS_ERROR                 ",
+				"STATUS_FLAG_ERROR                    ",
+				"PHYSICS_BAD_CHANNEL_WARNING          ",
+				"PHYSICS_BAD_CHANNEL_ERROR            "
+			};
+			for (unsigned int i = 0; i < total_values; ++i){
+				ss.str(""); ss << "[" << i << "]" << valueNames[i];
+				vValues[i].first = ss.str();
+				vValues[i].second = .0;
+			}
 			
 			//get info:
+			unsigned int shift = 0, mask = 1;
+			unsigned int statusCode;
 			for(std::vector<EcalObject>::const_iterator iItems = vItems.begin(); iItems != vItems.end(); ++iItems){
 				//change us
-				vValues[0].second += iItems->getStatusCode();
+				statusCode = iItems->getStatusCode();
+				for (shift = 0; shift < total_values; ++shift){
+					mask = 1 << (shift);
+					//std::cout << "; statuscode: " << statusCode;
+					if (statusCode & mask){
+						vValues[shift].second += 1;
+					}
+				}
 			}
 			return vValues;
 		}
 	};
 
    template<>
-   std::string PayLoadInspector<EcalDAQTowerStatus>::summary() const {
+   std::string PayLoadInspector<EcalDQMTowerStatus>::summary() const {
 	std::stringstream ss;
-	EcalDAQTowerStatusHelper helper;
+	EcalDQMTowerStatusHelper helper;
 	ss << helper.printBarrelsEndcaps(object().barrelItems(), object().endcapItems());
 	return ss.str();
    }
 
-
-  // return the real name of the file including extension...
+   // return the real name of the file including extension...
   template<>
-  std::string PayLoadInspector<EcalDAQTowerStatus>::plot(std::string const & filename,
+  std::string PayLoadInspector<EcalDQMTowerStatus>::plot(std::string const & filename,
 							 std::string const &, 
 							 std::vector<int> const&, 
 							 std::vector<float> const& ) const {
@@ -269,14 +316,14 @@ namespace cond {
 
 namespace condPython {
   template<>
-  void defineWhat<EcalDAQTowerStatus>() {
+  void defineWhat<EcalDQMTowerStatus>() {
     enum_<cond::ecalcond::How>("How")
       .value("singleChannel",cond::ecalcond::singleChannel)
       .value("bySuperModule",cond::ecalcond::bySuperModule) 
       .value("all",cond::ecalcond::all)
       ;
 
-    typedef cond::ExtractWhat<EcalDAQTowerStatus> What;
+    typedef cond::ExtractWhat<EcalDQMTowerStatus> What;
     class_<What>("What",init<>())
       .def("set_how",&What::set_how)
       .def("set_which",&What::set_which)
@@ -286,4 +333,4 @@ namespace condPython {
   }
 }
 
-PYTHON_WRAPPER(EcalDAQTowerStatus,EcalDAQTowerStatus);
+PYTHON_WRAPPER(EcalDQMTowerStatus,EcalDQMTowerStatus);
