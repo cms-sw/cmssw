@@ -144,13 +144,14 @@ def run(pickleDir, logsDir, htmlDir):
     aoSorting += "[0, 'asc']"
 
     style = """
+
     <style type="text/css" title="currentStyle">
-        @import "js/dataTables-1.4/media/css/demos.css";
+       @import "/SDT/html/jsExt/dataTables/media/css/demo_table.css";
     </style>
 
-    <script type="text/javascript" src="js/dataTables-1.4/media/js/jquery.js"></script>
-    <script type="text/javascript" src="js/dataTables-1.4/media/js/jquery.dataTables.js"></script>
-
+    <script type="text/javascript" src="/SDT/html/jsExt/dataTables/media/js/jquery.js"></script>
+    <script type="text/javascript" src="/SDT/html/jsExt/dataTables/media/js/jquery.dataTables.js"></script>
+                        
     <script type="text/javascript" charset="utf-8">
 	/* Initialise the table with the required column sorting data types */
 	$(document).ready(function() {
