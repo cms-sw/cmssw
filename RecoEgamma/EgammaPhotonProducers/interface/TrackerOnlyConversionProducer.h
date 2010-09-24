@@ -4,9 +4,9 @@
  **
  **
  **  $Id:
- **  $Date: 2010/09/17 20:04:38 $
- **  $Revision: 1.16 $
- **  \author H. Liu, UC of Riverside US
+ **  $Date: 2010/09/23 17:31:44 $
+ **  $Revision: 1.17 $
+ **  \authors H. Liu, UC of Riverside US, N. Marinelli Univ of Notre Dame
  **
  ***/
 // user include files
