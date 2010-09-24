@@ -28,6 +28,8 @@ EcalRecHitWorkerRecover::EcalRecHitWorkerRecover(const edm::ParameterSet&ps) :
         singleRecoveryThreshold_ = ps.getParameter<double>("singleChannelRecoveryThreshold");
         killDeadChannels_        = ps.getParameter<bool>("killDeadChannels");
         tpDigiCollection_        = ps.getParameter<edm::InputTag>("triggerPrimitiveDigiCollection");
+        logWarningEtThreshold_EB_FE_ = ps.getParameter<double>("logWarningEtThreshold_EB_FE");
+        logWarningEtThreshold_EE_FE_ = ps.getParameter<double>("logWarningEtThreshold_EE_FE");
 }
 
 
@@ -62,7 +64,12 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
         // get laser coefficient
         //float lasercalib = laser->getLaserCorrection( detId, evt.time());
 
-        // explicitely kill dead channels
+        // killDeadChannels_ = true, means explicitely kill dead channels even if the recovered energies are computed in the code
+        // if you don't want to store the recovered energies in the rechit you can produce LogWarnings if logWarningEtThreshold_EB(EE)_FE>0 
+	// logWarningEtThreshold_EB(EE)_FE_<0 will not compute the recovered energies at all (faster)
+	// Revovery in the EE is not tested, recovered energies may not make sense
+        // EE recovery computation is not tested against segmentation faults, use with caution even if you are going to killDeadChannels=true
+
         if ( killDeadChannels_ ) {
                 if ( flags == EcalRecHitWorkerRecover::EB_single
                      || flags == EcalRecHitWorkerRecover::EE_single 
@@ -71,7 +78,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                      ) {
                         EcalRecHit hit( detId, 0., 0., EcalRecHit::kDead );
                         hit.setFlagBits( (0x1 << EcalRecHit::kDead) ) ;
-                        insertRecHit( hit, result);
+                        insertRecHit( hit, result); // insert trivial rechit with kDead flag
                         return true;
                 } 
                 if ( flags == EcalRecHitWorkerRecover::EB_FE ) {
@@ -80,9 +87,9 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                         for ( std::vector<DetId>::const_iterator dit = vid.begin(); dit != vid.end(); ++dit ) {
                                 EcalRecHit hit( (*dit), 0., 0., EcalRecHit::kDead );
                                 hit.setFlagBits( (0x1 << EcalRecHit::kDead) ) ;
-                                insertRecHit( hit, result );
+                                insertRecHit( hit, result ); // insert trivial rechit with kDead flag
                         }
-                        return true;
+			if(logWarningEtThreshold_EB_FE_<0)return true; // if you don't want log warning just return true
                 }
                 if ( flags == EcalRecHitWorkerRecover::EE_FE ) {
                         EEDetId id( detId );
@@ -101,9 +108,9 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                         for ( size_t i = 0; i < eeC.size(); ++i ) {
                                 EcalRecHit hit( eeC[i], 0., 0., EcalRecHit::kDead );
                                 hit.setFlagBits( (0x1 << EcalRecHit::kDead) ) ;
-                                insertRecHit( hit, result );
+                                insertRecHit( hit, result ); // insert trivial rechit with kDead flag
                         }
-                        return true;
+		   	if(logWarningEtThreshold_EE_FE_<0)   return true; // if you don't want log warning just return true
                 }
         }
 
@@ -148,15 +155,21 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                 if ( tp != tpDigis->end() ) {
                         //std::vector<DetId> vid = ecalMapping_->dccTowerConstituents( ecalMapping_->DCCid( ttDetId ), ecalMapping_->iTT( ttDetId ) );
                         std::vector<DetId> vid = ttMap_->constituentsOf( ttDetId );
+			float tpEt  = ecalScale_.getTPGInGeV( tp->compressedEt(), tp->id() );
+			float tpEtThreshEB = logWarningEtThreshold_EB_FE_;
+			if(tpEt>tpEtThreshEB){
+				edm::LogWarning("EnergyInDeadEB_FE")<<"TP energy in the dead TT = "<<tpEt<<" at "<<ttDetId;
+			}
+			if ( !killDeadChannels_ ) {  
                         // democratic energy sharing
-                        for ( std::vector<DetId>::const_iterator dit = vid.begin(); dit != vid.end(); ++dit ) {
-                                float theta = 0;
-                                theta = ebGeom_->getGeometry(*dit)->getPosition().theta();
-                                float tpEt  = ecalScale_.getTPGInGeV( tp->compressedEt(), tp->id() );
-                                EcalRecHit hit( *dit, tpEt / (float)vid.size() / sin(theta), 0., EcalRecHit::kTowerRecovered );
-                                hit.setFlagBits( (0x1 << EcalRecHit::kTowerRecovered) ) ;
-                                insertRecHit( hit, result );
-                        }
+				for ( std::vector<DetId>::const_iterator dit = vid.begin(); dit != vid.end(); ++dit ) {
+					float theta = 0;
+					theta = ebGeom_->getGeometry(*dit)->getPosition().theta();
+					EcalRecHit hit( *dit, tpEt / (float)vid.size() / sin(theta), 0., EcalRecHit::kTowerRecovered );
+					hit.setFlagBits( (0x1 << EcalRecHit::kTowerRecovered) ) ;
+					insertRecHit( hit, result );
+				}
+			}
                 } else {
                         // tp not found => recovery failed
                         std::vector<DetId> vid = ttMap_->constituentsOf( ttDetId );
@@ -174,6 +187,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                         // .. i.e. the total energy of the TTs covering the SC minus 
                         // .. the energy of the recHits in the TTs but not in the SC
                         //std::vector<DetId> vid = ecalMapping_->dccTowerConstituents( ecalMapping_->DCCid( ttDetId ), ecalMapping_->iTT( ttDetId ) );
+			// due to lack of implementation of the EcalTrigTowerDetId ix,iy methods in EE we compute Et recovered energies (in EB we compute E)
                         // --- RECOVERY NOT YET VALIDATED
                         EEDetId eeId( detId );
                         EcalScDetId sc( (eeId.ix()-1)/5+1, (eeId.iy()-1)/5+1, eeId.zside() );
@@ -213,8 +227,9 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                                 EcalTrigPrimDigiCollection::const_iterator itTP = tpDigis->find( *it );
                                 if ( itTP != tpDigis->end() ) {
                                         EcalTrigTowerDetId ttId = itTP->id();
-                                        EEDetId eeId( ttId.ieta(), ttId.iphi(), ttId.zside() );
-                                        float theta = eeGeom_->getGeometry( eeId )->getPosition().theta();
+        //                                EEDetId eeId( ttId.ieta(), ttId.iphi(), ttId.zside() );// this produces segmentation fault, should use ttId.ix(),iy() but these are not implmented
+          //                              float theta = eeGeom_->getGeometry( eeId )->getPosition().theta();
+                                        float theta = 1.0; // do not calculate theta, actually will use Et instead of E
                                         totE += ecalScale_.getTPGInGeV( itTP->compressedEt(), itTP->id() ) / sin(theta);
                                 }
                                 // get the trigger tower constituents
@@ -234,20 +249,28 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                         for ( std::set<DetId>::const_iterator it = aTTC.begin(); it != aTTC.end(); ++it ) {
                                 EcalRecHitCollection::const_iterator jt = hits->find( *it );
                                 if ( jt != hits->end() ) {
-                                        float theta = eeGeom_->getGeometry( *it )->getPosition().theta();
+                                        //float theta = eeGeom_->getGeometry( *it )->getPosition().theta();
+                                        float theta = 1; // use Et instead of E, consistent with the Et estimation of the associated TT
                                         totE -= (*jt).energy() / sin(theta);
                                 }
                         }
                         
+
+			float scEt = totE;
+			float scEtThreshEE = logWarningEtThreshold_EE_FE_;
+			if(scEt>scEtThreshEE){
+				edm::LogWarning("EnergyInDeadEE_FE")<<"TP energy in the dead TT = "<<scEt<<" at "<<sc;
+			}
+
                         // assign the energy to the SC crystals
-                        for ( size_t i = 0; i < eeC.size(); ++i ) {
-                                EcalRecHit hit( eeC[i], 0., 0., EcalRecHit::kDead );
-                                hit.setFlagBits( (0x1 << EcalRecHit::kDead) ) ;
-                                if ( !killDeadChannels_ ) {
+			if ( !killDeadChannels_ ) {
+				for ( size_t i = 0; i < eeC.size(); ++i ) {
+					EcalRecHit hit( eeC[i], 0., 0., EcalRecHit::kDead ); 
+					hit.setFlagBits( (0x1 << EcalRecHit::kDead) ) ;
                                         
                                         hit = EcalRecHit( eeC[i], totE / (float)eeC.size(), 0., EcalRecHit::kTowerRecovered );
+					insertRecHit( hit, result );
                                 }
-                                insertRecHit( hit, result );
                         }
         }
         return true;

@@ -4,9 +4,9 @@
 /** \class EcalRecHitSimpleAlgo
   *  Simple algoritm to make rechits from uncalibrated rechits
   *
-  *  $Id: EcalRecHitWorkerRecover.h,v 1.2 2009/06/05 13:40:52 ferriff Exp $
-  *  $Date: 2009/06/05 13:40:52 $
-  *  $Revision: 1.2 $
+  *  $Id: EcalRecHitWorkerRecover.h,v 1.3 2009/07/14 02:26:18 ferriff Exp $
+  *  $Date: 2009/07/14 02:26:18 $
+  *  $Revision: 1.3 $
   *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
   */
 
@@ -59,6 +59,8 @@ class EcalRecHitWorkerRecover : public EcalRecHitWorkerBaseClass {
                 edm::InputTag tpDigiCollection_;
                 edm::ESHandle< EcalElectronicsMapping > pEcalMapping_;
                 const EcalElectronicsMapping *ecalMapping_;
+		double logWarningEtThreshold_EB_FE_;
+		double logWarningEtThreshold_EE_FE_;
 
                 edm::ESHandle<EcalTrigTowerConstituentsMap> ttMap_;
                 
