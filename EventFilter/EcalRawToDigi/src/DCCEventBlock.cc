@@ -161,3 +161,37 @@ DCCEventBlock::~DCCEventBlock(){
   if(srpBlock_)  { delete srpBlock_;   }
 }
 
+
+// -----------------------------------------------------------------------
+// sync checking
+
+bool isSynced(const unsigned int dccBx,
+              const unsigned int bx,
+              const unsigned int dccL1,
+              const unsigned int l1,
+              const BlockType type)
+{
+  // check the BX sync according the following rule:
+  //
+  //   FE Block     MEM Block     TCC Block  SRP Block  DCC
+  // ------------------------------------------------------------------
+  //   fe_bx     == mem_bx == 0   tcc_bx ==  srp_bx ==  DCC_bx == 3564
+  //   fe_bx     == mem_bx     == tcc_bx ==  srp_bx ==  DCC_bx != 3564
+  
+  const bool bxSynced =
+    ((type ==  FE_MEM) && (bx ==     0) && (dccBx == 3564)) ||
+    ((type ==  FE_MEM) && (bx == dccBx) && (dccBx != 3564)) ||
+    ((type == TCC_SRP) && (bx == dccBx));
+  
+  // check the L1A sync:
+  //
+  // L1A counter relation is valid modulo 0xFFF:
+  // fe_l1  == mem_l1 == (DCC_l1-1) & 0xFFF
+  // tcc_l1 == srp_l1 ==  DCC_l1    & 0xFFF
+  
+  const bool l1Synced =
+    ((type ==  FE_MEM) && (l1 == ((dccL1 - 1) & 0xFFF))) ||
+    ((type == TCC_SRP) && (l1 == ( dccL1      & 0xFFF)));
+  
+  return (bxSynced && l1Synced);
+}

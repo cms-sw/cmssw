@@ -102,19 +102,18 @@ int DCCFEBlock::unpack(uint64_t ** data, unsigned int * dwToEnd, bool zs, unsign
   
   // Check synchronization
   if (sync_) {
-    const unsigned int dccBx = (event_->bx()) & TCC_BX_MASK;
+    const unsigned int dccBx = (event_->bx())  & TCC_BX_MASK;
     const unsigned int dccL1 = (event_->l1A()) & TCC_L1_MASK;
     
-    // accounting for counters starting from 0 in ECAL FE, while from 1 in CSM
-    if (dccBx != bx_ || dccL1 != (l1_+1) ) {
+    if (! isSynced(dccBx, bx_, dccL1, l1_, FE_MEM)) {
       if (! DCCDataUnpacker::silentMode_) {
         // TODO: add check for status from Channel Status DB
         
         edm::LogWarning("IncorrectBlock")
           << "Synchronization error for Tower Block"
           << " (L1A " << event_->l1A() << " bx " << event_->bx() << " fed " << mapper_->getActiveDCC() << " tower " << towerId_ << ")\n"
-          << "  TCC local l1A is " << l1_ << " and local bx is " << bx_ << "\n"
-          << "  => Skipping to next tower block...";
+          << "  dccBx = " << dccBx << " bx_ = " << bx_ << " dccL1 = " << dccL1 << " l1_ = " << l1_ << "\n"
+          << "  => Skipping to next tower block";
       }
       
       //Note : add to error collection ?

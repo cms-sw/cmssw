@@ -62,14 +62,16 @@ int DCCSRPBlock::unpack(uint64_t ** data, unsigned int * dwToEnd, unsigned int n
 	 
   // Check synchronization
   if(sync_){
-    unsigned int dccL1 = ( event_->l1A() ) & SRP_BX_MASK;
-    unsigned int dccBx = ( event_->bx()  ) & SRP_L1_MASK;
-    if( dccBx != bx_ || dccL1 != l1_ ){
+    const unsigned int dccL1 = ( event_->l1A() ) & SRP_L1_MASK;
+    const unsigned int dccBx = ( event_->bx()  ) & SRP_BX_MASK;
+    
+    if (! isSynced(dccBx, bx_, dccL1, l1_, TCC_SRP)) {
       if( ! DCCDataUnpacker::silentMode_ ){
         edm::LogWarning("IncorrectEvent")
-          <<"EcalRawToDigi@SUB=DCCSRPBlock::unpack"
-          <<"\nSynchronization error for SRP block in event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in fed <<"<<mapper_->getActiveDCC()
-          <<"\n SRP local l1A is  "<<l1_<<" and local bx is "<<bx_;
+          << "Synchronization error for SRP block"
+          << " (L1A " << event_->l1A() << " bx " << event_->bx() << " fed " << mapper_->getActiveDCC() << ")\n"
+          << "  dccBx = " << dccBx << " bx_ = " << bx_ << " dccL1 = " << dccL1 << " l1_ = " << l1_ << "\n"
+          << "  => Stop event unpacking";
       }
        //Note : add to error collection ?		 
        // SRP flags are required to check FE , better using synchronized data...

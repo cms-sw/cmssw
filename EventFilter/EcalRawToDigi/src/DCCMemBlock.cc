@@ -105,14 +105,16 @@ int DCCMemBlock::unpack(uint64_t ** data, unsigned int * dwToEnd, unsigned int e
   
   // Synchronization Check 
   if(sync_){
-    unsigned int dccBx = ( event_->l1A())&TOWER_BX_MASK;
-    unsigned int dccL1 = ( event_->bx() )&TOWER_L1_MASK;
-    // accounting for counters starting from 0 in ECAL FE, while from 1 in CSM
-    if( dccBx != bx_ || dccL1 != (l1_+1) ){
+    const unsigned int dccBx = ( event_->bx()) & TOWER_BX_MASK;
+    const unsigned int dccL1 = ( event_->l1A() ) & TOWER_L1_MASK;
+    
+    if (! isSynced(dccBx, bx_, dccL1, l1_, FE_MEM)) {
       if( ! DCCDataUnpacker::silentMode_ ){
         edm::LogWarning("IncorrectEvent")
-          <<"\nSynchronization error for Mem block in event with DCC L1A: "<<event_->l1A()<<" with DCC bx: "<<event_->bx()
-  	  <<" in fed: <<"<<mapper_->getActiveDCC()<<"\nMem local L1A is: "<<l1_<<" Mem local bx is: "<<bx_;
+          << "Synchronization error for Mem block"
+          << " (L1A " << event_->l1A() << " bx " << event_->bx() << " fed " << mapper_->getActiveDCC() << ")\n"
+          << "  dccBx = " << dccBx << " bx_ = " << bx_ << " dccL1 = " << dccL1 << " l1_ = " << l1_ << "\n"
+          << "  => Stop event unpacking";
       }
       //Note : add to error collection ?
       // need of a new collection

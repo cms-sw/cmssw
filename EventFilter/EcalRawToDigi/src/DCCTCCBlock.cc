@@ -69,15 +69,16 @@ int DCCTCCBlock::unpack(uint64_t ** data, unsigned int * dwToEnd, short tccChId)
   
     // Check synchronization
     if(sync_){
-      unsigned int dccBx = (event_->bx())  & TCC_BX_MASK;
-      unsigned int dccL1 = (event_->l1A()) & TCC_L1_MASK;    
-      if( dccBx != bx_ || dccL1 != l1_ ){
+      const unsigned int dccBx = (event_->bx())  & TCC_BX_MASK;
+      const unsigned int dccL1 = (event_->l1A()) & TCC_L1_MASK;
+      
+      if (! isSynced(dccBx, bx_, dccL1, l1_, TCC_SRP)) {
         if( ! DCCDataUnpacker::silentMode_ ){
           edm::LogWarning("IncorrectBlock")
-            <<"Synchronization error for TCC block in event "<<event_->l1A()
-            <<" with bx "<<event_->bx()<<" in fed <<"<<mapper_->getActiveDCC()
-            <<"\n TCC local l1A is  "<<l1_<<" and local bx is "<<bx_
-            <<"\n TCC block skipped ...";
+            << "Synchronization error for TCC block"
+            << " (L1A " << event_->l1A() << " bx " << event_->bx() << " fed " << mapper_->getActiveDCC() << ")\n"
+            << "  dccBx = " << dccBx << " bx_ = " << bx_ << " dccL1 = " << dccL1 << " l1_ = " << l1_ << "\n"
+            << "  => TCC block skipped";
         }
         
         //Note : add to error collection ?        
