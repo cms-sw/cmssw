@@ -545,11 +545,51 @@ but should not be too tricky.
 
 The tough part is that while looking for suppressInfo in the configuration 
 is easy enough, seeing whether any destination has a high enough threshold
-is involved, so that it needs to be donein the configuration code that is
+is involved, so that it needs to be done in the configuration code that is
 down in the scribe.  So the strategy will have to be setting up a vairiable
 that is used in the scribe thread to set the field in the MessageDrop, just
 as when a suppressed module is entered.  
 
+The appropriate variables really are statics in MessageDrop, and we name them
+debugAlwaysSuppressed, infoAlwaysSuppressed, warningAlwaysSuppressed.
+The usage for the LogInfo and LogWarning cases is that the ctor looks like
+  explicit LogInfo( std::string const & id ) 
+    : ap ( (!MessageDrop::infoAlwaysSuppressed 		// Change log 21
+            && edm::MessageDrop::instance()->infoEnabled) ?
+           new MessageSender(ELinfo,id) : 0 )
+Observe that since !MessageDrop::infoAlwaysSuppressed is checked first, 
+in the important case of universal suppression, the overhead for the
+MessageDrop::instance() call is not incurred -- this is the secondary 
+performance improvement.  (The main improvement is that in config files which
+do not explicitly suppress INFO, but where no thresholds are as low as INFO,
+the info messages get suppressed anyway.)
+
+The usage is a bit different for the debug case:  The define line (in the
+case where EDM_ML_DEBUG is defined so that LogDebug is not out of the question)
+becomes:
+
+#define LogDebug(id) \\
+(edm::MessageDrop::debugAlwaysSuppressed \\
+|| !edm::MessageDrop::debugEnabled) ? \\
+edm::LogDebug_() : edm::LogDebug_(id, __FILE__, __LINE__) 
+
+and, since if  the logDebug is going to be suppressed (for whichever reason)
+the default ctor of LogDebug_ is called, which sets the class instance variable
+debugEnabled to false, nothing needs to be changed in the LogDebug_ class.
+(For reasons of paranoia, in the meaty ctor for LogDebug_, we do initialize 
+debugEnabled to !debugAlwaysSuppressed rather than true, but this may be
+overkill.)
+
+That leaves the issue of how (and where) to establish the values of 
+debugAlwaysSuppressed and its bretheren.  Since for EVERY destination 
+configure_dest (in the scribe) sets the threshold severity explicitly,
+this is a common choke point, at which we can adjust these variables.
+What that implies is that they must start off true, and become false 
+when some destination is configured to have a low enough threshold.
+Actually, just in case some path avoids configuration altogether, we
+start these off as false by initialization, change them to true once
+configure_ordinary_destinations() is reached, and then changne them in
+configure_dest() if and when a low enough threshold is encountered.
 
 Possible further improvement opportunities
 ------------------------------------------
@@ -563,6 +603,8 @@ suppressing all debug messages.  It might be better to make this false.
 to turn on/off non-module LogDebugs.  However, this issue is very likely 
 moot since users don't write non-module code, and probably framework 
 people are not leaving many LogDebugs around.
+
+---
 
 Currently, LogDebug depends on the define EDM_ML_DEBUG at header time.
 So the user who wants to define this symbol must do so before the header,
@@ -580,3 +622,24 @@ This of course is not quite right, and the business of line ends and
 continuations might be a severe pain in the neck, which is why we have not 
 made this improvement.
 
+---
+
+This is not strictly speaking only a suppression issue but is in the same code
+area.  Currently every time a module is entered or exitted, a call to
+MessageDrop::instance() is made to tell where to put information such as
+the suppression variables and the module label.  Although nobody is currently
+griping about these calls, they may be taking non-negligible time.
+If the user could declare "no need for module names in messages" then
+when there is also no ML configuration information that is module sensitive 
+(that is, any suppress or enable directives use "*"), then we can do without
+this instance() call.  Some simple decisions would need to be made, such as 
+what module name to output or whether to modify ELoutput to eliminate the 
+module name when this option is chosen; and the option would have to be coded
+into the configuration and validation and the documentation and into the 
+establish_module routines (or into the code that puts the establish_module
+routine onto the callback stack in the first place; probably the whole callback
+would now be superfluous).
+
+This would be several day's work but might be worthwhile.
+
+---

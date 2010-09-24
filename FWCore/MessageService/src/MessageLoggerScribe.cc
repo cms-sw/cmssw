@@ -169,8 +169,12 @@
 //       Avoiding throw when duplicate destination names are used, to let the
 //	 validation report that and abort instead.
 //
-//  35 - 8/10/09 mf, cdj
+//  36 - 8/10/09 mf, cdj
 //       Use ThreadQ in place of the singleton MessageLoggerQ to consume
+//
+//  37 - 9/24/10 mf
+//       Establish values of debugAlwaysSuppressed, infoAlwaysSuppressed
+//       and warningAlwaysSuppressed when setting up thresholds
 //
 // ----------------------------------------------------------------------
 
@@ -186,6 +190,8 @@
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/ConfigurationHandshake.h"
+#include "FWCore/MessageLogger/interface/MessageDrop.h"		// change log 37
+#include "FWCore/MessageLogger/interface/ELseverityLevel.h"	// change log 37
 
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
@@ -619,6 +625,13 @@ void
   if (dest_threshold == empty_String) dest_threshold = COMMON_DEFAULT_THRESHOLD;
   ELseverityLevel  threshold_sev(dest_threshold);
   dest_ctrl.setThreshold(threshold_sev);
+  // change log 37
+  if (threshold_sev <= ELseverityLevel::ELsev_success) 
+  	{ edm::MessageDrop::debugAlwaysSuppressed = false; }
+  if (threshold_sev <= ELseverityLevel::ELsev_info) 
+  	{ edm::MessageDrop::infoAlwaysSuppressed = false; }
+  if (threshold_sev <= ELseverityLevel::ELsev_warning) 
+  	{ edm::MessageDrop::warningAlwaysSuppressed = false; }
 
   // establish this destination's limit/interval/timespan for each category:
   for( vString::const_iterator id_it = categories.begin()
@@ -881,6 +894,11 @@ void
   vString  empty_vString;
   String   empty_String;
   PSet     empty_PSet;
+
+  // Initialize unversal suppression variables
+  MessageDrop::debugAlwaysSuppressed=true;		// change log 37
+  MessageDrop::infoAlwaysSuppressed=true;	 	// change log 37
+  MessageDrop::warningAlwaysSuppressed=true; 		// change log 37
 
   // grab list of destinations:
   vString  destinations

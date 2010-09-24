@@ -92,8 +92,15 @@
 //                 statement (just as within an assert()), is unwise as it
 //                 makes turning on the debugging aid alter the program
 //                 behavior.
-
-
+//
+// 21  mf 9/23/10  Support for situations where no thresholds are low
+//                 enough to react to LogDebug (or info, or warning).
+//		   A key observation is that while debugEnabled
+//		   should in principle be obtained via an instance() of 
+//		   MessageDrop, debugAlwaysSuppressed is universal across
+//		   threads and hence is properly just a class static, which
+//		   is much quicker to check.
+//
 // =================================================
 
 // system include files
@@ -116,8 +123,9 @@ class LogWarning
 {
 public:
   explicit LogWarning( std::string const & id ) 
-    : ap ( edm::MessageDrop::instance()->warningEnabled ? 
-      new MessageSender(ELwarning,id) : 0 )
+    : ap ( (!MessageDrop::warningAlwaysSuppressed 		// Change log 21
+            && edm::MessageDrop::instance()->warningEnabled) ?
+           new MessageSender(ELwarning,id) : 0 )
   { }
   ~LogWarning();						// Change log 13
 
@@ -188,8 +196,9 @@ class LogInfo
 {
 public:
   explicit LogInfo( std::string const & id ) 
-    : ap ( edm::MessageDrop::instance()->infoEnabled ? 
-      new MessageSender(ELinfo,id) : 0 )
+    : ap ( (!MessageDrop::infoAlwaysSuppressed 		// Change log 21
+            && edm::MessageDrop::instance()->infoEnabled) ?
+           new MessageSender(ELinfo,id) : 0 )
   { }
   ~LogInfo();							// Change log 13
 
@@ -214,8 +223,9 @@ class LogVerbatim						// change log 2
 {
 public:
   explicit LogVerbatim( std::string const & id ) 
-    : ap ( edm::MessageDrop::instance()->infoEnabled ?		// change log 16
-      new MessageSender(ELinfo,id,true) : 0 ) // the true is the verbatim arg 
+    : ap ( (!MessageDrop::infoAlwaysSuppressed 		// Change log 21
+            && edm::MessageDrop::instance()->infoEnabled) ?
+           new MessageSender(ELinfo,id,true) : 0 ) // true for verbatim
   { }
   ~LogVerbatim();						// Change log 13
 
@@ -241,8 +251,9 @@ class LogPrint							// change log 3
 {
 public:
   explicit LogPrint( std::string const & id ) 
-    : ap ( edm::MessageDrop::instance()->warningEnabled ?	// change log 16
-      new MessageSender(ELwarning,id,true) : 0 ) // the true is the Print arg 
+    : ap ( (!MessageDrop::warningAlwaysSuppressed 		// Change log 21
+            && edm::MessageDrop::instance()->warningEnabled) ?
+           new MessageSender(ELwarning,id,true) : 0 ) // true for verbatim
   { }
   ~LogPrint();							// Change log 13
 
@@ -457,16 +468,13 @@ public:
 // If LogDebug is suppressed, all code past the LogDebug(...) is squelched.
 // See doc/suppression.txt.
 
-// TEMPORARY - TO SEE IF I HAVE BROKEN ANYTHING VIA THIS CHANGE
-// #define EDM_ML_DEBUG
-
-
 #ifndef EDM_ML_DEBUG 
 #define LogDebug(id) true ? edm::Suppress_LogDebug_() : edm::Suppress_LogDebug_() 
 #define LogTrace(id) true ? edm::Suppress_LogDebug_() : edm::Suppress_LogDebug_() 
 #else
-#define LogDebug(id) !edm::MessageDrop::debugEnabled ? edm::LogDebug_() : edm::LogDebug_(id, __FILE__, __LINE__) 
-#define LogTrace(id) !edm::MessageDrop::debugEnabled ? edm::LogTrace_() : edm::LogTrace_(id) 
+// change log 21
+#define LogDebug(id) (edm::MessageDrop::debugAlwaysSuppressed || !edm::MessageDrop::debugEnabled) ? edm::LogDebug_() : edm::LogDebug_(id, __FILE__, __LINE__) 
+#define LogTrace(id) (edm::MessageDrop::debugAlwaysSuppressed || !edm::MessageDrop::debugEnabled) ? edm::LogTrace_() : edm::LogTrace_(id) 
 #endif
 
 #endif  // MessageLogger_MessageLogger_h

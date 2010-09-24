@@ -21,7 +21,15 @@
 //  8/11/09  mf setStandAloneMessageThreshold() and
 //		squelchStandAloneMessageCategory()
 //
-//  10/29/09 wmtan  Use explicit non-inlined constructors for LogDebug_ and LogTrace_
+//  10/29/09 wmtan  Use explicit non-inlined constructors for LogDebug_ 
+//                  and LogTrace_
+//
+//  8/11/09  mf setStandAloneMessageThreshold() and
+//		squelchStandAloneMessageCategory()
+//
+//  9/23/10  mf Initialize debugEnabled according to 
+// 		MessageDrop::debugAlwaysSuppressed, rather than
+//		just true.  See change 21 of MessageLogger.h.
 //
 // ------------------------------------------------------------------------
 
@@ -80,7 +88,8 @@ void GroupLogStatistics(std::string const & category) {
 }
 
 edm::LogDebug_::LogDebug_( std::string const & id, std::string const & file, int line )
-  : ap( new MessageSender(ELsuccess,id) ), debugEnabled(true)
+  : ap( new MessageSender(ELsuccess,id) )
+  , debugEnabled(!MessageDrop::debugAlwaysSuppressed)		//9/23/10 mf
 { *this
         << " "
         << stripLeadingDirectoryTree(file)
@@ -96,7 +105,7 @@ edm::LogDebug_::stripLeadingDirectoryTree(const std::string & file) const {
 
 edm::LogTrace_::LogTrace_( std::string const & id )
   : ap( new MessageSender(ELsuccess,id,true) )
-  , debugEnabled(true)
+  , debugEnabled(!MessageDrop::debugAlwaysSuppressed)		//9/23/10 mf
   {  }
 
 void setStandAloneMessageThreshold(std::string const & severity) {
