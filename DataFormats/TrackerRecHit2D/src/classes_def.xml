@@ -1,11 +1,16 @@
 <lcgdict>
-  <class name="BaseSiTrackerRecHit2DLocalPos" />
+  <class name="BaseSiTrackerRecHit2DLocalPos">
+     <field name="pos_" transient="true" />	 
+     <field name="err_" transient="true" />	 
+   </class>	 
   <class name="GSSiTrackerRecHit2DLocalPos"/>
   <class name="SiStripRecHit2D" >
     <field name="sigmaPitch_" transient="true" />
   </class>
   <class name="SiStripRecHit1D" >
     <field name="sigmaPitch_" transient="true" />
+    <field name="pos_" transient="true" />
+    <field name="err_" transient="true" />
   </class> 
 
 
