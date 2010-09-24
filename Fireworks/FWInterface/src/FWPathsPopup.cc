@@ -1016,7 +1016,7 @@ public:
         }
       case 'e':
         {
-          std::vector<edm::MinimalEventID> ids;
+          std::vector<edm::EventID> ids;
           ids.resize(entry.getVEventID().size());
           for ( size_t iri = 0, ire = ids.size(); iri != ire; ++iri )
             ids[iri] = entry.getVEventID()[iri];
