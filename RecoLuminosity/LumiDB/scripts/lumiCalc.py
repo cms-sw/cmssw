@@ -146,7 +146,8 @@ if __name__ == '__main__':
                 runsandls=inputRange.runsandls()
                 for runnum,lslist in runsandls.items():
                     dataperrun=getValidationData(session,run=runnum,cmsls=lslist)
-                    result[runnum]=dataperrun[runnum]
+                    if dataperrun.has_key(runnum):
+                        result[runnum]=dataperrun[runnum]
             for run,perrundata in result.items():
                 totalsuspect=0
                 totalbad=0
