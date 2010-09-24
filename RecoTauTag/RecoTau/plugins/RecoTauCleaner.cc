@@ -15,6 +15,9 @@
  * $Id $
  */
 
+#include <boost/ptr_container/ptr_vector.hpp>
+#include <algorithm>
+
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -27,14 +30,11 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 
-#include <boost/ptr_container/ptr_vector.hpp>
-#include <algorithm>
-
 class RecoTauCleaner : public edm::EDProducer {
   typedef reco::tau::RecoTauCleanerPlugin Cleaner;
   typedef boost::ptr_vector<Cleaner> CleanerList;
 
-  // Predicate that determines if two taus 'overlap' i.e. share a base PFJet 
+  // Predicate that determines if two taus 'overlap' i.e. share a base PFJet
   class RemoveDuplicateJets {
     public:
       bool operator()(const reco::PFTauRef& a, const reco::PFTauRef& b)
@@ -43,7 +43,7 @@ class RecoTauCleaner : public edm::EDProducer {
 
   public:
     explicit RecoTauCleaner(const edm::ParameterSet& pset);
-    ~RecoTauCleaner(){};
+    ~RecoTauCleaner() {}
     void produce(edm::Event& evt, const edm::EventSetup& es);
 
   private:
@@ -61,10 +61,10 @@ RecoTauCleaner::RecoTauCleaner(const edm::ParameterSet& pset) {
   typedef std::vector<edm::ParameterSet> VPSet;
   // Get each of our tau builders
   const VPSet& cleaners = pset.getParameter<VPSet>("cleaners");
-  for(VPSet::const_iterator cleanerPSet = cleaners.begin(); 
+  for (VPSet::const_iterator cleanerPSet = cleaners.begin();
       cleanerPSet != cleaners.end(); ++cleanerPSet) {
     // Get plugin name
-    const std::string& pluginType = 
+    const std::string& pluginType =
       cleanerPSet->getParameter<std::string>("plugin");
     // Build the plugin
     cleaners_.push_back(
@@ -79,53 +79,48 @@ RecoTauCleaner::RecoTauCleaner(const edm::ParameterSet& pset) {
 
 void RecoTauCleaner::produce(edm::Event& evt, const edm::EventSetup& es) {
   // Update all our cleaners with the event info if they need it
-  for(CleanerList::iterator cleaner = cleaners_.begin(); 
+  for (CleanerList::iterator cleaner = cleaners_.begin();
       cleaner != cleaners_.end(); ++cleaner) {
     cleaner->setup(evt, es);
   }
-  
+
   // Get the input collection to clean
   edm::Handle<reco::PFTauCollection> pfTaus;
   evt.getByLabel(tauSrc_, pfTaus);
 
   // Build a local vector of Refs to the taus
-  typedef std::vector<reco::PFTauRef> PFTauRefs; 
+  typedef std::vector<reco::PFTauRef> PFTauRefs;
 
   // Collection of all taus. Some are from the same PFJet. We must clean them.
   size_t nDirtyTaus = pfTaus->size();
   PFTauRefs dirty;
   dirty.reserve(nDirtyTaus);
 
-  //std::cout << "**********      dirty     ********************" << std::endl;
-  for(size_t iTau = 0; iTau < nDirtyTaus; ++iTau)
-  {
+  for (size_t iTau = 0; iTau < nDirtyTaus; ++iTau) {
     dirty.push_back(reco::PFTauRef(pfTaus, iTau));
-    //std::cout << (*pfTaus)[iTau] << std::endl;
   }
 
   // Sort the input tau refs according to our predicate
   std::sort(dirty.begin(), dirty.end(), *predicate_);
 
   // Clean the taus, ensuring that only one tau per jet is produced
-  PFTauRefs cleanTaus = reco::tau::cleanOverlaps<PFTauRefs, 
+  PFTauRefs cleanTaus = reco::tau::cleanOverlaps<PFTauRefs,
             RemoveDuplicateJets>(dirty);
 
   // create output collection
   std::auto_ptr<reco::PFTauCollection> output(new reco::PFTauCollection());
   output->reserve(cleanTaus.size());
 
-  std::cout << "*********      clean            **************" << std::endl;
+  // std::cout << "*********      clean            **************" << std::endl;
   // Copy clean refs into output
-  for(PFTauRefs::const_iterator tau = cleanTaus.begin();
-      tau != cleanTaus.end(); ++tau)
-  {
+  for (PFTauRefs::const_iterator tau = cleanTaus.begin();
+       tau != cleanTaus.end(); ++tau) {
     output->push_back(**tau);
-    std::cout << std::setprecision(3) << **tau << " ";
-    for(CleanerList::const_iterator cleaner = cleaners_.begin();
-        cleaner != cleaners_.end(); ++cleaner)
-    {
-      std::cout << cleaner->name() << ":" 
-        << std::setprecision(3) << (*cleaner)(*tau) << " ";
+    // std::cout << std::setprecision(3) << **tau << " ";
+    for (CleanerList::const_iterator cleaner = cleaners_.begin();
+        cleaner != cleaners_.end(); ++cleaner) {
+     // std::cout << cleaner->name() << ":"
+     //   << std::setprecision(3) << (*cleaner)(*tau) << " ";
     }
     std::cout << std::endl;
   }
