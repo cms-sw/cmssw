@@ -57,6 +57,53 @@ MultiTrajectoryStateMode::momentumFromModeCartesian (const TrajectoryStateOnSurf
 }
 
 bool
+MultiTrajectoryStateMode::positionFromModeCartesian (const TrajectoryStateOnSurface tsos,
+						     GlobalPoint& position) const
+{
+  //
+  // clear result vector and check validity of the TSOS
+  //
+  position = GlobalPoint(0.,0.,0.);
+  if ( !tsos.isValid() ) {
+    edm::LogInfo("MultiTrajectoryStateMode") << "Cannot calculate mode from invalid TSOS";
+    return false;
+  }
+  //  
+  // 1D mode computation for x, y and z
+  // 
+  std::vector<TrajectoryStateOnSurface> components(tsos.components());
+  unsigned int numb = components.size();
+  // vectors of components in x, y and z
+  std::vector<SingleGaussianState1D> xStates; xStates.reserve(numb);
+  std::vector<SingleGaussianState1D> yStates; yStates.reserve(numb);
+  std::vector<SingleGaussianState1D> zStates; zStates.reserve(numb);
+  // iteration over components
+  for ( std::vector<TrajectoryStateOnSurface>::const_iterator ic=components.begin();
+	ic!=components.end(); ++ic ) {
+    // extraction of parameters and variances
+    GlobalPoint pos(ic->globalPosition());
+    AlgebraicSymMatrix66 cov(ic->cartesianError().matrix());
+    xStates.push_back(SingleGaussianState1D(pos.x(),cov(0,0),ic->weight()));
+    yStates.push_back(SingleGaussianState1D(pos.y(),cov(1,1),ic->weight()));
+    zStates.push_back(SingleGaussianState1D(pos.z(),cov(2,2),ic->weight()));
+  }
+  //
+  // transformation in 1D multi-states and creation of utility classes
+  //
+  MultiGaussianState1D xState(xStates);
+  MultiGaussianState1D yState(yStates);
+  MultiGaussianState1D zState(zStates);
+  GaussianSumUtilities1D xUtils(xState);
+  GaussianSumUtilities1D yUtils(yState);
+  GaussianSumUtilities1D zUtils(zState);
+  //
+  // cartesian position vector from modes
+  //
+  position = GlobalPoint(xUtils.mode().mean(),yUtils.mode().mean(),zUtils.mode().mean());
+  return true;
+}
+
+bool
 MultiTrajectoryStateMode::momentumFromModeLocal (const TrajectoryStateOnSurface tsos,
 						 GlobalVector& momentum) const
 {
@@ -94,6 +141,43 @@ MultiTrajectoryStateMode::momentumFromModeLocal (const TrajectoryStateOnSurface 
     /sqrt(dxdzMode*dxdzMode+dydzMode*dydzMode+1.);
   // conversion to global coordinates
   momentum = tsos.surface().toGlobal(localP);
+  return true;
+}
+
+bool
+MultiTrajectoryStateMode::positionFromModeLocal (const TrajectoryStateOnSurface tsos,
+						 GlobalPoint& position) const
+{
+  //
+  // clear result vector and check validity of the TSOS
+  //
+  position = GlobalPoint(0.,0.,0.);
+  if ( !tsos.isValid() ) {
+    edm::LogInfo("MultiTrajectoryStateMode") << "Cannot calculate mode from invalid TSOS";
+    return false;
+  }
+  //  
+  // mode computation for local co-ordinates x, y
+  //
+  double xMode(0);
+  double yMode(0);
+  //
+  // last 2 elements of local parameters = x, y
+  //
+  for ( unsigned int iv=3; iv<5; ++iv ) {
+    // extraction of multi-state using helper class
+    MultiGaussianState1D state1D = MultiGaussianStateTransform::multiState1D(tsos,iv);
+    GaussianSumUtilities1D utils(state1D);
+    // mode (in case of failure: mean)
+    double result = utils.mode().mean();
+    if ( !utils.modeIsValid() )  result = utils.mean();
+    if ( iv==3 )  xMode = result;
+    else  yMode = result;
+  }
+  // local position vector from x, y
+  LocalPoint localP(xMode,yMode,0.);
+  // conversion to global coordinates
+  position = tsos.surface().toGlobal(localP);
   return true;
 }
 
