@@ -545,9 +545,9 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	}
       else if (id.subdet()==HcalOuter) 
 	{
-	  // Mark HORing+2 channels as present, HO/YB+2 has HV off (at 100V), it is practically decommissioned.
-	  if(rDepth>3)
-	    if(rEta>=11 && rEta<=15) continue;
+	  // Mark HORing+/-2 channels as present, HO/YB+/-2 has HV off (at 100V).
+	  if (excludeHORing2_==true && rDepth==4)
+	    if (abs(rEta)>=11 && abs(rEta)<=15 && !isSiPM(rEta,rPhi,rDepth)) continue;
 
 	  ++hoHists.count_bad;
 	  if (abs(rEta)<5) ++HO0bad;
@@ -1223,18 +1223,9 @@ void HcalDigiMonitor::fill_Nevents()
 							    badFibBCNOff[calcEta][phi][d]);
 		      DigiErrorsUnpacker.depth[d]->Fill(iEta, iPhi,
 							badunpackerreport[calcEta][phi][d]);
-
 		      
-		      // Mark HORing+2 channels as present, HO/YB+2 has HV off (at 100V), it is practically decommissioned.
-		      if (excludeHORing2_==true && iDepth>3)
-			{
-			  if(iEta>=11 && iEta<=15)
-			    DigiErrorsByDepth.depth[d]->Fill(iEta, iPhi,
-							     0);
-			}
-		      else
-			DigiErrorsByDepth.depth[d]->Fill(iEta, iPhi,
-							 baddigis[calcEta][phi][d]);
+		      DigiErrorsByDepth.depth[d]->Fill(iEta,iPhi,
+						       baddigis[calcEta][phi][d]);
 		    } // if (HOpresent_)
 		}//validDetId(HO)
 	      // HF
