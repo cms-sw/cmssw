@@ -38,14 +38,15 @@ DEFINE_FWK_SERVICE(PrintEventSetupDataRetrieval);
 
 typedef edm::serviceregistry::NoArgsMaker<PrintLoadingPlugins> PrintLoadingPluginsMaker;
 DEFINE_FWK_SERVICE_MAKER(PrintLoadingPlugins, PrintLoadingPluginsMaker);
-typedef edm::serviceregistry::AllArgsMaker<edm::SiteLocalConfig,SiteLocalConfigService> SiteLocalConfigMaker;
+typedef edm::serviceregistry::ParameterSetMaker<edm::SiteLocalConfig,SiteLocalConfigService> SiteLocalConfigMaker;
 DEFINE_FWK_SERVICE_MAKER(SiteLocalConfigService,SiteLocalConfigMaker);
 #if defined(__linux__)
 DEFINE_FWK_SERVICE(SimpleMemoryCheck);
 DEFINE_FWK_SERVICE(SimpleProfiling);
-typedef edm::serviceregistry::AllArgsMaker<edm::RootHandlers,InitRootHandlers> RootHandlersMaker;
+typedef edm::serviceregistry::ParameterSetMaker<edm::RootHandlers,InitRootHandlers> RootHandlersMaker;
 DEFINE_FWK_SERVICE_MAKER(InitRootHandlers, RootHandlersMaker);
-DEFINE_FWK_SERVICE(UnixSignalService);
+typedef edm::serviceregistry::ParameterSetMaker<UnixSignalService> UnixSignalMaker;
+DEFINE_FWK_SERVICE_MAKER(UnixSignalService, UnixSignalMaker);
 DEFINE_FWK_SERVICE_MAKER(EnableFloatingPointExceptions,edm::serviceregistry::AllArgsMaker<EnableFloatingPointExceptions>);
 #endif
 DEFINE_FWK_SERVICE_MAKER(LoadAllDictionaries,edm::serviceregistry::ParameterSetMaker<LoadAllDictionaries>);

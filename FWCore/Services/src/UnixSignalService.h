@@ -12,24 +12,21 @@ This service is instantiated at job startup.
 
 namespace edm {
   class ParameterSet;
-  class ActivityRegistry;
   class Event;
   class EventSetup;
   class ConfigurationDescriptions;
 
   namespace service {
+    class UnixSignalService {
+    public:
+      explicit UnixSignalService(ParameterSet const& ps);
+      ~UnixSignalService();
 
-  class UnixSignalService
-  {
-  private:
-    bool enableSigInt_;
+      static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
-  public:
-    UnixSignalService(edm::ParameterSet const& ps, edm::ActivityRegistry& ac); 
-    ~UnixSignalService();
-
-    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  }; // class UnixSignalService
+    private:
+      bool enableSigInt_;
+    }; // class UnixSignalService
   }  // end of namespace service
 }    // end of namespace edm
 #endif

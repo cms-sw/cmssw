@@ -86,13 +86,11 @@ namespace {
         iPointer = &iHolder;
      }
   }
-
 }
 
 namespace edm {
   namespace service {
-    SiteLocalConfigService::SiteLocalConfigService(ParameterSet const& pset,
-    							     ActivityRegistry const& activityRegistry)
+    SiteLocalConfigService::SiteLocalConfigService(ParameterSet const& pset)
         : m_connected(false),
           m_cacheTempDirPtr(0),
           m_cacheMinFreePtr(0),
