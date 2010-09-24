@@ -68,7 +68,7 @@ def lsBylsLumi (deadtable):
         if float( deadArray[2] ) ==  0.0:
             deadfrac = 1.0
         else:
-            deadfrac = float (deadArray[0]) / (float (deadArray[2])*float(deadArray[-1]))
+            deadfrac = float (deadArray[0]) / (float (deadArray[2])*float(deadArray[4]))
         recordedLumi = instlumi * (1.0 - deadfrac)
         myLsList = [instlumi, recordedLumi]
         #print myls,instlumi,recordedLumi,lstime,deadfrac
@@ -388,7 +388,7 @@ def dumpData (lumidata, filename):
 
 def calculateTotalRecorded (deadtable):
     """
-    input: {lsnum:[deadtime, instlumi, bit_0, norbits]}
+    input: {lsnum:[deadtime, instlumi, bit_0, norbits,prescale]}
     output: recordedLumi
     """
     recordedLumi = 0.0
