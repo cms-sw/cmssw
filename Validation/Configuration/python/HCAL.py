@@ -29,7 +29,7 @@ def customise(process):
     process.horeco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
     process.hfreco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
 
-    process.local_digireco = cms.Path(process.mix * process.hcalDigiSequence * process.hbhereco * process.hfreco * process.horeco )
+    process.local_digireco = cms.Path(process.mix * process.hcalDigiSequence * process.hbheprereco * process.hfreco * process.horeco )
 
     process.schedule.append(process.local_digireco)
 
