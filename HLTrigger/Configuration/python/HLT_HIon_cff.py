@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_8_1/HIon/V30 (CMSSW_3_8_1_HLT13)
+# /dev/CMSSW_3_8_1/HIon/V31 (CMSSW_3_8_1_HLT13)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V30')
+  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V31')
 )
 
 streams = cms.PSet( 
@@ -1810,36 +1810,6 @@ hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
     HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
 )
 
-hltOutputHIon = cms.OutputModule( "ShmStreamConsumer",
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_HIActivityHF_Coincidence3',
-  'HLT_HIActivityHF_Single3',
-  'HLT_HIActivityPixel_SingleTrack',
-  'HLT_HIActivityPixels',
-  'HLT_HICentralityVeto',
-  'HLT_HIClusterVertexCompatibility',
-  'HLT_HIJet35U',
-  'HLT_HIL1DoubleMuOpen',
-  'HLT_HIL1ETT60',
-  'HLT_HIL1Tech_BSC_HighMultiplicity',
-  'HLT_HIL1Tech_BSC_minBias',
-  'HLT_HIL1Tech_BSC_minBias_OR',
-  'HLT_HIL1Tech_HCAL_HF',
-  'HLT_HIMinBiasBSC',
-  'HLT_HIMinBiasCalo',
-  'HLT_HIMinBiasPixel_SingleTrack',
-  'HLT_HIPhoton15',
-  'HLT_HIUpcEcal',
-  'HLT_HIUpcMu',
-  'HLT_HIZeroBias',
-  'HLT_HIZeroBiasPixel_SingleTrack' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
-      'keep *_hltL1GtObjectMap_*_*',
-      'keep FEDRawDataCollection_rawDataCollector_*_*',
-      'keep FEDRawDataCollection_source_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-
 HLTL1UnpackerSequence = cms.Sequence( hltGtDigis + hltGctDigis + hltL1GtObjectMap + hltL1extraParticles )
 HLTBeamSpot = cms.Sequence( hltScalersRawToDigi + hltOnlineBeamSpot + hltOfflineBeamSpot )
 HLTBeginSequence = cms.Sequence( hltTriggerType + HLTL1UnpackerSequence + HLTBeamSpot )
@@ -1876,10 +1846,9 @@ HLT_HIClusterVertexCompatibility = cms.Path( HLTBeginSequence + HLTDoHILocalPixe
 HLT_HICentralityVeto = cms.Path( HLTBeginSequenceBPTX + HLTDoHILocalPixelSequence + HLTPixelActivityFilterCentralityVeto + HLTEndSequence )
 HLTriggerFinalPath = cms.Path( hltGtDigis + hltFEDSelector + hltTriggerSummaryAOD + hltTriggerSummaryRAW + hltBoolTrue )
 HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + hltTrigReport )
-HLTHIOutput = cms.EndPath( hltOutputHIon )
 
 
-HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_HIZeroBias, HLT_HIZeroBiasPixel_SingleTrack, HLT_HIMinBiasBSC, HLT_HIMinBiasCalo, HLT_HIMinBiasPixel_SingleTrack, HLT_HIL1DoubleMuOpen, HLT_HIL1ETT60, HLT_HIL1Tech_BSC_minBias, HLT_HIL1Tech_BSC_minBias_OR, HLT_HIL1Tech_BSC_HighMultiplicity, HLT_HIL1Tech_HCAL_HF, HLT_HIUpcEcal, HLT_HIUpcMu, HLT_HIPhoton15, HLT_HIJet35U, HLT_HIActivityPixels, HLT_HIActivityPixel_SingleTrack, HLT_HIActivityHF_Single3, HLT_HIActivityHF_Coincidence3, HLT_HIClusterVertexCompatibility, HLT_HICentralityVeto, HLTriggerFinalPath, HLTAnalyzerEndpath, HLTHIOutput ))
+HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_HIZeroBias, HLT_HIZeroBiasPixel_SingleTrack, HLT_HIMinBiasBSC, HLT_HIMinBiasCalo, HLT_HIMinBiasPixel_SingleTrack, HLT_HIL1DoubleMuOpen, HLT_HIL1ETT60, HLT_HIL1Tech_BSC_minBias, HLT_HIL1Tech_BSC_minBias_OR, HLT_HIL1Tech_BSC_HighMultiplicity, HLT_HIL1Tech_HCAL_HF, HLT_HIUpcEcal, HLT_HIUpcMu, HLT_HIPhoton15, HLT_HIJet35U, HLT_HIActivityPixels, HLT_HIActivityPixel_SingleTrack, HLT_HIActivityHF_Single3, HLT_HIActivityHF_Coincidence3, HLT_HIClusterVertexCompatibility, HLT_HICentralityVeto, HLTriggerFinalPath, HLTAnalyzerEndpath ))
 
 # override the preshower baseline setting for MC
 if 'ESUnpackerWorkerESProducer' in locals():

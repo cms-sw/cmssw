@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_8_1/HIon/V30 (CMSSW_3_8_1_HLT13)
+# /dev/CMSSW_3_8_1/HIon/V31 (CMSSW_3_8_1_HLT13)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V30')
+  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V31')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -1518,15 +1518,6 @@ process.PrescaleService = cms.Service( "PrescaleService",
       '1E31',
       'Cosmics' ),
     prescaleTable = cms.VPSet( 
-      cms.PSet(  pathName = cms.string( "HLT_HIMinBiasCalo" ),
-        prescales = cms.vuint32( 0, 0, 0, 0, 0 )
-      ),
-      cms.PSet(  pathName = cms.string( "HLT_HIJet35U" ),
-        prescales = cms.vuint32( 0, 0, 0, 0, 0 )
-      ),
-      cms.PSet(  pathName = cms.string( "HLT_HIPhoton15" ),
-        prescales = cms.vuint32( 0, 0, 0, 0, 0 )
-      )
     )
 )
 process.UpdaterService = cms.Service( "UpdaterService",

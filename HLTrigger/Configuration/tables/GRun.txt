@@ -75,6 +75,8 @@ HLT_Ele17_SW_CaloEleId_L1R
 HLT_Ele17_SW_EleId_L1R
 HLT_Ele17_SW_L1R
 HLT_Ele17_SW_LooseEleId_L1R
+HLT_Ele17_SW_TightEleId_L1R
+HLT_Ele17_SW_TightEleIdIsol_L1R
 HLT_Ele22_SW_CaloEleId_L1R
 HLT_Ele40_SW_L1R
 HLT_DoubleEle4_SW_eeRes_L1R

@@ -277,6 +277,7 @@ if doCff:
     menuConfigOptions['services'].append( "-TimeProfilerService" )
 
     menuConfigOptions['paths'].append( "-HLTOutput" )
+    menuConfigOptions['paths'].append( "-HLTHIOutput" )
     menuConfigOptions['paths'].append( "-ExpressOutput" )
     menuConfigOptions['paths'].append( "-EventDisplayOutput" )
     menuConfigOptions['paths'].append( "-AlCaOutput" )
