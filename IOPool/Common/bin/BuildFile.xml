@@ -18,5 +18,6 @@
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/PluginManager"/>
   <use   name="FWCore/ServiceRegistry"/>
+  <use   name="FWCore/Services"/>
   <use   name="uuid"/>
 </bin>
