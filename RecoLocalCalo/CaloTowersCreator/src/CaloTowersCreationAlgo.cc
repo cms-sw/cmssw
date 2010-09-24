@@ -727,10 +727,9 @@ CaloTowersCreationAlgo::MetaTower & CaloTowersCreationAlgo::find(const CaloTower
     MetaTower t;
 
     // store it in the map
-    //    theTowerMap.insert(std::pair<CaloTowerDetId, CaloTowersCreationAlgo::MetaTower>(detId, t));
-    //    itr = theTowerMap.find(detId);
-    //                                        092010 (AA)
-    itr = (theTowerMap.insert(std::pair<CaloTowerDetId, CaloTowersCreationAlgo::MetaTower>(detId, t))).first;
+    theTowerMap.insert(std::pair<CaloTowerDetId, CaloTowersCreationAlgo::MetaTower>(detId, t));
+    itr = theTowerMap.find(detId);
+ 
 
   }
   return itr->second;
