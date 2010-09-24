@@ -3,8 +3,8 @@
 
 /** \class AlcaBeamMonitor
  * *
- *  $Date: 2010/08/20 21:07:26 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/09/22 22:53:37 $
+ *  $Revision: 1.4 $
  *  \author  Lorenzo Uplegger/FNAL
  *   
  */
@@ -46,7 +46,6 @@ class AlcaBeamMonitor : public edm::EDAnalyzer {
   //Typedefs
   //                BF,BS...         
   typedef std::map<std::string,reco::BeamSpot>  BeamSpotContainer;
-  
   //                x,y,z,sigmax(y,z)... [run,lumi]          Histo name      
   typedef std::map<std::string,std::map<std::string,std::map<std::string,MonitorElement*> > > HistosContainer;
   //                x,y,z,sigmax(y,z)... [run,lumi]          Histo name      
@@ -61,8 +60,6 @@ class AlcaBeamMonitor : public edm::EDAnalyzer {
   edm::InputTag     scalerLabel_;
 
   //Service variables
-  int         firstLumi_,lastLumi_;
-  int         numberOfLumis_;
   int         numberOfValuesToSave_;
   DQMStore*   dbe_;
   BeamFitter* theBeamFitter_;

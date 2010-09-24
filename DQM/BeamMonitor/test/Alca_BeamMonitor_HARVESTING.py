@@ -3,7 +3,10 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("HARVESTING")
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:step5_DQM.root'),
+    fileNames = cms.untracked.vstring(
+    'file:step5_DQM.root',
+    'file:step6_DQM.root'
+    ),
     processingMode = cms.untracked.string('RunsAndLumis')
 )
 

@@ -3,8 +3,8 @@
 
 /** \class AlcaBeamMonitorClient
  * *
- *  $Date: 2010/08/20 21:07:26 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/09/22 22:53:37 $
+ *  $Revision: 1.1 $
  *  \author  Lorenzo Uplegger/FNAL
  *   
  */
@@ -20,12 +20,8 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-
-class BeamFitter;
-class PVFitter;
+//#include "DataFormats/VertexReco/interface/Vertex.h"
+//#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 class AlcaBeamMonitorClient : public edm::EDAnalyzer {
  public:
@@ -43,10 +39,6 @@ class AlcaBeamMonitorClient : public edm::EDAnalyzer {
   void endJob		   (const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup);
   
  private:
-  //Typedefs
-  //                x,y,z,sigmax(y,z)...       lumi      
-  typedef std::map<std::string,std::map<edm::LuminosityBlockNumber_t,reco::BeamSpot> >  BeamSpotContainer;
-  
   //                x,y,z,sigmax(y,z)... [run,lumi]          Histo name      
   typedef std::map<std::string,std::map<std::string,std::map<std::string,MonitorElement*> > > HistosContainer;
 
@@ -56,31 +48,17 @@ class AlcaBeamMonitorClient : public edm::EDAnalyzer {
   //Parameters
   edm::ParameterSet parameters_;
   std::string       monitorName_;
-  edm::InputTag     primaryVertexLabel_;
-  edm::InputTag     beamSpotLabel_;
-  edm::InputTag     trackLabel_;
-  edm::InputTag     scalerLabel_;
 
   //Service variables
-  int         firstLumi_,lastLumi_;
-  int         numberOfLumis_;
   int         numberOfValuesToSave_;
   DQMStore*   dbe_;
-  BeamFitter* theBeamFitter_;
-  PVFitter*   thePVFitter_;
-  
-  // MonitorElements:
-  MonitorElement* hD0Phi0_;
-  MonitorElement* hDxyBS_;
 
   //Containers
-  BeamSpotContainer  					      beamSpotsMap_;
   HistosContainer    					      histosMap_;
   std::vector<std::string>                                    varNamesV_; //x,y,z,sigmax(y,z)
   std::multimap<std::string,std::string>                      histoByCategoryNames_; //run, lumi
   std::map<edm::LuminosityBlockNumber_t,std::vector<double> > valuesMap_;
-  PositionContainer    			 positionsMap_;
-  
+  PositionContainer    			                      positionsMap_;
 };
 
 #endif
