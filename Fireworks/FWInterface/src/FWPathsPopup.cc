@@ -693,9 +693,44 @@ public:
          if (tracked)
             ps.addParameter(label, value);
          else
-            ps.addParameter(label, value);
+            ps.addUntrackedParameter(label, value);
       }
 
+  template <typename T>
+  void editVectorParameter(edm::ParameterSet &ps, bool tracked,
+                           const std::string &label,
+                           const std::string &value)
+    {
+      std::vector<T> valueVector;
+      
+      std::stringstream iss(value);
+      std::string vitem;
+      
+      size_t fst, lst;
+
+      while (getline(iss, vitem, ','))
+      {
+        fst = vitem.find("[");
+        lst = vitem.find("]");
+        
+        if ( fst != std::string::npos )
+          vitem.erase(fst,1);
+        if ( lst != std::string::npos )
+          vitem.erase(lst,1);
+        
+        std::stringstream oss(vitem);
+        T on;
+        oss >> on;
+
+        valueVector.push_back(on);
+      }
+     
+      if (tracked)
+        ps.addParameter(label, valueVector);
+      else
+        ps.addUntrackedParameter(label, valueVector);
+    }
+  
    /** Does not apply changes and closes window. */
    void cancelEditor()
       {
@@ -746,6 +781,23 @@ public:
                case 'S':
                   editStringParameter(parent.pset, data.tracked, data.label, m_editor->GetText());
                   break;
+               case 'i':
+                  editVectorParameter<int32_t>(parent.pset, data.tracked, data.label, m_editor->GetText());
+                  break;
+               case 'u':
+                  editVectorParameter<uint32_t>(parent.pset, data.tracked, data.label, m_editor->GetText());
+                  break;
+               case 'l':
+                  editVectorParameter<int64_t>(parent.pset, data.tracked, data.label, m_editor->GetText());
+                  break;
+               case 'x':
+                  editVectorParameter<uint64_t>(parent.pset, data.tracked, data.label, m_editor->GetText());
+                  break;
+               case 'd':
+                  editVectorParameter<double>(parent.pset, data.tracked, data.label, m_editor->GetText());
+                  break;
+               case 's':
+                  editVectorParameter<std::string>(parent.pset, data.tracked, data.label, m_editor->GetText());
                default:
                   std::cerr << "unsupported parameter" << std::endl;
             }
