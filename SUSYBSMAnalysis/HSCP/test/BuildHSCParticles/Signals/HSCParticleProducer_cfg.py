@@ -12,8 +12,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
-
-process.GlobalTag.globaltag = 'START3X_V26::All'
+process.GlobalTag.globaltag = 'START36_V9::All'
 
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(
@@ -36,35 +35,40 @@ process.HSCParticleProducer.filter     = cms.bool(False)
 process.HSCPTreeBuilder.reccordGenInfo = cms.untracked.bool(True)
 
 ################## DEDX ANALYSIS SEQUENCE MODULES ##################
-from CondCore.DBCommon.CondDBCommon_cfi import *
-process.MipsMap = cms.ESSource("PoolDBESSource",
-    CondDBCommon,
-    appendToDataLabel = cms.string(''),
-    toGet = cms.VPSet(  cms.PSet(record = cms.string('SiStripDeDxMip_3D_Rcd'),    tag =cms.string('MC7TeV_Deco_3D_Rcd_35X'))    )
-#   toGet = cms.VPSet(  cms.PSet(record = cms.string('SiStripDeDxMip_3D_Rcd'),    tag =cms.string('Data7TeV_Deco_3D_Rcd_35X'))    )
-)
-process.MipsMap.connect = 'sqlite_file:MC7TeV_Deco_SiStripDeDxMip_3D_Rcd.db'
-#process.MipsMap.connect = 'sqlite_file:Data7TeV_Deco_SiStripDeDxMip_3D_Rcd.db'
-process.MipsMap.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
-process.es_prefer_geom=cms.ESPrefer("PoolDBESSource","MipsMap")
 
-process.dedxCNPHarm2.calibrationPath = cms.string("file:Gains.root")
-process.dedxCNPTru40.calibrationPath = cms.string("file:Gains.root")
-process.dedxCNPMed.calibrationPath   = cms.string("file:Gains.root")
-process.dedxProd.calibrationPath     = cms.string("file:Gains.root")
-process.dedxSmi.calibrationPath      = cms.string("file:Gains.root")
-process.dedxASmi.calibrationPath     = cms.string("file:Gains.root")
+process.dedxCNPHarm2.calibrationPath   = cms.string("file:Gains.root")
+process.dedxCNPTru40.calibrationPath   = cms.string("file:Gains.root")
+process.dedxCNPMed.calibrationPath     = cms.string("file:Gains.root")
+process.dedxProd.calibrationPath       = cms.string("file:Gains.root")
+process.dedxSmi.calibrationPath        = cms.string("file:Gains.root")
+process.dedxASmi.calibrationPath       = cms.string("file:Gains.root")
+process.dedxSTCNPHarm2.calibrationPath = cms.string("file:Gains.root")
+process.dedxSTCNPTru40.calibrationPath = cms.string("file:Gains.root")
+process.dedxSTCNPMed.calibrationPath   = cms.string("file:Gains.root")
+process.dedxSTProd.calibrationPath     = cms.string("file:Gains.root")
+process.dedxSTSmi.calibrationPath      = cms.string("file:Gains.root")
+process.dedxSTASmi.calibrationPath     = cms.string("file:Gains.root")
+
+process.dedxCNPHarm2.UseCalibration    = cms.bool(True)
+process.dedxCNPTru40.UseCalibration    = cms.bool(True)
+process.dedxCNPMed.UseCalibration      = cms.bool(True)
+process.dedxProd.UseCalibration        = cms.bool(True)
+process.dedxSmi.UseCalibration         = cms.bool(True)
+process.dedxASmi.UseCalibration        = cms.bool(True)
+process.dedxSTCNPHarm2.UseCalibration  = cms.bool(True)
+process.dedxSTCNPTru40.UseCalibration  = cms.bool(True)
+process.dedxSTCNPMed.UseCalibration    = cms.bool(True)
+process.dedxSTProd.UseCalibration      = cms.bool(True)
+process.dedxSTSmi.UseCalibration       = cms.bool(True)
+process.dedxSTASmi.UseCalibration      = cms.bool(True)
+
 ########################################################################
-
-#process.TFileService = cms.Service("TFileService", 
-#        fileName = cms.string('HSCP_tree.root')
-#)
 
 process.OUT = cms.OutputModule("PoolOutputModule",
      outputCommands = cms.untracked.vstring(
          "drop *",
-         "keep *_genParticles_*_*",
          "keep GenEventInfoProduct_generator_*_*",
+         "keep *_genParticles_*_*",
          "keep *_offlinePrimaryVertices_*_*",
          "keep *_csc2DRecHits_*_*",
          "keep *_cscSegments_*_*",
@@ -82,6 +86,7 @@ process.OUT = cms.OutputModule("PoolOutputModule",
          "keep L1GlobalTriggerReadoutRecord_gtDigis_*_*",
          "keep edmTriggerResults_TriggerResults_*_*",
          "keep *_HSCParticleProducer_*_*",
+         "keep triggerTriggerEvent_hltTriggerSummaryAOD_*_*",
     ),
     fileName = cms.untracked.string('HSCP.root')
 )

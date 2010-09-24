@@ -31,8 +31,8 @@ double             DefaultCutI    = 0;
 double             CutPt[40*6];
 double             CutI [40*6];
 
-double             PtHistoUpperBound   = 1000;
-double             MassHistoUpperBound = 1000;
+double             PtHistoUpperBound   = 2000;
+double             MassHistoUpperBound = 2000;
 
 float              GlobalMaxDZ   =   2.00;
 float              GlobalMaxDXY  =   0.25;
@@ -40,12 +40,12 @@ float              GlobalMaxChi2 =  10.00;
 int                GlobalMinQual =   2;
 unsigned int       GlobalMinNOH  =   1;
 unsigned int       GlobalMinNOM  =   3;
-double             GlobalMaxPterr=   0.15;
+double             GlobalMaxPterr=   0.40;
 //double             GlobalMinPt   =   7.50;
 double             GlobalMinPt   =   15.00;
 double             GlobalMinI    =   0.0;
 
-double		   MinCandidateMass = 75;
+double		   MinCandidateMass = 100;
 
 char               SplitMode        = 2;   // 0 = No decomposition in Hit/Eta intervals
                                         // 1 = Decomposition in Hit Intervals, but not in Eta intervals

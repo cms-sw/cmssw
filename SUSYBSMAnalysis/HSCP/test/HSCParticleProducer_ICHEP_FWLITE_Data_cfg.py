@@ -9,7 +9,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
-process.GlobalTag.globaltag = 'GR_R_35X_V8::All'
+process.GlobalTag.globaltag = 'GR_R_36X_V12A::All'
 
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(
@@ -22,11 +22,12 @@ process.source = cms.Source("PoolSource",
 
 import HLTrigger.HLTfilters.hltHighLevelDev_cfi
 
+
 ### JetMETTau SD
 process.JetMETTau_1e28 = HLTrigger.HLTfilters.hltHighLevelDev_cfi.hltHighLevelDev.clone(andOr = True)
 process.JetMETTau_1e28.HLTPaths = (
-"HLT_Jet15U",
-"HLT_DiJetAve15U_8E29",
+#"HLT_Jet15U",
+#"HLT_DiJetAve15U_8E29",
 "HLT_FwdJet20U",
 "HLT_Jet30U", 
 "HLT_Jet50U",
@@ -42,7 +43,7 @@ process.JetMETTau_1e28.HLTPaths = (
 "HLT_BTagIP_Jet50U",
 "HLT_StoppedHSCP_8E29"
 )
-process.JetMETTau_1e28.HLTPathsPrescales  = cms.vuint32(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1)
+process.JetMETTau_1e28.HLTPathsPrescales  = cms.vuint32(1,1,1,1,1,1,1,1,1,1,1,1,1,1)
 process.JetMETTau_1e28.HLTOverallPrescale = cms.uint32(1)
 process.JetMETTau_1e28.throw = False
 process.JetMETTau_1e28.andOr = True
@@ -50,8 +51,8 @@ process.JetMETTau_1e28.andOr = True
 ### Mu SD
 process.Mu_1e28 = HLTrigger.HLTfilters.hltHighLevelDev_cfi.hltHighLevelDev.clone(andOr = True)
 process.Mu_1e28.HLTPaths = (
-"HLT_L2Mu0",
-"HLT_L2Mu3",
+#"HLT_L2Mu0",
+#"HLT_L2Mu3",
 #"HLT_L2Mu5",
 "HLT_L1Mu20",
 "HLT_L2Mu9",
@@ -77,7 +78,7 @@ process.Mu_1e28.HLTPaths = (
 "HLT_Mu3_L2Mu0",
 "HLT_Mu5_L2Mu0"
 )
-process.Mu_1e28.HLTPathsPrescales  = cms.vuint32(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1)
+process.Mu_1e28.HLTPathsPrescales  = cms.vuint32(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1)
 process.Mu_1e28.HLTOverallPrescale = cms.uint32(1)
 process.Mu_1e28.throw = False
 process.Mu_1e28.andOr = True
@@ -90,25 +91,6 @@ process.load("SUSYBSMAnalysis.HSCP.HSCParticleProducerFromSkim_cff")  #IF RUNNIN
 process.load("SUSYBSMAnalysis.HSCP.HSCPTreeBuilder_cff")
 
 ################## DEDX ANALYSIS SEQUENCE MODULES ##################
-from CondCore.DBCommon.CondDBCommon_cfi import *
-process.MipsMap = cms.ESSource("PoolDBESSource",
-    CondDBCommon,
-    appendToDataLabel = cms.string(''),
-#   toGet = cms.VPSet(  cms.PSet(record = cms.string('SiStripDeDxMip_3D_Rcd'),    tag =cms.string('MC7TeV_Deco_3D_Rcd_35X'))    )
-    toGet = cms.VPSet(  cms.PSet(record = cms.string('SiStripDeDxMip_3D_Rcd'),    tag =cms.string('Data7TeV_Deco_3D_Rcd_35X'))    )
-)
-#process.MipsMap.connect = 'sqlite_file:MC7TeV_Deco_SiStripDeDxMip_3D_Rcd.db'
-process.MipsMap.connect = 'sqlite_file:Data7TeV_Deco_SiStripDeDxMip_3D_Rcd.db'
-process.MipsMap.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
-process.es_prefer_geom=cms.ESPrefer("PoolDBESSource","MipsMap")
-
-process.dedxCNPHarm2.calibrationPath = cms.string("file:Gains.root")
-process.dedxCNPTru40.calibrationPath = cms.string("file:Gains.root")
-process.dedxCNPMed.calibrationPath   = cms.string("file:Gains.root")
-process.dedxProd.calibrationPath     = cms.string("file:Gains.root")
-process.dedxSmi.calibrationPath      = cms.string("file:Gains.root")
-process.dedxASmi.calibrationPath     = cms.string("file:Gains.root")
-########################################################################
 
 #process.TFileService = cms.Service("TFileService", 
 #        fileName = cms.string('HSCP_tree.root')
@@ -117,6 +99,7 @@ process.dedxASmi.calibrationPath     = cms.string("file:Gains.root")
 process.OUT = cms.OutputModule("PoolOutputModule",
      outputCommands = cms.untracked.vstring(
          "drop *",
+         "keep GenEventInfoProduct_generator_*_*",
          "keep *_offlinePrimaryVertices_*_*",
          "keep *_csc2DRecHits_*_*",
          "keep *_cscSegments_*_*",
@@ -135,19 +118,16 @@ process.OUT = cms.OutputModule("PoolOutputModule",
          "keep edmTriggerResults_TriggerResults_*_*",
          "keep *_HSCParticleProducer_*_*",
     ),
-    fileName = cms.untracked.string('HSCP.root')
+    fileName = cms.untracked.string('HSCP.root'),
+    SelectEvents = cms.untracked.PSet(
+       SelectEvents = cms.vstring('p1','p2')
+    ),
 )
 
 ########################################################################
 
 
 #LOOK AT SD PASSED PATH IN ORDER to avoid as much as possible duplicated events (make the merging of .root file faster)
-process.p1 = cms.Path(process.Mu_1e28 * process.HSCParticleProducerSeq * process.OUT)
-process.p2 = cms.Path(process.JetMETTau_1e28 * ~process.Mu_1e28 * process.HSCParticleProducerSeq * process.OUT)
-
-
-#process.p = cms.Path(~process.Mu_1e28 + process.HSCParticleProducerSeq + process.OUT)# + process.HSCPTreeBuilder)
-#process.endPath = cms.EndPath(process.OUT)
-
-
-
+process.p1 = cms.Path(process.Mu_1e28 * process.HSCParticleProducerSeq)
+process.p2 = cms.Path(process.JetMETTau_1e28 * ~process.Mu_1e28 * process.HSCParticleProducerSeq)
+process.endPath = cms.EndPath(process.OUT)

@@ -9,10 +9,10 @@ import glob
 
 
 def ScanWP(Arguments):
-	WP_Pt=0
-	while WP_Pt>=-5:
-	 	WP_I=0
-		while WP_I>=-5:
+	WP_Pt=0.0
+	while WP_Pt>=-5.0:
+	 	WP_I=0.0
+		while WP_I>=-5.0:
 			Arguments[3] = WP_Pt
 			Arguments[4] = WP_I
 			LaunchOnCondor.SendCluster_Push(Arguments)
@@ -33,22 +33,21 @@ if sys.argv[1]=='0':
         LaunchOnCondor.SendCluster_Create(FarmDirectory, JobName)	
         ScanWP(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', "WP_Pt", "WP_I", 2, 11, 3, 1])
         ScanWP(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', "WP_Pt", "WP_I", 2, 11, 3, 0])
-	LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', 0.0, 0.0, 2, 8, 0, 0])
-	LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', 0.0, 0.0, 2, 8, 0, 1])
+#	LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', 0.0, 0.0, 2, 8, 0, 0])
+#	LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', 0.0, 0.0, 2, 8, 0, 1])
 
-        ScanWP(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', "WP_Pt", "WP_I", 2, 3, 3, 1])
-        ScanWP(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', "WP_Pt", "WP_I", 2, 3, 3, 0])
+#        ScanWP(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', "WP_Pt", "WP_I", 2, 3, 3, 1])
+#        ScanWP(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', "WP_Pt", "WP_I", 2, 3, 3, 0])
 
+#        ScanWP(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', "WP_Pt", "WP_I", 1, 11, 3, 1])
+#        ScanWP(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', "WP_Pt", "WP_I", 1, 11, 3, 0])
+#        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', 0.0, 0.0, 1, 8, 0, 0])
+#        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', 0.0, 0.0, 1, 8, 0, 1])
 
-        ScanWP(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', "WP_Pt", "WP_I", 1, 11, 3, 1])
-        ScanWP(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', "WP_Pt", "WP_I", 1, 11, 3, 0])
-        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', 0.0, 0.0, 1, 8, 0, 0])
-        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', 0.0, 0.0, 1, 8, 0, 1])
-
-        ScanWP(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', "WP_Pt", "WP_I", 0, 11, 3, 1])
-        ScanWP(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', "WP_Pt", "WP_I", 0, 11, 3, 0])
-        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', 0.0, 0.0, 0, 8, 0, 0])
-        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', 0.0, 0.0, 0, 8, 0, 1])
+#        ScanWP(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', "WP_Pt", "WP_I", 0, 11, 3, 1])
+#        ScanWP(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', "WP_Pt", "WP_I", 0, 11, 3, 0])
+#        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', 0.0, 0.0, 0, 8, 0, 0])
+#        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step234.C", '"ANALYSE"', 0.0, 0.0, 0, 8, 0, 1])
 	LaunchOnCondor.SendCluster_Submit()
 
 

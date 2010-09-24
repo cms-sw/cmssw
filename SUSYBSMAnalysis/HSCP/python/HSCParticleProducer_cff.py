@@ -72,38 +72,14 @@ dedxMed = cms.EDProducer("DeDxEstimatorProducer",
     ShapeTest       = cms.bool(False),
 )
 
-dedxNPHarm2                  = dedxHarm2.clone()
-dedxNPHarm2.UsePixel         = cms.bool(False)
+dedxCNPHarm2                  = dedxHarm2.clone()
+dedxCNPHarm2.UsePixel         = cms.bool(False)
 
-dedxNPTru40                  = dedxTru40.clone()
-dedxNPTru40.UsePixel         = cms.bool(False)
+dedxCNPTru40                  = dedxTru40.clone()
+dedxCNPTru40.UsePixel         = cms.bool(False)
 
-dedxNPMed                    = dedxMed.clone()
-dedxNPMed.UsePixel           = cms.bool(False)
-
-dedxCHarm2                   = dedxHarm2.clone()
-dedxCHarm2.UseCalibration    = cms.bool(True)
-dedxCHarm2.calibrationPath   = cms.string("file:Gains.root")
-
-dedxCTru40                   = dedxTru40.clone()
-dedxCTru40.UseCalibration    = cms.bool(True)
-dedxCTru40.calibrationPath   = cms.string("file:Gains.root")
-
-dedxCMed                     = dedxMed.clone()
-dedxCMed.UseCalibration      = cms.bool(True)
-dedxCMed.calibrationPath     = cms.string("file:Gains.root")
-
-dedxCNPHarm2                 = dedxNPHarm2.clone()
-dedxCNPHarm2.UseCalibration  = cms.bool(True)
-dedxCNPHarm2.calibrationPath = cms.string("file:Gains.root")
-
-dedxCNPTru40                 = dedxNPTru40.clone()
-dedxCNPTru40.UseCalibration  = cms.bool(True)
-dedxCNPTru40.calibrationPath = cms.string("file:Gains.root")
-
-dedxCNPMed                   = dedxNPMed.clone()
-dedxCNPMed.UseCalibration    = cms.bool(True)
-dedxCNPMed.calibrationPath   = cms.string("file:Gains.root")
+dedxCNPMed                    = dedxMed.clone()
+dedxCNPMed.UsePixel           = cms.bool(False)
 
 dedxSTCNPHarm2                = dedxCNPHarm2.clone()
 dedxSTCNPHarm2.ShapeTest      = cms.bool(True)
@@ -136,7 +112,7 @@ dedxProd               = cms.EDProducer("DeDxDiscriminatorProducer",
     MisCalib_Mean      = cms.untracked.double(1.0),
     MisCalib_Sigma     = cms.untracked.double(0.00),
 
-    UseCalibration  = cms.bool(True),
+    UseCalibration  = cms.bool(False),
     calibrationPath = cms.string("file:Gains.root"),
     ShapeTest          = cms.bool(False),
 
