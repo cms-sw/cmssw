@@ -46,11 +46,11 @@ localreco_HcalNZS = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalrecoNZS
 from RecoLocalCalo.Castor.Castor_cff import *
 from RecoLocalCalo.Configuration.hcalGlobalReco_cff import *
 
-globalreco = cms.Sequence(offlineBeamSpot+recopixelvertexing+trackingGlobalReco+hcalGlobalRecoSequence+particleFlowCluster+ecalClusters+caloTowersRec*vertexreco*egammarecoGlobal*jetGlobalReco+muonrecoComplete+electronGsfTracking+CastorFullReco)
+globalreco = cms.Sequence(offlineBeamSpot+recopixelvertexing+trackingGlobalReco+hcalGlobalRecoSequence+particleFlowCluster+ecalClusters+caloTowersRec*vertexreco*egammarecoGlobal*jetGlobalReco+muonrecoComplete+muoncosmicreco+electronGsfTracking+CastorFullReco)
 globalreco_plusRS = cms.Sequence(globalreco*rstracks)
 globalreco_plusPL= cms.Sequence(globalreco*ctfTracksPixelLess)
 
-highlevelreco = cms.Sequence(particleFlowReco*reducedRecHitsSequence*egammarecoFull*jetHighLevelReco*tautagging*metrecoPlusHCALNoise*btagging*recoPFMET*PFTau*regionalCosmicTracksSeq)
+highlevelreco = cms.Sequence(particleFlowReco*reducedRecHitsSequence*egammarecoFull*jetHighLevelReco*tautagging*metrecoPlusHCALNoise*btagging*recoPFMET*PFTau*regionalCosmicTracksSeq*muoncosmichighlevelreco)
 
 #highlevelreco = cms.Sequence(recoJetAssociations*tautagging*particleFlowReco*egammarecoFull*metrecoPlusHCALNoise*reducedRecHitsSequence*btagging*recoPFJets*recoPFMET*PFTau)
 #emergency sequence wo conversions
@@ -60,12 +60,12 @@ highlevelreco = cms.Sequence(particleFlowReco*reducedRecHitsSequence*egammarecoF
 from FWCore.Modules.logErrorHarvester_cfi import *
 
 # "Export" Section
-reconstruction         = cms.Sequence(localreco        *globalreco       *highlevelreco*muoncosmicreco*logErrorHarvester)
+reconstruction         = cms.Sequence(localreco        *globalreco       *highlevelreco*logErrorHarvester)
 
 #sequences with additional stuff
-reconstruction_withPixellessTk  = cms.Sequence(localreco        *globalreco_plusPL*highlevelreco*muoncosmicreco*logErrorHarvester)
-reconstruction_withRS  = cms.Sequence(localreco        *globalreco_plusRS*highlevelreco*muoncosmicreco*logErrorHarvester)
-reconstruction_HcalNZS = cms.Sequence(localreco_HcalNZS*globalreco       *highlevelreco*muoncosmicreco*logErrorHarvester)
+reconstruction_withPixellessTk  = cms.Sequence(localreco        *globalreco_plusPL*highlevelreco*logErrorHarvester)
+reconstruction_withRS  = cms.Sequence(localreco        *globalreco_plusRS*highlevelreco*logErrorHarvester)
+reconstruction_HcalNZS = cms.Sequence(localreco_HcalNZS*globalreco       *highlevelreco*logErrorHarvester)
 
 #sequences without some stuffs
 #
