@@ -195,9 +195,10 @@ void FWL1TriggerTableView::dataChanged( void )
 	 }
 	 else
 	 {
-	    fwLog( fwlog::kWarning ) << "FWL1TriggerTableView: " <<
-	       "L1GtTriggerMenuLite.isValid()=" << triggerMenuLite.isValid() << ", " <<
-	       "L1GlobalTriggerReadoutRecord.isValid()=" << triggerRecord.isValid() << "." << std::endl;
+	    m_columns.at(0).values.push_back( "No L1Trigger menu available." );
+	    m_columns.at(1).values.push_back( " " );
+	    m_columns.at(2).values.push_back( " " );
+	    m_columns.at(3).values.push_back( " " );
 	 }
       }
    }
