@@ -78,11 +78,11 @@ islandBasicClusters.IslandBarrelSeedThr = 0.150 ## 0.500
 
 islandBasicClusters.IslandEndcapSeedThr = 0.150 ## 0.180
 
-hybridSuperClusters.HybridBarrelSeedThr = 0.150 ## 1.000
+cleanedHybridSuperClusters.HybridBarrelSeedThr = 0.150 ## 1.000
 
-hybridSuperClusters.step = 1 ## 17
+cleanedHybridSuperClusters.step = 1 ## 17
 
-hybridSuperClusters.eseed = 0.150 ## 0.350
+cleanedHybridSuperClusters.eseed = 0.150 ## 0.350
 
 islandSuperClusters.seedTransverseEnergyThreshold = 0.150 ## 1.000
 
