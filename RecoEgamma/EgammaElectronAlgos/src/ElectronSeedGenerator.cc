@@ -55,13 +55,9 @@
 ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset)
  : dynamicphiroad_(pset.getParameter<bool>("dynamicPhiRoad")),
    fromTrackerSeeds_(pset.getParameter<bool>("fromTrackerSeeds")),
-   useRecoVertex_(false),
-   verticesTag_("offlinePrimaryVerticesWithBS"),
-   beamSpotTag_("offlineBeamSpot"),
    lowPtThreshold_(pset.getParameter<double>("LowPtThreshold")),
    highPtThreshold_(pset.getParameter<double>("HighPtThreshold")),
    nSigmasDeltaZ1_(pset.getParameter<double>("nSigmasDeltaZ1")),
-   deltaZ1WithVertex_(0.5),
    sizeWindowENeg_(pset.getParameter<double>("SizeWindowENeg")),
    deltaPhi1Low_(pset.getParameter<double>("DeltaPhi1Low")),
    deltaPhi1High_(pset.getParameter<double>("DeltaPhi1High")),
@@ -71,44 +67,23 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset)
    theSetup(0), pts_(0),
    cacheIDMagField_(0),/*cacheIDGeom_(0),*/cacheIDNavSchool_(0),cacheIDCkfComp_(0),cacheIDTrkGeom_(0)
  {
-  // use of a theMeasurementTrackerName
-  if (pset.exists("measurementTrackerName"))
-   { theMeasurementTrackerName = pset.getParameter<std::string>("measurementTrackerName") ; }
+  theMeasurementTrackerName = pset.getParameter<std::string>("measurementTrackerName") ;
 
   // use of reco vertex
-  if (pset.exists("useRecoVertex"))
-   { useRecoVertex_ = pset.getParameter<bool>("useRecoVertex") ; }
-  if (pset.exists("vertices"))
-   { verticesTag_ = pset.getParameter<edm::InputTag>("vertices") ; }
-  if (pset.exists("deltaZ1WithVertex"))
-   { deltaZ1WithVertex_ = pset.getParameter<double>("deltaZ1WithVertex") ; }
+  useRecoVertex_ = pset.getParameter<bool>("useRecoVertex") ;
+  verticesTag_ = pset.getParameter<edm::InputTag>("vertices") ;
+  deltaZ1WithVertex_ = pset.getParameter<double>("deltaZ1WithVertex") ;
 
   // new beamSpot tag
-  if (pset.exists("beamSpot"))
-   { beamSpotTag_ = pset.getParameter<edm::InputTag>("beamSpot") ; }
+  beamSpotTag_ = pset.getParameter<edm::InputTag>("beamSpot") ;
 
   // new B/F configurables
-  if (pset.exists("DeltaPhi2"))
-   { deltaPhi2B_ = deltaPhi2F_ = pset.getParameter<double>("DeltaPhi2") ; }
-  else
-   {
-    deltaPhi2B_ = pset.getParameter<double>("DeltaPhi2B") ;
-    deltaPhi2F_ = pset.getParameter<double>("DeltaPhi2F") ;
-   }
-  if (pset.exists("PhiMin2"))
-   { phiMin2B_ = phiMin2F_ = pset.getParameter<double>("PhiMin2") ; }
-  else
-   {
-    phiMin2B_ = pset.getParameter<double>("PhiMin2B") ;
-    phiMin2F_ = pset.getParameter<double>("PhiMin2F") ;
-   }
-  if (pset.exists("PhiMax2"))
-   { phiMax2B_ = phiMax2F_ = pset.getParameter<double>("PhiMax2") ; }
-  else
-   {
-    phiMax2B_ = pset.getParameter<double>("PhiMax2B") ;
-    phiMax2F_ = pset.getParameter<double>("PhiMax2F") ;
-   }
+  deltaPhi2B_ = pset.getParameter<double>("DeltaPhi2B") ;
+  deltaPhi2F_ = pset.getParameter<double>("DeltaPhi2F") ;
+  phiMin2B_ = pset.getParameter<double>("PhiMin2B") ;
+  phiMin2F_ = pset.getParameter<double>("PhiMin2F") ;
+  phiMax2B_ = pset.getParameter<double>("PhiMax2B") ;
+  phiMax2F_ = pset.getParameter<double>("PhiMax2F") ;
 
   // Instantiate the pixel hit matchers
   myMatchEle = new PixelHitMatcher

@@ -1,5 +1,10 @@
 
 #include "GsfElectronCoreProducer.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCoreFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCore.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
@@ -7,9 +12,20 @@
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+
 #include <map>
 
 using namespace reco ;
+
+void GsfElectronCoreProducer::fillDescriptions( edm::ConfigurationDescriptions & descriptions )
+ {
+  edm::ParameterSetDescription desc ;
+  desc.add<edm::InputTag>("gsfTracks",edm::InputTag("electronGsfTracks")) ;
+  desc.add<edm::InputTag>("ctfTracks",edm::InputTag("generalTracks")) ;
+  desc.add<edm::InputTag>("pfSuperClusters",edm::InputTag("pfElectronTranslator:pf")) ;
+  desc.add<edm::InputTag>("pfSuperClusterTrackMap",edm::InputTag("pfElectronTranslator:pf")) ;
+  descriptions.add("produceGsfElectronCores",desc) ;
+ }
 
 GsfElectronCoreProducer::GsfElectronCoreProducer( const edm::ParameterSet & config )
  {

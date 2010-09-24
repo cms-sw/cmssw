@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.99 2010/07/29 15:19:45 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.100 2010/09/21 17:06:14 chamont Exp $
 //
 //
 
@@ -197,8 +197,7 @@ GsfElectronAlgo::GsfElectronAlgo
   seedsTag_ = conf.getParameter<edm::InputTag>("seedsTag");
 
   // new beamSpot tag
-  if (conf.exists("beamSpot"))
-   { beamSpotTag_ = conf.getParameter<edm::InputTag>("beamSpot") ; }
+  beamSpotTag_ = conf.getParameter<edm::InputTag>("beamSpot") ;
 
   // for backward compatibility
   ctfTracksCheck_ = conf.getParameter<bool>("ctfTracksCheck");
