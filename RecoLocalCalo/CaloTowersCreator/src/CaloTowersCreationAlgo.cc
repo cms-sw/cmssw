@@ -939,11 +939,19 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
 	// hit in the constituents (JetMET wanted them saved)
 	// This constituent is only used for storing the tower, but should not be concidered as a hot cell canditate for
 	// configurations with useHO = false
-	
-	if (HcalDetId(i->first).subdet() != HcalOuter) 
+
+
+	if (i->first.det()==DetId::Ecal) {  // ECAL
 	  maxCellE = i->second;
-	else if (theHOIsUsed) maxCellE = i->second;
-      }
+	}	
+	else {  // HCAL
+	  if (HcalDetId(i->first).subdet() != HcalOuter) 
+	    maxCellE = i->second;
+	  else if (theHOIsUsed) maxCellE = i->second;
+	}
+
+      } // found higher E cell
+
     } // loop over matacontains
 
     retval.addConstituents(contains);
