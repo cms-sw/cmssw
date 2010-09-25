@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.222.2.1 
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: skim -s SKIM:LogError --dbs find file,file.parent where dataset=/MinimumBias/Commissioning10-PromptReco-v7/RECO  and run.number=132440 -n 100 --python_file JetPDSkim_cfg.py --no_exec --data --magField AutoFromDBCurrent --scenario pp --conditions auto:com10
+# with command line options: skim -s SKIM:LogError+DiJet --dbs find file,file.parent where dataset=/MinimumBias/Commissioning10-PromptReco-v7/RECO  and run.number=132440 -n 100 --python_file JetPDSkim_cfg.py --no_exec --data --magField AutoFromDBCurrent --scenario pp --conditions auto:com10
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('SKIM')
@@ -93,6 +93,46 @@ process.source = cms.Source("PoolSource",
 # Output definition
 
 # Additional output definition
+process.SKIMStreamDiJet = cms.OutputModule("PoolOutputModule",
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('diJetAveSkimPath')
+    ),
+    outputCommands = cms.untracked.vstring('drop *', 
+        'keep recoCaloJets_kt4CaloJets_*_*', 
+        'keep recoCaloJets_kt6CaloJets_*_*', 
+        'keep recoCaloJets_ak5CaloJets_*_*', 
+        'keep recoCaloJets_ak7CaloJets_*_*', 
+        'keep recoCaloJets_iterativeCone5CaloJets_*_*', 
+        'keep *_kt4JetID_*_*', 
+        'keep *_kt6JetID_*_*', 
+        'keep *_ak5JetID_*_*', 
+        'keep *_ak7JetID_*_*', 
+        'keep *_ic5JetID_*_*', 
+        'keep recoPFJets_kt4PFJets_*_*', 
+        'keep recoPFJets_kt6PFJets_*_*', 
+        'keep recoPFJets_ak5PFJets_*_*', 
+        'keep recoPFJets_ak7PFJets_*_*', 
+        'keep recoPFJets_iterativeCone5PFJets_*_*', 
+        'keep *_JetPlusTrackZSPCorJetAntiKt5_*_*', 
+        'keep edmTriggerResults_TriggerResults_*_*', 
+        'keep *_hltTriggerSummaryAOD_*_*', 
+        'keep L1GlobalTriggerObjectMapRecord_*_*_*', 
+        'keep L1GlobalTriggerReadoutRecord_*_*_*', 
+        'keep recoTracks_generalTracks_*_*', 
+        'keep *_towerMaker_*_*', 
+        'keep *_EventAuxilary_*_*', 
+        'keep *_offlinePrimaryVertices_*_*', 
+        'keep *_hcalnoise_*_*', 
+        'keep *_metHO_*_*', 
+        'keep *_metNoHF_*_*', 
+        'keep *_metNoHFHO_*_*', 
+        'keep *_met_*_*'),
+    fileName = cms.untracked.string('DiJet.root'),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string('DiJet'),
+        dataTier = cms.untracked.string('USER')
+    )
+)
 process.SKIMStreamLogError = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathlogerror')
@@ -104,6 +144,28 @@ process.SKIMStreamLogError = cms.OutputModule("PoolOutputModule",
         dataTier = cms.untracked.string('RAW-RECO')
     )
 )
+
+import HLTrigger.HLTfilters.triggerResultsFilter_cfi as hlt
+process.HTSD = hlt.triggerResultsFilter.clone(
+    triggerConditions = cms.vstring('HLT_HT*',),
+    hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
+    l1tResults = cms.InputTag(""),
+    throw = cms.bool( False )
+    )
+process.pathHTSDSkimPath = cms.Path( process.HTSD )
+
+process.SKIMStreamHTSD = process.SKIMStreamLogError.clone(
+    fileName = cms.untracked.string('HTSD.root'),
+     SelectEvents = cms.untracked.PSet(
+     SelectEvents = cms.vstring('pathHTSDSkimPath')
+    ),
+    dataset = cms.untracked.PSet(
+     filterName = cms.untracked.string('HTSD'),
+     dataTier = cms.untracked.string('RAW-RECO')
+    )
+    )
+process.SKIMStreamHTSDOutPath = cms.EndPath( process.SKIMStreamHTSD )
+
 
 # Other statements
 process.GlobalTag.globaltag = 'GR_R_38X_V13::All'
@@ -140,29 +202,8 @@ process.muonTracksSkimPath = cms.Path(process.muonTracksSkim)
 process.pathHLTdtSkim = cms.Path(process.dtHLTSkimseq)
 process.ecalrechitSkimPath = cms.Path(process.ecalrechitSkim)
 process.singleMuPt5SkimPath = cms.Path(process.singleMuPt5RecoQualitySeq)
+process.SKIMStreamDiJetOutPath = cms.EndPath(process.SKIMStreamDiJet)
 process.SKIMStreamLogErrorOutPath = cms.EndPath(process.SKIMStreamLogError)
 
-import HLTrigger.HLTfilters.triggerResultsFilter_cfi as hlt
-process.HTSD = hlt.triggerResultsFilter.clone(
-    triggerConditions = cms.vstring('HLT_HT*',),
-    hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
-    l1tResults = cms.InputTag(""),
-    throw = cms.bool( False )
-    )
-process.pathHTSDSkimPath = cms.Path( process.HTSD )
-
-process.SKIMStreamHTSD = process.SKIMStreamLogError.clone(
-    fileName = cms.untracked.string('HTSD.root'),
-    SelectEvents = cms.untracked.PSet(
-      SelectEvents = cms.vstring('pathHTSDSkimPath')
-    ),
-    dataset = cms.untracked.PSet(
-    filterName = cms.untracked.string('HTSD'),
-      dataTier = cms.untracked.string('RAW-RECO')
-    )
-    )
-process.SKIMStreamHTSDOutPath = cms.EndPath( process.SKIMStreamHTSD )
-
-
 # Schedule definition
-process.schedule = cms.Schedule(process.pathlogerror,process.pathHTSDSkimPath,process.SKIMStreamLogErrorOutPath,process.SKIMStreamHTSDOutPath)
+process.schedule = cms.Schedule(process.pathlogerror,process.diJetAveSkimPath,process.pathHTSDSkimPath,process.SKIMStreamDiJetOutPath,process.SKIMStreamLogErrorOutPath,process.SKIMStreamHTSDOutPath)
