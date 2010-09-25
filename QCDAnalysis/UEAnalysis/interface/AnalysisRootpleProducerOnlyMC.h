@@ -14,7 +14,8 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include <FWCore/ServiceRegistry/interface/Service.h>
-#include <CommonTools/UtilAlgos/interface/TFileService.h>
+//#include <PhysicsTools/UtilAlgos/interface/TFileService.h>
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include <TROOT.h>
 #include <TTree.h>
