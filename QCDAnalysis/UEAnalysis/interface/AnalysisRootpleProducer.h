@@ -1,4 +1,3 @@
-//ciapo
 #ifndef AnalysisRootpleProducer_H
 #define AnalysisRootpleProducer_H
 
@@ -15,7 +14,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include <FWCore/ServiceRegistry/interface/Service.h>
-#include <CommonTools/UtilAlgos/interface/TFileService.h>
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include <TROOT.h>
 #include <TTree.h>
@@ -31,6 +30,7 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/BasicJet.h"
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
+#include "DataFormats/JetReco/interface/TrackJetCollection.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -40,16 +40,20 @@
 
 
 // access trigger results
+//#include <FWCore/Framework/interface/TriggerNames.h>
+#include <FWCore/Common/interface/TriggerNames.h>
 #include <DataFormats/Common/interface/TriggerResults.h>
 #include <DataFormats/HLTReco/interface/TriggerEvent.h> 
 #include <DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h>
 
-using namespace edm;
-using namespace reco;
-using namespace trigger;
-using std::vector;
+//using namespace edm;
+//using namespace reco;
+//using namespace trigger;
+//using std::vector;
 
-
+class TTree;
+class TFile;
+class TObject;
 
 
 
@@ -75,30 +79,31 @@ private:
   
   bool onlyRECO;
 
-  InputTag mcEvent; // label of MC event
-  InputTag genJetCollName; // label of Jet made with MC particles
-  InputTag chgJetCollName; // label of Jet made with only charged MC particles
-  InputTag chgGenPartCollName; // label of charged MC particles
-  InputTag tracksJetCollName;
-  InputTag recoCaloJetCollName;
-  InputTag tracksCollName;
-  InputTag triggerResultsTag;
-  InputTag triggerEventTag;
-  InputTag genEventScaleTag;
+  edm::InputTag mcEvent; // label of MC event
+  edm::InputTag genJetCollName; // label of Jet made with MC particles
+  edm::InputTag chgJetCollName; // label of Jet made with only charged MC particles
+  edm::InputTag chgGenPartCollName; // label of charged MC particles
+  edm::InputTag tracksJetCollName;
+  edm::InputTag recoCaloJetCollName;
+  edm::InputTag tracksCollName;
+  edm::InputTag triggerResultsTag;
+  edm::InputTag triggerEventTag;
+  edm::InputTag genEventScaleTag;
 
-  Handle< double              > genEventScaleHandle;
-  Handle< HepMCProduct        > EvtHandle ;
-  Handle< vector<GenParticle> > CandHandleMC ;
-  Handle< GenJetCollection    > GenJetsHandle ;
-  Handle< GenJetCollection    > ChgGenJetsHandle ;
+  edm::Handle< double              > genEventScaleHandle;
+  edm::Handle< edm::HepMCProduct        > EvtHandle ;
+  edm::Handle< std::vector<reco::GenParticle> > CandHandleMC ;
+  edm::Handle< reco::GenJetCollection    > GenJetsHandle ;
+  edm::Handle< reco::GenJetCollection    > ChgGenJetsHandle ;
   //  Handle< CandidateCollection > CandHandleRECO ;
-  Handle< edm::View<reco::Candidate> > CandHandleRECO ;
-  Handle< BasicJetCollection  > TracksJetsHandle ;
-  Handle< CaloJetCollection   > RecoCaloJetsHandle ;
-  Handle< TriggerResults      > triggerResults;
-  Handle< TriggerEvent        > triggerEvent;
+  edm::Handle< edm::View<reco::Candidate> > CandHandleRECO ;
+  edm::Handle< reco::TrackJetCollection  > TracksJetsHandle ;
+  edm::Handle< reco::CaloJetCollection   > RecoCaloJetsHandle ;
+  edm::Handle< edm::TriggerResults  > triggerResults;
+  edm::Handle< trigger::TriggerEvent  > triggerEvent;
 
   //  Handle<TriggerFilterObjectWithRefs> hltFilter; // not used at the moment: can access objects that fired the trigger
+  edm::TriggerNames triggerNames;
 
   edm::Service<TFileService> fs;
 
@@ -107,7 +112,8 @@ private:
   TTree* AnalysisTree;
 
   int EventKind;
-  
+
+  TClonesArray* Parton;
   TClonesArray* MonteCarlo;
   TClonesArray* MonteCarlo2;
   TClonesArray* InclusiveJet;
@@ -126,39 +132,51 @@ private:
   int bx;
 
   //tracks with vertex
-  Int_t   m_npv;
-  Double_t m_pvx[10];
-  Double_t m_pvxErr[10];
-  Double_t m_pvy[10];
-  Double_t m_pvyErr[10];
-  Double_t m_pvz[10];
-  Double_t m_pvzErr[10];
-  Double_t m_pvchi2[10];
-  int   m_pvntk[10];
-  
-  //Double_t  m_pvtkp[5000];
-  //Double_t m_pvtkpt[5000];
-  //Double_t m_pvtketa[5000];
-  //Double_t m_pvtkphi[5000];
-  //Double_t m_pvtknhit[5000];
-  //Double_t m_pvtkchi2norm[5000];
-  //Double_t m_pvtkd0[5000];
-  //Double_t m_pvtkd0Err[5000];
-  //Double_t m_pvtkdz[5000];
-  //Double_t m_pvtkdzErr[5000];
+struct Vertex
+{
+  Int_t   npv;
+  Double_t pvx[10];
+  Double_t pvxErr[10];
+  Double_t pvy[10];
+  Double_t pvyErr[10];
+  Double_t pvz[10];
+  Double_t pvzErr[10];
+  Double_t pvchi2[10];
+  int   pvntk[10];
+}vertex_;
+ 
+struct TrackExtraUE
+{
+ Double_t  pvtkp[5000];
+ Double_t pvtkpt[5000];
+ Double_t pvtketa[5000];
+ Double_t pvtkphi[5000];
+ Double_t pvtknhit[5000];
+ Double_t pvtkchi2norm[5000];
+ Double_t pvtkd0[5000];
+ Double_t pvtkd0Err[5000];
+ Double_t pvtkdz[5000];
+ Double_t pvtkdzErr[5000];
+}trackextraue_;
+ 
 
-  //int  m_ntk;
-  //Double_t  m_tkp[5000];
-  //Double_t m_tkpt[5000];
-  //Double_t m_tketa[5000];
-  //Double_t m_tkphi[5000];
-  //Double_t m_tknhit[5000];
-  //Double_t m_tkchi2norm[5000];
-  //Double_t m_tkd0[5000];
-  //Double_t m_tkd0Err[5000];
-  //Double_t m_tkdz[5000];
-  //Double_t m_tkdzErr[5000];
-  vector<int>  pdgidList;
+struct TrackinJet
+{
+  Int_t tkn[100];
+ Double_t tkp[5000];
+ Double_t tkpt[5000];
+ Double_t tketa[5000];
+ Double_t tkphi[5000];
+ Double_t tknhit[5000];
+ Double_t tkchi2norm[5000];
+ Double_t tkd0[5000];
+ Double_t tkd0Err[5000];
+ Double_t tkdz[5000];
+ Double_t tkdzErr[5000];
+}trackinjet_;
+ 
+
+ std::vector<int>  pdgidList;
 
 };
 
