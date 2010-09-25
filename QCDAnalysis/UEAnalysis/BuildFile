@@ -8,6 +8,8 @@
 <use name=DataFormats/TrackCandidate>
 <use name=DataFormats/HLTReco>
 <use name=DataFormats/GeometryVector>
+<use name=DataFormats/VertexReco>
+<use name=CommonTools/Statistics>
 <use name=CommonTools/UtilAlgos>
 <use name=FWCore/Framework>
 <use name=FWCore/PluginManager>
