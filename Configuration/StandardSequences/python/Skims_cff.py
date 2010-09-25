@@ -325,3 +325,15 @@ SKIMStreamOnia = cms.FilteredStream(
     dataTier = cms.untracked.string('RAW-RECO')
     )
 
+#####################
+
+from Configuration.Skimming.PDWG_HT_SD_cff import *
+HTSDPath = cms.Path(HTSD)
+SKIMStreamHTSD = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'HTSD',
+    paths = (HTSDPath),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+    )
