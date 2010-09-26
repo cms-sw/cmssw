@@ -101,6 +101,9 @@ HLT_DoubleIsoTau15_OneLeg_Trk5
 HLT_DoubleIsoTau15_Trk5
 HLT_BTagMu_Jet10U
 HLT_BTagMu_Jet20U
+HLT_BTagMu_DiJet10U
+HLT_BTagMu_DiJet20U
+HLT_BTagMu_DiJet20U_Mu5
 HLT_ZeroBias
 HLT_ZeroBiasPixel_SingleTrack
 HLT_L1Tech_BSC_minBias_OR

@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_8_1/GRun/V31
+# /dev/CMSSW_3_8_1/GRun/V32
 
 import FWCore.ParameterSet.Config as cms
 
@@ -8,7 +8,10 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetBTau_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetBTau_selector.l1tResults = cms.InputTag('')
 streamA_datasetBTau_selector.throw      = cms.bool(False)
-streamA_datasetBTau_selector.triggerConditions = cms.vstring('HLT_BTagMu_Jet10U', 
+streamA_datasetBTau_selector.triggerConditions = cms.vstring('HLT_BTagMu_DiJet10U', 
+    'HLT_BTagMu_DiJet20U', 
+    'HLT_BTagMu_DiJet20U_Mu5', 
+    'HLT_BTagMu_Jet10U', 
     'HLT_BTagMu_Jet20U', 
     'HLT_DoubleIsoTau15_OneLeg_Trk5', 
     'HLT_DoubleIsoTau15_Trk5', 
