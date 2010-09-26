@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/09/03 12:52:26 $
- *  $Revision: 1.10 $
+ *  $Date: 2010/09/26 10:38:11 $
+ *  $Revision: 1.11 $
  *
  *  \author Martin Grunewald
  *
@@ -58,7 +58,7 @@ HLTDoublet<T1,Tid1,T2,Tid2>::HLTDoublet(const edm::ParameterSet& iConfig) :
                 << " Minv [" << min_Minv_ << " " << max_Minv_ << "]"
                 << " DelR [" << min_DelR_ << " " << max_DelR_ << "]"
                 << " MinN =" << min_N_
-		<< " same/dphi/deta/minv "
+		<< " same/dphi/deta/minv/delr "
 		<< same_ << cutdphi_ << cutdeta_ << cutminv_ << cutdelr_;
 
    //register your products
