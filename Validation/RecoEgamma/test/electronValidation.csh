@@ -75,6 +75,10 @@ if (! -d $VAL_WEB/$VAL_NEW_RELEASE/Electrons) then
   mkdir $VAL_WEB/$VAL_NEW_RELEASE/Electrons
 endif
 
+if (! -d $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}) then
+  mkdir $VAL_WEB/$VAL_NEW_RELEASE/Electrons/vs${VAL_REF_RELEASE}
+endif
+
 #============== Find and archive new log and data files ==================
 
 echo "VAL_NEW_RELEASE = ${VAL_NEW_RELEASE}"
