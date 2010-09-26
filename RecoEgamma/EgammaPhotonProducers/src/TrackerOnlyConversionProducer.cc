@@ -13,7 +13,7 @@
 //
 // Original Author:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: TrackerOnlyConversionProducer.cc,v 1.27 2010/09/17 20:04:17 nancy Exp $
+// $Id: TrackerOnlyConversionProducer.cc,v 1.28 2010/09/23 17:31:15 nancy Exp $
 //
 //
 
@@ -278,6 +278,7 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
 						    const reco::Vertex& the_pvtx,
 						    reco::ConversionCollection & outputConvPhotonCollection){
 
+  
   edm::ESHandle<TrackerGeometry> trackerGeomHandle;
   edm::ESHandle<MagneticField> magFieldHandle;
   iSetup.get<TrackerDigiGeometryRecord>().get( trackerGeomHandle );
@@ -300,8 +301,12 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
 
     std::multimap<double, int> trackInnerEta;//Track innermost state Eta map to TrackRef index, to be used in track pair sorting
 
+
+    
+
+    
     //2 propagate all tracks into ECAL, record its eta and phi
-    for (std::vector<reco::TrackBaseRef>::const_iterator tk_ref = allTracks.begin(); tk_ref != allTracks.end(); ++tk_ref){
+    for (std::vector<reco::TrackBaseRef>::const_iterator tk_ref = allTracks.begin(); tk_ref != allTracks.end(); ++tk_ref ){
       const reco::Track* tk=(*tk_ref).get()  ;
 
 	//map TrackRef to Eta
@@ -327,78 +332,100 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
 
 	}
     }
-    //3. pair up : to select one track from matched EBC, and select the other track to fit cot theta and phi open angle cut
-    //TODO it is k-Closest pair of point problem
-    reco::VertexCollection vertexs;
-    std::vector<bool> isPaired;
-    isPaired.assign(allTracks.size(), false);
-    for( std::vector<reco::TrackBaseRef>::const_iterator ll = allTracks.begin(); ll != allTracks.end(); ++ ll ) {
-	if ((allowTrackBC_ && !trackValidECAL[ll-allTracks.begin()]) //this Left leg should have valid BC
-		//|| !(trackD0Cut(*ll)) //d0*charge signicifance for converted photons
-		|| isPaired[ll-allTracks.begin()]) //this track should not be used in another pair
-	    continue;
 
+
+
+    if ( allTracks.size() >1 ) {
+      //3. pair up : to select one track from matched EBC, and select the other track to fit cot theta and phi open angle cut
+      //TODO it is k-Closest pair of point problem
+      reco::VertexCollection vertexs;
+      std::vector<bool> isPaired;
+      isPaired.assign(allTracks.size(), false);
+      bool track1HighPurity=true;
+      bool track2HighPurity=true;
+      //std::cout << " allTracks.size() " <<  allTracks.size() << std::endl;
+      for( std::vector<reco::TrackBaseRef>::const_iterator ll = allTracks.begin(); ll != allTracks.end(); ++ ll ) {
+	std::cout << " Loop on allTracks " << std::endl;
+
+       
+	std::cout << " This track is " <<  (*ll)->algoName() << std::endl;
+
+	if ((allowTrackBC_ && !trackValidECAL[ll-allTracks.begin()]) )//this Left leg should have valid BC
+	  continue;
+	
+	if ( isPaired[ll-allTracks.begin()] ) //this track should not be used in another pair
+	  continue;
+	
 	if (the_pvtx.isValid()){
-	    if (!(trackD0Cut(*ll, the_pvtx)))
-		continue;
+	  if (!(trackD0Cut(*ll, the_pvtx)))   track1HighPurity=false;
 	} else {
-	    if (!(trackD0Cut(*ll)))
-		continue;
+	  if (!(trackD0Cut(*ll)))  track1HighPurity=false;
 	}
+
+	// std::cout << " TrackerOnlyConversionProducer::buildCollection  first step track1HighPurity " << track1HighPurity << " track2HighPurity " << track2HighPurity <<  std::endl;
 	const double left_eta = (*ll)->innerMomentum().eta();
 	bool found_right = false;//check if right leg found, if no but allowSingleLeg_, go build a conversion with left leg
 	std::vector<int> right_candidates;//store all right legs passed the cut (theta/approach and ref pair)
 	std::vector<double> right_candidate_theta, right_candidate_approach;
-	reco::VertexCollection vertex_candidates;//store the candiate vertex to candidate right
+	//	reco::VertexCollection vertex_candidates;//store the candiate vertex to candidate right
+	std::vector<std::pair<bool, reco::Vertex> > vertex_candidates;
 
 	//select right leg candidates, which passed the cuts
 	////TODO translate it!
+
 	for (std::multimap<double, int>::iterator rr = trackInnerEta.lower_bound(left_eta - halfWayEta_);
 		rr != trackInnerEta.upper_bound(left_eta + halfWayEta_); ++rr){//select neighbor tracks by eta
 	    //Level 2 loop
+	  std::cout << " Second loop " << std::endl;
 	    //TODO find the closest one rather than the first matching
 	    const  edm::RefToBase<reco::Track> & right = allTracks[rr->second];
+	    std::cout << " This track is " <<  right->algoName() << std::endl;
 
-	    if ( //!(trackQualityFilter(right, false) ) || 
-		    isPaired[rr->second] //this track should not be in another pair
-		    //|| right == (*ll) //no double counting (dummy if require opposite charge)
-		    //|| !(trackD0Cut(right)) //d0*charge significance for converted photons
-		    || (allowTrackBC_ && !trackValidECAL[rr->second] && rightBC_) // if right track matches ECAL
-		    || (allowOppCharge_ && (*ll)->charge())*(right->charge()) > 0) //opposite charge
-		continue;
+	    if ( isPaired[rr->second] ) //this track should not be in another pair
+	      continue;
+
+            if (  (allowOppCharge_ && (*ll)->charge())*(right->charge()) > 0 )  
+              continue; //opposite charge
+
+	    if ( (allowTrackBC_ && !trackValidECAL[rr->second] && rightBC_) )// if right track matches ECAL
+	      continue;
+	    
 
 	    //track pair pass the quality cut
-	    if (!( (trackQualityFilter((*ll), true) && trackQualityFilter(right, false))
-		|| (trackQualityFilter((*ll), false) && trackQualityFilter(right, true)) ) )
-		continue;
+	    if (   !( (trackQualityFilter((*ll), true) && trackQualityFilter(right, false))
+		   || (trackQualityFilter((*ll), false) && trackQualityFilter(right, true)) ) ) {
+	      track1HighPurity=false;
+	      track2HighPurity=false; 
+	    }
 
 	    if (the_pvtx.isValid()){
-		if (!(trackD0Cut(right, the_pvtx)))
-		    continue;
+		if (!(trackD0Cut(right, the_pvtx))) track2HighPurity=false; 
 	    } else {
-		if (!(trackD0Cut(right)))
-		    continue;
+		if (!(trackD0Cut(right))) track2HighPurity=false; 
 	    }
+
+	    std::cout << " TrackerOnlyConversionProducer::buildCollection  second step track1HighPurity " << track1HighPurity << " track2HighPurity " << track2HighPurity <<  std::endl;
 	    const std::pair<edm::RefToBase<reco::Track>, reco::CaloClusterPtr> the_left  = std::make_pair<edm::RefToBase<reco::Track>, reco::CaloClusterPtr>((*ll), trackMatchedBC[ll-allTracks.begin()]);
 	    const std::pair<edm::RefToBase<reco::Track>, reco::CaloClusterPtr> the_right = std::make_pair<edm::RefToBase<reco::Track>, reco::CaloClusterPtr>(right, trackMatchedBC[rr->second]);
 
+	    
 	    double app_distance = -999.;
+
 	    //signature cuts, then check if vertex, then post-selection cuts
-	    if ( checkTrackPair(the_left, the_right, magField, app_distance) ){
-		reco::Vertex the_vertex;//by default it is invalid
-		//if allow vertex and there is a vertex, go vertex finding, otherwise
-		if (allowVertex_) {
-		    //const bool found_vertex = checkVertex((*ll), right, magField, the_vertex);
-		    checkVertex((*ll), right, magField, the_vertex);
-		}
-		if (checkPhi((*ll), right, trackerGeom, magField, the_vertex)){
-		    right_candidates.push_back(rr->second);
-		    right_candidate_theta.push_back(right->innerMomentum().Theta());
-		    right_candidate_approach.push_back(app_distance);
-		    vertex_candidates.push_back(the_vertex);//this vertex can be valid or not
-		}
-	    }
+	    bool highPurityPair=  track1HighPurity &&  track2HighPurity && checkTrackPair(the_left, the_right, magField, app_distance) ;
+	    std::cout << "  highPurityPair after pair quality " <<  highPurityPair << std::endl;
+	    reco::Vertex the_vertex;//by default it is invalid
+	    //checkVertex((*ll), right, magField, the_vertex);
+	    highPurityPair = highPurityPair &&  checkVertex((*ll), right, magField, the_vertex) && checkPhi((*ll), right, trackerGeom, magField, the_vertex) ;
+	    std::cout << "  highPurityPair after vertexing " <<  highPurityPair << std::endl;
+	    right_candidates.push_back(rr->second);
+	    right_candidate_theta.push_back(right->innerMomentum().Theta());
+	    right_candidate_approach.push_back(app_distance);
+	    vertex_candidates.push_back(std::make_pair(highPurityPair, the_vertex)); // only converged vertices
 	}
+
+
+	
 	//fill collection with all right candidates
 	if (!right_candidates.empty()){//find a good right track
 	    for (unsigned int ii = 0; ii< right_candidates.size(); ++ii){
@@ -426,14 +453,14 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
 		reco::CaloClusterPtrVector scPtrVec;
 		reco::Vertex  theConversionVertex;//Dummy vertex, validity false by default
 		//if using kinematic fit, check with chi2 post cut
-		if (allowVertex_) {
-		    theConversionVertex = vertex_candidates[ii];
-		    if (theConversionVertex.isValid()){
-			const float chi2Prob = ChiSquaredProbability(theConversionVertex.chi2(), theConversionVertex.ndof());
-			if (chi2Prob<vtxChi2_)
-			    continue;
-		    }
+                bool highPurityPair = vertex_candidates[ii].first;
+		theConversionVertex = vertex_candidates[ii].second;
+		if (theConversionVertex.isValid()){
+		  const float chi2Prob = ChiSquaredProbability(theConversionVertex.chi2(), theConversionVertex.ndof());
+		  if (chi2Prob<vtxChi2_)  highPurityPair=false;
 		}
+
+		std::cout << "  highPurityPair after vertex cut " <<  highPurityPair << std::endl;
 		std::vector<math::XYZPoint> trkPositionAtEcal;
 		std::vector<reco::CaloClusterPtr> matchingBC;
 
@@ -459,36 +486,26 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
 		reco::Conversion::ConversionAlgorithm algo = reco::Conversion::algoByName(algoName_);
 		float dummy=0;
 		reco::Conversion  newCandidate(scPtrVec,  trackPairRef, trkPositionAtEcal, theConversionVertex, matchingBC, minAppDist,  trackInnPos, trackPin, trackPout, dummy, algo );
+                newCandidate.setQuality(reco::Conversion::highPurity,  highPurityPair);
+                if ( (trackPairRef[0]->algo()>=4 &&  trackPairRef[0]->algo()<=9)  &&  (trackPairRef[1]->algo()>=4 &&  trackPairRef[1]->algo()<=9) ) 
+		  newCandidate.setQuality(reco::Conversion::generalTracksOnly,  true);
+		std::cout << "  TrackerOnlyConversionProducer new cadidate  set highPurityPair " << highPurityPair <<  " get " << newCandidate.quality(reco::Conversion::highPurity) << std::endl;
+		std::cout << "  TrackerOnlyConversionProducer new cadidate  get generalTracksOnly " <<  newCandidate.quality(reco::Conversion::generalTracksOnly) << std::endl;
 		outputConvPhotonCollection.push_back(newCandidate);
 
 		found_right = true;
 		isPaired[ll-allTracks.begin()] = true;//mark this track is used in pair
 		isPaired[right_index] = true;
+		std::cout << " ll-allTracks.begin() " << ll-allTracks.begin() << " right_index " << right_index << std::endl;
 	    }
-	    //break; // to get another left leg and start new conversion
 	}
-	if (!found_right && allowSingleLeg_){
-	    /*
-	       std::vector<edm::Ref<reco::TrackCollection> > trackPairRef;
-	       trackPairRef.push_back((*ll));//left track
+    }
 
-	       reco::CaloClusterPtrVector scPtrVec;
-	       reco::Vertex  theConversionVertex;//Dummy vertex, validity false by default
-	       std::vector<math::XYZPoint> trkPositionAtEcal;
-	       std::vector<reco::CaloClusterPtr> matchingBC;
 
-	       trkPositionAtEcal.push_back(trackImpactPosition[ll-allTracks.begin()]);//left track
+}
 
-	       matchingBC.push_back(trackMatchedBC[ll-allTracks.begin()]);//left track
-	       scPtrVec.push_back(trackMatchedBC[ll-allTracks.begin()]);//left track
 
-	       reco::Conversion  newCandidate(scPtrVec,  trackPairRef, trkPositionAtEcal, theConversionVertex, matchingBC);
-	       outputConvPhotonCollection.push_back(newCandidate);
 
-	       isPaired[ll-allTracks.begin()] = true;//mark this track is used in pair
-	       */
-	}
-    } 
 }
 
 
