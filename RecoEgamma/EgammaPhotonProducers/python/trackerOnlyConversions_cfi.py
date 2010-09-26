@@ -5,7 +5,7 @@ trackerOnlyConversions = cms.EDProducer('TrackerOnlyConversionProducer',
     #src = cms.VInputTag(cms.InputTag("generalTracks"), cms.InputTag("secStep"), cms.InputTag("thStep")),
     #src = cms.VInputTag(cms.InputTag("generalTracks")),
     src = cms.VInputTag(cms.InputTag("generalConversionTrackProducer")),
-    #src = cms.VInputTag(cms.InputTag("generalInOutOutInConversionTrackMerger")),
+    #src = cms.VInputTag(cms.InputTag("gsfGeneralInOutOutInConversionTrackMerger")),
     convertedPhotonCollection = cms.string(''), ## or empty
 
     bcEndcapCollection = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
@@ -15,21 +15,7 @@ trackerOnlyConversions = cms.EDProducer('TrackerOnlyConversionProducer',
 
     HalfwayEta = cms.double(.1),# Track pairing search range on Eta
 
-    #tight cut
-    #d0 = cms.double(0.), #d0*charge cut
-    #dEtaTrackBC = cms.double(.06), # Track-Basic cluster matching, position diff on eta
-    #dPhiTrackBC = cms.double(.6), # Track-Basic cluster matching, position diff on phi
-    #EnergyBC = cms.double(1.5), # Track-Basic cluster matching, BC energy lower cut
-    #EnergyTotalBC = cms.double(5.), # Track-Basic cluster matching, two BC energy summation cut
-    #MaxChi2Left = cms.double(5.), #Track quality
-    #MaxChi2Right = cms.double(5.),
-    #MinHitsLeft = cms.int32(5),
-    #MinHitsRight = cms.int32(2),
-    #DeltaCotTheta = cms.double(.02), #Track pair opening angle on R-Z
-    #DeltaPhi = cms.double(.2), #Track pair opening angle on X-Y (not a final selection cut)
-    #MinApproach = cms.double(-.0), #Track pair min distance at approaching point on X-Y
-    
-    #loose cut
+    #tight cuts
     d0 = cms.double(0.), #d0*charge cut
     dEtaTrackBC = cms.double(.2), # Track-Basic cluster matching, position diff on eta
     dPhiTrackBC = cms.double(1.), # Track-Basic cluster matching, position diff on phi
@@ -44,12 +30,14 @@ trackerOnlyConversions = cms.EDProducer('TrackerOnlyConversionProducer',
     vtxChi2 = cms.double(0.0005),
     MinApproachLow = cms.double(-.25), #Track pair min distance at approaching point on X-Y
     MinApproachHigh = cms.double(1.), #Track pair min distance at approaching point on X-Y
+    rCut = cms.double(2),#analytical track cross point
+    dz = cms.double(5.0),#track pair inner position difference
+
+# kinematic vertex fit parameters
     maxDelta = cms.double(0.01),#delta of parameters
     maxReducedChiSq = cms.double(225.),#maximum chi^2 per degree of freedom before fit is terminated
     minChiSqImprovement = cms.double(50.),#threshold for "significant improvement" in the fit termination logic
     maxNbrOfIterations = cms.int32(40),#maximum number of convergence iterations
-    rCut = cms.double(2),#analytical track cross point
-    dz = cms.double(5.0),#track pair inner position difference
 
     UsePvtx = cms.bool(True),
     
