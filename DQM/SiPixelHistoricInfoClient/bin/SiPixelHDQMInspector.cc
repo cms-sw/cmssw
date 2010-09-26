@@ -7,6 +7,9 @@
 #include <memory>
 #include <algorithm>
 
+#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include <TSystem.h>
+
 using namespace std;
 
 string const Condition = "0@SUMOFF_nclusters_OffTrack@yMean > 0";
@@ -24,8 +27,7 @@ void runSiPixelInspector( const string & dbName, const string &tagName, const st
   DQMHistoryCreateTrend makeTrend(&PixelConfig);
 
   // Database and output configuration
-  //makeTrend.setDB("sqlite_file:dbfile.db","HDQM_SiPixel","cms_cond_strip","w3807dev","");
-  makeTrend.setDB(dbName,tagName,"cms_dqm_31x_offline", Password,"");
+  makeTrend.setDB(dbName,tagName,"/afs/cern.ch/cms/DB/conddb");
   makeTrend.setDebug(0);
   makeTrend.setDoStat(1);
   makeTrend.setSkip99s(true);
@@ -51,6 +53,10 @@ void runSiPixelInspector( const string & dbName, const string &tagName, const st
   config.push_back(Trend( "0@ntracks_generalTracks@NTracksPixOverAll", "NTracksPixOverAll.gif", 0, Condition, "", Start, End, nRuns ));
   config.push_back(Trend( "0@ntracks_generalTracks@NTracksFPixOverBPix", "NTracksFPixOverBPix.gif", 0, Condition, "", Start, End, nRuns ));
 
+  config.push_back(Trend( "0@bigEventRate@yMean", "bigEventRate_yMean.gif", 0, Condition, "", Start, End, nRuns ));
+  config.push_back(Trend( "0@bigFpixClusterEventRate@yMean", "bigFpixClusterEventRate_yMean.gif", 0, Condition, "", Start, End, nRuns ));
+  config.push_back(Trend( "0@pixEventRate@yMean", "pixEventRate_yMean.gif", 0, Condition, "", Start, End, nRuns ));
+
   // Creation of trends
   for_each(config.begin(), config.end(), makeTrend);
 
@@ -74,6 +80,9 @@ void SiPixelHDQMInspector( const string & dbName, const string & tagName, const 
 
 int main (int argc, char* argv[])
 {
+  gSystem->Load( "libFWCoreFWLite" );
+  AutoLibraryLoader::enable();
+
   if (argc != 6 && argc != 7) {
     cerr << "Usage: " << argv[0] << " [Database] [TagName] [Password] [WhiteListFile] [NRuns] " << endl;
     cerr << "Or:    " << argv[0] << " [Database] [TagName] [Password] [WhiteListFile] [FirstRun] [LastRun] " << endl;

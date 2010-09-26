@@ -7,7 +7,7 @@
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 
-
+#include <iostream>
 #include <sstream>
 
 HDQMInspectorConfigSiStrip::HDQMInspectorConfigSiStrip ()
@@ -32,13 +32,29 @@ std::string HDQMInspectorConfigSiStrip::translateDetId(const uint32_t id) const
     Name << "TIB";
   } else if(stripdet.subDetector() == SiStripDetId::TID) {
     TIDDetId tid1 = TIDDetId(rawdetid);
-    Name << "TID";
+    if( tid1.side() == 1 ) {
+      Name << "TID-";
+    }
+    else if( tid1.side() == 2 ) {
+      Name << "TID+";
+    }
+    else {
+      Name << "???";
+    }
   } else if(stripdet.subDetector() == SiStripDetId::TOB) {
     TOBDetId tob1 = TOBDetId(rawdetid);
     Name << "TOB";
   } else if( stripdet.subDetector() == SiStripDetId::TEC) {
     TECDetId tec1 = TECDetId(rawdetid);
-    Name << "TEC";
+    if( tec1.side() == 1 ) {
+      Name << "TEC-";
+    }
+    else if( tec1.side() == 2 ) {
+      Name << "TEC+";
+    }
+    else {
+      Name << "???";
+    }
   } else{
     Name << "???";
   }

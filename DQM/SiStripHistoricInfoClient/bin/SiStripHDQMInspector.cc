@@ -52,8 +52,8 @@ void runTrackingInspector( const string &dbName, const string &tagName, const st
   subDetectors.push_back("402661376"); // TID- (check)
   subDetectors.push_back("402669568"); // TID+ (check)
   // subDetectors.push_back("469762048"); // TEC (check)
-  subDetectors.push_back("469778432"); // TEC- (check)
-  subDetectors.push_back("469794816"); // TEC+ (check)
+  subDetectors.push_back("470024192"); // TEC- (check)
+  subDetectors.push_back("470286336"); // TEC+ (check)
   // -------------------
 
   HDQMInspectorConfigSiStrip siStripConfig;
@@ -64,7 +64,8 @@ void runTrackingInspector( const string &dbName, const string &tagName, const st
 
   // Database and output configuration
   // makeTrend.setDB("oracle://cms_orcoff_prep/CMS_DQM_31X_OFFLINE",tagName,"cms_dqm_31x_offline", Password,"");
-  makeTrend.setDB(dbName,tagName,"cms_dqm_31x_offline", Password,"");
+  // makeTrend.setDB(dbName,tagName,"cms_dqm_31x_offline", Password,"");
+  makeTrend.setDB(dbName,tagName,"/afs/cern.ch/cms/DB/conddb");
   // makeTrend.setDB(dbName,tagName,"CMS_COND_GENERAL_R", Password,"");
   makeTrend.setDebug(0);
   makeTrend.setDoStat(1);

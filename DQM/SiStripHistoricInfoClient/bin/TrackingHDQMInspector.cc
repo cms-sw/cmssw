@@ -42,7 +42,7 @@ void runTrackingInspector( const string & dbName, const string &tagName, const s
   DQMHistoryCreateTrend makeTrend(&trackingConfig);
 
   // Database and output configuration
-  makeTrend.setDB(dbName,tagName,"cms_dqm_31x_offline", Password,"");
+  makeTrend.setDB(dbName,tagName,"/afs/cern.ch/cms/DB/conddb");
   makeTrend.setDebug(1);
   makeTrend.setDoStat(1);
   makeTrend.setSkip99s(true);

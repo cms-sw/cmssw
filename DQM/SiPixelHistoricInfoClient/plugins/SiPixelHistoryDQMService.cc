@@ -79,6 +79,13 @@ bool SiPixelHistoryDQMService::setDBValuesForUser(std::vector<MonitorElement*>::
 
   if (quantity == "user_ymean") {
     TH1F* Hist = (TH1F*) (*iterMes)->getTH1F()->Clone();
+    // if( Hist == 0 || Hist->Integral() == 0 ) {
+    //   std::cout << "Error: histogram not found or empty!!" << std::endl;
+    //   values.push_back( 0. );
+    //   values.push_back( 0. );
+    // }
+    // else
+    // if(  ) {
     Hist->Fit("pol0");
     TF1* Fit = Hist->GetFunction("pol0");
     float FitValue = Fit ? Fit->GetParameter(0) : 0;
@@ -87,14 +94,27 @@ bool SiPixelHistoryDQMService::setDBValuesForUser(std::vector<MonitorElement*>::
 
     values.push_back( FitValue );
     values.push_back( FitError );
+    // }
   } else if (quantity == "user_A") {
     TH1F* Hist = (TH1F*) (*iterMes)->getTH1F();
-    values.push_back( Hist->GetBinContent(2) / Hist->GetBinContent(1) );
-    values.push_back( TMath::Abs(Hist->GetBinContent(2) / Hist->GetBinContent(1)) * TMath::Sqrt( ( TMath::Power( Hist->GetBinError(1)/Hist->GetBinContent(1), 2) + TMath::Power( Hist->GetBinError(2)/Hist->GetBinContent(2), 2) )) );
+    if( Hist->GetBinContent(1) != 0 && Hist->GetBinContent(2) != 0 ) {
+      values.push_back( Hist->GetBinContent(2) / Hist->GetBinContent(1) );
+      values.push_back( TMath::Abs(Hist->GetBinContent(2) / Hist->GetBinContent(1)) * TMath::Sqrt( ( TMath::Power( Hist->GetBinError(1)/Hist->GetBinContent(1), 2) + TMath::Power( Hist->GetBinError(2)/Hist->GetBinContent(2), 2) )) );
+    }
+    else {
+      values.push_back( 0. );
+      values.push_back( 0. );
+    }
   } else if (quantity == "user_B") {
     TH1F* Hist = (TH1F*) (*iterMes)->getTH1F();
-    values.push_back( Hist->GetBinContent(4) / Hist->GetBinContent(3) );
-    values.push_back( TMath::Abs(Hist->GetBinContent(4) / Hist->GetBinContent(3)) * TMath::Sqrt( ( TMath::Power( Hist->GetBinError(3)/Hist->GetBinContent(3), 2) + TMath::Power( Hist->GetBinError(4)/Hist->GetBinContent(4), 2) )) );
+    if( Hist->GetBinContent(3) != 0 && Hist->GetBinContent(4) != 0 ) {
+      values.push_back( Hist->GetBinContent(4) / Hist->GetBinContent(3) );
+      values.push_back( TMath::Abs(Hist->GetBinContent(4) / Hist->GetBinContent(3)) * TMath::Sqrt( ( TMath::Power( Hist->GetBinError(3)/Hist->GetBinContent(3), 2) + TMath::Power( Hist->GetBinError(4)/Hist->GetBinContent(4), 2) )) );
+    }
+    else {
+      values.push_back( 0. );
+      values.push_back( 0. );
+    }
   } else {
     edm::LogError("SiPixelHistoryDQMService") << "ERROR: quantity does not exist in SiPixelHistoryDQMService::setDBValuesForUser(): " << quantity;
     return false;
