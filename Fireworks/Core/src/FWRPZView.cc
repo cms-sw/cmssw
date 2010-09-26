@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.23 2010/09/23 18:30:00 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.24 2010/09/24 16:22:26 amraktad Exp $
 //
 
 // system include files
@@ -50,7 +50,7 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
    m_showHF(0),
    m_showEndcaps(0)
 {
-   FWViewEnergyScale* caloScale = new FWViewEnergyScale();
+   FWViewEnergyScale* caloScale = new FWViewEnergyScale(this);
    viewContext()->addScale("Calo", caloScale);
 
    TEveProjection::EPType_e projType = (id == FWViewType::kRhoZ) ? TEveProjection::kPT_RhoZ : TEveProjection::kPT_RPhi;
@@ -125,10 +125,13 @@ FWRPZView::setContext(const fireworks::Context& ctx)
    m_calo = static_cast<TEveCalo2D*> (m_projMgr->ImportElements(calo3d, eventScene()));
    m_calo->SetBarrelRadius(context().caloR1(false));
    m_calo->SetEndCapPos(context().caloZ1(false));
-   m_calo->SetMaxTowerH(energyMaxTowerHeight());
-   m_calo->SetAutoRange(energyScaleMode() == FWEveView::kFixedScale);
-   m_calo->SetMaxValAbs(energyMaxAbsVal());
+   m_calo->SetAutoRange(false);
 
+   FWViewEnergyScale*  caloScale = viewContext()->getEnergyScale("Calo");
+   m_calo->SetMaxTowerH(getEnergyMaxTowerHeight(caloScale));
+   m_calo->SetScaleAbs(getEnergyScaleMode(caloScale) == FWViewEnergyScale::kFixedScale);
+   m_calo->SetMaxValAbs(getEnergyMaxAbsVal(caloScale));
+   
    /*
    if (typeId() == FWViewType::kRhoZ && context().caloSplit())
    {

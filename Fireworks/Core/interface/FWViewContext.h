@@ -16,13 +16,14 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Wed Apr 14 18:31:27 CEST 2010
-// $Id: FWViewContext.h,v 1.3 2010/06/18 19:51:24 amraktad Exp $
+// $Id: FWViewContext.h,v 1.4 2010/06/22 09:44:33 amraktad Exp $
 //
 
 // system include files
 #include <sigc++/sigc++.h>
 #include <map>
 #include <string>
+#include "Rtypes.h"
 
 // user include files
 
@@ -37,15 +38,8 @@ public:
 
    FWViewEnergyScale* getEnergyScale(const std::string&) const;
    void scaleChanged();
-   void resetScale();
+   void resetViewScales();
    void addScale( const std::string& name, FWViewEnergyScale* s) const;
-
-
-   bool getPlotEt() const { return m_plotEt; }
-   bool getAutoScale() const { return m_autoScale; }
-
-   void setPlotEt(bool x) { m_plotEt = x; }
-   void setAutoScale(bool x) { m_autoScale = x; }
 
    mutable sigc::signal<void, const FWViewContext*> scaleChanged_;
    
@@ -59,10 +53,6 @@ private:
    typedef Scales_t::iterator Scales_i;
 
    mutable Scales_t m_scales;
-
-   // AT! tmp solution for PF scaling
-   bool m_plotEt;
-   bool m_autoScale;
 };
 
 

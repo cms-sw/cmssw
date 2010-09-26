@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWLegoViewBase.h,v 1.11 2010/09/21 15:25:14 amraktad Exp $
+// $Id: FWLegoViewBase.h,v 1.12 2010/09/23 18:30:00 amraktad Exp $
 //
 
 // system include files
@@ -65,13 +65,10 @@ private:
 
    const FWLegoViewBase& operator=(const FWLegoViewBase&);    // stop default
 
-   //   void setMinEcalEnergy(double);
-   // void setMinHcalEnergy(double);
    void setCameras();
    void setAutoRebin();
    void setPixelsPerBin();
    void setFontSizein2D();
-   void plotEt();
    void autoScale();
    void updateLegoScale();
    void showOverlay();
@@ -80,7 +77,6 @@ private:
    
    // ---------- member data --------------------------------
    
-   FWBoolParameter   m_plotEt;
    FWBoolParameter   m_autoRebin;
    FWDoubleParameter m_pixelsPerBin;
    FWEnumParameter   m_projectionMode; 

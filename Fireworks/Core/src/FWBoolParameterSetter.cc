@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 11:22:32 CDT 2008
-// $Id: FWBoolParameterSetter.cc,v 1.4 2009/01/23 21:35:42 amraktad Exp $
+// $Id: FWBoolParameterSetter.cc,v 1.5 2010/06/18 10:17:14 yana Exp $
 //
 
 // system include files
@@ -79,6 +79,12 @@ FWBoolParameterSetter::build(TGFrame* iParent)
    m_widget->Connect("Clicked()", "FWBoolParameterSetter", this, "doUpdate()");
    frame->AddFrame(m_widget, new TGLayoutHints(kLHintsLeft|kLHintsCenterY,2,0,1,1));
    return frame;
+}
+
+void
+FWBoolParameterSetter::setEnabled(bool x)
+{
+   m_widget->SetEnabled(x);
 }
 
 void

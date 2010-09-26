@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWJetProxyBuilder.cc,v 1.20 2010/09/03 10:22:20 yana Exp $
+// $Id: FWJetProxyBuilder.cc,v 1.21 2010/09/16 15:42:20 yana Exp $
 //
 #include "TGeoArb8.h"
 #include "TEveGeoNode.h"
@@ -97,7 +97,7 @@ FWJetRPZProxyBuilderBase::scaleProduct(TEveElementList* parent, FWViewType::ETyp
          TEveScalableStraightLineSet* ls = dynamic_cast<TEveScalableStraightLineSet*> (*j);
          if (ls ) 
          { 
-            ls->SetScale(vc->getEnergyScale("Calo")->getVal());
+            ls->SetScale(vc->getEnergyScale("Calo")->getValToHeight());
             TEveProjected* proj = *ls->BeginProjecteds();
             proj->UpdateProjection();
          }
@@ -175,7 +175,7 @@ FWJetRhoPhiProxyBuilder::build(const reco::Jet& iData, unsigned int iIndex, TEve
 
    marker->SetScaleCenter(ecalR*cos(phi), ecalR*sin(phi), 0);
    marker->AddLine(ecalR*cos(phi), ecalR*sin(phi), 0, (ecalR+size)*cos(phi), (ecalR+size)*sin(phi), 0);
-   marker->SetScale(vc->getEnergyScale("Calo")->getVal());
+   marker->SetScale(vc->getEnergyScale("Calo")->getValToHeight());
    setupAddElement(marker, &oItemHolder);
 }
 
@@ -258,7 +258,7 @@ FWJetRhoZProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveE
 		    0., (phi>0 ? (r+size)*fabs(sin(theta)) : -(r+size)*fabs(sin(theta))), (r+size)*cos(theta) );
 
    
-   marker->SetScale(vc->getEnergyScale("Calo")->getVal());
+   marker->SetScale(vc->getEnergyScale("Calo")->getValToHeight());
    setupAddElement( marker, &oItemHolder );
 
    double min_theta = 2*atan(exp(-( eta+etaSize )));

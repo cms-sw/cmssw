@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 11:22:26 CDT 2008
-// $Id: FWBoolParameterSetter.h,v 1.3 2009/01/23 21:35:42 amraktad Exp $
+// $Id: FWBoolParameterSetter.h,v 1.4 2010/02/12 15:36:46 eulisse Exp $
 //
 
 // system include files
@@ -43,6 +43,7 @@ public:
    // ---------- member functions ---------------------------
    virtual void attach(FWParameterBase*) ;
    virtual TGFrame* build(TGFrame* iParent) ;
+   virtual void setEnabled(bool);
    void doUpdate();
 
 private:

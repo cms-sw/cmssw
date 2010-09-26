@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWMETProxyBuilder.cc,v 1.17 2010/09/03 10:20:05 yana Exp $
+// $Id: FWMETProxyBuilder.cc,v 1.18 2010/09/16 15:42:20 yana Exp $
 //
 
 // system include files
@@ -63,7 +63,7 @@ FWMETProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType type,
          TEveScalableStraightLineSet* ls = dynamic_cast<TEveScalableStraightLineSet*> (*j);
          if (ls ) 
          {
-            ls->SetScale(vc->getEnergyScale("Calo")->getVal());
+            ls->SetScale(vc->getEnergyScale("Calo")->getValToHeight());
             if (FWViewType::isProjected(type))
             {
                TEveProjected* proj = *ls->BeginProjecteds();
@@ -93,7 +93,7 @@ FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEve
    marker->AddLine( -dx*sin(phi) + (dy+r_ecal)*cos(phi), dx*cos(phi) + (dy+r_ecal)*sin(phi), 0,
                     (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
 
-   marker->SetScale(vc->getEnergyScale("Calo")->getVal());
+   marker->SetScale(vc->getEnergyScale("Calo")->getValToHeight());
    setupAddElement( marker, &oItemHolder );
       
    if( type == FWViewType::kRhoPhi )
@@ -116,7 +116,7 @@ FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEve
                    0., (phi>0 ? (r_ecal+size) : -(r_ecal+size)), 0 );
       tip->AddLine(0., (phi>0 ? r_ecal+dy : -(r_ecal+dy) ), -dx,
                    0., (phi>0 ? (r_ecal+size) : -(r_ecal+size)), 0 );
-      tip->SetScale(vc->getEnergyScale("Calo")->getVal());
+      tip->SetScale(vc->getEnergyScale("Calo")->getValToHeight());
       setupAddElement( tip, &oItemHolder );
    }   
 

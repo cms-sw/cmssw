@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon May 31 13:09:53 CEST 2010
-// $Id: FWEveLegoView.cc,v 1.83 2010/09/15 11:48:42 amraktad Exp $
+// $Id: FWEveLegoView.cc,v 1.84 2010/09/21 15:25:14 amraktad Exp $
 //
 
 // system include files
@@ -19,15 +19,9 @@
 #include "Fireworks/Core/interface/FWEveLegoView.h"
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWColorManager.h"
+#include "Fireworks/Core/interface/FWViewEnergyScale.h"
+#include "Fireworks/Core/interface/FWViewContext.h"
 
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
 
 //
 // constructors and destructor
@@ -35,40 +29,18 @@
 FWEveLegoView::FWEveLegoView(TEveWindowSlot* slot, FWViewType::EType typeId):
 FWLegoViewBase(slot, typeId)
 {
+   // needed for particle flow, maybe this should be in a dedicated PF view ...
+   FWViewEnergyScale* pfScale = new FWViewEnergyScale(this);
+   viewContext()->addScale("PFenergy", pfScale);
+   
+   FWViewEnergyScale* pfEtScale = new FWViewEnergyScale(this);
+   viewContext()->addScale("PFet", pfEtScale);
 }
 
-// FWEveLegoView::FWEveLegoView(const FWEveLegoView& rhs)
-// {
-//    // do actual copying here;
-// }
 
 FWEveLegoView::~FWEveLegoView()
 {
 }
-
-//
-// assignment operators
-//
-// const FWEveLegoView& FWEveLegoView::operator=(const FWEveLegoView& rhs)
-// {
-//   //An exception safe implementation is
-//   FWEveLegoView temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
-
-//
-// member functions
-//
-
-//
-// const member functions
-//
-
-//
-// static member functions
-//
 
 void
 FWEveLegoView::setContext(const fireworks::Context& ctx)

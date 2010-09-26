@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.h,v 1.20 2010/09/24 16:22:26 amraktad Exp $
+// $Id: FWEveView.h,v 1.21 2010/09/24 18:51:18 amraktad Exp $
 //
 
 
@@ -42,19 +42,17 @@ class FWViewContextMenuHandlerGL;
 class FWColorManager;
 class FWViewContext;
 class ViewerParameterGUI;
+class FWViewEnergyScale;
 
 namespace fireworks
 {
    class Context;
 }
 
-
 class FWEveView : public FWViewBase
 {
 public:
-   enum EScaleMode { kFixedScale, kAutoScale, kCombinedScale, kNone };
-
-   FWEveView(TEveWindowSlot*, FWViewType::EType, unsigned int version = 5);
+   FWEveView(TEveWindowSlot*, FWViewType::EType, unsigned int version = 6);
    virtual ~FWEveView();
 
    virtual void setFrom(const FWConfiguration&);
@@ -73,7 +71,7 @@ public:
    virtual void populateController(ViewerParameterGUI&) const;
    virtual const std::string& typeName() const;
 
-   bool  useGlobalScales() const { return m_useGlobalScales.value(); }
+   bool  useGlobalScales() const;
 
    TGLViewer*  viewerGL() const;
    TEveViewer* viewer()      { return m_viewer; }
@@ -88,20 +86,20 @@ public:
    
    FWViewType::EType typeId() const { return m_type.id(); }
    virtual void updateEnergyScales();
-   virtual void setUseGlobalEnergyScales(bool);
+   virtual void energyScalesChanged();
+   virtual void setMaxTowerHeight();
+   
 protected:
    virtual void resetCamera();
    virtual void pointLineScalesChanged();
 
    // scales
-   virtual TEveCaloViz* getEveCalo() const { return 0;}
+   virtual TEveCaloViz* getEveCalo() const { return 0; }
 
-   long   energyScaleMode();
-   double energyMaxAbsVal();
-   double energyMaxTowerHeight();
-
-   virtual void energyScalesChanged();
-   virtual void setMaxTowerHeight();
+   long   getEnergyScaleMode(FWViewEnergyScale*) ;
+   double getEnergyMaxAbsVal(FWViewEnergyScale*) ;
+   double getEnergyMaxTowerHeight(FWViewEnergyScale*) ;
+   double getPlotEt(FWViewEnergyScale*) ;
 
    // config
    void addToOrthoCamera(TGLOrthoCamera*, FWConfiguration&) const;
@@ -145,14 +143,6 @@ private:
    FWDoubleParameter m_lineWireframeScale;
 
    FWBoolParameter   m_showCameraGuide;
-
-   //protected:
-   // scale parameters are  protected for use in configuration backward copatibility
-   // later when is more material,  members will be moved new FWEveCaloView class or oder helper strucutre
-   FWBoolParameter    m_useGlobalScales;
-   FWEnumParameter    m_energyScaleMode;
-   FWDoubleParameter  m_energyMaxAbsVal;
-   FWDoubleParameter  m_energyMaxTowerHeight;
 
 private:
    boost::shared_ptr<FWViewContextMenuHandlerGL>   m_viewContextMenu;

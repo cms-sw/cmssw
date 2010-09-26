@@ -8,15 +8,17 @@
 //
 // Original Author:  Alja Mrak-Tadel 
 //         Created:  Fri Sep 24 18:52:19 CEST 2010
-// $Id$
+// $Id: FWEveViewScaleEditor.cc,v 1.1 2010/09/24 18:51:18 amraktad Exp $
 //
 
 // system include files
 
 // user include files
 #include "TGButton.h"
+#include "TGLabel.h"
 #include "Fireworks/Core/interface/FWEveViewScaleEditor.h"
 #include "Fireworks/Core/interface/FWEveView.h"
+#include "Fireworks/Core/interface/FWViewEnergyScale.h"
 #include "Fireworks/Core/interface/FWParameterSetterBase.h"
 
 
@@ -31,13 +33,32 @@
 //
 // constructors and destructor
 //
-FWEveViewScaleEditor::FWEveViewScaleEditor(TGCompositeFrame* w, FWEveView* v):
+FWEveViewScaleEditor::FWEveViewScaleEditor(TGCompositeFrame* w, FWViewEnergyScale* s):
    TGVerticalFrame(w),
-   m_view(v)
+   m_scale(s)
 { 
    m_globalScalesBtn = new TGCheckButton(this,"UseGlobalScales");
    AddFrame(m_globalScalesBtn);
+   m_globalScalesBtn->SetState(m_scale->m_useGlobalScales.value() ? kButtonDown : kButtonUp);
    m_globalScalesBtn->Connect("Clicked()","FWEveViewScaleEditor",this,"useGlobalScales()");
+   
+   addParam(&m_scale->m_plotEt);
+   addParam(&m_scale->m_scaleMode);
+   addParam(&m_scale->m_fixedValToHeight, "FixedMode");
+   
+   int vt = m_scale->getView()->typeId();
+   if (vt != FWViewType::kLego && vt != FWViewType::kLegoHF )
+   {
+      addParam(&m_scale->m_maxTowerHeight, "AutomaticMode");
+   }
+   
+   
+   typedef  std::vector<boost::shared_ptr<FWParameterSetterBase> > sList;
+   for (sList::iterator i = m_setters.begin(); i!=m_setters.end(); ++i)
+   {
+      (*i)->setEnabled(!m_globalScalesBtn->IsOn());
+   }
+   
 }
 
 
@@ -49,33 +70,34 @@ FWEveViewScaleEditor::~FWEveViewScaleEditor()
 // member functions
 //
 
+
 void
 FWEveViewScaleEditor::useGlobalScales()
 {
-   m_view->setUseGlobalEnergyScales(m_globalScalesBtn->IsOn());
-
    typedef  std::vector<boost::shared_ptr<FWParameterSetterBase> > sList;
    for (sList::iterator i = m_setters.begin(); i!=m_setters.end(); ++i)
    {
       (*i)->setEnabled(!m_globalScalesBtn->IsOn());
    }
+   
+   m_scale->m_useGlobalScales.set(m_globalScalesBtn->IsOn());
 }
 
 void
-FWEveViewScaleEditor::addParam(const FWParameterBase* param)
+FWEveViewScaleEditor::addParam(const FWParameterBase* param, const char* title)
 {
+   int leftPad = 0;
+   if (title)
+   {
+      leftPad = 10;
+      AddFrame(new TGLabel(this, title), new TGLayoutHints(kLHintsLeft, leftPad, 0, 0, 0));   
+      leftPad *= 2;
+   }
+   
    boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor((FWParameterBase*)param) );
    ptr->attach((FWParameterBase*)param, this);
    TGFrame* pframe = ptr->build(this);
    ptr->setEnabled(!m_globalScalesBtn->IsOn());
-   AddFrame(pframe, new TGLayoutHints(kLHintsExpandX));
+   AddFrame(pframe, new TGLayoutHints(kLHintsLeft, leftPad, 0, 0, 0));
    m_setters.push_back(ptr);
 }
-
-//
-// const member functions
-//
-
-//
-// static member functions
-//

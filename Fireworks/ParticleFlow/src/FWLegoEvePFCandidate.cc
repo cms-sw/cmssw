@@ -3,9 +3,10 @@
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWViewContext.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
-#include "Fireworks/ParticleFlow/src/FWPFScale.h"
 #include "Fireworks/ParticleFlow/interface/FWLegoEvePFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "Fireworks/Core/interface/fwLog.h"
+
 
 FWLegoEvePFCandidate::FWLegoEvePFCandidate(const reco::PFCandidate& iData, const FWViewContext* vc,  const fireworks::Context& context):
    m_energy(0.f),
@@ -14,30 +15,19 @@ FWLegoEvePFCandidate::FWLegoEvePFCandidate(const reco::PFCandidate& iData, const
    m_et =  iData.et();
    m_energy = iData.energy();
 
-  
    // energy auto scale  
    FWViewEnergyScale* scaleE = vc->getEnergyScale("PFenergy");
-   if (!scaleE)
-   {
-      scaleE = new FWPFScale();
-      vc->addScale("PFenergy", scaleE);
-   }
-   scaleE->setVal(m_energy);
+   scaleE->setMaxVal(m_energy);
 
    //et auto scale
    FWViewEnergyScale* scaleEt = vc->getEnergyScale("PFet");
-   if (!scaleEt)
-   {
-      scaleEt = new FWPFScale();
-      vc->addScale("PFet", scaleEt);
-   }
-   scaleEt->setVal(m_et);
-   
+   scaleEt->setMaxVal(m_et);
 
    float base = 0.001; // flour offset 1%
 
    // first vertical  line , which is et/energy
-   float val = vc->getPlotEt() ?  m_et : m_energy;
+   FWViewEnergyScale* caloScale = vc->getEnergyScale("Calo");
+   float val = caloScale->getPlotEt() ?  m_et : m_energy;
    AddLine(iData.eta(),iData.phi(), base, 
            iData.eta(),iData.phi(), base + val*getScale(vc, context));
 
@@ -65,34 +55,45 @@ FWLegoEvePFCandidate::FWLegoEvePFCandidate(const reco::PFCandidate& iData, const
 float
 FWLegoEvePFCandidate::getScale(const FWViewContext* vc, const fireworks::Context& context) const
 {
-   float s = 1.f;
-   if (context.getCaloData()->Empty()  && vc->getAutoScale())
+   float s = 0.f;
+ 
+   FWViewEnergyScale* caloScale = vc->getEnergyScale("Calo");
+   if (context.getCaloData()->Empty()  && caloScale->getScaleMode() == FWViewEnergyScale::kAutoScale)
    {
-      if (vc->getPlotEt())
+      // presume plotEt flag is same for "Calo" and particle flow 
+      if (caloScale->getPlotEt())
       {
-         s = vc->getEnergyScale("PFet")->getVal();
+         s = vc->getEnergyScale("PFet")->getMaxVal();
       }
       else
       {
-         s = vc->getEnergyScale("PFenergy")->getVal();
+         s = vc->getEnergyScale("PFenergy")->getMaxVal();
       }
-      // printf("pf scale %f \n", s);
+      
+      // check (if this is used in simple proxy builder than assert will be better)
+      if (s == 0.f) {
+         fwLog(fwlog::kError) << "FWLegoEvePFCandidate max value is zero !";
+         s = 1.f;
+      }
+      
+      // height of TEveCaloLego is TMath::Pi(), see FWLegoViewBase::setContext()
+      return TMath::Pi()/s;      
    }
    else
    {
-      //  printf("TEveCaloLego scale %f \n", s);
-      s = vc->getEnergyScale("Calo")->getVal();
+      // height of TEveCaloLego is TMath::Pi(), see FWLegoViewBase::setContext()
+      return caloScale->getValToHeight()*TMath::Pi();
    }
-
-   // heigh of TEveCaloLego id TMath::Pi(), see FWLegoViewBase::setContext()
-   return s*TMath::Pi();
 }
 
 void
 FWLegoEvePFCandidate::updateScale(const FWViewContext* vc, const fireworks::Context& context)
 {
-   float val = vc->getPlotEt() ?  m_et : m_energy;
+   FWViewEnergyScale* caloScale = vc->getEnergyScale("Calo");
+   float val = caloScale->getPlotEt() ?  m_et : m_energy;
 
+   printf("update scale %f \n", getScale(vc, context)); fflush(stdout);
+   
    // resize first line
    TEveChunkManager::iterator li(GetLinePlex());
    li.next();

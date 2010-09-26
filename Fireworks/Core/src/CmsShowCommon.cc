@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Sep 10 14:50:32 CEST 2010
-// $Id: CmsShowCommon.cc,v 1.6 2010/09/21 11:39:03 amraktad Exp $
+// $Id: CmsShowCommon.cc,v 1.7 2010/09/24 16:22:26 amraktad Exp $
 //
 
 // system include files
@@ -17,6 +17,8 @@
 // user include files
 #include "Fireworks/Core/interface/CmsShowCommon.h"
 #include "Fireworks/Core/interface/FWEveView.h"
+
+#include "Fireworks/Core/interface/FWViewEnergyScale.h"
 
 //
 // constructors and destructor
@@ -27,24 +29,27 @@ CmsShowCommon::CmsShowCommon(FWColorManager* c):
    m_gamma(this, "brightness", 0l, -15l, 15l),
    m_geomTransparency2D(this, "Transparency 2D", long(c->geomTransparency(true)), 0l, 100l),
    m_geomTransparency3D(this, "Transparency 3D", long(c->geomTransparency(true)), 0l, 100l),
+
+   m_energyPlotEt(this, "PlotEt", true),
    m_energyScaleMode(this, "ScaleMode", 1l, 1l, 2l),
-   m_energyMaxAbsVal(this, "MaxAbsVal", 150.0, 0.01, 1000.0 ),
-   m_energyMaxTowerHeight(this, "MaxTowerH", 100.0, 1.0, 300.0)
-{
+   m_energyFixedValToHeight(this, "ValueToHeight [GeV/cm]", 0.5, 0.01, 10.0 ),
+   m_energyMaxTowerHeight(this, "MaxTowerH [cm]", 100.0, 1.0, 300.0),
+   m_energyCombinedSwitch(this, "SwitchToAutomaticModeAbove [cm]", 100.0, 1.0, 300.0){
    char name[32];
    for (int i = 0; i < kFWGeomColorSize; ++i)
    {
       snprintf(name, 31, "GeometryColor %d ", i);
       m_geomColors[i] = new FWLongParameter(this, name   , long(c->geomColor(FWGeomColorIndex(i))), 1000l, 1100l);
-
    }
-   m_energyScaleMode.addEntry(FWEveView::kFixedScale,   "FixedScale");
-   m_energyScaleMode.addEntry(FWEveView::kAutoScale,    "AutoScale");
-   m_energyScaleMode.addEntry(FWEveView::kCombinedScale,"CombinedScale");
-
+   m_energyScaleMode.addEntry(FWViewEnergyScale::kFixedScale,   "FixedScale");
+   m_energyScaleMode.addEntry(FWViewEnergyScale::kAutoScale,    "AutoScale");
+   m_energyScaleMode.addEntry(FWViewEnergyScale::kCombinedScale,"CombinedScale");
+   
+   m_energyPlotEt.changed_.connect(boost::bind(&CmsShowCommon::updateScales,this));
    m_energyScaleMode.changed_.connect(boost::bind(&CmsShowCommon::updateScales,this));
-   m_energyMaxAbsVal.changed_.connect(boost::bind(&CmsShowCommon::updateScales,this));
+   m_energyFixedValToHeight.changed_.connect(boost::bind(&CmsShowCommon::updateScales,this));
    m_energyMaxTowerHeight.changed_.connect(boost::bind(&CmsShowCommon::updateScales,this));
+   m_energyCombinedSwitch.changed_.connect(boost::bind(&CmsShowCommon::updateScales,this));
 }
 
 CmsShowCommon::~CmsShowCommon()
@@ -87,6 +92,7 @@ CmsShowCommon::setGeomTransparency(int iTransp, bool projected)
    m_colorManager->setGeomTransparency(iTransp, projected);
 }
 
+/* Tell FWEveViewMangar that scales have changed */
 void
 CmsShowCommon::updateScales()
 {

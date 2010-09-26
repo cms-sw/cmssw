@@ -11,7 +11,6 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 #include "Fireworks/ParticleFlow/interface/FWLegoEvePFCandidate.h"
-#include "Fireworks/ParticleFlow/src/FWPFScale.h"
 
 #include "Fireworks/ParticleFlow/interface/setTrackTypePF.h"
 

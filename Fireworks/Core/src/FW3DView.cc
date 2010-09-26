@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Apr  7 14:40:47 CEST 2010
-// $Id: FW3DView.cc,v 1.47 2010/09/23 18:30:00 amraktad Exp $
+// $Id: FW3DView.cc,v 1.48 2010/09/24 16:22:26 amraktad Exp $
 //
 
 // system include files
@@ -45,7 +45,7 @@ FW3DView::FW3DView(TEveWindowSlot* slot, FWViewType::EType typeId):
 {
    viewerGL()->CurrentCamera().SetFixDefCenter(kTRUE);  
 
-   FWViewEnergyScale* caloScale = new FWViewEnergyScale();
+   FWViewEnergyScale* caloScale = new FWViewEnergyScale(this);
    viewContext()->addScale("Calo", caloScale);
 }
 
@@ -63,15 +63,15 @@ FW3DView::getEveCalo() const
 void FW3DView::setContext(const fireworks::Context& ctx)
 { 
    FW3DViewBase::setContext(ctx);
-  
+   
    TEveCaloData* data = context().getCaloData();
-
    m_calo = new TEveCalo3D(data);
    m_calo->SetElementName("calo barrel");
 
-   m_calo->SetMaxTowerH(energyMaxTowerHeight());
-   m_calo->SetScaleAbs(energyScaleMode() == FWEveView::kFixedScale);
-   m_calo->SetMaxValAbs(energyMaxAbsVal());
+   FWViewEnergyScale*  caloScale = viewContext()->getEnergyScale("Calo");
+   m_calo->SetMaxTowerH(getEnergyMaxTowerHeight(caloScale));
+   m_calo->SetScaleAbs(getEnergyScaleMode(caloScale) == FWViewEnergyScale::kFixedScale);
+   m_calo->SetMaxValAbs(getEnergyMaxAbsVal(caloScale));
 
    m_calo->SetBarrelRadius(context().caloR1(false));
    m_calo->SetEndCapPos(context().caloZ1(false));

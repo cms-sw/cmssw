@@ -33,10 +33,12 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
    FWDialogBuilder bS(vf2);
    bS.addLabel("GlobalScales", 14).vSpacer(5);
  
+   
+   addParamSetter( &m_common->m_energyPlotEt, vf2);
    addParamSetter( &m_common->m_energyScaleMode, vf2);
-   addParamSetter( &m_common->m_energyMaxAbsVal, vf2);
-   addParamSetter( &m_common->m_energyMaxTowerHeight, vf2);
-
+   addParamSetter( &m_common->m_energyFixedValToHeight, vf2, "FixedMode");
+   addParamSetter( &m_common->m_energyMaxTowerHeight, vf2, "AutomaticMode");
+   //   addParamSetter( &m_common->m_energyCombinedSwitch, vf2, "CombinedMode");
    //
    // brigtness
    //
@@ -74,9 +76,7 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
    catch(...)
    {
       // Ignore exceptions.
-
    }
-
 
    //
    // geom colors
@@ -100,7 +100,6 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
       hf->AddFrame( transpWidget3D);
       top->AddFrame(hf, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 10));
    }
-
 
    std::string names[kFWGeomColorSize];
    names[kFWPixelBarrelColorIndex   ] = "Pixel Barrel";
@@ -158,40 +157,28 @@ CmsShowCommonPopup::~CmsShowCommonPopup()
 
 
 void
-CmsShowCommonPopup::addParamSetter(FWParameterBase* param, TGCompositeFrame* vf)
+CmsShowCommonPopup::addParamSetter(FWParameterBase* param, TGCompositeFrame* hf, const char* title)
 {
-   TGHorizontalFrame* hf = new TGHorizontalFrame(vf);
-
-   // label
+   int leftPad = 0;
+   if (title)
    {
-      TGCompositeFrame* lf = new TGHorizontalFrame(hf, 100, 16, kFixedSize);
-      TGLabel* label = new TGLabel(lf, Form("%s: ",param->name().c_str()));
-      lf->AddFrame(label);
-      hf->AddFrame(lf);
+      leftPad = 10;
+      hf->AddFrame(new TGLabel(hf, title), new TGLayoutHints(kLHintsLeft, leftPad, 0, 0, 0));
+      leftPad *= 2;
    }
-
-   // setter
+   
+  // setter
    {
       boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor(param) );
       ptr->attach((FWParameterBase*)param, this);
       m_setters.push_back(ptr);
 
-      TGCompositeFrame* cframe = static_cast<TGCompositeFrame*>(ptr->build(hf));
-      {
-         // remove label ...should add an option  in FWParameterSetterBase 
-         TGFrameElement* lfe = static_cast<TGFrameElement*>(cframe->GetList()->Last());
-         TGFrame* lf =  lfe->fFrame;
-         cframe->RemoveFrame(lf);
-         cframe->Resize(150, 0);
-         lf->DestroyWindow(); delete lf;
-      }
-      hf->AddFrame(cframe);
+      TGCompositeFrame* cframe = static_cast<TGCompositeFrame*>(ptr->build(hf));      
+      hf->AddFrame(cframe, new TGLayoutHints(kLHintsLeft, leftPad, 0, 2, 0));
    }
    hf->MapSubwindows();
    hf->MapWindow();
    Layout();
-
-   vf->AddFrame(hf);
 }
 
 void

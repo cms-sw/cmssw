@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Sep 10 14:51:07 CEST 2010
-// $Id: CmsShowCommon.h,v 1.4 2010/09/16 17:37:48 amraktad Exp $
+// $Id: CmsShowCommon.h,v 1.5 2010/09/24 16:22:26 amraktad Exp $
 //
 
 #include <sigc++/signal.h>
@@ -44,9 +44,10 @@ public:
    // ---------- const member functions ---------------------
    virtual void addTo(FWConfiguration&) const;
 
-   long   getEnergyScaleMode()            const { return m_energyScaleMode.value();       }
-   double getEnergyMaxAbsVal()      const { return  m_energyMaxAbsVal.value();      }
+   long   getEnergyScaleMode()      const { return m_energyScaleMode.value(); }
+   double getEnergyMaxAbsVal()      const { return  m_energyFixedValToHeight.value()*m_energyMaxTowerHeight.value(); }
    double getEnergyMaxTowerHeight() const { return  m_energyMaxTowerHeight.value(); }
+   bool   getEnergyPlotEt()         const { return m_energyPlotEt.value(); }
 
    // ---------- static member functions --------------------
 
@@ -71,8 +72,8 @@ protected:
    FWColorManager*     m_colorManager;
 
    // general colors
-   mutable FWLongParameter     m_backgroundColor; // can be set via Ctr+b key binding
-   FWLongParameter     m_gamma;
+   mutable FWLongParameter   m_backgroundColor; // can be set via Ctr+b key binding
+   FWLongParameter           m_gamma;
 
    // geom colors
    FWLongParameter     m_geomTransparency2D;
@@ -80,10 +81,11 @@ protected:
    FWLongParameter*    m_geomColors[kFWGeomColorSize];
 
    // scales 
+   FWBoolParameter    m_energyPlotEt;
    FWEnumParameter    m_energyScaleMode;
-   FWDoubleParameter  m_energyMaxAbsVal;
+   FWDoubleParameter  m_energyFixedValToHeight;
    FWDoubleParameter  m_energyMaxTowerHeight;
-
+   FWDoubleParameter  m_energyCombinedSwitch;
 private:
    CmsShowCommon(const CmsShowCommon&); // stop default
    const CmsShowCommon& operator=(const CmsShowCommon&); // stop default
