@@ -51,6 +51,16 @@ C...Initial values.
       KFS=ISIGN(1,K(IP,2))
       KC=PYCOMP(KFA)
       MSTJ(92)=0
+
+C-ap  to silence a couple of compiler warnings.
+      wtmax = 0 
+      pqt   = 0
+      pmst  = 0
+      pmr   = 0
+      pmes  = 0
+      isis  = 0
+      im    = 0
+      mmix  = 0
  
 C...Choose lifetime and determine decay vertex.
 C      IF(K(IP,1).EQ.5) THEN
