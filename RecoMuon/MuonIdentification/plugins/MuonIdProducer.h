@@ -20,7 +20,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.22 2010/06/21 19:19:06 slava77 Exp $
+// $Id: MuonIdProducer.h,v 1.23 2010/06/28 08:47:42 dmytro Exp $
 //
 //
 
@@ -96,6 +96,8 @@ class MuonIdProducer : public edm::EDProducer {
    unsigned int  chamberId(const DetId&);
    
    double phiOfMuonIneteractionRegion( const reco::Muon& muon ) const;
+
+   bool checkLinks(const reco::MuonTrackLinks*) const ;
      
    TrackDetectorAssociator trackAssociator_;
    TrackAssociatorParameters parameters_;
