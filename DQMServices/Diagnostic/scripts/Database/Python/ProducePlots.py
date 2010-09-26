@@ -13,7 +13,7 @@ class ProducePlots:
         selectRuns.BaseDir = self.Dir
         selectRuns.Group = self.Group
         selectRuns.FirstRun = self.FirstRun
-        selectRuns.FileName = self.Dir+"/SelectedGoodRuns_"+self.DetName+".txt"
+        selectRuns.FileName = self.Dir+"/SelectedGoodRuns_"+self.DetName+"_"+self.RunType+".txt"
         selectRuns.HLTNameFilter = ""
         selectRuns.QualityFlag = self.QualityFlag
         selectRuns.makeList()

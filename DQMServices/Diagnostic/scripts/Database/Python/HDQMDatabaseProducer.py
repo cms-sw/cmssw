@@ -97,10 +97,10 @@ for recoType in config.RecoTypes:
             populateDB.Dir = config.BaseDir+"/"+subDetAndTag.SubDet+"_"+config.RunType+"/"
             populateDB.CMSSW_Version = config.CMSSW_Version
 
-            # populateDB.run()
+            populateDB.run()
 
         # Produce the plots if needed
-        if len(filteredList) > 0:
+        if len(filteredList) == 0:
             print "Creating plots"
             
             producePlots.Dir = config.BaseDir+"/"
@@ -111,7 +111,7 @@ for recoType in config.RecoTypes:
             producePlots.FirstRun = str(config.FirstRun)
             producePlots.CMSSW_Version = config.CMSSW_Version
             producePlots.Database = config.Database
-            producePlots.Password = "whatever"
+            producePlots.Password = "79XCYAJERQZTUF8P"
             producePlots.RunType = config.RunType
             producePlots.Group = config.Group
             producePlots.QualityFlag = subDetAndTag.QualityFlag
