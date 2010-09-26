@@ -55,12 +55,15 @@ namespace CastorSimpleRecAlgoImpl {
     float time=-9999;
     ////Cannot calculate time value with max ADC sample at first or last position in window....
     if(maxI==0 || maxI==(tool.size()-1)) {      
+      // supress warning and use dummy time value for 2009 data
+      /*
       edm::LogWarning("HCAL/CASTOR Pulse") << "CastorSimpleRecAlgo::reconstruct :" 
 					       << " Invalid max amplitude position, " 
 					       << " max Amplitude: "<< maxI
 					       << " first: "<<ifirst
 					       << " last: "<<(tool.size()-1)
 					       << std::endl;
+    */
     } else {
       maxA=fabs(maxA);
       int capid=digi[maxI-1].capid();
