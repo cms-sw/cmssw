@@ -37,7 +37,6 @@ namespace popcon{
     void getNewObjects(){
       edm::LogInfo   ("DQMHistoryPopConHandler") << "[DQMHistoryPopConHandler::getNewObjects] for PopCon application " << m_name;
      
-      if (m_debugMode){
 	std::stringstream ss;
 	ss << "\n\n------- " << m_name 
 	   << " - > getNewObjects\n"; 
@@ -69,7 +68,8 @@ namespace popcon{
 	  ss << " First object for this tag ";
 	}
 	edm::LogInfo   ("DQMHistoryPopConHandler") << ss.str();
-      }
+/*       if (m_debugMode){ */
+/*       } */
       
       condObjBuilder->initialize(); 
       

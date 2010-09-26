@@ -94,7 +94,6 @@ void DQMHistoryServiceBase::createSummary(){
     std::vector<std::string> Quantities = ithistoList->getUntrackedParameter<std::vector<std::string> >("quantitiesToExtract"); 
     scanTreeAndFillSummary(MEs, obj_, keyName, Quantities);
   }
-  
 }
 
 void DQMHistoryServiceBase::openRequestedFile() { 

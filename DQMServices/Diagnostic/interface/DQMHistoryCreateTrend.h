@@ -20,8 +20,8 @@ class DQMHistoryCreateTrend
    * This is because we do not want to mix them for some misconfiguration.
    */
   void operator()(const DQMHistoryTrendsConfig & trend);
-  inline void setDB(std::string dbName, std::string dbTag, std::string dbUser="", std::string dbPassword="", std::string dbBlob="") {
-    inspector_->setDB(dbName, dbTag, dbUser, dbPassword, dbBlob);
+  inline void setDB(std::string dbName, std::string dbTag, std::string authPath = "") {
+    inspector_->setDB(dbName, dbTag, authPath);
   }
   inline void setDebug(const int i) {
     inspector_->setDebug(i);

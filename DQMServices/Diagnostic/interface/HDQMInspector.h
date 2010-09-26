@@ -31,9 +31,7 @@ class HDQMInspector
   HDQMInspector():
     DBName_(""),
     DBTag_(""),
-    DBuser_(""),
-    DBpasswd_(""),
-    DBblob_(""),
+    DBauth_(""),
     Iterator(0),
     iDebug(0),
     iDoStat(0),
@@ -47,9 +45,7 @@ class HDQMInspector
   HDQMInspector(const HDQMInspectorConfigBase* InConfig):
     DBName_(""),
     DBTag_(""),
-    DBuser_(""),
-    DBpasswd_(""),
-    DBblob_(""),
+    DBauth_(""),
     Iterator(0),
     iDebug(0),
     iDoStat(0),
@@ -69,7 +65,7 @@ class HDQMInspector
     std::vector<float> values;
   };
 
-  void setDB(std::string DBName, std::string DBTag, std::string DBuser="", std::string DBpasswd="", std::string DBblob="");
+  void setDB(const std::string & DBName, const std::string & DBTag, const std::string & DBauth = "");
   void createTrend(const std::string ListItems, const std::string CanvasName="", const int logy=0, const std::string Conditions="",
                    std::string const& Labels="", const unsigned int firstRun=1, const unsigned int lastRun=0xFFFFFFFE, int const UseYRange = 0, double const& YMin = 999999, double const& YMax = -999999);
   void createTrendLastRuns(const std::string ListItems, const std::string CanvasName="",
@@ -121,7 +117,7 @@ private:
   bool isListed(unsigned int run, std::vector<unsigned int>& vList);
 
 
-  std::string DBName_, DBTag_, DBuser_, DBpasswd_, DBblob_;
+  std::string DBName_, DBTag_, DBauth_;
   
   CondCachedIter<HDQMSummary>* Iterator; 
   

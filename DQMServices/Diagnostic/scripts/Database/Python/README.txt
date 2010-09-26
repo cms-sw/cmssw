@@ -15,5 +15,5 @@ This script:
 - if some new run was added it uses the class in ProducePlots.py to make the plots
 
 The ProducePlots class uses the class in SelectRuns.py to select the good runs using the runreg.py script with the
-condition specified in the cfg. It then produces plots for all runs, last 40 runs both without any selection (allù
+condition specified in the cfg. It then produces plots for all runs, last 40 runs both without any selection (all
 the available runs) and with the good runs selection. It copies the results in the web area specified in the cfg.

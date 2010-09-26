@@ -55,22 +55,18 @@ void HDQMInspector::style()
   theStyle->cd();
 }
 
-void HDQMInspector::setDB(std::string DBName, std::string DBTag, std::string DBuser, std::string DBpasswd, std::string DBblob)
+void HDQMInspector::setDB(const std::string & DBName, const std::string & DBTag, const std::string & DBauth)
 {
-  if( DBName_==DBName && DBTag_==DBTag && DBuser_==DBuser && DBpasswd_==DBpasswd && DBblob_==DBblob)
+  if( DBName_==DBName && DBTag_==DBTag && DBauth_ == DBauth)
     return;
 
-  DBName_=DBName;
-  DBTag_=DBTag;
-  DBuser_=DBuser;
-  DBpasswd_=DBpasswd;
-  DBblob_=DBblob;
+  DBName_= DBName;
+  DBTag_= DBTag;
+  DBauth_ = DBauth;
 
   std::cout << "Name of DB = "<< DBName << std::endl;
   std::cout << "DBTag = "<< DBTag << std::endl;
-  std::cout << "DBuser = "<< DBuser << std::endl;
-  std::cout << "DBpasswd = "<< DBpasswd<< std::endl;
-  std::cout << "DBblob = "<< DBblob<< std::endl;
+  std::cout << "DBauth = "<< DBauth << std::endl;
   std::cout <<std::endl;
 
   accessDB();
@@ -92,9 +88,13 @@ void HDQMInspector::accessDB()
     delete Iterator;
   
   Iterator = new CondCachedIter<HDQMSummary>(); 
-  Iterator->create(DBName_,DBTag_,DBuser_,DBpasswd_,DBblob_);  
+
+  std::cout << "creating connection" << std::endl;
+  Iterator->create(DBName_,DBTag_,DBauth_);
+  std::cout << "connection created" << std::endl;
+
   
-   InitializeIOVList();
+  InitializeIOVList();
   //  end = clock();
   //  if(iDebug)
   //std::cout <<"Time Creation link with Database = " <<  ((double) (end - start)) << " (a.u.)" <<std::endl; 
