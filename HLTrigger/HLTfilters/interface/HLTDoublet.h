@@ -12,8 +12,8 @@
  *  single-object-type filters so that the access is thorugh
  *  RefToBases and polymorphic.
  *
- *  $Date: 2007/12/10 08:14:08 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/05/05 15:48:33 $
+ *  $Revision: 1.3 $
  *
  *  \author Martin Grunewald
  *
@@ -44,11 +44,12 @@ class HLTDoublet : public HLTFilter {
       double min_Dphi_,max_Dphi_; // Delta phi window
       double min_Deta_,max_Deta_; // Delta eta window
       double min_Minv_,max_Minv_; // Minv(1,2) window
+      double min_DelR_,max_DelR_; // Delta R window
       int    min_N_;              // number of pairs passing cuts required
 
       // calculated from configuration in c'tor
       bool   same_;                      // 1st and 2nd product are one and the same
-      bool   cutdphi_,cutdeta_,cutminv_; // cuts are on=true or off=false
+      bool   cutdphi_,cutdeta_,cutminv_,cutdelr_; // cuts are on=true or off=false
 
       //
       typedef std::vector<T1> T1Collection;

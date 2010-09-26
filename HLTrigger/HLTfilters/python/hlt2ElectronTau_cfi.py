@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-hlt2JetJet= cms.EDFilter( "HLT2JetJet",
-    inputTag1 = cms.InputTag( "hlt2jet125" ),
-    inputTag2 = cms.InputTag( "hlt2jet125" ),
+hlt2ElectronTau= cms.EDFilter( "HLT2ElectronTau",
+    inputTag1 = cms.InputTag( "hlt1ele100" ),
+    inputTag2 = cms.InputTag( "hlt1tau100" ),
     saveTags = cms.untracked.bool( True ),
     MinDphi = cms.double( 0.0 ),
     MaxDphi = cms.double( 2.1 ),

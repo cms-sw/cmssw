@@ -10,6 +10,8 @@ hlt2JetMET= cms.EDFilter( "HLT2JetMET",
     MaxDeta = cms.double( -1.0 ),
     MinMinv = cms.double( 0.0 ),
     MaxMinv = cms.double( -1.0 ),
+    MinDelR = cms.double( 0.0 ),
+    MaxDelR = cms.double( -1.0 ),
     MinN = cms.int32( 1 )
 )
 

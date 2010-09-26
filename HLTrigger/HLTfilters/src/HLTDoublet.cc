@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/12/10 07:59:10 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/09/03 12:52:26 $
+ *  $Revision: 1.10 $
  *
  *  \author Martin Grunewald
  *
@@ -37,6 +37,8 @@ HLTDoublet<T1,Tid1,T2,Tid2>::HLTDoublet(const edm::ParameterSet& iConfig) :
   max_Deta_ (iConfig.template getParameter<double>("MaxDeta")),
   min_Minv_ (iConfig.template getParameter<double>("MinMinv")),
   max_Minv_ (iConfig.template getParameter<double>("MaxMinv")),
+  min_DelR_ (iConfig.template getParameter<double>("MinDelR")),
+  max_DelR_ (iConfig.template getParameter<double>("MaxDelR")),
   min_N_    (iConfig.template getParameter<int>("MinN")),
   coll1_(),
   coll2_()
@@ -47,15 +49,17 @@ HLTDoublet<T1,Tid1,T2,Tid2>::HLTDoublet(const edm::ParameterSet& iConfig) :
    cutdphi_ = (min_Dphi_ <= max_Dphi_); // cut active?
    cutdeta_ = (min_Deta_ <= max_Deta_); // cut active?
    cutminv_ = (min_Minv_ <= max_Minv_); // cut active?
+   cutdelr_ = (min_DelR_ <= max_DelR_); // cut active?
 
    LogDebug("") << "InputTags and cuts : " 
 		<< inputTag1_.encode() << " " << inputTag2_.encode()
 		<< " Dphi [" << min_Dphi_ << " " << max_Dphi_ << "]"
                 << " Deta [" << min_Deta_ << " " << max_Deta_ << "]"
                 << " Minv [" << min_Minv_ << " " << max_Minv_ << "]"
+                << " DelR [" << min_DelR_ << " " << max_DelR_ << "]"
                 << " MinN =" << min_N_
 		<< " same/dphi/deta/minv "
-		<< same_ << cutdphi_ << cutdeta_ << cutminv_;
+		<< same_ << cutdphi_ << cutdeta_ << cutminv_ << cutdelr_;
 
    //register your products
    produces<trigger::TriggerFilterObjectWithRefs>();
@@ -152,10 +156,13 @@ HLTDoublet<T1,Tid1,T2,Tid2>::filter(edm::Event& iEvent, const edm::EventSetup& i
 	 
 	 p=p1+p2;
 	 double Minv(abs(p.mass()));
+
+	 double DelR(sqrt(Dphi*Dphi+Deta*Deta));
 	 
 	 if ( ( (!cutdphi_) || ((min_Dphi_<=Dphi) && (Dphi<=max_Dphi_)) ) &&
 	      ( (!cutdeta_) || ((min_Deta_<=Deta) && (Deta<=max_Deta_)) ) &&
-	      ( (!cutminv_) || ((min_Minv_<=Minv) && (Minv<=max_Minv_)) ) ) {
+	      ( (!cutminv_) || ((min_Minv_<=Minv) && (Minv<=max_Minv_)) ) &&
+              ( (!cutdelr_) || ((min_DelR_<=DelR) && (DelR<=max_DelR_)) ) ) {
 	   n++;
 	   filterobject->addObject(Tid1,r1);
 	   filterobject->addObject(Tid2,r2);
