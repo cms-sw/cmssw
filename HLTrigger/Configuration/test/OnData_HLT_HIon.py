@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_8_1/HIon/V32 (CMSSW_3_8_1_HLT15)
+# /dev/CMSSW_3_8_1/HIon/V33 (CMSSW_3_8_1_HLT16)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V32')
+  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V33')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -2161,7 +2161,7 @@ process.hltHIPixelActivityFilter = cms.EDFilter( "HLTPixelActivityFilter",
     minClusters = cms.uint32( 3 ),
     maxClusters = cms.uint32( 0 )
 )
-process.HLTHcalSimpleRecHitFilter = cms.EDFilter( "HLTHcalSimpleRecHitFilter",
+process.hltHcalSimpleRecHitFilter = cms.EDFilter( "HLTHcalSimpleRecHitFilter",
     threshold = cms.double( 3.0 ),
     minNHitsNeg = cms.int32( 1 ),
     minNHitsPos = cms.int32( 1 ),
@@ -2186,7 +2186,7 @@ process.hltHIPixelClusterShapeFilter = cms.EDFilter( "HLTPixelClusterShapeFilter
     clusterTrunc = cms.double( 2.0 ),
     clusterPars = cms.vdouble(  )
 )
-process.HLTPixelActivityFilterCentralityVeto = cms.EDFilter( "HLTPixelActivityFilter",
+process.hltPixelActivityFilterCentralityVeto = cms.EDFilter( "HLTPixelActivityFilter",
     inputTag = cms.InputTag( "hltHISiPixelClusters" ),
     minClusters = cms.uint32( 3 ),
     maxClusters = cms.uint32( 1000 )
@@ -2273,10 +2273,10 @@ process.HLT_HIPhoton15 = cms.Path( process.HLTBeginSequence + process.hltHIL1sPh
 process.HLT_HIJet35U = cms.Path( process.HLTBeginSequence + process.hltHIL1sJet35U + process.hltHIPreJet35U + process.HLTDoHIJetRecoSequence + process.hltHI1jet35U + process.HLTEndSequence )
 process.HLT_HIActivityPixels = cms.Path( process.HLTBeginSequence + process.hltL1sHIZeroBias + process.hltPreActivityPixelClusters + process.HLTDoHILocalPixelSequence + process.hltHIPixelActivityFilter + process.HLTEndSequence )
 process.HLT_HIActivityPixel_SingleTrack = cms.Path( process.HLTBeginSequence + process.HLTDoHILocalPixelSequence + process.HLTPixelTrackingForHITrackTrigger + process.hltHISinglePixelTrackFilter1 + process.HLTEndSequence )
-process.HLT_HIActivityHF_Single3 = cms.Path( process.HLTBeginSequence + process.hltHcalDigis + process.hltHfreco + process.HLTHcalSimpleRecHitFilter + process.HLTEndSequence )
+process.HLT_HIActivityHF_Single3 = cms.Path( process.HLTBeginSequence + process.hltHcalDigis + process.hltHfreco + process.hltHcalSimpleRecHitFilter + process.HLTEndSequence )
 process.HLT_HIActivityHF_Coincidence3 = cms.Path( process.HLTBeginSequence + process.hltHcalDigis + process.hltHfreco + process.hltHcalSimpleRecHitFilterCoincidence + process.HLTEndSequence )
 process.HLT_HIClusterVertexCompatibility = cms.Path( process.HLTBeginSequence + process.HLTDoHILocalPixelSequence + process.hltHIPixelClusterShapeFilter + process.HLTEndSequence )
-process.HLT_HICentralityVeto = cms.Path( process.HLTBeginSequenceBPTX + process.HLTDoHILocalPixelSequence + process.HLTPixelActivityFilterCentralityVeto + process.HLTEndSequence )
+process.HLT_HICentralityVeto = cms.Path( process.HLTBeginSequenceBPTX + process.HLTDoHILocalPixelSequence + process.hltPixelActivityFilterCentralityVeto + process.HLTEndSequence )
 process.HLTriggerFinalPath = cms.Path( process.hltGtDigis + process.hltFEDSelector + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW + process.hltBoolTrue )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltL1GtTrigReport + process.hltTrigReport )
 process.HLTHIOutput = cms.EndPath( process.hltOutputHIon )
