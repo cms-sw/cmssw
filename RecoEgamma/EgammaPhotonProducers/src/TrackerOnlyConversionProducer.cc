@@ -13,7 +13,7 @@
 //
 // Original Author:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: TrackerOnlyConversionProducer.cc,v 1.29 2010/09/26 18:42:38 nancy Exp $
+// $Id: TrackerOnlyConversionProducer.cc,v 1.31 2010/09/27 17:58:05 bendavid Exp $
 //
 //
 
@@ -319,7 +319,6 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
         ttk_l = thettbuilder_->build(left.castTo<reco::TrackRef>());
       }
       
-      //std::cout << " This track is " <<  (*ll)->algoName() << std::endl;
 
       if ((allowTrackBC_ && !trackValidECAL[ll-allTracks.begin()]) )//this Left leg should have valid BC
         continue;
@@ -330,21 +329,13 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
         if (!(trackD0Cut(left)))  track1HighPurity=false;
       }
 
-      // std::cout << " TrackerOnlyConversionProducer::buildCollection  first step track1HighPurity " << track1HighPurity << " track2HighPurity " << track2HighPurity <<  std::endl;
-      const double left_eta = left->innerMomentum().eta();
-      bool found_right = false;//check if right leg found, if no but allowSingleLeg_, go build a conversion with left leg
       std::vector<int> right_candidates;//store all right legs passed the cut (theta/approach and ref pair)
       std::vector<double> right_candidate_theta, right_candidate_approach;
-      //	reco::VertexCollection vertex_candidates;//store the candiate vertex to candidate right
       std::vector<std::pair<bool, reco::Vertex> > vertex_candidates;
 
-      //select right leg candidates, which passed the cuts
-      ////TODO translate it!
 
       for (reco::ConversionTrackCollection::const_iterator rr = ll+1; rr != allTracks.end(); ++ rr ) {
-          //Level 2 loop
-        //std::cout << " Second loop " << std::endl;
-          //TODO find the closest one rather than the first matching
+
           const  edm::RefToBase<reco::Track> & right = rr->trackRef();
        
           //TODO: This is a workaround, should be fixed with a proper function in the TTBuilder
@@ -398,7 +389,7 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
               if (!(trackD0Cut(right))) track2HighPurity=false; 
           }
 
-          //std::cout << " TrackerOnlyConversionProducer::buildCollection  second step track1HighPurity " << track1HighPurity << " track2HighPurity " << track2HighPurity <<  std::endl;
+
           const std::pair<edm::RefToBase<reco::Track>, reco::CaloClusterPtr> the_left  = std::make_pair<edm::RefToBase<reco::Track>, reco::CaloClusterPtr>(left, trackMatchedBC[ll-allTracks.begin()]);
           const std::pair<edm::RefToBase<reco::Track>, reco::CaloClusterPtr> the_right = std::make_pair<edm::RefToBase<reco::Track>, reco::CaloClusterPtr>(right, trackMatchedBC[rr-allTracks.begin()]);
 
@@ -406,15 +397,7 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
          
           //signature cuts, then check if vertex, then post-selection cuts
           bool highPurityPair=  track1HighPurity &&  track2HighPurity && checkTrackPair(the_left, the_right) ;
-          //std::cout << "  highPurityPair after pair quality " <<  highPurityPair << std::endl;
-          //checkVertex((*ll), right, magField, the_vertex);
           highPurityPair = highPurityPair && goodVertex && checkPhi(left, right, trackerGeom, magField, theConversionVertex) ;
-          //std::cout << "  highPurityPair after vertexing " <<  highPurityPair << std::endl;
-//          right_candidates.push_back(rr->second);
-//          right_candidate_theta.push_back(right->innerMomentum().Theta());
-
-      
-
 
           //if all cuts passed, go ahead to make conversion candidates
           std::vector<edm::RefToBase<reco::Track> > trackPairRef;
@@ -532,18 +515,6 @@ inline bool TrackerOnlyConversionProducer::trackD0Cut(const edm::RefToBase<reco:
     return ((!allowD0_) || !(-ref->dxy(the_pvtx.position())*ref->charge()/ref->dxyError()<d0Cut_));
 }
 
-double TrackerOnlyConversionProducer::getMinApproach(const edm::RefToBase<reco::Track>& ll, const edm::RefToBase<reco::Track>& rr, const MagneticField* magField){
-    double x_l, x_r, y_l, y_r;
-
-    const double xx_l = ll->innerPosition().x(), yy_l = ll->innerPosition().y(), zz_l = ll->innerPosition().z();
-    const double xx_r = rr->innerPosition().x(), yy_r = rr->innerPosition().y(), zz_r = rr->innerPosition().z();
-    const double radius_l = ll->innerMomentum().Rho()/(.29979*(magField->inTesla(GlobalPoint(xx_l, yy_l, zz_l)).z()))*100;
-    const double radius_r = rr->innerMomentum().Rho()/(.29979*(magField->inTesla(GlobalPoint(xx_r, yy_r, zz_r)).z()))*100;
-    getCircleCenter(ll, radius_l, x_l, y_l);
-    getCircleCenter(rr, radius_r, x_r, y_r);
-
-    return sqrt((x_l-x_r)*(x_l-x_r)+(y_l-y_r)*(y_l-y_r)) - radius_l - radius_r;
-}
 
 bool TrackerOnlyConversionProducer::getTrackImpactPosition(const reco::Track* tk_ref,
 	const TrackerGeometry* trackerGeom, const MagneticField* magField,
@@ -759,22 +730,9 @@ bool TrackerOnlyConversionProducer::preselectTrackPair(const reco::TransientTrac
 bool TrackerOnlyConversionProducer::checkTrackPair(const std::pair<edm::RefToBase<reco::Track>, reco::CaloClusterPtr>& ll, 
 	const std::pair<edm::RefToBase<reco::Track>, reco::CaloClusterPtr>& rr){
 
-    const edm::RefToBase<reco::Track>& tk_l = ll.first;
-    const edm::RefToBase<reco::Track>& tk_r = rr.first;
-    const reco::CaloClusterPtr& bc_l = ll.second;//can be null, so check isNonnull()
+     const reco::CaloClusterPtr& bc_l = ll.second;//can be null, so check isNonnull()
     const reco::CaloClusterPtr& bc_r = rr.second;
     
-    //DeltaPhi as preselection cut
-    /*
-    if (allowDeltaPhi_){
-	const double phi_l = tk_l->innerMomentum().phi();
-	const double phi_r = tk_r->innerMomentum().phi();
-	double dPhi = reco::deltaPhi(phi_l, phi_r);
-
-	if (fabs(dPhi) > deltaPhi_) return false;//Delta Phi cut for pair
-    }
-    */
-
     //The cuts should be ordered by considering if takes time and if cuts off many fakes
     if (allowTrackBC_){
 	//check energy of BC
@@ -808,49 +766,5 @@ bool TrackerOnlyConversionProducer::checkVertex(const reco::TransientTrack &ttk_
 
     return found;
 }
-
-//calculate the center of track circle in transverse plane
-//muon hypothesis uses AOD and circle based on muon (no brems)
-//non-muon hypothesis needs TrackExtra 
-inline void TrackerOnlyConversionProducer::getCircleCenter(const  reco::TrackRef& tk, const double r, double& x0, double& y0,  bool muon){
-    if (muon){// muon hypothesis
-	double x1, y1, phi;
-	x1 = tk->vx();//inner position and inner momentum need track Extra!
-	y1 = tk->vy();
-	phi = tk->phi();
-	const int charge = tk->charge();
-	x0 = x1 + r*sin(phi)*charge;
-	y0 = y1 - r*cos(phi)*charge;
-    } else {// works for electron and muon
-	double x1, y1, phi;
-	x1 = tk->innerPosition().x();//inner position and inner momentum need track Extra!
-	y1 = tk->innerPosition().y();
-	phi = tk->innerMomentum().phi();
-	const int charge = tk->charge();
-	x0 = x1 + r*sin(phi)*charge;
-	y0 = y1 - r*cos(phi)*charge;
-    }
-}
-
-inline void TrackerOnlyConversionProducer::getCircleCenter(const edm::RefToBase<reco::Track>& tk, const double r, double& x0, double& y0,  bool muon){
-    if (muon){// muon hypothesis
-	double x1, y1, phi;
-	x1 = tk->vx();//inner position and inner momentum need track Extra!
-	y1 = tk->vy();
-	phi = tk->phi();
-	const int charge = tk->charge();
-	x0 = x1 + r*sin(phi)*charge;
-	y0 = y1 - r*cos(phi)*charge;
-    } else {// works for electron and muon
-	double x1, y1, phi;
-	x1 = tk->innerPosition().x();//inner position and inner momentum need track Extra!
-	y1 = tk->innerPosition().y();
-	phi = tk->innerMomentum().phi();
-	const int charge = tk->charge();
-	x0 = x1 + r*sin(phi)*charge;
-	y0 = y1 - r*cos(phi)*charge;
-    }
-}
-
 
 

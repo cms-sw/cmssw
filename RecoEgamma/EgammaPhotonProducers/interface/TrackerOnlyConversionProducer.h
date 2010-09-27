@@ -4,8 +4,8 @@
  **
  **
  **  $Id:
- **  $Date: 2010/09/27 09:29:54 $
- **  $Revision: 1.19 $
+ **  $Date: 2010/09/27 17:58:05 $
+ **  $Revision: 1.20 $
  **  \authors H. Liu, UC of Riverside US, N. Marinelli Univ of Notre Dame
  **
  ***/
@@ -97,8 +97,8 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
 	      math::XYZPoint& ew);
 
       //distance at min approaching point, returns distance
-      double getMinApproach(const edm::RefToBase<reco::Track>& ll, const edm::RefToBase<reco::Track>& rr, 
-	      const MagneticField* magField);
+      //      double getMinApproach(const edm::RefToBase<reco::Track>& ll, const edm::RefToBase<reco::Track>& rr, 
+      //	      const MagneticField* magField);
 
       bool preselectTrackPair(const reco::TransientTrack &ttk_l, const reco::TransientTrack &ttk_r,
               double& appDist);
@@ -129,13 +129,6 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
    private:
 
       virtual void produce(edm::Event&, const edm::EventSetup&);
-
-      inline void getCircleCenter(const reco::TrackRef& tk, 
-	      const double r, double& x0, double& y0, 
-	      bool muon = false);
-      inline void getCircleCenter(const edm::RefToBase<reco::Track>& tk, 
-	      const double r, double& x0, double& y0, 
-	      bool muon = false);
 
       // ----------member data ---------------------------
       std::string algoName_;
