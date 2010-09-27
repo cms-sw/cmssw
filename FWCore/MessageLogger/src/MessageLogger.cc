@@ -31,6 +31,13 @@
 // 		MessageDrop::debugAlwaysSuppressed, rather than
 //		just true.  See change 21 of MessageLogger.h.
 //
+//  9/27/10  mf isDebugEnabled() - check that debugAlwaysSuppressed is
+//              false before examining debugEnabled, which in principle 
+//		ougth to be thread-specific thus more expensive to look at.
+//
+//  9/27/10b mf dtor for LogWarningThatSuppressesLikeLogInfo - see
+//		change log 22 in MessageLogger.h
+//
 // ------------------------------------------------------------------------
 
 namespace edm {
@@ -46,21 +53,27 @@ LogTrace_::~LogTrace_() {}
 LogPrint::~LogPrint() {}
 LogProblem::~LogProblem() {}
 LogImportant::~LogImportant() {}
+namespace edmtest {						// 9/27/10b mf
+ LogWarningThatSuppressesLikeLogInfo::~LogWarningThatSuppressesLikeLogInfo() {}
+}
 
 void LogStatistics() {
   edm::MessageLoggerQ::MLqSUM ( ); // trigger summary info
 }
 
 bool isDebugEnabled() {
-  return ( edm::MessageDrop::debugEnabled );
+  return ((!edm::MessageDrop::debugAlwaysSuppressed)		// 9/27/10 mf
+         && edm::MessageDrop::debugEnabled );
 }
 
 bool isInfoEnabled() {
-  return( edm::MessageDrop::infoEnabled );
+  return ((!edm::MessageDrop::infoAlwaysSuppressed)		// 9/27/10 mf
+         && edm::MessageDrop::infoEnabled );
 }
 
 bool isWarningEnabled() {
-  return( edm::MessageDrop::warningEnabled );
+  return ((!edm::MessageDrop::warningAlwaysSuppressed)		// 9/27/10 mf
+         && edm::MessageDrop::warningEnabled );
 }
 
 void HaltMessageLogging() {

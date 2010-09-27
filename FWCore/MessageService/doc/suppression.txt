@@ -588,8 +588,34 @@ What that implies is that they must start off true, and become false
 when some destination is configured to have a low enough threshold.
 Actually, just in case some path avoids configuration altogether, we
 start these off as false by initialization, change them to true once
-configure_ordinary_destinations() is reached, and then changne them in
+configure_ordinary_destinations() is reached, and then change them in
 configure_dest() if and when a low enough threshold is encountered.
+
+Having implemented these changes, we now wish to find a clean way of
+testing whether the changes were effective.  This is harder than it
+looks, since the suprressed messages were not going to have any effect
+even before this performance-only improvement.  And one would like to
+make this a test that can be part of the test suite.
+
+The technique to do this testing is as follows:
+
+1) Add an extra class in MessageLogger.h, namely 
+   LogWarningThatSuppressesLikeLogInfo.  To protect
+   against some user using this, hide it in a sub-namespace
+   edm::edmtest.  This class does its test for suppression
+   using infoEnabled but uses a severity level of LogWarning.
+   
+2) Create a unit test that does some LogWarning's and some 
+   LogInfo's, and also some LogWarningThatSuppressesLikeLogInfo's.
+   
+3) Create a cfg file (A) with one destination,which sets a 
+   threshold of LogWarning, and another (B) with two destinations, one
+   of which has threshold of LogWarning, the other LogInfo.  Each 
+   uses this new unit test.
+   
+4) In cmsRun (A), no trace of the LogWarningThatSuppressesLikeLogInfo
+   should appear.  In cmsRun (B), it should appear in the both destinations,
+   as a %MSG-w message (warning).
 
 Possible further improvement opportunities
 ------------------------------------------

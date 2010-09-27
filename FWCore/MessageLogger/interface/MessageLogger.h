@@ -101,6 +101,12 @@
 //		   threads and hence is properly just a class static, which
 //		   is much quicker to check.
 //
+// 22  mf 9/27/10  testMessageLogger::LogWarningThatSuppressesLikeLogInfo, 
+//		   a class provided solely to allow testing of the feature
+//		   that if all destinations have threshold too high, then
+//		   a level of messages (in this case, INFO) will be suppressed
+//		   without even being seen by the destinations. 
+//
 // =================================================
 
 // system include files
@@ -430,6 +436,33 @@ private:
   bool debugEnabled;
   
 };  // LogTrace_
+
+// Change log 22
+namespace edmtest {
+class LogWarningThatSuppressesLikeLogInfo
+{
+public:
+  explicit LogWarningThatSuppressesLikeLogInfo( std::string const & id ) 
+    : ap ( (!MessageDrop::infoAlwaysSuppressed 			// Change log 22
+            && edm::MessageDrop::instance()->warningEnabled) ?
+           new MessageSender(ELwarning,id) : 0 )
+  { }
+  ~LogWarningThatSuppressesLikeLogInfo();						
+  template< class T >
+    LogWarningThatSuppressesLikeLogInfo & 
+    operator<< (T const & t)  { if(ap.get()) (*ap) << t; return *this; }
+  LogWarningThatSuppressesLikeLogInfo & 
+  operator<< ( std::ostream&(*f)(std::ostream&))  
+				      { if(ap.get()) (*ap) << f; return *this; }
+  LogWarningThatSuppressesLikeLogInfo & 
+  operator<< ( std::ios_base&(*f)(std::ios_base&) )  
+				      { if(ap.get()) (*ap) << f; return *this; }     
+private:
+  std::auto_ptr<MessageSender> ap; 
+  LogWarningThatSuppressesLikeLogInfo( LogWarningThatSuppressesLikeLogInfo const& );				// Change log 9
+   
+};  // LogWarningThatSuppressesLikeLogInfo
+} // end namespace testMessageLogger
 
 extern LogDebug_ dummyLogDebugObject_;
 extern LogTrace_ dummyLogTraceObject_;

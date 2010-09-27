@@ -151,6 +151,16 @@ u33 $%	Tests behavior when modules log outside the per-event analyze
 	---------- UnitTestClient_V
 	---------- UnitTestClient_Vd
 
+u34 	Tests that when no destinations have threshold as low asINFO,
+	LogInfo is suppressed (rather than just ignored by all destinations).
+	Uses a special testing class LogWarningThatSuppressesLikeLogInfo.
+	---------- UnitTestClient_W
+
+u35	Tests that when any destinations has threshold as low asINFO,
+	LogInfo is not suppressed.  Other half of test infvolving u34.
+	Uses a special testing class LogWarningThatSuppressesLikeLogInfo.
+	---------- UnitTestClient_W
+
 Non-regression-suite tests (not run via scramv1 b runtests):
 
 u0	Includes the cfi file, but nothing else.
