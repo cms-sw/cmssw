@@ -24,7 +24,7 @@ def fillPileupHistogram (deadTable, parameters,
                           -0.5, parameters.maxPileupBin + 0.5)
         upper  = parameters.maxPileupBin
     for lumiSection, deadArray in sorted (deadTable.iteritems()):
-        if len(deadArray) < 5 :
+        if len(deadArray) <= parameters.xingIndex:
             # for some reason the xing instantaneous luminosity
             # information isn't there.  Print a warning and then skip
             # it:
@@ -39,10 +39,10 @@ def fillPileupHistogram (deadTable, parameters,
             continue
         livetime = 1
         numerator   = float (deadArray[0])
-        denominator = float (deadArray[2])
+        denominator = float (deadArray[2] * deadArray[4])
         if denominator:
             livetime = 1 - numerator / denominator        
-        xingInstLumiArray = deadArray[4]
+        xingInstLumiArray = deadArray[parameters.xingIndex]
         # here we only want the instantaneous luminosities and don't
         # care which crosings they fall in.  So we only want the odd 
         instLumiArray = [(xingInstLumiArray[index], xingInstLumiArray[index + 1]) \

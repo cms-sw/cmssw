@@ -36,6 +36,7 @@ class ParametersObject (object):
         #self.lumidetailname  = 'LUMIDETAIL'
         self.lumiXing        = False
         self.xingMinLum      = 1e-4
+        self.xingIndex       = 5
         self.minBiasXsec     = 71300 # unit: microbarn
         self.pileupHistName  = 'pileup'
         self.maxPileupBin    = 10
