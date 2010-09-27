@@ -126,6 +126,7 @@ TrackerOnlyConversionProducer::TrackerOnlyConversionProducer(const edm::Paramete
     if (allowDeltaPhi_)
 	deltaPhi_ = iConfig.getParameter<double>("DeltaPhi");
     if (allowMinApproach_){
+        minApproachLow_ = iConfig.getParameter<double>("MinApproachLow");
 	minApproachHigh_ = iConfig.getParameter<double>("MinApproachHigh");
     }
 
@@ -366,8 +367,10 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
           if ( (allowTrackBC_ && !trackValidECAL[rr-allTracks.begin()] && rightBC_) )// if right track matches ECAL
             continue;
           
+          
+          double approachDist = -999.;
           //apply preselection to track pair, unless one or both tracks are gsf
-          if ( left->algo()!=29 && right->algo()!=29 && !preselectTrackPair(ttk_l,ttk_r,magField)) {
+          if (!preselectTrackPair(ttk_l,ttk_r, approachDist) && left->algo()!=29 && right->algo()!=29) {
             continue;
           }
                     
@@ -400,10 +403,9 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
           const std::pair<edm::RefToBase<reco::Track>, reco::CaloClusterPtr> the_right = std::make_pair<edm::RefToBase<reco::Track>, reco::CaloClusterPtr>(right, trackMatchedBC[rr-allTracks.begin()]);
 
           
-          double app_distance = -999.;
-
+         
           //signature cuts, then check if vertex, then post-selection cuts
-          bool highPurityPair=  track1HighPurity &&  track2HighPurity && checkTrackPair(the_left, the_right, magField, app_distance) ;
+          bool highPurityPair=  track1HighPurity &&  track2HighPurity && checkTrackPair(the_left, the_right) ;
           //std::cout << "  highPurityPair after pair quality " <<  highPurityPair << std::endl;
           //checkVertex((*ll), right, magField, the_vertex);
           highPurityPair = highPurityPair && goodVertex && checkPhi(left, right, trackerGeom, magField, theConversionVertex) ;
@@ -414,7 +416,6 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
       
 
 
-          const double min_approach = app_distance;
           //if all cuts passed, go ahead to make conversion candidates
           std::vector<edm::RefToBase<reco::Track> > trackPairRef;
           trackPairRef.push_back(left);//left track
@@ -474,7 +475,7 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
                       scPtrVec.push_back(trackMatchedBC[rr-allTracks.begin()]);
               }
           }
-          const float minAppDist = min_approach;
+          const float minAppDist = approachDist;
 
           reco::Conversion::ConversionAlgorithm algo = reco::Conversion::algoByName(algoName_);
           float dummy=0;
@@ -696,7 +697,7 @@ bool TrackerOnlyConversionProducer::checkPhi(const edm::RefToBase<reco::Track>& 
 }
 
 bool TrackerOnlyConversionProducer::preselectTrackPair(const reco::TransientTrack &ttk_l, const reco::TransientTrack &ttk_r,
-              const MagneticField *magField) {
+             double& appDist) {
   
 
   double dCotTheta =  1./tan(ttk_l.track().innerMomentum().theta()) - 1./tan(ttk_r.track().innerMomentum().theta());
@@ -742,7 +743,11 @@ bool TrackerOnlyConversionProducer::preselectTrackPair(const reco::TransientTrac
     return false;
   }
   
-  if (allowMinApproach_ && ((trajs.first.position() - trajs.second.position()).perp() > minApproachHigh_)) {
+  
+  float minApproach = tangent.perpdist();
+  appDist = minApproach;
+  
+  if (allowMinApproach_ && (minApproach < minApproachLow_ || minApproach > minApproachHigh_) ) {
     return false;
   }
   
@@ -752,9 +757,7 @@ bool TrackerOnlyConversionProducer::preselectTrackPair(const reco::TransientTrac
 }
 
 bool TrackerOnlyConversionProducer::checkTrackPair(const std::pair<edm::RefToBase<reco::Track>, reco::CaloClusterPtr>& ll, 
-	const std::pair<edm::RefToBase<reco::Track>, reco::CaloClusterPtr>& rr, 
-	const MagneticField* magField,
-	double & appDist){
+	const std::pair<edm::RefToBase<reco::Track>, reco::CaloClusterPtr>& rr){
 
     const edm::RefToBase<reco::Track>& tk_l = ll.first;
     const edm::RefToBase<reco::Track>& tk_r = rr.first;
