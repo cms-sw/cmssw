@@ -10,15 +10,17 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: vlimant $
-// $Date: 2009/05/14 15:06:08 $
-// $Revision: 1.6 $
+// $Author: bendavid $
+// $Date: 2010/09/17 19:46:18 $
+// $Revision: 1.1 $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+
+
 
 #include "DataFormats/Common/interface/EDProduct.h"
 

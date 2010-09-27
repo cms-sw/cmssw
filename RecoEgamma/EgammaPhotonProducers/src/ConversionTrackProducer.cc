@@ -7,9 +7,9 @@
 //
 // Original Author: J.Bendavid
 //
-// $Author: stenson $
-// $Date: 2010/05/03 23:47:08 $
-// $Revision: 1.26 $
+// $Author: bendavid $
+// $Date: 2010/09/17 19:46:18 $
+// $Revision: 1.1 $
 //
 
 #include <memory>
@@ -18,6 +18,11 @@
 #include <cmath>
 #include <vector>
 
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+#include "TrackingTools/GsfTracking/interface/TrajGsfTrackAssociation.h"
 #include "RecoEgamma/EgammaPhotonProducers/interface/ConversionTrackProducer.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -43,13 +48,51 @@
   {
     // retrieve producer name of input TrackCollection(s)
     std::string trackProducer = conf_.getParameter<std::string>("TrackProducer");
+    bool useTrajectory = conf_.getParameter<bool>("useTrajectory");
     bool setTrackerOnly = conf_.getParameter<bool>("setTrackerOnly");
     bool setArbitratedEcalSeeded = conf_.getParameter<bool>("setArbitratedEcalSeeded");    
     bool setArbitratedMerged = conf_.getParameter<bool>("setArbitratedMerged");
     
+    
     //get input collection (through edm::View)
     edm::Handle<edm::View<reco::Track> > hTrks;
     e.getByLabel(trackProducer, hTrks);
+
+    //get association maps between trajectories and tracks and build temporary maps
+    edm::Handle< TrajTrackAssociationCollection > hTTAss;
+    edm::Handle< edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>,
+                                          reco::GsfTrackCollection,unsigned short> > > hTTAssGsf;    
+                                          
+    std::map<reco::TrackRef,edm::Ref<std::vector<Trajectory> > > tracktrajmap;
+    std::map<reco::GsfTrackRef,edm::Ref<std::vector<Trajectory> > > gsftracktrajmap;
+                                          
+    if (useTrajectory) {
+      if (hTrks->size()>0) {
+        if (dynamic_cast<const reco::GsfTrack*>(&hTrks->at(0))) {
+          //fill map for gsf tracks
+          e.getByLabel(trackProducer, hTTAssGsf);     
+          for ( edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>,
+                    reco::GsfTrackCollection,unsigned short> >::const_iterator iPair = hTTAssGsf->begin();
+            iPair != hTTAssGsf->end(); ++iPair) {
+        
+            gsftracktrajmap[iPair->val] = iPair->key;
+
+          }
+                
+        }
+        else {
+          //fill map for standard tracks
+          e.getByLabel(trackProducer, hTTAss);
+          for ( TrajTrackAssociationCollection::const_iterator iPair = hTTAss->begin();
+            iPair != hTTAss->end();
+            ++iPair) {
+        
+            tracktrajmap[iPair->val] = iPair->key;
+
+          }
+        }
+      }
+    }
 
     // Step B: create empty output collection
     outputTrks = std::auto_ptr<reco::ConversionTrackCollection>(new reco::ConversionTrackCollection);    
@@ -60,6 +103,16 @@
       convTrack.setIsTrackerOnly(setTrackerOnly);
       convTrack.setIsArbitratedEcalSeeded(setArbitratedEcalSeeded);
       convTrack.setIsArbitratedMerged(setArbitratedMerged);
+      
+      //fill trajectory association if configured, using correct map depending on track type
+      if (useTrajectory) {
+        if (gsftracktrajmap.size()) {
+          convTrack.setTrajRef(gsftracktrajmap.find(it->castTo<reco::GsfTrackRef>())->second);
+        }
+        else {
+          convTrack.setTrajRef(tracktrajmap.find(it->castTo<reco::TrackRef>())->second);
+        }
+      }
       
       outputTrks->push_back(convTrack);
     }
