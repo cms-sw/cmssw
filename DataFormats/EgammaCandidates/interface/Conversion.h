@@ -6,7 +6,7 @@
  *
  * \author N.Marinelli  University of Notre Dame, US
  *
- * \version $Id: Conversion.h,v 1.13 2010/09/23 16:59:09 nancy Exp $
+ * \version $Id: Conversion.h,v 1.14 2010/09/23 17:01:06 nancy Exp $
  *
  */
 
@@ -14,6 +14,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1DFloat.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
@@ -51,6 +52,9 @@ namespace reco {
 		  const std::vector<math::XYZPoint> & innPoint,
 		  const std::vector<math::XYZVector> & trackPin ,
 		  const std::vector<math::XYZVector> & trackPout,
+                  const std::vector<uint8_t> nHitsBeforeVtx,
+                  const std::vector<Measurement1DFloat> & dlClosestHitToVtx,
+                  uint8_t nSharedHits,
                   const float mva,
 		  ConversionAlgorithm=undefined);
 
@@ -142,6 +146,12 @@ namespace reco {
       const std::vector<math::XYZVector>& tracksPout() const {return theTrackPout_;}
       /// Vector of track momentum measured at the innermost hit
       const std::vector<math::XYZVector>& tracksPin() const  {return theTrackPin_;}
+      ///Vector of the number of hits before the vertex along each track trajector
+      const std::vector<uint8_t> &nHitsBeforeVtx() const { return nHitsBeforeVtx_; }
+      ///Vector of signed decay length with uncertainty from nearest hit on track to the conversion vtx positions
+      const std::vector<Measurement1DFloat> &dlClosestHitToVtx() const { return dlClosestHitToVtx_; }
+      ///number of shared hits btw the two track
+      uint8_t nSharedHits() const { return nSharedHits_; }
       
       /// Conversion Track algorithm/provenance
       void setConversionAlgorithm(const ConversionAlgorithm a, bool set=true) { if (set) algorithm_=a; else algorithm_=undefined;}
@@ -177,6 +187,12 @@ namespace reco {
       std::vector<math::XYZVector> theTrackPin_;    
       /// P_out of tracks
       std::vector<math::XYZVector> theTrackPout_;    
+      ///number of hits before the vertex on each trackerOnly
+      std::vector<uint8_t> nHitsBeforeVtx_;
+      ///signed decay length and uncertainty from nearest hit on track to conversion vertex
+      std::vector<Measurement1DFloat> dlClosestHitToVtx_;
+      ///number of shared hits between tracks
+      uint8_t nSharedHits_;
       /// TMVA output
       float theMVAout_;
       /// conversion algorithm/provenance

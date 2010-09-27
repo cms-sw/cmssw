@@ -37,6 +37,7 @@ Conversion::Conversion(  const reco::CaloClusterPtrVector sc,
   theTrackInnerPosition_(innPoint),
   theTrackPin_(trackPin),
   theTrackPout_(trackPout),
+  nSharedHits_(0),  
   theMVAout_(mva),
   algorithm_(algo),
   qualityMask_(0)
@@ -56,6 +57,9 @@ Conversion::Conversion(  const reco::CaloClusterPtrVector sc,
 			 const std::vector<math::XYZPoint> & innPoint,
 			 const std::vector<math::XYZVector> & trackPin,
 			 const std::vector<math::XYZVector> & trackPout,
+                         const std::vector<uint8_t> nHitsBeforeVtx,                  
+                         const std::vector<Measurement1DFloat> & dlClosestHitToVtx,
+                         uint8_t nSharedHits,
                          const float mva,
 			 ConversionAlgorithm algo):  
 			 
@@ -68,8 +72,12 @@ Conversion::Conversion(  const reco::CaloClusterPtrVector sc,
   theTrackInnerPosition_(innPoint),
   theTrackPin_(trackPin),
   theTrackPout_(trackPout),
+  nHitsBeforeVtx_(nHitsBeforeVtx),
+  dlClosestHitToVtx_(dlClosestHitToVtx),
+  nSharedHits_(nSharedHits),
   theMVAout_(mva),
-  algorithm_(algo) 
+  algorithm_(algo),
+  qualityMask_(0)
  { 
    
  }
@@ -82,7 +90,8 @@ Conversion::Conversion(  const reco::CaloClusterPtrVector sc,
 			 const reco::Vertex  & convVtx,
 			 ConversionAlgorithm algo):  
   caloCluster_(sc), tracks_(tr), 
-  theConversionVertex_(convVtx), 
+  theConversionVertex_(convVtx),
+  nSharedHits_(0),
   algorithm_(algo),
   qualityMask_(0)
  { 
@@ -109,7 +118,9 @@ Conversion::Conversion(  const reco::CaloClusterPtrVector sc,
 			 ConversionAlgorithm algo):  
   caloCluster_(sc), trackToBaseRefs_(tr), 
   theConversionVertex_(convVtx), 
-  algorithm_(algo) 
+  nSharedHits_(0),
+  algorithm_(algo),
+  qualityMask_(0)
  { 
 
 
@@ -134,6 +145,7 @@ Conversion::Conversion() {
   algorithm_=0;
   qualityMask_=0;
   theMinDistOfApproach_ = 9999.;
+  nSharedHits_ = 0;
   theMVAout_ = 9999.;
   thePositionAtEcal_.push_back(math::XYZPoint(0.,0.,0.));
   thePositionAtEcal_.push_back(math::XYZPoint(0.,0.,0.));

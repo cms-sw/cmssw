@@ -8,6 +8,7 @@
 <use name=DataFormats/TrackerRecHit2D>
 <use name=DataFormats/TrackingRecHit>
 <use name=DataFormats/VertexReco>
+<use name=DataFormats/GeometryCommonDetAlgo>
 <use name=FWCore/MessageLogger>
 <use name=rootrflx>
 <export>
