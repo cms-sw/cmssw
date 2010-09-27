@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.224 $"
+__version__ = "$Revision: 1.225 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -462,6 +462,7 @@ class ConfigBuilder(object):
         self.ENDJOBDefaultCFF="Configuration/StandardSequences/EndOfProcess_cff"
         self.ConditionsDefaultCFF = "Configuration/StandardSequences/FrontierConditions_GlobalTag_cff"
         self.CFWRITERDefaultCFF = "Configuration/StandardSequences/CrossingFrameWriter_cff"
+	self.REPACKDefaultCFF="Configuration/StandardSequences/DigiToRaw_Repack_cff"
 
         # synchronize the geometry configuration and the FullSimulation sequence to be used
         if self._options.geometry not in defaultOptions.geometryExtendedOptions:
@@ -494,7 +495,8 @@ class ConfigBuilder(object):
         self.VALIDATIONDefaultSeq='validation'
         self.PATLayer0DefaultSeq='all'
         self.ENDJOBDefaultSeq='endOfProcess'
-
+	self.REPACKDefaultSeq='DigiToRawRepack'
+	
         self.EVTCONTDefaultCFF="Configuration/EventContent/EventContent_cff"
         self.defaultMagField='38T'
         self.defaultBeamSpot='Realistic7TeVCollision'
@@ -508,6 +510,9 @@ class ConfigBuilder(object):
                 self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_cff"
                 self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineMC_cff"
                 self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreamsMC_cff"
+
+	if hasattr(self._options,"isRepacked") and self._options.isRepacked:
+		self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_Repacked_cff"
 
         # now for #%#$#! different scenarios
 
@@ -739,10 +744,16 @@ class ConfigBuilder(object):
         return
 
     def prepare_DIGI2RAW(self, sequence = None):
-        self.loadAndRemember(self.DIGI2RAWDefaultCFF)
-        self.process.digi2raw_step = cms.Path( self.process.DigiToRaw )
-        self.schedule.append(self.process.digi2raw_step)
-        return
+	    self.loadDefaultOrSpecifiedCFF(sequence,self.DIGI2RAWDefaultCFF)
+	    self.process.digi2raw_step = cms.Path( getattr(self.process, sequence.split('.')[-1]) )
+	    self.schedule.append(self.process.digi2raw_step)
+	    return
+
+    def prepare_REPACK(self, sequence = None):
+	    self.loadDefaultOrSpecifiedCFF(sequence,self.REPACKDefaultCFF)
+	    self.process.digi2repack_step = cms.Path( getattr(self.process, sequence.split('.')[-1]) )
+	    self.schedule.append( self.process.digi2repack_step )
+	    return
 
     def prepare_L1(self, sequence = None):
         """ Enrich the schedule with the L1 simulation step"""
@@ -1076,7 +1087,7 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.224 $"),
+              (version=cms.untracked.string("$Revision: 1.225 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )

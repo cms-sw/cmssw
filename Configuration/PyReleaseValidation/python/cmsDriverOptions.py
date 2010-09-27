@@ -241,6 +241,12 @@ expertSettings.add_option("--lazy_download",
                   default=False,
                   dest="lazy_download")   
 
+expertSettings.add_option("--repacked",
+                          help="When the input file is a file with repacked raw data with label rawDataRepacker",
+                          action="store_true",
+                          default=False,
+                          dest="isRepacked"
+                          )
 
                   
 (options,args) = parser.parse_args() # by default the arg is sys.argv[1:]
