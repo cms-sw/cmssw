@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.34 2010/09/26 19:57:21 amraktad Exp $
+// $Id: FWEveView.cc,v 1.35 2010/09/27 10:46:09 amraktad Exp $
 //
 
 
@@ -34,6 +34,7 @@
 #include "TEveWindow.h"
 #include "TEveScene.h"
 #include "TEveCalo.h"
+#include "TGLOverlay.h"
 
 #include "Fireworks/Core/interface/FWEveView.h"
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
@@ -54,6 +55,20 @@ namespace fireworks
 {
 class Context;
 }
+
+/* This class is temporary workaround for missing in TGLAnnotation functionality */
+class ScaleAnnotation : public TGLAnnotation
+{
+public:
+   ScaleAnnotation(TGLViewerBase* parent, const char* text, Float_t posx, Float_t posy):
+      TGLAnnotation(parent, text, posx, posy) {}
+   virtual ~ScaleAnnotation() {}
+
+   void setText(const char* txt)
+   {
+      fText = txt;
+   }
+};
 
 //
 // constructors and destructor
@@ -117,6 +132,13 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type, unsigned i
    ctxHand->setPickCameraCenter(true);
    m_viewContextMenu.reset(ctxHand);
    
+   m_energyMaxValAnnotation = new ScaleAnnotation(viewerGL(), "empty", 0.1, 0.9);
+   m_energyMaxValAnnotation->SetRole(TGLOverlayElement::kViewer);
+   m_energyMaxValAnnotation->SetState(TGLOverlayElement::kInvisible);
+   m_energyMaxValAnnotation->SetUseColorSet(false);
+   m_energyMaxValAnnotation->SetTextSize(0.05);
+   m_energyMaxValAnnotation->SetTextColor(kMagenta);
+
    // style params
 
    m_overlayEventInfo = new FWEventAnnotation(embeddedViewer);
@@ -295,6 +317,8 @@ FWEveView::useGlobalScales() const
 void
 FWEveView::updateEnergyScales()
 {
+   bool drawAnnotation = false;
+
    FWViewEnergyScale*  caloScale = viewContext()->getEnergyScale("Calo");
    if (caloScale)
    {
@@ -321,30 +345,30 @@ FWEveView::updateEnergyScales()
       else if (getEnergyScaleMode(caloScale) == FWViewEnergyScale::kCombinedScale)
       {
          float dataMax = calo->GetData()->GetMaxVal(calo->GetPlotEt());
-         bool abs = (getEnergyMaxAbsVal(caloScale) >= dataMax);
+         bool fixed = (getEnergyMaxAbsVal(caloScale) >= dataMax);
 
-         if (abs != calo->GetScaleAbs())
+         if (fixed != calo->GetScaleAbs())
          {
-            calo->SetScaleAbs(abs);
+            calo->SetScaleAbs(fixed);
 
-            // draw annotation
-            if (abs)
-            {
-               if (m_energyMaxValAnnotation) viewerGL()->RemoveOverlayElement(m_energyMaxValAnnotation);
-            }
-            else
-            {
-               m_energyMaxValAnnotation = new TGLAnnotation(viewerGL(), Form("Et = %.2f", dataMax), 0.1, 0.9);
-               m_energyMaxValAnnotation->SetRole(TGLOverlayElement::kViewer);
-               m_energyMaxValAnnotation->SetUseColorSet(false);
-               m_energyMaxValAnnotation->SetTextSize(0.05);
-               m_energyMaxValAnnotation->SetTextColor(kMagenta);
-            }
-            fwLog(fwlog::kInfo) << typeName() << Form("Scale mode has changed %s  AbsVal[%f] < CaloMaxVal[%.1f]", abs ? "Fixed" :"Automatic",
-                                                      getEnergyMaxAbsVal(caloScale), dataMax) << std::endl;
+            fwLog(fwlog::kInfo) << Form("%-7s Scale mode has changed to %-9s CaloMaxVal = %.1f > threshold (ValuteToH*MaxTowerH = %f)",
+                                        typeName().c_str(),
+                                        fixed ? "Fixed" :"Automatic",
+                                        dataMax, getEnergyMaxAbsVal(caloScale)) << std::endl; fflush(stdout); 
          }
+
+         drawAnnotation = !fixed;
       }
 
+      if (drawAnnotation)
+      {
+         m_energyMaxValAnnotation->setText(Form("%s = %.2f GeV", calo->GetPlotEt() ? "Et":"E", calo->GetData()->GetMaxVal(calo->GetPlotEt())));
+      
+      }
+
+      m_energyMaxValAnnotation->SetState(drawAnnotation ? TGLOverlayElement::kActive : TGLOverlayElement::kInvisible);
+
+      // emit signals at end 
       energyScalesChanged();
    }
 }

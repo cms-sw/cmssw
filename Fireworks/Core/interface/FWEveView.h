@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.h,v 1.21 2010/09/24 18:51:18 amraktad Exp $
+// $Id: FWEveView.h,v 1.22 2010/09/26 19:54:56 amraktad Exp $
 //
 
 
@@ -43,6 +43,7 @@ class FWColorManager;
 class FWViewContext;
 class ViewerParameterGUI;
 class FWViewEnergyScale;
+class ScaleAnnotation;
 
 namespace fireworks
 {
@@ -123,7 +124,7 @@ private:
 
    FWEventAnnotation*   m_overlayEventInfo;  
    CmsAnnotation*       m_overlayLogo;
-   TGLAnnotation*       m_energyMaxValAnnotation;
+   ScaleAnnotation*     m_energyMaxValAnnotation;
    TGLCameraGuide*      m_cameraGuide;
 
    const fireworks::Context*  m_context;

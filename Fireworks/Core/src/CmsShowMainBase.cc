@@ -252,7 +252,7 @@ CmsShowMainBase::reloadConfiguration(const std::string &config)
    m_configFileName = config;
 
    std::string msg = "Reloading configuration "
-                               + config + "...";
+      + config + "...";
    fwLog(fwlog::kDebug) << msg << std::endl;
    m_guiManager->updateStatus(msg.c_str());
    m_guiManager->subviewDestroyAll();
@@ -286,6 +286,7 @@ CmsShowMainBase::reloadConfiguration(const std::string &config)
                    kMBCancel,
                    &chosen);
    }
+   m_viewManager->eventEnd();
    m_guiManager->updateStatus("");
 }
 
