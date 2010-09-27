@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.26 2010/09/07 15:46:47 yana Exp $
+// $Id: ValidateGeometry.cc,v 1.27 2010/09/20 16:17:34 mccauley Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -645,8 +645,33 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
         strip_positions.push_back(xOfStrip1-xOfStrip2);
       }
 
-      double wireSpacing = layer->geometry()->wireTopology()->wireSpacing();
-      assert(wireSpacing == parameters[6]);
+      int station = layer->id().station();
+      int ring    = layer->id().ring();
+
+      double wireSpacingInGroup = layer->geometry()->wireTopology()->wireSpacing();
+      assert(wireSpacingInGroup == parameters[6]);
+
+      double wireSpacing = 0.0;
+      // we calculate an average wire group 
+      // spacing from radialExtentOfTheWirePlane / numOfWireGroups
+      
+      if ( ring == 2 )
+      {
+        if ( station == 1 )
+          wireSpacing = 174.81/64;
+        else
+          wireSpacing = 323.38/64;
+      }
+      else if ( station == 1 && (ring == 1 || ring == 4))
+        wireSpacing = 150.5/48;
+      else if ( station == 1 && ring == 3 )
+        wireSpacing = 164.47/32;
+      else if ( station == 2 && ring == 1 )
+        wireSpacing = 189.97/112;
+      else if ( station == 3 && ring == 1 )
+        wireSpacing = 170.01/96;
+      else if ( station == 4 && ring == 1 )
+        wireSpacing = 149.73/96;
 
       float wireAngle = layer->geometry()->wireTopology()->wireAngle();
       assert(wireAngle == parameters[7]);
@@ -658,9 +683,6 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
          so have to perhaps hard-code. This may not be too bad as there
          seems to be a lot of degeneracy. 
       */
-
-      int station = layer->id().station();
-      int ring    = layer->id().ring();
 
       double alignmentPinToFirstWire;
       double yAlignmentFrame = 3.49;
@@ -677,11 +699,9 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
           alignmentPinToFirstWire = 2.85;
       }
 
-      // Perhaps there is a wrong value in the xml file or the file is out-of-date?
       else if ( station == 4 && ring == 1 )
-        alignmentPinToFirstWire = 3.04 + 1.; // This correction is needed for some reason. 
+        alignmentPinToFirstWire = 3.04;
       
-
       else if ( station == 3 && ring == 1 )
         alignmentPinToFirstWire =  2.84;
       
@@ -689,16 +709,15 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
         alignmentPinToFirstWire = 2.87;
 
       double yOfFirstWire = (yAlignmentFrame-length) + alignmentPinToFirstWire;
-              
+      
       for ( int nWireGroup = 1; nWireGroup <= layer->geometry()->numberOfWireGroups(); 
             ++nWireGroup )
       {  
-        float yOfWire1 = layer->geometry()->yOfWire(nWireGroup); 
+        LocalPoint centerOfWireGroup = layer->geometry()->localCenterOfWireGroup(nWireGroup); 
+        double yOfWire1 = centerOfWireGroup.y(); 
 
-        double yOfWire2 = yOfFirstWire*cosWireAngle + (nWireGroup-1)*wireSpacing;
-        yOfWire2 /= cosWireAngle;
-
-        //fout<< station <<" "<< ring <<" "<< wireSpacing <<std::endl;
+        double yOfWire2 = yOfFirstWire + ((nWireGroup-1)*wireSpacingInGroup)/cosWireAngle;
+        yOfWire2 += wireSpacing*0.5;
 
         wire_positions.push_back(yOfWire1-yOfWire2);
 
