@@ -180,4 +180,9 @@ timing_t   Tests output of Timing service to JobReport
 	   and timing_t.log.
 	--------- UnitTestClient_A
 
+u1	u1 can be used to verify that suppressing LogDebug quaffs any
+	calls made on the LogDebug line, even if they have a side effect,
+	by switching in a different unit test that makes such a call.
+	---------- UnitTestClient_A_suppTest.cc
+
 o1	JobReport output of Memory service
