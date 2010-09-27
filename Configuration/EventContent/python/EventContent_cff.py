@@ -30,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.30 2010/07/18 21:02:09 mikeh Exp $
+#  $Id: EventContent_cff.py,v 1.31 2010/08/16 16:39:02 vlimant Exp $
 #
 #
 #
@@ -302,6 +302,22 @@ MIXINGMODULEEventContent = cms.PSet(
     splitLevel = cms.untracked.int32(0)
     )
 
+#
+#
+## RAW repacked event content definition
+#
+#
+REPACKRAWEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring(
+      'drop *',
+      'drop FEDRawDataCollection_*_*_*',
+      'keep FEDRawDataCollection_rawDataRepacker_*_*'),
+    splitLevel = cms.untracked.int32(0)
+    )
+REPACKRAWSIMEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring(),
+    splitLevel = cms.untracked.int32(0)
+)
 
 HLTDEBUGEventContent.outputCommands.extend(HLTDebugFEVT.outputCommands)
 
@@ -370,6 +386,21 @@ RAWSIMEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
 RAWSIMEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
 RAWSIMEventContent.outputCommands.extend(IOMCRAW.outputCommands)
 RAWSIMEventContent.outputCommands.extend(CommonEventContent.outputCommands)
+
+REPACKRAWSIMEventContent.outputCommands.extend(REPACKRAWEventContent.outputCommands)
+REPACKRAWSIMEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)
+REPACKRAWSIMEventContent.outputCommands.extend(SimTrackerRAW.outputCommands)
+REPACKRAWSIMEventContent.outputCommands.extend(SimMuonRAW.outputCommands)
+REPACKRAWSIMEventContent.outputCommands.extend(SimCalorimetryRAW.outputCommands)
+REPACKRAWSIMEventContent.outputCommands.extend(SimGeneralRAW.outputCommands)
+REPACKRAWSIMEventContent.outputCommands.extend(GeneratorInterfaceRAW.outputCommands)
+REPACKRAWSIMEventContent.outputCommands.extend(RecoGenJetsFEVT.outputCommands)
+REPACKRAWSIMEventContent.outputCommands.extend(RecoGenMETFEVT.outputCommands)
+REPACKRAWSIMEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
+REPACKRAWSIMEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
+REPACKRAWSIMEventContent.outputCommands.extend(IOMCRAW.outputCommands)
+REPACKRAWSIMEventContent.outputCommands.extend(CommonEventContent.outputCommands)
+
 RECOSIMEventContent.outputCommands.extend(RECOEventContent.outputCommands)
 RECOSIMEventContent.outputCommands.extend(GeneratorInterfaceRECO.outputCommands)
 RECOSIMEventContent.outputCommands.extend(RecoGenMETRECO.outputCommands)
@@ -380,6 +411,7 @@ RECOSIMEventContent.outputCommands.extend(SimMuonRECO.outputCommands)
 RECOSIMEventContent.outputCommands.extend(SimCalorimetryRECO.outputCommands)
 RECOSIMEventContent.outputCommands.extend(SimGeneralRECO.outputCommands)
 RECOSIMEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
+
 AODSIMEventContent.outputCommands.extend(AODEventContent.outputCommands)
 AODSIMEventContent.outputCommands.extend(GeneratorInterfaceAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(SimG4CoreAOD.outputCommands)
@@ -390,6 +422,7 @@ AODSIMEventContent.outputCommands.extend(RecoGenJetsAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(RecoGenMETAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(SimGeneralAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(MEtoEDMConverterAOD.outputCommands)
+
 FEVTEventContent.outputCommands.extend(RAWEventContent.outputCommands)
 FEVTEventContent.outputCommands.extend(RecoLocalTrackerRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(RecoLocalMuonRECO.outputCommands)
@@ -516,3 +549,4 @@ ALCARECOEventContent.outputCommands.extend(OutALCARECODtCalib_noDrop.outputComma
 
 
 ALCARECOEventContent.outputCommands.append('drop *_MEtoEDMConverter_*_*')
+
