@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.4 $
  *
- * $Id: GsfElectronSelector.h,v 1.3 2009/09/02 14:09:13 arizzi Exp $
+ * $Id: GsfElectronSelector.h,v 1.4 2010/03/18 17:58:22 llista Exp $
  *
  */
 
@@ -50,7 +50,7 @@ namespace helper {
 	selElectronCores_->back().setGsfTrack( GsfTrackRef( rTracks, idx ) );
 	selElectronCores_->back().setSuperCluster( SuperClusterRef( rSuperClusters, idx ) );
 	selSuperClusters_->push_back( SuperCluster( * ( ele.superCluster() ) ) );
-        selElectrons_->push_back(GsfElectron(ele,GsfElectronCoreRef(rElectronCores,idx++),CaloClusterPtr(),TrackRef(),GsfTrackRefVector()));
+        selElectrons_->push_back(GsfElectron(ele,GsfElectronCoreRef(rElectronCores,idx++),CaloClusterPtr(),TrackRef(),TrackBaseRef(),GsfTrackRefVector()));
 	GsfTrackRef trkRef = ele.gsfTrack();
 	if ( trkRef.isNonnull() ) {
 	  selTracks_->push_back( GsfTrack( * trkRef ) );
