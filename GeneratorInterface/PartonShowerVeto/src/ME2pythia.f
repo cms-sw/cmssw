@@ -1805,6 +1805,10 @@ C
       NY1=RJET/DELY
       NY2=2*NY1+1
       IPASS=0
+C-ap  initialize these two too to avoid compiler warnings
+      iymx = 0
+      iphimx = 0
+C-ap  end  
 C
 C          FIND HIGHEST CELL REMAINING
 C
