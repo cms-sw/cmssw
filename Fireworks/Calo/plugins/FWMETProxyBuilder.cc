@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWMETProxyBuilder.cc,v 1.19 2010/09/26 19:54:56 amraktad Exp $
+// $Id: FWMETProxyBuilder.cc,v 1.20 2010/09/27 09:29:07 amraktad Exp $
 //
 
 // system include files
@@ -54,13 +54,13 @@ private:
 
    virtual void buildViewType(const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*);
    
-   // scaling
+   // scaling use struct to optimise scales
    struct SLines
    {
-      SLines(TEveScalableStraightLineSet* ls, float et, float e, int t) : m_ls(ls), m_et(et), m_energy(e), m_type(t) {}
+      SLines(TEveScalableStraightLineSet* ls, float e, int t) : m_ls(ls), m_val(e), m_type(t) {}
       TEveScalableStraightLineSet* m_ls;
-      double m_et, m_energy;
-      int m_type;
+      double  m_val;  // et and energy are same
+      int     m_type;
    };
    std::vector<SLines> m_lines;
 };
@@ -73,12 +73,10 @@ FWMETProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType type,
    {
       if (type == (*i).m_type)
       {
-         FWViewEnergyScale* caloScale = vc->getEnergyScale("Calo");
-         float value = caloScale->getPlotEt() ? (*i).m_et : (*i).m_energy;      
-         (*i).m_ls->SetScale(caloScale->getValToHeight()*value);
-
-         TEveProjectable *pable = dynamic_cast<TEveProjectable*>((*i).m_ls);
-
+         double oldScale =    (*i).m_ls->GetScale();  
+         FWViewEnergyScale* caloScale = vc->getEnergyScale("Calo");   
+         (*i).m_ls->SetScale(caloScale->getValToHeight()*(*i).m_val);
+         TEveProjectable *pable = static_cast<TEveProjectable*>((*i).m_ls);
          for (TEveProjectable::ProjList_i j = pable->BeginProjecteds(); j != pable->EndProjecteds(); ++j)
          {
             (*j)->UpdateProjection();
@@ -106,7 +104,7 @@ FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEve
    marker->AddLine( -dx*sin(phi) + (dy+r_ecal)*cos(phi), dx*cos(phi) + (dy+r_ecal)*sin(phi), 0,
                     (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
    
-   m_lines.push_back(SLines(marker, met.et(), met.energy(), type));  // register for scales
+   m_lines.push_back(SLines(marker, met.et(), type));  // register for scales
    setupAddElement( marker, &oItemHolder );
       
    if( type == FWViewType::kRhoPhi )
@@ -130,7 +128,7 @@ FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEve
       tip->AddLine(0., (phi>0 ? r_ecal+dy : -(r_ecal+dy) ), -dx,
                    0., (phi>0 ? (r_ecal+size) : -(r_ecal+size)), 0 );
       
-      m_lines.push_back(SLines(tip, met.et(), met.energy(), type)); //register for scaes 
+      m_lines.push_back(SLines(tip, met.et(), type)); //register for scaes 
       setupAddElement( tip, &oItemHolder );
    }   
 
