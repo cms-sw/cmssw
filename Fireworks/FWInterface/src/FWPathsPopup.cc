@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/Utilities/interface/Parse.h"
 
 #include "DataFormats/Provenance/interface/EventRange.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -696,6 +697,51 @@ public:
             ps.addUntrackedParameter(label, value);
       }
 
+   bool editInputTag(edm::ParameterSet &ps, bool tracked,
+                     const std::string &label,
+                     const std::string &value)
+      {
+         std::vector<std::string> tokens = edm::tokenize(value, ":");
+         size_t nwords = tokens.size();
+     
+         bool fail;
+
+         if ( nwords > 3 ) 
+         {
+           fail = true;
+           std::cerr<< label << value <<" "<< fail <<std::endl;
+       
+           // If fail just return the old InputTag?
+
+           if ( tracked )
+             ps.addParameter(label, value);
+           else
+             ps.addUntrackedParameter(label, value);
+         }
+         else
+         {
+           std::string it_label("");
+           std::string it_instance("");
+           std::string it_process("");
+           
+           if ( nwords > 0 ) 
+             it_label = tokens[0];
+           if ( nwords > 1 ) 
+             it_instance = tokens[1];
+           if ( nwords > 2 ) 
+             it_process  = tokens[2];
+
+           if ( tracked )
+             ps.addParameter(label, edm::InputTag(it_label, it_instance, it_process));
+           else
+             ps.addUntrackedParameter(label, edm::InputTag(it_label, it_instance, it_process));
+            
+           fail = false;
+         }
+           
+         return fail;
+      }
+ 
   template <typename T>
   void editVectorParameter(edm::ParameterSet &ps, bool tracked,
                            const std::string &label,
@@ -798,6 +844,9 @@ public:
                   break;
                case 's':
                   editVectorParameter<std::string>(parent.pset, data.tracked, data.label, m_editor->GetText());
+                  break; 
+               case 't':
+                  editInputTag(parent.pset, data.tracked, data.label, m_editor->GetText());
                   break;
                default:
                   std::cerr << "unsupported parameter" << std::endl;
@@ -1050,6 +1099,7 @@ public:
       case 't':
          {
            data.value = entry.getInputTag().encode();
+           m_entries.push_back(data);
            break;
          } 
       case 'v':
@@ -1061,6 +1111,21 @@ public:
            createVectorString(data, tags, true);
            break;
          }        
+      case 'g':
+        {
+          data.value = entry.getESInputTag().encode();
+          m_entries.push_back(data);
+          break;
+        }
+      case 'G':
+        {
+          std::vector<std::string> tags;
+          tags.resize(entry.getVESInputTag().size());
+          for (size_t iti = 0, ite = tags.size(); iti != ite; ++iti) 
+            tags[iti] = entry.getVESInputTag()[iti].encode();
+          createVectorString(data, tags, true);
+          break;
+        }
       case 'F':
         {
           entry.getFileInPath().write(ss);
