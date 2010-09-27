@@ -4,8 +4,8 @@
  **
  **
  **  $Id:
- **  $Date: 2010/09/23 17:31:44 $
- **  $Revision: 1.17 $
+ **  $Date: 2010/09/24 16:37:22 $
+ **  $Revision: 1.18 $
  **  \authors H. Liu, UC of Riverside US, N. Marinelli Univ of Notre Dame
  **
  ***/
@@ -48,13 +48,15 @@
 //Tracker tracks
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+
 
 //photon data format
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
-
+#include "DataFormats/EgammaTrackReco/interface/ConversionTrackFwd.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -73,13 +75,13 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
 
       void buildCollection( edm::Event& iEvent, const edm::EventSetup& iSetup,
 			    //const reco::TrackRefVector& allTracks,
-			    const std::vector<reco::TrackBaseRef>& allTracks,
+			    const reco::ConversionTrackCollection& allTracks,
 	      const std::multimap<double, reco::CaloClusterPtr>& basicClusterPtrs,
 	      const reco::Vertex& the_pvtx,
 	      reco::ConversionCollection & outputConvPhotonCollection);
 
       void buildCollection( edm::Event& iEvent, const edm::EventSetup& iSetup,
-	      const reco::TrackRefVector& allTracks,
+	      const reco::ConversionTrackCollection& allTracks,
 	      const reco::CaloClusterPtr& basicClusterPtrs,
 	      const reco::Vertex& the_pvtx,
 	      reco::ConversionCollection & outputConvPhotonCollection);
@@ -98,6 +100,9 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
       double getMinApproach(const edm::RefToBase<reco::Track>& ll, const edm::RefToBase<reco::Track>& rr, 
 	      const MagneticField* magField);
 
+      bool preselectTrackPair(const reco::TransientTrack &ttk_l, const reco::TransientTrack &ttk_r,
+              const MagneticField *magField);
+              
       //cut-based selection, TODO remove global cut variables
       bool checkTrackPair(const std::pair<edm::RefToBase<reco::Track>, reco::CaloClusterPtr>& ll,
 	      const std::pair<edm::RefToBase<reco::Track>, reco::CaloClusterPtr>& rr,
@@ -105,7 +110,7 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
 	      double& appDist);
 
       //kinematic vertex fitting, return true for valid vertex
-      bool checkVertex(const edm::RefToBase<reco::Track>& tk_l, const edm::RefToBase<reco::Track>& tk_r,
+      bool checkVertex(const reco::TransientTrack &ttk_l, const reco::TransientTrack &ttk_r,
 	      const MagneticField* magField,
 	      reco::Vertex& the_vertex);
       bool checkPhi(const edm::RefToBase<reco::Track>& tk_l, const edm::RefToBase<reco::Track>& tk_r,
@@ -140,7 +145,7 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
       typedef math::XYZPointD Point;
       typedef std::vector<Point> PointCollection;
 
-      std::vector<edm::InputTag>  src_; 
+      edm::InputTag src_; 
 
       edm::InputTag bcBarrelCollection_;
       edm::InputTag bcEndcapCollection_;
@@ -165,7 +170,7 @@ class TrackerOnlyConversionProducer : public edm::EDProducer {
       double maxChi2Left_, maxChi2Right_;//5. 5. for track chi2 quality
       double minHitsLeft_, minHitsRight_;//5 2 for track hits quality 
 
-      double deltaCotTheta_, deltaPhi_, minApproachLow_, minApproachHigh_;//0.02 0.2 for track pair open angle and > -0.1 cm
+      double deltaCotTheta_, deltaPhi_, minApproachHigh_;//0.02 0.2 for track pair open angle and > -0.1 cm
 
 
       double r_cut;//cross_r cut
