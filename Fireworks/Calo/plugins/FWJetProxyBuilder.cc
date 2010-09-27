@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWJetProxyBuilder.cc,v 1.22 2010/09/26 19:54:56 amraktad Exp $
+// $Id: FWJetProxyBuilder.cc,v 1.23 2010/09/27 09:29:07 amraktad Exp $
 //
 #include "TGeoArb8.h"
 #include "TEveGeoNode.h"
@@ -102,10 +102,11 @@ private:
 void
 FWJetRPZProxyBuilderBase::scaleProduct(TEveElementList* parent, FWViewType::EType type, const FWViewContext* vc)
 {
-   typedef std::vector<SLines> Lines_t;
+   typedef std::vector<SLines> Lines_t;  
+   FWViewEnergyScale* caloScale = vc->getEnergyScale("Calo");
+    
    for (Lines_t::iterator i = m_lines.begin(); i!= m_lines.end(); ++ i)
    {
-      FWViewEnergyScale* caloScale = vc->getEnergyScale("Calo");
       float value = caloScale->getPlotEt() ? (*i).m_et : (*i).m_energy;      
       (*i).m_ls->SetScale(caloScale->getValToHeight()*value);
       TEveProjected* proj = *(*i).m_ls->BeginProjecteds();
@@ -182,7 +183,11 @@ FWJetRhoPhiProxyBuilder::build(const reco::Jet& iData, unsigned int iIndex, TEve
    float size = 1.f; // values are saved in scale
    marker->SetScaleCenter(ecalR*cos(phi), ecalR*sin(phi), 0);
    marker->AddLine(ecalR*cos(phi), ecalR*sin(phi), 0, (ecalR+size)*cos(phi), (ecalR+size)*sin(phi), 0);
+
+   FWViewEnergyScale* caloScale = vc->getEnergyScale("Calo");    
+   marker->SetScale(caloScale->getValToHeight()*(caloScale->getPlotEt() ?  iData.et() : iData.energy()));
    m_lines.push_back(FWJetRPZProxyBuilderBase::SLines(marker, iData.et(), iData.energy()));
+
    setupAddElement(marker, &oItemHolder);
 }
 
@@ -263,7 +268,8 @@ FWJetRhoZProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveE
    marker->AddLine( 0., (phi>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta),
 		    0., (phi>0 ? (r+size)*fabs(sin(theta)) : -(r+size)*fabs(sin(theta))), (r+size)*cos(theta) );
 
-   
+   FWViewEnergyScale* caloScale = vc->getEnergyScale("Calo");    
+   marker->SetScale(caloScale->getValToHeight()*(caloScale->getPlotEt() ?  iData.et() : iData.energy()));
    m_lines.push_back(FWJetRPZProxyBuilderBase::SLines(marker, iData.et(), iData.energy()));
    
    setupAddElement( marker, &oItemHolder );

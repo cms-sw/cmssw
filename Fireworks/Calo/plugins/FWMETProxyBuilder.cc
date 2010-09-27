@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWMETProxyBuilder.cc,v 1.20 2010/09/27 09:29:07 amraktad Exp $
+// $Id: FWMETProxyBuilder.cc,v 1.21 2010/09/27 10:44:06 amraktad Exp $
 //
 
 // system include files
@@ -69,12 +69,12 @@ void
 FWMETProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType type, const FWViewContext* vc)
 {
    typedef std::vector<SLines> Lines_t;
+   FWViewEnergyScale* caloScale = vc->getEnergyScale("Calo");  
+
    for (Lines_t::iterator i = m_lines.begin(); i!= m_lines.end(); ++ i)
    {
       if (type == (*i).m_type)
-      {
-         double oldScale =    (*i).m_ls->GetScale();  
-         FWViewEnergyScale* caloScale = vc->getEnergyScale("Calo");   
+      { 
          (*i).m_ls->SetScale(caloScale->getValToHeight()*(*i).m_val);
          TEveProjectable *pable = static_cast<TEveProjectable*>((*i).m_ls);
          for (TEveProjectable::ProjList_i j = pable->BeginProjecteds(); j != pable->EndProjecteds(); ++j)
@@ -92,6 +92,8 @@ FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEve
    double phi  = met.phi();
    double size = 1.f;
 
+   FWViewEnergyScale* caloScale = vc->getEnergyScale("Calo");   
+        
    TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet( "energy" );
    marker->SetScaleCenter( r_ecal*cos(phi), r_ecal*sin(phi), 0 );
    marker->SetLineWidth( 2 );
@@ -104,9 +106,12 @@ FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEve
    marker->AddLine( -dx*sin(phi) + (dy+r_ecal)*cos(phi), dx*cos(phi) + (dy+r_ecal)*sin(phi), 0,
                     (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
    
+   marker->SetScale(caloScale->getValToHeight()*met.et());
    m_lines.push_back(SLines(marker, met.et(), type));  // register for scales
    setupAddElement( marker, &oItemHolder );
       
+
+
    if( type == FWViewType::kRhoPhi )
    {
       double min_phi = phi-M_PI/36/2;
@@ -129,9 +134,11 @@ FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEve
                    0., (phi>0 ? (r_ecal+size) : -(r_ecal+size)), 0 );
       
       m_lines.push_back(SLines(tip, met.et(), type)); //register for scaes 
+
+      tip->SetScale(caloScale->getValToHeight()*met.et());
       setupAddElement( tip, &oItemHolder );
    }   
 
 }
 
-REGISTER_FWPROXYBUILDER( FWMETProxyBuilder, reco::MET, "recoMET", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
+REGISTER_FWPROXYBUILDER( FWMETProxyBuilder, reco::MET, "recoMET", FWViewType::k3DBit | FWViewType::kAllRPZBits );
