@@ -4,6 +4,7 @@
 #include "Fireworks/Core/interface/CmsShowMainBase.h"
 #include "Fireworks/FWInterface/interface/FWFFHelper.h"
 #include "FWCore/Framework/interface/EDLooperBase.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <string>
 #include <Rtypes.h>
@@ -94,6 +95,7 @@ private:
    
    typedef std::map<std::string, edm::ParameterSet> ModuleChanges;
    ModuleChanges m_scheduledChanges;
+   edm::EventID  m_nextEventId;
 };
 
 #endif

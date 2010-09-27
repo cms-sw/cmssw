@@ -315,18 +315,28 @@ FWFFLooper::duringLoop(const edm::Event &event,
                        const edm::EventSetup&es, 
                        edm::ProcessingController &controller)
 {
-   printf("FWFFLooper::postProcessEvent: Starting GUI loop.\n");
+   // If the next event id is valid, set the transition so 
+   // that we go to it go to to it.
+   if (m_nextEventId != edm::EventID())
+   {
+      controller.setTransitionToEvent(m_nextEventId);
+      m_nextEventId = edm::EventID();
+      return kContinue;
+   }
 
+   printf("FWFFLooper::postProcessEvent: Starting GUI loop.\n");
    m_pathsGUI->hasChanges() = false;
    m_metadataManager->update(new FWFFMetadataUpdateRequest(event));
    m_navigator->setCurrentEvent(&event);
    checkPosition();
    draw();
    m_Rint->Run(kTRUE);
+   // If the GUI changed the PSet, save the current event to reload
+   // it on next iteration.
    if (m_pathsGUI->hasChanges())
    {
-      std::cerr << "reloading Event" << std::endl;
-      controller.setTransitionToEvent(event.id());
+      std::cerr << "Reloading Event" << std::endl;
+      m_nextEventId = event.id();
       return kStop;
    }
    else
