@@ -106,6 +106,13 @@ void ora::CArrayWriter::write( int oid,
   // Use the iterator to loop over the elements of the container.
   size_t containerSize = m_arrayHandler->size( data  );
   size_t persistentSize = m_arrayHandler->persistentSize( data  );
+  
+  if ( containerSize > MAXARRAYSIZE ){
+    std::stringstream ms;
+    ms << "Cannot store non-blob array with size>" << MAXARRAYSIZE;
+    throwException( ms.str(),
+                    "CArrayWriter::write" );    
+  }
 
   if ( containerSize == 0 || containerSize < persistentSize ) return;
 

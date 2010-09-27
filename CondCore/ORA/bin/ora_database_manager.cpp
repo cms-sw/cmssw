@@ -5,6 +5,8 @@
 //
 #include <fstream>
 #include <iomanip>
+#include <cstdlib>
+
 // externals
 #include "CoralCommon/CommandLine.h"
 #include "RelationalAccess/IConnectionServiceConfiguration.h"
@@ -129,7 +131,7 @@ int main (int argc, char** argv)
   //
   try{
     std::string connectionString("");
-    std::string authenticationPath("");
+    std::string authenticationPath("CORAL_AUTH_PATH=");
     std::string containerName("");
     std::string mappingVersion("");
     std::string fileName("");
@@ -160,7 +162,10 @@ int main (int argc, char** argv)
         iO = ops.find(mvPar.name);
         if(iO!=ops.end()) mappingVersion = iO->second;
         iO = ops.find(authPar.name);
-        if(iO!=ops.end()) authenticationPath = iO->second;
+        if(iO!=ops.end()) {
+          authenticationPath.append(iO->second);
+          ::putenv( (char*)authenticationPath.c_str() );
+        }
         iO = ops.find(outPar.name);
         if(iO!=ops.end()) fileName = iO->second;
         iO = ops.find(classPar.name);
@@ -178,7 +183,6 @@ int main (int argc, char** argv)
         if( debug ) db.configuration().setMessageVerbosity( coral::Debug );
         db.connect( connectionString );
         ora::ScopedTransaction transaction( db.transaction() );
-        transaction.start();
 
         std::string contTag("container.name");
         std::string classTag("type");
@@ -193,6 +197,7 @@ int main (int argc, char** argv)
         size_t classVerMax = classVerTag.length();
 
         if(cmd.userCommand()==listCont.name){
+          transaction.start();
           std::set<std::string> conts = db.containers();
 
           std::cout << "ORA database in \""<<connectionString<<"\" has "<<conts.size()<<" container(s)."<<std::endl;
@@ -233,11 +238,12 @@ int main (int argc, char** argv)
           return 0;
         }
         if(cmd.userCommand()==createCont.name){
+          transaction.start(false);
           if( className.empty() ){
             throw coral::MissingRequiredOptionException(classPar.name);
           }
           if( !dictionary.empty() ){
-            const boost::filesystem::path dict_path("dictionary");
+            const boost::filesystem::path dict_path(dictionary);
             edmplugin::SharedLibrary shared( dict_path );
           }
           if( !db.exists() ){
@@ -254,6 +260,7 @@ int main (int argc, char** argv)
           return 0;
         }
         if(cmd.userCommand()==eraseCont.name){
+          transaction.start(false);
           if( containerName.empty() ){
             throw coral::MissingRequiredOptionException(contPar.name);
           }
@@ -272,6 +279,7 @@ int main (int argc, char** argv)
           }
         }
         if(cmd.userCommand()==listMapp.name){
+          transaction.start();
           if( containerName.empty() ){
             throw coral::MissingRequiredOptionException(contPar.name);
           }
@@ -340,6 +348,7 @@ int main (int argc, char** argv)
           }
         }
         if(cmd.userCommand()==dumpMapp.name){
+          transaction.start();
           if( mappingVersion.empty() ){
             throw coral::MissingRequiredOptionException(mvPar.name);
           }

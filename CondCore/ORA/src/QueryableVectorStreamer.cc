@@ -443,6 +443,12 @@ void ora::QueryableVectorWriter::write( int oid,
   size_t persistentSize = m_arrayHandler->persistentSize( storageAddress  );
 
   if ( containerSize == 0 || containerSize < persistentSize ) return;
+  if ( containerSize > MAXARRAYSIZE ){
+    std::stringstream ms;
+    ms << "Cannot store non-blob array with size>" << MAXARRAYSIZE;
+    throwException( ms.str(),
+                    "QueryableVectorWriter::write" );    
+  }
 
   size_t startElementIndex = m_arrayHandler->startElementIndex( storageAddress );
 
