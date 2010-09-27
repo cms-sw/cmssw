@@ -155,7 +155,8 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
 	reco::GsfElectronCoreRef newEleCoreRef(reco::GsfElectronCoreRef(rEleCore, idxEleCore ++));
 	pOutEleCore->push_back(newEleCore);
         reco::GsfElectron newEle(*eleIt,newEleCoreRef,CaloClusterPtr(),
-				  TrackRef(),GsfTrackRefVector());
+//				  TrackRef(),GsfTrackRefVector());
+				  TrackRef(),TrackBaseRef(), GsfTrackRefVector());
 	newEle.setP4(eleIt->p4()*(nearestSCbarrel->energy()/eleIt->ecalEnergy()));
 
 	pOutEle->push_back(newEle);
@@ -192,7 +193,9 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
 	  reco::GsfElectronCoreRef newEleCoreRef(reco::GsfElectronCoreRef(rEleCore, idxEleCore ++));
 	  pOutEleCore->push_back(newEleCore);
 	  reco::GsfElectron newEle(*eleIt,newEleCoreRef,CaloClusterPtr(),
-				   TrackRef(),GsfTrackRefVector());
+//				  TrackRef(),GsfTrackRefVector());
+				  TrackRef(),TrackBaseRef(), GsfTrackRefVector());
+           
           newEle.setP4(eleIt->p4()*(newSC.energy()/eleIt->ecalEnergy())) ;
 	  pOutEle->push_back(newEle);
 
@@ -213,7 +216,8 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
 	    reco::GsfElectronCoreRef newEleCoreRef(reco::GsfElectronCoreRef(rEleCore, idxEleCore ++));
 	    pOutEleCore->push_back(newEleCore);
 	    reco::GsfElectron newEle(*eleIt,newEleCoreRef,CaloClusterPtr(),
-				     TrackRef(),GsfTrackRefVector());
+//				  TrackRef(),GsfTrackRefVector());
+				  TrackRef(),TrackBaseRef(), GsfTrackRefVector());
 	    newEle.setP4(eleIt->p4()*(nearestSCbarrel->energy()/eleIt->ecalEnergy()));
 	    pOutEle->push_back(newEle);
 
@@ -236,7 +240,8 @@ void ElectronRecalibSuperClusterAssociator::produce(edm::Event& e, const edm::Ev
 	    reco::GsfElectronCoreRef newEleCoreRef(reco::GsfElectronCoreRef(rEleCore, idxEleCore ++));
 	    pOutEleCore->push_back(newEleCore);
 	    reco::GsfElectron newEle(*eleIt,newEleCoreRef,CaloClusterPtr(),
-				     TrackRef(),GsfTrackRefVector());
+//				  TrackRef(),GsfTrackRefVector());
+				  TrackRef(),TrackBaseRef(), GsfTrackRefVector());
 	    newEle.setP4(eleIt->p4()*(newSC.energy()/eleIt->ecalEnergy())) ;
 	    pOutEle->push_back(newEle);
 #ifdef DEBUG
