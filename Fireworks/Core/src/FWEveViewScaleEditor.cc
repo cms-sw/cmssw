@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel 
 //         Created:  Fri Sep 24 18:52:19 CEST 2010
-// $Id: FWEveViewScaleEditor.cc,v 1.1 2010/09/24 18:51:18 amraktad Exp $
+// $Id: FWEveViewScaleEditor.cc,v 1.2 2010/09/26 19:57:21 amraktad Exp $
 //
 
 // system include files
@@ -38,7 +38,7 @@ FWEveViewScaleEditor::FWEveViewScaleEditor(TGCompositeFrame* w, FWViewEnergyScal
    m_scale(s)
 { 
    m_globalScalesBtn = new TGCheckButton(this,"UseGlobalScales");
-   AddFrame(m_globalScalesBtn);
+   AddFrame(m_globalScalesBtn, new TGLayoutHints(kLHintsLeft, 2, 0, 0, 0));
    m_globalScalesBtn->SetState(m_scale->m_useGlobalScales.value() ? kButtonDown : kButtonUp);
    m_globalScalesBtn->Connect("Clicked()","FWEveViewScaleEditor",this,"useGlobalScales()");
    

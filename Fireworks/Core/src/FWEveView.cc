@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.33 2010/09/24 18:51:18 amraktad Exp $
+// $Id: FWEveView.cc,v 1.34 2010/09/26 19:57:21 amraktad Exp $
 //
 
 
@@ -249,10 +249,13 @@ FWEveView::getEnergyMaxAbsVal(FWViewEnergyScale* scales)
 
 double 
 FWEveView::getEnergyMaxTowerHeight(FWViewEnergyScale* scales) 
-{   if (scales->getUseGlobalScales())
-      return context().commonPrefs()->getEnergyMaxTowerHeight();
+{ 
+   const static int m_to_cm = 100; // parameters in [m], TEveCaloViz in [cm]
+
+   if (scales->getUseGlobalScales())
+      return m_to_cm * context().commonPrefs()->getEnergyMaxTowerHeight();
    else
-      return scales->getMaxTowerHeight();
+      return m_to_cm * scales->getMaxTowerHeight();
 }
 
 double 
@@ -331,7 +334,7 @@ FWEveView::updateEnergyScales()
             }
             else
             {
-               m_energyMaxValAnnotation = new TGLAnnotation(viewerGL(), Form("Et %f", dataMax), 0.1, 0.9);
+               m_energyMaxValAnnotation = new TGLAnnotation(viewerGL(), Form("Et = %.2f", dataMax), 0.1, 0.9);
                m_energyMaxValAnnotation->SetRole(TGLOverlayElement::kViewer);
                m_energyMaxValAnnotation->SetUseColorSet(false);
                m_energyMaxValAnnotation->SetTextSize(0.05);
@@ -353,7 +356,7 @@ FWEveView::energyScalesChanged()
    FWViewEnergyScale* caloScale = viewContext()->getEnergyScale("Calo");
    if (caloScale) 
    {
-      // printf("scale changed %f \n", getEveCalo()->GetValToHeight());
+      // printf("FEEveView scale changed %f \n", getEveCalo()->GetValToHeight());
       caloScale->setMaxVal(getEveCalo()->GetMaxVal());
       caloScale->setValToHeight(getEveCalo()->GetValToHeight());
       viewContext()->scaleChanged();

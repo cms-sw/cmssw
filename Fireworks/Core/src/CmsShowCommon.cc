@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Sep 10 14:50:32 CEST 2010
-// $Id: CmsShowCommon.cc,v 1.7 2010/09/24 16:22:26 amraktad Exp $
+// $Id: CmsShowCommon.cc,v 1.8 2010/09/26 19:54:57 amraktad Exp $
 //
 
 // system include files
@@ -32,9 +32,10 @@ CmsShowCommon::CmsShowCommon(FWColorManager* c):
 
    m_energyPlotEt(this, "PlotEt", true),
    m_energyScaleMode(this, "ScaleMode", 1l, 1l, 2l),
-   m_energyFixedValToHeight(this, "ValueToHeight [GeV/cm]", 0.5, 0.01, 10.0 ),
-   m_energyMaxTowerHeight(this, "MaxTowerH [cm]", 100.0, 1.0, 300.0),
-   m_energyCombinedSwitch(this, "SwitchToAutomaticModeAbove [cm]", 100.0, 1.0, 300.0){
+   m_energyFixedValToHeight(this, "ValueToHeight [GeV/m]", 50.0, 1.0, 100.0 ),
+   m_energyMaxTowerHeight(this, "MaxTowerH [m]", 1.0, 0.01, 3.0)
+   // m_energyCombinedSwitch(this, "SwitchToAutomaticModeAbove [m]", 100.0, 1.0, 300.0)
+{
    char name[32];
    for (int i = 0; i < kFWGeomColorSize; ++i)
    {
@@ -49,7 +50,7 @@ CmsShowCommon::CmsShowCommon(FWColorManager* c):
    m_energyScaleMode.changed_.connect(boost::bind(&CmsShowCommon::updateScales,this));
    m_energyFixedValToHeight.changed_.connect(boost::bind(&CmsShowCommon::updateScales,this));
    m_energyMaxTowerHeight.changed_.connect(boost::bind(&CmsShowCommon::updateScales,this));
-   m_energyCombinedSwitch.changed_.connect(boost::bind(&CmsShowCommon::updateScales,this));
+   //   m_energyCombinedSwitch.changed_.connect(boost::bind(&CmsShowCommon::updateScales,this));
 }
 
 CmsShowCommon::~CmsShowCommon()

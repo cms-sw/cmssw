@@ -8,13 +8,13 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Jun 18 20:37:44 CEST 2010
-// $Id: FWViewEnergyScale.cc,v 1.2 2010/06/22 09:44:34 amraktad Exp $
+// $Id: FWViewEnergyScale.cc,v 1.3 2010/09/26 19:57:21 amraktad Exp $
 //
 
 #include <stdexcept>
 #include <iostream>
 #include <boost/bind.hpp>
-// user include files
+
 #include "Rtypes.h"
 #include "Fireworks/Core/interface/FWEveView.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
@@ -34,8 +34,8 @@ FWViewEnergyScale::FWViewEnergyScale(FWEveView* view):
 FWConfigurableParameterizable(view->version()),
 m_useGlobalScales(this, "UseGlobalScales", true),
 m_scaleMode(this, "ScaleMode", 1l, 1l, 2l),
-m_fixedValToHeight(this, "ValueToHeight [GeV/cm]", 0.5, 0.01, 10.0),
-m_maxTowerHeight(this, "MaxTowerH [cm]", 100.0, 1.0, 300.0),
+m_fixedValToHeight(this, "ValueToHeight [GeV/m]", 50.0, 1.0, 100.0),
+m_maxTowerHeight(this, "MaxTowerH [m]", 1.0, 0.01, 3.0 ),
 m_plotEt(this, "PlotEt", true),
 m_maxVal(0.f),
 m_valToHeight(1.f),
