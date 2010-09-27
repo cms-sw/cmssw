@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------------------
-// $Id: ConversionTrack.h,v 1.3 2010/09/20 19:05:50 nancy Exp $
+// $Id: ConversionTrack.h,v 1.4 2010/09/23 17:22:34 nancy Exp $
 //
 // ConversionTrack
 //
@@ -16,6 +16,7 @@
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+class Trajectory;
 namespace reco
 {
   class ConversionTrack
@@ -28,17 +29,21 @@ namespace reco
     
       const reco::Track      *track()                           const { return track_.get();         }
       const TrackBaseRef     &trackRef()                        const { return track_;               }
+      const edm::Ref<std::vector<Trajectory> > &trajRef()       const { return traj_;                }
+      void                    setTrajRef(edm::Ref<std::vector<Trajectory> > tr) { traj_ = tr;        }
       void                    setIsTrackerOnly(bool b)                { isTrackerOnly_ = b;          }
       void                    setIsArbitratedEcalSeeded(bool b)       { isArbitratedEcalSeeded_ = b; }      
       void                    setIsArbitratedMerged(bool b)           { isArbitratedMerged_ = b;     }      
-      bool                    IsTrackerOnly() const                   { return isTrackerOnly_;}
-      bool                    IsArbitratedEcalSeeded() const          { return isArbitratedEcalSeeded_;}
-      bool                    IsArbitratedMerged() const              { return isArbitratedMerged_;}
+      bool                    isTrackerOnly() const                   { return isTrackerOnly_;}
+      bool                    isArbitratedEcalSeeded() const          { return isArbitratedEcalSeeded_;}
+      bool                    isArbitratedMerged() const              { return isArbitratedMerged_;}
+
 
 
 
     private:
       TrackBaseRef        track_; //ptr to track
+      edm::Ref<std::vector<Trajectory> > traj_;  //reference to a trajectory
       bool                isTrackerOnly_; //from general tracks collection
       bool                isArbitratedEcalSeeded_; //from in out or out-in ecal-seeded collections (arbitrated)
       bool                isArbitratedMerged_; //is arbitrated among all input collections
