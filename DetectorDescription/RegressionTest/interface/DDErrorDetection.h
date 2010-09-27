@@ -138,6 +138,8 @@ public:
 
   void report(const DDCompactView& cpv, std::ostream & o); 
 
+  bool noErrorsInTheReport(const DDCompactView& cpv);
+
  private:
   DDErrorDetection() { };
 
