@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWMETProxyBuilder.cc,v 1.18 2010/09/16 15:42:20 yana Exp $
+// $Id: FWMETProxyBuilder.cc,v 1.19 2010/09/26 19:54:56 amraktad Exp $
 //
 
 // system include files
@@ -42,44 +42,57 @@ public:
    virtual bool havePerViewProduct(FWViewType::EType) const { return true; } // used energy scaling
    
    virtual void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc);
+ 
+   virtual void cleanLocal() { m_lines.clear(); }
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
+ 
    FWMETProxyBuilder( const FWMETProxyBuilder& );    // stop default
    const FWMETProxyBuilder& operator=( const FWMETProxyBuilder& );    // stop default
 
    virtual void buildViewType(const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*);
+   
+   // scaling
+   struct SLines
+   {
+      SLines(TEveScalableStraightLineSet* ls, float et, float e, int t) : m_ls(ls), m_et(et), m_energy(e), m_type(t) {}
+      TEveScalableStraightLineSet* m_ls;
+      double m_et, m_energy;
+      int m_type;
+   };
+   std::vector<SLines> m_lines;
 };
 
 void
 FWMETProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType type, const FWViewContext* vc)
 {
-   for (TEveElement::List_i i = parent->BeginChildren(); i!= parent->EndChildren(); ++i)
+   typedef std::vector<SLines> Lines_t;
+   for (Lines_t::iterator i = m_lines.begin(); i!= m_lines.end(); ++ i)
    {
-      TEveElement* comp = (*i);
-      for (TEveElement::List_i j = comp->BeginChildren(); j!= comp->EndChildren(); ++j)
+      if (type == (*i).m_type)
       {
-         TEveScalableStraightLineSet* ls = dynamic_cast<TEveScalableStraightLineSet*> (*j);
-         if (ls ) 
+         FWViewEnergyScale* caloScale = vc->getEnergyScale("Calo");
+         float value = caloScale->getPlotEt() ? (*i).m_et : (*i).m_energy;      
+         (*i).m_ls->SetScale(caloScale->getValToHeight()*value);
+
+         TEveProjectable *pable = dynamic_cast<TEveProjectable*>((*i).m_ls);
+
+         for (TEveProjectable::ProjList_i j = pable->BeginProjecteds(); j != pable->EndProjecteds(); ++j)
          {
-            ls->SetScale(vc->getEnergyScale("Calo")->getValToHeight());
-            if (FWViewType::isProjected(type))
-            {
-               TEveProjected* proj = *ls->BeginProjecteds();
-               proj->UpdateProjection();
-            }
+            (*j)->UpdateProjection();
          }
       }
    }
 }
-
+ 
 void
 FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext* vc)
 {
    float r_ecal = context().caloR1();
    double phi  = met.phi();
-   double size = met.et();
+   double size = 1.f;
 
    TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet( "energy" );
    marker->SetScaleCenter( r_ecal*cos(phi), r_ecal*sin(phi), 0 );
@@ -92,8 +105,8 @@ FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEve
                     (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
    marker->AddLine( -dx*sin(phi) + (dy+r_ecal)*cos(phi), dx*cos(phi) + (dy+r_ecal)*sin(phi), 0,
                     (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
-
-   marker->SetScale(vc->getEnergyScale("Calo")->getValToHeight());
+   
+   m_lines.push_back(SLines(marker, met.et(), met.energy(), type));  // register for scales
    setupAddElement( marker, &oItemHolder );
       
    if( type == FWViewType::kRhoPhi )
@@ -116,7 +129,8 @@ FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEve
                    0., (phi>0 ? (r_ecal+size) : -(r_ecal+size)), 0 );
       tip->AddLine(0., (phi>0 ? r_ecal+dy : -(r_ecal+dy) ), -dx,
                    0., (phi>0 ? (r_ecal+size) : -(r_ecal+size)), 0 );
-      tip->SetScale(vc->getEnergyScale("Calo")->getValToHeight());
+      
+      m_lines.push_back(SLines(tip, met.et(), met.energy(), type)); //register for scaes 
       setupAddElement( tip, &oItemHolder );
    }   
 

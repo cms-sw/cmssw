@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWJetProxyBuilder.cc,v 1.21 2010/09/16 15:42:20 yana Exp $
+// $Id: FWJetProxyBuilder.cc,v 1.22 2010/09/26 19:54:56 amraktad Exp $
 //
 #include "TGeoArb8.h"
 #include "TEveGeoNode.h"
@@ -80,7 +80,20 @@ public:
    virtual bool havePerViewProduct(FWViewType::EType) const { return true; }
 
    virtual void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc);
+   
+   virtual void cleanLocal() { m_lines.clear(); }
 
+protected:
+   struct  SLines
+   {
+      SLines(TEveScalableStraightLineSet* ls, float et, float e) : m_ls(ls), m_et(et), m_energy(e) {}
+      
+      TEveScalableStraightLineSet* m_ls;
+      float m_et, m_energy;
+   };
+   
+   std::vector<SLines> m_lines;
+   
 private:
    FWJetRPZProxyBuilderBase( const FWJetRPZProxyBuilderBase& ); // stop default
    const FWJetRPZProxyBuilderBase& operator=( const FWJetRPZProxyBuilderBase& ); // stop default
@@ -89,19 +102,14 @@ private:
 void
 FWJetRPZProxyBuilderBase::scaleProduct(TEveElementList* parent, FWViewType::EType type, const FWViewContext* vc)
 {
-  for (TEveElement::List_i i = parent->BeginChildren(); i!= parent->EndChildren(); ++i)
+   typedef std::vector<SLines> Lines_t;
+   for (Lines_t::iterator i = m_lines.begin(); i!= m_lines.end(); ++ i)
    {
-      TEveElement* comp = (*i);
-      for (TEveElement::List_i j = comp->BeginChildren(); j!= comp->EndChildren(); ++j)
-      {
-         TEveScalableStraightLineSet* ls = dynamic_cast<TEveScalableStraightLineSet*> (*j);
-         if (ls ) 
-         { 
-            ls->SetScale(vc->getEnergyScale("Calo")->getValToHeight());
-            TEveProjected* proj = *ls->BeginProjecteds();
-            proj->UpdateProjection();
-         }
-      }
+      FWViewEnergyScale* caloScale = vc->getEnergyScale("Calo");
+      float value = caloScale->getPlotEt() ? (*i).m_et : (*i).m_energy;      
+      (*i).m_ls->SetScale(caloScale->getValToHeight()*value);
+      TEveProjected* proj = *(*i).m_ls->BeginProjecteds();
+      proj->UpdateProjection();
    }
 }
 
@@ -110,7 +118,7 @@ FWJetRPZProxyBuilderBase::scaleProduct(TEveElementList* parent, FWViewType::ETyp
 class FWJetRhoPhiProxyBuilder : public FWJetRPZProxyBuilderBase
 {
 public:
-   FWJetRhoPhiProxyBuilder() {}
+   FWJetRhoPhiProxyBuilder(){}
    virtual ~FWJetRhoPhiProxyBuilder() {}
    REGISTER_PROXYBUILDER_METHODS();
 
@@ -146,8 +154,6 @@ FWJetRhoPhiProxyBuilder::build(const reco::Jet& iData, unsigned int iIndex, TEve
       max_phi = phi + M_PI / 72;
    }
  
-   double size = iData.et();
-
    Double_t points[16];
    points[0] = iData.vertex().x();
    points[1] = iData.vertex().y();
@@ -172,10 +178,11 @@ FWJetRhoPhiProxyBuilder::build(const reco::Jet& iData, unsigned int iIndex, TEve
    TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
    marker->SetLineWidth(4);
    marker->SetLineColor(dp.color());
-
+   
+   float size = 1.f; // values are saved in scale
    marker->SetScaleCenter(ecalR*cos(phi), ecalR*sin(phi), 0);
    marker->AddLine(ecalR*cos(phi), ecalR*sin(phi), 0, (ecalR+size)*cos(phi), (ecalR+size)*sin(phi), 0);
-   marker->SetScale(vc->getEnergyScale("Calo")->getValToHeight());
+   m_lines.push_back(FWJetRPZProxyBuilderBase::SLines(marker, iData.et(), iData.energy()));
    setupAddElement(marker, &oItemHolder);
 }
 
@@ -218,6 +225,7 @@ private:
 void
 FWJetRhoZProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext* vc) 
 {
+
    static const std::vector<std::pair<double,double> > thetaBins = fireworks::thetaBins();
 
    float_t offr = 4;
@@ -244,10 +252,8 @@ FWJetRhoZProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveE
       r = r_ecal/sin(theta);
    }
 
-   double size = iData.et();
+   double size = 1.f;
    double etaSize = sqrt( iData.etaetaMoment() );
-   
-   
 
    TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
    marker->SetLineWidth(4);
@@ -258,7 +264,8 @@ FWJetRhoZProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveE
 		    0., (phi>0 ? (r+size)*fabs(sin(theta)) : -(r+size)*fabs(sin(theta))), (r+size)*cos(theta) );
 
    
-   marker->SetScale(vc->getEnergyScale("Calo")->getValToHeight());
+   m_lines.push_back(FWJetRPZProxyBuilderBase::SLines(marker, iData.et(), iData.energy()));
+   
    setupAddElement( marker, &oItemHolder );
 
    double min_theta = 2*atan(exp(-( eta+etaSize )));
