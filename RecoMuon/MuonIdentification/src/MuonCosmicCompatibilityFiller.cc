@@ -517,14 +517,9 @@ MuonCosmicCompatibilityFiller::combinedCosmicID(const edm::Event& iEvent,
        result += weight_btob*2.;
        if( tightIp == 1 ) {
            // check with other observables to reduce mis-id (subtract compatibilities)
-	   if( looseIp == 0  ) {
-	     if( tightTime == 0 ) {
-	       if( looseTime == 0 && backToback == 1 ) result -= weight_btob*0.5;
-	     }
-	   }
-	   else {
-	     if( backToback < 2 ) result -= weight_btob*0.5;
-	   }
+           if( looseIp == 1 ) {
+             if( backToback < 2 ) result -= weight_btob*0.5;
+           }
        }
     }
 
