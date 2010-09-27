@@ -6,7 +6,8 @@ hbhereco = cms.EDProducer(
     debug = cms.untracked.bool(False),
 
     hbheInput = cms.InputTag('hbheprereco'),
-    ecalInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEE")),
+    ebInput = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
+    eeInput = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     trackExtrapolationInput = cms.InputTag('trackExtrapolator'),
 
     # isolation cuts
@@ -38,7 +39,7 @@ hbhereco = cms.EDProducer(
     LooseDiHitEne = cms.double(50.0),
     TightDiHitEne = cms.double(15.0),
     LooseMonoHitEne = cms.double(35.0),
-    TightMonoHitEne = cms.double(8.0),
+    TightMonoHitEne = cms.double(15.0),
 
     # used by the object validator
     HBThreshold = cms.double(0.7),

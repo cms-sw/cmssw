@@ -28,7 +28,7 @@ class HBHEIsolatedNoiseReflagger : public edm::EDProducer {
 
   // parameters
   edm::InputTag hbheLabel_;
-  std::vector<edm::InputTag> ecalLabels_;
+  edm::InputTag ebLabel_, eeLabel_;
   edm::InputTag trackExtrapolationLabel_;
 
   double LooseHcalIsol_;
