@@ -62,6 +62,21 @@ float TangentApproachInRPhi::distance() const
   return (posB - posA).mag();
 }
 
+float TangentApproachInRPhi::perpdist() const
+{
+  if (!status_)
+    throw cms::Exception("TrackingTools/PatternTools","TangentApproachInRPhi::could not compute track crossing. Check status before calling this method!");
+  
+  float perpdist = (posB - posA).perp();
+  
+  if (intersection_) {
+    perpdist = -perpdist;
+  }
+  
+  return perpdist;
+  
+}
+
 
 bool TangentApproachInRPhi::calculate(const TrackCharge & chargeA, 
 			      const GlobalVector & momentumA, 
@@ -89,28 +104,18 @@ bool TangentApproachInRPhi::calculate(const TrackCharge & chargeA,
   double xga, yga, zga, xgb, ygb, zgb;
 
   if (flag == 1) {
-    // two crossing points on each track in transverse plane
-    // select point for which z-coordinates on the 2 tracks are the closest
-    double za1 = zCoord(momentumA, positionA, ra, xca, yca, xg1, yg1);
-    double zb1 = zCoord(momentumB, positionB, rb, xcb, ycb, xg1, yg1);
-    double za2 = zCoord(momentumA, positionA, ra, xca, yca, xg2, yg2);
-    double zb2 = zCoord(momentumB, positionB, rb, xcb, ycb, xg2, yg2);
-
-    if (abs(zb1 - za1) < abs(zb2 - za2)) {
-      xga = xg1; yga = yg1; zga = za1; zgb = zb1;
-    }
-    else {
-      xga = xg2; yga = yg2; zga = za2; zgb = zb2;
-    }
-    xgb = xga; ygb = yga;
+    intersection_ = true;
   }
   else {
-    // one point of closest approach on each track in transverse plane
-    xga = xg1; yga = yg1;
-    zga = zCoord(momentumA, positionA, ra, xca, yca, xga, yga);
-    xgb = xg2; ygb = yg2;
-    zgb = zCoord(momentumB, positionB, rb, xcb, ycb, xgb, ygb);
+    intersection_ = false;
   }
+
+  // one point of closest approach on each track in transverse plane
+  xga = xg1; yga = yg1;
+  zga = zCoord(momentumA, positionA, ra, xca, yca, xga, yga);
+  xgb = xg2; ygb = yg2;
+  zgb = zCoord(momentumB, positionB, rb, xcb, ycb, xgb, ygb);
+
 
   posA = GlobalPoint(xga, yga, zga);
   posB = GlobalPoint(xgb, ygb, zgb);
@@ -223,7 +228,7 @@ TangentApproachInRPhi::transverseCoord(double cxa, double cya, double ra,
 //     x1 = ra*cosphi; y1 = ra*sinphi; x2 = x1; y2 = -y1;
 
     //circles cross each other, but take tangent points anyway
-    flag = 2;
+    flag = 1;
 
     // points of closest approach in new frame 
     // are on line between 2 centers

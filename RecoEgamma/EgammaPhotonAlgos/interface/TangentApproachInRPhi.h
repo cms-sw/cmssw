@@ -16,7 +16,7 @@ class TangentApproachInRPhi : public ClosestApproachOnHelices {
 
 public:
 
-  TangentApproachInRPhi() {status_ = false;}
+  TangentApproachInRPhi() {status_ = false; intersection_ = false;}
 
   virtual bool calculate(const TrajectoryStateOnSurface & sta, 
 	 const TrajectoryStateOnSurface & stb);
@@ -41,6 +41,9 @@ public:
 
   /** distance between the two points of closest approach in 3D */
   virtual float distance() const;
+  
+  /** signed distance between two points of closest approach in r-phi plane (-ive if circles intersect) */
+  float perpdist() const;
 
   /**
    *  Clone method
@@ -94,6 +97,7 @@ private:
   bool status_;
   GlobalPoint posA, posB;
   GlobalTrajectoryParameters paramA, paramB;
+  bool intersection_;
 
 };
 
