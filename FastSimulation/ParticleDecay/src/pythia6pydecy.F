@@ -485,11 +485,13 @@ C...Determine position of grandmother, number of sisters.
       IF(MMAT.EQ.3) THEN
         IM=K(IP,3)
         IF(IM.LT.0.OR.IM.GE.IP) IM=0
-        IF(IM.NE.0) KFAM=IABS(K(IM,2))
         IF(IM.NE.0) THEN
+          KFAM=IABS(K(IM,2))
           DO 360 IL=MAX(IP-2,IM+1),MIN(IP+2,N)
-            IF(K(IL,3).EQ.IM) NM=NM+1
-            IF(K(IL,3).EQ.IM.AND.IL.NE.IP) ISIS=IL
+            IF(K(IL,3).EQ.IM) THEN
+               NM=NM+1
+               IF(IL.NE.IP) ISIS=IL
+            END IF
   360     CONTINUE
           IF(NM.NE.2.OR.KFAM.LE.100.OR.MOD(KFAM,10).NE.1.OR.
      &    MOD(KFAM/1000,10).NE.0) NM=0
