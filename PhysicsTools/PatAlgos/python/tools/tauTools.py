@@ -36,23 +36,27 @@ def redoPFTauDiscriminators(process,
 
 # switch to CaloTau collection
 def switchToCaloTau(process,
-                    pfTauLabel = cms.InputTag('shrinkingConePFTauProducer'),
-                    caloTauLabel = cms.InputTag('caloRecoTauProducer'),
+                    pfTauLabelOld = cms.InputTag('shrinkingConePFTauProducer'),
+                    pfTauLabelNew = cms.InputTag('caloRecoTauProducer'),
                     patTauLabel = "",
                     postfix = ""):
+    print ' Taus: ', pfTauLabelOld, '->', pfTauLabelNew
+
+    caloTauLabel = pfTauLabelNew
     applyPostfix(process, "tauMatch" + patTauLabel, postfix).src = caloTauLabel
     applyPostfix(process, "tauGenJetMatch"+ patTauLabel, postfix).src = caloTauLabel
 
     applyPostfix(process, "patTaus" + patTauLabel, postfix).tauSource = caloTauLabel
-    applyPostfix(process, "patTaus" + patTauLabel, postfix).tauIDSources = cms.PSet(        
-        leadingTrackFinding = cms.InputTag("caloRecoTauDiscriminationByLeadingTrackFinding" + postfix),
-        leadingTrackPtCut   = cms.InputTag("caloRecoTauDiscriminationByLeadingTrackPtCut" + postfix),
-        trackIsolation      = cms.InputTag("caloRecoTauDiscriminationByTrackIsolation" + postfix),
-        ecalIsolation       = cms.InputTag("caloRecoTauDiscriminationByECALIsolation" + postfix),
-        byIsolation         = cms.InputTag("caloRecoTauDiscriminationByIsolation" + postfix),
-        againstElectron     = cms.InputTag("caloRecoTauDiscriminationAgainstElectron" + postfix),
-        againstMuon         = cms.InputTag("caloRecoTauDiscriminationAgainstMuon" + postfix)
-    )
+    applyPostfix(process, "patTaus" + patTauLabel, postfix).tauIDSources = _buildIDSourcePSet('caloRecoTau', classicTauIDSources, postfix)
+#    applyPostfix(process, "patTaus" + patTauLabel, postfix).tauIDSources = cms.PSet(        
+#        leadingTrackFinding = cms.InputTag("caloRecoTauDiscriminationByLeadingTrackFinding" + postfix),
+#        leadingTrackPtCut   = cms.InputTag("caloRecoTauDiscriminationByLeadingTrackPtCut" + postfix),
+#        trackIsolation      = cms.InputTag("caloRecoTauDiscriminationByTrackIsolation" + postfix),
+#        ecalIsolation       = cms.InputTag("caloRecoTauDiscriminationByECALIsolation" + postfix),
+#        byIsolation         = cms.InputTag("caloRecoTauDiscriminationByIsolation" + postfix),
+#        againstElectron     = cms.InputTag("caloRecoTauDiscriminationAgainstElectron" + postfix),
+#        againstMuon         = cms.InputTag("caloRecoTauDiscriminationAgainstMuon" + postfix)
+#    )
     applyPostfix(process, "patTaus" + patTauLabel, postfix).addDecayMode = False
     ## Isolation is somewhat an issue, so we start just by turning it off
     print "NO PF Isolation will be computed for CaloTau (this could be improved later)"
@@ -107,15 +111,17 @@ def _switchToPFTau(process,
 classicTauIDSources = [
     ("leadingTrackFinding", "DiscriminationByLeadingTrackFinding"),
     ("leadingTrackPtCut", "DiscriminationByLeadingTrackPtCut"),
-    ("leadingPionPtCut", "DiscriminationByLeadingPionPtCut"),
     ("trackIsolation", "DiscriminationByTrackIsolation"),
-    ("trackIsolationUsingLeadingPion", "DiscriminationByTrackIsolationUsingLeadingPion"),
     ("ecalIsolation", "DiscriminationByECALIsolation"),
-    ("ecalIsolationUsingLeadingPion", "DiscriminationByECALIsolationUsingLeadingPion"),
     ("byIsolation", "DiscriminationByIsolation"),
-    ("byIsolationUsingLeadingPion", "DiscriminationByIsolationUsingLeadingPion"),
     ("againstElectron", "DiscriminationAgainstElectron"),
     ("againstMuon", "DiscriminationAgainstMuon") ]
+
+classicPFTauIDSources = [
+    ("leadingPionPtCut", "DiscriminationByLeadingPionPtCut"),
+    ("trackIsolationUsingLeadingPion", "DiscriminationByTrackIsolationUsingLeadingPion"),
+    ("ecalIsolationUsingLeadingPion", "DiscriminationByECALIsolationUsingLeadingPion"),
+    ("byIsolationUsingLeadingPion", "DiscriminationByIsolationUsingLeadingPion")]
 
 # Tau Neural Classifier Discriminators
 tancTauIDSources = [
@@ -139,7 +145,10 @@ def switchToPFTauFixedCone(process,
                            pfTauLabelNew = cms.InputTag('fixedConePFTauProducer'),
                            patTauLabel = "",
                            postfix = ""):
-    _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, 'fixedConePFTau', classicTauIDSources,
+    fixedConeIDSources = copy.copy(classicTauIDSources)
+    fixedConeIDSources.extend(classicPFTauIDSources)
+
+    _switchToPFTau(process, pfTauLabelOld, pfTauLabelNew, 'fixedConePFTau', fixedConeIDSources,
                    patTauLabel = patTauLabel, postfix = postfix)
     
     # PFTauDecayMode objects produced only for shrinking cone reco::PFTaus
@@ -169,6 +178,7 @@ def switchToPFTauShrinkingCone(process,
                                patTauLabel = "",
                                postfix = ""):
     shrinkingIDSources = copy.copy(classicTauIDSources)
+    shrinkingIDSources.extend(classicPFTauIDSources)
     # Only shrinkingCone has associated TaNC discriminators, so add them here
     shrinkingIDSources.extend(tancTauIDSources)
     
@@ -185,7 +195,7 @@ def switchToPFTauByType(process,
     mapping = { 'shrinkingConePFTau' : switchToPFTauShrinkingCone,
                 'fixedConePFTau' : switchToPFTauFixedCone,
                 'hpsPFTau' : switchToPFTauHPS,
-                'caloTau' : switchToCaloTau }
+                'caloRecoTau' : switchToCaloTau }
     mapping[pfTauType](process, pfTauLabelOld = pfTauLabelOld, pfTauLabelNew = pfTauLabelNew,
                        patTauLabel = patTauLabel, postfix = postfix)
 
@@ -269,7 +279,7 @@ class AddTauCollection(ConfigToolBase):
         ## disable computation of particle-flow based IsoDeposits
         ## in case tau is of CaloTau type
         if typeLabel == 'Tau':
-            print "NO PF Isolation will be computed for CaloTau (this could be improved later)"
+#            print "NO PF Isolation will be computed for CaloTau (this could be improved later)"
             doPFIsoDeposits = False
  
         ## create old module label from standardAlgo
@@ -362,13 +372,13 @@ class AddTauCollection(ConfigToolBase):
         ## set discriminators
         ## (using switchTauCollection functions)
         oldTaus = getattr(process, oldLabel())
-        if typeLabel == 'Tau':
-            switchToCaloTau(process,
-                            pfTauLabel = getattr(oldTaus, "tauSource"),
-                            caloTauLabel = getattr(newTaus, "tauSource"),
-                            patTauLabel = capitalize(algoLabel + typeLabel))
-        else:
-            switchToPFTauByType(process, pfTauType = algoLabel + typeLabel,
+#        if typeLabel == 'Tau':
+#            switchToCaloTau(process,
+#                            pfTauLabel = getattr(oldTaus, "tauSource"),
+#                            caloTauLabel = getattr(newTaus, "tauSource"),
+#                            patTauLabel = capitalize(algoLabel + typeLabel))
+#        else:
+        switchToPFTauByType(process, pfTauType = algoLabel + typeLabel,
                                 pfTauLabelNew = getattr(newTaus, "tauSource"),
                                 pfTauLabelOld = getattr(oldTaus, "tauSource"),
                                 patTauLabel = capitalize(algoLabel + typeLabel))
