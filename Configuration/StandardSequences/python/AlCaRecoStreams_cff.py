@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2010/07/06 12:44:36 $ by $Author: mussgill $
+# last update: $Date: 2010/07/19 11:15:14 $ by $Author: mussgill $
 
 # AlCaReco sequence definitions:
 
@@ -436,7 +436,4 @@ ALCARECOStreamPromptCalibProd = cms.FilteredStream(
 
 
 
-from Configuration.StandardSequences.AlCaRecoStream_EcalCalEtaCalib_cff import *
-from Configuration.StandardSequences.AlCaRecoStream_EcalCalPhiSym_cff import *
-from Configuration.StandardSequences.AlCaRecoStream_EcalCalPi0Calib_cff import *
-from Configuration.StandardSequences.AlCaRecoStream_HcalCalMinBias_cff import *
+from Configuration.StandardSequences.AlCaRecoStream_Specials_cff import *
