@@ -741,7 +741,7 @@ public:
            
          return fail;
       }
- 
+
   template <typename T>
   void editVectorParameter(edm::ParameterSet &ps, bool tracked,
                            const std::string &label,
@@ -975,10 +975,10 @@ public:
          if (quotes)
             ss << "\""; 
          ss << v[ii];
-         if (ii + 1 != ie) 
-            ss << ", ";
          if (quotes)
             ss << "\"";
+         if (ii + 1 != ie) 
+            ss << ", ";
       }
       ss << "]";
       data.value = ss.str();
