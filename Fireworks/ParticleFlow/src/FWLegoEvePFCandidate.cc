@@ -92,7 +92,7 @@ FWLegoEvePFCandidate::updateScale(const FWViewContext* vc, const fireworks::Cont
    FWViewEnergyScale* caloScale = vc->getEnergyScale("Calo");
    float val = caloScale->getPlotEt() ?  m_et : m_energy;
 
-   printf("update scale %f \n", getScale(vc, context)); fflush(stdout);
+   // printf("update scale %f \n", getScale(vc, context)); fflush(stdout);
    
    // resize first line
    TEveChunkManager::iterator li(GetLinePlex());
