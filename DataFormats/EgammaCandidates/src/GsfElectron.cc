@@ -14,16 +14,17 @@ GsfElectron::GsfElectron
    const GsfElectronCoreRef & core,
    const TrackClusterMatching & tcm, const TrackExtrapolations & te,
    const ClosestCtfTrack & ctfInfo,
-   const FiducialFlags & ff, const ShowerShape & ss, float fbrem,
-   float mva
+   const FiducialFlags & ff, const ShowerShape & ss,
+   const ConversionRejection & crv,
+   float fbrem, float mva
  )
  : chargeInfo_(chargeInfo),
    core_(core),
    trackClusterMatching_(tcm), trackExtrapolations_(te),
    closestCtfTrack_(ctfInfo),
-   fiducialFlags_(ff), showerShape_(ss),
-   passCutBasedPreselection_(false), passMvaPreslection_(false), mva_(mva),
-   fbrem_(fbrem), class_(UNKNOWN)
+   fiducialFlags_(ff), showerShape_(ss), conversionRejection_(crv),
+   passCutBasedPreselection_(false), passMvaPreslection_(false),
+   mva_(mva), fbrem_(fbrem), class_(UNKNOWN)
  {
   setCharge(charge) ;
   setP4(p4) ;
@@ -37,6 +38,7 @@ GsfElectron::GsfElectron
    const GsfElectronCoreRef & core,
    const CaloClusterPtr & electronCluster,
    const TrackRef & closestCtfTrack,
+   const TrackBaseRef & conversionPartner,
    const GsfTrackRefVector & ambiguousTracks )
  : RecoCandidate(electron),
    chargeInfo_(electron.chargeInfo_),
@@ -48,6 +50,7 @@ GsfElectron::GsfElectron
    fiducialFlags_(electron.fiducialFlags_),
    showerShape_(electron.showerShape_),
    dr03_(electron.dr03_), dr04_(electron.dr04_),
+   conversionRejection_(electron.conversionRejection_),
    passCutBasedPreselection_(electron.passCutBasedPreselection_),
    passMvaPreslection_(electron.passMvaPreslection_),
    mva_(electron.mva_),
@@ -57,6 +60,7 @@ GsfElectron::GsfElectron
  {
   trackClusterMatching_.electronCluster = electronCluster ;
   closestCtfTrack_.ctfTrack = closestCtfTrack ;
+  conversionRejection_.partner = conversionPartner ;
   // TO BE DONE
   // Check that the new edm references are really
   // to clones of the former references, and therefore other attributes
@@ -84,9 +88,10 @@ GsfElectron * GsfElectron::clone
   const GsfElectronCoreRef & core,
   const CaloClusterPtr & electronCluster,
   const TrackRef & closestCtfTrack,
+  const TrackBaseRef & conversionPartner,
   const GsfTrackRefVector & ambiguousTracks
  ) const
- { return new GsfElectron(*this,core,electronCluster,closestCtfTrack,ambiguousTracks) ; }
+ { return new GsfElectron(*this,core,electronCluster,closestCtfTrack,conversionPartner,ambiguousTracks) ; }
 
 bool GsfElectron::ecalDriven() const
  {

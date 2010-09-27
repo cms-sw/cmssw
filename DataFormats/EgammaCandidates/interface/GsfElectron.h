@@ -32,7 +32,7 @@ namespace reco
  * \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  * \author Ursula Berthon - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: GsfElectron.h,v 1.39 2010/02/25 15:32:20 chamont Exp $
+ * \version $Id: GsfElectron.h,v 1.40.4.1 2010/09/24 21:02:49 chamont Exp $
  *
  ****************************************************************************/
 
@@ -58,14 +58,20 @@ class GsfElectron : public RecoCandidate
     struct FiducialFlags ;
     struct ShowerShape ;
     struct IsolationVariables ;
+    struct ConversionRejection ;
 
     GsfElectron
      (
       const LorentzVector & p4, int charge,
       const ChargeInfo &,
       const GsfElectronCoreRef &,
-      const TrackClusterMatching &, const TrackExtrapolations &, const ClosestCtfTrack &,
-      const FiducialFlags &, const ShowerShape &, float fbrem, float mva
+      const TrackClusterMatching &,
+      const TrackExtrapolations &,
+      const ClosestCtfTrack &,
+      const FiducialFlags &,
+      const ShowerShape &,
+      const ConversionRejection &,
+      float fbrem, float mva
      ) ;
     GsfElectron
      (
@@ -73,6 +79,7 @@ class GsfElectron : public RecoCandidate
       const GsfElectronCoreRef & core,
       const CaloClusterPtr & electronCluster,
       const TrackRef & closestCtfTrack,
+      const TrackBaseRef & conversionPartner,
       const GsfTrackRefVector & ambiguousTracks
      ) ;
     GsfElectron() ;
@@ -82,6 +89,7 @@ class GsfElectron : public RecoCandidate
       const GsfElectronCoreRef & core,
       const CaloClusterPtr & electronCluster,
       const TrackRef & closestCtfTrack,
+      const TrackBaseRef & conversionPartner,
       const GsfTrackRefVector & ambiguousTracks
      ) const ;
     virtual ~GsfElectron() {} ;
@@ -434,6 +442,41 @@ class GsfElectron : public RecoCandidate
     // attributes
     IsolationVariables dr03_ ;
     IsolationVariables dr04_ ;
+
+
+  //=======================================================
+  // Conversion Rejection Information
+  //=======================================================
+
+  public :
+
+    struct ConversionRejection
+     {
+      int flags ;  // negative means block not filled
+      TrackBaseRef partner ; // conversion partner
+      float dist ; // distance to the conversion partner
+      float dcot ; // difference of cot(angle) with the conversion partner track
+      float radius ; // signed conversion radius
+      ConversionRejection()
+       : flags(-1),
+         dist(-9999.),
+         dcot(-9999.),
+         radius(-9999.)
+       {}
+     } ;
+
+    // accessors
+    int convFlags() const { return conversionRejection_.flags ; }
+    TrackBaseRef convPartner() const { return conversionRejection_.partner ; }
+    float convDist() const { return conversionRejection_.dist ; }
+    float convDcot() const { return conversionRejection_.dcot ; }
+    float convRadius() const { return conversionRejection_.radius ; }
+    const ConversionRejection & conversionRejectionVariables() const { return conversionRejection_ ; }
+
+  private:
+
+    // attributes
+    ConversionRejection conversionRejection_ ;
 
 
   //=======================================================

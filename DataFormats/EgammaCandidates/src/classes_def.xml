@@ -79,6 +79,7 @@
   <class name="reco::GsfElectron::FiducialFlags"/>
   <class name="reco::GsfElectron::ShowerShape"/>
   <class name="reco::GsfElectron::IsolationVariables"/>
+  <class name="reco::GsfElectron::ConversionRejection"/>
   <class name="reco::GsfElectron::Corrections"/>
   <class name="reco::GsfElectron::ChargeInfo"/>
   

@@ -1,5 +1,5 @@
 //
-// $Id: classes.h,v 1.34 2009/09/02 15:46:10 sani Exp $
+// $Id: classes.h,v 1.35.4.1 2010/09/27 14:22:07 chamont Exp $
 //
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -48,7 +48,7 @@ namespace {
 
   struct dictionary {
 
-	reco::PhotonCoreCollection v0;
+	  reco::PhotonCoreCollection v0;
     edm::Wrapper<reco::PhotonCoreCollection> w0;
     edm::Ref<reco::PhotonCoreCollection> r0;
     edm::RefProd<reco::PhotonCoreCollection> rp0;
@@ -105,6 +105,7 @@ namespace {
     reco::GsfElectron::FiducialFlags geff ;
     reco::GsfElectron::ShowerShape gess ;
     reco::GsfElectron::IsolationVariables geiv ;
+    reco::GsfElectron::ConversionRejection gecr ;
     reco::GsfElectron::Corrections gec ;
     reco::GsfElectron::ChargeInfo geci ;
 
