@@ -6,8 +6,6 @@
 
 
 PatTriggerTagAndProbe::PatTriggerTagAndProbe( const edm::ParameterSet & iConfig ) :
-  // pat::Trigger
-  trigger_( iConfig.getParameter< edm::InputTag >( "trigger" ) ),
   // pat::TriggerEvent
   triggerEvent_( iConfig.getParameter< edm::InputTag >( "triggerEvent" ) ),
   // muon input collection
@@ -44,15 +42,6 @@ void PatTriggerTagAndProbe::analyze( const edm::Event & iEvent, const edm::Event
   // trigger event
   edm::Handle< pat::TriggerEvent > triggerEvent;
   iEvent.getByLabel( triggerEvent_, triggerEvent );
-  // trigger paths from patTrigger
-  edm::Handle< pat::TriggerPathCollection > triggerPaths;
-  iEvent.getByLabel( trigger_, triggerPaths );
-  // trigger filters from patTrigger
-  edm::Handle< pat::TriggerFilterCollection > triggerFilters;
-  iEvent.getByLabel( trigger_, triggerFilters );
-  // trigger objects from patTrigger
-  edm::Handle< pat::TriggerObjectCollection > triggerObjects;
-  iEvent.getByLabel( trigger_, triggerObjects );
   // pat candidate collection
   edm::Handle< pat::MuonCollection > muons;
   iEvent.getByLabel( muons_, muons );

@@ -67,7 +67,7 @@ class PatZToMuMuAnalyzer : public edm::EDAnalyzer {
 inline double 
 PatZToMuMuAnalyzer::mass(const Vector& t1,  const Vector& t2) const
 {
-  return (LorentzVector(shift_*t1.x(), shift_*t1.y(), t1.z(), 0.1057) + LorentzVector(shift_*t2.x(), shift_*t2.y(), t2.z(), 0.1057)).mass();
+  return (LorentzVector(shift_*t1.x(), shift_*t1.y(), t1.z(), sqrt((0.1057*0.1057)+t1.mag2())) + LorentzVector(shift_*t2.x(), shift_*t2.y(), t2.z(), sqrt((0.1057*0.1057)+t2.mag2()))).mass();
 }
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -98,7 +98,7 @@ PatZToMuMuAnalyzer::PatZToMuMuAnalyzer(const edm::ParameterSet& cfg):
   // pt from outer tracks
   hists_[ "outerPt"   ] = fileService->make< TH1D >( "outerPt"    , "p_{T} (outer) (GeV)"    ,  100,     0.,   100.);
   // delta pt between global and outer track
-  hists_[ "deltaPt"   ] = fileService->make< TH1D >( "deltaPt"    , "#Delta p_{T} (GeV)"     ,  100,   -10.,    10.);
+  hists_[ "deltaPt"   ] = fileService->make< TH1D >( "deltaPt"    , "#Delta p_{T} (GeV)"     ,  100,   -20.,    20.);
   // delta eta between global and outer track
   hists_[ "deltaEta"  ] = fileService->make< TH1D >( "deltaEta"   , "#Delta #eta"            ,  100,   -0.2,    0.2);
   // delta phi between global and outer track
@@ -109,19 +109,19 @@ void PatZToMuMuAnalyzer::fill(std::string hists, const reco::TrackRef& t1, const
 {
   if( t1.isAvailable() ){
     // fill pt from global track for first muon
-    fill( hists.append("Pt") , t1->momentum().rho() );
+    fill( std::string(hists).append("Pt") , t1->pt() );
     // fill pt from global track for first muon
-    fill( hists.append("Eta"), t1->momentum().eta() );
+    fill( std::string(hists).append("Eta"), t1->eta() );
   }
   if( t2.isAvailable() ){
     // fill pt from global track for first muon
-    fill( hists.append("Pt") , t2->momentum().rho() );
+    fill( std::string(hists).append("Pt") , t2->pt() );
     // fill pt from global track for first muon
-    fill( hists.append("Eta"), t2->momentum().eta() );
+    fill( std::string(hists).append("Eta"), t2->eta() );
   }
   if( t1.isAvailable() && t2.isAvailable() ){
     // fill pt from global track for first muon
-    fill( hists.append("Mass"), mass(t1->momentum(), t2->momentum()));
+    fill( std::string(hists).append("Mass"), mass(t1->momentum(), t2->momentum()));
   }
 }
 
