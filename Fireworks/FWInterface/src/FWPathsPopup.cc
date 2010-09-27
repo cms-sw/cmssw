@@ -1258,7 +1258,9 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
      m_apply(0),
      m_psTable(new FWPSetTableManager())
 {
-   gVirtualX->SelectInput(GetId(), kKeyPressMask);
+   gVirtualX->SelectInput(GetId(), kKeyPressMask | kKeyReleaseMask | kExposureMask |
+                                   kPointerMotionMask | kStructureNotifyMask | kFocusChangeMask |
+                                   kEnterWindowMask | kLeaveWindowMask);
    m_psTable->indexSelected_.connect(boost::bind(&FWPathsPopup::newIndexSelected,this,_1,_2));
    this->Connect("CloseWindow()","FWPathsPopup",this,"windowIsClosing()");
 
