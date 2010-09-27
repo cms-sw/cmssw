@@ -789,10 +789,10 @@ if (liveECAL == 1) :
 
 if (liveCMS == 1) :
   process.ecalBarrelMonitorClient.updateTime = 4
-  process.ecalBarrelMonitorClient.dbUpdateTime = 240
+  process.ecalBarrelMonitorClient.dbUpdateTime = 120
  
   process.ecalEndcapMonitorClient.updateTime = 4
-  process.ecalEndcapMonitorClient.dbUpdateTime = 240
+  process.ecalEndcapMonitorClient.dbUpdateTime = 120
 
 if (globalDAQ == 1) | (liveECAL == 1) :
   process.DQMStore.referenceFileName = '/data/ecalod-disk01/dqm-data/reference/REFERENCE.root'
