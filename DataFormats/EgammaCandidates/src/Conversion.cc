@@ -209,11 +209,9 @@ bool Conversion::isConverted() const {
 
 double  Conversion::zOfPrimaryVertexFromTracks()  const  {
   double theZOfPrimaryVertexFromTracks=-9999.;
-
-  float pTrkMag=this->pairMomentum().mag();
   
-  if ( pTrkMag>0 && this->conversionVertex().isValid() && sqrt(this->conversionVertex().position().perp2()) !=0 ) {
-    float theta=acos(this->pairMomentum().z() /pTrkMag);
+  if ( this->conversionVertex().isValid() && sqrt(this->conversionVertex().position().perp2()) !=0 ) {
+    float theta=this->pairMomentum().Theta();
     theZOfPrimaryVertexFromTracks = this->conversionVertex().position().z()  - sqrt(this->conversionVertex().position().perp2())*(1./tan(theta));
     
   }
@@ -246,8 +244,8 @@ double  Conversion::pairCotThetaSeparation() const  {
   double dCotTheta=-99.;
   
   if ( nTracks()==2 ) {
-    double theta1=tracksPin()[0].Theta();
-    double theta2=tracksPin()[1].Theta();
+    double theta1=this->tracksPin()[0].Theta();
+    double theta2=this->tracksPin()[1].Theta();
     dCotTheta =  1./tan(theta1) - 1./tan(theta2) ;
   }
 
@@ -256,25 +254,13 @@ double  Conversion::pairCotThetaSeparation() const  {
 }
 
 
-GlobalVector  Conversion::pairMomentum() const  {
-
-  double px=0.;
-  double py=0.;
-  double pz=0.;
+math::XYZVector  Conversion::pairMomentum() const  {
   
   if ( nTracks()==2 ) {
-    px= tracksPin()[0].x() +  tracksPin()[1].x();
-    py= tracksPin()[0].y() +  tracksPin()[1].y();
-    pz= tracksPin()[0].z() +  tracksPin()[1].z();
-
-  } else if (  nTracks()==1 ) {
-    px= tracksPin()[0].x();
-    py= tracksPin()[0].y();
-    pz= tracksPin()[0].z();
+    return this->tracksPin()[0] +  this->tracksPin()[1];
   }
+  return math::XYZVector(0.,0.,0.);
 
-  GlobalVector momTracks(px,py,pz);
-  return momTracks;
 
 
 }
@@ -292,22 +278,13 @@ math::XYZTLorentzVectorD Conversion::refittedPair4Momentum() const  {
 }
 
 
-GlobalVector  Conversion::refittedPairMomentum() const  {
 
-  double px=0.;
-  double py=0.;
-  double pz=0.;
-  
+math::XYZVector  Conversion::refittedPairMomentum() const  {
+
   if (  this->conversionVertex().isValid() ) {
-    px= this->refittedPair4Momentum().px();
-    py= this->refittedPair4Momentum().py();
-    pz= this->refittedPair4Momentum().pz();
-  
+    return this->refittedPair4Momentum().Vect();
   }
-
-  GlobalVector momTracks(px,py,pz);
-  return momTracks;
-
+  return math::XYZVector(0.,0.,0.);
 
 }
 
@@ -324,7 +301,7 @@ double  Conversion::EoverP() const  {
     for ( unsigned int i=0; i<size; i++) {
       etot+= caloCluster()[i]->energy();
     }
-    if (this->pairMomentum().mag() !=0) ep= etot/this->pairMomentum().mag();
+    if (this->pairMomentum().Mag2() !=0) ep= etot/sqrt(this->pairMomentum().Mag2());
   }
 
 
@@ -346,7 +323,7 @@ double  Conversion::EoverPrefittedTracks() const  {
     for ( unsigned int i=0; i<size; i++) {
       etot+= caloCluster()[i]->energy();
     }
-    if (this->refittedPairMomentum().mag() !=0) ep= etot/this->refittedPairMomentum().mag();
+    if (this->refittedPairMomentum().Mag2() !=0) ep= etot/sqrt(this->refittedPairMomentum().Mag2());
   }
 
 
@@ -371,13 +348,9 @@ std::vector<double>  Conversion::tracksSigned_d0() const  {
 double  Conversion::dPhiTracksAtVtx() const  {
   double result=-99;
   if  ( nTracks()==2 ) {
-    float phiTk1=  tracksPin()[0].phi();
-    float phiTk2=  tracksPin()[1].phi();
-    result = phiTk1-phiTk2;
-    
+    result = tracksPin()[0].phi() - tracksPin()[1].phi();
     if( result   > pi)  { result = result - twopi;}
     if( result  < -pi)  { result = result + twopi;}
-
   }
 
   return result;
