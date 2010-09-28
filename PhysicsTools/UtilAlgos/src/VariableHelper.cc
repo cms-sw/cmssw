@@ -9,7 +9,7 @@
 VariableHelper::VariableHelper(const edm::ParameterSet & iConfig){
   std::vector<std::string> psetNames;
   iConfig.getParameterSetNames(psetNames);
-  for (uint i=0;i!=psetNames.size();++i){
+  for (unsigned int i=0;i!=psetNames.size();++i){
     std::string & vname=psetNames[i];
     edm::ParameterSet vPset=iConfig.getParameter<edm::ParameterSet>(psetNames[i]);
     std::string method=vPset.getParameter<std::string>("method");

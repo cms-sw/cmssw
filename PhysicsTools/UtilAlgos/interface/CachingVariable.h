@@ -24,7 +24,7 @@ class Description {
   Description(std::vector<std::string> & d) : d_(d){}
   std::string text() const {
     std::string text;
-    for (uint i=0;i!=d_.size();++i) 
+    for (unsigned int i=0;i!=d_.size();++i) 
       text+=d_[i]+"\n";
     return text;
   }
@@ -162,18 +162,18 @@ class Splitter : public CachingVariable {
   //purely virtual here 
   virtual CachingVariable::evalType eval(const edm::Event & iEvent) const =0;
 
-  uint maxIndex() const { return maxSlots()-1;}
+  unsigned int maxIndex() const { return maxSlots()-1;}
 
   //maximum NUMBER of slots: counting over/under flows
-  virtual uint maxSlots() const { return labels_.size();}
+  virtual unsigned int maxSlots() const { return labels_.size();}
 
-  const std::string shortLabel(uint i) const{ 
+  const std::string shortLabel(unsigned int i) const{ 
     if (i>=short_labels_.size()){
       edm::LogError("Splitter")<<"trying to access slots short_label at index: "<<i<<"while of size: "<<short_labels_.size()<<"\n"<<conf_.dump();
       return short_labels_.back(); }
     else  return short_labels_[i];}
   
-  const std::string & label(uint i) const{ 
+  const std::string & label(unsigned int i) const{ 
     if (i>=labels_.size()){
       edm::LogError("Splitter")<<"trying to access slots label at index: "<<i<<"while of size: "<<labels_.size()<<"\n"<<conf_.dump();
       return labels_.back(); }
@@ -202,12 +202,12 @@ class VarSplitter : public Splitter{
     }
     else{
       std::string labelFormat = arg.iConfig.getParameter<std::string>("labelsFormat");
-      for (uint is=0;is!=slots_.size()-1;++is){
+      for (unsigned int is=0;is!=slots_.size()-1;++is){
 	std::string l(Form(labelFormat.c_str(),slots_[is],slots_[is+1]));
 	confLabels.push_back(l);
       }
     }
-    for (uint i=0;i!=confLabels.size();++i){
+    for (unsigned int i=0;i!=confLabels.size();++i){
       labels_.push_back(confLabels[i]);
       std::stringstream ss;
       ss<<"_"<<arg.n<<"_"<<i;
@@ -227,8 +227,8 @@ class VarSplitter : public Splitter{
   CachingVariable::evalType eval(const edm::Event & iEvent) const;
 
   //redefine the maximum number of slots
-  uint maxSlots() const{
-    uint s=slots_.size()-1;
+  unsigned int maxSlots() const{
+    unsigned int s=slots_.size()-1;
     if (useUnderFlow_) s++;
     if (useOverFlow_) s++;
     return s;}
@@ -261,7 +261,7 @@ class ExpressionVariable : public CachingVariable {
     //old style constructor
     if (arg.iConfig.exists("expr") && arg.iConfig.exists("index")){
       std::string expr=arg.iConfig.getParameter<std::string>("expr");
-      index_=arg.iConfig.getParameter<uint>("index");
+      index_=arg.iConfig.getParameter<unsigned int>("index");
       f_ = new StringObjectFunction<Object>(expr);
       addDescriptionLine("calculating: "+expr);
       std::stringstream ss;
@@ -289,10 +289,10 @@ class ExpressionVariable : public CachingVariable {
       std::map<std::string, edm::Entry> indexEntry;
       if (arg.n.find("_N")!=std::string::npos){
 	//will have to loop over indexes
-	std::vector<uint> indexes = arg.iConfig.getParameter<std::vector<uint> >("indexes");
-	for (uint iI=0;iI!=indexes.size();++iI){
+	std::vector<unsigned int> indexes = arg.iConfig.getParameter<std::vector<unsigned int> >("indexes");
+	for (unsigned int iI=0;iI!=indexes.size();++iI){
 	  edm::ParameterSet toUse = arg.iConfig;
-	  edm::Entry e("uint",indexes[iI],true);
+	  edm::Entry e("unsigned int",indexes[iI],true);
 	  std::stringstream ss;
 	  //add +1 0->1, 1->2, ... in the variable label
 	  ss<<indexes[iI]+1;
@@ -304,8 +304,8 @@ class ExpressionVariable : public CachingVariable {
       if (arg.n.find("_V")!=std::string::npos){
 	//do something fancy for multiple variable from one PSet
 	std::vector<std::string> vars = arg.iConfig.getParameter<std::vector<std::string> >("vars");
-	for (uint v=0;v!=vars.size();++v){
-	  uint sep=vars[v].find(":");
+	for (unsigned int v=0;v!=vars.size();++v){
+	  unsigned int sep=vars[v].find(":");
 	  std::string name=vars[v].substr(0,sep);
 	  std::string expr=vars[v].substr(sep+1);
 	  
@@ -381,7 +381,7 @@ class ExpressionVariable : public CachingVariable {
     if (selector_ || forder_){
       std::vector<const Object*> copyToSort(0);
       copyToSort.reserve(oH->size());
-      for (uint i=0;i!=oH->size();++i){
+      for (unsigned int i=0;i!=oH->size();++i){
         if (selector_ && !((*selector_)((*oH)[i]))) continue;
         copyToSort.push_back(&(*oH)[i]);
       }
@@ -399,7 +399,7 @@ class ExpressionVariable : public CachingVariable {
 
  private:
   edm::InputTag src_;
-  uint index_;
+  unsigned int index_;
   StringObjectFunction<Object> * f_;
   StringObjectFunction<Object> * forder_;
   StringCutObjectSelector<Object> * selector_;
@@ -412,9 +412,9 @@ public:
   TwoObjectVariable(CachingVariableFactoryArg arg) :
     CachingVariable(Calculator::calculationType()+std::string(lLHS)+std::string(lRHS),arg.n,arg.iConfig),
     srcLhs_(edm::Service<InputTagDistributorService>()->retrieve("srcLhs",arg.iConfig)),
-    indexLhs_(arg.iConfig.getParameter<uint>("indexLhs")),
+    indexLhs_(arg.iConfig.getParameter<unsigned int>("indexLhs")),
     srcRhs_(edm::Service<InputTagDistributorService>()->retrieve("srcRhs",arg.iConfig)),
-    indexRhs_(arg.iConfig.getParameter<uint>("indexRhs"))
+    indexRhs_(arg.iConfig.getParameter<unsigned int>("indexRhs"))
       {
 	std::stringstream ss;
 	addDescriptionLine(Calculator::description());
@@ -473,9 +473,9 @@ public:
     }
 private:
   edm::InputTag srcLhs_;
-  uint indexLhs_;
+  unsigned int indexLhs_;
   edm::InputTag srcRhs_;
-  uint indexRhs_;
+  unsigned int indexRhs_;
 };
 
 
@@ -524,7 +524,7 @@ class SimpleValueVectorVariable : public CachingVariable {
   SimpleValueVectorVariable(CachingVariableFactoryArg arg) :
     CachingVariable("SimpleValueVectorVariable",arg.n,arg.iConfig),
     src_(edm::Service<InputTagDistributorService>()->retrieve("src",arg.iConfig)),
-    index_(arg.iConfig.getParameter<uint>("index")) { arg.m[arg.n]=this;}
+    index_(arg.iConfig.getParameter<unsigned int>("index")) { arg.m[arg.n]=this;}
   CachingVariable::evalType eval(const edm::Event & iEvent) const{
     edm::Handle<std::vector<TYPE> > values;
     try { iEvent.getByLabel(src_,values);} 
@@ -536,7 +536,7 @@ class SimpleValueVectorVariable : public CachingVariable {
   
  private:
   edm::InputTag src_;
-  uint index_;
+  unsigned int index_;
 };
 
 

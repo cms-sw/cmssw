@@ -32,7 +32,7 @@ class Filter {
   const std::vector<std::string> description() { return description_;}
   const std::string descriptionText() { 
     std::string text;
-    for (uint i=0;i!=description_.size();++i) text+=description_[i]+"\n";
+    for (unsigned int i=0;i!=description_.size();++i) text+=description_[i]+"\n";
     text+=dump()+"\n";
     return text;}
 
@@ -66,7 +66,7 @@ class FilterOR : public Filter{
     std::stringstream ss;
     ss<<"Filter doing an OR of: ";
     //split the OR-separated string into vector of strings
-    uint size=0;
+    unsigned int size=0;
     bool OK=true;
     while( OK ){
       size_t orPos = filterORlistCopy.find("_OR_");
@@ -94,7 +94,7 @@ class FilterOR : public Filter{
     description_.push_back(ss.str());
   }
   bool accept(edm::Event& iEvent)const {
-    for (uint i=0 ; i!=filters_.size();++i)
+    for (unsigned int i=0 ; i!=filters_.size();++i)
       if (filters_[i].second->accept(iEvent))
 	return true;
     return false;
@@ -124,7 +124,7 @@ class Selection {
     makeDetailledPrintout_(iConfig.exists("detailledPrintoutCategory"))
   {
     if (iConfig.exists("nMonitor"))
-      nMonitor_=iConfig.getParameter<uint>("nMonitor");
+      nMonitor_=iConfig.getParameter<unsigned int>("nMonitor");
     else
       nMonitor_=0;
 
@@ -186,7 +186,7 @@ class Selection {
   void print(bool description=true){
     if (!makeSummaryTable_) return;
 
-    uint maxFnameSize = 20;
+    unsigned int maxFnameSize = 20;
     for (iterator filter=begin(); filter!=end();++filter){
       if ((*filter)->name().size() > maxFnameSize) maxFnameSize = (*filter)->name().size()+1;
     }
@@ -216,7 +216,7 @@ class Selection {
     summary<<" filter cumulative pass:"<<std::endl;
     summary<<std::right<<std::setw(maxFnameSize)<<"total read"<<": "
 	   <<std::right<<std::setw(10)<<nSeen_<<std::endl;
-    uint lastCount=nSeen_;
+    unsigned int lastCount=nSeen_;
     for (iterator filter=begin(); filter!=end();++filter){
       const std::string & fName=(*filter)->name();
       const Count & count=counts_[fName];
@@ -252,13 +252,13 @@ class Selection {
   bool makeCumulativePlots_;
   bool makeAllButOnePlots_;
 
-  uint nSeen_;
-  uint nMonitor_;
+  unsigned int nSeen_;
+  unsigned int nMonitor_;
 
   struct Count{
-    uint nPass_;
-    uint nSeen_;
-    uint nCumulative_;
+    unsigned int nPass_;
+    unsigned int nSeen_;
+    unsigned int nCumulative_;
   };
   std::map<std::string, Count> counts_;
   bool makeSummaryTable_;
@@ -277,8 +277,8 @@ class Selections {
     //FIXME. what about nested filters
     //make all configured filters
     std::vector<std::string> filterNames;
-    uint nF=filtersPSet_.getParameterSetNames(filterNames);
-    for (uint iF=0;iF!=nF;iF++){
+    unsigned int nF=filtersPSet_.getParameterSetNames(filterNames);
+    for (unsigned int iF=0;iF!=nF;iF++){
       edm::ParameterSet pset = filtersPSet_.getParameter<edm::ParameterSet>(filterNames[iF]);
       filters_.insert(std::make_pair(filterNames[iF],new Filter(filterNames[iF],pset)));
     }
@@ -286,8 +286,8 @@ class Selections {
     //parse all configured selections
     std::vector<std::string> selectionNames;
     std::map<std::string, std::vector<std::string> > selectionFilters;
-    uint nS=selectionPSet_.getParameterSetNames(selectionNames);
-    for (uint iS=0;iS!=nS;iS++){
+    unsigned int nS=selectionPSet_.getParameterSetNames(selectionNames);
+    for (unsigned int iS=0;iS!=nS;iS++){
       edm::ParameterSet pset=selectionPSet_.getParameter<edm::ParameterSet>(selectionNames[iS]);
       selections_.push_back(Selection(selectionNames[iS],pset));
       //      selections_.insert(std::make_pair(selectionNames[iS],Selection(selectionNames[iS],pset)));
@@ -297,7 +297,7 @@ class Selections {
 
 
     //watch out of recursive dependency
-    //    uint nestedDepth=0; //FIXME not taken care of
+    //    unsigned int nestedDepth=0; //FIXME not taken care of
 
     //resolving dependencies
     for (std::map<std::string, std::vector<std::string> >::iterator sIt= selectionFilters.begin();sIt!=selectionFilters.end();++sIt)

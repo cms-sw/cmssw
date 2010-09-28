@@ -22,7 +22,7 @@ class ConfigurableAxis {
     Label_=par.getParameter<std::string>("Label");
 
     if (par.exists("nBins")){
-      nBin_=par.getParameter<uint>("nBins");
+      nBin_=par.getParameter<unsigned int>("nBins");
       Min_=par.getParameter<double>("Min");
       Max_=par.getParameter<double>("Max");
     }else{
@@ -35,7 +35,7 @@ class ConfigurableAxis {
     }
   }
   bool variableSize(){return vBins_.size()!=0;}
-  uint nBin(){if (variableSize()) return vBins_.size()-1;else return nBin_;}
+  unsigned int nBin(){if (variableSize()) return vBins_.size()-1;else return nBin_;}
   double Min(){if (variableSize()) return vBins_.front(); else return Min_;}
   double Max(){if (variableSize()) return vBins_.back(); else return Max_;}
   const std::string & Label(){ return Label_;}
@@ -43,7 +43,7 @@ class ConfigurableAxis {
 
  private:
   std::vector<double> vBins_;
-  uint nBin_;
+  unsigned int nBin_;
   double Min_;
   double Max_;
   std::string Label_;
@@ -232,7 +232,7 @@ class SplittingConfigurableHisto : public ConfigurableHisto {
     if (pset.exists("splitters")){
       //you want more than one splitter
       std::vector<std::string> splitters = pset.getParameter<std::vector<std::string> >("splitters");
-      for (uint s=0;s!=splitters.size();++s){
+      for (unsigned int s=0;s!=splitters.size();++s){
 	const CachingVariable * v=edm::Service<VariableHelperService>()->get().variable(splitters[s]);
 	const Splitter * splitter = dynamic_cast<const Splitter*>(v);
 	if (!splitter){
@@ -243,8 +243,8 @@ class SplittingConfigurableHisto : public ConfigurableHisto {
 	//insert in the map
 	std::vector<ConfigurableHisto*> & insertedHisto=subHistoMap_[splitter];
 	//now configure the histograms
-	uint mSlots=splitter->maxSlots();
-	for (uint i=0;i!=mSlots;++i){
+	unsigned int mSlots=splitter->maxSlots();
+	for (unsigned int i=0;i!=mSlots;++i){
 	  //---	  std::cout<<" slot: "<<i<<std::endl;
 	  const std::string & slabel=splitter->shortLabel(i);
 	  const std::string & label=splitter->label(i);
@@ -266,8 +266,8 @@ class SplittingConfigurableHisto : public ConfigurableHisto {
       }
       else{
 	//configure the splitted plots
-	uint mSlots=splitter_->maxSlots();
-	for (uint i=0;i!=mSlots;i++){
+	unsigned int mSlots=splitter_->maxSlots();
+	for (unsigned int i=0;i!=mSlots;i++){
 	  const std::string & slabel=splitter_->shortLabel(i);
 	  const std::string & label=splitter_->label(i);
 	  edm::ParameterSet mPset=pset;
@@ -286,7 +286,7 @@ class SplittingConfigurableHisto : public ConfigurableHisto {
     if (subHistoMap_.size()!=0){
       SubHistoMap::iterator i=subHistoMap_.begin();
       SubHistoMap::iterator i_end=subHistoMap_.end();
-      for (;i!=i_end;++i){for (uint h=0;h!=i->second.size();++h){ 
+      for (;i!=i_end;++i){for (unsigned int h=0;h!=i->second.size();++h){ 
 	  i->second[h]->book(dir);}
 	//book the THStack
 	std::string sName= name_+"_"+i->first->name();
@@ -294,7 +294,7 @@ class SplittingConfigurableHisto : public ConfigurableHisto {
 	subHistoStacks_[i->first]= dir->make<THStack>(sName.c_str(),sTitle.c_str());
       }
     }else{
-      for (uint h=0;h!=subHistos_.size();h++){subHistos_[h]->book(dir);}
+      for (unsigned int h=0;h!=subHistos_.size();h++){subHistos_[h]->book(dir);}
       //book a THStack
       std::string sName= name_+"_"+splitter_->name();
       std::string sTitle="Stack histogram of "+name_+" for splitter "+splitter_->name();
@@ -316,7 +316,7 @@ class SplittingConfigurableHisto : public ConfigurableHisto {
 	const Splitter * splitter=i->first;
 	if (!splitter) continue;
 	if (!splitter->compute(e)) continue;
-	uint slot=(uint)  (*splitter)(e);
+	unsigned int slot=(unsigned int)  (*splitter)(e);
 	if (slot>=i->second.size()){
 	  edm::LogError("SplittingConfigurableHisto")<<"slot index: "<<slot<<" is bigger than slots size: "<<i->second.size()<<" from variable value: "<<(*splitter)(e);
 	  continue;}
@@ -329,7 +329,7 @@ class SplittingConfigurableHisto : public ConfigurableHisto {
       if (!splitter_) return;
       if (!splitter_->compute(e)){
 	return;}
-      uint slot=(uint) (*splitter_)(e);
+      unsigned int slot=(unsigned int) (*splitter_)(e);
       if (slot>=subHistos_.size()){
 	edm::LogError("SplittingConfigurableHisto")<<"slot index: "<<slot<<" is bigger than slots size: "<< subHistos_.size() <<" from variable value: "<<(*splitter_)(e);
 	return;}
@@ -343,7 +343,7 @@ class SplittingConfigurableHisto : public ConfigurableHisto {
       SubHistoMap::iterator i=subHistoMap_.begin();
       SubHistoMap::iterator i_end=subHistoMap_.end();
       for (;i!=i_end;++i){
-	for (uint h=0;h!=i->second.size();h++){
+	for (unsigned int h=0;h!=i->second.size();h++){
 	  //	  if (i->second[h]->h()->Integral==0) continue;// do not add empty histograms. NO, because it will be tough to merge two THStack
 	  subHistoStacks_[i->first]->Add(i->second[h]->h(), i->first->label(h).c_str());
 	}
@@ -351,7 +351,7 @@ class SplittingConfigurableHisto : public ConfigurableHisto {
 
     }else{
       //fill up the only stack
-      for (uint i=0;i!=subHistos_.size();i++){	stack_->Add(subHistos_[i]->h(), splitter_->label(i).c_str());      }
+      for (unsigned int i=0;i!=subHistos_.size();i++){	stack_->Add(subHistos_[i]->h(), splitter_->label(i).c_str());      }
     }
 
 
@@ -365,10 +365,10 @@ class SplittingConfigurableHisto : public ConfigurableHisto {
       for (;i!=i_end;++i){
 	const std::vector<ConfigurableHisto*> & masterHistos=i->second;
 	std::vector<ConfigurableHisto*> & clonedHistos=subHistoMap_[i->first];
-	for (uint i=0;i!=masterHistos.size();i++){clonedHistos.push_back(masterHistos[i]->clone());}
+	for (unsigned int i=0;i!=masterHistos.size();i++){clonedHistos.push_back(masterHistos[i]->clone());}
       }
     }else{
-      for (uint i=0;i!=master.subHistos_.size();i++){subHistos_.push_back(master.subHistos_[i]->clone());}
+      for (unsigned int i=0;i!=master.subHistos_.size();i++){subHistos_.push_back(master.subHistos_[i]->clone());}
     }
   }
 

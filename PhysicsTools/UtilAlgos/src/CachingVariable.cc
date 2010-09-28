@@ -14,7 +14,7 @@ CachingVariable::evalType VarSplitter::eval(const edm::Event & iEvent) const{
     if (useOverFlow_) return std::make_pair(true,(double)maxIndex());
     else return std::make_pair(false,0);
   }
-  uint i=1;
+  unsigned int i=1;
   for (;i<slots_.size();++i)
     if (v<slots_[i]) break;
 
