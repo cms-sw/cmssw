@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2010/09/20 16:45:38 $
- * $Revision: 1.53 $
+ * $Date: 2010/09/28 12:28:19 $
+ * $Revision: 1.54 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -1022,21 +1022,18 @@ void EESelectiveReadoutTask::anaDigiInit(){
 
 }
 
-EcalScDetId
-EESelectiveReadoutTask::readOutUnitOf(const EEDetId& xtalId) const{
-  if( 40 < xtalId.ix() && xtalId.ix() < 61
-      && 40 < xtalId.iy() && xtalId.iy() < 61) { // in an inner partial supercrystal
-    EcalScDetId scId = Numbers::getEcalScDetId(xtalId);
+const EcalScDetId
+EESelectiveReadoutTask::readOutUnitOf(const EEDetId& xtalId) const {
+  if (xtalId.ix() > 40 && xtalId.ix() < 61 &&
+      xtalId.iy() > 40 && xtalId.iy() < 61) {
+    // crystal belongs to an inner partial supercrystal
     return Numbers::getEcalScDetId(xtalId);
-  } else{
-    const int scEdge = 5;
-    return EcalScDetId((xtalId.ix()-1)/scEdge+1,
-                       (xtalId.iy()-1)/scEdge+1,
-                       xtalId.zside());
+  } else {
+    return EcalScDetId((xtalId.ix()-1)/5+1, (xtalId.iy()-1)/5+1, xtalId.zside());
   }
 }
 
-unsigned EESelectiveReadoutTask::dccNum(const DetId& xtalId) const{
+unsigned EESelectiveReadoutTask::dccNum(const DetId& xtalId) const {
   int j;
   int k;
 
@@ -1061,7 +1058,7 @@ unsigned EESelectiveReadoutTask::dccNum(const DetId& xtalId) const{
   return iDcc0+1;
 }
 
-unsigned EESelectiveReadoutTask::dccNumOfRU(const EcalScDetId& scId) const{
+unsigned EESelectiveReadoutTask::dccNumOfRU(const EcalScDetId& scId) const {
   int j;
   int k;
 

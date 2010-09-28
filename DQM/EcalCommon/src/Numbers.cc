@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.76 2010/08/09 11:27:21 dellaric Exp $
+// $Id: Numbers.cc,v 1.77 2010/09/28 12:23:35 emanuele Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo
-  \version $Revision: 1.76 $
-  \date $Date: 2010/08/09 11:27:21 $
+  \version $Revision: 1.77 $
+  \date $Date: 2010/09/28 12:23:35 $
 */
 
 #include <sstream>
@@ -818,7 +818,7 @@ std::vector<DetId>* Numbers::crystals( int idcc, int isc ) throw( std::runtime_e
     int index = 100*(idcc-1) + (isc-1);
 
     if ( Numbers::crystalsDCC_[index].size() == 0 ) {
-      Numbers::crystalsDCC_[index] = Numbers::map->dccTowerConstituents( idcc, isc );
+      Numbers::crystalsDCC_[index] = Numbers::map->dccTowerConstituents(idcc, isc);
     }
 
     return &(Numbers::crystalsDCC_[index]);
@@ -835,7 +835,32 @@ std::vector<DetId>* Numbers::crystals( int idcc, int isc ) throw( std::runtime_e
 
 //-------------------------------------------------------------------------
 
-int Numbers::indexEB( const int ism, const int ie, const int ip ){
+const EcalScDetId Numbers::getEcalScDetId( const EEDetId& id ) throw( std::runtime_error ) {
+
+  if( Numbers::map ) {
+
+    const EcalElectronicsId& eid = Numbers::map->getElectronicsId(id);
+
+    int idcc = eid.dccId();
+    int isc = eid.towerId();
+
+    const std::vector<EcalScDetId> ids = Numbers::map->getEcalScDetId( idcc, isc, true );
+
+    return ids.size() > 0 ? ids[0] : EcalScDetId();
+
+  } else {
+
+    std::ostringstream s;
+    s << "ECAL Geometry not available";
+    throw( std::runtime_error( s.str() ) );
+
+  }
+
+}
+
+//-------------------------------------------------------------------------
+
+int Numbers::indexEB( const int ism, const int ie, const int ip ) {
 
   return( (ip-1) + 20*(ie-1) + 1 );
 
@@ -843,7 +868,7 @@ int Numbers::indexEB( const int ism, const int ie, const int ip ){
 
 //-------------------------------------------------------------------------
 
-int Numbers::indexEE( const int ism, const int ix, const int iy ){
+int Numbers::indexEE( const int ism, const int ix, const int iy ) {
 
   int iz = 0;
 
@@ -975,14 +1000,3 @@ bool Numbers::validEE( const int ism, const int ix, const int iy ) {
 
 //-------------------------------------------------------------------------
 
-EcalScDetId Numbers::getEcalScDetId(const EEDetId& xtalId) {
-
-  const EcalElectronicsId& EcalElecId = Numbers::map->getElectronicsId(xtalId);
-  int iDCC= EcalElecId.dccId();
-  int iDccChan = EcalElecId.towerId();
-  const bool ignoreSingle = true;
-  const std::vector<EcalScDetId> id = Numbers::map->getEcalScDetId(iDCC, iDccChan, ignoreSingle);
-
-  return id.size()>0?id[0]:EcalScDetId();
-
-}

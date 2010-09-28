@@ -5,8 +5,8 @@
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.35 $
-  \date $Date: 2010/08/20 19:09:03 $
+  \version $Revision: 1.36 $
+  \date $Date: 2010/09/28 12:23:35 $
 */
 
 #include <string>
@@ -88,6 +88,14 @@ class Numbers {
 
   static int iTCC(const EcalTrigTowerDetId& id) throw( std::runtime_error );
 
+  static std::vector<DetId>* crystals( const EcalTrigTowerDetId& id ) throw( std::runtime_error );
+
+  static std::vector<DetId>* crystals( const EcalElectronicsId& id ) throw( std::runtime_error );
+
+  static std::vector<DetId>* crystals( int idcc, int isc ) throw( std::runtime_error );
+
+  static const EcalScDetId getEcalScDetId( const EEDetId& id ) throw( std::runtime_error );
+
   static int indexEB( const int ism, const int ie, const int ip );
 
   static int indexEE( const int ism, const int ix, const int iy );
@@ -95,12 +103,6 @@ class Numbers {
   static int icEB( const int ism, const int ix, const int iy );
 
   static int icEE( const int ism, const int ix, const int iy ) throw( std::runtime_error );
-
-  static std::vector<DetId>* crystals( const EcalTrigTowerDetId& id ) throw( std::runtime_error );
-
-  static std::vector<DetId>* crystals( const EcalElectronicsId& id ) throw( std::runtime_error );
-
-  static std::vector<DetId>* crystals( int idcc, int isc ) throw( std::runtime_error );
 
   static int RtHalf(const EBDetId& id);
 
@@ -111,8 +113,6 @@ class Numbers {
   static int iy0EE( const int ism );
 
   static bool validEE( const int ism, const int ix, const int iy );
-
-  static EcalScDetId getEcalScDetId(const EEDetId& xtalId);
 
 private:
 

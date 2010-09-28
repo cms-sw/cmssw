@@ -4,8 +4,8 @@
 /*
  * \file EESelectiveReadoutTask.h
  *
- * $Date: 2010/08/08 08:46:08 $
- * $Revision: 1.18 $
+ * $Date: 2010/08/12 09:05:51 $
+ * $Revision: 1.19 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -184,7 +184,7 @@ unsigned dccNumOfRU(const EcalScDetId& scId) const;
  * @param xtalId identifier of the crystal
  * @return identifer of the supercrystal or of the trigger tower.
  */
-EcalScDetId readOutUnitOf(const EEDetId& xtalId) const;
+const EcalScDetId readOutUnitOf(const EEDetId& xtalId) const;
   
 /** Converts a std CMSSW crystal x or y index to a c-array index (starting
  * from zero and without hole).
