@@ -247,7 +247,6 @@ process.load("RecoEcal.EgammaClusterProducers.ecalClusteringSequence_cff")
 
 process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi")
 
-process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTrigPrimESProducer_cff")
 process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_readDBOffline_cff")
 
 process.load("DQM.EcalBarrelMonitorModule.EcalBarrelMonitorModule_cfi")
@@ -404,19 +403,15 @@ if (localDAQ == 1) | (globalDAQ == 1) | (liveECAL == 1) :
 
 if (localDAQ == 1) :
   process.GlobalTag.globaltag = "GR10_H_V0::All"
-  process.prefer("GlobalTag")
 
 if (globalDAQ == 1) :
   process.GlobalTag.globaltag = "GR10_H_V6A::All"
-  process.prefer("GlobalTag")
 
 if (liveECAL == 1) :
   process.GlobalTag.globaltag = "GR10_H_V9::All"
-  process.prefer("GlobalTag")
 
 if (liveCMS == 1) | (playCMS == 1) :
   process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
-  process.prefer("GlobalTag")
 
 if (globalDAQ == 1) | (liveECAL == 1) | (liveCMS == 1) | (playCMS == 1) :
   process.GlobalTag.toGet = cms.VPSet(
