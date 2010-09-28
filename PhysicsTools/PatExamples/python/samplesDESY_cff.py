@@ -10,10 +10,10 @@ zjetsRECO = cms.untracked.vstring(
     ,'/store/mc/Spring10/ZJets-madgraph/AODSIM/START3X_V26_S09-v1/0013/0C096217-3A47-DF11-9E65-003048C692A4.root'
 )
 
-zjetsPAT  = cms.untracked.vstring(
-    'file:patTuple_zjets.root'
+zjetsTracks  = cms.untracked.vstring(
+    '/store/user/rwolf/school/patTuple_zjets_tracks.root'
 )
 
 zjetsTrigger  = cms.untracked.vstring(
-    'file:patTuple_zjets_trigger.root'
+    '/store/user/rwolf/school/patTuple_zjets_trigger.root'
 )
