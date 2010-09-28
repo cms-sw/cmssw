@@ -4,7 +4,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-dumpRaw = cms.EDAnalyzer("DumpRaw",
+dumpRaw = cms.EDAnalyzer("EcalDumpRaw",
                          amplCut = cms.untracked.double(5.),
                          dump = cms.untracked.bool(True),
                          dumpAdc = cms.untracked.bool(True),
