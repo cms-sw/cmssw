@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_8_1/GRun/V36 (CMSSW_3_8_1_HLT16)
+# /dev/CMSSW_3_8_1/GRun/V37 (CMSSW_3_8_1_HLT16)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/GRun/V36')
+  tableName = cms.string('/dev/CMSSW_3_8_1/GRun/V37')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -12795,14 +12795,7 @@ process.hltPreDQM = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
 )
 process.hltPreDQMSmart = cms.EDFilter( "TriggerResultsFilter",
-    triggerConditions = cms.vstring( 'AlCa_EcalEta',
-      'AlCa_EcalPhiSym',
-      'AlCa_EcalPi0',
-      'AlCa_RPCMuonNoHits',
-      'AlCa_RPCMuonNormalisation',
-      'AlCa_RPCMuonNoTriggers',
-      'DQM_FEDIntegrity',
-      'HLT_Activity_CSC',
+    triggerConditions = cms.vstring( 'HLT_Activity_CSC',
       'HLT_Activity_DT',
       'HLT_Activity_DT_Tuned',
       'HLT_Activity_Ecal_SC17',
@@ -12962,10 +12955,6 @@ process.hltPreHLTDQMSmart = cms.EDFilter( "TriggerResultsFilter",
     triggerConditions = cms.vstring( 'AlCa_EcalEta',
       'AlCa_EcalPhiSym',
       'AlCa_EcalPi0',
-      'AlCa_RPCMuonNoHits',
-      'AlCa_RPCMuonNormalisation',
-      'AlCa_RPCMuonNoTriggers',
-      'DQM_FEDIntegrity',
       'HLT_Activity_CSC',
       'HLT_Activity_DT',
       'HLT_Activity_DT_Tuned',
@@ -13138,10 +13127,6 @@ process.hltPreHLTMONSmart = cms.EDFilter( "TriggerResultsFilter",
     triggerConditions = cms.vstring( 'AlCa_EcalEta',
       'AlCa_EcalPhiSym',
       'AlCa_EcalPi0',
-      'AlCa_RPCMuonNoHits',
-      'AlCa_RPCMuonNormalisation',
-      'AlCa_RPCMuonNoTriggers',
-      'DQM_FEDIntegrity',
       'HLT_Activity_CSC',
       'HLT_Activity_DT',
       'HLT_Activity_DT_Tuned',
