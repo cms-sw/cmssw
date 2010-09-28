@@ -132,7 +132,7 @@ process.SKIMStreamWZMu = cms.OutputModule("PoolOutputModule",
 )
 
 # Other statements
-process.GlobalTag.globaltag = 'GR_R_39X_V0::All'
+process.GlobalTag.globaltag = 'GR_R_38X_V13::All'
 
 # Path and EndPath definitions
 process.singlePhotonPt5SkimPath = cms.Path(process.singlePhotonPt5QualitySeq)
