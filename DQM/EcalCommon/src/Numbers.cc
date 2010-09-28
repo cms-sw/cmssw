@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.75 2010/08/09 09:00:15 dellaric Exp $
+// $Id: Numbers.cc,v 1.76 2010/08/09 11:27:21 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo
-  \version $Revision: 1.75 $
-  \date $Date: 2010/08/09 09:00:15 $
+  \version $Revision: 1.76 $
+  \date $Date: 2010/08/09 11:27:21 $
 */
 
 #include <sstream>
@@ -974,3 +974,15 @@ bool Numbers::validEE( const int ism, const int ix, const int iy ) {
 }
 
 //-------------------------------------------------------------------------
+
+EcalScDetId Numbers::getEcalScDetId(const EEDetId& xtalId) {
+
+  const EcalElectronicsId& EcalElecId = Numbers::map->getElectronicsId(xtalId);
+  int iDCC= EcalElecId.dccId();
+  int iDccChan = EcalElecId.towerId();
+  const bool ignoreSingle = true;
+  const std::vector<EcalScDetId> id = Numbers::map->getEcalScDetId(iDCC, iDccChan, ignoreSingle);
+
+  return id.size()>0?id[0]:EcalScDetId();
+
+}
