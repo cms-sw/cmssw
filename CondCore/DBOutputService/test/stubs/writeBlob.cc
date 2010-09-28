@@ -49,11 +49,16 @@ writeBlob::analyze( const edm::Event& evt, const edm::EventSetup& evtSetup)
     mydbservice->writeOne(me,new cond::GenericSummary("100*256"),
 			  mydbservice->currentTime(),
 			  m_StripRecordName);
-  }catch(const std::exception& er){
+  }catch(const cond::Exception& er){
+    throw cms::Exception("DBOutputServiceUnitTestFailure","failed writeBlob",er);
+    //std::cout<<er.what()<<std::endl;
+  }catch(const cms::Exception& er){
+    throw cms::Exception("DBOutputServiceUnitTestFailure","failed writeBlob",er);
+  }/*catch(const std::exception& er){
     std::cout<<"caught std::exception "<<er.what()<<std::endl;
   }catch(...){
     std::cout<<"Funny error"<<std::endl;
-  }
+    }*/
 }
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(writeBlob);

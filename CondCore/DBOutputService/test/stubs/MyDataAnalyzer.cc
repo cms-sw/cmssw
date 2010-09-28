@@ -97,11 +97,14 @@ void MyDataAnalyzer::endJob(){
     std::cout<<"size of items "<<myinstance->m_pedestals.size()<<std::endl;
     pooldb.transaction().commit();
   }catch(const cond::Exception& er){
-    std::cout<<er.what()<<std::endl;
-  }catch(const std::exception& er){
+    throw cms::Exception("DBOutputServiceUnitTestFailure","failed MyDataAnalyzer",er);
+    //std::cout<<er.what()<<std::endl;
+  }catch(const cms::Exception& er){
+    throw cms::Exception("DBOutputServiceUnitTestFailure","failed MyDataAnalyzer",er);
+  }/*catch(const std::exception& er){
     std::cout<<"caught std::exception "<<er.what()<<std::endl;
   }catch(...){
     std::cout<<"Unknown error"<<std::endl;
-  }
+    }*/
 }
 DEFINE_FWK_MODULE(MyDataAnalyzer);

@@ -63,11 +63,16 @@ writeMultipleRecords::analyze( const edm::Event& evt, const edm::EventSetup& evt
       myped->m_pedestals.push_back(item);
     }
     mydbservice->writeOne(myped,new cond::GenericSummary("5"),mydbservice->currentTime(),m_PedRecordName);
-  }catch(const std::exception& er){
+  }catch(const cond::Exception& er){
+    throw cms::Exception("DBOutputServiceUnitTestFailure","failed writeMultipleRecords",er);
+    //std::cout<<er.what()<<std::endl;
+  }catch(const cms::Exception& er){
+    throw cms::Exception("DBOutputServiceUnitTestFailure","failed writeMultipleRecords",er);
+  }/*catch(const std::exception& er){
     std::cout<<"caught std::exception "<<er.what()<<std::endl;
   }catch(...){
     std::cout<<"Funny error"<<std::endl;
-  }
+    }*/
 }
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(writeMultipleRecords);

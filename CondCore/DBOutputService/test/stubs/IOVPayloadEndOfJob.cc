@@ -61,11 +61,14 @@ void IOVPayloadEndOfJob::endJob(){
       }
     }
   }catch(const cond::Exception& er){
-    std::cout<<er.what()<<std::endl;
-  }catch(const std::exception& er){
+    throw cms::Exception("DataBaseUnitTestFailure","failed IOVPayloadEndOfJob",er);
+    //std::cout<<er.what()<<std::endl;
+  }catch(const cms::Exception& er){
+    throw cms::Exception("DataBaseUnitTestFailure","failed IOVPayloadEndOfJob",er);
+  }/*catch(const std::exception& er){
     std::cout<<"caught std::exception "<<er.what()<<std::endl;
   }catch(...){
     std::cout<<"Unknown error"<<std::endl;
-  }
+    }*/
 }
 DEFINE_FWK_MODULE(IOVPayloadEndOfJob);
