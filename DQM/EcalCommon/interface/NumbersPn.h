@@ -1,11 +1,11 @@
-#ifndef NumbersPn_H
-#define NumbersPn_H
+#ifndef NUMBERSPN_H
+#define NUMBERSPN_H
 
 /*!
   \file NumbersPn.h
   \brief Some "id" conversions
-  \version $Revision: 1.9 $
-  \date $Date: 2010/08/08 08:16:15 $
+  \version $Revision: 1.10 $
+  \date $Date: 2010/08/20 19:09:04 $
 */
 
 #include <string>
@@ -29,4 +29,4 @@ class NumbersPn {
 
 };
 
-#endif // NumbersPn_H
+#endif // NUMBERSPN_H
