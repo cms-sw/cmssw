@@ -412,7 +412,6 @@ process.out = cms.OutputModule("EventStreamFileWriter",
     use_compression = cms.untracked.bool(True),
     compression_level = cms.untracked.int32(1),
     fileName = cms.untracked.string('testRandomFilter.dat'),
-    indexFileName = cms.untracked.string('testRandomFilter.ind')
 )
 
 #  processs.outp = cms.OutputModule("PoolOutputModule",

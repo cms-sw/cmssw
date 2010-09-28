@@ -102,7 +102,6 @@ process.out = cms.OutputModule("EventStreamFileWriter",
   fileName = cms.untracked.string('testSeriesOfProcessesHLT.dat'),
   compression_level = cms.untracked.int32(1),
   use_compression = cms.untracked.bool(True),
-  indexFileName = cms.untracked.string('testSeriesOfProcessesHLT.ind'),
   max_event_size = cms.untracked.int32(7000000)
 )
 
