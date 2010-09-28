@@ -44,6 +44,7 @@ class ConfigEditorTabController(BrowserTabController):
         self._thread = None
         self._originalSizes=[100,1,200]
         self._toolDialog=None
+        self._updateCenterView=False
         self.setEditable(False)
         
         self._configMenu = self.plugin().application().createPluginMenu('&Config')
@@ -88,6 +89,10 @@ class ConfigEditorTabController(BrowserTabController):
 
     def updateCenterView(self, propertyView=True):
         """ Fill the center view from an item in the TreeView and update it """
+        if not self._updateCenterView:
+            # Do not update the very first time
+            self._updateCenterView=True
+            return
         statusMessage = self.plugin().application().startWorking("Updating center view")
         if propertyView:
             self.selectDataAccessor(True)
@@ -286,6 +291,7 @@ class ConfigEditorTabController(BrowserTabController):
     def readFile(self, filename):
         """ Reads in the file in a separate thread.
         """
+        self._updateCenterView=False
         thread = ThreadChain(self.dataAccessor().open, filename)
         while thread.isRunning():
             if not Application.NO_PROCESS_EVENTS:

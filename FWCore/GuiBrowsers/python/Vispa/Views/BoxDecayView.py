@@ -42,10 +42,11 @@ class BoxDecayView(WidgetView):
         self.setPalette(QPalette(Qt.black, Qt.white))
 
     def setArrangeUsingRelations(self, set):
-        if set:
-            self.WARNING_ABOVE=300
-        else:
-            self.WARNING_ABOVE=1000
+        if self.WARNING_ABOVE>0:
+            if set:
+                self.WARNING_ABOVE=300
+            else:
+                self.WARNING_ABOVE=1000
         self._arrangeUsingRelationsFlag=set
     
     def arrangeUsingRelations(self):
@@ -89,7 +90,7 @@ class BoxDecayView(WidgetView):
             if result == QMessageBox.No:
                 return False
             if result == 0:
-                self.WARNING_ABOVE=-self.WARNING_ABOVE
+                self.WARNING_ABOVE=0
         return True
         
     def updateContent(self, overrideCheck=False):
