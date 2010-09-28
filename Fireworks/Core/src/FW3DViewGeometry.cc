@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 22:06:57 CET 2010
-// $Id: FW3DViewGeometry.cc,v 1.10 2010/09/20 14:42:38 amraktad Exp $
+// $Id: FW3DViewGeometry.cc,v 1.11 2010/09/21 11:39:03 amraktad Exp $
 //
 
 // system include files
@@ -40,7 +40,7 @@
 // constructors and destructor
 //
 FW3DViewGeometry::FW3DViewGeometry(const fireworks::Context& context):
-   FWViewGeometryList(context),
+   FWViewGeometryList(context, false),
    m_muonBarrelElements(0),
    m_muonEndcapElements(0),
    m_pixelBarrelElements(0),

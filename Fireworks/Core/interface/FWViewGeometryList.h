@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel 
 //         Created:  Tue Sep 14 13:28:39 CEST 2010
-// $Id: FWViewGeometryList.h,v 1.2 2010/09/16 17:37:48 amraktad Exp $
+// $Id: FWViewGeometryList.h,v 1.3 2010/09/17 16:18:55 amraktad Exp $
 //
 
 #include "sigc++/connection.h"
@@ -35,13 +35,11 @@ namespace fireworks {
 class FWViewGeometryList: public TEveElementList
 {
 public:
-   FWViewGeometryList( const fireworks::Context& context );
+   FWViewGeometryList( const fireworks::Context& context, bool projected = true );
    virtual ~FWViewGeometryList();
 
    void updateColors();
    void updateTransparency(bool projectedType);
-
-   virtual bool projected() const { return true; }
 
 protected:
    const fireworks::Context&    m_context;  
@@ -59,6 +57,7 @@ private:
    // ---------- member data --------------------------------
    sigc::connection  m_transpConnection;
    sigc::connection  m_colorConnection;
+   bool m_projected; // needed for transparency
 };
 
 
