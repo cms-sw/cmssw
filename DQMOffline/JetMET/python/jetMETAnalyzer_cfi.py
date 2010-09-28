@@ -20,7 +20,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         andOr         = cms.bool( False ),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
         hltDBKey       = cms.string( 'jetmet_highptjet' ),
-        hltPaths       = cms.vstring( 'HLT_Jet70U' ), 
+        hltPaths       = cms.vstring( 'HLT_Jet100U' ), 
         andOrHlt       = cms.bool( False ),
         errorReplyHlt  = cms.bool( False ),
     ),
@@ -35,8 +35,6 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
 
     TriggerResultsLabel        = cms.InputTag("TriggerResults::HLT"),
     processname                = cms.string("HLT"),
-    #JetLo                      = cms.string("HLT_Jet15U"),
-    #JetHi                      = cms.string("HLT_Jet50U"),
 
     #
     # Jet-related
