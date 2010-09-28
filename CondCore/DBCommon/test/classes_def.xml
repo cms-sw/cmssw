@@ -1,6 +1,0 @@
-<lcgdict>
- <class name="testCondObj"/>
-  <class name="testDBCommon::BaseClass"/>
-  <class name="testDBCommon::SimpleMember"/>
-  <class name="testDBCommon::SimpleClass"/>
-</lcgdict>   
