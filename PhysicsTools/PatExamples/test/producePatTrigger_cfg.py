@@ -25,7 +25,7 @@ process.p0 = cms.Path(
 ## ---
 ## Determine number of events to be processed
 ## ---
-process.maxEvents.input = -1
+process.maxEvents.input = 100
 
 ## ---
 ## Adaptations to the event content
