@@ -9,6 +9,7 @@
 #include "classes.h"
 
 int main(){
+  using namespace testORA;
   ora::Database db;
   try {
     std::string authpath("/afs/cern.ch/cms/DB/conddb");

@@ -159,6 +159,7 @@ void PrimitiveContainerStreamingService::read( const coral::Blob& blobData,
 }
 
 int main(){
+  using namespace testORA;
   try {
 
     // writing...

@@ -25,7 +25,7 @@ class ReferenceHandler : public ora::IReferenceHandler {
     
 
     bool onLoad( ora::Reference& r ){
-      RefBase& ref = dynamic_cast<RefBase&>( r );
+      testORA::RefBase& ref = dynamic_cast<testORA::RefBase&>( r );
       ref.setDb( m_db );
       return true;
     }
@@ -34,6 +34,7 @@ class ReferenceHandler : public ora::IReferenceHandler {
 };
 
 int main(){
+  using namespace testORA;
   try {
 
     // writing...  

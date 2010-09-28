@@ -9,6 +9,7 @@
 #include "classes.h"
 
 int main(){
+  using namespace testORA;
   try {
 
     // writing...
