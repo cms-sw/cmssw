@@ -1,7 +1,6 @@
 #include "IOPool/Streamer/interface/StreamerInputFile.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "IOPool/Streamer/interface/StreamerInputIndexFile.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -26,55 +25,6 @@ namespace edm {
   StreamerInputFile::StreamerInputFile(std::string const& name,
                                        int* numberOfEventsToSkip,
                                        boost::shared_ptr<EventSkipperByID> eventSkipperByID) :
-    useIndex_(false),
-    startMsg_(),
-    currentEvMsg_(),
-    headerBuf_(1000*1000),
-    eventBuf_(1000*1000*7),
-    multiStreams_(false),
-    currentFileName_(),
-    currentFileOpen_(false),
-    eventSkipperByID_(eventSkipperByID),
-    numberOfEventsToSkip_(numberOfEventsToSkip),
-    newHeader_(false),
-    endOfFile_(false) {
-    openStreamerFile(name);
-    readStartMessage();
-  }
-
-  StreamerInputFile::StreamerInputFile(std::string const& name,
-                                       std::string const& order,
-                                       int* numberOfEventsToSkip,
-                                       boost::shared_ptr<EventSkipperByID> eventSkipperByID) :
-    useIndex_(true),
-    index_(new StreamerInputIndexFile(order)),
-    //indexIter_b(index_->begin()),
-    indexIter_b(index_->sort()),
-    indexIter_e(index_->end()),
-    startMsg_(),
-    currentEvMsg_(),
-    headerBuf_(1000*1000),
-    eventBuf_(1000*1000*7),
-    multiStreams_(false),
-    currentFileName_(),
-    currentFileOpen_(false),
-    eventSkipperByID_(eventSkipperByID),
-    numberOfEventsToSkip_(numberOfEventsToSkip),
-    newHeader_(false),
-    endOfFile_(false) {
-    openStreamerFile(name);
-    readStartMessage();
-  }
-
-  StreamerInputFile::StreamerInputFile(std::string const& name,
-                                       StreamerInputIndexFile& order,
-                                       int* numberOfEventsToSkip,
-                                       boost::shared_ptr<EventSkipperByID> eventSkipperByID) :
-    useIndex_(true),
-    index_(&order, do_nothing_deleter()),
-    //indexIter_b(index_->begin()),
-    indexIter_b(index_->sort()),
-    indexIter_e(index_->end()),
     startMsg_(),
     currentEvMsg_(),
     headerBuf_(1000*1000),
@@ -94,7 +44,6 @@ namespace edm {
   StreamerInputFile::StreamerInputFile(std::vector<std::string> const& names,
                                        int* numberOfEventsToSkip,
                                        boost::shared_ptr<EventSkipperByID> eventSkipperByID) :
-    useIndex_(false),
     startMsg_(),
     currentEvMsg_(),
     headerBuf_(1000*1000),
@@ -148,10 +97,6 @@ namespace edm {
     }
     currentFileOpen_ = true;
     logFileAction("  Successfully opened file ");
-  }
-
-  StreamerInputIndexFile const* StreamerInputFile::index() {
-    return index_.get();
   }
 
   IOSize StreamerInputFile::readBytes(char *buf, IOSize nBytes) {
@@ -220,20 +165,6 @@ namespace edm {
   }
 
   bool StreamerInputFile::next() {
-    if (useIndex_) {
-       // Read the offset of next event from Event Index
-       if (indexIter_b != indexIter_e) {
-          try {
-            storage_->position((*indexIter_b)->getOffset() - 1);
-          }
-          catch (cms::Exception& ce) {
-            throw Exception(errors::FileReadError, "StreamerInputFile::next")
-              << "Failed reading streamer file in function next\n"
-              << ce.explainSelf() << "\n";
-          }
-          ++indexIter_b;
-       }
-    }
     if (this->readEventMessage()) {
          return true;
     }

@@ -4,7 +4,6 @@
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/MsgTools.h"
-#include "IOPool/Streamer/interface/IndexRecords.h"
 #include "Utilities/StorageFactory/interface/IOTypes.h"
 #include "Utilities/StorageFactory/interface/Storage.h"
 
@@ -14,7 +13,6 @@
 #include<vector>
 
 namespace edm {
-  class StreamerInputIndexFile;
   class EventSkipperByID;
   class StreamerInputFile {
   public:
@@ -24,18 +22,7 @@ namespace edm {
       int* numberOfEventsToSkip = 0,
       boost::shared_ptr<EventSkipperByID> eventSkipperByID = boost::shared_ptr<EventSkipperByID>());
 
-    /** Reads a Streamer file and browse it through an index file */
-    /** Index file name provided here */
-    explicit StreamerInputFile(std::string const& name, std::string const& order,
-      int* numberOfEventsToSkip = 0,
-      boost::shared_ptr<EventSkipperByID> eventSkipperByID = boost::shared_ptr<EventSkipperByID>());
-
-    /** Index file reference is provided */
-    explicit StreamerInputFile(std::string const& name, StreamerInputIndexFile& order,
-      int* numberOfEventsToSkip = 0,
-      boost::shared_ptr<EventSkipperByID> eventSkipperByID = boost::shared_ptr<EventSkipperByID>());
-
-    /** Multiple Index files for Single Streamer file */
+    /** Multiple Streamer files */
     explicit StreamerInputFile(std::vector<std::string> const& names,
       int* numberOfEventsToSkip = 0,
       boost::shared_ptr<EventSkipperByID> eventSkipperByID = boost::shared_ptr<EventSkipperByID>());
@@ -49,8 +36,6 @@ namespace edm {
 
     EventMsgView const* currentRecord() const { return currentEvMsg_.get(); }
     /** Points to current Record */
-
-    StreamerInputIndexFile const* index(); /** Return pointer to current index */
 
     bool const newHeader() { bool tmp = newHeader_; newHeader_ = false; return tmp;}  /** Test bit if a new header is encountered */
 
@@ -70,11 +55,6 @@ namespace edm {
     bool compareHeader();
 
     void logFileAction(char const* msg);
-
-    bool useIndex_;
-    boost::shared_ptr<StreamerInputIndexFile> index_;
-    indexRecIter indexIter_b;
-    indexRecIter indexIter_e;
 
     boost::shared_ptr<InitMsgView> startMsg_;
     boost::shared_ptr<EventMsgView> currentEvMsg_;

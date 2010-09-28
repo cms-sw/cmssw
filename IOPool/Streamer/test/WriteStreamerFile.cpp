@@ -1,4 +1,4 @@
-/** Example code shows you to write Streamer and Index files.
+/** Example code shows you to write Streamer files.
     All values are dummy here, The Init message contains different 
     values from what Event Header contains, this is only 
     for the demonstration, obviously.
@@ -22,7 +22,6 @@ Disclaimer: Most of the code here is randomly written during
 
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include "IOPool/Streamer/interface/StreamerOutputFile.h"
-#include "IOPool/Streamer/interface/StreamerOutputIndexFile.h"
 
 #include "zlib.h"
 
@@ -84,21 +83,9 @@ int main()
   std::string initfilename = "teststreamfile.dat";
   StreamerOutputFile stream_writer(initfilename);
   
-  //Start Index file
-  std::cout << "Trying to Write Out The Index Binary File " << initfilename << std::endl;
-  std::string indexfilename = "testindexfile.ind";
-  StreamerOutputIndexFile index_writer(indexfilename);
-
   std::cout << "Trying to Write Out The Init message into Streamer File: " 
       << initfilename << std::endl;
   stream_writer.write(init);
-
-  std::cout << "Trying to Write Out The Init message into Index File: "<<
-                                                   indexfilename<< std::endl;
-  uint32 magic = 22;
-  uint64 reserved = 666;
-  index_writer.writeIndexFileHeader(magic, reserved);
-  index_writer.write(init);
 
   // ------- event
 
@@ -112,7 +99,7 @@ int main()
   l1bit[3]=false;  l1bit[7]=false;  //l1bit[11]=true;  //l1bit[15]=true;
   //l1bit[16]=false;  l1bit[17]=false;  l1bit[18]=true;  l1bit[19]=true;
 
-  //Lets Build 10 Events ad then Write them into Streamer/Index file.
+  //Lets Build 10 Events and then Write them into Streamer file.
   
   adler32_chksum = (uint32)cms::Adler32((char*)&test_value_event[0], sizeof(test_value_event));
   //host_name = "mytestnode.cms";
@@ -127,17 +114,11 @@ int main()
 
     //Lets write this to our streamer file .
     std::cout<<"Writing Event# : "<<eventId<<" To Streamer file"<< std::endl;
-    uint64 offset = stream_writer.write(emb);
-  
-    //Lets write the Index too
-    std::cout<<"Writing Event Index :" << eventId 
-        <<" with offset# : " << offset << " To Index file" 
-                             << std::endl;
-    index_writer.write(emb, offset);
+    stream_writer.write(emb);
   }
 
 
-  //Write the EOF Record Both at the end of Streamer file and Index file
+  //Write the EOF Record Both at the end of Streamer file
   uint32 dummyStatusCode = 1234;
   std::vector<uint32> hltStats;
 
@@ -146,9 +127,6 @@ int main()
   hltStats.push_back(34);
 
   stream_writer.writeEOF(dummyStatusCode, hltStats);
-
-  index_writer.writeEOF(dummyStatusCode, hltStats);
-
  
   return 0;
 }

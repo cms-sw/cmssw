@@ -1,5 +1,0 @@
-<bin   name="edmStreamerIndex" file="edmStreamerIndex.cpp">
-  <use   name="boost"/>
-  <use   name="boost_program_options"/>
-  <use   name="IOPool/Streamer"/>
-</bin>
