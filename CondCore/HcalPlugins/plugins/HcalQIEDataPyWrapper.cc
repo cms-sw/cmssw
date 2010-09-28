@@ -47,15 +47,20 @@ namespace cond {
 
 	class HcalQIEDataDataRepr: public ADataRepr
 	{
+	protected:
+		HcalQIEData::tAllContWithNames allContainers;
 	public:
+		unsigned int fCapId;
+		unsigned int fRange;
+		bool slopeOrOffset;
+
 		HcalQIEDataDataRepr(unsigned int total, HcalQIEData::tAllContWithNames const & allCont)
-			:ADataRepr(total), allContainers(allCont){}
+			:ADataRepr(total), allContainers(allCont), fCapId(0), fRange(0), slopeOrOffset(false){}
+
 
 
 
 	protected:
-		HcalQIEData::tAllContWithNames allContainers;
-
 		void doFillIn(std::vector<TH2F> &graphData){
 			//ITERATORS AND VALUES:
 			HcalQIEData::tAllContWithNames::const_iterator iter;
@@ -79,7 +84,12 @@ namespace cond {
 						ieta>0 ? ++ieta : --ieta;
 
 					//GET VALUE:
-					value = (*contIter).getValue(id);
+					//unsigned fCapId, unsigned fRange;
+					if (slopeOrOffset){
+						value = (*contIter).slope(fCapId, fRange);
+					} else {
+						value = (*contIter).offset(fCapId, fRange);
+					}
 					//logstatus = log2(1.*channelBits)+1;
 
 					//FILLING GOES HERE:
@@ -102,10 +112,10 @@ namespace cond {
 		ss << tens << ones;
 		return ss.str();
 	}
+
 	template<>
 	std::string PayLoadInspector<HcalQIEData>::summary() const {
 		std::stringstream ss;
-		unsigned int totalValues = 32;
 		// get all containers with names
 		HcalQIEData::tAllContWithNames allContainers = object().getAllContainers();
 
@@ -115,66 +125,93 @@ namespace cond {
 
 		ss << "Total HCAL containers: " << allContainers.size() << std::endl;
 
-		typedef std::pair<std::pair< std::vector<float>, std::vector<float> >, int> tPora;
+		typedef std::pair<std::pair< float, float >, int> tPora;
 
-		std::vector<tPora> vec(allContainers.size());
+		//std::vector<tPora> vMaz(allContainers.size());
+		//std::vector<tPora>::iterator iMaz = vMaz.begin();
 
-		std::vector<tPora>::iterator iMaz = vec.begin();
+		std::vector<tPora> vOffsets(allContainers.size());// for each container (total 8)
+		std::vector<tPora> vSlopes(allContainers.size());// for each container (total 8)
 
-		float sum = 0.0, average = 0.0, std_dev = 0.0, sqr_sum = 0.0;
-		int size = 0;
+		std::vector<tPora>::iterator iOffset = vOffsets.begin();
+		std::vector<tPora>::iterator iSlope = vSlopes.begin();
+
+		float offset = .0;
+		float slope = .0;
+
 
 		//Run trough all 8 detector containers:
-		for (iter = allContainers.begin(), iMaz = vec.begin(); iter != allContainers.end(); ++iter, ++iMaz){
-			ss << "---------------------------------------------" << std::endl;
-			ss << "Detector: " << (*iter).first << ";    Total values: "<< (*iter).second.size() << std::endl;
-			unsigned int j = 0;
-			iMaz->second = (*iter).second.size();
-			(iMaz->first).first = std::vector<float>(totalValues, 0.0);
-			(iMaz->first).second = std::vector<float>(totalValues, 0.0);
-			float capValue = 0.0;
+		for (iter = allContainers.begin(); iter != allContainers.end(); ++iter, ++iOffset, ++iSlope){
+			iOffset->second = (*iter).second.size();// total number of values in detector
+			iSlope->second = (*iter).second.size();// total number of values in detector
+
+			(iOffset->first).first = .0;
+			(iOffset->first).second = .0;
+			(iSlope->first).first = .0;
+			(iSlope->first).second = .0;
+
 			//Run trough all values in container
+			unsigned int i = 0;
 			for (contIter = (*iter).second.begin(); contIter != (*iter).second.end(); ++contIter){
 
 				//Run trough all values in object:
-				for (unsigned int i = 0; i < totalValues; ++i){
-					capValue = (*contIter).getValue(i);
-					(iMaz->first).first[i] += capValue;
-					(iMaz->first).second[i]+= (capValue * capValue);
-					//ss << "[" << i << "] " << capValue << ", " << (iMaz->first).first[i] << ", " << (iMaz->first).second[i] << "; ";
+				for (unsigned int fCapId = 0; fCapId < 4; ++fCapId){
+					for (unsigned int fRange = 0; fRange < 4; ++fRange){
+						offset =  (*contIter).offset (fCapId, fRange);
+						(iOffset->first).first += offset;
+						(iOffset->first).second+= (offset * offset);
+
+						slope = (*contIter).slope (fCapId, fRange);
+						(iSlope->first).first += slope;
+						(iSlope->first).second+= (slope * slope);
+					}
 				}
-				//ss << std::endl;
-				++j;
+				++i;
+				//ss << "[" << i << "] " << capValue << ", " << (iMaz->first).first[i] << ", " << (iMaz->first).second[i] << "; ";
 			}
-
-
-
-			size = (*iMaz).second;
-			unsigned int formatted_nr = 0;
-			for (unsigned int i = 0; i < totalValues; ++i){
-				sum = ((*iMaz).first).first[i];
-				sqr_sum = ((*iMaz).first).second[i];
-				average = sum/size;
-				//here needs to take absolute value for sqrt:
-				std_dev = sqrt( fabs((sqr_sum / size) - (average * average)) );
-
-				//QIEDataCounter(i, formatted_nr);
-
-				if (i >= 16){
-				ss  << "    Offset" << QIEDataCounter(i, formatted_nr) << " :"<< std::endl;
-				ss	<< "          Average: " << average << "; "<< std::endl;
-				ss	<< "          Standart deviation: " << std_dev << "; " << std::endl;					
-				}
-				else {
-				ss  << "    Slope" << QIEDataCounter(i, formatted_nr) << " :"<< std::endl;
-				ss	<< "          Average: " << average << "; "<< std::endl;
-				ss	<< "          Standart deviation: " << std_dev << "; " << std::endl;
-				}
-
-			}	
 		}
+		//ss << std::endl;
+
+		//got all the values, now do the work:
+		iOffset = vOffsets.begin();
+		iSlope = vSlopes.begin();
+		float sumOffset = 0.0, averageOffset = 0.0, std_devOffset = 0.0, sqr_sumOffset = 0.0;
+		int sizeOffset = 0;
+
+		float sumSlope = 0.0, averageSlope = 0.0, std_devSlope = 0.0, sqr_sumSlope = 0.0;
+		int sizeSlope = 0;
+
+		sizeOffset = (*iOffset).second;
+		sizeSlope = (*iSlope).second;
+
+
+		
+		unsigned int i = 0;
+		for (iter = allContainers.begin(); iter != allContainers.end(); ++iter, ++i, ++iSlope, ++iOffset){
+
+			ss << "---------------------------------------------" << std::endl;
+			ss << "Detector: " << (*iter).first << ";    Total values: "<< (*iter).second.size() << std::endl;
+			sumOffset = ((*iOffset).first).first;
+			sqr_sumOffset = ((*iOffset).first).second;
+			averageOffset = sumOffset/sizeOffset;
+			//here needs to take absolute value for sqrt:
+			std_devOffset = sqrt( fabs((sqr_sumOffset / sizeOffset) - (averageOffset * averageOffset)) );
+
+			sumSlope = ((*iSlope).first).first;
+			sqr_sumSlope = ((*iSlope).first).second;
+			averageSlope = sumSlope/sizeSlope;
+			//here needs to take absolute value for sqrt:
+			std_devSlope = sqrt( fabs((sqr_sumSlope / sizeSlope) - (averageSlope * averageSlope)) );
+
+			ss  << "    Offset: " << std::endl;
+			ss	<< "          Average: " << averageOffset << "; "<< std::endl;
+			ss	<< "          Standart deviation: " << std_devOffset << "; " << std::endl;					
+			ss  << "    Slope: " << std::endl;
+			ss	<< "          Average: " << averageSlope << "; "<< std::endl;
+			ss	<< "          Standart deviation: " << std_devSlope << "; " << std::endl;
+		}		
 		//std::cout << ss.str();
-			return ss.str();
+		return ss.str();
 	}
 
 	template<>
@@ -189,6 +226,14 @@ namespace cond {
 
 		//create object helper for making plots;
 		HcalQIEDataDataRepr datarepr(numOfValues, object().getAllContainers());
+
+		typedef std::vector<TH2F> graphData;
+		std::vector< graphData > graphDataVec(numOfValues);
+		std::vector< graphData >::iterator imageIter;
+		imageIter = graphDataVec.begin();
+
+
+
 		std::string name = "_Offset_";
 		datarepr.nr = 0;
 		datarepr.id = 0;
@@ -196,39 +241,73 @@ namespace cond {
 		datarepr.plotname.str("Offset ");
 		datarepr.filename.str("");
 		datarepr.filename << filename << name;
+		//Run trough all values in object:
+		datarepr.slopeOrOffset = false;
 
-		typedef std::vector<TH2F> graphData;
-		std::vector< graphData > graphDataVec(numOfValues);
-		std::vector< graphData >::iterator imageIter;
+		for (unsigned int fCapId = 0; fCapId < 4; ++fCapId){
+			for (unsigned int fRange = 0; fRange < 4; ++fRange){
+				datarepr.fCapId = fCapId;
+				datarepr.fRange = fRange;
 
-		//create images:
-		for (imageIter = graphDataVec.begin(); imageIter != graphDataVec.end(); ++imageIter){
+				QIEDataCounter(datarepr.id, datarepr.nr);
 
-			QIEDataCounter(datarepr.id, datarepr.nr);
-			
-			if (datarepr.id == 16){
-				name = "_Slope_";
-				datarepr.rootname.str("_Sloperootname_");
-				datarepr.plotname.str("Slope ");
-				datarepr.filename.str("");
-				datarepr.filename << filename << name;					
+				if (datarepr.nr == 0){
+					datarepr.filename.str("");
+					datarepr.filename << filename << name  <<"0";
+				} else if ( datarepr.nr == 10)
+				{
+					datarepr.filename.str("");
+					datarepr.filename << filename << name;
+				}
+
+
+
+				datarepr.fillOneGain((*imageIter));
+
+
+				++(datarepr.id);
+				++(datarepr.nr);
+				++(imageIter);
 			}
-
-			if (datarepr.nr == 0){
-				datarepr.filename.str("");
-				datarepr.filename << filename << name  <<"0";
-			} else if ( datarepr.nr == 10)
-			{
-				datarepr.filename.str("");
-				datarepr.filename << filename << name;
-			}
-			//MAIN FUNCTION:
-			datarepr.fillOneGain((*imageIter));
-
-			++(datarepr.nr);
-			++(datarepr.id);
 		}
+/////////////////////////////
+		name = "_Slope_";
+		datarepr.rootname.str("_Sloperootname_");
+		datarepr.plotname.str("Slope ");
+		datarepr.filename.str("");
+		datarepr.filename << filename << name;	
+
+		datarepr.slopeOrOffset = true;
+		datarepr.nr = 0;
+		datarepr.id = 0;
+
+		for (unsigned int fCapId = 0; fCapId < 4; ++fCapId){
+			for (unsigned int fRange = 0; fRange < 4; ++fRange){
+				datarepr.fCapId = fCapId;
+				datarepr.fRange = fRange;
+
+				QIEDataCounter(datarepr.id, datarepr.nr);
+
+				if (datarepr.nr == 0){
+					datarepr.filename.str("");
+					datarepr.filename << filename << name  <<"0";
+				} else if ( datarepr.nr == 10)
+				{
+					datarepr.filename.str("");
+					datarepr.filename << filename << name;
+				}
+
+				datarepr.fillOneGain((*imageIter));
+
+				++(datarepr.id);
+				++(datarepr.nr);
+				++(imageIter);
+			}
+		}
+
+
 		return filename;
 	}
 }
+
 PYTHON_WRAPPER(HcalQIEData,HcalQIEData);
