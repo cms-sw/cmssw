@@ -138,6 +138,10 @@ private:
 /** Custom structure for holding the table contents */
 struct PSetData
 {
+   PSetData()
+   : type(-1)
+   {}
+
    std::string label;
    std::string value;
    int         level;
@@ -622,7 +626,7 @@ public:
       }
       else
       {
-         if (data.type)
+         if (data.type > 0)
             label = data.label + " (" + sTypeTranslations.table_[data.type] + ")";
          else
             label = data.label;
@@ -940,6 +944,7 @@ public:
                   break;
                default:
                   std::cerr << "unsupported parameter" << std::endl;
+                  return;
             }
             data.value = m_editor->GetText();
             m_modules[data.module].dirty = true;
@@ -1364,6 +1369,7 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
           .addTextButton("Apply changes and reload", &m_apply);
 
    TGTextEntry *editor = new TGTextEntry(m_tableWidget->body(), "");
+   editor->SetBackgroundColor(gVirtualX->GetPixel(kCyan-9));
    m_psTable->setCellValueEditor(editor);
    editor->Connect("ReturnPressed()", "FWPathsPopup", this, "applyEditor()");
 
