@@ -110,17 +110,17 @@ void PatZToMuMuAnalyzer::fill(std::string hists, const reco::TrackRef& t1, const
   if( t1.isAvailable() ){
     // fill pt from global track for first muon
     fill( std::string(hists).append("Pt") , t1->pt() );
-    // fill pt from global track for first muon
+    // fill pt from global track for second muon
     fill( std::string(hists).append("Eta"), t1->eta() );
   }
   if( t2.isAvailable() ){
-    // fill pt from global track for first muon
+    // fill eta from global track for first muon
     fill( std::string(hists).append("Pt") , t2->pt() );
-    // fill pt from global track for first muon
+    // fill eta from global track for second muon
     fill( std::string(hists).append("Eta"), t2->eta() );
   }
   if( t1.isAvailable() && t2.isAvailable() ){
-    // fill pt from global track for first muon
+    // fill invariant mass of the Z boson candidate
     fill( std::string(hists).append("Mass"), mass(t1->momentum(), t2->momentum()));
   }
 }
@@ -135,22 +135,23 @@ void PatZToMuMuAnalyzer::analyze(const edm::Event& event, const edm::EventSetup&
   // reconstructed from inner and outer 
   // tack 
   for(edm::View<pat::Muon>::const_iterator mu1=muons->begin(); mu1!=muons->end(); ++mu1){
-    for(edm::View<pat::Muon>::const_iterator mu2=mu1+1; mu2!=muons->end(); ++mu2){
-      // check only muon pairs of unequal charge 
-      if( mu1->charge()*mu2->charge()<0 ){
-	fill(std::string("inner" ), mu1->innerTrack (), mu2->innerTrack ());
-	fill(std::string("outer" ), mu1->outerTrack (), mu2->outerTrack ());
-	fill(std::string("global"), mu1->globalTrack(), mu2->globalTrack());
-	
-	if(mu1->isGlobalMuon()){
-	  fill("deltaPt" , mu1->outerTrack()->pt ()-mu1->globalTrack()->pt ());
-	  fill("deltaEta", mu1->outerTrack()->eta()-mu1->globalTrack()->eta());
-	  fill("deltaPhi", mu1->outerTrack()->phi()-mu1->globalTrack()->phi());
-	}
-	if(mu2->isGlobalMuon()){
-	  fill("deltaPt" , mu2->outerTrack()->pt ()-mu2->globalTrack()->pt ());
-	  fill("deltaEta", mu2->outerTrack()->eta()-mu2->globalTrack()->eta());
-	  fill("deltaPhi", mu2->outerTrack()->phi()-mu2->globalTrack()->phi());
+    for(edm::View<pat::Muon>::const_iterator mu2=muons->begin(); mu2!=muons->end(); ++mu2){
+      if(mu2>mu1){ // prevent double conting
+	if( mu1->charge()*mu2->charge()<0 ){ // check only muon pairs of unequal charge 
+	  fill(std::string("inner" ), mu1->innerTrack (), mu2->innerTrack ());
+	  fill(std::string("outer" ), mu1->outerTrack (), mu2->outerTrack ());
+	  fill(std::string("global"), mu1->globalTrack(), mu2->globalTrack());
+	  
+	  if(mu1->isGlobalMuon()){
+	    fill("deltaPt" , mu1->outerTrack()->pt ()-mu1->globalTrack()->pt ());
+	    fill("deltaEta", mu1->outerTrack()->eta()-mu1->globalTrack()->eta());
+	    fill("deltaPhi", mu1->outerTrack()->phi()-mu1->globalTrack()->phi());
+	  }
+	  if(mu2->isGlobalMuon()){
+	    fill("deltaPt" , mu2->outerTrack()->pt ()-mu2->globalTrack()->pt ());
+	    fill("deltaEta", mu2->outerTrack()->eta()-mu2->globalTrack()->eta());
+	    fill("deltaPhi", mu2->outerTrack()->phi()-mu2->globalTrack()->phi());
+	  }
 	}
       }
     }
