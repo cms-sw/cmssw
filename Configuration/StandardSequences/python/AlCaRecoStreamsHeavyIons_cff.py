@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2010/09/22 20:56:47 $ by $Author: argiro $
+# last update: $Date: 2010/09/27 11:38:30 $ by $Author: argiro $
 
 # AlCaReco sequence definitions:
 
@@ -22,7 +22,6 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlJpsiMuMu_cff import *
 # AlCaReco for track based alignment using Upsilon events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlUpsilonMuMu_cff import *
 # AlCaReco for track based alignment using MinBias events
-from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBias_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBiasHI_cff import *
 
 ###############################################################
@@ -105,7 +104,6 @@ pathALCARECOTkAlZMuMu = cms.Path(seqALCARECOTkAlZMuMu*ALCARECOTkAlZMuMuDQM)
 pathALCARECOTkAlMuonIsolated = cms.Path(seqALCARECOTkAlMuonIsolated*ALCARECOTkAlMuonIsolatedDQM)
 pathALCARECOTkAlJpsiMuMu = cms.Path(seqALCARECOTkAlJpsiMuMu*ALCARECOTkAlJpsiMuMuDQM)
 pathALCARECOTkAlUpsilonMuMu = cms.Path(seqALCARECOTkAlUpsilonMuMu*ALCARECOTkAlUpsilonMuMuDQM)
-pathALCARECOTkAlMinBias = cms.Path(seqALCARECOTkAlMinBias*ALCARECOTkAlMinBiasDQM)
 pathALCARECOTkAlMinBiasHI = cms.Path(seqALCARECOTkAlMinBiasHI*ALCARECOTkAlMinBiasHIDQM)
 pathALCARECOSiPixelLorentzAngle = cms.Path(seqALCARECOSiPixelLorentzAngle)
 pathALCARECOSiStripCalMinBias = cms.Path(seqALCARECOSiStripCalMinBias*ALCARECOSiStripCalMinBiasDQM)
@@ -145,18 +143,10 @@ from Configuration.EventContent.AlCaRecoOutput_cff import *
 
 # AlCaReco stream definitions:
 
-ALCARECOStreamTkAlMinBias = cms.FilteredStream(
-	responsible = 'Gero Flucke',
-	name = 'TkAlMinBias',
-	paths  = (pathALCARECOTkAlMinBias),
-	content = OutALCARECOTkAlMinBias.outputCommands,
-	selectEvents = OutALCARECOTkAlMinBias.SelectEvents,
-	dataTier = cms.untracked.string('ALCARECO')
-	)
 
 ALCARECOStreamTkAlMinBiasHI = cms.FilteredStream(
 	responsible = 'Andreas Mussgiller',
-	name = 'TkAlMinBias',
+	name = 'TkAlMinBiasHI',
 	paths  = (pathALCARECOTkAlMinBiasHI),
 	content = OutALCARECOTkAlMinBiasHI.outputCommands,
 	selectEvents = OutALCARECOTkAlMinBiasHI.SelectEvents,
