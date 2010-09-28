@@ -152,6 +152,12 @@ PFRecHitProducerECAL::createRecHits(vector<reco::PFRecHit>& rechits,
 
       if(energy < thresh_Barrel_ ) continue;
           
+      // Check and skip the TT recovered rechits
+      if ( flag == EcalRecHit::kTowerRecovered ) { 
+	// std::cout << "Rechit was recovered with energy " << energy << std::endl;
+	continue;
+      }
+
       // Just clean ECAL Barrel rechits out of time by more than 5 sigma.
       if ( timingCleaning_ && energy > threshCleaning_ && flag == EcalRecHit::kOutOfTime ) { 
 	reco::PFRecHit *pfrhCleaned = createEcalRecHit(detid, energy,  
@@ -201,12 +207,17 @@ PFRecHitProducerECAL::createRecHits(vector<reco::PFRecHit>& rechits,
       const EcalRecHit& erh = (*rhcHandle)[i];
       const DetId& detid = erh.detid();
       double energy = erh.energy();
-      //uint32_t flag = erh.recoFlag();
+      uint32_t flag = erh.recoFlag();
       double time = erh.time();
       EcalSubdetector esd=(EcalSubdetector)detid.subdetId();
       if (esd != 2) continue;
       if(energy < thresh_Endcap_ ) continue;
 
+      // Check and skip the TT recovered rechits
+      if ( flag == EcalRecHit::kTowerRecovered ) { 
+	// std::cout << "Rechit was recovered with energy " << energy << std::endl;
+	continue;
+      }
       
       reco::PFRecHit *pfrh = createEcalRecHit(detid, energy,
 					      PFLayer::ECAL_ENDCAP,
