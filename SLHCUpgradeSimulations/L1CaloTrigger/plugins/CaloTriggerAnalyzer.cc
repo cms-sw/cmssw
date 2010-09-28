@@ -22,8 +22,9 @@ CaloTriggerAnalyzer::CaloTriggerAnalyzer(const edm::ParameterSet& iConfig):
   etaDenom = fs->make<TH1F>( "etaDenom", "etaDenom", 20  ,  -2.5, 2.5 );
   pt       = fs->make<TH1F>( "pt"      , "pt", 20  ,  0. , 100. );
   highestPt= fs->make<TH1F>( "highestPt"      , "highestPt", 50  ,  0. , 100. );
-  secondPt = fs->make<TH1F>( "secondHighestPt", "secondHighestPt", 20  ,  0. , 100. );
-  highestPtGen=fs->make<TH1F>("highestPtGen","highestPtGen",100, 0., 1000.);
+  secondPt = fs->make<TH1F>( "secondHighestPt", "secondHighestPt", 50  ,  0. , 100. );
+  highestPtGen=fs->make<TH1F>("highestPtGen","highestPtGen",100, 0., 200.);
+  secondPtGen=fs->make<TH1F>("secondPtGen","secondPtGen",100, 0., 200.);
   dPt      = fs->make<TH1F>( "dPt"      , "dPt", 50  , -1  , 1 );
   dEta     = fs->make<TH1F>( "dEta"      , "dEta", 50  , -0.5  , 0.5 );
   dPhi     = fs->make<TH1F>( "dPhi"      , "dPhi", 50  , -0.5  , 0.5 );
@@ -31,6 +32,7 @@ CaloTriggerAnalyzer::CaloTriggerAnalyzer(const edm::ParameterSet& iConfig):
   RPtEta = fs->make<TProfile>("RPtEta","Pt_Ratio as fcn of abs(eta)",13,0.0,2.6,0,2);
   RPtEtaFull = fs->make<TProfile>("RPtEtaFull","Pt_Ratio as fcn of eta",26,-2.6,2.6,0,2);
   absEta = fs->make<TH1F>("abseta","abs(eta)",13,0.,2.6); 
+  dR = fs->make<TH1F>("dR","delta(R)",50,0,2);
 }
 
 
@@ -51,7 +53,7 @@ CaloTriggerAnalyzer::~CaloTriggerAnalyzer()
 void
 CaloTriggerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  std::cout << src_ << std::endl;
+  //  std::cout << src_ << std::endl;
   edm::Handle<edm::View<reco::Candidate> > ref;
   edm::Handle<edm::View<reco::Candidate> > src;
 
@@ -60,11 +62,15 @@ CaloTriggerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   if(gotSrc) {
     highPt=0;
+    secondPtf=0;
     for(edm::View<reco::Candidate>::const_iterator i = src->begin(); i!= src->end();++i)
       {
 	pt->Fill(i->pt());
 	if (i->pt()>highPt){
+	  secondPtf=highPt;
 	  highPt=i->pt();
+	} else if (i->pt()>secondPtf){
+	  secondPtf=i->pt();
 	}
       }
 
@@ -75,20 +81,23 @@ CaloTriggerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
 
     if(src->size()>1)
-      secondPt->Fill(src->at(1).pt());
+      secondPt->Fill(secondPtf);
     else
       secondPt->Fill(0.0);
-
   }
 
   if(gotRef) {
     //get highest Pt gen object--loop over all to make sure it's the highest!
     highestGenPt=-1.0;
+    secondGenPt=-1.0;
     for(edm::View<reco::Candidate>::const_iterator i = ref->begin(); i!= ref->end();++i){
 
       if (i->pt()>highestGenPt){
 	highestGenPt=i->pt();
 	highestPtGen->Fill(i->pt());
+      } else if (i->pt()>secondGenPt){
+	secondGenPt=i->pt();
+	secondPtGen->Fill(i->pt());
       }
       
       if(fabs(i->eta())<maxEta_&&i->pt()>threshold_/2.)
@@ -96,33 +105,35 @@ CaloTriggerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	  ptDenom->Fill(i->pt());
 	  etaDenom->Fill(i->eta());
 	  
-	  printf("ref pt = %f  eta = %f phi = %f\n",i->pt(),i->eta(),i->phi());
+	  //	  printf("ref pt = %f  eta = %f phi = %f\n",i->pt(),i->eta(),i->phi());
 	  
 	  if(gotSrc)
 	    {
 	      bool matched=false;
 	      math::XYZTLorentzVector highestV(0.0001,0.,0.,0.0002);
 	      for(edm::View<reco::Candidate>::const_iterator j = src->begin(); j!= src->end();++j)
-		if(j->pt()>threshold_)
-		  {
-		    if(ROOT::Math::VectorUtil::DeltaR(i->p4(),j->p4())<DR_) {
-		      printf("matched pt = %f  eta = %f phi = %f\n",j->pt(),j->eta(),j->phi());
+		{
+		  dR->Fill(ROOT::Math::VectorUtil::DeltaR(i->p4(),j->p4()));
+		  if(j->pt()>threshold_)
+		    {
+		      if(ROOT::Math::VectorUtil::DeltaR(i->p4(),j->p4())<DR_) {
+			//	printf("matched pt = %f  eta = %f phi = %f\n",j->pt(),j->eta(),j->phi());
+			
+			if(j->pt()>highestV.pt())
+			  highestV = j->p4();
+			
+			matched=true;
+		      }
 		      
-		      if(j->pt()>highestV.pt())
-			highestV = j->p4();
-		      
-		      matched=true;
 		    }
-		    
-		  }
-	      
+		}
 	    if(matched)
 	      {
 		RPt->Fill(i->pt()/highestV.pt());
 		RPtEtaFull->Fill(highestV.eta(), i->pt()/highestV.pt());
 		RPtEta->Fill(fabs(highestV.eta()), i->pt()/highestV.pt());
 
-		printf("matched abs(eta) = %f \n", fabs(highestV.eta()) );
+		//		printf("matched abs(eta) = %f \n", fabs(highestV.eta()) );
 		absEta->Fill(fabs(highestV.eta()));
 		dPt->Fill((highestV.pt()-i->pt())/i->pt());
 		dEta->Fill(highestV.eta()-i->eta());

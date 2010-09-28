@@ -1,7 +1,7 @@
 //
 // Original Author:  Michail BACHTIS
 //         Created:  Tue Jul 22 12:21:36 CEST 2008
-// $Id: CaloTriggerAnalyzer.h,v 1.2 2010/05/31 16:30:41 bachtis Exp $
+// $Id: CaloTriggerAnalyzer.h,v 1.3 2010/08/18 18:49:35 iross Exp $
 
 
 
@@ -37,7 +37,9 @@ class CaloTriggerAnalyzer : public edm::EDAnalyzer {
       double maxEta_;
 
       float highestGenPt;
+      float secondGenPt;
       float highPt;
+      float secondPtf;
       TH1F * eta;
 
       TH1F * ptNum;   
@@ -51,8 +53,10 @@ class CaloTriggerAnalyzer : public edm::EDAnalyzer {
       TH1F * highestPt;
       TH1F * secondPt;
       TH1F * highestPtGen;
+      TH1F * secondPtGen;
       TH1F * RPt;
       TH1F * absEta;
+      TH1F * dR;
       TProfile * RPtEta;
       TProfile * RPtEtaFull;
 };
