@@ -62,7 +62,7 @@ void PatTriggerTagAndProbe::analyze( const edm::Event & iEvent, const edm::Event
       // loop over muon references for the probe/test muon
       for( size_t idxProbe=0; idxProbe<muons->size() && idxProbe!=idxTag; ++idxProbe){
 	histos1D_[ "mass" ]->Fill( (muons->at(idxTag).p4()+muons->at(idxProbe).p4()).mass() );
-	if(((muons->at(idxTag).p4()+muons->at(idxProbe).p4()).mass()-90)<5){
+	if(fabs((muons->at(idxTag).p4()+muons->at(idxProbe).p4()).mass()-90)<5){
 	  const pat::TriggerObjectRef trigRefProbe( matchHelper.triggerMatchObject( muons, idxProbe, muonMatch_, iEvent, *triggerEvent ) );
 	  histos1D_[ "probePt"  ]->Fill( muons->at(idxProbe).pt () );
 	  histos1D_[ "probeEta" ]->Fill( muons->at(idxProbe).eta() );
