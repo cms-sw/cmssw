@@ -1,4 +1,4 @@
-// $Id: FileHandler.cc,v 1.19 2010/08/06 20:24:31 wmtan Exp $
+// $Id: FileHandler.cc,v 1.20 2010/09/09 08:01:16 mommsen Exp $
 /// @file: FileHandler.cc
 
 #include <EventFilter/StorageManager/interface/Exception.h>
@@ -35,8 +35,7 @@ _lastEntry(0),
 _diskWritingParams(dwParams),
 _maxFileSize(maxFileSize),
 _cmsver(edm::getReleaseVersion()),
-_adlerstream(0),
-_adlerindex(0)
+_adler(0)
 {
   // stripp quotes if present
   if(_cmsver[0]=='"') _cmsver=_cmsver.substr(1,_cmsver.size()-2);
@@ -91,7 +90,7 @@ void FileHandler::updateDatabase() const
 {
   std::ostringstream oss;
   oss << "./closeFile.pl "
-      << " --FILENAME "     << _fileRecord->fileName() <<  ".dat"
+      << " --FILENAME "     << _fileRecord->fileName()
       << " --FILECOUNTER "  << _fileRecord->fileCounter
       << " --NEVENTS "      << events()
       << " --FILESIZE "     << fileSize()                          
@@ -110,8 +109,8 @@ void FileHandler::updateDatabase() const
       << " --APPNAME CMSSW"
       << " --TYPE streamer"               
       << " --DEBUGCLOSE "   << _fileRecord->whyClosed
-      << " --CHECKSUM "     << hex << _adlerstream
-      << " --CHECKSUMIND "  << hex << _adlerindex
+      << " --CHECKSUM "     << hex << _adler
+      << " --CHECKSUMIND "  << hex << 0
       << "\n";
 
   _dbFileHandler->writeOld( _lastEntry, oss.str() );
@@ -122,7 +121,7 @@ void FileHandler::insertFileInDatabase() const
 {
   std::ostringstream oss;
   oss << "./insertFile.pl "
-      << " --FILENAME "     << _fileRecord->fileName() <<  ".dat"
+      << " --FILENAME "     << _fileRecord->fileName()
       << " --FILECOUNTER "  << _fileRecord->fileCounter
       << " --NEVENTS "      << events()
       << " --FILESIZE "     << fileSize()
@@ -210,38 +209,27 @@ const unsigned long long FileHandler::fileSize() const
 
 void FileHandler::moveFileToClosed
 (
-  const bool& useIndexFile,
   const FilesMonitorCollection::FileRecord::ClosingReason& reason
 )
 {
   const std::string openFileName(_fileRecord->completeFileName(FilesMonitorCollection::FileRecord::open));
-  const std::string openIndexFileName(openFileName + ".ind");
-  const std::string openStreamerFileName(openFileName + ".dat");
-
   const std::string closedFileName(_fileRecord->completeFileName(FilesMonitorCollection::FileRecord::closed));
-  const std::string closedIndexFileName(closedFileName + ".ind");
-  const std::string closedStreamerFileName(closedFileName + ".dat");
 
-  size_t openStreamerFileSize = checkFileSizeMatch(openStreamerFileName, fileSize());
+  size_t openFileSize = checkFileSizeMatch(openFileName, fileSize());
 
-  makeFileReadOnly(openStreamerFileName);
-  if (useIndexFile) makeFileReadOnly(openIndexFileName);
-
-  if (useIndexFile) renameFile(openIndexFileName, closedIndexFileName);
+  makeFileReadOnly(openFileName);
   try
   {
-    renameFile(openStreamerFileName, closedStreamerFileName);
+    renameFile(openFileName, closedFileName);
   }
   catch (stor::exception::DiskWriting& e)
   {
-    // Rename failed. Move index file back to open location
-    if (useIndexFile) renameFile(closedIndexFileName, openIndexFileName);
     XCEPT_RETHROW(stor::exception::DiskWriting, 
       "Could not move streamer file to closed area.", e);
   }
   _fileRecord->isOpen = false;
   _fileRecord->whyClosed = reason;
-  checkFileSizeMatch(closedStreamerFileName, openStreamerFileSize);
+  checkFileSizeMatch(closedFileName, openFileSize);
 }
 
 
