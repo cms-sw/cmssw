@@ -63,6 +63,13 @@ public:
     isRegional = true;
   }
   
+  /** \brief Is this module active in reconstruction? It must be both 'setActiveThisEvent' and 'setActive'. */
+  bool isActive() const { return activeThisEvent_ && activeThisPeriod_; }
+ 	  	 
+  //TO BE IMPLEMENTED
+  bool hasBadComponents( const TrajectoryStateOnSurface &tsos ) const {return false;}
+
+
   void setEmpty(){empty = true; activeThisEvent_ = true; }
   
   virtual RecHitContainer recHits( const TrajectoryStateOnSurface&) const;
@@ -104,8 +111,6 @@ public:
   /** \brief Turn on/off the module for reconstruction for one events.
              This per-event flag is cleared by any call to 'update' or 'setEmpty'  */
   void setActiveThisEvent(bool active) { activeThisEvent_ = active;  if (!active) empty = true; }
-  /** \brief Is this module active in reconstruction? It must be both 'setActiveThisEvent' and 'setActive'. */
-  bool isActive() const { return activeThisEvent_ && activeThisPeriod_; }
 
   /** \brief does this module have at least one bad strip, APV or channel? */
   bool hasAllGoodChannels() const { return !hasAny128StripBad_ && badStripBlocks_.empty(); }

@@ -31,6 +31,13 @@ public:
   const TkStripMeasurementDet* monoDet() const{ return theMonoDet;} 
   const TkStripMeasurementDet* stereoDet() const{ return theStereoDet;} 
 
+  /// return TRUE if both mono and stereo components are active
+  bool isActive() const {return monoDet()->isActive() && stereoDet()->isActive(); }
+ 	  	 
+  /// return TRUE if at least one of the mono and stereo components has badChannels
+  bool hasBadComponents( const TrajectoryStateOnSurface &tsos ) const {
+    return (monoDet()->hasBadComponents(tsos) || stereoDet()->hasBadComponents(tsos));}
+
 private:
   const GluedGeomDet*         theGeomDet;
   const SiStripRecHitMatcher*       theMatcher;
