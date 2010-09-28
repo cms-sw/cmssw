@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWMETProxyBuilder.cc,v 1.21 2010/09/27 10:44:06 amraktad Exp $
+// $Id: FWMETProxyBuilder.cc,v 1.22 2010/09/27 15:03:17 amraktad Exp $
 //
 
 // system include files
@@ -88,6 +88,9 @@ FWMETProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType type,
 void
 FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext* vc)
 {
+   if (type == FWViewType::kISpy)
+      return;
+
    float r_ecal = context().caloR1();
    double phi  = met.phi();
    double size = 1.f;
@@ -141,4 +144,4 @@ FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEve
 
 }
 
-REGISTER_FWPROXYBUILDER( FWMETProxyBuilder, reco::MET, "recoMET", FWViewType::k3DBit | FWViewType::kAllRPZBits );
+REGISTER_FWPROXYBUILDER( FWMETProxyBuilder, reco::MET, "recoMET", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
