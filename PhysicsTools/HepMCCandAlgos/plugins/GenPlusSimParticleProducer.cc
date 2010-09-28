@@ -73,7 +73,7 @@ private:
    *    barcodesAreSorted: true if the barcodes are sorted (which means I can use binary_search on them) */
   void addGenParticle(const SimTrack &stMom,
 		      const SimTrack &stDau,
-		      uint momidx,
+		      unsigned int momidx,
 		      const edm::SimTrackContainer &simtks,
 		      const edm::SimVertexContainer &simvtxs,
 		      reco::GenParticleCollection &mergedGens,
@@ -118,7 +118,7 @@ GenPlusSimParticleProducer::GenPlusSimParticleProducer(const ParameterSet& cfg) 
 
 void GenPlusSimParticleProducer::addGenParticle( const SimTrack &stMom,
 						    const SimTrack &stDau,
-						    uint momidx,
+						    unsigned int momidx,
 						    const SimTrackContainer &simtracksSorted, 
 						    const SimVertexContainer &simvertices, 
 						    reco::GenParticleCollection &mergedGens,
@@ -143,7 +143,7 @@ void GenPlusSimParticleProducer::addGenParticle( const SimTrack &stMom,
   genp.addMother(parentRef);
   mergedGens.push_back(genp);
   // get the index for the daughter just added
-  uint dauidx = mergedGens.size()-1;
+  unsigned int dauidx = mergedGens.size()-1;
 
   // update add daughter relationship
   reco::GenParticle & cand = mergedGens[ momidx ];
@@ -227,7 +227,7 @@ void GenPlusSimParticleProducer::produce(Event& event,
   
   // make new barcodes vector and fill it with the original list
   auto_ptr<vector<int> > newGenBarcodes( new vector<int>() );
-  for (uint i = 0; i < genBarcodes->size(); ++i) {
+  for (unsigned int i = 0; i < genBarcodes->size(); ++i) {
     newGenBarcodes->push_back((*genBarcodes)[i]);
   }
   barcodesAreSorted = __gnu_cxx::is_sorted(newGenBarcodes->begin(), newGenBarcodes->end());
@@ -287,7 +287,7 @@ void GenPlusSimParticleProducer::produce(Event& event,
 	    if ((itIndex != genBarcodes->end()) && (*itIndex == it->genpartIndex())) {
 	      // Ok, I'll make the genParticle for st and add it to the new collection updating the map and parent-child relationship
 	      // pass the mother and daughter sim tracks and the mother genParticle to method to create the daughter genParticle and recur
-	      uint momidx = itIndex - genBarcodes->begin();
+	      unsigned int momidx = itIndex - genBarcodes->begin();
 	      addGenParticle(*it, *isimtrk, momidx, *simtracksSorted, *simvertices, *candsPtr, ref, *newGenBarcodes, barcodesAreSorted);
 	    }
 	  }
