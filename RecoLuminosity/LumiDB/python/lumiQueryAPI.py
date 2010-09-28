@@ -163,8 +163,9 @@ def deliveredLumiForRun (dbsession, parameters, runnum):
         queryBind.extend ("lumiversion", "string")
         queryBind["runnum"].setData (int (runnum))
         queryBind["lumiversion"].setData (parameters.lumiversion)
-        
+        print parameters.beammode
         if len(parameters.beammode)!=0:
+            print 'add beam stauts condition'
             conditionstring=conditionstring+' and BEAMSTATUS=:beamstatus'
             queryBind.extend('beamstatus','string')
             queryBind['beamstatus'].setData(parameters.beammode)
@@ -179,7 +180,8 @@ def deliveredLumiForRun (dbsession, parameters, runnum):
         while cursor.next():
             instlumi = cursor.currentRow()['instlumi'].data()
             norbits = cursor.currentRow()['norbits'].data()
-            if instlumi and norbits:
+
+            if instlumi is not None and norbits is not None:
                 lstime = lslengthsec(norbits, parameters.NBX)
                 delivered=delivered+instlumi*parameters.norm*lstime
                 totalls+=1
