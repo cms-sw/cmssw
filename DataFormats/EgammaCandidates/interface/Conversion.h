@@ -6,7 +6,7 @@
  *
  * \author N.Marinelli  University of Notre Dame, US
  *
- * \version $Id: Conversion.h,v 1.14 2010/09/23 17:01:06 nancy Exp $
+ * \version $Id: Conversion.h,v 1.15 2010/09/27 09:25:07 bendavid Exp $
  *
  */
 
@@ -109,11 +109,11 @@ namespace reco {
       /// Delta cot(Theta) where Theta is the angle in the (y,z) plane between the two tracks. Original tracks are used
       double pairCotThetaSeparation() const;
       /// Conversion tracks momentum from the tracks inner momentum
-      GlobalVector  pairMomentum() const;
+      math::XYZVector  pairMomentum() const;
       /// Conversion track pair 4-momentum from the tracks refitted with vertex constraint
       math::XYZTLorentzVectorD   refittedPair4Momentum() const;
       /// Conversion tracks momentum from the tracks refitted with vertex constraint
-      GlobalVector  refittedPairMomentum() const;
+      math::XYZVector  refittedPairMomentum() const;
       /// Super Cluster energy divided by track pair momentum if Standard seeding method. If a pointer to two (or more clusters)
       /// is stored in the conversion, this method returns the energy sum of clusters divided by the track pair momentum
       /// Track innermost momentum is used here
