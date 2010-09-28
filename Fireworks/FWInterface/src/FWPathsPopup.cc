@@ -877,18 +877,20 @@ public:
       }
 
    /** This is invoked every single time the
-       editor contents must be applied to the selected entry in the pset. */
-   void applyEditor()
+       editor contents must be applied to the selected entry in the pset. 
+       @return true on success. 
+     */
+   bool applyEditor()
       {
          if (!m_editor)
-            return;
+            return false;
          
          if (m_selectedRow == -1)
-            return;
+            return false;
          if (m_selectedColumn != 1)
          {
             m_editor->UnmapWindow();
-            return;
+            return false;
          }
          
          PSetData &data = m_entries[m_row_to_index[m_selectedRow]];
@@ -944,7 +946,7 @@ public:
                   break;
                default:
                   std::cerr << "unsupported parameter" << std::endl;
-                  return;
+                  return false;
             }
             data.value = m_editor->GetText();
             m_modules[data.module].dirty = true;
@@ -954,6 +956,7 @@ public:
          {
             m_editor->SetForegroundColor(gVirtualX->GetPixel(kRed));
          }
+         return true;
       }
 
    void setSelection (int row, int column, int mask) {
@@ -1374,7 +1377,7 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
    editor->Connect("ReturnPressed()", "FWPathsPopup", this, "applyEditor()");
 
    m_apply->Connect("Clicked()", "FWPathsPopup", this, "scheduleReloadEvent()");
-   m_apply->SetEnabled(true);
+   m_apply->SetEnabled(false);
    m_search->SetEnabled(true);
    m_search->Connect("TextChanged(const char *)", "FWPathsPopup",
                      this, "updateFilterString(const char *)");
@@ -1414,8 +1417,10 @@ FWPathsPopup::HandleEvent(Event_t*event)
 void
 FWPathsPopup::applyEditor()
 {
-   m_psTable->applyEditor();
+   bool applied = m_psTable->applyEditor();
    m_psTable->setSelection(-1, -1, 0);
+   if (applied)
+      m_apply->SetEnabled(true);
 }
 
 /** Handles clicking on the table cells.
@@ -1544,6 +1549,7 @@ FWPathsPopup::scheduleReloadEvent()
          m_looper->requestChanges(data.label, data.pset);
       }
       m_hasChanges = true;
+      m_apply->SetEnabled(false);
       gSystem->ExitLoop();
    }
    catch (boost::python::error_already_set)
