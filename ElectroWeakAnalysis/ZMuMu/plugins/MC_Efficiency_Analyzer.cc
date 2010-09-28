@@ -86,7 +86,7 @@ public:
 	    const Candidate  *  muCand1 =   ZCand.daughter(0);
 	    if (muCand1->status()==3) 	
 	      {
-		for (uint d =0 ; d< muCand1->numberOfDaughters(); d++)
+		for (unsigned int d =0 ; d< muCand1->numberOfDaughters(); d++)
 		  { 
 		    const Candidate * muCandidate = muCand1->daughter(d);
 		    if (muCandidate->pdgId() == muCand1->pdgId() )
@@ -99,7 +99,7 @@ public:
 	    const Candidate  *  muCand2 =   ZCand.daughter(1);
 	    if (muCand2->status()==3) 
 	      { 	
-		for (uint e =0 ; e< muCand2->numberOfDaughters(); e++)
+		for (unsigned int e =0 ; e< muCand2->numberOfDaughters(); e++)
 		  { 
 		    const Candidate * muCandidate = muCand2->daughter(e);
 		    if (muCandidate->pdgId() == muCand2->pdgId() )
@@ -188,7 +188,7 @@ public:
       }   
      
 vector< int >::const_iterator p2;
-    for (uint i =0 ; i < v_.size(); ++i ) 
+    for (unsigned int i =0 ; i < v_.size(); ++i ) 
       {
 	cout<<" delta R Mu Sta == "<< v_[i]<<endl;
         }

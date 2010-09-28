@@ -14,7 +14,7 @@ class  StringCutEventSelector : public EventSelector {
     src_(edm::Service<InputTagDistributorService>()->retrieve("src",pset)),
     f_(pset.getParameter<std::string>("cut")),
     //put this guy to 0 to do the check on "all" object in the collection
-    nFirst_(pset.getParameter<uint>("nFirst"))
+    nFirst_(pset.getParameter<unsigned int>("nFirst"))
       {
 	  std::stringstream ss;
 	  ss<<"string cut based selection on collection: "<<src_;
@@ -28,7 +28,7 @@ class  StringCutEventSelector : public EventSelector {
       e.getByLabel(src_, oH);
       //reject events if not enough object in collection
       //      if ((nFirst_!=0) && (oH->size()<nFirst_)) return false;
-      uint i=0;
+      unsigned int i=0;
       for (;i!=oH->size();i++)
 	{
 	  //stop doing the check if reaching too far in the collection
@@ -42,7 +42,7 @@ class  StringCutEventSelector : public EventSelector {
  private:
     edm::InputTag src_;
     StringCutObjectSelector<Object> f_;
-    uint nFirst_;
+    unsigned int nFirst_;
 };
 
 
@@ -58,7 +58,7 @@ class  StringCutsEventSelector : public EventSelector {
 	ss<<"string cut based selection on collection: "<<src_;
 	description_.push_back(ss.str());	    ss.str("");
 	description_.push_back("selection cuts are:");
-	for (uint i=0;i!=selection.size();i++)
+	for (unsigned int i=0;i!=selection.size();i++)
 	  if (selection[i]!="-"){
 	    f_.push_back( new StringCutObjectSelector<Object>(selection[i]));
 	    ss<<"["<<i<<"]: "<<selection[i];
@@ -71,12 +71,12 @@ class  StringCutsEventSelector : public EventSelector {
 	      description_.push_back(ss.str());           ss.str("");
 	    }
       }
- ~StringCutsEventSelector(){uint i=0; for (;i!=f_.size();i++) if (f_[i]){ delete f_[i];f_[i]=0;}}
+ ~StringCutsEventSelector(){unsigned int i=0; for (;i!=f_.size();i++) if (f_[i]){ delete f_[i];f_[i]=0;}}
  
     bool select (const edm::Event& e) const{
       edm::Handle<edm::View<Object> > oH;
       e.getByLabel(src_, oH);
-      uint i=0;
+      unsigned int i=0;
       if (existenceMatter && oH->size()<f_.size()) return false;
       for (;i!=f_.size();i++)
 	{  

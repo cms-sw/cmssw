@@ -456,7 +456,7 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es)
 	const edm::TriggerNames & triggerNames = evt.triggerNames(*HltRes);
 	if(HLTPathCheck_)
 	{
-		for(uint itrig = 0; itrig < HltRes->size(); ++itrig)
+		for(unsigned int itrig = 0; itrig < HltRes->size(); ++itrig)
 		{
 			std::string nom = triggerNames.triggerName(itrig);
 			edm::LogInfo("")<< itrig <<" : Name = "<< nom <<"\t Accepted = "<< HltRes->accept(itrig);
@@ -592,7 +592,7 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es)
 					<<"\tpin = "<< probe_pin_[iComb_]<<"\tpout = "<< probe_pout_[iComb_];
 			
 			double dRLimit = 0.2;
-			for(uint mcEId = 0; mcEId < McElecs.size(); ++mcEId)
+			for(unsigned int mcEId = 0; mcEId < McElecs.size(); ++mcEId)
 			{
 //				double dR = reco::deltaR((*(*mcEl)), probeVec); 
 				double dR = reco::deltaR(McElecs[mcEId], it->second->p4()); 

@@ -17,7 +17,7 @@ std::vector<reco::GsfElectronRef> electronSelector(const std::vector<reco::GsfEl
 		if(fabs(scEta) < 1.4442 || fabs(scEta) > 1.56)
 		{
 			bool HLTMatch = false;
-			for(uint k = 0; k < ring.size(); ++k)
+			for(unsigned int k = 0; k < ring.size(); ++k)
 			{
 				const trigger::TriggerObject& HltObj = HltObjColl[ring[k]];
 				if(reco::deltaR(*elec, HltObj) < 0.1) HLTMatch = true; 
