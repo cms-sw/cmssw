@@ -139,7 +139,7 @@ void WMuNuProducer::produce (Event & ev, const EventSetup &) {
 
      // Fill Collection with n muons --> n W Candidates ordered by pt
 
-     WMuNuCandidate* WCandSel; double ptmax=0; int NCands=0;
+     WMuNuCandidate* WCandSel = 0; double ptmax=0; int NCands=0;
 
      for (int indx=0; indx<muonCollectionSize; indx++){ 
             edm::Ptr<reco::Muon> muon(muonCollection,indx);
