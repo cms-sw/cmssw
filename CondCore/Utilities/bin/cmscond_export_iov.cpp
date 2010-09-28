@@ -132,7 +132,7 @@ int cond::ExportIOVUtilities::execute(){
     IOVProxy iov(destdb, destiovtoken, true, true);
     oldSize=iov.size();
   }
-
+  
   // setup logDB
   std::auto_ptr<cond::Logger> logdb;
   if (doLog) {
@@ -154,12 +154,14 @@ int cond::ExportIOVUtilities::execute(){
     // store payload mapping
     if (exportMapping) {
       bool stored = destdb.importMapping( sourceConnect, payloadContainer );
+      sourcedb.transaction().forceCommit();
+      sourcedb.transaction().start(true); //FIXME: ORA closes the transaction: is CORAL???
       if(debug)
 	std::cout<< "payload mapping " << (stored ? "" : "not ") << "stored"<<std::endl;
       if (stored) a.usertext+="mapping stored;";
     }
   }
-
+  
   {
     std::ostringstream ss;
     ss << "since="<< since <<", till="<< till << ", " << usertext << ";";
