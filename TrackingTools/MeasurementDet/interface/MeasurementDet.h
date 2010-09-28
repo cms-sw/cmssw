@@ -42,6 +42,9 @@ public:
 
   const Surface::PositionType& position() const {return geomDet().position();}
 
+  virtual bool isActive() const=0;
+  virtual bool hasBadComponents(const TrajectoryStateOnSurface &tsos) const=0;
+
  private:
 
   const GeomDet* theGeomDet;
