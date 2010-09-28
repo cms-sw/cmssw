@@ -16,10 +16,27 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     #
     #
     #
+    highPtJetTrigger = cms.PSet(
+        andOr         = cms.bool( False ),
+        hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
+        hltDBKey       = cms.string( 'jetmet_highptjet' ),
+        hltPaths       = cms.vstring( 'HLT_Jet70U' ), 
+        andOrHlt       = cms.bool( False ),
+        errorReplyHlt  = cms.bool( False ),
+    ),
+    lowPtJetTrigger = cms.PSet(
+        andOr         = cms.bool( False ),
+        hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
+        hltDBKey       = cms.string( 'jetmet_lowptjet' ),
+        hltPaths       = cms.vstring( 'HLT_L1Jet6U' ), 
+        andOrHlt       = cms.bool( False ),
+        errorReplyHlt  = cms.bool( False ),
+    ),
+
     TriggerResultsLabel        = cms.InputTag("TriggerResults::HLT"),
     processname                = cms.string("HLT"),
-    JetLo                      = cms.string("HLT_Jet15U"),
-    JetHi                      = cms.string("HLT_Jet50U"),
+    #JetLo                      = cms.string("HLT_Jet15U"),
+    #JetHi                      = cms.string("HLT_Jet50U"),
 
     #
     # Jet-related

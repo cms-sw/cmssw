@@ -6,8 +6,8 @@
  *
  *  DQM jetMET analysis monitoring
  *
- *  $Date: 2010/05/14 05:55:07 $
- *  $Revision: 1.20 $
+ *  $Date: 2010/05/14 18:11:18 $
+ *  $Revision: 1.21 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -29,7 +29,9 @@
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-
+//
+#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
+//
 #include "DQMOffline/JetMET/interface/JetAnalyzer.h"
 #include "DQMOffline/JetMET/interface/JetPtAnalyzer.h"
 #include "DQMOffline/JetMET/interface/PFJetAnalyzer.h"
@@ -120,6 +122,9 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   MonitorElement* hltpathME;
   MonitorElement* physdecME;
   MonitorElement* lumisecME;
+
+  GenericTriggerEventFlag * _HighPtJetEventFlag;
+  GenericTriggerEventFlag * _LowPtJetEventFlag;
 
   std::string LoJetTrigger;
   std::string HiJetTrigger;

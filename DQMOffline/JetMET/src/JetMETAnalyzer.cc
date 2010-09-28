@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/08/06 13:39:39 $
- *  $Revision: 1.64 $
+ *  $Date: 2010/09/22 19:40:15 $
+ *  $Revision: 1.65 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -150,8 +150,16 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   if(thePFJetCleaningFlag)
     theCleanedPFJetAnalyzer = new PFJetAnalyzer(parameters.getParameter<ParameterSet>("CleanedpfJetAnalysis"));
 
-  LoJetTrigger = parameters.getParameter<std::string>("JetLo");
-  HiJetTrigger = parameters.getParameter<std::string>("JetHi");
+  //Trigger selectoin
+  edm::ParameterSet highptjetparms = parameters.getParameter<edm::ParameterSet>("highPtJetTrigger");
+  edm::ParameterSet lowptjetparms  = parameters.getParameter<edm::ParameterSet>("lowPtJetTrigger" );
+
+  LoJetTrigger = highptjetparms.getParameter<std::string>("hltDBKey");
+  HiJetTrigger = lowptjetparms .getParameter<std::string>("hltDBKey");
+
+  _HighPtJetEventFlag = new GenericTriggerEventFlag( highptjetparms );
+  _LowPtJetEventFlag  = new GenericTriggerEventFlag( lowptjetparms  );
+
 
   // --- do the analysis on the MET
   if(theCaloMETAnalyzerFlag){
@@ -205,7 +213,6 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
     _vtxz_max        = theCleaningParameters.getParameter<double>("vtxz_max");
   }
 
-
 }
 
 // ***********************************************************
@@ -241,6 +248,9 @@ JetMETAnalyzer::~JetMETAnalyzer() {
 
   if(thePFJetAnalyzerFlag)         delete thePFJetAnalyzer;
   if(thePFJetCleaningFlag)         delete theCleanedPFJetAnalyzer;
+
+  delete _HighPtJetEventFlag;
+  delete _LowPtJetEventFlag;
 
   if(theCaloMETAnalyzerFlag){
     delete theCaloMETAnalyzer;
@@ -320,6 +330,9 @@ void JetMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
 {
   //LogDebug("JetMETAnalyzer") << "beginRun, run " << run.id();
   //
+
+  if ( _HighPtJetEventFlag->on() ) _HighPtJetEventFlag->initRun( iRun, iSetup );
+  if ( _LowPtJetEventFlag ->on() ) _LowPtJetEventFlag ->initRun( iRun, iSetup );
   //--- htlConfig_
   //processname_="HLT";
   bool changed(true);
@@ -439,32 +452,38 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   Int_t JetLoPass = 0;
   Int_t JetHiPass = 0;
 
-  if (triggerResults.isValid()) {
-
-    if (DEBUG) std::cout << "trigger valid " << std::endl;
-    const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
-    unsigned int n = triggerResults->size();
-    for (unsigned int i=0; i!=n; i++) {
-
-      if ( triggerNames.triggerName(i) == LoJetTrigger ) {
-	JetLoPass =  triggerResults->accept(i);
-	if (DEBUG) std::cout << "Found  HLT_Jet30" << std::endl;
-      }
-      if ( triggerNames.triggerName(i) == HiJetTrigger ) {
-	JetHiPass =  triggerResults->accept(i);
-      }
-    }
-
-  } else {
-
-    //
-    triggerResults = edm::Handle<TriggerResults>(); 
-
-    if (DEBUG) std::cout << "trigger not valid " << std::endl;
-    edm::LogInfo("JetMETAnalyzer") << "TriggerResults::HLT not found, "
-      "automatically select events";
-
-  }
+  if ( _HighPtJetEventFlag->on() && ! _HighPtJetEventFlag->accept( iEvent, iSetup ) ) 
+    JetHiPass=1;
+  
+  if ( _LowPtJetEventFlag->on() && ! _LowPtJetEventFlag->accept( iEvent, iSetup ) ) 
+    JetLoPass=1;
+  
+  //if (triggerResults.isValid()) {
+  //
+  //  if (DEBUG) std::cout << "trigger valid " << std::endl;
+  //  const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
+  //  unsigned int n = triggerResults->size();
+  //  for (unsigned int i=0; i!=n; i++) {
+  //
+  //    if ( triggerNames.triggerName(i) == LoJetTrigger ) {
+  //	JetLoPass =  triggerResults->accept(i);
+  //	if (DEBUG) std::cout << "Found  HLT_Jet30" << std::endl;
+  //    }
+  //    if ( triggerNames.triggerName(i) == HiJetTrigger ) {
+  //	JetHiPass =  triggerResults->accept(i);
+  //    }
+  //  }
+  //
+  //} else {
+  //
+  //  //
+  //  triggerResults = edm::Handle<TriggerResults>(); 
+  //
+  //  if (DEBUG) std::cout << "trigger not valid " << std::endl;
+  //  edm::LogInfo("JetMETAnalyzer") << "TriggerResults::HLT not found, "
+  //    "automatically select events";
+  //
+  //}
   if (DEBUG) {
     std::cout << ">>> Trigger  Lo = " <<  JetLoPass
 	      <<             " Hi = " <<  JetHiPass
