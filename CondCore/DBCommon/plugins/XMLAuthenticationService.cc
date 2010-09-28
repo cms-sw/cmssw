@@ -1,7 +1,7 @@
 #include "CondCore/DBCommon/interface/DecodingKey.h"
 #include "CondCore/DBCommon/interface/FileUtils.h"
 #include "CondCore/DBCommon/interface/Exception.h"
-#include "CoralCommon/AuthenticationCredentials.h"
+#include "RelationalAccess/AuthenticationCredentials.h"
 #include "CoralCommon/Cipher.h"
 #include "RelationalAccess/AuthenticationServiceException.h"
 #include "CoralKernel/IPropertyManager.h"
