@@ -18,7 +18,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-      'file:jet_1000_Inf.root'
+      'file:tt.root'
       #'rfio:/castor/cern.ch/user/r/rebeca/Feb10PFMET/hww2l_RECOSIM.root',
       ),
     #eventsToProcess = cms.untracked.VEventRange('1:195-1:200'),
@@ -40,7 +40,7 @@ process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 process.load("RecoParticleFlow.Configuration.ReDisplay_EventContent_cff")
 process.display = cms.OutputModule("PoolOutputModule",
     process.DisplayEventContent,
-    fileName = cms.untracked.string('display_1000_Inf.root')
+    fileName = cms.untracked.string('display_tt.root')
 )
 
 # Local re-reco: Produce tracker rechits, pf rechits and pf clusters

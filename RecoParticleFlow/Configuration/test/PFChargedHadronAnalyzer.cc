@@ -137,7 +137,7 @@ PFChargedHadronAnalyzer::analyze(const Event& iEvent,
     double p = et.trackRef()->p();  
     double pt = et.trackRef()->pt(); 
     double eta = et.trackRef()->eta();
-    double phi = et.trackRef()->phi();
+    // double phi = et.trackRef()->phi();
     
     // A minimum p and pt
     if ( p < pMin_ || pt < ptMin_ ) continue;
