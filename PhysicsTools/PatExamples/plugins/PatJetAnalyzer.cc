@@ -16,7 +16,7 @@ static const unsigned int MAXBIN=8;
 /// binning used for the jet response plots 
 /// (NOTE BINS must have a length of MAXBIN
 /// +1)
-static const float BINS[]={0., 10., 20., 40., 60., 80., 100., 125., 150.};
+static const float BINS[]={30., 40., 50., 60., 70., 80., 100., 125., 150.};
 
 /**
    \class   PatJetAnalyzer PatJetAnalyzer.h "PhysicsTools/PatAlgos/plugins/PatJetAnalyzer.h"
@@ -81,7 +81,8 @@ PatJetAnalyzer::PatJetAnalyzer(const edm::ParameterSet& cfg):
   // basic histograms for jet energy response
   for(unsigned int idx=0; idx<MAXBIN; ++idx){
     char buffer [10]; sprintf (buffer, "jes_%i", idx);
-    hists_[buffer]=fs->make<TH1F>(buffer, "(p_{T}^{rec}-p_{T}^{gen})/p_{T}^{rec}",  80, 10., 10.);
+    char title  [50]; sprintf (title , "p_{T}^{rec}/p_{T}^{gen} [%i GeV - %i GeV]", (int)BINS[idx], (int)BINS[idx+1]);
+    hists_[buffer]=fs->make<TH1F>(buffer, title,  100, 0., 2.);
   }  
 }
 
@@ -99,10 +100,10 @@ PatJetAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup)
     fill( "eta", jet->eta());
     fill( "phi", jet->phi());
     // basic plots for jet responds plot as a function of pt
-    if( jet->genParton() && abs(jet->genParton()->pdgId())<6 ){
-      double resp=( jet->pt()-jet->genParton()->pt() )/jet->genParton()->pt();
+    if( jet->genJet() ){
+      double resp=jet->correctedJet(corrLevel_).pt()/jet->genJet()->pt();
       for(unsigned int idx=0; idx<MAXBIN; ++idx){
-	if(BINS[idx]<=jet->genParton()->pt() && jet->genParton()->pt()<BINS[idx+1]){
+	if(BINS[idx]<=jet->genJet()->pt() && jet->genJet()->pt()<BINS[idx+1]){
 	  char buffer [10]; sprintf (buffer, "jes_%i", idx);
 	  fill( buffer, resp );
 	}
