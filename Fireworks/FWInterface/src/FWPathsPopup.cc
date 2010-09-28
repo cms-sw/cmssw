@@ -697,50 +697,134 @@ public:
             ps.addUntrackedParameter(label, value);
       }
 
+   bool editVInputTag(edm::ParameterSet &ps, bool tracked,
+                      const std::string &label,
+                      const std::string &value)
+      { 
+        std::vector<edm::InputTag> inputTags;
+        std::stringstream iss(value);
+        std::string vitem;
+        bool fail;     
+        size_t fst, lst;
+
+        while (getline(iss, vitem, ','))
+        {
+          fst = vitem.find("[");
+          lst = vitem.find("]");
+        
+          if ( fst != std::string::npos )
+            vitem.erase(fst,1);
+          if ( lst != std::string::npos )
+            vitem.erase(lst,1);
+        
+          std::vector<std::string> tokens = edm::tokenize(vitem, ":");
+          size_t nwords = tokens.size();
+        
+          if ( nwords > 3 )
+          {
+            fail = true;
+            std::cerr<< label << value <<" "<< fail <<std::endl;
+            return fail;
+          }
+          else 
+          {
+            std::string it_label("");
+            std::string it_instance("");
+            std::string it_process("");
+
+            if ( nwords > 0 ) 
+              it_label = tokens[0];
+            if ( nwords > 1 ) 
+              it_instance = tokens[1];
+            if ( nwords > 2 ) 
+              it_process  = tokens[2];
+        
+            inputTags.push_back(edm::InputTag(it_label, it_instance, it_process));
+          }
+        }
+     
+        if (tracked)
+          ps.addParameter(label, inputTags);
+        else
+          ps.addUntrackedParameter(label, inputTags);
+
+        return fail;
+      }
+  
+
    bool editInputTag(edm::ParameterSet &ps, bool tracked,
                      const std::string &label,
                      const std::string &value)
       {
-         std::vector<std::string> tokens = edm::tokenize(value, ":");
-         size_t nwords = tokens.size();
+        std::vector<std::string> tokens = edm::tokenize(value, ":");
+        size_t nwords = tokens.size();
      
-         bool fail;
+        bool fail;
 
-         if ( nwords > 3 ) 
-         {
-           fail = true;
-           std::cerr<< label << value <<" "<< fail <<std::endl;
-       
-           // If fail just return the old InputTag?
+        if ( nwords > 3 ) 
+        {
+          fail = true;
+          std::cerr<< label << value <<" "<< fail <<std::endl;
+        }
+        else
+        {           
+          std::string it_label("");
+          std::string it_instance("");
+          std::string it_process("");
 
-           if ( tracked )
-             ps.addParameter(label, value);
-           else
-             ps.addUntrackedParameter(label, value);
-         }
-         else
-         {
-           std::string it_label("");
-           std::string it_instance("");
-           std::string it_process("");
-           
-           if ( nwords > 0 ) 
-             it_label = tokens[0];
-           if ( nwords > 1 ) 
-             it_instance = tokens[1];
-           if ( nwords > 2 ) 
-             it_process  = tokens[2];
+          if ( nwords > 0 ) 
+            it_label = tokens[0];
+          if ( nwords > 1 ) 
+            it_instance = tokens[1];
+          if ( nwords > 2 ) 
+            it_process  = tokens[2];
 
-           if ( tracked )
-             ps.addParameter(label, edm::InputTag(it_label, it_instance, it_process));
-           else
-             ps.addUntrackedParameter(label, edm::InputTag(it_label, it_instance, it_process));
+          if ( tracked )
+            ps.addParameter(label, edm::InputTag(it_label, it_instance, it_process));
+          else
+            ps.addUntrackedParameter(label, edm::InputTag(it_label, it_instance, it_process));
             
-           fail = false;
-         }
+          fail = false;
+        }
            
-         return fail;
+        return fail;
       }
+
+   bool editESInputTag(edm::ParameterSet &ps, bool tracked,
+                       const std::string &label,
+                       const std::string &value)
+      {
+        std::vector<std::string> tokens = edm::tokenize(value, ":");
+        size_t nwords = tokens.size();
+      
+        bool fail;
+  
+        if ( nwords > 2 )
+        {
+          fail = true;    
+          std::cerr<< label << value <<" "<< fail <<std::endl;
+        }
+        else
+        {             
+          std::string it_module("");
+          std::string it_data("");
+
+          if ( nwords > 0 ) 
+            it_module = tokens[0];
+          if ( nwords > 1 ) 
+            it_data = tokens[1];
+
+          if ( tracked )
+            ps.addParameter(label, edm::ESInputTag(it_module, it_data));
+          else
+            ps.addUntrackedParameter(label, edm::ESInputTag(it_module, it_data));
+        
+          fail = false;
+        }
+
+        return fail;
+      }
+  
 
   template <typename T>
   void editVectorParameter(edm::ParameterSet &ps, bool tracked,
@@ -847,6 +931,12 @@ public:
                   break; 
                case 't':
                   editInputTag(parent.pset, data.tracked, data.label, m_editor->GetText());
+                  break;
+               case 'g':
+                  editESInputTag(parent.pset, data.tracked, data.label, m_editor->GetText());
+                  break;
+               case 'v':
+                  editVInputTag(parent.pset, data.tracked, data.label, m_editor->GetText());
                   break;
                default:
                   std::cerr << "unsupported parameter" << std::endl;
