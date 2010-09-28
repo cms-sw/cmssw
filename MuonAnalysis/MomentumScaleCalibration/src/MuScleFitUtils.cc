@@ -1,7 +1,7 @@
 /** See header file for a class description
  *
- *  $Date: 2010/07/20 09:42:27 $
- *  $Revision: 1.40 $
+ *  $Date: 2010/08/03 10:52:00 $
+ *  $Revision: 1.41 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -380,116 +380,6 @@ std::pair<lorentzVector,lorentzVector> MuScleFitUtils::findBestRecoRes( const st
     }
   }
   return recMuFromBestRes;
-}
-
-std::pair<lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes( const edm::HepMCProduct* evtMC )
-{
-  const HepMC::GenEvent* Evt = evtMC->GetEvent();
-  std::pair<lorentzVector,lorentzVector> muFromRes;
-  //Loop on generated particles
-  for (HepMC::GenEvent::particle_const_iterator part=Evt->particles_begin();
-       part!=Evt->particles_end(); part++) {
-    if (fabs((*part)->pdg_id())==13 && (*part)->status()==1) {
-      bool fromRes = false;
-      for (HepMC::GenVertex::particle_iterator mother = (*part)->production_vertex()->particles_begin(HepMC::ancestors);
-	   mother != (*part)->production_vertex()->particles_end(HepMC::ancestors); ++mother) {
-        unsigned int motherPdgId = (*mother)->pdg_id();
-
-        // For sherpa the resonance is not saved. The muons from the resonance can be identified
-        // by having as mother a muon of status 3.
-        if( sherpa_ ) {
-          if( motherPdgId == 13 && (*mother)->status() == 3 ) fromRes = true;
-        }
-        else {
-          for( int ires = 0; ires < 6; ++ires ) {
-	    if( motherPdgId == motherPdgIdArray[ires] && resfind[ires] ) fromRes = true;
-          }
-        }
-      }
-      if(fromRes){
-	if((*part)->pdg_id()==13)
-	  //   muFromRes.first = (*part)->momentum();
-	  muFromRes.first = (lorentzVector((*part)->momentum().px(),(*part)->momentum().py(),
-					   (*part)->momentum().pz(),(*part)->momentum().e()));
-	else
-	  muFromRes.second = (lorentzVector((*part)->momentum().px(),(*part)->momentum().py(),
-					    (*part)->momentum().pz(),(*part)->momentum().e()));
-      }
-    }
-  }
-  return muFromRes;
-}
-
-std::pair<lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes( const reco::GenParticleCollection* genParticles)
-{
-  std::pair<lorentzVector,lorentzVector> muFromRes;
-
-  //Loop on generated particles
-  if( MuScleFitUtils::debug>0 ) std::cout << "Starting loop on " << genParticles->size() << " genParticles" << std::endl;
-  for( reco::GenParticleCollection::const_iterator part=genParticles->begin(); part!=genParticles->end(); ++part ) {
-    if (fabs(part->pdgId())==13 && part->status()==1) {
-      bool fromRes = false;
-      unsigned int motherPdgId = part->mother()->pdgId();
-      if( MuScleFitUtils::debug>0 ) {
-	std::cout << "Found a muon with mother: " << motherPdgId << std::endl;
-      }
-      for( int ires = 0; ires < 6; ++ires ) {
-	if( motherPdgId == motherPdgIdArray[ires] && resfind[ires] ) fromRes = true;
-      }
-      if(fromRes){
-	if(part->pdgId()==13) {
-	  muFromRes.first = part->p4();
-	  if( MuScleFitUtils::debug>0 ) std::cout << "Found a genMuon + : " << muFromRes.first << std::endl;
-	  // 	  muFromRes.first = (lorentzVector(part->p4().px(),part->p4().py(),
-	  // 					   part->p4().pz(),part->p4().e()));
-	}
-	else {
-	  muFromRes.second = part->p4();
-	  if( MuScleFitUtils::debug>0 ) std::cout << "Found a genMuon - : " << muFromRes.second << std::endl;
-	  // 	  muFromRes.second = (lorentzVector(part->p4().px(),part->p4().py(),
-	  // 					    part->p4().pz(),part->p4().e()));
-	}
-      }
-    }
-  }
-  return muFromRes;
-}
-
-std::pair<lorentzVector, lorentzVector> MuScleFitUtils::findSimMuFromRes( const edm::Handle<edm::HepMCProduct> & evtMC, const edm::Handle<edm::SimTrackContainer> & simTracks )
-{
-  //Loop on simulated tracks
-  std::pair<lorentzVector, lorentzVector> simMuFromRes;
-  for( edm::SimTrackContainer::const_iterator simTrack=simTracks->begin(); simTrack!=simTracks->end(); ++simTrack ) {
-    //Chose muons
-    if (fabs((*simTrack).type())==13) {
-      //If tracks from IP than find mother
-      if ((*simTrack).genpartIndex()>0) {
-	HepMC::GenParticle* gp = evtMC->GetEvent()->barcode_to_particle ((*simTrack).genpartIndex());
-        if( gp != 0 ) {
-
-          for (HepMC::GenVertex::particle_iterator mother = gp->production_vertex()->particles_begin(HepMC::ancestors);
-               mother!=gp->production_vertex()->particles_end(HepMC::ancestors); ++mother) {
-
-            bool fromRes = false;
-            unsigned int motherPdgId = (*mother)->pdg_id();
-            for( int ires = 0; ires < 6; ++ires ) {
-              if( motherPdgId == motherPdgIdArray[ires] && resfind[ires] ) fromRes = true;
-            }
-            if( fromRes ) {
-              if(gp->pdg_id() == 13)
-                simMuFromRes.first = lorentzVector(simTrack->momentum().px(),simTrack->momentum().py(),
-                                                   simTrack->momentum().pz(),simTrack->momentum().e());
-              else
-                simMuFromRes.second = lorentzVector(simTrack->momentum().px(),simTrack->momentum().py(),
-                                                    simTrack->momentum().pz(),simTrack->momentum().e());
-            }
-          }
-        }
-        else LogDebug("MuScleFitUtils") << "WARNING: no matching genParticle found for simTrack" << std::endl;
-      }
-    }
-  }
-  return simMuFromRes;
 }
 
 // Resolution smearing function called to worsen muon Pt resolution at start
@@ -2217,4 +2107,115 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
 		    << " " << ResGamma[ires] << " " << ResMass[ires] << " " << massResol
 		    << " " << P << std::endl;
   return P;
+}
+
+std::pair<lorentzVector, lorentzVector> MuScleFitUtils::findSimMuFromRes( const edm::Handle<edm::HepMCProduct> & evtMC,
+									  const edm::Handle<edm::SimTrackContainer> & simTracks )
+{
+  //Loop on simulated tracks
+  std::pair<lorentzVector, lorentzVector> simMuFromRes;
+  for( edm::SimTrackContainer::const_iterator simTrack=simTracks->begin(); simTrack!=simTracks->end(); ++simTrack ) {
+    //Chose muons
+    if (fabs((*simTrack).type())==13) {
+      //If tracks from IP than find mother
+      if ((*simTrack).genpartIndex()>0) {
+	HepMC::GenParticle* gp = evtMC->GetEvent()->barcode_to_particle ((*simTrack).genpartIndex());
+        if( gp != 0 ) {
+
+          for (HepMC::GenVertex::particle_iterator mother = gp->production_vertex()->particles_begin(HepMC::ancestors);
+               mother!=gp->production_vertex()->particles_end(HepMC::ancestors); ++mother) {
+
+            bool fromRes = false;
+            unsigned int motherPdgId = (*mother)->pdg_id();
+            for( int ires = 0; ires < 6; ++ires ) {
+              if( motherPdgId == motherPdgIdArray[ires] && resfind[ires] ) fromRes = true;
+            }
+            if( fromRes ) {
+              if(gp->pdg_id() == 13)
+                simMuFromRes.first = lorentzVector(simTrack->momentum().px(),simTrack->momentum().py(),
+                                                   simTrack->momentum().pz(),simTrack->momentum().e());
+              else
+                simMuFromRes.second = lorentzVector(simTrack->momentum().px(),simTrack->momentum().py(),
+                                                    simTrack->momentum().pz(),simTrack->momentum().e());
+            }
+          }
+        }
+        // else LogDebug("MuScleFitUtils") << "WARNING: no matching genParticle found for simTrack" << std::endl;
+      }
+    }
+  }
+  return simMuFromRes;
+}
+
+std::pair<lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes( const edm::HepMCProduct* evtMC )
+{
+  const HepMC::GenEvent* Evt = evtMC->GetEvent();
+  std::pair<lorentzVector,lorentzVector> muFromRes;
+  //Loop on generated particles
+  for (HepMC::GenEvent::particle_const_iterator part=Evt->particles_begin();
+       part!=Evt->particles_end(); part++) {
+    if (fabs((*part)->pdg_id())==13 && (*part)->status()==1) {
+      bool fromRes = false;
+      for (HepMC::GenVertex::particle_iterator mother = (*part)->production_vertex()->particles_begin(HepMC::ancestors);
+	   mother != (*part)->production_vertex()->particles_end(HepMC::ancestors); ++mother) {
+        unsigned int motherPdgId = (*mother)->pdg_id();
+
+        // For sherpa the resonance is not saved. The muons from the resonance can be identified
+        // by having as mother a muon of status 3.
+        if( sherpa_ ) {
+          if( motherPdgId == 13 && (*mother)->status() == 3 ) fromRes = true;
+        }
+        else {
+          for( int ires = 0; ires < 6; ++ires ) {
+	    if( motherPdgId == motherPdgIdArray[ires] && resfind[ires] ) fromRes = true;
+          }
+        }
+      }
+      if(fromRes){
+	if((*part)->pdg_id()==13)
+	  //   muFromRes.first = (*part)->momentum();
+	  muFromRes.first = (lorentzVector((*part)->momentum().px(),(*part)->momentum().py(),
+					   (*part)->momentum().pz(),(*part)->momentum().e()));
+	else
+	  muFromRes.second = (lorentzVector((*part)->momentum().px(),(*part)->momentum().py(),
+					    (*part)->momentum().pz(),(*part)->momentum().e()));
+      }
+    }
+  }
+  return muFromRes;
+}
+
+std::pair<lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes( const reco::GenParticleCollection* genParticles)
+{
+  std::pair<lorentzVector,lorentzVector> muFromRes;
+
+  //Loop on generated particles
+  if( debug>0 ) std::cout << "Starting loop on " << genParticles->size() << " genParticles" << std::endl;
+  for( reco::GenParticleCollection::const_iterator part=genParticles->begin(); part!=genParticles->end(); ++part ) {
+    if (fabs(part->pdgId())==13 && part->status()==1) {
+      bool fromRes = false;
+      unsigned int motherPdgId = part->mother()->pdgId();
+      if( debug>0 ) {
+	std::cout << "Found a muon with mother: " << motherPdgId << std::endl;
+      }
+      for( int ires = 0; ires < 6; ++ires ) {
+	if( motherPdgId == motherPdgIdArray[ires] && resfind[ires] ) fromRes = true;
+      }
+      if(fromRes){
+	if(part->pdgId()==13) {
+	  muFromRes.first = part->p4();
+	  if( debug>0 ) std::cout << "Found a genMuon + : " << muFromRes.first << std::endl;
+	  // 	  muFromRes.first = (lorentzVector(part->p4().px(),part->p4().py(),
+	  // 					   part->p4().pz(),part->p4().e()));
+	}
+	else {
+	  muFromRes.second = part->p4();
+	  if( debug>0 ) std::cout << "Found a genMuon - : " << muFromRes.second << std::endl;
+	  // 	  muFromRes.second = (lorentzVector(part->p4().px(),part->p4().py(),
+	  // 					    part->p4().pz(),part->p4().e()));
+	}
+      }
+    }
+  }
+  return muFromRes;
 }
