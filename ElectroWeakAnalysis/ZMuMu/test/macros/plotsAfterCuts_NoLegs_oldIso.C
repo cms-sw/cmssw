@@ -38,10 +38,10 @@ void plotsAfterCuts_NoLegs_oldIso(){
  Events.Add("/scratch2/users/degruttola/data/OfficialJSON/blessed/NtupleLoose_140160-140182.root");
  Events.Add("/scratch2/users/degruttola/data/OfficialJSON/blessed/NtupleLoose_140183-140399.root");
  Events.Add("/scratch2/users/degruttola/data/OfficialJSON/blessed/NtupleLoose_140440-141961.root");
- Events.Add("../NtupleLoose_142035-142664.root");
- Events.Add("../NtupleLoose_142665-143179.root");
- Events.Add("../NtupleLoose_143180-143336.root");
- Events.Add("../NtupleLoose_143337-144114.root");
+ Events.Add("/scratch2/users/degruttola/data/OfficialJSON/blessed/NtupleLoose_142035-142664.root");
+ Events.Add("/scratch2/users/degruttola/data/OfficialJSON/blessed/NtupleLoose_142665-143179.root");
+ Events.Add("/scratch2/users/degruttola/data/OfficialJSON/blessed/NtupleLoose_143180-143336.root");
+ Events.Add("/scratch2/users/degruttola/data/OfficialJSON/blessed/NtupleLoose_143337-144114.root");
  // Events.Add("../NtupleLoose_144114_v2.root");
 
   
