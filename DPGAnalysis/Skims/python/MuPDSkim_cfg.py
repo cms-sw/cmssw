@@ -147,7 +147,7 @@ process.pathpfgskim3noncross = cms.Path(process.pfgskim3noncrossseq)
 
 process.pathdtSkim = cms.Path(process.dtSkimseq)
 
-process.HTSDPath = cms.Path(process.HTSD)
+#process.HTSDPath = cms.Path(process.HTSD)
 
 process.pathL1MuBitSkim = cms.Path(process.l1MuBitsSkimseq)
 
