@@ -12,6 +12,8 @@
 #include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitUtils.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/MuonPair.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/GenMuonPair.h"
 
 class MuScleFitBase
 {
@@ -73,6 +75,11 @@ protected:
 
   /// The map of histograms
   std::map<std::string, Histograms*> mapHisto_;
+  
+  /// Used to store the muon pairs plus run and event number prior to the creation of the internal tree
+  std::vector<MuonPair> muonPairs_;
+  /// Stores the genMuon pairs and the motherId prior to the creation of the internal tree
+  std::vector<GenMuonPair> genMuonPairs_;
 };
 
 #endif
