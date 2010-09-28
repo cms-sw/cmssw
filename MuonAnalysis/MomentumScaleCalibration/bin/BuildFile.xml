@@ -4,7 +4,6 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/FWLite"/>
 <use   name="rootcintex"/>
-<use   name="root"/>
 <use   name="boost"/>
 <use   name="CommonTools/Utils"/>
 <use   name="PhysicsTools/Utilities"/>
@@ -20,4 +19,5 @@
   <use   name="ROOTMath"/>
   <use   name="ROOTMinuit"/>
   <bin   file="ZntupleToTreeConverter.cc"></bin>
+  <bin   file="MuScleFitTreeProvenance.cc"></bin>
 </environment>

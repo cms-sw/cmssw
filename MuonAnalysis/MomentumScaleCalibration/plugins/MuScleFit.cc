@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2010/08/03 10:46:43 $
-//  $Revision: 1.92 $
+//  $Date: 2010/09/08 09:34:42 $
+//  $Revision: 1.93 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -300,6 +300,10 @@ MuScleFit::MuScleFit( const edm::ParameterSet& pset ) :
     exit(1);
   }
 
+  // When using standalone muons switch to the single Z pdf
+  if( theMuonType_ == 2 ) {
+    MuScleFitUtils::rapidityBinsForZ_ = false;
+  }
 
   // Initialize ResMaxSigma And ResHalfWidth - 0 = global, 1 = SM, 2 = tracker
   // -------------------------------------------------------------------------
@@ -322,6 +326,12 @@ MuScleFit::MuScleFit( const edm::ParameterSet& pset ) :
   MuScleFitUtils::massWindowHalfWidth[2][4] = 0.2;
   MuScleFitUtils::massWindowHalfWidth[2][5] = 0.2;
 
+  muonSelector_.reset(new MuScleFitMuonSelector(theMuonLabel_, theMuonType_, PATmuons_,
+						MuScleFitUtils::resfind,
+						MuScleFitUtils::speedup, genParticlesName_,
+						compareToSimTracks_, simTracksCollection_,
+						MuScleFitUtils::sherpa_, debug_));
+
   MuScleFitUtils::backgroundHandler = new BackgroundHandler( pset.getParameter<std::vector<int> >("BgrFitType"),
                                                              pset.getParameter<std::vector<double> >("LeftWindowBorder"),
                                                              pset.getParameter<std::vector<double> >("RightWindowBorder"),
@@ -334,7 +344,7 @@ MuScleFit::MuScleFit( const edm::ParameterSet& pset ) :
   // MuScleFitUtils::resfind
 
   MuScleFitUtils::normalizeLikelihoodByEventNumber_ = pset.getUntrackedParameter<bool>("NormalizeLikelihoodByEventNumber", true);
-  if (debug_>0) std::cout << "End of MuScleFit constructor" << std::endl;
+  if(debug_>0) std::cout << "End of MuScleFit constructor" << std::endl;
 
   inputRootTreeFileName_ = pset.getParameter<std::string>("InputRootTreeFileName");
   outputRootTreeFileName_ = pset.getParameter<std::string>("OutputRootTreeFileName");
@@ -359,10 +369,12 @@ MuScleFit::~MuScleFit () {
       std::cout << "Saving muon pairs to root tree" << std::endl;
       RootTreeHandler rootTreeHandler;
       if( MuScleFitUtils::speedup ) {
-        rootTreeHandler.writeTree(outputRootTreeFileName_, &(MuScleFitUtils::SavedPair), 0, saveAllToTree_);
+        // rootTreeHandler.writeTree(outputRootTreeFileName_, &(MuScleFitUtils::SavedPair), theMuonType_, 0, saveAllToTree_);
+        rootTreeHandler.writeTree(outputRootTreeFileName_, &(muonPairs_), theMuonType_, 0, saveAllToTree_);
       }
       else {
-        rootTreeHandler.writeTree(outputRootTreeFileName_, &(MuScleFitUtils::SavedPair), &(MuScleFitUtils::genPair), saveAllToTree_ );
+        // rootTreeHandler.writeTree(outputRootTreeFileName_, &(MuScleFitUtils::SavedPair), theMuonType_, &(MuScleFitUtils::genPair), saveAllToTree_ );
+        rootTreeHandler.writeTree(outputRootTreeFileName_, &(muonPairs_), theMuonType_, &(genMuonPairs_), saveAllToTree_ );
       }
     }
     else {
@@ -533,9 +545,10 @@ edm::EDLooper::Status MuScleFit::duringLoop( const edm::Event & event, const edm
       std::cout<<"Trigger "<<isFired<<std::endl;
   }
   else{
-   HLTConfigProvider hltConfig;
-    hltConfig.init(triggerResultsProcess_);
-    unsigned int triggerIndex( hltConfig.triggerIndex(triggerPath_));
+    bool changed;
+    HLTConfigProvider hltConfig;
+    hltConfig.init(event.getRun(), eventSetup, triggerResultsProcess_, changed);
+    unsigned int triggerIndex( hltConfig.triggerIndex(triggerPath_) );
     // triggerIndex must be less than the size of HLTR or you get a CMSException: _M_range_check
     if (triggerIndex < triggerResults->size()) {
       isFired = triggerResults->accept(triggerIndex);
@@ -564,7 +577,7 @@ edm::EDLooper::Status MuScleFit::duringLoop( const edm::Event & event, const edm
   if( loopCounter == 0 ) {
 
     if( !fastLoop || inputRootTreeFileName_.empty() ) {
-      // std::cout << "Reading from edm event" << std::endl;
+      if( debug_ > 0 ) std::cout << "Reading from edm event" << std::endl;
       selectMuons(event);
       duringFastLoop();
       ++totalEvents_;
@@ -585,160 +598,14 @@ void MuScleFit::selectMuons(const edm::Event & event)
   recMu2 = reco::Particle::LorentzVector(0,0,0,0);
 
   std::vector<reco::LeafCandidate> muons;
-
-  edm::Handle<pat::CompositeCandidateCollection > collAll;
-  try {event.getByLabel("onia2MuMuPatTrkTrk",collAll);} 
-  catch (...) {std::cout << "J/psi not present in event!" << std::endl;}
-  std::vector<const pat::Muon*> collMuSel;
-     
-
-  //================onia cuts===========================/
-
-  if( theMuonType_ <= -1 && PATmuons_) { 
-    std::vector<const pat::CompositeCandidate*> collSelGG;
-    std::vector<const pat::CompositeCandidate*> collSelGT;
-    std::vector<const pat::CompositeCandidate*> collSelTT;
-   if (collAll.isValid()) {
-
-      for(std::vector<pat::CompositeCandidate>::const_iterator it=collAll->begin();
-	  it!=collAll->end();++it) {
-      
-	const pat::CompositeCandidate* cand = &(*it);	
-	// cout << "Now checking candidate of type " << theJpsiCat << " with pt = " << cand->pt() << endl;
-	const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(cand->daughter("muon1"));
-	const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(cand->daughter("muon2"));
-      
-	if((muon1->charge() * muon2->charge())>0)
-	  continue;
-
-	// global + global?
-	if (muon1->isGlobalMuon() && muon2->isGlobalMuon() ) {
-	  if (selGlobalMuon(muon1) && selGlobalMuon(muon2) && cand->userFloat("vProb") > 0.001 ) {
-	    collSelGG.push_back(cand);
-	    continue;
-	  }
-	}
-
-	// global + tracker? (x2)    
-	if (muon1->isGlobalMuon() && muon2->isTrackerMuon() ) {
-	  if (selGlobalMuon(muon1) &&  selTrackerMuon(muon2) && cand->userFloat("vProb") > 0.001 ) {
-	    collSelGT.push_back(cand);
-	    continue;
-	  }
-	}
-
-	if (muon2->isGlobalMuon() && muon1->isTrackerMuon() ) {
-	  if (selGlobalMuon(muon2) && selTrackerMuon(muon1) && cand->userFloat("vProb") > 0.001) {
-	    collSelGT.push_back(cand);
-	    continue;
-	  }
-	}
-
-	// tracker + tracker?  
-	if (muon1->isTrackerMuon() && muon2->isTrackerMuon() ) {
-	  if (selTrackerMuon(muon1) && selTrackerMuon(muon2) && cand->userFloat("vProb") > 0.001) {
-	    collSelTT.push_back(cand);
-	    continue;
-	  }
-	}
-      }
-    }
-    // Split them in independent collections if using theMuonType_ == -2, -3 or -4. Take them all if theMuonType_ == -1.
-    std::vector<reco::Track> tracks;
-    if(collSelGG.size()){
-      //CHECK THAT THEY ARE ORDERED BY PT !!!!!!!!!!!!!!!!!!!!!!!
-      const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(collSelGG[0]->daughter("muon1"));
-      const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(collSelGG[0]->daughter("muon2"));
-      if( theMuonType_ == -1 || theMuonType_ == -2 ) {
-	tracks.push_back(*(muon1->innerTrack()));
-	tracks.push_back(*(muon2->innerTrack()));  
-	collMuSel.push_back(muon1);
-	collMuSel.push_back(muon2);
-      }
-    }
-    else if(!collSelGG.size() && collSelGT.size()){
-      //CHECK THAT THEY ARE ORDERED BY PT !!!!!!!!!!!!!!!!!!!!!!!
-      const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(collSelGT[0]->daughter("muon1"));
-      const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(collSelGT[0]->daughter("muon2"));
-      if( theMuonType_ == -1 || theMuonType_ == -3 ) {
-	tracks.push_back(*(muon1->innerTrack()));
-	tracks.push_back(*(muon2->innerTrack()));   
- 	collMuSel.push_back(muon1);
-	collMuSel.push_back(muon2);
-     }
-    }
-   else if(!collSelGG.size() && !collSelGT.size() && collSelTT.size()){
-      //CHECK THAT THEY ARE ORDERED BY PT !!!!!!!!!!!!!!!!!!!!!!!
-      const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(collSelTT[0]->daughter("muon1"));
-      const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(collSelTT[0]->daughter("muon2"));
-      if( theMuonType_ == -1 || theMuonType_ == -4 ) {
-	tracks.push_back(*(muon1->innerTrack()));
-	tracks.push_back(*(muon2->innerTrack()));   
-	collMuSel.push_back(muon1);
-	collMuSel.push_back(muon2);
-      }
-    }
-    if (tracks.size() != 2 && tracks.size() != 0){
-      std::cout<<"ERROR strange number of muons selected by onia cuts!"<<std::endl;
-      abort();
-    }
-    muons = fillMuonCollection(tracks); 
-  }
-  else if( (theMuonType_<4 && theMuonType_>0) || theMuonType_>=10 ) { // Muons (glb,sta,trk)
-    std::vector<reco::Track> tracks;
-    if( PATmuons_ == true ) {
-      if( theMuonType_ == 0 ) {
-	std::cout << "Error, invalid selection: PATmuons with muonType == " << theMuonType_ << std::endl;
-	exit(1);
-      }
-      edm::Handle<pat::MuonCollection> allMuons;
-      event.getByLabel( theMuonLabel_, allMuons );
-      for( std::vector<pat::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon ) {
-	//std::cout<<"pat muon is global "<<muon->isGlobalMuon()<<std::endl;
-        takeSelectedMuonType(muon, tracks);
-      }
-      muons = fillMuonCollection(tracks);
-    }
-    else {
-      edm::Handle<reco::MuonCollection> allMuons;
-      event.getByLabel (theMuonLabel_, allMuons);
-      if( theMuonType_ == 0 ) {
-	// Take directly the muon
-	muons = fillMuonCollection(*allMuons);
-      }
-      else {
-	for( std::vector<reco::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon ) {
-	  takeSelectedMuonType(muon, tracks);
-	}
-	muons = fillMuonCollection(tracks);
-      }
-    }
-  }
-  else if(theMuonType_==4){  //CaloMuons
-    edm::Handle<reco::CaloMuonCollection> caloMuons;
-    event.getByLabel (theMuonLabel_, caloMuons);
-    std::vector<reco::Track> tracks;
-    for (std::vector<reco::CaloMuon>::const_iterator muon = caloMuons->begin(); muon != caloMuons->end(); ++muon){
-      tracks.push_back(*(muon->track()));
-    }
-    muons = fillMuonCollection(tracks);
-  }
-
-  else if (theMuonType_==5) { // Inner tracker tracks
-    edm::Handle<reco::TrackCollection> tracks;
-    event.getByLabel (theMuonLabel_, tracks);
-    muons = fillMuonCollection(*tracks);
-  }
-
+  muonSelector_->selectMuons(event, muons, genMuonPairs_, MuScleFitUtils::simPair, plotter);
   plotter->fillRec(muons);
-  // Compare reco with mc
-  // if( loopCounter == 0 && !MuScleFitUtils::speedup ) plotter->fillRecoVsGen(muons, evtMC);
 
   // Find the two muons from the resonance, and set ResFound bool
   // ------------------------------------------------------------
   std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> recMuFromBestRes =
     MuScleFitUtils::findBestRecoRes(muons);
- 
+
   if (MuScleFitUtils::ResFound) {
     if (debug_>0) {
       std::cout <<std::setprecision(9)<< "Pt after findbestrecores: " << (recMuFromBestRes.first).Pt() << " "
@@ -758,116 +625,12 @@ void MuScleFit::selectMuons(const edm::Event & event)
   } else {
     MuScleFitUtils::SavedPair.push_back( std::make_pair( lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.) ) );
   }
-
-  // ------- //
-  // MC info //
-  // ------- //
-
-  // NB we skip the simulation part if we are in a hurry
-  if (!MuScleFitUtils::speedup) {
-    // Find and store in histograms the generated and simulated resonance and muons
-    // ----------------------------------------------------------------------------
-    edm::Handle<edm::HepMCProduct> evtMC;
-    edm::Handle<edm::SimTrackContainer> simTracks;
-    edm::Handle<reco::GenParticleCollection> genParticles;
-
-    // Fill gen information only in the first loop
-    ifHepMC=false;
-    ifGenPart=false;
-
-    event.getByLabel( genParticlesName_, evtMC );
-    event.getByLabel( genParticlesName_, genParticles );
-    if( evtMC.isValid() ) {
-
-      MuScleFitUtils::genPair.push_back( MuScleFitUtils::findGenMuFromRes(evtMC.product()) );
-
-      plotter->fillGen2(evtMC.product(), MuScleFitUtils::sherpa_); 
-      ifHepMC = true;
-      if (debug_>0) std::cout << "Found hepMC" << std::endl;
-    }
-    else if( genParticles.isValid() ) {
-
-      MuScleFitUtils::genPair.push_back( MuScleFitUtils::findGenMuFromRes(genParticles.product()) );
-
-        plotter->fillGen1(genParticles.product());
-        ifGenPart=true;
-        if (debug_>0) std::cout << "Found genParticles" << std::endl;
-    }
-    else if( PATmuons_ == true ){
-      reco::GenParticleCollection* genPatParticles = new reco::GenParticleCollection;
-      
-      //explicitly for JPsi but can be adapted!!!!!
-      for(std::vector<pat::CompositeCandidate>::const_iterator it=collAll->begin();
-	  it!=collAll->end();++it){
-	reco::GenParticleRef genJpsi = it->genParticleRef();
-	bool isMatched = (genJpsi.isAvailable() && genJpsi->pdgId() == 443);  
-	if (isMatched){
-	  genPatParticles->push_back(*(const_cast<reco::GenParticle*>(genJpsi.get())));
-	} 
-      }   
-
-      if(collMuSel.size()==2){
-	reco::GenParticleRef genMu1 = collMuSel[0]->genParticleRef();
-	reco::GenParticleRef genMu2 = collMuSel[1]->genParticleRef();
-	bool isMuMatched = (genMu1.isAvailable() && genMu2.isAvailable() && 
-			    genMu1->pdgId()*genMu2->pdgId() == -169);
-	if (isMuMatched){
-	  genPatParticles->push_back(*(const_cast<reco::GenParticle*>(genMu1.get())));
-	  genPatParticles->push_back(*(const_cast<reco::GenParticle*>(genMu2.get())));
-
-	  if(genMu1->pdgId()==13)
-	    MuScleFitUtils::genPair.push_back(std::make_pair(genMu1.get()->p4(),genMu2.get()->p4()) );
-	  else
-	    MuScleFitUtils::genPair.push_back(std::make_pair(genMu2.get()->p4(),genMu1.get()->p4()) );
-
-	  plotter->fillGen1(const_cast <reco::GenParticleCollection*> (genPatParticles), true);
-
-	  if (debug_>0) std::cout << "Found genParticles in PAT" << std::endl;
-	}
-	else{
-	  std::cout << "No recomuon selected so no access to generated info"<<std::endl;
-	  // Fill it in any case, otherwise it will not be in sync with the event number
-	  MuScleFitUtils::genPair.push_back( std::make_pair( lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.) ) );
-	    
-	}
-      }
-      else{
-	std::cout << "No recomuon selected so no access to generated info"<<std::endl;
-	// Fill it in any case, otherwise it will not be in sync with the event number
-        MuScleFitUtils::genPair.push_back( std::make_pair( lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.) ) );
-      }
-    }
-    else {
-        std::cout<<"ERROR "<<"non generation info and speedup true!!!!!!!!!!!!"<<std::endl;
-        // Fill it in any case, otherwise it will not be in sync with the event number
-        MuScleFitUtils::genPair.push_back( std::make_pair( lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.) ) );
-    }
-    
-    if(!(MuScleFitUtils::speedup) && debug_>0) {
-      std::cout << "genParticles:" << std::endl;
-      std::cout << MuScleFitUtils::genPair.back().first << " , " << MuScleFitUtils::genPair.back().second << std::endl;
-    }
-
-    if( compareToSimTracks_ ) {
-      bool simTracksFound = false;
-      event.getByLabel(simTracksCollection_, simTracks);
-      if( simTracks.isValid() ) {
-        plotter->fillSim(simTracks);
-        if(ifHepMC) {
-
-          MuScleFitUtils::simPair.push_back( MuScleFitUtils::findSimMuFromRes(evtMC,simTracks) );
-          simTracksFound = true;
-          plotter->fillGenSim(evtMC,simTracks);
-        }
-      }
-      else {
-        std::cout << "SimTracks not existent" << std::endl;
-      }
-      if( !simTracksFound ) {
-        MuScleFitUtils::simPair.push_back( std::make_pair( lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.) ) );
-      }
-    }
-  }
+  // Save the events also in the external tree so that it can be saved later
+  muonPairs_.push_back(MuonPair(MuScleFitUtils::SavedPair.back().first,
+				MuScleFitUtils::SavedPair.back().second,
+				event.run(), event.id().event()));
+  // Fill the internal genPair tree from the external one
+  MuScleFitUtils::genPair.push_back(std::make_pair( genMuonPairs_.back().mu1, genMuonPairs_.back().mu2 ));
 }
 
 void MuScleFit::selectMuons(const int maxEvents, const TString & treeFileName)
@@ -875,10 +638,10 @@ void MuScleFit::selectMuons(const int maxEvents, const TString & treeFileName)
   std::cout << "Reading muon pairs from Root Tree in " << treeFileName << std::endl;
   RootTreeHandler rootTreeHandler;
   if( MuScleFitUtils::speedup ) {
-    rootTreeHandler.readTree(maxEvents, inputRootTreeFileName_, &(MuScleFitUtils::SavedPair));
+    rootTreeHandler.readTree(maxEvents, inputRootTreeFileName_, &(MuScleFitUtils::SavedPair), theMuonType_);
   }
   else {
-    rootTreeHandler.readTree(maxEvents, inputRootTreeFileName_, &(MuScleFitUtils::SavedPair), &(MuScleFitUtils::genPair));
+    rootTreeHandler.readTree(maxEvents, inputRootTreeFileName_, &(MuScleFitUtils::SavedPair), theMuonType_, &(MuScleFitUtils::genPair));
   }
   // Now loop on all the pairs and apply any smearing and bias if needed
   std::vector<std::pair<lorentzVector,lorentzVector> >::iterator it = MuScleFitUtils::SavedPair.begin();

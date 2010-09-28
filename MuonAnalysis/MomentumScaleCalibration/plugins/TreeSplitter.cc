@@ -22,14 +22,17 @@ void TreeSplitter::endJob()
   RootTreeHandler rootTreeHandler;
 
   typedef std::vector<std::pair<lorentzVector,lorentzVector> > MuonPairVector;
-  MuonPairVector savedPair;
-  rootTreeHandler.readTree(maxEvents_, treeFileName_, &savedPair);
+  // MuonPairVector savedPair;
+  std::vector<MuonPair> savedPair;
+  rootTreeHandler.readTree(maxEvents_, treeFileName_, &savedPair, 0);
   // rootTreeHandler.readTree(maxEvents, inputRootTreeFileName_, &savedPair, &(MuScleFitUtils::genPair));
 
   // Loop on all the pairs
-  MuonPairVector newSavedPair;
+  std::vector<MuonPair> newSavedPair;
+  // MuonPairVector newSavedPair;
   unsigned int i = 0;
-  MuonPairVector::iterator it = savedPair.begin();
+  // MuonPairVector::iterator it = savedPair.begin();
+  std::vector<MuonPair>::iterator it = savedPair.begin();
   std::cout << "Starting loop on " << savedPair.size() << " muons" << std::endl;
   uint32_t lastEvent = subSampleFirstEvent_ + subSampleMaxEvents_;
   for( ; it != savedPair.end(); ++it, ++i ) {
@@ -38,7 +41,7 @@ void TreeSplitter::endJob()
       newSavedPair.push_back(*it);
     }
   }
-  rootTreeHandler.writeTree(outputFileName_, &newSavedPair);
+  rootTreeHandler.writeTree(outputFileName_, &newSavedPair, 0);
 }
 
 //define this as a plug-in

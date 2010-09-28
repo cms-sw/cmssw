@@ -90,7 +90,8 @@ int main(int argc, char* argv[])
 
   // Create the RootTreeHandler to save the events in the root tree
   RootTreeHandler treeHandler;
-  MuonPairVector pairVector;
+  // MuonPairVector pairVector;
+  std::vector<MuonPair> pairVector;
 
   // loop the events
   unsigned int iEvent=0;
@@ -140,7 +141,8 @@ int main(int argc, char* argv[])
       double muon1[3] = {(*muon1pt)[i], (*muon1eta)[i], (*muon1phi)[i]};
       double muon2[3] = {(*muon2pt)[i], (*muon2eta)[i], (*muon2phi)[i]};
 
-      pairVector.push_back( std::make_pair( fromPtEtaPhiToPxPyPz(muon1), fromPtEtaPhiToPxPyPz(muon2) ) );
+      // pairVector.push_back( std::make_pair( fromPtEtaPhiToPxPyPz(muon1), fromPtEtaPhiToPxPyPz(muon2) ) );
+      pairVector.push_back( MuonPair(fromPtEtaPhiToPxPyPz(muon1), fromPtEtaPhiToPxPyPz(muon2), 0, 0 ) );
     }
   }
   size_t namePos = fileName.find_last_of("/");

@@ -192,21 +192,17 @@ void ErrorsPropagationAnalyzer::fillHistograms()
 
   typedef std::vector<std::pair<lorentzVector,lorentzVector> > MuonPairVector;
   MuonPairVector savedPair;
-  rootTreeHandler.readTree(maxEvents_, treeFileName_, &savedPair);
+  rootTreeHandler.readTree(maxEvents_, treeFileName_, &savedPair, 0);
   // rootTreeHandler.readTree(maxEvents, inputRootTreeFileName_, &savedPair, &(MuScleFitUtils::genPair));
 
-  resolutionFunctionBase<std::vector<double> > * resolutionFunctionForVec = resolutionFunctionVecService( resolFitType_ );
+  // resolutionFunctionBase<std::vector<double> > * resolutionFunctionForVec = resolutionFunctionVecService( resolFitType_ );
   MuScleFitUtils::resolutionFunction = resolutionFunctionService( resolFitType_ );
   MuScleFitUtils::debugMassResol_ = false;
   MuScleFitUtils::debug = 0;
   MuScleFitUtils::resfind = std::vector<int>(6, 0);
 
-
-
   SigmaPt sigmaPt( parameters_, errors_ );
   SigmaPtDiff sigmaPtDiff;
-
-
 
   // Loop on all the pairs
   unsigned int i = 0;
@@ -221,8 +217,8 @@ void ErrorsPropagationAnalyzer::fillHistograms()
     if( debug_ ) {
       std::cout << "pt1 = " << pt1 << ", eta1 = " << eta1 << ", pt2 = " << pt2 << ", eta2 = " << eta2 << std::endl;
     }
-    double fabsEta1 = fabs(eta1);
-    double fabsEta2 = fabs(eta2);
+    // double fabsEta1 = fabs(eta1);
+    // double fabsEta2 = fabs(eta2);
 
     if( pt1 == 0 && pt2 == 0 && eta1 == 0 && eta2 == 0 ) continue;
 

@@ -182,7 +182,7 @@ void ErrorsAnalyzer::fillHistograms()
 
   typedef std::vector<std::pair<lorentzVector,lorentzVector> > MuonPairVector;
   MuonPairVector savedPair;
-  rootTreeHandler.readTree(maxEvents_, treeFileName_, &savedPair);
+  rootTreeHandler.readTree(maxEvents_, treeFileName_, &savedPair, 0);
   // rootTreeHandler.readTree(maxEvents, inputRootTreeFileName_, &savedPair, &(MuScleFitUtils::genPair));
 
   resolutionFunctionBase<std::vector<double> > * resolutionFunctionForVec = resolutionFunctionVecService( resolFitType_ );

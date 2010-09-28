@@ -4,8 +4,8 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2010/08/03 10:46:41 $
- *  $Revision: 1.38 $
+ *  $Date: 2010/09/08 09:34:42 $
+ *  $Revision: 1.39 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -29,9 +29,10 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
-#include <CLHEP/Vector/LorentzVector.h>
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
+
+#include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitMuonSelector.h"
 
 namespace edm {
   class ParameterSet;
@@ -165,6 +166,8 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase
   std::string triggerPath_;
   bool negateTrigger_;
   bool saveAllToTree_;
+
+  std::auto_ptr<MuScleFitMuonSelector> muonSelector_;
 };
 
 template<typename T>
