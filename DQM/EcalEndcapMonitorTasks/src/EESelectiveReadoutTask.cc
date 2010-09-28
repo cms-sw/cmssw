@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2010/09/20 16:38:52 $
- * $Revision: 1.52 $
+ * $Date: 2010/09/20 16:45:38 $
+ * $Revision: 1.53 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -1024,10 +1024,16 @@ void EESelectiveReadoutTask::anaDigiInit(){
 
 EcalScDetId
 EESelectiveReadoutTask::readOutUnitOf(const EEDetId& xtalId) const{
-  const int scEdge = 5;
-  return EcalScDetId((xtalId.ix()-1)/scEdge+1,
-                     (xtalId.iy()-1)/scEdge+1,
-                     xtalId.zside());
+  if( 40 < xtalId.ix() && xtalId.ix() < 61
+      && 40 < xtalId.iy() && xtalId.iy() < 61) { // in an inner partial supercrystal
+    EcalScDetId scId = Numbers::getEcalScDetId(xtalId);
+    return Numbers::getEcalScDetId(xtalId);
+  } else{
+    const int scEdge = 5;
+    return EcalScDetId((xtalId.ix()-1)/scEdge+1,
+                       (xtalId.iy()-1)/scEdge+1,
+                       xtalId.zside());
+  }
 }
 
 unsigned EESelectiveReadoutTask::dccNum(const DetId& xtalId) const{
