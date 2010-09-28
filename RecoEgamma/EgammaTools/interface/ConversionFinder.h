@@ -7,7 +7,7 @@
   * electron did indeed come from a conversion
   * \author Puneeth Kalavase, University Of California, Santa Barbara
   *
-  * \version $Id: ConversionFinder.h,v 1.6 2010/04/13 00:24:33 kalavase Exp $
+  * \version $Id: ConversionFinder.h,v 1.7 2010/04/13 19:32:13 kalavase Exp $
   *
   */
 
@@ -25,6 +25,7 @@
 #include "ConversionInfo.h"
 
 
+
 /* 
    Class Looks for oppositely charged track in the 
    track collection with the minimum delta cot(theta) between the track
@@ -39,22 +40,37 @@ class ConversionFinder {
   ~ConversionFinder();
   //bField has to be supplied in Tesla
   ConversionInfo getConversionInfo(const reco::GsfElectron& gsfElectron, 
-				   const edm::Handle<reco::TrackCollection>& track_h, 
+				   const edm::Handle<reco::TrackCollection>& ctftracks_h, 
+				   const edm::Handle<reco::GsfTrackCollection>& gsftracks_h,
 				   const double bFieldAtOrigin,
 				   const double minFracSharedHits = 0.45);
-  /*
-    cuts tuned for high pt ( pt > 20 GeV ) electrons 
-    fnc must be called after getConversionInfo is called
-  */
-  bool isFromConversion(double maxAbsDist = 0.02, double maxAbsDcot = 0.02);
+  
+  ConversionInfo getConversionInfo(const reco::Track *el_track, 
+				   const reco::Track *candPartnerTk,
+				   const double bFieldAtOrigin);	
+
   const reco::Track* getElectronTrack(const reco::GsfElectron& electron, const float minFracSharedHits = 0.45);
+
+  
+  //takes in a vector of candidate conversion partners
+  //and arbitrates between them returning the one with the 
+  //smallest R=sqrt(dist*dist + dcot*dcot)
+  ConversionInfo arbitrateConversionPartners(const std::vector<ConversionInfo>& v_convCandidates);
   //function below is only for backwards compatibility 
   static std::pair<double, double> getConversionInfo(math::XYZTLorentzVector trk1_p4, 
 						     int trk1_q, float trk1_d0, 
 						     math::XYZTLorentzVector trk2_p4,
 						     int trk2_q, float trk2_d0,
 						     float bFieldAtOrigin);
-  
+
+  //for backwards compatibility. Does not use the GSF track collection. This function will be 
+  //deprecated soon
+  ConversionInfo getConversionInfo(const reco::GsfElectron& gsfElectron,
+				   const edm::Handle<reco::TrackCollection>& track_h, 
+				   const double bFieldAtOrigin,
+				   const double minFracSharedHits = 0.45);
+
+
  private:
   ConversionInfo convInfo_;
 };
