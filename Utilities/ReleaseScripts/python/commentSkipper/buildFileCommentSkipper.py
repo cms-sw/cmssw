@@ -1,6 +1,3 @@
-# To change this template, choose Tools | Templates
-# and open the template in the editor.
-
 __author__="Aurelija"
 __date__ ="$2010-07-20 11.52.22$"
 
@@ -27,7 +24,7 @@ def filterOneLineComment(lines, commentStart):
     for i in range(len(lines)):
         index = lines[i].find(commentStart)
         if index != -1:
-            lines[i] = lines[i].replace(lines[i][index:], '')
+            lines[i] = lines[i].replace(lines[i][index:], '\n')
     return lines
 
 
@@ -48,9 +45,9 @@ def filterMultilineComment(lines, commentStart, commentEnd):
                 startLine = i
             else:
                 if startLine == i:
-                    lines[i] = lines[i].replace(lines[i][startIndex:], '', 1)
+                    lines[i] = lines[i].replace(lines[i][startIndex:], '\n', 1)
                 else:
-                    lines[i] = lines[i].replace(lines[i][:], '')
+                    lines[i] = lines[i].replace(lines[i][:], '\n')
                 i += 1
         i += 1
     return lines

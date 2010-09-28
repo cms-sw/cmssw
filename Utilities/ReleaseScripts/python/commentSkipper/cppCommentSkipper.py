@@ -1,9 +1,5 @@
-# To change this template, choose Tools | Templates
-# and open the template in the editor.
-
 __author__="Aurelija"
 __date__ ="$2010-07-13 12.17.20$"
-
 
 import string
 
@@ -35,7 +31,7 @@ def filterFile(file): #ifstream& input)
                     j += 1
                 #comment //  why !commentStage? because, can be a variant of this example: /*....//.....*/
                 elif not commentStage and (lines[i][j+1] == '/'):
-                    lines[i] = string.replace(lines[i], lines[i][j:],' ', 1)
+                    lines[i] = string.replace(lines[i], lines[i][j:],'\n', 1)
                     break
             #char "
             elif char == '"':
@@ -63,6 +59,6 @@ def filterFile(file): #ifstream& input)
                 j = 0
                 break
         if commentStage:
-            if i == commentStartLine: lines[i] = lines[i].replace(lines[i][commentStartColumn:],'', 1)
-            else: lines[i] = lines[i].replace(lines[i][:], '')
+            if i == commentStartLine: lines[i] = lines[i].replace(lines[i][commentStartColumn:],'\n', 1)
+            else: lines[i] = lines[i].replace(lines[i][:], '\n')
     return lines

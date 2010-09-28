@@ -2,6 +2,8 @@ __author__="Aurelija"
 __date__ ="$2010-08-06 14.27.51$"
 
 import os
+from Utilities.ReleaseScripts.commentSkipper.commentSkipper import filter as comment
+from Utilities.ReleaseScripts.cmsCodeRules.cppFunctionSkipper import filterFiles as function
 ordering = ['1', '2', '3', '4', '5', '6']
 
 # default values for directories
@@ -32,7 +34,7 @@ Configuration[ruleName] = {}
 Configuration[ruleName]['description'] = 'Search for "using namespace" or "using std::" in header files'
 Configuration[ruleName]['filesToMatch'] = ['*.h']
 Configuration[ruleName]['exceptPaths'] = []
-Configuration[ruleName]['skipComments']  = True
+Configuration[ruleName]['skip']  = [comment, function]
 Configuration[ruleName]['filter'] = '(\susing|\Ausing)\s+(namespace|std::)' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = []
 
@@ -47,7 +49,7 @@ Configuration[ruleName] = {}
 Configuration[ruleName]['description'] = 'Search for CXXFLAGS flags that are set to -g or -O0 in BuildFile'
 Configuration[ruleName]['filesToMatch'] = ['BuildFile', 'BuildFile.xml']
 Configuration[ruleName]['exceptPaths'] = []
-Configuration[ruleName]['skipComments']  = True
+Configuration[ruleName]['skip']  = [comment]
 Configuration[ruleName]['filter'] = '\s(CXXFLAGS|CPPFLAGS)(\+|=|\w|\"|\'|-|\s)*(-g|-O0)(\s|\'|\")' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = []
 
@@ -62,7 +64,7 @@ Configuration[ruleName] = {}
 Configuration[ruleName]['description'] = 'Search for "catch(...)" statements in *.cc, *.cxx files'
 Configuration[ruleName]['filesToMatch'] = ['*.cc', '*.cxx']
 Configuration[ruleName]['exceptPaths'] = []
-Configuration[ruleName]['skipComments']  = True
+Configuration[ruleName]['skip']  = [comment]
 Configuration[ruleName]['filter'] = 'catch\(\s*\.\.\.\s*\)' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = []
 # --------------------------------------------------------------------------------
@@ -76,7 +78,7 @@ Configuration[ruleName] = {}
 Configuration[ruleName]['description'] = 'Search for "copyright" declaration in *.c, *.cc, *.cxx, *.h files'
 Configuration[ruleName]['filesToMatch'] = ['*.h', '*.c', '*.cc', '*.cxx']
 Configuration[ruleName]['exceptPaths'] = []#could be file name, dir, fileName:line. But path should be only from that directory in which we are searching
-Configuration[ruleName]['skipComments']  = False
+Configuration[ruleName]['skip']  = []
 Configuration[ruleName]['filter'] = '(\A|\W)(c|C)(o|O)(p|P)(y|Y)(r|R)(i|I)(g|G)(h|H)(t|T)\W(\+|=|\w|\"|\'|-|\s)*(\((c|C)\)|\d{4})' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = ["\sLineo,"]
 # --------------------------------------------------------------------------------
@@ -90,11 +92,11 @@ Configuration[ruleName] = {}
 Configuration[ruleName]['description'] = 'Search for "pragma" statement in *.c, *.cc, *.cxx, *.h files'
 Configuration[ruleName]['filesToMatch'] = ['*.h', '*.c', '*.cc', '*.cxx']
 Configuration[ruleName]['exceptPaths'] = []#could be file name, dir, fileName:line. Path should be only from that directory in which we are searching
-Configuration[ruleName]['skipComments']  = True
+Configuration[ruleName]['skip']  = [comment]
 Configuration[ruleName]['filter'] = '#\s*pragma\s' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = []
 # --------------------------------------------------------------------------------
-# configuration for rule 5
+# configuration for rule 6
 
 ruleName = '6'
 rulesNames.append(ruleName)
@@ -103,7 +105,7 @@ Configuration[ruleName] = {}
 Configuration[ruleName]['description'] = 'Search for "flags" statements in BuildFile'
 Configuration[ruleName]['filesToMatch'] = ['BuildFile', 'BuildFile.xml']
 Configuration[ruleName]['exceptPaths'] = []#could be file name, dir, fileName:line. Path should be only from that directory in which we are searching
-Configuration[ruleName]['skipComments']  = True
+Configuration[ruleName]['skip']  = [comment]
 Configuration[ruleName]['filter'] = '<\s*(f|F)(l|L)(a|A)(g|G)(s|S)\s+' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = ['EDM_PLUGIN', 'GENREFLEX_ARGS', 'TEST_RUNNER_ARGS', 'INSTALL_SCRIPTS']
 # --------------------------------------------------------------------------------

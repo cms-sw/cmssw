@@ -12,7 +12,6 @@ from Utilities.ReleaseScripts.cmsCodeRules.filesFinder import getFilePathsFromWa
 from Utilities.ReleaseScripts.cmsCodeRules.pickleFileCreater import createPickleFile
 from Utilities.ReleaseScripts.cmsCodeRules.config import Configuration, rulesNames, rulesDescription, helpMsg, checkPath, picklePath, txtPath, exceptPaths
 from Utilities.ReleaseScripts.cmsCodeRules.pathToRegEx import pathToRegEx
-from Utilities.ReleaseScripts.commentSkipper.commentSkipper import filter
 from Utilities.ReleaseScripts.cmsCodeRules.showPage import run
 
 configuration = Configuration
@@ -40,6 +39,9 @@ def runRules(ruleNumberList, directory):
             print 'Error: wrong rule parameter. There is no such rule: "'+rule+'"\n\n' + rulesDescription
             print '\nWrite -h for help'
             return -1
+
+    for rule in configuration.keys():
+        configuration[rule]['filter'] = re.compile(configuration[rule]['filter'])
 
     osWalk.extend(os.walk(directory))
 
@@ -73,9 +75,11 @@ def runRules(ruleNumberList, directory):
                 fileList = FileList
 # ------------------------------------------------------------------------------
             filesLinesList = []
-            if rule['skipComments'] == True:
-                filesLinesList = filter(fileList)
-            elif not exceptRuleLines:
+            skipLines = fileList
+            for skipper in rule['skip']:
+                filesLinesList = skipper(skipLines)
+                skipLines = filesLinesList
+            if not exceptRuleLines and not rule['skip']:
                 filesLinesList = fileList
 # ------------------------------------------------------------------------------
             for Nr, fileLine in enumerate(exceptRuleLines):
@@ -83,11 +87,11 @@ def runRules(ruleNumberList, directory):
                 for index, file in enumerate(fileList):
                     File = file.replace(join(checkPath, ""), "")
                     if re.match(regEx, File):
-                        if rule['skipComments'] == True or Nr > 0:
+                        if rule['skip'] != None or Nr > 0:
                             filesLinesList[index] = (filesLinesList[index][0], omitLine(filesLinesList[index][1], line))
                         else:
                             filesLinesList.append([file, omitLine(file, line)])
-                    elif rule['skipComments'] == False:
+                    elif rule['skip'] == None:
                         filesLinesList.append((file, open(file).readlines()))
             files.extend(filesLinesList)
 # ------------------------------------------------------------------------------
@@ -127,7 +131,6 @@ def printOut(listOfResult, filePath = None):
         print "Error: wrong type of parameter in function printOut"
 
 if __name__ == "__main__":
-    dict = {}
 
     cwd = os.getcwd()
     
