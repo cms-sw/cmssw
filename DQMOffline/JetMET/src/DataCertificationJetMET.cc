@@ -5,7 +5,7 @@
 // 
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.46 2010/06/24 17:33:11 sturdy Exp $
+// $Id: DataCertificationJetMET.cc,v 1.48 2010/07/20 19:31:39 wmtan Exp $
 //
 
 #include "DQMOffline/JetMET/interface/DataCertificationJetMET.h"
@@ -853,6 +853,10 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   dc_CT[0]  = -2.;
   dc_CT[1]  = -2.;
   dc_CT[2]  = -2.;
+
+  qr_CT_Occ[0]  = dc_CT[0];
+  qr_CT_Occ[1]  = dc_CT[1];
+  qr_CT_Occ[2]  = dc_CT[2];
 
   for (int cttyp = 0; cttyp < 3; ++cttyp) {
     
