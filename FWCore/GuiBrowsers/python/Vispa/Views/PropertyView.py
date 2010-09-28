@@ -816,28 +816,19 @@ class StringProperty(TextEditWithButtonProperty):
         TextEditWithButtonProperty.setMultiline(self,multiline)
         icon = QIcon(":/resources/editor.svg")
         dummyicon = QIcon()
-        if multiline:
-            self._button.setIcon(icon)
-            self._button.setIconSize(QSize(15,15))
-        else:
-            self._button.setIcon(dummyicon)
-            self._button.setText("v")
+        self._button.setIcon(icon)
+        self._button.setIconSize(QSize(15,15))
 
     def buttonClicked(self):
         """ Switch to multiline mode if button is clicked.
         """ 
-        if not self._multiline:
-            self.setMultiline(True)
-            self._textEdit.setFocus()
-            self._textEdit.setText(self.strValue()+"\n")
-            self._textEdit.moveCursor(QTextCursor.End)
-            self.emit(SIGNAL('updatePropertyHeight'),self)
-        else:
-            dialog=TextDialog(self,"Edit property...",self.strValue())
-            if dialog.exec_():
-                textEdit=dialog.getText()
-                self.setValue(textEdit)
-                self.valueChanged()
+        dialog=TextDialog(self,"Edit property...",self.strValue())
+        if dialog.exec_():
+            if not self._multiline:
+                self.setMultiline(True)
+            textEdit=dialog.getText()
+            self.setValue(textEdit)
+            self.valueChanged()
 
         
 class IntegerProperty(Property,QWidget):
