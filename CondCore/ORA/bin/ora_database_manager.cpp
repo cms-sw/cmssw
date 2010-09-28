@@ -1,7 +1,11 @@
 #include "CondCore/ORA/interface/Database.h"
 #include "CondCore/ORA/interface/ConnectionPool.h"
 #include "CondCore/ORA/interface/ScopedTransaction.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/PluginManager/interface/SharedLibrary.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 //
 #include <fstream>
 #include <iomanip>
@@ -13,6 +17,16 @@
 
 int main (int argc, char** argv)
 {
+  edmplugin::PluginManager::Config config;
+  edmplugin::PluginManager::configure(edmplugin::standard::config());
+  
+  std::vector<edm::ParameterSet> psets;
+  edm::ParameterSet pSet;
+  pSet.addParameter("@service_type",std::string("SiteLocalConfigService"));
+  psets.push_back(pSet);
+  static edm::ServiceToken services(edm::ServiceRegistry::createSet(psets));
+  static edm::ServiceRegistry::Operate operate(services);
+
   std::vector<coral::Option> secondaryOptions;
   //
   coral::Option csPar("conn_string");
@@ -243,7 +257,15 @@ int main (int argc, char** argv)
             throw coral::MissingRequiredOptionException(classPar.name);
           }
           if( !dictionary.empty() ){
-            const boost::filesystem::path dict_path(dictionary);
+	    #ifdef _WIN32
+	    boost::filesystem::path const dict_path(dictionary + ".dll");
+            #elif defined __DARWIN
+	    boost::filesystem::path const dict_path("lib" + dictionary + ".dylib");
+            #elif defined __hpux
+	    boost::filesystem::path const dict_path("lib" + dictionary + ".sl");
+            #else
+	    boost::filesystem::path const dict_path("lib" + dictionary + ".so");
+            #endif
             edmplugin::SharedLibrary shared( dict_path );
           }
           if( !db.exists() ){
