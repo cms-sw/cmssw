@@ -1,3 +1,10 @@
+2010-09-28 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-03-01
+	* Use faster Adler32 algorithm from zlib instead of f/w version.
+	* Inline a couple of methods in ChainData.
+	* Properly handle corrupted error events when faulty event stream is enabled.
+
 2010-09-09 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V06-03-00
