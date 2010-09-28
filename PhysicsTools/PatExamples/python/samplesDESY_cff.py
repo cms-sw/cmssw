@@ -1,7 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 
-ttbarRECO = cms.untracked.vstring(
+ttbarJets = cms.untracked.vstring(
+     '/store/user/rwolf/school/patTuple_ttbar_jets.root'
+)
+
+ttbarRECO = cms.untracked.vstring(    
      '/store/mc/Spring10/TTbarJets-madgraph/AODSIM/START3X_V26_S09-v1/0005/0210B899-9C46-DF11-A10F-003048C69294.root'
     ,'/store/mc/Spring10/TTbarJets-madgraph/AODSIM/START3X_V26_S09-v1/0005/0C39D8AD-A846-DF11-8016-003048C692CA.root'
 )
