@@ -81,8 +81,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2010/09/14 18:07:25 $ 
- **  $Revision: 1.61 $
+ **  $Date: 2010/09/24 16:30:14 $ 
+ **  $Revision: 1.62 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -1289,7 +1289,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   const float END_LO = 1.566;
   const float END_HI = 2.5;
   // Electron mass
-  const Float_t mElec= 0.000511;
+  //const Float_t mElec= 0.000511;
 
 
   nEvt_++;  
@@ -2030,12 +2030,6 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	  
 	  int nAssT2=0;
 	  // unused      int nAssT1=0;
-	  float px=0;
-	  float py=0;
-	  float pz=0;
-	  float e=0;
-	  // std::cout << " Before loop on tracks  tracks size " << tracks.size() << " or " << aConv->tracks().size() <<  " nAssT2 " << nAssT2 << std::endl;
-	  math::XYZVector refPvec;
 	  for (unsigned int i=0; i<tracks.size(); i++) {
 	    reco::TrackRef track = tracks[i].castTo<reco::TrackRef>();
 	    
@@ -2046,13 +2040,6 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	    p_nHitsVsR_[type] ->Fill (mcConvR_,   float(tracks[i]->numberOfValidHits()) );
 	    h_tkChi2_[type] ->Fill (tracks[i]->normalizedChi2() ); 
 	  
-	   
-
-	    if ( aConv->conversionVertex().isValid() ) {
-	      reco::Track refTrack= aConv->conversionVertex().refittedTracks()[i];
-	      refPvec += refTrack.momentum();
-	    }
-	    
 	    /////////// fill my local track - trackingparticle association map
 	    TrackingParticleRef myTP;
 	    for (size_t j = 0; j < RtoSCollPtrs.size(); j++) {          
@@ -2076,10 +2063,9 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	  
 	  type=0;
 
-	  // float totP = sqrt(px*px +py*py + pz*pz);
-	  float totP = aConv->pairMomentum().mag();
+	  //	  float totP = sqrt(aConv->pairMomentum().Mag2());
 	  float refP =-99999.;
-          if ( aConv->conversionVertex().isValid() ) refP=sqrt(refPvec.x()*refPvec.x() + refPvec.y()*refPvec.y() + refPvec.z()*refPvec.z() );
+          if ( aConv->conversionVertex().isValid() )  refP=sqrt(aConv->refittedPairMomentum().Mag2());
 
           float invM = aConv->pairInvariantMass();
 
@@ -2167,11 +2153,11 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	      h_invMass_[type][0] ->Fill( invM);	      
 	      
 	      
-	      //float eoverp= aConv->EoverP();
+	      
 	      float eoverp= -99999.;
 	   
 	      if ( aConv->conversionVertex().isValid() ) {
-		eoverp= matchingPho.superCluster()->energy()/refP;
+		eoverp= aConv->EoverPrefittedTracks();
 		h_convPRes_[type][0]->Fill( refP / (*mcPho).fourMomentum().e() );
 		h_EoverPTracks_[type][0] ->Fill( eoverp ) ;
 		h_PoverETracks_[type][0] ->Fill( 1./eoverp ) ;
@@ -2405,8 +2391,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 		//		float recPt =   sqrt( aConv->tracks()[i]->innerMomentum().Perp2() ) ;
 		float refPt=-9999.;
 		float px=0, py=0;
-                float refPtres=-999.;
-                float refPterror=-999.;
+              
 		if ( aConv->conversionVertex().isValid() ) {
 		  reco::Track refTrack= aConv->conversionVertex().refittedTracks()[i];
 		  px= refTrack.momentum().x() ;
