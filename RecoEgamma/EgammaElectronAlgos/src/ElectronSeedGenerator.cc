@@ -78,12 +78,27 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset)
   beamSpotTag_ = pset.getParameter<edm::InputTag>("beamSpot") ;
 
   // new B/F configurables
-  deltaPhi2B_ = pset.getParameter<double>("DeltaPhi2B") ;
-  deltaPhi2F_ = pset.getParameter<double>("DeltaPhi2F") ;
-  phiMin2B_ = pset.getParameter<double>("PhiMin2B") ;
-  phiMin2F_ = pset.getParameter<double>("PhiMin2F") ;
-  phiMax2B_ = pset.getParameter<double>("PhiMax2B") ;
-  phiMax2F_ = pset.getParameter<double>("PhiMax2F") ;
+  if (pset.exists("DeltaPhi2"))
+   { deltaPhi2B_ = deltaPhi2F_ = pset.getParameter<double>("DeltaPhi2") ; }
+  else
+   {
+    deltaPhi2B_ = pset.getParameter<double>("DeltaPhi2B") ;
+    deltaPhi2F_ = pset.getParameter<double>("DeltaPhi2F") ;
+   }
+  if (pset.exists("PhiMin2"))
+   { phiMin2B_ = phiMin2F_ = pset.getParameter<double>("PhiMin2") ; }
+  else
+   {
+    phiMin2B_ = pset.getParameter<double>("PhiMin2B") ;
+    phiMin2F_ = pset.getParameter<double>("PhiMin2F") ;
+   }
+  if (pset.exists("PhiMax2"))
+   { phiMax2B_ = phiMax2F_ = pset.getParameter<double>("PhiMax2") ; }
+  else
+   {
+    phiMax2B_ = pset.getParameter<double>("PhiMax2B") ;
+    phiMax2F_ = pset.getParameter<double>("PhiMax2F") ;
+   }
 
   // Instantiate the pixel hit matchers
   myMatchEle = new PixelHitMatcher
