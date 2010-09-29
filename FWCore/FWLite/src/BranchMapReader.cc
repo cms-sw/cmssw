@@ -500,7 +500,7 @@ namespace fwlite {
         }
         // yes, SetAddress really does need to be called every time...
         branchListIndexesBranch->SetAddress(&pBranchListIndexes_);
-        eventsTree_->GetEntry(eventEntry_);
+        branchListIndexesBranch->GetEntry(eventEntry_);
         mapperFilled_ = true;
       }
       return true;
