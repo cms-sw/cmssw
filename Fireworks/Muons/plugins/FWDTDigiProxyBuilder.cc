@@ -109,6 +109,9 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
     for( DTDigiCollection::const_iterator it = range.first;
 	 it != range.second; ++it )
     {
+      TEveCompound* compound = createCompound();
+      setupAddElement( compound, product );
+
       // The x wire position in the layer, starting from its wire number.
       float firstChannel = pars[3];
       float nChannels = pars[5];
@@ -117,7 +120,7 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
       if( type == FWViewType::k3D || type == FWViewType::kISpy )
       {
 	TEveBox* box = new TEveBox;
-	setupAddElement( box, product );
+	setupAddElement( box, compound );
 	addTube( box, *det, localPos, pars );
       }
       if(( type == FWViewType::kRhoPhi && superLayer != 2 ) ||
@@ -125,14 +128,14 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
       {
 	TEvePointSet* pointSet = new TEvePointSet;
 	pointSet->SetMarkerStyle( 24 );
-	setupAddElement( pointSet, product );	
+	setupAddElement( pointSet, compound );	
 
 	float globalPos[3];			
 	geom->localToGlobal( *det, localPos, globalPos );
 	pointSet->SetNextPoint( globalPos[0],  globalPos[1],  globalPos[2] );
 
 	TEveBox* box = new TEveBox;
-	setupAddElement( box, product );
+	setupAddElement( box, compound );
 	addTube( box, *det, localPos, pars );
       }
     }		
