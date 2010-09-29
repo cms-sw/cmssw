@@ -8,7 +8,7 @@ selectHighPurity = cms.EDProducer("AnalyticalTrackSelector",
     # vertex selection 
     vertices = cms.InputTag("pixelVertices"),
     vtxNumber = cms.int32(-1),
-    vertexCut = cms.string('ndof>=2&((chi2==0.0)|(chi2prob(chi2,ndof)>=0.01))'),
+    vertexCut = cms.string('ndof>=2&!isFake'),
 
     #untracked bool copyTrajectories = true // when doing retracking before
     copyTrajectories = cms.untracked.bool(False),
