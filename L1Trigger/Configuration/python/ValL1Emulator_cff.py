@@ -16,11 +16,18 @@ valEcalTriggerPrimitiveDigis.Label = 'ecalDigis'
 valEcalTriggerPrimitiveDigis.InstanceEB = 'ebDigis'
 valEcalTriggerPrimitiveDigis.InstanceEE = 'eeDigis'
 
+
 # HCAL TPG sequence
 from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff import *
 valHcalTriggerPrimitiveDigis = SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cfi.simHcalTriggerPrimitiveDigis.clone()
 #
 valHcalTriggerPrimitiveDigis.inputLabel = cms.VInputTag(cms.InputTag('hcalDigis'),cms.InputTag('hcalDigis'))
+#
+# do not generate new LUTs when running on data, read them from DB
+HcalTPGCoderULUT.LUTGenerationMode = cms.bool(False)
+#
+#
+valHcalTriggerPrimitiveDigis.FrontEndFormatError = cms.untracked.bool(True)
 
 
 # HCAL Tech Trig sequence
