@@ -40,11 +40,11 @@ LegoCandidate::LegoCandidate( float eta, float phi, float energy, float et, floa
 
     for( unsigned int iphi = 0; iphi < nLineSegments; iphi++ )
     {
-        AddLine( eta + jetRadius * cos( 2 * M_PI / nLineSegments * iphi ),
-                 phi + jetRadius * sin( 2 * M_PI / nLineSegments * iphi ),
+        AddLine( eta + jetRadius * cos( 2 * TMath::Pi() / nLineSegments * iphi ),
+                 phi + jetRadius * sin( TMath::TwoPi() / nLineSegments * iphi ),
                  base,
-                 eta + jetRadius * cos( 2 * M_PI / nLineSegments*( iphi+1 ) ),
-                 phi + jetRadius * sin( 2 * M_PI / nLineSegments*( iphi+1 ) ),
+                 eta + jetRadius * cos( TMath::TwoPi() / nLineSegments*( iphi+1 ) ),
+                 phi + jetRadius * sin( TMath::TwoPi() / nLineSegments*( iphi+1 ) ),
                  base );
     }
 }
