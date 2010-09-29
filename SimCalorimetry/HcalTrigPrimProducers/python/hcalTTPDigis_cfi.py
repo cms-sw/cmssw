@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-hcalTTPDigis = cms.EDProducer("HcalTTPDigiProducer",
-    HFDigiCollection = cms.InputTag( 'hcalDigis' ),
+simHcalTTPDigis = cms.EDProducer("HcalTTPDigiProducer",
+    HFDigiCollection = cms.InputTag( 'simHcalDigis' ),
     HFSoI            = cms.int32( 4 ),
     maskedChannels   = cms.vuint32( ),
     id               = cms.untracked.int32( 101 ),
