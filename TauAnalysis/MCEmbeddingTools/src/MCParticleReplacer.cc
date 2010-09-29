@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "DataFormats/Candidate/interface/CompositeCandidate.h"
 
 // replacementMode =
 //	0 - remove Myons from existing HepMCProduct and implant taus (+decay products)
@@ -32,23 +33,48 @@ MCParticleReplacer::HepMcMode MCParticleReplacer::stringToHepMcMode(const std::s
 void
 MCParticleReplacer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
-  edm::Handle<reco::MuonCollection> muons;
-  
-  if (!iEvent.getByLabel(src_, muons)){
-    std::cout << "No muons found" << std::endl<< std::endl << std::endl ; 
-  	return;
-  }
-
+	std::vector<reco::Muon> muons;
+	
+	edm::Handle< std::vector< reco::CompositeCandidate > > combCandidatesHandle;
+	if (iEvent.getByLabel(src_, combCandidatesHandle))
+	{
+		for (size_t idx = 0; idx < combCandidatesHandle->at(0).numberOfDaughters(); ++idx)
+		{
+			int charge = combCandidatesHandle->at(0).daughter(idx)->charge();
+			reco::Particle::LorentzVector p4 = combCandidatesHandle->at(0).daughter(idx)->p4();
+			reco::Particle::Point vtx = combCandidatesHandle->at(0).daughter(idx)->vertex();
+			muons.push_back( reco::Muon(charge, p4, vtx));
+		}
+	}
+	else
+	{
+		edm::Handle< edm::View<reco::Candidate> > candsHandle;
+		if (iEvent.getByLabel(src_, candsHandle))
+		{
+			for (size_t idx = 0; idx < candsHandle->size(); ++idx)
+			{
+				int charge = candsHandle->at(idx).charge();
+				reco::Particle::LorentzVector p4 = candsHandle->at(idx).p4();
+				reco::Particle::Point vtx = candsHandle->at(idx).vertex();
+				muons.push_back( reco::Muon(charge, p4, vtx));
+			}
+		}
+	}
+	if (muons.size() == 0)
+	{
+		edm::LogError("MCParticleReplacer") << "No candidates or muons found!";
+		return;
+	}
+	
   std::auto_ptr<HepMC::GenEvent> evt;
   if(hepMcMode_ == kReplace) {
     edm::Handle<edm::HepMCProduct> HepMCHandle;	 
     iEvent.getByLabel(srcHepMC_, HepMCHandle);
 
-    evt = replacer_->produce(*muons, 0, HepMCHandle->GetEvent());
+    evt = replacer_->produce(muons, 0, HepMCHandle->GetEvent());
   }
   else if(hepMcMode_ == kNew) {
-    evt = replacer_->produce(*muons);
+    evt = replacer_->produce(muons);
   }
   else
     throw cms::Exception("LogicError") << "Invalid hepMcMode " << hepMcMode_ << std::endl;
@@ -60,6 +86,7 @@ MCParticleReplacer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     iEvent.put(bare_product);
   }
+  
 }
 
 void MCParticleReplacer::beginRun(edm::Run& iRun,const edm::EventSetup& iSetup)
