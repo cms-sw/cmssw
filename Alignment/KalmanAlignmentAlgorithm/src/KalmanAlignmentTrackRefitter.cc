@@ -49,9 +49,10 @@ KalmanAlignmentTrackRefitter::refitTracks( const edm::EventSetup& setup,
   edm::ESHandle< MagneticField > aMagneticField;
   edm::ESHandle< TrajectoryFitter > aTrajectoryFitter;
   edm::ESHandle< Propagator > aPropagator;
+  edm::ESHandle<MeasurementTracker> theMeasTk;
   edm::ESHandle< TransientTrackingRecHitBuilder > aRecHitBuilder;
 
-  getFromES( setup, aGeometry, aMagneticField, aTrajectoryFitter, aPropagator, aRecHitBuilder );
+  getFromES( setup, aGeometry, aMagneticField, aTrajectoryFitter, aPropagator, theMeasTk, aRecHitBuilder );
 
   TrackletCollection result;
   TrackCollection fullTracks;

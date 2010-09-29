@@ -77,7 +77,8 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
   edm::ESHandle<TrajectoryFitter> theFitter;
   edm::ESHandle<Propagator> thePropagator;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
-  getFromES(setup,theG,theMF,theFitter,thePropagator,theBuilder);
+  edm::ESHandle<MeasurementTracker> theMeasTk;
+  getFromES(setup,theG,theMF,theFitter,thePropagator,theMeasTk,theBuilder);
 
  
 
@@ -170,7 +171,8 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
     //
     //put everything in the event
     // we copy putInEvt to get OrphanHandle filled...
-    putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults);
+    putInEvt(theEvent,thePropagator.product(),theMeasTk.product(), 
+	     outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults);
     
     // now construct associationmap and put it in the  event
     if (  validTrackCandidateSCAssociationInput_ ) {    
@@ -211,7 +213,8 @@ std::vector<reco::TransientTrack> TrackProducerWithSCAssociation::getTransient(e
   edm::ESHandle<TrajectoryFitter> theFitter;
   edm::ESHandle<Propagator> thePropagator;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
-  getFromES(setup,theG,theMF,theFitter,thePropagator,theBuilder);
+  edm::ESHandle<MeasurementTracker> theMeasTk;
+  getFromES(setup,theG,theMF,theFitter,thePropagator,theMeasTk,theBuilder);
 
   //
   //declare and get TrackColection to be retrieved from the event
@@ -246,11 +249,13 @@ std::vector<reco::TransientTrack> TrackProducerWithSCAssociation::getTransient(e
 
 
  void TrackProducerWithSCAssociation::putInEvt(edm::Event& evt,
-				 std::auto_ptr<TrackingRecHitCollection>& selHits,
-				 std::auto_ptr<reco::TrackCollection>& selTracks,
-				 std::auto_ptr<reco::TrackExtraCollection>& selTrackExtras,
-				 std::auto_ptr<std::vector<Trajectory> >&   selTrajectories,
-				 AlgoProductCollection& algoResults)
+					       const Propagator* thePropagator,
+					       const MeasurementTracker* theMeasTk,
+					       std::auto_ptr<TrackingRecHitCollection>& selHits,
+					       std::auto_ptr<reco::TrackCollection>& selTracks,
+					       std::auto_ptr<reco::TrackExtraCollection>& selTrackExtras,
+					       std::auto_ptr<std::vector<Trajectory> >&   selTrajectories,
+					       AlgoProductCollection& algoResults)
 {
 
 TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
@@ -320,7 +325,7 @@ TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
     if (theSchool.isValid())
       {
 	NavigationSetter setter( *theSchool );
-	setSecondHitPattern(theTraj,track);
+	setSecondHitPattern(theTraj,track,thePropagator,theMeasTk);
       }
     //==============================================================
 

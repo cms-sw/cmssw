@@ -3,9 +3,9 @@
 /** \class  TrackProducerWithSCAssociation
  **  
  **
- **  $Id: TrackProducerWithSCAssociation.h,v 1.3 2007/10/09 05:40:15 dlange Exp $ 
- **  $Date: 2007/10/09 05:40:15 $ 
- **  $Revision: 1.3 $
+ **  $Id: TrackProducerWithSCAssociation.h,v 1.4 2008/08/13 13:23:08 nancy Exp $ 
+ **  $Date: 2008/08/13 13:23:08 $ 
+ **  $Revision: 1.4 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **   Modified version of TrackProducer by Giuseppe Cerati
  **   to have super cluster - conversion track association
@@ -41,6 +41,8 @@ private:
   //Same recipe as Ursula's for electrons. Copy this from TrackProducerBase to get the OrphanHandle
   //ugly temporary solution!! I agree !
   void putInEvt(edm::Event& evt,
+		const Propagator* thePropagator,
+		const MeasurementTracker* theMeasTk,
 		std::auto_ptr<TrackingRecHitCollection>& selHits,
 		std::auto_ptr<reco::TrackCollection>& selTracks,
 		std::auto_ptr<reco::TrackExtraCollection>& selTrackExtras,
