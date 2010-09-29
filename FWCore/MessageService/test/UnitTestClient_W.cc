@@ -15,7 +15,7 @@ void
 {
   edm::LogWarning("cat_A")   << "LogWarning was used to send this message";
   edm::LogInfo   ("cat_B")   << "LogInfo was used to send this message";
-  edm::edmtest::LogWarningThatSuppressesLikeLogInfo("cat_C")
+  edm::edmmltest::LogWarningThatSuppressesLikeLogInfo("cat_C")
   	<< "LogWarningThatSuppressesLikeLogInfo as used to send this message";
  }  // MessageLoggerClient::analyze()
 

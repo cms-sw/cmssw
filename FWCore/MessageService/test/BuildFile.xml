@@ -1,6 +1,11 @@
 <use   name="boost"/>
 <use   name="FWCore/Utilities"/>
 <environment>
+  <library   file="TestLogger.cc" name="TestLogger">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
   <library   file="UnitTestClient_A.cc" name="UnitTestClient_A">
     <flags   EDM_PLUGIN="1"/>
     <use   name="FWCore/MessageLogger"/>
@@ -122,6 +127,11 @@
     <use   name="FWCore/Framework"/>
   </library>
   <library   file="UnitTestClient_W.cc" name="UnitTestClient_W">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/MessageLogger"/>
+    <use   name="FWCore/Framework"/>
+  </library>
+  <library   file="UnitTestClient_X.cc" name="UnitTestClient_X">
     <flags   EDM_PLUGIN="1"/>
     <use   name="FWCore/MessageLogger"/>
     <use   name="FWCore/Framework"/>

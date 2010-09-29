@@ -101,7 +101,7 @@
 //		   threads and hence is properly just a class static, which
 //		   is much quicker to check.
 //
-// 22  mf 9/27/10  testMessageLogger::LogWarningThatSuppressesLikeLogInfo, 
+// 22  mf 9/27/10  edmmltest::LogWarningThatSuppressesLikeLogInfo, 
 //		   a class provided solely to allow testing of the feature
 //		   that if all destinations have threshold too high, then
 //		   a level of messages (in this case, INFO) will be suppressed
@@ -438,7 +438,7 @@ private:
 };  // LogTrace_
 
 // Change log 22
-namespace edmtest {
+namespace edmmltest {
 class LogWarningThatSuppressesLikeLogInfo
 {
 public:
@@ -462,7 +462,7 @@ private:
   LogWarningThatSuppressesLikeLogInfo( LogWarningThatSuppressesLikeLogInfo const& );				// Change log 9
    
 };  // LogWarningThatSuppressesLikeLogInfo
-} // end namespace testMessageLogger
+} // end namespace edmmltest
 
 extern LogDebug_ dummyLogDebugObject_;
 extern LogTrace_ dummyLogTraceObject_;

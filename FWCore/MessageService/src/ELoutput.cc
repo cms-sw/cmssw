@@ -316,6 +316,8 @@ ELoutput::clone() const  {
 
 } // clone()
 
+//#define THRESHTRACE
+//#define ELoutputTRACE_LOG
 
 bool ELoutput::log( const edm::ErrorObj & msg )  {
 
@@ -324,6 +326,12 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
   #endif
 
   xid = msg.xid();      // Save the xid.
+
+#ifdef THRESHTRACE
+  std::cerr << "    =:=:=: Log to an ELoutput \n"
+    	    << "           severity  = " << xid.severity  << "\n"
+	    << "           threshold = " << threshold     << "\n";
+#endif
 
   // See if this message is to be acted upon, and add it to limits table
   // if it was not already present:

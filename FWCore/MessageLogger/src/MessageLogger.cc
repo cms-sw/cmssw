@@ -53,7 +53,7 @@ LogTrace_::~LogTrace_() {}
 LogPrint::~LogPrint() {}
 LogProblem::~LogProblem() {}
 LogImportant::~LogImportant() {}
-namespace edmtest {						// 9/27/10b mf
+namespace edmmltest {						// 9/27/10b mf
  LogWarningThatSuppressesLikeLogInfo::~LogWarningThatSuppressesLikeLogInfo() {}
 }
 
