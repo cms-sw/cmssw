@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.225 $"
+__version__ = "$Revision: 1.226 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -368,6 +368,30 @@ class ConfigBuilder(object):
             self.executeAndRemember("process.GlobalTag.connect   = '%s'" % connect)
         if len(conditions) > 2:
             self.executeAndRemember("process.GlobalTag.pfnPrefix = cms.untracked.string('%s')" % pfnPrefix)
+
+	if hasattr(self._options,"custom_conditions") and self._options.custom_conditions!="":
+		specs=self._options.custom_conditions.split('+')
+		self.executeAndRemember("process.GlobalTag.toGet = cms.VPSet()")
+		for spec in specs:
+			# format Tag,Rcd,connect+Tag,Rcd+
+			spl=spec.split(',')
+			rcd=""
+			tag=""
+			connect=""
+			if len(spl)>=2:
+				tag=spl[0]
+				rcd=spl[1]
+				if len(spl)==3:
+					connect=spl[2]
+			else:
+				print "cannot interpret GT customisation from ",spec,"within",self._options.custom_conditions
+				raise
+
+			# customise now
+			if connect=="":
+				self.executeAndRemember('process.GlobalTag.toGet.append(cms.PSet(record=cms.string("%s"),tag=cms.string("%s")))'%(rcd,tag))
+			else:
+				self.executeAndRemember('process.GlobalTag.toGet.append(cms.PSet(record=cms.string("%s"),tag=cms.string("%s"),connect=cms.untracked.string("%s")))'%(rcd,tag,connect))
 
     def addCustomise(self):
         """Include the customise code """
@@ -1087,7 +1111,7 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.225 $"),
+              (version=cms.untracked.string("$Revision: 1.226 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
