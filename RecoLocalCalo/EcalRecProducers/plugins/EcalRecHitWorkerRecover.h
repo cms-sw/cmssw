@@ -4,9 +4,9 @@
 /** \class EcalRecHitSimpleAlgo
   *  Simple algoritm to make rechits from uncalibrated rechits
   *
-  *  $Id: EcalRecHitWorkerRecover.h,v 1.4 2010/09/24 02:34:34 theofil Exp $
-  *  $Date: 2010/09/24 02:34:34 $
-  *  $Revision: 1.4 $
+  *  $Id: EcalRecHitWorkerRecover.h,v 1.5 2010/09/29 15:31:27 ferriff Exp $
+  *  $Date: 2010/09/29 15:31:27 $
+  *  $Revision: 1.5 $
   *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
   */
 
@@ -52,8 +52,14 @@ class EcalRecHitWorkerRecover : public EcalRecHitWorkerBaseClass {
                 edm::ESHandle<CaloTopology> caloTopology_;
                 double singleRecoveryThreshold_;
                 std::string singleRecoveryMethod_;
-                bool recoverDeadVFE_;
                 bool killDeadChannels_;
+
+                bool recoverEBIsolatedChannels_;
+                bool recoverEEIsolatedChannels_;
+                bool recoverEBVFE_;
+                bool recoverEEVFE_;
+                bool recoverEBFE_;
+                bool recoverEEFE_;
 
                 // dead FE
                 EcalTPGScale ecalScale_;

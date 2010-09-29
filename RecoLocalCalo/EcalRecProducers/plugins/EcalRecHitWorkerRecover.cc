@@ -27,6 +27,13 @@ EcalRecHitWorkerRecover::EcalRecHitWorkerRecover(const edm::ParameterSet&ps) :
         singleRecoveryMethod_    = ps.getParameter<std::string>("singleChannelRecoveryMethod");
         singleRecoveryThreshold_ = ps.getParameter<double>("singleChannelRecoveryThreshold");
         killDeadChannels_        = ps.getParameter<bool>("killDeadChannels");
+        recoverEBIsolatedChannels_ = ps.getParameter<bool>("recoverEBIsolatedChannels");
+        recoverEEIsolatedChannels_ = ps.getParameter<bool>("recoverEEIsolatedChannels");
+        recoverEBVFE_ = ps.getParameter<bool>("recoverEBVFE");
+        recoverEEVFE_ = ps.getParameter<bool>("recoverEEVFE");
+        recoverEBFE_ = ps.getParameter<bool>("recoverEBFE");
+        recoverEEFE_ = ps.getParameter<bool>("recoverEEFE");
+
         tpDigiCollection_        = ps.getParameter<edm::InputTag>("triggerPrimitiveDigiCollection");
         logWarningEtThreshold_EB_FE_ = ps.getParameter<double>("logWarningEtThreshold_EB_FE");
         logWarningEtThreshold_EE_FE_ = ps.getParameter<double>("logWarningEtThreshold_EE_FE");
@@ -73,17 +80,17 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
         // EE recovery computation is not tested against segmentation faults, use with caution even if you are going to killDeadChannels=true
 
         if ( killDeadChannels_ ) {
-                if ( flags == EcalRecHitWorkerRecover::EB_single
-                     || flags == EcalRecHitWorkerRecover::EE_single 
-                     || flags == EcalRecHitWorkerRecover::EB_VFE 
-                     || flags == EcalRecHitWorkerRecover::EE_VFE 
+                if (    (flags == EcalRecHitWorkerRecover::EB_single && !recoverEBIsolatedChannels_)
+                     || (flags == EcalRecHitWorkerRecover::EE_single && !recoverEEIsolatedChannels_)
+                     || (flags == EcalRecHitWorkerRecover::EB_VFE && !recoverEBVFE_)
+                     || (flags == EcalRecHitWorkerRecover::EE_VFE && !recoverEEVFE_)
                      ) {
                         EcalRecHit hit( detId, 0., 0., EcalRecHit::kDead );
                         hit.setFlagBits( (0x1 << EcalRecHit::kDead) ) ;
                         insertRecHit( hit, result); // insert trivial rechit with kDead flag
                         return true;
                 } 
-                if ( flags == EcalRecHitWorkerRecover::EB_FE ) {
+                if ( flags == EcalRecHitWorkerRecover::EB_FE && !recoverEBFE_) {
                         EcalTrigTowerDetId ttDetId( ((EBDetId)detId).tower() );
                         std::vector<DetId> vid = ttMap_->constituentsOf( ttDetId );
                         for ( std::vector<DetId>::const_iterator dit = vid.begin(); dit != vid.end(); ++dit ) {
@@ -93,7 +100,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                         }
 			if(logWarningEtThreshold_EB_FE_<0)return true; // if you don't want log warning just return true
                 }
-                if ( flags == EcalRecHitWorkerRecover::EE_FE ) {
+                if ( flags == EcalRecHitWorkerRecover::EE_FE && !recoverEEFE_) {
                         EEDetId id( detId );
                         EcalScDetId sc( 1+(id.ix()-1)/5, 1+(id.iy()-1)/5, id.zside() );
                         std::vector<DetId> eeC;
