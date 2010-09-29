@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronSeedProducer.cc,v 1.18 2010/09/24 09:16:20 chamont Exp $
+// $Id: ElectronSeedProducer.cc,v 1.19 2010/09/24 20:54:11 chamont Exp $
 //
 //
 
@@ -120,8 +120,12 @@ void ElectronSeedProducer::fillDescriptions( edm::ConfigurationDescriptions & de
 
   edm::ParameterSetDescription descOrderedHitsFactoryPSet ;
   descOrderedHitsFactoryPSet.add<std::string>("ComponentName","StandardHitPairGenerator") ;
-  descOrderedHitsFactoryPSet.add<std::string>("SeedingLayers","MixedLayerPairs") ;
+  descOrderedHitsFactoryPSet.addUntracked<int>("useOnDemandTracker",-1) ;
+  descOrderedHitsFactoryPSet.setAllowAnything() ;
+
   descSeedConfiguration.add<edm::ParameterSetDescription>("OrderedHitsFactoryPSet",descOrderedHitsFactoryPSet) ;
+  descSeedConfiguration.setAllowAnything() ;
+
   desc.add<edm::ParameterSetDescription>("SeedConfiguration",descSeedConfiguration) ;
   descriptions.add("produceElectronSeeds",desc) ;
  }
