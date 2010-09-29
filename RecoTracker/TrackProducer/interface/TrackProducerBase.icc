@@ -221,14 +221,14 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track,
       }
       
       localProp->setPropagationDirection(alongMomentum);
-      vector< GeometricSearchDet::DetWithState > detWithState = (*it)->compatibleDets(innerTSOS,*localProp,estimator);
+      vector< GeometricSearchDet::DetWithState > detWithState = (*it)->compatibleDets(outerTSOS,*localProp,estimator);
       if(!detWithState.size()) continue;
       DetId id = detWithState.front().first->geographicalId();
       const MeasurementDet* measDet = measTk->idToDet(id);	
       //if(measDet->isActive() && !measDet->hasBadComponents(detWithState.front().second)){	
       if(measDet->isActive()){	  
 	InvalidTrackingRecHit  tmpHit(id,TrackingRecHit::missing);
-	track.setTrackerExpectedHitsInner(tmpHit,counter); 	 
+	track.setTrackerExpectedHitsOuter(tmpHit,counter); 	 
 	//cout << "WARNING: this hit is marked as lost because the detector was marked as active" << endl;
       }else{
 	//cout << "WARNING: this hit is NOT marked as lost because the detector was marked as inactive" << endl;
