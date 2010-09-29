@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.226 $"
+__version__ = "$Revision: 1.227 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -563,6 +563,12 @@ class ConfigBuilder(object):
             self.RECODefaultCFF="Configuration/StandardSequences/ReconstructionHeavyIons_cff"
             self.RECODefaultSeq='reconstructionHeavyIons'
 	    self.ALCADefaultCFF = "Configuration/StandardSequences/AlCaRecoStreamsHeavyIons_cff"
+	    self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineHeavyIons_cff"
+	    self.DQMDefaultSeq='DQMOfflineHeavyIons'
+	    if self._options.isMC==True:
+		    self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineHeavyIonsMC_cff"
+		    self.HARVESTINGDefaultCFF="Configuration/StandardSequences/HarvestingHeavyIons_cff"
+		    
 
         # the magnetic field
         if self._options.magField=='Default':
@@ -1111,7 +1117,7 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.226 $"),
+              (version=cms.untracked.string("$Revision: 1.227 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
