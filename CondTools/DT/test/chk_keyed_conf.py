@@ -22,8 +22,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     tag = cms.string('keyedConfBricks_V01')
     )
     ),
-    connect = cms.string('sqlite_file:userconf.db'),
-#    connect = cms.string('sqlite_file:testconf.db'),
+    connect = cms.string('sqlite_file:testconf.db'),
     DBParameters = cms.PSet(
         messageLevel = cms.untracked.int32(0),
         authenticationPath = cms.untracked.string('.')
