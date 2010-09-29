@@ -15,7 +15,7 @@
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.32 2010/05/13 15:23:21 aperrott Exp $
+// $Id: MuonSimHitProducer.cc,v 1.33 2010/05/20 15:03:51 aperrott Exp $
 //
 //
 
@@ -441,6 +441,8 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
 	  // (Not fully satisfactory patch, but it seems to work...)
 	  double pmu = lmom.mag();
 	  double theCSCHitIneff = pmu>0? exp(kCSC*log(pmu)+fCSC):0.;
+	  // Take into account the different geometry in ME11:
+	  if (id.station()==1 && id.ring()==1)  theCSCHitIneff = theCSCHitIneff*0.442;
 	  if (random->flatShoot()<theCSCHitIneff) continue;
 
 	  double eloss = 0;

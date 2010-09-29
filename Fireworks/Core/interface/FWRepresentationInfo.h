@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 11 13:12:28 EST 2008
-// $Id: FWRepresentationInfo.h,v 1.3 2010/06/02 22:37:42 chrjones Exp $
+// $Id: FWRepresentationInfo.h,v 1.1 2008/11/14 16:29:30 chrjones Exp $
 //
 
 // system include files
@@ -29,17 +29,13 @@
 class FWRepresentationInfo {
 
 public:
-   FWRepresentationInfo(const std::string& iPurpose, unsigned int iProximity, unsigned int iBitPackedViews, bool iRepresentsSubPart) :
+   FWRepresentationInfo(const std::string& iPurpose, unsigned int iProximity) :
       m_purpose(iPurpose),
-      m_proximity(iProximity),
-      m_bitPackedViews(iBitPackedViews),
-      m_representsSubPart(iRepresentsSubPart){
+      m_proximity(iProximity) {
    }
    FWRepresentationInfo() :
       m_purpose(),
-      m_proximity(0xFFFFFFFF),
-      m_bitPackedViews(0),
-      m_representsSubPart(false) {
+      m_proximity(0xFFFFFFFF) {
    }
    //virtual ~FWRepresentationInfo();
 
@@ -54,14 +50,6 @@ public:
    bool isValid() const {
       return !m_purpose.empty();
    }
-   
-   bool representsSubPart() const {
-      return m_representsSubPart;
-   }
-   
-   unsigned int bitPackedViews() const {
-      return m_bitPackedViews;
-   }
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
@@ -74,8 +62,6 @@ private:
    // ---------- member data --------------------------------
    std::string m_purpose;
    unsigned int m_proximity;
-   unsigned int m_bitPackedViews;
-   bool m_representsSubPart;
 
 };
 

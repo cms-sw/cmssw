@@ -114,7 +114,7 @@ class GsfElectronAlgo {
        edm::Handle<CaloTowerCollection> towersH,
        edm::Handle<EcalRecHitCollection> reducedEBRecHits,
        edm::Handle<EcalRecHitCollection> reducedEERecHits,
-       const reco::BeamSpot &bs,
+       const reco::BeamSpot & bs,
        GsfElectronPtrCollection & outEle ) ;
 
     void createElectron
@@ -129,21 +129,25 @@ class GsfElectronAlgo {
        EgammaRecHitIsolation & ecalBarrelIso03,EgammaRecHitIsolation & ecalEndcapsIso03,
        EgammaRecHitIsolation & ecalBarrelIso04,EgammaRecHitIsolation & ecalEndcapsIso04,
        edm::Handle<EcalRecHitCollection> reducedEBRecHits,edm::Handle<EcalRecHitCollection> reducedEERecHits,
-       float mva, GsfElectronPtrCollection & outEle ) ;
+       float mva, const reco::BeamSpot & bs, GsfElectronPtrCollection & outEle ) ;
 
     void preselectElectrons( GsfElectronPtrCollection & inEle, GsfElectronPtrCollection & outEle, const reco::BeamSpot& ) ;
     bool preselectCutBasedFlag( reco::GsfElectron * ele, const reco::BeamSpot & ) ;
     bool preselectMvaFlag( reco::GsfElectron * ele ) ;
 
-    void resolveElectrons( GsfElectronPtrCollection &, reco::GsfElectronCollection & outEle,
+    void resolveElectrons
+     ( GsfElectronPtrCollection &, reco::GsfElectronCollection & outEle,
        edm::Handle<EcalRecHitCollection> & reducedEBRecHits,
-       edm::Handle<EcalRecHitCollection> & reducedEERecHits ) ;
+       edm::Handle<EcalRecHitCollection> & reducedEERecHits,
+       const reco::BeamSpot & bs ) ;
 
     // associations
     const reco::SuperClusterRef getTrSuperCluster(const reco::GsfTrackRef & trackRef );
 
-    const reco::CaloClusterPtr getEleBasicCluster(const reco::GsfTrackRef & trackRef,
-      const reco::SuperCluster * scRef) ;
+    const reco::CaloClusterPtr getEleBasicCluster
+     ( const reco::GsfTrackRef & trackRef,
+       const reco::SuperCluster * scRef,
+       const reco::BeamSpot & bs ) ;
 
     // From Puneeth Kalavase : returns the CTF track that has the highest fraction
     // of shared hits in Pixels and the inner strip tracker with the electron Track

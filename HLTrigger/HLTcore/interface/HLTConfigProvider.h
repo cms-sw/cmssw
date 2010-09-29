@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2010/05/28 11:10:23 $
- *  $Revision: 1.27 $
+ *  $Date: 2010/06/07 19:20:33 $
+ *  $Revision: 1.28 $
  *
  *  \author Martin Grunewald
  *
@@ -144,6 +144,11 @@ class HLTConfigProvider {
   /// current (default) prescale set index to be taken from L1GtUtil via Event
   int prescaleSet(const edm::Event& iEvent, const edm::EventSetup& iSetup) const; // negative => error
   unsigned int prescaleValue(const edm::Event& iEvent, const edm::EventSetup& iSetup, const std::string& trigger) const;
+
+
+  /// Combined L1T (pair.first) and HLT (pair.second) prescales per HLT path
+  std::pair<int,int> prescaleValues(const edm::Event& iEvent, const edm::EventSetup& iSetup, const std::string& trigger) const;
+  // any one negative => error in retrieving this (L1T or HLT) prescale
 
  public:
   /// c'tor

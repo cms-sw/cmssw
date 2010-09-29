@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2010/03/12 11:36:29 $
- * $Revision: 1.85 $
+ * $Date: 2010/08/11 14:49:01 $
+ * $Revision: 1.91 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -27,13 +27,13 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBOccupancyTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBOccupancyTask.h"
 
 EBOccupancyTask::EBOccupancyTask(const edm::ParameterSet& ps){
 
@@ -297,7 +297,7 @@ void EBOccupancyTask::cleanup(void){
     }
 
     if ( meEBRecHitSpectrum_ ) dqmStore_->removeElement( meEBRecHitSpectrum_->getName() );
-    meEBRecHitSpectrum_ = 0;    
+    meEBRecHitSpectrum_ = 0;
 
     if ( meEBDigiOccupancy_ ) dqmStore_->removeElement( meEBDigiOccupancy_->getName() );
     meEBDigiOccupancy_ = 0;
@@ -368,7 +368,7 @@ void EBOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   edm::Handle<EcalRawDataCollection> dcchs;
 
   if (  e.getByLabel(EcalRawDataCollection_, dcchs) ) {
-    
+
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
       if ( Numbers::subDet( *dcchItr ) != EcalBarrel ) continue;
@@ -376,7 +376,7 @@ void EBOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       int ism = Numbers::iSM( *dcchItr, EcalBarrel );
 
       int runtype = dcchItr->getRunType();
-            
+
       if ( runtype == EcalDCCHeaderBlock::COSMIC ||
            runtype == EcalDCCHeaderBlock::MTCC ||
            runtype == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
@@ -431,29 +431,29 @@ void EBOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       float xebphi = ebphi - 0.5;
 
       if ( runType[ism-1] == physics || runType[ism-1] == notdata ) {
-        
+
         if ( meEBDigiOccupancy_ ) meEBDigiOccupancy_->Fill( xebphi, xebeta );
         if ( meEBDigiOccupancyProjEta_ ) meEBDigiOccupancyProjEta_->Fill( xebeta );
         if ( meEBDigiOccupancyProjPhi_ ) meEBDigiOccupancyProjPhi_->Fill( xebphi );
-        
+
       }
-      
-      if ( runType[ism-1] == testpulse ) { 
-        
+
+      if ( runType[ism-1] == testpulse ) {
+
         if ( meEBTestPulseDigiOccupancy_ ) meEBTestPulseDigiOccupancy_->Fill( xebphi, xebeta );
-        
+
       }
-      
+
       if ( runType[ism-1] == laser ) {
-        
+
         if ( meEBLaserDigiOccupancy_ ) meEBLaserDigiOccupancy_->Fill( xebphi, xebeta );
-        
+
       }
-      
+
       if ( runType[ism-1] == pedestal ) {
-        
+
         if ( meEBPedestalDigiOccupancy_ ) meEBPedestalDigiOccupancy_->Fill( xebphi, xebeta );
-        
+
       }
 
     }
@@ -500,7 +500,7 @@ void EBOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   // channel status
   edm::ESHandle<EcalChannelStatus> pChannelStatus;
   c.get<EcalChannelStatusRcd>().get(pChannelStatus);
-  const EcalChannelStatus *chStatus = pChannelStatus.product();
+  const EcalChannelStatus* chStatus = pChannelStatus.product();
 
   edm::Handle<EcalRecHitCollection> rechits;
 
@@ -531,20 +531,20 @@ void EBOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       float xip = ip - 0.5;
 
       if ( runType[ism-1] == physics || runType[ism-1] == notdata ) {
-        
+
         if ( meEBRecHitOccupancy_ ) meEBRecHitOccupancy_->Fill( xebphi, xebeta );
         if ( meEBRecHitOccupancyProjEta_ ) meEBRecHitOccupancyProjEta_->Fill( xebeta );
         if ( meEBRecHitOccupancyProjPhi_ ) meEBRecHitOccupancyProjPhi_->Fill( xebphi );
-        
-        uint32_t flag = rechitItr->recoFlag();      
+
+        uint32_t flag = rechitItr->recoFlag();
         uint32_t sev = EcalSeverityLevelAlgo::severityLevel( id, *rechits, *chStatus );
 
         if ( rechitItr->energy() > recHitEnergyMin_ && flag == EcalRecHit::kGood && sev == EcalSeverityLevelAlgo::kGood ) {
-          
+
           if ( meEBRecHitOccupancyThr_ ) meEBRecHitOccupancyThr_->Fill( xebphi, xebeta );
           if ( meEBRecHitOccupancyProjEtaThr_ ) meEBRecHitOccupancyProjEtaThr_->Fill( xebeta );
           if ( meEBRecHitOccupancyProjPhiThr_ ) meEBRecHitOccupancyProjPhiThr_->Fill( xebphi );
-          
+
         }
 
         if ( flag == EcalRecHit::kGood && sev == EcalSeverityLevelAlgo::kGood ) {
@@ -591,13 +591,13 @@ void EBOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( meEBTrigPrimDigiOccupancy_ ) meEBTrigPrimDigiOccupancy_->Fill( xebphi, xebeta );
         if ( meEBTrigPrimDigiOccupancyProjEta_ ) meEBTrigPrimDigiOccupancyProjEta_->Fill( xebeta );
         if ( meEBTrigPrimDigiOccupancyProjPhi_ ) meEBTrigPrimDigiOccupancyProjPhi_->Fill( xebphi );
-        
+
         if ( tpdigiItr->compressedEt() > trigPrimEtMin_ ) {
-          
+
           if ( meEBTrigPrimDigiOccupancyThr_ ) meEBTrigPrimDigiOccupancyThr_->Fill( xebphi, xebeta );
           if ( meEBTrigPrimDigiOccupancyProjEtaThr_ ) meEBTrigPrimDigiOccupancyProjEtaThr_->Fill( xebeta );
           if ( meEBTrigPrimDigiOccupancyProjPhiThr_ ) meEBTrigPrimDigiOccupancyProjPhiThr_->Fill( xebphi );
-          
+
         }
       }
     }

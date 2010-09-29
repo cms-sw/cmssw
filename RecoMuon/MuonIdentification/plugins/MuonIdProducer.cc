@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.58 2010/06/28 08:47:42 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.60 2010/09/26 15:54:05 slava77 Exp $
 //
 //
 
@@ -399,8 +399,10 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      std::vector<bool> goodmuons(linkCollectionHandle_->size(),true);
      if ( goodmuons.size()>1 ){
        // check for shared tracker tracks
-       for ( unsigned int i=0; i<linkCollectionHandle_->size()-1; ++i )
+       for ( unsigned int i=0; i<linkCollectionHandle_->size()-1; ++i ){
+	 if (!checkLinks(&linkCollectionHandle_->at(i))) continue;
 	 for ( unsigned int j=i+1; j<linkCollectionHandle_->size(); ++j ){
+	   if (!checkLinks(&linkCollectionHandle_->at(j))) continue; 
 	   if ( linkCollectionHandle_->at(i).trackerTrack().isNonnull() &&
 		linkCollectionHandle_->at(i).trackerTrack() == 
 		linkCollectionHandle_->at(j).trackerTrack() )
@@ -415,11 +417,14 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		 goodmuons[i] = false;
 	     }
 	 }
+       }
        // check for shared stand-alone muons.
        for ( unsigned int i=0; i<linkCollectionHandle_->size()-1; ++i ){
 	 if ( !goodmuons[i] ) continue;
+	 if (!checkLinks(&linkCollectionHandle_->at(i))) continue;
 	 for ( unsigned int j=i+1; j<linkCollectionHandle_->size(); ++j ){
 	   if ( !goodmuons[j] ) continue;
+	   if (!checkLinks(&linkCollectionHandle_->at(j))) continue;
 	   if ( linkCollectionHandle_->at(i).standAloneTrack().isNonnull() &&
 		linkCollectionHandle_->at(i).standAloneTrack() == 
 		linkCollectionHandle_->at(j).standAloneTrack() )
@@ -436,13 +441,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      for ( unsigned int i=0; i<linkCollectionHandle_->size(); ++i ){
        if ( !goodmuons[i] ) continue;
        const reco::MuonTrackLinks* links = &linkCollectionHandle_->at(i);
-       if ( links->trackerTrack().isNull() ||
-	    links->standAloneTrack().isNull() ||
-	    links->globalTrack().isNull() ) 
-	 {
-	   edm::LogWarning("MuonIdentification") << "Global muon links to constituent tracks are invalid. There should be no such object. Muon is skipped.";
-	   continue;
-	 }
+       if ( ! checkLinks(links))   continue;
        // check if this muon is already in the list
        bool newMuon = true;
        for ( reco::MuonCollection::const_iterator muon = outputMuons->begin();
@@ -1104,4 +1103,19 @@ void MuonIdProducer::fillGlbQuality(edm::Event& iEvent, const edm::EventSetup& i
 
   LogDebug("MuonIdentification") << "tkChiVal " << aMuon.combinedQuality().trkRelChi2;
 
+}
+
+
+bool MuonIdProducer::checkLinks(const reco::MuonTrackLinks* links) const {
+  bool trackBAD = links->trackerTrack().isNull();
+  bool staBAD = links->standAloneTrack().isNull();
+  bool glbBAD = links->globalTrack().isNull();
+  if (trackBAD || staBAD || glbBAD ) 
+    {
+      edm::LogWarning("muonIDbadLinks") << "Global muon links to constituent tracks are invalid: trkBad "
+					<<trackBAD <<" standaloneBad "<<staBAD<<" globalBad "<<glbBAD
+					<<". There should be no such object. Muon is skipped.";
+      return false;
+    }
+  return true;
 }

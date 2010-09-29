@@ -38,7 +38,7 @@ L1GctHtMissLut::~L1GctHtMissLut()
 
 uint16_t L1GctHtMissLut::value (const uint16_t lutAddress) const
 {
-  uint16_t result=0;
+  uint16_t result=9;
 
   if (lutAddress!=0) {
     static const int maxComponent  = 1<<kHxOrHyMissComponentNBits;
@@ -109,8 +109,6 @@ std::ostream& operator << (std::ostream& os, const L1GctHtMissLut& lut)
     os << ", " << *thr;
   }
   os << std::endl;
-  os << "Max values for input to et scale " << lut.m_etScale->linScaleMax()
-     << " and for output " << lut.m_etScale->rankScaleMax() << std::endl;
   os << "LSB used for conversion is " << lut.m_componentLsb << " GeV" << std::endl;
   os << "\n===Lookup table contents===\n" << std::endl;
   const L1GctLut<L1GctHtMissLut::NAddress,L1GctHtMissLut::NData>* temp=&lut;

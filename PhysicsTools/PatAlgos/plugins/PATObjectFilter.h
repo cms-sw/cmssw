@@ -1,5 +1,5 @@
 //
-// $Id: PATObjectFilter.h,v 1.4 2009/03/26 22:38:58 hegner Exp $
+// $Id: PATObjectFilter.h,v 1.5 2009/12/29 00:07:13 hegner Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATObjectFilter_h

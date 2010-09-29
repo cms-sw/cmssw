@@ -35,11 +35,6 @@ public:
 	typedef L1GctUnsignedInt<L1GctInternEtSum::kTotEtOrHtNBits> etHadType;
 	typedef L1GctTwosComplement<  L1GctInternEtSum::kMissExOrEyNBits > etComponentType;
 
-	enum maxValues {
-	  etTotalMaxValue = L1GctInternEtSum::kTotEtOrHtMaxValue,
-	  htTotalMaxValue = L1GctInternEtSum::kTotEtOrHtMaxValue
-	};
-
         /// Max number of leaf card pointers
         static const unsigned int MAX_LEAF_CARDS;
 

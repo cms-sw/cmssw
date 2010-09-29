@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 22 10:13:39 CST 2009
-// $Id: FWCollectionSummaryTableManager.cc,v 1.6 2010/06/07 21:59:03 chrjones Exp $
+// $Id: FWCollectionSummaryTableManager.cc,v 1.3 2009/05/18 04:55:55 dmytro Exp $
 //
 
 // system include files
@@ -20,6 +20,8 @@
 #include "Fireworks/Core/src/FWCollectionSummaryTableManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWItemValueGetter.h"
+#include "Fireworks/TableWidget/interface/FWTextTableCellRenderer.h"
+
 #include "Fireworks/Core/src/FWCollectionSummaryWidget.h"
 
 //
@@ -48,12 +50,12 @@ m_widget(iWidget)
    ROOT::Reflex::Type type = ROOT::Reflex::Type::ByTypeInfo(*(m_collection->modelType()->GetTypeInfo()));
 
    if ( type.Name() == "CaloTower" ){
-     if ( m_collection->purpose() == "ECal" ){
+     if ( m_collection->name() == "ECal" ){
        s_names.push_back(std::pair<std::string,std::string>("emEt","GeV"));
        boost::shared_ptr<FWItemValueGetter> trans( new FWItemValueGetter(type,s_names));
        if(trans->isValid()) m_valueGetters.push_back(trans);
      }
-     if ( m_collection->purpose() == "HCal" ){
+     if ( m_collection->name() == "HCal" ){
        s_names.push_back(std::pair<std::string,std::string>("hadEt","GeV"));
        boost::shared_ptr<FWItemValueGetter> hadEt( new FWItemValueGetter(type,s_names));
        if(hadEt->isValid()) m_valueGetters.push_back(hadEt);
@@ -115,7 +117,7 @@ namespace {
    template<typename S>
    void doSort(const FWEventItem& iItem,
                FWItemValueGetter& iGetter,
-               std::multimap<double,int,S>& iMap,
+               std::map<double,int,S>& iMap,
                std::vector<int>& oNewSort) {
       int size = iItem.size();
       for(int index = 0; index < size; ++index) {
@@ -135,10 +137,10 @@ void
 FWCollectionSummaryTableManager::implSort(int iCol, bool iSortOrder)
 {
    if(iSortOrder) {
-      std::multimap<double,int, std::greater<double> > s;
+      std::map<double,int, std::greater<double> > s;
       doSort(*m_collection, *(m_valueGetters[iCol]), s, m_sortedToUnsortedIndicies);
    } else {
-      std::multimap<double,int, std::less<double> > s;
+      std::map<double,int, std::less<double> > s;
       doSort(*m_collection, *(m_valueGetters[iCol]), s, m_sortedToUnsortedIndicies);
    }
 }

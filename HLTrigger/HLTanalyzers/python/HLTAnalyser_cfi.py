@@ -26,6 +26,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     l1extramc                       = cms.string('hltL1extraParticles'),
     l1extramu                       = cms.string('hltL1extraParticles'),
     hltresults                      = cms.InputTag("TriggerResults::HLT"),
+    HLTProcessName                  = cms.string("HLT"),
     
     ### reconstructed objects
     genjets                         = cms.InputTag("iterativeCone5GenJets"),
@@ -107,7 +108,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     IsoPixelTrackVertices       = cms.InputTag("hltPixelVertices"),    
 
     ### Track settings
-    PixelTracksL3               = cms.InputTag("hltPixelCands"),                         
+    PixelTracksL3               = cms.InputTag("hltPixelCandsForMinBias"),                         
 
     ### Calo tower settings
     caloTowerThreshold          = cms.double( 2.0 ),

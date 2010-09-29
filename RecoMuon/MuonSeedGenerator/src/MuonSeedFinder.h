@@ -8,8 +8,8 @@
  *  \author A. Vitelli - INFN Torino
  *  \author porting R. Bellan - INFN Torino
  *
- *  $Date: 2008/08/25 21:59:59 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/09/12 23:09:07 $
+ *  $Revision: 1.11 $
  *  
  */
 
@@ -28,7 +28,7 @@ public:
   MuonSeedFinder(const edm::ParameterSet & pset);
 
   /// Destructor
-  virtual ~MuonSeedFinder(){};
+  virtual ~MuonSeedFinder(){delete thePtExtractor;}
 
   // Operations
 
@@ -42,7 +42,6 @@ private:
   float computePt(MuonTransientTrackingRecHit::ConstMuonRecHitPointer muon, const MagneticField *field) const;
 
   void analyze() const;
-  MuonSeedPtExtractor thePtExtractor; 
   // put a parameterSet instead of
   // static SimpleConfigurable<float> theMinMomentum;
   float theMinMomentum;

@@ -95,8 +95,8 @@ void FastTSGFromIOHit::trackerSeeds(const TrackCand& staMuon, const TrackingRegi
   } // End loop on seed collections
   
   // Now create the Muon Trajectory Seed
-  uint is=0;
-  uint isMax=tkSeeds.size();
+  unsigned int is=0;
+  unsigned int isMax=tkSeeds.size();
   for (;is!=isMax;++is){
     result.push_back( L3MuonTrajectorySeed(tkSeeds[is], muRef));
   } // End of tk seed loop

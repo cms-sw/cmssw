@@ -8,17 +8,20 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 11:22:32 CDT 2008
-// $Id: FWBoolParameterSetter.cc,v 1.4 2009/01/23 21:35:42 amraktad Exp $
+// $Id: FWBoolParameterSetter.cc,v 1.3 2008/11/06 22:05:25 amraktad Exp $
 //
 
 // system include files
-
+#include "TGLabel.h"
 #include "TGButton.h"
 #include <assert.h>
 #include <iostream>
+#include "TGedFrame.h"
 
 // user include files
 #include "Fireworks/Core/src/FWBoolParameterSetter.h"
+#include "Fireworks/Core/interface/FWBoolParameter.h"
+
 
 //
 // constants, enums and typedefs

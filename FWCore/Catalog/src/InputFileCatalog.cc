@@ -14,7 +14,8 @@ namespace edm {
     logicalFileNames_(fileNames),
     fileNames_(logicalFileNames_),
     fileCatalogItems_(),
-    fl_(){
+    fl_(),
+    overrideFL_(){
 
     fileCatalogItems_.reserve(fileNames_.size());
     typedef std::vector<std::string>::iterator iter;
@@ -28,8 +29,11 @@ namespace edm {
       if (isPhysical(*it)) {
         lt->clear();
       } else {
+        if (!override.empty() && !overrideFL_) {
+          overrideFL_.reset(new FileLocator(override));
+        }
         if (!fl_) {
-          fl_.reset(new FileLocator(override));
+          fl_.reset(new FileLocator());
         }
         boost::trim(*lt);
 	findFile(*it, *lt, noThrow);
@@ -41,6 +45,12 @@ namespace edm {
   InputFileCatalog::~InputFileCatalog() {}
   
   void InputFileCatalog::findFile(std::string & pfn, std::string const& lfn, bool noThrow) {
+    if (overrideFL_) {
+      // Return a match from the override catalog if we can; otherwise, fall back.
+      pfn = overrideFL_->pfn(lfn);
+      if (!pfn.empty())
+        return;
+    }
     pfn = fl_->pfn(lfn);
     if (pfn.empty() && !noThrow) {
       throw cms::Exception("LogicalFileNameNotFound", "FileCatalog::findFile()\n")

@@ -30,18 +30,18 @@ public:
  * Derivatives and value calculated at given expansion point
  * Vector should always be of size 14 (2 particles)
  */
-virtual pair<AlgebraicVector, AlgebraicVector> value(const AlgebraicVector& exPoint) const;
+virtual std::pair<AlgebraicVector, AlgebraicVector> value(const AlgebraicVector& exPoint) const;
 
-virtual pair<AlgebraicMatrix, AlgebraicVector> derivative(const AlgebraicVector& exPoint) const;
+virtual std::pair<AlgebraicMatrix, AlgebraicVector> derivative(const AlgebraicVector& exPoint) const;
 
 /**
  * Derivatives and values calculated at expansion point, taken
  * at current state of input particles. Number of input particles
  * should be always equal to 2
  */
-virtual pair<AlgebraicVector, AlgebraicVector> value(const vector<RefCountedKinematicParticle> par) const;
+virtual std::pair<AlgebraicVector, AlgebraicVector> value(const std::vector<RefCountedKinematicParticle> par) const;
 
-virtual pair<AlgebraicMatrix, AlgebraicVector> derivative(const vector<RefCountedKinematicParticle> par) const;
+virtual std::pair<AlgebraicMatrix, AlgebraicVector> derivative(const std::vector<RefCountedKinematicParticle> par) const;
 
 virtual AlgebraicVector deviations(int nStates) const;
 

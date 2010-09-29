@@ -6,8 +6,6 @@
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLepJetCombEval.h"
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombMVAComputer.h"
 
-#include "TString.h"
-
 TtSemiLepJetCombMVAComputer::TtSemiLepJetCombMVAComputer(const edm::ParameterSet& cfg):
   leps_    (cfg.getParameter<edm::InputTag>("leps")),
   jets_    (cfg.getParameter<edm::InputTag>("jets")),
@@ -17,7 +15,7 @@ TtSemiLepJetCombMVAComputer::TtSemiLepJetCombMVAComputer(const edm::ParameterSet
 {
   produces< std::vector<std::vector<int> > >();
   produces< std::vector<double>            >("Discriminators");
-  produces< TString                        >("Method");
+  produces< std::string                    >("Method");
 }
 
 TtSemiLepJetCombMVAComputer::~TtSemiLepJetCombMVAComputer()
@@ -29,7 +27,7 @@ TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& set
 {
   std::auto_ptr< std::vector<std::vector<int> > >pOut    (new std::vector<std::vector<int> >);
   std::auto_ptr< std::vector<double>            >pOutDisc(new std::vector<double>);
-  std::auto_ptr< TString                        >pOutMeth(new TString);
+  std::auto_ptr< std::string                    >pOutMeth(new std::string);
 
   mvaComputer.update<TtSemiLepJetCombMVARcd>(setup, "ttSemiLepJetCombMVA");
 

@@ -87,23 +87,6 @@ class CSCValHists{
                         int binsx, float xmin, float xmax,
                         int binsy, float ymin, float ymax, string folder);
 
-  // fill 1D histogram
-  // a histogram is created for every peripheral crate
-  void fill1DHistByCrate(float x, string name, string title, CSCDetId id,
-                        int bins, float xmin, float xmax, string folder);
-
-  // fill 2D histogram
-  // a histogram is created for every peripheral crate
-  void fill2DHistByCrate(float x, float y, string name, string title, CSCDetId id,
-                        int binsx, float xmin, float xmax,
-                        int binsy, float ymin, float ymax, string folder);
-
-  // fill 2D histogram
-  // a histogram is created for every station
-  void fill1DHistByStation(float x, string name, string title, CSCDetId id,
-                           int bins, float xmin, float xmax, string folder);
-
-
   // fill 2D histogram
   // a histogram is created for every station
   void fill2DHistByStation(float x, float y, string name, string title, CSCDetId id,
@@ -120,14 +103,6 @@ class CSCValHists{
   void fill2DHistByChamber(float x, float y, string name, string title, CSCDetId id,
                            int binsx, float xmin, float xmax,
                            int binsy, float ymin, float ymax, string folder);
-
-  // fill 2D histogram of entire detector
-  // once per event
-  void fill2DHistByEvent(int run, int event, float x, string name, string title, CSCDetId id, string folder);
-  
-  // fill 2D histogram of entire detector
-  // with a value z for the specified chamber
-  void fill2DHist(float z, string name, string title, CSCDetId id, string folder);
 
   // fill 1D histogram
   // a histogram is created for every layer in every chamber
@@ -163,9 +138,6 @@ class CSCValHists{
                      int binsx, float xmin, float xmax,
                      int binsy, float ymin, float ymax,
                      float zmin, float zmax, string folder);
-
-  // look-up which crate this chamber belongs to
-  int crate_lookup(CSCDetId id);
 
   protected:
 

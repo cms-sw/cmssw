@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsTask.cc
  *
- * $Date: 2010/05/30 17:30:30 $
- * $Revision: 1.34 $
+ * $Date: 2010/06/14 15:00:40 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  *
 */
@@ -22,9 +22,9 @@
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalEndcapMonitorTasks/interface/EEStatusFlagsTask.h>
+#include "DQM/EcalEndcapMonitorTasks/interface/EEStatusFlagsTask.h"
 
 EEStatusFlagsTask::EEStatusFlagsTask(const edm::ParameterSet& ps){
 

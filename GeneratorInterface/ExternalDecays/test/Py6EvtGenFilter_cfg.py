@@ -28,7 +28,7 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(True),
     maxEventsToPrint = cms.untracked.int32(5),
     pythiaPylistVerbosity = cms.untracked.int32(1),
-    comEnergy = cms.double(10000.0),
+    comEnergy = cms.double(7000.0),
     ExternalDecays = cms.PSet(
         EvtGen = cms.untracked.PSet(
              operates_on_particles = cms.vint32( 0 ), # 0 (zero) means default list (hardcoded)
@@ -38,16 +38,16 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
              decay_table = cms.FileInPath('GeneratorInterface/ExternalDecays/data/DECAY_NOLONGLIFE.DEC'),
              # decay_table = cms.FileInPath('GeneratorInterface/ExternalDecays/data/DECAY.DEC'),
              particle_property_file = cms.FileInPath('GeneratorInterface/ExternalDecays/data/evt.pdl'),
-             user_decay_file = cms.FileInPath('GeneratorInterface/ExternalDecays/data/Onia_mumu.dec'),
-             # user_decay_file = cms.FileInPath('GeneratorInterface/ExternalDecays/data/incl_BtoJpsi_mumu.dec'),
-             list_forced_decays = cms.vstring('MyUpsilon(2S)'),
+             user_decay_file = cms.FileInPath('GeneratorInterface/ExternalDecays/data/Bs_DsStarlnu_DsGamma.dec'),
+             # user_decay_file = cms.FileInPath('GeneratorInterface/ExternalDecays/data/Bs_Jpsiphi_mumuKK.dec'),
+             list_forced_decays = cms.vstring('MyB_s0','Myanti-B_s0'),
              ),
         parameterSets = cms.vstring('EvtGen')
     ),
     PythiaParameters = cms.PSet(
 
         process.pythiaUESettingsBlock,
-        bbbarSettings = cms.vstring('MSEL=62          ! Quarkonia NRQCD '),
+        bbbarSettings = cms.vstring('MSEL=5          ! bbbar '),
         # This is a vector of ParameterSet names to be read, in this order
         parameterSets = cms.vstring('pythiaUESettings','bbbarSettings')
     )

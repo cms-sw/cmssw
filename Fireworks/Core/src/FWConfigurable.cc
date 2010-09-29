@@ -8,13 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 24 14:42:30 EST 2008
-// $Id: FWConfigurable.cc,v 1.2 2008/11/06 22:05:25 amraktad Exp $
+// $Id: FWConfigurable.cc,v 1.1 2008/02/25 21:32:25 chrjones Exp $
 //
 
 // system include files
 
 // user include files
 #include "Fireworks/Core/interface/FWConfigurable.h"
+
 
 //
 // constants, enums and typedefs

@@ -3,24 +3,24 @@
 using namespace std;
 
 EcalTangentFilter::EcalTangentFilter(const edm::ParameterSet& iConfig){
-	fMuLabel  = iConfig.getParameter<string>("MuLabel");
+	fMuLabel  = iConfig.getParameter<std::string>("MuLabel");
 	fMuonD0Min  = iConfig.getParameter<double>("MuD0Min");
 	fMuonD0Max  = iConfig.getParameter<double>("MuD0Max");
 	fVerbose  = iConfig.getParameter<bool>("Verbose");
-	cout << "----------------------------------------------------------------------" << endl;
-	cout << "--- EcalTangentFilter constructor" << endl;
-	cout << "---  MuLabel:       " << fMuLabel << endl;
-	cout << "---  MuonD0Min:     " << fMuonD0Min << endl;
-	cout << "---  MuonD0Max:     " << fMuonD0Max << endl;
-	cout << "---  Verbose:     " << fVerbose << endl;
-	cout << "----------------------------------------------------------------------" << endl;
+	cout << "----------------------------------------------------------------------" << std::endl;
+	cout << "--- EcalTangentFilter constructor" << std::endl;
+	cout << "---  MuLabel:       " << fMuLabel << std::endl;
+	cout << "---  MuonD0Min:     " << fMuonD0Min << std::endl;
+	cout << "---  MuonD0Max:     " << fMuonD0Max << std::endl;
+	cout << "---  Verbose:     " << fVerbose << std::endl;
+	cout << "----------------------------------------------------------------------" << std::endl;
 	fNgood = 0;
 	fNtot  = 0;
 }
 
 
 EcalTangentFilter::~EcalTangentFilter(){
-  cout << "==> EcalTangentFilter> Number of accepted/total events = " << fNgood << "/" << fNtot << endl;
+  std::cout << "==> EcalTangentFilter> Number of accepted/total events = " << fNgood << "/" << fNtot << std::endl;
 }
 
 
@@ -43,7 +43,7 @@ bool EcalTangentFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 	}
 	if(goodEvent){
 		++fNgood;
-		if(fVerbose) cout << "==> EcalTangentFilter> new event r" << iEvent.id().run() << "/ev" << iEvent.id().event() << " accepted, so far: " << fNgood << endl;
+		if(fVerbose) std::cout << "==> EcalTangentFilter> new event r" << iEvent.id().run() << "/ev" << iEvent.id().event() << " accepted, so far: " << fNgood << std::endl;
 	}
 	return goodEvent;
 }

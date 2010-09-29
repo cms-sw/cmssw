@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2010/06/30 15:08:11 $
- * $Revision: 1.202 $
+ * $Date: 2010/08/09 14:03:47 $
+ * $Revision: 1.207 $
  * \author G. Della Ricca
  *
 */
@@ -24,23 +24,23 @@
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
-#include <DQM/EcalCommon/interface/UtilsClient.h>
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/UtilsClient.h"
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EEStatusFlagsClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEIntegrityClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EELaserClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EELedClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEPedestalClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEPedestalOnlineClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EETestPulseClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEBeamCaloClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEBeamHodoClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EETriggerTowerClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEClusterClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EETimingClient.h>
+#include "DQM/EcalEndcapMonitorClient/interface/EEStatusFlagsClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EEIntegrityClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EELaserClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EELedClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EEPedestalClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EEPedestalOnlineClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EETestPulseClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EEBeamCaloClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EEBeamHodoClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EETriggerTowerClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EEClusterClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EETimingClient.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EESummaryClient.h>
+#include "DQM/EcalEndcapMonitorClient/interface/EESummaryClient.h"
 
 EESummaryClient::EESummaryClient(const edm::ParameterSet& ps) {
 
@@ -170,7 +170,7 @@ EESummaryClient::EESummaryClient(const edm::ParameterSet& ps) {
   meTimingRMS1D_[1]   = 0;
   meTimingMean_ = 0;
   meTimingRMS_  = 0;
-  
+
   meTriggerTowerEt_[0]        = 0;
   meTriggerTowerEt_[1]        = 0;
   meTriggerTowerEmulError_[0] = 0;
@@ -207,7 +207,7 @@ EESummaryClient::EESummaryClient(const edm::ParameterSet& ps) {
 
   }
 
-  synchErrorThreshold_ = 0.05;
+  synchErrorThreshold_ = 0.0;
 
 }
 
@@ -261,14 +261,14 @@ void EESummaryClient::setup(void) {
   if ( meIntegrity_[0] ) dqmStore_->removeElement( meIntegrity_[0]->getName() );
   sprintf(histo, "EEIT EE - integrity quality summary");
   meIntegrity_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meIntegrity_[0]->setAxisTitle("jx", 1);
-  meIntegrity_[0]->setAxisTitle("jy", 2);
+  meIntegrity_[0]->setAxisTitle("ix", 1);
+  meIntegrity_[0]->setAxisTitle("iy", 2);
 
   if ( meIntegrity_[1] ) dqmStore_->removeElement( meIntegrity_[1]->getName() );
   sprintf(histo, "EEIT EE + integrity quality summary");
   meIntegrity_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meIntegrity_[1]->setAxisTitle("jx", 1);
-  meIntegrity_[1]->setAxisTitle("jy", 2);
+  meIntegrity_[1]->setAxisTitle("ix", 1);
+  meIntegrity_[1]->setAxisTitle("iy", 2);
 
   if ( meIntegrityErr_ ) dqmStore_->removeElement( meIntegrityErr_->getName() );
   sprintf(histo, "EEIT integrity quality errors summary");
@@ -286,14 +286,14 @@ void EESummaryClient::setup(void) {
   if ( meOccupancy_[0] ) dqmStore_->removeElement( meOccupancy_[0]->getName() );
   sprintf(histo, "EEOT EE - digi occupancy summary");
   meOccupancy_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meOccupancy_[0]->setAxisTitle("jx", 1);
-  meOccupancy_[0]->setAxisTitle("jy", 2);
+  meOccupancy_[0]->setAxisTitle("ix", 1);
+  meOccupancy_[0]->setAxisTitle("iy", 2);
 
   if ( meOccupancy_[1] ) dqmStore_->removeElement( meOccupancy_[1]->getName() );
   sprintf(histo, "EEOT EE + digi occupancy summary");
   meOccupancy_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meOccupancy_[1]->setAxisTitle("jx", 1);
-  meOccupancy_[1]->setAxisTitle("jy", 2);
+  meOccupancy_[1]->setAxisTitle("ix", 1);
+  meOccupancy_[1]->setAxisTitle("iy", 2);
 
   if ( meOccupancy1D_ ) dqmStore_->removeElement( meOccupancy1D_->getName() );
   sprintf(histo, "EEIT digi occupancy summary 1D");
@@ -311,14 +311,14 @@ void EESummaryClient::setup(void) {
   if ( meStatusFlags_[0] ) dqmStore_->removeElement( meStatusFlags_[0]->getName() );
   sprintf(histo, "EESFT EE - front-end status summary");
   meStatusFlags_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meStatusFlags_[0]->setAxisTitle("jx", 1);
-  meStatusFlags_[0]->setAxisTitle("jy", 2);
+  meStatusFlags_[0]->setAxisTitle("ix", 1);
+  meStatusFlags_[0]->setAxisTitle("iy", 2);
 
   if ( meStatusFlags_[1] ) dqmStore_->removeElement( meStatusFlags_[1]->getName() );
   sprintf(histo, "EESFT EE + front-end status summary");
   meStatusFlags_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meStatusFlags_[1]->setAxisTitle("jx", 1);
-  meStatusFlags_[1]->setAxisTitle("jy", 2);
+  meStatusFlags_[1]->setAxisTitle("ix", 1);
+  meStatusFlags_[1]->setAxisTitle("iy", 2);
 
   if ( meStatusFlagsErr_ ) dqmStore_->removeElement( meStatusFlagsErr_->getName() );
   sprintf(histo, "EESFT front-end status errors summary");
@@ -330,26 +330,26 @@ void EESummaryClient::setup(void) {
   if ( mePedestalOnline_[0] ) dqmStore_->removeElement( mePedestalOnline_[0]->getName() );
   sprintf(histo, "EEPOT EE - pedestal quality summary G12");
   mePedestalOnline_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  mePedestalOnline_[0]->setAxisTitle("jx", 1);
-  mePedestalOnline_[0]->setAxisTitle("jy", 2);
+  mePedestalOnline_[0]->setAxisTitle("ix", 1);
+  mePedestalOnline_[0]->setAxisTitle("iy", 2);
 
   if ( mePedestalOnline_[1] ) dqmStore_->removeElement( mePedestalOnline_[1]->getName() );
   sprintf(histo, "EEPOT EE + pedestal quality summary G12");
   mePedestalOnline_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  mePedestalOnline_[1]->setAxisTitle("jx", 1);
-  mePedestalOnline_[1]->setAxisTitle("jy", 2);
+  mePedestalOnline_[1]->setAxisTitle("ix", 1);
+  mePedestalOnline_[1]->setAxisTitle("iy", 2);
 
   if ( mePedestalOnlineRMSMap_[0] ) dqmStore_->removeElement( mePedestalOnlineRMSMap_[0]->getName() );
   sprintf(histo, "EEPOT EE - pedestal G12 RMS map");
   mePedestalOnlineRMSMap_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  mePedestalOnlineRMSMap_[0]->setAxisTitle("jx", 1);
-  mePedestalOnlineRMSMap_[0]->setAxisTitle("jy", 2);
+  mePedestalOnlineRMSMap_[0]->setAxisTitle("ix", 1);
+  mePedestalOnlineRMSMap_[0]->setAxisTitle("iy", 2);
 
   if ( mePedestalOnlineRMSMap_[1] ) dqmStore_->removeElement( mePedestalOnlineRMSMap_[1]->getName() );
   sprintf(histo, "EEPOT EE + pedestal G12 RMS map");
   mePedestalOnlineRMSMap_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  mePedestalOnlineRMSMap_[1]->setAxisTitle("jx", 1);
-  mePedestalOnlineRMSMap_[1]->setAxisTitle("jy", 2);
+  mePedestalOnlineRMSMap_[1]->setAxisTitle("ix", 1);
+  mePedestalOnlineRMSMap_[1]->setAxisTitle("iy", 2);
 
   if ( mePedestalOnlineMean_ ) dqmStore_->removeElement( mePedestalOnlineMean_->getName() );
   sprintf(histo, "EEPOT pedestal G12 mean");
@@ -377,14 +377,14 @@ void EESummaryClient::setup(void) {
     if ( meLaserL1_[0] ) dqmStore_->removeElement( meLaserL1_[0]->getName() );
     sprintf(histo, "EELT EE - laser quality summary L1");
     meLaserL1_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meLaserL1_[0]->setAxisTitle("jx", 1);
-    meLaserL1_[0]->setAxisTitle("jy", 2);
+    meLaserL1_[0]->setAxisTitle("ix", 1);
+    meLaserL1_[0]->setAxisTitle("iy", 2);
 
     if ( meLaserL1_[1] ) dqmStore_->removeElement( meLaserL1_[1]->getName() );
     sprintf(histo, "EELT EE + laser quality summary L1");
     meLaserL1_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meLaserL1_[1]->setAxisTitle("jx", 1);
-    meLaserL1_[1]->setAxisTitle("jy", 2);
+    meLaserL1_[1]->setAxisTitle("ix", 1);
+    meLaserL1_[1]->setAxisTitle("iy", 2);
 
     if ( meLaserL1Err_ ) dqmStore_->removeElement( meLaserL1Err_->getName() );
     sprintf(histo, "EELT laser quality errors summary L1");
@@ -434,14 +434,14 @@ void EESummaryClient::setup(void) {
     if ( meLaserL2_[0] ) dqmStore_->removeElement( meLaserL2_[0]->getName() );
     sprintf(histo, "EELT EE - laser quality summary L2");
     meLaserL2_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meLaserL2_[0]->setAxisTitle("jx", 1);
-    meLaserL2_[0]->setAxisTitle("jy", 2);
+    meLaserL2_[0]->setAxisTitle("ix", 1);
+    meLaserL2_[0]->setAxisTitle("iy", 2);
 
     if ( meLaserL2_[1] ) dqmStore_->removeElement( meLaserL2_[1]->getName() );
     sprintf(histo, "EELT EE + laser quality summary L2");
     meLaserL2_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meLaserL2_[1]->setAxisTitle("jx", 1);
-    meLaserL2_[1]->setAxisTitle("jy", 2);
+    meLaserL2_[1]->setAxisTitle("ix", 1);
+    meLaserL2_[1]->setAxisTitle("iy", 2);
 
     if ( meLaserL2Err_ ) dqmStore_->removeElement( meLaserL2Err_->getName() );
     sprintf(histo, "EELT laser quality errors summary L2");
@@ -491,14 +491,14 @@ void EESummaryClient::setup(void) {
     if ( meLaserL3_[0] ) dqmStore_->removeElement( meLaserL3_[0]->getName() );
     sprintf(histo, "EELT EE - laser quality summary L3");
     meLaserL3_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meLaserL3_[0]->setAxisTitle("jx", 1);
-    meLaserL3_[0]->setAxisTitle("jy", 2);
+    meLaserL3_[0]->setAxisTitle("ix", 1);
+    meLaserL3_[0]->setAxisTitle("iy", 2);
 
     if ( meLaserL3_[1] ) dqmStore_->removeElement( meLaserL3_[1]->getName() );
     sprintf(histo, "EELT EE + laser quality summary L3");
     meLaserL3_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meLaserL3_[1]->setAxisTitle("jx", 1);
-    meLaserL3_[1]->setAxisTitle("jy", 2);
+    meLaserL3_[1]->setAxisTitle("ix", 1);
+    meLaserL3_[1]->setAxisTitle("iy", 2);
 
     if ( meLaserL3Err_ ) dqmStore_->removeElement( meLaserL3Err_->getName() );
     sprintf(histo, "EELT laser quality errors summary L3");
@@ -548,14 +548,14 @@ void EESummaryClient::setup(void) {
     if ( meLaserL4_[0] ) dqmStore_->removeElement( meLaserL4_[0]->getName() );
     sprintf(histo, "EELT EE - laser quality summary L4");
     meLaserL4_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meLaserL4_[0]->setAxisTitle("jx", 1);
-    meLaserL4_[0]->setAxisTitle("jy", 2);
+    meLaserL4_[0]->setAxisTitle("ix", 1);
+    meLaserL4_[0]->setAxisTitle("iy", 2);
 
     if ( meLaserL4_[1] ) dqmStore_->removeElement( meLaserL4_[1]->getName() );
     sprintf(histo, "EELT EE + laser quality summary L4");
     meLaserL4_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meLaserL4_[1]->setAxisTitle("jx", 1);
-    meLaserL4_[1]->setAxisTitle("jy", 2);
+    meLaserL4_[1]->setAxisTitle("ix", 1);
+    meLaserL4_[1]->setAxisTitle("iy", 2);
 
     if ( meLaserL4Err_ ) dqmStore_->removeElement( meLaserL4Err_->getName() );
     sprintf(histo, "EELT laser quality errors summary L4");
@@ -605,14 +605,14 @@ void EESummaryClient::setup(void) {
     if ( meLedL1_[0] ) dqmStore_->removeElement( meLedL1_[0]->getName() );
     sprintf(histo, "EELDT EE - led quality summary L1");
     meLedL1_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meLedL1_[0]->setAxisTitle("jx", 1);
-    meLedL1_[0]->setAxisTitle("jy", 2);
+    meLedL1_[0]->setAxisTitle("ix", 1);
+    meLedL1_[0]->setAxisTitle("iy", 2);
 
     if ( meLedL1_[1] ) dqmStore_->removeElement( meLedL1_[1]->getName() );
     sprintf(histo, "EELDT EE + led quality summary L1");
     meLedL1_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meLedL1_[1]->setAxisTitle("jx", 1);
-    meLedL1_[1]->setAxisTitle("jy", 2);
+    meLedL1_[1]->setAxisTitle("ix", 1);
+    meLedL1_[1]->setAxisTitle("iy", 2);
 
     if ( meLedL1Err_ ) dqmStore_->removeElement( meLedL1Err_->getName() );
     sprintf(histo, "EELDT led quality errors summary L1");
@@ -662,14 +662,14 @@ void EESummaryClient::setup(void) {
     if ( meLedL2_[0] ) dqmStore_->removeElement( meLedL2_[0]->getName() );
     sprintf(histo, "EELDT EE - led quality summary L2");
     meLedL2_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meLedL2_[0]->setAxisTitle("jx", 1);
-    meLedL2_[0]->setAxisTitle("jy", 2);
+    meLedL2_[0]->setAxisTitle("ix", 1);
+    meLedL2_[0]->setAxisTitle("iy", 2);
 
     if ( meLedL2_[1] ) dqmStore_->removeElement( meLedL2_[1]->getName() );
     sprintf(histo, "EELDT EE + led quality summary L2");
     meLedL2_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meLedL2_[1]->setAxisTitle("jx", 1);
-    meLedL2_[1]->setAxisTitle("jy", 2);
+    meLedL2_[1]->setAxisTitle("ix", 1);
+    meLedL2_[1]->setAxisTitle("iy", 2);
 
     if ( meLedL2Err_ ) dqmStore_->removeElement( meLedL2Err_->getName() );
     sprintf(histo, "EELDT led quality errors summary L2");
@@ -719,8 +719,8 @@ void EESummaryClient::setup(void) {
     if( mePedestalG01_[0] ) dqmStore_->removeElement( mePedestalG01_[0]->getName() );
     sprintf(histo, "EEPT EE - pedestal quality G01 summary");
     mePedestalG01_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    mePedestalG01_[0]->setAxisTitle("jx", 1);
-    mePedestalG01_[0]->setAxisTitle("jy", 2);
+    mePedestalG01_[0]->setAxisTitle("ix", 1);
+    mePedestalG01_[0]->setAxisTitle("iy", 2);
 
   }
 
@@ -729,8 +729,8 @@ void EESummaryClient::setup(void) {
     if( mePedestalG06_[0] ) dqmStore_->removeElement( mePedestalG06_[0]->getName() );
     sprintf(histo, "EEPT EE - pedestal quality G06 summary");
     mePedestalG06_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    mePedestalG06_[0]->setAxisTitle("jx", 1);
-    mePedestalG06_[0]->setAxisTitle("jy", 2);
+    mePedestalG06_[0]->setAxisTitle("ix", 1);
+    mePedestalG06_[0]->setAxisTitle("iy", 2);
 
   }
 
@@ -739,8 +739,8 @@ void EESummaryClient::setup(void) {
     if( mePedestalG12_[0] ) dqmStore_->removeElement( mePedestalG12_[0]->getName() );
     sprintf(histo, "EEPT EE - pedestal quality G12 summary");
     mePedestalG12_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    mePedestalG12_[0]->setAxisTitle("jx", 1);
-    mePedestalG12_[0]->setAxisTitle("jy", 2);
+    mePedestalG12_[0]->setAxisTitle("ix", 1);
+    mePedestalG12_[0]->setAxisTitle("iy", 2);
 
   }
 
@@ -770,8 +770,8 @@ void EESummaryClient::setup(void) {
     if( mePedestalG01_[1] ) dqmStore_->removeElement( mePedestalG01_[1]->getName() );
     sprintf(histo, "EEPT EE + pedestal quality G01 summary");
     mePedestalG01_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    mePedestalG01_[1]->setAxisTitle("jx", 1);
-    mePedestalG01_[1]->setAxisTitle("jy", 2);
+    mePedestalG01_[1]->setAxisTitle("ix", 1);
+    mePedestalG01_[1]->setAxisTitle("iy", 2);
 
   }
 
@@ -781,8 +781,8 @@ void EESummaryClient::setup(void) {
     if( mePedestalG06_[1] ) dqmStore_->removeElement( mePedestalG06_[1]->getName() );
     sprintf(histo, "EEPT EE + pedestal quality G06 summary");
     mePedestalG06_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    mePedestalG06_[1]->setAxisTitle("jx", 1);
-    mePedestalG06_[1]->setAxisTitle("jy", 2);
+    mePedestalG06_[1]->setAxisTitle("ix", 1);
+    mePedestalG06_[1]->setAxisTitle("iy", 2);
 
   }
 
@@ -791,8 +791,8 @@ void EESummaryClient::setup(void) {
     if( mePedestalG12_[1] ) dqmStore_->removeElement( mePedestalG12_[1]->getName() );
     sprintf(histo, "EEPT EE + pedestal quality G12 summary");
     mePedestalG12_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    mePedestalG12_[1]->setAxisTitle("jx", 1);
-    mePedestalG12_[1]->setAxisTitle("jy", 2);
+    mePedestalG12_[1]->setAxisTitle("ix", 1);
+    mePedestalG12_[1]->setAxisTitle("iy", 2);
 
   }
 
@@ -801,8 +801,8 @@ void EESummaryClient::setup(void) {
     if( meTestPulseG01_[0] ) dqmStore_->removeElement( meTestPulseG01_[0]->getName() );
     sprintf(histo, "EETPT EE - test pulse quality G01 summary");
     meTestPulseG01_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meTestPulseG01_[0]->setAxisTitle("jx", 1);
-    meTestPulseG01_[0]->setAxisTitle("jy", 2);
+    meTestPulseG01_[0]->setAxisTitle("ix", 1);
+    meTestPulseG01_[0]->setAxisTitle("iy", 2);
 
   }
 
@@ -811,8 +811,8 @@ void EESummaryClient::setup(void) {
     if( meTestPulseG06_[0] ) dqmStore_->removeElement( meTestPulseG06_[0]->getName() );
     sprintf(histo, "EETPT EE - test pulse quality G06 summary");
     meTestPulseG06_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meTestPulseG06_[0]->setAxisTitle("jx", 1);
-    meTestPulseG06_[0]->setAxisTitle("jy", 2);
+    meTestPulseG06_[0]->setAxisTitle("ix", 1);
+    meTestPulseG06_[0]->setAxisTitle("iy", 2);
 
   }
 
@@ -821,14 +821,14 @@ void EESummaryClient::setup(void) {
     if( meTestPulseG12_[0] ) dqmStore_->removeElement( meTestPulseG12_[0]->getName() );
     sprintf(histo, "EETPT EE - test pulse quality G12 summary");
     meTestPulseG12_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meTestPulseG12_[0]->setAxisTitle("jx", 1);
-    meTestPulseG12_[0]->setAxisTitle("jy", 2);
+    meTestPulseG12_[0]->setAxisTitle("ix", 1);
+    meTestPulseG12_[0]->setAxisTitle("iy", 2);
 
   }
 
-  
+
   if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
-    
+
     if( meTestPulsePNG01_ ) dqmStore_->removeElement( meTestPulsePNG01_->getName() );
     sprintf(histo, "EETPT PN test pulse quality G01 summary");
     meTestPulsePNG01_ = dqmStore_->book2D(histo, histo, 45, 0., 45., 20, -10., 10.);
@@ -852,8 +852,8 @@ void EESummaryClient::setup(void) {
     if( meTestPulseG01_[1] ) dqmStore_->removeElement( meTestPulseG01_[1]->getName() );
     sprintf(histo, "EETPT EE + test pulse quality G01 summary");
     meTestPulseG01_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meTestPulseG01_[1]->setAxisTitle("jx", 1);
-    meTestPulseG01_[1]->setAxisTitle("jy", 2);
+    meTestPulseG01_[1]->setAxisTitle("ix", 1);
+    meTestPulseG01_[1]->setAxisTitle("iy", 2);
 
   }
 
@@ -862,8 +862,8 @@ void EESummaryClient::setup(void) {
     if( meTestPulseG06_[1] ) dqmStore_->removeElement( meTestPulseG06_[1]->getName() );
     sprintf(histo, "EETPT EE + test pulse quality G06 summary");
     meTestPulseG06_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meTestPulseG06_[1]->setAxisTitle("jx", 1);
-    meTestPulseG06_[1]->setAxisTitle("jy", 2);
+    meTestPulseG06_[1]->setAxisTitle("ix", 1);
+    meTestPulseG06_[1]->setAxisTitle("iy", 2);
 
   }
 
@@ -872,8 +872,8 @@ void EESummaryClient::setup(void) {
     if( meTestPulseG12_[1] ) dqmStore_->removeElement( meTestPulseG12_[1]->getName() );
     sprintf(histo, "EETPT EE + test pulse quality G12 summary");
     meTestPulseG12_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    meTestPulseG12_[1]->setAxisTitle("jx", 1);
-    meTestPulseG12_[1]->setAxisTitle("jy", 2);
+    meTestPulseG12_[1]->setAxisTitle("ix", 1);
+    meTestPulseG12_[1]->setAxisTitle("iy", 2);
 
   }
 
@@ -913,26 +913,26 @@ void EESummaryClient::setup(void) {
   if( meRecHitEnergy_[0] ) dqmStore_->removeElement( meRecHitEnergy_[0]->getName() );
   sprintf(histo, "EEOT EE - energy summary");
   meRecHitEnergy_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meRecHitEnergy_[0]->setAxisTitle("jx", 1);
-  meRecHitEnergy_[0]->setAxisTitle("jy", 2);
+  meRecHitEnergy_[0]->setAxisTitle("ix", 1);
+  meRecHitEnergy_[0]->setAxisTitle("iy", 2);
 
   if( meRecHitEnergy_[1] ) dqmStore_->removeElement( meRecHitEnergy_[1]->getName() );
   sprintf(histo, "EEOT EE + energy summary");
   meRecHitEnergy_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meRecHitEnergy_[1]->setAxisTitle("jx", 1);
-  meRecHitEnergy_[1]->setAxisTitle("jy", 2);
+  meRecHitEnergy_[1]->setAxisTitle("ix", 1);
+  meRecHitEnergy_[1]->setAxisTitle("iy", 2);
 
   if( meTiming_[0] ) dqmStore_->removeElement( meTiming_[0]->getName() );
   sprintf(histo, "EETMT EE - timing quality summary");
   meTiming_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meTiming_[0]->setAxisTitle("jx", 1);
-  meTiming_[0]->setAxisTitle("jy", 2);
+  meTiming_[0]->setAxisTitle("ix", 1);
+  meTiming_[0]->setAxisTitle("iy", 2);
 
   if( meTiming_[1] ) dqmStore_->removeElement( meTiming_[1]->getName() );
   sprintf(histo, "EETMT EE + timing quality summary");
   meTiming_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meTiming_[1]->setAxisTitle("jx", 1);
-  meTiming_[1]->setAxisTitle("jy", 2);
+  meTiming_[1]->setAxisTitle("ix", 1);
+  meTiming_[1]->setAxisTitle("iy", 2);
 
   if( meTimingMean1D_[0] ) dqmStore_->removeElement( meTimingMean1D_[0]->getName() );
   sprintf(histo, "EETMT EE - timing mean 1D summary");
@@ -973,66 +973,66 @@ void EESummaryClient::setup(void) {
   if( meTriggerTowerEt_[0] ) dqmStore_->removeElement( meTriggerTowerEt_[0]->getName() );
   sprintf(histo, "EETTT EE - Et trigger tower summary");
   meTriggerTowerEt_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meTriggerTowerEt_[0]->setAxisTitle("jx", 1);
-  meTriggerTowerEt_[0]->setAxisTitle("jy", 2);
+  meTriggerTowerEt_[0]->setAxisTitle("ix", 1);
+  meTriggerTowerEt_[0]->setAxisTitle("iy", 2);
 
   if( meTriggerTowerEt_[1] ) dqmStore_->removeElement( meTriggerTowerEt_[1]->getName() );
   sprintf(histo, "EETTT EE + Et trigger tower summary");
   meTriggerTowerEt_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meTriggerTowerEt_[1]->setAxisTitle("jx", 1);
-  meTriggerTowerEt_[1]->setAxisTitle("jy", 2);
+  meTriggerTowerEt_[1]->setAxisTitle("ix", 1);
+  meTriggerTowerEt_[1]->setAxisTitle("iy", 2);
 
   if( meTriggerTowerEmulError_[0] ) dqmStore_->removeElement( meTriggerTowerEmulError_[0]->getName() );
   sprintf(histo, "EETTT EE - emulator error quality summary");
   meTriggerTowerEmulError_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meTriggerTowerEmulError_[0]->setAxisTitle("jx", 1);
-  meTriggerTowerEmulError_[0]->setAxisTitle("jy", 2);
+  meTriggerTowerEmulError_[0]->setAxisTitle("ix", 1);
+  meTriggerTowerEmulError_[0]->setAxisTitle("iy", 2);
 
   if( meTriggerTowerEmulError_[1] ) dqmStore_->removeElement( meTriggerTowerEmulError_[1]->getName() );
   sprintf(histo, "EETTT EE + emulator error quality summary");
   meTriggerTowerEmulError_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meTriggerTowerEmulError_[1]->setAxisTitle("jx", 1);
-  meTriggerTowerEmulError_[1]->setAxisTitle("jy", 2);
+  meTriggerTowerEmulError_[1]->setAxisTitle("ix", 1);
+  meTriggerTowerEmulError_[1]->setAxisTitle("iy", 2);
 
   if( meTriggerTowerTiming_[0] ) dqmStore_->removeElement( meTriggerTowerTiming_[0]->getName() );
   sprintf(histo, "EETTT EE - Trigger Primitives Timing summary");
   meTriggerTowerTiming_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meTriggerTowerTiming_[0]->setAxisTitle("jx", 1);
-  meTriggerTowerTiming_[0]->setAxisTitle("jy", 2);
+  meTriggerTowerTiming_[0]->setAxisTitle("ix", 1);
+  meTriggerTowerTiming_[0]->setAxisTitle("iy", 2);
   meTriggerTowerTiming_[0]->setAxisTitle("TP data matching emulator", 3);
 
   if( meTriggerTowerTiming_[1] ) dqmStore_->removeElement( meTriggerTowerTiming_[1]->getName() );
   sprintf(histo, "EETTT EE + Trigger Primitives Timing summary");
   meTriggerTowerTiming_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meTriggerTowerTiming_[1]->setAxisTitle("jx", 1);
-  meTriggerTowerTiming_[1]->setAxisTitle("jy", 2);
+  meTriggerTowerTiming_[1]->setAxisTitle("ix", 1);
+  meTriggerTowerTiming_[1]->setAxisTitle("iy", 2);
   meTriggerTowerTiming_[1]->setAxisTitle("TP data matching emulator", 3);
 
   if( meTriggerTowerNonSingleTiming_[0] ) dqmStore_->removeElement( meTriggerTowerNonSingleTiming_[0]->getName() );
   sprintf(histo, "EETTT EE - Trigger Primitives Non Single Timing summary");
   meTriggerTowerNonSingleTiming_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meTriggerTowerNonSingleTiming_[0]->setAxisTitle("jx", 1);
-  meTriggerTowerNonSingleTiming_[0]->setAxisTitle("jy", 2);
+  meTriggerTowerNonSingleTiming_[0]->setAxisTitle("ix", 1);
+  meTriggerTowerNonSingleTiming_[0]->setAxisTitle("iy", 2);
   meTriggerTowerNonSingleTiming_[0]->setAxisTitle("fraction", 3);
 
   if( meTriggerTowerNonSingleTiming_[1] ) dqmStore_->removeElement( meTriggerTowerNonSingleTiming_[1]->getName() );
   sprintf(histo, "EETTT EE + Trigger Primitives Non Single Timing summary");
   meTriggerTowerNonSingleTiming_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meTriggerTowerNonSingleTiming_[1]->setAxisTitle("jx", 1);
-  meTriggerTowerNonSingleTiming_[1]->setAxisTitle("jy", 2);
+  meTriggerTowerNonSingleTiming_[1]->setAxisTitle("ix", 1);
+  meTriggerTowerNonSingleTiming_[1]->setAxisTitle("iy", 2);
   meTriggerTowerNonSingleTiming_[1]->setAxisTitle("fraction", 3);
 
   if( meGlobalSummary_[0] ) dqmStore_->removeElement( meGlobalSummary_[0]->getName() );
   sprintf(histo, "EE global summary EE -");
   meGlobalSummary_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meGlobalSummary_[0]->setAxisTitle("jx", 1);
-  meGlobalSummary_[0]->setAxisTitle("jy", 2);
+  meGlobalSummary_[0]->setAxisTitle("ix", 1);
+  meGlobalSummary_[0]->setAxisTitle("iy", 2);
 
   if( meGlobalSummary_[1] ) dqmStore_->removeElement( meGlobalSummary_[1]->getName() );
   sprintf(histo, "EE global summary EE +");
   meGlobalSummary_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  meGlobalSummary_[1]->setAxisTitle("jx", 1);
-  meGlobalSummary_[1]->setAxisTitle("jy", 2);
+  meGlobalSummary_[1]->setAxisTitle("ix", 1);
+  meGlobalSummary_[1]->setAxisTitle("iy", 2);
 
 }
 
@@ -1970,7 +1970,7 @@ void EESummaryClient::analyze(void) {
               }
 
               meTimingMean_->Fill( ism, mean02 );
-            
+
               meTimingRMS_->Fill( ism, rms02 );
 
             }
@@ -2147,7 +2147,7 @@ void EESummaryClient::analyze(void) {
             me_04 = eeic->meg02_[ism-1];
             h2 = eeic->hmem_[ism-1];
 
-            
+
             if( me_04 ) {
 
               float xval = me_04->getBinContent(i,j);
@@ -2199,26 +2199,26 @@ void EESummaryClient::analyze(void) {
           if ( eelc ) {
 
             if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
-              
+
               me = eelc->meg09_[ism-1];
-              
+
               if( me ) {
 
                 float xval = me->getBinContent(i,1);
-                
+
                 if ( me->getEntries() != 0 && me->getEntries() != 0 ) {
                   meLaserL1PN_->setBinContent( ipseudostripx, ichanx, xval );
                   if ( xval == 0 ) meLaserL1PNErr_->Fill( ism );
                 }
-                
+
               }
-              
+
             }
-            
+
             if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
-              
+
               me = eelc->meg10_[ism-1];
-              
+
               if( me ) {
 
                 float xval = me->getBinContent(i,1);
@@ -2231,7 +2231,7 @@ void EESummaryClient::analyze(void) {
               }
 
             }
-            
+
             if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
 
               me = eelc->meg11_[ism-1];
@@ -2269,28 +2269,28 @@ void EESummaryClient::analyze(void) {
           }
 
           if ( eeldc ) {
-            
+
             if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
-              
+
               me = eeldc->meg09_[ism-1];
-              
+
               if( me ) {
 
                 float xval = me->getBinContent(i,1);
-                
+
                 if ( me->getEntries() != 0 && me->getEntries() != 0 ) {
                   meLedL1PN_->setBinContent( ipseudostripx, ichanx, xval );
                   if ( xval == 0 ) meLedL1PNErr_->Fill( ism );
                 }
-                
+
               }
-              
+
             }
-            
+
             if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
-              
+
               me = eeldc->meg10_[ism-1];
-              
+
               if( me ) {
 
                 float xval = me->getBinContent(i,1);
@@ -2681,8 +2681,10 @@ void EESummaryClient::analyze(void) {
 
               // recycle the validEE for the synch check of the DCC
               if(norm01_ && synch01_) {
-                float frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm01_->GetBinContent(ism));
-                float val_sy = (frac_synch_errors < synchErrorThreshold_);
+                float frac_synch_errors = 0.;
+                float norm = norm01_->GetBinContent(ism);
+                if(norm > 0) frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm);
+                float val_sy = (frac_synch_errors <= synchErrorThreshold_);
                 if(val_sy==0) xval=0;
               }
 
@@ -2811,8 +2813,10 @@ void EESummaryClient::analyze(void) {
 
               // recycle the validEE for the synch check of the DCC
               if(norm01_ && synch01_) {
-                float frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm01_->GetBinContent(ism));
-                float val_sy = (frac_synch_errors < synchErrorThreshold_);
+                float frac_synch_errors = 0.;
+                float norm = norm01_->GetBinContent(ism);
+                if(norm > 0) frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm);
+                float val_sy = (frac_synch_errors <= synchErrorThreshold_);
                 if(val_sy==0) xval=0;
               }
 

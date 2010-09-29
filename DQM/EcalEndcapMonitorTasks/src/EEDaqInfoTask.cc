@@ -1,3 +1,12 @@
+/*
+ * \file EEDaqInfoTask.cc
+ *
+ * $Date: 2010/08/08 08:56:00 $
+ * $Revision: 1.12 $
+ * \author E. Di Marco
+ *
+*/
+
 #include <iostream>
 #include <vector>
 
@@ -6,7 +15,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include <DataFormats/EcalDetId/interface/EEDetId.h>
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 
 #include "CondFormats/EcalObjects/interface/EcalDAQTowerStatus.h"
 #include "CondFormats/DataRecord/interface/EcalDAQTowerStatusRcd.h"
@@ -16,7 +25,7 @@
 
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
 #include "DQM/EcalEndcapMonitorTasks/interface/EEDaqInfoTask.h"
 
@@ -45,11 +54,11 @@ EEDaqInfoTask::~EEDaqInfoTask() {
 void EEDaqInfoTask::beginJob(void){
 
   char histo[200];
-  
+
   if ( dqmStore_ ) {
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
-    
+
     sprintf(histo, "DAQSummary");
     meEEDaqFraction_ = dqmStore_->bookFloat(histo);
     meEEDaqFraction_->Fill(0.0);
@@ -58,7 +67,7 @@ void EEDaqInfoTask::beginJob(void){
     meEEDaqActiveMap_ = dqmStore_->book2D(histo,histo, 200, 0., 200., 100, 0., 100.);
     meEEDaqActiveMap_->setAxisTitle("jx", 1);
     meEEDaqActiveMap_->setAxisTitle("jy", 2);
-    
+
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DAQContents");
 
     for (int i = 0; i < 18; i++) {
@@ -97,7 +106,7 @@ void EEDaqInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
     edm::LogWarning("EEDaqInfoTask") << "EcalDAQTowerStatus record not valid";
     return;
   }
-  const EcalDAQTowerStatus *daqStatus = pDAQStatus.product();
+  const EcalDAQTowerStatus* daqStatus = pDAQStatus.product();
 
   for(int iz=-1; iz<=1; iz+=2) {
     for(int itx=0 ; itx<20; itx++) {
@@ -106,7 +115,7 @@ void EEDaqInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
 
           EcalScDetId eeid(itx+1,ity+1,iz);
 
-          uint16_t dbStatus = 0; // 0 = good          
+          uint16_t dbStatus = 0; // 0 = good
           EcalDAQTowerStatus::const_iterator daqStatusIt = daqStatus->find( eeid.rawId() );
           if ( daqStatusIt != daqStatus->end() ) dbStatus = daqStatusIt->getStatusCode();
 
@@ -156,16 +165,16 @@ void EEDaqInfoTask::reset(void) {
   }
 
   if ( meEEDaqActiveMap_ ) meEEDaqActiveMap_->Reset();
-  
+
 }
 
 
 void EEDaqInfoTask::cleanup(void){
-  
+
   if ( dqmStore_ ) {
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
-    
+
     if ( meEEDaqFraction_ ) dqmStore_->removeElement( meEEDaqFraction_->getName() );
 
     if ( meEEDaqActiveMap_ ) dqmStore_->removeElement( meEEDaqActiveMap_->getName() );
@@ -196,24 +205,24 @@ void EEDaqInfoTask::fillMonitorElements(int ready[40][20]) {
       for ( int ity = 0; ity < 20; ity++ ) {
         for ( int h = 0; h < 5; h++ ) {
           for ( int k = 0; k < 5; k++ ) {
-            
+
             int ix = 5*itx + h;
             int iy = 5*ity + k;
 
             int offsetSC = (iz > 0) ? 0 : 20;
             int offset = (iz > 0) ? 0 : 100;
 
-            if( EEDetId::validDetId(ix+1, iy+1, iz) ) {    
+            if( EEDetId::validDetId(ix+1, iy+1, iz) ) {
 
               if(meEEDaqActiveMap_) meEEDaqActiveMap_->setBinContent( offset+ix+1, iy+1, ready[offsetSC+itx][ity] );
-              
+
               EEDetId id = EEDetId(ix+1, iy+1, iz, EEDetId::XYMODE);
 
               int ism = Numbers::iSM(id);
               if(ready[offsetSC+itx][ity]) {
                 readySum[ism-1]++;
                 readySumTot++;
-              } 
+              }
 
               nValidChannels[ism-1]++;
               nValidChannelsTot++;
@@ -236,6 +245,6 @@ void EEDaqInfoTask::fillMonitorElements(int ready[40][20]) {
 
 }
 
-void EEDaqInfoTask::analyze(const edm::Event& e, const edm::EventSetup& c){ 
+void EEDaqInfoTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
 }

@@ -375,6 +375,9 @@ namespace edm {
     setIfFastClonable(remainingEvents, remainingLumis);
 
     setRefCoreStreamer(true);  // backward compatibility
+
+    // We are done with our initial reading of EventAuxiliary.
+    eventTree_.resetTraining();
   }
 
   RootFile::~RootFile() {
@@ -527,17 +530,39 @@ namespace edm {
         return false;
     }
     if (eventSkipperByID_ && eventSkipperByID_->somethingToSkip()) {
-      // See first if the entire lumi is skipped, so we won't have to read the event Auxiliary in that case.
-      bool skipTheLumi = eventSkipperByID_->skipIt(indexIntoFileIter_.run(), indexIntoFileIter_.lumi(), 0U);
-      if (skipTheLumi) {
+ 
+      // See first if the entire lumi or run is skipped, so we won't have to read the event Auxiliary in that case.
+      if (eventSkipperByID_->skipIt(indexIntoFileIter_.run(), indexIntoFileIter_.lumi(), 0U)) {
         return true;
       }
+
       // The Lumi is not skipped.  If this is an event, see if the event is skipped.
       if (indexIntoFileIter_.getEntryType() == IndexIntoFile::kEvent) {
         fillEventAuxiliary();
-        return(eventSkipperByID_->skipIt(indexIntoFileIter_.run(),
-					 indexIntoFileIter_.lumi(),
-					 eventAux_.id().event()));
+        if (eventSkipperByID_->skipIt(indexIntoFileIter_.run(),
+				      indexIntoFileIter_.lumi(),
+				      eventAux_.id().event())) {
+          return true;
+        }
+      }
+
+      // Skip runs with no lumis if either lumisToSkip or lumisToProcess have been set to select lumis 
+      if (indexIntoFileIter_.getEntryType() == IndexIntoFile::kRun &&
+          eventSkipperByID_->skippingLumis()) {
+        IndexIntoFile::IndexIntoFileItr iterLumi = indexIntoFileIter_;
+
+        // There are no lumis in this run, not even ones we will skip
+        if (iterLumi.peekAheadAtLumi() == IndexIntoFile::invalidLumi) {
+          return true;
+        }
+        // If we get here there are lumis in the run, check to see if we are skipping all of them
+        do {
+          if (!eventSkipperByID_->skipIt(iterLumi.run(), iterLumi.peekAheadAtLumi(), 0U)) {
+            return false;
+          }
+        }
+        while(iterLumi.skipLumiInRun());
+        return true;
       }
     }
     return false;
@@ -546,10 +571,15 @@ namespace edm {
   IndexIntoFile::EntryType
   RootFile::getEntryTypeWithSkipping() {
     while(skipThisEntry()) {
-      ++indexIntoFileIter_;
-    }
-    if(indexIntoFileIter_ == indexIntoFileEnd_) {
-      return IndexIntoFile::kEnd;
+      if (indexIntoFileIter_.getEntryType() == IndexIntoFile::kRun) {
+        indexIntoFileIter_.advanceToNextRun();
+      }
+      else if (indexIntoFileIter_.getEntryType() == IndexIntoFile::kLumi) {
+        indexIntoFileIter_.advanceToNextLumiOrRun();
+      }
+      else {
+        ++indexIntoFileIter_;
+      }
     }
     return indexIntoFileIter_.getEntryType();
   }
@@ -656,6 +686,9 @@ namespace edm {
     typedef std::set<RunItem, RunItemSortByRunPhid> RunItemSet;
     RunItemSet runItemSet; // (declare 3)
 
+    typedef std::map<RunNumber_t, ProcessHistoryID> PHIDMap;
+    PHIDMap phidMap;
+
     RunNumber_t prevRun = 0;
     LuminosityBlockNumber_t prevLumi = 0;
     ProcessHistoryID prevPhid;
@@ -687,48 +720,24 @@ namespace edm {
 	// Insert run in list if it is not already there.
 	RunItem item(history_->processHistoryID(), eventAux().run());
 	if (runItemSet.insert(item).second) { // (check 3, insert 3)
-	  runs.push_back(RunItem(history_->processHistoryID(), eventAux().run())); // (insert 5)
+	  runs.push_back(item); // (insert 5)
 	  runSet.insert(eventAux().run()); // (insert 4)
+          phidMap.insert(std::make_pair(eventAux().run(), history_->processHistoryID()));
 	}
       }
     }
     // now clean up.
     eventTree_.setEntryNumber(-1);
     eventAux_ = EventAuxiliary();
+    lastEventEntryNumberRead_ = -1LL;
 
-    // Loop over luminosity block entries and fill information.
+    // Loop over run entries and fill information.
 
-    typedef std::vector<LumiItem> LumiVector;
-    LumiVector emptyLumis; // (declare 7)
+    typedef std::map<RunNumber_t, EntryNumber_t> RunMap;
+    RunMap runMap; // (declare 11)
 
     typedef std::vector<RunItem> RunVector;
     RunVector emptyRuns; // (declare 12)
-
-    typedef std::map<LuminosityBlockID, EntryNumber_t> RunLumiMap;
-    RunLumiMap runLumiMap; // (declare 6)
-
-    if(lumiTree_.isValid()) {
-      while(lumiTree_.next()) {
-	// Note: adjacent duplicates will be skipped without an explicit check.
-        boost::shared_ptr<LuminosityBlockAuxiliary> lumiAux = fillLumiAuxiliary();
-	LuminosityBlockID lumiID = LuminosityBlockID(lumiAux->run(), lumiAux->luminosityBlock());
-	if (runLumiSet.insert(lumiID).second) { // (check 2, insert 2)
-	  // This lumi was not assciated with any events.
-	  emptyLumis.push_back(LumiItem(lumiAux->processHistoryID(), lumiAux->run(), lumiAux->luminosityBlock(), -1LL)); // (insert 7)
-	  if (runSet.insert(lumiAux->run()).second) { // (check 4, insert 4)
-	    // This run was not assciated with any events.
-	    emptyRuns.push_back(RunItem(lumiAux->processHistoryID(), lumiAux->run())); // (insert 12)
-	  }
-	}
-	runLumiMap.insert(std::make_pair(lumiID, lumiTree_.entryNumber()));
-      }
-      // now clean up.
-      lumiTree_.setEntryNumber(-1);
-    }
-
-    // Loop over run entries and fill information.
-    typedef std::map<RunNumber_t, EntryNumber_t> RunMap;
-    RunMap runMap; // (declare 11)
 
     if(runTree_.isValid()) {
       while(runTree_.next()) {
@@ -739,23 +748,10 @@ namespace edm {
 	  emptyRuns.push_back(RunItem(runAux->processHistoryID(), runAux->run())); // (insert 12)
 	}
 	runMap.insert(std::make_pair(runAux->run(), runTree_.entryNumber())); // (insert 11)
+	phidMap.insert(std::make_pair(runAux->run(), runAux->processHistoryID()));
       }
       // now clean up.
       runTree_.setEntryNumber(-1);
-    }
-
-    // Insert the ordered empty lumis into the lumi list.
-    LumiItemSortByRunLumi lumiItemSortByRunLumi;
-    stable_sort_all(emptyLumis, lumiItemSortByRunLumi);
-
-    LumiList::iterator itLumis = lumis.begin(), endLumis = lumis.end();
-    for (LumiVector::const_iterator i = emptyLumis.begin(), iEnd = emptyLumis.end(); i != iEnd; ++i) {
-      for (; itLumis != endLumis; ++itLumis) {
-	if (lumiItemSortByRunLumi(*i, *itLumis)) {
-	  break;
-	}
-      }
-      lumis.insert(itLumis, *i);
     }
 
     // Insert the ordered empty runs into the run list.
@@ -772,6 +768,47 @@ namespace edm {
       runs.insert(itRuns, *i);
     }
 
+    // Loop over luminosity block entries and fill information.
+
+    typedef std::vector<LumiItem> LumiVector;
+    LumiVector emptyLumis; // (declare 7)
+
+    typedef std::map<LuminosityBlockID, EntryNumber_t> RunLumiMap;
+    RunLumiMap runLumiMap; // (declare 6)
+
+    if(lumiTree_.isValid()) {
+      while(lumiTree_.next()) {
+	// Note: adjacent duplicates will be skipped without an explicit check.
+        boost::shared_ptr<LuminosityBlockAuxiliary> lumiAux = fillLumiAuxiliary();
+	LuminosityBlockID lumiID = LuminosityBlockID(lumiAux->run(), lumiAux->luminosityBlock());
+	if (runLumiSet.insert(lumiID).second) { // (check 2, insert 2)
+          // This lumi was not associated with any events.
+          // Use the process history ID from the corresponding run.  In cases of practical
+          // importance, this should be the correct process history ID,  but it is possible
+          // to construct files where this is not the correct process history ID ...
+          PHIDMap::const_iterator iPhidMap = phidMap.find(lumiAux->run());
+          assert(iPhidMap != phidMap.end());
+          emptyLumis.push_back(LumiItem(iPhidMap->second, lumiAux->run(), lumiAux->luminosityBlock(), -1LL)); // (insert 7)
+	}
+	runLumiMap.insert(std::make_pair(lumiID, lumiTree_.entryNumber()));
+      }
+      // now clean up.
+      lumiTree_.setEntryNumber(-1);
+    }
+
+    // Insert the ordered empty lumis into the lumi list.
+    LumiItemSortByRunLumi lumiItemSortByRunLumi;
+    stable_sort_all(emptyLumis, lumiItemSortByRunLumi);
+
+    LumiList::iterator itLumis = lumis.begin(), endLumis = lumis.end();
+    for (LumiVector::const_iterator i = emptyLumis.begin(), iEnd = emptyLumis.end(); i != iEnd; ++i) {
+      for (; itLumis != endLumis; ++itLumis) {
+	if (lumiItemSortByRunLumi(*i, *itLumis)) {
+	  break;
+	}
+      }
+      lumis.insert(itLumis, *i);
+    }
 
     // Create a map of RunItems that gives the order of first appearance in the list.
     // Also fill in the vector of process history IDs
@@ -854,9 +891,9 @@ namespace edm {
     // such as for secondary files (or secondary sources) or if duplicate checking across files.
     if (secondaryFile || (duplicateChecker_ && duplicateChecker_->checkingAllFiles())) {
       indexIntoFile_.fillEventNumbers();
-    } else if (!noEventSort_) {
-      // We need event entries for sorting, and we do not need event numbers after the file is closed.
-      // Fill in entries now to avoid a possible on demand filling of event numbers.
+    }
+    if (secondaryFile || !noEventSort_) {
+      // We need event entries for sorting or for secondary files or sources.
       indexIntoFile_.fillEventEntries();
     }
   }

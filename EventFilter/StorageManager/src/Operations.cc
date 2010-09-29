@@ -1,4 +1,4 @@
-// $Id: Operations.cc,v 1.8 2009/07/20 13:07:28 mommsen Exp $
+// $Id: Operations.cc,v 1.9 2009/09/29 07:58:30 mommsen Exp $
 /// @file: Operations.cc
 
 #include "EventFilter/StorageManager/interface/I2OChain.h"
@@ -76,8 +76,8 @@ Operations::do_processI2OFragment( I2OChain& frag ) const
 
 void Operations::safeEntryAction()
 {
-  const string unknown = "unknown exception";
-  string msg = "Error going into " + stateName() + " state: ";
+  const std::string unknown = "unknown exception";
+  std::string msg = "Error going into " + stateName() + " state: ";
   try
   {
     do_entryActionWork();
@@ -107,8 +107,8 @@ void Operations::safeEntryAction()
 
 void Operations::safeExitAction()
 {
-  const string unknown = "unknown exception";
-  string msg = "Error leaving " + stateName() + " state: ";
+  const std::string unknown = "unknown exception";
+  std::string msg = "Error leaving " + stateName() + " state: ";
   try
   {
     do_exitActionWork();

@@ -8,12 +8,16 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 29 13:39:56 PST 2008
-// $Id: FWModelFilter.cc,v 1.11 2009/04/27 16:53:29 dmytro Exp $
+// $Id: FWModelFilter.cc,v 1.10.8.1 2009/04/24 02:18:41 dmytro Exp $
 //
 
 // system include files
 #include <sstream>
+#include <boost/regex.hpp>
 
+#include "TROOT.h"
+#include "TClass.h"
+#include "TInterpreter.h"
 #include "Reflex/Object.h"
 
 // user include files

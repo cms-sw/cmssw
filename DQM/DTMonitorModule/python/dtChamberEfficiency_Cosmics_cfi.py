@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoMuon.TrackingTools.MuonServiceProxy_cff import * 
-from RecoMuon.TrackingTools.MuonTrackLoader_cff import *
+from RecoMuon.TrackingTools.MuonServiceProxy_cff import MuonServiceProxy
 
 dtEfficiencyMonitor = cms.EDAnalyzer("DTChamberEfficiency",
     MuonServiceProxy,

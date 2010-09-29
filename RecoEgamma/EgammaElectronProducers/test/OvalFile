@@ -2,13 +2,13 @@
 <diffline expr="(Begin processing the \S* record)">
 <diffline expr="(found \S* particles)">
 
-<var name="TEST_GLOBAL_TAG" value="MC_3XY_V12">
+<var name="TEST_GLOBAL_TAG" value="MC_38Y_V9">
 
 <environment name="Pt10">
 
   <var name="TEST_RAW_FILE" value="SingleElectronPt10Raw.root">
   <var name="TEST_RECO_FILE" value="SingleElectronPt10.root">
-  <executable name="cmsDriver.py" args="SingleElectronPt10.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW -n 10 --eventcontent FEVTDEBUGHLT --conditions FrontierConditions_GlobalTag,${TEST_GLOBAL_TAG}::All --python_filename=SingleElectronPt10Raw.py --fileout=$TEST_RAW_FILE">
+  <executable name="cmsDriver.py" args="SingleElectronPt10.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT -n 3 --eventcontent FEVTDEBUGHLT --conditions FrontierConditions_GlobalTag,${TEST_GLOBAL_TAG}::All --python_filename=SingleElectronPt10Raw.py --fileout=$TEST_RAW_FILE">
   <executable name="cmsRun" args="egammaRawDataToGsfElectrons_cfg.py">
 
 </environment>

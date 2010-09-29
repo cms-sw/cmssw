@@ -1,9 +1,9 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-MASTER="/dev/CMSSW_3_6_2/HLT"         # no explicit version, take te most recent 
-TARGET="/dev/CMSSW_3_6_2/\$TABLE"     # no explicit version, take te most recent 
-TABLES="8E29 1E31 GRun HIon"               # $TABLE in the above variable will be expanded to these TABLES
+MASTER="/dev/CMSSW_3_8_1/HLT"           # no explicit version, take te most recent 
+TARGET="/dev/CMSSW_3_8_1/\$TABLE"       # no explicit version, take te most recent 
+TABLES="GRun HIon"                      # $TABLE in the above variable will be expanded to these TABLES
 
 # print extra messages ?
 VERBOSE=false
@@ -30,7 +30,6 @@ function findHltScript() {
   fi
 }
 
-GETHLT=$(findHltScript getHLT.py)
 GETCONTENT=$(findHltScript getEventContent.py)
 GETDATASETS=$(findHltScript getDatasets.py)
 
@@ -38,7 +37,18 @@ function getConfigForCVS() {
   local CONFIG="$1"
   local NAME="$2"
   log "    dumping HLT cff for $NAME"
-  $GETHLT --cff --mc $CONFIG $NAME
+
+  # override L1 menus
+  if [ "$NAME" == "8E29" ] || [ "$NAME" == "GRun" ]; then
+    hltGetConfiguration --cff --offline --mc $CONFIG --type $NAME                                  > HLT_${NAME}_cff.py
+  elif [ "$NAME" == "1E31" ] || [ "$NAME" == "HIon" ]; then
+    hltGetConfiguration --cff --offline --mc $CONFIG --type $NAME                                  > HLT_${NAME}_cff.py
+  else
+    hltGetConfiguration --cff --offline --mc $CONFIG --type $NAME                                  > HLT_${NAME}_cff.py
+  fi
+
+  # do not use any L1 override
+  #hltGetConfiguration --cff --offline --mc $CONFIG --type $NAME > HLT_${NAME}_cff.py
 }
 
 function getContentForCVS() {
@@ -62,14 +72,21 @@ function getConfigForOnline() {
   local NAME="$2"
 
   log "    dumping full HLT for $NAME"
+  # override L1 menus
   if [ "$NAME" == "8E29" ] || [ "$NAME" == "GRun" ]; then
-    $GETHLT --full --offline --data $CONFIG $NAME --l1 L1Menu_Commissioning2010_v2
+    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 L1Menu_Commissioning2010_v4 --globaltag auto:hltonline > OnData_HLT_$NAME.py
+    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME                                                             > OnLine_HLT_$NAME.py 
   elif [ "$NAME" == "1E31" ] || [ "$NAME" == "HIon" ]; then
-    $GETHLT --full --offline --data $CONFIG $NAME --l1 L1Menu_MC2010_v0
+    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 L1Menu_Commissioning2010_v4 --globaltag auto:hltonline > OnData_HLT_$NAME.py
+    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME                                                             > OnLine_HLT_$NAME.py
   else
-    $GETHLT --full --offline --data $CONFIG $NAME
+    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME                                  --globaltag auto:hltonline > OnData_HLT_$NAME.py
+    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME                                                             > OnLine_HLT_$NAME.py
   fi
-  $GETHLT --full --offline --mc   $CONFIG $NAME
+
+  # do not use any L1 override
+  #hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --globaltag auto:hltonline > OnData_HLT_$NAME.py
+  #hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME                            > OnLine_HLT_$NAME.py
 }
 
 # make sure we're using *this* working area

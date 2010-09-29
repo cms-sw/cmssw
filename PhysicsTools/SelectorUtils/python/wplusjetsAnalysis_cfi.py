@@ -85,5 +85,6 @@ wplusjetsAnalysis = cms.PSet(
     jetPtMin       = cms.double( 30.0 ),
     jetEtaMax      = cms.double( 2.4 ),
     jetScale       = cms.double( 1.0 ),
-    metMin         = cms.double( 0.0 )
+    metMin         = cms.double( 0.0 ),
+    muJetDR        = cms.double( 0.3 )
 )

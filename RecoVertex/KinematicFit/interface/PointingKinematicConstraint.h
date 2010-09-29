@@ -29,17 +29,17 @@ class PointingKinematicConstraint : public KinematicConstraint
  * Vector of values and  matrix of derivatives
  * calculated at given expansion 7xNumberOfStates point
  */ 
- virtual pair<AlgebraicVector, AlgebraicVector> value(const AlgebraicVector& exPoint) const;
+ virtual std::pair<AlgebraicVector, AlgebraicVector> value(const AlgebraicVector& exPoint) const;
 
- virtual pair<AlgebraicMatrix, AlgebraicVector> derivative(const AlgebraicVector& exPoint) const;
+ virtual std::pair<AlgebraicMatrix, AlgebraicVector> derivative(const AlgebraicVector& exPoint) const;
 
 /**
  * Vector of values and  matrix of derivatives calculated using current
  * state parameters as expansion point
  */
- virtual pair<AlgebraicMatrix, AlgebraicVector> derivative(const vector<RefCountedKinematicParticle> par) const;
+ virtual std::pair<AlgebraicMatrix, AlgebraicVector> derivative(const std::vector<RefCountedKinematicParticle> par) const;
 
- virtual pair<AlgebraicVector, AlgebraicVector> value(const vector<RefCountedKinematicParticle> par) const;
+ virtual std::pair<AlgebraicVector, AlgebraicVector> value(const std::vector<RefCountedKinematicParticle> par) const;
 
  virtual AlgebraicVector deviations(int nStates) const;
 
@@ -55,8 +55,8 @@ class PointingKinematicConstraint : public KinematicConstraint
  
  private:
 
- pair<AlgebraicVector,AlgebraicVector> makeValue(const AlgebraicVector& exPoint)const ; 
- pair<AlgebraicMatrix, AlgebraicVector> makeDerivative(const AlgebraicVector& exPoint) const;
+ std::pair<AlgebraicVector,AlgebraicVector> makeValue(const AlgebraicVector& exPoint)const ; 
+ std::pair<AlgebraicMatrix, AlgebraicVector> makeDerivative(const AlgebraicVector& exPoint) const;
  
  GlobalPoint  refPoint;
 

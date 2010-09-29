@@ -1,5 +1,5 @@
 destDB oracle://cms_orcoff_prep/CMS_COND_GEOMETRY
-tag XMLFILE_Geometry_TagXX_Extended_mc
+tag XMLFILE_Geometry_Extended_TagXX
 inputtag 
 since 
 till 

@@ -62,6 +62,9 @@ class TCTauAlgorithm {
         ~TCTauAlgorithm();
 
 	math::XYZTLorentzVector recalculateEnergy(const reco::CaloTau&);
+        math::XYZTLorentzVector recalculateEnergy(const reco::CaloJet&);
+//        math::XYZTLorentzVector recalculateEnergy(const reco::Jet&);
+//        math::XYZTLorentzVector recalculateEnergy(const reco::IsolatedTauTagInfo&);
 	math::XYZTLorentzVector recalculateEnergy(const reco::CaloJet&,const TrackRef&,const TrackRefVector&);
 
 	void inputConfig(const edm::ParameterSet& iConfig);
@@ -102,11 +105,20 @@ class TCTauAlgorithm {
 
 	double signalCone;
 	double ecalCone;
+	double matchingCone;
+	double tkptmin;
+	double tkmaxipt;
+	double tkmaxChi2;
+	int    tkminPixelHitsn;
+	int    tkminTrackerHitsn;
 
 	double  etCaloOverTrackMin,
 		etCaloOverTrackMax,
 		etHcalOverTrackMin,
 		etHcalOverTrackMax;
+
+        InputTag trackInput;
+        InputTag vertexInput;
 
         InputTag EcalRecHitsEB_input;
         InputTag EcalRecHitsEE_input;
@@ -127,6 +139,9 @@ class TCTauAlgorithm {
         Handle<HBHERecHitCollection> HBHERecHits;
         Handle<HORecHitCollection>   HORecHits;
         Handle<HFRecHitCollection>   HFRecHits;
+
+	Handle<TrackCollection> tracks;
+	Handle<VertexCollection> thePVs;
 };
 #endif
 

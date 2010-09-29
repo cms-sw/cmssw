@@ -39,6 +39,7 @@ private:
   int minTrackHits_;            ///< # valid hits on track
   double maxTrackNormChi2_;     ///< normalized chi2 of track
   double maxDzMuonTrack_;       ///< relative deltaZ between muon and track
+  bool cutCowboys_;             ///< if true, reject muon-track pairs that bend towards each other
 };
 
 #endif

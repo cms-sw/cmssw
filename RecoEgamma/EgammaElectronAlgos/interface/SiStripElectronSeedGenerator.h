@@ -130,6 +130,7 @@ private:
   PropagatorWithMaterial* thePropagator;
   Chi2MeasurementEstimator* theEstimator;
 
+  std::string theMeasurementTrackerName;
   const MeasurementTracker* theMeasurementTracker;
   const edm::EventSetup *theSetup;
   TrajectoryStateTransform transformer_;

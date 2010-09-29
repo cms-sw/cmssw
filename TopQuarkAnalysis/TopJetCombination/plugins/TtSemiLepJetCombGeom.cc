@@ -4,6 +4,7 @@
 
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 TtSemiLepJetCombGeom::TtSemiLepJetCombGeom(const edm::ParameterSet& cfg):
   jets_             (cfg.getParameter<edm::InputTag>("jets"             )),

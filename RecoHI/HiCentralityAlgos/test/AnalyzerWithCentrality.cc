@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Mon Mar  1 17:18:04 EST 2010
-// $Id: AnalyzerWithCentrality.cc,v 1.7 2010/07/09 08:38:37 yilmaz Exp $
+// $Id: AnalyzerWithCentrality.cc,v 1.4 2010/03/20 21:17:51 yilmaz Exp $
 //
 //
 
@@ -35,7 +35,6 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "TNtuple.h"
 #include "TH1D.h"
 using namespace std;
 
@@ -59,7 +58,6 @@ class AnalyzerWithCentrality : public edm::EDAnalyzer {
    const CentralityBins * cbins_;
    edm::Service<TFileService> fs;
    TH1D* h1;
-   TNtuple* nt;
 };
 
 //
@@ -78,7 +76,6 @@ cbins_(0)
 {
    //now do what ever initialization is needed
    h1 = fs->make<TH1D>("h1","histogram",100,0,100);
-   nt = fs->make<TNtuple>("hi","hi","hf:hft:hftp:hftm:eb:ee:eep:eem:npix:et:zdc:zdcp:zdcm:bin:trig");
 }
 
 
@@ -106,18 +103,11 @@ AnalyzerWithCentrality::analyze(const edm::Event& iEvent, const edm::EventSetup&
    iEvent.getByLabel(edm::InputTag("hiCentrality"),cent);
 
    double hf = cent->EtHFhitSum();
-   double hft = cent->EtHFtowerSum();
    double hftp = cent->EtHFtowerSumPlus();
    double hftm = cent->EtHFtowerSumMinus();
    double eb = cent->EtEBSum();
-   double ee = cent->EtEESum();
    double eep = cent->EtEESumPlus();
    double eem = cent->EtEESumMinus();
-   double zdc = cent->zdcSum();
-   double zdcm = cent->zdcSumMinus();
-   double zdcp = cent->zdcSumPlus();
-   double npix = cent->multiplicityPixel();
-   double et = cent->EtMidRapiditySum();
 
    cout<<"Centrality variables in the event:"<<endl;
    cout<<"Total energy in HF hits : "<<hf<<endl;
@@ -126,11 +116,6 @@ AnalyzerWithCentrality::analyze(const edm::Event& iEvent, const edm::EventSetup&
    cout<<"Total energy in EB basic clusters : "<<eb<<endl;
    
    int bin = cbins_->getBin(hf);
-
-   nt->Fill(hf,hft,hftp,hftm,eb,ee,eep,eem,npix,et,zdc,zdcp,zdcm,bin,1);
-
-   h1->Fill(bin);
-
    int nbins = cbins_->getNbins(); 
    int binsize = 100/nbins;
    char* binName = Form("%d to % d",bin*binsize,(bin+1)*binsize);

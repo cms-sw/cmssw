@@ -27,7 +27,7 @@ process.load('Configuration/EventContent/EventContent_cff')
 process.MessageLogger.cerr.threshold = 'INFO'
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('Bc2JpsiPiFromMCDB_cfi nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -60,8 +60,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 # Additional output definition
 
 # Other statements
-##process.GlobalTag.globaltag = 'MC_31X_V8::All'
-process.GlobalTag.globaltag = 'MC_37Y_V0::All'
+process.GlobalTag.globaltag = 'MC_31X_V8::All'
 process.mumugenfilter = cms.EDFilter("MCParticlePairFilter",
     Status = cms.untracked.vint32(1, 1),
     MinPt = cms.untracked.vdouble(2.5, 2.5),

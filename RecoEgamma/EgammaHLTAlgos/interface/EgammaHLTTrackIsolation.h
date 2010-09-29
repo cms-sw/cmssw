@@ -15,7 +15,7 @@
 //
 // Original Author:  Monica Vazquez Acosta - CERN
 //         Created:  Tue Jun 13 12:19:32 CEST 2006
-// $Id: EgammaHLTTrackIsolation.h,v 1.4 2008/10/10 14:07:09 covarell Exp $
+// $Id: EgammaHLTTrackIsolation.h,v 1.5 2009/01/20 11:31:29 covarell Exp $
 //
 
 
@@ -55,12 +55,17 @@ class EgammaHLTTrackIsolation
 			  double egTrkIso_ConeSize,
 			  double egTrkIso_ZSpan,   
 			  double egTrkIso_RSpan,  
-			  double egTrkIso_VetoConeSize) :
+			  double egTrkIso_VetoConeSize,
+			  double egTrkIso_stripBarrel=0,
+			  double egTrkIso_stripEndcap=0) :
     ptMin(egTrkIso_PtMin),
     conesize(egTrkIso_ConeSize),
     zspan(egTrkIso_ZSpan),
     rspan(egTrkIso_RSpan),
-    vetoConesize(egTrkIso_VetoConeSize) {
+    vetoConesize(egTrkIso_VetoConeSize),
+    stripBarrel(egTrkIso_stripBarrel),
+    stripEndcap(egTrkIso_stripEndcap)
+  {
       
       /*
 	std::cout << "EgammaHLTTrackIsolation instance:"
@@ -143,6 +148,12 @@ class EgammaHLTTrackIsolation
   double zspan;
   double rspan;
   double vetoConesize;
+  
+  //added for inner eta strip veto (I'll keep the violation of CMS naming conventions to be consistant) 
+  double stripBarrel;
+  double stripEndcap;
+  
+
 
 };
 

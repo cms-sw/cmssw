@@ -8,15 +8,16 @@ process.load("RecoVertex.BeamSpotProducer.d0_phi_analyzer_cff")
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-'/store/data/Commissioning10/MinimumBias/ALCARECO/TkAlMinBias-May27thReReco_v1/0171/3A22D08D-456A-DF11-961F-001A92811734.root',
-'/store/data/Commissioning10/MinimumBias/ALCARECO/TkAlMinBias-May27thReReco_v1/0171/083B6802-236C-DF11-8AC6-0026189437FE.root',
-'/store/data/Commissioning10/MinimumBias/ALCARECO/TkAlMinBias-May27thReReco_v1/0170/E6D0589B-136A-DF11-9E90-002618943982.root',
-'/store/data/Commissioning10/MinimumBias/ALCARECO/TkAlMinBias-May27thReReco_v1/0170/D098488B-276A-DF11-8069-003048678AF4.root',
-'/store/data/Commissioning10/MinimumBias/ALCARECO/TkAlMinBias-May27thReReco_v1/0166/F466DD94-BF69-DF11-B9B8-00261894390A.root',
-'/store/data/Commissioning10/MinimumBias/ALCARECO/TkAlMinBias-May27thReReco_v1/0166/F2A9245B-BC69-DF11-9C3F-0018F3D096E4.root',
-'/store/data/Commissioning10/MinimumBias/ALCARECO/TkAlMinBias-May27thReReco_v1/0166/DED5E502-B969-DF11-AE8F-002618943964.root',
-'/store/data/Commissioning10/MinimumBias/ALCARECO/TkAlMinBias-May27thReReco_v1/0166/563257AF-C169-DF11-865F-002618943907.root',
-'/store/data/Commissioning10/MinimumBias/ALCARECO/TkAlMinBias-May27thReReco_v1/0166/3056B847-C069-DF11-B0B0-003048679010.root'
+'/store/express/Run2010A/StreamExpress/ALCARECO/v2/000/136/087/D89CFC67-3D67-DF11-BB3C-001D09F25393.root',
+'/store/express/Run2010A/StreamExpress/ALCARECO/v2/000/136/087/D6578636-3B67-DF11-866E-001D09F23D1D.root',
+'/store/express/Run2010A/StreamExpress/ALCARECO/v2/000/136/087/B8399269-3D67-DF11-AA32-001D09F2AD84.root',
+'/store/express/Run2010A/StreamExpress/ALCARECO/v2/000/136/087/B81E3C6E-3B67-DF11-9903-001D09F27067.root',
+'/store/express/Run2010A/StreamExpress/ALCARECO/v2/000/136/087/8A3A09B7-3C67-DF11-936C-001D09F2438A.root',
+'/store/express/Run2010A/StreamExpress/ALCARECO/v2/000/136/087/82850560-3B67-DF11-AE51-001D09F253FC.root',
+'/store/express/Run2010A/StreamExpress/ALCARECO/v2/000/136/087/44CB1DDD-3E67-DF11-B462-0019B9F70607.root',
+'/store/express/Run2010A/StreamExpress/ALCARECO/v2/000/136/087/369DDB31-3B67-DF11-8681-001D09F23944.root',
+'/store/express/Run2010A/StreamExpress/ALCARECO/v2/000/136/087/0405EBB8-3C67-DF11-A97E-001D09F2A690.root',
+'/store/express/Run2010A/StreamExpress/ALCARECO/v2/000/136/087/0067FCDD-3E67-DF11-A1F4-001D09F2AF1E.root'
 
     )
 )
@@ -31,7 +32,7 @@ process.MessageLogger.cerr.FwkReport  = cms.untracked.PSet(
 #                            )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100) #1500
+    input = cms.untracked.int32(5) #1500
 )
 
 process.options = cms.untracked.PSet(
@@ -105,7 +106,6 @@ process.d0_phi_analyzer.BeamFitter.AsciiFileName = 'BeamFit_LumiBased_NewAlignWo
 process.d0_phi_analyzer.BeamFitter.AppendRunToFileName = False
 process.d0_phi_analyzer.BeamFitter.OutputFileName = 'BeamFit_LumiBased_Workflow.root' 
 #process.d0_phi_analyzer.BeamFitter.SaveNtuple = True
-#process.d0_phi_analyzer.BeamFitter.SavePVVertices = True
 
 # fit as function of lumi sections
 process.d0_phi_analyzer.BSAnalyzerParameters.fitEveryNLumi = 1

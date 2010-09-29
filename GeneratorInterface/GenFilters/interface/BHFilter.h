@@ -15,7 +15,6 @@
 #include <map>
 #include <vector>
 
-//using namespace std;
 namespace cms
 //class TTree;
 {

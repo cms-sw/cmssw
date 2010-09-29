@@ -57,7 +57,6 @@ public:
 
 private:
   MuonServiceProxy * theService;
-  MuonSeedPtExtractor* thePtExtractor;
 
   bool apply_prePruning;
   bool useSegmentsInTrajectory;

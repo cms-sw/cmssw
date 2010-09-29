@@ -10,7 +10,7 @@ using namespace std;
 int main()
 {
 
-  typedef vector<string> SVec;
+  typedef std::vector<std::string> SVec;
   SVec tags;
   tags.push_back( "Discard New" );
   tags.push_back( "Discard Old" );
