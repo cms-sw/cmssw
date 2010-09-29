@@ -9,8 +9,8 @@ or could be subclassed renaming a function or two.
 This code began life in COMP/CRAB/python/LumiList.py
 """
 
-__revision__ = "$Id: LumiList.py,v 1.8 2010/08/29 20:29:04 cplager Exp $"
-__version__ = "$Revision: 1.8 $"
+__revision__ = "$Id: LumiList.py,v 1.9 2010/09/13 15:23:59 cplager Exp $"
+__version__ = "$Revision: 1.9 $"
 
 import json
 import re
@@ -262,7 +262,22 @@ class LumiList(object):
             run = str(run)
             if self.compactList.has_key (run):
                 del self.compactList[run]
-            
+
+
+    def contains (self, run, lumiSection):
+        '''
+        returns true if the run, lumi section passed in is contained
+        in this lumiList
+        '''
+        lumiRangeList = self.compactList.get( str(run) )
+        if not lumiRangeList:
+            # the run isn't there, so no need to look any further
+        for lumiRange in lumiRangeList:
+            if lumiRange[0] <= lumiSection and lumiSection <= lumiRange[1]:
+                # got it
+                return True
+        return False
+    
 
 '''
 # Unit test code
