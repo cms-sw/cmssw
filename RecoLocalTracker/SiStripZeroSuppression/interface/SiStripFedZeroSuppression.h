@@ -20,10 +20,11 @@ class SiStripFedZeroSuppression {
   
  public:
   
-  SiStripFedZeroSuppression(uint16_t fedalgo):  
+  SiStripFedZeroSuppression(uint16_t fedalgo, bool trunc):  
     noise_cache_id(0), 
     threshold_cache_id(0),
-    theFEDalgorithm(fedalgo) {}
+    theFEDalgorithm(fedalgo),
+    doTruncate(trunc) {}
   ~SiStripFedZeroSuppression() {};
   void init(const edm::EventSetup& es);
   void suppress(const std::vector<SiStripDigi>&,std::vector<SiStripDigi>&,const uint32_t&,
@@ -37,7 +38,7 @@ class SiStripFedZeroSuppression {
  private:
   
   inline uint16_t truncate(int16_t adc) const{
-    if(adc>253) return ((adc==1023) ? 255 : 254);
+    if(adc>253 && doTruncate) return ((adc==1023) ? 255 : 254);
     return adc;
   };
   
@@ -46,6 +47,8 @@ class SiStripFedZeroSuppression {
   uint32_t noise_cache_id, threshold_cache_id;
   
   uint16_t theFEDalgorithm;
+  bool doTruncate;
+
   int16_t  theFEDlowThresh;
   int16_t  theFEDhighThresh;
   

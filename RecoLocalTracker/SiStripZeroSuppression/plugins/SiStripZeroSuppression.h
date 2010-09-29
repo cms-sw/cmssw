@@ -30,7 +30,9 @@ class SiStripZeroSuppression : public edm::EDProducer
   std::vector< edm::DetSet<SiStripProcessedRawDigi> > output_apvcm; 
 
   std::auto_ptr<SiStripRawProcessingAlgorithms> algorithms;
+  
   bool storeCM;
+  bool doAPVRestore;
 
 };
 #endif

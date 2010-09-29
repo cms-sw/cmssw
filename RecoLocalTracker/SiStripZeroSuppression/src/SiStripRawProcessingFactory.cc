@@ -9,6 +9,8 @@
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/IteratedMedianCMNSubtractor.h"
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/FastLinearCMNSubtractor.h"
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/TT6CMNSubtractor.h"
+#include "RecoLocalTracker/SiStripZeroSuppression/interface/FlatAPVRestorer.h"
+#include "RecoLocalTracker/SiStripZeroSuppression/interface/PartialSuppressAPVRestorer.h"
 
 std::auto_ptr<SiStripRawProcessingAlgorithms> SiStripRawProcessingFactory::
 create(const edm::ParameterSet& conf) {
@@ -16,12 +18,14 @@ create(const edm::ParameterSet& conf) {
 	           new SiStripRawProcessingAlgorithms(
 						      create_SubtractorPed(conf),
 						      create_SubtractorCMN(conf),
-						      create_Suppressor(conf)     ));
+						      create_Suppressor(conf),
+                                                      create_Restorer(conf) ));
 }
 
 std::auto_ptr<SiStripPedestalsSubtractor> SiStripRawProcessingFactory::
 create_SubtractorPed(const edm::ParameterSet& conf) {
-  return std::auto_ptr<SiStripPedestalsSubtractor>( new SiStripPedestalsSubtractor() );
+  bool fedMode = conf.getParameter<bool>("PedestalSubtractionFedMode");
+  return std::auto_ptr<SiStripPedestalsSubtractor>( new SiStripPedestalsSubtractor(fedMode) );
 }
 
 std::auto_ptr<SiStripCommonModeNoiseSubtractor> SiStripRawProcessingFactory::
@@ -58,13 +62,38 @@ create_SubtractorCMN(const edm::ParameterSet& conf) {
 std::auto_ptr<SiStripFedZeroSuppression> SiStripRawProcessingFactory::
 create_Suppressor(const edm::ParameterSet& conf) {
   uint32_t mode = conf.getParameter<uint32_t>("SiStripFedZeroSuppressionMode");
+  bool trunc = conf.getParameter<bool>("TruncateInSuppressor");
   switch(mode) {
   case 1: case 2: case 3:  case 4:
-    return std::auto_ptr<SiStripFedZeroSuppression>( new SiStripFedZeroSuppression(mode));
+    return std::auto_ptr<SiStripFedZeroSuppression>( new SiStripFedZeroSuppression(mode,trunc));
   default:
     edm::LogError("SiStripRawProcessingFactory::createSuppressor")
       << "Unregistered mode: "<<mode<<". Use one of {1,2,3,4}.";
-    return std::auto_ptr<SiStripFedZeroSuppression>( new SiStripFedZeroSuppression(4));
+    return std::auto_ptr<SiStripFedZeroSuppression>( new SiStripFedZeroSuppression(4,true));
+  }
+}
+
+std::auto_ptr<SiStripAPVRestorer> SiStripRawProcessingFactory::
+create_Restorer( const edm::ParameterSet& conf) {
+
+  if(!conf.exists("APVRestoreMode")) {
+    return std::auto_ptr<SiStripAPVRestorer>( 0 );
+  } else {
+    std::string mode = conf.getParameter<std::string>("APVRestoreMode");
+
+    if( mode == "Flat") {
+      double restoreThreshold = conf.getParameter<double>("restoreThreshold");
+      return std::auto_ptr<SiStripAPVRestorer>( new FlatAPVRestorer( restoreThreshold ));
+    }
+
+    if( mode == "PartialSuppress") {
+      double fraction = conf.getParameter<double>("Fraction");
+      int deviation = conf.getParameter<int>("Deviation");
+      return std::auto_ptr<SiStripAPVRestorer>( new PartialSuppressAPVRestorer( fraction, deviation ));
+    }
+
+    throw cms::Exception("Unregistered Algorithm") << "SiStripAPVRestorer possibilities: (Flat)";
+
   }
 }
 

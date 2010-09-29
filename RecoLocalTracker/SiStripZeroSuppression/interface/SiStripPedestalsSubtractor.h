@@ -21,10 +21,11 @@ class SiStripPedestalsSubtractor {
   
  private:
   
-  SiStripPedestalsSubtractor() : peds_cache_id(0) {};
+  SiStripPedestalsSubtractor(bool mode) : peds_cache_id(0), fedmode_(mode) {};
   edm::ESHandle<SiStripPedestals> pedestalsHandle;
   std::vector<int> pedestals;
   uint32_t peds_cache_id;
+  bool fedmode_;
   
   template <class input_t> void subtract_(const uint32_t&,const uint16_t&, const input_t&, std::vector<int16_t>&);
   const int16_t& eval(const int16_t& in) { return in;}

@@ -14,13 +14,16 @@ SiStripZeroSuppression::
 SiStripZeroSuppression(edm::ParameterSet const& conf)
   : inputTags(conf.getParameter<std::vector<edm::InputTag> >("RawDigiProducersList")),
     algorithms(SiStripRawProcessingFactory::create(conf.getParameter<edm::ParameterSet>("Algorithms"))),
-    storeCM(conf.getParameter<bool>("storeCM")){
+    storeCM(conf.getParameter<bool>("storeCM")) {
   
   for(tag_iterator_t inputTag = inputTags.begin(); inputTag != inputTags.end(); ++inputTag )
     produces< edm::DetSetVector<SiStripDigi> > (inputTag->instance());
 
   if(storeCM)
     produces< edm::DetSetVector<SiStripProcessedRawDigi> > ("APVCM");
+
+  doAPVRestore = algorithms->restorer.get();
+
 }
 
 void SiStripZeroSuppression::
@@ -67,14 +70,38 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
     if ( "ProcessedRaw" == inputTag.instance()) {
       std::vector<int16_t> processedRawDigis;
       transform(rawDigis->begin(), rawDigis->end(), back_inserter(processedRawDigis), boost::bind(&SiStripRawDigi::adc , _1));
+      if( doAPVRestore ) algorithms->restorer->inspect( rawDigis->id, processedRawDigis );
       algorithms->subtractorCMN->subtract( rawDigis->id, processedRawDigis);
+      if( doAPVRestore ) algorithms->restorer->restore( processedRawDigis );
       algorithms->suppressor->suppress( processedRawDigis, suppressedDigis );
+
+      if(storeCM){
+	const std::vector< std::pair<short,float> >& vmedians = algorithms->subtractorCMN->getAPVsCM();
+	edm::DetSet<SiStripProcessedRawDigi> apvDetSet(rawDigis->id);
+	short apvNb=0;
+	for(size_t i=0;i<vmedians.size();++i){
+	  if(vmedians[i].first>apvNb){
+	    for(int i=0;i<vmedians[i].first-apvNb;++i){
+	      apvDetSet.push_back(SiStripProcessedRawDigi(0.));
+	      apvNb++;
+	    }
+	  }
+	  apvDetSet.push_back(SiStripProcessedRawDigi(vmedians[i].second));
+	  apvNb++;
+	}
+        if(doAPVRestore) algorithms->restorer->fixAPVsCM( apvDetSet ); 
+	if(apvDetSet.size())
+	  output_apvcm.push_back(apvDetSet);
+      }
+
     } else
 
     if ( "VirginRaw" == inputTag.instance()) {
       std::vector<int16_t> processedRawDigis(rawDigis->size());
       algorithms->subtractorPed->subtract( *rawDigis, processedRawDigis);
+      if( doAPVRestore ) algorithms->restorer->inspect( rawDigis->id, processedRawDigis );
       algorithms->subtractorCMN->subtract( rawDigis->id, processedRawDigis);
+      if( doAPVRestore ) algorithms->restorer->restore( processedRawDigis );
       algorithms->suppressor->suppress( processedRawDigis, suppressedDigis );
 
       if(storeCM){
@@ -92,7 +119,7 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
 	  //std::cout << "CM patch in VR " << rawDigis->id << " " << vmedians[i].first << " " << vmedians[i].second << " " << apvNb<< std::endl;
 	  apvNb++;
 	}
-      
+        if(doAPVRestore) algorithms->restorer->fixAPVsCM( apvDetSet ); 
 	if(apvDetSet.size())
 	  output_apvcm.push_back(apvDetSet);
       }
