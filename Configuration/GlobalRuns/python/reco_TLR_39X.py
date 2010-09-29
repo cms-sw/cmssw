@@ -22,21 +22,6 @@ def customiseCommon(process):
     ### prevent bias in pixel vertex
     process.pixelVertices.useBeamConstraint = False
     
-    ### pixelTracks
-    #---- new parameters ----
-    process.pixelTracks.RegionFactoryPSet.RegionPSet.nSigmaZ  = 4.06
-    process.pixelTracks.RegionFactoryPSet.RegionPSet.originHalfLength = cms.double(40.6)
-
-    ### 0th step of iterative tracking
-    #---- new parameters ----
-    process.newSeedFromTriplets.RegionFactoryPSet.RegionPSet.nSigmaZ   = cms.double(4.06)  
-    process.newSeedFromTriplets.RegionFactoryPSet.RegionPSet.originHalfLength = 40.6
-
-    ### 2nd step of iterative tracking
-    #---- new parameters ----
-    process.secTriplets.RegionFactoryPSet.RegionPSet.nSigmaZ  = cms.double(4.47)  
-    process.secTriplets.RegionFactoryPSet.RegionPSet.originHalfLength = 44.7
-
     ###
     ###  end of top level replacements
     ###
