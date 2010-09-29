@@ -20,7 +20,9 @@ ckfOutInTracksFromConversions = cms.EDProducer("TrackProducerWithSCAssociation",
     #string Propagator = "PropagatorWithMaterial"
     Propagator = cms.string('alongMomElePropagator'),
     beamSpot = cms.InputTag("offlineBeamSpot"),
-    NavigationSchool = cms.string('SimpleNavigationSchool')                              
+    NavigationSchool = cms.string('SimpleNavigationSchool'),
+    MeasurementTracker = cms.string(''),
+                              
 )
 
 
