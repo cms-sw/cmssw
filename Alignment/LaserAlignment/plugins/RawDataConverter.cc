@@ -6,6 +6,8 @@
 #include <DataFormats/SiStripDigi/interface/SiStripDigi.h>
 #include <DataFormats/SiStripDigi/interface/SiStripRawDigi.h>
 #include <DataFormats/SiStripDigi/interface/SiStripProcessedRawDigi.h>
+#include <FWCore/Framework/interface/EventSetup.h> 
+#include <FWCore/Framework/interface/EventSetupRecord.h> 
 
 #include <Alignment/LaserAlignment/interface/LASGlobalLoop.h>
 

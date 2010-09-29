@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "Alignment/LaserAlignment/interface/LASGlobalData.h"
 #include <DataFormats/Common/interface/DetSetVector.h>
+#include <FWCore/Framework/interface/Event.h> 
 
 // Forward declarations 
 class TFile;
