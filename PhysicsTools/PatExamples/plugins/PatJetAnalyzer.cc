@@ -113,7 +113,7 @@ PatJetAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup)
   // jet multiplicity
   fill( "mult" , jets->size());
   // invariane dijet mass
-  if(jets->size()>2){ fill( "mass", ((*jets)[0].p4()+(*jets)[1].p4()).mass());}
+  if(jets->size()>1){ fill( "mass", ((*jets)[0].p4()+(*jets)[1].p4()).mass());}
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
