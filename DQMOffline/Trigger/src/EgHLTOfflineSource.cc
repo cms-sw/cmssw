@@ -227,28 +227,28 @@ void EgHLTOfflineSource::getHLTFilterNamesUsed(std::vector<std::string>& filterN
   //so we need to split them first
   for(size_t tightLooseNr=0;tightLooseNr<eleTightLooseTrigNames_.size();tightLooseNr++){
     std::vector<std::string> trigNames;
-    boost::split(trigNames,eleTightLooseTrigNames_[tightLooseNr],boost::is_any_of(":"));
+    boost::split(trigNames,eleTightLooseTrigNames_[tightLooseNr],boost::is_any_of(std::string(":")));
     if(trigNames.size()!=2) continue; //format incorrect
     filterNameSet.insert(trigNames[0]);
     filterNameSet.insert(trigNames[1]);
   }
   for(size_t tightLooseNr=0;tightLooseNr<diEleTightLooseTrigNames_.size();tightLooseNr++){
     std::vector<std::string> trigNames;
-    boost::split(trigNames,diEleTightLooseTrigNames_[tightLooseNr],boost::is_any_of(":"));
+    boost::split(trigNames,diEleTightLooseTrigNames_[tightLooseNr],boost::is_any_of(std::string(":")));
     if(trigNames.size()!=2) continue; //format incorrect
     filterNameSet.insert(trigNames[0]);
     filterNameSet.insert(trigNames[1]);
   }
   for(size_t tightLooseNr=0;tightLooseNr<phoTightLooseTrigNames_.size();tightLooseNr++){
     std::vector<std::string> trigNames;
-    boost::split(trigNames,phoTightLooseTrigNames_[tightLooseNr],boost::is_any_of(":"));
+    boost::split(trigNames,phoTightLooseTrigNames_[tightLooseNr],boost::is_any_of(std::string(":")));
     if(trigNames.size()!=2) continue; //format incorrect
     filterNameSet.insert(trigNames[0]);
     filterNameSet.insert(trigNames[1]);
   } 
   for(size_t tightLooseNr=0;tightLooseNr<diPhoTightLooseTrigNames_.size();tightLooseNr++){
     std::vector<std::string> trigNames;
-    boost::split(trigNames,diPhoTightLooseTrigNames_[tightLooseNr],boost::is_any_of(":"));
+    boost::split(trigNames,diPhoTightLooseTrigNames_[tightLooseNr],boost::is_any_of(std::string(":")));
     if(trigNames.size()!=2) continue; //format incorrect
     filterNameSet.insert(trigNames[0]);
     filterNameSet.insert(trigNames[1]);

@@ -207,7 +207,7 @@ void EgHLTOfflineClient::createLooseTightTrigEff(const std::vector<std::string>&
   for(size_t varNr=0;varNr<vsVarNames.size();varNr++){
     for(size_t trigNr=0;trigNr<tightLooseTrigNames.size();trigNr++){
       std::vector<std::string> splitString;
-      boost::split(splitString,tightLooseTrigNames[trigNr],boost::is_any_of(":"));
+      boost::split(splitString,tightLooseTrigNames[trigNr],boost::is_any_of(std::string(":")));
       if(splitString.size()!=2) continue; //format incorrect
       const std::string& tightTrig = splitString[0];
       const std::string& looseTrig = splitString[1];

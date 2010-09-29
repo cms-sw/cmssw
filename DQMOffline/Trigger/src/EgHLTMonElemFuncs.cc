@@ -205,7 +205,7 @@ void MonElemFuncs::initTightLooseTrigHists(std::vector<MonElemContainer<OffEle>*
 {
   for(size_t trigNr=0;trigNr<tightLooseTrigs.size();trigNr++){
     std::vector<std::string> splitString;
-    boost::split(splitString,tightLooseTrigs[trigNr],boost::is_any_of(":"));
+    boost::split(splitString,tightLooseTrigs[trigNr],boost::is_any_of(std::string(":")));
     if(splitString.size()!=2) continue; //format incorrect
     const std::string& tightTrig = splitString[0];
     const std::string& looseTrig = splitString[1];
@@ -222,7 +222,7 @@ void MonElemFuncs::initTightLooseTrigHists(std::vector<MonElemContainer<OffPho>*
 {
   for(size_t trigNr=0;trigNr<tightLooseTrigs.size();trigNr++){
     std::vector<std::string> splitString;
-    boost::split(splitString,tightLooseTrigs[trigNr],boost::is_any_of(":"));
+    boost::split(splitString,tightLooseTrigs[trigNr],boost::is_any_of(std::string(":")));
     if(splitString.size()!=2) continue; //format incorrect
     const std::string& tightTrig = splitString[0];
     const std::string& looseTrig = splitString[1];
@@ -296,7 +296,7 @@ void MonElemFuncs::initTightLooseTrigHistsTrigCuts(std::vector<MonElemContainer<
 {
   for(size_t trigNr=0;trigNr<tightLooseTrigs.size();trigNr++){
     std::vector<std::string> splitString;
-    boost::split(splitString,tightLooseTrigs[trigNr],boost::is_any_of(":"));
+    boost::split(splitString,tightLooseTrigs[trigNr],boost::is_any_of(std::string(":")));
     if(splitString.size()!=2) continue; //format incorrect
     const std::string& tightTrig = splitString[0];
     const std::string& looseTrig = splitString[1];
@@ -310,7 +310,7 @@ void MonElemFuncs::initTightLooseTrigHistsTrigCuts(std::vector<MonElemContainer<
 {
   for(size_t trigNr=0;trigNr<tightLooseTrigs.size();trigNr++){
     std::vector<std::string> splitString;
-    boost::split(splitString,tightLooseTrigs[trigNr],boost::is_any_of(":"));
+    boost::split(splitString,tightLooseTrigs[trigNr],boost::is_any_of(std::string(":")));
     if(splitString.size()!=2) continue; //format incorrect
     const std::string& tightTrig = splitString[0];
     const std::string& looseTrig = splitString[1];
@@ -325,7 +325,7 @@ void MonElemFuncs::initTightLooseDiObjTrigHistsTrigCuts(std::vector<MonElemConta
 {
   for(size_t trigNr=0;trigNr<tightLooseTrigs.size();trigNr++){
     std::vector<std::string> splitString;
-    boost::split(splitString,tightLooseTrigs[trigNr],boost::is_any_of(":"));
+    boost::split(splitString,tightLooseTrigs[trigNr],boost::is_any_of(std::string(":")));
     if(splitString.size()!=2) continue; //format incorrect
     const std::string& tightTrig = splitString[0];
     const std::string& looseTrig = splitString[1];
@@ -340,7 +340,7 @@ void MonElemFuncs::initTightLooseDiObjTrigHistsTrigCuts(std::vector<MonElemConta
 {
   for(size_t trigNr=0;trigNr<tightLooseTrigs.size();trigNr++){
     std::vector<std::string> splitString;
-    boost::split(splitString,tightLooseTrigs[trigNr],boost::is_any_of(":"));
+    boost::split(splitString,tightLooseTrigs[trigNr],boost::is_any_of(std::string(":")));
     if(splitString.size()!=2) continue; //format incorrect
     const std::string& tightTrig = splitString[0];
     const std::string& looseTrig = splitString[1];

@@ -104,7 +104,7 @@ namespace egHLT {
       {
 	for(size_t trigNr=0;trigNr<tightLooseTrigs.size();trigNr++){
 	  std::vector<std::string> splitString;
-	  boost::split(splitString,tightLooseTrigs[trigNr],boost::is_any_of(":"));
+	  boost::split(splitString,tightLooseTrigs[trigNr],boost::is_any_of(std::string(":")));
 	  if(splitString.size()!=2) continue; //format incorrect
 	  const std::string& tightTrig = splitString[0];
 	  const std::string& looseTrig = splitString[1];

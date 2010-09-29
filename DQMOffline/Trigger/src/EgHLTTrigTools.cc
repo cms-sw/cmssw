@@ -111,7 +111,7 @@ void trigTools::filterInactiveTightLooseTriggers(std::vector<std::string>& names
   
   for(size_t inputFilterNr=0;inputFilterNr<namesToFilter.size();inputFilterNr++){
     std::vector<std::string> names;
-    boost::split(names,namesToFilter[inputFilterNr],boost::is_any_of(":"));
+    boost::split(names,namesToFilter[inputFilterNr],boost::is_any_of(std::string(":")));
     if(names.size()!=2) continue; //format incorrect, reject it
     if(std::binary_search(activeFilters.begin(),activeFilters.end(),names[0]) &&
        std::binary_search(activeFilters.begin(),activeFilters.end(),names[1])){ //both filters are valid
