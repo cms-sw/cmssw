@@ -11,8 +11,11 @@ TrackProducer = cms.EDProducer("TrackProducer",
     TTRHBuilder = cms.string('WithAngleAndTemplate'),
     AlgorithmName = cms.string('undefAlgorithm'),
     Propagator = cms.string('RungeKuttaTrackerPropagator'),
+
+    ### These are paremeters related to the filling of the Secondary hit-patterns                               
     #set to "", the secondary hit pattern will not be filled (backward compatible with DetLayer=0)    
-    NavigationSchool = cms.string('SimpleNavigationSchool')                              
+    NavigationSchool = cms.string('SimpleNavigationSchool'),          
+    MeasurementTracker = cms.string('')                   
 )
 
 

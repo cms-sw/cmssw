@@ -24,7 +24,8 @@ TrackRefitter = cms.EDProducer("TrackRefitter",
     TrajectoryInEvent = cms.bool(True),
                              
     # Navigation school is necessary to fill the secondary hit patterns                         
-    NavigationSchool = cms.string('SimpleNavigationSchool') 
+    NavigationSchool = cms.string('SimpleNavigationSchool'),
+    MeasurementTracker = cms.string(''),                                              
     #
     # in order to avoid to fill the secondary hit patterns and
     # refit the tracks more quickly 

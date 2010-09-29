@@ -68,13 +68,7 @@ TrackProducerBase<T>::getFromES(const edm::EventSetup& setup,
   LogDebug("TrackProducer") << "get also the propagator" << "\n";
   std::string propagatorName = conf_.getParameter<std::string>("Propagator");   
   setup.get<TrackingComponentsRecord>().get(propagatorName,thePropagator);
-  //
-  // get also the measurementTracker
-  //
-  LogDebug("TrackProducer") << "get also the measTk" << "\n";
-  //std::string propagatorName = conf_.getParameter<std::string>("Propagator");   
-  std::string measTkName = "";
-  setup.get<CkfComponentsRecord>().get(measTkName,theMeasTk);
+
   //
   // get the builder
   //
@@ -82,15 +76,25 @@ TrackProducerBase<T>::getFromES(const edm::EventSetup& setup,
   std::string builderName = conf_.getParameter<std::string>("TTRHBuilder");   
   setup.get<TransientRecHitRecord>().get(builderName,theBuilder);
 
+  //
+  // get also the measurementTracker and the NavigationSchool 
+  // (they are necessary to fill in the secondary hit patterns)
+  //
+
   LogDebug("TrackProducer") << "get a navigation school";
   std::string theNavigationSchool ="";
   if (conf_.exists("NavigationSchool")) theNavigationSchool= conf_.getParameter<std::string>("NavigationSchool");
   else edm::LogWarning("TrackProducerBase")<<" NavigationSchool parameter not set. secondary hit pattern will not be filled.";
-  if (theNavigationSchool!="")
-	setup.get<NavigationSchoolRecord>().get(theNavigationSchool, theSchool);
-  else
-	theSchool = edm::ESHandle<NavigationSchool>(); //put an invalid handle
-
+  if (theNavigationSchool!=""){
+    setup.get<NavigationSchoolRecord>().get(theNavigationSchool, theSchool);
+    LogDebug("TrackProducer") << "get also the measTk" << "\n";
+    std::string measTkName = conf_.getParameter<std::string>("MeasurementTracker");
+    setup.get<CkfComponentsRecord>().get(measTkName,theMeasTk);
+  }
+  else{
+    theSchool = edm::ESHandle<NavigationSchool>(); //put an invalid handle
+    theMeasTk = edm::ESHandle<MeasurementTracker>(); //put an invalid handle
+  }
 }
 
 template <class T> void

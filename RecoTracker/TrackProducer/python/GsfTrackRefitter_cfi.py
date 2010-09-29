@@ -11,6 +11,8 @@ GsfTrackRefitter = cms.EDProducer("GsfTrackRefitter",
     constraint = cms.string(''),
     #set to "", the secondary hit pattern will not be filled (backward compatible with DetLayer=0)                               
     NavigationSchool = cms.string(''),
+    MeasurementTracker = cms.string(''),
+
     AlgorithmName = cms.string('gsf')
 )
 

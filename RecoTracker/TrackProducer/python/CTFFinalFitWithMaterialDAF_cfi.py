@@ -11,7 +11,8 @@ ctfWithMaterialTracksDAF = cms.EDProducer("DAFTrackProducer",
     Propagator = cms.string('RungeKuttaTrackerPropagator'),
     MinHits = cms.int32(3),
     #set to "", the secondary hit pattern will not be filled (backward compatible with DetLayer=0)                               
-    NavigationSchool = cms.string('')                              
+    NavigationSchool = cms.string(''),                              
+    MeasurementTracker = cms.string(''),
 )
 
 
