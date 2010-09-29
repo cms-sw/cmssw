@@ -22,4 +22,5 @@
   <use   name="RecoTauTag/RecoTau"/>
   <use   name="DataFormats/JetReco"/>
   <use   name="DataFormats/ParticleFlowReco"/>
+  <use   name="RecoBTag/SecondaryVertex"/>
 </library>
