@@ -16,13 +16,18 @@ valEcalTriggerPrimitiveDigis.Label = 'ecalDigis'
 valEcalTriggerPrimitiveDigis.InstanceEB = 'ebDigis'
 valEcalTriggerPrimitiveDigis.InstanceEE = 'eeDigis'
 
-
-
 # HCAL TPG sequence
 from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff import *
 valHcalTriggerPrimitiveDigis = SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cfi.simHcalTriggerPrimitiveDigis.clone()
 #
 valHcalTriggerPrimitiveDigis.inputLabel = cms.VInputTag(cms.InputTag('hcalDigis'),cms.InputTag('hcalDigis'))
+
+
+# HCAL Tech Trig sequence
+import SimCalorimetry.HcalTrigPrimProducers.hcalTTPDigis_cfi
+valHcalTTPDigis = SimCalorimetry.HcalTrigPrimProducers.hcalTTPDigis_cfi.simHcalTTPDigis.clone()
+#
+valHcalTTPDigis.HFDigiCollection = cms.InputTag('hcalDigis')
 
 
 # RCT emulator
@@ -111,6 +116,11 @@ valGmtDigis.MipIsoData = 'gctDigis'
 import L1Trigger.RPCTechnicalTrigger.rpcTechnicalTrigger_cfi
 valRpcTechTrigDigis = L1Trigger.RPCTechnicalTrigger.rpcTechnicalTrigger_cfi.rpcTechnicalTrigger.clone()
 
+# HCAL Technical Trigger
+import SimCalorimetry.HcalTrigPrimProducers.hcalTTPRecord_cfi
+valHcalTechTrigDigis = SimCalorimetry.HcalTrigPrimProducers.hcalTTPRecord_cfi.simHcalTTPRecord.clone()
+
+
 
 # Global Trigger emulator
 import L1Trigger.GlobalTrigger.gtDigis_cfi
@@ -119,7 +129,8 @@ valGtDigis = L1Trigger.GlobalTrigger.gtDigis_cfi.gtDigis.clone()
 valGtDigis.GmtInputTag = 'gtDigis'
 valGtDigis.GctInputTag = 'gctDigis'
 valGtDigis.TechnicalTriggersInputTags = cms.VInputTag(
-                                                    cms.InputTag('valRpcTechTrigDigis')
+                                                    cms.InputTag('valRpcTechTrigDigis'),
+                                                    cms.InputTag('valHcalTechTrigDigis')                                                    
                                                     )
 
 
@@ -127,11 +138,12 @@ valGtDigis.TechnicalTriggersInputTags = cms.VInputTag(
 ValL1MuTriggerPrimitives = cms.Sequence(valCscTriggerPrimitiveDigis+valDtTriggerPrimitiveDigis)
 ValL1MuTrackFinders = cms.Sequence(valCsctfTrackDigis*valCsctfDigis*valDttfDigis)
 
-ValL1TechnicalTriggers = cms.Sequence(valRpcTechTrigDigis)
+ValL1TechnicalTriggers = cms.Sequence(valRpcTechTrigDigis+valHcalTechTrigDigis)
 
 ValL1Emulator = cms.Sequence(
     valEcalTriggerPrimitiveDigis
     *valHcalTriggerPrimitiveDigis
+    *valHcalTTPDigis
     *valRctDigis*valGctDigis
     *ValL1MuTriggerPrimitives*ValL1MuTrackFinders*valRpcTriggerDigis*valGmtDigis
     *ValL1TechnicalTriggers

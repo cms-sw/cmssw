@@ -110,6 +110,11 @@ import L1Trigger.RPCTechnicalTrigger.rpcTechnicalTrigger_cfi
 simRpcTechTrigDigis = L1Trigger.RPCTechnicalTrigger.rpcTechnicalTrigger_cfi.rpcTechnicalTrigger.clone()
 simRpcTechTrigDigis.RPCDigiLabel = 'simMuonRPCDigis'
 
+# HCAL Technical Trigger
+import SimCalorimetry.HcalTrigPrimProducers.hcalTTPRecord_cfi
+simHcalTechTrigDigis = SimCalorimetry.HcalTrigPrimProducers.hcalTTPRecord_cfi.simHcalTTPRecord.clone()
+
+
 
 # Global Trigger emulator
 import L1Trigger.GlobalTrigger.gtDigis_cfi
@@ -118,7 +123,9 @@ simGtDigis = L1Trigger.GlobalTrigger.gtDigis_cfi.gtDigis.clone()
 simGtDigis.GmtInputTag = 'simGmtDigis'
 simGtDigis.GctInputTag = 'simGctDigis'
 simGtDigis.TechnicalTriggersInputTags = cms.VInputTag(cms.InputTag('simBscDigis'), 
-                                                      cms.InputTag('simRpcTechTrigDigis'))
+                                                      cms.InputTag('simRpcTechTrigDigis'),
+                                                      cms.InputTag('simHcalTechTrigDigis')
+                                                      )
 
 #
 # L1 Trigger sequences
@@ -126,7 +133,7 @@ simGtDigis.TechnicalTriggersInputTags = cms.VInputTag(cms.InputTag('simBscDigis'
 SimL1MuTriggerPrimitives = cms.Sequence(simDtTriggerPrimitiveDigis+simCscTriggerPrimitiveDigis)
 SimL1MuTrackFinders = cms.Sequence(simCsctfTrackDigis*simDttfDigis*simCsctfDigis)
 
-SimL1TechnicalTriggers = cms.Sequence(simBscDigis+simRpcTechTrigDigis)
+SimL1TechnicalTriggers = cms.Sequence(simBscDigis+simRpcTechTrigDigis+simHcalTechTrigDigis)
 
 SimL1Emulator = cms.Sequence(
     simRctDigis*simGctDigis
