@@ -17,18 +17,6 @@ public:
 
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
-//   virtual void putInEvt(edm::Event&,
-// 			std::auto_ptr<TrackingRecHitCollection>&,
-// 			std::auto_ptr<reco::GsfTrackCollection>&,
-// 			std::auto_ptr<reco::TrackExtraCollection>&,
-// 			std::auto_ptr<reco::GsfTrackExtraCollection>&,
-// 			std::auto_ptr<std::vector<Trajectory> >&,
-// 			AlgoProductCollection&);
-
-//   std::vector<reco::TransientTrack> getTransient(edm::Event&, const edm::EventSetup&);
-// protected:
-//   void fillStates (TrajectoryStateOnSurface tsos, std::vector<reco::GsfComponent5D>& states) const;
-
 private:
   TrackProducerAlgorithm<reco::GsfTrack> theAlgo;
 
