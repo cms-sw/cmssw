@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/09/22 19:40:05 $
- *  $Revision: 1.34 $
+ *  $Date: 2010/09/23 20:39:10 $
+ *  $Revision: 1.35 $
  *  \author A.Apresyan - Caltech
  *          K.Hatakeyama - Baylor
  */
@@ -83,14 +83,6 @@ void METAnalyzer::beginJob(DQMStore * dbe) {
 
   // trigger information
   HLTPathsJetMBByName_ = parameters.getParameter<std::vector<std::string > >("HLTPathsJetMB");
-
-  _hlt_HighPtJet = parameters.getParameter<std::string>("HLT_HighPtJet");
-  _hlt_LowPtJet  = parameters.getParameter<std::string>("HLT_LowPtJet");
-  _hlt_MinBias   = parameters.getParameter<std::string>("HLT_MinBias");
-  _hlt_HighMET   = parameters.getParameter<std::string>("HLT_HighMET");
-  _hlt_LowMET    = parameters.getParameter<std::string>("HLT_LowMET");
-  _hlt_Ele       = parameters.getParameter<std::string>("HLT_Ele");
-  _hlt_Muon      = parameters.getParameter<std::string>("HLT_Muon");
 
   theCleaningParameters = parameters.getParameter<ParameterSet>("CleaningParameters"),
 
