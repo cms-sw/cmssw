@@ -28,7 +28,7 @@ void TowerBlockFormatter::DigiToRaw(const EBDataFrame& dataframe, FEDRawData& ra
 {
 
  int bx = *pbx_;
- int lv1 = *plv1_;
+ int lv1 = *plv1_ - 1;
 
 
   int rdsize = rawdata.size() / 8;  // size in Word64
