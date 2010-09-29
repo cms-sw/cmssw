@@ -5,6 +5,7 @@
 #include "Fireworks/TableWidget/src/FWTabularWidget.h"
 #include "Fireworks/TableWidget/interface/FWTextTableCellRenderer.h"
 #include "Fireworks/Core/src/FWDialogBuilder.h"
+#include "Fireworks/Core/interface/FWGUIManager.h"
 
 #include "FWCore/Framework/interface/ScheduleInfo.h"
 #include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
@@ -177,12 +178,12 @@ struct ModuleInfo
        availablePath(); 
      */
    size_t            pathIndex;
-   /** Whether or not the pset was modified since last time the 
-       looper reloaded. 
-     */
    size_t            path;
    size_t            entry;
    bool              passed;
+   /** Whether or not the pset was modified since last time the 
+       looper reloaded. 
+     */
    bool              dirty;
 };
 
@@ -602,27 +603,24 @@ public:
        
          value = "";
 
-         if ( data.passed )
+         if (data.passed)
            renderer = &m_pathPassedRenderer;
          else 
            renderer = &m_pathFailedRenderer;
       }
       else if (data.level == 1)
       {
+         const ModuleInfo &module = m_modules[data.module];
+
          label = data.label + " (" + data.value + ")";
          value = "";
 
          // "passed" means if module made decision on path 
          // passing or failing
-         if ( data.passed )
-         {
-            if ( data.parentPassed )
-              renderer = &m_modulePassedRenderer;
-            else
-              renderer = &m_moduleFailedRenderer;
-         }
-         else 
-            renderer = &m_italicRenderer;
+         if (module.passed)
+           renderer = &m_modulePassedRenderer;
+         else
+           renderer = &m_moduleFailedRenderer;
       }
       else
       {
@@ -1346,7 +1344,7 @@ FWPathsPopup::windowIsClosing()
    DontCallClose();
 }
 
-FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
+FWPathsPopup::FWPathsPopup(FWFFLooper *looper, FWGUIManager *guiManager)
    : TGMainFrame(gClient->GetRoot(), 400, 600),
      m_info(0),
      m_looper(looper),
@@ -1354,7 +1352,8 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper)
      m_moduleLabel(0),
      m_moduleName(0),
      m_apply(0),
-     m_psTable(new FWPSetTableManager())
+     m_psTable(new FWPSetTableManager()),
+     m_guiManager(guiManager)
 {
    gVirtualX->SelectInput(GetId(), kKeyPressMask | kKeyReleaseMask | kExposureMask |
                                    kPointerMotionMask | kStructureNotifyMask | kFocusChangeMask |
@@ -1477,16 +1476,27 @@ FWPathsPopup::setup(const edm::ScheduleInfo *info)
    m_info = info;
 }
 
-/** Gets called by CMSSW as we process events. **/
+/** Gets called by CMSSW as modules are about to be processed. **/
 void
 FWPathsPopup::postModule(edm::ModuleDescription const& description)
 {
+   m_guiManager->updateStatus((description.moduleName() + " processed.").c_str());
    gSystem->ProcessEvents();
 }
+
+/** Gets called by CMSSW as we process modules. **/
+void
+FWPathsPopup::preModule(edm::ModuleDescription const& description)
+{
+   m_guiManager->updateStatus(("Processing " + description.moduleName() + "...").c_str());
+   gSystem->ProcessEvents();
+}
+
 
 void
 FWPathsPopup::postProcessEvent(edm::Event const& event, edm::EventSetup const& eventSetup)
 {
+   m_guiManager->updateStatus("Done processing.");
    gSystem->ProcessEvents();
 
    // Get the last process name from the process history:

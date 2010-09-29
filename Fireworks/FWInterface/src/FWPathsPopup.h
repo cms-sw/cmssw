@@ -18,6 +18,7 @@ namespace edm
 }
 
 class FWFFLooper;
+class FWGUIManager;
 
 class TGLabel;
 class TGTextEdit;
@@ -30,10 +31,11 @@ class TGTextEntry;
 class FWPathsPopup : public TGMainFrame
 {
 public:
-   FWPathsPopup(FWFFLooper *);
+   FWPathsPopup(FWFFLooper *, FWGUIManager *);
 
    void postProcessEvent(edm::Event const&, edm::EventSetup const&);
    void postModule(edm::ModuleDescription const&);
+   void preModule(edm::ModuleDescription const &);
    void scheduleReloadEvent();
    bool &hasChanges() { return m_hasChanges; }
    void setup(const edm::ScheduleInfo *info);
@@ -60,6 +62,7 @@ private:
    FWPSetTableManager       *m_psTable;
    FWTableWidget            *m_tableWidget;
    TGTextEntry              *m_search;
+   FWGUIManager             *m_guiManager;
 
    ClassDef(FWPathsPopup, 0);
 };
