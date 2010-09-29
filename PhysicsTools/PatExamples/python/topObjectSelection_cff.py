@@ -35,8 +35,10 @@ tightMuons = cleanPatMuons.clone(
     preselection = '(trackIso+caloIso)/pt < 0.05'
 )
 
-vetoMuons = cleanPatMuons.clone(
-    preselection =
+from PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi import *
+vetoMuons = selectedPatMuons.clone(
+    src = 'selectedPatMuons',
+    cut =
     'isGlobalMuon &'
     'pt > 10. &'
     'abs(eta) < 2.5 &'
