@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.228 $"
+__version__ = "$Revision: 1.229 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -418,13 +418,17 @@ class ConfigBuilder(object):
 		custFiles=custFilesNew
 		
 	if custFcn.count("customise")>=2:
-		print 'more than one customise function specified with name customise'
-		raise
+		raise Exception("more than one customise function specified with name customise")
 
 	if len(custFiles)==0:
 		final_snippet='\n'
 	else:
 		final_snippet='\n# customisation of the process\n'
+
+	for test in custFcn:
+		if custFcn.count(test)!=1:
+			raise Exception("cannot specify twice "+test+" as a customisation method")
+		
 	for i,(f,fcn) in enumerate(zip(custFiles,custFcn)):
 		print "customising the process with",fcn,"from",f
 		# let python search for that package and do syntax checking at the same time
@@ -432,6 +436,10 @@ class ConfigBuilder(object):
 		__import__(packageName)
 		package = sys.modules[packageName]
 
+		if not hasattr(package,fcn):
+			#bound to fail at run time
+			raise Exception("config "+f+" has no function "+fcn)
+		
 		# now ask the package for its definition and pick .py instead of .pyc
 		customiseFile = re.sub(r'\.pyc$', '.py', package.__file__)
 
@@ -1118,7 +1126,7 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.228 $"),
+              (version=cms.untracked.string("$Revision: 1.229 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
