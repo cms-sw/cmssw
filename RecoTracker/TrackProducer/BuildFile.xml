@@ -15,11 +15,13 @@
 <use   name="MagneticField/Engine"/>
 <use   name="MagneticField/Records"/>
 <use   name="RecoTracker/TkNavigation"/>
+<use   name="RecoTracker/MeasurementDet"/>
 <use   name="TrackingTools/GeomPropagators"/>
 <use   name="TrackingTools/PatternTools"/>
 <use   name="TrackingTools/Records"/>
 <use   name="TrackingTools/TrackFitters"/>
 <use   name="TrackingTools/TrajectoryState"/>
+<use   name="TrackingTools/KalmanUpdators"/>
 <use   name="Utilities/General"/>
 <export>
   <lib   name="1"/>

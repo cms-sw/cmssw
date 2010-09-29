@@ -4,8 +4,8 @@
 /** \class TrackProducerBase
  *  Base Class To Produce Tracks
  *
- *  $Date: 2009/07/03 00:55:13 $
- *  $Revision: 1.17 $
+ *  $Date: 2010/02/16 17:09:43 $
+ *  $Revision: 1.18 $
  *  \author cerati
  */
 
@@ -23,6 +23,7 @@
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TrackerRecHit2D/interface/ClusterRemovalInfo.h"
+#include <RecoTracker/MeasurementDet/interface/MeasurementTracker.h>
 
 class Propagator;
 class TrajectoryStateUpdator;
@@ -53,6 +54,7 @@ public:
 			 edm::ESHandle<MagneticField>& ,
 			 edm::ESHandle<TrajectoryFitter>& ,
 			 edm::ESHandle<Propagator>& ,
+			 edm::ESHandle<MeasurementTracker>& ,
 			 edm::ESHandle<TransientTrackingRecHitBuilder>& );
 
   /// Get TrackCandidateCollection from the Event (needed by TrackProducer)
@@ -81,7 +83,8 @@ public:
     clusterRemovalInfo_ = clusterRemovalInfo;
   }
 
-  void setSecondHitPattern(Trajectory* traj, T& track);
+  void setSecondHitPattern(Trajectory* traj, T& track, 
+			   const Propagator* prop, const MeasurementTracker* measTk );
 
   const edm::ParameterSet& getConf() const {return conf_;}
  private:
