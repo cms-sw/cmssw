@@ -50,6 +50,8 @@ void EcalRecHitWorkerRecover::set(const edm::EventSetup& es)
         ebGeom_ = pEBGeom_.product();
         eeGeom_ = pEEGeom_.product();
         es.get<IdealGeometryRecord>().get(ttMap_);
+        recoveredDetIds_EB_.clear();
+        recoveredDetIds_EE_.clear();
 }
 
 
@@ -284,6 +286,11 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
 
 void EcalRecHitWorkerRecover::insertRecHit( const EcalRecHit &hit, EcalRecHitCollection &collection )
 {
+        // skip already inserted DetId's and raise a log warning
+        if ( alreadyInserted( hit.id() ) ) {
+                edm::LogWarning("EcalRecHitWorkerRecover") << "DetId already recovered! Skipping...";
+                return;
+        }
         EcalRecHitCollection::iterator it = collection.find( hit.id() );
         if ( it == collection.end() ) {
                 // insert the hit in the collection
@@ -292,8 +299,28 @@ void EcalRecHitWorkerRecover::insertRecHit( const EcalRecHit &hit, EcalRecHitCol
                 // overwrite existing recHit
                 *it = hit;
         }
+        if ( hit.id().subdetId() == EcalBarrel ) {
+                recoveredDetIds_EB_.insert( hit.id() );
+        } else if ( hit.id().subdetId() == EcalEndcap ) {
+                recoveredDetIds_EE_.insert( hit.id() );
+        } else {
+                edm::LogError("EcalRecHitWorkerRecover::InvalidDetId") << "Invalid DetId " << hit.id().rawId();
+        }
 }
 
+
+bool EcalRecHitWorkerRecover::alreadyInserted( const DetId & id )
+{
+        bool res = false;
+        if ( id.subdetId() == EcalBarrel ) {
+                res = ( recoveredDetIds_EB_.find( id ) != recoveredDetIds_EB_.end() );
+        } else if ( id.subdetId() == EcalEndcap ) {
+                res = ( recoveredDetIds_EE_.find( id ) != recoveredDetIds_EE_.end() );
+        } else {
+                edm::LogError("EcalRecHitWorkerRecover::InvalidDetId") << "Invalid DetId " << id.rawId();
+        }
+        return res;
+}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalRecHitWorkerFactory.h"

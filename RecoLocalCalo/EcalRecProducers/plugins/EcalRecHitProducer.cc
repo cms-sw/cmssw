@@ -1,9 +1,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.cc,v 1.11 2009/11/18 13:27:23 ferriff Exp $
- *  $Date: 2009/11/18 13:27:23 $
- *  $Revision: 1.11 $
+ *  $Id: EcalRecHitProducer.cc,v 1.12 2010/02/25 00:32:26 wmtan Exp $
+ *  $Date: 2010/02/25 00:32:26 $
+ *  $Revision: 1.12 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -125,6 +125,10 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
                         worker_->run(evt, *it, *eeRecHits);
                 }
         }
+
+        // sort collections before attempting recovery, to avoid insertion of double recHits
+        ebRecHits->sort();
+        eeRecHits->sort();
         
         if ( recoverEBIsolatedChannels_ || recoverEBFE_ || killDeadChannels_ )
         {

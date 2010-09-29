@@ -4,9 +4,9 @@
 /** \class EcalRecHitSimpleAlgo
   *  Simple algoritm to make rechits from uncalibrated rechits
   *
-  *  $Id: EcalRecHitWorkerRecover.h,v 1.3 2009/07/14 02:26:18 ferriff Exp $
-  *  $Date: 2009/07/14 02:26:18 $
-  *  $Revision: 1.3 $
+  *  $Id: EcalRecHitWorkerRecover.h,v 1.4 2010/09/24 02:34:34 theofil Exp $
+  *  $Date: 2010/09/24 02:34:34 $
+  *  $Revision: 1.4 $
   *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
   */
 
@@ -39,6 +39,7 @@ class EcalRecHitWorkerRecover : public EcalRecHitWorkerBaseClass {
         protected:
 
                 void insertRecHit( const EcalRecHit &hit, EcalRecHitCollection &collection );
+                bool alreadyInserted( const DetId & id );
 
                 //edm::ESHandle<EcalIntercalibConstants> ical;
                 //edm::ESHandle<EcalTimeCalibConstants> itime;
@@ -63,13 +64,16 @@ class EcalRecHitWorkerRecover : public EcalRecHitWorkerBaseClass {
 		double logWarningEtThreshold_EE_FE_;
 
                 edm::ESHandle<EcalTrigTowerConstituentsMap> ttMap_;
-                
+ 
                 edm::ESHandle<CaloSubdetectorGeometry> pEBGeom_;
                 edm::ESHandle<CaloSubdetectorGeometry> pEEGeom_;
                 const CaloSubdetectorGeometry * ebGeom_;
                 const CaloSubdetectorGeometry * eeGeom_;
 
                 EcalRecHitSimpleAlgo * rechitMaker_;
+
+                std::set<DetId> recoveredDetIds_EB_;
+                std::set<DetId> recoveredDetIds_EE_;
 };
 
 #endif
