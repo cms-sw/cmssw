@@ -16,7 +16,7 @@
 //        Vladimir Rekovic, July 2010
 //
 //
-// $Id: $
+// $Id: TrigResRateMon.h,v 1.1 2010/07/21 12:34:41 rekovic Exp $
 //
 //
 
@@ -103,20 +103,24 @@ class TrigResRateMon : public edm::EDAnalyzer {
 
       // EndRun
       void endRun(const edm::Run& run, const edm::EventSetup& c);
-      void fillHltMatrix(const edm::TriggerNames & triggerNames);
       void setupHltMatrix(const std::string& label, std::vector<std::string> &  paths);
-
+      void setupStreamMatrix(const std::string& label, std::vector<std::string> &  paths);
       void setupHltLsPlots();
       void setupHltBxPlots();
       void countHLTPathHitsEndLumiBlock(const int & lumi);
       void countHLTGroupHitsEndLumiBlock(const int & lumi);
       void countHLTGroupL1HitsEndLumiBlock(const int & lumi);
       void countHLTGroupBXHitsEndLumiBlock(const int & lumi);
+
+      void fillHltMatrix(const edm::TriggerNames & triggerNames);
+      void normalizeHLTMatrix();
+
       int getTriggerTypeParsePathName(const std::string & pathname);
       const std::string getL1ConditionModuleName(const std::string & pathname);
       bool hasL1Passed(const std::string & pathname, const edm::TriggerNames & triggerNames);
       bool hasHLTPassed(const std::string & pathname, const edm::TriggerNames& triggerNames);
       int getThresholdFromName(const std::string & pathname);
+
 
       void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);   
       void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);   
@@ -139,7 +143,12 @@ class TrigResRateMon : public edm::EDAnalyzer {
       std::vector<MonitorElement*> v_ME_Total_BX;
       std::vector<MonitorElement*> v_ME_Total_BX_Norm;
 
+      std::vector<MonitorElement*> v_ME_HLTPassPass;
+      std::vector<MonitorElement*> v_ME_HLTPassPass_Normalized;
+      std::vector<MonitorElement*> v_ME_HLTPass_Normalized_Any;
+
       std::string pathsSummaryFolder_;
+      std::string pathsSummaryStreamsFolder_;
       std::string pathsSummaryHLTCorrelationsFolder_;
       std::string pathsSummaryFilterEfficiencyFolder_;
       std::string pathsSummaryFilterCountsFolder_;
