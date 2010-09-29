@@ -370,10 +370,12 @@ ProvenanceDumper::dumpEventFilteringParameterSets_(TFile* file) {
   } else {
     TTree* events = dynamic_cast<TTree*>(file->Get(edm::poolNames::eventTreeName().c_str()));
     assert (events != 0);
+    TBranch* eventSelectionsBranch = events->GetBranch(edm::poolNames::eventSelectionsBranchName().c_str());
+    assert (eventSelectionsBranch != 0);
     edm::EventSelectionIDVector ids;
     edm::EventSelectionIDVector* pids = &ids;
-    events->SetBranchAddress(edm::poolNames::eventSelectionsBranchName().c_str(), &pids);
-    if (events->GetEntry(0) <= 0) {
+    eventSelectionsBranch->SetAddress(&pids);
+    if (eventSelectionsBranch->GetEntry(0) <= 0) {
       std::cout << "No event filtering information is available; the event selections branch has no entries\n";
     } else {
       dumpEventFilteringParameterSets(ids);
