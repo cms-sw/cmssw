@@ -29,6 +29,10 @@ public:
           kFakeNeighbours,           // the signal in the channel is a fake and it is detected by looking at the neighbours
           kDead,                     // channel is dead and any recovery fails
           kKilled,                   // MC only flag: the channel is killed in the real detector
+          kTPSaturated,              // only for flagBits_: the channel is in a region with saturated TP
+          kL1SpikeFlag,              // only for flagBits_: the channel is in a region with TP with sFGVB = 0
+                                     // pro tempore, this will become obsolete when the online protection against spikes will be activated
+                                     //
           kUnknown                   // to easy the interface with functions returning flags
   };
 
