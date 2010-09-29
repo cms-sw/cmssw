@@ -1,6 +1,97 @@
 import FWCore.ParameterSet.Config as cms
 
 
+ttbarRECO = cms.untracked.vstring(    
+     '/store/mc/Spring10/TTbarJets-madgraph/AODSIM/START3X_V26_S09-v1/0005/0210B899-9C46-DF11-A10F-003048C69294.root'
+    ,'/store/mc/Spring10/TTbarJets-madgraph/AODSIM/START3X_V26_S09-v1/0005/0C39D8AD-A846-DF11-8016-003048C692CA.root'
+)
+
+ttbarJets = cms.untracked.vstring(
+     '/store/user/rwolf/school/patTuple_ttbar_jets.root'
+)
+
+zjetsRECO = cms.untracked.vstring(
+     '/store/mc/Spring10/ZJets-madgraph/AODSIM/START3X_V26_S09-v1/0013/00EFC4EA-3847-DF11-A194-003048D4DF80.root'
+    ,'/store/mc/Spring10/ZJets-madgraph/AODSIM/START3X_V26_S09-v1/0013/0C096217-3A47-DF11-9E65-003048C692A4.root'
+)
+
+zjetsTracks  = cms.untracked.vstring(
+    '/store/user/rwolf/school/patTuple_zjets_tracks.root'
+)
+
+zjetsTrigger  = cms.untracked.vstring(
+    '/store/user/rwolf/school/patTuple_zjets_trigger.root'
+)
+
+## 299,991 QCD events as defined on WorkBookPATExampleTopQuarks
+simulationQCD = cms.untracked.vstring(
+    '/store/user/rwolf/school/patTuple_qcd_0.root'
+   ,'/store/user/rwolf/school/patTuple_qcd_1.root'
+   ,'/store/user/rwolf/school/patTuple_qcd_2.root'
+   ,'/store/user/rwolf/school/patTuple_qcd_3.root'
+   ,'/store/user/rwolf/school/patTuple_qcd_4.root'
+   ,'/store/user/rwolf/school/patTuple_qcd_5.root'
+   ,'/store/user/rwolf/school/patTuple_qcd_6.root'
+   ,'/store/user/rwolf/school/patTuple_qcd_7.root'
+   ,'/store/user/rwolf/school/patTuple_qcd_8.root'
+   ,'/store/user/rwolf/school/patTuple_qcd_9.root'
+   ,'/store/user/rwolf/school/patTuple_qcd_10.root'
+   ,'/store/user/rwolf/school/patTuple_qcd_11.root'
+   ,'/store/user/rwolf/school/patTuple_qcd_12.root'
+   ,'/store/user/rwolf/school/patTuple_qcd_13.root'
+   ,'/store/user/rwolf/school/patTuple_qcd_14.root'
+   ,'/store/user/rwolf/school/patTuple_qcd_15.root'
+   ,'/store/user/rwolf/school/patTuple_qcd_16.root'
+   ,'/store/user/rwolf/school/patTuple_qcd_17.root'
+   ,'/store/user/rwolf/school/patTuple_qcd_18.root'
+   ,'/store/user/rwolf/school/patTuple_qcd_19.root'
+   ,'/store/user/rwolf/school/patTuple_qcd_20.root'
+   ,'/store/user/rwolf/school/patTuple_qcd_21.root'
+   ,'/store/user/rwolf/school/patTuple_qcd_22.root'
+   ,'/store/user/rwolf/school/patTuple_qcd_23.root'
+   ,'/store/user/rwolf/school/patTuple_qcd_24.root'
+   ,'/store/user/rwolf/school/patTuple_qcd_25.root'
+   ,'/store/user/rwolf/school/patTuple_qcd_26.root'
+   ,'/store/user/rwolf/school/patTuple_qcd_27.root'
+   ,'/store/user/rwolf/school/patTuple_qcd_28.root'
+   ,'/store/user/rwolf/school/patTuple_qcd_29.root'    
+)
+
+##  99,991 W+Jets events as defined on WorkBookPATExampleTopQuarks
+simulationWjets = cms.untracked.vstring(
+    '/store/user/rwolf/school/patTuple_wjets_0.root'
+   ,'/store/user/rwolf/school/patTuple_wjets_1.root'
+   ,'/store/user/rwolf/school/patTuple_wjets_2.root'
+   ,'/store/user/rwolf/school/patTuple_wjets_3.root'
+   ,'/store/user/rwolf/school/patTuple_wjets_4.root'
+   ,'/store/user/rwolf/school/patTuple_wjets_5.root'
+   ,'/store/user/rwolf/school/patTuple_wjets_6.root'
+   ,'/store/user/rwolf/school/patTuple_wjets_7.root'
+   ,'/store/user/rwolf/school/patTuple_wjets_8.root'
+   ,'/store/user/rwolf/school/patTuple_wjets_9.root'
+)
+
+##   9,991 Z+Jets events as defined on WorkBookPATExampleTopQuarks
+simulationZjets = cms.untracked.vstring(
+    '/store/user/rwolf/school/patTuple_zjets_0.root'
+   ,'/store/user/rwolf/school/patTuple_zjets_1.root'
+   ,'/store/user/rwolf/school/patTuple_zjets_2.root'
+   ,'/store/user/rwolf/school/patTuple_zjets_3.root'
+   ,'/store/user/rwolf/school/patTuple_zjets_4.root'
+   ,'/store/user/rwolf/school/patTuple_zjets_5.root'
+   ,'/store/user/rwolf/school/patTuple_zjets_6.root'
+   ,'/store/user/rwolf/school/patTuple_zjets_7.root'
+   ,'/store/user/rwolf/school/patTuple_zjets_8.root'
+   ,'/store/user/rwolf/school/patTuple_zjets_9.root'
+)
+
+##   1000 Ttbar events as defined on WorkBookPATExampleTopQuarks
+simulationTtbar = cms.untracked.vstring(
+    '/store/user/rwolf/school/patTuple_ttbar.root'
+)
+
+##   ~14000000 events of the muon skim corresponding to 2/pb as
+##   defined on WorkBookPATExampleTopQuarks
 muonSKIM  = cms.untracked.vstring(
      '/store/user/rwolf/test/patTuple_10_1.root'
     ,'/store/user/rwolf/test/patTuple_11_1.root'
@@ -76,26 +167,4 @@ muonSKIM  = cms.untracked.vstring(
     ,'/store/user/rwolf/test/patTuple_81_1.root'
     ,'/store/user/rwolf/test/patTuple_8_1.root'
     ,'/store/user/rwolf/test/patTuple_9_1.root'
-)
-
-ttbarRECO = cms.untracked.vstring(    
-     '/store/mc/Spring10/TTbarJets-madgraph/AODSIM/START3X_V26_S09-v1/0005/0210B899-9C46-DF11-A10F-003048C69294.root'
-    ,'/store/mc/Spring10/TTbarJets-madgraph/AODSIM/START3X_V26_S09-v1/0005/0C39D8AD-A846-DF11-8016-003048C692CA.root'
-)
-
-ttbarJets = cms.untracked.vstring(
-     '/store/user/rwolf/school/patTuple_ttbar_jets.root'
-)
-
-zjetsRECO = cms.untracked.vstring(
-     '/store/mc/Spring10/ZJets-madgraph/AODSIM/START3X_V26_S09-v1/0013/00EFC4EA-3847-DF11-A194-003048D4DF80.root'
-    ,'/store/mc/Spring10/ZJets-madgraph/AODSIM/START3X_V26_S09-v1/0013/0C096217-3A47-DF11-9E65-003048C692A4.root'
-)
-
-zjetsTracks  = cms.untracked.vstring(
-    '/store/user/rwolf/school/patTuple_zjets_tracks.root'
-)
-
-zjetsTrigger  = cms.untracked.vstring(
-    '/store/user/rwolf/school/patTuple_zjets_trigger.root'
 )

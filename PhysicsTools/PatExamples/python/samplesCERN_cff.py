@@ -1,10 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-## ----------------------------------------------------------------
-##
 ## 299,991 QCD events as defined on WorkBookPATExampleTopQuarks
-##
-## ----------------------------------------------------------------
 simulationQCD = cms.untracked.vstring(
      'rfio:///castor/cern.ch/user/c/cmssup/patTuple_qcd_0.root'
     ,'rfio:///castor/cern.ch/user/c/cmssup/patTuple_qcd_1.root'
@@ -38,11 +34,7 @@ simulationQCD = cms.untracked.vstring(
     ,'rfio:///castor/cern.ch/user/c/cmssup/patTuple_qcd_29.root'
 )
 
-## ----------------------------------------------------------------
-##
 ##  99,991 W+Jets events as defined on WorkBookPATExampleTopQuarks
-##
-## ----------------------------------------------------------------
 simulationWjets = cms.untracked.vstring(
      'rfio:///castor/cern.ch/user/c/cmssup/patTuple_wjets_0.root'
     ,'rfio:///castor/cern.ch/user/c/cmssup/patTuple_wjets_1.root'
@@ -56,11 +48,7 @@ simulationWjets = cms.untracked.vstring(
     ,'rfio:///castor/cern.ch/user/c/cmssup/patTuple_wjets_9.root'
 )
 
-## ----------------------------------------------------------------
-##
 ##   9,991 Z+Jets events as defined on WorkBookPATExampleTopQuarks
-##
-## ----------------------------------------------------------------
 simulationZjets = cms.untracked.vstring(
      'rfio:///castor/cern.ch/user/c/cmssup/patTuple_zjets_0.root'
     ,'rfio:///castor/cern.ch/user/c/cmssup/patTuple_zjets_1.root'
@@ -74,11 +62,7 @@ simulationZjets = cms.untracked.vstring(
     ,'rfio:///castor/cern.ch/user/c/cmssup/patTuple_zjets_9.root'
 )
 
-## ----------------------------------------------------------------
-##
-##   9,991 Z+Jets events as defined on WorkBookPATExampleTopQuarks
-##
-## ----------------------------------------------------------------
+##   1000 Ttbar events as defined on WorkBookPATExampleTopQuarks
 simulationTtbar = cms.untracked.vstring(
      'rfio:///castor/cern.ch/user/c/cmssup/patTuple_ttbar.root'
 )
