@@ -30,6 +30,7 @@ hltEcalDigis = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone
 hltEcalWeightUncalibRecHit = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltHcalDigis = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltEcalRegionalRestFEDs = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltEcalRegionalESRestFEDs = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltEcalRegionalRestDigis = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltEcalRegionalRestWeightUncalibRecHit = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltEcalRegionalRestRecHitTmp = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
