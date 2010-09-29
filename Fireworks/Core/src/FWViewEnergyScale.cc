@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Jun 18 20:37:44 CEST 2010
-// $Id: FWViewEnergyScale.cc,v 1.3 2010/09/26 19:57:21 amraktad Exp $
+// $Id: FWViewEnergyScale.cc,v 1.4 2010/09/27 10:46:11 amraktad Exp $
 //
 
 #include <stdexcept>
@@ -18,6 +18,8 @@
 #include "Rtypes.h"
 #include "Fireworks/Core/interface/FWEveView.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
+#include "Fireworks/Core/interface/Context.h"
+#include "Fireworks/Core/interface/CmsShowCommon.h"
 
 
 //
@@ -94,3 +96,41 @@ FWViewEnergyScale::reset()
 }
 
 
+long   
+FWViewEnergyScale::getScaleMode() const
+{  
+   if (getUseGlobalScales())
+      return m_view->context().commonPrefs()->getEnergyScaleMode();
+   else
+      return m_scaleMode.value(); 
+}
+
+double
+FWViewEnergyScale::getMaxFixedVal() const
+{ 
+   if (getUseGlobalScales())
+      return m_view->context().commonPrefs()->getEnergyMaxAbsVal();
+   else
+      return m_fixedValToHeight.value()*m_maxTowerHeight.value();
+}
+
+double
+FWViewEnergyScale::getMaxTowerHeight() const
+{
+  const static int m_to_cm = 100; // parameters in [m], TEveCaloViz in [cm]
+
+   if (getUseGlobalScales())
+      return m_to_cm * m_view->context().commonPrefs()->getEnergyMaxTowerHeight();
+   else
+      return m_to_cm * m_maxTowerHeight.value();
+}
+
+bool
+FWViewEnergyScale::getPlotEt() const
+{
+   if (getUseGlobalScales())
+      return m_view->context().commonPrefs()->getEnergyPlotEt();
+   else
+      return m_plotEt.value();
+}
+  

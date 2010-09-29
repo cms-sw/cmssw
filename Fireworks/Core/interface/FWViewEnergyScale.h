@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Jun 18 20:37:55 CEST 2010
-// $Id: FWViewEnergyScale.h,v 1.2 2010/06/22 09:44:33 amraktad Exp $
+// $Id: FWViewEnergyScale.h,v 1.3 2010/09/26 19:54:56 amraktad Exp $
 //
 
 // system include files
@@ -46,11 +46,11 @@ public:
    float  getValToHeight() const;
    float  getMaxVal() const;
    
-   bool   getUseGlobalScales() const { return m_useGlobalScales.value(); } 
-   long   getScaleMode() const { return m_scaleMode.value(); }
-   double getMaxFixedVal() const { return m_fixedValToHeight.value()*m_maxTowerHeight.value(); }
-   double getMaxTowerHeight() const { return m_maxTowerHeight.value(); }
-   bool   getPlotEt() const { return m_plotEt.value(); }
+   bool   getUseGlobalScales() const { return m_useGlobalScales.value(); }
+   long   getScaleMode() const;
+   double getMaxFixedVal() const;
+   double getMaxTowerHeight() const;
+   bool   getPlotEt() const;
    
    FWEveView* getView() const { return m_view; }
    

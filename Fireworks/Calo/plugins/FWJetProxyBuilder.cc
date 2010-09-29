@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWJetProxyBuilder.cc,v 1.23 2010/09/27 09:29:07 amraktad Exp $
+// $Id: FWJetProxyBuilder.cc,v 1.24 2010/09/27 15:03:17 amraktad Exp $
 //
 #include "TGeoArb8.h"
 #include "TEveGeoNode.h"
@@ -86,10 +86,11 @@ public:
 protected:
    struct  SLines
    {
-      SLines(TEveScalableStraightLineSet* ls, float et, float e) : m_ls(ls), m_et(et), m_energy(e) {}
+      SLines(TEveScalableStraightLineSet* ls, float et, float e, const FWViewContext* vc) : m_ls(ls), m_et(et), m_energy(e), m_vc(vc) {}
       
       TEveScalableStraightLineSet* m_ls;
       float m_et, m_energy;
+      const FWViewContext* m_vc;
    };
    
    std::vector<SLines> m_lines;
@@ -104,13 +105,16 @@ FWJetRPZProxyBuilderBase::scaleProduct(TEveElementList* parent, FWViewType::ETyp
 {
    typedef std::vector<SLines> Lines_t;  
    FWViewEnergyScale* caloScale = vc->getEnergyScale("Calo");
-    
+   // printf("%p -> %f\n", this,caloScale->getValToHeight() );
    for (Lines_t::iterator i = m_lines.begin(); i!= m_lines.end(); ++ i)
    {
-      float value = caloScale->getPlotEt() ? (*i).m_et : (*i).m_energy;      
-      (*i).m_ls->SetScale(caloScale->getValToHeight()*value);
-      TEveProjected* proj = *(*i).m_ls->BeginProjecteds();
-      proj->UpdateProjection();
+      if (vc == (*i).m_vc)
+      { 
+         float value = caloScale->getPlotEt() ? (*i).m_et : (*i).m_energy;      
+         (*i).m_ls->SetScale(caloScale->getValToHeight()*value);
+         TEveProjected* proj = *(*i).m_ls->BeginProjecteds();
+         proj->UpdateProjection();
+      }
    }
 }
 
@@ -186,7 +190,7 @@ FWJetRhoPhiProxyBuilder::build(const reco::Jet& iData, unsigned int iIndex, TEve
 
    FWViewEnergyScale* caloScale = vc->getEnergyScale("Calo");    
    marker->SetScale(caloScale->getValToHeight()*(caloScale->getPlotEt() ?  iData.et() : iData.energy()));
-   m_lines.push_back(FWJetRPZProxyBuilderBase::SLines(marker, iData.et(), iData.energy()));
+   m_lines.push_back(FWJetRPZProxyBuilderBase::SLines(marker, iData.et(), iData.energy(), vc));
 
    setupAddElement(marker, &oItemHolder);
 }
@@ -270,7 +274,7 @@ FWJetRhoZProxyBuilder::build( const reco::Jet& iData, unsigned int iIndex, TEveE
 
    FWViewEnergyScale* caloScale = vc->getEnergyScale("Calo");    
    marker->SetScale(caloScale->getValToHeight()*(caloScale->getPlotEt() ?  iData.et() : iData.energy()));
-   m_lines.push_back(FWJetRPZProxyBuilderBase::SLines(marker, iData.et(), iData.energy()));
+   m_lines.push_back(FWJetRPZProxyBuilderBase::SLines(marker, iData.et(), iData.energy(), vc));
    
    setupAddElement( marker, &oItemHolder );
 

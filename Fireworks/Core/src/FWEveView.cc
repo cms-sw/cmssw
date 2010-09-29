@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.35 2010/09/27 10:46:09 amraktad Exp $
+// $Id: FWEveView.cc,v 1.36 2010/09/27 15:01:42 amraktad Exp $
 //
 
 
@@ -251,40 +251,28 @@ FWEveView::resetCamera()
 
 //______________________________________________________________________________
 
+// AMT TODO !!!! remove this obsolete functions
 long
 FWEveView::getEnergyScaleMode(FWViewEnergyScale* scales) 
 {
-   if (scales->getUseGlobalScales())
-      return context().commonPrefs()->getEnergyScaleMode();
-   else
-      return scales->getScaleMode();
+   return scales->getScaleMode();
 }
 
 double 
 FWEveView::getEnergyMaxAbsVal(FWViewEnergyScale* scales) 
 {
-   if (scales->getUseGlobalScales())
-      return context().commonPrefs()->getEnergyMaxAbsVal();
-   else
-      return scales->getMaxFixedVal();
+   return scales->getMaxFixedVal();
 }
 
 double 
 FWEveView::getEnergyMaxTowerHeight(FWViewEnergyScale* scales) 
 { 
-   const static int m_to_cm = 100; // parameters in [m], TEveCaloViz in [cm]
-
-   if (scales->getUseGlobalScales())
-      return m_to_cm * context().commonPrefs()->getEnergyMaxTowerHeight();
-   else
-      return m_to_cm * scales->getMaxTowerHeight();
+   return  scales->getMaxTowerHeight();
 }
 
 double 
 FWEveView::getPlotEt(FWViewEnergyScale* scales)
-{   if (scales->getUseGlobalScales())
-   return context().commonPrefs()->getEnergyPlotEt();
-else
+{ 
    return scales->getPlotEt();
 }
 

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWMETProxyBuilder.cc,v 1.22 2010/09/27 15:03:17 amraktad Exp $
+// $Id: FWMETProxyBuilder.cc,v 1.23 2010/09/28 13:33:41 eulisse Exp $
 //
 
 // system include files
@@ -57,10 +57,11 @@ private:
    // scaling use struct to optimise scales
    struct SLines
    {
-      SLines(TEveScalableStraightLineSet* ls, float e, int t) : m_ls(ls), m_val(e), m_type(t) {}
+      SLines(TEveScalableStraightLineSet* ls, float e, int t, const FWViewContext* vc) : m_ls(ls), m_val(e), m_type(t), m_vc(vc) {}
       TEveScalableStraightLineSet* m_ls;
       double  m_val;  // et and energy are same
       int     m_type;
+      const FWViewContext* m_vc;
    };
    std::vector<SLines> m_lines;
 };
@@ -71,11 +72,15 @@ FWMETProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType type,
    typedef std::vector<SLines> Lines_t;
    FWViewEnergyScale* caloScale = vc->getEnergyScale("Calo");  
 
+   // printf("MET %p -> %f\n", vc, caloScale->getValToHeight() );
    for (Lines_t::iterator i = m_lines.begin(); i!= m_lines.end(); ++ i)
    {
-      if (type == (*i).m_type)
+      if (type == (*i).m_type && vc == (*i).m_vc )
       { 
+         //    printf("lineset %p \n",(*i).m_ls );
          (*i).m_ls->SetScale(caloScale->getValToHeight()*(*i).m_val);
+
+
          TEveProjectable *pable = static_cast<TEveProjectable*>((*i).m_ls);
          for (TEveProjectable::ProjList_i j = pable->BeginProjecteds(); j != pable->EndProjecteds(); ++j)
          {
@@ -110,7 +115,7 @@ FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEve
                     (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
    
    marker->SetScale(caloScale->getValToHeight()*met.et());
-   m_lines.push_back(SLines(marker, met.et(), type));  // register for scales
+   m_lines.push_back(SLines(marker, met.et(), type, vc));  // register for scales
    setupAddElement( marker, &oItemHolder );
       
 
@@ -136,7 +141,7 @@ FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEve
       tip->AddLine(0., (phi>0 ? r_ecal+dy : -(r_ecal+dy) ), -dx,
                    0., (phi>0 ? (r_ecal+size) : -(r_ecal+size)), 0 );
       
-      m_lines.push_back(SLines(tip, met.et(), type)); //register for scaes 
+      m_lines.push_back(SLines(tip, met.et(), type, vc)); //register for scaes 
 
       tip->SetScale(caloScale->getValToHeight()*met.et());
       setupAddElement( tip, &oItemHolder );
