@@ -111,6 +111,16 @@ InterestingDetIdCollectionProducer::produce (edm::Event& iEvent,
 	  detIdCollection->push_back(xtalsToStore[iCry]);
       }     
   }
+
+  // also add recHits of dead TT if the corresponding TP is saturated
+  for (EcalRecHitCollection::const_iterator it = recHitsHandle->begin(); it != recHitsHandle->end(); ++it) {
+          if ( it->flagBits() & (0x1 << EcalRecHit::kTPSaturated) ) {
+                  if ( std::find( detIdCollection->begin(), detIdCollection->end(), it->id() ) == detIdCollection->end()
+                     ) {
+                          detIdCollection->push_back( it->id() );
+                  }
+          }
+  }
   
   //  std::cout << "Interesting DetId Collection size is " << detIdCollection->size() <<  " BCs are " << pClusters->size() << std::endl;
   iEvent.put( detIdCollection, interestingDetIdCollection_ );
