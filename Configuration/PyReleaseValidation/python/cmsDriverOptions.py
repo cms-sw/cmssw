@@ -72,7 +72,7 @@ parser.add_option("--data",
 
 parser.add_option("--cust_function",
                   help="Specify the customise function to be called from the customise fragment.",
-                  default='customise',
+                  default='',
                   dest='cust_function')
 
 parser.add_option("--no_exec",

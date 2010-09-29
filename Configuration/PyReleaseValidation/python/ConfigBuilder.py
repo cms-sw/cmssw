@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.227 $"
+__version__ = "$Revision: 1.228 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -402,13 +402,14 @@ class ConfigBuilder(object):
 	custFcn=self._options.cust_function.split(",")
 
 	#do a check
-	if len(custFiles)!=len(custFcn):
+	if len(custFiles)!=len(custFcn) or self._options.cust_function=="":
 		custFcn=[]
 		custFilesNew=[]
 		#try to do something smart
 		for spec in custFiles:
 			spl=spec.split(".")
 			if len(spl)==2:
+				print spl
 				custFilesNew.append(spl[0])
 				custFcn.append(spl[1])
 			else:
@@ -1117,7 +1118,7 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.227 $"),
+              (version=cms.untracked.string("$Revision: 1.228 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
