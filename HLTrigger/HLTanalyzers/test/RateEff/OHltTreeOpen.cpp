@@ -465,9 +465,9 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
 	    for (int j=0;j<NrecoJetCal && j!=i;j++) {  
 	      if(recoJetCalPt[j]>30.0) {
 		double Dphi=fabs(recoJetCalPhi[i]-recoJetCalPhi[j]);
-		if(Dphi>M_PI) 
+		if(Dphi>3.14159) 
 		  Dphi=2.0*(3.14159)-Dphi;
-		if(Dphi>0.5*M_PI) {
+		if(Dphi>0.5*3.14159) {
 		  rcDijetCand++; 
 		}
 	      } 
@@ -479,16 +479,16 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
 	if(rcDijetCand > 0) {
 	  for(int i=0; i < NrecoTowCal;i++)
 	    {
-	      if(recoTowEta[i] > 3.0 && recoTowE[i] > 4.0)
+	      if((recoTowEta[i] > 3.0) && (recoTowE[i] > 4.0))
 		rcHFplusEnergy += recoTowE[i];
-	      if(recoTowEta[i] < 3.0 && recoTowE[i] > 4.0)
+	      if((recoTowEta[i] < -3.0) && (recoTowE[i] > 4.0))
 		rcHFminusEnergy += recoTowE[i];	      
 	    }
 	}
 
 
 	// Now put them together
-	if(rcDijetCand > 0 && rcHFplusEnergy < 50 && rcHFminusEnergy < 50)
+	if((rcDijetCand > 0) && (rcHFplusEnergy < 50) && (rcHFminusEnergy < 50))
 	  triggerBit[it] = true;  
       } 
     }    
@@ -507,9 +507,9 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
             for (int j=0;j<NrecoJetCal && j!=i;j++) {   
               if(recoJetCalPt[j]>30.0) { 
                 double Dphi=fabs(recoJetCalPhi[i]-recoJetCalPhi[j]); 
-                if(Dphi>M_PI)  
+                if(Dphi>3.14159)  
                   Dphi=2.0*(3.14159)-Dphi; 
-                if(Dphi>0.5*M_PI) { 
+                if(Dphi>0.5*3.14159) { 
                   rcDijetCand++;  
                 } 
               }  
@@ -521,16 +521,16 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
         if(rcDijetCand > 0) { 
           for(int i=0; i < NrecoTowCal;i++) 
             { 
-              if(recoTowEta[i] > 3.0 && recoTowE[i] > 4.0) 
+              if((recoTowEta[i] > 3.0) && (recoTowE[i] > 4.0)) 
                 rcHFplusEnergy += recoTowE[i]; 
-              if(recoTowEta[i] < 3.0 && recoTowE[i] > 4.0) 
+              if((recoTowEta[i] < -3.0) && (recoTowE[i] > 4.0)) 
                 rcHFminusEnergy += recoTowE[i];        
             } 
         } 
  
  
         // Now put them together 
-        if(rcDijetCand > 0 && (rcHFplusEnergy < 50 || rcHFminusEnergy < 50)) 
+        if((rcDijetCand > 0) && ((rcHFplusEnergy < 50) || (rcHFminusEnergy < 50))) 
           triggerBit[it] = true;   
       }  
     }     
@@ -2524,7 +2524,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
 	for(int i = 0; i < max; i++) { 
 	  if(ohBJetL2CorrectedEt[i] > 10.) { // ET cut
 	    if(ohBJetMuL25Tag[i] > 0.5) { // Level 2.5 b tag
-	      if(ohBJetMuL3Tag[i] > 0.5) { // Level 3 b tag
+	      if(ohBJetPerfL3Tag[i] > 0.5) { // Level 3 b tag
 		rc++; 
 	      } 
 	    }
@@ -2544,7 +2544,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
 	for(int i = 0; i < max; i++) { 
 	  if(ohBJetL2CorrectedEt[i] > 20.) { // ET cut
 	    if(ohBJetMuL25Tag[i] > 0.5) { // Level 2.5 b tag
-	      if(ohBJetMuL3Tag[i] > 0.5) { // Level 3 b tag
+	      if(ohBJetPerfL3Tag[i] > 0.5) { // Level 3 b tag
 		rc++; 
 	      } 
 	    }
@@ -2565,8 +2565,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
 	for(int i = 0; i < NohBJetL2; i++) {
 	  if(ohBJetL2Et[i] > 10.) { // ET cut
 	    if(ohBJetMuL25Tag[i] > 0.5) { // Level 2.5 b tag
-	      //            if(ohBJetMuL3Tag[i] > 0.5) { // Level 3 b tag
-	      if(ohBJetMuL3Tag[i] > 0.1) { // Level 3 b tag
+	      if(ohBJetPerfL3Tag[i] > 0.5) { // Level 3 b tag
 		rc++;
 	      }
 	    }
@@ -2587,8 +2586,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
 	for(int i = 0; i < NohBJetL2; i++) {
 	  if(ohBJetL2Et[i] > 20.) { // ET cut
 	    if(ohBJetMuL25Tag[i] > 0.5) { // Level 2.5 b tag
-	      //            if(ohBJetMuL3Tag[i] > 0.5) { // Level 3 b tag
-	      if(ohBJetMuL3Tag[i] > 0.1) { // Level 3 b tag
+	      if(ohBJetPerfL3Tag[i] > 0.5) { // Level 3 b tag
 		rc++;
 	      }
 	    }
@@ -2600,6 +2598,60 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }
     }
   }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_DiJet10U") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+     if (prescaleResponse(menu,cfg,rcounter,it)) {
+       int rc = 0;
+       int njets = 0;
+       
+       // apply L2 cut on jets
+       for(int i = 0; i < NohBJetL2; i++)
+	 if(ohBJetL2Et[i] > 10. && abs(ohBJetL2Eta[i]) < 3.0)  // change this ET cut to 20 for the 20U patath
+	   njets++;
+       
+       // apply b-tag cut
+       for(int i = 0; i < NohBJetL2; i++) {
+	 if(ohBJetL2Et[i] > 10.) { // keep this at 10 even for the 20UU path - also, no eta cut here
+	   if(ohBJetMuL25Tag[i] > 0.5) { // Level 2.5 b tag
+	     if(ohBJetPerfL3Tag[i] > 0.5) { // Level 3 b tag
+		   rc++;
+	     }
+	   }
+	 }
+       }
+       if(rc >= 1 && njets>=2) {
+	 triggerBit[it] = true;
+       }
+     }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_DiJet20U") == 0) {  
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	int rc = 0;
+	int njets = 0;
+
+	// apply L2 cut on jets
+	for(int i = 0; i < NohBJetL2; i++)
+	  if(ohBJetL2Et[i] > 20. && abs(ohBJetL2Eta[i]) < 3.0)  // change this ET cut to 20 for the 20U patath
+	    njets++;
+
+	// apply b-tag cut
+	for(int i = 0; i < NohBJetL2; i++) {
+	  if(ohBJetL2Et[i] > 10.) { // keep this at 10 even for the 20UU path - also, no eta cut here
+	    if(ohBJetMuL25Tag[i] > 0.5) { // Level 2.5 b tag
+	      if(ohBJetPerfL3Tag[i] > 0.5) { // Level 3 b tag
+		rc++;
+	      }
+	    }
+	  }
+	}
+	if(rc >= 1 && njets>=2) {
+	  triggerBit[it] = true;
+	}
+      }
+    }
+  }  
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagIP_Jet50") == 0) {  
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) {
