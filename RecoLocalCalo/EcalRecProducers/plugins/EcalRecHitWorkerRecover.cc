@@ -169,7 +169,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                         if(tpEt>tpEtThreshEB){
                                 edm::LogWarning("EnergyInDeadEB_FE")<<"TP energy in the dead TT = "<<tpEt<<" at "<<ttDetId;
                         }
-                        if ( !killDeadChannels_ ) {  
+                        if ( !killDeadChannels_ || recoverEBFE_ ) {  
                                 // democratic energy sharing
                                 for ( std::vector<DetId>::const_iterator dit = vid.begin(); dit != vid.end(); ++dit ) {
                                         float theta = 0;
@@ -277,7 +277,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
 			}
 
                         // assign the energy to the SC crystals
-			if ( !killDeadChannels_ ) {
+			if ( !killDeadChannels_ || recoverEEFE_ ) {
 				for ( size_t i = 0; i < eeC.size(); ++i ) {
 					EcalRecHit hit( eeC[i], 0., 0., EcalRecHit::kDead ); 
 					hit.setFlagBits( (0x1 << EcalRecHit::kDead) ) ;
