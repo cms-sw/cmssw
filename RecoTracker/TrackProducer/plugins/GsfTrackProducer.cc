@@ -55,8 +55,9 @@ void GsfTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   edm::ESHandle<MagneticField> theMF;
   edm::ESHandle<TrajectoryFitter> theFitter;
   edm::ESHandle<Propagator> thePropagator;
+  edm::ESHandle<MeasurementTracker>  theMeasTk;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
-  getFromES(setup,theG,theMF,theFitter,thePropagator,theBuilder);
+  getFromES(setup,theG,theMF,theFitter,thePropagator,theMeasTk,theBuilder);
 
   //
   //declare and get TrackColection to be retrieved from the event
@@ -76,7 +77,7 @@ void GsfTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   } catch (cms::Exception &e){ edm::LogInfo("GsfTrackProducer") << "cms::Exception caught!!!" << "\n" << e << "\n"; throw; }
   //
   //put everything in the event
-  putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, outputGsfTEColl,
+  putInEvt(theEvent, thePropagator.product(), theMeasTk.product(), outputRHColl, outputTColl, outputTEColl, outputGsfTEColl,
 	   outputTrajectoryColl, algoResults, bs);
   LogDebug("GsfTrackProducer") << "end" << "\n";
 }

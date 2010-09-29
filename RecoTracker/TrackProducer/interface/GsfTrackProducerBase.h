@@ -4,8 +4,8 @@
 /** \class GsfTrackProducerBase
  *  Produce Tracks from TrackCandidates
  *
- *  $Date: 2008/03/02 14:25:52 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/03/03 15:06:40 $
+ *  $Revision: 1.8 $
  *  \author cerati
  */
 
@@ -34,6 +34,8 @@ public:
 
   /// Put produced collections in the event
   virtual void putInEvt(edm::Event&,
+			const Propagator* prop,
+			const MeasurementTracker* measTk,
 			std::auto_ptr<TrackingRecHitCollection>&,
 			std::auto_ptr<reco::GsfTrackCollection>&,
 			std::auto_ptr<reco::TrackExtraCollection>&,

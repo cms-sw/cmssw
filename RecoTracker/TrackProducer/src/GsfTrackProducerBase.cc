@@ -23,6 +23,8 @@
 
 void 
 GsfTrackProducerBase::putInEvt(edm::Event& evt,
+			       const Propagator* prop,
+			       const MeasurementTracker* measTk,
 			       std::auto_ptr<TrackingRecHitCollection>& selHits,
 			       std::auto_ptr<reco::GsfTrackCollection>& selTracks,
 			       std::auto_ptr<reco::TrackExtraCollection>& selTrackExtras,
@@ -103,7 +105,7 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
     if (theSchool.isValid())
       {
 	NavigationSetter setter( *theSchool );
-	setSecondHitPattern(theTraj,track);
+	setSecondHitPattern(theTraj,track,prop,measTk);
       }
     //==============================================================
     

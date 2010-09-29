@@ -58,9 +58,10 @@ void GsfTrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setu
   edm::ESHandle<MagneticField> theMF;
   edm::ESHandle<TrajectoryFitter> theFitter;
   edm::ESHandle<Propagator> thePropagator;
+  edm::ESHandle<MeasurementTracker>  theMeasTk;
   //  getFromES(setup,theG,theMF,theFitter,thePropagator);
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
-  getFromES(setup,theG,theMF,theFitter,thePropagator,theBuilder);
+  getFromES(setup,theG,theMF,theFitter,thePropagator,theMeasTk,theBuilder);
 
   //
   //declare and get TrackCollection to be retrieved from the event
@@ -77,7 +78,8 @@ void GsfTrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setu
       LogDebug("GsfTrackRefitter") << "run the algorithm" << "\n";
       try {
 	theAlgo.runWithTrack(theG.product(), theMF.product(), *theTCollection, 
-			     theFitter.product(), thePropagator.product(), theBuilder.product(), bs, algoResults);
+			     theFitter.product(), thePropagator.product(),  
+			     theBuilder.product(), bs, algoResults);
       }catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithTrack." << "\n" << e << "\n"; throw; }
       break;
     }
@@ -100,7 +102,8 @@ void GsfTrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setu
   }
   
   //put everything in th event
-  putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, outputGsfTEColl, outputTrajectoryColl, algoResults, bs);
+  putInEvt(theEvent, thePropagator.product(), theMeasTk.product(),
+	   outputRHColl, outputTColl, outputTEColl, outputGsfTEColl, outputTrajectoryColl, algoResults, bs);
   LogDebug("GsfTrackRefitter") << "end" << "\n";
 }
 

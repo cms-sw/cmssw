@@ -4,8 +4,8 @@
 /** \class KfTrackProducerBase
  *  Produce Tracks from TrackCandidates
  *
- *  $Date: 2008/01/26 10:45:58 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/07/03 00:55:13 $
+ *  $Revision: 1.3 $
  *  \author cerati
  */
 
@@ -24,6 +24,8 @@ public:
 
   /// Put produced collections in the event
   virtual void putInEvt(edm::Event&,
+			const Propagator* prop,
+			const MeasurementTracker* measTk,
 			std::auto_ptr<TrackingRecHitCollection>&,
 			std::auto_ptr<reco::TrackCollection>&,
 			std::auto_ptr<reco::TrackExtraCollection>&,

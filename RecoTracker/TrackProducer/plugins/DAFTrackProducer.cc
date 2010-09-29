@@ -53,8 +53,9 @@ void DAFTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   edm::ESHandle<MagneticField> theMF;
   edm::ESHandle<TrajectoryFitter> theFitter;
   edm::ESHandle<Propagator> thePropagator;
+  edm::ESHandle<MeasurementTracker>  theMeasTk;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
-  getFromES(setup,theG,theMF,theFitter,thePropagator,theBuilder);
+  getFromES(setup,theG,theMF,theFitter,thePropagator,theMeasTk,theBuilder);
   //get additional es_modules needed by the DAF	
   edm::ESHandle<MultiRecHitCollector> measurementCollectorHandle;
   edm::ESHandle<SiTrackerMultiRecHitUpdator> updatorHandle;	
@@ -79,7 +80,8 @@ void DAFTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTrajectoryCollection,
 			   theFitter.product(), theBuilder.product(), measurementCollectorHandle.product(), updatorHandle.product(),bs,algoResults);
   
-  putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults);
+  putInEvt(theEvent, thePropagator.product(), theMeasTk.product(), 
+	   outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults);
   
 }
 

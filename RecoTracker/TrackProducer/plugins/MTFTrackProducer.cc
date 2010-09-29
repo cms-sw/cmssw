@@ -49,8 +49,9 @@ void MTFTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   edm::ESHandle<MagneticField> theMF;
   edm::ESHandle<TrajectoryFitter> theFitter;
   edm::ESHandle<Propagator> thePropagator;
+  edm::ESHandle<MeasurementTracker>  theMeasTk;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
-  getFromES(setup,theG,theMF,theFitter,thePropagator,theBuilder);
+  getFromES(setup,theG,theMF,theFitter,thePropagator,theMeasTk,theBuilder);
   //get additional es_modules needed by the MTF	
   edm::ESHandle<MultiTrackFilterHitCollector> measurementCollectorHandle;
   edm::ESHandle<SiTrackerMultiRecHitUpdatorMTF> updatorHandle;	
@@ -77,7 +78,8 @@ void MTFTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
 			   theFitter.product(), theBuilder.product(), measurementCollectorHandle.product(), updatorHandle.product(),bs,algoResults);
   //
   //put everything in the event
-  putInEvt(theEvent, outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults);
+  putInEvt(theEvent, thePropagator.product(), theMeasTk.product(), 
+	   outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults);
   LogDebug("MTFTrackProducer") << "end" << "\n";
 }
 

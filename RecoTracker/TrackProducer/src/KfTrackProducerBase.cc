@@ -17,11 +17,13 @@
 #include "TrajectoryToResiduals.h"
 
 void KfTrackProducerBase::putInEvt(edm::Event& evt,
-				 std::auto_ptr<TrackingRecHitCollection>& selHits,
-				 std::auto_ptr<reco::TrackCollection>& selTracks,
-				 std::auto_ptr<reco::TrackExtraCollection>& selTrackExtras,
-				 std::auto_ptr<std::vector<Trajectory> >&   selTrajectories,
-				 AlgoProductCollection& algoResults)
+				   const Propagator* prop,
+				   const MeasurementTracker* measTk,
+				   std::auto_ptr<TrackingRecHitCollection>& selHits,
+				   std::auto_ptr<reco::TrackCollection>& selTracks,
+				   std::auto_ptr<reco::TrackExtraCollection>& selTrackExtras,
+				   std::auto_ptr<std::vector<Trajectory> >&   selTrajectories,
+				   AlgoProductCollection& algoResults)
 {
 
   TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
@@ -98,7 +100,7 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
     if (theSchool.isValid())
       {
 	NavigationSetter setter( *theSchool );
-	setSecondHitPattern(theTraj,track);
+	setSecondHitPattern(theTraj,track,prop,measTk);
       }
     //==============================================================
     
