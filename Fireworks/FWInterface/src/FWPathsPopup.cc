@@ -151,6 +151,7 @@ struct PSetData
    size_t      parent;
    
    size_t      module;
+   size_t      path;
    // Whether or not it matches the filter.
    bool        matches;
    // Whether or not it is expanded.
@@ -160,11 +161,6 @@ struct PSetData
    bool        visible;
    // Whether or not any of the children matches the filter.
    bool        childMatches;
-   // For paths (i.e. level == 0), whether or not it "passed"
-   // For modules, whether or not it made the "decision" 
-   bool        passed;
-   // For modules, if the parent (i.e. the path) passed
-   bool        parentPassed;
    // Copy of the parameter set associated with this item.
    // We need to keep a copy, because updating a parameter
    // in a parameter set means actually creating a new one,
@@ -382,6 +378,7 @@ public:
             pathEntry.value = "Path";
             pathEntry.level= 0;
             pathEntry.parent = -1;
+            pathEntry.path = i;
 
             PathInfo pathInfo;
             pathInfo.entryId = m_entries.size();
@@ -412,6 +409,7 @@ public:
                moduleEntry.parent = m_parentStack.back();
                moduleEntry.level = m_parentStack.size();
                moduleEntry.module = -1;
+               moduleEntry.path = i;
                moduleEntry.pset = *ps;
                ModuleInfo moduleInfo;
                moduleInfo.path = m_paths.size() - 1;
@@ -599,11 +597,12 @@ public:
 
       if (data.level == 0)
       {
+         const PathInfo &path = m_paths[data.path];
          label = data.label + " (" + data.value + ")";
        
          value = "";
 
-         if (data.passed)
+         if (path.passed)
            renderer = &m_pathPassedRenderer;
          else 
            renderer = &m_pathFailedRenderer;
@@ -996,6 +995,7 @@ public:
       data.parent = m_parentStack.back();
       data.type = 'P';
       data.module = m_modules.size() - 1;
+      data.path = m_paths.size() - 1;
       data.pset = entry.pset();
       m_parentStack.push_back(m_entries.size());
       m_entries.push_back(data);
@@ -1014,6 +1014,7 @@ public:
       data.parent = m_parentStack.back();
       data.type = 'p';
       data.module = m_modules.size() - 1;
+      data.path = m_paths.size() - 1;
       m_parentStack.push_back(m_entries.size());
       m_entries.push_back(data);
 
@@ -1029,6 +1030,7 @@ public:
           vdata.level = m_parentStack.size();
           vdata.parent = m_parentStack.back();
           vdata.module = m_modules.size() - 1;
+          vdata.path = m_paths.size() - 1;
           m_parentStack.push_back(m_entries.size());
           m_entries.push_back(vdata);
           handlePSet(entry.vpset()[i]);
