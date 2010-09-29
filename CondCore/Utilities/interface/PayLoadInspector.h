@@ -125,7 +125,8 @@ namespace cond {
       os << std::endl;
       return os.str();
     }
-    
+
+
     // return the real name of the file including extension...
     std::string plot(std::string const & /* filename */,
 		     std::string const &, 
@@ -136,7 +137,12 @@ namespace cond {
     std::string trend_plot(std::string const & /* filename */,//
 		     std::string const &, 
 			 std::vector<int> const&, std::vector<float> const&, std::vector<std::string> const&) const {return "";}
-    
+
+    // summary, which takes arguments
+    std::string summary_adv(//int const &,
+		     std::string const &, 
+			 std::vector<int> const&, std::vector<float> const&, std::vector<std::string> const&) const {return "";}
+
     void extract(Extractor & extractor) const {extractor.computeW(object()); }
 
     Class const & object() const {
