@@ -12,8 +12,8 @@ ak5PFJetsRecoTauPiZeros = cms.EDProducer(
         builders.strips,
     ),
     ranking = cms.VPSet(
-        ranking.nearPiZeroMass, # Prefer pi zeros +- 0.05 GeV correct mass
+        ranking.nearPiZeroMassBarrel, # Prefer pi zeros +- 0.05 GeV correct mass
+        ranking.nearPiZeroMassEndcap,
         ranking.isInStrip,      # Allow incorrect masses if in strip
-        ranking.maximumMass,    # Set a maximum mass of 0.2 GeV
     ),
 )
