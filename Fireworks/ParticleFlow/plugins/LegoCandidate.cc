@@ -76,7 +76,7 @@ LegoCandidate::getScale( const FWViewContext *vc, const fireworks::Context &cont
         // Check (if this is used in simple proxy builder then assert will be better)
         if( s == 0.f )
         {
-            fwLog( fwlog::kError ) << "FWLegoEvePFCandidate max value is zero !";
+            fwLog( fwlog::kError ) << "LegoCandidate max value is zero !";
             s = 1.f;
         }
 
