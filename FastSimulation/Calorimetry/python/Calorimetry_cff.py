@@ -40,8 +40,8 @@ FamosCalorimetryBlock = cms.PSet(
             HCAL_Sampling = cms.double(0.0035),
             # Watch out ! The following two values are defined wrt the electron shower simulation
             # There are not directly related to the detector properties
-#            HCAL_PiOverE = cms.double(0.2)
-            HCAL_PiOverE = cms.double(0.4)
+            HCAL_PiOverE = cms.double(0.2)
+#            HCAL_PiOverE = cms.double(0.4)
         ),
         UnfoldedMode = cms.untracked.bool(False),
         Debug = cms.untracked.bool(False),
