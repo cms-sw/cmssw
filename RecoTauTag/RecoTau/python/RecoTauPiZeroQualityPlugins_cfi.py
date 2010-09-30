@@ -24,21 +24,21 @@ isInStrip = cms.PSet(
     selectionFailValue = cms.double(1000)
 )
 
-nearPiZeroMass = cms.PSet(
+nearPiZeroMassBarrel = cms.PSet(
     name = cms.string('nearPiZeroMass'),
     plugin = cms.string('RecoTauPiZeroStringQuality'),
-    selection = cms.string('%s < 0.05' % DELTA_M_PIZERO),
+    selection = cms.string('abs(eta()) < 1.5 & %s < 0.05' % DELTA_M_PIZERO),
     # Rank by closeness to piZero
     selectionPassFunction = cms.string(DELTA_M_PIZERO),
     selectionFailValue = cms.double(1000),
 )
 
-maximumMass = cms.PSet(
-    name = cms.string('maxMass'),
+# Loose selection for endcap
+nearPiZeroMassEndcap = cms.PSet(
+    name = cms.string('nearPiZeroMass'),
     plugin = cms.string('RecoTauPiZeroStringQuality'),
-    selection = cms.string('mass() < 0.2'),
+    selection = cms.string('abs(eta()) > 1.5 & mass() < 0.2'),
+    # Rank by closeness to piZero
     selectionPassFunction = cms.string(DELTA_M_PIZERO),
     selectionFailValue = cms.double(1000),
 )
-
-
