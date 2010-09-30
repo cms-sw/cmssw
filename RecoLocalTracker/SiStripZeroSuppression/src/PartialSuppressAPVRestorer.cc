@@ -3,8 +3,8 @@
 #include <cmath>
 #include <iostream>
 
-void PartialSuppressAPVRestorer::inspect( const uint32_t& detId,std::vector<int16_t>& digis) {inspect_(detId,digis);}
-void PartialSuppressAPVRestorer::inspect( const uint32_t& detId,std::vector<float>& digis) {inspect_(detId,digis);}
+int16_t PartialSuppressAPVRestorer::inspect( const uint32_t& detId,std::vector<int16_t>& digis) {return inspect_(detId,digis);}
+int16_t PartialSuppressAPVRestorer::inspect( const uint32_t& detId,std::vector<float>& digis) {return inspect_(detId,digis);}
 
 void PartialSuppressAPVRestorer::restore( std::vector<int16_t>& digis) {restore_(digis);}
 void PartialSuppressAPVRestorer::restore( std::vector<float>& digis) {restore_(digis);}
@@ -20,7 +20,7 @@ void PartialSuppressAPVRestorer::init(const edm::EventSetup& es){
 
 template<typename T>
 inline
-void PartialSuppressAPVRestorer::
+int16_t PartialSuppressAPVRestorer::
 inspect_(const uint32_t& detId,std::vector<T>& digis){
 
   SiStripQuality::Range detQualityRange = qualityHandle->getRange(detId);
@@ -28,6 +28,7 @@ inspect_(const uint32_t& detId,std::vector<T>& digis){
   typename std::vector<T>::iterator fs;
 
   apvFlags.clear();
+  int16_t nAPVflagged=0;
 
   int devCount = 0, qualityCount = 0, minstrip = 0; 
   for( uint16_t APV=0; APV< digis.size()/128; ++APV)
@@ -44,12 +45,16 @@ inspect_(const uint32_t& detId,std::vector<T>& digis){
       }
     }
 
-    if( devCount > fraction_ * qualityCount ) 
+    if( devCount > fraction_ * qualityCount ) {
       apvFlags.push_back( true );
-    else 
+      nAPVflagged++;
+    } else {
       apvFlags.push_back( false );
+    }
     
   }
+
+  return nAPVflagged;
 
 }
 
@@ -58,21 +63,6 @@ inline
 void PartialSuppressAPVRestorer::
 restore_( std::vector<T>& digis ){
 
-  typename std::vector<T>::iterator  
-  strip( digis.begin() ), 
-  endAPV;
-
-  for( uint16_t APV=0; APV< digis.size()/128; ++APV)
-  {
-    endAPV = digis.begin() + (APV+1)*128;
-    if ( *( apvFlags.begin() + APV ) )
-    {
-      std::cout << "RESTORING:" << std::endl;
-      while (strip < endAPV) {
-        *strip += 500;
-        strip++;
-      }
-    }
-  }
+  return;
 
 }

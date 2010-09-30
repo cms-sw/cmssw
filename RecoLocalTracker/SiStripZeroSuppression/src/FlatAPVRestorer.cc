@@ -3,8 +3,8 @@
 #include <cmath>
 #include <iostream>
 
-void FlatAPVRestorer::inspect( const uint32_t& detId,std::vector<int16_t>& digis) {inspect_(detId,digis);}
-void FlatAPVRestorer::inspect( const uint32_t& detId,std::vector<float>& digis) {inspect_(detId,digis);}
+int16_t FlatAPVRestorer::inspect( const uint32_t& detId,std::vector<int16_t>& digis) {return inspect_(detId,digis);}
+int16_t FlatAPVRestorer::inspect( const uint32_t& detId,std::vector<float>& digis) {return inspect_(detId,digis);}
 
 void FlatAPVRestorer::restore( std::vector<int16_t>& digis) {restore_(digis);}
 void FlatAPVRestorer::restore( std::vector<float>& digis) {restore_(digis);}
@@ -21,7 +21,7 @@ void FlatAPVRestorer::init(const edm::EventSetup& es){
 
 template<typename T>
 inline
-void FlatAPVRestorer::
+int16_t FlatAPVRestorer::
 inspect_(const uint32_t& detId,std::vector<T>& digis){
 
   SiStripQuality::Range detQualityRange = qualityHandle->getRange(detId);
@@ -29,6 +29,7 @@ inspect_(const uint32_t& detId,std::vector<T>& digis){
   typename std::vector<T>::iterator fs;
 
   apvFlags.clear();
+  int16_t nAPVflagged = 0;
 
   for( uint16_t APV=0; APV< digis.size()/128; ++APV)
   {
@@ -43,12 +44,17 @@ inspect_(const uint32_t& detId,std::vector<T>& digis){
       }
     }
 
-    if( zeroCount > restoreThreshold_ * qualityCount ) 
+    if( zeroCount > restoreThreshold_ * qualityCount ) {
       apvFlags.push_back( true );
-    else 
+      nAPVflagged++;
+    } else {
       apvFlags.push_back( false );
-    
+    }
+
   }
+
+  return nAPVflagged;
+
 }
 
 template<typename T>
@@ -65,7 +71,7 @@ restore_( std::vector<T>& digis ){
     endAPV = digis.begin() + (APV+1)*128;
     if ( *( apvFlags.begin() + APV ) )
     {
-      std::cout << "RESTORING:" << std::endl;
+      //std::cout << "RESTORING:" << std::endl;
       int counter = 0;
       while (strip < endAPV) {
         *strip = static_cast<T>(150);

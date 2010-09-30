@@ -10,8 +10,8 @@ class FlatAPVRestorer : public SiStripAPVRestorer {
  public:
   
   void init(const edm::EventSetup& es);
-  void inspect(const uint32_t&, std::vector<int16_t>&);
-  void inspect(const uint32_t&, std::vector<float>&);
+  int16_t inspect(const uint32_t&, std::vector<int16_t>&);
+  int16_t inspect(const uint32_t&, std::vector<float>&);
   void restore(std::vector<int16_t>&);
   void restore(std::vector<float>&);
 
@@ -20,7 +20,7 @@ class FlatAPVRestorer : public SiStripAPVRestorer {
   FlatAPVRestorer( double rt) : 
     restoreThreshold_(rt) {};
 
-  template<typename T >void inspect_(const uint32_t&,std::vector<T>&);
+  template<typename T >int16_t inspect_(const uint32_t&,std::vector<T>&);
   template<typename T >void restore_(std::vector<T>&);
 
   edm::ESHandle<SiStripQuality> qualityHandle;

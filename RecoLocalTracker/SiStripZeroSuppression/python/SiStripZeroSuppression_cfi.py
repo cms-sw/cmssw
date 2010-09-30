@@ -7,5 +7,7 @@ siStripZeroSuppression = cms.EDProducer("SiStripZeroSuppression",
                                         RawDigiProducersList = cms.VInputTag( cms.InputTag('siStripDigis','VirginRaw'), 
                                                                               cms.InputTag('siStripDigis','ProcessedRaw'),
                                                                               cms.InputTag('siStripDigis','ScopeMode')),
-                                        storeCM = cms.bool(False)
+                                        storeCM = cms.bool(False), 
+                                        produceRawDigis = cms.bool(False), # if mergeCollection is True, produceRawDigi is not considered
+                                        mergeCollections = cms.bool(False)
                                         )

@@ -43,6 +43,7 @@ def customisePartialSuppress(process):
     process.siStripZeroSuppression.Algorithms.Fraction = cms.double(0.2)
     process.siStripZeroSuppression.Algorithms.Deviation = cms.int32(25)
     process.siStripZeroSuppression.Algorithms.PedestalSubtractionFedMode = cms.bool(False)
-    process.siStripZeroSuppression.Algorithms.TruncateInSuppressor = cms.bool(False)
+    #process.siStripZeroSuppression.Algorithms.TruncateInSuppressor = cms.bool(False)
+    process.siStripZeroSuppression.produceRawDigis = cms.bool(True)
 
     return process

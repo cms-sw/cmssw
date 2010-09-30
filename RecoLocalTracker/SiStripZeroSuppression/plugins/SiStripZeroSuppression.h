@@ -23,16 +23,20 @@ class SiStripZeroSuppression : public edm::EDProducer
   
  private:
 
-  void processRaw(const edm::InputTag&, const edm::DetSetVector<SiStripRawDigi>&, std::vector<edm::DetSet<SiStripDigi> >& );
+  void processRaw(const edm::InputTag&, const edm::DetSetVector<SiStripRawDigi>&, std::vector<edm::DetSet<SiStripDigi> >&, std::vector<edm::DetSet<SiStripRawDigi> >& );
+  void storeCMN(uint32_t);
+  void StandardZeroSuppression(edm::Event&);
+  void CollectionMergedZeroSuppression(edm::Event&);
+  
   std::vector<edm::InputTag> inputTags;
   typedef std::vector<edm::InputTag>::const_iterator tag_iterator_t;
-  
   std::vector< edm::DetSet<SiStripProcessedRawDigi> > output_apvcm; 
-
   std::auto_ptr<SiStripRawProcessingAlgorithms> algorithms;
   
   bool storeCM;
   bool doAPVRestore;
+  bool produceRawDigis;
+  bool mergeCollections;
 
 };
 #endif
