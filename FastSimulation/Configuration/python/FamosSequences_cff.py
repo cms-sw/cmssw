@@ -351,6 +351,15 @@ famosWithTracksAndEcalClusters = cms.Sequence(
     particleFlowCluster
 )
 
+
+import RecoEgamma.EgammaPhotonProducers.conversionTrackProducer_cfi
+conversionAdaptor = RecoEgamma.EgammaPhotonProducers.conversionTrackProducer_cfi.conversionTrackProducer.clone(
+    TrackProducer = 'generalTracks',
+    setArbitratedMerged = False)
+trackerOnlyConversions.src = 'conversionAdaptor'
+trackerOnlyConversionSequence.replace( trackerOnlyConversions,
+                                       conversionAdaptor+trackerOnlyConversions)
+    
 famosWithParticleFlow = cms.Sequence(
     famosWithTracksAndEcalClusters+
     vertexreco+
