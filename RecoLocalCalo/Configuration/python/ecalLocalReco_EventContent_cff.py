@@ -20,8 +20,6 @@ ecalLocalRecoRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(
         'keep *_ecalPreshowerRecHit_*_*', 
         'keep *_ecalRecHit_*_*',
-        'keep EBSrFlagsSorted_ecalDigis_*_*',
-        'keep EESrFlagsSorted_ecalDigis_*_*'
         )
 )
 #AOD content
