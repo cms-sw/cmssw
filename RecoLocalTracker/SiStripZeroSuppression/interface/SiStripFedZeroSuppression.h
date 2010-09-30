@@ -20,7 +20,7 @@ class SiStripFedZeroSuppression {
   
  public:
   
-  SiStripFedZeroSuppression(uint16_t fedalgo, bool trunc):  
+  SiStripFedZeroSuppression(uint16_t fedalgo, bool trunc=true):  
     noise_cache_id(0), 
     threshold_cache_id(0),
     theFEDalgorithm(fedalgo),
