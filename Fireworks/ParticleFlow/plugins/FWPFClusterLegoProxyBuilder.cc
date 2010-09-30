@@ -42,17 +42,18 @@ FWPFClusterLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementList *p
 {
     for( int index = 0; index < static_cast<int>( iItem->size() ); index++ )
     {
-        float energy;
-		float et;
-
         const reco::PFCluster &iData = modelData( index );
         TEveCompound *itemHolder = createCompound();
         product->AddElement( itemHolder );
+        LegoCandidateData lc;
 
-        energy = iData.energy();
-        et = calculateET( iData );
+        lc.energy = iData.energy();
+        lc.et = calculateET( iData );
+        lc.pt = lc.et;
+        lc.eta = iData.eta();
+        lc.phi = iData.phi();
 
-        LegoCandidate *cluster = new LegoCandidate( iData.eta(), iData.phi(), energy, et, et, vc, FWProxyBuilderBase::context() );
+        LegoCandidate *cluster = new LegoCandidate( lc, vc, FWProxyBuilderBase::context() );
         cluster->SetLineWidth( 2 );
         cluster->SetMarkerColor( FWProxyBuilderBase::item()->defaultDisplayProperties().color() );
         setupAddElement( cluster, itemHolder );

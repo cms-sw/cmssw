@@ -7,14 +7,18 @@
 #include "Fireworks/Core/interface/fwLog.h"
 
 //______________________________________________________________________________________________________________________________________________
-LegoCandidate::LegoCandidate( float eta, float phi, float energy, float et, float pt,  const FWViewContext *vc, const fireworks::Context &context )
+LegoCandidate::LegoCandidate( const LegoCandidateData &lc, const FWViewContext *vc, const fireworks::Context &context )
 {
-    m_et = et;
-    m_energy = energy;
-    
+    float pt = lc.pt;
+    float eta = lc.eta;
+    float phi = lc.phi;
+    m_et = lc.et;
+    m_energy = lc.energy;
+
+
     // energy auto scale
     FWViewEnergyScale *scaleE = vc->getEnergyScale( "PFenergy" );
-	scaleE->setMaxVal( m_et );
+	scaleE->setMaxVal( m_energy );
 
     // et auto scale
     FWViewEnergyScale *scaleEt = vc->getEnergyScale( "PFet" );

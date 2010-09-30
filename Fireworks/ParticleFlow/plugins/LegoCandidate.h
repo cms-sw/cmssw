@@ -18,6 +18,15 @@ namespace fireworks
    class Context;
 }
 
+struct LegoCandidateData
+{
+    float et;
+    float energy;
+    float pt;
+    float eta;
+    float phi;
+};
+
 class LegoCandidate : public TEveStraightLineSet
 {
     private:
@@ -27,13 +36,14 @@ class LegoCandidate : public TEveStraightLineSet
         // --------------------------- Data Members ---------------------------------
         float m_et, m_energy;
 
+
         // ------------------------- Member Functions -------------------------------
         float getScale( const FWViewContext *vc, const fireworks::Context &context ) const;
 
     public:
         // -------------------- Constructor(s)/Destructors --------------------------
         LegoCandidate(){}
-        LegoCandidate( float eta, float phi, float energy, float et, float pt, const FWViewContext *vc, const fireworks::Context &context );
+        LegoCandidate( const LegoCandidateData &lc, const FWViewContext *vc, const fireworks::Context &context );
         virtual ~LegoCandidate(){}
 
         // ------------------------- Member Functions -------------------------------
