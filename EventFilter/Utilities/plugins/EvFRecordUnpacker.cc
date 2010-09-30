@@ -14,9 +14,22 @@ namespace evf{
     , node_usage_(0)
     , l1_rb_delay_(0)
   {
-    node_usage_ = new TH1F("nodes","node usage",3000,0.,3000.);
-    l1_rb_delay_ = new TH1F("l1-rb","l1-rb delay in ms",1000,0.,1000.);
-    corre_ = new TH2F("corre","Correlation",3000,0.,3000.,1000,0.,1000.);  
+    node_usage_ = new TH1F("nodes","node usage",1600,0.,1600.);
+    l1_rb_delay_ = new TH1F("l1-rb","l1-rb delay in ms",1000,0.,10000.);
+    corre_ = new TH2F("corre","Correlation",1600,0.,1600.,1000,0.,10000.); 
+    for(unsigned int row = 0xa; row <=0xf; row++)
+      for(unsigned int rack = 11; rack <= 18; rack++)
+	for(unsigned int position_in_rack = 1; position_in_rack<=30;
+	    position_in_rack++)
+	  {
+	    unsigned int bin = (row-0xa)*9*30+(rack-11)*30+position_in_rack+1;
+	    std::ostringstream ost;
+	    ost << std::hex << row << "-" << std::dec << rack << "-" 
+		<< std::setfill('0') <<  std::setw(2) << position_in_rack;
+	    node_usage_->GetXaxis()->SetBinLabel(bin,ost.str().c_str());
+	    corre_->GetXaxis()->SetBinLabel(bin,ost.str().c_str());
+	  }
+ 
     f_ = new TFile("histos.root","RECREATE");
   }
   EvFRecordUnpacker::~EvFRecordUnpacker()
@@ -52,15 +65,15 @@ namespace evf{
     unsigned int nodeid = (rbident >> EVFFED_RBPCIDE_SHIFT) & EVFFED_RBPCIDE_MASK;
     unsigned int rackid = (nodeid&0xfff00)>>8;
     unsigned int position_in_rack = nodeid&0x000ff;
-    std::cout << std::hex << rbident << " node id " << nodeid << " rack " << rackid << " position " << position_in_rack << std::dec << std::endl;
+    //    std::cout << std::hex << rbident << " node id " << nodeid << " rack " << rackid << " position " << position_in_rack << std::dec << std::endl;
     unsigned int row = ((rackid & 0xf00) >> 8)-10;
     unsigned int rackno = (rackid & 0x0ff)-0x11;
-    std::cout << "row " << row << " rackno " << rackno << std::endl;
-    std::cout << "BIN " <<  row*9*30+rackno*30+position_in_rack << std::endl;
+    //    std::cout << "row " << row << " rackno " << rackno << std::endl;
+    //    std::cout << "BIN " <<  row*9*30+rackno*30+position_in_rack << std::endl;
     position_in_rack = position_in_rack%16 + position_in_rack/16*10;
 
     float x = row*9*30+rackno*30+position_in_rack;
-    std::cout << " X " << x << std::endl;
+    //    std::cout << " X " << x << std::endl;
     node_usage_->Fill(x,1.);
     l1_rb_delay_->Fill(deltams,1.);
     corre_->Fill(x,deltams,1.);
