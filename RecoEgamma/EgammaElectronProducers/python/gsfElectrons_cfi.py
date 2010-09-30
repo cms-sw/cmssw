@@ -1,6 +1,10 @@
 
 import FWCore.ParameterSet.Config as cms
 
+from RecoEcal.EgammaClusterProducers.ecalRecHitFlags_cfi import *
+from RecoEcal.EgammaClusterProducers.ecalSeverityLevelAlgos_cfi import *
+from RecoEcal.EgammaClusterProducers.ecalSeverityLevelFlags_cfi import *
+
 #==============================================================================
 # Producer of gsf electrons
 #==============================================================================
@@ -114,6 +118,17 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     severityRecHitThreshold = cms.double(5.0),
     spikeIdThreshold = cms.double(0.95),
     spikeIdString = cms.string('kSwissCrossBordersIncluded'),
+
+    recHitFlagsToBeExcluded = cms.vint32(
+        ecalRecHitFlag_kFaultyHardware,
+        ecalRecHitFlag_kPoorCalib,
+#        ecalRecHitFlag_kSaturated,
+#        ecalRecHitFlag_kLeadingEdgeRecovered,
+#        ecalRecHitFlag_kNeighboursRecovered,
+        ecalRecHitFlag_kTowerRecovered,
+        ecalRecHitFlag_kDead
+    ),
+
     
     TransientInitialStateEstimatorParameters = cms.PSet(
         propagatorAlongTISE = cms.string('PropagatorWithMaterial'),

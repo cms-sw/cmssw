@@ -92,8 +92,8 @@ class GsfElectronAlgo {
       double intRadiusHcal, double etMinHcal,
       double intRadiusEcalBarrel, double intRadiusEcalEndcaps, double jurassicWidth,
       double etMinBarrel, double eMinBarrel, double etMinEndcaps, double eMinEndcaps,
-      bool vetoClustered, bool useNumCrystals, int severityLevelCut_,
-      float severityRecHitThreshold_, float spikeIdThreshold_, std::string spikeIdString_
+      bool vetoClustered, bool useNumCrystals, int severityLevelCut,
+      float severityRecHitThreshold, float spikeIdThreshold, std::string spikeIdString, std::vector<int> v_chstatus
      ) ;
 
     ~GsfElectronAlgo() ;
@@ -305,6 +305,7 @@ class GsfElectronAlgo {
     float spikeIdThreshold_;
     std::string spikeIdString_;
     EcalSeverityLevelAlgo::SpikeId spId_;
+    std::vector<int> v_chstatus_;
 
 
     // input configuration

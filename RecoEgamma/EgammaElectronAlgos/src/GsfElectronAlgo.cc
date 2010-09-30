@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.101 2010/09/24 09:16:10 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.102 2010/09/24 13:34:20 chamont Exp $
 //
 //
 
@@ -120,7 +120,7 @@ GsfElectronAlgo::GsfElectronAlgo
    double intRadiusEcalBarrel, double intRadiusEcalEndcaps, double jurassicWidth,
    double etMinBarrel, double eMinBarrel, double etMinEndcaps, double eMinEndcaps,
    bool vetoClustered, bool useNumCrystals, int severityLevelCut, float severityRecHitThreshold,
-   float spIdThreshold, std::string spIdString
+   float spIdThreshold, std::string spIdString, std::vector<int> v_chstatus
  )
  : minSCEtBarrel_(minSCEtBarrel), minSCEtEndcaps_(minSCEtEndcaps), maxEOverPBarrel_(maxEOverPBarrel), maxEOverPEndcaps_(maxEOverPEndcaps),
    minEOverPBarrel_(minEOverPBarrel), minEOverPEndcaps_(minEOverPEndcaps),
@@ -151,7 +151,7 @@ GsfElectronAlgo::GsfElectronAlgo
    intRadiusHcal_(intRadiusHcal), etMinHcal_(etMinHcal), intRadiusEcalBarrel_(intRadiusEcalBarrel),  intRadiusEcalEndcaps_(intRadiusEcalEndcaps),  jurassicWidth_(jurassicWidth),
    etMinBarrel_(etMinBarrel),  eMinBarrel_(eMinBarrel),  etMinEndcaps_(etMinEndcaps),  eMinEndcaps_(eMinEndcaps),
    vetoClustered_(vetoClustered), useNumCrystals_(useNumCrystals), severityLevelCut_(severityLevelCut),
-   severityRecHitThreshold_(severityRecHitThreshold), spikeIdThreshold_(spIdThreshold), spikeIdString_(spIdString),
+   severityRecHitThreshold_(severityRecHitThreshold), spikeIdThreshold_(spIdThreshold), spikeIdString_(spIdString), v_chstatus_(v_chstatus),
    ctfTracksCheck_(false),
    beamSpotTag_("offlineBeamSpot"),
    cacheIDGeom_(0),cacheIDTopo_(0),cacheIDTDGeom_(0),cacheIDMagField_(0),cacheChStatus_(0),
@@ -431,13 +431,17 @@ void GsfElectronAlgo::process(
   ecalBarrelIsol03.setVetoClustered(vetoClustered_);
   ecalBarrelIsol03.doSpikeRemoval(reducedEBRecHits.product(),theChStatus.product(),severityLevelCut_,severityRecHitThreshold_,spId_,spikeIdThreshold_);
   ecalBarrelIsol04.setUseNumCrystals(useNumCrystals_);
+  ecalBarrelIsol03.doFlagChecks(v_chstatus_);
   ecalBarrelIsol04.setVetoClustered(vetoClustered_);
   ecalBarrelIsol04.doSpikeRemoval(reducedEBRecHits.product(),theChStatus.product(),severityLevelCut_,severityRecHitThreshold_,spId_,spikeIdThreshold_);
   ecalEndcapIsol03.setUseNumCrystals(useNumCrystals_);
+  ecalBarrelIsol04.doFlagChecks(v_chstatus_);
   ecalEndcapIsol03.setVetoClustered(vetoClustered_);
   ecalEndcapIsol04.setUseNumCrystals(useNumCrystals_);
+  ecalEndcapIsol03.doFlagChecks(v_chstatus_);
   ecalEndcapIsol04.setVetoClustered(vetoClustered_);
 
+  ecalEndcapIsol04.doFlagChecks(v_chstatus_);
   //const GsfTrackCollection * gsfTrackCollection = gsfTracksH.product() ;
   const GsfElectronCoreCollection * coreCollection = coresH.product() ;
   for (unsigned int i=0;i<coreCollection->size();++i) {
