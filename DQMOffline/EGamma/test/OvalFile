@@ -70,6 +70,11 @@ Tests with same datasets as release validation
   
 <environment name="RelValAnalysis">
 
+  <var name="TEST_RELEASE" value="3_9_0_pre5">
+  <var name="TEST_GLOBAL_TAG" value="MC_39Y_V0">
+  <var name="TEST_GLOBAL_STARTUP_TAG" value="START39_V0">
+  <var name="TEST_GLOBAL_VERSION" value="v1">
+
   <var name="DBS_RELEASE" value="CMSSW_${TEST_RELEASE}">
   <var name="DBS_TIER" value="-RECO">
   <var name="DBS_COND" value="${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}">
@@ -82,6 +87,7 @@ Tests with same datasets as release validation
   <var name="PUB_INPUT_FOLDER" value="DQMData/Run 1/Egamma/Run summary/Electrons/">
   <var name="PUB_TITLE" value="DQMOffline Electron Histograms">
   <var name="PUB_COMMENT" value="Histograms for CMSSW ${TEST_RELEASE}">
+  <var name="PUB_OUTPUT_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/390pre5/Electrons/DqmOffline">
   <var name="PUB_OUTPUT_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/384/Electrons/DqmOffline">
   <var name="DQM_PREFIX" value="DQM_V0001_R000000001">
   
