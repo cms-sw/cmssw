@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDDataCheck.cc,v 1.15 2010/04/17 07:37:09 dellaric Exp $
+// $Id: SiStripFEDDataCheck.cc,v 1.17 2010/04/21 10:40:17 amagnan Exp $
 //
 //
 #include <memory>
@@ -54,7 +54,8 @@ class SiStripFEDCheckPlugin : public edm::EDAnalyzer
   virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
-  
+  virtual void endRun();
+
   bool hasFatalError(const FEDRawData& fedData, unsigned int fedId) const;
   bool hasNonFatalError(const FEDRawData& fedData, unsigned int fedId) const;
   void updateCabling(const edm::EventSetup& eventSetup);
@@ -266,11 +267,17 @@ SiStripFEDCheckPlugin::beginJob()
   fedNonFatalErrors_->setAxisTitle("FED-ID",1);
 }
 
+// ------------ method called once each run just after ending the event loop  ------------
+void 
+SiStripFEDCheckPlugin::endRun()
+{
+  updateHistograms();
+}
+
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 SiStripFEDCheckPlugin::endJob()
 {
-  updateHistograms();
   if (writeDQMStore_) dqm_->save("DQMStore.root");
 }
 
