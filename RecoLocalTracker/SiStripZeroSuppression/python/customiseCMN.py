@@ -42,8 +42,17 @@ def customisePartialSuppress(process):
     process.siStripZeroSuppression.Algorithms.APVRestoreMode = cms.string("PartialSuppress")
     process.siStripZeroSuppression.Algorithms.Fraction = cms.double(0.2)
     process.siStripZeroSuppression.Algorithms.Deviation = cms.int32(25)
-    process.siStripZeroSuppression.Algorithms.PedestalSubtractionFedMode = cms.bool(False)
-    #process.siStripZeroSuppression.Algorithms.TruncateInSuppressor = cms.bool(False)
     process.siStripZeroSuppression.produceRawDigis = cms.bool(True)
+
+    return process
+
+##############################################################################
+def customiseMergeCollections(process):
+
+    process.siStripZeroSuppression.RawDigiProducersList = cms.VInputTag(
+        cms.InputTag('siStripVRDigis','VirginRaw'),
+        cms.InputTag('siStripVRDigis','ProcessedRaw'),
+        cms.InputTag('siStripVRDigis','ScopeMode')
+        )
 
     return process
