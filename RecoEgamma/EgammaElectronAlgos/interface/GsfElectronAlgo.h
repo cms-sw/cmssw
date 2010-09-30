@@ -356,6 +356,13 @@ class GsfElectronAlgo {
     bool ecalSeedingParametersChecked_ ;
     void checkEcalSeedingParameters( edm::ParameterSetID const & ) ;
 
+    // some values for the current event
+    edm::Event * event_ ;
+    bool originalTrackCollectionsRetreived_ ;
+    edm::Handle<reco::TrackCollection> originalCtfTracks_ ;
+    edm::Handle<reco::GsfTrackCollection> originalGsfTracks_ ;
+    void retreiveOriginalTrackCollections( const reco::TrackRef & ctfTrack,  const reco::GsfTrackRef & gsfTrack ) ;
+
  } ;
 
 #endif // GsfElectronAlgo_H

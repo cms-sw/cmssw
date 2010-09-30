@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GsfElectronAlgo.cc,v 1.102 2010/09/24 13:34:20 chamont Exp $
+// $Id: GsfElectronAlgo.cc,v 1.103 2010/09/30 16:30:01 vlimant Exp $
 //
 //
 
@@ -24,6 +24,7 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronEnergyCorrector.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
@@ -156,7 +157,8 @@ GsfElectronAlgo::GsfElectronAlgo
    beamSpotTag_("offlineBeamSpot"),
    cacheIDGeom_(0),cacheIDTopo_(0),cacheIDTDGeom_(0),cacheIDMagField_(0),cacheChStatus_(0),
    superClusterErrorFunction_(0),
-   pfTranslatorParametersChecked_(false), ecalSeedingParametersChecked_(false)
+   pfTranslatorParametersChecked_(false), ecalSeedingParametersChecked_(false),
+   originalTrackCollectionsRetreived_(false)
  {
    // this is the new version allowing to configurate the algo
    // interfaces still need improvement!!
@@ -280,6 +282,12 @@ void GsfElectronAlgo::setupES(const edm::EventSetup& es) {
  }
 
 void  GsfElectronAlgo::run(Event& e, GsfElectronCollection & outEle) {
+
+  // reset the attributes linked to the current event
+  event_ = &e ;
+  originalTrackCollectionsRetreived_ = false ;
+  originalCtfTracks_ = edm::Handle<TrackCollection>() ;
+  originalGsfTracks_ = edm::Handle<GsfTrackCollection>() ;
 
   // get the input
   edm::Handle<GsfElectronCoreCollection> coresH;
@@ -821,7 +829,26 @@ void GsfElectronAlgo::createElectron
   // ConversionRejection
   //====================================================
 
+  if (!originalTrackCollectionsRetreived_)
+   {
+    retreiveOriginalTrackCollections(coreRef->ctfTrack(),coreRef->gsfTrack()) ;
+    originalTrackCollectionsRetreived_ = true ;
+   }
+
+  ConversionFinder conversionFinder ;
+  double BInTesla = theMagField->inTesla(GlobalPoint(0.,0.,0.)).z() ;
+  ConversionInfo conversionInfo = conversionFinder.getConversionInfo
+   (*coreRef,originalCtfTracks_,originalGsfTracks_,BInTesla) ;
+
   reco::GsfElectron::ConversionRejection conversionVars ;
+  conversionVars.flags = conversionInfo.flag()  ;
+  conversionVars.dist = conversionInfo.dist()  ;
+  conversionVars.dcot = conversionInfo.dcot()  ;
+  conversionVars.radius = conversionInfo.radiusOfConversion()  ;
+  if ((conversionVars.flags==0)or(conversionVars.flags==1))
+    conversionVars.partner = TrackBaseRef(conversionInfo.conversionPartnerCtfTk())  ;
+  else if ((conversionVars.flags==2)or(conversionVars.flags==3))
+    conversionVars.partner = TrackBaseRef(conversionInfo.conversionPartnerGsfTk())  ;
 
 
   //====================================================
@@ -1175,20 +1202,28 @@ void GsfElectronAlgo::checkEcalSeedingParameters( edm::ParameterSetID const & ps
   edm::pset::Registry::instance()->getMapped(psetid,pset) ;
   edm::ParameterSet seedConfiguration = pset.getParameter<edm::ParameterSet>("SeedConfiguration") ;
   edm::ParameterSet orderedHitsFactoryPSet = seedConfiguration.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet") ;
-  //  edm::ParameterSet seedParameters = seedConfiguration.getParameter<edm::ParameterSet>("ecalDrivenElectronSeedsParameters") ;
-//
-//  if (seedParameters.getParameter<bool>("applyHOverECut"))
-//   {
-//    if (hOverEConeSize_!=seedParameters.getParameter<double>("hOverEConeSize"))
-//     { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The H/E cone size is different from ecal seeding." ; }
-//    if (maxHOverEBarrel_<seedParameters.getParameter<double>("maxHOverEBarrel"))
-//     { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The max barrel H/E is lower than during ecal seeding." ; }
-//    if (maxHOverEEndcaps_<seedParameters.getParameter<double>("maxHOverEEndcaps"))
-//     { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The max endcaps H/E is lower than during ecal seeding." ; }
-//   }
-//
-//  if (minSCEtBarrel_<seedParameters.getParameter<double>("SCEtCut"))
-//   { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The minimum super-cluster Et in barrel is lower than during ecal seeding." ; }
-//  if (minSCEtEndcaps_<seedParameters.getParameter<double>("SCEtCut"))
-//   { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The minimum super-cluster Et in endcaps is lower than during ecal seeding." ; }
+  //edm::ParameterSet seedParameters = seedConfiguration.getParameter<edm::ParameterSet>("ecalDrivenElectronSeedsParameters") ;
+
+  if (seedConfiguration.getParameter<bool>("applyHOverECut"))
+   {
+    if (hOverEConeSize_!=seedConfiguration.getParameter<double>("hOverEConeSize"))
+     { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The H/E cone size is different from ecal seeding." ; }
+    if (maxHOverEBarrel_<seedConfiguration.getParameter<double>("maxHOverEBarrel"))
+     { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The max barrel H/E is lower than during ecal seeding." ; }
+    if (maxHOverEEndcaps_<seedConfiguration.getParameter<double>("maxHOverEEndcaps"))
+     { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The max endcaps H/E is lower than during ecal seeding." ; }
+   }
+
+  if (minSCEtBarrel_<seedConfiguration.getParameter<double>("SCEtCut"))
+   { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The minimum super-cluster Et in barrel is lower than during ecal seeding." ; }
+  if (minSCEtEndcaps_<seedConfiguration.getParameter<double>("SCEtCut"))
+   { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The minimum super-cluster Et in endcaps is lower than during ecal seeding." ; }
  }
+
+void GsfElectronAlgo::retreiveOriginalTrackCollections
+ ( const reco::TrackRef & ctfTrack, const reco::GsfTrackRef & gsfTrack )
+ {
+  event_->get(ctfTrack.id(),originalCtfTracks_) ;
+  event_->get(gsfTrack.id(),originalGsfTracks_) ;
+ }
+

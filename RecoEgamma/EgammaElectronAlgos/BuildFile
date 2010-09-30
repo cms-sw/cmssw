@@ -26,6 +26,7 @@
 <use name=RecoCaloTools/Selectors>
 <use name=RecoCaloTools/MetaCollections>
 <use name=RecoEcal/EgammaCoreTools>
+<use name=RecoEgamma/EgammaTools>
 <use name=RecoEgamma/EgammaIsolationAlgos>
 <use name=TrackingTools/MeasurementDet>
 <use name=RecoTracker/TkTrackingRegions>
