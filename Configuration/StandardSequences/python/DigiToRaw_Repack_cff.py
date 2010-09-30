@@ -11,6 +11,10 @@ SiStripDigiToZSRaw = EventFilter.SiStripRawToDigi.SiStripDigiToRaw_cfi.SiStripDi
     FedReadoutMode = cms.string('ZERO_SUPPRESSED')
     )
 
+SiStripRawDigiToVirginRaw = SiStripDigiToZSRaw.clone(
+	FedReadoutMode = cms.string('VIRGIN_RAW')
+)
+
 ##
 ## (2) Combine new ZS RAW from tracker with existing RAW for other FEDs
 ##
@@ -24,8 +28,14 @@ rawDataRepacker = rawDataCollector.clone(
                                        cms.InputTag('rawDataCollector'))
     )
 
+virginRawDataRepacker = rawDataRepacker.clone(
+	RawCollectionList = cms.VInputTag( cms.InputTag('SiStripRawDigiToVirginRaw'))
+)
+
 ##
 ## Repacked DigiToRaw Sequence
 ##
 
 DigiToRawRepack = cms.Sequence( SiStripDigiToZSRaw * rawDataRepacker )
+DigiToVirginRawRepack = cms.Sequence( SiStripRawDigiToVirginRaw * virginRawDataRepacker )
+DigiToSplitRawRepack = cms.Sequence( DigiToRawRepack + DigiToVirginRawRepack )
