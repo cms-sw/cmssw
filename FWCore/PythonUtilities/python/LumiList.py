@@ -264,11 +264,24 @@ class LumiList(object):
                 del self.compactList[run]
 
 
-    def contains (self, run, lumiSection):
+    def contains (self, run, lumiSection = None):
         '''
         returns true if the run, lumi section passed in is contained
-        in this lumiList
+        in this lumiList.  Input can be either:
+        - a single tuple of (run, lumi),
+        - separate run and lumi numbers
+        - a single run number (returns true if any lumi sections exist)
         '''
+        if lumiSection is None:
+            # if this is an integer or a string, see if the run exists
+            if isinstance (run, int) or isinstance (run, int):
+                return self.compactList.has_key( str(run) )
+            # if we're here, then run better be a tuple or list
+            try:
+                lumiSection = run[1]
+                run         = run[0]
+            except:
+                raise RuntimeError, "Improper format for run '%s'" % run
         lumiRangeList = self.compactList.get( str(run) )
         if not lumiRangeList:
             # the run isn't there, so no need to look any further
@@ -278,11 +291,16 @@ class LumiList(object):
                 # got it
                 return True
         return False
+
+
+    def __contains__ (self, runTuple):
+        return self.contains (runTuple)
+    
     
 
 '''
 # Unit test code
-import unittest
+import unittesti
 
 class LumiListTest(unittest.TestCase):
     """
@@ -520,8 +538,8 @@ class LumiListTest(unittest.TestCase):
         a = LumiList(runsAndLumis = alumis)
         a.writeJSON('newFile.json')
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     jsonFile = open('lumiTest.json','w')
     jsonFile.write('{"1": [[1, 33], [35, 35], [37, 47]], "2": [[49, 75], [77, 130], [133, 136]]}')
     jsonFile.close()
@@ -530,3 +548,29 @@ if __name__ == '__main__':
 # Test JSON file
 
 #{"1": [[1, 33], [35, 35], [37, 47]], "2": [[49, 75], [77, 130], [133, 136]]}
+
+if __name__ == '__main__':
+    #############################################
+    ## Load and save command line history when ##
+    ## running interactively.                  ##
+    #############################################
+    import os, readline
+    import atexit
+    historyPath = os.path.expanduser("~/.pyhistory")
+
+
+    def save_history(historyPath=historyPath):
+        import readline
+        readline.write_history_file(historyPath)
+        if os.path.exists(historyPath):
+            readline.read_history_file(historyPath)
+
+
+    atexit.register(save_history)
+    readline.parse_and_bind("set show-all-if-ambiguous on")
+    readline.parse_and_bind("tab: complete")
+    if os.path.exists (historyPath) :
+        readline.read_history_file(historyPath)
+        readline.set_history_length(-1)
+
+
