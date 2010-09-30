@@ -29,7 +29,7 @@ void Field::GetFieldValue(const double xyz[3],double bfield[3]) const
     // but ler's stick to system function isnan(...) for now
     //
     // if ( !(xyz[0]==xyz[0]) || !(xyz[1]==xyz[1]) || !(xyz[2]==xyz[2]) )
-    if ( isnan(xyz[0]+xyz[1]+xyz[2]) != 0 )
+    if ( std::isnan(xyz[0]+xyz[1]+xyz[2]) != 0 )
     {
        throw SimG4Exception( "SimG4CoreMagneticField: Corrupted Event - NaN detected (position)" ) ;
     }
