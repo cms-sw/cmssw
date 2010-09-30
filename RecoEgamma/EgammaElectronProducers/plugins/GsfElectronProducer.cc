@@ -10,16 +10,6 @@
  Implementation:
      <Notes on implementation>
 */
-//
-// Original Author:  Ursula Berthon, Claude Charlot
-//         Created:  Mon Mar 27 13:22:06 CEST 2006
-<<<<<<< GsfElectronProducer.cc
-// $Id: GsfElectronProducer.cc,v 1.28 2010/09/24 09:16:20 chamont Exp $
-=======
-// $Id: GsfElectronProducer.cc,v 1.27.4.1 2010/09/30 16:33:00 vlimant Exp $
->>>>>>> 1.27.4.1
-//
-//
 
 #include "GsfElectronProducer.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgo.h"
