@@ -330,7 +330,8 @@ bool ELoutput::log( const edm::ErrorObj & msg )  {
 #ifdef THRESHTRACE
   std::cerr << "    =:=:=: Log to an ELoutput \n"
     	    << "           severity  = " << xid.severity  << "\n"
-	    << "           threshold = " << threshold     << "\n";
+	    << "           threshold = " << threshold     << "\n"
+	    << "           id        = " << xid.id        << "\n";
 #endif
 
   // See if this message is to be acted upon, and add it to limits table

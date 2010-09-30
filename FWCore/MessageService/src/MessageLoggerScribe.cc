@@ -176,6 +176,11 @@
 //       Establish values of debugAlwaysSuppressed, infoAlwaysSuppressed
 //       and warningAlwaysSuppressed when setting up thresholds
 //
+//  38 - 9/29/10 mf, ql
+//       Limit and timespan shuold be translated from -1 input to 
+//	 2000000000.  This was being done in all cases except the 
+//	 severity limits; omission rectified.
+//
 // ----------------------------------------------------------------------
 
 #include "FWCore/MessageService/interface/MessageLoggerScribe.h"
@@ -706,7 +711,10 @@ void
     if ( limit     == NO_VALUE_SET )  {				// change log 24
        limit = messageLoggerDefaults->sev_limit(filename,sevID);
     }  
-    if( limit    != NO_VALUE_SET )  dest_ctrl.setLimit(severity, limit   );
+    if( limit    != NO_VALUE_SET )  {
+      if (limit < 0) limit = 2000000000;			// change log 38
+      dest_ctrl.setLimit(severity, limit   );
+    }
     int  interval  = getAparameter<int>(sev_pset, "reportEvery", NO_VALUE_SET);
     if ( interval     == NO_VALUE_SET )  {			// change log 24
        interval = messageLoggerDefaults->sev_reportEvery(filename,sevID);
@@ -717,8 +725,10 @@ void
     if ( timespan     == NO_VALUE_SET )  {			// change log 24
        timespan = messageLoggerDefaults->sev_timespan(filename,sevID);
     }  
-    if( timespan != NO_VALUE_SET )  dest_ctrl.setTimespan(severity, timespan   );
-    						// change log 6
+    if( timespan    != NO_VALUE_SET )  {
+      if (timespan < 0) timespan = 2000000000;			// change log 38
+      dest_ctrl.setTimespan(severity, timespan   );
+    }
   }  // for
 
   // establish this destination's linebreak policy:

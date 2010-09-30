@@ -13,18 +13,21 @@
 //   5/18/06	mf	setInterval
 //  11/2/07	mf	add:  Changed ivl = wildcardLimit to wildcardInterval.
 //			Probably moot and never reached, but a clear correction.
+//  9/29/10	mf,ql	Fix savanah bug 65284 where two messages of same
+//			category but different severity, if limits were not
+//			take from category, first severity sets the limit
+//			for both of those xid's.
 //
 // ----------------------------------------------------------------------
 
 
 #include "FWCore/MessageService/interface/ELlimitsTable.h"
 
+// Posible traces
 //#include <iostream>
 //using std::cerr;
-
-// Posible traces
-// #define ELlimitsTableCONSTRUCTOR_TRACE
-// #define ELlimitsTableATRACE
+//#define ELlimitsTableCONSTRUCTOR_TRACE
+//#define ELlimitsTableATRACE
 
 
 namespace edm {
@@ -86,6 +89,12 @@ bool ELlimitsTable::add( const ELextendedID & xid )  {
     #ifdef ELlimitsTableATRACE
     std::cerr << "&&&    no such entry yet in counts \n";
     #endif
+
+    // if the counts table is "full", then this will never be rejected
+    // and info will not be kept so why go through significant work: 
+    if ( tableLimit > 0  && static_cast<int>(counts.size()) >= tableLimit ) {
+      return true;
+    }
     int lim;
     int ivl;
     int ts;
@@ -119,7 +128,7 @@ bool ELlimitsTable::add( const ELextendedID & xid )  {
            << " interval = " << ivl
            << " timespan = " << ts << '\n';
       #endif
-      limits[xid.id] = LimitAndTimespan( lim, ts, ivl );
+      // change log 9/29/10:  Do not put this into limits table
    } else  {   // establish and use limits new to this id
       lim = severityLimits   [xid.severity.getLevel()];
       ivl = severityIntervals[xid.severity.getLevel()];
@@ -150,9 +159,7 @@ bool ELlimitsTable::add( const ELextendedID & xid )  {
         #endif
       }
 
-      // save, if possible, id's future limits:
-      if ( tableLimit < 0  || static_cast<int>(limits.size()) < tableLimit )
-        limits[xid.id] = LimitAndTimespan( lim, ts, ivl );
+      // change log 9/29/10 DO not save id's future limits:
     }
 
     // save, if possible, this xid's initial entry:

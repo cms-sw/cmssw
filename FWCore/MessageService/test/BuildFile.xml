@@ -188,7 +188,7 @@
   <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test u3.sh u4.sh u5.sh u28.sh"/>
 </bin>
 <bin   file="unitTestsLimits.cpp">
-  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test u7.sh u8.sh u11.sh"/>
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test u7.sh u8.sh u11.sh u36.sh"/>
 </bin>
 <bin   file="unitTestsGroup_2.cpp">
   <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/MessageService/test u9.sh u12.sh u13.sh u14.sh u15.sh"/>
