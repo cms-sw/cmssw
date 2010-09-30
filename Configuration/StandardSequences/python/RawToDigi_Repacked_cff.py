@@ -74,3 +74,6 @@ muonCSCDigis.InputObjects = 'rawDataRepacker'
 muonDTDigis.inputLabel = 'rawDataRepacker'
 muonRPCDigis.InputLabel = 'rawDataRepacker'
 castorDigis.InputLabel = 'rawDataRepacker'
+
+siStripVRDigis = siStripDigis.clone(ProductLabel = 'virginRawDataRepacker')
+RawToDigi_withVR = cms.Sequence(RawToDigi + siStripVRDigis)
