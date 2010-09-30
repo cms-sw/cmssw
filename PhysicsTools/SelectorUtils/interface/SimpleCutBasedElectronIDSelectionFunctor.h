@@ -28,21 +28,10 @@ ________________________________________________________________________________
 
 How to use:
 ^^^^^^^^^^^
-    You need to define the track collection that you are going to use
-    in order to search for the conversion partner tracks and the magn
-    field. In the case of MC samples this can be done in this way:
-
-      edm::Handle<reco::TrackCollection> ctfTracks;
-      iEvent.getByLabel("generalTracks",ctfTracks);
-
-      edm::ESHandle<MagneticField> magneticField;
-      esetup.get<IdealMagneticFieldRecord>().get(magneticField);
-      double bfield = magneticField->inTesla(GlobalPoint(0.,0.,0.)).z();
-
-    Then you can define an instance of this class:
+    From CMSSW39 onwards you can simply define an instance of this class:
 
       SimpleCutBasedElectronIDSelectionFunctor patSele95
-      (SimpleCutBasedElectronIDSelectionFunctor::relIso95, bfield, ctfTracks);
+      (SimpleCutBasedElectronIDSelectionFunctor::relIso95);
 
     and get the decision with the following method:
       pat::Electron *myElec = .....;
@@ -63,6 +52,7 @@ ________________________________________________________________________________
     7 June 2010, first commit for CMSSW_3_6_1_patchX
     11July 2010, implementing the ICHEP Egamma recommendation for 
                  removing the Delta Eta cut in the endcaps
+    30Sept 2010, simplification of conversion rejection in CMSSW39X
 ___________________________________________________________________________________
 
 */
@@ -78,9 +68,7 @@ class SimpleCutBasedElectronIDSelectionFunctor : public Selector<pat::Electron> 
   SimpleCutBasedElectronIDSelectionFunctor() {}
   
   // initialize it by inserting directly the cut values in a parameter set
-  SimpleCutBasedElectronIDSelectionFunctor( edm::ParameterSet const & parameters, 
-					    Double_t bfield,  
-					    edm::Handle<reco::TrackCollection> ctfTracks)
+  SimpleCutBasedElectronIDSelectionFunctor(edm::ParameterSet const & parameters)
     {
       // get the cuts from the PS
       initialize( parameters.getParameter<Double_t>("trackIso_EB"), 
@@ -101,14 +89,10 @@ class SimpleCutBasedElectronIDSelectionFunctor : public Selector<pat::Electron> 
 		  parameters.getParameter<Double_t>("cIso_EE"), 
 		  parameters.getParameter<Int_t>("conversionRejection"), 
 		  parameters.getParameter<Int_t>("maxNumberOfExpectedMissingHits"));
-      bfield_ = bfield;
-      ctfTracks_ = ctfTracks;
       retInternal_ = getBitTemplate();
     }
   // initialize it by using only the version name
-  SimpleCutBasedElectronIDSelectionFunctor( Version_t  version, 
-					    Double_t bfield,
-					    edm::Handle<reco::TrackCollection> ctfTracks) 
+  SimpleCutBasedElectronIDSelectionFunctor(Version_t  version)
     {
       if (version == NONE) {
 	std::cout << "SimpleCutBasedElectronIDSelectionFunctor: If you want to use version NONE "
@@ -118,8 +102,6 @@ class SimpleCutBasedElectronIDSelectionFunctor : public Selector<pat::Electron> 
 	version = cIso80;
       }
       initialize(version);
-      bfield_ = bfield;
-      ctfTracks_ = ctfTracks;
       retInternal_ = getBitTemplate();
     }
 
@@ -502,17 +484,10 @@ class SimpleCutBasedElectronIDSelectionFunctor : public Selector<pat::Electron> 
 	       electron.dr03HcalTowerSumEt()  ) / eleET;
     }
     Int_t innerHits = electron.gsfTrack()->trackerExpectedHitsInner().numberOfHits();
-    // getDcot and Dist Criteria
-    // this implementation for conversion rejection works with RecoEgamma/EgammaTools
-    // until 3_6_X. For 3_7_X onwards has to change
-    //ConversionFinder cf;
-    //Bool_t isConv = cf.isElFromConversion(electron, ctfTracks_, bfield_, 0.02, 0.02);
-    
-    // this is how the code should look like in 3_7
-    ConversionFinder cf;
-    cf.getConversionInfo(electron, ctfTracks_, bfield_);
-    Bool_t isConv = cf.isFromConversion(0.02, 0.02);
-    
+    // in 39 conversion rejection variables are accessible from Gsf electron
+    Double_t dist = electron.convDist(); // default value is -9999 if conversion partner not found
+    Double_t dcot = electron.convDcot(); // default value is -9999 if conversion partner not found
+    Bool_t isConv = fabs(dist) < 0.02 && fabs(dcot) < 0.02;
     // now apply the cuts
     if (electron.isEB()) { // BARREL case
       // check the EB cuts
@@ -568,8 +543,6 @@ class SimpleCutBasedElectronIDSelectionFunctor : public Selector<pat::Electron> 
  private: // member variables
   // version of the cuts  
   Version_t version_;
-  Double_t bfield_;
-  edm::Handle<reco::TrackCollection> ctfTracks_;
 };
 
 
