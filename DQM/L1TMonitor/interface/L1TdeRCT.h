@@ -7,11 +7,14 @@
  *
  * Version 0.0. A.Savin 2008/04/26
  *
- * $Date: 2009/11/19 14:35:32 $
- * $Revision: 1.11 $
+ * $Date: 2010/03/25 13:46:02 $
+ * $Revision: 1.12 $
  * \author P. Wittich
- * $Id: L1TdeRCT.h,v 1.11 2009/11/19 14:35:32 puigh Exp $
+ * $Id: L1TdeRCT.h,v 1.12 2010/03/25 13:46:02 weinberg Exp $
  * $Log: L1TdeRCT.h,v $
+ * Revision 1.12  2010/03/25 13:46:02  weinberg
+ * removed quiet bit information
+ *
  * Revision 1.11  2009/11/19 14:35:32  puigh
  * modify beginJob
  *
@@ -89,6 +92,8 @@
 
 
 
+
+
 //
 // class declaration
 //
@@ -105,10 +110,18 @@ public:
 
 protected:
 // Analyze
- void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  
+  // BeginJob
+  void beginJob(void);
 
-// BeginJob
- void beginJob(void);
+  //For FED vector monitoring 
+  void beginRun(const edm::Run&, const edm::EventSetup&);
+  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+  void readFEDVector(MonitorElement*,const edm::EventSetup&); 
+
+
+
 
 // EndJob
 void endJob(void);
@@ -277,6 +290,15 @@ private:
   MonitorElement* trigEffTriggOcc_[396];
 
   // end region channel information
+
+
+  //begin fed vector information
+  static const int crateFED[90];
+  MonitorElement *fedVectorMonitorRUN_;
+  MonitorElement *fedVectorMonitorLS_;
+  ///////////////////////////////
+
+
 
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput
