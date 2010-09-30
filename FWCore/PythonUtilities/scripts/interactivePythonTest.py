@@ -1,15 +1,23 @@
 #!/usr/bin/env python
+import sys
+import os
+import readline
+import atexit
+
+import ctypes
+
+def interactive_inspect_mode():
+    flagPtr = ctypes.cast(ctypes.pythonapi.Py_InteractiveFlag, 
+                         ctypes.POINTER(ctypes.c_int))
+    return flagPtr.contents.value > 0 or bool(os.environ.get("PYTHONINSPECT",False))
+
 
 if __name__ == '__main__':
 
-    print "python -i `which interactivePythonTest.py` "
-    
     #############################################
     ## Load and save command line history when ##
     ## running interactively.                  ##
     #############################################
-    import os, readline
-    import atexit
     historyPath = os.path.expanduser("~/.pyhistory")
 
 
@@ -26,5 +34,8 @@ if __name__ == '__main__':
     if os.path.exists (historyPath) :
         readline.read_history_file(historyPath)
         readline.set_history_length(-1)
+
+    if not interactive_inspect_mode():
+        print "python -i `which interactivePythonTest.py` "
 
 
