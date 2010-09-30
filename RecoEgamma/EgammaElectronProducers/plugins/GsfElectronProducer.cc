@@ -137,6 +137,7 @@ void GsfElectronProducer::fillDescriptions( edm::ConfigurationDescriptions & des
   desc.add<double>("severityRecHitThreshold",5.0) ;
   desc.add<double>("spikeIdThreshold",0.95) ;
   desc.add<std::string>("spikeIdString","kSwissCrossBordersIncluded") ;
+  desc.add<std::vector<int> >("recHitFlagsToBeExcluded") ;
 
   edm::ParameterSetDescription descNested ;
   descNested.add<std::string>("propagatorAlongTISE","PropagatorWithMaterial") ;
