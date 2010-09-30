@@ -20,6 +20,7 @@ HLT_DiJetAve100U
 HLT_DoubleJet15U_ForwardBackward
 HLT_DoubleJet25U_ForwardBackward
 HLT_ExclDiJet30U
+HLT_ExclDiJet30U_HFOR
 HLT_QuadJet15U
 HLT_QuadJet20U
 HLT_QuadJet25U
@@ -35,6 +36,9 @@ HLT_HT50U
 HLT_HT100U
 HLT_HT120U
 HLT_HT140U
+HLT_HT140U_Eta3
+HLT_HT160U
+HLT_HT200U
 HLT_L1ETT100
 HLT_EcalOnly_SumEt160
 HLT_L1MuOpen
@@ -44,7 +48,7 @@ HLT_L1Mu7
 HLT_L1Mu20
 HLT_L2Mu30
 HLT_L2Mu7
-HLT_Mu5_Photon9_Cleaned_L1R
+HLT_Mu5_Photon11_Cleaned_L1R
 HLT_Mu5_HT50U
 HLT_Mu5_Jet35U
 HLT_Mu5_Ele5
@@ -59,6 +63,7 @@ HLT_Mu11
 HLT_Mu13
 HLT_Mu15
 HLT_Mu20_NoVertex
+HLT_IsoMu11
 HLT_IsoMu9
 HLT_L1DoubleMuOpen
 HLT_DoubleMu3
@@ -100,7 +105,7 @@ HLT_Ele40_SW_L1R
 HLT_DoubleEle4_SW_eeRes_L1R
 HLT_SingleIsoTau20_Trk5_MET20
 HLT_SingleIsoTau20_Trk15_MET20
-HLT_SingleIsoTau30_Trk5_L120or30
+HLT_SingleIsoTau30_Trk5_v2
 HLT_SingleIsoTau30_Trk5_MET20
 HLT_DoubleIsoTau15_OneLeg_Trk5
 HLT_DoubleIsoTau15_Trk5
