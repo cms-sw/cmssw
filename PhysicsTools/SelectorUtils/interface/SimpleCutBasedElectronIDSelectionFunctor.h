@@ -8,7 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
+
 /*
 ___________________________________________________________________________________
 
