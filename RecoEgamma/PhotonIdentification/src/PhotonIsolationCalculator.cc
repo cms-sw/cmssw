@@ -164,6 +164,12 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf) {
   severityRecHitThreshold_ = conf.getParameter<double>("severityRecHitThreshold");
   spikeIdThreshold_        = conf.getParameter<double>("spikeIdThreshold");
 
+  const std::vector<int> &tempV(conf.getParameter<std::vector<int> >("recHitFlagsToBeExcluded"));
+  v_chstatus_.clear();
+  v_chstatus_.insert(v_chstatus_.begin(),tempV.begin(),tempV.end());
+  std::sort( v_chstatus_.begin(), v_chstatus_.end() );
+
+
   //Need to figure out which algo to use
   if(!conf.getParameter<std::string>("spikeIdString").compare("kE1OverE9") )   {
     spId_ = EcalSeverityLevelAlgo::kE1OverE9;

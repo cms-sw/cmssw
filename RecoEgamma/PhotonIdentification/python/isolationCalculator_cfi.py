@@ -1,5 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoEcal.EgammaClusterProducers.ecalRecHitFlags_cfi import *
+from RecoEcal.EgammaClusterProducers.ecalSeverityLevelAlgos_cfi import *
+from RecoEcal.EgammaClusterProducers.ecalSeverityLevelFlags_cfi import *
+
 isolationSumsCalculator = cms.PSet(
     #required inputs
     ComponentName = cms.string('isolationSumsCalculator'),
@@ -129,6 +133,17 @@ isolationSumsCalculator = cms.PSet(
     HcalDepth2TowerInnerRadiusB_Endcap = cms.double(0.15),
     HcalDepth2TowerOuterRadiusB_Endcap = cms.double(0.3),
     HcalDepth2TowerThreshEB_Endcap     = cms.double(0.0),
+
+    recHitFlagsToBeExcluded = cms.vint32(
+        ecalRecHitFlag_kFaultyHardware,
+        ecalRecHitFlag_kPoorCalib,
+#        ecalRecHitFlag_kSaturated,
+#        ecalRecHitFlag_kLeadingEdgeRecovered,
+#        ecalRecHitFlag_kNeighboursRecovered,
+        ecalRecHitFlag_kTowerRecovered,
+        ecalRecHitFlag_kDead
+    ),
+
 
 )
 
