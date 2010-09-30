@@ -1,5 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoEcal.EgammaClusterProducers.ecalRecHitFlags_cfi import *
+from RecoEcal.EgammaClusterProducers.ecalSeverityLevelAlgos_cfi import *
+from RecoEcal.EgammaClusterProducers.ecalSeverityLevelFlags_cfi import *
+
 GamIsoEcalFromHitsExtractorBlock = cms.PSet(
     ComponentName = cms.string('EgammaRecHitExtractor'),
     DepositLabel = cms.untracked.string(''),
@@ -19,7 +23,16 @@ GamIsoEcalFromHitsExtractorBlock = cms.PSet(
     severityLevelCut = cms.int32(3),
     severityRecHitThreshold = cms.double(5.0),
     spikeIdString = cms.string('kSwissCross'),
-    spikeIdThreshold = cms.double(0.95)
+    spikeIdThreshold = cms.double(0.95),
 
+    recHitFlagsToBeExcluded = cms.vint32(
+        ecalRecHitFlag_kFaultyHardware,
+        ecalRecHitFlag_kPoorCalib,
+#        ecalRecHitFlag_kSaturated,
+#        ecalRecHitFlag_kLeadingEdgeRecovered,
+#        ecalRecHitFlag_kNeighboursRecovered,
+        ecalRecHitFlag_kTowerRecovered,
+        ecalRecHitFlag_kDead
+    ),
 )
 

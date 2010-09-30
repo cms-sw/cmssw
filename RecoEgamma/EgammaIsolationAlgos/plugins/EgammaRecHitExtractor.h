@@ -71,6 +71,8 @@ namespace egammaisolation {
          std::string spIdString_;
          float spIdThreshold_;
          EcalSeverityLevelAlgo::SpikeId spId_;
+         std::vector<int> v_chstatus_;
+
 
    };
 }

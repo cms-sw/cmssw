@@ -58,6 +58,9 @@ class GamIsoDetIdCollectionProducer : public edm::EDProducer {
       std::string spIdString_;
       float spIdThreshold_;
       EcalSeverityLevelAlgo::SpikeId spId_;
+      std::vector<int> v_chstatus_;
 };
 
 #endif
+
+

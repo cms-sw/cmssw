@@ -54,6 +54,12 @@ class EgammaRecHitIsolation {
     spIdThreshold_ = spIdThresh;
   }
 
+  void doFlagChecks(const std::vector<int> v) {
+    v_chstatus_.clear();
+    v_chstatus_.insert(v_chstatus_.begin(),v.begin(),v.end());
+    std::sort( v_chstatus_.begin(), v_chstatus_.end() );
+  }
+
   //destructor 
   ~EgammaRecHitIsolation() ;
   
@@ -78,6 +84,7 @@ class EgammaRecHitIsolation {
   float severityRecHitThreshold_;
   EcalSeverityLevelAlgo::SpikeId spId_;
   float spIdThreshold_;
+  std::vector<int> v_chstatus_;
 
 
   const CaloSubdetectorGeometry* subdet_[2]; // barrel+endcap

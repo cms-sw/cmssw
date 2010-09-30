@@ -50,7 +50,8 @@ EgammaRecHitExtractor::EgammaRecHitExtractor(const edm::ParameterSet& par) :
     severityLevelCut_(par.getParameter<int>("severityLevelCut")),
     severityRecHitThreshold_(par.getParameter<double>("severityRecHitThreshold")),
     spIdString_(par.getParameter<std::string>("spikeIdString")),
-    spIdThreshold_(par.getParameter<double>("spikeIdThreshold"))
+    spIdThreshold_(par.getParameter<double>("spikeIdThreshold")),
+    v_chstatus_(par.getParameter<std::vector<int> >("recHitFlagsToBeExcluded"))
 { 
 
     if     ( !spIdString_.compare("kE1OverE9") )   spId_ = EcalSeverityLevelAlgo::kE1OverE9;
@@ -190,6 +191,12 @@ void EgammaRecHitExtractor::collect(reco::IsoDeposit &deposit,
                    spId_,                                //the SpikeId method (currently kE1OverE9 or kSwissCross)
                    spIdThreshold_                        //cut value for above
                ) >= severityLevelCut_) continue;         //then if the severity level is too high, we continue to the next rechit
+
+            //Check based on flags to protect from recovered channels from non-read towers
+            //Assumption is that v_chstatus_ is empty unless doFlagChecks() has been called
+            std::vector<int>::const_iterator vit = std::find( v_chstatus_.begin(), v_chstatus_.end(),  ((EcalRecHit*)(&*j))->recoFlag() );
+            if ( vit != v_chstatus_.end() ) continue; // the recHit has to be excluded from the iso sum
+
 
             if(   fabs(et) > etMin_ 
                     && fabs(energy) > energyMin_  //Changed to fabs

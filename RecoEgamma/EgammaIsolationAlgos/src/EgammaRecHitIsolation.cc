@@ -51,7 +51,8 @@ EgammaRecHitIsolation::EgammaRecHitIsolation (double extRadius,
     severityLevelCut_(-1),
     severityRecHitThreshold_(0),
     spId_(EcalSeverityLevelAlgo::kSwissCross),
-    spIdThreshold_(0)
+    spIdThreshold_(0),
+    v_chstatus_(0)
 {
     //set up the geometry and selector
     const CaloGeometry* caloGeom = theCaloGeom_.product();
@@ -125,6 +126,7 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
                         if(isClustered) continue;
                     }  //end if removeClustered
 
+                    //Severity level check
                     if( severityLevelCut_!=-1 && ecalBarHits_ &&  //make sure we have a barrel rechit
                         EcalSeverityLevelAlgo::severityLevel(     //call the severity level method
                             EBDetId(j->detid()),                  //passing the EBDetId
@@ -134,6 +136,11 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
                             spId_,                                //the SpikeId method (currently kE1OverE9 or kSwissCross)
                             spIdThreshold_                        //cut value for above
                         ) >= severityLevelCut_) continue;         //then if the severity level is too high, we continue to the next rechit
+
+                    //Check based on flags to protect from recovered channels from non-read towers
+                    //Assumption is that v_chstatus_ is empty unless doFlagChecks() has been called
+                    std::vector<int>::const_iterator vit = std::find( v_chstatus_.begin(), v_chstatus_.end(),  ((EcalRecHit*)(&*j))->recoFlag() );
+                    if ( vit != v_chstatus_.end() ) continue; // the recHit has to be excluded from the iso sum
 
 
                     double et = energy*position.perp()/position.mag();

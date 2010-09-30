@@ -38,7 +38,8 @@ GamIsoDetIdCollectionProducer::GamIsoDetIdCollectionProducer(const edm::Paramete
             severityLevelCut_(iConfig.getParameter<int>("severityLevelCut")),
             severityRecHitThreshold_(iConfig.getParameter<double>("severityRecHitThreshold")),
             spIdString_(iConfig.getParameter<std::string>("spikeIdString")),
-            spIdThreshold_(iConfig.getParameter<double>("spikeIdThreshold")) {
+            spIdThreshold_(iConfig.getParameter<double>("spikeIdThreshold")),
+            v_chstatus_(iConfig.getParameter<std::vector<int> >("recHitFlagsToBeExcluded")) {
 
     if     ( !spIdString_.compare("kE1OverE9") )   spId_ = EcalSeverityLevelAlgo::kE1OverE9;
     else if( !spIdString_.compare("kSwissCross") ) spId_ = EcalSeverityLevelAlgo::kSwissCross;
@@ -118,6 +119,10 @@ GamIsoDetIdCollectionProducer::produce (edm::Event& iEvent,
                         spIdThreshold_                            //cut value for above
                    ) >= severityLevelCut_) continue;              //then if the severity level is too high, we continue to the next rechit
 
+                //Check based on flags to protect from recovered channels from non-read towers
+                //Assumption is that v_chstatus_ is empty unless doFlagChecks() has been called
+                std::vector<int>::const_iterator vit = std::find( v_chstatus_.begin(), v_chstatus_.end(),  ((EcalRecHit*)(&*recIt))->recoFlag() );
+                if ( vit != v_chstatus_.end() ) continue; // the recHit has to be excluded from the iso sum
 
                 if(std::find(detIdCollection->begin(),detIdCollection->end(),recIt->detid()) == detIdCollection->end()) 
                     detIdCollection->push_back(recIt->detid());
