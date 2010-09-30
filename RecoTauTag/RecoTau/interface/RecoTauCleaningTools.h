@@ -1,11 +1,13 @@
 #ifndef RecoTauTag_RecoTau_RecoTauCleaningTools_h
 #define RecoTauTag_RecoTau_RecoTauCleaningTools_h
 #include <algorithm>
+#include <functional>
 
 namespace reco { namespace tau {
 
 template<typename RankingList, typename Type>
-  class RecoTauLexicographicalRanking {
+  class RecoTauLexicographicalRanking :
+      public std::binary_function<Type, Type, bool> {
     public:
       // Store our list of ranking functions and intialize the vectors
       // that hold the comparison result
@@ -56,7 +58,5 @@ class SortByDescendingPt {
       return a.pt() > b.pt();
     }
 };
-
-}} // end reco::tau::
-
+}}  // end reco::tau::
 #endif
