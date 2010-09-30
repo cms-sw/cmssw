@@ -46,7 +46,7 @@ localreco_HcalNZS = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalrecoNZS
 from RecoLocalCalo.Castor.Castor_cff import *
 from RecoLocalCalo.Configuration.hcalGlobalReco_cff import *
 
-globalreco = cms.Sequence(offlineBeamSpot+recopixelvertexing+trackingGlobalReco+hcalGlobalRecoSequence+particleFlowCluster+ecalClusters+caloTowersRec*vertexreco*egammarecoGlobal*jetGlobalReco+muonrecoComplete+muoncosmicreco+electronGsfTracking+CastorFullReco)
+globalreco = cms.Sequence(offlineBeamSpot+recopixelvertexing+trackingGlobalReco+hcalGlobalRecoSequence+particleFlowCluster+ecalClusters+caloTowersRec*vertexreco*electronGsfTracking*egammarecoGlobal*jetGlobalReco+muonrecoComplete+muoncosmicreco+CastorFullReco)
 globalreco_plusRS = cms.Sequence(globalreco*rstracks)
 globalreco_plusPL= cms.Sequence(globalreco*ctfTracksPixelLess)
 
