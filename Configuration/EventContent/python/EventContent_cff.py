@@ -30,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.31 2010/08/16 16:39:02 vlimant Exp $
+#  $Id: EventContent_cff.py,v 1.1 2010/09/30 03:26:24 edwenger Exp $
 #
 #
 #
@@ -311,7 +311,8 @@ REPACKRAWEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring(
       'drop *',
       'drop FEDRawDataCollection_*_*_*',
-      'keep FEDRawDataCollection_rawDataRepacker_*_*'),
+      'keep FEDRawDataCollection_rawDataRepacker_*_*',
+      'keep FEDRawDataCollection_virginRawDataRepacker_*_*'),
     splitLevel = cms.untracked.int32(0)
     )
 REPACKRAWSIMEventContent = cms.PSet(
