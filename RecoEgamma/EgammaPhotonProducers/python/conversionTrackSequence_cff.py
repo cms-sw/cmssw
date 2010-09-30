@@ -54,11 +54,11 @@ inOutOutInConversionTrackMerger = RecoEgamma.EgammaPhotonProducers.conversionTra
 #merge ecalseeded collections with collection from general tracks
 #trackeronly flag is forwarded from the generaltrack-based collections
 #ecalseeded flag is forwarded from the ecal seeded collection
-#arbitratedmerged flag is set based on shared hit matching, but precedence given to ecal seeded tracks in case of overlap
+#arbitratedmerged flag is set based on shared hit matching, arbitration by nhits then chi^2/ndof
 generalInOutOutInConversionTrackMerger = RecoEgamma.EgammaPhotonProducers.conversionTrackMerger_cfi.conversionTrackMerger.clone(
     TrackProducer1 = cms.string('inOutOutInConversionTrackMerger'),
     TrackProducer2 = cms.string('generalConversionTrackProducer'),
-    arbitratedMergedPreferCollection = cms.int32(1),
+    arbitratedMergedPreferCollection = cms.int32(3),
 )
 
 #merge the result of the above with the collection from gsf tracks
@@ -71,10 +71,20 @@ gsfGeneralInOutOutInConversionTrackMerger = RecoEgamma.EgammaPhotonProducers.con
 )
 
 #final output collection contains combination of generaltracks, ecal seeded tracks and gsf tracks, with overlaps removed by shared hits
-#precedence is given first to gsf tracks, then to ecal seeded tracks, then to general tracks
-#overlaps between the ecal seeded track collections are arbitrated first by nhits then by chi^2/dof (logic and much of the code is
-#adapted from FinalTrackSelectors)
+#precedence is given first to gsf tracks, then to the combination of ecal seeded and general tracks
+#overlaps between the ecal seeded track collections and between ecal seeded and general tracks are arbitrated first by nhits then by chi^2/dof
+#(logic and much of the code is adapted from FinalTrackSelectors)
 
 conversionTrackMergers = cms.Sequence(inOutOutInConversionTrackMerger*generalInOutOutInConversionTrackMerger*gsfGeneralInOutOutInConversionTrackMerger)
 
 conversionTrackSequence = cms.Sequence(ckfTracksFromConversions*conversionTrackProducers*conversionTrackMergers)
+
+#merge the general tracks with the collection from gsf tracks
+#arbitratedmerged flag set based on overlap removal by shared hits, with precedence given to gsf tracks
+gsfGeneralConversionTrackMerger = RecoEgamma.EgammaPhotonProducers.conversionTrackMerger_cfi.conversionTrackMerger.clone(
+    TrackProducer1 = cms.string('generalConversionTrackProducer'),
+    TrackProducer2 = cms.string('gsfConversionTrackProducer'),
+    arbitratedMergedPreferCollection = cms.int32(2),
+)
+
+conversionTrackSequenceNoEcalSeeded = cms.Sequence(generalConversionTrackProducer*gsfConversionTrackProducer*gsfGeneralConversionTrackMerger)
