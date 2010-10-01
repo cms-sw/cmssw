@@ -30,6 +30,7 @@ on the ROOT script electronValidation.C.
 
 #setenv VAL_WEB "/afs/cern.ch/cms/Physics/egamma/www/validation"
 #setenv VAL_WEB_URL "http://cmsdoc.cern.ch/Physics/egamma/www/validation"
+<var name="STORE_WEB" value="/afs/cern.ch/user/c/chamont/www/validation">
 <var name="VAL_WEB" value="/afs/cern.ch/user/c/chamont/www/validation">
 <var name="VAL_WEB_URL" value="https://chamont.web.cern.ch/chamont/validation">
 
