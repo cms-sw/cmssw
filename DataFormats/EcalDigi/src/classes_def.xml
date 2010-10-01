@@ -30,9 +30,11 @@
    <class name="EcalDigiCollection"/>
    <class name="EBDigiCollection"/>
    <class name="EEDigiCollection"/>
+   <class name="EcalTrigPrimCompactColl"/>
    <class name="edm::Wrapper<EcalDigiCollection>" splitLevel="0"/>
    <class name="edm::Wrapper<EBDigiCollection>" splitLevel="0"/>
    <class name="edm::Wrapper<EEDigiCollection>" splitLevel="0"/>
+   <class name="edm::Wrapper<EcalTrigPrimCompactColl>" splitLevel="0"/>   
    
    <class name="edm::SortedCollection<ESDataFrame,edm::StrictWeakOrdering<ESDataFrame> >"/>
    <class name="edm::SortedCollection<EcalTriggerPrimitiveDigi,edm::StrictWeakOrdering<EcalTriggerPrimitiveDigi> >"/>
