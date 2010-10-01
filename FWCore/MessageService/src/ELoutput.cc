@@ -105,7 +105,7 @@ static ELstring formatTime( const time_t t )  { // Change log 7
 
   struct tm timebuf; // Change log 7
 
-  strftime( ts, strlen(ts)+1, "%d-%b-%Y %H:%M:%S %Z", localtime_r(&t, &timebuf) ); // Change log 7
+  strftime( ts, sizeof(dummy), "%d-%b-%Y %H:%M:%S %Z", localtime_r(&t, &timebuf) ); // Change log 7
                 // mf 4-9-04
 
 #ifdef STRIP_TRAILING_BLANKS_IN_TIMEZONE
