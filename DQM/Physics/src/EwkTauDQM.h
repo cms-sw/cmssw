@@ -13,9 +13,9 @@
  *          Joshua Swanson,
  *          Christian Veelken
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: EwkTauDQM.h,v 1.2 2010/01/21 09:40:36 veelken Exp $
+ * $Id: EwkTauDQM.h,v 1.3 2010/02/20 20:58:54 wmtan Exp $
  *
  */
 
@@ -24,7 +24,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include <string>
-
+#include <Math/VectorUtil.h>
 class EwkElecTauHistManager;
 class EwkMuTauHistManager;
 
@@ -60,9 +60,9 @@ class EwkTauDQM : public edm::EDAnalyzer
  * \author Joshua Swanson
  *        (modified by Christian Veelken)
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: EwkTauDQM.h,v 1.2 2010/01/21 09:40:36 veelken Exp $
+ * $Id: EwkTauDQM.h,v 1.3 2010/02/20 20:58:54 wmtan Exp $
  *
  */
 
@@ -131,9 +131,10 @@ class EwkElecTauHistManager
   MonitorElement* hElectronPhi_;
   MonitorElement* hElectronTrackIsoPt_;
   MonitorElement* hElectronEcalIsoPt_;
+  //MonitorElement* hElectronHcalIsoPt_;
 
-  //MonitorElement* hTauJetPt_;
-  //MonitorElement* hTauJetEta_;
+  MonitorElement* hTauJetPt_;
+  MonitorElement* hTauJetEta_;
   //MonitorElement* hTauJetPhi_;
   //MonitorElement* hTauLeadTrackPt_;
   //MonitorElement* hTauTrackIsoPt_;
@@ -150,7 +151,7 @@ class EwkElecTauHistManager
   //MonitorElement* hPzetaCaloMEt_;
   //MonitorElement* hPzetaPFMEt_;
   MonitorElement* hElecTauAcoplanarity_;
-  //MonitorElement* hElecTauCharge_;
+  MonitorElement* hElecTauCharge_;
 
   //MonitorElement* hVertexChi2_;
   MonitorElement* hVertexZ_;
@@ -164,8 +165,9 @@ class EwkElecTauHistManager
 
   MonitorElement* hCutFlowSummary_;
   enum { kPassedPreselection = 1, kPassedTrigger = 2, kPassedElectronId = 3, kPassedElectronTrackIso = 4, kPassedElectronEcalIso = 5,
-         kPassedTauLeadTrack = 6, kPassedTauLeadTrackPt = 7, kPassedTauTrackIso = 8, kPassedTauEcalIso = 9, 
-         kPassedTauDiscrAgainstElectrons = 10, kPassedTauDiscrAgainstMuons = 11 }; 
+         kPassedTauLeadTrack = 6, kPassedTauLeadTrackPt = 7, kPassedTauDiscrAgainstElectrons = 8, kPassedTauDiscrAgainstMuons = 9,
+         kPassedTauTrackIso = 10, kPassedTauEcalIso = 11 
+       }; 
 
 //--- counters for filter-statistics output
   unsigned numEventsAnalyzed_;
@@ -191,6 +193,8 @@ class EwkElecTauHistManager
   long numWarningsPFMEt_;
 };
 
+
+
 //-------------------------------------------------------------------------------
 // code specific to Z --> mu + tau-jet channel
 //-------------------------------------------------------------------------------
@@ -203,9 +207,9 @@ class EwkElecTauHistManager
  * \author Letizia Lusito,
  *         Christian Veelken
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: EwkTauDQM.h,v 1.2 2010/01/21 09:40:36 veelken Exp $
+ * $Id: EwkTauDQM.h,v 1.3 2010/02/20 20:58:54 wmtan Exp $
  *
  */
 
@@ -253,13 +257,14 @@ class EwkMuTauHistManager
   double muonPtCut_;
   double muonTrackIsoCut_;
   double muonEcalIsoCut_;
+double muonCombIsoCut_;
   int muonIsoMode_;
 
   double tauJetEtaCut_;
   double tauJetPtCut_;
 
   double visMassCut_;
-  
+  double deltaRCut_;
 //--- pointer to DQM histogram management service
   DQMStore* dqmStore_;
 
@@ -273,6 +278,7 @@ class EwkMuTauHistManager
   MonitorElement* hMuonPhi_;
   MonitorElement* hMuonTrackIsoPt_;
   MonitorElement* hMuonEcalIsoPt_;
+  MonitorElement* hMuonCombIsoPt_;
 
   MonitorElement* hTauJetPt_;
   MonitorElement* hTauJetEta_;
@@ -286,6 +292,8 @@ class EwkMuTauHistManager
   MonitorElement* hTauJetNumIsoTracks_;
   
   MonitorElement* hVisMass_;
+MonitorElement* hMuTauDeltaR_;
+MonitorElement* hVisMassFinal_;
   //MonitorElement* hMtMuCaloMEt_;
   MonitorElement* hMtMuPFMEt_;
   //MonitorElement* hPzetaCmaxNumWarnings_aloMEt_;
@@ -304,9 +312,7 @@ class EwkMuTauHistManager
   //MonitorElement* hPFMEtPhi_;
 
   MonitorElement* hCutFlowSummary_;
-  enum { kPassedPreselection = 1, kPassedTrigger = 2, kPassedMuonId = 3, kPassedMuonTrackIso = 4, kPassedMuonEcalIso = 5,
-         kPassedTauLeadTrack = 6, kPassedTauLeadTrackPt = 7, kPassedTauTrackIso = 8, kPassedTauEcalIso = 9, 
-	 kPassedTauDiscrAgainstMuons = 10 }; 
+  enum { kPassedPreselection = 1, kPassedTrigger = 2, kPassedMuonId = 3, kPassedTauLeadTrack = 4, kPassedTauLeadTrackPt = 5, kPassedTauDiscrAgainstMuons = 6, kPassedDeltaR = 7, kPassedMuonTrackIso = 8, kPassedMuonEcalIso = 9, kPassedTauTrackIso = 10, kPassedTauEcalIso = 11}; 
 
 //--- counters for filter-statistics output
   unsigned numEventsAnalyzed_;
@@ -342,9 +348,9 @@ class EwkMuTauHistManager
  * 
  * \author Joshua Swanson
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: EwkTauDQM.h,v 1.2 2010/01/21 09:40:36 veelken Exp $
+ * $Id: EwkTauDQM.h,v 1.3 2010/02/20 20:58:54 wmtan Exp $
  *
  */
 

@@ -76,6 +76,9 @@ void EwkTauDQM::endJob()
   muTauHistManager_->finalizeHistograms();
 }
 
+
+
+
 //-------------------------------------------------------------------------------
 // code specific to Z --> e + tau-jet channel
 //-------------------------------------------------------------------------------
@@ -169,11 +172,12 @@ void EwkElecTauHistManager::bookHistograms()
   hElectronPt_ = dqmStore_->book1D("ElectronPt" , "P_{T}^{e}", 20, 0., 100.);
   hElectronEta_ = dqmStore_->book1D("ElectronEta" , "#eta_{e}", 20, -4.0, +4.0);
   hElectronPhi_ = dqmStore_->book1D("ElectronPhi" , "#phi_{e}", 20, -TMath::Pi(), +TMath::Pi());
-  hElectronTrackIsoPt_ = dqmStore_->book1D("ElectronTrackIsoPt" , "Electron Track Iso.", 20, -0.01, 10.);
-  hElectronEcalIsoPt_ = dqmStore_->book1D("ElectronEcalIsoPt" , "Electron Ecal Iso.", 20, -0.01, 10.);
+  hElectronTrackIsoPt_ = dqmStore_->book1D("ElectronTrackIsoPt" , "Electron Track Iso.", 20, -0.01, 0.5);
+  hElectronEcalIsoPt_ = dqmStore_->book1D("ElectronEcalIsoPt" , "Electron Ecal Iso.", 20, -0.01, 0.5);
+  //hElectronHcalIsoPt_ = dqmStore_->book1D("ElectronHcalIsoPt" , "Electron Hcal Iso.", 20, -0.01, 0.5);
 
-  //hTauJetPt_ = dqmStore_->book1D("TauJetPt" , "P_{T}^{#tau-Jet}", 20, 0., 100.);
-  //hTauJetEta_ = dqmStore_->book1D("TauJetEta" , "#eta_{#tau-Jet}", 20, -4.0, +4.0);
+  hTauJetPt_ = dqmStore_->book1D("TauJetPt" , "P_{T}^{#tau-Jet}", 20, 0., 100.);
+  hTauJetEta_ = dqmStore_->book1D("TauJetEta" , "#eta_{#tau-Jet}", 20, -4.0, +4.0);
   //hTauJetPhi_ = dqmStore_->book1D("TauJetPhi" , "#phi_{#tau-Jet}", 20, -TMath::Pi(), +TMath::Pi());
   //hTauLeadTrackPt_ = dqmStore_->book1D("TauLeadTrackPt" , "P_{T}^{#tau-Jet}", 20, 0., 50.);
   //hTauTrackIsoPt_ = dqmStore_->book1D("TauTrackIsoPt" , "Tau Track Iso.", 20, -0.01, 40.);
@@ -190,7 +194,7 @@ void EwkElecTauHistManager::bookHistograms()
   //hPzetaCaloMEt_ = dqmStore_->book1D("PzetaCaloMEt", "P_{#zeta} - 1.5*P_{#zeta}^{vis} (Calo)", 20, -40., 40.);
   //hPzetaPFMEt_ = dqmStore_->book1D("PzetaPFMEt", "P_{#zeta} - 1.5*P_{#zeta}^{vis} (PF)", 20, -40., 40.);
   hElecTauAcoplanarity_ = dqmStore_->book1D("ElecTauAcoplanarity", "#Delta #phi_{e #tau-Jet}", 20, -TMath::Pi(), +TMath::Pi());
-  //hElecTauCharge_ = dqmStore_->book1D("ElecTauCharge" , "Q_{e + #tau-Jet}", 11, -5.5, +5.5);
+  hElecTauCharge_ = dqmStore_->book1D("ElecTauCharge" , "Q_{e * #tau-Jet}", 5, -2.5, +2.5);
 
   //hVertexChi2_ = dqmStore_->book1D("VertexChi2", "Event Vertex #chi^{2} / n.d.o.f.", 20, 0., 2.0);
   hVertexZ_ = dqmStore_->book1D("VertexZ", "Event Vertex z-Position", 20, -25., +25.);
@@ -210,10 +214,10 @@ void EwkElecTauHistManager::bookHistograms()
   hCutFlowSummary_->setBinLabel(kPassedElectronEcalIso, "e Ecal Iso.");
   hCutFlowSummary_->setBinLabel(kPassedTauLeadTrack, "#tau lead. Track");
   hCutFlowSummary_->setBinLabel(kPassedTauLeadTrackPt, "#tau lead. Track P_{T}");
-  hCutFlowSummary_->setBinLabel(kPassedTauTrackIso, "#tau Track Iso.");
-  hCutFlowSummary_->setBinLabel(kPassedTauEcalIso, "#tau Ecal Iso.");
   hCutFlowSummary_->setBinLabel(kPassedTauDiscrAgainstElectrons, "#tau anti-e Discr.");
   hCutFlowSummary_->setBinLabel(kPassedTauDiscrAgainstMuons, "#tau anti-#mu Discr.");
+  hCutFlowSummary_->setBinLabel(kPassedTauTrackIso, "#tau Track Iso.");
+  hCutFlowSummary_->setBinLabel(kPassedTauEcalIso, "#tau Ecal Iso.");
 }
 
 void EwkElecTauHistManager::fillHistograms(const edm::Event& evt, const edm::EventSetup& es)
@@ -274,13 +278,16 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt, const edm::Eve
 
   double theElectronTrackIsoPt = 1.e+3;
   double theElectronEcalIsoPt = 1.e+3;
+  double theElectronHcalIsoPt = 1.e+3;
   if ( theElectron ) {
     theElectronTrackIsoPt = theElectron->dr03TkSumPt();
     theElectronEcalIsoPt = theElectron->dr03EcalRecHitSumEt();
+    theElectronHcalIsoPt = theElectron->dr03HcalTowerSumEt();
 
     if ( electronIsoMode_ == kRelativeIso && theElectron->pt() > 0. ) {
       theElectronTrackIsoPt /= theElectron->pt();
       theElectronEcalIsoPt /= theElectron->pt();
+      theElectronHcalIsoPt /= theElectron->pt();
     }
   }
 
@@ -380,6 +387,7 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt, const edm::Eve
   ++numEventsAnalyzed_;
 
   bool isSelected = false;
+  bool fullSelect = false;
   int cutFlowStatus = -1;
 
   if ( mElecTau > visMassCut_ ) {
@@ -407,15 +415,7 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt, const edm::Eve
     cutFlowStatus = kPassedTauLeadTrackPt;
     //hTauTrackIsoPt_->Fill(theTauJet->isolationPFChargedHadrCandsPtSum());
   }
-  if ( cutFlowStatus == kPassedTauLeadTrackPt && theTauDiscrByTrackIso > 0.5 ) {
-    cutFlowStatus = kPassedTauTrackIso;
-    //hTauEcalIsoPt_->Fill(theTauJet->isolationPFGammaCandsEtSum());
-  }
-  if ( cutFlowStatus == kPassedTauTrackIso && theTauDiscrByEcalIso > 0.5 ) {
-    cutFlowStatus = kPassedTauEcalIso;
-    //hTauDiscrAgainstElectrons_->Fill(theTauDiscrAgainstElectrons);
-  }
-  if ( cutFlowStatus == kPassedTauEcalIso && theTauDiscrAgainstElectrons > 0.5 ) {
+  if ( cutFlowStatus == kPassedTauLeadTrackPt && theTauDiscrAgainstElectrons > 0.5 ) {
     cutFlowStatus = kPassedTauDiscrAgainstElectrons;
     //hTauDiscrAgainstMuons_->Fill(theTauDiscrAgainstMuons);
   }
@@ -423,6 +423,16 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt, const edm::Eve
     cutFlowStatus = kPassedTauDiscrAgainstMuons;
     isSelected = true;
   }
+  if ( cutFlowStatus == kPassedTauDiscrAgainstMuons && theTauDiscrByTrackIso > 0.5 ) {
+    cutFlowStatus = kPassedTauTrackIso;
+    //hTauEcalIsoPt_->Fill(theTauJet->isolationPFGammaCandsEtSum());
+  }
+  if ( cutFlowStatus == kPassedTauTrackIso && theTauDiscrByEcalIso > 0.5 ) {
+    cutFlowStatus = kPassedTauEcalIso;
+    fullSelect = true;
+    //hTauDiscrAgainstElectrons_->Fill(theTauDiscrAgainstElectrons);
+  }
+
 
   for ( int iCut = 1; iCut <= cutFlowStatus; ++iCut ) {
     hCutFlowSummary_->Fill(iCut);
@@ -433,21 +443,21 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt, const edm::Eve
     hElectronEta_->Fill(theElectron->eta());
     hElectronPhi_->Fill(theElectron->phi());
 
-    //hTauJetPt_->Fill(theTauJet->pt());
-    //hTauJetEta_->Fill(theTauJet->eta());
+    hTauJetPt_->Fill(theTauJet->pt());
+    hTauJetEta_->Fill(theTauJet->eta());
     //hTauJetPhi_->Fill(theTauJet->phi());
 
     //hTauJetCharge_->Fill(theTauJet->charge());
     //if ( theTauJet->signalTracks().isAvailable()    ) hTauJetNumSignalTracks_->Fill(theTauJet->signalTracks().size());
     //if ( theTauJet->isolationTracks().isAvailable() ) hTauJetNumIsoTracks_->Fill(theTauJet->isolationTracks().size());
   
-    hVisMass_->Fill(mElecTau);
+    if (fullSelect ) {hVisMass_->Fill(mElecTau);}
     //hMtElecCaloMEt_->Fill(mtElecCaloMEt);
     hMtElecPFMEt_->Fill(mtElecPFMEt);
     //hPzetaCaloMEt_->Fill(pZetaCaloMEt);
     //hPzetaPFMEt_->Fill(pZetaPFMEt);
     hElecTauAcoplanarity_->Fill(dPhiElecTau);
-    //hElecTauCharge_->Fill(theElectron->charge() + theTauJet->charge());
+    hElecTauCharge_->Fill(theElectron->charge() * theTauJet->charge());
 
     if ( theEventVertex ) {
       //hVertexChi2_->Fill(theEventVertex->normalizedChi2());
@@ -478,6 +488,9 @@ void EwkElecTauHistManager::finalizeHistograms()
       << " +/- " << std::setprecision(4) << TMath::Sqrt(eff*(1 - eff)/numEventsAnalyzed_)*100. << ")%";
   }
 }
+
+
+
 
 //-------------------------------------------------------------------------------
 // code specific to Z --> mu + tau-jet channel
@@ -551,6 +564,7 @@ EwkMuTauHistManager::EwkMuTauHistManager(const edm::ParameterSet& cfg, DQMStore*
   muonPtCut_ = cfg.getParameter<double>("muonPtCut");
   muonTrackIsoCut_ = cfg.getParameter<double>("muonTrackIsoCut");
   muonEcalIsoCut_ = cfg.getParameter<double>("muonEcalIsoCut");
+  muonCombIsoCut_ = cfg.getParameter<double>("muonCombIsoCut");
   std::string muonIsoMode_string = cfg.getParameter<std::string>("muonIsoMode");
   muonIsoMode_ = getIsoMode(muonIsoMode_string, cfgError_);
 
@@ -558,6 +572,7 @@ EwkMuTauHistManager::EwkMuTauHistManager(const edm::ParameterSet& cfg, DQMStore*
   tauJetPtCut_ = cfg.getParameter<double>("tauJetPtCut");
 
   visMassCut_ = cfg.getParameter<double>("visMassCut");
+deltaRCut_ = cfg.getParameter<double>("deltaRCut");
 
   maxNumWarnings_ = cfg.exists("maxNumWarnings") ? cfg.getParameter<int>("maxNumWarnings") : 1;
 }
@@ -572,11 +587,12 @@ void EwkMuTauHistManager::bookHistograms()
   hMuonPhi_ = dqmStore_->book1D("MuonPhi" , "#phi_{#mu}", 20, -TMath::Pi(), +TMath::Pi());
   hMuonTrackIsoPt_ = dqmStore_->book1D("MuonTrackIsoPt" , "Muon Track Iso.", 20, -0.01, 10.);
   hMuonEcalIsoPt_ = dqmStore_->book1D("MuonEcalIsoPt" , "Muon Ecal Iso.", 20, -0.01, 10.);
+  hMuonCombIsoPt_ = dqmStore_->book1D("MuonCombIsoPt" , "Muon Comb Iso.", 20, -0.01, 1.);
 
   hTauJetPt_ = dqmStore_->book1D("TauJetPt" , "P_{T}^{#tau-Jet}", 20, 0., 100.);
   hTauJetEta_ = dqmStore_->book1D("TauJetEta" , "#eta_{#tau-Jet}", 20, -4.0, +4.0);
   hTauJetPhi_ = dqmStore_->book1D("TauJetPhi" , "#phi_{#tau-Jet}", 20, -TMath::Pi(), +TMath::Pi());
-  hTauLeadTrackPt_ = dqmStore_->book1D("TauLeadTrackPt" , "P_{T}^{#tau-Jet}", 20, 0., 50.);
+  hTauLeadTrackPt_ = dqmStore_->book1D("TauLeadTrackPt" , "P_{T}^{#tau-Jetldg trk}", 20, 0., 50.);
   hTauTrackIsoPt_ = dqmStore_->book1D("TauTrackIsoPt" , "Tau Track Iso.", 20, -0.01, 40.);
   hTauEcalIsoPt_ = dqmStore_->book1D("TauEcalIsoPt" , "Tau Ecal Iso.", 10, -0.01, 10.);
   hTauDiscrAgainstMuons_ = dqmStore_->book1D("TauDiscrAgainstMuons" , "Tau Discr. against Muons", 2, -0.5, +1.5);
@@ -584,14 +600,15 @@ void EwkMuTauHistManager::bookHistograms()
   hTauJetNumSignalTracks_ = dqmStore_->book1D("TauJetNumSignalTracks" , "Num. Tau signal Cone Tracks", 20, -0.5, +19.5);
   hTauJetNumIsoTracks_ = dqmStore_->book1D("TauJetNumIsoTracks" , "Num. Tau isolation Cone Tracks", 20, -0.5, +19.5);
   
-  hVisMass_ = dqmStore_->book1D("VisMass", "#mu + #tau-Jet visible Mass", 20, 20., 120.);
+  hVisMass_ = dqmStore_->book1D("VisMass", "#mu + #tau-Jet visible Mass", 20, 0., 120.);
+hVisMassFinal_ = dqmStore_->book1D("VisMassFinal", "#mu + #tau-Jet visible final Mass", 20, 0., 120.);
   //hMtMuCaloMEt_ = dqmStore_->book1D("MtMuCaloMEt", "#mu + E_{T}^{miss} (Calo) transverse Mass", 20, 20., 120.);
-  hMtMuPFMEt_ = dqmStore_->book1D("MtMuPFMEt", "#mu + E_{T}^{miss} (PF) transverse Mass", 20, 20., 120.);
+  hMtMuPFMEt_ = dqmStore_->book1D("MtMuPFMEt", "#mu + E_{T}^{miss} (PF) transverse Mass", 20, 0., 120.);
   //hPzetaCaloMEt_ = dqmStore_->book1D("PzetaCaloMEt", "P_{#zeta} - 1.5*P_{#zeta}^{vis} (Calo)", 20, -40., 40.);
   //hPzetaPFMEt_ = dqmStore_->book1D("PzetaPFMEt", "P_{#zeta} - 1.5*P_{#zeta}^{vis} (PF)", 20, -40., 40.);
   hMuTauAcoplanarity_ = dqmStore_->book1D("MuTauAcoplanarity", "#Delta #phi_{#mu #tau-Jet}", 20, -TMath::Pi(), +TMath::Pi());
   //hMuTauCharge_ = dqmStore_->book1D("MuTauCharge" , "Q_{#mu + #tau-Jet}", 11, -5.5, +5.5);
-
+hMuTauDeltaR_ = dqmStore_->book1D("MuTauDeltaR", "#Delta R_{#mu #tau-Jet}", 20, 0, 5);
   //hVertexChi2_ = dqmStore_->book1D("VertexChi2", "Event Vertex #chi^{2} / n.d.o.f.", 20, 0., 2.0);
   hVertexZ_ = dqmStore_->book1D("VertexZ", "Event Vertex z-Position", 20, -25., +25.);
   //hVertexD0_ = dqmStore_->book1D("VertexD0", "Event Vertex d_{0}", 20, -0.0001, 0.05);
@@ -602,7 +619,7 @@ void EwkMuTauHistManager::bookHistograms()
   hPFMEtPt_ = dqmStore_->book1D("PFMEtPt", "E_{T}^{miss} (PF)", 20, 0., 100.);
   //hPFMEtPhi_ = dqmStore_->book1D("PFMEtPhi", "#phi^{miss} (PF)", 20, -TMath::Pi(), +TMath::Pi());
 
-  hCutFlowSummary_ = dqmStore_->book1D("CutFlowSummary", "Cut-flow Summary", 10, 0.5, 10.5);
+  hCutFlowSummary_ = dqmStore_->book1D("CutFlowSummary", "Cut-flow Summary", 11, 0.5, 11.5);
   hCutFlowSummary_->setBinLabel(kPassedPreselection, "Preselection");
   hCutFlowSummary_->setBinLabel(kPassedTrigger, "HLT");
   hCutFlowSummary_->setBinLabel(kPassedMuonId, "#mu ID");
@@ -613,6 +630,9 @@ void EwkMuTauHistManager::bookHistograms()
   hCutFlowSummary_->setBinLabel(kPassedTauTrackIso, "#tau Track Iso.");
   hCutFlowSummary_->setBinLabel(kPassedTauEcalIso, "#tau Ecal Iso.");
   hCutFlowSummary_->setBinLabel(kPassedTauDiscrAgainstMuons, "#tau anti-#mu Discr.");
+  //hCutFlowSummary_->setBinLabel(kPassedMuonCombIso, "#mu Comb Iso.");
+
+hCutFlowSummary_->setBinLabel(kPassedDeltaR, "#DeltaR(#mu,#tau) ");
 }
 
 void EwkMuTauHistManager::fillHistograms(const edm::Event& evt, const edm::EventSetup& es)
@@ -673,13 +693,18 @@ void EwkMuTauHistManager::fillHistograms(const edm::Event& evt, const edm::Event
 
   double theMuonTrackIsoPt = 1.e+3;
   double theMuonEcalIsoPt = 1.e+3;
+double theMuonCombIsoPt = 1.e+3;
+
   if ( theMuon ) {
     theMuonTrackIsoPt = theMuon->isolationR05().sumPt;
+    //mu.isolationR05().emEt + mu.isolationR05().hadEt + mu.isolationR05().sumPt
     theMuonEcalIsoPt = theMuon->isolationR05().emEt;
 
     if ( muonIsoMode_ == kRelativeIso && theMuon->pt() > 0. ) {
       theMuonTrackIsoPt /= theMuon->pt();
       theMuonEcalIsoPt /= theMuon->pt();
+      theMuonCombIsoPt=(theMuon->isolationR05().sumPt+theMuon->isolationR05().emEt)/theMuon->pt();
+      //std::cout<<"Rel Iso ="<<theMuonCombIsoPt<<std::endl;
     }
   }
 
@@ -747,11 +772,12 @@ void EwkMuTauHistManager::fillHistograms(const edm::Event& evt, const edm::Event
   //-----------------------------------------------------------------------------
 
   double dPhiMuTau = calcDeltaPhi(theMuon->phi(), theTauJet->phi());
-
+  //double dRMuTau = calcDeltaR(theMuon->p4(), theTauJet->p4());
+  double dRMuTau = fabs(ROOT::Math::VectorUtil::DeltaR(theMuon->p4(),theTauJet->p4()));
   double mMuTau = (theMuon->p4() + theTauJet->p4()).M();
 
-  //double mtMuCaloMEt = calcMt(theMuon->px(), theMuon->py(), caloMEt.px(), caloMEt.py());
-  double mtMuPFMEt = calcMt(theMuon->px(), theMuon->py(), pfMEt.px(), pfMEt.py());
+  //double mtMuCaloMEt = calcMt(theMuon->px(), theMuon->px(), caloMEt.px(), caloMEt.py());
+  double mtMuPFMEt = calcMt(theMuon->px(), theMuon->px(), pfMEt.px(), pfMEt.py());
 
   //double pZetaCaloMEt = calcPzeta(theMuon->p4(), theTauJet->p4(), caloMEt.px(), caloMEt.py());
   //double pZetaPFMEt = calcPzeta(theMuon->p4(), theTauJet->p4(), pfMEt.px(), pfMEt.py());
@@ -776,50 +802,37 @@ void EwkMuTauHistManager::fillHistograms(const edm::Event& evt, const edm::Event
   bool isSelected = false;
   int cutFlowStatus = -1;
 
+  //if ( muonIsoMode_ == kAbsoluteIso){
   if ( mMuTau > visMassCut_ ) {
     cutFlowStatus = kPassedPreselection;
   }
   if ( cutFlowStatus == kPassedPreselection && (isTriggered || hltPaths_.size() == 0) ) {
     cutFlowStatus = kPassedTrigger;
   }
-  if ( cutFlowStatus == kPassedTrigger && theMuon->isGlobalMuon() ) {
+  if ( cutFlowStatus == kPassedTrigger && (theMuon->isGlobalMuon()||theMuon->isTrackerMuon()) ) {
     cutFlowStatus = kPassedMuonId;
-    hMuonTrackIsoPt_->Fill(theMuonTrackIsoPt);
+   
   }
-  if ( cutFlowStatus == kPassedMuonId && theMuonTrackIsoPt < muonTrackIsoCut_ ) {
-    cutFlowStatus = kPassedMuonTrackIso;
-    hMuonEcalIsoPt_->Fill(theMuonEcalIsoPt);
-  }
-  if ( cutFlowStatus == kPassedMuonTrackIso && theMuonEcalIsoPt < muonEcalIsoCut_ ) {
-    cutFlowStatus = kPassedMuonEcalIso;
-  }
-  if ( cutFlowStatus == kPassedMuonEcalIso && theTauDiscrByLeadTrackFinding > 0.5 ) {
+ 
+  if ( cutFlowStatus == kPassedMuonId && (theTauDiscrByLeadTrackFinding > 0.5) && (theTauJet->eta() < tauJetEtaCut_) && (theTauJet->pt() > tauJetPtCut_)  ) {
     cutFlowStatus = kPassedTauLeadTrack;
-    if ( theTauJet->leadTrack().isAvailable() ) hTauLeadTrackPt_->Fill(theTauJet->leadTrack()->pt());
+    
   }
   if ( cutFlowStatus == kPassedTauLeadTrack && theTauDiscrByLeadTrackPtCut > 0.5 ) {
     cutFlowStatus = kPassedTauLeadTrackPt;
-    hTauTrackIsoPt_->Fill(theTauJet->isolationPFChargedHadrCandsPtSum());
+    //hTauTrackIsoPt_->Fill(theTauJet->isolationPFChargedHadrCandsPtSum());
   }
-  if ( cutFlowStatus == kPassedTauLeadTrackPt && theTauDiscrByTrackIso > 0.5 ) {
-    cutFlowStatus = kPassedTauTrackIso;
-    hTauEcalIsoPt_->Fill(theTauJet->isolationPFGammaCandsEtSum());
-  }
-  if ( cutFlowStatus == kPassedTauTrackIso && theTauDiscrByEcalIso > 0.5 ) {
-    cutFlowStatus = kPassedTauEcalIso;
-    hTauDiscrAgainstMuons_->Fill(theTauDiscrAgainstMuons);
-  }
-  if ( cutFlowStatus == kPassedTauEcalIso && theTauDiscrAgainstMuons > 0.5 ) {
+  if ( cutFlowStatus == kPassedTauLeadTrackPt && theTauDiscrAgainstMuons  > 0.5 ) {
     cutFlowStatus = kPassedTauDiscrAgainstMuons;
-    isSelected = true;
+    //hTauEcalIsoPt_->Fill(theTauJet->isolationPFGammaCandsEtSum());
   }
+  if ( cutFlowStatus == kPassedTauDiscrAgainstMuons && dRMuTau > deltaRCut_) {
+    cutFlowStatus = kPassedDeltaR;
+    //hTauDiscrAgainstMuons_->Fill(theTauDiscrAgainstMuons);
 
-  for ( int iCut = 1; iCut <= cutFlowStatus; ++iCut ) {
-    hCutFlowSummary_->Fill(iCut);
-  }
 
-  if ( isSelected ) {
-    hMuonPt_->Fill(theMuon->pt());
+
+hMuonPt_->Fill(theMuon->pt());
     hMuonEta_->Fill(theMuon->eta());
     hMuonPhi_->Fill(theMuon->phi());
 
@@ -837,6 +850,7 @@ void EwkMuTauHistManager::fillHistograms(const edm::Event& evt, const edm::Event
     //hPzetaCaloMEt_->Fill(pZetaCaloMEt);
     //hPzetaPFMEt_->Fill(pZetaPFMEt);
     hMuTauAcoplanarity_->Fill(dPhiMuTau);
+hMuTauDeltaR_->Fill(dRMuTau);
     //hMuTauCharge_->Fill(theMuon->charge() + theTauJet->charge());
 
     if ( theEventVertex ) {
@@ -850,9 +864,68 @@ void EwkMuTauHistManager::fillHistograms(const edm::Event& evt, const edm::Event
 
     hPFMEtPt_->Fill(pfMEt.pt());
     //hPFMEtPhi_->Fill(pfMEt.phi());
+    hMuonTrackIsoPt_->Fill(theMuonTrackIsoPt);
+hMuonEcalIsoPt_->Fill(theMuonEcalIsoPt);
+hMuonCombIsoPt_->Fill(theMuonCombIsoPt);
+//hMuonCombIsoPt_->Fill((theMuonTrackIsoPt+theMuonEcalIsoPt)/theMuon->pt());
+
+ std::cout<<"Rel Iso Hist = "<<(theMuonTrackIsoPt+theMuonEcalIsoPt)/theMuon->pt()<<std::endl;
+hTauEcalIsoPt_->Fill(theTauJet->isolationPFGammaCandsEtSum());
+hTauTrackIsoPt_->Fill(theTauJet->isolationPFChargedHadrCandsPtSum());
+hTauDiscrAgainstMuons_->Fill(theTauDiscrAgainstMuons);
+if ( theTauJet->leadTrack().isAvailable() ) hTauLeadTrackPt_->Fill(theTauJet->leadTrack()->pt());
+
   }
 
-  if ( isSelected ) ++numEventsSelected_;
+  
+
+  if ( (cutFlowStatus == kPassedDeltaR) && (((theMuonTrackIsoPt < muonTrackIsoCut_)&&(muonIsoMode_ == kAbsoluteIso))||((1>0)&&(muonIsoMode_ == kRelativeIso))) ) {
+    cutFlowStatus = kPassedMuonTrackIso;
+    //isSelected = true;
+  }
+  if ( cutFlowStatus == kPassedMuonTrackIso && (((theMuonEcalIsoPt < muonEcalIsoCut_)&&(muonIsoMode_ == kAbsoluteIso))||((theMuonCombIsoPt < muonCombIsoCut_)&&(muonIsoMode_ == kRelativeIso))) ) {
+  cutFlowStatus = kPassedMuonEcalIso;
+    //isSelected = true;
+  }
+
+if ( cutFlowStatus == kPassedMuonEcalIso && theTauDiscrByTrackIso > 0.5 )
+  {cutFlowStatus = kPassedTauTrackIso;
+
+  }
+
+if ( cutFlowStatus == kPassedTauTrackIso && theTauDiscrByEcalIso > 0.5 ) {
+cutFlowStatus = kPassedTauEcalIso;
+isSelected = true;
+
+ }
+
+  for ( int iCut = 1; iCut <= cutFlowStatus; ++iCut ) {
+    hCutFlowSummary_->Fill(iCut);
+  }
+
+  
+
+
+
+
+
+
+for ( int iCut = 1; iCut <= cutFlowStatus; ++iCut ) {
+     hCutFlowSummary_->Fill(iCut);
+   }
+
+
+
+//     }
+    
+
+
+
+  if ( isSelected ) 
+    {
+hVisMassFinal_->Fill(mMuTau);
+++numEventsSelected_;
+    }
 }
 
 void EwkMuTauHistManager::finalizeHistograms()
@@ -950,9 +1023,9 @@ double calcPzeta(const reco::Candidate::LorentzVector& p1,const reco::Candidate:
 bool passesElectronPreId(const reco::GsfElectron& electron)
 {
   if ( (TMath::Abs(electron.eta()) < 1.479 || TMath::Abs(electron.eta()) > 1.566) && // cut ECAL barrel/endcap crack
-       electron.deltaPhiSuperClusterTrackAtVtx() < 0.58 &&
+       electron.deltaPhiSuperClusterTrackAtVtx() < 0.8 &&
        electron.deltaEtaSuperClusterTrackAtVtx() < 0.01 &&
-       electron.sigmaIetaIeta() < 0.027 ) {
+       electron.sigmaIetaIeta() < 0.03 ) {
     return true;
   } else {
     return false;
@@ -962,14 +1035,14 @@ bool passesElectronPreId(const reco::GsfElectron& electron)
 bool passesElectronId(const reco::GsfElectron& electron)
 {
   if ( passesElectronPreId(electron) &&
-       ((TMath::Abs(electron.eta()) > 1.566 && // electron reconstructed in ECAL barrel
-	 electron.sigmaEtaEta() < 0.028 && electron.hcalOverEcal() < 0.1 && 
-	 TMath::Abs(electron.deltaEtaSuperClusterTrackAtVtx()) < 0.0066 && 
-	 TMath::Abs(electron.deltaPhiSuperClusterTrackAtVtx()) < 0.020 ) ||
-	(TMath::Abs(electron.eta()) < 1.479 && // electron reconstructed in ECAL endcap
-	 electron.sigmaEtaEta() < 0.0099 && electron.hcalOverEcal() < 0.1 && 
-	 TMath::Abs(electron.deltaEtaSuperClusterTrackAtVtx()) < 0.004 && 
-	 TMath::Abs(electron.deltaPhiSuperClusterTrackAtVtx()) < 0.025)) ) {
+       ((TMath::Abs(electron.eta()) > 1.566 && // electron reconstructed in ECAL endcap
+	 electron.sigmaEtaEta() < 0.03 && electron.hcalOverEcal() < 0.05 && 
+	 TMath::Abs(electron.deltaEtaSuperClusterTrackAtVtx()) < 0.009 && 
+	 TMath::Abs(electron.deltaPhiSuperClusterTrackAtVtx()) < 0.7 ) ||
+	(TMath::Abs(electron.eta()) < 1.479 && // electron reconstructed in ECAL barrel
+	 electron.sigmaEtaEta() < 0.01 && electron.hcalOverEcal() < 0.12 && 
+	 TMath::Abs(electron.deltaEtaSuperClusterTrackAtVtx()) < 0.007 && 
+	 TMath::Abs(electron.deltaPhiSuperClusterTrackAtVtx()) < 0.8)) ) {
     return true;
   } else {
     return false;
@@ -994,6 +1067,9 @@ const reco::GsfElectron* getTheElectron(const reco::GsfElectronCollection& elect
   return theElectron;
 }
 
+
+
+
 const reco::Muon* getTheMuon(const reco::MuonCollection& muons, double muonEtaCut, double muonPtCut)
 {
   const reco::Muon* theMuon = 0;
@@ -1017,7 +1093,7 @@ const reco::PFTau* getTheTauJet(const reco::PFTauCollection& tauJets, double tau
   for ( int iTauJet = 0; iTauJet < numTauJets; ++iTauJet ) {
     const reco::PFTau& tauJet = tauJets.at(iTauJet);
 
-    if ( TMath::Abs(tauJet.eta()) < tauJetEtaCut && tauJet.pt() > tauJetPtCut ) {
+    if ( fabs(tauJet.eta()) < tauJetEtaCut && tauJet.pt() > tauJetPtCut ) {
       if ( theTauJet == 0 || tauJet.pt() > theTauJet->pt() ) {
 	theTauJet = &tauJet;
 	theTauJetIndex = iTauJet;
