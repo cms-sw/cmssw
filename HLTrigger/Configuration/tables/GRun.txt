@@ -41,6 +41,7 @@ HLT_HT140U_Eta3_v1
 HLT_HT160U_v1
 HLT_HT200U_v1
 HLT_L1ETT100
+HLT_L1ETT140_v1
 HLT_EcalOnly_SumEt160_v2
 HLT_L1MuOpen
 HLT_L1MuOpen_DT
@@ -67,7 +68,7 @@ HLT_Mu20_NoVertex
 HLT_IsoMu11_v1
 HLT_IsoMu9
 HLT_L1DoubleMuOpen
-HLT_DoubleMu3_v2_v1
+HLT_DoubleMu3_v2
 HLT_DoubleMu5_v1
 HLT_DoubleMu0_Quarkonium_v1
 HLT_DoubleMu0_Quarkonium_LS_v1
@@ -111,7 +112,7 @@ HLT_DoublePhoton5_CEP_L1R
 HLT_DoubleEle4_SW_eeRes_L1R
 HLT_SingleIsoTau20_Trk5_MET20
 HLT_SingleIsoTau20_Trk15_MET20
-HLT_SingleIsoTau30_Trk5_v2_v1
+HLT_SingleIsoTau30_Trk5_v2
 HLT_SingleIsoTau30_Trk5_MET20
 HLT_DoubleIsoTau15_OneLeg_Trk5
 HLT_DoubleIsoTau15_Trk5
