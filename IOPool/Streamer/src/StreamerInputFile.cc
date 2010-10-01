@@ -2,6 +2,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
+#include "FWCore/Utilities/interface/TimeOfDay.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Sources/interface/EventSkipperByID.h"
@@ -9,9 +10,8 @@
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "Utilities/StorageFactory/interface/IOFlags.h"
 
+#include <iomanip>
 #include <iostream>
-#include <ctime>
-#include <cstring>
 
 namespace edm {
 
@@ -287,10 +287,7 @@ namespace edm {
   }
 
   void StreamerInputFile::logFileAction(char const* msg) {
-    time_t t = time(0);
-    char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
-    strftime(ts, strlen(ts) + 1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t));
-    LogAbsolute("fileAction") << ts << msg << currentFileName_;
+    LogAbsolute("fileAction") << std::setprecision(0) << TimeOfDay() << msg << currentFileName_;
     FlushMessageLog();
   }
 }
