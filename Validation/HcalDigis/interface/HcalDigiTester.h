@@ -21,7 +21,8 @@ public:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginJob() ;
   template<class Digi>  void reco(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;  
+  virtual void endRun() ;  
+  virtual void endJob() ; 
 
  private:
 

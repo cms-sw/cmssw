@@ -538,7 +538,7 @@ HcalDigiTester::HcalDigiTester(const edm::ParameterSet& iConfig)
 HcalDigiTester::~HcalDigiTester() { }
 
 
-void HcalDigiTester::endJob() {
+void HcalDigiTester::endRun() {
 
  if(noise_ != 1) {
 
@@ -556,10 +556,15 @@ void HcalDigiTester::endJob() {
     eval_occupancy();
  }
 
+}
+
+
+
+void HcalDigiTester::endJob() {
+
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 
 }
-
 
 
   //occupancies evaluation
