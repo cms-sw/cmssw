@@ -15,3 +15,6 @@
 <library   file="stubs/EcalBasicUncalibRecHitFilter.cc" name="EcalBasicUncalibRecHitFilter">
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="EcalCompactTrigPrimProducerTest.cc" name="testEcalCompactTrigPrimProducer">
+  <flags   EDM_PLUGIN="1"/>
+</library>
