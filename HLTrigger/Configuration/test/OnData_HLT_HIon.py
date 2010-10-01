@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_8_1/HIon/V37 (CMSSW_3_8_1_HLT16)
+# /dev/CMSSW_3_8_1/HIon/V40 (CMSSW_3_8_1_HLT16)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V37')
+  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V40')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -26,6 +26,7 @@ process.streams = cms.PSet(
     'Mu',
     'MuMonitor',
     'MuOnia',
+    'MultiJet',
     'Photon' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
@@ -85,6 +86,7 @@ process.datasets = cms.PSet(
   Mu = cms.vstring(  ),
   MuMonitor = cms.vstring(  ),
   MuOnia = cms.vstring(  ),
+  MultiJet = cms.vstring(  ),
   OfflineMonitor = cms.vstring(  ),
   OnlineHltMonitor = cms.vstring(  ),
   OnlineHltResults = cms.vstring( 'HLTriggerFinalPath' ),
@@ -1512,10 +1514,7 @@ process.ModuleWebRegistry = cms.Service( "ModuleWebRegistry",
 )
 process.PrescaleService = cms.Service( "PrescaleService",
     lvl1DefaultLabel = cms.untracked.string( "3.2E30" ),
-    lvl1Labels = cms.vstring( '2.8E31',
-      '2E31',
-      '1.4E31',
-      '1E31',
+    lvl1Labels = cms.vstring( '6E31',
       'Cosmics' ),
     prescaleTable = cms.VPSet( 
     )

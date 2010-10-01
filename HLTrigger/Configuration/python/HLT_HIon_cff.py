@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_8_1/HIon/V37 (CMSSW_3_8_1_HLT16)
+# /dev/CMSSW_3_8_1/HIon/V40 (CMSSW_3_8_1_HLT16)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V37')
+  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V40')
 )
 
 streams = cms.PSet( 
@@ -22,6 +22,7 @@ streams = cms.PSet(
     'Mu',
     'MuMonitor',
     'MuOnia',
+    'MultiJet',
     'Photon' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
@@ -81,6 +82,7 @@ datasets = cms.PSet(
   Mu = cms.vstring(  ),
   MuMonitor = cms.vstring(  ),
   MuOnia = cms.vstring(  ),
+  MultiJet = cms.vstring(  ),
   OfflineMonitor = cms.vstring(  ),
   OnlineHltMonitor = cms.vstring(  ),
   OnlineHltResults = cms.vstring( 'HLTriggerFinalPath' ),
