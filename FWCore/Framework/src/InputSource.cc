@@ -1,11 +1,7 @@
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
-#include <cassert>
-#include <cstring>
-#include <sys/time.h>
-#include <iomanip>
-#include "PrincipalCache.h"
 #include "FWCore/Framework/interface/InputSource.h"
+#include "PrincipalCache.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
@@ -19,6 +15,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/TimeOfDay.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
@@ -26,49 +23,51 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include <ctime>
+#include <cassert>
+#include <fstream>
+#include <iomanip>
 
 namespace edm {
 
   namespace {
-	std::string const& suffix(int count) {
-	  static std::string const st("st");
-	  static std::string const nd("nd");
-	  static std::string const rd("rd");
-	  static std::string const th("th");
-	  // *0, *4 - *9 use "th".
-	  int lastDigit = count % 10;
-	  if (lastDigit >= 4 || lastDigit == 0) return th;
-	  // *11, *12, or *13 use "th".
-	  if (count % 100 - lastDigit == 10) return th;
-	  return (lastDigit == 1 ? st : (lastDigit == 2 ? nd : rd));
+        std::string const& suffix(int count) {
+          static std::string const st("st");
+          static std::string const nd("nd");
+          static std::string const rd("rd");
+          static std::string const th("th");
+          // *0, *4 - *9 use "th".
+          int lastDigit = count % 10;
+          if (lastDigit >= 4 || lastDigit == 0) return th;
+          // *11, *12, or *13 use "th".
+          if (count % 100 - lastDigit == 10) return th;
+          return (lastDigit == 1 ? st : (lastDigit == 2 ? nd : rd));
         }
-	template <typename T>
-	boost::shared_ptr<T> createSharedPtrToStatic(T * ptr) {
-	  return boost::shared_ptr<T>(ptr, do_nothing_deleter());
-	}
+        template <typename T>
+        boost::shared_ptr<T> createSharedPtrToStatic(T* ptr) {
+          return boost::shared_ptr<T>(ptr, do_nothing_deleter());
+        }
 
-	ProcessHistoryID
-	deleteFromProcessHistory(ProcessHistoryID const& phid, std::string const& processName) {
-	// Delete the current process from the process history.  This must be done to maintain consistency
-	// for runs or lumis when the principal cache is flushed, because the process history modified flag,
-	// stored in the principal, is lost when the cache is flushed.	
-	  if (!phid.isValid()) {
-	    return phid;
-	  }
-	  ProcessHistory ph;
-	  bool found = ProcessHistoryRegistry::instance()->getMapped(phid, ph);
-	  assert(found);
-	  ProcessHistory newPH;
-	  newPH.reserve(ph.size());
-	  for (ProcessHistory::const_iterator it = ph.begin(), itEnd = ph.end(); it != itEnd; ++it) {
-	    if (processName != it->processName()) {
-	      newPH.push_back(*it);
-	    }
+        ProcessHistoryID
+        deleteFromProcessHistory(ProcessHistoryID const& phid, std::string const& processName) {
+        // Delete the current process from the process history.  This must be done to maintain consistency
+        // for runs or lumis when the principal cache is flushed, because the process history modified flag,
+        // stored in the principal, is lost when the cache is flushed.
+          if (!phid.isValid()) {
+            return phid;
           }
-	  ProcessHistoryRegistry::instance()->insertMapped(newPH);
-	  return newPH.id();
-	}
+          ProcessHistory ph;
+          bool found = ProcessHistoryRegistry::instance()->getMapped(phid, ph);
+          assert(found);
+          ProcessHistory newPH;
+          newPH.reserve(ph.size());
+          for (ProcessHistory::const_iterator it = ph.begin(), itEnd = ph.end(); it != itEnd; ++it) {
+            if (processName != it->processName()) {
+              newPH.push_back(*it);
+            }
+          }
+          ProcessHistoryRegistry::instance()->insertMapped(newPH);
+          return newPH.id();
+        }
   }
 
   InputSource::InputSource(ParameterSet const& pset, InputSourceDescription const& desc) :
@@ -91,7 +90,15 @@ namespace edm {
       runAuxiliary_(),
       lumiAuxiliary_(),
       runPrematurelyRead_(false),
-      lumiPrematurelyRead_(false) {
+      lumiPrematurelyRead_(false),
+      statusFileName_() {
+
+    if (pset.getUntrackedParameter<bool>("writeStatusFile", false)) {
+      std::ostringstream statusfilename;
+      statusfilename << "source_" << getpid();
+      statusFileName_ = statusfilename.str();
+    }
+
     // Secondary input sources currently do not have a product registry.
     if (primary_) {
       assert(desc.productRegistry_ != 0);
@@ -113,7 +120,7 @@ namespace edm {
     } else if (processingMode != defaultMode) {
       throw edm::Exception(errors::Configuration)
         << "InputSource::InputSource()\n"
-	<< "The 'processingMode' parameter for sources has an illegal value '" << processingMode << "'\n"
+        << "The 'processingMode' parameter for sources has an illegal value '" << processingMode << "'\n"
         << "Legal values are '" << defaultMode << "', '" << runLumiMode << "', or '" << runMode << "'.\n";
     }
   }
@@ -129,15 +136,16 @@ namespace edm {
 
   static const std::string kBaseType("Source");
 
-  const std::string&
+  std::string const&
   InputSource::baseType() {
     return kBaseType;
   }
 
   void
-  InputSource::fillDescription(ParameterSetDescription & desc) {
+  InputSource::fillDescription(ParameterSetDescription& desc) {
     std::string defaultString("RunsLumisAndEvents");
     desc.addUntracked<std::string>("processingMode", defaultString);
+    desc.addUntracked<bool>("writeStatusFile", false);
   }
 
   EventPrincipal* const
@@ -184,12 +192,12 @@ namespace edm {
         state_ = IsStop;
       } else {
         ItemType newState = nextItemType_();
-	if (newState == IsEvent) {
+        if (newState == IsEvent) {
           assert (processingMode() == RunsLumisAndEvents);
           state_ = IsEvent;
-	} else {
+        } else {
           state_ = IsStop;
-	}
+        }
       }
     } else {
       ItemType newState = nextItemType_();
@@ -205,7 +213,7 @@ namespace edm {
         lumiAuxiliary_ = readLuminosityBlockAuxiliary();
         state_ = IsLumi;
       } else {
-	assert (processingMode() == RunsLumisAndEvents);
+        assert (processingMode() == RunsLumisAndEvents);
         state_ = IsEvent;
       }
     }
@@ -303,10 +311,10 @@ namespace edm {
     bool merged = principalCache_->merge(luminosityBlockAuxiliary(), productRegistry_);
     if (!merged) {
       boost::shared_ptr<LuminosityBlockPrincipal> lb(
-	new LuminosityBlockPrincipal(luminosityBlockAuxiliary(),
-				     productRegistry_,
-				     processConfiguration(),
-				     principalCache_->runPrincipalPtr()));
+        new LuminosityBlockPrincipal(luminosityBlockAuxiliary(),
+                                     productRegistry_,
+                                     processConfiguration(),
+                                     principalCache_->runPrincipalPtr()));
       principalCache_->insert(lb);
     }
     readLuminosityBlock_(principalCache_->lumiPrincipalPtr());
@@ -358,7 +366,7 @@ namespace edm {
       if (remainingEvents_ > 0) --remainingEvents_;
       ++readCount_;
       setTimestamp(result->time());
-      issueReports(result->id(), result->luminosityBlock());
+      issueReports(result->id());
     }
     return result;
   }
@@ -374,8 +382,8 @@ namespace edm {
         Event event(*result, moduleDescription());
         postRead(event);
         if (remainingEvents_ > 0) --remainingEvents_;
-	++readCount_;
-	issueReports(result->id(), result->luminosityBlock());
+        ++readCount_;
+        issueReports(result->id());
       }
     }
     return result;
@@ -394,34 +402,24 @@ namespace edm {
   }
 
   void
-  InputSource::issueReports(EventID const& eventID, LuminosityBlockNumber_t const& lumi) {
+  InputSource::issueReports(EventID const& eventID) {
     if(edm::isInfoEnabled()) {
-      //time_t t = time(0);
-      struct timeval tv;
-      struct timezone tz;
-      gettimeofday(&tv, &tz);
-      char ts[] = "dd-Mon-yyyy hh:mm:ss.000 TZN     ";
-      strftime(ts, strlen(ts) + 1, "%d-%b-%Y %H:%M:%S. %Z", localtime(&(tv.tv_sec)));
-      const char* formatedTime = ts;
-      const char* formatedTimeZone = 0;
-      unsigned int offset = 20;
-      if('.' != ts[offset]) {
-        offset = 0;
-        for(const char* p = ts; *p != '.' && *p != 0; ++p,++offset);
-      }
-      ts[offset]=0;
-      formatedTimeZone = ts+offset+1;
-
       LogVerbatim("FwkReport") << "Begin processing the " << readCount_
                                << suffix(readCount_) << " record. Run " << eventID.run()
                                << ", Event " << eventID.event()
-                               << ", LumiSection " << lumi
-                               << " at " <<formatedTime<<"."<< std::setfill('0')<<std::setw(3)<<tv.tv_usec/1000<<formatedTimeZone;
+                               << ", LumiSection " << eventID.luminosityBlock()
+                               << " at " << std::setprecision(3) << TimeOfDay();
     }
+    if (!statusFileName_.empty()) {
+      std::ofstream statusFile(statusFileName_.c_str());
+      statusFile << eventID << " time: " << std::setprecision(3) << TimeOfDay() << '\n';
+      statusFile.close();
+    }
+
     // At some point we may want to initiate checkpointing here
   }
 
-  EventPrincipal *
+  EventPrincipal*
   InputSource::readIt(EventID const&) {
       throw edm::Exception(errors::LogicError)
         << "InputSource::readIt()\n"
@@ -535,7 +533,7 @@ namespace edm {
         unsigned int maxEventsPerChild = numberOfSequencesPerChild*iNumberOfSequentialEvents;
         //if there are any extra events distribute them to the first few children
         unsigned int remainder = numberOfSequences % iNumberOfChildren;
-        if( remainder > iChildIndex) {
+        if (remainder > iChildIndex) {
           maxEventsPerChild += iNumberOfSequentialEvents;
         } if (remainder == iChildIndex) {
           //if we have any extra that do not quite fit in a sequence, use them here

@@ -3,7 +3,7 @@
 
 
 /*----------------------------------------------------------------------
-  
+
 InputSource: Abstract interface for all input sources. Input
 sources are responsible for creating an EventPrincipal, using data
 controlled by the source, and external to the EventPrincipal itself.
@@ -36,7 +36,7 @@ Some examples of InputSource subclasses may be:
     read from a EDM/ROOT file. This source should provide for delayed loading
     of data, thus the quotation marks around contain.
  3) DAQSource: creats EventPrincipals which contain raw data, as
-    delivered by the L1 trigger and event builder. 
+    delivered by the L1 trigger and event builder.
 
 ----------------------------------------------------------------------*/
 
@@ -65,19 +65,19 @@ namespace edm {
   class InputSource : private ProductRegistryHelper, private boost::noncopyable {
   public:
     enum ItemType {
-	IsInvalid,
-	IsStop,
-	IsFile,
-	IsRun,
-	IsLumi,
-	IsEvent,
-	IsRepeat
+        IsInvalid,
+        IsStop,
+        IsFile,
+        IsRun,
+        IsLumi,
+        IsEvent,
+        IsRepeat
     };
 
     enum ProcessingMode {
-	Runs,
-	RunsAndLumis,
-	RunsLumisAndEvents
+        Runs,
+        RunsAndLumis,
+        RunsLumisAndEvents
     };
 
     typedef ProductRegistryHelper::TypeLabelList TypeLabelList;
@@ -89,7 +89,7 @@ namespace edm {
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
     static const std::string& baseType();
-    static void fillDescription(ParameterSetDescription & desc);
+    static void fillDescription(ParameterSetDescription& desc);
 
     ItemType nextItemType();
 
@@ -102,7 +102,7 @@ namespace edm {
 
     /// Read next luminosity block Auxilary
     boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary() {
-      return readLuminosityBlockAuxiliary_(); 
+      return readLuminosityBlockAuxiliary_();
     }
 
     /// Read next run Auxiliary
@@ -150,14 +150,14 @@ namespace edm {
     void setLuminosityBlockNumber_t(LuminosityBlockNumber_t lb) {setLumi(lb);}
 
     /// issue an event report
-    void issueReports(EventID const& eventID, LuminosityBlockNumber_t const& lumi);
+    void issueReports(EventID const& eventID);
 
     /// Register any produced products
     void registerProducts();
 
     /// Accessor for product registry.
     boost::shared_ptr<ProductRegistry const> productRegistry() const {return productRegistry_;}
-    
+
     /// Reset the remaining number of events/lumis to the maximum number.
     void repeat() {
       remainingEvents_ = maxEvents_;
@@ -214,7 +214,7 @@ namespace edm {
     /// Called by the framework before forking the process
     void doPreForkReleaseResources();
     void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialChildren);
-     
+ 
     /// Accessor for the current time, as seen by the input source
     Timestamp const& timestamp() const {return time_;}
 
@@ -334,7 +334,7 @@ namespace edm {
     virtual boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() = 0;
     virtual boost::shared_ptr<RunPrincipal> readRun_(boost::shared_ptr<RunPrincipal> rpCache);
     virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_(
-	boost::shared_ptr<LuminosityBlockPrincipal> lbCache);
+        boost::shared_ptr<LuminosityBlockPrincipal> lbCache);
     virtual EventPrincipal* readEvent_() = 0;
     virtual EventPrincipal* readIt(EventID const&);
     virtual boost::shared_ptr<FileBlock> readFile_();
@@ -380,6 +380,7 @@ namespace edm {
     mutable boost::shared_ptr<LuminosityBlockAuxiliary>  lumiAuxiliary_;
     bool runPrematurelyRead_;
     bool lumiPrematurelyRead_;
+    std::string statusFileName_;
   };
 }
 

@@ -16,14 +16,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/TimeOfDay.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "CLHEP/Random/RandFlat.h"
 #include "TFile.h"
 #include "TSystem.h"
-
-#include <ctime>
+#include <iomanip>
 
 namespace edm {
   RootInputFileSequence::RootInputFileSequence(
@@ -661,11 +661,8 @@ namespace edm {
     }
   }
 
-  void RootInputFileSequence::logFileAction(const char* msg, std::string const& file) {
-    time_t t = time(0);
-    char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
-    strftime( ts, strlen(ts)+1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t) );
-    LogAbsolute("fileAction") << ts << msg << file;
+  void RootInputFileSequence::logFileAction(const char* msg, std::string const& file) const {
+    LogAbsolute("fileAction") << std::setprecision(0) << TimeOfDay() << msg << file;
     FlushMessageLog();
   }
 
