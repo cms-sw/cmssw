@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_8_1/GRun/V40 (CMSSW_3_8_1_HLT16)
+# /dev/CMSSW_3_8_1/GRun/V41 (CMSSW_3_8_1_HLT16)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/GRun/V40')
+  tableName = cms.string('/dev/CMSSW_3_8_1/GRun/V41')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -12266,7 +12266,7 @@ process.hltL1NonIsoHLTNonIsoSingleMu5Ele9EtFilter = cms.EDFilter( "HLTEgammaEtFi
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )
 process.hltL1NonIsoHLTNonIsoSingleMu5Ele9R9ShapeFilter = cms.EDFilter( "HLTEgammaGenericFilter",
-    candTag = cms.InputTag( "hltL1NonIsoHLTNonIsoSingleMu5Ele9EleEtFilter" ),
+    candTag = cms.InputTag( "hltL1NonIsoHLTNonIsoSingleMu5Ele9EtFilter" ),
     isoTag = cms.InputTag( "hltL1IsoR9shape" ),
     nonIsoTag = cms.InputTag( "hltL1NonIsoR9shape" ),
     lessThan = cms.bool( True ),
