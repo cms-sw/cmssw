@@ -6,6 +6,8 @@
 #include <time.h>
 
 namespace edm {
+  static int const power[] = {1000*1000, 100*1000, 10*1000, 1000, 100, 10, 1};
+
   TimeOfDay::TimeOfDay() : tv_(TimeOfDay::setTime_()) {
   }
 
@@ -35,7 +37,6 @@ namespace edm {
       char const pattern[] = "%d-%b-%Y %H:%M:%S.";
       tp.put(begin, os, ' ', &timebuf, pattern, pattern + sizeof(pattern) - 1);
       precision = std::min(precision, 6);
-      int const power[] = {1000*1000, 100*1000, 10*1000, 1000, 100, 10, 1};
       os << std::setfill('0') << std::setw(precision) << tod.tv_.tv_usec/power[precision] << ' ';
       tp.put(begin, os, ' ', &timebuf, 'Z');
     }
