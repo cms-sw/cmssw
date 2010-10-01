@@ -295,7 +295,7 @@ void EcalRecHitWorkerRecover::insertRecHit( const EcalRecHit &hit, EcalRecHitCol
 {
         // skip already inserted DetId's and raise a log warning
         if ( alreadyInserted( hit.id() ) ) {
-                edm::LogWarning("EcalRecHitWorkerRecover") << "DetId already recovered! Skipping...";
+	  //        edm::LogWarning("EcalRecHitWorkerRecover") << "DetId already recovered! Skipping...";
                 return;
         }
         EcalRecHitCollection::iterator it = collection.find( hit.id() );
