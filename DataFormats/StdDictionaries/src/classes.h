@@ -28,6 +28,7 @@ namespace {
   std::map<std::basic_string<char>,std::pair<unsigned int,unsigned int> > dummymspii;
   std::map<std::basic_string<char>,std::vector<std::basic_string<char> > > dummyypwmv11;
   std::map<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > > dummyypwmv8;
+  std::map<std::basic_string<char>,unsigned int> dummyypwmv12;
   std::map<std::pair<int,int>,double> dummympii_d;
   std::map<std::pair<int,int>,int> dummympii_i;
   std::map<std::pair<short,short>,std::pair<short,std::vector<short> > > dummympsspsvs;
