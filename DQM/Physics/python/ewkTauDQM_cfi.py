@@ -33,7 +33,7 @@ ewkTauDQM = cms.EDAnalyzer("EwkTauDQM",
             # high-level trigger paths
             # (at least one of the paths specified in the list is required to be passed)
             hltPaths = cms.vstring(
-                ##"HLT_Mu3"
+               #"HLT_Mu9"
             ),
 
             # event selection criteria
@@ -41,12 +41,16 @@ ewkTauDQM = cms.EDAnalyzer("EwkTauDQM",
             muonPtCut = cms.double(15.),
             muonTrackIsoCut = cms.double(2.),
             muonEcalIsoCut = cms.double(3.),
-            muonIsoMode = cms.string("absoluteIso"),
+             muonCombIsoCut = cms.double(0.2),
+            #muonIsoMode = cms.string("absoluteIso"),
+            muonIsoMode = cms.string("relativeIso"),
 
             tauJetEtaCut = cms.double(2.5),
             tauJetPtCut = cms.double(15.),
 
-            visMassCut = cms.double(20.)
+            visMassCut = cms.double(10.),
+            deltaRCut = cms.double(0.2)
+
         ),
         elecTauChannel = cms.PSet(
             # name of DQM (sub)directory in which histograms for Z --> electron + tau-jet channel get stored
@@ -77,14 +81,14 @@ ewkTauDQM = cms.EDAnalyzer("EwkTauDQM",
             # event selection criteria
             electronEtaCut = cms.double(2.5),
             electronPtCut = cms.double(15.),
-            electronTrackIsoCut = cms.double(2.),
-            electronEcalIsoCut = cms.double(3.),
-            electronIsoMode = cms.string("absoluteIso"),
+            electronTrackIsoCut = cms.double(0.2),
+            electronEcalIsoCut = cms.double(0.2),
+            electronIsoMode = cms.string("relativeIso"),
 
             tauJetEtaCut = cms.double(2.5),
             tauJetPtCut = cms.double(15.),
 
-            visMassCut = cms.double(20.)
+            visMassCut = cms.double(10.)
         )
     )
 )                         
