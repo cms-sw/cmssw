@@ -108,7 +108,7 @@ if __name__ == '__main__':
             if not options.outputfile:
                 lumiQueryAPI.printRecordedLumi (lumidata, parameters.verbose, hltpath)
             else:
-                todump = dumpRecordedLumi (lumidata, hltpath)
+                todump = lumiQueryAPI.dumpRecordedLumi (lumidata, hltpath)
                 todump.insert (0, ['run', 'hltpath', 'recorded'])
                 lumiQueryAPI.dumpData (todump, options.outputfile)
                 
