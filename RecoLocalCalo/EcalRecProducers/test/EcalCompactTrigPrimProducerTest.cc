@@ -1,4 +1,4 @@
-#include "RecoLocalCalo/EcalRecProducers/plugins/EcalCompactTrigPrimProducerTest.h"
+#include "RecoLocalCalo/EcalRecProducers/test/EcalCompactTrigPrimProducerTest.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
