@@ -31,6 +31,8 @@ process.famosSimHits.SimulateTracking = True
 # Get frontier conditions    - not applied in the HCAL, see below
 from Configuration.PyReleaseValidation.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['startup']
+# Allow reading of the tracker geometry from the DB
+process.load('CalibTracker/Configuration/Tracker_DependentRecords_forGlobalTag_nofakes_cff')
 
 # Apply ECAL miscalibration
 process.ecalRecHit.doMiscalib = True

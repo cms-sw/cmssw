@@ -30,6 +30,8 @@ process.load("Configuration.Generator.H200ZZ4L_cfi")
 process.load("FastSimulation.Configuration.CommonInputs_cff")
 from Configuration.PyReleaseValidation.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['mc']
+# Allow reading of the tracker geometry from the DB
+process.load('CalibTracker/Configuration/Tracker_DependentRecords_forGlobalTag_nofakes_cff')
 
 process.load("FastSimulation.Configuration.FamosSequences_cff")
 
