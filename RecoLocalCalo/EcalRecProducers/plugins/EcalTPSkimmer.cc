@@ -1,0 +1,149 @@
+/** \class EcalTPSkimmer
+ *   produce a subset of TP information
+ *
+ *  $Id: EcalTPSkimmer.cc,v 1.13 2010/09/29 15:31:27 ferriff Exp $
+ *  $Date: 2010/09/29 15:31:27 $
+ *  $Revision: 1.13 $
+ *  \author Federico Ferri, CEA/Saclay Irfu/SPP
+ *
+ **/
+
+#include "RecoLocalCalo/EcalRecProducers/plugins/EcalTPSkimmer.h"
+
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
+
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
+
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
+EcalTPSkimmer::EcalTPSkimmer(const edm::ParameterSet& ps)
+{
+        skipModule_                  = ps.getParameter<bool>("skipModule");
+
+        doBarrel_                  = ps.getParameter<bool>("doBarrel");
+        doEndcap_                  = ps.getParameter<bool>("doEndcap");
+
+        chStatusToSelectTP_          = ps.getParameter<std::vector<uint32_t> >("chStatusToSelectTP_");
+
+        tpOutputCollection_ = ps.getParameter<std::string>("barrelTPCollection");
+        tpInputCollection_  = ps.getParameter<edm::InputTag>("triggerPrimitiveDigiCollection");
+
+        produces< EcalTrigPrimDigiCollection >(tpOutputCollection_);
+}
+
+EcalTPSkimmer::~EcalTPSkimmer()
+{
+}
+
+void
+EcalTPSkimmer::produce(edm::Event& evt, const edm::EventSetup& es)
+{
+        using namespace edm;
+
+        es.get<IdealGeometryRecord>().get(ttMap_);
+
+        // collection of rechits to put in the event
+        std::auto_ptr< EcalTrigPrimDigiCollection > tpOut( new EcalTrigPrimDigiCollection );
+        
+        if ( skipModule_ ) {
+                evt.put( tpOut, tpOutputCollection_ );
+                return;
+        }
+
+        edm::ESHandle<EcalChannelStatus> chStatus;
+        es.get<EcalChannelStatusRcd>().get(chStatus);
+
+        edm::Handle<EcalTrigPrimDigiCollection> tpIn;
+        evt.getByLabel(tpInputCollection_, tpIn);
+
+        if ( ! tpIn.isValid() ) {
+                edm::LogError("EcalTPSkimmer") << "Can't get the product " << tpInputCollection_.instance()
+                        << " with label " << tpInputCollection_.label();
+                return;
+        }
+
+        if ( doBarrel_ ) {
+                EcalChannelStatusMap::const_iterator chit;
+                uint16_t code = 0;
+                for ( int i = 0; i < EBDetId::kSizeForDenseIndexing; ++i )
+                {
+                        EBDetId id = EBDetId::detIdFromDenseIndex( i );
+                        if ( ! EBDetId::validDenseIndex( id ) ) continue;
+                        chit = chStatus->find( id );
+                        // check if the channel status means TP to be kept
+                        if ( chit != chStatus->end() ) {
+                                code = (*chit).getStatusCode() & 0x001F;
+                                if ( std::find( chStatusToSelectTP_.begin(), chStatusToSelectTP_.end(), code ) != chStatusToSelectTP_.end() ) {
+                                        // retrieve the TP DetId
+                                        EcalTrigTowerDetId ttDetId( ((EBDetId)id).tower() );
+                                        // insert the TP if not done already
+                                        if ( ! alreadyInserted( ttDetId ) ) insertTP( ttDetId, tpIn, *tpOut );
+                                }
+                        } else {
+                                edm::LogError("EcalDetIdToBeRecoveredProducer") << "No channel status found for xtal "
+                                        << id.rawId()
+                                        << "! something wrong with EcalChannelStatus in your DB? ";
+                        }
+                }
+        }
+
+
+        if ( doEndcap_ ) {
+                EcalChannelStatusMap::const_iterator chit;
+                uint16_t code = 0;
+                for ( int i = 0; i < EEDetId::kSizeForDenseIndexing; ++i )
+                {
+                        EEDetId id = EEDetId::detIdFromDenseIndex( i );
+                        if ( ! EEDetId::validDenseIndex( id ) ) continue;
+                        chit = chStatus->find( id );
+                        // check if the channel status means TP to be kept
+                        if ( chit != chStatus->end() ) {
+                                code = (*chit).getStatusCode() & 0x001F;
+                                if ( std::find( chStatusToSelectTP_.begin(), chStatusToSelectTP_.end(), code ) != chStatusToSelectTP_.end() ) {
+                                        // retrieve the TP DetId
+                                        EcalTrigTowerDetId ttDetId = ttMap_->towerOf( id );
+                                        // insert the TP if not done already
+                                        if ( ! alreadyInserted( ttDetId ) ) insertTP( ttDetId, tpIn, *tpOut );
+                                }
+                        } else {
+                                edm::LogError("EcalDetIdToBeRecoveredProducer") << "No channel status found for xtal "
+                                        << id.rawId()
+                                        << "! something wrong with EcalChannelStatus in your DB? ";
+                        }
+                }
+        }
+
+        // put the collection of recunstructed hits in the event   
+        LogInfo("EcalTPSkimmer") << "total # of TP inserted: " << tpOut->size();
+
+        evt.put( tpOut, tpOutputCollection_ );
+}
+
+
+bool EcalTPSkimmer::alreadyInserted( EcalTrigTowerDetId ttId )
+{
+        return ( insertedTP_.find( ttId ) != insertedTP_.end() );
+}
+
+
+void EcalTPSkimmer::insertTP( EcalTrigTowerDetId ttId, edm::Handle<EcalTrigPrimDigiCollection> &tpIn, EcalTrigPrimDigiCollection &tpOut )
+{
+        EcalTrigPrimDigiCollection::const_iterator tpIt = tpIn->find( ttId );
+        if ( tpIt != tpIn->end() ) {
+                tpOut.push_back( *tpIt );
+                insertedTP_.insert( ttId );
+        }
+}
+
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE( EcalTPSkimmer );
+
