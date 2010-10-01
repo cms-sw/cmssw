@@ -1,6 +1,6 @@
-%MSG-w cat_A:  UnitTestClient_X:sendSomeMessages Run: 1 Event: 1
+%MSG-w cat_A:  UnitTestClient_X:sendSomeMessages {Timestamp}  Run: 1 Event: 1
 LogWarning was used to send this message
 %MSG
-%MSG-w cat_B:  UnitTestClient_X:sendSomeMessages Run: 1 Event: 1
+%MSG-w cat_B:  UnitTestClient_X:sendSomeMessages {Timestamp}  Run: 1 Event: 1
 LogWarning was used to send this message
 %MSG

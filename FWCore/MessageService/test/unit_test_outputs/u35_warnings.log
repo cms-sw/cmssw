@@ -2,11 +2,11 @@
 LogWarning was used to send this message
 %MSG
 %MSG-w cat_C:  UnitTestClient_W:sendSomeMessages Run: 1 Event: 1
-LogWarningThatSuppressesLikeLogInfo as used to send this message
+LogWarningThatSuppressesLikeLogInfo was used to send this message
 %MSG
 %MSG-w cat_A:  UnitTestClient_W:sendSomeMessages Run: 1 Event: 2
 LogWarning was used to send this message
 %MSG
 %MSG-w cat_C:  UnitTestClient_W:sendSomeMessages Run: 1 Event: 2
-LogWarningThatSuppressesLikeLogInfo as used to send this message
+LogWarningThatSuppressesLikeLogInfo was used to send this message
 %MSG
