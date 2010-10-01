@@ -70,7 +70,10 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset)
   theMeasurementTrackerName = pset.getParameter<std::string>("measurementTrackerName") ;
 
   // use of reco vertex
-  useRecoVertex_ = pset.getParameter<bool>("useRecoVertex") ;
+  if (pset.exists("useRecoVertex"))
+    useRecoVertex_ = pset.getParameter<bool>("useRecoVertex") ;
+  else
+    useRecoVertex_ = false ;
   verticesTag_ = pset.getParameter<edm::InputTag>("vertices") ;
   deltaZ1WithVertex_ = pset.getParameter<double>("deltaZ1WithVertex") ;
 
