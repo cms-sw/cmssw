@@ -89,6 +89,7 @@ namespace edm {
     //This next parameter is read in the base class, but its default value depends on the derived class, so it is set here.
     desc.addUntracked<bool>("inputFileTransitionsEachEvent", false);
     StreamerInputSource::fillDescription(desc);
+    EventSkipperByID::fillDescription(desc);
     descriptions.add("source", desc);
   }
 } //end-of-namespace
