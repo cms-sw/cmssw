@@ -135,7 +135,7 @@ HLT_L1Tech_BSC_HighMultiplicity
 HLT_RPCBarrelCosmics
 HLT_TrackerCosmics
 HLT_L1Tech_RPC_TTU_RBst1_collisions
-HLT_StoppedHSCP
+HLT_StoppedHSCP_v2
 HLT_IsoTrackHB_v2
 HLT_IsoTrackHE_v2
 HLT_HcalPhiSym
