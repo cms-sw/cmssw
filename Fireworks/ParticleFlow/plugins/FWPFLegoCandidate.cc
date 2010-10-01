@@ -1,4 +1,4 @@
-#include "LegoCandidate.h"
+#include "FWPFLegoCandidate.h"
 
 #include "TEveCaloData.h"
 #include "Fireworks/Core/interface/Context.h"
@@ -7,7 +7,7 @@
 #include "Fireworks/Core/interface/fwLog.h"
 
 //______________________________________________________________________________________________________________________________________________
-LegoCandidate::LegoCandidate( const LegoCandidateData &lc, const FWViewContext *vc, const fireworks::Context &context )
+FWPFLegoCandidate::FWPFLegoCandidate( const LegoCandidateData &lc, const FWViewContext *vc, const fireworks::Context &context )
 {
     float pt = lc.pt;
     float eta = lc.eta;
@@ -55,7 +55,7 @@ LegoCandidate::LegoCandidate( const LegoCandidateData &lc, const FWViewContext *
 
 //______________________________________________________________________________________________________________________________________________
 float
-LegoCandidate::getScale( const FWViewContext *vc, const fireworks::Context &context ) const
+FWPFLegoCandidate::getScale( const FWViewContext *vc, const fireworks::Context &context ) const
 {
     float s = 0.f;
     
@@ -92,7 +92,7 @@ LegoCandidate::getScale( const FWViewContext *vc, const fireworks::Context &cont
 
 //______________________________________________________________________________________________________________________________________________
 void
-LegoCandidate::updateScale( const FWViewContext *vc, const fireworks::Context &context )
+FWPFLegoCandidate::updateScale( const FWViewContext *vc, const fireworks::Context &context )
 {
     FWViewEnergyScale *caloScale = vc->getEnergyScale( "Calo" );
     float val = caloScale->getPlotEt() ? m_et : m_energy;

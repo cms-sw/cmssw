@@ -11,7 +11,7 @@
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "Fireworks/ParticleFlow/plugins/LegoCandidate.h"
+#include "Fireworks/ParticleFlow/plugins/FWPFLegoCandidate.h"
 #include "Fireworks/Core/interface/FWProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/Context.h"

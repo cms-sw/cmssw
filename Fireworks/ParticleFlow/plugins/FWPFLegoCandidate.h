@@ -1,5 +1,5 @@
-#ifndef _LegoCandidate_H_
-#define _LegoCandidate_H_
+#ifndef _FWPFLegoCandidate_H_
+#define _FWPFLegoCandidate_H_
 
 #include "TEveLine.h"
 #include "TEveStraightLineSet.h"
@@ -27,11 +27,11 @@ struct LegoCandidateData
     float phi;
 };
 
-class LegoCandidate : public TEveStraightLineSet
+class FWPFLegoCandidate : public TEveStraightLineSet
 {
     private:
-        LegoCandidate( const LegoCandidate& );              // Disable default copy constructor
-        LegoCandidate& operator=( const LegoCandidate& );   // Disable default assignment operator
+        FWPFLegoCandidate( const FWPFLegoCandidate& );              // Disable default copy constructor
+        FWPFLegoCandidate& operator=( const FWPFLegoCandidate& );   // Disable default assignment operator
 
         // --------------------------- Data Members ---------------------------------
         float m_et, m_energy;
@@ -42,9 +42,9 @@ class LegoCandidate : public TEveStraightLineSet
 
     public:
         // -------------------- Constructor(s)/Destructors --------------------------
-        LegoCandidate(){}
-        LegoCandidate( const LegoCandidateData &lc, const FWViewContext *vc, const fireworks::Context &context );
-        virtual ~LegoCandidate(){}
+        FWPFLegoCandidate(){}
+        FWPFLegoCandidate( const LegoCandidateData &lc, const FWViewContext *vc, const fireworks::Context &context );
+        virtual ~FWPFLegoCandidate(){}
 
         // ------------------------- Member Functions -------------------------------
         void updateScale( const FWViewContext*, const fireworks::Context& );

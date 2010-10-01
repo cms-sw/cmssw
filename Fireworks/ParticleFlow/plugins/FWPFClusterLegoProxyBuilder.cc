@@ -28,7 +28,7 @@ FWPFClusterLegoProxyBuilder::localModelChanges( const FWModelId &iId, TEveElemen
     {
         for( TEveElement::List_i j = parent->BeginChildren(); j != parent->EndChildren(); j++ )
         {
-            LegoCandidate *pfc = dynamic_cast<LegoCandidate*>( *j );
+            FWPFLegoCandidate *pfc = dynamic_cast<FWPFLegoCandidate*>( *j );
             const FWDisplayProperties &dp = FWProxyBuilderBase::item()->modelInfo( iId.index() ).displayProperties();
             pfc->SetMarkerColor( dp.color() );
             pfc->ElementChanged();
@@ -53,7 +53,7 @@ FWPFClusterLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementList *p
         lc.eta = iData.eta();
         lc.phi = iData.phi();
 
-        LegoCandidate *cluster = new LegoCandidate( lc, vc, FWProxyBuilderBase::context() );
+        FWPFLegoCandidate *cluster = new FWPFLegoCandidate( lc, vc, FWProxyBuilderBase::context() );
         cluster->SetLineWidth( 2 );
         cluster->SetMarkerColor( FWProxyBuilderBase::item()->defaultDisplayProperties().color() );
         setupAddElement( cluster, itemHolder );
@@ -69,7 +69,7 @@ FWPFClusterLegoProxyBuilder::scaleProduct( TEveElementList* parent, FWViewType::
       if ((*i)->HasChildren())
       {
          TEveElement* el = (*i)->FirstChild();  // there is only one child added in this proxy builder
-         LegoCandidate *cand = dynamic_cast<LegoCandidate*>( el );
+         FWPFLegoCandidate *cand = dynamic_cast<FWPFLegoCandidate*>( el );
          cand->updateScale(vc, context());
       }
    }
