@@ -19,7 +19,7 @@ HLT_DiJetAve70U_v2
 HLT_DiJetAve100U_v1
 HLT_DoubleJet15U_ForwardBackward
 HLT_DoubleJet25U_ForwardBackward
-HLT_ExclDiJet30U_v1
+HLT_ExclDiJet30U_HFAND_v1
 HLT_ExclDiJet30U_HFOR_v1
 HLT_QuadJet15U_v2
 HLT_QuadJet20U_v2
