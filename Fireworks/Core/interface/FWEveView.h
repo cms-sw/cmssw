@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.h,v 1.22 2010/09/26 19:54:56 amraktad Exp $
+// $Id: FWEveView.h,v 1.23 2010/09/27 15:01:42 amraktad Exp $
 //
 
 
@@ -96,11 +96,6 @@ protected:
 
    // scales
    virtual TEveCaloViz* getEveCalo() const { return 0; }
-
-   long   getEnergyScaleMode(FWViewEnergyScale*) ;
-   double getEnergyMaxAbsVal(FWViewEnergyScale*) ;
-   double getEnergyMaxTowerHeight(FWViewEnergyScale*) ;
-   double getPlotEt(FWViewEnergyScale*) ;
 
    // config
    void addToOrthoCamera(TGLOrthoCamera*, FWConfiguration&) const;

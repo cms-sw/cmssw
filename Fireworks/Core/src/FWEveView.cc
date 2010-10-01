@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.cc,v 1.36 2010/09/27 15:01:42 amraktad Exp $
+// $Id: FWEveView.cc,v 1.37 2010/09/29 16:19:49 amraktad Exp $
 //
 
 
@@ -251,31 +251,6 @@ FWEveView::resetCamera()
 
 //______________________________________________________________________________
 
-// AMT TODO !!!! remove this obsolete functions
-long
-FWEveView::getEnergyScaleMode(FWViewEnergyScale* scales) 
-{
-   return scales->getScaleMode();
-}
-
-double 
-FWEveView::getEnergyMaxAbsVal(FWViewEnergyScale* scales) 
-{
-   return scales->getMaxFixedVal();
-}
-
-double 
-FWEveView::getEnergyMaxTowerHeight(FWViewEnergyScale* scales) 
-{ 
-   return  scales->getMaxTowerHeight();
-}
-
-double 
-FWEveView::getPlotEt(FWViewEnergyScale* scales)
-{ 
-   return scales->getPlotEt();
-}
-
 void
 FWEveView::setMaxTowerHeight()
 {
@@ -284,7 +259,7 @@ FWEveView::setMaxTowerHeight()
       FWViewEnergyScale*  caloScale = viewContext()->getEnergyScale("Calo");
       if (caloScale)
       {
-         getEveCalo()->SetMaxTowerH(getEnergyMaxTowerHeight(caloScale));
+         getEveCalo()->SetMaxTowerH(caloScale->getMaxTowerHeight());
          energyScalesChanged();
       }
    }
@@ -311,29 +286,29 @@ FWEveView::updateEnergyScales()
    if (caloScale)
    {
       TEveCaloViz* calo = getEveCalo();
-      calo->SetMaxValAbs(getEnergyMaxAbsVal(caloScale));
+      calo->SetMaxValAbs(caloScale->getMaxFixedVal());
       if (calo && (typeId() != FWViewType::kLego && typeId() != FWViewType::kLegoHF))
-         calo->SetMaxTowerH(getEnergyMaxTowerHeight(caloScale));
-      calo->SetPlotEt(getPlotEt(caloScale));
+         calo->SetMaxTowerH(caloScale->getMaxTowerHeight());
+      calo->SetPlotEt(caloScale->getPlotEt());
       
-      if (getEnergyScaleMode(caloScale) == FWViewEnergyScale::kFixedScale)
+      if (caloScale->getScaleMode() == FWViewEnergyScale::kFixedScale)
       {
          if (calo->GetScaleAbs() == false)
          {
             calo->SetScaleAbs(true);
          }
       }
-      else if (getEnergyScaleMode(caloScale) == FWViewEnergyScale::kAutoScale)
+      else if (caloScale->getScaleMode() == FWViewEnergyScale::kAutoScale)
       {
          if (calo->GetScaleAbs()) 
          {
             calo->SetScaleAbs(false);
          }
       }
-      else if (getEnergyScaleMode(caloScale) == FWViewEnergyScale::kCombinedScale)
+      else if (caloScale->getScaleMode() == FWViewEnergyScale::kCombinedScale)
       {
          float dataMax = calo->GetData()->GetMaxVal(calo->GetPlotEt());
-         bool fixed = (getEnergyMaxAbsVal(caloScale) >= dataMax);
+         bool fixed = (caloScale->getMaxFixedVal() >= dataMax);
 
          if (fixed != calo->GetScaleAbs())
          {
@@ -342,7 +317,7 @@ FWEveView::updateEnergyScales()
             fwLog(fwlog::kInfo) << Form("%-7s Scale mode has changed to %-9s CaloMaxVal = %.1f > threshold (ValuteToH*MaxTowerH = %f)",
                                         typeName().c_str(),
                                         fixed ? "Fixed" :"Automatic",
-                                        dataMax, getEnergyMaxAbsVal(caloScale)) << std::endl; fflush(stdout); 
+                                        dataMax, caloScale->getMaxFixedVal()) << std::endl; fflush(stdout); 
          }
 
          drawAnnotation = !fixed;

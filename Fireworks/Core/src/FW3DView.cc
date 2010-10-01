@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Apr  7 14:40:47 CEST 2010
-// $Id: FW3DView.cc,v 1.48 2010/09/24 16:22:26 amraktad Exp $
+// $Id: FW3DView.cc,v 1.49 2010/09/26 19:54:57 amraktad Exp $
 //
 
 // system include files
@@ -69,9 +69,9 @@ void FW3DView::setContext(const fireworks::Context& ctx)
    m_calo->SetElementName("calo barrel");
 
    FWViewEnergyScale*  caloScale = viewContext()->getEnergyScale("Calo");
-   m_calo->SetMaxTowerH(getEnergyMaxTowerHeight(caloScale));
-   m_calo->SetScaleAbs(getEnergyScaleMode(caloScale) == FWViewEnergyScale::kFixedScale);
-   m_calo->SetMaxValAbs(getEnergyMaxAbsVal(caloScale));
+   m_calo->SetMaxTowerH(caloScale->getMaxTowerHeight());
+   m_calo->SetScaleAbs(caloScale->getScaleMode() == FWViewEnergyScale::kFixedScale);
+   m_calo->SetMaxValAbs(caloScale->getMaxFixedVal());
 
    m_calo->SetBarrelRadius(context().caloR1(false));
    m_calo->SetEndCapPos(context().caloZ1(false));

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWLegoViewBase.cc,v 1.16 2010/09/24 16:22:26 amraktad Exp $
+// $Id: FWLegoViewBase.cc,v 1.17 2010/09/26 19:57:21 amraktad Exp $
 //
 
 // system include files
@@ -123,8 +123,8 @@ FWLegoViewBase::setContext(const fireworks::Context& ctx)
 
    // note, do not restore max tower height, since it has not value
    FWViewEnergyScale*  caloScale = viewContext()->getEnergyScale("Calo");
-   m_lego->SetScaleAbs(getEnergyScaleMode(caloScale) == FWViewEnergyScale::kFixedScale);
-   m_lego->SetMaxValAbs(getEnergyMaxAbsVal(caloScale));
+   m_lego->SetScaleAbs(caloScale->getScaleMode() == FWViewEnergyScale::kFixedScale);
+   m_lego->SetMaxValAbs(caloScale->getMaxFixedVal());
    
    
    // set flat in 2D
