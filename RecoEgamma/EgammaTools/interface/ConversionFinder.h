@@ -7,7 +7,7 @@
   * electron did indeed come from a conversion
   * \author Puneeth Kalavase, University Of California, Santa Barbara
   *
-  * \version $Id: ConversionFinder.h,v 1.7 2010/04/13 19:32:13 kalavase Exp $
+  * \version $Id: ConversionFinder.h,v 1.10 2010/10/01 15:57:59 kalavase Exp $
   *
   */
 
@@ -39,18 +39,30 @@ class ConversionFinder {
   ConversionFinder();
   ~ConversionFinder();
   //bField has to be supplied in Tesla
-  std::vector<ConversionInfo> getConversionInfo(const reco::GsfElectron& gsfElectron, 
-						const edm::Handle<reco::TrackCollection>& ctftracks_h, 
-						const edm::Handle<reco::GsfTrackCollection>& gsftracks_h,
-						const double bFieldAtOrigin,
-						const double minFracSharedHits = 0.45);
 
-  std::vector<ConversionInfo> getConversionInfo(const reco::GsfElectronCore&,
+  //returns a vector of Conversion Infos.
+  //you have to decide which is the best
+  std::vector<ConversionInfo> getConversionInfos(const reco::GsfElectronCore&,
 						const edm::Handle<reco::TrackCollection>& ctftracks_h,
 						const edm::Handle<reco::GsfTrackCollection>& gsftracks_h,
 						const double bFieldAtOrigin,
 						const double minFracSharedHits = 0.45);
+
+  //retruns the "best" Conversion Info after calling getConversionInfos
+  ConversionInfo getConversionInfo(const reco::GsfElectronCore&,
+				   const edm::Handle<reco::TrackCollection>& ctftracks_h,
+				   const edm::Handle<reco::GsfTrackCollection>& gsftracks_h,
+				   const double bFieldAtOrigin,
+				   const double minFracSharedHits = 0.45);
+
+  //retruns the "best" Conversion Info after calling getConversionInfos
+  ConversionInfo getConversionInfo(const reco::GsfElectron& gsfElectron, 
+				   const edm::Handle<reco::TrackCollection>& ctftracks_h, 
+				   const edm::Handle<reco::GsfTrackCollection>& gsftracks_h,
+				   const double bFieldAtOrigin,
+				   const double minFracSharedHits = 0.45);
   
+  //used internally, so call this only if you know what you're doing. 
   ConversionInfo getConversionInfo(const reco::Track *el_track, 
 				   const reco::Track *candPartnerTk,
 				   const double bFieldAtOrigin);	
