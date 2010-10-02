@@ -71,8 +71,9 @@ int DCCTCCBlock::unpack(uint64_t ** data, unsigned int * dwToEnd, short tccChId)
     if(sync_){
       const unsigned int dccBx = (event_->bx())  & TCC_BX_MASK;
       const unsigned int dccL1 = (event_->l1A()) & TCC_L1_MASK;
+      const unsigned int fov   = ( event_->fov() ) & H_FOV_MASK;
       
-      if (! isSynced(dccBx, bx_, dccL1, l1_, TCC_SRP)) {
+      if (! isSynced(dccBx, bx_, dccL1, l1_, TCC_SRP, fov)) {
         if( ! DCCDataUnpacker::silentMode_ ){
           edm::LogWarning("IncorrectBlock")
             << "Synchronization error for TCC block"

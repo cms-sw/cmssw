@@ -64,8 +64,9 @@ int DCCSRPBlock::unpack(uint64_t ** data, unsigned int * dwToEnd, unsigned int n
   if(sync_){
     const unsigned int dccL1 = ( event_->l1A() ) & SRP_L1_MASK;
     const unsigned int dccBx = ( event_->bx()  ) & SRP_BX_MASK;
+    const unsigned int fov   = ( event_->fov() ) & H_FOV_MASK;
     
-    if (! isSynced(dccBx, bx_, dccL1, l1_, TCC_SRP)) {
+    if (! isSynced(dccBx, bx_, dccL1, l1_, TCC_SRP, fov)) {
       if( ! DCCDataUnpacker::silentMode_ ){
         edm::LogWarning("IncorrectEvent")
           << "Synchronization error for SRP block"

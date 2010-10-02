@@ -107,8 +107,9 @@ int DCCMemBlock::unpack(uint64_t ** data, unsigned int * dwToEnd, unsigned int e
   if(sync_){
     const unsigned int dccBx = ( event_->bx()) & TOWER_BX_MASK;
     const unsigned int dccL1 = ( event_->l1A() ) & TOWER_L1_MASK;
+    const unsigned int fov   = ( event_->fov() ) & H_FOV_MASK;
     
-    if (! isSynced(dccBx, bx_, dccL1, l1_, FE_MEM)) {
+    if (! isSynced(dccBx, bx_, dccL1, l1_, FE_MEM, fov)) {
       if( ! DCCDataUnpacker::silentMode_ ){
         edm::LogWarning("IncorrectEvent")
           << "Synchronization error for Mem block"

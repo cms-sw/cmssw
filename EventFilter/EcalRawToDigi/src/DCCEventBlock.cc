@@ -169,8 +169,12 @@ bool isSynced(const unsigned int dccBx,
               const unsigned int bx,
               const unsigned int dccL1,
               const unsigned int l1,
-              const BlockType type)
+              const BlockType type,
+              const unsigned int fov)
 {
+  // avoid checking for MC until EcalDigiToRaw bugfixed
+  // and to guarantee backward compatibility on RAW data
+  if ( fov < 1 ) return true;
   // check the BX sync according the following rule:
   //
   //   FE Block     MEM Block     TCC Block  SRP Block  DCC

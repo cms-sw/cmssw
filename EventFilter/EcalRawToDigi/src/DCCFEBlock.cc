@@ -104,8 +104,9 @@ int DCCFEBlock::unpack(uint64_t ** data, unsigned int * dwToEnd, bool zs, unsign
   if (sync_) {
     const unsigned int dccBx = (event_->bx())  & TCC_BX_MASK;
     const unsigned int dccL1 = (event_->l1A()) & TCC_L1_MASK;
+    const unsigned int fov   = (event_->fov()) & H_FOV_MASK;
     
-    if (! isSynced(dccBx, bx_, dccL1, l1_, FE_MEM)) {
+    if (! isSynced(dccBx, bx_, dccL1, l1_, FE_MEM, fov)) {
       if (! DCCDataUnpacker::silentMode_) {
         // TODO: add check for status from Channel Status DB
         

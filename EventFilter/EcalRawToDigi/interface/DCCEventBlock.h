@@ -10,8 +10,8 @@
  *
  * \file DCCEventBlock.h
  *
- * $Date: 2010/09/15 21:51:33 $
- * $Revision: 1.4 $
+ * $Date: 2010/09/24 16:03:23 $
+ * $Revision: 1.5 $
  *
  * \author N. Almeida
  * \author G. Franzoni
@@ -132,6 +132,7 @@ bool isSynced(const unsigned int dccBx,
               const unsigned int bx,
               const unsigned int dccL1,
               const unsigned int l1,
-              const BlockType type);
+              const BlockType type,
+              const unsigned int fov);
 
 #endif
