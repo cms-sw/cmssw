@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 ecalTPSkim = cms.EDProducer("EcalTPSkimmer",
 
     # channel flags for which we want to keep the TP
-    chStatusToSelectTP = cms.vint32( 12, 13 ),
+    chStatusToSelectTP = cms.vuint32( 12, 13 ),
 
     # whether to execute the module at all
     skipModule = cms.bool(False),

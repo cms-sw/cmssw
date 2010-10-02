@@ -1,9 +1,9 @@
 /** \class EcalTPSkimmer
  *   produce a subset of TP information
  *
- *  $Id: EcalTPSkimmer.cc,v 1.13 2010/09/29 15:31:27 ferriff Exp $
- *  $Date: 2010/09/29 15:31:27 $
- *  $Revision: 1.13 $
+ *  $Id: EcalTPSkimmer.cc,v 1.1 2010/10/01 16:27:18 ferriff Exp $
+ *  $Date: 2010/10/01 16:27:18 $
+ *  $Revision: 1.1 $
  *  \author Federico Ferri, CEA/Saclay Irfu/SPP
  *
  **/
@@ -26,15 +26,15 @@
 
 EcalTPSkimmer::EcalTPSkimmer(const edm::ParameterSet& ps)
 {
-        skipModule_                  = ps.getParameter<bool>("skipModule");
+        skipModule_         = ps.getParameter<bool>("skipModule");
 
-        doBarrel_                  = ps.getParameter<bool>("doBarrel");
-        doEndcap_                  = ps.getParameter<bool>("doEndcap");
+        doBarrel_           = ps.getParameter<bool>("doBarrel");
+        doEndcap_           = ps.getParameter<bool>("doEndcap");
 
-        chStatusToSelectTP_          = ps.getParameter<std::vector<uint32_t> >("chStatusToSelectTP_");
+        chStatusToSelectTP_ = ps.getParameter<std::vector<uint32_t> >("chStatusToSelectTP");
 
-        tpOutputCollection_ = ps.getParameter<std::string>("barrelTPCollection");
-        tpInputCollection_  = ps.getParameter<edm::InputTag>("triggerPrimitiveDigiCollection");
+        tpOutputCollection_ = ps.getParameter<std::string>("tpOutputCollection");
+        tpInputCollection_  = ps.getParameter<edm::InputTag>("tpInputCollection");
 
         produces< EcalTrigPrimDigiCollection >(tpOutputCollection_);
 }
@@ -46,6 +46,8 @@ EcalTPSkimmer::~EcalTPSkimmer()
 void
 EcalTPSkimmer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
+        insertedTP_.clear();
+        
         using namespace edm;
 
         es.get<IdealGeometryRecord>().get(ttMap_);
@@ -75,8 +77,8 @@ EcalTPSkimmer::produce(edm::Event& evt, const edm::EventSetup& es)
                 uint16_t code = 0;
                 for ( int i = 0; i < EBDetId::kSizeForDenseIndexing; ++i )
                 {
+                        if ( ! EBDetId::validDenseIndex( i ) ) continue;
                         EBDetId id = EBDetId::detIdFromDenseIndex( i );
-                        if ( ! EBDetId::validDenseIndex( id ) ) continue;
                         chit = chStatus->find( id );
                         // check if the channel status means TP to be kept
                         if ( chit != chStatus->end() ) {
@@ -95,14 +97,13 @@ EcalTPSkimmer::produce(edm::Event& evt, const edm::EventSetup& es)
                 }
         }
 
-
         if ( doEndcap_ ) {
                 EcalChannelStatusMap::const_iterator chit;
                 uint16_t code = 0;
                 for ( int i = 0; i < EEDetId::kSizeForDenseIndexing; ++i )
                 {
+                        if ( ! EEDetId::validDenseIndex( i ) ) continue;
                         EEDetId id = EEDetId::detIdFromDenseIndex( i );
-                        if ( ! EEDetId::validDenseIndex( id ) ) continue;
                         chit = chStatus->find( id );
                         // check if the channel status means TP to be kept
                         if ( chit != chStatus->end() ) {
@@ -121,7 +122,7 @@ EcalTPSkimmer::produce(edm::Event& evt, const edm::EventSetup& es)
                 }
         }
 
-        // put the collection of recunstructed hits in the event   
+        // put the collection of reconstructed hits in the event   
         LogInfo("EcalTPSkimmer") << "total # of TP inserted: " << tpOut->size();
 
         evt.put( tpOut, tpOutputCollection_ );
