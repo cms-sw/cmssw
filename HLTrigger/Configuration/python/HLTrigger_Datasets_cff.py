@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_8_1/GRun/V41
+# /dev/CMSSW_3_8_1/GRun/V43
 
 import FWCore.ParameterSet.Config as cms
 
@@ -49,9 +49,9 @@ streamA_datasetEGMonitor_selector.triggerConditions = cms.vstring('HLT_Activity_
     'HLT_Activity_Ecal_SC7', 
     'HLT_DoubleEle4_SW_eeRes_L1R', 
     'HLT_Ele10_SW_L1R', 
-    'HLT_Ele12_SW_TightEleId_L1R_v2', 
+    'HLT_Ele12_SW_TightEleId_L1R', 
     'HLT_Ele12_SW_TighterEleId_L1R_v1', 
-    'HLT_Ele17_SW_L1R_v2', 
+    'HLT_Ele17_SW_L1R', 
     'HLT_L1SingleEG2', 
     'HLT_L1SingleEG8', 
     'HLT_Photon10_Cleaned_L1R', 
@@ -68,7 +68,7 @@ streamA_datasetElectron_selector.triggerConditions = cms.vstring('HLT_DoubleEle1
     'HLT_Ele12_SW_TighterEleIdIsol_L1R_v1', 
     'HLT_Ele17_SW_TightCaloEleId_SC8HE_L1R_v1', 
     'HLT_Ele17_SW_TightEleIdIsol_L1R_v1', 
-    'HLT_Ele17_SW_TightEleId_L1R_v1', 
+    'HLT_Ele17_SW_TightEleId_L1R', 
     'HLT_Ele17_SW_TighterEleIdIsol_L1R_v1', 
     'HLT_Ele17_SW_TighterEleId_L1R_v1', 
     'HLT_Ele27_SW_TightCaloEleIdTrack_L1R_v1', 
@@ -125,7 +125,7 @@ streamA_datasetMETFwd_selector.l1tResults = cms.InputTag('')
 streamA_datasetMETFwd_selector.throw      = cms.bool(False)
 streamA_datasetMETFwd_selector.triggerConditions = cms.vstring('HLT_DoubleJet15U_ForwardBackward', 
     'HLT_DoubleJet25U_ForwardBackward', 
-    'HLT_MET100', 
+    'HLT_MET100_v2', 
     'HLT_MET45', 
     'HLT_MET45_HT100U_v1', 
     'HLT_MET45_HT120U_v1', 
@@ -150,7 +150,7 @@ streamA_datasetMinimumBias_selector.triggerConditions = cms.vstring('HLT_L1Tech_
     'HLT_PixelTracks_Multiplicity70', 
     'HLT_PixelTracks_Multiplicity85', 
     'HLT_Random', 
-    'HLT_StoppedHSCP', 
+    'HLT_StoppedHSCP_v2', 
     'HLT_ZeroBias', 
     'HLT_ZeroBiasPixel_SingleTrack')
 
@@ -170,7 +170,9 @@ streamA_datasetMu_selector.triggerConditions = cms.vstring('HLT_DoubleMu3_v2',
     'HLT_Mu5_Ele5_v1', 
     'HLT_Mu5_Ele9_v1', 
     'HLT_Mu5_HT50U_v1', 
+    'HLT_Mu5_HT70U_v1', 
     'HLT_Mu5_Jet35U_v1', 
+    'HLT_Mu5_Jet50U_v1', 
     'HLT_Mu5_MET45_v1', 
     'HLT_Mu5_Photon11_Cleaned_L1R_v1', 
     'HLT_Mu9')
@@ -211,8 +213,8 @@ streamA_datasetMultiJet_selector.hltResults = cms.InputTag('TriggerResults', '',
 streamA_datasetMultiJet_selector.l1tResults = cms.InputTag('')
 streamA_datasetMultiJet_selector.throw      = cms.bool(False)
 streamA_datasetMultiJet_selector.triggerConditions = cms.vstring('HLT_EcalOnly_SumEt160_v2', 
+    'HLT_ExclDiJet30U_HFAND_v1', 
     'HLT_ExclDiJet30U_HFOR_v1', 
-    'HLT_ExclDiJet30U_v1', 
     'HLT_HT140U', 
     'HLT_HT140U_Eta3_v1', 
     'HLT_HT160U_v1', 
