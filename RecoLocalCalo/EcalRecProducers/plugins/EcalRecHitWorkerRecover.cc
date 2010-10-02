@@ -172,8 +172,8 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                         if ( !killDeadChannels_ || recoverEBFE_ ) {  
                                 // democratic energy sharing
                                 for ( std::vector<DetId>::const_iterator dit = vid.begin(); dit != vid.end(); ++dit ) {
-                                        float theta = 0;
-                                        theta = ebGeom_->getGeometry(*dit)->getPosition().theta();
+				        if (alreadyInserted(*dit)) continue;
+				        float theta = ebGeom_->getGeometry(*dit)->getPosition().theta();
                                         float tpEt  = ecalScale_.getTPGInGeV( tp->compressedEt(), tp->id() );
                                         EcalRecHit hit( *dit, tpEt / (float)vid.size() / sin(theta), 0., EcalRecHit::kTowerRecovered );
                                         hit.setFlagBits( (0x1 << EcalRecHit::kTowerRecovered) ) ;
@@ -186,7 +186,8 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                         // tp not found => recovery failed
                         std::vector<DetId> vid = ttMap_->constituentsOf( ttDetId );
                         for ( std::vector<DetId>::const_iterator dit = vid.begin(); dit != vid.end(); ++dit ) {
-                                EcalRecHit hit( detId, 0., 0., EcalRecHit::kDead );
+			  if (alreadyInserted(*dit)) continue;
+			  EcalRecHit hit( *dit,0., 0., EcalRecHit::kDead );
                                 hit.setFlagBits( (0x1 << EcalRecHit::kDead) ) ;
                                 EcalRecHitCollection::iterator it = result.find( *dit );
                                 insertRecHit( hit, result );
@@ -295,7 +296,7 @@ void EcalRecHitWorkerRecover::insertRecHit( const EcalRecHit &hit, EcalRecHitCol
 {
         // skip already inserted DetId's and raise a log warning
         if ( alreadyInserted( hit.id() ) ) {
-	  //        edm::LogWarning("EcalRecHitWorkerRecover") << "DetId already recovered! Skipping...";
+	  edm::LogWarning("EcalRecHitWorkerRecover") << "DetId already recovered! Skipping...";
                 return;
         }
         EcalRecHitCollection::iterator it = collection.find( hit.id() );
