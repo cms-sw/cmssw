@@ -2309,6 +2309,16 @@ if 'GlobalTag' in process.__dict__:
     from Configuration.PyReleaseValidation.autoCond import autoCond
     process.GlobalTag.globaltag = autoCond['startup']
 
+# override the L1 menu
+if 'GlobalTag' in process.__dict__:
+    process.GlobalTag.toGet.append(
+        cms.PSet(  
+            record  = cms.string( "L1GtTriggerMenuRcd" ),
+            tag     = cms.string( "L1GtTriggerMenu_L1Menu_Collisions2010_v0_mc" ),
+            connect = cms.untracked.string( "sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/sqlFile/L1Menu_Collisions2010_v0_mc.db" )
+        )
+    )
+
 # adapt HLT modules to the correct process name
 if 'hltTrigReport' in process.__dict__:
     process.hltTrigReport.HLTriggerResults       = cms.InputTag( 'TriggerResults','',process.name_() )
