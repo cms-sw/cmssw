@@ -34,7 +34,7 @@ public:
     m_l1tMenu(0),
     m_l1tAlgoMask(0),
     m_l1tTechMask(0),
-    m_l1tCacheID(0ULL),
+    m_l1tCacheID(),
     m_l1tUpdated(false),
     // hlt values and status
     m_hltResults(0),
