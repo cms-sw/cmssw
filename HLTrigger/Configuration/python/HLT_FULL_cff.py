@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_8_1/HLT/V304 (CMSSW_3_8_1_HLT16)
+# /dev/CMSSW_3_8_1/HLT/V305 (CMSSW_3_8_1_HLT16)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/HLT/V304')
+  tableName = cms.string('/dev/CMSSW_3_8_1/HLT/V305')
 )
 
 streams = cms.PSet( 
@@ -14573,10 +14573,10 @@ hltL1TechBSCminBiasOR = cms.EDFilter( "TriggerResultsFilter",
     triggerConditions = cms.vstring( 'L1Tech_BSC_minBias_OR' ),
     hltResults = cms.InputTag( "" ),
     l1tResults = cms.InputTag( "hltGtDigis" ),
-    l1tIgnoreMask = cms.bool( True ),
+    l1tIgnoreMask = cms.bool( False ),
     daqPartitions = cms.uint32( 1 ),
     throw = cms.bool( True ),
-    l1techIgnorePrescales = cms.bool( True )
+    l1techIgnorePrescales = cms.bool( False )
 )
 hltPreMinBiasPixelDoubleTrack = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
@@ -14750,10 +14750,10 @@ hltL1TechBSCminBias = cms.EDFilter( "TriggerResultsFilter",
       'L1Tech_BSC_minBias_threshold2' ),
     hltResults = cms.InputTag( "" ),
     l1tResults = cms.InputTag( "hltGtDigis" ),
-    l1tIgnoreMask = cms.bool( True ),
+    l1tIgnoreMask = cms.bool( False ),
     daqPartitions = cms.uint32( 1 ),
     throw = cms.bool( True ),
-    l1techIgnorePrescales = cms.bool( True )
+    l1techIgnorePrescales = cms.bool( False )
 )
 hltPreL1TechBSChalo = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
@@ -14765,10 +14765,10 @@ hltL1TechBSChalo = cms.EDFilter( "TriggerResultsFilter",
       'L1Tech_BSC_halo_beam1_outer' ),
     hltResults = cms.InputTag( "" ),
     l1tResults = cms.InputTag( "hltGtDigis" ),
-    l1tIgnoreMask = cms.bool( True ),
+    l1tIgnoreMask = cms.bool( False ),
     daqPartitions = cms.uint32( 1 ),
     throw = cms.bool( True ),
-    l1techIgnorePrescales = cms.bool( True )
+    l1techIgnorePrescales = cms.bool( False )
 )
 hltPreL1TechBSChalo_forPhysicsBackground = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
@@ -14810,10 +14810,10 @@ hltL1TechHCALHF = cms.EDFilter( "TriggerResultsFilter",
       'L1Tech_HCAL_HF_MMP_or_MPP' ),
     hltResults = cms.InputTag( "" ),
     l1tResults = cms.InputTag( "hltGtDigis" ),
-    l1tIgnoreMask = cms.bool( True ),
+    l1tIgnoreMask = cms.bool( False ),
     daqPartitions = cms.uint32( 1 ),
     throw = cms.bool( True ),
-    l1techIgnorePrescales = cms.bool( True )
+    l1techIgnorePrescales = cms.bool( False )
 )
 hltL1sTrackerCosmics = cms.EDFilter( "HLTLevel1GTSeed",
     L1UseL1TriggerObjectMaps = cms.bool( True ),
