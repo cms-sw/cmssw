@@ -18,7 +18,7 @@ class SubJetAlgorithm{
 		    double centralEtaCut,            
 		    double ptMin,                    
 		    double jetsize,
-		    uint subjets,
+		    unsigned int subjets,
 		    bool pruning,
 		    double zcut=0.1) :
     mSrc_          (mSrc          ),

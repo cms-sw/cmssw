@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Puneeth Kalavase
 //         Created:  Sun Mar 15 11:33:20 CDT 2009
-// $Id: MuonMETValueMapProducer.cc,v 1.2 2010/05/14 00:25:31 fgolf Exp $
+// $Id: MuonMETValueMapProducer.cc,v 1.1 2010/05/17 18:07:35 vlimant Exp $
 //
 //
 
@@ -124,7 +124,7 @@ namespace cms {
     //flag == 5 -->    The default fit is used, i.e, we get the pt from muon->pt
     std::auto_ptr<ValueMap<MuonMETCorrectionData> > vm_muCorrData(new ValueMap<MuonMETCorrectionData>());
     
-    uint nMuons = muons->size();
+    unsigned int nMuons = muons->size();
     
     std::vector<MuonMETCorrectionData> v_muCorrData;
     for (unsigned int iMu=0; iMu<nMuons; iMu++) {

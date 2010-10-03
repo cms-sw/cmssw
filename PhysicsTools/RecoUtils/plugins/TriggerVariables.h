@@ -63,7 +63,7 @@ class HLTBitComputer : public VariableComputer {
     //the function will not work anymore until a major redesign is performed. so long for HLT variables.
     //provider.init(src_.process());
     validTriggerNames_ =  provider.triggerNames();
-    for (uint iT=0;iT!=validTriggerNames_.size();++iT){
+    for (unsigned int iT=0;iT!=validTriggerNames_.size();++iT){
       TString tname(validTriggerNames_[iT]);
       tname.ReplaceAll("HLT_","");//remove the "HLT_" prefix
       declare(std::string(tname));
@@ -75,7 +75,7 @@ class HLTBitComputer : public VariableComputer {
       iEvent.getByLabel(src_,trh);
       if (!trh.isValid()) doesNotCompute();
       const edm::TriggerNames & triggerNames = iEvent.triggerNames(*trh);
-      for (uint iT=0;iT!=validTriggerNames_.size();++iT){
+      for (unsigned int iT=0;iT!=validTriggerNames_.size();++iT){
 	
 	TString tname(validTriggerNames_[iT]);
 	tname.ReplaceAll("HLT_","");

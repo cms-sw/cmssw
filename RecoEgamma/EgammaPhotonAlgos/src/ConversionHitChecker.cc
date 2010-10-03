@@ -24,7 +24,7 @@ std::pair<uint8_t,Measurement1DFloat> ConversionHitChecker::nHitsBeforeVtx(const
 
   //protect for empty trajectory
   if (measurements.size()==0) {
-    return std::pair<uint,Measurement1DFloat>(0,Measurement1DFloat());
+    return std::pair<unsigned int,Measurement1DFloat>(0,Measurement1DFloat());
   }
 
   //check ordering of measurements in trajectory
@@ -109,7 +109,7 @@ std::pair<uint8_t,Measurement1DFloat> ConversionHitChecker::nHitsBeforeVtx(const
     --nhits;
   }
  
-  return std::pair<uint,Measurement1DFloat>(nhits,decayLength);
+  return std::pair<unsigned int,Measurement1DFloat>(nhits,decayLength);
 
 }
 
