@@ -6,7 +6,7 @@
 //  Anton Anastassov (Northwestern)
 //  Email: aa@fnal.gov
 //
-// $Id: hcalCalib.cc,v 1.5 2009/10/26 01:48:57 anastass Exp $
+// $Id: hcalCalib.cc,v 1.6 2010/03/11 22:13:48 wmtan Exp $
 //
 
 #include "Calibration/HcalCalibAlgos/interface/hcalCalib.h"
@@ -417,7 +417,7 @@ void hcalCalib::Terminate() {
   Int_t minIEta = 999;
 
 
-  for (uint i=0; i<cellEnergies.size(); ++i) {
+  for (unsigned int i=0; i<cellEnergies.size(); ++i) {
     Int_t iEta;    
     for (uint j=0; j<(cellEnergies[i]).size(); ++j) {
       iEta = HcalDetId(cellIds[i][j]).ieta();
@@ -528,7 +528,7 @@ void hcalCalib::GetCoefFromMtrxInvOfAve() {
     //  iEtaRef  iEtaCell, energy 
     map<Int_t, map<Int_t, Float_t> > aveHitE; // add energies in the loop, normalize after that
  
-    for (uint i=0; i<cellEnergies.size(); ++i) {
+    for (unsigned int i=0; i<cellEnergies.size(); ++i) {
       Int_t iEtaRef = refIEtaIPhi[i].first;
       aveTargetE[iEtaRef] += targetEnergies[i];
       nEntries[iEtaRef]++;

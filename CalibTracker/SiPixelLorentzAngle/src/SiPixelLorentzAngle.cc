@@ -198,7 +198,7 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
 	if(! itTraj->updatedState().isValid()) continue;
 	TransientTrackingRecHit::ConstRecHitPointer recHit = itTraj->recHit();
 	if(! recHit->isValid() || recHit->geographicalId().det() != DetId::Tracker ) continue;
-	uint subDetID = (recHit->geographicalId().subdetId());
+	unsigned int subDetID = (recHit->geographicalId().subdetId());
 	if( subDetID == PixelSubdetector::PixelBarrel || subDetID == PixelSubdetector::PixelEndcap){
 	  if(!pixeltrack){
 	    h_tracks_->Fill(1);

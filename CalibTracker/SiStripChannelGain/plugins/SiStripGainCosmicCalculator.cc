@@ -3,7 +3,7 @@
 // Class:      SiStripGainCosmicCalculator
 // Original Author:  G. Bruno, D. Kcira
 //         Created:  Mon May 20 10:04:31 CET 2007
-// $Id: SiStripGainCosmicCalculator.cc,v 1.9 2009/05/27 11:40:29 fabiocos Exp $
+// $Id: SiStripGainCosmicCalculator.cc,v 1.10 2010/04/12 23:23:46 elmer Exp $
 #include "CalibTracker/SiStripChannelGain/plugins/SiStripGainCosmicCalculator.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
@@ -346,7 +346,7 @@ TH1F *CorrectionOfEachAPVPairControlView = new TH1F("CorrectionOfEachAPVPairCont
        CorrectionOfEachAPVPair->SetBinError(ibin, local_error_correction);
        ((TH1F*) HlistOtherHistos->FindObject("APVPairCorrections"))->Fill(local_correction);
        DetId thedetId = DetId(extracted_detid);
-       uint generalized_layer = 0;
+       unsigned int generalized_layer = 0;
        // calculate generalized_layer:  31,32 = TIB1, 33 = TIB2, 33 = TIB3, 51 = TOB1, 52 = TOB2, 60 = TEC
        if(thedetId.subdetId()==StripSubdetector::TIB){
           TIBDetId ptib = TIBDetId(thedetId.rawId());
