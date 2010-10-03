@@ -18,7 +18,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CachedTrajectory.h,v 1.12.2.1 2009/07/01 04:38:08 dmytro Exp $
+// $Id: CachedTrajectory.h,v 1.13 2009/09/06 16:32:46 dmytro Exp $
 //
 //
 
@@ -116,7 +116,7 @@ class CachedTrajectory {
 				 const double& phi2);
    
    float distance(const Plane* plane, int index) {
-      if (index<0 || fullTrajectory_.empty() || uint(index) >= fullTrajectory_.size()) return 0;
+      if (index<0 || fullTrajectory_.empty() || (unsigned int)index >= fullTrajectory_.size()) return 0;
       return plane->localZ(fullTrajectory_[index].position());
    }
    

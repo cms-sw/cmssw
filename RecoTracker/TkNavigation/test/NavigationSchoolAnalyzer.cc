@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Fri Mar 16 13:19:20 CDT 2007
-// $Id: NavigationSchoolAnalyzer.cc,v 1.3 2009/03/04 13:34:31 vlimant Exp $
+// $Id: NavigationSchoolAnalyzer.cc,v 1.4 2009/10/20 14:59:01 gpetrucc Exp $
 //
 //
 
@@ -71,8 +71,8 @@ std::ostream& operator<<(std::ostream& os,const DetLayer* dl){
   if (bComponents.empty()){/* t'es pas dans la merde */;return os;}
 
   const GeomDet* tag = bComponents.front();
-  uint LorW=0;
-  uint side=0;
+  unsigned int LorW=0;
+  unsigned int side=0;
 
   switch (dl->subDetector()){
   case GeomDetEnumerators::PixelBarrel :
@@ -84,7 +84,7 @@ std::ostream& operator<<(std::ostream& os,const DetLayer* dl){
   case GeomDetEnumerators::DT :
     LorW = DTChamberId(tag->geographicalId().rawId()).station(); break;
   case GeomDetEnumerators::RPCEndcap :
-    side = (uint)((RPCDetId(tag->geographicalId().rawId()).region()/2.+1)*2.);
+    side = (unsigned int)((RPCDetId(tag->geographicalId().rawId()).region()/2.+1)*2.);
   case GeomDetEnumerators::RPCBarrel :
     LorW = RPCDetId(tag->geographicalId().rawId()).station(); break;
 

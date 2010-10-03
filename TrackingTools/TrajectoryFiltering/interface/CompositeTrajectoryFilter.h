@@ -21,7 +21,7 @@ public:
   {
     //look for VPSet of filters
     std::vector<edm::ParameterSet> vpset=pset.getParameter<std::vector<edm::ParameterSet> >("filters");
-    for (uint i=0;i!= vpset.size();i++)
+    for (unsigned int i=0;i!= vpset.size();i++)
       {filters.push_back(TrajectoryFilterFactory::get()->create(vpset[i].getParameter<std::string>("ComponentType"),
 								vpset[i]));}
   }
@@ -35,22 +35,22 @@ public:
   virtual bool toBeContinued( TempTrajectory& traj) const { return TBC<TempTrajectory>(traj);}
   
   virtual std::string name() const { std::string rname="CompositeTrajectoryFilter";
-    uint i=0;
-    uint n=filters.size();
+    unsigned int i=0;
+    unsigned int n=filters.size();
     for (;i<n;i++){ rname+="_"+filters[i]->name();}
     return rname;
   }
 
 protected:
   template <class T> bool TBC( T& traj)const{
-    uint i=0;
-    uint n=filters.size();
+    unsigned int i=0;
+    unsigned int n=filters.size();
     for (;i<n;i++){ if (!filters[i]->toBeContinued(traj)) return false; }
     return true;}
 
   template <class T> bool QF(const T& traj)const{
-    uint i=0;
-    uint n=filters.size();
+    unsigned int i=0;
+    unsigned int n=filters.size();
     for (;i<n;i++){ if (!filters[i]->qualityFilter(traj)) return false; }
     return true;}
  protected:

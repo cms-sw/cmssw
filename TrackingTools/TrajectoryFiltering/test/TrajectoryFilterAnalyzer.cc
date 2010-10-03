@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Thu Oct  4 21:42:40 CEST 2007
-// $Id: TrajectoryFilterAnalyzer.cc,v 1.1 2007/10/18 01:50:28 vlimant Exp $
+// $Id: TrajectoryFilterAnalyzer.cc,v 1.2 2009/12/14 22:24:29 wmtan Exp $
 //
 //
 
@@ -64,7 +64,7 @@ void TrajectoryFilterAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
    ESHandle<TrajectoryFilter> pTF;
    edm::LogInfo("TrajectoryFilterAnalyzer")<<" I am happy to try and get: "<<filterNames.size()
 					   <<" TrajectoryFilter from TrajectoryFilterRecord";
-   for (uint i =0; i!= filterNames.size();i++){
+   for (unsigned int i =0; i!= filterNames.size();i++){
      iSetup.get<TrajectoryFilter::Record>().get(filterNames[i], pTF);
      edm::LogInfo("TrajectoryFilterAnalyzer")<<"I was able to create: "<<filterNames[i]
 					     <<"\nof type: "<<pTF->name();

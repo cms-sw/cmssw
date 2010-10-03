@@ -90,7 +90,7 @@ bool SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
   LogDebug("CosmicSeedFinder")<<"Number of triplets "<<HitTriplets.size();
   LogDebug("CosmicSeedFinder")<<"Number of pairs "<<HitPairs.size();
 
-  for (uint it=0;it<HitTriplets.size();it++){
+  for (unsigned int it=0;it<HitTriplets.size();it++){
     
     //const TrackingRecHit *hit = &(
     //    const TrackingRecHit* hit = it->hits();

@@ -64,7 +64,7 @@ void SeedCombiner::produce(edm::Event& ev, const edm::EventSetup& es)
     result->reserve( nseeds );
 
     // Write into output collection
-    uint iSC=0,iSC_max=seedCollections.size();
+    unsigned int iSC=0,iSC_max=seedCollections.size();
     for (;iSC!=iSC_max;++iSC){
       Handle<TrajectorySeedCollection> & collection=seedCollections[iSC];
       if (reKeing_ && !(clusterRemovalInfos_[iSC]==edm::InputTag(""))){

@@ -14,12 +14,12 @@ using namespace ctfseeding;
 CombinedHitPairGenerator::CombinedHitPairGenerator(const edm::ParameterSet& cfg)
   : initialised(false), theConfig(cfg)
 {
-  theMaxElement = cfg.getParameter<uint>("maxElement");
+  theMaxElement = cfg.getParameter<unsigned int>("maxElement");
 }
 
 void CombinedHitPairGenerator::init(const edm::ParameterSet & cfg, const edm::EventSetup& es)
 {
-  theMaxElement = cfg.getParameter<uint>("maxElement");
+  theMaxElement = cfg.getParameter<unsigned int>("maxElement");
 
   std::string layerBuilderName = cfg.getParameter<std::string>("SeedingLayers");
   edm::ESHandle<SeedingLayerSetsBuilder> layerBuilder;

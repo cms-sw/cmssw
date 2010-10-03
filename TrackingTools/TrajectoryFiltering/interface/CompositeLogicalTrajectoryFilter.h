@@ -17,7 +17,7 @@ public:
   {
   //look for VPSet of filters
   std::vector<edm::ParameterSet> vpset=pset.getParameter<std::vector<edm::ParameterSet> >("filters");
-  for (uint i=0;i!= vpset.size();i++)
+  for (unsigned int i=0;i!= vpset.size();i++)
     {
       std::string ls = vpset[i].getParameter<std::string>("logic");
       logic l=OR;
@@ -33,7 +33,7 @@ public:
   }
   
   ~CompositeLogicalTrajectoryFilter(){
-    for (uint i=0;i!= filters.size();i++) { delete filters[i].second;} filters.clear();
+    for (unsigned int i=0;i!= filters.size();i++) { delete filters[i].second;} filters.clear();
   }
 
     
@@ -48,19 +48,19 @@ public:
 
 protected:
   template <class T> bool TBC( T& traj)const{
-    uint i=0;
-    uint n=filters.size();
+    unsigned int i=0;
+    unsigned int n=filters.size();
     for (;i<n;i++){ if (!filters[i].second->toBeContinued(traj)) return false; }
     return true;}
 
   template <class T> bool QF(const T& traj)const{
     bool condition=true;
 
-    uint n=filters.size();
+    unsigned int n=filters.size();
     if (n==0) { edm::LogError("CompositeLogicalTrajectoryFilter")<<n<<" filters !." ; return false;}
     condition=filters[0].second->qualityFilter(traj);
 
-    uint i=1;
+    unsigned int i=1;
     for (;i<n;i++){ 
       bool lcondition =filters[i].second->qualityFilter(traj);
       if (filters[i].first==OR)

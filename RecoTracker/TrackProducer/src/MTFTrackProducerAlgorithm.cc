@@ -135,7 +135,7 @@ void MTFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
       vecmrhits.clear();
 
       
-      for (uint d=0; d<mvtraj.size(); d++)
+      for (unsigned int d=0; d<mvtraj.size(); d++)
 	{
 	  
 	  std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface> 

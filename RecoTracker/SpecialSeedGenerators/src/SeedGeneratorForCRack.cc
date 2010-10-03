@@ -64,7 +64,7 @@ void SeedGeneratorForCRack::run(TrajectorySeedCollection &output,const edm::Even
 void SeedGeneratorForCRack::seeds(TrajectorySeedCollection &output,
 				    const edm::EventSetup& iSetup,
 				    const TrackingRegion& region){
-  for(uint is=0;is<HitPairs.size();is++){
+  for(unsigned int is=0;is<HitPairs.size();is++){
 
     GlobalPoint inner = tracker->idToDet((*(HitPairs[is].inner())).geographicalId())->surface().toGlobal((*(HitPairs[is].inner())).localPosition());
     GlobalPoint outer = tracker->idToDet((*(HitPairs[is].outer())).geographicalId())->surface().toGlobal((*(HitPairs[is].outer())).localPosition());

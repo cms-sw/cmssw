@@ -165,7 +165,7 @@ vector<Trajectory> KFFittingSmoother::fit(const TrajectorySeed& aSeed,
 
 		// ggiurgiu@fnal.gov: Get pixel hit probability here 
 		TransientTrackingRecHit::ConstRecHitPointer hit = tm->recHit();
-		uint testSubDetID = ( hit->geographicalId().subdetId() );
+		unsigned int testSubDetID = ( hit->geographicalId().subdetId() );
 		
 		if ( hit->isValid() && 
 		     hit->geographicalId().det() == DetId::Tracker && 

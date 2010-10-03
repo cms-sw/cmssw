@@ -3,7 +3,7 @@
 // Package:    TrackAssociator
 // Class:      CachedTrajectory
 // 
-// $Id: CachedTrajectory.cc,v 1.22 2009/10/09 12:48:18 dmytro Exp $
+// $Id: CachedTrajectory.cc,v 1.23 2010/01/24 22:01:56 dmytro Exp $
 //
 //
 
@@ -150,7 +150,7 @@ bool CachedTrajectory::propagateAll(const SteppingHelixStateInfo& initialState)
 
 
    // LogTrace("TrackAssociator") << "fullTrajectory_ has " << fullTrajectory_.size() << " states with (R, z):\n";
-   // for(uint i=0; i<fullTrajectory_.size(); i++) {
+   // for(unsigned int i=0; i<fullTrajectory_.size(); i++) {
    //  LogTrace("TrackAssociator") << "state " << i << ": (" << fullTrajectory_[i].position().perp() << ", "
    //    << fullTrajectory_[i].position().z() << ")\n";
    // }
@@ -355,7 +355,7 @@ void CachedTrajectory::getTrajectory(std::vector<SteppingHelixStateInfo>& trajec
    double dZ(-1.);
    double dR(-1.);
    int firstPointInside(-1);
-   for(uint i=0; i<fullTrajectory_.size(); i++) {
+   for(unsigned int i=0; i<fullTrajectory_.size(); i++) {
       // LogTrace("TrackAssociator") << "Trajectory info (i,perp,r1,r2,z,z1,z2): " << i << ", " << fullTrajectory_[i].position().perp() <<
       //	", " << volume.minR() << ", " << volume.maxR() << ", " << fullTrajectory_[i].position().z() << ", " << volume.minZ() << ", " << 
       //	volume.maxZ() << ", " << closestPointOnLeft;

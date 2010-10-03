@@ -17,7 +17,7 @@
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.20 2009/10/31 05:19:46 slava77 Exp $
+// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.21 2010/04/20 13:45:33 elmer Exp $
 //
 //
 
@@ -320,7 +320,7 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
     if (p3T.mag()< 2.) continue;
 
     int vtxInd = tracksCI->vertIndex();
-    uint trkInd = tracksCI->genpartIndex() - trkIndOffset_;
+    unsigned int trkInd = tracksCI->genpartIndex() - trkIndOffset_;
     CLHEP::Hep3Vector r3T(0.,0.,0.);
     if (vtxInd < 0){
       std::cout<<"Track with no vertex, defaulting to (0,0,0)"<<std::endl;      

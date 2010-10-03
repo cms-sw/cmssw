@@ -29,7 +29,7 @@ CfgNavigationSchool::CfgNavigationSchool(const edm::ParameterSet & cfg,
   cfg.getParameterSetNames(names);
 
   bool inverseRelationShip = true;
-  for (uint iN=0;iN!=names.size();++iN){
+  for (unsigned int iN=0;iN!=names.size();++iN){
     edm::ParameterSet pset=cfg.getParameter<edm::ParameterSet>(names[iN]);
     std::vector<std::string> OUT = pset.getParameter<std::vector<std::string> >("OUT");
     //will not do automatic inverse relation is any IN is specified
@@ -115,7 +115,7 @@ void CfgNavigationSchool::addLayer(std::string & lname, BDLC & reachableBL, FDLC
 
 DetLayer * CfgNavigationSchool::layer(std::string & lname){
   std::string part = lname.substr(0,3);
-  uint idLayer = atoi(lname.substr(3,1).c_str())-1;
+  unsigned int idLayer = atoi(lname.substr(3,1).c_str())-1;
   bool isFwd = (lname.find("pos")!=std::string::npos);
   LogDebug("CfgNavigationSchool")<<"part: "<<part<<"\n idLayer: "<<idLayer<<" is: "<<(isFwd?"isFwd":"isBwd");
   if (part == "TOB") return theTracker->tobLayers()[idLayer];

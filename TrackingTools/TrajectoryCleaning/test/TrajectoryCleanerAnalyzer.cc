@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Fri Oct 12 03:46:09 CEST 2007
-// $Id: TrajectoryCleanerAnalyzer.cc,v 1.1 2007/10/16 04:16:03 vlimant Exp $
+// $Id: TrajectoryCleanerAnalyzer.cc,v 1.2 2009/12/14 22:24:27 wmtan Exp $
 //
 //
 
@@ -60,7 +60,7 @@ void TrajectoryCleanerAnalyzer::analyze(const edm::Event& iEvent, const edm::Eve
    edm::ESHandle<TrajectoryCleaner> pTC;
    edm::LogInfo("TrajectoryCleanerAnalyzer")<<" I am happy to try and get: "<<cleanerNames.size()
 					   <<" TrajectoryFilter from TrajectoryCleaner::Record";
-   for (uint i =0; i!= cleanerNames.size();i++){
+   for (unsigned int i =0; i!= cleanerNames.size();i++){
      iSetup.get<TrajectoryCleaner::Record>().get(cleanerNames[i], pTC);
      edm::LogInfo("TrajectoryCleanerAnalyzer")<<"I was able to create: "<<cleanerNames[i];
    }

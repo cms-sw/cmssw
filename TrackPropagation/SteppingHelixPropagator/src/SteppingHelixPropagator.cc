@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2010/03/20 06:54:29 $
- *  $Revision: 1.72 $
+ *  $Date: 2010/04/20 13:45:33 $
+ *  $Revision: 1.73 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.72 2010/03/20 06:54:29 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.73 2010/04/20 13:45:33 elmer Exp $
 //
 //
 
@@ -1956,9 +1956,9 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
   int iFDest = -1;
   int iDistMin = -1;
   
-  uint iFDestSorted[6] = {0,0,0,0,0,0};
-  uint nDestSorted =0;
-  uint nearParallels = 0;
+  unsigned int iFDestSorted[6] = {0,0,0,0,0,0};
+  unsigned int nDestSorted =0;
+  unsigned int nearParallels = 0;
 
   double curP = sv.p3.mag();
 
@@ -1968,7 +1968,7 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
   }
 
   unsigned int nFaces = cVolFaces.size();
-  for (uint iFace = 0; iFace < nFaces; ++iFace){
+  for (unsigned int iFace = 0; iFace < nFaces; ++iFace){
     if (iFace > 5){
       LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Too many faces"<<std::endl;
     }
@@ -2079,20 +2079,20 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
     
   }
   
-  for (uint i = 0;i<nDestSorted; ++i){
-    uint iMax = nDestSorted-i-1;
-    for (uint j=0;j<nDestSorted-i; ++j){
+  for (unsigned int i = 0;i<nDestSorted; ++i){
+    unsigned int iMax = nDestSorted-i-1;
+    for (unsigned int j=0;j<nDestSorted-i; ++j){
       if (fabs(tanDistToFace[iFDestSorted[j]]) > fabs(tanDistToFace[iFDestSorted[iMax]]) ){
 	iMax = j;
       }
     }
-    uint iTmp = iFDestSorted[nDestSorted-i-1];
+    unsigned int iTmp = iFDestSorted[nDestSorted-i-1];
     iFDestSorted[nDestSorted-i-1] = iFDestSorted[iMax];
     iFDestSorted[iMax] = iTmp;
   }
 
   if (debug_){
-    for (uint i=0;i<nDestSorted;++i){
+    for (unsigned int i=0;i<nDestSorted;++i){
       LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<cVol<<" "<<i<<" "<<iFDestSorted[i]<<" "<<tanDistToFace[iFDestSorted[i]]<<std::endl;
     }
   }
@@ -2100,7 +2100,7 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
   //now go from the shortest to the largest distance hoping to get a point in the volume.
   //other than in case of a near-parallel travel this should stop after the first try
   
-  for (uint i=0; i<nDestSorted;++i){
+  for (unsigned int i=0; i<nDestSorted;++i){
     iFDest = iFDestSorted[i];
 
     double sign = dir == alongMomentum ? 1. : -1.;
@@ -2201,7 +2201,7 @@ SteppingHelixPropagator::refToMatVolume(const SteppingHelixPropagator::StateInfo
   
   double curP = sv.p3.mag();
 
-  for (uint iFace = 0; iFace < 4; iFace++){
+  for (unsigned int iFace = 0; iFace < 4; iFace++){
     if (debug_){
       LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Start with mat face "<<iFace<<std::endl;
     }
