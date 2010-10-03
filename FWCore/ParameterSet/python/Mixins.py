@@ -480,8 +480,11 @@ class _ValidatingListBase(list):
 class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
     def __init__(self,*arg,**args):        
         _ParameterTypeBase.__init__(self)
-        if len (arg) == 1 and isinstance (arg[0], list):
-            arg = arg[0]
+        if len (arg) == 1 and not isinstance(arg[0],str):
+            try:
+                arg = iter(arg[0])
+            except TypeError:
+                pass
         super(_ValidatingParameterListBase,self).__init__(*arg,**args)
     def value(self):
         return list(self)
@@ -562,6 +565,34 @@ if __name__ == "__main__":
         def _itemIsValid(self,item):
             return True
     class testMixins(unittest.TestCase):
+        def testListConstruction(self):
+            t = TestList(1)
+            self.assertEqual(t,[1])
+            t = TestList((1,))
+            self.assertEqual(t,[1])
+            t = TestList("one")
+            self.assertEqual(t,["one"])
+            t = TestList( [1,])
+            self.assertEqual(t,[1])
+            t = TestList( (x for x in [1]) )
+            self.assertEqual(t,[1])
+
+            t = TestList(1,2)
+            self.assertEqual(t,[1,2])
+            t = TestList((1,2))
+            self.assertEqual(t,[1,2])
+            t = TestList("one","two")
+            self.assertEqual(t,["one","two"])
+            t = TestList(("one","two"))
+            self.assertEqual(t,["one","two"])
+            t = TestList( [1,2])
+            self.assertEqual(t,[1,2])
+            t = TestList( (x for x in [1,2]) )
+            self.assertEqual(t,[1,2])
+            t = TestList( iter((1,2)) )
+            self.assertEqual(t,[1,2])
+            
+            
         def testLargeList(self):
             #lists larger than 255 entries can not be initialized
             #using the constructor
