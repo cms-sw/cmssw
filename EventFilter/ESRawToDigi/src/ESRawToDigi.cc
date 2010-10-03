@@ -55,7 +55,7 @@ void ESRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
   ESDigiCollection digis;
 
   if (regional_) {
-    for (uint i=0; i<esFeds_to_unpack.size(); ++i) {
+    for (unsigned int i=0; i<esFeds_to_unpack.size(); ++i) {
       
       const FEDRawData& fedRawData = rawdata->FEDData(esFeds_to_unpack[i]);
       ESUnpacker_->interpretRawData(esFeds_to_unpack[i], fedRawData, *productDCC, *productKCHIP, *productDigis);

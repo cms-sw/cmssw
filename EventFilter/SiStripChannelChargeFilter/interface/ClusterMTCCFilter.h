@@ -27,13 +27,13 @@ namespace cms
 
   private:
    std::string clusterProducer;
-   uint ChargeThresholdTIB;
-   uint ChargeThresholdTOB;
-   uint ChargeThresholdTEC;
-   uint MinClustersDiffComponents;
+   unsigned int ChargeThresholdTIB;
+   unsigned int ChargeThresholdTOB;
+   unsigned int ChargeThresholdTEC;
+   unsigned int MinClustersDiffComponents;
    std::vector<uint32_t> ModulesToBeExcluded;
-   // uint: generalized_layer: 10*subdetId + layer
-   std::map<uint,std::vector<SiStripCluster> > clusters_in_subcomponents;
+   // unsigned int: generalized_layer: 10*subdetId + layer
+   std::map<unsigned int,std::vector<SiStripCluster> > clusters_in_subcomponents;
   };
 }
 #endif

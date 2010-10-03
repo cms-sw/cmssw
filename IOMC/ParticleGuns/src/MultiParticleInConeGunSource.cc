@@ -1,6 +1,6 @@
 /*
- *  $Date: 2009/01/09 10:23:16 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/09/10 13:19:37 $
+ *  $Revision: 1.4 $
  *  \author Jean-Roch Vlimant
  */
 
@@ -126,8 +126,8 @@ bool MultiParticleInConeGunSource::produce(Event &e)
 	   double etaIc = eta+dEta;
 	   double phiIc = phi+dPhi;
 	   //put it back in -Pi:Pi if necessary. multiple time might be necessary if dR > 3
-	   const uint maxL=100;
-	   uint iL=0;
+	   const unsigned int maxL=100;
+	   unsigned int iL=0;
 	   while(iL++<maxL){
 	     if (phiIc > 3.14159265358979323846) phiIc-=2*3.14159265358979323846;
 	     else if(phiIc <-3.14159265358979323846) phiIc+=2*3.14159265358979323846;

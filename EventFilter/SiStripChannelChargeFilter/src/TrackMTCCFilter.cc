@@ -32,7 +32,7 @@ bool TrackMTCCFilter::filter(edm::Event & e, edm::EventSetup const& c) {
   edm::Handle<reco::TrackCollection> trackCollection;
   e.getByLabel(TrackProducer,TrackLabel,trackCollection);
 
-  uint nroftracks = trackCollection->size();
+  unsigned int nroftracks = trackCollection->size();
 //  edm::LogInfo("TrackMTCCFilter")<<"trackCollection->size()="<<nroftracks;
   if(nroftracks>=MinNrOfTracks) decision = true;
 

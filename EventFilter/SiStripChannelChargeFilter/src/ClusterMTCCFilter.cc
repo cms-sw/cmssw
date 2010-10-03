@@ -37,7 +37,7 @@ ClusterMTCCFilter::ClusterMTCCFilter(const edm::ParameterSet& ps){
    //
    produces <int>();
    produces <unsigned int >();
-   produces < map<uint,vector<SiStripCluster> > >();
+   produces < map<unsigned int,vector<SiStripCluster> > >();
 }
 
 bool ClusterMTCCFilter::filter(edm::Event & e, edm::EventSetup const& c) {
@@ -59,7 +59,7 @@ bool ClusterMTCCFilter::filter(edm::Event & e, edm::EventSetup const& c) {
       }
       sum_of_cluster_charges += amplclus;
       DetId thedetId = DetId(it->detId());
-      uint generalized_layer = 0;
+      unsigned int generalized_layer = 0;
       bool exclude_this_detid = false;
       for( std::vector<uint32_t>::const_iterator imod = ModulesToBeExcluded.begin(); imod != ModulesToBeExcluded.end(); imod++ ){
           if(*imod == thedetId.rawId()) exclude_this_detid = true; // found in exclusion list
@@ -100,7 +100,7 @@ bool ClusterMTCCFilter::filter(edm::Event & e, edm::EventSetup const& c) {
   }
 
   bool decision=false; // default value, only accept if set true in this loop
-  uint nr_of_subcomps_with_clusters=0;
+  unsigned int nr_of_subcomps_with_clusters=0;
 // dk: 2006.08.24 - change filter decision as proposed by V. Ciulli. || TIB1 TIB2 counted as 1, TEC excluded
 //  if( clusters_in_subcomponents[31].size()>0 ) nr_of_subcomps_with_clusters++; // TIB1
 //  if( clusters_in_subcomponents[32].size()>0 ) nr_of_subcomps_with_clusters++; // TIB2

@@ -14,11 +14,11 @@ CSCAnodeData2007::CSCAnodeData2007(const CSCALCTHeader & header)
   /// To get BX from ALCT digis
   theALCTDigis=header.ALCTDigis();
   alctBX_.clear();
-  for(uint k=0; k<theALCTDigis.size(); k++){
+  for(unsigned int k=0; k<theALCTDigis.size(); k++){
            alctBX_.push_back(theALCTDigis[k].getFullBX());
      }
 /*
-  for(uint k=0; k<alctBX_.size(); k++)
+  for(unsigned int k=0; k<alctBX_.size(); k++)
      std::cout << alctBX_[k] << " | ";
   std::cout << std::endl;
 */
@@ -35,11 +35,11 @@ CSCAnodeData2007::CSCAnodeData2007(const CSCALCTHeader & header ,
     /// To get BX from ALCT digis
   theALCTDigis=header.ALCTDigis();
   alctBX_.clear();
-  for(uint k=0; k<theALCTDigis.size(); k++){
+  for(unsigned int k=0; k<theALCTDigis.size(); k++){
            alctBX_.push_back(theALCTDigis[k].getFullBX());
      }
 /*
-  for(uint k=0; k<alctBX_.size(); k++)
+  for(unsigned int k=0; k<alctBX_.size(); k++)
      std::cout << std::dec << alctBX_[k] << " | ";
   std::cout << std::endl;
 */

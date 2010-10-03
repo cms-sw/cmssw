@@ -59,7 +59,7 @@ std::vector<int> CSCTMBMiniScope::getChannelsInTbin(int data) const {
 
 
 void CSCTMBMiniScope::print() const {
-     for(uint k=0; k<getAdr().size();++k){
+     for(unsigned int k=0; k<getAdr().size();++k){
            if(k==0){
              std::cout << " Adr = " << getAdr()[k] << " | Data: " 
                                      << std::hex <<  getData()[k] << std::dec << std::endl;

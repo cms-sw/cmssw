@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant,40 3-A28,+41227671209,
 //         Created:  Fri Apr  9 18:54:59 CEST 2010
-// $Id: NMaxPerLumi.cc,v 1.1 2010/04/13 15:34:48 vlimant Exp $
+// $Id: NMaxPerLumi.cc,v 1.2 2010/07/15 16:29:55 hegner Exp $
 //
 //
 
@@ -45,8 +45,8 @@ class NMaxPerLumi : public edm::EDFilter {
       virtual void endJob() ;
       
   // ----------member data ---------------------------
-  std::map< uint , std::map < uint, uint > > counters;
-  uint nMaxPerLumi_;
+  std::map< unsigned int , std::map < unsigned int, unsigned int > > counters;
+  unsigned int nMaxPerLumi_;
 };
 
 //
@@ -64,7 +64,7 @@ NMaxPerLumi::NMaxPerLumi(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
 
-  nMaxPerLumi_ = iConfig.getParameter<uint>("nMaxPerLumi");
+  nMaxPerLumi_ = iConfig.getParameter<unsigned int>("nMaxPerLumi");
 }
 
 
