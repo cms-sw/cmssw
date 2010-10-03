@@ -62,7 +62,7 @@ std::string PrintoutHelper::dumpCandidate( const Candidate & traj,bool showError
 template< class collection > 
 std::string PrintoutHelper::dumpCandidates( collection & candidates) {
   std::stringstream buffer;
-  uint ic=0;
+  unsigned int ic=0;
   typename collection::const_iterator traj=candidates.begin();
   for (;traj!=candidates.end(); traj++) {  
     buffer<<ic++<<"] ";

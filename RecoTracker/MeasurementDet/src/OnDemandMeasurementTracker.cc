@@ -154,7 +154,7 @@ void OnDemandMeasurementTracker::define( const edm::Handle< LazyGetter> & theLaz
   //define all the elementindex in the refgetter
   for( std::map<SiStripRegionCabling::ElementIndex, std::vector<DetODContainer::iterator> >::iterator eIt= region_mapping.begin();
        eIt!=region_mapping.end();++eIt){
-    std::pair<uint, uint> region_range; 
+    std::pair<unsigned int, unsigned int> region_range; 
     
     //before update of the refgetter
     region_range.first = theGetter->size();
@@ -185,7 +185,7 @@ void OnDemandMeasurementTracker::updateStrips( const edm::Event& event) const
 
   if (oncePerEvent || failedToGet)
     {
-      LogDebug(category_)<<"Updating siStrip on event: "<< (uint) event.id().run() <<" : "<<(uint) event.id().event();
+      LogDebug(category_)<<"Updating siStrip on event: "<< (unsigned int) event.id().run() <<" : "<<(unsigned int) event.id().event();
       
       //get the ref getter back from the event
       std::string stripClusterProducer = pset_.getParameter<std::string>("stripClusterProducer");
@@ -227,7 +227,7 @@ std::string OnDemandMeasurementTracker::dumpCluster(const std::vector<SiStripClu
   std::string tab="      ";
   std::stringstream ss;
   std::vector<SiStripCluster> ::const_iterator it = begin;
-  uint i=0;
+  unsigned int i=0;
   for (;it!=end;++it){
     ss<<tab<<i++<<") center: "<<it->barycenter()<<",id: "<<it->geographicalId()<<" with: "<<it->amplitudes().size()<<" strips\n"<<tab<<tab<<"{";
     for (uint is=0;is!=it->amplitudes().size();++is){
@@ -237,14 +237,14 @@ std::string OnDemandMeasurementTracker::dumpCluster(const std::vector<SiStripClu
   return ss.str();
 }
 
-std::string OnDemandMeasurementTracker::dumpRegion(std::pair<uint,uint> indexes,
+std::string OnDemandMeasurementTracker::dumpRegion(std::pair<unsigned int,unsigned int> indexes,
 					     const RefGetter & theGetter,
 					     bool stayPacked)const
 {
   //  dumpRegion is a printout of all the clusters in a region defined on the RefGetter. returns a string
   std::stringstream ss;
   ss<<"cluster between: "<<indexes.first<<" and: "<<indexes.second<<"\n";
-  for (uint iRegion = indexes.first; iRegion != indexes.second; ++iRegion){    
+  for (unsigned int iRegion = indexes.first; iRegion != indexes.second; ++iRegion){    
     uint32_t reg = SiStripRegionCabling::region((theGetter)[iRegion].region());
     SiStripRegionCabling::Position pos = theStripRegionCabling->position(reg);
     SiStripRegionCabling::PositionIndex posI = theStripRegionCabling->positionIndex(reg);
@@ -277,7 +277,7 @@ void OnDemandMeasurementTracker::assign(const TkStripMeasurementDet * csmdet,
     //flag it as updated
     elementInMap->second.updated = true;
     //retrieve the region range index for this module
-    std::pair<uint,uint> & indexes =elementInMap->second.region_range;
+    std::pair<unsigned int,unsigned int> & indexes =elementInMap->second.region_range;
 
     //this printout will trigger unpacking. no problem. it is done on the next regular line (find(id.rawId())
     LogDebug(category_)<<"between index: "<<indexes.first<<" and: "<<indexes.second

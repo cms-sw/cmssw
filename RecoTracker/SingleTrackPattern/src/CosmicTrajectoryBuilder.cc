@@ -95,7 +95,7 @@ void CosmicTrajectoryBuilder::run(const TrajectorySeedCollection &collseed,
   std::vector<Trajectory>::iterator trajIter;
   
   TrajectorySeedCollection::const_iterator iseed;
-  uint IS=0;
+  unsigned int IS=0;
   for(iseed=collseed.begin();iseed!=collseed.end();iseed++){
     bool seedplus=((*iseed).direction()==alongMomentum);
     init(es,seedplus);
@@ -350,7 +350,7 @@ CosmicTrajectoryBuilder::qualityFilter(Trajectory traj){
     std::vector< ConstReferenceCountingPointer< TransientTrackingRecHit> > hits= traj.recHits();
     std::vector< ConstReferenceCountingPointer< TransientTrackingRecHit> >::const_iterator hit;
     for(hit=hits.begin();hit!=hits.end();hit++){
-      uint iid=(*hit)->hit()->geographicalId().rawId();
+      unsigned int iid=(*hit)->hit()->geographicalId().rawId();
       //CHECK FOR 3 hits r-phi
       if(((iid>>0)&0x3)!=1) ngoodhits++;
     }

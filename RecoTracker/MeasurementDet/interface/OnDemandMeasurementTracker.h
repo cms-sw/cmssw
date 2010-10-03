@@ -63,10 +63,10 @@ public:
   /// a class that holds flags, region_range (in RefGetter) for a given MeasurementDet
   class DetODStatus {
   public:
-    DetODStatus(MeasurementDet * m):defined(false),updated(false),mdet(m){ region_range = std::pair<uint,uint>(0,0);}
+    DetODStatus(MeasurementDet * m):defined(false),updated(false),mdet(m){ region_range = std::pair<unsigned int,unsigned int>(0,0);}
       bool defined;
       bool updated;
-      std::pair<uint, uint> region_range;
+      std::pair<unsigned int, unsigned int> region_range;
       MeasurementDet * mdet;
   };
 
@@ -83,7 +83,7 @@ public:
 
   /// some printouts, exclusively under LogDebug
   std::string dumpCluster(const std::vector<SiStripCluster> ::const_iterator & begin, const  std::vector<SiStripCluster> ::const_iterator& end)const;
-  std::string dumpRegion(std::pair<uint,uint> indexes,
+  std::string dumpRegion(std::pair<unsigned int,unsigned int> indexes,
 			 const RefGetter & theGetter,
 			 bool stayUnpacked = false)const;
 

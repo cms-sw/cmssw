@@ -9,9 +9,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: vlimant $
-// $Date: 2009/02/26 19:30:10 $
-// $Revision: 1.63 $
+// $Author: burkett $
+// $Date: 2009/07/13 15:31:20 $
+// $Revision: 1.65 $
 //
 
 #include <vector>
@@ -270,7 +270,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
     for (std::vector<std::pair<const DetLayer*, RoadSearchCloud::RecHitVector > >::iterator ilyr0 = RecHitsByLayer.begin();
 	 ilyr0 != RecHitsByLayer.end(); ++ilyr0) {
 
-      uint ilayer0 = (uint)(ilyr0-RecHitsByLayer.begin());
+      unsigned int ilayer0 = (uint)(ilyr0-RecHitsByLayer.begin());
       if (ilayer0 > RecHitsByLayer.size()-MinChunkLength_) continue;      
 
       std::vector<Trajectory> ChunkTrajectories;
@@ -1226,7 +1226,7 @@ bool RoadSearchTrackCandidateMakerAlgorithm::chooseStartingLayers( std::vector<s
       
       for (std::vector<const DetLayer*>::iterator ml = middle_layers.begin();
 	   ml!=middle_layers.end();++ml){
-	uint middle_layers_found = 0;
+	unsigned int middle_layers_found = 0;
 	for (std::vector<std::pair<const DetLayer*, RoadSearchCloud::RecHitVector > >::iterator ilyr = recHitsByLayer.begin();
 	     ilyr != recHitsByLayer.end(); ++ilyr) {
 	  if (ilyr->first == *ml){

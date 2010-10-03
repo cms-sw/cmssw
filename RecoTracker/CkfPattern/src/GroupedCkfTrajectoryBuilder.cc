@@ -222,7 +222,7 @@ GroupedCkfTrajectoryBuilder::groupedLimitedCandidates (TempTrajectory& startingT
                                                        bool inOut,
 						       TempTrajectoryContainer& result) const
 {
-  uint nIter=1;
+  unsigned int nIter=1;
   TempTrajectoryContainer candidates;
   TempTrajectoryContainer newCand;
   candidates.push_back( startingTraj);

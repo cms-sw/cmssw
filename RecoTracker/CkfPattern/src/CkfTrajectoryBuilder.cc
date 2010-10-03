@@ -172,7 +172,7 @@ void CkfTrajectoryBuilder::
 limitedCandidates( TempTrajectoryContainer &candidates,
 		   TrajectoryContainer& result) const
 {
-  uint nIter=1;
+  unsigned int nIter=1;
   //  TempTrajectoryContainer candidates; // = TrajectoryContainer();
   TempTrajectoryContainer newCand; // = TrajectoryContainer();
   //  candidates.push_back( startingTraj);
