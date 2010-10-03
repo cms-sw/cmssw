@@ -19,14 +19,15 @@ if __name__ == '__main__':
         try:
             obj = xml2obj (filename=fjr)
         except:
-            print "'%s' is not an framework job report.  Skipping."
+            print "'%s' is not an framework job report.  Skipping." % fjr
             continue
         for inputFile in obj.InputFile:
-            runNumber = int (inputFile.Runs.Run.ID)
-            runList = runsLumisDict.setdefault (runNumber, [])
-            for lumiPiece in inputFile.Runs.Run.LumiSection:
-                lumi = int (lumiPiece.ID)
-                runList.append (lumi)
+            for run in inputFile.Runs.Run:
+                runNumber = int (run.ID)
+                runList = runsLumisDict.setdefault (runNumber, [])
+                for lumiPiece in run.LumiSection:
+                    lumi = int (lumiPiece.ID)
+                    runList.append (lumi)
 
     jsonList = LumiList (runsAndLumis = runsLumisDict)
     if options.output:
