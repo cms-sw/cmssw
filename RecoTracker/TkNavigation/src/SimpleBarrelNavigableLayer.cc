@@ -243,7 +243,7 @@ SimpleBarrelNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
       const BarrelDetLayer * bl = dynamic_cast<const BarrelDetLayer *>(detLayer());      unsigned int before=result.size();
       LogDebug("SimpleBarrelNavigableLayer")<<" I am trying to added myself as a next layer.";
       wellInside(ftsWithoutErrors, dir, bl, result);
-      uint after=result.size();
+      unsigned int after=result.size();
       if (before!=after)
 	LogDebug("SimpleBarrelNavigableLayer")<<" I have added myself as a next layer.";
     }

@@ -86,7 +86,7 @@ bool ClusterMTCCFilter::filter(edm::Event & e, edm::EventSetup const& c) {
   	  }
           }
           // fill clusters_in_subcomponents
-          map<uint,vector<SiStripCluster> >::iterator layer_it = clusters_in_subcomponents.find(generalized_layer);
+          map<unsigned int,vector<SiStripCluster> >::iterator layer_it = clusters_in_subcomponents.find(generalized_layer);
           if(layer_it==clusters_in_subcomponents.end()){ // if layer not found yet, create DATA vector and generate map KEY + DATA
             vector<SiStripCluster> local_vector;
             local_vector.push_back(*vit);
@@ -121,7 +121,7 @@ bool ClusterMTCCFilter::filter(edm::Event & e, edm::EventSetup const& c) {
   std::auto_ptr< unsigned int > output_sumofcharges( new unsigned int(sum_of_cluster_charges) );
   e.put(output_sumofcharges);
 
-  std::auto_ptr< map<uint,vector<SiStripCluster> > > output_clusters(new map<uint,vector<SiStripCluster> > (clusters_in_subcomponents));
+  std::auto_ptr< map<unsigned int,vector<SiStripCluster> > > output_clusters(new map<unsigned int,vector<SiStripCluster> > (clusters_in_subcomponents));
   e.put(output_clusters);
 
   return decision;

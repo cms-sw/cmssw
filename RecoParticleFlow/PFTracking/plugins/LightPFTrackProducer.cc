@@ -39,13 +39,13 @@ LightPFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
   auto_ptr< reco::PFRecTrackCollection > 
     PfTrColl (new reco::PFRecTrackCollection);
   
-  for (uint istr=0; istr<tracksContainers_.size();istr++){
+  for (unsigned int istr=0; istr<tracksContainers_.size();istr++){
     
     //Track collection
     Handle<reco::TrackCollection> tkRefCollection;
     iEvent.getByLabel(tracksContainers_[istr], tkRefCollection);
     reco::TrackCollection  Tk=*(tkRefCollection.product());
-    for(uint i=0;i<Tk.size();i++){
+    for(unsigned int i=0;i<Tk.size();i++){
       if (useQuality_ &&
 	  (!(Tk[i].quality(trackQuality_)))) continue;
      reco::TrackRef trackRef(tkRefCollection, i);

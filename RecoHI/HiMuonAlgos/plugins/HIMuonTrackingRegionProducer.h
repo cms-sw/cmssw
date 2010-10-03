@@ -59,7 +59,7 @@ class HIMuonTrackingRegionProducer : public TrackingRegionProducer {
     // TO DO: this can be extended further to a double-loop 
     // over all combinations of muons, returning tracking regions
     // for pairs that pass some loose invariant mass cuts
-    for(uint imu=0; imu<nMuons; imu++) {
+    for(unsigned int imu=0; imu<nMuons; imu++) {
       reco::TrackRef muRef(muonH, imu);
       std::cout << "muon #" << imu << ": pt=" << muRef->pt() << std::endl;
       RectangularEtaPhiTrackingRegion *etaphiRegion = theRegionBuilder->region(muRef);

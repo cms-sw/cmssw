@@ -205,7 +205,7 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
     selGsfPFRecTracks.clear();
     
     
-    for (uint igsf=0; igsf<gsftracks.size();igsf++) {
+    for (unsigned int igsf=0; igsf<gsftracks.size();igsf++) {
       
       GsfTrackRef trackRef(gsfelectrons, igsf);
       
@@ -239,7 +239,7 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	selGsfPFRecTracks.push_back(pftrack_);
     }
     if(selGsfPFRecTracks.size() > 0) {
-      for(uint ipfgsf=0; ipfgsf<selGsfPFRecTracks.size();ipfgsf++) {
+      for(unsigned int ipfgsf=0; ipfgsf<selGsfPFRecTracks.size();ipfgsf++) {
 	
 	vector<unsigned int> secondaries(0);
 	secondaries.clear();
@@ -285,7 +285,7 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  unsigned int primGsfIndex = selGsfPFRecTracks[ipfgsf].trackId();
 	  if(secondaries.size() > 0) {
 	    // loop on secondaries gsf tracks (from converted brems)
-	    for(uint isecpfgsf=0; isecpfgsf<secondaries.size();isecpfgsf++) {
+	    for(unsigned int isecpfgsf=0; isecpfgsf<secondaries.size();isecpfgsf++) {
 	      
 	      PFRecTrackRef refsecKF =  selGsfPFRecTracks[(secondaries[isecpfgsf])].kfPFRecTrackRef();
 
@@ -346,13 +346,13 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
   if (ElSeedRef->ctfTrack().isNull()){
     reco::PFRecTrackCollection::const_iterator pft=PfRTkColl.begin();
     reco::PFRecTrackCollection::const_iterator pftend=PfRTkColl.end();
-    uint i_pf=0;
+    unsigned int i_pf=0;
     int ibest=-1;
-    uint ish_max=0;
+    unsigned int ish_max=0;
     float dr_min=1000;
     //SEARCH THE PFRECTRACK THAT SHARES HITS WITH THE ELECTRON SEED
     for(;pft!=pftend;++pft){
-      uint ish=0;
+      unsigned int ish=0;
       
       float dph= fabs(pft->trackRef()->phi()-gsftk.phi()); 
       if (dph>TMath::Pi()) dph-= TMath::TwoPi();
@@ -404,7 +404,7 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
    
     reco::PFRecTrackCollection::const_iterator pft=PfRTkColl.begin();
     reco::PFRecTrackCollection::const_iterator pftend=PfRTkColl.end();
-    uint i_pf=0;
+    unsigned int i_pf=0;
     
     for(;pft!=pftend;++pft){
       //REF COMPARISON
@@ -517,7 +517,7 @@ PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>  & GsfPFVec
   
 
   
-  for (uint igsf=0; igsf< GsfPFVec.size();igsf++) {
+  for (unsigned int igsf=0; igsf< GsfPFVec.size();igsf++) {
     if(igsf != ngsf ) {
 
       reco::GsfTrackRef iGsfTrack = GsfPFVec[igsf].gsfTrackRef();

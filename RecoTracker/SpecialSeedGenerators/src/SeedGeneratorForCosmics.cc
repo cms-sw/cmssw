@@ -189,7 +189,7 @@ bool SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
   }
   
 
-  for(uint is=0;is<HitPairs.size();is++){
+  for(unsigned int is=0;is<HitPairs.size();is++){
 
     
 

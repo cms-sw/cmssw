@@ -65,7 +65,7 @@ ElectronSeedMerger::produce(Event& iEvent, const EventSetup& iSetup)
 
   //VECTOR FOR MATCHED SEEDS
   vector<bool> TSeedMatched;
-  for (uint it=0;it<TSeed.size();it++){
+  for (unsigned int it=0;it<TSeed.size();it++){
     TSeedMatched.push_back(false);
   } 
 
@@ -79,7 +79,7 @@ ElectronSeedMerger::produce(Event& iEvent, const EventSetup& iSetup)
     bool AlreadyMatched =false;
     
     //LOOP OVER THE TK SEED COLLECTION
-    for (uint it=0;it<TSeed.size();it++){
+    for (unsigned int it=0;it<TSeed.size();it++){
       if (AlreadyMatched) continue;
 
       //HITS FOR ECAL SEED 
@@ -87,8 +87,8 @@ ElectronSeedMerger::produce(Event& iEvent, const EventSetup& iSetup)
       TrajectorySeed::const_iterator eh_end = e_beg->recHits().second;
 
       //HITS FOR TK SEED 
-      uint hitShared=0;
-      uint hitSeed=0;
+      unsigned int hitShared=0;
+      unsigned int hitSeed=0;
       for (;eh!=eh_end;++eh){
 
 	if (!eh->isValid()) continue;
@@ -120,7 +120,7 @@ ElectronSeedMerger::produce(Event& iEvent, const EventSetup& iSetup)
   }
   
   //FILL THE COLLECTION WITH UNMATCHED TK-BASED SEED
-  for (uint it=0;it<TSeed.size();it++){
+  for (unsigned int it=0;it<TSeed.size();it++){
     if (!TSeedMatched[it])  output->push_back(TSeed[it]);
   }
   

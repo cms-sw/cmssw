@@ -67,7 +67,7 @@ void CSCTMBMiniScope::print() const {
            else{
            std::cout << " Adr = " << getAdr()[k] << " | Data: " 
                                      << std::hex <<  getData()[k] << std::dec << " ==>| Ch# ";
-                                      for(uint j=0; j<getChannelsInTbin(getData()[k]).size(); j++){
+                                      for(unsigned int j=0; j<getChannelsInTbin(getData()[k]).size(); j++){
                                          std::cout << " " << getChannelsInTbin(getData()[k])[j];
                                       }
                                      std::cout << std::endl;

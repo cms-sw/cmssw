@@ -230,7 +230,7 @@ std::string OnDemandMeasurementTracker::dumpCluster(const std::vector<SiStripClu
   unsigned int i=0;
   for (;it!=end;++it){
     ss<<tab<<i++<<") center: "<<it->barycenter()<<",id: "<<it->geographicalId()<<" with: "<<it->amplitudes().size()<<" strips\n"<<tab<<tab<<"{";
-    for (uint is=0;is!=it->amplitudes().size();++is){
+    for (unsigned int is=0;is!=it->amplitudes().size();++is){
       ss<<it->amplitudes()[is]<<" ";
     }ss<<"}\n";
   }
@@ -285,7 +285,7 @@ void OnDemandMeasurementTracker::assign(const TkStripMeasurementDet * csmdet,
 		       <<"\n"<<dumpRegion(indexes,*theRefGetterH);
     
     //look for iterator range in the regions defined for that module
-    for (uint iRegion = indexes.first; iRegion != indexes.second; ++iRegion){
+    for (unsigned int iRegion = indexes.first; iRegion != indexes.second; ++iRegion){
       RefGetter::record_pair range = (*theRefGetterH)[iRegion].find(id.rawId());
       if (range.first!=range.second){
 	//	found something not empty

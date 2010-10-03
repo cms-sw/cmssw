@@ -44,15 +44,15 @@ PFV0Producer::produce(Event& iEvent, const EventSetup& iSetup)
   reco::PFRecTrackRefProd pfTrackRefProd = iEvent.getRefBeforePut<reco::PFRecTrackCollection>();
   int idx = 0;
 
-  for (uint il=0; il<V0list_.size(); il++){
+  for (unsigned int il=0; il<V0list_.size(); il++){
     Handle<VertexCompositeCandidateCollection> V0coll;
     iEvent.getByLabel(V0list_[il],V0coll);
     LogDebug("PFV0Producer")<<V0list_[il]<<" contains "<<V0coll->size()<<" V0 candidates ";
-    for (uint iv=0;iv<V0coll->size();iv++){
+    for (unsigned int iv=0;iv<V0coll->size();iv++){
       VertexCompositeCandidateRef V0(V0coll, iv);
       vector<TrackRef> Tracks;
       vector<PFRecTrackRef> PFTracks;
-      for( uint ndx = 0; ndx < V0->numberOfDaughters(); ndx++ ) {
+      for( unsigned int ndx = 0; ndx < V0->numberOfDaughters(); ndx++ ) {
 	
 	Tracks.push_back( (dynamic_cast<const RecoChargedCandidate*>(V0->daughter(ndx)))->track() );
 	TrackRef trackRef = (dynamic_cast<const RecoChargedCandidate*>(V0->daughter(ndx)))->track();

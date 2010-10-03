@@ -54,7 +54,7 @@ PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup)
   //     <<  convColl.size() << endl;
 
   // loop on all NuclearInteraction 
-  for( uint icoll=0; icoll < convColl.size(); icoll++) {
+  for( unsigned int icoll=0; icoll < convColl.size(); icoll++) {
     if ( !convColl[icoll].quality(reco::Conversion::generalTracksOnly) ) continue;
     std::vector<reco::PFRecTrackRef> pfRecTkcoll;
 

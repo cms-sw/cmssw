@@ -234,16 +234,16 @@ ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       if(Idd.size()<2)continue;
 
       ///MODULE TRIPLETS SELECTION
-      for (uint i=0;i<Idd.size()-2;i++){
-	for (uint i1=0;i1<Idd[i].size();i1++){
-	  for (uint i2=0;i2<Idd[i+1].size();i2++){
-	    for (uint i3=0;i3<Idd[i+2].size();i3++){
+      for (unsigned int i=0;i<Idd.size()-2;i++){
+	for (unsigned int i1=0;i1<Idd[i].size();i1++){
+	  for (unsigned int i2=0;i2<Idd[i+1].size();i2++){
+	    for (unsigned int i3=0;i3<Idd[i+2].size();i3++){
 	      if ((Idd[i][i1]!=0) &&(Idd[i+1][i2]!=0) &&(Idd[i+2][i3]!=0) ){
 		vector<long int >tmp;
 		tmp.push_back(Idd[i][i1]);  tmp.push_back(Idd[i+1][i2]); tmp.push_back(Idd[i+2][i3]);
 		
 		bool newTrip=true;
-		for (uint iv=0;iv<tripl.size();iv++){
+		for (unsigned int iv=0;iv<tripl.size();iv++){
 		  if((tripl[iv][0]==tmp[0])&&(tripl[iv][1]==tmp[1])&&(tripl[iv][2]==tmp[2])) newTrip=false;
 
 		}
@@ -265,7 +265,7 @@ ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
     TransientTrackingRecHit::ConstRecHitContainer glob_hits;
     OwnVector<TrackingRecHit> loc_hits;
-    for (uint i=0;i<tripl.size();i++){
+    for (unsigned int i=0;i<tripl.size();i++){
       StDetMatch DetMatch1 = (rphirecHits.product())->find(tripl[i][0]);
       StDetMatch DetMatch2 = (rphirecHits.product())->find(tripl[i][1]);
       StDetMatch DetMatch3 = (rphirecHits.product())->find(tripl[i][2]);
@@ -317,7 +317,7 @@ ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
 	    if (bgc==-1) continue;
 	    bool clTak=false;
-	    for (uint igcc=0; igcc<gc.size(); igcc++){
+	    for (unsigned int igcc=0; igcc<gc.size(); igcc++){
 	      if (clTak) continue;
 	      if (bgc==gc[igcc]) clTak=true;
 	    }
@@ -369,7 +369,7 @@ ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       }
     }
     vector<bool> inPhot = sharedHits(unclean);
-    for (uint iu=0; iu<unclean.size();iu++){
+    for (unsigned int iu=0; iu<unclean.size();iu++){
 
       if (inPhot[iu])
 	output->push_back(ConvBremSeed(unclean[iu].first,pft));
@@ -569,12 +569,12 @@ vector<bool> ConvBremSeedProducer::sharedHits( vector<pair< TrajectorySeed,
       goodseed.push_back(true);
   }else{
  
-    for (uint i=0;i<unclean.size();i++)
+    for (unsigned int i=0;i<unclean.size();i++)
       goodseed.push_back(true);
     
-    for (uint iu=0; iu<unclean.size()-1;iu++){   
+    for (unsigned int iu=0; iu<unclean.size()-1;iu++){   
       if (!goodseed[iu]) continue;
-      for (uint iu2=iu+1; iu2<unclean.size();iu2++){
+      for (unsigned int iu2=iu+1; iu2<unclean.size();iu2++){
 	if (!goodseed[iu]) continue;
 	if (!goodseed[iu2]) continue;
       //    if (unclean[iu].second.second *unclean[iu2].second.second >0)continue;
@@ -582,7 +582,7 @@ vector<bool> ConvBremSeedProducer::sharedHits( vector<pair< TrajectorySeed,
 	TrajectorySeed::const_iterator sh = unclean[iu].first.recHits().first;
 	TrajectorySeed::const_iterator sh_end = unclean[iu].first.recHits().second; 
 	
-	uint shar =0;
+	unsigned int shar =0;
 	for (;sh!=sh_end;++sh){ 
 
 	  TrajectorySeed::const_iterator sh2 = unclean[iu2].first.recHits().first;

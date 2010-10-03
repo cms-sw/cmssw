@@ -238,7 +238,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
     
 
     //loop over the track collection
-    for(uint i=0;i<Tk.size();i++){		
+    for(unsigned int i=0;i<Tk.size();i++){		
 
       // reject the track if it's bad quality, except if it has a good global muon fit.
       if (useQuality_ &&

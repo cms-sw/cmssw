@@ -9,9 +9,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2009/07/13 15:31:20 $
-// $Revision: 1.65 $
+// $Author: elmer $
+// $Date: 2010/10/03 14:00:52 $
+// $Revision: 1.66 $
 //
 
 #include <vector>
@@ -184,11 +184,11 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
       std::sort(recHits.begin(),recHits.end(),SortHitPointersByY(*tracker));
     }
 
-    const uint nlost_max = 2;
+    const unsigned int nlost_max = 2;
 	    
     // make a list of layers in cloud and mark stereo layers
     
-    const uint max_layers = 128;
+    const unsigned int max_layers = 128;
 
     // collect hits in cloud by layer
     std::vector<std::pair<const DetLayer*, RoadSearchCloud::RecHitVector > > RecHitsByLayer;
@@ -270,7 +270,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
     for (std::vector<std::pair<const DetLayer*, RoadSearchCloud::RecHitVector > >::iterator ilyr0 = RecHitsByLayer.begin();
 	 ilyr0 != RecHitsByLayer.end(); ++ilyr0) {
 
-      unsigned int ilayer0 = (uint)(ilyr0-RecHitsByLayer.begin());
+      unsigned int ilayer0 = (unsigned int)(ilyr0-RecHitsByLayer.begin());
       if (ilayer0 > RecHitsByLayer.size()-MinChunkLength_) continue;      
 
       std::vector<Trajectory> ChunkTrajectories;
@@ -335,7 +335,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
       RoadSearchCloud::RecHitVector recHits_inner = recHits_start;
       RoadSearchCloud::RecHitVector recHits_outer = the_recHits_middle;
       std::set<const DetLayer*> good_layers = the_good_layers;
-      uint ngoodlayers = good_layers.size();
+      unsigned int ngoodlayers = good_layers.size();
 
       if (debug_)
 	std::cout<<"Found " << recHits_inner.size() << " inner hits and " << recHits_outer.size() << " outer hits" << std::endl;
@@ -512,7 +512,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 				 << " good layers, so " << ngoodlayers - (used_layers.size()-1) << " missed "
 				 << std::endl;
             if ((int)used_layers.size() < nFoundMin_) continue;
-            uint nlostlayers = ngoodlayers - (used_layers.size()-1);
+            unsigned int nlostlayers = ngoodlayers - (used_layers.size()-1);
             if (nlostlayers > nlost_max) continue;
             
             rawCleaned.push_back(*itr);
@@ -1196,7 +1196,7 @@ bool RoadSearchTrackCandidateMakerAlgorithm::chooseStartingLayers( std::vector<s
 								   std::vector<const DetLayer*>& middle_layers ,
 								   RoadSearchCloud::RecHitVector& recHits_middle)
 {
-      const uint max_middle_layers = 2;
+      const unsigned int max_middle_layers = 2;
 
       // consider the best nFoundMin layers + other layers with only one hit      
       // This has implications, based on the way we locate the hits.  

@@ -233,7 +233,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
     GlobalVector p = PFGsf->computeP(ComputeMODE);
     double DP = PFGsf->fittedDP();
     double SigmaDP =  PFGsf->sigmafittedDP();   
-    uint iid=measurements[iTraj].recHit()->det()->geographicalId().rawId();
+    unsigned int iid=measurements[iTraj].recHit()->det()->geographicalId().rawId();
     delete PFGsf;
 
     // --------------------------   Fill GSF Track ------------------------------------- 
@@ -400,7 +400,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 
     //check that the vertex of the brem is in the tracker volume
     if ((v.perp()>110) ||(fabs(v.z())>280)) continue;    
-    uint iTrajPoint =  iTrajPos + 2;
+    unsigned int iTrajPoint =  iTrajPos + 2;
     if(iid%2 == 1) iTrajPoint = 99;
 
     PFBrem brem(DP,SigmaDP,iTrajPoint);

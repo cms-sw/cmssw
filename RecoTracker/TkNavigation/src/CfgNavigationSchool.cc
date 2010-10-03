@@ -39,7 +39,7 @@ CfgNavigationSchool::CfgNavigationSchool(const edm::ParameterSet & cfg,
     FDLC reachableFL;
 
     //create the OUT links
-    for (uint iOut=0;iOut!=OUT.size();++iOut)
+    for (unsigned int iOut=0;iOut!=OUT.size();++iOut)
       addLayer(OUT[iOut], reachableBL, reachableFL);
 
     makeFwdLinks(names[iN],reachableBL,reachableFL);
@@ -52,7 +52,7 @@ CfgNavigationSchool::CfgNavigationSchool(const edm::ParameterSet & cfg,
     establishInverseRelations();
   }else{
     //set it by hand in the configuration
-    for (uint iN=0;iN!=names.size();++iN){
+    for (unsigned int iN=0;iN!=names.size();++iN){
       edm::ParameterSet pset=cfg.getParameter<edm::ParameterSet>(names[iN]);
       std::vector<std::string> IN = pset.getParameter<std::vector<std::string> >("IN");
       
@@ -60,7 +60,7 @@ CfgNavigationSchool::CfgNavigationSchool(const edm::ParameterSet & cfg,
       FDLC reachableFL;
       
       //create the IN links
-      for (uint iIn=0;iIn!=IN.size();++iIn)
+      for (unsigned int iIn=0;iIn!=IN.size();++iIn)
 	addLayer(IN[iIn], reachableBL, reachableFL);
       
       makeBwdLinks(names[iN],reachableBL,reachableFL);

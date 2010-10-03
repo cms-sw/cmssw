@@ -6,7 +6,7 @@
 //  Anton Anastassov (Northwestern)
 //  Email: aa@fnal.gov
 //
-// $Id: hcalCalib.cc,v 1.6 2010/03/11 22:13:48 wmtan Exp $
+// $Id: hcalCalib.cc,v 1.7 2010/10/03 08:31:49 elmer Exp $
 //
 
 #include "Calibration/HcalCalibAlgos/interface/hcalCalib.h"
@@ -419,7 +419,7 @@ void hcalCalib::Terminate() {
 
   for (unsigned int i=0; i<cellEnergies.size(); ++i) {
     Int_t iEta;    
-    for (uint j=0; j<(cellEnergies[i]).size(); ++j) {
+    for (unsigned int j=0; j<(cellEnergies[i]).size(); ++j) {
       iEta = HcalDetId(cellIds[i][j]).ieta();
       rawResp += (cellEnergies[i])[j];
       
@@ -535,12 +535,12 @@ void hcalCalib::GetCoefFromMtrxInvOfAve() {
 
       // for hybrid method: matrix inv of averages preceeded by L3
       if (CALIB_METHOD=="L3_AND_MTRX_INV") {
-	for (uint j=0; j<(cellEnergies[i]).size(); ++j) {
+	for (unsigned int j=0; j<(cellEnergies[i]).size(); ++j) {
 	  aveHitE[iEtaRef][HcalDetId(cellIds[i][j]).ieta()] += (solution[cellIds[i][j]] * cellEnergies[i][j]);
 	}          
       }
       else if (CALIB_METHOD=="MATRIX_INV_OF_ETA_AVE") {
-	for (uint j=0; j<(cellEnergies[i]).size(); ++j) {
+	for (unsigned int j=0; j<(cellEnergies[i]).size(); ++j) {
 	  aveHitE[iEtaRef][HcalDetId(cellIds[i][j]).ieta()] += cellEnergies[i][j];
 	}          
       }

@@ -40,14 +40,14 @@ PFNuclearProducer::produce(Event& iEvent, const EventSetup& iSetup)
   int hid=0;
 
   // loop on the nuclear interaction collections
-  for (uint istr=0; istr<nuclearContainers_.size();istr++){
+  for (unsigned int istr=0; istr<nuclearContainers_.size();istr++){
     
     Handle<reco::NuclearInteractionCollection> nuclCollH;
     iEvent.getByLabel(nuclearContainers_[istr], nuclCollH);
     const reco::NuclearInteractionCollection& nuclColl = *(nuclCollH.product());
 
     // loop on all NuclearInteraction 
-    for( uint icoll=0; icoll < nuclColl.size(); icoll++) {
+    for( unsigned int icoll=0; icoll < nuclColl.size(); icoll++) {
 
       if( nuclColl[icoll].likelihood() < likelihoodCut_) continue;
 
