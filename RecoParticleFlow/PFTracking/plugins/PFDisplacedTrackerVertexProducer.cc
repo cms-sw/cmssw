@@ -54,7 +54,7 @@ PFDisplacedTrackerVertexProducer::produce(Event& iEvent, const EventSetup& iSetu
   //     <<  nuclColl.size() << endl;
 
   // loop on all NuclearInteraction 
-  for( uint icoll=0; icoll < nuclColl.size(); icoll++) {
+  for( unsigned int icoll=0; icoll < nuclColl.size(); icoll++) {
 
     reco::PFRecTrackRefVector pfRecTkcoll;
 

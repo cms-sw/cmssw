@@ -443,7 +443,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
       for (unsigned i2=0;i2<pfbrem.size(); i2++) {
 	const double DP = pfbrem[i2].DeltaP();
 	const double SigmaDP =  pfbrem[i2].SigmaDeltaP(); 
-	const uint TrajP = pfbrem[i2].indTrajPoint();
+	const unsigned int TrajP = pfbrem[i2].indTrajPoint();
 	if(TrajP == 99) continue;
 
 	reco::PFBlockElement* bremEl;
@@ -764,10 +764,10 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
       const  std::vector<reco::PFTrajectoryPoint> 
 	PfGsfPoint =  ConvPFGsfProd[i].trajectoryPoints();
       
-      uint c_gsf=0;
+      unsigned int c_gsf=0;
       bool PassTracker = false;
       bool GetPout = false;
-      uint IndexPout = -1;
+      unsigned int IndexPout = -1;
       
       typedef std::vector<reco::PFTrajectoryPoint>::const_iterator IP;
       for(IP itPfGsfPoint =  PfGsfPoint.begin();  
@@ -803,7 +803,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
       for (unsigned i2=0;i2<pfbrem.size(); i2++) {
 	const double DP = pfbrem[i2].DeltaP();
 	const double SigmaDP =  pfbrem[i2].SigmaDeltaP(); 
-	const uint TrajP = pfbrem[i2].indTrajPoint();
+	const unsigned int TrajP = pfbrem[i2].indTrajPoint();
 	if(TrajP == 99) continue;
 
 	reco::PFBlockElement* bremEl;

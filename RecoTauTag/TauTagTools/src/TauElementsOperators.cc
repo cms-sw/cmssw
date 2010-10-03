@@ -236,7 +236,7 @@ const TrackRef TauElementsOperators::leadTk(const math::XYZVector& jetAxis,strin
 }
 // ***
 double TauElementsOperators::discriminatorByIsolTracksN(unsigned int isolationAnnulus_Tracksmaxn)const{
-  if ((uint)IsolTracks_.size()>isolationAnnulus_Tracksmaxn)return 0.;
+  if ((unsigned int)IsolTracks_.size()>isolationAnnulus_Tracksmaxn)return 0.;
   else return 1.;
 }
 double TauElementsOperators::discriminatorByIsolTracksN(const math::XYZVector& jetAxis, 
@@ -247,7 +247,7 @@ double TauElementsOperators::discriminatorByIsolTracksN(const math::XYZVector& j
   if(!leadingTrack)return 0.; 
   math::XYZVector coneAxis=leadingTrack->momentum();
   TrackRefVector isolationAnnulusTracks=tracksInAnnulus(coneAxis,signalConeMetric,signalConeSize,isolationConeMetric,isolationConeSize,ptOtherTracksMin);
-  if ((uint)isolationAnnulusTracks.size()>isolationAnnulus_Tracksmaxn)return 0.;
+  if ((unsigned int)isolationAnnulusTracks.size()>isolationAnnulus_Tracksmaxn)return 0.;
   else return 1.;
 }
 double TauElementsOperators::discriminatorByIsolTracksN(string matchingConeMetric,double matchingConeSize,double ptLeadingTrackMin,double ptOtherTracksMin, 

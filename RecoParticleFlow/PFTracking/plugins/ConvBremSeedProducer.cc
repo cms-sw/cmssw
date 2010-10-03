@@ -115,7 +115,7 @@ ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   ///LOOP OVER GSF TRACK COLLECTION
 
-  for(uint ipft=0;ipft<PfRTkColl.size();ipft++){
+  for(unsigned int ipft=0;ipft<PfRTkColl.size();ipft++){
     GsfPFRecTrackRef pft(thePfRecTrackCollection,ipft);
     LogDebug("ConvBremSeedProducerProducer")<<"NEW GsfPFRecTRACK ";
     float eta_br=0;
@@ -565,7 +565,7 @@ vector<bool> ConvBremSeedProducer::sharedHits( vector<pair< TrajectorySeed,
   vector<bool> goodseed;
   goodseed.clear();
   if (unclean.size()<2){
-    for (uint i=0;i<unclean.size();i++)
+    for (unsigned int i=0;i<unclean.size();i++)
       goodseed.push_back(true);
   }else{
  
@@ -619,7 +619,7 @@ int ConvBremSeedProducer::GoodCluster(BaseParticlePropagator bpg, const PFCluste
 
   if(bpg.getSuccess()!=0){
 
-    for (uint i =0; i<pfc.size();i++ ){
+    for (unsigned int i =0; i<pfc.size();i++ ){
       float tmp_ep=pfc[i].energy()/bpg.momentum().e();
       float tmp_phi=fabs(pfc[i].position().phi()-bpg.vertex().phi());
       if (tmp_phi>TMath::TwoPi()) tmp_phi-= TMath::TwoPi(); 

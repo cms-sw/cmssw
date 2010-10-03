@@ -121,7 +121,7 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
     for (int iTraj = iTrajFirst; iTraj != iTrajLast; iTraj += increment) {
       GlobalPoint v=measurements[iTraj].updatedState().globalPosition();
       GlobalVector p=measurements[iTraj].updatedState().globalMomentum();
-      uint iid=measurements[iTraj].recHit()->det()->geographicalId().rawId();
+      unsigned int iid=measurements[iTraj].recHit()->det()->geographicalId().rawId();
       pftrack.addPoint(PFTrajectoryPoint(iid,-1,
 					 math::XYZPoint(v.x(), v.y(), v.z()),
 					 math::XYZTLorentzVector(p.x(),p.y(),p.z(),p.mag())));
@@ -223,7 +223,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
   int iTrajLast  =  (direction) ? int(measurements.size()) : -1;
   
   
-  uint iTrajPos = 0;
+  unsigned int iTrajPos = 0;
   for (int iTraj = iTrajFirst; iTraj != iTrajLast; iTraj += increment) {
     
     GlobalPoint v=measurements[iTraj].updatedState().globalPosition();

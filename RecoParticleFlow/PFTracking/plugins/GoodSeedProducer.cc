@@ -219,7 +219,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
   iEvent.getByLabel(muonColl_, recMuons);
 
   //Vector of track collections
-  for (uint istr=0; istr<tracksContainers_.size();istr++){
+  for (unsigned int istr=0; istr<tracksContainers_.size();istr++){
     
     //Track collection
     Handle<TrackCollection> tkRefCollection;
