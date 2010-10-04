@@ -91,40 +91,40 @@ https://twiki.cern.ch/twiki/bin/view/CMS/DQMQualityTests
 
 
 
-<LINK name="HLT/TauRelVal/MC_8E29/L1/L1TauEtEff">
+<LINK name="HLT/TauRelVal/MC_6E31/L1/L1TauEtEff">
       <TestName activate="true">efficiencyCheckL1</TestName>
 </LINK>
 
-<LINK name="HLT/TauRelVal/MC_8E29/L2/L2IsoTauEtEff">
+<LINK name="HLT/TauRelVal/MC_6E31/L2/L2IsoTauEtEff">
       <TestName activate="true">efficiencyCheckL2Iso</TestName>
 </LINK>
 
-<LINK name="HLT/TauRelVal/MC_8E29/L1/L1TauEtResol">
+<LINK name="HLT/TauRelVal/MC_6E31/L1/L1TauEtResol">
       <TestName activate="true">resolutionCheckL1</TestName>
 </LINK>
 
-<LINK name="HLT/TauRelVal/MC_8E29/L2/L2EcalIsolation">
+<LINK name="HLT/TauRelVal/MC_6E31/L2/L2EcalIsolation">
       <TestName activate="true">histoMatching</TestName>
 </LINK>
 
-<LINK name="HLT/TauRelVal/MC_8E29/L2/L2TauEtResol">
+<LINK name="HLT/TauRelVal/MC_6E31/L2/L2TauEtResol">
       <TestName activate="true">resolutionCheckL2</TestName>
 </LINK>
 
-<LINK name="HLT/TauRelVal/MC_8E29/DoubleTau/EfficiencyRefPrevious">
+<LINK name="HLT/TauRelVal/MC_6E31/DoubleTau/EfficiencyRefPrevious">
       <TestName activate="true">efficiencyCheckDoubleTauHigh</TestName>
 </LINK>
 
-<LINK name="HLT/TauRelVal/MC_8E29/DoubleTau/EfficiencyRefPrevious">
+<LINK name="HLT/TauRelVal/MC_6E31/DoubleTau/EfficiencyRefPrevious">
       <TestName activate="true">efficiencyCheckDoubleTauLow</TestName>
 </LINK>
 
 
-<LINK name="HLT/TauRelVal/MC_8E29/SingleTau/EfficiencyRefPrevious">
+<LINK name="HLT/TauRelVal/MC_6E31/SingleTau/EfficiencyRefPrevious">
       <TestName activate="true">efficiencyCheckSingleTauHigh</TestName>
 </LINK>
 
-<LINK name="HLT/TauRelVal/MC_8E29/SingleTau/EfficiencyRefPrevious">
+<LINK name="HLT/TauRelVal/MC_6E31/SingleTau/EfficiencyRefPrevious">
       <TestName activate="true">efficiencyCheckSingleTauLow</TestName>
 </LINK>
 
