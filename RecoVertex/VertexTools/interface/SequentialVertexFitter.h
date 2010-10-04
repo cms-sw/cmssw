@@ -8,6 +8,7 @@
 #include "RecoVertex/VertexTools/interface/LinearizedTrackStateFactory.h"
 #include "RecoVertex/VertexTools/interface/VertexTrackFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <cmath>
 // #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 // #include "Vertex/VertexPrimitives/interface/VertexSeedFactory.h"
 
@@ -240,7 +241,8 @@ private:
    * Checks whether any of the three coordinates is a Nan
    */
   inline bool hasNan(const GlobalPoint& point) const {
-    return (std::isnan(point.x())|| std::isnan(point.y()) || std::isnan(point.z()));
+    using namespace std;
+    return (isnan(point.x())|| isnan(point.y()) || isnan(point.z()));
   }
 
 
