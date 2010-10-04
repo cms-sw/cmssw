@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/ZeroBiasPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined ZeroBias skim')
 )
@@ -116,7 +116,9 @@ process.options = cms.untracked.PSet(
  wantSummary = cms.untracked.bool(True)
 )
 
-process.outpath = cms.EndPath(process.gvout+process.outlogerr)
+#Killed gvskim 
+#process.outpath = cms.EndPath(process.gvout+process.outlogerr)
+process.outpath = cms.EndPath(process.outlogerr)
 
 
 
