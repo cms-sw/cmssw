@@ -54,7 +54,7 @@ HLT_Mu5_Photon11_Cleaned_L1R_v1
 HLT_Mu5_HT50U_v1
 HLT_Mu5_HT70U_v1
 HLT_Mu5_Jet35U_v1
-HLT_Mu5_Jet50U_v1
+HLT_Mu5_Jet50U_v2
 HLT_Mu5_Ele5_v1
 HLT_Mu5_Ele9_v1
 HLT_L2DoubleMu0
