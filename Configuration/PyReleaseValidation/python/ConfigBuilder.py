@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.233 $"
+__version__ = "$Revision: 1.234 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -1130,13 +1130,13 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
 
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
-        prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.233 $"),
-               name=cms.untracked.string("PyReleaseValidation"),
-               annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
-              )
-
-        return prod_info
+	self.process.configurationMetadata=cms.untracked.PSet\
+					    (version=cms.untracked.string("$Revision: 1.234 $"),
+					     name=cms.untracked.string("PyReleaseValidation"),
+					     annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
+					     )
+	
+	self.addedObjects.append(("Production Info","configurationMetadata"))
 
 
     def prepare(self, doChecking = False):
@@ -1167,7 +1167,7 @@ process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("HLT", "%s", 
 
         # production info
         if not hasattr(self.process,"configurationMetadata"):
-            self.process.configurationMetadata=self.build_production_info(self._options.evt_type, self._options.number)
+		self.build_production_info(self._options.evt_type, self._options.number)
 
 	self.pythonCfgCode +="\n"
 	for comment,object in self.addedObjects:
