@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.235 $"
+__version__ = "$Revision: 1.236 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -686,6 +686,9 @@ class ConfigBuilder(object):
 			else:
 				self.renameHLTprocessInSequence(alcastream.paths.label(),self._options.hltProcess)
                 alcaList.remove(shortName)
+	    if isinstance(alcastream,cms.Path):
+		    #print "Path name",alcastream.label()
+		    self.blacklist_paths.append(alcastream)
 	    #black list alca paths that are not used: cannot work as it is if a path is "shared" between alca
             #elif isinstance(alcastream,cms.FilteredStream) and not shortName in alcaList:
 		    # this is an alcastream that we are not taking in. blacklist its path
@@ -1144,7 +1147,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
 	self.process.configurationMetadata=cms.untracked.PSet\
-					    (version=cms.untracked.string("$Revision: 1.235 $"),
+					    (version=cms.untracked.string("$Revision: 1.236 $"),
 					     name=cms.untracked.string("PyReleaseValidation"),
 					     annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
 					     )
