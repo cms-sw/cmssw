@@ -31,7 +31,7 @@ int main(){
     }
     std::set< std::string > conts = db.containers();
     if( conts.find( "Cont0" )!= conts.end() ) db.dropContainer( "Cont0" );
-    if( conts.find( "IOV" )!= conts.end() ) db.dropContainer( "IOV" );
+    if( conts.find( "testORA::IOV" )!= conts.end() ) db.dropContainer( "testORA::IOV" );
     //
     ora::Container contIOV = db.createContainer<IOV>();
     ora::Container contH0 = db.createContainer<ArrayClass>("Cont0");
@@ -62,14 +62,14 @@ int main(){
     }
     conts = db2.containers();
     if( conts.find( "Cont0" )!= conts.end() ) db2.dropContainer( "Cont0" );
-    if( conts.find( "IOV" )!= conts.end() ) db2.dropContainer( "IOV" );
+    if( conts.find( "testORA::IOV" )!= conts.end() ) db2.dropContainer( "testORA::IOV" );
     ora::Container contH2 = db2.createContainer<ArrayClass>("Cont0");
     ora::Container contIOV2 = db2.createContainer<IOV>();
     // reading back...
     std::cout << "** exporting in dest db"<<std::endl;
     db.connect( connStr );
     trans0.start( true );
-    contIOV = db.containerHandle( "IOV" );
+    contIOV = db.containerHandle( "testORA::IOV" );
     for( std::vector<int>::const_iterator iO = oids.begin(); iO!= oids.end(); ++iO ){
       IOV iov;
       int iovOid = contIOV2.insert( iov );

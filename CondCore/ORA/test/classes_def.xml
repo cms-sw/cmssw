@@ -14,8 +14,6 @@
   <class name="testORA::SA"/>
   <class name="testORA::SimpleStruct"/>
   <class name="testORA::MultiArrayClass2::Inner"/>
-  <class name="std::map<std::string,unsigned int>"/>
-  <class name="std::map<std::string,unsigned int>::value_type"/>
   <class name="testORA::Metadata"/>
   <class name="testORA::Entry">
      <field name="m_histogram" mapping="blob"/>
