@@ -59,6 +59,7 @@ double CaloRecoTauDiscriminationByDeltaE::DeltaE(const CaloTauRef& tau){
                            chargedPionMass);
 		tracksE += p4.E();
 	}
+	if(tau->leadTrackHCAL3x3hitsEtSum() == 0) return -1; // electron
 	return tracksE/tau->leadTrackHCAL3x3hitsEtSum() - 1.0;
 }
 
