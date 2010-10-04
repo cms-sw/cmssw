@@ -1,6 +1,5 @@
 <lcgdict>
   <class name="pat::strbitset"/>
-  <class name="std::map<std::basic_string<char>,unsigned int>"/>
   <class name="edm::Wrapper<pat::strbitset>"/>
   <class name="std::vector<pat::strbitset>"/>
   <class name="edm::Wrapper< std::vector< pat::strbitset> >"/>

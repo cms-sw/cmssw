@@ -15,7 +15,6 @@
 namespace {
   struct dictionary {
 
-    std::map<std::basic_string<char>,unsigned int> internalMap;
     pat::strbitset strbitset;
     edm::Wrapper<pat::strbitset> wstrbitset;
     std::vector< pat::strbitset> vstrbitset;
