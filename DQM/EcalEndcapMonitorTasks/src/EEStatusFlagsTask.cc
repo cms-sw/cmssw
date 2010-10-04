@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsTask.cc
  *
- * $Date: 2010/06/14 15:00:40 $
- * $Revision: 1.35 $
+ * $Date: 2010/08/08 08:46:09 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  *
 */
@@ -166,7 +166,7 @@ void EEStatusFlagsTask::setup(void){
       meFEchErrors_[i][2]->setBinLabel(1+5, "LINK", 1);
       meFEchErrors_[i][2]->setBinLabel(1+6, "BLOCKSIZE", 1);
       meFEchErrors_[i][2]->setBinLabel(1+7, "SUPPRESSED", 1);
-      meFEchErrors_[i][2]->setBinLabel(1+8, "FIFO FULL", 1);
+      meFEchErrors_[i][2]->setBinLabel(1+8, "FORCED FS", 1);
       meFEchErrors_[i][2]->setBinLabel(1+9, "L1A SYNC", 1);
       meFEchErrors_[i][2]->setBinLabel(1+10, "BX SYNC", 1);
       meFEchErrors_[i][2]->setBinLabel(1+11, "L1A+BX SYNC", 1);
@@ -279,7 +279,7 @@ void EEStatusFlagsTask::analyze(const edm::Event& e, const edm::EventSetup& c){
           float xix = ix - 0.5;
           float xiy = iy - 0.5;
 
-          if ( ! ( status[itt-1] == 0 || status[itt-1] == 1 || status[itt-1] == 7 || status[itt-1] == 8 || status[itt-1] == 15 ) ) {
+          if ( ! ( status[itt-1] == 0 || status[itt-1] == 1 || status[itt-1] == 7 || status[itt-1] == 8 || status[itt-1] == 12 || status[itt-1] == 15 ) ) {
             if ( meFEchErrors_[ism-1][0] ) meFEchErrors_[ism-1][0]->Fill(xix, xiy);
             if ( meFEchErrorsByLumi_ ) meFEchErrorsByLumi_->Fill(xism, 1./34./crystals->size());
           }
@@ -288,7 +288,7 @@ void EEStatusFlagsTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
         } else if ( itt == 69 || itt == 70 ) {
 
-          if ( ! ( status[itt-1] == 0 || status[itt-1] == 1 || status[itt-1] == 7 || status[itt-1] == 8 || status[itt-1] == 15 ) ) {
+          if ( ! ( status[itt-1] == 0 || status[itt-1] == 1 || status[itt-1] == 7 || status[itt-1] == 8 || status[itt-1] == 12 || status[itt-1] == 15 ) ) {
             if ( meFEchErrors_[ism-1][1] ) meFEchErrors_[ism-1][1]->Fill(itt-68-0.5, 0);
           }
 
