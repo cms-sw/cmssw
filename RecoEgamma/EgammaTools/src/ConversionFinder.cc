@@ -24,19 +24,31 @@ ConversionFinder::ConversionFinder() {}
 ConversionFinder::~ConversionFinder() {}
 
 //-----------------------------------------------------------------------------
-std::vector<ConversionInfo> ConversionFinder::getConversionInfo(const reco::GsfElectron& gsfElectron, 
+ConversionInfo ConversionFinder::getConversionInfo(const reco::GsfElectron& gsfElectron, 
 								const edm::Handle<reco::TrackCollection>& ctftracks_h, 
 								const edm::Handle<reco::GsfTrackCollection>& gsftracks_h,
 								const double bFieldAtOrigin,
 								const double minFracSharedHits) {
 
- return getConversionInfo(*gsfElectron.core(),ctftracks_h,gsftracks_h,bFieldAtOrigin,minFracSharedHits) ;
+  std::vector<ConversionInfo> temp = getConversionInfos(*gsfElectron.core(),ctftracks_h,gsftracks_h,bFieldAtOrigin,minFracSharedHits) ;
+  return findBestConversionMatch(temp);
+
+}
+//-----------------------------------------------------------------------------
+ConversionInfo ConversionFinder::getConversionInfo(const reco::GsfElectronCore& gsfElectron,
+						    const edm::Handle<reco::TrackCollection>& ctftracks_h,
+						    const edm::Handle<reco::GsfTrackCollection>& gsftracks_h,
+						    const double bFieldAtOrigin,
+						    const double minFracSharedHits) { 
+
+  std::vector<ConversionInfo> temp = getConversionInfos(gsfElectron,ctftracks_h,gsftracks_h,bFieldAtOrigin,minFracSharedHits) ;
+  return findBestConversionMatch(temp);
 
 }
   
 
 //-----------------------------------------------------------------------------
-std::vector<ConversionInfo> ConversionFinder::getConversionInfo(const reco::GsfElectronCore& gsfElectron,
+std::vector<ConversionInfo> ConversionFinder::getConversionInfos(const reco::GsfElectronCore& gsfElectron,
 								const edm::Handle<reco::TrackCollection>& ctftracks_h,
 								const edm::Handle<reco::GsfTrackCollection>& gsftracks_h,
 								const double bFieldAtOrigin,
