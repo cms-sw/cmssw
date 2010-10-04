@@ -11,8 +11,8 @@
  *
  * \file DCCDataUnpacker.h
  *
- * $Date: 2009/07/27 20:32:22 $
- * $Revision: 1.3 $
+ * $Date: 2010/06/02 23:46:11 $
+ * $Revision: 1.4 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -57,7 +57,7 @@ public :
   /**
      Unpack data from a buffer
   */
-  void unpack( uint64_t * buffer, uint bufferSize, uint smId, uint fedId);
+  void unpack( uint64_t * buffer, unsigned int bufferSize, unsigned int smId, unsigned int fedId);
 
 
   /**
