@@ -266,7 +266,7 @@ ALILine rightCCD( dowel2 + posxy, -line_dowel21_perp ); //samir changed sign to 
     if (ALIUtils::debug >= 2) std::cout << "\tmeas CCD " << measNames[ii] << " ii=(" << ii << ") \t Values: "
      //<< (fabs( measv[ii][0] ) <  fabs( measv[ii][1]) 
        << " " << fabs( measv[ii][0] ) << " " <<  fabs( measv[ii][1] ) << "  isnan() = " <<
-       isnan(measv[ii][1]) << std::endl;
+       std::isnan(measv[ii][1]) << std::endl;
 
     if( meas.xlaserLine( ii ) != -1 ) { 
       laserLine = ALIbool( meas.xlaserLine( ii ) );
@@ -277,7 +277,7 @@ ALILine rightCCD( dowel2 + posxy, -line_dowel21_perp ); //samir changed sign to 
     //  Somehow measv[][1] can occasionally return value of 'nan'
     //  which is interpretted as less than any real value
     //
-      if(isnan(measv[ii][1]) != 0){
+      if(std::isnan(measv[ii][1]) != 0){
       		measv[ii][1] = 1e99;
 		if (ALIUtils::debug >= 2) std::cout << "  --> Swapping for " << measv[ii][1] << "(inf)" << std::endl;
 				  }

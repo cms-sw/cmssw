@@ -240,7 +240,7 @@ private:
    * Checks whether any of the three coordinates is a Nan
    */
   inline bool hasNan(const GlobalPoint& point) const {
-    return (isnan(point.x())|| isnan(point.y()) || isnan(point.z()));
+    return (std::isnan(point.x())|| std::isnan(point.y()) || std::isnan(point.z()));
   }
 
 

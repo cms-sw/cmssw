@@ -89,7 +89,7 @@ KinematicConstrainedVertexUpdator::update(const AlgebraicVector& inPar,
 
   //check for NaN
   for(int i = 1; i<=val.num_row();++i) {
-    if (isnan(val(i))) {
+    if (std::isnan(val(i))) {
       LogDebug("KinematicConstrainedVertexUpdator")
       << "catched NaN.\n";
       return std::pair<std::pair<std::vector<KinematicState>, AlgebraicMatrix>, RefCountedKinematicVertex >(

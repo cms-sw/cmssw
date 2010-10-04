@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.22 2010/02/18 01:21:51 dmytro Exp $
+// $Id: DetIdAssociator.cc,v 1.23 2010/02/18 14:35:48 dmytro Exp $
 //
 //
 
@@ -171,7 +171,7 @@ void DetIdAssociator::buildMap()
 	     LogTrace("TrackAssociatorVerbose")<< "\tpoint (rho,phi,z): " << iter->perp() << ", " <<
 	       iter->phi() << ", " << iter->z();
 	     // FIX ME: this should be a fatal error
-	     if(isnan(iter->mag())||iter->mag()>1e5) { //Detector parts cannot be 1 km away or be NaN
+	     if(std::isnan(iter->mag())||iter->mag()>1e5) { //Detector parts cannot be 1 km away or be NaN
 	       edm::LogWarning("TrackAssociator") << "Critical error! Bad detector unit geometry:\n\tDetId:" 
 						  << id_itr->rawId() << "\t mag(): " << iter->mag() << "\n" << DetIdInfo::info( *id_itr )
 						  << "\nSkipped the element";

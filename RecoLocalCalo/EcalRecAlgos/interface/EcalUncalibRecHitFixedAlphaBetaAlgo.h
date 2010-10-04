@@ -333,7 +333,7 @@ template<class C> float EcalUncalibRecHitFixedAlphaBetaAlgo<C>::PerformAnalyticF
     // Probably the fastest way to protect against
     // +-inf value in the matrix DM1_ after inversion
     // (which is nevertheless flagged as successfull...)
-    if ( isnan( PROD[0] ) ) {
+    if ( std::isnan( PROD[0] ) ) {
             InitFitParameters(samples,max_sample);
             return -103 ;
     }

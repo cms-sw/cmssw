@@ -170,9 +170,9 @@ void PrimaryVertexMonitor::vertexPlots(const Vertex & v, const BeamSpot& beamSpo
     yerrVsTrks[i]->Fill(weight, v.yError()*10000);
     zerrVsTrks[i]->Fill(weight, v.zError()*10000);
 
-    nans[i]->Fill(1.,isnan(v.position().x())*1.);
-    nans[i]->Fill(2.,isnan(v.position().y())*1.);
-    nans[i]->Fill(3.,isnan(v.position().z())*1.);
+    nans[i]->Fill(1.,std::isnan(v.position().x())*1.);
+    nans[i]->Fill(2.,std::isnan(v.position().y())*1.);
+    nans[i]->Fill(3.,std::isnan(v.position().z())*1.);
 
     int index = 3;
     for (int i = 0; i != 3; i++) {

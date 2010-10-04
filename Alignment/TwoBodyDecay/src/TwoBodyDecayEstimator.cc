@@ -224,8 +224,8 @@ bool TwoBodyDecayEstimator::checkValues( const AlgebraicVector & vec ) const
 
   for ( int i = 0; i < vec.num_col(); ++i )
   {
-    isNan = isNan || isnan( vec[i] );
-    isInf = isInf || isinf( vec[i] );
+    isNan = isNan || std::isnan( vec[i] );
+    isInf = isInf || std::isinf( vec[i] );
   }
 
   return ( isNan || isInf );

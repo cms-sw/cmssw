@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: elmer $
-// $Date: 2010/10/03 14:00:52 $
-// $Revision: 1.66 $
+// $Date: 2010/10/03 20:54:08 $
+// $Revision: 1.67 $
 //
 
 #include <vector>
@@ -1369,7 +1369,7 @@ FreeTrajectoryState RoadSearchTrackCandidateMakerAlgorithm::initialTrajectoryFro
           FastHelix helix(outer, middle, inner, es);
 	  // check that helix is OK
           if (!helix.isValid() || 
-	      isnan(helix.stateAtVertex().parameters().momentum().perp())) return fts;
+	      std::isnan(helix.stateAtVertex().parameters().momentum().perp())) return fts;
 	  // simple cuts on pt and dz
 	  if (helix.stateAtVertex().parameters().momentum().perp() < 0.5 ||
 	      std::abs(helix.stateAtVertex().parameters().position().z()) > 550.0)
@@ -1416,7 +1416,7 @@ Trajectory RoadSearchTrackCandidateMakerAlgorithm::createSeedTrajectory(FreeTraj
   const TrajectoryStateOnSurface innerState = 
     thePropagator->propagate(fts,innerDet->surface());
   if ( !innerState.isValid() ||
-       isnan(innerState.globalMomentum().perp())) {
+       std::isnan(innerState.globalMomentum().perp())) {
     if (debug_) std::cout<<"*******DISASTER ********* seed doesn't make it to first hit!!!!!" << std::endl;
     return theSeedTrajectory;
   }
@@ -1437,7 +1437,7 @@ Trajectory RoadSearchTrackCandidateMakerAlgorithm::createSeedTrajectory(FreeTraj
    TrajectoryStateOnSurface innerUpdated= theUpdator->update( innerState,*intrhit);                         
    if (debug_) std::cout<<"InnerUpdated: " << innerUpdated << std::endl;
   if (!innerUpdated.isValid() ||
-       isnan(innerUpdated.globalMomentum().perp())) {
+       std::isnan(innerUpdated.globalMomentum().perp())) {
     if (debug_) std::cout<<"Trajectory updated with first hit is invalid!!!" << std::endl;
     return theSeedTrajectory;
   }

@@ -52,7 +52,7 @@ double GsfVertexWeightCalculator::calculate(const  VertexState & oldVertex,
   double chi = ROOT::Math::Similarity(diff,sigmaM);;  //SigmaM is now inverted !!!
   double weight = pow(2. * M_PI, -0.5 * 5) * sqrt(1./sigmaDet) * exp(-0.5 * chi);
 
-  if (isnan(weight) || sigmaDet<=0.) {
+  if (std::isnan(weight) || sigmaDet<=0.) {
     edm::LogWarning("GsfVertexWeightCalculator") << "Weight is NaN";
     return -1.;
   }
