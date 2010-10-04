@@ -1,6 +1,6 @@
 #! /bin/bash
 
-HLT='/online/collisions/2010/week38/HLT'
+HLT='/online/collisions/2010/week40/HLT'
 L1T='sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/sqlFile/L1Menu_Collisions2010_v0_mc.db:L1Menu_Collisions2010_v0'
 
 
