@@ -81,8 +81,7 @@ ElectronLikelihood::Setup (const ElectronLikelihoodCalibration *calibration,
     _EBlt15lh->setSplitFrac ("hadrons", "class1") ;
   }
   else {
-    throw cms::Exception("BadConfig") << "Only class (non-showering / showering)"
-				      << " and fullclass (golden / bigbrem / narrow / showering)" 
+    throw cms::Exception("BadConfig") << "Only class (0 brem clusters / >=1 brem clusters)"
 				      << " splitting is implemented right now";
   }
 
@@ -105,9 +104,8 @@ ElectronLikelihood::Setup (const ElectronLikelihoodCalibration *calibration,
     _EBgt15lh->setSplitFrac ("electrons", "class1") ;
   }
   else {
-    throw cms::Exception("BadConfig") << "Only class (non-showering / showering)"
-				      << " and fullclass (golden / bigbrem / narrow / showering)" 
-				      << " splitting is implemented right now";
+    throw cms::Exception("BadConfig") << "Only class (0 brem clusters / >=1 brem clusters)"
+                                      << " splitting is implemented right now";
   }
 
   if (m_eleIDSwitches.m_useDeltaPhi)     _EBgt15lh->addPdf ("electrons", "dPhi",          splitSignalPdfs) ;   
@@ -123,9 +121,8 @@ ElectronLikelihood::Setup (const ElectronLikelihoodCalibration *calibration,
     _EBgt15lh->setSplitFrac ("hadrons", "class1") ;
   }
   else {
-    throw cms::Exception("BadConfig") << "Only class (non-showering / showering)"
-				      << " and fullclass (golden / bigbrem / narrow / showering)" 
-				      << " splitting is implemented right now";
+    throw cms::Exception("BadConfig") << "Only class (0 brem clusters / >=1 brem clusters)"
+                                      << " splitting is implemented right now";
   }
 
   if (m_eleIDSwitches.m_useDeltaPhi)     _EBgt15lh->addPdf ("hadrons", "dPhi",          splitBackgroundPdfs) ;   
@@ -147,9 +144,8 @@ ElectronLikelihood::Setup (const ElectronLikelihoodCalibration *calibration,
     _EElt15lh->setSplitFrac ("electrons", "class1") ;
   }
   else {
-    throw cms::Exception("BadConfig") << "Only class (non-showering / showering)"
-				      << " and fullclass (golden / bigbrem / narrow / showering)" 
-				      << " splitting is implemented right now";
+    throw cms::Exception("BadConfig") << "Only class (0 brem clusters / >=1 brem clusters)"
+                                      << " splitting is implemented right now";
   }
 
   if (m_eleIDSwitches.m_useDeltaPhi)     _EElt15lh->addPdf ("electrons", "dPhi",          splitSignalPdfs) ;   
@@ -165,9 +161,8 @@ ElectronLikelihood::Setup (const ElectronLikelihoodCalibration *calibration,
     _EElt15lh->setSplitFrac ("hadrons", "class1") ;
   }
   else {
-    throw cms::Exception("BadConfig") << "Only class (non-showering / showering)"
-				      << " and fullclass (golden / bigbrem / narrow / showering)" 
-				      << " splitting is implemented right now";
+    throw cms::Exception("BadConfig") << "Only class (0 brem clusters / >=1 brem clusters)"
+                                      << " splitting is implemented right now";
   }
 
   if (m_eleIDSwitches.m_useDeltaPhi)     _EElt15lh->addPdf ("hadrons", "dPhi",          splitBackgroundPdfs) ;   
@@ -189,9 +184,8 @@ ElectronLikelihood::Setup (const ElectronLikelihoodCalibration *calibration,
     _EEgt15lh->setSplitFrac ("electrons", "class1") ;
   }
   else {
-    throw cms::Exception("BadConfig") << "Only class (non-showering / showering)"
-				      << " and fullclass (golden / bigbrem / narrow / showering)" 
-				      << " splitting is implemented right now";
+    throw cms::Exception("BadConfig") << "Only class (0 brem clusters / >=1 brem clusters)"
+                                      << " splitting is implemented right now";
   }
 
   if (m_eleIDSwitches.m_useDeltaPhi)     _EEgt15lh->addPdf ("electrons", "dPhi",          splitSignalPdfs) ;   
@@ -207,9 +201,8 @@ ElectronLikelihood::Setup (const ElectronLikelihoodCalibration *calibration,
     _EEgt15lh->setSplitFrac ("hadrons", "class1") ;
   }
   else {
-    throw cms::Exception("BadConfig") << "Only class (non-showering / showering)"
-				      << " and fullclass (golden / bigbrem / narrow / showering)" 
-				      << " splitting is implemented right now";
+    throw cms::Exception("BadConfig") << "Only class (0 brem clusters / >=1 brem clusters)"
+                                      << " splitting is implemented right now";
   }
 
   if (m_eleIDSwitches.m_useDeltaPhi)     _EEgt15lh->addPdf ("hadrons", "dPhi",          splitBackgroundPdfs) ;   
