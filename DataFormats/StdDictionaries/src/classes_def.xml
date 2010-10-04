@@ -102,6 +102,7 @@
  <class name="std::pair<std::basic_string<char>,std::pair<unsigned int,unsigned int> >"/>
  <class name="std::pair<std::basic_string<char>,std::vector<std::basic_string<char> > >"/>
  <class name="std::pair<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > >"/>
+ <class name="std::pair<std::basic_string<char>,unsigned int>"/>
  <class name="std::pair<std::pair<int,int>,int>"/>
  <class name="std::pair<std::pair<short,short>,std::pair<short,std::vector<short> > >"/>
  <class name="std::pair<std::vector<std::pair<double,std::vector<double> > >,bool>"/>

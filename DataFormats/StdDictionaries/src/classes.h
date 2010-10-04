@@ -105,6 +105,7 @@ namespace {
   std::pair<std::basic_string<char>,std::pair<unsigned int,unsigned int> > newDummy29;
   std::pair<std::basic_string<char>,std::vector<std::basic_string<char> > > dummywp12;
   std::pair<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > > dummywp11;
+  std::pair<std::basic_string<char>,unsigned int> dummywp20;
   std::pair<std::pair<int,int>,int> newDummy30;
   std::pair<std::pair<short,short>,std::pair<short,std::vector<short> > > dummypsspsvs;
   std::pair<std::vector<std::pair<double,std::vector<double> > >,bool> dummypvpvb;
