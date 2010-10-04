@@ -94,6 +94,7 @@ HLT_Ele17_SW_TighterEleId_L1R_v1
 HLT_Ele17_SW_TightEleIdIsol_L1R_v1
 HLT_Ele17_SW_TighterEleIdIsol_L1R_v1
 HLT_Ele17_SW_TightCaloEleId_SC8HE_L1R_v1
+HLT_Ele17_SW_TightCaloEleId_Ele8HE_L1R_v1
 HLT_Ele27_SW_TightCaloEleIdTrack_L1R_v1
 HLT_Ele32_SW_TightCaloEleIdTrack_L1R_v1
 HLT_DoubleEle15_SW_L1R_v1
@@ -135,7 +136,8 @@ HLT_L1Tech_BSC_HighMultiplicity
 HLT_RPCBarrelCosmics
 HLT_TrackerCosmics
 HLT_L1Tech_RPC_TTU_RBst1_collisions
-HLT_StoppedHSCP_v2
+HLT_StoppedHSCP20_v3
+HLT_StoppedHSCP35_v3
 HLT_IsoTrackHB_v2
 HLT_IsoTrackHE_v2
 HLT_HcalPhiSym
