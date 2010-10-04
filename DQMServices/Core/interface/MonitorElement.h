@@ -136,7 +136,15 @@ public:
   void setLumiFlag(void)
     { data_.flags |= DQMNet::DQM_PROP_LUMI; }
 
-#if __WORDSIZE > 32
+// NOTE: we exclude MACOSX because on macosx int64_t and uint64_t are
+//       typedefs to long long and unsigned long long.
+//
+//       See:
+//
+//         /usr/include/i386/_types.h
+//
+//       on Snow Leopard.         
+#if __WORDSIZE > 32 && !defined(__APPLE__)
   void Fill(long long x)          { Fill(static_cast<int64_t>(x)); }
   void Fill(unsigned long long x) { Fill(static_cast<int64_t>(x)); }
 #endif
