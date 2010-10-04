@@ -29,9 +29,6 @@ echo "Index refresh: begin"
 FILES=`find /data/ecalod-disk01/dqm-data/root/ -name 'DQM_V*.root' -mtime -1 | xargs -r ls -tr | tail -$N`
 
 for F in $FILES; do
-#  echo "Remove: "$F
-#  R=`basename $F | sed -e 's/.root//' | awk -F_ '{print $4}' | sed -e 's/R//'`
-  visDQMIndex remove --dataset /Global/Online/ALL --run $R ${HOME}/work/cms/dqm-GUI/idx
   echo "Add: "$F
   visDQMIndex add --dataset /Global/Online/ALL /data/ecalod-disk01/dqm-GUI/idx $F
 done
