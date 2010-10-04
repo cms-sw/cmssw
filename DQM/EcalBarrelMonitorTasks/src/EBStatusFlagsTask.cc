@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsTask.cc
  *
- * $Date: 2010/08/11 14:57:34 $
- * $Revision: 1.31 $
+ * $Date: 2010/10/04 10:54:02 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  *
 */
@@ -166,7 +166,7 @@ void EBStatusFlagsTask::setup(void){
       meFEchErrors_[i][2]->setBinLabel(1+9, "L1A SYNC", 1);
       meFEchErrors_[i][2]->setBinLabel(1+10, "BX SYNC", 1);
       meFEchErrors_[i][2]->setBinLabel(1+11, "L1A+BX SYNC", 1);
-      meFEchErrors_[i][2]->setBinLabel(1+12, "FIFO+L1A", 1);
+      meFEchErrors_[i][2]->setBinLabel(1+12, "FIFO FULL+L1A", 1);
       meFEchErrors_[i][2]->setBinLabel(1+13, "H PARITY", 1);
       meFEchErrors_[i][2]->setBinLabel(1+14, "V PARITY", 1);
       meFEchErrors_[i][2]->setBinLabel(1+15, "FORCED ZS", 1);
