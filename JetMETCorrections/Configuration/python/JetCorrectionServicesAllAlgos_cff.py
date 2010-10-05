@@ -32,9 +32,16 @@ kt4PFL3Absolute   = ak5PFL3Absolute.clone  ( algorithm = 'KT4PF' )
 kt6PFL3Absolute   = ak5PFL3Absolute.clone  ( algorithm = 'KT6PF' )
 ic5PFL3Absolute   = ak5PFL3Absolute.clone  ( algorithm = 'IC5PF' )
 
-ak5JPTL3Absolute = ak5CaloL3Absolute.clone ( algorithm = 'AK5JPT' )
-ak5TRKL3Absolute = ak5CaloL3Absolute.clone ( algorithm = 'AK5TRK' )
+# Residual Correction Services
+ak7CaloResidual   = ak5CaloResidual.clone()
+kt4CaloResidual   = ak5CaloResidual.clone()
+kt6CaloResidual   = ak5CaloResidual.clone()
+ic5CaloResidual   = ak5CaloResidual.clone()
 
+ak7PFResidual     = ak5PFResidual.clone()
+kt4PFResidual     = ak5PFResidual.clone()
+kt6PFResidual     = ak5PFResidual.clone()
+ic5PFResidual     = ak5PFResidual.clone()
 
 # L6 (semileptonically decaying b-jet) Correction Services
 ak7CaloL6SLB = ak5CaloL6SLB.clone(
@@ -119,15 +126,41 @@ ic5PFL2L3 = cms.ESSource(
     useCondDB = cms.untracked.bool(True)
     )
 
-ak5JPTL2L3 = cms.ESSource(
+# L2L3Residual CORRECTION SERVICES
+ak7CaloL2L3Residual = cms.ESSource(
     'JetCorrectionServiceChain',
-    correctors = cms.vstring('ak5JPTL2Relative','ak5JPTL3Absolute')
+    correctors = cms.vstring('ak7CaloL2Relative','ak7CaloL3Absolute','ak7CaloResidual')
+    )
+kt4CaloL2L3Residual = cms.ESSource(
+    'JetCorrectionServiceChain',
+    correctors = cms.vstring('kt4CaloL2Relative','kt4CaloL3Absolute','kt4CaloResidual')
+    )
+kt6CaloL2L3Residual = cms.ESSource(
+    'JetCorrectionServiceChain',
+    correctors = cms.vstring('kt6CaloL2Relative','kt6CaloL3Absolute','kt6CaloResidual')
+    )
+ic5CaloL2L3Residual = cms.ESSource(
+    'JetCorrectionServiceChain',
+    correctors = cms.vstring('ic5CaloL2Relative','ic5CaloL3Absolute','ic5CaloResidual')
     )
 
-ak5TRKL2L3 = cms.ESSource(
+ak7PFL2L3Residual = cms.ESSource(
     'JetCorrectionServiceChain',
-    correctors = cms.vstring('ak5TRKL2Relative','ak5TRKL3Absolute')
+    correctors = cms.vstring('ak7PFL2Relative','ak7PFL3Absolute','ak7PFResidual')
     )
+kt4PFL2L3Residual = cms.ESSource(
+    'JetCorrectionServiceChain',
+    correctors = cms.vstring('kt4PFL2Relative','kt4PFL3Absolute','kt4PFResidual')
+    )
+kt6PFL2L3Residual = cms.ESSource(
+    'JetCorrectionServiceChain',
+    correctors = cms.vstring('kt6PFL2Relative','kt6PFL3Absolute','kt6PFResidual')
+    )
+ic5PFL2L3Residual = cms.ESSource(
+    'JetCorrectionServiceChain',
+    correctors = cms.vstring('ic5PFL2Relative','ic5PFL3Absolute','ic5PFResidual')
+    )
+
 
 # L1L2L3 CORRECTION SERVICES
 ak7CaloL1L2L3 = ak7CaloL2L3.clone()
