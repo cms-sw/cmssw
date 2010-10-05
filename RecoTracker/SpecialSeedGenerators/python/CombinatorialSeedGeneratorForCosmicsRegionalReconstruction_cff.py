@@ -28,8 +28,8 @@ regionalCosmicTrackerSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProdu
         ),
       ToolsPSet = cms.PSet(
         thePropagatorName           = cms.string("AnalyticalPropagator"),
-        #regionBase                  = cms.string("seedOnCosmicMuon")
-        regionBase                  = cms.string("seedOnStaMuon")
+        regionBase                  = cms.string("seedOnCosmicMuon")
+        #regionBase                  = cms.string("seedOnStaMuon")
         ),
       CollectionsPSet = cms.PSet(
         recoMuonsCollection            = cms.InputTag("muons"),  # se to "muons" and change ToolsPSet.regionBase to "" in order to use these.
@@ -60,9 +60,11 @@ regionalCosmicTrackerSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProdu
     ), 
 
     ClusterCheckPSet = cms.PSet (
-      MaxNumberOfCosmicClusters = cms.double( 50000 ),
+      MaxNumberOfCosmicClusters = cms.uint32(3000),
       ClusterCollectionLabel = cms.InputTag( "siStripClusters" ),
-      doClusterCheck = cms.bool( False )
+      MaxNumberOfPixelClusters = cms.uint32(3000),
+      PixelClusterCollectionLabel = cms.InputTag("siPixelClusters"),
+      doClusterCheck = cms.bool( True )
     ) ,
 
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
@@ -72,6 +74,9 @@ regionalCosmicTrackerSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProdu
     SeedCreatorPSet = cms.PSet(
       ComponentName = cms.string('CosmicSeedCreator'),
       propagator = cms.string('PropagatorWithMaterial'),
-    )                                 
+      maxseeds = cms.int32(10000)
+      )
+
+          
 )
 

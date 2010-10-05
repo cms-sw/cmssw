@@ -145,11 +145,18 @@ const TrajectorySeed * CosmicSeedCreator::trajectorySeed(TrajectorySeedCollectio
   //Return seed
   //________________
 
- 
+    
   LogDebug("CosmicSeedCreator") 
     << "Using SeedCreator---------->\n"
     << "seedCollections size = " << seedCollection.size();
   
-  return &seedCollection.back();
+  if ( seedCollection.size() > maxseeds_ ) {
+    edm::LogError("TooManySeeds") << "Found too many seeds (" << seedCollection.size() << " > " << maxseeds_ << "), bailing out.\n";
+    seedCollection.clear();
+    return &seedCollection.back();
+  }
+  else {
+    return &seedCollection.back();
+  }
   
 }

@@ -8,15 +8,21 @@ class FreeTrajectoryState;
 class CosmicSeedCreator : public SeedCreator {
 
  public:
-  CosmicSeedCreator( const edm::ParameterSet & cfg) {}
+  CosmicSeedCreator( const edm::ParameterSet & extra )
+    {
+      maxseeds_ = extra.getParameter<int>("maxseeds");
+    }
 
   virtual ~CosmicSeedCreator(){}
 
  protected:
   const TrajectorySeed * trajectorySeed(TrajectorySeedCollection & seedCollection,
-						const SeedingHitSet & ordered,
-						const TrackingRegion & region,
-						const edm::EventSetup& es);
+					const SeedingHitSet & ordered,
+					const TrackingRegion & region,
+					const edm::EventSetup& es);
+  
+private:
 
+  unsigned int maxseeds_;
 };
 #endif 
