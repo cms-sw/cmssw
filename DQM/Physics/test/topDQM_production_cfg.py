@@ -7,16 +7,20 @@ process.load('DQMOffline.Configuration.DQMOffline_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-## global tag (needed for JEC)
-process.GlobalTag.globaltag = 'GR10_P_V7::All' ## for data with CMSSW_3_6_1_patch4
-#process.GlobalTag.globaltag = 'START38_V7::All' ## for CMSSW_3_8_0
-
+## --------------------------------------------------------------------
+## Frontier Conditions: (adjust accordingly!!!)
+##
+## For CMSSW_3_8_X MC use             ---> 'START38_V12::All'
+## For Data (38X re-processing) use   ---> 'GR_R_38X_V13::All'
+##
+## For more details have a look at: WGuideFrontierConditions
+## --------------------------------------------------------------------
+process.GlobalTag.globaltag = 'START38_V12::All' 
 
 ## input file(s) for testing
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-     #'file:/afs/desy.de/user/r/rwolf/cms13/samples/847D00B0-608E-DF11-A37D-003048678FA0.root' ## for testing at DESY only!!
-      '/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/1A19B479-BA3A-DF11-8E43-0017A4770410.root'                                  
+     '/store/relval/CMSSW_3_8_0_pre8/RelValTTbar/GEN-SIM-RECO/START38_V6-v1/0004/847D00B0-608E-DF11-A37D-003048678FA0.root'
     )
 )
 
