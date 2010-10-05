@@ -205,7 +205,7 @@ class GsfElectronAlgo {
     ElectronHcalHelper * hcalHelper_, * hcalHelperPflow_ ;
     //bool useHcalTowers_ ;
     edm::InputTag hcalTowers_;      // parameter if use towers
-    double hOverEConeSize_;         // parameter if use towers
+    //double hOverEConeSize_;         // parameter if use towers
     double hOverEPtMin_;            // parameter if use towers : min tower Et for H/E evaluation
     //double maxHOverEDepth1Barrel_;  // parameter if use towers : maximum H/E for depth1
     //double maxHOverEDepth1Endcaps_; // parameter if use towers : maximum H/E for depth1
@@ -250,7 +250,7 @@ class GsfElectronAlgo {
     double maxDeltaPhiBarrelPflow_;
     double maxDeltaPhiEndcapsPflow_;
     // cone size for H/E evaluation
-    double hOverEConeSizePflow_;
+    //double hOverEConeSizePflow_;
     // min tower Et for H/E evaluation
     double hOverEPtMinPflow_;
     //// maximum H/E for depth1
