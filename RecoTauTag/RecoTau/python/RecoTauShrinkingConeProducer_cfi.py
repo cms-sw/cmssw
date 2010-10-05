@@ -25,9 +25,24 @@ _shrinkingConeRecoTausConfig = cms.PSet(
 shrinkingConeRecoTaus = cms.EDProducer(
     "RecoTauProducer",
     jetSrc = cms.InputTag("ak5PFJets"),
-    piZeroSro = cms.InputTag("ak5PFJetsRecoTauPiZeros"),
+    piZeroSrc = cms.InputTag("ak5PFJetsRecoTauPiZeros"),
     builders = cms.VPSet(
         _shrinkingConeRecoTausConfig
     ),
-    modifiers = cms.VPSet(),
+    modifiers = cms.VPSet(
+        # Electron rejection
+        cms.PSet(
+            name = cms.string("shrinkingConeElectronRej"),
+            plugin = cms.string("RecoTauElectronRejectionPlugin"),
+            #Electron rejection parameters
+            ElectronPreIDProducer                = cms.InputTag("elecpreid"),
+            EcalStripSumE_deltaPhiOverQ_minValue = cms.double(-0.1),
+            EcalStripSumE_deltaPhiOverQ_maxValue = cms.double(0.5),
+            EcalStripSumE_minClusEnergy          = cms.double(0.1),
+            EcalStripSumE_deltaEta               = cms.double(0.03),
+            ElecPreIDLeadTkMatch_maxDR           = cms.double(0.01),
+            maximumForElectrionPreIDOutput       = cms.double(-0.1),
+            DataType = cms.string("AOD"),            
+        ),
+    ),
 )
