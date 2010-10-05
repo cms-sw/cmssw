@@ -20,4 +20,6 @@
   <use   name="ROOTMinuit"/>
   <bin   file="ZntupleToTreeConverter.cc"></bin>
   <bin   file="MuScleFitTreeProvenance.cc"></bin>
+  <bin   file="TreeDump.cc"></bin>
+  <bin   file="TreeFromDump.cc"></bin>
 </environment>
