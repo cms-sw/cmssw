@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: EcalFEDWithCRCErrorProducer.cc,v 1.3 2010/01/04 15:07:40 ferriff Exp $
+// $Id: EcalFEDWithCRCErrorProducer.cc,v 1.4 2010/02/11 00:10:41 wmtan Exp $
 //
 //
 
@@ -112,7 +112,7 @@ EcalFEDWithCRCErrorProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
       const FEDRawData & fedData = rawdata->FEDData(*i);
       int length = fedData.size()/sizeof(uint64_t);
 
-      //    LogDebug("EcalRawToDigiDev") << "raw data length: " << length ;
+      //    LogDebug("EcalRawToDigi") << "raw data length: " << length ;
       //if data size is not null interpret data
       if ( length >= 1 )
 	{

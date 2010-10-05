@@ -15,7 +15,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # ECAL data unpacker (raw to digi conversion):
-process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerData_cfi")
+process.load("EventFilter.EcalRawToDigi.EcalUnpackerData_cfi")
 
 # Initializes  MessageLogger:
 process.load("FWCore.MessageLogger.MessageLogger_cfi")

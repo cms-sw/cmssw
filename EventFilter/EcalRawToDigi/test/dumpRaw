@@ -231,7 +231,7 @@ process.TFileService = cms.Service("TFileService",
 EOF
 else
 cat >> "$TMPFILE" <<EOF
-process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerData_cfi")
+process.load("EventFilter.EcalRawToDigi.EcalUnpackerData_cfi")
 process.load("pgras.EBDigiAna.EBDigiAna_cfi")
 process.load("Geometry.EcalMapping.EcalMapping_cfi")
 process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")

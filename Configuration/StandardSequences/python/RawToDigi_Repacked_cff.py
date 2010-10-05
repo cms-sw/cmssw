@@ -30,8 +30,8 @@ from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import *
 from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import *
 #--- Ecal ---#
 from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff import *
-import EventFilter.EcalRawToDigiDev.EcalUnpackerData_cfi
-ecalDigis = EventFilter.EcalRawToDigiDev.EcalUnpackerData_cfi.ecalEBunpacker.clone()
+import EventFilter.EcalRawToDigi.EcalUnpackerData_cfi
+ecalDigis = EventFilter.EcalRawToDigi.EcalUnpackerData_cfi.ecalEBunpacker.clone()
 import EventFilter.ESRawToDigi.esRawToDigi_cfi
 #--- Ecal Preshower ---#
 ecalPreshowerDigis = EventFilter.ESRawToDigi.esRawToDigi_cfi.esRawToDigi.clone()

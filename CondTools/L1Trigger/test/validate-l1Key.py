@@ -19,8 +19,8 @@ process.source = cms.Source(
     secondaryFileNames=secFiles
 )
 
-import EventFilter.EcalRawToDigiDev.EcalUnpackerData_cfi
-process.ecalDigis = EventFilter.EcalRawToDigiDev.EcalUnpackerData_cfi.ecalEBunpacker.clone()
+import EventFilter.EcalRawToDigi.EcalUnpackerData_cfi
+process.ecalDigis = EventFilter.EcalRawToDigi.EcalUnpackerData_cfi.ecalEBunpacker.clone()
 process.ecalDigis.DoRegional = False
 process.ecalDigis.InputLabel = 'source'
 

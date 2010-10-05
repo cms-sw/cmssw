@@ -1,6 +1,6 @@
 #-------------- EcnaSystemPythoModuleInsert_2_data / beginning
-process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerMapping_cfi")
-process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerData_cfi")
+process.load("EventFilter.EcalRawToDigi.EcalUnpackerMapping_cfi")
+process.load("EventFilter.EcalRawToDigi.EcalUnpackerData_cfi")
 
 # ECAL Geometry:
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")

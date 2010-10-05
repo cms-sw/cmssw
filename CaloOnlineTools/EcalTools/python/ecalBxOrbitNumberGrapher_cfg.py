@@ -18,8 +18,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(15) )
 
 process.load("CaloOnlineTools.EcalTools.ecalBxOrbitNumberGrapher_cfi")
 
-process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerMapping_cfi")
-process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerData_cfi")
+process.load("EventFilter.EcalRawToDigi.EcalUnpackerMapping_cfi")
+process.load("EventFilter.EcalRawToDigi.EcalUnpackerData_cfi")
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 process.load("Geometry.EcalCommonData.EcalOnly_cfi")
 process.load("Geometry.CaloEventSetup.CaloGeometry_cff")

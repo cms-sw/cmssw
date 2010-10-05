@@ -1,4 +1,4 @@
-import FWCore.ParameterSet.Config as cms
-
-# ----- For the EE Mapping :
+print "DEPRECATED FILE"
+import sys
+sys.exit()
 

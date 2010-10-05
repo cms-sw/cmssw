@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ECALDISPLAYSBYEVENT")
-process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerMapping_cfi")
-process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerData_cfi")
+process.load("EventFilter.EcalRawToDigi.EcalUnpackerMapping_cfi")
+process.load("EventFilter.EcalRawToDigi.EcalUnpackerData_cfi")
 
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 

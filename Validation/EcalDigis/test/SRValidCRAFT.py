@@ -23,8 +23,8 @@ process.load("DQMServices.Core.DQM_cfg")
 process.DQM.collectorHost = ''
 
 # ECAL Unpacker:
-process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerMapping_cfi")
-process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerData_cfi")
+process.load("EventFilter.EcalRawToDigi.EcalUnpackerMapping_cfi")
+process.load("EventFilter.EcalRawToDigi.EcalUnpackerData_cfi")
 process.ecalEBunpacker.silentMode = cms.untracked.bool(True)
 
 

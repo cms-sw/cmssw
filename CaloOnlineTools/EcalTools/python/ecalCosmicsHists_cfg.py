@@ -37,8 +37,8 @@ process.siStripPedestalFrontier.toGet = cms.VPSet(cms.PSet(
 process.siStripPedestalFrontier.BlobStreamerName = 'TBufferBlobStreamingService'
 process.es_prefer_SiStripFake = cms.ESPrefer("PoolDBESSource","siStripPedestalFrontier")
 
-process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerMapping_cfi")
-process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerData_cfi")
+process.load("EventFilter.EcalRawToDigi.EcalUnpackerMapping_cfi")
+process.load("EventFilter.EcalRawToDigi.EcalUnpackerData_cfi")
 
 import RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi
 process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi.ecalFixedAlphaBetaFitUncalibRecHit.clone()

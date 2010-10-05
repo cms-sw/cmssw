@@ -22,8 +22,8 @@ process.source.fileNames = [ "/localdata/disk0/craft1-sorting-new/out/EB-1/Run66
 
 process.Timing = cms.Service("Timing")
 
-process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerMapping_cfi")
-process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerData_cfi")
+process.load("EventFilter.EcalRawToDigi.EcalUnpackerMapping_cfi")
+process.load("EventFilter.EcalRawToDigi.EcalUnpackerData_cfi")
 process.ecalEBunpacker.silentMode = cms.untracked.bool(True)
 process.load("Geometry.EcalMapping.EcalMapping_cfi")
 process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")

@@ -7,7 +7,7 @@
  *  Container for ECAL specific DCC Header information
  *
  *
- *  $Id: EcalDCCHeaderBlock.h,v 1.21 2008/12/03 14:04:50 franzoni Exp $
+ *  $Id: EcalDCCHeaderBlock.h,v 1.22 2008/12/04 17:14:38 franzoni Exp $
  */
 
 #include <vector>
@@ -89,7 +89,7 @@ class EcalDCCHeaderBlock
 
   // partitional and geometrical:
   // CMS: 1-9 EE-, 10-45 EB, 46-54 EE+
-  // TB and COSM: 1  (10 in case of EcalRawToDigiDev)
+  // TB and COSM: 1  (10 in case of EcalRawToDigi)
   const int& id() const { return dccId_; }
 
   // as found in raw data, namely

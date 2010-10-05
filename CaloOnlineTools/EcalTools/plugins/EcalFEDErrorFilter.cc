@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: EcalFEDErrorFilter.cc,v 1.2 2009/07/08 11:47:23 scooper Exp $
+// $Id: EcalFEDErrorFilter.cc,v 1.3 2010/01/04 15:07:40 ferriff Exp $
 //
 //
 
@@ -67,7 +67,7 @@ EcalFEDErrorFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       const FEDRawData & fedData = rawdata->FEDData(*i);
       int length = fedData.size()/sizeof(uint64_t);
       
-      //    LogDebug("EcalRawToDigiDev") << "raw data length: " << length ;
+      //    LogDebug("EcalRawToDigi") << "raw data length: " << length ;
       //if data size is not null interpret data
       if ( length >= 1 )
 	{
