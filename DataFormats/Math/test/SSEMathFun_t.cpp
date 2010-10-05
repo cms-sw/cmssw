@@ -82,7 +82,7 @@ void compChi2(V10 const & ampl, V10 const & err2, Scalar t, Scalar sumAA, Scalar
     sumff = _mm_add_ps(sumff, _mm_and_ps(mask.vec[it],_mm_mul_ps(f,fe)));
   }
   
-  sum = _mm_hadd_ps(sumAf,sumff);
+  Vec sum = _mm_hadd_ps(sumAf,sumff);
   sum = _mm_hadd_ps(sum,sum);
 
   Scalar af; _mm_store_ss(&af,sum);
