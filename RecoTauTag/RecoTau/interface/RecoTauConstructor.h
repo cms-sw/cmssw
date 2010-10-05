@@ -7,11 +7,11 @@
  * A generalized builder of reco::PFTau objects.  Takes a variety of
  * different collections and converts them to the proper Ref format
  * needed for PFTau storage.  Automatically sets the p4, charge, and
- * other properties correctly.  Optionally, it can determine the 
+ * other properties correctly.  Optionally, it can determine the
  * lead track information, and copy the gamma candidates owned by the
  * reconstructed pi zeros into the appropriate PiZero collection.
  *
- * Note that the p4 of the tau is *always* set as the sum of objects in 
+ * Note that the p4 of the tau is *always* set as the sum of objects in
  * signal cone.
  *
  * Author: Evan K. Friis, UC Davis
@@ -44,7 +44,7 @@ class RecoTauConstructor {
 
     /// Constructor with PFCandidate Handle
     RecoTauConstructor(const PFJetRef& jetRef,
-        const edm::Handle<PFCandidateCollection>& pfCands, 
+        const edm::Handle<PFCandidateCollection>& pfCands,
         bool copyGammasFromPiZeros=false);
 
     /*
@@ -76,7 +76,7 @@ class RecoTauConstructor {
 
     // Add a collection of objects to the charged hadrons collection
     template<typename InputIterator>
-      void addPFCands(Region region, ParticleType type, InputIterator begin, 
+      void addPFCands(Region region, ParticleType type, InputIterator begin,
           InputIterator end) {
         for(InputIterator iter = begin; iter != end; ++iter) {
           addPFCand(region, type, convertToRef(*iter));
