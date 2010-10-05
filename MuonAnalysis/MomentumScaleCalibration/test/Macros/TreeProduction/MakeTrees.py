@@ -9,8 +9,6 @@
 import os
 import commands
 
-print "test"
-
 # Lock and take the new index
 # increase it
 # Unlock it
