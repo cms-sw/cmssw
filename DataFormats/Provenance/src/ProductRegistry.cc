@@ -54,7 +54,6 @@ namespace edm {
 			      bool fromListener) {
     assert(productDesc.produced());
     throwIfFrozen();
-    productDesc.init();
     checkDicts(productDesc);
     std::pair<ProductList::iterator, bool> ret =
 	 productList_.insert(std::make_pair(BranchKey(productDesc), productDesc));

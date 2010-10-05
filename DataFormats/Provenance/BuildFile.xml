@@ -3,7 +3,6 @@
 <use   name="rootcore"/>
 <use   name="rootrflx"/>
 <use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/PluginManager"/>
 <export>
   <lib   name="1"/>
 </export>

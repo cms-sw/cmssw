@@ -1,6 +1,5 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "FWCore/PluginManager/interface/PluginCapabilities.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/FriendlyName.h"
@@ -22,12 +21,12 @@ namespace edm {
     produced_(false),
     onDemand_(false),
     dropped_(false),
+    parameterSetIDs_(),
+    moduleNames_(),
     transient_(false),
     type_(),
     splitLevel_(),
-    basketSize_(),
-    parameterSetIDs_(),
-    moduleNames_() {
+    basketSize_() {
    }
 
   BranchDescription::BranchDescription() :
@@ -40,31 +39,29 @@ namespace edm {
     friendlyClassName_(),
     productInstanceName_(),
     branchAliases_(),
-    transients_()
-  {
+    transients_() {
     // do not call init here! It will result in an exception throw.
   }
 
   BranchDescription::BranchDescription(
-			BranchType const& branchType,
-			std::string const& mdLabel, 
-			std::string const& procName, 
-			std::string const& name, 
-			std::string const& fName, 
-			std::string const& pin,
-			ModuleDescription const& modDesc,
-			std::set<std::string> const& aliases) :
-    branchType_(branchType),
-    moduleLabel_(mdLabel),
-    processName_(procName),
-    branchID_(),
-    productID_(),
-    fullClassName_(name),
-    friendlyClassName_(fName),
-    productInstanceName_(pin),
-    branchAliases_(aliases),
-    transients_()
-  {
+                        BranchType const& branchType,
+                        std::string const& mdLabel,
+                        std::string const& procName,
+                        std::string const& name,
+                        std::string const& fName,
+                        std::string const& pin,
+                        ModuleDescription const& modDesc,
+                        std::set<std::string> const& aliases) :
+      branchType_(branchType),
+      moduleLabel_(mdLabel),
+      processName_(procName),
+      branchID_(),
+      productID_(),
+      fullClassName_(name),
+      friendlyClassName_(fName),
+      productInstanceName_(pin),
+      branchAliases_(aliases),
+      transients_() {
     dropped() = false;
     produced() = true;
     onDemand() = false;
@@ -74,9 +71,9 @@ namespace edm {
   }
 
   void
-  BranchDescription::init() const {
+  BranchDescription::initBranchName() const {
     if (!branchName().empty()) {
-      return;	// already called
+      return;  // already called
     }
     throwIfInvalid_();
 
@@ -104,9 +101,9 @@ namespace edm {
     }
 
     branchName().reserve(friendlyClassName().size() +
-			moduleLabel().size() +
-			productInstanceName().size() +
-			processName().size() + 4);
+                         moduleLabel().size() +
+                         productInstanceName().size() +
+                         processName().size() + 4);
     branchName() += friendlyClassName();
     branchName() += underscore;
     branchName() += moduleLabel();
@@ -119,69 +116,60 @@ namespace edm {
     if (!branchID_.isValid()) {
       branchID_.setID(branchName());
     }
+  }
+
+  void
+  BranchDescription::initFromDictionary() const {
+    Reflex::Type null;
+
+    if (type() != null) {
+      return;  // already initialized;
+    }
+
+    throwIfInvalid_();
 
     wrappedName() = wrappedClassName(fullClassName());
 
-    Reflex::Type null;
     Reflex::Type t = Reflex::Type::ByName(fullClassName());
     if (t == null) {
-      std::string const prefix("LCGReflex/");
-      try {
-        edmplugin::PluginCapabilities::get()->load(prefix + fullClassName());
-      }
-      catch(...) {
-        // We don't want to fail now if we can't load a dictionary, since we want the user
-        // to be informed of every missing dictionary.
-        splitLevel() = invalidSplitLevel; 
-        basketSize() = invalidBasketSize; 
-	return;
-      }
-      t = Reflex::Type::ByName(fullClassName());
-      assert(t != null);
+      splitLevel() = invalidSplitLevel;
+      basketSize() = invalidBasketSize;
+      transient() = false;
+      return;
     }
     Reflex::PropertyList p = t.Properties();
     transient() = (p.HasProperty("persistent") ? p.PropertyAsString("persistent") == std::string("false") : false);
     if (transient()) {
-      splitLevel() = invalidSplitLevel; 
-      basketSize() = invalidBasketSize; 
+      splitLevel() = invalidSplitLevel;
+      basketSize() = invalidBasketSize;
+      type() = t;
       return;
     }
-
     type() = Reflex::Type::ByName(wrappedName());
     if (type() == null) {
-      std::string const prefix("LCGReflex/");
-      try {
-        edmplugin::PluginCapabilities::get()->load(prefix + wrappedName());
-      }
-      catch(...) {
-        // We don't want to fail now if we can't load a dictionary, since we want the user
-        // to be informed of every missing dictionary.
-        splitLevel() = invalidSplitLevel; 
-        basketSize() = invalidBasketSize; 
-	return;
-      }
-      type() = Reflex::Type::ByName(wrappedName());
-      assert(type() != null);
+      splitLevel() = invalidSplitLevel;
+      basketSize() = invalidBasketSize;
+      return;
     }
     Reflex::PropertyList wp = type().Properties();
     if (wp.HasProperty("splitLevel")) {
-	splitLevel() = strtol(wp.PropertyAsString("splitLevel").c_str(), 0, 0);
-	if (splitLevel() < 0) {
-          throw cms::Exception("IllegalSplitLevel") << "' An illegal ROOT split level of " <<
-	  splitLevel() << " is specified for class " << wrappedName() << ".'\n";
-	}
-	++splitLevel(); //Compensate for wrapper
+      splitLevel() = strtol(wp.PropertyAsString("splitLevel").c_str(), 0, 0);
+      if (splitLevel() < 0) {
+        throw cms::Exception("IllegalSplitLevel") << "' An illegal ROOT split level of " <<
+        splitLevel() << " is specified for class " << wrappedName() << ".'\n";
+      }
+      ++splitLevel(); //Compensate for wrapper
     } else {
-	splitLevel() = invalidSplitLevel; 
+      splitLevel() = invalidSplitLevel;
     }
     if (wp.HasProperty("basketSize")) {
-	basketSize() = strtol(wp.PropertyAsString("basketSize").c_str(), 0, 0);
-	if (basketSize() <= 0) {
-          throw cms::Exception("IllegalBasketSize") << "' An illegal ROOT basket size of " <<
-	  basketSize() << " is specified for class " << wrappedName() << "'.\n";
-	}
+      basketSize() = strtol(wp.PropertyAsString("basketSize").c_str(), 0, 0);
+      if (basketSize() <= 0) {
+        throw cms::Exception("IllegalBasketSize") << "' An illegal ROOT basket size of " <<
+        basketSize() << " is specified for class " << wrappedName() << "'.\n";
+      }
     } else {
-	basketSize() = invalidBasketSize; 
+      basketSize() = invalidBasketSize;
     }
   }
 
@@ -190,9 +178,9 @@ namespace edm {
     assert(!parameterSetIDs().empty());
     if (parameterSetIDs().size() != 1) {
       throw cms::Exception("Ambiguous")
-	<< "Your application requires all events on Branch '" << branchName()
-	<< "'\n to have the same provenance. This file has events with mixed provenance\n"
-	<< "on this branch.  Use a different input file.\n";
+        << "Your application requires all events on Branch '" << branchName()
+        << "'\n to have the same provenance. This file has events with mixed provenance\n"
+        << "on this branch.  Use a different input file.\n";
     }
     return parameterSetIDs().begin()->second;
   }
@@ -217,19 +205,17 @@ namespace edm {
     os << "Product Instance Name = " << productInstanceName() << std::endl;
   }
 
-  void throwExceptionWithText(const char* txt)
-  {
-    edm::Exception e(edm::errors::LogicError);
+  void throwExceptionWithText(char const* txt) {
+    Exception e(errors::LogicError);
     e << "Problem using an incomplete BranchDescription\n"
-      << txt 
+      << txt
       << "\nPlease report this error to the FWCore developers";
     throw e;
   }
 
   void
-  BranchDescription::throwIfInvalid_() const
-  {
-    if (branchType_ >= edm::NumBranchTypes)
+  BranchDescription::throwIfInvalid_() const {
+    if (branchType_ >= NumBranchTypes)
       throwExceptionWithText("Illegal BranchType detected");
 
     if (moduleLabel_.empty())
@@ -245,12 +231,14 @@ namespace edm {
       throwExceptionWithText("Friendly class name is not allowed to be empty");
 
     if (produced() && !parameterSetID().isValid())
-      throwExceptionWithText("Invalid ParameterSetID detected");    
+      throwExceptionWithText("Invalid ParameterSetID detected");
   }
 
   void
   BranchDescription::updateFriendlyClassName() {
     friendlyClassName_ = friendlyname::friendlyName(fullClassName());
+    branchName().clear();
+    initBranchName();
   }
 
   bool
@@ -303,8 +291,8 @@ namespace edm {
 
   std::string
   match(BranchDescription const& a, BranchDescription const& b,
-	std::string const& fileName,
-	BranchDescription::MatchMode m) {
+        std::string const& fileName,
+        BranchDescription::MatchMode m) {
     std::ostringstream differences;
     if (a.branchName() != b.branchName()) {
       differences << "Branch name '" << b.branchName() << "' does not match '" << a.branchName() << "'.\n";
@@ -330,14 +318,14 @@ namespace edm {
       differences << "Branch '" << a.branchName() << "' was dropped in the first input file but is present in '" << fileName << "'.\n";
     }
     if (m == BranchDescription::Strict) {
-	if (b.parameterSetIDs().size() > 1) {
-	  differences << "Branch '" << b.branchName() << "' uses more than one parameter set in file '" << fileName << "'.\n";
-	} else if (a.parameterSetIDs().size() > 1) {
-	  differences << "Branch '" << a.branchName() << "' uses more than one parameter set in previous files.\n";
-	} else if (a.parameterSetIDs() != b.parameterSetIDs()) {
-	  differences << "Branch '" << b.branchName() << "' uses different parameter sets in file '" << fileName << "'.\n";
-	  differences << "    than in previous files.\n";
-	}
+        if (b.parameterSetIDs().size() > 1) {
+          differences << "Branch '" << b.branchName() << "' uses more than one parameter set in file '" << fileName << "'.\n";
+        } else if (a.parameterSetIDs().size() > 1) {
+          differences << "Branch '" << a.branchName() << "' uses more than one parameter set in previous files.\n";
+        } else if (a.parameterSetIDs() != b.parameterSetIDs()) {
+          differences << "Branch '" << b.branchName() << "' uses different parameter sets in file '" << fileName << "'.\n";
+          differences << "    than in previous files.\n";
+        }
     }
     return differences.str();
   }

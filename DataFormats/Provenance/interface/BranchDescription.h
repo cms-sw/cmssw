@@ -35,22 +35,29 @@ namespace edm {
     static int const invalidSplitLevel = -1;
     static int const invalidBasketSize = 0;
     enum MatchMode { Strict = 0,
-		     Permissive };
+                     Permissive };
 
     BranchDescription();
 
     BranchDescription(BranchType const& branchType,
-		      std::string const& mdLabel,
-		      std::string const& procName,
-		      std::string const& name,
-		      std::string const& fName,
-		      std::string const& pin,
-		      ModuleDescription const& modDesc,
-		      std::set<std::string> const& aliases = std::set<std::string>());
+                      std::string const& mdLabel,
+                      std::string const& procName,
+                      std::string const& name,
+                      std::string const& fName,
+                      std::string const& pin,
+                      ModuleDescription const& modDesc,
+                      std::set<std::string> const& aliases = std::set<std::string>());
 
     ~BranchDescription() {}
 
-    void init() const;
+    void init() const {
+      initBranchName();
+      initFromDictionary();
+    }
+
+    void initBranchName() const;
+
+    void initFromDictionary() const;
 
     void write(std::ostream& os) const;
 
@@ -123,21 +130,6 @@ namespace edm {
       // This item is set only in the framework, not by FWLite.
       bool dropped_;
 
-      // Is the class of the branch marked as transient
-      // in the data dictionary
-      bool transient_;
-
-      // The Reflex Type of the wrapped object.
-      Reflex::Type type_;
-
-      // The split level of the branch, as marked
-      // in the data dictionary.
-      int splitLevel_;
-
-      // The basket size of the branch, as marked
-      // in the data dictionary.
-      int basketSize_;
-
       // ID's of process configurations for products on this branch
       //  with corresponding parameter set IDs,
       // This is initialized if and only if produced_ is false.
@@ -147,6 +139,22 @@ namespace edm {
       //  with corresponding module names
       // This is initialized if and only if produced_ is false.
       mutable std::map<ProcessConfigurationID, std::string> moduleNames_;
+
+      // Is the class of the branch marked as transient
+      // in the data dictionary
+      bool transient_;
+
+      // The Reflex Type of the wrapped object
+      // in the data dictionary
+      Reflex::Type type_;
+
+      // The split level of the branch, as marked
+      // in the data dictionary.
+      int splitLevel_;
+
+      // The basket size of the branch, as marked
+      // in the data dictionary.
+      int basketSize_;
     };
 
   private:
@@ -200,8 +208,8 @@ namespace edm {
   bool combinable(BranchDescription const& a, BranchDescription const& b);
 
   std::string match(BranchDescription const& a,
-	BranchDescription const& b,
-	std::string const& fileName,
-	BranchDescription::MatchMode m);
+        BranchDescription const& b,
+        std::string const& fileName,
+        BranchDescription::MatchMode m);
 }
 #endif
