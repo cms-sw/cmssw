@@ -1,5 +1,5 @@
 //
-// $Id: NearbyCandCountComputer.cc,v 1.1 2010/07/09 13:54:58 gpetrucc Exp $
+// $Id: NearbyCandCountComputer.cc,v 1.2 2010/07/09 14:03:51 gpetrucc Exp $
 //
 
 /**
@@ -9,12 +9,13 @@
             Implementation notice: not templated, because we want to allow cuts on the pair through PATDiObjectProxy
             
   \author   Giovanni Petrucciani
-  \version  $Id: NearbyCandCountComputer.cc,v 1.1 2010/07/09 13:54:58 gpetrucc Exp $
+  \version  $Id: NearbyCandCountComputer.cc,v 1.2 2010/07/09 14:03:51 gpetrucc Exp $
 */
 
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
