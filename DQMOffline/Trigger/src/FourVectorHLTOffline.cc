@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.87 2010/09/03 11:05:26 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.88 2010/09/03 13:10:06 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -140,14 +140,46 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig): cu
 
   sumEtMin_ = iConfig.getUntrackedParameter<double>("sumEtMin",10.0);
 
-      // Muon quality cuts
-      dxyCut_ = iConfig.getUntrackedParameter<double>("DxyCut", 0.2);   // dxy < 0.2 cm 
-      normalizedChi2Cut_ = iConfig.getUntrackedParameter<double>("NormalizedChi2Cut", 10.); // chi2/ndof (of global fit) <10.0
-      trackerHitsCut_ = iConfig.getUntrackedParameter<int>("TrackerHitsCut", 11);  // Tracker Hits >10 
-      pixelHitsCut_ = iConfig.getUntrackedParameter<int>("PixelHitsCut", 1); // Pixel Hits >0
-      muonHitsCut_ = iConfig.getUntrackedParameter<int>("MuonHitsCut", 1);  // Valid Muon Hits >0 
-      isAlsoTrackerMuon_ = iConfig.getUntrackedParameter<bool>("IsAlsoTrackerMuon", true);
-      nMatchesCut_ = iConfig.getUntrackedParameter<int>("NMatchesCut", 2); // At least 2 Chambers with matches 
+  // Muon quality cuts
+  //////////////////////////
+  dxyCut_ = iConfig.getUntrackedParameter<double>("DxyCut", 0.2);   // dxy < 0.2 cm 
+  normalizedChi2Cut_ = iConfig.getUntrackedParameter<double>("NormalizedChi2Cut", 10.); // chi2/ndof (of global fit) <10.0
+  trackerHitsCut_ = iConfig.getUntrackedParameter<int>("TrackerHitsCut", 11);  // Tracker Hits >10 
+  pixelHitsCut_ = iConfig.getUntrackedParameter<int>("PixelHitsCut", 1); // Pixel Hits >0
+  muonHitsCut_ = iConfig.getUntrackedParameter<int>("MuonHitsCut", 1);  // Valid Muon Hits >0 
+  isAlsoTrackerMuon_ = iConfig.getUntrackedParameter<bool>("IsAlsoTrackerMuon", true);
+  nMatchesCut_ = iConfig.getUntrackedParameter<int>("NMatchesCut", 2); // At least 2 Chambers with matches 
+
+  // Electron quality cuts
+  //////////////////////////
+	eleMaxOver3x3_  =  iConfig.getUntrackedParameter<double>("eleMaxOver3x3", 0.9);
+  // Ecal Barrel
+  dr03TkSumPtEB_ =  iConfig.getUntrackedParameter<double>("dr03TkSumPtEB", 3.0);
+	dr04EcalRecHitSumEtEB_ = iConfig.getUntrackedParameter<double>("dr04EcalRecHitSumEtEB", 4.0);
+	dr04HcalTowerSumEtEB_ =  iConfig.getUntrackedParameter<double>("dr04HcalTowerSumEtEB", 5.0);
+	hadronicOverEmEB_ =    iConfig.getUntrackedParameter<double>("hadronicOverEmEB", 0.05);
+	deltaPhiSuperClusterTrackAtVtxEB_ = iConfig.getUntrackedParameter<double>("deltaPhiSuperClusterTrackAtVtxEB", 0.2);
+	deltaEtaSuperClusterTrackAtVtxEB_ = iConfig.getUntrackedParameter<double>("deltaEtaSuperClusterTrackAtVtxEB", 0.006);
+	sigmaIetaIetaEB_ = iConfig.getUntrackedParameter<double>("sigmaIetaIetaEB", 0.01);
+  //spikes
+	sigmaIetaIetaSpikesEB_ = iConfig.getUntrackedParameter<double>("sigmaIetaIetaSpikesEB", 0.002);
+
+  // Ecal Endcap
+	dr03TkSumPtEC_ =  iConfig.getUntrackedParameter<double>("dr03TkSumPtEC", 1.5);
+	dr04EcalRecHitSumEtEC_ = iConfig.getUntrackedParameter<double>("dr04EcalRecHitSumEtEC", 2.5);
+	dr04HcalTowerSumEtEC_ =  iConfig.getUntrackedParameter<double>("dr04HcalTowerSumEtEC", 0.7);
+	hadronicOverEmEC_ =  iConfig.getUntrackedParameter<double>("hadronicOverEmEC", 0.025);
+	deltaPhiSuperClusterTrackAtVtxEC_ = iConfig.getUntrackedParameter<double>("deltaPhiSuperClusterTrackAtVtxEC", 0.2);
+	deltaEtaSuperClusterTrackAtVtxEC_ = iConfig.getUntrackedParameter<double>("deltaEtaSuperClusterTrackAtVtxEC", 0.006);
+	sigmaIetaIetaEC_ = iConfig.getUntrackedParameter<double>("sigmaIetaIetaEC", 0.03);
+  //spikes
+	sigmaIetaIetaSpikesEC_ = iConfig.getUntrackedParameter<double>("sigmaIetaIetaSpikesEC", 0.002);
+
+  // Jet ID cuts
+  //////////////////////////
+  emEnergyFractionJet_ = iConfig.getUntrackedParameter<double>("emEnergyFractionJet",0.01);
+  fHPDJet_ = iConfig.getUntrackedParameter<double>("fHPDJet",0.98);
+  n90Jet_ = iConfig.getUntrackedParameter<int>("n90Jet",2);
 
   specialPaths_ = iConfig.getParameter<std::vector<std::string > >("SpecialPaths");
 
@@ -2347,24 +2379,27 @@ void FourVectorHLTOffline::selectElectrons(const edm::Event& iEvent, const edm::
       
       EcalClusterLazyTools lazyTool(iEvent, iSetup, recHitsEBTag_, recHitsEETag_); 
       const reco::CaloCluster* bc = iter->superCluster()->seed().get(); // get the basic cluster
-      //eleMaxOver3x3_.push_back( lazyTool.eMax(*bc) / lazyTool.e3x3(*bc)  );
+      
       float eleMaxOver3x3 = ( lazyTool.eMax(*bc) / lazyTool.e3x3(*bc)  );
 
-      if(eleMaxOver3x3 > 0.9) continue;
+      // Only ecalDriven electrons
+      if(! iter->ecalDriven() ) continue;
+
+      if(eleMaxOver3x3 > eleMaxOver3x3_) continue;
 
       // Barrel 
       if(iter->isEB()) {
 
         if (
-				  iter->dr03TkSumPt()         < 3.0 && // 7.0 && 
-				  iter->dr04EcalRecHitSumEt() < 4.0 && // 5.0 &&
-				  iter->dr04HcalTowerSumEt()  < 5.0 &&
-				  iter->hadronicOverEm()      < 0.05 &&
-				  fabs(iter->deltaPhiSuperClusterTrackAtVtx()) < 02 && // 0.8 &&
-				  fabs(iter->deltaEtaSuperClusterTrackAtVtx()) < 0.006 &&
-				  iter->sigmaIetaIeta() < 0.01 &&
+				  iter->dr03TkSumPt()         < dr03TkSumPtEB_ && 
+				  iter->dr04EcalRecHitSumEt() < dr04EcalRecHitSumEtEB_ && 
+				  iter->dr04HcalTowerSumEt()  < dr04HcalTowerSumEtEB_ &&
+				  iter->hadronicOverEm()      < hadronicOverEmEB_ &&
+				  fabs(iter->deltaPhiSuperClusterTrackAtVtx()) < deltaPhiSuperClusterTrackAtVtxEB_ && 
+				  fabs(iter->deltaEtaSuperClusterTrackAtVtx()) < deltaEtaSuperClusterTrackAtVtxEB_ &&
+				  iter->sigmaIetaIeta() < sigmaIetaIetaEB_ &&
           //spikes
-				  iter->sigmaIetaIeta() > 0.002
+				  iter->sigmaIetaIeta() > sigmaIetaIetaSpikesEB_
         ) {
 
             fSelectedElectrons->push_back(*iter);
@@ -2376,15 +2411,15 @@ void FourVectorHLTOffline::selectElectrons(const edm::Event& iEvent, const edm::
       // EndCap
       else if(iter->isEE()) {
         if (
-				  iter->dr03TkSumPt()         < 1.5 && // 8.0 && 
-				  iter->dr04EcalRecHitSumEt() < 2.5 && // 3.0 &&
-				  iter->dr04HcalTowerSumEt()  < 0.7 && // 2.0 &&
-				  iter->hadronicOverEm()      < 0.025 && // 0.04 &&
-				  fabs(iter->deltaPhiSuperClusterTrackAtVtx()) < 0.2 && // 0.7 &&
-				  fabs(iter->deltaEtaSuperClusterTrackAtVtx()) < 0.006 && // 0.008 &&
-				  iter->sigmaIetaIeta() < 0.03 && 
+				  iter->dr03TkSumPt()         < dr03TkSumPtEC_ && 
+				  iter->dr04EcalRecHitSumEt() < dr04EcalRecHitSumEtEC_ && 
+				  iter->dr04HcalTowerSumEt()  < dr04HcalTowerSumEtEC_ && 
+				  iter->hadronicOverEm()      < hadronicOverEmEC_ && 
+				  fabs(iter->deltaPhiSuperClusterTrackAtVtx()) < deltaPhiSuperClusterTrackAtVtxEC_ && 
+				  fabs(iter->deltaEtaSuperClusterTrackAtVtx()) < deltaEtaSuperClusterTrackAtVtxEC_ && 
+				  iter->sigmaIetaIeta() < sigmaIetaIetaEC_ && 
           //spikes
-				  iter->sigmaIetaIeta() > 0.002
+				  iter->sigmaIetaIeta() > sigmaIetaIetaSpikesEC_
         ) {
 
             fSelectedElectrons->push_back(*iter);
@@ -2447,10 +2482,9 @@ void FourVectorHLTOffline::selectJets(const edm::Event& iEvent, const edm::Handl
     {
 
        jetID->calculate(iEvent, *iter);
-       if (iter->emEnergyFraction() > 0.01 &&
-           //iter->fHPD() < 0.98 &&
-           jetID->fHPD() < 0.98 &&
-           iter->n90() >= 2 
+       if (iter->emEnergyFraction() > emEnergyFractionJet_ &&
+           jetID->fHPD() < fHPDJet_ &&
+           iter->n90() >= n90Jet_ 
            ){ 
 
                 fSelectedJets->push_back(*iter);

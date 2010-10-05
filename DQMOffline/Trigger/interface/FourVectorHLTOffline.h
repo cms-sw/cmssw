@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOffline.h,v 1.60 2010/08/04 09:32:03 rekovic Exp $
+// $Id: FourVectorHLTOffline.h,v 1.61 2010/08/04 14:27:03 rekovic Exp $
 //
 //
 // system include files
@@ -258,6 +258,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       double sumEtMin_;
 
       // Muon quality cuts
+      //////////////////////////
       double dxyCut_;
       double normalizedChi2Cut_;
       int trackerHitsCut_;
@@ -265,6 +266,36 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       int muonHitsCut_;
       bool isAlsoTrackerMuon_;
       int nMatchesCut_;
+
+      // Electron quality cuts
+      //////////////////////////
+      float eleMaxOver3x3_;
+      // Ecal Barrel
+      float dr03TkSumPtEB_;
+      float dr04EcalRecHitSumEtEB_;
+      float dr04HcalTowerSumEtEB_;
+      float hadronicOverEmEB_;
+      float deltaPhiSuperClusterTrackAtVtxEB_;
+      float deltaEtaSuperClusterTrackAtVtxEB_;
+      float sigmaIetaIetaEB_;
+      //spikes
+      float sigmaIetaIetaSpikesEB_;
+      // Ecal Endcap
+      float dr03TkSumPtEC_;
+      float dr04EcalRecHitSumEtEC_;
+      float dr04HcalTowerSumEtEC_;
+      float hadronicOverEmEC_;
+      float deltaPhiSuperClusterTrackAtVtxEC_;
+      float deltaEtaSuperClusterTrackAtVtxEC_;
+      float sigmaIetaIetaEC_;
+      //spikes
+      float sigmaIetaIetaSpikesEC_;
+
+      // Jet quality cuts
+      //////////////////////////
+      float emEnergyFractionJet_;
+      float fHPDJet_;
+      int n90Jet_;
 
       std::vector<std::pair<std::string, std::string> > custompathnamepairs_;
 
