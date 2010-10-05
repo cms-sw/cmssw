@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.28 2010/09/27 16:26:57 mccauley Exp $
+// $Id: ValidateGeometry.cc,v 1.29 2010/10/05 09:52:46 mccauley Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -37,6 +37,7 @@
 
 #include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/fwLog.h"
+#include "Fireworks/Tracks/interface/TrackUtils.h"
 
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
@@ -553,8 +554,6 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
   std::vector<double> strip_positions;
   std::vector<double> wire_positions;
 
-  std::vector<double> wire_transforms;
-
   std::vector<double> me11_wiresLocal;
   std::vector<double> me12_wiresLocal;
   std::vector<double> me13_wiresLocal;
@@ -743,12 +742,11 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
           0.0, yOfWire2, 0.0
         };
 
+        /*
         float fwGlobalPoint[3]; 
-
         fwGeometry_.localToGlobal(detId.rawId(), fwLocalPoint, fwGlobalPoint);
-        
         double ydiff_global = globalPoint.y() - fwGlobalPoint[1]; 
-        wire_transforms.push_back(ydiff_global); 
+        */
 
         if ( station == 1 )
         {
@@ -810,8 +808,6 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
   makeHistogram(hn+": xOfStrip", strip_positions);
 
   makeHistogram(hn+": local yOfWire", wire_positions);
-
-  makeHistogram(hn+": global yOfWire", wire_transforms);
   
   makeHistogram("ME11: local yOfWire", me11_wiresLocal);
   makeHistogram("ME12: local yOfWire", me12_wiresLocal);
@@ -958,6 +954,9 @@ void
 ValidateGeometry::validatePixelTopology(const TrackerGeometry::DetContainer& dets,
                                         const char* detname)
 {
+  std::vector<double> pixelLocalXs;
+  std::vector<double> pixelLocalYs;
+
   for ( TrackerGeometry::DetContainer::const_iterator it = dets.begin(),
                                                    itEnd = dets.end();
         it != itEnd; ++it )
@@ -973,12 +972,28 @@ ValidateGeometry::validatePixelTopology(const TrackerGeometry::DetContainer& det
       continue;
     }
 
-    if ( const PixelGeomDetUnit* det = dynamic_cast<const PixelGeomDetUnit*>(trackerGeometry_->idToDetUnit((*it)->geographicalId())) )
+    if ( const PixelGeomDetUnit* det = 
+         dynamic_cast<const PixelGeomDetUnit*>(trackerGeometry_->idToDetUnit((*it)->geographicalId())) )
     {           
-      if ( const RectangularPixelTopology* rpt = dynamic_cast<const RectangularPixelTopology*>(&det->specificTopology()) )
-      {         
-        assert(parameters[0] == rpt->nrows());
-        assert(parameters[1] == rpt->ncolumns());
+      if ( const RectangularPixelTopology* rpt = 
+           dynamic_cast<const RectangularPixelTopology*>(&det->specificTopology()) )
+      { 
+        int nrows = rpt->nrows();
+        int ncolumns = rpt->ncolumns();
+        
+        assert(parameters[0] == nrows);
+        assert(parameters[1] == ncolumns);
+        
+        for ( int row = 1; row <= nrows; ++row )
+        {
+          for ( int column = 1; column <= ncolumns; ++column )
+          {
+            LocalPoint localPoint = rpt->localPosition(MeasurementPoint(row, column));
+
+            pixelLocalXs.push_back(localPoint.x() - fireworks::pixelLocalX(row, nrows));
+            pixelLocalYs.push_back(localPoint.y() - fireworks::pixelLocalY(column, ncolumns));
+           }
+        }
       }
        
       else
@@ -988,6 +1003,10 @@ ValidateGeometry::validatePixelTopology(const TrackerGeometry::DetContainer& det
     else
       std::cout<<"No geomDetUnit for "<< detname <<" "<< rawId <<std::endl;
   }
+
+  std::string hn(detname);
+  makeHistogram(hn+" pixelLocalX", pixelLocalXs);
+  makeHistogram(hn+" pixelLocalY", pixelLocalYs);
 }
 
 void 
@@ -1009,7 +1028,8 @@ ValidateGeometry::validateStripTopology(const TrackerGeometry::DetContainer& det
       continue;
     }
 
-    if ( const StripGeomDetUnit* det = dynamic_cast<const StripGeomDetUnit*>(trackerGeometry_->idToDet((*it)->geographicalId())) )
+    if ( const StripGeomDetUnit* det = 
+         dynamic_cast<const StripGeomDetUnit*>(trackerGeometry_->idToDet((*it)->geographicalId())) )
     {
       // NOTE: why the difference in dets vs. units between these and pixels? The dynamic cast above 
       // fails for many of the detids...
@@ -1019,9 +1039,10 @@ ValidateGeometry::validateStripTopology(const TrackerGeometry::DetContainer& det
       if ( st ) 
       {
         //assert(parameters[0] == 0);
-        assert(parameters[1] == st->nstrips());                             
+        int nstrips = st->nstrips();
+        assert(parameters[1] == nstrips);                             
         assert(parameters[2] == st->stripLength());
-      
+        
         if( const RadialStripTopology* rst = dynamic_cast<const RadialStripTopology*>(st)) 
         {
           assert(parameters[0] == 1);
@@ -1031,7 +1052,7 @@ ValidateGeometry::validateStripTopology(const TrackerGeometry::DetContainer& det
           assert(parameters[6] == rst->angularWidth());
         }
          
-        else if( dynamic_cast<const RectangularStripTopology*>(st))                                                                
+        else if( dynamic_cast<const RectangularStripTopology*>(st))
         {
           assert(parameters[0] == 2);
           assert(parameters[3] == st->pitch());
