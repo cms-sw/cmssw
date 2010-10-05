@@ -101,8 +101,19 @@ namespace TopDiLeptonOffline {
     /// trigger paths for di muon channel
     std::vector<std::string> diMuonPaths_;
 
-    /// electronId
+    /// electronId label
     edm::InputTag electronId_;
+    /// electronId pattern we expect the following pattern:
+    ///  0: fails
+    ///  1: passes electron ID only
+    ///  2: passes electron Isolation only
+    ///  3: passes electron ID and Isolation only
+    ///  4: passes conversion rejection
+    ///  5: passes conversion rejection and ID
+    ///  6: passes conversion rejection and Isolation
+    ///  7: passes the whole selection
+    /// As described on https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
+    double eidPattern_;
     /// extra isolation criterion on electron
     StringCutObjectSelector<reco::GsfElectron>* elecIso_;
     /// extra selection on electrons
