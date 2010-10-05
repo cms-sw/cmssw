@@ -174,7 +174,7 @@ private:
   ///  6: passes conversion rejection and Isolation
   ///  7: passes the whole selection
   /// As described on https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
-  double eidPattern_;
+  int eidPattern_;
   /// jet corrector as extra selection type
   std::string jetCorrector_;
   /// choice for b-tag as extra selection type
@@ -205,7 +205,7 @@ SelectionStep<Object>::SelectionStep(const edm::ParameterSet& cfg) :
   if(cfg.existsAs<edm::ParameterSet>("electronId")){ 
     edm::ParameterSet elecId=cfg.getParameter<edm::ParameterSet>("electronId");
     electronId_= elecId.getParameter<edm::InputTag>("src");
-    eidPattern_= elecId.getParameter<double>("pattern");
+    eidPattern_= elecId.getParameter<int>("pattern");
   }
   // read jet corrector label if it exists
   if(cfg.exists("jetCorrector")){ jetCorrector_= cfg.getParameter<std::string>("jetCorrector"); }
@@ -243,7 +243,7 @@ bool SelectionStep<Object>::select(const edm::Event& event)
     // special treatment for electrons
     if(dynamic_cast<const reco::GsfElectron*>(&*obj)){
       unsigned int idx = obj-src->begin();
-      if( electronId_.label().empty() ? true : (*electronId)[src->refAt(idx)]==eidPattern_){   
+      if( electronId_.label().empty() ? true : ((int)(*electronId)[src->refAt(idx)] & eidPattern_) ){   
 	if(select_(*obj))++n;
       }
     }

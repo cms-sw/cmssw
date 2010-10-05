@@ -43,7 +43,7 @@ namespace TopSingleLepton {
       if( elecExtras.existsAs<edm::ParameterSet>("electronId") ){
 	edm::ParameterSet elecId=elecExtras.getParameter<edm::ParameterSet>("electronId");
 	electronId_= elecId.getParameter<edm::InputTag>("src");
-	eidPattern_= elecId.getParameter<double>("pattern");
+	eidPattern_= elecId.getParameter<int>("pattern");
       }
     }
 
@@ -285,7 +285,7 @@ namespace TopSingleLepton {
     for(edm::View<reco::GsfElectron>::const_iterator elec=elecs->begin(); elec!=elecs->end(); ++elec){
       unsigned int idx = elec-elecs->begin();
       // restrict to electrons with good electronId
-      if( electronId_.label().empty() ? true : (*electronId)[elecs->refAt(idx)]==eidPattern_ ){
+      if( electronId_.label().empty() ? true : ((int)(*electronId)[elecs->refAt(idx)] & eidPattern_) ){
 	if(!elecSelect_ || (*elecSelect_)(*elec)){
 	  double isolationTrk = elec->pt()/(elec->pt()+elec->dr03TkSumPt());
 	  double isolationCal = elec->pt()/(elec->pt()+elec->dr03EcalRecHitSumEt()+elec->dr03HcalTowerSumEt());
@@ -306,7 +306,7 @@ namespace TopSingleLepton {
     }
     fill("elecMult_",    eMult   );
     fill("elecMultIso_", eMultIso);
-
+    
     /* 
     ------------------------------------------------------------
 
