@@ -13,6 +13,7 @@ cmsDriver.py TauAnalysis/MCEmbeddingTools/python/PFEmbeddingSource_cff \
 
 
 cmsDriver.py \
+       --filein="file:embedded_HLT.root"  \
        -s RAW2DIGI,RECO \
        --no_exec \
        --conditions=${CONDITIONS} \
