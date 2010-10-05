@@ -29,6 +29,12 @@ process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32(-1)
 )
 
+## apply VBTF electronID (needed for the current implementation
+## of topSingleElectronDQMLoose and topSingleElectronDQMMedium)
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("DQM.Physics.topElectronID_cff")
+
 ## output
 process.output = cms.OutputModule("PoolOutputModule",
   fileName       = cms.untracked.string('topDQM_production.root'),
@@ -59,6 +65,7 @@ process.MessageLogger.cerr.TopDiLeptonOfflineDQM = cms.untracked.PSet(limit = cm
 ## path definitions
 process.p      = cms.Path(
    #process.content *
+    process.simpleEleId70cIso          *
     process.topDiLeptonOfflineDQM      +
     process.topSingleLeptonDQM         +
     process.topSingleMuonLooseDQM      +    

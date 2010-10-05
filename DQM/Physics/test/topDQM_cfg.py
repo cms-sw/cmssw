@@ -7,7 +7,6 @@ process.load("DQM.Physics.topDiLeptonOfflineDQM_cfi")
 process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.DQM.collectorHost = ''
-
 process.dqmSaver.workflow = cms.untracked.string('/Physics/TopSingleLeptonDQM/DataSet')
 
 process.maxEvents = cms.untracked.PSet(
@@ -21,10 +20,16 @@ process.source = cms.Source(
     )
 )
 
+## apply VBTF electronID (needed for the current implementation
+## of topSingleElectronDQMLoose and topSingleElectronDQMMedium)
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("DQM.Physics.topElectronID_cff")
+
 ## load jet corrections
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 ## --------------------------------------------------------------------
-## Frontier Conditions:
+## Frontier Conditions: (adjust accordingly!!!)
 ##
 ## For CMSSW_3_8_X MC use             ---> 'START38_V12::All'
 ## For Data (38X re-processing) use   ---> 'GR_R_38X_V13::All'
