@@ -58,13 +58,14 @@ class pp(Scenario):
         options.isMC = False
         options.isData = True
         options.beamspot = None
-        options.eventcontent = None
+        options.eventcontent = ','.join(writeTiers)
+        options.datatier = ','.join(writeTiers)
         options.magField = 'AutoFromDBCurrent'
         options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
         options.relval = False
         
         process = cms.Process('RECO')
-        cb = ConfigBuilder(options, process = process)
+        cb = ConfigBuilder(options, process = process, with_output = True)
 
         # Input source
         process.source = cms.Source("PoolSource",
@@ -72,8 +73,8 @@ class pp(Scenario):
         )
         cb.prepare()
 
-        for tier in writeTiers: 
-          addOutputModule(process, tier, tier)        
+        #for tier in writeTiers: 
+        #  addOutputModule(process, tier, tier)        
 
         #add the former top level patches here
         customisePrompt(process)

@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.236 $"
+__version__ = "$Revision: 1.237 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -66,7 +66,19 @@ class ConfigBuilder(object):
     def __init__(self, options, process = None, with_output = False, with_input = False ):
         """options taken from old cmsDriver and optparse """
 
+	## do the cmsDriver option massaging here
+	if hasattr(options,"fileout") and hasattr(options,"outfile_name"):
+		options.outfile_name = options.dirout+options.fileout
+	else:
+		options.outfile_name = 'output.root'
+
+	if not hasattr(options,"filtername"):
+		options.filtername = ''
+		
         self._options = options
+
+	
+
 
         # what steps are provided by this class?
         stepList = [re.sub(r'^prepare_', '', methodName) for methodName in ConfigBuilder.__dict__ if methodName.startswith('prepare_')]
@@ -619,8 +631,18 @@ class ConfigBuilder(object):
 				    output.SelectEvents.SelectEvents.append(path.label())
 		    else:
 			    output.SelectEvents.SelectEvents.append(stream.paths.label())
-			
-	    output.outputCommands = stream.content
+
+
+
+	    if isinstance(stream.content,str):
+		    def doNotInlineEventContent(instance,label = "process."+stream.content+".outputCommands"):
+			    return label
+		    output.outputCommands = getattr(self.process,stream.content)
+		    output.outputCommands.__dict__["dumpPython"] = doNotInlineEventContent
+	    else:
+		    output.outputCommands = stream.content
+
+	    
 	    if (hasattr(self._options, 'dirout')):
 		    output.fileName = cms.untracked.string(self._options.dirout+stream.name+'.root')
 	    else:
@@ -1147,7 +1169,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
 	self.process.configurationMetadata=cms.untracked.PSet\
-					    (version=cms.untracked.string("$Revision: 1.236 $"),
+					    (version=cms.untracked.string("$Revision: 1.237 $"),
 					     name=cms.untracked.string("PyReleaseValidation"),
 					     annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
 					     )
@@ -1318,6 +1340,8 @@ def addOutputModule(process, tier, content):
 
     Function to add an output module to a given process with given data tier and event content
     """
+    print "WARNING. this method will not be supported any more SOON, please use --eventcontent --datatier field to drive the output module definitions"
+    '''
     moduleName = "output%s%s" % (tier, content)
     pathName = "%sPath" % moduleName
     contentName = "%sEventContent" % content
@@ -1335,7 +1359,7 @@ def addOutputModule(process, tier, content):
     # put it in an EndPath and put the EndPath into the schedule
     setattr(process, pathName, cms.EndPath(getattr(process,moduleName)) )
     process.schedule.append(getattr(process, pathName))
-
+    '''
     return
 
 

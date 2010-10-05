@@ -475,5 +475,5 @@ if options.himix and not options.scenario=='HeavyIons':
    options.scenario='HeavyIons'
 
 
-options.outfile_name = options.dirout+options.fileout
+#options.outfile_name = options.dirout+options.fileout
 
