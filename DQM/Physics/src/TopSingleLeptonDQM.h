@@ -102,7 +102,7 @@ namespace TopSingleLepton {
     ///  6: passes conversion rejection and Isolation
     ///  7: passes the whole selection
     /// As described on https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
-    double eidPattern_;
+    int eidPattern_;
     /// extra isolation criterion on electron
     StringCutObjectSelector<reco::GsfElectron>* elecIso_;
     /// extra selection on electrons

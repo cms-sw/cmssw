@@ -27,7 +27,7 @@ topSingleLeptonDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ## will be filled w/o extras
     elecExtras = cms.PSet(
       ## when omitted electron plots will be filled w/o cut on electronId
-      electronId = cms.PSet( src = cms.InputTag("eidRobustLoose"), pattern = cms.double(1.) ),
+      electronId = cms.PSet( src = cms.InputTag("eidRobustLoose"), pattern = cms.int32(1) ),
       ## when omitted electron plots will be filled w/o additional pre-
       ## selection of the electron candidates                                                                                            
       select = cms.string("pt>15 & abs(eta)<2.5 & abs(gsfTrack.d0)<1 & abs(gsfTrack.dz)<20"),
@@ -470,9 +470,9 @@ topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ),
     ## [optional] : when omitted all monitoring plots for electrons
     ## will be filled w/o extras
-    electronExtras = cms.PSet(
+    elecExtras = cms.PSet(
       ## when omitted electron plots will be filled w/o cut on electronId
-      electronId = cms.PSet( src = cms.InputTag("simpleEleId70cIso"), pattern = cms.double(1.) ),
+      electronId = cms.PSet( src = cms.InputTag("simpleEleId70cIso"), pattern = cms.int32(1) ),
       ## when omitted electron plots will be filled w/o additional pre-
       ## selection of the electron candidates
       select     = cms.string("pt>15 & abs(eta)<2.5"),
@@ -556,7 +556,7 @@ topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     cms.PSet(
       label  = cms.string("elecs:step0"),
       src    = cms.InputTag("gsfElectrons"),
-      electronId = cms.PSet( src = cms.InputTag("simpleEleId70cIso"), pattern = cms.double(1.) ),
+      electronId = cms.PSet( src = cms.InputTag("simpleEleId70cIso"), pattern = cms.int32(1) ),
       select = cms.string("pt>15 & abs(eta)<2.5"),
       min    = cms.int32(1),
     ),
@@ -634,7 +634,7 @@ topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ## will be filled w/o extras
     elecExtras = cms.PSet(
       ## when omitted electron plots will be filled w/o cut on electronId
-      electronId = cms.PSet( src = cms.InputTag("simpleEleId70cIso"), pattern = cms.double(1.) ),
+      electronId = cms.PSet( src = cms.InputTag("simpleEleId70cIso"), pattern = cms.int32(1) ),
       ## when omitted electron plots will be filled w/o additional pre-
       ## selection of the electron candidates
       select     = cms.string("pt>25 & abs(eta)<2.5 & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt<0.1"),
@@ -718,7 +718,7 @@ topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     cms.PSet(
       label = cms.string("elecs:step0"),
       src   = cms.InputTag("gsfElectrons"),
-      electronId = cms.PSet( src = cms.InputTag("simpleEleId70cIso"), pattern = cms.double(1.) ),
+      electronId = cms.PSet( src = cms.InputTag("simpleEleId70cIso"), pattern = cms.int32(1) ),
       select = cms.string("pt>25 & abs(eta)<2.5 & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt<0.1"),
       min = cms.int32(1),
       max = cms.int32(1),

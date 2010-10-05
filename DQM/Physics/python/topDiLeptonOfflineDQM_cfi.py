@@ -30,7 +30,7 @@ topDiLeptonOfflineDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
       ## when omitted electron plots will be filled w/o cut on electronId
       electronId = cms.PSet(
         src     = cms.InputTag("eidRobustLoose"),
-        pattern = cms.double(1.)
+        pattern = cms.int32(1)
       ),
       ## when omitted electron plots will be filled w/o additional pre-
       ## selection of the electron candidates                                                 
