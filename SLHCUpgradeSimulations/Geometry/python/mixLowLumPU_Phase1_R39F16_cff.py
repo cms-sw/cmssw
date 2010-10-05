@@ -23,11 +23,13 @@ mix = cms.EDProducer("MixingModule",
         ),
         type = cms.string('poisson'),
     sequential = cms.untracked.bool(False),
-        fileNames = cms.untracked.vstring('/store/user/cheung/phase1/r39v26/minbias4pu/MergedMinBias_GEN_SIM_01.root',
-        '/store/user/cheung/phase1/r39v26/minbias4pu/MergedMinBias_GEN_SIM_02.root',
-        '/store/user/cheung/phase1/r39v26/minbias4pu/MergedMinBias_GEN_SIM_03.root',
-        '/store/user/cheung/phase1/r39v26/minbias4pu/MergedMinBias_GEN_SIM_04.root',
-        '/store/user/cheung/phase1/r39v26/minbias4pu/MergedMinBias_GEN_SIM_05.root'
+        fileNames = cms.untracked.vstring(
+       '/store/relval/CMSSW_3_6_3_SLHC1/RelValMinBias/GEN-SIM-RAW/DESIGN_36_V10_special-v1/0021/EE05606A-A7BD-DF11-AB75-0030486792B6.root',
+       '/store/relval/CMSSW_3_6_3_SLHC1/RelValMinBias/GEN-SIM-RAW/DESIGN_36_V10_special-v1/0021/EA982B5A-A8BD-DF11-8619-0026189438E4.root',
+       '/store/relval/CMSSW_3_6_3_SLHC1/RelValMinBias/GEN-SIM-RAW/DESIGN_36_V10_special-v1/0021/C6EB2D6B-A7BD-DF11-BFB7-00261894387C.root',
+       '/store/relval/CMSSW_3_6_3_SLHC1/RelValMinBias/GEN-SIM-RAW/DESIGN_36_V10_special-v1/0021/72ECC6B1-C5BD-DF11-A15B-0018F3D09658.root',
+       '/store/relval/CMSSW_3_6_3_SLHC1/RelValMinBias/GEN-SIM-RAW/DESIGN_36_V10_special-v1/0021/2EBCB8F0-A9BD-DF11-B817-002618943882.root',
+       '/store/relval/CMSSW_3_6_3_SLHC1/RelValMinBias/GEN-SIM-RAW/DESIGN_36_V10_special-v1/0021/04FF2C78-AEBD-DF11-8690-0018F3D0970E.root'
     )
     ),
     mixObjects = cms.PSet(
