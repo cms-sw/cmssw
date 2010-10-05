@@ -394,7 +394,7 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
     rawOK_=false;
   }
   
-  
+  /*
   edm::Handle<HcalUnpackerReport> report; 
   iEvent.getByType(report);  
   if (!report.isValid()) {
@@ -410,7 +410,7 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
 	fedsListed_ = true;
       }
     }
-  
+  */
   //---------------------------------------------------------------//
   //-------------------  try to get digis ------------------------//
   //---------------------------------------------------------------//
