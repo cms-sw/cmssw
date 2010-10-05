@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: JetCorrectorParameters.cc,v 1.10 2010/09/14 14:09:39 srappocc Exp $
+// $Id: JetCorrectorParameters.cc,v 1.11 2010/09/20 08:48:40 schiefer Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -334,10 +334,12 @@ JetCorrectorParametersCollection::labelsArray_[JetCorrectorParametersCollection:
     "L1Offset",
     "L2Relative",
     "L3Absolute",
+    "L2L3Residual",
     "L4EMF",
     "L5Flavor",
     "L6UE",
-    "L7Parton"
+    "L7Parton",
+    "Uncertainty" 
   }; 
 
 const char *
@@ -387,8 +389,8 @@ void JetCorrectorParametersCollection::getSections( std::string inputFile,
   outputs.clear();
   std::ifstream input( inputFile.c_str() );
   while( !input.eof() ) {
-    char buff[1000];
-    input.getline(buff,1000);
+    char buff[10000];
+    input.getline(buff,10000);
     std::string in(buff); 
     if ( in[0] == '[' ) {
       std::string tok = getSection(in);

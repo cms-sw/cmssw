@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: JetCorrectorParameters.h,v 1.6.2.1 2010/06/29 19:18:40 srappocc Exp $
+// $Id: JetCorrectorParameters.h,v 1.7 2010/09/14 14:09:39 srappocc Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -105,10 +105,12 @@ class JetCorrectorParametersCollection {
   enum Level_t { L1Offset,
 		 L2Relative,
 		 L3Absolute,
+                 L2L3Residual,
 		 L4EMF,
 		 L5Flavor,
 		 L6UE,
 		 L7Parton,
+                 Uncertainty,
 		 N_LEVELS
   };
   enum L5_Species_t {L5_bJ=0,L5_cJ,L5_qJ,L5_gJ,L5_bT,L5_cT,L5_qT,L5_gT,N_L5_SPECIES};
@@ -159,6 +161,14 @@ class JetCorrectorParametersCollection {
 
   static std::string findLabel( key_type k ){
     return labels_[k];
+  }
+
+  static std::string findL5Flavor( key_type k ){
+    return l5Flavors_[k];
+  }  
+
+  static std::string findL7Parton( key_type k ){
+    return l7Partons_[k];
   }
 
  protected:
