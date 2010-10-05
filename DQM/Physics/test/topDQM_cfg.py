@@ -55,6 +55,7 @@ process.content = cms.EDAnalyzer("EventContentAnalyzer")
 process.p = cms.Path(
     #process.content *
     ## common dilepton monitoring
+    process.simpleEleId70cIso          *
     process.topDiLeptonOfflineDQM      +
     ## common lepton plus jets monitoring
     process.topSingleLeptonDQM         +
