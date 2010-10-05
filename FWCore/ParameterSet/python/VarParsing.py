@@ -72,6 +72,11 @@ class VarParsing (object):
                                VarParsing.multiplicity.list,
                                VarParsing.varType.string,
                                "Second group of files to process (if needed)")
+                self.register ('filePrepend',
+                               '',
+                               VarParsing.multiplicity.singleton,
+                               VarParsing.varType.string,
+                               "String to prepend location of all files")
                 self.register ('outputFile',
                                'output.root',
                                VarParsing.multiplicity.singleton,
@@ -82,9 +87,17 @@ class VarParsing (object):
                                VarParsing.multiplicity.singleton,
                                VarParsing.varType.tagString,
                                "Name of second output file (if needed)")
+                self.register ('tag',
+                               '',
+                               VarParsing.multiplicity.singleton,
+                               VarParsing.varType.string,
+                               "tag to add to output filename")
                 self.setupTags (tag = 'numEvent%d',
                                 ifCond = 'maxEvents > 0',
                                 tagArg = 'maxEvents')
+                self.setupTags (tag = '%s',
+                                ifCond = 'tag',
+                                tagArg = 'tag')
                 continue
             # old, depricated, but here for compatibility of older code
             if lower == "standard":
@@ -256,6 +269,18 @@ class VarParsing (object):
             for filename in self.inputFiles:
                 if storeRE.match (filename):
                     filename = self.storePrepend + filename
+                newFileList.append (filename)
+            # clear old list
+            self.clearList ('inputFiles')
+            # set new list as list
+            self.inputFiles = newFileList
+        # filePrepend
+        if self._register.has_key ('filePrepend') and \
+           self._register.has_key ('inputFiles') and \
+           self.filePrepend:
+            newFileList = []
+            for filename in self.inputFiles:
+                filename = self.filePrepend + filename
                 newFileList.append (filename)
             # clear old list
             self.clearList ('inputFiles')
