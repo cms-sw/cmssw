@@ -6,6 +6,18 @@
 # At the end it will produce a MergeTrees.cc macro that can be used to merge all the trees together.
 # It Uses a MuScleFit_template_cfg file to create the MuScleFit cfg with the correct file name.
 
+# Important parameters
+# --------------------
+
+# Number of simultaneous threads 
+TotalNumberOfThreads = 3
+# Directory on castor with the input files
+CastorFilesDir = "/castor/cern.ch/user/d/demattia/MuScleFit/Summer10/JPsi/ModifiedMaterialScenario/OniaPAT"
+# Directory where to do eval scram
+CMSSWDir = "/afs/cern.ch/user/d/demattia/scratch0/TreeProducerAndMerger/CMSSW_3_8_0/src"
+
+# --------------------
+
 import os
 import commands
 
@@ -46,8 +58,8 @@ class ThreadUrl(threading.Thread):
       cfg.close()
 
       # Run the cmssw job
-      print "cd /afs/cern.ch/user/d/demattia/scratch0/TreeProducerAndMerger/CMSSW_3_8_0/src; eval `scramv1 r -sh`; cd -; cmsRun "+cfgName
-      os.system("cd /afs/cern.ch/user/d/demattia/scratch0/TreeProducerAndMerger/CMSSW_3_8_0/src; eval `scramv1 r -sh`; cd -; cmsRun "+cfgName)
+      print "cd "+CMSSWDir+"; eval `scramv1 r -sh`; cd -; cmsRun "+cfgName
+      os.system("cd "+CMSSWDir+"; eval `scramv1 r -sh`; cd -; cmsRun "+cfgName)
       os.system("mv "+cfgName+" processedCfgs")
 
       #signals to queue job is done
@@ -56,7 +68,7 @@ class ThreadUrl(threading.Thread):
 def main(numberOfThreads):
 
   # Take the files
-  filesDir = "/castor/cern.ch/user/d/demattia/MuScleFit/Summer10/JPsi/ModifiedMaterialScenario/OniaPAT"
+  filesDir = CastorFilesDir
   if not filesDir.endswith("/"):
     filesDir = filesDir+"/"
   os.system("rfdir "+filesDir+" > list.txt")
@@ -97,7 +109,7 @@ def main(numberOfThreads):
   #wait on the queue until everything has been processed     
   queue.join()
 
-# Run the jobs with 3 threads
+# Run the jobs withTotalNumberOfThreads threads
 start = time.time()
-main(3)
+main(TotalNumberOfThreads)
 print "Elapsed Time: %s" % (time.time() - start)
