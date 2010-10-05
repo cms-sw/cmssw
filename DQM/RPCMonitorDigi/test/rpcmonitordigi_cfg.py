@@ -6,13 +6,13 @@ process = cms.Process("RPCDQM")
 ############# Source File ########################
 
 process.source = cms.Source("PoolSource",
-#      fileNames = cms.untracked.vstring('/store/data/Commissioning10/Cosmics/RAW/v1/000/125/838/702BD989-F60B-DF11-A49C-0030487CD77E.root')
-     fileNames = cms.untracked.vstring('/store/data/Commissioning10/Cosmics/RECO/v1/000/125/838/C6D4F60E-FA0B-DF11-BA84-003048D37560.root')
+      fileNames = cms.untracked.vstring('/store/data/Run2010B/Mu/RAW/v1/000/146/713/C486844B-D5C9-DF11-935D-001D09F29169.root')
+#     fileNames = cms.untracked.vstring('/store/data/Commissioning10/Cosmics/RECO/v1/000/125/838/C6D4F60E-FA0B-DF11-BA84-003048D37560.root')
 #      fileNames = cms.untracked.vstring('/store/data/Commissioning10/RandomTriggers/RAW/v3/000/128/736/0C1ED6D3-311E-DF11-B20E-000423D99EEE.root')
 
 )
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 
 
 ################ Condition ######################
@@ -37,17 +37,17 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ##### RAW to DIGI #####
 
-## process.rpcunpacker = cms.EDFilter("RPCUnpackingModule",
-##     InputLabel = cms.InputTag("source"),
-##     doSynchro = cms.bool(False)
-## )
+process.rpcunpacker = cms.EDProducer("RPCUnpackingModule",
+                                   InputLabel = cms.InputTag("source"),
+                                   doSynchro = cms.bool(False)
+                                   )
 process.load("EventFilter.RPCRawToDigi.RPCFrontierCabling_cfi")
 
 
 ########## RecHits ##########################
 process.load("RecoLocalMuon.RPCRecHit.rpcRecHits_cfi")
-#process.rpcRecHits.rpcDigiLabel ='rpcunpacker'
-process.rpcRecHits.rpcDigiLabel = 'muonRPCDigis'
+process.rpcRecHits.rpcDigiLabel ='rpcunpacker'
+#process.rpcRecHits.rpcDigiLabel = 'muonRPCDigis'
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
 
 
@@ -90,14 +90,14 @@ process.rpcFEDIntegrity.RPCRawCountsInputTag = 'provaDiNoCrash'
 process.load("DQM.RPCMonitorClient.RPCMonitorLinkSynchro_cfi")
 
 ################# Quality Tests #########################
-## process.qTesterRPC = cms.EDFilter("QualityTester",
-##     qtList = cms.untracked.FileInPath('DQM/RPCMonitorClient/test/RPCQualityTests.xml'),
-##     prescaleFactor = cms.untracked.int32(1)
-## )
+process.qTesterRPC = cms.EDAnalyzer("QualityTester",
+     qtList = cms.untracked.FileInPath('DQM/RPCMonitorClient/test/RPCQualityTests.xml'),
+     prescaleFactor = cms.untracked.int32(1)
+)
 
 ################ Chamber Quality ##################
 process.load("DQM.RPCMonitorClient.RPCChamberQuality_cfi")
-
+process.rpcChamberQuality.MinimumRPCEvents = 1
 ############### Output Module ######################
 process.out = cms.OutputModule("PoolOutputModule",
    fileName = cms.untracked.string('RPCDQM.root'),
@@ -139,7 +139,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 #process.p = cms.Path(process.rpcRecHits*process.rpcdigidqm*process.dqmEnv*process.qTesterRPC*process.rpcdqmclient*process.rpcChamberQuality*process.dqmSaver)
 
-process.p = cms.Path(process.rpcRecHits*process.rpcdigidqm*process.rpcAfterPulse*process.rpcFEDIntegrity*process.dqmEnv*process.qTesterRPC*process.rpcdqmclient*process.rpcChamberQuality*process.rpcEventSummary*process.rpcDCSSummary*process.rpcDaqInfo*process.rpcDataCertification*process.dqmSaver)
+process.p = cms.Path(process.rpcunpacker*process.rpcRecHits*process.rpcdigidqm*process.rpcFEDIntegrity*process.dqmEnv*process.qTesterRPC*process.rpcdqmclient*process.rpcChamberQuality*process.rpcEventSummary*process.rpcDCSSummary*process.rpcDaqInfo*process.rpcDataCertification*process.dqmSaver)
 
 process.e = cms.EndPath(process.out)
 
