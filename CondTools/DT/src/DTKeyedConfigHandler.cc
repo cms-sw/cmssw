@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/07/21 16:06:53 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/09/29 14:00:28 $
+ *  $Revision: 1.6 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -345,12 +345,13 @@ void DTKeyedConfigHandler::getNewObjects() {
       int rhc = *rhlIter++;
       std::cout << "retrieve configuration bricks for run " << run
                 << " ---> RH " << rhc << std::endl;
-      std::map<int,std::vector<DTConfigKey>*>::const_iterator
-               rhcIter = rhcMap.find( rhc );
-      std::map<int,std::vector<DTConfigKey>*>::const_iterator
-               rhcIend = rhcMap.end();
+//      std::map<int,std::vector<DTConfigKey>*>::const_iterator
+//               rhcIter = rhcMap.find( rhc );
+//      std::map<int,std::vector<DTConfigKey>*>::const_iterator
+//               rhcIend = rhcMap.end();
+      std::map<int,std::vector<DTConfigKey>*>::const_iterator rhcIter;
       // ----------- redundant check
-      if ( rhcIter == rhcIend ) continue;
+      if ( ( rhcIter = rhcMap.find( rhc ) ) == rhcMap.end() ) continue;
       std::vector<DTConfigKey>* listPtr = rhcIter->second;
       // ----------- redundant check
       if ( listPtr == 0 ) continue;
@@ -380,7 +381,8 @@ void DTKeyedConfigHandler::getNewObjects() {
       std::map<int,int>* mapPtr = 0;
       std::map<int,std::map<int,int>*>::const_iterator keyIter;
       // ----------- redundant check
-      if ( ( keyIter = keyMap.find( cfg ) ) != keyIend )
+//      if ( keyIter != keyIend )
+      if ( ( keyIter = keyMap.find( cfg ) ) != keyMap.end() )
            mapPtr = keyIter->second;
       if ( mapPtr == 0 ) continue;
       std::map<int,int>::const_iterator ccmIter = mapPtr->begin();
@@ -391,32 +393,37 @@ void DTKeyedConfigHandler::getNewObjects() {
         int ccb = ccmEntry.first;
         int key = ccmEntry.second;
         // retrieve chamber id
-        std::map<int,DTCCBId>::const_iterator ccbIter = ccbMap.find( ccb );
-        std::map<int,DTCCBId>::const_iterator ccbIend = ccbMap.end();
+//        std::map<int,DTCCBId>::const_iterator ccbIter = ccbMap.find( ccb );
+//        std::map<int,DTCCBId>::const_iterator ccbIend = ccbMap.end();
+        std::map<int,DTCCBId>::const_iterator ccbIter;
         // ----------- redundant check
-        if ( ccbIter == ccbIend ) continue;
+//        if ( ccbIter == ccbIend ) continue;
+        if ( ( ccbIter = ccbMap.find( ccb ) ) == ccbMap.end() ) continue;
         const DTCCBId& chaId = ccbIter->second;
         // ----------- retrieve brick id list
-        std::map<int,std::vector<int>*>::const_iterator brkIter =
-                                                        brkMap.find( key );
-        std::map<int,std::vector<int>*>::const_iterator brkIend =
-                                                        brkMap.end();
-        if ( brkIter == brkIend ) continue;
+//        std::map<int,std::vector<int>*>::const_iterator brkIter =
+//                                                        brkMap.find( key );
+//        std::map<int,std::vector<int>*>::const_iterator brkIend =
+//                                                        brkMap.end();
+//        if ( brkIter == brkIend ) continue;
+        std::map<int,std::vector<int>*>::const_iterator brkIter;
+        if ( ( brkIter = brkMap.find( key ) ) == brkMap.end() ) continue;
         std::vector<int>* brkPtr = brkIter->second;
         // ----------- redundant check
         if ( brkPtr == 0 ) continue;
         // ----------- set brick id lists in payload
         std::vector<int> bkList;
         bkList.reserve( 20 );
-        std::map<int,int>::const_iterator bktIter = bktMap.begin();
-        std::map<int,int>::const_iterator bktIend = bktMap.end();
+//        std::map<int,int>::const_iterator bktIter = bktMap.begin();
+//        std::map<int,int>::const_iterator bktIend = bktMap.end();
+        std::map<int,int>::const_iterator bktIter;
         std::vector<int>::const_iterator bkiIter = brkPtr->begin();
         std::vector<int>::const_iterator bkiIend = brkPtr->end();
         while ( bkiIter != bkiIend ) {
           int brickId = *bkiIter++;
-          bktIter = bktMap.find( brickId );
+//          bktIter = bktMap.find( brickId );
           // ----------- redundant check
-          if ( bktIter == bktIend ) continue;
+          if ( ( bktIter = bktMap.find( brickId ) ) == bktMap.end() ) continue;
           if ( bktIter->second == cft ) bkList.push_back( brickId );
         }
         fullConf->appendConfigKey( chaId.wheelId,
@@ -479,9 +486,11 @@ void DTKeyedConfigHandler::chkConfigList() {
     const coral::AttributeList& row = fullCCBCfgCursor.currentRow();
     int fullConfigId = row["CONFKEY"   ].data<int>();
     int fullCCBCfgId = row["CONFCCBKEY"].data<int>();
-    std::map<int,bool>::const_iterator cfgIter =
-                                       activeConfigMap.find( fullConfigId );
-    if ( cfgIter == activeConfigMap.end() ) continue;
+//    std::map<int,bool>::const_iterator cfgIter =
+//                                       activeConfigMap.find( fullConfigId );
+    std::map<int,bool>::const_iterator cfgIter;
+    if ( ( cfgIter = activeConfigMap.find( fullConfigId ) )
+                  == activeConfigMap.end() ) continue;
     if ( activeCCBCfgMap.find( fullCCBCfgId ) ==
          activeCCBCfgMap.end() ) 
          activeCCBCfgMap.insert( std::pair<int,bool>( fullCCBCfgId, true ) );
@@ -500,9 +509,11 @@ void DTKeyedConfigHandler::chkConfigList() {
     const coral::AttributeList& row = ccbConfBrickCursor.currentRow();
     int fullCCBCfgId = row["CONFID"].data<int>();
     int ccbConfBrkId = row["BRKID" ].data<int>();
-    std::map<int,bool>::const_iterator ccbIter =
-                                       activeCCBCfgMap.find( fullCCBCfgId );
-    if ( ccbIter == activeCCBCfgMap.end() ) continue;
+//    std::map<int,bool>::const_iterator ccbIter =
+//                                       activeCCBCfgMap.find( fullCCBCfgId );
+    std::map<int,bool>::const_iterator ccbIter;
+    if ( ( ccbIter = activeCCBCfgMap.find( fullCCBCfgId ) )
+                  == activeCCBCfgMap.end() ) continue;
     if ( !( ccbIter->second ) ) continue;
     if ( activeCfgBrkMap.find( ccbConfBrkId ) ==
          activeCfgBrkMap.end() )
@@ -526,9 +537,11 @@ void DTKeyedConfigHandler::chkConfigList() {
     int brickConfigId = row["BRKID"].data<int>();
     if ( brickConfigId < minBrickId ) continue;
     if ( brickConfigId > maxBrickId ) continue;
-    std::map<int,bool>::const_iterator brkIter =
-                                       activeCfgBrkMap.find( brickConfigId );
-    if ( brkIter == activeCfgBrkMap.end() ) continue;
+//    std::map<int,bool>::const_iterator brkIter =
+//                                       activeCfgBrkMap.find( brickConfigId );
+    std::map<int,bool>::const_iterator brkIter;
+    if ( ( brkIter = activeCfgBrkMap.find( brickConfigId ) )
+                  == activeCfgBrkMap.end() ) continue;
     if ( !( brkIter->second ) ) continue;
     std::string brickConfigName = row["BRKNAME"].data<std::string>();
     std::cout << "brick " << brickConfigId
