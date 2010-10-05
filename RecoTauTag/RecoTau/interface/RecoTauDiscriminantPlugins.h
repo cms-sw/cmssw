@@ -3,8 +3,8 @@
 
 /*
  * Common base classes for the plugins used in the
- * that produce PFTau discriminants.  A PFTauDiscriminant 
- * (not discriminator) is a vector of doubles associated 
+ * that produce PFTau discriminants.  A PFTauDiscriminant
+ * (not discriminator) is a vector of doubles associated
  * to a given tau, and represent some observable(s) for that
  * tau.
  *
@@ -25,10 +25,10 @@ inline std::string discPluginName(const std::string& mvaName) {
   return "RecoTauDiscrimination" + mvaName;
 }
 
-class RecoTauDiscriminantPlugin : public RecoTauNamedPlugin {
+class RecoTauDiscriminantPlugin : public RecoTauEventHolderPlugin {
   public:
     explicit RecoTauDiscriminantPlugin(const edm::ParameterSet& pset):
-      RecoTauNamedPlugin(pset){}
+      RecoTauEventHolderPlugin(pset){}
 
     virtual ~RecoTauDiscriminantPlugin() {}
 
@@ -53,7 +53,7 @@ template<double Function(const reco::PFTau&)>
 
 // Build a discriminant using a unary PFTau function that returns a vector of values
 template<std::vector<double> Function(const reco::PFTau&)>
-  class RecoTauDiscriminantVectorFunctionPlugin : 
+  class RecoTauDiscriminantVectorFunctionPlugin :
     public RecoTauDiscriminantPlugin {
   public:
     explicit RecoTauDiscriminantVectorFunctionPlugin(const edm::ParameterSet& pset):
