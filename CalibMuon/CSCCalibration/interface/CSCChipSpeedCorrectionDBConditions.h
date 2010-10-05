@@ -90,8 +90,7 @@ inline CSCDBChipSpeedCorrection * CSCChipSpeedCorrectionDBConditions::prefillDBC
 
   std::vector<int> new_index_id;
   std::vector<float> new_chipPulse;
-  double runningTotal = 0;
-  int numNonZero = 0;
+
   while (!feof(fin)){
     //note space at end of format string to convert last \n
     // int check = fscanf(fin,"%d %d %f %f \n",&serialChamber,&chip,&t,&dt);
@@ -147,10 +146,6 @@ inline CSCDBChipSpeedCorrection * CSCChipSpeedCorrectionDBConditions::prefillDBC
 
     new_index_id.push_back(indexer.chipIndex(cscId,chip));
     new_chipPulse.push_back(t);
-    if (t!=0){
-      runningTotal += t;
-      numNonZero++;
-    }
   }
   fclose(fin);    
 
@@ -166,19 +161,7 @@ inline CSCDBChipSpeedCorrection * CSCChipSpeedCorrectionDBConditions::prefillDBC
     //printf("i= %d \t new index id = %d \t corr = %f \n",i,new_index_id[i], new_chipPulse[i]);
   }
 
-  //For now, calculate the mean chip correction and use it for all chambers that don't have calibration pulse data (speedCorr ==0)
-  //or had values of zero (speedCorr == dataOffset)
-  //This should be a temporary fix until all chips that will read out in data have calibration information
-  //Since there is only a handful out of 15K chips with values more than 3 ns away from the average, this is probably very safe 
-  //to first order
-  float ave = runningTotal/numNonZero;
-  for (int i=0;i<MAX_SIZE;i++){
-    if( itemvector[i].speedCorr == 0 ||itemvector[i].speedCorr == (short int)(dataOffset*CHIP_FACTOR+0.5) )
-      itemvector[i].speedCorr = (short int) ((dataOffset-ave)*CHIP_FACTOR+0.5*(dataOffset>=ave)-0.5*(dataOffset<ave));
-  }
-
- 
   return cndbChipCorr;
 }
- 
+
 #endif

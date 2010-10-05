@@ -5,8 +5,8 @@
 //   Description: Sector Processor
 //
 //
-//   $Date: 2008/11/28 10:30:51 $
-//   $Revision: 1.6 $
+//   $Date: 2008/05/09 15:01:59 $
+//   $Revision: 1.5 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -140,40 +140,6 @@ void L1MuDTSectorProcessor::run(int bx, const edm::Event& e, const edm::EventSet
   // assign pt, eta, phi and quality
   if ( m_AUs[0] && !m_TA->isEmpty(0) ) m_AUs[0]->run(c);
   if ( m_AUs[1] && !m_TA->isEmpty(1) ) m_AUs[1]->run(c);
-
-  if ( m_spid.wheel() == -1 ) {
-    if ( m_TrackCands[0] && !m_TrackCands[0]->empty() && m_TrackCands[0]->address(2)>3 && m_TrackCands[0]->address(2)<6 ) m_TrackCands[0]->reset();
-    if ( m_TrackCands[0] && !m_TrackCands[0]->empty() && m_TrackCands[0]->address(3)>3 && m_TrackCands[0]->address(3)<6 ) m_TrackCands[0]->reset();
-    if ( m_TrackCands[0] && !m_TrackCands[0]->empty() && m_TrackCands[0]->address(4)>3 && m_TrackCands[0]->address(4)<6 ) m_TrackCands[0]->reset();
-
-    if ( m_TracKCands[0] && !m_TracKCands[0]->empty() && m_TracKCands[0]->address(2)>3 && m_TracKCands[0]->address(2)<6 ) m_TracKCands[0]->reset();
-    if ( m_TracKCands[0] && !m_TracKCands[0]->empty() && m_TracKCands[0]->address(3)>3 && m_TracKCands[0]->address(3)<6 ) m_TracKCands[0]->reset();
-    if ( m_TracKCands[0] && !m_TracKCands[0]->empty() && m_TracKCands[0]->address(4)>3 && m_TracKCands[0]->address(4)<6 ) m_TracKCands[0]->reset();
-
-    if ( m_TrackCands[1] && !m_TrackCands[1]->empty() && m_TrackCands[1]->address(2)>3 && m_TrackCands[1]->address(2)<6 ) m_TrackCands[1]->reset();
-    if ( m_TrackCands[1] && !m_TrackCands[1]->empty() && m_TrackCands[1]->address(3)>3 && m_TrackCands[1]->address(3)<6 ) m_TrackCands[1]->reset();
-    if ( m_TrackCands[1] && !m_TrackCands[1]->empty() && m_TrackCands[1]->address(4)>3 && m_TrackCands[1]->address(4)<6 ) m_TrackCands[1]->reset();
-
-    if ( m_TracKCands[1] && !m_TracKCands[1]->empty() && m_TracKCands[1]->address(2)>3 && m_TracKCands[1]->address(2)<6 ) m_TracKCands[1]->reset();
-    if ( m_TracKCands[1] && !m_TracKCands[1]->empty() && m_TracKCands[1]->address(3)>3 && m_TracKCands[1]->address(3)<6 ) m_TracKCands[1]->reset();
-    if ( m_TracKCands[1] && !m_TracKCands[1]->empty() && m_TracKCands[1]->address(4)>3 && m_TracKCands[1]->address(4)<6 ) m_TracKCands[1]->reset();
-
-    if ( m_TrackCands[0] && !m_TrackCands[0]->empty() && m_TrackCands[0]->address(2)>7 && m_TrackCands[0]->address(2)<10 ) m_TrackCands[0]->reset();
-    if ( m_TrackCands[0] && !m_TrackCands[0]->empty() && m_TrackCands[0]->address(3)>7 && m_TrackCands[0]->address(3)<10 ) m_TrackCands[0]->reset();
-    if ( m_TrackCands[0] && !m_TrackCands[0]->empty() && m_TrackCands[0]->address(4)>7 && m_TrackCands[0]->address(4)<10 ) m_TrackCands[0]->reset();
-
-    if ( m_TracKCands[0] && !m_TracKCands[0]->empty() && m_TracKCands[0]->address(2)>7 && m_TracKCands[0]->address(2)<10 ) m_TracKCands[0]->reset();
-    if ( m_TracKCands[0] && !m_TracKCands[0]->empty() && m_TracKCands[0]->address(3)>7 && m_TracKCands[0]->address(3)<10 ) m_TracKCands[0]->reset();
-    if ( m_TracKCands[0] && !m_TracKCands[0]->empty() && m_TracKCands[0]->address(4)>7 && m_TracKCands[0]->address(4)<10 ) m_TracKCands[0]->reset();
-
-    if ( m_TrackCands[1] && !m_TrackCands[1]->empty() && m_TrackCands[1]->address(2)>7 && m_TrackCands[1]->address(2)<10 ) m_TrackCands[1]->reset();
-    if ( m_TrackCands[1] && !m_TrackCands[1]->empty() && m_TrackCands[1]->address(3)>7 && m_TrackCands[1]->address(3)<10 ) m_TrackCands[1]->reset();
-    if ( m_TrackCands[1] && !m_TrackCands[1]->empty() && m_TrackCands[1]->address(4)>7 && m_TrackCands[1]->address(4)<10 ) m_TrackCands[1]->reset();
-
-    if ( m_TracKCands[1] && !m_TracKCands[1]->empty() && m_TracKCands[1]->address(2)>7 && m_TracKCands[1]->address(2)<10 ) m_TracKCands[1]->reset();
-    if ( m_TracKCands[1] && !m_TracKCands[1]->empty() && m_TracKCands[1]->address(3)>7 && m_TracKCands[1]->address(3)<10 ) m_TracKCands[1]->reset();
-    if ( m_TracKCands[1] && !m_TracKCands[1]->empty() && m_TracKCands[1]->address(4)>7 && m_TracKCands[1]->address(4)<10 ) m_TracKCands[1]->reset();
-  }
 
 } 
 

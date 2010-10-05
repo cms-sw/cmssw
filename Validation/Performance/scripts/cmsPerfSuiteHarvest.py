@@ -10,16 +10,11 @@ from Validation.Performance.parserPerfsuiteMetadata import parserPerfsuiteMetada
 from Validation.Performance.FileNamesHelper import *
 import Validation.Performance.parserEdmSize as parserEdmSize
 
-import glob
-from commands import getstatusoutput
-
 """ indicates whether the CMSSW is [use False] available or not. on our testing machine it's not [use True] """
 _TEST_RUN = False
 
 """ global variables """
 test_timing_report_log = re.compile("TimingReport.log$", re.IGNORECASE)
-test_igprof_report_log = re.compile("^(.*)\.sql3", re.IGNORECASE)
-test_memcheck_report_log = re.compile("^(.*)\memcheck_vlgd.xml", re.IGNORECASE)
 
 
 xmldoc = minidom.Document()
@@ -110,32 +105,10 @@ def get_modules_sequences_relationships():
 	return [{"name": seq, "modules": ",".join(modules)} for (seq, modules) in sequenceWithModulesString.items()]
 
 
-def exportIgProfReport(path, igProfReport, igProfType, runinfo):
-    jobID = igProfReport["jobID"]
-    #print runinfo['TestResults']
-    found = False
-    #print igProfType
-    if runinfo['TestResults'].has_key(igProfType):
-        for result in runinfo['TestResults'][igProfType]:
-            if jobID["candle"] == result["candle"] and jobID["pileup_type"] == result['pileup_type'] and jobID["conditions"] == result['conditions'] and jobID["event_content"] == result['event_content']:
-                jobID["candle"] = jobID["candle"].upper()
-                if not result.has_key("jobs"):
-                    result['jobs'] = []
-                result['jobs'].append(igProfReport)
-                found = True
-                break
-		
-    if not found:
-        print "============ (almost) ERROR: NOT FOUND THE ENTRY in cmsPerfSuite.log, exporting as separate entry ======== "
-        print "JOB ID: %s " % str(jobID)
-        print " ====================== "
-        runinfo['unrecognized_jobs'].append(igProfReport)
-        #export_xml(xml_doc = xmldoc, **igProfReport)	
-        
-
 def exportTimeSizeJob(path, timeSizeReport,  runinfo):
 		candleLong = os.path.split(path)[1].replace("_TimeSize", "").replace("_PU", "")
 		jobID = timeSizeReport["jobID"]
+		print candleLong
 
 		#search for a run Test to which could belong our JOB
 		found = False
@@ -160,32 +133,6 @@ def exportTimeSizeJob(path, timeSizeReport,  runinfo):
 			runinfo['unrecognized_jobs'].append(timeSizeReport)
 			#export_xml(xml_doc = xmldoc, **timeSizeReport)	
 			
-def exportMemcheckReport(path, MemcheckReport, runinfo):
-		candleLong = os.path.split(path)[1].replace("_Memcheck", "").replace("_PU", "")
-		jobID = MemcheckReport["jobID"]
-
-		#search for a run Test to which could belong our JOB
-		found = False
-		if runinfo['TestResults'].has_key('Memcheck'):
-			for result in runinfo['TestResults']['Memcheck']:
-				#print result
-                                #print jobID
-				""" If this is the testResult which fits Memcheck job """
-				#TODO: we do not check teh step when assigning because of the different names, check if this is really OK. make a decission which step name to use later, long or short one
-				#and jobID["step"] in result['steps'].split(parserPerfsuiteMetadata._LINE_SEPARATOR)
-				if result['candle'] == candleLong  and jobID["pileup_type"] == result['pileup_type'] and jobID["conditions"] == result['conditions'] and jobID["event_content"] == result['event_content']:
-					#print result
-					if not result.has_key("jobs"):
-						result['jobs'] = []
-					result['jobs'].append(MemcheckReport)
-					found = True
-					break
-		
-		if not found:
-			print "============ (almost) ERROR: NOT FOUND THE ENTRY in cmsPerfSuite.log, exporting as separate entry ======== "
-			print "JOB ID: %s " % str(jobID)
-			print " ====================== "
-			runinfo['unrecognized_jobs'].append(MemcheckReport)
 
 def process_timesize_dir(path, runinfo):
 	global release,event_content,conditions
@@ -257,186 +204,17 @@ def process_timesize_dir(path, runinfo):
 			except Exception, e:
 				print e
 
+
 		timeSizeReport = {
 				"jobID":jobID,
-				"release": release,
-                                "timelog_result": (mod_timelog, evt_timelog, rss_data, vsize_data), 
-				"metadata": {"testName": "TimeSize", "root_file_size": root_file_size, "num_events": num_events}, 
+				"release": release, 
+				"timelog_result": (mod_timelog, evt_timelog, rss_data, vsize_data), 
+				"metadata": {"root_file_size": root_file_size, "num_events": num_events}, 
 				"edmSize_result": edm_report 
 		}
 		
 		# export to xml: actualy exporting gets suspended and put into runinfo
 		exportTimeSizeJob(path, timeSizeReport,  runinfo)
-
-def process_memcheck_dir(path, runinfo):
-	global release,event_content,conditions
-	""" if the release is not provided explicitly we take it from the Simulation candles file """
-	if (not release):
-		release_fromlogfile = read_SimulationCandles(path)
-		release  = release_fromlogfile 
-		print "release from simulation candles: %s" % release
-	
-	if (not release):
-		# TODO: raise exception!
-		raise Exception("the release was not found!")
-
-	""" process the IgProf sql3 files """
-
-        # get the file list 
-	files = os.listdir(path)
-	memcheck_files = [os.path.join(path, f) for f in files
-				 if test_memcheck_report_log.search(f) 
-					and os.path.isfile(os.path.join(path, f)) ]
-
-        if len(memcheck_files) == 0: # Fast protection for old runs, where the _vlgd files is not created...
-            print "No _vlgd files found!"
-        else:
-            jobID = getJobID_fromMemcheckLogName(os.path.join(path, memcheck_files[0]))
-
-            (candle, step, pileup_type, conditions, event_content) = jobID
-            print "jobID: %s" % str(jobID)
-            jobID = dict(zip(("candle", "step", "pileup_type", "conditions", "event_content"), jobID))
-            print "Dictionary based jobID %s: " % str(jobID)
-            
-            #if any of jobID fields except (isPILEUP) is empty we discard the job as all those are the jobID keys and we must have them
-            discard = len([key for key, value in jobID.items() if key != "pileup_type" and not value])
-            if discard:
-                print " ====================== The job HAS BEEN DISCARDED =============== "
-                print " NOT ALL DATA WAS AVAILABLE "
-                print " JOB ID = %s " % str(jobID)
-                print " ======================= end ===================================== "
-                return 
-            
-            # add to the list to generate the readable filename :)
-            steps[step] = 1
-            candles[candle.upper()] = 1
-            if pileup_type=="":
-                pileups["NoPileUp"]=1
-            else:
-                pileups[pileup_type] = 1
-                
-            memerror = getMemcheckError(path)
-            
-            MemcheckReport = {
-                "jobID": jobID,
-                "release": release,
-                "memcheck_errors": {"error_num": memerror},
-                "metadata": {"testName": "Memcheck"},
-                }
-
-            # export to xml: actualy exporting gets suspended and put into runinfo
-            exportMemcheckReport(path, MemcheckReport, runinfo)
-
-def getMemcheckError(path):
-    globbed = glob.glob(os.path.join(path, "*memcheck_vlgd.xml"))
-
-    errnum = 0
-
-    for f in globbed:
-        #print f
-        cmd = "grep '<error>' "+f+ " | wc -l "
-        p = os.popen(cmd, 'r')
-        errnum += int(p.readlines()[0])
-                        
-    return errnum
-    
-
-def process_igprof_dir(path, runinfo):
-	global release,event_content,conditions
-	""" if the release is not provided explicitly we take it from the Simulation candles file """
-	if (not release):
-		release_fromlogfile = read_SimulationCandles(path)
-		release  = release_fromlogfile 
-		print "release from simulation candles: %s" % release
-	
-	if (not release):
-		# TODO: raise exception!
-		raise Exception("the release was not found!")
-
-	""" process the IgProf sql3 files """
-
-        # get the file list 
-	files = os.listdir(path)
-	igprof_files = [os.path.join(path, f) for f in files
-				 if test_igprof_report_log.search(f) 
-					and os.path.isfile(os.path.join(path, f)) ]
-
-        jobID = getJobID_fromIgProfLogName(igprof_files[0])
-
-        (candle, step, pileup_type, conditions, event_content) = jobID
-	#print "jobID: %s" % str(jobID)
-        jobID = dict(zip(("candle", "step", "pileup_type", "conditions", "event_content"), jobID))
-        print "Dictionary based jobID %s: " % str(jobID)
-
-        igProfType = path.split("/")[-1].replace(jobID["candle"] + "_", "").replace("PU_", "")
-
-	#if any of jobID fields except (isPILEUP) is empty we discard the job as all those are the jobID keys and we must have them
-        discard = len([key for key, value in jobID.items() if key != "pileup_type" and not value])
-        if discard:
-            print " ====================== The job HAS BEEN DISCARDED =============== "
-            print " NOT ALL DATA WAS AVAILABLE "
-            print " JOB ID = %s " % str(jobID)
-            print " ======================= end ===================================== "
-            return 
-        
-        # add to the list to generate the readable filename :)
-        steps[step] = 1
-        candles[candle.upper()] = 1
-        if pileup_type=="":
-            pileups["NoPileUp"]=1
-        else:
-            pileups[pileup_type] = 1
-            
-        igs = getIgSummary(path)
-        #print igs
-
-        igProfReport = {
-            "jobID": jobID,
-            "release": release, 
-            "igprof_result": igs,
-            "metadata": {"testName": igProfType},
-            }
-
-        # print igProfReport
-        # export to xml: actualy exporting gets suspended and put into runinfo
-        exportIgProfReport(path, igProfReport, igProfType, runinfo)      
-
-#get IgProf summary information from the sql3 files
-def getIgSummary(path):
-    igresult = []
-    globbed = glob.glob(os.path.join(path, "*.sql3"))
-    
-    for f in globbed:
-        #print f
-        profileInfo = getSummaryInfo(f)
-        if not profileInfo:
-            continue
-        cumCounts, cumCalls = profileInfo
-        dump, architecture, release, rest = f.rsplit("/", 3)
-        candle, sequence, pileup, conditions, process, counterType, events = rest.split("___")
-        events = events.replace(".sql3", "")
-        igresult.append({"counter_type": counterType, "event": events, "cumcounts": cumCounts, "cumcalls": cumCalls})
-        
-    return igresult
-    
-def getSummaryInfo(database):
-    summary_query="""SELECT counter, total_count, total_freq, tick_period
-                     FROM summary;"""
-    error, output = doQuery(summary_query, database)
-    if error or not output or output.count("\n") > 1:
-        return None
-    counter, total_count, total_freq, tick_period = output.split("@@@")
-    if counter == "PERF_TICKS":
-        return float(tick_period) * float(total_count), int(total_freq)
-    else:
-        return int(total_count), int(total_freq)
-    
-def doQuery(query, database):
-    if os.path.exists("/usr/bin/sqlite3"):
-        sqlite="/usr/bin/sqlite3"
-    else:
-        sqlite="/afs/cern.ch/user/e/eulisse/www/bin/sqlite"
-    return getstatusoutput("echo '%s' | %s -separator @@@ %s" % (query, sqlite, database))
 
 #TimeSize
 def searchTimeSizeFiles(runinfo):
@@ -453,38 +231,6 @@ def searchTimeSizeFiles(runinfo):
 	for timesize_dir in timesize_dirs:
 		# print timesize_dir
 		process_timesize_dir(timesize_dir, runinfo)
-
-#Memcheck
-def searchMemcheckFiles(runinfo):
-	""" so far we will use the current dir to search in """
-	path = os.getcwd()
-	#print path
-	print 'full path =', os.path.abspath(path)
-
-	files = os.listdir(path)
-	
-	test_MemcheckDirs = re.compile("_Memcheck(.*)$", re.IGNORECASE)          
-	memcheck_dirs = [os.path.join(path, f) for f in files if test_MemcheckDirs.search(f) and os.path.isdir(os.path.join(path, f))]
-	
-	for memcheck_dir in memcheck_dirs:
-		print memcheck_dir
-		process_memcheck_dir(memcheck_dir, runinfo)
-
-#IgProf
-def searchIgProfFiles(runinfo):
-	""" so far we will use the current dir to search in """
-	path = os.getcwd()
-	#print path
-	print 'full path =', os.path.abspath(path)
-
-	files = os.listdir(path)
-	
-	test_IgProfDirs = re.compile("_IgProf(.*)$", re.IGNORECASE)          
-	igprof_dirs = [os.path.join(path, f) for f in files if test_IgProfDirs.search(f) and os.path.isdir(os.path.join(path, f))]
-	
-	for igprof_dir in igprof_dirs:
-		print igprof_dir
-		process_igprof_dir(igprof_dir, runinfo)
 
 def exportSequences():
     """ Exports the sequences to XML Doc """
@@ -538,12 +284,6 @@ if __name__ == "__main__":
     print "Parsing TimeSize report"
     # Search for TimeSize files: EdmSize, TimingReport
     searchTimeSizeFiles(run_info)
-    print "Parsing IgProf report"
-    # Search for IgProf files
-    searchIgProfFiles(run_info)
-    print "Parsing Memcheck report"
-    # Search for Memcheck files
-    searchMemcheckFiles(run_info)
     #print run_info
 
     print "Exporting sequences and event-content rules"

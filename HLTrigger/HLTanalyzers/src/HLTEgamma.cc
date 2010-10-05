@@ -296,11 +296,11 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
   clear();
 
   if (electrons.isValid()) {
-    GsfElectronCollection myelectrons( electrons->begin(), electrons->end() );
+    reco::GsfElectronCollection myelectrons( electrons->begin(), electrons->end() );
     nele = myelectrons.size();
     std::sort(myelectrons.begin(), myelectrons.end(), EtGreater());
     int iel = 0;
-    for (GsfElectronCollection::const_iterator i = myelectrons.begin(); i != myelectrons.end(); i++) {
+    for (reco::GsfElectronCollection::const_iterator i = myelectrons.begin(); i != myelectrons.end(); i++) {
       elpt[iel]  = i->pt();
       elphi[iel] = i->phi();
       eleta[iel] = i->eta();
@@ -340,11 +340,11 @@ void HLTEgamma::analyze(const edm::Handle<reco::GsfElectronCollection>         &
 //   }
 
   if (photons.isValid()) {
-    PhotonCollection myphotons(* photons);
+    reco::PhotonCollection myphotons(* photons);
     nphoton = myphotons.size();
     std::sort(myphotons.begin(), myphotons.end(), EtGreater());
     int ipho = 0;
-    for (PhotonCollection::const_iterator i = myphotons.begin(); i!= myphotons.end(); i++) {
+    for (reco::PhotonCollection::const_iterator i = myphotons.begin(); i!= myphotons.end(); i++) {
       photonpt[ipho] = i->pt();
       photonphi[ipho] = i->phi();
       photoneta[ipho] = i->eta();

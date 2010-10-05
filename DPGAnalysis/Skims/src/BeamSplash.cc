@@ -151,7 +151,7 @@ bool BeamSplash::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (accepted)
 	{
     edm::LogVerbatim("BeamSplash") << "!!!!!!!BeamSplash!!!!!!!: run:" << irun << " event:" << ievt << " ls:"<< ils << " bx= " << ibx  <<" totene=" << totene << " ecalene=" << ecalene << " hcalene=" << hcalene ; 
-    cout << "!!!!!!!BeamSplash!!!!!!!: run:" << irun << " event:" << ievt << " ls:"<< ils << " bx= " << ibx  <<" totene=" <<totene << " ecalene=" << ecalene << " hcalene=" << hcalene << endl; 
+    std::cout << "!!!!!!!BeamSplash!!!!!!!: run:" << irun << " event:" << ievt << " ls:"<< ils << " bx= " << ibx  <<" totene=" <<totene << " ecalene=" << ecalene << " hcalene=" << hcalene << std::endl; 
  } 
 
   if (applyfilter)

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 10:54:28 EST 2008
-// $Id: FWSimpleRepresentationChecker.cc,v 1.5 2010/06/02 22:37:41 chrjones Exp $
+// $Id: FWSimpleRepresentationChecker.cc,v 1.3 2009/01/23 21:35:44 amraktad Exp $
 //
 
 // system include files
@@ -36,10 +36,8 @@
 // constructors and destructor
 //
 FWSimpleRepresentationChecker::FWSimpleRepresentationChecker(const std::string& iTypeName,
-                                                             const std::string& iPurpose,
-                                                             unsigned int iBitPackedViews,
-                                                             bool iRepresentsSubPart) :
-   FWRepresentationCheckerBase(iPurpose,iBitPackedViews,iRepresentsSubPart),
+                                                             const std::string& iPurpose) :
+   FWRepresentationCheckerBase(iPurpose),
    m_typeidName(iTypeName)
 {
 }
@@ -121,7 +119,7 @@ FWSimpleRepresentationChecker::infoFor(const std::string& iTypeName) const
    //see if the modelType inherits from our type
 
    if(inheritsFrom(modelType,m_typeidName,distance) ) {
-      return FWRepresentationInfo(purpose(),distance,bitPackedViews(), representsSubPart());
+      return FWRepresentationInfo(purpose(),distance);
    }
    return FWRepresentationInfo();
 }

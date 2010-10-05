@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2010/06/02 06:50:30 $
- * $Revision: 1.486 $
+ * $Date: 2010/08/10 07:23:43 $
+ * $Revision: 1.493 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -34,28 +34,29 @@
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunDat.h"
+#include "DQM/EcalCommon/interface/LogicID.h"
 #endif
 
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
-#include <DQM/EcalCommon/interface/UtilsClient.h>
-#include <DQM/EcalCommon/interface/Numbers.h>
-#include <DQM/EcalCommon/interface/LogicID.h>
+#include "DQM/EcalCommon/interface/Masks.h"
 
-#include <DQM/EcalBarrelMonitorClient/interface/EcalBarrelMonitorClient.h>
+#include "DQM/EcalCommon/interface/UtilsClient.h"
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBStatusFlagsClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBOccupancyClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBCosmicClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBBeamCaloClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBBeamHodoClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBClusterClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBTimingClient.h>
+#include "DQM/EcalBarrelMonitorClient/interface/EcalBarrelMonitorClient.h"
+
+#include "DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBStatusFlagsClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBOccupancyClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBCosmicClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBBeamCaloClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBBeamHodoClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBClusterClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBTimingClient.h"
 
 EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps) {
 
@@ -106,17 +107,6 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps) {
 #endif
     } else {
       std::cout << " Ecal Cond DB is OFF" << std::endl;
-    }
-  }
-
-  // Mask file
-
-  maskFile_ = ps.getUntrackedParameter<std::string>("maskFile", "");
-
-  if ( verbose_ ) {
-    if ( maskFile_.size() != 0 ) {
-      maskFile_ = edm::FileInPath(maskFile_).fullPath();
-      std::cout << " maskFile is '" << maskFile_ << "'" << std::endl;
     }
   }
 
@@ -709,6 +699,10 @@ void EcalBarrelMonitorClient::beginRun(const edm::Run& r, const edm::EventSetup&
 
   Numbers::initGeometry(c, verbose_);
 
+  if ( verbose_ ) std::cout << std::endl;
+
+  Masks::initMasking(c, verbose_);
+
   if ( verbose_ ) {
     std::cout << std::endl;
     std::cout << "Standard beginRun() for run " << r.id().run() << std::endl;
@@ -880,7 +874,7 @@ void EcalBarrelMonitorClient::endRun(const edm::Run& r, const edm::EventSetup& c
 
 }
 
-void EcalBarrelMonitorClient::beginLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &c) {
+void EcalBarrelMonitorClient::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) {
 
   if ( verbose_ ) {
     std::cout << std::endl;
@@ -890,7 +884,7 @@ void EcalBarrelMonitorClient::beginLuminosityBlock(const edm::LuminosityBlock &l
 
 }
 
-void EcalBarrelMonitorClient::endLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &c) {
+void EcalBarrelMonitorClient::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) {
 
   current_time_ = time(NULL);
 
@@ -1071,26 +1065,6 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
     }
   }
 
-  if ( maskFile_.size() != 0 ) {
-    try {
-      if ( verbose_ ) std::cout << "Fetching masked channels from file ..." << std::endl;
-      EcalErrorMask::readFile(maskFile_, debug_);
-      if ( verbose_ ) std::cout << "done." << std::endl;
-    } catch (runtime_error &e) {
-      cerr << e.what() << std::endl;
-    }
-  } else {
-    if ( econn ) {
-      try {
-        if ( verbose_ ) std::cout << "Fetching masked channels from DB ..." << std::endl;
-        EcalErrorMask::readDB(econn, &runiov_);
-        if ( verbose_ ) std::cout << "done." << std::endl;
-      } catch (runtime_error &e) {
-        cerr << e.what() << std::endl;
-      }
-    }
-  }
-
   if ( verbose_ ) std::cout << std::endl;
 
   if ( econn ) {
@@ -1109,7 +1083,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
 
 }
 
-void EcalBarrelMonitorClient::writeDb() {
+void EcalBarrelMonitorClient::writeDb(void) {
 
   subrun_++;
 
@@ -1707,7 +1681,7 @@ void EcalBarrelMonitorClient::analyze(void) {
 
 }
 
-void EcalBarrelMonitorClient::analyze(const edm::Event &e, const edm::EventSetup &c) {
+void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   run_ = e.id().run();
   evt_ = e.id().event();
@@ -1724,7 +1698,7 @@ void EcalBarrelMonitorClient::softReset(bool flag) {
   std::vector<MonitorElement*>::const_iterator meitr;
   for ( meitr=mes.begin(); meitr!=mes.end(); meitr++ ) {
     if ( !strncmp((*meitr)->getName().c_str(), "EB", 2)
-         && strncmp((*meitr)->getName().c_str(), "EBTrend", 7) 
+         && strncmp((*meitr)->getName().c_str(), "EBTrend", 7)
          && strncmp((*meitr)->getName().c_str(), "by lumi", 7) ) {
       if ( flag ) {
         dqmStore_->softReset(*meitr);

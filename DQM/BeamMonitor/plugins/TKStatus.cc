@@ -1,7 +1,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "DQM/BeamMonitor/plugins/TKStatus.h"
+#include "DQM/BeamMonitor/interface/TKStatus.h"
 #include <iostream>
 
 using namespace edm;
@@ -12,7 +12,6 @@ TKStatus::TKStatus( const ParameterSet& ps ) :
   dcsTkFileName_  = parameters_.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<std::string>("DIPFileName");
   for (int i=0;i<6;i++) dcsTk[i]=true;
   countLumi_ = lastlumi_ = 0;
-  runnum = -1;
 }
 
 TKStatus::~TKStatus() {
@@ -25,7 +24,7 @@ void TKStatus::beginJob() {
 
 //--------------------------------------------------------
 void TKStatus::beginRun(const edm::Run& r, const EventSetup& context) {
-  runnum = r.run();
+
 }
 
 //--------------------------------------------------------
@@ -101,7 +100,6 @@ void TKStatus::dumpTkDcsStatus(std::string & fileName){
     }
   }
   outFile << "WholeTrackerOn " << (AllTkOn?"Yes":"No") << std::endl;
-  outFile << "Runnumber " << runnum << std::endl;
  
   outFile.close();
 }

@@ -5,6 +5,9 @@ import math
 from PyQt4.QtCore import QObject
 from PyQt4.QtGui import QMessageBox,QInputDialog
 
+from Vispa.Main.Filetype import Filetype
+from Vispa.Share.UndoEvent import UndoEvent
+
 class TabController(QObject):
     """ Base class for all tab controllers.
     
@@ -28,6 +31,9 @@ class TabController(QObject):
         self._zoomButtonPressedBeforeFlag = False
         self._fileModifcationTimestamp = None
         self._showingModifiedMessageFlag=False
+        self._supportsUndo = False
+        self._undoEvents = []
+        self._redoEvents = []
            
     #@staticmethod
     def staticSupportedFileTypes():
@@ -43,7 +49,11 @@ class TabController(QObject):
         """ Returns staticSupportedFileTypes() of the class to which this object belongs.
         """
         return self.__class__.staticSupportedFileTypes()
-        
+    
+    def supportedFileFilters(self):
+        supportedFileTypes = self.__class__.staticSupportedFileTypes()
+        return ";;".join([Filetype(t[0], t[1]).fileDialogFilter() for t in supportedFileTypes])
+            
     def plugin(self):
         """ Returns the plugin reference, set by setPlugin().
         """
@@ -106,8 +116,10 @@ class TabController(QObject):
         """
         return self._findEnabledFlag
     
-    def updateLabel(self,prefix=""):
-        """ Sets the text of the tab to filename if it is set. 
+    def updateLabel(self,prefix="",titletext = ""):
+        """ Sets the text of the tab to filename if it is set. If
+        titletext
+        is not an emty string, it is used instead of the filename.
         
         Otherwise it is set to 'UNTITLED'. It also evaluates the fileModifiedFlag and indicates changes with an *.
         """
@@ -116,13 +128,16 @@ class TabController(QObject):
             if len(os.path.splitext(title)[0]) > self.TAB_LABEL_MAX_LENGTH:
                 ext = os.path.splitext(title)[1].lower().strip(".")
                 title = os.path.splitext(title)[0][0:self.TAB_LABEL_MAX_LENGTH] + "...." + ext
-        else:
+        elif titletext == "":
             title = 'UNTITLED'
+        else:
+            title = titletext
         
         if self.isModified():
             title = '*' + title
         
         title = prefix+title
+        
         if self.tab().tabWidget():
             self.tab().tabWidget().setTabText(self.tab().tabWidget().indexOf(self.tab()), title)
         else:
@@ -208,8 +223,8 @@ class TabController(QObject):
         """
         raise NotImplementedError
     
-    def save(self, filename=''):
-        """ Takes the tab's data will be written to a file.
+    def save(self, filename=""):
+        """ Takes care the tab's data will be written to the file given as argument or if this is an empty string to self._filename.
         
         Whenever the content of the tab should be saved, this method should be called. If no filename is specified nor already set set it asks the user to set one. 
         Afterwards the writing is initiated by calling writeFile(). 
@@ -237,6 +252,14 @@ class TabController(QObject):
             self.updateLabel()
             self.plugin().application().addRecentFile(filename)
             self.plugin().application().updateMenuAndWindowTitle()
+            
+            # set last saved state for undo events
+            if len(self._redoEvents) > 0:
+                lastSavedStateEvent = self._redoEvents[len(self._redoEvents) -1]
+            else:
+                lastSavedStateEvent = None
+            self.setLastSavedStateEvent(lastSavedStateEvent)
+            
             self.plugin().application().stopWorking(statusMessage)
             return True
         else:
@@ -289,7 +312,7 @@ class TabController(QObject):
     def checkModificationTimestamp(self):
         """ Compares the actual modification timestamp of self.filename() to the modification at opening or last save operation.
         
-        This function is called by Application when the tab associated with this controller was selected.
+        This function is called by Application when the tab associated with this controller was activated.
         If modification timestamps differ the refresh() method is called.
         """
         if not self._filename or self._fileModifcationTimestamp == 0:
@@ -339,11 +362,10 @@ class TabController(QObject):
             #logging.debug(self.__class__.__name__ + ": checkModificationTimestamp() - File was not modified.")
             pass
     
-    def selected(self):
-        """ Called by application when tab is selected in tabWidget.
+    def activated(self):
+        """ Called by application when tab is activated in tabWidget.
         
         This function should be overwritten if special treatment on tab selection is required.
-        In this case the author should call updateLabel() or even better invoke the selected() function of the Tab class.
         """
         pass
         
@@ -493,3 +515,121 @@ class TabController(QObject):
         This function is called when all current operations in tab shall be canceled.
         """
         pass
+
+    def supportsUndo(self):
+        """ Returns True if the this tab controller supports undo history.
+        """
+        return self._supportsUndo
+    
+    def enableUndo(self, enable=True):
+        """ If enable is True this controller enables its undo function.
+        
+        For any tab controller that wants to use this feature, it needs to be made sure the corresponding UndoEvents
+        for actions that should be undoable exists and are added by addUndoEvent().
+        """
+        self._supportsUndo = enable
+            
+    def undoEvents(self):
+        """ Returns list of all registered UndoEvents.
+        """
+        return self._undoEvents
+    
+    def redoEvents(self):
+        """ Returns list of all UndoEvents that have already been undone before.
+        """
+        return self._redoEvents
+            
+    def addUndoEvent(self, undoEvent):
+        """ Adds event of type UndoEvent to this tab controller's list of undoable events.
+        
+        Undo can be invoked by calling undo().
+        """
+        if self._supportsUndo:
+            if not isinstance(undoEvent, UndoEvent):
+                logging.error("%s: Tried to add non-UndoEvent to list of undo events. Aborting..." % self.__class__.__name__)
+                return
+            self._redoEvents = []
+            no_of_events = len(self._undoEvents)
+            # try to combine similar events
+            if no_of_events < 1 or not self._undoEvents[no_of_events -1].combine(undoEvent):
+                self._undoEvents.append(undoEvent)
+                if not self.isModified():
+                    self.setLastSavedStateEvent(undoEvent)
+                self.plugin().application().updateMenu()
+        else:
+            logging.warning("%s: Tried to add undo event, however undo functionality is not enabled. Aborting..." % self.__class__.__name__)    
+        #self.dumpUndoEvents()
+        
+    def undo(self, numberOfEvents=1):
+        """ Invokes undo of last stored UndoEvent (see addUndoEvent()), if undo functionality is enabled.
+        """
+        if not self._supportsUndo:
+            logging.warning(self.__class__.__name__ + ": Tried to undo action, however undo functionality is not enabled. Aborting...")
+            return
+        logging.debug(self.__class__.__name__ +": undo("+ str(numberOfEvents) +")")
+        #self.dumpUndoEvents()
+        
+        for i in range(0, numberOfEvents):
+            if len(self._undoEvents) > 0:
+                lastEvent = self._undoEvents.pop()
+                lastEvent.undo()
+                self._redoEvents.append(lastEvent)
+                
+                # set modification flag
+                if i == (numberOfEvents -1):
+                    if lastEvent.isLastSavedState():
+                        self.setModified(False)
+                    else:
+                        self.setModified()
+                self.plugin().application().updateMenu()
+                
+        #self.dumpUndoEvents()
+        
+    def redo(self, numberOfEvents=1):
+        if not self._supportsUndo:
+            logging.warning(self.__class__.__name__ + ": Tried to undo action, however undo functionality is not enabled. Aborting...")
+            return
+        logging.debug(self.__class__.__name__ +": redo("+ str(numberOfEvents) +")")
+        #self.dumpUndoEvents()
+        
+        for i in range(0, numberOfEvents):
+            if len(self._redoEvents) > 0:
+                lastEvent = self._redoEvents.pop()
+                lastEvent.redo()
+                self._undoEvents.append(lastEvent)
+                
+                # set modification flag
+                if i == (numberOfEvents -1):
+                    undo_events_count = len(self._redoEvents)
+                    if undo_events_count > 0:
+                        if self._redoEvents[undo_events_count-1].isLastSavedState():
+                            self.setModified(False)
+                        else:
+                            self.setModified()
+                    else:
+                        # if there are no more redo events
+                        # and there is no event with last saved state flag set to True
+                        # no action was performed since the last save
+                        # and thus modification flag should be False
+                        modified = False
+                        for event in self._undoEvents + self._redoEvents:
+                            if event.isLastSavedState():
+                                modified = True
+                                break
+                        self.setModified(modified)
+                self.plugin().application().updateMenu()
+        
+    def setLastSavedStateEvent(self, undoEvent):
+        """ Sets last saved state flag of given UndoEvent to True and to False for all other events.
+        """
+        for current_event in self._undoEvents + self._redoEvents:
+            if current_event == undoEvent:
+                current_event.setLastSavedState(True)
+            else:
+                current_event.setLastSavedState(False)
+
+    def dumpUndoEvents(self):
+        for event in self._undoEvents:
+            event.dump("undo")
+        for event in self._redoEvents:
+            event.dump("redo")

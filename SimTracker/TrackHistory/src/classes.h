@@ -8,10 +8,8 @@
 #include "SimTracker/TrackHistory/interface/VertexCategories.h"
 
 
-namespace
-{
-struct dictionary
-{
+namespace {
+  struct dictionary {
 
     // Dictionaires for Track and Vertex categories
 
@@ -23,6 +21,6 @@ struct dictionary
     edm::helpers::KeyVal<edm::RefProd<std::vector<reco::SecondaryVertexTagInfo> >, edm::RefProd<std::vector<reco::Vertex> > >  dummy03;
     edm::AssociationMap<edm::OneToMany<reco::SecondaryVertexTagInfoCollection, reco::VertexCollection> > dummy05;
 
-};
+  };
 }
 

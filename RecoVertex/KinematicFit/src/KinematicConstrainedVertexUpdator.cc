@@ -13,9 +13,9 @@ KinematicConstrainedVertexUpdator::~KinematicConstrainedVertexUpdator()
  delete vConstraint;
 }
 
-pair<pair<vector<KinematicState>, AlgebraicMatrix >, RefCountedKinematicVertex >
+std::pair<std::pair<std::vector<KinematicState>, AlgebraicMatrix >, RefCountedKinematicVertex >
 KinematicConstrainedVertexUpdator::update(const AlgebraicVector& inPar,
-	const AlgebraicMatrix& inCov, vector<KinematicState> lStates,
+	const AlgebraicMatrix& inCov, std::vector<KinematicState> lStates,
 	const GlobalPoint& lPoint, MultiTrackKinematicConstraint * cs)const
 {
  const MagneticField* field=lStates.front().magneticField();
@@ -31,7 +31,7 @@ KinematicConstrainedVertexUpdator::update(const AlgebraicVector& inPar,
  d_a(3) = lPoint.z();
  
  int cst = 0;
- for(vector<KinematicState>::const_iterator i = lStates.begin(); i != lStates.end(); i++)
+ for(std::vector<KinematicState>::const_iterator i = lStates.begin(); i != lStates.end(); i++)
  {
   AlgebraicVector lst_par = asHepVector<7>(i->kinematicParameters().vector());
   for(int j = 1; j<lst_par.num_row()+1; j++)
@@ -104,8 +104,8 @@ KinematicConstrainedVertexUpdator::update(const AlgebraicVector& inPar,
   if(ifl1 !=0) {
     LogDebug("KinematicConstrainedVertexFitter")
 	<< "Fit failed: unable to invert SYM gain matrix\n";
-    return pair<pair<vector<KinematicState>, AlgebraicMatrix>, RefCountedKinematicVertex >(
-	pair<vector<KinematicState>, AlgebraicMatrix>(vector<KinematicState>(), AlgebraicMatrix(1,0)),
+    return std::pair<std::pair<std::vector<KinematicState>, AlgebraicMatrix>, RefCountedKinematicVertex >(
+	std::pair<std::vector<KinematicState>, AlgebraicMatrix>(std::vector<KinematicState>(), AlgebraicMatrix(1,0)),
 	RefCountedKinematicVertex());	
   }
  
@@ -148,8 +148,8 @@ KinematicConstrainedVertexUpdator::update(const AlgebraicVector& inPar,
 
 //making refitted states of Kinematic Particles
   int i_int = 0;
-  vector<KinematicState> ns;
-  for(vector<KinematicState>::iterator i_st=lStates.begin(); i_st != lStates.end(); i_st++)
+  std::vector<KinematicState> ns;
+  for(std::vector<KinematicState>::iterator i_st=lStates.begin(); i_st != lStates.end(); i_st++)
   {
    AlgebraicVector7 newPar; 
    for(int i =0; i<7; i++)
@@ -163,6 +163,6 @@ KinematicConstrainedVertexUpdator::update(const AlgebraicVector& inPar,
    ns.push_back(newState);
    i_int++;
   }
- pair<vector<KinematicState>, AlgebraicMatrix> ns_m(ns,rCov);
- return pair<pair<vector<KinematicState>, AlgebraicMatrix>, RefCountedKinematicVertex >(ns_m,rVtx);	
+ std::pair<std::vector<KinematicState>, AlgebraicMatrix> ns_m(ns,rCov);
+ return std::pair<std::pair<std::vector<KinematicState>, AlgebraicMatrix>, RefCountedKinematicVertex >(ns_m,rVtx);	
 }

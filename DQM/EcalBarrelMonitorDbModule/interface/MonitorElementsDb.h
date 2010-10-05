@@ -1,4 +1,4 @@
-// $Id: MonitorElementsDb.h,v 1.8 2008/04/08 18:32:10 dellaric Exp $
+// $Id: MonitorElementsDb.h,v 1.9 2009/10/26 17:33:46 dellaric Exp $
 
 #ifndef MonitorElementsDb_H
 #define MonitorElementsDb_H
@@ -7,22 +7,21 @@
   \file MonitorElementsDb.h
   \brief Generate a Monitor Element from DB data
   \author B. Gobbo 
-  \version $Revision: 1.8 $
-  \date $Date: 2008/04/08 18:32:10 $
+  \version $Revision: 1.9 $
+  \date $Date: 2009/10/26 17:33:46 $
 */
 
 
 #include <string>
 #include <vector>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <DQM/EcalBarrelMonitorDbModule/interface/MonitorXMLParser.h>
+#include "DQM/EcalBarrelMonitorDbModule/interface/MonitorXMLParser.h"
 
 #include "RelationalAccess/ISessionProxy.h"
 

@@ -6,7 +6,6 @@ benedikt.hegner@cern.ch
 import re
 import ROOT
 import exceptions
-import sys
 ### define tab completion
 try:
   import readline #cmscompleter
@@ -64,14 +63,12 @@ def createBranchBuffer(branch):
 
 class EventTree(object):
       def __init__(self,obj):
-          sys.stderr.write ("WARNING: This package has been deprecated and will be removed in the near future.\nPlease switch to using FWLite.Python (https://twiki.cern.ch/twiki/bin/viewauth/CMS/WorkBookFWLitePython)\n")
-          treeName = 'Events'
           if isinstance(obj, ROOT.TTree):
               self._tree = obj
           elif isinstance(obj, ROOT.TFile):
-              self._tree = obj.Get(treeName)
+              self._tree = obj.Get("Events")
           elif isinstance(obj, str):
-              self._tree = ROOT.TFile.Open(obj).Get(treeName)
+              self._tree = ROOT.TFile.Open(obj).Get("Events")
           else:
               raise cmserror("EventTree accepts only TTrees, TFiles and filenames")
           self._usedBranches = dict()

@@ -12,8 +12,8 @@ DTLinearDriftFromDBAlgo = cms.PSet(
             vPropWire = cms.double(24.4),
             # Switch on/off the TOF correction for particles
             doTOFCorrection = cms.bool(True),
-            tofCorrType = cms.int32(1),
-            wirePropCorrType = cms.int32(1),
+            tofCorrType = cms.int32(0),
+            wirePropCorrType = cms.int32(0),
             # Switch on/off the correction for the signal propagation along the wire
             doWirePropCorrection = cms.bool(True),
             # Switch on/off the TOF correction from pulses

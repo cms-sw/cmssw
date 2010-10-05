@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2010/05/29 08:52:24 $
- * $Revision: 1.70 $
+ * $Date: 2010/08/08 08:46:09 $
+ * $Revision: 1.73 $
  * \author G. Della Ricca
  *
 */
@@ -25,10 +25,10 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
-#include <DQM/EcalCommon/interface/NumbersPn.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
+#include "DQM/EcalCommon/interface/NumbersPn.h"
 
-#include <DQM/EcalEndcapMonitorTasks/interface/EELaserTask.h>
+#include "DQM/EcalEndcapMonitorTasks/interface/EELaserTask.h"
 
 EELaserTask::EELaserTask(const edm::ParameterSet& ps){
 
@@ -50,7 +50,7 @@ EELaserTask::EELaserTask(const edm::ParameterSet& ps){
   // vector of enabled wavelengths (Default to all 4)
   laserWavelengths_.reserve(4);
   for ( unsigned int i = 1; i <= 4; i++ ) laserWavelengths_.push_back(i);
-  laserWavelengths_ = ps.getUntrackedParameter<vector<int> >("laserWavelengths", laserWavelengths_);
+  laserWavelengths_ = ps.getUntrackedParameter<std::vector<int> >("laserWavelengths", laserWavelengths_);
 
   for (int i = 0; i < 18; i++) {
     meShapeMapL1_[i] = 0;
@@ -353,7 +353,7 @@ void EELaserTask::setup(void){
         sprintf(histo, "EELT PNs pedestal %s G16 L1", Numbers::sEE(i+1).c_str());
         mePnPedMapG16L1_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
         mePnPedMapG16L1_[i]->setAxisTitle("channel", 1);
-        mePnPedMapG16L1_[i]->setAxisTitle("pedestal", 2); 
+        mePnPedMapG16L1_[i]->setAxisTitle("pedestal", 2);
         dqmStore_->tag(mePnPedMapG16L1_[i], i+1);
       }
 
@@ -387,7 +387,7 @@ void EELaserTask::setup(void){
         sprintf(histo, "EELT PNs pedestal %s G16 L2", Numbers::sEE(i+1).c_str());
         mePnPedMapG16L2_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
         mePnPedMapG16L2_[i]->setAxisTitle("channel", 1);
-        mePnPedMapG16L2_[i]->setAxisTitle("pedestal", 2); 
+        mePnPedMapG16L2_[i]->setAxisTitle("pedestal", 2);
         dqmStore_->tag(mePnPedMapG16L2_[i], i+1);
       }
 
@@ -421,7 +421,7 @@ void EELaserTask::setup(void){
         sprintf(histo, "EELT PNs pedestal %s G16 L3", Numbers::sEE(i+1).c_str());
         mePnPedMapG16L3_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
         mePnPedMapG16L3_[i]->setAxisTitle("channel", 1);
-        mePnPedMapG16L3_[i]->setAxisTitle("pedestal", 2); 
+        mePnPedMapG16L3_[i]->setAxisTitle("pedestal", 2);
         dqmStore_->tag(mePnPedMapG16L3_[i], i+1);
       }
 
@@ -455,7 +455,7 @@ void EELaserTask::setup(void){
         sprintf(histo, "EELT PNs pedestal %s G16 L4", Numbers::sEE(i+1).c_str());
         mePnPedMapG16L4_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
         mePnPedMapG16L4_[i]->setAxisTitle("channel", 1);
-        mePnPedMapG16L4_[i]->setAxisTitle("pedestal", 2); 
+        mePnPedMapG16L4_[i]->setAxisTitle("pedestal", 2);
         dqmStore_->tag(mePnPedMapG16L4_[i], i+1);
       }
 

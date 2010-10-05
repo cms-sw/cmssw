@@ -8,7 +8,7 @@ def main():
     sourceDir = sys.argv[1] + '/'
     destDir   = sys.argv[2] + '/'
 
-    fileList = ls(sourceDir,".txt")
+    fileList = ls(sourceDir)
     if not os.path.isdir(destDir):
         error = "WARNING: destination directory doesn't exist! Creating it..."
         print error

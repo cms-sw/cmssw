@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2010/02/14 11:23:20 $
- * $Revision: 1.129 $
+ * $Date: 2010/07/30 05:40:22 $
+ * $Revision: 1.131 $
  * \author G. Della Ricca
  *
 */
@@ -26,9 +26,9 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBLaserTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBLaserTask.h"
 
 EBLaserTask::EBLaserTask(const edm::ParameterSet& ps){
 
@@ -50,7 +50,7 @@ EBLaserTask::EBLaserTask(const edm::ParameterSet& ps){
   // vector of enabled wavelengths (Default to all 4)
   laserWavelengths_.reserve(4);
   for ( unsigned int i = 1; i <= 4; i++ ) laserWavelengths_.push_back(i);
-  laserWavelengths_ = ps.getUntrackedParameter<vector<int> >("laserWavelengths", laserWavelengths_);
+  laserWavelengths_ = ps.getUntrackedParameter<std::vector<int> >("laserWavelengths", laserWavelengths_);
 
   for (int i = 0; i < 36; i++) {
     meShapeMapL1_[i] = 0;

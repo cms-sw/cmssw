@@ -231,26 +231,26 @@ void ZDCMonitorClient::beginRun(const edm::Run& r, const edm::EventSetup& c) {
   me = dbe_->bookFloat("DAQSummary");
   me->Fill(-1); // set status to unknown at startup
 
-  dbe_->setCurrentFolder(rootFolder_+eventinfo.c_str()+"/DAQSummaryContents");
-  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/DAQSummary/DAQSummaryContents/ZDC_HADPlus");
+  dbe_->setCurrentFolder(rootFolder_+eventinfo.c_str()+"/DAQContents");
+  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/DAQSummary/DAQContents/ZDC_HADPlus");
   if (me)
     dbe_->removeElement(me->getName());
   me = dbe_->bookFloat("ZDC_HADPlus");
   me->Fill(-1); // set status to unknown at startup
 
-  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/DAQSummary/DAQSummaryContents/ZDC_HADMinus");
+  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/DAQSummary/DAQContents/ZDC_HADMinus");
   if (me)
     dbe_->removeElement(me->getName());
   me = dbe_->bookFloat("ZDC_HADMinus");
   me->Fill(-1); // set status to unknown at startup
 
-  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/DAQSummary/DAQSummaryContents/ZDC_EMPlus");
+  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/DAQSummary/DAQContents/ZDC_EMPlus");
   if (me)
     dbe_->removeElement(me->getName());
   me = dbe_->bookFloat("ZDC_EMPlus");
   me->Fill(-1); // set status to unknown at startup
 
-  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/DAQSummary/DAQSummaryContents/ZDC_EMMinus");
+  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/DAQSummary/DAQContents/ZDC_EMMinus");
   if (me)
     dbe_->removeElement(me->getName());
   me = dbe_->bookFloat("ZDC_EMMinus");
@@ -264,26 +264,26 @@ void ZDCMonitorClient::beginRun(const edm::Run& r, const edm::EventSetup& c) {
   me = dbe_->bookFloat("DCSSummary");
   me->Fill(-1); // set status to unknown at startup
 
-  dbe_->setCurrentFolder(rootFolder_+eventinfo.c_str()+"/DCSSummaryContents");
-  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/DCSSummary/DCSSummaryContents/ZDC_HADPlus");
+  dbe_->setCurrentFolder(rootFolder_+eventinfo.c_str()+"/DCSContents");
+  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/DCSSummary/DCSContents/ZDC_HADPlus");
   if (me)
     dbe_->removeElement(me->getName());
   me = dbe_->bookFloat("ZDC_HADPlus");
   me->Fill(-1); // set status to unknown at startup
 
-  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/DCSSummary/DCSSummaryContents/ZDC_HADMinus");
+  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/DCSSummary/DCSContents/ZDC_HADMinus");
   if (me)
     dbe_->removeElement(me->getName());
   me = dbe_->bookFloat("ZDC_HADMinus");
   me->Fill(-1); // set status to unknown at startup
 
-  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/DCSSummary/DCSSummaryContents/ZDC_EMPlus");
+  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/DCSSummary/DCSContents/ZDC_EMPlus");
   if (me)
     dbe_->removeElement(me->getName());
   me = dbe_->bookFloat("ZDC_EMPlus");
   me->Fill(-1); // set status to unknown at startup
 
-  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/DCSSummary/DCSSummaryContents/ZDC_EMMinus");
+  me=dbe_->get(rootFolder_+eventinfo.c_str()+"/DCSSummary/DCSContents/ZDC_EMMinus");
   if (me)
     dbe_->removeElement(me->getName());
   me = dbe_->bookFloat("ZDC_EMMinus");

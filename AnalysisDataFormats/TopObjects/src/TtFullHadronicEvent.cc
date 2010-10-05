@@ -4,7 +4,7 @@
 
 // print info via MessageLogger
 void
-TtFullHadronicEvent::print(const int verbosity)
+TtFullHadronicEvent::print(const int verbosity) const
 {
   if(verbosity%10<=0)
     return;

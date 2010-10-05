@@ -13,16 +13,16 @@ class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
 
   enum Version_t { SUMMER08, FIRSTDATA, N_VERSIONS };
 
+  ElectronVPlusJetsIDSelectionFunctor() {}
+
   ElectronVPlusJetsIDSelectionFunctor( edm::ParameterSet const & parameters ){
+
     std::string versionStr = parameters.getParameter<std::string>("version");
-    if ( versionStr == "SUMMER08" ) {
-      initialize( SUMMER08, 
-		  parameters.getParameter<double>("D0"),
-		  parameters.getParameter<double>("RelIso") );
-      if ( parameters.exists("cutsToIgnore") )
-	setIgnoredCuts( parameters.getParameter<std::vector<std::string> >("cutsToIgnore") );
-      
-    } else if (versionStr == "FIRSTDATA") {
+    if ( versionStr != "FIRSTDATA") {
+      std::cout << "The version " << versionStr << " is deprecated. Setting to FIRSTDATA" << std::endl;
+    }
+
+    if (versionStr == "FIRSTDATA") {
       initialize( FIRSTDATA, 
 		  parameters.getParameter<double>("D0"),
 		  parameters.getParameter<double>("ED0"),
@@ -40,27 +40,19 @@ class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
 
 
   ElectronVPlusJetsIDSelectionFunctor( Version_t version,
-				       double d0 = 999.0,
+				       double d0 = 0.2,
 				       double ed0 = 999.0,
-				       double sd0 = 3.0,
+				       double sd0 = 999.0,
 				       double reliso = 0.1) {
     initialize( version, d0, ed0, sd0, reliso );
   }
 
-  ElectronVPlusJetsIDSelectionFunctor( Version_t version,
-				       double d0 = 0.2,
-				       double reliso = 0.1) {
-    if ( version != SUMMER08 ) {
-      std::cout << "You are using the wrong version for ElectronVPlusJetsIDSelectionFunctor!" << std::endl;
-    }
-    initialize( version, d0, reliso );
-  }
 
   void initialize( Version_t version,
-		   double d0 = 999.0,
-		   double ed0 = 999.0,
-		   double sd0 = 3.0,
-		   double reliso = 0.1)
+		   double d0,
+		   double ed0,
+		   double sd0,
+		   double reliso)
   {
     version_ = version;
 
@@ -76,20 +68,16 @@ class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
     set("RelIso");
 
 
-    if ( version_ == FIRSTDATA ) {
-      set("D0", false );
-      set("ED0", false );
-    } else if (version == SUMMER08 ) {
-      set("SD0", false);
-    }
+    indexD0_            = index_type(&bits_, "D0"           );
+    indexED0_           = index_type(&bits_, "ED0"          );
+    indexSD0_           = index_type(&bits_, "SD0"          );
+    indexRelIso_        = index_type(&bits_, "RelIso"       );
     
   }
 
   // Allow for multiple definitions of the cuts. 
   bool operator()( const pat::Electron & electron, pat::strbitset & ret )  
   { 
-
-    if ( version_ == SUMMER08 ) return summer08Cuts( electron, ret );
     if ( version_ == FIRSTDATA ) return firstDataCuts( electron, ret );
     else {
       return false;
@@ -97,28 +85,6 @@ class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
   }
 
   using Selector<pat::Electron>::operator();
-
-  // cuts based on craft 08 analysis. 
-  bool summer08Cuts( const pat::Electron & electron, pat::strbitset & ret) 
-  {
-
-    ret.set(false);
-    double corr_d0 = electron.dB();
-	
-    double hcalIso = electron.hcalIso();
-    double ecalIso = electron.ecalIso();
-    double trkIso  = electron.trackIso();
-    double pt      = electron.pt() ;
-    
-    double relIso = (ecalIso + hcalIso + trkIso) / pt;
-
-    if ( fabs(corr_d0) <  cut("D0",     double()) || ignoreCut("D0")     ) passCut(ret, "D0"     );
-    if ( relIso        <  cut("RelIso", double()) || ignoreCut("RelIso") ) passCut(ret, "RelIso" );
-
-    setIgnored(ret);
-    return (bool)ret;
-  }
-
 
   // cuts based on craft 08 analysis. 
   bool firstDataCuts( const pat::Electron & electron, pat::strbitset & ret) 
@@ -136,10 +102,10 @@ class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
     
     double relIso = (ecalIso + hcalIso + trkIso) / et;
 
-    if ( fabs(corr_d0) <  cut("D0",     double()) || ignoreCut("D0")      ) passCut(ret, "D0"     );
-    if ( fabs(corr_ed0)<  cut("ED0",    double()) || ignoreCut("ED0")     ) passCut(ret, "ED0"    );
-    if ( fabs(corr_sd0)<  cut("SD0",    double()) || ignoreCut("SD0")     ) passCut(ret, "SD0"    );
-    if ( relIso        <  cut("RelIso", double()) || ignoreCut("RelIso")  ) passCut(ret, "RelIso" );
+    if ( fabs(corr_d0) <  cut(indexD0_,     double()) || ignoreCut(indexD0_)      ) passCut(ret, indexD0_     );
+    if ( fabs(corr_ed0)<  cut(indexED0_,    double()) || ignoreCut(indexED0_)     ) passCut(ret, indexED0_    );
+    if ( fabs(corr_sd0)<  cut(indexSD0_,    double()) || ignoreCut(indexSD0_)     ) passCut(ret, indexSD0_    );
+    if ( relIso        <  cut(indexRelIso_, double()) || ignoreCut(indexRelIso_)  ) passCut(ret, indexRelIso_ );
 
     setIgnored(ret);
     return (bool)ret;
@@ -149,6 +115,11 @@ class ElectronVPlusJetsIDSelectionFunctor : public Selector<pat::Electron>  {
  private: // member variables
   
   Version_t version_;
+
+  index_type indexD0_;            
+  index_type indexED0_;           
+  index_type indexSD0_;           
+  index_type indexRelIso_;        
   
 };
 

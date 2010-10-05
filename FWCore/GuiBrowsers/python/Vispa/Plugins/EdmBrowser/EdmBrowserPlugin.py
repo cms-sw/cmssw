@@ -3,10 +3,7 @@ import logging
 
 from Vispa.Main.Application import Application
 from Vispa.Plugins.EventBrowser.EventBrowserPlugin import EventBrowserPlugin
-from Vispa.Plugins.EdmBrowser.EdmBrowserTab import EdmBrowserTab
-from Vispa.Plugins.EdmBrowser.EdmBrowserBoxView import EdmBrowserBoxView
 from Vispa.Views.TableView import TableView
-from Vispa.Plugins.EdmBrowser.EdmBrowserTabController import EdmBrowserTabController
 from Vispa.Share.ThreadChain import ThreadChain
 from Vispa.Main.Exceptions import NoCurrentTabControllerException,PluginIgnoredException,exception_traceback
 
@@ -14,6 +11,10 @@ try:
     from Vispa.Plugins.EdmBrowser.EdmDataAccessor import EdmDataAccessor
 except Exception,e:
     raise PluginIgnoredException("cannot import CMSSW: " + str(e))
+
+from Vispa.Plugins.EdmBrowser.EdmBrowserTab import EdmBrowserTab
+from Vispa.Plugins.EdmBrowser.EdmBrowserBoxView import EdmBrowserBoxView
+from Vispa.Plugins.EdmBrowser.EdmBrowserTabController import EdmBrowserTabController
 
 class EdmBrowserPlugin(EventBrowserPlugin):
     """ The EdmBrowserPlugin opens edm root files in the EventBrowserTab.

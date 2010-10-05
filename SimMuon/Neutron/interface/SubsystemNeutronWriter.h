@@ -55,7 +55,7 @@ protected:
   void writeCluster(int chamberType, const edm::PSimHitContainer & cluster);
 
   /// helper to add time offsets and local det ID
-  void adjust(PSimHit & h, float timeOffset, float smearing);
+  void adjust(PSimHit & h, float timeOffset);
 
   /// updates the counter
   void updateCount(int chamberType);

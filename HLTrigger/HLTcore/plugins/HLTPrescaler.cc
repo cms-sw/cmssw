@@ -16,6 +16,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 ///////////////////////////////////////////////////////////////////////////////
+// initialize static member variables
+///////////////////////////////////////////////////////////////////////////////
+
+const unsigned int HLTPrescaler::prescaleSeed_ = 65537;
+
+///////////////////////////////////////////////////////////////////////////////
 // construction/destruction
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -86,9 +92,8 @@ bool HLTPrescaler::filter(edm::Event& iEvent, const edm::EventSetup&)
 
   if (eventCount_ == 0) {
     if (prescaleFactor_ != 0) {
-      // online this would give a smoother start up if the initial offset was completely random, 
-      // but it would not be reproducible from run to run
-      offsetCount_ = iEvent.id().event() % prescaleFactor_;
+      // initialize the prescale counter to the first event number multiplied by a big "seed"
+      offsetCount_ = ((uint64_t) iEvent.id().event() * prescaleSeed_) % prescaleFactor_;
     }
   }
 

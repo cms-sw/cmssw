@@ -1,4 +1,4 @@
-// $Id: EventStreamConfigurationInfo_t.cpp,v 1.2.6.1 2009/09/14 15:45:25 mommsen Exp $
+// $Id: TriggerSelector_t.cpp,v 1.1 2009/12/01 13:58:09 mommsen Exp $
 
 #include "EventFilter/StorageManager/interface/TriggerSelector.h"
 #include <iostream>
@@ -9,7 +9,7 @@ using namespace std;
 int main()
 {
 
-  vector<string> fl;
+  std::vector<std::string> fl;
   fl.push_back( "DiMuon" );
   fl.push_back( "CalibPath" );
   fl.push_back( "DiElectron" );
@@ -17,7 +17,7 @@ int main()
 
   std::string f2 = "(* || 2) || (DixMuo* && (!Di* || CalibPath))";
 
-  vector<string> triggerList;
+  std::vector<std::string> triggerList;
   triggerList.push_back("DiMuon");
   triggerList.push_back("CalibPath");
   triggerList.push_back("DiElectron");
@@ -37,9 +37,9 @@ int main()
   tr[2] = fail;
   tr[3] = fail;
 
-  cout << "RESULT: " << triggerSelector->returnStatus(tr) << endl;
+  std::cout << "RESULT: " << triggerSelector->returnStatus(tr) << std::endl;
 
-  cout << "\nend of test\n";
+  std::cout << "\nend of test\n";
   return 0;
 
 }

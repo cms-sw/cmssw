@@ -11,7 +11,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.h,v 1.19 2010/01/14 15:55:14 amraktad Exp $
+// $Id: FWElectronDetailView.h,v 1.18 2009/11/06 06:34:07 dmytro Exp $
 //
 
 // user include files
@@ -20,7 +20,6 @@
 
 class TEveCaloDataVec;
 class TEveCaloLego;
-class TLegend;
 class FWECALDetailViewBuilder;
 
 namespace reco {
@@ -28,8 +27,8 @@ namespace reco {
 }
 
 
-class FWElectronDetailView : public FWDetailViewGL<reco::GsfElectron>
-{
+class FWElectronDetailView : public FWDetailViewGL<reco::GsfElectron> {
+
 public:
    FWElectronDetailView();
    virtual ~FWElectronDetailView();
@@ -51,9 +50,8 @@ private:
 
    Bool_t checkRange(Double_t &, Double_t&, Double_t &, Double_t&, Double_t, Double_t);
 
-   TEveCaloData            *m_data;
-   FWECALDetailViewBuilder *m_builder;
-   TLegend                 *m_legend;
+   TEveCaloData* m_data;
+   FWECALDetailViewBuilder* m_builder;
 };
 
 #endif

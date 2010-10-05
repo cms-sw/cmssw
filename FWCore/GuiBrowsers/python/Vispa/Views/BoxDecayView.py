@@ -235,7 +235,7 @@ class BoxDecayView(WidgetView):
             # create box
             text = ""
             if self._boxContentScript != "":
-                dataAccessorObject = BasicDataAccessorInterface(object, self.dataAccessor())
+                dataAccessorObject = BasicDataAccessorInterface(object, self.dataAccessor(), False)
                 try:
                     text = dataAccessorObject.runScript(self._boxContentScript).replace("None", "")
                 except Exception, e:

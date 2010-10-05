@@ -850,7 +850,7 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
 	float yratio, yxratio, xxratio, sxmax, qcorrect, qxtempcor, symax, chi2xavgone, chi2xminone, cotb, cotalpha0, cotbeta0;
 	bool flip_y;
 //	std::vector <float> xrms(4), xgsig(4), xrmsc2m(4), xgsigc2m(4);
-	float chi2xavg[4], chi2xmin[4];
+	std::vector <float> chi2xavg(4), chi2xmin(4);
 
 
 // Check to see if interpolation is valid     

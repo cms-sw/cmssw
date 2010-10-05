@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: JetCorrectorParameters.h,v 1.5 2009/11/11 13:34:12 kkousour Exp $
+// $Id: JetCorrectorParameters.h,v 1.6 2010/03/15 08:04:25 kkousour Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -9,6 +9,9 @@
 
 #include <string>
 #include <vector>
+#include <algorithm>
+#include <iostream>
+#include "FWCore/Utilities/interface/Exception.h"
 
 class JetCorrectorParameters 
 {
@@ -68,11 +71,11 @@ class JetCorrectorParameters
     };
      
     //-------- Constructors --------------
-    JetCorrectorParameters() {}
+    JetCorrectorParameters() { valid_ = false;}
     JetCorrectorParameters(const std::string& fFile, const std::string& fSection = "");
     JetCorrectorParameters(const JetCorrectorParameters::Definitions& fDefinitions,
 			 const std::vector<JetCorrectorParameters::Record>& fRecords) 
-    : mDefinitions(fDefinitions),mRecords(fRecords) {}
+      : mDefinitions(fDefinitions),mRecords(fRecords) { valid_ = true;}
     //-------- Member functions ----------
     const Record& record(unsigned fBin)                          const {return mRecords[fBin]; }
     const Definitions& definitions()                             const {return mDefinitions;   }
@@ -83,11 +86,99 @@ class JetCorrectorParameters
     std::vector<float> binCenters(unsigned fVar)                 const;
     void printScreen()                                           const;
     void printFile(const std::string& fFileName)                 const;
-    
+    bool isValid() const { return valid_; }
+
   private:
     //-------- Member variables ----------
     JetCorrectorParameters::Definitions         mDefinitions;
     std::vector<JetCorrectorParameters::Record> mRecords;
+    bool                                        valid_; /// is this a valid set?
 };
+
+
+
+class JetCorrectorParametersCollection {
+  //---------------- JetCorrectorParametersCollection class ----------------
+  //-- Adds several JetCorrectorParameters together by algorithm type ---
+  //--     to reduce the number of payloads in the Database ---
+ public:
+  enum Level_t { L1Offset,
+		 L2Relative,
+		 L3Absolute,
+		 L4EMF,
+		 L5Flavor,
+		 L6UE,
+		 L7Parton,
+		 N_LEVELS
+  };
+  enum L5_Species_t {L5_bJ=0,L5_cJ,L5_qJ,L5_gJ,L5_bT,L5_cT,L5_qT,L5_gT,N_L5_SPECIES};
+  enum L7_Species_t {L7_gJ=0,L7_qJ,L7_cJ,L7_bJ,L7_jJ,L7_qT,L7_cT,L7_bT,L7_jT,N_L7_SPECIES};
+  typedef int                            key_type;
+  typedef std::string                    label_type;
+  typedef JetCorrectorParameters         value_type;
+  typedef std::pair<key_type,value_type> pair_type;
+  typedef std::vector<pair_type>         collection_type;
+
+
+  // Constructor... initialize all three vectors to zero
+  JetCorrectorParametersCollection() { corrections_.clear(); correctionsL5_.clear(); correctionsL7_.clear(); }
+
+  // Add a JetCorrectorParameter object, possibly with flavor. 
+  void push_back( key_type i, value_type const & j, label_type const & flav = "" );
+
+  // Access the JetCorrectorParameter via the key k.
+  // key_type is hashed to deal with the three collections
+  JetCorrectorParameters const & operator[]( key_type k ) const;
+
+  // Access the JetCorrectorParameter via a string. 
+  // Will find the hashed value for the label, and call via that 
+  // operator. 
+  JetCorrectorParameters const & operator[]( std::string const & label ) const {
+    return operator[]( findKey(label) );
+  }
+
+  // Get a list of valid keys. These will contain hashed keys
+  // that are aware of all three collections. 
+  void validKeys(std::vector<key_type> & keys ) const;
+
+
+
+  // Helper method to find all of the sections in a given 
+  // parameters file
+  static void getSections( std::string inputFile,
+			   std::vector<std::string> & outputs );
+
+  // Find the L5 bin for hashing
+  static key_type getL5Bin( std::string const & flav );
+  // Find the L7 bin for hashing
+  static key_type getL7Bin( std::string const & flav );
+  // Check if this is an L5 hashed value
+  static bool isL5( key_type k );
+  // Check if this is an L7 hashed value
+  static bool isL7( key_type k );
+
+  static std::string findLabel( key_type k ){
+    return labels_[k];
+  }
+
+ protected:
+
+  // Find the key corresponding to each label
+  key_type findKey( std::string const & label ) const;
+
+  collection_type                        corrections_;
+  collection_type                        correctionsL5_;
+  collection_type                        correctionsL7_;
+  static const char *                    labelsArray_[N_LEVELS];
+  static std::vector<std::string>        labels_;
+
+  static const char *                    l5FlavorArray_[N_L5_SPECIES];
+  static std::vector<std::string>        l5Flavors_;
+
+  static const char *                    l7PartonArray_[N_L7_SPECIES];
+  static std::vector<std::string>        l7Partons_;
+};
+
+
 
 #endif

@@ -1,8 +1,8 @@
 /*
  * \file EETrendClient.cc
  *
- * $Date: 2010/03/22 04:49:10 $
- * $Revision: 1.6 $
+ * $Date: 2010/03/27 20:08:00 $
+ * $Revision: 1.7 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */
@@ -63,13 +63,13 @@ void EETrendClient::beginJob(void){
     dqmStore_->rmdir(prefixME_ + "/EETrendClient");
   }
 
-  // noise, 
+  // noise,
   // entries of EBOT rec hit thr occupancy
   // entries of EBOT tp digi occupancy
   // rec hit energy
   // ebtmt timing mean ID summary
   // ebtmt timing RMS ID summary
-  // 
+  //
 
   int index = 0;
 
@@ -153,22 +153,22 @@ void EETrendClient::setup(void){
       meanMinutely_[i]->setAxisTitle("Minutes", 1);
       histo = "Average of " + histTitles_[i] + " / 5 minutes";
       meanMinutely_[i]->setAxisTitle(histo.c_str(), 2);
-      
+
       histo = "RMS of " + histTitles_[i] + " Vs 5Minutes";
       sigmaMinutely_[i] = dqmStore_->bookProfile(histo.c_str(), histo.c_str(), 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
       sigmaMinutely_[i]->setAxisTitle("Minutes", 1);
       histo = "RMS of " + histTitles_[i] + " / 5 minutes";
       sigmaMinutely_[i]->setAxisTitle(histo.c_str(), 2);
-      
+
 
       // hourly
-      
+
       histo = "Average of " + histTitles_[i] + " Vs 1Hour";
       meanHourly_[i] = dqmStore_->bookProfile(histo.c_str(), histo.c_str(), 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
       meanHourly_[i]->setAxisTitle("Hours", 1);
       histo = "Average of " + histTitles_[i] + " / hour";
       meanHourly_[i]->setAxisTitle(histo.c_str(), 2);
-      
+
       histo = "RMS of " + histTitles_[i] + " Vs 1Hour";
       sigmaHourly_[i] = dqmStore_->bookProfile(histo.c_str(), histo.c_str(), 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
       sigmaHourly_[i]->setAxisTitle("Hours", 1);
@@ -310,5 +310,4 @@ void EETrendClient::updateTime(){
   current_time_ = time(NULL);
 
 }
-
 

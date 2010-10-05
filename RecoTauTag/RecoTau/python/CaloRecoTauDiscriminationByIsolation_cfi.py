@@ -8,10 +8,7 @@ caloRecoTauDiscriminationByIsolation = cms.EDProducer("CaloRecoTauDiscrimination
     Prediscriminants = requireLeadTrackCalo,
 
     ApplyDiscriminationByTrackerIsolation = cms.bool(True),
-    TrackerIsolAnnulus_maximumOccupancy   = cms.uint32(0),
-
-    ApplyDiscriminationByECALIsolation    = cms.bool(True),
-    ECALisolAnnulus_maximumSumEtCut       = cms.double(1.5)
+    TrackerIsolAnnulus_Tracksmaxn         = cms.int32(0)
 )
 
 

@@ -20,10 +20,10 @@ KinematicParticleFitter::~KinematicParticleFitter()
  delete cUpdator;
 }
 
-vector<RefCountedKinematicTree> KinematicParticleFitter::fit(KinematicConstraint * cs , 
-                                            vector<RefCountedKinematicTree> trees)const
+std::vector<RefCountedKinematicTree> KinematicParticleFitter::fit(KinematicConstraint * cs , 
+                                            std::vector<RefCountedKinematicTree> trees)const
 {
- vector<RefCountedKinematicTree> tr = parentFitter->fit(trees,cs);
+ std::vector<RefCountedKinematicTree> tr = parentFitter->fit(trees,cs);
  // In case of problem in fit:
  if (tr.empty()) return tr;
  tr = cUpdator->update(tr);
@@ -33,9 +33,9 @@ vector<RefCountedKinematicTree> KinematicParticleFitter::fit(KinematicConstraint
 RefCountedKinematicTree KinematicParticleFitter::fit(KinematicConstraint * cs , 
                                             RefCountedKinematicTree tree)const
 {
- vector<RefCountedKinematicTree> trees;
+ std::vector<RefCountedKinematicTree> trees;
  trees.push_back(tree);
- vector<RefCountedKinematicTree> tr = parentFitter->fit(trees,cs);
+ std::vector<RefCountedKinematicTree> tr = parentFitter->fit(trees,cs);
  // In case of problem in fit:
  if (tr.empty()) return ReferenceCountingPointer<KinematicTree>(new KinematicTree());
  tr = cUpdator->update(tr);

@@ -31,8 +31,6 @@ public:
   explicit CastorRawToDigi(const edm::ParameterSet& ps);
   virtual ~CastorRawToDigi();
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
-  virtual void beginRun(edm::Run&, edm::EventSetup const&);
-
 private:
   edm::InputTag dataTag_;
   CastorUnpacker unpacker_;
@@ -40,14 +38,9 @@ private:
   CastorDataFrameFilter filter_;
   std::vector<int> fedUnpackList_;
   int firstFED_;
-  // bool unpackCalib_;
+  bool unpackCalib_;
   bool complainEmptyData_;
   bool usingctdc_;
-  bool unpackTTP_;
-  bool silent_;
-  bool usenominalOrbitMessageTime_;
-  int expectedOrbitMessageTime_;
-
 };
 
 #endif

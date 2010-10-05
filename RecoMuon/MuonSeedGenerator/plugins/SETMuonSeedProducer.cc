@@ -22,7 +22,7 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "TMath.h"
 
 using namespace edm;
@@ -82,6 +82,23 @@ void SETMuonSeedProducer::produce(edm::Event& event, const edm::EventSetup& even
   Handle<View<TrajectorySeed> > seeds; 
 
   setEvent(event);
+
+  reco::BeamSpot beamSpot;
+  edm::Handle<reco::BeamSpot> beamSpotHandle;
+  event.getByLabel("offlineBeamSpot", beamSpotHandle);
+  if ( beamSpotHandle.isValid() )
+  {
+    beamSpot = *beamSpotHandle;
+
+  } else
+  {
+    edm::LogInfo("MuonSeedGenerator")
+      << "No beam spot available from EventSetup \n";
+  }
+
+  // make it a vector so we can subtract it from position vectors
+  GlobalVector gv(beamSpot.x0(), beamSpot.y0(), beamSpot.z0());
+  theSeedFinder.setBeamSpot(gv);
 
   bool fwFitFailed = true;
 

@@ -249,27 +249,9 @@ void L1TdeCSCTF::analyze(edm::Event const& e, edm::EventSetup const& es){
 					int tbin    = lct->getBX();
 					int fpga    = ( subSector ? subSector-1 : station+1 );
 					int endcap = (*csc).first.endcap()-1;
-					try{
-						lclphidat lclPhi = srLUTs_[endcap][sector][fpga]->localPhi(lct->getStrip(), lct->getPattern(), lct->getQuality(), lct->getBend());
-					} catch { cms::Exception &e ) {
-						bzero(&lclPhi,sizeof(lclPhi));
-						edm::LogWarning("L1TdeCSCTF:analyze()") << "Exception from LocalPhi LUT in endCap: " << endcap << ", sector: " << sector << ", fpga: " << fpga 
-							<< "(strip:" << lct->getStrip() << ", pattern:"<< lct->getPattern() << ", Q:" << lct->getQuality() << ", bend:" << lct->getBend() << std::endl;
-					}
-					try{
-						gblphidat gblPhi = srLUTs_[endcap][sector][fpga]->globalPhiME( lclPhi.phi_local, lct->getKeyWG(),cscId+1);
-					} catch {
-						bzero(&gblPhi,sizeof(gblPhi));
-						edm::LogWarning("L1TdeCSCTF:analyze()") << "Exception from GlobalPhi LUT in endCap: " << endcap << ", sector: " << sector << ", fpga: " << fpga 
-							<< "(local phi:" << lclPhi.phi_local << ", keyWG:" << lct->getKeyWG() << ",cscID:" << cscId+1 << std::endl;
-					}
-					try{
-						gbletadat gblEta = srLUTs_[endcap][sector][fpga]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local,lct->getKeyWG(),cscId+1);
-					} catch {
-						bzero(&gblEta,sizeof(gblEta));
-						edm::LogWarning("L1TdeCSCTF:analyze()") << "Exception from GlobalEta LUT in endCap: " << endcap << ", sector: " << sector << ", fpga: " << fpga
-							<< "(local phi bend:" << lclPhi.phi_bend_local << ", local phi:" <<  lclPhi.phi_local << ", keyWG: " << lct->getKeyWG() << ", cscID: " << cscId+1 << std::endl;
-					}
+					lclphidat lclPhi = srLUTs_[endcap][sector][fpga]->localPhi(lct->getStrip(), lct->getPattern(), lct->getQuality(), lct->getBend());
+					gblphidat gblPhi = srLUTs_[endcap][sector][fpga]->globalPhiME( lclPhi.phi_local, lct->getKeyWG(),cscId+1);
+					gbletadat gblEta = srLUTs_[endcap][sector][fpga]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local,lct->getKeyWG(),cscId+1);
 					allLctBx->Fill(tbin);
 					
 					if((nLCTs < 20))

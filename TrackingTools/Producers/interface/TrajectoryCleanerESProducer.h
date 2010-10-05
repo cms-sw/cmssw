@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Thu Oct 11 05:20:59 CEST 2007
-// $Id: TrajectoryCleanerESProducer.h,v 1.2 2008/10/07 15:21:14 vlimant Exp $
+// $Id: TrajectoryCleanerESProducer.h,v 1.1 2007/10/16 04:16:59 vlimant Exp $
 //
 //
 
@@ -41,6 +41,5 @@ class TrajectoryCleanerESProducer : public edm::ESProducer {
       ReturnType produce(const  TrackingComponentsRecord&);
    private:
   std::string theComponentName;
-  std::string theComponentType;
   edm::ParameterSet theConfig;
 };

@@ -21,7 +21,6 @@ process.g4SimHits.UseMagneticField = False
 
 process.load("DQMServices.Core.DQM_cfg")
 process.DQM.collectorHost = ''
-process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
 # Input source
 process.source = cms.Source("PoolSource",
@@ -43,15 +42,14 @@ process.VtxSmeared.SigmaX = 0.00001
 process.VtxSmeared.SigmaY = 0.00001
 process.VtxSmeared.SigmaZ = 0.00001
 
+#process.hbhereco.digiLabel = 'simHcalDigis'
+#process.horeco.digiLabel = 'simHcalDigis'
+#process.hfreco.digiLabel = 'simHcalDigis'
 
-### ---- if unsuppressed Digi required (SimCalorimetry/HcalZeroSuppressionProducers/python/hcalDigisNoSuppression_cfi.py)
-#process.simHcalDigis.markAndPass = cms.bool(False),
-#process.simHcalDigis.    useConfigZSvalues = cms.int32(1)
-#process.simHcalDigis.HBlevel = -999
-#process.simHcalDigis.HOlevel = -999
-#process.simHcalDigis.HElevel = -999
-#process.simHcalDigis.HFlevel = -999
-
+#process.simHcalDigis.HBlevel = -1000
+#process.simHcalDigis.HOlevel = -1000
+#process.simHcalDigis.HElevel = 8
+#process.simHcalDigis.HFlevel = 9
 
 process.HcalSimHitsAnalyser = cms.EDAnalyzer("HcalSimHitsValidation",
     outputFile = cms.untracked.string('HcalSimHitsValidation.root')
@@ -62,10 +60,10 @@ process.hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
     HBHERecHitCollectionLabel = cms.untracked.InputTag("hbhereco"),
     HFRecHitCollectionLabel   = cms.untracked.InputTag("hfreco"),
     HORecHitCollectionLabel   = cms.untracked.InputTag("horeco"),
-    eventype                  = cms.untracked.string('single'),#multi if RelVal
+    eventype                  = cms.untracked.string('single'),
     ecalselector              = cms.untracked.string('yes'),
     hcalselector              = cms.untracked.string('all'),
-    mc                        = cms.untracked.string('yes')  # default
+    mc                        = cms.untracked.string('yes')  # default !
 )
 
 process.hcalTowerAnalyzer = cms.EDAnalyzer("CaloTowersValidation",
@@ -112,7 +110,6 @@ process.p = cms.Path(
  process.hcalDigis *
  process.calolocalreco *
  process.caloTowersRec *
- process.hcalnoise *
  process.HcalSimHitsAnalyser *
  process.hcalTowerAnalyzer *
  process.hcalRecoAnalyzer *

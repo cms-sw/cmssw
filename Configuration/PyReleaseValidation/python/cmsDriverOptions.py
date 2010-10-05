@@ -63,11 +63,23 @@ parser.add_option("--mc",
                   action="store_true",
                   default=False,
                   dest="isMC")
+
 parser.add_option("--data",
                   help="Specify that data is to be processed (default = guess based on options",
                   action="store_true",
                   default=False,
                   dest="isData")
+
+parser.add_option("--cust_function",
+                  help="Specify the customise function to be called from the customise fragment.",
+                  default='',
+                  dest='cust_function')
+
+parser.add_option("--no_exec",
+                  help="Do not exec cmsRun. Just prepare the python config file.",
+                  action="store_true",
+                  default=False,
+                  dest="no_exec_flag")   
 
 # expert settings
 expertSettings.add_option("--beamspot",
@@ -197,6 +209,11 @@ expertSettings.add_option("--triggerResultsProcess",
                           dest="triggerResultsProcess"
                           )
 
+expertSettings.add_option("--hltProcess",
+                          help="modify the DQM sequence to look for HLT trigger results with the specified process name", 
+                          default = None,
+                          dest="hltProcess"
+                          )
 
 expertSettings.add_option("--scenario",
                           help="Select scenario overriding standard settings (available:"+str(defaultOptions.scenarioOptions)+")",
@@ -218,16 +235,17 @@ expertSettings.add_option("--dbsquery",
                           default='',
                           dest="dbsquery")
 
-parser.add_option("--cust_function",
-                  help="Specify the customise function to be called from the customise fragment.",
-                  default='customise',
-                  dest='cust_function')
-
-parser.add_option("--no_exec",
-                  help="Do not exec cmsRun. Just prepare the python config file.",
+expertSettings.add_option("--lazy_download",
+                  help="Enable lazy downloading of input files",
                   action="store_true",
                   default=False,
-                  dest="no_exec_flag")   
+                  dest="lazy_download")   
+
+expertSettings.add_option("--custom_conditions",
+                          help="Allow to give a few overriding tags for the GT",
+                          default='',
+                          dest='custom_conditions')
+
                   
 (options,args) = parser.parse_args() # by default the arg is sys.argv[1:]
 
@@ -282,6 +300,7 @@ prec_step = {"NONE":"",
              "GEN":"",
              "SIM":"GEN",
              "DIGI":"SIM",
+             "HLT":"RAW",
              "RECO":"DIGI",
              "ALCA":"RECO",
              "ANA":"RECO",
@@ -397,7 +416,7 @@ options.step = options.step.replace("SIM_CHAIN","GEN,SIM,DIGI,L1,DIGI2RAW")
 # if not fastsim or harvesting...
 
 addEndJob = True
-if ("FASTSIM" in options.step and not "VALIDATION" in options.step) or "HARVESTING" in options.step or "ALCAHARVEST" in options.step or options.step == "": 
+if ("FASTSIM" in options.step and not "VALIDATION" in options.step) or "HARVESTING" in options.step or "ALCAHARVEST" in options.step or "ALCAOUTPUT" in options.step or options.step == "": 
     addEndJob = False
 if ("SKIM" in options.step and not "RECO" in options.step):
     addEndJob = False

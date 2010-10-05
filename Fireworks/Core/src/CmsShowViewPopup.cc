@@ -8,16 +8,20 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:04 EDT 2008
-// $Id: CmsShowViewPopup.cc,v 1.23 2010/03/26 20:20:21 matevz Exp $
+// $Id: CmsShowViewPopup.cc,v 1.22 2010/03/14 18:22:35 amraktad Exp $
 //
 
 // system include files
 #include <iostream>
+#include <boost/checked_delete.hpp>
 #include <boost/bind.hpp>
+#include "TGFrame.h"
 #include "TGLabel.h"
 #include "TGButton.h"
 #include "TG3DLine.h"
 #include "TEveWindow.h"
+#include "TEveViewer.h"
+#include "TGLViewer.h"
 
 // user include files
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"

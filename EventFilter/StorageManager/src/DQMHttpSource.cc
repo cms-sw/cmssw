@@ -2,7 +2,7 @@
  *  An input source for DQM consumers run in cmsRun that connect to
  *  the StorageManager or SMProxyServer to get DQM data.
  *
- *  $Id: DQMHttpSource.cc,v 1.19 2010/04/30 07:44:56 mommsen Exp $
+ *  $Id: DQMHttpSource.cc,v 1.20 2010/05/17 15:59:10 mommsen Exp $
 /// @file: DQMHttpSource.cc
  */
 
@@ -38,10 +38,10 @@ namespace edm
                                          const InputSourceDescription& desc) :
     edm::RawInputSource(pset,desc), 
     updatesCounter_(0),
-    sourceurl_(pset.getUntrackedParameter<string>("sourceURL")),
+    sourceurl_(pset.getUntrackedParameter<std::string>("sourceURL")),
     buf_(1000*1000*7), 
     events_read_(0),
-    consumerTopFolderName_(pset.getUntrackedParameter<string>("topLevelFolderName")),
+    consumerTopFolderName_(pset.getUntrackedParameter<std::string>("topLevelFolderName")),
     alreadySaidHalted_(false)
   {
     std::string evturl = sourceurl_ + "/getDQMeventdata";
@@ -55,8 +55,8 @@ namespace edm
     DQMsubscriptionurl_[stlen] = '\0';
 
     const double MAX_REQUEST_INTERVAL = 300.0;  // seconds
-    DQMconsumerName_ = pset.getUntrackedParameter<string>("DQMconsumerName","Unknown");
-    DQMconsumerPriority_ = pset.getUntrackedParameter<string>("DQMconsumerPriority","normal");
+    DQMconsumerName_ = pset.getUntrackedParameter<std::string>("DQMconsumerName","Unknown");
+    DQMconsumerPriority_ = pset.getUntrackedParameter<std::string>("DQMconsumerPriority","normal");
     headerRetryInterval_ = pset.getUntrackedParameter<int>("headerRetryInterval",5);
     double maxEventRequestRate = pset.getUntrackedParameter<double>("maxDQMEventRequestRate",1.0);
     if (maxEventRequestRate < (1.0 / MAX_REQUEST_INTERVAL)) {
@@ -131,7 +131,7 @@ namespace edm
 
       if(han==0)
       {
-        cerr << "DQMHttpSOurce: could not create handle" << endl;
+        std::cerr << "DQMHttpSOurce: could not create handle" << std::endl;
         throw cms::Exception("getOneEvent","DQMHttpSource")
             << "Unable to create curl handle\n";
         // this will end cmsRun
@@ -165,8 +165,8 @@ namespace edm
 
       if(messageStatus!=0)
       {
-        cerr << "curl perform failed for DQMevent, messageStatus = "
-             << messageStatus << endl;
+        std::cerr << "curl perform failed for DQMevent, messageStatus = "
+             << messageStatus << std::endl;
         throw cms::Exception("getOneDQMEvent","DQMHttpSource")
             << "Could not get event: probably XDAQ not running on Storage Manager "
             << "\n";
@@ -326,7 +326,7 @@ namespace edm
       CURL* han = curl_easy_init();
       if(han==0)
         {
-          cerr << "could not create handle" << endl;
+          std::cerr << "could not create handle" << std::endl;
           throw cms::Exception("registerWithDQMEventServer","DQMHttpSource")
             << "Unable to create curl handle\n";
         }
@@ -357,7 +357,7 @@ namespace edm
 
       if(messageStatus!=0)
       {
-        cerr << "curl perform failed for DQM registration" << endl;
+        std::cerr << "curl perform failed for DQM registration" << std::endl;
         throw cms::Exception("registerWithDQMEventServer","DQMHttpSource")
           << "Could not register: probably XDAQ not running or no Storage Manager/SMProxyServer loaded"
           << "\n";
@@ -406,6 +406,6 @@ namespace edm
     } while (registrationStatus == ConsRegResponseBuilder::ES_NOT_READY &&
              !edm::shutdown_flag);
 
-    FDEBUG(9) << "Consumer ID = " << DQMconsumerId_ << endl;
+    FDEBUG(9) << "Consumer ID = " << DQMconsumerId_ << std::endl;
   }
 }

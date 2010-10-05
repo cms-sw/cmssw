@@ -68,8 +68,8 @@ void SiStripBadAPVAlgorithmFromClusterOccupancy::extractBadAPVs(SiStripQuality* 
 
     for (int apv=0; apv<6; apv++)
       {
-	APV.apvMedian[apv]            = 0;
-	APV.apvabsoluteOccupancy[apv] = 0;
+	APV.apvMedian[apv]        = 0;
+	apvabsoluteOccupancy[apv] = 0;
 
 	for (int strip=0; strip<128; strip++)
 	  {
@@ -91,9 +91,9 @@ void SiStripBadAPVAlgorithmFromClusterOccupancy::extractBadAPVs(SiStripQuality* 
       {
 	for (int strip=0; strip<128; strip++)
 	  {
-	    stripOccupancy[apv][strip]     = phisto._th1f->GetBinContent((apv*128)+strip+1); // Remember: Bin=0 is underflow bin!
-	    stripWeight[apv][strip]        = 1;
-	    APV.apvabsoluteOccupancy[apv] += phisto._th1f->GetBinContent((apv*128)+strip+1); // Remember: Bin=0 is underflow bin!
+	    stripOccupancy[apv][strip] = phisto._th1f->GetBinContent((apv*128)+strip+1); // Remember: Bin=0 is underflow bin!
+	    stripWeight[apv][strip]    = 1;
+	    apvabsoluteOccupancy[apv] += phisto._th1f->GetBinContent((apv*128)+strip+1); // Remember: Bin=0 is underflow bin!
 	  }
       }
 
@@ -228,7 +228,7 @@ void SiStripBadAPVAlgorithmFromClusterOccupancy::extractBadAPVs(SiStripQuality* 
       {
 	apv_number           = apv+1;
 	apvMedianOccupancy   = APV.apvMedian[apv];
-	apvAbsoluteOccupancy = APV.apvabsoluteOccupancy[apv];
+	apvAbsoluteOccupancy = apvabsoluteOccupancy[apv];
 
 	LocalPoint  pos_strip_local  = theStripTopol->localPosition((apv*128));
         GlobalPoint pos_strip_global = (TkGeom->idToDet(detectorId))->surface().toGlobal(pos_strip_local);
@@ -416,11 +416,8 @@ void SiStripBadAPVAlgorithmFromClusterOccupancy::AnalyzeOccupancy(SiStripQuality
 	      if ((medianValues[it].apvMedian[apv]>(MeanAndRms[Moduleposition].first+highoccupancy_*MeanAndRms[Moduleposition].second)) && (medianValues[it].apvMedian[apv]>absolutelow_))
 		BadStripList.push_back(pQuality->encode((apv*128),128,0));
 	    }
-	  else if (medianValues[it].apvMedian[apv]<(MeanAndRms[Moduleposition].first-lowoccupancy_*MeanAndRms[Moduleposition].second) && (MeanAndRms[Moduleposition].first>2 || medianValues[it].apvabsoluteOccupancy[apv]==0))
-	    {
-	      BadStripList.push_back(pQuality->encode((apv*128),128,0));
-	      std::cout << "Dead APV! DetId: " << medianValues[it].detrawId << ", APV number: " << apv+1 << ", APVMedian: " << medianValues[it].apvMedian[apv] << ", Mean: " << MeanAndRms[Moduleposition].first << ", RMS: " << MeanAndRms[Moduleposition].second << ", LowThreshold: " << lowoccupancy_ << ", Mean-Low*RMS: " << (MeanAndRms[Moduleposition].first-lowoccupancy_*MeanAndRms[Moduleposition].second) << std::endl;
-	    }
+	  else if (medianValues[it].apvMedian[apv]<(MeanAndRms[Moduleposition].first-lowoccupancy_*MeanAndRms[Moduleposition].second))
+	    BadStripList.push_back(pQuality->encode((apv*128),128,0));
 	}
       if (BadStripList.begin()!=BadStripList.end())
 	{

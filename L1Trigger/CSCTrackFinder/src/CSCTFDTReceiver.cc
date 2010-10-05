@@ -7,6 +7,8 @@
 #include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
 
+#include <L1Trigger/CSCTrackFinder/src/CSCTFDTReceiverLUT.h>
+
 CSCTriggerContainer<csctf::TrackStub> CSCTFDTReceiver::process(const L1MuDTChambPhContainer* dttrig)
 {
   dtstubs.clear();
@@ -38,26 +40,60 @@ CSCTriggerContainer<csctf::TrackStub> CSCTFDTReceiver::process(const L1MuDTChamb
 		                             dttrig->chPhiSegm2(wheel,1,iss,bx);
 		  if(dtts[stub])
 		    {
-		      // Convert stubs to CSC format (signed -> unsigned)
-		      // phi was 12 bits (signed) for pi radians = 57.3 deg
-		      // relative to center of 30 degree DT sector
-		      double tmp = static_cast<const double> (dtts[stub]->phi()) /
-			DTConfigTraco::RESOLPSIR * 180./M_PI + 15.;
 
-		      int phi = static_cast<int> (tmp/60. * (1<<(CSCBitWidths::kGlobalPhiDataBitWidth)));
-		      if (is>sector) phi = phi + (1<<(CSCBitWidths::kGlobalPhiDataBitWidth - 1));
+		      // --------------------------------------------------------------
+		      // IKF: this code has been reformulated ...
+		      // --------------------------------------------------------------
+		      // // Convert stubs to CSC format (signed -> unsigned)
+		      // // phi was 12 bits (signed) for pi radians = 57.3 deg
+		      // // relative to center of 30 degree DT sector
+		      // double tmp = static_cast<const double> (dtts[stub]->phi()) /
+		      // 	DTConfigTraco::RESOLPSIR * 180./M_PI + 15.;
+		      // int phi = static_cast<int> (tmp/62. * (1<<(CSCBitWidths::kGlobalPhiDataBitWidth)));
+		      // --------------------------------------------------------------
+		      // IKF  ...and is now this line, actually works a tiny bit better.
+		      // --------------------------------------------------------------
+		      //		      float tmp = dtts[stub] -> phi() * 1.0;
+		      //
+		      //		      tmp *= 90.0;
+		      //		      tmp /= 31.0;
+		      //		      //		      tmp /= M_PI;
+		      //		      tmp /= 3.1416;
+		      //		      tmp += 1057.0;
+		      //
+		      //		      int phi = static_cast<int> (tmp);
+
+		      // --------------------------------------------------------------
+		      // IKF  ...and is now this line, actually works a tiny bit better.
+		      // --------------------------------------------------------------
+		      int phi = dtts[stub] -> phi();
+
+		      if (phi < 0) phi += 4096;
+
+		      if (phi > 4096)
+			{ std::cout << "AAAAAAAAAAGH TOO BIG PHI:" << phi << std::endl;
+			  continue; 
+			}
+		      if (phi < 0){
+			std::cout << "AAAAAAAAH NEG PHI" << phi << std::endl;
+			continue;
+		      }
+
+		      phi = CSCTFDTReceiverLUT::lut[phi];
+
+		      // --------------------------------------------------------------
 
 		      // DT chambers may lie outside CSC sector boundary
 		      // Eventually we need to extend CSC phi definition
+		      // --------------------------------------------------------------
+		      // IKF: this is a protection, physically can't happen in data (bus too narrow) - 
+		      // - what really happens in data?
+		      // --------------------------------------------------------------
+
 		      phi = (phi>0) ? phi : 0;
 		      phi = (phi<(1<<(CSCBitWidths::kGlobalPhiDataBitWidth))) ? phi :
 			(1<<(CSCBitWidths::kGlobalPhiDataBitWidth))-1;
 
-		      // account for slope in DT/CSC comparison
-		      phi = static_cast<int>(phi*(1.-40./4096.)) + 25;
-		      phi = (phi>0) ? phi : 0;
-		      phi = (phi<(1<<(CSCBitWidths::kGlobalPhiDataBitWidth))) ? phi :
-			(1<<(CSCBitWidths::kGlobalPhiDataBitWidth))-1;
 
 		      // change phib from 10 bits to 6
 		      int phib = (dtts[stub]->phiB() + DTConfigTraco::RESOLPSI) / 16;
@@ -66,7 +102,7 @@ CSCTriggerContainer<csctf::TrackStub> CSCTFDTReceiver::process(const L1MuDTChamb
 		      /// shift all by one and take mod 8, since DT quality of 7 is a null stub
 		      qual = (qual + 1)%8;
 
-		      CSCCorrelatedLCTDigi dtinfo(stub+1,1, qual, 0, 0, 0, phib, csc_bx, (stub+1) + 2*((is+1)%2));
+		      CSCCorrelatedLCTDigi dtinfo(stub+1,1, qual, 0, stub, 0, phib, csc_bx+stub, 1+(is+1)%2);
 		      DTChamberId dtid(wheel,1,iss+1);
 		      csctf::TrackStub tsCSC(dtinfo,dtid, phi, 0);
 

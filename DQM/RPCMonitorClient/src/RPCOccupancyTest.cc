@@ -210,7 +210,6 @@ void RPCOccupancyTest::endRun(const Run& r, const EventSetup& c,vector<MonitorEl
       myDetIds_.push_back(detIdVector[i]);
     }
   }
-  this->clientOperation(c);
 }
 
 void RPCOccupancyTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context){} 

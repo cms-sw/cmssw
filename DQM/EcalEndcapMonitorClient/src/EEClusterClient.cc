@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2010/01/25 21:12:26 $
- * $Revision: 1.62 $
+ * $Date: 2010/03/27 20:07:59 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -19,7 +19,7 @@
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EEClusterClient.h>
+#include "DQM/EcalEndcapMonitorClient/interface/EEClusterClient.h"
 
 EEClusterClient::EEClusterClient(const edm::ParameterSet& ps) {
 

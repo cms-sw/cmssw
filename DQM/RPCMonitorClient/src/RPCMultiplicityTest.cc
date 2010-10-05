@@ -126,8 +126,6 @@ void RPCMultiplicityTest::endRun(const Run& r, const EventSetup& iSetup,vector<M
       myDetIds_.push_back(detIdVector[i]);
     }
   }
-
-  this->clientOperation(iSetup);
 }
 
 

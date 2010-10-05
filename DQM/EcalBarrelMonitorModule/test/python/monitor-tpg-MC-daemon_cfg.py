@@ -151,7 +151,6 @@ process.ecalBarrelPedestalOnlineTask.EBDigiCollection = 'simEcalDigis:ebDigis'
 
 process.ecalBarrelTriggerTowerTask.EBDigiCollection = 'simEcalDigis:ebDigis'
 
-process.ecalBarrelMonitorClient.maskFile = 'DQM/EcalBarrelMonitorModule/test/data/maskfile-EB.dat'
 process.ecalBarrelMonitorClient.mergeRuns = True
 process.ecalBarrelMonitorClient.location = 'H4'
 

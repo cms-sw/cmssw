@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.48 2010/06/18 10:17:15 yana Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.27 2009/12/07 01:15:09 dmytro Exp $
 //
 
 // system include files
@@ -16,13 +16,10 @@
 #include <sigc++/signal.h>
 #include <boost/bind.hpp>
 #include <algorithm>
-#include <cctype>
-#include <string>
-
 #include "TGFrame.h"
 #include "TGTextEntry.h"
+#include "TGLabel.h"
 #include "TGButton.h"
-#include "TGMsgBox.h"
 #include "TClass.h"
 #include "TFile.h"
 #include "TTree.h"
@@ -33,17 +30,19 @@
 #include "Fireworks/Core/interface/FWPhysicsObjectDesc.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/interface/FWItemAccessorFactory.h"
-#include "Fireworks/Core/interface/FWJobMetadataManager.h"
 #include "Fireworks/TableWidget/interface/FWTableWidget.h"
 #include "Fireworks/TableWidget/interface/FWTableManagerBase.h"
 #include "Fireworks/TableWidget/interface/FWTextTableCellRenderer.h"
-#include "Fireworks/Core/interface/fwLog.h"
-#include "Fireworks/Core/src/FWDialogBuilder.h"
+
+#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/FWLite/interface/Event.h"
+
+//Had to hide this type from Cint
+#include "Fireworks/Core/interface/FWTypeToRepresentations.h"
 //
 // constants, enums and typedefs
 //
-static const std::string& dataForColumn( const FWJobMetadataManager::Data& iData, int iCol)
+static const std::string& dataForColumn( const FWGUIEventDataAdder::Data& iData, int iCol)
 {
    switch (iCol) {
       case 0:
@@ -71,28 +70,16 @@ static const std::string& dataForColumn( const FWJobMetadataManager::Data& iData
 static const unsigned int kNColumns = 5;
 class DataAdderTableManager : public FWTableManagerBase {
 public:
-   DataAdderTableManager(FWJobMetadataManager *manager):
-      m_manager(manager), m_selectedRow(-1), m_filter() 
-   {
+   DataAdderTableManager(const std::vector<FWGUIEventDataAdder::Data>* iData) :
+      m_data(iData), m_selectedRow(-1) {
       reset();
    }
 
    virtual int numberOfRows() const {
-      return m_row_to_index.size();
+      return m_data->size();
    }
    virtual int numberOfColumns() const {
       return kNColumns;
-   }
-   
-   /** Updates the table using the passed @a filter.
-       Notice that in this case we reset the sorting and show results by those
-       best matching the filter.
-     */
-   virtual void sortWithFilter(const char *filter)
-   {
-      m_filter = filter;
-      sort(-1, sortOrder());
-      dataChanged();
    }
    
    virtual int unsortedRowNumber(int iSortedRowNumber) const {
@@ -116,7 +103,7 @@ public:
       
       if(static_cast<int>(m_row_to_index.size())>iSortedRowNumber) {
          int unsortedRow =  m_row_to_index[iSortedRowNumber];
-         const FWJobMetadataManager::Data& data = (m_manager->usableData())[unsortedRow];
+         const FWGUIEventDataAdder::Data& data = (*m_data)[unsortedRow];
 
          m_renderer.setData(dataForColumn(data,iCol),m_selectedRow==unsortedRow);
       } else {
@@ -149,8 +136,8 @@ public:
    void reset() {
       changeSelection(-1);
       m_row_to_index.clear();
-      m_row_to_index.reserve(m_manager->usableData().size());
-      for(unsigned int i =0; i < m_manager->usableData().size(); ++i) {
+      m_row_to_index.reserve(m_data->size());
+      for(unsigned int i =0; i < m_data->size(); ++i) {
          m_row_to_index.push_back(i);
       }
       dataChanged();
@@ -168,178 +155,48 @@ private:
          visualPropertiesChanged();
       }
    }
-   FWJobMetadataManager* m_manager;
-   std::vector<int>      m_row_to_index;
-   int                   m_selectedRow;
-   std::string           m_filter;
+   const std::vector<FWGUIEventDataAdder::Data>* m_data;
+   std::vector<int> m_row_to_index;
+   int m_selectedRow;
    mutable FWTextTableCellRenderer m_renderer;
 };
 
 namespace {
-void strip(std::string &source, const char *str)
-   {
-      std::string remove(str);
-      while(true)
-      {
-         size_t found = source.find(remove);
-         if (found == std::string::npos)
-            break;
-         source.erase(found, remove.size());
-      }
-   }
-
-   /** Helper classes to handle sorting and filtering.
-   
-       The idea is that we sort things so that:
-   
-       - An item that matches is always less than one that does not.
-       - If two items both match they are sorted according to the sorting 
-         criteria.
-       - If two items both do not match, the are always sorted (so that we
-         do not waste time in sorting non matching items).
-      
-       Then we tell the table that the size of the available data is only
-       the size of the matching items.
-       
-       Notice that the matching here does not work with regular expressions 
-       but it matches in the case the filter string is found anywhere, 
-       regardless of the case.
-     */
-   class SortAndFilter
-   {
-   public:
-      SortAndFilter(const char *filter, int column, bool order, 
-                    const std::vector<FWJobMetadataManager::Data> &data)
-         : m_filter(filter),
-           m_column(column),
-           m_order(order),
-           m_data(data)
-         {
-            simplify(m_filter);
-            m_weights.resize(data.size());
-            
-            // Calculate whether or not all the entries match the given filter.
-            // This is done only once, since it's invariant under permutations
-            // of the data.
-            for (size_t i = 0, e = m_weights.size(); i != e; ++i)
-               m_weights[i] = matchesFilter(m_data[i]);
-         }
-
-      /** Makes @a str lowercase and eliminates bits we dont want to take
-          into account in while searching.
-        */
-      static void simplify(std::string &str)
-      {
-         std::transform(str.begin(), str.end(), str.begin(), tolower);
-         strip(str, "std::");
-         strip(str, "edm::");
-         strip(str, "vector<");
-         strip(str, "clonepolicy");
-         strip(str, "ownvector");
-         strip(str, "rangemap<");
-         strip(str, "strictweakordering<");
-         strip(str, "sortedcollection<");
-         strip(str, "reco::");
-         strip(str, "edmnew::");
-      }
-      
-      unsigned int matches(const std::string &str) const
-         {
-            std::string up(str);
-            simplify(up);
-            const char *begin = up.c_str();
-            
-            // If the filter is empty, we consider anything as matching 
-            // (i.e. it will not loop).
-            // If the filter is not empty but the string to be matched is, we 
-            // consider it as if it was not matching.
-            if ((!m_filter.empty()) && str.empty())
-               return 0;
-            
-            // There are two level of matching. "Full string" and 
-            // "All characters". "Full string" matches return an higher weight 
-            // and therefore should appear on top.
-            if (strstr(begin, m_filter.c_str()))
-               return 2;
-
-            return 0;
-         }
-      
-      /** If any of the columns (including "Purpose"!!) matches, we consider
-          the row valid.
-          
-          @return the best score obtained when matching strings.
-        */
-      unsigned int matchesFilter(const FWJobMetadataManager::Data &data) const
-         {
-            std::vector<unsigned int> scores;
-            scores.reserve(10);
-            scores.push_back(matches(data.purpose_));
-            scores.push_back(matches(data.type_));
-            scores.push_back(matches(data.moduleLabel_));
-            scores.push_back(matches(data.productInstanceLabel_));
-            scores.push_back(matches(data.processName_));
-            std::sort(scores.begin(), scores.end());
-            return scores.back();
-         }
-      
-      /** Have a look at the class description to see the rationale behind 
-          this.
-        */
-      bool operator()(const int &aIndex, const int &bIndex)
-         {
-            // In case no column is selected, we sort by relevance of the 
-            // filter.
-            if (m_column == -1)
-               return m_weights[aIndex] >= m_weights[bIndex];
-
-            const FWJobMetadataManager::Data &a = m_data[aIndex];
-            const FWJobMetadataManager::Data &b = m_data[bIndex];
-
-            if (m_order)
-               return dataForColumn(a, m_column) < dataForColumn(b, m_column);
-            else
-               return dataForColumn(a, m_column) > dataForColumn(b, m_column);
-         }
-   private:
-      std::string m_filter;
-      int         m_column;
-      bool        m_order;
-
-      const std::vector<FWJobMetadataManager::Data> &m_data;
-      std::vector<unsigned int>                      m_weights;
-   };
-
-   void doSort(int column,
-               const char *filter,
-               bool descentSort,
-               const std::vector<FWJobMetadataManager::Data>& iData,
+   template <typename TMap>
+   void doSort(int col,
+               const std::vector<FWGUIEventDataAdder::Data>& iData,
+               TMap& iOrdered,
                std::vector<int>& oRowToIndex)
    {
-      std::vector<int> ordered;
-      ordered.reserve(iData.size());
-      
-      for (size_t i = 0, e = iData.size(); i != e; ++i)
-         ordered.push_back(i);
-      
-      SortAndFilter sorter(filter, column, descentSort, iData);
-      // GE: Using std::sort does not work for some reason... Bah...
-      std::stable_sort(ordered.begin(), ordered.end(), sorter);
-
-      oRowToIndex.clear();
-      oRowToIndex.reserve(ordered.size());
-      // Only keep track of the rows that match.
-      for (size_t i = 0, e = ordered.size(); i != e; ++i)
-         if (sorter.matchesFilter(iData[ordered[i]]) != 0)
-            oRowToIndex.push_back(ordered[i]);
+      unsigned int index=0;
+      for(std::vector<FWGUIEventDataAdder::Data>::const_iterator it = iData.begin(),
+                                                                 itEnd = iData.end();
+          it!=itEnd;
+          ++it,++index) {
+         iOrdered.insert(std::make_pair(dataForColumn(*it,col),index));
+      }
+      unsigned int row = 0;
+      for(typename TMap::iterator it = iOrdered.begin(),
+          itEnd = iOrdered.end();
+          it != itEnd;
+          ++it,++row) {
+         oRowToIndex[row]=it->second;
+      }
    }
 }
 
 void
-DataAdderTableManager::implSort(int column, bool sortOrder)
+DataAdderTableManager::implSort(int col, bool sortOrder)
 {
-   doSort(column, m_filter.c_str(), sortOrder, m_manager->usableData(), m_row_to_index);
+   if(sortOrder) {
+      std::multimap<std::string,int> ordered;
+      doSort(col,*m_data, ordered, m_row_to_index);
+   } else {
+      std::multimap<std::string,int,std::greater<std::string> > ordered;
+      doSort(col,*m_data, ordered, m_row_to_index);
+   }
 }
+
 
 //
 // static data member definitions
@@ -348,19 +205,34 @@ DataAdderTableManager::implSort(int column, bool sortOrder)
 //
 // constructors and destructor
 //
+static TGLayoutHints* addToFrame(TGVerticalFrame* iParent, const char* iName, TGTextEntry*& oSet,
+                                 unsigned int& oLabelWidth)
+{
+   TGLayoutHints* returnValue = new TGLayoutHints(kLHintsLeft|kLHintsCenterY,2,2,2,2);
+   TGCompositeFrame* hf = new TGHorizontalFrame(iParent);
+   TGLabel* label = new TGLabel(hf,iName);
+   oLabelWidth= label->GetWidth();
+   hf->AddFrame(label, returnValue);
+   oSet = new TGTextEntry(hf,"");
+   hf->AddFrame(oSet,new TGLayoutHints(kLHintsExpandX|kLHintsCenterY));
+   iParent->AddFrame(hf, new TGLayoutHints(kLHintsExpandX));
+   return returnValue;
+}
 
 FWGUIEventDataAdder::FWGUIEventDataAdder(
    UInt_t iWidth,UInt_t iHeight,
    FWEventItemsManager* iManager,
    TGFrame* iParent,
-   FWJobMetadataManager *iMetadataManager) 
-   :
-      m_manager(iManager),
-      m_metadataManager(iMetadataManager),
-      m_parentFrame(iParent)
+   const fwlite::Event* iEvent,
+   const TFile* iFile,
+   const FWTypeToRepresentations& iTypeAndReps) :
+   m_manager(iManager),
+   m_presentEvent(0),
+   m_parentFrame(iParent),
+   m_typeAndReps( new FWTypeToRepresentations(iTypeAndReps))
 {
-   m_metadataManager->metadataChanged_.connect(boost::bind(&FWGUIEventDataAdder::metadataUpdatedSlot, this));
    createWindow();
+   update(iFile,iEvent);
 }
 
 // FWGUIEventDataAdder::FWGUIEventDataAdder(const FWGUIEventDataAdder& rhs)
@@ -370,6 +242,8 @@ FWGUIEventDataAdder::FWGUIEventDataAdder(
 
 FWGUIEventDataAdder::~FWGUIEventDataAdder()
 {
+   delete m_typeAndReps;
+
    /*
     // m_frame->Cleanup();
     // delete m_frame;
@@ -414,12 +288,8 @@ FWGUIEventDataAdder::addNewItem()
    }
 
    if ( m_manager->find( name ) ) {
-      TString msg("Event item '");
-      msg += name;
-      msg += "' is already registered. Please use another name.";
-      fwLog(fwlog::kWarning) << msg.Data() << std::endl;
-      new TGMsgBox(gClient->GetDefaultRoot(), m_frame,
-                   "Error - Name conflict", msg, kMBIconExclamation, kMBOk);
+      std::cout << "Event item " << name <<
+      " is already registered. Please use another name" << std::endl;
       return;
    }
 
@@ -442,7 +312,7 @@ FWGUIEventDataAdder::addNewItem()
       processName="";
    }
    FWPhysicsObjectDesc desc(name, theClass, m_purpose,
-                            FWDisplayProperties::defaultProperties,
+                            FWDisplayProperties(),
                             moduleLabel,
                             m_productInstanceLabel,
                             processName,
@@ -466,7 +336,6 @@ void
 FWGUIEventDataAdder::windowIsClosing()
 {
    m_name->SetText("");
-   m_search->SetText("");
    m_purpose.clear();
    m_type.clear();
    m_moduleLabel.clear();
@@ -478,89 +347,157 @@ FWGUIEventDataAdder::windowIsClosing()
    m_frame->DontCallClose();
 }
 
-void
-FWGUIEventDataAdder::updateFilterString(const char *str)
-{
-   m_tableManager->sortWithFilter(str);
-   m_tableManager->dataChanged();
-}
 
 void
 FWGUIEventDataAdder::createWindow()
 {
-   m_tableManager = new DataAdderTableManager(m_metadataManager);
-   m_tableManager->indexSelected_.connect(boost::bind(&FWGUIEventDataAdder::newIndexSelected,this,_1));
-
    m_frame = new TGTransientFrame(gClient->GetDefaultRoot(),m_parentFrame,600,400);
    m_frame->Connect("CloseWindow()","FWGUIEventDataAdder",this,"windowIsClosing()");
+   TGVerticalFrame* vf = new TGVerticalFrame(m_frame);
+   m_frame->AddFrame(vf, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,10,10,10,10));
 
-   FWDialogBuilder builder(m_frame);
-   TGTextButton* cancelButton;
-   
-   builder.indent(10)
-          .spaceDown(15)
-          .addLabel("Search:", 9).expand(false).floatLeft(4)
-          .addTextEntry("", &m_search)
-          .spaceDown(10)
-          .addLabel("Viewable Collections", 8)
-          .spaceDown(5)
-          .addTable(m_tableManager, &m_tableWidget).expand(true, true)
-          .addLabel("Name:", 9).expand(false).floatLeft(4)
-          .addTextEntry("", &m_name)
-          .spaceDown(5)
-          .addCheckbox("Do not use Process Name and "
-                       "instead only get this data "
-                       "from the most recent Process",
-                       &m_doNotUseProcessName)
-          .spaceDown(15)
-          .hSpacer().floatLeft(0)
-          .addTextButton("Cancel", &cancelButton).floatLeft(4).expand(false)
-          .addTextButton("Add Data", &m_apply).expand(false).spaceLeft(25)
-                                              .spaceDown(15);
-
-   m_search->Connect("TextChanged(const char *)", "FWGUIEventDataAdder", 
-                     this, "updateFilterString(const char *)");
-   m_search->SetEnabled(true);
-   m_tableWidget->SetBackgroundColor(0xffffff);
-   m_tableWidget->SetLineSeparatorColor(0x000000);
-   m_tableWidget->SetHeaderBackgroundColor(0xececec);
-   m_tableWidget->Connect("rowClicked(Int_t,Int_t,Int_t,Int_t,Int_t)",
-                          "FWGUIEventDataAdder",this,
-                          "rowClicked(Int_t,Int_t,Int_t,Int_t,Int_t)");
-   m_name->SetState(true);
+   unsigned int maxWidth = 0;
+   std::vector<TGLayoutHints*> hints(1);
+   std::vector<unsigned int> widths(1);
+   assert(1==hints.size());
+   unsigned int index = 0;
+   hints[index]=addToFrame(vf, "Name:", m_name,widths[index]);
+   if(widths[index] > maxWidth) {maxWidth = widths[index];}
+   ++index;
+   m_doNotUseProcessName= new TGCheckButton(vf,"Do not use Process Name and instead only get this data from the most recent Process",1);
    m_doNotUseProcessName->SetState(kButtonDown);
-   cancelButton->Connect("Clicked()","FWGUIEventDataAdder", 
-                         this, "windowIsClosing()");
-   cancelButton->SetEnabled(true);
-   m_apply->Connect("Clicked()", "FWGUIEventDataAdder", this, "addNewItem()");
-   
+   vf->AddFrame(m_doNotUseProcessName);
+   std::vector<unsigned int>::iterator itW = widths.begin();
+   for(std::vector<TGLayoutHints*>::iterator itH = hints.begin(), itEnd = hints.end();
+       itH != itEnd;
+       ++itH,++itW) {
+      (*itH)->SetPadLeft(maxWidth - *itW);
+   }
+
+   TGLabel* label = new TGLabel(vf,"Viewable Collections");
+   vf->AddFrame(label,new TGLayoutHints(kLHintsNormal,0,0,10));
+   m_tableManager= new DataAdderTableManager(&m_useableData);
+   m_tableManager->indexSelected_.connect(boost::bind(&FWGUIEventDataAdder::newIndexSelected,this,_1));
+   m_tableWidget = new FWTableWidget(m_tableManager,vf);
+   m_tableWidget->Resize(200,200);
+   vf->AddFrame(m_tableWidget, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
+   m_tableWidget->Connect("rowClicked(Int_t,Int_t,Int_t,Int_t,Int_t)","FWGUIEventDataAdder",this,"rowClicked(Int_t,Int_t,Int_t,Int_t,Int_t)");
+
+   TGHorizontalFrame* buttonFrame = new TGHorizontalFrame(vf);
+   vf->AddFrame(buttonFrame,new TGLayoutHints(kLHintsBottom|kLHintsCenterX));
+   TGTextButton* cancelButton = new TGTextButton(buttonFrame,"Cancel");
+   cancelButton->Connect("Clicked()","FWGUIEventDataAdder",this, "windowIsClosing()");
+   buttonFrame->AddFrame(cancelButton, new TGLayoutHints(kLHintsLeft,0,5,0,0));
+   m_apply = new TGTextButton(buttonFrame,"Add Data");
+   buttonFrame->AddFrame(m_apply, new TGLayoutHints(kLHintsRight,5,0,0,0));
+   m_apply->Connect("Clicked()","FWGUIEventDataAdder",this,"addNewItem()");
+   m_apply->SetEnabled(false);
+
+   // Set a name to the main frame
    m_frame->SetWindowName("Add Collection");
+
+   // Map all subwindows of main frame
    m_frame->MapSubwindows();
+
+   // Initialize the layout algorithm
    m_frame->Layout();
+
 }
 
-/** Slot for the metadataChanged signal of the FWJobMetadataManager.
-    Whenever metadata changes, for whatever reason (e.g. a new file), we
-    need to update the table.
-  */
 void
-FWGUIEventDataAdder::metadataUpdatedSlot(void)
+FWGUIEventDataAdder::update(const TFile* iFile, const fwlite::Event* iEvent)
 {
-   m_tableManager->reset();
-   m_tableManager->sort(0, true);
+   if(m_presentEvent != iEvent) {
+      m_presentEvent=iEvent;
+      assert(0!=iFile);
+      fillData(iFile);
+   }
+}
+
+void
+FWGUIEventDataAdder::fillData(const TFile* iFile)
+{
+   m_useableData.clear();
+   if(0!=m_presentEvent) {
+      const std::vector<std::string>& history = m_presentEvent->getProcessHistory();
+      //Turns out, in the online system we do sometimes gets files without any history, 
+      // this really should be investigated
+      //assert(0!=history.size());
+      if(0==history.size()) {
+         std::cerr <<"WARNING: the file '"<<iFile->GetName()<<"' contains no processing history and therefore should have no accessible data";
+      }
+      std::copy(history.rbegin(),history.rend(),
+                std::back_inserter(m_processNamesInFile));
+      
+      static const std::string s_blank;
+      const std::vector<edm::BranchDescription>& branches =
+         m_presentEvent->getBranchDescriptions();
+      Data d;
+
+      //I'm not going to modify TFile but I need to see what it is holding
+      TTree* eventsTree = dynamic_cast<TTree*>(const_cast<TFile*>(iFile)->Get("Events"));
+      assert(0!=eventsTree);
+
+      std::set<std::string> branchNamesInFile;
+      TIter nextBranch(eventsTree->GetListOfBranches());
+      while(TBranch* branch = static_cast<TBranch*>(nextBranch())) {
+         branchNamesInFile.insert(branch->GetName());
+      }
+
+
+      std::set<std::string> purposes;
+      for(std::vector<edm::BranchDescription>::const_iterator itBranch =
+             branches.begin(), itEnd=branches.end();
+          itBranch != itEnd;
+          ++itBranch) {
+         if(itBranch->present() &&
+            branchNamesInFile.end() != branchNamesInFile.find(itBranch->branchName())){
+            const std::vector<FWRepresentationInfo>& infos = m_typeAndReps->representationsForType(itBranch->fullClassName());
+
+            //std::cout <<"try to find match "<<itBranch->fullClassName()<<std::endl;
+            //the infos list can contain multiple items with the same purpose so we will just find
+            // the unique ones
+            purposes.clear();
+            for(std::vector<FWRepresentationInfo>::const_iterator itInfo = infos.begin(),
+                                                                  itInfoEnd = infos.end();
+                itInfo != itInfoEnd;
+                ++itInfo) {
+               purposes.insert(itInfo->purpose());
+            }
+            for(std::set<std::string>::const_iterator itPurpose = purposes.begin(),
+                                                      itEnd = purposes.end();
+                itPurpose != itEnd;
+                ++itPurpose) {
+               d.purpose_ = *itPurpose;
+               d.type_ = itBranch->fullClassName();
+               d.moduleLabel_ = itBranch->moduleLabel();
+               d.productInstanceLabel_ = itBranch->productInstanceName();
+               d.processName_ = itBranch->processName();
+               m_useableData.push_back(d);
+               /*
+                  std::cout <<d.purpose_<<" "<<d.type_<<" "
+                  <<d.moduleLabel_<<" "
+                  <<d.productInstanceLabel_<<" "
+                  <<d.processName_<<std::endl;
+                */
+            }
+         }
+      }
+      m_tableManager->reset();
+      m_tableManager->sort(0,true);
+   }
 }
 
 void
 FWGUIEventDataAdder::newIndexSelected(int iSelectedIndex)
 {
    if(-1 != iSelectedIndex) {
-      std::vector<FWJobMetadataManager::Data> &metadata = m_metadataManager->usableData();
-      m_purpose = metadata[iSelectedIndex].purpose_;
-      m_type = metadata[iSelectedIndex].type_;
+      m_purpose =m_useableData[iSelectedIndex].purpose_;
+      m_type = m_useableData[iSelectedIndex].type_;
       std::string oldModuleLabel = m_moduleLabel;
-      m_moduleLabel = metadata[iSelectedIndex].moduleLabel_;
-      m_productInstanceLabel = metadata[iSelectedIndex].productInstanceLabel_;
-      m_processName = metadata[iSelectedIndex].processName_;
+      m_moduleLabel = m_useableData[iSelectedIndex].moduleLabel_;
+      m_productInstanceLabel = m_useableData[iSelectedIndex].productInstanceLabel_;
+      m_processName = m_useableData[iSelectedIndex].processName_;
       
       if(strlen(m_name->GetText())==0 || oldModuleLabel == m_name->GetText()) {
          m_name->SetText(m_moduleLabel.c_str());
@@ -573,7 +510,7 @@ FWGUIEventDataAdder::newIndexSelected(int iSelectedIndex)
       // process name in order to correctly get the data they want
       bool isMostRecentProcess =true;
       int index = 0;
-      for(std::vector<FWJobMetadataManager::Data>::iterator it = metadata.begin(), itEnd = metadata.end();
+      for(std::vector<Data>::iterator it = m_useableData.begin(), itEnd = m_useableData.end();
           it != itEnd && isMostRecentProcess;
           ++it,++index) {
          if(index == iSelectedIndex) {continue;}
@@ -582,16 +519,13 @@ FWGUIEventDataAdder::newIndexSelected(int iSelectedIndex)
             it->type_ == m_type &&
             it->productInstanceLabel_ == m_productInstanceLabel) {
             //see if this process is newer than the data requested
-            
-            for(size_t pni = 0, pne = m_metadataManager->processNamesInJob().size();
-                pni != pne; ++pni) 
-            {
-               const std::string &processName = m_metadataManager->processNamesInJob()[pni];
-               if (m_processName == processName)
+            for(std::vector<std::string>::iterator itHist = m_processNamesInFile.begin(),itHistEnd = m_processNamesInFile.end();
+                itHist != itHistEnd;
+                ++itHist) {
+               if (m_processName == *itHist) {
                   break;
-
-               if(it->processName_ == processName) 
-               {
+               }
+               if(it->processName_ == *itHist) {
                   isMostRecentProcess = false;
                   break;
                }

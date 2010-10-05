@@ -14,7 +14,7 @@ using namespace edm;
 ///////////////////
 //  CONSTRUCTOR  //
 ///////////////////
-CSCValidation::CSCValidation(const ParameterSet& pset){ 
+CSCValidation::CSCValidation(const ParameterSet& pset){
 
   // Get the various input parameters
   rootFileName         = pset.getUntrackedParameter<string>("rootFileName","valHists.root");
@@ -22,29 +22,13 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
   writeTreeToFile      = pset.getUntrackedParameter<bool>("writeTreeToFile",true);
   detailedAnalysis     = pset.getUntrackedParameter<bool>("detailedAnalysis",false);
   useDigis             = pset.getUntrackedParameter<bool>("useDigis",true);
-
-  // event quality filter
-  useQualityFilter     = pset.getUntrackedParameter<bool>("useQualityFilter",false);
-  pMin                 = pset.getUntrackedParameter<double>("pMin",4.);
-  chisqMax             = pset.getUntrackedParameter<double>("chisqMax",20.);
-  nCSCHitsMin          = pset.getUntrackedParameter<int>("nCSCHitsMin",10);
-  nCSCHitsMax          = pset.getUntrackedParameter<int>("nCSCHitsMax",25);
-  lengthMin            = pset.getUntrackedParameter<double>("lengthMin",140.);
-  lengthMax            = pset.getUntrackedParameter<double>("lengthMax",600.);
-  deltaPhiMax          = pset.getUntrackedParameter<double>("deltaPhiMax",0.2);
-  polarMax             = pset.getUntrackedParameter<double>("polarMax",0.7);
-  polarMin             = pset.getUntrackedParameter<double>("polarMin",0.3);
-
-  // trigger filter
-  useTriggerFilter     = pset.getUntrackedParameter<bool>("useTriggerFilter",false);
+  useTrigger           = pset.getUntrackedParameter<bool>("useTrigger",false);
+  filterCSCEvents      = pset.getUntrackedParameter<bool>("filterCSCEvents",false);
 
   // input tags for collections
   stripDigiTag  = pset.getParameter<edm::InputTag>("stripDigiTag");
   wireDigiTag   = pset.getParameter<edm::InputTag>("wireDigiTag"); 
   compDigiTag   = pset.getParameter<edm::InputTag>("compDigiTag");
-  alctDigiTag   = pset.getParameter<edm::InputTag>("alctDigiTag") ;
-  clctDigiTag   = pset.getParameter<edm::InputTag>("clctDigiTag") ;
-  corrlctDigiTag= pset.getParameter<edm::InputTag>("corrlctDigiTag") ;
   cscRecHitTag  = pset.getParameter<edm::InputTag>("cscRecHitTag");
   cscSegTag     = pset.getParameter<edm::InputTag>("cscSegTag");
   saMuonTag     = pset.getParameter<edm::InputTag>("saMuonTag");
@@ -53,7 +37,6 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
 
   // flags to switch on/off individual modules
   makeOccupancyPlots   = pset.getUntrackedParameter<bool>("makeOccupancyPlots",true);
-  makeTriggerPlots     = pset.getUntrackedParameter<bool>("makeTriggerPlots",false);
   makeStripPlots       = pset.getUntrackedParameter<bool>("makeStripPlots",true);
   makeWirePlots        = pset.getUntrackedParameter<bool>("makeWirePlots",true);
   makeRecHitPlots      = pset.getUntrackedParameter<bool>("makeRecHitPlots",true);
@@ -69,7 +52,6 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
   makeRHNoisePlots     = pset.getUntrackedParameter<bool>("makeRHNoisePlots",false);
   makeCalibPlots       = pset.getUntrackedParameter<bool>("makeCalibPlots",false);
   makeStandalonePlots  = pset.getUntrackedParameter<bool>("makeStandalonePlots",false);
-  makeTimeMonitorPlots = pset.getUntrackedParameter<bool>("makeTimeMonitorPlots",false);
 
   // set counters to zero
   nEventsAnalyzed = 0;
@@ -137,15 +119,6 @@ CSCValidation::~CSCValidation(){
   hStripEff2->Divide(hStripSTE2,hEffDenominator,1.,1.,"B");
   hWireEff2->Divide(hWireSTE2,hEffDenominator,1.,1.,"B");
 
-  histos->insertPlot(hRHSTE,"hRHSTE","Efficiency");
-  histos->insertPlot(hSSTE,"hSSTE","Efficiency");
-  histos->insertPlot(hSSTE2,"hSSTE2","Efficiency");
-  histos->insertPlot(hEffDenominator,"hEffDenominator","Efficiency");
-  histos->insertPlot(hRHSTE2,"hRHSTE2","Efficiency");
-  histos->insertPlot(hStripSTE2,"hStripSTE2","Efficiency");
-  histos->insertPlot(hWireSTE2,"hWireSTE2","Efficiency");
-
-  //moving this to post job macros
   histos->insertPlot(hSEff,"hSEff","Efficiency");
   histos->insertPlot(hRHEff,"hRHEff","Efficiency");
 
@@ -185,17 +158,11 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   edm::Handle<CSCWireDigiCollection> wires;
   edm::Handle<CSCStripDigiCollection> strips;
   edm::Handle<CSCComparatorDigiCollection> compars;
-  edm::Handle<CSCALCTDigiCollection> alcts;
-  edm::Handle<CSCCLCTDigiCollection> clcts;
-  edm::Handle<CSCCorrelatedLCTDigiCollection> correlatedlcts;
   if (useDigis){
     event.getByLabel(stripDigiTag,strips);
     event.getByLabel(wireDigiTag,wires);
     event.getByLabel(compDigiTag,compars);
-    event.getByLabel(alctDigiTag, alcts);
-    event.getByLabel(clctDigiTag, clcts);
-    event.getByLabel(corrlctDigiTag, correlatedlcts);
- }
+  }
 
   // Get the CSC Geometry :
   ESHandle<CSCGeometry> cscGeom;
@@ -215,13 +182,13 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
 
   // get the trigger collection
   edm::Handle<L1MuGMTReadoutCollection> pCollection;
-  if (makeTriggerPlots || useTriggerFilter || (useDigis && makeTimeMonitorPlots)){
+  if (useTrigger){
     event.getByLabel(l1aTag,pCollection);
   }
 
   // get the standalone muon collection
   Handle<reco::TrackCollection> saMuons;
-  if (makeStandalonePlots || useQualityFilter) event.getByLabel(saMuonTag,saMuons);
+  if (makeStandalonePlots) event.getByLabel(saMuonTag,saMuons);
 
 
 
@@ -230,21 +197,17 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   /////////////////////
 
   // Only do this for the first event
-  // this is probably outdated and needs to be looked at
   if (nEventsAnalyzed == 1 && makeCalibPlots) doCalibrations(eventSetup);
 
   // Look at the l1a trigger info (returns true if csc L1A present)
-  bool CSCL1A = false;
-  if (makeTriggerPlots || useTriggerFilter) CSCL1A = doTrigger(pCollection);
-  if (!useTriggerFilter) CSCL1A = true;  // always true if not filtering on trigger
+  bool CSCL1A = true;
+  if (useTrigger) CSCL1A = doTrigger(pCollection);
 
-  cleanEvent = false;
-  if (makeStandalonePlots || useQualityFilter) cleanEvent = filterEvents(recHits,cscSegments,saMuons);
-  if (!useQualityFilter) cleanEvent = true; // always true if not filtering on event quality
+  cleanEvent = true;
+  if (filterCSCEvents) cleanEvent = filterEvents(recHits);
   
   // look at various chamber occupancies
-  // keep this outside of filter for diagnostics???
-  if (makeOccupancyPlots && CSCL1A) doOccupancies(strips,wires,recHits,cscSegments);
+  if (makeOccupancyPlots) doOccupancies(strips,wires,recHits,cscSegments);
 
   if (cleanEvent && CSCL1A){
     // general look at strip digis
@@ -254,7 +217,7 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     if (makeWirePlots && useDigis) doWireDigis(wires);
 
     // general look at rechits
-    if (makeRecHitPlots) doRecHits(recHits,cscGeom);
+    if (makeRecHitPlots) doRecHits(recHits,strips,cscGeom);
 
     // look at simHits
     if (isSimulation && makeSimHitPlots) doSimHits(recHits,simHits);
@@ -281,16 +244,13 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
     if (makeCompTimingPlots && useDigis) doCompTiming(*compars);
 
     // strip ADC timing
-    if (makeADCTimingPlots) doADCTiming(*recHits);
+    if (makeADCTimingPlots && useDigis) doADCTiming(*strips,*recHits);
 
     // recHit Noise
     if (makeRHNoisePlots && useDigis) doNoiseHits(recHits,cscSegments,cscGeom,strips);
 
     // look at standalone muons (not implemented yet)
     if (makeStandalonePlots) doStandalone(saMuons);
-
-    // make plots for monitoring the trigger and offline timing
-    if (makeTimeMonitorPlots) doTimeMonitoring(recHits,cscSegments, alcts, clcts, correlatedlcts, pCollection,cscGeom, eventSetup, event);
 
     firstEvent = false;
 
@@ -300,81 +260,58 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
 
 // ==============================================
 //
-// event filter, returns true only for events with "good" standalone muon
+// event filter, returns false for 'messy' events
 //
 // ==============================================
 
-bool CSCValidation::filterEvents(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments,
-                                 edm::Handle<reco::TrackCollection> saMuons){
+bool CSCValidation::filterEvents(edm::Handle<CSCRecHit2DCollection> recHits){
 
-  //int  nGoodSAMuons = 0;
+  int rechito[2][4][4][36];
+  for (int e = 0; e < 2; e++){
+    for (int s = 0; s < 4; s++){
+      for (int r = 0; r < 4; r++){
+        for (int c = 0; c < 36; c++){
+          rechito[e][s][r][c] = 0;
+        }
+      }
+    }
+  }
 
-  if (recHits->size() < 4 || recHits->size() > 100) return false;
-  if (cscSegments->size() < 1 || cscSegments->size() > 15) return false;
+  //rechits
+  CSCRecHit2DCollection::const_iterator recIt;
+  int nRecHits = recHits->size();
+  for (recIt = recHits->begin(); recIt != recHits->end(); recIt++) {
+    CSCDetId idrec = (CSCDetId)(*recIt).cscDetId();
+    int kEndcap  = idrec.endcap();
+    int kRing    = idrec.ring();
+    int kStation = idrec.station();
+    int kChamber = idrec.chamber();
+    rechito[kEndcap-1][kStation-1][kRing-1][kChamber-1]++;
+  }
+
+  int nHitChambers = 0;
+  int nMessyChambers = 0;
+  for (int e = 0; e < 2; e++){
+    for (int s = 0; s < 4; s++){
+      for (int r = 0; r < 4; r++){
+        for (int c = 0; c < 36; c++){
+          if (rechito[e][s][r][c] > 0) nHitChambers++;
+          if (rechito[e][s][r][c] > 24 && r != 3) nMessyChambers++;
+        }
+      }
+    }
+  }
+
+  // fill some histograms
+  histos->fill1DHist(nHitChambers,"hNHitChambers","Number of Hit Chambers per Event",21,-0.5,20.5,"MessyEvents");
+  histos->fill1DHist(nMessyChambers,"hNMessyChambers","Number of Messy Chambers (nhits > 24) per Event",11,-0.5,10.5,"MessyEvents");
+
+
+  if (nRecHits < 0) return false;  // dummy for now
+  if (nHitChambers > 12) return false;
+  if (nMessyChambers > 0) return false;
   return true;
-  //if (saMuons->size() != 1) return false;
-  /*
-  for(reco::TrackCollection::const_iterator muon = saMuons->begin(); muon != saMuons->end(); ++ muon ) {  
-    double p  = muon->p();
-    double reducedChisq = muon->normalizedChi2();
 
-    GlobalPoint  innerPnt(muon->innerPosition().x(),muon->innerPosition().y(),muon->innerPosition().z());
-    GlobalPoint  outerPnt(muon->outerPosition().x(),muon->outerPosition().y(),muon->outerPosition().z());
-    GlobalVector innerKin(muon->innerMomentum().x(),muon->innerMomentum().y(),muon->innerMomentum().z());
-    GlobalVector outerKin(muon->outerMomentum().x(),muon->outerMomentum().y(),muon->outerMomentum().z());
-    GlobalVector deltaPnt = innerPnt - outerPnt;
-    double crudeLength = deltaPnt.mag();
-    double deltaPhi = innerPnt.phi() - outerPnt.phi();
-    double innerGlobalPolarAngle = innerKin.theta();
-    double outerGlobalPolarAngle = outerKin.theta();
-
-    int nCSCHits = 0;
-    for (trackingRecHit_iterator hit = muon->recHitsBegin(); hit != muon->recHitsEnd(); ++hit ) {
-      if ( (*hit)->isValid() ) {
-        const DetId detId( (*hit)->geographicalId() );
-        if (detId.det() == DetId::Muon) {
-          if (detId.subdetId() == MuonSubdetId::CSC) {
-            nCSCHits++;
-          } // this is a CSC hit
-        } // this is a muon hit
-      } // hit is valid
-    } // end loop over rechits
-
-    bool goodSAMuon = (p > pMin)
-      && ( reducedChisq < chisqMax )
-      && ( nCSCHits >= nCSCHitsMin )
-      && ( nCSCHits <= nCSCHitsMax )
-      && ( crudeLength > lengthMin )
-      && ( crudeLength < lengthMax );
-
-    
-    goodSAMuon = goodSAMuon && ( fabs(deltaPhi) < deltaPhiMax );
-    goodSAMuon = goodSAMuon &&
-      (
-       ( (     innerGlobalPolarAngle > polarMin) && (     innerGlobalPolarAngle < polarMax) ) ||
-       ( (M_PI-innerGlobalPolarAngle > polarMin) && (M_PI-innerGlobalPolarAngle < polarMax) )
-       );
-    goodSAMuon = goodSAMuon &&
-      (
-       ( (     outerGlobalPolarAngle > polarMin) && (     outerGlobalPolarAngle < polarMax) ) ||
-       ( (M_PI-outerGlobalPolarAngle > polarMin) && (M_PI-outerGlobalPolarAngle < polarMax) )
-       );
-
-   //goodSAMuon = goodSAMuon && (nCSCHits > nCSCHitsMin) && (nCSCHits < 13);  
-   //goodSAMuon = goodSAMuon && (nCSCHits > 13) && (nCSCHits < 19);
-   //goodSAMuon = goodSAMuon && (nCSCHits > 19) && (nCSCHits < nCSCHitsMax);
-
-
-   if (goodSAMuon) nGoodSAMuons++;
-   
-  } // end loop over stand-alone muon collection
-
-
-  histos->fill1DHist(nGoodSAMuons,"hNGoodMuons", "Number of Good STA Muons per Event",11,-0.5,10.5,"STAMuons");
-
-  if (nGoodSAMuons == 1) return true;
-  return false;
-  */
 }
 
 // ==============================================
@@ -786,7 +723,7 @@ void CSCValidation::doPedestalNoise(edm::Handle<CSCStripDigiCollection> strips){
 //
 // ==============================================
 
-void CSCValidation::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::ESHandle<CSCGeometry> cscGeom){
+void CSCValidation::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCStripDigiCollection> strips, edm::ESHandle<CSCGeometry> cscGeom){
 
   // Get the RecHits collection :
   int nRecHits = recHits->size();
@@ -822,6 +759,12 @@ void CSCValidation::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::E
     float stpos = (*dRHIter).positionWithinStrip();
     float sterr = (*dRHIter).errorWithinStrip();
 
+    // Find the strip containing this hit
+    CSCRecHit2D::ChannelContainer hitstrips = (*dRHIter).channels();
+    int nStrips     =  hitstrips.size();
+    int centerid    =  nStrips/2 + 1;
+    int centerStrip =  hitstrips[centerid - 1];
+
     // Find the charge associated with this hit
     CSCRecHit2D::ADCContainer adcs = (*dRHIter).adcs();
     int adcsize = adcs.size();
@@ -831,7 +774,7 @@ void CSCValidation::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::E
       if (i != 3 && i != 7 && i != 11){
         rHSumQ = rHSumQ + adcs[i]; 
       }
-      if (adcsize == 12 && (i < 3 || i > 7) && i < 11){
+      if (adcsize == 12 && (i < 3 || i > 7) && i < 12){
         sumsides = sumsides + adcs[i];
       }
     }
@@ -840,7 +783,12 @@ void CSCValidation::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::E
 
     // Get the signal timing of this hit
     float rHtime = 0;
-    rHtime = (*dRHIter).tpeak()/50.;
+    if (useDigis){
+      rHtime = getTiming(*strips, idrec, centerStrip);
+    }
+    else{
+      rHtime = (*dRHIter).tpeak()/50.;
+    }
 
     // Get pointer to the layer:
     const CSCLayer* csclayer = cscGeom->layer( idrec );
@@ -862,19 +810,19 @@ void CSCValidation::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::E
     if (kStation == 1 && (kRing == 1 || kRing == 4)) histos->fill1DHistByType(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge",idrec,125,0,4000,"recHits");
     else histos->fill1DHistByType(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge",idrec,125,0,2000,"recHits");
     histos->fill1DHistByType(rHratioQ,"hRHRatioQ","Charge Ratio (Ql+Qr)/Qt",idrec,120,-0.1,1.1,"recHits");
-    histos->fill1DHistByType(rHtime,"hRHTiming","recHit Timing",idrec,200,-10,10,"recHits");
+    histos->fill1DHistByType(rHtime,"hRHTiming","recHit Timing",idrec,100,0,10,"recHits");
     histos->fill1DHistByType(sqrt(xxerr),"hRHxerr","RecHit Error on Local X",idrec,100,-0.1,2,"recHits");
     histos->fill1DHistByType(sqrt(yyerr),"hRHyerr","RecHit Error on Local Y",idrec,100,-0.1,2,"recHits");
     histos->fill1DHistByType(xyerr,"hRHxyerr","Corr. RecHit XY Error",idrec,100,-1,2,"recHits");
     if (adcsize == 12) histos->fill1DHistByType(stpos,"hRHstpos","Reconstructed Position on Strip",idrec,120,-0.6,0.6,"recHits");
     histos->fill1DHistByType(sterr,"hRHsterr","Estimated Error on Strip Measurement",idrec,120,-0.05,0.25,"recHits");
     histos->fillProfile(chamberSerial(idrec),rHSumQ,"hRHSumQProfile","Sum 3x3 recHit Charge",601,-0.5,600.5,0,4000,"recHits");
-    histos->fillProfile(chamberSerial(idrec),rHtime,"hRHTimingProfile","recHit Timing",601,-0.5,600.5,-11,11,"recHits");
+    histos->fillProfile(chamberSerial(idrec),rHtime,"hRHTimingProfile","recHit Timing",601,-0.5,600.5,-1,11,"recHits");
     if (detailedAnalysis){
       if (kStation == 1 && (kRing == 1 || kRing == 4)) histos->fill1DHistByLayer(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge",idrec,125,0,4000,"RHQByLayer");
       else histos->fill1DHistByLayer(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge",idrec,125,0,2000,"RHQByLayer");
       histos->fill1DHistByLayer(rHratioQ,"hRHRatioQ","Charge Ratio (Ql+Qr)/Qt",idrec,120,-0.1,1.1,"RHQByLayer");
-      histos->fill1DHistByLayer(rHtime,"hRHTiming","recHit Timing",idrec,200,-10,10,"RHTimingByLayer");
+      histos->fill1DHistByLayer(rHtime,"hRHTiming","recHit Timing",idrec,100,0,10,"RHTimingByLayer");
       histos->fill2DHistByLayer(xreco,yreco,"hRHLocalXY","recHit Local Position",idrec,50,-100.,100.,75,-150.,150.,"RHLocalXYByLayer");
       histos->fill1DHistByLayer(sqrt(xxerr),"hRHxerr","RecHit Error on Local X",idrec,100,-0.1,2,"RHErrorsByLayer");
       histos->fill1DHistByLayer(sqrt(yyerr),"hRHyerr","RecHit Error on Local Y",idrec,100,-0.1,2,"RHErrorsByLayer");
@@ -905,12 +853,8 @@ void CSCValidation::doSimHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::H
     LocalPoint rhitlocal = (*dSHrecIter).localPosition();
     float xreco = rhitlocal.x();
     float yreco = rhitlocal.y();
-    float xError = sqrt((*dSHrecIter).localPositionError().xx());
-    float yError = sqrt((*dSHrecIter).localPositionError().yy());
     float simHitXres = -99;
     float simHitYres = -99;
-    float xPull      = -99;
-    float yPull      = -99;
     float mindiffX   = 99;
     float mindiffY   = 10;
     // If MC, find closest muon simHit to check resolution:
@@ -929,17 +873,11 @@ void CSCValidation::doSimHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::H
           simHitXres = (sHitlocal.x() - xreco);
           simHitYres = (sHitlocal.y() - yreco);
           mindiffX = (sHitlocal.x() - xreco);
-          xPull = simHitXres/xError;
-          yPull = simHitYres/yError;
         }
       }
     }
 
-    histos->fill1DHistByType(simHitXres,"hSimXResid","SimHitX - Reconstructed X",idrec,100,-1.0,1.0,"Resolution");
-    histos->fill1DHistByType(simHitYres,"hSimYResid","SimHitY - Reconstructed Y",idrec,100,-5.0,5.0,"Resolution");
-    histos->fill1DHistByType(xPull,"hSimXPull","Local X Pulls",idrec,100,-5.0,5.0,"Resolution");
-    histos->fill1DHistByType(yPull,"hSimYPull","Local Y Pulls",idrec,100,-5.0,5.0,"Resolution");
-
+    histos->fill1DHistByType(simHitXres,"hRHResid","SimHitX - Reconstructed X",idrec,100,-1.0,1.0,"Resolution");
   }
 
 }
@@ -1079,21 +1017,17 @@ void CSCValidation::doResolution(edm::Handle<CSCSegmentCollection> cscSegments, 
     }
 
     float residual = -99;
-    float pull = -99;
     // Fit all points except layer 3, then compare expected value for layer 3 to reconstructed value
     if (nRH == 6){
       float expected = fitX(sp,se);
       residual = expected - sp(3,1);
-      pull = residual/se(3,1);
     }
 
     // Fill histos
     histos->fill1DHistByType(residual,"hSResid","Fitted Position on Strip - Reconstructed for Layer 3",id,100,-0.5,0.5,"Resolution");
-    histos->fill1DHistByType(pull,"hSStripPosPull","Strip Measurement Pulls",id,100,-5.0,5.0,"Resolution");
     histos->fillProfile(chamberSerial(id),residual,"hSResidProfile","Fitted Position on Strip - Reconstructed for Layer 3",601,-0.5,600.5,-0.5,0.5,"Resolution");
     if (detailedAnalysis){
       histos->fill1DHistByChamber(residual,"hSResid","Fitted Position on Strip - Reconstructed for Layer 3",id,100,-0.5,0.5,"DetailedResolution");
-      histos->fill1DHistByChamber(pull,"hSStripPosPull","Strip Measurement Pulls",id,100,-5.0,5.0,"Resolution");
     }
 
 
@@ -1152,17 +1086,6 @@ void CSCValidation::doStandalone(Handle<reco::TrackCollection> saMuons){
       }
     }
 
-    GlobalPoint  innerPnt(muon->innerPosition().x(),muon->innerPosition().y(),muon->innerPosition().z());
-    GlobalPoint  outerPnt(muon->outerPosition().x(),muon->outerPosition().y(),muon->outerPosition().z());
-    GlobalVector innerKin(muon->innerMomentum().x(),muon->innerMomentum().y(),muon->innerMomentum().z());
-    GlobalVector outerKin(muon->outerMomentum().x(),muon->outerMomentum().y(),muon->outerMomentum().z());
-    GlobalVector deltaPnt = innerPnt - outerPnt;
-    double crudeLength = deltaPnt.mag();
-    double deltaPhi = innerPnt.phi() - outerPnt.phi();
-    double innerGlobalPolarAngle = innerKin.theta();
-    double outerGlobalPolarAngle = outerKin.theta();
-
-
     // fill histograms
     histos->fill1DHist(n,"trN","N hits on a STA Muon Track",51,-0.5,50.5,"STAMuons");
     if (np != 0) histos->fill1DHist(np,"trNp","N hits on a STA Muon Track (plus endcap)",51,-0.5,50.5,"STAMuons");
@@ -1178,12 +1101,6 @@ void CSCValidation::doStandalone(Handle<reco::TrackCollection> saMuons){
     histos->fill1DHist(ptreco,"trPT","STA Muon pT",100,0,40,"STAMuons");
     histos->fill1DHist(chi2,"trChi2","STA Muon Chi2",100,0,200,"STAMuons");
     histos->fill1DHist(normchi2,"trNormChi2","STA Muon Normalized Chi2",100,0,10,"STAMuons");
-    histos->fill1DHist(crudeLength,"trLength","Straight Line Length of STA Muon",120,0.,2400.,"STAMuons");
-    histos->fill1DHist(deltaPhi,"trDeltaPhi","Delta-Phi Between Inner and Outer STA Muon Pos.",100,-0.5,0.5,"STAMuons");
-    histos->fill1DHist(innerGlobalPolarAngle,"trInnerPolar","Polar Angle of Inner P Vector (STA muons)",128,0,3.2,"STAMuons");
-    histos->fill1DHist(outerGlobalPolarAngle,"trOuterPolar","Polar Angle of Outer P Vector (STA muons)",128,0,3.2,"STAMuons");
-    histos->fill1DHist(innerPnt.phi(),"trInnerPhi","Phi of Inner Position (STA muons)",256,-3.2,3.2,"STAMuons");
-    histos->fill1DHist(outerPnt.phi(),"trOuterPhi","Phi of Outer Position (STA muons)",256,-3.2,3.2,"STAMuons");
 
   }
 
@@ -1214,25 +1131,7 @@ int CSCValidation::chamberSerial( CSCDetId id ) {
   return kSerial;
 }
 
-//--------------------------------------------------------------
-// Compute a serial number for the ring.
-// This is useful when filling histograms and working with arrays.
-//--------------------------------------------------------------
-int CSCValidation::ringSerial( CSCDetId id ) {
-  int st = id.station();
-  int ri = id.ring();
-  int ec = id.endcap();
-  int kSerial = 0 ;
-  if (st == 1 && ri == 1) kSerial = ri;
-  if (st == 1 && ri == 2) kSerial = ri ;
-  if (st == 1 && ri == 3) kSerial = ri ;
-  if (st == 1 && ri == 4) kSerial = 1;
-  if (st == 2 ) kSerial = ri + 3;
-  if (st == 3 ) kSerial = ri + 5;
-  if (st == 4 ) kSerial = ri + 7;
-  if (ec == 2) kSerial = kSerial * (-1);
-  return kSerial;
-}
+
 
 //-------------------------------------------------------------------------------------
 // Fits a straight line to a set of 5 points with errors.  Functions assumes 6 points
@@ -1276,6 +1175,71 @@ float CSCValidation::fitX(CLHEP::HepMatrix points, CLHEP::HepMatrix errors){
 
 }
 
+//---------------------------------------------------------------------------------------
+// Find the signal timing based on a weighted mean of the pulse.
+// Function is meant to take the DetId and center strip number of a recHit and return
+// the timing in units of time buckets (50ns)
+//---------------------------------------------------------------------------------------
+
+float CSCValidation::getTiming(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip){
+
+  float ADC[8];
+  for (int i = 0; i < 8; i++){
+    ADC[i] = 0;
+  }
+  float timing = 0;
+  float peakADC = 0;
+  int peakTime = 0;
+
+  if (idRH.station() == 1 && idRH.ring() == 4){
+    while(centerStrip> 16) centerStrip -= 16;
+  }
+
+  // Loop over strip digis responsible for this recHit and sum charge
+  CSCStripDigiCollection::DigiRangeIterator gTstripIter;
+
+  for (gTstripIter = stripdigis.begin(); gTstripIter != stripdigis.end(); gTstripIter++){
+    CSCDetId id = (CSCDetId)(*gTstripIter).first;
+    if (id == idRH){
+      vector<CSCStripDigi>::const_iterator STiter = (*gTstripIter).second.first;
+      vector<CSCStripDigi>::const_iterator lastS = (*gTstripIter).second.second;
+      for ( ; STiter != lastS; ++STiter ) {
+        int thisStrip = STiter->getStrip();
+        if (thisStrip == (centerStrip)){
+          float diff = 0;
+          vector<int> myADCVals = STiter->getADCCounts();
+          float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
+          for (unsigned int iCount = 0; iCount < myADCVals.size(); iCount++) {
+            diff = (float)myADCVals[iCount]-thisPedestal;
+            ADC[iCount] = diff;
+            if (diff > peakADC){
+              peakADC = diff;
+              peakTime = iCount;
+            }
+          }
+        }
+      }
+
+    }
+
+  }
+
+  if (detailedAnalysis){
+    float normADC;
+    for (int i = 0; i < 8; i++){
+      normADC = ADC[i]/ADC[peakTime];
+      histos->fillProfileByChamber(i,normADC,"hSignalProfile","Normalized Signal Profile",idRH,8,-0.5,7.5,-0.1,1.1,"StripSignalProfile");
+    }
+    histos->fill1DHistByLayer(ADC[0],"hSigProPed","ADC in first time bin",idRH,400,-300,100,"StripSignalProfile");
+    histos->fillProfile(chamberSerial(idRH),ADC[0],"hSigProPedProfile","ADC in first time bin",601,-0.5,600.5,-150,100,"StripSignalProfile");
+  }
+
+
+  timing = (ADC[2]*2 + ADC[3]*3 + ADC[4]*4 + ADC[5]*5 + ADC[6]*6)/(ADC[2] + ADC[3] + ADC[4] + ADC[5] + ADC[6]);
+
+  return timing;
+
+}
 
 //----------------------------------------------------------------------------
 // Calculate basic efficiencies for recHits and Segments
@@ -1939,7 +1903,8 @@ void CSCValidation::findNonAssociatedRecHits(edm::ESHandle<CSCGeometry> cscGeom,
     if (adcsize != 12) rHratioQ = -99;
 
     // Get the signal timing of this hit
-    float rHtime = (iter->second).tpeak()/50;
+    //float rHtime = (iter->second).tpeak();
+    float rHtime = getTiming(*strips, idrec, centerStrip);
 
     // Get the width of this hit
     int rHwidth = getWidth(*strips, idrec, centerStrip);
@@ -1971,7 +1936,7 @@ void CSCValidation::findNonAssociatedRecHits(edm::ESHandle<CSCGeometry> cscGeom,
     if (kStation == 1 && (kRing == 1 || kRing == 4)) histos->fill1DHistByType(rHSumQ,"hNARHSumQ","Sum 3x3 recHit Charge",idrec,250,0,4000,"NonAssociatedRechits");
     else histos->fill1DHistByType(rHSumQ,"hNARHSumQ","Sum 3x3 recHit Charge",idrec,250,0,2000,"NonAssociatedRechits");
     histos->fill1DHistByType(rHratioQ,"hNARHRatioQ","Ratio (Ql+Qr)/Qt)",idrec,120,-0.1,1.1,"NonAssociatedRechits");
-    histos->fill1DHistByType(rHtime,"hNARHTiming","recHit Timing",idrec,200,-10,10,"NonAssociatedRechits");
+    histos->fill1DHistByType(rHtime,"hNARHTiming","recHit Timing",idrec,100,0,10,"NonAssociatedRechits");
     histos->fill2DHistByStation(grecx,grecy,"hNARHGlobal","recHit Global Position",idrec,400,-800.,800.,400,-800.,800.,"NonAssociatedRechits");
     histos->fill1DHistByType(rHwidth,"hNARHwidth","width for Non associated recHit",idrec,21,-0.5,20.5,"NonAssociatedRechits");
     
@@ -2017,7 +1982,8 @@ void CSCValidation::findNonAssociatedRecHits(edm::ESHandle<CSCGeometry> cscGeom,
 	   if (adcsize != 12) rHratioQ = -99;
 	   
 	   // Get the signal timing of this hit
-	   float rHtime = (iter->second).tpeak()/50;
+	   //float rHtime = (iter->second).tpeak();
+	   float rHtime = getTiming(*strips, idrec, centerStrip);
 
 	   // Get the width of this hit
 	   int rHwidth = getWidth(*strips, idrec, centerStrip);
@@ -2047,7 +2013,7 @@ void CSCValidation::findNonAssociatedRecHits(edm::ESHandle<CSCGeometry> cscGeom,
            if (kStation == 1 && (kRing == 1 || kRing == 4)) histos->fill1DHistByType(rHSumQ,"hSegRHSumQ","Sum 3x3 recHit Charge",idrec,250,0,4000,"AssociatedRechits");
            else histos->fill1DHistByType(rHSumQ,"hSegRHSumQ","Sum 3x3 recHit Charge",idrec,250,0,2000,"AssociatedRechits");
            histos->fill1DHistByType(rHratioQ,"hSegRHRatioQ","Ratio (Ql+Qr)/Qt)",idrec,120,-0.1,1.1,"AssociatedRechits");
-           histos->fill1DHistByType(rHtime,"hSegRHTiming","recHit Timing",idrec,200,-10,10,"AssociatedRechits");
+           histos->fill1DHistByType(rHtime,"hSegRHTiming","recHit Timing",idrec,100,0,10,"AssociatedRechits");
            histos->fill2DHistByStation(grecx,grecy,"hSegRHGlobal","recHit Global Position",idrec,400,-800.,800.,400,-800.,800.,"AssociatedRechits");
            histos->fill1DHistByType(rHwidth,"hSegRHwidth","width for Non associated recHit",idrec,21,-0.5,20.5,"AssociatedRechits");
 	   
@@ -2542,7 +2508,8 @@ void CSCValidation::doCompTiming(const CSCComparatorDigiCollection& compars) {
 // Author N. Terentiev
 //---------------------------------------------------------------------------
 
-void CSCValidation::doADCTiming(const CSCRecHit2DCollection& rechitcltn) {
+void CSCValidation::doADCTiming(const CSCStripDigiCollection&   strpcltn,
+                                const CSCRecHit2DCollection& rechitcltn) {
      float  adc_3_3_sum,adc_3_3_wtbin,x,y;
      int cfeb,idchamber,ring;
 
@@ -2598,7 +2565,7 @@ void CSCValidation::doADCTiming(const CSCRecHit2DCollection& rechitcltn) {
                   if(id.station()==1 && id.ring()==4 &&  centerStrip>16) flag=1;
                 // end of temporary fix
                   if(flag==0) {
-                  adc_3_3_wtbin=(*recIt).tpeak()/50;   //getTiming(strpcltn, id, centerStrip);
+                  adc_3_3_wtbin=getTiming(strpcltn, id, centerStrip);
                   idchamber=indexer.dbIndex(id, centerStrip)/10; //strips 1-16 ME1/1a
                                               // become strips 65-80 ME1/1 !!!
                   /*
@@ -2620,399 +2587,12 @@ void CSCValidation::doADCTiming(const CSCRecHit2DCollection& rechitcltn) {
 
                  cfeb=(centerStrip-1)/16+1;
                  x=cfeb; y=adc_3_3_wtbin;
-                 histos->fill2DHist(x,y,name.c_str(),title.c_str(),5,1.,6.,80,-8.,8.,"ADCTiming");                                     
+                 histos->fill2DHist(x,y,name.c_str(),title.c_str(),5,1.,6.,40,0.,8.,"ADCTiming");                                     
                  } // end of if flag==0
                 } // end of if (adc_3_3_sum > 100.0)
             } // end of if if(m_strip.size()==3
        } // end of the  pass thru CSCRecHit2DCollection
      }  // end of if (rechitcltn.begin() != rechitcltn.end())
-}
-
-//---------------------------------------------------------------------------------------
-// Construct histograms for monitoring the trigger and offline timing
-// Author: A. Deisher
-//---------------------------------------------------------------------------------------
-
-void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments,
-				     edm::Handle<CSCALCTDigiCollection> alcts, edm::Handle<CSCCLCTDigiCollection> clcts,
-				     edm::Handle<CSCCorrelatedLCTDigiCollection> correlatedlcts,
-				     edm::Handle<L1MuGMTReadoutCollection> pCollection, edm::ESHandle<CSCGeometry> cscGeom, 
-				     const edm::EventSetup& eventSetup, const edm::Event &event){
-
-  map<CSCDetId, float > segment_median_map; //structure for storing the median time for segments in a chamber 
-  map<CSCDetId, GlobalPoint > segment_position_map; //structure for storing the global position for segments in a chamber 
-  
-  // -----------------------
-  // loop over segments
-  // -----------------------
-  int iSegment = 0; 
-  for(CSCSegmentCollection::const_iterator dSiter=cscSegments->begin(); dSiter != cscSegments->end(); dSiter++) {
-    iSegment++;
-    
-    CSCDetId id  = (CSCDetId)(*dSiter).cscDetId();
-    LocalPoint localPos = (*dSiter).localPosition();
-    GlobalPoint globalPosition = GlobalPoint(0.0, 0.0, 0.0);
-    const CSCChamber* cscchamber = cscGeom->chamber(id);
-    if (cscchamber) {
-      globalPosition = cscchamber->toGlobal(localPos);
-    }
-    
-    // try to get the CSC recHits that contribute to this segment.
-    std::vector<CSCRecHit2D> theseRecHits = (*dSiter).specificRecHits();
-    int nRH = (*dSiter).nRecHits();
-    if (nRH < 4 ) continue;
-    
-    //Store the recHit times of a segment in a vector for later sorting
-    vector<float> non_zero;
-    
-    for ( vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); iRH++) {
-      CSCDetId idRH = (CSCDetId)(*iRH).cscDetId();
-      non_zero.push_back( iRH->tpeak());
-      
-    }// end rechit loop
-    
-    //Sort the vector of hit times for this segment and average the center two
-    sort(non_zero.begin(),non_zero.end());
-    int middle_index = non_zero.size()/2;
-    float average_two = (non_zero.at(middle_index-1) + non_zero.at(middle_index))/2.;
-    if(non_zero.size()%2)
-      average_two = non_zero.at(middle_index);
-
-    //If we've vetoed events with multiple segments per chamber, this should never overwrite informations
-    segment_median_map[id]=average_two;
-    segment_position_map[id]=globalPosition;
-    
-    double distToIP = sqrt(globalPosition.x()*globalPosition.x()+globalPosition.y()*globalPosition.y()+globalPosition.z()*globalPosition.z());
-     
-    histos->fillProfile(chamberSerial(id),average_two,"timeChamber","Segment mean time",601,-0.5,600.5,-400.,400.,"TimeMonitoring");
-    histos->fillProfileByType(id.chamber(),average_two,"timeChamberByType","Segment mean time by chamber",id,36,0.5,36.5,-400,400.,"TimeMonitoring");
-    histos->fill2DHist(distToIP,average_two,"seg_time_vs_distToIP","Segment time vs. Distance to IP",80,600.,1400.,800,-400,400.,"TimeMonitoring");
-    histos->fill2DHist(globalPosition.z(),average_two,"seg_time_vs_globZ","Segment time vs. z position",240,-1200,1200,800,-400.,400.,"TimeMonitoring");
-    histos->fill2DHist(fabs(globalPosition.z()),average_two,"seg_time_vs_absglobZ","Segment time vs. abs(z position)",120,0.,1200.,800,-400.,400.,"TimeMonitoring");
-    
-  }//end segment loop
-  
-   //Now that the information for each segment we're interest in is stored, it is time to go through the pairs and make plots
-  map<CSCDetId, float >::const_iterator it_outer; //for the outer loop 
-  map<CSCDetId, float >::const_iterator it_inner; //for the nested inner loop
-  for (it_outer = segment_median_map.begin(); it_outer != segment_median_map.end(); it_outer++){
-    
-    CSCDetId id_outer =  it_outer->first;
-    float t_outer = it_outer->second;
-    
-    //begin the inner loop
-    for (it_inner = segment_median_map.begin(); it_inner != segment_median_map.end(); it_inner++){
-      
-      CSCDetId id_inner =  it_inner->first;
-      float t_inner = it_inner->second;
-      
-      // we're looking at ordered pairs, so combinations will be double counted 
-      // (chamber a, chamber b) will be counted as well as (chamber b, chamber a)
-      // We will avoid (chamber a, chamber a) with the following line
-      if (chamberSerial(id_outer) == chamberSerial(id_inner)) continue;
-      
-      // Calculate expected TOF (in ns units)
-      // GlobalPoint gp_outer = segment_position_map.find(id_outer)->second;
-      // GlobalPoint gp_inner = segment_position_map.find(id_inner)->second;
-      // GlobalVector flight = gp_outer - gp_inner; //in cm
-      // float TOF = flight.mag()/30.0;             //to ns
-      
-      //Plot t(ME+) - t(ME-) for chamber pairs in the same stations and rings but opposite endcaps
-      if (id_outer.endcap() ==1 && id_inner.endcap() == 2 && id_outer.station() == id_inner.station() && id_outer.ring() == id_inner.ring() ){
-	histos->fill1DHist(t_outer-t_inner,"diff_opposite_endcaps","#Delta t [ME+]-[ME-] for chambers in same station and ring",800,-400.,400.,"TimeMonitoring");
-	histos->fill1DHistByType(t_outer-t_inner,"diff_opposite_endcaps_byType","#Delta t [ME+]-[ME-] for chambers in same station and ring",id_outer,800,-400.,400.,"TimeMonitoring");
-      }
-
-    }//end inner loop of segment pairs
-  }//end outer loop of segment pairs
-
-  //if the digis, return here
-  if( !useDigis ) return;
-
-  //looking for the global trigger number 
-  vector<L1MuGMTReadoutRecord> L1Mrec = pCollection->getRecords();
-  vector<L1MuGMTReadoutRecord>::const_iterator igmtrr;
-  int L1GMT_BXN = -100;
-  bool has_CSCTrigger = false;
-  bool has_beamHaloTrigger = false;
-  for(igmtrr=L1Mrec.begin(); igmtrr!=L1Mrec.end(); igmtrr++) {
-    std::vector<L1MuRegionalCand>::const_iterator iter1;
-    std::vector<L1MuRegionalCand> rmc;
-    // CSC
-    int icsc = 0;
-    rmc = igmtrr->getCSCCands();
-    for(iter1=rmc.begin(); iter1!=rmc.end(); iter1++) {
-      if ( !(*iter1).empty() ) {
-        icsc++;
-        int kQuality = (*iter1).quality();   // kQuality = 1 means beam halo
-        if (kQuality == 1) has_beamHaloTrigger = true;
-      }
-    }
-    if (igmtrr->getBxInEvent() == 0 && icsc>0){
-      //printf("L1 CSCCands exist.  L1MuGMTReadoutRecord BXN = %d \n", igmtrr->getBxNr());
-      L1GMT_BXN = igmtrr->getBxNr();
-      has_CSCTrigger = true;
-    }
-    else if (igmtrr->getBxInEvent() == 0 ) { 
-      //printf("L1 CSCCands do not exist.  L1MuGMTReadoutRecord BXN = %d \n", igmtrr->getBxNr());
-      L1GMT_BXN = igmtrr->getBxNr();
-    }
-  }
-
-  // *************************************************
-  // *** ALCT Digis **********************************
-  // *************************************************
-  
-  int n_alcts = 0;
-  map<CSCDetId, int > ALCT_KeyWG_map; //structure for storing the key wire group for the first ALCT for each chamber
-  for (CSCALCTDigiCollection::DigiRangeIterator j=alcts->begin(); j!=alcts->end(); j++) {
-    const CSCALCTDigiCollection::Range& range =(*j).second;
-    const CSCDetId& idALCT = (*j).first;
-    for (CSCALCTDigiCollection::const_iterator digiIt = range.first; digiIt!=range.second; ++digiIt){
-      // Valid digi in the chamber (or in neighbouring chamber)  
-      if((*digiIt).isValid()){
-	n_alcts++;
-	histos->fill1DHist( (*digiIt).getBX(), "ALCT_getBX","ALCT.getBX()",11,-0.5,10.5,"TimeMonitoring");
-	histos->fill1DHist( (*digiIt).getFullBX(), "ALCT_getFullBX","ALCT.getFullBX()",3601,-0.5,3600.5,"TimeMonitoring");
-	//if we don't already have digi information stored for this chamber, then we fill it
-	if (ALCT_KeyWG_map.find(idALCT.chamberId()) == ALCT_KeyWG_map.end()){
-	  ALCT_KeyWG_map[idALCT.chamberId()] = (*digiIt).getKeyWG();
-	  //printf("I did fill ALCT info for Chamber %d %d %d %d \n",idALCT.chamberId().endcap(), idALCT.chamberId().station(), idALCT.chamberId().ring(), idALCT.chamberId().chamber());
-	}
-
-      }
-    }
-  }
-   
-  // *************************************************
-  // *** CLCT Digis **********************************
-  // *************************************************
-  int n_clcts = 0;
-  map<CSCDetId, int > CLCT_getFullBx_map; //structure for storing the pretrigger bxn for the first CLCT for each chamber
-  for (CSCCLCTDigiCollection::DigiRangeIterator j=clcts->begin(); j!=clcts->end(); j++) {
-    const CSCCLCTDigiCollection::Range& range =(*j).second;
-    const CSCDetId& idCLCT = (*j).first;
-    for (CSCCLCTDigiCollection::const_iterator digiIt = range.first; digiIt!=range.second; ++digiIt){
-      // Valid digi in the chamber (or in neighbouring chamber) 
-      if((*digiIt).isValid()){
-	n_clcts++;
-	histos->fill1DHist( (*digiIt).getBX(), "CLCT_getBX","CLCT.getBX()",11,-0.5,10.5,"TimeMonitoring");
-	histos->fill1DHist( (*digiIt).getFullBX(), "CLCT_getFullBX","CLCT.getFullBX()",3601,-0.5,3600.5,"TimeMonitoring");
- 	//if we don't already have digi information stored for this chamber, then we fill it
-	if (CLCT_getFullBx_map.find(idCLCT.chamberId()) == CLCT_getFullBx_map.end()){
-	  CLCT_getFullBx_map[idCLCT.chamberId()] = (*digiIt).getFullBX();
-	  //printf("I did fill CLCT info for Chamber %d %d %d %d \n",idCLCT.chamberId().endcap(), idCLCT.chamberId().station(), idCLCT.chamberId().ring(), idCLCT.chamberId().chamber());
-	}
-      }
-    }
-  }
-  
-  // *************************************************
-  // *** CorrelatedLCT Digis *************************
-  // *************************************************
-  int n_correlatedlcts = 0;
-  for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator j=correlatedlcts->begin(); j!=correlatedlcts->end(); j++) {
-    const CSCCorrelatedLCTDigiCollection::Range& range =(*j).second;
-    for (CSCCorrelatedLCTDigiCollection::const_iterator digiIt = range.first; digiIt!=range.second; ++digiIt){
-      if((*digiIt).isValid()){
-	n_correlatedlcts++;
-	histos->fill1DHist( (*digiIt).getBX(), "CorrelatedLCTS_getBX","CorrelatedLCT.getBX()",11,-0.5,10.5,"TimeMonitoring");
-      }
-    }
-  }
-
-
-  int nRecHits = recHits->size();
-  int nSegments = cscSegments->size();
-  if (has_CSCTrigger){
-    histos->fill1DHist(L1GMT_BXN,"BX_L1CSCCand","BX of L1 CSC Cand",4001,-0.5,4000.5,"TimeMonitoring");
-    histos->fill2DHist(L1GMT_BXN,n_alcts,"n_ALCTs_v_BX_L1CSCCand","Number of ALCTs vs. BX of L1 CSC Cand",4001,-0.5,4000.5,51,-0.5,50.5,"TimeMonitoring");
-    histos->fill2DHist(L1GMT_BXN,n_clcts,"n_CLCTs_v_BX_L1CSCCand","Number of CLCTs vs. BX of L1 CSC Cand",4001,-0.5,4000.5,51,-0.5,50.5,"TimeMonitoring");
-    histos->fill2DHist(L1GMT_BXN,n_correlatedlcts,"n_CorrelatedLCTs_v_BX_L1CSCCand","Number of CorrelatedLCTs vs. BX of L1 CSC Cand",4001,-0.5,4000.5,51,-0.5,50.5,"TimeMonitoring");
-    histos->fill2DHist(L1GMT_BXN,nRecHits,"n_RecHits_v_BX_L1CSCCand","Number of RecHits vs. BX of L1 CSC Cand",4001,-0.5,4000.5,101,-0.5,100.5,"TimeMonitoring");
-    histos->fill2DHist(L1GMT_BXN,nSegments,"n_Segments_v_BX_L1CSCCand","Number of Segments vs. BX of L1 CSC Cand",4001,-0.5,4000.5,51,-0.5,50.5,"TimeMonitoring");
-  }
-  if (has_CSCTrigger && has_beamHaloTrigger){
-    histos->fill1DHist(L1GMT_BXN,"BX_L1CSCCand_w_beamHalo","BX of L1 CSC (w beamHalo bit)",4001,-0.5,4000.5,"TimeMonitoring");
-    histos->fill2DHist(L1GMT_BXN,n_alcts,"n_ALCTs_v_BX_L1CSCCand_w_beamHalo","Number of ALCTs vs. BX of L1 CSC Cand (w beamHalo bit)",4001,-0.5,4000.5,51,-0.5,50.5,"TimeMonitoring");
-    histos->fill2DHist(L1GMT_BXN,n_clcts,"n_CLCTs_v_BX_L1CSCCand_w_beamHalo","Number of CLCTs vs. BX of L1 CSC Cand (w beamHalo bit)",4001,-0.5,4000.5,51,-0.5,50.5,"TimeMonitoring");
-    histos->fill2DHist(L1GMT_BXN,n_correlatedlcts,"n_CorrelatedLCTs_v_BX_L1CSCCand_w_beamHalo","Number of CorrelatedLCTs vs. BX of L1 CSC Cand (w beamHalo bit)",4001,-0.5,4000.5,51,-0.5,50.5,"TimeMonitoring");
-    histos->fill2DHist(L1GMT_BXN,nRecHits,"n_RecHits_v_BX_L1CSCCand_w_beamHalo","Number of RecHits vs. BX of L1 CSC Cand (w beamHalo bit)",4001,-0.5,4000.5,101,-0.5,100.5,"TimeMonitoring");
-    histos->fill2DHist(L1GMT_BXN,nSegments,"n_Segments_v_BX_L1CSCCand_w_beamHalo","Number of Segments vs. BX of L1 CSC Cand (w beamHalo bit)",4001,-0.5,4000.5,51,-0.5,50.5,"TimeMonitoring");
-  }
-  
-  // *******************************************************************
-  // Get information from the TMB header.  
-  // Can this eventually come out of the digis?
-  // Taking code from EventFilter/CSCRawToDigis/CSCDCCUnpacker.cc
-  // *******************************************************************
-  
-  edm::ESHandle<CSCCrateMap> hcrate;
-  eventSetup.get<CSCCrateMapRcd>().get(hcrate); 
-  const CSCCrateMap* pcrate = hcrate.product();
-  
-  /// Get a handle to the FED data collection
-  edm::Handle<FEDRawDataCollection> rawdata;
-  event.getByLabel("source", rawdata);
-  bool goodEvent = false;
-  // If set selective unpacking mode 
-  // hardcoded examiner mask below to check for DCC and DDU level errors will be used first
-  // then examinerMask for CSC level errors will be used during unpacking of each CSC block
-  unsigned long dccBinCheckMask = 0x06080016;
-  unsigned int examinerMask = 0x1FEBF3F6; 
-  unsigned int errorMask = 0x0;
-
-  for (int id=FEDNumbering::MINCSCFEDID; id<=FEDNumbering::MAXCSCFEDID; ++id) {
-    // loop over DCCs
-    /// uncomment this for regional unpacking
-    /// if (id!=SOME_ID) continue;
-    
-    /// Take a reference to this FED's data
-    const FEDRawData& fedData = rawdata->FEDData(id);
-    unsigned long length =  fedData.size();
-    
-    if (length>=32){ ///if fed has data then unpack it
-      CSCDCCExaminer* examiner = NULL;
-      std::stringstream examiner_out, examiner_err;
-      goodEvent = true;
-      ///examine event for integrity
-      //CSCDCCExaminer examiner;
-      examiner = new CSCDCCExaminer();
-      examiner->output1().redirect(examiner_out);
-      examiner->output2().redirect(examiner_err);
-      if( examinerMask&0x40000 ) examiner->crcCFEB(1);
-      if( examinerMask&0x8000  ) examiner->crcTMB (1);
-      if( examinerMask&0x0400  ) examiner->crcALCT(1);
-      examiner->output1().show();
-      examiner->output2().show();
-      examiner->setMask(examinerMask);
-      const short unsigned int *data = (short unsigned int *)fedData.data();
-     
-      if( examiner->check(data,long(fedData.size()/2)) < 0 )	{
-  	goodEvent=false;
-      } 
-      else {	  
-  	goodEvent=!(examiner->errors()&dccBinCheckMask);
-      }  
-      
-      if (goodEvent) {
-  	///get a pointer to data and pass it to constructor for unpacking
-  	CSCDCCExaminer * ptrExaminer = examiner;
-  	CSCDCCEventData dccData((short unsigned int *) fedData.data(),ptrExaminer);
-     	
-  	///get a reference to dduData
-  	const std::vector<CSCDDUEventData> & dduData = dccData.dduData();
-     	
-  	/// set default detid to that for E=+z, S=1, R=1, C=1, L=1
-  	CSCDetId layer(1, 1, 1, 1, 1);
-  	
-  	for (unsigned int iDDU=0; iDDU<dduData.size(); ++iDDU) {  // loop over DDUs
-  	  /// skip the DDU if its data has serious errors
-  	  /// define a mask for serious errors 
-  	  if (dduData[iDDU].trailer().errorstat()&errorMask) {
-  	    LogTrace("CSCDCCUnpacker|CSCRawToDigi") << "DDU# " << iDDU << " has serious error - no digis unpacked! " <<
-  	      std::hex << dduData[iDDU].trailer().errorstat();
-  	    continue; // to next iteration of DDU loop
-  	  }
-  	  
-  	  ///get a reference to chamber data
-  	  const std::vector<CSCEventData> & cscData = dduData[iDDU].cscData();
-  	  for (unsigned int iCSC=0; iCSC<cscData.size(); ++iCSC) { // loop over CSCs
-  	    
-  	    int vmecrate = cscData[iCSC].dmbHeader()->crateID();
-  	    int dmb = cscData[iCSC].dmbHeader()->dmbID();
-  	    
-  	    ///adjust crate numbers for MTCC data
-  	    // SKIPPING MTCC redefinition of vmecrate
-  	    
-  	    int icfeb = 0;  /// default value for all digis not related to cfebs
-  	    int ilayer = 0; /// layer=0 flags entire chamber
-  	    
-  	    if ((vmecrate>=1)&&(vmecrate<=60) && (dmb>=1)&&(dmb<=10)&&(dmb!=6)) {
-  	      layer = pcrate->detId(vmecrate, dmb,icfeb,ilayer );
-  	    } 
-  	    else{
-	      LogTrace ("CSCTimingAlignment|CSCDCCUnpacker|CSCRawToDigi") << " detID input out of range!!! ";
-              LogTrace ("CSCTimingAlignment|CSCDCCUnpacker|CSCRawToDigi")
-                << " skipping chamber vme= " << vmecrate << " dmb= " << dmb;
-	      continue; // to next iteration of iCSC loop
-	    }
-	    
-  	    /// check alct data integrity 
-  	    int nalct = cscData[iCSC].dmbHeader()->nalct();
-  	    bool goodALCT=false;
-  	    //if (nalct&&(cscData[iCSC].dataPresent>>6&0x1)==1) {
-  	    if (nalct&&cscData[iCSC].alctHeader()) {  
-  	      if (cscData[iCSC].alctHeader()->check()){
-  		goodALCT=true;
-  	      }
-  	    }
-  	    
-  	    ///check tmb data integrity
-  	    int nclct = cscData[iCSC].dmbHeader()->nclct();
-  	    bool goodTMB=false;
-  	    if (nclct&&cscData[iCSC].tmbData()) {
-  	      if (cscData[iCSC].tmbHeader()->check()){
-  		if (cscData[iCSC].clctData()->check()) goodTMB=true; 
-  	      }
-  	    }  
-      	      
-  	    if (goodTMB && goodALCT) { 
-
-	      if (ALCT_KeyWG_map.find(layer) == ALCT_KeyWG_map.end()) {
-		printf("no ALCT info for Chamber %d %d %d %d \n",layer.endcap(), layer.station(), layer.ring(), layer.chamber());
-		continue;
-	      }
-	      if (CLCT_getFullBx_map.find(layer) == CLCT_getFullBx_map.end()) {
-		printf("no CLCT info for Chamber %d %d %d %d \n",layer.endcap(), layer.station(), layer.ring(), layer.chamber());
-		continue;
-	      }
-	      int ALCT0Key = ALCT_KeyWG_map.find(layer)->second;
-	      int CLCTPretrigger = CLCT_getFullBx_map.find(layer)->second;
-
-
-
-  	      const CSCTMBHeader *tmbHead = cscData[iCSC].tmbHeader();
-
-	      histos->fill1DHistByStation(tmbHead->BXNCount(),     "TMB_BXNCount"     ,"TMB_BXNCount"     , layer.chamberId(),3601,-0.5,3600.5,"TimeMonitoring");
-	      histos->fill1DHistByStation(tmbHead->ALCTMatchTime(),"TMB_ALCTMatchTime","TMB_ALCTMatchTime", layer.chamberId(),7,-0.5,6.5,"TimeMonitoring");
-
-	      histos->fill1DHist(tmbHead->BXNCount(),     "TMB_BXNCount"     ,"TMB_BXNCount"     , 3601,-0.5,3600.5,"TimeMonitoring");
-	      histos->fill1DHist(tmbHead->ALCTMatchTime(),"TMB_ALCTMatchTime","TMB_ALCTMatchTime", 7,-0.5,6.5,"TimeMonitoring");
-
-	      histos->fill1DHistByType(tmbHead->ALCTMatchTime(),"TMB_ALCTMatchTime","TMB_ALCTMatchTime",layer.chamberId(), 7,-0.5,6.5,"TimeMonitoring");
-
-	      histos->fillProfile( chamberSerial(layer.chamberId()),tmbHead->ALCTMatchTime(),"prof_TMB_ALCTMatchTime","prof_TMB_ALCTMatchTime", 601,-0.5,600.5,-0.5,7.5,"TimeMonitoring");
-	      histos->fillProfile(ALCT0Key,tmbHead->ALCTMatchTime(),"prof_TMB_ALCTMatchTime_v_ALCT0KeyWG","prof_TMB_ALCTMatchTime_v_ALCT0KeyWG",128,-0.5,127.5,0,7,"TimeMonitoring");
-	      histos->fillProfileByType(ALCT0Key,tmbHead->ALCTMatchTime(),"prf_TMB_ALCTMatchTime_v_ALCT0KeyWG","prf_TMB_ALCTMatchTime_v_ALCT0KeyWG",layer.chamberId(),128,-0.5,127.5,0,7,"TimeMonitoring");
-
-	      //Attempt to make a few sum plots
-
-	      int TMB_ALCT_rel_L1A = tmbHead->BXNCount()-(CLCTPretrigger+2+tmbHead->ALCTMatchTime());
-	      if (TMB_ALCT_rel_L1A > 3563)
-		TMB_ALCT_rel_L1A = TMB_ALCT_rel_L1A - 3564;
-	      if (TMB_ALCT_rel_L1A < 0)
-		TMB_ALCT_rel_L1A = TMB_ALCT_rel_L1A + 3564;
-
-	      //Plot TMB_ALCT_rel_L1A
-	      histos->fill1DHist(TMB_ALCT_rel_L1A,"h1D_TMB_ALCT_rel_L1A","h1D_TMB_ALCT_rel_L1A",11,144.5,155.5,"TimeMonitoring");
-	      histos->fill2DHist( chamberSerial(layer.chamberId()),TMB_ALCT_rel_L1A,"h2D_TMB_ALCT_rel_L1A","h2D_TMB_ALCT_rel_L1A", 601,-0.5,600.5,11,144.5,155.5,"TimeMonitoring");
-	      histos->fill2DHist( ringSerial(layer.chamberId()),TMB_ALCT_rel_L1A,"h2D_TMB_ALCT_rel_L1A_by_ring","h2D_TMB_ALCT_rel_L1A_by_ring",19,-9.5,9.5,11,144.5,155.5,"TimeMonitoring");
-	      histos->fillProfile( chamberSerial(layer.chamberId()),TMB_ALCT_rel_L1A,"prof_TMB_ALCT_rel_L1A","prof_TMB_ALCT_rel_L1A", 601,-0.5,600.5,145,155,"TimeMonitoring");
-	      histos->fillProfile( ringSerial(layer.chamberId()),TMB_ALCT_rel_L1A,"prof_TMB_ALCT_rel_L1A_by_ring","prof_TMB_ALCT_rel_L1A_by_ring",19,-9.5,9.5,145,155,"TimeMonitoring");
-
-	      histos->fill2DHist (ALCT0Key,TMB_ALCT_rel_L1A,"h2D_TMB_ALCT_rel_L1A_v_ALCT0KeyWG","h2D_TMB_ALCT_rel_L1A_v_ALCT0KeyWG",  128,-0.5,127.5,11,144.5,155.5,"TimeMonitoring");
-	      histos->fillProfile(ALCT0Key,TMB_ALCT_rel_L1A,"prof_TMB_ALCT_rel_L1A_v_ALCT0KeyWG","prof_TMB_ALCT_rel_L1A_v_ALCT0KeyWG",128,-0.5,127.5,145,155,"TimeMonitoring");
-	      histos->fillProfileByType(ALCT0Key,TMB_ALCT_rel_L1A,"prf_TMB_ALCT_rel_L1A_v_ALCT0KeyWG","prf_TMB_ALCT_rel_L1A_v_ALCT0KeyWG",layer.chamberId(),128,-0.5,127.5,145,155,"TimeMonitoring");
-	    }
-
-  	  } // end CSCData loop
-  	} // end ddu data loop
-      } // end if goodEvent
-      if (examiner!=NULL) delete examiner;
-    }// end if non-zero fed data
-  } // end DCC loop for NON-REFERENCE
-
 }
 
 

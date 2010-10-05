@@ -444,6 +444,17 @@ namespace statemachine {
     return true;
   }
 
+  sc::result ContinueRun1::react(Run const& run)
+  {
+    checkInvariant();
+    if (context<HandleRuns>().currentRun() != run) {
+      return transit<NewRun, HandleRuns, Run>(&HandleRuns::finalizeRun, run);
+    }
+    else {
+      return transit<ContinueRun1>();
+    }
+  }
+
   sc::result ContinueRun1::react(File const& file)
   {
     checkInvariant();
@@ -764,6 +775,17 @@ namespace statemachine {
     return true;
   }
 
+  sc::result ContinueRun2::react(Run const& run)
+  {
+    checkInvariant();
+    if (context<HandleRuns>().currentRun() != run) {
+      return forward_event();
+    }
+    else {
+      return transit<ContinueRun2>();
+    }
+  }
+
   sc::result ContinueRun2::react(Lumi const& lumi)
   {
     checkInvariant();
@@ -803,6 +825,17 @@ namespace statemachine {
     assert(context<HandleLumis>().currentLumi().run() == context<HandleRuns>().currentRun().runNumber());
     assert(context<HandleLumis>().currentLumi().lumi() != INVALID_LUMI);
     return true;
+  }
+
+  sc::result ContinueLumi::react(Lumi const& lumi)
+  {
+    checkInvariant();
+    if (context<HandleLumis>().currentLumi().lumi() != lumi.id()) {
+      return transit<AnotherLumi>();
+    }
+    else {
+      return transit<ContinueLumi>();
+    }
   }
 
   sc::result ContinueLumi::react(File const& file)

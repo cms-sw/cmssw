@@ -170,7 +170,7 @@ if options.dt or not ( options.dt or options.csc):
 if options.csc or not ( options.dt or options.csc):
   DO_CSC = True
 
-if not (options.all or options.map or options.curvature or options.segdiff or options.fit or options.median or options.diagnostic):
+if not (options.all or options.map or options.segdiff or options.fit or options.median or options.diagnostic):
   print "\nOptions must include either -a or any of the following: --map, --segdiff, --fit, --median, --diagnostic. Exiting..."
   sys.exit()
 
@@ -241,9 +241,7 @@ CANVASES_LIST_TEMPLATE = [
  ['Chamber: segdiff in y residuals','segdif_dt2_resid.png'],
  ['Chamber: segdiff in dydz residuals','segdif_dt2_slope.png'],
  ['Chamber: residuals distributions','dt_bellcurves.png'],
- ['Chamber: residuals relations to misalignments','dt_polynomials.png'],
- ['Chamber: Delta x residuals vs. curvature','dt_curvature_deltax.png'],
- ['Chamber: Delta dxdz residuals vs. curvature','dt_curvature_deltadxdz.png']
+ ['Chamber: residuals relations to misalignments','dt_polynomials.png']
 ],
 ['CSC',' ',
  ['Station&Ring: map of d(rphi)/dz residual vs phi','map_CSCvsphi_dxdz.png'],
@@ -265,11 +263,6 @@ CANVASES_LIST_TEMPLATE = [
 def isFileUnderDir(dir_name, file_name):
   '''Recursively looks for file named file_name under dir_name directory
   '''
-  if not DO_DT and dir_name.find("MB")>-1:
-    return False
-  if not DO_CSC and dir_name.find("ME")>-1:
-    return False
-  
   for f in os.listdir(dir_name):
     dirfile = os.path.join(dir_name, f)
     if os.path.isfile(dirfile) and f==file_name:
@@ -456,45 +449,6 @@ def doMapPlotsCSC(csc_basedir, tfiles_plotting):
           c1.SaveAs(pdir+'map_CSCvsr_x.png')
           mapplot(tfiles_plotting, label, "dxdz", window=15., title=htitle)
           c1.SaveAs(pdir+'map_CSCvsr_dxdz.png')
-
-
-def doCurvaturePlotsDT(dt_basedir, tfiles_plotting):
-  """write DT curvature plots
-
-  "wheel%s_sector%s" % (wheel, sector)
-
-  wheel in "m2", "m1", "z", "p1", "p2"
-  station 1 only!
-  sector in "01", ..., "12"
-
-  "param" may be one of 
-    "deltax" (Delta x position residuals),
-    "deltadxdz" (Delta (dx/dz) angular residuals),
-    "curverr" (Delta x * d(Delta q/pT)/d(Delta x) = Delta q/pT in the absence of misalignment) - not necessary
-
-  made for all (wheel,station=1,sector) combinations
-
-  Interface: could be accesses through a general DT chambers map for station=1 chambers."""
-  
-  w_dict = {'-2':'m2', '-1':'m1', '0':'z', '1':'p1', '2':'p2'}
-  qcount = 0
-  for wheel in DT_TYPES:
-    if wheel[1]=="ALL": continue
-    #station = 1
-    station = wheel[2][0]
-    print wheel[0]+'/'+station[1]
-    for sector in range(1,station[2]+1):
-      if sector>12: break
-      if qcount>QUICKTESTN: break
-      qcount += 1
-      ssector = "%02d" % sector
-      pdir = dt_basedir+'/'+wheel[0]+'/'+station[1]+'/'+ssector+'/'
-      label = "wheel%s_sector%s" % (w_dict[wheel[1]], ssector)
-      thetitle ="Wheel %s, sector %s" % (wheel[1], ssector)
-      curvatureplot(tfiles_plotting, label, "deltax", title=thetitle, window=15., fitline=True)
-      saveAs(pdir+'dt_curvature_deltax.png')
-      curvatureplot(tfiles_plotting, label, "deltadxdz", title=thetitle, window=15., fitline=True)
-      saveAs(pdir+'dt_curvature_deltadxdz.png')
 
 
 def doSegDiffPlotsDT(dt_basedir, tfiles_plotting, iter_reports):
@@ -712,11 +666,6 @@ def doIterationPlots(iteration_directory, tfiles_plotting, iter_tfile, iter_repo
   if DO_CSC and DO_MAP:
     doMapPlotsCSC(csc_basedir, tfiles_plotting)
 
-  if DO_DT and DO_CURVATURE:
-    doCurvaturePlotsDT(dt_basedir, tfiles_plotting)
-  #if DO_CSC and DO_CURVATURE:
-  #  doCurvaturePlotsCSC(csc_basedir, tfiles_plotting)
-
   if DO_DT and DO_SEGDIFF:
     doSegDiffPlotsDT(dt_basedir, tfiles_plotting, iter_reports)
   if DO_CSC and DO_SEGDIFF:
@@ -746,62 +695,6 @@ def createCanvasesList(fname="canvases_list.js"):
   print >>ff, "var CANVASES_LIST = "
   json.dump(CANVASES_LIST,ff)
   ff.close()
-
-
-def createCanvasToIDList(fname="canvas2id_list.js"):
-  '''Create a canvas-to-ids list include for the browser.
-     Write out only those canvases which have existing filename.png plots.
-  '''
-  CANVAS2ID_LIST = []
-  for scope in CANVASES_LIST_TEMPLATE:
-    if len(scope)>2:
-      for canvas_entry in scope[2:]:
-        ids = idsForFile("./",canvas_entry[1])
-        #  scope_entry.append(canvas_entry)
-        # uniquify:
-        set_ids = set(ids)
-        uids = list(set_ids)
-        print canvas_entry, ":", len(uids), "ids"
-        if (len(uids)>0):
-          CANVAS2ID_LIST.append( (canvas_entry[1],uids) )
-  #print CANVAS2ID_LIST
-  CANVAS2ID_LIST_DICT = dict(CANVAS2ID_LIST)
-  #print CANVAS2ID_LIST_DICT
-  ff = open(fname,mode="w")
-  print >>ff, "var CANVAS2ID_LIST = "
-  json.dump(CANVAS2ID_LIST_DICT,ff)
-  ff.close()
-
-def idsForFile(dir_name, file_name):
-  '''Recursively looks for file named file_name under dir_name directory
-  and fill the list with dir names converted to IDs 
-  '''
-  id_list = []
-  for f in os.listdir(dir_name):
-    dirfile = os.path.join(dir_name, f)
-    if os.path.isfile(dirfile) and f==file_name:
-      id_list.append(dirToID(dir_name))
-    # recursively access file names in subdirectories
-    elif os.path.isdir(dirfile):
-      #print "Accessing directory:", dirfile
-      ids = idsForFile(dirfile, file_name)
-      if (len(ids)>0): 
-        id_list.extend(ids)
-  return id_list
-
-
-def dirToID(d):
-  if d[-1]!='/': d += '/'
-  dtn = d.find("/MB/")
-  if dtn!=-1:
-    return d[dtn+4:-1]
-  cscn = d.find("/ME-/")
-  if cscn!=-1:
-    return 'ME-'+d[cscn+4:-1]
-  cscn = d.find("/ME+/")
-  if cscn!=-1:
-    return 'ME+'+d[cscn+4:-1]
-  return ''
 
 
 ############################################################################################################
@@ -860,10 +753,6 @@ if os.access(fname+"_report.py",os.F_OK):
   execfile(fname+"_report.py")
   iterN_reports = reports
 
-if DO_MAP:
-  os.chdir(options.inputDir)
-  phiedges2c()
-
 ######################################################
 # setup output:
 
@@ -905,4 +794,3 @@ if DO_DIAGNOSTIC:
   #if not SINGLE_ITERATION: doTests(iter1_reports,"mu_list_1.js","dqm_report_1.js",options.runLabel)
   doTests(iterN_reports,"mu_list.js","dqm_report.js",options.runLabel)
   createCanvasesList("canvases_list.js")
-  createCanvasToIDList("canvas2id_list.js")

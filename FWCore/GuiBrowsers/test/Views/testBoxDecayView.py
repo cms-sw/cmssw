@@ -38,7 +38,8 @@ class BoxDecayViewTestCase(unittest.TestCase):
             if hasattr(w, "setDragable"):
                 w.setDragable(True, True)
 
-        self.app.exec_()
+        if not hasattr(unittest,"NO_GUI_TEST"):
+            self.app.exec_()
 
 if __name__ == "__main__":
     Profiling.analyze("unittest.main()",__file__)
