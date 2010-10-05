@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.27 2010/09/20 16:17:34 mccauley Exp $
+// $Id: ValidateGeometry.cc,v 1.28 2010/09/27 16:26:57 mccauley Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -546,9 +546,6 @@ ValidateGeometry::validateCSChamberGeometry(const int endcap, const char* detnam
   makeHistograms(detname);
 }
 
-//#include <fstream>
-//std::ofstream fout("test.txt");
-
 void 
 ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname)
 {
@@ -558,6 +555,17 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
 
   std::vector<double> wire_transforms;
 
+  std::vector<double> me11_wiresLocal;
+  std::vector<double> me12_wiresLocal;
+  std::vector<double> me13_wiresLocal;
+  std::vector<double> me14_wiresLocal;
+  std::vector<double> me21_wiresLocal;
+  std::vector<double> me22_wiresLocal;
+  std::vector<double> me31_wiresLocal;
+  std::vector<double> me32_wiresLocal;
+  std::vector<double> me41_wiresLocal;
+  std::vector<double> me42_wiresLocal;
+  
   std::vector<CSCLayer*> layers = cscGeometry_->layers();
      
   for ( std::vector<CSCLayer*>::const_iterator it = layers.begin(), 
@@ -655,23 +663,25 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
       // we calculate an average wire group 
       // spacing from radialExtentOfTheWirePlane / numOfWireGroups
       
+      double extentOfWirePlane;
+
       if ( ring == 2 )
       {
         if ( station == 1 )
-          wireSpacing = 174.81/64;
+          extentOfWirePlane = 174.81; //wireSpacing = 174.81/64;
         else
-          wireSpacing = 323.38/64;
+          extentOfWirePlane = 323.38; //wireSpacing = 323.38/64;
       }
       else if ( station == 1 && (ring == 1 || ring == 4))
-        wireSpacing = 150.5/48;
+        extentOfWirePlane = 150.5; //wireSpacing = 150.5/48;
       else if ( station == 1 && ring == 3 )
-        wireSpacing = 164.47/32;
+        extentOfWirePlane = 164.47; //wireSpacing = 164.47/32;
       else if ( station == 2 && ring == 1 )
-        wireSpacing = 189.97/112;
+        extentOfWirePlane = 189.97; //wireSpacing = 189.97/112;
       else if ( station == 3 && ring == 1 )
-        wireSpacing = 170.01/96;
+        extentOfWirePlane = 170.01; //wireSpacing = 170.01/96;
       else if ( station == 4 && ring == 1 )
-        wireSpacing = 149.73/96;
+        extentOfWirePlane = 149.73; //wireSpacing = 149.73/96;
 
       float wireAngle = layer->geometry()->wireTopology()->wireAngle();
       assert(wireAngle == parameters[7]);
@@ -707,19 +717,24 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
       
       else  // ME21, ME22, ME32, ME42 
         alignmentPinToFirstWire = 2.87;
-
+       
       double yOfFirstWire = (yAlignmentFrame-length) + alignmentPinToFirstWire;
-      
-      for ( int nWireGroup = 1; nWireGroup <= layer->geometry()->numberOfWireGroups(); 
-            ++nWireGroup )
-      {  
+
+      int nWireGroups = layer->geometry()->numberOfWireGroups();
+      double E = extentOfWirePlane/nWireGroups;
+
+      for ( int nWireGroup = 1; nWireGroup <= nWireGroups; ++nWireGroup )
+      {         
         LocalPoint centerOfWireGroup = layer->geometry()->localCenterOfWireGroup(nWireGroup); 
         double yOfWire1 = centerOfWireGroup.y(); 
 
-        double yOfWire2 = yOfFirstWire + ((nWireGroup-1)*wireSpacingInGroup)/cosWireAngle;
+        //double yOfWire2 = (-0.5 - (nWireGroups*0.5 - 1) + (nWireGroup-1))*E; 
+        //yOfWire2 += 0.5*E;
+        double yOfWire2 = yOfFirstWire + ((nWireGroup-1)*E);
         yOfWire2 += wireSpacing*0.5;
 
-        wire_positions.push_back(yOfWire1-yOfWire2);
+        double ydiff_local = yOfWire1 - yOfWire2; 
+        wire_positions.push_back(ydiff_local);
 
         GlobalPoint globalPoint = layer->surface().toGlobal(LocalPoint(0.0,yOfWire1,0.0));
         
@@ -732,8 +747,61 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
 
         fwGeometry_.localToGlobal(detId.rawId(), fwLocalPoint, fwGlobalPoint);
         
-        wire_transforms.push_back(globalPoint.y() - fwGlobalPoint[1]); 
+        double ydiff_global = globalPoint.y() - fwGlobalPoint[1]; 
+        wire_transforms.push_back(ydiff_global); 
 
+        if ( station == 1 )
+        {
+          if ( ring == 1 )
+          {
+            me11_wiresLocal.push_back(ydiff_local);
+          }
+          else if ( ring == 2 )
+          {
+            me12_wiresLocal.push_back(ydiff_local);
+          }
+          else if ( ring == 3 )
+          {
+            me13_wiresLocal.push_back(ydiff_local);
+          }
+          else if ( ring == 4 )
+          {
+            me14_wiresLocal.push_back(ydiff_local);
+          }
+        }
+        else if ( station == 2 ) 
+        {
+          if ( ring == 1 )
+          {
+            me21_wiresLocal.push_back(ydiff_local);
+          }
+          else if ( ring == 2 )
+          {
+            me22_wiresLocal.push_back(ydiff_local);
+          }
+        }
+        else if ( station == 3 )
+        {
+          if ( ring == 1 )
+          {
+            me31_wiresLocal.push_back(ydiff_local);
+          }
+          else if ( ring == 2 )
+          {
+            me32_wiresLocal.push_back(ydiff_local);
+          }
+        }
+        else if ( station == 4 )
+        {
+          if ( ring == 1 )
+          {
+            me41_wiresLocal.push_back(ydiff_local);
+          }
+          else if ( ring == 2 )
+          {
+            me42_wiresLocal.push_back(ydiff_local);
+          }
+        }
       } 
     }
   }
@@ -744,6 +812,17 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
   makeHistogram(hn+": local yOfWire", wire_positions);
 
   makeHistogram(hn+": global yOfWire", wire_transforms);
+  
+  makeHistogram("ME11: local yOfWire", me11_wiresLocal);
+  makeHistogram("ME12: local yOfWire", me12_wiresLocal);
+  makeHistogram("ME13: local yOfWire", me13_wiresLocal);
+  makeHistogram("ME14: local yOfWire", me14_wiresLocal);
+  makeHistogram("ME21: local yOfWire", me21_wiresLocal);
+  makeHistogram("ME22: local yOfWire", me22_wiresLocal);
+  makeHistogram("ME31: local yOfWire", me31_wiresLocal);
+  makeHistogram("ME32: local yOfWire", me32_wiresLocal);
+  makeHistogram("ME41: local yOfWire", me41_wiresLocal);
+  makeHistogram("ME42: local yOfWire", me42_wiresLocal);
 
   makeHistograms(detname);
 }
