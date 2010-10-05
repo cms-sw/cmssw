@@ -10,6 +10,8 @@ tnp::TagProbePairMaker::TagProbePairMaker(const edm::ParameterSet &iConfig) :
     arbitration_ = None;
   } else if (arbitration == "OneProbe") {
     arbitration_ = OneProbe;
+  } else if (arbitration == "NonDuplicate") {
+    arbitration_ = NonDuplicate;
   } else if (arbitration == "BestMass") {
     arbitration_ = BestMass;
     arbitrationMass_ = iConfig.getParameter<double>("massForArbitration");
@@ -67,7 +69,8 @@ tnp::TagProbePairMaker::arbitrate(TagProbePairs &pairs) const
     bool invalidateThis = false;
     int numberOfProbes=0;
     for (TagProbePairs::iterator it2 = it + 1; it2 != ed; ++it2) {   // it+1 <= ed, otherwise we don't arrive here
-      if (it->tag == it2->tag) {
+      // arbitrate the case where multiple probes are matched to the same tag
+      if ((arbitration_ != NonDuplicate) && (it->tag == it2->tag)) {
 	if(TTpair){ // we already have found a TT pair, no need to guess
 	  it2->tag = reco::CandidateBaseRef(); --nclean;
 	  //std::cout << "remove unnecessary pair! -----------" << std::endl;
@@ -103,6 +106,12 @@ tnp::TagProbePairMaker::arbitrate(TagProbePairs &pairs) const
 	    --nclean;
 	  } 
 	}
+      }
+      // arbitrate the case where the same probe is associated to more then one tag
+      if ((arbitration_ == NonDuplicate) && (it->probe == it2->probe)) {
+        // invalidate the pair in which the tag has lower pT
+        if (it2->tag->pt() > it->tag->pt()) std::swap(*it, *it2);
+        it2->tag = reco::CandidateBaseRef(); --nclean;  
       }
     }
     if (invalidateThis) { it->tag = reco::CandidateBaseRef(); --nclean; }

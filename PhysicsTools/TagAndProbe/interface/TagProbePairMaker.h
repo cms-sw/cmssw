@@ -30,7 +30,7 @@ namespace tnp {
             TagProbePairs run(const edm::Event &iEvent) const ;
         private:
             edm::InputTag src_;
-            enum Arbitration { None, OneProbe, BestMass, Random2 };
+            enum Arbitration { None, OneProbe, BestMass, Random2, NonDuplicate };
             Arbitration arbitration_;
             double arbitrationMass_;
             void arbitrate(TagProbePairs &pairs) const ;
