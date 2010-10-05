@@ -4,7 +4,7 @@
  * Author: Evan K. Friis, UC Davis
  *
  * Build PiZero candidates out of all possible sets of <choose> gammas that are
- * contained in the input PFJet.  Optionally, the pi zero candidates are 
+ * contained in the input PFJet.  Optionally, the pi zero candidates are
  * filtered by a min and max selection on their invariant mass.
  *
  * $Id $
@@ -29,7 +29,8 @@ class RecoTauPiZeroCombinatoricPlugin : public RecoTauPiZeroBuilderPlugin {
   public:
     explicit RecoTauPiZeroCombinatoricPlugin(const edm::ParameterSet& pset);
     ~RecoTauPiZeroCombinatoricPlugin() {}
-    std::vector<RecoTauPiZero> operator()(const reco::PFJet& jet) const;
+    // Return type is auto_ptr<PiZeroVector>
+    return_type operator()(const reco::PFJet& jet) const;
 
   private:
     double minMass_;
@@ -47,17 +48,18 @@ RecoTauPiZeroCombinatoricPlugin::RecoTauPiZeroCombinatoricPlugin(
   choose_ = pset.getParameter<unsigned int>("choose");
 }
 
-std::vector<RecoTauPiZero> RecoTauPiZeroCombinatoricPlugin::operator()(
+RecoTauPiZeroCombinatoricPlugin::return_type
+RecoTauPiZeroCombinatoricPlugin::operator()(
     const reco::PFJet& jet) const {
   // Get list of gamma candidates
   typedef std::vector<reco::PFCandidatePtr> PFCandPtrs;
   typedef PFCandPtrs::const_iterator PFCandIter;
-  std::vector<RecoTauPiZero> output;
+  PiZeroVector output;
 
   PFCandPtrs pfGammaCands = pfGammas(jet);
   // Check if we have anything to do...
   if (pfGammaCands.size() < choose_)
-    return output;
+    return output.release();
 
   // Define the valid range of gammas to use
   PFCandIter start_iter = pfGammaCands.begin();
@@ -74,22 +76,24 @@ std::vector<RecoTauPiZero> RecoTauPiZeroCombinatoricPlugin::operator()(
   for (ComboGenerator::iterator combo = generator.begin();
       combo != generator.end(); ++combo) {
     const Candidate::LorentzVector totalP4;
-    RecoTauPiZero piZero(0, totalP4, Candidate::Point(0, 0, 0),
-        111, 10001, true, name());
+    std::auto_ptr<RecoTauPiZero> piZero(
+        new RecoTauPiZero(0, totalP4, Candidate::Point(0, 0, 0),
+                          111, 10001, true, name()));
     // Add our daughters from this combination
     for (ComboGenerator::combo_iterator candidate = combo->combo_begin();
         candidate != combo->combo_end();  ++candidate) {
-      piZero.addDaughter(*candidate);
+      piZero->addDaughter(*candidate);
     }
-    p4Builder_.set(piZero);
+    p4Builder_.set(*piZero);
 
-    if (piZero.daughterPtr(0).isNonnull())
-      piZero.setVertex(piZero.daughterPtr(0)->vertex());
+    if (piZero->daughterPtr(0).isNonnull())
+      piZero->setVertex(piZero->daughterPtr(0)->vertex());
 
-    if ((maxMass_ < 0 || piZero.mass() < maxMass_) && piZero.mass() > minMass_)
+    if ((maxMass_ < 0 || piZero->mass() < maxMass_) &&
+        piZero->mass() > minMass_)
       output.push_back(piZero);
   }
-  return output;
+  return output.release();
 }
 
 }}  // end namespace reco::tau

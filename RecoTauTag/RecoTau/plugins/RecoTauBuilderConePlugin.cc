@@ -35,7 +35,7 @@ class DeltaRFilter {
     bool operator()(const CandType& b) {
       double deltaR = reco::deltaR<reco::Candidate::LorentzVector>
           (axis_, b.p4());
-      return(deltaR > min_ && deltaR < max_);
+      return(deltaR >= min_ && deltaR < max_);
     }
   private:
     const reco::Candidate::LorentzVector& axis_;
@@ -192,11 +192,11 @@ std::vector<reco::PFTau> RecoTauBuilderConePlugin::operator()(
   // to select elements in the given DeltaR regions
 
   PFCandPtrDRFilter signalConePFCHFilter(
-      coneAxis, 0, signalConeChargedHadrons_(*jet));
+      coneAxis, -0.1, signalConeChargedHadrons_(*jet));
   PFCandPtrDRFilter signalConePFNHFilter(
-      coneAxis, 0, signalConeNeutralHadrons_(*jet));
+      coneAxis, -0.1, signalConeNeutralHadrons_(*jet));
   PiZeroDRFilter signalConePiZeroFilter(
-      coneAxis, 0, signalConePiZeros_(*jet));
+      coneAxis, -0.1, signalConePiZeros_(*jet));
 
   PFCandPtrDRFilter isoConePFCHFilter(
       coneAxis, signalConeChargedHadrons_(*jet), isoConeChargedHadrons_(*jet));

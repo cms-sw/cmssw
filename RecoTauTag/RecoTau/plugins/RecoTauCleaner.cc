@@ -122,7 +122,7 @@ void RecoTauCleaner::produce(edm::Event& evt, const edm::EventSetup& es) {
      // std::cout << cleaner->name() << ":"
      //   << std::setprecision(3) << (*cleaner)(*tau) << " ";
     }
-    std::cout << std::endl;
+    // std::cout << std::endl;
   }
   evt.put(output);
 }

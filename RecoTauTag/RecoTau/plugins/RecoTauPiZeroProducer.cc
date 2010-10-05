@@ -13,6 +13,7 @@
  */
 
 #include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/ptr_container/ptr_list.hpp>
 #include <boost/foreach.hpp>
 #include <algorithm>
 
@@ -24,28 +25,13 @@
 
 #include "RecoTauTag/RecoTau/interface/RecoTauPiZeroPlugins.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauCleaningTools.h"
+#include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
 
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/TauReco/interface/JetPiZeroAssociation.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
 
-namespace {
-// Class that checks if two PiZeros contain any of the same daughters
-class PiZeroOverlapChecker {
-  public:
-    bool operator()(const reco::RecoTauPiZero& a,
-        const reco::RecoTauPiZero& b) {
-      typedef std::vector<reco::CandidatePtr> daughters;
-      daughters aDaughters = a.daughterPtrVector();
-      daughters bDaughters = b.daughterPtrVector();
-      // Check if they share any daughters
-      daughters::const_iterator result = std::find_first_of(
-          aDaughters.begin(), aDaughters.end(),
-          bDaughters.begin(), bDaughters.end());
-      return(result != aDaughters.end());
-    }
-};
-}
+#include "CommonTools/CandUtils/interface/AddFourMomenta.h"
 
 class RecoTauPiZeroProducer : public edm::EDProducer {
   public:
@@ -115,36 +101,63 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt,
   // Loop over our jets
   for (reco::PFJetCollection::const_iterator jet = pfJets->begin();
       jet != pfJets->end(); ++jet, ++iJet) {
-    typedef std::vector<reco::RecoTauPiZero> PiZeroVector;
+    size_t numberOfGammas = reco::tau::pfCandidates(
+        *jet, reco::PFCandidate::gamma).size();
+    typedef boost::ptr_vector<reco::RecoTauPiZero> PiZeroVector;
+    typedef boost::ptr_list<reco::RecoTauPiZero> PiZeroList;
     // Build our global list of RecoTauPiZero
-    PiZeroVector dirtyPiZeros;
+    PiZeroList dirtyPiZeros;
 
     // Compute the pi zeros from this jet for all the desired algorithms
     BOOST_FOREACH(const Builder& builder, builders_) {
       PiZeroVector result(builder(*jet));
-      dirtyPiZeros.insert(dirtyPiZeros.end(), result.begin(), result.end());
+      dirtyPiZeros.transfer(dirtyPiZeros.end(), result);
     }
-
-    // std::cout << "BEFORE SORTING" << std::endl;
-    // print(dirtyPiZeros, std::cout);
-
     // Rank the candidates according to our quality plugins
-    std::sort(dirtyPiZeros.begin(), dirtyPiZeros.end(), *predicate_);
+    dirtyPiZeros.sort(*predicate_);
 
-    // std::cout << "APRES SORTING" << std::endl;
-    // print(dirtyPiZeros, std::cout);
-
-    // Now clean the list to ensure that no photon is counted twice
-    PiZeroVector cleanPiZeros = reco::tau::cleanOverlaps<PiZeroVector,
-                 PiZeroOverlapChecker>(dirtyPiZeros);
-
-    // Sort the clean pizeros by pt
-    std::sort(cleanPiZeros.begin(), cleanPiZeros.end(),
-        reco::tau::SortByDescendingPt<reco::RecoTauPiZero>());
-
-    // std::cout << "CLEANED" << std::endl;
-    // print(cleanPiZeros, std::cout);
-
+    // Keep track of the photons in the clean collection
+    std::vector<reco::RecoTauPiZero> cleanPiZeros;
+    std::set<reco::CandidatePtr> photonsInCleanCollection;
+    while (dirtyPiZeros.size() &&
+           numberOfGammas > photonsInCleanCollection.size()) {
+      // Pull our candidate pi zero from the front of the list
+      std::auto_ptr<reco::RecoTauPiZero> toAdd(
+          dirtyPiZeros.pop_front().release());
+      // Find the sub-gammas that are not already in the cleaned collection
+      std::vector<reco::CandidatePtr> uniqueGammas;
+      std::set_difference(toAdd->daughterPtrVector().begin(),
+                          toAdd->daughterPtrVector().end(),
+                          photonsInCleanCollection.begin(),
+                          photonsInCleanCollection.end(),
+                          std::back_inserter(uniqueGammas));
+      // If the pi zero has no unique gammas, discard it.  Note toAdd is deleted
+      // when it goes out of scope.
+      if (!uniqueGammas.size()) {
+        continue;
+      } else if (uniqueGammas.size() == toAdd->daughterPtrVector().size()) {
+        // Check if it is composed entirely of unique gammas.  In this case
+        // immediately add it to the clean collection.
+        photonsInCleanCollection.insert(toAdd->daughterPtrVector().begin(),
+                                        toAdd->daughterPtrVector().end());
+        cleanPiZeros.push_back(*toAdd);
+      } else {
+        // Otherwise update the pizero that contains only the unique gammas and
+        // add it back into the sorted list of dirty PiZeros
+        toAdd->clearDaughters();
+        // Add each of the unique daughters back to the pizero
+        BOOST_FOREACH(const reco::CandidatePtr& gamma, uniqueGammas) {
+          toAdd->addDaughter(gamma);
+        }
+        // Update the four vector
+        AddFourMomenta p4Builder_;
+        p4Builder_.set(*toAdd);
+        // Put this pi zero back into the collection of sorted dirty pizeros
+        PiZeroList::iterator insertionPoint = std::lower_bound(
+            dirtyPiZeros.begin(), dirtyPiZeros.end(), *toAdd, *predicate_);
+        dirtyPiZeros.insert(insertionPoint, toAdd);
+      }
+    }
     // Add to association
     association->setValue(iJet, cleanPiZeros);
   }
