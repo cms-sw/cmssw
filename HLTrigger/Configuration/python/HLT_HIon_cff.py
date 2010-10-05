@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_8_1/HIon/V45 (CMSSW_3_8_1_HLT16)
+# /dev/CMSSW_3_8_1/HIon/V46 (CMSSW_3_8_1_HLT16)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V45')
+  tableName = cms.string('/dev/CMSSW_3_8_1/HIon/V46')
 )
 
 streams = cms.PSet( 
@@ -749,14 +749,58 @@ hcalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
 )
 hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
   SeverityLevels = cms.VPSet( 
-    cms.PSet(  RecHitFlags = cms.vstring(  ),
-      ChannelStatus = cms.vstring(  ),
+    cms.PSet(  RecHitFlags = cms.vstring( '' ),
+      ChannelStatus = cms.vstring( '' ),
       Level = cms.int32( 0 )
+    ),
+    cms.PSet(  Level = cms.int32( 1 ),
+      RecHitFlags = cms.vstring( '' ),
+      ChannelStatus = cms.vstring( 'HcalCellCaloTowerProb' )
+    ),
+    cms.PSet(  Level = cms.int32( 5 ),
+      RecHitFlags = cms.vstring( 'HSCP_R1R2',
+        'HSCP_FracLeader',
+        'HSCP_OuterEnergy',
+        'HSCP_ExpFit',
+        'ADCSaturationBit' ),
+      ChannelStatus = cms.vstring( '' )
+    ),
+    cms.PSet(  Level = cms.int32( 8 ),
+      RecHitFlags = cms.vstring( 'HBHEHpdHitMultiplicity',
+        'HBHEPulseShape',
+        'HOBit',
+        'HFDigiTime',
+        'HFInTimeWindow',
+        'HFS8S1Ratio',
+        'ZDCBit',
+        'CalibrationBit',
+        'TimingErrorBit' ),
+      ChannelStatus = cms.vstring( '' )
+    ),
+    cms.PSet(  Level = cms.int32( 11 ),
+      RecHitFlags = cms.vstring( 'HFLongShort' ),
+      ChannelStatus = cms.vstring( '' )
+    ),
+    cms.PSet(  Level = cms.int32( 12 ),
+      RecHitFlags = cms.vstring( '' ),
+      ChannelStatus = cms.vstring( 'HcalCellCaloTowerMask' )
+    ),
+    cms.PSet(  Level = cms.int32( 15 ),
+      RecHitFlags = cms.vstring( '' ),
+      ChannelStatus = cms.vstring( 'HcalCellHot' )
+    ),
+    cms.PSet(  Level = cms.int32( 20 ),
+      RecHitFlags = cms.vstring( '' ),
+      ChannelStatus = cms.vstring( 'HcalCellOff',
+        'HcalCellDead' )
     )
   ),
-  DropChannelStatusBits = cms.vstring(  ),
+  DropChannelStatusBits = cms.vstring( 'HcalCellMask',
+    'HcalCellOff',
+    'HcalCellDead' ),
   appendToDataLabel = cms.string( "" ),
-  RecoveredRecHitBits = cms.vstring(  )
+  RecoveredRecHitBits = cms.vstring( 'TimingAddedBit',
+    'TimingSubtractedBit' )
 )
 hltCkfTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
   ComponentName = cms.string( "hltCkfTrajectoryBuilder" ),

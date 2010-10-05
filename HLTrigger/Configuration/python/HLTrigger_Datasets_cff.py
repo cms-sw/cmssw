@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_8_1/GRun/V45
+# /dev/CMSSW_3_8_1/GRun/V46
 
 import FWCore.ParameterSet.Config as cms
 
@@ -66,6 +66,7 @@ streamA_datasetElectron_selector.throw      = cms.bool(False)
 streamA_datasetElectron_selector.triggerConditions = cms.vstring('HLT_DoubleEle15_SW_L1R_v1', 
     'HLT_Ele10_MET45_v1', 
     'HLT_Ele12_SW_TighterEleIdIsol_L1R_v1', 
+    'HLT_Ele17_SW_TightCaloEleId_Ele8HE_L1R_v1', 
     'HLT_Ele17_SW_TightCaloEleId_SC8HE_L1R_v1', 
     'HLT_Ele17_SW_TightEleIdIsol_L1R_v1', 
     'HLT_Ele17_SW_TightEleId_L1R', 
@@ -150,7 +151,8 @@ streamA_datasetMinimumBias_selector.triggerConditions = cms.vstring('HLT_L1Tech_
     'HLT_PixelTracks_Multiplicity70', 
     'HLT_PixelTracks_Multiplicity85', 
     'HLT_Random', 
-    'HLT_StoppedHSCP_v2', 
+    'HLT_StoppedHSCP20_v3', 
+    'HLT_StoppedHSCP35_v3', 
     'HLT_ZeroBias', 
     'HLT_ZeroBiasPixel_SingleTrack')
 
@@ -172,7 +174,7 @@ streamA_datasetMu_selector.triggerConditions = cms.vstring('HLT_DoubleMu3_v2',
     'HLT_Mu5_HT50U_v1', 
     'HLT_Mu5_HT70U_v1', 
     'HLT_Mu5_Jet35U_v1', 
-    'HLT_Mu5_Jet50U_v1', 
+    'HLT_Mu5_Jet50U_v2', 
     'HLT_Mu5_MET45_v1', 
     'HLT_Mu5_Photon11_Cleaned_L1R_v1', 
     'HLT_Mu9')

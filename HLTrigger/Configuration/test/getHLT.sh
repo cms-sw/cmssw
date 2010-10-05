@@ -70,7 +70,7 @@ function getDatasetsForCVS() {
 function getConfigForOnline() {
   local CONFIG="$1"
   local NAME="$2"
-  local L1T="sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/sqlFile/L1Menu_Collisions2010_v0_mc.db:L1Menu_Collisions2010_v0"
+  local L1T="L1Menu_Collisions2010_v0"
 
   log "    dumping full HLT for $NAME"
   # override L1 menus
