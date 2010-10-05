@@ -7,15 +7,13 @@
 
 typedef math::XYZTLorentzVector LorentzVector;
 
-
-//DEPRECATED
-bool ConversionFinder::isFromConversion(double maxAbsDist, double maxAbsDcot) {
-
-//  edm::LogWarning("ConversionFinder") << "THIS FUNCTION HAS BEEN DEPRECATED AND ALWAYS RETURNS FALSE"
-//				      << "PLEASE UPDATE YOUR CODE TO NOT USE THIS FUNCTION";
-
-  return false;
-}
+bool ConversionFinder::isFromConversion
+ ( const ConversionInfo & convInfo, double maxAbsDist, double maxAbsDcot )
+ {
+  if ( (std::abs(convInfo.dist())<maxAbsDist) && (std::abs(convInfo.dcot())<maxAbsDcot) )
+    return true ;
+  return false ;
+ }
 
 //-----------------------------------------------------------------------------
 ConversionFinder::ConversionFinder() {}
@@ -318,11 +316,11 @@ ConversionInfo ConversionFinder::arbitrateConversionPartnersbyR(const std::vecto
 
   return arbitratedConvInfo;
 
-}
+ }
 
 //------------------------------------------------------------------------------------
-ConversionInfo ConversionFinder::findBestConversionMatch(const std::vector<ConversionInfo>& v_convCandidates) {
-
+ConversionInfo ConversionFinder::findBestConversionMatch(const std::vector<ConversionInfo>& v_convCandidates)
+ {
   using namespace std;
 
   if(v_convCandidates.size() == 0)
@@ -407,9 +405,7 @@ ConversionInfo ConversionFinder::findBestConversionMatch(const std::vector<Conve
   //return the the closest partner by R
   return arbitrateConversionPartnersbyR(v_convCandidates);
 
-
-
-}
+ }
 
 
 
@@ -444,7 +440,7 @@ std::pair<double, double> ConversionFinder::getConversionInfo(LorentzVector trk1
 
   return std::make_pair(dist, dcot);
 
-}
+ }
 
 
 //-------------------------------------- Also for backwards compatibility reasons  ---------------------------------------------------------------
@@ -558,7 +554,6 @@ ConversionInfo ConversionFinder::getConversionInfo(const reco::GsfElectron& gsfE
   deltaMissingHits = candCtfTrackRef->trackerExpectedHitsInner().numberOfHits() - el_track->trackerExpectedHitsInner().numberOfHits();
   return ConversionInfo(dist, dcot, rconv, convPoint, candCtfTrackRef, GsfTrackRef(), deltaMissingHits, flag);
 
-
-}
+ }
 
 //-------------------------------------------------------------------------------------
