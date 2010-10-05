@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.88 2010/09/03 13:10:06 rekovic Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.89 2010/10/05 03:15:25 rekovic Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQMOffline/Trigger/interface/FourVectorHLTOffline.h"
@@ -24,7 +24,8 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig): cu
   fSelectedPhotons = new reco::PhotonCollection;
   fSelectedJets = new reco::CaloJetCollection;
   fSelectedMet = new reco::CaloMETCollection;
-  fSelectedTaus = new reco::CaloTauCollection;
+  //fSelectedTaus = new reco::CaloTauCollection;
+  fSelectedTaus = new reco::PFTauCollection;
 
   dbe_ = Service < DQMStore > ().operator->();
   if ( ! dbe_ ) {
@@ -181,6 +182,12 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig): cu
   fHPDJet_ = iConfig.getUntrackedParameter<double>("fHPDJet",0.98);
   n90Jet_ = iConfig.getUntrackedParameter<int>("n90Jet",2);
 
+  // Tau discriminators
+  ////////////////////////////
+  tauDscrmtrLabel1_ = iConfig.getUntrackedParameter("tauDscrmtrLabel1", std::string("shrinkingConePFTauDiscriminationByLeadingTrackFinding"));
+  tauDscrmtrLabel2_ = iConfig.getUntrackedParameter("tauDscrmtrLabel2", std::string("shrinkingConePFTauDiscriminationByLeadingTrackPtCut"));
+  tauDscrmtrLabel3_ = iConfig.getUntrackedParameter("tauDscrmtrLabel3", std::string("shrinkingConePFTauDiscriminationByIsolation"));
+
   specialPaths_ = iConfig.getParameter<std::vector<std::string > >("SpecialPaths");
 
   pathsSummaryFolder_ = iConfig.getUntrackedParameter ("pathsSummaryFolder",std::string("HLT/FourVector/PathsSummary/"));
@@ -190,6 +197,7 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig): cu
   pathsSummaryHLTPathsPerLSFolder_ = iConfig.getUntrackedParameter ("individualPathsPerLSFolder",std::string("HLT/FourVector/PathsSummary/HLT LS/"));
   pathsIndividualHLTPathsPerLSFolder_ = iConfig.getUntrackedParameter ("individualPathsPerLSFolder",std::string("HLT/FourVector/PathsSummary/HLT LS/Paths/"));
   pathsSummaryHLTPathsPerBXFolder_ = iConfig.getUntrackedParameter ("individualPathsPerBXFolder",std::string("HLT/FourVector/PathsSummary/HLT BX/"));
+
 
   fLumiFlag = true;
   ME_HLTAll_LS = NULL;
@@ -306,11 +314,13 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     edm::LogInfo("FourVectorHLTOffline") << "gsfElectrons not found, ";
   selectElectrons(iEvent, iSetup, gsfElectrons);
 
-  edm::Handle<reco::CaloTauCollection> tauHandle;
+  //edm::Handle<reco::CaloTauCollection> tauHandle;
+  edm::Handle<reco::PFTauCollection> tauHandle;
   iEvent.getByLabel("caloRecoTauProducer",tauHandle);
   if(!tauHandle.isValid()) 
     edm::LogInfo("FourVectorHLTOffline") << "tauHandle not found, ";
-  selectTaus(tauHandle);
+  //selectTaus(tauHandle);
+  selectTaus(iEvent);
 
   edm::Handle<reco::CaloJetCollection> jetHandle;
   iEvent.getByLabel("iterativeCone5CaloJets",jetHandle);
@@ -384,7 +394,8 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   muoMon.pushL1TriggerType(TriggerL1Mu);
   
   // tau Monitor
-  objMonData<reco::CaloTauCollection>  tauMon;
+  //objMonData<reco::CaloTauCollection>  tauMon;
+  objMonData<reco::PFTauCollection>  tauMon;
   //tauMon.setReco(tauHandle);
   tauMon.setReco(fSelTausHandle);
   tauMon.setLimits(tauEtaMax_, tauEtMin_, tauDRMatch_, tauL1DRMatch_, dRMax_, thresholdFactor_);
@@ -2523,27 +2534,51 @@ void FourVectorHLTOffline::selectMet(const edm::Handle<reco::CaloMETCollection> 
 
 }
 
-void FourVectorHLTOffline::selectTaus(const edm::Handle<reco::CaloTauCollection> & tauHandle)
+
+void FourVectorHLTOffline::selectTaus(const edm::Event& iEvent)
 {
   // for every event, first clear vector of selected objects
   fSelectedTaus->clear();
 
-  if(tauHandle.isValid()) { 
+  //first read the tau collection
+  edm::Handle<reco::PFTauCollection> tauHandle;  
+  iEvent.getByLabel("shrinkingConePFTauProducer",tauHandle);
 
-    for( reco::CaloTauCollection::const_iterator iter = tauHandle->begin(), iend = tauHandle->end(); iter != iend; ++iter )
-    {
+  //Now access a discriminator and see if it passed the tag
+  edm::Handle<reco::PFTauDiscriminator> dscrmt1H;
+  iEvent.getByLabel(tauDscrmtrLabel1_,dscrmt1H);
+  edm::Handle<reco::PFTauDiscriminator> dscrmt2H;
+  iEvent.getByLabel(tauDscrmtrLabel2_,dscrmt2H);
+  edm::Handle<reco::PFTauDiscriminator> dscrmt3H;
+  iEvent.getByLabel(tauDscrmtrLabel3_,dscrmt3H);
 
-      fSelectedTaus->push_back(*iter);
+  if(tauHandle.isValid() && dscrmt1H.isValid() && dscrmt2H.isValid() && dscrmt3H.isValid()) { 
+
+    for(unsigned int i=0;i<tauHandle->size();++i) {
+
+        //create a ref to the PF Tau 
+        reco::PFTauRef pfTauRef(tauHandle,i);
+
+        float outputDiscmnt1 = (*dscrmt1H)[pfTauRef]; // this should be >0.5 to pass
+        float outputDiscmnt2 = (*dscrmt2H)[pfTauRef]; // this should be >0.5 to pass
+        float outputDiscmnt3 = (*dscrmt3H)[pfTauRef]; // this should be >0.5 to pass
+
+        if(outputDiscmnt1>0.5 && outputDiscmnt2>0.5 && outputDiscmnt3 >0.5) {
+
+          fSelectedTaus->push_back((*tauHandle)[i]);
+
+        }
 
     } // end for
+
   
-    edm::Handle<reco::CaloTauCollection> localSelTauHandle(fSelectedTaus,tauHandle.provenance());
+    edm::Handle<reco::PFTauCollection> localSelTauHandle(fSelectedTaus,tauHandle.provenance());
     fSelTausHandle = localSelTauHandle;
 
   } // end if
 
-
 }
+
 
 int FourVectorHLTOffline::getHltThresholdFromName(const string & name)
 {
