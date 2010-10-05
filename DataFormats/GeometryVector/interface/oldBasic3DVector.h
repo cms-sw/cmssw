@@ -56,9 +56,9 @@ public:
 
 
 #ifndef __REFLEX__
-  // constructor from Vec3
+  // constructor from Vec4
   template<typename U>
-  Basic3DVector(mathSSE::Vec3<U> const& iv) :
+  Basic3DVector(mathSSE::Vec4<U> const& iv) :
     theX(iv.arr[0]), theY(iv.arr[1]), theZ(iv.arr[2]), theW(0) {}
 #endif  
 

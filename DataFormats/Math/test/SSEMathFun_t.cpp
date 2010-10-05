@@ -4,7 +4,7 @@
 #include<iostream>
 
 #ifdef  CMS_USE_SSE
-
+#ifdef __SSE3__
 
 typedef float Scalar;
 
@@ -159,5 +159,5 @@ int main() {
   return 0;
 }
 #endif
-
+#endif
 
