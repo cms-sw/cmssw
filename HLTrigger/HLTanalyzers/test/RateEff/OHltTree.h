@@ -164,7 +164,7 @@ public :
   Float_t         ohPhotHiso[8000];   //[NohPhot]
   Float_t         ohPhotTiso[8000];   //[NohPhot]
   Int_t           ohPhotL1iso[8000];   //[NohPhot]
-  Int_t           ohPhotR9[8000];   //[NohPhot] 
+  Float_t           ohPhotR9[8000];   //[NohPhot] 
   Int_t           NohEle;
   Float_t         ohEleClusShap[8000];   //[NohEle]
   Float_t         ohEleDeta[8000];   //[NohEle]
