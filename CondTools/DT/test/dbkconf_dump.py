@@ -18,11 +18,11 @@ process.essource = cms.ESSource("PoolDBESSource",
     toGet = cms.VPSet(
     cms.PSet(
     record = cms.string('DTKeyedConfigListRcd'),
-    tag = cms.string('keyedConfListIOV_V01')
+    tag = cms.string('DT_keyedConfListIOV_V01')
     ),
     cms.PSet(
     record = cms.string('DTKeyedConfigContainerRcd'),
-    tag = cms.string('keyedConfBricks_V01')
+    tag = cms.string('DT_keyedConfBricks_V01')
     )
     )
 )
