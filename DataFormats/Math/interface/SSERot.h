@@ -69,6 +69,22 @@ namespace mathSSE {
   typedef Rot3<float> Rot3F;
 
   typedef Rot3<double> Rot3D;
+
+#ifdef __SSE4_1__
+  template<>
+  inline  Vec4<float> Rot3<float>::rotate(Vec4<float> v) const {
+    return _mm_or_ps(_mm_or_ps(_mm_dp_ps(axis[0].vec,v.vec,0x71),
+			       _mm_dp_ps(axis[1].vec,v.vec,0x72)),
+		     _mm_dp_ps(axis[2].vec,v.vec,0x74)
+		     );
+  }
+  template<>
+  inline Rot3<float>  Rot3<float>::rotate(Rot3<float>  const& r) const {
+    return Rot3<float> (rotate(r.axis[0]),rotate(r.axis[1]),rotate(r.axis[2]));
+  }
+
+#endif
+
   
 }
 
