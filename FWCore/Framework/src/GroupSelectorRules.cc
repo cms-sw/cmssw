@@ -225,7 +225,8 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
   void
   GroupSelectorRules::fillDescription(ParameterSetDescription& desc, char const* parameterName) {
     std::vector<std::string> defaultStrings(1U, std::string("keep *"));
-    desc.addUntracked<std::vector<std::string> >(parameterName, defaultStrings);
+    desc.addUntracked<std::vector<std::string> >(parameterName, defaultStrings)
+        ->setComment("Specifies which branches are kept or dropped.");
   }
 
   GroupSelectorRules::GroupSelectorRules(ParameterSet const& pset,

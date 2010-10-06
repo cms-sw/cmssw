@@ -40,18 +40,17 @@ namespace edm {
     EventMsgView const* eview = getNextEvent();
 
     if (newHeader()) {
-        // FDEBUG(6) << "A new file has been opened and we must compare Headers here !!" << std::endl;
-        // A new file has been opened and we must compare Heraders here !!
-        //Get header/init from reader
-        InitMsgView const* header = getHeader();
-        deserializeAndMergeWithRegistry(*header, true);
+      // FDEBUG(6) << "A new file has been opened and we must compare Headers here !!" << std::endl;
+      // A new file has been opened and we must compare Heraders here !!
+      //Get header/init from reader
+      InitMsgView const* header = getHeader();
+      deserializeAndMergeWithRegistry(*header, true);
     }
     if (eview == 0) {
-        return  0;
+      return  0;
     }
     return(deserializeEvent(*eview));
   }
-
 
   bool const
   StreamerFileReader::newHeader() {
@@ -68,7 +67,6 @@ namespace edm {
         << "received wrong message type: expected INIT, got "
         << header->code() << "\n";
     }
-
     return header;
   }
 
@@ -83,8 +81,10 @@ namespace edm {
   void
   StreamerFileReader::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;
-    desc.addUntracked<std::vector<std::string> >("fileNames");
-    desc.addUntracked<unsigned int>("skipEvents", 0U);
+    desc.addUntracked<std::vector<std::string> >("fileNames")
+        ->setComment("Names of files to be processed.");
+    desc.addUntracked<unsigned int>("skipEvents", 0U)
+        ->setComment("Skip the first 'skipEvents' events that otherwise would have been processed.");
     desc.addUntracked<std::string>("overrideCatalog", std::string());
     //This next parameter is read in the base class, but its default value depends on the derived class, so it is set here.
     desc.addUntracked<bool>("inputFileTransitionsEachEvent", false);

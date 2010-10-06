@@ -276,14 +276,14 @@ namespace edm {
 
   void
   ConfigurableInputSource::fillDescription(ParameterSetDescription& desc) {
-    desc.addOptionalUntracked<unsigned int>("numberEventsInRun");
-    desc.addOptionalUntracked<unsigned int>("numberEventsInLuminosityBlock");
-    desc.addUntracked<unsigned int>("firstTime", 1);
-    desc.addUntracked<unsigned int>("timeBetweenEvents", kNanoSecPerSec/kAveEventPerSec);
-    desc.addUntracked<unsigned int>("eventCreationDelay", 0);
-    desc.addUntracked<unsigned int>("firstEvent", 1);
-    desc.addUntracked<unsigned int>("firstLuminosityBlock", 1);
-    desc.addUntracked<unsigned int>("firstRun", 1);
+    desc.addOptionalUntracked<unsigned int>("numberEventsInRun")->setComment("Number of events to generate in each run.");
+    desc.addOptionalUntracked<unsigned int>("numberEventsInLuminosityBlock")->setComment("Number of events to generate in each lumi.");
+    desc.addUntracked<unsigned int>("firstTime", 1)->setComment("Time before first event (ns) (for timestamp).");
+    desc.addUntracked<unsigned int>("timeBetweenEvents", kNanoSecPerSec/kAveEventPerSec)->setComment("Time between consecutive events (ns) (for timestamp).");
+    desc.addUntracked<unsigned int>("eventCreationDelay", 0)->setComment("Real time delay between generation of consecutive events (ms).");
+    desc.addUntracked<unsigned int>("firstEvent", 1)->setComment("Event number of first event to generate.");
+    desc.addUntracked<unsigned int>("firstLuminosityBlock", 1)->setComment("Luminosity block number of first lumi to generate.");
+    desc.addUntracked<unsigned int>("firstRun", 1)->setComment("Run number of first run to generate.");
     InputSource::fillDescription(desc);
   }
 

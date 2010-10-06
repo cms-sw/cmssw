@@ -668,17 +668,32 @@ namespace edm {
 
   void
   RootInputFileSequence::fillDescription(ParameterSetDescription & desc) {
-    desc.addUntracked<unsigned int>("skipEvents", 0U);
-    desc.addUntracked<bool>("noEventSort", true);
-    desc.addUntracked<bool>("skipBadFiles", false);
-    desc.addUntracked<unsigned int>("cacheSize", input::defaultCacheSize);
-    desc.addUntracked<int>("treeMaxVirtualSize", -1);
-    desc.addUntracked<unsigned int>("setRunNumber", 0U);
-    desc.addUntracked<bool>("dropDescendantsOfDroppedBranches", true);
-
+    desc.addUntracked<unsigned int>("skipEvents", 0U)
+        ->setComment("Skip the first 'skipEvents' events that otherwise would have been processed.");
+    desc.addUntracked<bool>("noEventSort", true)
+        ->setComment("True:  Process runs, lumis and events in the order they appear in the file (but see notes 1 and 2).\n"
+                     "False: Process runs, lumis and events in each file in numerical order (run#, lumi#, event#) (but see note 3).\n"
+		     "Note 1: Events within the same lumi will always be processed contiguously.\n"
+		     "Note 2: Lumis within the same run will always be processed contiguously.\n"
+		     "Note 3: Any sorting occurs independently in each input file (no sorting across input files).");
+    desc.addUntracked<bool>("skipBadFiles", false)
+        ->setComment("True:  Ignore any missing or unopenable input file.\n"
+                     "False: Throw exception if missing or unopenable input file.");
+    desc.addUntracked<unsigned int>("cacheSize", input::defaultCacheSize)
+        ->setComment("Size of ROOT TTree prefetch cache.  Affects performance.");
+    desc.addUntracked<int>("treeMaxVirtualSize", -1)
+        ->setComment("Size of ROOT TTree TBasket cache.  Affects performance.");
+    desc.addUntracked<unsigned int>("setRunNumber", 0U)
+        ->setComment("If non-zero, change number of first run to this number. Apply same offset to all runs.  Allowed only for simulation.");
+    desc.addUntracked<bool>("dropDescendantsOfDroppedBranches", true)
+        ->setComment("If True, also drop on input any descendent of any branch dropped on input.");
     std::string defaultString("permissive");
-    desc.addUntracked<std::string>("parametersMustMatch", defaultString);
-    desc.addUntracked<std::string>("branchesMustMatch", defaultString);
+    desc.addUntracked<std::string>("parametersMustMatch", defaultString)
+        ->setComment("'strict':     Values of tracked parameters must be unique across all input files.\n"
+                     "'permissive': Values of tracked parameters may differ across or within files.");
+    desc.addUntracked<std::string>("branchesMustMatch", defaultString)
+        ->setComment("'strict':     Branches in each input file must match those in the first file.\n"
+                     "'permissive': Branches in each input file may be any subset of those in the first file.");
 
     GroupSelectorRules::fillDescription(desc, "inputCommands");
     EventSkipperByID::fillDescription(desc);

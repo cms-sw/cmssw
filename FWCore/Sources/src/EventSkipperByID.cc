@@ -113,16 +113,24 @@ namespace edm {
   void
   EventSkipperByID::fillDescription(ParameterSetDescription & desc) {
 
-    desc.addUntracked<unsigned int>("firstRun", 1U);
-    desc.addUntracked<unsigned int>("firstLuminosityBlock", 0U);
-    desc.addUntracked<unsigned int>("firstEvent", 1U);
+    desc.addUntracked<unsigned int>("firstRun", 1U)
+        ->setComment("Skip any run with run number < 'firstRun'.");
+    desc.addUntracked<unsigned int>("firstLuminosityBlock", 0U)
+        ->setComment("Skip any lumi in run 'firstRun' with lumi number < 'firstLuminosityBlock'.");
+    desc.addUntracked<unsigned int>("firstEvent", 1U)
+        ->setComment("If 'firstLuminosityBlock' == 0, skip any event in run 'firstRun' with event number < 'firstEvent'.\n"
+                     "If 'firstLuminosityBlock' != 0, skip any event in lumi 'firstRun:firstLuminosityBlock' with event number < 'firstEvent'.");
 
     std::vector<LuminosityBlockRange> defaultLumis;
-    desc.addUntracked<std::vector<LuminosityBlockRange> >("lumisToSkip", defaultLumis);
-    desc.addUntracked<std::vector<LuminosityBlockRange> >("lumisToProcess", defaultLumis);
+    desc.addUntracked<std::vector<LuminosityBlockRange> >("lumisToSkip", defaultLumis)
+        ->setComment("Skip any lumi inside the specified run:lumi range.");
+    desc.addUntracked<std::vector<LuminosityBlockRange> >("lumisToProcess", defaultLumis)
+        ->setComment("If not empty, skip any lumi outside the specified run:lumi range.");
 
     std::vector<EventRange> defaultEvents;
-    desc.addUntracked<std::vector<EventRange> >("eventsToSkip", defaultEvents);
-    desc.addUntracked<std::vector<EventRange> >("eventsToProcess", defaultEvents);
+    desc.addUntracked<std::vector<EventRange> >("eventsToSkip", defaultEvents)
+        ->setComment("Skip any event inside the specified run:event or run:lumi:event range.");
+    desc.addUntracked<std::vector<EventRange> >("eventsToProcess", defaultEvents)
+        ->setComment("If not empty, skip any event outside the specified run:event or run:lumi:event range.");
   }
 }

@@ -144,8 +144,11 @@ namespace edm {
   void
   InputSource::fillDescription(ParameterSetDescription& desc) {
     std::string defaultString("RunsLumisAndEvents");
-    desc.addUntracked<std::string>("processingMode", defaultString);
-    desc.addUntracked<bool>("writeStatusFile", false);
+    desc.addUntracked<std::string>("processingMode", defaultString)->setComment(
+    "'RunsLumisAndEvents': process runs, lumis, and events.\n"
+    "'RunsAndLumis':       process runs and lumis (not events).\n"
+    "'Runs':               process runs (not lumis or events).");
+    desc.addUntracked<bool>("writeStatusFile", false)->setComment("Write a status file. Intended for use by workflow management.");
   }
 
   EventPrincipal* const

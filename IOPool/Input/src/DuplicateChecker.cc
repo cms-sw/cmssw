@@ -118,6 +118,11 @@ namespace edm {
   void
   DuplicateChecker::fillDescription(ParameterSetDescription & desc) {
     std::string defaultString("checkAllFilesOpened");
-    desc.addUntracked<std::string>("duplicateCheckMode", defaultString);
+    desc.addUntracked<std::string>("duplicateCheckMode", defaultString)->setComment(
+        "'checkAllFilesOpened':   check across all input files\n"
+        "'checkEachFile':         check each input file independently\n"
+        "'checkEachRealDataFile': check each real data input file independently\n"
+        "'noDuplicateCheck':      no duplicate checking\n"
+    );
   }
 }

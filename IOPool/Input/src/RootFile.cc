@@ -361,8 +361,6 @@ namespace edm {
           BranchDescription newBD(prod);
           newBD.updateFriendlyClassName();
           newReg->copyProduct(newBD);
-          // Need to call init to get old branch name.
-          prod.init();
           newBranchToOldBranch_.insert(std::make_pair(newBD.branchName(), prod.branchName()));
         }
       }

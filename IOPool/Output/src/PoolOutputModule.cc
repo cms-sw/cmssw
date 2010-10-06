@@ -294,19 +294,40 @@ namespace edm {
   PoolOutputModule::fillDescriptions(ConfigurationDescriptions & descriptions) {
     std::string defaultString;
     ParameterSetDescription desc;
-    desc.addUntracked<std::string>("fileName");
-    desc.addUntracked<std::string>("logicalFileName", defaultString);
-    desc.addUntracked<std::string>("catalog", defaultString);
-    desc.addUntracked<int>("maxSize", 0x7f000000);
-    desc.addUntracked<int>("compressionLevel", 7);
-    desc.addUntracked<int>("basketSize", 16384);
-    desc.addUntracked<int>("splitLevel", 99);
-    desc.addUntracked<std::string>("sortBaskets", std::string("sortbasketsbyoffset"));
-    desc.addUntracked<int>("treeMaxVirtualSize", -1);
-    desc.addUntracked<bool>("fastCloning", true);
-    desc.addUntracked<bool>("overrideInputFileSplitLevels", false);
-    desc.addUntracked<bool>("writeStatusFile", false);
-    desc.addUntracked<std::string>("dropMetaData", defaultString);
+    desc.addUntracked<std::string>("fileName")
+        ->setComment("Name of output file.");
+    desc.addUntracked<std::string>("logicalFileName", defaultString)
+        ->setComment("Passed to job report. Otherwise unused by module.");
+    desc.addUntracked<std::string>("catalog", defaultString)
+        ->setComment("Passed to job report. Otherwise unused by module.");
+    desc.addUntracked<int>("maxSize", 0x7f000000)
+        ->setComment("Maximum output file size, in kB.\n"
+                     "If over maximum, new output file will be started at next input file transition.");
+    desc.addUntracked<int>("compressionLevel", 7)
+        ->setComment("ROOT compression level of output file.");
+    desc.addUntracked<int>("basketSize", 16384)
+        ->setComment("Default ROOT basket size in output file.");
+    desc.addUntracked<int>("splitLevel", 99)
+        ->setComment("Default ROOT branch split level in output file.");
+    desc.addUntracked<std::string>("sortBaskets", std::string("sortbasketsbyoffset"))
+        ->setComment("Legal values: 'sortbasketsbyoffset', 'sortbasketsbybranch', 'sortbasketsbyentry'.\n"
+                     "Used by ROOT when fast copying. Affects performance.");
+    desc.addUntracked<int>("treeMaxVirtualSize", -1)
+        ->setComment("Size of ROOT TTree TBasket cache.  Affects performance.");
+    desc.addUntracked<bool>("fastCloning", true)
+        ->setComment("True:  Allow fast copying, if possible.\n"
+                     "False: Disable fast copying.");
+    desc.addUntracked<bool>("overrideInputFileSplitLevels", false)
+        ->setComment("False: Use branch split levels and basket sizes from input file, if possible.\n"
+                     "True:  Always use specified or default split levels and basket sizes.");
+    desc.addUntracked<bool>("writeStatusFile", false)
+        ->setComment("Write a status file. Intended for use by workflow management.");
+    desc.addUntracked<std::string>("dropMetaData", defaultString)
+        ->setComment("Determines handling of per product per event metadata.  Options are:\n"
+                     "'NONE':    Keep all of it.\n"
+                     "'DROPPED': Keep it for products produced in current process and all kept products. Drop it for dropped products produced in prior processes.\n"
+                     "'PRIOR':   Keep it for products produced in current process. Drop it for products produced in prior processes.\n"
+                     "'ALL':     Drop all of it.");
     ParameterSetDescription dataSet;
     dataSet.addUntracked<std::string>("dataTier", defaultString);
     dataSet.addUntracked<std::string>("filterName", defaultString);
