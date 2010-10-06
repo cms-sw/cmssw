@@ -158,6 +158,7 @@ int main() {
 int main() {
   return 0;
 }
-#endif
+
+#endif //  CMS_USE_SSE
 #endif
 
