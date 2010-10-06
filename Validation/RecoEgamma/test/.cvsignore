@@ -5,3 +5,4 @@ dbs_discovery.txt
 Step1*Raw_cfg.py
 Step2*Reco_cfg.py
 Step3*Histos_cfg.py
+*_driver_cfg.py
