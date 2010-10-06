@@ -15,10 +15,13 @@ genParticlesForJets.excludeResonances = False
 
 ak5GenJetsNoNu.src = "genParticlesForJets"
 iterativeCone5GenJetsNoNu.src = "genParticlesForJets"
+ak7GenJetsNoNu.src = "genParticlesForJets"
+
 
 genForPF2PATSequence = cms.Sequence(
     #MB genMetTrueSequence + 
     genJetParticles +  
     ak5GenJetsNoNu +
+    ak7GenJetsNoNu +
     iterativeCone5GenJetsNoNu
 )

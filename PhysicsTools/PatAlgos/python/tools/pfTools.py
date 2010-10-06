@@ -272,6 +272,8 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTau'), algo='IC5', postfix =
         genJetCollection = cms.InputTag('iterativeCone5GenJetsNoNu')
     elif algo == 'AK5':
         genJetCollection = cms.InputTag('ak5GenJetsNoNu')
+    elif algo == 'AK7':
+        genJetCollection = cms.InputTag('ak7GenJetsNoNu')
     else:
         print 'bad jet algorithm:', algo, '! for now, only IC5 and AK5 are allowed. If you need other algorithms, please contact Colin'
         sys.exit(1)
