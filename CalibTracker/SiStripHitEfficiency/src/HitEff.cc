@@ -123,6 +123,7 @@ void HitEff::beginJob(){
   traj->Branch("dedxNOM",&dedxNOM,"dedxNOM/I"); 
   traj->Branch("tquality",&tquality,"tquality/I");
   traj->Branch("istep",&istep,"istep/I");
+  traj->Branch("bunchx",&bunchx,"bunchx/I");
 
   events = 0;
   EventTrackCKF = 0;
@@ -142,6 +143,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 
   int run_nr = e.id().run();
   int ev_nr = e.id().event();
+  int bunch_nr = e.bunchCrossing();
 
   //CombinatoriaTrack
   edm::Handle<reco::TrackCollection> trackCollectionCKF;
@@ -472,6 +474,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 	    run = 0; event = 0; TrajLocX = 0.0; TrajLocY = 0.0; TrajLocErrX = 0.0; TrajLocErrY = 0.0; 
 	    TrajLocAngleX = -999.0; TrajLocAngleY = -999.0;	ResX = 0.0; ResXSig = 0.0;
 	    ClusterLocX = 0.0; ClusterLocY = 0.0; ClusterLocErrX = 0.0; ClusterLocErrY = 0.0; ClusterStoN = 0.0;
+	    bunchx = 0;
 	    
 	    // RPhi RecHit Efficiency 
 	    
@@ -604,6 +607,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 	      Id = iidd;
 	      run = run_nr;
 	      event = ev_nr;
+	      bunchx = bunch_nr;
 	      //if ( SiStripQuality_->IsModuleBad(iidd) ) {
 	      if ( SiStripQuality_->getBadApvs(iidd)!=0 ) {
 		SiStripQualBad = 1; 

@@ -73,7 +73,7 @@ class HitEff : public edm::EDAnalyzer {
   unsigned int ModIsBad; unsigned int Id; unsigned int SiStripQualBad; bool withinAcceptance;
   int nHits, nLostHits; 
   float p, pT, chi2;
-  unsigned int trajHitValid, run, event;
+  unsigned int trajHitValid, run, event, bunchx;
   float timeDT, timeDTErr;
   int timeDTDOF;
   float timeECAL, dedx;
