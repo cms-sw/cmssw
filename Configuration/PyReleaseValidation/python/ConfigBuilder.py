@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.238 $"
+__version__ = "$Revision: 1.239 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -737,8 +737,8 @@ class ConfigBuilder(object):
 				available.append(name.replace('ALCARECOStream',''))
 		print "The following alcas could not be found "+str(alcaList)
 		print "available ",available
-		print "verify your configuration, ignoring for now"
-		#raise Exception("The following alcas could not be found "+str(alcaList))
+		#print "verify your configuration, ignoring for now"
+		raise Exception("The following alcas could not be found "+str(alcaList))
 
     def prepare_GEN(self, sequence = None):
         """ Enrich the schedule with the generation step """
@@ -950,6 +950,7 @@ class ConfigBuilder(object):
 	
 	if (skimlist.__len__()!=0 and sequence!="all"):
 		print 'WARNING, possible typo with SKIM:'+'+'.join(skimlist)
+		raise Exception('WARNING, possible typo with SKIM:'+'+'.join(skimlist))
 
     def prepare_POSTRECO(self, sequence = None):
         """ Enrich the schedule with the postreco step """
@@ -1196,7 +1197,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
 	self.process.configurationMetadata=cms.untracked.PSet\
-					    (version=cms.untracked.string("$Revision: 1.238 $"),
+					    (version=cms.untracked.string("$Revision: 1.239 $"),
 					     name=cms.untracked.string("PyReleaseValidation"),
 					     annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
 					     )
