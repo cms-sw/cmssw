@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_8_1/GRun/V46 (CMSSW_3_8_1_HLT16)
+# /dev/CMSSW_3_8_1/GRun/V47 (CMSSW_3_8_1_HLT16)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/GRun/V46')
+  tableName = cms.string('/dev/CMSSW_3_8_1/GRun/V47')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -175,7 +175,8 @@ process.datasets = cms.PSet(
     'HLT_Mu5_MET45_v1',
     'HLT_Mu5_Photon11_Cleaned_L1R_v1',
     'HLT_Mu9' ),
-  MuMonitor = cms.vstring( 'HLT_L1DoubleMuOpen',
+  MuMonitor = cms.vstring( 'HLT_DoubleMu0',
+    'HLT_L1DoubleMuOpen',
     'HLT_L1Mu20',
     'HLT_L1Mu7_v1',
     'HLT_L1MuOpen',
@@ -231,6 +232,7 @@ process.datasets = cms.PSet(
     'HLT_DoubleIsoTau15_Trk5',
     'HLT_DoubleJet15U_ForwardBackward',
     'HLT_DoubleJet25U_ForwardBackward',
+    'HLT_DoubleMu0',
     'HLT_DoubleMu0_Quarkonium_LS_v1',
     'HLT_DoubleMu0_Quarkonium_v1',
     'HLT_DoubleMu3_v2',
@@ -394,6 +396,7 @@ process.datasets = cms.PSet(
     'HLT_DoubleIsoTau15_Trk5',
     'HLT_DoubleJet15U_ForwardBackward',
     'HLT_DoubleJet25U_ForwardBackward',
+    'HLT_DoubleMu0',
     'HLT_DoubleMu0_Quarkonium_LS_v1',
     'HLT_DoubleMu0_Quarkonium_v1',
     'HLT_DoubleMu3_v2',
@@ -554,6 +557,7 @@ process.datasets = cms.PSet(
     'HLT_DoubleIsoTau15_Trk5',
     'HLT_DoubleJet15U_ForwardBackward',
     'HLT_DoubleJet25U_ForwardBackward',
+    'HLT_DoubleMu0',
     'HLT_DoubleMu0_Quarkonium_LS_v1',
     'HLT_DoubleMu0_Quarkonium_v1',
     'HLT_DoubleMu3_v2',
@@ -2360,6 +2364,9 @@ process.PrescaleService = cms.Service( "PrescaleService",
       ),
       cms.PSet(  pathName = cms.string( "HLT_L2DoubleMu20_NoVertex_v1" ),
         prescales = cms.vuint32( 1, 0 )
+      ),
+      cms.PSet(  pathName = cms.string( "HLT_DoubleMu0" ),
+        prescales = cms.vuint32( 30, 0 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_DoubleMu0_Quarkonium_v1" ),
         prescales = cms.vuint32( 1, 0 )
@@ -6143,6 +6150,22 @@ process.hltL2DoubleMu20NoVertexL2PreFiltered = cms.EDFilter( "HLTMuonL2PreFilter
     MaxDr = cms.double( 9999.0 ),
     MaxDz = cms.double( 9999.0 ),
     MinPt = cms.double( 20.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    SaveTag = cms.untracked.bool( True )
+)
+process.hltPreDoubleMu0 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
+)
+process.hltDiMuonL3PreFiltered0 = cms.EDFilter( "HLTMuonL3PreFilter",
+    BeamSpotTag = cms.InputTag( "hltOfflineBeamSpot" ),
+    CandTag = cms.InputTag( "hltL3MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltDiMuonL2PreFiltered0" ),
+    MinN = cms.int32( 2 ),
+    MaxEta = cms.double( 2.5 ),
+    MinNhits = cms.int32( 0 ),
+    MaxDr = cms.double( 2.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    MinPt = cms.double( 0.0 ),
     NSigmaPt = cms.double( 0.0 ),
     SaveTag = cms.untracked.bool( True )
 )
@@ -14002,6 +14025,7 @@ process.hltPreDQMSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_DoubleIsoTau15_Trk5',
       'HLT_DoubleJet15U_ForwardBackward',
       'HLT_DoubleJet25U_ForwardBackward',
+      'HLT_DoubleMu0',
       'HLT_DoubleMu0_Quarkonium_LS_v1',
       'HLT_DoubleMu0_Quarkonium_v1',
       'HLT_DoubleMu3_v2',
@@ -14178,6 +14202,7 @@ process.hltPreHLTDQMSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_DoubleIsoTau15_Trk5',
       'HLT_DoubleJet15U_ForwardBackward',
       'HLT_DoubleJet25U_ForwardBackward',
+      'HLT_DoubleMu0',
       'HLT_DoubleMu0_Quarkonium_LS_v1',
       'HLT_DoubleMu0_Quarkonium_v1',
       'HLT_DoubleMu3_v2',
@@ -14364,6 +14389,7 @@ process.hltPreHLTMONSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_DoubleIsoTau15_Trk5',
       'HLT_DoubleJet15U_ForwardBackward',
       'HLT_DoubleJet25U_ForwardBackward',
+      'HLT_DoubleMu0',
       'HLT_DoubleMu0_Quarkonium_LS_v1',
       'HLT_DoubleMu0_Quarkonium_v1',
       'HLT_DoubleMu3_v2',
@@ -14533,6 +14559,7 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_DoubleIsoTau15_Trk5',
   'HLT_DoubleJet15U_ForwardBackward',
   'HLT_DoubleJet25U_ForwardBackward',
+  'HLT_DoubleMu0',
   'HLT_DoubleMu0_Quarkonium_LS_v1',
   'HLT_DoubleMu0_Quarkonium_v1',
   'HLT_DoubleMu3_v2',
@@ -14779,6 +14806,7 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_DoubleIsoTau15_Trk5',
   'HLT_DoubleJet15U_ForwardBackward',
   'HLT_DoubleJet25U_ForwardBackward',
+  'HLT_DoubleMu0',
   'HLT_DoubleMu0_Quarkonium_LS_v1',
   'HLT_DoubleMu0_Quarkonium_v1',
   'HLT_DoubleMu3_v2',
@@ -14955,6 +14983,7 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_DoubleIsoTau15_Trk5',
   'HLT_DoubleJet15U_ForwardBackward',
   'HLT_DoubleJet25U_ForwardBackward',
+  'HLT_DoubleMu0',
   'HLT_DoubleMu0_Quarkonium_LS_v1',
   'HLT_DoubleMu0_Quarkonium_v1',
   'HLT_DoubleMu3_v2',
@@ -15241,6 +15270,7 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
   'HLT_DoubleIsoTau15_Trk5',
   'HLT_DoubleJet15U_ForwardBackward',
   'HLT_DoubleJet25U_ForwardBackward',
+  'HLT_DoubleMu0',
   'HLT_DoubleMu0_Quarkonium_LS_v1',
   'HLT_DoubleMu0_Quarkonium_v1',
   'HLT_DoubleMu3_v2',
@@ -15698,6 +15728,7 @@ process.HLT_Mu20_NoVertex = cms.Path( process.HLTBeginSequence + process.hltL1sL
 process.HLT_L1DoubleMuOpen = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1DoubleMuOpen + process.hltPreL1DoubleMuOpen + process.hltDoubleMuLevel1PathL1OpenFiltered + process.HLTEndSequence )
 process.HLT_L2DoubleMu0 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1DoubleMuOpen + process.hltPreL2DoubleMu0 + process.hltDiMuonL1Filtered0 + process.HLTL2muonrecoSequence + process.hltDiMuonL2PreFiltered0 + process.HLTEndSequence )
 process.HLT_L2DoubleMu20_NoVertex_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMuOpen + process.hltPreL2DoubleMu20NoVertex + process.hltDiMuonL1Filtered0 + process.HLTL2muonrecoSequenceNoVtx + process.hltL2DoubleMu20NoVertexL2PreFiltered + process.HLTEndSequence )
+process.HLT_DoubleMu0 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1DoubleMuOpen + process.hltPreDoubleMu0 + process.hltDiMuonL1Filtered0 + process.HLTL2muonrecoSequence + process.hltDiMuonL2PreFiltered0 + process.HLTL3muonrecoSequence + process.hltDiMuonL3PreFiltered0 + process.HLTEndSequence )
 process.HLT_DoubleMu0_Quarkonium_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1DoubleMuOpen + process.hltPreDoubleMu0Quark + process.hltDiMuonL1Filtered0 + process.HLTL2muonrecoSequence + process.hltDiMuonL2PreFiltered0 + process.HLTL3muonrecoSequence + process.hltDoubleMu0QuarkoniumL3PreFiltered + process.HLTEndSequence )
 process.HLT_DoubleMu0_Quarkonium_LS_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1DoubleMuOpen + process.hltPreDoubleMu0QuarkLS + process.hltDiMuonL1Filtered0 + process.HLTL2muonrecoSequence + process.hltDiMuonL2PreFiltered0 + process.HLTL3muonrecoSequence + process.hltDoubleMu0QuarkoniumLSL3PreFiltered + process.HLTEndSequence )
 process.HLT_DoubleMu3_v2 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1DoubleMuOpen + process.hltPreDoubleMu3 + process.hltDiMuonL1Filtered0 + process.HLTL2muonrecoSequence + process.hltDiMuonL2PreFiltered0 + process.HLTL3muonrecoSequence + process.hltDiMuonL3PreFiltered3 + process.HLTEndSequence )

@@ -70,6 +70,7 @@ HLT_Mu20_NoVertex
 HLT_IsoMu11_v1
 HLT_IsoMu9
 HLT_L1DoubleMuOpen
+HLT_DoubleMu0
 HLT_DoubleMu3_v2
 HLT_DoubleMu5_v1
 HLT_DoubleMu0_Quarkonium_v1
