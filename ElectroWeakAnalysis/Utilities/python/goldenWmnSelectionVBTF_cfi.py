@@ -26,7 +26,7 @@ wmnFilter = cms.EDFilter("CandViewCountFilter",
 )
 
 # Dimuons to be vetoed
-goodMuonsForZ = cms.EDProducer("MuonViewRefSelector",
+goodMuonsForZ = cms.EDFilter("MuonViewRefSelector",
   src = cms.InputTag("muons"),
   cut = cms.string('isGlobalMuon=1 && pt>10.'),
   filter = cms.bool(True)
