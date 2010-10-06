@@ -14,7 +14,7 @@
 //
 // Original Author:  Emilia Lubenova Becheva,40 4-A24,+41227678742,
 //         Created:  Mon Sep 13 14:24:36 CEST 2010
-// $Id$
+// $Id: CompareRecHitsSumTPs.cc,v 1.1 2010/10/06 20:22:26 ebecheva Exp $
 //
 //
 
@@ -196,9 +196,10 @@ CompareRecHitsSumTPs::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     ///////////////////////////
 
     // channel status
-    edm::ESHandle<EcalChannelStatus> pChannelStatus;
+    /*edm::ESHandle<EcalChannelStatus> pChannelStatus;
     iSetup.get<EcalChannelStatusRcd>().get(pChannelStatus);
     const EcalChannelStatus *chStatus = pChannelStatus.product();
+    */
     
     std::map<unsigned int, double> mapTowerEB;
     std::map<unsigned int, double>::iterator itTTEB;
@@ -208,9 +209,7 @@ CompareRecHitsSumTPs::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
     // Get EB rechits
     edm::Handle<EcalRecHitCollection> rechitsEB; 
-    
-    bool got = iEvent.getByLabel(EcalRecHitCollectionEB_, rechitsEB);
-    
+        
     if (iEvent.getByLabel(EcalRecHitCollectionEB_, rechitsEB) ) {
 	
       // Fill the EB map with the TT rawId	
