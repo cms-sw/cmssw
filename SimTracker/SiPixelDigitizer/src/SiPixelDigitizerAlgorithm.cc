@@ -1,4 +1,4 @@
-//class SiPixelDigitizerAlgorithm SimTracker/SiPixelDigitizer/src/SiPixelDigitizerAlgoithm.cc
+//class SiPixelDigitizerAlgorithm SimTracker/SiPixelDigitizer/src/SiPixelDigitizerAlgoithm.cc 
 
 // Original Author Danek Kotlinski
 // Ported in CMSSW by  Michele Pioppi-INFN perugia
@@ -35,6 +35,7 @@
 // May, 2009: Pixel charge VCAL smearing. (V. Cuplov)
 // November, 2009: new parameterization of the pixel response. (V. Cuplov)
 // December, 2009: Fix issue with different compilers.
+// October, 2010: Improvement: Removing single dead ROC (V. Cuplov)
 
 #include <vector>
 #include <iostream>
@@ -60,8 +61,34 @@
 // Accessing dead pixel modules from the DB:
 #include "DataFormats/DetId/interface/DetId.h"
 
+#include "CondFormats/SiPixelObjects/interface/GlobalPixel.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
+#include "CondFormats/SiPixelObjects/interface/PixelROC.h"
+#include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
+#include "CondFormats/SiPixelObjects/interface/CablingPathToDetUnit.h"
+
+#include "CondFormats/SiPixelObjects/interface/SiPixelFrameReverter.h"
+#include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
+#include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+
+// Geometry
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+
+#include "CondFormats/SiPixelObjects/interface/PixelROC.h"
+
 using namespace std;
 using namespace edm;
+using namespace sipixelobjects;
 
 #define TP_DEBUG // protect all LogDebug with ifdef. Takes too much CPU
 
@@ -72,7 +99,8 @@ void SiPixelDigitizerAlgorithm::init(const edm::EventSetup& es){
   }
 
   fillDeadModules(es); // gets the dead module from config file or DB.
-  fillLorentzAngle(es); // gets the Lorentz angle from the config file or DB.  
+  fillLorentzAngle(es); // gets the Lorentz angle from the config file or DB.
+  fillMapandGeom(es);  //gets the map and geometry from the DB (to kill ROCs)  
 }
 
 //=========================================================================
@@ -99,6 +127,13 @@ void SiPixelDigitizerAlgorithm::fillLorentzAngle(const edm::EventSetup& es){
     es.get<SiPixelLorentzAngleSimRcd>().get(SiPixelLorentzAngle_);
   }
 }
+
+// For ROC killing:
+void SiPixelDigitizerAlgorithm::fillMapandGeom(const edm::EventSetup& es){
+   es.get<SiPixelFedCablingMapRcd>().get(map_);
+   es.get<TrackerDigiGeometryRecord>().get(geom_);
+}
+
 //=========================================================================
 
 SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& conf, CLHEP::HepRandomEngine& eng) :
@@ -285,7 +320,6 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
       smearedThreshold_FPix_ = new CLHEP::RandGaussQ(rndEngine, theThresholdInE_FPix , theThresholdSmearing_FPix);
       smearedThreshold_BPix_ = new CLHEP::RandGaussQ(rndEngine, theThresholdInE_BPix , theThresholdSmearing_BPix);
     }
-
     } //end Init the random number services
 
 
@@ -407,9 +441,6 @@ SiPixelDigitizerAlgorithm::~SiPixelDigitizerAlgorithm() {
   if(addNoise) delete theNoiser;
   if(fluctuateCharge) delete fluctuate;
 
-
-
-  
 }
 
 //=========================================================================
@@ -480,8 +511,6 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
       
       thePixelThreshold = thePixelThresholdInE/theNoiseInElectrons; 
       
-      //      std::cout << "digitize(): theNoiseInElectrons>0 and BPix: threshold in electrons is: " << thePixelThresholdInE << std::endl;
-      
     } else { // Forward disks modules 
       if(addThresholdSmearing) {
 	thePixelThresholdInE = smearedThreshold_FPix_->fire(); // gaussian smearing
@@ -491,7 +520,6 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
       
       thePixelThreshold = thePixelThresholdInE/theNoiseInElectrons;
       
-      //      std::cout << "digitize(): theNoiseInElectrons>0 and FPix: threshold in electrons is: " << thePixelThresholdInE << std::endl;
     }
   } else {
     thePixelThreshold = 0.;
@@ -1049,8 +1077,6 @@ void SiPixelDigitizerAlgorithm::make_digis() {
     
         float signalInElectrons = (*i).second ;   // signal in electrons
 
-	//       std::cout << "signalInElectrons = " << signalInElectrons << std::endl;
-
     // Do the miss calibration for calibration studies only.
     //if(doMissCalibrate) signalInElectrons = missCalibrate(signalInElectrons)
 
@@ -1145,8 +1171,6 @@ void SiPixelDigitizerAlgorithm::add_noise() {
 		else{
 	(*i).second +=Amplitude(noise+noise_ChargeVCALSmearing,0,-1.);
 		}
-
-		//		std::cout<< "signal after noise " << (*i).second << std::endl;
 
       } // End if addChargeVCalSmearing
 	 else
@@ -1585,33 +1609,70 @@ void SiPixelDigitizerAlgorithm::module_killing_DB(void){
       if(detid==disabledModules[id].DetID){
 	isbad=true;
         badmodule = disabledModules[id];
-	//	std::cout << "Dead module from DB is: " << detid << " and its error is: " << badmodule.errorType << std::endl;
 	break;
       }
     }
   
   if(!isbad)
     return;
-  
-  //std::cout << "2nd round: Dead module from DB is: " << detid << " and its error is: " << badmodule.errorType << std::endl;
 
-  if(badmodule.errorType == 0){
-    for(signal_map_iterator i = _signal.begin();i != _signal.end(); i++) {    
-      i->second.set(0.); // reset amplitude
+  if(badmodule.errorType == 0 || badmodule.errorType == 1 || badmodule.errorType == 2){
+
+    for(signal_map_iterator i = _signal.begin();i != _signal.end(); i++) {
+
+           if(badmodule.errorType == 0){i->second.set(0.);} // reset amplitude
+
+           if(badmodule.errorType == 1 || badmodule.errorType == 2){
+             pair<int,int> ip = PixelDigi::channelToPixel(i->first);//get pixel pos
+     
+               if(badmodule.errorType == 1 &&  ip.first>=80 && ip.first<=159){i->second.set(0.);}
+                if(badmodule.errorType == 2 && ip.first<=79){i->second.set(0.);}
+	   }
     }
   }
-  
-  
+
+  else { // if badmodule.errorType == 3
+	   // Get Bad ROC position:
+	   //follow the example of getBadRocPositions in CondFormats/SiPixelObjects/src/SiPixelQuality.cc 
+  std::vector<GlobalPixel> badrocpositions (0);
+  std::pair<uint8_t, uint8_t> coord(1,1);
+   for(unsigned int j = 0; j < 16; j++){
+     if (SiPixelBadModule_->IsRocBad(detid, j) == true){
+
+    std::vector<CablingPathToDetUnit> path = map_.product()->pathToDetUnit(detid);
+    typedef  std::vector<CablingPathToDetUnit>::const_iterator IT;
+      for  (IT it = path.begin(); it != path.end(); ++it) {
+          const PixelROC* myroc = map_.product()->findItem(*it);
+          if( myroc->idInDetUnit() == j) {
+	                  LocalPixel::RocRowCol  local = { 39, 25};   //corresponding to center of ROC row, col
+              GlobalPixel global = myroc->toGlobal( LocalPixel(local) );
+	      badrocpositions.push_back(global);
+         break;
+       }
+      }
+     }
+   }// end of getBadRocPositions
+
   for(signal_map_iterator i = _signal.begin();i != _signal.end(); i++) {    
     pair<int,int> ip = PixelDigi::channelToPixel(i->first);//get pixel pos
-    
-    if(badmodule.errorType == 1 &&  ip.first>=80 && ip.first<=159){
-      i->second.set(0.);
-    }
-    
-    if( badmodule.errorType == 2 && ip.first<=79){
-      i->second.set(0.);
-    }
+
+  for(std::vector<GlobalPixel>::const_iterator it = badrocpositions.begin(); it != badrocpositions.end(); ++it){
+    //  std::cout<<"getBadRocPositions, detidnumber: " << detid << "row is "<<it->row<<" col is "<<it->col<<std::endl;
+  if(it->row==120){
+  if((ip.first>=(it->row)-40  && ip.first<=(it->row)+39) && (ip.second>=(it->col)-25 && ip.second<=(it->col)+26)){
+		     i->second.set(0.);
+  }
+  }
+  else {
+  if((ip.first>=(it->row)-39  && ip.first<=(it->row)+40) && (ip.second>=(it->col)-25 && ip.second<=(it->col)+26)){
+		     i->second.set(0.);
+       }
+          }
   }
 
+  }
+
+  }// end error type 3 == Single dead ROC
+
 }
+

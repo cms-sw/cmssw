@@ -1,6 +1,7 @@
 #ifndef SiPixelDigitizerAlgorithm_h
 #define SiPixelDigitizerAlgorithm_h
 
+
 #include <string>
 #include <map>
 
@@ -40,6 +41,13 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
 
+#include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
+
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
 
 // For the random numbers
 namespace CLHEP {
@@ -64,6 +72,8 @@ class SiPixelDigitizerAlgorithm  {
   void init(const edm::EventSetup& es);
   void fillDeadModules(const edm::EventSetup& es);
   void fillLorentzAngle(const edm::EventSetup& es);
+  void fillMapandGeom(const edm::EventSetup& es);
+
 
  private:
   
@@ -73,7 +83,9 @@ class SiPixelDigitizerAlgorithm  {
   //Accessing Dead pixel modules from DB:
   edm::ESHandle<SiPixelQuality> SiPixelBadModule_;
 
- const SiPixelFedCabling * map_;
+  //Accessing Map and Geom:
+  edm::ESHandle<SiPixelFedCablingMap> map_;
+  edm::ESHandle<TrackerGeometry> geom_;
 
   typedef std::vector<edm::ParameterSet> Parameters;
   Parameters DeadModules;
