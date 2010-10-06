@@ -89,7 +89,7 @@ topSingleLeptonDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ## [optional] : when omitted no preselection is applied
     trigger = cms.PSet(
       src    = cms.InputTag("TriggerResults","","HLT"),
-      select = cms.vstring(['HLT_Mu9', 'HLT_Ele15_LW_L1R', 'HLT_QuadJet30'])
+      select = cms.vstring(['HLT_Mu11', 'HLT_Ele15_LW_L1R', 'HLT_QuadJet30'])
     ),
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
@@ -198,7 +198,8 @@ topSingleMuonLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       paths = cms.vstring(['HLT_Mu3:HLT_QuadJet15U',
                            'HLT_Mu5:HLT_QuadJet15U',
                            'HLT_Mu7:HLT_QuadJet15U',
-                           'HLT_Mu9:HLT_QuadJet15U'])
+                           'HLT_Mu9:HLT_QuadJet15U',
+                           'HLT_Mu11:HLT_QuadJet15U'])
     )
   ),
   ## ------------------------------------------------------
@@ -212,7 +213,7 @@ topSingleMuonLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ## [optional] : when omitted no preselection is applied
     trigger = cms.PSet(
       src    = cms.InputTag("TriggerResults","","HLT"),
-      select = cms.vstring(['HLT_Mu9'])
+      select = cms.vstring(['HLT_Mu11'])
     ),
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
@@ -360,7 +361,8 @@ topSingleMuonMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
      paths = cms.vstring(['HLT_Mu3:HLT_QuadJet15U',
                           'HLT_Mu5:HLT_QuadJet15U',
                           'HLT_Mu7:HLT_QuadJet15U',
-                          'HLT_Mu9:HLT_QuadJet15U'])      
+                          'HLT_Mu9:HLT_QuadJet15U',
+                          'HLT_Mu11:HLT_QuadJet15U'])      
     )
   ),
   ## ------------------------------------------------------
@@ -374,7 +376,7 @@ topSingleMuonMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ## [optional] : when omitted no preselection is applied
     trigger = cms.PSet(
       src    = cms.InputTag("TriggerResults","","HLT"),
-      select = cms.vstring(['HLT_Mu9'])
+      select = cms.vstring(['HLT_Mu11'])
     ),
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
