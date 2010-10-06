@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.237 $"
+__version__ = "$Revision: 1.238 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -694,31 +694,35 @@ class ConfigBuilder(object):
         """ Enrich the process with alca streams """
 	alcaConfig=self.loadDefaultOrSpecifiedCFF(sequence,self.ALCADefaultCFF)
         sequence = sequence.split('.')[-1]
+
         # decide which ALCA paths to use
-        alcaList = sequence.split("+")
+        alcaList = []
+	for specifiedCommand in sequence.split("+"):
+		if specifiedCommand[0]=="@":
+			from Configuration.PyReleaseValidation.autoAlca import autoAlca
+			location=specifiedCommand[1:]
+			alcaSequence = autoAlca[location]
+			alcaList.extend(alcaSequence.split('+'))
+		else:
+			alcaList.append(specifiedCommand)
+
         for name in alcaConfig.__dict__:
             alcastream = getattr(alcaConfig,name)
             shortName = name.replace('ALCARECOStream','')
             if shortName in alcaList and isinstance(alcastream,cms.FilteredStream):
                 self.addExtraStream(name,alcastream, workflow = workflow)
+		#rename the HLT process name in the alca modules
 		if hasattr(self._options,"hltProcess") and self._options.hltProcess:
 			if isinstance(alcastream.paths,tuple):
 				for path in alcastream.paths:
 					self.renameHLTprocessInSequence(path.label(),self._options.hltProcess)
 			else:
 				self.renameHLTprocessInSequence(alcastream.paths.label(),self._options.hltProcess)
-                alcaList.remove(shortName)
+		for i in range(alcaList.count(shortName)):
+			alcaList.remove(shortName)
 	    if isinstance(alcastream,cms.Path):
-		    #print "Path name",alcastream.label()
+		    #black list the alca path so that they do not appear in the cfg
 		    self.blacklist_paths.append(alcastream)
-	    #black list alca paths that are not used: cannot work as it is if a path is "shared" between alca
-            #elif isinstance(alcastream,cms.FilteredStream) and not shortName in alcaList:
-		    # this is an alcastream that we are not taking in. blacklist its path
-		    #if isinstance(alcastream.paths,tuple):
-			    #for path in alcastream.paths:
-				    #self.blacklist_paths.append(path)
-		    #else:
-			    #self.blacklist_paths.append(alcastream.paths)
 
             # DQM needs a special handling
             elif name == 'pathALCARECODQM' and 'DQM' in alcaList:
@@ -726,7 +730,15 @@ class ConfigBuilder(object):
                     self.schedule.append(path)
                     alcaList.remove('DQM')
         if len(alcaList) != 0:
-            raise Exception("The following alcas could not be found"+str(alcaList))
+		available=[]
+		for name in alcaConfig.__dict__:
+			alcastream = getattr(alcaConfig,name)
+			if isinstance(alcastream,cms.FilteredStream):
+				available.append(name.replace('ALCARECOStream',''))
+		print "The following alcas could not be found "+str(alcaList)
+		print "available ",available
+		print "verify your configuration, ignoring for now"
+		#raise Exception("The following alcas could not be found "+str(alcaList))
 
     def prepare_GEN(self, sequence = None):
         """ Enrich the schedule with the generation step """
@@ -907,8 +919,20 @@ class ConfigBuilder(object):
 
     def prepare_SKIM(self, sequence = "all"):
         ''' Enrich the schedule with skimming fragments'''
-	skimlist=sequence.split('+')
-	skimConfig = self.loadAndRemember(self.SKIMDefaultCFF)
+	skimConfig = self.loadDefaultOrSpecifiedCFF(sequence,self.SKIMDefaultCFF)
+	sequence = sequence.split('.')[-1]
+
+	skimlist=[]
+	## support @Mu+DiJet+@Electron configuration via autoSkim.py
+	for specifiedCommand in sequence.split('+'):
+		if specifiedCommand[0]=="@":
+			from Configuration.Skimming.autoSkim import autoSkim
+			location=specifiedCommand[1:]
+			skimSequence = autoSkim[location]
+			skimlist.extend(skimSequence.split('+'))
+		else:
+			skimlist.append(specifiedCommand)
+
 	#print "dictionnary for skims:",skimConfig.__dict__
 	for skim in skimConfig.__dict__:
 		skimstream = getattr(skimConfig,skim)
@@ -919,8 +943,11 @@ class ConfigBuilder(object):
 			self.addExtraStream(skim,skimstream)
 		elif (shortname in skimlist):
 			self.addExtraStream(skim,skimstream)
-			skimlist.remove(shortname)
-			
+			for i in range(skimlist.count(shortname)):
+				skimlist.remove(shortname)
+
+		
+	
 	if (skimlist.__len__()!=0 and sequence!="all"):
 		print 'WARNING, possible typo with SKIM:'+'+'.join(skimlist)
 
@@ -1169,7 +1196,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
 	self.process.configurationMetadata=cms.untracked.PSet\
-					    (version=cms.untracked.string("$Revision: 1.237 $"),
+					    (version=cms.untracked.string("$Revision: 1.238 $"),
 					     name=cms.untracked.string("PyReleaseValidation"),
 					     annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
 					     )
