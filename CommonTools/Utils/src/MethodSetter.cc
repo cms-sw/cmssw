@@ -12,6 +12,16 @@ using namespace Reflex;
 void MethodSetter::operator()(const char * begin, const char * end) const {
   string name(begin, end);
   string::size_type parenthesis = name.find_first_of('(');
+  if (*begin == '[' || *begin == '(') {
+    name.insert(0, "operator..");           // operator..[arg];
+    parenthesis = 10;                       //           ^--- idx = 10
+    name[8] = *begin;                       // operator[.[arg];
+    name[9] =  name[name.size()-1];         // operator[][arg];
+    name[10] = '(';                         // operator[](arg];
+    name[name.size()-1] = ')';              // operator[](arg);    
+    // we don't actually need the last two, but just for extra care
+    //std::cout << "Transformed {" << string(begin,end) << "} into {"<< name <<"}" << std::endl;
+  }
   std::vector<AnyMethodArgument> args;
   if(parenthesis != string::npos) {
     name.erase(parenthesis, name.size());

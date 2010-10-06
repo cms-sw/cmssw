@@ -26,7 +26,7 @@ namespace reco {
     int casts = 0;
     if (mem.IsConstructor()) return -1*parser::kIsConstructor;
     if (mem.IsDestructor()) return -1*parser::kIsDestructor;
-    if (mem.IsOperator()) return -1*parser::kIsOperator;
+    //if (mem.IsOperator()) return -1*parser::kIsOperator;  // no, some operators are allowed, e.g. operator[]
     if (! mem.IsPublic()) return -1*parser::kIsNotPublic;
     if (mem.IsStatic()) return -1*parser::kIsStatic;
     if ( ! mem.TypeOf().IsConst() ) return -1*parser::kIsNotConst;

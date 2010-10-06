@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         extended by Luca Lista, INFN
  *
- * \version $Revision: 1.7 $
+ * \version $Revision: 1.8 $
  *
  */
 #include "boost/spirit/include/classic_core.hpp"
@@ -82,7 +82,7 @@ namespace reco {
 						   boost::spirit::classic::same, 
 						   boost::spirit::classic::same>{  
 	typedef boost::spirit::classic::rule<ScannerT> rule;
-	rule number, var, metharg, method, term, power, factor, function1, function2, function4, expression, 
+	rule number, var, arrayAccess, metharg, method, term, power, factor, function1, function2, function4, expression, 
 	  comparison_op, binary_comp, trinary_comp,
 	  logical_combiner, logical_expression, nocond_expression, cond_expression, logical_factor, logical_term,
 	  or_op, and_op, cut, fun;
@@ -131,6 +131,7 @@ namespace reco {
 	  ExpressionFunctionSetter fun_s(self.exprStack, self.finalFunStack);
 	  //	  Abort abort_s;
 	  BOOST_SPIRIT_DEBUG_RULE(var);
+	  BOOST_SPIRIT_DEBUG_RULE(arrayAccess);
 	  BOOST_SPIRIT_DEBUG_RULE(method);
 	  BOOST_SPIRIT_DEBUG_RULE(logical_expression);
 	  BOOST_SPIRIT_DEBUG_RULE(cond_expression);
@@ -166,8 +167,9 @@ namespace reco {
 	    (lexeme_d[alpha_p >> * chset<>("a-zA-Z0-9_")] >>  
 	      ch_p('(') >> metharg >> * (ch_p(',') >> metharg ) >> expectParenthesis(ch_p(')'))) [ method_s ] |
 	    ( (lexeme_d[alpha_p >> * chset<>("a-zA-Z0-9_")]) [ method_s ] >> ! (ch_p('(') >> ch_p(')')) ) ;
+          arrayAccess = ( ch_p('[') >> metharg >> * (ch_p(',') >> metharg ) >> expectParenthesis(ch_p(']'))) [ method_s ];
 	  method = 
-	    (var >> * ((ch_p('.') >> expect(var)))) [ var_s ];
+	    (var >> * (arrayAccess | (ch_p('.') >> expect(var)))) [ var_s ];
 	  function1 = 
 	    chseq_p("abs")  [ abs_s ]  | chseq_p("acos") [ acos_s ] | chseq_p("asin") [ asin_s ] |
 	    chseq_p("atan") [ atan_s ] | chseq_p("cosh") [ cosh_s ] | chseq_p("cos") [ cos_s ] |

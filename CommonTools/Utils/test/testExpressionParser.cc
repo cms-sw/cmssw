@@ -172,7 +172,6 @@ void testExpressionParser::checkAll() {
     // these can be checked only in lazy mode
     checkCandidate("name.empty()", true, true);
     checkCandidate("roles.size()", 0, true);
-
   }
 
   std::vector<reco::LeafCandidate> cands;
@@ -245,6 +244,17 @@ void testExpressionParser::checkAll() {
     checkMuon("userIso(0)" , muon.userIso(0));
     checkMuon("userIso(1)" , muon.userIso(1));
     checkMuon("trackIsoDeposit.candEnergy", muon.trackIsoDeposit()->candEnergy());
-    checkMuon("isoDeposit('TrackIso').candEnergy", muon.isoDeposit(pat::TrackIso)->candEnergy());
+    //checkMuon("isoDeposit('TrackIso').candEnergy", muon.isoDeposit(pat::TrackIso)->candEnergy());
+  }
+  reco::CandidatePtrVector ptrOverlaps;
+  ptrOverlaps.push_back(reco::CandidatePtr(constituentsHandle, 0));
+  muon.setOverlaps("test",ptrOverlaps); 
+  CPPUNIT_ASSERT(muon.hasOverlaps("test"));
+  CPPUNIT_ASSERT(muon.overlaps("test").size() == 1);
+  CPPUNIT_ASSERT(muon.overlaps("test")[0]->pt() == c1.pt());
+  {
+    ROOT::Reflex::Type t = ROOT::Reflex::Type::ByTypeInfo(typeid(pat::Muon));
+    o = ROOT::Reflex::Object(t, & muon);
+    checkMuon("overlaps('test')[0].pt", muon.overlaps("test")[0]->pt());
   }
 }
