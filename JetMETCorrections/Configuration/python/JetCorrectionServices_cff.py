@@ -126,12 +126,13 @@ ak5PFL2L3 = cms.ESSource(
     )
 ak5JPTL2L3 = cms.ESSource(
     'JetCorrectionServiceChain',
-    correctors = cms.vstring('ak5JPTL1Offset','ak5JPTL2Relative','ak5JPTL3Absolute')
+    correctors = cms.vstring('ak5JPTL2Relative','ak5JPTL3Absolute')
     )
 ak5TrackL2L3 = cms.ESSource(
     'JetCorrectionServiceChain',
     correctors = cms.vstring('ak5TrackL2Relative','ak5TrackL3Absolute')
     )
+
 # L2L3Residual CORRECTION SERVICES
 ak5CaloL2L3Residual = cms.ESSource(
     'JetCorrectionServiceChain',
@@ -143,7 +144,7 @@ ak5PFL2L3Residual = cms.ESSource(
     )
 ak5JPTL2L3Residual = cms.ESSource(
     'JetCorrectionServiceChain',
-    correctors = cms.vstring('ak5JPTL1Offset','ak5JPTL2Relative','ak5JPTL3Absolute','ak5JPTResidual')
+    correctors = cms.vstring('ak5JPTL2Relative','ak5JPTL3Absolute','ak5JPTResidual')
     )
 
 # L1L2L3 CORRECTION SERVICES
@@ -151,14 +152,20 @@ ak5CaloL1L2L3 = ak5CaloL2L3.clone()
 ak5CaloL1L2L3.correctors.insert(0,'L1Fastjet')
 ak5PFL1L2L3 = ak5PFL2L3.clone()
 ak5PFL1L2L3.correctors.insert(0,'L1Fastjet')
-
+ak5JPTL1L2L3 = cms.ESSource(
+    'JetCorrectionServiceChain',
+    correctors = cms.vstring('ak5JPTL1Offset','ak5JPTL2Relative','ak5JPTL3Absolute')
+    )
+ak5JPTL1L2L3Residual = cms.ESSource(
+    'JetCorrectionServiceChain',
+    correctors = cms.vstring('ak5JPTL1Offset','ak5JPTL2Relative','ak5JPTL3Absolute','ak5JPTResidual')
+    )
 
 # L2L3L6 CORRECTION SERVICES
 ak5CaloL2L3L6 = ak5CaloL2L3.clone()
 ak5CaloL2L3L6.correctors.append('ak5CaloL6SLB')
 ak5PFL2L3L6 = ak5PFL2L3.clone()
 ak5PFL2L3L6.correctors.append('ak5PFL6SLB')
-
 
 # L1L2L3L6 CORRECTION SERVICES
 ak5CaloL1L2L3L6 = ak5CaloL1L2L3.clone()

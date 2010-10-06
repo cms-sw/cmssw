@@ -18,9 +18,6 @@ kt4PFL2Relative   = ak5PFL2Relative.clone  ( algorithm = 'KT4PF' )
 kt6PFL2Relative   = ak5PFL2Relative.clone  ( algorithm = 'KT6PF' )
 ic5PFL2Relative   = ak5PFL2Relative.clone  ( algorithm = 'IC5PF' )
 
-ak5JPTL2Relative = ak5CaloL2Relative.clone ( algorithm = 'AK5JPT' )
-ak5TRKL2Relative = ak5CaloL2Relative.clone ( algorithm = 'AK5TRK' )
-
 # L3 (absolute) Correction Services
 ak7CaloL3Absolute = ak5CaloL3Absolute.clone( algorithm = 'AK7Calo' )
 kt4CaloL3Absolute = ak5CaloL3Absolute.clone( algorithm = 'KT4Calo' )
@@ -183,8 +180,8 @@ ic5PFL1L2L3.correctors.insert(0,'L1Fastjet')
 
 ak5JPTL1L2L3 = ak5JPTL2L3.clone()
 ak5JPTL1L2L3.correctors.insert(0,'L1Fastjet')
-ak5TRKL1L2L3 = ak5TRKL2L3.clone()
-ak5TRKL1L2L3.correctors.insert(0,'L1Fastjet')
+ak5TrackL1L2L3 = ak5TrackL2L3.clone()
+ak5TrackL1L2L3.correctors.insert(0,'L1Fastjet')
 
 
 # L2L3L6 CORRECTION SERVICES
@@ -206,10 +203,6 @@ ak6PFL2L3L6.correctors.append('kt6PFL6SLB')
 ic5PFL2L3L6 = ic5PFL2L3.clone()
 ic5PFL2L3L6.correctors.append('ic5PFL6SLB')
 
-ak5JPTL1L2L3 = ak5JPTL2L3.clone()
-ak5JPTL1L2L3.correctors.insert(0,'L1Fastjet')
-ak5TRKL1L2L3 = ak5TRKL2L3.clone()
-ak5TRKL1L2L3.correctors.insert(0,'L1Fastjet')
 
 # L1L2L3L6 CORRECTION SERVICES
 ak7CaloL1L2L3L6 = ak7CaloL1L2L3.clone()
