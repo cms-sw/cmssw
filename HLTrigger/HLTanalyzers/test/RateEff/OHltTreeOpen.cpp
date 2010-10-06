@@ -3076,8 +3076,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }  
     }  
   }  
-
-else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_HT50U") == 0) {  
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_HT50U") == 0) {  
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
       if (prescaleResponse(menu,cfg,rcounter,it)) { 
 	if(OpenHlt1MuonPassed(3.,4.,5.,2.,0)>=1 && OpenHltSumHTPassed(50,20)>0) { 
@@ -3150,7 +3149,111 @@ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_HT50U") == 0) {
       }
     }
   }
+ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT140_Eta3_J30") == 0) { 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if(OpenHltHTJetNJPassed(140,30,3.,0.)>=1) {
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; } 
+      } 
+    } 
+  } 
 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_HT70U") == 0) { 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if(OpenHlt1ElectronHTPassed(10.,70.,20.,0.,9999.,9999.,0.5)>=1) {
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; } 
+      } 
+    } 
+  }  
+
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_HT100U") == 0) { 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if(OpenHlt1ElectronHTPassed(10.,100.,20.,0.,9999.,9999.,0.5)>=1) {
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; } 
+      } 
+    } 
+  }  
+
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_EleId_HT70U") == 0) { 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if(OpenHlt1ElectronEleIDHTPassed(10.,70.,20.,0.,9999.,9999.,0.5)>=1) {
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; } 
+      } 
+    } 
+  }  
+
+  //Not requesting Ele10+MET45, but the module exists, so the code is here in 
+  //case you want to estimate the rate
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_MET45") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if(recoMetCal>=45&&OpenHlt1ElectronPassed(10.,0.,9999.,9999.)>=1){
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; } 
+      }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu8_Ele8") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if(OpenHlt1MuonPassed(5.,5.,8.,2.,0)>=1&&OpenHlt1ElectronPassed(8.,0.,9999.,9999.)>=1){
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; } 
+      }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu11_Ele8") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if(OpenHlt1MuonPassed(9.,9.,11.,2.,0)>=1&&OpenHlt1ElectronPassed(8.,0.,9999.,9999.)>=1){
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; } 
+      }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_Ele13") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if(OpenHlt1MuonPassed(3.,4.,5.,2.,0)>=1&&OpenHlt1ElectronPassed(13.,0.,9999.,9999.)>=1){
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; } 
+      }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_Ele15") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if(OpenHlt1MuonPassed(3.,4.,5.,2.,0)>=1&&OpenHlt1ElectronPassed(15.,0.,9999.,9999.)>=1){
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; } 
+      }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_MET45x") == 0) { 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if(OpenHlt1MuonPassed(3.,4.,5.,2.,0)>=1 && recoMetCal>45) {
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; } 
+      } 
+    } 
+  } 
+  
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_HT70U") == 0) { 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if(OpenHlt1MuonPassed(3.,4.,5.,2.,0)>=1 && OpenHltSumHTPassed(70,20)>0) {
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; } 
+      } 
+    } 
+  } 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_HT100U") == 0) { 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if(OpenHlt1MuonPassed(3.,4.,5.,2.,0)>=1 && OpenHltSumHTPassed(100,20)>0) {
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; } 
+      } 
+    } 
+  } 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_Jet50U") == 0) { 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if(OpenHlt1MuonPassed(3.,4.,5.,2.,0)>=1 && OpenHlt1JetPassed(50)>=1) {
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; } 
+      } 
+    } 
+  } 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_Jet70U") == 0) { 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if(OpenHlt1MuonPassed(3.,4.,5.,2.,0)>=1 && OpenHlt1JetPassed(70)>=1) {
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; } 
+      } 
+    } 
+  } 
 
 /* Cross Triggers (approved in Jan 2009) */
 
@@ -3780,8 +3883,6 @@ int OHltTree::OpenHltElecTauL2SCPassed(float elecEt, int elecL1iso, float elecTi
   return rc;
 }
 
-
-
 int OHltTree::OpenHlt1ElectronPassed(float Et, int L1iso, float Tiso, float Hiso)
 {
   int rc = 0;
@@ -4076,9 +4177,96 @@ int OHltTree::OpenHlt2Electron1LegIdPassed(float Et,int L1iso,float Tiso,float H
       }
     }
   }
-
+  
   return rc;
 }
+
+int OHltTree::OpenHlt1ElectronHTPassed(float Et, float HT,float jetThreshold, 
+				       int L1iso, float Tiso, float Hiso, float dr)
+{
+  vector<int> PassedElectrons;
+  int NPassedEle=0;
+  for (int i=0;i<NohEle;i++) {
+    if ( ohEleEt[i] > Et) {
+      if( TMath::Abs(ohEleEta[i]) < 2.65 ) 
+	//if ( ohEleHiso[i] < Hiso || ohEleHiso[i]/ohEleEt[i] < 0.05)
+	if (ohEleHiso[i]/ohEleEt[i] < 0.15)
+	  if (ohEleNewSC[i]==1)
+	    if (ohElePixelSeeds[i]>0)
+	      if ( (ohEleTiso[i] < Tiso && ohEleTiso[i] != -999.) || (Tiso == 9999.))
+		if ( ohEleL1iso[i] >= L1iso )   // L1iso is 0 or 1
+		  if( ohEleL1Dupl[i] == false){ // remove double-counted L1 SCs  
+		    PassedElectrons.push_back(i);
+		    NPassedEle++;
+		  }
+		  
+      
+    }
+  }
+  if(NPassedEle==0) return 0;
+  
+  float sumHT=0;
+  for(int i=0;i<NrecoJetCal;i++){
+    if(recoJetCalPt[i] < jetThreshold) continue;
+    bool jetPass=true;
+    for(unsigned int iEle = 0; iEle<PassedElectrons.size(); iEle++){
+      float dphi = ohElePhi[PassedElectrons.at(iEle)] - recoJetCalPhi[i];
+      float deta = ohEleEta[PassedElectrons.at(iEle)] - recoJetCalEta[i];
+      if(dphi*dphi+deta*deta<dr*dr) // require electron not in any jet
+	jetPass=false;
+    }
+    if(jetPass)
+      sumHT+=(recoJetCalE[i]/cosh(recoJetCalEta[i]));
+  }
+  if(sumHT>HT) return 1;
+  return 0;
+}
+
+int OHltTree::OpenHlt1ElectronEleIDHTPassed(float Et, float HT,float jetThreshold, 
+				       int L1iso, float Tiso, float Hiso, float dr)
+{
+  vector<int> PassedElectrons;
+  int NPassedEle=0;
+  for (int i=0;i<NohEle;i++) {
+    if ( ohEleEt[i] > Et) {
+      if( TMath::Abs(ohEleEta[i]) < 2.65 ) 
+	//if ( ohEleHiso[i] < Hiso || ohEleHiso[i]/ohEleEt[i] < 0.05)
+	if (ohEleHiso[i]/ohEleEt[i] < 0.15)
+	  if (ohEleNewSC[i]==1)
+	    if (ohElePixelSeeds[i]>0)
+	      if ( (ohEleTiso[i] < Tiso && ohEleTiso[i] != -999.) || (Tiso == 9999.))
+		if ( ohEleL1iso[i] >= L1iso )   // L1iso is 0 or 1
+		  if ( (TMath::Abs(ohEleEta[i]) < 1.479 && ohEleClusShap[i] < 0.015) ||  
+		       (1.479 < TMath::Abs(ohEleEta[i]) && TMath::Abs(ohEleEta[i]) < 2.65 && ohEleClusShap[i] < 0.04) )   
+		    if ( (ohEleDeta[i] < 0.008) && (ohEleDphi[i] < 0.1) )  
+		      if( ohEleL1Dupl[i] == false){ // remove double-counted L1 SCs  
+			PassedElectrons.push_back(i);
+			NPassedEle++;
+		      }
+      
+      
+    }
+  }
+  if(NPassedEle==0) return 0;
+  
+  float sumHT=0;
+  for(int i=0;i<NrecoJetCal;i++){
+    if(recoJetCalPt[i] < jetThreshold) continue;
+    bool jetPass=true;
+    for(unsigned int iEle = 0; iEle<PassedElectrons.size(); iEle++){
+      float dphi = ohElePhi[PassedElectrons.at(iEle)] - recoJetCalPhi[i];
+      float deta = ohEleEta[PassedElectrons.at(iEle)] - recoJetCalEta[i];
+      if(dphi*dphi+deta*deta<dr*dr) // require electron not in any jet
+	jetPass=false;
+    }
+    if(jetPass)
+      sumHT+=(recoJetCalE[i]/cosh(recoJetCalEta[i]));
+  }
+  if(sumHT>HT) return 1;
+  return 0;
+}
+ 
+
 
 int OHltTree::OpenHlt1MuonPassed(double ptl1, double ptl2, double ptl3, double dr, int iso)
 {
@@ -5181,6 +5369,25 @@ int OHltTree::OpenHltFwdJetPassed(double esum)
   return rc;  
 }
 
+int OHltTree::OpenHltHTJetNJPassed(double HTthreshold, double jetthreshold,
+				   double etamax, int nj)
+{
+  int rc = 0,  njets=0;   
+  double sumHT = 0.;   
+
+  // Loop over all oh jets, sum up the energy  
+  for (int i=0;i<NrecoJetCal;++i) {     
+    if(recoJetCalPt[i] >= jetthreshold && fabs(recoJetCalEta[i])<etamax) { 
+      //sumHT+=recoJetCalPt[i];
+      njets++;
+      sumHT+=(recoJetCalE[i]/cosh(recoJetCalEta[i]));
+    }     
+  }      
+   
+  if(sumHT >= HTthreshold && njets>=nj) rc = 1;
+
+  return rc;    
+}
 
 int OHltTree::OpenHltMHT(double MHTthreshold, double jetthreshold)
 {

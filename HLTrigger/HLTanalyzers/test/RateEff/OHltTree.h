@@ -2662,6 +2662,9 @@ public :
   int OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold, double etajetthreshold, int Njetthreshjold) ;
   int OpenHltMHT(double MHTthreshold, double jetthreshold) ;
   int OpenHlt1PixelTrackPassed(float minpt, float minsep, float miniso);
+  int OpenHltHTJetNJPassed(double HTthreshold, double jetthreshold, double etamax, int nj);
+  int OpenHlt1ElectronHTPassed(float Et, float HT,float jetThreshold, int L1iso, float Tiso, float Hiso, float dr); 
+  int OpenHlt1ElectronEleIDHTPassed(float Et, float HT,float jetThreshold, int L1iso, float Tiso, float Hiso, float dr); 
   int readRefPrescaleFromFile(TString st); 
 
   std::map<TString, std::vector<TString> >&
