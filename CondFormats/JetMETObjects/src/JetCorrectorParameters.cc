@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: JetCorrectorParameters.cc,v 1.11 2010/09/20 08:48:40 schiefer Exp $
+// $Id: JetCorrectorParameters.cc,v 1.12 2010/10/05 14:08:25 kkousour Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -332,6 +332,7 @@ const char *
 JetCorrectorParametersCollection::labelsArray_[JetCorrectorParametersCollection::N_LEVELS] = 
   {
     "L1Offset",
+    "L1JPTOffset",
     "L2Relative",
     "L3Absolute",
     "L2L3Residual",

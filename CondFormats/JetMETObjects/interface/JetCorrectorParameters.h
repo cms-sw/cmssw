@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: JetCorrectorParameters.h,v 1.7 2010/09/14 14:09:39 srappocc Exp $
+// $Id: JetCorrectorParameters.h,v 1.8 2010/10/05 14:07:56 kkousour Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -103,6 +103,7 @@ class JetCorrectorParametersCollection {
   //--     to reduce the number of payloads in the Database ---
  public:
   enum Level_t { L1Offset,
+                 L1JPTOffset, 
 		 L2Relative,
 		 L3Absolute,
                  L2L3Residual,
