@@ -35,6 +35,8 @@
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Framework/interface/ComponentDescription.h"
+
 //
 // class decleration
 //
@@ -129,7 +131,7 @@ namespace edm {
       if(0 != rec && cacheIdentifiers_[*itrecords] != rec->cacheIdentifier() ) {
         ++iflag;
   	if(iflag==1)
-  	  LogSystem("ESContent")<<"\n"<<"Changed Record"<<"\n  "<<"<datatype>"<<" "<<"'label'"; 
+  	  LogSystem("ESContent")<<"\n"<<"Changed Record"<<"\n  "<<"<datatype>"<<" "<<"'label' provider: 'provider label' <provider module type>"; 
         cacheIdentifiers_[*itrecords] = rec->cacheIdentifier();
         LogAbsolute("ESContent")<<itrecords->name()<<std::endl;
   
@@ -137,7 +139,8 @@ namespace edm {
         LogAbsolute("ESContent")<<" end:   "<<rec->validityInterval().last().eventID()<<" time: "<<rec->validityInterval().last().time().value()<<std::endl;
         rec->fillRegisteredDataKeys(data);
         for(Data::iterator itdata = data.begin(), itdataend = data.end(); itdata != itdataend; ++itdata){
-  	LogAbsolute("ESContent")<<"  "<<itdata->type().name()<<" '"<<itdata->name().value()<<"'"<<std::endl;
+          const edm::eventsetup::ComponentDescription* cd = rec->providerDescription(*itdata);
+          LogAbsolute("ESContent")<<"  "<<itdata->type().name()<<" '"<<itdata->name().value()<<"'"<< " provider:'"<<cd->label_<<"' "<<cd->type_<<std::endl;
         }         
       }   
     }
@@ -168,6 +171,8 @@ namespace edm {
   void
   PrintEventSetupContent::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;
+    descriptions.setComment("Print what data is available in each available EventSetup Record in the job.\n"
+                            "As part of the data is the C++ class type, label and which module makes that data.");
     descriptions.add("printEventSetupContent", desc);
   }
 }
