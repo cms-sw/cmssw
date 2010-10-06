@@ -4,7 +4,7 @@ process = cms.Process("HARVESTING")
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    'file:AlcaBeamMonitorDQM_3_HLT.root ',
+    'file:AlcaBeamMonitorDQM.root ',
     ),
     processingMode = cms.untracked.string('RunsAndLumis')
 )
