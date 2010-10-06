@@ -42,7 +42,7 @@ process.printGenParticles = cms.EDAnalyzer("ParticleListDrawer",
 # WMN fast selector (use W candidates in this example)
 process.load("ElectroWeakAnalysis.WMuNu.WMuNuSelection_cff")
 # ZMM fast selector
-#process.load("ElectroWeakAnalysis.Utilities.zmmSelection_cfi")
+#process.load("ElectroWeakAnalysis.Utilities.goldenZmmSelectionVBTF_cfi")
 
 # Produce event weights according to generated boson Pt
 # Example corresponds to approximate weights to study
