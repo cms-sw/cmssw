@@ -52,7 +52,7 @@ def customise(process):
   process._Process__name="SELECTandSIM"
 
 
-  process.TFileService = cms.Service("TFileService",  fileName = cms.string("histo.root")          )
+  process.TFileService = cms.Service("TFileService",  fileName = cms.string("histo_reconstruction.root")          )
 
   process.tmfTracks = cms.EDProducer("RecoTracksMixer",
       trackCol1 = cms.InputTag("dimuonsGlobal"),
@@ -61,14 +61,28 @@ def customise(process):
 
   process.offlinePrimaryVerticesWithBS.TrackLabel = cms.InputTag("tmfTracks")
   process.offlinePrimaryVertices.TrackLabel = cms.InputTag("tmfTracks")
+  process.muons.TrackExtractorPSet.inputTrackCollection = cms.InputTag("tmfTracks")
+  try:
+  	process.metreco.remove(process.BeamHaloId)
+  except:
+  	pass
+
+  try:
+	  outputModule = process.output
+  except:
+    pass
+  try:
+	  outputModule = getattr(process,str(getattr(process,list(process.endpaths)[-1])))
+  except:
+    pass
 
   print "Changing eventcontent to AODSIM + misc "
-  process.output.outputCommands = process.AODSIMEventContent.outputCommands
+  outputModule.outputCommands = process.AODSIMEventContent.outputCommands
   keepMC = cms.untracked.vstring("keep *_*_zMusExtracted_*",
                                  "keep *_dimuonsGlobal_*_*",
                                  'keep *_generator_*_*'
   )
-  process.output.outputCommands.extend(keepMC)
+  outputModule.outputCommands.extend(keepMC)
 
   if  hasattr(process,"iterativeTracking" ) :
     process.iterativeTracking.__iadd__(process.tmfTracks)
