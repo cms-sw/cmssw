@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         extended by Luca Lista, INFN
  *
- * \version $Revision: 1.8 $
+ * \version $Revision: 1.9 $
  *
  */
 #include "boost/spirit/include/classic_core.hpp"
@@ -112,7 +112,8 @@ namespace reco {
 	    pow_s(kPow, self.funStack), sinh_s(kSinh, self.funStack), 
 	    sin_s(kSin, self.funStack), sqrt_s(kSqrt, self.funStack), tanh_s(kTanh, self.funStack), 
 	    tan_s(kTan, self.funStack),
-            deltaPhi_s(kDeltaPhi, self.funStack), deltaR_s(kDeltaR, self.funStack);
+            deltaPhi_s(kDeltaPhi, self.funStack), deltaR_s(kDeltaR, self.funStack), 
+            test_bit_s(kTestBit, self.funStack);
           FunctionSetterCommit funOk_s(self.funStack, self.finalFunStack);
 	  TrinarySelectorSetter trinary_s(self.selStack, self.cmpStack, self.exprStack);
 	  BinarySelectorSetter binary_s(self.selStack, self.cmpStack, self.exprStack);
@@ -178,7 +179,7 @@ namespace reco {
 	    chseq_p("tanh") [ tanh_s ] | chseq_p("tan") [ tan_s ];
 	  function2 = 
 	    chseq_p("atan2") [ atan2_s ] | chseq_p("chi2prob") [ chi2prob_s ] | chseq_p("pow") [ pow_s ] |
-            chseq_p("min") [ min_s ] | chseq_p("max") [ max_s ] | chseq_p("deltaPhi") [deltaPhi_s]  | chseq_p("hypot") [hypot_s];
+            chseq_p("min") [ min_s ] | chseq_p("max") [ max_s ] | chseq_p("deltaPhi") [deltaPhi_s]  | chseq_p("hypot") [hypot_s] | chseq_p("test_bit") [test_bit_s] ;
           function4 =
             chseq_p("deltaR") [deltaR_s];
 	  expression =

@@ -141,6 +141,14 @@ void testCutParser::checkAll() {
   // check trailing space
   check( "pt > 2 ", true );
 
+  // check bit tests
+  check( "test_bit(7, 0)", true  );
+  check( "test_bit(7, 2)", true  );
+  check( "test_bit(7, 3)", false );
+  check( "test_bit(4, 0)", false );
+  check( "test_bit(4, 2)", true  );
+  check( "test_bit(4, 3)", false );
+
   // check handling of errors 
   //   first those who are the same in lazy and non lazy parsing
   for (int lazy = 0; lazy <= 1; ++lazy) {

@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
  */
 #ifdef BOOST_SPIRIT_DEBUG 
@@ -18,14 +18,14 @@ namespace reco {
     enum Function { 
       kAbs, kAcos, kAsin, kAtan, kAtan2, kChi2Prob, kCos, kCosh, kExp, kHypot,
       kLog, kLog10, kMax, kMin, kPow, kSin, kSinh, kSqrt, kTan, kTanh,
-      kDeltaR, kDeltaPhi
+      kDeltaR, kDeltaPhi, kTestBit
     };
 
 #ifdef BOOST_SPIRIT_DEBUG 
   static const std::string functionNames[] = 
     { "abs", "acos", "asin", "atan", "atan2", "chi2prob", "cos", "cosh", "exp", "hypot", 
       "log", "log10", "max", "min", "pow", "sin", "sinh", "sqrt", "tan", "tanh",
-      "deltaR", "deltaPhi" };
+      "deltaR", "deltaPhi", "test_bit" };
 #endif
   }
 }

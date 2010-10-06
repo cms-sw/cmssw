@@ -31,6 +31,7 @@ namespace reco {
     struct sqrt_f { double operator()( double x ) const { return sqrt( x ); } };
     struct tan_f { double operator()( double x ) const { return tan( x ); } };
     struct tanh_f { double operator()( double x ) const { return tanh( x ); } };
+    struct test_bit_f { double operator()( double mask, double iBit ) const { return (int(mask) >> int(iBit)) & 1; } };
   }
 }
 
@@ -62,6 +63,7 @@ void ExpressionFunctionSetter::operator()( const char *, const char * ) const {
   case( kSqrt     ) : funExp.reset( new ExpressionUnaryOperator <sqrt_f >   ( expStack_ ) ); break;
   case( kTan      ) : funExp.reset( new ExpressionUnaryOperator <tan_f  >   ( expStack_ ) ); break;
   case( kTanh     ) : funExp.reset( new ExpressionUnaryOperator <tanh_f >   ( expStack_ ) ); break;
+  case( kTestBit  ) : funExp.reset( new ExpressionBinaryOperator<test_bit_f>( expStack_ ) ); break;
   };
   expStack_.push_back( funExp );
 }
