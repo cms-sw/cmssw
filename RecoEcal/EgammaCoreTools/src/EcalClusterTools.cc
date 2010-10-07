@@ -574,9 +574,9 @@ std::vector<float> EcalClusterTools::covariances(const reco::BasicCluster &clust
         }
 
         if (denominator != 0.0) {
-            covEtaEta = numeratorEtaEta / denominator;
-            covEtaPhi = numeratorEtaPhi / denominator;
-            covPhiPhi = numeratorPhiPhi / denominator;
+            covEtaEta =  numeratorEtaEta / denominator;
+            covEtaPhi =  numeratorEtaPhi / denominator;
+            covPhiPhi =  numeratorPhiPhi / denominator;
         } else {
             covEtaEta = 999.9;
             covEtaPhi = 999.9;
@@ -659,6 +659,7 @@ std::vector<float> EcalClusterTools::localCovariances(const reco::BasicCluster &
             } //end east loop
         }//end north loop
 
+
         //multiplying by crysSize to make the values compariable to normal covariances
         if (denominator != 0.0) {
             covEtaEta =  crysSize*crysSize* numeratorEtaEta / denominator;
@@ -669,6 +670,7 @@ std::vector<float> EcalClusterTools::localCovariances(const reco::BasicCluster &
             covEtaPhi = 999.9;
             covPhiPhi = 999.9;
         }
+
 
     } else {
         // Warn the user if there was no energy in the cells and return zeroes.
@@ -968,34 +970,179 @@ std::vector<float> EcalClusterTools::scLocalCovariances(const reco::SuperCluster
     return v;
 }
 
+
+// compute cluster second moments with respect to principal axes (eigenvectors of sEtaEta, sPhiPhi, sEtaPhi matrix)
+// store also angle alpha between major axis and phi.
+// takes into account shower elongation in phi direction due to magnetic field effect: 
+// default value of 0.8 ensures sMaj = sMin for unconverted photons 
+// (if phiCorrectionFactor=1 sMaj > sMin and alpha=0 also for unconverted photons)
+
+Cluster2ndMoments EcalClusterTools::cluster2ndMoments( const reco::BasicCluster &basicCluster, const EcalRecHitCollection &recHits, double phiCorrectionFactor, double w0, bool useLogWeights) {
+
+    Cluster2ndMoments returnMoments;
+    returnMoments.sMaj = -1.;
+    returnMoments.sMin = -1.;
+    returnMoments.alpha = 0.;
+
+    // for now implemented only for EB:
+    if( fabs( basicCluster.eta() ) < 1.479 ) { 
+
+        std::vector<const EcalRecHit*> RH_ptrs;
+
+        std::vector< std::pair<DetId, float> > myHitsPair = basicCluster.hitsAndFractions();
+        std::vector<DetId> usedCrystals;
+        for(unsigned int i=0; i< myHitsPair.size(); i++){
+            usedCrystals.push_back(myHitsPair[i].first);
+        }
+
+        for(unsigned int i=0; i<usedCrystals.size(); i++){
+            //get pointer to recHit object
+            EcalRecHitCollection::const_iterator myRH = recHits.find(usedCrystals[i]);
+            RH_ptrs.push_back(  &(*myRH)  );
+        }
+
+        returnMoments = EcalClusterTools::cluster2ndMoments(RH_ptrs, phiCorrectionFactor, w0, useLogWeights);
+
+    }
+
+    return returnMoments;
+
+}
+
+
+Cluster2ndMoments EcalClusterTools::cluster2ndMoments( const reco::SuperCluster &superCluster, const EcalRecHitCollection &recHits, double phiCorrectionFactor, double w0, bool useLogWeights) {
+
+    // for now returns second moments of supercluster seed cluster:
+    Cluster2ndMoments returnMoments;
+    returnMoments.sMaj = -1.;
+    returnMoments.sMin = -1.;
+    returnMoments.alpha = 0.;
+
+    // for now implemented only for EB:
+    if( fabs( superCluster.eta() ) < 1.479 ) { 
+        returnMoments = EcalClusterTools::cluster2ndMoments( *(superCluster.seed()), recHits, phiCorrectionFactor, w0, useLogWeights);
+    }
+
+    return returnMoments;
+
+}
+
+
+Cluster2ndMoments EcalClusterTools::cluster2ndMoments( std::vector<const EcalRecHit*> RH_ptrs, double phiCorrectionFactor, double w0, bool useLogWeights) {
+
+    double mid_eta,mid_phi;
+    mid_eta=mid_phi=0.;
+
+    double Etot = EcalClusterTools::getSumEnergy(  RH_ptrs  );
+
+    double max_phi=-10.;
+    double min_phi=100.;
+
+    std::vector<double> etaDetId;
+    std::vector<double> phiDetId;
+    std::vector<double> wiDetId;
+
+    int nCry=0;
+    double denominator=0.;
+
+
+    // loop over rechits and compute weights:
+    for(std::vector<const EcalRecHit*>::const_iterator rh_ptr = RH_ptrs.begin(); rh_ptr != RH_ptrs.end(); rh_ptr++){
+
+        //get iEta, iPhi
+        EBDetId temp_EBDetId( (*rh_ptr)->detid() );
+        double temp_eta=(temp_EBDetId.ieta() > 0. ? temp_EBDetId.ieta() + 84.5 : temp_EBDetId.ieta() + 85.5);
+        double temp_phi=temp_EBDetId.iphi() - 0.5;
+        double temp_ene=(*rh_ptr)->energy();
+
+        double temp_wi=((useLogWeights) ?
+                std::max(0., w0 + log( fabs(temp_ene)/Etot ))
+                :  temp_ene);
+
+        if(temp_phi>max_phi) max_phi=temp_phi;
+        if(temp_phi<min_phi) min_phi=temp_phi;
+        etaDetId.push_back(temp_eta);
+        phiDetId.push_back(temp_phi);
+        wiDetId.push_back(temp_wi);
+        denominator+=temp_wi;
+        nCry++;
+    }
+
+
+    // correct phi wrap-around:
+    if(max_phi==359.5 && min_phi==0.5){ 
+        for(int i=0; i<nCry; i++){
+            if(phiDetId[i] - 179. > 0.) phiDetId[i]-=360.; 
+            mid_phi+=phiDetId[i]*wiDetId[i];
+            mid_eta+=etaDetId[i]*wiDetId[i];
+        }
+    }
+
+    else{
+        for(int i=0; i<nCry; i++){
+            mid_phi+=phiDetId[i]*wiDetId[i];
+            mid_eta+=etaDetId[i]*wiDetId[i];
+        }
+    }
+
+    mid_eta/=denominator;
+    mid_phi/=denominator;
+
+    // See = sigma eta eta
+    // Spp = (B field corrected) sigma phi phi
+    // See = (B field corrected) sigma eta phi
+    double See=0.;
+    double Spp=0.;
+    double Sep=0.;
+
+    // compute (phi-corrected) covariance matrix:
+    for(int i=0; i<nCry; i++) {
+        See += (wiDetId[i]*(etaDetId[i]-mid_eta)*(etaDetId[i]-mid_eta)) / denominator;
+        Spp += phiCorrectionFactor*(wiDetId[i]*(phiDetId[i]-mid_phi)*(phiDetId[i]-mid_phi)) / denominator;
+        Sep += sqrt(phiCorrectionFactor)*(wiDetId[i]*(etaDetId[i]-mid_eta)*(phiDetId[i]-mid_phi)) / denominator;
+    }
+
+    Cluster2ndMoments returnMoments;
+
+    // compute matrix eigenvalues:
+    returnMoments.sMaj = ((See + Spp) + sqrt((See - Spp)*(See - Spp) + 4.*Sep*Sep)) / 2.;
+    returnMoments.sMin = ((See + Spp) - sqrt((See - Spp)*(See - Spp) + 4.*Sep*Sep)) / 2.;
+
+    returnMoments.alpha = atan( (See - Spp + sqrt( (Spp - See)*(Spp - See) + 4.*Sep*Sep )) / (2.*Sep));
+
+    return returnMoments;
+
+}
+
+
+
 //compute shower shapes: roundness and angle in a vector. Roundness is 0th element, Angle is 1st element.
 //description: uses classical mechanics inertia tensor.
 //             roundness is smaller_eValue/larger_eValue
 //             angle is the angle from the iEta axis to the smallest eVector (a.k.a. the shower's elongated axis)
-// this function uses only recHits belonging to a SC
+// this function uses only recHits belonging to a SC above energyThreshold (default 0)
 // you can select linear weighting = energy_recHit/total_energy         (weightedPositionMethod=0) default
 // or log weighting = max( 0.0, 4.2 + log(energy_recHit/total_energy) ) (weightedPositionMethod=1)
-std::vector<float> EcalClusterTools::roundnessBarrelSuperClusters( const reco::SuperCluster &superCluster ,const EcalRecHitCollection &recHits, int weightedPositionMethod){//int positionWeightingMethod=0){
+std::vector<float> EcalClusterTools::roundnessBarrelSuperClusters( const reco::SuperCluster &superCluster ,const EcalRecHitCollection &recHits, int weightedPositionMethod, float energyThreshold){//int positionWeightingMethod=0){
     std::vector<const EcalRecHit*>RH_ptrs;
-
     std::vector< std::pair<DetId, float> > myHitsPair = superCluster.hitsAndFractions();
     std::vector<DetId> usedCrystals;
     for(unsigned int i=0; i< myHitsPair.size(); i++){
         usedCrystals.push_back(myHitsPair[i].first);
     }
-
     for(unsigned int i=0; i<usedCrystals.size(); i++){
         //get pointer to recHit object
         EcalRecHitCollection::const_iterator myRH = recHits.find(usedCrystals[i]);
-        if(myRH->energy() > 0) //require rec hit to have positive energy
+        if( myRH != recHits.end() && myRH->energy() > energyThreshold){ //require rec hit to have positive energy
             RH_ptrs.push_back(  &(*myRH)  );
+        }
     }
     std::vector<float> temp = EcalClusterTools::roundnessSelectedBarrelRecHits(RH_ptrs,weightedPositionMethod); 
     return temp;
 }
 
 // this function uses all recHits within specified window ( with default values ieta_delta=2, iphi_delta=5) around SC's highest recHit.
-// recHit's not belonging to the superCluster must pass an energy threshold "energyRHThresh"
+// recHits must pass an energy threshold "energyRHThresh" (default 0)
 // you can select linear weighting = energy_recHit/total_energy         (weightedPositionMethod=0)
 // or log weighting = max( 0.0, 4.2 + log(energy_recHit/total_energy) ) (weightedPositionMethod=1)
 
@@ -1011,7 +1158,7 @@ std::vector<float> EcalClusterTools::roundnessBarrelSuperClustersUserExtended( c
     for(unsigned int i=0; i<usedCrystals.size(); i++){
         //get pointer to recHit object
         EcalRecHitCollection::const_iterator myRH = recHits.find(usedCrystals[i]);
-        if(myRH->energy() > 0) //require rec hit to have positive energy
+        if(myRH != recHits.end() && myRH->energy() > energyRHThresh)
             RH_ptrs.push_back(  &(*myRH)  );
     }
 
@@ -1020,18 +1167,23 @@ std::vector<float> EcalClusterTools::roundnessBarrelSuperClustersUserExtended( c
 
     for(EcalRecHitCollection::const_iterator rh = recHits.begin(); rh != recHits.end(); rh++){
         EBDetId EBdetIdi( rh->detid() );
+        //if(rh != recHits.end())
         bool inEtaWindow = (   abs(  deltaIEta(seedPosition[0],EBdetIdi.ieta())  ) <= ieta_delta   );
         bool inPhiWindow = (   abs(  deltaIPhi(seedPosition[1],EBdetIdi.iphi())  ) <= iphi_delta   );
         bool passEThresh = (  rh->energy() > energyRHThresh  );
         bool alreadyCounted = false;
 
         // figure out if the rechit considered now is already inside the SC
+        bool is_SCrh_inside_recHits = false;
         for(unsigned int i=0; i<usedCrystals.size(); i++){
             EcalRecHitCollection::const_iterator SCrh = recHits.find(usedCrystals[i]);
-            if(   rh->detid() == SCrh->detid()  ) alreadyCounted = true;
+            if(SCrh != recHits.end()){
+                is_SCrh_inside_recHits = true;
+                if( rh->detid() == SCrh->detid()  ) alreadyCounted = true;
+            }
         }//for loop over SC's recHits
 
-        if(  !alreadyCounted && passEThresh && inEtaWindow && inPhiWindow){
+        if( is_SCrh_inside_recHits && !alreadyCounted && passEThresh && inEtaWindow && inPhiWindow){
             RH_ptrs.push_back( &(*rh) );
         }
 
@@ -1226,5 +1378,3 @@ float EcalClusterTools::getSumEnergy(std::vector<const EcalRecHit*> RH_ptrs){
 
     return sumE;
 }
-
-
