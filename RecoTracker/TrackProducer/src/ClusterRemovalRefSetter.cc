@@ -15,8 +15,10 @@ void ClusterRemovalRefSetter::reKey(TrackingRecHit *hit) const {
     DetId detid = hit->geographicalId(); 
     uint32_t subdet = detid.subdetId();
     if ((subdet == PixelSubdetector::PixelBarrel) || (subdet == PixelSubdetector::PixelEndcap)) {
+        if (!cri_->hasPixel()) return;
         reKey(reinterpret_cast<SiPixelRecHit *>(hit), detid.rawId());
     } else {
+        if (!cri_->hasStrip()) return;
         const std::type_info &type = typeid(*hit);
         if (type == typeid(SiStripRecHit2D)) {
             reKey(reinterpret_cast<SiStripRecHit2D *>(hit), detid.rawId());
