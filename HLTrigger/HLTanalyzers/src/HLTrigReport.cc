@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/08/22 11:13:02 $
- *  $Revision: 1.13 $
+ *  $Date: 2010/10/07 00:57:03 $
+ *  $Revision: 1.14 $
  *
  *  \author Martin Grunewald
  *
@@ -38,29 +38,43 @@ HLTrigReport::HLTrigReport(const edm::ParameterSet& iConfig) :
   posL1s_(0),
   posPre_(0),
   hlNames_(0),
+  hlIndex_(0),
+  hlAccTotDS_(0),
+  datasetNames_(0),
+  datasetContents_(0),
   isCustomDatasets_(false),
+  dsIndex_(0),
+  dsAccTotS_(0),
+  streamNames_(0),
+  streamContents_(0),
   isCustomStreams_(false),
+  refPath_("HLTFinalPath"),
+  refIndex_(0),
+  refRate_(1.0),
   hltConfig_()
 {
-  if(iConfig.existsAs<edm::ParameterSet>("CustomDatasets", false)){
-    isCustomDatasets_ = true;
-    const edm::ParameterSet customDatasets = iConfig.getUntrackedParameter<edm::ParameterSet>("CustomDatasets");
+ 
+  const edm::ParameterSet customDatasets(iConfig.getUntrackedParameter<edm::ParameterSet>("CustomDatasets",edm::ParameterSet()));
+  isCustomDatasets_ = (customDatasets != edm::ParameterSet());
+  if (isCustomDatasets_) {
     datasetNames_ = customDatasets.getParameterNamesForType<std::vector<std::string> >();
     for (std::vector<std::string>::const_iterator name = datasetNames_.begin(); name != datasetNames_.end(); name++) {
       datasetContents_.push_back(customDatasets.getParameter<std::vector<std::string> >(*name));
     }
   }
-  if(iConfig.existsAs<edm::ParameterSet>("CustomStreams", false)){
-    isCustomStreams_ = true;
-    const edm::ParameterSet customStreams = iConfig.getUntrackedParameter<edm::ParameterSet>("CustomStreams");
+
+  const edm::ParameterSet customStreams (iConfig.getUntrackedParameter<edm::ParameterSet>("CustomStreams" ,edm::ParameterSet()));
+  isCustomStreams_  = (customStreams  != edm::ParameterSet());
+  if (isCustomStreams_ ) {
     streamNames_ = customStreams.getParameterNamesForType<std::vector<std::string> >();
     for (std::vector<std::string>::const_iterator name = streamNames_.begin(); name != streamNames_.end(); name++) {
       streamContents_.push_back(customStreams.getParameter<std::vector<std::string> >(*name));
     }
   }
-  refPath_ = iConfig.getUntrackedParameter<std::string>("ReferencePath", "");
-  refRate_ = iConfig.getUntrackedParameter<double>("ReferenceRate", 1.0);
-  refIndex_ = 0;
+
+  refPath_ = iConfig.getUntrackedParameter<std::string>("ReferencePath","HLTFinalPath");
+  refRate_ = iConfig.getUntrackedParameter<double>("ReferenceRate",1.0);
+  refIndex_= 0;
 
   LogDebug("HLTrigReport") << "HL TiggerResults: " + hlTriggerResults_.encode();
 }
