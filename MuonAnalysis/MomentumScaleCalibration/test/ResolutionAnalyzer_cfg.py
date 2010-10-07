@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("RESOLUTIONANALYZER")
@@ -63,9 +64,13 @@ process.ResolutionAnalyzerModule = cms.EDAnalyzer(
     # -------------------------------------------------
     ResFind = cms.vint32(0, 0, 0, 0, 0, 1),
 
-    OutputFileName = cms.untracked.string('ResolutionAnalyzer_JPsi.root'),
+    # Tree settings
+    MaxEvents = cms.uint32(-1),
+    InputTreeName = cms.string("tree.root"),
+
     # Output settings
     # ---------------
+    OutputFileName = cms.untracked.string('ResolutionAnalyzer_JPsi.root'),
     Debug = cms.untracked.bool(False),
     # Choose the kind of muons you want to run on
     # -------------------------------------------
