@@ -424,6 +424,7 @@ public :
   Int_t           L1_SingleTauJet2;
   Int_t           L1_SingleTauJet4;
   Int_t           L1_DoubleForJet10_EtaOpp;
+  Int_t           L1_Mu3_Jet6;
 
   // L1 Technical bits
   Int_t           L1Tech_BPTX_minus_v0;
@@ -635,6 +636,7 @@ public :
   Int_t           L1_SingleTauJet2_Prescl;
   Int_t           L1_SingleTauJet4_Prescl;
   Int_t           L1_DoubleForJet10_EtaOpp_Prescl;
+  Int_t           L1_Mu3_Jet6_Prescl;
 
   // L1 Technical bit prescales
   Int_t           L1Tech_BPTX_minus_v0_Prescl;
@@ -1819,6 +1821,7 @@ public :
   TBranch        *b_L1_SingleTauJet2;   //!    
   TBranch        *b_L1_SingleTauJet4;   //!    
   TBranch        *b_L1_DoubleForJet10_EtaOpp;   //!    
+  TBranch        *b_L1_Mu3_Jet6;   //!
 
   // L1 Technical bits
   TBranch        *b_L1Tech_BPTX_minus_v0;   //!
@@ -2028,6 +2031,7 @@ public :
   TBranch        *b_L1_SingleTauJet2_Prescl;   //!    
   TBranch        *b_L1_SingleTauJet4_Prescl;   //!    
   TBranch        *b_L1_DoubleForJet10_EtaOpp_Prescl;   //!    
+  TBranch        *b_L1_Mu3_Jet6_Prescl;   //!
 
   // L1 Technical bit prescales
   TBranch        *b_L1Tech_BPTX_minus_v0_Prescl;   //!
@@ -3583,6 +3587,7 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_SingleTauJet2", &L1_SingleTauJet2, &b_L1_SingleTauJet2);
   fChain->SetBranchAddress("L1_SingleTauJet4", &L1_SingleTauJet4, &b_L1_SingleTauJet4);
   fChain->SetBranchAddress("L1_DoubleForJet10_EtaOpp", &L1_DoubleForJet10_EtaOpp, &b_L1_DoubleForJet10_EtaOpp);
+  fChain->SetBranchAddress("L1_Mu3_Jet6", &L1_Mu3_Jet6, &b_L1_Mu3_Jet6);
 
   // L1 Technical bits
   fChain->SetBranchAddress("L1Tech_BPTX_minus.v0", &L1Tech_BPTX_minus_v0, &b_L1Tech_BPTX_minus_v0);
@@ -3792,6 +3797,7 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_SingleTauJet2_Prescl", &L1_SingleTauJet2_Prescl, &b_L1_SingleTauJet2_Prescl);
   fChain->SetBranchAddress("L1_SingleTauJet4_Prescl", &L1_SingleTauJet4_Prescl, &b_L1_SingleTauJet4_Prescl);
   fChain->SetBranchAddress("L1_DoubleForJet10_EtaOpp_Prescl", &L1_DoubleForJet10_EtaOpp_Prescl, &b_L1_DoubleForJet10_EtaOpp_Prescl);
+  fChain->SetBranchAddress("L1_Mu3_Jet6_Prescl", &L1_Mu3_Jet6_Prescl, &b_L1_Mu3_Jet6_Prescl);
 
   // L1 Technical bit prescales
   fChain->SetBranchAddress("L1Tech_BPTX_minus.v0_Prescl", &L1Tech_BPTX_minus_v0_Prescl, &b_L1Tech_BPTX_minus_v0_Prescl);
@@ -4690,6 +4696,7 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_SingleTauJet2", &map_BitOfStandardHLTPath["L1_SingleTauJet2"], &b_L1_SingleTauJet2); 
   fChain->SetBranchAddress("L1_SingleTauJet4", &map_BitOfStandardHLTPath["L1_SingleTauJet4"], &b_L1_SingleTauJet4); 
   fChain->SetBranchAddress("L1_DoubleForJet10_EtaOpp", &map_BitOfStandardHLTPath["L1_DoubleForJet10_EtaOpp"], &b_L1_DoubleForJet10_EtaOpp); 
+  fChain->SetBranchAddress("L1_Mu3_Jet6", &map_BitOfStandardHLTPath["L1_Mu3_Jet6"], &b_L1_Mu3_Jet6);
   fChain->SetBranchAddress("L1_BscMinBiasOR_BptxPlusORMinus", &map_BitOfStandardHLTPath["L1_BscMinBiasOR_BptxPlusORMinus"], &b_L1_BscMinBiasOR_BptxPlusORMinus);
   fChain->SetBranchAddress("L1_BscMinBiasOR_BptxPlusANDMinus", &map_BitOfStandardHLTPath["L1_BscMinBiasOR_BptxPlusANDMinus"], &b_L1_BscMinBiasOR_BptxPlusANDMinus); 
   fChain->SetBranchAddress("L1_DoubleMuTopBottom", &map_BitOfStandardHLTPath["L1_DoubleMuTopBottom"], &b_L1_DoubleMuTopBottom); 
@@ -4821,6 +4828,7 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_SingleTauJet2_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleTauJet2"], &b_L1_SingleTauJet2_Prescl); 
   fChain->SetBranchAddress("L1_SingleTauJet4_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_SingleTauJet4"], &b_L1_SingleTauJet4_Prescl); 
   fChain->SetBranchAddress("L1_DoubleForJet10_EtaOpp_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_DoubleForJet10_EtaOpp"], &b_L1_DoubleForJet10_EtaOpp_Prescl); 
+  fChain->SetBranchAddress("L1_Mu3_Jet6_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_Mu3_Jet6"], &b_L1_Mu3_Jet6_Prescl);
   fChain->SetBranchAddress("L1_BscMinBiasOR_BptxPlusORMinus_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_BscMinBiasOR_BptxPlusORMinus"], &b_L1_BscMinBiasOR_BptxPlusORMinus_Prescl); 
   fChain->SetBranchAddress("L1_BscMinBiasOR_BptxPlusANDMinus_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_BscMinBiasOR_BptxPlusANDMinus"], &b_L1_BscMinBiasOR_BptxPlusANDMinus_Prescl);  
   fChain->SetBranchAddress("L1_DoubleMuTopBottom_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_DoubleMuTopBottom"], &b_L1_DoubleMuTopBottom_Prescl); 
