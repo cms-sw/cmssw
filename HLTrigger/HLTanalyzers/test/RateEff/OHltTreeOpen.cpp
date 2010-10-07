@@ -226,6 +226,15 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }    
     }
   }
+ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet180U") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	if(OpenHlt1JetPassed(180.)>=1) {
+	  triggerBit[it] = true; 
+	}
+      }    
+    }
+  }
   //////////////// //////////////// //////////////// //////////////// ////////////////
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Jet30") == 0) {    
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
@@ -355,6 +364,30 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }
     }
   }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleJet35U_ForwardBackward") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	int rc = 0;
+	int rc1 = 0;
+	int rc2 = 0;
+	
+	// Loop over all oh jets, select events where both pT of a pair are above threshold and in HF+ and HF-
+	for (int i=0;i<NrecoJetCal;i++) {
+	  if(recoJetCalPt[i]/0.7 > 35.0 && recoJetCalEta[i] > 3.0 && recoJetCalEta[i] < 5.1) {  // Jet pT/eta cut
+	    ++rc1;
+	  }
+	  if(recoJetCalPt[i]/0.7 > 35.0 && recoJetCalEta[i] > -5.1 && recoJetCalEta[i] < -3.0) {  // Jet pT/eta cut
+	    ++rc2;
+	  }
+	}
+	if (rc1!=0 && rc2!=0) rc=1;
+	if(rc > 0)
+	  {
+	    triggerBit[it] = true; 
+	  }
+      }
+    }
+  }
   //Corrected jets
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleJet15_ForwardBackward") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
@@ -426,6 +459,15 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
       if (prescaleResponse(menu,cfg,rcounter,it)) {
 	if(OpenHltDiJetAvePassed(100.)>=1) {    
+	  triggerBit[it] = true; 
+	}
+      }    
+    }    
+  } 
+ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DiJetAve140") == 0) {    
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	if(OpenHltDiJetAvePassed(140.)>=1) {    
 	  triggerBit[it] = true; 
 	}
       }    
@@ -710,6 +752,42 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       } 
     } 
   } 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT100U_MHT45U") == 0) {   
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	if(OpenHltMHT(45., 20.)==1 && (OpenHltSumHTPassed(100., 20.) == 1)) {
+	  triggerBit[it] = true; 
+	}
+      } 
+    } 
+  } 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Meff150U") == 0) {   
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	if(OpenHltMeffU(150., 20.)==1) {
+	  triggerBit[it] = true; 
+	}
+      } 
+    } 
+  } 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Meff175U") == 0) {   
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	if(OpenHltMeffU(175., 20.)==1) {
+	  triggerBit[it] = true; 
+	}
+      } 
+    } 
+  } 
+ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_PT12U_60") == 0) {   
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	if(OpenHltPT12U(60., 50.)==1) {
+	  triggerBit[it] = true; 
+	}
+      } 
+    } 
+  } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT50U") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
@@ -737,6 +815,25 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }   
     }   
   }   
+ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT150U_Eta3") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {   
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	if(OpenHltSumHTPassed(150., 20., 3) == 1) {
+	  triggerBit[it] = true; 
+	}
+      }   
+    }   
+  }   
+ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT160U_Eta3") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {   
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	if(OpenHltSumHTPassed(160., 20., 3) == 1) {
+	  triggerBit[it] = true; 
+	}
+      }   
+    }   
+  }   
+
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT100U_JT20_Eta3_NJ2") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {   
       if (prescaleResponse(menu,cfg,rcounter,it)) {
@@ -818,7 +915,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }   
     }   
   }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT100U_JT20") == 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT100U") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {   
       if (prescaleResponse(menu,cfg,rcounter,it)) {
 	if(OpenHltSumHTPassed(100., 20.) == 1) { 
@@ -827,7 +924,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }   
     }   
   }   
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT120U_JT20") == 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT120U") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
 	if(OpenHltSumHTPassed(120., 20.) == 1) {
@@ -836,7 +933,17 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }
     }
   }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT140U_JT20") == 0) {
+ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT130U") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	if(OpenHltSumHTPassed(130., 20.) == 1) {
+	  triggerBit[it] = true; 
+	}
+      }
+    }
+  }
+ 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT140U") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
 	if(OpenHltSumHTPassed(140., 20.) == 1) {
@@ -845,7 +952,16 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }
     }
   }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT160U_JT20") == 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT150U") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	if(OpenHltSumHTPassed(150., 20.) == 1) {
+	  triggerBit[it] = true; 
+	}
+      }
+    }
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT160U") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {
       if (prescaleResponse(menu,cfg,rcounter,it)) {
 	if(OpenHltSumHTPassed(160., 20.) == 1) {
@@ -854,7 +970,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }
     }
   }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT200U_JT20") == 0) {
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_HT200U") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second>0) {   
       if (prescaleResponse(menu,cfg,rcounter,it)) {
 	if(OpenHltSumHTPassed(200., 20.) == 1) { 
@@ -935,16 +1051,14 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   }          
   else if (menu->GetTriggerName(it).CompareTo("OpenAlCa_RPCMuonNoHits") == 0) {          
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-	int rc = 0;
-	for(int i=0;i<NL1OpenMu;i++) {  
-	  if(L1OpenMuEta[i] > -1.6 && L1OpenMuEta[i] < 1.6)  
-	    if(L1OpenMuQal[i] == 6)
-	      rc++; 
-	} 
-	if(rc > 0) 
-	  triggerBit[it] = true; 
-      }
+      int rc = 0;
+      for(int i=0;i<NL1OpenMu;i++) {  
+        if(L1OpenMuEta[i] > -1.6 && L1OpenMuEta[i] < 1.6)  
+	  if(L1OpenMuQal[i] == 6)
+	    rc++; 
+      } 
+      if(rc > 0) 
+	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }         
     }          
   }  
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L1MuOpen") == 0) {         
@@ -1026,7 +1140,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }
     }
   }
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu5") == 0) {  
+ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_L2Mu5") == 0) {  
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) {
 	if(OpenHlt1MuonPassed(3.,5.,-1.,9999.,0)>=1) {  
@@ -1514,6 +1628,15 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }
     }
   }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu30_NoVertex") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	if(OpenHlt1MuonPassed(7.,15.,30.,9999.,0)>=1) {
+	  triggerBit[it] = true; 
+	}
+      }
+    }
+  }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_DoubleMu3") == 0) {   
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) {
@@ -1621,6 +1744,15 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) {
 	if(OpenHlt1MuonPassed(7.,7.,11.,2.,1)>=1) {   
+	  triggerBit[it] = true; 
+	}
+      }   
+    }   
+  } 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_IsoMu13") == 0) {   
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	if(OpenHlt1MuonPassed(7.,7.,13.,2.,1)>=1) {   
 	  triggerBit[it] = true; 
 	}
       }   
@@ -2631,7 +2763,7 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
 /* End: Taus */
 
 /* BTag */
- else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_Jet10") == 0) {
+else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_Jet10") == 0) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) {
 	int rc = 0; 
@@ -2781,6 +2913,33 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }
     }
   }  
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_DiJet30U") == 0) {  
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	int rc = 0;
+	int njets = 0;
+
+	// apply L2 cut on jets
+	for(int i = 0; i < NohBJetL2; i++)
+	  if(ohBJetL2Et[i] > 30. && abs(ohBJetL2Eta[i]) < 3.0)  // change this ET cut to 20 for the 20U patath
+	    njets++;
+
+	// apply b-tag cut
+	for(int i = 0; i < NohBJetL2; i++) {
+	  if(ohBJetL2Et[i] > 10.) { // keep this at 10 even for the 20UU path - also, no eta cut here
+	    if(ohBJetMuL25Tag[i] > 0.5) { // Level 2.5 b tag
+	      if(ohBJetPerfL3Tag[i] > 0.5) { // Level 3 b tag
+		rc++;
+	      }
+	    }
+	  }
+	}
+	if(rc >= 1 && njets>=2) {
+	  triggerBit[it] = true;
+	}
+      }
+    }
+  }  
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagIP_Jet50") == 0) {  
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) {
@@ -2841,10 +3000,6 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       } 
     }   
   }
- 
-
-
-
  
 
 /* Minbias */
@@ -2936,127 +3091,201 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
     }
   }
 
-  else if (menu->GetTriggerName(it).CompareTo("OpenAlCa_EcalPi0") == 0) { 
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
+ // else if (menu->GetTriggerName(it).CompareTo("OpenAlCa_EcalPi0") == 0) { 
+//     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
 
-	TLorentzVector gamma1; 
-	TLorentzVector gamma2; 
-	TLorentzVector meson;
-	TLorentzVector gammaiso;
+//       TLorentzVector gamma1; 
+//       TLorentzVector gamma2; 
+//       TLorentzVector meson;
+//       TLorentzVector gammaiso;
+      
+//       int rc = 0;
 
-	int rc = 0;
+//       for(int i = 0; i < Nalcapi0clusters; i++) {
+// 	for(int j = i+1;j < Nalcapi0clusters && j != i; j++) {
 
-	for(int i = 0; i < Nalcapi0clusters; i++) {
-	  for(int j = i+1;j < Nalcapi0clusters && j != i; j++) {
-	    gamma1.SetPtEtaPhiM(ohAlcapi0ptClusAll[i],ohAlcapi0etaClusAll[i],ohAlcapi0phiClusAll[i],0.0);
-	    gamma2.SetPtEtaPhiM(ohAlcapi0ptClusAll[j],ohAlcapi0etaClusAll[j],ohAlcapi0phiClusAll[j],0.0);
-	    meson = gamma1 + gamma2;
-
-	    float mesonpt = meson.Pt(); 
-	    float mesoneta = meson.Eta(); 
-	    float mesonmass = meson.M(); 
-
-	    float iso = 0.0;
-	    float dr = 0.0;
-	    float deta = 0.0;
-	    for(int k = 0;k < Nalcapi0clusters && k != i && k != j; k++) { 
-	      gammaiso.SetPtEtaPhiM(ohAlcapi0ptClusAll[k],ohAlcapi0etaClusAll[k],ohAlcapi0phiClusAll[k],0.0);
-	      dr = gammaiso.DeltaR(meson);
-	      deta = TMath::Abs(ohAlcapi0etaClusAll[k] - mesoneta);
-
-	      if((dr < 0.2) && (deta < 0.05)) {
-		iso = iso + ohAlcapi0ptClusAll[k];
-	      }
-	    }
+// 	  //if one is in barrel, the other one is in endcap, check next pair 
+// 	  if( (TMath::Abs(ohAlcapi0etaClusAll[i]) < 1.479 && TMath::Abs(ohAlcapi0etaClusAll[j]) > 1.479	    )
+// 	      || (TMath::Abs(ohAlcapi0etaClusAll[i]) > 1.479 && TMath::Abs(ohAlcapi0etaClusAll[j]) < 1.479  )
+// 	      ){
+// 	    continue; 
+// 	  }
 	  
-	    if(TMath::Abs(ohAlcapi0etaClusAll[i]) < 1.479 && TMath::Abs(ohAlcapi0etaClusAll[j]) < 1.479) {  
-	      //pi0 barrel
-	      if(ohAlcapi0ptClusAll[i] > 1.0 && ohAlcapi0ptClusAll[j] > 1.0 && 
-		 ohAlcapi0s4s9ClusAll[i] > 0.83 && ohAlcapi0s4s9ClusAll[j] > 0.83 &&  
-		 iso < 0.5 &&  
-		 mesonpt > 2.0 && 
-		 mesonmass > 0.06 && mesonmass < 0.22) 
-		rc++; 
-	    }
-	    if(TMath::Abs(ohAlcapi0etaClusAll[i]) > 1.479 && TMath::Abs(ohAlcapi0etaClusAll[j]) > 1.479)  {   
-	      //pi0 endcap  
-	      if(ohAlcapi0ptClusAll[i] > 0.8 && ohAlcapi0ptClusAll[j] > 0.8 && 
-		 ohAlcapi0s4s9ClusAll[i] > 0.9 && ohAlcapi0s4s9ClusAll[j] > 0.9 &&  
-		 iso < 0.5 && 
-		 mesonpt > 3.0 && 
-		 mesonmass > 0.05 && mesonmass < 0.3) 
-		rc++; 
-	    }
-	  }
-	}
-	if(rc > 0) {
-	  triggerBit[it] = true; 
-	}
-      }
-    } 
-  } 
 
-  else if (menu->GetTriggerName(it).CompareTo("OpenAlCa_EcalEta") == 0) {  
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
+// 	  gamma1.SetPtEtaPhiM(ohAlcapi0ptClusAll[i],ohAlcapi0etaClusAll[i],ohAlcapi0phiClusAll[i],0.0);
+// 	  gamma2.SetPtEtaPhiM(ohAlcapi0ptClusAll[j],ohAlcapi0etaClusAll[j],ohAlcapi0phiClusAll[j],0.0);
+// 	  meson = gamma1 + gamma2;
+	  
+//           float mesonpt = meson.Pt(); 
+//           float mesoneta = meson.Eta(); 
+//           float mesonmass = meson.M(); 
+
+// 	  float iso = 0.0;
+// 	  float dr = 0.0;
+// 	  float deta = 0.0;
+	  
+	  
+// 	  for(int k = 0;k < Nalcapi0clusters && k != i && k != j; k++) { 
+// 	    gammaiso.SetPtEtaPhiM(ohAlcapi0ptClusAll[k],ohAlcapi0etaClusAll[k],ohAlcapi0phiClusAll[k],0.0);
+// 	    dr = gammaiso.DeltaR(meson);
+// 	    deta = TMath::Abs(ohAlcapi0etaClusAll[k] - mesoneta);
+	    
+// 	    if((dr < 0.2) && (deta < 0.05) && ohAlcapi0ptClusAll[k] > 0.5 ) {
+// 	      iso = iso + ohAlcapi0ptClusAll[k];
+// 	    }
+// 	  }
+// 	  iso /= mesonpt; 
+	  
+// 	  if(TMath::Abs(ohAlcapi0etaClusAll[i]) < 1.479 && TMath::Abs(ohAlcapi0etaClusAll[j]) < 1.479) {  
+// 	    //pi0 barrel
+// 	    if(ohAlcapi0ptClusAll[i] > 1.3 && ohAlcapi0ptClusAll[j] > 1.3 && 
+// 	       ohAlcapi0s4s9ClusAll[i] > 0.83 && ohAlcapi0s4s9ClusAll[j] > 0.83 &&  
+// 	       iso < 0.5 &&  
+// 	       mesonpt > 2.6 && 
+// 	       mesonmass > 0.04 && mesonmass < 0.23) 
+// 	      rc++; 
+// 	  }
+// 	  if(TMath::Abs(ohAlcapi0etaClusAll[i]) > 1.479 && TMath::Abs(ohAlcapi0etaClusAll[j]) > 1.479)  {   
+	    
+// 	    if( ohAlcapi0s4s9ClusAll[i] > 0.9 && ohAlcapi0s4s9ClusAll[j] > 0.9 && iso <0.5 && 
+// 		mesonmass > 0.05 && mesonmass < 0.3){
+	      
+// 	      if( (fabs(mesoneta)<2.0 && ohAlcapi0ptClusAll[i] > 0.6 && ohAlcapi0ptClusAll[j] >0.6 && mesonpt > 2.5) ||
+// 		  (fabs(mesoneta)>2.0 && fabs(mesoneta)<2.5 && ohAlcapi0ptClusAll[i] > 0.6 && ohAlcapi0ptClusAll[j] >0.6 && mesonpt > 2.5) ||
+// 		  (fabs(mesoneta)>2.5 && ohAlcapi0ptClusAll[i] > 0.5 && ohAlcapi0ptClusAll[j] >0.5 && mesonpt >1.0 && mesonpt < 2.5) ){
+// 		rc ++; 
+// 	      }
+// 	    }
+// 	  }//pi0 endcap
+	  
+// 	}
+//       }
+      
+//       if(rc > 0) {
+// 	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }          
+//       }
+//     } 
+//   } 
+
+//   else if (menu->GetTriggerName(it).CompareTo("OpenAlCa_EcalEta") == 0) {  
+//     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      
+      
+//       TLorentzVector gamma1;  
+//       TLorentzVector gamma2;  
+//       TLorentzVector meson; 
+//       TLorentzVector gammaiso;
+      
+//       ///pi0 veto only for barrel 
+//       std::vector<int> indpi0cand; 
+//       for(int i = 0; i < Nalcapi0clusters; i++) { 
+
+// 	if(  TMath::Abs(ohAlcapi0etaClusAll[i]) > 1.479) continue; 
+
+//         for(int j = i+1;j < Nalcapi0clusters && j != i; j++) { 
+// 	  if( TMath::Abs(ohAlcapi0etaClusAll[j]) > 1.479  )  continue; 
+	  
+// 	  gamma1.SetPtEtaPhiM(ohAlcapi0ptClusAll[i],ohAlcapi0etaClusAll[i],ohAlcapi0phiClusAll[i],0.0); 
+//           gamma2.SetPtEtaPhiM(ohAlcapi0ptClusAll[j],ohAlcapi0etaClusAll[j],ohAlcapi0phiClusAll[j],0.0); 
+//           meson = gamma1 + gamma2; 	  
+// 	  float mesonmass = meson.M(); 
+	  
+// 	  if( mesonmass > 0.084 && mesonmass < 0.156){
+	    
+// 	    int tmp[2] = {i,j};
+// 	    for(int n=0; n<2; n++){
+// 	      vector<int>::iterator it = find(indpi0cand.begin(),indpi0cand.end(),tmp[n]); 
+// 	      if( it == indpi0cand.end()){
+// 		indpi0cand.push_back(tmp[n]);
+// 	      }
+// 	    }
+// 	  }
+	  
+// 	}
+//       }
+            
+      
+//       int rc = 0; 
  
-	TLorentzVector gamma1;  
-	TLorentzVector gamma2;  
-	TLorentzVector meson; 
-	TLorentzVector gammaiso;
+//       for(int i = 0; i < Nalcapi0clusters; i++) { 
 
-	int rc = 0; 
- 
-	for(int i = 0; i < Nalcapi0clusters; i++) { 
-	  for(int j = i+1;j < Nalcapi0clusters && j != i; j++) { 
-	    gamma1.SetPtEtaPhiM(ohAlcapi0ptClusAll[i],ohAlcapi0etaClusAll[i],ohAlcapi0phiClusAll[i],0.0); 
-	    gamma2.SetPtEtaPhiM(ohAlcapi0ptClusAll[j],ohAlcapi0etaClusAll[j],ohAlcapi0phiClusAll[j],0.0); 
-	    meson = gamma1 + gamma2; 
-	    float mesonpt = meson.Pt(); 
-	    float mesoneta = meson.Eta(); 
-	    float mesonmass = meson.M(); 
+// 	if(TMath::Abs(ohAlcapi0etaClusAll[i]) < 1.479){
+// 	  vector<int>::iterator it = find(indpi0cand.begin(),indpi0cand.end(),i); 
+// 	  if( it != indpi0cand.end() ) continue; 
+// 	}
+	
+	
+//         for(int j = i+1;j < Nalcapi0clusters && j != i; j++) { 
 
-	    float iso = 0.0; 
-	    float dr = 0.0; 
-	    float deta = 0.0; 
-	    for(int k = 0;k < Nalcapi0clusters && k != i && k != j; k++) {  
-	      gammaiso.SetPtEtaPhiM(ohAlcapi0ptClusAll[k],ohAlcapi0etaClusAll[k],ohAlcapi0phiClusAll[k],0.0); 
-	      dr = gammaiso.DeltaR(meson); 
-	      deta = TMath::Abs(ohAlcapi0etaClusAll[k] - mesoneta); 
-                   
-	      if((dr < 0.3) && (deta < 0.1)) { 
-		iso = iso + ohAlcapi0ptClusAll[k]; 
-	      } 
-	    } 
+// 	  if(TMath::Abs(ohAlcapi0etaClusAll[j]) < 1.479){
+// 	    vector<int>::iterator it = find(indpi0cand.begin(),indpi0cand.end(),j); 
+// 	    if( it != indpi0cand.end() ) continue; 
+// 	  }
+	  
+// 	  //if one is in barrel, the other one is in endcap, check next pair 
+// 	  if( (TMath::Abs(ohAlcapi0etaClusAll[i]) < 1.479 && TMath::Abs(ohAlcapi0etaClusAll[j]) > 1.479	    )
+// 	      || (TMath::Abs(ohAlcapi0etaClusAll[i]) > 1.479 && TMath::Abs(ohAlcapi0etaClusAll[j]) < 1.479  )
+// 	      ){
+// 	    continue; 
+// 	  }
+	  
+	  
+// 	  gamma1.SetPtEtaPhiM(ohAlcapi0ptClusAll[i],ohAlcapi0etaClusAll[i],ohAlcapi0phiClusAll[i],0.0); 
+//           gamma2.SetPtEtaPhiM(ohAlcapi0ptClusAll[j],ohAlcapi0etaClusAll[j],ohAlcapi0phiClusAll[j],0.0); 
+//           meson = gamma1 + gamma2; 
+//           float mesonpt = meson.Pt(); 
+//           float mesoneta = meson.Eta(); 
+//           float mesonmass = meson.M(); 
 
-	    if(TMath::Abs(ohAlcapi0etaClusAll[i]) < 1.479 && TMath::Abs(ohAlcapi0etaClusAll[j]) < 1.479) { 
-	      //eta barrel  
-	      if(ohAlcapi0ptClusAll[i] > 1.2 && ohAlcapi0ptClusAll[j] > 1.2 &&    
-		 ohAlcapi0s4s9ClusAll[i] > 0.9 && ohAlcapi0s4s9ClusAll[j] > 0.9 &&     
-		 dr > 0.3 && deta > 0.1 &&    
-		 mesonpt > 4.0 &&    
-		 mesonmass > 0.3 && mesonmass < 0.8)    
-		rc++;    
-	    } 
-	    if(TMath::Abs(ohAlcapi0etaClusAll[i]) > 1.479 && TMath::Abs(ohAlcapi0etaClusAll[j]) > 1.479) {  
-	      //eta endcap   
-	      if(ohAlcapi0ptClusAll[i] > 1.5 && ohAlcapi0ptClusAll[j] > 1.5 &&     
-		 ohAlcapi0s4s9ClusAll[i] > 0.9 && ohAlcapi0s4s9ClusAll[j] > 0.9 &&      
-		 dr > 0.3 && deta > 0.1 &&     
-		 mesonpt > 5.0 &&     
-		 mesonmass > 0.3 && mesonmass < 0.8)     
-		rc++;     
-	    }
-	  } 
-	}
-	if(rc > 0) { 
-	  triggerBit[it] = true; 
-	}
-      } 
-    }  
-  }
-
+//           float iso = 0.0; 
+//           float dr = 0.0; 
+//           float deta = 0.0; 
+//           for(int k = 0;k < Nalcapi0clusters && k != i && k != j; k++) {  
+//             gammaiso.SetPtEtaPhiM(ohAlcapi0ptClusAll[k],ohAlcapi0etaClusAll[k],ohAlcapi0phiClusAll[k],0.0); 
+//             dr = gammaiso.DeltaR(meson); 
+//             deta = TMath::Abs(ohAlcapi0etaClusAll[k] - mesoneta); 
+// 	    if((dr < 0.3) && (deta < 0.1) && ohAlcapi0ptClusAll[k] > 0.5 ) {  
+//               iso = iso + ohAlcapi0ptClusAll[k]; 
+//             } 
+//           } 
+// 	  iso /= mesonpt; 
+	  
+	  
+// 	  if(TMath::Abs(ohAlcapi0etaClusAll[i]) < 1.479 && TMath::Abs(ohAlcapi0etaClusAll[j]) < 1.479) { 
+// 	    //eta barrel  
+// 	    if(ohAlcapi0ptClusAll[i] > 1.2 && ohAlcapi0ptClusAll[j] > 1.2 &&    
+//                ohAlcapi0s4s9ClusAll[i] > 0.87 && ohAlcapi0s4s9ClusAll[j] > 0.87 &&     
+// 	       ohAlcapi0s9s25ClusAll[i] > 0.8 && ohAlcapi0s9s25ClusAll[j] > 0.8 &&     
+// 	       iso < 0.5 && 
+//                mesonpt > 4.0 &&    
+// 	       mesonmass > 0.3 && mesonmass < 0.8)    
+// 	      rc++;    
+// 	  } 
+	  
+// 	  //eta endcap
+// 	  if(TMath::Abs(ohAlcapi0etaClusAll[i]) > 1.479 && TMath::Abs(ohAlcapi0etaClusAll[j]) > 1.479) {  
+	    
+// 	    if( ohAlcapi0s4s9ClusAll[i] > 0.9 && ohAlcapi0s4s9ClusAll[j] > 0.9 && iso <0.5 && 
+// 		ohAlcapi0s9s25ClusAll[i] > 0.85 && ohAlcapi0s9s25ClusAll[j] > 0.85 &&
+// 		mesonmass > 0.2 && mesonmass < 0.9){
+	      
+// 	      if( (fabs(mesoneta)<2.0 && ohAlcapi0ptClusAll[i] > 1.0 && ohAlcapi0ptClusAll[j] >1.0 && mesonpt > 3.0 ) ||
+// 		  (fabs(mesoneta)>2.0 && fabs(mesoneta)<2.5 && ohAlcapi0ptClusAll[i] > 1.0 && ohAlcapi0ptClusAll[j] >1.0 && mesonpt > 3.0) ||
+// 		  (fabs(mesoneta)>2.5 && ohAlcapi0ptClusAll[i] > 0.7 && ohAlcapi0ptClusAll[j] >0.7 && mesonpt > 3.0) ){
+// 		rc ++; 
+// 	      }
+// 	    }
+	    
+// 	  }
+// 	} 
+//       }
+//       if(rc > 0) { 
+// 	if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }           
+//       } 
+//     }  
+//   }
+  
+  
 /* New cross-triggers, Sept. 2010 */
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele10_MET45") == 0) {  
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
@@ -3130,10 +3359,28 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }  
     }  
   }  
+ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_Jet50U") == 0) {  
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	if(OpenHlt1MuonPassed(3.,4.,5.,2.,0)>=1 && OpenHlt1JetPassed(50)>=1) { 
+	  triggerBit[it] = true; 
+	}  
+      }  
+    }  
+  }  
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_MET45_HT100U") == 0) {  
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
       if (prescaleResponse(menu,cfg,rcounter,it)) { 
 	if(OpenHltSumHTPassed(100,20)>=1 && recoMetCal>=45) { 
+	  triggerBit[it] = true; 
+	}  
+      }  
+    }  
+  }  
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_MET45_HT120U") == 0) {  
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
+      if (prescaleResponse(menu,cfg,rcounter,it)) { 
+	if(OpenHltSumHTPassed(120,20)>=1 && recoMetCal>=45) { 
 	  triggerBit[it] = true; 
 	}  
       }  
@@ -3342,6 +3589,22 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }
     }  
   } 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu7_Photon11_L1R") == 0){ 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	if(OpenHlt1MuonPassed(5.,5.,7.,2.,0)>=1 && OpenHlt1PhotonPassed(11.,0,9999.,9999.,9999.,9999.)>=1) 
+	  triggerBit[it] = true; 
+      }
+    }  
+  } 
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu7_Photon13_L1R") == 0){ 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	if(OpenHlt1MuonPassed(5.,5.,7.,2.,0)>=1 && OpenHlt1PhotonPassed(13.,0,9999.,9999.,9999.,9999.)>=1) 
+	  triggerBit[it] = true; 
+      }
+    }  
+  } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu5_Ele9") == 0){ 
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
       if (prescaleResponse(menu,cfg,rcounter,it)) {
@@ -3358,7 +3621,15 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
       }
     }  
   } 
-
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu7_Ele9") == 0){ 
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+	if(OpenHlt1MuonPassed(5.,5.,7.,2.,0)>=1 && OpenHlt1ElectronPassed(9.,0,9999.,9999.)>=1)
+	  triggerBit[it] = true; 
+      }
+    }  
+  } 
+ 
 // Exotica mu + e/gamma, mu + jet, and mu + MET L1-passthrough cross-triggers
   else if(menu->GetTriggerName(it).CompareTo("OpenHLT_L1Mu14_L1SingleEG10") == 0){
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
@@ -5406,6 +5677,45 @@ int OHltTree::OpenHltMHT(double MHTthreshold, double jetthreshold)
   //std::cout << "sqrt(mhtx*mhtx+mhty*mhty) = " << sqrt(mhtx*mhtx+mhty*mhty) << std::endl;
   return rc;  
 }
+int OHltTree::OpenHltMHTU(double MHTthreshold, double jetthreshold)
+{
+  int rc = 0; 
+  double mhtx=0., mhty=0.;
+  for (int i=0;i<NrecoJetCal;++i)
+  {     
+    if(recoJetCalPt[i] >= jetthreshold)
+    { 
+      mhtx-=recoJetCalPt[i]*cos(recoJetCalPhi[i]);   
+      mhty-=recoJetCalPt[i]*sin(recoJetCalPhi[i]);   
+    }     
+  }
+  if (sqrt(mhtx*mhtx+mhty*mhty)>MHTthreshold) rc = 1;
+  else rc = 0; 
+  //std::cout << "sqrt(mhtx*mhtx+mhty*mhty) = " << sqrt(mhtx*mhtx+mhty*mhty) << std::endl;
+  return rc;  
+}
+
+int OHltTree::OpenHltPT12U(double PT12threshold, double jetthreshold)
+{
+  int rc = 0; 
+  int njets = 0;
+  double pt12tx=0., pt12ty=0.;
+  for (int i=0;i<NrecoJetCal;++i)
+  {     
+    if((recoJetCalPt[i] >= jetthreshold) && (fabs(recoJetCalEta[i]) <3))
+    { 
+      njets++;
+      if (njets<3){
+      pt12tx-=recoJetCalPt[i]*cos(recoJetCalPhi[i]);   
+      pt12ty-=recoJetCalPt[i]*sin(recoJetCalPhi[i]);
+      }   
+    }     
+  }
+  if ((njets >= 2) && (sqrt(pt12tx*pt12tx+pt12ty*pt12ty)>PT12threshold)) rc = 1;
+  else rc = 0; 
+  //std::cout << "sqrt(mhtx*mhtx+mhty*mhty) = " << sqrt(mhtx*mhtx+mhty*mhty) << std::endl;
+  return rc;  
+}
 
 int OHltTree::OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold) 
 { 
@@ -5426,6 +5736,36 @@ int OHltTree::OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold)
 
   return rc;    
 } 
+
+int OHltTree::OpenHltMeffU(double Meffthreshold, double jetthreshold)
+{
+  int rc = 0; 
+  //MHT
+  double mhtx=0., mhty=0.;
+  for (int i=0;i<NrecoJetCal;++i)
+  {     
+    if(recoJetCalPt[i] >= jetthreshold)
+    { 
+      mhtx-=recoJetCalPt[i]*cos(recoJetCalPhi[i]);   
+      mhty-=recoJetCalPt[i]*sin(recoJetCalPhi[i]);   
+    }     
+  }
+  //HT
+  double sumHT = 0.;   
+  // Loop over all oh jets, sum up the energy  
+  for (int i=0;i<NrecoJetCal;++i) {     
+    if(recoJetCalPt[i] >= jetthreshold) { 
+      //sumHT+=recoJetCorCalPt[i];
+
+      sumHT+=(recoJetCalE[i]/cosh(recoJetCalEta[i]));
+    }     
+  }      
+   
+  if (sqrt(mhtx*mhtx+mhty*mhty)+sumHT>Meffthreshold) rc = 1;
+  else rc = 0; 
+  //std::cout << "sqrt(mhtx*mhtx+mhty*mhty) = " << sqrt(mhtx*mhtx+mhty*mhty) << std::endl;
+  return rc;  
+}
 
 int OHltTree::OpenHltSumHTPassed(double sumHTthreshold, double jetthreshold, double etajetthreshold) 
 { 
