@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_8_1/GRun/V47 (CMSSW_3_8_1_HLT16)
+# /dev/CMSSW_3_8_1/GRun/V48 (CMSSW_3_8_1_HLT16)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/GRun/V47')
+  tableName = cms.string('/dev/CMSSW_3_8_1/GRun/V48')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -2261,7 +2261,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 1, 0 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_L1MET20" ),
-        prescales = cms.vuint32( 6, 1 )
+        prescales = cms.vuint32( 600, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_MET45" ),
         prescales = cms.vuint32( 20, 0 )
