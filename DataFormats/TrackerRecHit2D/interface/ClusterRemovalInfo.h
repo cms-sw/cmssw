@@ -24,6 +24,13 @@ namespace reco {
                                const edm::Handle<SiStripClusters> &stripClusters) : 
                 pixelProd_(pixelClusters), stripProd_(stripClusters) { }
 
+            ClusterRemovalInfo(const edm::Handle<SiPixelClusters> &pixelClusters) : 
+                pixelProd_(pixelClusters), stripProd_() { }
+
+            ClusterRemovalInfo(const edm::Handle<SiStripClusters> &stripClusters) : 
+                pixelProd_(), stripProd_(stripClusters) { }
+
+
             void getOldClustersFrom(const ClusterRemovalInfo &other) {
                 stripProd_ = other.stripProd_;
                 pixelProd_ = other.pixelProd_;
@@ -42,7 +49,10 @@ namespace reco {
     
             void setNewPixelClusters(const edm::OrphanHandle<SiPixelClusters> &pixels) { pixelNewProd_ = SiPixelClusterRefProd(pixels); }
             void setNewStripClusters(const edm::OrphanHandle<SiStripClusters> &strips) { stripNewProd_ = SiStripClusterRefProd(strips); }
- 
+
+            bool hasPixel() const { return pixelProd_.isNonnull(); } 
+            bool hasStrip() const { return pixelProd_.isNonnull(); } 
+
             void swap(reco::ClusterRemovalInfo &other) ;
         private:
             SiPixelClusterRefProd pixelProd_;
