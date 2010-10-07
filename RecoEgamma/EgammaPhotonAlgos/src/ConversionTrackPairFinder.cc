@@ -220,8 +220,9 @@ std::map<std::vector<reco::TransientTrack>,  reco::CaloClusterPtr>  ConversionTr
 
   } else if (  (scTrkAssocMap.size() ==2) ) {
 
-    iMap1=scTrkAssocMap.begin();
-    iMap2=scTrkAssocMap.end();
+    iMap1=scTrkAssocMap.begin();//get the first
+    iMap2=iMap1;
+    iMap2++;//get the second
     if (  (iMap1->second) == (iMap2->second)  ) {
       if  ((iMap1->first).charge() * (iMap2->first).charge() < 0 )  {
 	
