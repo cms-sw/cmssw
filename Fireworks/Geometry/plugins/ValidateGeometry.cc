@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.29 2010/10/05 09:52:46 mccauley Exp $
+// $Id: ValidateGeometry.cc,v 1.30 2010/10/05 13:40:29 mccauley Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -662,7 +662,7 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
       // we calculate an average wire group 
       // spacing from radialExtentOfTheWirePlane / numOfWireGroups
       
-      double extentOfWirePlane;
+      double extentOfWirePlane = 0.0;
 
       if ( ring == 2 )
       {
@@ -685,7 +685,7 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
       float wireAngle = layer->geometry()->wireTopology()->wireAngle();
       assert(wireAngle == parameters[7]);
 
-      float cosWireAngle = cos(wireAngle);
+      //float cosWireAngle = cos(wireAngle);
 
       /* NOTE
          Some parameters don't seem available in a public interface
@@ -736,13 +736,13 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
         wire_positions.push_back(ydiff_local);
 
         GlobalPoint globalPoint = layer->surface().toGlobal(LocalPoint(0.0,yOfWire1,0.0));
-        
+
+        /*
         float fwLocalPoint[3] = 
         {
           0.0, yOfWire2, 0.0
         };
-
-        /*
+        
         float fwGlobalPoint[3]; 
         fwGeometry_.localToGlobal(detId.rawId(), fwLocalPoint, fwGlobalPoint);
         double ydiff_global = globalPoint.y() - fwGlobalPoint[1]; 
@@ -1013,6 +1013,9 @@ void
 ValidateGeometry::validateStripTopology(const TrackerGeometry::DetContainer& dets,
                                         const char* detname)
 {
+  std::vector<double> radialStripLocalXs;
+  std::vector<double> rectangularStripLocalXs;
+
   for ( TrackerGeometry::DetContainer::const_iterator it = dets.begin(),
                                                    itEnd = dets.end();
         it != itEnd; ++it )
@@ -1050,12 +1053,33 @@ ValidateGeometry::validateStripTopology(const TrackerGeometry::DetContainer& det
           assert(parameters[4] == rst->originToIntersection());
           assert(parameters[5] == rst->phiOfOneEdge());
           assert(parameters[6] == rst->angularWidth());
+
+          for ( uint16_t strip = 1; strip <= nstrips; ++strip )
+          {
+            float stripAngle1 = rst->stripAngle(strip);
+            float stripAngle2 = parameters[5] + parameters[3]*strip*parameters[6];
+          
+            assert((stripAngle1-stripAngle2) == 0); 
+            
+            LocalPoint stripPosition = st->localPosition(strip);
+            
+            float stripX = parameters[3]*parameters[4]*tan(stripAngle2);
+            radialStripLocalXs.push_back(stripPosition.x()-stripX);
+          }
         }
          
         else if( dynamic_cast<const RectangularStripTopology*>(st))
         {
           assert(parameters[0] == 2);
           assert(parameters[3] == st->pitch());
+
+          for ( uint16_t strip = 1; strip <= nstrips; ++strip )
+          {
+            LocalPoint stripPosition = st->localPosition(strip);
+            float stripX = -parameters[1]*0.5*parameters[3];
+            stripX += strip*parameters[3];
+            rectangularStripLocalXs.push_back(stripPosition.x()-stripX);
+          }
         }
         
         else if( dynamic_cast<const TrapezoidalStripTopology*>(st))  
@@ -1075,6 +1099,10 @@ ValidateGeometry::validateStripTopology(const TrackerGeometry::DetContainer& det
     //else
     //  std::cout<<"Failed cast to StripGeomDetUnit for "<< detname <<" "<< rawId <<std::endl;
   }
+
+  std::string hn(detname);
+  makeHistogram(hn+" radial strip localX", radialStripLocalXs);
+  makeHistogram(hn+" rectangular strip localX", rectangularStripLocalXs);
 }
 
 
