@@ -294,6 +294,7 @@ namespace edm {
   PoolOutputModule::fillDescriptions(ConfigurationDescriptions & descriptions) {
     std::string defaultString;
     ParameterSetDescription desc;
+    desc.setComment("Writes runs, lumis, and events into EDM/ROOT files.");
     desc.addUntracked<std::string>("fileName")
         ->setComment("Name of output file.");
     desc.addUntracked<std::string>("logicalFileName", defaultString)

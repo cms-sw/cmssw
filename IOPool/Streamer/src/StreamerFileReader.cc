@@ -81,6 +81,7 @@ namespace edm {
   void
   StreamerFileReader::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;
+    desc.setComment("Reads events from streamer files.");
     desc.addUntracked<std::vector<std::string> >("fileNames")
         ->setComment("Names of files to be processed.");
     desc.addUntracked<unsigned int>("skipEvents", 0U)

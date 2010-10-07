@@ -19,7 +19,6 @@ namespace edm {
   }
 
   void StreamerFileWriter::stop() {
-
     // User code of this class MUST call method
 
     //Write the EOF Record Both at the end of Streamer file
@@ -53,7 +52,6 @@ namespace edm {
                                         hdrParams.fragmentCount,
                                         hdrParams.dataPtr,
                                         hdrParams.dataSize);
-
     if (hdrParams.fragmentIndex == 0) {
       //HLT Count
       hltCount_ = hdrParams.hltCount;
@@ -79,7 +77,6 @@ namespace edm {
     msg.hltTriggerBits(&packedHlt[0]);
     updateHLTStats(packedHlt);
   }
-
 
   void StreamerFileWriter::doOutputEvent(EventMsgBuilder const& msg) {
     EventMsgView eview(msg.startAddress());
@@ -113,6 +110,7 @@ namespace edm {
   }
 
   void StreamerFileWriter::fillDescription(ParameterSetDescription& desc) {
+    desc.setComment("Writes events into a streamer output file.");
     desc.addUntracked<std::string>("fileName", "teststreamfile.dat")->setComment("Name of output file.");
   }
 } //namespace edm

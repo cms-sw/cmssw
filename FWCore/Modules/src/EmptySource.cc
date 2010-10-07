@@ -30,6 +30,7 @@ namespace edm {
   void
   EmptySource::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;
+    desc.setComment("Creates runs, lumis and events containing no products.");
     GeneratedInputSource::fillDescription(desc);
     descriptions.add("source", desc);
   }

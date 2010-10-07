@@ -25,25 +25,25 @@ namespace edm {
       ProcessHistory const& ph1 = primary.processHistory();
       ProcessHistory const& ph2 = secondary.processHistory();
       if (ph1 != ph2 && !isAncestor(ph2, ph1)) {
-        throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::checkConsistency") <<
+        throw Exception(errors::MismatchedInputFiles, "PoolSource::checkConsistency") <<
           "The secondary file is not an ancestor of the primary file\n";
       }
     }
     void checkConsistency(EventPrincipal const& primary, EventPrincipal const& secondary) {
       if (!isSameEvent(primary, secondary)) {
-        throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::checkConsistency") <<
+        throw Exception(errors::MismatchedInputFiles, "PoolSource::checkConsistency") <<
           primary.id() << " has inconsistent EventAuxiliary data in the primary and secondary file\n";
       }
     }
     void checkConsistency(LuminosityBlockAuxiliary const& primary, LuminosityBlockAuxiliary const& secondary) {
       if (primary.id() != secondary.id()) {
-        throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::checkConsistency") <<
+        throw Exception(errors::MismatchedInputFiles, "PoolSource::checkConsistency") <<
           primary.id() << " has inconsistent LuminosityBlockAuxiliary data in the primary and secondary file\n";
       }
     }
     void checkConsistency(RunAuxiliary const& primary, RunAuxiliary const& secondary) {
       if (primary.id() != secondary.id()) {
-        throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::checkConsistency") <<
+        throw Exception(errors::MismatchedInputFiles, "PoolSource::checkConsistency") <<
           primary.id() << " has inconsistent RunAuxiliary data in the primary and secondary file\n";
       }
     }
@@ -75,7 +75,7 @@ namespace edm {
       for (const_iterator it = secondary.begin(), itEnd = secondary.end(); it != itEnd; ++it) {
         if (it->second.present()) {
           idsToReplace[it->second.branchType()].insert(it->second.branchID());
-          //now make sure this is marked as not dropped else the product will not be 'get'table from the edm::Event
+          //now make sure this is marked as not dropped else the product will not be 'get'table from the Event
           iterator itFound = fullList.find(it->first);
           if(itFound != fullList.end()) {
             itFound->second.dropped()=false;
@@ -144,7 +144,7 @@ namespace edm {
         checkHistoryConsistency(*primaryPrincipal, *secondaryRunPrincipal_);
         primaryPrincipal->recombine(*secondaryRunPrincipal_, branchIDsToReplace_[InRun]);
       } else {
-        throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::readRun_")
+        throw Exception(errors::MismatchedInputFiles, "PoolSource::readRun_")
           << " Run " << primaryPrincipal->run()
           << " is not found in the secondary input files\n";
       }
@@ -166,7 +166,7 @@ namespace edm {
         checkHistoryConsistency(*primaryPrincipal, *secondaryLumiPrincipal_);
         primaryPrincipal->recombine(*secondaryLumiPrincipal_, branchIDsToReplace_[InLumi]);
       } else {
-        throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::readLuminosityBlock_")
+        throw Exception(errors::MismatchedInputFiles, "PoolSource::readLuminosityBlock_")
           << " Run " << primaryPrincipal->run()
           << " LuminosityBlock " << primaryPrincipal->luminosityBlock()
           << " is not found in the secondary input files\n";
@@ -191,7 +191,7 @@ namespace edm {
         primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InEvent]);
         secondaryEventPrincipal_->clearPrincipal();
       } else {
-        throw edm::Exception(errors::MismatchedInputFiles, "PoolSource::readEvent_") <<
+        throw Exception(errors::MismatchedInputFiles, "PoolSource::readEvent_") <<
           primaryPrincipal->id() << " is not found in the secondary input files\n";
       }
     }
@@ -287,8 +287,9 @@ namespace edm {
   void
   PoolSource::fillDescriptions(ConfigurationDescriptions & descriptions) {
 
-    edm::ParameterSetDescription desc;
+    ParameterSetDescription desc;
 
+    desc.setComment("Reads EDM/Root files.");
     VectorInputSource::fillDescription(desc);
     RootInputFileSequence::fillDescription(desc);
 

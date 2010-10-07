@@ -22,25 +22,25 @@
 static SerializeDataBuffer serialize_databuffer;
 
 namespace {
-  //A utility function that packs bits from source into bytes, with 
+  //A utility function that packs bits from source into bytes, with
   // packInOneByte as the numeber of bytes that are packed from source to dest.
   void printBits(unsigned char c) {
     for (int i = 7; i >= 0; --i) {
       int bit = ((c >> i) & 1);
-      std::cout << " " << bit; 
-    } 
-  }   
-    
+      std::cout << " " << bit;
+    }
+  }
+
   void packIntoString(std::vector<unsigned char> const& source,
                       std::vector<unsigned char>& package) {
      if (source.size() < 1) {return;}
-     unsigned int packInOneByte = 4; 
+     unsigned int packInOneByte = 4;
      unsigned int sizeOfPackage = 1+((source.size()-1)/packInOneByte); //Two bits per HLT
-    
-     package.resize(sizeOfPackage); 
+
+     package.resize(sizeOfPackage);
      memset(&package[0], 0x00, sizeOfPackage);
- 
-     for (std::vector<unsigned char>::size_type i=0; i != source.size() ; ++i) { 
+
+     for (std::vector<unsigned char>::size_type i=0; i != source.size() ; ++i) {
        unsigned int whichByte = i/packInOneByte;
        unsigned int indxWithinByte = i % packInOneByte;
        package[whichByte] = package[whichByte] | (source[i] << (indxWithinByte*2));
@@ -59,14 +59,13 @@ namespace edm {
     maxEventSize_(ps.getUntrackedParameter<int>("max_event_size")),
     useCompression_(ps.getUntrackedParameter<bool>("use_compression")),
     compressionLevel_(ps.getUntrackedParameter<int>("compression_level")),
-    lumiSectionInterval_(ps.getUntrackedParameter<int>("lumiSection_interval")), 
+    lumiSectionInterval_(ps.getUntrackedParameter<int>("lumiSection_interval")),
     serializer_(selections_),
     hltsize_(0),
-    lumi_(0), 
+    lumi_(0),
     l1bit_(0),
     hltbits_(0),
-    origSize_(0) // no compression as default value - we need this!
-  {
+    origSize_(0) { // no compression as default value - we need this!
 
     // test luminosity sections
     struct timeval now;
@@ -76,12 +75,12 @@ namespace edm {
 
     if(useCompression_ == true) {
       if(compressionLevel_ <= 0) {
-        FDEBUG(9) << "Compression Level = " << compressionLevel_ 
+        FDEBUG(9) << "Compression Level = " << compressionLevel_
                   << " no compression" << std::endl;
         compressionLevel_ = 0;
         useCompression_ = false;
       } else if(compressionLevel_ > 9) {
-        FDEBUG(9) << "Compression Level = " << compressionLevel_ 
+        FDEBUG(9) << "Compression Level = " << compressionLevel_
                   << " using max compression level 9" << std::endl;
         compressionLevel_ = 9;
       }
@@ -106,7 +105,7 @@ namespace edm {
     std::auto_ptr<InitMsgBuilder>  init_message = serializeRegistry();
     doOutputHeader(*init_message);
   }
-   
+
   void
   StreamerOutputModuleBase::endRun(RunPrincipal const&) {
     stop();
@@ -147,16 +146,16 @@ namespace edm {
     //Following values are strictly DUMMY and will be replaced
     // once available with Utility function etc.
     uint32 run = 1;
-    
-    //Get the Process PSet ID  
+
+    //Get the Process PSet ID
     pset::Registry* reg = pset::Registry::instance();
     ParameterSetID toplevel = pset::getProcessParameterSetID(reg);
 
-    //In case we need to print it 
+    //In case we need to print it
     //  cms::Digest dig(toplevel.compactForm());
     //  cms::MD5Result r1 = dig.digest();
     //  std::string hexy = r1.toString();
-    //  std::cout << "HEX Representation of Process PSetID: " << hexy << std::endl;  
+    //  std::cout << "HEX Representation of Process PSetID: " << hexy << std::endl;
 
     //Setting protocol version V
     Version v(8,(uint8*)toplevel.compactForm().c_str());
@@ -168,7 +167,7 @@ namespace edm {
     Strings l1_names;  //3
     l1_names.push_back("t1");
     l1_names.push_back("t10");
-    l1_names.push_back("t2");  
+    l1_names.push_back("t2");
 
     //Setting the process name to HLT
     std::string processName = OutputModule::processName();
@@ -186,16 +185,12 @@ namespace edm {
                            hltTriggerNames, hltTriggerSelections_, l1_names,
                            (uint32)serialize_databuffer.adler32_chksum(), host_name_));
 
-
     // copy data into the destination message
-
     unsigned char* src = serialize_databuffer.bufferPointer();
     std::copy(src, src + src_size, init_message->dataAddress());
     init_message->setDataLength(src_size);
-
     return init_message;
   }
-
 
   void
   StreamerOutputModuleBase::setHltMask(EventPrincipal const& e) {
@@ -204,8 +199,8 @@ namespace edm {
 
     Handle<TriggerResults> const& prod = getTriggerResults(e);
     //Trig const& prod = getTrigMask(e);
-    std::vector<unsigned char> vHltState; 
-    
+    std::vector<unsigned char> vHltState;
+
     if (prod.isValid()) {
       for(std::vector<unsigned char>::size_type i=0; i != hltsize_ ; ++i) {
         vHltState.push_back(((prod->at(i)).state()));
@@ -216,7 +211,6 @@ namespace edm {
            vHltState.push_back(hlt::Pass);
       }
     }
-    
     //Pack into member hltbits_
     packIntoString(vHltState, hltbits_);
 
@@ -228,7 +222,6 @@ namespace edm {
     //std::cout << "\n";
   }
 
- 
 // test luminosity sections
   void
   StreamerOutputModuleBase::setLumiSection() {
@@ -242,7 +235,7 @@ namespace edm {
 
   std::auto_ptr<EventMsgBuilder>
   StreamerOutputModuleBase::serializeEvent(EventPrincipal const& e) {
-    //Lets Build the Event Message first 
+    //Lets Build the Event Message first
 
     //Following is strictly DUMMY Data for L! Trig and will be replaced with actual
     // once figured out, there is no logic involved here.
@@ -267,7 +260,7 @@ namespace edm {
     unsigned int new_size = src_size + 50000;
     if(serialize_databuffer.bufs_.size() < new_size) serialize_databuffer.bufs_.resize(new_size);
 
-    std::auto_ptr<EventMsgBuilder> 
+    std::auto_ptr<EventMsgBuilder>
       msg(new EventMsgBuilder(&serialize_databuffer.bufs_[0], serialize_databuffer.bufs_.size(), e.id().run(),
                               e.id().event(), lumi_, outputModuleId_,
                               l1bit_, (uint8*)&hltbits_[0], hltsize_,
@@ -279,7 +272,7 @@ namespace edm {
     // in serializeEvent, and then call a new member "getEventData" that
     // takes the compression arguments and a place to put the data.
     // This will require one less copy.  The only catch is that the
-    // space provided in bufs_ should be at least the uncompressed 
+    // space provided in bufs_ should be at least the uncompressed
     // size + overhead for header because we will not know the actual
     // compressed size.
 
@@ -294,11 +287,15 @@ namespace edm {
 
   void
   StreamerOutputModuleBase::fillDescription(ParameterSetDescription& desc) {
-    desc.addUntracked<int>("max_event_size", 7000000);
-    desc.addUntracked<bool>("use_compression", true);
-    desc.addUntracked<int>("compression_level", 1);
-    desc.addUntracked<int>("lumiSection_interval", 0);
+    desc.addUntracked<int>("max_event_size", 7000000)
+        ->setComment("Starting size in bytes of the serialized event buffer.");
+    desc.addUntracked<bool>("use_compression", true)
+        ->setComment("If True, compression will be used to write streamer file.");
+    desc.addUntracked<int>("compression_level", 1)
+        ->setComment("ROOT compression level to use.");
+    desc.addUntracked<int>("lumiSection_interval", 0)
+        ->setComment("If 0, use lumi section number from event.\n"
+                     "If not 0, the interval in seconds between fake lumi sections.");
     OutputModule::fillDescription(desc);
   }
-
 } // end of namespace-edm

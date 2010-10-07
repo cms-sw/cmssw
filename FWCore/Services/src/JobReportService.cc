@@ -6,7 +6,7 @@
 // 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReportService.cc,v 1.1 2006/05/02 02:45:48 wmtan Exp $
+// $Id: JobReportService.cc,v 1.2 2010/03/09 16:24:55 wdd Exp $
 //
 
 
@@ -64,6 +64,7 @@ namespace edm {
     void
     JobReportService::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
       edm::ParameterSetDescription desc;
+      desc.setComment("Enables job reports.");
       descriptions.addDefault(desc);
     }
   } // namespace service

@@ -206,9 +206,13 @@ namespace edm {
 
     void InitRootHandlers::fillDescriptions(ConfigurationDescriptions& descriptions) {
       ParameterSetDescription desc;
-      desc.addUntracked<bool>("UnloadRootSigHandler", false);
-      desc.addUntracked<bool>("ResetRootErrHandler", true);
-      desc.addUntracked<bool>("AutoLibraryLoader", true);
+      desc.setComment("Centralized interface to ROOT.");
+      desc.addUntracked<bool>("UnloadRootSigHandler", false)
+          ->setComment("If True, signals are handled by this service, rather than by ROOT.");
+      desc.addUntracked<bool>("ResetRootErrHandler", true)
+          ->setComment("If True, ROOT messages (e.g. errors, warnings) are handled by this service, rather than by ROOT.");
+      desc.addUntracked<bool>("AutoLibraryLoader", true)
+          ->setComment("If True, enables automatic loading of data dictionaries.");
       descriptions.add("InitRootHandlers", desc);
     }
 

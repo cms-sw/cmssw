@@ -37,9 +37,8 @@ namespace edm {
     prescale_(pset.getUntrackedParameter<unsigned int>("prescale")),
     verbosity_(pset.getUntrackedParameter<unsigned int>("verbosity")),
     counter_(0) {
-       if (prescale_ == 0) prescale_ = 1;
-     }
-    
+     if (prescale_ == 0) prescale_ = 1;
+  }
 
   AsciiOutputModule::~AsciiOutputModule() {
     LogAbsolute("AsciiOut") << ">>> processed " << counter_ << " events" << std::endl;
@@ -65,19 +64,18 @@ namespace edm {
 
     // ... collision id
     LogAbsolute("AsciiOut") << '\n' << e.id() << '\n';
-   
-    
+
     // Loop over products, and write some output for each...
 
     std::vector<Provenance const*> provs;
     e.getAllProvenance(provs);
     for(std::vector<Provenance const*>::const_iterator i = provs.begin(),
-	 iEnd = provs.end();
-	 i != iEnd;
-	 ++i) {
+         iEnd = provs.end();
+         i != iEnd;
+         ++i) {
       BranchDescription const& desc = (*i)->product();
       if (selected(desc)) {
-	LogAbsolute("AsciiOut")<< **i << '\n';
+        LogAbsolute("AsciiOut") << **i << '\n';
       }
     }
   }
@@ -85,8 +83,13 @@ namespace edm {
   void
   AsciiOutputModule::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;
-    desc.addUntracked("prescale", 1U);
-    desc.addUntracked("verbosity", 1U);
+    desc.setComment("Outputs event information into text file.");
+    desc.addUntracked("prescale", 1U)
+        ->setComment("prescale factor");
+    desc.addUntracked("verbosity", 1U)
+        ->setComment("0: no output\n"
+                     "1: event ID and timestamp only\n"
+                     ">1: full output");
     OutputModule::fillDescription(desc);
     descriptions.add("asciiOutput", desc);
   }

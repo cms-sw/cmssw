@@ -10,7 +10,6 @@
 //         Created:  Fri Aug  4 20:45:44 EDT 2006
 //
 
-
 // system include files
 #include <fstream>
 #include <string>
@@ -359,8 +358,8 @@ namespace edm {
         void* objIncrRefBuffer;
         boost::shared_ptr<Reflex::Object> incrMemHolder = initReturnValue(incr, &objIncr, &objIncrRefBuffer);
         for(;
-    	 compare.Invoke(iBegin, &objCompareResult, compareArgs), compareResult;
-    	 incr.Invoke(iBegin, &objIncr, incrArgs), ++size) {
+          compare.Invoke(iBegin, &objCompareResult, compareArgs), compareResult;
+          incr.Invoke(iBegin, &objIncr, incrArgs), ++size) {
           //std::cerr << "going to print" << std::endl;
           Reflex::Object iTemp;
           void* derefRefBuffer;
@@ -555,10 +554,10 @@ namespace edm {
     stream_ << "</event>" << std::endl;
   }
 
-  
   void
   XMLOutputModule::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;
+    desc.setComment("Prints event information into a file in XML format.");
     desc.addUntracked<std::string>("fileName");
     OutputModule::fillDescription(desc);
     descriptions.add("XMLoutput", desc);
