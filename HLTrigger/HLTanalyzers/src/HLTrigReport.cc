@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/10/07 13:43:30 $
- *  $Revision: 1.16 $
+ *  $Date: 2010/10/07 15:03:13 $
+ *  $Revision: 1.17 $
  *
  *  \author Martin Grunewald
  *
@@ -119,7 +119,7 @@ HLTrigReport::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
 	hltL1s_[i]=0;
 	hltPre_[i]=0;
 	hlAccept_[i]=0;
-        hlAccTot_[i]=0;
+	hlAccTot_[i]=0;
 	hlErrors_[i]=0;
 	posL1s_[i]=-1;
 	posPre_[i]=-1;
