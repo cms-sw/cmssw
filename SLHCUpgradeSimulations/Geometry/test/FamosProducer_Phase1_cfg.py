@@ -4,7 +4,7 @@ process = cms.Process("Fastsimwdigi")
 
 # Number of events to be generated
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(10)
 )
 
 # Include the RandomNumberGeneratorService definition
@@ -43,7 +43,7 @@ process.generator.AddAntiParticle = True
 # from std full sim 
 #process.load("Configuration.StandardSequences.FakeConditions_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'MC_36Y_V9::All'
+process.GlobalTag.globaltag = 'DESIGN_36_V10::All'
 
 # Famos sequences (fake conditions)
 #process.load("FastSimulation.Configuration.CommonInputsFake_cff")
