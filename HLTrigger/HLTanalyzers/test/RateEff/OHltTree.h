@@ -373,6 +373,7 @@ public :
   Int_t           L1_HTT300; 
   Int_t           L1_IsoEG10_Jet15_ForJet10; 
   Int_t           L1_MinBias_HTT10; 
+  Int_t           L1_Mu3_EG5; 
   Int_t           L1_Mu3QE8_EG5; 
   Int_t           L1_Mu3QE8_Jet15;  
   Int_t           L1_Mu5QE8_Jet15; 
@@ -585,6 +586,7 @@ public :
   Int_t           L1_HTT300_Prescl; 
   Int_t           L1_IsoEG10_Jet15_ForJet10_Prescl; 
   Int_t           L1_MinBias_HTT10_Prescl; 
+  Int_t           L1_Mu3_EG5_Prescl; 
   Int_t           L1_Mu3QE8_EG5_Prescl; 
   Int_t           L1_Mu3QE8_Jet15_Prescl;  
   Int_t           L1_Mu5QE8_Jet15_Prescl; 
@@ -1768,6 +1770,7 @@ public :
   TBranch        *b_L1_HTT300;   //! 
   TBranch        *b_L1_IsoEG10_Jet15_ForJet10;   //! 
   TBranch        *b_L1_MinBias_HTT10;   //! 
+  TBranch        *b_L1_Mu3_EG5;   //!
   TBranch        *b_L1_Mu3QE8_EG5;   //!
   TBranch        *b_L1_Mu3QE8_Jet15;   //!  
   TBranch        *b_L1_Mu5QE8_Jet15;   //! 
@@ -1978,6 +1981,7 @@ public :
   TBranch        *b_L1_HTT300_Prescl;   //! 
   TBranch        *b_L1_IsoEG10_Jet15_ForJet10_Prescl;   //! 
   TBranch        *b_L1_MinBias_HTT10_Prescl;   //! 
+  TBranch        *b_L1_Mu3_EG5_Prescl;   //!
   TBranch        *b_L1_Mu3QE8_EG5_Prescl;   //!
   TBranch        *b_L1_Mu3QE8_Jet15_Prescl;   //!  
   TBranch        *b_L1_Mu5QE8_Jet15_Prescl;   //! 
@@ -3534,6 +3538,7 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_HTT300", &L1_HTT300, &b_L1_HTT300); 
   fChain->SetBranchAddress("L1_IsoEG10_Jet15_ForJet10", &L1_IsoEG10_Jet15_ForJet10, &b_L1_IsoEG10_Jet15_ForJet10); 
   fChain->SetBranchAddress("L1_MinBias_HTT10", &L1_MinBias_HTT10, &b_L1_MinBias_HTT10); 
+  fChain->SetBranchAddress("L1_Mu3_EG5", &L1_Mu3_EG5, &b_L1_Mu3_EG5); 
   fChain->SetBranchAddress("L1_Mu3QE8_EG5", &L1_Mu3QE8_EG5, &b_L1_Mu3QE8_EG5); 
   fChain->SetBranchAddress("L1_Mu3QE8_Jet15", &L1_Mu3QE8_Jet15, &b_L1_Mu3QE8_Jet15);  
   fChain->SetBranchAddress("L1_Mu5QE8_Jet15", &L1_Mu5QE8_Jet15, &b_L1_Mu5QE8_Jet15); 
@@ -3744,7 +3749,8 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_HTT300_Prescl", &L1_HTT300_Prescl, &b_L1_HTT300_Prescl); 
   fChain->SetBranchAddress("L1_IsoEG10_Jet15_ForJet10_Prescl", &L1_IsoEG10_Jet15_ForJet10_Prescl, &b_L1_IsoEG10_Jet15_ForJet10_Prescl); 
   fChain->SetBranchAddress("L1_MinBias_HTT10_Prescl", &L1_MinBias_HTT10_Prescl, &b_L1_MinBias_HTT10_Prescl); 
-  fChain->SetBranchAddress("L1_Mu3QE8_EG5_Prescl", &L1_Mu3QE8_EG5_Prescl, &b_L1_Mu3QE8_EG5_Prescl); 
+  fChain->SetBranchAddress("L1_Mu3_EG5_Prescl", &L1_Mu3_EG5_Prescl, &b_L1_Mu3_EG5_Prescl); 
+  fChain->SetBranchAddress("L1_Mu3_EG5_Prescl", &L1_Mu3QE8_EG5_Prescl, &b_L1_Mu3QE8_EG5_Prescl); 
   fChain->SetBranchAddress("L1_Mu3QE8_Jet15_Prescl", &L1_Mu3QE8_Jet15_Prescl, &b_L1_Mu3QE8_Jet15_Prescl);  
   fChain->SetBranchAddress("L1_Mu5QE8_Jet15_Prescl", &L1_Mu5QE8_Jet15_Prescl, &b_L1_Mu5QE8_Jet15_Prescl); 
   fChain->SetBranchAddress("L1_Mu3QE8_Jet6_Prescl", &L1_Mu3QE8_Jet6_Prescl, &b_L1_Mu3QE8_Jet6_Prescl);  
@@ -4644,6 +4650,7 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_HTT300", &map_BitOfStandardHLTPath["L1_HTT300"], &b_L1_HTT300); 
   fChain->SetBranchAddress("L1_IsoEG10_Jet15_ForJet10", &map_BitOfStandardHLTPath["L1_IsoEG10_Jet15_ForJet10"], &b_L1_IsoEG10_Jet15_ForJet10); 
   fChain->SetBranchAddress("L1_MinBias_HTT10", &map_BitOfStandardHLTPath["L1_MinBias_HTT10"], &b_L1_MinBias_HTT10); 
+  fChain->SetBranchAddress("L1_Mu3_EG5", &map_BitOfStandardHLTPath["L1_Mu3_EG5"], &b_L1_Mu3_EG5); 
   fChain->SetBranchAddress("L1_Mu3QE8_EG5", &map_BitOfStandardHLTPath["L1_Mu3QE8_EG5"], &b_L1_Mu3QE8_EG5); 
   fChain->SetBranchAddress("L1_Mu3QE8_Jet15", &map_BitOfStandardHLTPath["L1_Mu3QE8_Jet15"], &b_L1_Mu3QE8_Jet15);  
   fChain->SetBranchAddress("L1_Mu5QE8_Jet15", &map_BitOfStandardHLTPath["L1_Mu5QE8_Jet15"], &b_L1_Mu5QE8_Jet15); 
@@ -4776,6 +4783,7 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("L1_HTT300_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_HTT300"], &b_L1_HTT300_Prescl); 
   fChain->SetBranchAddress("L1_IsoEG10_Jet15_ForJet10_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_IsoEG10_Jet15_ForJet10"], &b_L1_IsoEG10_Jet15_ForJet10_Prescl); 
   fChain->SetBranchAddress("L1_MinBias_HTT10_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_MinBias_HTT10"], &b_L1_MinBias_HTT10_Prescl); 
+  fChain->SetBranchAddress("L1_Mu3_EG5_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_Mu3_EG5"], &b_L1_Mu3_EG5_Prescl); 
   fChain->SetBranchAddress("L1_Mu3QE8_EG5_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_Mu3QE8_EG5"], &b_L1_Mu3QE8_EG5_Prescl); 
   fChain->SetBranchAddress("L1_Mu3QE8_Jet15_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_Mu3QE8_Jet15"], &b_L1_Mu3QE8_Jet15_Prescl);  
   fChain->SetBranchAddress("L1_Mu5QE8_Jet15_Prescl", &map_RefPrescaleOfStandardHLTPath["L1_Mu5QE8_Jet15"], &b_L1_Mu5QE8_Jet15_Prescl); 
