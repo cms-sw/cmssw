@@ -1,5 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
+siPixelFakeLorentzAngleESSource = cms.ESSource("SiPixelFakeLorentzAngleESSource",
+        file = cms.FileInPath('SLHCUpgradeSimulations/Geometry/data/PhaseI/PixelSkimmedGeometry_phase1.txt')
+        )
+es_prefer_fake_lorentz = cms.ESPrefer("SiPixelFakeLorentzAngleESSource","siPixelFakeLorentzAngleESSource")
+
 from CalibTracker.SiStripESProducers.fake.SiStripNoisesFakeESSource_cfi import *
 SiStripNoisesGenerator.NoiseStripLengthSlope=cms.vdouble(51.) #dec mode
 SiStripNoisesGenerator.NoiseStripLengthQuote=cms.vdouble(630.)
@@ -74,16 +79,6 @@ BeamSpotFakeConditions.errorSigmaZ = cms.double(0.060)
 BeamSpotFakeConditions.errorWidth = cms.double(0.0013)
 
 es_prefer_beamspot = cms.ESPrefer("BeamSpotFakeConditions","")
-
-from SimTracker.SiPixelDigitizer.PixelDigi_cfi import *
-simSiPixelDigis.MissCalibrate = False
-simSiPixelDigis.LorentzAngle_DB = False
-simSiPixelDigis.killModules = False
-simSiPixelDigis.useDB = False
-simSiPixelDigis.DeadModules_DB = False
-simSiPixelDigis.NumPixelBarrel = cms.int32(4)
-simSiPixelDigis.NumPixelEndcap = cms.int32(3)
-simSiPixelDigis.AddPixelInefficiency = -1
 
 from SimGeneral.TrackingAnalysis.trackingParticles_cfi import *
 mergedtruth.volumeRadius = cms.double(100.0)
