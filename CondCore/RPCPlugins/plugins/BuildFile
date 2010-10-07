@@ -6,6 +6,7 @@
 <use name=CaloOnlineTools/HcalOnlineDb>
 <use name=CondCore/MetaDataService>
 <use name=CondCore/IOVService>
+<use name=CondTools/RPC>
 <use name=boost>
 <use name=boost_filesystem>
 <use name=boost_python>
@@ -20,6 +21,9 @@
 <use name=CondCore/Utilities>
 <use name=CondFormats/RPCObjects>
 <use name=Geometry/RPCGeometry>
+<use name=CondCore/MetaDataService>
+<use name=CondCore/IOVService>
+<use name=CondTools/RPC>
 <use name=boost>
 <use name=boost_filesystem>
 <use name=boost_python>
@@ -44,6 +48,9 @@
 <use name=CondCore/Utilities>
 <use name=CondFormats/RPCObjects>
 <use name=Geometry/RPCGeometry>
+<use name=CondCore/MetaDataService>
+<use name=CondCore/IOVService>
+<use name=CondTools/RPC>
 <use name=boost>
 <use name=boost_filesystem>
 <use name=boost_python>
