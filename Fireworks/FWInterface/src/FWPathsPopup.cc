@@ -408,7 +408,7 @@ public:
                moduleEntry.label = pathModules[mi];
                moduleEntry.parent = m_parentStack.back();
                moduleEntry.level = m_parentStack.size();
-               moduleEntry.module = -1;
+               moduleEntry.module = mi;
                moduleEntry.path = i;
                moduleEntry.pset = *ps;
                ModuleInfo moduleInfo;
@@ -443,7 +443,7 @@ public:
          for (size_t pi = 0, pe = m_paths.size(); pi != pe; ++pi)
             m_paths[pi].passed = false;
          for (size_t mi = 0, me = m_modules.size(); mi != me; ++mi)
-            m_modules[mi].passed = false; 
+            m_modules[mi].passed = false;
          
          // Update whether or not a given path / module passed selection.
          for (size_t pui = 0, pue = pathUpdates.size(); pui != pue; ++pui)
@@ -457,6 +457,7 @@ public:
             }
             PathInfo &pathInfo = m_paths[index->second];
             pathInfo.passed = update.passed;
+            std::cerr << update.pathName << " " << update.passed << " " << update.choiceMaker << std::endl;
             
             for (size_t mi = pathInfo.moduleStart, me = pathInfo.moduleEnd; mi != me; ++mi)
             {
@@ -1523,6 +1524,7 @@ FWPathsPopup::postProcessEvent(edm::Event const& event, edm::EventSetup const& e
          update.pathName = triggerNames.triggerName(i);
          update.passed = triggerResults->accept(i);
          update.choiceMaker = triggerResults->index(i);
+         std::cerr << "Trigger results." << update.choiceMaker << std::endl;
          pathUpdates.push_back(update);
       }
    }
