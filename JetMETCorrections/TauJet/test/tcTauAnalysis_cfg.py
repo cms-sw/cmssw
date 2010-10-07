@@ -27,7 +27,7 @@ process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 process.load("RecoTauTag.Configuration.RecoTCTauTag_cff")
 #process.tcRecoTauProducer.DropCaloJets = cms.untracked.bool(True)
 #process.tcRecoTauProducer.DropRejectedJets = cms.untracked.bool(False)
-process.load("JetMETCorrections.TauJet.TCRecoTauDiscriminationAgainstHadronicJets_cfi")
+process.load("RecoTauTag.RecoTau.CaloRecoTauDiscriminationAgainstHadronicJets_cfi")
 process.load("JetMETCorrections.TauJet.TCRecoTauDiscriminationAlgoComponent_cfi")
 
 process.tcTauCorrectorTest = cms.EDAnalyzer("TCTauAnalysis",
@@ -50,7 +50,7 @@ process.load("HLTriggerOffline.Tau.Validation.HLTTauReferences_cfi")
 process.runEDAna = cms.Path(
 	process.TauMCProducer *
         process.tautagging *
-	process.tcRecoTauDiscriminationAgainstHadronicJets *
+	process.caloRecoTauDiscriminationAgainstHadronicJets *
 	process.tcRecoTauDiscriminationAlgoComponent *
 	process.tcTauCorrectorTest
 )
