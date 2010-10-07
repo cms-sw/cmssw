@@ -74,6 +74,22 @@ namespace edmtest {
 
   //--------------------------------------------------------------------
   //
+  // every call to NonAnalyzer::analyze does nothing.
+  //
+  class NonAnalyzer : public edm::EDAnalyzer {
+  public:
+    explicit NonAnalyzer(edm::ParameterSet const& /*p*/) {
+    }
+    virtual ~NonAnalyzer() { }
+    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+  };
+
+  void
+  NonAnalyzer::analyze(edm::Event const&, edm::EventSetup const&) {
+  }
+
+  //--------------------------------------------------------------------
+  //
   // Produces an IntProduct instance.
   //
   class IntProducer : public edm::EDProducer {
@@ -1004,6 +1020,7 @@ namespace edmtest {
 }
 
 using edmtest::FailingProducer;
+using edmtest::NonAnalyzer;
 using edmtest::NonProducer;
 using edmtest::IntProducer;
 using edmtest::TransientIntProducer;
@@ -1029,6 +1046,7 @@ using edmtest::IntVecRefToBaseVectorProducer;
 using edmtest::IntVecPtrVectorProducer;
 using edmtest::ProdigalProducer;
 DEFINE_FWK_MODULE(FailingProducer);
+DEFINE_FWK_MODULE(NonAnalyzer);
 DEFINE_FWK_MODULE(NonProducer);
 DEFINE_FWK_MODULE(IntProducer);
 DEFINE_FWK_MODULE(TransientIntProducer);
