@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/10/07 00:57:03 $
- *  $Revision: 1.14 $
+ *  $Date: 2010/10/07 13:39:08 $
+ *  $Revision: 1.15 $
  *
  *  \author Martin Grunewald
  *
@@ -307,11 +307,11 @@ HLTrigReport::dumpReport()
 	 << right << setw(7) << "L1S" << " "
 	 << right << setw(7) << "Pre" << " "
 	 << right << setw(7) << "HLT" << " "
+	 << right << setw(9) << "%L1sPre" << " "
          << right << setw(7) << "HLTtot" << " "
          << right << setw(7) << "Rate" << " "
          << right << setw(7) << "RateHi" << " "
          << right << setw(7) << "RateTot" << " "
-	 << right << setw(9) << "%L1sPre" << " "
 	 << right << setw(7) << "Errors" << " "
 	 << "Name" << endl;
 
@@ -323,14 +323,14 @@ HLTrigReport::dumpReport()
 	   << right << setw(7) << hltL1s_[i] << " "
 	   << right << setw(7) << hltPre_[i] << " "
 	   << right << setw(7) << hlAccept_[i] << " "
+	   << static_cast<float>(100*hlAccept_[i])/
+	      static_cast<float>(max(hltPre_[i],1u)) << " "
            << right << setw(7) << hlAccTot_[i] << " "
            << right << setw(7) << fixed << setprecision(1) << scale*hlAccept_[i] << " "
            << right << setw(7) << fixed << setprecision(1) << 
               ((hlAccept_[refIndex_]-hlAccept_[i] > 0) ? refRate_*ROOT::Math::beta_quantile(alpha, hlAccept_[i]+1, hlAccept_[refIndex_]-hlAccept_[i]) : 0) << " "
            << right << setw(7) << fixed << setprecision(1) << scale*hlAccTot_[i] << " "
 	   << right << setw(9) << fixed << setprecision(5)
-	   << static_cast<float>(100*hlAccept_[i])/
-	      static_cast<float>(max(hltPre_[i],1u)) << " "
 	   << right << setw(7) << hlErrors_[i] << " "
 	   << hlNames_[i] << endl;
     }
