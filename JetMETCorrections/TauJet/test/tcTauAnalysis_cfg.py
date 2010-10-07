@@ -9,7 +9,8 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-	'/store/relval/CMSSW_3_6_0_pre1/RelValZTT/GEN-SIM-RECO/START3X_V21-v1/0002/1E8AE923-2922-DF11-B460-0030487CD7B4.root'
+#	'/store/relval/CMSSW_3_6_0_pre1/RelValZTT/GEN-SIM-RECO/START3X_V21-v1/0002/1E8AE923-2922-DF11-B460-0030487CD7B4.root'
+"rfio:/castor/cern.ch/user/s/slehti/testData/Ztautau_Spring10-START3X_V26_S09-v1-RAW-RECO.root"
     )
 )
 
@@ -23,14 +24,15 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('Configuration/StandardSequences/GeometryExtended_cff')
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
-process.load("JetMETCorrections/TauJet/TCTauProducer_cff")
+process.load("RecoTauTag.Configuration.RecoTCTauTag_cff")
 #process.tcRecoTauProducer.DropCaloJets = cms.untracked.bool(True)
 #process.tcRecoTauProducer.DropRejectedJets = cms.untracked.bool(False)
+process.load("JetMETCorrections.TauJet.TCRecoTauDiscriminationAgainstHadronicJets_cfi")
+process.load("JetMETCorrections.TauJet.TCRecoTauDiscriminationAlgoComponent_cfi")
 
 process.tcTauCorrectorTest = cms.EDAnalyzer("TCTauAnalysis",
 
-	CaloTauCollection = cms.InputTag("caloRecoTauProducer","","RECO"),
-	TCTauCollection	  = cms.InputTag("tcRecoTauProducer"),
+	CaloTauCollection = cms.InputTag("caloRecoTauProducer"),
 	PFTauCollection	  = cms.InputTag("shrinkingConePFTauProducer"),
 	MCTauCollection   = cms.InputTag("TauMCProducer:HadronicTauOneAndThreeProng"),
 
@@ -47,7 +49,9 @@ process.load("HLTriggerOffline.Tau.Validation.HLTTauReferences_cfi")
 
 process.runEDAna = cms.Path(
 	process.TauMCProducer *
-        process.TCTau *
+        process.tautagging *
+	process.tcRecoTauDiscriminationAgainstHadronicJets *
+	process.tcRecoTauDiscriminationAlgoComponent *
 	process.tcTauCorrectorTest
 )
 
