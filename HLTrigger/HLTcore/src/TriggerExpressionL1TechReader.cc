@@ -1,4 +1,5 @@
 #include <iostream>
+#include <bitset>
 #include <boost/foreach.hpp>
 #include <boost/regex.hpp>
 
@@ -19,9 +20,23 @@ bool L1TechReader::operator()(const Data & data) const {
     return false;
 
   typedef std::pair<std::string, unsigned int> value_type;
-  BOOST_FOREACH(const value_type & trigger, m_triggers)
-    if (data.l1tResults().technicalTriggerWord()[trigger.second])
-      return true;
+  if (data.ignoreL1TechPrescales()) {
+    // select PSB#9 and bunch crossing 0
+    const L1GtPsbWord & psb = data.l1tResults().gtPsbWord(0xbb09, 0);
+    // the four 16-bit words psb.bData(1), psb.aData(1), psb.bData(0) and psb.aData(0) yield
+    // (in this sequence) the 64 technical trigger bits from most significant to least significant bit
+    std::bitset<64> psbTriggerWord( ((uint64_t) psb.bData(1) << 48) | 
+                                    ((uint64_t) psb.aData(1) << 32) | 
+                                    ((uint64_t) psb.bData(0) << 16) | 
+                                    ((uint64_t) psb.aData(0)) );
+    BOOST_FOREACH(const value_type & trigger, m_triggers)
+      if (psbTriggerWord[trigger.second])
+        return true;
+  } else {
+    BOOST_FOREACH(const value_type & trigger, m_triggers)
+      if (data.l1tResults().technicalTriggerWord()[trigger.second])
+        return true;
+  }
 
   return false;
 }

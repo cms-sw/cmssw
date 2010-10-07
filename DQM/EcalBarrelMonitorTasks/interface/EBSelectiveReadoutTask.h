@@ -4,8 +4,8 @@
 /*
  * \file EBSelectiveReadoutTask.h
  *
- * $Date: 2009/08/13 18:12:39 $
- * $Revision: 1.15 $
+ * $Date: 2009/10/26 17:33:47 $
+ * $Revision: 1.16 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -61,6 +61,9 @@ static const int nECALDcc = 54;
 static const int nEBDcc = 36;
 static const int kByte = 1024;
 
+///maximum number of RUs read by a DCC
+static const int nDccChs = 68;
+
 ///number of RUs for EB
 static const int nEbRus = 36*68;
 
@@ -97,8 +100,23 @@ int nEvtRUForced[72][34];
 ///To store the events with any readout
 int nEvtAnyReadout[72][34];
 
+///To store the events with ZS1 readout
+int nEvtZS1Readout[72][34];
+
+///To store the events with ZS1 or ZS2 readout
+int nEvtZSReadout[72][34];
+
+///To store the events with complete readout when ZS is requested
+int nEvtCompleteReadoutIfZS[72][34];
+
+///To store the events with 0 channels readout when FR is requested
+int nEvtDroppedReadoutIfFR[72][34];
+
 ///To store the events with high interest TT
 int nEvtHighInterest[72][34];
+
+///To store the events with medium interest TT
+int nEvtMediumInterest[72][34];
 
 ///To store the events with low interest TT
 int nEvtLowInterest[72][34];
@@ -255,6 +273,13 @@ static int dccZsFIR(const EcalDataFrame& frame,
 static std::vector<int> getFIRWeights(const std::vector<double>&
                                       normalizedWeights);
 
+/** Retrieves number of crystal channel read out by a DCC channel
+ * @param iDcc DCC ID starting from 1
+ * @param iDccCh DCC channel starting from 1
+ * @return crystal count
+ */
+int getCrystalCount() { return 25; }
+
 
 /** ECAL barrel read channel count
  */
@@ -271,6 +296,10 @@ int nEbHI_;
 /** ECAL read channel count for each DCC:
  */
 int nPerDcc_[nECALDcc];
+
+/** Number of crystal read for each DCC channel (aka readout unit).
+ */
+int nPerRu_[nECALDcc][nDccChs];   
 
  /** Count for each DCC of RUs with at leat one channel read out:
   */
@@ -315,8 +344,16 @@ MonitorElement* EBTowerSize_;
 MonitorElement* EBTTFMismatch_;
 MonitorElement* EBReadoutUnitForcedBitMap_;
 MonitorElement* EBFullReadoutSRFlagMap_;
+MonitorElement* EBFullReadoutSRFlagCount_;
+MonitorElement* EBZeroSuppression1SRFlagMap_;
 MonitorElement* EBHighInterestTriggerTowerFlagMap_;
+MonitorElement* EBMediumInterestTriggerTowerFlagMap_;
 MonitorElement* EBLowInterestTriggerTowerFlagMap_;
+MonitorElement* EBTTFlags_;
+MonitorElement* EBCompleteZSMap_;
+MonitorElement* EBCompleteZSCount_;
+MonitorElement* EBDroppedFRMap_;
+MonitorElement* EBDroppedFRCount_;
 MonitorElement* EBEventSize_;
 MonitorElement* EBHighInterestPayload_;
 MonitorElement* EBLowInterestPayload_;

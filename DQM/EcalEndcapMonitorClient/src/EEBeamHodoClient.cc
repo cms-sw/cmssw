@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoClient.cc
  *
- * $Date: 2010/01/25 21:12:26 $
- * $Revision: 1.40 $
+ * $Date: 2010/03/27 20:07:59 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -19,7 +19,7 @@
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EEBeamHodoClient.h>
+#include "DQM/EcalEndcapMonitorClient/interface/EEBeamHodoClient.h"
 
 EEBeamHodoClient::EEBeamHodoClient(const edm::ParameterSet& ps) {
 

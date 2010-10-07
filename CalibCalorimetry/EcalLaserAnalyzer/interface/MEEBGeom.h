@@ -38,19 +38,13 @@ public:
   static TString  smName( int ism );
   static int   smFromDcc( int idcc );
   static int   dccFromSm( int ism );
-  
+
   static std::pair<int, int> pn( int ilmmod );
-  static std::pair< int, int > pn( int ilmmod, int idcc); // for inversions
   static std::pair<int,int> memFromLmr( int ilmr );
   static std::vector<int> lmmodFromLmr( int ilmr );
 
   static int apdRefTower( int ilmmod );
   static std::vector<int> apdRefChannels( int ilmmod );
-
-  static int referenceNormalization( int ilmr, int ilmmod );
-
-  static int side( int ilmmod );
-
 
   // get local from crystal number
   static XYCoord   localCoord( int icr );

@@ -101,11 +101,9 @@ def deliveredLumiForRange(dbsession,c,fileparsingResult):
         lumidata.append( deliveredLumiForRun(dbsession,c,run) )
     return lumidata
 
-def recordedLumiForRun(dbsession,c,runnum,lslist=[-1]):
-    '''
-    lslist=[-1] means to take all in the db
-    output: ['runnumber','trgtable{}','deadtable{}']
-    '''
+def recordedLumiForRun(dbsession,c,runnum,lslist=[]):
+    """output: ['runnumber','trgtable{}','deadtable{}']
+    """
     recorded=0.0
     lumidata=[] #[runnumber,trgtable,deadtable]
     trgtable={} #{hltpath:[l1seed,hltprescale,l1prescale]}
@@ -196,8 +194,8 @@ def recordedLumiForRun(dbsession,c,runnum,lslist=[-1]):
         query.addToOutputList("trg.DEADTIME","trgdeadtime")
         query.addToOutputList("trg.PRESCALE","trgprescale")
         query.addToOutputList("trg.BITNUM","trgbitnum")
-        #query.addToOrderList("trg.BITNAME")
-        #query.addToOrderList("trg.CMSLSNUM")
+        query.addToOrderList("trg.BITNAME")
+        query.addToOrderList("trg.CMSLSNUM")
 
         result=coral.AttributeList()
         result.extend("cmsls","unsigned int")
@@ -255,11 +253,9 @@ def recordedLumiForRun(dbsession,c,runnum,lslist=[-1]):
     return lumidata
 
 def filterDeadtable(inTable,lslist):
-    result={}
-    if len(lslist)==0: #if request no ls, then return nothing
-        return result
-    if len(lslist)==1 and lslist[0]<0:
+    if len(lslist)==0:
         return inTable
+    result={}
     for existingLS in inTable.keys():
         if existingLS in lslist:
             result[existingLS]=inTable[existingLS]
@@ -273,7 +269,6 @@ def recordedLumiForRange(dbsession,c,fileparsingResult):
     runs=fileparsingResult.runs()
     runs.sort()
     runsandls=fileparsingResult.runsandls()
-    ###print 'runsandls ',runsandls
     for run in runs:
         lslist=runsandls[run]
     #for (run,lslist) in fileparsingResult.runsandls().items():
@@ -363,33 +358,22 @@ def printPerLSLumi(lumidata,isVerbose=False,hltpath=''):
     deadtable {lsnum:[deadtime,instlumi,bit_0,norbits]}
     '''
     datatoprint=[]
-    totalrow=[]
-    labels=[('Run','LS','Delivered','Recorded'+u' (/\u03bcb)'.encode('utf-8'))]
-    lastrowlabels=[('Selected LS','Delivered'+u' (/\u03bcb)'.encode('utf-8'),'Recorded'+u' (/\u03bcb)'.encode('utf-8'))]
-    totalDeliveredLS=0
-    totalSelectedLS=0
-    totalDelivered=0.0
-    totalRecorded=0.0
-    
     for perrundata in lumidata:
         runnumber=perrundata[0]
         deadtable=perrundata[2]
         lumiresult=lsBylsLumi(deadtable)
-        totalSelectedLS=totalSelectedLS+len(deadtable)
         for lsnum,dataperls in lumiresult.items():
             rowdata=[]
+            labels=[('Run','LS','Delivered','Recorded'+u' (/\u03bcb)'.encode('utf-8'))]
             if len(dataperls)==0:
                 rowdata+=[str(runnumber),str(lsnum),'N/A','N/A']
             else:
                 rowdata+=[str(runnumber),str(lsnum),'%.3f'%(dataperls[0]),'%.3f'%(dataperls[1])]
-                totalDelivered=totalDelivered+dataperls[0]
-                totalRecorded=totalRecorded+dataperls[1]
             datatoprint.append(rowdata)
-    totalrow.append([str(totalSelectedLS),'%.3f'%(totalDelivered),'%.3f'%(totalRecorded)])
+    #print datatoprint
     print '==='
     print tablePrinter.indent(labels+datatoprint,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',justify='right',delim=' | ',wrapfunc=lambda x: wrap_onspace_strict(x,22))
-    print '=== Total : '
-    print tablePrinter.indent(lastrowlabels+totalrow,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',justify='right',delim=' | ',wrapfunc=lambda x: wrap_onspace(x,20))    
+    
 def dumpPerLSLumi(lumidata,hltpath=''):
     datatodump=[]
     for perrundata in lumidata:
@@ -406,17 +390,9 @@ def dumpPerLSLumi(lumidata,hltpath=''):
     return datatodump
 def printRecordedLumi(lumidata,isVerbose=False,hltpath=''):
     datatoprint=[]
-    totalrow=[]
     labels=[('Run','HLT path','Recorded'+u' (/\u03bcb)'.encode('utf-8'))]
-    lastrowlabels=[('Selected LS','Recorded'+u' (/\u03bcb)'.encode('utf-8'))]
-    if len(hltpath)!=0 and hltpath!='all':
-        lastrowlabels=[('Selected LS','Recorded'+u' (/\u03bcb)'.encode('utf-8'),'Effective '+u'(/\u03bcb) '.encode('utf-8')+hltpath)]
     if isVerbose:
         labels=[('Run','HLT-path','L1-bit','L1-presc','HLT-presc','Recorded'+u' (/\u03bcb)'.encode('utf-8'))]
-    totalSelectedLS=0
-    totalRecorded=0.0
-    totalRecordedInPath=0.0
-    
     for dataperRun in lumidata:
         runnum=dataperRun[0]
         if len(dataperRun[1])==0:
@@ -425,11 +401,9 @@ def printRecordedLumi(lumidata,isVerbose=False,hltpath=''):
             datatoprint.append(rowdata)
             continue
         perlsdata=dataperRun[2]
-        totalSelectedLS=totalSelectedLS+len(perlsdata)
         recordedLumi=0.0
         #norbits=perlsdata.values()[0][3]
         recordedLumi=calculateTotalRecorded(perlsdata)
-        totalRecorded=totalRecorded+recordedLumi
         trgdict=dataperRun[1]
         effective=calculateEffective(trgdict,recordedLumi)
         if trgdict.has_key(hltpath) and effective.has_key(hltpath):
@@ -447,7 +421,6 @@ def printRecordedLumi(lumidata,isVerbose=False,hltpath=''):
                     hltprescale=trgdict[hltpath][1]
                     l1prescale=trgdict[hltpath][2]
                     rowdata+=[str(runnum),hltpath,l1bit,str(l1prescale),str(hltprescale),'%.3f'%(effective[hltpath])]
-                totalRecordedInPath=totalRecordedInPath+effective[hltpath]
             datatoprint.append(rowdata)
             continue
         
@@ -475,13 +448,6 @@ def printRecordedLumi(lumidata,isVerbose=False,hltpath=''):
     #print datatoprint
     print '==='
     print tablePrinter.indent(labels+datatoprint,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',justify='right',delim=' | ',wrapfunc=lambda x: wrap_onspace_strict(x,22))
-
-    if len(hltpath)!=0 and hltpath!='all':
-        totalrow.append([str(totalSelectedLS),'%.3f'%(totalRecorded),'%.3f'%(totalRecordedInPath)])
-    else:
-        totalrow.append([str(totalSelectedLS),'%.3f'%(totalRecorded)])
-    print '=== Total : '
-    print tablePrinter.indent(lastrowlabels+totalrow,hasHeader=True,separateRows=False,prefix='| ',postfix=' |',justify='right',delim=' | ',wrapfunc=lambda x: wrap_onspace(x,20))    
     if isVerbose:
         deadtoprint=[]
         deadtimelabels=[('Run','Lumi section : Dead fraction')]
@@ -579,7 +545,6 @@ def printOverviewData(delivered,recorded,hltpath=''):
         #print 'selectedls ',selectedls
         if len(selectedls)==0:
             selectedlsStr='[]'
-            recordedLumi=0
             if  hltpath!='' and hltpath!='all':
                 rowdata+=[selectedlsStr,'N/A','N/A']
             else:
@@ -634,7 +599,7 @@ def main():
     c=constants()
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="Lumi Calculations")
     # add required arguments
-    parser.add_argument('-c',dest='connect',action='store',required=False,help='connect string to lumiDB (optional, default to frontier://LumiProd/CMS_LUMI_PROD)')
+    parser.add_argument('-c',dest='connect',action='store',required=True,help='connect string to lumiDB (required)')
     # add optional arguments
     parser.add_argument('-P',dest='authpath',action='store',help='path to authentication file')
     parser.add_argument('-n',dest='normfactor',action='store',help='normalization factor (optional, default to 1.0)')
@@ -650,9 +615,7 @@ def main():
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     # parse arguments
     args=parser.parse_args()
-    connectstring='frontier://LumiProd/CMS_LUMI_PROD'
-    if args.connect: 
-        connectstring=args.connect
+    connectstring=args.connect
     connectparser=connectstrParser.connectstrParser(connectstring)
     connectparser.parse()
     usedefaultfrontierconfig=False
@@ -768,7 +731,6 @@ def main():
             recordeddata.append(recordedLumiForRun(session,c,runnumber))
         else:
             recordeddata=recordedLumiForRange(session,c,fileparsingResult)
-        #print 'recordedata ',recordeddata
         if not ofilename:
             printPerLSLumi(recordeddata,c.VERBOSE,hpath)
         else:

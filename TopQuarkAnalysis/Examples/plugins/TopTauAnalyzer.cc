@@ -3,15 +3,15 @@
 
 
 TopTauAnalyzer::TopTauAnalyzer(const edm::ParameterSet& cfg):
-  taus_(cfg.getParameter<edm::InputTag>("input"))
+  input_(cfg.getParameter<edm::InputTag>("input"))
 {
   edm::Service<TFileService> fs;
   
-  NrTau_ = fs->make<TH1I>("NrTau",  "Num_{Taus}",    10,  0 , 10 );
-  ptTau_ = fs->make<TH1F>("ptTau",  "pt_{Taus}",    100,  0.,300.);
-  enTau_ = fs->make<TH1F>("enTau",  "energy_{Taus}",100,  0.,300.);
-  etaTau_= fs->make<TH1F>("etaTau", "eta_{Taus}",   100, -3.,  3.);
-  phiTau_= fs->make<TH1F>("phiTau", "phi_{Taus}",   100, -4.,  4.);
+  mult_ = fs->make<TH1F>("mult", "multiplicity (taus)", 30,  0 ,   30);
+  en_   = fs->make<TH1F>("en"  , "energy (taus)",       60,  0., 300.);
+  pt_   = fs->make<TH1F>("pt"  , "pt (taus}",           60,  0., 300.);
+  eta_  = fs->make<TH1F>("eta" , "eta (taus)",          30, -3.,   3.);
+  phi_  = fs->make<TH1F>("phi" , "phi (taus)",          40, -4.,   4.);
 }
 
 TopTauAnalyzer::~TopTauAnalyzer()
@@ -22,18 +22,16 @@ void
 TopTauAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
 {       
   edm::Handle<std::vector<pat::Tau> > taus;
-  evt.getByLabel(taus_, taus); 
+  evt.getByLabel(input_, taus); 
 
-  NrTau_->Fill( taus->size() );
-  for( std::vector<pat::Tau>::const_iterator tau=taus->begin();
-       tau!=taus->end(); ++tau){
-    // --------------------------------------------------
-    // fill basic tau kinematics 
-    // --------------------------------------------------
-    ptTau_ ->Fill( tau->pt()    );
-    enTau_ ->Fill( tau->energy());
-    etaTau_->Fill( tau->eta()   );
-    phiTau_->Fill( tau->phi()   );
+  // fill histograms
+
+  mult_->Fill( taus->size() );
+  for(std::vector<pat::Tau>::const_iterator tau=taus->begin(); tau!=taus->end(); ++tau){
+    en_ ->Fill( tau->energy() );
+    pt_ ->Fill( tau->pt()     );
+    eta_->Fill( tau->eta()    );
+    phi_->Fill( tau->phi()    );
   }
 }
 

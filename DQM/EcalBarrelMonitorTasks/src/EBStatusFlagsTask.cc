@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsTask.cc
  *
- * $Date: 2010/04/02 08:20:44 $
- * $Revision: 1.28 $
+ * $Date: 2010/10/04 10:54:02 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  *
 */
@@ -20,9 +20,9 @@
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalBarrelMonitorTasks/interface/EBStatusFlagsTask.h>
+#include "DQM/EcalBarrelMonitorTasks/interface/EBStatusFlagsTask.h"
 
 EBStatusFlagsTask::EBStatusFlagsTask(const edm::ParameterSet& ps){
 
@@ -162,11 +162,11 @@ void EBStatusFlagsTask::setup(void){
       meFEchErrors_[i][2]->setBinLabel(1+5, "LINK", 1);
       meFEchErrors_[i][2]->setBinLabel(1+6, "BLOCKSIZE", 1);
       meFEchErrors_[i][2]->setBinLabel(1+7, "SUPPRESSED", 1);
-      meFEchErrors_[i][2]->setBinLabel(1+8, "FIFO FULL", 1);
+      meFEchErrors_[i][2]->setBinLabel(1+8, "FORCED FS", 1);
       meFEchErrors_[i][2]->setBinLabel(1+9, "L1A SYNC", 1);
       meFEchErrors_[i][2]->setBinLabel(1+10, "BX SYNC", 1);
       meFEchErrors_[i][2]->setBinLabel(1+11, "L1A+BX SYNC", 1);
-      meFEchErrors_[i][2]->setBinLabel(1+12, "FIFO+L1A", 1);
+      meFEchErrors_[i][2]->setBinLabel(1+12, "FIFO FULL+L1A", 1);
       meFEchErrors_[i][2]->setBinLabel(1+13, "H PARITY", 1);
       meFEchErrors_[i][2]->setBinLabel(1+14, "V PARITY", 1);
       meFEchErrors_[i][2]->setBinLabel(1+15, "FORCED ZS", 1);
@@ -263,20 +263,20 @@ void EBStatusFlagsTask::analyze(const edm::Event& e, const edm::EventSetup& c){
           float xiet = iet - 0.5;
           float xipt = ipt - 0.5;
 
-          if ( ! ( status[itt-1] == 0 || status[itt-1] == 1 || status[itt-1] == 7 || status[itt-1] == 8 || status[itt-1] == 15 ) ) {
+          if ( ! ( status[itt-1] == 0 || status[itt-1] == 1 || status[itt-1] == 7 || status[itt-1] == 8 || status[itt-1] == 12 || status[itt-1] == 15 ) ) {
             if ( meFEchErrors_[ism-1][0] ) meFEchErrors_[ism-1][0]->Fill(xiet, xipt);
             if ( meFEchErrorsByLumi_ ) meFEchErrorsByLumi_->Fill(xism, 1./68.);
           }
 
         } else if ( itt == 69 || itt == 70 ) {
 
-          if ( ! ( status[itt-1] == 0 || status[itt-1] == 1 || status[itt-1] == 7 || status[itt-1] == 8 || status[itt-1] == 15 ) ) {
+          if ( ! ( status[itt-1] == 0 || status[itt-1] == 1 || status[itt-1] == 7 || status[itt-1] == 8 || status[itt-1] == 12 || status[itt-1] == 15 ) ) {
             if ( meFEchErrors_[ism-1][1] ) meFEchErrors_[ism-1][1]->Fill(itt-68-0.5, 0);
           }
 
         }
 
-        if ( meFEchErrors_[ism-1][2] ) meFEchErrors_[ism-1][2]->Fill(status[itt-1]+0.5); 
+        if ( meFEchErrors_[ism-1][2] ) meFEchErrors_[ism-1][2]->Fill(status[itt-1]+0.5);
 
       }
 

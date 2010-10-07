@@ -22,10 +22,10 @@ bool DCCEBTCCBlock::checkTccIdAndNumbTTs(){
 
     if( ! DCCDataUnpacker::silentMode_ ){
       edm::LogWarning("IncorrectBlock")
-        <<"Error on event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in fed "<<mapper_->getActiveDCC()
+        <<"\n Error on event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in fed "<<mapper_->getActiveDCC()
         <<"\n TCC id is "<<tccId_<<" while expected is "<<expTccId_
         <<"\n TCC Block Skipped ...";  
-         //todo : add this to error colection
+	 //todo : add this to error colection
      }
      return false;
   }
@@ -34,10 +34,10 @@ bool DCCEBTCCBlock::checkTccIdAndNumbTTs(){
   if( nTTs_ != expNumbTTs_ ){
     if( ! DCCDataUnpacker::silentMode_ ){
       edm::LogWarning("IncorrectBlock")
-       <<"Unable to unpack TCC block for event "<<event_->l1A()<<" in fed "<<mapper_->getActiveDCC()
+       <<"\n Unable to unpack TCC block for event "<<event_->l1A()<<" in fed "<<mapper_->getActiveDCC()
        <<"\n Number of TTs "<<nTTs_<<" is different from expected "<<expNumbTTs_
        <<"\n TCC Block Skipped ..."; 
-         //todo : add this to error colection
+	 //todo : add this to error colection
      }
      return false;
   }  
@@ -71,7 +71,7 @@ void DCCEBTCCBlock::addTriggerPrimitivesToCollection(){
       
       pTP_->setSampleValue(ns, (*tccP_));
       (*tps_)->push_back(*pTP_);
-                  
+        	  
     }
   }
 

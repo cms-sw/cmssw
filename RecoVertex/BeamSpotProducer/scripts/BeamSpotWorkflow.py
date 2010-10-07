@@ -54,26 +54,20 @@ except:
 # General functions
 #####################################################################################
 def getLastUploadedIOV(tagName,destDB="oracle://cms_orcoff_prod/CMS_COND_31X_BEAMSPOT"):
-    #return 582088327592295
     listIOVCommand = "cmscond_list_iov -c " + destDB + " -P /afs/cern.ch/cms/DB/conddb -t " + tagName 
-    dbError = commands.getstatusoutput( listIOVCommand )
-    if dbError[0] != 0 :
-        if dbError[1].find("metadata entry \"" + tagName + "\" does not exist") != -1:
+    aCommand       = listIOVCommand + " | grep DB= | tail -1 | awk \'{print $1}\'"
+#    print " >> " + aCommand
+    output = commands.getstatusoutput( aCommand )
+    if output[0] != 0 :
+        dbError = commands.getstatusoutput( listIOVCommand )
+        if dbError[1].find("metadata entry \"" + tagName + "\" does not exist"):
             print "Creating a new tag because I got the following error contacting the DB"
-            print dbError[1]
+            print output[1]
             return 1
             #return 133928
         else:
             exit("ERROR: Can\'t connect to db because:\n" + dbError[1])
-
-
-    aCommand = listIOVCommand + " | grep DB= | tail -1 | awk \'{print $1}\'"
-    output = commands.getstatusoutput( aCommand )
-    
     #WARNING when we pass to lumi IOV this should be long long
-    if output[1] == '':
-      exit("ERROR: The tag " + tagName + " exists but I can't get the value of the last IOV")
-      
     return long(output[1])
 
 ########################################################################
@@ -106,14 +100,7 @@ def getListOfRunsAndLumiFromDBS(dataSet,lastRun=-1):
             queryCommand = queryCommand + " and run > " + str(lastRun)
         queryCommand += "\""
         print " >> " + queryCommand
-        output = []
-        for i in range(0,3):
-	    output = commands.getstatusoutput( queryCommand )
-            if output[0] == 0 and not (output[1].find("ERROR") != -1 or output[1].find("Error") != -1) :
-                break
-        if output[0] != 0:
-            exit("ERROR: I can't contact DBS for the following reason:\n" + output[1])
-        #print output[1]
+        output = commands.getstatusoutput( queryCommand )
         tmpList = output[1].split('\n')
         for file in tmpList:
             outputList.append(file)
@@ -132,7 +119,7 @@ def getListOfRunsAndLumiFromDBS(dataSet,lastRun=-1):
     return runsAndLumis
 
 ########################################################################
-def getListOfRunsAndLumiFromRR(lastRun=-1):
+def getListOfRunsAndLumiFromRR(dataSet,lastRun=-1):
     RunReg  ="http://pccmsdqm04.cern.ch/runregistry"
     #RunReg  = "http://localhost:40010/runregistry"
     #Dataset=%Online%
@@ -213,7 +200,7 @@ def getRunNumberFromDBSName(fileName):
 ########################################################################
 def getNewRunList(fromDir,lastUploadedIOV):
     newRunList = []
-    listOfFiles = ls(fromDir,".txt")
+    listOfFiles = ls(fromDir)
     runFileMap = {}
     for fileName in listOfFiles:
         runNumber = getRunNumberFromFileName(fileName) 
@@ -255,7 +242,6 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
     dbsKeys.sort()
     #I remove the last entry from DBS since I am not sure it is an already closed run!
     lastUnclosedRun = dbsKeys.pop()
-    #print "Last unclosed run: " + str(lastUnclosedRun)
     procKeys = runsAndLumisProcessed.keys()
     procKeys.sort()
     #print "Run Registry:"    
@@ -267,14 +253,8 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
     #print lastUnclosedRun
     filesToProcess = []
     for run in rrKeys:
-        RRList = []
-        for lumiRange in listOfRunsAndLumiFromRR[run]:
-            if lumiRange != []: 
-                for l in range(lumiRange[0],lumiRange[1]+1):
-                    RRList.append(long(l))
-        if run in procKeys and run < lastUnclosedRun:
-            #print "run " + str(run) + " is in procKeys"
-            if not run in dbsKeys and run != lastUnclosedRun:
+        if run in runsAndLumisProcessed and run < lastUnclosedRun:
+            if not run in listOfRunsAndLumiFromDBS and run != lastUnclosedRun:
                 error = "Impossible but run " + str(run) + " has been processed and it is also in the run registry but it is not in DBS!" 
                 exit(error)
             print "Working on run " + str(run)
@@ -299,10 +279,9 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
                 else:
                     timeoutType = timeoutManager("DBS_VERY_BIG_MISMATCH_Run"+str(run),missingLumisTimeout)
                     if timeoutType == 1:
-                        error = "ERROR: I previously set a timeout that expired...I can't continue with the script because there are too many (" + str(nFiles - len(runsAndFiles[run])) + " files missing) and for too long " + str(missingLumisTimeout/3600) + " hours! I will process anyway the runs before this one (" + str(run) + ")"
+                        error = "ERROR: I previously set a timeout that expired...I can't continue with the script because there are too many (" + str(nFiles - len(runsAndFiles[run])) + " files missing) and for too long " + str(missingLumisTimeout/3600) + " hours!"
                         sendEmail(mailList,error)
-                        return filesToProcess
-                        #exit(error)
+                        exit(error)
                     else:
                         if timeoutType == -1:
                             print "WARNING: Setting the DBS_VERY_BIG_MISMATCH_Run" + str(run) + " timeout because I haven't processed all files!"
@@ -331,9 +310,13 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
             #exit("ciao")
             if len(badDBS) != 0:
                 print "This is weird because I processed more lumis than the ones that are in DBS!"
-            if len(badDBSProcessed) != 0 and run in rrKeys:
+            if len(badDBSProcessed) != 0 and run in listOfRunsAndLumiFromRR:
                 lastError = len(errors)
-                #print RRList            
+                RRList = []
+                for lumiRange in listOfRunsAndLumiFromRR[run]:
+                    if lumiRange != []: 
+                        for l in range(lumiRange[0],lumiRange[1]+1):
+                            RRList.append(long(l))
                 #It is important for runsAndLumisProcessed[run] to be the first because the comparision is not ==
                 badRRProcessed,badRR = compareLumiLists(runsAndLumisProcessed[run],RRList,errors)
                 for i in range(0,len(errors)):
@@ -359,11 +342,10 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
                         #print errors
                         badProcessed = []
                     else:    
-                        error = "ERROR: For run " + str(run) + " I didn't process " + str(100.*lenA/lenB) + "% of the lumis and I am not within the " + str(dbsTolerancePercent) + "% set in the configuration. The number of lumis that I didn't process (" + str(lenA) + " out of " + str(lenB) + ") is greater also than the " + str(dbsTolerance) + " lumis that I can tolerate. I can't process runs >= " + str(run) + " but I'll process the runs before!"
+                        error = "ERROR: I didn't process " + str(100.*lenA/lenB) + "% of the lumis and I am not within the " + str(dbsTolerancePercent) + "% set in the configuration. The number of lumis that I didn't process (" + str(lenA) + " out of " + str(lenB) + ") is greater also than the " + str(dbsTolerance) + " lumis that I can tolerate. I can't continue!" 
                         sendEmail(mailList,error)
                         print error
-                        return filesToProcess
-                        #exit(errors)
+                        exit(errors)
                     #return filesToProcess
                 elif len(errors) != 0:
                     print "The number of lumi sections processed didn't match the one in DBS but they cover all the ones in the Run Registry, so it is ok!"
@@ -381,16 +363,14 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
             print error
             timeoutType = timeoutManager("MISSING_RUNREGRUN_Run"+str(run),missingLumisTimeout)
             if timeoutType == 1:
-                if len(RRList) <= rrTolerance:
-                    error = "WARNING: I previously set the MISSING_RUNREGRUN_Run" + str(run) + " timeout that expired...I am missing run " + str(run) + " but it only had " + str(len(RRList)) + " <= " + str(rrTolerance) + " lumis. So I will continue and ignore it... "
-                    #print listOfRunsAndLumiFromRR[run]
+                if len(listOfRunsAndLumiFromRR[run]) <= rrTolerance:
+                    error = "WARNING: I previously set the MISSING_RUNREGRUN_Run" + str(run) + " timeout that expired...I am missing run " + str(run) + " but it only had " + str(len(listOfRunsAndLumiFromRR[run])) + " <= " + str(rrTolerance) + " lumis. So I will continue and ignore it... "
                     print error
-                    #sendEmail(mailList,error)
-                else:
-                    error = "ERROR: I previously set the MISSING_RUNREGRUN_Run" + str(run) + " timeout that expired...I am missing run " + str(run) + " which has " + str(len(RRList)) + " > " + str(rrTolerance) + " lumis. I can't continue but I'll process the runs before this one"
                     sendEmail(mailList,error)
-                    return filesToProcess
-                    #exit(error)
+                else:
+                    error = "ERROR: I previously set the MISSING_RUNREGRUN_Run" + str(run) + " timeout that expired...I am missing run " + str(run) + " which has " + str(len(listOfRunsAndLumiFromRR[run])) + " > " + str(rrTolerance) + " lumis. I can't continue... "
+                    sendEmail(mailList,error)
+                    exit(error)
             else:
                 if timeoutType == -1:
                     print "WARNING: Setting the MISSING_RUNREGRUN_Run" + str(run) + " timeout because I haven't processed a run!"
@@ -593,11 +573,10 @@ def main():
     ######### Get from DBS the list of files after last IOV    
     #listOfFilesToProcess = getListOfFilesToProcess(dataSet,lastUploadedIOV) 
     print "Getting list of files from DBS"
-    listOfRunsAndLumiFromDBS = getListOfRunsAndLumiFromDBS(dataSet,lastUploadedIOV)
-    if len(listOfRunsAndLumiFromDBS) == 0:
-       exit("There are no files in DBS to process") 
+    listOfRunsAndLumiFromDBS = getListOfRunsAndLumiFromDBS(dataSet,lastUploadedIOV) 
     print "Getting list of files from RR"
-    listOfRunsAndLumiFromRR  = getListOfRunsAndLumiFromRR(lastUploadedIOV) 
+    listOfRunsAndLumiFromRR  = getListOfRunsAndLumiFromRR(dataSet,lastUploadedIOV) 
+
     ######### Get list of files to process for DB
     #selectedFilesToProcess = selectFilesToProcess(listOfFilesToProcess,copiedFiles)
     #completeProcessedRuns = removeUncompleteRuns(copiedFiles,dataSet)

@@ -18,13 +18,14 @@ TtEvent::HypoClassKey
 TtEvent::hypoClassKeyFromString(const std::string& label) const 
 {
    static HypoClassKeyStringToEnum hypoClassKeyStringToEnumMap[] = {
-      { "kGeom",          kGeom          },
-      { "kWMassMaxSumPt", kWMassMaxSumPt },
-      { "kMaxSumPtWMass", kMaxSumPtWMass },
-      { "kGenMatch",      kGenMatch      },
-      { "kMVADisc",       kMVADisc       },
-      { "kKinFit",        kKinFit        },
-      { "kKinSolution",   kKinSolution   },
+      { "kGeom",              kGeom             },
+      { "kWMassMaxSumPt",     kWMassMaxSumPt    },
+      { "kMaxSumPtWMass",     kMaxSumPtWMass    },
+      { "kGenMatch",          kGenMatch         },
+      { "kMVADisc",           kMVADisc          },
+      { "kKinFit",            kKinFit           },
+      { "kKinSolution",       kKinSolution      },
+      { "kWMassDeltaTopMass", kWMassDeltaTopMass},
       { 0, (HypoClassKey)-1 }
    };
 
@@ -46,7 +47,7 @@ TtEvent::hypoClassKeyFromString(const std::string& label) const
 
 // print pt, eta, phi, mass of a given candidate into an existing LogInfo
 void
-TtEvent::printParticle(edm::LogInfo &log, const char* name, const reco::Candidate* cand)
+TtEvent::printParticle(edm::LogInfo &log, const char* name, const reco::Candidate* cand) const
 {
   if(!cand) {
     log << std::setw(15) << name << ": not available!\n";

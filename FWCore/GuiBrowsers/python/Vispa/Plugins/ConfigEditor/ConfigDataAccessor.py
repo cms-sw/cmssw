@@ -541,7 +541,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
             properties += self.recursePSetProperties("", object)
         return tuple(properties)
     
-    def setProperty(self, object, name, value):
+    def setProperty(self, object, name, value, categoryName):
         """ Sets a property with given name to value.
         """
         if hasattr(object, "_seq") and name=="sequence":

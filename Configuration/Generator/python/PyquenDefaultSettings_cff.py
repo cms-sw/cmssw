@@ -36,7 +36,8 @@ hydjetParameters = cms.PSet(sigmaInelNN = cms.double(58),
                             maxLongitudinalRapidity = cms.double(4.5),
                             maxTransverseRapidity = cms.double(1.),
                             rotateEventPlane = cms.bool(True),
-                            allowEmptyEvents = cms.bool(False)
+                            allowEmptyEvents = cms.bool(False),
+                            embeddingMode = cms.bool(False)                            
                             )
 
 pyquenPythiaDefaultBlock = cms.PSet(

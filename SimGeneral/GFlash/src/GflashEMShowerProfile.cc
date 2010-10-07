@@ -1,5 +1,5 @@
 //
-// $Id: GflashEMShowerProfile.cc,v 1.4 2010/04/30 19:09:28 dwjang Exp $
+// $Id: GflashEMShowerProfile.cc,v 1.2 2010/01/15 21:28:31 syjun Exp $
 // initial setup : Soon Jun & Dongwook Jang
 // Translated from Fortran code.
 //
@@ -21,8 +21,6 @@
 GflashEMShowerProfile::GflashEMShowerProfile(edm::ParameterSet parSet) : theParSet(parSet)
 {
   theBField = parSet.getParameter<double>("bField");
-  theEnergyScaleEB = parSet.getParameter<double>("energyScaleEB");
-  theEnergyScaleEE = parSet.getParameter<double>("energyScaleEE");
 
   jCalorimeter = Gflash::kNULL;
 
@@ -49,8 +47,6 @@ void GflashEMShowerProfile::parameterization()
 {
   // This part of code is copied from the original GFlash Fortran code.
   // reference : hep-ex/0001020v1
-  // The units used in Geant4 internally are in mm, MeV.
-  // For simplicity, the units here are in cm, GeV.
 
   const double energyCutoff     = 0.01; 
   const int    maxNumberOfSpots = 100000;
@@ -65,8 +61,7 @@ void GflashEMShowerProfile::parameterization()
   double y = incomingEnergy / Gflash::criticalEnergy; // y = E/Ec, criticalEnergy is in GeV
   double logY = std::log(y);
 
-  // Total number of spots are not yet optimized.
-  double nSpots = 93.0 * std::log(Gflash::Z[jCalorimeter]) * std::pow(incomingEnergy,0.876);
+  double nSpots = 93.0 * std::log(Gflash::Z[jCalorimeter]) * std::pow(incomingEnergy,0.876); // total number of spots
 
   //path Length from the origin to the shower starting point in cm
   double pathLength0 = theShowino->getPathLengthAtShower();
@@ -119,14 +114,9 @@ void GflashEMShowerProfile::parameterization()
   double p2=0.401 +0.00187*Gflash::Z[jCalorimeter];
   double p3=1.313 -0.0686*logEinc;
 
-  // @@@ dwjang, intial tuning by comparing 20-150GeV TB data : e25Scale = 1.006 for EB with ecalNotContainment = 1.0.
-  // Now e25Scale is a configurable parameter with default ecalNotContainment which is 0.97 for EB and 0.975 for EE.
-  // So if ecalNotContainment constants are to be changed in the future, e25Scale should be changed accordingly.
-  double e25Scale = 1.0;
-  if(jCalorimeter == Gflash::kESPM) e25Scale = theEnergyScaleEB;
-  else if(jCalorimeter == Gflash::kENCA) e25Scale = theEnergyScaleEE;
-
-  // @@@ dwjang, intial tuning by comparing 20-150GeV TB data : p1 *= 0.965
+  // @@@ dwjang, intial tuning by comparing 20-150GeV TB data
+  // the width of energy response is not yet tuned.
+  double e25Scale = 1.006;
   p1 *= 0.965;
 
   // preparation of longitudinal integration

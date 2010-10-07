@@ -38,6 +38,7 @@ using stor::testhelper::clear_trigger_bits;
 
 class testEventDistributor : public CppUnit::TestFixture
 {
+  typedef toolbox::mem::Reference Reference;
   CPPUNIT_TEST_SUITE(testEventDistributor);
   CPPUNIT_TEST(testInitMessages);
   CPPUNIT_TEST(testStreamSelection);

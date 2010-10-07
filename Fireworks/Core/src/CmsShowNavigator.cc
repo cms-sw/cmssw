@@ -2,17 +2,16 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.90 2010/06/18 10:17:14 yana Exp $
+// $Id: CmsShowNavigator.cc,v 1.87 2010/03/26 20:20:20 matevz Exp $
 //
 #define private public
-// FIXME: need access to private data members 
 #include "DataFormats/FWLite/interface/Event.h"
 #include "Fireworks/Core/src/CmsShowMain.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
 #undef private
 
-#include "Fireworks/Core/interface/FWEventItem.h"
-
 // system include files
+#include <string>
 #include <boost/regex.hpp>
 #include "TROOT.h"
 #include "TTree.h"
@@ -25,6 +24,7 @@
 
 #include  <TApplication.h>
 #include  <TSystem.h>
+#include  <TGraph.h>
 #include  <TObject.h>
 
 // user include files
@@ -53,8 +53,12 @@ CmsShowNavigator::CmsShowNavigator(const CmsShowMain &main):
    m_maxNumberOfFilesToChain(1),
 
    m_main(main),
-   m_guiFilter(0)
+   m_guiFilter(0),
+
+   m_memoryInfoSamples(0)
 {
+   // write memory info to TGraph
+   // setupMemoryInfo(200);
 }
 
 CmsShowNavigator::~CmsShowNavigator()
@@ -186,31 +190,21 @@ CmsShowNavigator::goTo(FileQueue_i fi, int event)
    {
       int total = (*fi)->tree()->GetEntries();
       fwLog(fwlog::kDebug) << "CmsShowNavigator::goTo  current file event [" << event  << "/" << total -1<< "]"  << std::endl;
-
-      CpuInfo_t  cpuInfo;
-      MemInfo_t  memInfo;
-      ProcInfo_t procInfo;
-      gSystem->GetCpuInfo(&cpuInfo, 1000);
-      gSystem->GetMemInfo(&memInfo);
-      gSystem->GetProcInfo(&procInfo);
-      
-      fwLog(fwlog::kDebug) << "memInfo.fMemUsed \t"  << memInfo.fMemUsed << std::endl;
-      fwLog(fwlog::kDebug) << "memInfo.fSwapUsed\t" << memInfo.fSwapUsed<< std::endl; 
-      fwLog(fwlog::kDebug) << "procInfo.fMemResident\t" << procInfo.fMemResident << std::endl;
-      fwLog(fwlog::kDebug) << "procInfo.fMemVirtual\t" << procInfo.fMemVirtual << std::endl;
-      fwLog(fwlog::kDebug) << "cpuInfo.fUser \t" << cpuInfo.fUser << std::endl;
-      fwLog(fwlog::kDebug) << "cpuInfo.fSys \t" << cpuInfo.fSys  << std::endl;
    }
    
    (*m_currentFile)->event()->to(event);
    m_currentEvent = event;
 
+   if (m_memoryInfoSamples) writeMemoryInfo();
    newEvent_.emit();
 }
 
 void
 CmsShowNavigator::goToRunEvent(Int_t run, Int_t event)
 {
+/* Comment this out so that this will compile with the latest framework changes.
+ * FileIndex is obsolete, and replaced by IndexIntoFile.
+
    fwlite::Event* fwEvent = 0;
    edm::FileIndex::const_iterator it;
 
@@ -222,6 +216,7 @@ CmsShowNavigator::goToRunEvent(Int_t run, Int_t event)
       if (fwEvent->fileIndex_.end() != it)
          goTo(file, (*file)->getTreeEntryFromEventId(event));
    }
+*/
 }
 
 //______________________________________________________________________________
@@ -851,5 +846,59 @@ CmsShowNavigator::addTo(FWConfiguration& iTo) const
    }
    iTo.addKeyValue("EventFilter_total",FWConfiguration(Form("%d",numberOfFilters)));
    iTo.addKeyValue("EventFilter_enabled",FWConfiguration(Form("%d", m_filterState == kOn ? 1 : 0)));
+}
+
+
+//______________________________________________________________________________
+//
+void
+CmsShowNavigator::setupMemoryInfo(int numEvents)
+{
+   m_memoryInfoSamples = numEvents;
+   m_memoryVirtualVec.reserve (m_memoryInfoSamples);
+   m_memoryResidentVec.reserve(m_memoryInfoSamples);
+}
+
+void
+CmsShowNavigator::writeMemoryInfo()
+{
+   if (m_memoryResidentVec.size() < (unsigned int)m_memoryInfoSamples )
+   {
+      ProcInfo_t pInf;
+      gSystem->GetProcInfo(&pInf);
+      m_memoryResidentVec.push_back(pInf.fMemResident/1024.0);
+      m_memoryVirtualVec.push_back(pInf.fMemVirtual/1024.0);
+      fwLog(fwlog::kInfo) <<  m_memoryResidentVec.size() << " RESIDENT << " <<
+         m_memoryResidentVec.back() << "VIRTUAL << " << m_memoryVirtualVec.back() << std::endl;
+   }
+   if (m_memoryResidentVec.size() % 100 == 0)
+   {
+      fwLog(fwlog::kInfo) << "Writing memory info to file memoryUsage_PID" << std::endl;
+      TDirectory* gd= gDirectory;
+      TFile* gf= gFile;
+      {
+         TFile* file = TFile::Open(Form("memoryUsage_%d.root", gSystem->GetPid()), "RECREATE");
+         file->cd(); 
+         Int_t n = m_memoryResidentVec.size();
+         TGraph gv(n);
+         gv.SetTitle("VirtualMemory");
+         gv.GetXaxis()->SetTitle("events");
+         gv.GetYaxis()->SetTitle("kB");
+         TGraph gr(n);
+         gr.SetTitle("ResidentMemory");
+         gr.GetXaxis()->SetTitle("events");
+         gr.GetYaxis()->SetTitle("kB");
+         for(Int_t i=0; i<n; i++)
+         {
+            gr.SetPoint(i, i, m_memoryResidentVec[i]);
+            gv.SetPoint(i, i, m_memoryVirtualVec[i]);
+         }
+         gr.Write(Form("ResidentMemory"), TObject::kOverwrite);
+         gv.Write(Form("VirtualMemory") , TObject::kOverwrite);
+         file->Close();
+      }
+      gDirectory = gd;
+      gFile = gf;
+   }
 }
 

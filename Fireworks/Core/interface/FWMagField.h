@@ -8,16 +8,9 @@
 #include "TEveTrackPropagator.h"
 class TH1F;
 
-namespace fwlite
-{
-   class Event;
-}
-
 class FWMagField: public TEveMagField
 {
 public:
-   enum ESource { kNone, kEvent, kUser };
-
    FWMagField();
    virtual ~FWMagField();
 
@@ -28,8 +21,8 @@ public:
    // auto/user behaviour
    void   setUserField(float b) { m_userField = b; }
    float  getUserField() const { return  m_userField; }
-   void   setSource(ESource x) { m_source = x; }
-   ESource  getSource() const { return m_source; }
+   void   setAutodetect(bool state) { m_autodetect = state; }
+   bool   getAutodetect() const { return m_autodetect; }
 
    // field model
    void   setReverseState( bool state ){ m_reverse = state; }
@@ -42,15 +35,12 @@ public:
    void   guessField( float estimate ) const;
    void   resetFieldEstimate() const;
 
-   void   checkFiledInfo(const fwlite::Event*);
-
 private:
    FWMagField(const FWMagField&); // stop default
    const FWMagField& operator=(const FWMagField&); // stop default
 
-   ESource   m_source;
-   float     m_userField;
-   float     m_eventField;
+   bool   m_autodetect;
+   float  m_userField;
 
    bool   m_reverse;
    bool   m_simpleModel;

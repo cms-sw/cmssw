@@ -8,13 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 23 13:36:27 EST 2008
-// $Id: FWParameterizable.cc,v 1.2 2008/11/06 22:05:26 amraktad Exp $
+// $Id: FWParameterizable.cc,v 1.1 2008/03/11 02:43:55 chrjones Exp $
 //
 
 // system include files
 
 // user include files
 #include "Fireworks/Core/interface/FWParameterizable.h"
+#include "Fireworks/Core/interface/FWParameterBase.h"
 
 
 //

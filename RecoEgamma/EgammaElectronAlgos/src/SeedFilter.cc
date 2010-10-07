@@ -77,6 +77,11 @@ SeedFilter::SeedFilter(const edm::ParameterSet& conf)
   if (conf.exists("beamSpot"))
    { beamSpotTag_ = conf.getParameter<edm::InputTag>("beamSpot") ; }
 
+  if (conf.exists("measurementTrackerName"))
+    measurementTrackerName_ = conf.getParameter<std::string>("measurementTrackerName");
+  else
+    measurementTrackerName_ = "";
+
  }
 
 SeedFilter::~SeedFilter() {
@@ -150,7 +155,10 @@ void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::
 						    //                                                    deltaPhi_,-1);
 						    RectangularEtaPhiTrackingRegion::Margin(fabs(deltaEta_),fabs(deltaEta_)),
 						    RectangularEtaPhiTrackingRegion::Margin(fabs(deltaPhi_),fabs(deltaPhi_))
-						    ,hitsfactoryMode_);
+						    ,hitsfactoryMode_,
+						    true, /*default in header*/
+						    measurementTrackerName_
+						    );
   combinatorialSeedGenerator->run(*seedColl, etaphiRegionMinus, e, setup);
 
   for (unsigned int i = 0; i<seedColl->size(); ++i)
@@ -174,7 +182,10 @@ void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::
 						   //                                                   deltaPhi_,-1);
 						    RectangularEtaPhiTrackingRegion::Margin(fabs(deltaEta_),fabs(deltaEta_)),
 						    RectangularEtaPhiTrackingRegion::Margin(fabs(deltaPhi_),fabs(deltaPhi_))
-						    ,hitsfactoryMode_);
+						    ,hitsfactoryMode_
+						   ,true, /*default in header*/
+						   measurementTrackerName_
+						   );
 
   combinatorialSeedGenerator->run(*seedColl, etaphiRegionPlus, e, setup);
 

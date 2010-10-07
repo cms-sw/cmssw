@@ -1,11 +1,13 @@
 #include "Fireworks/Core/interface/BuilderUtils.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
-#include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include <math.h>
-
+#include "TEveTrack.h"
+#include "TEveTrackPropagator.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/FWLite/interface/Event.h"
-
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
 #include "TGeoBBox.h"
 #include "TGeoArb8.h"
 #include "TColor.h"
@@ -13,6 +15,7 @@
 #include "TEveTrans.h"
 #include "TEveGeoNode.h"
 #include <time.h>
+#include "DataFormats/FWLite/interface/Event.h"
 
 std::pair<double,double> fw::getPhiRange( const std::vector<double>& phis, double phi )
 {
@@ -59,10 +62,11 @@ TEveGeoShape* fw::getShape( const char* name,
    return egs;
 }
 
-void fw::addRhoZEnergyProjection( FWProxyBuilderBase* pb, TEveElement* container,
+void fw::addRhoZEnergyProjection( TEveElement* container,
                                   double r_ecal, double z_ecal,
                                   double theta_min, double theta_max,
-                                  double phi)
+                                  double phi,
+                                  Color_t color)
 {
    TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
    double z1 = r_ecal/tan(theta_min);
@@ -77,7 +81,13 @@ void fw::addRhoZEnergyProjection( FWProxyBuilderBase* pb, TEveElement* container
    double r2 = z_ecal*fabs(tan(theta_max));
    if ( r2 > r_ecal ) r2 = r_ecal;
    if ( phi < 0 ) r2 = -r2;
-
+   TColor* c = gROOT->GetColor( color );
+   Float_t rgba[4] = { 1, 0, 0, 1 };
+   if (c) {
+      rgba[0] = c->GetRed();
+      rgba[1] = c->GetGreen();
+      rgba[2] = c->GetBlue();
+   }
 
    if ( fabs(r2 - r1) > 1 ) {
       TGeoBBox *sc_box = new TGeoBBox(0., fabs(r2-r1)/2, 1);
@@ -87,7 +97,10 @@ void fw::addRhoZEnergyProjection( FWProxyBuilderBase* pb, TEveElement* container
       t(1,4) = 0;
       t(2,4) = (r2+r1)/2;
       t(3,4) = fabs(z2)>fabs(z1) ? z2 : z1;
-      pb->setupAddElement(element, container);
+
+      element->SetPickable(kTRUE);
+      element->SetMainColorRGB(rgba[0],rgba[1],rgba[2]);
+      container->AddElement(element);
    }
    if ( fabs(z2 - z1) > 1 ) {
       TGeoBBox *sc_box = new TGeoBBox(0., 1, (z2-z1)/2);
@@ -97,7 +110,10 @@ void fw::addRhoZEnergyProjection( FWProxyBuilderBase* pb, TEveElement* container
       t(1,4) = 0;
       t(2,4) = fabs(r2)>fabs(r1) ? r2 : r1;
       t(3,4) = (z2+z1)/2;
-      pb->setupAddElement(element, container);
+
+      element->SetMainColorRGB(rgba[0],rgba[1],rgba[2]);
+      element->SetPickable(kTRUE);
+      container->AddElement(element);
    }
 }
 

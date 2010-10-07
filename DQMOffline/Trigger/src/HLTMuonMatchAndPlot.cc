@@ -7,8 +7,8 @@
  *    2. A trigger name
  *  
  *  $Author: slaunwhj $
- *  $Date: 2010/01/07 13:18:13 $
- *  $Revision: 1.15 $
+ *  $Date: 2010/03/16 14:35:40 $
+ *  $Revision: 1.16 $
  */
 
 
@@ -53,6 +53,8 @@ const int numMinPtCuts = 1;
 double coneSizes[] = { 0.20, 0.24, 0.30 };
 double minPtCuts[] = { 0. };
 
+const int HLTMuonMatchAndPlot::POS_CHARGE;
+const int HLTMuonMatchAndPlot::NEG_CHARGE;
 
 /// Constructor
 HLTMuonMatchAndPlot::HLTMuonMatchAndPlot

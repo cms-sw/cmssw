@@ -46,10 +46,4 @@ MatchCaloMetBenchmark.mode = 2
 #MatchCaloMetBenchmark.BenchmarkLabel = 'met'
 MatchCaloMetBenchmark.BenchmarkLabel = 'metMuonJESCorAK5'
 
-UncorrCaloMetBenchmark = metBenchmark.clone()
-UncorrCaloMetBenchmark.InputCollection = 'corMetGlobalMuons'
-UncorrCaloMetBenchmark.BenchmarkLabel = 'corMetGlobalMuons'
-UncorrCaloMetBenchmark.mode = 2
-
 metBenchmarkSequence = cms.Sequence( metCorSequence+pfMetBenchmark+caloMetBenchmark+trueMetBenchmark+MatchPfMetBenchmark+MatchCaloMetBenchmark )
-metBenchmarkSequenceData = cms.Sequence( metCorSequence+pfMetBenchmark+caloMetBenchmark+UncorrCaloMetBenchmark )

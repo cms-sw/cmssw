@@ -13,7 +13,7 @@
 //
 // Original Author:  Oct 12 08:23
 //         Created:  Wed Oct 12 12:16:04 CDT 2005
-// $Id: Type1MET.cc,v 1.2 2010/05/03 17:36:24 jdamgov Exp $
+// $Id: Type1MET.cc,v 1.19 2010/08/06 20:24:38 wmtan Exp $
 //
 //
 
@@ -24,16 +24,18 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METCollection.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 #include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
 
 
-//using namespace std;
+using namespace reco;
 
 namespace cms 
 {
@@ -65,9 +67,6 @@ namespace cms
   void Type1MET::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
   {
     using namespace edm;
-    Handle<CaloJetCollection> inputUncorJets;
-    iEvent.getByLabel( inputUncorJetsLabel, inputUncorJets );
-    const JetCorrector* corrector = JetCorrector::getJetCorrector (correctorLabel, iSetup);
 
 // Remove lable from the code
        Handle<View<reco::Muon> > inputMuons;
@@ -78,6 +77,10 @@ namespace cms
 
     if( metType == "CaloMET")
       {
+    Handle<CaloJetCollection> inputUncorJets;
+    iEvent.getByLabel( inputUncorJetsLabel, inputUncorJets );
+    const JetCorrector* corrector = JetCorrector::getJetCorrector (correctorLabel, iSetup);
+
 	Handle<CaloMETCollection> inputUncorMet;                     //Define Inputs
 	iEvent.getByLabel( inputUncorMetLabel,  inputUncorMet );     //Get Inputs
 	std::auto_ptr<CaloMETCollection> output( new CaloMETCollection() );  //Create empty output
@@ -89,7 +92,11 @@ namespace cms
       }
     else
       {
-	Handle<METCollection> inputUncorMet;                     //Define Inputs
+      Handle<PFJetCollection> inputUncorJets;
+      iEvent.getByLabel( inputUncorJetsLabel, inputUncorJets );
+      const JetCorrector* corrector = JetCorrector::getJetCorrector (correctorLabel, iSetup);
+
+	Handle<PFMETCollection> inputUncorMet;                     //Define Inputs
 	iEvent.getByLabel( inputUncorMetLabel,  inputUncorMet );     //Get Inputs
 	std::auto_ptr<METCollection> output( new METCollection() );  //Create empty output
 	alg_.run( *(inputUncorMet.product()), *corrector, *(inputUncorJets.product()), 

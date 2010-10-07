@@ -18,6 +18,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "FWCore/ParameterSet/interface/Registry.h"
+
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"  
 
@@ -44,6 +46,7 @@ class HLTAnalyzer : public edm::EDAnalyzer {
 public:
   explicit HLTAnalyzer(edm::ParameterSet const& conf);
   virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
+  virtual void beginRun(const edm::Run& , const edm::EventSetup& );
   virtual void endJob();
 
   //  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions); 
@@ -155,7 +158,7 @@ private:
   int errCnt;
   const int errMax(){return 100;}
 
-  string _HistName; // Name of histogram file
+  std::string _HistName; // Name of histogram file
   double _EtaMin,_EtaMax;
   TFile* m_file; // pointer to Histogram file
 

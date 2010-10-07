@@ -58,7 +58,7 @@ class MenuWidget(VispaWidget):
         self._spacer.setAutoscale(True, False)
         self._spacer.setPenColor(self.TITLE_COLOR)
         self._spacer.setFont(self.font())
-        self._spacer.setText("|")
+        self._spacer.setText(" | ")
         self._spacer.calculateDimensions()
         
     def addEntry(self, name, slot=None):

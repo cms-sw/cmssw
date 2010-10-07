@@ -13,7 +13,7 @@
 //
 // Original Author:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: TrackerOnlyConversionProducer.cc,v 1.20 2010/03/23 14:31:33 nancy Exp $
+// $Id: TrackerOnlyConversionProducer.cc,v 1.21 2010/06/03 14:34:47 nancy Exp $
 //
 //
 
@@ -610,7 +610,7 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
 		    //|| right == (*ll) //no double counting (dummy if require opposite charge)
 		    //|| !(trackD0Cut(right)) //d0*charge significance for converted photons
 		    || (allowTrackBC_ && !trackValidECAL[rr->second] && rightBC_) // if right track matches ECAL
-		    || (allowOppCharge_ && (*ll)->charge())*(right->charge()) > 0) //opposite charge
+		    || (allowOppCharge_ && ( (*ll)->charge()*right->charge() > 0 ) )  ) //opposite charge
 		continue;
 
 	    //track pair pass the quality cut
@@ -711,28 +711,6 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
 		isPaired[ll-allTracks.begin()] = true;//mark this track is used in pair
 		isPaired[right_index] = true;
 	    }
-	    //break; // to get another left leg and start new conversion
-	}
-	if (!found_right && allowSingleLeg_){
-	    /*
-	       std::vector<edm::Ref<reco::TrackCollection> > trackPairRef;
-	       trackPairRef.push_back((*ll));//left track
-
-	       reco::CaloClusterPtrVector scPtrVec;
-	       reco::Vertex  theConversionVertex;//Dummy vertex, validity false by default
-	       std::vector<math::XYZPoint> trkPositionAtEcal;
-	       std::vector<reco::CaloClusterPtr> matchingBC;
-
-	       trkPositionAtEcal.push_back(trackImpactPosition[ll-allTracks.begin()]);//left track
-
-	       matchingBC.push_back(trackMatchedBC[ll-allTracks.begin()]);//left track
-	       scPtrVec.push_back(trackMatchedBC[ll-allTracks.begin()]);//left track
-
-	       reco::Conversion  newCandidate(scPtrVec,  trackPairRef, trkPositionAtEcal, theConversionVertex, matchingBC);
-	       outputConvPhotonCollection.push_back(newCandidate);
-
-	       isPaired[ll-allTracks.begin()] = true;//mark this track is used in pair
-	       */
 	}
     } 
 }
@@ -780,24 +758,12 @@ TrackerOnlyConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup
     reco::Vertex the_pvtx;
     //because the priamry vertex is sorted by quality, the first one is the best
     if (!vertexCollection.empty())
-	the_pvtx = *(vertexCollection.begin());
-    /*
-    double low_chi2 = 9999.;
-    int low_chi2_index = -1;
-    //taking the lowest chi2 primary vertex
-    for (reco::VertexCollection::const_iterator itr = vertexCollection.begin(); itr != vertexCollection.end(); ++itr){
-	if (low_chi2> (itr->normalizedChi2())){
-	    low_chi2 = itr->normalizedChi2();
-	    low_chi2_index = itr-vertexCollection.begin();
-	}
-    }
-    if (low_chi2_index>-1)
-	the_pvtx = vertexCollection[low_chi2_index];
-    */
+      the_pvtx = *(vertexCollection.begin());
+    
     reco::TrackRefVector allTracks;
     int total_tracks = 0;
     for (unsigned int ii = 0; ii<trackCollectionHandles.size(); ++ii)
-       total_tracks += trackCollectionHandles[ii]->size();
+      total_tracks += trackCollectionHandles[ii]->size();
     
     if (total_tracks>150){
 	iEvent.put( outputConvPhotonCollection_p, ConvertedPhotonCollection_);

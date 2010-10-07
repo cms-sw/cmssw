@@ -2,6 +2,7 @@
 #include "TGButtonGroup.h"
 
 #include "Fireworks/Core/interface/FWGUIEventFilter.h"
+#include "Fireworks/Core/interface/FWEventSelector.h"
 #include "Fireworks/Core/interface/FWGUIEventSelector.h"
 #include "Fireworks/Core/interface/FWCustomIconsButton.h"
 #include "Fireworks/Core/interface/CmsShowNavigator.h"

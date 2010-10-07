@@ -36,9 +36,9 @@ process.load("Configuration.Generator.TTbar_cfi")
 # process.load("L1TriggerConfig/L1GtConfigProducers/Luminosity/lumi1031/L1Menu2008_2E31_cff")
 # L1 Menu 2008 2x10E31 - No Prescale
 # process.load("L1TriggerConfig/L1GtConfigProducers/Luminosity/lumi1031/L1Menu2008_2E31_Unprescaled_cff")
-# L1 Menu 2008 10E32 - Prescale 
+# L1 Menu 2008 10E32 - Prescale
 # process.load("L1TriggerConfig/L1GtConfigProducers/Luminosity/lumi1x1032/L1Menu2007_cff")
-# L1 Menu 2008 10E32 - No Prescale 
+# L1 Menu 2008 10E32 - No Prescale
 # process.load("L1TriggerConfig/L1GtConfigProducers/Luminosity/lumi1x1032/L1Menu2007_Unprescaled_cff")
 
 
@@ -81,7 +81,7 @@ process.HLTEndSequence = cms.Sequence(process.dummyModule)
 process.schedule = cms.Schedule()
 process.schedule.extend(process.HLTSchedule)
 
-# To write out events 
+# To write out events
 process.load("FastSimulation.Configuration.EventContent_cff")
 process.o1 = cms.OutputModule("PoolOutputModule",
     process.AODSIMEventContent,

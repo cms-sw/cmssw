@@ -10,7 +10,7 @@ import string
 ######### User variables
 
 #Reference release
-NewRelease='CMSSW_3_8_0_pre2'
+NewRelease='CMSSW_3_1_0_pre10'
 
 # startup and ideal sample list
 #startupsamples= ['RelValSingleMuPt10', 'RelValSingleMuPt100', 'RelValSingleMuPt1000', 'RelValTTbar','RelValZMM']
@@ -32,16 +32,16 @@ Tracksname=''
 #   -reco_and_val
 #   -only_val
 
-Sequence='reco_and_val'
+Sequence='only_val'
 
 SearchContent="*GEN-SIM-RECO*"
 DriverSteps="HARVESTING:validationHarvesting"
 if(Sequence=="harvesting"):
     SearchContent="*GEN-SIM-RECO*"
-    DriverSteps="HARVESTING:validationHarvesting+dqmHarvesting"
+    DriverSteps="HARVESTING:validationHarvesting"
 if(Sequence=="reco_and_val"):
     SearchContent="*GEN-SIM*HLTDEBUG*"
-    DriverSteps="RAW2DIGI,RECO,VALIDATION"
+    DriverSteps="RAW2DIGI,RECO,POSTRECO,VALIDATION"
 if(Sequence=="only_val"):
     SearchContent="*GEN-SIM-RECO*"
     DriverSteps="POSTRECO,VALIDATION"
@@ -53,11 +53,11 @@ DBS=True
 OneAtATime=False
 
 # Ideal and Statup tags
-IdealTag='MC_38Y_V1'
+IdealTag='IDEAL_31X'
 StartupTag='STARTUP_31X_v1'
 
 # Default label is GlobalTag_noPU__Quality_Algo. Change this variable if you want to append an additional string.
-NewSelectionLabel='_test'
+NewSelectionLabel=''
 
 WorkDirBase = '/tmp/'
 #WorkDirBase = '/tmp/aperrott'
@@ -129,7 +129,7 @@ def do_validation(samples, GlobalTagUse, trackquality, trackalgorithm):
 
         if(True):
             ## start new
-            cmd='dbsql "find  dataset where dataset like *'
+            cmd='dbsql "find  dataset.createdate, dataset where dataset like *'
             cmd+=sample+'/'+NewRelease+'_'+GlobalTag+SearchContent+' "'
             cmd+='|grep '+sample+'|grep -v test|sort|tail -1|cut -f2 '
             print cmd
@@ -197,11 +197,11 @@ def do_validation(samples, GlobalTagUse, trackquality, trackalgorithm):
             ## end new
 
 
-                cfgFileName=('%s_%s_%d') % (sample,Sequence,thisFile)
+                cfgFileName=('%s_%d') % (sample,thisFile)
                 print 'cfgFileName ' + cfgFileName
                 
                 #sampleFileName=('sample_%s_%d') % (sample,thisFile)
-                sampleFileName='sample_'+Sequence
+                sampleFileName='sample'
                 sampleFile = open(sampleFileName+'.py','w' )
                 sampleFile.write(filenames)
                 sampleFile.close()
@@ -218,16 +218,15 @@ def do_validation(samples, GlobalTagUse, trackquality, trackalgorithm):
 
                 print cmdrun
                 
-                lancialines='#!/bin/bash \n'
+                lancialines='#!/usr/local/bin/bash \n'
                 lancialines+='cd '+ProjectBase+'/src \n'
                 lancialines+='eval `scramv1 run -sh` \n\n'
                 lancialines+='export PYTHONPATH=.:$PYTHONPATH \n'
                 lancialines+='cd '+WorkDir+'\n'
                 lancialines+='cmsRun '+cfgFileName+'.py  >&  ' + cfgFileName + '.log < /dev/zero \n'
-#                lancialines+='mv  DQM_V0001_R000000001__' + GlobalTagUse+ '__' + sample + '__Validation.root' + ' ' + 'val.' +sample+'.root \n'
-                lancialines+='mv  DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root' + ' ' + 'val.' +sample+'.root \n'
+                lancialines+='mv  DQM_V0001_R000000001__' + GlobalTagUse+ '__' + sample + '__Validation.root' + ' ' + 'val.' +sample+'.root \n'
                 
-                lanciaName=('lancia_%s_%s_%s_%d') % (GlobalTag,sample,Sequence,thisFile)
+                lanciaName=('lancia_%s_%s_%d') % (GlobalTag,sample,thisFile)
                 lanciaFile = open(lanciaName,'w')
                 lanciaFile.write(lancialines)
                 lanciaFile.close()

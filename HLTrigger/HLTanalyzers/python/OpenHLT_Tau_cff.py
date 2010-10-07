@@ -5,12 +5,6 @@ import FWCore.ParameterSet.Config as cms
 #from HLTrigger.Configuration.HLT_1E31_cff import *
 from HLTrigger.Configuration.HLT_FULL_cff import *
 
-openhltTauPrescaler = cms.EDFilter("HLTPrescaler",
-    makeFilterObject = cms.bool(True),
-    eventOffset = cms.uint32(0),
-    prescaleFactor = cms.uint32(1)
-)
-
 hltTauL1SeedFilter = cms.EDFilter( "HLTLevel1GTSeed",
     L1TechTriggerSeeding = cms.bool( False ),
     L1SeedsLogicalExpression = cms.string( "L1_SingleTauJet10 OR L1_SingleJet15" ),
@@ -215,7 +209,7 @@ openhltL25TauPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer
     ),
     OrderedHitsFactoryPSet = cms.PSet( 
       ComponentName = cms.string( "StandardHitPairGenerator" ),
-      SeedingLayers = cms.string( "PixelLayerPairs" ),
+      SeedingLayers = cms.string( "hltPixelLayerPairs" ),
       maxElement = cms.uint32( 0 )      
     ),
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),

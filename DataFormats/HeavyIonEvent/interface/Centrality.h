@@ -1,5 +1,5 @@
 //
-// $Id: Centrality.h,v 1.8 2010/03/03 20:40:12 yilmaz Exp $
+// $Id: Centrality.h,v 1.7 2010/03/02 22:55:43 yilmaz Exp $
 //
 
 #ifndef DataFormats_Centrality_h
@@ -41,7 +41,6 @@ public:
   double zdcSum() const {return zdcSumPlus_ + zdcSumMinus_;}
   double zdcSumPlus() const {return zdcSumPlus_;}
   double zdcSumMinus() const {return zdcSumMinus_;}
-  double EtMidRapiditySum() const {return etMidRapiditySum_;}
 
 protected:
   double value_;
@@ -65,7 +64,6 @@ protected:
   double pixelMultiplicity_;
   double zdcSumPlus_;
   double zdcSumMinus_;
-  double etMidRapiditySum_;
 
 };
 

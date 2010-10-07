@@ -5,8 +5,8 @@
  *  Description: 
  *
  *
- *  $Date: 2010/05/14 11:43:08 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/03/18 16:06:38 $
+ *  $Revision: 1.1.2.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -68,8 +68,6 @@ class DTUserKeyedConfigHandler: public popcon::PopConSourceHandler<DTCCBConfig> 
   std::string onlineAuthentication;
   std::string brickContainer;
   std::vector<DTConfigKey> userConf;
-  bool writeKeys;
-  bool writeData;
   DTCCBConfig* ccbConfig;
 
   coral::ISessionProxy* isession;

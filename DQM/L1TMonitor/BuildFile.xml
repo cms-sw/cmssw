@@ -28,7 +28,6 @@
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/L1TObjects"/>
 <use   name="L1Trigger/CSCTrackFinder"/>
-<use   name="L1Trigger/GlobalTriggerAnalyzer"/>
 <use   name="root"/>
 <use   name="boost"/>
 <flags   EDM_PLUGIN="1"/>

@@ -12,7 +12,7 @@
 
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.34 2010/02/22 18:19:58 saout Exp $
+// $Id: SoftLepton.cc,v 1.35 2010/02/26 18:16:18 saout Exp $
 
 
 #include <memory>
@@ -104,12 +104,6 @@ SoftLepton::SoftLepton(const edm::ParameterSet & iConfig) :
   m_muonSelection( (muon::SelectionType) iConfig.getParameter<unsigned int>( "muonSelection" ) )
 {
   produces<reco::SoftLeptonTagInfoCollection>();
-  if (m_primaryVertex.label() == "nominal")
-    m_pvType = VERTEX_NOMINAL;
-  else if (m_primaryVertex.label() == "beamspot")
-    m_pvType = VERTEX_BEAMSPOT;
-  else
-    m_pvType = VERTEX_PRIMARY;
 }
 
 // ------------ d'tor --------------------------------------------------------------------
@@ -161,28 +155,15 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
     throw edm::Exception(edm::errors::NotFound) << "Object " << m_jets << " of type among (\"reco::JetTracksAssociationCollection\", \"edm::View<reco::Jet>\") not found";
   } } while (false);
   
-  // input primary vetex (optional, can be "nominal" or "beamspot")
+  // input primary vetex
   reco::Vertex vertex;
-  if (m_pvType == VERTEX_NOMINAL) 
-  {
+  Handle<reco::VertexCollection> h_primaryVertex;
+  event.getByLabel(m_primaryVertex, h_primaryVertex);
+  if (h_primaryVertex.isValid() and not h_primaryVertex->empty())
+    vertex = h_primaryVertex->front();
+  else
+    // fall back to nominal beam spot
     vertex = s_nominalBeamSpot;
-  } 
-  else if (m_pvType == VERTEX_BEAMSPOT) 
-  {
-    edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-    event.getByType(recoBeamSpotHandle);
-    vertex = reco::Vertex(recoBeamSpotHandle->position(), recoBeamSpotHandle->covariance3D(), 1, 1, 0);
-  } 
-  else if (m_pvType == VERTEX_PRIMARY) 
-  {
-    Handle<reco::VertexCollection> h_primaryVertex;
-    event.getByLabel(m_primaryVertex, h_primaryVertex);
-    if (!h_primaryVertex->empty())
-      vertex = h_primaryVertex->front();
-    else
-      // fall back to nominal beam spot
-      vertex = s_nominalBeamSpot;
-  }
 
   // input leptons (can be of different types)
   Leptons leptons;
@@ -289,7 +270,7 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
     Handle< ValueMap<float> > h_leptonId;
     event.getByLabel(m_leptonId, h_leptonId);
 
-    for(Leptons::iterator lepton = leptons.begin(); lepton != leptons.end(); ++lepton)
+    for (Leptons::iterator lepton = leptons.begin(); lepton != leptons.end(); ++lepton)
       lepton->second[leptonId] = (*h_leptonId)[lepton->first];
   }
 

@@ -62,8 +62,8 @@ class GeomDet;
 class TrajectoryStateOnSurface;
 
 
-using namespace edm;
-using namespace std;
+
+
 
 typedef std::vector<TrajectoryMeasurement>          MeasurementContainer;
 typedef std::pair<const GeomDet*,TrajectoryStateOnSurface> DetWithState;
@@ -87,7 +87,7 @@ private:
 
   virtual void endJob();
 
-  string RPCDataLabel;
+  std::string RPCDataLabel;
   
   //edm::InputTag RPCRecHits;
 

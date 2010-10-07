@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Emmanuelle Perez
 //         Created:  Tue May 19 09:54:19 CEST 2009
-// $Id: HLTDummyCollections.cc,v 1.2 2009/07/15 09:36:16 fwyzard Exp $
+// $Id: HLTDummyCollections.cc,v 1.3 2009/08/06 11:23:34 fwyzard Exp $
 //
 //
 
@@ -106,7 +106,7 @@ HLTDummyCollections::HLTDummyCollections(const edm::ParameterSet& iConfig)
 {
   action_           = iConfig.getParameter<std::string>("action");
   unpackZDC_        = iConfig.getParameter<bool>("UnpackZDC");
-  ESdigiCollection_ = iConfig.getParameter<string>("ESdigiCollection");
+  ESdigiCollection_ = iConfig.getParameter<std::string>("ESdigiCollection");
 
   doEcal_           = ( action_ == "doEcal");
   doHcal_           = ( action_ == "doHcal");
@@ -224,13 +224,13 @@ HLTDummyCollections::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   if (doEcalPreshower_) {
-    auto_ptr<ESDigiCollection> productDigis(new ESDigiCollection);  
+    std::auto_ptr<ESDigiCollection> productDigis(new ESDigiCollection);  
     iEvent.put(productDigis, ESdigiCollection_);
   }
 
   if (doMuonDTDigis_) {
-    auto_ptr<DTDigiCollection> detectorProduct(new DTDigiCollection);
-    auto_ptr<DTLocalTriggerCollection> triggerProduct(new DTLocalTriggerCollection);
+    std::auto_ptr<DTDigiCollection> detectorProduct(new DTDigiCollection);
+    std::auto_ptr<DTLocalTriggerCollection> triggerProduct(new DTLocalTriggerCollection);
     iEvent.put(detectorProduct);
     iEvent.put(triggerProduct);
   }

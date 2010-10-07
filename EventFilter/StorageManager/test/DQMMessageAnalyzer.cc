@@ -10,7 +10,7 @@
   file in DQMServices/Daemon/test, but modified to include another top level
   folder, to remove the 1 sec wait, and to do the fitting without printout.
 
-  $Id: DQMMessageAnalyzer.cc,v 1.9 2010/04/30 07:56:47 mommsen Exp $
+  $Id: DQMMessageAnalyzer.cc,v 1.10 2010/05/17 15:59:10 mommsen Exp $
 
 */
 
@@ -154,7 +154,7 @@ DQMMessageAnalyzer::DQMMessageAnalyzer( const edm::ParameterSet& iConfig )
     }
   i1 = dbe->bookInt("int1");
   f1 = dbe->bookFloat("float1");
-  s1 = dbe->bookString("s1", "my string");
+  s1 = dbe->bookString("s1", "my std::string");
 
   // create and cd into a new top level folder
   dbe->setCurrentFolder("D1");
@@ -209,7 +209,7 @@ void DQMMessageAnalyzer::endJob(void)
   StreamDQMInputFile dqm_file("dqm_events.bin");
   while(dqm_file.next()) {
 
-      std::cout << "----------------DQM Event -------------" << endl;
+      std::cout << "----------------DQM Event -------------" << std::endl;
 
       //Lets print it
       const DQMEventMsgView* dqmEventView = dqm_file.currentRecord();
@@ -309,7 +309,7 @@ void DQMMessageAnalyzer::analyze(const edm::Event& iEvent,
 			       const edm::EventSetup& iSetup )
 {   
 
-  cout << "DQMMessageAnalyzer::analyze" << endl;
+  std::cout << "DQMMessageAnalyzer::analyze" << std::endl;
 
 
   // Filling the histogram with random data
@@ -319,7 +319,7 @@ void DQMMessageAnalyzer::analyze(const edm::Event& iEvent,
   srand( 0 );
 
   if(counter%1000 == 0)
-    cout << " # of cycles = " << counter << endl;
+    std::cout << " # of cycles = " << counter << std::endl;
 
   for(int i = 0; i != 20; ++i )
     {
@@ -348,7 +348,7 @@ void DQMMessageAnalyzer::analyze(const edm::Event& iEvent,
 
   ++counter;
 
-  cout << "Counter: " << counter << endl;
+  std::cout << "Counter: " << counter << std::endl;
 
 
   if (dbe == NULL) {
@@ -380,7 +380,7 @@ void DQMMessageAnalyzer::analyze(const edm::Event& iEvent,
        dirIter++) {
     std::string dirName = *dirIter;
     DQMEvent::TObjectTable toTable;
-    cout <<"dirName= "<<dirName<<endl; 
+    std::cout <<"dirName= "<<dirName<<std::endl; 
     // find the MEs
     findMonitorElements(toTable, dirName);
 

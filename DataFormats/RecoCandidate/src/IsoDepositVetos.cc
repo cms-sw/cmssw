@@ -4,6 +4,7 @@
 #include <cmath>
 #include <iostream>
 
+using namespace std;
 using namespace reco::isodeposit;
 
 bool ConeVeto::veto(double eta, double phi, float value) const {

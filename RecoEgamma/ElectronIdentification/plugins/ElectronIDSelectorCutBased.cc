@@ -4,10 +4,8 @@ ElectronIDSelectorCutBased::ElectronIDSelectorCutBased (const edm::ParameterSet&
 {
   std::string algorithm_ = conf.getParameter<std::string> ("algorithm") ;
   
-  if ( algorithm_ == "eIDClassBased" )
+  if ( algorithm_ == "eIDCBClasses" )
      electronIDAlgo_ = new ClassBasedElectronID ();
-  else if ( algorithm_ == "eIDCBClasses" )
-     electronIDAlgo_ = new PTDRElectronID ();
   else if ( algorithm_ == "eIDCB" )
      electronIDAlgo_ = new CutBasedElectronID ();
   else { 

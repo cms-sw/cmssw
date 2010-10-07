@@ -33,7 +33,8 @@ process.source = cms.Source("EmptySource")
 
 process.reader = cms.EDFilter("DQMReadFileExample",
   #RootFileName = cms.untracked.string('Playback_V0001_CSC_R000110388.root')
-  RootFileName = cms.untracked.string('Playback_V0001_CSC_R000112389.root')
+  #RootFileName = cms.untracked.string('Playback_V0001_CSC_R000112389.root')
+  RootFileName = cms.untracked.string('/tmp/valdo/Playback_V0001_CSC_R000143227.root')
 )
 
 
@@ -43,6 +44,7 @@ process.reader = cms.EDFilter("DQMReadFileExample",
 
 #process.dqmSaver.convention = 'Offline'
 process.dqmSaver.workflow = '/testing/damn/reader'
+process.dqmSaver.dirName = '/tmp/valdo'
 process.DQMStore.collateHistograms = False
 process.DQMStore.referenceFileName = ''
 #process.DQMStore.referenceFileName = '/afs/cern.ch/user/v/valdo/data/csc_reference.root'

@@ -1,4 +1,4 @@
-// $Id: InitMsgCollection.h,v 1.9 2010/04/16 12:31:34 mommsen Exp $
+// $Id: InitMsgCollection.h,v 1.10 2010/05/17 15:59:09 mommsen Exp $
 /// @file: InitMsgCollection.h 
 
 #ifndef StorageManager_InitMsgCollection_h
@@ -24,8 +24,8 @@ namespace stor
      to event consumers and written to output streams.
 
      $Author: mommsen $
-     $Revision: 1.9 $
-     $Date: 2010/04/16 12:31:34 $
+     $Revision: 1.10 $
+     $Date: 2010/05/17 15:59:09 $
   */
 
   typedef std::vector<unsigned char> InitMsgBuffer;
@@ -158,7 +158,7 @@ namespace stor
      * included, however a zero value for the maximum number will include
      * all elements.
      *
-     * @param list the list of strings to include (vector of strings);
+     * @param list the list of strings to include (std::vector of strings);
      * @param maxCount the maximum number of list elements to include.
      * @return the text string with the formatted list elements.
      */

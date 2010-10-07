@@ -57,12 +57,9 @@ RecoEcalAOD = cms.PSet(
 	# Hits
         'keep EcalRecHitsSorted_reducedEcalRecHits*_*_*', 
 	# Barrel clusters
-        'keep *_hybridSuperClusters_*_*', 
         'keep recoSuperClusters_correctedHybridSuperClusters_*_*',
 	# Endcap clusters	
         'keep *_multi5x5BasicClusters_*_*', 
-        'keep recoSuperClusters_multi5x5SuperClusters_*_*',
-        'keep recoSuperClusters_multi5x5SuperClustersWithPreshower_*_*',
         'keep recoSuperClusters_correctedMulti5x5SuperClustersWithPreshower_*_*',
 	# Preshower clusters
         'keep recoPreshowerClusters_multi5x5SuperClustersWithPreshower_*_*', 

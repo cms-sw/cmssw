@@ -18,7 +18,6 @@
        <p>  k          --- ZOOM out</p>
        <p>  Arrow Keys --- PAN (TRUCK) across scene</p>
        <p>  Home       --- reset current camera * </p>
-       <p>  Space, Return, Enter --- activate context menu</p>
 </p>
 </dd></dl>
 <p>   You can ROTATE (ORBIT) the scene by holding the left mouse button and moving
@@ -31,29 +30,21 @@
 <p>   You can ZOOM the camera by dragging side to side holding the right
    mouse button (in perspective mode the camera is translated along viewing axis).
 </p>
-
-<p>Modifier keys for rotation, panning and zooming:</p>
-<pre>
-   SHIFT          --  accelerate by factor 10</p>
-   CONTROL        --  decelerate by factor 10</p>
-   CONTROL-SHIFT  --  decelerate by factor 100</p>
+<p>   Mouse wheel action depends on the camera type:
+</p><pre>
+     orthographic -- zoom,
+     perspective  -- change field-of-view (focal length)
 </pre>
-<p>Mouse wheel action depends on the camera type:</p>
-<pre>
-    orthographic -- zoom,
-    perspective  -- change field-of-view (focal length)
-</pre>
-
-<p>To invert direction of mouse and key actions from scene-centric
- to viewer-centric, set in your .rootrc file:</p>
-<pre>
-      OpenGL.EventHandler.ViewerCentricControls: 1
-</pre>
-
-
-<p>RESET the camera via the button in viewer-editor or Home key.</p>
-
-<p>Invoke the CONTEXT menu with Right mouse click.</p>
+<p>   RESET the camera via the button in viewer-editor or Home key.
+</p>
+<p>   SELECT a shape with Shift+Left mouse button click.
+</p>
+<p>   SELECT the viewer with Shift+Left mouse button click on a free space.
+</p>
+<p>   MOVE a selected shape using Shift+Mid mouse drag.
+</p>
+<p>   Invoke the CONTEXT menu with Right mouse click.
+</p>
 
 <BR>
 

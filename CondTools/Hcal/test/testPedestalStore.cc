@@ -3,6 +3,7 @@
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/ServiceLoader.h"
 #include "CondCore/DBCommon/interface/ConnectMode.h"
+#include "CondCore/DBCommon/interface/MessageLevel.h"
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 #include "CondCore/IOVService/interface/IOV.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"

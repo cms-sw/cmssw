@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/02/19 14:26:53 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/03/14 08:05:03 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -101,17 +101,17 @@ HLTEventAnalyzerAOD::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if (triggerName_=="@") {
     const unsigned int n(hltConfig_.size());
     for (unsigned int i=0; i!=n; ++i) {
-      analyzeTrigger(iEvent,hltConfig_.triggerName(i));
+      analyzeTrigger(iEvent,iSetup,hltConfig_.triggerName(i));
     }
   } else {
-    analyzeTrigger(iEvent,triggerName_);
+    analyzeTrigger(iEvent,iSetup,triggerName_);
   }
 
   return;
 
 }
 
-void HLTEventAnalyzerAOD::analyzeTrigger(const edm::Event& iEvent, const std::string& triggerName) {
+void HLTEventAnalyzerAOD::analyzeTrigger(const edm::Event& iEvent, const edm::EventSetup& iSetup, const std::string& triggerName) {
   
   using namespace std;
   using namespace edm;
@@ -131,8 +131,12 @@ void HLTEventAnalyzerAOD::analyzeTrigger(const edm::Event& iEvent, const std::st
     return;
   }
   
+  const std::pair<int,int> prescales(hltConfig_.prescaleValues(iEvent,iSetup,triggerName));
   cout << "HLTEventAnalyzerAOD::analyzeTrigger: path "
-       << triggerName << " [" << triggerIndex << "]" << endl;
+       << triggerName << " [" << triggerIndex << "] "
+       << "prescales L1T,HLT: " << prescales.first << "," << prescales.second
+       << endl;
+
   // modules on this trigger path
   const unsigned int m(hltConfig_.size(triggerIndex));
   const vector<string>& moduleLabels(hltConfig_.moduleLabels(triggerIndex));

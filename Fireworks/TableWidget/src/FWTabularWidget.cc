@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:21 EST 2009
-// $Id: FWTabularWidget.cc,v 1.10 2009/06/08 15:56:40 amraktad Exp $
+// $Id: FWTabularWidget.cc,v 1.9 2009/05/05 08:36:09 elmer Exp $
 //
 
 // system include files
@@ -136,30 +136,26 @@ FWTabularWidget::setHorizontalOffset(UInt_t iH)
 Bool_t 
 FWTabularWidget::HandleButton(Event_t *event)
 {
-   if (event->fType==kButtonPress) {
+   if(event->fType==kButtonPress) {
       Int_t row,col,relX,relY;
       translateToRowColumn(event->fX, event->fY, row, col,relX,relY);
-      //std::cout <<"Press: "<<relX<<" "<<relY<<" "<<row<<" "<<col<<" "<<m_table->numberOfRows()<<" "<<m_table->numberOfColumns()<<std::endl;
-      if (row >= 0 && row < m_table->numberOfRows() && col >= 0 && col < m_table->numberOfColumns()) {
-         FWTableCellRendererBase* renderer = m_table->cellRenderer(row,col);
-         if (renderer) { 
-            renderer->buttonEvent(event,relX,relY);
-         }
-         buttonPressed(row,col,event,relX,relY);
+      //std::cout <<relX <<" "<<relY<<std::endl;
+      FWTableCellRendererBase* renderer = m_table->cellRenderer(row,col);
+      if(renderer){ 
+         renderer->buttonEvent(event,relX,relY);
       }
+      buttonPressed(row,col,event,relX,relY);
       return true;
    }
-   if (event->fType==kButtonRelease) {
+   if(event->fType==kButtonRelease){
       Int_t row,col,relX,relY;
       translateToRowColumn(event->fX, event->fY, row, col,relX, relY);
-      //std::cout <<"Release: "<<relX<<" "<<relY<<" "<<row<<" "<<col<<" "<<m_table->numberOfRows()<<" "<<m_table->numberOfColumns()<<std::endl;
-      if (row >= 0 && row < m_table->numberOfRows() && col >= 0 && col < m_table->numberOfColumns()) {
-         FWTableCellRendererBase* renderer = m_table->cellRenderer(row,col);
-         if (renderer) {
-            renderer->buttonEvent(event,relX,relY);
-         }
-         buttonReleased(row,col,event,relX,relY);
+      FWTableCellRendererBase* renderer = m_table->cellRenderer(row,col);
+      if(renderer) {
+         renderer->buttonEvent(event,relX,relY);
       }
+
+      buttonReleased(row,col,event,relX,relY);      
       return true;
    }
    return false;

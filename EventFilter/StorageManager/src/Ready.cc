@@ -1,4 +1,4 @@
-// $Id: Ready.cc,v 1.14 2010/02/18 14:47:45 mommsen Exp $
+// $Id: Ready.cc,v 1.15 2010/04/12 15:25:01 mommsen Exp $
 /// @file: Ready.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -136,7 +136,7 @@ void Ready::do_exitActionWork()
 
 string Ready::do_stateName() const
 {
-  return string( "Ready" );
+  return std::string( "Ready" );
 }
 
 void Ready::do_moveToFailedState( xcept::Exception& exception ) const

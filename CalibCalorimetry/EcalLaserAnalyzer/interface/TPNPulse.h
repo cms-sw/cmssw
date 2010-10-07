@@ -1,9 +1,10 @@
 #ifndef TPNPulse_H
 #define TPNPulse_H
 
+#include "TObject.h"
 #include<vector>
 
-class TPNPulse
+class TPNPulse: public TObject 
 {
 
  private:

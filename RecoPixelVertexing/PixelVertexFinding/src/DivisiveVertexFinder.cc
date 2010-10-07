@@ -37,10 +37,12 @@ bool DivisiveVertexFinder::findVertexes(const reco::TrackRefVector &trks,  // in
   err(2,2) = vz.error()*vz.error();
 
   reco::Vertex v( reco::Vertex::Point(0,0,vz.value()), err, 0, 1, trks.size() );
-  for (unsigned int i=0; i<trks.size(); i++) {
-    v.add(reco::TrackBaseRef(trks[i]));
-  }
-
+    for (unsigned int i=0; i<trks.size(); i++) {
+      double vz = trks[i]->vz();
+      if(std::isnan(vz)) continue;
+      v.add(reco::TrackBaseRef(trks[i]));
+    }
+    
   vertexes.push_back(v);
 
   return true;
@@ -56,6 +58,8 @@ bool DivisiveVertexFinder::findVertexesAlt(const reco::TrackRefVector &trks,  //
   std::map< const reco::Track*, reco::TrackRef > mapa; 
   //  std::vector< std::vector< const reco::Track* > > trkps;
   for (unsigned int i=0; i<trks.size(); ++i) {
+    double vz = trks[i]->vz();
+    if(std::isnan(vz)) continue;
     std::vector< const reco::Track* > temp;
     temp.clear();
     temp.push_back( &(*trks[i]) );

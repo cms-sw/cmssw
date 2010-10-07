@@ -9,7 +9,7 @@ from Vispa.Share.BasicDataAccessor import BasicDataAccessor
 
 try:
     import ROOT
-    import pxl.base,pxl.astro,pxl.hep
+    import pxl.core,pxl.astro,pxl.hep
     import_root_error=None
 except Exception,e:
     import_root_error=(str(e),exception_traceback())
@@ -70,7 +70,7 @@ class RootCanvasView(AbstractView, QWidget):
       
       logging.debug(__name__ + ": _plotscript")
       canvas.cd()
-      if isinstance(object, pxl.base.BasicContainer):
+      if isinstance(object, pxl.core.BasicContainer):
         self.basiccontainer = object
         abos = object.getObjectsOfType(pxl.astro.AstroBasicObject)
         logging.debug(__name__ + ": _plotscript: Plotting " + str(len(abos)) + " AstroObjects")
@@ -117,7 +117,7 @@ class RootCanvasView(AbstractView, QWidget):
         self.p.Draw()
       elif isinstance(object, pxl.hep.EventView):
         self.createLegoPlot(object)
-      elif isinstance(object, pxl.base.Event):
+      elif isinstance(object, pxl.core.Event):
         for eventview in object.getObjectsOfType(pxl.hep.EventView):
           self.createLegoPlot(object)
       elif isinstance(object, pxl.hep.Particle):

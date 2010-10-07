@@ -6,8 +6,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2010/02/17 17:49:56 $
- *  $Revision: 1.11 $
+ *  $Date: 2010/03/16 14:36:39 $
+ *  $Revision: 1.12 $
  *  
  *  \author  J. Slaunwhite, based on code from Jeff Klukas
  */
@@ -48,8 +48,6 @@
 
 
 typedef math::XYZTLorentzVector LorentzVector;
-using reco::Muon;
-using trigger::TriggerObject;
 
 //-----------------------------------------
 // Add in a struct that gathers together
@@ -60,14 +58,14 @@ using trigger::TriggerObject;
 struct MuonSelectionStruct {
 
   // constructor is empty, but passes in arguments
-  MuonSelectionStruct(StringCutObjectSelector<Muon> rsel, StringCutObjectSelector<TriggerObject> hltsel,
+  MuonSelectionStruct(StringCutObjectSelector<reco::Muon> rsel, StringCutObjectSelector<trigger::TriggerObject> hltsel,
                       std::string cl, double pD0cut, double pZ0cut, std::string trackCol, std::vector<std::string> reqTrigs)
     :recoMuonSelector(rsel), hltMuonSelector(hltsel), customLabel(cl),
      d0cut(pD0cut), z0cut(pZ0cut), trackCollection(trackCol),
      requiredTriggers(reqTrigs) {};
   
-  StringCutObjectSelector<Muon> recoMuonSelector;
-  StringCutObjectSelector<TriggerObject> hltMuonSelector;
+  StringCutObjectSelector<reco::Muon> recoMuonSelector;
+  StringCutObjectSelector<trigger::TriggerObject> hltMuonSelector;
   std::string customLabel;
 
   
@@ -288,7 +286,7 @@ protected:
 
   std::string theL1SeedModuleForHLTPath;
   
-  //StringCutObjectSelector<Muon> myMuonSelector;
+  //StringCutObjectSelector<reco::Muon> myMuonSelector;
   //std::string myCustomName;
   
   // constants and a method

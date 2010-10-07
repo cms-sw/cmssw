@@ -12,6 +12,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -40,8 +41,8 @@
 /*
  * \file HcalMonitorModule.cc
  *
- * $Date: 2010/03/11 08:17:24 $
- * $Revision: 1.162.2.8 $
+ * $Date: 2010/03/25 11:17:15 $
+ * $Revision: 1.164 $
  * \author J Temple
  *
  * New version of HcalMonitorModule stores only a few necessary variables that other tasks need to grab

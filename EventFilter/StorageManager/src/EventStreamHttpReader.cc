@@ -17,7 +17,7 @@
                 Manager or specify a maximum number of events for
                 the client to read through a maxEvents parameter.
 
-  $Id: EventStreamHttpReader.cc,v 1.39 2009/12/01 13:58:08 mommsen Exp $
+  $Id: EventStreamHttpReader.cc,v 1.40 2010/05/17 15:59:10 mommsen Exp $
 /// @file: EventStreamHttpReader.cc
 */
 
@@ -47,7 +47,7 @@ namespace edm
   EventStreamHttpReader::EventStreamHttpReader(edm::ParameterSet const& ps,
                                                edm::InputSourceDescription const& desc):
     edm::StreamerInputSource(ps, desc),
-    sourceurl_(ps.getParameter<string>("sourceURL")),
+    sourceurl_(ps.getParameter<std::string>("sourceURL")),
     buf_(1000*1000*7), 
     endRunAlreadyNotified_(true),
     runEnded_(false),
@@ -80,8 +80,8 @@ namespace edm
 
     // 09-Aug-2006, KAB: new parameters
     const double MAX_REQUEST_INTERVAL = 300.0;  // seconds
-    consumerName_ = ps.getUntrackedParameter<string>("consumerName","Unknown");
-    consumerPriority_ = ps.getUntrackedParameter<string>("consumerPriority","normal");
+    consumerName_ = ps.getUntrackedParameter<std::string>("consumerName","Unknown");
+    consumerPriority_ = ps.getUntrackedParameter<std::string>("consumerPriority","normal");
     headerRetryInterval_ = ps.getUntrackedParameter<int>("headerRetryInterval",5);
     double maxEventRequestRate = ps.getUntrackedParameter<double>("maxEventRequestRate",1.0);
     if (maxEventRequestRate < (1.0 / MAX_REQUEST_INTERVAL)) {
@@ -175,7 +175,7 @@ namespace edm
       // calling gettimeofday again
       sleepTime -= 0.01;
       if (sleepTime < 0.0) {sleepTime = 0.0;}
-      //cout << "sleeping for " << sleepTime << endl;
+      //std::cout << "sleeping for " << sleepTime << std::endl;
       usleep(static_cast<int>(1000000 * sleepTime));
       gettimeofday(&lastRequestTime_, &dummyTZ);
     }
@@ -191,7 +191,7 @@ namespace edm
 
       if(han==0)
       {
-        cerr << "could not create handle" << endl;
+        std::cerr << "could not create handle" << std::endl;
         // this will end cmsRun 
         //return std::auto_ptr<edm::EventPrincipal>();
         throw cms::Exception("getOneEvent","EventStreamHttpReader")
@@ -223,8 +223,8 @@ namespace edm
 
       if(messageStatus!=0)
       {
-        cerr << "curl perform failed for event, messageStatus = "
-             << messageStatus << endl;
+        std::cerr << "curl perform failed for event, messageStatus = "
+             << messageStatus << std::endl;
         // this will end cmsRun 
         //return std::auto_ptr<edm::EventPrincipal>();
         throw cms::Exception("getOneEvent","EventStreamHttpReader")
@@ -322,7 +322,7 @@ namespace edm
 
       if(han==0)
         {
-          cerr << "could not create handle" << endl;
+          std::cerr << "could not create handle" << std::endl;
           //return 0; //or use this?
           throw cms::Exception("readHeader","EventStreamHttpReader")
             << "Could not get header: probably XDAQ not running on Storage Manager "
@@ -353,7 +353,7 @@ namespace edm
 
       if(messageStatus!=0)
       {
-        cerr << "curl perform failed for header" << endl;
+        std::cerr << "curl perform failed for header" << std::endl;
         // do not retry curl here as we should return to registration instead if we
         // want an automatic recovery
         throw cms::Exception("readHeader","EventStreamHttpReader")
@@ -422,7 +422,7 @@ namespace edm
       CURL* han = curl_easy_init();
       if(han==0)
         {
-          cerr << "could not create handle" << endl;
+          std::cerr << "could not create handle" << std::endl;
           throw cms::Exception("registerWithEventServer","EventStreamHttpReader")
             << "Unable to create curl handle\n";
         }
@@ -463,7 +463,7 @@ namespace edm
                       << " tries"  << std::endl;
             curl_slist_free_all(headers);
             curl_easy_cleanup(han);
-            cerr << "curl perform failed for registration" << endl;
+            std::cerr << "curl perform failed for registration" << std::endl;
             throw cms::Exception("registerWithEventServer","EventStreamHttpReader")
               << "Could not register: probably XDAQ not running on Storage Manager "
               << "\n";
@@ -531,6 +531,6 @@ namespace edm
           << "Registration was aborted by a shutdown request.\n";
     }
 
-    FDEBUG(5) << "Consumer ID = " << consumerId_ << endl;
+    FDEBUG(5) << "Consumer ID = " << consumerId_ << std::endl;
   }
 }

@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2010/04/17 08:56:32 $
- * $Revision: 1.66 $
+ * $Date: 2010/06/21 14:59:01 $
+ * $Revision: 1.67 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino), G. Cerminara (INFN Torino)
  *
  */
@@ -1149,7 +1149,7 @@ void DTDataIntegrityTask::fedNonFatal(int dduID) {
 std::string DTDataIntegrityTask::topFolder(bool isFEDIntegrity) const {
 
   string folder = isFEDIntegrity ? "DT/FEDIntegrity" : "DT/00-DataIntegrity";
-  string tag = isFEDIntegrity ? (mode==1) ? "_SM/" : (mode==3) ? "/" : "_DT/" :
+  string tag = isFEDIntegrity ? (mode==1) ? "_SM/" : (mode>=2) ? "/" : "_DT/" :
                                 (mode==1) ? "_SM/" : (mode==3) ? "_EvF/" : "/" ;
   folder += tag;
 
