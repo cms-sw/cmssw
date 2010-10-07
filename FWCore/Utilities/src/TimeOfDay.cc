@@ -5,8 +5,11 @@
 #include <sys/time.h>
 #include <time.h>
 
+namespace {
+  int const power[] = {1000*1000, 100*1000, 10*1000, 1000, 100, 10, 1};
+}
+
 namespace edm {
-  static int const power[] = {1000*1000, 100*1000, 10*1000, 1000, 100, 10, 1};
 
   TimeOfDay::TimeOfDay() : tv_(TimeOfDay::setTime_()) {
   }
