@@ -51,7 +51,7 @@ namespace reco {
             void setNewStripClusters(const edm::OrphanHandle<SiStripClusters> &strips) { stripNewProd_ = SiStripClusterRefProd(strips); }
 
             bool hasPixel() const { return pixelProd_.isNonnull(); } 
-            bool hasStrip() const { return pixelProd_.isNonnull(); } 
+            bool hasStrip() const { return stripProd_.isNonnull(); } 
 
             void swap(reco::ClusterRemovalInfo &other) ;
         private:
