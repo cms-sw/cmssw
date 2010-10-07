@@ -36,7 +36,7 @@ HLTMhtHtFilter::HLTMhtHtFilter(const edm::ParameterSet& iConfig)
    //----mode=3 for PT12
    //----mode=4 for HT only
    etaJet_= iConfig.getParameter<double> ("etaJet");
-   usePt_= iConfig.getUntrackedParameter<bool>("usePt",true);
+   usePt_= iConfig.getParameter<bool>("usePt");
    minPT12_= iConfig.getParameter<double> ("minPT12");
    minMeff_= iConfig.getParameter<double> ("minMeff");
    minHt_= iConfig.getParameter<double> ("minHt");
