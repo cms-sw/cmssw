@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/10/07 13:39:08 $
- *  $Revision: 1.15 $
+ *  $Date: 2010/10/07 13:43:30 $
+ *  $Revision: 1.16 $
  *
  *  \author Martin Grunewald
  *
@@ -48,9 +48,9 @@ HLTrigReport::HLTrigReport(const edm::ParameterSet& iConfig) :
   streamNames_(0),
   streamContents_(0),
   isCustomStreams_(false),
-  refPath_("HLTFinalPath"),
+  refPath_("HLTriggerFinalPath"),
   refIndex_(0),
-  refRate_(1.0),
+  refRate_(100.0),
   hltConfig_()
 {
  
@@ -72,11 +72,13 @@ HLTrigReport::HLTrigReport(const edm::ParameterSet& iConfig) :
     }
   }
 
-  refPath_ = iConfig.getUntrackedParameter<std::string>("ReferencePath","HLTFinalPath");
-  refRate_ = iConfig.getUntrackedParameter<double>("ReferenceRate",1.0);
+  refPath_ = iConfig.getUntrackedParameter<std::string>("ReferencePath","HLTriggerFinalPath");
+  refRate_ = iConfig.getUntrackedParameter<double>("ReferenceRate",100.0);
   refIndex_= 0;
 
-  LogDebug("HLTrigReport") << "HL TiggerResults: " + hlTriggerResults_.encode();
+  LogDebug("HLTrigReport")
+    << "HL TiggerResults: " + hlTriggerResults_.encode()
+    << " using reference path and rate: " + refPath_ + " " << refRate_;
 }
 
 HLTrigReport::~HLTrigReport()
@@ -167,8 +169,22 @@ HLTrigReport::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
           }
         }
       }
+
       refIndex_ = hltConfig_.triggerIndex(refPath_);
-      if(refIndex_ >= n) refIndex_ = 0;
+      if(refIndex_ >= n) {
+	refIndex_ = 0;
+	LogWarning("HLTrigReport")
+	  << "Requested reference path '"+refPath_+"' not in HLT menu. "
+	  << "Using HLTriggerFinalPath instead.";
+	refPath_ = "HLTriggerFinalPath";
+	refIndex_ = hltConfig_.triggerIndex(refPath_);
+	if(refIndex_ >= n) {
+	  refIndex_ = 0;
+	  LogWarning("HLTrigReport")
+	    << "Requested reference path '"+refPath_+"' not in HLT menu. "
+	    << "Using first path in table (index=0) instead.";
+	}
+      }
     }
   } else {
     // dump previous
@@ -308,9 +324,9 @@ HLTrigReport::dumpReport()
 	 << right << setw(7) << "Pre" << " "
 	 << right << setw(7) << "HLT" << " "
 	 << right << setw(9) << "%L1sPre" << " "
-         << right << setw(7) << "HLTtot" << " "
          << right << setw(7) << "Rate" << " "
          << right << setw(7) << "RateHi" << " "
+         << right << setw(7) << "HLTtot" << " "
          << right << setw(7) << "RateTot" << " "
 	 << right << setw(7) << "Errors" << " "
 	 << "Name" << endl;
@@ -323,16 +339,53 @@ HLTrigReport::dumpReport()
 	   << right << setw(7) << hltL1s_[i] << " "
 	   << right << setw(7) << hltPre_[i] << " "
 	   << right << setw(7) << hlAccept_[i] << " "
+	   << right << setw(9) << fixed << setprecision(5)
 	   << static_cast<float>(100*hlAccept_[i])/
 	      static_cast<float>(max(hltPre_[i],1u)) << " "
-           << right << setw(7) << hlAccTot_[i] << " "
            << right << setw(7) << fixed << setprecision(1) << scale*hlAccept_[i] << " "
            << right << setw(7) << fixed << setprecision(1) << 
               ((hlAccept_[refIndex_]-hlAccept_[i] > 0) ? refRate_*ROOT::Math::beta_quantile(alpha, hlAccept_[i]+1, hlAccept_[refIndex_]-hlAccept_[i]) : 0) << " "
+           << right << setw(7) << hlAccTot_[i] << " "
            << right << setw(7) << fixed << setprecision(1) << scale*hlAccTot_[i] << " "
-	   << right << setw(9) << fixed << setprecision(5)
 	   << right << setw(7) << hlErrors_[i] << " "
 	   << hlNames_[i] << endl;
+    }
+
+    // now for each dataset
+    for (size_t ds=0; ds<hlIndex_.size(); ++ds){
+      LogVerbatim("HLTrigReport") << endl;
+      LogVerbatim("HLTrigReport") << "HLT-Report " << "---------- Dataset Summary: " << datasetNames_[ds] << " ------------" << endl;
+      LogVerbatim("HLTrigReport") << "HLT-Report "
+         << right << setw(7) << "HLT #" << " "
+         << right << setw(7) << "WasRun" << " "
+         << right << setw(7) << "L1S" << " "
+         << right << setw(7) << "Pre" << " "
+         << right << setw(7) << "HLT" << " "
+         << right << setw(9) << "%L1sPre" << " "
+         << right << setw(7) << "Rate" << " "
+         << right << setw(7) << "RateHi" << " "
+         << right << setw(7) << "HLTtot" << " "
+         << right << setw(7) << "RateTot" << " "
+         << right << setw(7) << "Errors" << " "
+         << "Name" << endl;  
+      for (size_t p=0; p<hlIndex_[ds].size(); ++p){
+        LogVerbatim("HLTrigReport") << "HLT-Report "
+           << right << setw(7) << p << " "
+           << right << setw(7) << hlWasRun_[hlIndex_[ds][p]] << " "
+           << right << setw(7) << hltL1s_[hlIndex_[ds][p]] << " "
+           << right << setw(7) << hltPre_[hlIndex_[ds][p]] << " "
+           << right << setw(7) << hlAccept_[hlIndex_[ds][p]] << " "
+           << right << setw(9) << fixed << setprecision(5)
+           << static_cast<float>(100*hlAccept_[hlIndex_[ds][p]])/
+              static_cast<float>(max(hltPre_[hlIndex_[ds][p]],1u)) << " "
+           << right << setw(7) << fixed << setprecision(1) << scale*hlAccept_[hlIndex_[ds][p]] << " "
+           << right << setw(7) << fixed << setprecision(1) <<
+              ((hlAccept_[refIndex_]-hlAccept_[hlIndex_[ds][p]] > 0) ? refRate_*ROOT::Math::beta_quantile(alpha, hlAccept_[hlIndex_[ds][p]]+1, hlAccept_[refIndex_]-hlAccept_[hlIndex_[ds][p]]) : 0) << " "
+           << right << setw(7) << hlAccTotDS_[ds][p] << " "
+           << right << setw(7) << fixed << setprecision(1) << scale*hlAccTotDS_[ds][p] << " "
+           << right << setw(7) << hlErrors_[hlIndex_[ds][p]] << " "
+           << hlNames_[hlIndex_[ds][p]] << endl;
+      }
     }
 
     // now for each stream
@@ -361,42 +414,6 @@ HLTrigReport::dumpReport()
       }
     }
 
-    // now for each dataset
-    for (size_t ds=0; ds<hlIndex_.size(); ++ds){
-      LogVerbatim("HLTrigReport") << endl;
-      LogVerbatim("HLTrigReport") << "HLT-Report " << "---------- Dataset Summary: " << datasetNames_[ds] << " ------------" << endl;
-      LogVerbatim("HLTrigReport") << "HLT-Report "
-         << right << setw(7) << "HLT #" << " "
-         << right << setw(7) << "WasRun" << " "
-         << right << setw(7) << "L1S" << " "
-         << right << setw(7) << "Pre" << " "
-         << right << setw(7) << "HLT" << " "
-         << right << setw(7) << "HLTtot" << " "
-         << right << setw(7) << "Rate" << " "
-         << right << setw(7) << "RateHi" << " "
-         << right << setw(7) << "RateTot" << " "
-         << right << setw(9) << "%L1sPre" << " "
-         << right << setw(7) << "Errors" << " "
-         << "Name" << endl;  
-      for (size_t p=0; p<hlIndex_[ds].size(); ++p){
-        LogVerbatim("HLTrigReport") << "HLT-Report "
-           << right << setw(7) << p << " "
-           << right << setw(7) << hlWasRun_[hlIndex_[ds][p]] << " "
-           << right << setw(7) << hltL1s_[hlIndex_[ds][p]] << " "
-           << right << setw(7) << hltPre_[hlIndex_[ds][p]] << " "
-           << right << setw(7) << hlAccept_[hlIndex_[ds][p]] << " "
-           << right << setw(7) << hlAccTotDS_[ds][p] << " "
-           << right << setw(7) << fixed << setprecision(1) << scale*hlAccept_[hlIndex_[ds][p]] << " "
-           << right << setw(7) << fixed << setprecision(1) <<
-              ((hlAccept_[refIndex_]-hlAccept_[hlIndex_[ds][p]] > 0) ? refRate_*ROOT::Math::beta_quantile(alpha, hlAccept_[hlIndex_[ds][p]]+1, hlAccept_[refIndex_]-hlAccept_[hlIndex_[ds][p]]) : 0) << " "
-           << right << setw(7) << fixed << setprecision(1) << scale*hlAccTotDS_[ds][p] << " "
-           << right << setw(9) << fixed << setprecision(5)
-           << static_cast<float>(100*hlAccept_[hlIndex_[ds][p]])/
-              static_cast<float>(max(hltPre_[hlIndex_[ds][p]],1u)) << " "
-           << right << setw(7) << hlErrors_[hlIndex_[ds][p]] << " "
-           << hlNames_[hlIndex_[ds][p]] << endl;
-      }
-    }
   } else {
     LogVerbatim("HLTrigReport") << "HLT-Report - No HLT paths found!" << endl;
   }
