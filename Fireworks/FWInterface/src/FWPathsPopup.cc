@@ -199,7 +199,7 @@ struct PathUpdate
 {
    std::string pathName;
    bool passed;
-   bool choiceMaker;
+   size_t  choiceMaker;
 };
 
 /** Attempt to create a table based editor for the PSET. */
@@ -706,7 +706,7 @@ public:
         std::vector<edm::InputTag> inputTags;
         std::stringstream iss(value);
         std::string vitem;
-        bool fail;     
+        bool fail = false;
         size_t fst, lst;
 
         while (getline(iss, vitem, ','))
