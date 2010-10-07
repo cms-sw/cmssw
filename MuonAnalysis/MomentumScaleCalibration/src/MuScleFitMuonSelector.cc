@@ -51,7 +51,7 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event & event, std::vector<re
 					MuScleFitPlotter * plotter)
 {
   edm::Handle<pat::CompositeCandidateCollection > collAll;
-  try {event.getByLabel("onia2MuMuPatTrkTrk",collAll);} 
+  try {event.getByLabel("onia2MuMuPatTrkTrk",collAll);}
   catch (...) {std::cout << "J/psi not present in event!" << std::endl;}
   std::vector<const pat::Muon*> collMuSel;
 
@@ -126,7 +126,7 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event & event, std::vector<re
 	collMuSel.push_back(muon2);
      }
     }
-   else if(!collSelGG.size() && !collSelGT.size() && collSelTT.size()){
+    else if(!collSelGG.size() && !collSelGT.size() && collSelTT.size()){
       //CHECK THAT THEY ARE ORDERED BY PT !!!!!!!!!!!!!!!!!!!!!!!
       const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(collSelTT[0]->daughter("muon1"));
       const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(collSelTT[0]->daughter("muon2"));
@@ -146,10 +146,6 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event & event, std::vector<re
   else if( (muonType_<4 && muonType_>0) || muonType_>=10 ) { // Muons (glb,sta,trk)
     std::vector<reco::Track> tracks;
     if( PATmuons_ == true ) {
-      if( muonType_ == 0 ) {
-	std::cout << "Error, invalid selection: PATmuons with muonType == " << muonType_ << std::endl;
-	exit(1);
-      }
       edm::Handle<pat::MuonCollection> allMuons;
       event.getByLabel( muonLabel_, allMuons );
       for( std::vector<pat::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon ) {
