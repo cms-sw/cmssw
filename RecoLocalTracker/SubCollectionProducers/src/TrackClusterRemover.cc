@@ -51,7 +51,9 @@ class TrackClusterRemover : public edm::EDProducer {
         };
         static const unsigned int NumberOfParamBlocks = 6;
 
-        edm::InputTag trajectories_, stripClusters_, pixelClusters_;
+        edm::InputTag trajectories_;
+        bool doStrip_, doPixel_;
+        edm::InputTag stripClusters_, pixelClusters_;
         bool mergeOld_;
         edm::InputTag oldRemovalInfo_;
 
@@ -101,27 +103,33 @@ TrackClusterRemover::readPSet(const edm::ParameterSet& iConfig, const std::strin
 
 TrackClusterRemover::TrackClusterRemover(const ParameterSet& iConfig):
     trajectories_(iConfig.getParameter<InputTag>("trajectories")),
-    stripClusters_(iConfig.getParameter<InputTag>("stripClusters")),
-    pixelClusters_(iConfig.getParameter<InputTag>("pixelClusters")),
+    doStrip_(iConfig.existsAs<bool>("doStrip") ? iConfig.getParameter<bool>("doStrip") : true),
+    doPixel_(iConfig.existsAs<bool>("doPixel") ? iConfig.getParameter<bool>("doPixel") : true),
+    stripClusters_(doStrip_ ? iConfig.getParameter<InputTag>("stripClusters") : InputTag("NONE")),
+    pixelClusters_(doPixel_ ? iConfig.getParameter<InputTag>("pixelClusters") : InputTag("NONE")),
     mergeOld_(iConfig.exists("oldClusterRemovalInfo")),
     oldRemovalInfo_(mergeOld_ ? iConfig.getParameter<InputTag>("oldClusterRemovalInfo") : InputTag("NONE"))
 {
-    produces< edmNew::DetSetVector<SiPixelCluster> >();
-    produces< edmNew::DetSetVector<SiStripCluster> >();
+    if (doPixel_) produces< edmNew::DetSetVector<SiPixelCluster> >();
+    if (doStrip_) produces< edmNew::DetSetVector<SiStripCluster> >();
     produces< ClusterRemovalInfo >();
 
     fill(pblocks_, pblocks_+NumberOfParamBlocks, ParamBlock());
     readPSet(iConfig, "Common",-1);
-    readPSet(iConfig, "Pixel" ,0,1);
-    readPSet(iConfig, "PXB" ,0);
-    readPSet(iConfig, "PXE" ,1);
-    readPSet(iConfig, "Strip" ,2,3,4,5);
-    readPSet(iConfig, "StripInner" ,2,3);
-    readPSet(iConfig, "StripOuter" ,4,5);
-    readPSet(iConfig, "TIB" ,2);
-    readPSet(iConfig, "TID" ,3);
-    readPSet(iConfig, "TOB" ,4);
-    readPSet(iConfig, "TEC" ,5);
+    if (doPixel_) {
+        readPSet(iConfig, "Pixel" ,0,1);
+        readPSet(iConfig, "PXB" ,0);
+        readPSet(iConfig, "PXE" ,1);
+    }
+    if (doStrip_) {
+        readPSet(iConfig, "Strip" ,2,3,4,5);
+        readPSet(iConfig, "StripInner" ,2,3);
+        readPSet(iConfig, "StripOuter" ,4,5);
+        readPSet(iConfig, "TIB" ,2);
+        readPSet(iConfig, "TID" ,3);
+        readPSet(iConfig, "TOB" ,4);
+        readPSet(iConfig, "TEC" ,5);
+    }
 
     bool usingCharge = false;
     for (size_t i = 0; i < NumberOfParamBlocks; ++i) {
@@ -220,6 +228,7 @@ void TrackClusterRemover::process(const TrackingRecHit *hit, float chi2) {
     if (chi2 > pblocks_[subdet-1].maxChi2_) return;
 
     if ((subdet == PixelSubdetector::PixelBarrel) || (subdet == PixelSubdetector::PixelEndcap)) {
+        if (!doPixel_) return;
         // this is a pixel, and i *know* it is
         const SiPixelRecHit *pixelHit = static_cast<const SiPixelRecHit *>(hit);
 
@@ -238,12 +247,7 @@ void TrackClusterRemover::process(const TrackingRecHit *hit, float chi2) {
         // mark as used
         pixels[cluster.key()] = false;
     } else { // aka Strip
-#define HIT_SPLITTING_TYPEID
-#if defined(ASSUME_HIT_SPLITTING)
-        const SiStripRecHit2D *stripHit = static_cast<const SiStripRecHit2D *>(hit);
-	cout << "--- DEBUG: assume hit splitting!!" << endl; 
-        process(stripHit,subdet);
-#elif defined(HIT_SPLITTING_TYPEID)
+        if (!doStrip_) return;
         const type_info &hitType = typeid(*hit);
         if (hitType == typeid(SiStripRecHit2D)) {
             const SiStripRecHit2D *stripHit = static_cast<const SiStripRecHit2D *>(hit);
@@ -262,23 +266,6 @@ void TrackClusterRemover::process(const TrackingRecHit *hit, float chi2) {
 //DBG//     cout << "Projected RecHit 2D: " << endl;
             process(&projHit->originalHit(),subdet);
         } else throw cms::Exception("NOT IMPLEMENTED") << "Don't know how to handle " << hitType.name() << " on detid " << detid.rawId() << "\n";
-#else 
-        //TODO: optimize using layer info to do the correct dyn_cast ?
-        if (const SiStripRecHit2D *stripHit = dynamic_cast<const SiStripRecHit2D *>(hit)) {
-//DBG//     cout << "Plain RecHit 2D: " << endl;
-            process(stripHit,subdet);
-	else if (hitType == typeid(SiStripRecHit1D)) {
-	  const SiStripRecHit1D *hit1D = static_cast<const SiStripRecHit1D *>(hit);
-	  process(hit1D,subdet);
-        } else if (const SiStripMatchedRecHit2D *matchHit = dynamic_cast<const SiStripMatchedRecHit2D *>(hit)) {
-//DBG//     cout << "Matched RecHit 2D: " << endl;
-            process(matchHit->monoHit(),subdet);
-            process(matchHit->stereoHit(),subdet);
-        } else if (const ProjectedSiStripRecHit2D *projHit = dynamic_cast<const ProjectedSiStripRecHit2D *>(hit)) {
-//DBG//     cout << "Projected RecHit 2D: " << endl;
-            process(&projHit->originalHit(),subdet);
-        } else throw cms::Exception("NOT IMPLEMENTED") << "Don't know how to handle " << typeid(*hit).name() << " on detid " << detid.rawId() << "\n";
-#endif
     }
 }
 
@@ -299,16 +286,23 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
     ProductID pixelOldProdID, stripOldProdID;
 
     Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
-    iEvent.getByLabel(pixelClusters_, pixelClusters);
-    pixelSourceProdID = pixelClusters.id();
+    if (doPixel_) {
+        iEvent.getByLabel(pixelClusters_, pixelClusters);
+        pixelSourceProdID = pixelClusters.id();
+    }
 //DBG// std::cout << "TrackClusterRemover: Read pixel " << pixelClusters_.encode() << " = ID " << pixelSourceProdID << std::endl;
 
     Handle<edmNew::DetSetVector<SiStripCluster> > stripClusters;
-    iEvent.getByLabel(stripClusters_, stripClusters);
-    stripSourceProdID = stripClusters.id();
+    if (doStrip_) {
+        iEvent.getByLabel(stripClusters_, stripClusters);
+        stripSourceProdID = stripClusters.id();
+    }
 //DBG// std::cout << "TrackClusterRemover: Read strip " << stripClusters_.encode() << " = ID " << stripSourceProdID << std::endl;
 
-    auto_ptr<ClusterRemovalInfo> cri(new ClusterRemovalInfo(pixelClusters, stripClusters));
+    auto_ptr<ClusterRemovalInfo> cri;
+    if (doStrip_ && doPixel_) cri.reset(new ClusterRemovalInfo(pixelClusters, stripClusters));
+    else if (doStrip_) cri.reset(new ClusterRemovalInfo(stripClusters));
+    else if (doPixel_) cri.reset(new ClusterRemovalInfo(pixelClusters));
 
     Handle<ClusterRemovalInfo> oldRemovalInfo;
     if (mergeOld_) { 
@@ -338,8 +332,12 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
     Handle<vector<Trajectory> > trajectories; 
     iEvent.getByLabel(trajectories_, trajectories);
 
-    strips.resize(stripClusters->dataSize()); fill(strips.begin(), strips.end(), true);
-    pixels.resize(pixelClusters->dataSize()); fill(pixels.begin(), pixels.end(), true);
+    if (doStrip_) {
+        strips.resize(stripClusters->dataSize()); fill(strips.begin(), strips.end(), true);
+    }
+    if (doPixel_) {
+        pixels.resize(pixelClusters->dataSize()); fill(pixels.begin(), pixels.end(), true);
+    }
 
     //for (TrajTrackAssociationCollection::const_iterator it = trajectories->begin(), ed = trajectories->end(); it != ed; ++it)  {
     //    const Trajectory &tj = * it->key;
@@ -354,17 +352,21 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
         }
     }
 
-    auto_ptr<edmNew::DetSetVector<SiPixelCluster> > newPixelClusters = cleanup(*pixelClusters, pixels, 
-                cri->pixelIndices(), mergeOld_ ? &oldRemovalInfo->pixelIndices() : 0);
-    auto_ptr<edmNew::DetSetVector<SiStripCluster> > newStripClusters = cleanup(*stripClusters, strips, 
-                cri->stripIndices(), mergeOld_ ? &oldRemovalInfo->stripIndices() : 0);
-
-    OrphanHandle<edmNew::DetSetVector<SiPixelCluster> > newPixels = iEvent.put(newPixelClusters); 
-    cri->setNewPixelClusters(newPixels);
+    if (doPixel_) {
+        auto_ptr<edmNew::DetSetVector<SiPixelCluster> > newPixelClusters = cleanup(*pixelClusters, pixels, 
+                    cri->pixelIndices(), mergeOld_ ? &oldRemovalInfo->pixelIndices() : 0);
+        OrphanHandle<edmNew::DetSetVector<SiPixelCluster> > newPixels = iEvent.put(newPixelClusters); 
 //DBG// std::cout << "TrackClusterRemover: Wrote pixel " << newPixels.id() << " from " << pixelSourceProdID << std::endl;
-    OrphanHandle<edmNew::DetSetVector<SiStripCluster> > newStrips = iEvent.put(newStripClusters); 
-    cri->setNewStripClusters(newStrips);
+        cri->setNewPixelClusters(newPixels);
+    }
+    if (doStrip_) {
+        auto_ptr<edmNew::DetSetVector<SiStripCluster> > newStripClusters = cleanup(*stripClusters, strips, 
+                    cri->stripIndices(), mergeOld_ ? &oldRemovalInfo->stripIndices() : 0);
+        OrphanHandle<edmNew::DetSetVector<SiStripCluster> > newStrips = iEvent.put(newStripClusters); 
 //DBG// std::cout << "TrackClusterRemover: Wrote strip " << newStrips.id() << " from " << stripSourceProdID << std::endl;
+        cri->setNewStripClusters(newStrips);
+    }
+
 
     iEvent.put(cri);
 
