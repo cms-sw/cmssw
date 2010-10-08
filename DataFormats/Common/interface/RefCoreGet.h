@@ -2,10 +2,8 @@
 #define DataFormats_Common_RefCoreGet_h
 
 /*----------------------------------------------------------------------
-  
-RefCoreGet: Free function to get the pointer to a referenced product.
 
-$Id: RefCoreGet.h,v 1.6 2008/09/05 17:53:23 chrjones Exp $
+RefCoreGet: Free function to get the pointer to a referenced product.
 
 ----------------------------------------------------------------------*/
 
@@ -18,15 +16,15 @@ namespace edm {
   namespace refcore {
     template <typename T>
     inline
-    T const* 
+    T const*
     getProductPtr_(RefCore const& ref) {
       //if (isNull()) throwInvalidReference();
       assert (!ref.isTransient());
-      EDProduct const* product = ref.getProductPtr(typeid(T).name());
+      EDProduct const* product = ref.getProductPtr(typeid(T));
       Wrapper<T> const* wrapper = dynamic_cast<Wrapper<T> const*>(product);
 
-      if (wrapper == 0) { 
-        ref.wrongTypeException(typeid(T).name(), typeid(*product).name());
+      if (wrapper == 0) {
+        ref.wrongTypeException(typeid(T), typeid(*product));
       }
       ref.setProductPtr(wrapper->product());
       return wrapper->product();
@@ -40,7 +38,7 @@ namespace edm {
     T const* p = static_cast<T const *>(ref.productPtr());
     if (p != 0) return p;
     if (ref.isTransient()) {
-      ref.nullPointerForTransientException(typeid(T).name());
+      ref.nullPointerForTransientException(typeid(T));
     }
     return refcore::getProductPtr_<T>(ref);
   }

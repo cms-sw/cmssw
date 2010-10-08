@@ -44,13 +44,13 @@ namespace edm {
 
     void setProductGetter(EDProductGetter const* prodGetter) const;
 
-    EDProduct const* getProductPtr(char const* type) const;
+    EDProduct const* getProductPtr(std::type_info const& type) const;
 
-    void productNotFoundException(char const* type) const;
+    void productNotFoundException(std::type_info const& type) const;
 
-    void wrongTypeException(char const* expectedType, char const* actualType) const;
+    void wrongTypeException(std::type_info const& expectedType, std::type_info const& actualType) const;
 
-    void nullPointerForTransientException(char const* type) const;
+    void nullPointerForTransientException(std::type_info const& type) const;
 
     void swap(RefCore &);
     

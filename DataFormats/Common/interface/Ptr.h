@@ -196,7 +196,7 @@ namespace edm {
         void const* ad = 0;
         EDProduct const* prod = productGetter()->getIt(core_.id());
         if(prod == 0) {
-	  core_.productNotFoundException(typeid(T).name());
+	  core_.productNotFoundException(typeid(T));
         }
         prod->setPtr(typeid(T), key_, ad);
         core_.setProductPtr(ad);

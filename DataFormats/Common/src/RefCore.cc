@@ -1,16 +1,17 @@
 #include "DataFormats/Common/interface/RefCore.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 #include <cassert>
 #include <ostream>
 
 namespace edm {
 
   RefCore::RefCore(ProductID const& theId, void const* prodPtr, EDProductGetter const* prodGetter, bool transient) :
-      id_(theId), 
+      id_(theId),
       transients_(prodPtr, prodGetter, transient) {}
 
   EDProduct const*
-  RefCore::getProductPtr(char const* type) const {
+  RefCore::getProductPtr(std::type_info const& type) const {
     // The following invariant would be nice to establish in all
     // constructors, but we can not be sure that the context in which
     // EDProductGetter::instance() is called will be one where a
@@ -29,19 +30,22 @@ namespace edm {
     if (!id_.isValid()) {
       throw Exception(errors::InvalidReference,
 		      "BadRefCore")
-	<< "Attempt to dereference a RefCore containing an invalid\n"
-	<< "ProductID has been detected. Please modify the calling\n"
-	<< "code to test validity before dereferencing.\n";
+        << "RefCore: Request to resolve a null or invalid reference to a product of type '"
+        << TypeID(type)
+	<< "' has been detected.\n"
+        << "Please modify the calling code to test validity before dereferencing.\n";
     }
 
     if (productPtr() == 0 && productGetter() == 0) {
       throw Exception(errors::InvalidReference,
 		      "BadRefCore")
-	<< "Attempt to dereference a RefCore containing a valid ProductID\n"
-	<< "but neither a valid product pointer not EDProductGetter has\n"
-	<< "been detected. The calling code must be modified to establish\n"
-	<< "a functioning EDProducterGetter for the context in which this\n"
-	<< "call is mode\n";
+        << "RefCore: A request to resolve a reference to a product of type '"
+        << TypeID(type)
+        << "' with ProductID '" << id_
+	<< "' cannot be satisfied.\n"
+	<< "The reference has neither a valid product pointer nor an EDProductGetter.\n"
+	<< "The calling code must be modified to establish a functioning EDProducterGetter\n"
+        << "for the context in which this call is mode\n";
     }
     EDProduct const* product = productGetter()->getIt(id_);
     if (product == 0) {
@@ -51,30 +55,30 @@ namespace edm {
   }
 
   void
-  RefCore::productNotFoundException(char const* type) const {
+  RefCore::productNotFoundException(std::type_info const& type) const {
     throw edm::Exception(errors::ProductNotFound)
-      << "RefCore: A request to resolve a reference to a product of type: "
-      << type
-      << "with ProductID "<< id_
+      << "RefCore: A request to resolve a reference to a product of type '"
+      << TypeID(type)
+      << "' with ProductID '" << id_ << "'"
       << "\ncan not be satisfied because the product cannot be found."
       << "\nProbably the branch containing the product is not stored in the input file.\n";
   }
 
   void
-  RefCore::wrongTypeException(char const* expectedType, char const* actualType) const {
+  RefCore::wrongTypeException(std::type_info const& expectedType, std::type_info const& actualType) const {
     throw edm::Exception(errors::InvalidReference,"WrongType")
-	<< "RefCore: A request to convert a contained product of type: "
-	<<  actualType << "\n"
-	<< " to type " << expectedType
-	<< "\nfor ProductID "<< id_
-	<< " can not be satisfied\n";
+	<< "RefCore: A request to convert a contained product of type '"
+	<< TypeID(actualType) << "'\n"
+	<< " to type '" << TypeID(expectedType) << "'"
+	<< "\nfor ProductID '" << id_
+	<< "' can not be satisfied\n";
   }
 
   void
-  RefCore::nullPointerForTransientException(char const* type) const {
+  RefCore::nullPointerForTransientException(std::type_info const& type) const {
     throw edm::Exception(errors::InvalidReference)
 	<< "RefCore: A request to resolve a transient reference to a product of type: "
-	<< type
+	<< TypeID(type)
 	<< "\ncan not be satisfied because the pointer to the product is null.\n";
   }
 
@@ -92,15 +96,6 @@ namespace edm {
   RefCore::RefCoreTransients::setProductGetter(EDProductGetter const* prodGetter) const {
     prodGetter_ = prodGetter;
   }
-
-//   void
-//   RefCore::throwInvalidReference() const {
-//     throw edm::Exception(errors::InvalidReference,"NullID")
-//       << "An attempt to dereference an invalid RefCore has been detected\n"
-//       << "The calling code failed to verify the validity of the RefCore.\n"
-//       << "The calling code should be modified to assure validity of each\n"
-//       << "RefCore object it uses, before dereferencing the RefCore\n";
-//   }
 
   void
   RefCore::pushBackItem(RefCore const& productToBeInserted, bool checkPointer) {
