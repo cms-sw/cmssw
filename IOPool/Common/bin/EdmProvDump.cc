@@ -36,6 +36,8 @@
 
 #include "boost/program_options.hpp"
 
+typedef std::map<std::string, std::vector<edm::BranchDescription> > IdToBranches;
+typedef std::map<std::pair<std::string, std::string>, IdToBranches> ModuleToIdBranches;
 
 static std::ostream& prettyPrint(std::ostream& oStream, edm::ParameterSet const& iPSet, std::string const& iIndent, std::string const& iIndentDelta);
 
@@ -99,6 +101,7 @@ typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> ParameterSetMap;
 
     void printHistory(std::string const& iIndent = std::string("  ")) const;
     void printEventSetupHistory(ParameterSetMap const& iPSM, std::ostream& oErrorLog) const;
+    void printOtherModulesHistory(ParameterSetMap const& iPSM, const ModuleToIdBranches&, std::ostream& oErrorLog) const;
 
     edm::ProcessConfigurationID
     configurationID() const {
@@ -204,6 +207,55 @@ void HistoryNode::printEventSetupHistory(ParameterSetMap const& iPSM, std::ostre
   }
 }
 
+std::string nonProducerComponent(std::string const& iCompName, edm::ParameterSet const& iProcessConfig, std::string const& iProcessName) {
+  std::ostringstream result;
+  edm::ParameterSet const& pset = iProcessConfig.getParameter<edm::ParameterSet>(iCompName);
+  std::string label(pset.getParameter<std::string>("@module_label"));
+  
+  result <<"Module: " << label << " " << iProcessName << "\n"
+  << " parameters: ";
+  prettyPrint(result,pset," "," ");
+  return result.str();
+}
+
+void HistoryNode::printOtherModulesHistory(ParameterSetMap const& iPSM,
+                                          const ModuleToIdBranches& iModules,
+                                          std::ostream& oErrorLog) const {
+  for (const_iterator itH = begin(), e = end();
+       itH != e;
+       ++itH) {
+    //Get ParameterSet for process
+    ParameterSetMap::const_iterator itFind = iPSM.find(itH->parameterSetID());
+    if(itFind == iPSM.end()){
+      oErrorLog << "No ParameterSetID for " << itH->parameterSetID() << std::endl;
+    } else {
+      edm::ParameterSet processConfig(itFind->second.pset());
+      std::vector<std::string> moduleStrings;
+      //get all modules
+      std::vector<std::string> modules = processConfig.getParameter<std::vector<std::string> >("@all_modules");
+      for(std::vector<std::string>::iterator itM = modules.begin(); itM != modules.end(); ++itM) {
+        //if we didn't already handle this from the branches
+        if( iModules.end() == iModules.find(std::make_pair(itH->processName(),*itM))) {
+          
+          moduleStrings.push_back(nonProducerComponent(
+                                                       *itM,
+                                                       processConfig,
+                                                       itH->processName()));
+        }
+      }
+      if(sort_) {
+        std::sort(moduleStrings.begin(), moduleStrings.end());
+      }
+      std::copy(moduleStrings.begin(), moduleStrings.end(),
+                std::ostream_iterator<std::string>(std::cout, "\n"));
+      
+    }
+    itH->printOtherModulesHistory(iPSM, iModules, oErrorLog);
+  }
+}
+
+
+
 namespace {
 
   // Open the input file, returning the TFile object that represents
@@ -281,7 +333,7 @@ class ProvenanceDumper : private boost::noncopyable {
 public:
   // It is illegal to call this constructor with a null pointer; a
   // legal C-style string is required.
-  ProvenanceDumper(char const* filename,bool showDependencies, bool excludeESModules);
+  ProvenanceDumper(char const* filename,bool showDependencies, bool excludeESModules, bool showAllModules);
 
   // Write the provenenace information to the given stream.
   void dump(std::ostream& os);
@@ -301,6 +353,7 @@ private:
   HistoryNode              historyGraph_;
   bool                     showDependencies_;
   bool                     excludeESModules_;
+  bool                     showOtherModules_;
 
   void work_();
   void dumpProcessHistory_();
@@ -309,14 +362,15 @@ private:
   void dumpParameterSetForID_(edm::ParameterSetID const& id);
 };
 
-ProvenanceDumper::ProvenanceDumper(char const* filename, bool showDependencies, bool excludeESModules) :
+ProvenanceDumper::ProvenanceDumper(char const* filename, bool showDependencies, bool excludeESModules, bool showOtherModules) :
   filename_(filename),
   inputFile_(makeTFile(filename)),
   exitCode_(0),
   errorLog_(),
   errorCount_(0),
   showDependencies_(showDependencies),
-  excludeESModules_(excludeESModules)
+  excludeESModules_(excludeESModules),
+  showOtherModules_(showOtherModules)
 {
 }
 
@@ -580,12 +634,10 @@ ProvenanceDumper::work_() {
 
   dumpProcessHistory_();
 
-  std::cout << "---------Event---------" << std::endl;
+  std::cout << "---------Data---------" << std::endl;
 
   //using edm::ParameterSetID as the key does not work
   //   typedef std::map<edm::ParameterSetID, std::vector<edm::BranchDescription> > IdToBranches
-  typedef std::map<std::string, std::vector<edm::BranchDescription> > IdToBranches;
-  typedef std::map<std::pair<std::string, std::string>, IdToBranches> ModuleToIdBranches;
   ModuleToIdBranches moduleToIdBranches;
   //IdToBranches idToBranches;
 
@@ -682,6 +734,11 @@ ProvenanceDumper::work_() {
       std::cout << std::endl;
     }
   }
+  if(showOtherModules_) {
+    std::cout << "---------Other Modules---------" << std::endl;
+    historyGraph_.printOtherModulesHistory(psm_,moduleToIdBranches, errorLog_);
+  }
+  
   if(!excludeESModules_) {
     std::cout << "---------EventSetup---------" << std::endl;
     historyGraph_.printEventSetupHistory(psm_, errorLog_);
@@ -698,6 +755,8 @@ static char const* const kDependenciesOpt = "dependencies";
 static char const* const kDependenciesCommandOpt = "dependencies,d";
 static char const* const kExcludeESModulesOpt = "excludeESModules";
 static char const* const kExcludeESModulesCommandOpt = "excludeESModules,e";
+static char const* const kShowAllModulesOpt = "showAllModules";
+static char const* const kShowAllModulesCommandOpt = "showAllModules,a";
 static char const* const kHelpOpt = "help";
 static char const* const kHelpCommandOpt = "help,h";
 static char const* const kFileNameOpt ="input-file";
@@ -720,6 +779,8 @@ int main(int argc, char* argv[]) {
    , "print what data each EDProducer is dependent upon")
   (kExcludeESModulesCommandOpt
    , "do not print ES module information")
+  (kShowAllModulesCommandOpt
+   , "show all modules (not just those that created data in the file)")
   ;
   //we don't want users to see these in the help messages since this
   // name only exists since the parser needs it
@@ -761,6 +822,12 @@ int main(int argc, char* argv[]) {
   if(vm.count(kExcludeESModulesOpt)) {
     excludeESModules=true;
   }
+  
+  bool showAllModules = false;
+  if(vm.count(kShowAllModulesOpt)) {
+    showAllModules=true;
+  }
+  
   std::string fileName;
   if(vm.count(kFileNameOpt)) {
     fileName = vm[kFileNameOpt].as<std::string>();
@@ -802,7 +869,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  ProvenanceDumper dumper(fileName.c_str(),showDependencies,excludeESModules);
+  ProvenanceDumper dumper(fileName.c_str(),showDependencies,excludeESModules,showAllModules);
   int exitCode(0);
   try {
     dumper.dump(std::cout);
