@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.240 $"
+__version__ = "$Revision: 1.241 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -67,7 +67,7 @@ class ConfigBuilder(object):
         """options taken from old cmsDriver and optparse """
 
 	## do the cmsDriver option massaging here
-	if hasattr(options,"fileout") and hasattr(options,"outfile_name"):
+	if hasattr(options,"fileout") and hasattr(options,"dirout"):
 		options.outfile_name = options.dirout+options.fileout
 	else:
 		options.outfile_name = 'output.root'
@@ -1197,7 +1197,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
 	self.process.configurationMetadata=cms.untracked.PSet\
-					    (version=cms.untracked.string("$Revision: 1.240 $"),
+					    (version=cms.untracked.string("$Revision: 1.241 $"),
 					     name=cms.untracked.string("PyReleaseValidation"),
 					     annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
 					     )
