@@ -1031,7 +1031,7 @@ namespace edm {
         eventProcessHistoryIter_ = lower_bound_all(eventProcessHistoryIDs_, target);
         assert(eventProcessHistoryIter_->eventID() == id);
       }
-      eventAux().processHistoryID() = eventProcessHistoryIter_->processHistoryID();
+      eventAux_.setProcessHistoryID(eventProcessHistoryIter_->processHistoryID());
       ++eventProcessHistoryIter_;
     } else if(fileFormatVersion().eventHistoryTree()) {
       // for backward compatibility.
@@ -1043,7 +1043,7 @@ namespace edm {
       }
       eventHistoryBranch->SetAddress(&pHistory);
       input::getEntry(eventHistoryTree_, eventTree_.entryNumber());
-      eventAux().processHistoryID() = history_->processHistoryID();
+      eventAux_.setProcessHistoryID(history_->processHistoryID());
       eventSelectionIDs_.reset(&history_->eventSelectionIDs(), do_nothing_deleter());
       branchListIndexes_.reset(&history_->branchListIndexes(), do_nothing_deleter());
     } else if (fileFormatVersion().noMetaDataTrees()) {
@@ -1058,7 +1058,7 @@ namespace edm {
       eventTree_.fillBranchEntry(branchListIndexesBranch, pBLI);
     }
     if(provenanceAdaptor_) {
-      eventAux().processHistoryID() = (provenanceAdaptor_->convertID(eventAux().processHistoryID()));
+      eventAux_.setProcessHistoryID(provenanceAdaptor_->convertID(eventAux().processHistoryID()));
       for(EventSelectionIDVector::iterator i = eventSelectionIDs_->begin(), e = eventSelectionIDs_->end(); i != e; ++i) {
         (*i) = provenanceAdaptor_->convertID(*i);
       }
