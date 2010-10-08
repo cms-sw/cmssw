@@ -54,8 +54,7 @@ namespace edm {
     void mergeAuxiliary(LuminosityBlockAuxiliary const& newAux);
 
   private:
-    // most recent process that processed this lumi block
-    // is the last on the list, this defines what "latest" is
+    // Process history ID of the containing run
     ProcessHistoryID processHistoryID_;
     // LuminosityBlock ID
     LuminosityBlockID id_;

@@ -48,7 +48,7 @@ namespace edm {
     void mergeAuxiliary(RunAuxiliary const& aux);
 
   private:
-    // most recent process that put a RunProduct into this run
+    // most recent process that affected this run
     // is the last on the list, this defines what "latest" is
     ProcessHistoryID processHistoryID_;
 
