@@ -18,7 +18,7 @@
 #include "RecoTauTag/HLTProducers/interface/L2TauNarrowConeIsolationProducer.h"
 #include "RecoTauTag/HLTProducers/interface/L2TauModularIsolationProducer.h"
 #include "RecoTauTag/HLTProducers/interface/L2TauModularIsolationSelector.h"
-#include "RecoTauTag/HLTProducers/interface/PFJetIsolator.h"
+//#include "RecoTauTag/HLTProducers/interface/PFJetIsolator.h"
 
 
 
@@ -41,4 +41,4 @@ DEFINE_FWK_MODULE(L2TauModularIsolationProducer);
 DEFINE_FWK_MODULE(L2TauModularIsolationSelector);
 DEFINE_FWK_MODULE(L2TauIsolationSelector);
 DEFINE_FWK_MODULE(L2TauRelaxingIsolationSelector);
-DEFINE_FWK_MODULE(PFJetIsolator);
+//DEFINE_FWK_MODULE(PFJetIsolator);
