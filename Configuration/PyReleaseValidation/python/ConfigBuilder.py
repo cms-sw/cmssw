@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.239 $"
+__version__ = "$Revision: 1.240 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -1197,7 +1197,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
 	self.process.configurationMetadata=cms.untracked.PSet\
-					    (version=cms.untracked.string("$Revision: 1.239 $"),
+					    (version=cms.untracked.string("$Revision: 1.240 $"),
 					     name=cms.untracked.string("PyReleaseValidation"),
 					     annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
 					     )
@@ -1369,25 +1369,25 @@ def addOutputModule(process, tier, content):
     Function to add an output module to a given process with given data tier and event content
     """
     print "WARNING. this method will not be supported any more SOON, please use --eventcontent --datatier field to drive the output module definitions"
-    '''
+
     moduleName = "output%s%s" % (tier, content)
     pathName = "%sPath" % moduleName
     contentName = "%sEventContent" % content
     contentAttr = getattr(process, contentName)
     setattr(process, moduleName,
             cms.OutputModule("PoolOutputModule",
-                              fileName = cms.untracked.string('%s.root' % moduleName),
-                              dataset = cms.untracked.PSet(
-                                dataTier = cms.untracked.string(tier),
-                              ),
-                              eventContent = contentAttr
+			     contentAttr,
+			     fileName = cms.untracked.string('%s.root' % moduleName),
+			     dataset = cms.untracked.PSet(
+	                       dataTier = cms.untracked.string(tier),
+			       ),
                            )
             )
     print getattr(process,moduleName)
     # put it in an EndPath and put the EndPath into the schedule
     setattr(process, pathName, cms.EndPath(getattr(process,moduleName)) )
     process.schedule.append(getattr(process, pathName))
-    '''
+
     return
 
 
