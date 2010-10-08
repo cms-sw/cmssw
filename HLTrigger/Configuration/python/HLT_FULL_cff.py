@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_8_1/HLT/V329 (CMSSW_3_8_1_HLT16)
+# /dev/CMSSW_3_8_2/HLT/V2 (CMSSW_3_8_1_HLT17)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/HLT/V329')
+  tableName = cms.string('/dev/CMSSW_3_8_2/HLT/V2')
 )
 
 streams = cms.PSet( 
@@ -3781,7 +3781,13 @@ hltHT300 = cms.EDFilter( "HLTGlobalSumsMET",
 hltMhtHtFilter = cms.EDFilter( "HLTMhtHtFilter",
     inputJetTag = cms.InputTag( "hltMCJetCorJetIcone5" ),
     minMht = cms.double( 100.0 ),
-    minPtJet = cms.double( 30.0 )
+    minPtJet = cms.double( 30.0 ),
+    mode = cms.int32( 1 ),
+    etaJet = cms.double( 9999.0 ),
+    usePt = cms.bool( True ),
+    minPT12 = cms.double( 0.0 ),
+    minMeff = cms.double( 0.0 ),
+    minHt = cms.double( 0.0 )
 )
 hltL1sL1SingleMuOpenL1SingleMu0 = cms.EDFilter( "HLTLevel1GTSeed",
     L1UseL1TriggerObjectMaps = cms.bool( True ),
@@ -16688,10 +16694,7 @@ hltPreRPCMuonNoHits = cms.EDFilter( "HLTPrescaler",
 )
 hltRPCPointProducer = cms.EDProducer( "RPCPointProducer",
     cscSegments = cms.InputTag( "hltCscSegments" ),
-    dt4DSegments = cms.InputTag( "hltDt4DSegments" ),
-    tracks = cms.InputTag( "" ),
-    incltrack = cms.untracked.bool( False ),
-    TrackTransformer = cms.PSet(  )
+    dt4DSegments = cms.InputTag( "hltDt4DSegments" )
 )
 hltRPCFilter = cms.EDFilter( "HLTRPCFilter",
     rpcRecHits = cms.InputTag( "hltRpcRecHits" ),
@@ -16762,7 +16765,7 @@ hltEcalDigis = cms.EDProducer( "EcalRawToDigi",
     feIdCheck = cms.bool( True ),
     forceToKeepFRData = cms.bool( False ),
     eventPut = cms.bool( True ),
-    InputLabel = cms.string( "rawDataCollector" ),
+    InputLabel = cms.InputTag( "rawDataCollector" ),
     DoRegional = cms.bool( False ),
     FedLabel = cms.InputTag( "listfeds" ),
     silentMode = cms.untracked.bool( True ),

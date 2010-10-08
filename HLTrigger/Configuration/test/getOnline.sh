@@ -1,6 +1,6 @@
 #! /bin/bash
 
-HLT='/online/collisions/2010/week40/HLT'
+HLT='/online/collisions/2010/week42/HLT'
 L1T='L1Menu_Collisions2010_v0'
 
 

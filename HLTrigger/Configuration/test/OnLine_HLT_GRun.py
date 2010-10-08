@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_8_1/GRun/V48 (CMSSW_3_8_1_HLT16)
+# /dev/CMSSW_3_8_2/GRun/V1 (CMSSW_3_8_1_HLT17)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_1/GRun/V48')
+  tableName = cms.string('/dev/CMSSW_3_8_2/GRun/V1')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -2624,7 +2624,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 600, 1000 )
       ),
       cms.PSet(  pathName = cms.string( "AlCa_EcalPhiSym" ),
-        prescales = cms.vuint32( 20, 1 )
+        prescales = cms.vuint32( 10, 1 )
       ),
       cms.PSet(  pathName = cms.string( "AlCa_EcalPi0" ),
         prescales = cms.vuint32( 3, 1 )
@@ -13800,10 +13800,7 @@ process.hltPreRPCMuonNoHits = cms.EDFilter( "HLTPrescaler",
 )
 process.hltRPCPointProducer = cms.EDProducer( "RPCPointProducer",
     cscSegments = cms.InputTag( "hltCscSegments" ),
-    dt4DSegments = cms.InputTag( "hltDt4DSegments" ),
-    tracks = cms.InputTag( "" ),
-    incltrack = cms.untracked.bool( False ),
-    TrackTransformer = cms.PSet(  )
+    dt4DSegments = cms.InputTag( "hltDt4DSegments" )
 )
 process.hltRPCFilter = cms.EDFilter( "HLTRPCFilter",
     rpcRecHits = cms.InputTag( "hltRpcRecHits" ),
@@ -13874,7 +13871,7 @@ process.hltEcalDigis = cms.EDProducer( "EcalRawToDigi",
     feIdCheck = cms.bool( True ),
     forceToKeepFRData = cms.bool( False ),
     eventPut = cms.bool( True ),
-    InputLabel = cms.string( "rawDataCollector" ),
+    InputLabel = cms.InputTag( "rawDataCollector" ),
     DoRegional = cms.bool( False ),
     FedLabel = cms.InputTag( "listfeds" ),
     silentMode = cms.untracked.bool( True ),
