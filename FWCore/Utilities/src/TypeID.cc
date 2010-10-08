@@ -1,11 +1,12 @@
 /*----------------------------------------------------------------------
-  
+
 ----------------------------------------------------------------------*/
 #include <ostream>
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/FriendlyName.h"
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/TypeDemangler.h"
 #include "Reflex/Type.h"
 #include "boost/thread/tss.hpp"
@@ -13,12 +14,16 @@
 namespace edm {
   void
   TypeID::print(std::ostream& os) const {
-    os << className();
+    try {
+      os << className();
+    } catch (cms::Exception const& e) {
+      os << typeInfo().name();
+    }
   }
 
 namespace {
 
-  std::string typeToClassName(const std::type_info& iType) {
+  std::string typeToClassName(std::type_info const& iType) {
     Reflex::Type t = Reflex::Type::ByTypeInfo(iType);
     if (!bool(t)) {
 #if GCC_PREREQUISITE(3,0,0)
@@ -27,11 +32,11 @@ namespace {
         std::string result;
         typeDemangle(iType.name(), result);
         return result;
-      } catch (const cms::Exception& e) {
+      } catch (cms::Exception const& e) {
         edm::Exception theError(errors::DictionaryNotFound,"NoMatch");
         theError << "TypeID::className: No dictionary for class " << iType.name() << '\n';
         theError.append(e);
-	throw theError;
+        throw theError;
       }
 #else
       throw edm::Exception(errors::DictionaryNotFound,"NoMatch")
@@ -41,7 +46,7 @@ namespace {
     return t.Name(Reflex::SCOPED);
   }
 }
-  
+
   std::string
   TypeID::className() const {
     typedef std::map<edm::TypeID, std::string> Map;
@@ -50,13 +55,13 @@ namespace {
       s_typeToName.reset(new Map);
     }
     Map::const_iterator itFound = s_typeToName->find(*this);
-    if(s_typeToName->end()==itFound) {
+    if(s_typeToName->end() == itFound) {
       itFound = s_typeToName->insert(Map::value_type(*this, typeToClassName(typeInfo()))).first;
     }
     return itFound->second;
   }
-  
-  std::string 
+
+  std::string
   TypeID::userClassName() const {
     std::string theName = className();
     if (theName.find("edm::Wrapper") == 0) {
@@ -65,7 +70,7 @@ namespace {
     return theName;
   }
 
-  std::string 
+  std::string
   TypeID::friendlyClassName() const {
     return friendlyname::friendlyName(className());
   }
@@ -112,7 +117,7 @@ namespace {
   }
 
   std::ostream&
-  operator<<(std::ostream& os, const TypeID& id) {
+  operator<<(std::ostream& os, TypeID const& id) {
     id.print(os);
     return os;
   }
