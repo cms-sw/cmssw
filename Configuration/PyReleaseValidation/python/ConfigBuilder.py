@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.241 $"
+__version__ = "$Revision: 1.242 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -31,6 +31,12 @@ defaultOptions.filein = []
 defaultOptions.customisation_file = ""
 defaultOptions.particleTable = 'pythiapdt'
 defaultOptions.particleTableList = ['pythiapdt','pdt']
+defaultOptions.dirout = ''
+defaultOptions.fileout = 'output.root'
+defaultOptions.filtername = ''
+defaultOptions.lazy_download = False
+defaultOptions.custom_conditions = ''
+defaultOptions.hltProcess = ''
 
 # the pile up map
 pileupMap = {'156BxLumiPileUp': 2.0,
@@ -66,15 +72,8 @@ class ConfigBuilder(object):
     def __init__(self, options, process = None, with_output = False, with_input = False ):
         """options taken from old cmsDriver and optparse """
 
-	## do the cmsDriver option massaging here
-	if hasattr(options,"fileout") and hasattr(options,"dirout"):
-		options.outfile_name = options.dirout+options.fileout
-	else:
-		options.outfile_name = 'output.root'
+	options.outfile_name = options.dirout+options.fileout
 
-	if not hasattr(options,"filtername"):
-		options.filtername = ''
-		
         self._options = options
 
 	
@@ -148,7 +147,7 @@ class ConfigBuilder(object):
 		    self.process.options = cms.untracked.PSet( )
 	    self.addedObjects.append(("","options"))
 	    
-	    if hasattr(self._options,"lazy_download") and self._options.lazy_download:
+	    if self._options.lazy_download:
 		    self.process.AdaptorConfig = cms.Service("AdaptorConfig",
 							     stats = cms.untracked.bool(True),
 							     enable = cms.untracked.bool(True),
@@ -381,7 +380,7 @@ class ConfigBuilder(object):
         if len(conditions) > 2:
             self.executeAndRemember("process.GlobalTag.pfnPrefix = cms.untracked.string('%s')" % pfnPrefix)
 
-	if hasattr(self._options,"custom_conditions") and self._options.custom_conditions!="":
+	if self._options.custom_conditions!="":
 		specs=self._options.custom_conditions.split('+')
 		self.executeAndRemember("process.GlobalTag.toGet = cms.VPSet()")
 		for spec in specs:
@@ -643,10 +642,8 @@ class ConfigBuilder(object):
 		    output.outputCommands = stream.content
 
 	    
-	    if (hasattr(self._options, 'dirout')):
-		    output.fileName = cms.untracked.string(self._options.dirout+stream.name+'.root')
-	    else:
-		    output.fileName = cms.untracked.string(stream.name+'.root')
+	    output.fileName = cms.untracked.string(self._options.dirout+stream.name+'.root')
+
 	    output.dataset  = cms.untracked.PSet( dataTier = stream.dataTier,
 						  filterName = cms.untracked.string(stream.name))
 	    if workflow in ("producers,full"):
@@ -712,7 +709,7 @@ class ConfigBuilder(object):
             if shortName in alcaList and isinstance(alcastream,cms.FilteredStream):
                 self.addExtraStream(name,alcastream, workflow = workflow)
 		#rename the HLT process name in the alca modules
-		if hasattr(self._options,"hltProcess") and self._options.hltProcess:
+		if self._options.hltProcess:
 			if isinstance(alcastream.paths,tuple):
 				for path in alcastream.paths:
 					self.renameHLTprocessInSequence(path.label(),self._options.hltProcess)
@@ -1058,7 +1055,7 @@ class ConfigBuilder(object):
 	self.loadDefaultOrSpecifiedCFF(sequence,self.DQMOFFLINEDefaultCFF)
 	sequence=sequence.split('.')[-1]
 
-        if hasattr(self._options,"hltProcess") and self._options.hltProcess:
+        if self._options.hltProcess:
                 # if specified, change the process name used to acess the HLT results in the [HLT]DQM sequence
                 self.renameHLTprocessInSequence(sequence, self._options.hltProcess)
 	elif 'HLT' in self.stepMap.keys():
@@ -1197,7 +1194,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
 	self.process.configurationMetadata=cms.untracked.PSet\
-					    (version=cms.untracked.string("$Revision: 1.241 $"),
+					    (version=cms.untracked.string("$Revision: 1.242 $"),
 					     name=cms.untracked.string("PyReleaseValidation"),
 					     annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
 					     )
