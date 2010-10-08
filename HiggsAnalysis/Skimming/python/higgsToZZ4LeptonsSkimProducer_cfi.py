@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-higgsToZZ4LeptonsSkimProducer = cms.EDFilter("HiggsToZZ4LeptonsSkimProducer",
+higgsToZZ4LeptonsSkimProducer = cms.EDProducer("HiggsToZZ4LeptonsSkimProducer",
     DebugHiggsToZZ4LeptonsSkim = cms.bool(False),
 
     # Collection to be accessed
