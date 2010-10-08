@@ -14,7 +14,7 @@ RootOutputTree.h // used by ROOT output modules
 #include "boost/utility.hpp"
 
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "DataFormats/Provenance/interface/BranchType.h"
+#include "FWCore/Utilities/interface/BranchType.h"
 
 #include "TTree.h"
 
@@ -22,24 +22,13 @@ class TFile;
 class TBranch;
 
 namespace edm {
-
   class RootOutputTree : private boost::noncopyable {
   public:
     RootOutputTree(boost::shared_ptr<TFile> filePtr,
                    BranchType const& branchType,
                    int bufSize,
                    int splitLevel,
-                   int treeMaxVirtualSize) :
-      filePtr_(filePtr),
-      tree_(makeTTree(filePtr.get(), BranchTypeToProductTreeName(branchType), splitLevel)),
-      producedBranches_(),
-      readBranches_(),
-      auxBranches_(),
-      unclonedReadBranches_(),
-      unclonedReadBranchNames_(),
-      currentlyFastCloning_() {
-      if(treeMaxVirtualSize >= 0) tree_->SetMaxVirtualSize(treeMaxVirtualSize);
-    }
+                   int treeMaxVirtualSize);
 
     ~RootOutputTree() {}
 
@@ -110,6 +99,7 @@ namespace edm {
     std::vector<TBranch*> unclonedReadBranches_;
     std::set<std::string> unclonedReadBranchNames_;
     bool currentlyFastCloning_;
+    bool fastCloneAuxBranches_;
   };
 }
 #endif

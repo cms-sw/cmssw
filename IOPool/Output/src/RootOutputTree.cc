@@ -11,14 +11,38 @@
 
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "FWCore/Framework/interface/ConstProductRegistry.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "boost/bind.hpp"
 #include <limits>
 
 namespace edm {
+
+    RootOutputTree::RootOutputTree(
+                   boost::shared_ptr<TFile> filePtr,
+                   BranchType const& branchType,
+                   int bufSize,
+                   int splitLevel,
+                   int treeMaxVirtualSize) :
+      filePtr_(filePtr),
+      tree_(makeTTree(filePtr.get(), BranchTypeToProductTreeName(branchType), splitLevel)),
+      producedBranches_(),
+      readBranches_(),
+      auxBranches_(),
+      unclonedReadBranches_(),
+      unclonedReadBranchNames_(),
+      currentlyFastCloning_(),
+      fastCloneAuxBranches_() {
+
+    Service<ConstProductRegistry> reg;
+    fastCloneAuxBranches_ = !reg->anyProductProduced();
+    if(treeMaxVirtualSize >= 0) tree_->SetMaxVirtualSize(treeMaxVirtualSize);
+  }
+
   TTree*
   RootOutputTree::assignTTree(TFile* filePtr, TTree* tree) {
     tree->SetDirectory(filePtr);
@@ -36,7 +60,7 @@ namespace edm {
     if(tree->IsZombie())
       throw edm::Exception(errors::FatalRootError)
         << "Tree: " << name << " is a zombie." << "\n";
-                                    
+
     return assignTTree(filePtr, tree);
   }
 
@@ -117,18 +141,20 @@ namespace edm {
   void
   RootOutputTree::fastCloneTTree(TTree* in, std::string const& option) {
     if(in->GetEntries() != 0) {
-
       TObjArray* branches = tree_->GetListOfBranches();
+      // If any products were produced (not just event products), the EventAuxiliary will be modified.
+      // In that case,  don't fast copy auxiliary branches. Remove them, and add back after fast copying.
       std::map<Int_t, TBranch *> auxIndexes;
-      for (std::vector<TBranch *>::const_iterator it = auxBranches_.begin(), itEnd = auxBranches_.end();
-           it != itEnd; ++it) {
-        // Don't fast copy auxiliary branches. Remove them, and add back after fast copying.
-        int auxIndex = branches->IndexOf(*it);
-        assert (auxIndex >= 0);
-        auxIndexes.insert(std::make_pair(auxIndex, *it));
-        branches->RemoveAt(auxIndex);
+      if (!fastCloneAuxBranches_) {
+        for (std::vector<TBranch *>::const_iterator it = auxBranches_.begin(), itEnd = auxBranches_.end();
+             it != itEnd; ++it) {
+          int auxIndex = branches->IndexOf(*it);
+          assert (auxIndex >= 0);
+          auxIndexes.insert(std::make_pair(auxIndex, *it));
+          branches->RemoveAt(auxIndex);
+        }
+        branches->Compress();
       }
-      branches->Compress();
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
       TTreeCloner cloner(in, tree_, option.c_str(), TTreeCloner::kNoWarnings);
@@ -155,23 +181,25 @@ namespace edm {
       }
       tree_->SetEntries(tree_->GetEntries() + in->GetEntries());
       cloner.Exec();
-      for (std::map<Int_t, TBranch *>::const_iterator it = auxIndexes.begin(), itEnd = auxIndexes.end();
-           it != itEnd; ++it) {
-        // Add the auxiliary branch back after fast copying the rest of the tree.
-        Int_t last = branches->GetLast();
-        if (last >= 0) {
-          branches->AddAtAndExpand(branches->At(last), last+1);
-          for(Int_t ind = last-1; ind >= it->first; --ind) {
-            branches->AddAt(branches->At(ind), ind+1);
-          };
-          branches->AddAt(it->second, it->first);
-        } else {
-          branches->Add(it->second);
+      if (!fastCloneAuxBranches_) {
+        for (std::map<Int_t, TBranch *>::const_iterator it = auxIndexes.begin(), itEnd = auxIndexes.end();
+             it != itEnd; ++it) {
+          // Add the auxiliary branches back after fast copying the rest of the tree.
+          Int_t last = branches->GetLast();
+          if (last >= 0) {
+            branches->AddAtAndExpand(branches->At(last), last+1);
+            for(Int_t ind = last-1; ind >= it->first; --ind) {
+              branches->AddAt(branches->At(ind), ind+1);
+            };
+            branches->AddAt(it->second, it->first);
+          } else {
+            branches->Add(it->second);
+          }
         }
       }
     }
   }
- 
+
   void
   RootOutputTree::writeTTree(TTree* tree) {
     if(tree->GetNbranches() != 0) {
@@ -211,7 +239,7 @@ namespace edm {
   void
   RootOutputTree::fillTree() const {
     if (currentlyFastCloning_) {
-      fillTTree(tree_, auxBranches_);
+      if (!fastCloneAuxBranches_)fillTTree(tree_, auxBranches_);
       fillTTree(tree_, producedBranches_);
       fillTTree(tree_, unclonedReadBranches_);
     } else {
