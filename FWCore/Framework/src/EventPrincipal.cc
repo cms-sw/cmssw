@@ -54,6 +54,7 @@ namespace edm {
 
     if (luminosityBlockPrincipal_) {
       setProcessHistory(*luminosityBlockPrincipal_);
+      aux_->setProcessHistoryID(processHistoryID());
     }
 
     mapper->processHistoryID() = processHistoryID();
