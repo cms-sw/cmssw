@@ -69,7 +69,7 @@ int main(int argc, const char* argv[])
   else {
     cout << "Usage : " << argv[0] << " sourceFile.root outputFile.root < commands.txt" << endl;
     cout << "Usage : " << argv[0] << " sourceFile.root outputFile.root" << endl;
-    return 1;
+    return 0;
   }
 
   PlotManager plotMan(srcFileName, outFileName);
