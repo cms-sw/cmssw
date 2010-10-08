@@ -64,9 +64,15 @@ RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(std::vector<RefCou
  const std::vector<RefCountedKinematicParticle> & particles  = input.first;
  const std::vector<FreeTrajectoryState> & fStates = input.second;
 
-// linearization point:
- GlobalPoint linPoint  = finder->getLinearizationPoint(fStates);
- if (pt!=0) linPoint  = *pt;
+// linearization point
+// (only compute it using the linearization point finder if no point was passed to the fit function):
+ GlobalPoint linPoint;
+ if (pt!=0) {
+   linPoint  = *pt;
+ }
+ else {
+   linPoint = finder->getLinearizationPoint(fStates);
+ }
 
 //initial parameters:
  int vSize = particles.size();
