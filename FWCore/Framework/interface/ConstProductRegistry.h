@@ -16,7 +16,7 @@ Usage:
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep 22 18:01:21 CEST 2005
-// $Id: ConstProductRegistry.h,v 1.6.4.2 2008/11/08 16:54:26 wmtan Exp $
+// $Id: ConstProductRegistry.h,v 1.7 2008/12/18 04:49:01 wmtan Exp $
 //
 
 // system include files
@@ -52,6 +52,8 @@ namespace edm {
     // return-by-value of the vector so that it may be used in a
     // colon-initialization list.
     std::vector<BranchDescription const*> allBranchDescriptions() const {return reg_->allBranchDescriptions();}
+
+    bool anyProductProduced() const {return reg_->anyProductProduced();}
      
     template< class T>
     void watchProductAdditions(const T& iFunc)
