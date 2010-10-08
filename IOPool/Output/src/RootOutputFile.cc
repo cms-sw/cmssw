@@ -344,7 +344,7 @@ namespace edm {
     // first before writing anything to the file about this event
     // NOTE: pEventAux_ must be set before calling fillBranches since it gets written out
     // in that routine.
-    pEventAux_->processHistoryID() = e.processHistoryID();
+    assert(pEventAux_->processHistoryID() == e.processHistoryID());
     pBranchListIndexes_ = &e.branchListIndexes();
     EventSelectionIDVector esids = e.eventSelectionIDs();
     esids.push_back(om_->selectorConfig());
