@@ -54,7 +54,8 @@ namespace edm {
 	storeNumber_(storeNumber) {}
     ~EventAuxiliary() {}
     void write(std::ostream& os) const;
-    ProcessHistoryID& processHistoryID() const {return processHistoryID_;}
+    ProcessHistoryID const& processHistoryID() const {return processHistoryID_;}
+    void setProcessHistoryID(ProcessHistoryID const& phid) {processHistoryID_ = phid;}
     EventID const& id() const {return id_;}
     EventID& id() {return id_;}
     std::string const& processGUID() const {return processGUID_;}
@@ -71,9 +72,8 @@ namespace edm {
     int storeNumber() const {return storeNumber_;}
 
   private:
-    // most recently process that processed this event
-    // is the last on the list, this defines what "latest" is
-    mutable ProcessHistoryID processHistoryID_;
+    // Process history ID of the containing run.
+    ProcessHistoryID processHistoryID_;
     // Event ID
     EventID id_;
     // Globally unique process ID of process that created event.
