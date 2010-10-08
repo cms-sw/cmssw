@@ -29,6 +29,7 @@ void PFTauToJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
     iEvent.getByLabel( tauSrc_, tauJets );
     PFTauCollection::const_iterator i = tauJets->begin();
     for(;i !=tauJets->end(); i++ ) {
+      //      cout <<"Tau Tracks " << i->signalPFChargedHadrCands().size()<<std::endl;
       CaloJet jet(i->p4(),i->vertex(),specific);
       jet.setPdgId(15);
       jetCollectionTmp->push_back(jet);
