@@ -13,7 +13,7 @@
 //
 // Original Author:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: TrackerOnlyConversionProducer.cc,v 1.34 2010/10/01 09:06:48 bendavid Exp $
+// $Id: TrackerOnlyConversionProducer.cc,v 1.35 2010/10/07 23:48:38 bendavid Exp $
 //
 //
 
@@ -362,7 +362,7 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
           
           double approachDist = -999.;
           //apply preselection to track pair, unless one or both tracks are gsf
-          if (!preselectTrackPair(ttk_l,ttk_r, approachDist) && left->algo()!=29 && right->algo()!=29) {
+          if (left->algo()!=29 && right->algo()!=29 && !preselectTrackPair(ttk_l,ttk_r, approachDist)) {
             continue;
           }
                     
@@ -375,7 +375,14 @@ void TrackerOnlyConversionProducer::buildCollection(edm::Event& iEvent, const ed
             continue;
           }
 
-          
+          //compute approachDist in case it wasn't already computed by the preselection function
+          if (approachDist==-999.) {
+            TangentApproachInRPhi tangent;
+            tangent.calculate(ttk_l.innermostMeasurementState(),ttk_r.innermostMeasurementState()); 
+            if (tangent.status()) {
+              approachDist = tangent.perpdist();
+            }
+          }
           
           //track pair pass the quality cut
           if (   !( (trackQualityFilter(left, true) && trackQualityFilter(right, false))
@@ -694,19 +701,7 @@ bool TrackerOnlyConversionProducer::preselectTrackPair(const reco::TransientTrac
   if (!tangent.status()) {
     return false;
   }
-  
-  GlobalPoint tangentPoint = tangent.crossingPoint();
-  double rho = tangentPoint.perp();
-  
-  //reject candidates well outside of tracker bounds
-  if (rho > 120.0) {
-    return false;
-  }
-  
-  if (std::abs(tangentPoint.z()) > 300.0) {
-    return false;
-  }
-  
+    
   std::pair<GlobalTrajectoryParameters,GlobalTrajectoryParameters> trajs = tangent.trajectoryParameters();
   
   //very large separation in z, no hope
