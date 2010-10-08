@@ -3,24 +3,21 @@
 //
 // Package:     Services
 // Class  :     JobReport
-// 
+//
 //
 // Original Author:  Marc Paterno
-// $Id: JobReportService.cc,v 1.2 2010/03/09 16:24:55 wdd Exp $
 //
-
 
 #include "FWCore/Services/src/JobReportService.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace edm {
-
   namespace service {
+
     JobReportService::~JobReportService() {}
 
-    JobReportService::JobReportService(ParameterSet const& /*ps*/,
-			 ActivityRegistry& reg) :
+    JobReportService::JobReportService(ParameterSet const&, ActivityRegistry& reg) :
       JobReport() {
 
       reg.watchPostEndJob(this, &JobReportService::postEndJob);
@@ -31,12 +28,12 @@ namespace edm {
       // did the reading knows this.
     }
 
-    void 
+    void
     JobReportService::postEndJob() {
       // This will be called at end-of-job (obviously).
       // Dump information to the MessageLogger's JobSummary.
 
-      // ... not yet implemented ...      
+      // ... not yet implemented ...
 
       // Maybe we should have a member function called from both
       // postEndJob() and frameworkShutdownOnFailure(), so that common
@@ -46,7 +43,6 @@ namespace edm {
        // Any files that are still open should be flushed to the report
       //
       impl()->flushFiles();
-
     }
 
     void
@@ -62,8 +58,8 @@ namespace edm {
     }
 
     void
-    JobReportService::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
-      edm::ParameterSetDescription desc;
+    JobReportService::fillDescriptions(ConfigurationDescriptions& descriptions) {
+      ParameterSetDescription desc;
       desc.setComment("Enables job reports.");
       descriptions.addDefault(desc);
     }
