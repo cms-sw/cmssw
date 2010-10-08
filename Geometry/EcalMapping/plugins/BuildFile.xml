@@ -1,9 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="Geometry/EcalMapping"/>
-<use   name="CondFormats/EcalObjects"/>
-<use   name="CondFormats/DataRecord"/>
-<library   name="GeometryEcalMappingPlugins" file="*.cc">
-  <flags   EDM_PLUGIN="1"/>
-</library>

@@ -223,6 +223,7 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
 			   <<"z: "<<ptecc[tecIt]->surface().position().z();
       if (fabs(z) < ptecc[tecIt]->surface().position().z())
 	{inLayer = ( z < 0 ) ? ntecc[tecIt-1] : ptecc[tecIt-1] ; 
+	  layerShift=tecIt-1;
 	  LogTrace(theCategory)<<"choosing TEC layer with shift: "<<layerShift
 			       <<" and z: "<<inLayer->surface().position().z();
 	  break;}}
@@ -251,7 +252,15 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
       inLayer = *(blc.rbegin()+layerShift);
       break;
     case GeomDetEnumerators::TEC:
-      inLayer = *(blc.rbegin()+layerShift);
+      if (layerShift==0){
+	LogDebug(theCategory) <<"failed to get a compatible module on a TEC layer, using the last TOB layer.";
+	inLayer = *(blc.rbegin()+layerShift);
+      }
+      else{
+	layerShift--;
+	LogDebug(theCategory) <<"reaching more in with layer "<<layerShift<<" in TEC";
+	inLayer = ( z < 0 ) ? ntecc[layerShift] : ptecc[layerShift] ;
+      }
       break;
     default:
       edm::LogError(theCategory)<<"subdetectorid is not a tracker sub-dectector id. skipping.";

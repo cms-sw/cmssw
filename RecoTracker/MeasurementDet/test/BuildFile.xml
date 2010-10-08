@@ -1,8 +1,0 @@
-<use   name="FWCore/MessageLogger"/>
-<use   name="RecoTracker/MeasurementDet"/>
-<use   name="RecoTracker/Record"/>
-<library   file="*.cc" name="RecoTrackerMeasurementDetTest">
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<bin file="MeasurementDetSize.cpp">
-</bin>

@@ -1,8 +1,0 @@
-<?xml version='1.0' encoding="UTF-8"?>
-<!DOCTYPE PoolDatabase SYSTEM "InMemory">
- <PoolDatabase >
-  <PoolContainer name="CSCPedestals" >
-   <Class name="CSCPedestals"  mapping_version="CSCPedestals_automatic_default" >
-   </Class >
-  </PoolContainer >
- </PoolDatabase >

@@ -1044,6 +1044,12 @@ inline bool DEutils<L1MuDTChambThDigiCollection>::is_empty(col_cit it) const {
 template<>
 inline bool DEutils<L1MuRegionalCandCollection>::is_empty(col_cit it) const { 
   //note: following call used to give trouble sometimes
+  
+  //restrict further processing to bx==0 for RPC 
+  if(it->type_idx()==1 || it->type_idx()==3) //rpc
+    if (it->bx()!=0) 
+      return true; 
+  
   return (it->empty()); 
   //virtual bool empty() const { return readDataField( PT_START, PT_LENGTH) == 0; }
   //return  (it->getDataWord()==0);

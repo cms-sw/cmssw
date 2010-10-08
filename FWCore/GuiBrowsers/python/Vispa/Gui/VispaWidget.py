@@ -471,6 +471,7 @@ class VispaWidget(ZoomableWidget):
         
         self.noRearangeContent(False)
         self.scheduleRearangeContent()
+        self._previusDragPosition = self.pos()
         
     def unzoomedX(self):
         """ Returns x coordinate the widget would have if zoom was set to 100%.
@@ -643,7 +644,7 @@ class VispaWidget(ZoomableWidget):
 #        if sel:
 #            self.raise_()
 
-        if self.isSelected() and isinstance(self.parent(), VispaWidgetOwner):
+        if (multiSelect or self.isSelected()) and isinstance(self.parent(), VispaWidgetOwner):
             self.parent().widgetSelected(self, multiSelect)
     
     def mouseDoubleClickEvent(self, event):
@@ -1297,6 +1298,10 @@ class VispaWidget(ZoomableWidget):
     def dragReferencePoint(self):
         return QPoint(self._dragMouseXrel, self._dragMouseYrel)
         
+    def resetMouseDragOffset(self):
+        self._dragMouseXrel = 0
+        self._dragMouseYrel = 0
+        
     def mousePressEvent(self, event):
         """ Register mouse offset for dragging and calls select().
         """
@@ -1322,12 +1327,29 @@ class VispaWidget(ZoomableWidget):
         if bool(event.buttons() & Qt.LeftButton):
             self.dragWidget(self.mapToParent(event.pos()))
         return
+    
+    def mouseReleaseEvent(self, event):
+        #logging.debug("%s: mouseReleaeEvent()" % self.__class__.__name__)
+        if self._dragMouseXrel != 0 and self._dragMouseYrel != 0:
+            self.resetMouseDragOffset()
+            self.emit(SIGNAL("dragFinished"))
         
     def keyPressEvent(self, event):
         """ Calls delete() method if backspace or delete key is pressed when widget has focus.
         """
         if event.key() == Qt.Key_Backspace or event.key() == Qt.Key_Delete:
-            self.delete()
+            if hasattr(self.parent(), "multiSelectEnabled") and self.parent().multiSelectEnabled() and \
+             hasattr(self.parent(), "selectedWidgets") and len(self.parent().selectedWidgets()) > 1:
+                # let parent handle button event if multi-select is enabled
+                self.parent().setFocus(Qt.OtherFocusReason)
+                QCoreApplication.instance().sendEvent(self.parent(), event)
+            else:
+                self.emit(SIGNAL("deleteButtonPressed"))
+                self.delete()
+        else:
+            # let parent handle all other events
+            self.parent().setFocus(Qt.OtherFocusReason)
+            QCoreApplication.instance().sendEvent(self.parent(), event)
             
     def delete(self):
         """ Deletes this widget.
@@ -1338,22 +1360,35 @@ class VispaWidget(ZoomableWidget):
         
         if isinstance(self.parent(), VispaWidgetOwner):
             self.parent().widgetAboutToDelete(self)
-            
-        self.setParent(None)
+
         self.deleteLater()
+        self.emit(SIGNAL("widgetDeleted"))
         return True
 
+    def setPreviousDragPosition(self, position):
+        self._previusDragPosition = position
+
+    def previousDragPosition(self):
+        """ Returns position from before previous drag operation.
+        
+        E.g. used for undo function.
+        """
+        #print "VispaWidget.previousDragPosition()", self._previusDragPosition
+        return self._previusDragPosition
+    
     def dragWidget(self, pPos):
         """ Perform dragging when user moves cursor while left mouse button is pressed.
         """
         if not self._dragableFlag:
             return
+        
+        self._previusDragPosition = self.pos()
         #pPos = self.mapToParent(event.pos())
         self.move(max(0,pPos.x() - self._dragMouseXrel), max(0,pPos.y() - self._dragMouseYrel))
         
-        # Tell parent a widget moved to trigger file modification.
+        # Tell parent, a widget moved to trigger file modification.
         if isinstance(self.parent(), VispaWidgetOwner):
-            self.parent().widgetMoved(self)
+            self.parent().widgetDragged(self)
 
     def move(self, *target):
         """ Move widgt to new position.

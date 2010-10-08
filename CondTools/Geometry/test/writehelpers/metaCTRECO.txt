@@ -1,8 +1,0 @@
-destDB oracle://cms_orcoff_prep/CMS_COND_GEOMETRY
-tag CTRECO_Geometry_TagXX
-inputtag 
-since 
-till 
-Timetype runnumber
-IOVCheck offline
-usertext Geometry payload for Calo Tower? Reco  TagXX

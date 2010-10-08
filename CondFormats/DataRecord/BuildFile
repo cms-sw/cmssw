@@ -1,7 +1,0 @@
-<use name=FWCore/Framework>
-<use name=Geometry/Records>
-<export>
-  <use name=FWCore/Framework>
-  <use name=Geometry/Records>	
-  <lib name=CondFormatsDataRecord>
-</export>

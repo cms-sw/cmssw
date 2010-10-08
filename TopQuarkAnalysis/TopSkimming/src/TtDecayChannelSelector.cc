@@ -1,6 +1,6 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopGenEvent.h"
 #include "TopQuarkAnalysis/TopSkimming/interface/TtDecayChannelSelector.h"
 
 // static const string for status check in  
@@ -62,6 +62,7 @@ TtDecayChannelSelector::~TtDecayChannelSelector()
 bool
 TtDecayChannelSelector::operator()(const reco::GenParticleCollection& parts, std::string inputType) const
 {
+  bool verbose=false; // set this to true for debugging and add TtDecayChannelSelector category to the MessageLogger in your cfg file
   unsigned int iLep=0;
   unsigned int iTop=0,iBeauty=0,iElec=0,iMuon=0,iTau=0;
   for(reco::GenParticleCollection::const_iterator top=parts.begin(); top!=parts.end(); ++top){
@@ -99,20 +100,22 @@ TtDecayChannelSelector::operator()(const reco::GenParticleCollection& parts, std
       }
     }
   }
-  edm::LogVerbatim log("TtDecayChannelSelector_selection");
-  log << "----------------------"   << "\n"
-      << " iTop    : " << iTop      << "\n"
-      << " iBeauty : " << iBeauty   << "\n"
-      << " iElec   : " << iElec     << "\n"
-      << " iMuon   : " << iMuon     << "\n"
-      << " iTau    : " << iTau+iLep;
-  if(restrictTauDecays_ && (iTau+iLep)>0){
-    log << " (" << iTau << ")\n";
+  if(verbose) {
+    edm::LogVerbatim log("TtDecayChannelSelector");
+    log << "----------------------"   << "\n"
+	<< " iTop    : " << iTop      << "\n"
+	<< " iBeauty : " << iBeauty   << "\n"
+	<< " iElec   : " << iElec     << "\n"
+	<< " iMuon   : " << iMuon     << "\n"
+	<< " iTau    : " << iTau+iLep;
+    if(restrictTauDecays_ && (iTau+iLep)>0){
+      log << " (" << iTau << ")\n";
+    }
+    else{
+      log << "\n";
+    }
+    log << "- - - - - - - - - - - "   << "\n";
   }
-  else{
-    log << "\n";
-  }
-  log << "- - - - - - - - - - - "   << "\n";
   iLep+=iElec+iMuon+iTau;
 
   bool accept=false;
@@ -158,7 +161,8 @@ TtDecayChannelSelector::operator()(const reco::GenParticleCollection& parts, std
   else{
     edm::LogWarning ( "NoVtbDecay" ) << "Decay is not via Vtb";
   }
-  log << " accept  : " << accept;
+  if(verbose)
+    edm::LogVerbatim("TtDecayChannelSelector") << " accept  : " << accept;
   return accept;
 }
 

@@ -26,7 +26,23 @@ sys.path.insert(0, os.path.join(os.environ['CMSSW_BASE'],
 
 process.source = cms.Source("PoolSource",
 ##    fileNames = cms.untracked.vstring('file:/data0/slava/data/run58731/4C6067C2-B972-DD11-9672-000423D996B4.root')
-     fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/data/Run2010A/Cosmics/RAW/v1/000/137/079/12A5105A-C271-DF11-82D3-001D09F2527B.root')
+#     fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/cms/store/data/Commissioning08/Cosmics/RAW/v1/000/069/912/007F93B1-18AD-DD11-AB6D-000423D991D4.root'),
+     fileNames = cms.untracked.vstring(
+#       '/store/data/CRAFT09/Cosmics/RAW/v1/000/109/562/FE316E49-047F-DE11-AC0C-001D09F231B0.root'
+#       'rfio:/castor/cern.ch/cms/store/data/CRAFT09/Cosmics/RAW/v1/000/109/562/FCEFF16D-F57E-DE11-B5D6-0030487A1FEC.root',
+#       'rfio:/castor/cern.ch/cms/store/data/CRAFT09/Cosmics/RAW/v1/000/109/562/FC9CDB54-FF7E-DE11-B93F-001D09F24024.root',
+#       'rfio:/castor/cern.ch/cms/store/data/CRAFT09/Cosmics/RAW/v1/000/109/562/F8DAC763-067F-DE11-8539-001D09F295A1.root',
+#       'rfio:/castor/cern.ch/cms/store/data/CRAFT09/Cosmics/RAW/v1/000/109/562/F847EBEF-F87E-DE11-AAC5-000423D94A20.root',
+#       'rfio:/castor/cern.ch/cms/store/data/CRAFT09/Cosmics/RAW/v1/000/109/562/F6240161-EC7E-DE11-B347-000423D952C0.root',
+#       'rfio:/castor/cern.ch/cms/store/data/CRAFT09/Cosmics/RAW/v1/000/109/562/F4CCFBD1-077F-DE11-BAA9-0030487A18F2.root',
+#       'rfio:/castor/cern.ch/cms/store/data/CRAFT09/Cosmics/RAW/v1/000/109/562/F405FCD9-077F-DE11-A59E-000423D944FC.root',
+#       'rfio:/castor/cern.ch/cms/store/data/CRAFT09/Cosmics/RAW/v1/000/109/562/F2FA627F-087F-DE11-8931-001D09F2AD4D.root',
+#       'rfio:/castor/cern.ch/cms/store/data/CRAFT09/Cosmics/RAW/v1/000/109/562/F2F426F5-1A7F-DE11-8930-001D09F24303.root',
+#       'rfio:/castor/cern.ch/cms/store/data/CRAFT09/Cosmics/RAW/v1/000/109/562/F2E6A530-F67E-DE11-8B19-001D09F248F8.root',
+#       'rfio:/castor/cern.ch/cms/store/data/CRAFT09/Cosmics/RAW/v1/000/109/562/F2D0CA18-187F-DE11-B296-001D09F2545B.root'
+       '/store/data/BeamCommissioning09/Cosmics/RAW/v1/000/122/909/F81EA88E-A5DB-DE11-AA71-00304879FBB2.root'
+     )
+#     fileNames = cms.untracked.vstring('file:/data0/slava/data/run109562/FE316E49-047F-DE11-AC0C-001D09F231B0.root')
 ##        untracked uint32 debugVebosity = 10
 ##        untracked bool   debugFlag     = false
 ###	untracked uint32 skipEvents    = 2370
@@ -63,7 +79,6 @@ process.load("Geometry.CSCGeometry.cscGeometry_cfi")
 
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = 'MC_3XY_V21::All'
-process.GlobalTag.globaltag = 'GR_R_36X_V12::All'
 #process.GlobalTag.globaltag = 'CRAFT09_R_V9::All'
 #process.prefer("GlobalTag")
 
@@ -121,10 +136,6 @@ process.out = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring("keep *", 
         "drop *_DaqSource_*_*")
 )
-
-process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('TPEHists.root')
-                                   )
 
 # Scheduler path
 # ==============

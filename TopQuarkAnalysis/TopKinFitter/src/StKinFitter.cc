@@ -1,5 +1,5 @@
 //
-// $Id: StKinFitter.cc,v 1.5 2008/11/14 19:18:19 rwolf Exp $
+// $Id: StKinFitter.cc,v 1.7 2010/09/06 11:07:13 snaumann Exp $
 //
 
 #include "PhysicsTools/KinFitter/interface/TKinFitter.h"
@@ -26,37 +26,31 @@
 #include "PhysicsTools/KinFitter/interface/TFitConstraintEp.h"*/
 
 StKinFitter::StKinFitter() :
-    jetParam_(EMom), 
-    lepParam_(EMom), 
-    metParam_(EMom),
-    maxNrIter_(200), 
-    maxDeltaS_(5e-5), 
-    maxF_(1e-4) 
+  TopKinFitter(),
+  jetParam_(kEMom), 
+  lepParam_(kEMom), 
+  metParam_(kEMom)
 {
   setupFitter();
 }
 
 StKinFitter::StKinFitter(int jetParam, int lepParam, int metParam,
 			 int maxNrIter, double maxDeltaS, double maxF, std::vector<int> constraints) :
-  jetParam_((Parametrization) jetParam), 
-  lepParam_((Parametrization) lepParam), 
-  metParam_((Parametrization) metParam),
-  maxNrIter_(maxNrIter), 
-  maxDeltaS_(maxDeltaS), 
-  maxF_(maxF),
+  TopKinFitter(maxNrIter, maxDeltaS, maxF),
+  jetParam_((Param) jetParam), 
+  lepParam_((Param) lepParam), 
+  metParam_((Param) metParam),
   constraints_(constraints) 
 {
   setupFitter();
 }
 
-StKinFitter::StKinFitter(Parametrization jetParam, Parametrization lepParam, Parametrization metParam,
+StKinFitter::StKinFitter(Param jetParam, Param lepParam, Param metParam,
                          int maxNrIter, double maxDeltaS, double maxF, std::vector<int> constraints) :
-  jetParam_(jetParam), 
-  lepParam_(lepParam), 
+  TopKinFitter(maxNrIter, maxDeltaS, maxF),
+  jetParam_(jetParam),
+  lepParam_(lepParam),
   metParam_(metParam),
-  maxNrIter_(maxNrIter), 
-  maxDeltaS_(maxDeltaS), 
-  maxF_(maxF),
   constraints_(constraints) 
 {
   setupFitter();
@@ -66,7 +60,6 @@ StKinFitter::~StKinFitter()
 {
   delete cons1_; delete cons2_; delete cons3_;
   delete fitBottom_; delete fitLight_; delete fitLepton_; delete fitNeutrino_;
-  delete theFitter_;
 }
 
 StEvtSolution StKinFitter::addKinFitInfo(StEvtSolution * asol) 
@@ -98,7 +91,7 @@ StEvtSolution StKinFitter::addKinFitInfo(StEvtSolution * asol)
     double pt  = fitsol.getBottom().pt ();
     double eta = fitsol.getBottom().eta();
     res::HelperJet jetRes;
-    if (jetParam_ == EMom) {
+    if (jetParam_ == kEMom) {
       m1b(0,0) = pow(jetRes.pt (pt, eta, res::HelperJet::kB  ), 2);
       m1b(1,1) = pow(jetRes.pt (pt, eta, res::HelperJet::kB  ), 2);
       m1b(2,2) = pow(jetRes.pt (pt, eta, res::HelperJet::kB  ), 2);
@@ -107,14 +100,14 @@ StEvtSolution StKinFitter::addKinFitInfo(StEvtSolution * asol)
       m2b(1,1) = pow(jetRes.pt (pt, eta, res::HelperJet::kUds), 2); 
       m2b(2,2) = pow(jetRes.pt (pt, eta, res::HelperJet::kUds), 2);
       m2b(3,3) = pow(jetRes.pt (pt, eta, res::HelperJet::kUds), 2);
-    } else if (jetParam_ == EtEtaPhi) {
+    } else if (jetParam_ == kEtEtaPhi) {
       m1 (0,0) = pow(jetRes.pt (pt, eta, res::HelperJet::kB  ), 2);
       m1 (1,1) = pow(jetRes.eta(pt, eta, res::HelperJet::kB  ), 2);
       m1 (2,2) = pow(jetRes.phi(pt, eta, res::HelperJet::kB  ), 2);
       m2 (0,0) = pow(jetRes.pt (pt, eta, res::HelperJet::kUds), 2); 
       m2 (1,1) = pow(jetRes.eta(pt, eta, res::HelperJet::kUds), 2); 
       m2 (2,2) = pow(jetRes.phi(pt, eta, res::HelperJet::kUds), 2);
-    } else if (jetParam_ == EtThetaPhi) {
+    } else if (jetParam_ == kEtThetaPhi) {
       m1 (0,0) = pow(jetRes.pt (pt, eta, res::HelperJet::kB  ), 2);
       m1 (1,1) = pow(jetRes.eta(pt, eta, res::HelperJet::kB  ), 2);
       m1 (2,2) = pow(jetRes.phi(pt, eta, res::HelperJet::kB  ), 2);
@@ -130,7 +123,7 @@ StEvtSolution StKinFitter::addKinFitInfo(StEvtSolution * asol)
     double eta = fitsol.getElectron().eta();
     res::HelperMuon     muonRes;
     res::HelperElectron elecRes;
-    if (lepParam_ == EMom) {
+    if (lepParam_ == kEMom) {
       if(fitsol.getDecay()== "electron"){
 	m3(0,0) = pow(elecRes.pt (pt, eta), 2);
 	m3(1,1) = pow(elecRes.pt (pt, eta), 2); 
@@ -141,7 +134,7 @@ StEvtSolution StKinFitter::addKinFitInfo(StEvtSolution * asol)
 	m3(1,1) = pow(muonRes.pt (pt, eta), 2); 
 	m3(2,2) = pow(muonRes.pt (pt, eta), 2);
       }
-    } else if (lepParam_ == EtEtaPhi) {
+    } else if (lepParam_ == kEtEtaPhi) {
       if(fitsol.getDecay()== "electron"){
 	m3(0,0) = pow(elecRes.pt (pt, eta), 2);
 	m3(1,1) = pow(elecRes.eta(pt, eta), 2); 
@@ -152,7 +145,7 @@ StEvtSolution StKinFitter::addKinFitInfo(StEvtSolution * asol)
 	m3(1,1) = pow(muonRes.eta(pt, eta), 2); 
 	m3(2,2) = pow(muonRes.phi(pt, eta), 2);
       }
-    } else if (lepParam_ == EtThetaPhi) {
+    } else if (lepParam_ == kEtThetaPhi) {
       if(fitsol.getDecay()== "electron"){
 	m3(0,0) = pow(elecRes.pt (pt, eta), 2);
 	m3(1,1) = pow(elecRes.eta(pt, eta), 2); 
@@ -170,15 +163,15 @@ StEvtSolution StKinFitter::addKinFitInfo(StEvtSolution * asol)
     //FIXME this dirty hack needs a clean solution soon!
     double met = fitsol.getNeutrino().pt();
     res::HelperMET metRes;
-    if (metParam_ == EMom) {
+    if (metParam_ == kEMom) {
       m4(0,0) = pow(metRes.met(met), 2);
       m4(1,1) = pow(         9999.,  2);
       m4(2,2) = pow(metRes.met(met), 2);
-    } else if (metParam_ == EtEtaPhi) {
+    } else if (metParam_ == kEtEtaPhi) {
       m4(0,0) = pow(metRes.met(met), 2);
       m4(1,1) = pow(         9999.,  2);
       m4(2,2) = pow(metRes.phi(met), 2);
-    } else if (metParam_ == EtThetaPhi) {
+    } else if (metParam_ == kEtThetaPhi) {
       m4(0,0) = pow(metRes.met(met), 2);
       m4(1,1) = pow(         9999.,  2);
       m4(2,2) = pow(metRes.phi(met), 2);
@@ -189,7 +182,7 @@ StEvtSolution StKinFitter::addKinFitInfo(StEvtSolution * asol)
   fitLight_->setIni4Vec(&lightVec);
   fitLepton_->setIni4Vec(&leplVec);
   fitNeutrino_->setIni4Vec(&lepnVec);
-  if (jetParam_ == EMom) {
+  if (jetParam_ == kEMom) {
     fitBottom_->setCovMatrix(&m1b);
     fitLight_->setCovMatrix(&m2b);
   } else {
@@ -200,96 +193,19 @@ StEvtSolution StKinFitter::addKinFitInfo(StEvtSolution * asol)
   fitNeutrino_->setCovMatrix(&m4);
 
   // perform the fit!
-  theFitter_->fit();
+  fitter_->fit();
   
   // add fitted information to the solution
-  if (theFitter_->getStatus() == 0) {
+  if (fitter_->getStatus() == 0) {
     // read back the jet kinematics and resolutions
     pat::Particle aFitBottom(reco::LeafCandidate(0, math::XYZTLorentzVector(fitBottom_->getCurr4Vec()->X(), fitBottom_->getCurr4Vec()->Y(), fitBottom_->getCurr4Vec()->Z(), fitBottom_->getCurr4Vec()->E()),math::XYZPoint()));
     pat::Particle aFitLight(reco::LeafCandidate(0, math::XYZTLorentzVector(fitLight_->getCurr4Vec()->X(), fitLight_->getCurr4Vec()->Y(), fitLight_->getCurr4Vec()->Z(), fitLight_->getCurr4Vec()->E()),math::XYZPoint()));
 
-    // does not exist anymore in pat
-
-//     if (jetParam_ == EMom) {
-//       TMatrixD Vb(4,4); Vb = (*fitBottom_->getCovMatrixFit());
-//       aFitBottom.setCovMatrix(this->translateCovM(Vb));
-//       aFitBottom.setResolutionA(Vb(0,0));
-//       aFitBottom.setResolutionB(Vb(1,1));
-//       aFitBottom.setResolutionC(Vb(2,2));
-//       aFitBottom.setResolutionD(Vb(3,3));
-//       TMatrixD Vq(4,4); Vq = (*fitLight_->getCovMatrixFit());
-//       aFitLight.setCovMatrix(this->translateCovM(Vq));
-//       aFitLight.setResolutionA(Vq(0,0));
-//       aFitLight.setResolutionB(Vq(1,1));
-//       aFitLight.setResolutionC(Vq(2,2));
-//       aFitLight.setResolutionD(Vq(3,3));
-//     } else if (jetParam_ == EtEtaPhi) {
-//       TMatrixD Vb(3,3); Vb = (*fitBottom_->getCovMatrixFit());
-//       aFitBottom.setCovMatrix(this->translateCovM(Vb));
-//       aFitBottom.setResolutionEt(Vb(0,0));
-//       aFitBottom.setResolutionEta(Vb(1,1));
-//       aFitBottom.setResolutionPhi(Vb(2,2));
-//       TMatrixD Vq(3,3); Vq = (*fitLight_->getCovMatrixFit());
-//       aFitLight.setCovMatrix(this->translateCovM(Vq));
-//       aFitLight.setResolutionEt(Vq(0,0));
-//       aFitLight.setResolutionEta(Vq(1,1));
-//       aFitLight.setResolutionPhi(Vq(2,2));
-//     } else if (jetParam_ == EtThetaPhi) {
-//       TMatrixD Vb(3,3); Vb = (*fitBottom_->getCovMatrixFit());
-//       aFitBottom.setCovMatrix(this->translateCovM(Vb));
-//       aFitBottom.setResolutionEt(Vb(0,0));
-//       aFitBottom.setResolutionTheta(Vb(1,1));
-//       aFitBottom.setResolutionPhi(Vb(2,2));
-//       TMatrixD Vq(3,3); Vq = (*fitLight_->getCovMatrixFit());
-//       aFitLight.setCovMatrix(this->translateCovM(Vq));
-//       aFitLight.setResolutionEt(Vq(0,0));
-//       aFitLight.setResolutionTheta(Vq(1,1));
-//       aFitLight.setResolutionPhi(Vq(2,2));
-//     }
-
     // read back the lepton kinematics and resolutions
     pat::Particle aFitLepton(reco::LeafCandidate(0, math::XYZTLorentzVector(fitLepton_->getCurr4Vec()->X(), fitLepton_->getCurr4Vec()->Y(), fitLepton_->getCurr4Vec()->Z(), fitLepton_->getCurr4Vec()->E()), math::XYZPoint()));
 
-//     TMatrixD Vl(3,3); Vl = (*fitLepton_->getCovMatrixFit()); 
-//     aFitLepton.setCovMatrix(this->translateCovM(Vl));
-
-    // does not exist anymore in pat
-
-//     if (lepParam_ == EMom) {
-//       aFitLepton.setResolutionA(Vl(0,0));  
-//       aFitLepton.setResolutionB(Vl(1,1));
-//       aFitLepton.setResolutionC(Vl(2,2));
-//     } else if (lepParam_ == EtEtaPhi) {
-//       aFitLepton.setResolutionEt(Vl(0,0));  
-//       aFitLepton.setResolutionEta(Vl(1,1));
-//       aFitLepton.setResolutionPhi(Vl(2,2));
-//     } else if (lepParam_ == EtThetaPhi) {
-//       aFitLepton.setResolutionEt(Vl(0,0));  
-//       aFitLepton.setResolutionTheta(Vl(1,1));
-//       aFitLepton.setResolutionPhi(Vl(2,2));
-//     }
-
     // read back the MET kinematics and resolutions
     pat::Particle aFitNeutrino(reco::LeafCandidate(0, math::XYZTLorentzVector(fitNeutrino_->getCurr4Vec()->X(), fitNeutrino_->getCurr4Vec()->Y(), fitNeutrino_->getCurr4Vec()->Z(), fitNeutrino_->getCurr4Vec()->E()), math::XYZPoint()));   
-
-//     TMatrixD Vn(3,3); Vn = (*fitNeutrino_->getCovMatrixFit()); 
-//     aFitNeutrino.setCovMatrix(this->translateCovM(Vn));
-
-    // does not exist anymore in pat
-
-//     if (metParam_ == EMom) {
-//       aFitNeutrino.setResolutionA(Vn(0,0));  
-//       aFitNeutrino.setResolutionB(Vn(1,1));
-//       aFitNeutrino.setResolutionC(Vn(2,2));
-//     } else if (metParam_ == EtEtaPhi) {
-//       aFitNeutrino.setResolutionEt(Vn(0,0));  
-//       aFitNeutrino.setResolutionEta(Vn(1,1));
-//       aFitNeutrino.setResolutionPhi(Vn(2,2));
-//     } else if (metParam_ == EtThetaPhi) {
-//       aFitNeutrino.setResolutionEt(Vn(0,0));  
-//       aFitNeutrino.setResolutionTheta(Vn(1,1));
-//       aFitNeutrino.setResolutionPhi(Vn(2,2));
-//     }
     
     // finally fill the fitted particles
     fitsol.setFitBottom(aFitBottom);
@@ -298,7 +214,7 @@ StEvtSolution StKinFitter::addKinFitInfo(StEvtSolution * asol)
     fitsol.setFitNeutrino(aFitNeutrino);
 
     // store the fit's chi2 probability
-    fitsol.setChi2Prob(TMath::Prob(theFitter_->getS(), theFitter_->getNDF()));
+    fitsol.setChi2Prob( fitProb() );
   }
 
   return fitsol;
@@ -313,18 +229,9 @@ void StKinFitter::setupFitter() {
   // FIXME: replace by messagelogger!!!
   
   std::cout<<std::endl<<std::endl<<"+++++++++++ KINFIT SETUP ++++++++++++"<<std::endl;
-  std::cout<<"  jet parametrisation:     ";
-  if(jetParam_ == EMom) std::cout<<"EMomDev"<<std::endl;
-  if(jetParam_ == EtEtaPhi) std::cout<<"EtEtaPhi"<<std::endl;
-  if(jetParam_ == EtThetaPhi) std::cout<<"EtThetaPhi"<<std::endl;
-  std::cout<<"  lepton parametrisation:  ";
-  if(lepParam_ == EMom) std::cout<<"EScaledMomDev"<<std::endl;
-  if(lepParam_ == EtEtaPhi) std::cout<<"EtEtaPhi"<<std::endl;
-  if(lepParam_ == EtThetaPhi) std::cout<<"EtThetaPhi"<<std::endl;
-  std::cout<<"  met parametrisation:     ";
-  if(metParam_ == EMom) std::cout<<"EScaledMomDev"<<std::endl;
-  if(metParam_ == EtEtaPhi) std::cout<<"EtEtaPhi"<<std::endl;
-  if(metParam_ == EtThetaPhi) std::cout<<"EtThetaPhi"<<std::endl;
+  std::cout<<"  jet parametrisation:     " << param(jetParam_) << std::endl;
+  std::cout<<"  lepton parametrisation:  " << param(lepParam_) << std::endl;
+  std::cout<<"  met parametrisation:     " << param(metParam_) << std::endl;
   std::cout<<"  constraints:  "<<std::endl;
   for(unsigned int i=0; i<constraints_.size(); i++){
     if(constraints_[i] == 1) std::cout<<"    - hadronic W-mass"<<std::endl;
@@ -337,63 +244,48 @@ void StKinFitter::setupFitter() {
   std::cout<<"Max. deltaS: "<<maxDeltaS_<<std::endl;
   std::cout<<"Max. F: "<<maxF_<<std::endl;
   std::cout<<"++++++++++++++++++++++++++++++++++++++++++++"<<std::endl<<std::endl<<std::endl;
-  
-  theFitter_ = new TKinFitter("TtFit", "TtFit");
 
   TMatrixD empty3(3,3); TMatrixD empty4(4,4);
-  if (jetParam_ == EMom) {
+  if (jetParam_ == kEMom) {
     fitBottom_ = new TFitParticleEMomDev("Jet1", "Jet1", 0, &empty4);
     fitLight_  = new TFitParticleEMomDev("Jet2", "Jet2", 0, &empty4);
-  } else if (jetParam_ == EtEtaPhi) {
+  } else if (jetParam_ == kEtEtaPhi) {
     fitBottom_ = new TFitParticleEtEtaPhi("Jet1", "Jet1", 0, &empty3);
     fitLight_  = new TFitParticleEtEtaPhi("Jet2", "Jet2", 0, &empty3);
-  } else if (jetParam_ == EtThetaPhi) {
+  } else if (jetParam_ == kEtThetaPhi) {
     fitBottom_ = new TFitParticleEtThetaPhi("Jet1", "Jet1", 0, &empty3);
     fitLight_  = new TFitParticleEtThetaPhi("Jet2", "Jet2", 0, &empty3);
   }
-  if (lepParam_ == EMom) {
+  if (lepParam_ == kEMom) {
     fitLepton_ = new TFitParticleEScaledMomDev("Lepton", "Lepton", 0, &empty3);
-  } else if (lepParam_ == EtEtaPhi) {
+  } else if (lepParam_ == kEtEtaPhi) {
     fitLepton_ = new TFitParticleEtEtaPhi("Lepton", "Lepton", 0, &empty3);
-  } else if (lepParam_ == EtThetaPhi) {
+  } else if (lepParam_ == kEtThetaPhi) {
     fitLepton_ = new TFitParticleEtThetaPhi("Lepton", "Lepton", 0, &empty3);
   }
-  if (metParam_ == EMom) {
+  if (metParam_ == kEMom) {
     fitNeutrino_ = new TFitParticleEScaledMomDev("Neutrino", "Neutrino", 0, &empty3);
-  } else if (metParam_ == EtEtaPhi) {
+  } else if (metParam_ == kEtEtaPhi) {
     fitNeutrino_ = new TFitParticleEtEtaPhi("Neutrino", "Neutrino", 0, &empty3);
-  } else if (metParam_ == EtThetaPhi) {
+  } else if (metParam_ == kEtThetaPhi) {
     fitNeutrino_ = new TFitParticleEtThetaPhi("Neutrino", "Neutrino", 0, &empty3);
   }
 
-  cons1_ = new TFitConstraintM("MassConstraint", "Mass-Constraint", 0, 0 , 80.35);
+  cons1_ = new TFitConstraintM("MassConstraint", "Mass-Constraint", 0, 0 , mW_);
   cons1_->addParticles1(fitLepton_, fitNeutrino_);
-  cons2_ = new TFitConstraintM("MassConstraint", "Mass-Constraint", 0, 0, 175.);
+  cons2_ = new TFitConstraintM("MassConstraint", "Mass-Constraint", 0, 0, mTop_);
   cons2_->addParticles1(fitLepton_, fitNeutrino_, fitBottom_);
   cons3_ = new TFitConstraintM("MassConstraint", "Mass-Constraint", 0, 0, 0.);
   cons3_->addParticle1(fitNeutrino_);
 
   for (unsigned int i=0; i<constraints_.size(); i++) {
-    if (constraints_[i] == 1) theFitter_->addConstraint(cons1_);
-    if (constraints_[i] == 2) theFitter_->addConstraint(cons2_);
-    if (constraints_[i] == 3) theFitter_->addConstraint(cons3_);
+    if (constraints_[i] == 1) fitter_->addConstraint(cons1_);
+    if (constraints_[i] == 2) fitter_->addConstraint(cons2_);
+    if (constraints_[i] == 3) fitter_->addConstraint(cons3_);
   }
-  theFitter_->addMeasParticle(fitBottom_);
-  theFitter_->addMeasParticle(fitLight_);
-  theFitter_->addMeasParticle(fitLepton_);
-  theFitter_->addMeasParticle(fitNeutrino_);
-
-  theFitter_->setMaxNbIter(maxNrIter_);
-  theFitter_->setMaxDeltaS(maxDeltaS_);
-  theFitter_->setMaxF(maxF_);
-  theFitter_->setVerbosity(0);
+  fitter_->addMeasParticle(fitBottom_);
+  fitter_->addMeasParticle(fitLight_);
+  fitter_->addMeasParticle(fitLepton_);
+  fitter_->addMeasParticle(fitNeutrino_);
   
-}
-
-std::vector<float> StKinFitter::translateCovM(TMatrixD &V){
-  std::vector<float> covM; 
-  for(int ii=0; ii<V.GetNrows(); ii++){
-    for(int jj=0; jj<V.GetNcols(); jj++) covM.push_back(V(ii,jj));
-  }
-  return covM;
 }

@@ -105,7 +105,7 @@ class TtFullHadronicEvent: public TtEvent {
 
   /// print full content of the structure as formated 
   /// LogInfo to the MessageLogger output for debugging  
-  void print(const int verbosity=1);
+  void print(const int verbosity=1) const;
 };
 
 #endif

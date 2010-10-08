@@ -1,4 +1,3 @@
-/*
 #ifndef DBCommon_TokenBuilder_h
 #define DBCommon_TokenBuilder_h
 #include <string>
@@ -22,4 +21,3 @@ namespace cond{
   };
 }//ns cond
 #endif
-*/

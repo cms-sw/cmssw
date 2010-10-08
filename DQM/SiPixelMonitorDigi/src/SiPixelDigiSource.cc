@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.39 2010/05/10 15:18:52 merkelp Exp $
+// $Id: SiPixelDigiSource.cc,v 1.44 2010/08/05 11:43:06 duggan Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -37,6 +37,8 @@
 //
 #include <string>
 #include <stdlib.h>
+#include <iostream>
+#include <fstream>
 
 using namespace std;
 using namespace edm;
@@ -76,6 +78,16 @@ SiPixelDigiSource::~SiPixelDigiSource()
 
 void SiPixelDigiSource::beginJob(){
   firstRun = true;  
+  // find a FED# for the current detId:
+  ifstream infile(edm::FileInPath("DQM/SiPixelMonitorClient/test/detId.dat").fullPath().c_str(),ios::in);
+  int nModsInFile=0;
+  assert(!infile.fail());
+  while(!infile.eof()&&nModsInFile<1440) {
+    infile >> I_name[nModsInFile] >> I_detId[nModsInFile] >> I_fedId[nModsInFile] >> I_linkId[nModsInFile] ;
+    //cout<<nModsInFile<<" , "<<I_name[nModsInFile]<<" , "<<I_detId[nModsInFile]<<" , "<<I_fedId[nModsInFile]<<" , "<<I_linkId[nModsInFile]<<endl; ;
+    nModsInFile++;
+  }
+  infile.close();
 }
 
 void SiPixelDigiSource::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
@@ -92,7 +104,10 @@ void SiPixelDigiSource::beginRun(const edm::Run& r, const edm::EventSetup& iSetu
     lumSec = 0;
     nLumiSecs = 0;
     nBigEvents = 0;
-  
+    nBPIXDigis = 0; 
+    nFPIXDigis = 0;
+    for(int i=0; i!=40; i++) nDigisPerFed[i]=0;  
+    
     // Build map
     buildStructure(iSetup);
     // Book Monitoring Elements
@@ -118,6 +133,16 @@ void SiPixelDigiSource::endJob(void){
 void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   eventNo++;
+  //cout<<"BIGFATEVENTNUMBER: "<<eventNo<<endl;
+  if(modOn){
+    MonitorElement* meReset = theDMBE->get("Pixel/averageDigiOccupancy");
+    if(meReset && eventNo%1000==0){
+      meReset->Reset();
+      nBPIXDigis = 0; 
+      nFPIXDigis = 0;
+      for(int i=0; i!=40; i++) nDigisPerFed[i]=0;  
+    }
+  }
   // get input data
   edm::Handle< edm::DetSetVector<PixelDigi> >  input;
   iEvent.getByLabel( src_, input );
@@ -130,6 +155,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   //long long tbx = (long long)iEvent.orbitNumber() * 3564 + bx;
   int lumiSection = (int)iEvent.luminosityBlock();
   int nEventDigis = 0; int nActiveModules = 0;
+  //int nEventBPIXDigis = 0; int nEventFPIXDigis = 0;
   
   std::map<uint32_t,SiPixelDigiModule*>::iterator struct_iter;
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
@@ -137,8 +163,38 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 				ladOn, layOn, phiOn, 
 				bladeOn, diskOn, ringOn, 
 				twoDimOn, reducedSet, twoDimModOn, twoDimOnlyLayDisk);
-    nEventDigis = nEventDigis + numberOfDigis;  
-    if(numberOfDigis>0) nActiveModules++;  
+    if(numberOfDigis>0){
+      nEventDigis = nEventDigis + numberOfDigis;  
+      if(numberOfDigis>0) nActiveModules++;  
+      if((*struct_iter).first >= 302055684 && (*struct_iter).first <= 302197792 ){
+        //cout<<"AAbpix: "<<numberOfDigis<<" + "<<nBPIXDigis<<" = ";
+        nBPIXDigis = nBPIXDigis + numberOfDigis;
+	//cout<<nBPIXDigis<<endl;
+        for(int i=0; i!=768; i++){
+          //cout<<"\t\t\t bpix: "<<i<<" , "<<(*struct_iter).first<<" , "<<I_detId[i]<<endl;
+          if((*struct_iter).first == I_detId[i]){
+	    //if(I_fedId[i]>=32&&I_fedId[i]<=39) std::cout<<"Attention: a BPIX module matched to an FPIX FED!"<<std::endl;
+	    nDigisPerFed[I_fedId[i]]=nDigisPerFed[I_fedId[i]]+numberOfDigis;
+	    //cout<<"BPIX: "<<i<<" , "<<I_fedId[i]<<" , "<<numberOfDigis<<" , "<<nDigisPerFed[I_fedId[i]]<<endl;
+	    i=767;
+	  }
+        }
+      }else if((*struct_iter).first >= 343999748 && (*struct_iter).first <= 352477708 ){
+        //cout<<"AAfpix: "<<numberOfDigis<<" + "<<nFPIXDigis<<" = ";
+        nFPIXDigis = nFPIXDigis + numberOfDigis;
+	//cout<<nFPIXDigis<<endl;
+        for(int i=768; i!=1440; i++){
+          //cout<<"\t\t\t fpix: "<<i<<" , "<<(*struct_iter).first<<" , "<<I_detId[i]<<endl;
+          if((*struct_iter).first == I_detId[i]){
+	    //if(I_fedId[i]<32||I_fedId[i]>39) std::cout<<"Attention: an FPIX module matched to a BPIX FED!"<<std::endl;
+	    nDigisPerFed[I_fedId[i]]=nDigisPerFed[I_fedId[i]]+numberOfDigis;
+	    //cout<<"FPIX: "<<i<<" , "<<I_fedId[i]<<" , "<<numberOfDigis<<" , "<<nDigisPerFed[I_fedId[i]]<<endl;
+	    i=1439;
+	  }
+        }
+      }
+      //cout<<"numberOfDigis: "<<numberOfDigis<<" , nBPIXDigis: "<<nBPIXDigis<<" , nFPIXDigis: "<<nFPIXDigis<<endl;
+    }
   }
   
 //  if(lumiSection>lumSec){ lumSec = lumiSection; nLumiSecs++; }
@@ -159,6 +215,31 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
     if(me) me->Fill(float(bx));
     me1 = theDMBE->get("Pixel/pixEventRate");
     if(me1) me1->Fill(lumiSection, 1./23.);
+  }
+  
+  // Actual digi occupancy in a FEDs compared to average digi occupancy per FED
+  me = theDMBE->get("Pixel/averageDigiOccupancy");
+  me1 = theDMBE->get("Pixel/avgfedDigiOccvsLumi");
+  if(me){
+    for(int i=0; i!=40; i++){
+      float averageOcc = 0.;
+      if(i<32){
+        float averageBPIXFed = float(nBPIXDigis)/32.;
+	if(averageBPIXFed>0.) averageOcc = nDigisPerFed[i]/averageBPIXFed;
+	//cout<<"\t BPIX i: "<<i<<" , "<<nBPIXDigis<<" , "<<averageBPIXFed<<" , "<<nDigisPerFed[i]<<" , "<<averageOcc<<endl;
+      }else{
+        float averageFPIXFed = float(nFPIXDigis)/8.;
+	if(averageFPIXFed>0.) averageOcc = nDigisPerFed[i]/averageFPIXFed;
+	//cout<<"\t FPIX i: "<<i<<" , "<<nFPIXDigis<<" , "<<averageFPIXFed<<" , "<<nDigisPerFed[i]<<" , "<<averageOcc<<endl;
+      }
+      me->setBinContent(i+1,averageOcc);
+      int lumiSections15 = int(lumiSection/15);
+      if (modOn){
+	if (me1){
+	  me1->setBinContent(1+lumiSections15, i+1, averageOcc);
+	}//endif me1
+      }//endif modOn
+    }
   }
   
   
@@ -244,13 +325,17 @@ void SiPixelDigiSource::bookMEs(){
   pixEvtsPerBX = theDMBE->book1D("pixEvtsPerBX",title1,3565,0.,3565.);
   char title2[80]; sprintf(title2, "Rate of Pixel events;LumiSection;Rate [Hz]");
   pixEventRate = theDMBE->book1D("pixEventRate",title2,5000,0.,5000.);
-  
+  char title3[80]; sprintf(title3, "Average digi occupancy per FED;FED;NDigis/<NDigis>");
+  averageDigiOccupancy = theDMBE->book1D("averageDigiOccupancy",title3,40,-0.5,39.5);
+  if(modOn){
+    char title4[80]; sprintf(title4, "FED Digi Occupancy (NDigis/<NDigis>) vs LumiSections;Lumi Section;FED");
+    avgfedDigiOccvsLumi = theDMBE->book2D ("avgfedDigiOccvsLumi", title4, 200,0., 3000., 40, -0.5, 39.5);
+  }  
   std::map<uint32_t,SiPixelDigiModule*>::iterator struct_iter;
  
   SiPixelFolderOrganizer theSiPixelFolder;
 
   for(struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); struct_iter++){
- 
     /// Create folder tree and book histograms 
     if(modOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first)){
@@ -306,7 +391,14 @@ void SiPixelDigiSource::bookMEs(){
       }
     }
   }
-
+  std::string currDir = theDMBE->pwd();
+  theDMBE->cd("Pixel/Barrel");
+  meNDigisCOMBBarrel_ = theDMBE->book1D("ALLMODS_ndigisCOMB_Barrel","Number of Digis",500,0.,1000.);
+  meNDigisCOMBBarrel_->setAxisTitle("Number of digis per module per event",1);
+  theDMBE->cd("Pixel/Endcap");
+  meNDigisCOMBEndcap_ = theDMBE->book1D("ALLMODS_ndigisCOMB_Endcap","Number of Digis",500,0.,1000.);
+  meNDigisCOMBEndcap_->setAxisTitle("Number of digis per module per event",1);
+  theDMBE->cd(currDir);
 }
 
 //define this as a plug-in

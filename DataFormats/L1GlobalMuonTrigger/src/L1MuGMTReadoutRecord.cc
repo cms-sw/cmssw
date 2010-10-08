@@ -8,8 +8,8 @@
  *  for one bunch crossing.
 */
 //
-//   $Date: 2007/04/12 13:20:53 $
-//   $Revision: 1.6 $
+//   $Date: 2007/07/31 15:20:14 $
+//   $Revision: 1.7 $
 //
 //   Author :
 //   H. Sakulin                  HEPHY Vienna
@@ -84,7 +84,10 @@ void L1MuGMTReadoutRecord::reset() {
   for(itg = m_BarrelCands.begin(); itg != m_BarrelCands.end(); itg++) (*itg).reset();
   for(itg = m_ForwardCands.begin(); itg != m_ForwardCands.end(); itg++) (*itg).reset();
   for(itg = m_GMTCands.begin(); itg != m_GMTCands.end(); itg++) (*itg).reset();
-
+  for(int i=0;i<8;i++) {
+    m_MIPbits[i]=0;
+    m_Quietbits[i]=0;
+  }
 }
 
 /// get GMT candidates vector

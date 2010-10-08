@@ -8,12 +8,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:43:54 EST 2009
-// $Id: FWTextTableCellRenderer.cc,v 1.2 2009/03/04 15:30:02 chrjones Exp $
+// $Id: FWTextTableCellRenderer.cc,v 1.1 2009/02/03 20:33:05 chrjones Exp $
 //
 
 // system include files
 #include <iostream>
 #include "TGClient.h"
+#include "TGResourcePool.h"
 #include "TGFont.h"
 #include "TVirtualX.h"
 

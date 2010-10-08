@@ -1,4 +1,0 @@
-<library   name="RecoLocalTrackerSiStripClusterizerTestPlugins" file="*.cc">
-  <use   name="RecoLocalTracker/SiStripClusterizer"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>

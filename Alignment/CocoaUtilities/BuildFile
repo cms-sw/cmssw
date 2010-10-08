@@ -1,6 +1,0 @@
-<use name=CLHEP>
-
-<export>
- <lib name=AlignmentCocoaUtilities>
-</export>
-

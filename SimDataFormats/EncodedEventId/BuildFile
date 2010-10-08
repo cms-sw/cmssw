@@ -1,9 +1,0 @@
-<use name=boost>
-<use name=rootcore>
-<use name=rootrflx>
-<export>
-  <use name=boost>
-  <use name=rootcore>
-  <lib name=SimDataFormatsEncodedEventId>
-</export>
-

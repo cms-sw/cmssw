@@ -1,9 +1,0 @@
-<use   name="xerces-c"/>
-<use   name="CondTools/Ecal"/>
-<use   name="CondFormats/EcalObjects"/>
-<use   name="CondFormats/DataRecord"/>
-<bin   name="testXMLTranslators" file="testXMLTranslators.cc">
-</bin>
-<library   name="TestXMLTranslators" file="stubs/EcalTestConditionAnalyzer.cc">
-  <flags   EDM_PLUGIN="1"/>
-</library>

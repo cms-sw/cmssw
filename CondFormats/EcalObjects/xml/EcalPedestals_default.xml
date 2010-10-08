@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding="UTF-8"?>
-<!DOCTYPE PoolDatabase SYSTEM "InMemory">
- <PoolDatabase >
-  <PoolContainer name="EcalPedestals" >
-   <Class name="EcalPedestals"  mapping_version="EcalPedestals_automatic_default" >
-   </Class >
-  </PoolContainer >
- </PoolDatabase >
-

@@ -1,7 +1,0 @@
-BtagPerformanceESProducer_TEMPLATE = cms.ESProducer("BtagPerformanceESProducer",
-# this is what it makes available
-    ComponentName = cms.string('TEMPLATE'),
-# this is where it gets the payload from                                                
-    PayloadName = cms.string('TEMPLATE_T'),
-    WorkingPointName = cms.string('TEMPLATE_WP')
-)

@@ -1,4 +1,4 @@
-// $Id: L1Scalers.cc,v 1.21 2010/04/10 09:46:11 dellaric Exp $
+// $Id: L1Scalers.cc,v 1.24 2010/05/31 15:43:06 wteo Exp $
 #include <iostream>
 
 
@@ -8,6 +8,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // L1
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"

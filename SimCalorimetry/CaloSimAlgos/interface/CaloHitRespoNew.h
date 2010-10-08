@@ -27,6 +27,7 @@ class CaloVPECorrection       ;
 namespace CLHEP 
 { 
    class RandPoissonQ         ; 
+   class RandGaussQ           ; 
    class HepRandomEngine      ;
 }
 
@@ -57,7 +58,7 @@ class CaloHitRespoNew
 
       void setPECorrection( const CaloVPECorrection* peCorrection ) ;
 
-      virtual void setRandomEngine( CLHEP::HepRandomEngine& engine ) ;
+      virtual void setRandomEngine( CLHEP::HepRandomEngine& engine ) const ;
 
       virtual void run( MixCollection<PCaloHit>& hits ) ;
 
@@ -79,6 +80,8 @@ class CaloHitRespoNew
 
       CLHEP::RandPoissonQ* ranPois() const ;
 
+      CLHEP::RandGaussQ* ranGauss() const ;
+
       void setupSamples( const DetId& detId ) ;
 
       void blankOutUsedSamples() ;
@@ -99,6 +102,8 @@ class CaloHitRespoNew
       const CaloSubdetectorGeometry* m_geometry      ;
 
       mutable CLHEP::RandPoissonQ*   m_RandPoisson   ;
+
+      mutable CLHEP::RandGaussQ*     m_RandGauss     ;
 
       int    m_minBunch   ;
       int    m_maxBunch   ;

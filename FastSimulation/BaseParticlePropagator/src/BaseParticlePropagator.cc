@@ -42,6 +42,7 @@ BaseParticlePropagator::init() {
 bool 
 BaseParticlePropagator::propagate() { 
 
+
   //
   // Check that the particle is not already on the cylinder surface
   //
@@ -105,7 +106,7 @@ BaseParticlePropagator::propagate() {
     //
     // Check the decay time
     //
-    double delTime = propDir * (zProp-Z())*mass()/Pz();
+    double delTime = propDir * mass() * solution;
     double factor = 1.;
     properTime += delTime;
     if ( properTime > properDecayTime ) {
@@ -174,11 +175,12 @@ BaseParticlePropagator::propagate() {
     // Check for rounding errors in the ArcSin.
     double sinPhiProp = 
       (rProp*rProp-radius*radius-dist*dist)/( 2.*dist*radius);
+    
     //
     double deltaPhi = 1E99;
 
     // Taylor development up to third order for large momenta 
-    if ( 1.-fabs(sinPhiProp) < 1E-12 ) { 
+    if ( 1.-fabs(sinPhiProp) < 1E-9 ) { 
 
       double cphi0 = std::cos(phi0);
       double sphi0 = std::sin(phi0);
@@ -247,7 +249,7 @@ BaseParticlePropagator::propagate() {
       //
       if ( rProp < rCyl ) {
 
-	if ( firstLoop ) {
+	if ( firstLoop || fabs(pZ)/pT < 1E-10 ) {
 
 	  success = 0;
 
@@ -273,7 +275,7 @@ BaseParticlePropagator::propagate() {
     //
     // Check the decay time
     //
-    double delTime = propDir * (zProp-Z())*mass() / pZ;
+    double delTime = propDir * (phiProp-phi0)*radius*mass() / pT;
     double factor = 1.;
     properTime += delTime;
     if ( properTime > properDecayTime ) {
@@ -284,13 +286,13 @@ BaseParticlePropagator::propagate() {
 
     zProp = Z() + (zProp-Z())*factor;
 
-    phiProp = phi0 + (zProp - Z()) / radius * pT / pZ;
+    phiProp = phi0 + (phiProp-phi0)*factor;
 
     double sProp = std::sin(phiProp);
     double cProp = std::cos(phiProp);
     double xProp = xC + radius * sProp;
     double yProp = yC - radius * cProp;
-    double tProp = T() + (zProp-Z())*E()/pZ;
+    double tProp = T() + (phiProp-phi0)*radius*E()/pT;
     double pxProp = pT * cProp;
     double pyProp = pT * sProp;
 
@@ -523,7 +525,7 @@ BaseParticlePropagator::propagateToHcalEntrance(bool first) {
 
   // If went through the bottom of HB cylinder -> re-propagate to HE surface
   if (done && success == 2) {
-    setPropagationConditions(99999.0, 400.458, first);
+    setPropagationConditions(300.0, 400.458, first);
     propDir = 0;
     done = propagate();
     propDir = 1;
@@ -544,7 +546,7 @@ BaseParticlePropagator::propagateToVFcalEntrance(bool first) {
   // TODO: include proper geometry
   // Geometry taken from DAQ TDR Chapter 13
 
-  setPropagationConditions(130.0 , 1110.0, first);
+  setPropagationConditions(400.0 , 1110.0, first);
   propDir = 0;
   bool done = propagate();
   propDir = 1;

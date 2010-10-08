@@ -18,11 +18,17 @@ alter table LUMIDETAIL add (constraint DETAILSOURCE foreign key (LUMISUMMARY_ID)
 
 Glossary: FK=Foreign Key, PK=Primary Key
           lumiversion represents each lumi (re)processing
+========
+table a:  LUMIVALIDATION 
+columns:  runnum(uint32,PK), NOT NULL
+          cmslsnum(uint32,PK), NOT NULL 
+	  flag(string), NOT NULL
+          comment(string), NOT NULL
 
 ========
 table 1:  CMSRUNSUMMARY 
 columns:  runnum(uint32,PK), NOT NULL
-          fillnum(uint32),   NOT NULL
+          fillnum(uint32) 
           sequence(string),  NOT NULL
           hltkey(string),    NOT NULL
           startime(timestamp(6)) 
@@ -86,7 +92,15 @@ table 6: TRGHLTMAP (insert 1 row per hltpath-l1seed / populated from ConfDB+L1Se
          hltkey(string),        NOT NULL
          hltpathname(string),   NOT NULL
          l1seed(string)         NOT NULL
-	 
+
+======== tables for global versioning and norm factors ======
+table 7: LUMIVERSION (insert 1 row per either of lumirawversion,norm or bxnorm change)
+         globalversion(string)         PK
+         lumirawversion(string)        NOT NULL        
+         norm(unsigned int)            NOT NULL
+         bxnorm(blob)                  NOT NULL
+         startrun(unsigned int)        (optional)
+         startdate(string)             (optional) 
 
  ====== result tables not there======
 table 7: INTLUMI (insert 1 row per combinatorial of run+lumiversion)

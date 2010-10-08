@@ -51,6 +51,8 @@ implements Runnable,DipPublicationErrorHandler
   int runnum = 0;
   String startTime = getDateTime();
   String endTime = getDateTime();
+  long startTimeStamp = 0;
+  long endTimeStamp = 0;
   String lumiRange = "0 - 0";
   String quality = "Uncertain";
   int type = -1;
@@ -292,11 +294,22 @@ implements Runnable,DipPublicationErrorHandler
 	    System.out.println("Run: " + runnum);
 	    break;
 	case 2:
-	    startTime = record.substring(15);
+	    if (!sourceFile.contains("Pixel")){
+		startTime = tmp[1]+" "+tmp[2]+" "+tmp[3];
+		startTimeStamp = new Long(tmp[4]);
+	    }
+	    else
+		startTime = record.substring(15);
 	    //System.out.println("Time of begin run: " + startTime);
 	    break;
 	case 3:
-	    endTime = record.substring(13);
+	    if (!sourceFile.contains("Pixel")) {
+		endTime = tmp[1]+" "+tmp[2]+" "+tmp[3];
+		endTimeStamp = new Long(tmp[4]);
+		System.out.println("TimeStamp of fit: " + endTimeStamp + " [sec]");
+	    }
+	    else
+		endTime = record.substring(13);
 	    System.out.println("Time of fit: " + endTime);
 	    break;
 	case 4:
@@ -435,6 +448,10 @@ implements Runnable,DipPublicationErrorHandler
      messageCMS.insert("runnum",runnum);
      messageCMS.insert("startTime",startTime);
      messageCMS.insert("endTime",endTime);
+     if (!sourceFile.contains("Pixel")) {
+	 messageCMS.insert("startTimeStamp",startTimeStamp);
+	 messageCMS.insert("endTimeStamp",endTimeStamp);
+     }
      messageCMS.insert("lumiRange",lumiRange);
      messageCMS.insert("quality",quality);
      messageCMS.insert("type",type); //Unknown=-1, Fake=0, Tracker=2(Good)
@@ -505,7 +522,11 @@ implements Runnable,DipPublicationErrorHandler
      {
       DipTimestamp zeit;
       if (fitTime_) {
-	  long epoch = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss zz").parse(endTime).getTime();
+	  long epoch;
+	  if (!sourceFile.contains("Pixel"))
+	      epoch = endTimeStamp*1000; //convert to ms
+	  else epoch = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss zzz").parse(endTime).getTime();
+	  System.out.println("epoch = " + epoch + " [ms]");
 	  zeit = new DipTimestamp(epoch);
       }
       else zeit = new DipTimestamp();

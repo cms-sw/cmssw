@@ -13,7 +13,7 @@ process.MessageLogger.debugModules = cms.untracked.vstring('*')
 
 #process.source = cms.Source("PoolSource",
 #    fileNames = cms.untracked.vstring('file:./qwe.root'),
-#    skipEvents = cms.untracked.uint32(10200)
+#    skipEvents = cms.untracked.uint32(491)
 #)
 
 process.source = cms.Source("DaqSource",
@@ -22,7 +22,8 @@ process.source = cms.Source("DaqSource",
         firstEvent  = cms.untracked.int32(0),
         tfDDUnumber = cms.untracked.int32(0),
         FED760 = cms.untracked.vstring('RUI00'),
-        RUI00  = cms.untracked.vstring(#'qwe.raw_760'
+        RUI00  = cms.untracked.vstring(
+'/raid0/gartner/data/run133877/RAW/csc_00133877_EmuRUI00_Monitor_602.raw',
 '/raid0/gartner/data/run133877/RAW/csc_00133877_EmuRUI00_Monitor_602.raw',
 '/raid0/gartner/data/run133877/RAW/csc_00133877_EmuRUI00_Monitor_603.raw',
 '/raid0/gartner/data/run133877/RAW/csc_00133877_EmuRUI00_Monitor_604.raw',
@@ -61,19 +62,18 @@ process.source = cms.Source("DaqSource",
 '/raid0/gartner/data/run133877/RAW/csc_00133877_EmuRUI00_Monitor_637.raw',
 '/raid0/gartner/data/run133877/RAW/csc_00133877_EmuRUI00_Monitor_638.raw',
 '/raid0/gartner/data/run133877/RAW/csc_00133877_EmuRUI00_Monitor_639.raw',
-'/raid0/gartner/data/run133877/RAW/csc_00133877_EmuRUI00_Monitor_640.raw'
-    )
+'/raid0/gartner/data/run133877/RAW/csc_00133877_EmuRUI00_Monitor_640.raw')
   )
 )
 
 process.load("EventFilter.CSCTFRawToDigi.csctfpacker_cfi")
-process.csctfpacker.lctProducer = cms.InputTag("csctfunpacker")
-process.csctfpacker.mbProducer  = cms.InputTag("csctfunpacker:DT")
-process.csctfpacker.trackProducer = cms.InputTag("csctfunpacker")
+process.csctfpacker.lctProducer = cms.untracked.InputTag("csctfunpacker")
+process.csctfpacker.mbProducer  = cms.untracked.InputTag("csctfunpacker:DT")
+process.csctfpacker.trackProducer = cms.untracked.InputTag("csctfunpacker")
 
 import EventFilter.CSCTFRawToDigi.csctfunpacker_cfi
 process.csctfDigis = EventFilter.CSCTFRawToDigi.csctfunpacker_cfi.csctfunpacker.clone()
-process.csctfDigis.producer = cms.InputTag("csctfpacker:CSCTFRawData")
+process.csctfDigis.producer = cms.untracked.InputTag("csctfpacker:CSCTFRawData")
 
 process.csctfanalyzer = cms.EDAnalyzer("CSCTFAnalyzer",
          mbProducer     = cms.untracked.InputTag("csctfDigis:DT"),
@@ -93,11 +93,10 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
 
 process.cscdumper = cms.EDAnalyzer("CSCFileDumper",
     output = cms.untracked.string("./qwe.raw"),
-    events = cms.untracked.string("4111097")
+    events = cms.untracked.string("4093555")
 )
 
 process.p = cms.Path(process.csctfunpacker*process.csctfpacker*process.csctfDigis*process.csctfanalyzer)
 #process.p = cms.Path(process.csctfunpacker*process.FEVT)
-#process.p = cms.Path(process.csctfunpacker*process.csctfanalyzer)
 #process.p = cms.Path(process.csctfpacker*process.cscdumper)
 

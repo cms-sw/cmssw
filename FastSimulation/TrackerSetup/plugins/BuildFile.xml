@@ -1,9 +1,0 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="RecoTracker/TkDetLayers"/>
-<use   name="RecoTracker/Record"/>
-<use   name="FastSimulation/TrackerSetup"/>
-<use   name="boost"/>
-<library   file="*.cc" name="FastSimulationTrackerSetupPlugin">
-  <flags   EDM_PLUGIN="1"/>
-</library>

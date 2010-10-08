@@ -1,5 +1,0 @@
-<use   name="CalibCalorimetry/EcalTPGTools"/>
-<use   name="OnlineDB/EcalCondDB"/>
-<use   name="OnlineDB/Oracle"/>
-#<bin   file="changeTPGLutThreshold.cpp">
-#</bin>

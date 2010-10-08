@@ -1,7 +1,7 @@
 
-<var name="TEST_RELEASE" value="3_8_0_pre7">
-<var name="TEST_GLOBAL_TAG" value="MC_38Y_V4">
-<var name="TEST_GLOBAL_STARTUP_TAG" value="START38_V4">
+<var name="TEST_RELEASE" value="3_8_0">
+<var name="TEST_GLOBAL_TAG" value="MC_38Y_V7">
+<var name="TEST_GLOBAL_STARTUP_TAG" value="START38_V7">
 <var name="TEST_GLOBAL_VERSION" value="v1">
 
 The difffile tag below implies that after each run the eventual file electronHistos.root is automatically
@@ -23,9 +23,9 @@ The VAL_* variables are configuration variables for electronValidation.csh,
 which compares the histograms from two releases. electronValidation.csh relies
 on the ROOT script electronValidation.C.
 
-<var name="VAL_NEW_RELEASE" value="380pre7">
-<var name="VAL_REF_RELEASE" value="380pre6">
-<var name="VAL_COMMENT" value="No electron code change.">
+<var name="VAL_NEW_RELEASE" value="38Xbeta4">
+<var name="VAL_REF_RELEASE" value="380">
+<var name="VAL_COMMENT" value="As compared to beta2, remove the beamspot influence in the preselection cuts, to see if this affect the ecal-driven efficiency at Pt10.">
 
 Oval is able to check the output channel of an execution and compare it with a reference output.
 The tags below are defining which are lines to be compared. The currently specification is a
@@ -66,8 +66,8 @@ This set of targets is currently used for the validation of electrons.
   <var name="VAL_HISTOS" value="ElectronMcSignalHistos.txt">
   <var name="VAL_ANALYZER" value="ElectronMcSignalValidator">
   <var name="VAL_CONFIGURATION" value="ElectronMcSignalValidation_cfg.py">
-  <!--var name="DBS_RELEASE" value="LOCAL"-->
-  <!--var name="DBS_COND" value="MC"-->
+  <var name="DBS_RELEASE" value="LOCAL">
+  <var name="DBS_COND" value="MC">
 
   <environment name="FullPt35">
     <var name="DBS_SAMPLE" value="RelValSingleElectronPt35">

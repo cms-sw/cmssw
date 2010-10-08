@@ -8,6 +8,7 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include <sstream>
 
 using namespace std;
@@ -328,7 +329,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 
   // Input tags for HF cleaned rechits
   inputTagCleanedHF_ 
-    = iConfig.getParameter<InputTag>("cleanedHF");
+    = iConfig.getParameter< std::vector<edm::InputTag> >("cleanedHF");
 
   //MIKE: Vertex Parameters
   vertices_ = iConfig.getParameter<edm::InputTag>("vertexCollection");
@@ -428,10 +429,18 @@ PFProducer::produce(Event& iEvent,
     LogInfo("PFProducer") <<str.str()<<endl;
   }  
 
-  Handle< reco::PFRecHitCollection > hfCleaned;
-  bool foundHF = iEvent.getByLabel( inputTagCleanedHF_, hfCleaned );  
 
-  if ( foundHF ) pfAlgo_->checkCleaning( *hfCleaned );
+  reco::PFRecHitCollection hfCopy;
+  for ( unsigned ihf=0; ihf<inputTagCleanedHF_.size(); ++ihf ) {
+    Handle< reco::PFRecHitCollection > hfCleaned;
+    bool foundHF = iEvent.getByLabel( inputTagCleanedHF_[ihf], hfCleaned );  
+    if (!foundHF) continue;
+    for ( unsigned jhf=0; jhf<(*hfCleaned).size(); ++jhf ) { 
+      hfCopy.push_back( (*hfCleaned)[jhf] );
+    }
+  }
+  pfAlgo_->checkCleaning( hfCopy );
+
 
   auto_ptr< reco::PFCandidateCollection > 
     pOutputCandidateCollection( pfAlgo_->transferCandidates() ); 

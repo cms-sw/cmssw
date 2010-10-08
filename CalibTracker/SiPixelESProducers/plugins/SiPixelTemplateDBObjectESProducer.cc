@@ -42,7 +42,7 @@ boost::shared_ptr<SiPixelTemplateDBObject> SiPixelTemplateDBObjectESProducer::pr
 	if(     theMagField>=-0.1 && theMagField<1.0 ) label = "0T";
 	else if(theMagField>=1.0  && theMagField<2.5 ) label = "2T";
 	else if(theMagField>=2.5  && theMagField<3.25) label = "3T";
-	else if(theMagField>=3.25 && theMagField<3.65) label = "3.5T";
+	else if(theMagField>=3.25 && theMagField<3.65) label = "35T";
 	else if(theMagField>=3.9  && theMagField<4.1 ) label = "4T";
 	else {
 		//label = "3.8T";

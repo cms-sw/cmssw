@@ -1,4 +1,0 @@
-<use   name="RecoTracker/RoadSearchTrackCandidateMaker"/>
-<library   name="RecoTrackerRoadSearchTrackCandidateMakerPlugin" file="*.cc">
-  <flags   EDM_PLUGIN="1"/>
-</library>

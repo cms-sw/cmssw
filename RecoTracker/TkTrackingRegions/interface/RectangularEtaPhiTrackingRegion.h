@@ -49,17 +49,19 @@ public:
   *              in eta in respect to direction of the region <BR>
   *  deltaPhi  - allowed deviation of the initial direction of particle
   *              in phi in respect to direction of the region 
+  *  whereToUseMeasurementTracker: 1=everywhere, 0=outside pixles, -1=nowhere
   */
   RectangularEtaPhiTrackingRegion( const GlobalVector & dir, 
 				   const GlobalPoint & vertexPos,
                                    float ptMin, float rVertex, float zVertex,
                                    float deltaEta, float deltaPhi,
-                                   float dummy = 0.,
-                                   bool precise = true) 
+                                   float whereToUseMeasurementTracker = 0.,
+                                   bool precise = true,
+                                   const std::string & measurementTrackerName = "") 
     : TrackingRegionBase( dir, vertexPos, Range( -1/ptMin, 1/ptMin), 
 			  rVertex, zVertex),
    thePhiMargin( Margin( fabs(deltaPhi),fabs(deltaPhi))),
-   theTemporaryFix(dummy), thePrecise(precise)
+   theMeasurementTrackerUsage(whereToUseMeasurementTracker), thePrecise(precise), theMeasurementTrackerName(measurementTrackerName)
    { initEtaRange(dir, Margin( fabs(deltaEta),fabs(deltaEta))); }
  
  /** constructor (asymmetrinc eta and phi margins). <BR>
@@ -73,9 +75,11 @@ public:
                                    float ptMin, float rVertex, float zVertex,
                                    Margin etaMargin,
                                    Margin phiMargin,
-                                   float dummy = 0., bool precise = true) 
+                                   float whereToUseMeasurementTracker = 0., bool precise = true, 
+                                   const std::string & measurementTrackerName = "") 
     : TrackingRegionBase( dir, vertexPos, Range( -1/ptMin, 1/ptMin), 
-      rVertex, zVertex), thePhiMargin( phiMargin), theTemporaryFix(dummy), thePrecise(precise)
+      rVertex, zVertex), thePhiMargin( phiMargin), theMeasurementTrackerUsage(whereToUseMeasurementTracker), thePrecise(precise),
+      theMeasurementTrackerName(measurementTrackerName)
     { initEtaRange(dir, etaMargin); }
 
  /** constructor (explicit pt range, asymmetrinc eta and phi margins). <BR>
@@ -88,10 +92,12 @@ public:
                                    float rVertex, float zVertex,
                                    Margin etaMargin,
                                    Margin phiMargin,
-                                   float dummy = 0.,
-                                   bool precise = true) 
+                                   float whereToUseMeasurementTracker = 0.,
+                                   bool precise = true,
+                                   const std::string & measurementTrackerName = "") 
     : TrackingRegionBase( dir, vertexPos, invPtRange, rVertex, zVertex),
-      thePhiMargin( phiMargin), theTemporaryFix(dummy), thePrecise(precise)
+      thePhiMargin( phiMargin), theMeasurementTrackerUsage(whereToUseMeasurementTracker), thePrecise(precise),
+      theMeasurementTrackerName(measurementTrackerName)
     { initEtaRange(dir, etaMargin); }
 
 
@@ -140,8 +146,9 @@ private:
 
   Range theEtaRange;
   Margin thePhiMargin;
-  double theTemporaryFix;
+  double theMeasurementTrackerUsage;
   bool thePrecise;
+  std::string theMeasurementTrackerName;
 
 };
 

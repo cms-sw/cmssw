@@ -1,6 +1,0 @@
-destDB cms_orcon_prod/CMS_COND_31X_STRIP
-inputtag SiStripIdealConditions
-tag insertDestinationTag
-since insertFirstRun
-till 
-usertext Ideal Conditions appended starting from Run insertFirstRun

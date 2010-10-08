@@ -11,6 +11,7 @@ from DQM.DTMonitorModule.dtDQMOfflineSources_cff import *
 from DQM.RPCMonitorClient.RPCTier0Source_cff import *
 from DQM.CSCMonitorModule.csc_dqm_sourceclient_offline_cff import *
 from DQM.EcalPreshowerMonitorModule.es_dqm_source_offline_cff import *
+from DQM.BeamMonitor.AlcaBeamMonitor_cff import *
 
 DQMOfflinePreDPG = cms.Sequence( dqmDcsInfo *
                                  ecal_dqm_source_offline *
@@ -39,6 +40,7 @@ DQMOfflinePrePOG = cms.Sequence( muonMonitors *
                                  triggerOfflineDQMSource *
                                  pvMonitor *
                                  bTagPlots *
+                                 alcaBeamMonitor *
                                  dqmPhysics )
 
 DQMOfflinePOG = cms.Sequence( DQMOfflinePrePOG *

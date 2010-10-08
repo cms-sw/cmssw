@@ -35,10 +35,10 @@ class EventBrowserTabController(BrowserTabController):
             raise TypeError(__name__ + " requires data accessor of type EventFileAccessor.")
         BrowserTabController.setDataAccessor(self, accessor)
 
-    def selected(self):
+    def activated(self):
         """ Show event menu when tab is shown.
         """
-        BrowserTabController.selected(self)
+        BrowserTabController.activated(self)
         self.updateEventNumberDisplay()
         if not self.isEditable():
             self.plugin().application().showPluginMenu(self.plugin().navigateMenu())

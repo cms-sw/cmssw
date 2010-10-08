@@ -1,8 +1,0 @@
-<use name=DataFormats/Provenance>
-<use name=FWCore/ParameterSet>
-<use name=FWCore/Utilities>
-<use name=boost>
-<use name=boost_python>
-<export>
- <lib name=FWCorePythonParameterSet>
-</export>

@@ -27,13 +27,14 @@ public:
     m_l1tResultsTag(config.getParameter<edm::InputTag>("l1tResults")),
     m_daqPartitions(config.getParameter<unsigned int>("daqPartitions")),
     m_l1tIgnoreMask(config.getParameter<bool>("l1tIgnoreMask")),
+    m_l1techIgnorePrescales(config.getParameter<bool>("l1techIgnorePrescales")),
     m_throw(config.getParameter<bool>("throw")),
     // l1 values and status
     m_l1tResults(0),
     m_l1tMenu(0),
     m_l1tAlgoMask(0),
     m_l1tTechMask(0),
-    m_l1tCacheID(0ULL),
+    m_l1tCacheID(),
     m_l1tUpdated(false),
     // hlt values and status
     m_hltResults(0),
@@ -102,6 +103,10 @@ public:
     return m_l1tIgnoreMask;
   }
 
+  bool ignoreL1TechPrescales() const {
+    return m_l1techIgnorePrescales;
+  }
+
   unsigned int daqPartitions() const {
     return m_daqPartitions;
   }
@@ -112,6 +117,7 @@ private:
   edm::InputTag m_l1tResultsTag;
   unsigned int  m_daqPartitions;
   bool          m_l1tIgnoreMask;
+  bool          m_l1techIgnorePrescales;
   bool          m_throw;
 
   // l1 values and status

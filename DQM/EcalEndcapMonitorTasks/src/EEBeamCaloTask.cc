@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloTask.cc
  *
- * $Date: 2010/03/27 20:08:00 $
- * $Revision: 1.39 $
+ * $Date: 2010/06/14 13:30:35 $
+ * $Revision: 1.40 $
  * \author A. Ghezzi
  *
  */
@@ -26,9 +26,9 @@
 
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h"
 
-#include <DQM/EcalCommon/interface/Numbers.h>
+#include "DQM/EcalCommon/interface/Numbers.h"
 
-#include <DQM/EcalEndcapMonitorTasks/interface/EEBeamCaloTask.h>
+#include "DQM/EcalEndcapMonitorTasks/interface/EEBeamCaloTask.h"
 
 EEBeamCaloTask::EEBeamCaloTask(const edm::ParameterSet& ps){
 
@@ -499,7 +499,7 @@ void EEBeamCaloTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 //   //if(ievt_ > 115){tb_moving=true; }
 //   if(ievt_ > 150){tb_moving=false; cry_in_beam = 707;}
 
-  //   #include <DQM/EcalEndcapMonitorTasks/interface/cry_in_beam_run_ecs73214.h>
+  //   #include "DQM/EcalEndcapMonitorTasks/interface/cry_in_beam_run_ecs73214.h"
 
   if(ievt_ < 3){last_cry_in_beam_ = cry_in_beam;}
 

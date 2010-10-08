@@ -11,6 +11,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandPoissonQ.h"
+#include "CLHEP/Random/RandGaussQ.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
@@ -28,6 +29,7 @@ CaloHitRespoNew::CaloHitRespoNew( const CaloVSimParameterMap* parameterMap ,
    m_hitFilter     ( 0            ) ,
    m_geometry      ( 0            ) ,
    m_RandPoisson   ( 0            ) ,
+   m_RandGauss     ( 0            ) ,
    m_minBunch      ( -10          ) ,
    m_maxBunch      (  10          ) ,
    m_phaseShift    ( 1            ) ,
@@ -38,12 +40,43 @@ CaloHitRespoNew::CaloHitRespoNew( const CaloVSimParameterMap* parameterMap ,
 CaloHitRespoNew::~CaloHitRespoNew()
 {
    delete m_RandPoisson ;
+   delete m_RandGauss   ;
 }
 
 CLHEP::RandPoissonQ* 
 CaloHitRespoNew::ranPois() const
 {
+   if( 0 == m_RandPoisson )
+   {
+      edm::Service<edm::RandomNumberGenerator> rng ;
+      if ( !rng.isAvailable() ) 
+      {
+	 throw cms::Exception("Configuration")
+	    << "CaloHitRespoNew requires the RandomNumberGeneratorService\n"
+	    "which is not present in the configuration file.  You must add the service\n"
+	    "in the configuration file or remove the modules that require it.";
+      }
+      m_RandPoisson = new CLHEP::RandPoissonQ( rng->getEngine() );
+   }
    return m_RandPoisson ;
+}
+
+CLHEP::RandGaussQ* 
+CaloHitRespoNew::ranGauss() const
+{
+   if( 0 == m_RandGauss )
+   {
+      edm::Service<edm::RandomNumberGenerator> rng ;
+      if ( !rng.isAvailable() ) 
+      {
+	 throw cms::Exception("Configuration")
+	    << "CaloHitRespoNew requires the RandomNumberGeneratorService\n"
+	    "which is not present in the configuration file.  You must add the service\n"
+	    "in the configuration file or remove the modules that require it.";
+      }
+      m_RandGauss = new CLHEP::RandGaussQ( rng->getEngine() );
+   }
+   return m_RandGauss ;
 }
 
 const CaloSimParameters*
@@ -112,9 +145,10 @@ CaloHitRespoNew::setPECorrection( const CaloVPECorrection* peCorrection )
 }
 
 void 
-CaloHitRespoNew::setRandomEngine( CLHEP::HepRandomEngine& engine )
+CaloHitRespoNew::setRandomEngine( CLHEP::HepRandomEngine& engine ) const
 {
    m_RandPoisson = new CLHEP::RandPoissonQ( engine ) ;
+   m_RandGauss   = new CLHEP::RandGaussQ(   engine ) ;
 }
 
 const CaloSamples& 
@@ -239,26 +273,11 @@ CaloHitRespoNew::analogSignalAmplitude( const PCaloHit& hit ) const
    double npe ( hit.energy()*parameters.simHitToPhotoelectrons( detId ) ) ;
 
    // do we need to doPoisson statistics for the photoelectrons?
-   if( parameters.doPhotostatistics() )
-   {
-      if( 0 == m_RandPoisson )
-      {
-	 edm::Service<edm::RandomNumberGenerator> rng ;
-	 if ( !rng.isAvailable() ) 
-	 {
-	    throw cms::Exception("Configuration")
-	       << "CaloHitResponse requires the RandomNumberGeneratorService\n"
-	       "which is not present in the configuration file.  You must add the service\n"
-	       "in the configuration file or remove the modules that require it.";
-	 }
-	 m_RandPoisson = new CLHEP::RandPoissonQ( rng->getEngine() );
-      }
-      npe = m_RandPoisson->fire( npe ) ;
-   }
+   if( parameters.doPhotostatistics() ) npe = ranPois()->fire( npe ) ;
 
    if( 0 != m_PECorrection ) npe = m_PECorrection->correctPE( detId, npe ) ;
 
-   return npe;
+   return npe ;
 }
 
 double 
