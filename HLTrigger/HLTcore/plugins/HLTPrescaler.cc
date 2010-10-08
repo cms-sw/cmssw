@@ -86,11 +86,14 @@ bool HLTPrescaler::filter(edm::Event& iEvent, const edm::EventSetup&)
         prescaleFactor_ = prescaleService_->getPrescale(*pathName());
       }
 
-      if (prescaleFactor_ != oldPrescale)
+      if (prescaleFactor_ != oldPrescale) {
         edm::LogInfo("ChangedPrescale")
           << "lumiBlockNb="<< iEvent.getLuminosityBlock().id().luminosityBlock() << ", "
           << "path="<<*pathName()<<": "
           << prescaleFactor_ << " [" <<oldPrescale<<"]";
+        // reset the prescale counter
+        needsInit = true;
+      }
     }
 
     if (eventCount_ == 0 and prescaleFactor_ != 0)
