@@ -25,6 +25,10 @@
 #include<cmath>
 
 namespace mathSSE {
+  template<typename T> inline T sqrt(T t) { return std::sqrt(t);}
+}
+
+namespace mathSSE {
 #ifdef  CMS_USE_SSE
   //dot
   inline __m128 _mm_dot_ps(__m128 v1, __m128 v2) {
@@ -433,7 +437,6 @@ inline mathSSE::Vec4D cross(mathSSE::Vec4D a, mathSSE::Vec4D b) {
 
 // sqrt
 namespace mathSSE {
-  template<typename T> inline T sqrt(T t) { return std::sqrt(t);}
   template<> inline Vec4F sqrt(Vec4F v) { return _mm_sqrt_ps(v.vec);}
   template<> inline Vec2D sqrt(Vec2D v) { return _mm_sqrt_pd(v.vec);}
   template<> inline Vec4D sqrt(Vec4D v) { 

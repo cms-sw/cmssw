@@ -75,7 +75,7 @@ LinearGridInterpolator3D::interpolate( Scalar a, Scalar b, Scalar c)
   //chances are this is more numerically precise this way
 
 
-#if defined(USE_SSEVECT)
+#if defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 4)
   
   ValueType result = ((1.f-s)*(1.f-t)*u)*(grid(ind      +s3) - grid(ind      ));
   result =  result + ((1.f-s)*     t *u)*(grid(ind   +s2+s3) - grid(ind   +s2));
@@ -86,7 +86,7 @@ LinearGridInterpolator3D::interpolate( Scalar a, Scalar b, Scalar c)
   result =  result + (                s)*(grid(ind+s1      ) - grid(ind      ));
   result =  result +                                           grid(ind      );
 
-#else
+#elif defined(CMS_USE_SSE)
 
   __m128 resultSIMD =                 _mm_mul_ps(_mm_set1_ps((1.f - s) * (1.f - t) * u), _mm_sub_ps(grid(ind           + s3).vec, grid(ind          ).vec));
   resultSIMD = _mm_add_ps(resultSIMD, _mm_mul_ps(_mm_set1_ps((1.f - s) *         t * u), _mm_sub_ps(grid(ind      + s2 + s3).vec, grid(ind      + s2).vec)));
@@ -99,19 +99,16 @@ LinearGridInterpolator3D::interpolate( Scalar a, Scalar b, Scalar c)
   
   ValueType result(resultSIMD);
 
+#else
 
-#endif
-
-
-
-  //   ReturnType result = (1-s)*(1-t)*u*(grid(i,  j,  k+1) - grid(i,  j,  k));
-  //   result +=          (1-s)*   t *u*(grid(i,  j+1,k+1) - grid(i,  j+1,k));
-  //   result +=          s    *(1-t)*u*(grid(i+1,j,  k+1) - grid(i+1,j,  k));
-  //   result +=          s    *   t *u*(grid(i+1,j+1,k+1) - grid(i+1,j+1,k)); 
-  //   result +=                (1-s)*t*(grid(i,  j+1,k  ) - grid(i,  j,  k));
-  //   result +=                s    *t*(grid(i+1,j+1,k  ) - grid(i+1,j,  k));
-  //   result +=                      s*(grid(i+1,j,  k  ) - grid(i,  j,  k));
-  //   result +=                                             grid(i,  j,  k);
+  ReturnType result = (1-s)*(1-t)*u*(grid(i,  j,  k+1) - grid(i,  j,  k));
+  result +=          (1-s)*   t *u*(grid(i,  j+1,k+1) - grid(i,  j+1,k));
+  result +=          s    *(1-t)*u*(grid(i+1,j,  k+1) - grid(i+1,j,  k));
+  result +=          s    *   t *u*(grid(i+1,j+1,k+1) - grid(i+1,j+1,k)); 
+  result +=                (1-s)*t*(grid(i,  j+1,k  ) - grid(i,  j,  k));
+  result +=                s    *t*(grid(i+1,j+1,k  ) - grid(i+1,j,  k));
+  result +=                      s*(grid(i+1,j,  k  ) - grid(i,  j,  k));
+  result +=                                             grid(i,  j,  k);
 
 
 
@@ -120,5 +117,9 @@ LinearGridInterpolator3D::interpolate( Scalar a, Scalar b, Scalar c)
   //      s    *(1-t)*(1-u)*grid(i+1,j,  k) + s    *(1-t)*u*grid(i+1,j,  k+1) + 
   //      s    *   t *(1-u)*grid(i+1,j+1,k) + s    *   t *u*grid(i+1,j+1,k+1);
 
+#endif
+
   return ReturnType(result);
+
+
 }
