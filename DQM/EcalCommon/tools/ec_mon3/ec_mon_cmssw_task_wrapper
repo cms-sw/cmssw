@@ -59,8 +59,8 @@ if ( $config{'ec_mon_path'} =~ /localDAQ/ ) {
 
 if ( @filelist != 0 && $filelist[0] =~ /^Minidaq/ ) {
   $cmssw_arch = "slc5_ia32_gcc434";
-  $cmssw_setup = "/cmssrv0/nfshome0/cmssw/scripts/setup.sh";
-  $cmssw_path = "/nfshome0/ecalpro/DQM/CMSSW_3_6_3";
+  $cmssw_setup = "/cmssrv0/nfshome0/cmssw2/scripts/setup.sh";
+  $cmssw_path = "/nfshome0/ecalpro/DQM/CMSSW_3_8_2";
 }
 
 exit 1 unless ( -e "$cmssw_path" );
