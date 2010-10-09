@@ -1215,6 +1215,15 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   }     
 
 ////////////////////////////////////////////////////////////////////////
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu0_v1") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+      if (prescaleResponse(menu,cfg,rcounter,it)) {
+        if(OpenHlt1MuonPassed(0.,0.,0.,2.,0)>=1) {
+          triggerBit[it] = true;
+        }
+      }
+    }
+  }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu3") == 0) {  
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) {
