@@ -15,7 +15,8 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 ##
 ## For more details have a look at: WGuideFrontierConditions
 ## --------------------------------------------------------------------
-process.GlobalTag.globaltag = 'START38_V12::All' 
+process.GlobalTag.globaltag = 'START38_V12::All'
+##process.GlobalTag.globaltag = 'GR_R_38X_V13::All' 
 
 ## input file(s) for testing
 process.source = cms.Source("PoolSource",
