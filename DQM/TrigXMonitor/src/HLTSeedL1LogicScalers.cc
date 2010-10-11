@@ -1,5 +1,5 @@
 
-// $Id: HLTSeedL1LogicScalers.cc,v 1.6 2010/03/09 14:36:46 rekovic Exp $
+// $Id: HLTSeedL1LogicScalers.cc,v 1.7 2010/03/11 08:36:09 rekovic Exp $
 
 #include "DQM/TrigXMonitor/interface/HLTSeedL1LogicScalers.h"
 
@@ -198,7 +198,7 @@ HLTSeedL1LogicScalers::beginRun(const edm::Run& run, const edm::EventSetup& iSet
         l1Algos.resize(32);
 
       }
-      int nBins = pow(2,nL1Algo);
+      int nBins = int(pow(2,nL1Algo));
 
       for (unsigned int k=0;k< l1Algos.size();k++) {
 
