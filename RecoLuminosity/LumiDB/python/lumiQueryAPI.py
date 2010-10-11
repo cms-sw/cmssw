@@ -1304,7 +1304,7 @@ def trgBybitnameByrun(queryHandle,runnum,bitname):
     cursor=queryHandle.execute()
     while cursor.next():
         cmslsnum=cursor.currentRow()['cmslsnum'].data()
-        trgcount=cursor.currerequireLumisummaryntRow()['trgcount'].data()
+        trgcount=cursor.currentRow()['trgcount'].data()
         deadtime=cursor.currentRow()['deadtime'].data()
         bitnum=cursor.currentRow()['bitnum'].data()
         prescale=cursor.currentRow()['prescale'].data()
