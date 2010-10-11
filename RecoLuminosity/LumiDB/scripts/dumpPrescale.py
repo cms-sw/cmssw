@@ -10,7 +10,7 @@ def main():
     parser.add_argument('-P',dest='authpath',action='store',help='path to authentication file')
     parser.add_argument('-r',dest='runnumber',action='store',help='run number')
     parser.add_argument('-hltpath',dest='hltpath',action='store',required=True,help='hltpath')
-    parser.add_argument('-trgbits',dest='trgbits',action='store',required=True,help='trgbits')
+    parser.add_argument('-trgbits',dest='trgbits',action='store',help='trgbits',default='all')
     parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',help='specific path to site-local-config.xml file, optional. If path undefined, fallback to cern proxy&server')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     args=parser.parse_args()
@@ -33,13 +33,14 @@ def main():
         runlist=lumiQueryAPI.allruns(schema,True,True,True,True)
     runlist.sort()
     bitlist=[]
-    bitlistStr=args.trgbits
-    bitlistStr=bitlistStr.strip()
-    bitlistStr=re.sub('\s','',bitlistStr)
     hltpathStr=re.sub('\s','',args.hltpath)
     #print bitlistStr
-    bitlist=bitlistStr.split(',')
-    result={}#{run:{hltpath:preacle},{trgname:prescale}}
+    if args.trgbits and args.trgbits!='all':
+        bitlistStr=args.trgbits
+        bitlistStr=bitlistStr.strip()
+        bitlistStr=re.sub('\s','',bitlistStr)
+        bitlist=bitlistStr.split(',')
+    result={}#{run:{hltpath:prescle},{trgname:prescale}}
     trgdict={}#{run:[(trgname,trgprescale),()]}
     hltdict={}#{run:{hltname:hltprescale}}
     for runnum in runlist:
@@ -51,6 +52,19 @@ def main():
         else:
             print 'run ',runnum,' hltpath ','"'+hltpathStr+'"','not found'
             continue
+        if not args.trgbits or args.trgbits=='all':
+            q=schema.newQuery()
+            l1seeds = lumiQueryAPI.hlttrgMappingByrun(q,runnum)
+            del q
+            if len(l1seeds)==0 or not l1seeds.has_key(hltpathStr):
+                print 'hlt path',hltpathStr,'has no l1 seed'
+                continue
+            l1seed=l1seeds[hltpathStr]
+            rmQuotes=l1seed.replace('\"','')
+            rmOR=rmQuotes.replace(' OR','')
+            rmNOT=rmOR.replace(' NOT','')
+            rmAND=rmOR.replace(' AND','')
+            bitlist=rmAND.split(' ')
         if not trgdict.has_key(runnum):
             trgdict[runnum]=[]
         for bitname in bitlist:
