@@ -1,9 +1,13 @@
 #!/bin/csh
-setenv sample ${1} 
-setenv sim    ${2}
+setenv sim    ${1}
+setenv type   ${2}
+setenv sample ${3} 
 
-echo '===> sample.'  $sample 
+
 echo '===> simulation' $sim
+echo '===> type'       $type
+echo '===> sample.'  $sample 
+
 
 if ( $sample == SingleGammaPt10 ) then
 setenv outFileName SingleGammaPt10
@@ -21,13 +25,14 @@ else if (  $sample == QCD_Pt_80_120 ) then
 setenv outFileName  QCD_Pt_80_120
 endif
 
-if ( $sim == Full ) then
-setenv confName  PhotonValidator
+if ($sim == Full ) then
+setenv confName  ${type}Validator
 else if ( $sim == Fast ) then
 setenv confName  PhotonValidatorFastSim
 endif
 
-setenv MYWORKDIR /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_3_9_0_pre4/src/Validation/RecoEgamma/test
+
+setenv MYWORKDIR /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_3_9_0_pre7/src/Validation/RecoEgamma/test
 
 echo ${MYWORKDIR}
 setenv MYOUT ${MYWORKDIR}
@@ -50,9 +55,10 @@ cmsRun  conf.py > & ${outFileName}.log
 
 
 if ( $sim == Full ) then
- rfcp   ${outFileName}.log             ${MYOUT}/.
-rfcp   PhotonValidationRelVal390pre4_${outFileName}.root            ${MYOUT}/.
+ rfcp   ${outFileName}.log             ${MYOUT}/${outFileName}.log
+ rfcp   ${type}ValidationRelVal390pre7_${outFileName}.root            ${MYOUT}/.
+
 else if ( $sim == Fast ) then
  rfcp   ${outFileName}.log             ${MYOUT}/${outFileName}_FastSim.log
-rfcp   PhotonValidationRelVal390pre4_${outFileName}_FastSim.root            ${MYOUT}/.
-
+rfcp   PhotonValidationRelVal390pre7_${outFileName}_FastSim.root            ${MYOUT}/.
+endif
