@@ -33,6 +33,21 @@ int main(int argc, char *argv[]) {
   // add histogram information
   //Type = 0 (Do not rebin or zoom) , 1 (Rebin and Zoom, x-axis > 0 ) , 2 (Rebin and Zoom)
 
+  hd = pc->AddHistoData("dMUy"); hd->SetType(0);
+  hd = pc->AddHistoData("dMUx"); hd->SetType(0);
+  hd = pc->AddHistoData("dMETy"); hd->SetType(0);
+  hd = pc->AddHistoData("dMETx"); hd->SetType(0);
+  hd = pc->AddHistoData("dMET"); hd->SetType(0);
+  hd = pc->AddHistoData("MEy"); hd->SetType(2);
+  hd = pc->AddHistoData("MEx");  hd->SetType(2);
+  hd = pc->AddHistoData("nMus"); hd->SetType(0);
+  hd = pc->AddHistoData("nMusAsPis"); hd->SetType(0);
+  hd = pc->AddHistoData("muonSAhits"); hd->SetType(0);
+  hd = pc->AddHistoData("nEls"); hd->SetType(0);
+  hd = pc->AddHistoData("fracTracks"); hd->SetType(0);
+  hd = pc->AddHistoData("trackQuality"); hd->SetType(0);
+  hd = pc->AddHistoData("trackAlgo"); hd->SetType(0);
+  hd = pc->AddHistoData("trackPtErr"); hd->SetType(0);
   hd = pc->AddHistoData("trackPt"); hd->SetType(2);
   hd = pc->AddHistoData("trackNormalizedChi2"); hd->SetType(4);  
   hd = pc->AddHistoData("trackNhits"); hd->SetType(1);
@@ -46,20 +61,16 @@ int main(int argc, char *argv[]) {
   hd = pc->AddHistoData("electronPt"); hd->SetType(2);
   hd = pc->AddHistoData("electronHoverE"); hd->SetType(2);
   hd = pc->AddHistoData("electronEta"); hd->SetType(2);
-
   hd = pc->AddHistoData("METPhiResolution_GenMETCalo"); hd->SetType(4);
   hd = pc->AddHistoData("METResolution_GenMETCalo"); hd->SetType(3);
   hd = pc->AddHistoData("METPhiResolution_GenMETTrue"); hd->SetType(4);
   hd = pc->AddHistoData("METResolution_GenMETTrue"); hd->SetType(3);
-
   hd = pc->AddHistoData("CorrectionFlag"); hd->SetType(0);
   hd = pc->AddHistoData("MEyCorrection");  hd->SetType(2);
   hd = pc->AddHistoData("MExCorrection");  hd->SetType(2);
   hd = pc->AddHistoData("MET"); hd->SetType(1);
   hd = pc->AddHistoData("METPhi"); hd->SetType(4);
   hd = pc->AddHistoData("METSig"); hd->SetType(1);
-  hd = pc->AddHistoData("MEx");  hd->SetType(2);
-  hd = pc->AddHistoData("MEy"); hd->SetType(2);
   hd = pc->AddHistoData("SumET"); hd->SetType(2);
 
 
