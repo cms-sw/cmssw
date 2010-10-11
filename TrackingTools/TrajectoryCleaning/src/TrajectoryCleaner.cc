@@ -1,6 +1,7 @@
 
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleaner.h"
 
+#include "FWCore/Utilities/interface/typelookup.h"
 
 void TrajectoryCleaner::clean( TrajectoryContainer& tc) const
 {
@@ -13,10 +14,4 @@ void TrajectoryCleaner::clean( TrajectoryContainer& tc) const
   clean(thePointerContainer);
 }
 
-
-#include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-
-#include "FWCore/Utilities/interface/typelookup.h"
 TYPELOOKUP_DATA_REG(TrajectoryCleaner);
