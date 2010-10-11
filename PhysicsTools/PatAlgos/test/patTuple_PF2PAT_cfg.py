@@ -25,7 +25,10 @@ process.load("PhysicsTools.PatAlgos.patSequences_cff")
 from PhysicsTools.PatAlgos.tools.pfTools import *
 
 postfix = "PFlow"
-usePF2PAT(process,runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix=postfix) 
+jetAlgo="AK5"
+usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=True, postfix=postfix) 
+# to use tau-cleaned jet collection uncomment the following:
+#useTauCleanedPFJets(process, jetAlgo=jetAlgo, postfix=postfix)
 
 # turn to false when running on data
 getattr(process, "patElectrons"+postfix).embedGenMatch = True

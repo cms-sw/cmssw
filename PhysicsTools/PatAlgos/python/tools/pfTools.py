@@ -263,10 +263,11 @@ def switchToPFMET(process,input=cms.InputTag('pfMET'), type1=False, postfix=""):
             applyPostfix(process, "metJESCorAK5CaloJetMuons",postfix)
             )
 
-def switchToPFJets(process, input=cms.InputTag('pfNoTau'), algo='IC5', postfix = ""):
+def switchToPFJets(process, input=cms.InputTag('pfJets'), algo='IC5', postfix = ""):
 
     print "Switching to PFJets,  ", algo
     print "************************ "
+    print "input collection: ", input
 
     if( algo == 'IC5' ):
         genJetCollection = cms.InputTag('iterativeCone5GenJetsNoNu')
@@ -299,8 +300,13 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTau'), algo='IC5', postfix =
     applyPostfix(process, "patJets", postfix).embedCaloTowers   = False
     applyPostfix(process, "patJets", postfix).embedPFCandidates   = True
     
+#-- Switch to jets cleaned from taus ------------------------------------------
+def useTauCleanedPFJets(process,jetAlgo,postfix):
+    switchToPFJets(process,
+                   input=cms.InputTag('pfNoTau'+postfix),
+                   algo=jetAlgo,
+                   postfix=postfix)
     
-
 #-- Remove MC dependence ------------------------------------------------------
 def removeMCMatchingPF2PAT( process, postfix="" ):
     from PhysicsTools.PatAlgos.tools.coreTools import removeMCMatching
@@ -356,7 +362,7 @@ def usePF2PAT(process, runPF2PAT=True, jetAlgo='IC5', runOnMC=True, postfix = ""
     removeIfInSequence(process,  "patPhotonIsolation",  "patDefaultSequence", postfix)
 
     # Jets
-    switchToPFJets( process, cms.InputTag('pfNoTau'+postfix), jetAlgo, postfix=postfix )
+    switchToPFJets( process, cms.InputTag('pfJets'+postfix), jetAlgo, postfix=postfix )
     
     # Taus
     #adaptPFTaus( process ) #default (i.e. shrinkingConePFTau)
