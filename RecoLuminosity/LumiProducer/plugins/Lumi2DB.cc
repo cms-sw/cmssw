@@ -577,7 +577,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     h.lumisectionquality=lumisummary->InstantLumiQlty;
     h.dtnorm=lumisummary->DeadTimeNormalization;
     h.lhcnorm=lumisummary->LHCNormalization;
-    unsigned int timestp=lumiheader->timestamp;
+    //unsigned int timestp=lumiheader->timestamp;
     //std::cout<<"cmslsnum "<<ncmslumi<<"timestp "<<timestp<<std::endl;
     for(size_t i=0;i<lumi::N_BX;++i){
       lumi::Lumi2DB::PerBXData bET;
