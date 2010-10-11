@@ -536,10 +536,10 @@ topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
   ##
   preselection = cms.PSet(
     ## [optional] : when omitted no preselection is applied
-    #trigger = cms.PSet(
-    #  src    = cms.InputTag("TriggerResults","","HLT"),
-    #  select = cms.vstring(['HLT_Ele15_LW_L1R'])
-    #),
+    trigger = cms.PSet(
+      src    = cms.InputTag("TriggerResults","","HLT"),
+      select = cms.vstring(['HLT_Ele15_SW_CaloEleId_L1R'])
+    ),
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
       src    = cms.InputTag("offlinePrimaryVertices"),
@@ -698,10 +698,10 @@ topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
   ##
   preselection = cms.PSet(
     ## [optional] : when omitted no preselection is applied
-    #trigger = cms.PSet(
-    #  src    = cms.InputTag("TriggerResults","","HLT"),
-    #  select = cms.vstring(['HLT_Ele15_LW_L1R'])
-    #),
+    trigger = cms.PSet(
+      src    = cms.InputTag("TriggerResults","","HLT"),
+      select = cms.vstring(['HLT_Ele15_SW_CaloEleId_L1R'])
+    ),
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
       src    = cms.InputTag("offlinePrimaryVertices"),
