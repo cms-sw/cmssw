@@ -1,5 +1,5 @@
 
-// $Id: LumiSummary.cc,v 1.17 2010/06/02 13:55:11 xiezhen Exp $
+// $Id: LumiSummary.cc,v 1.18 2010/09/24 09:44:09 xiezhen Exp $
 
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 
@@ -29,7 +29,7 @@ LumiSummary::deadFrac() const {
   //if bitzerocount=0, return -1.0 meaning no beam
   if (l1data_.size()==0) return 1.0;
   if (l1data_.begin()->ratecount==0) return -1.0;
-  return (deadcount_/(l1data_.begin()->ratecount*l1data_.begin()->prescale));
+  return float(deadcount_)/float(l1data_.begin()->ratecount*l1data_.begin()->prescale);
 }
 float 
 LumiSummary::liveFrac() const { 
