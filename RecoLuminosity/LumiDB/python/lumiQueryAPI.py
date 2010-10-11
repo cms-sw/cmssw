@@ -113,6 +113,8 @@ def recordedLumiForRange (dbsession, parameters, inputRange):
         runLsDict = {}
         maxLumiSectionDict = {}
         for (run, lslist) in sorted (inputRange.runsandls().items() ):
+            if len(lslist)==0:
+                continue
             maxLumiSectionDict[run] = max ( max (lslist),
                                             maxLumiSectionDict.get(run,0) )
             runLsDict.setdefault (run, []).append (lslist)
