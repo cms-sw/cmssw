@@ -1,7 +1,6 @@
 #ifndef ALL_LMF
 #define ALL_LMF
 
-#include "OnlineDB/EcalCondDB/interface/LMFClsVers.h"
 #include "OnlineDB/EcalCondDB/interface/LMFColor.h"
 #include "OnlineDB/EcalCondDB/interface/LMFColoredTable.h"
 #include "OnlineDB/EcalCondDB/interface/LMFCorrCoefDat.h"
