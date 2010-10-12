@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_8_5/HIon/V7 (CMSSW_3_8_1_HLT20)
+# /dev/CMSSW_3_8_5/HIon/V8 (CMSSW_3_8_1_HLT20)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_5/HIon/V7')
+  tableName = cms.string('/dev/CMSSW_3_8_5/HIon/V8')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -3031,7 +3031,6 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputDQM.root" ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_EcalCalibration',
   'HLT_HICentralityVeto',
-  'HLT_HIJet35U',
   'HLT_HIJet35U_Core',
   'HLT_HIL1DoubleMuOpen_Core',
   'HLT_HIMinBiasBSC_Core',

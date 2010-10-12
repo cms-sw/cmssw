@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_8_5/GRun/V7
+# /dev/CMSSW_3_8_5/GRun/V8
 
 import FWCore.ParameterSet.Config as cms
 
@@ -66,7 +66,8 @@ streamA_datasetElectron_selector.triggerConditions = cms.vstring('HLT_DoubleEle1
     'HLT_Ele17_SW_TightCaloEleId_Ele8HE_L1R_v1', 
     'HLT_Ele17_SW_TighterEleIdIsol_L1R_v1', 
     'HLT_Ele22_SW_TighterEleId_L1R_v2', 
-    'HLT_Ele32_SW_TighterEleId_L1R_v2')
+    'HLT_Ele32_SW_TighterEleId_L1R_v2', 
+    'HLT_IsoEle12_PFTau15_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHIAllPhysics_selector
 streamA_datasetHIAllPhysics_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -99,6 +100,7 @@ streamA_datasetJet_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT
 streamA_datasetJet_selector.l1tResults = cms.InputTag('')
 streamA_datasetJet_selector.throw      = cms.bool(False)
 streamA_datasetJet_selector.triggerConditions = cms.vstring('HLT_DiJetAve100U_v1', 
+    'HLT_DiJetAve140U_v1', 
     'HLT_DiJetAve15U', 
     'HLT_DiJetAve30U', 
     'HLT_DiJetAve50U', 
@@ -107,6 +109,7 @@ streamA_datasetJet_selector.triggerConditions = cms.vstring('HLT_DiJetAve100U_v1
     'HLT_Jet140U_v1', 
     'HLT_Jet15U', 
     'HLT_Jet15U_HcalNoiseFiltered', 
+    'HLT_Jet180U_v1', 
     'HLT_Jet30U', 
     'HLT_Jet50U', 
     'HLT_Jet70U_v2')
@@ -129,7 +132,9 @@ streamA_datasetMETFwd_selector.l1tResults = cms.InputTag('')
 streamA_datasetMETFwd_selector.throw      = cms.bool(False)
 streamA_datasetMETFwd_selector.triggerConditions = cms.vstring('HLT_DoubleJet15U_ForwardBackward', 
     'HLT_DoubleJet25U_ForwardBackward', 
-    'HLT_MET100_v2')
+    'HLT_MET100_v2', 
+    'HLT_MET65_CenJet50U_v1', 
+    'HLT_MET80_CenJet50U_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMinimumBias_selector
 streamA_datasetMinimumBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -161,12 +166,18 @@ streamA_datasetMu_selector.throw      = cms.bool(False)
 streamA_datasetMu_selector.triggerConditions = cms.vstring('HLT_DoubleMu3_v2', 
     'HLT_DoubleMu5_v1', 
     'HLT_IsoMu11_v1', 
+    'HLT_IsoMu13_v1', 
+    'HLT_IsoMu15_v1', 
     'HLT_IsoMu9', 
+    'HLT_IsoMu9_PFTau15_v1', 
     'HLT_L2DoubleMu20_NoVertex_v1', 
     'HLT_Mu11', 
     'HLT_Mu11_Ele8_v1', 
+    'HLT_Mu11_PFTau15_v1', 
     'HLT_Mu13_v1', 
     'HLT_Mu15_v1', 
+    'HLT_Mu17_v1', 
+    'HLT_Mu19_v1', 
     'HLT_Mu5_Ele13_v1', 
     'HLT_Mu5_Ele15_v1', 
     'HLT_Mu5_Ele5_v1', 
@@ -191,6 +202,7 @@ streamA_datasetMuMonitor_selector.triggerConditions = cms.vstring('HLT_DoubleMu0
     'HLT_L2DoubleMu0', 
     'HLT_L2Mu30_v1', 
     'HLT_L2Mu7_v1', 
+    'HLT_Mu0_v1', 
     'HLT_Mu3', 
     'HLT_Mu5', 
     'HLT_Mu7')
