@@ -165,7 +165,7 @@ def deliveredLumiForRun (dbsession, parameters, runnum):
         queryBind.extend ("lumiversion", "string")
         queryBind["runnum"].setData (int (runnum))
         queryBind["lumiversion"].setData (parameters.lumiversion)
-        print parameters.beammode
+        #print parameters.beammode
         if len(parameters.beammode)!=0:
             print 'add beam stauts condition'
             conditionstring=conditionstring+' and BEAMSTATUS=:beamstatus'
@@ -690,7 +690,6 @@ def printOverviewData (delivered, recorded, hltpath = ''):
             continue
         totalDeliveredLS += int (deliveredrowdata[1])
         totalDelivered += float (deliveredrowdata[2])
-        
         selectedls = recorded[runidx][2].keys()
         #print 'runidx ', runidx, deliveredrowdata
         #print 'selectedls ', selectedls
@@ -717,6 +716,7 @@ def printOverviewData (delivered, recorded, hltpath = ''):
         totalSelectedLS += len (selectedls)
         totalRecorded += recordedLumi
         datatable.append (rowdata)
+
     if hltpath != '' and hltpath != 'all':
         totaltable = [[str (totalDeliveredLS), '%.3f'% (totalDelivered), str (totalSelectedLS),
                        '%.3f'% (totalRecorded), '%.3f'% (totalRecordedInPath)]]
