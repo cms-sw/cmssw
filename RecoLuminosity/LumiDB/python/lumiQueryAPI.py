@@ -113,10 +113,9 @@ def recordedLumiForRange (dbsession, parameters, inputRange):
         runLsDict = {}
         maxLumiSectionDict = {}
         for (run, lslist) in sorted (inputRange.runsandls().items() ):
-            if len(lslist)==0:
-                continue
-            maxLumiSectionDict[run] = max ( max (lslist),
-                                            maxLumiSectionDict.get(run,0) )
+            if(len(lslist)!=0):
+                maxLumiSectionDict[run] = max ( max (lslist),
+                                           maxLumiSectionDict.get(run,0) )
             runLsDict.setdefault (run, []).append (lslist)
         for run, metaLsList in sorted (runLsDict.iteritems()):
             if parameters.verbose:
@@ -167,7 +166,6 @@ def deliveredLumiForRun (dbsession, parameters, runnum):
         queryBind["lumiversion"].setData (parameters.lumiversion)
         #print parameters.beammode
         if len(parameters.beammode)!=0:
-            print 'add beam stauts condition'
             conditionstring=conditionstring+' and BEAMSTATUS=:beamstatus'
             queryBind.extend('beamstatus','string')
             queryBind['beamstatus'].setData(parameters.beammode)
@@ -202,6 +200,7 @@ def deliveredLumiForRun (dbsession, parameters, runnum):
 
 def recordedLumiForRun (dbsession, parameters, runnum, lslist = None):
     """
+    lslist = [] means take none in the db
     lslist = None means to take all in the db
     output: ['runnumber', 'trgtable{}', 'deadtable{}']
     """
@@ -346,12 +345,14 @@ def recordedLumiForRun (dbsession, parameters, runnum, lslist = None):
                 lumidata[1][hpath].append (trgprescalemap[bitn])                
         #filter selected cmsls
         lumidata[2] = filterDeadtable (deadtable, lslist)
+        #print 'lslist ',lslist
         if not parameters.noWarnings:
-            for lumi, deaddata in lumidata[2].items():
-                if deaddata[1] == 0.0 and deaddata[2]!=0 and deaddata[0]!=0:
-                    print '[Warning] : run %s :ls %d has 0 instlumi but trigger has data' % (runnum, lumi)
-                if (deaddata[2] == 0 or deaddata[0] == 0) and deaddata[1]!=0.0:
-                    print '[Warning] : run %s :ls %d has 0 dead counts or 0 zerobias bit counts, but inst!=0' % (runnum, lumi)
+            if len(lumidata[2])!=0:
+                for lumi, deaddata in lumidata[2].items():
+                    if deaddata[1] == 0.0 and deaddata[2]!=0 and deaddata[0]!=0:
+                        print '[Warning] : run %s :ls %d has 0 instlumi but trigger has data' % (runnum, lumi)
+                    if (deaddata[2] == 0 or deaddata[0] == 0) and deaddata[1]!=0.0:
+                        print '[Warning] : run %s :ls %d has 0 dead counts or 0 zerobias bit counts, but inst!=0' % (runnum, lumi)
         #print 'lumidata[2] ', lumidata[2]
     except Exception, e:
         print str (e)
