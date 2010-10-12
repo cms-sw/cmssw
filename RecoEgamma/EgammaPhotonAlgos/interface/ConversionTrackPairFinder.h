@@ -40,13 +40,6 @@ public:
   ~ConversionTrackPairFinder();
 
 
-  std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr>  run(std::vector<reco::TransientTrack> outIn,  
-  					      const edm::Handle<reco::GsfTrackCollection>&  outInTrkHandle,
-  					      const edm::Handle<reco::TrackCaloClusterPtrAssociation>&  outInTrackSCAssH, 
-  					      std::vector<reco::TransientTrack> inOut,  
-  					      const edm::Handle<reco::GsfTrackCollection>& inOutTrkHandle,
-  					      const edm::Handle<reco::TrackCaloClusterPtrAssociation>& inOutTrackSCAssH  );
-
 
   std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr>  run(std::vector<reco::TransientTrack> outIn,  
   					      const edm::Handle<reco::TrackCollection>&  outInTrkHandle,
