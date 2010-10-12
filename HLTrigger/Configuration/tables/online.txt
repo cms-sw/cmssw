@@ -12,11 +12,13 @@ HLT_Jet50U
 HLT_Jet70U_v2
 HLT_Jet100U_v2
 HLT_Jet140U_v1
+HLT_Jet180U_v1
 HLT_DiJetAve15U
 HLT_DiJetAve30U
 HLT_DiJetAve50U
 HLT_DiJetAve70U_v2
 HLT_DiJetAve100U_v1
+HLT_DiJetAve140U_v1
 HLT_DoubleJet15U_ForwardBackward
 HLT_DoubleJet25U_ForwardBackward
 HLT_ExclDiJet30U_HFAND_v1
@@ -28,6 +30,8 @@ HLT_QuadJet20U_v2
 HLT_QuadJet25U_v2
 HLT_L1MET20
 HLT_MET45
+HLT_MET65_CenJet50U_v1
+HLT_MET80_CenJet50U_v1
 HLT_MET100_v2
 HLT_Mu5_MET45_v1
 HLT_HT50U_v1
@@ -55,6 +59,7 @@ HLT_Mu8_Ele8_v1
 HLT_Mu11_Ele8_v1
 HLT_L2DoubleMu0
 HLT_L2DoubleMu20_NoVertex_v1
+HLT_Mu0_v1
 HLT_Mu3
 HLT_Mu5
 HLT_Mu7
@@ -62,8 +67,12 @@ HLT_Mu9
 HLT_Mu11
 HLT_Mu13_v1
 HLT_Mu15_v1
-HLT_IsoMu11_v1
+HLT_Mu17_v1
+HLT_Mu19_v1
 HLT_IsoMu9
+HLT_IsoMu11_v1
+HLT_IsoMu13_v1
+HLT_IsoMu15_v1
 HLT_L1DoubleMuOpen
 HLT_DoubleMu0
 HLT_DoubleMu3_v2
@@ -105,6 +114,9 @@ HLT_DoubleEle5_SW_Upsilon_L1R_v1
 HLT_SingleIsoTau20_Trk15_MET25_v1
 HLT_DoubleIsoTau15_OneLeg_Trk5
 HLT_DoubleIsoTau15_Trk5
+HLT_Mu11_PFTau15_v1
+HLT_IsoMu9_PFTau15_v1
+HLT_IsoEle12_PFTau15_v1
 HLT_BTagMu_DiJet10U_v1
 HLT_BTagMu_DiJet20U_v1
 HLT_BTagMu_DiJet20U_Mu5_v1
