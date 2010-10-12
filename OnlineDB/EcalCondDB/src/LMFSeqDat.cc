@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <sstream>
 #include <limits.h>
 #include "OnlineDB/EcalCondDB/interface/LMFSeqDat.h"
 #include "OnlineDB/EcalCondDB/interface/DateHandler.h"
@@ -196,7 +197,9 @@ std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(int par,
   throw(std::runtime_error)
 {
   vector<std::string> pars;
-  pars.push_back("I" + par);
+  std::stringstream ss;
+  ss << "I" << par;
+  pars.push_back(ss.str());
   return fetchByRunIOV(pars, sql, method);
 }
 
@@ -257,8 +260,12 @@ LMFSeqDat LMFSeqDat::fetchByRunNumber(int runno, Tm taken_at) {
 LMFSeqDat LMFSeqDat::fetchByRunNumber(int runno, std::string taken_at) {
   std::map<int, LMFSeqDat> l;
   std::vector<std::string> pars;
-  pars.push_back("I" + runno);
-  pars.push_back("S" + taken_at);
+  std::stringstream ss;
+  ss << "I" << runno;
+  pars.push_back(ss.str());
+  ss.str(std::string());
+  ss << "S" << taken_at;
+  pars.push_back(ss.str());
   std::string q = "SELECT SEQ_ID FROM LMF_SEQ_DAT D JOIN RUN_IOV R ON "
     "D.RUN_IOV_ID = R.IOV_ID WHERE RUN_NUM = :1 AND "
     "SEQ_START >= TO_DATE(:2, 'YYYY-MM-DD HH24:MI:SS') "
