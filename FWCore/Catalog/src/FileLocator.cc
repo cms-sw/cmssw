@@ -5,325 +5,295 @@
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/util/PlatformUtils.hpp>
 
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/replace.hpp>
+
 #include <cstdlib>
 #include <stdexcept>
 #include <fstream>
 #include <iostream>
-#include "classlib/utils/StringList.h"
-#include "classlib/utils/StringOps.h"
-
+#include <sstream>
 
 using namespace xercesc;
 
-namespace {
-  inline std::string _toString(XMLCh const* toTranscode) {
-    std::string tmp(XMLString::transcode(toTranscode));
-    return tmp;
+namespace 
+{
+  
+inline std::string _toString(XMLCh const* toTranscode)
+{
+  std::string tmp(XMLString::transcode(toTranscode));
+  return tmp;
+}
+
+inline XMLCh*  _toDOMS(std::string temp)
+{
+  XMLCh* buff = XMLString::transcode(temp.c_str());
+  return  buff;
+}
+
+std::string
+replaceWithRegexp(const boost::smatch &matches,
+                  const std::string &outputFormat) 
+{
+  std::string result = outputFormat;
+  std::stringstream str;
+  
+  // std::cerr << "Output format: "<< outputFormat << std::endl;
+  for (size_t i = 1; i < matches.size(); ++i) 
+  {
+    str.str("");
+    str << "$" << i;
+    // std::cerr << "Current match: " << matches[i] << std::endl;
+    std::string matchedString(matches[i].first, matches[i].second);
+    if (!matchedString.empty())
+      boost::algorithm::replace_all(result, str.str(), matchedString);
   }
-
-  inline XMLCh*  _toDOMS(std::string temp) {
-    XMLCh* buff = XMLString::transcode(temp.c_str());
-    return  buff;
-  }
-
-  std::string
-  replaceWithRegexp(lat::RegexpMatch const matches,
-		    std::string const inputString,
-		    std::string const outputFormat) {
-    // std::cerr << "InputString:" << inputString << std::endl;
-
-    char buffer[8];
-    std::string result = outputFormat;
-
-    for (int i = 1; i < matches.numMatches(); ++i) {
-	// If this is true, man, we are in trouble...
-	if (i >= 1000000)
-          throw cms::Exception("Fatal Error on edm::FileLocator: more than 1000000 relocation entries in the file catalog. Are you sure???");
-	sprintf(buffer, "%i", i);
-	std::string variableRegexp = std::string("[$]") + buffer;
-	std::string matchResult = matches.matchString(inputString, i);
-
-	lat::Regexp sustitutionToken(variableRegexp);
-
-	//std::cerr << "Current match: " << matchResult << std::endl;
-
-	result = lat::StringOps::replace(result, sustitutionToken, matchResult);
-      }
-    return result;
-  }
-
+  // std::cerr << "Final string: " << result << std::endl;
+  return result;
+}
 }
 
 namespace edm {
 
-  int FileLocator::s_numberOfInstances = 0;
+int FileLocator::s_numberOfInstances = 0;
 
-  FileLocator::FileLocator(std::string const& catUrl, bool fallback) :
-      m_destination("any") {
-    try {
-      //  << "Xerces-c initialization Number "
-      //   << s_numberOfInstances <<
-      if (s_numberOfInstances==0)
-	XMLPlatformUtils::Initialize();
-    }
-    catch (XMLException const& e) {
-      // << "Xerces-c error in initialization \n"
-      //      << "Exception message is:  \n"
-      //      << _toString(e.getMessage()) <<
-      throw
-	cms::Exception(std::string("Fatal Error on edm::FileLocator:")+ _toString(e.getMessage()));
-    }
-    ++s_numberOfInstances;
+FileLocator::FileLocator(std::string const& catUrl, bool fallback) 
+  : m_destination("any") 
+{
+  try
+  {
+    //  << "Xerces-c initialization Number "
+    //   << s_numberOfInstances <<
+    if (s_numberOfInstances==0)
+      XMLPlatformUtils::Initialize();
+  }
+  catch (XMLException const& e) 
+  {
+    // << "Xerces-c error in initialization \n"
+    //      << "Exception message is:  \n"
+    //      << _toString(e.getMessage()) <<
+    throw
+      cms::Exception(std::string("Fatal Error on edm::FileLocator:")+ _toString(e.getMessage()));
+  }
+  ++s_numberOfInstances;
 
-    init(catUrl, fallback);
+  init(catUrl, fallback);
 
-    // std::cout << m_protocols.size() << " protocols" << std::endl;
-    // std::cout << m_directRules[m_protocols[0]].size() << " rules" << std::endl;
+  // std::cout << m_protocols.size() << " protocols" << std::endl;
+  // std::cout << m_directRules[m_protocols[0]].size() << " rules" << std::endl;
+}
+
+FileLocator::~FileLocator() 
+{}
+
+
+std::string
+FileLocator::pfn(std::string const& ilfn) const 
+{
+  return convert(ilfn, m_directRules, true);
+}
+
+std::string
+FileLocator::lfn(std::string const& ipfn) const 
+{
+  return convert(ipfn, m_inverseRules, false);
+}
+
+std::string
+FileLocator::convert(const std::string &input, const ProtocolRules &rules, bool direct) const
+{
+  std::string out = "";
+  
+  for (size_t pi = 0, pe = m_protocols.size(); pi != pe; ++pi) 
+  {
+    out = applyRules(rules, m_protocols[pi], m_destination, direct, input);
+    if (!out.empty())
+      return out; 
+  }
+  return out;
+}
+
+void
+FileLocator::parseRule(DOMNode *ruleNode, ProtocolRules &rules)
+{
+  if (!ruleNode)
+    throw cms::Exception(std::string("TrivialFileCatalog::connect: Malformed trivial catalog"));
+
+  // ruleNode is actually always a DOMElement because it's the result of
+  // a `getElementsByTagName()` in the calling method.
+  DOMElement* ruleElement = static_cast<DOMElement *>(ruleNode);
+
+  std::string protocol = _toString(ruleElement->getAttribute(_toDOMS("protocol")));   
+  std::string destinationMatchRegexp = _toString(ruleElement->getAttribute(_toDOMS("destination-match")));
+
+  if (destinationMatchRegexp.empty())
+    destinationMatchRegexp = ".*";
+
+  std::string pathMatchRegexp
+    = _toString(ruleElement->getAttribute(_toDOMS("path-match")));
+  std::string result
+    = _toString(ruleElement->getAttribute(_toDOMS("result")));
+  std::string chain
+    = _toString(ruleElement->getAttribute(_toDOMS("chain")));
+
+  Rule rule;
+  rule.pathMatch.assign(pathMatchRegexp);
+  rule.destinationMatch.assign(destinationMatchRegexp);
+  rule.result = result;
+  rule.chain = chain;
+  rules[protocol].push_back(rule);
+}
+
+void
+FileLocator::init(std::string const& catUrl, bool fallback) 
+{
+  std::string m_url = catUrl;
+
+  if (m_url.empty()) 
+  {
+    Service<SiteLocalConfig> localconfservice;
+    if (!localconfservice.isAvailable())
+            throw cms::Exception("edm::SiteLocalConfigService is not available");
+    
+    m_url = (fallback ? localconfservice->fallbackDataCatalog() : localconfservice->dataCatalog());
   }
 
-  FileLocator::~FileLocator() {
-  }
+  // std::cout << "Connecting to the catalog " << m_url << std::endl;
 
+  if (m_url.find("file:") == std::string::npos)
+    throw cms::Exception("TrivialFileCatalog::connect: Malformed url for file catalog configuration");
 
-  std::string FileLocator::pfn(std::string const& ilfn) const {
-    std::string pfn = "";
+  m_url = m_url.erase(0, m_url.find(":") + 1);
 
-    for (lat::StringList::const_iterator protocol = m_protocols.begin();
-	 protocol != m_protocols.end();
-	 ++protocol) {
-      pfn = applyRules(m_directRules,
-			*protocol,
-			m_destination,
-			true,
-			ilfn);
-      if (!pfn.empty()) {
-	return pfn;
-      }
-    }
-    return pfn;
-  }
+  std::vector<std::string> tokens;
+  boost::algorithm::split(tokens, m_url, boost::is_any_of("?"));
+  m_filename = tokens[0];
 
-  std::string FileLocator::lfn(std::string const& ipfn) const {
-    std::string fid;
-    std::string tmpPfn = ipfn;
+  if (tokens.size() == 2)
+  {
+    std::string options = tokens[1];
+    std::vector<std::string> optionTokens;
+    boost::algorithm::split(optionTokens, options, boost::is_any_of("&"));
 
-    for (lat::StringList::const_iterator protocol = m_protocols.begin(); protocol != m_protocols.end(); ++protocol) {
-      fid = applyRules(m_inverseRules, *protocol, m_destination, false, tmpPfn);
-      if (!fid.empty()) {
-        return fid;	
-      }
-    }
-    return fid;
-  }
-
-  void
-  FileLocator::parseRule(DOMNode *ruleNode, ProtocolRules &rules) {
-    if (!ruleNode) {
-      throw cms::Exception(std::string("TrivialFileCatalog::connect: Malformed trivial catalog"));
-    }
-
-    // ruleNode is actually always a DOMElement because it's the result of
-    // a `getElementsByTagName()` in the calling method.
-    DOMElement* ruleElement = static_cast<DOMElement *>(ruleNode);	
-
-    std::string protocol = _toString(ruleElement->getAttribute(_toDOMS("protocol")));	
-    std::string destinationMatchRegexp = _toString(ruleElement->getAttribute(_toDOMS("destination-match")));
-
-    if (destinationMatchRegexp.empty()) {
-      destinationMatchRegexp = ".*";
-    }
-
-    std::string pathMatchRegexp
-      = _toString(ruleElement->getAttribute(_toDOMS("path-match")));
-    std::string result
-      = _toString(ruleElement->getAttribute(_toDOMS("result")));
-    std::string chain
-      = _toString(ruleElement->getAttribute(_toDOMS("chain")));
-
-    Rule rule;
-    rule.pathMatch.setPattern(pathMatchRegexp);
-    rule.pathMatch.compile();
-    rule.destinationMatch.setPattern(destinationMatchRegexp);
-    rule.destinationMatch.compile();
-    rule.result = result;
-    rule.chain = chain;
-    rules[protocol].push_back(rule);
-  }
-
-  void
-  FileLocator::init(std::string const& catUrl, bool fallback) {
-    std::string m_url = catUrl;
-
-    if (m_url.empty()) {
-      Service<SiteLocalConfig> localconfservice;
-      if (!localconfservice.isAvailable()) {
-	throw cms::Exception("edm::SiteLocalConfigService is not available");
-      }
-      m_url = (fallback ? localconfservice->fallbackDataCatalog() : localconfservice->dataCatalog());
-    }
-
-    // std::cout << "Connecting to the catalog " << m_url << std::endl;
-
-
-    if (m_url.find("file:") != std::string::npos) {
-      m_url = m_url.erase(0, m_url.find(":") + 1);
-    } else {
-      throw cms::Exception("TrivialFileCatalog::connect: Malformed url for file catalog configuration");
-    }
-
-    lat::StringList tokens = lat::StringOps::split(m_url, "?");
-    m_filename = tokens[0];
-
-    if (tokens.size() == 2) {
-      std::string options = tokens[1];
-      lat::StringList optionTokens = lat::StringOps::split(options, "&");
-
-      for (lat::StringList::iterator option = optionTokens.begin(); option != optionTokens.end(); ++option) {
-	lat::StringList argTokens = lat::StringOps::split(*option, "=");
-	if (argTokens.size() != 2) {
-	  throw  cms::Exception("TrivialFileCatalog::connect: Malformed url for file catalog configuration");
-	}
-	
-	std::string key = argTokens[0];
-	std::string value = argTokens[1];
-	
-	if (key == "protocol") {
-	  m_protocols = lat::StringOps::split(value, ",");
-	} else if (key == "destination") {
-	  m_destination = value;
-	}
-      }
-    }
-
-    if (m_protocols.empty()) {
-      throw cms::Exception("TrivialFileCatalog::connect: protocol was not supplied in the contact string");
-    }
-
-    std::ifstream configFile;
-    configFile.open(m_filename.c_str());
-
-    //
-    // std::cout << "Using catalog configuration " << m_filename << std::endl;
-
-    if (!configFile.good() || !configFile.is_open()) {
-      throw cms::Exception("TrivialFileCatalog::connect: Unable to open trivial file catalog " + m_filename);
-    }
-
-    configFile.close();
-
-    XercesDOMParser* parser = new XercesDOMParser;
-    parser->setValidationScheme(XercesDOMParser::Val_Auto);
-    parser->setDoNamespaces(false);
-    parser->parse(m_filename.c_str());
-    DOMDocument* doc = parser->getDocument();
-    assert(doc);
-
-    /* trivialFileCatalog matches the following xml schema
-       FIXME: write a proper DTD
-       <storage-mapping>
-       <lfn-to-pfn protocol="direct" destination-match=".*"
-       path-match="lfn/guid match regular expression"
-       result="/castor/cern.ch/cms/$1"/>
-       <pfn-to-lfn protocol="srm"
-       path-match="lfn/guid match regular expression"
-       result="$1"/>
-       </storage-mapping>
-    */
-
-    /*first of all do the lfn-to-pfn bit*/
+    for (size_t oi = 0, oe = optionTokens.size(); oi != oe; ++oi)
     {
-      DOMNodeList *rules =doc->getElementsByTagName(_toDOMS("lfn-to-pfn"));
-      unsigned int ruleTagsNum  =
-	rules->getLength();
-
-      // FIXME: we should probably use a DTD for checking validity
-
-      for (unsigned int i = 0; i < ruleTagsNum; ++i) {
-	DOMNode* ruleNode = rules->item(i);
-	parseRule(ruleNode, m_directRules);
-      }
+      std::string option = optionTokens[oi];
+      std::vector<std::string> argTokens;
+      boost::algorithm::split(argTokens, option, boost::is_any_of("="));
+      
+      if (argTokens.size() != 2)
+        throw  cms::Exception("TrivialFileCatalog::connect: Malformed url for file catalog configuration");
+      
+      if (argTokens[0] == "protocol")
+        boost::algorithm::split(m_protocols, argTokens[1], boost::is_any_of(","));
+      else if (argTokens[0] == "destination")
+        m_destination = argTokens[1];
     }
-    /*Then we handle the pfn-to-lfn bit*/
+  }
+
+  if (m_protocols.empty())
+    throw cms::Exception("TrivialFileCatalog::connect: protocol was not supplied in the contact string");
+
+  std::ifstream configFile;
+  configFile.open(m_filename.c_str());
+
+  //
+  // std::cout << "Using catalog configuration " << m_filename << std::endl;
+
+  if (!configFile.good() || !configFile.is_open())
+    throw cms::Exception("TrivialFileCatalog::connect: Unable to open trivial file catalog " + m_filename);
+
+  configFile.close();
+
+  XercesDOMParser* parser = new XercesDOMParser;
+  parser->setValidationScheme(XercesDOMParser::Val_Auto);
+  parser->setDoNamespaces(false);
+  parser->parse(m_filename.c_str());
+  DOMDocument* doc = parser->getDocument();
+  assert(doc);
+
+  /* trivialFileCatalog matches the following xml schema
+     FIXME: write a proper DTD
+     <storage-mapping>
+     <lfn-to-pfn protocol="direct" destination-match=".*"
+     path-match="lfn/guid match regular expression"
+     result="/castor/cern.ch/cms/$1"/>
+     <pfn-to-lfn protocol="srm"
+     path-match="lfn/guid match regular expression"
+     result="$1"/>
+     </storage-mapping>
+  */
+
+  /*first of all do the lfn-to-pfn bit*/
+  {
+    DOMNodeList *rules = doc->getElementsByTagName(_toDOMS("lfn-to-pfn"));
+    unsigned int ruleTagsNum = rules->getLength();
+
+    // FIXME: we should probably use a DTD for checking validity
+
+    for (unsigned int i = 0; i < ruleTagsNum; ++i) 
     {
-      DOMNodeList *rules =doc->getElementsByTagName(_toDOMS("pfn-to-lfn"));
-      unsigned int ruleTagsNum  =
-	rules->getLength();
-
-      for (unsigned int i = 0; i < ruleTagsNum; ++i){
-	DOMNode* ruleNode = rules->item(i);
-	parseRule(ruleNode, m_inverseRules);
-      }	
+      DOMNode* ruleNode = rules->item(i);
+      parseRule(ruleNode, m_directRules);
     }
   }
+  /*Then we handle the pfn-to-lfn bit*/
+  {
+    DOMNodeList *rules =doc->getElementsByTagName(_toDOMS("pfn-to-lfn"));
+    unsigned int ruleTagsNum  =
+      rules->getLength();
 
-  std::string
-  replaceWithRegexp(lat::RegexpMatch const matches,
-  		   std::string const inputString,
-  		   std::string const outputFormat) {
-      //std::cerr << "InputString:" << inputString << std::endl;
-
-      char buffer[8];
-      std::string result = outputFormat;
-
-      for (int i = 1; i < matches.numMatches(); ++i) {
-  	// If this is not true, man, we are in trouble...
-  	assert(i < 1000000);
-  	sprintf(buffer, "%i", i);
-  	std::string variableRegexp = std::string("[$]") + buffer;
-  	std::string matchResult = matches.matchString(inputString, i);
-
-  	lat::Regexp sustitutionToken(variableRegexp);
-
-  	//std::cerr << "Current match: " << matchResult << std::endl;
-
-  	result = lat::StringOps::replace(result, sustitutionToken, matchResult);
-      }
-      return result;
-  }
-
-  std::string
-  FileLocator::applyRules(ProtocolRules const& protocolRules,
-  			 std::string const& protocol,
-  			 std::string const& destination,
-  			 bool direct,
-  			 std::string name) const {
-    // std::cerr << "Calling apply rules with protocol: " << protocol << "\n destination: " << destination << "\n " << " on name " << name << std::endl;
-
-    ProtocolRules::const_iterator const rulesIterator = protocolRules.find(protocol);
-    if (rulesIterator == protocolRules.end()) {
-      return "";
-    }
-
-    Rules const& rules=(*(rulesIterator)).second;
-
-    /* Look up for a matching rule*/
-    for (Rules::const_iterator i = rules.begin(); i != rules.end(); ++i) {
-      if (!i->destinationMatch.exactMatch(destination)) {
-  	continue;
-      }
-
-      if (!i->pathMatch.exactMatch(name)) {
-  	continue;
-      }
-
-      //std::cerr << "Rule " << i->pathMatch.pattern() << "matched! " << std::endl;
-
-      std::string chain = i->chain;
-      if ((direct == true) && (chain != "")) {
-        name = applyRules(protocolRules, chain, destination, direct, name);
-      }
-
-      lat::RegexpMatch matches;
-      i->pathMatch.match(name, 0, 0, &matches);
-
-      name = replaceWithRegexp(matches, name, i->result);
-
-      if ((direct == false) && (chain !="")) {
-  	name = applyRules (protocolRules, chain, destination, direct, name);
-      }
-      return name;
-    }
-    return "";
+    for (unsigned int i = 0; i < ruleTagsNum; ++i)
+    {
+      DOMNode* ruleNode = rules->item(i);
+      parseRule(ruleNode, m_inverseRules);
+    } 
   }
 }
 
+std::string
+FileLocator::applyRules(ProtocolRules const& protocolRules,
+                        std::string const& protocol,
+                        std::string const& destination,
+                        bool direct,
+                        std::string name) const
+{
+  // std::cerr << "Calling apply rules with protocol: " << protocol << "\n destination: " << destination << "\n " << " on name " << name << std::endl;
+
+  ProtocolRules::const_iterator const rulesIterator = protocolRules.find(protocol);
+  if (rulesIterator == protocolRules.end())
+    return "";
+
+  Rules const& rules=(*(rulesIterator)).second;
+  
+  boost::smatch destinationMatches;
+  boost::smatch nameMatches;
+
+  /* Look up for a matching rule*/
+  for (Rules::const_iterator i = rules.begin(); i != rules.end(); ++i)
+  {
+    
+    if (!boost::regex_match(destination, destinationMatches, i->destinationMatch))
+      continue;
+
+    if (!boost::regex_match(name, i->pathMatch))
+      continue;
+
+    // std::cerr << "Rule " << i->pathMatch << "matched! " << std::endl;
+
+    std::string chain = i->chain;
+    if ((direct == true) && (chain != ""))
+      name = applyRules(protocolRules, chain, destination, direct, name);
+
+    boost::regex_match(name, nameMatches, i->pathMatch);
+    name = replaceWithRegexp(nameMatches, i->result);
+
+    if ((direct == false) && (chain !=""))
+      name = applyRules(protocolRules, chain, destination, direct, name);
+
+    return name;
+  }
+  
+  return "";
+}
+}

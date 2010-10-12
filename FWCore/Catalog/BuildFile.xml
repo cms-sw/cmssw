@@ -1,7 +1,6 @@
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="FWCore/Utilities"/>
 <use   name="xerces-c"/>
-<use   name="Iguana/Utilities"/>
 <use   name="boost"/>
 <export>
   <lib   name="1"/>

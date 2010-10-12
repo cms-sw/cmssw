@@ -5,7 +5,7 @@
 #include <list>
 #include <map>
 #include <utility>
-#include "classlib/utils/Regexp.h"
+#include <boost/regex.hpp>
 #include <xercesc/dom/DOM.hpp>
 
 namespace edm {
@@ -25,36 +25,39 @@ namespace edm {
      */
     static int s_numberOfInstances;
 
-    typedef struct {
-	lat::Regexp pathMatch;
-	lat::Regexp destinationMatch;
-	std::string result;
-	std::string chain;
-    } Rule;
+    struct Rule 
+    {
+      boost::regex pathMatch;
+      boost::regex destinationMatch;
+      std::string result;
+      std::string chain;
+    };
 
-    typedef std::list<Rule> Rules;
+    typedef std::vector<Rule> Rules;
     typedef std::map<std::string, Rules> ProtocolRules;
 
     void init(std::string const& catUrl, bool fallback);
 
     void parseRule(xercesc::DOMNode *ruleNode,
-		    ProtocolRules&rules);
+                   ProtocolRules& rules);
 
     std::string applyRules(ProtocolRules const& protocolRules,
-			   std::string const& protocol,
-			   std::string const& destination,
-			   bool direct,
-			   std::string name) const;
+                           std::string const& protocol,
+                           std::string const& destination,
+                           bool direct,
+                           std::string name) const;
+
+    std::string convert(const std::string &input, const ProtocolRules &rules, bool direct) const;
 
     /** Direct rules are used to do the mapping from LFN to PFN.*/
-    ProtocolRules	 	m_directRules;
+    ProtocolRules   m_directRules;
     /** Inverse rules are used to do the mapping from PFN to LFN*/
-    ProtocolRules		m_inverseRules;
+    ProtocolRules   m_inverseRules;
 
-    std::string 		m_fileType;
-    std::string			m_filename;
-    lat::StringList		m_protocols;
-    std::string			m_destination;
+    std::string                 m_fileType;
+    std::string                 m_filename;
+    std::vector<std::string>    m_protocols;
+    std::string                 m_destination;
   };
 }
 
