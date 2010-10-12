@@ -29,7 +29,8 @@ fileEVL=ev.txt
 runs=`cat $fileEVL | grep -vi lumino | awk '{ if (NF == 4)  print $1}' | sort -r | uniq`
 
 # TODO: adjust output dir
-odir=$baseDir/HLT_$mdtau/
+idir=$baseDir/HLT_$mdtau/
+odir=$baseDir/RECO_$mdtau/
 mkdir $odir
 
 
@@ -44,13 +45,18 @@ for r in $runs ;do
   mkdir $wdir
   # prepare json
   echo '{"'$r'": [[1,999999999]]}' > $wdir/my.json
-  cp embed_HLT.py $wdir
+  cp embed_RECO.py $wdir
   cd $wdir
 
-  # TODO adjust file location
-  #  ln -s ../patTuple_PF2PAT_140183-142557.root  patTuple_PF2PAT.root
-  cmsRun embed_HLT.py mdtau=$mdtau useJson=1 overrideBeamSpot=1
-  mv embedded_HLT.root $odir/embedded_HLT_$r.root
+  # here we mod the copy 
+  echo "process.source.fileNames = cms.untracked.vstring()" >> embed_RECO.py
+  for fin in `ls $idir | grep root`; do
+    echo "process.source.fileNames.extend(['file:$idir$fin'])" >> embed_RECO.py
+  done
+
+
+  cmsRun embed_RECO.py useJson=1 overrideBeamSpot=1
+  mv embedded_RECO.root $odir/embedded_RECO_$r.root
   mv log.log $odir/log_$r
   cd ..
   ls $wdir

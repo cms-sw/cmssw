@@ -145,6 +145,29 @@ def customise(process):
        #seqVis.catch=0
        #i.__iadd__(source)
 
+  import FWCore.ParameterSet.VarParsing as VarParsing
+  options = VarParsing.VarParsing ('analysis')
+
+  options.register ('overrideBeamSpot',
+                    0, # default value, false
+                    VarParsing.VarParsing.multiplicity.singleton,
+                    VarParsing.VarParsing.varType.int,
+                    "should I override beamspot in globaltag?")
+
+
+  if options.overrideBeamSpot !=  0:
+    bs = cms.string("BeamSpotObjects_2009_v14_offline")
+    #  tag = cms.string("Early10TeVCollision_3p8cm_31X_v1_mc_START"), # 35 default
+    #  tag = cms.string("Realistic900GeVCollisions_10cm_STARTUP_v1_mc"), # 36 default
+    process.GlobalTag.toGet = cms.VPSet(
+      cms.PSet(record = cms.string("BeamSpotObjectsRcd"),
+           tag = bs,
+           connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_BEAMSPOT")
+      )
+    )
+    print "BeamSpot in globaltag set to ", bs
+  else:
+    print "BeamSpot in globaltag not changed"
 
 
   print "#############################################################"
