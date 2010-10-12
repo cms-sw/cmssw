@@ -285,7 +285,7 @@ void L1ScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
     l1AlgoCurrentRate_->setBinContent(i, rate);
     l1AlgoCurrentRatePerAlgo_[i/kPerHisto]->setBinContent(i%kPerHisto, rate);
     //currentRate_->setBinError(i, error);
-    l1AlgoScalerCounters_[i-1] = ulong(current_count);
+    l1AlgoScalerCounters_[i-1] = (unsigned long)(current_count);
     l1AlgoRateHistories_[i-1]->setBinContent(nL, rate);
   }
   // selected ----------------- start
@@ -315,7 +315,7 @@ void L1ScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
     l1TechTrigCurrentRate_->setBinContent(i, rate);
     l1TechTrigCurrentRatePerAlgo_[i/kPerHisto]->setBinContent(i%kPerHisto, rate);
     //currentRate_->setBinError(i, error);
-    l1TechTrigScalerCounters_[i-1] = ulong(current_count);
+    l1TechTrigScalerCounters_[i-1] = (unsigned long)(current_count);
     l1TechTrigRateHistories_[i-1]->setBinContent(nL, rate);
   }
   
