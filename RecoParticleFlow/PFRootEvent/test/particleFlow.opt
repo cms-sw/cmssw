@@ -13,18 +13,19 @@ root file ../../Configuration/test/display.root
 // filter   taus	     1 2
 
 
-// name of the branches of the input TTree. 
+// Input tags of the various products 
+// (under the form "label", or "label:instance" or "label:instance:process")
 
 // ECAL rechits branch
 root rechits_ECAL_inputTag   particleFlowRecHitECAL
 // HCAL rechits branch
 root rechits_HCAL_inputTag   particleFlowRecHitHCAL
 // HFEM rechits branch
-root rechits_HFEM_inputTag   particleFlowRecHitHCAL HFEM
+root rechits_HFEM_inputTag   particleFlowRecHitHCAL:HFEM
 // HFHAD rechits branch
-root rechits_HFHAD_inputTag  particleFlowRecHitHCAL HFHAD
+root rechits_HFHAD_inputTag  particleFlowRecHitHCAL:HFHAD
 // HF Cleaned rechits branch(es)
-root rechits_CLEANED_inputTags  particleFlowRecHitHCAL Cleaned * particleFlowClusterHFHAD Cleaned * particleFlowClusterHFEM Cleaned *
+root rechits_CLEANED_inputTags  particleFlowRecHitHCAL:Cleaned particleFlowClusterHFHAD:Cleaned particleFlowClusterHFEM:Cleaned
 // PS rechits branch
 root rechits_PS_inputTag     particleFlowRecHitPS
 
@@ -35,7 +36,7 @@ root stdTracks_inputTag      generalTracks
 // GSF Track branch
 root gsfrecTracks_inputTag   pfTrackElec
 // Conversions GSF Track branch
-root convBremGsfrecTracks_inputTag  pfTrackElec Secondary
+root convBremGsfrecTracks_inputTag  pfTrackElec:Secondary
 // PFDisplacedTrackerVertex branch
 root PFDisplacedVertex_inputTag pfDisplacedTrackerVertex
 // Primary vertices

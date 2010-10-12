@@ -1388,154 +1388,145 @@ void PFRootEventManager::connect( const char* infilename ) {
   }
   
   // hits branches ----------------------------------------------
-   std::vector< std::string > rechitsECALtagname;
+  std::string rechitsECALtagname;
   options_->GetOpt("root","rechits_ECAL_inputTag", rechitsECALtagname);
-  rechitsECALTag_ = stringToTag(rechitsECALtagname);
+  rechitsECALTag_ = edm::InputTag(rechitsECALtagname);
 
-  std::vector< std::string > rechitsHCALtagname;
+  std::string rechitsHCALtagname;
   options_->GetOpt("root","rechits_HCAL_inputTag", rechitsHCALtagname);
-  rechitsHCALTag_ = stringToTag(rechitsHCALtagname);
+  rechitsHCALTag_ = edm::InputTag(rechitsHCALtagname);
 
-  std::vector< std::string > rechitsHFEMtagname;
+  std::string rechitsHFEMtagname;
   options_->GetOpt("root","rechits_HFEM_inputTag", rechitsHFEMtagname);
-  rechitsHFEMTag_ = stringToTag(rechitsHFEMtagname);
+  rechitsHFEMTag_ = edm::InputTag(rechitsHFEMtagname);
 
-  std::vector< std::string > rechitsHFHADtagname;
+  std::string rechitsHFHADtagname;
   options_->GetOpt("root","rechits_HFHAD_inputTag", rechitsHFHADtagname);
-  rechitsHFHADTag_ = stringToTag(rechitsHFHADtagname);
+  rechitsHFHADTag_ = edm::InputTag(rechitsHFHADtagname);
 
   std::vector<string> rechitsCLEANEDtagnames;
   options_->GetOpt("root","rechits_CLEANED_inputTags", rechitsCLEANEDtagnames);
-  for ( unsigned tags = 0; tags<rechitsCLEANEDtagnames.size(); tags+=3 ) {
-    if (  rechitsCLEANEDtagnames[tags+2] == '*' ) 
-      rechitsCLEANEDTags_.push_back(
-	edm::InputTag(rechitsCLEANEDtagnames[tags],
-		      rechitsCLEANEDtagnames[tags+1]));
-    else
-      rechitsCLEANEDTags_.push_back(
-	edm::InputTag(rechitsCLEANEDtagnames[tags],
-		      rechitsCLEANEDtagnames[tags+1],
-		      rechitsCLEANEDtagnames[tags+2]));
-  }
+  for ( unsigned tags = 0; tags<rechitsCLEANEDtagnames.size(); ++tags )
+    rechitsCLEANEDTags_.push_back(edm::InputTag(rechitsCLEANEDtagnames[tags]));
   rechitsCLEANEDV_.resize(rechitsCLEANEDTags_.size());
   rechitsCLEANEDHandles_.resize(rechitsCLEANEDTags_.size());
 
 
   // Tracks branches
-  std::vector< std::string > rechitsPStagname;
+  std::string rechitsPStagname;
   options_->GetOpt("root","rechits_PS_inputTag", rechitsPStagname);
-  rechitsPSTag_ = stringToTag(rechitsPStagname);
+  rechitsPSTag_ = edm::InputTag(rechitsPStagname);
 
-  std::vector< std::string > recTrackstagname;
+  std::string recTrackstagname;
   options_->GetOpt("root","recTracks_inputTag", recTrackstagname);
-  recTracksTag_ = stringToTag(recTrackstagname);
+  recTracksTag_ = edm::InputTag(recTrackstagname);
 
-  std::vector< std::string > primaryVerticestagname;
+  std::string primaryVerticestagname;
   options_->GetOpt("root","primaryVertices_inputTag", primaryVerticestagname);
-  primaryVerticesTag_ = stringToTag(primaryVerticestagname);
+  primaryVerticesTag_ = edm::InputTag(primaryVerticestagname);
 
-  std::vector< std::string > stdTrackstagname;
+  std::string stdTrackstagname;
   options_->GetOpt("root","stdTracks_inputTag", stdTrackstagname);
-  stdTracksTag_ = stringToTag(stdTrackstagname);
+  stdTracksTag_ = edm::InputTag(stdTrackstagname);
 
-  std::vector< std::string > gsfrecTrackstagname;
+  std::string gsfrecTrackstagname;
   options_->GetOpt("root","gsfrecTracks_inputTag", gsfrecTrackstagname);
-  gsfrecTracksTag_ = stringToTag(gsfrecTrackstagname);
+  gsfrecTracksTag_ = edm::InputTag(gsfrecTrackstagname);
 
   useConvBremPFRecTracks_ = false;
   options_->GetOpt("particle_flow", "useConvBremPFRecTracks", useConvBremPFRecTracks_);
   if ( useConvBremPFRecTracks_ ) { 
-    std::vector< std::string > convBremGsfrecTrackstagname;
+    std::string convBremGsfrecTrackstagname;
     options_->GetOpt("root","convBremGsfrecTracks_inputTag", convBremGsfrecTrackstagname);
-    convBremGsfrecTracksTag_ = stringToTag(convBremGsfrecTrackstagname);
+    convBremGsfrecTracksTag_ = edm::InputTag(convBremGsfrecTrackstagname);
   }
 
 
   // muons branch
-  std::vector< std::string > muonstagname;
+  std::string muonstagname;
   options_->GetOpt("root","muon_inputTag", muonstagname);
-  muonsTag_ = stringToTag(muonstagname);
+  muonsTag_ = edm::InputTag(muonstagname);
 
   // conversion
   usePFConversions_=false;
   options_->GetOpt("particle_flow", "usePFConversions", usePFConversions_);
   if( usePFConversions_ ) {
-    std::vector< std::string > conversiontagname;
+    std::string conversiontagname;
     options_->GetOpt("root","conversion_inputTag", conversiontagname);
-    conversionTag_ = stringToTag(conversiontagname);
+    conversionTag_ = edm::InputTag(conversiontagname);
   }
 
   // V0
   usePFV0s_=false;
   options_->GetOpt("particle_flow", "usePFV0s", usePFV0s_);
   if( usePFV0s_ ) {
-    std::vector< std::string > v0tagname;
+    std::string v0tagname;
     options_->GetOpt("root","V0_inputTag", v0tagname);
-    v0Tag_ = stringToTag(v0tagname);
+    v0Tag_ = edm::InputTag(v0tagname);
   }
 
   //Displaced Vertices
   usePFDisplacedVertexs_=false;
   options_->GetOpt("particle_flow", "usePFDisplacedVertexs", usePFDisplacedVertexs_);
   if( usePFDisplacedVertexs_ ) {
-    std::vector< std::string > pfDisplacedTrackerVertextagname;
+    std::string pfDisplacedTrackerVertextagname;
     options_->GetOpt("root","PFDisplacedVertex_inputTag", pfDisplacedTrackerVertextagname);
-    pfDisplacedTrackerVertexTag_ = stringToTag(pfDisplacedTrackerVertextagname);
+    pfDisplacedTrackerVertexTag_ = edm::InputTag(pfDisplacedTrackerVertextagname);
   }
 
-  std::vector< std::string > trueParticlestagname;
+  std::string trueParticlestagname;
   options_->GetOpt("root","trueParticles_inputTag", trueParticlestagname);
-  trueParticlesTag_ = stringToTag(trueParticlestagname);
+  trueParticlesTag_ = edm::InputTag(trueParticlestagname);
 
-  std::vector< std::string > MCTruthtagname;
+  std::string MCTruthtagname;
   options_->GetOpt("root","MCTruth_inputTag", MCTruthtagname);
-  MCTruthTag_ = stringToTag(MCTruthtagname);
+  MCTruthTag_ = edm::InputTag(MCTruthtagname);
 
-  std::vector< std::string > caloTowerstagname;
+  std::string caloTowerstagname;
   options_->GetOpt("root","caloTowers_inputTag", caloTowerstagname);
-  caloTowersTag_ = stringToTag(caloTowerstagname);
+  caloTowersTag_ = edm::InputTag(caloTowerstagname);
 
-  std::vector< std::string > genJetstagname;
+  std::string genJetstagname;
   options_->GetOpt("root","genJets_inputTag", genJetstagname);
-  genJetsTag_ = stringToTag(genJetstagname);
+  genJetsTag_ = edm::InputTag(genJetstagname);
 
   
-  std::vector< std::string > genParticlesforMETtagname;
+  std::string genParticlesforMETtagname;
   options_->GetOpt("root","genParticlesforMET_inputTag", genParticlesforMETtagname);
-  genParticlesforMETTag_ = stringToTag(genParticlesforMETtagname);
+  genParticlesforMETTag_ = edm::InputTag(genParticlesforMETtagname);
 
-  std::vector< std::string > genParticlesforJetstagname;
+  std::string genParticlesforJetstagname;
   options_->GetOpt("root","genParticlesforJets_inputTag", genParticlesforJetstagname);
-  genParticlesforJetsTag_ = stringToTag(genParticlesforJetstagname);
+  genParticlesforJetsTag_ = edm::InputTag(genParticlesforJetstagname);
 
   // PF candidates 
-  std::vector< std::string > pfCandidatetagname;
+  std::string pfCandidatetagname;
   options_->GetOpt("root","particleFlowCand_inputTag", pfCandidatetagname);
-  pfCandidateTag_ = stringToTag(pfCandidatetagname);
+  pfCandidateTag_ = edm::InputTag(pfCandidatetagname);
 
-  std::vector< std::string > caloJetstagname;
+  std::string caloJetstagname;
   options_->GetOpt("root","CaloJets_inputTag", caloJetstagname);
-  caloJetsTag_ = stringToTag(caloJetstagname);
+  caloJetsTag_ = edm::InputTag(caloJetstagname);
 
-  std::vector< std::string > corrcaloJetstagname;
+  std::string corrcaloJetstagname;
   options_->GetOpt("root","corrCaloJets_inputTag", corrcaloJetstagname);
-  corrcaloJetsTag_ = stringToTag(corrcaloJetstagname);
+  corrcaloJetsTag_ = edm::InputTag(corrcaloJetstagname);
 
-  std::vector< std::string > pfJetstagname;
+  std::string pfJetstagname;
   options_->GetOpt("root","PFJets_inputTag", pfJetstagname);
-  pfJetsTag_ = stringToTag(pfJetstagname);
+  pfJetsTag_ = edm::InputTag(pfJetstagname);
 
-  std::vector< std::string > pfMetstagname;
+  std::string pfMetstagname;
   options_->GetOpt("root","PFMET_inputTag", pfMetstagname);
-  pfMetsTag_ = stringToTag(pfMetstagname);
+  pfMetsTag_ = edm::InputTag(pfMetstagname);
 
-  std::vector< std::string > caloMetstagname;
+  std::string caloMetstagname;
   options_->GetOpt("root","CaloMET_inputTag", caloMetstagname);
-  caloMetsTag_ = stringToTag(caloMetstagname);
+  caloMetsTag_ = edm::InputTag(caloMetstagname);
 
-  std::vector< std::string > tcMetstagname;
+  std::string tcMetstagname;
   options_->GetOpt("root","TCMET_inputTag", tcMetstagname);
-  tcMetsTag_ = stringToTag(tcMetstagname);
+  tcMetsTag_ = edm::InputTag(tcMetstagname);
 
 }
 
