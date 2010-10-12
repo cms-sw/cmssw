@@ -11,7 +11,7 @@
  *         David Dagenhart
  *         Zhen Xie
  * \version   1st Version June 7 2007
- * $Id: LumiSummary.h,v 1.16 2010/06/02 13:55:11 xiezhen Exp $
+ * $Id: LumiSummary.h,v 1.17 2010/10/12 10:45:49 xiezhen Exp $
  *
  ************************************************************/
  
@@ -74,9 +74,12 @@ class LumiSummary {
 
     /// destructor
     ~LumiSummary(){}
-	 
+    /**average inst lumi**/
     float avgInsDelLumi() const;
+    /**average inst lumi error**/
     float avgInsDelLumiErr() const;
+    /**delivered luminosity integrated over LS **/
+    float intgDelLumi()const;
     short lumiSecQual() const ;
     /** trigger DeadtimeBeamActive count **/
     unsigned long long deadcount() const;
@@ -113,8 +116,12 @@ class LumiSummary {
     size_t nTriggerLine()const;
     size_t nHLTPath()const;
     std::vector<std::string> HLTPaths()const;
+    /**avg inst lumi corrected by deadtime**/
     float avgInsRecLumi() const;
+    /**avg inst lumi error corrected by deadtime**/
     float avgInsRecLumiErr() const;
+    /**recorded luminosity integrated over LS **/
+    float intgRecLumi()const;
     bool isProductEqual(LumiSummary const& next) const;
     /** lumi data version.
 	special values:

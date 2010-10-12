@@ -1,5 +1,5 @@
 
-// $Id: LumiSummary.cc,v 1.19 2010/10/11 18:14:37 xiezhen Exp $
+// $Id: LumiSummary.cc,v 1.20 2010/10/12 10:45:49 xiezhen Exp $
 
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 
@@ -11,8 +11,16 @@ LumiSummary::avgInsDelLumi()const{
   return avginsdellumi_;
 }
 float
+LumiSummary::intgDelLumi()const{
+  return avginsdellumi_*float(this->lumiSectionLength());
+}
+float
 LumiSummary::avgInsDelLumiErr()const{ 
   return  avginsdellumierr_;
+}
+float 
+LumiSummary::intgRecLumi()const{
+  return this->avgInsRecLumi() *float(this->lumiSectionLength());
 }
 short
 LumiSummary::lumiSecQual()const {
