@@ -6,7 +6,7 @@ alcaBeamSpotHarvester = cms.EDAnalyzer("AlcaBeamSpotHarvester",
 	BeamSpotModuleName = cms.untracked.string("alcaBeamSpotProducer"),
 	BeamSpotLabel      = cms.untracked.string("alcaBeamSpot"),
 	outputRecordName   = cms.untracked.string("BeamSpotObjectsRcdByLumi"),
-	SigmaZValue        = cms.untracked.double(-1) 
+	SigmaZValue        = cms.untracked.double(10) 
     ),
     metadataOfflineDropBox = cms.PSet(
         destDB             = cms.untracked.string("oracle://cms_orcoff_prep/CMS_COND_BEAMSPOT"),
