@@ -11,7 +11,7 @@
  *         David Dagenhart
  *         Zhen Xie
  * \version   1st Version June 7 2007
- * $Id: LumiSummary.h,v 1.15 2010/03/23 15:02:13 xiezhen Exp $
+ * $Id: LumiSummary.h,v 1.16 2010/06/02 13:55:11 xiezhen Exp $
  *
  ************************************************************/
  
@@ -97,7 +97,7 @@ class LumiSummary {
     /**lumi section length in seconds
        numorbits*3564*25e-09
      **/
-    unsigned int lumiSectionLength() const;
+    float lumiSectionLength() const;
     unsigned int lsNumber() const;
     unsigned int startOrbit() const;
     unsigned int numOrbit() const;
