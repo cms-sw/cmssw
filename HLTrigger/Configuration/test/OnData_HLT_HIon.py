@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_8_2/HIon/V1 (CMSSW_3_8_1_HLT17)
+# /dev/CMSSW_3_8_5/HIon/V5 (CMSSW_3_8_1_HLT18)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_2/HIon/V1')
+  tableName = cms.string('/dev/CMSSW_3_8_5/HIon/V5')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -1557,7 +1557,7 @@ process.MicroStateService = cms.Service( "MicroStateService",
 process.ModuleWebRegistry = cms.Service( "ModuleWebRegistry",
 )
 process.PrescaleService = cms.Service( "PrescaleService",
-    lvl1DefaultLabel = cms.untracked.string( "3.2E30" ),
+    lvl1DefaultLabel = cms.untracked.string( "2E32" ),
     lvl1Labels = cms.vstring( '6E31',
       'Cosmics' ),
     prescaleTable = cms.VPSet( 
