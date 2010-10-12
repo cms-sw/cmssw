@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_8_5/GRun/V5 (CMSSW_3_8_1_HLT18)
+# /dev/CMSSW_3_8_5/GRun/V6 (CMSSW_3_8_1_HLT18)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_5/GRun/V5')
+  tableName = cms.string('/dev/CMSSW_3_8_5/GRun/V6')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -11363,7 +11363,7 @@ process.hltL1Mu3MuOpenL1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
 process.hltSingleMu5MuOpenL2Filtered4 = cms.EDFilter( "HLTMuonL2PreFilter",
     BeamSpotTag = cms.InputTag( "hltOfflineBeamSpot" ),
     CandTag = cms.InputTag( "hltL2MuonCandidates" ),
-    PreviousCandTag = cms.InputTag( "hltL1SingleMu3MuOpenL1Filtered0" ),
+    PreviousCandTag = cms.InputTag( "hltL1Mu3MuOpenL1Filtered0" ),
     SeedMapTag = cms.InputTag( "hltL2Muons" ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
@@ -12917,6 +12917,53 @@ process.hltRPCMuonNormaL1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
 process.hltPreFEDIntegrity = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
 )
+process.hltCSCMonitorModule = cms.EDAnalyzer( "CSCMonitorModule",
+    InputObjects = cms.untracked.InputTag( "source" ),
+    BOOKING_XML_FILE = cms.FileInPath( "DQM/CSCMonitorModule/data/emuDQMBooking.xml" ),
+    EventProcessor = cms.untracked.PSet( 
+      EFF_ERR_SIGFAIL = cms.untracked.double( 5.0 ),
+      FRAEFF_AUTO_UPDATE = cms.untracked.bool( False ),
+      EFF_NODATA_THRESHOLD = cms.untracked.double( 0.1 ),
+      FRAEFF_AUTO_UPDATE_START = cms.untracked.uint32( 5 ),
+      BINCHECK_MASK = cms.untracked.uint32( 384563190 ),
+      BINCHECKER_CRC_CLCT = cms.untracked.bool( True ),
+      EFF_COLD_SIGFAIL = cms.untracked.double( 5.0 ),
+      PROCESS_DDU = cms.untracked.bool( False ),
+      EFF_NODATA_SIGFAIL = cms.untracked.double( 5.0 ),
+      BINCHECKER_MODE_DDU = cms.untracked.bool( False ),
+      BINCHECKER_CRC_ALCT = cms.untracked.bool( True ),
+      EFF_HOT_THRESHOLD = cms.untracked.double( 0.1 ),
+      FOLDER_DDU = cms.untracked.string( "" ),
+      BINCHECKER_CRC_CFEB = cms.untracked.bool( True ),
+      EVENTS_ECHO = cms.untracked.uint32( 1000 ),
+      DDU_CHECK_MASK = cms.untracked.uint32( 4294959103 ),
+      FRAEFF_SEPARATE_THREAD = cms.untracked.bool( False ),
+      PROCESS_EFF_PARAMETERS = cms.untracked.bool( False ),
+      EFF_HOT_SIGFAIL = cms.untracked.double( 5.0 ),
+      FOLDER_PAR = cms.untracked.string( "" ),
+      FRAEFF_AUTO_UPDATE_FREQ = cms.untracked.uint32( 200 ),
+      EFF_COLD_THRESHOLD = cms.untracked.double( 0.1 ),
+      FOLDER_EMU = cms.untracked.string( "CSC/FEDIntegrity/" ),
+      DDU_BINCHECK_MASK = cms.untracked.uint32( 384563190 ),
+      PROCESS_CSC = cms.untracked.bool( False ),
+      PROCESS_EFF_HISTOS = cms.untracked.bool( False ),
+      MO_FILTER = cms.untracked.vstring( '-/^.*$/',
+        '+/FEDEntries/',
+        '+/FEDFatal/',
+        '+/FEDFormatFatal/',
+        '+/FEDNonFatal/',
+        '+/^CSC_Reporting$/',
+        '+/^CSC_Format_Errors$/',
+        '+/^CSC_Format_Warnings$/',
+        '+/^CSC_L1A_out_of_sync$/',
+        '+/^CSC_wo_ALCT$/',
+        '+/^CSC_wo_CFEB$/',
+        '+/^CSC_wo_CLCT$/' ),
+      FOLDER_CSC = cms.untracked.string( "" ),
+      EFF_ERR_THRESHOLD = cms.untracked.double( 0.1 ),
+      BINCHECKER_OUTPUT = cms.untracked.bool( False )
+    )
+)
 process.hltDTDQMEvF = cms.EDProducer( "DTUnpackingModule",
     dataType = cms.string( "DDU" ),
     fedbyType = cms.bool( False ),
@@ -13034,7 +13081,7 @@ process.hltPreExpressSmart = cms.EDFilter( "TriggerResultsFilter",
     l1tResults = cms.InputTag( "" ),
     l1tIgnoreMask = cms.bool( False ),
     daqPartitions = cms.uint32( 1 ),
-    throw = cms.bool( True ),
+    throw = cms.bool( False ),
     l1techIgnorePrescales = cms.bool( False )
 )
 process.hltDQML1Scalers = cms.EDAnalyzer( "L1Scalers",
@@ -14752,7 +14799,7 @@ process.AlCa_EcalEta = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sAl
 process.AlCa_RPCMuonNoHits = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sAlCaRPC + process.hltPreRPCMuonNoHits + process.HLTmuonlocalrecoSequence + process.hltRPCPointProducer + process.hltRPCFilter + process.HLTEndSequence )
 process.AlCa_RPCMuonNoTriggers = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sAlCaRPC + process.hltPreRPCMuonNoTriggers + process.hltRPCMuonNoTriggersL1Filtered0 + process.HLTmuonlocalrecoSequence + process.HLTEndSequence )
 process.AlCa_RPCMuonNormalisation = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sAlCaRPC + process.hltPreRPCMuonNorma + process.hltRPCMuonNormaL1Filtered0 + process.HLTmuonlocalrecoSequence + process.HLTEndSequence )
-process.DQM_FEDIntegrity_v2 = cms.Path( process.HLTBeginSequence + process.hltPreFEDIntegrity + process.hltDTDQMEvF + process.hltEcalRawToRecHitFacility + process.hltEcalRegionalRestFEDs + process.hltEcalRecHitAll + process.hltEcalRawToRecHitByproductProducer + process.hltEBHltTask + process.hltEEHltTask + process.hltL1tfed + process.hltSiPixelDigisWithErrors + process.hltSiPixelHLTSource + process.hltSiStripFEDCheck + process.hltMuonRPCDigis + process.hltRPCFEDIntegrity + process.hltBoolFalse )
+process.DQM_FEDIntegrity_v2 = cms.Path( process.HLTBeginSequence + process.hltPreFEDIntegrity + process.hltCSCMonitorModule + process.hltDTDQMEvF + process.hltEcalRawToRecHitFacility + process.hltEcalRegionalRestFEDs + process.hltEcalRecHitAll + process.hltEcalRawToRecHitByproductProducer + process.hltEBHltTask + process.hltEEHltTask + process.hltHcalDigis + process.hltL1tfed + process.hltSiPixelDigisWithErrors + process.hltSiPixelHLTSource + process.hltSiStripFEDCheck + process.hltMuonRPCDigis + process.hltRPCFEDIntegrity + process.hltBoolFalse )
 process.HLTriggerFinalPath = cms.Path( process.hltGtDigis + process.hltFEDSelector + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW + process.hltBoolTrue )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltL1GtTrigReport + process.hltTrigReport )
 process.HLTOutput = cms.EndPath( process.hltOutputA )
