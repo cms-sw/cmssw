@@ -83,7 +83,8 @@ def customise(process):
   process.newSource.ParticleGun.ExternalDecays.Tauola.InputCards.mdtau = options.mdtau 
 
   if options.overrideBeamSpot !=  0:
-    bs = cms.string("BeamSpotObjects_2009_v14_offline")
+    bs = cms.string("BeamSpotObjects_2009_LumiBased_v16_offline") # 38x data gt
+    #bs = cms.string("BeamSpotObjects_2009_v14_offline") # 36x data gt
     #  tag = cms.string("Early10TeVCollision_3p8cm_31X_v1_mc_START"), # 35 default
     #  tag = cms.string("Realistic900GeVCollisions_10cm_STARTUP_v1_mc"), # 36 default
     process.GlobalTag.toGet = cms.VPSet(
