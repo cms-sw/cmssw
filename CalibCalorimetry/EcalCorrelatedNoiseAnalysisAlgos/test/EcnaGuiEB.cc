@@ -2,7 +2,7 @@
 //
 //         E.C.N.A.  dialog box (GUI) for Barrel
 // 
-//         Update: 17/03/2010
+//         Update: 12/10/2010
 //
 //----------------------------------------------------
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaGui.h"
@@ -20,6 +20,8 @@
 #include "TObject.h"
 #include "TGWindow.h"
 
+#include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParPaths.h"
+
 extern void InitGui();
 VoidFuncPtr_t initfuncs[] = { InitGui, 0 };
 TROOT root("GUI","GUI test environnement", initfuncs);
@@ -28,19 +30,22 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-  cout << "*EcnaGuiEB> Starting ROOT session" << endl;
-  TRint theApp("App", &argc, argv);
+  TEcnaParPaths* pCnaParPaths = new TEcnaParPaths();
+  if( pCnaParPaths->GetPaths() == kTRUE )
+    {
+      cout << "*EcnaGuiEB> Starting ROOT session" << endl;
+      TRint theApp("App", &argc, argv);
+      
+      cout << "*EcnaGuiEB> Starting ECNA session" << endl;
+      TEcnaGui* mainWin = new TEcnaGui(gClient->GetRoot(), 395, 710, "EB");
+      Bool_t retVal = kTRUE;
+      theApp.Run(retVal);
+      cout << "*EcnaGuiEB> End of ECNA session." << endl;
+      delete mainWin;
 
-  cout << "*EcnaGuiEB> Starting ECNA session" << endl;
-  TEcnaGui* mainWin = new TEcnaGui(gClient->GetRoot(), 395, 680, "EB");
-  Bool_t retVal = kTRUE;
-  theApp.Run(retVal);
-  //theApp.Run();
-  cout << "*EcnaGuiEB> End of ECNA session." << endl;
-  delete mainWin;
-
-  cout << "*EcnaGuiEB> End of ROOT session." << endl;
-  theApp.Terminate(0);
-  cout << "*EcnaGuiEB> Exiting main program." << endl;
-  exit(0);
+      cout << "*EcnaGuiEB> End of ROOT session." << endl;
+      theApp.Terminate(0);
+      cout << "*EcnaGuiEB> Exiting main program." << endl;
+      exit(0);
+    }
 }
