@@ -1,10 +1,10 @@
 #!/bin/bash
 #CONDITIONS=FrontierConditions_GlobalTag,MC_3XY_V26::All
 #CONDITIONS=FrontierConditions_GlobalTag,START3X_V26::All
-CONDITIONS=FrontierConditions_GlobalTag,START36_V9::All
+CONDITIONS=FrontierConditions_GlobalTag,START38_V12::All
 
 cmsDriver.py TauAnalysis/MCEmbeddingTools/python/PFEmbeddingSource_cff \
-       -s GEN:ProductionFilterSequence,SIM,DIGI,L1,DIGI2RAW,HLT \
+       -s GEN:ProductionFilterSequence,SIM,DIGI,L1,DIGI2RAW,HLT:GRun \
        --no_exec \
        --conditions=${CONDITIONS} \
        --fileout=embedded_HLT.root  \
