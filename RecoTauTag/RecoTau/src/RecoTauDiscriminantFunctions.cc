@@ -11,49 +11,44 @@ namespace reco { namespace tau { namespace disc {
 // Helper functions
 namespace {
 
-  const PFCandidate& removeRef(const PFCandidateRef& pfRef)
-  {
-    return *pfRef;
-  }
+const PFCandidate& removeRef(const PFCandidateRef& pfRef) {
+  return *pfRef;
+}
 
-  const RecoTauPiZero& removeRef(const RecoTauPiZero& piZero)
-  {
-    return piZero;
-  }
+const RecoTauPiZero& removeRef(const RecoTauPiZero& piZero) {
+  return piZero;
+}
 
-  // A PFTau member function
-  template<typename Collection, typename Function>
-  VDouble extract(const Collection& cands, Function func)
-  {
-    // #define CALL_MEMBER_FN(object,ptrToMember)  ((object).*(ptrToMember))
-    VDouble output;
-    output.reserve(cands.size());
-    for(typename Collection::const_iterator cand = cands.begin(); cand != cands.end(); ++cand) {
-      output.push_back(func(removeRef(*cand)));
+// A PFTau member function
+template<typename Collection, typename Function>
+VDouble extract(const Collection& cands, Function func) {
+  // #define CALL_MEMBER_FN(object,ptrToMember)  ((object).*(ptrToMember))
+  VDouble output;
+  output.reserve(cands.size());
+  for(typename Collection::const_iterator cand = cands.begin();
+      cand != cands.end(); ++cand) {
+    output.push_back(func(removeRef(*cand)));
+  }
+  return output;
+}
+
+class DeltaRToAxis {
+  public:
+    DeltaRToAxis(const reco::Candidate::LorentzVector& axis):axis_(axis){}
+    double operator()(const Candidate& cand)
+    {
+      return deltaR(cand.p4(), axis_);
     }
-    return output;
-  }
-
-  class DeltaRToAxis {
-    public:
-      DeltaRToAxis(const reco::Candidate::LorentzVector& axis):axis_(axis){}
-      double operator()(const Candidate& cand)
-      {
-        return deltaR(cand.p4(), axis_);
-      }
-    private:
-      const reco::Candidate::LorentzVector& axis_;
-  };
+  private:
+    const reco::Candidate::LorentzVector& axis_;
+};
 
 } // end helper functions
 
 PFCandidateRef mainTrack(Tau tau) {
-  if (tau.signalPFChargedHadrCands().size() ==  3)
-  {
-    for (size_t itrk = 0; itrk < 3; ++itrk)
-    {
-      if (tau.signalPFChargedHadrCands()[itrk]->charge() * 
-          tau.charge() < 0)
+  if (tau.signalPFChargedHadrCands().size() ==  3) {
+    for (size_t itrk = 0; itrk < 3; ++itrk) {
+      if (tau.signalPFChargedHadrCands()[itrk]->charge() * tau.charge() < 0)
         return tau.signalPFChargedHadrCands()[itrk];
     }
   }
@@ -72,9 +67,9 @@ PFCandidateRefVector notMainTrack(Tau tau)
   return output;
 }
 
-double OutlierN(Tau tau) { 
+double OutlierN(Tau tau) {
   return tau.isolationPFChargedHadrCands().size() +
-    tau.isolationPiZeroCandidates().size();
+      tau.isolationPiZeroCandidates().size();
 }
 
 double OutlierNCharged(Tau tau) {
@@ -98,7 +93,7 @@ double MainTrackAngle(Tau tau) {
 
 double OutlierSumPt(Tau tau) {
   return tau.isolationPFChargedHadrCandsPtSum() +
-    tau.isolationPFGammaCandsEtSum();
+      tau.isolationPFGammaCandsEtSum();
 }
 
 double ChargedOutlierSumPt(Tau tau) {
@@ -145,7 +140,8 @@ VDouble OutlierAngle(Tau tau) {
 }
 
 VDouble ChargedOutlierPt(Tau tau) {
-  return extract(tau.isolationPFChargedHadrCands(), std::mem_fun_ref(&PFCandidate::pt));
+  return extract(tau.isolationPFChargedHadrCands(),
+                 std::mem_fun_ref(&PFCandidate::pt));
 }
 
 VDouble ChargedOutlierAngle(Tau tau) {
@@ -153,7 +149,8 @@ VDouble ChargedOutlierAngle(Tau tau) {
 }
 
 VDouble NeutralOutlierPt(Tau tau) {
-  return extract(tau.isolationPFGammaCands(), std::mem_fun_ref(&PFCandidate::pt));
+  return extract(tau.isolationPFGammaCands(),
+                 std::mem_fun_ref(&PFCandidate::pt));
 }
 
 VDouble NeutralOutlierAngle(Tau tau) {
@@ -166,12 +163,11 @@ VDouble Dalitz(Tau tau) {
   PFCandidateRef main = mainTrack(tau);
   if(main.isNonnull()) {
     output.reserve(tau.signalPFCands().size() - 1);
-    for(PFCandidateRefVector::const_iterator signalCand = tau.signalPFCands().begin();
-        signalCand != tau.signalPFCands().end(); ++signalCand)
-    {
-      if(*signalCand != main)
-      {
-        reco::Candidate::LorentzVector system = main->p4() + (*signalCand)->p4();
+    for(PFCandidateRefVector::const_iterator signalCand =
+        tau.signalPFCands().begin();
+        signalCand != tau.signalPFCands().end(); ++signalCand) {
+      if(*signalCand != main) {
+        reco::Candidate::LorentzVector system = main->p4()+(*signalCand)->p4();
         output.push_back(system.mass());
       }
     }
