@@ -699,6 +699,16 @@ public:
             ps.addUntrackedParameter(label, value);
       }
 
+   void editFileInPath(edm::ParameterSet &ps, bool tracked,
+                       const std::string &label,
+                       const std::string &value)
+      {
+        if (tracked)
+          ps.addParameter(label, edm::FileInPath(value));
+        else
+          ps.addUntrackedParameter(label, edm::FileInPath(value));
+      }
+
    bool editVInputTag(edm::ParameterSet &ps, bool tracked,
                       const std::string &label,
                       const std::string &value)
@@ -941,6 +951,9 @@ public:
                   break;
                case 'v':
                   editVInputTag(parent.pset, data.tracked, data.label, m_editor->GetText());
+                  break;
+               case 'F':
+                  editFileInPath(parent.pset, data.tracked, data.label, m_editor->GetText());
                   break;
                default:
                   std::cerr << "unsupported parameter" << std::endl;
@@ -1227,8 +1240,7 @@ public:
         }
       case 'F':
         {
-          entry.getFileInPath().write(ss);
-          createScalarString(data, ss.str());
+          createScalarString(data, entry.getFileInPath().relativePath());
           break;
         }
       case 'e':
