@@ -20,7 +20,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "PhysicsTools/KinFitter/interface/TFitParticleEtEtaPhi.h"
 #include "TMath.h"
-
+#include <cmath>
 
 //----------------
 // Constructor --
@@ -142,7 +142,7 @@ void TFitParticleEtEtaPhi::setIni4Vec(const TLorentzVector* pini) {
     
   } else {
     
-    Double_t et = pini->E()*fabs(sin(pini->Theta()));
+    Double_t et = pini->E()*std::fabs(sin(pini->Theta()));
     Double_t eta = pini->Eta();
     Double_t phi = pini->Phi();
     
@@ -205,7 +205,7 @@ TMatrixD* TFitParticleEtEtaPhi::transform(const TLorentzVector& vec) {
 
   // retrieve parameters
   TMatrixD* tparams = new TMatrixD( _nPar, 1 );
-  (*tparams)(0,0) = vec.E()*fabs(sin(vec.Theta()));
+  (*tparams)(0,0) = vec.E()*std::fabs(sin(vec.Theta()));
   (*tparams)(1,0) = vec.Eta();
   (*tparams)(2,0) = vec.Phi();
 
