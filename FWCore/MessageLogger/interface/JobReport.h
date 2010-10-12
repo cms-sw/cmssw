@@ -16,18 +16,14 @@ at appropriate intervales, reports the information to the job report,
 through the MessageLogger.
 
 */
-
 //
 // Original Author:  Marc Paterno
 //
 
-
 /*
-
 Changes Log 1: 2009/01/14 10:29:00, Natalia Garcia Nebot
-	Modified and added some methods to report CPU and memory information from /proc/cpuinfo
-	and /proc/meminfo files and Memory statistics
-
+        Modified and added some methods to report CPU and memory information from /proc/cpuinfo
+        and /proc/meminfo files and Memory statistics
 */
 
 #include <cstddef>
@@ -57,21 +53,19 @@ namespace edm {
       */
 
       struct LumiSectionReport {
-	unsigned int  runNumber;
-	unsigned int lumiSectionId;
-	/// So far we are proceeding without extra information, but
-	/// this may be added in the future...
-	///unsigned int startEvent;
-	///unsigned int lastEvent;
-	///std::string lumiStartTime;
-	///std::string lumiEndTime;
-
+        unsigned int  runNumber;
+        unsigned int lumiSectionId;
+        /// So far we are proceeding without extra information, but
+        /// this may be added in the future...
+        ///unsigned int startEvent;
+        ///unsigned int lastEvent;
+        ///std::string lumiStartTime;
+        ///std::string lumiEndTime;
       };
 
       struct RunReport {
-	RunNumber runNumber;
-	std::set<unsigned int> lumiSections;
-
+        RunNumber runNumber;
+        std::set<unsigned int> lumiSections;
       };
 
       /**\struct InputFile
@@ -89,13 +83,13 @@ namespace edm {
         std::string     logicalFileName;
         std::string     physicalFileName;
         std::string     catalog;
-        std::string	inputType; // primaryFiles, secondaryFiles, mixingFiles
+        std::string     inputType; // primaryFiles, secondaryFiles, mixingFiles
         std::string     inputSourceClassName; // class which created the file
         std::string     moduleLabel;   // name of class instance
         std::string     guid;
         size_t          numEventsRead;
         StringVector    branchNames;
-	std::map<RunNumber, RunReport> runReports;
+        std::map<RunNumber, RunReport> runReports;
         bool            fileHasBeenClosed;
       };
 
@@ -119,12 +113,12 @@ namespace edm {
         std::string     moduleLabel;   // name of class instance
         std::string     guid;
         std::string     dataType;
-	std::string     branchHash;
+        std::string     branchHash;
         size_t          numEventsWritten;
         StringVector    branchNames;
         std::vector<Token> contributingInputs;
         std::map<std::string, bool> fastCopyingInputs;
-	std::map<RunNumber, RunReport> runReports;
+        std::map<RunNumber, RunReport> runReports;
         bool            fileHasBeenClosed;
       };
 
@@ -160,32 +154,32 @@ namespace edm {
          */
         void openInputFiles(std::vector<Token>& tokens);
 
-	/*
-	 * Get a vector of Tokens for all currently open output files
-	 * Used to add lumi sections to open files
-	 */
+        /*
+         * Get a vector of Tokens for all currently open output files
+         * Used to add lumi sections to open files
+         */
         void openOutputFiles(std::vector<Token>& tokens);
 
-	/*
-	 * Associate a Lumi Section to all open output files
-	 *
-	 */
-	void associateLumiSection(unsigned int runNumber, unsigned int lumiSection);
+        /*
+         * Associate a Lumi Section to all open output files
+         *
+         */
+        void associateLumiSection(unsigned int runNumber, unsigned int lumiSection);
 
 
-	/*
-	 * Associate a Lumi Section to all open input files
-	 *
-	 */
-	void associateInputLumiSection(unsigned int runNumber, unsigned int lumiSection);
-	/*
-	 * Associate a run to all open output files
-	 */
-	void associateRun(unsigned int runNumber);
-	/*
-	 * Associate a run to all open output files
-	 */
-	void associateInputRun(unsigned int runNumber);
+        /*
+         * Associate a Lumi Section to all open input files
+         *
+         */
+        void associateInputLumiSection(unsigned int runNumber, unsigned int lumiSection);
+        /*
+         * Associate a run to all open output files
+         */
+        void associateRun(unsigned int runNumber);
+        /*
+         * Associate a run to all open output files
+         */
+        void associateInputRun(unsigned int runNumber);
 
         /*
          * Write an InputFile object to the Logger
@@ -209,16 +203,16 @@ namespace edm {
          */
         void writeOutputFile(OutputFile const& f);
 
-	/*
-	 * Add Generator info to the map of gen info stored in this
-	 * instance.
-	 */
-	void addGeneratorInfo(std::string const& name, std::string const& value);
+        /*
+         * Add Generator info to the map of gen info stored in this
+         * instance.
+         */
+        void addGeneratorInfo(std::string const& name, std::string const& value);
 
-	/*
-	 * Write out generator info to the job report
-	 */
-	void writeGeneratorInfo(void);
+        /*
+         * Write out generator info to the job report
+         */
+        void writeGeneratorInfo(void);
 
 
         /*
@@ -230,7 +224,7 @@ namespace edm {
 
         std::vector<InputFile> inputFiles_;
         std::vector<OutputFile> outputFiles_;
-	std::map<std::string, std::string> generatorInfo_;
+        std::map<std::string, std::string> generatorInfo_;
         std::ostream* ost_;
       };
 
@@ -251,13 +245,13 @@ namespace edm {
       /// The returned Token should be used for later identification
       /// of this file.
       Token inputFileOpened(std::string const& physicalFileName,
-			    std::string const& logicalFileName,
-			    std::string const& catalog,
-			    std::string const& inputType,
-			    std::string const& inputSourceClassName,
-			    std::string const& moduleLabel,
+                            std::string const& logicalFileName,
+                            std::string const& catalog,
+                            std::string const& inputType,
+                            std::string const& inputSourceClassName,
+                            std::string const& moduleLabel,
                             std::string const& guid,
-			    std::vector<std::string> const& branchNames);
+                            std::vector<std::string> const& branchNames);
 
       /// Report that the event with the given id has been read from
       /// the file identified by the given Token.
@@ -279,14 +273,14 @@ namespace edm {
       /// The returned Token should be used for later identification
       /// of this file.
       Token outputFileOpened(std::string const& physicalFileName,
-			     std::string const& logicalFileName,
-			     std::string const& catalog,
-			     std::string const& outputModuleClassName,
-			     std::string const& moduleLabel,
-			     std::string const& guid,
-			     std::string const& dataType,
-			     std::string const& branchHash,
-			     std::vector<std::string> const& branchNames);
+                             std::string const& logicalFileName,
+                             std::string const& catalog,
+                             std::string const& outputModuleClassName,
+                             std::string const& moduleLabel,
+                             std::string const& guid,
+                             std::string const& dataType,
+                             std::string const& branchHash,
+                             std::vector<std::string> const& branchNames);
 
       /// Report that the event with the given id has been written to
       /// the file identified by the given Token.
@@ -340,11 +334,11 @@ namespace edm {
       /// (Eg "XXX crashed because...")
       /// Also overload this method to accept an optional standard exit code
       void  reportError(std::string const& shortDesc,
-			std::string const& longDesc);
+                        std::string const& longDesc);
 
       void reportError(std::string const& shortDesc,
-		       std::string const& longDesc,
-		       int const& exitCode);
+                       std::string const& longDesc,
+                       int const& exitCode);
 
       ///
       /// Report Skipped File
@@ -354,7 +348,7 @@ namespace edm {
       void reportSkippedFile(std::string const& pfn, std::string const& lfn);
 
       void reportAnalysisFile(std::string const& fileName,
-			      std::map<std::string, std::string> const& fileData) ;
+                              std::map<std::string, std::string> const& fileData) ;
 
       ///
       /// Report Memory statistics
@@ -371,9 +365,6 @@ namespace edm {
       /// for inclusion in the job report
       ///
       void reportMessageInfo(std::map<std::string, double> const& messageData);
-
-      /// Report Storage Statistics
-      void reportStorageStats(std::string const& data);
 
       /// Override the list of input files seen by an output file
       /// for use with EdmFastMerge
@@ -409,11 +400,11 @@ namespace edm {
       /// Each one requires a performance metric class such
       /// as Timing, Memory, CPU, Trigger etc.
       void reportPerformanceSummary(std::string const&  metricClass,
-				    std::map<std::string, std::string> const& metrics);
+                                    std::map<std::string, std::string> const& metrics);
 
       void reportPerformanceForModule(std::string const&  metricClass,
-				      std::string const&  moduleName,
-				      std::map<std::string, std::string> const& metrics);
+                                      std::string const&  moduleName,
+                                      std::map<std::string, std::string> const& metrics);
 
       /// debug/test util
       std::string dumpFiles(void);
