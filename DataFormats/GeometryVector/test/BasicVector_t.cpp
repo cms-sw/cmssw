@@ -83,4 +83,9 @@ int main() {
     addScaleddiff(vz,0.1,vx,vy);
     std::cout << vz << std::endl;
  }
+
+ std::cout << "std::vector" << std::endl;
+ std::vector<Basic3DVectorF> vec1; vec1.reserve(50);
+ std::vector<float> vecf(21);
+ std::vector<Basic3DVectorF> vec2(51);
 }
