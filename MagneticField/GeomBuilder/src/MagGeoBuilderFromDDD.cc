@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/11/04 13:37:40 $
- *  $Revision: 1.27 $
+ *  $Date: 2010/10/13 15:26:08 $
+ *  $Revision: 1.28 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -59,6 +59,7 @@ using namespace std;
 
 MagGeoBuilderFromDDD::MagGeoBuilderFromDDD(string tableSet_, bool debug_, bool overrideMasterSector_) :
   tableSet (tableSet_),
+  geometryVersion(0),
   overrideMasterSector(overrideMasterSector_)
 {  
   debug = debug_;
