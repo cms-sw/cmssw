@@ -2,7 +2,7 @@
 //
 //         E.C.N.A.  dialog box (GUI) for Barrel
 // 
-//         Update: 12/10/2010
+//         Update: 13/10/2010
 //
 //----------------------------------------------------
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaGui.h"
@@ -31,7 +31,9 @@ using namespace std;
 int main(int argc, char **argv)
 {
   TEcnaParPaths* pCnaParPaths = new TEcnaParPaths();
-  if( pCnaParPaths->GetPaths() == kTRUE )
+  if( pCnaParPaths->fPathForResultsRootFiles    == kTRUE &&
+      pCnaParPaths->fPathForResultsAsciiFiles   == kTRUE &&
+      pCnaParPaths->fPathForHistoryRunListFiles == kTRUE )
     {
       cout << "*EcnaGuiEB> Starting ROOT session" << endl;
       TRint theApp("App", &argc, argv);

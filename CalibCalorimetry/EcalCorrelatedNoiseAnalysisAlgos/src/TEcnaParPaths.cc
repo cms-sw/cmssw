@@ -1,6 +1,6 @@
 //---------Author's Name: B.Fabbro DSM/IRFU/SPP CEA-Saclay
 //----------Copyright: Those valid for CEA sofware
-//----------Modified: 17/03/2010
+//----------Modified: 13/10/2010
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParPaths.h"
 
 ClassImp(TEcnaParPaths)
@@ -71,7 +71,14 @@ void  TEcnaParPaths::Init()
   fCnaCommand = 0;
   fCnaError   = 0;
 
+  //................ Init path flags
+
+  fPathForResultsRootFiles    = kFALSE;
+  fPathForResultsAsciiFiles   = kFALSE;
+  fPathForHistoryRunListFiles = kFALSE;
+
 }// end of Init()
+
 
 //=======================================================================================
 //
@@ -126,6 +133,7 @@ void TEcnaParPaths::GetPathForResultsRootFiles(const TString argFileName)
       fFcin_rr >> xResultsFileP;
       fCfgResultsRootFilePath = xResultsFileP.c_str();
       fFcin_rr.close();
+      fPathForResultsRootFiles = kTRUE;
     }
   else
     {
@@ -147,6 +155,7 @@ void TEcnaParPaths::GetPathForResultsRootFiles(const TString argFileName)
 	   << fTTBELL << endl;
 
       fFcin_rr.close();
+      fPathForResultsRootFiles = kFALSE;
     }
 } // ----------- (end of GetPathForResultsRootFiles) --------------------
 
@@ -198,6 +207,7 @@ void TEcnaParPaths::GetPathForResultsAsciiFiles(const TString argFileName)
       fFcin_ra >> xResultsFileP;
       fCfgResultsAsciiFilePath = xResultsFileP.c_str();
       fFcin_ra.close();
+      fPathForResultsAsciiFiles = kTRUE;
     }
   else
     {
@@ -219,6 +229,7 @@ void TEcnaParPaths::GetPathForResultsAsciiFiles(const TString argFileName)
 	   << fTTBELL << endl;
 
       fFcin_ra.close();
+      fPathForResultsAsciiFiles = kFALSE;
     }
 } // ----------- (end of GetPathForResultsAsciiFiles) --------------------
 
@@ -270,6 +281,7 @@ void TEcnaParPaths::GetPathForHistoryRunListFiles(const TString argFileName)
       fFcin_lor >> xHistoryRunListP;
       fCfgHistoryRunListFilePath = xHistoryRunListP.c_str();
       fFcin_lor.close();
+      fPathForHistoryRunListFiles = kTRUE;
     }
   else
     {
@@ -291,6 +303,7 @@ void TEcnaParPaths::GetPathForHistoryRunListFiles(const TString argFileName)
 	   << fTTBELL << endl;
 
       fFcin_lor.close();
+      fPathForHistoryRunListFiles = kFALSE;
     }
 } // ----------- (end of GetPathForHistoryRunListFiles) --------------------
 

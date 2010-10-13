@@ -54,7 +54,21 @@ class TEcnaParPaths : public TObject {
   TString fCfgCMSSWSlc;            // CMSSW slc... name
   TString fFileForCMSSWParameters; // name of the file containing the CMSSW version, subsystem and slc
 
-  //.......................................... private methods
+
+
+ public:
+
+  Bool_t fPathForResultsRootFiles;
+  Bool_t fPathForResultsAsciiFiles;
+  Bool_t fPathForHistoryRunListFiles;
+
+  //..... Methods
+
+           TEcnaParPaths();
+  virtual  ~TEcnaParPaths();
+
+  void     Init();
+
   void GetPathForResultsRootFiles();
   void GetPathForResultsAsciiFiles();
   void GetPathForHistoryRunListFiles();
@@ -66,15 +80,6 @@ class TEcnaParPaths : public TObject {
   void GetPathForHistoryRunListFiles(const TString);
   //  void GetPathForAnalyzerParametersFiles(const TString);
   void GetCMSSWParameters(const TString);
-
- public:
-
-  //..... Methods
-
-           TEcnaParPaths();
-  virtual  ~TEcnaParPaths();
-
-  void     Init();
 
   TString ResultsRootFilePath();
   TString ResultsAsciiFilePath();
