@@ -1,4 +1,16 @@
-autoSkim = { 'Mu' : 'WZMu+LogError',
-             'Electron' : 'WZEG+LogError',
-             'Photon' : 'WZEG+LogError'
-             }
+autoSkim = {
+    'MinimumBias':'MuonTrack+HSCP+BeamBkg+LogError+ValSkim+TPG ',
+    'ZeroBias':'LogError',
+    'Commissioning':'DT+L1MuBit+RPC+MuonTrack+CSCHLT+CSCAlone+LogError',
+    'Cosmics':'CSC+CosmicSP+LogError ',
+    'Mu' : 'WZMu+TPG+LogError',    
+    'EGMonitor':'EcalRH+TPG+LogError ',
+    'EG':'WZEG+LogError ',
+    'Electron':'WZEG+LogError',
+    'Photon':'WZEG+LogError',
+    'JetMETtau':'TPG',
+    'JetMET':'DiJet',
+    'BTau':'LogError',
+    'Jet':'HTSD+LogError+DiJet',
+    'METFwd':'LogError'
+    }
