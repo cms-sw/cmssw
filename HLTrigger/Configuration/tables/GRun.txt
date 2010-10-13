@@ -21,6 +21,7 @@ HLT_DiJetAve100U_v3
 HLT_DiJetAve140U_v3
 HLT_DoubleJet15U_ForwardBackward_v3
 HLT_DoubleJet25U_ForwardBackward_v3
+HLT_DoubleJet35U_ForwardBackward_v3
 HLT_ExclDiJet30U_HFAND_v3
 HLT_ExclDiJet30U_HFOR_v3
 HLT_DiJet20U_Meff175U_v3
@@ -70,6 +71,7 @@ HLT_Mu13_v1
 HLT_Mu15_v1
 HLT_Mu17_v1
 HLT_Mu19_v1
+HLT_Mu30_NoVertex_v1
 HLT_IsoMu9_v3
 HLT_IsoMu11_v3
 HLT_IsoMu13_v3
@@ -78,14 +80,14 @@ HLT_L1DoubleMuOpen
 HLT_DoubleMu0
 HLT_DoubleMu3_v2
 HLT_DoubleMu5_v1
-HLT_DoubleMu0_Quarkonium_LS_v1
+HLT_DoubleMu0_Quarkonium_v1
 HLT_Mu5_L2Mu0
 HLT_Mu3_Track3_Jpsi
 HLT_Mu3_Track5_Jpsi_v1
 HLT_Mu5_Track0_Jpsi
-HLT_Mu0_TkMu0_OST_Jpsi
-HLT_Mu3_TkMu0_OST_Jpsi
-HLT_Mu5_TkMu0_OST_Jpsi
+HLT_Mu0_TkMu0_OST_Jpsi_Tight_v1
+HLT_Mu3_TkMu0_OST_Jpsi_Tight_v1
+HLT_Mu5_TkMu0_OST_Jpsi_Tight_v1
 HLT_L1SingleEG8
 HLT_Ele10_SW_L1R
 HLT_Ele17_SW_L1R
