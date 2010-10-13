@@ -66,6 +66,15 @@ class _SimpleParameterTypeBase(_ParameterTypeBase):
         return str(self._value)
     def pythonValue(self, options=PrintOptions()):
         return self.configValue(options)
+    def __eq__(self,other):
+        if isinstance(other,_SimpleParameterTypeBase):
+            return self._value == other._value
+        return self._value == other
+    def __ne__(self,other):
+        if isinstance(other,_SimpleParameterTypeBase):
+            return self._value != other._value
+        return self._value != other
+
 
 class UsingBlock(_SimpleParameterTypeBase):
     """For injection purposes, pretend this is a new parameter type
