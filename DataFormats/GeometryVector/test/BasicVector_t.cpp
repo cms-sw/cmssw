@@ -49,6 +49,8 @@ int main() {
   std::cout << "sse vector enabled in cmssw" << std::endl;
 #endif
 
+  std::cout << sizeof(Basic3DVectorF) << std::endl;
+  std::cout << sizeof(Basic3DVectorD) << std::endl;
 
   Basic3DVectorF  x(2.0f,4.0f,5.0f);
   Basic3DVectorF  y(-3.0f,2.0f,-5.0f);
@@ -90,4 +92,5 @@ int main() {
  std::vector<Basic3DVectorF> vec1; vec1.reserve(50);
  std::vector<float> vecf(21);
  std::vector<Basic3DVectorF> vec2(51);
+ std::vector<Basic3DVectorF> vec3; vec3.reserve(23456);
 }
