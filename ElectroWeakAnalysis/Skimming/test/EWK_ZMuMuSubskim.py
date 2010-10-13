@@ -8,14 +8,14 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 # source
 process.source = cms.Source("PoolSource", 
      fileNames = cms.untracked.vstring(
-    'file:/scratch1/cms/data/relval_382/zmm/62C86D62-BFAF-DF11-85B3-003048678A6C.root'
+    '/store/relval/CMSSW_3_8_5/RelValZMM/GEN-SIM-RECO/START38_V12-v1/0041/1C1BBE0B-D2D2-DF11-BDA3-002618943852.root'
     )
 )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('START38_V9::All')
+process.GlobalTag.globaltag = cms.string('START38_V12::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ############
@@ -31,7 +31,7 @@ process.load("ElectroWeakAnalysis.Skimming.zMuMu_SubskimPathsWithMCTruth_cff")
 process.zMuMuSubskimOutputModule.outputCommands.extend(process.mcEventContent.outputCommands)
 ############
 
-process.zMuMuSubskimOutputModule.fileName = 'testZMuMuSubskim.root'
+process.zMuMuSubskimOutputModule.fileName = 'file:/tmp/fabozzi/testZMuMuSubskim.root'
 
 process.outpath = cms.EndPath(process.zMuMuSubskimOutputModule)
 

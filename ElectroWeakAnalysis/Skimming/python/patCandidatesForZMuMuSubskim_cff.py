@@ -106,19 +106,19 @@ from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import *
 patTrigger.triggerResults = cms.InputTag( "TriggerResults::HLT" )
 patTrigger.triggerEvent = cms.InputTag( "hltTriggerSummaryAOD::HLT" )
 
-muonTriggerMatchHLTMuons = cms.EDProducer( "PATTriggerMatcherDRDPtLessByR",
+muonTriggerMatchHLTMuons = cms.EDProducer( "PATTriggerMatcherDRLessByR",
     src     = cms.InputTag( "selectedPatMuons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),
     filterIdsEnum  = cms.vstring( 'TriggerMuon' ), # 'TriggerMuon' is the enum from trigger::TriggerObjectType for HLT muons
     filterIds      = cms.vint32( 0 ),
     filterLabels   = cms.vstring( '*' ),
-    pathNames      = cms.vstring( 'HLT_Mu9' ),
+    pathNames      = cms.vstring( 'HLT_Mu11' ),
     collectionTags = cms.vstring( '*' ),
-    maxDPtRel = cms.double( 1.0 ),
+    maxDPtRel = cms.double( 1000.0 ),
     maxDeltaR = cms.double( 0.2 ),
     resolveAmbiguities    = cms.bool( True ),
-    resolveByMatchQuality = cms.bool( False )
+    resolveByMatchQuality = cms.bool( True )
 )
 
 from PhysicsTools.PatAlgos.triggerLayer1.triggerEventProducer_cfi import *

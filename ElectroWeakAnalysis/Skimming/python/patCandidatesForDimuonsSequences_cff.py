@@ -91,7 +91,7 @@ from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import *
 patTrigger.triggerResults = cms.InputTag( "TriggerResults::HLT" )
 patTrigger.triggerEvent = cms.InputTag( "hltTriggerSummaryAOD::HLT" )
 
-muonTriggerMatchHLTMuons = cms.EDProducer( "PATTriggerMatcherDRDPtLessByR",
+muonTriggerMatchHLTMuons = cms.EDProducer( "PATTriggerMatcherDRLessByR",
     src     = cms.InputTag( "selectedPatMuons" ),
     matched = cms.InputTag( "patTrigger" ),
     andOr          = cms.bool( False ),

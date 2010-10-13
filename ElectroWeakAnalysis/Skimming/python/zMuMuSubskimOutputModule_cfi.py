@@ -20,7 +20,8 @@ zMuMuSubskimOutputModule = cms.OutputModule("PoolOutputModule",
       'keep *_dimuonsOneTrackerMuon_*_*',
       ### to access vertex information
       'keep *_offlineBeamSpot_*_*',
-      'keep *_offlinePrimaryVerticesWithBS_*_*',
+      'keep *_offlinePrimaryVertices_*_*',
+      #'keep *_offlinePrimaryVerticesWithBS_*_*',
       ### to save jet information
       #'keep *_sisCone5CaloJets_*_*',
       #'keep *_ak5CaloJets_*_*',
