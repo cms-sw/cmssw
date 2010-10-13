@@ -31,6 +31,8 @@ EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::Paramete
         outOfTimeThreshEE_ = ps.getParameter<double>("outOfTimeThresholdEE");
         amplitudeThreshEB_ = ps.getParameter<double>("amplitudeThresholdEB");
         amplitudeThreshEE_ = ps.getParameter<double>("amplitudeThresholdEE");
+	outOfTimeIfGain12OnlyEB_ = ps.getParameter<bool>("outOfTimeIfGain12OnlyEB");
+	outOfTimeIfGain12OnlyEE_ = ps.getParameter<bool>("outOfTimeIfGain12OnlyEE");
         ebSpikeThresh_ = ps.getParameter<double>("ebSpikeThreshold");
         // leading edge parameters
         ebPulseShape_ = ps.getParameter<std::vector<double> >("ebPulseShape");
@@ -216,18 +218,17 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                                 uncalibRecHit.setJitter( crh.timeMax - 5 );
                                 uncalibRecHit.setJitterError( std::sqrt(pow(crh.timeError,2) + std::pow(EEtimeConstantTerm_,2)/std::pow(clockToNsConstant,2)) );
                                 uncalibRecHit.setOutOfTimeEnergy( crh.amplitudeMax );
-                                if (uncalibRecHit.amplitude() > pedRMSVec[1] * amplitudeThreshEE_){
-                                  int maxGain=1;
-                                  //Currently do not accound for gain switch; C term may need adjustment
-                                  //int maxGain=-1;
-                                  //for (int iSample = 0; iSample < EEDataFrame::MAXSAMPLES; iSample++) {
-                                  //  int GainId = ((EcalDataFrame)(*itdg)).sample(iSample).gainId();
-                                  //  if (GainId>maxGain) maxGain=GainId;
-                                  //}
-                                  if (maxGain>0){
+                                if (uncalibRecHit.amplitude() > pedRMSVec[1] * amplitudeThreshEE_){ // why pedRMSVec[1] ? 
+                                  // determine if gain has switched away from gainId==1 (x12 gain) to possibly veto flagging kOutOfTime
+				  bool allSamplesInGain12(true);
+                                  for (int iSample = 0; iSample < EEDataFrame::MAXSAMPLES; iSample++) {
+                                    int GainId = ((EcalDataFrame)(*itdg)).sample(iSample).gainId();
+                                    if (GainId!=1)  allSamplesInGain12 = false;
+                                  }
+                                  if ( (outOfTimeIfGain12OnlyEE_ && allSamplesInGain12) || (!outOfTimeIfGain12OnlyEE_) ){
                                     float correctedTime = (crh.timeMax-5) * clockToNsConstant + itimeconst;    
                                     float cterm=EEtimeConstantTerm_;
-                                    float sigmaped=pedRMSVec[maxGain - 1];
+                                    float sigmaped=pedRMSVec[0];
                                     float nterm=EEtimeNconst_*sigmaped/uncalibRecHit.amplitude();
                                     float sigmat=std::sqrt( nterm*nterm  + cterm*cterm   );
                                     
@@ -244,29 +245,26 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                                 uncalibRecHit.setJitter( crh.timeMax - 5 );
                                 uncalibRecHit.setJitterError( std::sqrt(std::pow(crh.timeError,2) + std::pow(EBtimeConstantTerm_,2)/std::pow(clockToNsConstant,2)) );
                                 uncalibRecHit.setOutOfTimeEnergy( crh.amplitudeMax );
-                                if (uncalibRecHit.amplitude() > pedRMSVec[1] * amplitudeThreshEB_){
-                                  int maxGain=1;
-                                  //Currently do not accound for gain switch; C term may need adjustment
-                                  //int maxGain=-1;
-                                  //for (int iSample = 0; iSample < EBDataFrame::MAXSAMPLES; iSample++) {
-                                  //  int GainId = ((EcalDataFrame)(*itdg)).sample(iSample).gainId();
-                                  //  if (GainId>maxGain) maxGain=GainId;
-                                  //}
-                                  if (maxGain>0){
+                                if (uncalibRecHit.amplitude() > pedRMSVec[1] * amplitudeThreshEB_){ // why pedRMSVec[1] ? 
+                                  // determine if gain has switched away from gainId==1 (x12 gain) to possibly veto flagging kOutOfTime
+				  bool allSamplesInGain12(true);
+                                  for (int iSample = 0; iSample < EBDataFrame::MAXSAMPLES; iSample++) {
+                                    int GainId = ((EcalDataFrame)(*itdg)).sample(iSample).gainId();
+                                    if (GainId!=1)  allSamplesInGain12 = false;
+                                  }
+                                  if ( (outOfTimeIfGain12OnlyEB_ && allSamplesInGain12) || (!outOfTimeIfGain12OnlyEB_) ){
                                     float correctedTime = (crh.timeMax-5) * clockToNsConstant + itimeconst;    
                                     float cterm=EBtimeConstantTerm_;
-                                    float sigmaped=pedRMSVec[maxGain - 1];
+                                    float sigmaped=pedRMSVec[0];
                                     float nterm=EBtimeNconst_*sigmaped/uncalibRecHit.amplitude();
                                     float sigmat=std::sqrt( nterm*nterm  + cterm*cterm   );
-                                  
+                                    
                                     if ( fabs(correctedTime) > sigmat*outOfTimeThreshEB_ ) {
                                       uncalibRecHit.setRecoFlag( EcalUncalibratedRecHit::kOutOfTime );
                                     }
                                   }
-                                }
-
-
-                }
+				}
+		}
 		    
 
 		// === chi2express ===
