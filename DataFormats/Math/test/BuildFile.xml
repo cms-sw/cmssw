@@ -1,5 +1,4 @@
 <library   file="ReadMath.cc,WriteMath.cc,SealModule.cc" name="DataFormatsMath_test">
-  <use   name="DataFormats/Math"/>
   <use   name="FWCore/Framework"/>
   <use   name="DataFormats/Common"/>
   <flags   EDM_PLUGIN="1"/>
