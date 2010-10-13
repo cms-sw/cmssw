@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Andres Carrillo Montoya
 //         Created:  Wed Sep 16 14:56:18 CEST 2009
-// $Id: RPCPointProducer.cc,v 1.6 2010/07/18 23:19:45 carrillo Exp $
+// $Id: RPCPointProducer.cc,v 1.7 2010/07/19 10:43:56 carrillo Exp $
 //
 //
 
@@ -36,7 +36,6 @@ RPCPointProducer::RPCPointProducer(const edm::ParameterSet& iConfig)
   incldt=iConfig.getUntrackedParameter<bool>("incldt",true);
   inclcsc=iConfig.getUntrackedParameter<bool>("inclcsc",true);
   incltrack=iConfig.getUntrackedParameter<bool>("incltrack",false);
-  inclsimhit=iConfig.getUntrackedParameter<bool>("inclsimhit",false);
   MinCosAng=iConfig.getUntrackedParameter<double>("MinCosAng",0.95);
   MaxD=iConfig.getUntrackedParameter<double>("MaxD",80.);
   MaxDrb4=iConfig.getUntrackedParameter<double>("MaxDrb4",150.);
@@ -100,19 +99,6 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       iEvent.put(TheTrackPoints,"RPCTrackExtrapolatedPoints");
     }else{
       std::cout<<"RPCHLT Invalid Tracks collection"<<std::endl;
-    }
-  }
-
-  if(inclsimhit){
-    std::vector<edm::Handle<edm::PSimHitContainer> > theSimHitContainers;
-    iEvent.getManyByType(theSimHitContainers);
-    if(!(theSimHitContainers.empty())){
-      int partid = 13;
-      SIMHITtoRPC SIMHITClass(theSimHitContainers,iSetup,iEvent,debug,partid);
-      std::auto_ptr<RPCRecHitCollection> TheSIMHITPoints(SIMHITClass.thePoints());  
-      iEvent.put(TheSIMHITPoints,"RPCSIMHITPoints"); 
-    }else{
-      if(debug) std::cout<<"RPCHLT Empty SIMHIT collection"<<std::endl;
     }
   }
   */
