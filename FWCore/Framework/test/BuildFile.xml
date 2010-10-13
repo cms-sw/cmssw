@@ -128,6 +128,7 @@
   <use   name="DataFormats/Common"/>
   <use   name="DataFormats/Provenance"/>
   <use   name="DataFormats/TestObjects"/>
+  <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/Utilities"/>
   <use   name="FWCore/Version"/>
