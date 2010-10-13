@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_8_5/GRun/V10 (CMSSW_3_8_1_HLT20)
+# /dev/CMSSW_3_8_5/GRun/V11 (CMSSW_3_8_1_HLT20)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_5/GRun/V10')
+  tableName = cms.string('/dev/CMSSW_3_8_5/GRun/V11')
 )
 
 streams = cms.PSet( 
@@ -12750,7 +12750,7 @@ hltL1TechBSCminBiasOR = cms.EDFilter( "TriggerResultsFilter",
     l1tIgnoreMask = cms.bool( False ),
     daqPartitions = cms.uint32( 1 ),
     throw = cms.bool( True ),
-    l1techIgnorePrescales = cms.bool( False )
+    l1techIgnorePrescales = cms.bool( True )
 )
 hltPreMultiVertex6 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
@@ -12828,7 +12828,7 @@ hltL1TechBSCminBias = cms.EDFilter( "TriggerResultsFilter",
     l1tIgnoreMask = cms.bool( False ),
     daqPartitions = cms.uint32( 1 ),
     throw = cms.bool( True ),
-    l1techIgnorePrescales = cms.bool( False )
+    l1techIgnorePrescales = cms.bool( True )
 )
 hltPreL1TechBSChalo = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
@@ -12843,7 +12843,7 @@ hltL1TechBSChalo = cms.EDFilter( "TriggerResultsFilter",
     l1tIgnoreMask = cms.bool( False ),
     daqPartitions = cms.uint32( 1 ),
     throw = cms.bool( True ),
-    l1techIgnorePrescales = cms.bool( False )
+    l1techIgnorePrescales = cms.bool( True )
 )
 hltPreL1TechBSChalo_forPhysicsBackground = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" )
@@ -12888,7 +12888,7 @@ hltL1TechHCALHF = cms.EDFilter( "TriggerResultsFilter",
     l1tIgnoreMask = cms.bool( False ),
     daqPartitions = cms.uint32( 1 ),
     throw = cms.bool( True ),
-    l1techIgnorePrescales = cms.bool( False )
+    l1techIgnorePrescales = cms.bool( True )
 )
 hltL1sTrackerCosmics = cms.EDFilter( "HLTLevel1GTSeed",
     L1UseL1TriggerObjectMaps = cms.bool( True ),
@@ -13945,6 +13945,12 @@ hltEEHltTask = cms.EDAnalyzer( "EEHltTask",
     EcalElectronicsIdCollection6 = cms.InputTag( 'hltEcalRawToRecHitByproductProducer','EcalIntegrityMemGainErrors' ),
     FEDRawDataCollection = cms.InputTag( "rawDataCollector" )
 )
+hltESFEDIntegrityTask = cms.EDAnalyzer( "ESFEDIntegrityTask",
+    prefixME = cms.untracked.string( "EcalPreshower" ),
+    ESDCCCollections = cms.InputTag( "NotUsed" ),
+    ESKChipCollections = cms.InputTag( "NotUsed" ),
+    FEDRawDataCollection = cms.InputTag( "rawDataCollector" )
+)
 hltL1tfed = cms.EDAnalyzer( "L1TFED",
     rawTag = cms.InputTag( "rawDataCollector" ),
     DQMStore = cms.untracked.bool( True ),
@@ -14279,7 +14285,7 @@ AlCa_EcalEta = cms.Path( HLTBeginSequenceBPTX + hltL1sAlCaEcalPi0Eta8E29 + hltPr
 AlCa_RPCMuonNoHits = cms.Path( HLTBeginSequenceBPTX + hltL1sAlCaRPC + hltPreRPCMuonNoHits + HLTmuonlocalrecoSequence + hltRPCPointProducer + hltRPCFilter + HLTEndSequence )
 AlCa_RPCMuonNoTriggers = cms.Path( HLTBeginSequenceBPTX + hltL1sAlCaRPC + hltPreRPCMuonNoTriggers + hltRPCMuonNoTriggersL1Filtered0 + HLTmuonlocalrecoSequence + HLTEndSequence )
 AlCa_RPCMuonNormalisation = cms.Path( HLTBeginSequenceBPTX + hltL1sAlCaRPC + hltPreRPCMuonNorma + hltRPCMuonNormaL1Filtered0 + HLTmuonlocalrecoSequence + HLTEndSequence )
-DQM_FEDIntegrity_v2 = cms.Path( HLTBeginSequence + hltPreFEDIntegrity + hltCSCMonitorModule + hltDTDQMEvF + hltEcalRawToRecHitFacility + hltEcalRegionalRestFEDs + hltEcalRecHitAll + hltEcalRawToRecHitByproductProducer + hltEBHltTask + hltEEHltTask + hltHcalDigis + hltL1tfed + hltSiPixelDigisWithErrors + hltSiPixelHLTSource + hltSiStripFEDCheck + hltMuonRPCDigis + hltRPCFEDIntegrity + hltBoolFalse )
+DQM_FEDIntegrity_v2 = cms.Path( HLTBeginSequence + hltPreFEDIntegrity + hltCSCMonitorModule + hltDTDQMEvF + hltEcalRawToRecHitFacility + hltEcalRegionalRestFEDs + hltEcalRecHitAll + hltEcalRawToRecHitByproductProducer + hltEBHltTask + hltEEHltTask + hltESFEDIntegrityTask + hltHcalDigis + hltL1tfed + hltSiPixelDigisWithErrors + hltSiPixelHLTSource + hltSiStripFEDCheck + hltMuonRPCDigis + hltRPCFEDIntegrity + hltBoolFalse )
 HLTriggerFinalPath = cms.Path( hltGtDigis + hltFEDSelector + hltTriggerSummaryAOD + hltTriggerSummaryRAW + hltBoolTrue )
 HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + hltTrigReport )
 
