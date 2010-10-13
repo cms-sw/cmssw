@@ -5,7 +5,7 @@
 #define USE_SSEVECT
 #endif
 
-#if defined(USE_SSEVECT) && ! defined(__REFLEX__)
+#if defined(USE_SSEVECT) && ! ( defined(__REFLEX__) || defined(__CINT__) )
 #include "DataFormats/GeometryVector/interface/newBasic3DVector.h"
 #else
 #include "DataFormats/GeometryVector/interface/oldBasic3DVector.h"
