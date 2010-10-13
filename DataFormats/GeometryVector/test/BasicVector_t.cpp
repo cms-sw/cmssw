@@ -1,5 +1,7 @@
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 
+#include<vector>
+
 #include<iostream>
 
 // this is a test,
