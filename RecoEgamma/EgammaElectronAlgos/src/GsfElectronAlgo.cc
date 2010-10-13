@@ -459,7 +459,7 @@ void GsfElectronAlgo::process(
     // calculate Trajectory StatesOnSurface....
     if (!calculateTSOS(*gsfTrackRef,theClus, bs)) continue ;
     mtsMode_->momentumFromModeCartesian(vtxTSOS_,vtxMom_) ;
-    sclPos_=sclTSOS_.globalPosition() ;
+    mtsMode_->positionFromModeCartesian(sclTSOS_,sclPos_) ;
 
     // H/E
     double HoE1 = 0. ;
@@ -667,17 +667,22 @@ void GsfElectronAlgo::createElectron
   // various useful positions and momemtums
   GlobalVector innMom, seedMom, eleMom, sclMom, outMom ;
   mtsMode_->momentumFromModeCartesian(innTSOS_,innMom) ;
-  GlobalPoint innPos=innTSOS_.globalPosition() ;
+  GlobalPoint innPos ;
+  mtsMode_->positionFromModeCartesian(innTSOS_,innPos) ;
   mtsMode_->momentumFromModeCartesian(seedTSOS_,seedMom) ;
-  GlobalPoint  seedPos=seedTSOS_.globalPosition() ;
+  GlobalPoint  seedPos ;
+  mtsMode_->positionFromModeCartesian(seedTSOS_,seedPos) ;
   mtsMode_->momentumFromModeCartesian(eleTSOS_,eleMom) ;
-  GlobalPoint  elePos=eleTSOS_.globalPosition() ;
+  GlobalPoint  elePos ;
+  mtsMode_->positionFromModeCartesian(eleTSOS_,elePos) ;
   mtsMode_->momentumFromModeCartesian(sclTSOS_,sclMom) ;
   // sclPos_ already here
   // vtxMom_ already here
-  GlobalPoint vtxPos=vtxTSOS_.globalPosition() ;
+  GlobalPoint vtxPos ;
+  mtsMode_->positionFromModeCartesian(vtxTSOS_,vtxPos) ;
   mtsMode_->momentumFromModeCartesian(outTSOS_,outMom);
-  GlobalPoint outPos=outTSOS_.globalPosition() ;
+  GlobalPoint outPos ;
+  mtsMode_->positionFromModeCartesian(outTSOS_,outPos) ;
   GlobalVector vtxMomWithConstraint;
   mtsMode_->momentumFromModeCartesian(constrainedVtxTSOS_,vtxMomWithConstraint);
 
@@ -925,7 +930,7 @@ bool  GsfElectronAlgo::calculateTSOS(const GsfTrack &t,const SuperCluster & theC
     //at scl
     sclTSOS_ = mtsTransform_->extrapolatedState(innTSOS_,GlobalPoint(theClus.x(),theClus.y(),theClus.z()));
     if (!sclTSOS_.isValid()) sclTSOS_=outTSOS_;
-
+    
     // constrained momentum
     constrainedVtxTSOS_ = constraintAtVtx_->constrainAtBeamSpot(t,bs);
 
