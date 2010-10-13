@@ -55,12 +55,15 @@ namespace edm {
     void selectProducts();
     std::string const& processName() const {return process_name_;}
     SelectionsArray const& keptProducts() const {return keptProducts_;}
+    boost::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
 
     static void fillDescription(ParameterSetDescription & desc);
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
     static const std::string& baseType();
 
     BranchChildren const& branchChildren() const {return branchChildren_;}
+
+    bool wantAllEvents() const {return wantAllEvents_;}
 
   protected:
     //Trig const& getTriggerResults(Event const& ep) const;
@@ -77,8 +80,6 @@ namespace edm {
     CurrentProcessingContext const* currentContext() const;
 
     ModuleDescription const& description() const;
-
-    bool wantAllEvents() const {return wantAllEvents_;}
 
     ParameterSetID selectorConfig() const { return selector_config_id_; }
 
@@ -103,6 +104,7 @@ namespace edm {
     //
     // We do not own the BranchDescriptions to which we point.
     SelectionsArray keptProducts_;
+    boost::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
 
     std::string process_name_;
     GroupSelectorRules groupSelectorRules_;

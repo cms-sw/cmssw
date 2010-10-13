@@ -134,6 +134,7 @@ namespace edm {
       skipAnyEvents_(skipAnyEvents),
       noEventSort_(noEventSort),
       whyNotFastClonable_(0),
+      hasNewlyDroppedBranch_(),
       reportToken_(0),
       eventAux_(),
       eventTree_(filePtr_, InEvent, treeMaxVirtualSize, treeCacheSize, input::defaultLearningEntries),
@@ -153,6 +154,8 @@ namespace edm {
       branchChildren_(new BranchChildren),
       duplicateChecker_(duplicateChecker),
       provenanceAdaptor_() {
+
+    hasNewlyDroppedBranch_.assign(false);
 
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InLumi]  = &lumiTree_;
@@ -515,6 +518,7 @@ namespace edm {
                                                      runTree_.tree(),
                                                      runTree_.metaTree(),
                                                      whyNotFastClonable(),
+                                                     hasNewlyDroppedBranch(),
                                                      file_,
                                                      branchChildren_));
   }
@@ -1510,6 +1514,7 @@ namespace edm {
             << "that was explicitly dropped.\n";
         }
         treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
+        hasNewlyDroppedBranch_[prod.branchType()] = true;
         ProductRegistry::ProductList::iterator icopy = it;
         ++it;
         prodList.erase(icopy);

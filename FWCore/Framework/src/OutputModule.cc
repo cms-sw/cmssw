@@ -114,6 +114,7 @@ namespace edm {
     maxEvents_(-1),
     remainingEvents_(maxEvents_),
     keptProducts_(),
+    hasNewlyDroppedBranch_(),
     process_name_(),
     groupSelectorRules_(pset, "outputCommands", "OutputModule"),
     groupSelector_(),
@@ -125,6 +126,8 @@ namespace edm {
     selector_config_id_(),
     branchParents_(),
     branchChildren_() {
+
+    hasNewlyDroppedBranch_.assign(false);
 
     Service<service::TriggerNamesService> tns;
     process_name_ = tns->getProcessName();
@@ -191,6 +194,8 @@ namespace edm {
         keptProducts_[desc.branchType()].push_back(&desc);
       } else {
         // otherwise, output nothing,
+        // and mark the fact that there is a newly dropped branch of this type.
+        hasNewlyDroppedBranch_[desc.branchType()] = true;
       }
     }
   }
