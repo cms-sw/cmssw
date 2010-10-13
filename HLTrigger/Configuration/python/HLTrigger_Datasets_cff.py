@@ -1,4 +1,4 @@
-# /dev/CMSSW_3_8_5/GRun/V12
+# /dev/CMSSW_3_8_5/GRun/V13
 
 import FWCore.ParameterSet.Config as cms
 
@@ -244,7 +244,9 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetPhoton_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetPhoton_selector.l1tResults = cms.InputTag('')
 streamA_datasetPhoton_selector.throw      = cms.bool(False)
-streamA_datasetPhoton_selector.triggerConditions = cms.vstring('HLT_DoublePhoton5_CEP_L1R_v3', 
+streamA_datasetPhoton_selector.triggerConditions = cms.vstring('HLT_DoublePhoton17_SingleIsol_L1R_v1', 
+    'HLT_DoublePhoton22_L1R_v1', 
+    'HLT_DoublePhoton5_CEP_L1R_v3', 
     'HLT_Photon110_NoHE_Cleaned_L1R_v1', 
     'HLT_Photon17Isol_SC17HE_L1R_v1', 
     'HLT_Photon20_Cleaned_L1R', 
