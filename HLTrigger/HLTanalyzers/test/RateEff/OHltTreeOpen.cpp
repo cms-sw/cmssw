@@ -1215,15 +1215,6 @@ void OHltTree::CheckOpenHlt(OHltConfig *cfg,OHltMenu *menu,OHltRateCounter *rcou
   }     
 
 ////////////////////////////////////////////////////////////////////////
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu0_v1") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-      if (prescaleResponse(menu,cfg,rcounter,it)) {
-        if(OpenHlt1MuonPassed(0.,0.,0.,2.,0)>=1) {
-          triggerBit[it] = true;
-        }
-      }
-    }
-  }
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Mu3") == 0) {  
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
       if (prescaleResponse(menu,cfg,rcounter,it)) {
@@ -3377,6 +3368,62 @@ else if (menu->GetTriggerName(it).CompareTo("OpenHLT_BTagMu_Jet10") == 0) {
       }  
     }  
   }  
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_MET65_CenJet50U") == 0) {        
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {           
+      if(OpenHlt1JetPassed(50,2.6)>=1 && recoMetCal>=65) {                                    
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }            
+      }                                                                                   
+    }                                                                                     
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_MET65_CenJet50U_EMF") == 0) {        
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {           
+      if(OpenHlt1JetPassed(50,2.6,0.02,0.98)>=1 && recoMetCal>=65) {                                    
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }            
+      }                                                                                   
+    }                                                                                     
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_MET80_CenJet50U") == 0) {        
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {           
+      if(OpenHlt1JetPassed(50,2.6)>=1 && recoMetCal>=80) {                                    
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }            
+      }                                                                                   
+    }                                                                                     
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_MET80_CenJet50U_EMF") == 0) {        
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {           
+      if(OpenHlt1JetPassed(50,2.6,0.02,0.98)>=1 && recoMetCal>=80) {                                    
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }            
+      }                                                                                   
+    }                                                                                     
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_MET100_CenJet50U") == 0) {        
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {           
+      if(OpenHlt1JetPassed(50,2.6)>=1 && recoMetCal>=100) {                                    
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }            
+      }                                                                                   
+    }                                                                                     
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_MET100_CenJet50U_EMF") == 0) {        
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {           
+      if(OpenHlt1JetPassed(50,2.6,0.02,0.98)>=1 && recoMetCal>=100) {                                    
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }            
+      }                                                                                   
+    }                                                                                     
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_MET45_DiJet30U") == 0) {        
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {           
+      if(OpenHlt1JetPassed(30)>=2 && recoMetCal>=45) {                                    
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }            
+      }                                                                                   
+    }                                                                                     
+  }
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_MET45_HT70U") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) { 
+      if(OpenHltSumHTPassed(70,20)>=1 && recoMetCal>=45) {                                                       
+        if (prescaleResponse(menu,cfg,rcounter,it)) { triggerBit[it] = true; }
+      }
+    }
+  } 
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_MET45_HT100U") == 0) {  
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {  
       if (prescaleResponse(menu,cfg,rcounter,it)) { 
@@ -5512,6 +5559,38 @@ int OHltTree::OpenHlt1JetPassed(double pt)
   // Loop over all oh jets 
   for (int i=0;i<NrecoJetCal;i++) {
     if(recoJetCalPt[i]>pt) {  // Jet pT cut
+      rc++;
+    }
+  }
+
+  return rc;
+}
+
+int OHltTree::OpenHlt1JetPassed(double pt, double etamax)
+{
+  int rc = 0;
+  //ccla
+  // Loop over all oh jets 
+  for (int i=0;i<NrecoJetCal;i++) {
+    if(recoJetCalPt[i]>pt && fabs(recoJetCalEta[i])<etamax ) {  // Jet pT cut
+      rc++;
+    }
+  }
+
+  return rc;
+}
+
+int OHltTree::OpenHlt1JetPassed(double pt, double etamax, double emfmin, double emfmax)
+{
+  int rc = 0;
+  //ccla
+  // Loop over all oh jets 
+  for (int i=0;i<NrecoJetCal;i++) {
+    if(recoJetCalPt[i]>pt && 
+       fabs(recoJetCalEta[i])<etamax && 
+       recoJetCalEMF[i] > emfmin &&
+       recoJetCalEMF[i] < emfmax
+       ) {  // Jet pT cut
       rc++;
     }
   }
