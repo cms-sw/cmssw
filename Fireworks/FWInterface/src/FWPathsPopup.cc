@@ -837,7 +837,6 @@ public:
         return fail;
       }
   
-
   template <typename T>
   void editVectorParameter(edm::ParameterSet &ps, bool tracked,
                            const std::string &label,
@@ -917,10 +916,10 @@ public:
                   editNumericParameter<double>(parent.pset, data.tracked, data.label, m_editor->GetText());
                   break;
                case 'L':
-                  editNumericParameter<int64_t>(parent.pset, data.tracked, data.label, m_editor->GetText());
+                  editNumericParameter<long long>(parent.pset, data.tracked, data.label, m_editor->GetText());
                   break;
                case 'X':
-                  editNumericParameter<int64_t>(parent.pset, data.tracked, data.label, m_editor->GetText());
+                  editNumericParameter<unsigned long long>(parent.pset, data.tracked, data.label, m_editor->GetText());
                   break;
                case 'S':
                   editStringParameter(parent.pset, data.tracked, data.label, m_editor->GetText());
@@ -932,10 +931,10 @@ public:
                   editVectorParameter<uint32_t>(parent.pset, data.tracked, data.label, m_editor->GetText());
                   break;
                case 'l':
-                  editVectorParameter<int64_t>(parent.pset, data.tracked, data.label, m_editor->GetText());
+                  editVectorParameter<long long>(parent.pset, data.tracked, data.label, m_editor->GetText());
                   break;
                case 'x':
-                  editVectorParameter<uint64_t>(parent.pset, data.tracked, data.label, m_editor->GetText());
+                  editVectorParameter<unsigned long long>(parent.pset, data.tracked, data.label, m_editor->GetText());
                   break;
                case 'd':
                   editVectorParameter<double>(parent.pset, data.tracked, data.label, m_editor->GetText());
