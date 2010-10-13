@@ -30,10 +30,6 @@ usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=True, postfix=postfix
 # to use tau-cleaned jet collection uncomment the following:
 #useTauCleanedPFJets(process, jetAlgo=jetAlgo, postfix=postfix)
 
-# turn to false when running on data
-getattr(process, "patElectrons"+postfix).embedGenMatch = True
-getattr(process, "patMuons"+postfix).embedGenMatch = True
-
 # Let it run
 process.p = cms.Path(
 #    process.patDefaultSequence  +
