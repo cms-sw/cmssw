@@ -54,7 +54,7 @@ class ParametersObject (object):
 
 def lslengthsec (numorbit, numbx):
     #print numorbit, numbx
-    l = numorbit * numbx * 25e-09
+    l = numorbit * numbx * 25.0e-09
     return l
 
 def lsBylsLumi (deadtable):
@@ -1072,9 +1072,9 @@ def runsummaryByrun(queryHandle,runnum):
         result.append(cursor.currentRow()['hltkey'].data())
         result.append(cursor.currentRow()['starttime'].data())
         result.append(cursor.currentRow()['stoptime'].data())
-    if len(result)!=5:
-        print 'wrong runsummary result'
-        raise
+    #if len(result)!=5:
+    #    print 'wrong runsummary result'
+    #    raise
     return result
 
 def lumisummaryByrun(queryHandle,runnum,lumiversion,beamstatus=None,beamenergy=None,beamenergyfluctuation=0.09):
