@@ -80,6 +80,28 @@ def loadPAT(process,JetMetCorrections,extMatch):
     #decay modes are dropped and have to be redone, this is a bit dangorous since the decay modes insered are *not* the ones used in RECO
     process.patTaus.addDecayMode = True
     process.makePatTaus.replace( process.patTaus, process.shrinkingConePFTauDecayModeProducer + process.patTaus )
+
+    #Additional electron ids as defined for VBTF
+    process.load("ElectroWeakAnalysis.WENu.simpleEleIdSequence_cff")
+    process.patElectrons.electronIDSources = cms.PSet(
+    eidTight = cms.InputTag("eidTight"),
+    eidLoose = cms.InputTag("eidLoose"),
+    eidRobustTight = cms.InputTag("eidRobustTight"),
+    eidRobustHighEnergy = cms.InputTag("eidRobustHighEnergy"),
+    eidRobustLoose = cms.InputTag("eidRobustLoose"),
+    simpleEleId95relIso= cms.InputTag("simpleEleId95relIso"),
+    simpleEleId90relIso= cms.InputTag("simpleEleId90relIso"),
+    simpleEleId85relIso= cms.InputTag("simpleEleId85relIso"),
+    simpleEleId80relIso= cms.InputTag("simpleEleId80relIso"),
+    simpleEleId70relIso= cms.InputTag("simpleEleId70relIso"),
+    simpleEleId60relIso= cms.InputTag("simpleEleId60relIso"),
+    simpleEleId95cIso= cms.InputTag("simpleEleId95cIso"),
+    simpleEleId90cIso= cms.InputTag("simpleEleId90cIso"),
+    simpleEleId85cIso= cms.InputTag("simpleEleId85cIso"),
+    simpleEleId80cIso= cms.InputTag("simpleEleId80cIso"),
+    simpleEleId70cIso= cms.InputTag("simpleEleId70cIso"),
+    simpleEleId60cIso= cms.InputTag("simpleEleId60cIso"))
+    process.makePatElectrons.replace(process.patElectrons,process.simpleEleIdSequence+process.patElectrons)
     
     #-- Tuning of Monte Carlo matching --------------------------------------------
     # Also match with leptons of opposite charge
@@ -209,6 +231,13 @@ def loadPF2PAT(process,mcInfo,JetMetCorrections,extMatch,doSusyTopProjection,pos
                                      process.pfUnclusteredMuonsPF + process.pfRelaxedMuonsPF)
     process.patMuonsPF.pfMuonSource  = "pfRelaxedMuonsPF"
     process.pfNoMuonPF.topCollection = "pfUnclusteredMuonsPF"
+    #Taus
+    process.pfTausPF.discriminators = cms.VPSet()
+    process.pfUnclusteredTausPF = process.pfTausPF.clone(
+        cut = cms.string("pt < 0")
+    )
+    process.pfTauSequencePF.replace(process.pfTausPF, process.pfTausPF+ process.pfUnclusteredTausPF)
+    process.pfNoTauPF.topCollection = "pfUnclusteredTausPF"
     
 
 def loadPATTriggers(process,HLTMenu,theJetNames,electronMatches,muonMatches,tauMatches,jetMatches,photonMatches):
@@ -286,6 +315,34 @@ def loadPATTriggers(process,HLTMenu,theJetNames,electronMatches,muonMatches,tauM
     #Add PF trigger matching
     process.patDefaultSequencePF += process.patTriggerSequencePF
 
+def addTypeIIMet(process) :
+    # Add reco::MET with Type II correction 
+    from PhysicsTools.PatAlgos.recoLayer0.jetMETCorrections_cff import metJESCorAK5CaloJet
+    process.metJESCorAK5CaloJetTypeII = metJESCorAK5CaloJet.clone()
+    process.metJESCorAK5CaloJetTypeII.useTypeII = True
+    process.metJESCorAK5CaloJetTypeII.hasMuonsCorr = False
+    # Add muon corrections for above II reco::MET
+    process.metJESCorAK5CaloJetMuonsTypeII = process.metJESCorAK5CaloJetMuons.clone(
+        uncorMETInputTag = cms.InputTag('metJESCorAK5CaloJetTypeII')
+        )
+    # Add to recoLayer0 sequence
+    process.patMETCorrections.replace(
+        process.metJESCorAK5CaloJet,
+        (process.metJESCorAK5CaloJetTypeII*
+         process.metJESCorAK5CaloJetMuonsTypeII)+
+        process.metJESCorAK5CaloJet
+        )
+    # Add pat::MET with Type II correction
+    process.patMETsAK5CaloTypeII = process.patMETs.clone(
+        metSource = cms.InputTag("metJESCorAK5CaloJetMuonsTypeII")
+        )
+    # Add to producersLayer1 sequence
+    process.makePatMETs.replace(
+        process.patMETs,
+        process.patMETs+
+        process.patMETsAK5CaloTypeII
+        )
+
 def addSUSYJetCollection(process,jets = 'IC5Calo',mcVersion='',doJTA=False,doType1MET=False,doJetID=True,jetIdLabel=None):
     if mcVersion == '35x':
         from PhysicsTools.PatAlgos.tools.cmsswVersionTools import addJetCollection35X as addJetCollection
@@ -358,6 +415,7 @@ def addJetMET(process,theJetNames,mcVersion):
     process.cleanPatJetsAK5Calo = process.cleanPatJets
     process.patMETsAK5Calo      = process.patMETs
     #process.patMHTsAK5Calo      = process.patMHTs
+    addTypeIIMet(process)
 
     # Modify subsequent modules
     process.patHemispheres.patJets = process.cleanPatJetsAK5Calo.label()
