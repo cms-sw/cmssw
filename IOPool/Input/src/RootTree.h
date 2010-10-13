@@ -68,7 +68,7 @@ namespace edm {
     TTree const* tree() const {return tree_;}
     TTree* tree() {return tree_;}
     TTree const* metaTree() const {return metaTree_;}
-    BranchMap const& branches() const {return *branches_;}
+    BranchMap const& branches() const;
     std::vector<ProductStatus> const& productStatuses() const {return productStatuses_;} // backward compatibility
 
     // below for backward compatibility

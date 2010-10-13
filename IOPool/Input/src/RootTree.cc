@@ -122,6 +122,9 @@ namespace edm {
       }
   }
 
+  input::BranchMap const&
+  RootTree::branches() const {return *branches_;}
+
   boost::shared_ptr<DelayedReader>
   RootTree::makeDelayedReader(FileFormatVersion const& fileFormatVersion) const {
     boost::shared_ptr<DelayedReader>
