@@ -22,7 +22,7 @@ def getPerLSData(dbsession,inputRange,lumiversion='0001'):
             runsummaryOut=[]  #[fillnum,sequence,hltkey,starttime,stoptime]
             lumisummaryOut=[] #[[cmslsnum,instlumi,numorbit,startorbit,beamstatus,beamenergy,cmsalive]]
             trgOut={} #{cmslsnum:[trgcount,deadtime,bitname,prescale]}
-            q=dbsession.nominalSchema().newQuery()
+            q=schema.newQuery()
             runsummaryOut=lumiQueryAPI.runsummaryByrun(q,run)
             del q
             q=schema.newQuery()
@@ -39,7 +39,7 @@ def getPerLSData(dbsession,inputRange,lumiversion='0001'):
     except Exception, e:
         dbsession.transaction().rollback()
         del dbsession
-        raise Exception, 'lumiValidate.getValidationData:'+str(e)
+        raise Exception, 'lumiCalc.getPerLSData:'+str(e)
     for run,perrundata in datacollector.items():
         result[run]=[]
         if len(perrundata)==0:
@@ -198,23 +198,23 @@ if __name__ == '__main__':
             runs=lsdata.keys()
             runs.sort()
             if not options.outputfile:
-                print 'cmslsnum, utctime, unixtimestamp, delivered, recorded'
+                print 'run,cmslsnum, utctime, unixtimestamp, delivered, recorded'
                 for run in runs:
                     if len(lsdata[run])==0:continue #empty or non-existing run
                     for perlsdata in lsdata[run]:
                         if len(perlsdata)==0:
                             continue
-                        print perlsdata[0],perlsdata[1],perlsdata[2],perlsdata[3],perlsdata[4]
+                        print run,perlsdata[0],perlsdata[1],perlsdata[2],perlsdata[3],perlsdata[4]
                             
             else:
                 report=csvReporter.csvReporter(options.outputfile)
-                report.writeRow(['cmslsnum','utctime','unixtimestamp','delivered','recorded'])
+                report.writeRow(['run','cmslsnum','utctime','unixtimestamp','delivered','recorded'])
                 for run in runs:
                     if len(lsdata[run])==0:continue #empty or non-existing run
                     for perlsdata in lsdata[run]:
                         if len(perlsdata)==0:
                             continue
-                        report.writeRow([perlsdata[0],perlsdata[1],perlsdata[2],perlsdata[3],perlsdata[4]])
+                        report.writeRow([run,perlsdata[0],perlsdata[1],perlsdata[2],perlsdata[3],perlsdata[4]])
                             
         if options.action=='lumibyls' or options.action=='lumibylsXing':
             recordeddata=lumiQueryAPI.recordedLumiForRange(session, parameters, inputRange)
