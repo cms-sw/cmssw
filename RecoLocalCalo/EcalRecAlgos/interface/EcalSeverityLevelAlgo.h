@@ -29,7 +29,8 @@ class EcalSeverityLevelAlgo {
                                           SpikeId spId = kSwissCross,
                                           float spIdThreshold = 0.95,
 					  float recHitEnergyThresholdForTiming = 2.,
-					  float recHitEnergyThresholdForEE = 1e+37
+					  float recHitEnergyThresholdForEE = 15,
+                                          float spIdThresholdIEta85 = 0.999
                                           );
 
                 /** return the estimator of the signal being a spike
@@ -45,6 +46,28 @@ class EcalSeverityLevelAlgo {
                  *  matrix of crystal
                  */
                 static float E1OverE9( const DetId id, const EcalRecHitCollection &, float recHitEtThreshold = 0. );
+
+		/**  
+		 *       
+                 *     | | | |
+                 *     +-+-+-+
+                 *     | |1|2|
+		 *     +-+-+-+
+		 *     | | | |
+		 * 
+		 *     1 - input hit,  2 - highest energy hit in a 3x3 around 1
+		 * 
+		 *     rechit 1 must have E_t > recHitEtThreshold
+		 *     rechit 2 must have E_t > recHitEtThreshold2
+		 * 
+		 *     function returns value of E2/E9 centered around 1 (E2=energy of hits 1+2) if energy of 1>2
+		 * 
+		 *     if energy of 2>1 and KillSecondHit is set to true, function returns value of E2/E9 centered around 2
+		 *     *provided* that 1 is the highest energy hit in a 3x3 centered around 2, otherwise, function returns 0
+                 */
+		static float E2overE9( const DetId id, const EcalRecHitCollection &, float recHitEtThreshold = 10.0 , 
+				       float recHitEtThreshold2 = 1.0 , bool avoidIeta85=false, bool KillSecondHit=true);
+
 
                 /** 1 - the ratio between the energy in the swiss cross around
                  * a crystal and the crystal energy (also called S4/S1, Rook)
