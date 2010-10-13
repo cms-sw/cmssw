@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/05/25 16:02:09 $
- *  $Revision: 1.12 $
+ *  $Date: 2010/04/20 09:56:19 $
+ *  $Revision: 1.13 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -95,6 +95,17 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
 	cout << "*** WARNING: volume has > 1 SpecPar " << pname << endl;
       }
       magFile = temp[0];
+
+      string find="[copyNo]";
+      std::size_t j;
+      for ( ; (j = magFile.find(find)) != string::npos ; ) {
+	stringstream conv;
+	conv << setfill('0') << setw(2) << copyno;
+	string repl;
+	conv >> repl;
+	magFile.replace(j, find.length(), repl);
+      }
+      
     } else {
       cout << "*** WARNING: volume does not have a SpecPar " << pname << endl;
       cout << " DDsvalues_type:  " << fv.mergedSpecifics() << endl;
@@ -112,8 +123,12 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
       }
       masterSector = int(temp[0]+.5);
     } else {
-      cout << "*** WARNING: volume does not have a SpecPar " << pname << endl;
-      cout << " DDsvalues_type:  " << fv.mergedSpecifics() << endl;
+      if (MagGeoBuilderFromDDD::debug) { 
+	cout << "Volume does not have a SpecPar " << pname 
+	     << " using: " << copyno << endl;
+	cout << " DDsvalues_type:  " << fv.mergedSpecifics() << endl;
+      }
+      masterSector = copyno;
     }  
   }
   

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/10/20 15:53:10 $
- *  $Revision: 1.26 $
+ *  $Date: 2009/11/04 13:37:40 $
+ *  $Revision: 1.27 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -57,8 +57,8 @@ bool MagGeoBuilderFromDDD::debug;
 
 using namespace std;
 
-MagGeoBuilderFromDDD::MagGeoBuilderFromDDD(string version_, bool debug_, bool overrideMasterSector_) :
-  version (version_),
+MagGeoBuilderFromDDD::MagGeoBuilderFromDDD(string tableSet_, bool debug_, bool overrideMasterSector_) :
+  tableSet (tableSet_),
   overrideMasterSector(overrideMasterSector_)
 {  
   debug = debug_;
@@ -152,7 +152,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
 	   go = fv.nextSibling();
      }
      if (!go) {
-	throw cms::Exception("NoMAGFinDDD")<<" Neither he top node, nor any child node of the DDCompactView is \"MAGF\" but the top node is instead \""<<topNodeName<<"\"";
+	throw cms::Exception("NoMAGFinDDD")<<" Neither the top node, nor any child node of the DDCompactView is \"MAGF\" but the top node is instead \""<<topNodeName<<"\"";
      }
   }
   // Loop over MAGF volumes and create volumeHandles. 
@@ -167,15 +167,6 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
     string name = fv.logicalPart().name().name();
     if (debug) cout << endl << "Name: " << name << endl
 			       << "      " << fv.geoHistory() <<endl;
-
-    // FIXME: special handling of version 85l_030919. This version is no 
-    //        longer supported and special handling for it may not work
-    //        anymore - it will eventually be removed.
-    // Build only the z-negative volumes, assuming symmetry
-    if (name.substr(2,2)=="ZP") {
-      doSubDets = fv.nextSibling();
-      continue;
-    }
     
     // FIXME: single-volyme cylinders - this is feature has been removed 
     //        and should be revisited.
@@ -325,15 +316,26 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
 
   //----------------------------------------------------------------------
   // Find endcap sectors
-
   vector<eSector> sectors; // the endcap sectors
-  precomputed_value_sort(eVolumes.begin(), eVolumes.end(), ExtractPhi()); 
- 
 
-  // ASSUMPTION: There are 12 sectors and each sector is 30 deg wide.
-  for (int i = 0; i<12; ++i) {
-    int offset = eVolumes.size()/12;
-    //    int isec = (i+binOffset)%12;
+  // Find the number of sectors (should be 12 or 24 depending on the geometry model)
+  float phireso = 0.05; // rad
+  ClusterizingHistogram hisPhi( int((Geom::ftwoPi())/phireso) + 1,
+				-Geom::fpi(), Geom::fpi());
+  
+  for (handles::const_iterator i=eVolumes.begin(); i!=eVolumes.end(); ++i){
+    hisPhi.fill((*i)->minPhi());
+  }
+  vector<float> phiClust = hisPhi.clusterize(phireso);
+  int nESectors = phiClust.size();
+  if (debug && (nESectors%12)!=0) cout << "ERROR: unexpected # of sectors: " << nESectors << endl;
+
+  //Sort in phi
+  precomputed_value_sort(eVolumes.begin(), eVolumes.end(), ExtractPhi());
+
+  //Group volumes in sectors
+  for (int i = 0; i<nESectors; ++i) {
+    int offset = eVolumes.size()/nESectors;
     if (debug) cout << " Sector at phi = "
 		    << (*(eVolumes.begin()+((i)*offset)))->center().phi()
 		    << endl;
@@ -486,23 +488,8 @@ void MagGeoBuilderFromDDD::buildMagVolumes(const handles & volumes, map<string, 
 
 void MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle * vol, map<string, MagProviderInterpol*> & interpolators){
 
-
-  // FIXME: special handling of version 85l_030919. This version is no 
-  //        longer supported and special handling for it may not work
-  //        anymore - it will eventually be removed.
-  // In version grid_85l_030919, interpolators should be built only 
-  // for volumes on NEGATIVE z 
-  // (Z symmetry in field tables)
-  if (version=="grid_85l_030919" && vol->center().z()>0) return;
-
   // Phi of the master sector
   double masterSectorPhi = (vol->masterSector-1)*Geom::pi()/6.;
-  //FIXME: special handling of version 85l_030919 (see FIXME above). 
-  // In ver. grid_85l_030919, the master sector was sector 4 
-  // (along Y axis).
-  if (version=="grid_85l_030919") {
-    masterSectorPhi=Geom::pi()/2.;
-  } 
 
   if (debug) {
     cout << "Building interpolator from "
@@ -517,7 +504,7 @@ void MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle * vol, map<strin
     }
   }
 
-  if (version == "fake") {
+  if (tableSet == "fake") {
     interpolators[vol->magFile] = new magneticfield::FakeInterpolator();
     return;
   }
@@ -525,7 +512,7 @@ void MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle * vol, map<strin
   string fullPath;
 
   try {
-    edm::FileInPath mydata("MagneticField/Interpolation/data/"+version+"/"+vol->magFile);
+    edm::FileInPath mydata("MagneticField/Interpolation/data/"+tableSet+"/"+vol->magFile);
     fullPath = mydata.fullPath();
   } catch (edm::Exception& exc) {
     cerr << "MagGeoBuilderFromDDD: exception in reading table; " << exc.what() << endl;
@@ -670,8 +657,7 @@ float MagGeoBuilderFromDDD::maxR() const{
   //FIXME: should get it from the actual geometry - MAGF is an option, 
   //       but that is not changed together the geometry itself 
   //       (it lives in cmsMagneticField.xml in CMSCommonData)
-  if (version=="grid_85l_030919") return 1000.;
-  else return 900.;
+  return 900.;
 }
 
 float MagGeoBuilderFromDDD::maxZ() const{
