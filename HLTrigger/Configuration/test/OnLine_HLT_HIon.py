@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_8_5/HIon/V11 (CMSSW_3_8_1_HLT20)
+# /dev/CMSSW_3_8_5/HIon/V12 (CMSSW_3_8_1_HLT21)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_5/HIon/V11')
+  tableName = cms.string('/dev/CMSSW_3_8_5/HIon/V12')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -2658,6 +2658,8 @@ process.hltPreDQMSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_DoubleMu3_v2',
       'HLT_DoubleMu5_v1',
       'HLT_DoublePhoton5_CEP_L1R_v3',
+      'HLT_DoublePhoton17_SingleIsol_L1R_v1',
+      'HLT_DoublePhoton22_L1R_v1',
       'HLT_EcalCalibration / 0',
       'HLT_EcalOnly_SumEt160_v3',
       'HLT_Ele10_SW_L1R',
@@ -2838,6 +2840,8 @@ process.hltPreHLTDQMSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_DoubleMu3_v2',
       'HLT_DoubleMu5_v1',
       'HLT_DoublePhoton5_CEP_L1R_v3',
+      'HLT_DoublePhoton17_SingleIsol_L1R_v1',
+      'HLT_DoublePhoton22_L1R_v1',
       'HLT_EcalOnly_SumEt160_v3',
       'HLT_Ele10_SW_L1R',
       'HLT_Ele17_SW_Isol_L1R_v1',
@@ -3028,6 +3032,8 @@ process.hltPreHLTMONSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_DoubleMu3_v2',
       'HLT_DoubleMu5_v1',
       'HLT_DoublePhoton5_CEP_L1R_v3',
+      'HLT_DoublePhoton17_SingleIsol_L1R_v1',
+      'HLT_DoublePhoton22_L1R_v1',
       'HLT_EcalOnly_SumEt160_v3',
       'HLT_Ele10_SW_L1R',
       'HLT_Ele17_SW_Isol_L1R_v1',
@@ -3626,6 +3632,16 @@ process.HLTDQMResultsOutput = cms.EndPath( process.hltPreHLTDQMResults + process
 process.HLTMONOutput = cms.EndPath( process.hltPreHLTMON + process.hltPreHLTMONSmart + process.hltOutputHLTMON )
 process.NanoDSTOutput = cms.EndPath( process.hltPreNanoDST + process.hltOutputNanoDST )
 
+
+# HIon paths in smart prescalers
+if 'hltPreHLTDQMSmart' in process.__dict__:
+    process.hltPreHLTDQMSmart.throw = cms.bool( False )
+if 'hltPreHLTMONSmart' in process.__dict__:
+    process.hltPreHLTMONSmart.throw = cms.bool( False )
+if 'hltPreExpressSmart' in process.__dict__:
+    process.hltPreExpressSmart.throw = cms.bool( False )
+if 'hltPreDQMSmart' in process.__dict__:
+    process.hltPreDQMSmart.throw = cms.bool( False )
 
 # override the preshower baseline setting for MC
 if 'ESUnpackerWorkerESProducer' in process.__dict__:
