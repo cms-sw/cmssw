@@ -3,7 +3,7 @@
 
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
-#include "DataFormats/Provenance/interface/EventAuxiliary.h" 
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "FWCore/Version/interface/GetFileFormatVersion.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -47,7 +47,7 @@ namespace edm {
   namespace {
     bool
     sorterForJobReportHash(BranchDescription const* lh, BranchDescription const* rh) {
-      return 
+      return
         lh->fullClassName() < rh->fullClassName() ? true :
         lh->fullClassName() > rh->fullClassName() ? false :
         lh->moduleLabel() < rh->moduleLabel() ? true :
@@ -65,6 +65,7 @@ namespace edm {
       reportToken_(0),
       om_(om),
       whyNotFastClonable_(om_->whyNotFastClonable()),
+      canFastCloneAux_(!om_->hasNewlyDroppedBranch()[InEvent]),
       filePtr_(TFile::Open(file_.c_str(), "recreate", "", om_->compressionLevel())),
       fid_(),
       eventEntryNumber_(0LL),
@@ -96,13 +97,13 @@ namespace edm {
       branchesWithStoredHistory_() {
 
     eventTree_.addAuxiliary<EventAuxiliary>(BranchTypeToAuxiliaryBranchName(InEvent),
-                                            pEventAux_, om_->auxItems()[InEvent].basketSize_); 
+                                            pEventAux_, om_->auxItems()[InEvent].basketSize_);
     eventTree_.addAuxiliary<ProductProvenanceVector>(BranchTypeToBranchEntryInfoBranchName(InEvent),
                                                      pEventEntryInfoVector_, om_->auxItems()[InEvent].basketSize_);
     eventTree_.addAuxiliary<EventSelectionIDVector>(poolNames::eventSelectionsBranchName(),
-                                                    pEventSelectionIDs_, om_->auxItems()[InEvent].basketSize_); 
+                                                    pEventSelectionIDs_, om_->auxItems()[InEvent].basketSize_);
     eventTree_.addAuxiliary<BranchListIndexes>(poolNames::branchListIndexesBranchName(),
-                                               pBranchListIndexes_, om_->auxItems()[InEvent].basketSize_); 
+                                               pBranchListIndexes_, om_->auxItems()[InEvent].basketSize_);
 
     lumiTree_.addAuxiliary<LuminosityBlockAuxiliary>(BranchTypeToAuxiliaryBranchName(InLumi),
                                                      pLumiAux_, om_->auxItems()[InLumi].basketSize_);
@@ -165,7 +166,7 @@ namespace edm {
     char const underscore = '_';
     for(std::vector<BranchDescription const*>::const_iterator it = branches.begin(), itEnd = branches.end(); it != itEnd; ++it) {
       BranchDescription const& bd = **it;
-      oss <<  bd.fullClassName() << underscore
+      oss << bd.fullClassName() << underscore
           << bd.moduleLabel() << underscore
           << bd.productInstanceName() << underscore
           << bd.processName() << underscore;
@@ -200,7 +201,7 @@ namespace edm {
 
       // There will be a message stating every reason that fast cloning was not possible.
       // If at one or more of the reasons was because of something the user explicitly specified (e.g. event selection, skipping events),
-      //   or if the input file was in an old format, the message will be informational.  Otherwise, the message will be a warning.
+      // or if the input file was in an old format, the message will be informational.  Otherwise, the message will be a warning.
       bool isWarning = true;
       std::ostringstream message;
       message << "Fast copying of file " << ifileName << " to file " << ofileName << " is disabled because:\n";
@@ -276,6 +277,10 @@ namespace edm {
 
   void RootOutputFile::beginInputFile(FileBlock const& fb, int remainingEvents) {
 
+    // Reset per input file information
+    whyNotFastClonable_ = om_->whyNotFastClonable();
+    canFastCloneAux_ = false;
+
     if(fb.tree() != 0) {
 
       whyNotFastClonable_ |= fb.whyNotFastClonable();
@@ -296,7 +301,7 @@ namespace edm {
           // have different split levels or basket sizes in a subsequent input file.
           // If the mismatch is in the first file, there is a bug somewhere, so we assert.
           assert(om_->inputFileCount() > 1);
-          throw edm::Exception(errors::MismatchedInputFiles, "RootOutputFile::beginInputFile()") <<
+          throw Exception(errors::MismatchedInputFiles, "RootOutputFile::beginInputFile()") <<
             "Merge failure because input file " << file_ << " has different ROOT split levels or basket sizes\n" <<
             "than previous files.  To allow merging in splite of this, use the configuration parameter\n" <<
             "overrideInputFileSplitLevels=cms.untracked.bool(True)\n" <<
@@ -310,13 +315,25 @@ namespace edm {
           whyNotFastClonable_ |= FileBlock::BranchMismatch;
         }
       }
+      // We now check if we can fast copy the auxiliary branches.
+      // We can do so only if we can otherwise fast copy,
+      // the input file has the current format (these branches are in the Events Tree).
+      // and there are no newly dropped or produced products,
+      Service<ConstProductRegistry> reg;
+      canFastCloneAux_ = (whyNotFastClonable_ == FileBlock::CanFastClone) &&
+                          fb.fileFormatVersion().noMetaDataTrees() &&
+                          !om_->hasNewlyDroppedBranch()[InEvent] &&
+                          !fb.hasNewlyDroppedBranch()[InEvent] &&
+                          !reg->anyProductProduced();
+
+      // Report the fast copying status.
       Service<JobReport> reportSvc;
       reportSvc->reportFastCopyingStatus(reportToken_, fb.fileName(), whyNotFastClonable_ == FileBlock::CanFastClone);
     } else {
       whyNotFastClonable_ |= FileBlock::NoRootInputSource;
     }
 
-    eventTree_.maybeFastCloneTree(whyNotFastClonable_ == FileBlock::CanFastClone, fb.tree(), om_->basketOrder());
+    eventTree_.maybeFastCloneTree(whyNotFastClonable_ == FileBlock::CanFastClone, canFastCloneAux_, fb.tree(), om_->basketOrder());
 
     // Possibly issue warning or informational message if we haven't fast cloned.
     if(fb.tree() != 0 && whyNotFastClonable_ != FileBlock::CanFastClone) {
@@ -339,18 +356,25 @@ namespace edm {
   void RootOutputFile::writeOne(EventPrincipal const& e) {
     // Auxiliary branch
     pEventAux_ = &e.aux();
-   
+
     // Because getting the data may cause an exception to be thrown we want to do that
     // first before writing anything to the file about this event
-    // NOTE: pEventAux_ must be set before calling fillBranches since it gets written out
-    // in that routine.
+    // NOTE: pEventAux_, pBranchListIndexes_, pEventSelectionIDs_, and pEventEntryInfoVector_
+    // must be set before calling fillBranches since they get written out in that routine.
     assert(pEventAux_->processHistoryID() == e.processHistoryID());
     pBranchListIndexes_ = &e.branchListIndexes();
+
+    // Note: The EventSelectionIDVector should have a one to one correspondence with the processes in the process history.
+    // Therefore, a new entry should be added if and only if the current process has been added to the process history,
+    // which is done if and only if there is a produced product.
+    Service<ConstProductRegistry> reg;
     EventSelectionIDVector esids = e.eventSelectionIDs();
-    esids.push_back(om_->selectorConfig());
+    if (reg->anyProductProduced() || !om_->wantAllEvents()) {
+      esids.push_back(om_->selectorConfig());
+    }
     pEventSelectionIDs_ = &esids;
     fillBranches(InEvent, e, pEventEntryInfoVector_);
-     
+
     // Add the dataType to the job report if it hasn't already been done
     if(!dataTypeReported_) {
       Service<JobReport> reportSvc;
@@ -364,7 +388,7 @@ namespace edm {
     indexIntoFile_.addEntry(e.processHistoryID(), pEventAux_->run(), pEventAux_->luminosityBlock(), pEventAux_->event(), eventEntryNumber_);
     ++eventEntryNumber_;
 
-    // Report event written 
+    // Report event written
     Service<JobReport> reportSvc;
     reportSvc->eventWrittenToFile(reportToken_, e.id().run(), e.id().event());
   }
@@ -394,11 +418,11 @@ namespace edm {
   }
 
   void RootOutputFile::writeParentageRegistry() {
-    Parentage const*   desc(0);
-    
-    if(!parentageTree_->Branch(poolNames::parentageBranchName().c_str(), 
+    Parentage const* desc(0);
+
+    if(!parentageTree_->Branch(poolNames::parentageBranchName().c_str(),
                                         &desc, om_->basketSize(), 0))
-      throw edm::Exception(errors::FatalRootError) 
+      throw Exception(errors::FatalRootError)
         << "Failed to create a branch for Parentages in the output file";
 
     ParentageRegistry& ptReg = *ParentageRegistry::instance();
@@ -448,7 +472,7 @@ namespace edm {
     b->Fill();
   }
 
-  void RootOutputFile::writeProcessHistoryRegistry() { 
+  void RootOutputFile::writeProcessHistoryRegistry() {
     typedef ProcessHistoryRegistry::collection_type Map;
     Map const& procHistoryMap = ProcessHistoryRegistry::instance()->data();
     ProcessHistoryVector procHistoryVector;
@@ -461,30 +485,30 @@ namespace edm {
     b->Fill();
   }
 
-  void RootOutputFile::writeBranchIDListRegistry() { 
+  void RootOutputFile::writeBranchIDListRegistry() {
     BranchIDListRegistry::collection_type* p = &BranchIDListRegistry::instance()->data();
     TBranch* b = metaDataTree_->Branch(poolNames::branchIDListBranchName().c_str(), &p, om_->basketSize(), 0);
     assert(b);
     b->Fill();
   }
 
-  void RootOutputFile::writeParameterSetRegistry() { 
+  void RootOutputFile::writeParameterSetRegistry() {
     std::pair<ParameterSetID, ParameterSetBlob> idToBlob;
     std::pair<ParameterSetID, ParameterSetBlob>* pIdToBlob = &idToBlob;
     TBranch* b = parameterSetsTree_->Branch(poolNames::idToParameterSetBlobsBranchName().c_str(),&pIdToBlob,om_->basketSize(), 0);
-    
+
     for(pset::Registry::const_iterator it = pset::Registry::instance()->begin(),
         itEnd = pset::Registry::instance()->end();
         it != itEnd;
         ++it) {
       idToBlob.first = it->first;
       idToBlob.second.pset() = it->second.toString();
-      
+
       b->Fill();
     }
   }
 
-  void RootOutputFile::writeProductDescriptionRegistry() { 
+  void RootOutputFile::writeProductDescriptionRegistry() {
     // Make a local copy of the ProductRegistry, removing any transient or pruned products.
     typedef ProductRegistry::ProductList ProductList;
     Service<ConstProductRegistry> reg;
@@ -497,7 +521,7 @@ namespace edm {
         ProductList::iterator itCopy = it;
         ++it;
         pList.erase(itCopy);
-        
+
       } else {
         ++it;
       }
@@ -507,8 +531,8 @@ namespace edm {
     TBranch* b = metaDataTree_->Branch(poolNames::productDescriptionBranchName().c_str(), &ppReg, om_->basketSize(), 0);
     assert(b);
     b->Fill();
-  } 
-  void RootOutputFile::writeProductDependencies() { 
+  }
+  void RootOutputFile::writeProductDependencies() {
     BranchChildren& pDeps = const_cast<BranchChildren&>(om_->branchChildren());
     BranchChildren* ppDeps = &pDeps;
     TBranch* b = metaDataTree_->Branch(poolNames::productDependenciesBranchName().c_str(), &ppDeps, om_->basketSize(), 0);
@@ -516,7 +540,7 @@ namespace edm {
     b->Fill();
   }
 
-  void RootOutputFile::finishEndFile() { 
+  void RootOutputFile::finishEndFile() {
     metaDataTree_->SetEntries(-1);
     RootOutputTree::writeTTree(metaDataTree_);
     RootOutputTree::writeTTree(parameterSetsTree_);
@@ -568,7 +592,7 @@ namespace edm {
       }
     }
   }
-   
+
   void
   RootOutputFile::insertAncestors(ProductProvenance const& iGetParents,
                                   Principal const& principal,
@@ -594,7 +618,7 @@ namespace edm {
       }
     }
   }
-   
+
   void RootOutputFile::fillBranches(
                 BranchType const& branchType,
                 Principal const& principal,
@@ -603,7 +627,7 @@ namespace edm {
     std::vector<boost::shared_ptr<EDProduct> > dummies;
 
     bool const fastCloning = (branchType == InEvent) && (whyNotFastClonable_ == FileBlock::CanFastClone);
-    
+
     OutputItemList const& items = om_->selectedOutputItemList()[branchType];
 
     std::set<ProductProvenance> provenanceToKeep;
@@ -613,7 +637,7 @@ namespace edm {
 
       BranchID const& id = i->branchDescription_->branchID();
       branchesWithStoredHistory_.insert(id);
-       
+
       bool produced = i->branchDescription_->produced();
       bool keepProvenance = om_->dropMetaData() == PoolOutputModule::DropNone ||
                             om_->dropMetaData() == PoolOutputModule::DropDroppedPrior ||

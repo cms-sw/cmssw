@@ -36,10 +36,8 @@ namespace edm {
       unclonedReadBranches_(),
       unclonedReadBranchNames_(),
       currentlyFastCloning_(),
-      fastCloneAuxBranches_() {
+      fastCloneAuxBranches_(false) {
 
-    Service<ConstProductRegistry> reg;
-    fastCloneAuxBranches_ = !reg->anyProductProduced();
     if(treeMaxVirtualSize >= 0) tree_->SetMaxVirtualSize(treeMaxVirtualSize);
   }
 
@@ -220,11 +218,12 @@ namespace edm {
   }
 
   void
-  RootOutputTree::maybeFastCloneTree(bool canFastClone, TTree* tree, std::string const& option) {
+  RootOutputTree::maybeFastCloneTree(bool canFastClone, bool canFastCloneAux, TTree* tree, std::string const& option) {
     unclonedReadBranches_.clear();
     unclonedReadBranchNames_.clear();
     currentlyFastCloning_ = canFastClone && !readBranches_.empty();
     if(currentlyFastCloning_) {
+      fastCloneAuxBranches_ = canFastCloneAux;
       fastCloneTTree(tree, option);
       for(std::vector<TBranch*>::const_iterator it = readBranches_.begin(), itEnd = readBranches_.end();
           it != itEnd; ++it) {

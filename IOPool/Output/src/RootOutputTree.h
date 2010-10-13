@@ -65,7 +65,7 @@ namespace edm {
 
     bool checkIfFastClonable(TTree* inputTree) const;
 
-    void maybeFastCloneTree(bool canFastClone, TTree* tree, std::string const& option);
+    void maybeFastCloneTree(bool canFastClone, bool canFastCloneAux, TTree* tree, std::string const& option);
 
     void fillTree() const;
 

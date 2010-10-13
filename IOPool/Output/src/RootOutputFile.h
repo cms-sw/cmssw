@@ -94,6 +94,7 @@ namespace edm {
     JobReport::Token reportToken_;
     PoolOutputModule const* om_;
     int whyNotFastClonable_;
+    bool canFastCloneAux_;
     boost::shared_ptr<TFile> filePtr_;
     FileID fid_;
     IndexIntoFile::EntryNumber_t eventEntryNumber_;
