@@ -24,8 +24,8 @@ ecalGlobalUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
     outOfTimeThresholdEE    = cms.double(5),    # number of sigmas
     amplitudeThresholdEB    = cms.double(10),
     amplitudeThresholdEE    = cms.double(10),
-    outOfTimeIfGain12OnlyEB = cms.bool(False),
-    outOfTimeIfGain12OnlyEE = cms.bool(False),
+    outOfTimeIfGain12OnlyEB = cms.bool(True),
+    outOfTimeIfGain12OnlyEE = cms.bool(True),
                                          
     ebSpikeThreshold = cms.double(1.042),
 
