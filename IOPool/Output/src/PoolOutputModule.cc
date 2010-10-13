@@ -1,7 +1,7 @@
 #include "IOPool/Output/interface/PoolOutputModule.h"
 
-#include "FWCore/MessageLogger/interface/JobReport.h" 
-#include "IOPool/Output/src/RootOutputFile.h" 
+#include "FWCore/MessageLogger/interface/JobReport.h"
+#include "IOPool/Output/src/RootOutputFile.h"
 
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
@@ -27,8 +27,8 @@ namespace edm {
   PoolOutputModule::PoolOutputModule(ParameterSet const& pset) :
     OutputModule(pset),
     rootServiceChecker_(),
-    auxItems_(), 
-    selectedOutputItemList_(), 
+    auxItems_(),
+    selectedOutputItemList_(),
     fileName_(pset.getUntrackedParameter<std::string>("fileName")),
     logicalFileName_(pset.getUntrackedParameter<std::string>("logicalFileName")),
     catalog_(pset.getUntrackedParameter<std::string>("catalog")),
@@ -52,7 +52,7 @@ namespace edm {
 
       if (pset.getUntrackedParameter<bool>("writeStatusFile")) {
         std::ostringstream statusfilename;
-	statusfilename << moduleLabel_ << '_' << getpid();
+        statusfilename << moduleLabel_ << '_' << getpid();
         statusFileName_ = statusfilename.str();
       }
 
@@ -77,7 +77,6 @@ namespace edm {
     // configuration by reading this source code.
     pset.getUntrackedParameter<ParameterSet>("dataset");
   }
-  
 
   std::string const& PoolOutputModule::currentFileName() const {
     return rootOutputFile_->fileName();
@@ -142,12 +141,12 @@ namespace edm {
     if (theInputTree != 0 && !overrideInputFileSplitLevels_) {
       TBranch* auxBranch = theInputTree->GetBranch(BranchTypeToAuxiliaryBranchName(branchType).c_str());
       if (auxBranch) {
-        auxItem.basketSize_ = auxBranch->GetBasketSize();; 
+        auxItem.basketSize_ = auxBranch->GetBasketSize();
       } else {
-        auxItem.basketSize_ = basketSize_; 
+        auxItem.basketSize_ = basketSize_;
       }
     } else {
-      auxItem.basketSize_ = basketSize_; 
+      auxItem.basketSize_ = basketSize_;
     }
 
     // Fill outputItemList with an entry for each branch.
@@ -190,7 +189,7 @@ namespace edm {
     if(!initializedFromInput_) {
       for(int i = InEvent; i < NumBranchTypes; ++i) {
         BranchType branchType = static_cast<BranchType>(i);
-        TTree* theInputTree = (branchType == InEvent ? fb.tree() : 
+        TTree* theInputTree = (branchType == InEvent ? fb.tree() :
                               (branchType == InLumi ? fb.lumiTree() :
                                fb.runTree()));
         fillSelectedItemList(branchType, theInputTree);
@@ -222,9 +221,9 @@ namespace edm {
   void PoolOutputModule::write(EventPrincipal const& e) {
       rootOutputFile_->writeOne(e);
       if (!statusFileName_.empty()) {
-	std::ofstream statusFile(statusFileName_.c_str());
+        std::ofstream statusFile(statusFileName_.c_str());
         statusFile << e.id() << " time: " << std::setprecision(3) << TimeOfDay() << '\n';
-	statusFile.close();
+        statusFile.close();
       }
   }
 
