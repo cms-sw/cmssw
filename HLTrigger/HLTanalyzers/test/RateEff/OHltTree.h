@@ -47,6 +47,8 @@ public :
   Float_t         recoJetCalEta[43000];   //[NrecoJetCal]
   Float_t         recoJetCalEt[43000];   //[NrecoJetCal]
   Float_t         recoJetCalE[43000];   //[NrecoJetCal]
+  Float_t         recoJetCalEMF[43000];   //[NrecoJetCal]
+  Float_t         recoJetCalN90[43000];   //[NrecoJetCal]
   Float_t         recoJetGenPt[68000];   //[NrecoJetGen]
   Float_t         recoJetGenPhi[68000];   //[NrecoJetGen]
   Float_t         recoJetGenEta[68000];   //[NrecoJetGen]
@@ -1460,6 +1462,8 @@ public :
   TBranch        *b_recoJetCalEta;   //!
   TBranch        *b_recoJetCalEt;   //!
   TBranch        *b_recoJetCalE;   //!
+  TBranch        *b_recoJetCalEMF;   //!
+  TBranch        *b_recoJetCalN90;   //!
   TBranch        *b_recoJetGenPt;   //!
   TBranch        *b_recoJetGenPhi;   //!
   TBranch        *b_recoJetGenEta;   //!
@@ -2948,6 +2952,8 @@ public :
   int OpenHltMuTrackPassed_Ups(double ptTrack, double pTrack, double etaTrack, double DxyTrack, double DzTrack, int NHitsTrack, double normChi2Track, double *massMinTrack, double *massMaxTrack, double DzMuonTrack, bool checkChargeTrack, int histIndex);
   int OpenHltMuPixelPassed_Ups(double ptPix, double pPix, double etaPix, double DxyPix, double DzPix, int NHitsPix, double normChi2Pix, double *massMinPix, double *massMaxPix, double DzMuonPix, bool checkChargePix, int histIndex);
   int OpenHlt1JetPassed(double pt);
+  int OpenHlt1JetPassed(double pt, double eta);
+  int OpenHlt1JetPassed(double pt, double eta, double emfmin, double emfmax);
   int OpenHlt1CorJetPassed(double pt);
   int OpenHltFwdJetPassed(double esum);
   int OpenHltFwdCorJetPassed(double esum);
@@ -3234,6 +3240,8 @@ void OHltTree::Init(TTree *tree)
   fChain->SetBranchAddress("recoJetCalEta", recoJetCalEta, &b_recoJetCalEta);
   fChain->SetBranchAddress("recoJetCalEt", recoJetCalEt, &b_recoJetCalEt);
   fChain->SetBranchAddress("recoJetCalE", recoJetCalE, &b_recoJetCalE);
+  fChain->SetBranchAddress("recoJetCalEMF", recoJetCalEMF, &b_recoJetCalEMF);
+  fChain->SetBranchAddress("recoJetCalN90", recoJetCalN90, &b_recoJetCalN90);
   fChain->SetBranchAddress("recoJetGenPt", &recoJetGenPt, &b_recoJetGenPt);
   fChain->SetBranchAddress("recoJetGenPhi", &recoJetGenPhi, &b_recoJetGenPhi);
   fChain->SetBranchAddress("recoJetGenEta", &recoJetGenEta, &b_recoJetGenEta);
