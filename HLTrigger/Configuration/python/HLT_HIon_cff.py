@@ -1,10 +1,10 @@
-# /dev/CMSSW_3_8_5/HIon/V8 (CMSSW_3_8_1_HLT20)
+# /dev/CMSSW_3_8_5/HIon/V10 (CMSSW_3_8_1_HLT20)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_5/HIon/V8')
+  tableName = cms.string('/dev/CMSSW_3_8_5/HIon/V10')
 )
 
 streams = cms.PSet( 
@@ -1611,35 +1611,278 @@ hltHcalDigis = cms.EDProducer( "HcalRawToDigi",
     lastSample = cms.int32( 9 ),
     FilterDataQuality = cms.bool( True )
 )
-hltHbhereco = cms.EDProducer( "HcalSimpleReconstructor",
-    digiLabel = cms.InputTag( "hltHcalDigis" ),
-    dropZSmarkedPassed = cms.bool( True ),
-    Subdetector = cms.string( "HBHE" ),
+hltHbhereco = cms.EDProducer( "HcalHitReconstructor",
     firstSample = cms.int32( 4 ),
     samplesToAdd = cms.int32( 4 ),
     correctForTimeslew = cms.bool( True ),
     correctForPhaseContainment = cms.bool( True ),
-    correctionPhaseNS = cms.double( 13.0 )
-)
-hltHfreco = cms.EDProducer( "HcalSimpleReconstructor",
+    correctionPhaseNS = cms.double( 13.0 ),
     digiLabel = cms.InputTag( "hltHcalDigis" ),
+    correctTiming = cms.bool( False ),
+    setNoiseFlags = cms.bool( False ),
+    setHSCPFlags = cms.bool( False ),
+    setSaturationFlags = cms.bool( False ),
+    setTimingTrustFlags = cms.bool( False ),
     dropZSmarkedPassed = cms.bool( True ),
-    Subdetector = cms.string( "HF" ),
+    Subdetector = cms.string( "HBHE" ),
+    setTimingShapedCutsFlags = cms.bool( False ),
+    timingshapedcutsParameters = cms.PSet( 
+      tfilterEnvelope = cms.vdouble( 4.0, 12.04, 13.0, 10.56, 23.5, 8.82, 37.0, 7.38, 56.0, 6.3, 81.0, 5.64, 114.5, 5.44, 175.5, 5.38, 350.5, 5.14 ),
+      ignorelowest = cms.bool( True ),
+      ignorehighest = cms.bool( False ),
+      win_offset = cms.double( 0.0 ),
+      win_gain = cms.double( 1.0 )
+    ),
+    flagParameters = cms.PSet( 
+      nominalPedestal = cms.double( 3.0 ),
+      hitEnergyMinimum = cms.double( 1.0 ),
+      hitMultiplicityThreshold = cms.int32( 17 ),
+      pulseShapeParameterSets = cms.VPSet( 
+        cms.PSet(  pulseShapeParameters = cms.vdouble( 0.0, 100.0, -50.0, 0.0, -15.0, 0.15 )        ),
+        cms.PSet(  pulseShapeParameters = cms.vdouble( 100.0, 2000.0, -50.0, 0.0, -5.0, 0.05 )        ),
+        cms.PSet(  pulseShapeParameters = cms.vdouble( 2000.0, 1000000.0, -50.0, 0.0, 95.0, 0.0 )        ),
+        cms.PSet(  pulseShapeParameters = cms.vdouble( -1000000.0, 1000000.0, 45.0, 0.1, 1000000.0, 0.0 )        )
+      )
+    ),
+    hfTimingTrustParameters = cms.PSet( 
+      hfTimingTrustLevel1 = cms.int32( 1 ),
+      hfTimingTrustLevel2 = cms.int32( 4 )
+    ),
+    digistat = cms.PSet(  ),
+    HFInWindowStat = cms.PSet(  ),
+    S8S1stat = cms.PSet( 
+      short_optimumSlope = cms.vdouble( 0.3, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 ),
+      shortEnergyParams = cms.vdouble( 40.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 ),
+      shortETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
+      long_optimumSlope = cms.vdouble( 0.3, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 ),
+      longEnergyParams = cms.vdouble( 40.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 ),
+      longETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
+      flagsToSkip = cms.int32( 16 ),
+      isS8S1 = cms.bool( True )
+    ),
+    PETstat = cms.PSet( 
+      short_R = cms.vdouble( 0.8 ),
+      shortEnergyParams = cms.vdouble( 35.1773, 35.37, 35.7933, 36.4472, 37.3317, 38.4468, 39.7925, 41.3688, 43.1757, 45.2132, 47.4813, 49.98, 52.7093 ),
+      shortETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
+      long_R = cms.vdouble( 0.98 ),
+      longEnergyParams = cms.vdouble( 43.5, 45.7, 48.32, 51.36, 54.82, 58.7, 63.0, 67.72, 72.86, 78.42, 84.4, 90.8, 97.62 ),
+      longETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
+      flagsToSkip = cms.int32( 0 ),
+      short_R_29 = cms.vdouble( 0.8 ),
+      long_R_29 = cms.vdouble( 0.8 )
+    ),
+    saturationParameters = cms.PSet(  maxADCvalue = cms.int32( 127 ) ),
+    hscpParameters = cms.PSet( 
+      r1Min = cms.double( 0.15 ),
+      r1Max = cms.double( 1.0 ),
+      r2Min = cms.double( 0.1 ),
+      r2Max = cms.double( 0.5 ),
+      fracLeaderMin = cms.double( 0.4 ),
+      fracLeaderMax = cms.double( 0.7 ),
+      slopeMin = cms.double( -1.5 ),
+      slopeMax = cms.double( -0.6 ),
+      outerMin = cms.double( 0.0 ),
+      outerMax = cms.double( 0.1 ),
+      TimingEnergyThreshold = cms.double( 30.0 )
+    ),
+    S9S1stat = cms.PSet( 
+      short_optimumSlope = cms.vdouble( -99999.0, 0.0164905, 0.0238698, 0.0321383, 0.041296, 0.0513428, 0.0622789, 0.0741041, 0.0868186, 0.100422, 0.135313, 0.136289, 0.0589927 ),
+      shortEnergyParams = cms.vdouble( 35.1773, 35.37, 35.7933, 36.4472, 37.3317, 38.4468, 39.7925, 41.3688, 43.1757, 45.2132, 47.4813, 49.98, 52.7093 ),
+      shortETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
+      long_optimumSlope = cms.vdouble( -99999.0, 0.0164905, 0.0238698, 0.0321383, 0.041296, 0.0513428, 0.0622789, 0.0741041, 0.0868186, 0.100422, 0.135313, 0.136289, 0.0589927 ),
+      longEnergyParams = cms.vdouble( 43.5, 45.7, 48.32, 51.36, 54.82, 58.7, 63.0, 67.72, 72.86, 78.42, 84.4, 90.8, 97.62 ),
+      longETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
+      flagsToSkip = cms.int32( 24 ),
+      isS8S1 = cms.bool( False )
+    ),
+    firstAuxOffset = cms.int32( 0 )
+)
+hltHfreco = cms.EDProducer( "HcalHitReconstructor",
     firstSample = cms.int32( 3 ),
     samplesToAdd = cms.int32( 4 ),
     correctForTimeslew = cms.bool( False ),
     correctForPhaseContainment = cms.bool( False ),
-    correctionPhaseNS = cms.double( 0.0 )
-)
-hltHoreco = cms.EDProducer( "HcalSimpleReconstructor",
+    correctionPhaseNS = cms.double( 0.0 ),
     digiLabel = cms.InputTag( "hltHcalDigis" ),
+    correctTiming = cms.bool( False ),
+    setNoiseFlags = cms.bool( False ),
+    setHSCPFlags = cms.bool( False ),
+    setSaturationFlags = cms.bool( False ),
+    setTimingTrustFlags = cms.bool( False ),
     dropZSmarkedPassed = cms.bool( True ),
-    Subdetector = cms.string( "HO" ),
+    Subdetector = cms.string( "HF" ),
+    setTimingShapedCutsFlags = cms.bool( False ),
+    timingshapedcutsParameters = cms.PSet( 
+      tfilterEnvelope = cms.vdouble( 4.0, 12.04, 13.0, 10.56, 23.5, 8.82, 37.0, 7.38, 56.0, 6.3, 81.0, 5.64, 114.5, 5.44, 175.5, 5.38, 350.5, 5.14 ),
+      ignorelowest = cms.bool( True ),
+      ignorehighest = cms.bool( False ),
+      win_offset = cms.double( 0.0 ),
+      win_gain = cms.double( 1.0 )
+    ),
+    flagParameters = cms.PSet( 
+      nominalPedestal = cms.double( 3.0 ),
+      hitEnergyMinimum = cms.double( 1.0 ),
+      hitMultiplicityThreshold = cms.int32( 17 ),
+      pulseShapeParameterSets = cms.VPSet( 
+        cms.PSet(  pulseShapeParameters = cms.vdouble( 0.0, 100.0, -50.0, 0.0, -15.0, 0.15 )        ),
+        cms.PSet(  pulseShapeParameters = cms.vdouble( 100.0, 2000.0, -50.0, 0.0, -5.0, 0.05 )        ),
+        cms.PSet(  pulseShapeParameters = cms.vdouble( 2000.0, 1000000.0, -50.0, 0.0, 95.0, 0.0 )        ),
+        cms.PSet(  pulseShapeParameters = cms.vdouble( -1000000.0, 1000000.0, 45.0, 0.1, 1000000.0, 0.0 )        )
+      )
+    ),
+    hfTimingTrustParameters = cms.PSet( 
+      hfTimingTrustLevel1 = cms.int32( 1 ),
+      hfTimingTrustLevel2 = cms.int32( 4 )
+    ),
+    digistat = cms.PSet( 
+      HFdigiflagFirstSample = cms.int32( 3 ),
+      HFdigiflagSamplesToAdd = cms.int32( 4 ),
+      HFdigiflagExpectedPeak = cms.int32( 4 ),
+      HFdigiflagMinEthreshold = cms.double( 40.0 ),
+      HFdigiflagCoef0 = cms.double( 0.93 ),
+      HFdigiflagCoef1 = cms.double( -0.38275 ),
+      HFdigiflagCoef2 = cms.double( -0.012667 )
+    ),
+    HFInWindowStat = cms.PSet( 
+      hflongMinWindowTime = cms.vdouble( -10.0 ),
+      hflongMaxWindowTime = cms.vdouble( 10.0 ),
+      hflongEthresh = cms.double( 40.0 ),
+      hfshortMinWindowTime = cms.vdouble( -12.0 ),
+      hfshortMaxWindowTime = cms.vdouble( 10.0 ),
+      hfshortEthresh = cms.double( 40.0 )
+    ),
+    S8S1stat = cms.PSet( 
+      short_optimumSlope = cms.vdouble( 0.3, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 ),
+      shortEnergyParams = cms.vdouble( 40.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 ),
+      shortETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
+      long_optimumSlope = cms.vdouble( 0.3, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 ),
+      longEnergyParams = cms.vdouble( 40.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 ),
+      longETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
+      flagsToSkip = cms.int32( 16 ),
+      isS8S1 = cms.bool( True )
+    ),
+    PETstat = cms.PSet( 
+      short_R = cms.vdouble( 0.8 ),
+      shortEnergyParams = cms.vdouble( 35.1773, 35.37, 35.7933, 36.4472, 37.3317, 38.4468, 39.7925, 41.3688, 43.1757, 45.2132, 47.4813, 49.98, 52.7093 ),
+      shortETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
+      long_R = cms.vdouble( 0.98 ),
+      longEnergyParams = cms.vdouble( 43.5, 45.7, 48.32, 51.36, 54.82, 58.7, 63.0, 67.72, 72.86, 78.42, 84.4, 90.8, 97.62 ),
+      longETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
+      flagsToSkip = cms.int32( 0 ),
+      short_R_29 = cms.vdouble( 0.8 ),
+      long_R_29 = cms.vdouble( 0.8 )
+    ),
+    saturationParameters = cms.PSet(  maxADCvalue = cms.int32( 127 ) ),
+    hscpParameters = cms.PSet( 
+      r1Min = cms.double( 0.15 ),
+      r1Max = cms.double( 1.0 ),
+      r2Min = cms.double( 0.1 ),
+      r2Max = cms.double( 0.5 ),
+      fracLeaderMin = cms.double( 0.4 ),
+      fracLeaderMax = cms.double( 0.7 ),
+      slopeMin = cms.double( -1.5 ),
+      slopeMax = cms.double( -0.6 ),
+      outerMin = cms.double( 0.0 ),
+      outerMax = cms.double( 0.1 ),
+      TimingEnergyThreshold = cms.double( 30.0 )
+    ),
+    S9S1stat = cms.PSet( 
+      short_optimumSlope = cms.vdouble( -99999.0, 0.0164905, 0.0238698, 0.0321383, 0.041296, 0.0513428, 0.0622789, 0.0741041, 0.0868186, 0.100422, 0.135313, 0.136289, 0.0589927 ),
+      shortEnergyParams = cms.vdouble( 35.1773, 35.37, 35.7933, 36.4472, 37.3317, 38.4468, 39.7925, 41.3688, 43.1757, 45.2132, 47.4813, 49.98, 52.7093 ),
+      shortETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
+      long_optimumSlope = cms.vdouble( -99999.0, 0.0164905, 0.0238698, 0.0321383, 0.041296, 0.0513428, 0.0622789, 0.0741041, 0.0868186, 0.100422, 0.135313, 0.136289, 0.0589927 ),
+      longEnergyParams = cms.vdouble( 43.5, 45.7, 48.32, 51.36, 54.82, 58.7, 63.0, 67.72, 72.86, 78.42, 84.4, 90.8, 97.62 ),
+      longETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
+      flagsToSkip = cms.int32( 24 ),
+      isS8S1 = cms.bool( False )
+    ),
+    firstAuxOffset = cms.int32( 0 )
+)
+hltHoreco = cms.EDProducer( "HcalHitReconstructor",
     firstSample = cms.int32( 4 ),
     samplesToAdd = cms.int32( 4 ),
     correctForTimeslew = cms.bool( True ),
     correctForPhaseContainment = cms.bool( True ),
-    correctionPhaseNS = cms.double( 13.0 )
+    correctionPhaseNS = cms.double( 13.0 ),
+    digiLabel = cms.InputTag( "hltHcalDigis" ),
+    correctTiming = cms.bool( False ),
+    setNoiseFlags = cms.bool( False ),
+    setHSCPFlags = cms.bool( False ),
+    setSaturationFlags = cms.bool( False ),
+    setTimingTrustFlags = cms.bool( False ),
+    dropZSmarkedPassed = cms.bool( True ),
+    Subdetector = cms.string( "HO" ),
+    setTimingShapedCutsFlags = cms.bool( False ),
+    timingshapedcutsParameters = cms.PSet( 
+      tfilterEnvelope = cms.vdouble( 4.0, 12.04, 13.0, 10.56, 23.5, 8.82, 37.0, 7.38, 56.0, 6.3, 81.0, 5.64, 114.5, 5.44, 175.5, 5.38, 350.5, 5.14 ),
+      ignorelowest = cms.bool( True ),
+      ignorehighest = cms.bool( False ),
+      win_offset = cms.double( 0.0 ),
+      win_gain = cms.double( 1.0 )
+    ),
+    flagParameters = cms.PSet( 
+      nominalPedestal = cms.double( 3.0 ),
+      hitEnergyMinimum = cms.double( 1.0 ),
+      hitMultiplicityThreshold = cms.int32( 17 ),
+      pulseShapeParameterSets = cms.VPSet( 
+        cms.PSet(  pulseShapeParameters = cms.vdouble( 0.0, 100.0, -50.0, 0.0, -15.0, 0.15 )        ),
+        cms.PSet(  pulseShapeParameters = cms.vdouble( 100.0, 2000.0, -50.0, 0.0, -5.0, 0.05 )        ),
+        cms.PSet(  pulseShapeParameters = cms.vdouble( 2000.0, 1000000.0, -50.0, 0.0, 95.0, 0.0 )        ),
+        cms.PSet(  pulseShapeParameters = cms.vdouble( -1000000.0, 1000000.0, 45.0, 0.1, 1000000.0, 0.0 )        )
+      )
+    ),
+    hfTimingTrustParameters = cms.PSet( 
+      hfTimingTrustLevel1 = cms.int32( 1 ),
+      hfTimingTrustLevel2 = cms.int32( 4 )
+    ),
+    digistat = cms.PSet(  ),
+    HFInWindowStat = cms.PSet(  ),
+    S8S1stat = cms.PSet( 
+      short_optimumSlope = cms.vdouble( 0.3, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 ),
+      shortEnergyParams = cms.vdouble( 40.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 ),
+      shortETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
+      long_optimumSlope = cms.vdouble( 0.3, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 ),
+      longEnergyParams = cms.vdouble( 40.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 ),
+      longETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
+      flagsToSkip = cms.int32( 16 ),
+      isS8S1 = cms.bool( True )
+    ),
+    PETstat = cms.PSet( 
+      short_R = cms.vdouble( 0.8 ),
+      shortEnergyParams = cms.vdouble( 35.1773, 35.37, 35.7933, 36.4472, 37.3317, 38.4468, 39.7925, 41.3688, 43.1757, 45.2132, 47.4813, 49.98, 52.7093 ),
+      shortETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
+      long_R = cms.vdouble( 0.98 ),
+      longEnergyParams = cms.vdouble( 43.5, 45.7, 48.32, 51.36, 54.82, 58.7, 63.0, 67.72, 72.86, 78.42, 84.4, 90.8, 97.62 ),
+      longETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
+      flagsToSkip = cms.int32( 0 ),
+      short_R_29 = cms.vdouble( 0.8 ),
+      long_R_29 = cms.vdouble( 0.8 )
+    ),
+    saturationParameters = cms.PSet(  maxADCvalue = cms.int32( 127 ) ),
+    hscpParameters = cms.PSet( 
+      r1Min = cms.double( 0.15 ),
+      r1Max = cms.double( 1.0 ),
+      r2Min = cms.double( 0.1 ),
+      r2Max = cms.double( 0.5 ),
+      fracLeaderMin = cms.double( 0.4 ),
+      fracLeaderMax = cms.double( 0.7 ),
+      slopeMin = cms.double( -1.5 ),
+      slopeMax = cms.double( -0.6 ),
+      outerMin = cms.double( 0.0 ),
+      outerMax = cms.double( 0.1 ),
+      TimingEnergyThreshold = cms.double( 30.0 )
+    ),
+    S9S1stat = cms.PSet( 
+      short_optimumSlope = cms.vdouble( -99999.0, 0.0164905, 0.0238698, 0.0321383, 0.041296, 0.0513428, 0.0622789, 0.0741041, 0.0868186, 0.100422, 0.135313, 0.136289, 0.0589927 ),
+      shortEnergyParams = cms.vdouble( 35.1773, 35.37, 35.7933, 36.4472, 37.3317, 38.4468, 39.7925, 41.3688, 43.1757, 45.2132, 47.4813, 49.98, 52.7093 ),
+      shortETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
+      long_optimumSlope = cms.vdouble( -99999.0, 0.0164905, 0.0238698, 0.0321383, 0.041296, 0.0513428, 0.0622789, 0.0741041, 0.0868186, 0.100422, 0.135313, 0.136289, 0.0589927 ),
+      longEnergyParams = cms.vdouble( 43.5, 45.7, 48.32, 51.36, 54.82, 58.7, 63.0, 67.72, 72.86, 78.42, 84.4, 90.8, 97.62 ),
+      longETParams = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
+      flagsToSkip = cms.int32( 24 ),
+      isS8S1 = cms.bool( False )
+    ),
+    firstAuxOffset = cms.int32( 0 )
 )
 hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     EBThreshold = cms.double( 0.07 ),
@@ -1680,7 +1923,7 @@ hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     hoInput = cms.InputTag( "hltHoreco" ),
     hfInput = cms.InputTag( "hltHfreco" ),
     AllowMissingInputs = cms.bool( False ),
-    HcalAcceptSeverityLevel = cms.uint32( 999 ),
+    HcalAcceptSeverityLevel = cms.uint32( 11 ),
     EcalAcceptSeverityLevel = cms.uint32( 3 ),
     UseHcalRecoveredHits = cms.bool( True ),
     UseEcalRecoveredHits = cms.bool( True ),
