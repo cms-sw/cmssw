@@ -10,4 +10,7 @@ process.tester = cms.EDAnalyzer("TestFindProduct",
                                 inputTags = cms.untracked.VInputTag(cms.InputTag("i")),
                                 expectedSum = cms.untracked.int32(40))
 
-process.t = cms.EndPath(process.tester)
+process.out = cms.OutputModule("PoolOutputModule",
+                            fileName = cms.untracked.string("old.root"))
+
+process.t = cms.EndPath(process.tester*process.out)
