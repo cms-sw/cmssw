@@ -48,60 +48,60 @@ class L1CaloTriggerSetup
 
   //Lattice Navigation helper Functions
   int getEta(int bin)     //get the ieta of a specific Bin
-  {
-    return bin%latticeDim_;
+    {
+      return bin%latticeDim_;
       
-  } 
+    } 
   int getPhi(int bin)     //get the iphi of a specific bin
-  {  
-    return bin/latticeDim_;
-  }
+    {  
+      return bin/latticeDim_;
+    }
 
   int getBin(int eta,int phi) //get the bin for a ieta,iphi pair
-  {
-    return phi*latticeDim_+eta;
-  }
+    {
+      return phi*latticeDim_+eta;
+    }
 
-  int etaMin()
-  {
-    return latticeEta0_;
-  }
+    int etaMin()
+    {
+      return latticeEta0_;
+    }
 
   int etaMax()
-  {
-    return latticeEtaM_;
-  }
+    {
+      return latticeEtaM_;
+    }
 
-  int phiMin()
-  {
-    return latticePhi0_;
-  }
+    int phiMin()
+    {
+      return latticePhi0_;
+    }
 
   int phiMax()
-  {
-    return latticePhiM_;
-  }
+    {
+      return latticePhiM_;
+    }
 
 
   int ecalActivityThr()
-  {
-    return ecalActivityCut_;
-  }
+    {
+      return ecalActivityCut_;
+    }
 
   int hcalActivityThr()
-  {
-    return hcalActivityCut_;
-  }
+    {
+      return hcalActivityCut_;
+    }
 
   int clusterThr()
-  {
-    return clusterCut_;
-  }
+    {
+      return clusterCut_;
+    }
 
   int seedTowerThr()
-  {
-    return tauSeedTower_;
-  }
+    {
+      return tauSeedTower_;
+    }
 
   std::vector<int> electronThr()
     {
@@ -114,19 +114,19 @@ class L1CaloTriggerSetup
     }
 
   int nIsoTowers()
-  {
-    return isolationZone_;
-  }
+    {
+      return isolationZone_;
+    }
 
   int jetCenterDev()
-  {
-    return jetCenter_;
-  }
+    {
+      return jetCenter_;
+    }
 
   int minJetET()
-  {
-    return jetET_;
-  }
+    {
+      return jetET_;
+    }
 
   std::vector<int> isoThr()
     {
@@ -163,19 +163,19 @@ class L1CaloTriggerSetup
 
   L1CaloTriggerSetup()
     {
-      latticeDim_  = 1;
-      latticeEta0_ = 1;
-      latticePhi0_ = 1;
-      latticeEtaM_ = -1000;
-      latticePhiM_ = -1111;
-      ecalActivityCut_=2; 
-      hcalActivityCut_=6; 
-      electronCutA_=8; 
-      electronCutB_=0; 
-      electronCutC_=0; 
+       latticeDim_  = 1;
+       latticeEta0_ = 1;
+       latticePhi0_ = 1;
+       latticeEtaM_ = -1000;
+       latticePhiM_ = -1111;
+       ecalActivityCut_=2; 
+       hcalActivityCut_=6; 
+       electronCutA_=8; 
+       electronCutB_=0; 
+       electronCutC_=0; 
 
-      tauSeedTower_=0;
-      clusterCut_=4; 
+       tauSeedTower_=0;
+       clusterCut_=4; 
     }
 
   ~L1CaloTriggerSetup()
@@ -184,45 +184,48 @@ class L1CaloTriggerSetup
     }
 
   void setGeometry(int eta0,int phi0,int etam,int phim,int dim)
-  {
-    latticeDim_  = dim;
-    latticeEta0_ = eta0;
-    latticePhi0_ = phi0;
-    latticeEtaM_ = etam;
-    latticePhiM_ = phim;
+    {
+      latticeDim_  = dim;
+      latticeEta0_ = eta0;
+      latticePhi0_ = phi0;
+      latticeEtaM_ = etam;
+      latticePhiM_ = phim;
 
-  }
+    }
 
   void addWire(int no,int eta,int phi) //Configure Wire Connection
-  {
-    std::pair<int,int> p = std::make_pair(eta,phi);
-    geoMap_[no] = p;
-  }
+    {
+      std::pair<int,int> p = std::make_pair(eta,phi);
+      geoMap_[no] = p;
+    }
 
  
   void setThresholds(int ecal_a_c,int hcal_a_c,int egammaA,int egammaB,int egammaC,int tauSeed,int clusterCut,int isoRatioEA,int isoRatioEB,int isoRatioTA,int isoRatioTB,int isoZone,int isoThresEG,int isoThresTau,int jetc,int jetet)
-  {
+    {
 
-    ecalActivityCut_ = ecal_a_c;
-    hcalActivityCut_ = hcal_a_c;
-    electronCutA_ = egammaA;
-    electronCutB_ = egammaB;
-    electronCutC_ = egammaC;
-    tauSeedTower_ = tauSeed;
-    clusterCut_ = clusterCut;
-    isolationEA_ = isoRatioEA;
-    isolationEB_ = isoRatioEB;
-    isolationTA_ = isoRatioTA;
-    isolationTB_ = isoRatioTB;
-    isolationZone_ = isoZone;
-    isolationThrEG_ = isoThresEG;
-    isolationThrTau_ = isoThresTau;
-    jetCenter_ = jetc;
-    jetET_ = jetet;
-  }
+      ecalActivityCut_ = ecal_a_c;
+      hcalActivityCut_ = hcal_a_c;
+      electronCutA_ = egammaA;
+      electronCutB_ = egammaB;
+      electronCutC_ = egammaC;
+      tauSeedTower_ = tauSeed;
+      clusterCut_ = clusterCut;
+      isolationEA_ = isoRatioEA;
+      isolationEB_ = isoRatioEB;
+      isolationTA_ = isoRatioTA;
+      isolationTB_ = isoRatioTB;
+      isolationZone_ = isoZone;
+      isolationThrEG_ = isoThresEG;
+      isolationThrTau_ = isoThresTau;
+      jetCenter_ = jetc;
+      jetET_ = jetet;
+    }
 
 
 };
 
 #endif
+
+
+
 

@@ -4,7 +4,7 @@
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 //#include "SLHCUpgradeSimulations/L1Trigger/interface/DTTSPhiTrigger.h"
 #include "SimDataFormats/SLHC/interface/DTTSPhiTrigger.h"
-#include "SLHCUpgradeSimulations/L1DTTrigger/src/DTUtils.h"
+#include "SLHCUpgradeSimulations/L1Trigger/src/DTUtils.h"
 
 
 using namespace std;

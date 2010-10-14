@@ -17,6 +17,7 @@
 #include "SimDataFormats/SLHC/interface/LocalStub.h"
 #include "SimDataFormats/SLHC/interface/GlobalStub.h"
 #include "SimDataFormats/SLHC/interface/Tracklet.h"
+#include "SimDataFormats/SLHC/interface/L1Track.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
@@ -63,6 +64,14 @@ namespace cmsUpgrades{
     typedef edm::RefVector	< Tracklet_PSimHit_Collection , Tracklet_PSimHit_ >			Tracklet_PSimHit_RefVector;*/
 
 
+//SimHit type L1Track
+        typedef L1Track< Ref_PSimHit_ >                                                                                                        L1Track_PSimHit_;
+
+//SimHit type L1Track Collections
+        typedef std::vector             < L1Track_PSimHit_ >                                                                           L1Track_PSimHit_Collection;
+
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //PixelDigi type LocalStub
 	typedef LocalStub< Ref_PixelDigi_ >													LocalStub_PixelDigi_;
@@ -91,7 +100,19 @@ namespace cmsUpgrades{
     typedef edm::RefProd	< Tracklet_PixelDigi_Collection >							Tracklet_PixelDigi_RefProd;
     typedef edm::RefVector	< Tracklet_PixelDigi_Collection , Tracklet_PixelDigi_ >		Tracklet_PixelDigi_RefVector;*/
 
+//PixelDigi type Tracklet
+        typedef L1Track< Ref_PixelDigi_ >                                                                                                      L1Track_PixelDigi_;
+
+//PixelDigi type Tracklet Collections
+        typedef std::vector             < L1Track_PixelDigi_ >                                                                         L1Track_PixelDigi_Collection;
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

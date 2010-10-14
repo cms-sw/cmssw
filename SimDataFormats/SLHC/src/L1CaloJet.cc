@@ -79,20 +79,20 @@ L1CaloJet::p4() const
   
   double etaOffset=0.087/2.0;
 
-  int abs_eta = abs(iEta_);
+  int abs_eta = (int)fabs(iEta_);
   const double endcapEta[8] = {0.09,0.1,0.113,0.129,0.15,0.178,0.15,0.35};
 
   if(abs_eta <=20)
     eta =  (abs_eta*0.0870)-etaOffset;
   else
     {
-      int offset = abs(iEta_) -21;
+      int offset = (int)fabs(iEta_) -21;
       eta = (20*0.0870);//-etaOffset;
       for(int i = 0;i<= offset;++i)
 	{
 	  eta+=endcapEta[i];
 	}
-      eta-=endcapEta[abs(iEta_)-21]/2.;
+      eta-=endcapEta[(int)fabs(iEta_)-21]/2.;
     }
 
   if(iEta_<0) eta  = -eta;

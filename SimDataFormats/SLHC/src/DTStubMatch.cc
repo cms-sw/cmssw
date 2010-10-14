@@ -2,7 +2,7 @@
 
 //#include "SLHCUpgradeSimulations/L1Trigger/interface/DTStubMatch.h"
 #include "SimDataFormats/SLHC/interface/DTStubMatch.h"
-#include "SLHCUpgradeSimulations/L1DTTrigger/interface/DTParameters.h"     
+#include "SLHCUpgradeSimulations/L1Trigger/interface/DTParameters.h"     
 
 using namespace std;
 

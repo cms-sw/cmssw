@@ -1,10 +1,10 @@
 #include <algorithm>
 #include <vector>
 
-//#include "SLHCUpgradeSimulations/L1DTTrigger/interface/DTL1SimOperation.h"
+//#include "SLHCUpgradeSimulations/L1Trigger/interface/DTL1SimOperation.h"
 //#include "SLHCUpgradeSimulations/L1Trigger/interface/DTSeededTracklet.h"
 #include "SimDataFormats/SLHC/interface/DTSeededTracklet.h"
-#include "SLHCUpgradeSimulations/L1DTTrigger/interface/DTParameters.h"   
+#include "SLHCUpgradeSimulations/L1Trigger/interface/DTParameters.h"   
 
 
 // static member init ************************************************

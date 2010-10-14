@@ -4,7 +4,7 @@
 //#include "SLHCUpgradeSimulations/L1Trigger/interface/DTStubMatchPt.h"
 #include "SimDataFormats/SLHC/interface/DTStubMatch.h"
 #include "SimDataFormats/SLHC/interface/DTStubMatchPt.h"
-#include "SLHCUpgradeSimulations/L1DTTrigger/interface/DTParameters.h"    
+#include "SLHCUpgradeSimulations/L1Trigger/interface/DTParameters.h"    
 
 /**************************************************************************
   Only stubs and (primary) vertex
