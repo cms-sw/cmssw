@@ -5,6 +5,15 @@ from ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesSequences_cff import *
 import copy
 
 
+### Primary vertex info
+
+eventVtxInfoNtuple = cms.EDProducer(
+    "EventVtxInfoNtupleDumper",
+    primaryVertices=cms.InputTag("offlinePrimaryVertices")
+)
+
+
+
 ### CandViewNtpProducer Configuration - common to all categories.
 
 goodZToMuMuEdmNtuple = cms.EDProducer(
@@ -668,6 +677,7 @@ goodZToMuMuEdmNtupleLoose.variables += zMuMu
 goodZToMuMuEdmNtupleLoose.variables += zGolden
 goodZToMuMuEdmNtupleLoose.prefix = cms.untracked.string("zGolden")
 goodZToMuMuPathLoose.__iadd__(goodZToMuMuEdmNtupleLoose)
+goodZToMuMuPathLoose.__iadd__(eventVtxInfoNtuple)
 goodZToMuMuPathLoose.setLabel("goodZToMuMuEdmLoose")
 
 
@@ -677,6 +687,7 @@ goodZToMuMuSameChargeEdmNtupleLoose.prefix = cms.untracked.string("zSameCharge")
 goodZToMuMuSameChargeEdmNtupleLoose.variables += zMuMu
 goodZToMuMuSameChargeEdmNtupleLoose.variables += zGolden
 goodZToMuMuSameChargePathLoose.__iadd__(goodZToMuMuSameChargeEdmNtupleLoose)
+goodZToMuMuSameChargePathLoose.__iadd__(eventVtxInfoNtuple)
 goodZToMuMuSameChargePathLoose.setLabel("goodZToMuMuSameChargeLoose")
 
 
@@ -687,6 +698,7 @@ goodZToMuMuOneStandAloneEdmNtupleLoose.prefix=cms.untracked.string("zMuSta")
 goodZToMuMuOneStandAloneEdmNtupleLoose.variables += zMuMu
 goodZToMuMuOneStandAloneEdmNtupleLoose.variables += zMuSa
 goodZToMuMuOneStandAloneMuonPathLoose.__iadd__(goodZToMuMuOneStandAloneEdmNtupleLoose)
+goodZToMuMuOneStandAloneMuonPathLoose.__iadd__(eventVtxInfoNtuple)
 goodZToMuMuOneStandAloneMuonPathLoose.setLabel("goodZToMuMuOneStandAloneMuonLoose")
 
 goodZToMuMuOneTrackEdmNtupleLoose= copy.deepcopy(goodZToMuMuEdmNtuple)
@@ -694,6 +706,7 @@ goodZToMuMuOneTrackEdmNtupleLoose.src=cms.InputTag("goodZToMuMuOneTrackFirstHLTL
 goodZToMuMuOneTrackEdmNtupleLoose.prefix=cms.untracked.string("zMuTrk")
 goodZToMuMuOneTrackEdmNtupleLoose.variables += zMuTrk
 goodZToMuMuOneTrackPathLoose.__iadd__(goodZToMuMuOneTrackEdmNtupleLoose)
+goodZToMuMuOneTrackPathLoose.__iadd__(eventVtxInfoNtuple)
 goodZToMuMuOneTrackPathLoose.setLabel("goodZToMuMuOneTrackLoose")
 
 goodZToMuMuOneTrackerMuonEdmNtupleLoose= copy.deepcopy(goodZToMuMuEdmNtuple)
@@ -702,6 +715,7 @@ goodZToMuMuOneTrackerMuonEdmNtupleLoose.prefix=cms.untracked.string("zMuTrkMu")
 goodZToMuMuOneTrackerMuonEdmNtupleLoose.variables += zMuMu
 goodZToMuMuOneTrackerMuonEdmNtupleLoose.variables += zMuTrkMu
 goodZToMuMuOneTrackerMuonPathLoose.__iadd__(goodZToMuMuOneTrackerMuonEdmNtupleLoose)
+goodZToMuMuOneTrackerMuonPathLoose.__iadd__(eventVtxInfoNtuple)
 goodZToMuMuOneTrackerMuonPathLoose.setLabel("goodZToMuMuOneTrackerMuonLoose")
 
 
@@ -710,6 +724,7 @@ ntuplesOut = cms.OutputModule(
     fileName = cms.untracked.string('NtupleLooseTestNew.root'),
     outputCommands = cms.untracked.vstring(
     "drop *",
+    "keep *_eventVtxInfoNtuple_*_*",
     "keep *_goodZToMuMuEdmNtupleLoose_*_*",
     "keep *_goodZToMuMuSameChargeEdmNtupleLoose_*_*",
     "keep *_goodZToMuMuOneStandAloneEdmNtupleLoose_*_*",

@@ -11,7 +11,8 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag = cms.string('MC_31X_V3::All')
-process.GlobalTag.globaltag = cms.string('START3X_V26::All') 
+#process.GlobalTag.globaltag = cms.string('START3X_V26::All') 
+process.GlobalTag.globaltag = cms.string('START38_V12::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 
@@ -23,7 +24,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    "file:../../Skimming/test/testZMuMuSubskim.root"
+    "file:/tmp/fabozzi/testZMuMuSubskim.root"
     )
 )
 
@@ -52,5 +53,5 @@ process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesPlots_cff")
 
 #process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuCategoriesNtuples_cff")
 process.load("ElectroWeakAnalysis.ZMuMu.ZMuMuAnalysisNtupler_cff")
-process.ntuplesOut.fileName = cms.untracked.string('file:NtupleLooseTestNew.root')
+process.ntuplesOut.fileName = cms.untracked.string('file:/tmp/fabozzi/NtupleLooseTestNew.root')
 
