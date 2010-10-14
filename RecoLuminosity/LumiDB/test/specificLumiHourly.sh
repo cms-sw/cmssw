@@ -11,7 +11,6 @@ cd $workdir
 eval `scramv1 runtime -sh`
 touch "$logpath/specificLumiHourly.log"
 date >> "$logpath/specificLumiHourly.log"
-lumiPlotFiller.py -c $dbConnectionString -P $authdir -i $indir -o $outdir >> "$logpath/specificlumiHourly.log" ;
-sleep 1
+specificLumi.py -c $dbConnectionString -P $authdir -i $indir -o $outdir >> "$logpath/specificLumiHourly.log" ;
 date >> "$logpath/specificLumiHourly.log"
 cd $currentdir
