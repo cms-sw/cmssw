@@ -190,16 +190,16 @@ if __name__ == '__main__':
     session.transaction().start(True)
     if options.fillnum: #if process a specific single fill
         fillstoprocess.append(int(options.fillnum))
-    else: #if process fills automatically 
+    else: #if process fills automatically
+        q=session.nominalSchema().newQuery()    
+        allfillsFromDB=lumiQueryAPI.allfills(q)
+        del q
         if os.path.exists(os.path.join(options.inputdir,allfillname)):
             allfillF=open(os.path.join(options.inputdir,allfillname),'r')
             for line in allfillF:
                 l=line.strip()
                 allfillsFromFile.append(int(l))
             allfillF.close()
-            q=session.nominalSchema().newQuery()    
-            allfillsFromDB=lumiQueryAPI.allfills(q)
-            del q
             if len(allfillsFromDB)==0:
                 print 'no fill found in DB, exit'
                 sys.exit(-1)
