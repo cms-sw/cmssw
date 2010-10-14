@@ -68,7 +68,7 @@ void RecoTauMVAHelper::fillValues(const reco::PFTauRef& tau) const {
     // Build values and copy into values vector
     std::for_each(pluginOutput.begin(), pluginOutput.end(),
                   boost::bind(&PhysicsTools::Variable::ValueList::add,
-                              values_, id, _1));
+                              boost::ref(values_), id, _1));
   }
 }
 
