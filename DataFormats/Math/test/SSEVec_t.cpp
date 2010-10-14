@@ -1,12 +1,16 @@
 #include "DataFormats/Math/interface/SSEVec.h"
-#ifdef  CMS_USE_SSE
 
-#include "DataFormats/Math/interface/SSERot.h"
 #include<cmath>
+#include<vector>
+
 #include<iostream>
 
 // this is a test,
 using namespace mathSSE;
+
+
+#ifdef  CMS_USE_SSE
+#include "DataFormats/Math/interface/SSERot.h"
 
 void addScaleddiff(Vec3F&res, float s, Vec3F const & a, Vec3F const & b) {
   res = res + s*(a-b);
@@ -140,6 +144,11 @@ void go() {
 
   std::cout << std::endl;
   std::cout << sizeof(Vec) << std::endl;
+  std::vector<Vec> vec1; vec1.reserve(50);
+  std::vector<T> vect(23);
+  std::vector<Vec> vec2(53);
+  std::vector<Vec> vec1; vec1.reserve(50234);
+
 
   Vec x(2.0,4.0,5.0);
   Vec y(-3.0,2.0,-5.0);
@@ -209,6 +218,16 @@ int main() {
 
 #else
 int main() {
+  typedef float T;
+  typedef Vec4<T> Vec;
+
+  std::cout << std::endl;
+  std::cout << sizeof(Vec) << std::endl;
+  std::vector<Vec> vec1; vec1.reserve(50);
+  std::vector<T> vect(23);
+  std::vector<Vec> vec2(53);
+  std::vector<Vec> vec1; vec1.reserve(50234);
+
   return 0;
 }
 #endif
