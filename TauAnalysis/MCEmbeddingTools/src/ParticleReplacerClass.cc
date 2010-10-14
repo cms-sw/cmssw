@@ -17,8 +17,9 @@ extern "C" {
 ParticleReplacerClass::ParticleReplacerClass(const edm::ParameterSet& pset, bool verbose):
   ParticleReplacerBase(pset),
   generatorMode_(pset.getParameter<std::string>("generatorMode")),
-  tauola_(pset.getParameter< edm::ParameterSet>("TauolaOptions") ),
-  printEvent_(verbose)
+  tauola_(pset.getParameter< edm::ParameterSet>("TauolaOptions")),
+  printEvent_(verbose),
+  maxNumberOfAttempts_(pset.getUntrackedParameter<int>("maxNumberOfAttempts", 1000))
 {
 // 	using namespace reco;
 	using namespace edm;
@@ -298,35 +299,40 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerClass::produce(const reco::MuonCo
 	repairBarcodes(evt);
 	
 	HepMC::GenEvent * retevt = 0;
+	HepMC::GenEvent * tempevt = 0;
 
 	/// 3) process the event
 	int nr_of_trials=0;
-	while(nr_of_trials<1000)
+
+	unsigned int cntVisPt_all = 0;
+	unsigned int cntVisPt_pass = 0;
+	
+	for (int i = 0; i<maxNumberOfAttempts_; i++)
 	{
-		nr_of_trials++;
-		
+		++cntVisPt_all;
 		if (generatorMode_ == "Pythia")	// Pythia
 		{
 			LogError("Replacer") << "Pythia is currently not supported!";
-			retevt=evt;
+			return std::auto_ptr<HepMC::GenEvent>(evt);
 		}
 
 		if (generatorMode_ == "Tauola")	// TAUOLA
-			retevt=tauola_.decay(evt);
-		
-		if (retevt==0)
+			tempevt=tauola_.decay(evt);
+
+		if (testEvent(tempevt))
 		{
-			LogError("Replacer") << "The new event could not be created due to some problems!";
-			return std::auto_ptr<HepMC::GenEvent>(0);
+			if (retevt==0)
+				retevt=tempevt;
+			++cntVisPt_pass;
 		}
-	
-		if (testEvent(retevt))
-			break;
 	}
-	if (nr_of_trials==1000)
+	eventWeight = (double)cntVisPt_pass / (double)cntVisPt_all;
+	std::cout << minVisibleTransverseMomentum_ << " " << cntVisPt_pass << "\t" << cntVisPt_all << "\n";
+	if (!retevt)
 	{
 		LogError("Replacer") << "failed to create an event where the visible momenta exceed "<< minVisibleTransverseMomentum_ << " GeV ";
 		attempts=-1;
+		eventWeight=0;
 		outTree->Fill();
 		return std::auto_ptr<HepMC::GenEvent>(0);
 	}

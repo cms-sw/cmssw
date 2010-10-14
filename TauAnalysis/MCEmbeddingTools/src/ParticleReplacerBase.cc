@@ -1,7 +1,7 @@
 #include "TauAnalysis/MCEmbeddingTools/interface/ParticleReplacerBase.h"
 
 ParticleReplacerBase::ParticleReplacerBase(const edm::ParameterSet& iConfig):
-  tauMass(1.7769)
+  eventWeight(0.), tauMass(1.7769)
 {}
 
 ParticleReplacerBase::~ParticleReplacerBase() {}

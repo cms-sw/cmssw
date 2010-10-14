@@ -15,6 +15,7 @@ MCParticleReplacer::MCParticleReplacer(const edm::ParameterSet& pset):
   replacer_(ParticleReplacerFactory::create(pset.getParameter<std::string>("algorithm"), pset)) {
 
   produces<edm::HepMCProduct>();
+  produces<double>("weight");
 }
 
 MCParticleReplacer::~MCParticleReplacer()
@@ -85,6 +86,9 @@ MCParticleReplacer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     bare_product->addHepMCData(evt.release()); // transfer ownership of the HepMC:GenEvent to bare_product
 
     iEvent.put(bare_product);
+    
+    std::auto_ptr<double> bare_weight(new double(replacer_->eventWeight));
+    iEvent.put(bare_weight, std::string("weight"));
   }
   
 }

@@ -103,6 +103,7 @@ private:
 	
 	TTree * outTree;
 	int attempts;
+	int maxNumberOfAttempts_;
 };
 
 
