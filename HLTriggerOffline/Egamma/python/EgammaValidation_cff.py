@@ -80,7 +80,8 @@ fiducial = cms.EDFilter("EtaPtMinCandViewSelector",
 ##########################################################
 
 tmp = cms.SequencePlaceholder("tmp")
-egammaValidationSequence = cms.Sequence(tmp)  # no empty sequences allowed, start with dummy
+egammaSelectors = cms.Sequence(tmp) # no empty sequences allowed, start with dummy
+egammaValidators= cms.Sequence(tmp) # same
 
 #loop over samples
 for samplenum in range(len(samples.names)):
@@ -89,13 +90,13 @@ for samplenum in range(len(samples.names)):
     genpartname = "genpart"+samples.names[samplenum]
     globals()[genpartname] = genp.clone()
     setattr(globals()[genpartname],"pdgId",cms.vint32(samples.pdgid[samplenum]) ) # set pdgId
-    egammaValidationSequence *= globals()[genpartname]                            # add to sequence
+    egammaSelectors *= globals()[genpartname]                            # add to sequence
 
     # clone generator fiducial region
     fiducialname = "fiducial"+samples.names[samplenum]
     globals()[fiducialname] = fiducial.clone()
     setattr(globals()[fiducialname],"src",cms.InputTag(genpartname) ) # set input collection
-    egammaValidationSequence *= globals()[fiducialname]               # add to sequence
+    egammaSelectors *= globals()[fiducialname]               # add to sequence
 
     # loop over triggers for each sample
     for trig in getattr(paths,samples.names[samplenum]):
@@ -114,7 +115,15 @@ for samplenum in range(len(samples.names)):
             for isocollections in getattr(filterpset,'IsoCollections'):
                 isocollections.setProcessName( lumiprocess[pathlumi[trig]])
 
-        egammaValidationSequence *= globals()[trigname]                      # add to sequence
+        egammaValidators *= globals()[trigname]                      # add to sequence
 
 
-egammaValidationSequence.remove(tmp)  # remove the initial dummy
+egammaSelectors.remove(tmp)  # remove the initial dummy
+egammaValidators.remove(tmp)
+
+
+egammaValidationSequence   = cms.Sequence( egammaSelectors * egammaValidators )
+
+# for FS, selectors go into separate "prevalidation" sequence
+# (this fixes the "no EDProducer in EndPath" problem)
+egammaValidationSequenceFS = cms.Sequence( egammaValidators )
