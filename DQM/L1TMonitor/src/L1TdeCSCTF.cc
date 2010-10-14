@@ -295,7 +295,7 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
 
 		for(L1CSCTrackCollection::const_iterator trk=tracks.product()->begin(); trk!=tracks.product()->end(); trk++)
 		{
-			if( (nDataMuons < 8) && (trk->first.BX() <2) && (trk->first.BX() > -2) )
+			if( (nDataMuons < 8) && (trk->first.BX() <2) && (trk->first.BX() > -1) )
 			{
 				//int mOdE = (trk->first.ptLUTAddress()>>16)&0xf; 
 				//cout << "D->Mode: " << mOdE << ", Rank " << trk->first.rank() << endl;
@@ -329,7 +329,7 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
 
 		for(L1CSCTrackCollection::const_iterator trk=tracks.product()->begin(); trk!=tracks.product()->end(); trk++)
 		{
-			if((nEmulMuons<8) && (trk->first.BX() <2) && (trk->first.BX() >-2))
+			if((nEmulMuons<8) && (trk->first.BX() <2) && (trk->first.BX() >-1))
 			{
 				//int mOdE = (trk->first.ptLUTAddress()>>16)&0xf; 
 				//cout << "E->Mode: " << mOdE << ", Rank " << trk->first.rank() << endl;
