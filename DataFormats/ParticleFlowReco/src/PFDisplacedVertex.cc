@@ -187,14 +187,15 @@ PFDisplacedVertex::totalCharge() const {
 
 const double
 PFDisplacedVertex::angle_io() const {
-  math::XYZTLorentzVector momentumSec = momentum
-("MASSLESS", T_FROM_VERTEX, true, 0.0);
+  math::XYZTLorentzVector momentumPrim = primaryMomentum((string) "PI", true);
+  math::XYZTLorentzVector momentumSec = secondaryMomentum((string) "PI", true);
+
   math::XYZVector p_out = momentumSec.Vect();
 
   math::XYZVector p_in;
 
-  if (isThereKindTracks(T_TO_VERTEX) || isThereKindTracks(T_MERGED)){
-    math::XYZTLorentzVector momentumPrim = momentum("MASSLESS", T_TO_VERTEX, true, 0.0);
+  if (( isThereKindTracks(T_TO_VERTEX) || isThereKindTracks(T_MERGED) ) &&
+      momentumPrim.E() >  momentumSec.E()){
     p_in = momentumPrim.Vect();
   } else {
     p_in = primaryDirection_;
