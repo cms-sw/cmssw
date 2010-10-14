@@ -41,6 +41,8 @@ public:
 
   virtual std::auto_ptr<HepMC::GenEvent> produce(const reco::MuonCollection&, const reco::Vertex *pvtx=0, const HepMC::GenEvent *genEvt=0) = 0;
 
+  double eventWeight;
+
 protected:
 
   const double tauMass;
