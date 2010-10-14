@@ -5,6 +5,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "PhysicsTools/SelectorUtils/interface/Selector.h"
+#include "PhysicsTools/SelectorUtils/interface/EventSelector.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include <vector>
