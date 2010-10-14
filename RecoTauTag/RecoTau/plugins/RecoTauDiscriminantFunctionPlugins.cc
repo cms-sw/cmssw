@@ -3,10 +3,10 @@
 
 /* Tau discriminant producer plugins.
  *
- * All plugins have a "simple" (i.e. Pt) discriminant name that is used by the 
+ * All plugins have a "simple" (i.e. Pt) discriminant name that is used by the
  * MVA framework.
  *
- * The entire plugin name use to build the plugin is 
+ * The entire plugin name use to build the plugin is
  *
  * "RecoTauDiscrimination"+<simple name>
  *
@@ -25,6 +25,17 @@
 #define TAU_DISC_PLUGIN(DiscriminatorFunction) DEFINE_EDM_PLUGIN(RecoTauDiscriminantPluginFactory, reco::tau::RecoTauDiscriminantFunctionPlugin<reco::tau::disc::DiscriminatorFunction>, reco::tau::discPluginName(#DiscriminatorFunction))
 // Build a plugin that produces multiple values
 #define TAU_VEC_DISC_PLUGIN(DiscriminatorFunction) DEFINE_EDM_PLUGIN(RecoTauDiscriminantPluginFactory, reco::tau::RecoTauDiscriminantVectorFunctionPlugin<reco::tau::disc::DiscriminatorFunction>, reco::tau::discPluginName(#DiscriminatorFunction))
+
+// HPStanc variables
+TAU_DISC_PLUGIN(SignalPtFraction);
+TAU_DISC_PLUGIN(IsolationChargedPtFraction);
+TAU_DISC_PLUGIN(IsolationECALPtFraction);
+TAU_DISC_PLUGIN(IsolationNeutralHadronPtFraction);
+TAU_DISC_PLUGIN(MainTrackPtFraction);
+TAU_DISC_PLUGIN(IsolationChargedAveragePtFraction);
+TAU_DISC_PLUGIN(ScaledEtaJetCollimation);
+TAU_DISC_PLUGIN(ScaledPhiJetCollimation);
+TAU_VEC_DISC_PLUGIN(Dalitz2);
 
 TAU_DISC_PLUGIN(Pt);
 TAU_DISC_PLUGIN(Eta);

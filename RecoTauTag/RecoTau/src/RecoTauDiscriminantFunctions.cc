@@ -67,6 +67,75 @@ PFCandidateRefVector notMainTrack(Tau tau)
   return output;
 }
 
+/*
+ * HPStanc variables
+ */
+
+double JetPt(Tau tau) {
+  return tau.jetRef()->pt();
+}
+
+double SignalPtFraction(Tau tau) {
+  return tau.pt()/tau.jetRef()->pt();
+}
+
+double IsolationChargedPtFraction(Tau tau) {
+  return tau.isolationPFChargedHadrCandsPtSum()/tau.jetRef()->pt();
+}
+
+double IsolationECALPtFraction(Tau tau) {
+  return tau.isolationPFGammaCandsEtSum()/tau.jetRef()->pt();
+}
+
+double IsolationNeutralHadronPtFraction(Tau tau) {
+  double sum = 0.0;
+  BOOST_FOREACH(PFCandidateRef cand, tau.isolationPFNeutrHadrCands()) {
+    sum += cand->pt();
+  }
+  return sum/tau.jetRef()->pt();
+}
+
+double ScaledEtaJetCollimation(Tau tau) {
+  return tau.jetRef()->pt()*sqrt(tau.jetRef()->etaetaMoment());
+}
+
+double ScaledPhiJetCollimation(Tau tau) {
+  return tau.jetRef()->pt()*sqrt(tau.jetRef()->phiphiMoment());
+}
+
+double IsolationChargedAveragePtFraction(Tau tau) {
+  size_t nIsoCharged = tau.isolationPFChargedHadrCands().size();
+  double averagePt = (nIsoCharged) ?
+      tau.isolationPFChargedHadrCandsPtSum()/nIsoCharged : 0;
+  return averagePt/tau.leadPFChargedHadrCand()->pt();
+}
+
+double MainTrackPtFraction(Tau tau) {
+  return mainTrack(tau)->pt()/tau.jetRef()->pt();
+}
+
+VDouble Dalitz2(Tau tau) {
+  PFCandidateRef theMainTrack = mainTrack(tau);
+  PFCandidateRefVector otherSignalTracks = notMainTrack(tau);
+  const std::vector<RecoTauPiZero> &pizeros = tau.signalPiZeroCandidates();
+  VDouble output;
+  output.reserve(otherSignalTracks.size() + pizeros.size());
+  // Add combos with tracks
+  BOOST_FOREACH(PFCandidateRef trk, otherSignalTracks) {
+    reco::Candidate::LorentzVector p4 = theMainTrack->p4() + trk->p4();
+    output.push_back(p4.mass());
+  }
+  // Add combos with pizeros
+  BOOST_FOREACH(const RecoTauPiZero &pizero, pizeros) {
+    reco::Candidate::LorentzVector p4 = theMainTrack->p4() + pizero.p4();
+    output.push_back(p4.mass());
+  }
+  return output;
+}
+
+
+
+
 double OutlierN(Tau tau) {
   return tau.isolationPFChargedHadrCands().size() +
       tau.isolationPiZeroCandidates().size();

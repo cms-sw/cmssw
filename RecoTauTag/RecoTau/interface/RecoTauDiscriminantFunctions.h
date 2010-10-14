@@ -7,7 +7,7 @@
  * Collection of unary functions used to compute tau discriminant values.
  * Each function here (may be) used in an MVA discriminator.
  *
- * The functions all have the form 
+ * The functions all have the form
  *      ReturnType Function(const PFTau& tau)
  * where ReturnType is either vector<double> or double.
  *
@@ -29,13 +29,25 @@ typedef std::vector<double> VDouble;
 /// composite charge.
 PFCandidateRef mainTrack(const PFTau& tau);
 
+// HPStanc variables
+double JetPt(Tau tau);
+double SignalPtFraction(Tau tau);
+double IsolationChargedPtFraction(Tau tau);
+double IsolationECALPtFraction(Tau tau);
+double IsolationNeutralHadronPtFraction(Tau tau);
+double MainTrackPtFraction(Tau tau);
+double IsolationChargedAveragePtFraction(Tau tau);
+double ScaledEtaJetCollimation(Tau tau);
+double ScaledPhiJetCollimation(Tau tau);
+VDouble Dalitz2(Tau tau);
+
 double Pt(Tau tau) { return tau.pt(); }
 double Eta(Tau tau) { return tau.eta(); }
 double Mass(Tau tau) { return tau.mass(); }
-double DecayMode(Tau tau) { return tau.decayMode(); } 
+double DecayMode(Tau tau) { return tau.decayMode(); }
 
 // Number of objects in isolation cone
-double OutlierN(Tau);  
+double OutlierN(Tau);
 
 // Number of charged objects in isolation cone
 double OutlierNCharged(Tau);
@@ -54,12 +66,12 @@ double MainTrackAngle(Tau);
 // Exactly the same as "Mass", needed for backwards compatability
 double InvariantMassOfSignal(Tau tau) { return tau.mass(); }
 
-// Quanitites of tracks 
+// Quanitites of tracks
 VDouble TrackPt(Tau);
 VDouble TrackAngle(Tau);
 VDouble TrackEta(Tau);
 
-// Quanitites of PiZeros 
+// Quanitites of PiZeros
 VDouble PiZeroPt(Tau);
 VDouble PiZeroAngle(Tau);
 VDouble PiZeroEta(Tau);
@@ -84,4 +96,4 @@ VDouble InvariantMass(Tau);
 VDouble OutlierMass(Tau);
 
 }}} // end namespace reco::tau::disc
-#endif 
+#endif
