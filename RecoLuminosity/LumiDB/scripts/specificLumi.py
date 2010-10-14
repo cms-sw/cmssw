@@ -211,9 +211,9 @@ if __name__ == '__main__':
                 for fill in allfillsFromDB:
                     if fill>max(allfillsFromFile):
                         fillstoprocess.append(fill)
-            if len(allfillsFromFile)>5: #reprocess anyway old fills
-                fillstoprocess+=allfillsFromFile[-5:]
-            elif len(allfillsFromFile)>2:
+            #if len(allfillsFromFile)>5: #reprocess anyway old fills
+            #    fillstoprocess+=allfillsFromFile[-5:]
+            if len(allfillsFromFile)>2:
                 fillstoprocess+=allfillsFromFile[-2:]
             else:
                 fillstoprocess+=allfillsFromFile[-1]
