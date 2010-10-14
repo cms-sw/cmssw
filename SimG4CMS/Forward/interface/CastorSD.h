@@ -16,7 +16,7 @@
 //
 // Original Author: 
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id: CastorSD.h,v 1.7 2009/09/02 20:41:25 sunanda Exp $
+// $Id: CastorSD.h,v 1.8 2010/04/24 00:48:56 wcarvalh Exp $
 //
  
 // system include files
@@ -45,10 +45,11 @@ private:
   void                    getFromLibrary(G4Step*);
   int                     setTrackID(G4Step*);
   uint32_t                rotateUnitID(uint32_t, G4Track*, CastorShowerEvent);
+  double                  impactParAtIP(G4Step*) ;
   CastorNumberingScheme * numberingScheme;
   CastorShowerLibrary *   showerLibrary;
   G4LogicalVolume         *lvC3EF, *lvC3HF, *lvC4EF, *lvC4HF;
-  G4LogicalVolume         *lvCAEL, *lvCAHL;   // Pointers for W logical volumes
+  G4LogicalVolume         *lvCAST;               // Pointer for CAST sensitive volume  (SL trigger)
   
   bool                    useShowerLibrary;
   double                  energyThresholdSL; 
