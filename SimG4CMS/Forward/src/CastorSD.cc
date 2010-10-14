@@ -32,7 +32,7 @@ CastorSD::CastorSD(G4String name, const DDCompactView & cpv,
 		   edm::ParameterSet const & p, 
 		   const SimTrackManager* manager) : 
   CaloSD(name, cpv, clg, p, manager), numberingScheme(0), lvC3EF(0),
-  lvC3HF(0), lvC4EF(0), lvC4HF(0), lvCAEL(0), lvCAHL(0) {
+  lvC3HF(0), lvC4EF(0), lvC4HF(0), lvCAST(0) {
   
   edm::ParameterSet m_CastorSD = p.getParameter<edm::ParameterSet>("CastorSD");
   useShowerLibrary  = m_CastorSD.getParameter<bool>("useShowerLibrary");
@@ -57,15 +57,14 @@ CastorSD::CastorSD(G4String name, const DDCompactView & cpv,
     if (strcmp(((*lvcite)->GetName()).c_str(),"C3HF") == 0) lvC3HF = (*lvcite);
     if (strcmp(((*lvcite)->GetName()).c_str(),"C4EF") == 0) lvC4EF = (*lvcite);
     if (strcmp(((*lvcite)->GetName()).c_str(),"C4HF") == 0) lvC4HF = (*lvcite);
-    if (strcmp(((*lvcite)->GetName()).c_str(),"CAEL") == 0) lvCAEL = (*lvcite);
-    if (strcmp(((*lvcite)->GetName()).c_str(),"CAHL") == 0) lvCAHL = (*lvcite);
-    if (lvC3EF != 0 && lvC3HF != 0 && lvC4EF != 0 && lvC4HF != 0 && lvCAEL != 0 && lvCAHL != 0) break;
+    if (strcmp(((*lvcite)->GetName()).c_str(),"CAST") == 0) lvCAST = (*lvcite);
+    if (lvC3EF != 0 && lvC3HF != 0 && lvC4EF != 0 && lvC4HF != 0 && lvCAST != 0) break;
   }
   edm::LogInfo("ForwardSim") << "CastorSD:: LogicalVolume pointers\n"
 			     << lvC3EF << " for C3EF; " << lvC3HF 
 			     << " for C3HF; " << lvC4EF << " for C4EF; " 
 			     << lvC4HF << " for C4HF; " 
-			     << lvCAEL << " for CAEL; " << lvCAHL << " for CAHL. " << std::endl;
+			     << lvCAST << " for CAST. " << std::endl;
 
   //  if(useShowerLibrary) edm::LogInfo("ForwardSim") << "\n Using Castor Shower Library \n";
 
@@ -107,7 +106,7 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
     std::string        nameVolume;
     nameVolume.assign(name,0,4);
     
-#ifdef DebugLog
+#ifdef debugLog
     if (aStep->IsFirstStepInVolume()) 
       LogDebug("ForwardSim") << "CastorSD::getEnergyDeposit:"
 			     << "\n IsFirstStepInVolume " ; 
@@ -116,9 +115,9 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
     // Get theTrack 
     G4Track*        theTrack = aStep->GetTrack();
     
-#ifdef DebugLog
-    if (useShowerLibrary) {
-      edm::LogInfo("ForwardSim") << "CastorSD::getEnergyDeposit:"
+#ifdef debugLog
+    if (useShowerLibrary && currentLV==lvCAST) {
+          LogDebug("ForwardSim") << "CastorSD::getEnergyDeposit:"
 				 << "\n TrackID , ParentID , ParticleName ,"
 				 << " eta , phi , z , time ,"
 				 << " K , E , Mom " 
@@ -143,12 +142,16 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
 				 << " , "
                                  << theTrack->GetMomentum().mag() ;
       if(theTrack->GetTrackID() != 1) 
-	edm::LogInfo("ForwardSim") << "CastorSD::getEnergyDeposit:"
-				   << "\n CurrentStepNumber , VertexPosition ,"
+	    LogDebug("ForwardSim") << "CastorSD::getEnergyDeposit:"
+				   << "\n CurrentStepNumber , TrackID , Particle , VertexPosition ,"
 				   << " LogicalVolumeAtVertex , CreatorProcess"
 				   << "\n  TRACKINFO2: " 
 				   << theTrack->GetCurrentStepNumber() 
 				   << " , " 
+				 << theTrack->GetTrackID() 
+				 << " , "
+				 << theTrack->GetDefinition()->GetParticleName() 
+				 << " , "
 				   << theTrack->GetVertexPosition() 
 				   << " , "
 				   << theTrack->GetLogicalVolumeAtVertex()->GetName() 
@@ -158,13 +161,14 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
 #endif
     
     // if particle moves from interaction point or "backwards (halo)
-    int backward = 0;
+    bool backward = false;
     G4ThreeVector  hitPoint = preStepPoint->GetPosition();	
     G4ThreeVector  hit_mom  = preStepPoint->GetMomentumDirection();
     double zint = hitPoint.z();
     double pz   = hit_mom.z();
+
     // Check if theTrack moves backward 
-    if (pz * zint < 0.) backward = 1;
+    if (pz * zint < 0.) backward = true;
     
     // Check that theTrack is above the energy threshold to use Shower Library 
     bool aboveThreshold = false;
@@ -177,12 +181,17 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
     G4int parCode = theTrack->GetDefinition()->GetPDGEncoding();
     if (parCode == mupPDG || parCode == mumPDG ) notaMuon = false;
     
-    if(useShowerLibrary && aboveThreshold && notaMuon && (!backward)) {
+    double r0_max = 5.0 ;     // mm  , Maximum x-y impact parameter allowed at z=0
+    double r0 = r0_max + 1. ; 
+    if(useShowerLibrary && aboveThreshold && notaMuon) r0 = impactParAtIP(aStep);
+    if(useShowerLibrary && aboveThreshold && notaMuon && (!backward) && r0<r0_max) {
       // Use Castor shower library if energy is above threshold, is not a muon 
       // and is not moving backward 
       if (currentLV == lvC3EF || currentLV == lvC4EF || 
-	  currentLV == lvCAEL || currentLV == lvCAHL ||
-	  currentLV == lvC3HF || currentLV == lvC4HF  ) getFromLibrary(aStep);
+	  currentLV == lvC3HF || currentLV == lvC4HF || currentLV == lvCAST ) getFromLibrary(aStep);
+#ifdef debugLog
+      LogDebug("ForwardSim") << " Current logical volume is " << nameVolume ;
+#endif
       return NCherPhot;
     } else {
       // Usual calculations
@@ -506,7 +515,7 @@ int CastorSD::setTrackID (G4Step* aStep) {
   TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
   int      primaryID = trkInfo->getIDonCaloSurface();
   if (primaryID == 0) {
-#ifdef DebugLog
+#ifdef debugLog
     LogDebug("ForwardSim") << "CastorSD: Problem with primaryID **** set by force "
 			   << "to TkID **** " << theTrack->GetTrackID();
 #endif
@@ -531,8 +540,10 @@ uint32_t CastorSD::rotateUnitID(uint32_t unitID, G4Track* track, CastorShowerEve
   
   // Get 'track' phi:
   float   trackPhi = track->GetPosition().phi(); 
+  if(trackPhi<0) trackPhi += 2*M_PI ;
   // Get phi from primary that gave rise to SL 'shower':
   float  showerPhi = shower.getPrimPhi(); 
+  if(showerPhi<0) showerPhi += 2*M_PI ;
   // Delta phi:
   
   //  Find the OctSector for which 'track' and 'shower' belong
@@ -553,7 +564,8 @@ uint32_t CastorSD::rotateUnitID(uint32_t unitID, G4Track* track, CastorShowerEve
   
   int aux ;
   int dSec = 2*(trackOctSector - showerOctSector) ;
-  if(trackZ<0)
+  // if(trackZ<0)  // Good for revision 1.8 of CastorNumberingScheme
+  if(trackZ>0)  // Good for revision 1.9 of CastorNumberingScheme
   {
     sec -= dSec ;
     if(sec<0) sec += 16;
@@ -568,7 +580,7 @@ uint32_t CastorSD::rotateUnitID(uint32_t unitID, G4Track* track, CastorShowerEve
   sec  = sec<<4 ;
   newUnitID = complement | sec ;
   
-#ifdef DebugLog
+#ifdef debugLog
   if(newUnitID != unitID) {
     LogDebug("ForwardSim") << "\n CastorSD::rotateUnitID:  " 
 			   << "\n     unitID = " << unitID 
@@ -619,7 +631,7 @@ void CastorSD::getFromLibrary (G4Step* aStep) {
     isEM = false; isHAD = true ;
   }
 
-#ifdef DebugLog
+#ifdef debugLog
   //  edm::LogInfo("ForwardSim") << "\n CastorSD::getFromLibrary:  " 
   LogDebug("ForwardSim") << "\n CastorSD::getFromLibrary:  " 
 			 << hits.getNhit() << " hits for " << GetName() << " from " 
@@ -632,6 +644,24 @@ void CastorSD::getFromLibrary (G4Step* aStep) {
   double E_track = preStepPoint->GetTotalEnergy() ;
   double E_SLhit = hits.getPrimE() * GeV ;
   double scale = E_track/E_SLhit ;
+
+/*  
+    double theTrackEnergy = theTrack->GetTotalEnergy() ; 
+  
+  if(fabs(theTrackEnergy-E_track)>10.) {
+    edm::LogInfo("ForwardSim") << "\n            TrackID = " << theTrack->GetTrackID()
+                               << "\n     theTrackEnergy = " << theTrackEnergy
+                               << "\n preStepPointEnergy = " << E_track ;
+    G4TrackVector tsec = *(aStep->GetSecondary());
+    for (unsigned int kk=0; kk<tsec.size(); kk++) {
+	edm::LogInfo("ForwardSim") << "CastorSD::getFromLibrary:"
+			       << "\n tsec[" << kk << "]->GetTrackID() = " 
+			       << tsec[kk]->GetTrackID() 
+			       << " with energy " 
+			       << tsec[kk]->GetTotalEnergy() ;
+    }
+  }
+*/
   
   //  Loop over hits retrieved from the library
   for (unsigned int i=0; i<hits.getNhit(); i++) {
@@ -675,7 +705,7 @@ void CastorSD::getFromLibrary (G4Step* aStep) {
   //Now kill the current track
   if (ok) {
     theTrack->SetTrackStatus(fStopAndKill);
-#ifdef DebugLog
+#ifdef debugLog
     LogDebug("ForwardSim") << "CastorSD::getFromLibrary:"
 			   << "\n \"theTrack\" with TrackID() = " 
 			   << theTrack->GetTrackID() 
@@ -687,7 +717,7 @@ void CastorSD::getFromLibrary (G4Step* aStep) {
     for (unsigned int kk=0; kk<tv.size(); kk++) {
       if (tv[kk]->GetVolume() == preStepPoint->GetPhysicalVolume()) {
 	tv[kk]->SetTrackStatus(fStopAndKill);
-#ifdef DebugLog
+#ifdef debugLog
 	LogDebug("ForwardSim") << "CastorSD::getFromLibrary:"
 			       << "\n tv[" << kk << "]->GetTrackID() = " 
 			       << tv[kk]->GetTrackID() 
@@ -698,4 +728,53 @@ void CastorSD::getFromLibrary (G4Step* aStep) {
       }
     }
   }
+}
+
+//=======================================================================================
+
+double CastorSD::impactParAtIP (G4Step* aStep) {
+
+/////////////////////////////////////////////////////////////////////
+//
+//   Calculate track XY-plane impact parameter r0 = sqrt(x^2 + y^2) at z=0 
+//   r0 is given in "mm"
+//
+/////////////////////////////////////////////////////////////////////
+
+    G4Track* track = aStep->GetTrack();
+
+    double pxTrack = track->GetMomentumDirection().x();
+    double pyTrack = track->GetMomentumDirection().y();
+    double pzTrack = track->GetMomentumDirection().z();
+    double  xTrack = track->GetPosition().x();
+    double  yTrack = track->GetPosition().y();
+    double  zTrack = track->GetPosition().z();
+    double x0 = xTrack - (pxTrack/pzTrack)*zTrack ;
+    double y0 = yTrack - (pyTrack/pzTrack)*zTrack ;
+    double r0 = sqrt(x0*x0+y0*y0); 
+
+    // std::cout << "\n impactParAtIP called:  r0 = " << r0 << " \n" << std::endl ;
+/*
+    // From preStepPoint
+    double zint = aStep->GetPreStepPoint()->GetPosition().z();
+    double pz   = aStep->GetPreStepPoint()->GetMomentumDirection().z();
+
+    if(r0>10.) {
+    edm::LogInfo("ForwardSim") << "CastorSD: \n" 
+       << "\n hitPoint.z() = " << zint << " , hit_mom.z() = " << pz 
+       << "\n track (ID , Name , KineticEnergy)  = ( " << track->GetTrackID() 
+                              << " , " << track->GetDefinition()->GetParticleName()
+                              << " , " << track->GetKineticEnergy() << " )" 
+       << "\n track->GetPosition().x() = " << track->GetPosition().x()
+       << "\n track->GetPosition().y() = " << track->GetPosition().y()
+       << "\n track->GetPosition().z() = " << track->GetPosition().z()
+       << "\n track->GetMomentumDirection().x() = " << track->GetMomentumDirection().x()
+       << "\n track->GetMomentumDirection().y() = " << track->GetMomentumDirection().y()
+       << "\n track->GetMomentumDirection().z() = " << track->GetMomentumDirection().z() 
+       << "\n (x0 , y0) = ( " << x0 << " , " << y0 << " )"
+       << "\n r0 = " << r0 ;
+    }
+*/
+    
+    return r0 ; 
 }
