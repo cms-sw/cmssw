@@ -93,7 +93,6 @@ private:
   int doNTcastorevent;
   std::string stepNtFileName;
   std::string eventNtFileName;
-  bool useShowerLibrary;
 
   TFile* castorOutputEventFile;
   TFile* castorOutputStepFile;

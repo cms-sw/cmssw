@@ -40,7 +40,6 @@ CastorTestAnalysis::CastorTestAnalysis(const edm::ParameterSet &p) {
   doNTcastorevent          = m_Anal.getParameter<int>("EventNtupleFlag");
   stepNtFileName           = m_Anal.getParameter<std::string>("StepNtupleFileName");
   eventNtFileName          = m_Anal.getParameter<std::string>("EventNtupleFileName");
-  useShowerLibrary         = m_Anal.getParameter<bool>("UseShowerLibrary");
 
   if (verbosity > 0)
    std::cout<<std::endl;
