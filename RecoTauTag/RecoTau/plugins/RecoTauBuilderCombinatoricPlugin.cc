@@ -51,6 +51,7 @@ std::vector<reco::PFTau> RecoTauBuilderCombinatoricPlugin::operator()(
 
   // Get PFCHs from this jet.  They are already sorted by descending Pt
   PFCandPtrs pfchs = pfCandidates(*jet, reco::PFCandidate::h);
+  PFCandPtrs pfnhs = pfCandidates(*jet, reco::PFCandidate::h0);
 
   // Loop over the decay modes we want to build
   for (std::vector<decayModeInfo>::const_iterator
@@ -129,6 +130,11 @@ std::vector<reco::PFTau> RecoTauBuilderCombinatoricPlugin::operator()(
         tau.addPFCands(RecoTauConstructor::kIsolation,
                        RecoTauConstructor::kChargedHadron,
                        pfch_end, pfchs.end());
+
+        // Add all the netural hadron candidates to the isolation collection
+        tau.addPFCands(RecoTauConstructor::kIsolation,
+                       RecoTauConstructor::kNeutralHadron,
+                       pfnhs.begin(), pfnhs.end());
 
         // Get PiZero constituents and add them to the tau.
         // The sub-gammas are automatically added.
