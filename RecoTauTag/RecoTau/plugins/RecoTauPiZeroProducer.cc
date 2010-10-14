@@ -47,8 +47,12 @@ class RecoTauPiZeroProducer : public edm::EDProducer {
   private:
     typedef boost::ptr_vector<Builder> builderList;
     typedef boost::ptr_vector<Ranker> rankerList;
+    typedef boost::ptr_vector<reco::RecoTauPiZero> PiZeroVector;
+    typedef boost::ptr_list<reco::RecoTauPiZero> PiZeroList;
+
     typedef reco::tau::RecoTauLexicographicalRanking<rankerList,
             reco::RecoTauPiZero> PiZeroPredicate;
+
     edm::InputTag jetSrc_;
     builderList builders_;
     rankerList rankers_;
@@ -90,21 +94,23 @@ RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) {
 
 void RecoTauPiZeroProducer::produce(edm::Event& evt,
                                     const edm::EventSetup& es) {
-  edm::Handle<reco::PFJetCollection> pfJets;
-  evt.getByLabel(jetSrc_, pfJets);
+  // Get a view of our jets via the base candidates
+  edm::Handle<reco::CandidateView> jetView;
+  evt.getByLabel(jetSrc_, jetView);
+  // Convert the view to a RefVector of actual PFJets
+  reco::PFJetRefVector jetRefs =
+      reco::tau::castView<reco::PFJetRefVector>(*jetView);
 
   // Make our association
   std::auto_ptr<reco::JetPiZeroAssociation> association(
-      new reco::JetPiZeroAssociation(reco::PFJetRefProd(pfJets)));
+      new reco::JetPiZeroAssociation(reco::PFJetRefProd(jetRefs)));
 
-  size_t iJet = 0;
   // Loop over our jets
-  for (reco::PFJetCollection::const_iterator jet = pfJets->begin();
-      jet != pfJets->end(); ++jet, ++iJet) {
-    size_t numberOfGammas = reco::tau::pfCandidates(
-        *jet, reco::PFCandidate::gamma).size();
-    typedef boost::ptr_vector<reco::RecoTauPiZero> PiZeroVector;
-    typedef boost::ptr_list<reco::RecoTauPiZero> PiZeroList;
+  BOOST_FOREACH(reco::PFJetRef jet, jetRefs) {
+    // Keep track of the number of gammas in the list so we know when we can
+    // stop building pi zeros
+    size_t numberOfGammas =
+        reco::tau::pfCandidates(*jet, reco::PFCandidate::gamma).size();
     // Build our global list of RecoTauPiZero
     PiZeroList dirtyPiZeros;
 
@@ -159,7 +165,7 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt,
       }
     }
     // Add to association
-    association->setValue(iJet, cleanPiZeros);
+    association->setValue(jet.key(), cleanPiZeros);
   }
   evt.put(association);
 }
