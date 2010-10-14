@@ -92,9 +92,9 @@ DDLSAX2FileHandler::startElement(const XMLCh* const uri
 }
 
 void
-DDLSAX2FileHandler::endElement(const XMLCh* const uri
-			       , const XMLCh* const localname
-			       , const XMLCh* const qname)
+DDLSAX2FileHandler::endElement( const XMLCh* const uri,
+				const XMLCh* const localname,
+				const XMLCh* const qname )
 {
   std::string ts(StrX(qname).localForm());
   const std::string&  myElementName = self();
@@ -130,8 +130,8 @@ DDLSAX2FileHandler::endElement(const XMLCh* const uri
 }
 
 void
-DDLSAX2FileHandler::characters(  const   XMLCh* const    chars
-				 , const unsigned int    length)
+DDLSAX2FileHandler::characters( const XMLCh* const chars,
+				const unsigned int length )
 {
   DCOUT_V('P', "DDLSAX2FileHandler::characters started");
   //  std::cout << "character handler started" << std::endl;

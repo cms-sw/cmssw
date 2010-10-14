@@ -10,5 +10,5 @@
 <use   name="rootmath"/>
 <use   name="xerces-c"/>
 <export>
-  <lib   name="DetectorDescriptionParser"/>
+  <lib   name="1"/>
 </export>
