@@ -16,7 +16,6 @@
 #include <vector>
 #include "DataFormats/METReco/interface/PFMETFwd.h" 
 
-using namespace std;
 namespace reco
 {
   typedef std::vector<reco::PFMET> PFMETCollection;

@@ -1,6 +1,6 @@
 // Jet.cc
 // Fedor Ratnikov, UMd
-// $Id: Jet.cc,v 1.23 2008/10/14 12:26:58 oehler Exp $
+// $Id: Jet.cc,v 1.24 2008/12/14 23:09:48 hegner Exp $
 
 #include <sstream>
 #include <cmath>
@@ -33,7 +33,7 @@ namespace {
   const double CaloPoint::R_BARREL = (1.-depth)*143.+depth*407.;
   const double CaloPoint::R_BARREL2 = R_BARREL * R_BARREL;
   const double CaloPoint::Z_ENDCAP = (1.-depth)*320.+depth*568.; // 1/2(EEz+HEz)
-  const double CaloPoint::R_FORWARD = Z_ENDCAP / sqrt (cosh(3.)*cosh(3.) -1.); // eta=3
+  const double CaloPoint::R_FORWARD = Z_ENDCAP / std::sqrt (std::cosh(3.)*std::cosh(3.) -1.); // eta=3
   const double CaloPoint::R_FORWARD2 = R_FORWARD * R_FORWARD;
   const double CaloPoint::Z_FORWARD = 1100.+depth*165.;
   const double CaloPoint::Z_BIG = 1.e5;
@@ -48,7 +48,7 @@ namespace {
       if (fZ > Z_ENDCAP) fZ = Z_ENDCAP-1.;
       if (fZ < -Z_ENDCAP) fZ = -Z_ENDCAP+1; // sanity check
       
-      double tanThetaAbs = sqrt (cosh(fEta)*cosh(fEta) - 1.);
+      double tanThetaAbs = std::sqrt (std::cosh(fEta)*std::cosh(fEta) - 1.);
       double tanTheta = fEta >= 0 ? tanThetaAbs : -tanThetaAbs;
       
       double rEndcap = tanTheta == 0 ? 1.e10 : 
@@ -60,10 +60,10 @@ namespace {
       else {
 	double zRef = Z_BIG; // very forward;
 	if (rEndcap > R_FORWARD) zRef = Z_ENDCAP; // endcap
-	else if (fabs (fEta) < ETA_MAX) zRef = Z_FORWARD; // forward
+	else if (std::fabs (fEta) < ETA_MAX) zRef = Z_FORWARD; // forward
 	
 	mZ = fEta > 0 ? zRef : -zRef;
-	mR = fabs ((mZ - fZ) / tanTheta);
+	mR = std::fabs ((mZ - fZ) / tanTheta);
       }
     }
     double etaReference (double fZ) {

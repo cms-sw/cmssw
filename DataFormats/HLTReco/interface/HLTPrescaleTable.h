@@ -5,8 +5,8 @@
  *
  *  The single EDProduct containing the HLT Prescale Table
  *
- *  $Date: 2010/04/01 17:38:56 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/04/01 17:51:57 $
+ *  $Revision: 1.6 $
  *
  *  \author Martin Grunewald
  *
@@ -19,11 +19,6 @@
 
 namespace trigger
 {
-
-  using std::map;
-  using std::string;
-  using std::vector;
-
   /// The single EDProduct containing the HLT Prescale Table
   class HLTPrescaleTable {
 
@@ -32,9 +27,9 @@ namespace trigger
     /// index number of default prescale set to use
     unsigned int set_;
     /// names of prescale sets
-    vector<string> labels_;
+    std::vector<std::string> labels_;
     /// prescale sets keyed on trigger path name
-    map<string,vector<unsigned int> > table_;
+    std::map<std::string,std::vector<unsigned int> > table_;
     /// consistency condition: all vectors must have the same length
 
   ///methods
@@ -44,13 +39,13 @@ namespace trigger
     unsigned int size() const {return labels_.size();}
 
     /// high-level user access method: prescale for given trigger path
-    unsigned int prescale(const string& trigger) const {
+    unsigned int prescale(const std::string& trigger) const {
       return prescale(set_,trigger);
     }
 
     /// high-level user access method: prescale for given trigger path
-    unsigned int prescale(unsigned int set, const string& trigger) const {
-      const map<string,vector<unsigned int> >::const_iterator it(table_.find(trigger));
+    unsigned int prescale(unsigned int set, const std::string& trigger) const {
+      const std::map<std::string,std::vector<unsigned int> >::const_iterator it(table_.find(trigger));
       if ((it==table_.end()) || (set>=it->second.size())) {
 	return 1;
       } else {
@@ -62,14 +57,14 @@ namespace trigger
     HLTPrescaleTable(): set_(0), labels_(), table_() { }
 
     /// real constructor taking payload
-    HLTPrescaleTable(unsigned int set, const vector<string>& labels, const map<string,vector<unsigned int> >& table):
+    HLTPrescaleTable(unsigned int set, const std::vector<std::string>& labels, const std::map<std::string,std::vector<unsigned int> >& table):
      set_(set), labels_(labels), table_(table) {
       /// checking consistency
       const unsigned int n(labels_.size());
       assert((((set_==0)&&(n==0)) || (set_<n)));
-      const map<string,vector<unsigned int> >::const_iterator ib(table_.begin());
-      const map<string,vector<unsigned int> >::const_iterator ie(table_.end());
-      for (map<string,vector<unsigned int> >::const_iterator it=ib; it!=ie; ++it) {
+      const std::map<std::string,std::vector<unsigned int> >::const_iterator ib(table_.begin());
+      const std::map<std::string,std::vector<unsigned int> >::const_iterator ie(table_.end());
+      for (std::map<std::string,std::vector<unsigned int> >::const_iterator it=ib; it!=ie; ++it) {
 	assert (it->second.size()==n);
       }
     }
@@ -81,8 +76,8 @@ namespace trigger
 
     /// low-level const accessors for data members
     unsigned int set() const {return set_;}
-    const vector<string>& labels() const {return labels_;}
-    const map<string,vector<unsigned int> >& table() const {return table_;}
+    const std::vector<std::string>& labels() const {return labels_;}
+    const std::map<std::string,std::vector<unsigned int> >& table() const {return table_;}
 
   };
 }

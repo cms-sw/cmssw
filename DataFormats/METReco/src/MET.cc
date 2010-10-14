@@ -81,7 +81,7 @@ double MET::significance() const {
   metvec(0)=this->px();
   metvec(1)=this->py();
   double signif = -1;
-  if(fabs(metmat.Determinant())>0.000001){
+  if(std::fabs(metmat.Determinant())>0.000001){
     metmat.Invert();
     signif = metvec * (metmat * metvec);
   }

@@ -27,7 +27,7 @@ reco::CaloMET GlobalHaloData::GetCorrectedCaloMET(const reco::CaloMET& RawMET) c
   double mey = RawMET.py() + dMEy_;
   double mez = RawMET.pz() ;
   double sumet  = RawMET.sumEt() + dSumEt_ ; 
-  const math::XYZTLorentzVector p4( mex, mey, mez, sqrt(mex*mex + mey*mey + mez*mez));
+  const math::XYZTLorentzVector p4( mex, mey, mez, std::sqrt(mex*mex + mey*mey + mez*mez));
   const math::XYZPoint vtx (0., 0., 0.);
   
   reco::CaloMET CorrectedMET( RawMET.getSpecific(), sumet, p4, vtx );

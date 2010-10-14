@@ -97,7 +97,7 @@ float HcalNoiseSummary::max10GeVHitTime(void) const
 
 float HcalNoiseSummary::rms10GeVHitTime(void) const
 {
-  return cnthit10_>0 ? sqrt(rms10_/cnthit10_) : 999;
+  return cnthit10_>0 ? std::sqrt(rms10_/cnthit10_) : 999;
 }
 
 float HcalNoiseSummary::min25GeVHitTime(void) const
@@ -112,7 +112,7 @@ float HcalNoiseSummary::max25GeVHitTime(void) const
  
 float HcalNoiseSummary::rms25GeVHitTime(void) const
 {
-  return cnthit25_>0 ? sqrt(rms25_/cnthit25_) : 999;
+  return cnthit25_>0 ? std::sqrt(rms25_/cnthit25_) : 999;
 }
 
 int HcalNoiseSummary::num10GeVHits(void) const
