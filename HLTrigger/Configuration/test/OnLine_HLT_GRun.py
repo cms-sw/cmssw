@@ -1,11 +1,11 @@
-# /dev/CMSSW_3_8_5/GRun/V13 (CMSSW_3_8_1_HLT21)
+# /dev/CMSSW_3_8_5/GRun/V14 (CMSSW_3_8_1_HLT22)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_3_8_5/GRun/V13')
+  tableName = cms.string('/dev/CMSSW_3_8_5/GRun/V14')
 )
 
 process.options = cms.untracked.PSet(  Rethrow = cms.untracked.vstring( 'ProductNotFound',
@@ -33,7 +33,7 @@ process.streams = cms.PSet(
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSymEcal' ),
   Calibration = cms.vstring( 'TestEnables' ),
-  CalibrationHI = cms.vstring( 'EcalHcalCalibration' ),
+  CalibrationHI = cms.vstring( 'EcalHcalCalibrationHI' ),
   DQM = cms.vstring( 'OnlineMonitor',
     'OnlineMonitorHI' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
@@ -85,7 +85,7 @@ process.datasets = cms.PSet(
     'HLT_Photon20_Isol_Cleaned_L1R_v1',
     'HLT_Photon20_NoHE_L1R',
     'HLT_Photon50_NoHE_L1R' ),
-  EcalHcalCalibration = cms.vstring( 'HLT_EcalCalibration' ),
+  EcalHcalCalibrationHI = cms.vstring( 'HLT_EcalCalibration' ),
   EcalLaser = cms.vstring( 'HLT_EcalCalibration' ),
   Electron = cms.vstring( 'HLT_DoubleEle17_SW_L1R_v1',
     'HLT_Ele17_SW_TightCaloEleId_Ele8HE_L1R_v1',
@@ -14737,7 +14737,10 @@ process.hltPreRPCMuonNoHits = cms.EDFilter( "HLTPrescaler",
 )
 process.hltRPCPointProducer = cms.EDProducer( "RPCPointProducer",
     cscSegments = cms.InputTag( "hltCscSegments" ),
-    dt4DSegments = cms.InputTag( "hltDt4DSegments" )
+    dt4DSegments = cms.InputTag( "hltDt4DSegments" ),
+    tracks = cms.InputTag( "NotUsed" ),
+    incltrack = cms.untracked.bool( False ),
+    TrackTransformer = cms.PSet(  )
 )
 process.hltRPCFilter = cms.EDFilter( "HLTRPCFilter",
     rpcRecHits = cms.InputTag( "hltRpcRecHits" ),
@@ -15719,13 +15722,6 @@ process.hltOutputCalibration = cms.OutputModule( "PoolOutputModule",
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
       'keep FEDRawDataCollection_source_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
-process.hltOutputCalibrationHI = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputCalibrationHI.root" ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_EcalCalibration' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
@@ -16857,7 +16853,7 @@ process.HLTriggerFinalPath = cms.Path( process.hltGtDigis + process.hltFEDSelect
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltL1GtTrigReport + process.hltTrigReport )
 process.HLTOutput = cms.EndPath( process.hltOutputA )
 process.ExpressOutput = cms.EndPath( process.hltPreExpress + process.hltPreExpressSmart + process.hltOutputExpress )
-process.AlCaOutput = cms.EndPath( process.hltOutputCalibration + process.hltOutputCalibrationHI + process.hltOutputEcalCalibration + process.hltOutputALCAP0 + process.hltOutputALCAPHISYM + process.hltOutputRPCMON + process.hltOutputOnlineErrors )
+process.AlCaOutput = cms.EndPath( process.hltOutputCalibration + process.hltOutputEcalCalibration + process.hltOutputALCAP0 + process.hltOutputALCAPHISYM + process.hltOutputRPCMON + process.hltOutputOnlineErrors )
 process.DQMOutput = cms.EndPath( process.hltDQML1Scalers + process.hltDQML1SeedLogicScalers + process.hltDQMHLTScalers + process.hltPreDQM + process.hltPreDQMSmart + process.hltOutputDQM )
 process.HLTDQMOutput = cms.EndPath( process.hltPreHLTDQM + process.hltPreHLTDQMSmart + process.hltOutputHLTDQM )
 process.HLTDQMResultsOutput = cms.EndPath( process.hltPreHLTDQMResults + process.hltPreHLTDQMResultsSmart + process.hltOutputHLTDQMResults )

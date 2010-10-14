@@ -33,7 +33,7 @@ HLTriggerFinalPath
 HLTAnalyzerEndpath
 HLTOutput
 ExpressOutput
-AlCaOutput
+AlCaHIOutput
 DQMOutput
 HLTDQMOutput
 HLTDQMResultsOutput
