@@ -85,11 +85,11 @@ akPu7CaloJets = cms.EDProducer(
 akPu7CaloJets.radiusPU = 0.7
 
 ## Algos without offset pileup correction
-ic5CaloJets = iterativeConePu5CaloJets.clone()
+ic5CaloJets = akPu5CaloJets.clone()
 ic5CaloJets.doRhoFastjet = True
 ic5CaloJets.doPUOffsetCorr = False
 
-ic7CaloJets = iterativeConePu7CaloJets.clone()
+ic7CaloJets = akPu7CaloJets.clone()
 ic7CaloJets.doRhoFastjet = True
 ic7CaloJets.doPUOffsetCorr = False
 

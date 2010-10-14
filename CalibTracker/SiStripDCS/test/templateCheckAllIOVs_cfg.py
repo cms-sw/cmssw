@@ -67,16 +67,15 @@ process.poolDBESSource = cms.ESSource("PoolDBESSource",
         messageLevel = cms.untracked.int32(2),
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
-    connect = cms.string('DATABASECONNECTION'),
+    connect = cms.string('DATABASE'),
     toGet = cms.VPSet(cms.PSet(
     timetype = cms.untracked.string('timestamp'),
         record = cms.string('SiStripDetVOffRcd'),
-        tag = cms.string('TAG')
+        tag = cms.string('SiStripDetVOff_Fake_31X')
     ))
 )
 
-#Change the EDFilter into EDAnalyzer as requested by CMSSW since 3_8_0...
-process.reader = cms.EDAnalyzer("SiStripDetVOffDummyPrinter")
+process.reader = cms.EDFilter("SiStripDetVOffDummyPrinter")
                               
 process.p1 = cms.Path(process.reader)
 

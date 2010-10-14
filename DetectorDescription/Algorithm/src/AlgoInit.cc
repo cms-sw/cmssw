@@ -82,6 +82,16 @@ void AlgoInit()
   //   register the representation at DDCore
   DDalgo(DDName("simpleAngular", "global"), algo);
 
+
+  
+  // preshower detector positioning
+  algo = new AlgoPos(0);
+  
+  //  new presh_detectors(algo, "placing preshower detectors");
+  //presh_detectors pd(algo,"nix");
+  
+  //  DDalgo(DDName("detectors","presh"), algo);
+
 }
 
 

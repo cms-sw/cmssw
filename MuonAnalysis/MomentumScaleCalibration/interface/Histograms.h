@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2010/05/25 10:26:05 $
- *  $Revision: 1.23 $
+ *  $Date: 2009/10/30 10:49:45 $
+ *  $Revision: 1.18 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -21,7 +21,6 @@
 #include "TFile.h"
 #include "TString.h"
 #include "TProfile.h"
-#include "TProfile2D.h"
 #include "TF1.h"
 #include "TGraphErrors.h"
 #include "TFile.h"
@@ -33,24 +32,24 @@
 #include <iostream>
 #include "TMath.h"
 
+using namespace std;
+using std::cout;
+using std::endl;
+
 class Histograms {
 public:
 
   // Constructor
   // -----------
   Histograms() : theWeight_(1), histoDir_(0) {};
-  Histograms( const TString & name ) : theWeight_(1), name_(name), histoDir_(0) {}
+  Histograms( const TString & name ) : theWeight_(1), name_(name), histoDir_(0) {};
   Histograms( TFile * outputFile, const TString & name ) :
     theWeight_(1),
     name_(name),
     outputFile_(outputFile),
-    histoDir_( outputFile->GetDirectory(name) )
-  {
-    if( histoDir_ == 0 ) {
-      histoDir_ = outputFile->mkdir(name);
-    }
+    histoDir_( outputFile->mkdir(name) ) {
     histoDir_->cd();
-  }
+  };
 
   // Destructor
   // ----------
@@ -70,7 +69,7 @@ public:
   virtual void Fill( const reco::Particle::LorentzVector & p4, const double & resValue, const int charge ) {};
   virtual void Fill( const reco::Particle::LorentzVector & p4, const double & genValue, const double recValue, const int charge ) {};
   virtual void Fill( const CLHEP::HepLorentzVector & p, const double & likeValue ) {};
-  virtual void Fill( const unsigned int number ) {};
+  virtual void Fill( const int & number ) {};
   virtual void Fill( const reco::Particle::LorentzVector & recoP1, const int charge1,
                      const reco::Particle::LorentzVector & genP1,
                      const reco::Particle::LorentzVector & recoP2, const int charge2,
@@ -115,9 +114,9 @@ private:
 class HTH2D : public Histograms
 {
 public:
-  HTH2D( TFile * outputFile, const TString & name, const TString & title, const TString & dirName,
+  HTH2D( TFile * outputFile, const TString & name, const TString & title,
          const int xBins, const double & xMin, const double & xMax,
-         const int yBins, const double & yMin, const double & yMax ) : Histograms(outputFile, dirName),
+         const int yBins, const double & yMin, const double & yMax ) : Histograms(outputFile, name),
                                                                        tH2d_( new TH2D(name, title, xBins, xMin, xMax, yBins, yMin, yMax) ),
                                                                        tProfile_( new TProfile(name+"Prof", title+" profile", xBins, xMin, xMax, yMin, yMax) ) {}
   ~HTH2D() {
@@ -283,9 +282,9 @@ class HParticle : public Histograms {
     //hMass_fine_->Fill(momentum.m(), weight);
   }
   
-  virtual void Fill( unsigned int number )
+  virtual void Fill( int number )
   {
-    hNumber_->Fill(number);
+    hNumber_->Fill (number);
   }
 
   virtual void Write()
@@ -336,7 +335,7 @@ class HDelta : public Histograms
     hPhi_( new TH1F (name+"_DeltaPhi", "#Delta#phi", 100,0,3.2) ),
     hTheta_( new TH1F (name+"_DeltaTheta", "#Delta#theta", 100,-3.2,3.2) ),
     hCotgTheta_( new TH1F (name+"_DeltaCotgTheta", "#Delta Cotg(#theta )", 100,-3.2,3.2) ),
-    hDeltaR_( new TH1F (name+"_DeltaR","#Delta R", 400, 0, 4 ) )
+    hDeltaR_( new TH1F (name+"_DeltaR","#Delta R", 400, 0, 1 ) )
   {}
 
   HDelta (TFile* outputFile, const TString & name) :
@@ -348,7 +347,7 @@ class HDelta : public Histograms
     hPhi_( new TH1F (name+"_DeltaPhi", "#Delta#phi", 100,0,3.2) ),
     hTheta_( new TH1F (name+"_DeltaTheta", "#Delta#theta", 100,-3.2,3.2) ),
     hCotgTheta_( new TH1F (name+"_DeltaCotgTheta", "#Delta Cotg(#theta )", 100,-3.2,3.2) ),
-    hDeltaR_( new TH1F (name+"_DeltaR","#DeltaR", 400, 0, 4 ) )
+    hDeltaR_( new TH1F (name+"_DeltaR","#DeltaR", 400, 0, 1 ) )
   {}
 
   HDelta (const TString & name, TFile* file) {
@@ -468,10 +467,10 @@ class HPartVSEta : public Histograms
     hMassVSEta_->Write();
     hMassVSEta_prof_->Write();
 
-    //     std::vector<TGraphErrors*> graphs( (MuScleFitUtils::fitMass(hMassVSEta_)) );
-    //     for (std::vector<TGraphErrors*>::const_iterator graph = graphs.begin(); graph != graphs.end(); graph++) {
-    //       (*graph)->Write();
-    //     }
+    vector<TGraphErrors*> graphs( (MuScleFitUtils::fitMass(hMassVSEta_)) );
+    for (vector<TGraphErrors*>::const_iterator graph = graphs.begin(); graph != graphs.end(); graph++) {
+      (*graph)->Write();
+    }
   }
 
   virtual void Clear() {
@@ -571,38 +570,38 @@ class HPartVSPhi : public Histograms
     hMassVSPhiWp2_->Write();
     hMassVSPhiF_->Write();
 
-//     std::vector<TGraphErrors*> graphs ((MuScleFitUtils::fitMass(hMassVSPhi_)));
-//     for(std::vector<TGraphErrors*>::const_iterator graph = graphs.begin(); graph != graphs.end(); graph++){
-//       (*graph)->Write();
-//     }
-//     std::vector<TGraphErrors*> graphsB ((MuScleFitUtils::fitMass(hMassVSPhiB_)));
-//     for(std::vector<TGraphErrors*>::const_iterator graph = graphsB.begin(); graph != graphsB.end(); graph++){
-//       (*graph)->Write();
-//     }
-//     std::vector<TGraphErrors*> graphsWm2 ((MuScleFitUtils::fitMass(hMassVSPhiWm2_)));
-//     for(std::vector<TGraphErrors*>::const_iterator graph = graphsWm2.begin(); graph != graphsWm2.end(); graph++){
-//       (*graph)->Write();
-//     }
-//     std::vector<TGraphErrors*> graphsWm1 ((MuScleFitUtils::fitMass(hMassVSPhiWm1_)));
-//     for(std::vector<TGraphErrors*>::const_iterator graph = graphsWm1.begin(); graph != graphsWm1.end(); graph++){
-//       (*graph)->Write();
-//     }
-//     std::vector<TGraphErrors*> graphsW0 ((MuScleFitUtils::fitMass(hMassVSPhiW0_)));
-//     for(std::vector<TGraphErrors*>::const_iterator graph = graphsW0.begin(); graph != graphsW0.end(); graph++){
-//       (*graph)->Write();
-//     }
-//     std::vector<TGraphErrors*> graphsWp1 ((MuScleFitUtils::fitMass(hMassVSPhiWp1_)));
-//     for(std::vector<TGraphErrors*>::const_iterator graph = graphsWp1.begin(); graph != graphsWp1.end(); graph++){
-//       (*graph)->Write();
-//     }
-//     std::vector<TGraphErrors*> graphsWp2 ((MuScleFitUtils::fitMass(hMassVSPhiWp2_)));
-//     for(std::vector<TGraphErrors*>::const_iterator graph = graphsWp2.begin(); graph != graphsWp2.end(); graph++){
-//       (*graph)->Write();
-//     }
-//     std::vector<TGraphErrors*> graphsF ((MuScleFitUtils::fitMass(hMassVSPhiF_)));
-//     for(std::vector<TGraphErrors*>::const_iterator graph = graphsF.begin(); graph != graphsF.end(); graph++){
-//       (*graph)->Write();
-//     }
+    vector<TGraphErrors*> graphs ((MuScleFitUtils::fitMass(hMassVSPhi_)));
+    for(vector<TGraphErrors*>::const_iterator graph = graphs.begin(); graph != graphs.end(); graph++){
+      (*graph)->Write();
+    }
+    vector<TGraphErrors*> graphsB ((MuScleFitUtils::fitMass(hMassVSPhiB_)));
+    for(vector<TGraphErrors*>::const_iterator graph = graphsB.begin(); graph != graphsB.end(); graph++){
+      (*graph)->Write();
+    }
+    vector<TGraphErrors*> graphsWm2 ((MuScleFitUtils::fitMass(hMassVSPhiWm2_)));
+    for(vector<TGraphErrors*>::const_iterator graph = graphsWm2.begin(); graph != graphsWm2.end(); graph++){
+      (*graph)->Write();
+    }
+    vector<TGraphErrors*> graphsWm1 ((MuScleFitUtils::fitMass(hMassVSPhiWm1_)));
+    for(vector<TGraphErrors*>::const_iterator graph = graphsWm1.begin(); graph != graphsWm1.end(); graph++){
+      (*graph)->Write();
+    }
+    vector<TGraphErrors*> graphsW0 ((MuScleFitUtils::fitMass(hMassVSPhiW0_)));
+    for(vector<TGraphErrors*>::const_iterator graph = graphsW0.begin(); graph != graphsW0.end(); graph++){
+      (*graph)->Write();
+    }
+    vector<TGraphErrors*> graphsWp1 ((MuScleFitUtils::fitMass(hMassVSPhiWp1_)));
+    for(vector<TGraphErrors*>::const_iterator graph = graphsWp1.begin(); graph != graphsWp1.end(); graph++){
+      (*graph)->Write();
+    }
+    vector<TGraphErrors*> graphsWp2 ((MuScleFitUtils::fitMass(hMassVSPhiWp2_)));
+    for(vector<TGraphErrors*>::const_iterator graph = graphsWp2.begin(); graph != graphsWp2.end(); graph++){
+      (*graph)->Write();
+    }
+    vector<TGraphErrors*> graphsF ((MuScleFitUtils::fitMass(hMassVSPhiF_)));
+    for(vector<TGraphErrors*>::const_iterator graph = graphsF.begin(); graph != graphsF.end(); graph++){
+      (*graph)->Write();
+    }
   }
 
   virtual void Clear() {
@@ -667,10 +666,10 @@ class HPartVSPt : public Histograms
     hMassVSPt_->Write();
     hMassVSPt_prof_->Write();
    
-//     std::vector<TGraphErrors*> graphs( (MuScleFitUtils::fitMass(hMassVSPt_)) );
-//     for(std::vector<TGraphErrors*>::const_iterator graph = graphs.begin(); graph != graphs.end(); graph++){
-//       (*graph)->Write();
-//     }
+    vector<TGraphErrors*> graphs( (MuScleFitUtils::fitMass(hMassVSPt_)) );
+    for(vector<TGraphErrors*>::const_iterator graph = graphs.begin(); graph != graphs.end(); graph++){
+      (*graph)->Write();
+    }
   }
   
   virtual void Clear() {
@@ -779,87 +778,14 @@ class HMassVSPart : public Histograms
   //TProfile* hMassVSPhiMinus_prof_;
 };
 
-
-// ---------------------------------------------------
-// A set of histograms of Z mass versus muon variables
-class HMassVSPartProfile : public Histograms
-{
- public:
-  HMassVSPartProfile( const TString & name, const double & minMass = 0., const double & maxMass = 150., const double maxPt = 100. ) {
-    name_ = name;
-
-    // Kinematical variables
-    // ---------------------
-    hMassVSPt_       = new TProfile2D( name+"_MassVSPt", "resonance mass vs muon transverse momentum", 200, 0., maxPt, 6000, minMass, maxMass, 0., 100. );
-    hMassVSEta_      = new TProfile2D( name+"_MassVSEta", "resonance mass vs muon pseudorapidity", 60, -6., 6., 6000, minMass, maxMass, 0., 100. );
-    hMassVSPhiPlus_  = new TProfile2D( name+"_MassVSPhiPlus", "resonance mass vs muon+ phi angle", 64, -3.2, 3.2, 6000, minMass, maxMass, 0., 100. );
-    hMassVSPhiMinus_ = new TProfile2D( name+"_MassVSPhiMinus", "resonance mass vs muon- phi angle", 64, -3.2, 3.2, 6000, minMass, maxMass, 0., 100. );
-   }
-
-  HMassVSPartProfile(const TString & name, TFile* file){
-    name_=name;
-    hMassVSPt_       = (TProfile2D *) file->Get(name+"_MassVSPt");
-    hMassVSEta_      = (TProfile2D *) file->Get(name+"_MassVSEta");
-    hMassVSPhiPlus_  = (TProfile2D *) file->Get(name+"_MassVSPhiPlus");
-    hMassVSPhiMinus_ = (TProfile2D *) file->Get(name+"_MassVSPhiMinus");
-  }
-
-  ~HMassVSPartProfile(){
-    delete hMassVSPt_;
-    delete hMassVSEta_;
-    delete hMassVSPhiPlus_;
-    delete hMassVSPhiMinus_;
-  }
-
-  virtual void Fill(const reco::Particle::LorentzVector & p41, const reco::Particle::LorentzVector & p42, const int charge, const double & weight = 1.) {
-    Fill(CLHEP::HepLorentzVector(p41.x(),p41.y(),p41.z(),p41.t()),
-	 CLHEP::HepLorentzVector(p42.x(),p42.y(),p42.z(),p42.t()), charge, weight);
-  }
-  
-  virtual void Fill(const CLHEP::HepLorentzVector & momentum1, const CLHEP::HepLorentzVector & momentum2, const int charge, const double & weight = 1.) { 
-    hMassVSPt_->Fill(momentum1.perp(),momentum2.m(), weight); 
-    hMassVSEta_->Fill(momentum1.eta(),momentum2.m(), weight); 
-    if(charge>0){
-      hMassVSPhiPlus_->Fill(momentum1.phi(), momentum2.m(), weight);
-    }
-    else if(charge<0){
-      hMassVSPhiMinus_->Fill(momentum1.phi(), momentum2.m(), weight);
-    }
-    else {
-      LogDebug("Histograms") << "HMassVSPartProfile: wrong charge value = " << charge << std::endl;
-      abort();
-    }
-  }
-
-  virtual void Write() {
-    hMassVSPt_->Write();
-    hMassVSEta_->Write();
-    hMassVSPhiPlus_->Write();
-    hMassVSPhiMinus_->Write();
-  }
-
-  virtual void Clear() {
-    hMassVSPt_->Clear();
-    hMassVSEta_->Clear();    
-    hMassVSPhiPlus_->Clear();
-    hMassVSPhiMinus_->Clear();
-  }
-
- protected:
-  TProfile2D* hMassVSPt_;
-  TProfile2D* hMassVSEta_;
-  TProfile2D* hMassVSPhiPlus_; 
-  TProfile2D* hMassVSPhiMinus_; 
-};
-
 //---------------------------------------------------------------------------------------
 /// A set of histograms for resolution
 class HResolutionVSPart : public Histograms
 {
  public:
   HResolutionVSPart(TFile * outputFile, const TString & name, const double maxPt = 100,
-                    const double & yMinEta = 0., const double & yMaxEta = 2.,
-                    const double & yMinPt = 0., const double & yMaxPt = 2.,
+                    const double & yMinEta = -1, const double & yMaxEta = 2,
+                    const double & yMinPt = -1, const double & yMaxPt = 2,
                     const bool doProfiles = false) : Histograms(outputFile, name), doProfiles_(doProfiles)
   {
     // Kinematical variables
@@ -1379,8 +1305,8 @@ public:
     for( int i=0; i<totBinsX_; ++i ) {
       histoVarianceCheck_[i] = new TH1D*[totBinsY_];
       for( int j=0; j<totBinsY_; ++j ) {
-        std::stringstream namei;
-        std::stringstream namej;
+        stringstream namei;
+        stringstream namej;
         namei << i;
         namej << j;
         histoVarianceCheck_[i][j] = new TH1D(name+"_"+namei.str()+"_"+namej.str(), name, 100, 0., 1.);
@@ -1465,9 +1391,9 @@ public:
     // bin entries to get the rms.
     // bin 0 is the underflow, bin totBins+1 is the overflow.
     unsigned int totBins = diffHisto_->GetNbinsX();
-    // std::cout << "totBins = " << totBins << std::endl;
+    // cout << "totBins = " << totBins << endl;
     for( unsigned int iBin=1; iBin<=totBins; ++iBin ) {
-      // std::cout << "iBin = " << iBin << ", " << diffHisto_->GetBinError(iBin)*sqrt(diffHisto_->GetBinEntries(iBin)) << std::endl;
+      // cout << "iBin = " << iBin << ", " << diffHisto_->GetBinError(iBin)*sqrt(diffHisto_->GetBinEntries(iBin)) << endl;
       resoHisto_->SetBinContent( iBin, diffHisto_->GetBinError(iBin)*sqrt(diffHisto_->GetBinEntries(iBin)) );
     }
     if( dir_ != 0 ) dir_->cd();
@@ -1514,7 +1440,7 @@ class Covariance
     if( N_ != 0 ) {
       double meanX = sumX_/N_;
       double meanY = sumY_/N_;
-      // std::cout << "meanX*meanY = "<<meanX<<"*"<<meanY<< " = " << meanX*meanY << std::endl;
+      // cout << "meanX*meanY = "<<meanX<<"*"<<meanY<< " = " << meanX*meanY << endl;
       return (productXY_/N_ - meanX*meanY);
     }
     return 0.;
@@ -1556,8 +1482,8 @@ class HCovarianceVSxy : public Histograms
       for( int i=0; i<totBinsX_; ++i ) {
         histoVarianceCheck_[i] = new TH1D*[totBinsY_];
         for( int j=0; j<totBinsY_; ++j ) {
-          std::stringstream namei;
-          std::stringstream namej;
+          stringstream namei;
+          stringstream namej;
           namei << i;
           namej << j;
           histoVarianceCheck_[i][j] = new TH1D(name+"_"+namei.str()+"_"+namej.str(), name, 10000, -1, 1);
@@ -1571,7 +1497,7 @@ class HCovarianceVSxy : public Histograms
   {
     histoDir_ = (TDirectory*)(inputFile->Get(dirName.Data()));
     if( histoDir_ == 0 ) {
-      std::cout << "Error: directory not found" << std::endl;
+      cout << "Error: directory not found" << endl;
       exit(0);
     }
     histoCovariance_ = (TH2D*)(histoDir_->Get(name));
@@ -1633,12 +1559,12 @@ class HCovarianceVSxy : public Histograms
 
   void Write() {
     if( !readMode_ ) {
-      std::cout << "writing: " << histoCovariance_->GetName() << std::endl;
+      cout << "writing: " << histoCovariance_->GetName() << endl;
       for( int xBin=0; xBin<totBinsX_; ++xBin ) {
         for( int yBin=0; yBin<totBinsY_; ++yBin ) {
           double covariance = covariances_[xBin][yBin].covariance();
           // Histogram bins start from 1
-          // std::cout << "covariance["<<xBin<<"]["<<yBin<<"] with N = "<<covariances_[xBin][yBin].getN()<<" is: " << covariance << std::endl;
+          // cout << "covariance["<<xBin<<"]["<<yBin<<"] with N = "<<covariances_[xBin][yBin].getN()<<" is: " << covariance << endl;
           histoCovariance_->SetBinContent(xBin+1, yBin+1, covariance);
         }
       }
@@ -1749,7 +1675,7 @@ class HCovarianceVSParts : public Histograms
   }
 
   ~HCovarianceVSParts() {
-    for (std::map<TString, HCovarianceVSxy*>::const_iterator histo=mapHisto_.begin(); 
+    for (map<TString, HCovarianceVSxy*>::const_iterator histo=mapHisto_.begin(); 
          histo!=mapHisto_.end(); histo++) {
       delete (*histo).second;
     }
@@ -1831,20 +1757,20 @@ class HCovarianceVSParts : public Histograms
   virtual void Write() {
     if( !readMode_ ) {
       histoDir_->cd();
-      for (std::map<TString, HCovarianceVSxy*>::const_iterator histo=mapHisto_.begin(); 
+      for (map<TString, HCovarianceVSxy*>::const_iterator histo=mapHisto_.begin(); 
            histo!=mapHisto_.end(); histo++) {
         (*histo).second->Write();
       }
     }
   }
   virtual void Clear() {
-    for (std::map<TString, HCovarianceVSxy*>::const_iterator histo=mapHisto_.begin(); 
+    for (map<TString, HCovarianceVSxy*>::const_iterator histo=mapHisto_.begin(); 
          histo!=mapHisto_.end(); histo++) {
       (*histo).second->Clear();
     }
   }
  protected:
-  std::map<TString, HCovarianceVSxy*> mapHisto_;
+  map<TString, HCovarianceVSxy*> mapHisto_;
   bool readMode_;
 };
 
@@ -1883,7 +1809,7 @@ class HMassResolutionVSPart : public Histograms
   }
 
   ~HMassResolutionVSPart(){
-    for (std::map<TString, TH1*>::const_iterator histo=mapHisto_.begin(); 
+    for (map<TString, TH1*>::const_iterator histo=mapHisto_.begin(); 
          histo!=mapHisto_.end(); histo++) {
       delete (*histo).second;
     }
@@ -1906,7 +1832,7 @@ class HMassResolutionVSPart : public Histograms
                      // const reco::Particle::LorentzVector & genP2,
                      const double & recoMass, const double & genMass ) {
 
-    if ( charge1 == charge2 ) std::cout << "Error: must get two opposite charge particles" << std::endl;
+    if ( charge1 == charge2 ) cout << "Error: must get two opposite charge particles" << endl;
 
     double massRes = (recoMass - genMass)/genMass;
 
@@ -1917,8 +1843,8 @@ class HMassResolutionVSPart : public Histograms
     double recoEta[2] = {recoP1.Eta(), recoP2.Eta()};
     double recoPhi[2] = {recoP1.Phi(), recoP2.Phi()};
 
-    // std::cout << "pairPt = " << pairPt << ", massRes = ("<<recoMass<<" - "<<genMass<<")/"<<genMass<<" = " << massRes
-    //      << ", recoPt[0] = " << recoPt[0] << ", recoPt[1] = " << recoPt[1] << std::endl;
+    // cout << "pairPt = " << pairPt << ", massRes = ("<<recoMass<<" - "<<genMass<<")/"<<genMass<<" = " << massRes
+    //      << ", recoPt[0] = " << recoPt[0] << ", recoPt[1] = " << recoPt[1] << endl;
 
     // Index of the histogram. If the muons have charge1 = -1 and charge2 = 1, they already have the
     // correct histogram indeces. Otherwise, swap the indeces.
@@ -1950,7 +1876,7 @@ class HMassResolutionVSPart : public Histograms
 
   virtual void Write() {
     histoDir_->cd();
-    for (std::map<TString, TH1*>::const_iterator histo=mapHisto_.begin(); 
+    for (map<TString, TH1*>::const_iterator histo=mapHisto_.begin(); 
          histo!=mapHisto_.end(); histo++) {
       (*histo).second->Write();
     }
@@ -1961,7 +1887,7 @@ class HMassResolutionVSPart : public Histograms
   }
   
   virtual void Clear() {
-    for (std::map<TString, TH1*>::const_iterator histo=mapHisto_.begin(); 
+    for (map<TString, TH1*>::const_iterator histo=mapHisto_.begin(); 
          histo!=mapHisto_.end(); histo++) {
       (*histo).second->Clear();
     }
@@ -1984,10 +1910,10 @@ class HMassResolutionVSPart : public Histograms
 //   }
 
  protected:
-  std::map<TString, TH1*> mapHisto_;
+  map<TString, TH1*> mapHisto_;
   TString nameSuffix_[2];
-  std::auto_ptr<HDelta> muMinus;
-  std::auto_ptr<HDelta> muPlus;
+  auto_ptr<HDelta> muMinus;
+  auto_ptr<HDelta> muPlus;
 };
 
 #endif

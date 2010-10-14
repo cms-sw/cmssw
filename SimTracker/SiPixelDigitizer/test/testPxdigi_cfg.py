@@ -1,4 +1,4 @@
-#
+
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("digiTest")
@@ -6,6 +6,7 @@ process = cms.Process("digiTest")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
+
 
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('PixelDigisTest'),
@@ -20,10 +21,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.source = cms.Source("PoolSource",
-    fileNames =  cms.untracked.vstring(
-    'file:/afs/cern.ch/user/d/dkotlins/scratch0/data/digis11.root'
-#    'file:/afs/cern.ch/user/d/dkotlins/scratch0/data/digis21.root'
-    )
+    fileNames =  cms.untracked.vstring('file:/scratch/dkotlins/COSMIC/RECO/005102D1-ACD5-DE11-AD13-000423D98BC4.root')
+#    fileNames =  cms.untracked.vstring('file:/scratch/dkotlins/COSMIC/RAW/002C2E77-8CD5-DE11-9533-000423D944FC.root')
 )
 
 
@@ -48,8 +47,8 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")# Choose the global tag here:
 #process.GlobalTag.globaltag = 'MC_31X_V9::All'
-#process.GlobalTag.globaltag = 'CRAFT09_R_V4::All'
-process.GlobalTag.globaltag = 'GR10_P_V4::All'
+process.GlobalTag.globaltag = 'CRAFT09_R_V4::All'
+
 
 #process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 #process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")

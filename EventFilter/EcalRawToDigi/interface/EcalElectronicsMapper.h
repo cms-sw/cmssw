@@ -9,8 +9,8 @@
  
  * \file EcalElectronicsMapper.h
  *
- * $Date: 2010/09/15 21:51:33 $
- * $Revision: 1.5 $
+ * $Date: 2009/10/19 17:27:48 $
+ * $Revision: 1.4 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -38,9 +38,10 @@
 
 class EcalElectronicsMapping;
 
-class EcalElectronicsMapper {
-
+class EcalElectronicsMapper{
+  
 public:
+
 
   /**
    * Constructor
@@ -215,15 +216,6 @@ private:
   const EcalElectronicsMapping    * mappingBuilder_;
   
 
-// functions and fields to work with 'ghost' VFEs:
-public:
-  // check, does the given [FED (dcc), CCU (tower), VFE (strip)] belongs
-  // to the list of VFEs with 'ghost' channels
-  bool isGhost(const int FED, const int CCU, const int VFE);
-  
-private:
-  void setupGhostMap();
-  std::map<int, std::map<int, std::map<int, bool> > > ghost_;
 };
 
 #endif

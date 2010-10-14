@@ -199,7 +199,7 @@ struct PathUpdate
 {
    std::string pathName;
    bool passed;
-   bool choiceMaker;
+   size_t  choiceMaker;
 };
 
 /** Attempt to create a table based editor for the PSET. */
@@ -408,7 +408,7 @@ public:
                moduleEntry.label = pathModules[mi];
                moduleEntry.parent = m_parentStack.back();
                moduleEntry.level = m_parentStack.size();
-               moduleEntry.module = -1;
+               moduleEntry.module = mi;
                moduleEntry.path = i;
                moduleEntry.pset = *ps;
                ModuleInfo moduleInfo;
@@ -443,7 +443,7 @@ public:
          for (size_t pi = 0, pe = m_paths.size(); pi != pe; ++pi)
             m_paths[pi].passed = false;
          for (size_t mi = 0, me = m_modules.size(); mi != me; ++mi)
-            m_modules[mi].passed = false; 
+            m_modules[mi].passed = false;
          
          // Update whether or not a given path / module passed selection.
          for (size_t pui = 0, pue = pathUpdates.size(); pui != pue; ++pui)
@@ -457,6 +457,7 @@ public:
             }
             PathInfo &pathInfo = m_paths[index->second];
             pathInfo.passed = update.passed;
+            std::cerr << update.pathName << " " << update.passed << " " << update.choiceMaker << std::endl;
             
             for (size_t mi = pathInfo.moduleStart, me = pathInfo.moduleEnd; mi != me; ++mi)
             {
@@ -698,6 +699,16 @@ public:
             ps.addUntrackedParameter(label, value);
       }
 
+   void editFileInPath(edm::ParameterSet &ps, bool tracked,
+                       const std::string &label,
+                       const std::string &value)
+      {
+        if (tracked)
+          ps.addParameter(label, edm::FileInPath(value));
+        else
+          ps.addUntrackedParameter(label, edm::FileInPath(value));
+      }
+
    bool editVInputTag(edm::ParameterSet &ps, bool tracked,
                       const std::string &label,
                       const std::string &value)
@@ -705,7 +716,7 @@ public:
         std::vector<edm::InputTag> inputTags;
         std::stringstream iss(value);
         std::string vitem;
-        bool fail;     
+        bool fail = false;
         size_t fst, lst;
 
         while (getline(iss, vitem, ','))
@@ -826,7 +837,6 @@ public:
         return fail;
       }
   
-
   template <typename T>
   void editVectorParameter(edm::ParameterSet &ps, bool tracked,
                            const std::string &label,
@@ -906,10 +916,10 @@ public:
                   editNumericParameter<double>(parent.pset, data.tracked, data.label, m_editor->GetText());
                   break;
                case 'L':
-                  editNumericParameter<int64_t>(parent.pset, data.tracked, data.label, m_editor->GetText());
+                  editNumericParameter<long long>(parent.pset, data.tracked, data.label, m_editor->GetText());
                   break;
                case 'X':
-                  editNumericParameter<int64_t>(parent.pset, data.tracked, data.label, m_editor->GetText());
+                  editNumericParameter<unsigned long long>(parent.pset, data.tracked, data.label, m_editor->GetText());
                   break;
                case 'S':
                   editStringParameter(parent.pset, data.tracked, data.label, m_editor->GetText());
@@ -921,10 +931,10 @@ public:
                   editVectorParameter<uint32_t>(parent.pset, data.tracked, data.label, m_editor->GetText());
                   break;
                case 'l':
-                  editVectorParameter<int64_t>(parent.pset, data.tracked, data.label, m_editor->GetText());
+                  editVectorParameter<long long>(parent.pset, data.tracked, data.label, m_editor->GetText());
                   break;
                case 'x':
-                  editVectorParameter<uint64_t>(parent.pset, data.tracked, data.label, m_editor->GetText());
+                  editVectorParameter<unsigned long long>(parent.pset, data.tracked, data.label, m_editor->GetText());
                   break;
                case 'd':
                   editVectorParameter<double>(parent.pset, data.tracked, data.label, m_editor->GetText());
@@ -940,6 +950,9 @@ public:
                   break;
                case 'v':
                   editVInputTag(parent.pset, data.tracked, data.label, m_editor->GetText());
+                  break;
+               case 'F':
+                  editFileInPath(parent.pset, data.tracked, data.label, m_editor->GetText());
                   break;
                default:
                   std::cerr << "unsupported parameter" << std::endl;
@@ -1226,8 +1239,7 @@ public:
         }
       case 'F':
         {
-          entry.getFileInPath().write(ss);
-          createScalarString(data, ss.str());
+          createScalarString(data, entry.getFileInPath().relativePath());
           break;
         }
       case 'e':
@@ -1523,6 +1535,7 @@ FWPathsPopup::postProcessEvent(edm::Event const& event, edm::EventSetup const& e
          update.pathName = triggerNames.triggerName(i);
          update.passed = triggerResults->accept(i);
          update.choiceMaker = triggerResults->index(i);
+         std::cerr << "Trigger results." << update.choiceMaker << std::endl;
          pathUpdates.push_back(update);
       }
    }

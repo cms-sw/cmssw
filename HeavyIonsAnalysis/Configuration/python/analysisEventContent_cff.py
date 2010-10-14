@@ -99,10 +99,6 @@ jetTrkSkimContent = hiCommon.clone()
 jetTrkSkimContent.outputCommands.extend(jetContentExtended.outputCommands)
 jetTrkSkimContent.outputCommands.extend(lightTrackContent.outputCommands)
 
-# [highpt] MC skim
-jetTrkSkimContentMC = jetTrkSkimContent.clone()
-jetTrkSkimContentMC.outputCommands.extend(hiContentMC.outputCommands)
-
 # [dilepton] skim 0
 muonSkimContent = hiCommon.clone()
 muonSkimContent.outputCommands.extend(cms.untracked.vstring('keep patMuons_*_*_*'))

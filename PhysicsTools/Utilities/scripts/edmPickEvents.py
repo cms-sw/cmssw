@@ -287,12 +287,12 @@ if __name__ == "__main__":
         target = open (crabDict['crabcfg'], 'w')
         target.write (crabTemplate % crabDict)
         target.close
-        print "Please visit CRAB twiki for instructions on how to setup environment for CRAB:\nhttps://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCrab\n"
+        print "Please visit https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCrab\n"
         if options.crabCondor:
-            print "You are running on condor.  Please make sure you have read instructions on\nhttps://twiki.cern.ch/twiki/bin/view/CMS/CRABonLPCCAF\n"
+            print "You are running on condor.  Please make sure you have read instructions on\nhttps://twiki.cern.ch/twiki/bin/view/CMS/CRABonLPCCAF"
             if not os.path.exists ('%s/.profile' % os.environ.get('HOME')):
-                print "** WARNING: ** You are missing ~/.profile file.  Please see CRABonLPCCAF instructions above.\n"
-        print "Setup your environment for CRAB.  Then edit %(crabcfg)s to make any desired changed.  The run:\n\ncrab -create -cfg %(crabcfg)s\ncrab -submit\n" % crabDict
+                print "You are missing ~/.profile file.  Please see CRABonLPCCAF instructions above."
+        print "Setup your environment for CRAB.  Then edit %(crabcfg)s to make any desired changed.  The run:\ncrab -create -cfg %(crabcfg)s\ncrab -submit\n" % crabDict
 
     else:
 

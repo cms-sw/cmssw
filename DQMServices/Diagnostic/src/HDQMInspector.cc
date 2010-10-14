@@ -55,18 +55,22 @@ void HDQMInspector::style()
   theStyle->cd();
 }
 
-void HDQMInspector::setDB(const std::string & DBName, const std::string & DBTag, const std::string & DBauth)
+void HDQMInspector::setDB(std::string DBName, std::string DBTag, std::string DBuser, std::string DBpasswd, std::string DBblob)
 {
-  if( DBName_==DBName && DBTag_==DBTag && DBauth_ == DBauth)
+  if( DBName_==DBName && DBTag_==DBTag && DBuser_==DBuser && DBpasswd_==DBpasswd && DBblob_==DBblob)
     return;
 
-  DBName_= DBName;
-  DBTag_= DBTag;
-  DBauth_ = DBauth;
+  DBName_=DBName;
+  DBTag_=DBTag;
+  DBuser_=DBuser;
+  DBpasswd_=DBpasswd;
+  DBblob_=DBblob;
 
   std::cout << "Name of DB = "<< DBName << std::endl;
   std::cout << "DBTag = "<< DBTag << std::endl;
-  std::cout << "DBauth = "<< DBauth << std::endl;
+  std::cout << "DBuser = "<< DBuser << std::endl;
+  std::cout << "DBpasswd = "<< DBpasswd<< std::endl;
+  std::cout << "DBblob = "<< DBblob<< std::endl;
   std::cout <<std::endl;
 
   accessDB();
@@ -88,13 +92,9 @@ void HDQMInspector::accessDB()
     delete Iterator;
   
   Iterator = new CondCachedIter<HDQMSummary>(); 
-
-  std::cout << "creating connection" << std::endl;
-  Iterator->create(DBName_,DBTag_,DBauth_);
-  std::cout << "connection created" << std::endl;
-
+  Iterator->create(DBName_,DBTag_,DBuser_,DBpasswd_,DBblob_);  
   
-  InitializeIOVList();
+   InitializeIOVList();
   //  end = clock();
   //  if(iDebug)
   //std::cout <<"Time Creation link with Database = " <<  ((double) (end - start)) << " (a.u.)" <<std::endl; 
@@ -199,32 +199,6 @@ void  HDQMInspector::setWhiteList(std::string const & ListItems)
   std::sort(whiteList.begin(), whiteList.end());
 
   return;
-}
-
-std::string HDQMInspector::readListFromFile(const std::string & listFileName)
-{
-  std::ifstream listFile;
-  listFile.open(listFileName.c_str());
-  std::string listString;
-  if( !listFile ) {
-    std::cout << "Warning: list file" << listFileName << " not found" << std::endl;
-    return listString;
-  }
-  while( !listFile.eof() ) {
-    std::string line;
-    listFile >> line;
-    if( line != "" ) {
-      listString += line;
-      listString += ",";
-    }
-  }
-  // Remove the last ","
-  std::string::size_type pos = listString.find_last_of(",");
-  if( pos != std::string::npos ) {
-    listString.erase(pos);
-  }
-  std::cout << "whiteList = " << listString << std::endl;
-  return listString;
 }
 
 bool  HDQMInspector::isListed(unsigned int run, std::vector<unsigned int>& vList)
@@ -558,13 +532,6 @@ void HDQMInspector::plot(size_t& nPads, std::string CanvasName, int logy, std::s
 
     // put the graph in the vector eh.
     VectorOfGraphs.push_back(graph);
-
-    // dhidas
-    // Want to get some values into file... testing
-    //for (int iDean = 0; iDean != graph.GetN(); ++iDean) {
-    //  static std::ofstream OutFile("DeanOut.txt");
-    //  fprintf("%9i %9i %12.3f\n", iDean, graph.GetX()[iDean], graph.GetY()[iDean]);
-    //}
 
     if (itemForIntegration)
     {  

@@ -42,9 +42,41 @@ JetCorrectorDBWriter::JetCorrectorDBWriter(const edm::ParameterSet& pSet)
 void JetCorrectorDBWriter::beginJob()
 {
   std::string path("CondFormats/JetMETObjects/data/");
-  edm::FileInPath fip(path+inputTxtFile);
-  // create the parameter object from file 
-  JetCorrectorParameters * payload = new JetCorrectorParameters(fip.fullPath(),option);
+
+  JetCorrectorParametersCollection * payload = new JetCorrectorParametersCollection();
+  std::cout << "Starting to import payload " << label << " with option " << option << " from text files." << std::endl;
+  for ( int i = 0; i < JetCorrectorParametersCollection::N_LEVELS; ++i ) {
+    
+    std::string append("_");
+    std::string ilev = JetCorrectorParametersCollection::findLabel( static_cast<JetCorrectorParametersCollection::Level_t>(i) );
+    append += ilev;
+    append += "_";
+    append += label;
+    append += ".txt"; 
+    std::ifstream input( (path+inputTxtFile+append).c_str() );
+    if ( input.good() ) {
+      edm::FileInPath fip(path+inputTxtFile+append);
+      std::cout << "Opened file " << path+inputTxtFile+append << std::endl;
+      // create the parameter object from file 
+      std::vector<std::string> sections;
+      JetCorrectorParametersCollection::getSections( path+inputTxtFile+append, sections );
+      if ( sections.size() == 0 ) {
+	payload->push_back( i, JetCorrectorParameters(fip.fullPath(),"") );
+      }
+      else {
+	for ( std::vector<std::string>::const_iterator isectbegin = sections.begin(), isectend = sections.end(), isect = isectbegin;
+	      isect != isectend; ++isect ) {
+	  payload->push_back( i, JetCorrectorParameters(fip.fullPath(),*isect), *isect );	  
+	}
+      }
+      std::cout << "Added as record " << i << std::endl;
+    } else {
+      std::cout << "Did not find JEC file " << path + inputTxtFile + append << std::endl;
+    }
+    
+  }
+  
+  std::cout << "Opening PoolDBOutputService" << std::endl;
 
   // create a name for the payload 
   std::string payloadLabel(label);
@@ -55,10 +87,11 @@ void JetCorrectorDBWriter::beginJob()
   edm::Service<cond::service::PoolDBOutputService> s;
   if (s.isAvailable()) 
     {
+      std::cout << "Setting up payload label " << payloadLabel << std::endl;
       if (s->isNewTagRequest(payloadLabel)) 
-        s->createNewIOV<JetCorrectorParameters>(payload, s->beginOfTime(), s->endOfTime(), payloadLabel);
+        s->createNewIOV<JetCorrectorParametersCollection>(payload, s->beginOfTime(), s->endOfTime(), payloadLabel);
       else 
-        s->appendSinceTime<JetCorrectorParameters>(payload, 111, payloadLabel);
+        s->appendSinceTime<JetCorrectorParametersCollection>(payload, 111, payloadLabel);
     }
   std::cout << "Wrote in CondDB payload label: " << payloadLabel << std::endl;
 }

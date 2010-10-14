@@ -1,8 +1,8 @@
 //  \file AlignableNavigator.cc
 //
-//   $Revision: 1.21 $
-//   $Date: 2009/02/28 21:06:54 $
-//   (last update by $Author: flucke $)
+//   $Revision: 1.22 $
+//   $Date: 2010/09/10 10:30:03 $
+//   (last update by $Author: mussgill $)
 
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
 #include "Alignment/CommonAlignment/interface/AlignableDetUnit.h"
@@ -119,25 +119,25 @@ unsigned int AlignableNavigator::recursiveGetId( Alignable* alignable )
   unsigned int nProblem = 0;
   const DetId detId(alignable->geomDetId());
   if (detId.rawId()) {
-
-    const std::type_info &type = typeid(*alignable);
-
-    if (type==typeid(AlignableDet)) {
-
-      AlignableDet *aliDet = dynamic_cast<AlignableDet*>(alignable);
-      if (aliDet) theMap.insert( PairType( detId, aliDet ) );
-
-    } else if (type==typeid(AlignableDetUnit)) {
-     
-      AlignableDetUnit *aliDetUnit = dynamic_cast<AlignableDetUnit*>(alignable);
-      if (aliDetUnit) theMap.insert( PairType( detId, aliDetUnit ) );
     
-    } else if (type==typeid(AlignableBeamSpot)) {
+    AlignableDet *aliDet;
+    AlignableDetUnit *aliDetUnit;
+    AlignableBeamSpot *aliBeamSpot;
+
+    if ((aliDet = dynamic_cast<AlignableDet*>(alignable))) {
       
-      AlignableBeamSpot *aliBeamSpot = dynamic_cast<AlignableBeamSpot*>(alignable);
-      if (aliBeamSpot) theMap.insert( PairType( detId, aliBeamSpot ) );
+      theMap.insert( PairType( detId, aliDet ) );
     
+    } else if ((aliDetUnit = dynamic_cast<AlignableDetUnit*>(alignable))) {
+
+      theMap.insert( PairType( detId, aliDetUnit ) );
+
+    } else if ((aliBeamSpot = dynamic_cast<AlignableBeamSpot*>(alignable))) {
+
+      theMap.insert( PairType( detId, aliBeamSpot ) );
+
     } else {
+      
       nProblem = 1; // equivalent to '++nProblem;' which could confuse to be ina loop...
       // Cannot be an exception since it happens (illegaly) in Muon DT hierarchy:
       //         throw cms::Exception("BadLogic") 

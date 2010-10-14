@@ -112,8 +112,8 @@ HiEgammaIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
    Handle<View<reco::Photon> > recoPhotons;
    iEvent.getByLabel(photons_, recoPhotons);
-   //std::cout << "Got " << recoPhotons->size() << " photons" << std::endl;
-   //std::cout << "mode "<<mode_<<std::endl;
+   std::cout << "Got " << recoPhotons->size() << " photons" << std::endl;
+   std::cout << "mode "<<mode_<<std::endl;
    vector<float> floats(recoPhotons->size(), -100);
    
    CxCalculator   CxC(iEvent,iSetup,barrelBCLabel_,endcapBCLabel_);
