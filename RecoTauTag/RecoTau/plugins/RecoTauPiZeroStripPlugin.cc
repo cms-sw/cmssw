@@ -10,6 +10,8 @@
  *
  * $Id $
  */
+#include <algorithm>
+#include <memory>
 
 #include "RecoTauTag/RecoTau/interface/RecoTauPiZeroPlugins.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
@@ -20,8 +22,6 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
-
-#include <algorithm>
 
 namespace reco { namespace tau {
 
@@ -71,19 +71,18 @@ RecoTauPiZeroStripPlugin::return_type RecoTauPiZeroStripPlugin::operator()(
     cands.pop_front();
 
     // Add a new candidate to our collection using this seed
-    output.push_back(new RecoTauPiZero(*seed, name()));
-    RecoTauPiZero& strip = output.back();
-    strip.addDaughter(seed);
+    std::auto_ptr<RecoTauPiZero> strip(new RecoTauPiZero(*seed, name()));
+    strip->addDaughter(seed);
 
     // Find all other objects in the strip
     PFCandPtrListIter stripCand = cands.begin();
     while(stripCand != cands.end()) {
-      if( fabs(strip.eta() - (*stripCand)->eta()) < etaAssociationDistance_
-          && fabs(deltaPhi(strip, **stripCand)) < phiAssociationDistance_ ) {
+      if( fabs(strip->eta() - (*stripCand)->eta()) < etaAssociationDistance_
+          && fabs(deltaPhi(*strip, **stripCand)) < phiAssociationDistance_ ) {
         // Add candidate to strip
-        strip.addDaughter(*stripCand);
+        strip->addDaughter(*stripCand);
         // Update the strips four momenta
-        p4Builder_.set(strip);
+        p4Builder_.set(*strip);
         // Delete this candidate from future strips and move on to
         // the next potential candidate
         stripCand = cands.erase(stripCand);
@@ -92,6 +91,7 @@ RecoTauPiZeroStripPlugin::return_type RecoTauPiZeroStripPlugin::operator()(
         ++stripCand;
       }
     }
+    output.push_back(strip);
   }
   return output.release();
 }
