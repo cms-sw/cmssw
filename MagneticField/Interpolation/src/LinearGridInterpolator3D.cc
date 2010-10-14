@@ -76,19 +76,8 @@ LinearGridInterpolator3D::interpolate( Scalar a, Scalar b, Scalar c)
 
 
 
-#if defined(USE_SSEVECT) || !defined(CMS_USE_SSE)
-  
-  ValueType result = ((1.f-s)*(1.f-t)*u)*(grid(ind      +s3) - grid(ind      ));
-  result =  result + ((1.f-s)*     t *u)*(grid(ind   +s2+s3) - grid(ind   +s2));
-  result =  result + (s      *(1.f-t)*u)*(grid(ind+s1   +s3) - grid(ind+s1   ));
-  result =  result + (s      *     t *u)*(grid(ind+s1+s2+s3) - grid(ind+s1+s2)); 
-  result =  result + (        (1.f-s)*t)*(grid(ind   +s2   ) - grid(ind      ));
-  result =  result + (      s        *t)*(grid(ind+s1+s2   ) - grid(ind+s1   ));
-  result =  result + (                s)*(grid(ind+s1      ) - grid(ind      ));
-  result =  result +                                           grid(ind      );
-
-  // this code only for sse math with old compilers (4.3) that do not inline properly wrapped math...
-#elif defined(CMS_USE_SSE)
+  // this code for test to check  properly inline of wrapped math...
+#if defined(CMS_TEST_RAWSSE)
 
   __m128 resultSIMD =                 _mm_mul_ps(_mm_set1_ps((1.f - s) * (1.f - t) * u), _mm_sub_ps(grid(ind           + s3).v.vec, grid(ind          ).v.vec));
   resultSIMD = _mm_add_ps(resultSIMD, _mm_mul_ps(_mm_set1_ps((1.f - s) *         t * u), _mm_sub_ps(grid(ind      + s2 + s3).v.vec, grid(ind      + s2).v.vec)));
@@ -102,6 +91,20 @@ LinearGridInterpolator3D::interpolate( Scalar a, Scalar b, Scalar c)
   ValueType result; result.v=resultSIMD;
 
 
+#else
+  
+  ValueType result = ((1.f-s)*(1.f-t)*u)*(grid(ind      +s3) - grid(ind      ));
+  result =  result + ((1.f-s)*     t *u)*(grid(ind   +s2+s3) - grid(ind   +s2));
+  result =  result + (s      *(1.f-t)*u)*(grid(ind+s1   +s3) - grid(ind+s1   ));
+  result =  result + (s      *     t *u)*(grid(ind+s1+s2+s3) - grid(ind+s1+s2)); 
+  result =  result + (        (1.f-s)*t)*(grid(ind   +s2   ) - grid(ind      ));
+  result =  result + (      s        *t)*(grid(ind+s1+s2   ) - grid(ind+s1   ));
+  result =  result + (                s)*(grid(ind+s1      ) - grid(ind      ));
+  result =  result +                                           grid(ind      );
+
+
+#endif
+
 
 
   //      (1-s)*(1-t)*(1-u)*grid(i,  j,  k) + (1-s)*(1-t)*u*grid(i,  j,  k+1) + 
@@ -109,7 +112,6 @@ LinearGridInterpolator3D::interpolate( Scalar a, Scalar b, Scalar c)
   //      s    *(1-t)*(1-u)*grid(i+1,j,  k) + s    *(1-t)*u*grid(i+1,j,  k+1) + 
   //      s    *   t *(1-u)*grid(i+1,j+1,k) + s    *   t *u*grid(i+1,j+1,k+1);
 
-#endif
 
   return result;
 
