@@ -85,12 +85,27 @@ namespace lumi{
     void retrieveBeamIntensity(HCAL_HLX::DIP_COMBINED_DATA* dataPtr, Lumi2DB::beamData&b)const;
     void writeAllLumiData(coral::ISessionProxy* session,unsigned int irunnumber,const std::string& ilumiversion,LumiResult::iterator lumiBeg,LumiResult::iterator lumiEnd);
     void writeBeamIntensityOnly(coral::ISessionProxy* session,unsigned int irunnumber,const std::string& ilumiversion,LumiResult::iterator lumiBeg,LumiResult::iterator lumiEnd);
+    bool isLumiDataValid(LumiResult::iterator lumiBeg,LumiResult::iterator lumiEnd);
   };//cl Lumi2DB
 }//ns lumi
 
 //
 //implementation
 //
+bool
+lumi::Lumi2DB::isLumiDataValid(lumi::Lumi2DB::LumiResult::iterator lumiBeg,lumi::Lumi2DB::LumiResult::iterator lumiEnd){
+  lumi::Lumi2DB::LumiResult::iterator lumiIt;
+  int nBad=0;
+  for(lumiIt=lumiBeg;lumiIt!=lumiEnd;++lumiIt){
+    if(lumiIt->instlumi<=0.0){
+      ++nBad;
+    }
+  }
+  if(nBad==std::distance(lumiBeg,lumiEnd)){
+    return false;
+  }
+  return true;
+}
 void
 lumi::Lumi2DB::writeBeamIntensityOnly(
                             coral::ISessionProxy* session,
@@ -611,6 +626,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     lumiresult.push_back(h);
   }
   std::cout<<std::endl;
+  if ( isLumiDataValid(lumiresult.begin(),lumiresult.end()) ){
   coral::ConnectionService* svc=new coral::ConnectionService;
   lumi::DBConfig dbconf(*svc);
   if(!m_authpath.empty()){
@@ -634,6 +650,10 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
   }
   delete session;
   delete svc;
+  }else{
+    std::cout<<"no valid lumi data found, quit"<<std::endl;
+    throw lumi::Exception("no valid lumi data found","retrieveData","Lumi2DB");
+  }
 }
 const std::string lumi::Lumi2DB::dataType() const{
   return "LUMI";
