@@ -53,14 +53,14 @@ class RecoTauPiZeroProducer : public edm::EDProducer {
     typedef reco::tau::RecoTauLexicographicalRanking<rankerList,
             reco::RecoTauPiZero> PiZeroPredicate;
 
-    edm::InputTag jetSrc_;
+    edm::InputTag src_;
     builderList builders_;
     rankerList rankers_;
     std::auto_ptr<PiZeroPredicate> predicate_;
 };
 
 RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) {
-  jetSrc_ = pset.getParameter<edm::InputTag>("jetSrc");
+  src_ = pset.getParameter<edm::InputTag>("src");
 
   typedef std::vector<edm::ParameterSet> VPSet;
   // Get each of our PiZero builders
@@ -96,7 +96,7 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt,
                                     const edm::EventSetup& es) {
   // Get a view of our jets via the base candidates
   edm::Handle<reco::CandidateView> jetView;
-  evt.getByLabel(jetSrc_, jetView);
+  evt.getByLabel(src_, jetView);
   // Convert the view to a RefVector of actual PFJets
   reco::PFJetRefVector jetRefs =
       reco::tau::castView<reco::PFJetRefVector>(*jetView);
