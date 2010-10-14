@@ -23,7 +23,6 @@ DDDividedPolyhedraRho::DDDividedPolyhedraRho( const DDDivision& div, DDCompactVi
   setType( "DivisionPolyhedraRho" );
 
   DDPolyhedra msol = (DDPolyhedra)( div_.parent().solid() );
-  // G4PolyhedraHistorical* original_pars = msol->GetOriginalParameters();
 
   if( divisionType_ == DivWIDTH )
   {
@@ -89,7 +88,6 @@ double
 DDDividedPolyhedraRho::getMaxParameter( void ) const
 {
   DDPolyhedra msol = (DDPolyhedra)(div_.parent().solid());
-  //  G4PolyhedraHistorical* original_pars = msol->GetOriginalParameters();
   return msol.rMaxVec()[0] - msol.rMinVec()[0];
 }
 
@@ -110,8 +108,7 @@ DDDividedPolyhedraRho::makeDDLogicalPart( const int copyNo ) const
 {
   DDPolyhedra msol = (DDPolyhedra)(div_.parent().solid());
   DDMaterial usemat = div_.parent().material();
-  //G4PolyhedraHistorical* origparamMother = msol->GetOriginalParameters();
-  //G4PolyhedraHistorical origparam( *origparamMother );
+
   std::vector<double> localrMaxVec = msol.rMaxVec();
   std::vector<double> localrMinVec = msol.rMinVec();
   std::vector<double> localzVec = msol.zVec(); 
@@ -218,9 +215,7 @@ DDDividedPolyhedraPhi::checkParametersValidity( void )
 	      << "          OFFSET will not be used !" << std::endl;
   }
   
-  //  G4PolyhedraHistorical* origparamMother = msol->GetOriginalParameters();
-  
-  if ( msol.sides() != compNDiv_ )//origparamMother->numSide != compNDiv_ )
+  if ( msol.sides() != compNDiv_ )
   { 
     std::cout << "ERROR - "
 	      << "DDDividedPolyhedraPhi::checkParametersValidity()"
@@ -228,7 +223,7 @@ DDDividedPolyhedraPhi::checkParametersValidity( void )
 	      << "        Division along PHI will be done splitting in the defined"
 	      << std::endl
 	      << "        numSide, i.e, the number of division would be :"
-	      << "        " << msol.sides() //origparamMother->numSide
+	      << "        " << msol.sides()
 	      << " instead of " << compNDiv_ << " !"
 	      << std::endl; 
     std::string s = "DDDividedPolyhedraPhi::checkParametersValidity() Not supported configuration.";
@@ -267,29 +262,19 @@ DDDividedPolyhedraPhi::makeDDLogicalPart( const int copyNo ) const
 {
   DDPolyhedra msol = (DDPolyhedra)(div_.parent().solid());
   DDMaterial usemat = div_.parent().material();
-  //G4PolyhedraHistorical* origparamMother = msol->GetOriginalParameters();
-  //G4PolyhedraHistorical origparam( *origparamMother );
 
-  //origparam.numSide = 1;
-  //origparam.Start_angle = origparamMother->Start_angle;
-  //origparam.Opening_angle = compWidth_;
-
-  //phedra.SetOriginalParameters(&origparam);  // copy values & transfer pointers
-  //phedra.Reset();                            // reset to new solid parameters
-
-  DDName solname(div_.parent().ddname().name() + "_DIVCHILD"
-		 , div_.parent().ddname().ns());
+  DDName solname( div_.parent().ddname().name() + "_DIVCHILD",
+		  div_.parent().ddname().ns());
   DDSolid dsol(solname);
   if (!dsol.isDefined().second)
   {
-    dsol = DDSolidFactory::polyhedra(solname
-				     , msol.sides()
-				     , msol.startPhi()+div_.offset()
-				     , compWidth_
-				     , msol.zVec()
-				     , msol.rMinVec()
-				     , msol.rMaxVec()
-      );
+    dsol = DDSolidFactory::polyhedra( solname,
+				      msol.sides(),
+				      msol.startPhi()+div_.offset(),
+				      compWidth_,
+				      msol.zVec(),
+				      msol.rMinVec(),
+				      msol.rMaxVec());
   }
   DDLogicalPart ddlp(solname);
   if (!ddlp.isDefined().second)
@@ -305,7 +290,7 @@ DDDividedPolyhedraZ::DDDividedPolyhedraZ( const DDDivision& div, DDCompactView* 
   setType( "DivisionPolyhedraZ" );
   
   DDPolyhedra msol = (DDPolyhedra)(div_.parent().solid());
-  //G4PolyhedraHistorical* origparamMother = msol->GetOriginalParameters();
+
   std::vector<double> zvec = msol.zVec();
   
   if  ( divisionType_ == DivWIDTH )
@@ -315,12 +300,11 @@ DDDividedPolyhedraZ::DDDividedPolyhedraZ( const DDDivision& div, DDCompactView* 
   }
   else if( divisionType_ == DivNDIV )
   {
-    compWidth_ = calculateWidth( zvec[zvec.size() - 1] - zvec[0]
-				 , div_.nReplicas()
-				 , div_.offset());
+    compWidth_ = calculateWidth( zvec[zvec.size() - 1] - zvec[0],
+				 div_.nReplicas(),
+				 div_.offset());
     // ?what?      CalculateNDiv( zvec[zvec.size() - 1] - zvec[0], origparamMother->Z_values[origparamMother->Num_z_planes-1]
     //       - origparamMother->Z_values[0] , nDiv, offset );
-      
   }
   
   DCOUT_V ('P', " DDDividedPolyhedraZ - # divisions " << compNDiv_ << " = " << div_.nReplicas() << "\n Offset " << " = " << div_.offset() << "\n Width " << compWidth_ << " = " << div_.width());
@@ -333,11 +317,9 @@ double
 DDDividedPolyhedraZ::getMaxParameter( void ) const
 {
   DDPolyhedra msol = (DDPolyhedra)(div_.parent().solid());
-  //G4PolyhedraHistorical* origparamMother = msol->GetOriginalParameters();
+
   std::vector<double> zvec = msol.zVec();
   return (zvec[zvec.size() - 1] - zvec[0]);
-  //origparamMother->Z_values[origparamMother->Num_z_planes-1]
-  //	  -origparamMother->Z_values[0]);
 }
 
 void
@@ -369,8 +351,6 @@ DDDividedPolyhedraZ::checkParametersValidity( void )
 	      << "          OFFSET will not be used !" << std::endl;
   }
 
-  //  G4PolyhedraHistorical* origparamMother = msol->GetOriginalParameters();
-
   std::vector<double> zvec = msol.zVec();
   
   if ( zvec.size() - 1 != size_t(compNDiv_) )
@@ -397,14 +377,7 @@ DDDividedPolyhedraZ::makeDDTranslation( const int copyNo ) const
   std::vector<double> zvec = msol.zVec();
   
   //----- set translation: along Z axis
-  // G4PolyhedraHistorical* origparamMother = msol->GetOriginalParameters();
-  //    double posi = (origparamMother->Z_values[copyNo]
-  //                     + origparamMother->Z_values[copyNo+1])/2;
-  
   double posi = (zvec[copyNo] + zvec[copyNo+1])/2;
-
-  //G4ThreeVector origin(0.,0.,posi); 
-  //  physVol->SetTranslation( origin );
   
   DDTranslation tr(0,0,posi);
   //----- calculate rotation matrix: unit
@@ -424,47 +397,35 @@ DDDividedPolyhedraZ::makeDDLogicalPart( const int copyNo ) const
 {
   // only for mother number of planes = 2!!
   // mec: what?  why?  comment above and = 2 below straight from G4 impl.
-  DDPolyhedra msol = (DDPolyhedra)(div_.parent().solid());
+  DDPolyhedra msol = (DDPolyhedra)( div_.parent().solid());
   DDMaterial usemat = div_.parent().material();
-  //    G4PolyhedraHistorical* origparamMother = msol->GetOriginalParameters();
-  //    G4PolyhedraHistorical origparam( *origparamMother );
+
   std::vector<double> zvec = msol.zVec();
   std::vector<double> rminvec = msol.rMinVec();
   std::vector<double> rmaxvec = msol.rMaxVec();
 
-  double posi = (zvec[copyNo] + zvec[copyNo+1])/2;
+  double posi = ( zvec[ copyNo ] + zvec[ copyNo + 1 ] ) / 2.0;
   
-  //    origparam.Num_z_planes = 2;
-  //    origparam.Z_values[0] = origparamMother->Z_values[copyNo] - posi;
-  //    origparam.Z_values[1] = origparamMother->Z_values[copyNo+1] - posi;
-  //    origparam.Rmin[0] = origparamMother->Rmin[copyNo];
-  //    origparam.Rmin[1] = origparamMother->Rmin[copyNo+1];
-  //    origparam.Rmax[0] = origparamMother->Rmax[copyNo];
-  //    origparam.Rmax[1] = origparamMother->Rmax[copyNo+1];
-  DDName solname(div_.parent().ddname().name() + "_DIVCHILD" 
-		 + DDXMLElement::itostr(copyNo)
-		 , div_.parent().ddname().ns());
+  DDName solname( div_.parent().ddname().name() + "_DIVCHILD" + DDXMLElement::itostr( copyNo ),
+		  div_.parent().ddname().ns());
   std::vector<double> newRmin, newRmax, newZ;
-  newZ.push_back(zvec[copyNo] - posi);
-  newZ.push_back(zvec[copyNo+1] - posi);
-  newRmin.push_back(rminvec[copyNo]);
-  newRmin.push_back(rminvec[copyNo+1]);
-  newRmax.push_back(rmaxvec[copyNo]);
-  newRmax.push_back(rmaxvec[copyNo+1]);
+  newZ.push_back( zvec[ copyNo ] - posi );
+  newZ.push_back( zvec[ copyNo + 1 ] - posi );
+  newRmin.push_back( rminvec[ copyNo ]);
+  newRmin.push_back( rminvec[ copyNo + 1 ]);
+  newRmax.push_back( rmaxvec[ copyNo ]);
+  newRmax.push_back( rmaxvec[ copyNo + 1 ]);
 
-  DDSolid dsol = DDSolidFactory::polyhedra(solname
-					   , msol.sides()
-					   , msol.startPhi()
-					   , msol.deltaPhi()
-					   , newZ
-					   , newRmin
-					   , newRmax);
-  DDLogicalPart lp(solname, usemat, dsol);
+  DDSolid dsol = DDSolidFactory::polyhedra( solname,
+					    msol.sides(),
+					    msol.startPhi(),
+					    msol.deltaPhi(),
+					    newZ,
+					    newRmin,
+					    newRmax );
+  DDLogicalPart lp( solname, usemat, dsol );
 
-  //    phedra.SetOriginalParameters(&origparam);  // copy values & transfer pointers
-  //    phedra.Reset();                            // reset to new solid parameters
-
-  DCOUT_V ('P', "DDDividedPolyhedraZ::makeDDLogicalPart" << "\n-- Parametrised phedra copy-number: " << copyNo << "\n-- DDLogicalPart " << lp );
+  DCOUT_V( 'P', "DDDividedPolyhedraZ::makeDDLogicalPart" << "\n-- Parametrised phedra copy-number: " << copyNo << "\n-- DDLogicalPart " << lp );
   return lp;
 }
 

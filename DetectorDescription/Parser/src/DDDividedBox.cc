@@ -3,7 +3,7 @@
 // 25.04.04 - M. Case ddd-ize G4ParameterisationBox*
 // ********************************************************************
 
-#include "DDDividedBox.h"
+#include "DetectorDescription/Parser/src/DDDividedBox.h"
 
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDName.h"
@@ -16,9 +16,8 @@
 
 #include <iomanip>
 
-//--------------------------------------------------------------------------
-DDDividedBoxX::DDDividedBoxX( const DDDivision& div, DDCompactView* cpv) : 
-  DDDividedGeometryObject::DDDividedGeometryObject(div,cpv)
+DDDividedBoxX::DDDividedBoxX( const DDDivision& div, DDCompactView* cpv)
+  : DDDividedGeometryObject::DDDividedGeometryObject( div, cpv )
 {
   checkParametersValidity();
   setType( "DivisionBoxX" );
@@ -48,26 +47,24 @@ DDDividedBoxX::DDDividedBoxX( const DDDivision& div, DDCompactView* cpv) :
   DCOUT_V ('P', " DDDividedBoxX:DDDividedBoxX"  << std::endl);
 }
 
-//------------------------------------------------------------------------
-DDDividedBoxX::~DDDividedBoxX()
-{
-}
+DDDividedBoxX::~DDDividedBoxX( void )
+{}
 
-//------------------------------------------------------------------------
-double DDDividedBoxX::getMaxParameter() const
+double
+DDDividedBoxX::getMaxParameter( void ) const
 {
   DDBox msol = (DDBox)(div_.parent().solid());
   return 2*msol.halfX();
 }
 
-//------------------------------------------------------------------------
-DDRotation DDDividedBoxX::makeDDRotation( const int copyNo ) const
+DDRotation
+DDDividedBoxX::makeDDRotation( const int copyNo ) const
 {
   return DDRotation();
 }
 
-//------------------------------------------------------------------------
-DDTranslation DDDividedBoxX::makeDDTranslation( const int copyNo ) const
+DDTranslation
+DDDividedBoxX::makeDDTranslation( const int copyNo ) const
 {
   DDBox msol = (DDBox)(div_.parent().solid());
   double mdx = msol.halfX();
@@ -81,8 +78,8 @@ DDTranslation DDDividedBoxX::makeDDTranslation( const int copyNo ) const
   return translation;
 }
 
-//------------------------------------------------------------------------
-DDLogicalPart DDDividedBoxX::makeDDLogicalPart( const int copyNo ) const
+DDLogicalPart
+DDDividedBoxX::makeDDLogicalPart( const int copyNo ) const
 {
   // in other cases, this solid will have 1, 2, 3, etc. after it.
   DDName solname(div_.parent().ddname().name() + "_DIVCHILD", div_.parent().ddname().ns());
@@ -91,21 +88,20 @@ DDLogicalPart DDDividedBoxX::makeDDLogicalPart( const int copyNo ) const
   DDBox msol = (DDBox) (div_.parent().solid());
   DDLogicalPart ddlp(solname);
   if (!ddbox.isDefined().second) //This solid has NOT been defined. 
-    {
-      double pDx = msol.halfX();
-      double pDy = compWidth_/2.;
-      double pDz = msol.halfZ();
+  {
+    double pDx = msol.halfX();
+    double pDy = compWidth_/2.;
+    double pDz = msol.halfZ();
     
-      ddbox = DDSolidFactory::box(solname, pDx, pDy, pDz);
-      ddlp =  DDLogicalPart(solname, usemat, ddbox);
-    }
+    ddbox = DDSolidFactory::box(solname, pDx, pDy, pDz);
+    ddlp =  DDLogicalPart(solname, usemat, ddbox);
+  }
   DCOUT_V ('P', " DDDividedBoxX::computeDimensions() lp:\n" << ddlp); 
   return ddlp;
 }
 
-//--------------------------------------------------------------------------
-DDDividedBoxY::DDDividedBoxY( const DDDivision& div, DDCompactView* cpv) : 
-  DDDividedGeometryObject::DDDividedGeometryObject(div,cpv)
+DDDividedBoxY::DDDividedBoxY( const DDDivision& div, DDCompactView* cpv)
+  : DDDividedGeometryObject::DDDividedGeometryObject( div, cpv )
 {
   checkParametersValidity();
   setType( "DivisionBoxY" );
@@ -136,26 +132,24 @@ DDDividedBoxY::DDDividedBoxY( const DDDivision& div, DDCompactView* cpv) :
   DCOUT_V ('P', " DDDividedBoxY:DDDividedBoxY"  << std::endl);
 }
 
-//------------------------------------------------------------------------
-DDDividedBoxY::~DDDividedBoxY()
-{
-}
+DDDividedBoxY::~DDDividedBoxY( void )
+{}
 
-//------------------------------------------------------------------------
-double DDDividedBoxY::getMaxParameter() const
+double
+DDDividedBoxY::getMaxParameter( void ) const
 {
   DDBox msol = (DDBox)(div_.parent().solid());
   return 2*msol.halfY();
 }
 
-//------------------------------------------------------------------------
-DDRotation DDDividedBoxY::makeDDRotation( const int copyNo ) const
+DDRotation
+DDDividedBoxY::makeDDRotation( const int copyNo ) const
 {
   return DDRotation();
 }
 
-//------------------------------------------------------------------------
-DDTranslation DDDividedBoxY::makeDDTranslation( const int copyNo ) const
+DDTranslation
+DDDividedBoxY::makeDDTranslation( const int copyNo ) const
 {
   DDBox msol = (DDBox)(div_.parent().solid());
   double mdx = msol.halfY();
@@ -170,8 +164,8 @@ DDTranslation DDDividedBoxY::makeDDTranslation( const int copyNo ) const
   return translation;
 }
 
-//------------------------------------------------------------------------
-DDLogicalPart DDDividedBoxY::makeDDLogicalPart( const int copyNo ) const
+DDLogicalPart
+DDDividedBoxY::makeDDLogicalPart( const int copyNo ) const
 {
   // in other cases, this solid will have 1, 2, 3, etc. after it.
   DDName solname(div_.parent().ddname().name() + "_DIVCHILD", div_.parent().ddname().ns());
@@ -180,20 +174,19 @@ DDLogicalPart DDDividedBoxY::makeDDLogicalPart( const int copyNo ) const
   DDBox msol = (DDBox) (div_.parent().solid());
   DDLogicalPart ddlp(solname);
   if (!ddbox.isDefined().second) //This solid has NOT been defined. 
-    {
-      double pDx = msol.halfX();
-      double pDy = compWidth_/2.;
-      double pDz = msol.halfZ();
-      ddbox = DDSolidFactory::box(solname, pDx, pDy, pDz);
-      ddlp =  DDLogicalPart(solname, usemat, ddbox);
-    }
+  {
+    double pDx = msol.halfX();
+    double pDy = compWidth_/2.;
+    double pDz = msol.halfZ();
+    ddbox = DDSolidFactory::box(solname, pDx, pDy, pDz);
+    ddlp =  DDLogicalPart(solname, usemat, ddbox);
+  }
   DCOUT_V ('P', " DDDividedBoxY::computeDimensions() lp:\n" << ddlp); 
   return ddlp;
 }
 
-//--------------------------------------------------------------------------
-DDDividedBoxZ::DDDividedBoxZ( const DDDivision& div, DDCompactView* cpv) : 
-  DDDividedGeometryObject::DDDividedGeometryObject(div,cpv)
+DDDividedBoxZ::DDDividedBoxZ( const DDDivision& div, DDCompactView* cpv)
+  : DDDividedGeometryObject::DDDividedGeometryObject( div, cpv )
 {
   checkParametersValidity();
   setType( "DivisionBoxZ" );
@@ -223,26 +216,24 @@ DDDividedBoxZ::DDDividedBoxZ( const DDDivision& div, DDCompactView* cpv) :
   DCOUT_V ('P', " DDDividedBoxZ:DDDividedBoxZ"  << std::endl);
 }
 
-//------------------------------------------------------------------------
-DDDividedBoxZ::~DDDividedBoxZ()
-{
-}
+DDDividedBoxZ::~DDDividedBoxZ( void )
+{}
 
-//------------------------------------------------------------------------
-double DDDividedBoxZ::getMaxParameter() const
+double
+DDDividedBoxZ::getMaxParameter( void ) const
 {
   DDBox msol = (DDBox)(div_.parent().solid());
   return 2*msol.halfZ();
 }
 
-//------------------------------------------------------------------------
-DDRotation DDDividedBoxZ::makeDDRotation( const int copyNo ) const
+DDRotation
+DDDividedBoxZ::makeDDRotation( const int copyNo ) const
 {
   return DDRotation();
 }
 
-//------------------------------------------------------------------------
-DDTranslation DDDividedBoxZ::makeDDTranslation( const int copyNo ) const
+DDTranslation
+DDDividedBoxZ::makeDDTranslation( const int copyNo ) const
 {
   DDBox msol = (DDBox)(div_.parent().solid());
   double mdx = msol.halfZ();
@@ -257,8 +248,8 @@ DDTranslation DDDividedBoxZ::makeDDTranslation( const int copyNo ) const
   return translation;
 }
 
-//------------------------------------------------------------------------
-DDLogicalPart DDDividedBoxZ::makeDDLogicalPart( const int copyNo ) const
+DDLogicalPart
+DDDividedBoxZ::makeDDLogicalPart( const int copyNo ) const
 {
   // in other cases, this solid will have 1, 2, 3, etc. after it.
   DDName solname(div_.parent().ddname().name() + "_DIVCHILD", div_.parent().ddname().ns());
@@ -267,13 +258,13 @@ DDLogicalPart DDDividedBoxZ::makeDDLogicalPart( const int copyNo ) const
   DDBox msol = (DDBox) (div_.parent().solid());
   DDLogicalPart ddlp(solname);
   if (!ddbox.isDefined().second) //This solid has NOT been defined. 
-    {
-      double pDx = msol.halfX();
-      double pDy = msol.halfY();
-      double pDz = compWidth_/2.;
-      ddbox = DDSolidFactory::box(solname, pDx, pDy, pDz);
-      ddlp =  DDLogicalPart(solname, usemat, ddbox);
-    }
+  {
+    double pDx = msol.halfX();
+    double pDy = msol.halfY();
+    double pDz = compWidth_/2.;
+    ddbox = DDSolidFactory::box(solname, pDx, pDy, pDz);
+    ddlp =  DDLogicalPart(solname, usemat, ddbox);
+  }
   DCOUT_V ('P', " DDDividedBoxZ::computeDimensions() lp:\n" << ddlp); 
   return ddlp;
 }
