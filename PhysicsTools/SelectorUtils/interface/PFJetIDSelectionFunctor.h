@@ -13,7 +13,7 @@
   for a general overview of the selectors. 
 
   \author Salvatore Rappoccio
-  \version  $Id: PFJetIDSelectionFunctor.h,v 1.15 2010/08/26 19:50:11 srappocc Exp $
+  \version  $Id: PFJetIDSelectionFunctor.h,v 1.16.2.1 2010/10/14 15:42:17 srappocc Exp $
 */
 
 
@@ -174,6 +174,8 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
   bool firstDataCuts( reco::Jet const & jet,
 		      pat::strbitset & ret) 
   {    
+
+    ret.set(false);
 
     // cache some variables
     double chf = 0.0;
