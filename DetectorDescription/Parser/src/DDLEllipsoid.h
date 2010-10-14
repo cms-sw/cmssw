@@ -23,15 +23,14 @@
 
 class DDLEllipsoid : public DDLSolid
 {
- public:
+public:
 
   /// Constructor
   DDLEllipsoid( DDLElementRegistry* myreg );
 
   /// Destructor
-  ~DDLEllipsoid();
+  ~DDLEllipsoid( void );
 
-  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv); 
-
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
 };
 #endif

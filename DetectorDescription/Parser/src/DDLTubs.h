@@ -6,8 +6,6 @@
 #include <string>
 #include <vector>
 
-
-
 /// DDLTubs processes Tubs elements.
 /** @class DDLTubs
  * @author Michael Case
@@ -23,17 +21,15 @@
 
 class DDLTubs : public DDLSolid
 {
- public:
+public:
 
   /// Constructor
   DDLTubs( DDLElementRegistry* myreg );
 
   /// Destructor
-  ~DDLTubs();
+  ~DDLTubs( void );
 
-  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv); 
-
-
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
 };
 
 #endif

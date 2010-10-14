@@ -22,16 +22,15 @@
 
 class DDLReflectionSolid : public DDLSolid
 {
- public:
+public:
 
   /// Constructor
   DDLReflectionSolid( DDLElementRegistry* myreg );
 
   /// Destructor
-  ~DDLReflectionSolid();
+  ~DDLReflectionSolid( void );
 
-  void preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv);
-  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv);
-
+  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
 };
 #endif

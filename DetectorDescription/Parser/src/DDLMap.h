@@ -1,10 +1,7 @@
 #ifndef DDL_Map_H
 #define DDL_Map_H
 
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
-#include "DDXMLElement.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
 #include "DetectorDescription/Core/interface/DDMap.h"
 
 #include <vector>
@@ -13,31 +10,32 @@
 
 // Boost parser, spirit, for parsing the std::vector elements.
 #include "boost/spirit/include/classic.hpp"
+
 namespace boost { namespace spirit { namespace classic { } } }
 
 class Mapper : public boost::spirit::classic::grammar<Mapper> {
- public:
+public:
   Mapper() { };
   ~Mapper() { };
   template <typename ScannerT> struct definition;
 };
 
 class MapPair {
- public:
+public:
   MapPair() { };
   ~MapPair() { };
   void operator()(char const* str, char const* end) const;
 };
 
 class MapMakeName {
- public:
+public:
   MapMakeName() { };
   ~MapMakeName() { };
   void operator()(char const* str, char const* end) const;
 };
 
 class MapMakeDouble {
- public:
+public:
   MapMakeDouble() { };
   ~MapMakeDouble() { };
   void operator()(char const* str, char const* end) const;
@@ -63,32 +61,32 @@ class DDLMap : public DDXMLElement
   friend class MapMakeName;
   friend class MapMakeDouble;
 
- public:
+public:
 
   DDLMap( DDLElementRegistry* myreg );
 
-  ~DDLMap();
+  virtual ~DDLMap( void );
 
-  void preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv);
+  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
 
-  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv);
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
 
-  ReadMapType<std::map<std::string,double> > & getMapOfMaps();
+  ReadMapType<std::map<std::string,double> > & getMapOfMaps( void );
 
- private:
+private:
   dd_map_type pMap;
   ReadMapType<std::map<std::string,double> > pMapMap;
   double pDouble;
   std::string pName;
   std::string pNameSpace;
 
-  void errorOut (const char* str);
+  void errorOut( const char* str );
 
-  void do_pair(char const* str, char const* end);
+  void do_pair( char const* str, char const* end );
 
-  void do_makeName(char const* str, char const* end);
+  void do_makeName( char const* str, char const* end );
 
-  void do_makeDouble(char const* str, char const* end);
+  void do_makeDouble( char const* str, char const* end );
 };
 
 #endif

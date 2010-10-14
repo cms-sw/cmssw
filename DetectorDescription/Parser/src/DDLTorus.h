@@ -9,8 +9,6 @@
 #include <string>
 #include <vector>
 
-
-
 /** @class DDLTorus
  * @author Michael Case
  *
@@ -24,15 +22,14 @@
  */
 class DDLTorus : public DDLSolid
 {
- public:
+public:
 
   /// Constructor
   DDLTorus( DDLElementRegistry* myreg );
 
   /// Destructor
-  ~DDLTorus();
+  ~DDLTorus( void );
 
-  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv); 
-
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
 };
 #endif

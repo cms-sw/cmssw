@@ -2,24 +2,14 @@
 #include <vector>
 #include <iostream>
 
-//CMSSW main includes
-#include <boost/shared_ptr.hpp>
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
-#include "FWCore/Utilities/interface/Presence.h"
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-//end CMSSW main includes
-
 #include "DetectorDescription/Parser/src/DDLElementaryMaterial.h"
 #include "DetectorDescription/Base/interface/DDException.h"
 
 int main(int argc, char *argv[])
-
 {
   // Copied from example stand-alone program in Message Logger July 18, 2007
   std::string const kProgramName = argv[0];
@@ -102,10 +92,10 @@ int main(int argc, char *argv[])
     m.processElement(element, nmspc, cpv);
   }
   catch (DDException& e)
-    {
-      std::cerr << "DDD-PROBLEM:" << std::endl 
-		<< e << std::endl;
-    }  
+  {
+    std::cerr << "DDD-PROBLEM:" << std::endl 
+	      << e << std::endl;
+  }  
   //  Deal with any exceptions that may have been thrown.
   catch (cms::Exception& e) {
     std::cout << "cms::Exception caught in "

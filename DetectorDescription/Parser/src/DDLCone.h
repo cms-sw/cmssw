@@ -23,15 +23,14 @@
 
 class DDLCone : public DDLSolid
 {
- public:
+public:
 
   /// Constructor
   DDLCone( DDLElementRegistry* myreg );
 
   /// Destructor
-  ~DDLCone();
+  virtual ~DDLCone( void );
 
-  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv); 
-
+  virtual void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
 };
 #endif

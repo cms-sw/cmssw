@@ -11,31 +11,19 @@
  *                                                                         *
  ***************************************************************************/
 
+#include "DetectorDescription/Parser/src/DDLMaterial.h"
 
-
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
-#include "DDLMaterial.h"
-#include "DDLElementRegistry.h"
-
-// DDCore dependencies
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
+DDLMaterial::DDLMaterial(  DDLElementRegistry* myreg )
+  : DDXMLElement( myreg )
+{}
 
-//#include <strstream>
+DDLMaterial::~DDLMaterial( void )
+{}
 
-// Default constructor
-DDLMaterial::DDLMaterial(  DDLElementRegistry* myreg ) : DDXMLElement(myreg)
-{
-}
-
-// Default desctructor
-DDLMaterial::~DDLMaterial()
-{
-}
-
-void DDLMaterial::setReference (const std::string& nmspace, DDCompactView& cpv)
+void
+DDLMaterial::setReference( const std::string& nmspace, DDCompactView& cpv )
 {
   // in case it there were any rMaterials
   myRegistry_->getElement("rMaterial")->clear();

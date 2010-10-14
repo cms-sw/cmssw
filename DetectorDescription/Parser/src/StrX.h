@@ -31,7 +31,7 @@
 // ---------------------------------------------------------------------------
 class StrX
 {
- public:
+public:
   typedef XERCES_CPP_NAMESPACE::XMLString XMLString;
   // -----------------------------------------------------------------------
   //  Constructors and Destructor
@@ -73,7 +73,7 @@ class StrX
       return fXMLChForm;
     }
 
- private:
+private:
   XMLCh * fXMLChForm;
   char * fLocalForm;
   

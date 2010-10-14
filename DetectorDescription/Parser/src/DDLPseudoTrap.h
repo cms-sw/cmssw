@@ -9,8 +9,6 @@
 #include <string>
 #include <vector>
 
-
-
 /** @class DDLPseudoTrap
  * @author Michael Case
  *
@@ -24,15 +22,14 @@
  */
 class DDLPseudoTrap : public DDLSolid
 {
- public:
+public:
 
   /// Constructor
   DDLPseudoTrap( DDLElementRegistry* myreg );
 
   /// Destructor
-  ~DDLPseudoTrap();
+  ~DDLPseudoTrap( void );
 
-  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv); 
-
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
 };
 #endif

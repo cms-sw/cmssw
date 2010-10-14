@@ -3,7 +3,7 @@
                              -------------------
     begin                : Tue Oct 23 2001
     email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
+***************************************************************************/
 
 /***************************************************************************
  *                                                                         *
@@ -11,64 +11,46 @@
  *                                                                         *
  ***************************************************************************/
 
-// ---------------------------------------------------------------------------
-//  Includes
-// ---------------------------------------------------------------------------
 #include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "StrX.h"
-#include "DDLElementRegistry.h"
-#include "DDXMLElement.h"
+#include "DetectorDescription/Parser/src/StrX.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
 
-// DDCore dependencies
 #include "DetectorDescription/Base/interface/DDdebug.h"
-#include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Core/interface/DDConstant.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 
-// Xerces C++ dependencies
-#include <xercesc/sax/SAXParseException.hpp>
-#include <xercesc/sax/SAXException.hpp>
-
 #include <iostream>
-
-// ---------------------------------------------------------------------------
-//  DDLSAX2Handler: Constructors and Destructor
-// ---------------------------------------------------------------------------
-// DDLSAX2FileHandler::DDLSAX2FileHandler( ) { 
-//   init();
-// }
-// #include <xercesc/util/XMLUni.h>
 
 // XERCES_CPP_NAMESPACE_USE 
 
-DDLSAX2FileHandler::DDLSAX2FileHandler( DDCompactView & cpv ) : cpv_(cpv), xmlelems_() {
+DDLSAX2FileHandler::DDLSAX2FileHandler( DDCompactView & cpv )
+  : cpv_(cpv),
+    xmlelems_()
+{
   init();
-  //  cpv_ = &cpv;  
 }
 
-// void DDLSAX2FileHandler::setStorage( DDCompactView & cpv ) {
-//   cpv_ = &cpv;
-// }
-
-void DDLSAX2FileHandler::init() {
+void
+DDLSAX2FileHandler::init( void )
+{
   createDDConstants();
   namesMap_.push_back("*** root ***");
   names_.push_back(namesMap_.size() - 1);
 }
 
-DDLSAX2FileHandler::~DDLSAX2FileHandler()
-{ }
+DDLSAX2FileHandler::~DDLSAX2FileHandler( void )
+{}
 
 // ---------------------------------------------------------------------------
 //  DDLSAX2Handler: Implementation of the SAX DocumentHandler interface
 // ---------------------------------------------------------------------------
-void DDLSAX2FileHandler::startElement(const XMLCh* const uri
-				      , const XMLCh* const localname
-				      , const XMLCh* const qname
-				      , const Attributes& attrs)
+void
+DDLSAX2FileHandler::startElement(const XMLCh* const uri
+				 , const XMLCh* const localname
+				 , const XMLCh* const qname
+				 , const Attributes& attrs)
 {
-
   DCOUT_V('P', "DDLSAX2FileHandler::startElement started");
 
   std::string myElementName(StrX(qname).localForm());
@@ -94,14 +76,14 @@ void DDLSAX2FileHandler::startElement(const XMLCh* const uri
   std::vector<std::string> attrNames, attrValues;
 
   for (unsigned int i = 0; i < numAtts; ++i)
-    {
-//       char* temp2 = XMLString::transcode(attrs.getLocalName(i));
-//       char* temp3 = XMLString::transcode(attrs.getValue(i));
-      attrNames.push_back(std::string(StrX(attrs.getLocalName(i)).localForm()));
-      attrValues.push_back(std::string(StrX(attrs.getValue(i)).localForm()));
-//       XMLString::release(&temp2);
-//       XMLString::release(&temp3);
-    }
+  {
+    //       char* temp2 = XMLString::transcode(attrs.getLocalName(i));
+    //       char* temp3 = XMLString::transcode(attrs.getValue(i));
+    attrNames.push_back(std::string(StrX(attrs.getLocalName(i)).localForm()));
+    attrValues.push_back(std::string(StrX(attrs.getValue(i)).localForm()));
+    //       XMLString::release(&temp2);
+    //       XMLString::release(&temp3);
+  }
   
   myElement->loadAttributes(myElementName, attrNames, attrValues, nmspace_, cpv_);
   //  initialize text
@@ -109,9 +91,10 @@ void DDLSAX2FileHandler::startElement(const XMLCh* const uri
   DCOUT_V('P', "DDLSAX2FileHandler::startElement completed");
 }
 
-void DDLSAX2FileHandler::endElement(const XMLCh* const uri
-				    , const XMLCh* const localname
-				    , const XMLCh* const qname)
+void
+DDLSAX2FileHandler::endElement(const XMLCh* const uri
+			       , const XMLCh* const localname
+			       , const XMLCh* const qname)
 {
   std::string ts(StrX(qname).localForm());
   const std::string&  myElementName = self();
@@ -122,8 +105,8 @@ void DDLSAX2FileHandler::endElement(const XMLCh* const uri
   //temporary way:
   DDXMLElement* myElement = DDLGlobalRegistry::instance().getElement(myElementName);
 
-//   DDLParser* beingParsed = DDLParser::instance();
-//   std::string nmspace = getnmspace(extractFileName( beingParsed->getCurrFileName()));
+  //   DDLParser* beingParsed = DDLParser::instance();
+  //   std::string nmspace = getnmspace(extractFileName( beingParsed->getCurrFileName()));
   std::string nmspace = nmspace_;
   // The need for processElement to have the nmspace so that it can 
   // do the necessary gymnastics made things more complicated in the
@@ -146,8 +129,9 @@ void DDLSAX2FileHandler::endElement(const XMLCh* const uri
   names_.pop_back();
 }
 
-void DDLSAX2FileHandler::characters(  const   XMLCh* const    chars
-				    , const unsigned int    length)
+void
+DDLSAX2FileHandler::characters(  const   XMLCh* const    chars
+				 , const unsigned int    length)
 {
   DCOUT_V('P', "DDLSAX2FileHandler::characters started");
   //  std::cout << "character handler started" << std::endl;
@@ -159,10 +143,10 @@ void DDLSAX2FileHandler::characters(  const   XMLCh* const    chars
   DDXMLElement* myElement = DDLGlobalRegistry::instance().getElement(self());//myElementName); //namesMap_[names_.back()]);
   std::string inString = "";
   for (unsigned int i = 0; i < length; ++i)
-    {
-      char s = chars[i];
-      inString = inString + s;
-    }
+  {
+    char s = chars[i];
+    inString = inString + s;
+  }
   if (myElement->gotText())
     myElement->appendText(inString);
   else
@@ -171,37 +155,38 @@ void DDLSAX2FileHandler::characters(  const   XMLCh* const    chars
   DCOUT_V('P', "DDLSAX2FileHandler::characters completed"); 
 }
 
-void DDLSAX2FileHandler::comment( const   XMLCh* const    chars
-				  , const unsigned int    length)
+void
+DDLSAX2FileHandler::comment( const   XMLCh* const    chars
+			     , const unsigned int    length)
 {
   // ignore, discard, overkill since base class also has this...
 }
 
-void DDLSAX2FileHandler::dumpElementTypeCounter()
-{ }
+void
+DDLSAX2FileHandler::dumpElementTypeCounter( void )
+{}
 
-void DDLSAX2FileHandler::createDDConstants() const
+void
+DDLSAX2FileHandler::createDDConstants( void ) const
 {
   DDConstant::createConstantsFromEvaluator();
 }
 
-const std::string& DDLSAX2FileHandler::parent() const
+const std::string&
+DDLSAX2FileHandler::parent( void ) const
 {
   if (names_.size() > 2)
-    {
-      return namesMap_.at(names_.at(names_.size() - 2));
-    }
+  {
+    return namesMap_.at(names_.at(names_.size() - 2));
+  }
   return namesMap_[0];//.at(names_.at(0));
 }
 
-const std::string& DDLSAX2FileHandler::self() const
+const std::string&
+DDLSAX2FileHandler::self( void ) const
 {
   if (names_.size() > 1) {
     return namesMap_.at(names_.at(names_.size() - 1));
   }
   return namesMap_[0];//.at(names_.at(0));
 }
-
-// void DDLSAX2FileHandler::setCPV( DDCompactView& cpv ) {
-//   cpv_ = & cpv;
-// }

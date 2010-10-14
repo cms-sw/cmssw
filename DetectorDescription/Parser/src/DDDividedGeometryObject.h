@@ -19,51 +19,51 @@ class DDLogicalPart;
 class DDRotation;
 class DDSolid;
 
-class DDDividedGeometryObject //: public DDDivision 
+class DDDividedGeometryObject
 { 
- public:
+public:
   
   DDDividedGeometryObject( const DDDivision& div, DDCompactView* cpv );
   
-  virtual ~DDDividedGeometryObject();
+  virtual ~DDDividedGeometryObject( void );
   
   virtual DDTranslation makeDDTranslation( const int copyNo ) const;
   virtual DDRotation    makeDDRotation   ( const int copyNo ) const ;
   virtual DDLogicalPart makeDDLogicalPart( const int copyNo ) const;
 
-  virtual const std::string& getType() const;
+  virtual const std::string& getType( void ) const;
 
-  virtual void setType(const std::string& type);
+  virtual void setType( const std::string& type );
 
-  int volumeFirstCopyNo() const;
+  int volumeFirstCopyNo( void ) const;
 
-  virtual void execute();
+  virtual void execute( void );
 
-  static const double tolerance();
+  static const double tolerance( void );
   
- protected:
+protected:
   
-    DDRotationMatrix* changeRotMatrix( double rotZ = 0. ) const;
-    int calculateNDiv( double motherDim, double width,
-		       double offset ) const;
-    double calculateWidth( double motherDim, int nDiv,
-			   double offset ) const;
+  DDRotationMatrix* changeRotMatrix( double rotZ = 0. ) const;
+  int calculateNDiv( double motherDim, double width,
+		     double offset ) const;
+  double calculateWidth( double motherDim, int nDiv,
+			 double offset ) const;
 
-    virtual void checkParametersValidity();
+  virtual void checkParametersValidity( void );
 
-    void checkOffset( double maxPar );
-    void checkNDivAndWidth( double maxPar );
+  void checkOffset( double maxPar );
+  void checkNDivAndWidth( double maxPar );
 
-    virtual double getMaxParameter() const;
+  virtual double getMaxParameter( void ) const;
 
- protected:
-    DDDivision div_;
-    std::string ftype_;
-    int compNDiv_;
-    double compWidth_;
-    DivisionType divisionType_;
-    int theVoluFirstCopyNo_;
-    DDCompactView* cpv_;
+protected:
+  DDDivision div_;
+  std::string ftype_;
+  int compNDiv_;
+  double compWidth_;
+  DivisionType divisionType_;
+  int theVoluFirstCopyNo_;
+  DDCompactView* cpv_;
 };
 
 #endif

@@ -11,8 +11,6 @@
 
 #include <string>
 
-//namespace ddl {
-
 ///  DDLRotationByAxis handles RotationByAxis elements
 /** @class DDLRotationByAxis
  * @author Michael Case
@@ -28,28 +26,23 @@
  */
 class DDLRotationByAxis : public DDXMLElement
 {
-
- public:
+public:
 
   /// Constructor 
   DDLRotationByAxis( DDLElementRegistry* myreg );
 
   /// Destructor
-  virtual ~DDLRotationByAxis();
+  virtual ~DDLRotationByAxis( void );
 
-  virtual void preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv);
+  virtual void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
 
-  virtual void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv);
+  virtual void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
 
-  virtual DDRotationMatrix processOne(DDRotationMatrix R, std::string& axis, std::string& angle); 
+  virtual DDRotationMatrix processOne( DDRotationMatrix R, std::string& axis, std::string& angle ); 
 
- protected:
-
- private:
+private:
   std::string pNameSpace;
   std::string pName;
-
 };
 
-//} 
 #endif

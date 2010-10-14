@@ -11,31 +11,19 @@
  *                                                                         *
  ***************************************************************************/
 
+#include "DetectorDescription/Parser/src/DDLSolid.h"
 
-
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
-#include "DDLSolid.h"
-#include "DDLElementRegistry.h"
-
-// DDCore dependencies
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
+DDLSolid::DDLSolid( DDLElementRegistry* myreg )
+  : DDXMLElement( myreg )
+{}
 
-//#include <strstream>
+DDLSolid::~DDLSolid( void )
+{}
 
-// Default constructor
-DDLSolid::DDLSolid(  DDLElementRegistry* myreg ) : DDXMLElement(myreg)
-{
-}
-
-// Default desctructor
-DDLSolid::~DDLSolid()
-{
-}
-
-void DDLSolid::setReference (const std::string& nmspace, DDCompactView& cpv)
+void
+DDLSolid::setReference( const std::string& nmspace, DDCompactView& cpv )
 {
   // in case it was a BooleanSolid or a ReflectionSolid, clear rSolid.
   DDXMLElement* myrSolid = myRegistry_->getElement("rSolid");
@@ -43,14 +31,14 @@ void DDLSolid::setReference (const std::string& nmspace, DDCompactView& cpv)
 
   // Make sure Solid elements are in LogicalPart elements.
   if (parent() == "LogicalPart")
-    {
-      DDXMLElement* refsol = myRegistry_->getElement("rSolid");
-      std::vector<std::string> names;
-      std::vector<std::string> values;
-      names.push_back("name");
-      values.push_back(getAttributeSet().find("name")->second);
-      refsol->loadAttributes("rSolid", names, values, nmspace, cpv);
-    }
+  {
+    DDXMLElement* refsol = myRegistry_->getElement("rSolid");
+    std::vector<std::string> names;
+    std::vector<std::string> values;
+    names.push_back("name");
+    values.push_back(getAttributeSet().find("name")->second);
+    refsol->loadAttributes("rSolid", names, values, nmspace, cpv);
+  }
 
   // clear THIS solid's values.
   clear();

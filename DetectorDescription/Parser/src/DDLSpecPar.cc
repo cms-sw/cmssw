@@ -11,37 +11,29 @@
  *                                                                         *
  ***************************************************************************/
 
+#include "DetectorDescription/Parser/src/DDLSpecPar.h"
 
-
-// Parser parts
-#include "DDLSpecPar.h"
-#include "DDLElementRegistry.h"
-
-// DDCore dependencies
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDValuePair.h"
 
-// CLHEP dependencies
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
 #include <sstream>
 
-// Default constructor
-DDLSpecPar::DDLSpecPar(  DDLElementRegistry* myreg ) : DDXMLElement(myreg)
-{
-}
+DDLSpecPar::DDLSpecPar( DDLElementRegistry* myreg )
+  : DDXMLElement( myreg )
+{}
 
-// Default destructor
-DDLSpecPar::~DDLSpecPar()
-{
-}
+DDLSpecPar::~DDLSpecPar( void )
+{}
 
 // Process a SpecPar element.  We have to assume that 
 // certain things have happened.
-void DDLSpecPar::processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
+void
+DDLSpecPar::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
   DCOUT_V('P',"DDLSpecPar::processElement started");
 
@@ -71,7 +63,7 @@ void DDLSpecPar::processElement (const std::string& name, const std::string& nms
     size_t foundColon= rn.find(':');
     if (foundColon != std::string::npos) {
       ns = rn.substr(0,foundColon);
-//       rn = rn.substr(foundColon+1);
+      //       rn = rn.substr(foundColon+1);
     }
   }
 
@@ -80,25 +72,25 @@ void DDLSpecPar::processElement (const std::string& name, const std::string& nms
   std::vector <std::string> partsels;
   size_t i;
 
-//    if (getName("name") == "")
-//      {
-//        std::cout << "ERROR: no name for SpecPar" << std::endl;
-//        partsels = myPartSelector->getVectorAttribute("path");
-//        snames = myParameter->getVectorAttribute("name");
-//        std::cout << "\tParameter Names" << std::endl;
-//        size_t i;
-//        for (i = 0; i < snames.size(); ++i)
-//  	{
-//  	  std::cout << "\t\t" << snames[i] << std::endl;
-//  	}
-//        std::cout << "\tPart Selectors:" << std::endl;
-//        for (i = 0; i < partsels.size(); ++i)
-//  	{
-//  	  std::cout << "\t\t" << partsels[i] << std::endl;
-//  	}
-//      }
-//    else 
-//      {
+  //    if (getName("name") == "")
+  //      {
+  //        std::cout << "ERROR: no name for SpecPar" << std::endl;
+  //        partsels = myPartSelector->getVectorAttribute("path");
+  //        snames = myParameter->getVectorAttribute("name");
+  //        std::cout << "\tParameter Names" << std::endl;
+  //        size_t i;
+  //        for (i = 0; i < snames.size(); ++i)
+  //  	{
+  //  	  std::cout << "\t\t" << snames[i] << std::endl;
+  //  	}
+  //        std::cout << "\tPart Selectors:" << std::endl;
+  //        for (i = 0; i < partsels.size(); ++i)
+  //  	{
+  //  	  std::cout << "\t\t" << partsels[i] << std::endl;
+  //  	}
+  //      }
+  //    else 
+  //      {
 
   //should i keep this? partsels = myPartSelector->getVectorAttribute("path");
   //otherise I have to do this block...
@@ -144,86 +136,86 @@ void DDLSpecPar::processElement (const std::string& name, const std::string& nms
       doRegex = true;
   }
   for (i = 0; i < myParameter->size(); ++i)
-    {
-      const DDXMLAttribute & atts = myParameter->getAttributeSet(i);
-      std::vector <DDValuePair> vvp;
-      vvvpType::iterator itv = vvvp.find((atts.find("name")->second));
-      if (itv != vvvp.end())
-	vvp = itv->second.second;
-      double tval = 0.0;
-      bool isEvaluated = false;
+  {
+    const DDXMLAttribute & atts = myParameter->getAttributeSet(i);
+    std::vector <DDValuePair> vvp;
+    vvvpType::iterator itv = vvvp.find((atts.find("name")->second));
+    if (itv != vvvp.end())
+      vvp = itv->second.second;
+    double tval = 0.0;
+    bool isEvaluated = false;
 
-      /** 
-	  1.  Check eval flag of each level (SpecParSection, SpecPar
-	  and Parameter).
-	  2.  Default is the closest specified eval attribute
-	  with any value other than "false".
-      */
+    /** 
+	1.  Check eval flag of each level (SpecParSection, SpecPar
+	and Parameter).
+	2.  Default is the closest specified eval attribute
+	with any value other than "false".
+    */
       
-      // bool notThis =  doNotEval  myParameter->get(std::string("eval"), i) != "true";
+    // bool notThis =  doNotEval  myParameter->get(std::string("eval"), i) != "true";
 
-      // since eval is an optional attribute, we need to check if it exists for
-      // the debug statement.  Unfortunately, I see no way to do this internal
-      // to the DCOUT_V statement... ts is a "wasted" variable.
-      std::string ts = "** no eval attribute **";
-      if (atts.find("eval") != atts.end()) 
-	ts = atts.find("eval")->second;
-      DCOUT_V('P', std::string("about to process ") << atts.find("value")->second << std::string(" eval = ") << ts);
-      if ((atts.find("eval") != atts.end() && atts.find("eval")->second !="false")
-	  || (atts.find("eval") == atts.end() && !doNotEval))
-	{ 
-	  tval = ExprEvalSingleton::instance().eval(ns, atts.find("value")->second);
-	  isEvaluated=true;
-	  DCOUT_V('P', std::string("EVALUATED"));
-	}
-      else
-	{
-	  DCOUT_V('P', std::string("NOT Evaluated"));
-	}
-      
-      DDValuePair vp(atts.find("value")->second, tval);
-      vvp.push_back(vp);
-      vvvp[atts.find("name")->second] = make_pair(isEvaluated,vvp);
+    // since eval is an optional attribute, we need to check if it exists for
+    // the debug statement.  Unfortunately, I see no way to do this internal
+    // to the DCOUT_V statement... ts is a "wasted" variable.
+    std::string ts = "** no eval attribute **";
+    if (atts.find("eval") != atts.end()) 
+      ts = atts.find("eval")->second;
+    DCOUT_V('P', std::string("about to process ") << atts.find("value")->second << std::string(" eval = ") << ts);
+    if ((atts.find("eval") != atts.end() && atts.find("eval")->second !="false")
+	|| (atts.find("eval") == atts.end() && !doNotEval))
+    { 
+      tval = ExprEvalSingleton::instance().eval(ns, atts.find("value")->second);
+      isEvaluated=true;
+      DCOUT_V('P', std::string("EVALUATED"));
     }
+    else
+    {
+      DCOUT_V('P', std::string("NOT Evaluated"));
+    }
+      
+    DDValuePair vp(atts.find("value")->second, tval);
+    vvp.push_back(vp);
+    vvvp[atts.find("name")->second] = make_pair(isEvaluated,vvp);
+  }
 
   // Process the String names and values.
   for (i = 0; i < myString->size(); ++i)
-    {
-      const DDXMLAttribute & atts = myString->getAttributeSet(i);
-      std::vector <DDValuePair> vvp;
-      vvvpType::iterator itv = vvvp.find(atts.find("name")->second);
-      if (itv != vvvp.end())
-	vvp = itv->second.second;
-      DCOUT_V('P', std::string("about to process String ") << (atts.find("name")->second) << " = " << (atts.find("value")->second));
-      DDValuePair vp(atts.find("value")->second, 0.0);
-      vvp.push_back(vp);
-      vvvp[atts.find("name")->second] = make_pair(false,vvp);
-    }
+  {
+    const DDXMLAttribute & atts = myString->getAttributeSet(i);
+    std::vector <DDValuePair> vvp;
+    vvvpType::iterator itv = vvvp.find(atts.find("name")->second);
+    if (itv != vvvp.end())
+      vvp = itv->second.second;
+    DCOUT_V('P', std::string("about to process String ") << (atts.find("name")->second) << " = " << (atts.find("value")->second));
+    DDValuePair vp(atts.find("value")->second, 0.0);
+    vvp.push_back(vp);
+    vvvp[atts.find("name")->second] = make_pair(false,vvp);
+  }
   
   // Process the Numeric names and values.
   for (i = 0; i < myNumeric->size(); ++i)
-    {
-      const DDXMLAttribute & atts = myNumeric->getAttributeSet(i);
-      std::vector <DDValuePair> vvp;
-      vvvpType::iterator itv = vvvp.find(atts.find("name")->second);
-      if (itv != vvvp.end())
-	vvp = itv->second.second;
-      DCOUT_V('P', std::string("about to process String ") << (atts.find("name")->second) << " = " << (atts.find("value")->second));
-      double tval = ExprEvalSingleton::instance().eval(ns, atts.find("value")->second);
-      DCOUT_V('P', std::string("EVALUATED"));
-      DDValuePair vp(atts.find("value")->second, tval);
-      vvp.push_back(vp);
-      vvvp[atts.find("name")->second] = make_pair(true,vvp);
-    }
+  {
+    const DDXMLAttribute & atts = myNumeric->getAttributeSet(i);
+    std::vector <DDValuePair> vvp;
+    vvvpType::iterator itv = vvvp.find(atts.find("name")->second);
+    if (itv != vvvp.end())
+      vvp = itv->second.second;
+    DCOUT_V('P', std::string("about to process String ") << (atts.find("name")->second) << " = " << (atts.find("value")->second));
+    double tval = ExprEvalSingleton::instance().eval(ns, atts.find("value")->second);
+    DCOUT_V('P', std::string("EVALUATED"));
+    DDValuePair vp(atts.find("value")->second, tval);
+    vvp.push_back(vp);
+    vvvp[atts.find("name")->second] = make_pair(true,vvp);
+  }
   
   svt.reserve(vvvp.size());
   for (vvvpType::const_iterator it = vvvp.begin(); it != vvvp.end(); ++it)
-    {
-      DDValue val(it->first, it->second.second);
-      bool isEvaluated = it->second.first;
-      val.setEvalState(isEvaluated);
-      svt.push_back(DDsvalues_Content_type(val,val));      
-    }
+  {
+    DDValue val(it->first, it->second.second);
+    bool isEvaluated = it->second.first;
+    val.setEvalState(isEvaluated);
+    svt.push_back(DDsvalues_Content_type(val,val));      
+  }
   std::sort(svt.begin(),svt.end());
 
 

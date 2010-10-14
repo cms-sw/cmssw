@@ -9,8 +9,6 @@
 #include <string>
 #include <vector>
 
-
-
 /** @class DDLTrapezoid
  * @author Michael Case
  *
@@ -24,15 +22,14 @@
  */
 class DDLTrapezoid : public DDLSolid
 {
- public:
+public:
 
   /// Constructor
   DDLTrapezoid( DDLElementRegistry* myreg );
 
   /// Destructor
-  ~DDLTrapezoid();
+  ~DDLTrapezoid( void );
 
-  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv); 
-
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
 };
 #endif

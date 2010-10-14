@@ -11,14 +11,8 @@
  *                                                                         *
  ***************************************************************************/
 
+#include "DetectorDescription/Parser/src/DDLRotationAndReflection.h"
 
-
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
-#include "DDLRotationAndReflection.h"
-
-// DDCore dependencies
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
@@ -30,20 +24,15 @@
 
 #include <cmath>
 
-// CMSSW Framework Dependency
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+DDLRotationAndReflection::DDLRotationAndReflection( DDLElementRegistry* myreg )
+  : DDXMLElement( myreg ) 
+{}
 
-// Default constructor
-DDLRotationAndReflection::DDLRotationAndReflection(  DDLElementRegistry* myreg ) : DDXMLElement(myreg) 
-{
-}
+DDLRotationAndReflection::~DDLRotationAndReflection( void )
+{}
 
-// Default destructor
-DDLRotationAndReflection::~DDLRotationAndReflection()
-{
-}
-
-void DDLRotationAndReflection::processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
+void
+DDLRotationAndReflection::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
 
   DCOUT_V('P', "DDLRotationAndReflection::processElement started " << name);
@@ -56,48 +45,48 @@ void DDLRotationAndReflection::processElement (const std::string& name, const st
 
 
   if ((name == "Rotation") && isLeftHanded(x, y, z, nmspace) == 0)
-    {
-      DDRotationMatrix* ddr = new DDRotationMatrix(x, y, z);
-      DDRotation ddrot = DDrot(getDDName(nmspace), ddr);
-      DCOUT_V ('p', "Rotation created: " << ddrot << std::endl);
-    }
+  {
+    DDRotationMatrix* ddr = new DDRotationMatrix(x, y, z);
+    DDRotation ddrot = DDrot(getDDName(nmspace), ddr);
+    DCOUT_V ('p', "Rotation created: " << ddrot << std::endl);
+  }
   else if ((name == "Rotation")  && isLeftHanded(x, y, z, nmspace) == 1)
-    {
-      std::string msg("\nDDLRotationAndReflection attempted to make a");
-      msg += " left-handed rotation with a Rotation element. If";
-      msg += " you meant to make a reflection, use ReflectionRotation";
-      msg += " elements, otherwise, please check your matrix.  Other";
-      msg += " errors may follow.  Rotation  matrix not created.";
-      edm::LogError("DetectorDescription_Parser_Rotation_and_Reflection") << msg << std::endl; // this could become a throwWarning or something.
-    }
+  {
+    std::string msg("\nDDLRotationAndReflection attempted to make a");
+    msg += " left-handed rotation with a Rotation element. If";
+    msg += " you meant to make a reflection, use ReflectionRotation";
+    msg += " elements, otherwise, please check your matrix.  Other";
+    msg += " errors may follow.  Rotation  matrix not created.";
+    edm::LogError("DetectorDescription_Parser_Rotation_and_Reflection") << msg << std::endl; // this could become a throwWarning or something.
+  }
   else if (name == "ReflectionRotation" && isLeftHanded(x, y, z, nmspace) == 1) 
-    {
-      ExprEvalInterface & ev = ExprEvalSingleton::instance();
-      DDRotation ddrot = 
-	DDrotReflect(getDDName(nmspace)
-		     , ev.eval(nmspace, atts.find("thetaX")->second)
-		     , ev.eval(nmspace, atts.find("phiX")->second)
-		     , ev.eval(nmspace, atts.find("thetaY")->second)
-		     , ev.eval(nmspace, atts.find("phiY")->second)
-		     , ev.eval(nmspace, atts.find("thetaZ")->second)
-		     , ev.eval(nmspace, atts.find("phiZ")->second));
-      DCOUT_V ('p', "Rotation created: " << ddrot << std::endl);
-    }
+  {
+    ExprEvalInterface & ev = ExprEvalSingleton::instance();
+    DDRotation ddrot = 
+      DDrotReflect(getDDName(nmspace)
+		   , ev.eval(nmspace, atts.find("thetaX")->second)
+		   , ev.eval(nmspace, atts.find("phiX")->second)
+		   , ev.eval(nmspace, atts.find("thetaY")->second)
+		   , ev.eval(nmspace, atts.find("phiY")->second)
+		   , ev.eval(nmspace, atts.find("thetaZ")->second)
+		   , ev.eval(nmspace, atts.find("phiZ")->second));
+    DCOUT_V ('p', "Rotation created: " << ddrot << std::endl);
+  }
   else if (name == "ReflectionRotation" && isLeftHanded(x, y, z, nmspace) == 0)
-    {
-      std::string msg("WARNING:  Attempted to make a right-handed");
-      msg += " rotation using a ReflectionRotation element. ";
-      msg += " If you meant to make a Rotation, use Rotation";
-      msg += " elements, otherwise, please check your matrix.";
-      msg += "  Other errors may follow.  ReflectionRotation";
-      msg += " matrix not created.";
-      edm::LogError("DetectorDescription_Parser_Rotation_and_Reflection") << msg << std::endl; // this could be a throwWarning or something.
-    }
+  {
+    std::string msg("WARNING:  Attempted to make a right-handed");
+    msg += " rotation using a ReflectionRotation element. ";
+    msg += " If you meant to make a Rotation, use Rotation";
+    msg += " elements, otherwise, please check your matrix.";
+    msg += "  Other errors may follow.  ReflectionRotation";
+    msg += " matrix not created.";
+    edm::LogError("DetectorDescription_Parser_Rotation_and_Reflection") << msg << std::endl; // this could be a throwWarning or something.
+  }
   else
-    {
-      std::string msg = "\nDDLRotationAndReflection::processElement tried to process wrong element.";
-      throwError(msg);
-    }
+  {
+    std::string msg = "\nDDLRotationAndReflection::processElement tried to process wrong element.";
+    throwError(msg);
+  }
   // after a rotation or reflection rotation has been processed, clear it
   clear();
 
@@ -117,7 +106,8 @@ void DDLRotationAndReflection::processElement (const std::string& name, const st
 // did the rest.
 //
 
-int DDLRotationAndReflection::isLeftHanded (DD3Vector x, DD3Vector y, DD3Vector z, const std::string & nmspace)
+int
+DDLRotationAndReflection::isLeftHanded (DD3Vector x, DD3Vector y, DD3Vector z, const std::string & nmspace)
 {
   DCOUT_V('P', "DDLRotation::isLeftHanded started");
 
@@ -201,38 +191,40 @@ int DDLRotationAndReflection::isLeftHanded (DD3Vector x, DD3Vector y, DD3Vector 
   return ret;
 }
 
-DD3Vector DDLRotationAndReflection::makeX(std::string nmspace)
+DD3Vector
+DDLRotationAndReflection::makeX(std::string nmspace)
 {
   DD3Vector x;
   DDXMLAttribute atts = getAttributeSet();
   if (atts.find("thetaX") != atts.end())
-    {
-      ExprEvalInterface & ev = ExprEvalSingleton::instance(); 
-      double thetaX = ev.eval(nmspace, atts.find("thetaX")->second.c_str());
-      double phiX = ev.eval(nmspace, atts.find("phiX")->second.c_str());
-      // colx
-      x.SetX(sin(thetaX) * cos(phiX));
-      x.SetY(sin(thetaX) * sin(phiX));
-      x.SetZ(cos(thetaX));
-    }
+  {
+    ExprEvalInterface & ev = ExprEvalSingleton::instance(); 
+    double thetaX = ev.eval(nmspace, atts.find("thetaX")->second.c_str());
+    double phiX = ev.eval(nmspace, atts.find("phiX")->second.c_str());
+    // colx
+    x.SetX(sin(thetaX) * cos(phiX));
+    x.SetY(sin(thetaX) * sin(phiX));
+    x.SetZ(cos(thetaX));
+  }
   return x;
 }
 
-DD3Vector DDLRotationAndReflection::makeY(std::string nmspace)
+DD3Vector
+DDLRotationAndReflection::makeY(std::string nmspace)
 {
   DD3Vector y;
   DDXMLAttribute atts = getAttributeSet();
   if (atts.find("thetaY") != atts.end())
-    {
-      ExprEvalInterface & ev = ExprEvalSingleton::instance(); 
-      double thetaY = ev.eval(nmspace, atts.find("thetaY")->second.c_str());
-      double phiY = ev.eval(nmspace, atts.find("phiY")->second.c_str());
+  {
+    ExprEvalInterface & ev = ExprEvalSingleton::instance(); 
+    double thetaY = ev.eval(nmspace, atts.find("thetaY")->second.c_str());
+    double phiY = ev.eval(nmspace, atts.find("phiY")->second.c_str());
       
-      // coly
-      y.SetX(sin(thetaY) * cos(phiY));
-      y.SetY(sin(thetaY) * sin(phiY));
-      y.SetZ(cos(thetaY));
-    }
+    // coly
+    y.SetX(sin(thetaY) * cos(phiY));
+    y.SetY(sin(thetaY) * sin(phiY));
+    y.SetZ(cos(thetaY));
+  }
   return y;
 }
 
@@ -241,15 +233,15 @@ DD3Vector DDLRotationAndReflection::makeZ(std::string nmspace)
   DD3Vector z;
   DDXMLAttribute atts = getAttributeSet();
   if (atts.find("thetaZ") != atts.end())
-    {
-      ExprEvalInterface & ev = ExprEvalSingleton::instance(); 
-      double thetaZ = ev.eval(nmspace, atts.find("thetaZ")->second.c_str());
-      double phiZ = ev.eval(nmspace, atts.find("phiZ")->second.c_str());
+  {
+    ExprEvalInterface & ev = ExprEvalSingleton::instance(); 
+    double thetaZ = ev.eval(nmspace, atts.find("thetaZ")->second.c_str());
+    double phiZ = ev.eval(nmspace, atts.find("phiZ")->second.c_str());
       
-      // colz
-      z.SetX(sin(thetaZ) * cos(phiZ));
-      z.SetY(sin(thetaZ) * sin(phiZ));
-      z.SetZ(cos(thetaZ));
-    }
+    // colz
+    z.SetX(sin(thetaZ) * cos(phiZ));
+    z.SetY(sin(thetaZ) * sin(phiZ));
+    z.SetZ(cos(thetaZ));
+  }
   return z;
 }

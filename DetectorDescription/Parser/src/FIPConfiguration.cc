@@ -12,59 +12,56 @@
  *                                                                         *
  ***************************************************************************/
 
-//--------------------------------------------------------------------------
-//  Includes
-//--------------------------------------------------------------------------
-// Parser parts
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
-
-// Xerces dependencies
-#include <xercesc/util/XercesDefs.hpp>
-#include <xercesc/sax2/SAX2XMLReader.hpp>
-#include <xercesc/sax2/XMLReaderFactory.hpp>
-#include <xercesc/sax/SAXException.hpp>
-
-// EDM Dependencies
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 
-// STL
 #include <iostream>
 
 using namespace XERCES_CPP_NAMESPACE;
 
-//--------------------------------------------------------------------------
-//  FIPConfiguration:  Default constructor and destructor.
-//--------------------------------------------------------------------------
-FIPConfiguration::~FIPConfiguration()
-{
-  //  parser_->getXMLParser()->setContentHandler(0);  
-}
-
-FIPConfiguration::FIPConfiguration(DDCompactView& cpv) : configHandler_(cpv), cpv_(cpv)
+FIPConfiguration::FIPConfiguration( DDCompactView& cpv )
+  : configHandler_( cpv ),
+    cpv_( cpv )
 { 
   //  parser_ = DDLParser::instance();
   //  std::cout << "Making a FIPConfiguration with configHandler_ at " << &configHandler_ << std::endl;
 }
 
-const std::vector<std::string>&  FIPConfiguration::getFileList(void) const
+FIPConfiguration::~FIPConfiguration( void )
+{
+  //  parser_->getXMLParser()->setContentHandler(0);  
+}
+
+const std::vector<std::string>&
+FIPConfiguration::getFileList( void ) const
 {
   return files_;
 }
 
-const std::vector<std::string>&  FIPConfiguration::getURLList(void) const
+const std::vector<std::string>&
+FIPConfiguration::getURLList( void ) const
 {
   return urls_;
 }
 
-bool FIPConfiguration::doValidation() const { return configHandler_.doValidation(); }
+bool
+FIPConfiguration::doValidation( void ) const
+{
+  return configHandler_.doValidation();
+}
 
-std::string FIPConfiguration::getSchemaLocation() const { return configHandler_.getSchemaLocation(); }
+std::string
+FIPConfiguration::getSchemaLocation( void ) const
+{
+  return configHandler_.getSchemaLocation();
+}
 
-void FIPConfiguration::dumpFileList(void) const {
+void
+FIPConfiguration::dumpFileList(void) const
+{
   std::cout << "File List:" << std::endl;
   std::cout << "  number of files=" << files_.size() << std::endl;
   for (std::vector<std::string>::const_iterator it = files_.begin(); it != files_.end(); ++it)
@@ -76,7 +73,8 @@ void FIPConfiguration::dumpFileList(void) const {
 //  configuration file.
 //-----------------------------------------------------------------------
 
-int FIPConfiguration::readConfig(const std::string& filename, bool fullPath)
+int
+FIPConfiguration::readConfig( const std::string& filename, bool fullPath )
 {
   std::string absoluteFileName (filename);
   if (!fullPath) {
@@ -97,7 +95,8 @@ int FIPConfiguration::readConfig(const std::string& filename, bool fullPath)
   size_t maxInd = vFiles.size();
   size_t ind = 0;
   // ea. file listed in the config
-  for(; ind < maxInd ; ++ind) {
+  for(; ind < maxInd ; ++ind)
+  {
     edm::FileInPath fp(vURLs[ind] + "/" + vFiles[ind]);
     //    std::cout << "FileInPath says..." << fp.fullPath() << std::endl;
     files_.push_back(fp.fullPath());
@@ -111,7 +110,8 @@ int FIPConfiguration::readConfig(const std::string& filename, bool fullPath)
   return 0;
 }
 
-int FIPConfiguration::readConfig(const std::string& filename)
+int
+FIPConfiguration::readConfig( const std::string& filename )
 {
-  return readConfig(filename, false);
+  return readConfig( filename, false );
 }

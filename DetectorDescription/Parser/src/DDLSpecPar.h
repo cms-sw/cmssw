@@ -22,16 +22,15 @@
 
 class DDLSpecPar : public DDXMLElement
 {
- public:
+public:
 
   /// Constructor
   DDLSpecPar( DDLElementRegistry* myreg );
 
   /// Destructor
-  ~DDLSpecPar();
+  ~DDLSpecPar( void );
 
-  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv); 
-
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
 };
 
 #endif

@@ -23,15 +23,14 @@
 
 class DDLParallelepiped : public DDLSolid
 {
- public:
+public:
 
   /// Constructor
   DDLParallelepiped( DDLElementRegistry* myreg );
 
   /// Destructor
-  ~DDLParallelepiped();
+  ~DDLParallelepiped( void );
 
-  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv); 
-
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
 };
 #endif

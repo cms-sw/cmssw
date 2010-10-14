@@ -23,15 +23,14 @@
 
 class DDLOrb : public DDLSolid
 {
- public:
+public:
 
   /// Constructor
   DDLOrb( DDLElementRegistry* myreg );
 
   /// Destructor
-  ~DDLOrb();
+  ~DDLOrb( void );
 
-  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv); 
-
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
 };
 #endif

@@ -17,7 +17,6 @@
 // Includes
 // -------------------------------------------------------------------------
 #include "DDLCompositeMaterial.h"
-#include "DDLElementRegistry.h"
 #include "DDXMLElement.h"
 
 // DDCore dependencies
@@ -27,43 +26,41 @@
 
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
-//#include <strstream>
-
 // Default constructor.
-DDLCompositeMaterial::DDLCompositeMaterial(  DDLElementRegistry* myreg ) : DDLMaterial(myreg)
-{
-}
+DDLCompositeMaterial::DDLCompositeMaterial(  DDLElementRegistry* myreg )
+  : DDLMaterial( myreg )
+{}
 
 // Default destructor.
-DDLCompositeMaterial::~DDLCompositeMaterial()
-{
-}
+DDLCompositeMaterial::~DDLCompositeMaterial( void )
+{}
 
 // to initialize the CompositeMaterial, clear all rMaterials in case some other 
 // rMaterial was used for some other element.
-void DDLCompositeMaterial::preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
+void
+DDLCompositeMaterial::preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
   // fyi: no need to clear MaterialFraction because it is cleared at the end of each
   // CompositeMaterial
-  myRegistry_->getElement("rMaterial")->clear();
+  myRegistry_->getElement( "rMaterial" )->clear();
 }
 
-void DDLCompositeMaterial::processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
+void
+DDLCompositeMaterial::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
   DCOUT_V('P', "DDLCompositeMaterial::processElement started");
-
 
   ExprEvalInterface & ev = ExprEvalSingleton::instance();
   DDXMLAttribute atts = getAttributeSet();
 
-  DDName ddn = getDDName(nmspace);
+  DDName ddn = getDDName( nmspace );
   DDMaterial mat;
 
-  mat = DDMaterial(ddn, ev.eval(nmspace, atts.find("density")->second));
+  mat = DDMaterial( ddn, ev.eval( nmspace, atts.find( "density" )->second ));
   
   // Get references to relevant DDL elements that are needed.
-  DDXMLElement* myMF = myRegistry_->getElement("MaterialFraction");
-  DDXMLElement* myrMaterial = myRegistry_->getElement("rMaterial");
+  DDXMLElement* myMF = myRegistry_->getElement( "MaterialFraction" );
+  DDXMLElement* myrMaterial = myRegistry_->getElement( "rMaterial" );
 
   // Get the names from those elements and also the namespace for the reference element.
   // The parent element CompositeMaterial MUST be in the same namespace as this fraction.
@@ -78,22 +75,22 @@ void DDLCompositeMaterial::processElement (const std::string& name, const std::s
   // sfractions are really mixtures by weight going into the DDCore.  Otherwise,
   // the DDCore has to know which are which and right now it does not.
 
-  if (myMF->size() != myrMaterial->size())
-    {
-      std::string msg = "/nDDLCompositeMaterial::processElement found that the ";
-      msg += "number of MaterialFractions does not match the number ";
-      msg += "of rMaterial names for ";
-      msg += ddn.ns() + ":" + ddn.name() + ".";
-      throwError(msg);
-    }
-  for (size_t i = 0; i < myrMaterial->size(); ++i)
-    {
-      atts = myMF->getAttributeSet(i);
-      mat.addMaterial(myrMaterial->getDDName(nmspace, "name", i)
-		      , ev.eval(nmspace, atts.find("fraction")->second));
-    }
+  if( myMF->size() != myrMaterial->size())
+  {
+    std::string msg = "/nDDLCompositeMaterial::processElement found that the ";
+    msg += "number of MaterialFractions does not match the number ";
+    msg += "of rMaterial names for ";
+    msg += ddn.ns() + ":" + ddn.name() + ".";
+    throwError( msg );
+  }
+  for( size_t i = 0; i < myrMaterial->size(); ++i )
+  {
+    atts = myMF->getAttributeSet( i );
+    mat.addMaterial( myrMaterial->getDDName( nmspace, "name", i ),
+		     ev.eval( nmspace, atts.find( "fraction" )->second ));
+  }
   // clears and sets new reference to THIS material.
-  DDLMaterial::setReference(nmspace, cpv);
+  DDLMaterial::setReference( nmspace, cpv );
   myMF->clear();
   clear();
   // print it.

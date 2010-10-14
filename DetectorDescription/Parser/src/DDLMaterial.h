@@ -25,15 +25,15 @@
 
 class DDLMaterial : public DDXMLElement
 {
- public:
+public:
 
   /// Constructor
   DDLMaterial( DDLElementRegistry* myreg );
 
   /// Destructor
-  virtual ~DDLMaterial();
+  virtual ~DDLMaterial( void );
 
-  virtual void setReference (const std::string& nmspace, DDCompactView& cpv);
-
+  virtual void setReference( const std::string& nmspace, DDCompactView& cpv );
 };
+
 #endif

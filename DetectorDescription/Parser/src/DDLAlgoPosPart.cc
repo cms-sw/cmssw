@@ -15,7 +15,6 @@
 
 // Parser parts
 #include "DDLAlgoPosPart.h"
-#include "DDLElementRegistry.h"
 
 // DDCore dependencies
 #include "DetectorDescription/Core/interface/DDName.h"

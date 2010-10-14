@@ -24,15 +24,14 @@
  */
 class DDLElementaryMaterial : public DDLMaterial
 {
- public:
+public:
 
   /// Constructor
   DDLElementaryMaterial( DDLElementRegistry* myreg );
 
   /// Destructor
-  ~DDLElementaryMaterial();
+  ~DDLElementaryMaterial( void );
 
-  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv); 
-
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
 };
 #endif

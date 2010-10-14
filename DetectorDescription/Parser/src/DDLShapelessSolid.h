@@ -23,16 +23,16 @@
 
 class DDLShapelessSolid : public DDLSolid
 {
- public:
+public:
 
   /// Constructor
   DDLShapelessSolid( DDLElementRegistry* myreg );
 
   /// Destructor
-  ~DDLShapelessSolid();
+  ~DDLShapelessSolid( void );
 
-  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv);
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
 
-  void preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv);
+  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
 };
 #endif

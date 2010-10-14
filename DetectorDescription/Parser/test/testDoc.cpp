@@ -11,30 +11,11 @@
 #include <vector>
 #include <map>
 #include <iostream>
-//#include <cstdlib>
-
-// includes for CMSSW main
-#include <boost/shared_ptr.hpp>
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/PluginManager/interface/ProblemTracker.h"
-#include "FWCore/Utilities/interface/Presence.h"
-#include "FWCore/PluginManager/interface/PresenceFactory.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-// end includes for CMSSW main
 
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/DDLDocumentProvider.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
-#include "DetectorDescription/Core/interface/DDMap.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDSolidShapes.h"
-#include "DetectorDescription/Core/interface/DDVector.h"
-#include "DetectorDescription/Core/interface/DDNumeric.h"
-#include "DetectorDescription/Core/interface/DDString.h"
 #include "DetectorDescription/Algorithm/src/AlgoInit.h"
 #include "DetectorDescription/Core/src/DDCheck.h"
 #include "DetectorDescription/Core/src/DDCheckMaterials.cc"
@@ -42,65 +23,60 @@
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDExpandedNode.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Parser/src/StrX.h"
-
 #include "DetectorDescription/Core/src/Material.h"
 
-class DDLTestDoc : public DDLDocumentProvider {
+class DDLTestDoc : public DDLDocumentProvider
+{
+public:
 
- public:
-
-  DDLTestDoc();
+  DDLTestDoc( void );
   virtual ~DDLTestDoc();
 
   /// Return a list of files as a vector of strings.
-  virtual const std::vector < std::string >&  getFileList(void) const;
+  virtual const std::vector < std::string >&  getFileList( void ) const;
 
   /// Return a list of urls as a vector of strings.
-  virtual const std::vector < std::string >&  getURLList(void) const;
+  virtual const std::vector < std::string >&  getURLList( void ) const;
 
   /// Print out the list of files.
-  virtual void dumpFileList(void) const;
+  virtual void dumpFileList( void ) const;
 
   /// Return whether Validation should be on or off and where the DDL SchemaLocation is.
-  virtual bool doValidation() const;
+  virtual bool doValidation( void ) const;
 
   /// Return the designation for where to look for the schema.
-  std::string getSchemaLocation() const;
+  std::string getSchemaLocation( void ) const;
 
   /// ReadConfig
-  virtual int readConfig(const std::string& filename);
+  virtual int readConfig( const std::string& filename );
 
-  void push_back(std::string fileName, std::string url = std::string("./"));
+  void push_back( std::string fileName, std::string url = std::string( "./" ));
 
-  void setSchemaLocation(std::string path = std::string("../../DDSchema"));
+  void setSchemaLocation( std::string path = std::string( "../../DDSchema" ));
 
-  void setValidation(bool val);
+  void setValidation( bool val );
 
-  void clear();
+  void clear( void );
 
   // test routines
   //   void testRotations();
 
-//    void testMaterials();
+  //    void testMaterials();
 
-//    void testSolids();
+  //    void testSolids();
 
-//    void testLogicalParts();
+  //    void testLogicalParts();
 
-//    void testPosParts();
+  //    void testPosParts();
 
-//    void testAlgoPosParts();
+  //    void testAlgoPosParts();
 
-//    void testAlgorithm();
+  //    void testAlgorithm();
 
- protected:
-
- private:
+private:
   std::vector < std::string > fnames_;
   std::vector < std::string > urls_;
   std::string schemaLoc_;
@@ -110,40 +86,54 @@ class DDLTestDoc : public DDLDocumentProvider {
 //--------------------------------------------------------------------------
 //  DDLTestDoc:  Default constructor and destructor.
 //--------------------------------------------------------------------------
-DDLTestDoc::~DDLTestDoc()
+DDLTestDoc::~DDLTestDoc( void )
 { 
 }
 
-DDLTestDoc::DDLTestDoc() : validate_(true)
+DDLTestDoc::DDLTestDoc( void )
+  : validate_(true)
 { 
   schemaLoc_ = "http://www.cern.ch/cms/DDL ../../Schema/DDLSchema.xsd";
 }
 
-const std::vector<std::string>&  DDLTestDoc::getFileList(void) const
+const std::vector<std::string>&
+DDLTestDoc::getFileList( void ) const
 {
   return fnames_;
 }
 
-const std::vector<std::string>&  DDLTestDoc::getURLList(void) const
+const std::vector<std::string>&
+DDLTestDoc::getURLList( void ) const
 {
   return urls_;
 }
 
-void DDLTestDoc::push_back( std::string fileName, std::string url) 
+void
+DDLTestDoc::push_back( std::string fileName, std::string url ) 
 {
   fnames_.push_back(fileName);
   urls_.push_back(url);
 }
 
-void DDLTestDoc::setValidation (bool val) { validate_= val; }
+void
+DDLTestDoc::setValidation( bool val )
+{ validate_= val; }
 
-bool DDLTestDoc::doValidation() const { return validate_; }
+bool
+DDLTestDoc::doValidation( void ) const
+{ return validate_; }
 
-void DDLTestDoc::setSchemaLocation(std::string path) { schemaLoc_ = path; }
+void
+DDLTestDoc::setSchemaLocation( std::string path )
+{ schemaLoc_ = path; }
 
-std::string DDLTestDoc::getSchemaLocation() const { std::cout << schemaLoc_ << std::endl; return schemaLoc_; }
+std::string
+DDLTestDoc::getSchemaLocation( void ) const
+{ std::cout << schemaLoc_ << std::endl; return schemaLoc_; }
 
-void DDLTestDoc::dumpFileList(void) const {
+void
+DDLTestDoc::dumpFileList( void ) const
+{
   std::cout << "File List:" << std::endl;
   std::vector<std::string> vst = getFileList();
   std::cout << "  number of files=" << vst.size() << std::endl;
@@ -151,7 +141,8 @@ void DDLTestDoc::dumpFileList(void) const {
     std::cout << *it << std::endl;
 }
 
-void DDLTestDoc::clear()
+void
+DDLTestDoc::clear( void )
 {
   fnames_.clear();
   urls_.clear();
@@ -166,7 +157,8 @@ void DDLTestDoc::clear()
 //  repeat files.  It is the Parser which checks for maintains a list of real
 //  files.
 //-----------------------------------------------------------------------
-int DDLTestDoc::readConfig(const std::string& filename)
+int
+DDLTestDoc::readConfig( const std::string& filename )
 {
 
   std::cout << "readConfig" << std::endl;
@@ -190,28 +182,29 @@ int DDLTestDoc::readConfig(const std::string& filename)
   }
   catch (const XERCES_CPP_NAMESPACE::XMLException& toCatch) {
     std::cout << "\nXMLException: parsing '" << filename << "'\n"
-	 << "Exception message is: \n"
-	 << std::string(StrX(toCatch.getMessage()).localForm()) << "\n" ;
+	      << "Exception message is: \n"
+	      << std::string(StrX(toCatch.getMessage()).localForm()) << "\n" ;
     return 1;
   }
   catch (...)
-    {
-      std::cout << "\nUnexpected exception during parsing: '" << filename << "'\n";
-      return 3;
-    }
+  {
+    std::cout << "\nUnexpected exception during parsing: '" << filename << "'\n";
+    return 3;
+  }
 
   fnames_ = sch->getFileNames();
   urls_ = sch->getURLs();
-   std::cout << "there are " << fnames_.size() << " files." << std::endl;
-   for (size_t i = 0; i < fnames_.size(); ++i)
-     //std::cout << "url=" << sch->getURLs()[i] << " file=" << sch->getFileNames()[i] << std::endl;
-     std::cout << "url=" << urls_[i] << " file=" << fnames_[i] << std::endl;
+  std::cout << "there are " << fnames_.size() << " files." << std::endl;
+  for (size_t i = 0; i < fnames_.size(); ++i)
+    //std::cout << "url=" << sch->getURLs()[i] << " file=" << sch->getFileNames()[i] << std::endl;
+    std::cout << "url=" << urls_[i] << " file=" << fnames_[i] << std::endl;
   return 0;
 }
 
 
-void testRotations() {     
-
+void
+testRotations( void )
+{
   std::cout << "--------------- Parser testing Rotations --------------" << std::endl;
   std::cout << "z30 should be a rotation of 30 degrees around the z axis:" << std::endl;
   std::cout << DDRotation(DDName( "z30", "testRotations")) << std::endl;
@@ -262,7 +255,9 @@ void testMaterials() {
   std::cout << std::endl;
 }
 
-void testSolids() { 
+void
+testSolids( void )
+{ 
   std::cout << "--------------- Parser testing Solids --------------" << std::endl;
   std::cout << "trap1 is a trapezoid:" << std::endl;
   std::cout << DDSolid(DDName("trap1", "testSolids")) << std::endl;
@@ -337,7 +332,9 @@ void testSolids() {
   std::cout << std::endl;
 }
 
-void testLogicalParts() { 
+void
+testLogicalParts( void )
+{ 
   std::cout << "--------------- Parser testing LogicalParts --------------" << std::endl;
   std::cout << "LogicalPart trap1:" << std::endl;
   std::cout << DDLogicalPart(DDName("trap1", "testLogicalParts")) << std::endl;
@@ -413,18 +410,17 @@ void testLogicalParts() {
   std::cout << std::endl;
 }
 
-void testPosParts() { 
+void
+testPosParts( void )
+{}
 
+void
+testAlgoPosParts( void )
+{}
 
-}
-
-void testAlgoPosParts() { 
-
-}
-
-void testAlgorithm() { 
-
-}
+void
+testAlgorithm( void )
+{}
 
 int main(int argc, char *argv[])
 {
@@ -440,48 +436,48 @@ int main(int argc, char *argv[])
   // Copied from example stand-alone program in Message Logger July 18, 2007
   try {
 
-//     // A.  Instantiate a plug-in manager first.
-//     edm::AssertHandler ah;
+    //     // A.  Instantiate a plug-in manager first.
+    //     edm::AssertHandler ah;
 
-//     // B.  Load the message service plug-in.  Forget this and bad things happen!
-//     //     In particular, the job hangs as soon as the output buffer fills up.
-//     //     That's because, without the message service, there is no mechanism for
-//     //     emptying the buffers.
-//     boost::shared_ptr<edm::Presence> theMessageServicePresence;
-//     theMessageServicePresence = boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
-// 								 makePresence("MessageServicePresence").release());
+    //     // B.  Load the message service plug-in.  Forget this and bad things happen!
+    //     //     In particular, the job hangs as soon as the output buffer fills up.
+    //     //     That's because, without the message service, there is no mechanism for
+    //     //     emptying the buffers.
+    //     boost::shared_ptr<edm::Presence> theMessageServicePresence;
+    //     theMessageServicePresence = boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
+    // 								 makePresence("MessageServicePresence").release());
 
-//     // C.  Manufacture a configuration and establish it.
-//     std::string config =
-//       "import FWCore.ParameterSet.Config as cms\n"
-//       "process = cms.Process('TEST')\n"
-//       "process.maxEvents = cms.untracked.PSet(\n"
-//       "    input = cms.untracked.int32(5)\n"
-//       ")\n"
-//       "process.source = cms.Source('EmptySource')\n"
-//       "process.JobReportService = cms.Service('JobReportService')\n"
-//       "process.InitRootHandlers = cms.Service('InitRootHandlers')\n"
-//       // "process.MessageLogger = cms.Service('MessageLogger')\n"
-//       "process.m1 = cms.EDProducer('IntProducer',\n"
-//       "    ivalue = cms.int32(11)\n"
-//       ")\n"
-//       "process.out = cms.OutputModule('PoolOutputModule',\n"
-//       "    fileName = cms.untracked.string('testStandalone.root')\n"
-//       ")\n"
-//       "process.p = cms.Path(process.m1)\n"
-//       "process.e = cms.EndPath(process.out)\n";
+    //     // C.  Manufacture a configuration and establish it.
+    //     std::string config =
+    //       "import FWCore.ParameterSet.Config as cms\n"
+    //       "process = cms.Process('TEST')\n"
+    //       "process.maxEvents = cms.untracked.PSet(\n"
+    //       "    input = cms.untracked.int32(5)\n"
+    //       ")\n"
+    //       "process.source = cms.Source('EmptySource')\n"
+    //       "process.JobReportService = cms.Service('JobReportService')\n"
+    //       "process.InitRootHandlers = cms.Service('InitRootHandlers')\n"
+    //       // "process.MessageLogger = cms.Service('MessageLogger')\n"
+    //       "process.m1 = cms.EDProducer('IntProducer',\n"
+    //       "    ivalue = cms.int32(11)\n"
+    //       ")\n"
+    //       "process.out = cms.OutputModule('PoolOutputModule',\n"
+    //       "    fileName = cms.untracked.string('testStandalone.root')\n"
+    //       ")\n"
+    //       "process.p = cms.Path(process.m1)\n"
+    //       "process.e = cms.EndPath(process.out)\n";
 
-//     boost::shared_ptr<std::vector<edm::ParameterSet> > pServiceSets;
-//     boost::shared_ptr<edm::ParameterSet>          params_;
-//     edm::makeParameterSets(config, params_, pServiceSets);
+    //     boost::shared_ptr<std::vector<edm::ParameterSet> > pServiceSets;
+    //     boost::shared_ptr<edm::ParameterSet>          params_;
+    //     edm::makeParameterSets(config, params_, pServiceSets);
 
-//     // D.  Create the services.
-//     edm::ServiceToken tempToken(edm::ServiceRegistry::createSet(*pServiceSets.get()));
+    //     // D.  Create the services.
+    //     edm::ServiceToken tempToken(edm::ServiceRegistry::createSet(*pServiceSets.get()));
 
-//     // E.  Make the services available.
-//     edm::ServiceRegistry::Operate operate(tempToken);
+    //     // E.  Make the services available.
+    //     edm::ServiceRegistry::Operate operate(tempToken);
 
-//     // END Copy from example stand-alone program in Message Logger July 18, 2007
+    //     // END Copy from example stand-alone program in Message Logger July 18, 2007
 
     std::cout  << "Initialize DDD (call AlgoInit)" << std::endl;
 
@@ -491,8 +487,8 @@ int main(int argc, char *argv[])
     DDCompactView cpv;
     DDLParser myP(cpv);// = DDLParser::instance();
     //until scram b runtests (if ever) does not run it by default, we will not run without at least one argument.
- //    if (argc < 2) {
-//       std::cout << "DEFAULT test using testConfiguration.xml" << std::endl;
+    //    if (argc < 2) {
+    //       std::cout << "DEFAULT test using testConfiguration.xml" << std::endl;
     if ( argc == 2 ) {
       DDLTestDoc dp; //DDLConfiguration dp;
 
@@ -516,39 +512,39 @@ int main(int argc, char *argv[])
 	if (!cpv.root().isDefined().second) {
 	  cpv.setRoot(DDRootDef::instance().root());
 	}
-	  DDExpandedView ev(cpv);
-	  while (ev.next()) {
-	    std::cout << ev.geoHistory() << std::endl;
-	  }
-// 	  if (ev.firstChild()) {
-// 	    ev.firstChild();
-// 	    ev.nextSibling();
-// 	    std::cout << ev.geoHistory() << std::endl;
-// 	    ev.nextSibling();
-// 	    std::cout << ev.geoHistory() << std::endl;
-// 	    ev.firstChild();
-// 	    std::cout << ev.geoHistory() << std::endl;
-// 	    ev.nextSibling();
-// 	    std::cout << ev.geoHistory() << std::endl;
-// 	    ev.nextSibling();
-// 	    std::cout << ev.geoHistory() << std::endl;
-// 	    ev.firstChild();
-// 	    std::cout << ev.geoHistory() << std::endl;
-// 	    ev.nextSibling();
-// 	    std::cout << ev.geoHistory() << std::endl;
-// 	    ev.firstChild();
-// 	    std::cout << ev.geoHistory() << std::endl;
-// 	    ev.nextSibling();
-// 	    std::cout << ev.geoHistory() << std::endl;
-// 	    ev.firstChild();
-// 	    std::cout << ev.geoHistory() << std::endl;
-// 	    ev.nextSibling();
-// 	    std::cout << ev.geoHistory() << std::endl;
-// 	  }
-// // 	} else {
-// // 	  cpv.setRoot(DDRootDef::instance().root());
-// // 	  std::cout << cpv.root() << std::endl;
-// 	} 
+	DDExpandedView ev(cpv);
+	while (ev.next()) {
+	  std::cout << ev.geoHistory() << std::endl;
+	}
+	// 	  if (ev.firstChild()) {
+	// 	    ev.firstChild();
+	// 	    ev.nextSibling();
+	// 	    std::cout << ev.geoHistory() << std::endl;
+	// 	    ev.nextSibling();
+	// 	    std::cout << ev.geoHistory() << std::endl;
+	// 	    ev.firstChild();
+	// 	    std::cout << ev.geoHistory() << std::endl;
+	// 	    ev.nextSibling();
+	// 	    std::cout << ev.geoHistory() << std::endl;
+	// 	    ev.nextSibling();
+	// 	    std::cout << ev.geoHistory() << std::endl;
+	// 	    ev.firstChild();
+	// 	    std::cout << ev.geoHistory() << std::endl;
+	// 	    ev.nextSibling();
+	// 	    std::cout << ev.geoHistory() << std::endl;
+	// 	    ev.firstChild();
+	// 	    std::cout << ev.geoHistory() << std::endl;
+	// 	    ev.nextSibling();
+	// 	    std::cout << ev.geoHistory() << std::endl;
+	// 	    ev.firstChild();
+	// 	    std::cout << ev.geoHistory() << std::endl;
+	// 	    ev.nextSibling();
+	// 	    std::cout << ev.geoHistory() << std::endl;
+	// 	  }
+	// // 	} else {
+	// // 	  cpv.setRoot(DDRootDef::instance().root());
+	// // 	  std::cout << cpv.root() << std::endl;
+	// 	} 
       }
       catch (DDException& e) {
 	std::cout << e.what() << std::endl;
@@ -578,10 +574,10 @@ int main(int argc, char *argv[])
     }
   }
   catch (DDException& e)
-    {
-      std::cerr << "DDD-PROBLEM:" << std::endl 
-		<< e << std::endl;
-    }  
+  {
+    std::cerr << "DDD-PROBLEM:" << std::endl 
+	      << e << std::endl;
+  }  
   //  Deal with any exceptions that may have been thrown.
   catch (cms::Exception& e) {
     std::cout << "cms::Exception caught in "
@@ -597,12 +593,11 @@ int main(int argc, char *argv[])
 	      << e.what();
     rc = 1;
   }
-//   catch (...) {
-//     std::cout << "Unknown exception caught in "
-// 	      << kProgramName;
-//     rc = 2;
-//   }
+  //   catch (...) {
+  //     std::cout << "Unknown exception caught in "
+  // 	      << kProgramName;
+  //     rc = 2;
+  //   }
 
   return rc;
-
 }

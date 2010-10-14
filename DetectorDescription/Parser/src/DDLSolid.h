@@ -26,15 +26,14 @@
 
 class DDLSolid : public DDXMLElement
 {
- public:
+public:
 
   /// Constructor
   DDLSolid( DDLElementRegistry* myreg );
 
   /// Destructor
-  ~DDLSolid();
+  virtual ~DDLSolid( void );
 
-  void setReference (const std::string& nmspace, DDCompactView& cpv);
-
+  void setReference( const std::string& nmspace, DDCompactView& cpv );
 };
 #endif
