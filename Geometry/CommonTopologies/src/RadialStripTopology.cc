@@ -112,7 +112,7 @@ MeasurementError RadialStripTopology::measurementError(const LocalPoint& p,  con
 
     uu(       ( c2*e.xx() - 2*cs*e.xy() + s2*e.yy() )   * T2 ),
     vv(       ( s2*e.xx() + 2*cs*e.xy() + c2*e.yy() )   * R2 ),
-	uv( ( cs*( e.xx() - e.yy() ) + e.xy()*( c2 - s2 ) )  * std::sqrt (T2*R2) );
+    uv( ( cs*( e.xx() - e.yy() ) + e.xy()*( c2 - s2 ) )  * std::sqrt (T2*R2) );
   
   return MeasurementError(uu, uv, vv);
 }
