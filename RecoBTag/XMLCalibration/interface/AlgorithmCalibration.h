@@ -38,6 +38,8 @@ template <class T,class CO> class AlgorithmCalibration : public CalibrationInter
 {
 // friend class CalibrationInterface<T,CO>; 
   public:
+    typedef XERCES_CPP_NAMESPACE::DOMElement DOMElement;
+    typedef XERCES_CPP_NAMESPACE::DOMNode DOMNode;
 
   /**
    * Create an AlgorithmCalibration class and load from fileName the

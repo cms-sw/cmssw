@@ -38,12 +38,12 @@ void HLTInfo::beginRun(const edm::Run& run, const edm::EventSetup& c){
     if (changed) {
       // The HLT config has actually changed wrt the previous Run, hence rebook your
       // histograms or do anything else dependent on the revised HLT config
-      cout << "Initalizing HLTConfigProvider"  << endl;
+      std::cout << "Initalizing HLTConfigProvider"  << std::endl;
     }
   } else {
     // if init returns FALSE, initialisation has NOT succeeded, which indicates a problem
     // with the file and/or code and needs to be investigated!
-    cout << " HLT config extraction failure with process name " << processName_ << endl;
+    std::cout << " HLT config extraction failure with process name " << processName_ << std::endl;
     // In this case, all access methods will return empty values!
   }
 
@@ -209,8 +209,8 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
     }
     // ...Fill the corresponding accepts in branch-variables
 
-    //cout << "Number of prescale sets: " << hltConfig_.prescaleSize() << endl;
-    //cout << "Number of HLT paths: " << hltConfig_.size() << endl;
+    //std::cout << "Number of prescale sets: " << hltConfig_.prescaleSize() << std::endl;
+    //std::cout << "Number of HLT paths: " << hltConfig_.size() << std::endl;
     //int presclSet = hltConfig_.prescaleSet(iEvent, eventSetup);
     //std::cout<<"\tPrescale set number: "<< presclSet <<std::endl; 
 
@@ -434,9 +434,9 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
   const int pfSetIndexAlgorithmTrigger = m_l1GtUtils.prescaleFactorSetIndex(
              iEvent, trigCategory, iErrorCode);
   if (iErrorCode == 0) {
-    if (_Debug) cout << "%Prescale set index: " << pfSetIndexAlgorithmTrigger  << endl;
+    if (_Debug) std::cout << "%Prescale set index: " << pfSetIndexAlgorithmTrigger  << std::endl;
   }else{
-    cout << "%Could not extract Prescale set index from event record. Error code: " << iErrorCode << endl;
+    std::cout << "%Could not extract Prescale set index from event record. Error code: " << iErrorCode << std::endl;
   }
 
   // 1st event : Book as many branches as trigger paths provided in the input...
@@ -494,7 +494,7 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
       // ...Fill the corresponding accepts in branch-variables
       l1flag[iBit] = gtDecisionWord[iBit];
 
-      string l1triggername= string (algoBitToName[iBit]);
+      std::string l1triggername= std::string (algoBitToName[iBit]);
       l1Prescl[iBit] = m_l1GtUtils.prescaleFactor(iEvent, 
 					       l1triggername,
 					       iErrorCode);
@@ -509,7 +509,7 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
     for (unsigned int iBit = 0; iBit < numberTechnicalTriggerBits; ++iBit) {
       l1techflag[iBit] = (int) technicalTriggerWordBeforeMask.at(iBit);
 
-      string l1triggername= string (techBitToName[iBit]);
+      std::string l1triggername= std::string (techBitToName[iBit]);
       l1techPrescl[iBit] = m_l1GtUtils.prescaleFactor(iEvent, 
 					       l1triggername,
 					       iErrorCode);

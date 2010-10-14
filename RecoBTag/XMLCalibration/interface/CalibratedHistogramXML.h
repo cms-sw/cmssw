@@ -18,6 +18,9 @@
 class CalibratedHistogramXML:public CalibratedHistogram, CalibratedObject
 {
 public:
+  typedef XERCES_CPP_NAMESPACE::DOMElement DOMElement;
+  typedef XERCES_CPP_NAMESPACE::DOMNode DOMNode;
+
   CalibratedHistogramXML() {} 
   CalibratedHistogramXML(const CalibratedHistogram &h):CalibratedHistogram(h) {} 
   CalibratedHistogramXML( const std::vector < float > & ulimits ) :
@@ -25,9 +28,9 @@ public:
   virtual ~CalibratedHistogramXML() {} 
 
    
-  void read (XERCES_CPP_NAMESPACE::DOMElement * dom);
+  void read (DOMElement * dom);
   
-  void write (XERCES_CPP_NAMESPACE::DOMElement * dom) const;
+  void write (DOMElement * dom) const;
 
   std::string name () const
   {

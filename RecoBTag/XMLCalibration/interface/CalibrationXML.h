@@ -9,11 +9,17 @@
 #include <xercesc/sax/HandlerBase.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 
-using namespace XERCES_CPP_NAMESPACE;
-
 class CalibrationXML  
 {
 public:
+	typedef XERCES_CPP_NAMESPACE::DOMDocument DOMDocument;
+	typedef XERCES_CPP_NAMESPACE::DOMElement DOMElement;
+	typedef XERCES_CPP_NAMESPACE::DOMNode DOMNode;
+	typedef XERCES_CPP_NAMESPACE::HandlerBase HandlerBase;
+	typedef XERCES_CPP_NAMESPACE::XercesDOMParser XercesDOMParser;
+	typedef XERCES_CPP_NAMESPACE::XMLPlatformUtils XMLPlatformUtils;
+	typedef XERCES_CPP_NAMESPACE::XMLString XMLString;
+
 	CalibrationXML();
 	~CalibrationXML();
 	

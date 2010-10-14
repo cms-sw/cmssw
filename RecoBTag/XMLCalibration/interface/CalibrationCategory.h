@@ -22,6 +22,8 @@ template <class CI>
 class CalibrationCategory
 {
   public:
+
+    typedef XERCES_CPP_NAMESPACE::DOMElement DOMElement;
     typedef  CI Input;
 
     CalibrationCategory();

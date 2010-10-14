@@ -25,8 +25,6 @@
 #include "TText.h"
 #include "TLine.h"
 
-using namespace std;
-
 void initStyle(TStyle *sty);
 
 void SetupTowerDisplay(TH2F *hist);
