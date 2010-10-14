@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/08/13 22:35:17 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/10/07 17:09:10 $
+ *  $Revision: 1.8 $
  *  \author L. Uplegger F. Yumiceva - Fermilab
  */
 
@@ -170,6 +170,7 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
       }
 
       jrInfo["destDB"] = metadataForOfflineDropBox_.getUntrackedParameter<std::string>("destDB");
+      jrInfo["destDBValidation"] = metadataForOfflineDropBox_.getUntrackedParameter<std::string>("destDBValidation");
       jrInfo["tag"] = metadataForOfflineDropBox_.getUntrackedParameter<std::string>("tag");
       jrInfo["DuplicateTagPROMPT"] = metadataForOfflineDropBox_.getUntrackedParameter<std::string>("DuplicateTagPROMPT");
 
