@@ -643,10 +643,7 @@ void DDTIBLayerAlgo::execute(DDCompactView& cpv) {
     DDMaterial pillarMat(matname);
     std::vector<double> pillarZ;
     std::vector<double> pillarPhi;
-    double pillarDz; 
-    double pillarDPhi; 
-    double pillarRin;
-    double pillarRout;
+    double pillarDz=0, pillarDPhi=0, pillarRin=0, pillarRout=0;
     
     switch (j){
     case 0:

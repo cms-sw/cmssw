@@ -117,7 +117,7 @@ uint32_t EcalPreshowerNumberingScheme::getUnitID(const EcalBaseNumber& baseNumbe
     // box number
     int box = baseNumber.getCopyNumber(2);
 
-    int x,y,ix,iy,id;
+    int x=0,y=0,ix,iy,id;
     int mapX[10] ={0,0,0,0,0,0,0,0,0,0};  int mapY[10] ={0,0,0,0,0,0,0,0,0,0};
     std::string ladd = baseNumber.getLevelName(3);
     int ladd_copy = baseNumber.getCopyNumber(3);
