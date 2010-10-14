@@ -11,27 +11,19 @@
  *                                                                         *
  ***************************************************************************/
 
+#include "DetectorDescription/Parser/src/DDLCompositeMaterial.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
 
-
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
-#include "DDLCompositeMaterial.h"
-#include "DDXMLElement.h"
-
-// DDCore dependencies
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
-// Default constructor.
-DDLCompositeMaterial::DDLCompositeMaterial(  DDLElementRegistry* myreg )
+DDLCompositeMaterial::DDLCompositeMaterial( DDLElementRegistry* myreg )
   : DDLMaterial( myreg )
 {}
 
-// Default destructor.
 DDLCompositeMaterial::~DDLCompositeMaterial( void )
 {}
 

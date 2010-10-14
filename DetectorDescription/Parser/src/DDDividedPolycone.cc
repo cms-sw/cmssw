@@ -2,8 +2,8 @@
 // ********************************************************************
 // 25.04.04 - M. Case ddd-ize G4ParameterisationPolycone*
 //---------------------------------------------------------------------
-#include "DDDividedPolycone.h"
-#include "DDXMLElement.h"
+#include "DetectorDescription/Parser/src/DDDividedPolycone.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
 
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDName.h"
@@ -14,9 +14,7 @@
 #include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 
-
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
-
 
 //---------------------------------------------------------------------
 DDDividedPolyconeRho::DDDividedPolyconeRho( const DDDivision& div, DDCompactView* cpv )

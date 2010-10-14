@@ -3,8 +3,8 @@
 // 25.04.04 - M. Case ddd-ize G4ParameterisationTrd*
 // ********************************************************************
 
-#include "DDDividedTrd.h"
-#include "DDXMLElement.h"
+#include "DetectorDescription/Parser/src/DDDividedTrd.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
 
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDName.h"
@@ -20,9 +20,8 @@
 #include <cmath>
 #include <cstdlib>
 
-//------------------------------------------------------------------------
-DDDividedTrdX::DDDividedTrdX ( const DDDivision& div, DDCompactView* cpv )
-  :  DDDividedGeometryObject(div,cpv)
+DDDividedTrdX::DDDividedTrdX( const DDDivision& div, DDCompactView* cpv )
+  : DDDividedGeometryObject(div,cpv)
 {
   checkParametersValidity();
   setType( "DivisionTrdX" );
@@ -40,20 +39,18 @@ DDDividedTrdX::DDDividedTrdX ( const DDDivision& div, DDCompactView* cpv )
   DCOUT_V ('P', " DDDividedTrdX - ## divisions " << compNDiv_ << " = " << div_.nReplicas() << "\n Offset " << div_.offset() << "\n Width " << compWidth_ << " = " << div_.width());
 }
 
-//------------------------------------------------------------------------
-DDDividedTrdX::~DDDividedTrdX()
-{
-}
+DDDividedTrdX::~DDDividedTrdX( void )
+{}
 
-//------------------------------------------------------------------------
-double DDDividedTrdX::getMaxParameter() const
+double
+DDDividedTrdX::getMaxParameter( void ) const
 {
   DDTrap mtrd = (DDTrap)(div_.parent().solid());
   return 2 * mtrd.x1();
 }
 
-//------------------------------------------------------------------------
-DDTranslation DDDividedTrdX::makeDDTranslation ( const int copyNo ) const
+DDTranslation
+DDDividedTrdX::makeDDTranslation( const int copyNo ) const
 {
   DDTrap mtrd = (DDTrap)(div_.parent().solid());
   double mdx = mtrd.x1();
@@ -82,14 +79,14 @@ DDTranslation DDDividedTrdX::makeDDTranslation ( const int copyNo ) const
   return DDTranslation();
 }
 
-//------------------------------------------------------------------------
-DDRotation DDDividedTrdX::makeDDRotation ( const int copyNo ) const
+DDRotation
+DDDividedTrdX::makeDDRotation( const int copyNo ) const
 {
   return DDRotation();
 }
 
-//--------------------------------------------------------------------------
-DDLogicalPart DDDividedTrdX::makeDDLogicalPart( const int copyNo ) const
+DDLogicalPart
+DDDividedTrdX::makeDDLogicalPart( const int copyNo ) const
 {
   DDTrap mtrd = (DDTrap)(div_.parent().solid());
   DDMaterial usemat = div_.parent().material();
@@ -106,27 +103,27 @@ DDLogicalPart DDDividedTrdX::makeDDLogicalPart( const int copyNo ) const
   DDSolid dsol(solname);
   DDLogicalPart ddlp(solname);
   if (!dsol.isDefined().second)
-    {
-      dsol = DDSolidFactory::trap(solname
-				  , pDz
-				  , 0.*deg
-				  , 0.*deg
-				  , pDy1
-				  , pDx
-				  , pDx
-				  , 0.*deg
-				  , pDy2
-				  , pDx
-				  , pDx
-				  , 0.*deg);
-      ddlp = DDLogicalPart(solname, usemat, dsol);
-    }
+  {
+    dsol = DDSolidFactory::trap(solname
+				, pDz
+				, 0.*deg
+				, 0.*deg
+				, pDy1
+				, pDx
+				, pDx
+				, 0.*deg
+				, pDy2
+				, pDx
+				, pDx
+				, 0.*deg);
+    ddlp = DDLogicalPart(solname, usemat, dsol);
+  }
   DCOUT_V ('P', "DDDividedTrdX::makeDDLogicalPart lp = " << ddlp);
   return ddlp;
 }
 
-//--------------------------------------------------------------------------
-void DDDividedTrdX::checkParametersValidity()
+void
+DDDividedTrdX::checkParametersValidity( void )
 {
   DDDividedGeometryObject::checkParametersValidity();
   
@@ -140,79 +137,74 @@ void DDDividedTrdX::checkParametersValidity()
   double mpPhi = mtrd.phi();
   double mpAlpha1 = mtrd.alpha1();  
   double mpAlpha2 = mtrd.alpha2();
-//    double mpDy1 = mtrd.y1();
-//    double mpDy2 = mtrd.y2();
-//   double x1Tol = mpDx1 - mpDx2;
-//   if (x1Tol < 0.0) x1Tol = x1Tol * -1.0;
+  //    double mpDy1 = mtrd.y1();
+  //    double mpDy2 = mtrd.y2();
+  //   double x1Tol = mpDx1 - mpDx2;
+  //   if (x1Tol < 0.0) x1Tol = x1Tol * -1.0;
 
   if ( fabs(mpDx1 - mpDx2) > tolerance()  || fabs(mpDx3 - mpDx4) > tolerance()
        || fabs(mpDx1 - mpDx4) > tolerance())
-    {
-      std::string s = "ERROR - DDDividedTrdX::checkParametersValidity()";
-      s+= "\n        Making a division of a TRD along axis X,";
-      s+= "\n        while the X half lengths are not equal,";
-      s+= "\n        is not (yet) supported. It will result";
-      s+= "\n        in non-equal division solids.";
-      throw DDException(s);
-    }
-//    if (fabs(mpDy1 - mpDy2) > tolerance())
-//      {
-//        std::string s = "ERROR - DDDividedTrdX::checkParametersValidity()";
-//        s+= "\n        Making a division of a TRD along axis X,";
-//        s+= "\n        while the Y half lengths are not equal,";
-//        s+= "\n        is not (yet) supported. It will result";
-//        s+= "\n        in non-equal division solids.";
-//        throw DDException(s);
-//      }
+  {
+    std::string s = "ERROR - DDDividedTrdX::checkParametersValidity()";
+    s+= "\n        Making a division of a TRD along axis X,";
+    s+= "\n        while the X half lengths are not equal,";
+    s+= "\n        is not (yet) supported. It will result";
+    s+= "\n        in non-equal division solids.";
+    throw DDException(s);
+  }
+  //    if (fabs(mpDy1 - mpDy2) > tolerance())
+  //      {
+  //        std::string s = "ERROR - DDDividedTrdX::checkParametersValidity()";
+  //        s+= "\n        Making a division of a TRD along axis X,";
+  //        s+= "\n        while the Y half lengths are not equal,";
+  //        s+= "\n        is not (yet) supported. It will result";
+  //        s+= "\n        in non-equal division solids.";
+  //        throw DDException(s);
+  //      }
   // mec:  we only have traps, not trds in DDD, so I added this check
   // to make sure it is only a trd (I think! :-))
   if (mpAlpha1 != 0.*deg || mpAlpha2 != 0.*deg || mpTheta != 0.*deg || mpPhi != 0.*deg)
-    {
-      std::string s = "ERROR - DDDividedTrdX::checkParametersValidity()";
-      s+= "\n        Making a division of a TRD along axis X,";
-      s+= "\n        while the theta, phi and aplhpa2 are not zero,";
-      s+= "\n        is not (yet) supported. It will result";
-      s+= "\n        in non-equal division solids.";
-      throw DDException(s);
-    }
-
+  {
+    std::string s = "ERROR - DDDividedTrdX::checkParametersValidity()";
+    s+= "\n        Making a division of a TRD along axis X,";
+    s+= "\n        while the theta, phi and aplhpa2 are not zero,";
+    s+= "\n        is not (yet) supported. It will result";
+    s+= "\n        in non-equal division solids.";
+    throw DDException(s);
+  }
 }
 
-//--------------------------------------------------------------------------
-DDDividedTrdY::DDDividedTrdY ( const DDDivision& div, DDCompactView* cpv )
-  : DDDividedGeometryObject(div,cpv)
+DDDividedTrdY::DDDividedTrdY( const DDDivision& div, DDCompactView* cpv )
+  : DDDividedGeometryObject( div, cpv )
 {
   checkParametersValidity();
   setType( "DivisionTrdY" );
   DDTrap mtrd = (DDTrap)(div_.parent().solid());
 
   if( divisionType_ == DivWIDTH )
-    {
-      compNDiv_ = calculateNDiv( 2 * mtrd.y1(), div_.width(), div_.offset() );
-    }
+  {
+    compNDiv_ = calculateNDiv( 2 * mtrd.y1(), div_.width(), div_.offset() );
+  }
   else if( divisionType_ == DivNDIV )
-    {
-      compWidth_ = calculateWidth( 2 * mtrd.y1(), div_.nReplicas(), div_.offset() );
-    }
+  {
+    compWidth_ = calculateWidth( 2 * mtrd.y1(), div_.nReplicas(), div_.offset() );
+  }
 
-  DCOUT_V ('P', " DDDividedTrdY no divisions " << compNDiv_ << " = " << div_.nReplicas() << "\n Offset " << div_.offset() << "\n width " << compWidth_ << " = " << div_.width() << std::endl);
-  
+  DCOUT_V ('P', " DDDividedTrdY no divisions " << compNDiv_ << " = " << div_.nReplicas() << "\n Offset " << div_.offset() << "\n width " << compWidth_ << " = " << div_.width() << std::endl);  
 }
 
-//------------------------------------------------------------------------
-DDDividedTrdY::~DDDividedTrdY()
-{
-}
+DDDividedTrdY::~DDDividedTrdY( void )
+{}
 
-//------------------------------------------------------------------------
-double DDDividedTrdY::getMaxParameter() const
+double
+DDDividedTrdY::getMaxParameter( void ) const
 {
   DDTrap mtrd = (DDTrap)(div_.parent().solid());
   return 2 * mtrd.y1(); 
 }
 
-//--------------------------------------------------------------------------
-DDTranslation DDDividedTrdY::makeDDTranslation( const int copyNo ) const
+DDTranslation
+DDDividedTrdY::makeDDTranslation( const int copyNo ) const
 {
   DDTrap mtrd = (DDTrap)(div_.parent().solid() );
   double mdy = mtrd.y1();
@@ -239,14 +231,14 @@ DDTranslation DDDividedTrdY::makeDDTranslation( const int copyNo ) const
   return DDTranslation();
 }
 
-//------------------------------------------------------------------------
-DDRotation DDDividedTrdY::makeDDRotation ( const int copyNo ) const
+DDRotation
+DDDividedTrdY::makeDDRotation( const int copyNo ) const
 {
   return DDRotation();
 }
 
-//--------------------------------------------------------------------------
-DDLogicalPart DDDividedTrdY::makeDDLogicalPart( const int copyNo ) const
+DDLogicalPart
+DDDividedTrdY::makeDDLogicalPart( const int copyNo ) const
 {
   //---- The division along Y of a Trd will result a Trd, only 
   //--- if Y at -Z and +Z are equal, else use the G4Trap version
@@ -265,27 +257,27 @@ DDLogicalPart DDDividedTrdY::makeDDLogicalPart( const int copyNo ) const
   DDSolid  dsol(solname);
   DDLogicalPart ddlp(solname);
   if (!dsol.isDefined().second)
-    {
-      dsol = DDSolidFactory::trap(solname
-				  , pDz
-				  , 0.*deg
-				  , 0.*deg
-				  , pDy
-				  , pDx1
-				  , pDx2
-				  , 0*deg
-				  , pDy
-				  , pDx3
-				  , pDx4
-				  , 0.*deg);
-      DDLogicalPart ddlp(solname,  usemat, dsol);
-    }
+  {
+    dsol = DDSolidFactory::trap(solname
+				, pDz
+				, 0.*deg
+				, 0.*deg
+				, pDy
+				, pDx1
+				, pDx2
+				, 0*deg
+				, pDy
+				, pDx3
+				, pDx4
+				, 0.*deg);
+    DDLogicalPart ddlp(solname,  usemat, dsol);
+  }
   DCOUT_V ('P', "DDDividedTrdY::makeDDLogicalPart lp = " << ddlp);
   return ddlp;
 }
 
-//--------------------------------------------------------------------------
-void DDDividedTrdY::checkParametersValidity()
+void
+DDDividedTrdY::checkParametersValidity( void )
 {
   DDDividedGeometryObject::checkParametersValidity();
 
@@ -310,28 +302,27 @@ void DDDividedTrdY::checkParametersValidity()
   // mec:  we only have traps, not trds in DDD, so I added this check
   // to make sure it is only a trd (I think! :-))
   if (mpAlpha1 != 0.*deg || mpAlpha2 != 0.*deg || mpTheta != 0.*deg || mpPhi != 0.*deg)
-    {
-      std::string s = "ERROR - DDDividedTrdY::checkParametersValidity()";
-      s+= "\n        Making a division of a TRD along axis X,";
-      s+= "\n        while the theta, phi and aplhpa2 are not zero,";
-      s+= "\n        is not (yet) supported. It will result";
-      s+= "\n        in non-equal division solids.";
-      throw DDException(s);
-    }
+  {
+    std::string s = "ERROR - DDDividedTrdY::checkParametersValidity()";
+    s+= "\n        Making a division of a TRD along axis X,";
+    s+= "\n        while the theta, phi and aplhpa2 are not zero,";
+    s+= "\n        is not (yet) supported. It will result";
+    s+= "\n        in non-equal division solids.";
+    throw DDException(s);
+  }
 }
 
-//--------------------------------------------------------------------------
 DDDividedTrdZ::DDDividedTrdZ( const DDDivision& div, DDCompactView* cpv )
-  : DDDividedGeometryObject(div,cpv)
+  : DDDividedGeometryObject( div, cpv )
 { 
   checkParametersValidity();
   setType( "DivTrdZ" );
   DDTrap mtrd = (DDTrap)(div_.parent().solid());
 
   if ( divisionType_ == DivWIDTH )
-    {
-      compNDiv_ = calculateNDiv( 2*mtrd.halfZ(), div_.width(), div_.offset() );
-    }
+  {
+    compNDiv_ = calculateNDiv( 2*mtrd.halfZ(), div_.width(), div_.offset() );
+  }
   else if( divisionType_ == DivNDIV )
   {
     compWidth_ = calculateWidth( 2*mtrd.halfZ(), div_.nReplicas(), div_.offset() );
@@ -339,20 +330,18 @@ DDDividedTrdZ::DDDividedTrdZ( const DDDivision& div, DDCompactView* cpv )
   DCOUT_V ('P', " DDDividedTrdY no divisions " << compNDiv_ << " = " << div_.nReplicas() << "\n Offset " << div_.offset() << "\n width " << compWidth_ << " = " << div_.width() << std::endl);
 }
 
-//------------------------------------------------------------------------
-DDDividedTrdZ::~DDDividedTrdZ()
-{
-}
+DDDividedTrdZ::~DDDividedTrdZ( void )
+{}
 
-//------------------------------------------------------------------------
-double DDDividedTrdZ::getMaxParameter() const
+double
+DDDividedTrdZ::getMaxParameter( void ) const
 {
   DDTrap mtrd = (DDTrap)(div_.parent().solid());
   return 2 * mtrd.halfZ();
 }
 
-//--------------------------------------------------------------------------
-DDTranslation DDDividedTrdZ::makeDDTranslation ( const int copyNo ) const
+DDTranslation
+DDDividedTrdZ::makeDDTranslation( const int copyNo ) const
 {
   DDTrap mtrd = (DDTrap)(div_.parent().solid() );
   double mdz = mtrd.halfZ();
@@ -380,14 +369,14 @@ DDTranslation DDDividedTrdZ::makeDDTranslation ( const int copyNo ) const
   return DDTranslation();
 }
 
-//------------------------------------------------------------------------
-DDRotation DDDividedTrdZ::makeDDRotation ( const int copyNo ) const
+DDRotation
+DDDividedTrdZ::makeDDRotation( const int copyNo ) const
 {
   return DDRotation();
 }
 
-//--------------------------------------------------------------------------
-DDLogicalPart DDDividedTrdZ::makeDDLogicalPart ( const int copyNo ) const
+DDLogicalPart
+DDDividedTrdZ::makeDDLogicalPart ( const int copyNo ) const
 {
   //---- The division along Z of a Trd will result a Trd
   DDTrap mtrd = (DDTrap)(div_.parent().solid());
@@ -402,10 +391,10 @@ DDLogicalPart DDDividedTrdZ::makeDDLogicalPart ( const int copyNo ) const
   double pDz = compWidth_/2.;
   double zLength = 2*mtrd.halfZ(); //->GetZHalfLength();
  
-//    trd.SetAllParameters ( pDx1+DDx*(div_.offset()+copyNo*compWidth_)/zLength,
-//                           pDx1+DDx*(div_.offset()+(copyNo+1)*compWidth_)/zLength, 
-//                           pDy1+DDy*(div_.offset()+copyNo*compWidth_)/zLength,
-//                           pDy1+DDy*(div_.offset()+(copyNo+1)*compWidth_)/zLength, pDz );
+  //    trd.SetAllParameters ( pDx1+DDx*(div_.offset()+copyNo*compWidth_)/zLength,
+  //                           pDx1+DDx*(div_.offset()+(copyNo+1)*compWidth_)/zLength, 
+  //                           pDy1+DDy*(div_.offset()+copyNo*compWidth_)/zLength,
+  //                           pDy1+DDy*(div_.offset()+(copyNo+1)*compWidth_)/zLength, pDz );
 
   DDName solname(div_.parent().ddname().name() + "_DIVCHILD" 
 		 + DDXMLElement::itostr(copyNo)
@@ -423,15 +412,15 @@ DDLogicalPart DDDividedTrdZ::makeDDLogicalPart ( const int copyNo ) const
 			 , pDx1+DDx*(div_.offset()+(copyNo+1)*compWidth_)/zLength
 			 , pDx1+DDx*(div_.offset()+(copyNo+1)*compWidth_)/zLength
 			 , 0*deg
-			 );
+      );
 
   DDLogicalPart ddlp(solname, usemat, dsol);
   DCOUT_V ('P', "DDDividedTrdZ::makeDDLogicalPart lp = " << ddlp);
   return ddlp;
 }
 
-//--------------------------------------------------------------------------
-void DDDividedTrdZ::checkParametersValidity()
+void
+DDDividedTrdZ::checkParametersValidity( void )
 {
   DDDividedGeometryObject::checkParametersValidity();
 
@@ -445,12 +434,12 @@ void DDDividedTrdZ::checkParametersValidity()
   // mec:  we only have traps, not trds in DDD, so I added this check
   // to make sure it is only a trd (I think! :-))
   if (mpAlpha1 != 0.*deg || mpAlpha2 != 0.*deg || mpTheta != 0.*deg || mpPhi != 0.*deg)
-    {
-      std::string s = "ERROR - DDDividedTrdZ::checkParametersValidity()";
-      s+= "\n        Making a division of a TRD along axis X,";
-      s+= "\n        while the theta, phi and aplhpa2 are not zero,";
-      s+= "\n        is not (yet) supported. It will result";
-      s+= "\n        in non-equal division solids.";
-      throw DDException(s);
-    }
+  {
+    std::string s = "ERROR - DDDividedTrdZ::checkParametersValidity()";
+    s+= "\n        Making a division of a TRD along axis X,";
+    s+= "\n        while the theta, phi and aplhpa2 are not zero,";
+    s+= "\n        is not (yet) supported. It will result";
+    s+= "\n        in non-equal division solids.";
+    throw DDException(s);
+  }
 }

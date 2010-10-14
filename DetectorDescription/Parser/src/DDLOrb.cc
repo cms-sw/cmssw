@@ -11,45 +11,33 @@
  *                                                                         *
  ***************************************************************************/
 
+#include "DetectorDescription/Parser/src/DDLOrb.h"
 
-
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
-#include "DDLOrb.h"
-
-// DDCore dependencies
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
-//#include <strstream>
+DDLOrb::DDLOrb( DDLElementRegistry* myreg )
+  : DDLSolid( myreg )
+{}
 
-// Default constructor.
-DDLOrb::DDLOrb(  DDLElementRegistry* myreg ) : DDLSolid(myreg)
-{
-}
-
-// Default destructor
-DDLOrb::~DDLOrb()
-{
-}
+DDLOrb::~DDLOrb( void )
+{}
 
 // Upon encountering the end of the Orb element, call DDCore.
-void DDLOrb::processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
+void
+DDLOrb::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {  
-  DCOUT_V('P', "DDLOrb::processElement started");
+  DCOUT_V( 'P', "DDLOrb::processElement started" );
   ExprEvalInterface & ev = ExprEvalSingleton::instance();
   DDXMLAttribute atts = getAttributeSet();
 
-  DDSolid ddorb = DDSolidFactory::orb(getDDName(nmspace)
-				      , ev.eval(nmspace, atts.find("radius")->second));
+  DDSolid ddorb = DDSolidFactory::orb( getDDName( nmspace ),
+				       ev.eval( nmspace, atts.find( "radius" )->second ));
 
+  DDLSolid::setReference( nmspace, cpv );
 
-  DDLSolid::setReference(nmspace, cpv);
-
-  DCOUT_V('P', "DDLOrb::processElement completed");
-
+  DCOUT_V( 'P', "DDLOrb::processElement completed" );
 }

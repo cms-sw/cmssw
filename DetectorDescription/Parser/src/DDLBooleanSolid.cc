@@ -11,13 +11,9 @@
  *                                                                         *
  ***************************************************************************/
 
+#include "DetectorDescription/Parser/src/DDLBooleanSolid.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
 
-
-// Parser parts
-#include "DDLBooleanSolid.h"
-#include "DDXMLElement.h"
-
-// DDCore dependencies
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
@@ -25,12 +21,10 @@
 
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
-// default constructor
-DDLBooleanSolid::DDLBooleanSolid(  DDLElementRegistry* myreg )
+DDLBooleanSolid::DDLBooleanSolid( DDLElementRegistry* myreg )
   : DDLSolid( myreg )
 {}
 
-// Default desctructor
 DDLBooleanSolid::~DDLBooleanSolid( void )
 {}
 

@@ -11,15 +11,13 @@
  *                                                                         *
  ***************************************************************************/
 
-
-
-#include "DDLDivision.h"
-#include "DDDividedBox.h"
-#include "DDDividedTubs.h"
-#include "DDDividedTrd.h"
-#include "DDDividedCons.h"
-#include "DDDividedPolycone.h"
-#include "DDDividedPolyhedra.h"
+#include "DetectorDescription/Parser/src/DDLDivision.h"
+#include "DetectorDescription/Parser/src/DDDividedBox.h"
+#include "DetectorDescription/Parser/src/DDDividedTubs.h"
+#include "DetectorDescription/Parser/src/DDDividedTrd.h"
+#include "DetectorDescription/Parser/src/DDDividedCons.h"
+#include "DetectorDescription/Parser/src/DDDividedPolycone.h"
+#include "DetectorDescription/Parser/src/DDDividedPolyhedra.h"
 
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDAxes.h"
@@ -28,25 +26,21 @@
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
-
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
+DDLDivision::DDLDivision( DDLElementRegistry* myreg )
+  : DDXMLElement( myreg )
+{}
 
-DDLDivision::DDLDivision(  DDLElementRegistry* myreg ) : DDXMLElement(myreg)
-{
-}
+DDLDivision::~DDLDivision( void )
+{}
 
-DDLDivision::~DDLDivision()
-{
-}
+void
+DDLDivision::preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
+{}
 
-
-void DDLDivision::preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
-{
-
-}
-
-void DDLDivision::processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
+void
+DDLDivision::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
   DCOUT_V('P', "DDLDivision::processElement started");
 
@@ -73,40 +67,40 @@ void DDLDivision::processElement (const std::string& name, const std::string& nm
   if (atts.find("nReplicas") != atts.end() 
       && atts.find("width")  != atts.end()
       && atts.find("offset") != atts.end())
-    {
-      div = DDDivision(getDDName(nmspace)
-		       , parent
-		       , DDAxes(ax)
-		       , int(ev.eval(nmspace, atts.find("nReplicas")->second))
-		       , ev.eval(nmspace, atts.find("width")->second)
-		       , ev.eval(nmspace, atts.find("offset")->second));
-    }
+  {
+    div = DDDivision(getDDName(nmspace)
+		     , parent
+		     , DDAxes(ax)
+		     , int(ev.eval(nmspace, atts.find("nReplicas")->second))
+		     , ev.eval(nmspace, atts.find("width")->second)
+		     , ev.eval(nmspace, atts.find("offset")->second));
+  }
   else if (atts.find("nReplicas")  != atts.end()
 	   && atts.find("offset") != atts.end())
-    {
-      div = DDDivision(getDDName(nmspace)
-		       , parent
-		       , DDAxes(ax)
-		       , int(ev.eval(nmspace, atts.find("nReplicas")->second))
-		       , ev.eval(nmspace, atts.find("offset")->second));
-    }
+  {
+    div = DDDivision(getDDName(nmspace)
+		     , parent
+		     , DDAxes(ax)
+		     , int(ev.eval(nmspace, atts.find("nReplicas")->second))
+		     , ev.eval(nmspace, atts.find("offset")->second));
+  }
   else if (atts.find("width")     != atts.end()
 	   && atts.find("offset") != atts.end())
-    {
-      DCOUT_V ('D', " width = " << ev.eval(nmspace, atts.find("width")->second) << std::endl);
-      DCOUT_V ('D', " offset = " << ev.eval(nmspace, atts.find("offset")->second) << std::endl);
-      div = DDDivision(getDDName(nmspace)
-		       , parent
-		       , DDAxes(ax)
-		       , ev.eval(nmspace, atts.find("width")->second)
-		       , ev.eval(nmspace, atts.find("offset")->second));
-    } else {
-      std::string em("DetectorDescription Parser DDLDivision::processElement(...) failed.");
-      em += "  Allowed combinations are attributes width&offset OR nReplicas&offset OR nReplicas&width&offset.";
-      em += "\n    name= " + getDDName(nmspace).ns() + ":" + getDDName(nmspace).name() ;
-      em += "\n    parent= " + parent.ns() + ":" + parent.name();
-      throwError (em);
-    }
+  {
+    DCOUT_V ('D', " width = " << ev.eval(nmspace, atts.find("width")->second) << std::endl);
+    DCOUT_V ('D', " offset = " << ev.eval(nmspace, atts.find("offset")->second) << std::endl);
+    div = DDDivision(getDDName(nmspace)
+		     , parent
+		     , DDAxes(ax)
+		     , ev.eval(nmspace, atts.find("width")->second)
+		     , ev.eval(nmspace, atts.find("offset")->second));
+  } else {
+    std::string em("DetectorDescription Parser DDLDivision::processElement(...) failed.");
+    em += "  Allowed combinations are attributes width&offset OR nReplicas&offset OR nReplicas&width&offset.";
+    em += "\n    name= " + getDDName(nmspace).ns() + ":" + getDDName(nmspace).name() ;
+    em += "\n    parent= " + parent.ns() + ":" + parent.name();
+    throwError (em);
+  }
   DDDividedGeometryObject* dg = makeDivider(div, &cpv);
   dg->execute();
   delete dg;
@@ -116,152 +110,153 @@ void DDLDivision::processElement (const std::string& name, const std::string& nm
   DCOUT_V('P', "DDLDivision::processElement completed");
 }
 
-DDDividedGeometryObject* DDLDivision::makeDivider(const DDDivision& div, DDCompactView* cpv)
+DDDividedGeometryObject*
+DDLDivision::makeDivider( const DDDivision& div, DDCompactView* cpv )
 {
   DDDividedGeometryObject* dg = NULL;
 
   switch (div.parent().solid().shape()) 
-    {
-    case ddbox:
-      if (div.axis() == x)
-	dg = new DDDividedBoxX(div,cpv);
-      else if (div.axis() == y)
-	dg = new DDDividedBoxY(div,cpv);
-      else if (div.axis() == z)
-	dg = new DDDividedBoxZ(div,cpv);
-      else {
-	std::string s = "DDLDivision can not divide a ";
-	s += DDSolidShapesName::name(div.parent().solid().shape());
-	s += " along axis " + DDAxesNames::name(div.axis());
-	s += ".";
-	s += "\n    name= " + div.name().ns() + ":" + div.name().name() ;
-	s += "\n    parent= " + div.parent().name().ns() + ":" + div.parent().name().name();
-	throwError(s);
-      }
-      break;
-
-    case ddtubs:
-      if (div.axis() == rho)
-	dg = new DDDividedTubsRho(div,cpv);
-      else if (div.axis() == phi)
-	dg = new DDDividedTubsPhi(div,cpv);
-      else if (div.axis() == z)
-	dg = new DDDividedTubsZ(div,cpv);
-      else {
-	std::string s = "DDLDivision can not divide a ";
-	s += DDSolidShapesName::name(div.parent().solid().shape());
-	s += " along axis " + DDAxesNames::name(div.axis());
-	s += ".";
-	s += "\n    name= " + div.name().ns() + ":" + div.name().name() ;
-	s += "\n    parent= " + div.parent().name().ns() + ":" + div.parent().name().name();
-	throwError(s);
-      }
-      break;
-
-    case ddtrap:
-      if (div.axis() == x)
-	dg = new DDDividedTrdX(div,cpv);
-      else if (div.axis() == y )
-	dg = new DDDividedTrdY(div,cpv);
-      else if (div.axis() == z )
-	dg = new DDDividedTrdZ(div,cpv);
-      else {
-	std::string s = "DDLDivision can not divide a ";
-	s += DDSolidShapesName::name(div.parent().solid().shape());
-	s += " along axis ";
-	s += DDAxesNames::name(div.axis());
-	s += ".";
-	s += "\n    name= " + div.name().ns() + ":" + div.name().name() ;
-	s += "\n    parent= " + div.parent().name().ns() + ":" + div.parent().name().name();
-	throwError(s);
-      }
-      break;
-
-    case ddcons:
-      if (div.axis() == rho)
-	dg = new DDDividedConsRho(div,cpv);
-      else if (div.axis() == phi)
-	dg = new DDDividedConsPhi(div,cpv);
-      else if (div.axis() == z)
-	dg = new DDDividedConsZ(div,cpv);
-      else {
-	std::string s = "DDLDivision can not divide a ";
-	s += DDSolidShapesName::name(div.parent().solid().shape());
-	s += " along axis " + DDAxesNames::name(div.axis());
-	s += ".";
-	s += "\n    name= " + div.name().ns() + ":" + div.name().name() ;
-	s += "\n    parent= " + div.parent().name().ns() + ":" + div.parent().name().name();
-	throwError(s);
-      }
-      break;
-
-    case ddpolycone_rrz:
-      if (div.axis() == rho)
-	dg = new DDDividedPolyconeRho(div,cpv);
-      else if (div.axis() == phi)
-	dg = new DDDividedPolyconePhi(div,cpv);
-      else if (div.axis() == z)
-	dg = new DDDividedPolyconeZ(div,cpv);
-      else {
-	std::string s = "DDLDivision can not divide a ";
-	s += DDSolidShapesName::name(div.parent().solid().shape());
-	s += " along axis ";
-	s += DDAxesNames::name(div.axis());
-	s += ".";
-	s += "\n    name= " + div.name().ns() + ":" + div.name().name() ;
-	s += "\n    parent= " + div.parent().name().ns() + ":" + div.parent().name().name();
-	throwError(s);
-      }
-      break;
-
-    case ddpolyhedra_rrz:
-      if (div.axis() == rho)
-	dg = new DDDividedPolyhedraRho(div,cpv);
-      else if (div.axis() == phi)
-	dg = new DDDividedPolyhedraPhi(div,cpv);
-      else if (div.axis() == z)
-	dg = new DDDividedPolyhedraZ(div,cpv);
-      else {
-	std::string s = "DDLDivision can not divide a ";
-	s += DDSolidShapesName::name(div.parent().solid().shape());
-	s += " along axis ";
-	s += DDAxesNames::name(div.axis());
-	s += ".";
-	s += "\n    name= " + div.name().ns() + ":" + div.name().name() ;
-	s += "\n    parent= " + div.parent().name().ns() + ":" + div.parent().name().name();
-	throwError(s);
-      }
-      break;
-
-    case ddpolycone_rz:
-    case ddpolyhedra_rz: {
-      std::string s = "ERROR:  A Polycone or Polyhedra can not be divided on any axis if it's\n";
-      s += "original definition used r and z instead of ZSections. This has\n";
-      s += "not (yet) been implemented.";
-      s += "\n    name= " + div.name().ns() + ":" + div.name().name() ;
-      s += "\n    parent= " + div.parent().name().ns() + ":" + div.parent().name().name();
-    }
-      break;
-
-    case ddunion: 
-    case ddsubtraction: 
-    case ddintersection: 
-    case ddreflected: 
-    case ddshapeless: 
-    case ddpseudotrap: 
-    case ddtrunctubs:
-    case dd_not_init: {
+  {
+  case ddbox:
+    if (div.axis() == x)
+      dg = new DDDividedBoxX(div,cpv);
+    else if (div.axis() == y)
+      dg = new DDDividedBoxY(div,cpv);
+    else if (div.axis() == z)
+      dg = new DDDividedBoxZ(div,cpv);
+    else {
       std::string s = "DDLDivision can not divide a ";
       s += DDSolidShapesName::name(div.parent().solid().shape());
-      s += " at all (yet?).  Requested axis was ";
-      s += DDAxesNames::name(div.axis());
-      s += ".\n";
+      s += " along axis " + DDAxesNames::name(div.axis());
+      s += ".";
+      s += "\n    name= " + div.name().ns() + ":" + div.name().name() ;
+      s += "\n    parent= " + div.parent().name().ns() + ":" + div.parent().name().name();
       throwError(s);
     }
-      break;
-    default:
-      break;
+    break;
+
+  case ddtubs:
+    if (div.axis() == rho)
+      dg = new DDDividedTubsRho(div,cpv);
+    else if (div.axis() == phi)
+      dg = new DDDividedTubsPhi(div,cpv);
+    else if (div.axis() == z)
+      dg = new DDDividedTubsZ(div,cpv);
+    else {
+      std::string s = "DDLDivision can not divide a ";
+      s += DDSolidShapesName::name(div.parent().solid().shape());
+      s += " along axis " + DDAxesNames::name(div.axis());
+      s += ".";
+      s += "\n    name= " + div.name().ns() + ":" + div.name().name() ;
+      s += "\n    parent= " + div.parent().name().ns() + ":" + div.parent().name().name();
+      throwError(s);
     }
+    break;
+
+  case ddtrap:
+    if (div.axis() == x)
+      dg = new DDDividedTrdX(div,cpv);
+    else if (div.axis() == y )
+      dg = new DDDividedTrdY(div,cpv);
+    else if (div.axis() == z )
+      dg = new DDDividedTrdZ(div,cpv);
+    else {
+      std::string s = "DDLDivision can not divide a ";
+      s += DDSolidShapesName::name(div.parent().solid().shape());
+      s += " along axis ";
+      s += DDAxesNames::name(div.axis());
+      s += ".";
+      s += "\n    name= " + div.name().ns() + ":" + div.name().name() ;
+      s += "\n    parent= " + div.parent().name().ns() + ":" + div.parent().name().name();
+      throwError(s);
+    }
+    break;
+
+  case ddcons:
+    if (div.axis() == rho)
+      dg = new DDDividedConsRho(div,cpv);
+    else if (div.axis() == phi)
+      dg = new DDDividedConsPhi(div,cpv);
+    else if (div.axis() == z)
+      dg = new DDDividedConsZ(div,cpv);
+    else {
+      std::string s = "DDLDivision can not divide a ";
+      s += DDSolidShapesName::name(div.parent().solid().shape());
+      s += " along axis " + DDAxesNames::name(div.axis());
+      s += ".";
+      s += "\n    name= " + div.name().ns() + ":" + div.name().name() ;
+      s += "\n    parent= " + div.parent().name().ns() + ":" + div.parent().name().name();
+      throwError(s);
+    }
+    break;
+
+  case ddpolycone_rrz:
+    if (div.axis() == rho)
+      dg = new DDDividedPolyconeRho(div,cpv);
+    else if (div.axis() == phi)
+      dg = new DDDividedPolyconePhi(div,cpv);
+    else if (div.axis() == z)
+      dg = new DDDividedPolyconeZ(div,cpv);
+    else {
+      std::string s = "DDLDivision can not divide a ";
+      s += DDSolidShapesName::name(div.parent().solid().shape());
+      s += " along axis ";
+      s += DDAxesNames::name(div.axis());
+      s += ".";
+      s += "\n    name= " + div.name().ns() + ":" + div.name().name() ;
+      s += "\n    parent= " + div.parent().name().ns() + ":" + div.parent().name().name();
+      throwError(s);
+    }
+    break;
+
+  case ddpolyhedra_rrz:
+    if (div.axis() == rho)
+      dg = new DDDividedPolyhedraRho(div,cpv);
+    else if (div.axis() == phi)
+      dg = new DDDividedPolyhedraPhi(div,cpv);
+    else if (div.axis() == z)
+      dg = new DDDividedPolyhedraZ(div,cpv);
+    else {
+      std::string s = "DDLDivision can not divide a ";
+      s += DDSolidShapesName::name(div.parent().solid().shape());
+      s += " along axis ";
+      s += DDAxesNames::name(div.axis());
+      s += ".";
+      s += "\n    name= " + div.name().ns() + ":" + div.name().name() ;
+      s += "\n    parent= " + div.parent().name().ns() + ":" + div.parent().name().name();
+      throwError(s);
+    }
+    break;
+
+  case ddpolycone_rz:
+  case ddpolyhedra_rz: {
+    std::string s = "ERROR:  A Polycone or Polyhedra can not be divided on any axis if it's\n";
+    s += "original definition used r and z instead of ZSections. This has\n";
+    s += "not (yet) been implemented.";
+    s += "\n    name= " + div.name().ns() + ":" + div.name().name() ;
+    s += "\n    parent= " + div.parent().name().ns() + ":" + div.parent().name().name();
+  }
+    break;
+
+  case ddunion: 
+  case ddsubtraction: 
+  case ddintersection: 
+  case ddreflected: 
+  case ddshapeless: 
+  case ddpseudotrap: 
+  case ddtrunctubs:
+  case dd_not_init: {
+    std::string s = "DDLDivision can not divide a ";
+    s += DDSolidShapesName::name(div.parent().solid().shape());
+    s += " at all (yet?).  Requested axis was ";
+    s += DDAxesNames::name(div.axis());
+    s += ".\n";
+    throwError(s);
+  }
+    break;
+  default:
+    break;
+  }
   return dg;
 
 }

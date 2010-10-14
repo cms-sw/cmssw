@@ -2,8 +2,8 @@
 // ********************************************************************
 // 25.04.04 - M. Case ddd-ize G4ParameterisationPolyhedra*
 //---------------------------------------------------------------------
-#include "DDDividedPolyhedra.h"
-#include "DDXMLElement.h"
+#include "DetectorDescription/Parser/src/DDDividedPolyhedra.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
 
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDName.h"
@@ -16,9 +16,8 @@
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-//--------------------------------------------------------------------------
 DDDividedPolyhedraRho::DDDividedPolyhedraRho( const DDDivision& div, DDCompactView* cpv )
-  :  DDDividedGeometryObject(div,cpv)
+  : DDDividedGeometryObject( div, cpv )
 {
   checkParametersValidity();
   setType( "DivisionPolyhedraRho" );
@@ -27,17 +26,17 @@ DDDividedPolyhedraRho::DDDividedPolyhedraRho( const DDDivision& div, DDCompactVi
   // G4PolyhedraHistorical* original_pars = msol->GetOriginalParameters();
 
   if( divisionType_ == DivWIDTH )
-    {
-      compNDiv_ = calculateNDiv( msol.rMaxVec()[0] - msol.rMinVec()[0]
-				 , div_.width()
-				 , div_.offset() );
-    }
+  {
+    compNDiv_ = calculateNDiv( msol.rMaxVec()[0] - msol.rMinVec()[0]
+			       , div_.width()
+			       , div_.offset() );
+  }
   else if( divisionType_ == DivNDIV )
-    {
-      compWidth_ = calculateWidth( msol.rMaxVec()[0] - msol.rMinVec()[0]
-				   , div_.nReplicas()
-				   , div_.offset() );
-    }
+  {
+    compWidth_ = calculateWidth( msol.rMaxVec()[0] - msol.rMinVec()[0]
+				 , div_.nReplicas()
+				 , div_.offset() );
+  }
 
   //     for (int i = 0; i < compNDiv_; ++i)
   //      {
@@ -54,64 +53,60 @@ DDDividedPolyhedraRho::DDDividedPolyhedraRho( const DDDivision& div, DDCompactVi
 
 }
 
-//------------------------------------------------------------------------
-DDDividedPolyhedraRho::~DDDividedPolyhedraRho()
-{
-}
+DDDividedPolyhedraRho::~DDDividedPolyhedraRho( void )
+{}
 
-//---------------------------------------------------------------------
-void DDDividedPolyhedraRho::checkParametersValidity()
+void
+DDDividedPolyhedraRho::checkParametersValidity( void )
 {
   DDDividedGeometryObject::checkParametersValidity();
 
   DDPolyhedra msol = (DDPolyhedra)(div_.parent().solid());
 
   if( divisionType_ == DivNDIVandWIDTH || divisionType_ == DivWIDTH )
-    {
-      std::cout << "WARNING - "
-	   << "DDDividedPolyhedraRho::checkParametersValidity()"
-	   << std::endl
-	   << "          Solid " << msol << std::endl
-	   << "          Division along R will be done with a width "
-	   << "different for each solid section." << std::endl
-	   << "          WIDTH will not be used !" << std::endl;
-    }
+  {
+    std::cout << "WARNING - "
+	      << "DDDividedPolyhedraRho::checkParametersValidity()"
+	      << std::endl
+	      << "          Solid " << msol << std::endl
+	      << "          Division along R will be done with a width "
+	      << "different for each solid section." << std::endl
+	      << "          WIDTH will not be used !" << std::endl;
+  }
   if( div_.offset() != 0. )
-    {
-      std::cout << "WARNING - "
-	   << "DDDividedPolyhedraRho::checkParametersValidity()"
-	   << std::endl
-	   << "          Solid " << msol << std::endl
-	   << "          Division along  R will be done with a width "
-	   << "different for each solid section." << std::endl
-	   << "          OFFSET will not be used !" << std::endl;
-    }
-
-
+  {
+    std::cout << "WARNING - "
+	      << "DDDividedPolyhedraRho::checkParametersValidity()"
+	      << std::endl
+	      << "          Solid " << msol << std::endl
+	      << "          Division along  R will be done with a width "
+	      << "different for each solid section." << std::endl
+	      << "          OFFSET will not be used !" << std::endl;
+  }
 }
 
-//------------------------------------------------------------------------
-double DDDividedPolyhedraRho::getMaxParameter() const
+double
+DDDividedPolyhedraRho::getMaxParameter( void ) const
 {
   DDPolyhedra msol = (DDPolyhedra)(div_.parent().solid());
   //  G4PolyhedraHistorical* original_pars = msol->GetOriginalParameters();
   return msol.rMaxVec()[0] - msol.rMinVec()[0];
 }
 
-//--------------------------------------------------------------------------
-DDTranslation DDDividedPolyhedraRho::makeDDTranslation( const int copyNo ) const
+DDTranslation
+DDDividedPolyhedraRho::makeDDTranslation( const int copyNo ) const
 {
   return DDTranslation();
 }
 
-//--------------------------------------------------------------------------
-DDRotation DDDividedPolyhedraRho::makeDDRotation( const int copyNo ) const
+DDRotation
+DDDividedPolyhedraRho::makeDDRotation( const int copyNo ) const
 {
   return DDRotation();
 }
 
-//--------------------------------------------------------------------------
-DDLogicalPart DDDividedPolyhedraRho::makeDDLogicalPart ( const int copyNo ) const
+DDLogicalPart
+DDDividedPolyhedraRho::makeDDLogicalPart( const int copyNo ) const
 {
   DDPolyhedra msol = (DDPolyhedra)(div_.parent().solid());
   DDMaterial usemat = div_.parent().material();
@@ -126,15 +121,15 @@ DDLogicalPart DDDividedPolyhedraRho::makeDDLogicalPart ( const int copyNo ) cons
 
   double width = 0.;
   for(int ii = 0; ii < nZplanes; ++ii)
-    {
-      //     width = CalculateWidth( origparamMother->Rmax[ii]
-      //                           - origparamMother->Rmin[ii], compNDiv_, foffset );
-      //     origparam.Rmin[ii] = origparamMother->Rmin[ii]+foffset+width*copyNo;
-      //     origparam.Rmax[ii] = origparamMother->Rmin[ii]+foffset+width*(copyNo+1);
-      width = calculateWidth(localrMaxVec[ii] - localrMinVec[ii], compNDiv_, div_.offset());
-      newrMinVec[ii] = localrMinVec[ii] + div_.offset() + width * copyNo;
-      newrMaxVec[ii] = localrMaxVec[ii] + div_.offset() + width * (copyNo + 1);
-    }
+  {
+    //     width = CalculateWidth( origparamMother->Rmax[ii]
+    //                           - origparamMother->Rmin[ii], compNDiv_, foffset );
+    //     origparam.Rmin[ii] = origparamMother->Rmin[ii]+foffset+width*copyNo;
+    //     origparam.Rmax[ii] = origparamMother->Rmin[ii]+foffset+width*(copyNo+1);
+    width = calculateWidth(localrMaxVec[ii] - localrMinVec[ii], compNDiv_, div_.offset());
+    newrMinVec[ii] = localrMinVec[ii] + div_.offset() + width * copyNo;
+    newrMaxVec[ii] = localrMaxVec[ii] + div_.offset() + width * (copyNo + 1);
+  }
 
   //   phedra.SetOriginalParameters(&origparam); // copy values & transfer pointers
   //   phedra.Reset();                           // reset to new solid parameters
@@ -154,9 +149,8 @@ DDLogicalPart DDDividedPolyhedraRho::makeDDLogicalPart ( const int copyNo ) cons
   return ddlp;
 }
 
-//--------------------------------------------------------------------------
-DDDividedPolyhedraPhi::DDDividedPolyhedraPhi ( const DDDivision& div, DDCompactView* cpv )
-  :  DDDividedGeometryObject(div,cpv)
+DDDividedPolyhedraPhi::DDDividedPolyhedraPhi( const DDDivision& div, DDCompactView* cpv )
+  : DDDividedGeometryObject( div, cpv )
 { 
   checkParametersValidity();
   setType( "DivisionPolyhedraPhi" );
@@ -165,94 +159,91 @@ DDDividedPolyhedraPhi::DDDividedPolyhedraPhi ( const DDDivision& div, DDCompactV
   //  double deltaPhi = msol->GetEndPhi() - msol->GetStartPhi();
   
   if( divisionType_ == DivWIDTH )
-    {
-      //If you divide a tube of 360 degrees the offset displaces the starting angle, but you still fill the 360 degrees
-      if( msol.deltaPhi() == 360.*deg ) {
-	compNDiv_ = calculateNDiv( msol.deltaPhi(), div_.width(), 0. );
-      }else {
-	compNDiv_ = calculateNDiv( msol.deltaPhi(), div_.width(), div_.offset() );
-      }
+  {
+    //If you divide a tube of 360 degrees the offset displaces the starting angle, but you still fill the 360 degrees
+    if( msol.deltaPhi() == 360.*deg ) {
+      compNDiv_ = calculateNDiv( msol.deltaPhi(), div_.width(), 0. );
+    }else {
+      compNDiv_ = calculateNDiv( msol.deltaPhi(), div_.width(), div_.offset() );
     }
+  }
   else if( divisionType_ == DivNDIV )
-    {
-      if( msol.deltaPhi() == 360.*deg ) {
-	compWidth_ = calculateWidth( msol.deltaPhi(), div_.nReplicas(), 0. );
-      }else {
-	// original line looks wrong!
-	compWidth_ = calculateWidth( msol.deltaPhi(), div_.nReplicas(), div_.offset() );
-      }
+  {
+    if( msol.deltaPhi() == 360.*deg ) {
+      compWidth_ = calculateWidth( msol.deltaPhi(), div_.nReplicas(), 0. );
+    }else {
+      // original line looks wrong!
+      compWidth_ = calculateWidth( msol.deltaPhi(), div_.nReplicas(), div_.offset() );
     }
+  }
  
   DCOUT_V ('P', " DDDividedPolyhedraRho - # divisions " << compNDiv_  << " = " << div_.nReplicas() << "\n Offset " << div_.offset() << " Width " << compWidth_ << " = " << div_.width() << "\n");
 }
 
-//------------------------------------------------------------------------
-DDDividedPolyhedraPhi::~DDDividedPolyhedraPhi()
-{
-}
+DDDividedPolyhedraPhi::~DDDividedPolyhedraPhi( void )
+{}
 
-//------------------------------------------------------------------------
-double DDDividedPolyhedraPhi::getMaxParameter() const
+double
+DDDividedPolyhedraPhi::getMaxParameter( void ) const
 {
   DDPolyhedra msol = (DDPolyhedra)(div_.parent().solid());
   return msol.deltaPhi(); //msol->GetEndPhi() - msol->GetStartPhi();
 }
 
-//---------------------------------------------------------------------
-void DDDividedPolyhedraPhi::checkParametersValidity()
+void
+DDDividedPolyhedraPhi::checkParametersValidity( void )
 {
   DDDividedGeometryObject::checkParametersValidity();
   
   DDPolyhedra msol = (DDPolyhedra)(div_.parent().solid());
   
   if( divisionType_ == DivNDIVandWIDTH || divisionType_ == DivWIDTH )
-    {
-      std::cout << "WARNING - "
-           << "DDDividedPolyhedraPhi::checkParametersValidity()"
-           << std::endl
-           << "          Solid " << msol << std::endl
-           << "          Division along PHI will be done splitting "
-           << "in the defined numSide." << std::endl
-           << "          WIDTH will not be used !" << std::endl;
-    }
+  {
+    std::cout << "WARNING - "
+	      << "DDDividedPolyhedraPhi::checkParametersValidity()"
+	      << std::endl
+	      << "          Solid " << msol << std::endl
+	      << "          Division along PHI will be done splitting "
+	      << "in the defined numSide." << std::endl
+	      << "          WIDTH will not be used !" << std::endl;
+  }
   if( div_.offset() != 0. )
-    {
-      std::cout << "WARNING - "
-           << "DDDividedPolyhedraPhi::checkParametersValidity()"
-           << std::endl
-           << "          Solid " << msol << std::endl
-           << "          Division along PHI will be done splitting "
-           << "in the defined numSide." << std::endl
-           << "          OFFSET will not be used !" << std::endl;
-    }
+  {
+    std::cout << "WARNING - "
+	      << "DDDividedPolyhedraPhi::checkParametersValidity()"
+	      << std::endl
+	      << "          Solid " << msol << std::endl
+	      << "          Division along PHI will be done splitting "
+	      << "in the defined numSide." << std::endl
+	      << "          OFFSET will not be used !" << std::endl;
+  }
   
   //  G4PolyhedraHistorical* origparamMother = msol->GetOriginalParameters();
   
   if ( msol.sides() != compNDiv_ )//origparamMother->numSide != compNDiv_ )
-    { 
-      std::cout << "ERROR - "
-	   << "DDDividedPolyhedraPhi::checkParametersValidity()"
-	   << std::endl
-	   << "        Division along PHI will be done splitting in the defined"
-	   << std::endl
-	   << "        numSide, i.e, the number of division would be :"
-	   << "        " << msol.sides() //origparamMother->numSide
-	   << " instead of " << compNDiv_ << " !"
-	   << std::endl; 
-      std::string s = "DDDividedPolyhedraPhi::checkParametersValidity() Not supported configuration.";
-      throw DDException(s);
-    }
+  { 
+    std::cout << "ERROR - "
+	      << "DDDividedPolyhedraPhi::checkParametersValidity()"
+	      << std::endl
+	      << "        Division along PHI will be done splitting in the defined"
+	      << std::endl
+	      << "        numSide, i.e, the number of division would be :"
+	      << "        " << msol.sides() //origparamMother->numSide
+	      << " instead of " << compNDiv_ << " !"
+	      << std::endl; 
+    std::string s = "DDDividedPolyhedraPhi::checkParametersValidity() Not supported configuration.";
+    throw DDException(s);
+  }
 }
 
-
-//--------------------------------------------------------------------------
-DDTranslation DDDividedPolyhedraPhi::makeDDTranslation( const int copyNo ) const
+DDTranslation
+DDDividedPolyhedraPhi::makeDDTranslation( const int copyNo ) const
 {
   return DDTranslation();
 }
 
-//--------------------------------------------------------------------------
-DDRotation DDDividedPolyhedraPhi::makeDDRotation( const int copyNo ) const
+DDRotation
+DDDividedPolyhedraPhi::makeDDRotation( const int copyNo ) const
 {
 
   double posi = ( copyNo - 1 ) * compWidth_;
@@ -271,8 +262,8 @@ DDRotation DDDividedPolyhedraPhi::makeDDRotation( const int copyNo ) const
 
 }
 
-//--------------------------------------------------------------------------
-DDLogicalPart DDDividedPolyhedraPhi::makeDDLogicalPart( const int copyNo ) const
+DDLogicalPart
+DDDividedPolyhedraPhi::makeDDLogicalPart( const int copyNo ) const
 {
   DDPolyhedra msol = (DDPolyhedra)(div_.parent().solid());
   DDMaterial usemat = div_.parent().material();
@@ -290,16 +281,16 @@ DDLogicalPart DDDividedPolyhedraPhi::makeDDLogicalPart( const int copyNo ) const
 		 , div_.parent().ddname().ns());
   DDSolid dsol(solname);
   if (!dsol.isDefined().second)
-    {
-      dsol = DDSolidFactory::polyhedra(solname
-				       , msol.sides()
-				       , msol.startPhi()+div_.offset()
-				       , compWidth_
-				       , msol.zVec()
-				       , msol.rMinVec()
-				       , msol.rMaxVec()
-				       );
-    }
+  {
+    dsol = DDSolidFactory::polyhedra(solname
+				     , msol.sides()
+				     , msol.startPhi()+div_.offset()
+				     , compWidth_
+				     , msol.zVec()
+				     , msol.rMinVec()
+				     , msol.rMaxVec()
+      );
+  }
   DDLogicalPart ddlp(solname);
   if (!ddlp.isDefined().second)
     DDLogicalPart ddlp2 = DDLogicalPart(solname, usemat, dsol);
@@ -307,9 +298,8 @@ DDLogicalPart DDDividedPolyhedraPhi::makeDDLogicalPart( const int copyNo ) const
   return ddlp;
 }
 
-//--------------------------------------------------------------------------
-DDDividedPolyhedraZ::DDDividedPolyhedraZ ( const DDDivision& div, DDCompactView* cpv )
-  :  DDDividedGeometryObject(div, cpv)
+DDDividedPolyhedraZ::DDDividedPolyhedraZ( const DDDivision& div, DDCompactView* cpv )
+  : DDDividedGeometryObject( div, cpv )
 { 
   checkParametersValidity();
   setType( "DivisionPolyhedraZ" );
@@ -319,31 +309,28 @@ DDDividedPolyhedraZ::DDDividedPolyhedraZ ( const DDDivision& div, DDCompactView*
   std::vector<double> zvec = msol.zVec();
   
   if  ( divisionType_ == DivWIDTH )
-    {
-      compNDiv_ =
-	calculateNDiv( zvec[zvec.size() - 1] - zvec[0], div_.width(), div_.offset() );
-    }
+  {
+    compNDiv_ =
+      calculateNDiv( zvec[zvec.size() - 1] - zvec[0], div_.width(), div_.offset() );
+  }
   else if( divisionType_ == DivNDIV )
-    {
-      compWidth_ = calculateWidth( zvec[zvec.size() - 1] - zvec[0]
-				   , div_.nReplicas()
-				   , div_.offset());
-      // ?what?      CalculateNDiv( zvec[zvec.size() - 1] - zvec[0], origparamMother->Z_values[origparamMother->Num_z_planes-1]
-      //       - origparamMother->Z_values[0] , nDiv, offset );
+  {
+    compWidth_ = calculateWidth( zvec[zvec.size() - 1] - zvec[0]
+				 , div_.nReplicas()
+				 , div_.offset());
+    // ?what?      CalculateNDiv( zvec[zvec.size() - 1] - zvec[0], origparamMother->Z_values[origparamMother->Num_z_planes-1]
+    //       - origparamMother->Z_values[0] , nDiv, offset );
       
-    }
+  }
   
   DCOUT_V ('P', " DDDividedPolyhedraZ - # divisions " << compNDiv_ << " = " << div_.nReplicas() << "\n Offset " << " = " << div_.offset() << "\n Width " << compWidth_ << " = " << div_.width());
-  
 }
 					   
-//---------------------------------------------------------------------
-DDDividedPolyhedraZ::~DDDividedPolyhedraZ()
-{
-}
+DDDividedPolyhedraZ::~DDDividedPolyhedraZ( void )
+{}
 
-//------------------------------------------------------------------------
-double DDDividedPolyhedraZ::getMaxParameter() const
+double
+DDDividedPolyhedraZ::getMaxParameter( void ) const
 {
   DDPolyhedra msol = (DDPolyhedra)(div_.parent().solid());
   //G4PolyhedraHistorical* origparamMother = msol->GetOriginalParameters();
@@ -353,58 +340,58 @@ double DDDividedPolyhedraZ::getMaxParameter() const
   //	  -origparamMother->Z_values[0]);
 }
 
-//---------------------------------------------------------------------
-void DDDividedPolyhedraZ::checkParametersValidity()
+void
+DDDividedPolyhedraZ::checkParametersValidity( void )
 {
   DDDividedGeometryObject::checkParametersValidity();
 
   DDPolyhedra msol = (DDPolyhedra)(div_.parent().solid());
 
   if( divisionType_ == DivNDIVandWIDTH || divisionType_ == DivWIDTH )
-    {
-      std::cout << "WARNING - "
-           << "DDDividedPolyhedraZ::checkParametersValidity()"
-           << std::endl
-           << "          Solid " << msol << std::endl
-           << "          Division along Z will be done splitting "
-           << "in the defined z_planes." << std::endl
-           << "          WIDTH will not be used !" << std::endl;
-    }
+  {
+    std::cout << "WARNING - "
+	      << "DDDividedPolyhedraZ::checkParametersValidity()"
+	      << std::endl
+	      << "          Solid " << msol << std::endl
+	      << "          Division along Z will be done splitting "
+	      << "in the defined z_planes." << std::endl
+	      << "          WIDTH will not be used !" << std::endl;
+  }
 
   if( div_.offset() != 0. )
-    {
-      std::cout << "WARNING - "
-           << "DDDividedPolyhedraZ::checkParametersValidity()"
-           << std::endl
-           << "          Solid " << msol << std::endl
-           << "          Division along Z will be done splitting "
-           << "in the defined z_planes." << std::endl
-           << "          OFFSET will not be used !" << std::endl;
-    }
+  {
+    std::cout << "WARNING - "
+	      << "DDDividedPolyhedraZ::checkParametersValidity()"
+	      << std::endl
+	      << "          Solid " << msol << std::endl
+	      << "          Division along Z will be done splitting "
+	      << "in the defined z_planes." << std::endl
+	      << "          OFFSET will not be used !" << std::endl;
+  }
 
   //  G4PolyhedraHistorical* origparamMother = msol->GetOriginalParameters();
 
   std::vector<double> zvec = msol.zVec();
   
   if ( zvec.size() - 1 != size_t(compNDiv_) )
-    { 
-      std::cout << "ERROR - "
-	   << "DDDividedPolyhedraZ::checkParametersValidity()"
-	   << std::endl
-	   << "        Division along Z can only be done by splitting in the defined"
-	   << std::endl
-	   << "        z_planes, i.e, the number of division would be :"
-	   << "        " << zvec.size() - 1
-	   << " instead of " << compNDiv_ << " !"
-	   << std::endl; 
-      std::string s = "DDDividedPolyhedraZ::checkParametersValidity()";
-      s += "Illegal Construct. Not a supported configuration.";
-      throw DDException (s);
-    }
+  { 
+    std::cout << "ERROR - "
+	      << "DDDividedPolyhedraZ::checkParametersValidity()"
+	      << std::endl
+	      << "        Division along Z can only be done by splitting in the defined"
+	      << std::endl
+	      << "        z_planes, i.e, the number of division would be :"
+	      << "        " << zvec.size() - 1
+	      << " instead of " << compNDiv_ << " !"
+	      << std::endl; 
+    std::string s = "DDDividedPolyhedraZ::checkParametersValidity()";
+    s += "Illegal Construct. Not a supported configuration.";
+    throw DDException (s);
+  }
 }
 
-//---------------------------------------------------------------------
-DDTranslation DDDividedPolyhedraZ::makeDDTranslation( const int copyNo ) const
+DDTranslation
+DDDividedPolyhedraZ::makeDDTranslation( const int copyNo ) const
 {
   DDPolyhedra msol = (DDPolyhedra)(div_.parent().solid());
   std::vector<double> zvec = msol.zVec();
@@ -426,14 +413,14 @@ DDTranslation DDDividedPolyhedraZ::makeDDTranslation( const int copyNo ) const
   return tr;
 }
 
-//---------------------------------------------------------------------
-DDRotation DDDividedPolyhedraZ::makeDDRotation( const int copyNo ) const
+DDRotation
+DDDividedPolyhedraZ::makeDDRotation( const int copyNo ) const
 {
   return DDRotation();
 }
 
-//---------------------------------------------------------------------
-DDLogicalPart DDDividedPolyhedraZ::makeDDLogicalPart( const int copyNo ) const
+DDLogicalPart
+DDDividedPolyhedraZ::makeDDLogicalPart( const int copyNo ) const
 {
   // only for mother number of planes = 2!!
   // mec: what?  why?  comment above and = 2 below straight from G4 impl.
@@ -479,6 +466,5 @@ DDLogicalPart DDDividedPolyhedraZ::makeDDLogicalPart( const int copyNo ) const
 
   DCOUT_V ('P', "DDDividedPolyhedraZ::makeDDLogicalPart" << "\n-- Parametrised phedra copy-number: " << copyNo << "\n-- DDLogicalPart " << lp );
   return lp;
-
 }
 

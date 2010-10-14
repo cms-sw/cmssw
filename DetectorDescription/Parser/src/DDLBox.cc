@@ -11,47 +11,37 @@
  *                                                                         *
  ***************************************************************************/
 
+#include "DetectorDescription/Parser/src/DDLBox.h"
 
-
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
-#include "DDLBox.h"
-
-// DDCore dependencies
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
-//#include <strstream>
+DDLBox::DDLBox( DDLElementRegistry* myreg )
+  : DDLSolid( myreg )
+{}
 
-// Default constructor
-DDLBox::DDLBox(  DDLElementRegistry* myreg ) : DDLSolid(myreg)
-{
-}
-
-// Default desctructor
-DDLBox::~DDLBox()
-{
-}
+DDLBox::~DDLBox( void )
+{}
 
 // Upon ending a Box element, call DDCore giving the box name, and dimensions.
-void DDLBox::processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv)
+void
+DDLBox::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
-  DCOUT_V('P', "DDLBox::processElement started");
+  DCOUT_V( 'P', "DDLBox::processElement started" );
   
   ExprEvalInterface & ev = ExprEvalSingleton::instance();
   DDXMLAttribute atts = getAttributeSet();
   
-  DDName ddname = getDDName(nmspace);
-  DDSolid ddbox = DDSolidFactory::box(ddname
-				      , ev.eval(nmspace, atts.find("dx")->second)
-				      , ev.eval(nmspace, atts.find("dy")->second)
-				      , ev.eval(nmspace, atts.find("dz")->second));
+  DDName ddname = getDDName( nmspace );
+  DDSolid ddbox = DDSolidFactory::box( ddname,
+				       ev.eval( nmspace, atts.find( "dx" )->second ),
+				       ev.eval( nmspace, atts.find( "dy" )->second ),
+				       ev.eval( nmspace, atts.find( "dz" )->second ));
   // Attempt to make sure Solid elements can be in LogicalPart elements.
-  DDLSolid::setReference(nmspace, cpv);
+  DDLSolid::setReference( nmspace, cpv );
 
-  DCOUT_V('P', "DDLBox::processElement completed");
+  DCOUT_V( 'P', "DDLBox::processElement completed" );
 }

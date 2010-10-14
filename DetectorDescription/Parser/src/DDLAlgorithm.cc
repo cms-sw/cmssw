@@ -11,17 +11,14 @@
  *                                                                         *
  ***************************************************************************/
 
-// Parser parts
-#include "DDLAlgorithm.h"
-#include "DDLVector.h"
-#include "DDLMap.h"
+#include "DetectorDescription/Parser/src/DDLAlgorithm.h"
+#include "DetectorDescription/Parser/src/DDLVector.h"
+#include "DetectorDescription/Parser/src/DDLMap.h"
 
-// DDCore dependencies
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithmHandler.h"
 
-// CLHEP dependencies
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
 #include <sstream>
