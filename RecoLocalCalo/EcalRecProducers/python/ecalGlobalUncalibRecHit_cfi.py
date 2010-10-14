@@ -20,16 +20,24 @@ ecalGlobalUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
     EBtimeNconst      = cms.double(28.5),
     EEtimeConstantTerm= cms.double(.18),
     EEtimeNconst      = cms.double(31.8),
-    outOfTimeThresholdEB= cms.double(5),
-    outOfTimeThresholdEE= cms.double(5),
-    amplitudeThresholdEB = cms.double(10),
-    amplitudeThresholdEE = cms.double(10),
-    outOfTimeIfGain12OnlyEB = cms.bool(False),
-    outOfTimeIfGain12OnlyEE = cms.bool(False),                                         
+    outOfTimeThresholdEB    = cms.double(5),    # number of sigmas
+    outOfTimeThresholdEE    = cms.double(5),    # number of sigmas
+    amplitudeThresholdEB    = cms.double(10),
+    amplitudeThresholdEE    = cms.double(10),
+    outOfTimeIfGain12OnlyEB = cms.bool(True),
+    outOfTimeIfGain12OnlyEE = cms.bool(True),
+                                         
     ebSpikeThreshold = cms.double(1.042),
 
     ebPulseShape = cms.vdouble( 5.2e-05,-5.26e-05 , 6.66e-05, 0.1168, 0.7575, 1.,  0.8876, 0.6732, 0.4741,  0.3194 ),
     eePulseShape = cms.vdouble( 5.2e-05,-5.26e-05 , 6.66e-05, 0.1168, 0.7575, 1.,  0.8876, 0.6732, 0.4741,  0.3194 ),
-    
+
+    kPoorRecoFlagEB = cms.bool(False),
+    kPoorRecoFlagEE = cms.bool(False),
+    chi2ThreshEB_ = cms.double(33.0),
+    chi2ThreshEE_ = cms.double(33.0),
+    EBchi2Parameters = cms.vdouble(2.122, 0.022, 2.122, 0.022),
+    EEchi2Parameters = cms.vdouble(2.122, 0.022, 2.122, 0.022),
+   
     algo = cms.string("EcalUncalibRecHitWorkerGlobal")
 )
