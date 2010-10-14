@@ -38,6 +38,7 @@ CSCStripElectronicsSim::CSCStripElectronicsSim(const edm::ParameterSet & p)
   sca_peak_bin(p.getParameter<int>("scaPeakBin")),
   theComparatorTimeBinOffset(p.getParameter<double>("comparatorTimeBinOffset")),
   theComparatorTimeOffset(p.getParameter<double>("comparatorTimeOffset")),
+  theComparatorSamplingTime(p.getParameter<double>("comparatorSamplingTime")),
   theSCATimingOffsets(p.getParameter<std::vector<double> >("scaTimingOffsets"))
 {
 
@@ -142,7 +143,7 @@ CSCStripElectronicsSim::runComparator(std::vector<CSCComparatorDigi> & result) {
     const CSCAnalogSignal & signal2 = find(readoutElement(iComparator*2 + 2));
     for(float time = theSignalStartTime +theComparatorTimeOffset; 
         time < theSignalStopTime-theComparatorWait; 
-        time += theSamplingTime) 
+        time += theComparatorSamplingTime) 
     {
       if(comparatorReading(signal1, time) > theComparatorThreshold
       || comparatorReading(signal2, time) > theComparatorThreshold) {
@@ -218,7 +219,7 @@ CSCStripElectronicsSim::runComparator(std::vector<CSCComparatorDigi> & result) {
          float resetThreshold = 1;
          while(time < theSignalStopTime
             && mainSignal->getValue(time) > resetThreshold) {
-           time += theSamplingTime;
+           time += theComparatorSamplingTime;
          }
 
        } // if over threshold

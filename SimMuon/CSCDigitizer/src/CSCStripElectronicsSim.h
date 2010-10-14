@@ -114,6 +114,7 @@ private:
   double theComparatorTimeBinOffset;
   // to center comparator signals
   double theComparatorTimeOffset;
+  double theComparatorSamplingTime;
   // tweaks the timing of the SCA
   std::vector<double> theSCATimingOffsets;
   // remeber toe TOF correction in comparators,

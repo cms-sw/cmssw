@@ -21,6 +21,7 @@ simMuonCSCDigis = cms.EDProducer("CSCDigiProducer",
         # parameters for tuning timing
         scaTimingOffsets =  cms.vdouble(0.0, 10., 10., 0.,0.,0.,0.,0.,0.,0.,0.),
         comparatorTimeBinOffset = cms.double(3.0),
+        comparatorSamplingTime = cms.double(25.0),
         scaPeakBin = cms.int32(5),
         pedestalSigma = cms.double(1.5),
         signalStopTime = cms.double(500.0),
