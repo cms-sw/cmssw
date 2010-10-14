@@ -26,13 +26,17 @@
 
 #include "RecoTauTag/RecoTau/interface/RecoTauBuilderPlugins.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauCleaningTools.h"
+#include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 
-class RecoTauCleaner : public edm::EDProducer {
+template<typename Prod>
+class RecoTauCleanerImpl : public edm::EDProducer {
   typedef reco::tau::RecoTauCleanerPlugin Cleaner;
   typedef boost::ptr_vector<Cleaner> CleanerList;
+  // Define our output type - i.e. reco::PFTau OR reco::PFTauRef
+  typedef typename Prod::value_type output_type;
 
   // Predicate that determines if two taus 'overlap' i.e. share a base PFJet
   class RemoveDuplicateJets {
@@ -42,8 +46,8 @@ class RecoTauCleaner : public edm::EDProducer {
   };
 
   public:
-    explicit RecoTauCleaner(const edm::ParameterSet& pset);
-    ~RecoTauCleaner() {}
+    explicit RecoTauCleanerImpl(const edm::ParameterSet& pset);
+    ~RecoTauCleanerImpl() {}
     void produce(edm::Event& evt, const edm::EventSetup& es);
 
   private:
@@ -55,8 +59,9 @@ class RecoTauCleaner : public edm::EDProducer {
     CleanerList cleaners_;
 };
 
-RecoTauCleaner::RecoTauCleaner(const edm::ParameterSet& pset) {
-  tauSrc_ = pset.getParameter<edm::InputTag>("tauSrc");
+template<typename Prod>
+RecoTauCleanerImpl<Prod>::RecoTauCleanerImpl(const edm::ParameterSet& pset) {
+  tauSrc_ = pset.getParameter<edm::InputTag>("src");
   // Build our list of quality plugins
   typedef std::vector<edm::ParameterSet> VPSet;
   // Get each of our tau builders
@@ -74,10 +79,23 @@ RecoTauCleaner::RecoTauCleaner(const edm::ParameterSet& pset) {
   // Build the predicate that ranks our taus.  The predicate takes a list of
   // cleaners, and uses them to create a lexicographic ranking.
   predicate_ = std::auto_ptr<Predicate>(new Predicate(cleaners_));
-  produces<reco::PFTauCollection>();
+  produces<Prod>();
 }
 
-void RecoTauCleaner::produce(edm::Event& evt, const edm::EventSetup& es) {
+namespace {
+// Template to convert a ref to desired output type
+template<typename T> const T& convert(const reco::PFTauRef &tau);
+
+template<> const reco::PFTauRef&
+convert<reco::PFTauRef>(const reco::PFTauRef &tau) { return tau; }
+
+template<> const reco::PFTau&
+convert<reco::PFTau>(const reco::PFTauRef &tau) { return *tau; }
+}
+
+template<typename Prod>
+void RecoTauCleanerImpl<Prod>::produce(edm::Event& evt,
+                                   const edm::EventSetup& es) {
   // Update all our cleaners with the event info if they need it
   for (CleanerList::iterator cleaner = cleaners_.begin();
       cleaner != cleaners_.end(); ++cleaner) {
@@ -85,20 +103,19 @@ void RecoTauCleaner::produce(edm::Event& evt, const edm::EventSetup& es) {
   }
 
   // Get the input collection to clean
-  edm::Handle<reco::PFTauCollection> pfTaus;
-  evt.getByLabel(tauSrc_, pfTaus);
+  edm::Handle<reco::CandidateView> input;
+  evt.getByLabel(tauSrc_, input);
 
-  // Build a local vector of Refs to the taus
+  // Cast the input candidates to Refs to real taus
+  reco::PFTauRefVector inputRefs = reco::tau::castView<reco::PFTauRefVector>(
+      *input);
+
+  // Make an STL algorithm friendly vector of refs
   typedef std::vector<reco::PFTauRef> PFTauRefs;
-
   // Collection of all taus. Some are from the same PFJet. We must clean them.
-  size_t nDirtyTaus = pfTaus->size();
   PFTauRefs dirty;
-  dirty.reserve(nDirtyTaus);
-
-  for (size_t iTau = 0; iTau < nDirtyTaus; ++iTau) {
-    dirty.push_back(reco::PFTauRef(pfTaus, iTau));
-  }
+  dirty.reserve(inputRefs.size());
+  std::copy(inputRefs.begin(), inputRefs.end(), std::back_inserter(dirty));
 
   // Sort the input tau refs according to our predicate
   std::sort(dirty.begin(), dirty.end(), *predicate_);
@@ -108,25 +125,21 @@ void RecoTauCleaner::produce(edm::Event& evt, const edm::EventSetup& es) {
             RemoveDuplicateJets>(dirty);
 
   // create output collection
-  std::auto_ptr<reco::PFTauCollection> output(new reco::PFTauCollection());
+  std::auto_ptr<Prod> output(new Prod());
   output->reserve(cleanTaus.size());
 
-  // std::cout << "*********      clean            **************" << std::endl;
   // Copy clean refs into output
   for (PFTauRefs::const_iterator tau = cleanTaus.begin();
        tau != cleanTaus.end(); ++tau) {
-    output->push_back(**tau);
-    // std::cout << std::setprecision(3) << **tau << " ";
-    for (CleanerList::const_iterator cleaner = cleaners_.begin();
-        cleaner != cleaners_.end(); ++cleaner) {
-     // std::cout << cleaner->name() << ":"
-     //   << std::setprecision(3) << (*cleaner)(*tau) << " ";
-    }
-    // std::cout << std::endl;
+    output->push_back(convert<output_type>(*tau));
   }
   evt.put(output);
 }
 
+typedef RecoTauCleanerImpl<reco::PFTauCollection> RecoTauCleaner;
+typedef RecoTauCleanerImpl<reco::PFTauRefVector> RecoTauRefCleaner;
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(RecoTauCleaner);
+DEFINE_FWK_MODULE(RecoTauRefCleaner);
 
