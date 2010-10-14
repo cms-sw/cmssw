@@ -7,6 +7,9 @@ from HLTriggerOffline.Tau.Validation.HLTTauValidation_6E31_cfi import *
 
 HLTTauVal    = cms.Sequence(hltTauRef+hltTauValIdeal)
 
+# for FS, hltTauRef Producers go into separate "prevalidation" sequence
+# (this fixes the "no EDProducer in EndPath" problem)
+HLTTauValFS  = cms.Sequence(hltTauValIdeal)
 
 
 
