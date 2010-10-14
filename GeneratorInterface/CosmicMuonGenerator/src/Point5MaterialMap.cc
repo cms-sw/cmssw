@@ -2,6 +2,7 @@
 #define Point5MaterialMap_cc
 
 #include <iostream>
+#include <cmath>
 
 #include "GeneratorInterface/CosmicMuonGenerator/interface/CosmicMuonParameters.h"
 
@@ -24,7 +25,7 @@ inline int inAirAfterPlug(double vx, double vy, double vz) {
   if (vy >= SurfaceOfEarth) return Air;
   
   // CMS cavern (UXC 55)
-  if (fabs(vz) < 26548. && sqrt((vx*1.1576)*(vx*1.1576) + vy*vy) < 15460. &&
+  if (std::fabs(vz) < 26548. && sqrt((vx*1.1576)*(vx*1.1576) + vy*vy) < 15460. &&
       vy > -8762) return Air;
   
   // access shaft (PX 56)
@@ -107,14 +108,14 @@ inline int inAirAfterPlug(double vx, double vy, double vz) {
 inline int inWallAfterAir(double vx, double vy, double vz) {
   // phase II surface building
   if (vy < SurfaceOfEarth && vy >= (SurfaceOfEarth-2250.)) {
-    if (fabs(vz-Z_PX56) < 30000. && fabs(vx) < 10950) return Wall;
+    if (std::fabs(vz-Z_PX56) < 30000. && std::fabs(vx) < 10950) return Wall;
     // foundation of crane
-    if (fabs(vz-Z_PX56) < 9000. && fabs(vx) >= 10950 && fabs(vx) < 16950) 
+    if (std::fabs(vz-Z_PX56) < 9000. && std::fabs(vx) >= 10950 && std::fabs(vx) < 16950) 
       return Wall;
   }
   
   // CMS cavern (UXC 55)
-  if (fabs(vz) < 29278. && sqrt((vx*1.1576)*(vx*1.1576) + vy*vy) < 16830. &&
+  if (std::fabs(vz) < 29278. && sqrt((vx*1.1576)*(vx*1.1576) + vy*vy) < 16830. &&
       vy > -11762.) return Wall;
   
   // access shaft (PX 56)

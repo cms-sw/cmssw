@@ -132,7 +132,7 @@ void CosmicMuonGenerator::nextEvent(){
       // check phi range (for a sphere with Target3dRadius around the target)
       double dPhi = Pi; if (RxzV > Target3dRadius) dPhi = asin(Target3dRadius/RxzV);
       double rotPhi = PhiV + Pi; if (rotPhi > TwoPi) rotPhi -= TwoPi;
-      double disPhi = fabs(rotPhi - Phi); if (disPhi > Pi) disPhi = TwoPi - disPhi;
+      double disPhi = std::fabs(rotPhi - Phi); if (disPhi > Pi) disPhi = TwoPi - disPhi;
       if (disPhi < dPhi || AcptAllMu) badVertexGenerated = false;
       Nver+=1.;
     }
@@ -517,7 +517,7 @@ bool CosmicMuonGenerator::nextMultiEvent() {
 	
 	//add atmospheric height to primary particle (default SimTree->shower_StartingAltitude = 0.)
 	double pt_sec = sqrt(Px_mu[imu]*Px_mu[imu]+Pz_mu[imu]*Pz_mu[imu]);
-	double theta_sec = atan2(fabs(Py_mu[imu]),pt_sec);
+	double theta_sec = atan2(std::fabs(Py_mu[imu]),pt_sec);
 	double r_sec = sqrt((Vx_mu[imu]-Vx_at)*(Vx_mu[imu]-Vx_at)
 			    +(Vz_mu[imu]-Vz_at)*(Vz_mu[imu]-Vz_at));
 	double h_prod =  r_sec * tan(theta_sec);
@@ -540,7 +540,7 @@ bool CosmicMuonGenerator::nextMultiEvent() {
 	  double PhiPmu = atan2(Px_mu[imu],Pz_mu[imu]); //muon phi
 	  double PhiVmu = atan2(Vx_mu[imu],Vz_mu[imu]); //muon phi
 	  double rotPhi = PhiVmu + Pi; if (rotPhi > Pi) rotPhi -= TwoPi;
-	  double disPhi = fabs(rotPhi - PhiPmu); if (disPhi > Pi) disPhi = TwoPi - disPhi;
+	  double disPhi = std::fabs(rotPhi - PhiPmu); if (disPhi > Pi) disPhi = TwoPi - disPhi;
 	  if (disPhi < dPhi) {
 	    NmuHitTargetSphere++;
 	  }
@@ -713,7 +713,7 @@ bool CosmicMuonGenerator::nextMultiEvent() {
 			       << " P=" << sqrt(pow(Px_ug[imu],2) + pow(Py_ug[imu],2) + pow(Pz_ug[imu],2)) 
 			       << std::endl;
 	  for (unsigned int jmu=0; jmu<imu; ++jmu) {
-	    if (fabs(T0_ug[imu]-T0_ug[jmu]) < minDeltaT0) minDeltaT0 = fabs(T0_ug[imu]-T0_ug[jmu]);
+	    if (std::fabs(T0_ug[imu]-T0_ug[jmu]) < minDeltaT0) minDeltaT0 = std::fabs(T0_ug[imu]-T0_ug[jmu]);
 	  }
 	}
 	
@@ -916,12 +916,12 @@ bool CosmicMuonGenerator::goodOrientation(){
 
   double Phi = OneMuoEvt.phi();
   double PhiV = atan2(OneMuoEvt.vx(),OneMuoEvt.vz()) + Pi; if (PhiV > TwoPi) PhiV -= TwoPi;
-  double disPhi = fabs(PhiV - Phi); if (disPhi > Pi) disPhi = TwoPi - disPhi;
+  double disPhi = std::fabs(PhiV - Phi); if (disPhi > Pi) disPhi = TwoPi - disPhi;
   double dPhi = Pi; if (RxzV > Target3dRadius) dPhi = asin(Target3dRadius/RxzV);
   if (disPhi < dPhi) phiaccepted = true;
   double Theta = OneMuoEvt.theta();
   double ThetaV = asin(RxzV/rVY);
-  double dTheta = Pi; if (fabs(rVY) > Target3dRadius) dTheta = asin(Target3dRadius/fabs(rVY));
+  double dTheta = Pi; if (std::fabs(rVY) > Target3dRadius) dTheta = asin(Target3dRadius/std::fabs(rVY));
   //std::cout << "    dPhi = " <<   dPhi << "  (" <<   Phi << " <p|V> " <<   PhiV << ")" << std::endl;
   //std::cout << "  dTheta = " << dTheta << "  (" << Theta << " <p|V> " << ThetaV << ")" << std::endl;
 
@@ -932,7 +932,7 @@ bool CosmicMuonGenerator::goodOrientation(){
 	 << "  RxzV=" << RxzV << "  Target3dRadius=" << Target3dRadius 
 	 << "  Theta=" << Theta << std::endl;
 
-  if (fabs(Theta-ThetaV) < dTheta) thetaaccepted = true;
+  if (std::fabs(Theta-ThetaV) < dTheta) thetaaccepted = true;
   if (phiaccepted && thetaaccepted) goodAngles = true;
   return goodAngles;
 }
@@ -997,9 +997,9 @@ void CosmicMuonGenerator::displayEv(){
   float verX = float(OneMuoEvt.vx()/1000.); // [m]
   float verY = float(OneMuoEvt.vy()/1000.); // [m]
   float verZ = float(OneMuoEvt.vz()/1000.); // [m]
-  float dirX = float(OneMuoEvt.px())/fabs(OneMuoEvt.py());
-  float dirY = float(OneMuoEvt.py())/fabs(OneMuoEvt.py());
-  float dirZ = float(OneMuoEvt.pz())/fabs(OneMuoEvt.py());
+  float dirX = float(OneMuoEvt.px())/std::fabs(OneMuoEvt.py());
+  float dirY = float(OneMuoEvt.py())/std::fabs(OneMuoEvt.py());
+  float dirZ = float(OneMuoEvt.pz())/std::fabs(OneMuoEvt.py());
   float yStep = disXY->GetYaxis()->GetBinWidth(1);
   int   NbinY = disXY->GetYaxis()->GetNbins();
   for (int iy=0; iy<NbinY; ++iy){
@@ -1007,7 +1007,7 @@ void CosmicMuonGenerator::displayEv(){
     verY += dirY*yStep;
     verZ += dirZ*yStep;
     float rXY = sqrt(verX*verX + verY*verY)*1000.; // [mm]
-    float absZ = fabs(verZ)*1000.;                 // [mm]
+    float absZ = std::fabs(verZ)*1000.;                 // [mm]
     if (rXY < RadiusDet && absZ < Z_DistDet){
       disXY->Fill(verX,verY,log10(energy));
       disZY->Fill(verZ,verY,log10(energy));
