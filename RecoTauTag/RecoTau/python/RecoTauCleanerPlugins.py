@@ -14,10 +14,12 @@ unitCharge = cms.PSet(
     selection = cms.string("signalPFChargedHadrCands().size() = 3"),
     # As 1 is lower than 3, this will always prefer those with unit charge
     selectionPassFunction = cms.string("abs(charge())-1"),
-    # If it is a one prong, consider it just as good as a unit
+    # If it is a one prong, consider it just as good as a 
     # three prong with unit charge
     selectionFailValue = cms.double(0),
 )
+
+
 
 # Prefer taus that have higher TaNC output values
 tanc = cms.PSet(
@@ -30,6 +32,16 @@ leadPionFinding = cms.PSet(
     name = cms.string("LeadPion"),
     plugin = cms.string("RecoTauDiscriminantCleanerPlugin"),
     src = cms.InputTag("DISCRIMINATOR_SRC"),
+)
+
+combinedIsolation = cms.PSet(
+    name = cms.string("CombinedIsolation"),
+    plugin = cms.string("RecoTauStringCleanerPlugin"),
+    # Require that cones were built by ensuring the a leadCand exits
+    selection = cms.string("leadPFCand().isNonnull()"),
+    selectionPassFunction = cms.string(
+        "isolationPFChargedHadrCandsPtSum()+isolationPFGammaCandsEtSum()"),
+    selectionFailValue = cms.double(1e3)
 )
 
 chargeIsolation = cms.PSet(
