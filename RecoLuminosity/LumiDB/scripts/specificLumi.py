@@ -212,14 +212,14 @@ if __name__ == '__main__':
                     if fill>max(allfillsFromFile):
                         fillstoprocess.append(fill)
             if len(allfillsFromFile)>5: #reprocess anyway old fills
-                fillstoprocess+=allfillsFromFile[-6:-1]
+                fillstoprocess+=allfillsFromFile[-5:]
             elif len(allfillsFromFile)>2:
-                fillstoprocess+=allfillsFromFile[-3:-1]
+                fillstoprocess+=allfillsFromFile[-2:]
             else:
                 fillstoprocess+=allfillsFromFile[-1]
         else:
             fillstoprocess=allfillsFromDB #process everything from scratch
-    print 'fillstoprocess ',fillstoprocess
+    #print 'fillstoprocess ',fillstoprocess
     runsperfillFromDB={}
     q=session.nominalSchema().newQuery()
     runsperfillFromDB=lumiQueryAPI.runsByfillrange(q,int(min(fillstoprocess)),int(max(fillstoprocess)))
