@@ -22,21 +22,44 @@
 #include <boost/iterator/indirect_iterator.hpp>
 #include <boost/mem_fn.hpp>
 
-namespace reco {
-namespace tau {
+#include <boost/type_traits/is_base_of.hpp>
+#include <boost/static_assert.hpp>
+
+namespace reco { namespace tau {
 
 /// Extract pfCandidates of a given particle Id from a PFJet.  If sort is true,
 /// candidates will be sorted by descending PT
-std::vector<PFCandidatePtr> pfCandidates(
-    const PFJet& jet, int particleId, bool sort=true);
+std::vector<PFCandidatePtr> pfCandidates(const PFJet& jet,
+                                         int particleId, bool sort=true);
+
 /// Extract pfCandidates of a that match a list of particle Ids from a PFJet
-std::vector<PFCandidatePtr> pfCandidates(
-    const PFJet& jet, const std::vector<int>& particleIds, bool sort=true);
+std::vector<PFCandidatePtr> pfCandidates(const PFJet& jet,
+                                         const std::vector<int>& particleIds,
+                                         bool sort=true);
 /// Extract all pfGammas from a PFJet
 std::vector<PFCandidatePtr> pfGammas(const PFJet& jet, bool sort=true);
 
 /// Flatten a list of pi zeros into a list of there constituent PFCandidates
 std::vector<PFCandidatePtr> flattenPiZeros(const std::vector<RecoTauPiZero>&);
+
+/// Convert a BaseView (View<T>) to a TRefVector
+template<typename RefVectorType, typename BaseView>
+RefVectorType castView(const BaseView& view) {
+  // Double check at compile time that the inheritance is okay.  It can still
+  // fail at runtime if you pass it the wrong collection.
+  BOOST_STATIC_ASSERT(
+      (boost::is_base_of<typename BaseView::value_type,
+                         typename RefVectorType::member_type>::value));
+  RefVectorType output(view.id());
+  size_t nElements = view.size();
+  output.reserve(nElements);
+  // Cast each of our Refs
+  for (size_t i = 0; i < nElements; ++i) {
+    output.push_back(
+        view.refAt(i).template castTo<typename RefVectorType::value_type>());
+  }
+  return output;
+}
 
 /// Given a range over a container of type C, return a new 'end' iterator such
 /// that at max <N> elements are taken.  If there are less than N elements in the
@@ -49,7 +72,7 @@ template<typename InputIterator> InputIterator takeNElements(
 
 /// Sum the four vectors in a collection of PFCandidates
 template<typename InputIterator, typename FunctionPtr, typename ReturnType>
-  ReturnType sumPFVector(InputIterator begin, InputIterator end, 
+  ReturnType sumPFVector(InputIterator begin, InputIterator end,
       FunctionPtr func, ReturnType init) {
     ReturnType output = init;
     for(InputIterator cand = begin; cand != end; ++cand) {
@@ -61,23 +84,23 @@ template<typename InputIterator, typename FunctionPtr, typename ReturnType>
 
 template<typename InputIterator> reco::Candidate::LorentzVector sumPFCandP4(
     InputIterator begin, InputIterator end) {
-  return sumPFVector(begin, end, &PFCandidate::p4, 
+  return sumPFVector(begin, end, &PFCandidate::p4,
       reco::Candidate::LorentzVector());
 }
 
 /// Sum the PT of a collection of PFCandidates
-template<typename InputIterator> double sumPFCandPt(InputIterator begin, 
+template<typename InputIterator> double sumPFCandPt(InputIterator begin,
     InputIterator end) {
     return sumPFVector(begin, end, &PFCandidate::pt, 0.0);
   }
 
 /// Sum the PT of a collection of PFCandidates
-template<typename InputIterator> int sumPFCandCharge(InputIterator begin, 
+template<typename InputIterator> int sumPFCandCharge(InputIterator begin,
     InputIterator end) {
     return sumPFVector(begin, end, &PFCandidate::charge, 0);
   }
 
-template<typename InputIterator> InputIterator leadPFCand(InputIterator begin, 
+template<typename InputIterator> InputIterator leadPFCand(InputIterator begin,
     InputIterator end) {
     double max_pt = 0;
     InputIterator max_cand = begin;
@@ -91,5 +114,7 @@ template<typename InputIterator> InputIterator leadPFCand(InputIterator begin,
     }
     return max_cand;
   }
+
+
 }} // end namespace reco::tau
 #endif
