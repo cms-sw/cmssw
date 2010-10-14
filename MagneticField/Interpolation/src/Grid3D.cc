@@ -2,8 +2,9 @@
 #include <iostream>
 
 
+/*
 Grid3D::Grid3D( const Grid1D& ga, const Grid1D& gb, const Grid1D& gc,
-		std::vector<ReturnType>& data) : 
+		std::vector<ValueType> const & data) : 
   grida_(ga), gridb_(gb), gridc_(gc) {
   data_.reserve(data.size());
   //FIXME use a std algo
@@ -12,7 +13,7 @@ Grid3D::Grid3D( const Grid1D& ga, const Grid1D& gb, const Grid1D& gc,
   stride1_ = gridb_.nodes() * gridc_.nodes();
   stride2_ = gridc_.nodes();
 }
-
+*/
 
 void Grid3D::dump() const
 {

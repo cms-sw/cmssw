@@ -16,10 +16,10 @@
 class Grid3D {
 public:
 
-  typedef Basic3DVector<float>  ReturnType;
-  // typedef double   Scalar;
-  typedef mathSSE::Vec3F ValueType;
+ // typedef double   Scalar;
   typedef float   Scalar;
+  typedef Basic3DVector<Scalar>   ValueType;
+  typedef ValueType ReturnType; 
  
   Grid3D() {}
 
@@ -31,8 +31,9 @@ public:
      stride2_ = gridc_.nodes();
   }
 
-  Grid3D( const Grid1D& ga, const Grid1D& gb, const Grid1D& gc,
-	  std::vector<ReturnType>& data);
+
+  //  Grid3D( const Grid1D& ga, const Grid1D& gb, const Grid1D& gc,
+  //	  std::vector<ValueType> const & data);
 
 
   int index(int i, int j, int k) const {return i*stride1_ + j*stride2_ + k;}
@@ -43,9 +44,8 @@ public:
     return data_[i];
   }
 
-  ReturnType operator()(int i, int j, int k) const {
-    const ValueType& result = (*this)(index(i,j,k));
-    return ReturnType(result);
+  ValueType const & operator()(int i, int j, int k) const {
+    return (*this)(index(i,j,k));
   }
 
   const Grid1D& grida() const {return grida_;}

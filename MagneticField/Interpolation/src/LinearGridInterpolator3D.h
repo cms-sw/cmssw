@@ -5,8 +5,8 @@
  *
  *  Linear interpolation in a regular 3D grid.
  *
- *  $Date: 2010/02/10 14:56:39 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/03/31 08:59:45 $
+ *  $Revision: 1.8 $
  *  \author T. Todorov 
  */
 
@@ -26,7 +26,7 @@ public:
 
   typedef Grid3D::ValueType ValueType;
   typedef Grid3D::Scalar Scalar;
-  typedef Basic3DVector<float>   ReturnType;
+  typedef ValueType ReturnType; 
 
   LinearGridInterpolator3D( const Grid3D& g) :
     grid(g), grida(g.grida()), gridb(g.gridb()), gridc(g.gridc()) {}

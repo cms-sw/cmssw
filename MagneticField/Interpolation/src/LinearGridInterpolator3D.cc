@@ -10,7 +10,7 @@ LinearGridInterpolator3D::throwGridInterpolator3DException(void)
                                     grida.upper(),gridb.upper(),gridc.upper());
 }
 
-LinearGridInterpolator3D::ReturnType 
+LinearGridInterpolator3D::ValueType 
 LinearGridInterpolator3D::interpolate( Scalar a, Scalar b, Scalar c) 
 {
   /*
@@ -75,7 +75,8 @@ LinearGridInterpolator3D::interpolate( Scalar a, Scalar b, Scalar c)
   //chances are this is more numerically precise this way
 
 
-#if defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 4)
+
+#if defined(USE_SSEVECT) || !defined(CMS_USE_SSE)
   
   ValueType result = ((1.f-s)*(1.f-t)*u)*(grid(ind      +s3) - grid(ind      ));
   result =  result + ((1.f-s)*     t *u)*(grid(ind   +s2+s3) - grid(ind   +s2));
@@ -86,29 +87,20 @@ LinearGridInterpolator3D::interpolate( Scalar a, Scalar b, Scalar c)
   result =  result + (                s)*(grid(ind+s1      ) - grid(ind      ));
   result =  result +                                           grid(ind      );
 
+  // this code only for sse math with old compilers (4.3) that do not inline properly wrapped math...
 #elif defined(CMS_USE_SSE)
 
-  __m128 resultSIMD =                 _mm_mul_ps(_mm_set1_ps((1.f - s) * (1.f - t) * u), _mm_sub_ps(grid(ind           + s3).vec, grid(ind          ).vec));
-  resultSIMD = _mm_add_ps(resultSIMD, _mm_mul_ps(_mm_set1_ps((1.f - s) *         t * u), _mm_sub_ps(grid(ind      + s2 + s3).vec, grid(ind      + s2).vec)));
-  resultSIMD = _mm_add_ps(resultSIMD, _mm_mul_ps(_mm_set1_ps(        s * (1.f - t) * u), _mm_sub_ps(grid(ind + s1      + s3).vec, grid(ind + s1     ).vec)));
-  resultSIMD = _mm_add_ps(resultSIMD, _mm_mul_ps(_mm_set1_ps(        s *         t * u), _mm_sub_ps(grid(ind + s1 + s2 + s3).vec, grid(ind + s1 + s2).vec)));
-  resultSIMD = _mm_add_ps(resultSIMD, _mm_mul_ps(_mm_set1_ps((1.f - s) *         t    ), _mm_sub_ps(grid(ind      + s2     ).vec, grid(ind          ).vec)));
-  resultSIMD = _mm_add_ps(resultSIMD, _mm_mul_ps(_mm_set1_ps(        s *         t    ), _mm_sub_ps(grid(ind + s1 + s2     ).vec, grid(ind + s1     ).vec)));
-  resultSIMD = _mm_add_ps(resultSIMD, _mm_mul_ps(_mm_set1_ps(        s                ), _mm_sub_ps(grid(ind + s1          ).vec, grid(ind          ).vec)));
-  resultSIMD = _mm_add_ps(resultSIMD,                                                                                             grid(ind          ).vec);
+  __m128 resultSIMD =                 _mm_mul_ps(_mm_set1_ps((1.f - s) * (1.f - t) * u), _mm_sub_ps(grid(ind           + s3).v.vec, grid(ind          ).v.vec));
+  resultSIMD = _mm_add_ps(resultSIMD, _mm_mul_ps(_mm_set1_ps((1.f - s) *         t * u), _mm_sub_ps(grid(ind      + s2 + s3).v.vec, grid(ind      + s2).v.vec)));
+  resultSIMD = _mm_add_ps(resultSIMD, _mm_mul_ps(_mm_set1_ps(        s * (1.f - t) * u), _mm_sub_ps(grid(ind + s1      + s3).v.vec, grid(ind + s1     ).v.vec)));
+  resultSIMD = _mm_add_ps(resultSIMD, _mm_mul_ps(_mm_set1_ps(        s *         t * u), _mm_sub_ps(grid(ind + s1 + s2 + s3).v.vec, grid(ind + s1 + s2).v.vec)));
+  resultSIMD = _mm_add_ps(resultSIMD, _mm_mul_ps(_mm_set1_ps((1.f - s) *         t    ), _mm_sub_ps(grid(ind      + s2     ).v.vec, grid(ind          ).v.vec)));
+  resultSIMD = _mm_add_ps(resultSIMD, _mm_mul_ps(_mm_set1_ps(        s *         t    ), _mm_sub_ps(grid(ind + s1 + s2     ).v.vec, grid(ind + s1     ).v.vec)));
+  resultSIMD = _mm_add_ps(resultSIMD, _mm_mul_ps(_mm_set1_ps(        s                ), _mm_sub_ps(grid(ind + s1          ).v.vec, grid(ind          ).v.vec)));
+  resultSIMD = _mm_add_ps(resultSIMD,                                                                                             grid(ind          ).v.vec);
   
-  ValueType result(resultSIMD);
+  ValueType result; result.v=resultSIMD;
 
-#else
-
-  ReturnType result = (1-s)*(1-t)*u*(grid(i,  j,  k+1) - grid(i,  j,  k));
-  result +=          (1-s)*   t *u*(grid(i,  j+1,k+1) - grid(i,  j+1,k));
-  result +=          s    *(1-t)*u*(grid(i+1,j,  k+1) - grid(i+1,j,  k));
-  result +=          s    *   t *u*(grid(i+1,j+1,k+1) - grid(i+1,j+1,k)); 
-  result +=                (1-s)*t*(grid(i,  j+1,k  ) - grid(i,  j,  k));
-  result +=                s    *t*(grid(i+1,j+1,k  ) - grid(i+1,j,  k));
-  result +=                      s*(grid(i+1,j,  k  ) - grid(i,  j,  k));
-  result +=                                             grid(i,  j,  k);
 
 
 
@@ -119,7 +111,7 @@ LinearGridInterpolator3D::interpolate( Scalar a, Scalar b, Scalar c)
 
 #endif
 
-  return ReturnType(result);
+  return result;
 
 
 }
