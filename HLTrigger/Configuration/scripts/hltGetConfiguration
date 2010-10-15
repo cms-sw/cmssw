@@ -390,7 +390,7 @@ if 'hltPreDQMSmart' in process.__dict__:
     process.hltPreDQMSmart.throw = cms.bool( False )
 """        
     # FIXME - find a better way to override the output modules
-    data = pipe("sed -e's/process\.hltOutput\(\w\+\) *= *cms\.OutputModule( *\"ShmStreamConsumer\" *,/process.hltOutput\\1 = cms.OutputModule( \"PoolOutputModule\",\\n    fileName = cms.untracked.string( \"output\\1.root\" ),/' ", data)
+    data = pipe("sed -e's/process\.hltOutput\(\w\+\) *= *cms\.OutputModule( *\"ShmStreamConsumer\" *,/process.hltOutput\\1 = cms.OutputModule( \"PoolOutputModule\",\\n    fileName = cms.untracked.string( \"output\\1.root\" ),\\n    fastCloning = cms.untracked.bool( False ),/' ", data)
 
     # override the preshower baseline setting for MC - needed for 3.5.x (x >= 7) and 3.6.x
     if not runOnData:
