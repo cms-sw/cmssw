@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/04/22 18:38:59 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/05/25 09:17:01 $
+ *  $Revision: 1.4 $
  *  \author Stefano Lacaprara  <lacaprara@pd.infn.it>  INFN LNL
  */
 
@@ -262,5 +262,5 @@ DTGeometryParsFromDD::plane(const DDFilteredView& fv) const {
 // 	    << ty.X() << ", " << ty.Y() << ", " << ty.Z() << std::endl
 // 	    << tz.X() << ", " << tz.Y() << ", " << tz.Z() << std::endl;
 
-  return make_pair<std::vector<double>, std::vector<double> >(gtran, grmat);
+  return pair<std::vector<double>, std::vector<double> >(gtran, grmat);
 }
