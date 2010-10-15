@@ -35,7 +35,7 @@ class ParametersObject (object):
         self.lumisummaryname = 'LUMISUMMARY'
         self.lumidetailname  = 'LUMIDETAIL'
         self.lumiXing        = False
-        self.xingMinLum      = 1e-4
+        self.xingMinLum      = 1.0e-4
         self.xingIndex       = 5
         self.minBiasXsec     = 71300 # unit: microbarn
         self.pileupHistName  = 'pileup'
@@ -1099,8 +1099,6 @@ def lumisummaryByrun(queryHandle,runnum,lumiversion,beamstatus=None,beamenergy=N
     queryHandle.addToOutputList('BEAMSTATUS','beamstatus')
     queryHandle.addToOutputList('BEAMENERGY','beamenergy')
     queryHandle.addToOutputList('CMSALIVE','cmsalive')
-    queryHandle.setCondition(conditionstring,queryCondition)
-    queryHandle.addToOrderList('startorbit')
     if beamstatus and len(beamstatus)!=0:
         conditionstring=conditionstring+' and BEAMSTATUS=:beamstatus'
         queryCondition.extend('beamstatus','string')
@@ -1122,6 +1120,8 @@ def lumisummaryByrun(queryHandle,runnum,lumiversion,beamstatus=None,beamenergy=N
     queryResult.extend('beamenergy','float')
     queryResult.extend('cmsalive','unsigned int')
     queryHandle.defineOutput(queryResult)
+    queryHandle.setCondition(conditionstring,queryCondition)
+    queryHandle.addToOrderList('startorbit')
     cursor=queryHandle.execute()
     while cursor.next():
         cmslsnum=cursor.currentRow()['cmslsnum'].data()
