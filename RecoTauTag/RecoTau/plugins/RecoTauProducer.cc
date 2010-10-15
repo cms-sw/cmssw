@@ -73,7 +73,7 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
   // Convert to a vector of PFJetRefs
   reco::PFJetRefVector jets =
-      reco::tau::castView<reco::PFJetRefVector>(*jetView);
+      reco::tau::castView<reco::PFJetRefVector>(jetView);
 
   // Get the pizero input collection
   edm::Handle<reco::JetPiZeroAssociation> piZeroAssoc;

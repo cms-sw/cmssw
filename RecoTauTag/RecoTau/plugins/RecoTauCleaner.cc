@@ -107,8 +107,8 @@ void RecoTauCleanerImpl<Prod>::produce(edm::Event& evt,
   evt.getByLabel(tauSrc_, input);
 
   // Cast the input candidates to Refs to real taus
-  reco::PFTauRefVector inputRefs = reco::tau::castView<reco::PFTauRefVector>(
-      *input);
+  reco::PFTauRefVector inputRefs =
+      reco::tau::castView<reco::PFTauRefVector>(input);
 
   // Make an STL algorithm friendly vector of refs
   typedef std::vector<reco::PFTauRef> PFTauRefs;

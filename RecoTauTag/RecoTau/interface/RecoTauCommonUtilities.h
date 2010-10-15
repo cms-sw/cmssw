@@ -44,19 +44,19 @@ std::vector<PFCandidatePtr> flattenPiZeros(const std::vector<RecoTauPiZero>&);
 
 /// Convert a BaseView (View<T>) to a TRefVector
 template<typename RefVectorType, typename BaseView>
-RefVectorType castView(const BaseView& view) {
+RefVectorType castView(const edm::Handle<BaseView>& view) {
   // Double check at compile time that the inheritance is okay.  It can still
   // fail at runtime if you pass it the wrong collection.
   BOOST_STATIC_ASSERT(
       (boost::is_base_of<typename BaseView::value_type,
                          typename RefVectorType::member_type>::value));
   RefVectorType output(view.id());
-  size_t nElements = view.size();
+  size_t nElements = view->size();
   output.reserve(nElements);
   // Cast each of our Refs
   for (size_t i = 0; i < nElements; ++i) {
     output.push_back(
-        view.refAt(i).template castTo<typename RefVectorType::value_type>());
+        view->refAt(i).template castTo<typename RefVectorType::value_type>());
   }
   return output;
 }

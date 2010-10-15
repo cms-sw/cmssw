@@ -97,16 +97,23 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt,
   // Get a view of our jets via the base candidates
   edm::Handle<reco::CandidateView> jetView;
   evt.getByLabel(src_, jetView);
+
   // Convert the view to a RefVector of actual PFJets
   reco::PFJetRefVector jetRefs =
-      reco::tau::castView<reco::PFJetRefVector>(*jetView);
-
+      reco::tau::castView<reco::PFJetRefVector>(jetView);
   // Make our association
-  std::auto_ptr<reco::JetPiZeroAssociation> association(
-      new reco::JetPiZeroAssociation(reco::PFJetRefProd(jetRefs)));
+  std::auto_ptr<reco::JetPiZeroAssociation> association;
+
+  if (jetRefs.size()) {
+    association.reset(
+        new reco::JetPiZeroAssociation(reco::PFJetRefProd(jetRefs)));
+  } else {
+    association.reset(new reco::JetPiZeroAssociation);
+  }
 
   // Loop over our jets
-  BOOST_FOREACH(reco::PFJetRef jet, jetRefs) {
+  BOOST_FOREACH(const reco::PFJetRef& jet, jetRefs) {
+    //std::cout << "jet pt " << jet->pt() << std::endl;
     // Keep track of the number of gammas in the list so we know when we can
     // stop building pi zeros
     size_t numberOfGammas =
@@ -190,4 +197,3 @@ void RecoTauPiZeroProducer::print(
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(RecoTauPiZeroProducer);
-
