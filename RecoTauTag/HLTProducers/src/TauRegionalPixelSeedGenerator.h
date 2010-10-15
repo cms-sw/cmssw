@@ -52,7 +52,7 @@ class TauRegionalPixelSeedGenerator : public TrackingRegionProducer {
     virtual std::vector<TrackingRegion* > regions(const edm::Event& e, const edm::EventSetup& es) const {
       std::vector<TrackingRegion* > result;
 
-      double originZ;
+      //      double originZ;
       double deltaZVertex, deltaRho;
         GlobalPoint vertex;
       // get the primary vertex
