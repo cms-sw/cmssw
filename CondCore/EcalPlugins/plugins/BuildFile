@@ -44,7 +44,16 @@
 <flags EDM_PLUGIN=1>
 </library>
 
-
+<library file="EcalAlignmentPyWrapper.cc" name=AlignmentsPyInterface>
+<use name=CondCore/Utilities>
+<use name=CondTools/Ecal>
+<use name=CondFormats/Alignment>
+<use name=boost>
+<use name=boost_filesystem>
+<use name=boost_python>
+<use name=boost_regex>
+<flags EDM_PLUGIN=1>
+</library>
 
 <library file="EcalADCToGeVConstantPyWrapper.cc" name=EcalADCToGeVConstantPyInterface>
 <use name=CondCore/Utilities>
