@@ -19,7 +19,14 @@ unitCharge = cms.PSet(
     selectionFailValue = cms.double(0),
 )
 
-
+# Prefer taus with pt greater 15
+ptGt15 = cms.PSet(
+    name = cms.string("PtGt15"),
+    plugin = cms.string("RecoTauStringCleanerPlugin"),
+    selection = cms.string("pt > 15."),
+    selectionPassFunction = cms.string("0"),
+    selectionFailValue = cms.double(1e3)
+)
 
 # Prefer taus that have higher TaNC output values
 tanc = cms.PSet(
