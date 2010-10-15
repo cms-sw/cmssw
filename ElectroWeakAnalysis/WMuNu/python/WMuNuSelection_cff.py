@@ -5,19 +5,24 @@ from ElectroWeakAnalysis.WMuNu.wmunusProducer_cfi import *
 selcorMet = cms.EDFilter("WMuNuSelector",
       # Fill Basc Histograms? ->
       plotHistograms = cms.untracked.bool(False),
+      saveNTuple = cms.untracked.bool(False),
 
       # Input collections ->
       MuonTag = cms.untracked.InputTag("muons"),
-      TrigTag = cms.untracked.InputTag("TriggerResults::HLT"), # CAREFUL --> In Summer08 and in data, "HLT". In Spring10 --> REDIGI
-      JetTag = cms.untracked.InputTag("ak5CaloJets"), # CAREFUL --> If you run on Summer09 MC, this was called "antikt5CaloJets"
+      TrigTag = cms.untracked.InputTag("TriggerResults::HLT"), # CAREFUL --> In Summer08 and in data, "HLT". In Spring10 --> REDIGI, etc, etc
+      JetTag = cms.untracked.InputTag("ak5PFJets"),
       WMuNuCollectionTag = cms.untracked.InputTag("corMetWMuNus"),
+      VertexTag = cms.untracked.InputTag("offlinePrimaryVertices"),
 
       # Preselection! 
-      MuonTrig = cms.untracked.string("HLT_Mu9"),
+      MuonTrig = cms.untracked.vstring("HLT_Mu11"), # CAREFUL!!! They have just pre-scaled HLT_Mu9. Changing the trigger of the selector
       PtThrForZ1 = cms.untracked.double(20.0),
       PtThrForZ2 = cms.untracked.double(10.0),
       EJetMin = cms.untracked.double(40.),
       NJetMax = cms.untracked.int32(999999),
+      MinVertices = cms.untracked.int32(0),
+      MaxVertices = cms.untracked.int32(999),
+
 
       # Main cuts ->
       PtCut = cms.untracked.double(20.0),

@@ -5,19 +5,20 @@ from ElectroWeakAnalysis.WMuNu.wmunusProducer_cfi import *
 # Paths:
 # selWMuNu_MuonIDonly --> ONLY MuonID cuts (above 15 GeV)
 # selWMuNu_MuonIDAndIso --> "Good" Muons which are also isolated (above 15 GeV)
-# selWMuNu_MuonIDAndIsoAndTrigger --> Also passing the HLT_Mu9
+# selWMuNu_MuonIDAndIsoAndTrigger --> Also passing the HLT_Mu11
 # selWMuNu_MuonSelected --> All Muon-related cuts (so all cuts but Met-based ones)
  
 
 selWMuNu_MuonIDonly = cms.EDFilter("WMuNuSelector",
       # Fill Basc Histograms? ->
       plotHistograms = cms.untracked.bool(False),
+      saveNTuple = cms.untracked.bool(False),
 
       # Input collections ->
       MuonTag = cms.untracked.InputTag("muons"),
       TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
       JetTag = cms.untracked.InputTag(""),  
-      WMuNuCollectionTag = cms.untracked.InputTag("corMetWMuNus"), 
+      WMuNuCollectionTag = cms.untracked.InputTag("pfMetWMuNus"), 
 
       # Preselection! 
       MuonTrig = cms.untracked.string(""), # No trigger requested
@@ -51,7 +52,7 @@ selWMuNu_MuonIDAndIso = selWMuNu_MuonIDonly.clone()
 selWMuNu_MuonIDAndIso.IsoCut03 = cms.untracked.double(0.15) # Put Back Isolation Cut 
 
 selWMuNu_MuonIDAndIsoAndTrigger = selWMuNu_MuonIDAndIso.clone()
-selWMuNu_MuonIDAndIsoAndTrigger.MuonTrig = cms.untracked.string("HLT_Mu9") #Put Back Trigger 
+selWMuNu_MuonIDAndIsoAndTrigger.MuonTrig = cms.untracked.vstring("HLT_Mu11") #Put Back Trigger 
 
 selWMuNu_MuonSelected = selWMuNu_MuonIDAndIsoAndTrigger.clone() 
 selWMuNu_MuonSelected.PtThrForZ1= cms.untracked.double(20.0)

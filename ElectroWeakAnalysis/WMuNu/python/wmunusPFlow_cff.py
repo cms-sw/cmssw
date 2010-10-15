@@ -32,7 +32,7 @@ selPFWMuNus = cms.EDFilter("WMuNuSelector",
       WMuNuCollectionTag = cms.untracked.InputTag("pfWMuNus"),
 
       # Preselection! 
-      MuonTrig = cms.untracked.string("HLT_Mu9"),
+      MuonTrig = cms.untracked.vstring("HLT_Mu11"),
       PtThrForZ1 = cms.untracked.double(20.0),
       PtThrForZ2 = cms.untracked.double(10.0),
       EJetMin = cms.untracked.double(40.),

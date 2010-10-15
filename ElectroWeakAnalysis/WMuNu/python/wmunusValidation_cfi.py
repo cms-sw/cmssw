@@ -8,11 +8,11 @@ wmnVal_corMet = cms.EDFilter("WMuNuValidator",
       TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),# CAREFUL --> In Summer08 and in data, "HLT". In Spring10 --> REDIGI
       MuonTag = cms.untracked.InputTag("muons"),
       METTag = cms.untracked.InputTag("corMetGlobalMuons"),
-      METIncludesMuons = cms.untracked.bool(True),
       JetTag = cms.untracked.InputTag("ak5CaloJets"),  # CAREFUL --> If you run on Summer09 MC, this was called "antikt5CaloJets"
-      
+      VertexTag = cms.untracked.InputTag("offlinePrimaryVertices"),
+ 
       # Main cuts ->
-      MuonTrig = cms.untracked.string("HLT_Mu9"),
+      MuonTrig = cms.untracked.vstring("HLT_Mu9","HLT_Mu11"),
       PtCut = cms.untracked.double(20.0),
       EtaMinCut = cms.untracked.double(-2.1),
       EtaMaxCut = cms.untracked.double(2.1),

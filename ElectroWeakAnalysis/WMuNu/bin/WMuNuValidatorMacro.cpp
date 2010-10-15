@@ -10,11 +10,13 @@
 #include "TLegend.h"
 #include "TPaveStats.h"
 int printUsage(){
-    printf("Usage: EWKMuValidatorMacro [-lbh] 'root_file_to_validate' 'MinimumBias MC_root_file' 'directory_name'\n\n");
+    printf("Usage: EWKMuValidatorMacro [-lbh] 'root_file_to_validate' 'MinimumBias MC_root_file' 'directory_name' [-D 'dataLabel'] [-R 'refLabel']\n\n");
 
     printf("\tOptions:\t -l ==> linear scale for Y axes (default is log-scale)\n");
     printf("\t        \t -b ==> run in batch (no graphics)\n");
     printf("\t        \t -n ==> normalize MinimumBias MC to data (default = false)\n");
+    printf("\t        \t -D ==> label for sample to validate (default = 'data')\n");
+    printf("\t        \t -R ==> label for reference (default = 'ref')\n");
     printf("\t        \t -h ==> print this message\n\n");
 
 
@@ -32,6 +34,8 @@ int main(int argc, char** argv){
   TString chfile;
   TString chfileref;
   TString DirectoryLast;
+  TString labelData;
+  TString labelRef;
 
 
   int ntrueargs = 0;
@@ -44,17 +48,18 @@ int main(int argc, char** argv){
             else if (argv[i][1]=='b') gROOT->SetBatch();
             else if (argv[i][1]=='h') return printUsage();
             else if (argv[i][1]=='n') normalize=true;
+            else if (argv[i][1]=='D') labelData = argv[i+1];
+            else if (argv[i][1]=='R') labelRef= argv[i+1];
 
       } else {
             ntrueargs += 1;
             if (ntrueargs==1) chfile = argv[i];
             else if (ntrueargs==2) chfileref = argv[i];
             else if (ntrueargs==3) DirectoryLast = argv[i];
-
       }
   }
 
-  if (ntrueargs!=3) return printUsage();
+  if (ntrueargs<3) return printUsage();
 
   TRint* app = new TRint("CMS Root Application", 0, 0);
 
@@ -74,7 +79,7 @@ int main(int argc, char** argv){
   gStyle->SetOptLogy(logyFlag);
   gStyle->SetPadGridX(true);
   gStyle->SetPadGridY(true);
-  gStyle->SetOptStat(1111111);
+  gStyle->SetOptStat(0);
 //  gStyle->SetFillColor(0);
 
   TPad* pad[4];
@@ -89,7 +94,7 @@ int main(int argc, char** argv){
 
   for (unsigned int i=0; i<4; ++i) pad[i]->Draw();
                                                                                 
-  TLegend* leg = new TLegend(0.12,0.85,0.5,0.99);
+  TLegend* leg = new TLegend(0.6041667,0.7487715,0.9861111,0.9576167);
   leg->SetFillColor(0);
   TFile* input_file = new TFile(chfile.Data(),"READONLY");
   TFile* input_fileref = new TFile(chfileref.Data(),"READONLY");
@@ -147,20 +152,26 @@ int main(int argc, char** argv){
             hr->SetTitleOffset(0.85,"X");
 
 
-            if(logyFlag){
-            h1->Draw("p,E");
-            if(normalize) {hr->DrawNormalized("sames,hist",h1->Integral());}
-            else{hr->Draw("sames,hist");}
-            }
-            else{
+
             if(normalize) {hr->DrawNormalized("hist",h1->Integral());}
             else{hr->Draw("hist");}
             h1->Draw("sames,p,E");
+            
+            int max1=h1->GetMaximum();
+            int maxr=hr->GetMaximum();
+            if(!normalize){
+            if(max1 >= maxr) { hr->SetMaximum(max1*1.2); h1->SetMaximum(max1*1.2);}
+            else {hr->SetMaximum(maxr*1.2); h1->SetMaximum(maxr*1.2);}
+            }
+            else if (normalize){
+            hr->GetYaxis()->SetRangeUser(h1->GetMinimum()*0.1,max1*1.2);
             }
 
+
             leg->Clear();
-            leg->AddEntry(h1,"7TeV data","L");
-            leg->AddEntry(hr,"MinimumBias MC","L");
+            leg->AddEntry(h1,labelData.Data(),"Lp");
+            leg->AddEntry(hr,labelRef.Data() ,"f");
+
             leg->Draw();
 
 
@@ -225,23 +236,25 @@ int main(int argc, char** argv){
             hr->SetTitle("");
             hr->SetTitleOffset(0.85,"X");
 
-            if(logyFlag){
-            h1->Draw("p,E");
-            if(normalize) {hr->DrawNormalized("sames,hist",h1->Integral());}
-            else{hr->Draw("sames,hist");}
-            }
-            else{
+
             if(normalize) {hr->DrawNormalized("hist",h1->Integral());}
             else{hr->Draw("hist");}
             h1->Draw("sames,p,E");
+
+            int max1=h1->GetMaximum();
+            int maxr=hr->GetMaximum();
+            if(!normalize){
+            if(max1 >= maxr) { hr->SetMaximum(max1*1.2); h1->SetMaximum(max1*1.2);}
+            else {hr->SetMaximum(maxr*1.2); h1->SetMaximum(maxr*1.2);}
             }
-
-
+            else if (normalize){
+            hr->GetYaxis()->SetRangeUser(h1->GetMinimum()*0.1,max1*1.2);
+            }
             
 
             leg->Clear();
-            leg->AddEntry(h1,"7TeV data" ,"L");
-            leg->AddEntry(hr,"MinimumBias MC","L");
+            leg->AddEntry(h1,labelData.Data(),"lp");
+            leg->AddEntry(hr,labelRef.Data(),"f");
             leg->Draw();
       }
       first_plots_done = true;
