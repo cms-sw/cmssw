@@ -10,7 +10,7 @@ void ComCodes::setCode(const char* descript,int code)
   for(size_t i=0;i<_codeDefs.size() && !found;i++){
     if(_codeDefs[i].first.compare(descript)==0) found=true;
   }
-  if(!found) _codeDefs.push_back(std::make_pair<std::string,int>(descript,code));
+  if(!found) _codeDefs.push_back(std::pair<std::string,int>(descript,code));
  
   //_codeDefs[descript] = code;
 }
