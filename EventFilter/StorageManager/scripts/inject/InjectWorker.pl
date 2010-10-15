@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.52 2010/08/27 15:15:03 babar Exp $
+# $Id: InjectWorker.pl,v 1.53 2010/08/30 12:36:08 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -726,7 +726,7 @@ sub got_end_of_run {
     my ( $kernel, $heap, $args ) = @_[ KERNEL, HEAP, ARG0 ];
     $kernel->yield(
         update_db => $args,
-        endOfRun  => qw( LScount Timestamp run instance )
+        endOfRun  => qw( LastLumi Timestamp run instance )
     );
 }
 
