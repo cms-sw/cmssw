@@ -16,7 +16,7 @@ EcalTBCrystalMap::EcalTBCrystalMap(std::string const & MapFileName) {
     while (nCrysCount <= NCRYSTAL ) {
       
       (*input) >> crysIndex >> crysEta >>  crysPhi;
-      map_[std::make_pair<double,double>(crysEta,crysPhi)] = crysIndex;
+      map_[std::pair<double,double>(crysEta,crysPhi)] = crysIndex;
 
       nCrysCount++;
       

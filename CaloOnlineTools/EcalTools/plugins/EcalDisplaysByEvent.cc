@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Aug 28 5:46:22 CEST 2007
-// $Id: EcalDisplaysByEvent.cc,v 1.2 2009/03/28 14:09:00 ferriff Exp $
+// $Id: EcalDisplaysByEvent.cc,v 1.3 2010/01/04 15:07:39 ferriff Exp $
 //
 //
 
@@ -246,7 +246,7 @@ void EcalDisplaysByEvent::selectHits(Handle<EcalRecHitCollection> hits,
       string title = "Digis";
       string seed = "ic" + intToString(ic) + "_FED" + intToString(FEDid);
       int freq=1;
-      pair<map<string,int>::iterator,bool> pair = seedFrequencyMap_.insert(make_pair<string,int>(seed,freq));
+      pair<map<string,int>::iterator,bool> pair = seedFrequencyMap_.insert(pair<string,int>(seed,freq));
       if(!pair.second)
       {
         ++(pair.first->second);

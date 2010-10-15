@@ -13,7 +13,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Mon Sep 17 10:31:30 CEST 2007
-// $Id: TestOutliers.cc,v 1.9 2010/04/12 23:39:51 elmer Exp $
+// $Id: TestOutliers.cc,v 1.10 2010/08/06 20:24:59 wmtan Exp $
 //
 //
 
@@ -493,7 +493,7 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	      if ( (*itOld)->geographicalId().rawId()==(*itOut)->geographicalId().rawId() ) gained = false;
 	    }
 	    if (gained) {
-	      gainedlostoutliers.push_back(make_pair<int, trackingRecHit_iterator>(1,itOut));
+	      gainedlostoutliers.push_back(pair<int, trackingRecHit_iterator>(1,itOut));
 	      LogTrace("TestOutliers") << "broken trajectory during old fit... gained hit " << (*itOut)->geographicalId().rawId();
 	      gainedhits->Fill(1);
 	    }
@@ -516,9 +516,9 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	      }
 	    }
 	  }
-	  if (lost) gainedlostoutliers.push_back(make_pair<int, trackingRecHit_iterator>(2,itOld));
+	  if (lost) gainedlostoutliers.push_back(pair<int, trackingRecHit_iterator>(2,itOld));
 	  if (lost) LogTrace("TestOutliers") << "lost";
-	  else if (outlier) gainedlostoutliers.push_back(make_pair<int, trackingRecHit_iterator>(3,itOld));
+	  else if (outlier) gainedlostoutliers.push_back(pair<int, trackingRecHit_iterator>(3,itOld));
 	}
 
 	for (std::vector<pair<int, trackingRecHit_iterator> >::iterator it = gainedlostoutliers.begin(); it!=gainedlostoutliers.end();++it) {

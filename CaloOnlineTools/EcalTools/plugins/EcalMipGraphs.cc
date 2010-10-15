@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalMipGraphs.cc,v 1.9 2008/12/12 02:40:46 scooper Exp $
+// $Id: EcalMipGraphs.cc,v 1.10 2010/01/04 15:07:40 ferriff Exp $
 //
 //
 
@@ -300,7 +300,7 @@ void EcalMipGraphs::selectHits(Handle<EcalRecHitCollection> hits,
       string title = "Digis";
       string seed = "ic" + intToString(ic) + "_FED" + intToString(FEDid);
       int freq=1;
-      pair<map<string,int>::iterator,bool> pair = seedFrequencyMap_.insert(make_pair<string,int>(seed,freq));
+      pair<map<string,int>::iterator,bool> pair = seedFrequencyMap_.insert(pair<string,int>(seed,freq));
       if(!pair.second)
       {
         ++(pair.first->second);

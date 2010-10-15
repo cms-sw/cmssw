@@ -151,9 +151,9 @@ TrackAssociatorByChi2::parametersAtClosestApproach(Basic3DVector<double> vertex,
     sParameters[3] = (-v.x()*sin(p.phi())+v.y()*cos(p.phi()));
     sParameters[4] = v.z()*p.perp()/p.mag() - (v.x()*p.x()+v.y()*p.y())/p.perp() * p.z()/p.mag();
     
-    return make_pair<bool,TrackBase::ParameterVector>(true,sParameters);
+    return pair<bool,TrackBase::ParameterVector>(true,sParameters);
   } catch ( ... ) {
-    return make_pair<bool,TrackBase::ParameterVector>(false,sParameters);
+    return pair<bool,TrackBase::ParameterVector>(false,sParameters);
   }
 }
 

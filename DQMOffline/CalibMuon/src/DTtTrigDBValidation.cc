@@ -90,8 +90,8 @@ void DTtTrigDBValidation::beginRun(const edm::Run& run, const EventSetup& setup)
                      << " Ttrig k-Factor: " << kFactor
                      << " Ttrig value (ns): " << tTrigCorr;
                      
-    //tTrigRefMap[slId] = std::make_pair<float,float>(tTrigmean,tTrigrms);
-    tTrigRefMap[slId] = make_pair<float,float>(tTrigCorr,tTrigRms);
+    //tTrigRefMap[slId] = std::pair<float,float>(tTrigmean,tTrigrms);
+    tTrigRefMap[slId] = pair<float,float>(tTrigCorr,tTrigRms);
   }
 
   // Loop over Ref DB entries
@@ -112,8 +112,8 @@ void DTtTrigDBValidation::beginRun(const edm::Run& run, const EventSetup& setup)
                      << " Ttrig k-Factor: " << kFactor
                      << " Ttrig value (ns): " << tTrigCorr;
 
-    //tTrigMap[slId] = std::make_pair<float,float>(tTrigmean,tTrigrms);
-    tTrigMap[slId] = make_pair<float,float>(tTrigCorr,tTrigRms);
+    //tTrigMap[slId] = std::pair<float,float>(tTrigmean,tTrigrms);
+    tTrigMap[slId] = pair<float,float>(tTrigCorr,tTrigRms);
   }
 
   for(map<DTSuperLayerId, pair<float,float> >::const_iterator it = tTrigRefMap.begin();
