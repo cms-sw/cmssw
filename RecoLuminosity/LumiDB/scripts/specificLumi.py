@@ -12,21 +12,6 @@ import coral
 from RecoLuminosity.LumiDB import argparse,lumiTime,CommonUtil,lumiQueryAPI
 
 allfillname='allfills.txt'
-
-#class constants(object):
-#    def __init__(self):
-#        self.debug=False
-#        self.nbx=3564
-#        self.normfactor=6.37
-#        self.xingMinLum=1.0E-04
-#        #self.lumischema='CMS_LUMI_PROD'
-#        self.lumischema='CMS_LUMI_DEV_OFFLINE'
-#        #self.lumidb='sqlite_file:///afs/cern.ch/user/x/xiezhen/w1/luminewschema/CMSSW_3_8_0/src/RecoLuminosity/LumiProducer/test/lumi.db'
-#        self.lumidb='oracle://cms_orcoff_prep/cms_lumi_dev_offline'
-#        #self.lumidb='oracle://cms_orcoff_prod/cms_lumi_prod'
-#        self.runsummaryname='CMSRUNSUMMARY'
-#        self.lumisummaryname='LUMISUMMARY'
-#        self.lumidetailname='LUMIDETAIL'
         
 def calculateSpecificLumi(lumi,lumierr,beam1intensity,beam1intensityerr,beam2intensity,beam2intensityerr):
     '''
@@ -37,6 +22,21 @@ def calculateSpecificLumi(lumi,lumierr,beam1intensity,beam1intensityerr,beam2int
         specificlumi=float(lumi)/(float(beam1intensity)*float(beam2intensity))
         specificlumierr=specificlumi*math.sqrt(lumierr**2/lumi**2+beam1intensityerr**2/beam1intensity**2+beam2intensityerr**2/beam2intensity**2)
     return (specificlumi,specificlumierr)
+
+def getFillFromDB(dbsession,parameters,fillnum):
+    runtimesInFill={}
+    q=dbsession.nominalSchema().newQuery()
+    fillrundict=lumiQueryAPI.runsByfillrange(q,fillnum,fillnum)
+    del q
+    if len(fillrundict)>0:
+        for fill,runs in  fillrundict.items():
+            for run in runs:
+                q=dbsession.nominalSchema().newQuery()
+                rresult=lumiQueryAPI.runsummaryByrun(q,run)
+                del q
+                if len(rresult)==0: continue
+                runtimesInFill[run]=rresult[3]
+    return runtimesInFill
 
 def getFillFromFile(fillnum,inputdir):
     runtimesInFill={}
@@ -78,6 +78,20 @@ def getSpecificLumi(dbsession,parameters,fillnum,inputdir):
     referencetime=1262300400-7232
     #for i in range(3564):
     #    fillbypos[i]=[]
+
+    if fillnum and len(runtimesInFill)==0:
+        runtimesInFill=getFillFromDB(dbsession,parameters,fillnum)#{runnum:starttimestr}
+    #precheck
+    totalstablebeamLS=0
+    for runnum in runtimesInFill.keys():
+        q=dbsession.nominalSchema().newQuery()
+        runinfo=lumiQueryAPI.lumisummaryByrun(q,runnum,'0001',beamstatus='STABLE BEAMS')
+        del q
+        totalstablebeamLS+=len(runinfo)
+    if totalstablebeamLS<10:#less than 10 LS in a fill has 'stable beam', it's no a good fill
+        print 'fill ',fillnum,' , having less than 10 stable beam lS, is not good, skip'
+        return fillbypos
+    
     for runnum,starttime in runtimesInFill.items():
         if not runtimesInFill.has_key(runnum):
             print 'run '+str(runnum)+' does not exist'
@@ -213,10 +227,7 @@ if __name__ == '__main__':
                         fillstoprocess.append(fill)
             #if len(allfillsFromFile)>5: #reprocess anyway old fills
             #    fillstoprocess+=allfillsFromFile[-5:]
-            if len(allfillsFromFile)>2:
-                fillstoprocess+=allfillsFromFile[-2:]
-            else:
-                fillstoprocess+=allfillsFromFile[-1]
+            fillstoprocess+=allfillsFromFile[-1]
         else:
             fillstoprocess=allfillsFromDB #process everything from scratch
     #print 'fillstoprocess ',fillstoprocess
