@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/09/22 19:40:15 $
- *  $Revision: 1.65 $
+ *  $Date: 2010/09/28 15:41:49 $
+ *  $Revision: 1.66 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -50,13 +50,13 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   
   theJetAnalyzerFlag            = parameters.getUntrackedParameter<bool>("DoJetAnalysis",    true);
   theJetCleaningFlag            = parameters.getUntrackedParameter<bool>("DoJetCleaning",    true);
-  theIConeJetAnalyzerFlag       = parameters.getUntrackedParameter<bool>("DoIterativeCone",  true);
+  theIConeJetAnalyzerFlag       = parameters.getUntrackedParameter<bool>("DoIterativeCone",  false);
   theSConeJetAnalyzerFlag       = parameters.getUntrackedParameter<bool>("DoSisCone",  false);
   theJetPtAnalyzerFlag          = parameters.getUntrackedParameter<bool>("DoJetPtAnalysis",  false);
   theJetPtCleaningFlag          = parameters.getUntrackedParameter<bool>("DoJetPtCleaning",  false);
-  theJPTJetAnalyzerFlag         = parameters.getUntrackedParameter<bool>("DoJPTJetAnalysis", true);
+  theJPTJetAnalyzerFlag         = parameters.getUntrackedParameter<bool>("DoJPTJetAnalysis", false);
   theJPTJetCleaningFlag         = parameters.getUntrackedParameter<bool>("DoJPTJetCleaning", true);
-  thePFJetAnalyzerFlag          = parameters.getUntrackedParameter<bool>("DoPFJetAnalysis",  true);
+  thePFJetAnalyzerFlag          = parameters.getUntrackedParameter<bool>("DoPFJetAnalysis",  false);
   thePFJetCleaningFlag          = parameters.getUntrackedParameter<bool>("DoPFJetCleaning",  true);
   //
   theDiJetSelectionFlag         = parameters.getUntrackedParameter<bool>("DoDiJetSelection", true);
@@ -144,12 +144,15 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   }
 
   // --- do the analysis on the PFJets
-  if(thePFJetAnalyzerFlag)
+  if(thePFJetAnalyzerFlag){ 
     thePFJetAnalyzer = new PFJetAnalyzer(parameters.getParameter<ParameterSet>("pfJetAnalysis"));
+    thePFJetAnalyzer->setSource("uncPFJets");
+  }
   // --- do the analysis on the CleanedPFJets
-  if(thePFJetCleaningFlag)
+  if(thePFJetCleaningFlag) {
     theCleanedPFJetAnalyzer = new PFJetAnalyzer(parameters.getParameter<ParameterSet>("CleanedpfJetAnalysis"));
-
+    theCleanedPFJetAnalyzer->setSource("PFJets");
+  }
   //Trigger selectoin
   edm::ParameterSet highptjetparms = parameters.getParameter<edm::ParameterSet>("highPtJetTrigger");
   edm::ParameterSet lowptjetparms  = parameters.getParameter<edm::ParameterSet>("lowPtJetTrigger" );
@@ -348,20 +351,16 @@ void JetMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
   }
 
   hltpathME = 0;
-  physdecME = 0;
   if (_hlt_initialized) {
   //if (hltConfig_.init(iRun,iSetup,processname_,changed)) {
     if (hltConfig_.size()){
       dbe->setCurrentFolder("JetMET");
       hltpathME = dbe->book1D("hltpath", "hltpath", 300, 0., 300.);
-      physdecME = dbe->book1D("physdec", "physdec", 2,   0., 2.);
-      if (physdecME) physdecME->setBinLabel(1,"All Events");
     }
     
     for (unsigned int j=0; j!=hltConfig_.size(); ++j) {
       if (hltpathME) hltpathME->setBinLabel(j+1,hltConfig_.triggerName(j));
-      if (hltConfig_.triggerName(j)=="HLT_PhysicsDeclared") 
-	if (physdecME) physdecME->setBinLabel(2,"PhysicsDeclared");
+      // if (hltConfig_.triggerName(j)=="HLT_PhysicsDeclared") 
     }
   }  
   //
@@ -420,10 +419,6 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   edm::Handle<TriggerResults> triggerResults;
   iEvent.getByLabel(theTriggerResultsLabel, triggerResults);
 
-  // *** Fill trigger results ME
-  //if (&triggerResults){
-  if (physdecME) physdecME->Fill(0.5);
-
   bool bPhysicsDeclared = false;
   if(!_doHLTPhysicsOn) bPhysicsDeclared = true;
 
@@ -432,7 +427,6 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     
     if( triggerNames.triggerIndex("HLT_PhysicsDeclared") != triggerNames.size() )
       if (triggerResults->accept(triggerNames.triggerIndex("HLT_PhysicsDeclared"))) {
-	if (physdecME) physdecME->Fill(1.5);
 	if(_doHLTPhysicsOn) bPhysicsDeclared = true;
       }
 
@@ -576,6 +570,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   bTechTriggers = bTechTriggersAND && bTechTriggersOR && !bTechTriggersNOT;
     
   bool bJetCleanup = bTechTriggers && bPrimaryVertex && bPhysicsDeclared;
+
 
   // **** Get the Calo Jet container
   edm::Handle<reco::CaloJetCollection> caloJets;
@@ -722,7 +717,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       thePFJetAnalyzer->setJetLoPass(JetLoPass);
       LogTrace(metname)<<"[JetMETAnalyzer] Call to the PFJet analyzer";
       thePFJetAnalyzer->analyze(iEvent, iSetup, *pfJets);
-    }
+      }
     if(thePFJetCleaningFlag){
     if(DCSFilterPF->filter(iEvent, iSetup)){
       theCleanedPFJetAnalyzer->setJetHiPass(JetHiPass);

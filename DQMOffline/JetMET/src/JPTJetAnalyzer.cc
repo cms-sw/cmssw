@@ -167,7 +167,6 @@ void JPTJetAnalyzer::beginJob(DQMStore* dqmStore)
   //book histograms
   dqmStore->setCurrentFolder(histogramPath_);
   bookHistograms(dqmStore);
-  //construct JetID helpper
 }
 
 
@@ -498,7 +497,7 @@ void JPTJetAnalyzer::bookTrackHistograms(TrackHistograms* histos, const std::str
   histos->nLayersHisto = bookHistogram(tag+"TrackNLayers",titleTag+" track N layers with hits","N layers",dqm);
   histos->ptVsEtaHisto = bookProfile(tag+"TrackPtVsEta",titleTag+" track p_{T} vs #eta","#eta","p_{T} /GeV/c",dqm);
   histos->dzHisto = bookHistogram(tag+"TrackDz",titleTag+" track dz","dz /cm",dqm);
-  histos->dzHisto = bookHistogram(tag+"TrackDxy",titleTag+" track dxy","dxy /cm",dqm);
+  histos->dxyHisto = bookHistogram(tag+"TrackDxy",titleTag+" track dxy","dxy /cm",dqm);
   histos->trackDirectionJetDRHisto = trackDirectionJetDRHisto;
   histos->trackImpactPointJetDRHisto = trackImpactPointJetDRHisto;
 }
@@ -665,7 +664,7 @@ JPTJetAnalyzer::HistogramConfig::HistogramConfig(const unsigned int theNBinsX, c
     max(theMaxX),
     nBinsY(theNBinsY),
     minY(theMinY),
-    maxY(theMinX)
+    maxY(theMaxY)
 {}
 
 JPTJetAnalyzer::TrackHistograms::TrackHistograms()
