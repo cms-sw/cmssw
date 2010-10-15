@@ -39,6 +39,19 @@ alcaBeamSpotProducer.AlcaBeamSpotProducerParameters.resetEveryNLumi = 1
 
 # ------------------------------------------------------------------------------
 # this is for filtering on L1 technical trigger bit
+# Set the HLT paths
+import HLTrigger.HLTfilters.hltHighLevel_cfi
+ALCARECOHltFilterForBS = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+    andOr = True, ## choose logical OR between Triggerbits
+##     HLTPaths = [
+##     #Minimum Bias
+##     "HLT_MinBias*"
+##     ],
+    eventSetupPathsKey = 'PromptCalibProdForBS',
+    throw = False # tolerate triggers stated above, but not available
+    )
+
+
 #from L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff import *
 #from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import hltLevel1GTSeed
 #L1CollTrigger = hltLevel1GTSeed.clone()
@@ -67,7 +80,7 @@ alcaBeamSpotProducer.AlcaBeamSpotProducerParameters.resetEveryNLumi = 1
 # alcaBeamSpotProducer.PVFitter.VertexCollection = "offlinePrimaryVerticesForBS"
                      
 seqALCARECOPromptCalibProd = cms.Sequence(ALCARECOTkAlMinBiasFilterForBS *
-#                                          L1CollTrigger *
+                                          ALCARECOHltFilterForBS *
 #                                           offlineBeamSpotForBS +
 #                                           offlinePrimaryVerticesForBS +
                                           alcaBeamSpotProducer)
