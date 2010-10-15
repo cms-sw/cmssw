@@ -20,46 +20,56 @@ Author: Evan K. Friis, UC Davis
 #
 # (10 choose 3) * (10 choose 1) = 1200!
 
+# Configurations for the different decay modes
+
+combinatoricDecayModeConfigs = cms.PSet(
+    config1prong0pi0 = cms.PSet(
+        # One prong no pizero mode
+        nCharged = cms.uint32(1),
+        nPiZeros = cms.uint32(0),
+        maxTracks = cms.uint32(6),
+        maxPiZeros = cms.uint32(0),
+    ),
+    config1prong1pi0 = cms.PSet(
+        #One prong one pizero mode
+        nCharged = cms.uint32(1),
+        nPiZeros = cms.uint32(1),
+        maxTracks = cms.uint32(6),
+        maxPiZeros = cms.uint32(6),
+    ),
+    config1prong2pi0 = cms.PSet(
+        #One prong two pizero mode
+        nCharged = cms.uint32(1),
+        nPiZeros = cms.uint32(2),
+        maxTracks = cms.uint32(6),
+        maxPiZeros = cms.uint32(5),
+    ),
+    config3prong0pi0 = cms.PSet(
+        # Three prong no pizero mode
+        nCharged = cms.uint32(3),
+        nPiZeros = cms.uint32(0),
+        maxTracks = cms.uint32(6),
+        maxPiZeros = cms.uint32(0),
+    ),
+    config3prong1pi0 = cms.PSet(
+        # Three prong one pizero mode
+        nCharged = cms.uint32(3),
+        nPiZeros = cms.uint32(1),
+        maxTracks = cms.uint32(6),
+        maxPiZeros = cms.uint32(3),
+    )
+)
+
 _combinatoricTauConfig = cms.PSet(
     name = cms.string("combinatoric"),
     plugin = cms.string("RecoTauBuilderCombinatoricPlugin"),
     pfCandSrc = cms.InputTag("particleFlow"),
     decayModes = cms.VPSet(
-        cms.PSet(
-            # One prong no pizero mode
-            nCharged = cms.uint32(1),
-            nPiZeros = cms.uint32(0),
-            maxTracks = cms.uint32(10),
-            maxPiZeros = cms.uint32(0),
-        ),
-        cms.PSet(
-            #One prong one pizero mode
-            nCharged = cms.uint32(1),
-            nPiZeros = cms.uint32(1),
-            maxTracks = cms.uint32(10),
-            maxPiZeros = cms.uint32(10),
-        ),
-        cms.PSet(
-            #One prong two pizero mode
-            nCharged = cms.uint32(1),
-            nPiZeros = cms.uint32(2),
-            maxTracks = cms.uint32(10),
-            maxPiZeros = cms.uint32(5),
-        ),
-        cms.PSet(
-            # Three prong no pizero mode
-            nCharged = cms.uint32(3),
-            nPiZeros = cms.uint32(0),
-            maxTracks = cms.uint32(10),
-            maxPiZeros = cms.uint32(0),
-        ),
-        cms.PSet(
-            # Three prong one pizero mode
-            nCharged = cms.uint32(3),
-            nPiZeros = cms.uint32(1),
-            maxTracks = cms.uint32(10),
-            maxPiZeros = cms.uint32(2),
-        )
+        combinatoricDecayModeConfigs.config1prong0pi0,
+        combinatoricDecayModeConfigs.config1prong1pi0,
+        combinatoricDecayModeConfigs.config1prong2pi0,
+        combinatoricDecayModeConfigs.config3prong0pi0,
+        combinatoricDecayModeConfigs.config3prong1pi0,
     )
 )
 
