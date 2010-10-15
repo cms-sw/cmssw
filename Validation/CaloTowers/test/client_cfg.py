@@ -1,5 +1,18 @@
-import os
 import FWCore.ParameterSet.Config as cms
+
+import os
+import sys
+import re
+
+readFiles = cms.untracked.vstring()
+
+matchRootFile = re.compile("\S*\.root$")
+for argument in sys.argv[2:]:
+   if matchRootFile.search(argument):
+      fileToRead = "file:"+argument
+      readFiles.append(fileToRead)
+
+print "readFiles : \n", readFiles
 
 process = cms.Process("CONV")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
@@ -10,8 +23,10 @@ from Configuration.PyReleaseValidation.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['com10']
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
+# summary
+process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 process.load("DQMServices.Core.DQM_cfg")
 process.DQM.collectorHost = ''
@@ -21,9 +36,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
-       'file:HcalValHarvestingEDM.root',
-      )
+    fileNames = readFiles
 )
 
 process.load('Configuration/StandardSequences/EDMtoMEAtRunEnd_cff')
