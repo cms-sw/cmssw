@@ -6,7 +6,7 @@
  * GO: september 2010
  * This new procedure allows multiple IOVs with the same start date
  * IOVs have a mask based on which one can assign a given IOV to a given table
-<<<<<<< update_iov_dates_procedure_test.sql
+ *
  * To test the script you have to run generate_iovs.pl before and send its
  * output to ttt.sql
  * ./generate_iovs.sql > ttt.sql
@@ -15,9 +15,6 @@
  * TODO: MAKE IT INDEPENDENT ON TRIGGER NAME
  *       FINISH
  *
-=======
- *	
->>>>>>> 1.4
  */
 
 WHENEVER SQLERROR EXIT
@@ -37,7 +34,6 @@ END;
 
 EXEC TESTDB;
 
-<<<<<<< update_iov_dates_procedure_test.sql
 /* Ok: we are running on the right database */
 
 CREATE OR REPLACE FUNCTION bitnot (x IN NUMBER) RETURN NUMBER AS
@@ -46,8 +42,6 @@ BEGIN
 END;
 /
 
-=======
->>>>>>> 1.4
 CREATE OR REPLACE PROCEDURE update_iov_dates_test
 ( my_table IN VARCHAR2,
   my_mask IN NUMBER,
@@ -58,20 +52,10 @@ CREATE OR REPLACE PROCEDURE update_iov_dates_test
   new_start IN DATE,
   new_end IN OUT DATE,
   new_tag_id IN NUMBER ) IS
-  
-<<<<<<< update_iov_dates_procedure_test.sql
   sql_str    VARCHAR(1000);
   tn         VARCHAR(25);
   tnc        NUMBER;
-=======
-  sql_str VARCHAR(1000);
-  future_start DATE;
-  dat_table_id NUMBER;
-  table_name VARCHAR(25);
-  tN VARCHAR(25);
->>>>>>> 1.4
   last_start DATE;
-<<<<<<< update_iov_dates_procedure_test.sql
   last_iov   NUMBER;
   new_iov    NUMBER;
   zero_iov   NUMBER;
@@ -80,14 +64,6 @@ CREATE OR REPLACE PROCEDURE update_iov_dates_test
   my_rows    NUMBER;
   i          NUMBER;
   j          NUMBER;
-=======
-  last_end DATE;
-  last_iov NUMBER;
-  new_iov NUMBER;
-  last_mask NUMBER;
-  rows NUMBER;
-  I NUMBER;
->>>>>>> 1.4
 
   BEGIN
     dbms_output.enable(100000);
@@ -97,16 +73,9 @@ CREATE OR REPLACE PROCEDURE update_iov_dates_test
                                || end_col);
     END IF;
     -- Look for records containing this mask
-<<<<<<< update_iov_dates_procedure_test.sql
     sql_str := 'SELECT COUNT(IOV_ID) FROM ' || my_table || 
       ' WHERE BITAND(MASK, :my_mask) > 0 AND TAG_ID = :t AND ' || end_col || 
-=======
-    sql_str := 'SELECT IOV_ID FROM ' || my_table || 
-      ' WHERE BITAND(MASK, ' ||
-	my_mask || ') > 0 AND TAG_ID = :t AND ' || end_col || 
->>>>>>> 1.4
 	' >= TO_DATE(''31-12-9999 23:59:59'', ''DD-MM-YYYY HH24:MI:SS'')';
-<<<<<<< update_iov_dates_procedure_test.sql
     EXECUTE IMMEDIATE sql_str INTO my_rows USING my_mask, new_tag_id;
     IF my_mask != 0 THEN
        dbms_output.put_line('----------------------------------------');
@@ -193,55 +162,6 @@ CREATE OR REPLACE PROCEDURE update_iov_dates_test
 		new_start);
           END IF;
        END LOOP;
-=======
-    EXECUTE IMMEDIATE sql_str INTO last_iov USING new_tag_id;
-    IF last_iov IS NOT NULL THEN 
-       -- record found
-       sql_str := 'SELECT MASK FROM ' || my_table || 
-	  ' WHERE IOV_ID = :last_iov';
-       EXECUTE IMMEDIATE sql_str INTO last_mask USING last_iov;
-       dbms_output.put_line('LAST_IOV is ' || last_iov);
-       dbms_output.put_line('MASKS: ' || my_mask || ' - ' || last_mask);
-       IF my_mask >= last_mask THEN
-          -- mask found
-          sql_str := 'UPDATE ' || my_table || ' SET ' || end_col || 
-	     ' = :new_start WHERE IOV_ID = :last_iov';
-          EXECUTE IMMEDIATE sql_str USING new_start, last_iov;
-       ELSE
-          -- a new mask should be created: get the IOV_ID of the last
-          -- measurement
-          sql_str := 'SELECT ' || start_col || ' FROM ' || my_table || 
-	     ' WHERE IOV_ID = :last_iov';
-          EXECUTE IMMEDIATE sql_str INTO last_start USING last_iov;
-          dbms_output.put_line('SPECIAL: changing mask from ' || last_mask);
-          last_mask := last_mask - my_mask;
-          dbms_output.put_line('SPECIAL:                 to ' || last_mask);
-	  -- update the mask of the last measurement
-	  sql_str := 'UPDATE ' || my_table || ' SET MASK = :last_mask WHERE '
-	     || 'IOV_ID = :last_iov';
-          EXECUTE IMMEDIATE sql_str USING last_mask, last_iov;
-          -- insert a record with the given mask
-	  sql_str := 'SELECT ' || my_sequence || '.NextVal FROM DUAL';
-          EXECUTE IMMEDIATE sql_str INTO new_iov;
-	  sql_str := 'INSERT INTO ' || my_table || ' VALUES (:new_iov, ' ||
-	     ':my_mask, :new_tag_id, :last_start, :new_start)';
-	  EXECUTE IMMEDIATE sql_str USING new_iov, my_mask, new_tag_id,
-	      last_start, new_start;
-          -- get the affected tables
-	  sql_str := 'SELECT COUNT(*) FROM ' || my_dattable || ' WHERE ' ||
-	      'BITAND(ID, ' || my_mask || ') > 0';
-          EXECUTE IMMEDIATE sql_str INTO rows;
-	  dbms_output.put_line('Tables to update: ' || rows);
-          FOR i IN 1..rows LOOP
-  	     sql_str := 'SELECT TABLE_NAME FROM ' || my_dattable || 
-	       ' WHERE BITAND(ID, ' || my_mask || ') > 0 AND ROWNUM = :i';
-             EXECUTE IMMEDIATE sql_str INTO tn USING i;
-             sql_str := 'UPDATE ' || tn || 
-	        ' SET IOV_ID = :new_iov WHERE IOV_ID = :last_iov';
-	     EXECUTE IMMEDIATE sql_str USING new_iov, last_iov;
-          END LOOP;	
-       END IF;
->>>>>>> 1.4
     END IF;
   END;
 /
