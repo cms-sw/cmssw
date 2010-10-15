@@ -7,6 +7,7 @@ hpsSelectionDiscriminator = cms.EDProducer(
     PFTauProducer = cms.InputTag('combinatoricRecoTaus'), 
     Prediscriminants = noPrediscriminants,
     matchingCone = cms.double(0.1),
+    minTauPt = cms.double(15.),
     coneSizeFormula = cms.string("max(min(0.1, 2.8/et()),0.05)"),
     decayModes = cms.VPSet(
         cms.PSet(

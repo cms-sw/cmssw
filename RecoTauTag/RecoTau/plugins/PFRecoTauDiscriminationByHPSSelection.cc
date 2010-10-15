@@ -24,6 +24,7 @@ class PFRecoTauDiscriminationByHPSSelection
     TauFunc signalConeFun_;
     DecayModeCutMap decayModeCuts_;
     double matchingCone_;
+    double minPt_;
 };
 
 PFRecoTauDiscriminationByHPSSelection::PFRecoTauDiscriminationByHPSSelection(
@@ -31,6 +32,7 @@ PFRecoTauDiscriminationByHPSSelection::PFRecoTauDiscriminationByHPSSelection(
     signalConeFun_(pset.getParameter<std::string>("coneSizeFormula")) {
   // Get the matchign cut
   matchingCone_ = pset.getParameter<double>("matchingCone");
+  minPt_ = pset.getParameter<double>("minTauPt");
   // Get the mass cuts for each decay mode
   typedef std::vector<edm::ParameterSet> VPSet;
   const VPSet& decayModes = pset.getParameter<VPSet>("decayModes");
@@ -52,6 +54,10 @@ PFRecoTauDiscriminationByHPSSelection::PFRecoTauDiscriminationByHPSSelection(
 
 double
 PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) {
+
+  // Check if we pass the min pt
+  if (tau->pt() < minPt_)
+    return 0.0;
 
   // See if we select this decay mode
   DecayModeCutMap::const_iterator massWindowIter =
