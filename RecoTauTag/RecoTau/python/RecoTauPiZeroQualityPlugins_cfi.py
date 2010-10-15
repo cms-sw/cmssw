@@ -42,3 +42,12 @@ nearPiZeroMassEndcap = cms.PSet(
     selectionPassFunction = cms.string(DELTA_M_PIZERO),
     selectionFailValue = cms.double(1000),
 )
+
+legacyPFTauDecayModeSelection = cms.PSet(
+    name = cms.string("PFTDM"),
+    plugin = cms.string("RecoTauPiZeroStringQuality"),
+    selection = cms.string('mass() < 0.2'),
+    selectionPassFunction = cms.string(DELTA_M_PIZERO),
+    selectionFailValue = cms.double(1000),
+)
+
