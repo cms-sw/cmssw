@@ -207,9 +207,10 @@ testConcurrentQueue::enq_and_deq()
   unsigned int delay = 0;
   unsigned int num_items = 10000;
   boost::thread producer(FillQueue(q, delay, num_items));
+  sleep(1); // give the producer a head-start
   boost::thread consumer(DrainQueue(q, delay));
   producer.join();
-  sleep(1); // gross hack: give the consumer a chance to finish
+  consumer.join();
   CPPUNIT_ASSERT(q->size() == 0);
 }
 
@@ -257,9 +258,9 @@ testConcurrentQueue::enq_timing()
   t.start();
   CPPUNIT_ASSERT(!q.enq_nowait(1));
   t.stop();
-  // We somewhat arbitrarily choose 10 milliseconds as "immediately
+  // We somewhat arbitrarily choose 100 milliseconds as "immediately
   // enough".
-  CPPUNIT_ASSERT(t.realTime() < 0.01);  
+  CPPUNIT_ASSERT(t.realTime() < 0.1);  
 
   // Now test the timeout version, with a range of timeouts.
   for (unsigned long wait_time = 0; wait_time < 3; ++wait_time)

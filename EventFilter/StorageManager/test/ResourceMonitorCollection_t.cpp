@@ -4,6 +4,9 @@
 #include "cppunit/extensions/HelperMacros.h"
 
 #include <limits.h>
+#include <stdlib.h>
+
+#include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/ResourceMonitorCollection.h"
 #include "EventFilter/StorageManager/test/MockAlarmHandler.h"
 #include "EventFilter/StorageManager/test/TestHelper.h"
@@ -74,8 +77,8 @@ testResourceMonitorCollection::diskSize()
 {
   ResourceMonitorCollection::DiskUsagePtr
     diskUsage( new ResourceMonitorCollection::DiskUsage() );
-  diskUsage->pathName = ".";
-  _rmc->retrieveDiskSize(diskUsage);
+  diskUsage->pathName = "/tmp";
+  CPPUNIT_ASSERT_THROW( _rmc->retrieveDiskSize(diskUsage), stor::exception::DiskSpaceAlarm );
 
   struct statfs64 buf;
   CPPUNIT_ASSERT( statfs64(diskUsage->pathName.c_str(), &buf) == 0 );
@@ -111,7 +114,8 @@ testResourceMonitorCollection::notMountedDisk(bool sendAlarm)
 
   DiskWritingParams dwParams;
   dwParams._nLogicalDisk = 0;
-  dwParams._filePath = ".";
+  dwParams._filePath = "/tmp";
+  dwParams._highWaterMark = 100;
   dwParams._otherDiskPaths.push_back(dummyDisk);
   _rmc->configureDisks(dwParams);
 
@@ -141,8 +145,9 @@ testResourceMonitorCollection::diskUsage()
 {
   DiskWritingParams dwParams;
   dwParams._nLogicalDisk = 0;
-  dwParams._filePath = ".";
-  dwParams._highWaterMark = 1;
+  dwParams._filePath = "/tmp";
+  dwParams._highWaterMark = 100;
+  dwParams._failHighWaterMark = 100;
   _rmc->configureDisks(dwParams);
   CPPUNIT_ASSERT( _rmc->_diskUsageList.size() == 1 );
   CPPUNIT_ASSERT( _rmc->_nLogicalDisks == 1 );
@@ -163,19 +168,19 @@ testResourceMonitorCollection::diskUsage()
 
   double statRelDiskUsage = diskUsageStatsPtr->relDiskUsage;
   if (relDiskUsage > 0)
-    CPPUNIT_ASSERT( (statRelDiskUsage/relDiskUsage) - 1 < 0.01 );
+    CPPUNIT_ASSERT( (statRelDiskUsage/relDiskUsage) - 1 < 0.05 );
   else
     CPPUNIT_ASSERT( statRelDiskUsage == relDiskUsage );
 
   CPPUNIT_ASSERT( diskUsageStatsPtr->alarmState == AlarmHandler::OKAY );
   CPPUNIT_ASSERT( _ah->noAlarmSet() );
 
-  _rmc->_dwParams._highWaterMark = (relDiskUsage-10)/100;
+  _rmc->_dwParams._highWaterMark = relDiskUsage > 10 ? (relDiskUsage-10) : 0;
   _rmc->calcDiskUsage();
   CPPUNIT_ASSERT( diskUsagePtr->alarmState == AlarmHandler::WARNING );
   CPPUNIT_ASSERT(! _ah->noAlarmSet() );
 
-  _rmc->_dwParams._highWaterMark = (relDiskUsage+10)/100;
+  _rmc->_dwParams._highWaterMark = (relDiskUsage+10);
   _rmc->calcDiskUsage();
   CPPUNIT_ASSERT( diskUsagePtr->alarmState == AlarmHandler::OKAY );
   CPPUNIT_ASSERT( _ah->noAlarmSet() );
@@ -190,7 +195,7 @@ testResourceMonitorCollection::processCount()
   uid_t myUid = getuid();
 
   for (int i = 0; i < processes; ++i)
-    system("sh ./processCountTest.sh &");
+    system("sh ${CMSSW_BASE}/src/EventFilter/StorageManager/test/processCountTest.sh &");
 
   int processCount = _rmc->getProcessCount("processCountTest.sh");
   CPPUNIT_ASSERT( processCount == processes);
@@ -209,7 +214,7 @@ testResourceMonitorCollection::processCountWithArguments()
   const int processes = 3;
 
   for (int i = 0; i < processes; ++i)
-    system("sh ./processCountTest.sh foo &");
+    system("sh ${CMSSW_BASE}/src/EventFilter/StorageManager/test/processCountTest.sh foo &");
 
   int processCountFoo = _rmc->getProcessCount("processCountTest.sh foo");
   int processCountBar = _rmc->getProcessCount("processCountTest.sh bar");
@@ -246,7 +251,9 @@ testResourceMonitorCollection::sataBeastOkay()
 {
   std::string content;
   std::string sataBeast("test");
-  CPPUNIT_ASSERT( testhelper::read_file("SATABeast_okay.html", content) );
+  std::ostringstream fileName;
+  fileName << getenv("CMSSW_BASE") << "/src/EventFilter/StorageManager/test/SATABeast_okay.html";
+  CPPUNIT_ASSERT( testhelper::read_file(fileName.str(), content) );
   CPPUNIT_ASSERT(! content.empty() );
   _rmc->updateSataBeastStatus(sataBeast, content);
 
@@ -264,7 +271,9 @@ testResourceMonitorCollection::sataBeastFailed()
 {
   std::string content;
   std::string sataBeast("test");
-  CPPUNIT_ASSERT( testhelper::read_file("SATABeast_failed.html", content) );
+  std::ostringstream fileName;
+  fileName << getenv("CMSSW_BASE") << "/src/EventFilter/StorageManager/test/SATABeast_failed.html";
+  CPPUNIT_ASSERT( testhelper::read_file(fileName.str(), content) );
   _rmc->updateSataBeastStatus(sataBeast, content);
   CPPUNIT_ASSERT(! content.empty() );
 

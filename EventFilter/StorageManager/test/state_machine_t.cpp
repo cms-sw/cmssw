@@ -5,6 +5,8 @@
 #include <map>
 #include <list>
 #include <vector>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #include <boost/statechart/event_base.hpp>
 #include <boost/shared_ptr.hpp>
@@ -102,6 +104,7 @@ void testStateMachine::setUp()
   // one mock application and one shared resources instance for all tests.
   if ( _sr.get() == 0 )
   {
+    mkdir("/tmp/log", 644); // dummy dir to avoid DiskSpaceAlarms
     _app = mockapps::getMockXdaqApplication();
 
     _sr.reset(new SharedResources());
