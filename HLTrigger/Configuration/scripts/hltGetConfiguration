@@ -300,6 +300,7 @@ if doCff:
     if not runOnData:
       # FIXME - this should be done looking into the python objects, not working on the text representation
       data = pipe("sed -e 's/cms.InputTag( \"source\" )/cms.InputTag( \"rawDataCollector\" )/'", data)
+      data = pipe("sed -e 's/cms.untracked.InputTag( \"source\" )/cms.untracked.InputTag( \"rawDataCollector\" )/'", data)
       data = pipe("sed -e 's/cms.string( \"source\" )/cms.string( \"rawDataCollector\" )/'", data)
 
 #   if processType in ('1E31', 'HIon'):
@@ -373,6 +374,7 @@ else:
     if not runOnData:
       # FIXME - this should be done looking into the python objects, not working on the text representation
       data = pipe("sed -e 's/cms.InputTag( \"source\" )/cms.InputTag( \"rawDataCollector\" )/'", data)
+      data = pipe("sed -e 's/cms.untracked.InputTag( \"source\" )/cms.untracked.InputTag( \"rawDataCollector\" )/'", data)
       data = pipe("sed -e 's/cms.string( \"source\" )/cms.string( \"rawDataCollector\" )/'", data)
 
     if processType in ('1E31', 'HIon'):
