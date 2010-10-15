@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.h,v 1.20 2010/08/05 11:43:41 duggan Exp $
+// $Id: SiPixelDigiSource.h,v 1.21 2010/08/06 14:45:22 duggan Exp $
 //
 
 #include <memory>
@@ -93,6 +93,8 @@
        MonitorElement* avgfedDigiOccvsLumi;
        MonitorElement* meNDigisCOMBBarrel_;
        MonitorElement* meNDigisCOMBEndcap_;
+       MonitorElement* meNDigisCHANBarrel_;
+       MonitorElement* meNDigisCHANEndcap_;
        
        int bigEventSize;
        
@@ -103,6 +105,7 @@
        int I_fedId[1440];
        int I_linkId[1440];
        int nDigisPerFed[40];
+       int numberOfDigis[192];
  };
 
 #endif

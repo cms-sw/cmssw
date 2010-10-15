@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.44 2010/08/05 11:43:06 duggan Exp $
+// $Id: SiPixelDigiSource.cc,v 1.45 2010/08/06 14:44:17 duggan Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -134,15 +134,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 {
   eventNo++;
   //cout<<"BIGFATEVENTNUMBER: "<<eventNo<<endl;
-  if(modOn){
-    MonitorElement* meReset = theDMBE->get("Pixel/averageDigiOccupancy");
-    if(meReset && eventNo%1000==0){
-      meReset->Reset();
-      nBPIXDigis = 0; 
-      nFPIXDigis = 0;
-      for(int i=0; i!=40; i++) nDigisPerFed[i]=0;  
-    }
-  }
+
   // get input data
   edm::Handle< edm::DetSetVector<PixelDigi> >  input;
   iEvent.getByLabel( src_, input );
@@ -157,50 +149,199 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   int nEventDigis = 0; int nActiveModules = 0;
   //int nEventBPIXDigis = 0; int nEventFPIXDigis = 0;
   
+  if(modOn){
+    MonitorElement* meReset = theDMBE->get("Pixel/averageDigiOccupancy");
+    //if(meReset && eventNo%1000==0){
+    if(meReset && lumiSection%8==0){
+      meReset->Reset();
+      nBPIXDigis = 0; 
+      nFPIXDigis = 0;
+      for(int i=0; i!=40; i++) nDigisPerFed[i]=0;  
+    }
+  }
+  
   std::map<uint32_t,SiPixelDigiModule*>::iterator struct_iter;
+  for(int i=0; i!=192; i++) numberOfDigis[i]=0;
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
-    int numberOfDigis = (*struct_iter).second->fill(*input, modOn, 
+    int numberOfDigisMod = (*struct_iter).second->fill(*input, modOn, 
 				ladOn, layOn, phiOn, 
 				bladeOn, diskOn, ringOn, 
 				twoDimOn, reducedSet, twoDimModOn, twoDimOnlyLayDisk);
-    if(numberOfDigis>0){
-      nEventDigis = nEventDigis + numberOfDigis;  
-      if(numberOfDigis>0) nActiveModules++;  
-      if((*struct_iter).first >= 302055684 && (*struct_iter).first <= 302197792 ){
-        //cout<<"AAbpix: "<<numberOfDigis<<" + "<<nBPIXDigis<<" = ";
-        nBPIXDigis = nBPIXDigis + numberOfDigis;
+    if(numberOfDigisMod>0){
+      nEventDigis = nEventDigis + numberOfDigisMod;  
+      nActiveModules++;  
+      bool barrel = DetId((*struct_iter).first).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
+      bool endcap = DetId((*struct_iter).first).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
+      //if((*struct_iter).first >= 302055684 && (*struct_iter).first <= 302197792 ){ // Barrel
+      if(barrel){ // Barrel
+        //cout<<"AAbpix: "<<numberOfDigisMod<<" + "<<nBPIXDigis<<" = ";
+        nBPIXDigis = nBPIXDigis + numberOfDigisMod;
 	//cout<<nBPIXDigis<<endl;
         for(int i=0; i!=768; i++){
           //cout<<"\t\t\t bpix: "<<i<<" , "<<(*struct_iter).first<<" , "<<I_detId[i]<<endl;
           if((*struct_iter).first == I_detId[i]){
 	    //if(I_fedId[i]>=32&&I_fedId[i]<=39) std::cout<<"Attention: a BPIX module matched to an FPIX FED!"<<std::endl;
-	    nDigisPerFed[I_fedId[i]]=nDigisPerFed[I_fedId[i]]+numberOfDigis;
-	    //cout<<"BPIX: "<<i<<" , "<<I_fedId[i]<<" , "<<numberOfDigis<<" , "<<nDigisPerFed[I_fedId[i]]<<endl;
+	    nDigisPerFed[I_fedId[i]]=nDigisPerFed[I_fedId[i]]+numberOfDigisMod;
+	    //cout<<"BPIX: "<<i<<" , "<<I_fedId[i]<<" , "<<numberOfDigisMod<<" , "<<nDigisPerFed[I_fedId[i]]<<endl;
 	    i=767;
 	  }
         }
-      }else if((*struct_iter).first >= 343999748 && (*struct_iter).first <= 352477708 ){
-        //cout<<"AAfpix: "<<numberOfDigis<<" + "<<nFPIXDigis<<" = ";
-        nFPIXDigis = nFPIXDigis + numberOfDigis;
+      //}else if((*struct_iter).first >= 343999748 && (*struct_iter).first <= 352477708 ){ // Endcap
+      }else if(endcap){ // Endcap
+        //cout<<"AAfpix: "<<nFPIXDigis<<" = ";
+        nFPIXDigis = nFPIXDigis + numberOfDigisMod;
 	//cout<<nFPIXDigis<<endl;
+        PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId((*struct_iter).first)).halfCylinder();
+	int disk = PixelEndcapName(DetId((*struct_iter).first)).diskName();
+	int blade = PixelEndcapName(DetId((*struct_iter).first)).bladeName();
+        int panel = PixelEndcapName(DetId((*struct_iter).first)).pannelName();
+	//std::cout<<"Endcap: "<<side<<" , "<<disk<<" , "<<blade<<" , "<<panel<<" , "<<std::endl;
+	int iter=-1; int i=0;
+	if(side==PixelEndcapName::mI){
+	  if(disk==1){
+	    i=0;
+	    if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
+	    if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
+	    if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
+	    if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
+	    if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
+	    if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
+	    if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
+	    if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
+	    if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
+	    if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
+	    if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
+	    if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
+	  }else if(disk==2){
+	    i=24;
+	    if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
+	    if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
+	    if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
+	    if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
+	    if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
+	    if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
+	    if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
+	    if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
+	    if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
+	    if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
+	    if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
+	    if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
+	  }
+	}else if(side==PixelEndcapName::mO){
+	  if(disk==1){
+	    i=48;
+	    if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
+	    if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
+	    if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
+	    if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
+	    if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
+	    if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
+	    if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
+	    if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
+	    if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
+	    if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
+	    if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
+	    if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
+	  }else if(disk==2){
+	    i=72;
+	    if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
+	    if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
+	    if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
+	    if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
+	    if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
+	    if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
+	    if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
+	    if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
+	    if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
+	    if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
+	    if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
+	    if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
+	  }
+	}else if(side==PixelEndcapName::pI){
+	  if(disk==1){
+	    i=96;
+	    if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
+	    if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
+	    if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
+	    if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
+	    if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
+	    if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
+	    if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
+	    if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
+	    if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
+	    if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
+	    if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
+	    if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
+	  }else if(disk==2){
+	    i=120;
+	    if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
+	    if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
+	    if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
+	    if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
+	    if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
+	    if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
+	    if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
+	    if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
+	    if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
+	    if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
+	    if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
+	    if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
+	  }
+	}else if(side==PixelEndcapName::pO){
+	  if(disk==1){
+	    i=145;
+	    if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
+	    if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
+	    if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
+	    if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
+	    if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
+	    if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
+	    if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
+	    if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
+	    if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
+	    if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
+	    if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
+	    if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
+	  }else if(disk==2){
+	    i=169;
+	    if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
+	    if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
+	    if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
+	    if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
+	    if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
+	    if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
+	    if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
+	    if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
+	    if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
+	    if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
+	    if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
+	    if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
+	  }
+	}
+	//std::cout<<"status: "<<iter<<","<<side<<","<<disk<<","<<blade<<","<<panel<<std::endl;       
+	numberOfDigis[iter]=numberOfDigis[iter]+numberOfDigisMod;
         for(int i=768; i!=1440; i++){
           //cout<<"\t\t\t fpix: "<<i<<" , "<<(*struct_iter).first<<" , "<<I_detId[i]<<endl;
           if((*struct_iter).first == I_detId[i]){
 	    //if(I_fedId[i]<32||I_fedId[i]>39) std::cout<<"Attention: an FPIX module matched to a BPIX FED!"<<std::endl;
-	    nDigisPerFed[I_fedId[i]]=nDigisPerFed[I_fedId[i]]+numberOfDigis;
-	    //cout<<"FPIX: "<<i<<" , "<<I_fedId[i]<<" , "<<numberOfDigis<<" , "<<nDigisPerFed[I_fedId[i]]<<endl;
+	    nDigisPerFed[I_fedId[i]]=nDigisPerFed[I_fedId[i]]+numberOfDigisMod;
+	    //cout<<"FPIX: "<<i<<" , "<<I_fedId[i]<<" , "<<nDigisPerFed[I_fedId[i]]<<endl;
 	    i=1439;
 	  }
         }
-      }
-      //cout<<"numberOfDigis: "<<numberOfDigis<<" , nBPIXDigis: "<<nBPIXDigis<<" , nFPIXDigis: "<<nFPIXDigis<<endl;
-    }
-  }
+      } //endif Barrel/Endcap
+      //cout<<"numberOfDigis: "<<numberOfDigisMod<<" , nBPIXDigis: "<<nBPIXDigis<<" , nFPIXDigis: "<<nFPIXDigis<<endl;
+      // digi occupancy per individual FED channel:
+    } // endif any digis in this module
+  } // endfor loop over all modules
   
 //  if(lumiSection>lumSec){ lumSec = lumiSection; nLumiSecs++; }
 //  if(nEventDigis>bigEventSize) nBigEvents++;
 //  if(nLumiSecs%5==0){
   MonitorElement* me; MonitorElement* me1;
+  
+  me=theDMBE->get("Pixel/Endcap/ALLMODS_ndigisCHAN_Endcap");
+  if(me){ for(int j=0; j!=192; j++) if(numberOfDigis[j]>0) me->Fill((float)numberOfDigis[j]);}
   
   // Rate of events with >N digis:
   if(nEventDigis>bigEventSize){
@@ -217,14 +358,18 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
     if(me1) me1->Fill(lumiSection, 1./23.);
   }
   
-  // Actual digi occupancy in a FEDs compared to average digi occupancy per FED
+  // Actual digi occupancy in a FED compared to average digi occupancy per FED
   me = theDMBE->get("Pixel/averageDigiOccupancy");
   me1 = theDMBE->get("Pixel/avgfedDigiOccvsLumi");
   if(me){
+    int maxfed=0;
+    for(int i=0; i!=32; i++){
+      if(nDigisPerFed[i]>maxfed) maxfed=nDigisPerFed[i];
+    }
     for(int i=0; i!=40; i++){
       float averageOcc = 0.;
       if(i<32){
-        float averageBPIXFed = float(nBPIXDigis)/32.;
+        float averageBPIXFed = float(nBPIXDigis-maxfed)/31.;
 	if(averageBPIXFed>0.) averageOcc = nDigisPerFed[i]/averageBPIXFed;
 	//cout<<"\t BPIX i: "<<i<<" , "<<nBPIXDigis<<" , "<<averageBPIXFed<<" , "<<nDigisPerFed[i]<<" , "<<averageOcc<<endl;
       }else{
@@ -233,15 +378,14 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	//cout<<"\t FPIX i: "<<i<<" , "<<nFPIXDigis<<" , "<<averageFPIXFed<<" , "<<nDigisPerFed[i]<<" , "<<averageOcc<<endl;
       }
       me->setBinContent(i+1,averageOcc);
-      int lumiSections15 = int(lumiSection/15);
+      int lumiSections8 = int(lumiSection/8);
       if (modOn){
 	if (me1){
-	  me1->setBinContent(1+lumiSections15, i+1, averageOcc);
+	  me1->setBinContent(1+lumiSections8, i+1, averageOcc);
 	}//endif me1
       }//endif modOn
     }
   }
-  
   
   // slow down...
   if(slowDown) usleep(10000);
@@ -329,7 +473,7 @@ void SiPixelDigiSource::bookMEs(){
   averageDigiOccupancy = theDMBE->book1D("averageDigiOccupancy",title3,40,-0.5,39.5);
   if(modOn){
     char title4[80]; sprintf(title4, "FED Digi Occupancy (NDigis/<NDigis>) vs LumiSections;Lumi Section;FED");
-    avgfedDigiOccvsLumi = theDMBE->book2D ("avgfedDigiOccvsLumi", title4, 200,0., 3000., 40, -0.5, 39.5);
+    avgfedDigiOccvsLumi = theDMBE->book2D ("avgfedDigiOccvsLumi", title4, 400,0., 3200., 40, -0.5, 39.5);
   }  
   std::map<uint32_t,SiPixelDigiModule*>::iterator struct_iter;
  
@@ -393,11 +537,15 @@ void SiPixelDigiSource::bookMEs(){
   }
   std::string currDir = theDMBE->pwd();
   theDMBE->cd("Pixel/Barrel");
-  meNDigisCOMBBarrel_ = theDMBE->book1D("ALLMODS_ndigisCOMB_Barrel","Number of Digis",500,0.,1000.);
+  meNDigisCOMBBarrel_ = theDMBE->book1D("ALLMODS_ndigisCOMB_Barrel","Number of Digis",200,0.,400.);
   meNDigisCOMBBarrel_->setAxisTitle("Number of digis per module per event",1);
+  meNDigisCHANBarrel_ = theDMBE->book1D("ALLMODS_ndigisCHAN_Barrel","Number of Digis",200,0.,400.);
+  meNDigisCHANBarrel_->setAxisTitle("Number of digis per FED channel per event",1);
   theDMBE->cd("Pixel/Endcap");
-  meNDigisCOMBEndcap_ = theDMBE->book1D("ALLMODS_ndigisCOMB_Endcap","Number of Digis",500,0.,1000.);
+  meNDigisCOMBEndcap_ = theDMBE->book1D("ALLMODS_ndigisCOMB_Endcap","Number of Digis",200,0.,400.);
   meNDigisCOMBEndcap_->setAxisTitle("Number of digis per module per event",1);
+  meNDigisCHANEndcap_ = theDMBE->book1D("ALLMODS_ndigisCHAN_Endcap","Number of Digis",200,0.,400.);
+  meNDigisCHANEndcap_->setAxisTitle("Number of digis per FED channel per event",1);
   theDMBE->cd(currDir);
 }
 

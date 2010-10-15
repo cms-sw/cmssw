@@ -9,6 +9,8 @@
 #include <string>
 #include <iostream>
 #include <stdlib.h>
+#include <sstream>
+#include <cstdio>
 
 // Data Formats
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
@@ -295,16 +297,33 @@ int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, bool modo
   //std::cout<<"********************"<<std::endl;
   edm::DetSetVector<PixelDigi>::const_iterator isearch = input.find(id_); // search  digis of detid
   
-  unsigned int numberOfDigis = 0;
+  unsigned int numberOfDigisMod = 0;
+  int numberOfDigis[2]; numberOfDigis[0]=0; numberOfDigis[1]=0; 
   if( isearch != input.end() ) {  // Not an empty iterator
     
     // Look at digis now
     edm::DetSet<PixelDigi>::const_iterator  di;
     for(di = isearch->data.begin(); di != isearch->data.end(); di++) {
-      numberOfDigis++;
       int adc = di->adc();    // charge
       int col = di->column(); // column 
       int row = di->row();    // row
+      numberOfDigisMod++;
+      bool isHalfModule = false;
+      uint32_t DBladder = 0;
+      if(barrel){
+        isHalfModule = PixelBarrelName(DetId(id_)).isHalfModule(); 
+        DBladder = PixelBarrelName(DetId(id_)).ladderName();
+      }
+      PixelBarrelName::Shell DBshell = PixelBarrelName(DetId(id_)).shell();
+      if(barrel){
+        if(isHalfModule){
+          if(DBshell==PixelBarrelName::pI||DBshell==PixelBarrelName::pO) numberOfDigis[0]++;
+          if(DBshell==PixelBarrelName::mI||DBshell==PixelBarrelName::mO) numberOfDigis[1]++;
+        }else{
+          if(row<80) numberOfDigis[0]++;
+          else numberOfDigis[1]++;
+        }
+      }
       if(modon){
 	if(!reducedSet){
 	  if(twoD) {
@@ -385,22 +404,24 @@ int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, bool modo
 	}
       }
     }
-    if(modon) (meNDigis_)->Fill((float)numberOfDigis);
-    if(ladon && barrel) (meNDigisLad_)->Fill((float)numberOfDigis);
-    if(layon && barrel && !twoDimOnlyLayDisk) (meNDigisLay_)->Fill((float)numberOfDigis);
-    if(phion && barrel) (meNDigisPhi_)->Fill((float)numberOfDigis);
-    if(bladeon && endcap) (meNDigisBlade_)->Fill((float)numberOfDigis);
-    if(diskon && endcap && !twoDimOnlyLayDisk) (meNDigisDisk_)->Fill((float)numberOfDigis);
-    if(ringon && endcap) (meNDigisRing_)->Fill((float)numberOfDigis);
+    if(modon) (meNDigis_)->Fill((float)numberOfDigisMod);
+    if(ladon && barrel) (meNDigisLad_)->Fill((float)numberOfDigisMod);
+    if(layon && barrel && !twoDimOnlyLayDisk) (meNDigisLay_)->Fill((float)numberOfDigisMod);
+    if(phion && barrel) (meNDigisPhi_)->Fill((float)numberOfDigisMod);
+    if(bladeon && endcap) (meNDigisBlade_)->Fill((float)numberOfDigisMod);
+    if(diskon && endcap && !twoDimOnlyLayDisk) (meNDigisDisk_)->Fill((float)numberOfDigisMod);
+    if(ringon && endcap) (meNDigisRing_)->Fill((float)numberOfDigisMod);
     if(barrel){ 
       MonitorElement* me=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCOMB_Barrel");
-      if(me) me->Fill((float)numberOfDigis);
+      if(me) me->Fill((float)numberOfDigisMod);
+      me=theDMBE->get("Pixel/Barrel/ALLMODS_ndigisCHAN_Barrel");
+      if(me){ if(numberOfDigis[0]>0) me->Fill((float)numberOfDigis[0]); if(numberOfDigis[1]>0) me->Fill((float)numberOfDigis[1]); }
     }else if(endcap){
       MonitorElement* me=theDMBE->get("Pixel/Endcap/ALLMODS_ndigisCOMB_Endcap");
-      if(me) me->Fill((float)numberOfDigis);
+      if(me) me->Fill((float)numberOfDigisMod);
     }
   }
   
   //std::cout<<"numberOfDigis for this module: "<<numberOfDigis<<std::endl;
-  return numberOfDigis;
+  return numberOfDigisMod;
 }
