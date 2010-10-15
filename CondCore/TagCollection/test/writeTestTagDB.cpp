@@ -74,19 +74,19 @@ int main(){
     tagmetadata.recordname="PedestalsRcd";
     tagmetadata.objectname="Pedestals";
     tagmetadata.labelname="lab3d";
-    tagcollection.push_back(std::make_pair<std::string,cond::TagMetadata>(tagname,tagmetadata));
+    tagcollection.push_back(std::pair<std::string,cond::TagMetadata>(tagname,tagmetadata));
     tagname="mypedestals";
     tagmetadata.pfn="sqlite_file:mytest.db";
     tagmetadata.recordname="PedestalsRcd";
     tagmetadata.objectname="Pedestals";
     tagmetadata.labelname="lab2";
-    tagcollection.push_back(std::make_pair<std::string,cond::TagMetadata>(tagname,tagmetadata));
+    tagcollection.push_back(std::pair<std::string,cond::TagMetadata>(tagname,tagmetadata));
     tagname="anothermytest";
     tagmetadata.pfn="sqlite_file:mytest.db";
     tagmetadata.recordname="anotherPedestalsRcd";
     tagmetadata.objectname="Pedestals";
     tagmetadata.labelname="";
-    tagcollection.push_back(std::make_pair<std::string,cond::TagMetadata>(tagname,tagmetadata));
+    tagcollection.push_back(std::pair<std::string,cond::TagMetadata>(tagname,tagmetadata));
 
     std::cout<<"populate tag inventory"<<std::endl;
     coral::AttributeList data;

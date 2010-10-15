@@ -71,7 +71,7 @@ cond::IOVService::validity( const std::string& iovToken, cond::Time_t currenttim
   else {
     since=iov.lastTill();
   }
-  return std::make_pair<cond::Time_t, cond::Time_t>(since,till);
+  return std::pair<cond::Time_t, cond::Time_t>(since,till);
 }
 
 std::string 
