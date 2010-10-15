@@ -27,8 +27,7 @@ pfRecoTauByCharge.PFTauProducer  = cms.InputTag('pfLayer0Taus')
 pfRecoTauByCharge.ApplyOneOrThreeProngCut                    = cms.bool(True)
 
 
-
-DiscrLowPtTau = cms.EDFilter(
+DiscrLowPtTau = cms.EDProducer(
     "PFTauDiscriminatorLogicalAndProducer",
     PFTauProducer = cms.InputTag('pfLayer0Taus'),
     Prediscriminants = cms.PSet(
