@@ -1,3 +1,9 @@
+2010-10-15 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V06-04-02
+	* Make unit-tests more reliable and fix path issues when
+	  running them with 'scram b runtests'.
+
 2010-10-11 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V06-04-01
