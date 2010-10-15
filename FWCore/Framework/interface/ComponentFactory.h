@@ -78,7 +78,7 @@ template<typename T>
             //cerr << "Factory: created the worker" << endl;
             
             std::pair<typename MakerMap::iterator,bool> ret =
-               makers_.insert(std::make_pair<std::string,boost::shared_ptr<Maker> >(modtype,wm));
+               makers_.insert(std::pair<std::string,boost::shared_ptr<Maker> >(modtype,wm));
             
             if(ret.second == false) {
 	      Exception::throwThis(errors::Configuration,"Maker Factory map insert failed");

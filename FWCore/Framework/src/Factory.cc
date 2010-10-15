@@ -56,7 +56,7 @@ namespace edm {
 	FDEBUG(1) << "Factory:  created worker of type " << modtype << std::endl;
 
 	std::pair<MakerMap::iterator,bool> ret =
-	  makers_.insert(std::make_pair<std::string,Maker*>(modtype,wm.get()));
+	  makers_.insert(std::pair<std::string,Maker*>(modtype,wm.get()));
 
 	//	if(ret.second==false)
 	//	  throw runtime_error("Worker Factory map insert failed");
