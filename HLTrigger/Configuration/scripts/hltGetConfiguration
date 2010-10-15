@@ -281,6 +281,7 @@ if doCff:
     menuConfigOptions['paths'].append( "-ExpressOutput" )
     menuConfigOptions['paths'].append( "-EventDisplayOutput" )
     menuConfigOptions['paths'].append( "-AlCaOutput" )
+    menuConfigOptions['paths'].append( "-AlCaHIOutput" )
     menuConfigOptions['paths'].append( "-DQMOutput" )
     menuConfigOptions['paths'].append( "-HLTDQMOutput" )
     menuConfigOptions['paths'].append( "-HLTDQMResultsOutput" )
