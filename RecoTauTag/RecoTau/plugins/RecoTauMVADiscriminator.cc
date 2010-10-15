@@ -37,6 +37,7 @@ class RecoTauMVADiscriminator : public PFTauDiscriminationProducerBase {
     MVAMap mvas_;
     std::string dbLabel_;
     double unsupportedDMValue_;
+    bool remapOutput_;
 };
 
 RecoTauMVADiscriminator::RecoTauMVADiscriminator(const edm::ParameterSet& pset)
@@ -46,7 +47,10 @@ RecoTauMVADiscriminator::RecoTauMVADiscriminator(const edm::ParameterSet& pset)
     dbLabel = pset.getParameter<std::string>("dbLabel");
 
   unsupportedDMValue_ = (pset.exists("unsupportedDecayModeValue")) ?
-      pset.getParameter<double>("unsupportedDecayModeValue") : -5.0;
+      pset.getParameter<double>("unsupportedDecayModeValue")
+      : prediscriminantFailValue_;
+
+  remapOutput_ = pset.getParameter<bool>("remapOutput");
 
   typedef std::vector<edm::ParameterSet> VPSet;
   const VPSet& mvas = pset.getParameter<VPSet>("mvas");
@@ -85,10 +89,15 @@ double RecoTauMVADiscriminator::discriminate(const PFTauRef& tau) {
   // Find the right MVA for this tau's decay mode
   MVAMap::iterator mva = mvas_.find(tau->decayMode());
   // If this DM has an associated decay mode, get and return the result.
-  double output = (mva != mvas_.end()) ?
-      mva->second->operator()(tau) : unsupportedDMValue_;
-  // std::cout << " tau: " << *tau << " Decay mode: " << tau->decayMode() <<
-  //  " mva: " << (mva != mvas_.end()) << " tanc: " << output << std::endl;
+  double output = unsupportedDMValue_;
+  if (mva != mvas_.end()) {
+      output= mva->second->operator()(tau);
+      // TMVA produces output from -1 to 1
+      if (remapOutput_) {
+        output += 1.;
+        output /= 2.;
+      }
+  }
   return output;
 }
 
