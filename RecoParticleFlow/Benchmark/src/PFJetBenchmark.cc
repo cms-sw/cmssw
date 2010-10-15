@@ -264,9 +264,9 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
     bool Barrel = false;
     bool Endcap = false;
     bool Forward = false;
-    if (abs(rec_eta) < 1.4 ) Barrel = true;
-    if (abs (rec_eta) > 1.6 && abs (rec_eta) < 2.4 ) Endcap = true;
-    if (abs (rec_eta) > 3.3 && abs (rec_eta) < 4.7 ) Forward = true;
+    if (std::abs(rec_eta) < 1.4 ) Barrel = true;
+    if (std::abs (rec_eta) > 1.6 && std::abs (rec_eta) < 2.4 ) Endcap = true;
+    if (std::abs (rec_eta) > 3.3 && std::abs (rec_eta) < 4.7 ) Forward = true;
 
     // do only barrel for now
     //  if(!Barrel) continue;
@@ -446,10 +446,10 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
 		    << std::endl;
       }
 
-      if(abs(resPt) > abs(resPtMax_)) resPtMax_ = resPt;
-      if(abs(resChargedHadEnergy) > abs(resChargedHadEnergyMax_) ) resChargedHadEnergyMax_ = resChargedHadEnergy;
-      if(abs(resNeutralHadEnergy) > abs(resNeutralHadEnergyMax_) ) resNeutralHadEnergyMax_ = resNeutralHadEnergy;
-      if(abs(resNeutralEmEnergy) > abs(resNeutralEmEnergyMax_) ) resNeutralEmEnergyMax_ = resNeutralEmEnergy;
+      if(std::abs(resPt) > std::abs(resPtMax_)) resPtMax_ = resPt;
+      if(std::abs(resChargedHadEnergy) > std::abs(resChargedHadEnergyMax_) ) resChargedHadEnergyMax_ = resChargedHadEnergy;
+      if(std::abs(resNeutralHadEnergy) > std::abs(resNeutralHadEnergyMax_) ) resNeutralHadEnergyMax_ = resNeutralHadEnergy;
+      if(std::abs(resNeutralEmEnergy) > std::abs(resNeutralEmEnergyMax_) ) resNeutralEmEnergyMax_ = resNeutralEmEnergy;
       if (debug_) {
 	cout << i <<"  =========PFJet Pt "<< rec_pt
 	     << " eta " << rec_eta
@@ -667,7 +667,7 @@ void PFJetBenchmark::gettrue (const reco::GenJet* truth, double& true_ChargedHad
   // for each MC particle in turn  
   for (unsigned i = 0; i < mcparts.size (); i++) {
     const GenParticle* mcpart = mcparts[i];
-    int PDG = abs( mcpart->pdgId());
+    int PDG = std::abs( mcpart->pdgId());
     double e = mcpart->energy(); 
     switch(PDG){  // start PDG switch
     case 22: // photon

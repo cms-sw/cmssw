@@ -53,7 +53,7 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Fri Jul  6 17:17:21 CEST 2007
-// $Id: AlCaHOCalibProducer.cc,v 1.22 2010/01/12 08:35:49 hegner Exp $
+// $Id: AlCaHOCalibProducer.cc,v 1.23 2010/02/11 00:10:38 wmtan Exp $
 //
 //
 
@@ -550,7 +550,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	for (unsigned int i=0; i!=n && i<32; ++i) {
 	  //	for (unsigned int i=0; i!=n ; ++i) {
 	  int il1trg = (L1GTRR->decisionWord()[i]) ? 1 : 0;
-	  if (il1trg>0 && i<32) l1trg +=int(pow(2., double(i%32))*il1trg);
+	  if (il1trg>0 && i<32) l1trg +=int(std::pow(2., double(i%32))*il1trg);
 	}
       }
     }// else { return;}
@@ -572,7 +572,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (m_hotime){ 
 	if (ihlt >0 && i < (int)ntrgp_gm) { ntrgpas_gm[i] = 1;}
       }
-      if (i<32 && ihlt>0) hlttr += int(pow(2., double(i%32))*ihlt);
+      if (i<32 && ihlt>0) hlttr += int(std::pow(2., double(i%32))*ihlt);
     }
 
     */
@@ -785,8 +785,8 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    double yy = lclvt0.y();
 	    
 	    if (ik ==1) {
-	      if ((abs(yy) < 130 && xx >-64.7 && xx <138.2)
-		  ||(abs(yy) > 130 && abs(yy) <700 && xx >-76.3 && xx <140.5)) {
+	      if ((std::abs(yy) < 130 && xx >-64.7 && xx <138.2)
+		  ||(std::abs(yy) > 130 && std::abs(yy) <700 && xx >-76.3 && xx <140.5)) {
 		ipath = 1;  //Only look for tracks which as hits in layer 1
 		iphisect = iphisecttmp;
 	      }
@@ -829,10 +829,10 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	findHOEtaPhi(iphisect, ietaho, iphiho);
 	
-	if (ietaho !=0 && iphiho !=0 && abs(iring)<=2) { //Muon passed through a tower
-	  isect = 100*abs(ietaho+30)+abs(iphiho);
-	  if (abs(ietaho) >=netabin || iphiho<0) isect *=-1; //Not extrapolated to any tower
-	  if (abs(ietaho) >=netabin) isect -=1000000;  //not matched with eta
+	if (ietaho !=0 && iphiho !=0 && std::abs(iring)<=2) { //Muon passed through a tower
+	  isect = 100*std::abs(ietaho+30)+std::abs(iphiho);
+	  if (std::abs(ietaho) >=netabin || iphiho<0) isect *=-1; //Not extrapolated to any tower
+	  if (std::abs(ietaho) >=netabin) isect -=1000000;  //not matched with eta
 	  if (iphiho<0)        isect -=2000000; //not matched with phi
 	  tmpHOCalib.isect = isect;
 	  
@@ -895,7 +895,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		    if (dphi==-71) dphi=1;
 		  }
 		  
-		  int ipass2 = (abs(deta) <=1 && abs(dphi)<=1) ? 1 : 0; //NEED correction in full CMS detector
+		  int ipass2 = (std::abs(deta) <=1 && std::abs(dphi)<=1) ? 1 : 0; //NEED correction in full CMS detector
 		  
 		  if (ipass2 ==0 ) continue;
 		  
@@ -940,7 +940,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		    if (dphi==-71) dphi=1;
 		  }
 		  
-		  int ipass2 = (abs(deta) <=1 && abs(dphi)<=1) ? 1 : 0; //NEED correction in full CMS detector
+		  int ipass2 = (std::abs(deta) <=1 && std::abs(dphi)<=1) ? 1 : 0; //NEED correction in full CMS detector
 		  if ( ipass2 ==0 ) continue;
 		  
 		  float signal = (*j).energy();
@@ -989,7 +989,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  if (dphi==-71) dphi=1;
 		}
 		
-		int ipass2 = (abs(deta) <=1 && abs(dphi)<=1) ? 1 : 0;
+		int ipass2 = (std::abs(deta) <=1 && std::abs(dphi)<=1) ? 1 : 0;
 		
 		int tmpeta1 = (tmpeta>0) ? tmpeta -1 : -tmpeta +14; 
 		
@@ -1049,7 +1049,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  }
 		}
 
-		if (abs(tmpeta) <=15 && deta==0 && dphi ==0) { 
+		if (std::abs(tmpeta) <=15 && deta==0 && dphi ==0) { 
 		  float signal = 0;
 		  int icnt = 0;
 		  for (int i =0; i<nchnmx && i< (*j).size(); i++) {
@@ -1062,7 +1062,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		
 		if (m_hotime) { 
 		  if (ipass1 ==0 && ipass2 ==0 && cosmicmuon->size()<=2) {
-		    if (abs(ietaho) <=netabin && iphiho >0) {
+		    if (std::abs(ietaho) <=netabin && iphiho >0) {
 		      if ((iphiho >=1 && iphiho<=nphimx/2 && tmpphi >=1 && tmpphi <=nphimx/2) ||
 			  (iphiho >nphimx/2 && iphiho<=nphimx && tmpphi >nphimx/2 && tmpphi <=nphimx)) {
 			if (isFilled[nphimx*tmpeta1+tmpphi-1]==0) {
@@ -1194,7 +1194,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		}
 	      }
 	      
-	      int ipass2 = (abs(deta) <=1 && abs(dphi)<=1) ? 1 : 0;
+	      int ipass2 = (std::abs(deta) <=1 && std::abs(dphi)<=1) ? 1 : 0;
 	      
 	      if (ipass1 ==0 && ipass2 ==0 ) continue;
 	      
@@ -1310,7 +1310,7 @@ double etahgh[netabin]={  35.145,  70.575, 106.545, 125.505, 180.715, 220.185, 2
 
   iring = -10;
 
-  double tmpdy =  abs(yhor1);
+  double tmpdy =  std::abs(yhor1);
   for (int i=0; i<netabin; i++) {
     if (tmpdy >etalow[i] && tmpdy <etahgh[i]) {
       ietaho = i+1; 
@@ -1361,7 +1361,7 @@ double etahgh[netabin]={  35.145,  70.575, 106.545, 125.505, 180.715, 220.185, 2
       }
     }
 
-    double tmpdy =  abs(yhor0);
+    double tmpdy =  std::abs(yhor0);
     for (int i=0; i<4; i++) {
       if (tmpdy >etalow[i] && tmpdy <etahgh[i]) {
 	float tmp1 = fabs(tmpdy-etalow[i]);
@@ -1382,7 +1382,7 @@ double etahgh[netabin]={  35.145,  70.575, 106.545, 125.505, 180.715, 220.185, 2
   //  isect2 = 15*iring+iphisect+1;
 
   if (yhor1 <0) { 
-    if (abs(ietaho) >netabin) { //Initialised with 50
+    if (std::abs(ietaho) >netabin) { //Initialised with 50
       ietaho +=1; 
     } else {
       ietaho *=-1; 

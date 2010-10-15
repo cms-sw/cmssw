@@ -225,13 +225,13 @@ void PFTauElecRejectionBenchmark::process(edm::Handle<edm::HepMCProduct> mcevt, 
   TLorentzVector taunet;
   HepMC::GenEvent::particle_iterator p;
   for (p = generated_event->particles_begin(); p != generated_event->particles_end(); p++) {
-    if(abs((*p)->pdg_id()) == 15&&(*p)->status()==2) { 
+    if(std::abs((*p)->pdg_id()) == 15&&(*p)->status()==2) { 
       bool lept_decay = false;     
       TLorentzVector tau((*p)->momentum().px(),(*p)->momentum().py(),(*p)->momentum().pz(),(*p)->momentum().e());
       HepMC::GenVertex::particle_iterator z = (*p)->end_vertex()->particles_begin(HepMC::descendants);
       for(; z != (*p)->end_vertex()->particles_end(HepMC::descendants); z++) {
-	if(abs((*z)->pdg_id()) == 11 || abs((*z)->pdg_id()) == 13) lept_decay=true;
-	if(abs((*z)->pdg_id()) == 16)
+	if(std::abs((*z)->pdg_id()) == 11 || std::abs((*z)->pdg_id()) == 13) lept_decay=true;
+	if(std::abs((*z)->pdg_id()) == 16)
 	  taunet.SetPxPyPzE((*z)->momentum().px(),(*z)->momentum().py(),(*z)->momentum().pz(),(*z)->momentum().e());
 	
       }
@@ -239,7 +239,7 @@ void PFTauElecRejectionBenchmark::process(edm::Handle<edm::HepMCProduct> mcevt, 
 	TLorentzVector jetMom=tau-taunet;
 	if (sGenMatchObjectLabel_=="tau") _GenObjects.push_back(jetMom);
       }
-    } else if(abs((*p)->pdg_id()) == 11&&(*p)->status()==1) { 
+    } else if(std::abs((*p)->pdg_id()) == 11&&(*p)->status()==1) { 
       TLorentzVector elec((*p)->momentum().px(),(*p)->momentum().py(),(*p)->momentum().pz(),(*p)->momentum().e());
       if (sGenMatchObjectLabel_=="e") _GenObjects.push_back(elec);
     } 
@@ -253,7 +253,7 @@ void PFTauElecRejectionBenchmark::process(edm::Handle<edm::HepMCProduct> mcevt, 
   for (PFTauCollection::size_type iPFTau=0;iPFTau<pfTaus->size();iPFTau++) { 
     PFTauRef thePFTau(pfTaus,iPFTau); 
     if ((*pfTauIsoDiscr)[thePFTau] == 1) {
-      if ((*thePFTau).et() > minRecoPt_ && abs((*thePFTau).eta()) < maxRecoAbsEta_) {
+      if ((*thePFTau).et() > minRecoPt_ && std::abs((*thePFTau).eta()) < maxRecoAbsEta_) {
 
 	// Check if track goes to Ecal crack
 	TrackRef myleadTk;
@@ -262,13 +262,13 @@ void PFTauElecRejectionBenchmark::process(edm::Handle<edm::HepMCProduct> mcevt, 
 	  myleadTkEcalPos = thePFTau->leadPFChargedHadrCand()->positionAtECALEntrance();
 	  
 	  if(myleadTk.isNonnull()){ 
-	    if (applyEcalCrackCut_ && isInEcalCrack(abs((double)myleadTkEcalPos.eta()))) {
+	    if (applyEcalCrackCut_ && isInEcalCrack(std::abs((double)myleadTkEcalPos.eta()))) {
 	      continue; // do nothing
 	    } else {
 
 	      // Match with gen object
 	      for (unsigned int i = 0; i<_GenObjects.size();i++) {
-		if (_GenObjects[i].Et() >= minMCPt_ && abs(_GenObjects[i].Eta()) < maxMCAbsEta_ ) {
+		if (_GenObjects[i].Et() >= minMCPt_ && std::abs(_GenObjects[i].Eta()) < maxMCAbsEta_ ) {
 		  TLorentzVector pftau((*thePFTau).px(),(*thePFTau).py(),(*thePFTau).pz(),(*thePFTau).energy());
 		  double GenDeltaR = pftau.DeltaR(_GenObjects[i]);
 		  if (GenDeltaR<maxDeltaR_) {
@@ -281,11 +281,11 @@ void PFTauElecRejectionBenchmark::process(edm::Handle<edm::HepMCProduct> mcevt, 
 		    hHoverP->Fill((*thePFTau).hcal3x3OverPLead());
 		    hEmfrac->Fill((*thePFTau).emFraction());
 
-		    if (abs(myleadTk->eta())<1.5) {
+		    if (std::abs(myleadTk->eta())<1.5) {
 		      hEoverP_barrel->Fill((*thePFTau).ecalStripSumEOverPLead());
 		      hHoverP_barrel->Fill((*thePFTau).hcal3x3OverPLead());
 		      hEmfrac_barrel->Fill((*thePFTau).emFraction());
-		    } else if (abs(myleadTk->eta())>1.5 && abs(myleadTk->eta())<2.5) {
+		    } else if (std::abs(myleadTk->eta())>1.5 && std::abs(myleadTk->eta())<2.5) {
 		      hEoverP_endcap->Fill((*thePFTau).ecalStripSumEOverPLead());
 		      hHoverP_endcap->Fill((*thePFTau).hcal3x3OverPLead());
 		      hEmfrac_endcap->Fill((*thePFTau).emFraction());
@@ -332,7 +332,7 @@ void PFTauElecRejectionBenchmark::process(edm::Handle<edm::HepMCProduct> mcevt, 
 
 		  //double deltaR   = ROOT::Math::VectorUtil::DeltaR(myleadTkEcalPos,candPos);
 		  double deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(myleadTkEcalPos,candPos);
-		  double deltaEta = abs(myleadTkEcalPos.eta()-myPFCands[i]->eta());
+		  double deltaEta = std::abs(myleadTkEcalPos.eta()-myPFCands[i]->eta());
 		  double deltaPhiOverQ = deltaPhi/(double)myleadTk->charge();
 		  
 		  hpfcand_deltaEta->Fill(deltaEta);

@@ -104,9 +104,9 @@ PFJetFilter::filter(edm::Event& iEvent, const edm::EventSetup& iESetup)
       bool Barrel = false;
       bool Endcap = false;
       bool Forward = false;
-      if (abs(rec_eta) < 1.4 ) Barrel = true;
-      if (abs (rec_eta) > 1.4 && abs (rec_eta) < 2.6 ) Endcap = true;
-      if (abs (rec_eta) > 3.5 && abs (rec_eta) < 4.5 ) Forward = true;
+      if (std::abs(rec_eta) < 1.4 ) Barrel = true;
+      if (std::abs (rec_eta) > 1.4 && std::abs (rec_eta) < 2.6 ) Endcap = true;
+      if (std::abs (rec_eta) > 3.5 && std::abs (rec_eta) < 4.5 ) Forward = true;
 
       // Keep only jets in the barrel or the endcaps, within the tracker acceptance
       if ( !Barrel && !Endcap ) continue;

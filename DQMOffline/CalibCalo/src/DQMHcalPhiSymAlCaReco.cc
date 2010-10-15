@@ -3,8 +3,8 @@
  *
  * \author Olga Kodolova
  * 
- * $Date: 2009/12/14 22:22:19 $
- * $Revision: 1.15 $
+ * $Date: 2010/02/13 12:57:13 $
+ * $Revision: 1.16 $
  *
  *
  * Description: Monitoring of Phi Symmetry Calibration Stream  
@@ -339,8 +339,8 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
   for (unsigned int k=0; k<selFEDs.size(); k++)
     {
       const FEDRawData & fedData = rdc->FEDData(selFEDs[k]);
-      // std::cout<<fedData.size()*pow(1024.,-1)<<std::endl;
-      hFEDsize->Fill(fedData.size()*pow(1024.,-1),1);
+      // std::cout<<fedData.size()*std::pow(1024.,-1)<<std::endl;
+      hFEDsize->Fill(fedData.size()*std::pow(1024.,-1),1);
       
       // get HCAL DCC Header for each FEDRawData
       const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(fedData.data());

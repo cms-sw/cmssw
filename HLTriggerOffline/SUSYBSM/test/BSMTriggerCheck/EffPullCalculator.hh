@@ -16,7 +16,7 @@ public:
   void AddGoldenPath(string name);
   void PrintTwikiTable(string filename);
   bool GoodLabel(string pathname);
-  double abs(double value);
+  double std::abs(double value);
 
 private:
   // log file

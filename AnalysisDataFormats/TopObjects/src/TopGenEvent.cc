@@ -19,7 +19,7 @@ TopGenEvent::candidate(int id, unsigned int parentId) const
   const reco::GenParticleCollection & partsColl = *parts_;
   for( unsigned int i = 0; i < partsColl.size(); ++i ) {
     if( partsColl[i].pdgId()==id ){
-      if(parentId==0?true:partsColl[i].mother()&&abs(partsColl[i].mother()->pdgId())==(int)parentId){
+      if(parentId==0?true:partsColl[i].mother()&&std::abs(partsColl[i].mother()->pdgId())==(int)parentId){
 	cand = &partsColl[i];
       }
     }
@@ -52,7 +52,7 @@ TopGenEvent::numberOfLeptons(bool fromWBoson) const
   for(unsigned int i = 0; i < partsColl.size(); ++i) {
     if(reco::isLepton(partsColl[i])) {
       if(fromWBoson){
-	if(partsColl[i].mother() &&  abs(partsColl[i].mother()->pdgId())==TopDecayID::WID){
+	if(partsColl[i].mother() &&  std::abs(partsColl[i].mother()->pdgId())==TopDecayID::WID){
 	  ++lep;
 	}
       }
@@ -88,13 +88,13 @@ TopGenEvent::numberOfLeptons(WDecay::LeptonType typeRestriction, bool fromWBoson
   for(unsigned int i = 0; i < partsColl.size(); ++i) {
     if(fromWBoson){
       // restrict to particles originating from the W boson
-      if( !(partsColl[i].mother() &&  abs(partsColl[i].mother()->pdgId())==TopDecayID::WID) ){
+      if( !(partsColl[i].mother() &&  std::abs(partsColl[i].mother()->pdgId())==TopDecayID::WID) ){
 	continue;
       }
     }
     if(leptonType>0){
       // in case of lepton type restriction
-      if( abs(partsColl[i].pdgId())==leptonType ){
+      if( std::abs(partsColl[i].pdgId())==leptonType ){
 	++lep;
       }
     }
@@ -115,9 +115,9 @@ TopGenEvent::numberOfBQuarks(bool fromTopQuark) const
   const reco::GenParticleCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
    //depend if radiation qqbar are included or not
-    if(abs(partsColl[i].pdgId())==TopDecayID::bID){
+    if(std::abs(partsColl[i].pdgId())==TopDecayID::bID){
       if(fromTopQuark){
-	if(partsColl[i].mother() &&  abs(partsColl[i].mother()->pdgId())==TopDecayID::tID){
+	if(partsColl[i].mother() &&  std::abs(partsColl[i].mother()->pdgId())==TopDecayID::tID){
 	  ++bq;
 	}
       }
@@ -134,7 +134,7 @@ TopGenEvent::topSisters() const
 {
   std::vector<const reco::GenParticle*> sisters;
   for(reco::GenParticleCollection::const_iterator part = parts_->begin(); part<parts_->end(); ++part){
-    if( part->numberOfMothers()==0 && abs(part->pdgId())!= TopDecayID::tID){
+    if( part->numberOfMothers()==0 && std::abs(part->pdgId())!= TopDecayID::tID){
       // choose top sister which do not have a 
       // mother and are whether top nor anti-top 
       if( dynamic_cast<const reco::GenParticle*>( &(*part) ) == 0){
@@ -153,7 +153,7 @@ TopGenEvent::daughterQuarkOfTop(bool invertCharge) const
   for(reco::GenParticleCollection::const_iterator top = parts_->begin(); top<parts_->end(); ++top){
     if( top->pdgId()==(invertCharge?-TopDecayID::tID:TopDecayID::tID) ){
       for(reco::GenParticle::const_iterator quark = top->begin(); quark<top->end(); ++quark){
-	if( abs(quark->pdgId())<= TopDecayID::bID ){
+	if( std::abs(quark->pdgId())<= TopDecayID::bID ){
 	  cand = dynamic_cast<const reco::GenParticle* > (&(*quark));
 	  if(cand == 0){
 	    throw edm::Exception( edm::errors::InvalidReference, "Not a GenParticle" );
@@ -173,7 +173,7 @@ TopGenEvent::daughterQuarkOfWPlus(bool invertQuarkCharge, bool invertBosonCharge
   const reco::GenParticleCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
     if(partsColl[i].mother() && partsColl[i].mother()->pdgId()==(invertBosonCharge?-TopDecayID::WID:TopDecayID::WID) &&
-       abs(partsColl[i].pdgId())<=TopDecayID::bID && (invertQuarkCharge?reco::flavour(partsColl[i])<0:reco::flavour(partsColl[i])>0)){
+       std::abs(partsColl[i].pdgId())<=TopDecayID::bID && (invertQuarkCharge?reco::flavour(partsColl[i])<0:reco::flavour(partsColl[i])>0)){
       cand = &partsColl[i];
     }
   }
@@ -185,7 +185,7 @@ TopGenEvent::lightQuarks(bool includingBQuarks) const
 {
   std::vector<const reco::GenParticle*> lightQuarks;
   for (reco::GenParticleCollection::const_iterator part = parts_->begin(); part < parts_->end(); ++part) {
-    if( (includingBQuarks && abs(part->pdgId())==TopDecayID::bID) || abs(part->pdgId())<TopDecayID::bID ) {
+    if( (includingBQuarks && std::abs(part->pdgId())==TopDecayID::bID) || std::abs(part->pdgId())<TopDecayID::bID ) {
       if( dynamic_cast<const reco::GenParticle*>( &(*part) ) == 0){
 	throw edm::Exception( edm::errors::InvalidReference, "Not a GenParticle" );
       }

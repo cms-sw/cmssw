@@ -136,12 +136,12 @@ void TH2Analyzer::Eval(const int rebinFactor, const int binxmin,
       //std::cout << "rebinFactor = " << rebinFactor << std::endl;
       //std::cout << "(binxmax-binxmin+1)/rebinFactor = " << (binxmax-binxmin+1)/rebinFactor << std::endl;
       //std::cout << "((binxmax-binxmin+1)%rebinFactor) = " << ((binxmax-binxmin+1)%rebinFactor) << std::endl;
-      //std::cout << "abs((binxmax-binxmin+1)/rebinFactor) = " << abs((binxmax-binxmin+1)/rebinFactor) << std::endl;
+      //std::cout << "abs((binxmax-binxmin+1)/rebinFactor) = " << std::abs((binxmax-binxmin+1)/rebinFactor) << std::endl;
 
       unsigned int nbin=0;
       if (((binxmax-binxmin+1)%rebinFactor)!=0.0)
 	{
-	  nbin=abs((binxmax-binxmin+1)/rebinFactor)+1;
+	  nbin=std::abs((binxmax-binxmin+1)/rebinFactor)+1;
 	}
       else nbin=(binxmax-binxmin+1)/rebinFactor;
 

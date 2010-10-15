@@ -361,7 +361,7 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
     return (nhitinTIB >= minHitsinTIB_ && nhitinTOB >= minHitsinTOB_ 
             && nhitinTID >= minHitsinTID_ && nhitinTEC >= minHitsinTEC_ 
             && nhitinENDCAP >= minHitsinENDCAP_ && nhitinENDCAPplus >= minHitsinENDCAPplus_ && nhitinENDCAPminus >= minHitsinENDCAPminus_
-	    && abs(nhitinENDCAPplus-nhitinENDCAPminus) <= maxHitDiffEndcaps_
+	    && std::abs(nhitinENDCAPplus-nhitinENDCAPminus) <= maxHitDiffEndcaps_
             && nhitinTIDplus >= minHitsinTIDplus_ && nhitinTIDminus >= minHitsinTIDminus_
             && nhitinFPIXplus >= minHitsinFPIXplus_ && nhitinFPIXminus >= minHitsinFPIXminus_
             && nhitinTECplus >= minHitsinTECplus_ && nhitinTECminus >= minHitsinTECminus_

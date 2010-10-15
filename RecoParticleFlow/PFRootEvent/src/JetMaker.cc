@@ -1,7 +1,7 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.cc,v 1.36 2009/05/18 15:22:53 srappocc Exp $
+/// $Id: JetMaker.cc,v 1.1 2009/08/24 14:35:59 srappocc Exp $
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -210,7 +210,7 @@ bool JetMaker::makeSpecific (const JetReco::InputCollection& fMcParticles,
       const GenParticle* genParticle = GenJet::genParticle (candidate);
       if (genParticle) {
 	double e = genParticle->energy();
-	switch (abs (genParticle->pdgId ())) {
+	switch (std::abs (genParticle->pdgId ())) {
 	case 22: // photon
 	case 11: // e
 	  fJetSpecific->m_EmEnergy += e;
@@ -246,7 +246,7 @@ bool JetMaker::makeSpecific (const JetReco::InputCollection& fMcParticles,
 
 HcalSubdetector JetMaker::hcalSubdetector (int fEta) {
   static const HcalTopology topology;
-  int eta = abs (fEta);
+  int eta = std::abs (fEta);
   if (eta <= topology.lastHBRing()) return HcalBarrel;
   else if (eta <= topology.lastHERing()) return HcalEndcap;
   else if (eta <= topology.lastHFRing()) return HcalForward;

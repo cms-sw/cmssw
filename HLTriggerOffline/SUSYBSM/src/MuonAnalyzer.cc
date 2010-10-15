@@ -13,7 +13,7 @@
 //
 // Original Author:  Philip Hebda
 //         Created:  Thu Jun 25 09:34:50 CEST 2009
-// $Id$
+// $Id: MuonAnalyzer.cc,v 1.1 2010/02/26 10:31:46 chiorbo Exp $
 //
 //
 #include "HLTriggerOffline/SUSYBSM/interface/MuonAnalyzer.h"
@@ -123,7 +123,7 @@ MuonAnalyzer::FillPlots(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		   LeadL3MuonPt = TO.pt();
 		   idOfLeadMuon = i;
 		 }
-		 if(indexOfLeadRecoMuon!=-1 && find(idsOfFilteredMuons,i) && sqrt(pow(LeadRecoMuonEta-TO.eta(),2)+pow(LeadRecoMuonPhi-TO.phi(),2))<=0.5)
+		 if(indexOfLeadRecoMuon!=-1 && find(idsOfFilteredMuons,i) && sqrt(std::pow(LeadRecoMuonEta-TO.eta(),2)+std::pow(LeadRecoMuonPhi-TO.phi(),2))<=0.5)
 		   LeadRecoMuonAssociation=true;
 	     }
 	   const TriggerObject& TO(TOC[idOfLeadMuon]);
@@ -145,11 +145,11 @@ MuonAnalyzer::FillPlots(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    //Fill the histos
    if(indexOfLeadRecoMuon!=-1)
      {
-       if(abs(LeadRecoMuonEta)<=1.2)
+       if(std::abs(LeadRecoMuonEta)<=1.2)
 	 hLeadRecoMuonPt_1_ByEvent->Fill(LeadRecoMuonPt);
-       else if(abs(LeadRecoMuonEta)>1.2 && abs(LeadRecoMuonEta)<=2.1)
+       else if(std::abs(LeadRecoMuonEta)>1.2 && std::abs(LeadRecoMuonEta)<=2.1)
 	 hLeadRecoMuonPt_2_ByEvent->Fill(LeadRecoMuonPt);
-       else if(abs(LeadRecoMuonEta)>2.1)
+       else if(std::abs(LeadRecoMuonEta)>2.1)
 	 hLeadRecoMuonPt_3_ByEvent->Fill(LeadRecoMuonPt);
        if(LeadRecoMuonPt>=0)
 	 hLeadRecoMuonEta_1_ByEvent->Fill(LeadRecoMuonEta);
@@ -160,11 +160,11 @@ MuonAnalyzer::FillPlots(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
    if(LeadRecoMuonAssociation)
      {
-       if(abs(LeadRecoMuonEta)<=1.2)
+       if(std::abs(LeadRecoMuonEta)<=1.2)
 	 hLeadAssocRecoMuonPt_1_ByEvent->Fill(LeadRecoMuonPt);
-       else if(abs(LeadRecoMuonEta)>1.2 && abs(LeadRecoMuonEta)<=2.1)
+       else if(std::abs(LeadRecoMuonEta)>1.2 && std::abs(LeadRecoMuonEta)<=2.1)
 	 hLeadAssocRecoMuonPt_2_ByEvent->Fill(LeadRecoMuonPt);
-       else if(abs(LeadRecoMuonEta)>2.1)
+       else if(std::abs(LeadRecoMuonEta)>2.1)
 	 hLeadAssocRecoMuonPt_3_ByEvent->Fill(LeadRecoMuonPt);
        if(LeadRecoMuonPt>=0)
 	 hLeadAssocRecoMuonEta_1_ByEvent->Fill(LeadRecoMuonEta);
@@ -181,11 +181,11 @@ MuonAnalyzer::FillPlots(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        for(size_t i=0; i<Muons.size(); ++i)
 	 {
 	   double RecoMuonPt=Muons[i].pt(), RecoMuonEta=Muons[i].eta();
-	   if(abs(RecoMuonEta)<=1.2)
+	   if(std::abs(RecoMuonEta)<=1.2)
 	     hRecoMuonPt_1_ByMuon->Fill(RecoMuonPt);
-	   else if(abs(RecoMuonEta)>1.2 && abs(RecoMuonEta)<=2.1)
+	   else if(std::abs(RecoMuonEta)>1.2 && std::abs(RecoMuonEta)<=2.1)
 	     hRecoMuonPt_2_ByMuon->Fill(RecoMuonPt);
-	   else if(abs(RecoMuonEta)>2.1)
+	   else if(std::abs(RecoMuonEta)>2.1)
 	     hRecoMuonPt_3_ByMuon->Fill(RecoMuonPt);
 	   if(RecoMuonPt>=0)
 	     hRecoMuonEta_1_ByMuon->Fill(RecoMuonEta);
@@ -199,15 +199,15 @@ MuonAnalyzer::FillPlots(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	       for(int j=firstMuon; j<=lastMuon; ++j)
 		 {
 		   const TriggerObject& TO(TOC[j]);
-		   if(find(idsOfFilteredMuons,j) && sqrt(pow(TO.eta()-Muons[i].eta(), 2)+pow(TO.phi()-Muons[i].phi(), 2)) <= 0.5)
+		   if(find(idsOfFilteredMuons,j) && sqrt(std::pow(TO.eta()-Muons[i].eta(), 2)+std::pow(TO.phi()-Muons[i].phi(), 2)) <= 0.5)
 		     {
 		       RecoMuonPt=Muons[i].pt();
 		       RecoMuonEta=Muons[i].eta();
-		       if(abs(RecoMuonEta)<=1.2)
+		       if(std::abs(RecoMuonEta)<=1.2)
 			 hAssocRecoMuonPt_1_ByMuon->Fill(RecoMuonPt);
-		       else if(abs(RecoMuonEta)>1.2 && abs(RecoMuonEta)<=2.1)
+		       else if(std::abs(RecoMuonEta)>1.2 && std::abs(RecoMuonEta)<=2.1)
 			 hAssocRecoMuonPt_2_ByMuon->Fill(RecoMuonPt);
-		       else if(abs(RecoMuonEta)>2.1)
+		       else if(std::abs(RecoMuonEta)>2.1)
 			 hAssocRecoMuonPt_3_ByMuon->Fill(RecoMuonPt);
 		       if(RecoMuonPt>=0)
 			 hAssocRecoMuonEta_1_ByMuon->Fill(RecoMuonEta);
@@ -232,7 +232,7 @@ MuonAnalyzer::FillPlots(const edm::Event& iEvent, const edm::EventSetup& iSetup)
        for(int j=0; j<lastMuon-firstMuon+1; ++j)
 	 {
 	   const TriggerObject& TO(TOC[j]);
-	   cout<<(sqrt(pow(TO.eta()-Muons[i].eta(),2)+pow(TO.phi()-Muons[i].phi(),2))<=0.5)<<'\t';
+	   cout<<(sqrt(std::pow(TO.eta()-Muons[i].eta(),2)+std::pow(TO.phi()-Muons[i].phi(),2))<=0.5)<<'\t';
 	 }
        cout<<endl;
        }*/

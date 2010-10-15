@@ -2182,7 +2182,7 @@ bool PFRootEventManager::isHadronicTau() const {
   for ( unsigned i=0;  i < trueParticles_.size(); i++) {
     const reco::PFSimParticle& ptc = trueParticles_[i];
     const std::vector<int>& ptcdaughters = ptc.daughterIds();
-    if (abs(ptc.pdgCode()) == 15) {
+    if (std::abs(ptc.pdgCode()) == 15) {
       for ( unsigned int dapt=0; dapt < ptcdaughters.size(); ++dapt) {
         
         const reco::PFSimParticle& daughter 
@@ -2190,7 +2190,7 @@ bool PFRootEventManager::isHadronicTau() const {
         
 
         int pdgdaugther = daughter.pdgCode();
-        int abspdgdaughter = abs(pdgdaugther);
+        int abspdgdaughter = std::abs(pdgdaugther);
 
 
         if (abspdgdaughter == 11 || 
@@ -2224,7 +2224,7 @@ bool PFRootEventManager::countChargedAndPhotons() const {
     double charge = ptc.charge();
     double pdgCode = ptc.pdgCode();
     
-    if( abs(charge)>1e-9) 
+    if( std::abs(charge)>1e-9) 
       nCharged++;
     else if( pdgCode==22 )
       nPhoton++;
@@ -2286,7 +2286,7 @@ int PFRootEventManager::chargeValue(const int& Id) const {
 
   //...Initial values. Simple case of direct readout.
   hepchg=0;
-  kqa=abs(Id);
+  kqa=std::abs(Id);
   kqn=kqa/1000000000%10;
   kqx=kqa/1000000%10;
   kq3=kqa/1000%10;
@@ -2781,7 +2781,7 @@ void PFRootEventManager::reconstructGenJets() {
     //    remove all neutrinos for PFJet studies
     if (reco::isNeutrino( genPart )) continue;
     // Work-around a bug in the pythia di-jet gun.
-    if (abs(genPart.pdgId())<7 || abs(genPart.pdgId())==21 ) continue;
+    if (std::abs(genPart.pdgId())<7 || std::abs(genPart.pdgId())==21 ) continue;
 
     if (jetsDebug_ ) {
       cout << "      #" << i << "  PDG code:" << genPart.pdgId() 
@@ -2985,7 +2985,7 @@ PFRootEventManager::tauBenchmark( const reco::PFCandidateCollection& candidates)
 
     for ( unsigned i=0;  i < trueParticles_.size(); i++) {
       const reco::PFSimParticle& ptc = trueParticles_[i];
-      if (abs(ptc.pdgCode()) == 15) {
+      if (std::abs(ptc.pdgCode()) == 15) {
 	// this is a tau
 	if( i ) tooManyTaus = true;
 	else tauFound=true;
@@ -3037,13 +3037,13 @@ PFRootEventManager::tauBenchmark( const reco::PFCandidateCollection& candidates)
 	  ++piter ) {
       
     
-      if (abs((*piter)->pdg_id())==15){
+      if (std::abs((*piter)->pdg_id())==15){
 	itau++;
 	tauFound=true;
 	for ( HepMC::GenVertex::particles_out_const_iterator bp =
 		(*piter)->end_vertex()->particles_out_const_begin();
 	      bp != (*piter)->end_vertex()->particles_out_const_end(); ++bp ) {
-	  uint nuId=abs((*bp)->pdg_id());
+	  uint nuId=std::abs((*bp)->pdg_id());
 	  bool isNeutrino=(nuId==12)||(nuId==14)||(nuId==16);
 	  if (!isNeutrino){
 	    

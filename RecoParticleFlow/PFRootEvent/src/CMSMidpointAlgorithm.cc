@@ -191,9 +191,9 @@ void CMSMidpointAlgorithm::iterateCone(const InputCollection& fInput,
       if(theDebugLevel>=2)cout << ", y=" << endRapidity << ", phi=" << endPhi << ", PT=" << endPt << ", constituents=" << trialCone->getTowerList().size () << endl;
       if(nIterations <= theMaxIterations){
 	// Do we have a stable cone?
-	if(abs(endRapidity-startRapidity)<.001 && 
-	   abs(endPhi-startPhi)<.001 && 
-	   abs(endE - startE) < .001) {
+	if(std::abs(endRapidity-startRapidity)<.001 && 
+	   std::abs(endPhi-startPhi)<.001 && 
+	   std::abs(endE - startE) < .001) {
 	  nIterations = theMaxIterations;       // If cone size is reduced, then still one more iteration.
 	  if(!reduceConeSize) ++nIterations; // Otherwise, this is the last iteration.
 	}

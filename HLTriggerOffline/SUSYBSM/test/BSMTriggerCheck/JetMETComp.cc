@@ -80,7 +80,7 @@ void JetMETComp::MakePlot(string name) {
 //   h1dResults_failed.Draw("hbar0SAME");
 
   // draw the pass/fail threshold line
-  float threshold = pow(10.,-6.);
+  float threshold = std::pow(10.,-6.);
   TLine l(threshold, 0, threshold, values.size());
   l.SetLineColor(kRed);
   l.SetLineWidth(2);

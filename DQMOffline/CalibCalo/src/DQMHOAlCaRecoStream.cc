@@ -13,7 +13,7 @@
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Mon Mar  2 12:33:08 CET 2009
-// $Id: DQMHOAlCaRecoStream.cc,v 1.8 2010/02/11 00:11:13 wmtan Exp $
+// $Id: DQMHOAlCaRecoStream.cc,v 1.9 2010/04/07 13:05:45 kodolova Exp $
 //
 //
 
@@ -118,16 +118,16 @@ DQMHOAlCaRecoStream::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       for (HOCalibVariableCollection::const_iterator hoC=(*HOCalib).begin(); hoC!=(*HOCalib).end(); hoC++){
 // OK!!!!	
 	float okt = 2.;
-	double okx = pow((*hoC).trkvx,okt) + pow((*hoC).trkvy,okt);
+	double okx = std::pow((*hoC).trkvx,okt) + std::pow((*hoC).trkvy,okt);
 ///////	
-	double dr=pow( okx, 0.5);
+	double dr=std::pow( okx, 0.5);
 	if (dr <m_lowRadPosInMuch || dr >m_highRadPosInMuch) continue; 
 	
 	if ((*hoC).isect <0) continue;
 	if (fabs((*hoC).trkth-acos(-1.)/2)<0.000001) continue;
-	int ieta = int((abs((*hoC).isect)%10000)/100.)-30;
+	int ieta = int((std::abs((*hoC).isect)%10000)/100.)-30;
 	
-	if (abs(ieta)>=16) continue;
+	if (std::abs(ieta)>=16) continue;
 	
 	Nmuons++;
 	

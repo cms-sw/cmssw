@@ -74,13 +74,13 @@ double CompHisto1D::myChisq() {
     if(histo1->GetBinContent(i) != 0. ||
        histo2->GetBinContent(i) != 0.) {
       chisq += 
-	pow(histo1->GetBinContent(i)-histo2->GetBinContent(i),2.)/
-	(pow(histo1->GetBinError(i),2.) + pow(histo2->GetBinError(i),2.));
+	std::pow(histo1->GetBinContent(i)-histo2->GetBinContent(i),2.)/
+	(std::pow(histo1->GetBinError(i),2.) + std::pow(histo2->GetBinError(i),2.));
       nDOF += 1;
     }
   }
 
   return 
-    1./(pow(2.,nDOF/2)*TMath::Gamma(nDOF/2))*
-    pow(chisq, nDOF/2-1)*exp(-chisq/2.);
+    1./(std::pow(2.,nDOF/2)*TMath::Gamma(nDOF/2))*
+    std::pow(chisq, nDOF/2-1)*exp(-chisq/2.);
 }

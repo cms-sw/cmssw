@@ -1849,7 +1849,7 @@ void DisplayManager::loadGSimParticles()
 
     int markerstyle;
     int indexMarker;
-    switch( abs(ptc.pdgCode() ) ) {
+    switch( std::abs(ptc.pdgCode() ) ) {
     case 22:   markerstyle = 3 ; indexMarker=0; break; // photons
     case 11:   markerstyle = 5 ; indexMarker=1;  break; // electrons 
     case 13:   markerstyle = 2 ; indexMarker=2;  break; // muons 

@@ -564,8 +564,8 @@ void DQMSourcePi0::analyze(const Event& iEvent,
 	  if(dx <= 0 && dy >=0) s4s9_tmp[2] += en; 
 	  if(dx >= 0 && dy >=0) s4s9_tmp[3] += en; 
 
-	  if(abs(dx)<=1 && abs(dy)<=1) e3x3 += en; 
-	  if(abs(dx)<=2 && abs(dy)<=2) e5x5 += en; 
+	  if(std::abs(dx)<=1 && std::abs(dy)<=1) e3x3 += en; 
+	  if(std::abs(dx)<=2 && std::abs(dy)<=2) e5x5 += en; 
 
       
 	}
@@ -860,8 +860,8 @@ void DQMSourcePi0::analyze(const Event& iEvent,
 	  if(dx <= 0 && dy >=0) s4s9_tmp[2] += en; 
 	  if(dx >= 0 && dy >=0) s4s9_tmp[3] += en; 
 
-	  if(abs(dx)<=1 && abs(dy)<=1) e3x3 += en; 
-	  if(abs(dx)<=2 && abs(dy)<=2) e5x5 += en; 
+	  if(std::abs(dx)<=1 && std::abs(dy)<=1) e3x3 += en; 
+	  if(std::abs(dx)<=2 && std::abs(dy)<=2) e5x5 += en; 
 
       
 	}
@@ -1158,8 +1158,8 @@ void DQMSourcePi0::analyze(const Event& iEvent,
 	  if(dx <= 0 && dy >=0) s4s9_tmp[2] += en; 
 	  if(dx >= 0 && dy >=0) s4s9_tmp[3] += en; 
 
-	  if( abs(dx)<=1 && abs(dy)<=1) e3x3 += en; 
-	  if( abs(dx)<=2 && abs(dy)<=2) e5x5 += en; 
+	  if( std::abs(dx)<=1 && std::abs(dy)<=1) e3x3 += en; 
+	  if( std::abs(dx)<=2 && std::abs(dy)<=2) e5x5 += en; 
 
 	}
 
@@ -1412,8 +1412,8 @@ void DQMSourcePi0::analyze(const Event& iEvent,
 	  if(dx <= 0 && dy >=0) s4s9_tmp[2] += en; 
 	  if(dx >= 0 && dy >=0) s4s9_tmp[3] += en; 
 
-	  if( abs(dx)<=1 && abs(dy)<=1) e3x3 += en; 
-	  if( abs(dx)<=2 && abs(dy)<=2) e5x5 += en; 
+	  if( std::abs(dx)<=1 && std::abs(dy)<=1) e3x3 += en; 
+	  if( std::abs(dx)<=2 && std::abs(dy)<=2) e5x5 += en; 
 
 	}
 
@@ -1564,11 +1564,11 @@ int DQMSourcePi0::diff_neta_s(Int_t neta1, Int_t neta2){
 // Calculate the distance in xtals taking into account the periodicity of the Barrel
 int DQMSourcePi0::diff_nphi_s(Int_t nphi1,Int_t nphi2) {
   Int_t mdiff;
-  if(abs(nphi1-nphi2) < (360-abs(nphi1-nphi2))) {
+  if(std::abs(nphi1-nphi2) < (360-std::abs(nphi1-nphi2))) {
     mdiff=nphi1-nphi2;
   }
   else {
-    mdiff=360-abs(nphi1-nphi2);
+    mdiff=360-std::abs(nphi1-nphi2);
     if(nphi1>nphi2) mdiff=-mdiff;
   }
   return mdiff;

@@ -1,5 +1,5 @@
 //
-// $Id: LeptonVertexSignificance.cc,v 1.1 2008/01/15 13:21:24 lowette Exp $
+// $Id: LeptonVertexSignificance.cc,v 1.2 2008/02/28 14:54:25 llista Exp $
 //
 
 #include "PhysicsTools/PatUtils/interface/LeptonVertexSignificance.h"
@@ -56,6 +56,6 @@ float LeptonVertexSignificance::calculate(const reco::Track & theTrack, const ed
   GlobalPoint theVertexPoint(theVertex.position().x(), theVertex.position().y(), theVertex.position().z());
   FreeTrajectoryState theLeptonNearVertex = theTrTrack.trajectoryStateClosestToPoint(theVertexPoint).theState();
   return fabs(theVertex.position().z() - theLeptonNearVertex.position().z())
-    / sqrt(pow(theVertex.zError(), 2) + theLeptonNearVertex.cartesianError().position().czz());
+    / sqrt(std::pow(theVertex.zError(), 2) + theLeptonNearVertex.cartesianError().position().czz());
 }
 

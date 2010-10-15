@@ -208,13 +208,13 @@ bool PFRootEventManagerColin::processHIGH_E_TAUS() {
     int pdgCode = part.pdgCode();
     double charge = part.charge();
 
-    if( abs(pdgCode) > 100 &&
+    if( std::abs(pdgCode) > 100 &&
         charge !=0 && 
         part.daughterIds().empty() ) {
       nStableChargedHadrons++;
       iHadron = i;
     }
-    else if( abs(pdgCode)==111) {
+    else if( std::abs(pdgCode)==111) {
       nPi0++;
       iPi0 = i; 
     } 

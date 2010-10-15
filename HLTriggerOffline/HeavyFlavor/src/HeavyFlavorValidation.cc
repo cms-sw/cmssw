@@ -286,7 +286,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
   iEvent.getByLabel(genParticlesTag, genParticles);
   if(genParticles.isValid()){
     for(GenParticleCollection::const_iterator p=genParticles->begin(); p!= genParticles->end(); ++p){
-      if( p->status() == 1 && abs(p->pdgId())==13 && 
+      if( p->status() == 1 && std::abs(p->pdgId())==13 && 
           ( find( motherIDs.begin(), motherIDs.end(), -1 )!=motherIDs.end() || find( motherIDs.begin(), motherIDs.end(), getMotherId(&(*p)) )!=motherIDs.end() ) ){
         genMuons.push_back( *p );
       }  

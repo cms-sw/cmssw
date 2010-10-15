@@ -424,12 +424,12 @@ void HLTHiggsTruth::analyzeA2mu(const reco::CandidateView& mctruth,TTree* HltTre
         int status = p.status();
 	if (status==1) {
           int pid=p.pdgId();
-	  bool ismuon = abs(pid)==13;
-          bool inacceptance = (abs(p.eta()) < 2.4);
+	  bool ismuon = std::abs(pid)==13;
+          bool inacceptance = (std::abs(p.eta()) < 2.4);
 	  bool aboveptcut = (p.pt() > 3.0);
 	  if (inacceptance && aboveptcut && ismuon) {
 	    if (nmuons==0) {
-	      nmuons=int(pid/abs(pid));
+	      nmuons=int(pid/std::abs(pid));
 	    } else if (pid<0 && nmuons==1) {
 	      nmuons=2;
 	    } else if (pid>0 && nmuons==-1) {
@@ -500,12 +500,12 @@ void HLTHiggsTruth::analyzeH2tau(const reco::CandidateView& mctruth,TTree* HltTr
 	//===============
 	if (status==1 || status==2) {
          
-	  bool istau = abs(pid)==15;
+	  bool istau = std::abs(pid)==15;
           bool inacceptance = (fabs(p.eta()) < 2.4);
 	  bool aboveptcut = (p.pt() > 20.0);
 	  if (inacceptance && aboveptcut && istau) {
 	    if (ntaus==0) {
-	      ntaus=int(pid/abs(pid));
+	      ntaus=int(pid/std::abs(pid));
 	    } else if (pid<0 && ntaus==1) {
 	      ntaus=2;
 	    } else if (pid>0 && ntaus==-1) {
@@ -563,7 +563,7 @@ void HLTHiggsTruth::analyzeHtaunu(const reco::CandidateView& mctruth,TTree* HltT
 	
 	   if (status==1 || status==2) {
      
-	      bool istau = abs(pid)==15;  	  
+	      bool istau = std::abs(pid)==15;  	  
               bool inacceptance = (fabs(p.eta()) < 2.4);
 	      bool aboveptcut = (p.pt() > 100);
 	      if (inacceptance && aboveptcut && istau) {
@@ -610,15 +610,15 @@ void HLTHiggsTruth::LeptonicTauDecay(const reco::Candidate& tau, bool& elecdec, 
     // In that case, return the result of the same method on that daughter.
     if(daughter->pdgId()==tau.pdgId()) return LeptonicTauDecay(*daughter, elecdec, muondec);
     // check for leptons
-    elecdec |= abs(daughter->pdgId())==11;
-    muondec |= abs(daughter->pdgId())==13;
+    elecdec |= std::abs(daughter->pdgId())==11;
+    muondec |= std::abs(daughter->pdgId())==13;
     
-    if (abs(daughter->pdgId())==11) {
+    if (std::abs(daughter->pdgId())==11) {
       PtElFromTau = daughter->pt();
       EtaElFromTau = daughter->eta();
     }
     
-    if (abs(daughter->pdgId())==13){
+    if (std::abs(daughter->pdgId())==13){
     PtMuFromTau = daughter->pt();
     EtaMuFromTau = daughter->eta();
     }

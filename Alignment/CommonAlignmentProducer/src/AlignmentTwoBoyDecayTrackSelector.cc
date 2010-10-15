@@ -43,7 +43,7 @@ AlignmentTwoBodyDecayTrackSelector::AlignmentTwoBodyDecayTrackSelector(const edm
     theCharge = cfg.getParameter<int>( "charge" );
     theUnsignedSwitch = cfg.getParameter<bool>( "useUnsignedCharge" );
     if(theUnsignedSwitch) 
-      theCharge=abs(theCharge);
+      theCharge=std::abs(theCharge);
     LogDebug("Alignment") << ">  Desired Charge, unsigned: "<<theCharge<<" , "<<theUnsignedSwitch;
   }else{
     theCharge =0;
@@ -159,7 +159,7 @@ AlignmentTwoBodyDecayTrackSelector::checkCharge(const Tracks& cands) const
   for(Tracks::const_iterator it = cands.begin();it < cands.end();++it)
 	sumCharge += (*it)->charge();
   if(theUnsignedSwitch)
-    sumCharge = abs(sumCharge);
+    sumCharge = std::abs(sumCharge);
   if(sumCharge == theCharge)
     result = cands;
 

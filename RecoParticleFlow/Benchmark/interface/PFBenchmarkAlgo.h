@@ -191,7 +191,7 @@ double PFBenchmarkAlgo::deltaR(const T *c1, const U *c2) {
   if (c1 == NULL || c2 == NULL)
     throw cms::Exception("Invalid Arg") << "attempted to calculate deltaR for invalid Candidate(s)";
 
-  return sqrt(pow(deltaPhi(c1,c2),2) + pow(deltaEta(c1,c2),2));
+  return sqrt(std::pow(deltaPhi(c1,c2),2) + std::pow(deltaEta(c1,c2),2));
 
 }
 

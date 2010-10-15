@@ -67,7 +67,7 @@ double getDist(double eta1, double phi1, double eta2, double phi2)
 {
   double dphi = fabs(phi1 - phi2); 
   if(dphi>acos(-1)) dphi = 2*acos(-1)-dphi;
-  double dr = sqrt(dphi*dphi + pow(eta1-eta2,2));
+  double dr = sqrt(dphi*dphi + std::pow(eta1-eta2,2));
   return dr;
 }
 

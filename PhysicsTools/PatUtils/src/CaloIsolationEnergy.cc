@@ -1,5 +1,5 @@
 //
-// $Id: CaloIsolationEnergy.cc,v 1.1 2008/01/15 13:21:21 lowette Exp $
+// $Id: CaloIsolationEnergy.cc,v 1.2 2008/02/28 14:54:25 llista Exp $
 //
 
 #include "PhysicsTools/PatUtils/interface/CaloIsolationEnergy.h"
@@ -44,7 +44,7 @@ float CaloIsolationEnergy::calculate(const reco::Track & theTrack, const float l
     if (dPhi > M_PI)  dPhi = -2*M_PI + dPhi;
     if (dPhi < -M_PI) dPhi =  2*M_PI + dPhi;
     // calculate dR
-    float dR = sqrt(pow(theTrack.eta()-itTower->eta(), 2) + pow(dPhi, 2));
+    float dR = sqrt(std::pow(theTrack.eta()-itTower->eta(), 2) + std::pow(dPhi, 2));
     // calculate energy in cone around direction at vertex of the track
     if (dR < isoCone) {
       isoELepton += itTower->energy();

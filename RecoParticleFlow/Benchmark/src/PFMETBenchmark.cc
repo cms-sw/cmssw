@@ -291,11 +291,11 @@ void PFMETBenchmark::calculateQuantities( const reco::PFMETCollection& pfMets,
   //  for( genParticle = genParticleList.begin(); genParticle != genParticleList.end(); genParticle++ )
   for( unsigned i = 0; i < genParticleList.size(); i++ ) {
     if( genParticleList[i].status() == 1 && fabs(genParticleList[i].eta()) < 5.0 ) { 
-      if( abs(genParticleList[i].pdgId()) == 12 ||
-	  abs(genParticleList[i].pdgId()) == 14 ||
-	  abs(genParticleList[i].pdgId()) == 16 || 
-	  abs(genParticleList[i].pdgId()) < 7   || 
-	  abs(genParticleList[i].pdgId()) == 21 ) {
+      if( std::abs(genParticleList[i].pdgId()) == 12 ||
+	  std::abs(genParticleList[i].pdgId()) == 14 ||
+	  std::abs(genParticleList[i].pdgId()) == 16 || 
+	  std::abs(genParticleList[i].pdgId()) < 7   || 
+	  std::abs(genParticleList[i].pdgId()) == 21 ) {
 	trueMEX += genParticleList[i].px();
 	trueMEY += genParticleList[i].py();
       } else {
@@ -349,11 +349,11 @@ void PFMETBenchmark::calculateQuantities( const reco::PFMETCollection& pfMets,
   //  for( genParticle = genParticleList.begin(); genParticle != genParticleList.end(); genParticle++ )
   for( unsigned i = 0; i < genParticleList.size(); i++ ) {
     if( genParticleList[i].status() == 1 && fabs(genParticleList[i].eta()) < 5.0 ) { 
-      if( abs(genParticleList[i].pdgId()) == 12 ||
-	  abs(genParticleList[i].pdgId()) == 14 ||
-	  abs(genParticleList[i].pdgId()) == 16 || 
-	  abs(genParticleList[i].pdgId()) < 7   || 
-	  abs(genParticleList[i].pdgId()) == 21 ) {
+      if( std::abs(genParticleList[i].pdgId()) == 12 ||
+	  std::abs(genParticleList[i].pdgId()) == 14 ||
+	  std::abs(genParticleList[i].pdgId()) == 16 || 
+	  std::abs(genParticleList[i].pdgId()) < 7   || 
+	  std::abs(genParticleList[i].pdgId()) == 21 ) {
 	trueMEX += genParticleList[i].px();
 	trueMEY += genParticleList[i].py();
       } else {

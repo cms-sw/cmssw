@@ -521,7 +521,7 @@ L1TScalersSCAL::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       //cout << "bunchCrossing = "  << it4->bunchCrossing() << endl;
       //cout << "l1AcceptOffset = " << it4->l1AcceptOffset() << endl;
 
-      l1accept = abs(it4->l1AcceptOffset());   
+      l1accept = std::abs(it4->l1AcceptOffset());   
 
       //cout << "l1a orbit number (before if)= " << it4->orbitNumber() << endl;
       //cout << "l1a bunch crossing = " << it4->bunchCrossing() << endl;

@@ -21,8 +21,8 @@ pat::VertexAssociationSelector::operator()(const reco::Candidate &c, const reco:
     using std::abs;
     using std::sqrt;
 
-    if ((conf_.dZ > 0)      && !( abs(c.vz() - vtx.z())                > conf_.dZ    )) return false;
-    if ((conf_.sigmasZ > 0) && !( abs(c.vz() - vtx.z())                > conf_.sigmasZ * vtx.zError())) return false;
+    if ((conf_.dZ > 0)      && !( std::abs(c.vz() - vtx.z())                > conf_.dZ    )) return false;
+    if ((conf_.sigmasZ > 0) && !( std::abs(c.vz() - vtx.z())                > conf_.sigmasZ * vtx.zError())) return false;
     if ((conf_.dR > 0)      && !( (c.vertex() - vtx.position()).Rho() > conf_.dR    )) return false;
     if ( conf_.sigmasR > 0) {
         // D = sqrt( DZ^2 + DY^2) => sigma^2(D) = d D/d X_i * cov(X_i, X_j) * d D/d X_j =>

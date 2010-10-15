@@ -87,7 +87,7 @@ void EffPullcalculator::CalculatePulls() {
       cout<<"111\n";
       for(i=2; i<=sortedHisto1[k]->GetNbinsX(); ++i)
 	{
-	  if(abs(sortedHisto1[k]->GetBinContent(i) - sortedHisto2[k]->GetBinContent(i)) > abs(sortedHisto1[k]->GetBinContent(i-1)-sortedHisto2[k]->GetBinContent(i-1)))
+	  if(std::abs(sortedHisto1[k]->GetBinContent(i) - sortedHisto2[k]->GetBinContent(i)) > std::abs(sortedHisto1[k]->GetBinContent(i-1)-sortedHisto2[k]->GetBinContent(i-1)))
 	    {
 	      double content1=sortedHisto1[k]->GetBinContent(i), content2=sortedHisto2[k]->GetBinContent(i), error1=sortedHisto1[k]->GetBinError(i), error2=sortedHisto2[k]->GetBinError(i);
 	      char name1[256], name2[256], char_name[256];
@@ -95,7 +95,7 @@ void EffPullcalculator::CalculatePulls() {
 	      sprintf(name2,"%s",sortedHisto2[k]->GetXaxis()->GetBinLabel(i));
 	      for(j=i-1; j>=1; --j)
 		{
-		  if(abs(content1-content2) > abs(sortedHisto1[k]->GetBinContent(j) - sortedHisto2[k]->GetBinContent(j)))
+		  if(std::abs(content1-content2) > std::abs(sortedHisto1[k]->GetBinContent(j) - sortedHisto2[k]->GetBinContent(j)))
 		    {
 		      sortedHisto1[k]->SetBinContent(j+1, sortedHisto1[k]->GetBinContent(j));
 		      sortedHisto1[k]->SetBinError(j+1, sortedHisto1[k]->GetBinError(j));
@@ -210,7 +210,7 @@ void EffPullcalculator::CalculatePulls() {
       lines.push_back(" ");
     } else {
       double err = (error == "uncorrelated" ? 
-		    sqrt(pow(err_eff1[i],2.)+ pow(err_eff2[i],2.)) :
+		    sqrt(std::pow(err_eff1[i],2.)+ std::pow(err_eff2[i],2.)) :
 		    err_eff1[i]-err_eff2[i]);
       double pull = (eff1[i]-eff2[i])/err;
       if(fabs(pull) > 3.) {
