@@ -46,7 +46,7 @@
 </QTEST>
 <QTEST name="CompareToMedian:TkHistoNumberOfCluster" activate="true">
 	<TYPE>CompareToMedian</TYPE>
-	<PARAM name="MinRel">0.</PARAM>
+	<PARAM name="MinRel">0.1</PARAM>
         <PARAM name="MaxRel">5.</PARAM>
         <PARAM name="UseEmptyBins">0</PARAM>
         <PARAM name="MinAbs">0.</PARAM>
@@ -57,7 +57,7 @@
 </QTEST>
 <QTEST name="CompareToMedian:TkHistoNumberOfDigi" activate="true">
         <TYPE>CompareToMedian</TYPE>
-        <PARAM name="MinRel">0.</PARAM>
+        <PARAM name="MinRel">0.1</PARAM>
         <PARAM name="MaxRel">5.</PARAM>
         <PARAM name="UseEmptyBins">0</PARAM>
         <PARAM name="MinAbs">0.</PARAM>
