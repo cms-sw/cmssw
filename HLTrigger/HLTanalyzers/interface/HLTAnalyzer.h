@@ -10,6 +10,7 @@
 #include "HLTrigger/HLTanalyzers/interface/HLTTrack.h"
 #include "HLTrigger/HLTanalyzers/interface/EventHeader.h"
 #include "HLTrigger/HLTanalyzers/interface/RECOVertex.h"
+#include "HLTrigger/HLTanalyzers/interface/HLTHeavyIon.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -33,7 +34,13 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 
+#include "DataFormats/HeavyIonEvent/interface/Centrality.h"
+#include "DataFormats/HeavyIonEvent/interface/EvtPlane.h"
+
+
+
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+
 
 /** \class HLTAnalyzer
   *  
@@ -69,6 +76,7 @@ private:
   HLTTrack    track_analysis_;
   HLTInfo     hlt_analysis_;
   RECOVertex  vrt_analysis_;
+  HLTHeavyIon hi_analysis_;
 
   int firstLumi_, lastLumi_, towerThreshold_;
   double xSection_, filterEff_, treeWeight;
@@ -108,6 +116,8 @@ private:
   // egamma OpenHLT input collections
   edm::InputTag Electron_;
   edm::InputTag Photon_;
+  edm::InputTag BarrelPhoton_;
+  edm::InputTag EndcapPhoton_;
   edm::InputTag CandIso_;
   edm::InputTag CandNonIso_;
   edm::InputTag EcalIso_;
@@ -155,11 +165,31 @@ private:
   // Reco vertex collection
   edm::InputTag VertexTag_;
 
+  edm::InputTag CentralityTag_;
+  edm::InputTag EvtPlaneTag_;
+  edm::InputTag HiTag_;
+
   int errCnt;
   const int errMax(){return 100;}
 
   std::string _HistName; // Name of histogram file
   double _EtaMin,_EtaMax;
   TFile* m_file; // pointer to Histogram file
+
+  bool _DoHeavyIon;
+
+  bool _DoPhotons;
+  bool _DoSuperClusters;
+  bool _DoElectrons;
+
+  bool _DoBJets;
+
+  bool _DoL1Muons;
+  bool _DoL2Muons;
+  bool _DoL3Muons;
+  bool _DoOfflineMuons;
+  bool _DoQuarkonias;
+
+  bool _DoCentrality;
 
 };
