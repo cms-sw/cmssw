@@ -14,7 +14,6 @@
 
 
 namespace { // anonymous
-using namespace PhysicsTools::Calibration;
 struct dictionary {
 
 #ifdef STD_DICTIONARIES_STUFF_MISSING
@@ -23,31 +22,31 @@ std::vector<double> v4;
 #endif
 
 // Histogram
-HistogramF::Range v8;
-HistogramF v9;
-HistogramF2D v10;
-std::vector<HistogramF> v11;
-HistogramD::Range v12;
-HistogramD v13;
-HistogramD2D v14;
-std::vector<HistogramD> v15;
-std::vector<HistogramF2D> v16;
-std::vector<HistogramD2D> v17;
+PhysicsTools::Calibration::HistogramF::Range v8;
+PhysicsTools::Calibration::HistogramF v9;
+PhysicsTools::Calibration::HistogramF2D v10;
+std::vector<PhysicsTools::Calibration::HistogramF> v11;
+PhysicsTools::Calibration::HistogramD::Range v12;
+PhysicsTools::Calibration::HistogramD v13;
+PhysicsTools::Calibration::HistogramD2D v14;
+std::vector<PhysicsTools::Calibration::HistogramD> v15;
+std::vector<PhysicsTools::Calibration::HistogramF2D> v16;
+std::vector<PhysicsTools::Calibration::HistogramD2D> v17;
 PhysicsTools::Calibration::VHistogramD2D v18;
-HistogramD3D v30;
-HistogramF3D v31;
-std::vector<HistogramF3D> v32;
-std::vector<HistogramD3D> v33;
+PhysicsTools::Calibration::HistogramD3D v30;
+PhysicsTools::Calibration::HistogramF3D v31;
+std::vector<PhysicsTools::Calibration::HistogramF3D> v32;
+std::vector<PhysicsTools::Calibration::HistogramD3D> v33;
 
 
 // MVAComputer
-std::vector<Variable> v19;
-std::vector<ProcCategory::BinLimits> v20;
-std::vector<ProcLikelihood::SigBkg> v21;
-std::pair<std::vector<ProcMLP::Neuron>, bool> v23;
-MVAComputerContainer::Entry v24;
-std::vector<MVAComputerContainer::Entry> v25;
-std::vector<VarProcessor*> v26;
+std::vector<PhysicsTools::Calibration::Variable> v19;
+std::vector<PhysicsTools::Calibration::ProcCategory::BinLimits> v20;
+std::vector<PhysicsTools::Calibration::ProcLikelihood::SigBkg> v21;
+std::pair<std::vector<PhysicsTools::Calibration::ProcMLP::Neuron>, bool> v23;
+PhysicsTools::Calibration::MVAComputerContainer::Entry v24;
+std::vector<PhysicsTools::Calibration::MVAComputerContainer::Entry> v25;
+std::vector<PhysicsTools::Calibration::VarProcessor*> v26;
 
 
 // Performance DB stuff
