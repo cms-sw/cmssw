@@ -129,12 +129,12 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 }
 
 /* **Analyze the event** */
-void HLTJets::analyze(const edm::Handle<CaloJetCollection>      & calojets,
-		      const edm::Handle<CaloJetCollection>      & calocorjets,
-		      const edm::Handle<GenJetCollection>       & genjets,
-		      const edm::Handle<CaloMETCollection>      & recmets,
-		      const edm::Handle<GenMETCollection>       & genmets,
-		      const edm::Handle<METCollection>          & ht,
+void HLTJets::analyze(const edm::Handle<reco::CaloJetCollection>      & calojets,
+		      const edm::Handle<reco::CaloJetCollection>      & calocorjets,
+		      const edm::Handle<reco::GenJetCollection>       & genjets,
+		      const edm::Handle<reco::CaloMETCollection>      & recmets,
+		      const edm::Handle<reco::GenMETCollection>       & genmets,
+		      const edm::Handle<reco::METCollection>          & ht,
 		      const edm::Handle<reco::HLTTauCollection> & taujets,
 		      const edm::Handle<CaloTowerCollection>    & caloTowers,
 		      double thresholdForSavingTowers, 
@@ -149,10 +149,10 @@ void HLTJets::analyze(const edm::Handle<CaloJetCollection>      & calojets,
   htcalet=0.,htcalphi=0.,htcalsum=0.;
 
   if (calojets.isValid()) {
-    CaloJetCollection mycalojets;
+    reco::CaloJetCollection mycalojets;
     mycalojets=*calojets;
     std::sort(mycalojets.begin(),mycalojets.end(),PtGreater());
-    typedef CaloJetCollection::const_iterator cjiter;
+    typedef reco::CaloJetCollection::const_iterator cjiter;
     int jcal=0;
     for ( cjiter i=mycalojets.begin(); i!=mycalojets.end(); i++) {
 
@@ -172,10 +172,10 @@ void HLTJets::analyze(const edm::Handle<CaloJetCollection>      & calojets,
   else {njetcal = 0;}
 
   if (calocorjets.isValid()) {
-    CaloJetCollection mycalocorjets;
+    reco::CaloJetCollection mycalocorjets;
     mycalocorjets=*calocorjets;
     std::sort(mycalocorjets.begin(),mycalocorjets.end(),PtGreater());
-    typedef CaloJetCollection::const_iterator ccorjiter;
+    typedef reco::CaloJetCollection::const_iterator ccorjiter;
     int jcorcal=0;
     for ( ccorjiter i=mycalocorjets.begin(); i!=mycalocorjets.end(); i++) {
 
@@ -215,7 +215,7 @@ void HLTJets::analyze(const edm::Handle<CaloJetCollection>      & calojets,
   else {ntowcal = 0;}
 
   if (recmets.isValid()) {
-    typedef CaloMETCollection::const_iterator cmiter;
+    typedef reco::CaloMETCollection::const_iterator cmiter;
     for ( cmiter i=recmets->begin(); i!=recmets->end(); i++) {
       mcalmet = i->pt();
       mcalphi = i->phi();
@@ -224,7 +224,7 @@ void HLTJets::analyze(const edm::Handle<CaloJetCollection>      & calojets,
   }
 
   if (ht.isValid()) {
-    typedef METCollection::const_iterator iter;
+    typedef reco::METCollection::const_iterator iter;
     for ( iter i=ht->begin(); i!=ht->end(); i++) {
       htcalet = i->pt();
       htcalphi = i->phi();
@@ -235,10 +235,10 @@ void HLTJets::analyze(const edm::Handle<CaloJetCollection>      & calojets,
   if (_Monte){
 
     if (genjets.isValid()) {
-      GenJetCollection mygenjets;
+      reco::GenJetCollection mygenjets;
       mygenjets=*genjets;
       std::sort(mygenjets.begin(),mygenjets.end(),PtGreater());
-      typedef GenJetCollection::const_iterator gjiter;
+      typedef reco::GenJetCollection::const_iterator gjiter;
       int jgen=0;
       for ( gjiter i=mygenjets.begin(); i!=mygenjets.end(); i++) {
 
@@ -256,7 +256,7 @@ void HLTJets::analyze(const edm::Handle<CaloJetCollection>      & calojets,
     else {njetgen = 0;}
 
     if (genmets.isValid()) {
-      typedef GenMETCollection::const_iterator gmiter;
+      typedef reco::GenMETCollection::const_iterator gmiter;
       for ( gmiter i=genmets->begin(); i!=genmets->end(); i++) {
 	mgenmet = i->pt();
 	mgenphi = i->phi();
@@ -271,10 +271,10 @@ void HLTJets::analyze(const edm::Handle<CaloJetCollection>      & calojets,
 
     if (taujets.isValid()) {      
       nohtau = taujets->size();
-      HLTTauCollection mytaujets;
+      reco::HLTTauCollection mytaujets;
       mytaujets=*taujets;
       std::sort(mytaujets.begin(),mytaujets.end(),GetPtGreater());
-      typedef HLTTauCollection::const_iterator tauit;
+      typedef reco::HLTTauCollection::const_iterator tauit;
       int itau=0;
       for(tauit i=mytaujets.begin(); i!=mytaujets.end(); i++){
 	//Ask for Eta,Phi and Et of the tau:

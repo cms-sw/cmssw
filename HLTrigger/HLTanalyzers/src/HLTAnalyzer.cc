@@ -216,21 +216,20 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   // These declarations create handles to the types of records that you want
   // to retrieve from event "iEvent".
 
-  edm::Handle<CaloJetCollection>                    recjets;
-  edm::Handle<CaloJetCollection>                    reccorjets;
-  edm::Handle<GenJetCollection>                     genjets;
+  edm::Handle<reco::CaloJetCollection>                    recjets;
+  edm::Handle<reco::CaloJetCollection>                    reccorjets;
+  edm::Handle<reco::GenJetCollection>                     genjets;
   edm::Handle<CaloTowerCollection>                  caloTowers;
-  edm::Handle<CaloMETCollection>                    recmet;
-  edm::Handle<GenMETCollection>                     genmet;
-  edm::Handle<METCollection>                        ht;
+  edm::Handle<reco::CaloMETCollection>                    recmet;
+  edm::Handle<reco::GenMETCollection>                     genmet;
+  edm::Handle<reco::METCollection>                        ht;
 
   edm::Handle<reco::GenParticleCollection>                        mctruth;
-  //  edm::Handle<CandidateView>                        mct;
 
   edm::Handle<GenEventInfoProduct>                  genEventInfo;
   edm::Handle<std::vector<SimTrack> >               simTracks;
   edm::Handle<std::vector<SimVertex> >              simVertices;
-  edm::Handle<MuonCollection>                       muon;
+  edm::Handle<reco::MuonCollection>                       muon;
   edm::Handle<edm::TriggerResults>                  hltresults;
   edm::Handle<l1extra::L1EmParticleCollection>      l1extemi, l1extemn;
   edm::Handle<l1extra::L1MuonParticleCollection>    l1extmu;
@@ -240,8 +239,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle< L1GctHFBitCountsCollection >         gctBitCounts ;
   edm::Handle< L1GctHFRingEtSumsCollection >        gctRingSums ;
 
-  edm::Handle<RecoChargedCandidateCollection>       mucands2, mucands3;
-  edm::Handle<RecoChargedCandidateCollection>       oniaPixelCands, oniaTrackCands;
+  edm::Handle<reco::RecoChargedCandidateCollection>       mucands2, mucands3;
+  edm::Handle<reco::RecoChargedCandidateCollection>       oniaPixelCands, oniaTrackCands;
   edm::Handle<edm::ValueMap<bool> >                 isoMap2,  isoMap3;
   edm::Handle<reco::HLTTauCollection>               taus;
 
@@ -258,10 +257,10 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<reco::JetTagCollection>               hPerformanceBJetsL3;
 
   // egamma OpenHLT input collections
-  edm::Handle<SuperClusterCollection>               barrelPhotons;
-  edm::Handle<SuperClusterCollection>               endcapPhotons;
-  edm::Handle<GsfElectronCollection>                electrons;
-  edm::Handle<PhotonCollection>                     photons;
+  edm::Handle<reco::SuperClusterCollection>               barrelPhotons;
+  edm::Handle<reco::SuperClusterCollection>               endcapPhotons;
+  edm::Handle<reco::GsfElectronCollection>                electrons;
+  edm::Handle<reco::PhotonCollection>                     photons;
   edm::Handle<reco::ElectronCollection>             electronIsoHandle;
   edm::Handle<reco::ElectronCollection>             electronIsoHandleLW;
   edm::Handle<reco::ElectronCollection>             electronIsoHandleSS;

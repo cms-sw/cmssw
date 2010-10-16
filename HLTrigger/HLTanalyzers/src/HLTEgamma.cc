@@ -335,30 +335,30 @@ void HLTEgamma::analyze(const edm::Handle<reco::SuperClusterCollection>         
 
   if(_DoSuperClusters){
   if (barrelSCs.isValid() && endcapSCs.isValid()) {
-    SuperClusterCollection myBarrelSCs(* barrelSCs);
-    SuperClusterCollection myEndcapSCs(* endcapSCs);
+    reco::SuperClusterCollection myBarrelSCs(* barrelSCs);
+    reco::SuperClusterCollection myEndcapSCs(* endcapSCs);
     nSC = myBarrelSCs.size()+myEndcapSCs.size();
 
 //    std::sort(myBarrelSCs.begin(), myBarrelSCs.end(), EtFromEEtaGreater());
 //    std::sort(myEndcapSCs.begin(), myEndcapSCs.end(), EtFromEEtaGreater());
 
-    SuperClusterCollection mySCs;
+    reco::SuperClusterCollection mySCs;
 
     for (int i = 0; i < (int) myBarrelSCs.size(); i++)
     {
-      const SuperCluster &p = (myBarrelSCs)[i];
+      const reco::SuperCluster &p = (myBarrelSCs)[i];
       mySCs.push_back(p);
     }
 
     for (int i = 0; i < (int) myEndcapSCs.size(); i++)
     {
-      const SuperCluster &p = (myEndcapSCs)[i];
+      const reco::SuperCluster &p = (myEndcapSCs)[i];
       mySCs.push_back(p);
     }
     
     std::sort(mySCs.begin(), mySCs.end(), EtFromEEtaGreater());
     int iSC = 0;
-    for (SuperClusterCollection::const_iterator i = mySCs.begin(); i!= mySCs.end(); i++) {
+    for (reco::SuperClusterCollection::const_iterator i = mySCs.begin(); i!= mySCs.end(); i++) {
        SCpt[iSC] = i->energy()/cosh(i->eta());
        SCphi[iSC] = i->phi();
        SCeta[iSC] = i->eta();
@@ -373,11 +373,11 @@ void HLTEgamma::analyze(const edm::Handle<reco::SuperClusterCollection>         
 
   if(_DoElectrons){
   if (electrons.isValid()) {
-    GsfElectronCollection myelectrons( electrons->begin(), electrons->end() );
+    reco::GsfElectronCollection myelectrons( electrons->begin(), electrons->end() );
     nele = myelectrons.size();
     std::sort(myelectrons.begin(), myelectrons.end(), EtGreater());
     int iel = 0;
-    for (GsfElectronCollection::const_iterator i = myelectrons.begin(); i != myelectrons.end(); i++) {
+    for (reco::GsfElectronCollection::const_iterator i = myelectrons.begin(); i != myelectrons.end(); i++) {
       elpt[iel]  = i->pt();
       elphi[iel] = i->phi();
       eleta[iel] = i->eta();
@@ -419,11 +419,11 @@ void HLTEgamma::analyze(const edm::Handle<reco::SuperClusterCollection>         
 
   if(_DoPhotons){
   if (photons.isValid()) {
-    PhotonCollection myphotons(* photons);
+    reco::PhotonCollection myphotons(* photons);
     nphoton = myphotons.size();
     std::sort(myphotons.begin(), myphotons.end(), EtGreater());
     int ipho = 0;
-    for (PhotonCollection::const_iterator i = myphotons.begin(); i!= myphotons.end(); i++) {
+    for (reco::PhotonCollection::const_iterator i = myphotons.begin(); i!= myphotons.end(); i++) {
       photonpt[ipho] = i->energy()/cosh(i->eta());
       photonphi[ipho] = i->phi();
       photoneta[ipho] = i->eta();

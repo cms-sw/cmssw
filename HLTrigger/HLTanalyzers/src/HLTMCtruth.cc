@@ -188,7 +188,7 @@ void HLTMCtruth::analyze(
         if ((mcpid[nmc]==24)||(mcpid[nmc]==-24)) { // Checking W -> e/mu nu
           size_t idg = p.numberOfDaughters();
           for (size_t j=0; j != idg; ++j){
-            const Candidate & d = *p.daughter(j);
+            const reco::Candidate & d = *p.daughter(j);
             if ((d.pdgId()==11)||(d.pdgId()==-11)){wel += 1;}
             if ((d.pdgId()==13)||(d.pdgId()==-13)){wmu += 1;}
             //if ( (std::abs(d.pdgId())!=24) && ((mcpid[nmc])*(d.pdgId())>0) ) 
@@ -198,7 +198,7 @@ void HLTMCtruth::analyze(
         if (mcpid[nmc]==23) { // Checking Z -> 2 e/mu
           size_t idg = p.numberOfDaughters();
           for (size_t j=0; j != idg; ++j){
-            const Candidate & d = *p.daughter(j);
+            const reco::Candidate & d = *p.daughter(j);
             if (d.pdgId()==11){zee += 1;}
             if (d.pdgId()==-11){zee += 2;}
             if (d.pdgId()==13){zmumu += 1; mcDaughterEta1[nmc] = d.eta();}
@@ -209,7 +209,7 @@ void HLTMCtruth::analyze(
         if (mcpid[nmc]==443) { // Checking Jpsi -> 2 mu
             size_t idg = p.numberOfDaughters();
             for (size_t j=0; j != idg; ++j){
-                const Candidate & d = *p.daughter(j);
+	      const reco::Candidate & d = *p.daughter(j);
                 if (d.pdgId()==13){jmumu += 1; mcDaughterEta1[nmc] = d.eta();}
                 if (d.pdgId()==-13){jmumu += 2; mcDaughterEta2[nmc] = d.eta();}
             }
@@ -218,7 +218,7 @@ void HLTMCtruth::analyze(
         if (mcpid[nmc]==553) { // Checking Upsilon -> 2 mu
             size_t idg = p.numberOfDaughters();
             for (size_t j=0; j != idg; ++j){
-                const Candidate & d = *p.daughter(j);
+	      const reco::Candidate & d = *p.daughter(j);
                 if (d.pdgId()==13){umumu += 1; mcDaughterEta1[nmc] = d.eta();}
                 if (d.pdgId()==-13){umumu += 2; mcDaughterEta2[nmc] = d.eta();}
             }
