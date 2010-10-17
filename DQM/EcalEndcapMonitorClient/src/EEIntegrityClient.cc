@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2010/08/09 13:22:18 $
- * $Revision: 1.110 $
+ * $Date: 2010/08/09 13:44:54 $
+ * $Revision: 1.111 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -276,22 +276,22 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
   EcalLogicID ecid;
 
   MonCrystalConsistencyDat c1;
-  map<EcalLogicID, MonCrystalConsistencyDat> dataset1;
+  std::map<EcalLogicID, MonCrystalConsistencyDat> dataset1;
   MonTTConsistencyDat c2;
-  map<EcalLogicID, MonTTConsistencyDat> dataset2;
+  std::map<EcalLogicID, MonTTConsistencyDat> dataset2;
   MonMemChConsistencyDat c3;
-  map<EcalLogicID, MonMemChConsistencyDat> dataset3;
+  std::map<EcalLogicID, MonMemChConsistencyDat> dataset3;
   MonMemTTConsistencyDat c4;
-  map<EcalLogicID, MonMemTTConsistencyDat> dataset4;
+  std::map<EcalLogicID, MonMemTTConsistencyDat> dataset4;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
     if ( h00_ && h00_->GetBinContent(ism) != 0 ) {
-      cerr << std::endl;
-      cerr << " DCC failed " << h00_->GetBinContent(ism) << " times" << std::endl;
-      cerr << std::endl;
+      std::cerr << std::endl;
+      std::cerr << " DCC failed " << h00_->GetBinContent(ism) << " times" << std::endl;
+      std::cerr << std::endl;
     }
 
     if ( verbose_ ) {
@@ -677,8 +677,8 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
       if ( dataset3.size() != 0 ) econn->insertDataArraySet(&dataset3, moniov);
       if ( dataset4.size() != 0 ) econn->insertDataArraySet(&dataset4, moniov);
       if ( verbose_ ) std::cout << "done." << std::endl;
-    } catch (runtime_error &e) {
-      cerr << e.what() << std::endl;
+    } catch (std::runtime_error &e) {
+      std::cerr << e.what() << std::endl;
     }
   }
 
