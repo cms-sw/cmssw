@@ -5,9 +5,9 @@
   *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
   *  using a weights method
   *
-  *  $Id: EcalUncalibRecHitWorkerGlobal.h,v 1.15 2010/10/17 15:52:17 franzoni Exp $
-  *  $Date: 2010/10/17 15:52:17 $
-  *  $Revision: 1.15 $
+  *  $Id: EcalUncalibRecHitWorkerGlobal.h,v 1.14 2010/10/17 15:38:23 franzoni Exp $
+  *  $Date: 2010/10/17 15:38:23 $
+  *  $Revision: 1.14 $
   *  \author R. Bruneliere - A. Zabi
   */
 
@@ -71,6 +71,7 @@ class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerBaseClass {
                 std::pair<double,double> EEtimeFitLimits_;  
                 EcalUncalibRecHitRatioMethodAlgo<EBDataFrame> ratioMethod_barrel_;
                 EcalUncalibRecHitRatioMethodAlgo<EEDataFrame> ratioMethod_endcap_;
+
                 double EBtimeConstantTerm_;
                 double EBtimeNconst_;
                 double EEtimeConstantTerm_;
@@ -85,6 +86,8 @@ class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerBaseClass {
                 double outOfTimeThreshG61mEE_;
                 double amplitudeThreshEB_;
                 double amplitudeThreshEE_;
+		bool   outOfTimeIfGain12OnlyEB_;
+		bool   outOfTimeIfGain12OnlyEE_;
                 double ebSpikeThresh_;
 
                 // leading edge method
@@ -94,6 +97,13 @@ class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerBaseClass {
                 EcalUncalibRecHitLeadingEdgeAlgo<EBDataFrame> leadingEdgeMethod_barrel_;
                 EcalUncalibRecHitLeadingEdgeAlgo<EEDataFrame> leadingEdgeMethod_endcap_;
 
+                // chi2 method
+		bool kPoorRecoFlagEB_;
+		bool kPoorRecoFlagEE_;
+		double chi2ThreshEB_;
+		double chi2ThreshEE_;
+                std::vector<double> EBchi2Parameters_;
+                std::vector<double> EEchi2Parameters_;
 };
 
 #endif
