@@ -165,8 +165,6 @@
 
 namespace cscdqm {
 
-  using namespace XERCES_CPP_NAMESPACE;
-
   /** @brief MO filter Item definition (loaded from XML/PSet) */
   struct MOFilterItem {
     /** Regexp filter pattern */
