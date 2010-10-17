@@ -5,8 +5,8 @@
 
 namespace magfieldparam {
 
-typedef vector<rz_harm_poly>  harm_poly_vec;
-typedef vector<harm_poly_vec> harm_poly_arr;
+typedef std::vector<rz_harm_poly>  harm_poly_vec;
+typedef std::vector<harm_poly_vec> harm_poly_arr;
 
 /////////////////////////////////////////////////////////////////////////////////
 //                                                                             //
@@ -31,7 +31,7 @@ private:
    void   EvalRZ(harm_poly_arr &B, double *val);
    double GetVal(double *coeff, double *basis);
 
-   void Print(harm_poly_arr &B, ostream &out = cout);
+   void Print(harm_poly_arr &B,std::ostream &out = std::cout);
    
 public:
    HarmBasis3DCyl(const unsigned N = 18); //The only legal constructor
@@ -67,11 +67,11 @@ public:
    double GetBz  (double *coeff) { return GetVal(coeff, Bz_k);}
    double GetBphi(double *coeff) { return GetVal(coeff, Bphi_k);}
 
-   void PrintPtB  (ostream &out = cout) { Print(PtB,   out);}
-   void PrintBrB  (ostream &out = cout) { Print(BrB,   out);}
-   void PrintBzB  (ostream &out = cout) { Print(BzB,   out);}
-   void PrintBphiB(ostream &out = cout) { Print(BphiB, out);}
-   void Print     (ostream &out = cout);
+   void PrintPtB  (std::ostream &out = std::cout) { Print(PtB,   out);}
+   void PrintBrB  (std::ostream &out = std::cout) { Print(BrB,   out);}
+   void PrintBzB  (std::ostream &out = std::cout) { Print(BzB,   out);}
+   void PrintBphiB(std::ostream &out = std::cout) { Print(BphiB, out);}
+   void Print     (std::ostream &out = std::cout);
 
 }; //class HarmBasis3DCyl
 }

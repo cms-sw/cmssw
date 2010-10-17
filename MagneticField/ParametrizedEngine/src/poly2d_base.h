@@ -11,8 +11,6 @@
 #include <cmath>
 #include <float.h> //in order to use DBL_EPSILON (1+DBL_EPSILON > 1)
 
-using namespace std;
-
 /////////////////////////////////////////////////////////////////////////////////
 //                                                                             //
 //  The "poly2d_term" represent a term of a polynomial of 2 variables.         //
@@ -31,7 +29,7 @@ struct poly2d_term {
    {
       coeff = C; np[0] = nr; np[1] = nz;
    }
-   void Print(ostream &out = cout, bool first_term = true);
+   void Print(std::ostream &out = std::cout, bool first_term = true);
 };
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -58,8 +56,8 @@ protected:
 
    static const double MIN_COEFF; //Threshold for assigning a coeff. to 0
 
-   static set<poly2d_base*> poly2d_base_set;  //Set of all poly2d_base objects
-//   static set<poly2d_base*, less<poly2d_base*> > poly2d_base_set;  //Set of all poly2d_base objects
+   static std::set<poly2d_base*> poly2d_base_set;  //Set of all poly2d_base objects
+//   static std::set<poly2d_base*, less<poly2d_base*> > poly2d_base_set;  //Set of all poly2d_base objects
 
    static void SetTabSize(const unsigned N); //Set rz-table size
    static void FillTable (const double r, const double z);
@@ -67,14 +65,14 @@ protected:
    static void AdjustTab();
    //----------------------------------------------------------------------------
 
-   vector<poly2d_term> data; //polynomial terms
+   std::vector<poly2d_term> data; //polynomial terms
    unsigned max_pwr;         //max power in use by INSTANCE
    
 public:
    static void     IncNPwr(const unsigned N) {if (N > NPwr) NPwr = N;}
    static int      GetMaxPow();
    static unsigned Count() { return poly2d_base_set.size();}
-   static void     PrintTab(ostream &out = cout, const streamsize prec = 5);
+   static void     PrintTab(std::ostream &out = std::cout, const std::streamsize prec = 5);
 
    static void SetPoint(const double r, const double z);
 
@@ -108,7 +106,7 @@ public:
    double GetVal() {if (rz_set) return Eval(); else return 0.;}
    double GetVal(const double r, const double z) { SetPoint(r,z); return Eval();}
    
-   void Print(ostream &out = cout, const streamsize prec = 5);
+   void Print(std::ostream &out = std::cout, const std::streamsize prec = 5);
 
 }; //Class poly2d_base
 }

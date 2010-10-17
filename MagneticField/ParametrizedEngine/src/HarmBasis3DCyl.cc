@@ -126,14 +126,14 @@ double HarmBasis3DCyl::GetVal(double *coeff, double *basis)
 }
 
 //_______________________________________________________________________________
-void HarmBasis3DCyl::Print(harm_poly_arr &B, ostream &out)
+void HarmBasis3DCyl::Print(harm_poly_arr &B, std::ostream &out)
 {
    unsigned jL, jM, wdt = 60;
    char fc1 = '-', fc0 = out.fill(fc1);
    for (jL = 0; jL < B.size(); ++jL) {
-      out << setw(wdt) << fc1 << endl;
-      out << "Basis subset " << jL+1 << endl;
-      out << setw(wdt) << fc1 << endl;
+      out << std::setw(wdt) << fc1 << std::endl;
+      out << "Basis subset " << jL+1 << std::endl;
+      out << std::setw(wdt) << fc1 << std::endl;
       for (jM = 0; jM < B[jL].size(); ++jM) {
          B[jL][jM].Print(out);
       }
@@ -142,15 +142,15 @@ void HarmBasis3DCyl::Print(harm_poly_arr &B, ostream &out)
 }
 
 //_______________________________________________________________________________
-void HarmBasis3DCyl::Print(ostream &out)
+void HarmBasis3DCyl::Print(std::ostream &out)
 {
-   out << "BASIS POLYNOMIALS FOR THE POTENTIAL:\n" << endl;
+   out << "BASIS POLYNOMIALS FOR THE POTENTIAL:\n" << std::endl;
    PrintPtB(out);
-   out << "\nBASIS POLYNOMIALS FOR R-COMPONENT   OF THE FIELD:\n" << endl;
+   out << "\nBASIS POLYNOMIALS FOR R-COMPONENT   OF THE FIELD:\n" << std::endl;
    PrintBrB(out);
-   out << "\nBASIS POLYNOMIALS FOR Z-COMPONENT   OF THE FIELD:\n" << endl;
+   out << "\nBASIS POLYNOMIALS FOR Z-COMPONENT   OF THE FIELD:\n" << std::endl;
    PrintBzB(out);
-   out << "\nBASIS POLYNOMIALS FOR PHI-COMPONENT OF THE FIELD:\n" << endl;
+   out << "\nBASIS POLYNOMIALS FOR PHI-COMPONENT OF THE FIELD:\n" << std::endl;
    PrintBphiB(out);
 }
 

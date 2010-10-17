@@ -9,7 +9,7 @@ using namespace magfieldparam;
 /////////////////////////////////////////////////////////////////////////////////
 
 //_______________________________________________________________________________
-void poly2d_term::Print(ostream &out, bool first_term)
+void poly2d_term::Print(std::ostream &out, bool first_term)
 {
    if (first_term) out << coeff;
    else if (coeff > 0.) out << " + " << coeff;
@@ -43,7 +43,7 @@ unsigned   poly2d_base::NPwr   = 0;  //max power in use by CLASS
 bool       poly2d_base::rz_set = false;
 
 const double poly2d_base::MIN_COEFF = DBL_EPSILON; //Thresh. for coeff == 0
-set<poly2d_base*> poly2d_base::poly2d_base_set;
+std::set<poly2d_base*> poly2d_base::poly2d_base_set;
 
 //_______________________________________________________________________________
 poly2d_base::~poly2d_base()
@@ -102,7 +102,7 @@ void poly2d_base::FillTable(const double r, const double z)
 int poly2d_base::GetMaxPow()
 {
    int curp, maxp = 0;
-   set<poly2d_base*>::iterator it;
+   std::set<poly2d_base*>::iterator it;
 
    for (it = poly2d_base_set.begin(); it != poly2d_base_set.end(); ++it) {
       curp = (*it)->max_pwr;
@@ -119,28 +119,28 @@ void poly2d_base::AdjustTab()
 }
 
 //_______________________________________________________________________________
-void poly2d_base::PrintTab(ostream &out, const streamsize prec)
+void poly2d_base::PrintTab(std::ostream &out, const std::streamsize prec)
 {
    out << "poly2d_base table size NTab = " << NTab
-       << "\tmax. power NPwr = " << NPwr << endl;
+       << "\tmax. power NPwr = " << NPwr << std::endl;
    if (rz_pow) {
       if (NPwr < NTab) {
-         streamsize old_prec = out.precision(), wdt = prec+7; 
+         std::streamsize old_prec = out.precision(), wdt = prec+7; 
          out.precision(prec);
-         out << "Table content:" << endl;
+         out << "Table content:" << std::endl;
          unsigned jr, jz;
          for (jr = 0; jr <= NPwr; ++jr) {
             for (jz = 0; jz <= (NPwr-jr); ++jz) {
-               out << setw(wdt) << left << rz_pow[jr][jz];
+               out << std::setw(wdt) << std::left << rz_pow[jr][jz];
             }
-            out << "|" << endl;
+            out << "|" << std::endl;
          }
          out.precision(old_prec);
       } else {
-         out << "\tTable size is not adjusted." << endl;
+         out << "\tTable size is not adjusted." << std::endl;
       }
    } else {
-      out << "\tTable is not allocated." << endl;
+      out << "\tTable is not allocated." << std::endl;
    }
 }
 
@@ -169,7 +169,7 @@ void poly2d_base::Collect()
 
    unsigned j1, j2, rpow, zpow, noff = 0, jend = data.size();
    double C;
-   vector<bool> mask(jend, false);
+   std::vector<bool> mask(jend, false);
    max_pwr = 0;
 
    for (j1 = 0; j1 < jend; ++j1) {
@@ -193,7 +193,7 @@ void poly2d_base::Collect()
          ++noff;
       }
    }
-   vector<poly2d_term> newdata; newdata.reserve(jend - noff);
+   std::vector<poly2d_term> newdata; newdata.reserve(jend - noff);
    for (j1 = 0; j1 < jend; ++j1) {
       if (!(mask[j1])) newdata.push_back(data[j1]);
    }
@@ -201,20 +201,20 @@ void poly2d_base::Collect()
 }
 
 //_______________________________________________________________________________
-void poly2d_base::Print(ostream &out, const streamsize prec)
+void poly2d_base::Print(std::ostream &out, const std::streamsize prec)
 {
    if (!data.size()) {
-      out << "\"poly2d_base\" object contains no terms." << endl;
+      out << "\"poly2d_base\" object contains no terms." << std::endl;
       return;
    }
-   out << data.size() << " terms; max. degree = " << max_pwr << ":" << endl;
-   streamsize old_prec = out.precision();
+   out << data.size() << " terms; max. degree = " << max_pwr << ":" << std::endl;
+   std::streamsize old_prec = out.precision();
    out.precision(prec);
    data[0].Print(out);
    for (unsigned it = 1; it < data.size(); ++it) {
          data[it].Print(out, false);
    }
-   out << endl;
+   out << std::endl;
    out.precision(old_prec);
 }
 
@@ -224,7 +224,7 @@ void poly2d_base::Diff(int nvar)
 //differentiate the polynomial by variable nvar.
 //
    poly2d_term  v3;
-   vector<poly2d_term> newdata;
+   std::vector<poly2d_term> newdata;
    newdata.reserve(data.size());
    unsigned cur_pwr = 0, maxp = 0, oldp = max_pwr;
    for (unsigned it = 0; it < data.size(); ++it) {
@@ -275,7 +275,7 @@ void poly2d_base::DecPow(int nvar)
 //and also terms where the initial power of nvar is equal zero
 //
    poly2d_term  v3;
-   vector<poly2d_term> newdata;
+   std::vector<poly2d_term> newdata;
    newdata.reserve(data.size());
    unsigned cur_pwr = 0, maxp = 0, oldp = max_pwr;
    for (unsigned it = 0; it < data.size(); ++it) {

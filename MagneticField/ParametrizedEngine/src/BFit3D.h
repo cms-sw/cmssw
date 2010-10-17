@@ -4,8 +4,6 @@
 #include <iostream>
 #include "HarmBasis3DCyl.h"
 
-using namespace std;
-
 //_______________________________________________________________________________
 namespace magfieldparam {
 class BFit3D {
@@ -69,11 +67,11 @@ public:
    
    //The following functions prints the basis polynomials for the scalar
    //field potential, B_r, B_z or B_phi.
-   void PrintPtnPoly (ostream &out = cout) { HB->PrintPtB  (out);}
-   void PrintBrPoly  (ostream &out = cout) { HB->PrintBrB  (out);}
-   void PrintBzPoly  (ostream &out = cout) { HB->PrintBzB  (out);}
-   void PrintBphiPoly(ostream &out = cout) { HB->PrintBphiB(out);}
-   void PrintPoly    (ostream &out = cout) { HB->Print     (out);}
+   void PrintPtnPoly (std::ostream &out = std::cout) { HB->PrintPtB  (out);}
+   void PrintBrPoly  (std::ostream &out = std::cout) { HB->PrintBrB  (out);}
+   void PrintBzPoly  (std::ostream &out = std::cout) { HB->PrintBzB  (out);}
+   void PrintBphiPoly(std::ostream &out = std::cout) { HB->PrintBphiB(out);}
+   void PrintPoly    (std::ostream &out = std::cout) { HB->Print     (out);}
 
 };
 }

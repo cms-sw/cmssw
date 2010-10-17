@@ -52,10 +52,10 @@ private:
    static void SetTrigArrSize(const unsigned N);
    static void FillTrigArr   (const double phi);
    
-   void PrintLM(ostream &out = cout)
+   void PrintLM(std::ostream &out = std::cout)
    {
-      out <<  "L=" << setw(3)  << left << L
-          <<", M=" << setw(3)  << left << M << "; ";
+      out <<  "L=" << std::setw(3)  << std::left << L
+          <<", M=" << std::setw(3)  << std::left << M << "; ";
    }
 
 public:
@@ -95,11 +95,11 @@ public:
    double GetSin() { return TrigArr[M].SinPhi;}
    
    void CheatL(const unsigned newL) { L = newL;}
-   void Print(ostream &out = cout, const streamsize prec = 5)
+   void Print(std::ostream &out = std::cout, const std::streamsize prec = 5)
    { PrintLM(out); poly2d_base::Print(out, prec);}
  
 
-   static void PrintTrigArr(ostream &out = cout, const streamsize prec = 5);
+   static void PrintTrigArr(std::ostream &out = std::cout, const std::streamsize prec = 5);
 
 }; //class rz_harm_poly
 }

@@ -28,7 +28,7 @@ rz_harm_poly::rz_harm_poly(const unsigned N)
    unsigned nz = N, nr = 0, nv = 0;
    poly2d_term v3(1./N, nr, nz);
 
-   data = vector<poly2d_term>((N + 2) / 2, v3);
+   data = std::vector<poly2d_term>((N + 2) / 2, v3);
 
    while (nz >= 2) {
       nz -= 2;
@@ -54,7 +54,7 @@ rz_harm_poly::rz_harm_poly(const unsigned N)
 rz_harm_poly::~rz_harm_poly()
 {
    if (--Cnt) {
-     if (abs(M) >= int(MaxM)) { //a number of objects still left
+     if (std::abs(M) >= int(MaxM)) { //a number of objects still left
          M = 0;
          MaxM = GetMaxM();
       }
@@ -74,10 +74,10 @@ int rz_harm_poly::GetMaxM()
 //Return max abs(M) for all rz_harm_poly objects created
 //
    int M_cur, M_max = 0;
-   set<poly2d_base*>::iterator it;
+   std::set<poly2d_base*>::iterator it;
    for (it = poly2d_base_set.begin(); it != poly2d_base_set.end(); ++it) {
       if (typeid(**it) == typeid(rz_harm_poly)) {
-         M_cur = abs(((rz_harm_poly*)(*it))->M);
+         M_cur = std::abs(((rz_harm_poly*)(*it))->M);
          if (M_cur > M_max) M_max = M_cur;
       }
    }
@@ -120,34 +120,34 @@ void rz_harm_poly::FillTrigArr(const double phi)
 }
 
 //_______________________________________________________________________________
-void rz_harm_poly::PrintTrigArr(ostream &out, const streamsize prec)
+void rz_harm_poly::PrintTrigArr(std::ostream &out, const std::streamsize prec)
 {
    out << "TrigArr: TASize = " << TASize
-       << "\tMaxM = " << MaxM << endl;
+       << "\tMaxM = " << MaxM << std::endl;
    if (TrigArr) {
       if (MaxM < TASize) {
          unsigned jm;
-         streamsize old_prec = out.precision(), wdt = prec+7;
+         std::streamsize old_prec = out.precision(), wdt = prec+7;
          out.precision(prec);
          out << "M:     ";
          for (jm = 0; jm <= MaxM; ++jm) {
-            out << setw(wdt) << left << jm;
+            out << std::setw(wdt) << std::left << jm;
          }
          out << "|\nCos_M: ";
          for (jm = 0; jm <= MaxM; ++jm) {
-            out << setw(wdt) << left << TrigArr[jm].CosPhi;
+            out << std::setw(wdt) << std::left << TrigArr[jm].CosPhi;
          }
          out << "|\nSin_M: ";
          for (jm = 0; jm <= MaxM; ++jm) {
-            out << setw(wdt) << left << TrigArr[jm].SinPhi;
+            out << std::setw(wdt) << std::left << TrigArr[jm].SinPhi;
          }
-         out << "|" << endl;
+         out << "|" << std::endl;
          out.precision(old_prec);
       } else {
-         out << "\tTrigArr size is not adjusted." << endl;
+         out << "\tTrigArr size is not adjusted." << std::endl;
       }
    } else {
-      out << "\tTrigArr is not allocated." << endl;
+      out << "\tTrigArr is not allocated." << std::endl;
    }
 }
 
@@ -183,7 +183,7 @@ rz_harm_poly rz_harm_poly::LadderUp()
    if (p_out.data.size()) {
       p_out.L = L;
       p_out.M = M+1;
-      if (abs(p_out.M) > int(MaxM)) MaxM = abs(p_out.M);
+      if (std::abs(p_out.M) > int(MaxM)) MaxM = std::abs(p_out.M);
       p_out.Scale(1./sqrt(double((L-M)*(L+M+1))));
    }
    return p_out;
@@ -221,7 +221,7 @@ rz_harm_poly rz_harm_poly::LadderDwn()
    if (p_out.data.size()) {
       p_out.L = L;
       p_out.M = M-1;
-      if (abs(p_out.M) > int(MaxM)) MaxM = abs(p_out.M);
+      if (std::abs(p_out.M) > int(MaxM)) MaxM = std::abs(p_out.M);
       p_out.Scale(1./sqrt(double((L+M)*(L-M+1))));
    }
    return p_out;
