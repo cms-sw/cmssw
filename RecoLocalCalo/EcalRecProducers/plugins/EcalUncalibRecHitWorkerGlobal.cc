@@ -37,8 +37,6 @@ EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::Paramete
         outOfTimeThreshG61mEE_ = ps.getParameter<double>("outOfTimeThresholdGain61mEE");
         amplitudeThreshEB_ = ps.getParameter<double>("amplitudeThresholdEB");
         amplitudeThreshEE_ = ps.getParameter<double>("amplitudeThresholdEE");
-	outOfTimeIfGain12OnlyEB_ = ps.getParameter<bool>("outOfTimeIfGain12OnlyEB");
-	outOfTimeIfGain12OnlyEE_ = ps.getParameter<bool>("outOfTimeIfGain12OnlyEE");
         ebSpikeThresh_ = ps.getParameter<double>("ebSpikeThreshold");
         // leading edge parameters
         ebPulseShape_ = ps.getParameter<std::vector<double> >("ebPulseShape");
