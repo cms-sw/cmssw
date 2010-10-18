@@ -12,7 +12,7 @@
 #include <TObjString.h>
 #include <TClonesArray.h>
 
-vector<string> nameList; 
+std::vector<string> nameList; 
 
 ///
 ///_____________________________________________________________________________________________
@@ -23,7 +23,7 @@ UEAnalysisOnRootple::UEAnalysisOnRootple()
   //  SampleType = "Summer08:Herwig";
   //SampleType = "Pythia8:10TeV";
   SampleType = "Pythia6:10TeV";
-  cout << "UEAnalysisOnRootple constructor running on " << SampleType <<endl;
+  std::cout << "UEAnalysisOnRootple constructor running on " << SampleType <<std::endl;
 
   if ( SampleType == "CSA08" )
     {
@@ -70,8 +70,8 @@ UEAnalysisOnRootple::UEAnalysisOnRootple()
 ///_____________________________________________________________________________________________
 ///
 void 
-UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,vector<float> weight,Float_t eta,
-				   string type,string trigger,string tkpt,Float_t ptCut)
+UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,std::vector<float> weight,Float_t eta,
+				   std::string type,std::string trigger,std::string tkpt,Float_t ptCut)
 {
   BeginJob(outname,type);
 
@@ -129,9 +129,9 @@ UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,vector<float> we
     {
       if ( RootTupleName[0] != '#') 
 	{
-	  string fileName( RootTupleName );
-	  cout <<"File: "<< fileName << endl;
-	  //<< " (" << fileName.size() << " characters)" << endl;
+	  std::string fileName( RootTupleName );
+	  std::cout <<"File: "<< fileName << std::endl;
+	  //<< " (" << fileName.size() << " characters)" << std::endl;
      
 	  // no binning of datasets
 	  pThatMax = 14000.;
@@ -171,7 +171,7 @@ UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,vector<float> we
 	      else if ( fileName.compare( 61, 8, "JetET110" ) == 0 ) pThatMax =   220.;
 	      else                                                   pThatMax = 14000.;
 	    }
-	  cout << "Choose maximum pThat for dataset. ptHatMax = " << pThatMax << " GeV/c" << endl;
+	  std::cout << "Choose maximum pThat for dataset. ptHatMax = " << pThatMax << " GeV/c" << std::endl;
 	  
 	  f = TFile::Open(RootTupleName);
 	  
@@ -190,7 +190,7 @@ UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,vector<float> we
 	    }
 	  else if ( int(ptCut)!=900 ) sprintf ( buffer, "UEAnalysisRootple%i", int(ptCut) );
 	  else                        sprintf ( buffer, "UEAnalysisRootple"               );
-	  cout << endl << "Opening directory " << buffer << endl << endl;
+	  std::cout << std::endl << "Opening directory " << buffer << std::endl << std::endl;
 	  f->cd( buffer );
 
 	  TTree * tree = (TTree*)gDirectory->Get("AnalysisTree");
@@ -231,19 +231,19 @@ UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,vector<float> we
 ///_____________________________________________________________________________________________
 ///
 void 
-UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string trigger,string tkpt)
+UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,std::string type,std::string trigger,std::string tkpt)
 {
   ///
   /// Sanity check.
   ///
   if (fChain == 0) 
     {
-      cout << "fChain == 0 return." << endl;
+      std::cout << "fChain == 0 return." << std::endl;
       return;
     }
 
   Long64_t nentries = fChain->GetEntriesFast();
-  cout << "number of entries: " << nentries << endl;
+  std::cout << "number of entries: " << nentries << std::endl;
 
   Long64_t nbytes = 0, nb = 0;
 
@@ -252,11 +252,11 @@ UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string trig
   ///
   for ( Long64_t jentry(0); jentry<nentries; ++jentry ) 
     {
-      if ( jentry%1000 == 0 ) cout << "/// entry /// " << jentry << " ///" << endl;
+      if ( jentry%1000 == 0 ) std::cout << "/// entry /// " << jentry << " ///" << std::endl;
  
 //         if ( jentry>100 ) 
 //    	{
-//    	  cout << "[UEAnalysisOnRootple] Stop after " << jentry << " events" << endl;
+//    	  std::cout << "[UEAnalysisOnRootple] Stop after " << jentry << " events" << std::endl;
 //    	  break;
 //    	}
 
@@ -285,7 +285,7 @@ UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string trig
       if (type=="AreaGen")
 	{
 	  UEJetAreaFinder *areaFinder = new UEJetAreaFinder( etaRegion , ptThreshold, "kT" );
-	  vector<UEJetWithArea> *area = new vector<UEJetWithArea>();
+	  std::vector<UEJetWithArea> *area = new std::vector<UEJetWithArea>();
 
 	  if ( areaFinder->find( *MonteCarlo, *area ) ) areaHistos->fill( *area );
 	  delete area;
@@ -298,7 +298,7 @@ UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string trig
  	  /// Hadron level analysis
  	  ///
  	  UEJetAreaFinder *areaGenFinder = new UEJetAreaFinder( etaRegion , ptThreshold, "kT" );
- 	  vector<UEJetWithArea> *areaGen = new vector<UEJetWithArea>();
+ 	  std::vector<UEJetWithArea> *areaGen = new std::vector<UEJetWithArea>();
  	  if ( areaGenFinder->find( *MonteCarlo, *areaGen ) ) areaHistos->fill( *areaGen );
  	  delete areaGen;
  	  delete areaGenFinder;
@@ -307,7 +307,7 @@ UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string trig
  	  /// Track analysis
  	  ///
 	  UEJetAreaFinder *areaFinder = new UEJetAreaFinder( etaRegion , ptThreshold, "kT" );
- 	  vector<UEJetWithArea> *area = new vector<UEJetWithArea>();
+ 	  std::vector<UEJetWithArea> *area = new std::vector<UEJetWithArea>();
  	  if ( areaFinder->find( *Track, *area ) ) areaHistos->fill( *area, *acceptedTriggers );
  	  delete area;
  	  delete areaFinder;
@@ -371,7 +371,7 @@ UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string trig
   
 }
 
-void UEAnalysisOnRootple::BeginJob(char* outname,string type)
+void UEAnalysisOnRootple::BeginJob(char* outname,std::string type)
 {    
 //   h_acceptedTriggers = new TH1D("h_acceptedTriggers","h_acceptedTriggers",12,-0.5,11.5);
 //   h_eventScale = new TH1D("h_eventScale", "h_eventScale", 100, 0., 200.);
@@ -409,7 +409,7 @@ Long64_t UEAnalysisOnRootple::LoadTree(Long64_t entry)
    return centry;
 }
 
-void UEAnalysisOnRootple::Init(TTree *tree, string type)
+void UEAnalysisOnRootple::Init(TTree *tree, std::string type)
 {
    // The Init() function is called when the selector needs to initialize
    // a new tree or chain. Typically here the branch addresses and branch

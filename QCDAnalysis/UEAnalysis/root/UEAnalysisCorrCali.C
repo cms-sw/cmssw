@@ -9,10 +9,10 @@
 
 UEAnalysisCorrCali::UEAnalysisCorrCali()
 {
-  //  cout << "UEAnalysisCorrCali constructor " <<endl;
+  //  std::cout << "UEAnalysisCorrCali constructor " <<std::endl;
 }
 
-float UEAnalysisCorrCali::calibrationPt(float ptReco,string tkpt){
+float UEAnalysisCorrCali::calibrationPt(float ptReco,std::string tkpt){
   if(tkpt=="900"){
     float corr = 0.1122*exp(-(0.2251*ptReco))+1.086-0.0005408*ptReco;
     return  corr;
@@ -23,7 +23,7 @@ float UEAnalysisCorrCali::calibrationPt(float ptReco,string tkpt){
   }
 }
 
-float UEAnalysisCorrCali::correctionPtTrans(float ptReco,string tkpt){
+float UEAnalysisCorrCali::correctionPtTrans(float ptReco,std::string tkpt){
   if(tkpt=="900"){
     float corr = 1.214*exp(-(0.9637*ptReco))+1.204-0.0003461*ptReco;
     return  corr;
@@ -34,7 +34,7 @@ float UEAnalysisCorrCali::correctionPtTrans(float ptReco,string tkpt){
   }
 }
 
-float UEAnalysisCorrCali::correctionPtToward(float ptReco,string tkpt){
+float UEAnalysisCorrCali::correctionPtToward(float ptReco,std::string tkpt){
   if(tkpt=="900"){
     float corr = 0.1037*exp(-(0.1382*ptReco))+1.117-0.0006322*ptReco;
     return  corr;
@@ -45,7 +45,7 @@ float UEAnalysisCorrCali::correctionPtToward(float ptReco,string tkpt){
   }
 }
 
-float UEAnalysisCorrCali::correctionPtAway(float ptReco,string tkpt){
+float UEAnalysisCorrCali::correctionPtAway(float ptReco,std::string tkpt){
   if(tkpt=="900"){
     float corr = 0.2707*exp(-(0.2685*ptReco))+1.169-0.000411*ptReco;
     return  corr;
@@ -56,7 +56,7 @@ float UEAnalysisCorrCali::correctionPtAway(float ptReco,string tkpt){
   }
 }
 
-float UEAnalysisCorrCali::correctionNTrans(float ptReco,string tkpt){
+float UEAnalysisCorrCali::correctionNTrans(float ptReco,std::string tkpt){
   if(tkpt=="900"){
     float corr = 1.101*exp(-(0.9939*ptReco))+1.198-0.0001467*ptReco;
     return  corr;
@@ -67,7 +67,7 @@ float UEAnalysisCorrCali::correctionNTrans(float ptReco,string tkpt){
   }
 }
 
-float UEAnalysisCorrCali::correctionNToward(float ptReco,string tkpt){
+float UEAnalysisCorrCali::correctionNToward(float ptReco,std::string tkpt){
   if(tkpt=="900"){
     float corr = 0.9264*exp(-(1.053*ptReco))+1.16-0.0005176*ptReco;
     return  corr;
@@ -78,7 +78,7 @@ float UEAnalysisCorrCali::correctionNToward(float ptReco,string tkpt){
   }
 }
 
-float UEAnalysisCorrCali::correctionNAway(float ptReco,string tkpt){
+float UEAnalysisCorrCali::correctionNAway(float ptReco,std::string tkpt){
   if(tkpt=="900"){
     float corr = 0.2663*exp(-(0.342*ptReco))+1.178-0.0004006*ptReco;
     return  corr;

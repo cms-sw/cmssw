@@ -36,11 +36,6 @@
 #include <DataFormats/HLTReco/interface/TriggerEvent.h> 
 #include <DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h>
 
-using namespace edm;
-using namespace reco;
-using namespace trigger;
-using std::vector;
-
 class UEJetValidation : public edm::EDAnalyzer
 {
   
@@ -58,31 +53,31 @@ private:
   
   //virtual void fillHistograms( const Event& e, const EventSetup& es, int iHLTbit );
   virtual void fillHistogramsChgGen( int       iHLTbit,
-				     BasicJet &theLeadingTrackJet,
-				     GenJet   &theLeadingChgGenJet );
+				     reco::BasicJet &theLeadingTrackJet,
+				     reco::GenJet   &theLeadingChgGenJet );
 
   virtual void fillHistogramsCalo( int       iHLTbit,
-				   BasicJet &theLeadingTrackJet,
-				   CaloJet  &theLeadingCaloJet );
+				   reco::BasicJet &theLeadingTrackJet,
+				   reco::CaloJet  &theLeadingCaloJet );
 
-  InputTag ChgGenJetsInputTag;
-  InputTag TrackJetsInputTag;
-  InputTag CaloJetsInputTag;
-  InputTag triggerResultsTag;
-  InputTag triggerEventTag;
-  InputTag genEventScaleTag;
+  edm::InputTag ChgGenJetsInputTag;
+  edm::InputTag TrackJetsInputTag;
+  edm::InputTag CaloJetsInputTag;
+  edm::InputTag triggerResultsTag;
+  edm::InputTag triggerEventTag;
+  edm::InputTag genEventScaleTag;
 
-  GenJetCollection theChgGenJets;
-  BasicJetCollection theTrackJets;
-  CaloJetCollection theCaloJets;
+  reco::GenJetCollection theChgGenJets;
+  reco::BasicJetCollection theTrackJets;
+  reco::CaloJetCollection theCaloJets;
 
-  Handle< double              > genEventScaleHandle;
-  Handle< GenJetCollection    > ChgGenJetsHandle ;
-  Handle< BasicJetCollection  > TrackJetsHandle ;
-  Handle< CaloJetCollection   > CaloJetsHandle ;
-  Handle< TriggerResults      > triggerResults;
-  Handle< TriggerEvent        > triggerEvent;
-  //  Handle<TriggerFilterObjectWithRefs> hltFilter; // not used at the moment: can access objects that fired the trigger
+  edm::Handle< double              > genEventScaleHandle;
+  edm::Handle< reco::GenJetCollection    > ChgGenJetsHandle ;
+  edm::Handle< reco::BasicJetCollection  > TrackJetsHandle ;
+  edm::Handle< reco::CaloJetCollection   > CaloJetsHandle ;
+  edm::Handle< edm::TriggerResults       > triggerResults;
+  edm::Handle< trigger::TriggerEvent     > triggerEvent;
+  //  edm::Handle<TriggerFilterObjectWithRefs> hltFilter; // not used at the moment: can access objects that fired the trigger
   std::vector<std::string> selectedHLTBits;
 
   edm::Service<TFileService> fs;

@@ -4,12 +4,12 @@
 
 UEAnalysisUE::UEAnalysisUE()
 {
-  //  cout << "UEAnalysisUE constructor " <<endl;
+  //  std::cout << "UEAnalysisUE constructor " <<std::endl;
   piG = acos(-1.);
   cc = new UEAnalysisCorrCali();
 }
 
-void UEAnalysisUE::Begin(TFile * f, string hltBit)
+void UEAnalysisUE::Begin(TFile * f, std::string hltBit)
 {
   f->cd( hltBit.c_str() );
 
@@ -144,11 +144,11 @@ void UEAnalysisUE::Begin(TFile * f, string hltBit)
 
 }
 
-void UEAnalysisUE::ueAnalysisMC(float weight,string tkpt,float etaRegion, float ptThreshold, 
-				TClonesArray* MonteCarlo, TClonesArray* ChargedJet, TFile* f, string hltBit)
+void UEAnalysisUE::ueAnalysisMC(float weight,std::string tkpt,float etaRegion, float ptThreshold, 
+				TClonesArray* MonteCarlo, TClonesArray* ChargedJet, TFile* f, std::string hltBit)
 {
   f->cd( hltBit.c_str() );
-  //  cout << "UEAnalysisUE::ueAnalysisMC(...), HLT " << hltBit << endl;
+  //  std::cout << "UEAnalysisUE::ueAnalysisMC(...), HLT " << hltBit << std::endl;
 
   TLorentzVector* leadingJet;
   Float_t PTLeadingCJ = -10;
@@ -177,25 +177,25 @@ void UEAnalysisUE::ueAnalysisMC(float weight,string tkpt,float etaRegion, float 
   if ( numParticles > 0 ) 
     {
       averageParticlePt = particlePtSum/numParticles;
-      //  cout << "[MC] N(chg. part's)=" << numParticles << ", <pT>(chg. part's)=" << averageParticlePt << endl;
+      //  std::cout << "[MC] N(chg. part's)=" << numParticles << ", <pT>(chg. part's)=" << averageParticlePt << std::endl;
       h2d_averageParticlePt_vs_numParticles->Fill( numParticles, averageParticlePt, weight );
     }
 
 
-  //cout << "PTLeadingCJ " << PTLeadingCJ << endl;
+  //std::cout << "PTLeadingCJ " << PTLeadingCJ << std::endl;
 
   if ( PTLeadingCJ == -10. )
     {
-      //cout << "return" << endl;
+      //std::cout << "return" << std::endl;
       return;
     }
 
   h_pTChgGenJet->Fill( PTLeadingCJ, weight );
-  //cout << "for(int i=0;i<MonteCarlo->GetSize();i++){" << endl;
+  //std::cout << "for(int i=0;i<MonteCarlo->GetSize();i++){" << std::endl;
 
   //   if ( hltBit == "All" )
   //     {
-  //       cout << "[UEAnalysisUE]" << endl;
+  //       std::cout << "[UEAnalysisUE]" << std::endl;
   //     }
   for(int i=0;i<MonteCarlo->GetSize();i++){
     TLorentzVector *v = (TLorentzVector*)MonteCarlo->At(i);    
@@ -210,19 +210,19 @@ void UEAnalysisUE::ueAnalysisMC(float weight,string tkpt,float etaRegion, float 
 
     if(fabs(v->Eta())<etaRegion && v->Pt()>=ptThreshold){
 
-      //if (hltBit=="HLTMinBias") cout << "Particle: pT=" << v->Pt() << ", eta=" << v->Eta() << ", phi=" << v->Phi() << endl;
+      //if (hltBit=="HLTMinBias") std::cout << "Particle: pT=" << v->Pt() << ", eta=" << v->Eta() << ", phi=" << v->Phi() << std::endl;
 
       Float_t conv = 180/piG;
       Float_t Dphi_mc = conv * leadingJet->DeltaPhi(*v);
 
       //       if ( hltBit == "All" )
       //        	{
-      //        	  cout << "(" << i << ") ";
-      //        	  cout << "pT, eta, phi, dphi ";
-      //        	  cout << v->Pt() << ", ";
-      //        	  cout << v->Eta() << ", ";
-      //        	  cout << v->Phi() << ", ";
-      //        	  cout << Dphi_mc << endl;
+      //        	  std::cout << "(" << i << ") ";
+      //        	  std::cout << "pT, eta, phi, dphi ";
+      //        	  std::cout << v->Pt() << ", ";
+      //        	  std::cout << v->Eta() << ", ";
+      //        	  std::cout << v->Phi() << ", ";
+      //        	  std::cout << Dphi_mc << std::endl;
       //        	}
       
       temp1MC->Fill(Dphi_mc);
@@ -230,7 +230,7 @@ void UEAnalysisUE::ueAnalysisMC(float weight,string tkpt,float etaRegion, float 
     }
   }
   
-  //cout << "for(int i=0;i<100;i++){" << endl;
+  //std::cout << "for(int i=0;i<100;i++){" << std::endl;
 
   for(int i=0;i<100;i++){
     pdN_vs_etaMC->Fill((i*0.05)+0.025,temp3MC->GetBinContent(i+1)/0.1,weight);
@@ -254,35 +254,35 @@ void UEAnalysisUE::ueAnalysisMC(float weight,string tkpt,float etaRegion, float 
   for(int i=0;i<100;i++){
     if(i<=14){
 
-      //cout << "[MC] Away (" << i << "): dN=" << temp1MC->GetBinContent(i+1) << ", dpT=" << temp2MC->GetBinContent(i+1) << endl;
+      //std::cout << "[MC] Away (" << i << "): dN=" << temp1MC->GetBinContent(i+1) << ", dpT=" << temp2MC->GetBinContent(i+1) << std::endl;
 
       awayN += temp1MC->GetBinContent(i+1);
       awayP += temp2MC->GetBinContent(i+1);
     }
     if(i>14 && i<33 ){
 
-      //cout << "[MC] Trans1 (" << i << "): dN=" << temp1MC->GetBinContent(i+1) << ", dpT=" << temp2MC->GetBinContent(i+1) << endl;
+      //std::cout << "[MC] Trans1 (" << i << "): dN=" << temp1MC->GetBinContent(i+1) << ", dpT=" << temp2MC->GetBinContent(i+1) << std::endl;
 
       transN1 += temp1MC->GetBinContent(i+1);
       transP1 += temp2MC->GetBinContent(i+1);
     }
     if(i>=33 && i<=64 ){
 
-      //cout << "[MC] Toward (" << i << "): dN=" << temp1MC->GetBinContent(i+1) << ", dpT=" << temp2MC->GetBinContent(i+1) << endl;
+      //std::cout << "[MC] Toward (" << i << "): dN=" << temp1MC->GetBinContent(i+1) << ", dpT=" << temp2MC->GetBinContent(i+1) << std::endl;
 
       towardN += temp1MC->GetBinContent(i+1);
       towardP += temp2MC->GetBinContent(i+1);
     }
     if(i>64 && i<83 ){
 
-      //cout << "[MC] Trans2 (" << i << "): dN=" << temp1MC->GetBinContent(i+1) << ", dpT=" << temp2MC->GetBinContent(i+1) << endl;
+      //std::cout << "[MC] Trans2 (" << i << "): dN=" << temp1MC->GetBinContent(i+1) << ", dpT=" << temp2MC->GetBinContent(i+1) << std::endl;
 
       transN2 += temp1MC->GetBinContent(i+1);
       transP2 += temp2MC->GetBinContent(i+1);
     }
     if(i>=83){
 
-      //cout << "[MC] Away (" << i << "): dN=" << temp1MC->GetBinContent(i+1) << ", dpT=" << temp2MC->GetBinContent(i+1) << endl;
+      //std::cout << "[MC] Away (" << i << "): dN=" << temp1MC->GetBinContent(i+1) << ", dpT=" << temp2MC->GetBinContent(i+1) << std::endl;
 
       awayN += temp1MC->GetBinContent(i+1);
       awayP += temp2MC->GetBinContent(i+1);
@@ -293,16 +293,16 @@ void UEAnalysisUE::ueAnalysisMC(float weight,string tkpt,float etaRegion, float 
 
     Float_t bincont2_mc=temp2MC->GetBinContent(i+1);
 
-    //     cout << "(" << i << ") ";
-    //     cout << bincont2_mc/(3.6*2*etaRegion*(piG/180.)) << endl;
+    //     std::cout << "(" << i << ") ";
+    //     std::cout << bincont2_mc/(3.6*2*etaRegion*(piG/180.)) << std::endl;
     
     pdPt_vs_dphiMC->Fill(-180.+i*3.6+1.8,bincont2_mc/(3.6*2*etaRegion*(piG/180.)),weight);
     
   }
 
 
-  //if (hltBit=="HLTMinBias") cout << "[MC] N(transverse)=" << transN1+transN2 << ", pT(transverse)=" << transP1+transP2 << endl;
-  //cout << "bool orderedN = false;" << endl;
+  //if (hltBit=="HLTMinBias") std::cout << "[MC] N(transverse)=" << transN1+transN2 << ", pT(transverse)=" << transP1+transP2 << std::endl;
+  //std::cout << "bool orderedN = false;" << std::endl;
 
   bool orderedN = false;
   //  bool orderedP = false;
@@ -318,8 +318,8 @@ void UEAnalysisUE::ueAnalysisMC(float weight,string tkpt,float etaRegion, float 
   if( transN1>=transN2 ) orderedN = true;
   //  if( transP1>=transP2 ) orderedP = true;
 
-  //if (hltBit=="HLTMinBias") cout << "[MC] dN/dphideta=" << (transN1+transN2)/(120.*(2*etaRegion)*(piG/180.)) << endl;
-  //if (hltBit=="HLTMinBias") cout << "[MC] dpT/dphideta=" << (transP1+transP2)/(120.*(2*etaRegion)*(piG/180.)) << endl;
+  //if (hltBit=="HLTMinBias") std::cout << "[MC] dN/dphideta=" << (transN1+transN2)/(120.*(2*etaRegion)*(piG/180.)) << std::endl;
+  //if (hltBit=="HLTMinBias") std::cout << "[MC] dpT/dphideta=" << (transP1+transP2)/(120.*(2*etaRegion)*(piG/180.)) << std::endl;
   h_dN_TransMC->Fill( (transN1+transN2)/(120.*(2*etaRegion)*(piG/180.)) );
   h_dPt_TransMC->Fill( (transP1+transP2)/(120.*(2*etaRegion)*(piG/180.)) );
 
@@ -370,11 +370,11 @@ void UEAnalysisUE::ueAnalysisMC(float weight,string tkpt,float etaRegion, float 
   temp1MC->Reset();
   temp2MC->Reset();
 
-  //cout << "done" << endl;
+  //std::cout << "done" << std::endl;
 
 }
 
-void UEAnalysisUE::ueAnalysisRECO(float weight,string tkpt,float etaRegion,float ptThreshold, TClonesArray* Track, TClonesArray* TracksJet, TFile* f, string hltBit)
+void UEAnalysisUE::ueAnalysisRECO(float weight,std::string tkpt,float etaRegion,float ptThreshold, TClonesArray* Track, TClonesArray* TracksJet, TFile* f, std::string hltBit)
 {
   f->cd( hltBit.c_str() );
 
@@ -406,7 +406,7 @@ void UEAnalysisUE::ueAnalysisRECO(float weight,string tkpt,float etaRegion,float
   if ( numTracks > 0 ) 
     {
       averageTrackPt = trackPtSum/numTracks;
-      //cout << "[RECO] N(tracks)=" << numTracks << ", <pT>(tracks)=" << averageTrackPt << endl;
+      //std::cout << "[RECO] N(tracks)=" << numTracks << ", <pT>(tracks)=" << averageTrackPt << std::endl;
       h2d_averageTrackPt_vs_numTracks->Fill( numTracks, averageTrackPt, weight );
     }
 
@@ -429,7 +429,7 @@ void UEAnalysisUE::ueAnalysisRECO(float weight,string tkpt,float etaRegion,float
 
     if(fabs(v->Eta())<etaRegion&&v->Pt()>=ptThreshold){
       
-      //if (hltBit=="HLTMinBias") cout << "Track: pT=" << v->Pt() << ", eta=" << v->Eta() << ", phi=" << v->Phi() << endl;
+      //if (hltBit=="HLTMinBias") std::cout << "Track: pT=" << v->Pt() << ", eta=" << v->Eta() << ", phi=" << v->Phi() << std::endl;
 
       // use ROOT method to calculate dphi                                                                                    
       // convert dphi from radiants to degrees                                                                                
@@ -464,35 +464,35 @@ void UEAnalysisUE::ueAnalysisRECO(float weight,string tkpt,float etaRegion,float
   for(int i=0;i<100;i++){
     if(i<=14){
 
-      //cout << "[RECO] Away (" << i << "): dN=" << temp1RECO->GetBinContent(i+1) << ", dpT=" << temp2RECO->GetBinContent(i+1) << endl;
+      //std::cout << "[RECO] Away (" << i << "): dN=" << temp1RECO->GetBinContent(i+1) << ", dpT=" << temp2RECO->GetBinContent(i+1) << std::endl;
 
       awayN += temp1RECO->GetBinContent(i+1);
       awayP += temp2RECO->GetBinContent(i+1);
     }
     if(i>14 && i<33 ){
 
-      //cout << "[RECO] Trans1 (" << i << "): dN=" << temp1RECO->GetBinContent(i+1) << ", dpT=" << temp2RECO->GetBinContent(i+1) << endl;
+      //std::cout << "[RECO] Trans1 (" << i << "): dN=" << temp1RECO->GetBinContent(i+1) << ", dpT=" << temp2RECO->GetBinContent(i+1) << std::endl;
 
       transN1 += temp1RECO->GetBinContent(i+1);
       transP1 += temp2RECO->GetBinContent(i+1);
     }
     if(i>=33 && i<=64 ){
 
-      //cout << "[RECO] Toward (" << i << "): dN=" << temp1RECO->GetBinContent(i+1) << ", dpT=" << temp2RECO->GetBinContent(i+1) << endl;
+      //std::cout << "[RECO] Toward (" << i << "): dN=" << temp1RECO->GetBinContent(i+1) << ", dpT=" << temp2RECO->GetBinContent(i+1) << std::endl;
 
       towardN += temp1RECO->GetBinContent(i+1);
       towardP += temp2RECO->GetBinContent(i+1);
     }
     if(i>64 && i<83 ){
 
-      //cout << "[RECO] Trans2 (" << i << "): dN=" << temp1RECO->GetBinContent(i+1) << ", dpT=" << temp2RECO->GetBinContent(i+1) << endl;
+      //std::cout << "[RECO] Trans2 (" << i << "): dN=" << temp1RECO->GetBinContent(i+1) << ", dpT=" << temp2RECO->GetBinContent(i+1) << std::endl;
 
       transN2 += temp1RECO->GetBinContent(i+1);
       transP2 += temp2RECO->GetBinContent(i+1);
     }
     if(i>=83){
 
-      //cout << "[RECO] Away (" << i << "): dN=" << temp1RECO->GetBinContent(i+1) << ", dpT=" << temp2RECO->GetBinContent(i+1) << endl;
+      //std::cout << "[RECO] Away (" << i << "): dN=" << temp1RECO->GetBinContent(i+1) << ", dpT=" << temp2RECO->GetBinContent(i+1) << std::endl;
 
       awayN += temp1RECO->GetBinContent(i+1);
       awayP += temp2RECO->GetBinContent(i+1);
@@ -507,7 +507,7 @@ void UEAnalysisUE::ueAnalysisRECO(float weight,string tkpt,float etaRegion,float
   }
   
 
-  //if (hltBit=="HLTMinBias") cout << "[RECO] N(transverse)=" << transN1+transN2 << ", pT(transverse)=" << transP1+transP2 << endl;
+  //if (hltBit=="HLTMinBias") std::cout << "[RECO] N(transverse)=" << transN1+transN2 << ", pT(transverse)=" << transP1+transP2 << std::endl;
 
   bool orderedN = false;
   //  bool orderedP = false;
@@ -541,8 +541,8 @@ void UEAnalysisUE::ueAnalysisRECO(float weight,string tkpt,float etaRegion,float
   if( transN1>=transN2 ) orderedN = true;
   //  if( transP1>=transP2 ) orderedP = true;
   
-  //if (hltBit=="HLTMinBias") cout << "[RECO] dN/dphideta=" << (transN1+transN2)/(120.*(2*etaRegion)*(piG/180.)) << endl;
-  //if (hltBit=="HLTMinBias") cout << "[RECO] dpT/dphideta=" << (transP1+transP2)/(120.*(2*etaRegion)*(piG/180.)) << endl;
+  //if (hltBit=="HLTMinBias") std::cout << "[RECO] dN/dphideta=" << (transN1+transN2)/(120.*(2*etaRegion)*(piG/180.)) << std::endl;
+  //if (hltBit=="HLTMinBias") std::cout << "[RECO] dpT/dphideta=" << (transP1+transP2)/(120.*(2*etaRegion)*(piG/180.)) << std::endl;
   h_dN_TransRECO->Fill( (transN1+transN2)/(120.*(2*etaRegion)*(piG/180.)) );
   h_dPt_TransRECO->Fill( (transP1+transP2)/(120.*(2*etaRegion)*(piG/180.)) );
 

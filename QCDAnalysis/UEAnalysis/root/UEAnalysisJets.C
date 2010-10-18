@@ -4,12 +4,12 @@
 
 UEAnalysisJets::UEAnalysisJets()
 {
-  //  cout << "UEAnalysisJets constructor " <<endl;
+  //  std::cout << "UEAnalysisJets constructor " <<std::endl;
   piG = acos(-1.);
 
 }
 
-void UEAnalysisJets::Begin(TFile * f, string hltBit){
+void UEAnalysisJets::Begin(TFile * f, std::string hltBit){
 
   f->cd( hltBit.c_str() );
 
@@ -110,7 +110,7 @@ void UEAnalysisJets::Begin(TFile * f, string hltBit){
   
 }
 
-void UEAnalysisJets::jetCalibAnalysis(float weight,float etaRegion,TClonesArray * InclusiveJet,TClonesArray * ChargedJet,TClonesArray * TracksJet,TClonesArray * CalorimeterJet, TClonesArray *acceptedTriggers, TFile* f, string hltBit)
+void UEAnalysisJets::jetCalibAnalysis(float weight,float etaRegion,TClonesArray * InclusiveJet,TClonesArray * ChargedJet,TClonesArray * TracksJet,TClonesArray * CalorimeterJet, TClonesArray *acceptedTriggers, TFile* f, std::string hltBit)
 {
 
   f->cd( hltBit.c_str() );

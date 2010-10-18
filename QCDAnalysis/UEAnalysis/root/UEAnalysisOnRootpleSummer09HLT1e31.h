@@ -22,8 +22,6 @@
 #include "UEAnalysisJets.h"
 #include "UEAnalysisGAM.h"
 
-using namespace std;
-
 class UEAnalysisOnRootple {
 public :
 
@@ -61,13 +59,13 @@ public :
   virtual Int_t    Cut(Long64_t entry);
   virtual Int_t    GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
-  virtual void     MultiAnalysis(char* filelist,char* outname,vector<float> weight,Float_t eta,string type,string trigger,string tkpt,Float_t ptCut);
+  virtual void     MultiAnalysis(char* filelist,char* outname,std::vector<float> weight,Float_t eta,std::string type,std::string trigger,std::string tkpt,Float_t ptCut);
   //  virtual void     Init(TTree *tree);
-  virtual void     Init(TTree *tree, string);
+  virtual void     Init(TTree *tree, std::string);
   //  UEAnalysisOnRootple.C:169: error: no matching function for call to `UEAnalysisOnRootple::Init(TTree*&, std::string&)'
-  virtual void     BeginJob(char* outname,string);
+  virtual void     BeginJob(char* outname,std::string);
   virtual void     EndJob(string);
-  virtual void     Loop(Float_t we,Float_t triggerPt,string type,string trigger,string tkpt);
+  virtual void     Loop(Float_t we,Float_t triggerPt,std::string type,std::string trigger,std::string tkpt);
   virtual Bool_t   Notify();
   virtual void     Show(Long64_t entry = -1);
 
@@ -112,7 +110,7 @@ public :
 
   std::string HLTBitNames[12]; 
 
-  string SampleType;
+  std::string SampleType;
   UEJetAreaHistograms*  areaHistos;
 
   //  UEActivityFinder*     activityFinder;

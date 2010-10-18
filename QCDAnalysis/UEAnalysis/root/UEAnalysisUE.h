@@ -16,18 +16,16 @@
 
 #include "UEAnalysisCorrCali.h"
 
-using namespace std;
-
 class UEAnalysisUE {
  public :
 
   UEAnalysisUE();
   ~UEAnalysisUE(){}
 
-  void ueAnalysisMC(float,string,float,float,TClonesArray*,TClonesArray* , TFile* , string );
-  void ueAnalysisRECO(float,string,float,float,TClonesArray*,TClonesArray* , TFile* , string );
+  void ueAnalysisMC(float,std::string,float,float,TClonesArray*,TClonesArray* , TFile* , std::string );
+  void ueAnalysisRECO(float,std::string,float,float,TClonesArray*,TClonesArray* , TFile* , std::string );
 
-  void Begin(TFile *, string );
+  void Begin(TFile *, std::string );
 
   //Underlying Event analysis
   TH1F*       fHistPtDistMC;

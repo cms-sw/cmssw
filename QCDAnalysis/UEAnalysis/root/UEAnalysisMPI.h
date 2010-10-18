@@ -13,8 +13,6 @@
 #include <TClonesArray.h>
 #include <TLorentzVector.h>
 
-using namespace std;
-
 class UEAnalysisMPI {
  public :
 

@@ -164,10 +164,10 @@ UEActivityFinder::find( TClonesArray& Jet, TClonesArray& Particles, UEActivity& 
       else if ( TMath::Abs(dphi) >= 120. && TMath::Abs(dphi) <  180. ) iregion = 2; /// away
       else
 	{
-	  cout << "[UEActivityFinder] Error: dphi = " << dphi << endl;
+	  std::cout << "[UEActivityFinder] Error: dphi = " << dphi << std::endl;
 	  return kFALSE;
 	}
-      // cout<<"entrato"<<endl;
+      // std::cout<<"entrato"<<std::endl;
       _h_pTChg      [iregion]->Fill(       pT );
       _h_dN_vs_dphi [iregion]->Fill( dphi     );
       _h_dpT_vs_dphi[iregion]->Fill( dphi, pT );
@@ -228,7 +228,7 @@ UEActivityFinder::find( TClonesArray& Jet, TClonesArray& Particles, UEActivity& 
 	  _h_dpT_vs_dphiN2->Scale( 1./totalEtaRange );
 	  N1 = _h_dpT_vs_dphiN1->Integral();       
 	  N2 = _h_dpT_vs_dphiN2->Integral();       
-	  //  cout<<N1<<" N1 "<<N2<<" N2 "<<_h_dpT_vs_dphi[iregion]->Integral()<<" all "<<endl;
+	  //  std::cout<<N1<<" N1 "<<N2<<" N2 "<<_h_dpT_vs_dphi[iregion]->Integral()<<" all "<<std::endl;
 	  if(N1>N2)
 	    {
 	      theUEActivity.SetTH1D_dpTMax_vs_dphi(_h_dpT_vs_dphiN1);
@@ -248,7 +248,7 @@ UEActivityFinder::find( TClonesArray& Jet, TClonesArray& Particles, UEActivity& 
 ///
 ///_______________________________________________________________________
 ///
-UEActivityHistograms::UEActivityHistograms( const char* fileName, string *triggerNames )
+UEActivityHistograms::UEActivityHistograms( const char* fileName, std::string *triggerNames )
 {
   ///
   /// Constructor for histogram filler.
@@ -256,7 +256,7 @@ UEActivityHistograms::UEActivityHistograms( const char* fileName, string *trigge
 
   char buffer[200];
 
-  cout << "[UEActivityHistograms] Create file " << fileName << endl;
+  std::cout << "[UEActivityHistograms] Create file " << fileName << std::endl;
   file = TFile::Open( fileName, "recreate" );
 
   TDirectory*  dir    = file->mkdir( "UEActivity" );
@@ -322,7 +322,7 @@ UEActivityHistograms::UEActivityHistograms( const char* fileName, string *trigge
 		   "h_averagePt_vs_nChg;;",
 		   100, 0.5, 100.5, 200, 0., 20. );
       
-      string regions[] = { "Towards", "Transverse", "Away" };
+      std::string regions[] = { "Towards", "Transverse", "Away" };
       for ( int i(0); i<3; ++i )
 	{
 	  subdir[iHLTbit]->mkdir( regions[i].c_str() );
@@ -414,7 +414,7 @@ UEActivityHistograms::UEActivityHistograms( const char* fileName, string *trigge
 	       "h_averagePt_vs_nChg;;",
 	       100, 0.5, 100.5, 200, 0., 20. );
   
-  string regions[] = { "Towards", "Transverse", "Away" };
+  std::string regions[] = { "Towards", "Transverse", "Away" };
   for ( int i(0); i<3; ++i )
     {
       subdir[iHLTbit]->mkdir( regions[i].c_str() );
@@ -521,7 +521,7 @@ UEActivityHistograms::fill( UEActivity& activity )
       else if ( TMath::Abs(x) >= 120. && TMath::Abs(x) <  180. ) iregion = 2; /// away
       else
         {
-          cout << "[UEActivityHistograms] Error: x = " << x << endl;
+          std::cout << "[UEActivityHistograms] Error: x = " << x << std::endl;
           return;
         }
 
@@ -650,7 +650,7 @@ UEActivityHistograms::fill( UEActivity& activity, TClonesArray& acceptedTriggers
 	  else if ( TMath::Abs(x) >= 120. && TMath::Abs(x) <  180. ) iregion = 2; /// away
 	  else
 	    {
-	      cout << "[UEActivityHistograms] Error: x = " << x << endl;
+	      std::cout << "[UEActivityHistograms] Error: x = " << x << std::endl;
 	      return;
 	    }
 	  
@@ -698,15 +698,15 @@ UEActivityHistograms::fill( UEActivity& activity, TClonesArray& acceptedTriggers
       h_pTSChg[iregion*13+iHLTbit]->Add(TH1D_pTSChg);
 	  if(iregion==1)
 	{
-	  //cout<<iHLTbit<<endl;
-	  //cout<<activity.GetNumParticleTraMax()<<endl;
-	  //cout<<activity.GetNumParticleTraMin()<<endl;
+	  //std::cout<<iHLTbit<<std::endl;
+	  //std::cout<<activity.GetNumParticleTraMax()<<std::endl;
+	  //std::cout<<activity.GetNumParticleTraMin()<<std::endl;
 	  h_dNMax_vs_dpTjet[iHLTbit]->Fill( pTjet,activity.GetNumParticleTraMax()/(TMath::Pi()/3.) );
 	  h_dNMin_vs_dpTjet[iHLTbit]->Fill( pTjet,activity.GetNumParticleTraMin()/(TMath::Pi()/3.) );
 	
 	  
-	  //cout<<activity.GetPtSumParticleTraMax()<<endl;
-	  //cout<<activity.GetPtSumParticleTraMin()<<endl;
+	  //std::cout<<activity.GetPtSumParticleTraMax()<<std::endl;
+	  //std::cout<<activity.GetPtSumParticleTraMin()<<std::endl;
 	  h_dpTMax_vs_dpTjet[iHLTbit]->Fill( pTjet,activity.GetPtSumParticleTraMax()/(TMath::Pi()/3.) );
 	  h_dpTMin_vs_dpTjet[iHLTbit]->Fill( pTjet,activity.GetPtSumParticleTraMin()/(TMath::Pi()/3.) ); 
 	}

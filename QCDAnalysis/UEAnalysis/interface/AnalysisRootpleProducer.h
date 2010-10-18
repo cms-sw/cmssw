@@ -46,11 +46,6 @@
 #include <DataFormats/HLTReco/interface/TriggerEvent.h> 
 #include <DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h>
 
-//using namespace edm;
-//using namespace reco;
-//using namespace trigger;
-//using std::vector;
-
 class TTree;
 class TFile;
 class TObject;
@@ -95,14 +90,14 @@ private:
   edm::Handle< std::vector<reco::GenParticle> > CandHandleMC ;
   edm::Handle< reco::GenJetCollection    > GenJetsHandle ;
   edm::Handle< reco::GenJetCollection    > ChgGenJetsHandle ;
-  //  Handle< CandidateCollection > CandHandleRECO ;
+  //  edm::Handle< CandidateCollection > CandHandleRECO ;
   edm::Handle< edm::View<reco::Candidate> > CandHandleRECO ;
   edm::Handle< reco::TrackJetCollection  > TracksJetsHandle ;
   edm::Handle< reco::CaloJetCollection   > RecoCaloJetsHandle ;
   edm::Handle< edm::TriggerResults  > triggerResults;
   edm::Handle< trigger::TriggerEvent  > triggerEvent;
 
-  //  Handle<TriggerFilterObjectWithRefs> hltFilter; // not used at the moment: can access objects that fired the trigger
+  //  edm::Handle<TriggerFilterObjectWithRefs> hltFilter; // not used at the moment: can access objects that fired the trigger
   edm::TriggerNames triggerNames;
 
   edm::Service<TFileService> fs;

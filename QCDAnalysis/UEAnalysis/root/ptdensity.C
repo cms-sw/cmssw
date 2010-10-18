@@ -100,7 +100,7 @@ void plotPtDensityByDphiParticles(int PTTHRESHOLD)
 	t.DrawLatex(0.25, 0.193333, buffer );
 	
 	sprintf( buffer, "ptdensityByDphiParticles%i->Print(\"MinBias900GeVptdensityByDphiParticlesByHLT%i.eps\");", PTTHRESHOLD, PTTHRESHOLD );
-	cout << buffer << endl;
+	std::cout << buffer << std::endl;
 	
 }
 
@@ -218,7 +218,7 @@ void plotPtDensityByDphiTracks(int PTTHRESHOLD)
 	t.DrawLatex(0.25, 0.193333, buffer );
 	
 	sprintf( buffer, "ptdensityByDphiTracks%i->Print(\"MinBias900GeVptdensityByDphiTracksByHLT%i.eps\");", PTTHRESHOLD, PTTHRESHOLD );
-	cout << buffer << endl;
+	std::cout << buffer << std::endl;
 	
 }
 
@@ -266,7 +266,7 @@ void plotPtDensityParticles(int PTTHRESHOLD)
 	t.DrawLatex(0.25, 0.193333, buffer );
 	
 	sprintf( buffer, "ptdensityParticles%i->Print(\"MinBias900GeVptdensityParticles%i.eps\");", PTTHRESHOLD, PTTHRESHOLD );
-	cout << buffer << endl;
+	std::cout << buffer << std::endl;
 	return;
 	
 }
@@ -364,7 +364,7 @@ void plotPtDensityParticlesRatio( int NOM, int DENOM )
 	t.DrawLatex(0.258333, 0.79, buffer);
 	
 	sprintf( buffer, "ratioParticles%iBy%i->Print(\"MinBias900GeVptdensityParticlesRatio%iBy%i.eps\");", NOM, DENOM, NOM, DENOM );
-	cout << buffer << endl;
+	std::cout << buffer << std::endl;
 
 
 
@@ -530,7 +530,7 @@ void plotPtDensityTracksByHLT(int PTTHRESHOLD)
 	t.DrawLatex(0.25, 0.193333, buffer );
 	
 	sprintf( buffer, "ptdensityTracks%i->Print(\"MinBias900GeVptdensityTracksByHLT%i.eps\");", PTTHRESHOLD, PTTHRESHOLD );
-	cout << buffer << endl;
+	std::cout << buffer << std::endl;
 	return;
 	
 }
@@ -591,7 +591,7 @@ void plotPtDensityTracksRatio( int NOM, int DENOM )
 	t.DrawLatex(0.298333, 0.785, buffer);
 	
 	sprintf( buffer, "ratioTracks%iBy%i->Print(\"MinBias900GeVptdensityTracksRatio%iBy%i.eps\");", NOM, DENOM, NOM, DENOM );
-	cout << buffer << endl;
+	std::cout << buffer << std::endl;
 
 
 
@@ -661,7 +661,7 @@ void plotPtDensityTrackParticleRatio( int PTTHRESHOLD )
 	t.DrawLatex(0.25, 0.193333, buffer);
 	
 	sprintf( buffer, "ratioTrackParticle%i->Print(\"MinBias900GeVptdensityTrackParticleRatio%i.eps\");", PTTHRESHOLD, PTTHRESHOLD );
-	cout << buffer << endl;
+	std::cout << buffer << std::endl;
 
 
 

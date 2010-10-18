@@ -32,8 +32,6 @@
 #include "fastjet/ClusterSequenceActiveArea.hh"
 #include "fastjet/JetDefinition.hh"
 
-using namespace std;
-
 
 class AntiKtAnalysis : public TSelector {
 public :

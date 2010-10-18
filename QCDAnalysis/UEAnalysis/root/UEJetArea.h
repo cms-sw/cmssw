@@ -23,8 +23,6 @@
 #include "fastjet/JetDefinition.hh"
 #include "fastjet/SISConePlugin.hh"
 
-using namespace std;
-
 ///
 ///___________________________________________________________________
 ///
@@ -35,7 +33,7 @@ class UEJetWithArea {
   UEJetWithArea( TLorentzVector&, double, unsigned int ); 
   ~UEJetWithArea() 
     {
-      //      cout << "~UEJetWithArea()" << endl;
+      //      std::cout << "~UEJetWithArea()" << std::endl;
       //      delete _momentum;
     }
   TLorentzVector* GetMomentum()        { return _momentum          ; }
@@ -59,10 +57,10 @@ class UEJetAreaFinder {
    /// eta-range
    /// pT-threshold
    /// choice of jet-algorithm
-  UEJetAreaFinder( float, float, string );
+  UEJetAreaFinder( float, float, std::string );
   ~UEJetAreaFinder()
     {
-      //      cout << "~UEJetAreaFinder()" << endl;
+      //      std::cout << "~UEJetAreaFinder()" << std::endl;
 
       //delete mPlugin;
       delete mJetDefinition;
@@ -79,7 +77,7 @@ class UEJetAreaFinder {
  /// findJets :
  ///
  /// input-collection (e.g. tracks, particles, ...) (TClonesArray)
- Bool_t find( TClonesArray&, vector<UEJetWithArea>& );
+ Bool_t find( TClonesArray&, std::vector<UEJetWithArea>& );
 
  ///_______________________________________________________________________
  ///
@@ -118,7 +116,7 @@ class UEJetAreaFinder {
 class UEJetAreaHistograms {
   public :
 
-  UEJetAreaHistograms( const char*, string* );
+  UEJetAreaHistograms( const char*, std::string* );
   ~UEJetAreaHistograms() 
     { 
       file->Write(); 
@@ -153,15 +151,15 @@ class UEJetAreaHistograms {
       delete[] subdir;
     };
 
-  void fill( vector<UEJetWithArea>& );
-  void fill( vector<UEJetWithArea>&, TClonesArray& );
+  void fill( std::vector<UEJetWithArea>& );
+  void fill( std::vector<UEJetWithArea>&, TClonesArray& );
 
   private :
 
   TFile* file;
   TDirectory** subdir;
 
-  string HLTBitNames[11];
+  std::string HLTBitNames[11];
 
   TH1D** h_pTAllJets           ; // all jets
   TH1D** h_etaAllJets          ;

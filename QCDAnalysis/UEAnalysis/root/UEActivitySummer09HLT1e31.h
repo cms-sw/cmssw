@@ -14,8 +14,6 @@
 
 #include <TClonesArray.h>
 
-using namespace std;
-
 ///
 ///_________________________________________________________
 ///
@@ -156,7 +154,7 @@ class UEActivityHistograms {
 
 public :
 
-  UEActivityHistograms( const char*, string* );
+  UEActivityHistograms( const char*, std::string* );
   ~UEActivityHistograms() { file->Write(); file->Close(); }; 
 
   void fill( UEActivity& );
@@ -166,7 +164,7 @@ public :
 
   TFile* file;
 
-  string HLTBitNames[12];
+  std::string HLTBitNames[12];
 
   unsigned int _nbinsDphi, _nbinsPtChg;
   double       _xminDphi, _xminPtChg;

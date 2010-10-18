@@ -14,8 +14,6 @@
 
 #include <TClonesArray.h>
 
-using namespace std;
-
 ///
 ///_________________________________________________________
 ///
@@ -23,7 +21,7 @@ class UETriggerHistograms {
   
   public :
     
-  UETriggerHistograms( const char*, string* );
+  UETriggerHistograms( const char*, std::string* );
   ~UETriggerHistograms() { file->Write(); file->Close(); }; 
   
   void fill( TClonesArray&,Double_t);
@@ -32,7 +30,7 @@ class UETriggerHistograms {
     
   TFile* file;
   
-  string HLTBitNames[12];
+  std::string HLTBitNames[12];
   TH1D* h_triggerAccepts;
   TH1D* h_eventScale;  
 };

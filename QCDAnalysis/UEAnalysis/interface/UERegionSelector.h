@@ -26,9 +26,6 @@
 #include <DataFormats/TrackReco/interface/Track.h>
 #include <DataFormats/TrackReco/interface/TrackFwd.h>
 
-using namespace edm;
-using namespace reco;
-
 class UERegionSelector : public edm::EDProducer {
 public:
   explicit UERegionSelector(const edm::ParameterSet&);
@@ -39,13 +36,13 @@ private:
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   
-  InputTag jetCollName;
-  //  InputTag particleCollName;
-  InputTag trackCollName;
+  edm::InputTag jetCollName;
+  //  edm::InputTag particleCollName;
+  edm::InputTag trackCollName;
 
-  Handle< View<Candidate> > jetHandle;
-  //  Handle< View<Candidate> > particleHandle;
-  Handle< View<Track> > trackHandle;
+  edm::Handle< edm::View<reco::Candidate> > jetHandle;
+  //  edm::Handle< edm::View<reco::Candidate> > particleHandle;
+  edm::Handle< edm::View<reco::Track> > trackHandle;
 
   double deltaPhiByPiMinJetParticle;
   double deltaPhiByPiMaxJetParticle;

@@ -6,14 +6,12 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-
 class UEAnalysisWeight {
  public :
 
   UEAnalysisWeight();
   ~UEAnalysisWeight(){}
-  std::vector<float> calculate(string,string,float);
+  std::vector<float> calculate(std::string,std::string,float);
   std::vector<float> calculate();
   
  private:

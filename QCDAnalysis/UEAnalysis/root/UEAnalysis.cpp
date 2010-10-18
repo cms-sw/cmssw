@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
   char* filelist = argv[1];
   char* outname = argv[2];
   char* type = argv[3];
-  char* jetStream = "";
+  const char* jetStream = "";
   Float_t lumi= 1.;
   Float_t eta=atof(argv[4]);
   char* tkCut= argv[5];

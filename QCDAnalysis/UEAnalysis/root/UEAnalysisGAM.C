@@ -2,11 +2,11 @@
 #include <vector>
 #include <math.h>
 
-typedef pair<TLorentzVector*,TLorentzVector*> AssociatedObject;
+typedef std::pair<TLorentzVector*,TLorentzVector*> AssociatedObject;
 
 UEAnalysisGAM::UEAnalysisGAM()
 {
-  cout << "UEAnalysisGAM constructor " <<endl;
+  std::cout << "UEAnalysisGAM constructor " <<std::endl;
   piG = acos(-1.);
   rangePhi = acos(-1.)/180*50;
 }
@@ -35,8 +35,8 @@ void UEAnalysisGAM::Begin(TFile * f){
 void UEAnalysisGAM::gammaAnalysisMC(Float_t weight,Float_t etaRegion,Float_t ptThreshold, TClonesArray& MCGamma, TClonesArray& ChargedJet)
 {
   
-  vector<TLorentzVector*> JetMC;
-  vector<TLorentzVector*> GamMC;
+  std::vector<TLorentzVector*> JetMC;
+  std::vector<TLorentzVector*> GamMC;
   GamMC.clear();
   JetMC.clear();
 
@@ -75,14 +75,14 @@ void UEAnalysisGAM::gammaAnalysisMC(Float_t weight,Float_t etaRegion,Float_t ptT
     }
  
 
-    vector<AssociatedObject> assoJetMC;
+    std::vector<AssociatedObject> assoJetMC;
     assoJetMC.clear();
 
     while(JetMC.size()>1){
       int oldSize = JetMC.size();
-      vector<TLorentzVector*>::iterator itH = JetMC.begin();
+      std::vector<TLorentzVector*>::iterator itH = JetMC.begin();
       if((*itH)->Pt()>=ptThreshold){
-	for(vector<TLorentzVector*>::iterator it=JetMC.begin();it!=JetMC.end();it++){
+	for(std::vector<TLorentzVector*>::iterator it=JetMC.begin();it!=JetMC.end();it++){
 	  float azimuthDistanceJet = fabs( (*itH)->Phi() - (*it)->Phi() );
 	  if((*it)->Pt()/(*itH)->Pt()>=0.3){
 	    if( (piG - rangePhi) <  azimuthDistanceJet && azimuthDistanceJet < (piG + rangePhi)){
@@ -104,7 +104,7 @@ void UEAnalysisGAM::gammaAnalysisMC(Float_t weight,Float_t etaRegion,Float_t ptT
   
     if(assoJetMC.size()){
       fNumbMPIMC->Fill(assoJetMC.size());
-      vector<AssociatedObject>::iterator at= assoJetMC.begin();
+      std::vector<AssociatedObject>::iterator at= assoJetMC.begin();
     
       const TLorentzVector* leadingJet((*at).first);
       const TLorentzVector* secondJet((*at).second);

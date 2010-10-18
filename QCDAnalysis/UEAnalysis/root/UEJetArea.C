@@ -8,7 +8,7 @@
 ///
 UEJetWithArea::UEJetWithArea()
 {
-  //  cout << "UEJetWithArea::UEJetWithArea()" << endl;
+  //  std::cout << "UEJetWithArea::UEJetWithArea()" << std::endl;
 
   _momentum           = new TLorentzVector();
   _area               = 0.;
@@ -17,7 +17,7 @@ UEJetWithArea::UEJetWithArea()
 
 UEJetWithArea::UEJetWithArea( TLorentzVector& theMomentum, double theArea, unsigned int theNconstituents)
 {
-  //  cout << "UEJetWithArea::UEJetWithArea( TLorentzVector& theMomentum, double theArea, unsigned int theNconstituents)" << endl;
+  //  std::cout << "UEJetWithArea::UEJetWithArea( TLorentzVector& theMomentum, double theArea, unsigned int theNconstituents)" << std::endl;
 
   _momentum           = new TLorentzVector( theMomentum );
   _area               = theArea;
@@ -27,9 +27,9 @@ UEJetWithArea::UEJetWithArea( TLorentzVector& theMomentum, double theArea, unsig
 ///
 ///________________________________________________________________________________
 ///
-UEJetAreaFinder::UEJetAreaFinder( float _etaRegion, float _ptThreshold, string algorithm )
+UEJetAreaFinder::UEJetAreaFinder( float _etaRegion, float _ptThreshold, std::string algorithm )
 {
-  //  cout << "UEJetAreaFinder::UEJetAreaFinder( float _etaRegion, float _ptThreshold, string algorithm )" << endl;
+  //  std::cout << "UEJetAreaFinder::UEJetAreaFinder( float _etaRegion, float _ptThreshold, std::string algorithm )" << std::endl;
 
 
   ///
@@ -77,7 +77,7 @@ UEJetAreaFinder::UEJetAreaFinder( float _etaRegion, float _ptThreshold, string a
     }
   else
     {
-      cout << "Sorry! " << algorithm << " not set up." << endl;
+      std::cout << "Sorry! " << algorithm << " not set up." << std::endl;
     }
 
   /// jet areas
@@ -94,7 +94,7 @@ UEJetAreaFinder::UEJetAreaFinder( float _etaRegion, float _ptThreshold, string a
 ///________________________________________________________________________________
 ///
 Bool_t
-UEJetAreaFinder::find( TClonesArray& Input, vector<UEJetWithArea>& _jets )
+UEJetAreaFinder::find( TClonesArray& Input, std::vector<UEJetWithArea>& _jets )
 {
   /// return if no four-vectors are provided
   if ( Input.GetSize() == 0 ) return kFALSE;
@@ -120,19 +120,19 @@ UEJetAreaFinder::find( TClonesArray& Input, vector<UEJetWithArea>& _jets )
   if ( fjInputs.size() == 0 ) return kFALSE;
   
   /// print out info on current jet algorithm
-  //   cout << endl;
-  //   cout << mJetDefinition->description() << endl;
-  //   cout << theAreaDefinition->description() << endl;
+  //   std::cout << std::endl;
+  //   std::cout << mJetDefinition->description() << std::endl;
+  //   std::cout << theAreaDefinition->description() << std::endl;
 
   /// return if active area is not chosen to be calculated
   if ( ! theAreaDefinition ) return kFALSE;
 
-  //  cout << "fastjet::ClusterSequenceActiveArea* clusterSequence" << endl;
+  //  std::cout << "fastjet::ClusterSequenceActiveArea* clusterSequence" << std::endl;
   
   fastjet::ClusterSequenceArea* clusterSequence
     = new fastjet::ClusterSequenceArea (fjInputs, *mJetDefinition, *theAreaDefinition );
 
-  //  cout << "retrieve jets for selected mode" << endl;
+  //  std::cout << "retrieve jets for selected mode" << std::endl;
 
   /// retrieve jets for selected mode
   double mJetPtMin( 1. );
@@ -147,41 +147,41 @@ UEJetAreaFinder::find( TClonesArray& Input, vector<UEJetWithArea>& _jets )
   //Double_t ptByArea[ nJets ];
 
   //   int columnwidth( 10 );
-  //cout << "found " << jets.size() << " jets" << endl;
+  //std::cout << "found " << jets.size() << " jets" << std::endl;
   //   cout.width( 5 );
-  //   cout << "jet";
+  //   std::cout << "jet";
   //   cout.width( columnwidth );
-  //   cout << "eta";
+  //   std::cout << "eta";
   //   cout.width( columnwidth );
-  //   cout << "phi";
+  //   std::cout << "phi";
   //   cout.width( columnwidth );
-  //   cout << "pT";
+  //   std::cout << "pT";
   //   cout.width( columnwidth );
-  //   cout << "jetArea";
+  //   std::cout << "jetArea";
   //   cout.width( 15 );
-  //   cout << "pT / jetArea";
-  //   cout << endl;
+  //   std::cout << "pT / jetArea";
+  //   std::cout << std::endl;
   
   _jets.reserve( nJets );
 
-  vector< fastjet::PseudoJet > sorted_jets ( sorted_by_pt( jets ));
+  std::vector< fastjet::PseudoJet > sorted_jets ( sorted_by_pt( jets ));
   for ( int i(0); i<nJets; ++i )
     {
       //ptByArea[i] = jets[i].perp()/clusterSequence->area(jets[i]);
 
       //       cout.width( 5 );
-      //       cout << i;
+      //       std::cout << i;
       //       cout.width( columnwidth );
-      //       cout << jets[i].eta();
+      //       std::cout << jets[i].eta();
       //       cout.width( columnwidth );
-      //       cout << jets[i].phi();
+      //       std::cout << jets[i].phi();
       //       cout.width( columnwidth );
-      //       cout << jets[i].perp();
+      //       std::cout << jets[i].perp();
       //       cout.width( columnwidth );
-      //       cout << clusterSequence->area(jets[i]);
+      //       std::cout << clusterSequence->area(jets[i]);
       //       cout.width( 15 );
-      //       cout << ptByArea[i];
-      //       cout << endl;
+      //       std::cout << ptByArea[i];
+      //       std::cout << std::endl;
 
       /// save
       ///
@@ -190,7 +190,7 @@ UEJetAreaFinder::find( TClonesArray& Input, vector<UEJetWithArea>& _jets )
       /// nconstituents
       
       fastjet::PseudoJet jet( sorted_jets[i] );
-      vector< fastjet::PseudoJet > constituents( clusterSequence->constituents(jet) );
+      std::vector< fastjet::PseudoJet > constituents( clusterSequence->constituents(jet) );
       
       TLorentzVector* mom    = new TLorentzVector( jet.px(), jet.py(), jet.pz(), jet.e() );
       double          area   = clusterSequence->area(jet);
@@ -213,9 +213,9 @@ UEJetAreaFinder::find( TClonesArray& Input, vector<UEJetWithArea>& _jets )
 ///
 ///________________________________________________________________________________
 ///
-UEJetAreaHistograms::UEJetAreaHistograms( const char* fileName, string *triggerNames )
+UEJetAreaHistograms::UEJetAreaHistograms( const char* fileName, std::string *triggerNames )
 {
-  //  cout << "UEJetAreaHistograms::UEJetAreaHistograms( const char* fileName, string *triggerNames )" << endl;
+  //  std::cout << "UEJetAreaHistograms::UEJetAreaHistograms( const char* fileName, std::string *triggerNames )" << std::endl;
 
   ///
   /// Constructor for histogram filler.
@@ -223,7 +223,7 @@ UEJetAreaHistograms::UEJetAreaHistograms( const char* fileName, string *triggerN
 
   char buffer[200];
 
-  cout << "[UEJetAreaHistograms] Create file " << fileName << endl;
+  std::cout << "[UEJetAreaHistograms] Create file " << fileName << std::endl;
   file = TFile::Open( fileName, "recreate" );
 
   TDirectory*  dir = file->mkdir( "UEJetArea" );
@@ -413,9 +413,9 @@ UEJetAreaHistograms::UEJetAreaHistograms( const char* fileName, string *triggerN
 ///________________________________________________________________________________
 ///
 void
-UEJetAreaHistograms::fill( vector<UEJetWithArea>& theJets )
+UEJetAreaHistograms::fill( std::vector<UEJetWithArea>& theJets )
 {
-  //  cout << "UEJetAreaHistograms::fill( vector<UEJetWithArea>& theJets )" << endl;
+  //  std::cout << "UEJetAreaHistograms::fill( std::vector<UEJetWithArea>& theJets )" << std::endl;
 
   ///
   /// histo filler for gen-only analysis
@@ -483,9 +483,9 @@ UEJetAreaHistograms::fill( vector<UEJetWithArea>& theJets )
 }
 
 void 
-UEJetAreaHistograms::fill( vector<UEJetWithArea>& theJets, TClonesArray& acceptedTriggers )
+UEJetAreaHistograms::fill( std::vector<UEJetWithArea>& theJets, TClonesArray& acceptedTriggers )
 {
-  //  cout << "UEJetAreaHistograms::fill( vector<UEJetWithArea>& theJets, TClonesArray& acceptedTriggers )" << endl;
+  //  std::cout << "UEJetAreaHistograms::fill( std::vector<UEJetWithArea>& theJets, TClonesArray& acceptedTriggers )" << std::endl;
 
   ///
   /// Histo filler for reco-only analysis

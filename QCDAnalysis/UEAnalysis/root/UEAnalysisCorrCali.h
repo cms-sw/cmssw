@@ -6,22 +6,20 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-
 class UEAnalysisCorrCali{
  public :
   
   UEAnalysisCorrCali();
   ~UEAnalysisCorrCali(){}
 
-  float calibrationPt(float ptReco,string tkpt);
-  float correctionPtTrans(float ptReco,string tkpt);
-  float correctionPtToward(float ptReco,string tkpt);
-  float correctionPtAway(float ptReco,string tkpt);
+  float calibrationPt(float ptReco,std::string tkpt);
+  float correctionPtTrans(float ptReco,std::string tkpt);
+  float correctionPtToward(float ptReco,std::string tkpt);
+  float correctionPtAway(float ptReco,std::string tkpt);
   
-  float correctionNTrans(float ptReco,string tkpt);
-  float correctionNToward(float ptReco,string tkpt);
-  float correctionNAway(float ptReco,string tkpt);
+  float correctionNTrans(float ptReco,std::string tkpt);
+  float correctionNToward(float ptReco,std::string tkpt);
+  float correctionNAway(float ptReco,std::string tkpt);
 };
 
 #endif

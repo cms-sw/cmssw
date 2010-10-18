@@ -15,17 +15,15 @@
 
 #include <TClonesArray.h>
 
-using namespace std;
-
 class UEAnalysisJets {
  public :
 
   UEAnalysisJets();
   ~UEAnalysisJets(){}
 
-  void jetCalibAnalysis(float ,float,TClonesArray *,TClonesArray *,TClonesArray *,TClonesArray *, TClonesArray* , TFile* , string );
+  void jetCalibAnalysis(float ,float,TClonesArray *,TClonesArray *,TClonesArray *,TClonesArray *, TClonesArray* , TFile* , std::string );
 
-  void Begin(TFile *, string );
+  void Begin(TFile *, std::string );
 
   //Charged Jet caharacterization
   TH1F* dr_chgcalo;
@@ -116,7 +114,7 @@ class UEAnalysisJets {
 
   float piG;
 
-  vector<string> HLTBits;
+  std::vector<std::string> HLTBits;
 
 };
 

@@ -2,11 +2,11 @@
 #include <vector>
 #include <math.h>
 
-typedef pair<TLorentzVector*,TLorentzVector*> AssociatedObject;
+typedef std::pair<TLorentzVector*,TLorentzVector*> AssociatedObject;
 
 UEAnalysisMPI::UEAnalysisMPI()
 {
-  cout << "UEAnalysisMPI constructor " <<endl;
+  std::cout << "UEAnalysisMPI constructor " <<std::endl;
   piG = acos(-1.);
   rangePhi = acos(-1.)/180*50;
 }
@@ -37,7 +37,7 @@ void UEAnalysisMPI::Begin(TFile * f){
 
 void UEAnalysisMPI::mpiAnalysisMC(Float_t weight,Float_t etaRegion,Float_t ptThreshold, TClonesArray& ChargedJet)
 {
-  vector<TLorentzVector*> JetMC;
+  std::vector<TLorentzVector*> JetMC;
   JetMC.clear();
   
   for(int j=0;j<ChargedJet.GetSize();++j){
@@ -47,14 +47,14 @@ void UEAnalysisMPI::mpiAnalysisMC(Float_t weight,Float_t etaRegion,Float_t ptThr
     }
   }
   
-  vector<AssociatedObject> assoJetMC;
+  std::vector<AssociatedObject> assoJetMC;
   assoJetMC.clear();
 
   while(JetMC.size()>1){
     int oldSize = JetMC.size();
-    vector<TLorentzVector*>::iterator itH = JetMC.begin();
+    std::vector<TLorentzVector*>::iterator itH = JetMC.begin();
     if((*itH)->Pt()>=ptThreshold){
-      for(vector<TLorentzVector*>::iterator it=JetMC.begin();it!=JetMC.end();it++){
+      for(std::vector<TLorentzVector*>::iterator it=JetMC.begin();it!=JetMC.end();it++){
 	float azimuthDistanceJet = fabs( (*itH)->Phi() - (*it)->Phi() );
 	if((*it)->Pt()/(*itH)->Pt()>=0.3){
 	  if( (piG - rangePhi) <  azimuthDistanceJet && azimuthDistanceJet < (piG + rangePhi)) {
@@ -76,7 +76,7 @@ void UEAnalysisMPI::mpiAnalysisMC(Float_t weight,Float_t etaRegion,Float_t ptThr
   
   if(assoJetMC.size()){
     fNumbMPIMC->Fill(assoJetMC.size());
-    vector<AssociatedObject>::iterator at= assoJetMC.begin();
+    std::vector<AssociatedObject>::iterator at= assoJetMC.begin();
     
     const TLorentzVector* leadingJet((*at).first);
     const TLorentzVector* secondJet((*at).second);
@@ -96,7 +96,7 @@ void UEAnalysisMPI::mpiAnalysisMC(Float_t weight,Float_t etaRegion,Float_t ptThr
 
 void UEAnalysisMPI::mpiAnalysisRECO(float weight,float etaRegion,float ptThreshold,TClonesArray * TracksJet)
 {
-  vector<TLorentzVector*> JetRECO;
+  std::vector<TLorentzVector*> JetRECO;
   JetRECO.clear();
   
   for(int j=0;j<TracksJet->GetSize();++j){
@@ -106,14 +106,14 @@ void UEAnalysisMPI::mpiAnalysisRECO(float weight,float etaRegion,float ptThresho
     }
   }
   
-  vector<AssociatedObject> assoJetRECO;
+  std::vector<AssociatedObject> assoJetRECO;
   assoJetRECO.clear();
 
   while(JetRECO.size()>1){
     int oldSize = JetRECO.size();
-    vector<TLorentzVector*>::iterator itH = JetRECO.begin();
+    std::vector<TLorentzVector*>::iterator itH = JetRECO.begin();
     if((*itH)->Pt()>=ptThreshold){
-      for(vector<TLorentzVector*>::iterator it=JetRECO.begin();it!=JetRECO.end();it++){
+      for(std::vector<TLorentzVector*>::iterator it=JetRECO.begin();it!=JetRECO.end();it++){
 	float azimuthDistanceJet = fabs( (*itH)->Phi() - (*it)->Phi() );
 	if((*it)->Pt()/(*itH)->Pt()>=0.3){
 	  if( (piG - rangePhi) <  azimuthDistanceJet && azimuthDistanceJet < (piG + rangePhi)) {
@@ -135,7 +135,7 @@ void UEAnalysisMPI::mpiAnalysisRECO(float weight,float etaRegion,float ptThresho
   
   if(assoJetRECO.size()){
     fNumbMPIRECO->Fill(assoJetRECO.size());
-    vector<AssociatedObject>::iterator at= assoJetRECO.begin();
+    std::vector<AssociatedObject>::iterator at= assoJetRECO.begin();
     
     const TLorentzVector* leadingJet((*at).first);
     const TLorentzVector* secondJet((*at).second);

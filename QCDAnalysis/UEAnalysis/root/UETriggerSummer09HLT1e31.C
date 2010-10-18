@@ -12,7 +12,7 @@ UETriggerHistograms::UETriggerHistograms( const char* fileName, string *triggerN
   ///
   /// Constructor for histogram filler.
   ///
-  cout << "[UETriggerHistograms] Create file " << fileName << endl;
+  std::cout << "[UETriggerHistograms] Create file " << fileName << std::endl;
   file = TFile::Open( fileName, "recreate" );
 
   file->mkdir( "UETrigger" );
@@ -66,7 +66,7 @@ h_eventScale->Fill( genEventScale );
 	{
 	  std::string filterName( acceptedTriggers.At(itrig)->GetName() );      
 
-	  //cout << "[UETrigger] Compare " << filterName << " with " << HLTBitNames[iHLTbit] << endl;
+	  //std::cout << "[UETrigger] Compare " << filterName << " with " << HLTBitNames[iHLTbit] << std::endl;
 	  if ( filterName == HLTBitNames[iHLTbit] ) triggerAccept = iHLTbit;
 	}
 

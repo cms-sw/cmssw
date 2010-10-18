@@ -100,7 +100,7 @@ void plotNumberDensityByDphiParticles(int PTTHRESHOLD)
 	t.DrawLatex(0.25, 0.193333, buffer );
 	
 	sprintf( buffer, "NumberDensityByDphiParticles%i->Print(\"MinBias900GeVNumberDensityByDphiParticlesByHLT%i.eps\");", PTTHRESHOLD, PTTHRESHOLD );
-	cout << buffer << endl;
+	std::cout << buffer << std::endl;
 	
 }
 
@@ -218,7 +218,7 @@ void plotNumberDensityByDphiTracks(int PTTHRESHOLD)
 	t.DrawLatex(0.25, 0.193333, buffer );
 	
 	sprintf( buffer, "NumberDensityByDphiTracks%i->Print(\"MinBias900GeVNumberDensityByDphiTracksByHLT%i.eps\");", PTTHRESHOLD, PTTHRESHOLD );
-	cout << buffer << endl;
+	std::cout << buffer << std::endl;
 	
 }
 
@@ -266,7 +266,7 @@ void plotNumberDensityParticles(int PTTHRESHOLD)
 	t.DrawLatex(0.25, 0.193333, buffer );
 	
 	sprintf( buffer, "NumberDensityParticles%i->Print(\"MinBias900GeVNumberDensityParticles%i.eps\");", PTTHRESHOLD, PTTHRESHOLD );
-	cout << buffer << endl;
+	std::cout << buffer << std::endl;
 	return;
 	
 }
@@ -364,7 +364,7 @@ void plotNumberDensityParticlesRatio( int NOM, int DENOM )
 	t.DrawLatex(0.258333, 0.79, buffer);
 	
 	sprintf( buffer, "ratioParticles%iBy%i->Print(\"MinBias900GeVNumberDensityParticlesRatio%iBy%i.eps\");", NOM, DENOM, NOM, DENOM );
-	cout << buffer << endl;
+	std::cout << buffer << std::endl;
 
 
 
@@ -530,7 +530,7 @@ void plotNumberDensityTracksByHLT(int PTTHRESHOLD)
 	t.DrawLatex(0.25, 0.193333, buffer );
 	
 	sprintf( buffer, "NumberDensityTracks%i->Print(\"MinBias900GeVNumberDensityTracksByHLT%i.eps\");", PTTHRESHOLD, PTTHRESHOLD );
-	cout << buffer << endl;
+	std::cout << buffer << std::endl;
 	return;
 	
 }
@@ -590,7 +590,7 @@ void plotNumberDensityTracksRatio( int NOM, int DENOM )
 	t.DrawLatex(0.298333, 0.785, buffer);
 	
 	sprintf( buffer, "ratioTracks%iBy%i->Print(\"MinBias900GeVNumberDensityTracksRatio%iBy%i.eps\");", NOM, DENOM, NOM, DENOM );
-	cout << buffer << endl;
+	std::cout << buffer << std::endl;
 
 
 
@@ -660,7 +660,7 @@ void plotNumberDensityTrackParticleRatio( int PTTHRESHOLD )
 	t.DrawLatex(0.25, 0.193333, buffer);
 	
 	sprintf( buffer, "ratioTrackParticle%i->Print(\"MinBias900GeVNumberDensityTrackParticleRatio%i.eps\");", PTTHRESHOLD, PTTHRESHOLD );
-	cout << buffer << endl;
+	std::cout << buffer << std::endl;
 
 
 

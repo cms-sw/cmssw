@@ -133,11 +133,11 @@ void AntiKtAnalysis::SlaveBegin(TTree * /*tree*/)
 Bool_t AntiKtAnalysis::Process(Long64_t entry)
 {
   //  if ( entry > 100 ) Abort("***** processed 100 entries *****");
-  if ( entry == 10 ) cout << "first 10 entries succesfully processed!" << endl;
+  if ( entry == 10 ) std::cout << "first 10 entries succesfully processed!" << std::endl;
 
   if (entry%1000 == 0)
     {
-      cout << "***** processing entry " << entry << endl;
+      std::cout << "***** processing entry " << entry << std::endl;
     }
 
   // The Process() function is called for each entry in the tree (or possibly
@@ -229,9 +229,9 @@ Bool_t AntiKtAnalysis::Process(Long64_t entry)
   fastjet::GhostedAreaSpec* mActiveArea( new fastjet::ActiveAreaSpec (ghostEtaMax, activeAreaRepeats, ghostArea) );
 
   // print out info on current jet algorithm
-  //   cout << endl;
-  //   cout << mJetDefinition->description() << endl;
-  //   cout << mActiveArea->description() << endl;
+  //   std::cout << std::endl;
+  //   std::cout << mJetDefinition->description() << std::endl;
+  //   std::cout << mActiveArea->description() << std::endl;
 
   // here we need to keep both pointers, as "area" interfaces are missing in base class
   fastjet::ClusterSequenceActiveArea* clusterSequenceWithArea( 0 );
@@ -255,43 +255,43 @@ Bool_t AntiKtAnalysis::Process(Long64_t entry)
   //  int columnwidth( 10 );
   // process found jets
  
-  //   cout << "found " << jets.size() << " jets with median_Pt_Per_Area " << median_Pt_Per_Area << endl;
+  //   std::cout << "found " << jets.size() << " jets with median_Pt_Per_Area " << median_Pt_Per_Area << std::endl;
   //   cout.width( 5 );
-  //   cout << "jet";
+  //   std::cout << "jet";
   //   cout.width( columnwidth );
-  //   cout << "eta";
+  //   std::cout << "eta";
   //   cout.width( columnwidth );
-  //   cout << "phi";
+  //   std::cout << "phi";
   //   cout.width( columnwidth );
-  //   cout << "pT";
+  //   std::cout << "pT";
   //   cout.width( columnwidth );
-  //   cout << "jetArea";
+  //   std::cout << "jetArea";
   //   cout.width( 15 );
-  //   cout << "pT / jetArea";
-  //   cout << endl;
+  //   std::cout << "pT / jetArea";
+  //   std::cout << std::endl;
   
   //   for ( int i(0); i<jets.size(); ++i )
   //     {
   //       cout.width( 5 );
-  //       cout << i;
+  //       std::cout << i;
   //       cout.width( columnwidth );
-  //       cout << jets[i].eta();
+  //       std::cout << jets[i].eta();
   //       cout.width( columnwidth );
-  //       cout << jets[i].phi();
+  //       std::cout << jets[i].phi();
   //       cout.width( columnwidth );
-  //       cout << jets[i].perp();
+  //       std::cout << jets[i].perp();
   //       cout.width( columnwidth );
-  //       cout << clusterSequenceWithArea->area(jets[i]);
+  //       std::cout << clusterSequenceWithArea->area(jets[i]);
   //       cout.width( 15 );
-  //       cout << jets[i].perp()/clusterSequenceWithArea->area(jets[i]);
-  //       cout << endl;
+  //       std::cout << jets[i].perp()/clusterSequenceWithArea->area(jets[i]);
+  //       std::cout << std::endl;
   //     }
   
-  vector<fastjet::PseudoJet> sorted_jets = sorted_by_pt(jets);
+  std::vector<fastjet::PseudoJet> sorted_jets = sorted_by_pt(jets);
 
-  vector<fastjet::PseudoJet>::iterator jet1It  ( sorted_jets.begin() );
-  vector<fastjet::PseudoJet>::iterator jetIt   ( sorted_jets.begin() );
-  vector<fastjet::PseudoJet>::iterator jetItEnd( sorted_jets.end()   );
+  std::vector<fastjet::PseudoJet>::iterator jet1It  ( sorted_jets.begin() );
+  std::vector<fastjet::PseudoJet>::iterator jetIt   ( sorted_jets.begin() );
+  std::vector<fastjet::PseudoJet>::iterator jetItEnd( sorted_jets.end()   );
 
   double pTByAreaSum( 0. );
   for ( ; jetIt!=jetItEnd; ++jetIt )
@@ -313,11 +313,11 @@ Bool_t AntiKtAnalysis::Process(Long64_t entry)
 
       std::vector< fastjet::PseudoJet > constituents( clusterSequenceWithArea->constituents(jet1) );
 
-      //       cout << "hardest jet: pT=" << jet1.perp()
+      //       std::cout << "hardest jet: pT=" << jet1.perp()
       //           << ", n(constituents)=" << constituents.size()
       //           << ", fraction=" << jet1.perp()/constituents.size()
       //           << ", area=" << clusterSequenceWithArea->area(jet1)
-      //           << endl;
+      //           << std::endl;
 
       h_pTJet            ->Fill( jet1.perp()                        , weight );
       h_nConstituents    ->Fill( constituents.size()                , weight );
@@ -334,7 +334,7 @@ Bool_t AntiKtAnalysis::Process(Long64_t entry)
       double pTSumConstituents( 0. );
       for ( ; it!=itEnd; ++it )
         {
-          //      cout << "\tconstituent pT=" << (*it).perp() << endl;
+          //      std::cout << "\tconstituent pT=" << (*it).perp() << std::endl;
 
           h_pTConstituent->Fill( (*it).perp(), weight );
           pTSumConstituents += (*it).perp();
@@ -347,7 +347,7 @@ Bool_t AntiKtAnalysis::Process(Long64_t entry)
           jvec->Delete();
           cvec->Delete();
 
-          //      cout << "phi=" << (*it).phi() << ", dphi(phi,ecalphi)=" << ecalPhi((*it).perp()) << endl;
+          //      std::cout << "phi=" << (*it).phi() << ", dphi(phi,ecalphi)=" << ecalPhi((*it).perp()) << std::endl;
           h_dphiEcal                   ->Fill( ecalPhi((*it).perp()), weight );
           h2d_dphiEcal_vs_pTConstituent->Fill( (*it).perp(), ecalPhi((*it).perp()), weight );
           h2d_dphiEcal_vs_pTJet        ->Fill( jet1.perp() , ecalPhi((*it).perp()), weight );
@@ -405,8 +405,8 @@ double AntiKtAnalysis::ecalPhi(const float ptParticle)
       if(phi >  TMath::Pi()) phi = phi - TMath::TwoPi();
       if(phi < -TMath::Pi()) phi = phi + TMath::TwoPi();
     } else {
-      cout << "[EcalPositionFromTrack::phiTransformation] Warning: "
-           << "Too low Pt, giving up" << endl;
+      std::cout << "[EcalPositionFromTrack::phiTransformation] Warning: "
+           << "Too low Pt, giving up" << std::endl;
       return phiParticle;
     }
 

@@ -36,11 +36,6 @@
 #include <DataFormats/HLTReco/interface/TriggerEvent.h> 
 #include <DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h>
 
-using namespace edm;
-using namespace reco;
-using namespace trigger;
-using std::vector;
-
 class UEJetMultiplicity : public edm::EDAnalyzer
 {
   
@@ -56,21 +51,21 @@ public:
   
 private:
   
-  InputTag ChgGenJetsInputTag;
-  InputTag TrackJetsInputTag;
-  InputTag triggerResultsTag;
-  InputTag triggerEventTag;
-  InputTag genEventScaleTag;
+  edm::InputTag ChgGenJetsInputTag;
+  edm::InputTag TrackJetsInputTag;
+  edm::InputTag triggerResultsTag;
+  edm::InputTag triggerEventTag;
+  edm::InputTag genEventScaleTag;
 
-  GenJetCollection theChgGenJets;
-  BasicJetCollection theTrackJets;
+  reco::GenJetCollection theChgGenJets;
+  reco::BasicJetCollection theTrackJets;
 
-  Handle< double              > genEventScaleHandle;
-  Handle< GenJetCollection    > ChgGenJetsHandle ;
-  Handle< BasicJetCollection  > TrackJetsHandle ;
-  Handle< TriggerResults      > triggerResults;
-  Handle< TriggerEvent        > triggerEvent;
-  //  Handle<TriggerFilterObjectWithRefs> hltFilter; // not used at the moment: can access objects that fired the trigger
+  edm::Handle< double              > genEventScaleHandle;
+  edm::Handle< reco::GenJetCollection    > ChgGenJetsHandle ;
+  edm::Handle< reco::BasicJetCollection  > TrackJetsHandle ;
+  edm::Handle< edm::TriggerResults       > triggerResults;
+  edm::Handle< trigger::TriggerEvent     > triggerEvent;
+  //  edm::Handle<TriggerFilterObjectWithRefs> hltFilter; // not used at the moment: can access objects that fired the trigger
   std::vector<std::string> selectedHLTBits;
 
   edm::Service<TFileService> fs;

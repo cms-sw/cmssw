@@ -22,19 +22,17 @@
 #include "fastjet/JetDefinition.hh"
 
 
-using namespace std;
-
 class UEAnalysisAntiKtJets {
  public :
 
   UEAnalysisAntiKtJets();
   ~UEAnalysisAntiKtJets(){}
   double ecalPhi(const float);
-  void   jetAnalysis(float, float, float, TClonesArray*, TFile* , string);
+  void   jetAnalysis(float, float, float, TClonesArray*, TFile* , std::string);
   //  void jetCalibAnalysis(float ,float,TClonesArray *,TClonesArray *,TClonesArray *,TClonesArray *, TClonesArray *,TClonesArray *, TClonesArray* );
   void writeToFile(TFile *);
 
-  void Begin(TFile *, string );
+  void Begin(TFile *, std::string );
 
   TH1D* h_pTJet;
   TH1D* h_nConstituents;
