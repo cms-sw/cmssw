@@ -61,9 +61,11 @@ RefVectorType castView(const edm::Handle<BaseView>& view) {
   return output;
 }
 
-/// Given a range over a container of type C, return a new 'end' iterator such
-/// that at max <N> elements are taken.  If there are less than N elements in the
-///array, leave the <end>  as it is
+/*
+ *Given a range over a container of type C, return a new 'end' iterator such
+ *that at max <N> elements are taken.  If there are less than N elements in the
+ *array, leave the <end>  as it is
+ */
 template<typename InputIterator> InputIterator takeNElements(
     const InputIterator& begin, const InputIterator& end, size_t N) {
   size_t input_size = end - begin;
@@ -104,17 +106,13 @@ template<typename InputIterator> InputIterator leadPFCand(InputIterator begin,
     InputIterator end) {
     double max_pt = 0;
     InputIterator max_cand = begin;
-    for(InputIterator cand = begin; cand != end; ++cand)
-    {
-      if( (*cand)->pt() > max_pt )
-      {
+    for(InputIterator cand = begin; cand != end; ++cand) {
+      if( (*cand)->pt() > max_pt ) {
         max_pt = (*cand)->pt();
         max_cand = cand;
       }
     }
     return max_cand;
   }
-
-
-}} // end namespace reco::tau
+}}  // end namespace reco::tau
 #endif
