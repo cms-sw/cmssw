@@ -99,6 +99,11 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt,
   edm::Handle<reco::CandidateView> jetView;
   evt.getByLabel(src_, jetView);
 
+  // Give each of our plugins a chance at doing something with the edm::Event
+  BOOST_FOREACH(Builder& builder, builders_) {
+    builder.setup(evt, es);
+  }
+
   // Convert the view to a RefVector of actual PFJets
   reco::PFJetRefVector jetRefs =
       reco::tau::castView<reco::PFJetRefVector>(jetView);
