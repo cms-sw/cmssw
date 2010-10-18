@@ -490,7 +490,9 @@ class AddJetCollection(ConfigToolBase):
         else:
             ## switch general b tagging info switch off
             l1Jets.addBTagInfo = False
-        
+            ## adjust output
+            process.out.outputCommands.append("drop *_"+newLabel(oldLabel('selected'))+"_tagInfos_*")
+            
         if (doJetID):
             l1Jets.addJetID = cms.bool(True)
             jetIdLabelNew = jetIdLabel + 'JetID'
@@ -687,10 +689,11 @@ class SwitchJetCollection(ConfigToolBase):
             ## remove b tagging from the std sequence
             removeIfInSequence(process,  "secondaryVertexNegativeTagInfos",  "patDefaultSequence", postfix)
             removeIfInSequence(process,  "simpleSecondaryVertexNegativeBJetTags",  "patDefaultSequence", postfix)
-
             ## switch embedding of b tagging for pat
             ## jet production to 'False'
             applyPostfix(process, "patJets", postfix).addBTagInfo = False
+            ## adjust output
+            process.out.outputCommands.append("drop *_selectedPatJets_tagInfos_*")
 
         if (doJetID):
             jetIdLabelNew = jetIdLabel + 'JetID'
@@ -759,6 +762,12 @@ class SwitchJetCollection(ConfigToolBase):
             applyPostfix(process, "patJets", postfix).addJetCorrFactors = False
             applyPostfix(process, "patJets", postfix).jetCorrFactorsSource=[]        
 
+        ## adjust output when switching to PFJets
+        if (jetCollection.__str__().find('PFJets' )>=0):
+            ## in this case we can omit caloTowers and should keep pfCandidates
+            process.out.outputCommands.append("keep *_selectedPatJets_pfCandidates_*")
+            process.out.outputCommands.append("drop *_selectedPatJets_caloTowers_*")
+            
 switchJetCollection=SwitchJetCollection()
 
 

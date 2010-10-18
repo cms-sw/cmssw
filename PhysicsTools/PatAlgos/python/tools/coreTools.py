@@ -123,7 +123,10 @@ class RemoveMCMatching(ConfigToolBase):
                 jetProducer.addGenJetMatch      = False
                 jetProducer.genJetMatch         = ''
                 jetProducer.getJetMCFlavour     = False
-                jetProducer.JetPartonMapSource  = ''       
+                jetProducer.JetPartonMapSource  = ''
+                ## adjust output
+                process.out.outputCommands.append("drop *_selectedPatJets*_genJets_*")
+                
             if( names[obj] == 'METs'      or names[obj] == 'All' ):
                 ## remove mc extra configs for jets
                 metProducer = getattr(process, 'patMETs'+postfix)        
