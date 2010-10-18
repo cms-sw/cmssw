@@ -19,6 +19,7 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
+#include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
 #include "RecoTauTag/RecoTau/interface/CombinatoricGenerator.h"
 
 #include "CommonTools/CandUtils/interface/AddFourMomenta.h"
@@ -33,6 +34,7 @@ class RecoTauPiZeroCombinatoricPlugin : public RecoTauPiZeroBuilderPlugin {
     return_type operator()(const reco::PFJet& jet) const;
 
   private:
+    RecoTauQualityCuts qcuts_;
     double minMass_;
     double maxMass_;
     unsigned int maxInputGammas_;
@@ -41,7 +43,8 @@ class RecoTauPiZeroCombinatoricPlugin : public RecoTauPiZeroBuilderPlugin {
 };
 
 RecoTauPiZeroCombinatoricPlugin::RecoTauPiZeroCombinatoricPlugin(
-    const edm::ParameterSet& pset):RecoTauPiZeroBuilderPlugin(pset) {
+    const edm::ParameterSet& pset):RecoTauPiZeroBuilderPlugin(pset),
+    qcuts_(pset.getParameter<edm::ParameterSet>("qualityCuts")) {
   minMass_ = pset.getParameter<double>("minMass");
   maxMass_ = pset.getParameter<double>("maxMass");
   maxInputGammas_ = pset.getParameter<unsigned int>("maxInputGammas");
@@ -56,7 +59,7 @@ RecoTauPiZeroCombinatoricPlugin::operator()(
   typedef PFCandPtrs::const_iterator PFCandIter;
   PiZeroVector output;
 
-  PFCandPtrs pfGammaCands = pfGammas(jet);
+  PFCandPtrs pfGammaCands = qcuts_.filterRefs(pfGammas(jet));
   // Check if we have anything to do...
   if (pfGammaCands.size() < choose_)
     return output.release();

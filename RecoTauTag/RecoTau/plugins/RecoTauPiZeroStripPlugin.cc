@@ -16,23 +16,32 @@
 #include "RecoTauTag/RecoTau/interface/RecoTauPiZeroPlugins.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "CommonTools/CandUtils/interface/AddFourMomenta.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
+#include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
 
 namespace reco { namespace tau {
 
 class RecoTauPiZeroStripPlugin : public RecoTauPiZeroBuilderPlugin {
   public:
     explicit RecoTauPiZeroStripPlugin(const edm::ParameterSet& pset);
-    ~RecoTauPiZeroStripPlugin() {}
+    virtual ~RecoTauPiZeroStripPlugin() {}
     // Return type is auto_ptr<PiZeroVector>
     return_type operator()(const reco::PFJet& jet) const;
+    // Hook to update PV information
+    virtual void beginEvent();
 
   private:
+    // PV needed for quality cuts
+    edm::InputTag pvSrc_;
+    RecoTauQualityCuts qcuts_;
+
     std::vector<int> inputPdgIds_; //type of candidates to clusterize
     double etaAssociationDistance_;//eta Clustering Association Distance
     double phiAssociationDistance_;//phi Clustering Association Distance
@@ -41,13 +50,24 @@ class RecoTauPiZeroStripPlugin : public RecoTauPiZeroBuilderPlugin {
 };
 
 RecoTauPiZeroStripPlugin::RecoTauPiZeroStripPlugin(
-    const edm::ParameterSet& pset):RecoTauPiZeroBuilderPlugin(pset) {
+    const edm::ParameterSet& pset):RecoTauPiZeroBuilderPlugin(pset),
+    qcuts_(pset.getParameter<edm::ParameterSet>("qualityCuts"))
+{
+  pvSrc_ = pset.getParameter<edm::InputTag>("primaryVertexSrc");
   inputPdgIds_ = pset.getParameter<std::vector<int> >(
       "stripCandidatesParticleIds");
   etaAssociationDistance_ = pset.getParameter<double>(
       "stripEtaAssociationDistance");
   phiAssociationDistance_ = pset.getParameter<double>(
       "stripPhiAssociationDistance");
+}
+
+// Update the primary vertex
+void RecoTauPiZeroStripPlugin::beginEvent() {
+  edm::Handle<reco::VertexCollection> pvHandle;
+  evt()->getByLabel(pvSrc_, pvHandle);
+  if (pvHandle->size())
+    qcuts_.setPV(reco::VertexRef(pvHandle, 0));
 }
 
 RecoTauPiZeroStripPlugin::return_type RecoTauPiZeroStripPlugin::operator()(
@@ -57,7 +77,8 @@ RecoTauPiZeroStripPlugin::return_type RecoTauPiZeroStripPlugin::operator()(
   typedef PFCandPtrs::iterator PFCandIter;
   PiZeroVector output;
 
-  PFCandPtrs candsVector = tau::pfCandidates(jet, inputPdgIds_);
+  // Get the candidates passing our quality cuts
+  PFCandPtrs candsVector = qcuts_.filterRefs(pfCandidates(jet, inputPdgIds_));
 
   // Convert to stl::list to allow fast deletions
   typedef std::list<reco::PFCandidatePtr> PFCandPtrList;

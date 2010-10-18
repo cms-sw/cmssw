@@ -21,6 +21,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoTauTag/RecoTau/interface/RecoTauPiZeroPlugins.h"
@@ -113,18 +114,20 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt,
 
   // Loop over our jets
   BOOST_FOREACH(const reco::PFJetRef& jet, jetRefs) {
-    //std::cout << "jet pt " << jet->pt() << std::endl;
-    // Keep track of the number of gammas in the list so we know when we can
-    // stop building pi zeros
-    size_t numberOfGammas =
-        reco::tau::pfCandidates(*jet, reco::PFCandidate::gamma).size();
     // Build our global list of RecoTauPiZero
     PiZeroList dirtyPiZeros;
 
     // Compute the pi zeros from this jet for all the desired algorithms
     BOOST_FOREACH(const Builder& builder, builders_) {
-      PiZeroVector result(builder(*jet));
-      dirtyPiZeros.transfer(dirtyPiZeros.end(), result);
+      try {
+        PiZeroVector result(builder(*jet));
+        dirtyPiZeros.transfer(dirtyPiZeros.end(), result);
+      } catch ( cms::Exception &exception) {
+        edm::LogError("BuilderPluginException")
+            << "Exception caught in builder plugin " << builder.name()
+            << ", rethrowing" << std::endl;
+        throw exception;
+      }
     }
     // Rank the candidates according to our quality plugins
     dirtyPiZeros.sort(*predicate_);
@@ -132,8 +135,7 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt,
     // Keep track of the photons in the clean collection
     std::vector<reco::RecoTauPiZero> cleanPiZeros;
     std::set<reco::CandidatePtr> photonsInCleanCollection;
-    while (dirtyPiZeros.size() &&
-           numberOfGammas > photonsInCleanCollection.size()) {
+    while (dirtyPiZeros.size()) {
       // Pull our candidate pi zero from the front of the list
       std::auto_ptr<reco::RecoTauPiZero> toAdd(
           dirtyPiZeros.pop_front().release());

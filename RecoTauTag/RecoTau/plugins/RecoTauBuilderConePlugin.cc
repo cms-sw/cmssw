@@ -15,6 +15,7 @@
 #include "RecoTauTag/RecoTau/interface/RecoTauBuilderPlugins.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauConstructor.h"
+#include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
@@ -38,7 +39,7 @@ class DeltaRFilter {
       return(deltaR >= min_ && deltaR < max_);
     }
   private:
-    const reco::Candidate::LorentzVector& axis_;
+    reco::Candidate::LorentzVector axis_;
     const double min_;
     const double max_;
 };
@@ -65,6 +66,7 @@ class RecoTauBuilderConePlugin : public RecoTauBuilderPlugin {
         const reco::PFJetRef& jet,
         const std::vector<RecoTauPiZero>& piZeros) const;
   private:
+    RecoTauQualityCuts qcuts_;
     double leadObjecPtThreshold_;
     /* String function to extract values from PFJets */
     typedef StringObjectFunction<reco::PFJet> JetFunc;
@@ -81,6 +83,7 @@ class RecoTauBuilderConePlugin : public RecoTauBuilderPlugin {
 // ctor - initialize all of our variables
 RecoTauBuilderConePlugin::RecoTauBuilderConePlugin(
     const edm::ParameterSet& pset):RecoTauBuilderPlugin(pset),
+    qcuts_(pset.getParameter<edm::ParameterSet>("qualityCuts")),
     leadObjecPtThreshold_(pset.getParameter<double>("leadObjectPt")),
     matchingCone_(pset.getParameter<std::string>("matchingCone")),
     signalConeChargedHadrons_(pset.getParameter<std::string>(
@@ -115,15 +118,20 @@ std::vector<reco::PFTau> RecoTauBuilderConePlugin::operator()(
   // Our tau builder - the true indicates to automatically copy gamma candidates
   // from the pizeros.
   RecoTauConstructor tau(jet, getPFCands(), true);
+  // Setup our quality cuts to use the current vertex (supplied by base class)
+  qcuts_.setPV(primaryVertex());
 
   typedef std::vector<PFCandidatePtr> PFCandPtrs;
 
-  // Get the PF Charged hadrons
-  PFCandPtrs pfchs = pfCandidates(*jet, reco::PFCandidate::h);
+  // Get the PF Charged hadrons + quality cuts
+  PFCandPtrs pfchs = qcuts_.filterRefs(
+      pfCandidates(*jet, reco::PFCandidate::h));
   // Get the PF gammas
-  PFCandPtrs pfGammas = pfCandidates(*jet, reco::PFCandidate::gamma);
+  PFCandPtrs pfGammas = qcuts_.filterRefs(
+      pfCandidates(*jet, reco::PFCandidate::gamma));
   // Neutral hadrons
-  PFCandPtrs pfnhs = pfCandidates(*jet, reco::PFCandidate::h0);
+  PFCandPtrs pfnhs = qcuts_.filterRefs(
+      pfCandidates(*jet, reco::PFCandidate::h0));
 
   /***********************************************
    ******     Lead Candidate Finding    **********

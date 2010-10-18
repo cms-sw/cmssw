@@ -7,27 +7,30 @@
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
 #include "RecoTauTag/RecoTau/interface/CombinatoricGenerator.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauConstructor.h"
+#include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
 
 namespace reco { namespace tau {
+
 class RecoTauBuilderCombinatoricPlugin : public RecoTauBuilderPlugin {
- public:
-  explicit RecoTauBuilderCombinatoricPlugin(const edm::ParameterSet& pset);
-  virtual ~RecoTauBuilderCombinatoricPlugin() {}
-  virtual std::vector<reco::PFTau> operator()
-      (const reco::PFJetRef& jet,
-       const std::vector<RecoTauPiZero>& piZeros) const;
- private:
-  struct decayModeInfo {
-    uint32_t maxPiZeros_;
-    uint32_t maxPFCHs_;
-    uint32_t nCharged_;
-    uint32_t nPiZeros_;
-  };
-  std::vector<decayModeInfo> decayModesToBuild_;
+  public:
+    explicit RecoTauBuilderCombinatoricPlugin(const edm::ParameterSet& pset);
+    virtual ~RecoTauBuilderCombinatoricPlugin() {}
+    virtual std::vector<reco::PFTau> operator() (const reco::PFJetRef& jet,
+         const std::vector<RecoTauPiZero>& piZeros) const;
+  private:
+    RecoTauQualityCuts qcuts_;
+    struct decayModeInfo {
+      uint32_t maxPiZeros_;
+      uint32_t maxPFCHs_;
+      uint32_t nCharged_;
+      uint32_t nPiZeros_;
+    };
+    std::vector<decayModeInfo> decayModesToBuild_;
 };
 
 RecoTauBuilderCombinatoricPlugin::RecoTauBuilderCombinatoricPlugin(
-    const edm::ParameterSet& pset): RecoTauBuilderPlugin(pset) {
+    const edm::ParameterSet& pset): RecoTauBuilderPlugin(pset),
+    qcuts_(pset.getParameter<edm::ParameterSet>("qualityCuts")) {
   typedef std::vector<edm::ParameterSet> VPSet;
   const VPSet& decayModes = pset.getParameter<VPSet>("decayModes");
   for (VPSet::const_iterator dm = decayModes.begin();
@@ -49,9 +52,15 @@ std::vector<reco::PFTau> RecoTauBuilderCombinatoricPlugin::operator()(
 
   std::vector<PFTau> output;
 
+  // Update the primary vertex used by the quality cuts.  The PV is supplied by
+  // the base class.
+  qcuts_.setPV(primaryVertex());
+
   // Get PFCHs from this jet.  They are already sorted by descending Pt
-  PFCandPtrs pfchs = pfCandidates(*jet, reco::PFCandidate::h);
-  PFCandPtrs pfnhs = pfCandidates(*jet, reco::PFCandidate::h0);
+  PFCandPtrs pfchs = qcuts_.filterRefs(
+      pfCandidates(*jet, reco::PFCandidate::h));
+  PFCandPtrs pfnhs = qcuts_.filterRefs(
+      pfCandidates(*jet, reco::PFCandidate::h0));
 
   // Loop over the decay modes we want to build
   for (std::vector<decayModeInfo>::const_iterator

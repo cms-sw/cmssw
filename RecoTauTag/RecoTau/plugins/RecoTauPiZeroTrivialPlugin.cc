@@ -18,6 +18,7 @@
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
 
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
+#include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
 
 #include <boost/foreach.hpp>
 
@@ -28,14 +29,17 @@ class RecoTauPiZeroTrivialPlugin : public RecoTauPiZeroBuilderPlugin {
     explicit RecoTauPiZeroTrivialPlugin(const edm::ParameterSet& pset);
     ~RecoTauPiZeroTrivialPlugin() {}
     return_type operator()(const reco::PFJet& jet) const;
+  private:
+    RecoTauQualityCuts qcuts_;
 };
 
 RecoTauPiZeroTrivialPlugin::RecoTauPiZeroTrivialPlugin(
-    const edm::ParameterSet& pset):RecoTauPiZeroBuilderPlugin(pset){}
+    const edm::ParameterSet& pset):RecoTauPiZeroBuilderPlugin(pset),
+    qcuts_(pset.getParameter<edm::ParameterSet>("qualityCuts")) {}
 
 RecoTauPiZeroBuilderPlugin::return_type RecoTauPiZeroTrivialPlugin::operator()(
     const reco::PFJet& jet) const {
-  std::vector<PFCandidatePtr> pfGammaCands = tau::pfGammas(jet);
+  std::vector<PFCandidatePtr> pfGammaCands = qcuts_.filterRefs(pfGammas(jet));
   PiZeroVector output;
   output.reserve(pfGammaCands.size());
 
