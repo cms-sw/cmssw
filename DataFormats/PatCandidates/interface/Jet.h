@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.49.2.1 2010/10/04 19:56:27 srappocc Exp $
+// $Id: Jet.h,v 1.50 2010/10/04 19:58:24 srappocc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette, Giovanni Petrucciani, Roger Wolf, Christian Autermann
-  \version  $Id: Jet.h,v 1.49.2.1 2010/10/04 19:56:27 srappocc Exp $
+  \version  $Id: Jet.h,v 1.50 2010/10/04 19:58:24 srappocc Exp $
 */
 
 
@@ -314,13 +314,13 @@ namespace pat {
       float neutralHadronEnergy() const;
 
       /// chargedHadronEnergyFraction
-      float  chargedHadronEnergyFraction() const {return chargedHadronEnergy()/energy();}
+      float  chargedHadronEnergyFraction() const {return chargedHadronEnergy()/correctedJet("raw").energy();}
       /// neutralHadronEnergyFraction
-      float neutralHadronEnergyFraction()  const {return neutralHadronEnergy()/energy();}
+      float neutralHadronEnergyFraction()  const {return neutralHadronEnergy()/correctedJet("raw").energy();}
       /// chargedEmEnergyFraction
-      float chargedEmEnergyFraction()      const {return chargedEmEnergy()/energy();}
+      float chargedEmEnergyFraction()      const {return chargedEmEnergy()/correctedJet("raw").energy();}
       /// neutralEmEnergyFraction
-      float neutralEmEnergyFraction()      const {return neutralEmEnergy()/energy();}
+      float neutralEmEnergyFraction()      const {return neutralEmEnergy()/correctedJet("raw").energy();}
 
       // ---- PF Jet specific information ----
       /// photonEnergy 
