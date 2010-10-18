@@ -32,6 +32,7 @@ namespace lumi{
   class Lumi2DB : public DataPipe{
   public:
     const static unsigned int COMMITLSINTERVAL=500; //commit interval in LS,totalrow=nls*(1+nalgo)
+    const static unsigned int NORMFACTOR=6370;
     Lumi2DB(const std::string& dest);
     virtual void retrieveData( unsigned int );
     virtual const std::string dataType() const;
@@ -86,12 +87,17 @@ namespace lumi{
     void writeAllLumiData(coral::ISessionProxy* session,unsigned int irunnumber,const std::string& ilumiversion,LumiResult::iterator lumiBeg,LumiResult::iterator lumiEnd);
     void writeBeamIntensityOnly(coral::ISessionProxy* session,unsigned int irunnumber,const std::string& ilumiversion,LumiResult::iterator lumiBeg,LumiResult::iterator lumiEnd);
     bool isLumiDataValid(LumiResult::iterator lumiBeg,LumiResult::iterator lumiEnd);
+    float applyCalibration(float varToCalibrate) const;
   };//cl Lumi2DB
 }//ns lumi
 
 //
 //implementation
 //
+float
+lumi::Lumi2DB::applyCalibration(float varToCalibrate)const{
+  return float(varToCalibrate)*float(lumi::Lumi2DB::NORMFACTOR);
+}
 bool
 lumi::Lumi2DB::isLumiDataValid(lumi::Lumi2DB::LumiResult::iterator lumiBeg,lumi::Lumi2DB::LumiResult::iterator lumiEnd){
   lumi::Lumi2DB::LumiResult::iterator lumiIt;
@@ -286,8 +292,10 @@ lumi::Lumi2DB::writeAllLumiData(
     lumiversion = ilumiversion;
     dtnorm = lumiIt->dtnorm;
     lhcnorm = lumiIt->lhcnorm;
-    instlumi = lumiIt->instlumi;
-    instlumierror = lumiIt->instlumierror;
+    //instlumi = lumiIt->instlumi;
+    //instlumierror = lumiIt->instlumierror;
+    instlumi = applyCalibration(lumiIt->instlumi);
+    instlumierror = applyCalibration(lumiIt->instlumierror);
     instlumiquality = lumiIt->instlumiquality;
     lumisectionquality = lumiIt->lumisectionquality;
     alive = lumiIt->cmsalive;
