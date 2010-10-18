@@ -10,11 +10,11 @@ hltPhotonHI.andOr = True
 # photon selection
 goodPhotons = cms.EDFilter("PhotonSelector",
     src = cms.InputTag("photons"),
-    cut = cms.string('hadronicOverEm < 0.1 && r9 > 0.8')
+    cut = cms.string('et > 20 && hadronicOverEm < 0.1 && r9 > 0.8')
 )
 
 # ECAL spike cleaning filter ??
-# ecalSpikeFilter = cms.EDFilter()
+# noSpikePhotons = cms.EDFilter()
 
 # leading photon E_T filter
 photonFilter = cms.EDFilter("EtMinPhotonCountFilter",
@@ -25,7 +25,28 @@ photonFilter = cms.EDFilter("EtMinPhotonCountFilter",
 
 # photon skim sequence
 photonSkimSequence = cms.Sequence(hltPhotonHI
-                                  * goodPhotons
-                                  # * ecalSpikeFilter
-                                  * photonFilter
+                                   * goodPhotons
+                                   #* noSpikePhotons
+                                   * photonFilter
                                   )
+
+# select pairs around Z mass
+photonCombiner = cms.EDFilter("CandViewShallowCloneCombiner",
+  checkCharge = cms.bool(False),
+  cut = cms.string('60 < mass < 120'),
+  decay = cms.string('goodPhotons goodPhotons')
+)
+
+photonPairCounter = cms.EDFilter("CandViewCountFilter",
+  src = cms.InputTag("photonCombiner"),
+  minNumber = cms.uint32(1)
+)
+
+# Z->ee skim sequence
+zEESkimSequence = cms.Sequence(hltPhotonHI
+                               * goodPhotons
+                               #* noSpikePhotons
+                               * photonCombiner
+                               * photonPairCounter
+                               )
+
