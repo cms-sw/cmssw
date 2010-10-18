@@ -103,16 +103,31 @@ class RecoTauConstructor {
     const PFTau& get(bool setupLeadingCandidates=true);
 
   private:
+    typedef std::pair<Region, ParticleType> CollectionKey;
+    typedef std::map<CollectionKey, PFCandidateRefVector*> CollectionMap;
+    typedef boost::shared_ptr<std::vector<PFCandidateRef> > SortedListPtr;
+    typedef std::map<CollectionKey, SortedListPtr> SortedCollectionMap;
+
     bool copyGammas_;
-    // Retreive collection associated to signal/iso and type
+    // Retrieve collection associated to signal/iso and type
     PFCandidateRefVector * getCollection(Region region, ParticleType type);
+    SortedListPtr getSortedCollection(Region region, ParticleType type);
+
+    // Sort all our collections by PT and copy them into the tau
+    void sortAndCopyIntoTau();
+
+    // Helper functions for dealing with refs
     PFCandidateRef convertToRef(const PFCandidatePtr& pfPtr) const;
     PFCandidateRef convertToRef(const CandidatePtr& candPtr) const;
     PFCandidateRef convertToRef(const PFCandidateRef& pfRef) const;
 
     const edm::Handle<PFCandidateCollection>& pfCands_;
+    // FIXME make this a auto_ptr
     PFTau tau_;
-    std::map<std::pair<Region, ParticleType>, PFCandidateRefVector *> collections_;
+    CollectionMap collections_;
+
+    // Keep sorted (by descending pt) collections
+    SortedCollectionMap sortedCollections_;
 };
 } } // end reco::tau namespace
 #endif
