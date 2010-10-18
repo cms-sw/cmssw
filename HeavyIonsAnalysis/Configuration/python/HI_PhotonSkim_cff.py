@@ -7,17 +7,24 @@ hltPhotonHI.HLTPaths = ["HLT_HIPhoton15"]
 hltPhotonHI.throw = False
 hltPhotonHI.andOr = True
 
-# leading photon E_T filter
-singlePhoton40 = cms.EDFilter("PhotonSelector",
+# photon selection
+goodPhotons = cms.EDFilter("PhotonSelector",
     src = cms.InputTag("photons"),
-    cut = cms.string('et > 40.0')
+    cut = cms.string('et > 40.0 && hadronicOverEm < 0.1 && r9 > 0.8')
 )
 
 # ECAL spike cleaning filter ??
 # ecalSpikeFilter = cms.EDFilter()
 
+# leading photon E_T filter
+photonFilter = cms.EDFilter("PhotonCountFilter",
+    src = cms.InputTag("goodPhotons"),
+    minNumber = cms.uint32(1)
+)
+
 # photon skim sequence
 photonSkimSequence = cms.Sequence(hltPhotonHI
-                                  * singlePhoton40
+                                  * goodPhotons
                                   # * ecalSpikeFilter
+                                  * photonFilter
                                   )

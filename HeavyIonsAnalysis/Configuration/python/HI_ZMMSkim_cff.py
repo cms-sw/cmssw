@@ -3,10 +3,11 @@ import FWCore.ParameterSet.Config as cms
 # HLT dimuon trigger
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 hltZMMHI = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-hltZMMHI.HLTPaths = ["HLT_L1DoubleMuOpen"]
+hltZMMHI.HLTPaths = ["HLT_HIL1DoubleMuOpen"]
 hltZMMHI.throw = False
 hltZMMHI.andOr = True
 
+# selection of dimuons (at least STA+STA) with mass in Z range
 muonSelector = cms.EDFilter("MuonSelector",
     src = cms.InputTag("muons"),
     cut = cms.string("(isStandAloneMuon || isGlobalMuon) && pt > 1."),
@@ -18,14 +19,14 @@ muonFilter = cms.EDFilter("MuonCountFilter",
     minNumber = cms.uint32(1)
     )
 
-dimuonsMassCut = cms.EDProducer("CandViewShallowCloneCombiner",
+dimuonMassCut = cms.EDProducer("CandViewShallowCloneCombiner",
     checkCharge = cms.bool(True),
     cut = cms.string(' mass > 60 & mass < 120 & charge=0'),
     decay = cms.string("muonSelector@+ muonSelector@-")
     )
 
-dimuonsMassCutFilter = cms.EDFilter("CandViewCountFilter",
-    src = cms.InputTag("dimuonsMassCut"),
+dimuonMassCutFilter = cms.EDFilter("CandViewCountFilter",
+    src = cms.InputTag("dimuonMassCut"),
     minNumber = cms.uint32(1)
     )
 
@@ -34,6 +35,6 @@ zMMSkimSequence = cms.Sequence(
     hltZMMHI *
     muonSelector *
     muonFilter *
-    dimuonsMassCut *
-    dimuonsMassCutFilter
+    dimuonMassCut *
+    dimuonMassCutFilter
     )
