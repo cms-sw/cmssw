@@ -56,7 +56,7 @@
      PythonProcessDesc builder(argv[1]);
      const edm::ParameterSet& cfg = builder.processDesc()->getProcessPSet()->getParameter<edm::ParameterSet>("MuonAnalyzer");
      
-     WrappedFWLiteAnalyzer ana(cfg);
+     WrappedFWLiteAnalyzer ana(cfg, std::string("analyzeBasicPat"));
      ana.beginJob();
      ana.analyze();
      ana.endJob();
@@ -82,7 +82,9 @@
    where the parameters fileNames and outputFile are mandatory and the parameters maxEvents and 
    reportAfter are optional. If omitted all events in the file(s) will be looped and no progress
    report will be given. More input files can be given as a vector of strings. Potential histograms 
-   per default will be written directely into the file without any furhter directory structure. 
+   per default will be written directely into the file without any furhter directory structure. If
+   the class is instantiated with an additional directory string a new directory with the 
+   corresponding name will be created and the histograms will be added to this directory.
    With these wrapper classes we have the use case in mind that you keep classes, which easily can 
    be used both within the full framework and within FWLite. 
 
@@ -99,7 +101,7 @@ namespace fwlite {
 
   public:
     /// default constructor
-    AnalyzerWrapper(const edm::ParameterSet& cfg);
+    AnalyzerWrapper(const edm::ParameterSet& cfg, std::string directory="");
     /// default destructor
     virtual ~AnalyzerWrapper(){};
     /// everything which has to be done before the event loop 
@@ -127,7 +129,7 @@ namespace fwlite {
 
   /// default contructor
   template<class T>
-  AnalyzerWrapper<T>::AnalyzerWrapper(const edm::ParameterSet& cfg): maxEvents_(-1), reportAfter_(0),
+    AnalyzerWrapper<T>::AnalyzerWrapper(const edm::ParameterSet& cfg, std::string directory): maxEvents_(-1), reportAfter_(0),
     inputFiles_(cfg.getParameter<std::vector<std::string> >("fileNames")),
     fileService_( cfg.getParameter<std::string>("outputFile").c_str()) 
   {
@@ -135,10 +137,16 @@ namespace fwlite {
     if(cfg.existsAs<int>("maxEvents")){ maxEvents_=cfg.getParameter<int>("maxEvents"); }
     // read number of events after which to report progress (if it exists)
     if(cfg.existsAs<unsigned int>("reportAfter")){ reportAfter_=cfg.getParameter<unsigned int>("reportAfter"); }    
-    // open TFileService
-    //fwlite::TFileService fileService = fwlite::TFileService(outputFile_.c_str());
-    // create analysis class of type BasicAnalyzer
-    analyzer_ = boost::shared_ptr<T>( new T( cfg, fileService_) );  
+
+    if(directory.empty()){
+      // create analysis class of type BasicAnalyzer
+      analyzer_ = boost::shared_ptr<T>( new T( cfg, fileService_) );  
+    }
+    else{
+      // create a directory in the file is directory string is non empty
+      TFileDirectory dir = fileService_.mkdir(directory.c_str());
+      analyzer_ = boost::shared_ptr<T>( new T( cfg, dir ) );  
+    }
   }
   
   /// everything which has to be done during the event loop. NOTE: the event will be looped inside this function    
