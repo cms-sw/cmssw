@@ -38,7 +38,7 @@ globalValidation = cms.Sequence(trackingTruthValid
                                 )
 
 globalValidation_preprod = cms.Sequence(trackingTruthValid
-                                +tracksValidation
+                                +tracksValidationFS
                                 +METRelValSequence
                                 +recoMuonValidationFastSim
                                 +muIsoVal_seq
