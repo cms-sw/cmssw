@@ -4,8 +4,8 @@
  **
  **
  **  $Id:
- **  $Date: 2010/09/27 17:58:05 $
- **  $Revision: 1.20 $
+ **  $Date: 2010/09/27 18:30:53 $
+ **  $Revision: 1.21 $
  **  \authors H. Liu, UC of Riverside US, N. Marinelli Univ of Notre Dame
  **
  ***/
@@ -60,10 +60,6 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
-//using namespace edm;
-//using namespace reco;
-using namespace std;
 
 class TransientTrackBuilder;
 class ConversionVertexFinder;
