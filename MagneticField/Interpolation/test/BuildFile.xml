@@ -1,0 +1,14 @@
+<bin   file="Grid1D_t.cpp">
+</bin>
+<bin   file="Grid3D_t.cpp">
+  <use   name="MagneticField/Interpolation"/>
+</bin>
+<bin   file="BinaryTablesGeneration/GridFileReader.cpp" name="GridFileReader">
+  <use   name="clhep"/>
+  <use   name="MagneticField/Interpolation"/>
+</bin>
+<bin   file="BinaryTablesGeneration/prepareFieldTable.cpp, BinaryTablesGeneration/prepareMagneticFieldGrid.cc" name="prepareFieldTable">
+  <use   name="clhep"/>
+  <use   name="MagneticField/Interpolation"/>
+</bin>
+<flags   CXXFLAGS="-Wno-format"/>
