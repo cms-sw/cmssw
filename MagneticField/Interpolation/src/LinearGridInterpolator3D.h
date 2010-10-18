@@ -5,8 +5,8 @@
  *
  *  Linear interpolation in a regular 3D grid.
  *
- *  $Date: 2010/03/31 08:59:45 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/10/14 12:05:51 $
+ *  $Revision: 1.9 $
  *  \author T. Todorov 
  */
 
@@ -17,7 +17,6 @@
 
 #ifdef DEBUG_LinearGridInterpolator3D
 #include <iostream>
-using namespace std;
 #include "MagneticField/Interpolation/src/InterpolationDebug.h"
 #endif
 

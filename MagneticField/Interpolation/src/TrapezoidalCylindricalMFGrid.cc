@@ -100,9 +100,9 @@ TrapezoidalCylindricalMFGrid::TrapezoidalCylindricalMFGrid( binary_ifstream& inF
 #endif
 
   double baMinus1 = BasicDistance1[0][2]*(n3-1) / stepx;
-  if (abs(baMinus1) > 0.000001) {
+  if (std::abs(baMinus1) > 0.000001) {
     double b_over_a = 1 + baMinus1;
-    double a1 = abs(baMinus1) > 0.000001 ? delta / baMinus1 : a/2;
+    double a1 = std::abs(baMinus1) > 0.000001 ? delta / baMinus1 : a/2;
 #ifdef DEBUG_GRID
    cout << "a1 = " << a1 << endl;
 #endif
