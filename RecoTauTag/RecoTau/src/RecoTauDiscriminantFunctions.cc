@@ -138,7 +138,7 @@ VDouble Dalitz2(Tau tau) {
 
 double OutlierN(Tau tau) {
   return tau.isolationPFChargedHadrCands().size() +
-      tau.isolationPiZeroCandidates().size();
+      tau.isolationPFGammaCands().size();
 }
 
 double OutlierNCharged(Tau tau) {
@@ -228,20 +228,7 @@ VDouble NeutralOutlierAngle(Tau tau) {
 
 // Invariant mass of main track with other combinations
 VDouble Dalitz(Tau tau) {
-  VDouble output;
-  PFCandidateRef main = mainTrack(tau);
-  if(main.isNonnull()) {
-    output.reserve(tau.signalPFCands().size() - 1);
-    for(PFCandidateRefVector::const_iterator signalCand =
-        tau.signalPFCands().begin();
-        signalCand != tau.signalPFCands().end(); ++signalCand) {
-      if(*signalCand != main) {
-        reco::Candidate::LorentzVector system = main->p4()+(*signalCand)->p4();
-        output.push_back(system.mass());
-      }
-    }
-  }
-  return output;
+  return Dalitz2(tau);
 }
 
 // The below functions are deprecated.
