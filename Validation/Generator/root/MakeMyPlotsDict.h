@@ -32,7 +32,6 @@ extern void G__set_cpp_environmentMakePlotsDict();
 #include "MakePlots.h"
 #include <algorithm>
 namespace std { }
-using namespace std;
 
 #ifndef G__MEMFUNCBODY
 #endif
