@@ -1,8 +1,8 @@
 /** \class AlcaBeamSpotManager
  *  No description available.
  *
- *  $Date: 2010/06/30 20:49:57 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/10/11 22:15:08 $
+ *  $Revision: 1.4 $
  *  \author L. Uplegger F. Yumiceva - Fermilab
  */
 
@@ -177,7 +177,7 @@ void AlcaBeamSpotManager::createWeightedPayloads(void){
         	<< " positive, " << (adelta1.first+adelta2.first) << " limit=" << limit << endl;																				  		    
         	deltaX = true;  																												  		    
             }
-            else if( deltaX && adelta1.first*adelta2.first<=0 && fabs(adelta1.first/adelta2.first) > 0.33 && fabs(adelta1.first/adelta2.first) < 3){ 													  		    
+            else if( deltaX && adelta1.first*adelta2.first < 0 && adelta2.first != 0 && fabs(adelta1.first/adelta2.first) > 0.33 && fabs(adelta1.first/adelta2.first) < 3){ 													  		    
               LogInfo("AlcaBeamSpotManager")																											  		    
         	<< " negative, " << adelta1.first/adelta2.first << endl;																							  		    
         	deltaX = false; 																												  		    
@@ -210,7 +210,7 @@ void AlcaBeamSpotManager::createWeightedPayloads(void){
               << " positive, " << (adelta1.first+adelta2.first) << " limit=" << limit << endl;  																						  
               deltaY = true;																															  
           }
-          else if( deltaY && adelta1.first*adelta2.first<=0 && fabs(adelta1.first/adelta2.first) > 0.33 && fabs(adelta1.first/adelta2.first) < 3){																  
+          else if( deltaY && adelta1.first*adelta2.first < 0 && adelta2.first != 0 && fabs(adelta1.first/adelta2.first) > 0.33 && fabs(adelta1.first/adelta2.first) < 3){																  
             LogInfo("AlcaBeamSpotManager")																													  
               << " negative, " << adelta1.first/adelta2.first << endl;  																									  
               deltaY = false;																															  
@@ -225,25 +225,25 @@ void AlcaBeamSpotManager::createWeightedPayloads(void){
 
           adelta = delta(currentBS->second.dxdz(), currentBS->second.dxdzError(), nextBS->second.dxdz(), nextBS->second.dxdzError());				    														      
           bool deltadxdz   = (deltaSig(adelta.first,adelta.second) > 5.0)?true:false;										    														
-          if(deltadxdz && (adelta1dxdz.first*adelta2dxdz.first)<=0 && fabs(adelta1dxdz.first/adelta2dxdz.first) > 0.33 && fabs(adelta1dxdz.first/adelta2dxdz.first) < 3){
+          if(deltadxdz && (adelta1dxdz.first*adelta2dxdz.first) < 0 && adelta2dxdz.first != 0 && fabs(adelta1dxdz.first/adelta2dxdz.first) > 0.33 && fabs(adelta1dxdz.first/adelta2dxdz.first) < 3){
             deltadxdz = false;
 	  }
 
           adelta = delta(currentBS->second.dydz(), currentBS->second.dydzError(), nextBS->second.dydz(), nextBS->second.dydzError());				    														      
           bool deltadydz   = (deltaSig(adelta.first,adelta.second) > 5.0)?true:false;										    														
-          if(deltadydz && (adelta1dydz.first*adelta2dydz.first)<=0 && fabs(adelta1dydz.first/adelta2dydz.first) > 0.33 && fabs(adelta1dydz.first/adelta2dydz.first) < 3){
+          if(deltadydz && (adelta1dydz.first*adelta2dydz.first) < 0 && adelta2dydz.first != 0 && fabs(adelta1dydz.first/adelta2dydz.first) > 0.33 && fabs(adelta1dydz.first/adelta2dydz.first) < 3){
             deltadydz = false;
 	  }
 
           adelta = delta(currentBS->second.BeamWidthX(), currentBS->second.BeamWidthXError(), nextBS->second.BeamWidthX(), nextBS->second.BeamWidthXError());	    														
           bool deltawidthX = (deltaSig(adelta.first,adelta.second) > 5.0)?true:false;										    														
-          if(deltawidthX && (adelta1widthX.first*adelta2widthX.first)<=0 && fabs(adelta1widthX.first/adelta2widthX.first) > 0.33 && fabs(adelta1widthX.first/adelta2widthX.first) < 3){
+          if(deltawidthX && (adelta1widthX.first*adelta2widthX.first) < 0 && adelta2widthX.first != 0 && fabs(adelta1widthX.first/adelta2widthX.first) > 0.33 && fabs(adelta1widthX.first/adelta2widthX.first) < 3){
             deltawidthX = false;
 	  }
 
           adelta = delta(currentBS->second.BeamWidthY(), currentBS->second.BeamWidthYError(), nextBS->second.BeamWidthY(), nextBS->second.BeamWidthYError());	    														
           bool deltawidthY = (deltaSig(adelta.first,adelta.second) > 5.0)?true:false;										    														
-          if(deltawidthY && (adelta1widthY.first*adelta2widthY.first)<=0 && fabs(adelta1widthY.first/adelta2widthY.first) > 0.33 && fabs(adelta1widthY.first/adelta2widthY.first) < 3){
+          if(deltawidthY && (adelta1widthY.first*adelta2widthY.first) < 0 && adelta2widthY.first != 0 && fabs(adelta1widthY.first/adelta2widthY.first) > 0.33 && fabs(adelta1widthY.first/adelta2widthY.first) < 3){
             deltawidthY = false;
 	  }
 
